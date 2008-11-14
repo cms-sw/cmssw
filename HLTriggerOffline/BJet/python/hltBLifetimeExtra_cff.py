@@ -1,15 +1,15 @@
 import FWCore.ParameterSet.Config as cms
 
-import HLTrigger.btau.jetTag.hltJetTag_cfi
+import HLTrigger.btau.hltJetTag_cfi
 # from ConfDB
-hltBLifetimeL3filter = HLTrigger.btau.jetTag.hltJetTag_cfi.hltJetTag.clone()
-import HLTrigger.btau.jetTag.getJetsFromHLTobject_cfi
-hltBLifetimeHLTJets = HLTrigger.btau.jetTag.getJetsFromHLTobject_cfi.getJetsFromHLTobject.clone()
-import HLTrigger.btau.jetTag.hltJetTag_cfi
+hltBLifetimeL3filter = HLTrigger.btau.hltJetTag_cfi.hltJetTag.clone()
+import HLTrigger.btau.getJetsFromHLTobject_cfi
+hltBLifetimeHLTJets = HLTrigger.btau.getJetsFromHLTobject_cfi.getJetsFromHLTobject.clone()
+import HLTrigger.btau.hltJetTag_cfi
 # from ConfDB (relaxed triggers)
-hltBLifetimeL3filterRelaxed = HLTrigger.btau.jetTag.hltJetTag_cfi.hltJetTag.clone()
-import HLTrigger.btau.jetTag.getJetsFromHLTobject_cfi
-hltBLifetimeHLTJetsRelaxed = HLTrigger.btau.jetTag.getJetsFromHLTobject_cfi.getJetsFromHLTobject.clone()
+hltBLifetimeL3filterRelaxed = HLTrigger.btau.hltJetTag_cfi.hltJetTag.clone()
+import HLTrigger.btau.getJetsFromHLTobject_cfi
+hltBLifetimeHLTJetsRelaxed = HLTrigger.btau.getJetsFromHLTobject_cfi.getJetsFromHLTobject.clone()
 # (re)generate some productes used by the validation path
 # only run on L3 events
 require_hltBLifetimeL3BJetTags = cms.EDFilter("RequireModule",

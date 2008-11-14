@@ -1,20 +1,20 @@
 import FWCore.ParameterSet.Config as cms
 
-import HLTrigger.btau.jetTag.hltJetTag_cfi
+import HLTrigger.btau.hltJetTag_cfi
 # from HLTrigger/btau/data/jetTag/softmuonL3.cff - b HLT modules for Level 3.
-hltBSoftmuonL3filter = HLTrigger.btau.jetTag.hltJetTag_cfi.hltJetTag.clone()
-import HLTrigger.btau.jetTag.getJetsFromHLTobject_cfi
-hltBSoftmuonHLTJets = HLTrigger.btau.jetTag.getJetsFromHLTobject_cfi.getJetsFromHLTobject.clone()
-import HLTrigger.btau.jetTag.hltJetTag_cfi
+hltBSoftmuonL3filter = HLTrigger.btau.hltJetTag_cfi.hltJetTag.clone()
+import HLTrigger.btau.getJetsFromHLTobject_cfi
+hltBSoftmuonHLTJets = HLTrigger.btau.getJetsFromHLTobject_cfi.getJetsFromHLTobject.clone()
+import HLTrigger.btau.hltJetTag_cfi
 # from ConfDB
-hltBSoftmuonByDRL3filter = HLTrigger.btau.jetTag.hltJetTag_cfi.hltJetTag.clone()
-import HLTrigger.btau.jetTag.getJetsFromHLTobject_cfi
-hltBSoftmuonHLTJetsByDR = HLTrigger.btau.jetTag.getJetsFromHLTobject_cfi.getJetsFromHLTobject.clone()
-import HLTrigger.btau.jetTag.hltJetTag_cfi
+hltBSoftmuonByDRL3filter = HLTrigger.btau.hltJetTag_cfi.hltJetTag.clone()
+import HLTrigger.btau.getJetsFromHLTobject_cfi
+hltBSoftmuonHLTJetsByDR = HLTrigger.btau.getJetsFromHLTobject_cfi.getJetsFromHLTobject.clone()
+import HLTrigger.btau.hltJetTag_cfi
 # from ConfDB (relaxed triggers)
-hltBSoftmuonL3filterRelaxed = HLTrigger.btau.jetTag.hltJetTag_cfi.hltJetTag.clone()
-import HLTrigger.btau.jetTag.getJetsFromHLTobject_cfi
-hltBSoftmuonHLTJetsRelaxed = HLTrigger.btau.jetTag.getJetsFromHLTobject_cfi.getJetsFromHLTobject.clone()
+hltBSoftmuonL3filterRelaxed = HLTrigger.btau.hltJetTag_cfi.hltJetTag.clone()
+import HLTrigger.btau.getJetsFromHLTobject_cfi
+hltBSoftmuonHLTJetsRelaxed = HLTrigger.btau.getJetsFromHLTobject_cfi.getJetsFromHLTobject.clone()
 # (re)generate some productes used by the validation path
 # only run on L3 events
 require_hltBSoftmuonL3BJetTags = cms.EDFilter("RequireModule",
