@@ -238,39 +238,41 @@ bool PythiaFilterGammaGamma::filter(edm::Event& iEvent, const edm::EventSetup& i
     int counter = 0;
     //bool isIsolated = true;
 
-    if (fabs(energy.Eta()) < etaMaxCandidate) {
+    if ( energy.Et() != 0. ) {
+      if (fabs(energy.Eta()) < etaMaxCandidate) {
 
-      temp2.SetXYZM(energy.Px(), energy.Py(), energy.Pz(), 0);        
+	temp2.SetXYZM(energy.Px(), energy.Py(), energy.Pz(), 0);        
 	
-      for(itStable = stable.begin(); itStable != stable.end(); ++itStable) {  
-	temp1.SetXYZM((*itStable)->momentum().px(), (*itStable)->momentum().py(), (*itStable)->momentum().pz(), 0);        
-	double DR = temp1.DeltaR(temp2);
-	if (DR < dRTkMax) counter++;        
-      }
+	for(itStable = stable.begin(); itStable != stable.end(); ++itStable) {  
+	  temp1.SetXYZM((*itStable)->momentum().px(), (*itStable)->momentum().py(), (*itStable)->momentum().pz(), 0);        
+	  double DR = temp1.DeltaR(temp2);
+	  if (DR < dRTkMax) counter++;        
+	}
 
-      if(acceptPrompts) {
-	bool isPrompt=false;
-	if((*itSeed)->status() == 1&&(*itSeed)->pdg_id() == 22) {
-	  const GenParticle* mother = (*itSeed)->production_vertex() ?
-	    *((*itSeed)->production_vertex()->particles_in_const_begin()) : 0;
-	  if(mother) {
-	    if(mother->pdg_id()>=-22&&mother->pdg_id()<=22) {
-	      const GenParticle* motherMother = (mother != 0  && mother->production_vertex()) ?
-		*(mother->production_vertex()->particles_in_const_begin()) : 0;
-	      if(motherMother) {
-		if(motherMother->pdg_id()>=-22&&motherMother->pdg_id()<=22) {
-		  if((*itSeed)->momentum().perp()>promptPtThreshold) {
-		    isPrompt=true;
+	if(acceptPrompts) {
+	  bool isPrompt=false;
+	  if((*itSeed)->status() == 1&&(*itSeed)->pdg_id() == 22) {
+	    const GenParticle* mother = (*itSeed)->production_vertex() ?
+	      *((*itSeed)->production_vertex()->particles_in_const_begin()) : 0;
+	    if(mother) {
+	      if(mother->pdg_id()>=-22&&mother->pdg_id()<=22) {
+		const GenParticle* motherMother = (mother != 0  && mother->production_vertex()) ?
+		  *(mother->production_vertex()->particles_in_const_begin()) : 0;
+		if(motherMother) {
+		  if(motherMother->pdg_id()>=-22&&motherMother->pdg_id()<=22) {
+		    if((*itSeed)->momentum().perp()>promptPtThreshold) {
+		      isPrompt=true;
+		    }
 		  }
 		}
 	      }
 	    }
 	  }
+	  if(isPrompt) counter=0;
 	}
-	if(isPrompt) counter=0;
+	// check number of tracks
+	//if (counter <= nTkConeMax) isIsolated = true;
       }
-      // check number of tracks
-      //if (counter <= nTkConeMax) isIsolated = true;
     }
 
     // check pt candidate, check nTrack, check eta
