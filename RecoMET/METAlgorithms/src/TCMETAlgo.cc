@@ -4,19 +4,27 @@
 // Creation Date:  Nov 12, 2008 Initial version.
 //
 //------------------------------------------------------------------------
-
+#include "RecoMET/METAlgorithms/interface/TCMETAlgo.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/METReco/interface/CommonMETData.h"
-#include "RecoMET/METAlgorithms/interface/TCMETAlgo.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "DataFormats/Math/interface/Point3D.h"
+#include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
+#include "DataFormats/EgammaCandidates/interface/Electron.h"
+#include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
+
+#include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/METReco/interface/CaloMET.h"
+#include "DataFormats/METReco/interface/CaloMETCollection.h"
+
 #include <cmath>
 #include <iostream>
-#include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
-
-
-
 
 using namespace std;
 using namespace reco;
@@ -33,51 +41,43 @@ TCMETAlgo::TCMETAlgo() {}
 TCMETAlgo::~TCMETAlgo() {}
 //------------------------------------------------------------------------
 
-//------------------------------------------------------------------------
-// This method represents "the" implementation of the MET algorithm and is
-// very simple:
-// (1) It takes as input a collection of candidates (which can be
-// calorimeter towers, HEPMC generator-level particles, etc).
-// (2) It returns as output, a pointer to a struct of CommonMETData which
-// contains the following members:  MET, MEx, MEy, SumET, and MEz
-// (The inclusion of MEz deserves some justification ; it is included here
-// since it _may_ be useful for Data Quality Monitering as it should be 
-// symmetrically distributed about the origin.)
-//----------------------------------
-
-reco::MET TCMETAlgo::addInfo(edm::Handle<edm::View<Candidate> > input, CommonMETData TCMETData, bool NoHF , double globalThreshold)
+reco::MET TCMETAlgo::CalculateTCMET(edm::Event& event, const edm::EventSetup& setup, const edm::ParameterSet& iConfig)
 { 
-  double sum_et = 0.0;
-  double sum_ex = 0.0;
-  double sum_ey = 0.0;
-  double sum_ez = 0.0;
-  // Loop over Candidate Objects and calculate TCMET and related quantities
+  //Get Appropriate Handles for TCMET Calculation
 
-  for (unsigned int candidate_i = 0; candidate_i < input->size(); candidate_i++)
-  {
-    const Candidate *candidate = &((*input)[candidate_i]);
-    if( candidate->et() > globalThreshold  ) 
-      {
-	double phi   = candidate->phi();
-	double theta = candidate->theta();
-	double e     = candidate->energy();
-	double et    = e*sin(theta);
-	sum_ez += e*cos(theta);
-	sum_et += et;
-	sum_ex += et*cos(phi);
-	sum_ey += et*sin(phi);
-      }
-  }
-  TCMETData.mex   = -sum_ex;
-  TCMETData.mey   = -sum_ey;
-  TCMETData.mez   = -sum_ez;
-  TCMETData.met   = sqrt( sum_ex*sum_ex + sum_ey*sum_ey );
-  TCMETData.sumet = sum_et;
-  TCMETData.phi   = atan2( -sum_ey, -sum_ex ); 
+  edm::Handle<reco::MuonCollection> MuonHandle;
+  event.getByLabel( iConfig.getParameter<edm::InputTag>("muonLabel") , MuonHandle);
+  const reco::MuonCollection *Muons = MuonHandle.product();
+  reco::MuonCollection::const_iterator muon_it;
+
+  edm::Handle<reco::PixelMatchGsfElectronCollection> ElectronHandle;
+  event.getByLabel( iConfig.getParameter<edm::InputTag>("electronLable") , ElectronHandle);
+  const reco::PixelMatchGsfElectronCollection *Electrons = ElectronHandle.product();
+  reco::PixelMatchGsfElectronCollection::const_iterator electron_it;
+
+  edm::Handle<reco::CaloMETCollection> metHandle;
+  event.getByLabel( iConfig.getParameter<edm::InputTag>("metLabel") , metHandle);
+  const reco::CaloMETCollection *MET = metHandle.product();
+  const reco::CaloMET caloMET = MET->front();
+  
+  edm::Handle<reco::TrackCollection> TrackHandle;
+  event.getByLabel( iConfig.getParameter<edm::InputTag>("trackLable") , TrackHandle);
+  const reco::TrackCollection *tracks = TrackHandle.product();
+  reco::TrackCollection::const_iterator track_it;
+
+  //Insert Code Here
+  //Ultimately, you will need to fill the six variables below the get stored to the MET Object   
+  CommonMETData TCMETData;
+  TCMETData.mex   = 0.0;
+  TCMETData.mey   = 0.0;
+  TCMETData.mez   = 0.0;
+  TCMETData.met   = 0.0;
+  TCMETData.sumet = 0.0;
+  TCMETData.phi   = 0.0; 
 
   XYZTLorentzVector p4( TCMETData.mex , TCMETData.mey , 0, TCMETData.met);
   XYZPointD vtx(0,0,0);
-  MET tcmet(TCMETData.sumet, p4, vtx);
+  reco::MET tcmet(TCMETData.sumet, p4, vtx);
   return tcmet;
 //------------------------------------------------------------------------
 }
