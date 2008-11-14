@@ -35,7 +35,6 @@ void DAFTrackProducerAlgorithm::runWithCandidate(const TrackingGeometry * theG,
 					         AlgoProductCollection& algoResults) const
 {
   edm::LogInfo("TrackProducer") << "Number of Trajectories: " << theTrajectoryCollection.size() << "\n";
-  std::cout<< "Number of Trajectories: " << theTrajectoryCollection.size() << "\n";
   int cont = 0;
   for (std::vector<Trajectory>::const_iterator i=theTrajectoryCollection.begin(); i!=theTrajectoryCollection.end() ;i++)
 
@@ -86,13 +85,25 @@ void DAFTrackProducerAlgorithm::runWithCandidate(const TrackingGeometry * theG,
 	//ndof = calculateNdof(filtered);	
         ndof=calculateNdof(vtraj);
 	//bool ok = buildTrack(filtered, algoResults, ndof, bs);
-        bool ok = buildTrack(vtraj, algoResults, ndof, bs);
-	if(ok) cont++;
+        if (vtraj.size()){
+	  if(vtraj.front().foundHits()>=conf_.getParameter<int>("MinHits"))
+	    {
+	      
+	      bool ok = buildTrack(vtraj, algoResults, ndof, bs) ;
+	      if(ok) cont++;
+	    }
+	  
+	  else{
+	    LogDebug("DAFTrackProducerAlgorithm")  << "Rejecting trajectory with " << vtraj.front().foundHits()<<" hits"; 
+	  }
+	}
+
+	else LogDebug("DAFTrackProducerAlgorithm") << "Rejecting empty trajectory" << std::endl;
+	
 
       }
   }
-  //edm::LogInfo("TrackProducer") << "Number of Tracks found: " << cont << "\n";
-  std::cout << "Number of Tracks found: " << cont << "\n";
+  LogDebug("TrackProducer") << "Number of Tracks found: " << cont << "\n";
 }
 
 std::pair<TransientTrackingRecHit::RecHitContainer, TrajectoryStateOnSurface> 
@@ -173,19 +184,18 @@ bool DAFTrackProducerAlgorithm::buildTrack (const std::vector<Trajectory>& vtraj
     GlobalVector p = tscbl.trackStateAtPCA().momentum();
     math::XYZVector mom( p.x(), p.y(), p.z() );
 
-    LogDebug("TrackProducer") <<v<<p<<std::endl;
+    //    LogDebug("TrackProducer") <<v<<p<<std::endl;
 
     theTrack = new reco::Track(theTraj->chiSquared(),
 			       ndof, //in the DAF the ndof is not-integer
 			       pos, mom, tscbl.trackStateAtPCA().charge(), tscbl.trackStateAtPCA().curvilinearError());
 
 
-    LogDebug("TrackProducer") <<"track done\n";
 
     AlgoProduct aProduct(theTraj,std::make_pair(theTrack,theTraj->direction()));
-    LogDebug("TrackProducer") <<"track done1\n";
+
     algoResults.push_back(aProduct);
-    LogDebug("TrackProducer") <<"track done2\n";
+
     
     return true;
   } 
