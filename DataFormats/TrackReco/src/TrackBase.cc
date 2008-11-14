@@ -8,7 +8,9 @@ using namespace reco;
 std::string const TrackBase::algoNames[] = { "undefAlgorithm", "ctf", "rs", "cosmics", "beamhalo",
 					     "iter1", "iter2","iter3","iter4","iter5","iter6","iter7","iter8","iter9","iter10",
 					     "conversion","nuclInter",
-					     "standAloneMuon","globalMuon","cosmicStandAloneMuon","cosmicGlobalMuon"};
+					     "standAloneMuon","globalMuon","cosmicStandAloneMuon","cosmicGlobalMuon",
+                                             "iter1LargeD0","iter2LargeD0","iter3LargeD0","iter4LargeD0","iter5LargeD0"};
+
 std::string const TrackBase::qualityNames[] = { "loose", "tight", "highPurity", "confirmed", "goodIterative"};
 
 TrackBase::TrackBase() :
