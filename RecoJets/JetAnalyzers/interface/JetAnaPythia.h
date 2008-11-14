@@ -49,6 +49,12 @@ class JetAnaPythia : public edm::EDAnalyzer
        /////  Number used to calculate weight: total events gen in pthat bin ///
        int eventsGen;
        ////   Analysis level string.  Can speed up job by looking at less  ///
+       ///    PtHatOnly: only get PtHat and make PtHat histos
+       ///    Jets:  do histogram analysis of jets, but not partons 
+       ///    all:   do analysis of everything and make histos and root tree
+       ///    generating: analysis of everything, make histos and root tree
        std::string anaLevel; 
+       /// Generator cross section in case analysis level is "generating" ////
+       double xsecGen;
    };
 #endif

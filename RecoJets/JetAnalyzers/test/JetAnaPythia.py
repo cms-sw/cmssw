@@ -23,7 +23,8 @@ process.gen = cms.EDAnalyzer("GenJetAnaPythia",
     debug           = cms.bool(False),
     NJets           = cms.int32(2),
     eventsGen       = cms.int32(100000),
-    anaLevel        = cms.string('all')
+    anaLevel        = cms.string('all'),
+    xsecGen         = cms.double(0.0)
 )
 #############   Path       ###########################
 process.p = cms.Path(process.gen)
