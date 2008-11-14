@@ -8,6 +8,7 @@
 #include <assert.h>
 
 #include <boost/shared_ptr.hpp>
+#include <boost/bind.hpp>
 
 #include <HepMC/GenEvent.h>
 #include <HepMC/PdfInfo.h>
@@ -22,6 +23,8 @@
 
 #include "SimDataFormats/GeneratorProducts/interface/LHECommonBlocks.h"
 
+#include "GeneratorInterface/CommonInterface/interface/TauolaInterface.h"
+
 #include "GeneratorInterface/LHEInterface/interface/LHEEvent.h"
 #include "GeneratorInterface/LHEInterface/interface/Hadronisation.h"
 
@@ -33,6 +36,21 @@ class Pythia6Hadronisation : public Hadronisation {
 	~Pythia6Hadronisation();
 
 	struct FortranCallback;
+
+	class Addon {
+	    public:
+		Addon() {}
+		virtual ~Addon() {}
+
+		virtual void init() {}
+		virtual void beforeEvent() {}
+		virtual void afterEvent() {}
+
+		typedef boost::shared_ptr<Addon> Ptr;
+
+		static Ptr create(const std::string &name,
+		                  const edm::ParameterSet &params);
+	};
 
     protected:
 	friend struct FortranCallback;
@@ -52,6 +70,8 @@ class Pythia6Hadronisation : public Hadronisation {
 	int				maxEventsToPrint;
 	int				iterations;
 
+	std::vector<Addon::Ptr>		addons;
+
 	HepMC::IO_HEPEVT		conv;
 };
 
@@ -67,6 +87,8 @@ struct Pythia6Hadronisation::FortranCallback {
 
 extern "C" {
 	void pygive_(const char *line, int length);
+	void txgive_(const char *line, int length);
+	void txgive_init_(void);
 
 	static bool call_pygive(const std::string &line)
 	{
@@ -78,6 +100,15 @@ extern "C" {
 		return pydat1.mstu[26] == numWarn &&
 		       pydat1.mstu[22] == numErr;
 	}
+
+	static bool call_txgive(const std::string &line)
+	{
+		txgive_(line.c_str(), line.length());
+		return true;
+	}
+
+	static void call_txgive_init(void)
+	{ txgive_init_(); }
 
 	void upinit_() { fortranCallback.upinit(); }
 	void upevnt_() { fortranCallback.upevnt(); }
@@ -111,6 +142,23 @@ Pythia6Hadronisation::Pythia6Hadronisation(const edm::ParameterSet &params) :
 		}
 	}
 
+	if (params.exists("externalGenerators")) {
+		edm::ParameterSet pset =
+			params.getParameter<edm::ParameterSet>(
+							"externalGenerators");
+		std::vector<std::string> externalGenerators =
+			pset.getParameter<std::vector<std::string> >(
+							"parameterSets");
+		for(std::vector<std::string>::const_iterator iter =
+						externalGenerators.begin();
+		    iter != externalGenerators.end(); ++iter) {
+			edm::ParameterSet generatorPSet =
+				pset.getParameter<edm::ParameterSet>(*iter);
+			Addon::Ptr addon = Addon::create(*iter, generatorPSet);
+			addons.push_back(addon);
+		}
+	}
+
 	edm::Service<edm::RandomNumberGenerator> rng;
 	std::ostringstream ss;
 	ss << "MRPY(1)=" << rng->mySeed();
@@ -134,6 +182,11 @@ void Pythia6Hadronisation::doInit()
 	call_pygive("MSEL=0");
 	call_pygive(std::string("MSTP(143)=") +
 	            (wantsShoweredEvent() ? "1" : "0"));
+
+	call_txgive_init();
+
+	std::for_each(addons.begin(), addons.end(),
+	              boost::bind(&Addon::init, _1));
 }
 
 std::auto_ptr<HepMC::GenEvent> Pythia6Hadronisation::doHadronisation()
@@ -141,7 +194,15 @@ std::auto_ptr<HepMC::GenEvent> Pythia6Hadronisation::doHadronisation()
 	iterations = 0;
 	assert(!fortranCallback.instance);
 	fortranCallback.instance = this;
+
+	std::for_each(addons.begin(), addons.end(),
+	              boost::bind(&Addon::beforeEvent, _1));
+
 	call_pyevnt();
+
+	std::for_each(addons.begin(), addons.end(),
+	              boost::bind(&Addon::afterEvent, _1));
+
 	call_pyhepc(1);
 	fortranCallback.instance = 0;
 
@@ -267,6 +328,53 @@ bool Pythia6Hadronisation::veto()
 			(*iter)->set_status(3);
 
 	return showeredEvent(event);
+}
+
+// handle addons
+
+namespace {
+	class TauolaAddon : public Pythia6Hadronisation::Addon {
+	    public:
+		TauolaAddon(const edm::ParameterSet &config) :
+			usePolarization(config.getParameter<bool>("UseTauolaPolarization")),
+			cards(config.getParameter<std::vector<std::string> >("InputCards"))
+		{
+		}
+
+	    private:
+		virtual void init()
+		{
+			if (usePolarization)
+				tauola.enablePolarizationEffects();
+			else
+				tauola.disablePolarizationEffects();
+
+			for(std::vector<std::string>::const_iterator iter =
+				cards.begin(); iter != cards.end(); ++iter)
+				call_txgive(*iter);
+
+			tauola.initialize();
+		}
+
+		virtual void afterEvent() { tauola.processEvent(); }
+
+		bool				usePolarization;
+		std::vector<std::string>	cards;
+
+		edm::TauolaInterface		tauola;
+	};
+}  // anonymous namespace
+
+Pythia6Hadronisation::Addon::Ptr
+Pythia6Hadronisation::Addon::create(const std::string &name,
+                                    const edm::ParameterSet &params)
+{
+	if (name == "Tauola")
+		return Ptr(new TauolaAddon(params));
+	else
+		throw cms::Exception("Pythia6HadronisationError")
+			<< "Pythia6 addon \"" << name << "\" unknown."
+			<< std::endl;
 }
 
 DEFINE_LHE_HADRONISATION_PLUGIN(Pythia6Hadronisation);
