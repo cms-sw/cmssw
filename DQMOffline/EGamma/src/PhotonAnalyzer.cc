@@ -5,6 +5,7 @@
 //
 #include "DQMOffline/EGamma/interface/PhotonAnalyzer.h"
 //
+#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -13,13 +14,12 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/EgammaCandidates/interface/Conversion.h"
 #include "DataFormats/EgammaCandidates/interface/ConversionFwd.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonIDFwd.h"
-#include "DataFormats/EgammaCandidates/interface/PhotonID.h"
-#include "DataFormats/EgammaCandidates/interface/PhotonIDAssociation.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
@@ -55,7 +55,7 @@
  **  
  **
  **  $Id: PhotonAnalyzer
- **  $Date: 2008/09/30 19:50:30 $ 
+ **  $Date: 2008/10/15 01:39:47 $ 
  **  authors: 
  **   Nancy Marinelli, U. of Notre Dame, US  
  **   Jamie Antonelli, U. of Notre Dame, US
@@ -407,14 +407,12 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
   e.getByLabel(photonProducer_, photonCollection_ , photonHandle);
   if ( !photonHandle.isValid()) return;
   const reco::PhotonCollection photonCollection = *(photonHandle.product());
+
+  Handle<edm::ValueMap<bool> > loosePhotonFlag;
+  e.getByLabel("PhotonIDProd", "PhotonCutBasedIDLoose", loosePhotonFlag);
+  Handle<edm::ValueMap<bool> > tightPhotonFlag;
+  e.getByLabel("PhotonIDProd", "PhotonCutBasedIDTight", tightPhotonFlag);
  
-
-  // grab PhotonId objects  
-  Handle<reco::PhotonIDAssociationCollection> photonIDMapColl;
-  e.getByLabel("PhotonIDProd", "PhotonAssociatedID", photonIDMapColl);
-  if ( !photonIDMapColl.isValid()) return;
-  const reco::PhotonIDAssociationCollection *phoMap = photonIDMapColl.product();
-
 
   // Get EcalRecHits
   bool validEcalRecHits=true;
@@ -452,6 +450,9 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
 
 
   int photonCounter = 0;
+  const edm::ValueMap<bool> *loosePhotonID = loosePhotonFlag.product();
+  const edm::ValueMap<bool> *tightPhotonID = tightPhotonFlag.product();
+
 
   // Loop over all photons in event
   for( reco::PhotonCollection::const_iterator  iPho = photonCollection.begin(); iPho != photonCollection.end(); iPho++) {
@@ -460,9 +461,9 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
 
     edm::Ref<reco::PhotonCollection> photonref(photonHandle, photonCounter);
     photonCounter++;
-    reco::PhotonIDAssociationCollection::const_iterator photonIter = phoMap->find(photonref);
-    const reco::PhotonIDRef &phtn = photonIter->val;
 
+    bool  isLoosePhoton = (*loosePhotonID)[photonref];
+    bool  isTightPhoton = (*tightPhotonID)[photonref];
 
     bool  phoIsInBarrel=false;
     bool  phoIsInEndcap=false;
@@ -479,11 +480,10 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
 	phoIsInEndcapPlus=true;
     }
 
-
+    /////  From 30X Photons are already pre-selected at reconstruction level with a looseEM isolation
     bool isIsolated=false;
-    if ( isolationStrength_ == 1)  isIsolated = (phtn)->isLooseEM();
-    else if ( isolationStrength_ == 2)  isIsolated = (phtn)->isLoosePhoton(); 
-    else if ( isolationStrength_ == 3)  isIsolated = (phtn)->isTightPhoton();
+    if ( isolationStrength_ == 1)  isIsolated = isLoosePhoton;
+    if ( isolationStrength_ == 2)  isIsolated = isTightPhoton;
  
     int type=0;
     if ( isIsolated ) type=1;
@@ -492,7 +492,7 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
     
     nEntry_++;
 
-    float r9 = (phtn)->r9();
+    float r9 = (*iPho).r9();
 
     for (int cut=0; cut !=numberOfSteps_; ++cut) {
       double Et =  (*iPho).energy()/cosh( (*iPho).superCluster()->eta());
@@ -508,14 +508,14 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
 
       if (passesCuts){
 	//filling isolation variable histograms
-	h_nTrackIsolSolid_[cut]->Fill( (*iPho).superCluster()->eta(),(phtn)->nTrkSolidCone());
-	h_trackPtSumSolid_[cut]->Fill((*iPho).superCluster()->eta(), (phtn)->isolationSolidTrkCone());
+	h_nTrackIsolSolid_[cut]->Fill( (*iPho).superCluster()->eta(),(*iPho).nTrkSolidConeDR04());
+	h_trackPtSumSolid_[cut]->Fill((*iPho).superCluster()->eta(), (*iPho).isolationTrkSolidConeDR04());
 	
-	h_nTrackIsolHollow_[cut]->Fill( (*iPho).superCluster()->eta(),(phtn)->nTrkHollowCone());
-	h_trackPtSumHollow_[cut]->Fill((*iPho).superCluster()->eta(), (phtn)->isolationHollowTrkCone());
+	h_nTrackIsolHollow_[cut]->Fill( (*iPho).superCluster()->eta(),(*iPho).nTrkHollowConeDR04());
+	h_trackPtSumHollow_[cut]->Fill((*iPho).superCluster()->eta(), (*iPho).isolationTrkHollowConeDR04());
 
-	h_ecalSum_[cut]->Fill((*iPho).superCluster()->eta(), (phtn)->isolationEcalRecHit());
-	h_hcalSum_[cut]->Fill((*iPho).superCluster()->eta(), (phtn)->isolationHcalRecHit());
+	h_ecalSum_[cut]->Fill((*iPho).superCluster()->eta(), (*iPho).ecalRecHitSumConeDR04());
+	h_hcalSum_[cut]->Fill((*iPho).superCluster()->eta(), (*iPho).hcalTowerSumConeDR04());
 
 
 	//filling all photons histograms
