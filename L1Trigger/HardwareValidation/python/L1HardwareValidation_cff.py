@@ -107,9 +107,9 @@ valGtDigis.GctInputTag = 'gctDigis'
 
 #Emulator settings
 valHcalTriggerPrimitiveDigis.FG_threshold = cms.uint32(12)
-#EcalTrigPrimESProducer.DatabaseFile = 'TPG_startup.txt.gz'
-#HcalTPGCoderULUT.read_Ascii_LUTs = True
-#HcalTPGCoderULUT.inputLUTs = 'DQM/L1TMonitor/data/CRAFTPhysicsV2.dat'
+EcalTrigPrimESProducer.DatabaseFile = 'TPG_startup.txt.gz'
+HcalTPGCoderULUT.read_Ascii_LUTs = True
+HcalTPGCoderULUT.inputLUTs = 'L1Trigger/HardwareValidation/hwtest/globrun/CRAFTPhysicsV2.dat'
 valRctDigis.UseMCAsInput = False
 valRctDigis.HFShift = -2
 valRctDigis.HBShift = 1
