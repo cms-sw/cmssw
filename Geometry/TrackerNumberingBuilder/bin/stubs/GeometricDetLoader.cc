@@ -83,19 +83,6 @@ GeometricDetLoader::beginJob( edm::EventSetup const& es)
       std::vector<const GeometricDet*>::const_iterator egit3 = intwo.end();
       ++lev;
       for (; git3 != egit3; ++git3) { // level 3
-// 	const DDCompactView & cpv = *pDD;
-// 	DDExpandedView epv(cpv);
-// 	epv.goTo((*git)->navType());
-// 	std::vector<const DDsvalues_type *> spec = epv.specifics();
-// 	std::vector<const DDsvalues_type *>::const_iterator spit = spec.begin();
-// 	for (;  spit != spec.end(); spit++) {
-// 	  DDsvalues_type::const_iterator it = (**spit).begin();
-// 	  for (;  it != (**spit).end(); it++) {
-// 	    if ( it->second.name() == "TkDDDStructure" ) {
-// 	      std::cout << it->second.strings()[0] << std::endl;
-// 	    }
-// 	  }
-// 	}
 	putOne(*git3, pgd, lev);
 	std::vector<const GeometricDet*> inthree= (*git3)->components();
 	//	std::cout << lev << "\t\ttype " << (*git3)->type() << " " << int((*git3)->geographicalId()) << std::endl; // << " has " << inthree.size() << " components." << std::endl;
@@ -138,9 +125,6 @@ GeometricDetLoader::beginJob( edm::EventSetup const& es)
   std::vector<const GeometricDet*> modules =  tracker->deepComponents();
   std::cout << " No. of Tracker components \"deepComponents\" = " << modules.size() << std::endl;
   std::cout << " Counted # of lowest \"leaves\" = " << count << std::endl; 
-//   for(unsigned int i=0; i<modules.size();i++){
-//     putOne(modules[i], pgd);
-//   }
   if ( mydbservice->isNewTagRequest("PGeometricDetRcd") ) {
     mydbservice->createNewIOV<PGeometricDet>( pgd
 					      , mydbservice->beginOfTime()
@@ -157,6 +141,7 @@ void GeometricDetLoader::putOne ( const GeometricDet* gd, PGeometricDet* pgd, in
 //   std::cout << " gid: " << gd->geographicalID();
 //   std::cout << " type: " << gd->type() << std::endl;
 //  static CmsTrackerStringToEnum ctste;
+  std::cout << "shape = " << gd->shape()<<"; name = "<<gd->name().name()<<"; parameter number = "<<gd->params().size()<<std::endl;
   PGeometricDet::Item item;
   DDTranslation tran = gd->translation();
   DDRotationMatrix rot = gd->rotation();
@@ -180,7 +165,43 @@ void GeometricDetLoader::putOne ( const GeometricDet* gd, PGeometricDet* pgd, in
   item._a33            = z.Z();
   item._shape          = gd->shape();
   item._type           = gd->type();
-  item._params         = gd->params();
+  if(gd->shape()==1){
+    item._params0=gd->params()[0];
+    item._params1=gd->params()[1];
+    item._params2=gd->params()[2];
+    item._params3=0;
+    item._params4=0;
+    item._params5=0;
+    item._params6=0;
+    item._params7=0;
+    item._params8=0;
+    item._params9=0;
+    item._params10=0;
+  }else if(gd->shape()==3){
+    item._params0=gd->params()[0];
+    item._params1=gd->params()[1];
+    item._params2=gd->params()[2];
+    item._params3=gd->params()[3];
+    item._params4=gd->params()[4];
+    item._params5=gd->params()[5];
+    item._params6=gd->params()[6];
+    item._params7=gd->params()[7];
+    item._params8=gd->params()[8];
+    item._params9=gd->params()[9];
+    item._params10=gd->params()[10];
+  }else{
+    item._params0=0;
+    item._params1=0;
+    item._params2=0;
+    item._params3=0;
+    item._params4=0;
+    item._params5=0;
+    item._params6=0;
+    item._params7=0;
+    item._params8=0;
+    item._params9=0;
+    item._params10=0;
+  } 
   item._geographicalID = gd->geographicalID();
   item._volume         = gd->volume();
   item._density        = gd->density();
