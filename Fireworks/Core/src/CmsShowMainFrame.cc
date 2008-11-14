@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:23 CDT 2008
-// $Id: CmsShowMainFrame.cc,v 1.21 2008/11/06 22:05:24 amraktad Exp $
+// $Id: CmsShowMainFrame.cc,v 1.22 2008/11/10 15:35:24 chrjones Exp $
 //
 
 // system include files
@@ -319,7 +319,7 @@ TGMainFrame(p, w, h)
 
 CmsShowMainFrame::~CmsShowMainFrame() {
    Cleanup();
-   delete m_statBar;
+   //delete m_statBar;
 }
 
 //
