@@ -4,8 +4,8 @@
 /** \class MuonDetLayerMeasurements
  *  The class to access recHits and TrajectoryMeasurements from DetLayer.  
  *
- *  $Date: 2007/11/20 19:05:23 $
- *  $Revision: 1.15 $
+ *  $Date: 2008/02/19 18:03:27 $
+ *  $Revision: 1.16 $
  *  \author C. Liu, R. Bellan, N. Amapane
  *
  */
@@ -17,7 +17,10 @@
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
 //#include "TrackingTools/ementDet/interface/TrajectoryMeasurement.h"
 #include "TrackingTools/MeasurementDet/interface/TrajectoryMeasurementGroup.h"
-
+#include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
+#include "DataFormats/CSCRecHit/interface/CSCSegmentCollection.h"
+#include "DataFormats/RPCRecHit/interface/RPCRecHitCollection.h"
+#include "DataFormats/RPCRecHit/interface/RPCRecHitCollection.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
 
 #include <vector>
@@ -34,7 +37,7 @@ typedef std::pair<const GeomDet*,TrajectoryStateOnSurface> DetWithState;
 
 class MuonDetLayerMeasurements {
  public:
-
+  typedef MuonTransientTrackingRecHit::MuonRecHitContainer MuonRecHitContainer;
 
   MuonDetLayerMeasurements(edm::InputTag dtlabel,
 			   edm::InputTag csclabel,
@@ -52,7 +55,7 @@ class MuonDetLayerMeasurements {
                   const GeomDet * det,
                   const TrajectoryStateOnSurface& stateOnDet,
                   const MeasurementEstimator& est,
-                  const edm::Event& iEvent) const;
+                  const edm::Event& iEvent);
 
   /// returns TMeasurements in a DetLayer compatible with the TSOS.
   MeasurementContainer
@@ -60,7 +63,7 @@ class MuonDetLayerMeasurements {
 		  const TrajectoryStateOnSurface& startingState,
 		  const Propagator& prop,
 		  const MeasurementEstimator& est,
-		  const edm::Event& iEvent) const;
+		  const edm::Event& iEvent);
 
   /// faster version in case the TrajectoryState on the surface of the GeomDet is already available
   MeasurementContainer
@@ -69,14 +72,14 @@ class MuonDetLayerMeasurements {
 		      const TrajectoryStateOnSurface& startingState,
 		      const Propagator& prop,
 		      const MeasurementEstimator& est,
-		      const edm::Event& iEvent) const;
+		      const edm::Event& iEvent);
 
   /// returns TMeasurements in a DetLayer compatible with the TSOS.
   MeasurementContainer
     measurements( const DetLayer* layer,
 		  const TrajectoryStateOnSurface& startingState,
 		  const Propagator& prop,
-		  const MeasurementEstimator& est) const;
+		  const MeasurementEstimator& est);
 
   /// faster version in case the TrajectoryState on the surface of the GeomDet is already available
   MeasurementContainer
@@ -84,39 +87,38 @@ class MuonDetLayerMeasurements {
 		      const TrajectoryStateOnSurface& theStateOnDet,
 		      const TrajectoryStateOnSurface& startingState,
 		      const Propagator& prop,
-		      const MeasurementEstimator& est) const;
+		      const MeasurementEstimator& est);
 
   std::vector<TrajectoryMeasurementGroup>
     groupedMeasurements( const DetLayer* layer,
                   const TrajectoryStateOnSurface& startingState,
                   const Propagator& prop,
                   const MeasurementEstimator& est,
-                  const edm::Event& iEvent) const;
+                  const edm::Event& iEvent);
 
   std::vector<TrajectoryMeasurementGroup>
     groupedMeasurements( const DetLayer* layer,
                   const TrajectoryStateOnSurface& startingState,
                   const Propagator& prop,
-                  const MeasurementEstimator& est) const;
+                  const MeasurementEstimator& est);
  
   void setEvent(const edm::Event &);  
 
-  /// returns the rechits which are onto the layer
-  MuonTransientTrackingRecHit::MuonRecHitContainer recHits(const DetLayer* layer, const edm::Event& iEvent) const;
+  /// returns the rechits which are on the layer
+  MuonRecHitContainer recHits(const DetLayer* layer, const edm::Event& iEvent);
 
-  /// returns the rechits which are onto the layer
-  MuonTransientTrackingRecHit::MuonRecHitContainer recHits(const DetLayer* layer) const;
+  /// returns the rechits which are on the layer
+  MuonRecHitContainer recHits(const DetLayer* layer);
 
 
  private:
 
   /// obtain TrackingRecHits from a DetLayer
-  MuonTransientTrackingRecHit::MuonRecHitContainer recHits(const GeomDet*, const edm::Event& iEvent) const;
+  MuonRecHitContainer recHits(const GeomDet*, const edm::Event& iEvent);
 
   /// check that the event is set, and throw otherwise
   void checkEvent() const;
 
-  
   edm::InputTag theDTRecHitLabel;
   edm::InputTag theCSCRecHitLabel;
   edm::InputTag theRPCRecHitLabel;
@@ -125,6 +127,19 @@ class MuonDetLayerMeasurements {
   bool enableCSCMeasurement;
   bool enableRPCMeasurement;
   
+  // caches that should get filled once per event
+  edm::Handle<DTRecSegment4DCollection> theDTRecHits;
+  edm::Handle<CSCSegmentCollection>     theCSCRecHits;
+  edm::Handle<RPCRecHitCollection>      theRPCRecHits;
+
+  void checkDTRecHits();
+  void checkCSCRecHits();
+  void checkRPCRecHits();
+
+  // keeps track of which event the cache holds
+  edm::EventID theDTEventID;
+  edm::EventID theCSCEventID;
+  edm::EventID theRPCEventID;
 
   const edm::Event* theEvent;   
 };
