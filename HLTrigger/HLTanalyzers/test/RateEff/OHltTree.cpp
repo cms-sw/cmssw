@@ -370,8 +370,8 @@ void OHltTree::Loop( vector<int> * iCount, vector<int> * sPureCount, vector<int>
 	    triggerBitNoPrescale[it] = true;          
 	    if ((iCountNoPrescale[it]) % map_pathHLTPrescl.find(trignames[it])->second == 0) {          
 	      triggerBit[it] = true;        
-	    }         
-	  }         
+	    }
+	  }
 	}         
       }         
       
@@ -771,17 +771,22 @@ int OHltTree::OpenHlt1LWElectronPassed(float Et, int L1iso, float Tiso, float Hi
 int  OHltTree::OpenHlt1PhotonPassed(float Et, int L1iso, float Tiso, float Eiso, float HisoBR, float HisoEC)
 {
   int rc = 0;
+
   // Loop over all oh photons
   for (int i=0;i<NohPhot;i++) {
-    if ( ohPhotEt[i] > Et)
-      if ( ohPhotL1iso[i] >= L1iso )
-	if( ohPhotTiso[i]<=Tiso )
+    if ( ohPhotEt[i] > Et) {
+      if ( ohPhotL1iso[i] >= L1iso ) {
+	if( ohPhotTiso[i]<Tiso ) {
 	  if( ohPhotEiso[i] < Eiso ) {
 	    if( (TMath::Abs(ohPhotEta[i]) < 1.5 && ohPhotHiso[i] < HisoBR )  ||
 		(1.5 < TMath::Abs(ohPhotEta[i]) && TMath::Abs(ohPhotEta[i]) < 2.5 && ohPhotHiso[i] < HisoEC ) || 
-		(ohPhotHiso[i]/ohPhotEt[i] < 0.05) )
+		(ohPhotHiso[i]/ohPhotEt[i] < 0.05) ) {
 	      rc++;
+	    }
 	  }
+	}
+      }
+    }
   }
   return rc;
 }
