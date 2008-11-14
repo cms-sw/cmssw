@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-postProcessor = cms.EDFilter("PostProcessor",
+#postProcessor = cms.EDFilter("PostProcessor",
+HLTMuonPostVal = cms.EDFilter("PostProcessor",
     subDir         = cms.untracked.string('HLT/Muon/Distributions/*'),
     outputFileName = cms.untracked.string('PostProcessor.root'),
     commands       = cms.vstring(),
