@@ -1,4 +1,4 @@
-# /dev/CMSSW_3_0_0/pre3/HLT/V1 (CMSSW_3_0_0_pre2_HLT1)
+# /dev/CMSSW_3_0_0/pre3/HLT/V5 (CMSSW_3_0_0_pre2_HLT2)
 # Begin replace statements specific to the FastSim HLT
 # For all HLTLevel1GTSeed objects, make the following replacements:
 #   - L1GtReadoutRecordTag changed from hltGtDigis to gtDigis
@@ -28,7 +28,7 @@ import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_0_0/pre3/HLT/V1')
+  tableName = cms.string('/dev/CMSSW_3_0_0/pre3/HLT/V5')
 )
 
 SiStripQualityFakeESSource = cms.ESSource( "SiStripQualityFakeESSource" )
@@ -38,6 +38,34 @@ MCJetCorrectorIcone5 = cms.ESSource( "MCJetCorrectionService",
   label = cms.string( "MCJetCorrectorIcone5" )
 )
 
+hltKFFittingSmoother = cms.ESProducer( "KFFittingSmootherESProducer",
+  ComponentName = cms.string( "hltKFFittingSmoother" ),
+  Fitter = cms.string( "hltKFFitter" ),
+  Smoother = cms.string( "hltKFSmoother" ),
+  EstimateCut = cms.double( -1.0 ),
+  MinNumberOfHits = cms.int32( 5 ),
+  RejectTracks = cms.bool( True ),
+  BreakTrajWith2ConsecutiveMissing = cms.bool( False ),
+  NoInvalidHitsBeginEnd = cms.bool( False ),
+  appendToDataLabel = cms.string( "" )
+)
+hltKFFitter = cms.ESProducer( "KFTrajectoryFitterESProducer",
+  ComponentName = cms.string( "hltKFFitter" ),
+  Propagator = cms.string( "PropagatorWithMaterial" ),
+  Updator = cms.string( "KFUpdator" ),
+  Estimator = cms.string( "Chi2" ),
+  minHits = cms.int32( 3 ),
+  appendToDataLabel = cms.string( "" )
+)
+hltKFSmoother = cms.ESProducer( "KFTrajectorySmootherESProducer",
+  ComponentName = cms.string( "hltKFSmoother" ),
+  Propagator = cms.string( "PropagatorWithMaterial" ),
+  Updator = cms.string( "KFUpdator" ),
+  Estimator = cms.string( "Chi2" ),
+  errorRescaling = cms.double( 100.0 ),
+  minHits = cms.int32( 3 ),
+  appendToDataLabel = cms.string( "" )
+)
 AnyDirectionAnalyticalPropagator = cms.ESProducer( "AnalyticalPropagatorESProducer",
   ComponentName = cms.string( "AnyDirectionAnalyticalPropagator" ),
   PropagationDirection = cms.string( "anyDirection" ),

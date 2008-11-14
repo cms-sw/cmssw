@@ -26,41 +26,6 @@ L3MuKFSmoother = cms.ESProducer("KFTrajectorySmootherESProducer",
     Updator = cms.string('KFUpdator')
 )
 
-HLTKFFittingSmoother = cms.ESProducer(
-    "KFFittingSmootherESProducer",
-    ComponentName = cms.string( "HLTKFFittingSmoother" ),
-    Fitter = cms.string( "HLTKFFitter" ),
-    Smoother = cms.string( "HLTKFSmoother" ),
-    EstimateCut = cms.double( -1.0 ),
-    MinNumberOfHits = cms.int32( 5 ),
-    RejectTracks = cms.bool( True ),
-    BreakTrajWith2ConsecutiveMissing = cms.bool( False ),
-    NoInvalidHitsBeginEnd = cms.bool( False ),
-    appendToDataLabel = cms.string( "" )
-)
-
-HLTKFFitter = cms.ESProducer(
-    "KFTrajectoryFitterESProducer",
-    ComponentName = cms.string( "HLTKFFitter" ),
-    Propagator = cms.string( "PropagatorWithMaterial" ),
-    Updator = cms.string( "KFUpdator" ),
-    Estimator = cms.string( "Chi2" ),
-    minHits = cms.int32( 3 ),
-    appendToDataLabel = cms.string( "" )
-)
-
-HLTKFSmoother = cms.ESProducer(
-    "KFTrajectorySmootherESProducer",
-    ComponentName = cms.string( "HLTKFSmoother" ),
-    Propagator = cms.string( "PropagatorWithMaterial" ),
-    Updator = cms.string( "KFUpdator" ),
-    Estimator = cms.string( "Chi2" ),
-    errorRescaling = cms.double( 100.0 ),
-    minHits = cms.int32( 3 ),
-    appendToDataLabel = cms.string( "" )
-)
-
-
 # No use of Runge-Kutta propagator for tracks
 SmartPropagatorAny.TrackerPropagator = 'PropagatorWithMaterial'
 
