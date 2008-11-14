@@ -25,7 +25,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <boost/filesystem.hpp>
-#include <iostream>
+//#include <iostream>
 static std::string XML_AUTHENTICATION_FILE("authentication.xml");
 
 
@@ -110,7 +110,6 @@ cond::XMLAuthenticationService::XMLAuthenticationService::XMLAuthenticationServi
     m_inputFileName( "" ),
     m_data()
 {
-  std::cout<<"HELLO ME"<<std::endl;
   coral::Context::instance().PropertyManager().property("AuthenticationFile")->set(XML_AUTHENTICATION_FILE);
 }
 
