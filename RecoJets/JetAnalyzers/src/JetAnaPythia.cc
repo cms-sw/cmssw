@@ -31,6 +31,8 @@ JetAnaPythia<Jet>::JetAnaPythia(edm::ParameterSet const& cfg)
   debug         = cfg.getParameter<bool> ("debug");
   eventsGen     = cfg.getParameter<int> ("eventsGen");
   anaLevel      = cfg.getParameter<std::string> ("anaLevel");
+  xsecGen       = cfg.getParameter<double> ("xsecGen");
+
 }
 ////////////////////////////////////////////////////////////////////////////////////////
 template<class Jet>
@@ -141,11 +143,17 @@ void JetAnaPythia<Jet>::analyze(edm::Event const& evt, edm::EventSetup const& iS
     TString hname; 
       
     // Process Info
-    edm::Handle< GenInfoProduct > genInfoProduct;
-    evt.getRun().getByLabel("source", genInfoProduct );
-    xsec = genInfoProduct->cross_section();
-    if(debug)std::cout << "cross section=" <<xsec << " mb" << std::endl;
-    weight = xsec*(1.0e+09)/eventsGen;
+    if(anaLevel != "generating"){  //We are not generating events, so xsec is there
+      edm::Handle< GenInfoProduct > genInfoProduct;
+      evt.getRun().getByLabel("source", genInfoProduct );
+      xsec = genInfoProduct->cross_section();
+      if(debug)std::cout << "cross section=" <<xsec << " mb" << std::endl;
+    }
+    else
+    {                        
+      xsec = xsecGen;   //Generating events, no xsec in event, get xsec from user input
+    } 
+    weight =  xsec*(1.0e+09)/eventsGen;
   
     edm::Handle< double > genEventScale;
     evt.getByLabel("genEventScale", genEventScale );
