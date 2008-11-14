@@ -1,6 +1,6 @@
 // Original author: Brock Tweedie (JHU)
 // Ported to CMSSW by: Sal Rappoccio (JHU)
-// $Id: CATopJetAlgorithm.cc,v 1.6 2008/10/20 14:18:22 srappocc Exp $
+// $Id: CATopJetAlgorithm.cc,v 1.1 2008/10/31 19:00:23 srappocc Exp $
 
 #include "RecoJets/JetAlgorithms/interface/CATopJetAlgorithm.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -201,7 +201,7 @@ void CATopJetAlgorithm::run( const vector<fastjet::PseudoJet> & cell_particles,
 	transConstBegin = subjetFastjetConstituents.begin(),
 	transConstEnd = subjetFastjetConstituents.end();
       for ( ; fastSubIt != transConstEnd; ++fastSubIt ) {
-	if ( fastSubIt->user_index() >= 0 && fastSubIt->user_index() < cell_particles.size() ) {
+	if ( fastSubIt->user_index() >= 0 && static_cast<unsigned int>(fastSubIt->user_index()) < cell_particles.size() ) {
 	  constituents.push_back( fastSubIt->user_index() );
 	}
       }
