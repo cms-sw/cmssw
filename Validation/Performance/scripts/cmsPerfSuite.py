@@ -4,7 +4,27 @@ import optparse as opt
 import cmsRelRegress as crr
 from cmsPerfCommons import Candles, MIN_REQ_TS_EVENTS, KeywordToCfi, CandFname, getVerFromLog
 import cmsRelValCmd,cmsCpuInfo
+import threading #Needed in threading use for Valgrind
+import subprocess #Nicer subprocess management than os.popen
 
+class PerfThread(threading.Thread):
+    def __init__(self,**args):
+        self.args=args
+        threading.Thread.__init__(self)
+    def run(self):
+        self.suite=PerfSuite()
+        #print "Arguments inside the thread instance:"
+        #print type(self.args)
+        #print self.args
+        self.suite.runPerfSuite(**(self.args))#self.args)
+
+class ValgrindThread(threading.Thread):
+    def __init__(self,valgrindArgs): #valgrindArgs should be selecting CallGrind/MemCheck, Candle, NumOfEvent
+        self.valgrindArgs=valgrindArgs
+        threading.Thread.__init__(self)
+    def run(self):
+        print self
+        
 class PerfSuite:
     def __init__(self):
         
@@ -28,7 +48,7 @@ class PerfSuite:
     
         #Scripts used by the suite:
         self.Scripts         =["cmsDriver.py","cmsRelvalreport.py","cmsRelvalreportInput.py","cmsScimark2"]
-        self.AuxiliaryScripts=["cmsScimarkLaunch.csh","cmsScimarkParser.py","cmsScimarkStop.pl"]
+        self.AuxiliaryScripts=["cmsScimarkLaunch.csh","cmsScimarkParser.py","cmsScimarkStop.py"]
     
     
     #Options handling
@@ -686,6 +706,7 @@ class PerfSuite:
                         #cmsScimarkLaunch.csh is an infinite loop to spawn cmsScimark2 on the other
                         #cpus so it makes no sense to try reading its stdout/err 
                         os.popen4(command)
+
             self.logh.flush()
     
             #dont do benchmarking if in debug mode... saves time
@@ -739,13 +760,21 @@ class PerfSuite:
                 if isAllCandles:
                     IgCandles = [ "QCD_80_120" ]
                 self.simpleGenReport(cpus,perfsuitedir,IgProfEvents,IgCandles,cmsdriverOptions,stepOptions,"IgProf",profilers,bypasshlt)
-    
+
+            #Stopping all cmsScimark jobs and analysing automatically the logfiles
+            #No need to waste CPU while the load does not affect Valgrind measurements!
+            self.logh.write("Stopping all cmsScimark jobs now\n")
+            subcmd = "cd %s ; %s" % (perfsuitedir,self.AuxiliaryScripts[2])
+            stopcmd = "sh -c \"%s\"" % subcmd
+            self.printFlush(stopcmd)
+            os.popen(stopcmd)
+            self.printFlush(os.popen4(stopcmd)[1].read())
+            
             #Valgrind tests:
             if ValgrindEvents > 0:
                 #FIXME
-                #1-Could kill all cmsScimark jobs running on spare cores
-                # since the cpu load on the machine does not affect the Valgrind measurements.
-                #2-Could also launch different tests on different cores to parallelize:
+                       
+                #1-Could launch different tests on different cores to parallelize:
                 #  a-Callgrind on QCD_80_120 on one core (unprofiled GEN,SIM, profile DIGI)
                 #  b-Callgrind on SingleMu on another core
                 #  c-Memcheck on QCD_80_120 on another core
@@ -753,6 +782,7 @@ class PerfSuite:
                 #  This could become a problem if one wants to launch the whole suite
                 #  as a separate thread on a certain core: catch this in the options.
                 #  if the --cpu is specified then no "parallelizing" of the valgrind part, this should be enough
+                #  Cannot be done! --cpu 1 is the default... to either one catches this in the parsing of the arguments, or a new argument --valgringThreading is added, or we assume valgrind is never run when threading the whole suite... for now let's do this last option:
                 
                 self.logh.write("Launching the Valgrind tests (callgrind_FCE, memcheck) with %s events each\n" % ValgrindEvents)
                 self.printDate()
@@ -780,13 +810,6 @@ class PerfSuite:
                     if cmsScimarkLarge > 0:
                         self.logh.write("Following with %s cmsScimarkLarge on cpu%s\n" % (cmsScimarkLarge,cpu))
                         self.benchmarks(cpu,perfsuitedir,scimarklarge.name,cmsScimarkLarge)
-    
-            #Stopping all cmsScimark jobs and analysing automatically the logfiles
-            self.logh.write("Stopping all cmsScimark jobs\n")
-            subcmd = "cd %s ; %s" % (perfsuitedir,self.AuxiliaryScripts[2])
-            stopcmd = "sh -c \"%s\"" % subcmd
-            self.printFlush(stopcmd)
-            self.printFlush(os.popen4(stopcmd)[1].read())
     
             if not prevrel == "":
                 crr.regressReports(prevrel,os.path.abspath(perfsuitedir),oldRelName = getVerFromLog(prevrel),newRelName=self.cmssw_version)
@@ -844,45 +867,120 @@ def main(argv=[__name__]): #argv is a list of arguments.
     suite=PerfSuite()
     print suite                      
     #Let's check the command line arguments
-    (castordir       ,
-     TimeSizeEvents  ,
-     IgProfEvents    ,
-     ValgrindEvents  ,
-     cmsScimark      ,
-     cmsScimarkLarge ,
-     cmsdriverOptions,
-     stepOptions     ,
-     quicktest       ,
-     profilers       ,
-     cpus            ,
-     cores           ,
-     prevrel         ,
-     isAllCandles    ,
-     candles         ,
-     bypasshlt       ,
-     runonspare      ,
-     outputdir       ,
-     logfile         ) = suite.optionParse(argv)
-     
-    suite.runPerfSuite(castordir        = castordir       ,
-                       TimeSizeEvents   = TimeSizeEvents  ,
-                       IgProfEvents     = IgProfEvents    ,
-                       ValgrindEvents   = ValgrindEvents  ,
-                       cmsScimark       = cmsScimark      ,
-                       cmsScimarkLarge  = cmsScimarkLarge ,
-                       cmsdriverOptions = cmsdriverOptions,
-                       stepOptions      = stepOptions     ,
-                       quicktest        = quicktest       ,
-                       profilers        = profilers       ,
-                       cpus             = cpus            ,
-                       cores            = cores           ,
-                       prevrel          = prevrel         ,
-                       isAllCandles     = isAllCandles    ,
-                       candles          = candles         ,
-                       bypasshlt        = bypasshlt       ,
-                       runonspare       = runonspare      ,
-                       perfsuitedir     = outputdir       ,
-                       logfile          = logfile         )
+    #(castordir       ,
+    # TimeSizeEvents  ,
+    # IgProfEvents    ,
+    # ValgrindEvents  ,
+    # cmsScimark      ,
+    # cmsScimarkLarge ,
+    # cmsdriverOptions,
+    # stepOptions     ,
+    # quicktest       ,
+    # profilers       ,
+    # cpus            ,
+    # cores           ,
+    # prevrel         ,
+    # isAllCandles    ,
+    # candles         ,
+    # bypasshlt       ,
+    # runonspare      ,
+    # outputdir       ,
+    # logfile         ) = suite.optionParse(argv)
+    PerfSuiteArgs={}
+    (PerfSuiteArgs['castordir'],
+     PerfSuiteArgs['TimeSizeEvents'],
+     PerfSuiteArgs['IgProfEvents'],    
+     PerfSuiteArgs['ValgrindEvents'],  
+     PerfSuiteArgs['cmsScimark'],      
+     PerfSuiteArgs['cmsScimarkLarge'], 
+     PerfSuiteArgs['cmsdriverOptions'],
+     PerfSuiteArgs['stepOptions'],     
+     PerfSuiteArgs['quicktest'],       
+     PerfSuiteArgs['profilers'],       
+     PerfSuiteArgs['cpus'],            
+     PerfSuiteArgs['cores'],           
+     PerfSuiteArgs['prevrel'],         
+     PerfSuiteArgs['isAllCandles'],    
+     PerfSuiteArgs['candles'],         
+     PerfSuiteArgs['bypasshlt'],       
+     PerfSuiteArgs['runonspare'],      
+     PerfSuiteArgs['perfsuitedir'],    
+     PerfSuiteArgs['logfile'],
+     ) = suite.optionParse(argv)
+    print "Initial PerfSuite Arguments:"
+    for key in PerfSuiteArgs.keys():
+        print key,PerfSuiteArgs[key]
+    print PerfSuiteArgs
+    #Handle in here the case of multiple cores and the loading of cores with cmsScimark:
+    if len(PerfSuiteArgs['cpus']) > 1:
+        print "More than 1 cpu: threading the Performance Suite!"
+        outputdir=PerfSuiteArgs['perfsuitedir']
+        runonspare=PerfSuiteArgs['runonspare'] #Save the original value of runonspare for cmsScimark stuff
+        cpus=PerfSuiteArgs['cpus']
+        if runonspare:
+            for core in range(PerfSuiteArgs['cores']):
+                cmsScimarkLaunch_pslist={}
+                if (core not in cpus):
+                    #self.logh.write("Submitting cmsScimarkLaunch.csh to run on core cpu "+str(core) + "\n")
+                    print "Submitting cmsScimarkLaunch.csh to run on core cpu "+str(core)+"\n"
+                    subcmd = "cd %s ; cmsScimarkLaunch.csh %s" % (outputdir, str(core))            
+                    command="taskset -c %s sh -c \"%s\" &" % (str(core), subcmd)
+                    #self.logh.write(command + "\n")
+                    print command + "\n"
+                    
+                    #cmsScimarkLaunch.csh is an infinite loop to spawn cmsScimark2 on the other
+                    #cpus so it makes no sense to try reading its stdout/err
+                    cmsScimarkLaunch_pslist[core]=subprocess.Popen(command,shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+                    print "Spawned %s \n with PID %s"%(command,cmsScimarkLaunch_pslist[core].pid)
+        PerfSuiteArgs['runonspare']=False #Set it to false to avoid cmsScimark being spawned by each thread
+        logfile=PerfSuiteArgs['logfile']
+        suitethread={}
+        for cpu in cpus:
+            #Make arguments "threaded" by setting for each instance of the suite:
+            #1-A different output (sub)directory
+            #2-Only 1 core on which to run
+            #3-Automatically have a logfile... otherwise stdout is lost?
+            #To be done:[3-A flag for Valgrind not to "thread" itself onto the other cores..]
+            cpudir = os.path.join(outputdir,"cpu_%s" % cpu)
+            if not os.path.exists(cpudir):
+                os.mkdir(cpudir)
+            PerfSuiteArgs['perfsuitedir']=cpudir
+            PerfSuiteArgs['cpus']=[cpu]  #Keeping the name cpus for now FIXME: change it to cpu in the whole code
+            if PerfSuiteArgs['logfile']:
+                PerfSuiteArgs['logfile']=os.path.join(cpudir,os.path.basename(PerfSuiteArgs['logfile']))
+            else:
+                PerfSuiteArgs['logfile']=os.path.join(cpudir,"cmsPerfSuiteThread.log")
+            #Now spawn the thread with:
+            suitethread[cpu]=PerfThread(**PerfSuiteArgs)
+            print suitethread[cpu]
+            print "Launching PerfSuite thread on cpu%s"%cpu
+            #print "With arguments:"
+            #print PerfSuiteArgs
+            suitethread[cpu].start()
+        #print suitethread
+        #FIXME Do somthing to kill the cmsScimarks after all threads are done...
+        #Fix the cmsScimarkLAunch and Stop into being python and threaded themselves?
+        #while True:
+        #    threadsdone=0
+        #    for cpu in suitethread.keys():
+        #        if suitethread[cpu].isAlive:
+        #            print "%s is ALIVE!"%suitethread[cpu]
+        #            sys.stdout.flush()
+        #            continue
+        #        else:
+        #            threadsdone=threadsdone+1
+        #            print threadsdone
+        #            sys.stdout.flush()
+        #            
+        #    if threadsdone == len(suitethread.keys()):
+        #        for core in cmsScimarkLaunch_pslist.keys():
+        #            kill=subprocess.Popen("kill %s"%cmsScimarkLaunch_pslist[core].pid,shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
+        #            print kill.stdout.read()
+        #        sys.exit()
+        #    time.sleep(10)
+
+    else: #No threading, just run the performance suite on the cpu core selected
+        suite.runPerfSuite(**PerfSuiteArgs)
     
 if __name__ == "__main__":
     main(sys.argv)
