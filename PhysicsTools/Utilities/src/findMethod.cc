@@ -37,6 +37,9 @@ namespace reco {
     }
     size_t minArgs = mem.FunctionParameterSize(true), maxArgs = mem.FunctionParameterSize(false);
     if ((args.size() < minArgs) || (args.size() > maxArgs)) return -1*parser::kWrongNumberOfArguments;
+    /*std::cerr << "\nMETHOD " << mem.Name() << " of " << mem.DeclaringType().Name() 
+        << ", min #args = " << minArgs << ", max #args = " << maxArgs 
+        << ", args = " << args.size() << std::endl;*/
     if (!args.empty()) {
         Type t = mem.TypeOf();
         std::vector<AnyMethodArgument> tmpFixups;
