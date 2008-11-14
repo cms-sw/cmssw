@@ -1,5 +1,5 @@
 #include "CondFormats/SiPixelObjects/interface/SiPixelFrameConverter.h"
-#include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingTree.h"
 
 #include "CondFormats/SiPixelObjects/interface/PixelFEDCabling.h"
 #include "CondFormats/SiPixelObjects/interface/PixelFEDLink.h"
@@ -12,7 +12,7 @@
 using namespace std;
 using namespace sipixelobjects;
 
-SiPixelFrameConverter::SiPixelFrameConverter(const SiPixelFedCablingMap * map, int fedId)
+SiPixelFrameConverter::SiPixelFrameConverter(const SiPixelFedCablingTree * map, int fedId)
   : theFed( *(*map).fed(fedId))
 { }
 

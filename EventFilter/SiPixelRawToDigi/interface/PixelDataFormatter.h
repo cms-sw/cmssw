@@ -42,7 +42,7 @@
 
 class FEDRawData;
 
-class SiPixelFedCablingMap;
+class SiPixelFedCablingTree;
 class SiPixelFrameConverter;
 
 class PixelDataFormatter {
@@ -51,13 +51,12 @@ public:
 
   typedef std::vector<PixelDigi> DetDigis;
   typedef std::map<uint32_t, DetDigis> Digis;
-//  typedef std::vector< edm::DetSet<PixelDigi> > Digis;
   typedef std::pair<DetDigis::const_iterator, DetDigis::const_iterator> Range;
   
   typedef std::vector<SiPixelRawDataError> DetErrors;
   typedef std::map<uint32_t, DetErrors> Errors;
 
-  PixelDataFormatter(const SiPixelFedCablingMap * map);
+  PixelDataFormatter(const SiPixelFedCablingTree * map);
 
   void setErrorStatus(bool ErrorStatus, bool OrderStatus);
 
@@ -72,15 +71,15 @@ private:
   mutable int theDigiCounter;
   mutable int theWordCounter;
 
-  const SiPixelFedCablingMap * theCablingMap;
+  const SiPixelFedCablingTree * theCablingTree;
   bool includeErrors;
   bool checkOrder;
   ErrorChecker errorcheck;
 
-  typedef unsigned int Word32;
-  typedef long long Word64;
-//  typedef uint32_t Word32;
-//  typedef uint64_t Word64;
+//  typedef unsigned int Word32;
+//  typedef long long Word64;
+  typedef uint32_t Word32;
+  typedef uint64_t Word64;
 
   int checkError(const Word32& data) const;
 

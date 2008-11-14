@@ -14,7 +14,7 @@
 
 SiPixelRawDataError::SiPixelRawDataError() {}
 
-SiPixelRawDataError::SiPixelRawDataError(const unsigned int errorWord32, const int errorType, int fedId) : 
+SiPixelRawDataError::SiPixelRawDataError(uint32_t errorWord32, const int errorType, int fedId) : 
   errorWord32_(errorWord32),
   errorType_(errorType),
   fedId_(fedId)
@@ -22,7 +22,7 @@ SiPixelRawDataError::SiPixelRawDataError(const unsigned int errorWord32, const i
     setMessage();
   }
 
-SiPixelRawDataError::SiPixelRawDataError(const long long errorWord64, const int errorType, int fedId) : 
+SiPixelRawDataError::SiPixelRawDataError(uint64_t errorWord64, const int errorType, int fedId) : 
   errorWord64_(errorWord64),
   errorType_(errorType),
   fedId_(fedId)
@@ -36,11 +36,11 @@ SiPixelRawDataError::~SiPixelRawDataError() {}
 
 //functions to get error words and types
 
-void SiPixelRawDataError::setWord32(unsigned int errorWord32) {
+void SiPixelRawDataError::setWord32(uint32_t errorWord32) {
   errorWord32_ = errorWord32;
 }
 
-void SiPixelRawDataError::setWord64(long long errorWord64) {
+void SiPixelRawDataError::setWord64(uint64_t errorWord64) {
   errorWord64_ = errorWord64;
 }
 

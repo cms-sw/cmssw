@@ -33,7 +33,7 @@ bool PixelFEDCabling::checkLinkNumbering() const
   unsigned int idx_expected = 0;
   for (IL il = theLinks.begin(); il != theLinks.end(); il++) {
     idx_expected++;
-    if (idx_expected != (*il).id() ) {
+    if ((*il).id() != 0 && idx_expected != (*il).id() ) {
       result = false;
       cout << " ** PixelFEDCabling ** link numbering inconsistency, expected id: "
            << idx_expected <<" has: " << (*il).id() << endl;

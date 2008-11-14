@@ -1,16 +1,10 @@
-
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("RawToDigiTest")
+process = cms.Process("RawToDigi1")
 
-process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(-1)
-)
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1))
 
-process.source = cms.Source("PoolSource",
-    fileNames =  cms.untracked.vstring('file:/scratch/dkotlins/0089689A-0A9E-DD11-ABC3-001D09F2512C.root')
-)
-
+process.source = cms.Source("PoolSource", fileNames =  cms.untracked.vstring('file:rawdata.root'))
 
 process.load("Geometry.TrackerSimData.trackerSimGeometryXML_cfi")
 process.load("Geometry.TrackerGeometryBuilder.trackerGeometry_cfi")
@@ -19,46 +13,33 @@ process.load("Configuration.StandardSequences.MagneticField_cff")
 
 # Cabling
 #  include "CalibTracker/Configuration/data/Tracker_FakeConditions.cff"
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.connect = "frontier://FrontierProd/CMS_COND_21X_GLOBALTAG"
-process.GlobalTag.globaltag = "CRAFT_V3P::All"
-process.es_prefer_GlobalTag = cms.ESPrefer('PoolDBESSource','GlobalTag')
-
+#process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+#process.GlobalTag.connect = "frontier://FrontierProd/CMS_COND_21X_GLOBALTAG"
+#process.GlobalTag.globaltag = "CRAFT_V3P::All"
+#process.es_prefer_GlobalTag = cms.ESPrefer('PoolDBESSource','GlobalTag')
+process.load("CalibTracker.Configuration.SiPixel_FakeConditions_cff")
+process.load("CalibTracker.Configuration.SiPixelCabling.SiPixelCabling_SQLite_cff")
+process.siPixelCabling.connect = 'sqlite_file:cabling.db'
+process.siPixelCabling.toGet = cms.VPSet(cms.PSet(
+    record = cms.string('SiPixelFedCablingMapRcd'),
+    tag = cms.string('SiPixelFedCablingMap_v14')
+))
 
 process.load("EventFilter.SiPixelRawToDigi.SiPixelRawToDigi_cfi")
-process.siPixelDigis.InputLabel = 'source'
+process.siPixelDigis.InputLabel = 'siPixelRawData'
 process.siPixelDigis.IncludeErrors = True
-
-#process.siPixelDigis = cms.EDAnalyzer("SiPixelRawDumper",
-#    Timing = cms.untracked.bool(False),
-#    IncludeErrors = cms.untracked.bool(True),
-#    InputLabel = cms.untracked.string('source'),
-#    CheckPixelOrder = cms.untracked.bool(False)
-#)
+process.siPixelDigis.Timing = False 
 
 process.MessageLogger = cms.Service("MessageLogger",
     debugModules = cms.untracked.vstring('siPixelDigis'),
-    destinations = cms.untracked.vstring('cout'),
-#    destinations = cms.untracked.vstring("log","cout"),
-    cout = cms.untracked.PSet(
-        threshold = cms.untracked.string('ERROR')
-    )
-#    log = cms.untracked.PSet(
-#        threshold = cms.untracked.string('DEBUG')
-#    )
+    destinations = cms.untracked.vstring('r2d'),
+    r2d = cms.untracked.PSet( threshold = cms.untracked.string('ERROR'))
 )
 
 process.out = cms.OutputModule("PoolOutputModule",
-    fileName =  cms.untracked.string('file:/scratch/dkotlins/digis.root'),
+    fileName =  cms.untracked.string('file:digis.root'),
     outputCommands = cms.untracked.vstring("drop *","keep *_siPixelDigis_*_*")
-#    untracked vstring outputCommands = { "drop *", "keep *_siPixelDigis_*_*"}
 )
 
-
-# process.s = cms.Sequence(process.dumper)
-
 process.p = cms.Path(process.siPixelDigis)
-
 process.ep = cms.EndPath(process.out)
-
-

@@ -1,5 +1,15 @@
 <lcgdict>
   
+  <class name="sipixelobjects::PixelROC">
+  <field name="theFrameConverter" transient="true"/>
+  <field name="theNRows" transient="true"/>
+  <field name="theNCols" transient="true"/>
+  </class>
+
+  <class name="SiPixelFedCablingMap::Key"/>
+  <class name="std::map<SiPixelFedCablingMap::Key,sipixelobjects::PixelROC>"/>
+  <class name="SiPixelFedCablingMap" class_version="0"/>
+
   <class name="SiPixelCPEGenericErrorParm" class_version="0"/>
   <class name="SiPixelCPEGenericErrorParm::DbEntry"/>
   <class name="std::vector<SiPixelCPEGenericErrorParm::DbEntry>"/> 
@@ -23,22 +33,7 @@
   <class name="SiPixelDbItem"/>
   <class name="std::vector<SiPixelDbItem>"/>
 
-  <class name="sipixelobjects::PixelROC">
-  <field name="theFrameConverter" transient="true"/>
-  <field name="theNRows" transient="true"/>
-  <field name="theNCols" transient="true"/>
-  </class>
-  
   <class name="SiPixelLorentzAngle" class_version="0"/>
-  
-  <class name="sipixelobjects::PixelFEDLink" class_version="0"/>
-  <class name="std::vector<sipixelobjects::PixelROC>" /> 
-
-  <class name="sipixelobjects::PixelFEDCabling"/>
-  <class name="std::vector<sipixelobjects::PixelFEDLink>"/>
-
-  <class name="SiPixelFedCablingMap" class_version="0"/>
-  <class name="std::vector<sipixelobjects::PixelFEDCabling>"/>
 
   <class name="SiPixelPerformanceSummary" class_version="0"/>
   <class name="SiPixelPerformanceSummary::DetSummary"/>

@@ -1,6 +1,8 @@
 #include "SiPixelDigiToRaw.h"
+
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -9,8 +11,9 @@
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 
-#include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
 #include "CondFormats/DataRecord/interface/SiPixelFedCablingMapRcd.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingTree.h"
 
 
 #include "EventFilter/SiPixelRawToDigi/interface/PixelDataFormatter.h"
@@ -18,20 +21,18 @@
 using namespace std;
 
 SiPixelDigiToRaw::SiPixelDigiToRaw( const edm::ParameterSet& pset ) :
-  eventCounter_(0),
-  fedCablingMap_(0),
+  cablingTree_(0),
   config_(pset)
-//  src_( pset.getParameter<edm::InputTag>( "src" ) )
 {
 
   // Define EDProduct type
-  string label = pset.getUntrackedParameter<string>("ProductLabel","sourceXXL");
   produces<FEDRawDataCollection>();
 
 }
 
 // -----------------------------------------------------------------------------
 SiPixelDigiToRaw::~SiPixelDigiToRaw() {
+   delete cablingTree_;
 }
 
 // -----------------------------------------------------------------------------
@@ -44,16 +45,17 @@ void SiPixelDigiToRaw::produce( edm::Event& ev,
                               const edm::EventSetup& es)
 {
   using namespace sipixelobjects;
+  static unsigned long eventCounter = 0;
 
-  eventCounter_++;
+  eventCounter++;
   edm::LogInfo("SiPixelDigiToRaw") << "[SiPixelDigiToRaw::produce] "
                         << "event number: "
-                        << eventCounter_;
+                        << eventCounter;
 
   edm::Handle< edm::DetSetVector<PixelDigi> > digiCollection;
-  static string label = config_.getUntrackedParameter<string>("InputLabel","source");
-  static string instance = config_.getUntrackedParameter<string>("InputInstance","");
-  ev.getByLabel( label, instance, digiCollection);
+  //static string label = config_.getUntrackedParameter<string>("InputLabel","source");
+  static edm::InputTag label = config_.getUntrackedParameter<edm::InputTag>("InputLabel",edm::InputTag("source"));
+  ev.getByLabel( label, digiCollection);
 
   PixelDataFormatter::Digis digis;
   typedef vector< edm::DetSet<PixelDigi> >::const_iterator DI;
@@ -68,21 +70,25 @@ void SiPixelDigiToRaw::produce( edm::Event& ev,
   }
   allDigiCounter += digiCounter;
 
-  edm::ESHandle<SiPixelFedCablingMap> map;
-  es.get<SiPixelFedCablingMapRcd>().get( map );
+  static edm::ESWatcher<SiPixelFedCablingMapRcd> recordWatcher;
+  if (recordWatcher.check( es )) {
+    edm::ESHandle<SiPixelFedCablingMap> cablingMap;
+    es.get<SiPixelFedCablingMapRcd>().get( cablingMap );
+    if (cablingTree_) delete cablingTree_; cablingTree_= cablingMap->cablingTree();
+  }
 
   static bool debug = edm::MessageDrop::instance()->debugEnabled;
-  if (debug) cout << map->version() << endl;
+  if (debug) cout << cablingTree_->version() << endl;
   
-  PixelDataFormatter formatter(map.product());
+  PixelDataFormatter formatter(cablingTree_);
 
   // create product (raw data)
   std::auto_ptr<FEDRawDataCollection> buffers( new FEDRawDataCollection );
 
-  const vector<const PixelFEDCabling *>  cabling = map->fedList();
+  const vector<const PixelFEDCabling *>  fedList = cablingTree_->fedList();
 
   typedef vector<const PixelFEDCabling *>::const_iterator FI;
-  for (FI it = cabling.begin(); it != cabling.end(); it++) {
+  for (FI it = fedList.begin(); it != fedList.end(); it++) {
     LogDebug("SiPixelDigiToRaw")<<" PRODUCE DATA FOR FED_id: " << (**it).id();
     FEDRawData * rawData = formatter.formatData( ev.id().event(),(**it).id(), digis);
     FEDRawData& fedRawData = buffers->FEDData( (**it).id() ); 

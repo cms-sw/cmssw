@@ -2,7 +2,7 @@
 #define SiPixelObjects_SiPixelFrameConverter_H
 
 
-class SiPixelFedCablingMap;
+class SiPixelFedCablingTree;
 namespace sipixelobjects { class PixelFEDCabling; }
 
 #include "CondFormats/SiPixelObjects/interface/ElectronicIndex.h"
@@ -14,7 +14,7 @@ namespace sipixelobjects { class PixelFEDCabling; }
 class SiPixelFrameConverter {
 public:
 
-  SiPixelFrameConverter(const SiPixelFedCablingMap * map, int fedId); 
+  SiPixelFrameConverter(const SiPixelFedCablingTree * map, int fedId); 
 
   bool hasDetUnit(uint32_t radId) const;
 

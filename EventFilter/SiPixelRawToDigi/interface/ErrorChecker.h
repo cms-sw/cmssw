@@ -18,8 +18,11 @@ class SiPixelFrameConverter;
 class ErrorChecker {
 
 public:
-  typedef unsigned int Word32;
-  typedef long long Word64;
+//  typedef unsigned int Word32;
+//  typedef long long Word64;
+  typedef uint32_t Word32;
+  typedef uint64_t Word64;
+
   typedef std::vector<SiPixelRawDataError> DetErrors;
   typedef std::map<uint32_t, DetErrors> Errors;
 

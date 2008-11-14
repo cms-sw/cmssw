@@ -1,50 +1,69 @@
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
-#include <sstream>
+
+#include <vector>
 #include <iostream>
 
-using namespace std;
 using namespace sipixelobjects;
 
-typedef std::map<int, SiPixelFedCablingMap::PixelFEDCabling>::const_iterator IMAP;
-
-void SiPixelFedCablingMap::addFed(const PixelFEDCabling & f)
+bool SiPixelFedCablingMap::Key::operator < (const Key & other) const 
 {
-  int id = f.id();
-  theFedCablings[id] = f;
+  if (fed < other.fed) return true;
+  if (fed > other.fed) return false;
+
+  if (link < other.link) return true;
+  if (link > other.link) return false;
+
+  if (roc < other.roc) return true;
+  if (roc > other.roc) return false;
+
+  return false;
 }
 
-const PixelFEDCabling * SiPixelFedCablingMap::fed(unsigned int id) const
+SiPixelFedCablingMap::SiPixelFedCablingMap(const SiPixelFedCablingTree *cab) 
+  : theVersion(cab->version())
 {
-  IMAP  it = theFedCablings.find(id);
-  return ( it == theFedCablings.end() ) ? 0 : & (*it).second;
+std::cout << "HERE --- SiPixelFedCablingMap CTOR" << std::endl;
+  
+  std::vector<const PixelFEDCabling *> fedList = cab->fedList();
+  for (std::vector<const PixelFEDCabling *>::const_iterator ifed=fedList.begin();
+   ifed != fedList.end(); ifed++) {
+    int fed = (**ifed).id();
+    int numLink = (**ifed).numberOfLinks();
+    for (int link=1; link <= numLink; link++) {
+      const PixelFEDLink * pLink = (**ifed).link(link); 
+      if (pLink==0) continue;
+      int linkId = static_cast<int>(pLink->id());
+      if (linkId != 0 && linkId!= link) std::cout << "PROBLEM WITH LINK NUMBER!!!!" << std::endl;
+      int numberROC = pLink->numberOfROCs(); 
+      for (int roc=1; roc <= numberROC; roc++) {
+        const PixelROC * pROC = pLink->roc(roc);
+        if (pROC==0) continue;
+        if (static_cast<int>(pROC->idInLink()) != roc) std::cout << "PROBLEM WITH ROC NUMBER!!!!" << std::endl;
+        Key key = {fed, link, roc}; 
+        theMap[key] = (*pROC);
+      }
+    } 
+  }  
 }
 
-string SiPixelFedCablingMap::print(int depth) const
+SiPixelFedCablingTree * SiPixelFedCablingMap::cablingTree() const
 {
-  ostringstream out;
-  if ( depth-- >=0 ) {
-    out << theVersion << endl;
-    for(IMAP it=theFedCablings.begin(); it != theFedCablings.end(); it++) {
-      out << (*it).second.print(depth);
-    }
+  SiPixelFedCablingTree * tree = new SiPixelFedCablingTree(theVersion); 
+  for (Map::const_iterator im = theMap.begin(); im != theMap.end(); im++) {
+    const sipixelobjects::PixelROC & roc = im->second;
+    unsigned int fedId = im->first.fed;
+    unsigned int linkId = im->first.link;
+    tree->addItem(fedId, linkId,  roc);
   }
-  out << endl;
-  return out.str();
+  return tree;
 }
 
-std::vector<const PixelFEDCabling *> SiPixelFedCablingMap::fedList() const
+const sipixelobjects::PixelROC* SiPixelFedCablingMap::findItem(
+    unsigned int fedId, unsigned int linkId, unsigned int rocId) const
 {
-  std::vector<const PixelFEDCabling *> result;
-  for (IMAP im = theFedCablings.begin(); im != theFedCablings.end(); im++) {
-    result.push_back( &(im->second) );
-  }
-  return result;
-
-}
-
-void SiPixelFedCablingMap:: addItem(unsigned int fedId, unsigned int linkId, const PixelROC& roc)
-{
-  PixelFEDCabling & cabling = theFedCablings[fedId];
-  if (cabling.id() != fedId) cabling=PixelFEDCabling(fedId);
-  cabling.addItem(linkId,roc);
+  const PixelROC* roc = 0;
+  Key key = {fedId, linkId, rocId};
+  Map::const_iterator inMap = theMap.find(key);
+  if (inMap!= theMap.end()) roc = &(inMap->second);
+  return roc;
 }

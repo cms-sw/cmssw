@@ -11,7 +11,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-class SiPixelFedCablingMap;
+class SiPixelFedCablingTree;
 class TH1D;
 class TFile;
 class R2DTimerObserver;
@@ -37,11 +37,8 @@ public:
 
 private:
 
-  unsigned long eventCounter_;
-//  edm::InputTag theLabel;
   edm::ParameterSet config_;
-  const SiPixelFedCablingMap * fedCablingMap_;
-  std::vector<int> fedList_;
+  const SiPixelFedCablingTree * cablingTree_;
   TH1D *hCPU, *hDigi;
   TFile * rootFile;
   R2DTimerObserver * theTimer;

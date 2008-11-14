@@ -9,7 +9,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
-class SiPixelFedCablingMap;
+class SiPixelFedCablingTree;
 
 class SiPixelDigiToRaw : public edm::EDProducer {
 public:
@@ -31,9 +31,7 @@ public:
 
 private:
 
-  unsigned long eventCounter_;
-  SiPixelFedCablingMap * fedCablingMap_;
-//  edm::InputTag src_;
+  SiPixelFedCablingTree * cablingTree_;
   edm::ParameterSet config_;
 };
 #endif

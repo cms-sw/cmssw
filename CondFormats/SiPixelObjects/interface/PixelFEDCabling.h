@@ -37,11 +37,11 @@ public:
 
   void  addItem(unsigned int linkId, const PixelROC & roc);
 
-private:
   /// check link numbering consistency, ie. that link position in vector
   /// is the same as its id. Futhermore it checks numbering consistency for
-  /// ROCs belonging to Link. Called by constructor 
+  /// ROCs belonging to Link. 
   bool checkLinkNumbering() const;
+private:
   
 private:
 

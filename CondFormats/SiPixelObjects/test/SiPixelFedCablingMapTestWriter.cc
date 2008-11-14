@@ -7,6 +7,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingTree.h"
 #include "CondFormats/SiPixelObjects/interface/PixelFEDCabling.h"
 #include "CondFormats/SiPixelObjects/interface/PixelFEDLink.h"
 #include "CondFormats/SiPixelObjects/interface/PixelROC.h"
@@ -29,13 +30,13 @@ class SiPixelFedCablingMapTestWriter : public edm::EDAnalyzer {
   virtual void endJob();
   virtual void analyze(const edm::Event& , const edm::EventSetup& ){}
  private:
-  SiPixelFedCablingMap * cabling;
+  SiPixelFedCablingTree * cablingTree;
   string m_record;
 };
 
 
 SiPixelFedCablingMapTestWriter::SiPixelFedCablingMapTestWriter( const edm::ParameterSet& iConfig ) 
-  : cabling(0),
+  : cablingTree(0),
     m_record(iConfig.getParameter<std::string>("record"))
 {
   cout <<" HERE record: "<< m_record<<endl;
@@ -45,6 +46,9 @@ SiPixelFedCablingMapTestWriter::SiPixelFedCablingMapTestWriter( const edm::Param
 
 void  SiPixelFedCablingMapTestWriter::endJob()
 {
+  cout<<"Convert Tree to Map";
+ 
+  SiPixelFedCablingMap * cablingMap = new SiPixelFedCablingMap(cablingTree);
   cout<<"Now writing to DB"<<endl;
   edm::Service<cond::service::PoolDBOutputService> mydbservice;
   if( !mydbservice.isAvailable() ){
@@ -55,13 +59,13 @@ void  SiPixelFedCablingMapTestWriter::endJob()
   try {
     if( mydbservice->isNewTagRequest(m_record) ) {
       mydbservice->createNewIOV<SiPixelFedCablingMap>( 
-          cabling,
+          cablingMap,
 	  mydbservice->beginOfTime(),
 	  mydbservice->endOfTime(), 
 	  m_record);
     } else {
       mydbservice->appendSinceTime<SiPixelFedCablingMap>(
-          cabling, 
+          cablingMap, 
 	  mydbservice->currentTime(), 
 	  m_record);
     }
@@ -81,8 +85,7 @@ SiPixelFedCablingMapTestWriter::~SiPixelFedCablingMapTestWriter()
 void SiPixelFedCablingMapTestWriter::beginJob( const edm::EventSetup& iSetup ) {
    cout << "BeginJob method " << endl;
    cout<<"Building FED Cabling"<<endl;   
-   cabling =  new SiPixelFedCablingMap("My map V-TEST");
-  
+   cablingTree =  new SiPixelFedCablingTree("My map V-TEST");
 
    PixelROC r1;
    PixelROC r2;
@@ -93,8 +96,8 @@ void SiPixelFedCablingMapTestWriter::beginJob( const edm::EventSetup& iSetup ) {
 
    PixelFEDCabling fed(0);
    fed.addLink(link);
-   cabling->addFed(fed);
-   cout <<"PRINTING MAP:"<<endl<<cabling->print(3) << endl;
+   cablingTree->addFed(fed);
+   cout <<"PRINTING MAP:"<<endl<<cablingTree->print(3) << endl;
 
    
 }

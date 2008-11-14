@@ -1,35 +1,34 @@
-#ifndef SiPixelFedCablingMap_H
-#define SiPixelFedCablingMap_H
+#ifndef EventFilter_SiPixelRawToDigi_SiPixelFedCablingMap_H
+#define EventFilter_SiPixelRawToDigi_SiPixelFedCablingMap_H
 
-#include <vector>
-#include <map>
+#include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingTree.h"
+#include "CondFormats/SiPixelObjects/interface/PixelROC.h"
+
 #include <string>
-
-#include "CondFormats/SiPixelObjects/interface/PixelFEDCabling.h"
+#include <map>
 
 class SiPixelFedCablingMap {
-public:
-  typedef sipixelobjects::PixelFEDCabling PixelFEDCabling;
+
+public: 
+
+  SiPixelFedCablingMap(const SiPixelFedCablingTree *cab);
 
   SiPixelFedCablingMap(const std::string & version="") : theVersion(version) {}
 
-  /// add cabling for one fed
-  void addFed(const PixelFEDCabling& f);
+  virtual ~SiPixelFedCablingMap() {}
 
-  /// get fed identified by its id
-  const PixelFEDCabling * fed(unsigned int idFed) const;
+  SiPixelFedCablingTree * cablingTree() const; 
 
-  std::vector<const PixelFEDCabling *> fedList() const;
+  std::string version() const { return theVersion; }
 
-  ///map version
-  const std::string & version() const { return theVersion; }
+  const sipixelobjects::PixelROC* findItem(unsigned int fedId, unsigned int linkId, unsigned int rocId) const;
 
-  std::string print(int depth = 0) const;
-
-  void addItem(unsigned int fedId, unsigned int linkId, const sipixelobjects::PixelROC& roc);
+  struct Key { unsigned int fed, link, roc; bool operator < (const Key & other) const; };
 
 private:
-  std::string theVersion; 
-  std::map<int, PixelFEDCabling> theFedCablings;
+  std::string theVersion;
+  typedef std::map<Key, sipixelobjects::PixelROC> Map;
+  Map theMap; 
 };
+
 #endif
