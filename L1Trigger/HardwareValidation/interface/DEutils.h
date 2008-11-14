@@ -149,10 +149,13 @@ DEutils<L1CaloRegionCollection>::DEDigi(col_cit itd,  col_cit itm, int aflag) {
   L1DataEmulDigi digi(dedefs::RCT,cid, x1,x2,x3, errt);
   unsigned int dw = itd->raw(); 
   unsigned int ew = itm->raw();
-  dw &= 0x3fff;
+  unsigned int mask = 0x3fff;
+  //mask (temporary) mip(12), quiet (13)
+  mask = 0x0fff;
+  dw &= mask;
   dw += (((itd->id().ieta())&0x1f)<<14);
   dw += (((itd->id().iphi())&0x1f)<<19);
-  ew &= 0x3fff;
+  ew &= mask;
   ew += (((itm->id().ieta())&0x1f)<<14);
   ew += (((itm->id().iphi())&0x1f)<<19);
   dw = (aflag==4)?0:dw;
@@ -560,8 +563,9 @@ DEutils<L1CaloRegionCollection>::de_equal(const cand_type& lhs, const cand_type&
   if (!lhs.id().isHf()){
     val &= (lhs.overFlow()  == rhs.overFlow() );
     val &= (lhs.tauVeto()   == rhs.tauVeto()  );
-    val &= (lhs.mip()       == rhs.mip()      );
-    val &= (lhs.quiet()     == rhs.quiet()    );
+    //mask temporarily (!) mip and quiet bits
+    //val &= (lhs.mip()       == rhs.mip()      );
+    //val &= (lhs.quiet()     == rhs.quiet()    );
     val &= (lhs.rctCard()   == rhs.rctCard()  );
   } else {
     val &= (lhs.fineGrain() == rhs.fineGrain());
