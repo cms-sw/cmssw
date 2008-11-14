@@ -9,13 +9,12 @@
 #include "CondCore/DBCommon/interface/DBSession.h"
 #include "CondCore/DBCommon/interface/Exception.h"
 #include "CondCore/MetaDataService/interface/MetaData.h"
+#include "CondCore/DBCommon/interface/SharedLibraryName.h"
 
 #include "CondCore/IOVService/interface/IOVService.h"
 #include "CondCore/IOVService/interface/IOVEditor.h"
 #include "CondCore/IOVService/interface/IOVProxy.h"
 
-#include "SealBase/SharedLibrary.h"
-#include "SealBase/SharedLibraryError.h"
 
 #include "CondCore/DBCommon/interface/Logger.h"
 #include "CondCore/DBCommon/interface/LogDBEntry.h"
@@ -26,6 +25,7 @@
 #include "CondCore/DBCommon/interface/ObjectRelationalMappingUtility.h"
 #include "CondCore/IOVService/interface/IOVNames.h"
 
+#include "FWCore/PluginManager/interface/SharedLibrary.h"
 #include "FWCore/PluginManager/interface/PluginManager.h"
 #include "FWCore/PluginManager/interface/standard.h"
 
@@ -137,11 +137,11 @@ int main( int argc, char** argv ){
     std::cerr << er.what()<<std::endl;
     return 1;
   }
-  std::string dictlibrary =  dictionary.empty() ? "" : seal::SharedLibrary::libname( dictionary );
+  cond::SharedLibraryName s;
   if(debug){
     std::cout<<"connection:\t"<<destConnect<<'\n';
     std::cout<<"logDb:\t"<<logConnect<<'\n';
-    std::cout<<"dictionary:\t"<<dictlibrary<<'\n';
+    std::cout<<"dictionary:\t"<<dictionary<<'\n';
     std::cout<<"tag:\t"<<destTag<<'\n';
     std::cout<<"fromTime:\t"<<from<<'\n';
     std::cout<<"sinceTime:\t"<<since<<'\n';
@@ -153,11 +153,11 @@ int main( int argc, char** argv ){
   edmplugin::PluginManager::Config config;
   edmplugin::PluginManager::configure(edmplugin::standard::config());
 
-  if (!dictlibrary.empty())
+  if (!dictionary.empty())
   try {
-    seal::SharedLibrary::load( dictlibrary );
-  }catch ( seal::SharedLibraryError *error) {
-    throw std::runtime_error( error->explainSelf().c_str() );
+    edmplugin::SharedLibrary( s(dictionary) );
+  }catch ( cms::Exception& er) {
+    throw std::runtime_error( er.what() );
   }
 
   cond::DBSession session;

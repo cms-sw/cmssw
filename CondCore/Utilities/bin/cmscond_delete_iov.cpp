@@ -1,5 +1,6 @@
 #include "FWCore/PluginManager/interface/PluginManager.h"
 #include "FWCore/PluginManager/interface/standard.h"
+#include "FWCore/PluginManager/interface/SharedLibrary.h"
 #include "CondCore/DBCommon/interface/CoralTransaction.h"
 #include "CondCore/DBCommon/interface/PoolTransaction.h"
 #include "CondCore/DBCommon/interface/Connection.h"
@@ -8,17 +9,13 @@
 #include "CondCore/DBCommon/interface/MessageLevel.h"
 #include "CondCore/DBCommon/interface/DBSession.h"
 #include "CondCore/DBCommon/interface/Exception.h"
+#include "CondCore/DBCommon/interface/SharedLibraryName.h"
 #include "CondCore/MetaDataService/interface/MetaData.h"
 #include "CondCore/IOVService/interface/IOVService.h"
 #include "CondCore/IOVService/interface/IOVEditor.h"
 #include "CondCore/Utilities/interface/CommonOptions.h"
 #include <boost/program_options.hpp>
 #include <iostream>
-
-#include "SealBase/SharedLibrary.h"
-#include "SealBase/SharedLibraryError.h"
-
-
 
 int main( int argc, char** argv ){
   edmplugin::PluginManager::Config config;
@@ -84,13 +81,12 @@ int main( int argc, char** argv ){
     debug=true;
   }
   
-  std::string dictlibrary =  dictionary.empty() ? "" : seal::SharedLibrary::libname( dictionary );
-  
-  if (!dictlibrary.empty())
+  cond::SharedLibraryName s;
+  if (!dictionary.empty())
     try {
-      seal::SharedLibrary::load( dictlibrary );
-    }catch ( seal::SharedLibraryError *error) {
-      throw std::runtime_error( error->explainSelf().c_str() );
+      edmplugin::SharedLibrary( s(dictionary) );
+    }catch ( const cms::Exception& er ) {
+      throw std::runtime_error( er.what() );
     }
   cond::DBSession* session=new cond::DBSession;
   std::string userenv(std::string("CORAL_AUTH_USER=")+user);

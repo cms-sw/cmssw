@@ -1,5 +1,5 @@
 #include "CondCore/Utilities/interface/CondBasicIter.h"
-
+#include <iostream>
 CondBasicIter::CondBasicIter(){
     ioviterator = 0;
     pooldb = 0;

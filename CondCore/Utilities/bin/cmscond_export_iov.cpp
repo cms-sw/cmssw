@@ -1,5 +1,6 @@
 #include "FWCore/PluginManager/interface/PluginManager.h"
 #include "FWCore/PluginManager/interface/standard.h"
+#include "FWCore/PluginManager/interface/SharedLibrary.h"
 #include "CondCore/DBCommon/interface/ConnectionHandler.h"
 #include "CondCore/DBCommon/interface/CoralTransaction.h"
 #include "CondCore/DBCommon/interface/PoolTransaction.h"
@@ -11,16 +12,12 @@
 #include "CondCore/DBCommon/interface/DBSession.h"
 #include "CondCore/DBCommon/interface/Exception.h"
 #include "CondCore/DBCommon/interface/SQLReport.h"
-#include "CondCore/MetaDataService/interface/MetaData.h"
+#include "CondCore/DBCommon/interface/SharedLibraryName.h"
 
+#include "CondCore/MetaDataService/interface/MetaData.h"
 #include "CondCore/IOVService/interface/IOVService.h"
 #include "CondCore/IOVService/interface/IOVEditor.h"
 #include "CondCore/IOVService/interface/IOVIterator.h"
-
-
-#include "SealBase/SharedLibrary.h"
-#include "SealBase/SharedLibraryError.h"
-
 
 #include "CondCore/DBCommon/interface/Logger.h"
 #include "CondCore/DBCommon/interface/LogDBEntry.h"
@@ -147,12 +144,12 @@ int main( int argc, char** argv ){
     std::cerr << er.what()<<std::endl;
     return 1;
   }
-  std::string dictlibrary =  dictionary.empty() ? "" : seal::SharedLibrary::libname( dictionary );
+  
   if(debug){
     std::cout<<"sourceConnect:\t"<<sourceConnect<<'\n';
     std::cout<<"destConnect:\t"<<destConnect<<'\n';
     std::cout<<"logDb:\t"<<logConnect<<'\n';
-    std::cout<<"dictionary:\t"<<dictlibrary<<'\n';
+    std::cout<<"dictionary:\t"<<dictionary<<'\n';
     std::cout<<"inputTag:\t"<<inputTag<<'\n';
     std::cout<<"destTag:\t"<<destTag<<'\n';
     std::cout<<"beginTime:\t"<<since<<'\n';
@@ -162,11 +159,12 @@ int main( int argc, char** argv ){
     std::cout<<"configFile:\t"<<configuration_filename<<std::endl;
   }
   //
-  if (!dictlibrary.empty())
+  cond::SharedLibraryName s;
+  if (!dictionary.empty())
   try {
-    seal::SharedLibrary::load( dictlibrary );
-  }catch ( seal::SharedLibraryError *error) {
-    throw std::runtime_error( error->explainSelf().c_str() );
+    edmplugin::SharedLibrary( s(dictionary) );
+  }catch ( cms::Exception& er ) {
+    throw std::runtime_error( er.what() );
   }
 
   cond::DBSession session;
