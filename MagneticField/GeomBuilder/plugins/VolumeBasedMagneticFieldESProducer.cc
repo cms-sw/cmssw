@@ -1,10 +1,10 @@
 /** \file
  *
- *  $Date: 2008/04/02 15:50:15 $
- *  $Revision: 1.11 $
+ *  $Date: 2008/04/09 17:11:29 $
+ *  $Revision: 1.12 $
  */
 
-#include "MagneticField/GeomBuilder/src/VolumeBasedMagneticFieldESProducer.h"
+#include "MagneticField/GeomBuilder/plugins/VolumeBasedMagneticFieldESProducer.h"
 #include "MagneticField/VolumeBasedEngine/interface/VolumeBasedMagneticField.h"
 
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"

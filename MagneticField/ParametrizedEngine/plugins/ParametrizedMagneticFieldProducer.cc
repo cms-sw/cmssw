@@ -1,11 +1,11 @@
 /** \file
  *
- *  $Date: 2008/04/29 11:39:11 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/05/06 12:15:22 $
+ *  $Revision: 1.5 $
  *  \author Massimiliano Chiorboli, updated NA 03/08
  */
 
-#include "MagneticField/ParametrizedEngine/src/ParametrizedMagneticFieldProducer.h"
+#include "MagneticField/ParametrizedEngine/plugins/ParametrizedMagneticFieldProducer.h"
 #include "MagneticField/ParametrizedEngine/src/OAEParametrizedMagneticField.h"
 #include "MagneticField/ParametrizedEngine/src/OAE85lParametrizedMagneticField.h"
 #include "MagneticField/ParametrizedEngine/src/PolyFit2DParametrizedMagneticField.h"

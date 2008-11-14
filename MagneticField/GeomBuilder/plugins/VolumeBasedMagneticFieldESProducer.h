@@ -5,8 +5,8 @@
  *
  *  Producer for the VolumeBasedMagneticField.
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2006/05/31 13:52:10 $
+ *  $Revision: 1.1 $
  */
 
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
