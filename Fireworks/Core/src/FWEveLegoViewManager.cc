@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 22:01:27 EST 2008
-// $Id: FWEveLegoViewManager.cc,v 1.17 2008/11/06 22:05:25 amraktad Exp $
+// $Id: FWEveLegoViewManager.cc,v 1.18 2008/11/11 15:21:45 chrjones Exp $
 //
 
 // system include files
@@ -46,6 +46,8 @@
 #include "Fireworks/Core/interface/FWSelectionManager.h"
 
 #include "Fireworks/Core/interface/FW3DLegoDataProxyBuilderFactory.h"
+#include "Fireworks/Core/interface/FWEDProductRepresentationChecker.h"
+#include "Fireworks/Core/interface/FWTypeToRepresentations.h"
 
 //
 // constants, enums and typedefs
@@ -60,9 +62,9 @@
 //
 FWEveLegoViewManager::FWEveLegoViewManager(FWGUIManager* iGUIMgr):
 FWViewManagerBase(),
-  m_elements("Lego"),
+  m_elements( new TEveElementList("Lego")),
   m_data(0),
-  m_lego(0),
+  m_lego(),
   m_legoRebinFactor(1),
   m_eveSelection(0),
   m_selectionManager(0),
@@ -110,8 +112,8 @@ m_modelsHaveBeenMadeAtLeastOnce(false)
 
 FWEveLegoViewManager::~FWEveLegoViewManager()
 {
-   delete m_data;
-   m_lego->Destroy();
+   //delete m_data;
+   m_lego.destroyElement();
    //delete m_lego;
 }
 
@@ -137,7 +139,7 @@ FWViewBase*
 FWEveLegoViewManager::buildView(TGFrame* iParent)
 {
    initData();
-   boost::shared_ptr<FWEveLegoView> view( new FWEveLegoView(iParent, &m_elements) );
+   boost::shared_ptr<FWEveLegoView> view( new FWEveLegoView(iParent, m_elements.get()) );
    view->beingDestroyed_.connect(boost::bind(&FWEveLegoViewManager::beingDestroyed,this,_1));
    m_views.push_back(view);
 
@@ -250,8 +252,8 @@ FWEveLegoViewManager::makeProxyBuilderFor(const FWEventItem* iItem)
 	     boost::shared_ptr<FW3DLegoDataProxyBuilder> pB( builder );
 	     builder->setItem(iItem);
              initData();
-             if(0==m_lego) {
-                m_lego = new TEveCaloLego(m_data);
+             if(!m_lego) {
+                m_lego.reset( new TEveCaloLego(m_data) );
                 TEveRGBAPalette* pal = new TEveRGBAPalette(0, 100);
                 // pal->SetLimits(0, data->GetMaxVal());
                 pal->SetLimits(0, 100);
@@ -279,9 +281,9 @@ FWEveLegoViewManager::makeProxyBuilderFor(const FWEventItem* iItem)
 		boundaries->AddLine(-3.0,-3.1416,0.001,-3.0,3.1416,0.001);
 		boundaries->AddLine(3.0,-3.1416,0.001,3.0,3.1416,0.001);
 		m_lego->AddElement(boundaries);
-                m_elements.AddElement(m_lego);
+                m_elements->AddElement(m_lego.get());
              }
-             builder->attach(&m_elements,m_data);
+             builder->attach(m_elements.get(),m_data);
 	     m_builders.push_back(pB);
              if(m_views.size()) {
                 pB->setHaveAWindow(true);
@@ -378,10 +380,10 @@ FWEveLegoViewManager::selectionCleared()
    }
 }
 
-std::set<std::pair<std::string,std::string> >
-FWEveLegoViewManager::supportedTypesAndPurpose() const
+FWTypeToRepresentations
+FWEveLegoViewManager::supportedTypesAndRepresentations() const
 {
-   std::set<std::pair<std::string,std::string> > returnValue;
+   FWTypeToRepresentations returnValue;
 
    for(TypeToBuilders::const_iterator it = m_typeToBuilders.begin(), itEnd = m_typeToBuilders.end();
        it != itEnd;
@@ -389,8 +391,9 @@ FWEveLegoViewManager::supportedTypesAndPurpose() const
       for ( std::vector<std::string>::const_iterator builderName = it->second.begin();
 	   builderName != it->second.end(); ++builderName )
       {
-         returnValue.insert(std::make_pair(builderName->substr(0,builderName->find_first_of('@')),
-                                           it->first));
+         returnValue.add(boost::shared_ptr<FWRepresentationCheckerBase>( new FWEDProductRepresentationChecker(
+                                                                                                              builderName->substr(0,builderName->find_first_of('@')),
+                                                                                                              it->first)));
       }
 
    }

@@ -16,7 +16,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 22:01:21 EST 2008
-// $Id: FWEveLegoViewManager.h,v 1.7 2008/11/06 22:05:22 amraktad Exp $
+// $Id: FWEveLegoViewManager.h,v 1.8 2008/11/11 15:21:44 chrjones Exp $
 //
 
 // system include files
@@ -27,6 +27,7 @@
 
 // user include files
 #include "Fireworks/Core/interface/FWViewManagerBase.h"
+#include "Fireworks/Core/interface/FWEvePtr.h"
 
 // forward declarations
 class FW3DLegoDataProxyBuilder;
@@ -61,7 +62,7 @@ class FWEveLegoViewManager : public FWViewManagerBase
       virtual ~FWEveLegoViewManager();
 
       // ---------- const member functions ---------------------
-      std::set<std::pair<std::string,std::string> > supportedTypesAndPurpose() const;
+      FWTypeToRepresentations supportedTypesAndRepresentations() const;
 
       // ---------- static member functions --------------------
 
@@ -97,9 +98,9 @@ class FWEveLegoViewManager : public FWViewManagerBase
        std::vector<boost::shared_ptr<FW3DLegoDataProxyBuilder> > m_builders;
 
       std::vector<boost::shared_ptr<FWEveLegoView> > m_views;
-      TEveElementList m_elements;
+      FWEvePtr<TEveElementList> m_elements;
       TEveCaloDataHist* m_data;
-      TEveCaloLego* m_lego;
+      FWEvePtr<TEveCaloLego> m_lego;
       int  m_legoRebinFactor;
 
       //bool m_itemChanged;
