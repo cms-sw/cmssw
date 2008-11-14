@@ -147,7 +147,8 @@ void ESUnpacker::interpretRawData(int fedId, const FEDRawData & rawData, ESDigiC
   }
 
   // Check ES data format version
-  int vmajor, vminor;
+  int vmajor = 0;
+  int vminor = 0;
   int dccLineCount = 0;
   for (const Word64* word=(header+1); word!=(header+dccWords+1); ++word) {
     dccLineCount++;
@@ -181,7 +182,8 @@ void ESUnpacker::interpretRawData(int fedId, const FEDRawData & rawData, ESDigiC
   // Event data
   static const Word64 mHEAD = ~(~Word64(0) << bHEAD);
   static const Word64 mKID  = ~(~Word64(0) << bKID);
-  int head, kchip;
+  int head;
+  int kchip = 0;
   for (const Word64* word=(header+dccWords+1); word!=trailer; ++word) {
     if (debug_) cout<<"Event : "<<print(*word)<<endl;
 
@@ -228,7 +230,10 @@ void ESUnpacker::word2digi(int kchip, const Word64 & word, ESDigiCollection & di
 
   if (debug_) cout<<kchip<<" "<<strip<<" "<<pace<<" "<<adc[2]<<" "<<adc[1]<<" "<<adc[0]<<endl;
 
-  int zside, plane, ix, iy;
+  int zside = 0;
+  int plane = 0;
+  int ix = 0;
+  int iy = 0;
 
   if (kchip>=0 && kchip<400) {
     zside = 1; plane = 1;
