@@ -27,10 +27,10 @@ photonAnalysis = cms.EDAnalyzer("PhotonAnalyzer",
                                 # 2 provides output of the fill step + 1
                                 # 3 provides output of the store step + 2
                                 
-    isolationStrength = cms.int32(2),
-                                # 1 => Loose EM
-                                # 2 => Loose Photon
-                                # 3 => Tight Photon
+    isolationStrength = cms.int32(1),
+                                # 1 => Loose Photon
+                                # 2 => Tight Photon
+                                
 
  
 
