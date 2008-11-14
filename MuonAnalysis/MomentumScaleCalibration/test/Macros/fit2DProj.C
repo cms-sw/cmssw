@@ -44,8 +44,10 @@ void setTPaveText(const TF1 * fit, TPaveText * paveText) {
   }
 }
 
-TGraphErrors* fit2DProj(TString name, TString path, int minEntries, int rebin, int fitType, TFile * outputFile, const double & xDisplace = 0.);
-void macroPlot( TString name, const TString & nameFile1 = "0_MuScleFit.root", const TString & nameFile2 = "4_MuScleFit.root", const TString & title = "" );
+TGraphErrors* fit2DProj(TString name, TString path, int minEntries, int rebinX, int rebinY, int fitType,
+                        TFile * outputFile, const TString & resonanceType = "Y", const double & xDisplace = 0.);
+void macroPlot( TString name, const TString & nameFile1 = "0_MuScleFit.root", const TString & nameFile2 = "4_MuScleFit.root",
+                const TString & title = "", const TString & resonanceType = "Y", const int rebinX = 0, const int rebinY = 0, const int fitType = 1 );
 
 Double_t gaussian(Double_t *x, Double_t *par);
 Double_t lorentzian(Double_t *x, Double_t *par);
@@ -58,8 +60,8 @@ Double_t onlyParabolic(Double_t *x, Double_t *par);
 Double_t linear(Double_t *x, Double_t *par);
 Double_t overX(Double_t *x, Double_t *par);
 
-TF1* gaussianFit(TH1* histoY);
-TF1* lorentzianFit(TH1* histoY);
+TF1* gaussianFit(TH1* histoY, const TString & resonanceType = "Y");
+TF1* lorentzianFit(TH1* histoY, const TString & resonanceType = "Y");
 TF1* linLorentzianFit(TH1* histoY);
 
 void setTDRStyle();
@@ -85,14 +87,16 @@ Double_t lorentzianPlusLinear(Double_t *x, Double_t *par) {
 }
 
 /**
- * This function fits TH2F slices with a selected fitType function (gaussian, lorentz, ...)
+ * This function fits TH2F slices with a selected fitType function (gaussian, lorentz, ...).
  */
-TGraphErrors* fit2DProj(TString name, TString path, int minEntries, int rebin, int fitType, TFile * outputFile, const double & xDisplace) {
+TGraphErrors* fit2DProj(TString name, TString path, int minEntries, int rebinX, int rebinY, int fitType,
+                        TFile * outputFile, const TString & resonanceType, const double & xDisplace) {
 
   //Read the TH2 from file
   TFile *inputFile = new TFile(path);
   TH2 * histo = (TH2*) inputFile->Get(name);
-  if (rebin > 0) histo->RebinX(rebin);
+  if( rebinX > 0 ) histo->RebinX(rebinX);
+  if( rebinY > 0 ) histo->RebinY(rebinY);
 
   //Declare some variables
   TH1 * histoY;
@@ -132,10 +136,10 @@ TGraphErrors* fit2DProj(TString name, TString path, int minEntries, int rebin, i
       //Make the dirty work!
       TF1 *fit;
       if(fitType == 1){
-	fit = gaussianFit(histoY);
+	fit = gaussianFit(histoY, resonanceType);
       }
       else if(fitType == 2){
-	fit = lorentzianFit(histoY);
+	fit = lorentzianFit(histoY, resonanceType);
       }
       else if(fitType == 3)
 	fit = linLorentzianFit(histoY);
@@ -240,57 +244,55 @@ TGraphErrors* fit2DProj(TString name, TString path, int minEntries, int rebin, i
   return grM;
 }
 
-TF1* gaussianFit(TH1* histoY){
+TF1* gaussianFit(TH1* histoY, const TString & resonanceType){
+
+  TString name = histoY->GetName() + TString("Fit");
+
+  // Fit slices projected along Y from bins in X
+  // -------------------------------------------
+  TF1 *fit = 0;
+  // Set parameters according to the selected resonance
+  if( resonanceType == "JPsi" ) {
+    fit = new TF1(name,gaussian,2,4,3);
+    fit->SetParLimits(2, 3.09, 3.15);
+  }
+  if( resonanceType == "Y" ) {
+    fit = new TF1(name,gaussian,9,11,3);
+    fit->SetParLimits(2, 9.2, 9.8);
+  }
+  if( resonanceType == "Z" ) {
+    fit = new TF1(name,gaussian,80,100,3);
+    fit->SetParLimits(2, 80, 100);
+  }
+  fit->SetParameters(histoY->GetMaximum(),histoY->GetRMS(),histoY->GetMean());
+  fit->SetParLimits(1, 0.01, 1);
+  //   fit->SetParLimits(1, 40, 60);
+  fit->SetParNames("norm","width","mean");
+  fit->SetLineWidth(2);
+
+  histoY->Fit(name,"R0");
+
+  return fit;
+}
+
+TF1* lorentzianFit(TH1* histoY, const TString & resonanceType){
   TString name = histoY->GetName() + TString("Fit");
 
   // Fit slices projected along Y from bins in X 
-  //TF1 *fit = new TF1(name,gaussian,9,10,3);
-  TF1 *fit = new TF1(name,gaussian,2,4,3); // JPsi
-  // TF1 *fit = new TF1(name,gaussian,60,120,3);
-  //TF1 *fit = new TF1(name,gaussian,-1,1,3);
-
-  fit->SetParameters(histoY->GetMaximum(),histoY->GetRMS(),histoY->GetMean());
-  fit->SetParLimits(1,0.01,1);
-  fit->SetParLimits(2,3.09,3.15);
-  //   fit->SetParLimits(1, 40, 60);
-  //   fit->SetParLimits(2, 0.01, 100);
-  //   fit->SetParLimits(3, 88, 92);
-  fit->SetParNames("norm","width","mean");
-  fit->SetLineWidth(2);
-
-  //histoY -> Fit(name,"0","",(histoY->GetXaxis()->GetBinCenter(histoY->GetMaximumBin()))-0.2,
-  //	(histoY->GetXaxis()->GetBinCenter(histoY->GetMaximumBin()))+0.2);
-  //histoY -> Fit(name,"0","",histoY->GetMean()-2*histoY->GetRMS(),histoY->GetMean()+2*histoY->GetRMS());
-  //histoY -> Fit(name,"0","",histoY->GetRMS(),histoY->GetRMS());
-  //histoY -> Fit(name,"0","",2.95,3.25);
-  //histoY -> Fit(name,"0","",89,95);
-  // fit->SetParameters(100,0.05,9.5);
-  //fit->SetParameters(10,0.05,3.1);
-  //fit->SetParameters(100,2,91);
-  // histoY -> Fit(name,"0","",9.2,9.8);
-  histoY->Fit(name,"0","",3.0,3.2); // JPsi
-  // histoY -> Fit(name,"R0"); // JPsi
-  //histoY -> Fit(name,"0","",60,120); // Z
-  //histoY -> Fit(name,"0","",-0.025,0.025);
-  //histoY -> Fit(name,"0","",-0.002,0.002); //eta,phi,cotghtheta VS phi
-  //histoY -> Fit(name,"0","",-0.004,0.004); //cotgtheta vs eta
-  return fit;
-
-//   histoY->Fit("gaus", "0", "", 2.9, 3.2);
-//   TF1 * retFunc = histoY->GetFunction("gaus");
-//   cout << "retFunc = " << retFunc << endl;
-//   return histoY->GetFunction("gaus");
-}
-
-TF1* lorentzianFit(TH1* histoY){
-  TString name = histoY->GetName() + TString("Fit");
-
-    // Fit slices projected along Y from bins in X 
-    TF1 *fit = new TF1(name,lorentzian,9,10,3);
+  TF1 *fit = 0;
+  if( resonanceType == "JPsi" ) {
+    fit = new TF1(name, lorentzian, 3.09, 3.15, 3);
+  }
+  if( resonanceType == "Y" ) {
+    fit = new TF1(name, lorentzian, 9, 10, 3);
+  }
+  if( resonanceType == "Z" ) {
+    fit = new TF1(name, lorentzian, 80, 100, 3);
+  }
   fit->SetParameters(histoY->GetMaximum(),histoY->GetRMS(),histoY->GetMean());
   fit->SetParNames("norm","width","mean");
   fit->SetLineWidth(2);
-  histoY -> Fit(name,"0","",9,10);
+  histoY->Fit( name,"R0" );
   return fit;
 }
 
@@ -314,7 +316,8 @@ TF1* linLorentzianFit(TH1* histoY){
 }
 
 /****************************************************************************************/
-void macroPlot( TString name, const TString & nameFile1, const TString & nameFile2, const TString & title ) {
+void macroPlot( TString name, const TString & nameFile1, const TString & nameFile2, const TString & title,
+                const TString & resonanceType, const int rebinX, const int rebinY, const int fitType ) {
 
   gROOT->SetBatch(true);
 
@@ -325,8 +328,8 @@ void macroPlot( TString name, const TString & nameFile1, const TString & nameFil
 
 //   TGraphErrors *grM_1 = fit2DProj(name,nameFile1,100,4,1, outputFile);
 //   TGraphErrors *grM_2 = fit2DProj(name,nameFile2,100,4,1, outputFile);
-  TGraphErrors *grM_1 = fit2DProj(name,nameFile1,100,2,1, outputFile);
-  TGraphErrors *grM_2 = fit2DProj(name,nameFile2,100,2,1, outputFile);
+  TGraphErrors *grM_1 = fit2DProj(name, nameFile1, 100, rebinX, rebinY, fitType, outputFile, resonanceType);
+  TGraphErrors *grM_2 = fit2DProj(name, nameFile2, 100, rebinX, rebinY, fitType, outputFile, resonanceType);
 
   TCanvas *c = new TCanvas(name+"_Z",name+"_Z");
   c->SetGridx();
@@ -338,20 +341,18 @@ void macroPlot( TString name, const TString & nameFile1, const TString & nameFil
   TString xAxisTitle;
 
   double x[2],y[2];
-  //x[0]=3.5; x[1]=8.5;      //<------useful for reso VS pt
-  //y[0]=0.04; y[1]= -0.04;  //<------useful for pt reso 
+
   if( name.Contains("Eta") ) {
     x[0]=-3; x[1]=3;       //<------useful for reso VS eta
     xAxisTitle = "#eta";
   }
-  //y[0]=0; y[1]= 0.01;       //<------useful for cotgth reso 
-  // x[0]=-3.15; x[1]=3.15; //<------useful for reso VS phi
   else {
     x[0] = 0.; x[1] = 200;
     xAxisTitle = "pt(GeV)";
   }
-  //y[0]=80; y[1]=100; //<------useful for Z mass 
-  y[0]=0.; y[1]=6.; //<------useful for JPsi mass 
+  if( resonanceType == "JPsi" ) y[0]=0.; y[1]=6.;
+  if( resonanceType == "Y" ) y[0]=8.; y[1]=12.;
+  if( resonanceType == "Z" ) y[0]=80; y[1]=100;
 
   // This is used to have a canvas containing both histogram points
   TGraph *gr = new TGraph(2,x,y);
