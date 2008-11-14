@@ -3052,6 +3052,12 @@ void OHltTree::ApplyL1Prescales(std::map<TString,int> map_Level1Prescl, int even
     if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_ETM20")->second != 0)) 
       L1_ETM20 = 0; 
   } it++;
+  if(L1_ETM30 == 1) {
+    iCountL1NoPrescale[it]++; 
+
+    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_ETM30")->second != 0))
+      L1_ETM30 = 0;
+  } it++;
   if(L1_ETM40 == 1) { 
     iCountL1NoPrescale[it]++;  
 
