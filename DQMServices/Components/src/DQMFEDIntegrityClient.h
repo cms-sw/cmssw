@@ -4,8 +4,8 @@
  *
  * DQM FED Client
  *
- * $Date: 2008/11/03 15:26:25 $
- * $Revision: 1.1 $
+ * $Date: 2008/11/07 10:09:04 $
+ * $Revision: 1.2 $
  * \author  M. Marienfeld
  *
 */
@@ -35,7 +35,10 @@ protected:
   void beginJob(const edm::EventSetup& c);
   void beginRun(const edm::Run& r, const edm::EventSetup& c);
 
-  void analyze(const edm::Event& e, const edm::EventSetup& c);
+  /// Analyze
+  void analyze(const edm::Event& e, const edm::EventSetup& c) ;
+
+  void endLuminosityBlock(const edm::LuminosityBlock& l, const  edm::EventSetup& c);
 
   void endRun(const edm::Run& r, const edm::EventSetup& c);
   void endJob();
@@ -43,7 +46,8 @@ protected:
 private:
 
   void initialize();
- 
+  void fillHistograms();
+   
   edm::ParameterSet parameters_;
 
   DQMStore * dbe_;
@@ -61,6 +65,11 @@ private:
   MonitorElement * reportSummary;
   MonitorElement * reportSummaryContent[11];
   MonitorElement * reportSummaryMap;
+
+  bool fillInEventloop;
+  bool fillOnEndRun;
+  bool fillOnEndJob;
+  bool fillOnEndLumi;
 
 };
 

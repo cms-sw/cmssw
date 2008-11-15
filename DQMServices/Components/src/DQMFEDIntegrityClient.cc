@@ -3,8 +3,8 @@
  * \file DQMFEDIntegrityClient.cc
  * \author M. Marienfeld
  * Last Update:
- * $Date: 2008/11/07 10:08:42 $
- * $Revision: 1.3 $
+ * $Date: 2008/11/10 19:25:47 $
+ * $Revision: 1.4 $
  * $Author: ameyer $
  *
  * Description: Summing up FED entries from all subdetectors.
@@ -29,6 +29,10 @@ DQMFEDIntegrityClient::DQMFEDIntegrityClient( const edm::ParameterSet& ps ) {
 
   parameters_ = ps;
   initialize();
+  fillInEventloop = ps.getUntrackedParameter<bool>("fillInEventloop",false);
+  fillOnEndRun = ps.getUntrackedParameter<bool>("fillOnEndRun",false);
+  fillOnEndJob = ps.getUntrackedParameter<bool>("fillOnEndJob",false);
+  fillOnEndLumi = ps.getUntrackedParameter<bool>("fillOnEndLumi",true);
 
 }
 
@@ -77,6 +81,7 @@ void DQMFEDIntegrityClient::beginJob(const EventSetup& context) {
   FedEntries->setBinLabel(716, "HCAL",  1);
   FedEntries->setBinLabel(754, "CSC",   1);
   FedEntries->setBinLabel(772, "DT",    1);
+  FedEntries->setBinLabel(791, "RPC",   1);
   FedEntries->setBinLabel(804, "L1T",   1);
 
   FedFatal->setBinLabel(11,  "PIXEL", 1);
@@ -87,6 +92,7 @@ void DQMFEDIntegrityClient::beginJob(const EventSetup& context) {
   FedFatal->setBinLabel(716, "HCAL",  1);
   FedFatal->setBinLabel(754, "CSC",   1);
   FedFatal->setBinLabel(772, "DT",    1);
+  FedFatal->setBinLabel(791, "RPC",   1);
   FedFatal->setBinLabel(804, "L1T",   1);
 
   FedNonFatal->setBinLabel(11,  "PIXEL", 1);
@@ -97,6 +103,7 @@ void DQMFEDIntegrityClient::beginJob(const EventSetup& context) {
   FedNonFatal->setBinLabel(716, "HCAL",  1);
   FedNonFatal->setBinLabel(754, "CSC",   1);
   FedNonFatal->setBinLabel(772, "DT",    1);
+  FedNonFatal->setBinLabel(791, "RPC",   1);
   FedNonFatal->setBinLabel(804, "L1T",   1);
 
   //-----------------------------------------------------------------------------------
@@ -150,19 +157,26 @@ void DQMFEDIntegrityClient::beginJob(const EventSetup& context) {
 
 }
 
-
 void DQMFEDIntegrityClient::beginRun(const edm::Run& r, const EventSetup& context) {
 
 }
 
+void DQMFEDIntegrityClient::analyze(const edm::Event& e, const edm::EventSetup& context)  {
+  if (fillInEventloop) fillHistograms();
+}
 
-void DQMFEDIntegrityClient::analyze(const Event& iEvent, const EventSetup& iSetup) {
+void DQMFEDIntegrityClient::endLuminosityBlock(const edm::LuminosityBlock&  lumiBlock, const  edm::EventSetup& context){
+  if (fillOnEndLumi) fillHistograms();
+}
 
+void DQMFEDIntegrityClient::fillHistograms(void){
   // FED Entries
+  
+  // dbe_->showDirStructure();
 
   vector<string> entries;
   entries.push_back("CSC/FEDIntegrity/FEDEntries");
-  entries.push_back("DT/FEDIntegrity_EvF/FEDEntries");
+  entries.push_back("DT/FEDIntegrity/FEDEntries");
   entries.push_back("EcalBarrel/FEDIntegrity/FEDEntries");
   entries.push_back("EcalEndcap/FEDIntegrity/FEDEntries");
   entries.push_back("Hcal/FEDIntegrity/FEDEntries");
@@ -177,7 +191,7 @@ void DQMFEDIntegrityClient::analyze(const Event& iEvent, const EventSetup& iSetu
                                       ent != entries.end(); ++ent) {
 
     if( !(dbe_->get(*ent)) ) {
-      //      cout << ">> No histogram! <<" << endl;
+      //      cout << ">> Endluminosity No histogram! <<" << endl;
       continue;
     }
 
@@ -209,7 +223,7 @@ void DQMFEDIntegrityClient::analyze(const Event& iEvent, const EventSetup& iSetu
 
   vector<string> fatal;
   fatal.push_back("CSC/FEDIntegrity/FEDFatal");
-  fatal.push_back("DT/FEDIntegrity_EvF/FEDFatal");
+  fatal.push_back("DT/FEDIntegrity/FEDFatal");
   fatal.push_back("EcalBarrel/FEDIntegrity/FEDFatal");
   fatal.push_back("EcalEndcap/FEDIntegrity/FEDFatal");
   fatal.push_back("Hcal/FEDIntegrity/FEDFatal");
@@ -236,7 +250,7 @@ void DQMFEDIntegrityClient::analyze(const Event& iEvent, const EventSetup& iSetu
     }
 
     MonitorElement * me = dbe_->get(*fat);
-    //    cout << "Path : " << me->getFullname() << endl;
+      //      cout << "Path : " << me->getFullname() << endl;
 
     int Nfatal = 0;
     int Nbins  = me->getNbinsX();
@@ -259,7 +273,7 @@ void DQMFEDIntegrityClient::analyze(const Event& iEvent, const EventSetup& iSetu
       for(int bin = 1; bin <= Nbins ; ++bin) {
 	int id = xmin+bin;
 	entry = rootHisto->GetBinContent(bin);
-	//	cout << "Bin content : " << entry << endl;
+      //      cout << "Bin content : " << entry << endl;
 	if(entry > 0.) {
 	  ++Nfatal;
 	  FedFatal->setBinContent(id, entry);
@@ -269,7 +283,7 @@ void DQMFEDIntegrityClient::analyze(const Event& iEvent, const EventSetup& iSetu
     }
 
     if(Nbins > 0) SummaryContent[k] = 1.-((float)Nfatal/(float)Nbins);
-    //    cout << "Summary Content : " << SummaryContent[k] << endl;
+      //      cout << "Summary Content : " << SummaryContent[k] << endl;
     reportSummaryContent[k]->Fill(SummaryContent[k]);
     reportSummaryMap->setBinContent(1, nSubsystems-k, SummaryContent[k]);
     sum = sum + SummaryContent[k];
@@ -285,7 +299,7 @@ void DQMFEDIntegrityClient::analyze(const Event& iEvent, const EventSetup& iSetu
 
   vector<string> nonfatal;
   nonfatal.push_back("CSC/FEDIntegrity/FEDNonFatal");
-  nonfatal.push_back("DT/FEDIntegrity_EvF/FEDNonFatal");
+  nonfatal.push_back("DT/FEDIntegrity/FEDNonFatal");
   nonfatal.push_back("EcalBarrel/FEDIntegrity/FEDNonFatal");
   nonfatal.push_back("EcalEndcap/FEDIntegrity/FEDNonFatal");
   nonfatal.push_back("Hcal/FEDIntegrity/FEDNonFatal");
@@ -330,10 +344,11 @@ void DQMFEDIntegrityClient::analyze(const Event& iEvent, const EventSetup& iSetu
 
 
 void DQMFEDIntegrityClient::endRun(const Run& r, const EventSetup& context) {
-
+  if (fillOnEndRun) fillHistograms();
 }
 
 
 void DQMFEDIntegrityClient::endJob() {
+  if (fillOnEndJob) fillHistograms();
 
 }
