@@ -72,8 +72,9 @@ class LHERunInfo {
 	};
 
 	void count(int process, CountMode count, double eventWeight = 1.0,
-	           double matchWeight = 1.0);
+	           double brWeight = 1.0, double matchWeight = 1.0);
 	XSec xsec() const;
+	void statistics() const;
 
     private:
 	struct Counter {
@@ -98,6 +99,7 @@ class LHERunInfo {
 		Counter		selected;
 		Counter		killed;
 		Counter		accepted;
+		Counter		acceptedBr;
 
 		inline bool operator < (const Process &other) const
 		{ return process < other.process; }

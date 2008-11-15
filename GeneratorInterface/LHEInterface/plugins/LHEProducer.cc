@@ -19,10 +19,12 @@
 
 #include "SimDataFormats/GeneratorProducts/interface/LHERunInfoProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
+
 #include "GeneratorInterface/LHEInterface/interface/LHERunInfo.h"
 #include "GeneratorInterface/LHEInterface/interface/LHEEvent.h"
 #include "GeneratorInterface/LHEInterface/interface/Hadronisation.h"
 #include "GeneratorInterface/LHEInterface/interface/JetMatching.h"
+#include "GeneratorInterface/LHEInterface/interface/BranchingRatios.h"
 
 using namespace lhef;
 
@@ -56,6 +58,7 @@ class LHEProducer : public edm::EDFilter {
 	unsigned int			index;
 	bool				matchingDone;
 	double				weight;
+	BranchingRatios			branchingRatios;
 };
 
 LHEProducer::LHEProducer(const edm::ParameterSet &params) :
@@ -91,6 +94,12 @@ LHEProducer::LHEProducer(const edm::ParameterSet &params) :
 		produces< std::vector<double> >("matchDeltaR");
 		produces< std::vector<double> >("matchDeltaPRel");
 	}
+
+	// force total branching ratio for QCD/QED to 1
+	for(int i = 0; i < 6; i++)
+		branchingRatios.set(i);
+	for(int i = 9; i < 23; i++)
+		branchingRatios.set(i);
 }
 
 LHEProducer::~LHEProducer()
@@ -120,9 +129,13 @@ bool LHEProducer::beginRun(edm::Run &run, const edm::EventSetup &es)
 
 bool LHEProducer::endRun(edm::Run &run, const edm::EventSetup &es)
 {
+	hadronisation->statistics();
+
 	LHERunInfo::XSec crossSection;
-	if (runInfo)
+	if (runInfo) {
 		crossSection = runInfo->xsec();
+		runInfo->statistics();
+	}
 
 	std::auto_ptr<edm::GenInfoProduct> genInfoProd(new edm::GenInfoProduct);
 
@@ -155,6 +168,9 @@ bool LHEProducer::filter(edm::Event &event, const edm::EventSetup &es)
 
 	hadronisation->setEvent(partonLevel);
 
+	double br = branchingRatios.getFactor(hadronisation.get(),
+	                                      partonLevel);
+
 	matchingDone = false;
 	weight = 1.0;
 	std::auto_ptr<HepMC::GenEvent> hadronLevel(hadronisation->hadronize());
@@ -162,11 +178,12 @@ bool LHEProducer::filter(edm::Event &event, const edm::EventSetup &es)
 	if (!hadronLevel.get()) {
 		if (matchingDone) {
 			if (weight == 0.0)
-				partonLevel->count(LHERunInfo::kSelected);
+				partonLevel->count(LHERunInfo::kSelected, br);
 			else
-				partonLevel->count(LHERunInfo::kKilled, weight);
+				partonLevel->count(LHERunInfo::kKilled,
+				                   br, weight);
 		} else
-			partonLevel->count(LHERunInfo::kTried);
+			partonLevel->count(LHERunInfo::kTried, br);
 	}
 
 	if (!matchingDone && jetMatching.get() && hadronLevel.get())
@@ -188,7 +205,7 @@ bool LHEProducer::filter(edm::Event &event, const edm::EventSetup &es)
 		return false;
 	}
 
-	partonLevel->count(LHERunInfo::kAccepted, weight);
+	partonLevel->count(LHERunInfo::kAccepted, br, weight);
 
 	hadronLevel->set_event_number(++index);
 

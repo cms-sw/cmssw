@@ -45,6 +45,7 @@ class Pythia6Hadronisation : public Hadronisation {
 		virtual void init() {}
 		virtual void beforeEvent() {}
 		virtual void afterEvent() {}
+		virtual void statistics() {}
 
 		typedef boost::shared_ptr<Addon> Ptr;
 
@@ -63,6 +64,8 @@ class Pythia6Hadronisation : public Hadronisation {
 	void doInit();
 	std::auto_ptr<HepMC::GenEvent> doHadronisation();
 	void newRunInfo(const boost::shared_ptr<LHERunInfo> &runInfo);
+	void statistics();
+	double totalBranchingRatio(int pdgId) const;
 
 	std::vector<std::string>	paramLines;
 
@@ -89,6 +92,13 @@ extern "C" {
 	void pygive_(const char *line, int length);
 	void txgive_(const char *line, int length);
 	void txgive_init_(void);
+
+	int pycomp_(int *ip);
+
+	extern struct PYINT4_ {
+		int mwid[500];
+		double wids[5][500];
+	} pyint4_;
 
 	static bool call_pygive(const std::string &line)
 	{
@@ -251,6 +261,18 @@ void Pythia6Hadronisation::newRunInfo(
 	fortranCallback.instance = 0;
 }
 
+void Pythia6Hadronisation::statistics()
+{
+	std::for_each(addons.begin(), addons.end(),
+	              boost::bind(&Addon::statistics, _1));
+}
+
+double Pythia6Hadronisation::totalBranchingRatio(int pdgId) const
+{
+	int pythiaId = pycomp_(&pdgId);
+	return pyint4_.wids[2][pythiaId - 1];
+}
+
 void Pythia6Hadronisation::fillHeader()
 {
 	const HEPRUP *heprup = getRawEvent()->getHEPRUP();
@@ -357,6 +379,7 @@ namespace {
 		}
 
 		virtual void afterEvent() { tauola.processEvent(); }
+		virtual void statistics() { tauola.print(); }
 
 		bool				usePolarization;
 		std::vector<std::string>	cards;

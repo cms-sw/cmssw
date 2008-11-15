@@ -45,7 +45,8 @@ class LHEEvent {
 	static void removeParticle(lhef::HEPEUP &hepeup, int index);
 	void removeResonances(const std::vector<int> &ids);
 
-	void count(LHERunInfo::CountMode count, double matchWeight = 1.0);
+	void count(LHERunInfo::CountMode count,
+	           double weight = 1.0, double matchWeight = 1.0);
 
 	void fillPdfInfo(HepMC::PdfInfo *info) const;
 	void fillEventInfo(HepMC::GenEvent *hepmc) const;

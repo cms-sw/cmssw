@@ -25,6 +25,9 @@ class Hadronisation {
 	bool setEvent(const boost::shared_ptr<LHEEvent> &event);
 	void clear();
 
+	virtual void statistics() {}
+	virtual double totalBranchingRatio(int pdgId) const { return 1.0; }
+
 	std::auto_ptr<HepMC::GenEvent> hadronize();
 
 	inline sigc::signal<bool, const boost::shared_ptr<HepMC::GenEvent>&>&
