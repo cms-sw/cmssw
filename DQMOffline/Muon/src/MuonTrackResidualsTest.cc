@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/10/21 12:07:47 $
- *  $Revision: 1.8 $
+ *  $Date: 2008/11/11 12:32:15 $
+ *  $Revision: 1.9 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -55,7 +55,7 @@ void MuonTrackResidualsTest::beginJob(const edm::EventSetup& context){
   metname = "trackResidualsTest";
   theDbe->setCurrentFolder("Muons/Tests/trackResidualsTest");
 
-  cout<<"[MuonTrackResidualsTest] Parameters initialization"<<endl;
+  LogTrace(metname) << "[MuonTrackResidualsTest] Parameters initialization"<<endl;
  
 
   string histName, MeanHistoName, SigmaHistoName;
