@@ -10,6 +10,14 @@ namespace edm
     return pythonProcessDesc.processDesc();
   }
 
+  boost::shared_ptr<edm::ProcessDesc>
+  readConfig(const std::string & config, int argc, char * argv[])
+  {
+    PythonProcessDesc pythonProcessDesc(config, argc, argv);
+    return pythonProcessDesc.processDesc();
+  }
+
+
   void
   makeParameterSets(std::string const& configtext,
                   boost::shared_ptr<ParameterSet>& main,

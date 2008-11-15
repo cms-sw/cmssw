@@ -5,7 +5,7 @@
 //----------------------------------------------------------------------
 // Declare functions used to create ParameterSets.
 //
-// $Id: MakeParameterSets.h,v 1.7 2007/08/07 20:23:51 wmtan Exp $
+// $Id: MakeParameterSets.h,v 1.8 2008/10/31 23:17:13 rpw Exp $
 //
 //----------------------------------------------------------------------
 
@@ -21,6 +21,10 @@ namespace edm
   // input can either be a python file name or a python config string
   boost::shared_ptr<edm::ProcessDesc>
   readConfig(const std::string & config);
+
+  /// same, but with arguments
+  boost::shared_ptr<edm::ProcessDesc>
+  readConfig(const std::string & config, int argc, char * argv[]);
 
 
   /// essentially the same as the previous method
