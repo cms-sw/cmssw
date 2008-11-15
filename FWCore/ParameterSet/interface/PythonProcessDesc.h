@@ -18,6 +18,8 @@ public:
   */
   PythonProcessDesc(const std::string & config);
 
+  PythonProcessDesc(const std::string & config, int argc, char * argv[]);
+
   void addService(const PythonParameterSet & pset) {theServices.push_back(pset);}
 
   PythonParameterSet newPSet() const {return PythonParameterSet();}
@@ -28,13 +30,16 @@ public:
   boost::shared_ptr<edm::ProcessDesc> processDesc() const;
 
 private:
-  void readFile(const std::string & fileName, boost::python::object & main_namespace);
-  void readString(const std::string & pyConfig, boost::python::object & main_namespace);
+  void prepareToRead();
+  void read(const std::string & config);
+  void readFile(const std::string & fileName);
+  void readString(const std::string & pyConfig);
 
   static bool initialized_;
   PythonParameterSet theProcessPSet;
   std::vector<PythonParameterSet> theServices;
-
+  boost::python::object theMainModule;
+  boost::python::object theMainNamespace;
 };
 
 #endif
