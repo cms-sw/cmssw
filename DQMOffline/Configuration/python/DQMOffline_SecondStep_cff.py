@@ -10,6 +10,8 @@ from DQM.SiStripMonitorClient.SiStripClientConfig_Tier0_cff import *
 from DQM.DTMonitorClient.dtDQMOfflineClients_cff import *
 from DQMOffline.Trigger.DQMOffline_HLT_Client_cff import *
 from DQM.RPCMonitorClient.RPCTier0Client_cff import *
+from DQMServices.Components.DQMFEDIntegrityClient_cff import *
 
-DQMOffline_SecondStep = cms.Sequence(ecal_dqm_client_offline*muonQualityTests*hcalOfflineDQMClient*sipixelEDAClient*triggerOfflineDQMClient*bTagCollectorSequence*SiStripOfflineDQMClient*dtClients*hltOfflineDQMClient*rpcTier0Client)
+
+DQMOffline_SecondStep = cms.Sequence(ecal_dqm_client_offline*muonQualityTests*hcalOfflineDQMClient*sipixelEDAClient*triggerOfflineDQMClient*bTagCollectorSequence*SiStripOfflineDQMClient*dtClients*hltOfflineDQMClient*rpcTier0Client*DQMFEDIntegrityClient)
 
