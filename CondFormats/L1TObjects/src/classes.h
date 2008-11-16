@@ -60,5 +60,6 @@ namespace {
     std::pair<L1GctHfLutSetup::hfLutType,std::vector<uint16_t> > dummy10 ;
     std::pair<short,L1MuDTEtaPattern> dummy11 ;
     std::pair<std::pair<short,short>,std::pair<short,std::vector<short> > > dummy12 ;
+    std::pair<int, std::vector<L1GtObject> > dummy13 ;
   }
 }

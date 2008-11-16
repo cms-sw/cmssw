@@ -73,6 +73,9 @@
   <class name="L1GtPsbConfig"/>
   <class name="std::vector<L1GtPsbConfig>"/>
   <class name="L1GtPsbSetup"/>  
+  <class name="std::pair<int, std::vector<L1GtObject> >"/>  
+  <class name="std::map<int, std::vector<L1GtObject> >"/>  
+  <class name="std::map<int, std::vector<L1GtObject> >::value_type"/>  
   <class name="L1GtCondition"/>
   <class name="L1GtMuonTemplate"/>
   <class name="L1GtMuonTemplate::ObjectParameter"/>
