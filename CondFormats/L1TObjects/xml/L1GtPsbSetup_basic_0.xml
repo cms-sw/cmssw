@@ -1,0 +1,9 @@
+<?xml version='1.0' encoding="UTF-8"?>
+<!DOCTYPE PoolDatabase SYSTEM "InMemory">
+ <PoolDatabase >
+  <PoolContainer name="L1GtPsbSetupRcd" >
+   <Class table="L1GTPSBSETUP" id_columns="ID" name="L1GtPsbSetup" mapping_version="L1GtPsbSetup_basic" >
+     <Blob column="L1GTPSBSETUP_M_GTP_1_BLOB" name="m_gtPsbSetup" />
+   </Class >
+  </PoolContainer >
+ </PoolDatabase >
