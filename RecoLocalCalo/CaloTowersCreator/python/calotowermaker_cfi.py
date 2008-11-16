@@ -78,7 +78,31 @@ calotowermaker = cms.EDFilter("CaloTowersCreator",
     MomHBDepth = cms.double(0.2),
     MomHEDepth = cms.double(0.4),   
     MomEBDepth = cms.double(0.3),
-    MomEEDepth = cms.double(0.0)
+    MomEEDepth = cms.double(0.0),
+
+    # treatment of problematic cells
+    # using info from DB:
+    # acceptable severity level
+    HbheAcceptSevLevelDb = cms.uint32(0),
+    HfAcceptSevLevelDb = cms.uint32(0),
+    HoAcceptSevLevelDb = cms.uint32(0),
+    EcalAcceptSevLevelDb = cms.uint32(0),
+
+    #using info from RecHit:
+    # acceptable severity level
+    HbheAcceptSevLevelRecHit = cms.uint32(0),
+    HfAcceptSevLevelRecHit = cms.uint32(0),
+    HoAcceptSevLevelRecHit = cms.uint32(0),
+    EcalAcceptSevLevelRecHit = cms.uint32(0),
+                              
+    # flags for use of "recovered" hits                              
+    UseHbheRecov = cms.bool(False),
+    UseHfRecov = cms.bool(False),
+    UseHoRecov = cms.bool(False),
+    UseEcalRecov = cms.bool(True)
+
+
+
 )
 
 

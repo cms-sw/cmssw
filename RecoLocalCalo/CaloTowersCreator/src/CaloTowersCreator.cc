@@ -76,7 +76,23 @@ CaloTowersCreator::CaloTowersCreator(const edm::ParameterSet& conf) :
   hoLabel_(conf.getParameter<edm::InputTag>("hoInput")),
   hfLabel_(conf.getParameter<edm::InputTag>("hfInput")),
   ecalLabels_(conf.getParameter<std::vector<edm::InputTag> >("ecalInputs")),
-  allowMissingInputs_(conf.getUntrackedParameter<bool>("AllowMissingInputs",false))
+  allowMissingInputs_(conf.getUntrackedParameter<bool>("AllowMissingInputs",false)),
+
+  theHbheAcceptSevLevelDb_(conf.getParameter<uint>("HbheAcceptSevLevelDb")),
+  theHfAcceptSevLevelDb_(conf.getParameter<uint>("HfAcceptSevLevelDb")),
+  theHoAcceptSevLevelDb_(conf.getParameter<uint>("HoAcceptSevLevelDb")),
+  theEcalAcceptSevLevelDb_(conf.getParameter<uint>("EcalAcceptSevLevelDb")),
+
+  theHbheAcceptSevLevelRecHit_(conf.getParameter<uint>("HbheAcceptSevLevelRecHit")),
+  theHfAcceptSevLevelRecHit_(conf.getParameter<uint>("HfAcceptSevLevelRecHit")),
+  theHoAcceptSevLevelRecHit_(conf.getParameter<uint>("HoAcceptSevLevelRecHit")),
+  theEcalAcceptSevLevelRecHit_(conf.getParameter<uint>("EcalAcceptSevLevelRecHit")),
+
+  theRecovHbheIsUsed_(conf.getParameter<bool>("UseHbheRecov")),
+  theRecovHoIsUsed_(conf.getParameter<bool>("UseHoRecov")),
+  theRecovHfIsUsed_(conf.getParameter<bool>("UseHfRecov")),
+  theRecovEcalIsUsed_(conf.getParameter<bool>("UseEcalRecov"))
+
 {
   EBEScale=EScales.EBScale; 
   EEEScale=EScales.EEScale; 
@@ -99,6 +115,16 @@ void CaloTowersCreator::produce(edm::Event& e, const edm::EventSetup& c) {
   c.get<IdealGeometryRecord>().get(htopo);
   c.get<IdealGeometryRecord>().get(cttopo);
  
+  // ECAL channel status map ****************************************
+  edm::ESHandle<EcalChannelStatus> ecalChStatus;
+  c.get<EcalChannelStatusRcd>().get( ecalChStatus );
+  const EcalChannelStatus* dbEcalChStatus = ecalChStatus.product();
+ 
+  // HCAL channel status map ****************************************
+  edm::ESHandle<HcalChannelQuality> hcalChStatus;    
+  c.get<HcalChannelQualityRcd>().get( hcalChStatus );
+  const HcalChannelQuality* dbHcalChStatus = hcalChStatus.product();
+ 
   algo_.setEBEScale(EBEScale);
   algo_.setEEEScale(EEEScale);
   algo_.setHBEScale(HBEScale);
@@ -109,7 +135,32 @@ void CaloTowersCreator::produce(edm::Event& e, const edm::EventSetup& c) {
   algo_.setHF2EScale(HF2EScale);
   algo_.setGeometry(cttopo.product(),htopo.product(),pG.product());
 
+  // pass channel status information from DB to the algorithm
+  algo_.setHcalChStatusFromDB(dbHcalChStatus);
+  algo_.setEcalChStatusFromDB(dbEcalChStatus);
+   
+  algo_.setHbheAcceptSevLevelDb(theHbheAcceptSevLevelDb_);
+  algo_.setHfAcceptSevLevelDb(theHfAcceptSevLevelDb_);
+  algo_.setHoAcceptSevLevelDb(theHoAcceptSevLevelDb_);
+  algo_.setEcalAcceptSevLevelDb(theEcalAcceptSevLevelDb_);
+
+  algo_.setHbheAcceptSevLevelRecHit(theHbheAcceptSevLevelRecHit_);
+  algo_.setHfAcceptSevLevelRecHit(theHfAcceptSevLevelRecHit_);
+  algo_.setHoAcceptSevLevelRecHit(theHoAcceptSevLevelRecHit_);
+  algo_.setEcalAcceptSevLevelRecHit(theEcalAcceptSevLevelRecHit_);
+
+  algo_.setRecovHbheIsUsed(theRecovHbheIsUsed_);
+  algo_.setRecovHoIsUsed(theRecovHoIsUsed_);
+  algo_.setRecovHfIsUsed(theRecovHfIsUsed_);
+  algo_.setRecovEcalIsUsed(theRecovEcalIsUsed_);
+
+
+
   algo_.begin(); // clear the internal buffer
+
+  algo_.makeHcalDeadChMap();
+  algo_.makeEcalDeadChMap();
+
 
   bool present;
 

@@ -10,6 +10,11 @@
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
 
+<use name=CondFormats/DataRecord>
+<use name=CondFormats/EcalObjects>
+<use name=CondFormats/HcalObjects>
+
+
 <flags EDM_PLUGIN=1>
 <export>
  <lib name=RecoLocalCaloCaloTowersCreator>
@@ -25,4 +30,11 @@
  <use name=Geometry/CaloEventSetup>
  <use name=FWCore/Framework>
  <use name=FWCore/ParameterSet>
+
+
+<use name=CondFormats/DataRecord>
+<use name=CondFormats/EcalObjects>
+<use name=CondFormats/HcalObjects>
+
+
 </export>

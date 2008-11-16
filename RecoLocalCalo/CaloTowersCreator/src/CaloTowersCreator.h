@@ -13,10 +13,11 @@
 
 #include "RecoLocalCalo/CaloTowersCreator/interface/CaloTowersCreationAlgo.h"
 
+
 /** \class CaloTowersCreator
   *  
-  * $Date: 2007/03/31 18:38:51 $
-  * $Revision: 1.2 $
+  * $Date: 2007/09/25 16:19:05 $
+  * $Revision: 1.3 $
   * \author J. Mans - Minnesota
   */
 class CaloTowersCreator : public edm::EDProducer {
@@ -26,6 +27,7 @@ public:
   virtual void produce(edm::Event& e, const edm::EventSetup& c);
   double EBEScale, EEEScale, HBEScale, HESEScale;
   double HEDEScale, HOEScale, HF1EScale, HF2EScale;
+
 private:
 
   static const std::vector<double>& getGridValues();
@@ -34,6 +36,29 @@ private:
   edm::InputTag hbheLabel_,hoLabel_,hfLabel_;
   std::vector<edm::InputTag> ecalLabels_;
   bool allowMissingInputs_;
+
+  // For treatmaent of bad/anomalous cells
+  // Values set in the configuration file and passed
+  // to CaloTowersCreationAlgo
+  //
+  // from DB
+  uint theHbheAcceptSevLevelDb_;
+  uint theHfAcceptSevLevelDb_;
+  uint theHoAcceptSevLevelDb_;
+  uint theEcalAcceptSevLevelDb_;
+  // from the RecHit
+  uint theHbheAcceptSevLevelRecHit_;
+  uint theHfAcceptSevLevelRecHit_;
+  uint theHoAcceptSevLevelRecHit_;
+  uint theEcalAcceptSevLevelRecHit_;
+  // flag to use recovered hits
+  bool theRecovHbheIsUsed_;
+  bool theRecovHoIsUsed_;
+  bool theRecovHfIsUsed_;
+  bool theRecovEcalIsUsed_;
+
+
+
 };
 
 #endif
