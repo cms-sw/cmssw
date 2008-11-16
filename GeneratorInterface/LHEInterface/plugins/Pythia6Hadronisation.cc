@@ -1,14 +1,22 @@
-#include <iostream>
 #include <algorithm>
 #include <functional>
+#include <iterator>
+#include <iostream>
 #include <sstream>
+#include <fstream> 
+#include <cstring>
+#include <cstdio>
+#include <cctype>
 #include <string>
 #include <memory>
 #include <vector>
+#include <set>
 #include <assert.h>
 
 #include <boost/shared_ptr.hpp>
 #include <boost/bind.hpp>
+#include <boost/algorithm/string/classification.hpp>
+#include <boost/algorithm/string/split.hpp>
 
 #include <HepMC/GenEvent.h>
 #include <HepMC/PdfInfo.h>
@@ -94,6 +102,10 @@ extern "C" {
 	void txgive_init_(void);
 
 	int pycomp_(int *ip);
+	void pyslha_(int *mupda, int *kforig, int *iretrn);
+
+	void fioopn_(int *unit, const char *line, int length);
+	void fiocls_(int *unit);
 
 	extern struct PYINT4_ {
 		int mwid[500];
@@ -119,6 +131,13 @@ extern "C" {
 
 	static void call_txgive_init(void)
 	{ txgive_init_(); }
+
+	static int call_pyslha(int mupda, int kforig = 0)
+	{
+		int iretrn = 0;
+		pyslha_(&mupda, &kforig, &iretrn);
+		return iretrn;
+	}
 
 	void upinit_() { fortranCallback.upinit(); }
 	void upevnt_() { fortranCallback.upevnt(); }
@@ -252,6 +271,88 @@ std::auto_ptr<HepMC::GenEvent> Pythia6Hadronisation::doHadronisation()
 	return event;
 }
 
+static void processSLHA(const std::vector<std::string> &lines)
+{
+	std::set<std::string> blocks;
+	unsigned int model = 0, subModel = 0;
+
+	const char *fname = std::tmpnam(NULL);
+	std::ofstream file(fname, std::fstream::out | std::fstream::trunc);
+	std::string block;
+	for(std::vector<std::string>::const_iterator iter = lines.begin();
+	    iter != lines.end(); ++iter) {
+		file << *iter;
+
+		std::string line = *iter;
+		std::transform(line.begin(), line.end(),
+		               line.begin(), (int(*)(int))std::toupper);
+		std::string::size_type pos = line.find('#');
+		if (pos != std::string::npos)
+			line.resize(pos);
+
+		if (line.empty())
+			continue;
+
+		if (!boost::algorithm::is_space()(line[0])) {
+			std::vector<std::string> tokens;
+			boost::split(tokens, line,
+			             boost::algorithm::is_space(),
+			             boost::token_compress_on);
+			if (!tokens.size())
+				continue;
+			block.clear();
+			if (tokens.size() < 2)
+				continue;
+			if (tokens[0] == "BLOCK") {
+				block = tokens[1];
+				blocks.insert(block);
+				continue;
+			}
+
+			if (tokens[0] == "DECAY") {
+				block = "DECAY";
+				blocks.insert(block);
+			}
+		} else if (block == "MODSEL") {
+			std::istringstream ss(line);
+			ss >> model >> subModel;
+		}
+	}
+	file.close();
+
+	int unit = 24;
+	fioopn_(&unit, fname, std::strlen(fname));
+	std::remove(fname);
+
+	call_pygive("IMSS(21)=24");
+	call_pygive("IMSS(22)=24");
+
+	if (model ||
+	    blocks.count("HIGMIX") ||
+	    blocks.count("SBOTMIX") ||
+	    blocks.count("STOPMIX") ||
+	    blocks.count("STAUMIX") ||
+	    blocks.count("AMIX") ||
+	    blocks.count("NMIX") ||
+	    blocks.count("UMIX") ||
+	    blocks.count("VMIX"))
+		call_pyslha(1);
+	if (model ||
+	    blocks.count("QNUMBERS") ||
+	    blocks.count("PARTICLE") ||
+	    blocks.count("MINPAR") ||
+	    blocks.count("EXTPAR") ||
+	    blocks.count("SMINPUTS") ||
+	    blocks.count("SMINPUTS"))
+		call_pyslha(0);
+	if (blocks.count("MASS"))
+		call_pyslha(5, 0);
+	if (blocks.count("DECAY"))
+		call_pyslha(2);
+
+	fiocls_(&unit);
+}
+
 void Pythia6Hadronisation::newRunInfo(
 				const boost::shared_ptr<LHERunInfo> &runInfo)
 {
@@ -259,6 +360,14 @@ void Pythia6Hadronisation::newRunInfo(
 	fortranCallback.instance = this;
 	call_pyinit("USER", "", "", 0.0);
 	fortranCallback.instance = 0;
+
+	std::vector<std::string> slha = runInfo->findHeader("slha");
+	if (!slha.empty()) {
+		edm::LogInfo("Generator|LHEInterface")
+			<< "Pythia6 hadronisation found an SLHA header, "
+			<< "will be passed on to Pythia." << std::endl;
+		processSLHA(slha);
+	}
 }
 
 void Pythia6Hadronisation::statistics()

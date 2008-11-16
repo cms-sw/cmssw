@@ -7,6 +7,8 @@
 #include <memory>
 #include <cmath>
 
+#include <boost/bind.hpp>
+
 #include <xercesc/dom/DOM.hpp>
 #include <xercesc/parsers/XercesDOMParser.hpp>
 #include <xercesc/sax/HandlerBase.hpp>
@@ -79,6 +81,30 @@ LHERunInfo::LHERunInfo(const HEPRUP &heprup) :
 	init();
 }
 
+LHERunInfo::LHERunInfo(const HEPRUP &heprup,
+                       const std::vector<LHERunInfoProduct::Header> &headers,  
+                       const std::vector<std::string> &comments) :
+	heprup(heprup)
+{
+	std::copy(headers.begin(), headers.end(),
+	          std::back_inserter(this->headers));
+	std::copy(comments.begin(), comments.end(),
+	          std::back_inserter(this->comments));
+
+	init();
+}
+                                                      
+LHERunInfo::LHERunInfo(const LHERunInfoProduct &product) :
+	heprup(product.heprup())
+{
+	std::copy(product.headers_begin(), product.headers_end(),
+	          std::back_inserter(headers));
+	std::copy(product.comments_begin(), product.comments_end(),
+	          std::back_inserter(comments));
+
+	init();
+}
+                                                      
 LHERunInfo::~LHERunInfo()
 {
 }
@@ -300,6 +326,72 @@ LHERunInfo::Header::~Header()
 {
 	if (xmlDoc)
 		xmlDoc->release();
+}
+
+static void fillLines(std::vector<std::string> &lines, const char *data,
+                      int len = -1)
+{
+	const char *end = len >= 0 ? (data + len) : 0;
+	while(*data && (!end || data < end)) {
+		std::size_t len = std::strcspn(data, "\r\n");
+		if (end && data + len > end)
+			len = end - data;
+		if (data[len] == '\r' && data[len + 1] == '\n')
+			len += 2;
+		else if (data[len])
+			len++;
+		lines.push_back(std::string(data, len));
+		data += len;
+	}
+}
+
+static std::vector<std::string> domToLines(const DOMNode *node)
+{
+	std::vector<std::string> result;
+	DOMImplementation *impl =
+		DOMImplementationRegistry::getDOMImplementation(
+							XMLUniStr("Core"));
+	std::auto_ptr<DOMWriter> writer(
+		static_cast<DOMImplementationLS*>(impl)->createDOMWriter());
+
+	writer->setEncoding(XMLUniStr("UTF-8"));
+	XMLSimpleStr buffer(writer->writeToString(*node));
+
+	const char *p = std::strchr((const char*)buffer, '>') + 1;
+	const char *q = std::strrchr(p, '<');
+	fillLines(result, p, q - p);
+
+	return result;
+}
+
+std::vector<std::string> LHERunInfo::findHeader(const std::string &tag) const
+{
+	const LHERunInfo::Header *header = 0;
+	for(std::vector<Header>::const_iterator iter = headers.begin();
+	    iter != headers.end(); ++iter) {
+		if (iter->tag() == tag)
+			return std::vector<std::string>(iter->begin(),
+			                                iter->end());
+		if (iter->tag() == "header")
+			header = &*iter;
+	}
+
+	if (!header)
+		return std::vector<std::string>();
+
+	const DOMNode *root = header->getXMLNode();
+	if (!root)
+		return std::vector<std::string>();
+
+	for(const DOMNode *iter = root->getFirstChild();
+	    iter; iter = iter->getNextSibling()) {
+		if (iter->getNodeType() != DOMNode::ELEMENT_NODE)
+			continue;
+		if (tag == (const char*)XMLSimpleStr(iter->getNodeName()))
+			return domToLines(iter);
+	}
+
+	return std::vector<std::string>();
 }
 
 namespace {

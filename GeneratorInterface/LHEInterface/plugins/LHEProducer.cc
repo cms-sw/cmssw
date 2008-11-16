@@ -121,7 +121,7 @@ bool LHEProducer::beginRun(edm::Run &run, const edm::EventSetup &es)
 	edm::Handle<LHERunInfoProduct> product;
 	run.getByLabel("source", product);
 
-	runInfo.reset(new LHERunInfo(product->heprup()));
+	runInfo.reset(new LHERunInfo(*product));
 	index = 0;
 
 	return true;
