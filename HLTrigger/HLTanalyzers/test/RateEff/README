@@ -17,7 +17,7 @@ README for OpenHLT rate and Efficiencies calculating scripts
  
 	Once the binary file is built, the rate-calculating script can be run using:
 	
-	./OHltRateEff <NEntries> <sMenu> <sConditions> <sVersion> <sEnergy> <doPrintAll> <RateOnly> <EfficiencyOnly>
+	./OHltRateEff <NEntries> <sMenu> <sConditions> <sVersion> <datasetDefinitionFile> <sEnergy> <doPrintAll> <RateOnly> <EfficiencyOnly>
 
 	The arguments are as follows:
 		
@@ -28,16 +28,14 @@ README for OpenHLT rate and Efficiencies calculating scripts
 			    Any number < 0 will be interpreted as "running over all existing events".
 			    Default is all (-1).
 	
-		<sMenu>: Type of trigger menu to run. Options are "default", "21X", "example", "l1default", 
-			 and"21X_29E30".
-			 The "default" option runs the full HLT menu using the trigger bits from the standard HLT in 20X. 
-			 The "21X" runs the full HLT 21X Menu using the trigger bits from the standard HLT w/o prescales.
-			 The "example" menu will run the OpenHLT triggers together with a few triggers from 
-			 the full HLT 20X for comparison. The method for adding new OpenHLT triggers is described below.
-			 The "l1default" calculates the rates for the full L1 menu using the trigger bits
-			 from the standard L1.
-			 The "21X_29E30" runs the full HLT using the trigger bits from the standard HLT with prescales
-			 adjusted to luminosity of 2.9E30 
+		<sMenu>: Type of trigger menu to run. Options are "default", "21X_SmallMenu_8E29", "21X_8E29", and "21X_8E29_L1"
+			 The "default" option runs all HLT triggers available in 21X (~160 paths) using the trigger bits from the standard HLT with all L1 and HLT prescales set to 1.
+			 The "21X_SmallMenu_8E29" option runs the "lean" HLT menu with both standard HLT and OpenHLT implementations of the ~20 physics triggers. Prescales are 
+	 		 set to the preliminary values expeceted for a luminosity of 8*10^{29}.		
+			 The "21X_8E29" option runs all HLT triggers available in 21X (~160 paths) using the trigger bits from the standard HLT with all L1 and HLT. Prescales are  
+                         set to the preliminary values expeceted for a luminosity of 8*10^{29}. 
+			 The "21X_8E29_L1" option runs all L1 triggers and displays their rates. Prescales are   
+                         set to the preliminary values expeceted for a luminosity of 8*10^{29}.  
 
 		<sConditions>: Options are "startup" and "ideal". The "startup" option
 			       will run over events processed with 1pb-1 conditions. The "ideal" 
@@ -45,6 +43,9 @@ README for OpenHLT rate and Efficiencies calculating scripts
 
 		<sVersion>: A string describing this menu. This will be appended to the name of 
 			    the output files.
+
+		<datasetDefinitionFile>: A text file containing the mapping of triggers to primary datasets. The option "Datasets_8e29_core.list" will use 
+					 the default 8E29 "lean" menu proposal for datasets.
 
 		<sEnergy>: sqrt(s) energy to assume for scaling cross-sections. Options are 10 and 14.
 			   Note - the currently available samples were produced with 14TeV settings in 
@@ -94,7 +95,7 @@ The case RateOnly=1 and EfficiencyOnly=1 is illegal and prints an error message
         To add a new OpenHLT trigger, the first step is to register it in the menu. This requires adding a line 
 	that calls AddHlt to the BookMenu_OhltExample method in OHltRateEff.cpp. This takes the form: 
  
-                menu->AddHlt(TString trig, TString l1Bit, int l1prescale, int hltprescale, TString threshold, TString desc
+                menu->AddHlt(TString trig, TString l1Bit, TString l1prescale, int hltprescale, TString threshold, TString desc
 				, double eventsize, int multele, int multpho, int multmu, int multjet, int multmet); 
  
         The arguments to this method will be used as labels in the output menu showing the rates, and 
@@ -104,9 +105,10 @@ The case RateOnly=1 and EfficiencyOnly=1 is illegal and prints an error message
                 l1Bit:          Name of the L1 bit used by this OpenHLT trigger
 				(this parameter has no effect on the effective algorithm used, it is only for documentation,
 				 to see how to change the L1 seed see below) 
-                l1prescale:     Prescale value applied at L1 (This prescale will be applied on top of existing L1 prescales,
-							      i.e. it should be used for samples with reset prescales only
-							      unless the user knows exactly was he does)
+                l1prescale:     Description of the prescale value applied at L1 (This prescale will be applied on top of existing L1 prescales,
+							      			i.e. it should be used for samples with reset prescales only
+							      			unless the user knows exactly was he does). This parameter is for 
+										documentation only.
                 hltprescale:    Prescale value applied at HLT (This prescale will be applied on top of existing HLT prescales,
 							      i.e. it should be used for samples with reset prescales only
 							      unless the user knows exactly was he does)
