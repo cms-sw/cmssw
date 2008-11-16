@@ -258,6 +258,13 @@ REGISTER_L1_WRITER(L1GtTriggerMaskVetoTechTrigRcd, L1GtTriggerMask);
 REGISTER_PLUGIN(L1GtTriggerMenuRcd, L1GtTriggerMenu);
 REGISTER_L1_WRITER(L1GtTriggerMenuRcd, L1GtTriggerMenu);
 
+#include "CondFormats/L1TObjects/interface/L1GtPsbSetup.h"
+#include "CondFormats/DataRecord/interface/L1GtPsbSetupRcd.h"
+
+REGISTER_PLUGIN(L1GtPsbSetupRcd, L1GtPsbSetup);
+REGISTER_L1_WRITER(L1GtPsbSetupRcd, L1GtPsbSetup);
+
+
 #include "CondFormats/L1TObjects/interface/L1CaloGeometry.h"
 #include "CondFormats/DataRecord/interface/L1CaloGeometryRecord.h"
 

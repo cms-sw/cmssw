@@ -224,6 +224,12 @@ L1SubsystemParams = cms.PSet(
             key = cms.string('dummy')
         ), 
         cms.PSet(
+            record = cms.string('L1GtPsbSetupRcd'),
+            tag = cms.string('L1GtPsbSetup_IDEAL'),
+            type = cms.string('L1GtPsbSetup'),
+            key = cms.string('dummy')
+        ), 
+        cms.PSet(
             record = cms.string('L1CaloGeometryRecord'),
             tag = cms.string('L1CaloGeometry_IDEAL'),
             type = cms.string('L1CaloGeometry'),
