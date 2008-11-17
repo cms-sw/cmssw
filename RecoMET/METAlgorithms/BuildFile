@@ -2,6 +2,10 @@
 <use name=DataFormats/CaloTowers>
 <use name=DataFormats/Common>
 <use name=FWCore/ParameterSet>
+<use name=rootphysics>
+<use name=MagneticField/Records>
+<use name=MagneticField/Engine>
+<use name=TrackingTools/GeomPropagators>
 <export>
  <lib name=RecoMETMETAlgorithms>
  <use name=DataFormats/METReco>
