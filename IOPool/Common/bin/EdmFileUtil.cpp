@@ -1,7 +1,7 @@
 //----------------------------------------------------------------------
 // EdmFileUtil.cpp
 //
-// $Id: EdmFileUtil.cpp,v 1.16 2008/04/24 21:48:30 wdd Exp $
+// $Id: EdmFileUtil.cpp,v 1.17 2008/08/29 19:01:41 wdd Exp $
 //
 // Author: Chih-hsiang Cheng, LLNL
 //         Chih-Hsiang.Cheng@cern.ch
@@ -108,9 +108,9 @@ int main(int argc, char* argv[]) {
   int rc = 0;
   try {
     std::string config =
-      "process EdmFileUtil = {";
-    config += "service = SiteLocalConfigService{}"
-      "}";
+      "import FWCore.ParameterSet.Config as cms\n"
+      "process = cms.Process('EdmFileUtil')\n"
+      "process.SiteLocalConfigService = cms.Service('SiteLocalConfigService')\n";
 
     //create the services
     edm::ServiceToken tempToken = edm::ServiceRegistry::createServicesFromConfig(config);
