@@ -193,16 +193,29 @@ process.looper = cms.Looper(
     # Eta^2 dep. of sigmaPhi.
     # ----------------------------------------------------------------
     ResolFitType = cms.int32(8),
-    # This parameters are taken directly from the MuonGun (5<Pt<100, |eta|<3)
-    parResol = cms.vdouble(0.012, 0.0001, 1.0,
-                           0.00043, 0.0041, 0.0000028, 0.000077,
-                           0.00011, 0.0018, -0.00000094, 0.000022),
+    # This parameters are modified to have a better agreement with Y
+    ResolFitType = cms.int32(8),
+    parResol = cms.vdouble(-0.007, 0.0001, 1.0,
+                           0.00022, 0.0041, 0.0000028, 0.00054,
+                           0.00014, 0.0018, -0.00000094, 0.0001),
     parResolFix = cms.vint32(0, 0, 0,
                              0, 0, 0, 0,
                              0, 0, 0, 0),
     parResolOrder = cms.vint32(0, 0, 0,
                                1, 1, 1, 1,
                                2, 2, 2, 2),
+
+    # This parameters are taken directly from the MuonGun (5<Pt<100, |eta|<3)
+    # parResol = cms.vdouble(0.012, 0.0001, 1.0,
+    #                        0.00043, 0.0041, 0.0000028, 0.000077,
+    #                        0.00011, 0.0018, -0.00000094, 0.000022),
+    # parResolFix = cms.vint32(0, 0, 0,
+    #                          0, 0, 0, 0,
+    #                          0, 0, 0, 0),
+    # parResolOrder = cms.vint32(0, 0, 0,
+    #                            1, 1, 1, 1,
+    #                            2, 2, 2, 2),
+
     # This parameters are sligtly modified for the unfiltered J/Psi events
     # parResol = cms.vdouble(-0.007, 0.0001, 1.0,
     #                        0.00022, 0.0041, 0.0000028, 0.000077,
