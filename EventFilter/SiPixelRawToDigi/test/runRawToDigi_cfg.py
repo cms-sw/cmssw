@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("RawToDigi1")
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1))
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100))
 
 process.source = cms.Source("PoolSource", fileNames =  cms.untracked.vstring('file:rawdata.root'))
 
@@ -28,7 +28,8 @@ process.siPixelCabling.toGet = cms.VPSet(cms.PSet(
 process.load("EventFilter.SiPixelRawToDigi.SiPixelRawToDigi_cfi")
 process.siPixelDigis.InputLabel = 'siPixelRawData'
 process.siPixelDigis.IncludeErrors = True
-process.siPixelDigis.Timing = False 
+process.siPixelDigis.Timing = True 
+process.siPixelDigis.UseCablingTree = True 
 
 process.MessageLogger = cms.Service("MessageLogger",
     debugModules = cms.untracked.vstring('siPixelDigis'),

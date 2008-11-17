@@ -7,6 +7,29 @@ using namespace sipixelobjects;
 
 typedef std::map<int, SiPixelFedCablingTree::PixelFEDCabling>::const_iterator IMAP;
 
+std::vector<sipixelobjects::CablingPathToDetUnit> SiPixelFedCablingTree::pathToDetUnit(
+      uint32_t rawDetId) const
+{
+  std::vector<sipixelobjects::CablingPathToDetUnit> result;
+  typedef std::map<int, PixelFEDCabling>::const_iterator IM;
+  for (IM im = theFedCablings.begin(); im != theFedCablings.end(); ++im) {
+    const PixelFEDCabling & aFed = im->second;
+    for (int idxLink = 1; idxLink <= aFed.numberOfLinks(); idxLink++) {
+      const PixelFEDLink * link = aFed.link(idxLink);
+      if (!link) continue;
+      int numberOfRocs = link->numberOfROCs();
+      for(int idxRoc = 1; idxRoc <= numberOfRocs; idxRoc++) {
+        const PixelROC * roc = link->roc(idxRoc);
+        if (rawDetId == roc->rawId() ) {
+          CablingPathToDetUnit path = {aFed.id(), link->id(), roc->idInLink()};
+          result.push_back(path);
+        } 
+      }
+    }
+  }
+  return result;
+}
+
 void SiPixelFedCablingTree::addFed(const PixelFEDCabling & f)
 {
   int id = f.id();
@@ -50,13 +73,13 @@ void SiPixelFedCablingTree::addItem(unsigned int fedId, unsigned int linkId, con
 }
 
 const sipixelobjects::PixelROC* SiPixelFedCablingTree::findItem(
-    unsigned int fedId, unsigned int linkId, unsigned int rocId) const
+    const CablingPathToDetUnit & path) const
 {
   const PixelROC* roc = 0;
-  const PixelFEDCabling * aFed = fed(fedId);
+  const PixelFEDCabling * aFed = fed(path.fed);
   if (aFed) {
-    const  PixelFEDLink * aLink = aFed->link(linkId);
-    if (aLink) roc = aLink->roc(rocId);
+    const  PixelFEDLink * aLink = aFed->link(path.link);
+    if (aLink) roc = aLink->roc(path.roc);
   }
   return roc;
 }

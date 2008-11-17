@@ -1,9 +1,8 @@
 #include "CondFormats/SiPixelObjects/interface/SiPixelFrameConverter.h"
-#include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingTree.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelFedCabling.h"
 
-#include "CondFormats/SiPixelObjects/interface/PixelFEDCabling.h"
-#include "CondFormats/SiPixelObjects/interface/PixelFEDLink.h"
 #include "CondFormats/SiPixelObjects/interface/PixelROC.h"
+#include "CondFormats/SiPixelObjects/interface/CablingPathToDetUnit.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -12,22 +11,17 @@
 using namespace std;
 using namespace sipixelobjects;
 
-SiPixelFrameConverter::SiPixelFrameConverter(const SiPixelFedCablingTree * map, int fedId)
-  : theFed( *(*map).fed(fedId))
+SiPixelFrameConverter::SiPixelFrameConverter(const SiPixelFedCabling* map, int fedId)
+  : theFedId(fedId), theMap(map)
 { }
 
 
 bool SiPixelFrameConverter::hasDetUnit(uint32_t rawId) const
 {
-  for (int idxLink = 1; idxLink <= theFed.numberOfLinks(); idxLink++) {
-    const PixelFEDLink * link = theFed.link(idxLink);
-    if (!link) continue;
-    int numberOfRocs = link->numberOfROCs();
-    for(int idxRoc = 1; idxRoc <= numberOfRocs; idxRoc++) {
-      const PixelROC * roc = link->roc(idxRoc);
-      if (!roc) continue;
-      if (rawId == roc->rawId() ) return true;
-    }
+  std::vector<CablingPathToDetUnit> paths = theMap->pathToDetUnit(rawId);
+  typedef std::vector<CablingPathToDetUnit>::const_iterator IT;
+  for (IT it=paths.begin(); it!=paths.end();++it) {
+    if(it->fed==static_cast<unsigned int>(theFedId)) return true;
   }
   return false;
 }
@@ -35,56 +29,52 @@ bool SiPixelFrameConverter::hasDetUnit(uint32_t rawId) const
 
 int SiPixelFrameConverter::toDetector(const ElectronicIndex & cabling, DetectorIndex & detector) const
 {
-  const PixelFEDLink * link = theFed.link( cabling.link);
-  if (!link) {
+  CablingPathToDetUnit path = {theFedId, cabling.link, cabling.roc }; 
+  const PixelROC * roc = theMap->findItem(path);
+  if (!roc){
     stringstream stm;
-    stm << "FED shows no link of id= " << cabling.link;
-    edm::LogError("SiPixelFrameConverter") << stm.str();
-    return 1;
-  }
-
-  const PixelROC * roc = link->roc(cabling.roc);
-  if (!roc) {
-    stringstream stm;
-    stm << "Link=" <<  cabling.link << " shows no ROC with id=" << cabling.roc;
+    stm << "Map shows no fed="<<theFedId
+        <<", link="<<cabling.link
+        <<", roc="<<cabling.roc;
     edm::LogError("SiPixelFrameConverter") << stm.str();
     return 2;
   }
-
   LocalPixel::DcolPxid local = { cabling.dcol, cabling.pxid };
   if (!local.valid()) return 3;
 
-  GlobalPixel global = roc->toGlobal( LocalPixel(local) ); 
+  GlobalPixel global = roc->toGlobal( LocalPixel(local) );
   detector.rawId = roc->rawId();
   detector.row   = global.row;
   detector.col   = global.col;
 
   return 0;
+
+
 }
 
 
-int SiPixelFrameConverter::toCabling(ElectronicIndex & cabling, const DetectorIndex & detector) const
+int SiPixelFrameConverter::toCabling(
+    ElectronicIndex & cabling, const DetectorIndex & detector) const 
 {
-  for (int idxLink = 1; idxLink <= theFed.numberOfLinks(); idxLink++) {
-    const PixelFEDLink * link = theFed.link(idxLink);
-    int linkid = link->id();
-    int numberOfRocs = link->numberOfROCs();
+  std::vector<CablingPathToDetUnit> path = theMap->pathToDetUnit(detector.rawId);
+  typedef  std::vector<CablingPathToDetUnit>::const_iterator IT;
+  for  (IT it = path.begin(); it != path.end(); ++it) {
+    const PixelROC * roc = theMap->findItem(*it); 
+    if (!roc) return 2;
+    if (! roc->rawId() == detector.rawId) return 3;
 
-    for(int idxRoc = 1; idxRoc <= numberOfRocs; idxRoc++) {
-      const PixelROC * roc = link->roc(idxRoc);
-      if (detector.rawId == roc->rawId() ) {
-        GlobalPixel global = {detector.row, detector.col};
-//LogTrace("")<<"GLOBAL PIXEL: row=" << global.row <<" col="<< global.col;
-        LocalPixel local = roc->toLocal(global);
-// LogTrace("")<<"LOCAL PIXEL: dcol =" <<  local.dcol()<<" pxid="<<  local.pxid()<<" inside: " <<local.valid();
-        if(!local.valid()) continue; 
-        ElectronicIndex cabIdx = {linkid, idxRoc, local.dcol(), local.pxid()};
-        cabling = cabIdx;
-        return 0;
-      }
-    }
-  }
-  // proper unit not found, thrown exception
+    GlobalPixel global = {detector.row, detector.col};
+    //LogTrace("")<<"GLOBAL PIXEL: row=" << global.row <<" col="<< global.col;
+
+    LocalPixel local = roc->toLocal(global);
+    // LogTrace("")<<"LOCAL PIXEL: dcol =" 
+    //<<  local.dcol()<<" pxid="<<  local.pxid()<<" inside: " <<local.valid();
+
+    if(!local.valid()) continue;
+    ElectronicIndex cabIdx = {it->link, it->roc, local.dcol(), local.pxid()}; 
+    cabling = cabIdx;
+    return 0;
+  }  
   return 1;
 }
 

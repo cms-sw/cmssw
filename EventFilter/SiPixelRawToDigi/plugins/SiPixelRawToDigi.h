@@ -11,9 +11,8 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-class SiPixelFedCablingTree;
+class SiPixelFedCabling;
 class TH1D;
-class TFile;
 class R2DTimerObserver;
 
 
@@ -38,9 +37,9 @@ public:
 private:
 
   edm::ParameterSet config_;
-  const SiPixelFedCablingTree * cablingTree_;
+  const SiPixelFedCabling* cabling_;
+  bool  useCablingTree_;
   TH1D *hCPU, *hDigi;
-  TFile * rootFile;
   R2DTimerObserver * theTimer;
   bool includeErrors;
   bool checkOrder;

@@ -1,13 +1,15 @@
 #ifndef EventFilter_SiPixelRawToDigi_SiPixelFedCablingMap_H
 #define EventFilter_SiPixelRawToDigi_SiPixelFedCablingMap_H
 
-#include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingTree.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelFedCabling.h"
 #include "CondFormats/SiPixelObjects/interface/PixelROC.h"
 
 #include <string>
 #include <map>
+class SiPixelFedCablingTree;
 
-class SiPixelFedCablingMap {
+
+class SiPixelFedCablingMap : public SiPixelFedCabling {
 
 public: 
 
@@ -19,9 +21,14 @@ public:
 
   SiPixelFedCablingTree * cablingTree() const; 
 
-  std::string version() const { return theVersion; }
+  virtual std::string version() const { return theVersion; }
 
-  const sipixelobjects::PixelROC* findItem(unsigned int fedId, unsigned int linkId, unsigned int rocId) const;
+  virtual const sipixelobjects::PixelROC* findItem(
+      const sipixelobjects::CablingPathToDetUnit & path) const;
+
+  virtual std::vector<sipixelobjects::CablingPathToDetUnit> pathToDetUnit(uint32_t rawDetId) const;
+
+  std::vector<unsigned int> fedIds() const;
 
   struct Key { unsigned int fed, link, roc; bool operator < (const Key & other) const; };
 

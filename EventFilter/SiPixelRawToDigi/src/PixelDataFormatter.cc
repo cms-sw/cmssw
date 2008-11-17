@@ -1,5 +1,7 @@
 #include "EventFilter/SiPixelRawToDigi/interface/PixelDataFormatter.h"
 
+#include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingTree.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelFrameConverter.h"
 
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
@@ -33,7 +35,7 @@ const int PixelDataFormatter::ROC_shift  = DCOL_shift + DCOL_bits;
 const int PixelDataFormatter::LINK_shift = ROC_shift + ROC_bits;
 
 
-PixelDataFormatter::PixelDataFormatter( const SiPixelFedCablingTree * map)
+PixelDataFormatter::PixelDataFormatter( const SiPixelFedCabling* map)
   : theDigiCounter(0), theWordCounter(0), theCablingTree(map)
 {
   int s32 = sizeof(Word32);

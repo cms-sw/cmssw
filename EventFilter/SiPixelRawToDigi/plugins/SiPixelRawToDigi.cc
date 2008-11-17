@@ -31,12 +31,14 @@ using namespace std;
 
 // -----------------------------------------------------------------------------
 SiPixelRawToDigi::SiPixelRawToDigi( const edm::ParameterSet& conf ) 
-  : config_(conf), cablingTree_(0),
-    hCPU(0), hDigi(0), rootFile(0), theTimer(0)
+  : config_(conf), 
+    cabling_(0), 
+    hCPU(0), hDigi(0), theTimer(0)
 {
 
   includeErrors = config_.getUntrackedParameter<bool>("IncludeErrors",false);
   checkOrder = config_.getUntrackedParameter<bool>("CheckPixelOrder",false);
+  useCablingTree_ = config_.getUntrackedParameter<bool>("UseCablingTree",true);
 
   // Products
   produces< edm::DetSetVector<PixelDigi> >();
@@ -46,7 +48,7 @@ SiPixelRawToDigi::SiPixelRawToDigi( const edm::ParameterSet& conf )
   bool timing = config_.getUntrackedParameter<bool>("Timing",false);
   if (timing) {
     theTimer = new R2DTimerObserver("**** MY TIMING REPORT ***");
-    hCPU = new TH1D ("hCPU","hCPU",60,0.,0.030);
+    hCPU = new TH1D ("hCPU","hCPU",100,0.,0.050);
     hDigi = new TH1D("hDigi","hDigi",50,0.,15000.);
   }
 }
@@ -56,13 +58,12 @@ SiPixelRawToDigi::SiPixelRawToDigi( const edm::ParameterSet& conf )
 SiPixelRawToDigi::~SiPixelRawToDigi() {
   edm::LogInfo("SiPixelRawToDigi")  << " HERE ** SiPixelRawToDigi destructor!";
 
-  delete cablingTree_;
+  if(useCablingTree_) delete cabling_;
 
   if (theTimer) {
-    rootFile = new TFile("analysis.root", "RECREATE", "my histograms");
+    TFile rootFile("analysis.root", "RECREATE", "my histograms");
     hCPU->Write();
     hDigi->Write();
-    rootFile->Close();
     delete theTimer;
   }
 
@@ -79,24 +80,18 @@ void SiPixelRawToDigi::produce( edm::Event& ev,
                               const edm::EventSetup& es) 
 {
   static bool debug = edm::MessageDrop::instance()->debugEnabled;
-  static std::vector<int> fedList;
+  static std::vector<unsigned int> fedList;
 
 // initialize cabling map or update if necessary
   static edm::ESWatcher<SiPixelFedCablingMapRcd> recordWatcher;
   if (recordWatcher.check( es )) {
     edm::ESHandle<SiPixelFedCablingMap> cablingMap;
     es.get<SiPixelFedCablingMapRcd>().get( cablingMap );
-    if(cablingTree_) delete cablingTree_; cablingTree_ = cablingMap->cablingTree();
-    LogDebug("map version:")<< cablingTree_->version();
-  
-    typedef std::vector<const sipixelobjects::PixelFEDCabling *>::iterator FLI;
-    std::vector<const sipixelobjects::PixelFEDCabling *> feds = cablingTree_->fedList();
-
-    fedList.clear();
-    for (FLI fedIds = feds.begin(); fedIds != feds.end(); fedIds++) {
-      int fedId = (*fedIds)->id();
-      fedList.push_back( fedId );
-    }
+    fedList = cablingMap->fedIds();
+    if(useCablingTree_ && cabling_) delete cabling_; 
+    if (useCablingTree_) cabling_ = cablingMap->cablingTree(); 
+    else cabling_ = cablingMap.product();
+    LogDebug("map version:")<< cabling_->version();
   }
 
   edm::Handle<FEDRawDataCollection> buffers;
@@ -109,13 +104,13 @@ void SiPixelRawToDigi::produce( edm::Event& ev,
   static int ndigis = 0;
   static int nwords = 0;
 
-  PixelDataFormatter formatter(cablingTree_);
+  PixelDataFormatter formatter(cabling_);
   formatter.setErrorStatus(includeErrors, checkOrder);
 
   if (theTimer) theTimer->start();
   bool errorsInEvent = false;
 
-  typedef std::vector<int>::iterator IF;
+  typedef std::vector<unsigned int>::const_iterator IF;
   for (IF aFed = fedList.begin(); aFed != fedList.end(); ++aFed) {
     int fedId = *aFed;
     if(debug) LogDebug("SiPixelRawToDigi")<< " PRODUCE DIGI FOR FED: " <<  fedId << endl;

@@ -5,9 +5,11 @@
 #include <map>
 #include <string>
 
+#include "CondFormats/SiPixelObjects/interface/SiPixelFedCabling.h"
 #include "CondFormats/SiPixelObjects/interface/PixelFEDCabling.h"
 
-class SiPixelFedCablingTree {
+class SiPixelFedCablingTree : public  SiPixelFedCabling {
+
 public:
   typedef sipixelobjects::PixelFEDCabling PixelFEDCabling;
 
@@ -24,13 +26,16 @@ public:
   std::vector<const PixelFEDCabling *> fedList() const;
 
   ///map version
-  const std::string & version() const { return theVersion; }
+  virtual std::string version() const { return theVersion; }
 
   std::string print(int depth = 0) const;
 
   void addItem(unsigned int fedId, unsigned int linkId, const sipixelobjects::PixelROC& roc);
 
-  const sipixelobjects::PixelROC* findItem(unsigned int fedId, unsigned int linkId, unsigned int rocId) const;  
+  virtual std::vector<sipixelobjects::CablingPathToDetUnit> pathToDetUnit(uint32_t rawDetId) const;
+
+  virtual const sipixelobjects::PixelROC* findItem(
+     const sipixelobjects::CablingPathToDetUnit & path) const;  
 
   int checkNumbering() const;
 

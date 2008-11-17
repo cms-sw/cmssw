@@ -2,9 +2,9 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("DigiToRaw1")
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100))
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1))
 
-process.source = cms.Source("PoolSource", fileNames =  cms.untracked.vstring('file:digis.root'))
+process.source = cms.Source("PoolSource", fileNames =  cms.untracked.vstring('file:mu10.root'))
 
 process.load("Geometry.TrackerSimData.trackerSimGeometryXML_cfi")
 process.load("Geometry.TrackerGeometryBuilder.trackerGeometry_cfi")
