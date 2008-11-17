@@ -16,34 +16,16 @@ ttSemiLepEvent = cms.EDProducer("TtSemiLepEvtBuilder",
 
     ## add genEvt (if available)
     genEvent = cms.InputTag("genEvt"),
-                             
-    ## considered event hypotheses                             
-    hyps = cms.VInputTag(cms.InputTag("ttSemiLepHypGeom"),
-                         cms.InputTag("ttSemiLepHypWMassMaxSumPt"),
-                         cms.InputTag("ttSemiLepHypMaxSumPtWMass"),
-                         cms.InputTag("ttSemiLepHypGenMatch"),
-                         cms.InputTag("ttSemiLepHypKinFit"),
-                         cms.InputTag("ttSemiLepHypMVADisc")
-                         ),
 
-    ## event hypotheses' keys for mapping
-    keys = cms.VInputTag(cms.InputTag("ttSemiLepHypGeom","Key"),
-                         cms.InputTag("ttSemiLepHypWMassMaxSumPt","Key"),
-                         cms.InputTag("ttSemiLepHypMaxSumPtWMass","Key"),
-                         cms.InputTag("ttSemiLepHypGenMatch","Key"),
-                         cms.InputTag("ttSemiLepHypKinFit","Key"),
-                         cms.InputTag("ttSemiLepHypMVADisc","Key")
-                         ),
-
-    ## event hypotheses' jet parton association as meta information
-    matches = cms.VInputTag(cms.InputTag("ttSemiLepHypGeom","Match"),
-                            cms.InputTag("ttSemiLepHypWMassMaxSumPt","Match"),
-                            cms.InputTag("ttSemiLepHypMaxSumPtWMass","Match"),
-                            cms.InputTag("ttSemiLepHypGenMatch","Match"),
-                            cms.InputTag("ttSemiLepHypKinFit","Match"),
-                            cms.InputTag("ttSemiLepHypMVADisc","Match")
-                            ),
-
+    ## labels for event hypotheses
+    hyps = cms.vstring("ttSemiLepHypGeom",
+                       "ttSemiLepHypWMassMaxSumPt",
+                       "ttSemiLepHypMaxSumPtWMass",
+                       "ttSemiLepHypGenMatch",
+                       "ttSemiLepHypKinFit",
+                       "ttSemiLepHypMVADisc"
+                       ),
+                                
     ## add extra information on kinFit
     kinFit = cms.PSet(
         chi2 = cms.InputTag("kinFitTtSemiLepEventHypothesis","Chi2"),

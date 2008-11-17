@@ -29,12 +29,8 @@ class TtSemiLepEvtBuilder : public edm::EDProducer {
 
   int verbosity_;
 
-  // hypothesis
-  std::vector<edm::InputTag> hyps_;
-  std::vector<edm::InputTag> keys_;  
-
-  // meta information
-  std::vector<edm::InputTag> matches_;  
+  // hypotheses
+  std::vector<std::string> hyps_;
 
   // kinFit extras
   edm::ParameterSet kinFit_;
