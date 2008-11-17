@@ -774,9 +774,13 @@ void PFRootEventManager::readOptions(const char* file,
 
   printGenParticles_ = true;
   options_->GetOpt("print", "genParticles", printGenParticles_ );
-  
-  printMCTruthMatching_ = true;
+
+  //MCTruthMatching Tool set to false by default
+  //can only be used with fastsim and the UnFoldedMode set to true
+  //when generating the simulated file
+  printMCTruthMatching_ = false; 
   options_->GetOpt("print", "mctruthmatching", printMCTruthMatching_ );  
+
 
   verbosity_ = VERBOSE;
   options_->GetOpt("print", "verbosity", verbosity_ );
@@ -2643,7 +2647,7 @@ void  PFRootEventManager::print(ostream& out,int maxNLines ) const {
 
     //print a detailed list of PFSimParticles matching
     //the PFCandiates
-    if(printMCTruthMatching_)
+    if(printMCTruthMatching_){
       cout<<"MCTruthMatching Results"<<endl;
       for(unsigned icand=0; icand<pfCandidates_->size(); 
 	  icand++) {
@@ -2674,7 +2678,7 @@ void  PFRootEventManager::print(ostream& out,int maxNLines ) const {
 	}//loop simparticles
 	cout<<"________________"<<endl;
       }//loop candidates 
-
+    }////print mc truth matching
   }
   if(printPFJets_) {
     out<<"Jets  ====================================================="<<endl;
@@ -2703,7 +2707,6 @@ void  PFRootEventManager::print(ostream& out,int maxNLines ) const {
         out<<"\t"<<trueParticles_[i]<<endl;
     }   
  
-    //modif-beg
     //print a detailed list of PFSimParticles matching
     //the PFCandiates
     if(printMCTruthMatching_) {
