@@ -21,6 +21,7 @@
 
 #include <string>
 #include <map>
+#include <vector>
 
 #include <xercesc/parsers/XercesDOMParser.hpp>
 #include <xercesc/dom/DOMNodeList.hpp>
@@ -48,13 +49,37 @@ namespace cscdqm {
   typedef std::map<std::string, CoHistoProps>    CoHisto;
   typedef std::map<std::string, CoHisto>         CoHistoMap;
   
+  /**
+  * @brief  Converting from string to whatever number (failsafe!) 
+  * @param  t result number
+  * @param  s source string
+  * @param  f base
+  * @return true if success, else - false
+  */
+  template <class T>
+  bool stringToNumber(T& t, const std::string& s, std::ios_base& (*f)(std::ios_base&)) {
+    std::istringstream iss(s);
+    return !(iss >> f >> t).fail();
+  }
+
   class Collection {
 
     public:
 
       Collection();
       void load(const std::string p_bookingFile);
+
+      static const bool getHistoValue(const CoHistoProps& h, const std::string& name, std::string& value, const std::string& def_value = "");
+      static const bool getHistoValue(const CoHistoProps& h, const std::string& name, int& value, const int& def_value = 0);
+      static const bool getHistoValue(const CoHistoProps& h, const std::string name, double& value, const int def_value = 0.0);
       
+      static const int ParseAxisLabels(const std::string& s, std::map<int, std::string>& labels);
+      static void getCSCTypeToBinMap(std::map<std::string, int>& tmap);
+      static const std::string getCSCTypeLabel(int endcap, int station, int ring);
+      static const int tokenize(const std::string& str, std::vector<std::string>& tokens, const std::string& delimiters = " ");
+      static void splitString(std::string str, const std::string delim, std::vector<std::string>& results);
+      static void trimString(std::string& str);
+
     private:
       
       const bool isNodeElement(DOMNode*& node) const;
