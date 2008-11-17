@@ -1,5 +1,5 @@
 //
-// $Id: PATPhotonProducer.h,v 1.12 2008/09/30 21:33:06 srappocc Exp $
+// $Id: PATPhotonProducer.h,v 1.13 2008/11/17 20:03:27 askew Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATPhotonProducer_h
@@ -13,7 +13,7 @@
    a collection of objects of PhotonType.
 
   \author   Steven Lowette
-  \version  $Id: PATPhotonProducer.h,v 1.12 2008/09/30 21:33:06 srappocc Exp $
+  \version  $Id: PATPhotonProducer.h,v 1.13 2008/11/17 20:03:27 askew Exp $
 */
 
 
@@ -69,6 +69,10 @@ namespace pat {
 
       bool addEfficiencies_;
       pat::helper::EfficiencyLoader efficiencyLoader_;
+
+      bool          addPhotonID_;
+      typedef std::pair<std::string, edm::InputTag> NameTag;
+      std::vector<NameTag> photIDSrcs_;
 
       bool useUserData_;
       pat::PATUserDataHelper<pat::Photon>      userDataHelper_;

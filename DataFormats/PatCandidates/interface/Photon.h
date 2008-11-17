@@ -1,5 +1,5 @@
 //
-// $Id: Photon.h,v 1.16 2008/10/08 11:44:31 fronga Exp $
+// $Id: Photon.h,v 1.17 2008/11/17 20:16:04 askew Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Photon_h
@@ -16,7 +16,7 @@
    https://hypernews.cern.ch/HyperNews/CMS/get/physTools.html
 
   \author   Steven Lowette, Giovanni Petrucciani, Frederic Ronga
-  \version  $Id: Photon.h,v 1.16 2008/10/08 11:44:31 fronga Exp $
+  \version  $Id: Photon.h,v 1.17 2008/11/17 20:16:04 askew Exp $
 */
 
 #include "DataFormats/PatCandidates/interface/PATObject.h"
@@ -45,6 +45,8 @@ namespace pat {
 
     public:
 
+      typedef std::pair<std::string,Bool_t> IdPair;
+
       /// default constructor
       Photon();
       /// constructor from a reco photon
@@ -71,14 +73,18 @@ namespace pat {
       /// method to set the generated photon
       void setGenPhoton(const reco::GenParticleRef & gp, bool embed=false) { setGenParticleRef(gp, embed); }
 
-
-/*       /// Method from reco::PhotonID, throws exception if there is no photon ID in this pat::Photon */
-/*       bool isLoosePhoton() const { return photonIDOrThrow().isLoosePhoton(); } */
-/*       /// Method from reco::PhotonID, throws exception if there is no photon ID in this pat::Photon */
-/*       bool isTightPhoton() const { return photonIDOrThrow().isTightPhoton(); } */
-/*       /// Returns computed EcalRecHit isolation */
-      /// Method from reco::PhotonID, throws exception if there is no photon ID in this pat::Photon
-
+      // ---- methods for photon ID ----
+      /// Returns a specific photon ID associated to the pat::Photon given its name.
+      /// Note: an exception is thrown if the specified ID is not available
+      Bool_t photonID(const std::string & name) const;
+      /// Returns true if a specific ID is available in this pat::Photon
+      bool isPhotonIDAvailable(const std::string & name) const;
+      /// Returns all the Photon IDs in the form of <name,value> pairs
+      /// The 'default' ID is the first in the list
+      const std::vector<IdPair> &  photonIDs() const { return photonIDs_; }
+      /// Store multiple photon ID values, discarding existing ones
+      /// The first one in the list becomes the 'default' photon id 
+      void setPhotonIDs(const std::vector<IdPair> & ids) { photonIDs_ = ids; }
 
 
       // ---- methods for photon isolation ----
@@ -172,7 +178,8 @@ namespace pat {
       // ---- for content embedding ----
       bool embeddedSuperCluster_;
       std::vector<reco::SuperCluster> superCluster_;
-
+      // ---- photon ID's holder ----
+      std::vector<IdPair> photonIDs_;
       // ---- Isolation and IsoDeposit related datamebers ----
       typedef std::vector<std::pair<IsolationKeys, pat::IsoDeposit> > IsoDepositPairs;
       IsoDepositPairs    isoDeposits_;

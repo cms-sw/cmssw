@@ -1,5 +1,5 @@
 //
-// $Id: PATPhotonProducer.cc,v 1.15 2008/10/19 21:11:56 gpetrucc Exp $
+// $Id: PATPhotonProducer.cc,v 1.16 2008/11/17 20:03:27 askew Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATPhotonProducer.h"
@@ -41,6 +41,36 @@ PATPhotonProducer::PATPhotonProducer(const edm::ParameterSet & iConfig) :
      efficiencyLoader_ = pat::helper::EfficiencyLoader(iConfig.getParameter<edm::ParameterSet>("efficiencies"));
   }
  
+  // photon ID configurables
+  addPhotonID_        = iConfig.getParameter<bool>         ( "addPhotonID" );
+  if (addPhotonID_) {
+      // it might be a single photon ID
+      if (iConfig.existsAs<edm::InputTag>("photonIDSource")) {
+          photIDSrcs_.push_back(NameTag("", iConfig.getParameter<edm::InputTag>("photonIDSource")));
+      }
+      // or there might be many of them
+      if (iConfig.existsAs<edm::ParameterSet>("photonIDSources")) {
+          // please don't configure me twice
+          if (!photIDSrcs_.empty()) throw cms::Exception("Configuration") << 
+                "PATPhotonProducer: you can't specify both 'photonIDSource' and 'photonIDSources'\n";
+          // read the different photon ID names
+          edm::ParameterSet idps = iConfig.getParameter<edm::ParameterSet>("photonIDSources");
+          std::vector<std::string> names = idps.getParameterNamesForType<edm::InputTag>();
+          for (std::vector<std::string>::const_iterator it = names.begin(), ed = names.end(); it != ed; ++it) {
+              photIDSrcs_.push_back(NameTag(*it, idps.getParameter<edm::InputTag>(*it)));
+          }
+      }
+      // but in any case at least once
+      if (photIDSrcs_.empty()) throw cms::Exception("Configuration") <<
+            "PATPhotonProducer: id addPhotonID is true, you must specify either:\n" <<
+            "\tInputTag photonIDSource = <someTag>\n" << "or\n" <<
+            "\tPSet photonIDSources = { \n" <<
+            "\t\tInputTag <someName> = <someTag>   // as many as you want \n " <<
+            "\t}\n";
+  }
+  
+
+
   // Check to see if the user wants to add user data
   useUserData_ = false;
   if ( iConfig.exists("userData") ) {
@@ -86,12 +116,24 @@ void PATPhotonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSe
 
 
   if (isolator_.enabled()) isolator_.beginEvent(iEvent,iSetup);
-
+  
   if (efficiencyLoader_.enabled()) efficiencyLoader_.newEvent(iEvent);
-
+  
   std::vector<edm::Handle<edm::ValueMap<IsoDeposit> > > deposits(isoDepositLabels_.size());
   for (size_t j = 0, nd = deposits.size(); j < nd; ++j) {
     iEvent.getByLabel(isoDepositLabels_[j].second, deposits[j]);
+  }
+  
+  // prepare ID extraction 
+  std::vector<edm::Handle<edm::ValueMap<Bool_t> > > idhandles;
+  std::vector<pat::Photon::IdPair>               ids;
+  if (addPhotonID_) {
+    idhandles.resize(photIDSrcs_.size());
+    ids.resize(photIDSrcs_.size());
+    for (size_t i = 0; i < photIDSrcs_.size(); ++i) {
+      iEvent.getByLabel(photIDSrcs_[i].second, idhandles[i]);
+      ids[i].first = photIDSrcs_[i].first;
+    }
   }
 
   // loop over photons
@@ -143,6 +185,14 @@ void PATPhotonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSe
         aPhoton.setIsoDeposit(isoDepositLabels_[j].first, (*deposits[j])[photonRef]);
     }
 
+
+    // add photon ID info
+    if (addPhotonID_) {
+      for (size_t i = 0; i < photIDSrcs_.size(); ++i) {
+	ids[i].second = (*idhandles[i])[photonRef];    
+      }
+      aPhoton.setPhotonIDs(ids);
+    }
 
     if ( useUserData_ ) {
       userDataHelper_.add( aPhoton, iEvent, iSetup );

@@ -1,5 +1,5 @@
 //
-// $Id: Photon.cc,v 1.14 2008/06/23 22:22:18 gpetrucc Exp $
+// $Id: Photon.cc,v 1.15 2008/07/08 20:56:48 gpetrucc Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/Photon.h"
@@ -61,3 +61,24 @@ void Photon::embedSuperCluster() {
   }
 }
 
+// method to retrieve a photon ID (or throw)
+Bool_t Photon::photonID(const std::string & name) const {
+  for (std::vector<IdPair>::const_iterator it = photonIDs_.begin(), ed = photonIDs_.end(); it != ed; ++it) {
+    if (it->first == name) return it->second;
+  }
+  cms::Exception ex("Key not found");
+  ex << "pat::Photon: the ID " << name << " can't be found in this pat::Photon.\n";
+  ex << "The available IDs are: ";
+  for (std::vector<IdPair>::const_iterator it = photonIDs_.begin(), ed = photonIDs_.end(); it != ed; ++it) {
+    ex << "'" << it->first << "' ";
+  }
+  ex << ".\n";
+  throw ex;
+}
+// check if an ID is there
+bool Photon::isPhotonIDAvailable(const std::string & name) const {
+  for (std::vector<IdPair>::const_iterator it = photonIDs_.begin(), ed = photonIDs_.end(); it != ed; ++it) {
+    if (it->first == name) return true;
+  }
+  return false;
+}

@@ -1,9 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-patAODPhotonID = cms.EDFilter("PhotonIDConverter",
-    src = cms.InputTag("photons"),
-    photonID = cms.InputTag("PhotonIDProd","PhotonAssociatedID")
-)
 
 layer0PhotonID = cms.EDFilter("CandValueMapSkimmerPhotonID",
     collection  = cms.InputTag("allLayer0Photons"),

@@ -77,9 +77,15 @@ allLayer1Photons = cms.EDProducer("PATPhotonProducer",
         hcal    = cms.InputTag("layer0PhotonIsolations","gamIsoDepositHcalFromTowers"),
     ),
 
-    # PhotonID configurables
+    # photon ID configurables
     addPhotonID = cms.bool(True),
-    photonIDSource = cms.InputTag("layer0PhotonID"), ## ValueMap<reco::PhotonID> keyed to photonSource
+    photonIDSources = cms.PSet(
+        # configure many IDs as InputTag <someName> = <someTag>
+        # you can comment out those you don't want to save some disk space
+        phoidCutBasedLoose = cms.InputTag("PhotonIDProd","PhotonCutBasedIDLoose"),
+        phoidCutBasedTight = cms.InputTag("PhotonIDProd","PhotonCutBasedIDTight"),
+
+    ),
 
     # Trigger matching configurables
     addTrigMatch = cms.bool(True),
