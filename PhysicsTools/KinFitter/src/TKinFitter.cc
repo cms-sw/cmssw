@@ -382,6 +382,15 @@ Int_t TKinFitter::fit() {
     prevS = currS;
     currS = getS();
 
+    if( TMath::IsNaN(currF) ) {
+      edm::LogInfo ("KinFitter") << "The current value of F is NaN. Fit will be aborted.";
+      _status = -10;
+    }
+    if( TMath::IsNaN(currS) ) {
+      edm::LogInfo ("KinFitter") << "The current value of S is NaN. Fit will be aborted.";
+      _status = -10;
+    }
+
     // If S or F are getting bigger reduce step width
 //     Int_t nstep =0;
 //     while ( currF >= prevF ) {
@@ -402,12 +411,12 @@ Int_t TKinFitter::fit() {
     isConverged = converged(currF, prevS, currS);
 
  
-  } while ( (! isConverged) && (_nbIter < _maxNbIter) );
+  } while ( (! isConverged) && (_nbIter < _maxNbIter) && (_status != -10) );
 
   // Calculate covariance matrices
   calcB();
   calcVB();
-
+  
   if ( _nParA > 0 ) {
     calcA();
     calcVA();
@@ -420,14 +429,15 @@ Int_t TKinFitter::fit() {
   calcC33();
   calcVFit();
   applyVFit();
-
+  
   // Set status information
-  if (! isConverged ) {
-    _status = 1;
-  } else {
+  if (isConverged) {
     _status = 0;
   }
-
+  else if (_status != -10) {
+    _status = 1;
+  }
+  
   // print status
   if ( _verbosity >= 1 ) {
     print();
@@ -491,7 +501,11 @@ Bool_t TKinFitter::calcV() {
 
   _Vinv.ResizeTo( _V );
   _Vinv = _V;
-  _Vinv.Invert();
+  try {
+    _Vinv.Invert();
+  } catch (cms::Exception& e) {
+    edm::LogInfo ("KinFitter") << "Failed to invert covariance matrix V.";
+  }
 
   return true;
 
@@ -614,7 +628,12 @@ Bool_t TKinFitter::calcVB() {
 
   _VB.ResizeTo( _VBinv );
   _VB = _VBinv;
-  _VB.Invert();
+  try {
+    _VB.Invert();
+  } catch (cms::Exception& e) {
+    edm::LogInfo ("KinFitter") << "Failed to invert matrix VB. Fit will be aborted.";
+    _status = -10;
+  }
 
   return true;
 
@@ -630,7 +649,12 @@ Bool_t TKinFitter::calcVA() {
 
   _VAinv.ResizeTo( _VA );
   _VAinv = _VA;
-  _VAinv.Invert();
+  try {
+    _VAinv.Invert();
+  } catch (cms::Exception& e) {
+    edm::LogInfo ("KinFitter") << "Failed to invert matrix VA. Fit will be aborted.";
+    _status = -10;
+  }
 
   return true;
 
@@ -1108,6 +1132,10 @@ TString TKinFitter::getStatusString() {
     }
     case 10: {
       statusstring = "RUNNING";
+      break;
+    }
+    case -10: {
+      statusstring = "ABORTED";
       break;
     }
     case 0: {
