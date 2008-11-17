@@ -48,8 +48,9 @@ extern "C" {
 	} uppriv_;
 
 	extern struct MEMAIN {
-		double 	tcjet, rclmax, etaclmax, qcut, clfact;
-		int	maxjets, minjets, iexcfile, ktsche, nexcres, excres;
+		double 	etcjet, rclmax, etaclmax, qcut, clfact;
+		int	maxjets, minjets, iexcfile, ktsche;
+		int	nexcres, excres[30];
 	} memain_;
 
 	extern struct MEMAEV {
@@ -150,6 +151,11 @@ JetMatchingMadgraph::JetMatchingMadgraph(const edm::ParameterSet &params) :
 			   "parameter to be set to either \"inclusive\", "
 			   "\"exclusive\" or \"auto\"." << std::endl;
 
+	memain_.etcjet = 0.;
+	memain_.rclmax = 0.0;
+	memain_.clfact = 0.0;
+	memain_.iexcfile = 0;
+	memain_.ktsche = 0;
 	memain_.etaclmax = params.getParameter<double>("etaclmax");
 	memain_.qcut = params.getParameter<double>("qcut");
 	memain_.minjets = params.getParameter<int>("minjets");
@@ -221,9 +227,6 @@ void JetMatchingMadgraph::init(const boost::shared_ptr<LHERunInfo> &runInfo)
 	// set MG matching parameters
 
 	uppriv_.ickkw = getParameter<int>("ickkw", 0);
-
-	memain_.minjets = 0;
-	memain_.maxjets = 2;
 
 	// run Fortran initialization code
 
