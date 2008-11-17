@@ -3,9 +3,14 @@
 
 /** \class TCMETAlgo
  *
- * Calculates TCMET based on ... (add details here)
+ * Calculates TCMET based on detector response to charged paricles
+ * using the tracker to correct for the non-linearity of the calorimeter
+ * and the displacement of charged particles by the B-field.  Given a 
+ * track pt, eta the expected energy deposited in the calorimeter is
+ * obtained from a lookup table, removed from the calorimeter, and
+ * replaced with the track at the vertex.
  *
- * \author    F. Golf and A. Yagil
+ * \author    F. Golf
  *
  * \version   1st Version November 12, 2008 
  ************************************************************/
@@ -33,8 +38,6 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/METReco/interface/CaloMET.h"
 #include "DataFormats/METReco/interface/CaloMETCollection.h"
-
-typedef ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > LorentzVector;
 
 class TCMETAlgo 
 {
@@ -65,7 +68,6 @@ class TCMETAlgo
   void correctMETforTrack( const reco::Track& );
   void correctSumEtForTrack( const reco::Track&);
   class TVector3 propagateTrack( const reco::Track& );
-  double deltaR( const LorentzVector&, const LorentzVector& );
   TH2D* getResponseFunction ( );
 };
 

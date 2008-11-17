@@ -1,6 +1,6 @@
 // File: TCMETAlgo.cc
 // Description:  see TCMETAlgo.h
-// Author: F. Golf, A. Yagil
+// Author: F. Golf
 // Creation Date:  Nov 12, 2008 Initial version.
 //
 //------------------------------------------------------------------------
@@ -39,11 +39,10 @@
 #include <iostream>
 #include "TVector3.h"
 #include "TH2.h"
-#include "TFile.h"
 
 using namespace std;
 using namespace reco;
-//using namespace math;
+
 //------------------------------------------------------------------------
 // Default Constructer
 //----------------------------------
@@ -80,6 +79,7 @@ reco::MET TCMETAlgo::CalculateTCMET(edm::Event& event, const edm::EventSetup& se
   double met_y = calomet.et() * sin( calomet.phi() );
   double sumEt = calomet.sumEt();
 
+  //calculate tcMET
 
   for(reco::TrackCollection::const_iterator track_it = TrackHandle->begin(); track_it != TrackHandle->end(); ++track_it) {
 
@@ -150,7 +150,7 @@ bool TCMETAlgo::isElectron( unsigned int trk_idx ) {
   return false;
 }
 
-//determines if track is "good" - i.e. passes quality cuts
+//determines if track is "good" - i.e. passes quality and kinematic cuts
 
 bool TCMETAlgo::isGoodTrack( const reco::Track& track ) {
   if( fabs( track.d0() ) > 0.05 ) return false;
@@ -260,11 +260,7 @@ TVector3 TCMETAlgo::propagateTrack( const reco::Track& track ) {
   return outerTrkPosition;
 }
 
-//calculate deltaR between two LorentzVectors
-
-double TCMETAlgo::deltaR(const LorentzVector& v1, const LorentzVector& v2) {
-  return ROOT::Math::VectorUtil::DeltaR(v1, v2);
-}
+//returns 2D response function
 
 TH2D* TCMETAlgo::getResponseFunction( ) {
 
