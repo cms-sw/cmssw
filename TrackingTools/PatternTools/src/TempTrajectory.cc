@@ -20,6 +20,9 @@ TempTrajectory::TempTrajectory( const Trajectory& traj):
 
 }
 
+TempTrajectory::~TempTrajectory() {
+}
+
 void TempTrajectory::pop() { 
   if (!empty()) {
     if (theData.back().recHit()->isValid())             theNumberOfFoundHits--;

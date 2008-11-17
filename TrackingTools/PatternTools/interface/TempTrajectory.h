@@ -87,6 +87,10 @@ public:
   /// construct TempTrajectory from standard Trajectory
   TempTrajectory( const Trajectory& traj);
 
+  /// destruct a TempTrajectory 
+  // trivial destructor, but must be out-of-line for code size issues
+  // https://hypernews.cern.ch/HyperNews/CMS/get/code-perf/247.html
+  ~TempTrajectory() ;
 
     /** Add a new measurement to a Trajectory.
    *  The Chi2 of the trajectory is incremented by the value
