@@ -2,8 +2,8 @@
  *  See header file for a description of this class.
  *
  *
- *  $Date: 2008/10/08 03:25:32 $
- *  $Revision: 1.23 $
+ *  $Date: 2008/10/09 00:36:51 $
+ *  $Revision: 1.24 $
  *  \author A. Vitelli - INFN Torino, V.Palichik
  *  \author porting  R. Bellan
  *
@@ -110,7 +110,7 @@ TrajectorySeed MuonSeedFromRecHits::createSeed(float ptmean,
       container.push_back( theRhits[l]->hit()->clone() );
   }
 
-  TrajectorySeed theSeed(*seedTSOS,container,oppositeToMomentum);
+  TrajectorySeed theSeed(*seedTSOS,container,alongMomentum);
 
   delete seedTSOS;
     
