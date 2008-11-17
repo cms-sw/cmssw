@@ -33,9 +33,9 @@ particleFlowSimParticle = cms.EDProducer("PFSimParticleProducer",
     #retrieving EcalRechits
     ecalRecHitsEB = cms.InputTag('caloRecHits','EcalRecHitsEB'),
     ecalRecHitsEE = cms.InputTag('caloRecHits','EcalRecHitsEE'),
-
-    # Unfolded mode (only with fast sim, and upon request)
-    unfoldedMode = cms.untracked.bool(False),
+    #modif-beg
+    #MC Truth Matching info (only if UnFoldedMode = true in FastSim) 
+    MCTruthMatchingInfo = cms.untracked.bool(True), 
     famosSimHits = cms.untracked.InputTag('famosSimHits','EcalHitsEB')
-                                         
- )
+    #modif-end                                         
+)
