@@ -400,6 +400,7 @@ int main(int argc, char *argv[]){
       ProcFil.clear();
       ProcFil.push_back(PPEX_DIR+"ppex*");
 
+      
       TabChain.push_back(new TChain("HltTree"));
       for (unsigned int ipfile = 0; ipfile < ProcFil.size(); ipfile++){
         TabChain.back()->Add(ProcFil[ipfile]);
@@ -1617,13 +1618,13 @@ void BookMenu_SmallMenu_8E29(OHltMenu*  menu, double &iLumi, double &nBunches) {
 
   menu->AddHlt("HLT_ZeroBias","L1_ZeroBias","15000",1,"","",1.5,0,0,0,0,0);
   menu->AddHlt("HLT_MinBias","L1_MinBias_HTT10","4000",1,"","",1.5,0,0,0,0,0);
-  menu->AddHlt("HLT_MinBiasHcal","L1_SingleJetCountsHFTow OR L1_DoubleJetCountsHFTow OR L1_SingleJetCountsHFRing0Sum3 OR L1_DoubleJetCountsHFRing0Sum3 OR L1_SingleJetCountsHFRing0Sum6 OR L1_DoubleJetCountsHFRing0Sum6","So many triggers",1,"","",1.5,0,0,0,0,0);
+  menu->AddHlt("HLT_MinBiasHcal","L1_SingleJetCountsHFTow OR L1_DoubleJetCountsHFTow OR L1_SingleJetCountsHFRing0Sum3 OR L1_DoubleJetCountsHFRing0Sum3 OR L1_SingleJetCountsHFRing0Sum6 OR L1_DoubleJetCountsHFRing0Sum6","-",1,"","",1.5,0,0,0,0,0);
   menu->AddHlt("HLT_MinBiasEcal","L1_SingleEG2 OR L1_DoubleEG1","5000,5000",1,"","",1.5,0,0,0,0,0);
   menu->AddHlt("HLT_MinBiasPixel","L1_ZeroBias","15000",1,"","",1.5,0,0,0,0,0);
   menu->AddHlt("HLT_MinBiasPixel_Trk5","L1_ZeroBias","15000",1,"","",1.5,0,0,0,0,0);
-  menu->AddHlt("AlCa_IsoTrack","L1_SingleJet30 OR L1_SingleJet50 OR L1_SingleJet70 OR L1_SingleJet100 OR L1_SingleTauJet30 OR L1_SingleTauJet40 OR L1_SingleTauJet60 OR L1_SingleTauJet80","Lots of triggers",1,"","",0.214,0,0,0,0,0);
-  menu->AddHlt("AlCa_EcalPhiSym","L1_ZeroBias OR L1_SingleJetCountsHFTow OR L1_DoubleJetCountsHFTow OR L1_SingleEG2 OR L1_DoubleEG1 OR L1_SingleJetCountsHFRing0Sum3 OR L1_DoubleJetCountsHFRing0Sum3 OR L1_SingleJetCountsHFRing0Sum6 OR L1_DoubleJetCountsHFRing0Sum6","Lots and lots of triggers",1,"","",0.001,0,0,0,0,0);
-  menu->AddHlt("AlCa_EcalPi0","L1_SingleIsoEG5 OR L1_SingleIsoEG8 OR L1_SingleIsoEG10 OR L1_SingleIsoEG12 OR L1_SingleIsoEG15 OR L1_SingleIsoEG20 OR L1_SingleIsoEG25 OR L1_SingleEG5 OR L1_SingleEG8 OR L1_SingleEG10 OR L1_SingleEG12 OR L1_SingleEG15 OR L1_SingleEG20 OR L1_SingleEG25","What's in these triggers?",1,"","",0.007,0,0,0,0,0);
+  menu->AddHlt("AlCa_IsoTrack","L1_SingleJet30 OR L1_SingleJet50 OR L1_SingleJet70 OR L1_SingleJet100 OR L1_SingleTauJet30 OR L1_SingleTauJet40 OR L1_SingleTauJet60 OR L1_SingleTauJet80","-",1,"","",0.214,0,0,0,0,0);
+  menu->AddHlt("AlCa_EcalPhiSym","L1_ZeroBias OR L1_SingleJetCountsHFTow OR L1_DoubleJetCountsHFTow OR L1_SingleEG2 OR L1_DoubleEG1 OR L1_SingleJetCountsHFRing0Sum3 OR L1_DoubleJetCountsHFRing0Sum3 OR L1_SingleJetCountsHFRing0Sum6 OR L1_DoubleJetCountsHFRing0Sum6","-",1,"","",0.001,0,0,0,0,0);
+  menu->AddHlt("AlCa_EcalPi0","L1_SingleIsoEG5 OR L1_SingleIsoEG8 OR L1_SingleIsoEG10 OR L1_SingleIsoEG12 OR L1_SingleIsoEG15 OR L1_SingleIsoEG20 OR L1_SingleIsoEG25 OR L1_SingleEG5 OR L1_SingleEG8 OR L1_SingleEG10 OR L1_SingleEG12 OR L1_SingleEG15 OR L1_SingleEG20 OR L1_SingleEG25","-",1,"","",0.007,0,0,0,0,0);
 }
 
 void BookMenu_21X_8E29_L1(OHltMenu*  menu, double &iLumi, double &nBunches) {   
