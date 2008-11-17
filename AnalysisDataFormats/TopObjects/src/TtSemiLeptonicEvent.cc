@@ -45,40 +45,42 @@ TtSemiLeptonicEvent::print()
   // use stringstream to collect information from the hypotheses for the MessageLogger
   std::stringstream hypStream;
   
-  unsigned int nHyps = this->numberOfAvailableHypos();
-  for(unsigned hyp = 0; hyp < nHyps; hyp++) {
+  typedef std::map<HypoKey, reco::CompositeCandidate>::const_iterator EventHypo;
+  for(EventHypo hyp = evtHyp_.begin(); hyp != evtHyp_.end(); ++hyp) {
+    HypoKey hypKey = (*hyp).first;
     // header for each hypothesis
     hypStream << "--------------------------------------------- \n";
-    switch(hyp) {
-    case TtSemiLeptonicEvent::kGeom          : hypStream << " Geom"         ; break;
-    case TtSemiLeptonicEvent::kWMassMaxSumPt : hypStream << " WMassMaxSumPt"; break;
-    case TtSemiLeptonicEvent::kMaxSumPtWMass : hypStream << " MaxSumPtWMass"; break;
-    case TtSemiLeptonicEvent::kGenMatch      : hypStream << " GenMatch"     ; break;
-    case TtSemiLeptonicEvent::kMVADisc       : hypStream << " MVADisc"      ; break;
-    case TtSemiLeptonicEvent::kKinFit        : hypStream << " KinFit"       ; break;
+    switch(hypKey) {
+    case kGeom          : hypStream << " Geom"         ; break;
+    case kWMassMaxSumPt : hypStream << " WMassMaxSumPt"; break;
+    case kMaxSumPtWMass : hypStream << " MaxSumPtWMass"; break;
+    case kGenMatch      : hypStream << " GenMatch"     ; break;
+    case kMVADisc       : hypStream << " MVADisc"      ; break;
+    case kKinFit        : hypStream << " KinFit"       ; break;
     default                                  : hypStream << " Unknown";
     }
     hypStream << "-Hypothesis: \n";
     // check if hypothesis is valid
-    if( !this->isHypoValid((TtSemiLeptonicEvent::HypoKey) hyp) )
+    if( !this->isHypoValid( hypKey ) )
       hypStream << " * Not valid! \n";
     // get meta information for valid hypothesis
     else {
       // jetMatch
       hypStream << " * JetMatch:";
-      std::vector<int> jets = this->jetMatch( (TtSemiLeptonicEvent::HypoKey&) hyp  );
+      std::vector<int> jets = this->jetMatch( hypKey );
       for(unsigned int iJet = 0; iJet < jets.size(); iJet++) {
 	hypStream << "   " << jets[iJet] << "   ";
       }
       hypStream << "\n";
       // specialties for some hypotheses
-      switch(hyp) {
-      case TtSemiLeptonicEvent::kGenMatch : hypStream << " * Sum(DeltaR) : " << this->genMatchSumDR() << " \n"
-						      << " * Sum(DeltaPt): " << this->genMatchSumPt() << " \n"; break;
-      case TtSemiLeptonicEvent::kMVADisc  : hypStream << " * Method  : "     << this->mvaMethod()     << " \n"
-						      << " * Discrim.: "     << this->mvaDisc()       << " \n"; break;
-      case TtSemiLeptonicEvent::kKinFit   : hypStream << " * Chi^2      : "  << this->fitChi2()       << " \n"
-						      << " * Prob(Chi^2): "  << this->fitProb()       << " \n"; break;
+      switch(hypKey) {
+      case kGenMatch : hypStream << " * Sum(DeltaR) : " << this->genMatchSumDR() << " \n"
+				 << " * Sum(DeltaPt): " << this->genMatchSumPt() << " \n"; break;
+      case kMVADisc  : hypStream << " * Method  : "     << this->mvaMethod()     << " \n"
+				 << " * Discrim.: "     << this->mvaDisc()       << " \n"; break;
+      case kKinFit   : hypStream << " * Chi^2      : "  << this->fitChi2()       << " \n"
+				 << " * Prob(Chi^2): "  << this->fitProb()       << " \n"; break;
+      default        : break;
       }
     }
   }
@@ -87,7 +89,7 @@ TtSemiLeptonicEvent::print()
   edm::LogInfo( "TtSemiLeptonicEvent" ) 
     << "++++++++++++++++++++++++++++++++++++++++++++++ \n"
     << genEvtString << " \n"
-    << " Number of available event hypotheses: " << nHyps << " \n"
+    << " Number of available event hypotheses: " << this->numberOfAvailableHypos() << " \n"
     << jetString << " \n"
     << hypStream.str()
     << "++++++++++++++++++++++++++++++++++++++++++++++";  
