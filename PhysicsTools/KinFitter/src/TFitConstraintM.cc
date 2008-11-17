@@ -171,12 +171,26 @@ TMatrixD* TFitConstraintM::getDerivative( TAbsFitParticle* particle ) {
       const TLorentzVector* FourVec = (_ParList1[i])->getCurr4Vec();
       Pf += (*FourVec);
     }
+    if( Pf.M() == 0. ) {
+      edm::LogInfo ("KinFitter")
+	<< "Division by zero in "
+	<< IsA()->GetName() << " (named " << GetName() << ", titled " << GetTitle()
+	<< ") will lead to Inf in derivative matrix for particle "
+	<< particle->GetName() << ".";
+    }
     Factor = 1./ Pf.M();
   } else if (OnList( &_ParList2, particle) ) {
     UInt_t Npart = _ParList2.size();
     for (unsigned int i=0; i<Npart; i++) {
       const TLorentzVector* FourVec = (_ParList2[i])->getCurr4Vec();
       Pf += (*FourVec);
+    }
+    if( Pf.M() == 0. ) {
+      edm::LogInfo ("KinFitter")
+	<< "Division by zero in "
+	<< IsA()->GetName() << " (named " << GetName() << ", titled " << GetTitle()
+	<< ") will lead to Inf in derivative matrix for particle "
+	<< particle->GetName() << ".";
     }
     Factor = -1./Pf.M();
   } else {
