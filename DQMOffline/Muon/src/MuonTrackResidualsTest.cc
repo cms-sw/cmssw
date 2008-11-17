@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/11/11 12:32:15 $
- *  $Revision: 1.9 $
+ *  $Date: 2008/11/15 21:42:19 $
+ *  $Revision: 1.10 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -58,7 +58,7 @@ void MuonTrackResidualsTest::beginJob(const edm::EventSetup& context){
   LogTrace(metname) << "[MuonTrackResidualsTest] Parameters initialization"<<endl;
  
 
-  string histName, MeanHistoName, SigmaHistoName;
+  string histName, MeanHistoName, SigmaHistoName,  MeanHistoTitle, SigmaHistoTitle;
   vector<string> type;
   type.push_back("eta");
   type.push_back("theta");
@@ -69,6 +69,9 @@ void MuonTrackResidualsTest::beginJob(const edm::EventSetup& context){
 
     MeanHistoName =  "MeanTest_" + type[c]; 
     SigmaHistoName =  "SigmaTest_" + type[c];
+
+    MeanHistoTitle =  "Mean of the #" + type[c] + " residuals distribution"; 
+    SigmaHistoTitle =  "Sigma of the #" + type[c] + " residuals distribution"; 
  
     histName = "Res_GlbSta_"+type[c];
     histoNames[type[c]].push_back(histName);
@@ -78,13 +81,13 @@ void MuonTrackResidualsTest::beginJob(const edm::EventSetup& context){
     histoNames[type[c]].push_back(histName);
 
     
-    MeanHistos[type[c]] = theDbe->book1D(MeanHistoName.c_str(),MeanHistoName.c_str(),3,0.5,3.5);
+    MeanHistos[type[c]] = theDbe->book1D(MeanHistoName.c_str(),MeanHistoTitle.c_str(),3,0.5,3.5);
     (MeanHistos[type[c]])->setBinLabel(1,"Res_StaGlb",1);
     (MeanHistos[type[c]])->setBinLabel(2,"Res_TkGlb",1);
     (MeanHistos[type[c]])->setBinLabel(3,"Res_TkSta",1);
     
     
-    SigmaHistos[type[c]] = theDbe->book1D(SigmaHistoName.c_str(),SigmaHistoName.c_str(),3,0.5,3.5);
+    SigmaHistos[type[c]] = theDbe->book1D(SigmaHistoName.c_str(),SigmaHistoTitle.c_str(),3,0.5,3.5);
     (SigmaHistos[type[c]])->setBinLabel(1,"Res_StaGlb",1);  
     (SigmaHistos[type[c]])->setBinLabel(2,"Res_TkGlb",1);
     (SigmaHistos[type[c]])->setBinLabel(3,"Res_TkSta",1);

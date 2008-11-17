@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/09/03 13:11:19 $
- *  $Revision: 1.14 $
+ *  $Date: 2008/10/21 12:07:47 $
+ *  $Revision: 1.15 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -40,7 +40,7 @@ void MuonRecoAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore * dbe) {
   LogTrace(metname)<<"[MuonRecoAnalyzer] Parameters initialization";
   dbe->setCurrentFolder("Muons/MuonRecoAnalyzer");
 
-  muReco = dbe->book1D("muReco", "muReco", 6, 1, 7);
+  muReco = dbe->book1D("muReco", "muon reconstructed tracks", 6, 1, 7);
   muReco->setBinLabel(1,"glb+tk+sta");
   muReco->setBinLabel(2,"glb+sta");
   muReco->setBinLabel(3,"tk+sta");
@@ -55,79 +55,119 @@ void MuonRecoAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore * dbe) {
   etaMin = parameters.getParameter<double>("etaMin");
   etaMax = parameters.getParameter<double>("etaMax");
   std::string histname = "GlbMuon_";
-  etaGlbTrack.push_back(dbe->book1D(histname+"Glb_eta", histname+"Glb_eta", etaBin, etaMin, etaMax));
-  etaGlbTrack.push_back(dbe->book1D(histname+"Tk_eta", histname+"Tk_eta", etaBin, etaMin, etaMax));
-  etaGlbTrack.push_back(dbe->book1D(histname+"Sta_eta", histname+"Sta_eta", etaBin, etaMin, etaMax));
-  etaResolution.push_back(dbe->book1D("Res_TkGlb_eta", "Res_TkGlb_eta", etaBin*binFactor, etaMin/3000, etaMax/3000));
-  etaResolution.push_back(dbe->book1D("Res_GlbSta_eta", "Res_GlbSta_eta", etaBin*binFactor, etaMin/100, etaMax/100));
-  etaResolution.push_back(dbe->book1D("Res_TkSta_eta", "Res_TkSta_eta", etaBin*binFactor, etaMin/100, etaMax/100));
-  etaResolution.push_back(dbe->book2D("ResVsEta_TkGlb_eta", "ResVsEta_TkGlb_eta", etaBin, etaMin, etaMax, etaBin*binFactor, etaMin/3000, etaMax/3000));
-  etaResolution.push_back(dbe->book2D("ResVsEta_GlbSta_eta", "ResVsEta_GlbSta_eta", etaBin, etaMin, etaMax, etaBin*binFactor, etaMin/100, etaMax/100));
-  etaResolution.push_back(dbe->book2D("ResVsEta_TkSta_eta", "ResVsTkEta_TkSta_eta", etaBin, etaMin, etaMax, etaBin*binFactor, etaMin/100, etaMax/100));
-  etaTrack = dbe->book1D("TkMuon_eta", "TkMuon_eta", etaBin, etaMin, etaMax);
-  etaStaTrack = dbe->book1D("StaMuon_eta", "StaMuon_eta", etaBin, etaMin, etaMax);
-  etaEfficiency.push_back(dbe->book1D("StaEta", "StaEta", etaBin, etaMin, etaMax));
-  etaEfficiency.push_back(dbe->book1D("StaEta_ifCombinedAlso", "StaEta_ifCombinedAlso", etaBin, etaMin, etaMax));
+  etaGlbTrack.push_back(dbe->book1D(histname+"Glb_eta", "global track #eta", etaBin, etaMin, etaMax));
+  etaGlbTrack.push_back(dbe->book1D(histname+"Tk_eta", "#eta of the tracker track associated to the global muon", etaBin, etaMin, etaMax));
+  etaGlbTrack.push_back(dbe->book1D(histname+"Sta_eta", "#eta of the sta track associated to the global muon", etaBin, etaMin, etaMax));
+  etaResolution.push_back(dbe->book1D("Res_TkGlb_eta", "#eta resolution between TkTrackFromGlbTrack-GlbTrack", etaBin*binFactor, etaMin/3000, etaMax/3000));
+  etaResolution.push_back(dbe->book1D("Res_GlbSta_eta", "#eta resolution between GlbTrack-StaTrackFromGlbTrack", etaBin*binFactor, etaMin/100, etaMax/100));
+  etaResolution.push_back(dbe->book1D("Res_TkSta_eta", "#eta resolution between TkTrackFromGlbTrack-StaTrackFromGlbTrack", etaBin*binFactor, etaMin/100, etaMax/100));
+  etaResolution.push_back(dbe->book2D("ResVsEta_TkGlb_eta", "#eta resolution between TkTrackFromGlbTrack-GlbTrack versus global track #eta", etaBin, etaMin, etaMax, etaBin*binFactor, etaMin/3000, etaMax/3000));
+  etaResolution.push_back(dbe->book2D("ResVsEta_GlbSta_eta", "#eta resolution between GlbTrack-StaTrackFromGlbTrack versus global track #eta", etaBin, etaMin, etaMax, etaBin*binFactor, etaMin/100, etaMax/100));
+  etaResolution.push_back(dbe->book2D("ResVsEta_TkSta_eta", "#eta resolution between TkTrackFromGlbTrack-StaTrackFromGlbTrack versus TkTrackFromGlbTrack #eta", etaBin, etaMin, etaMax, etaBin*binFactor, etaMin/100, etaMax/100));
+  etaTrack = dbe->book1D("TkMuon_eta", "tracker track #eta", etaBin, etaMin, etaMax);
+  etaStaTrack = dbe->book1D("StaMuon_eta", "sta track #eta", etaBin, etaMin, etaMax);
+  etaEfficiency.push_back(dbe->book1D("StaEta", "sta track #eta", etaBin, etaMin, etaMax));
+  etaEfficiency.push_back(dbe->book1D("StaEta_ifCombinedAlso", "sta track #eta only if the recoMuon has a global track", etaBin, etaMin, etaMax));
 
   // monitoring of theta parameter
   thetaBin = parameters.getParameter<int>("thetaBin");
   thetaMin = parameters.getParameter<double>("thetaMin");
   thetaMax = parameters.getParameter<double>("thetaMax");
-  thetaGlbTrack.push_back(dbe->book1D(histname+"Glb_theta", histname+"Glb_theta", thetaBin, thetaMin, thetaMax));
-  thetaGlbTrack.push_back(dbe->book1D(histname+"Tk_theta", histname+"Tk_theta", thetaBin, thetaMin, thetaMax));
-  thetaGlbTrack.push_back(dbe->book1D(histname+"Sta_theta", histname+"Sta_theta", thetaBin, thetaMin, thetaMax));
-  thetaResolution.push_back(dbe->book1D("Res_TkGlb_theta", "Res_TkGlb_theta", thetaBin*binFactor, -(thetaMax/3000), thetaMax/3000));
-  thetaResolution.push_back(dbe->book1D("Res_GlbSta_theta", "Res_GlbSta_theta", thetaBin*binFactor,-(thetaMax/100), thetaMax/100));
-  thetaResolution.push_back(dbe->book1D("Res_TkSta_theta", "Res_TkSta_theta", thetaBin*binFactor, -(thetaMax/100), thetaMax/100));
-  thetaResolution.push_back(dbe->book2D("ResVsTheta_TkGlb_theta", "ResVsTheta_TkGlb_theta", thetaBin, thetaMin, thetaMax, thetaBin*binFactor, -(thetaMax/3000), thetaMax/3000));
-  thetaResolution.push_back(dbe->book2D("ResVsTheta_GlbSta_theta", "ResVsTheta_GlbSta_theta", thetaBin, thetaMin, thetaMax, thetaBin*binFactor, -(thetaMax/100), thetaMax/100));
-  thetaResolution.push_back(dbe->book2D("ResVsTheta_TkSta_theta", "ResVsTheta_TkSta_theta", thetaBin, thetaMin, thetaMax, thetaBin*binFactor, -(thetaMax/100), thetaMax/100));
-  thetaTrack = dbe->book1D("TkMuon_theta", "TkMuon_theta", thetaBin, thetaMin, thetaMax);
-  thetaStaTrack = dbe->book1D("StaMuon_theta", "StaMuon_theta", thetaBin, thetaMin, thetaMax);
+  thetaGlbTrack.push_back(dbe->book1D(histname+"Glb_theta", "global track #theta", thetaBin, thetaMin, thetaMax));
+  thetaGlbTrack[0]->setAxisTitle("rad");
+  thetaGlbTrack.push_back(dbe->book1D(histname+"Tk_theta", "#theta of the tracker track associated to the global muon", thetaBin, thetaMin, thetaMax));
+  thetaGlbTrack[1]->setAxisTitle("rad");
+  thetaGlbTrack.push_back(dbe->book1D(histname+"Sta_theta", "#theta of the sta track associated to the global muon", thetaBin, thetaMin, thetaMax));
+  thetaGlbTrack[2]->setAxisTitle("rad");
+  thetaResolution.push_back(dbe->book1D("Res_TkGlb_theta", "#theta resolution between TkTrackFromGlbTrack-GlbTrack", thetaBin*binFactor, -(thetaMax/3000), thetaMax/3000));
+  thetaResolution[0]->setAxisTitle("rad");
+  thetaResolution.push_back(dbe->book1D("Res_GlbSta_theta", "#theta resolution between GlbTrack-StaTrackFromGlbTrack", thetaBin*binFactor,-(thetaMax/100), thetaMax/100));
+  thetaResolution[1]->setAxisTitle("rad");
+  thetaResolution.push_back(dbe->book1D("Res_TkSta_theta", "#theta resolution between TkTrackFromGlbTrack-StaTrackFromGlbTrack", thetaBin*binFactor, -(thetaMax/100), thetaMax/100));
+  thetaResolution[2]->setAxisTitle("rad");
+  thetaResolution.push_back(dbe->book2D("ResVsTheta_TkGlb_theta", "#theta resolution between TkTrackFromGlbTrack-GlbTrack versus global track #theta", thetaBin, thetaMin, thetaMax, thetaBin*binFactor, -(thetaMax/3000), thetaMax/3000));
+  thetaResolution[3]->setAxisTitle("rad",1);
+  thetaResolution[3]->setAxisTitle("rad",2);
+  thetaResolution.push_back(dbe->book2D("ResVsTheta_GlbSta_theta", "#theta resolution between GlbTrack-StaTrackFromGlbTrack versus global track #theta", thetaBin, thetaMin, thetaMax, thetaBin*binFactor, -(thetaMax/100), thetaMax/100));
+  thetaResolution[4]->setAxisTitle("rad",1);
+  thetaResolution[4]->setAxisTitle("rad",2);
+  thetaResolution.push_back(dbe->book2D("ResVsTheta_TkSta_theta", "#theta resolution between TkTrackFromGlbTrack-StaTrackFromGlbTrack versus TkTrackFromGlbTrack #theta", thetaBin, thetaMin, thetaMax, thetaBin*binFactor, -(thetaMax/100), thetaMax/100));
+  thetaResolution[5]->setAxisTitle("rad",1);
+  thetaResolution[5]->setAxisTitle("rad",2);
+  thetaTrack = dbe->book1D("TkMuon_theta", "tracker track #theta", thetaBin, thetaMin, thetaMax);
+  thetaTrack->setAxisTitle("rad");
+  thetaStaTrack = dbe->book1D("StaMuon_theta", "sta track #theta", thetaBin, thetaMin, thetaMax);
+  thetaStaTrack->setAxisTitle("rad");
 
   // monitoring of phi paramater
   phiBin = parameters.getParameter<int>("phiBin");
   phiMin = parameters.getParameter<double>("phiMin");
   phiMax = parameters.getParameter<double>("phiMax");
-  phiGlbTrack.push_back(dbe->book1D(histname+"Glb_phi", histname+"Glb_phi", phiBin, phiMin, phiMax));
-  phiGlbTrack.push_back(dbe->book1D(histname+"Tk_phi", histname+"Tk_phi", phiBin, phiMin, phiMax));
-  phiGlbTrack.push_back(dbe->book1D(histname+"Sta_phi", histname+"Sta_phi", phiBin, phiMin, phiMax));
-  phiResolution.push_back(dbe->book1D("Res_TkGlb_phi", "Res_TkGlb_phi", phiBin*binFactor, phiMin/3000, phiMax/3000));
-  phiResolution.push_back(dbe->book1D("Res_GlbSta_phi", "Res_GlbSta_phi", phiBin*binFactor, phiMin/100, phiMax/100));
-  phiResolution.push_back(dbe->book1D("Res_TkSta_phi", "Res_TkSta_phi", phiBin*binFactor, phiMin/100, phiMax/100));
-  phiResolution.push_back(dbe->book2D("ResVsPhi_TkGlb_phi", "ResVsPhi_TkGlb_phi", phiBin, phiMin, phiMax, phiBin*binFactor, phiMin/3000, phiMax/3000));
-  phiResolution.push_back(dbe->book2D("ResVsPhi_GlbSta_phi", "ResVsPhi_GlbSta_phi", phiBin, phiMin, phiMax, phiBin*binFactor, phiMin/100, phiMax/100));
-  phiResolution.push_back(dbe->book2D("ResVsPhi_TkSta_phi", "ResVsTkPhi_TkSta_phi", phiBin, phiMin, phiMax, phiBin*binFactor, phiMin/100, phiMax/100));
-  phiTrack = dbe->book1D("TkMuon_phi", "TkMuon_phi", phiBin, phiMin, phiMax);
-  phiStaTrack = dbe->book1D("StaMuon_phi", "StaMuon_phi", phiBin, phiMin, phiMax);
-  phiEfficiency.push_back(dbe->book1D("StaPhi", "StaPhi", phiBin, phiMin, phiMax));
-  phiEfficiency.push_back(dbe->book1D("StaPhi_ifCombinedAlso", "StaPhi_ifCombinedAlso", phiBin, phiMin, phiMax));
+  phiGlbTrack.push_back(dbe->book1D(histname+"Glb_phi", "global track #phi", phiBin, phiMin, phiMax));
+  phiGlbTrack[0]->setAxisTitle("rad");
+  phiGlbTrack.push_back(dbe->book1D(histname+"Tk_phi", "#phi of the tracker track associated to the global muon", phiBin, phiMin, phiMax));
+  phiGlbTrack[1]->setAxisTitle("rad");
+  phiGlbTrack.push_back(dbe->book1D(histname+"Sta_phi", "#phi of the sta track associated to the global muon", phiBin, phiMin, phiMax));
+  phiGlbTrack[2]->setAxisTitle("rad");
+  phiResolution.push_back(dbe->book1D("Res_TkGlb_phi", "#phi resolution between TkTrackFromGlbTrack-GlbTrack", phiBin*binFactor, phiMin/3000, phiMax/3000));
+  phiResolution[0]->setAxisTitle("rad");
+  phiResolution.push_back(dbe->book1D("Res_GlbSta_phi", "#phi resolution between GlbTrack-StaTrackFromGlbTrack", phiBin*binFactor, phiMin/100, phiMax/100));
+  phiResolution[1]->setAxisTitle("rad");
+  phiResolution.push_back(dbe->book1D("Res_TkSta_phi", "#phi resolution between TkTrackFromGlbTrack-StaTrackFromGlbTrack", phiBin*binFactor, phiMin/100, phiMax/100));
+  phiResolution[2]->setAxisTitle("rad");
+  phiResolution.push_back(dbe->book2D("ResVsPhi_TkGlb_phi", "#phi resolution between TkTrackFromGlbTrack-GlbTrack versus global track #phi", phiBin, phiMin, phiMax, phiBin*binFactor, phiMin/3000, phiMax/3000));
+  phiResolution[3]->setAxisTitle("rad",1);
+  phiResolution[3]->setAxisTitle("rad",2);
+  phiResolution.push_back(dbe->book2D("ResVsPhi_GlbSta_phi", "#phi resolution between GlbTrack-StaTrackFromGlbTrack versus global track #phi", phiBin, phiMin, phiMax, phiBin*binFactor, phiMin/100, phiMax/100));
+  phiResolution[4]->setAxisTitle("rad",1);
+  phiResolution[4]->setAxisTitle("rad",2);
+  phiResolution.push_back(dbe->book2D("ResVsPhi_TkSta_phi", "#phi resolution between TkTrackFromGlbTrack-StaTrackFromGlbTrack versus TkTrackFromGlbTrack #phi", phiBin, phiMin, phiMax, phiBin*binFactor, phiMin/100, phiMax/100));
+  phiResolution[5]->setAxisTitle("rad",1);
+  phiResolution[5]->setAxisTitle("rad",2);
+  phiTrack = dbe->book1D("TkMuon_phi", "tracker track #phi", phiBin, phiMin, phiMax);
+  phiTrack->setAxisTitle("rad"); 
+  phiStaTrack = dbe->book1D("StaMuon_phi", "sta track #phi", phiBin, phiMin, phiMax);
+  phiStaTrack->setAxisTitle("rad"); 
+  phiEfficiency.push_back(dbe->book1D("StaPhi", "sta track #phi", phiBin, phiMin, phiMax));
+  phiEfficiency[0]->setAxisTitle("rad"); 
+  phiEfficiency.push_back(dbe->book1D("StaPhi_ifCombinedAlso", "sta track #phi only if the recoMuon has a global track", phiBin, phiMin, phiMax));
+  phiEfficiency[1]->setAxisTitle("rad"); 
 
   // monitoring of the momentum
   pBin = parameters.getParameter<int>("pBin");
   pMin = parameters.getParameter<double>("pMin");
   pMax = parameters.getParameter<double>("pMax");
-  pGlbTrack.push_back(dbe->book1D(histname+"Glb_p", histname+"Glb_p", pBin, pMin, pMax));
-  pGlbTrack.push_back(dbe->book1D(histname+"Tk_p", histname+"Tk_p", pBin, pMin, pMax));
-  pGlbTrack.push_back(dbe->book1D(histname+"Sta_p", histname+"Sta_p", pBin, pMin, pMax));
-  pTrack = dbe->book1D("TkMuon_p", "TkMuon_p", pBin, pMin, pMax);
-  pStaTrack = dbe->book1D("StaMuon_p", "StaMuon_p", pBin, pMin, pMax);
+  pGlbTrack.push_back(dbe->book1D(histname+"Glb_p", "global track momentum", pBin, pMin, pMax));
+  pGlbTrack[0]->setAxisTitle("GeV"); 
+  pGlbTrack.push_back(dbe->book1D(histname+"Tk_p", "momentum of the tracker track associated to the global muon", pBin, pMin, pMax));
+  pGlbTrack[1]->setAxisTitle("GeV");
+  pGlbTrack.push_back(dbe->book1D(histname+"Sta_p", "momentum of the sta track associated to the global muon", pBin, pMin, pMax));
+  pGlbTrack[2]->setAxisTitle("GeV");
+  pTrack = dbe->book1D("TkMuon_p", "tracker track momentum", pBin, pMin, pMax);
+  pTrack->setAxisTitle("GeV"); 
+  pStaTrack = dbe->book1D("StaMuon_p", "sta track momentum", pBin, pMin, pMax);
+  pStaTrack->setAxisTitle("GeV"); 
 
   // monitoring of the transverse momentum
   ptBin = parameters.getParameter<int>("ptBin");
   ptMin = parameters.getParameter<double>("ptMin");
   ptMax = parameters.getParameter<double>("ptMax");
-  ptGlbTrack.push_back(dbe->book1D(histname+"Glb_pt", histname+"Glb_pt", ptBin, ptMin, ptMax));
-  ptGlbTrack.push_back(dbe->book1D(histname+"Tk_pt", histname+"Tk_pt", ptBin, ptMin, ptMax));
-  ptGlbTrack.push_back(dbe->book1D(histname+"Sta_pt", histname+"Sta_pt", ptBin, ptMin, ptMax));
-  ptTrack = dbe->book1D("TkMuon_pt", "TkMuon_pt", ptBin, ptMin, ptMax);
-  ptStaTrack = dbe->book1D("StaMuon_pt", "StaMuon_pt", ptBin, ptMin, pMax);
+  ptGlbTrack.push_back(dbe->book1D(histname+"Glb_pt", "global track transverse momentum", ptBin, ptMin, ptMax));
+  ptGlbTrack[0]->setAxisTitle("GeV"); 
+  ptGlbTrack.push_back(dbe->book1D(histname+"Tk_pt", "transverse momentum of the tracker track associated to the global muon", ptBin, ptMin, ptMax));
+  ptGlbTrack[1]->setAxisTitle("GeV"); 
+  ptGlbTrack.push_back(dbe->book1D(histname+"Sta_pt", "transverse momentum of the sta track associated to the global muon", ptBin, ptMin, ptMax));
+  ptGlbTrack[2]->setAxisTitle("GeV"); 
+  ptTrack = dbe->book1D("TkMuon_pt", "tracker track transverse momentum", ptBin, ptMin, ptMax);
+  ptTrack->setAxisTitle("GeV"); 
+  ptStaTrack = dbe->book1D("StaMuon_pt", "sta track transverse momentum", ptBin, ptMin, pMax);
+  ptStaTrack->setAxisTitle("GeV"); 
 
   // monitoring of the muon charge
-  qGlbTrack.push_back(dbe->book1D(histname+"Glb_q", histname+"Glb_q", 5, -2.5, 2.5));
-  qGlbTrack.push_back(dbe->book1D(histname+"Tk_q", histname+"Tk_q", 5, -2.5, 2.5));
-  qGlbTrack.push_back(dbe->book1D(histname+"Sta_q", histname+"Sta_q", 5, -2.5, 2.5));
-  qGlbTrack.push_back(dbe->book1D(histname+"qComparison", histname+"qComparison", 8, 0.5, 8.5));
+  qGlbTrack.push_back(dbe->book1D(histname+"Glb_q", "charge of the global track", 5, -2.5, 2.5));
+  qGlbTrack.push_back(dbe->book1D(histname+"Tk_q", "charge of the tracker track associated to the global muon", 5, -2.5, 2.5));
+  qGlbTrack.push_back(dbe->book1D(histname+"Sta_q", "charge of the sta track associated to the global muon", 5, -2.5, 2.5));
+  qGlbTrack.push_back(dbe->book1D(histname+"qComparison", "charge comparison between the global track and the tracker and sta associated tracks", 8, 0.5, 8.5));
   qGlbTrack[3]->setBinLabel(1,"qGlb=qSta");
   qGlbTrack[3]->setBinLabel(2,"qGlb!=qSta");
   qGlbTrack[3]->setBinLabel(3,"qGlb=qTk");
@@ -136,45 +176,72 @@ void MuonRecoAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore * dbe) {
   qGlbTrack[3]->setBinLabel(6,"qSta!=qTk");
   qGlbTrack[3]->setBinLabel(7,"qGlb!=qSta,qGlb!=Tk");
   qGlbTrack[3]->setBinLabel(8,"qGlb=qSta,qGlb=Tk");
-  qTrack = dbe->book1D("TkMuon_q", "TkMuon_q", 5, -2.5, 2.5);
-  qStaTrack = dbe->book1D("StaMuon_q", "StaMuon_q", 5, -2.5, 2.5);
+  qTrack = dbe->book1D("TkMuon_q", "charge of the tracker track", 5, -2.5, 2.5);
+  qStaTrack = dbe->book1D("StaMuon_q", "charge of the sta track", 5, -2.5, 2.5);
 
   // monitoring of the momentum resolution
   pResBin = parameters.getParameter<int>("pResBin");
   pResMin = parameters.getParameter<double>("pResMin");
   pResMax = parameters.getParameter<double>("pResMax");
-  qOverpResolution.push_back(dbe->book1D("Res_TkGlb_qOverp", "Res_TkGlb_qOverp", pResBin*binFactor*2, pResMin/10, pResMax/10));
-  qOverpResolution.push_back(dbe->book1D("Res_GlbSta_qOverp", "Res_GlbSta_qOverp", pResBin*binFactor, pResMin, pResMax));
-  qOverpResolution.push_back(dbe->book1D("Res_TkSta_qOverp", "Res_TkSta_qOverp", pResBin*binFactor, pResMin, pResMax));
-  oneOverpResolution.push_back(dbe->book1D("Res_TkGlb_oneOverp", "Res_TkGlb_oneOverp", pResBin*binFactor*2, pResMin/10, pResMax/10));
-  oneOverpResolution.push_back(dbe->book1D("Res_GlbSta_oneOverp", "Res_GlbSta_oneOverp", pResBin*binFactor, pResMin, pResMax));
-  oneOverpResolution.push_back(dbe->book1D("Res_TkSta_oneOverp", "Res_TkSta_oneOverp", pResBin*binFactor, pResMin, pResMax));
-  qOverptResolution.push_back(dbe->book1D("Res_TkGlb_qOverpt", "Res_TkGlb_qOverpt", pResBin*binFactor*2, pResMin/10, pResMax/10));
-  qOverptResolution.push_back(dbe->book1D("Res_GlbSta_qOverpt", "Res_GlbSta_qOverpt", pResBin*binFactor, pResMin, pResMax));
-  qOverptResolution.push_back(dbe->book1D("Res_TkSta_qOverpt", "Res_TkSta_qOverpt", pResBin*binFactor, pResMin, pResMax));
-  oneOverptResolution.push_back(dbe->book1D("Res_TkGlb_oneOverpt", "Res_TkGlb_oneOverpt", pResBin*binFactor*2, pResMin/10, pResMax/10));
-  oneOverptResolution.push_back(dbe->book1D("Res_GlbSta_oneOverpt", "Res_GlbSta_oneOverpt", pResBin*binFactor, pResMin, pResMax));
-  oneOverptResolution.push_back(dbe->book1D("Res_TkSta_oneOverpt", "Res_TkSta_oneOverpt", pResBin*binFactor, pResMin, pResMax));
-  oneOverptResolution.push_back(dbe->book2D("ResVsEta_TkGlb_oneOverpt", "ResVsEta_TkGlb_oneOverpt", etaBin, etaMin, etaMax, pResBin*binFactor*2, pResMin/10, pResMax/10));
-  oneOverptResolution.push_back(dbe->book2D("ResVsEta_GlbSta_oneOverpt", "ResVsEta_GlbSta_oneOverpt", etaBin, etaMin, etaMax, pResBin*binFactor, pResMin, pResMax));
-  oneOverptResolution.push_back(dbe->book2D("ResVsEta_TkSta_oneOverpt", "ResVsEta_TkSta_oneOverpt", etaBin, etaMin, etaMax, pResBin*binFactor, pResMin, pResMax));
-  oneOverptResolution.push_back(dbe->book2D("ResVsPhi_TkGlb_oneOverpt", "ResVsPhi_TkGlb_oneOverpt", phiBin, phiMin, phiMax, pResBin*binFactor*2, pResMin/10, pResMax/10));
-  oneOverptResolution.push_back(dbe->book2D("ResVsPhi_GlbSta_oneOverpt", "ResVsPhi_GlbSta_oneOverpt", phiBin, phiMin, phiMax, pResBin*binFactor, pResMin, pResMax));
-  oneOverptResolution.push_back(dbe->book2D("ResVsPhi_TkSta_oneOverpt", "ResVsPhi_TkSta_oneOverpt", phiBin, phiMin, phiMax, pResBin*binFactor, pResMin, pResMax));
-  oneOverptResolution.push_back(dbe->book2D("ResVsPt_TkGlb_oneOverpt", "ResVsPt_TkGlb_oneOverpt", ptBin/5, ptMin, ptMax/100, pResBin*binFactor*2, pResMin/10, pResMax/10));
-  oneOverptResolution.push_back(dbe->book2D("ResVsPt_GlbSta_oneOverpt", "ResVsPt_GlbSta_oneOverpt", ptBin/5, ptMin, ptMax/100, pResBin*binFactor, pResMin, pResMax));
-  oneOverptResolution.push_back(dbe->book2D("ResVsPt_TkSta_oneOverpt", "ResVsPt_TkSta_oneOverpt", ptBin/5, ptMin, ptMax/100, pResBin*binFactor, pResMin, pResMax));
+  qOverpResolution.push_back(dbe->book1D("Res_TkGlb_qOverp", "q/p resolution between TkTrackFromGlbTrack-GlbTrack", pResBin*binFactor*2, pResMin/10, pResMax/10));
+  qOverpResolution[0]->setAxisTitle("GeV^{-1}"); 
+  qOverpResolution.push_back(dbe->book1D("Res_GlbSta_qOverp", "q/p resolution between GlbTrack-StaTrackFromGlbTrack", pResBin*binFactor, pResMin, pResMax));
+  qOverpResolution[1]->setAxisTitle("GeV^{-1}"); 
+  qOverpResolution.push_back(dbe->book1D("Res_TkSta_qOverp", "q/p resolution between TkTrackFromGlbTrack-StaTrackFromGlbTrack", pResBin*binFactor, pResMin, pResMax));
+  qOverpResolution[2]->setAxisTitle("GeV^{-1}"); 
+  oneOverpResolution.push_back(dbe->book1D("Res_TkGlb_oneOverp", "1/p resolution between TkTrackFromGlbTrack-GlbTrack", pResBin*binFactor*2, pResMin/10, pResMax/10));
+  oneOverpResolution[0]->setAxisTitle("GeV^{-1}"); 
+  oneOverpResolution.push_back(dbe->book1D("Res_GlbSta_oneOverp", "1/p resolution between GlbTrack-StaTrackFromGlbTrack", pResBin*binFactor, pResMin, pResMax));
+  oneOverpResolution[1]->setAxisTitle("GeV^{-1}");
+  oneOverpResolution.push_back(dbe->book1D("Res_TkSta_oneOverp", "1/p resolution between TkTrackFromGlbTrack-StaTrackFromGlbTrack", pResBin*binFactor, pResMin, pResMax));
+  oneOverpResolution[2]->setAxisTitle("GeV^{-1}");
+  qOverptResolution.push_back(dbe->book1D("Res_TkGlb_qOverpt", "q/p_{t} resolution between TkTrackFromGlbTrack-GlbTrack", pResBin*binFactor*2, pResMin/10, pResMax/10));
+  qOverptResolution[0]->setAxisTitle("GeV^{-1}");  
+  qOverptResolution.push_back(dbe->book1D("Res_GlbSta_qOverpt", "q/p_{t} resolution between GlbTrack-StaTrackFromGlbTrack", pResBin*binFactor, pResMin, pResMax));
+  qOverptResolution[1]->setAxisTitle("GeV^{-1}"); 
+  qOverptResolution.push_back(dbe->book1D("Res_TkSta_qOverpt", "q/p_{t} resolution between TkTrackFromGlbTrack-StaTrackFromGlbTrack", pResBin*binFactor, pResMin, pResMax));
+  qOverptResolution[1]->setAxisTitle("GeV^{-1}"); 
+  oneOverptResolution.push_back(dbe->book1D("Res_TkGlb_oneOverpt", "1/p_{t} resolution between TkTrackFromGlbTrack-GlbTrack", pResBin*binFactor*2, pResMin/10, pResMax/10));
+  oneOverptResolution[0]->setAxisTitle("GeV^{-1}");  
+  oneOverptResolution.push_back(dbe->book1D("Res_GlbSta_oneOverpt", "1/p_{t} resolution between GlbTrack-StaTrackFromGlbTrack", pResBin*binFactor, pResMin, pResMax));
+  oneOverptResolution[1]->setAxisTitle("GeV^{-1}");
+  oneOverptResolution.push_back(dbe->book1D("Res_TkSta_oneOverpt", "1/p_{t} resolution between TkTrackFromGlbTrack-StaTrackFromGlbTrack", pResBin*binFactor, pResMin, pResMax));
+  oneOverptResolution[2]->setAxisTitle("GeV^{-1}");
+  oneOverptResolution.push_back(dbe->book2D("ResVsEta_TkGlb_oneOverpt", "#eta resolution between TkTrackFromGlbTrack-GlbTrack versus global track 1/p_{t}", etaBin, etaMin, etaMax, pResBin*binFactor*2, pResMin/10, pResMax/10));
+  oneOverptResolution[3]->setAxisTitle("GeV^{-1}",2);
+  oneOverptResolution.push_back(dbe->book2D("ResVsEta_GlbSta_oneOverpt", "#eta resolution between GlbTrack-StaTrackFromGlbTrack versus global track 1/p_{t}", etaBin, etaMin, etaMax, pResBin*binFactor, pResMin, pResMax));
+  oneOverptResolution[4]->setAxisTitle("GeV^{-1}",2);
+  oneOverptResolution.push_back(dbe->book2D("ResVsEta_TkSta_oneOverpt", "#eta resolution between TkTrackFromGlbTrack-StaTrackFromGlbTrack versus TkTrackFromGlbTrack 1/p_{t}", etaBin, etaMin, etaMax, pResBin*binFactor, pResMin, pResMax));
+  oneOverptResolution[5]->setAxisTitle("GeV^{-1}",2);
+  oneOverptResolution.push_back(dbe->book2D("ResVsPhi_TkGlb_oneOverpt", "#phi resolution between TkTrackFromGlbTrack-GlbTrack versus global track 1/p_{t}", phiBin, phiMin, phiMax, pResBin*binFactor*2, pResMin/10, pResMax/10));
+  oneOverptResolution[6]->setAxisTitle("rad",1);
+  oneOverptResolution[6]->setAxisTitle("GeV^{-1}",2);
+  oneOverptResolution.push_back(dbe->book2D("ResVsPhi_GlbSta_oneOverpt", "#phi resolution between GlbTrack-StaTrackFromGlbTrack versus global track 1/p_{t}", phiBin, phiMin, phiMax, pResBin*binFactor, pResMin, pResMax));
+  oneOverptResolution[7]->setAxisTitle("rad",1);
+  oneOverptResolution[7]->setAxisTitle("GeV^{-1}",2);
+  oneOverptResolution.push_back(dbe->book2D("ResVsPhi_TkSta_oneOverpt", "#phi resolution between TkTrackFromGlbTrack-StaTrackFromGlbTrack versus TkTrackFromGlbTrack 1/p_{t}", phiBin, phiMin, phiMax, pResBin*binFactor, pResMin, pResMax));
+  oneOverptResolution[8]->setAxisTitle("rad",1);
+  oneOverptResolution[8]->setAxisTitle("GeV^{-1}",2);
+  oneOverptResolution.push_back(dbe->book2D("ResVsPt_TkGlb_oneOverpt", "1/p_{t} resolution between TkTrackFromGlbTrack-GlbTrack versus global track 1/p_{t}", ptBin/5, ptMin, ptMax/100, pResBin*binFactor*2, pResMin/10, pResMax/10));
+  oneOverptResolution[9]->setAxisTitle("GeV^{-1}",1);
+  oneOverptResolution[9]->setAxisTitle("GeV^{-1}",2);
+  oneOverptResolution.push_back(dbe->book2D("ResVsPt_GlbSta_oneOverpt", "1/p_{t} resolution between GlbTrack-StaTrackFromGlbTrack versus global track 1/p_{t}", ptBin/5, ptMin, ptMax/100, pResBin*binFactor, pResMin, pResMax));
+  oneOverptResolution[10]->setAxisTitle("GeV^{-1}",1);
+  oneOverptResolution[10]->setAxisTitle("GeV^{-1}",2);
+  oneOverptResolution.push_back(dbe->book2D("ResVsPt_TkSta_oneOverpt", "#eta resolution between TkTrackFromGlbTrack-StaTrackFromGlbTrack versus TkTrackFromGlbTrack 1/p_{t}", ptBin/5, ptMin, ptMax/100, pResBin*binFactor, pResMin, pResMax));
+  oneOverptResolution[11]->setAxisTitle("GeV^{-1}",1);
+  oneOverptResolution[11]->setAxisTitle("GeV^{-1}",2);
 
   // monitoring of the recHits provenance
   rhBin=parameters.getParameter<int>("rhBin");
   rhMin=parameters.getParameter<double>("rhMin");
   rhMax=parameters.getParameter<double>("rhMax");
-  rhAnalysis.push_back(dbe->book1D("StaRh_Frac_inGlb", "StaRh_Frac_inGlb", rhBin, rhMin, rhMax));
-  rhAnalysis.push_back(dbe->book1D("TkRh_Frac_inGlb", "TkRh_Frac_inGlb", rhBin, rhMin, rhMax));
-  rhAnalysis.push_back(dbe->book1D("StaRh_inGlb_Div_RhAssoSta", "StaRh_inGlb_Div_RhAssoSta", rhBin, rhMin, rhMax));
-  rhAnalysis.push_back(dbe->book1D("TkRh_inGlb_Div_RhAssoTk", "TkRh_inGlb_Div_RhAssoTk", rhBin, rhMin, rhMax));
-  rhAnalysis.push_back(dbe->book1D("invalidRh_Frac_inTk", "invalidRh_Frac_inTk", rhBin, rhMin, rhMax));
-  rhAnalysis.push_back(dbe->book1D("GlbRh_Div_RhAssoStaTk", "GlbRh_Div_RhAssoStaTk", rhBin, rhMin, rhMax));
+  rhAnalysis.push_back(dbe->book1D("StaRh_Frac_inGlb", "Fraction of glb track recHits from sta subdetectors", rhBin, rhMin, rhMax));
+  rhAnalysis.push_back(dbe->book1D("TkRh_Frac_inGlb", "Fraction of glb track recHits from tracker", rhBin, rhMin, rhMax));
+  rhAnalysis.push_back(dbe->book1D("StaRh_inGlb_Div_RhAssoSta", "(glb track recHits from sta subdetectors)/(recHits from sta track associated to the global track)", rhBin, rhMin, rhMax));
+  rhAnalysis.push_back(dbe->book1D("TkRh_inGlb_Div_RhAssoTk", "(glb track recHits from tracker)/(recHits from tracker track associated to the global track)", rhBin, rhMin, rhMax));
+  rhAnalysis.push_back(dbe->book1D("invalidRh_Frac_inTk", "Invalid recHits in traker tracks associated to the glb track", rhBin, rhMin, rhMax));
+  rhAnalysis.push_back(dbe->book1D("GlbRh_Div_RhAssoStaTk", "(recHits from glb tracks)/(recHits from tk+sta associated tracks)", rhBin, rhMin, rhMax));
 
 }
 

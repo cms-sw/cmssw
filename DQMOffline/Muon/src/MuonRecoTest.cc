@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/08/26 10:57:05 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/10/21 12:07:47 $
+ *  $Revision: 1.4 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -63,12 +63,12 @@ void MuonRecoTest::beginJob(const edm::EventSetup& context){
   etaBin = parameters.getParameter<int>("etaBin");
   etaMin = parameters.getParameter<double>("etaMin");
   etaMax = parameters.getParameter<double>("etaMax");
-  etaEfficiency = theDbe->book1D("etaEfficiency_staMuon", "etaEfficiency_staMuon", etaBin, etaMin, etaMax);
+  etaEfficiency = theDbe->book1D("etaEfficiency_staMuon", "sta muon #eta efficiency", etaBin, etaMin, etaMax);
 
   phiBin = parameters.getParameter<int>("phiBin");
   phiMin = parameters.getParameter<double>("phiMin");
   phiMax = parameters.getParameter<double>("phiMax");
-  phiEfficiency = theDbe->book1D("phiEfficiency_staMuon", "phiEfficiency_staMuon", phiBin, phiMin, phiMax);
+  phiEfficiency = theDbe->book1D("phiEfficiency_staMuon", "sta muon #phi efficiency", phiBin, phiMin, phiMax);
 
 }
 
