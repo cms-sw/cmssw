@@ -56,6 +56,8 @@ class ESUnpackerV4 {
   int runtype_;
   int seqtype_;
   int trgtype_;
+  int vminor_;
+  int vmajor_;
   int optoRX0_;
   int optoRX1_;
   int optoRX2_;

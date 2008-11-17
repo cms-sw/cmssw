@@ -159,6 +159,10 @@ void ESUnpackerV4::interpretRawData(int fedId, const FEDRawData & rawData, ESRaw
       ESDCCHeader.setGain(gain_);
       ESDCCHeader.setPrecision(precision_);
     }
+    if (dccLineCount == 3) {
+      vminor_ = (*word >> 40) & m8;
+      vmajor_ = (*word >> 48) & m8;
+    }
     if (dccLineCount == 4) optoRX0_  = (*word >> 48) & m8;
     if (dccLineCount == 5) optoRX1_  = (*word >> 48) & m8;
     if (dccLineCount == 6) optoRX2_  = (*word >> 48) & m8;
@@ -169,8 +173,12 @@ void ESUnpackerV4::interpretRawData(int fedId, const FEDRawData & rawData, ESRaw
       }
     }
   }
+  if (vmajor_ < 4) {
+    edm::LogWarning("Invalid Data")<<"Invalid ES data format : "<<vmajor_<<" "<<vminor_;
+    return;
+  }
   if (dccHeaderCount != 6) {
-    if (debug_) edm::LogWarning("Invalid Data")<<"Invalid ES data : DCC header lines are "<<dccHeaderCount;
+    edm::LogWarning("Invalid Data")<<"Invalid ES data : DCC header lines are "<<dccHeaderCount;
     ESDCCHeader.setDCCErrors(5);
     dccs.push_back(ESDCCHeader);
     return;
