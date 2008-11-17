@@ -1,5 +1,5 @@
 //
-// $Id: PATPhotonProducer.cc,v 1.14 2008/10/06 13:29:16 gpetrucc Exp $
+// $Id: PATPhotonProducer.cc,v 1.15 2008/10/19 21:11:56 gpetrucc Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATPhotonProducer.h"
@@ -19,10 +19,6 @@ PATPhotonProducer::PATPhotonProducer(const edm::ParameterSet & iConfig) :
   // initialize the configurables
   photonSrc_         = iConfig.getParameter<edm::InputTag>("photonSource");
   embedSuperCluster_ = iConfig.getParameter<bool>         ("embedSuperCluster");
-
-  // photon ID configurables
-  addPhotonID_       = iConfig.getParameter<bool>         ("addPhotonID");
-  photonIDSrc_       = iConfig.getParameter<edm::InputTag>("photonIDSource");
 
    // MC matching configurables
   addGenMatch_       = iConfig.getParameter<bool>         ( "addGenMatch" );
@@ -88,11 +84,6 @@ void PATPhotonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSe
         }
   }
 
-  // prepare the PhotonID
-  edm::Handle<edm::ValueMap<reco::PhotonID> > photonID;
-  if (addPhotonID_) {
-    iEvent.getByLabel(photonIDSrc_, photonID);
-  }
 
   if (isolator_.enabled()) isolator_.beginEvent(iEvent,iSetup);
 
@@ -132,11 +123,6 @@ void PATPhotonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSe
           aPhoton.addTriggerMatch(*trigPrim);
         }
       }
-    }
-
-    // PhotonID
-    if (addPhotonID_) {
-        aPhoton.setPhotonID( (*photonID)[photonRef] );
     }
 
     if (efficiencyLoader_.enabled()) {

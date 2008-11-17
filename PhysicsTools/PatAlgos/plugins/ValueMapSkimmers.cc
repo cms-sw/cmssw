@@ -40,8 +40,6 @@ typedef ValueMapSkimmer<reco::TrackRefVector> CandValueMapSkimmerTrackRefs;
 #include "DataFormats/GeometryCommonDetAlgo/interface/Measurement1DFloat.h"
 typedef ValueMapSkimmer<Measurement1DFloat>   CandValueMapSkimmerMeasurement1DFloat;
 
-#include "DataFormats/EgammaCandidates/interface/PhotonID.h"
-typedef ValueMapSkimmer<reco::PhotonID>  CandValueMapSkimmerPhotonID;
 
 typedef ValueMapSkimmer<pat::VertexAssociation>  CandValueMapSkimmerVertexAssociation;
 
@@ -65,6 +63,5 @@ DEFINE_FWK_MODULE(CandManyValueMapsSkimmerTagInfo);
 
 DEFINE_FWK_MODULE(CandValueMapSkimmerMeasurement1DFloat);
 
-DEFINE_FWK_MODULE(CandValueMapSkimmerPhotonID);
 
 DEFINE_FWK_MODULE(CandValueMapSkimmerVertexAssociation);
