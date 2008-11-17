@@ -28,6 +28,12 @@ class LHEEvent {
 	         std::istream &in);
 	LHEEvent(const boost::shared_ptr<LHERunInfo> &runInfo,
 	         const HEPEUP &hepeup);
+	LHEEvent(const boost::shared_ptr<LHERunInfo> &runInfo,
+	         const HEPEUP &hepeup,
+	         const LHEEventProduct::PDF *pdf,
+	         const std::vector<std::string> &comments);
+	LHEEvent(const boost::shared_ptr<LHERunInfo> &runInfo,
+	         const LHEEventProduct &product);
 	~LHEEvent();
 
 	typedef LHEEventProduct::PDF PDF;

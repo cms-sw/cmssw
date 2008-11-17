@@ -175,7 +175,7 @@ bool LHEProducer::filter(edm::Event &event, const edm::EventSetup &es)
 	edm::Handle<LHEEventProduct> product;
 	event.getByLabel("source", product);
 
-	partonLevel.reset(new LHEEvent(runInfo, product->hepeup()));
+	partonLevel.reset(new LHEEvent(runInfo, *product));
 	if (!removeResonances.empty())
 		partonLevel->removeResonances(removeResonances);
 

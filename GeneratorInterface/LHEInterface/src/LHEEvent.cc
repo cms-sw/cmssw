@@ -114,6 +114,23 @@ LHEEvent::LHEEvent(const boost::shared_ptr<LHERunInfo> &runInfo,
 {
 }
 
+LHEEvent::LHEEvent(const boost::shared_ptr<LHERunInfo> &runInfo,
+                   const HEPEUP &hepeup,
+                   const LHEEventProduct::PDF *pdf,
+                   const std::vector<std::string> &comments) :
+	runInfo(runInfo), hepeup(hepeup), pdf(pdf ? new PDF(*pdf) : 0),
+	comments(comments)
+{
+}
+
+LHEEvent::LHEEvent(const boost::shared_ptr<LHERunInfo> &runInfo,
+                   const LHEEventProduct &product) :
+	runInfo(runInfo), hepeup(product.hepeup()),
+	pdf(product.pdf() ? new PDF(*product.pdf()) : 0),
+	comments(product.comments_begin(), product.comments_end())
+{
+}
+
 LHEEvent::~LHEEvent()
 {
 }

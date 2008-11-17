@@ -14,6 +14,7 @@
 
 #include <HepMC/GenEvent.h>
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "GeneratorInterface/LHEInterface/interface/LHERunInfo.h"
@@ -57,6 +58,11 @@ extern "C" {
 		double	ptclus[20];
 		int	nljets, iexc, ifile;
 	} memaev_;
+
+	extern struct PYPART {
+		int	npart, npartd, ipart[1000];
+		double	ptpart[1000];
+	} pypart_;
 } // extern "C"
 
 class JetMatchingMadgraph : public JetMatching {
@@ -242,6 +248,26 @@ void JetMatchingMadgraph::beforeHadronisation(
 		throw cms::Exception("Generator|LHEInterface")
 			<< "Run not initialized in JetMatchingMadgraph"
 			<< std::endl;
+
+	if (uppriv_.ickkw) {
+		std::vector<std::string> comments = event->getComments();
+		if (comments.size() == 1) {
+			std::istringstream ss(comments[0].substr(1));
+			for(int i = 0; i < 1000; i++) {
+				double pt;
+				ss >> pt;
+				if (!ss.good())
+					break;
+				pypart_.ptpart[i] = pt;
+			}
+		} else {
+			edm::LogWarning("Generator|LHEInterface")
+				<< "Expected exactly one comment line per "
+				   "event containing MadGraph parton scale "
+				   "information."
+				<< std::endl;
+		}
+	}
 
 	mgevnt_();
 	eventInitialized = true;
