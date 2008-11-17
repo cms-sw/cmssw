@@ -4,8 +4,8 @@
 /** \class Histograms
  *  Collection of histograms for GLB muon analysis
  *
- *  $Date: 2008/11/10 08:39:18 $
- *  $Revision: 1.11 $
+ *  $Date: 2008/11/13 14:34:53 $
+ *  $Revision: 1.12 $
  *  \author S. Bolognesi - INFN Torino / T.Dorigo - INFN Padova
  */
 
@@ -208,7 +208,7 @@ class HDelta : public Histograms {
     // Kinematical variables
     // ---------------------
     hEta( new TH1F (name+"_DeltaEta", "#Delta#eta", 100, 0, 6) ),
-    hEtaSign( new TH1F (name+"_DeltaEtaSign", "#Delta#eta with sign", 100, 0, 6) ),
+    hEtaSign( new TH1F (name+"_DeltaEtaSign", "#Delta#eta with sign", 100, -6, 6) ),
     hPhi( new TH1F (name+"_DeltaPhi", "#Delta#phi", 100,0,3.2) ),
     hTheta( new TH1F (name+"_DeltaTheta", "#Delta#theta", 100,-3.2,3.2) ),
     hCotgTheta( new TH1F (name+"_DeltaCotgTheta", "#Delta Cotg(#theta )", 100,-3.2,3.2) ),
