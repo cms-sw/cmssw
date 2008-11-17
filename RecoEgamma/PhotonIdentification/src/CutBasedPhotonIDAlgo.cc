@@ -1,6 +1,5 @@
 #include "RecoEgamma/PhotonIdentification/interface/CutBasedPhotonIDAlgo.h"
 #include "RecoEgamma/PhotonIdentification/interface/CutBasedPhotonID.h"
-#include "DataFormats/EgammaCandidates/interface/PhotonID.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 
