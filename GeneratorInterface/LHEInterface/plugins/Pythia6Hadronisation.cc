@@ -7,6 +7,7 @@
 #include <cstring>
 #include <cstdio>
 #include <cctype>
+#include <cmath>
 #include <string>
 #include <memory>
 #include <vector>
@@ -110,9 +111,23 @@ extern "C" {
 	void fioopn_(int *unit, const char *line, int length);
 	void fiocls_(int *unit);
 
-	extern struct PYINT4_ {
-		int mwid[500];
-		double wids[5][500];
+	extern struct PYDAT1 {
+		int	mstu[200];
+		double	paru[200];
+		int	mstj[200];
+		double	parj[200];
+	} pydat1_;
+
+	extern struct PYDAT2 {
+		int	kchg[4][500];
+		double	pmas[4][500];
+		double	parf[2000];
+		double	vckm[4][4];
+	} pydat2_;
+
+	extern struct PYINT4 {
+		int	mwid[500];
+		double	wids[5][500];
 	} pyint4_;
 
 	static bool call_pygive(const std::string &line)
@@ -321,9 +336,37 @@ static void processSLHA(const std::vector<std::string> &lines)
 		} else if (block == "MODSEL") {
 			std::istringstream ss(line);
 			ss >> model >> subModel;
+		} else if (block == "SMINPUTS") {
+			std::istringstream ss(line);
+			int index;
+			double value;
+			ss >> index >> value;
+			switch(index) {
+			    case 1:
+				pydat1_.paru[103 - 1] = 1.0 / value;
+				break;
+			    case 2:
+				pydat1_.paru[105 - 1] = value;
+				break;
+			    case 4:
+				pydat2_.pmas[0][23 - 1] = value;
+				break;
+			    case 6:
+				pydat2_.pmas[0][6 - 1] = value;
+				break;
+			    case 7:
+				pydat2_.pmas[0][15 - 1] = value;
+				break;
+			}
 		}
 	}
 	file.close();
+
+	if (blocks.count("SMINPUTS"))
+		pydat1_.paru[102 - 1] = 0.5 - std::sqrt(0.25 -
+			pydat1_.paru[0] * M_SQRT1_2 *
+			pydat1_.paru[103 - 1] /	pydat1_.paru[105 - 1] /
+			(pydat2_.pmas[0][23 - 1] * pydat2_.pmas[0][23 - 1]));
 
 	int unit = 24;
 	fioopn_(&unit, fname, std::strlen(fname));
