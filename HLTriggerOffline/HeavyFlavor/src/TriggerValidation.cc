@@ -139,16 +139,20 @@ private:
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
 
+  const MagneticField* field;
+
   float highestPtMuon(vector<Muon>) ;
   
   ofstream outfile ;
   
 //  std::string theRootFileName ;
 //  TFile* theFile ;
-//  std::string theOutputPSFileName ;
+  std::string theOutputPSFileName ;
   std::string theOutfileName ;
   edm::Service<TFileService> fs; // or should it be under protected?
 
+  string theHLTPath_1, theHLTPath_2, theHLTPath_3, theHLTPath_4 ;
+  
   TH1F *moth_pT_, *moth_eta_, *moth_phi_, *moth_vtx_;
   TH1F *jpsi_pT_, *jpsi_eta_, *jpsi_phi_, *jpsi_vtx_;
   TH1F *jpsiMuP_pT_, *jpsiMuP_eta_, *jpsiMuP_phi_,              // mu+ daughters of JPsi
@@ -161,13 +165,13 @@ private:
   TH1F *mu_L1_DoubleMu3_pT_, *mu_L1_DoubleMu3_eta_,             // L1 bit 51
        *mu_L1_SingleMu7_pT_, *mu_L1_SingleMu7_eta_;             // L1 bit 46
   TH1F *hltPassed_hist_, *mu_HLTPassed_pT_, *mu_HLTPassed_eta_ ;// all hlt
-  TH1F *mu_HLT2MuonJPsi_pT_, *mu_HLT2MuonJPsi_eta_,             // hlt bit 59
-       *mu_HLT2MuonNonIso_pT_, *mu_HLT2MuonNonIso_eta_,         // hlt bit 58
-       *mu_HLT2MuonIso_pT_, *mu_HLT2MuonIso_eta_,               // hlt bit 57
+  TH1F *mu_HLT_DoubleMu3JPsi_pT_, *mu_HLT_DoubleMu3JPsi_eta_,             // hlt bit 59
+       *mu_HLT_DoubleMu3_pT_, *mu_HLT_DoubleMu3_eta_,         // hlt bit 58
+       *mu_HLT_DoubleIsoMu3_pT_, *mu_HLT_DoubleIsoMu3_eta_,               // hlt bit 57
        *mu_HLT1MuonNonIso_pT_, *mu_HLT1MuonNonIso_eta_,         // hlt bit 56
        *mu_HLT1MuonIso_pT_, *mu_HLT1MuonIso_eta_,               // hlt bit 55
-       *mu_HLT2MuonUpsilon_pT_, *mu_HLT2MuonUpsilon_eta_,       // hlt bit 60
-       *mu_HLTBJPsiMuMu_pT_, *mu_HLTBJPsiMuMu_eta_;             // hlt bit 83
+       *mu_HLT_DoubleMu3Upsilon_pT_, *mu_HLT_DoubleMu3Upsilon_eta_,       // hlt bit 60
+       *mu_HLT_DoubleMu3Vtx2mm_pT_, *mu_HLT_DoubleMu3Vtx2mm_eta_;             // hlt bit 83
   TH1F *maxMuon_pT_ ;       
   TH2F *l1_hltCorrelation_ ;
 
@@ -175,9 +179,9 @@ private:
   
   // ----------member data ---------------------------
 
-  edm::InputTag l_HLT ;
-  string l_genEvt ;
-  string l_muon ;
+  edm::InputTag hltTag ;
+  edm::InputTag hepMCTag ;
+  edm::InputTag muonTag ;
 
   bool l1PathFlag, hltPathFlag ;
   unsigned int sizeL1, sizeHLT ;
@@ -224,13 +228,17 @@ TriggerValidation::TriggerValidation(const edm::ParameterSet& iConfig)
 {
   //now do what ever initialization is needed
   
-  l_HLT = iConfig.getParameter<edm::InputTag>("hlt") ;
-  l_genEvt = iConfig.getParameter<string>("genEvt") ;
-  l_muon   = iConfig.getParameter<string>  ("muon") ;
+  hltTag       = iConfig.getParameter<edm::InputTag>("hlt")     ;
+  hepMCTag     = iConfig.getParameter<edm::InputTag>("genEvt")  ;
+  muonTag      = iConfig.getParameter<edm::InputTag>  ("muon")  ;
+  theHLTPath_1 = iConfig.getParameter<string>  ("theHLTPath_1") ;
+  theHLTPath_2 = iConfig.getParameter<string>  ("theHLTPath_2") ;
+  theHLTPath_3 = iConfig.getParameter<string>  ("theHLTPath_3") ;
+  theHLTPath_4 = iConfig.getParameter<string>  ("theHLTPath_4") ;
   
 //  theRootFileName = iConfig.getUntrackedParameter<string>("RootFileName") ;
 //  theFile = new TFile(theRootFileName.c_str(), "RECREATE") ;
-//  theOutputPSFileName = iConfig.getUntrackedParameter<string>("PSFileName") ;
+  theOutputPSFileName = iConfig.getUntrackedParameter<string>("PSFileName") ;
   theOutfileName = iConfig.getUntrackedParameter<string>("OutfileName") ;
   outfile.open(theOutfileName.c_str()) ;
 
@@ -308,22 +316,22 @@ TriggerValidation::TriggerValidation(const edm::ParameterSet& iConfig)
 			      100, 0., 100.) ;
   mu_HLTPassed_eta_ = fs->make<TH1F>("mu_HLTPassed_eta_", "Muon #eta spectrum having passed HLT",
 			       100, -3., 3.) ;
-  mu_HLT2MuonJPsi_pT_ = fs->make<TH1F>("mu_HLT2MuonJPsi_pT_", 
+  mu_HLT_DoubleMu3JPsi_pT_ = fs->make<TH1F>("mu_HLT_DoubleMu3JPsi_pT_", 
 				 "Muon p_{T} spectrum having passed HLT2muonJPsi bit",
 				 100, 0., 100.) ;
-  mu_HLT2MuonJPsi_eta_ = fs->make<TH1F>("mu_HLT2MuonJPsi_eta_", 
+  mu_HLT_DoubleMu3JPsi_eta_ = fs->make<TH1F>("mu_HLT_DoubleMu3JPsi_eta_", 
 				  "Muon #eta spectrum having passed HLT2MuonJPsi bit",
 				  100, -3., 3.) ;
-  mu_HLT2MuonNonIso_pT_ = fs->make<TH1F>("mu_HLT2MuonNonIso_pT_", 
+  mu_HLT_DoubleMu3_pT_ = fs->make<TH1F>("mu_HLT_DoubleMu3_pT_", 
 				 "Muon p_{T} spectrum having passed HLT2muonNonIso bit",
 				 100, 0., 100.) ;
-  mu_HLT2MuonNonIso_eta_ = fs->make<TH1F>("mu_HLT2MuonNonIso_eta_", 
+  mu_HLT_DoubleMu3_eta_ = fs->make<TH1F>("mu_HLT_DoubleMu3_eta_", 
 				  "Muon #eta spectrum having passed HLT2MuonNonIso bit",
 				  100, -3., 3.) ;
-  mu_HLT2MuonIso_pT_ = fs->make<TH1F>("mu_HLT2MuonIso_pT_", 
+  mu_HLT_DoubleIsoMu3_pT_ = fs->make<TH1F>("mu_HLT_DoubleIsoMu3_pT_", 
 				 "Muon p_{T} spectrum having passed HLT2MuonIso bit",
 				 100, 0., 100.) ;
-  mu_HLT2MuonIso_eta_ = fs->make<TH1F>("mu_HLT2Muonso_eta_", 
+  mu_HLT_DoubleIsoMu3_eta_ = fs->make<TH1F>("mu_HLT2Muonso_eta_", 
 				  "Muon #eta spectrum having passed HLT2MuonIso bit",
 				  100, -3., 3.) ;
   mu_HLT1MuonIso_pT_ = fs->make<TH1F>("mu_HLT1MuonIso_pT_", 
@@ -338,16 +346,16 @@ TriggerValidation::TriggerValidation(const edm::ParameterSet& iConfig)
   mu_HLT1MuonNonIso_eta_ = fs->make<TH1F>("mu_HLT1MuonNonIso_eta_", 
 				  "Muon #eta spectrum having passed HLT1MuonNonIso bit",
 				  100, -3., 3.) ;
-  mu_HLT2MuonUpsilon_pT_ = fs->make<TH1F>("mu_HLT2MuonUpsilon_pT_", 
+  mu_HLT_DoubleMu3Upsilon_pT_ = fs->make<TH1F>("mu_HLT_DoubleMu3Upsilon_pT_", 
 				 "Muon p_{T} spectrum having passed HLT2MuonUpsilon bit",
 				 100, 0., 100.) ;
-  mu_HLT2MuonUpsilon_eta_ = fs->make<TH1F>("mu_HLT2MuonUpsilon_eta_", 
+  mu_HLT_DoubleMu3Upsilon_eta_ = fs->make<TH1F>("mu_HLT_DoubleMu3Upsilon_eta_", 
 				  "Muon #eta spectrum having passed HLT2MuonUpsilon bit",
 				  100, -3., 3.) ;
-  mu_HLTBJPsiMuMu_pT_ = fs->make<TH1F>("mu_HLTBJPsiMuMu_pT_", 
+  mu_HLT_DoubleMu3Vtx2mm_pT_ = fs->make<TH1F>("mu_HLT_DoubleMu3Vtx2mm_pT_", 
 				       "Muon p_{T} spectrum having passed HLTBJPsiMuMu it",
 				       100, 0., 100.) ;
-  mu_HLTBJPsiMuMu_eta_ = fs->make<TH1F>("mu_HLTBJPsiMuMu_eta_", 
+  mu_HLT_DoubleMu3Vtx2mm_eta_ = fs->make<TH1F>("mu_HLT_DoubleMu3Vtx2mm_eta_", 
 					"Muon #eta spectrum having passed HLTBJPsiMuMu bit",
 				        100, -3., 3.) ;
   maxMuon_pT_ = fs->make<TH1F>("maxMuon_pT_",
@@ -433,8 +441,9 @@ TriggerValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 
 
   //get Generator Level info
+/*
   Handle<HepMCProduct> EvtHandle ;
-  iEvent.getByLabel(l_genEvt, EvtHandle) ;
+  iEvent.getByLabel(hepMCTag, EvtHandle) ;
   const HepMC::GenEvent* Evt = EvtHandle->GetEvent() ;
    for(HepMC::GenEvent::particle_const_iterator // looping over all generated particles
 	 it_gen = Evt->particles_begin(); 
@@ -453,7 +462,8 @@ TriggerValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
      moth_pT_->Fill(moth.perp()) ; 
      moth_eta_->Fill(moth.eta()) ;
      
-     if((*it_gen)->pdg_id()==443) { // loping over all generated J/psi
+//     if((*it_gen)->pdg_id()==443) { // loping over all generated J/psi
+     if(abs((*it_gen)->pdg_id())==24) { // loping over all generated W+/-
 
        jpsi_pT_->Fill(moth.perp()) ; jpsi_eta_->Fill(moth.eta()) ;
        
@@ -464,13 +474,15 @@ TriggerValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
            it_child != (*it_gen)->end_vertex()->particles_end(HepMC::descendants);
            it_child++){
        
-         if((*it_child)->pdg_id() == 13){ // mu+
+//         if((*it_child)->pdg_id() == 13){ // mu+
+         if(abs((*it_child)->pdg_id()) == 13 && (*it_child)->status()==1){ // mu+/-
 	   HepMC::FourVector cld4v = (*it_child)->momentum() ;
            dau1 = HepLorentzVector(cld4v.px(), cld4v.py(), cld4v.pz(), cld4v.e()) ;
            dau1_pT_->Fill(dau1.perp()) ;
            dau1_eta_->Fill(dau1.eta()) ;
          }
-         if((*it_child)->pdg_id() == -13){ //mu-
+//         if((*it_child)->pdg_id() == -13){ //mu-
+         if(abs((*it_child)->pdg_id()) == 14 && (*it_child)->status()==1){ // nu_mu
    	   HepMC::FourVector _cld4v = (*it_child)->momentum() ;
            dau2 = HepLorentzVector(_cld4v.px(), _cld4v.py(), _cld4v.pz(), _cld4v.e()) ;
            dau2_pT_->Fill(dau2.perp()) ;
@@ -489,6 +501,7 @@ TriggerValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
      }
 
    }
+   */
    //get Generator Level info end
 
 
@@ -521,7 +534,7 @@ TriggerValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 
    //get Muon info
    Handle<MuonCollection> muons ;
-   iEvent.getByLabel("muons", muons) ;
+   iEvent.getByLabel(muonTag, muons) ;
    
    recoMu_hist_->Fill(muons->size()) ;
    
@@ -699,7 +712,7 @@ TriggerValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 
    //get HLT info
    Handle<edm::TriggerResults> trigRes ;
-   iEvent.getByLabel(l_HLT, trigRes) ;
+   iEvent.getByLabel(hltTag, trigRes) ;
    
    Handle<trigger::TriggerEvent> trgEvt ;
    iEvent.getByLabel("hltTriggerSummaryAOD", trgEvt) ;
@@ -747,12 +760,12 @@ TriggerValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
        l1passed_hist_->Fill(ii) ; // event has passed ii'th L1-bit
 //       outfile << " #@ l1 bit " << ii << " has passed @# " << endl ;
      
-       if(ii == 44){
+       if(ii == 46){
           mu_L1_SingleMu7_pT_->Fill(maxMu_pT) ;
           mu_L1_SingleMu7_eta_->Fill(mu_maxPt_eta) ;
        }
        
-       if(ii == 51){
+       if(ii == 107){
           mu_L1_DoubleMu3_pT_->Fill(maxMu_pT) ;
 	  mu_L1_DoubleMu3_eta_->Fill(mu_maxPt_eta) ;
        }
@@ -776,39 +789,39 @@ TriggerValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 
             fired[name] = trigRes->accept(jj) ;
 
-            if( jj == 181 ){ // HLT bit HLT2MuonJPsi
-               mu_HLT2MuonJPsi_pT_->Fill(maxMu_pT);
-               mu_HLT2MuonJPsi_eta_->Fill(mu_maxPt_eta) ;
+            if( jj == 90 ){ // HLT bit HLT_DoubleMu3JPsi
+               mu_HLT_DoubleMu3JPsi_pT_->Fill(maxMu_pT);
+               mu_HLT_DoubleMu3JPsi_eta_->Fill(mu_maxPt_eta) ;
             }
 	 
-            if( jj == 58 ){ // HLT bit HLT2MuonNonIso
-               mu_HLT2MuonNonIso_pT_->Fill(maxMu_pT);
-               mu_HLT2MuonNonIso_eta_->Fill(mu_maxPt_eta) ;
+            if( jj == 88 ){ // HLT bit HLT_DoubleMu3
+               mu_HLT_DoubleMu3_pT_->Fill(maxMu_pT);
+               mu_HLT_DoubleMu3_eta_->Fill(mu_maxPt_eta) ;
             }
 
-            if( jj == 99 ){ // HLT bit HLT2MuonIso
-               mu_HLT2MuonIso_pT_->Fill(maxMu_pT);
-               mu_HLT2MuonIso_eta_->Fill(mu_maxPt_eta) ;
+            if( jj == 87 ){ // HLT bit HLT_DoubleIsoMu3
+               mu_HLT_DoubleIsoMu3_pT_->Fill(maxMu_pT);
+               mu_HLT_DoubleIsoMu3_eta_->Fill(mu_maxPt_eta) ;
             }
 	 
-            if( jj == 56 ){ // HLT bit HLT1MuonNonIso
+            if( jj == 17 ){ // HLT bit HLT1MuonNonIso
                mu_HLT1MuonNonIso_pT_->Fill(maxMu_pT);
                mu_HLT1MuonNonIso_eta_->Fill(mu_maxPt_eta) ;
             }
 	   
-            if( jj == 55 ){ // HLT bit HLT1MuonIso
+            if( jj == 78 ){ // HLT bit HLT1MuonIso
                mu_HLT1MuonIso_pT_->Fill(maxMu_pT);
                mu_HLT1MuonIso_eta_->Fill(mu_maxPt_eta) ;
             }
 
-            if( jj == 169 ){ // HLT bit HLT2MuonUpsilon
-               mu_HLT2MuonUpsilon_pT_->Fill(maxMu_pT);
-               mu_HLT2MuonUpsilon_eta_->Fill(mu_maxPt_eta) ;
+            if( jj == 91 ){ // HLT bit HLT_DoubleMu3Upsilon
+               mu_HLT_DoubleMu3Upsilon_pT_->Fill(maxMu_pT);
+               mu_HLT_DoubleMu3Upsilon_eta_->Fill(mu_maxPt_eta) ;
             }
 	 
-            if( jj == 55 ){ // HLT bit HLTBJPsiMuMU
-               mu_HLTBJPsiMuMu_pT_->Fill(maxMu_pT);
-               mu_HLTBJPsiMuMu_eta_->Fill(mu_maxPt_eta) ;
+            if( jj == 89 ){ // HLT bit HLT_DoubleMu3Vtx2mm
+               mu_HLT_DoubleMu3Vtx2mm_pT_->Fill(maxMu_pT);
+               mu_HLT_DoubleMu3Vtx2mm_eta_->Fill(mu_maxPt_eta) ;
             }
 	    
 	 }
@@ -828,10 +841,11 @@ void
 TriggerValidation::beginJob(const edm::EventSetup& iSetup)
 {
   
-/*	
+	
   //get IdealMagneticFieldRecord
   edm::ESHandle<MagneticField> bField ;
   iSetup.get<IdealMagneticFieldRecord>().get(bField) ;
+  field = bField.product() ;
 
   SteppingHelixPropagator *helixProp = 
     new SteppingHelixPropagator(&*bField, anyDirection) ;
@@ -839,7 +853,7 @@ TriggerValidation::beginJob(const edm::EventSetup& iSetup)
   helixProp->applyRadX0Correction(true) ;
   Propagator *defProp = helixProp ;
   trackDetectorAssociator_.setPropagator(defProp) ;
-*/  
+  
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
@@ -859,10 +873,12 @@ TriggerValidation::endJob() {
 
   outfile << " *** NEvents =  " << nEvt << " *** " << endl ; 
 
-//  mu_HLT2MuonJPsi_pT_->Divide(recoMu_pT_) ;
-
-/*  
-  theFile->cd() ;
+  mu_HLT_DoubleMu3JPsi_pT_->Divide(recoMu_pT_) ;
+  mu_HLT_DoubleMu3_pT_->Divide(recoMu_pT_) ;
+  mu_HLT_DoubleMu3Upsilon_pT_->Divide(recoMu_pT_) ;
+  mu_HLT_DoubleMu3Vtx2mm_pT_->Divide(recoMu_pT_) ;
+  
+//  theFile->cd() ;
   
   int ips = 111 ;
   TPostScript ps(theOutputPSFileName.c_str(), ips) ;
@@ -873,26 +889,36 @@ TriggerValidation::endJob() {
 
   TCanvas *c0 = new TCanvas("c0", " HLT turn-on curve as function of p_{T} ", xsiz, ysiz);
 
-  c0->Divide(1,3) ;
+  c0->Divide(2,3) ;
 
   c0->cd(1) ;
   maxMuon_pT_->Draw() ;
   maxMuon_pT_->GetXaxis()->SetTitle("highest muon p_{T} in an event") ;
 
   c0->cd(2) ;
-  mu_HLT1MuonIso_pT_->Divide(recoMu_pT_) ;
-  mu_HLT1MuonIso_pT_->Draw() ;
-  mu_HLT1MuonIso_pT_->GetXaxis()->SetTitle("highest muon p_{T} in an event") ;
-
+  mu_L1_SingleMu7_pT_->Divide(recoMu_pT_) ;
+  mu_L1_SingleMu7_pT_->Draw() ;
+  mu_L1_SingleMu7_pT_->GetXaxis()->SetTitle("L1_SingleMu7_pT efficiency") ;
+ 
   c0->cd(3) ;
-  mu_HLT1MuonNonIso_pT_->Divide(recoMu_pT_) ;
-  mu_HLT1MuonNonIso_pT_->Draw() ;
-  mu_HLT1MuonNonIso_pT_->GetXaxis()->SetTitle("highest muon p_{T} in an event") ;
+  mu_HLT_DoubleMu3JPsi_pT_->Draw() ;
+  mu_HLT_DoubleMu3JPsi_pT_->GetXaxis()->SetTitle("HLT_DoubleMu3JPsi efficiency") ;
+
+  c0->cd(4) ;
+  mu_HLT_DoubleMu3_pT_->Draw() ;
+  mu_HLT_DoubleMu3_pT_->GetXaxis()->SetTitle("mu_HLT_DoubleMu3_pT_ efficiency") ;
+
+  c0->cd(5) ;
+  mu_HLT_DoubleMu3Upsilon_pT_->Draw() ;
+  mu_HLT_DoubleMu3Upsilon_pT_->GetXaxis()->SetTitle("mu_HLT_DoubleMu3Upsilon_pT_ efficiency") ;
+
+  c0->cd(6) ;
+  mu_HLT_DoubleMu3Vtx2mm_pT_->Draw() ;
+  mu_HLT_DoubleMu3Vtx2mm_pT_->GetXaxis()->SetTitle("mu_HLT_DoubleMu3Vtx2mm_pT_ efficiency") ;
 
   c0->Update() ;
 
   ps.Close() ;
-*/  
 
 }
 
