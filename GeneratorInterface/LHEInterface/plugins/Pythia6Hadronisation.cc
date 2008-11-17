@@ -75,11 +75,14 @@ class Pythia6Hadronisation : public Hadronisation {
 	void statistics();
 	double totalBranchingRatio(int pdgId) const;
 
+	std::set<std::string> capabilities() const;
+
 	std::vector<std::string>	paramLines;
 
 	const int			pythiaPylistVerbosity;
 	int				maxEventsToPrint;
 	int				iterations;
+	bool				vetoDone;
 
 	std::vector<Addon::Ptr>		addons;
 
@@ -209,6 +212,7 @@ void Pythia6Hadronisation::doInit()
 	}
 
 	call_pygive("MSEL=0");
+
 	call_pygive(std::string("MSTP(143)=") +
 	            (wantsShoweredEvent() ? "1" : "0"));
 
@@ -221,6 +225,7 @@ void Pythia6Hadronisation::doInit()
 std::auto_ptr<HepMC::GenEvent> Pythia6Hadronisation::doHadronisation()
 {
 	iterations = 0;
+	vetoDone = false;
 	assert(!fortranCallback.instance);
 	fortranCallback.instance = this;
 
@@ -382,11 +387,22 @@ double Pythia6Hadronisation::totalBranchingRatio(int pdgId) const
 	return pyint4_.wids[2][pythiaId - 1];
 }
 
+std::set<std::string> Pythia6Hadronisation::capabilities() const
+{
+	std::set<std::string> result;
+	result.insert("showeredEvent");
+	result.insert("pythia6");
+	result.insert("hepevt");
+	return result;
+}
+
 void Pythia6Hadronisation::fillHeader()
 {
 	const HEPRUP *heprup = getRawEvent()->getHEPRUP();
 
 	CommonBlocks::fillHEPRUP(heprup);
+
+	onInit().emit();
 }
 
 void Pythia6Hadronisation::fillEvent()
@@ -399,6 +415,8 @@ void Pythia6Hadronisation::fillEvent()
 	}
 
 	CommonBlocks::fillHEPEUP(hepeup);
+
+	onBeforeHadronisation().emit();
 }
 
 namespace {
@@ -427,6 +445,17 @@ namespace {
 
 bool Pythia6Hadronisation::veto()
 {
+	if (!hepeup_.nup || vetoDone) {
+		edm::LogWarning("Generator|LHEInterface")
+			<< "Pythia6 called UPVETO twice.  This usually "
+			   "occurs after some internal error." << std::endl;
+		return false;
+	} else
+		vetoDone = true;
+
+	if (!wantsShoweredEventAsHepMC())
+		return showeredEvent(boost::shared_ptr<HepMC::GenEvent>());
+
 	std::vector<SavedHEPEVT> saved;
 	int n = HepMC::HEPEVT_Wrapper::number_entries();
 

@@ -41,3 +41,8 @@
 	<flags LDFLAGS="-lherwig -lherwig_dummy -llhapdf -llhapdf_dummy -ljimmy"/>
 	<flags EDM_PLUGIN="1"/>
 </library>
+<library name="GeneratorInterfaceMadGraphMatching" file="JetMatchingMadgraph.cc ME2pythia.f getjet.f ktclusdble.f">
+	<use name="pythia6"/>
+	<flags FFLAGS="-w"/>
+	<flags EDM_PLUGIN="1"/>
+</library>
