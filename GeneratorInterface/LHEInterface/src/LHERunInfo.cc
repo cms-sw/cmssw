@@ -178,7 +178,8 @@ LHERunInfo::XSec LHERunInfo::xsec() const
 
 		double sigmaAvg = sigmaSum / proc->tried.sum;
 		double fracAcc = proc->killed.sum / proc->selected.sum;
-		double fracBr = proc->acceptedBr.sum / proc->accepted.sum;
+		double fracBr = proc->accepted.sum > 0.0 ?
+		                proc->acceptedBr.sum / proc->accepted.sum : 1;
 		double sigmaFin = sigmaAvg * fracAcc * fracBr;
 		double sigmaFinBr = sigmaFin * fracBr;
 
@@ -253,7 +254,8 @@ void LHERunInfo::statistics() const
 
 		double sigmaAvg = sigmaSum / proc->tried.sum;
 		double fracAcc = proc->killed.sum / proc->selected.sum;
-		double fracBr = proc->acceptedBr.sum / proc->accepted.sum;
+		double fracBr = proc->accepted.sum > 0.0 ?
+		                proc->acceptedBr.sum / proc->accepted.sum : 1;
 		double sigmaFin = sigmaAvg * fracAcc;
 		double sigmaFinBr = sigmaFin * fracBr;
 
