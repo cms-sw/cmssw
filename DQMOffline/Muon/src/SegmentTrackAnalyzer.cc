@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/10/21 12:07:47 $
- *  $Revision: 1.12 $
+ *  $Date: 2008/11/17 15:31:20 $
+ *  $Revision: 1.13 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -51,15 +51,15 @@ void SegmentTrackAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore * dbe
   dbe->setCurrentFolder("Muons/SegmentTrackAnalyzer");
   
   // histograms initalization
-  hitsNotUsed = dbe->book1D("HitsNotUsedForGlobalTracking_"+trackCollection, "HitsNotUsedForGlobalTracking_"+trackCollection, 50, -0.5, 49.5);
-  hitsNotUsedPercentual = dbe->book1D("HitsNotUsedForGlobalTrackingDvHitUsed_"+trackCollection, "HitsNotUsedForGlobalTrackingDvHitUsed_"+trackCollection, 100, 0, 1.);
+  hitsNotUsed = dbe->book1D("HitsNotUsedForGlobalTracking_"+trackCollection, "recHits not used for glb track"+trackCollection, 50, -0.5, 49.5);
+  hitsNotUsedPercentual = dbe->book1D("HitsNotUsedForGlobalTrackingDvHitUsed_"+trackCollection, "(recHit not used for glb track)/(glb track recHits) - "+trackCollection, 100, 0, 1.);
 
   TrackSegm = dbe->book2D("trackSegments_"+trackCollection, "Number of segment associated to the track - "+trackCollection, 3, 0.5, 3.5, 8, 0, 8);
   TrackSegm->setBinLabel(1,"DT+CSC",1);
   TrackSegm->setBinLabel(2,"DT",1);
   TrackSegm->setBinLabel(3,"CSC",1);
   
-  hitStaProvenance = dbe->book1D("trackHitStaProvenance_"+trackCollection, "Number of track recHits coming from the sta subdetectors"+trackCollection, 7, 0.5, 7.5);
+  hitStaProvenance = dbe->book1D("trackHitStaProvenance_"+trackCollection, "Number of track recHits coming from the sta subdetectors - "+trackCollection, 7, 0.5, 7.5);
   hitStaProvenance->setBinLabel(1,"DT");
   hitStaProvenance->setBinLabel(2,"CSC");
   hitStaProvenance->setBinLabel(3,"RPC");
@@ -70,7 +70,7 @@ void SegmentTrackAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore * dbe
 
 
   if(trackCollection!="standAloneMuons"){
-    hitTkrProvenance = dbe->book1D("trackHitTkrProvenance_"+trackCollection, "Number of track recHits coming from the tracker"+trackCollection, 6, 0.5, 6.5);
+    hitTkrProvenance = dbe->book1D("trackHitTkrProvenance_"+trackCollection, "Number of track recHits coming from the tracker - "+trackCollection, 6, 0.5, 6.5);
     hitTkrProvenance->setBinLabel(1,"PixBarrel");
     hitTkrProvenance->setBinLabel(2,"PixEndCap");
     hitTkrProvenance->setBinLabel(3,"TIB");
