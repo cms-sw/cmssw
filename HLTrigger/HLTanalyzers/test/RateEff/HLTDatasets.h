@@ -30,6 +30,7 @@
 
 #include <TH2.h>
 #include <TString.h>
+#include <TStopwatch.h>
 
 
 //=============================================================================
@@ -172,14 +173,17 @@ public:
   Double_t                            passedRate;               ///< Total rate of events that passes any non-isNewTrigger dataset.
   Double_t                            passedRateUncertainty2;   ///< Uncertainty squared of rate of events that passes any non-isNewTrigger dataset.
   UInt_t                              numProcessedEvents;       ///< Number of events processed for this sample, to be used for the trigger efficiency calculations.
+  UInt_t                              numConstituentSamples;    ///< Number of samples aggregated into this one, if relevant.
 protected:
   Int_t                               firstNewTrigger;          ///< Index of the first dataset that is marked as isNewTrigger. For presentation purposes.
+  TStopwatch*                         timer;                    ///< For bench-marking the execution, if you care.
 
 
 public:
   //.. Functions ..............................................................
   /// Creates a SampleDiagnostics object for a particular sample. 
   SampleDiagnostics( const Char_t     sampleName[]  = ""              ///< Name of the sample, for display purposes.
+                   , TStopwatch*      timer         = 0               ///< For bench-marking the execution, if you care.
                    , SampleCategory   typeOfSample  = PHYSICS_SAMPLE  ///< The type of sample (see the SampleCategory documentation), for presentation purposes.
                    )
     : name                  (sampleName)
@@ -188,7 +192,9 @@ public:
     , passedRate            (0)
     , passedRateUncertainty2(0)
     , numProcessedEvents    (0)
+    , numConstituentSamples (1)
     , firstNewTrigger       (-1)
+    , timer                 (timer)
   { }
   /// Sets up the storage according to the number of datasets.
   void setup();
@@ -203,7 +209,7 @@ public:
     computeRates() should be called to convert event counts into rates. Then report() can be
     called.
   */
-  void fill( const std::vector<Int_t>&   triggerBit    ///< The list of trigger bits for the current event.
+  void fill( const std::vector<Int_t>&  triggerBit    ///< The list of trigger bits for the current event.
            );
 
   /**
@@ -318,6 +324,7 @@ class HLTDatasets : protected std::vector<SampleDiagnostics>
 protected:
   SampleDiagnostics     datasetsConfig;     ///< Template containing the primary dataset and new trigger specifications, as loaded from the definitions file at construction time.
   TString               scenarioName;       ///< Name (minus extension) of the user-provided datasetDefinitionFile, to be used 
+  TStopwatch            timer;              ///< For bench-marking the execution, if you care.
 
 public:
   using std::vector<SampleDiagnostics>::operator[];
@@ -333,6 +340,7 @@ public:
               , Bool_t                        preferEmulatedTriggers  = kTRUE   ///< If set, always picks the emulation of the trigger when both emulated and original are available. A trigger is considered to be emulated if its name starts with emulationPrefix.
               , TString                       emulationPrefix         = "Open"  ///< The prefix by which to determine whether or not a trigger is an emulated version of a path with the same name except for the prefix. If a trigger has both an emulated and original version, only one of the choices will be used for this analysis.
               );
+  ~HLTDatasets();
 
   /**
     Registers a sample in the list that will be processed in future event loops. The separation into
@@ -345,8 +353,6 @@ public:
   /**
     Outputs the diagnostics as discussed in the HLTDatasets introduction:
       - New-trigger vs. primary dataset correlation plot
-      - For each new trigger, a table showing what the impact on the rate of each primary dataset (PD) 
-        would be, if the trigger were to be added to that particular dataset
 
     One ROOT file 
     @verbatim
@@ -355,6 +361,15 @@ public:
     is created containing all the correlation plots (which are labeled according to sample). 
     @c scenario is the name (minus extension) of the user-specified 
     datasetDefinitionFile.
+  */
+  void  write ( const Char_t*   outputPrefix      = 0           ///< Optional prefix for the output files. You can use this to put the output in your directory of choice (don't forget the trailing slash). Directories are automatically created as necessary.
+              , Option_t*       writeOptions      = "RECREATE"  ///< Options for the ROOT file creation (TFile::TFile()).
+              ) const;
+
+  /**
+    Outputs the diagnostics as discussed in the HLTDatasets introduction:
+      - For each new trigger, a table showing what the impact on the rate of each primary dataset (PD) 
+        would be, if the trigger were to be added to that particular dataset
 
     One PDF file 
     @verbatim
@@ -366,10 +381,17 @@ public:
   */
   void report ( const Char_t*   luminosity        = 0           ///< Instantaneous luminosity, for display purposes if provided.
               , const Char_t*   outputPrefix      = 0           ///< Optional prefix for the output files. You can use this to put the output in your directory of choice (don't forget the trailing slash). Directories are automatically created as necessary.
-              , Option_t*       writeOptions      = "RECREATE"  ///< Options for the ROOT file creation (TFile::TFile()).
               , const Int_t     significantDigits = 3           ///< Number of significant digits to report percentages in.
               ) const;
-	///@}
+
+protected:
+  /**
+    Creates "all", "rate", and "physics" compilations of samples (in this order).
+    Appends all existing samples after those three. Returns the total number of 
+    diagnostics.
+  */
+  UInt_t  compileSamples( std::vector<SampleDiagnostics>&   compiledDiagnostics   ///< The output compilations.
+                        ) const;
 };
 
 

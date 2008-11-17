@@ -3,6 +3,7 @@ ROOTCFLAGS = $(shell root-config --cflags)
 
 CXX        = gcc
 CXXFLAGS   = $(ROOTCFLAGS) -Wall -g
+#CXXFLAGS  += -DUSE_SAMPLES_AT_FNAL
 LD         = gcc
 LDFLAGS    = -Wall -g
 LIBS       = $(ROOTLIBS) -lEG

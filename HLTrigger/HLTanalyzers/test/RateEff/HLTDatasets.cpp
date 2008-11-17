@@ -128,19 +128,19 @@ Int_t decimalPlaces(Double_t number, Int_t nonzeroDigits = 2)
 
 Dataset& Dataset::operator+=(const Dataset& addend)
 {
-  rate                  += addend.rate;
-  rateUncertainty2      += addend.rateUncertainty2;
-  const UInt_t          numDatasets  = datasetIndices.size();
+  rate                     += addend.rate;
+  rateUncertainty2         += addend.rateUncertainty2;
+  const UInt_t              numDatasets  = datasetIndices.size();
   if (numDatasets) {
     for (UInt_t iSet = 0; iSet < numDatasets; ++iSet) {
       addedRate         [iSet]      += addend.addedRate         [iSet];
       addedUncertainty2 [iSet]      += addend.addedUncertainty2 [iSet];
     } // end loop over compared datasets
   }
-  else {
-    datasetIndices       = addend.datasetIndices    ;
-    addedRate            = addend.addedRate         ;
-    addedUncertainty2    = addend.addedUncertainty2 ;
+  else {                    // Nothing yet, so this is a copy
+    datasetIndices          = addend.datasetIndices       ;
+    addedRate               = addend.addedRate            ;
+    addedUncertainty2       = addend.addedUncertainty2    ;
   }
 
   return *this;
@@ -297,29 +297,31 @@ SampleDiagnostics& SampleDiagnostics::operator+=(const SampleDiagnostics& addend
   passedRate              += addend.passedRate;
   passedRateUncertainty2  += addend.passedRateUncertainty2;
   numProcessedEvents      += addend.numProcessedEvents;
+  numConstituentSamples   += addend.numConstituentSamples;
 
   return *this;
 }
 
 void SampleDiagnostics::fill( const std::vector<Int_t>& triggerBit )
 {
-  const UInt_t      numDatasets = size();
+  if (timer)            timer->Start(kFALSE);
+  const UInt_t          numDatasets = size();
 
   // First loop to record the decision of each dataset
   for (UInt_t iSet = 0; iSet < numDatasets; ++iSet) 
     operator[](iSet).checkEvent(triggerBit);
 
   // Second loop to record the correlations
-  Int_t             numPasses   = 0;
+  Int_t                 numPasses   = 0;
   for (UInt_t iSet = 0; iSet < numDatasets; ++iSet) {
-    Dataset&        dataset     = operator[](iSet);
-    if (!dataset.pass)          continue;
+    Dataset&            dataset     = operator[](iSet);
+    if (!dataset.pass)              continue;
     dataset.checkAddition(*this);
     if (!dataset.isNewTrigger)  ++numPasses;
 
-    Int_t           numOthers   = 0;
+    Int_t               numOthers   = 0;
     for (UInt_t jSet = 0; jSet < numDatasets; ++jSet) {
-      const Dataset&    other   = operator[](jSet);
+      const Dataset&    other       = operator[](jSet);
       if (other.pass) {
         ++commonEvents[iSet][jSet];
         if (!other.isNewTrigger && iSet != jSet)
@@ -331,6 +333,7 @@ void SampleDiagnostics::fill( const std::vector<Int_t>& triggerBit )
 
   if (numPasses)        ++numPassedEvents;
   ++numProcessedEvents;
+  if (timer)            timer->Stop();
 }
 
 void SampleDiagnostics::computeRate(Double_t collisionRate, Double_t mu)
@@ -479,6 +482,7 @@ void SampleDiagnostics::report(TString tablesPrefix, const Char_t* errata) const
 
 HLTDatasets::HLTDatasets(const std::vector<TString>& triggerNames, const Char_t* datasetDefinitionFile,
                          Bool_t preferEmulatedTriggers, TString emulationPrefix)
+  :  datasetsConfig("", &timer)
 {
   //...........................................................................
   // Parse input file and mark all the triggers that belong to datasets
@@ -594,6 +598,16 @@ HLTDatasets::HLTDatasets(const std::vector<TString>& triggerNames, const Char_t*
   datasetsConfig.setup();   // Make sure to allocate space at the end after everything is registered
 }
 
+HLTDatasets::~HLTDatasets()
+{
+  std::clog << std::endl;
+  std::clog << "================================================================================" << std::endl;
+  std::clog << "  HLTDatasets -- Done!  The event loop took:  "                                   << std::endl;
+  timer.Print();
+  std::clog << "================================================================================" << std::endl;
+  std::clog << std::endl;
+}
+
 void HLTDatasets::addSample(const Char_t sampleName[], SampleCategory typeOfSample)
 {
   if (datasetsConfig.empty())
@@ -606,8 +620,32 @@ void HLTDatasets::addSample(const Char_t sampleName[], SampleCategory typeOfSamp
 }
 
 
-void HLTDatasets::report(const Char_t* luminosity, const Char_t* outputPrefix, Option_t* writeOptions, 
-                         const Int_t significantDigits) const
+void HLTDatasets::write(const Char_t* outputPrefix, Option_t* writeOptions) const
+{
+  TString           outputPath;
+  outputPath.Form("%s%s_", outputPrefix ? outputPrefix : "", scenarioName.Data());
+  if (outputPrefix) {
+    TString         outputDir     = gSystem->DirName(outputPath);
+    if (outputDir.Length() && outputDir != "." && gSystem->mkdir(outputDir, kTRUE) != 0) {
+      std::cerr << "ERROR : Could not create output directory " << outputDir << std::endl;
+      return;
+    }
+  }
+  // Make additional compilations of samples
+  std::vector<SampleDiagnostics>  diagnostics;    compileSamples(diagnostics);
+  // Create output file
+  TFile             correlationsFile(outputPath + "correlations.root", writeOptions, scenarioName + " : Correlation Plots");
+
+  // Store corerlation plots
+  const UInt_t      numDiagnostics = diagnostics.size();
+  for (UInt_t iSample = 0; iSample < numDiagnostics; ++iSample)
+    diagnostics[iSample].write();
+  correlationsFile.Close();
+}
+
+
+
+void HLTDatasets::report(const Char_t* luminosity, const Char_t* outputPrefix, const Int_t significantDigits) const
 {
   TString           outputPath;
   outputPath.Form("%s%s_", outputPrefix ? outputPrefix : "", scenarioName.Data());
@@ -619,28 +657,13 @@ void HLTDatasets::report(const Char_t* luminosity, const Char_t* outputPrefix, O
     }
   }
 
-
   // Make additional compilations of samples
   std::vector<SampleDiagnostics>  diagnostics;
+  const UInt_t                    numDiagnostics  = compileSamples(diagnostics);
   const UInt_t                    numSamples      = size();
-  UInt_t                          numRateSamples  = 0;
-  UInt_t                          numPhysicsSamples = 0;
-  diagnostics.push_back(datasetsConfig);          diagnostics.back().name = "allsamples";
-  diagnostics.push_back(datasetsConfig);          diagnostics.back().name = "ratesamples";
-  diagnostics.push_back(datasetsConfig);          diagnostics.back().name = "physicssamples";
-  for (UInt_t iSample = 0; iSample < numSamples; ++iSample) {
-    const SampleDiagnostics&      sample          = at(iSample);
-    diagnostics.front()                          += sample;
-    diagnostics[1 + sample.typeOfSample]         += sample;
-    if (sample.typeOfSample == RATE_SAMPLE)      ++numRateSamples;
-    if (sample.typeOfSample == PHYSICS_SAMPLE)   ++numPhysicsSamples;
-  } // end loop over samples
-  diagnostics.insert(diagnostics.end(), begin(), end());
 
 
-
-  //.. Create output files ....................................................
-  TFile             correlationsFile(outputPath + "correlations.root", writeOptions, scenarioName + " : Correlation Plots");
+  //.. Create output file .....................................................
   TString           tablesPrefix  = outputPath + "newtriggers";
   std::ofstream     tablesFile    (tablesPrefix + ".tex");
   tablesFile << "\\documentclass[amsmath,amssymb]{revtex4}" << std::endl;
@@ -655,16 +678,10 @@ void HLTDatasets::report(const Char_t* luminosity, const Char_t* outputPrefix, O
   //...........................................................................
 
 
-  // Store corerlation plots
-  const UInt_t      numDiagnostics = diagnostics.size();
-  for (UInt_t iSample = 0; iSample < numDiagnostics; ++iSample)
-    diagnostics[iSample].write();
-  correlationsFile.Close();
-
 
   // Store dataset definition
   const UInt_t      numDatasets   = datasetsConfig.size();
-  if (numRateSamples > 0) {
+  if (diagnostics[1 + RATE_SAMPLE].numConstituentSamples > 0) {
   tablesFile        << "\\section{Primary Datasets}\\label{primaryDatasets}"  << std::endl;
     tablesFile      << "The ``rate'' samples are:"                            << std::endl;
     tablesFile      << "\\begin{itemize}"                                     << std::endl;
@@ -674,7 +691,7 @@ void HLTDatasets::report(const Char_t* luminosity, const Char_t* outputPrefix, O
     tablesFile      << "\\end{itemize}"                                       << std::endl;
     tablesFile      << std::endl;
   }
-  if (numPhysicsSamples > 0) {
+  if (diagnostics[1 + PHYSICS_SAMPLE].numConstituentSamples > 0) {
     tablesFile      << "The ``physics'' samples are:"                         << std::endl;
     tablesFile      << "\\begin{itemize}"                                     << std::endl;
     for (UInt_t iSample = 0; iSample < numSamples; ++iSample)                  
@@ -710,9 +727,9 @@ void HLTDatasets::report(const Char_t* luminosity, const Char_t* outputPrefix, O
   overheadRate     -= diagnostics[0].passedRate;
   Double_t          passedRateErr = TMath::Sqrt(diagnostics[0].passedRateUncertainty2);
   Int_t             decimals      = decimalPlaces(passedRateErr);
-  tablesFile        << "\\multicolumn{3}{l}{Total rate is ";
+  tablesFile        << "\\multicolumn{3}{l}{Total rate is (";
   tablesFile        << TString::Format("%.*f", decimals, diagnostics[0].passedRate) << " $\\pm$ "
-                    << TString::Format("%.*f", decimals, passedRateErr)       << " Hz + "
+                    << TString::Format("%.*f", decimals, passedRateErr)       << ") Hz, plus "
                     << TString::Format("%.*f", decimals, overheadRate)        
                     << " Hz of datasets storage overhead"
                     ;
@@ -778,4 +795,26 @@ void HLTDatasets::report(const Char_t* luminosity, const Char_t* outputPrefix, O
   if (gSystem->Exec(pdfIt) == 0)   std::clog << "  +  " << tablesPrefix << ".pdf" << std::endl;
   else  std::clog << "  -  " << tablesPrefix << ".pdf  ---  FAILED to compile tex file!" << std::endl;
   //...........................................................................
+}
+
+
+  
+UInt_t HLTDatasets::compileSamples( std::vector<SampleDiagnostics>& compiled ) const
+{
+  compiled.clear();
+  compiled.push_back(datasetsConfig);  
+  compiled.back().name = "allsamples";      compiled.back().numConstituentSamples = 0;
+  compiled.push_back(datasetsConfig);  
+  compiled.back().name = "ratesamples";     compiled.back().numConstituentSamples = 0;
+  compiled.push_back(datasetsConfig);  
+  compiled.back().name = "physicssamples";  compiled.back().numConstituentSamples = 0;
+
+  const UInt_t                              numSamples  = size();
+  for (UInt_t iSample = 0; iSample < numSamples; ++iSample) {
+    const SampleDiagnostics&                sample      = at(iSample);
+    compiled.front()                        += sample;
+    compiled[1 + sample.typeOfSample]       += sample;
+  } // end loop over samples
+  compiled.insert(compiled.end(), begin(), end());
+  return compiled.size();
 }

@@ -1,3 +1,15 @@
+# Some primary datasets are defined in this input text file.
+# It is just a collection of blocks of the form:
+#   PrimaryDatasetA:
+#   TriggerPath1
+#   TriggerPath2
+#   ...
+# Whitespace is irrelevant, but do remember that a colon (:) 
+# is used to indicate the start of the next primary dataset 
+# definition block. To-end-of-line comments beginning with 
+# the pound sign (#) are allowed.
+
+
 Jets15:
   HLT_L1Jet15
   HLT_DiJetAve15

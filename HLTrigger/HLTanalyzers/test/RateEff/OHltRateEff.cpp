@@ -18,6 +18,7 @@
 #include <vector>
 #include <string>
 #include <TMath.h>
+#include <TStopwatch.h>     //SAK
 
 #include "HLTDatasets.h"    //SAK
 
@@ -104,32 +105,24 @@ int main(int argc, char *argv[]){
   int argIndex = 0;     //SAK -- for ease of plugging in arguments
 
   int NEntries = -1;// -1 means all available
-  //SAK// if (argc>1) {
   if (argc > ++argIndex) {
     if (TString(argv[1])=="-h") {ShowUsage();exit(0);}
-    //SAK// NEntries = atoi(argv[1]);
-    NEntries = atoi(argv[argIndex]);  //SAK
+    NEntries = atoi(argv[argIndex]);
   }
   //  TString sMenu = "l1default"; // lookup available menus
   //  TString sMenu = "default"; // lookup available menus
   TString sMenu = "21X"; // lookup available menus
   //  TString sMenu = "example"; // lookup available menus
-  //SAK// if (argc>2) {
   if (argc > ++argIndex) {
-    //SAK// sMenu = TString(argv[2]);
-    sMenu = TString(argv[argIndex]);  //SAK
+    sMenu = TString(argv[argIndex]);
   }
   TString sConditions = "startup"; // Available: Ideal, Startup (1pb-1)
-  //SAK// if (argc>3) {
   if (argc > ++argIndex) {
-    //SAK// sConditions = TString(argv[3]);
-    sConditions = TString(argv[argIndex]);   //SAK
+    sConditions = TString(argv[argIndex]);
   }
   TString sVersion = "2008-June-10-v01";
-  //SAK// if (argc>4) {
   if (argc > ++argIndex) {
-    //SAK// sVersion =TString(argv[4]);
-    sVersion =TString(argv[argIndex]);   //SAK
+    sVersion =TString(argv[argIndex]);
   }
   //-- SAK --------------------------------------------------------------------
   TString   datasetDefinitionFile = "Datasets_8e29_core.list";
@@ -138,10 +131,8 @@ int main(int argc, char *argv[]){
   }
   //---------------------------------------------------------------------------
   TString sEnergy = "14";
-  //SAK// if (argc>5) {
   if (argc > ++argIndex) {
-    //SAK// sEnergy=TString(argv[5]);
-    sEnergy=TString(argv[argIndex]);   //SAK
+    sEnergy=TString(argv[argIndex]);
     if ((sEnergy.CompareTo("10") != 0) && (sEnergy.CompareTo("14") != 0))
     {
       cout << "sqrt(s) = " << sEnergy << " TeV is not supported. Options are 10 and 14" << endl;
@@ -149,24 +140,18 @@ int main(int argc, char *argv[]){
     }
   }
   int PrintAll = 0;
-  //SAK// if (argc>6) {
   if (argc > ++argIndex) {
-    //SAK// PrintAll = atoi(argv[6]);
-    PrintAll = atoi(argv[argIndex]);   //SAK
+    PrintAll = atoi(argv[argIndex]);
   }
 
   int RateOnly=1;
-  //SAK// if (argc>7) {
   if (argc > ++argIndex) {
-    //SAK// RateOnly=atoi(argv[7]);
-    RateOnly=atoi(argv[argIndex]);   //SAK
+    RateOnly=atoi(argv[argIndex]);
   }
 
   int EfficiencyOnly=0;
-  //SAK// if (argc>8) {
   if (argc > ++argIndex) {
-    //SAK// EfficiencyOnly=atoi(argv[8]);
-    EfficiencyOnly=atoi(argv[argIndex]);   //SAK
+    EfficiencyOnly=atoi(argv[argIndex]);
   }
   if ((EfficiencyOnly ==1 ) && (RateOnly == 1))
   {
@@ -390,7 +375,6 @@ int main(int argc, char *argv[]){
 
     if (EfficiencyOnly==0){
       cout<< "Reading rate samples "<<endl;
-#if 0
       // ppEleX
       //    TString PPEX_DIR="rfio:/castor/cern.ch/user/j/jjhollar/OpenHLT184/ppex/";
       TString PPEX_DIR="rfio:/castor/cern.ch/user/j/jjhollar/OpenHLT212/ppex/";
@@ -400,7 +384,7 @@ int main(int argc, char *argv[]){
       ProcFil.clear();
       ProcFil.push_back(PPEX_DIR+"ppex*");
 
-      
+
       TabChain.push_back(new TChain("HltTree"));
       for (unsigned int ipfile = 0; ipfile < ProcFil.size(); ipfile++){
         TabChain.back()->Add(ProcFil[ipfile]);
@@ -438,7 +422,7 @@ int main(int argc, char *argv[]){
 
       skmeff.push_back(1.);  //
       hltDatasets.addSample("ppMuX", RATE_SAMPLE);   //SAK
-#endif
+
       // Minbias
       //    TString MB_DIR="rfio:/castor/cern.ch/user/a/apana/OpenHLT184/MinBias/";
       TString MB_DIR="rfio:/castor/cern.ch/user/j/jjhollar/OpenHLT212/minbiasnewnew/";
@@ -452,8 +436,7 @@ int main(int argc, char *argv[]){
       for (unsigned int ipfile = 0; ipfile < ProcFil.size(); ipfile++){
         TabChain.back()->Add(ProcFil[ipfile]);
       }
-      ////doMuonCut.push_back(true); doElecCut.push_back(true);
-      doMuonCut.push_back(false); doElecCut.push_back(false);
+      doMuonCut.push_back(true); doElecCut.push_back(true);
 
       if(sEnergy.CompareTo("10") == 0)
         xsec.push_back(7.53E10); // pp 10 TeV PYTHIA xsec - includes diffraction
@@ -532,6 +515,7 @@ int main(int argc, char *argv[]){
 
   /* *************************************************************** */
   // Start calculating rates  
+  TStopwatch  timer;    //SAK
   for (unsigned int ip = 0; ip < TabChain.size(); ip++){
     cout<<"Available sample "<<ip<<", file " << TabChain[ip] <<endl;
     cout<<" xsec = "  << scientific << xsec[ip]/skmeff[ip]/1.E-36 << fixed << ",  skmeff = "<< skmeff[ip] <<", doMuonCut = " << doMuonCut[ip] << ", doElecCut = " << doElecCut[ip] << endl;
@@ -581,6 +565,8 @@ int main(int argc, char *argv[]){
     ObjectsToUse.push_back( "Met");
     int NObjectsToUse = (int)ObjectsToUse.size();
 
+
+    timer.Start();        //SAK
 
     //Root file for efficiency histos
 
@@ -650,6 +636,7 @@ int main(int argc, char *argv[]){
         );
 
     }
+    timer.Stop();        //SAK
 
     double mu = bunchCrossingTime * xsec[ip] * ILumi * maxFilledBunches / nFilledBunches;
     hltDatasets[ip].computeRate(collisionRate, mu);   //SAK -- convert event counts into rates
@@ -860,6 +847,9 @@ int main(int argc, char *argv[]){
   overlap->Write();
   fr->Close();
 
+  hltDatasets.write(hltTableFileName + "_");   //SAK -- create ROOT file
+
+
   ////////////////////////////////////////////////////////////
   // Printout Results to Tex/PDF
 
@@ -1004,8 +994,18 @@ int main(int argc, char *argv[]){
     for(int i=0;i<2;i++) system(Command.Data());
   
     
-    hltDatasets.report(sLumi, hltTableFileName + "_");   //SAK -- prints PDF tables and creates an output ROOT file
+    hltDatasets.report(sLumi, hltTableFileName + "_");   //SAK -- prints PDF tables 
   }
+
+
+  //-- SAK --------------------------------------------------------------------
+  std::clog << std::endl;
+  std::clog << "================================================================================" << std::endl;
+  std::clog << "  OHltRateEff -- Done!  The event loop took:  "                                   << std::endl;
+  timer.Print();
+  std::clog << "================================================================================" << std::endl;
+  std::clog << std::endl;
+  //---------------------------------------------------------------------------
 }
 
 // Forward addition of new names and table for CMSSW 21X
@@ -1023,61 +1023,61 @@ void BookMenu_Default(OHltMenu*  menu, double &iLumi, double &nBunches) {
   cout <<" Booking menu "<<endl;
 
   menu->AddL1("L1_SingleJet15", 1); 
-  menu->AddL1("L1_SingleJet30", 1); 
+  menu->AddL1("L1_SingleJet30", 1);
   menu->AddL1("L1_SingleJet50", 1); 
-  menu->AddL1("L1_SingleJet70", 1); 
-  menu->AddL1("L1_SingleJet100", 1); 
-  menu->AddL1("L1_SingleJet150", 1); 
-  menu->AddL1("L1_SingleJet200", 1); 
-  menu->AddL1("L1_DoubleJet70", 1); 
-  menu->AddL1("L1_DoubleJet100", 1); 
-  menu->AddL1("L1_TripleJet50", 1); 
-  menu->AddL1("L1_QuadJet15", 1); 
-  menu->AddL1("L1_QuadJet30", 1); 
-  menu->AddL1("L1_HTT200", 1); 
-  menu->AddL1("L1_HTT300", 1); 
+  menu->AddL1("L1_SingleJet70", 1);
+  menu->AddL1("L1_SingleJet100", 1);
+  menu->AddL1("L1_SingleJet150", 1);
+  menu->AddL1("L1_SingleJet200", 1);
+  menu->AddL1("L1_DoubleJet70", 1);
+  menu->AddL1("L1_DoubleJet100", 1);
+  menu->AddL1("L1_TripleJet50", 1);
+  menu->AddL1("L1_QuadJet15", 1);
+  menu->AddL1("L1_QuadJet30", 1);
+  menu->AddL1("L1_HTT200", 1);
+  menu->AddL1("L1_HTT300", 1);
   menu->AddL1("L1_ETM20", 1); 
   menu->AddL1("L1_ETM30", 1); 
-  menu->AddL1("L1_ETM40", 1); 
-  menu->AddL1("L1_ETM50", 1); 
+  menu->AddL1("L1_ETM40", 1);
+  menu->AddL1("L1_ETM50", 1);
   menu->AddL1("L1_ETT60", 1); 
-  menu->AddL1("L1_SingleIsoEG10", 1); 
-  menu->AddL1("L1_SingleIsoEG12", 1); 
-  menu->AddL1("L1_DoubleIsoEG8", 1); 
+  menu->AddL1("L1_SingleIsoEG10", 1);
+  menu->AddL1("L1_SingleIsoEG12", 1);
+  menu->AddL1("L1_DoubleIsoEG8", 1);
   menu->AddL1("L1_SingleEG2", 1); 
-  menu->AddL1("L1_SingleEG5", 1); 
-  menu->AddL1("L1_SingleEG8", 1); 
-  menu->AddL1("L1_SingleEG10", 1); 
+  menu->AddL1("L1_SingleEG5", 1);
+  menu->AddL1("L1_SingleEG8", 1);
+  menu->AddL1("L1_SingleEG10", 1);
   menu->AddL1("L1_SingleEG12", 1); 
-  menu->AddL1("L1_SingleEG15", 1); 
+  menu->AddL1("L1_SingleEG15", 1);
   menu->AddL1("L1_DoubleEG1", 1); 
-  menu->AddL1("L1_DoubleEG5", 1); 
-  menu->AddL1("L1_DoubleEG10", 1); 
+  menu->AddL1("L1_DoubleEG5", 1);
+  menu->AddL1("L1_DoubleEG10", 1);
   menu->AddL1("L1_SingleMuOpen", 1); 
   menu->AddL1("L1_SingleMu3", 1); 
   menu->AddL1("L1_SingleMu5", 1); 
-  menu->AddL1("L1_SingleMu7", 1); 
-  menu->AddL1("L1_SingleMu10", 1); 
-  menu->AddL1("L1_DoubleMu3", 1); 
-  menu->AddL1("L1_TripleMu3", 1); 
-  menu->AddL1("L1_SingleTauJet30", 1); 
-  menu->AddL1("L1_SingleTauJet40", 1); 
-  menu->AddL1("L1_SingleTauJet60", 1); 
-  menu->AddL1("L1_SingleTauJet80", 1); 
-  menu->AddL1("L1_DoubleTauJet20", 1); 
-  menu->AddL1("L1_DoubleTauJet40", 1); 
-  menu->AddL1("L1_IsoEG10_Jet15_ForJet10", 1); 
-  menu->AddL1("L1_ExclusiveDoubleIsoEG6", 1); 
-  menu->AddL1("L1_Mu5_Jet15", 1); 
-  menu->AddL1("L1_IsoEG10_Jet20", 1); 
-  menu->AddL1("L1_IsoEG10_Jet30", 1); 
-  menu->AddL1("L1_Mu3_IsoEG5", 1); 
-  menu->AddL1("L1_Mu3_EG12", 1); 
-  menu->AddL1("L1_IsoEG10_TauJet20", 1); 
-  menu->AddL1("L1_Mu5_TauJet20", 1); 
-  menu->AddL1("L1_TauJet30_ETM30", 1); 
-  menu->AddL1("L1_EG5_TripleJet15", 1); 
-  menu->AddL1("L1_Mu3_TripleJet15", 1); 
+  menu->AddL1("L1_SingleMu7", 1);
+  menu->AddL1("L1_SingleMu10", 1);
+  menu->AddL1("L1_DoubleMu3", 1);
+  menu->AddL1("L1_TripleMu3", 1);
+  menu->AddL1("L1_SingleTauJet30", 1);
+  menu->AddL1("L1_SingleTauJet40", 1);
+  menu->AddL1("L1_SingleTauJet60", 1);
+  menu->AddL1("L1_SingleTauJet80", 1);
+  menu->AddL1("L1_DoubleTauJet20", 1);
+  menu->AddL1("L1_DoubleTauJet40", 1);
+  menu->AddL1("L1_IsoEG10_Jet15_ForJet10", 1);
+  menu->AddL1("L1_ExclusiveDoubleIsoEG6", 1);
+  menu->AddL1("L1_Mu5_Jet15", 1);
+  menu->AddL1("L1_IsoEG10_Jet20", 1);
+  menu->AddL1("L1_IsoEG10_Jet30", 1);
+  menu->AddL1("L1_Mu3_IsoEG5", 1);
+  menu->AddL1("L1_Mu3_EG12", 1);
+  menu->AddL1("L1_IsoEG10_TauJet20", 1);
+  menu->AddL1("L1_Mu5_TauJet20", 1);
+  menu->AddL1("L1_TauJet30_ETM30", 1);
+  menu->AddL1("L1_EG5_TripleJet15", 1);
+  menu->AddL1("L1_Mu3_TripleJet15", 1);
   menu->AddL1("L1_SingleMuBeamHalo", 1); 
   menu->AddL1("L1_ZeroBias", 1); 
   menu->AddL1("L1_MinBias_HTT10", 1); 
@@ -1246,10 +1246,6 @@ void BookMenu_Default(OHltMenu*  menu, double &iLumi, double &nBunches) {
   menu->AddHlt("AlCa_IsoTrack","L1_SingleJet30 OR L1_SingleJet50 OR L1_SingleJet70 OR L1_SingleJet100 OR L1_SingleTauJet30 OR L1_SingleTauJet40 OR L1_SingleTauJet60 OR L1_SingleTauJet80","1",1,"","",0.214,0,0,0,0,0);
   menu->AddHlt("AlCa_EcalPhiSym","L1_ZeroBias OR L1_SingleJetCountsHFTow OR L1_DoubleJetCountsHFTow OR L1_SingleEG2 OR L1_DoubleEG1 OR L1_SingleJetCountsHFRing0Sum3 OR L1_DoubleJetCountsHFRing0Sum3 OR L1_SingleJetCountsHFRing0Sum6 OR L1_DoubleJetCountsHFRing0Sum6","1",1,"","",0.001,0,0,0,0,0);
   menu->AddHlt("AlCa_EcalPi0","L1_SingleIsoEG5 OR L1_SingleIsoEG8 OR L1_SingleIsoEG10 OR L1_SingleIsoEG12 OR L1_SingleIsoEG15 OR L1_SingleIsoEG20 OR L1_SingleIsoEG25 OR L1_SingleEG5 OR L1_SingleEG8 OR L1_SingleEG10 OR L1_SingleEG12 OR L1_SingleEG15 OR L1_SingleEG20 OR L1_SingleEG25","1",1,"","",0.007,0,0,0,0,0);
-
-
-
-
 }
 
 void BookMenu_21X_8E29(OHltMenu*  menu, double &iLumi, double &nBunches) {
@@ -1629,8 +1625,8 @@ void BookMenu_SmallMenu_8E29(OHltMenu*  menu, double &iLumi, double &nBunches) {
 
 void BookMenu_21X_8E29_L1(OHltMenu*  menu, double &iLumi, double &nBunches) {   
 
-  iLumi = 8E29;   
-  nBunches = 43;   
+  iLumi = 8E29;
+  nBunches = 43;
 
   menu->AddL1("L1_SingleJet15", 25);  
   menu->AddL1("L1_SingleJet30", 1);  

@@ -1,9 +1,9 @@
 README for OpenHLT rate and Efficiencies calculating scripts
 
-	Chi-Nhan Nguyen <chinhan@cern.ch>
-	Jonathan Hollar <jjhollar@cern.ch>
-	Pedrame Bargassa <bargassa@cern.ch>
-	Silvia Goy Lopez <goylopez@cern.ch>
+  Chi-Nhan Nguyen <chinhan@cern.ch>
+  Jonathan Hollar <jjhollar@cern.ch>
+  Pedrame Bargassa <bargassa@cern.ch>
+  Silvia Goy Lopez <goylopez@cern.ch>
 
 ************************************** 
 1. Introduction
@@ -15,51 +15,56 @@ README for OpenHLT rate and Efficiencies calculating scripts
 1a. Running the scripts
 --------------------------------------  
  
-	Once the binary file is built, the rate-calculating script can be run using:
-	
-	./OHltRateEff <NEntries> <sMenu> <sConditions> <sVersion> <datasetDefinitionFile> <sEnergy> <doPrintAll> <RateOnly> <EfficiencyOnly>
+  Once the binary file is built, the rate-calculating script can be run using:
+  
+  ./OHltRateEff <NEntries> <sMenu> <sConditions> <sVersion> <sPrimaryDatasets> <sEnergy> <doPrintAll> <RateOnly> <EfficiencyOnly>
 
-	The arguments are as follows:
-		
-		<NEntries>: Number of events to run over.
-			    That number will be used for each sample.
-			    If there exist less events in a sample than requested than the script
-			    will run over all existing.
-			    Any number < 0 will be interpreted as "running over all existing events".
-			    Default is all (-1).
-	
-		<sMenu>: Type of trigger menu to run. Options are "default", "21X_SmallMenu_8E29", "21X_8E29", and "21X_8E29_L1"
-			 The "default" option runs all HLT triggers available in 21X (~160 paths) using the trigger bits from the standard HLT with all L1 and HLT prescales set to 1.
-			 The "21X_SmallMenu_8E29" option runs the "lean" HLT menu with both standard HLT and OpenHLT implementations of the ~20 physics triggers. Prescales are 
-	 		 set to the preliminary values expeceted for a luminosity of 8*10^{29}.		
-			 The "21X_8E29" option runs all HLT triggers available in 21X (~160 paths) using the trigger bits from the standard HLT with all L1 and HLT. Prescales are  
-                         set to the preliminary values expeceted for a luminosity of 8*10^{29}. 
-			 The "21X_8E29_L1" option runs all L1 triggers and displays their rates. Prescales are   
-                         set to the preliminary values expeceted for a luminosity of 8*10^{29}.  
+  The arguments are as follows:
+    
+    <NEntries>: Number of events to run over.
+          That number will be used for each sample.
+          If there exist less events in a sample than requested than the script
+          will run over all existing.
+          Any number < 0 will be interpreted as "running over all existing events".
+          Default is all (-1).
+  
+    <sMenu>: Type of trigger menu to run. Options are "default", "21X_SmallMenu_8E29", "21X_8E29", and "21X_8E29_L1"
+       The "default" option runs all HLT triggers available in 21X (~160 paths) using the trigger bits from the standard HLT with all L1 and HLT prescales set to 1.
+       The "21X_SmallMenu_8E29" option runs the "lean" HLT menu with both standard HLT and OpenHLT implementations of the ~20 physics triggers. Prescales are 
+       set to the preliminary values expeceted for a luminosity of 8*10^{29}.   
+       The "21X_8E29" option runs all HLT triggers available in 21X (~160 paths) using the trigger bits from the standard HLT with all L1 and HLT. Prescales are  
+       set to the preliminary values expeceted for a luminosity of 8*10^{29}. 
+       The "21X_8E29_L1" option runs all L1 triggers and displays their rates. Prescales are   
+       set to the preliminary values expeceted for a luminosity of 8*10^{29}.  
 
-		<sConditions>: Options are "startup" and "ideal". The "startup" option
-			       will run over events processed with 1pb-1 conditions. The "ideal" 
-			       option will run over events processed with ideal conditions.
+    <sConditions>: Options are "startup" and "ideal". The "startup" option
+             will run over events processed with 1pb-1 conditions. The "ideal" 
+             option will run over events processed with ideal conditions.
 
-		<sVersion>: A string describing this menu. This will be appended to the name of 
-			    the output files.
+    <sVersion>: A string describing this menu. This will be appended to the name of the output files.
+          
+    <sPrimaryDatasets>: The input text file with primary dataset definitions, e.g. Datasets_8e29.list
+                        which has the primary datasets for L = 8e29 cm^-2 s^-1 that contains all
+                        O(150) trigger paths, or Datasets_8e29_core.list which has only the O(30) 
+                        "core" triggers. If you take a look in the provided examples, you will see 
+                        that the format of these dataset definition files is very simple a.k.a.
+                        editable. It is possible to omit this argument, by providing an empty string
+                        (""). In this case, every trigger will be considered to be in a dataset of its
+                        own -- this mode is useful for producing trigger-vs-trigger correlation plots.
 
-		<datasetDefinitionFile>: A text file containing the mapping of triggers to primary datasets. The option "Datasets_8e29_core.list" will use 
-					 the default 8E29 "lean" menu proposal for datasets.
+    <sEnergy>: sqrt(s) energy to assume for scaling cross-sections. Options are 10 and 14.
+         Note - the currently available samples were produced with 14TeV settings in 
+         CMSSW_1_8_4. 
 
-		<sEnergy>: sqrt(s) energy to assume for scaling cross-sections. Options are 10 and 14.
-			   Note - the currently available samples were produced with 14TeV settings in 
-			   CMSSW_1_8_4. 
+    <doPrintAll>: If set to 1 all printouts incl. overlap coefficient etc,
+            and also the pdf file is generated.
+            Otherwise only the most info is printed out to stdout.
+            Default is off (0).
+    
+    <RateOnly>: Set to 1 if you want to run only rate code (without efficiencies). Set to 1 by default.
 
-		<doPrintAll>: If set to 1 all printouts incl. overlap coefficient etc,
-			      and also the pdf file is generated.
-			      Otherwise only the most info is printed out to stdout.
-			      Default is off (0).
-		
-		<RateOnly>: Set to 1 if you want to run only rate code (without efficiencies). Set to 1 by default.
-
-		<EfficiencyOnly>: Set to 1 if you want to run only efficiency code (no background samples). Set to 0 by default.
-		
+    <EfficiencyOnly>: Set to 1 if you want to run only efficiency code (no background samples). Set to 0 by default.
+    
 
 Note: By default RateOnly=1 and EfficiencyOnly=0 runs rates only on background samples.
 Setting both RateOnly and EfficiencyOnly to zero runs both efficiency and rate code on all samples (signal and rate samples)
@@ -71,74 +76,83 @@ The case RateOnly=1 and EfficiencyOnly=1 is illegal and prints an error message
 2. Input samples and cross-sections
 **************************************
 
-	The input ntuples and cross-sections are defined in the main() function in OHltRateEff.cpp.
-	These are filled as entries in the vectors ProcFil and xsec, respectively. The current default 
-	uses samples of Minbias, ppEleX, ppMuX for background/rates and Z->ee, Z->mumu, W->enu, W->munu
-	as signals.
-	The example files exist on castor. The script should be working if running on lxplus.
+  The input ntuples and cross-sections are defined in the main() function in OHltRateEff.cpp.
+  These are filled as entries in the vectors ProcFil and xsec, respectively. The current default 
+  uses samples of Minbias, ppEleX, ppMuX for background/rates and Z->ee, Z->mumu, W->enu, W->munu
+  as signals.
+  The example files exist on castor. The script should be working if running on lxplus.
+
+  If you add new input samples, please be sure to register it with the primary datasets
+  calculation code via the line:
+        hltDatasets.addSample("NameOfMyFavoriteSignal", PHYSICS_SAMPLE);
+  The name and type of sample is for (cosmetic) book-keeping purposes. A sample is either a
+  RATE_SAMPLE -- huge cross-section and responsible for driving the rate (e.g. minbias / QCD),
+  or a PHYSICS_SAMPLE -- small cross-section but typically the most "interesting".
+  
+
 
 **************************************
 3. Trigger examples
 **************************************
 
         The list of OpenHLT triggers in the menu is defined in the BookMenu_OhltExample method in OHltRateEff.cpp.  
-	Several OpenHLT trigger algorithms are already implemented as templates. These will be 
-	executed when the script is run with the "example" option, together with the corresponding
-	triggers from the full HLT (20X). For example:
+  Several OpenHLT trigger algorithms are already implemented as templates. These will be 
+  executed when the script is run with the "example" option, together with the corresponding
+  triggers from the full HLT (20X). For example:
 
-		./OHltRateEff 1000000 example
+    ./OHltRateEff 1000000 example
 
 -------------------------------------- 
 3a. Adding new OpenHLT triggers
 -------------------------------------- 
 
         To add a new OpenHLT trigger, the first step is to register it in the menu. This requires adding a line 
-	that calls AddHlt to the BookMenu_OhltExample method in OHltRateEff.cpp. This takes the form: 
+  that calls AddHlt to the BookMenu_OhltExample method in OHltRateEff.cpp. This takes the form: 
  
                 menu->AddHlt(TString trig, TString l1Bit, TString l1prescale, int hltprescale, TString threshold, TString desc
-				, double eventsize, int multele, int multpho, int multmu, int multjet, int multmet); 
+                            , double eventsize, int multele, int multpho, int multmu, int multjet, int multmet); 
  
         The arguments to this method will be used as labels in the output menu showing the rates, and 
-	are defined as follows: 
+  are defined as follows: 
 
                 trig:           Name of the new OpenHLT trigger 
                 l1Bit:          Name of the L1 bit used by this OpenHLT trigger
-				(this parameter has no effect on the effective algorithm used, it is only for documentation,
-				 to see how to change the L1 seed see below) 
+        (this parameter has no effect on the effective algorithm used, it is only for documentation,
+         to see how to change the L1 seed see below) 
                 l1prescale:     Description of the prescale value applied at L1 (This prescale will be applied on top of existing L1 prescales,
-							      			i.e. it should be used for samples with reset prescales only
-							      			unless the user knows exactly was he does). This parameter is for 
-										documentation only.
+                    i.e. it should be used for samples with reset prescales only
+                    unless the user knows exactly was he does). This parameter is for 
+                    documentation only.
                 hltprescale:    Prescale value applied at HLT (This prescale will be applied on top of existing HLT prescales,
-							      i.e. it should be used for samples with reset prescales only
-							      unless the user knows exactly was he does)
+                    i.e. it should be used for samples with reset prescales only
+                    unless the user knows exactly was he does)
                 threshold:      HLT trigger threshold (this parameter is for documentation only) 
                 desc:           Description string - for example "1e32" for  
                                 triggers in the 10^32 menu, "new" for new developmental  
                                 triggers, etc. (this parameter is for documentation only)
-		eventsize:	Sets the average event size for events selected by corresponding HLT path
-		multele:        Multiplicity of electron candidates (example: in double electron trigger multele=2, single 
-								     electron trigger multele=1, muon trigger multele=0)
-		multpho:	Multiplicity of photons
-		multmu:		Multiplicity of muons
-		multjet:	Multiplicity of jets
-		multmet:	Multiplicity of met 
-		
+    eventsize:  Sets the average event size for events selected by corresponding HLT path
+    multele:        Multiplicity of electron candidates (example: in double electron trigger multele=2, single 
+                     electron trigger multele=1, muon trigger multele=0)
+    multpho:  Multiplicity of photons
+    multmu:   Multiplicity of muons
+    multjet:  Multiplicity of jets
+    multmet:  Multiplicity of met 
+    
 
-	Once the trigger is registered, the actual trigger logic must be implemented in OHltTree.cpp; this is done in 
-	two places. The first is the OHltTree::Loop method, where the L1 and HLT pass/fail conditions are decided.
-	The second is in dedicated methods where the HLT trigger algorithms are emulated. A single one of these dedicated
-	methods can be used by several OpenHLT triggers if they differ only in their thresholds. 
+  Once the trigger is registered, the actual trigger logic must be implemented in OHltTree.cpp; this is done in 
+  two places. The first is the OHltTree::Loop method, where the L1 and HLT pass/fail conditions are decided.
+  The second is in dedicated methods where the HLT trigger algorithms are emulated. A single one of these dedicated
+  methods can be used by several OpenHLT triggers if they differ only in their thresholds. 
 
-	The standard HLT triggers can be added to the menu in the same way:
+  The standard HLT triggers can be added to the menu in the same way:
 
-		menu->AddHlt(TString trig, TString l1Bit, int l1prescale, int hltprescale, TString threshold, TString desc
-				, double eventsize, int multele, int multpho, int multmu, int multjet, int multmet); 
+    menu->AddHlt(TString trig, TString l1Bit, int l1prescale, int hltprescale, TString threshold, TString desc
+                , double eventsize, int multele, int multpho, int multmu, int multjet, int multmet); 
 
 
-	where the string "trig" should be the name of the trigger path.
+  where the string "trig" should be the name of the trigger path.
 
-	Several example OpenHLT triggers are provided as templates; these are described in detail below.
+  Several example OpenHLT triggers are provided as templates; these are described in detail below.
 
 --------------------------------------  
 3b. Example OpenHLT jet triggers  
@@ -147,134 +161,165 @@ The case RateOnly=1 and EfficiencyOnly=1 is illegal and prints an error message
         One example OpenHLT jet trigger (corresponding to HLT1jet) is implemented. The algorithm is  
         implemented in the OHltTree::OpenHlt1JetPassed method. This method takes a single argument:
 
-		double pt:	Jet pT threshold.
+    double pt:  Jet pT threshold.
 
-	The trigger passes if N>=1 jets above threshold are found in the event. 
+  The trigger passes if N>=1 jets above threshold are found in the event. 
 
 --------------------------------------
 3c. Example OpenHLT muon triggers
 --------------------------------------
-	
-	Three example OpenHLT muon triggers (corresponding to HLT1MuonNonIso, HLT1MuonIso, and HLT2MuonNonIso) are 
-	available. 
+  
+  Three example OpenHLT muon triggers (corresponding to HLT1MuonNonIso, HLT1MuonIso, and HLT2MuonNonIso) are 
+  available. 
 
-	The algorithm for the single muon triggers is implemented in the OHltTree::OpenHlt1MuonPassed method. This 
-	takes five arguments:
+  The algorithm for the single muon triggers is implemented in the OHltTree::OpenHlt1MuonPassed method. This 
+  takes five arguments:
 
-		double ptl1:	L1extra pT threshold 
-		double ptl2:	L2 muon pT threshold
-		double ptl3:	L3 muon pT threshold
-		double dr:	L3 dR threshold
-		int iso:	L3 isolation (1 if isolated, 0 if non-isolated)
+    double ptl1:  L1extra pT threshold 
+    double ptl2:  L2 muon pT threshold
+    double ptl3:  L3 muon pT threshold
+    double dr:  L3 dR threshold
+    int iso:  L3 isolation (1 if isolated, 0 if non-isolated)
 
-	The algorithm starts from L3 muons and applies pT, eta, dr, and isolation criteria. It 
-	then finds the L2 muon matched to the L3 muon, and applies pT and eta cuts. It then finds
-	the L1extra muon most closely matched to the L2 muon, and applies pT and quality cuts. For the 
-	single muon triggers, the L1 quality must be between 4 and 7 (inclusive). The trigger passes if 
-	N>=1 muons satisfying all these criteria are found.
+  The algorithm starts from L3 muons and applies pT, eta, dr, and isolation criteria. It 
+  then finds the L2 muon matched to the L3 muon, and applies pT and eta cuts. It then finds
+  the L1extra muon most closely matched to the L2 muon, and applies pT and quality cuts. For the 
+  single muon triggers, the L1 quality must be between 4 and 7 (inclusive). The trigger passes if 
+  N>=1 muons satisfying all these criteria are found.
 
-	The algorithm for the double muon triggers is implemented in the OHltTree::OpenHlt2MuonPassed 
-	method. The arguments to this method are:
+  The algorithm for the double muon triggers is implemented in the OHltTree::OpenHlt2MuonPassed 
+  method. The arguments to this method are:
 
-	        double ptl1:    L1extra pT threshold  
+          double ptl1:    L1extra pT threshold  
                 double ptl2:    L2 muon pT threshold 
                 double ptl3:    L3 muon pT threshold 
                 double dr:      L3 dR threshold 
                 int iso:        L3 isolation (1 if isolated, 0 if non-isolated) 
 
-	The algorithm is identical to the single muon case described above, with the exception of the L1extra muons, 
-	which must have quality between 3 and 7 (inclusive). The trigger passes if N>=2 muons satisfying all these 
-	criteria are found.
+  The algorithm is identical to the single muon case described above, with the exception of the L1extra muons, 
+  which must have quality between 3 and 7 (inclusive). The trigger passes if N>=2 muons satisfying all these 
+  criteria are found.
 
-	* Note that in CMSSW releases 2_X and higher, the L2 and L3 muon pT thresholds are implemented as flat cuts.
-	  In earlier releases, the thresholds were implemented as 90% CL upper limits. OpenHLT examples of the old pT 
-	  threshold implementation are found at the beginning of the OpenHlt1MuonPassed and OpenHlt2MuonPassed examples.
+  * Note that in CMSSW releases 2_X and higher, the L2 and L3 muon pT thresholds are implemented as flat cuts.
+    In earlier releases, the thresholds were implemented as 90% CL upper limits. OpenHLT examples of the old pT 
+    threshold implementation are found at the beginning of the OpenHlt1MuonPassed and OpenHlt2MuonPassed examples.
 
 
 --------------------------------------
 3d. Example OpenHLT electron triggers
 --------------------------------------
-	
-	One example OpenHLT electron trigger (HLT1Electron) are	available. 
+  
+  One example OpenHLT electron trigger (HLT1Electron) are available. 
 
-	The algorithm for the single electron triggers is implemented in the OHltTree::OpenHlt1ElectronPassed method.
+  The algorithm for the single electron triggers is implemented in the OHltTree::OpenHlt1ElectronPassed method.
         This takes five arguments:
 
-		float   Et:	Et threshold in GeV
-		int   L1iso:	L1 is isolated (1: yes, 0: no)
-		float Tiso:	Track isolation in GeV
-		float Hiso:	Hcal isolation in GeV
+    float   Et: Et threshold in GeV
+    int   L1iso:  L1 is isolated (1: yes, 0: no)
+    float Tiso: Track isolation in GeV
+    float Hiso: Hcal isolation in GeV
 
-	In the example code some cuts are mandatory and cannot be varied.
-	They have the following default values:
-		ohEleNewSC[i]>0                 : Is 1, if electron found by Super Cluster Algo, otherwise 0
-		ohEleHiso[i]/ohEleEt[i] < 0.05	: Hadronic fraction smaller than 0.05
-		ohElePixelSeeds[i]>0		: Pixel seed found or not (1 or 0)
+  In the example code some cuts are mandatory and cannot be varied.
+  They have the following default values:
+    ohEleNewSC[i]>0                 : Is 1, if electron found by Super Cluster Algo, otherwise 0
+    ohEleHiso[i]/ohEleEt[i] < 0.05  : Hadronic fraction smaller than 0.05
+    ohElePixelSeeds[i]>0    : Pixel seed found or not (1 or 0)
 
 --------------------------------------
 3e. Example OpenHLT photon triggers
 --------------------------------------
-	
-	One example OpenHLT electron trigger (HLT1Electron) are	available. 
+  
+  One example OpenHLT electron trigger (HLT1Electron) are available. 
 
-	The algorithm for the single electron triggers is implemented in the OHltTree::OpenHlt1ElectronPassed method.
+  The algorithm for the single electron triggers is implemented in the OHltTree::OpenHlt1ElectronPassed method.
         This takes five arguments:
 
-		float   Et:	Et threshold in GeV
-		int   L1iso:	L1 is isolated (1: yes, 0: no)
-		float Tiso:	Track isolation in GeV
-		float Eiso:	Ecal isolation in GeV
-		float HisoBR:	Barrel Hcal isolation in GeV
-		float HisoEC:	Endcap Hcal isolation in GeV
+    float   Et: Et threshold in GeV
+    int   L1iso:  L1 is isolated (1: yes, 0: no)
+    float Tiso: Track isolation in GeV
+    float Eiso: Ecal isolation in GeV
+    float HisoBR: Barrel Hcal isolation in GeV
+    float HisoEC: Endcap Hcal isolation in GeV
 
 
 --------------------------------------
 3f. Example OpenHLT tau triggers
 --------------------------------------
-	
-	Several examples are available in OHltTree.cpp. 
+  
+  Several examples are available in OHltTree.cpp. 
 
-	The algorithm for the Tau triggers is implemented in OHltTree::OpenHltTauPassed method.
+  The algorithm for the Tau triggers is implemented in OHltTree::OpenHltTauPassed method.
         As an example one can take the HLT2TauPixel path, which can be implemented as
 
-	if(OpenHltTauPassed(15.,5.,3.,1,0.,0)>=2) {} using
+  if(OpenHltTauPassed(15.,5.,3.,1,0.,0)>=2) {} using
         OpenHltTauPassed(float Et,float Eiso, float L25Tpt, int L25Tiso, float L3Tpt, int L3Tiso)
 
-	The if statement asks for at least 2 tau candidates which fullfil both these criteria:	      
+  The if statement asks for at least 2 tau candidates which fullfil both these criteria:        
 
-		float   Et:	L2 calo Et threshold in GeV
-		int   Eiso:	L2 is Ecal isolated (1: yes, 0: no)
-		float L25Tpt:	L2.5 pixel leading Track Pt threshold in GeV
-		int   L25Tiso:	L2.5 is Track isolated (1: yes, 0: no)
-		float L3Tpt:	L3 si+pix leading Track Pt threshold in GeV
-		int   L3Tiso:	L3 is Track isolated (1: yes, 0: no)
+    float   Et: L2 calo Et threshold in GeV
+    int   Eiso: L2 is Ecal isolated (1: yes, 0: no)
+    float L25Tpt: L2.5 pixel leading Track Pt threshold in GeV
+    int   L25Tiso:  L2.5 is Track isolated (1: yes, 0: no)
+    float L3Tpt:  L3 si+pix leading Track Pt threshold in GeV
+    int   L3Tiso: L3 is Track isolated (1: yes, 0: no)
 
 --------------------------------------
 3. Efficiency code
 --------------------------------------
 
-	Once the HLT paths of interest are defined (either as 'standard' HLT paths or in OpenHLT) 
-	they must be inserted in the corresponding trigger menu using the menu->AddHlt() function.
-	At this step one must define the multiplicity of the relevant objects (electron,photon,muon,
-	jet,met) for booking of efficiency histograms.
+  Once the HLT paths of interest are defined (either as 'standard' HLT paths or in OpenHLT) 
+  they must be inserted in the corresponding trigger menu using the menu->AddHlt() function.
+  At this step one must define the multiplicity of the relevant objects (electron,photon,muon,
+  jet,met) for booking of efficiency histograms.
 
-	Then the script must be run with settings:
-		RateOnly=0, EfficiencyOnly=1 (runs only efficiency code on signal samples)
-		RateOnly=1, EfficiencyOnly=0 (runs efficiency and rate code on both background and
-					      signal samples)
+  Then the script must be run with settings:
+    RateOnly=0, EfficiencyOnly=1 (runs only efficiency code on signal samples)
+    RateOnly=1, EfficiencyOnly=0 (runs efficiency and rate code on both background and
+                signal samples)
 
-	Histograms are filled with reconstructed pt,eta and phi of requested objects 
-		1) For all events in the input file
-		2) For all events passing the L1 seed corresponding to each HLT path
-		3) For all events passing the HLT paths
+  Histograms are filled with reconstructed pt,eta and phi of requested objects 
+    1) For all events in the input file
+    2) For all events passing the L1 seed corresponding to each HLT path
+    3) For all events passing the HLT paths
 
-	Efficiency histograms are filled dividing 3)/1) (overall HLT efficiency) and 3)/2) (HLT 
-	efficiency wrt L1)
-	
-	The output consists one root file per sample with efficiency histograms and a printout with global
-	integrated numbers. 
+  Efficiency histograms are filled dividing 3)/1) (overall HLT efficiency) and 3)/2) (HLT 
+  efficiency wrt L1)
+  
+  The output consists one root file per sample with efficiency histograms and a printout with global
+  integrated numbers. 
 
-	For more details see:
-	http://indico.cern.ch/materialDisplay.py?contribId=12&sessionId=1&materialId=slides&confId=41546
-	
-	In case of missing functionalities, please contact goylopez@cern.ch
+  For more details see:
+  http://indico.cern.ch/materialDisplay.py?contribId=12&sessionId=1&materialId=slides&confId=41546
+  
+  In case of missing functionalities, please contact goylopez@cern.ch
+
+
+--------------------------------------
+4. Primary Datasets code
+--------------------------------------
+
+  The primary datasets evaluation happens as part of the event loop. Its purpose is to
+    1) Evaluate the rates of datasets, correlation (i.e. fraction of shared events) between 
+       datasets, and total output overhead for storing datasets. 
+    2) Evaluate the correlation of "new triggers" with the primary datasets, and also the
+       rate of unique events that can be added by a particular new trigger to each of the
+       primary datasets, if it were to be placed in that location.
+       
+  The "new triggers" are defined to be all the triggers that do not appear in one or more
+  primary datasets, as read from the <sPrimaryDatasets> input file. As mentioned, if
+  <sPrimaryDatasets> = "" is provided, every trigger is considered to be a dataset (so, 
+  there are _no_ new triggers) -- this is useful for outputting the trigger-vs-trigger
+  correlation plot, which can help you diagnose whether your proposed trigger has already
+  been (mostly) superceded by some other trigger(s).
+  
+  The code produces two output files:
+    a) X_scenario_correlations.root : a few histograms (one per sample, and for "all", "rate",
+                                      and "physics" combinations of samples) with the 2D 
+                                      correlation plots that can be used for deciding which 
+                                      triggers go into which datasets.
+    b) X_scenario_correlations.pdf  : essentially the same information as (a), but in numerical 
+                                      form (tables). Specifically, this shows the rate that 
+                                      would be added by each trigger, if it were to be added to 
+                                      a particular dataset.
+  Here X is the same as the OHltRateEff main output name.
+  
