@@ -20,7 +20,7 @@ dqmInfoMuons = cms.EDFilter("DQMEventInfo",
 
 muonTrackAnalyzers = cms.Sequence(MonitorTrackSTAMuons*MonitorTrackGLBMuons)
 
-muonMonitors = cms.Sequence(rpcSource*muonTrackAnalyzers*dtSegmentsMonitor*muonAnalyzer*muonIdDQM*dqmInfoMuons)
+muonMonitors = cms.Sequence(rpcSource*muonTrackAnalyzers*dtSegmentsMonitor*cscMonitor*muonAnalyzer*muonIdDQM*dqmInfoMuons)
 
 muonMonitorsAndQualityTests = cms.Sequence(muonMonitors*muonQualityTests)
 
