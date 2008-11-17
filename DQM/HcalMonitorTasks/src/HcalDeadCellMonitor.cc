@@ -1042,7 +1042,7 @@ void HcalDeadCellMonitor::processEvent_digi( const HBHEDigiCollection& hbhedigi,
   int iphi=0;
   int depth=0;
 
-  //HcalCalibrationWidths widths;
+  HcalCalibrationWidths widths;
   HcalCalibrations calibs;
   const HcalQIEShape* shape=cond.getHcalShape();
 
@@ -1080,8 +1080,8 @@ void HcalDeadCellMonitor::processEvent_digi( const HBHEDigiCollection& hbhedigi,
 	continue;
       
       HcalDetId myid = digi.id();
-      //cond.makeHcalCalibrationWidth(digi.id(),&widths);
-      const HcalCalibrationWidths widths = cond.getHcalCalibrationWidths(digi.id() );
+      cond.makeHcalCalibrationWidth(digi.id(),&widths);
+      //const HcalCalibrationWidths widths = cond.getHcalCalibrationWidths(digi.id() );
 
       calibs = cond.getHcalCalibrations(digi.id());
 
@@ -1162,7 +1162,9 @@ void HcalDeadCellMonitor::processEvent_digi( const HBHEDigiCollection& hbhedigi,
 	    continue;
 	  
 	  HcalDetId myid = digi.id();
-	  const HcalCalibrationWidths widths = cond.getHcalCalibrationWidths(digi.id() );
+	  //const HcalCalibrationWidths widths = cond.getHcalCalibrationWidths(digi.id() );
+	  cond.makeHcalCalibrationWidth(digi.id(),&widths);
+
 	  calibs = cond.getHcalCalibrations(digi.id());
 	  
 	  for (int i=0;i<digi.size();++i)
@@ -1237,8 +1239,8 @@ void HcalDeadCellMonitor::processEvent_digi( const HBHEDigiCollection& hbhedigi,
 	    continue;
       
 	  HcalDetId myid = digi.id();
-	  const HcalCalibrationWidths widths = cond.getHcalCalibrationWidths(digi.id() );
-	  //cond.makeHcalCalibrationWidth(digi.id(),&widths);
+	  //const HcalCalibrationWidths widths = cond.getHcalCalibrationWidths(digi.id() );
+	  cond.makeHcalCalibrationWidth(digi.id(),&widths);
 	  calibs = cond.getHcalCalibrations(digi.id());
 
 	  for (int i=0;i<digi.size();++i)

@@ -1094,7 +1094,7 @@ void HcalHotCellMonitor::processEvent_pedestal( const HBHEDigiCollection& hbhedi
   int iphi=0;
   int depth=0;
 
-  //HcalCalibrationWidths widths;
+  HcalCalibrationWidths widths;
   HcalCalibrations calibs;
   const HcalQIEShape* shape=cond.getHcalShape();
 
@@ -1118,8 +1118,8 @@ void HcalHotCellMonitor::processEvent_pedestal( const HBHEDigiCollection& hbhedi
       depth=digi.id().depth();
       
       HcalDetId myid = digi.id();
-      //cond.makeHcalCalibrationWidth(digi.id(),&widths);
-      const HcalCalibrationWidths widths = cond.getHcalCalibrationWidths(digi.id());
+      cond.makeHcalCalibrationWidth(digi.id(),&widths);
+      //const HcalCalibrationWidths widths = cond.getHcalCalibrationWidths(digi.id());
 
       calibs = cond.getHcalCalibrations(digi.id());
 
@@ -1191,8 +1191,8 @@ void HcalHotCellMonitor::processEvent_pedestal( const HBHEDigiCollection& hbhedi
 	  depth=digi.id().depth();
 	  
 	  HcalDetId myid = digi.id();
-	  //cond.makeHcalCalibrationWidth(digi.id(),&widths);
-	  const HcalCalibrationWidths widths = cond.getHcalCalibrationWidths(digi.id());
+	  cond.makeHcalCalibrationWidth(digi.id(),&widths);
+	  //const HcalCalibrationWidths widths = cond.getHcalCalibrationWidths(digi.id());
 
 	  calibs = cond.getHcalCalibrations(digi.id());
 	  
@@ -1259,8 +1259,8 @@ void HcalHotCellMonitor::processEvent_pedestal( const HBHEDigiCollection& hbhedi
 	  depth=digi.id().depth()+2; // offset depth by 2 for HF
 
 	  HcalDetId myid = digi.id();
-	  //cond.makeHcalCalibrationWidth(digi.id(),&widths);
-	  const HcalCalibrationWidths widths = cond.getHcalCalibrationWidths(digi.id());
+	  cond.makeHcalCalibrationWidth(digi.id(),&widths);
+	  //const HcalCalibrationWidths widths = cond.getHcalCalibrationWidths(digi.id());
 
 	  calibs = cond.getHcalCalibrations(digi.id());
 
