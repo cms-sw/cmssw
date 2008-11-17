@@ -1,16 +1,14 @@
 #ifndef CutBasedPhotonIDAlgo_H
 #define CutBasedPhotonIDAlgo_H
 
-#include "RecoEgamma/PhotonIdentification/interface/PhotonIDAlgo.h"
 #include "RecoEgamma/PhotonIdentification/interface/CutBasedPhotonID.h"
-#include "DataFormats/EgammaCandidates/interface/PhotonID.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 
-class CutBasedPhotonIDAlgo : PhotonIDAlgo {
+class CutBasedPhotonIDAlgo  {
 
 public:
 
