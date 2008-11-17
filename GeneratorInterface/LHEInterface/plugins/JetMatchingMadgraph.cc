@@ -260,13 +260,12 @@ void JetMatchingMadgraph::beforeHadronisation(
 					break;
 				pypart_.ptpart[i] = pt;
 			}
-		} else {
+		} else
 			edm::LogWarning("Generator|LHEInterface")
 				<< "Expected exactly one comment line per "
 				   "event containing MadGraph parton scale "
 				   "information."
 				<< std::endl;
-		}
 	}
 
 	mgevnt_();
