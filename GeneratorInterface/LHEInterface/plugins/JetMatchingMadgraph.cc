@@ -260,12 +260,22 @@ void JetMatchingMadgraph::beforeHadronisation(
 					break;
 				pypart_.ptpart[i] = pt;
 			}
-		} else
+		} else {
 			edm::LogWarning("Generator|LHEInterface")
 				<< "Expected exactly one comment line per "
 				   "event containing MadGraph parton scale "
 				   "information."
 				<< std::endl;
+
+			const HEPEUP *hepeup = event->getHEPEUP();
+			for(int i = 2; i < hepeup->NUP; i++) {
+				double mt2 =
+					hepeup->PUP[i][0] * hepeup->PUP[i][0] +
+					hepeup->PUP[i][1] * hepeup->PUP[i][1] +
+					hepeup->PUP[i][4] * hepeup->PUP[i][4];
+				pypart_.ptpart[i - 2] = std::sqrt(mt2);
+			}
+		}
 	}
 
 	mgevnt_();
