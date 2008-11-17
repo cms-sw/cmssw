@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Muriel VANDER DONCKT *:0
 //         Created:  Wed Jul 16 16:11:05 CEST 2008
-// $Id$
+// $Id: BSCTrigger.cc,v 1.1 2008/07/28 15:30:47 muriel Exp $
 //
 //
 
@@ -32,12 +32,10 @@ Implementation:
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GtTechnicalTrigger.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GtTechnicalTriggerRecord.h"
-//#define debug 
 
 //
 // class declaration
 //
-using namespace edm;
 
 class BSCTrigger : public edm::EDProducer {
 public:
@@ -114,38 +112,36 @@ BSCTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   ++nevt_;
   std::auto_ptr<L1GtTechnicalTriggerRecord> BscRecord;
   float theThreshold=0.0027*0.7;  
-  Handle<PSimHitContainer> theBSCHitContainer;
+  edm::Handle<edm::PSimHitContainer> theBSCHitContainer;
   iEvent.getByLabel("g4SimHits","BSCHits",theBSCHitContainer);
   if (!theBSCHitContainer.failedToGet()) {
     for ( int c=0;c<32;++c){
       EnergyBX[c]=0;
       EnergyBXMinusDt[c]=0;
     }
-    PSimHitContainer::const_iterator itHit, jtHit;
+    edm::PSimHitContainer::const_iterator itHit, jtHit;
     float dt1,dt2;
     dt1=theCoincidence_/2 + theResolution_;
     dt2=theCoincidence_/2 - theResolution_;
-#ifdef debug
-    LogDebug("BSCTrig")<<" ----------------new event ---with "<<theBSCHitContainer->size()<<" hits in the BSC";
-#endif
+    if ( edm::isDebugEnabled() ) LogDebug("BSCTrig")<<" ----------------new event ---with "<<theBSCHitContainer->size()<<" hits in the BSC";
     for (itHit = theBSCHitContainer->begin(); itHit != theBSCHitContainer->end(); ++itHit) {
       float zh=itHit->entryPoint().z()/10;    
       int id=getBSCNum(itHit->detUnitId(),zh);
       if ( id > 31 ) continue;   // the small 2 paddles further from the IP
       float t=itHit->timeOfFlight();
-#ifdef debug
-      float rh=sqrt(itHit->entryPoint().x()*itHit->entryPoint().x()+itHit->entryPoint().y()*itHit->entryPoint().y())/10;    
-      LogTrace("BSCTrig")<<" BSC Num "<<id<<" z="<<zh<<" isZplus="<<isZplus(id)<<" Hit DetId="<<getBSCNum(id,zh)<<" r="<<rh<<" isInner="<<isInner(id);
-      LogTrace("BSCTrig")<<" Hit time="<<t<<" accepted range=["<<dt2<<","<<dt1<<"] from a "<<abs(itHit->particleType())<<" with energy " <<itHit->energyLoss();
-#endif
+      if ( edm::isDebugEnabled() ) {
+	float rh=sqrt(itHit->entryPoint().x()*itHit->entryPoint().x()+itHit->entryPoint().y()*itHit->entryPoint().y())/10;    
+	LogTrace("BSCTrig")<<" BSC Num "<<id<<" z="<<zh<<" isZplus="<<isZplus(id)<<" Hit DetId="<<getBSCNum(id,zh)<<" r="<<rh<<" isInner="<<isInner(id);
+	LogTrace("BSCTrig")<<" Hit time="<<t<<" accepted range=["<<dt2<<","<<dt1<<"] from a "<<abs(itHit->particleType())<<" with energy " <<itHit->energyLoss();
+      }
       if (fabs(t)> dt1 || fabs(t) <dt2 ) continue;
       if (t>0) EnergyBX[id]+=itHit->energyLoss();
       else EnergyBXMinusDt[id]+=itHit->energyLoss();    
     }
     for ( unsigned int ipad = 0 ; ipad<32; ipad++) {
-#ifdef debug
-      LogTrace("BSCTrig")<<" EnergyBX["<<ipad<<"]="<<EnergyBX[ipad];
-#endif
+
+      if ( edm::isDebugEnabled() ) LogTrace("BSCTrig")<<" EnergyBX["<<ipad<<"]="<<EnergyBX[ipad];
+
       if ( EnergyBX[ipad] > theThreshold ) {
 	if ( isZplus(ipad)) {
 	  if ( isInner(ipad) ) ZPinnerBX++;
@@ -156,9 +152,8 @@ BSCTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	}
       } 
     }
-#ifdef debug
-    LogTrace("BSCTrig")<<" Zplus I="<<ZPinnerBX<<" Zminus I="<<ZMinnerBX<<" Zplus O="<<ZPouterBX<<"  Zminus O="<<ZMouterBX;
-#endif 
+    if ( edm::isDebugEnabled() ) LogTrace("BSCTrig")<<" Zplus I="<<ZPinnerBX<<" Zminus I="<<ZMinnerBX<<" Zplus O="<<ZPouterBX<<"  Zminus O="<<ZMouterBX;
+
     //halo 
     for ( unsigned i=0; i< ttBits_.size();++i ){
       bool bit=false;
@@ -220,9 +215,9 @@ BSCTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	if ( ZPouterBX > theNouter_ && ZMouterBX > theNouter_ )  bit=true;	
 	ttVec.at(i)=L1GtTechnicalTrigger(names_.at(i), ttBits_.at(i), 0, bit); 
       }
-#ifdef debug
-      LogTrace("AnaBsc") << "bit: "<<ttBits_[i] << " VALUE:"<<bit ;
-#endif
+
+      if ( edm::isDebugEnabled() ) LogTrace("AnaBsc") << "bit: "<<ttBits_[i] << " VALUE:"<<bit ;
+
     }
   } else ttVec.clear();
   std::auto_ptr<L1GtTechnicalTriggerRecord> output(new L1GtTechnicalTriggerRecord());
@@ -242,11 +237,11 @@ BSCTrigger::endJob() {
 int BSCTrigger::getBSCNum( int id, float z ) {
   int zside = 0;
   if ( z > 0 ) zside = 1;
-#ifdef debug
-  int det    = (id&24)>>3;
-  int station = id&7;
-  LogTrace("BSCTrig")<<"id="<<id<<" zside="<<zside<<" det="<<det<<" station="<<station;
-#endif
+  if ( edm::isDebugEnabled() ) {
+    int det    = (id&24)>>3;
+    int station = id&7;
+    LogTrace("BSCTrig")<<"id="<<id<<" zside="<<zside<<" det="<<det<<" station="<<station;
+  }
   int newid;
   if (id&16) newid=32+(id&1)+(zside<<1) ;  // small paddles further from IP
   else newid= (id&15)+(zside<<4);          // the BSC on the HF
