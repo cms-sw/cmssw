@@ -39,9 +39,6 @@
   <class name="edm::ValueMap<reco::TrackRefVector>" />
   <class name="edm::Wrapper<edm::ValueMap<reco::TrackRefVector> >" />
 
-  <!-- To go into DataFormats/EgammaCandidates -->
-  <class name="edm::ValueMap<reco::PhotonID>" />
-  <class name="edm::Wrapper<edm::ValueMap<reco::PhotonID> >" />
 
    <!-- ==========================================================================================================================
               NON PAT Dataformats: RefToBase for Candidates

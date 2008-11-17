@@ -72,8 +72,6 @@ namespace {
   /*   To go into DataFormats/TrackReco   */
   edm::Wrapper<edm::ValueMap<reco::TrackRefVector> >	 w_vm_trv;
 
-  /*   To go into DataFormats/EgammaCandidates   */
-  edm::Wrapper<edm::ValueMap<reco::PhotonID> >	 w_vm_phid;
 
    /*   ==========================================================================================================================
               NON PAT Dataformats: RefToBase for Candidates
