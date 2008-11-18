@@ -4,7 +4,7 @@
 /** \class PyquenProducer
  *
  * Generates PYTHIA+PYQUEN ==> HepMC events
- * $Id: PyquenProducer.h,v 1.6 2007/10/05 15:21:52 loizides Exp $
+ * $Id: PyquenProducer.h,v 1.1 2008/04/09 19:02:37 marafino Exp $
  *
  * Camelia Mironov                                  
  *   for the Generator Interface. March 2007
@@ -46,6 +46,8 @@ namespace edm
                                               //! DEFAULT= 0 -- small angular emitted gluon spectrum
                                               //!        = 1 -- broad angular emitted gluon spectrum
                                               //!        = 2 -- collinear angular emitted gluon spectrum
+    double           bmin_;    
+    double           bmax_;
     double           bfixed_;                 //! fixed impact param (fm); valid only if cflag_=0
     int              cflag_;                  //! centrality flag =0 fixed impact param, <>0 minbias
     double           comenergy;               //! collision energy  

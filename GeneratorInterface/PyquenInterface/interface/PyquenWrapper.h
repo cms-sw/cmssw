@@ -4,7 +4,7 @@
 /*
  *
  * Wrapper for FORTRAN version of PYQUEN
- * $Id:$
+ * $Id: PyquenWrapper.h,v 1.4 2007/10/05 15:21:52 loizides Exp $
  *
  * Camelia Mironov
  *
@@ -13,7 +13,7 @@
 // PYQUEN routine declaration
 
 extern "C" {
-  void pyquen_(double& a,int& ifb,double& bfix);
+  void pyquen_(double& a,int& ifb,double& bfix,double& bmin, double& bmax);
 }
 #define PYQUEN pyquen_ 
 

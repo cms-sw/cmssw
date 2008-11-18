@@ -3,7 +3,7 @@
  * Generates PYQUEN HepMC events
  *
  * Original Author: Camelia Mironov
- * $Id: PyquenProducer.cc,v 1.1 2008/04/09 19:02:38 marafino Exp $
+ * $Id: PyquenProducer.cc,v 1.2 2008/04/21 16:51:48 yilmaz Exp $
 */
 
 #include <iostream>
@@ -35,6 +35,8 @@ PyquenProducer :: PyquenProducer(const ParameterSet & pset):
 EDProducer(), evt(0), 
 abeamtarget_(pset.getParameter<double>("aBeamTarget")),
 angularspecselector_(pset.getParameter<int>("angularSpectrumSelector")),
+bmin_(pset.getParameter<double>("bMin")),
+bmax_(pset.getParameter<double>("bMax")),
 bfixed_(pset.getParameter<double>("bFixed")),
 cflag_(pset.getParameter<int>("cFlag")),
 comenergy(pset.getParameter<double>("comEnergy")),
@@ -153,7 +155,7 @@ void PyquenProducer::produce(Event & e, const EventSetup& es)
   // call PYQUEN to apply parton rescattering and energy loss 
   // if doQuench=FALSE, it is pure PYTHIA
   if( doquench_ ){
-    PYQUEN(abeamtarget_,cflag_,bfixed_);
+    PYQUEN(abeamtarget_,cflag_,bfixed_,bmin_,bmax_);
     edm::LogInfo("PYQUENinAction") << "##### Calling PYQUEN("<<abeamtarget_<<","<<cflag_<<","<<bfixed_<<") ####";
   } else {
     edm::LogInfo("PYQUENinAction") << "##### Calling PYQUEN: QUENCHING OFF!! This is just PYTHIA !!!! ####";

@@ -18,7 +18,7 @@
 *                   
 *======================================================================
 
-      SUBROUTINE PYQUEN(A,ifb,bfix)
+      SUBROUTINE PYQUEN(A,ifb,bfix,bmin,bmax)
       IMPLICIT DOUBLE PRECISION(A-H, O-Z)
       IMPLICIT INTEGER(I-N)
       INTEGER PYK,PYCHGE,PYCOMP
@@ -99,13 +99,15 @@
        end if 
        b1=bfix  
       else      
-       call bipsear(fmax1,xmin1) 
+ 112   call bipsear(fmax1,xmin1) 
        fmax=fmax1 
        xmin=xmin1    
  11    bb1=xmin*pyr(0) 
        ff1=fmax*pyr(0) 
        fb=funbip(bb1) 
        if(ff1.gt.fb) goto 11    
+       if(bb1.gt.bmax) goto 112
+       if(bb1.lt.bmin) goto 112
        b1=bb1  
       end if  
       bgen=b1 

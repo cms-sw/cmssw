@@ -28,7 +28,9 @@ source = cms.Source("PyquenSource",
     numQuarkFlavor = cms.int32(0), ## number of active quark flavors in qgp; allowed values: 0,1,2,3
 
     cFlag = cms.int32(0), ## centrality flag
-
+    bMin = cms.double(0.0), ## min impact param (fm); valid only if cflag_!=0
+    bMax = cms.double(0.0), ## max impact param (fm); valid only if cflag_!=0
+                    
     maxEventsToPrint = cms.untracked.int32(0), ## events to print if pythiaPylistVerbosit
 
     aBeamTarget = cms.double(207.0), ## beam/target atomic number
