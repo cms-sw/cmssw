@@ -109,9 +109,8 @@ HLTPi0RecHitsFilter::HLTPi0RecHitsFilter(const edm::ParameterSet& iConfig)
   seleMinvMinPi0EndCap_ = iConfig.getParameter<double> ("seleMinvMinPi0EndCap");  
   ptMinForIsolationEndCap_ = iConfig.getParameter<double> ("ptMinForIsolationEndCap");
   selePi0IsoEndCap_ = iConfig.getParameter<double> ("selePi0IsoEndCap");  
-    
-  
-  doSelForEtaBarrel_ = iConfig.getUntrackedParameter<bool>("doSelForEtaBarrel",false);  
+
+  doSelForEtaBarrel_ = iConfig.getParameter<bool>("doSelForEtaBarrel");  
   if(doSelForEtaBarrel_ == true){
     ///for Eta barrel selection
     selePtGammaEta_ = iConfig.getParameter<double> ("selePtGammaEta");  
@@ -124,14 +123,13 @@ HLTPi0RecHitsFilter::HLTPi0RecHitsFilter(const edm::ParameterSet& iConfig)
     seleEtaBeltDR_ = iConfig.getParameter<double> ("seleEtaBeltDR");  
     seleEtaBeltDeta_ = iConfig.getParameter<double> ("seleEtaBeltDeta");  
     storeIsoClusRecHitEta_ = iConfig.getParameter<bool> ("storeIsoClusRecHitEta");
-    removePi0CandidatesForEta_ = iConfig.getParameter<bool>("removePi0Candidates");
+    removePi0CandidatesForEta_ = iConfig.getParameter<bool>("removePi0CandidatesForEta");
     if(removePi0CandidatesForEta_){
       massLowPi0Cand_ = iConfig.getParameter<double>("massLowPi0Cand");
       massHighPi0Cand_ = iConfig.getParameter<double>("massHighPi0Cand");
     }
     
   }
-  
   
   
 
