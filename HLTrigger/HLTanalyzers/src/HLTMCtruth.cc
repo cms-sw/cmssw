@@ -33,6 +33,7 @@ void HLTMCtruth::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
 
   const int kMaxMcTruth = 10000;
   mcpid = new int[kMaxMcTruth];
+  mcstatus = new int[kMaxMcTruth];
   mcvx = new float[kMaxMcTruth];
   mcvy = new float[kMaxMcTruth];
   mcvz = new float[kMaxMcTruth];
@@ -43,6 +44,7 @@ void HLTMCtruth::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
   // MCtruth-specific branches of the tree 
   HltTree->Branch("NMCpart",&nmcpart,"NMCpart/I");
   HltTree->Branch("MCpid",mcpid,"MCpid[NMCpart]/I");
+  HltTree->Branch("MCstatus",mcstatus,"MCstatus[NMCpart]/I");
   HltTree->Branch("MCvtxX",mcvx,"MCvtxX[NMCpart]/F");
   HltTree->Branch("MCvtxY",mcvy,"MCvtxY[NMCpart]/F");
   HltTree->Branch("MCvtxZ",mcvz,"MCvtxZ[NMCpart]/F");
@@ -91,6 +93,7 @@ void HLTMCtruth::analyze(const edm::Handle<CandidateView> & mctruth,
 	const Candidate & p = (*mctruth)[i];
 
 	mcpid[nmc] = p.pdgId();
+	mcstatus[nmc] = p.status();
 	mcpt[nmc] = p.pt();
 	mceta[nmc] = p.eta();
 	mcphi[nmc] = p.phi();
