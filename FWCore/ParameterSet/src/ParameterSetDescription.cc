@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Jul 31 15:30:35 EDT 2007
-// $Id: ParameterSetDescription.cc,v 1.4 2008/11/14 19:41:23 wdd Exp $
+// $Id: ParameterSetDescription.cc,v 1.5 2008/11/18 15:10:39 wdd Exp $
 //
 
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -71,8 +71,24 @@ namespace edm {
         }
       }
       if (!foundMatchingParameter) {
+        // prepare an error message and throw
+        Entry const* entry = pset.retrieveUnknown(parameterName);
+
+        std::string tr;
+        if (entry->isTracked()) tr = std::string("as a tracked");
+        else tr = std::string("as an untracked");
+
+        ParameterTypes type = static_cast<ParameterTypes>(entry->typeCode());
+        
+
         throw edm::Exception(errors::Configuration)
-          << "Unexpected parameter \"" << parameterName << "\" was defined.  It could be a typo";
+          << "Illegal parameter found in configuration.  It is named \"" 
+          << parameterName << "\"\n"
+          << "and defined " << tr 
+          << " " << parameterTypeEnumToString(type) << ".\n"
+          << "You could be trying to use a parameter name that is not\n"
+          << "allowed for this module.  Or it could be mispelled, of\n"
+          << "the wrong type, or incorrectly declared tracked or untracked.\n";
       }
     }
   }
