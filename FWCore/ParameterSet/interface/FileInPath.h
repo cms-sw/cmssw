@@ -1,7 +1,6 @@
 #ifndef FWCore_ParameterSet_FileInPath_h
 #define FWCore_ParameterSet_FileInPath_h
 
-/// $Id: FileInPath.h,v 1.9 2007/06/14 04:55:59 wmtan Exp $
 ///
 
 /// Find a non-event-data file, given a relative path.
@@ -87,6 +86,7 @@ namespace edm
 
     FileInPath(FileInPath const& other);
     FileInPath& operator=( FileInPath const& other);
+    ~FileInPath();
     void swap(FileInPath& other);
 
     /// Return a string containing the canonical form of the

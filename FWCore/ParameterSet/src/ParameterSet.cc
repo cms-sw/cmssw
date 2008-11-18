@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------
-// $Id: ParameterSet.cc,v 1.36 2007/11/11 00:24:43 wmtan Exp $
+// $Id: ParameterSet.cc,v 1.37 2008/11/14 19:41:23 wdd Exp $
 //
 // definition of ParameterSet's function members
 // ----------------------------------------------------------------------
@@ -56,6 +56,7 @@ namespace edm {
     validate();
   }
 
+  ParameterSet::~ParameterSet() {}
 
   // ----------------------------------------------------------------------
   // identification

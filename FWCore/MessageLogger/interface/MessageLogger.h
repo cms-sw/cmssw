@@ -15,7 +15,7 @@
 //         Created:  Fri Nov 11 16:38:19 CST 2005
 //     Major Split:  Tue Feb 14 11:00:00 CST 2006
 //		     See MessageService/interface/MessageLogger.h
-// $Id: MessageLogger.h,v 1.29 2008/06/24 20:31:40 fischler Exp $
+// $Id: MessageLogger.h,v 1.30 2008/09/12 14:33:34 eulisse Exp $
 //
 // =================================================
 // Change log
@@ -86,6 +86,7 @@ public:
   explicit LogWarning( std::string const & id ) 
     : ap ( edm::MessageDrop::instance()->warningEnabled ? new MessageSender(ELwarning,id) : 0 )
   { }
+  ~LogWarning();
 
   template< class T >
     LogWarning & 
@@ -108,6 +109,7 @@ public:
   explicit LogError( std::string const & id ) 
     : ap( new MessageSender(ELerror,id) )
   { }
+  ~LogError();
 
   template< class T >
     LogError & 
@@ -131,6 +133,7 @@ public:
   explicit LogSystem( std::string const & id ) 
     : ap( new MessageSender(ELsevere,id) )
   { }
+  ~LogSystem();
 
   template< class T >
     LogSystem & 
@@ -154,6 +157,7 @@ public:
   explicit LogInfo( std::string const & id ) 
     : ap ( edm::MessageDrop::instance()->infoEnabled ? new MessageSender(ELinfo,id) : 0 )
   { }
+  ~LogInfo();
 
   template< class T >
     LogInfo & 
@@ -178,6 +182,7 @@ public:
   explicit LogVerbatim( std::string const & id ) 
     : ap( new MessageSender(ELinfo,id,true) ) // the true is the verbatim arg 
   { }
+  ~LogVerbatim(); 
 
   template< class T >
     LogVerbatim & 
@@ -202,6 +207,7 @@ public:
   explicit LogPrint( std::string const & id ) 
     : ap( new MessageSender(ELwarning,id,true) ) // the true is the Print arg 
   { }
+  ~LogPrint(); 
 
   template< class T >
     LogPrint & 
@@ -227,6 +233,7 @@ public:
   explicit LogProblem( std::string const & id ) 
     : ap( new MessageSender(ELerror,id,true) )
   { }
+  ~LogProblem(); 
 
   template< class T >
     LogProblem & 
@@ -251,6 +258,7 @@ public:
   explicit LogImportant( std::string const & id ) 
     : ap( new MessageSender(ELerror,id,true) )
   { }
+  ~LogImportant(); 
 
   template< class T >
     LogImportant & 
@@ -275,6 +283,7 @@ public:
   explicit LogAbsolute( std::string const & id ) 
     : ap( new MessageSender(ELsevere,id,true) )
   { }
+  ~LogAbsolute(); 
 
   template< class T >
     LogAbsolute & 
@@ -309,6 +318,8 @@ public:
 	  << ":" << line << "\n"; }
 								
   explicit LogDebug_()  : ap(), debugEnabled(false) {}		// Change log 8	
+  ~LogDebug_(); 
+
   template< class T >
     LogDebug_ & 
     operator<< (T const & t)  
@@ -348,6 +359,8 @@ public:
     , debugEnabled(true) 					// Change log 8
   {  }
   explicit LogTrace_()  : ap(), debugEnabled(false) {}		// Change log 8	
+  ~LogTrace_(); 
+
   template< class T >
     LogTrace_ & 
     operator<< (T const & t)  

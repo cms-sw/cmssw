@@ -2,7 +2,7 @@
 #define FWCore_ParameterSet_ParameterSet_h
 
 // ----------------------------------------------------------------------
-// $Id: ParameterSet.h,v 1.44 2008/05/27 19:28:58 rpw Exp $
+// $Id: ParameterSet.h,v 1.45 2008/11/14 19:41:22 wdd Exp $
 //
 // Declaration for ParameterSet(parameter set) and related types
 // ----------------------------------------------------------------------
@@ -35,6 +35,8 @@ namespace edm {
 
     // construct from coded string
     explicit ParameterSet(std::string const&);
+
+    ~ParameterSet();
 
     // identification
     ParameterSetID id() const;

@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------
-// $Id: Entry.cc,v 1.29 2008/03/04 22:44:00 rpw Exp $
+// $Id: Entry.cc,v 1.30 2008/03/12 19:56:47 wmtan Exp $
 //
 // definition of Entry's function members
 // ----------------------------------------------------------------------
@@ -70,6 +70,9 @@ namespace edm {
 
   static const edm::pset::TypeTrans sTypeTranslations;
   typedef std::map<std::string, char> Type2Code;
+
+  Entry::~Entry() {}
+
 // ----------------------------------------------------------------------
 // consistency-checker
 // ----------------------------------------------------------------------

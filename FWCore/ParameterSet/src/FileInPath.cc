@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------
-// $Id: FileInPath.cc,v 1.23 2008/04/24 20:37:54 wmtan Exp $
+// $Id: FileInPath.cc,v 1.24 2008/11/05 14:41:43 wmtan Exp $
 //
 // ----------------------------------------------------------------------
 
@@ -126,6 +126,8 @@ namespace edm
     dataTop_(other.dataTop_),
     searchPath_(other.searchPath_)
   {}
+
+  FileInPath::~FileInPath() {}
 
   FileInPath&
   FileInPath::operator=(FileInPath const& other)

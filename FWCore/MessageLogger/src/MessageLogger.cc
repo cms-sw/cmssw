@@ -20,6 +20,18 @@
 
 namespace edm {
 
+LogInfo::~LogInfo() {}
+LogWarning::~LogWarning() {}
+LogError::~LogError() {}
+LogAbsolute::~LogAbsolute() {}
+LogSystem::~LogSystem() {}
+LogVerbatim::~LogVerbatim() {}
+LogDebug_::~LogDebug_() {}
+LogTrace_::~LogTrace_() {}
+LogPrint::~LogPrint() {}
+LogProblem::~LogProblem() {}
+LogImportant::~LogImportant() {}
+
 void LogStatistics() { 
   edm::MessageLoggerQ::MLqSUM ( ); // trigger summary info
 }
