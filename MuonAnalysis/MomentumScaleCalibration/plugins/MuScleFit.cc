@@ -1,8 +1,8 @@
 //  \class MuScleFit
 //  Analyzer of the StandAlone muon tracks
 //
-//  $Date: 2008/11/11 15:50:11 $
-//  $Revision: 1.12 $
+//  $Date: 2008/11/13 14:34:53 $
+//  $Revision: 1.13 $
 //  \author R. Bellan, C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo, M.De Mattia - INFN Padova
 //
 //  Recent additions: 
@@ -184,7 +184,10 @@ MuScleFit::MuScleFit (const ParameterSet& pset) {
   int scaleType = pset.getParameter<int>("ScaleFitType");
   MuScleFitUtils::ScaleFitType = scaleType;
   MuScleFitUtils::scaleFunction = scaleFunctionArray[scaleType];
-  MuScleFitUtils::BgrFitType   = pset.getParameter<int>("BgrFitType");
+  MuScleFitUtils::scaleFunctionForVec = scaleFunctionArrayForVec[scaleType];
+  int backgroundType = pset.getParameter<int>("BgrFitType");
+  MuScleFitUtils::BgrFitType   = backgroundType;
+  MuScleFitUtils::backgroundFunction = backgroundFunctionArray[backgroundType];
 
   // Initial parameters values
   // -------------------------

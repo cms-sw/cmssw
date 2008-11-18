@@ -1,7 +1,7 @@
 /** See header file for a class description 
  *
- *  $Date: 2008/11/11 15:50:11 $
- *  $Revision: 1.12 $
+ *  $Date: 2008/11/13 14:34:53 $
+ *  $Revision: 1.13 $
  *  \author S. Bolognesi - INFN Torino / T. Dorigo, M.De Mattia - INFN Padova
  */
 // Some notes:
@@ -114,7 +114,9 @@ resolutionFunctionBase<double *> * MuScleFitUtils::resolutionFunction = 0;
 resolutionFunctionBase<vector<double> > * MuScleFitUtils::resolutionFunctionForVec = 0;
 int MuScleFitUtils::ScaleFitType = 0;
 scaleFunctionBase<double*> * MuScleFitUtils::scaleFunction = 0;
+scaleFunctionBase<vector<double> > * MuScleFitUtils::scaleFunctionForVec = 0;
 int MuScleFitUtils::BgrFitType   = 0;
+backgroundFunctionBase * MuScleFitUtils::backgroundFunction = 0;
 vector<double> MuScleFitUtils::parBias;
 vector<double> MuScleFitUtils::parSmear;
 vector<double> MuScleFitUtils::parResol;
@@ -812,7 +814,7 @@ double MuScleFitUtils::massProb (double mass, double massResol, double * parval)
   // ------------------------------------------------
   double PS[6] = {0.};
   bool resConsidered[6] = {false};
-  double nres = 0;  // number of resonances contributing here
+  int nres = 0;  // number of resonances contributing here
   for (int ires=0; ires<6; ires++) {
     if (resfind[ires]>0 && fabs(mass-ResMass[ires])<ResHalfWidth[ires][MuonType]) {
 
@@ -900,6 +902,12 @@ double MuScleFitUtils::massProb (double mass, double massResol, double * parval)
   }
 
   double PB = 0.;
+  // Uncomment this two lines and comment all the next part (up to PStot excluded) to use the background functions defined in Functions.h
+  // ATTENTION: the functions depend strongly from the second size of the resHalfWidth[][3]. If it is changed, also the functions must be changed.
+  // Cannot call directly passing a double ** because of the declaration of directly as 2D array resHalfWidth[][]. Workaround needed.
+  // int resTotNum = 6;
+  // PB = (*backgroundFunction)( &(parval[shift]), resTotNum, nres, resConsidered, ResMass, ResHalfWidth, MuonType, mass, nbins );
+
   Bgrp1 = parval[shift];
   if (BgrFitType==1) { // Constant
     // This is a constant normalized to unity in the span of the window (1000 bins in mass)
@@ -1050,7 +1058,17 @@ void MuScleFitUtils::minimizeLikelihood () {
   double * Maxi  = new double[parnumber];
   int * ind = new int[parnumber]; // Order of release of parameters 
   TString * parname = new TString[parnumber];
+
+  MuScleFitUtils::resolutionFunctionForVec->setParameters( Start, Step, Mini, Maxi, ind, parname, parResol, parResolOrder, MuonType );
+
+  // Take the number of parameters in the resolutionFunction and displace the arrays passed to the scaleFunction
+  int resParNum = MuScleFitUtils::resolutionFunctionForVec->parNum();
+
+  MuScleFitUtils::scaleFunctionForVec->setParameters( &(Start[resParNum]), &(Step[resParNum]), &(Mini[resParNum]), &(Maxi[resParNum]),
+                                                      &(ind[resParNum]), &(parname[resParNum]), parScale, parScaleOrder, MuonType );
+
   setLikeParameters (Start, Step, Mini, Maxi, ind, parname);
+
   for (int ipar=0; ipar<parnumber; ipar++) {
     rmin.mnparm (ipar, parname[ipar], Start[ipar], Step[ipar], Mini[ipar], Maxi[ipar], ierror);
   }
@@ -1247,7 +1265,13 @@ void MuScleFitUtils::minimizeLikelihood () {
     parBgr[i] = parvalue[loopCounter][i+parResol.size()+parScale.size()];
   }
 
-
+  // Delete the arrays used to set some parameters
+  delete[] Start;
+  delete[] Step;
+  delete[] Mini;
+  delete[] Maxi;
+  delete[] ind;
+  delete[] parname;
 }
 
 // Likelihood function
@@ -1359,845 +1383,845 @@ void MuScleFitUtils::setLikeParameters (double* Start, double* Step, double* Min
   // regardless of the value of "parameters", which is used as a bias
   // or smearing of initial muon values.
   // ----------------------------------------------------------------
-  if (ResolFitType==1) {
-    Start[0]   = parResol[0]; // 0.01
-    Start[1]   = parResol[1]; // 0.01
-    Start[2]   = parResol[2]; // 0.01
-    Step[0]    = 0.001;
-    Step[1]    = 0.001;
-    Step[2]    = 0.001;
-    Mini[0]    = 0.0;
-    Mini[1]    = 0.0;
-    Mini[2]    = 0.0;
-    if (MuonType==1) {
-      Maxi[0]    = 0.4;
-      Maxi[1]    = 0.4;
-      Maxi[2]    = 0.4;
-    } else {
-      Maxi[0]    = 0.01;
-      Maxi[1]    = 0.02;
-      Maxi[2]    = 0.02;
-//       Maxi[0]    = 2;
-//       Maxi[1]    = 2;
-//       Maxi[2]    = 2;
-    }
-    ind[0]     = parResolOrder[0];
-    ind[1]     = parResolOrder[1];
-    ind[2]     = parResolOrder[2];
-    parname[0] = "Pt res. sc.";
-    parname[1] = "Phi res. sc.";
-    parname[2] = "Cotgth res. sc.";
-  } else if (ResolFitType==2) {
-    Start[0]   = parResol[0]; // 1.0; 
-    Start[1]   = parResol[1]; // 1.0;
-    Start[2]   = parResol[2]; // 1.0;
-    Start[3]   = parResol[3]; // 1.0;
-    Step[0]    = 0.001;
-    Step[1]    = 0.001;
-    Step[2]    = 0.001;
-    Step[3]    = 0.001;
-    Mini[0]    = 0.0;
-    Mini[1]    = 0.0;
-    Mini[2]    = 0.0;
-    Mini[3]    = 0.0;
-    if (MuonType==1) {
-      Maxi[0]    = 1.0;
-      Maxi[1]    = 1.0;
-      Maxi[2]    = 1.0;
-      Maxi[3]    = 1.0;
-    } else {
-      Maxi[0]    = 0.01;
-      Maxi[1]    = 0.02;
-      Maxi[2]    = 0.02;
-      Maxi[3]    = 0.02;
-    }
-    ind[0]     = parResolOrder[0];
-    ind[1]     = parResolOrder[1];
-    ind[2]     = parResolOrder[2];
-    ind[3]     = parResolOrder[3];
-    parname[0] = "Pt res. Pt sc";
-    parname[1] = "Pt res. eta sc";
-    parname[2] = "Phi res. sc";
-    parname[3] = "Cot(th) res. sc";
-  } else if (ResolFitType==3) {
-    Start[0]   = parResol[0]; // 0.001; 
-    Start[1]   = parResol[1]; // 0.001;
-    Start[2]   = parResol[2]; // 0.001;
-    Start[3]   = parResol[3]; // 0.001;
-    Start[4]   = parResol[4]; // 0.001;
-    Step[0]    = 0.001;
-    Step[1]    = 0.001;
-    Step[2]    = 0.001;
-    Step[3]    = 0.001;
-    Step[4]    = 0.001;
-    Mini[0]    = 0.0;
-    Mini[1]    = 0.0;
-    Mini[2]    = 0.0;
-    Mini[3]    = 0.0;
-    Mini[4]    = 0.0;
-    if (MuonType==1) {
-      Maxi[0]    = 1.0;
-      Maxi[1]    = 1.0;
-      Maxi[2]    = 1.0;
-      Maxi[3]    = 1.0;
-      Maxi[4]    = 1.0;
-    } else {
-      Maxi[0]    = 0.1;
-      Maxi[1]    = 0.2;
-      Maxi[2]    = 0.2;
-      Maxi[3]    = 0.2;
-      Maxi[4]    = 0.2;
-    }
-    ind[0]     = parResolOrder[0];
-    ind[1]     = parResolOrder[1];
-    ind[2]     = parResolOrder[2];
-    ind[3]     = parResolOrder[3];
-    ind[4]     = parResolOrder[4];
-    parname[0] = "Pt res. Pt sc.";
-    parname[1] = "Pt res. eta sc.";
-    parname[2] = "Phi res. sc.";
-    parname[3] = "Cth res. sc.";
-    parname[4] = "Cth res. eta sc.";
-  } else if (ResolFitType==4) {
-    Start[0]   = parResol[0]; // 0.001
-    Start[1]   = parResol[1]; // 0.001
-    Start[2]   = parResol[2]; // 0.001
-    Start[3]   = parResol[3]; // 0.001
-    Start[4]   = parResol[4]; // 0.001
-    Start[5]   = parResol[5]; // 0.000001
-    Step[0]    = 0.001;
-    Step[1]    = 0.001;
-    Step[2]    = 0.001;
-    Step[3]    = 0.001;
-    Step[4]    = 0.001;
-    Step[5]    = 0.000001;
-    Mini[0]    = 0.0;
-    Mini[1]    = 0.0;
-    Mini[2]    = 0.0;
-    Mini[3]    = 0.0;
-    Mini[4]    = 0.0;
-    Mini[5]    = 0.0;
-    if (MuonType==1) {
-      Maxi[0]    = 1.;
-      Maxi[1]    = 1.;
-      Maxi[2]    = 1.;
-      Maxi[3]    = 1.;
-      Maxi[4]    = 1.;
-      Maxi[5]    = 0.1;
-    } else {
-      Maxi[0]    = 0.01;
-      Maxi[1]    = 0.02;
-      Maxi[2]    = 0.02;
-      Maxi[3]    = 0.02;
-      Maxi[4]    = 0.02;
-      Maxi[5]    = 0.0002;
-    }
-    ind[0]     = parResolOrder[0];
-    ind[1]     = parResolOrder[1];
-    ind[2]     = parResolOrder[2];
-    ind[3]     = parResolOrder[3];
-    ind[4]     = parResolOrder[4];
-    ind[5]     = parResolOrder[5];
-    parname[0] = "Pt res. Pt sc.";
-    parname[1] = "Pt res. eta sc.";
-    parname[2] = "Phi res. sc.";
-    parname[3] = "Cth res. sc.";
-    parname[4] = "Cth res. eta sc.";
-    parname[5] = "Pt res. Pt^2 sc.";
-  } else if (ResolFitType==5) {
-    Start[0]   = parResol[0]; // 0.001
-    Start[1]   = parResol[1]; // 0.001
-    Start[2]   = parResol[2]; // 0.001
-    Start[3]   = parResol[3]; // 0.001
-    Start[4]   = parResol[4]; // 0.001
-    Start[5]   = parResol[5]; // 0.000001
-    Start[6]   = parResol[6]; // 0.001
-    Step[0]    = 0.001;
-    Step[1]    = 0.001;
-    Step[2]    = 0.001;
-    Step[3]    = 0.001;
-    Step[4]    = 0.001;
-    Step[5]    = 0.000001;
-    Step[6]    = 0.001;
-    Mini[0]    = 0.0;
-    Mini[1]    = 0.0;
-    Mini[2]    = 0.0;
-    Mini[3]    = 0.0;
-    Mini[4]    = 0.0;
-    Mini[5]    = 0.0;
-    Mini[6]    = 0.0;
-    if (MuonType==1) {
-      Maxi[0]    = 1.;
-      Maxi[1]    = 1.;
-      Maxi[2]    = 1.;
-      Maxi[3]    = 1.;
-      Maxi[4]    = 1.;
-      Maxi[5]    = 0.1;
-      Maxi[6]    = 1.;
-    } else {
-      Maxi[0]    = 0.01;
-      Maxi[1]    = 0.02;
-      Maxi[2]    = 0.02;
-      Maxi[3]    = 0.02;
-      Maxi[4]    = 0.02;
-      Maxi[5]    = 0.0002;
-      Maxi[6]    = 0.02;
-    }
-    ind[0]     = parResolOrder[0];
-    ind[1]     = parResolOrder[1];
-    ind[2]     = parResolOrder[2];
-    ind[3]     = parResolOrder[3];
-    ind[4]     = parResolOrder[4];
-    ind[5]     = parResolOrder[5];
-    ind[6]     = parResolOrder[6];
-    parname[0] = "Pt res. Pt sc.";
-    parname[1] = "Pt res. eta sc.";
-    parname[2] = "Phi res. sc.";
-    parname[3] = "Cth res. sc.";
-    parname[4] = "Cth res. eta sc.";
-    parname[5] = "Pt res. Pt^2 sc.";
-    parname[6] = "Phi res. pt sc.";
-  } else if (ResolFitType==6) {
-    Start[0]   = parResol[0]; // 0.001
-    Start[1]   = parResol[1]; // 0.001
-    Start[2]   = parResol[2]; // 0.001
-    Start[3]   = parResol[3]; // 0.001
-    Start[4]   = parResol[4]; // 0.001
-    Start[5]   = parResol[5]; // 0.000001
-    Start[6]   = parResol[6]; // 0.001
-    Start[7]   = parResol[7]; // 0.001
-    Start[8]   = parResol[8]; // 0.001
-    Start[9]   = parResol[9]; // 0.001
-    Start[10]  = parResol[10]; // 0.001
-    Start[11]  = parResol[11]; // 0.001
-    Start[12]  = parResol[12]; // 0.001
-    Start[13]  = parResol[13]; // 0.001
-    Start[14]  = parResol[14]; // 0.001
-    Step[0]    = 0.005;
-    Step[1]    = 0.0005;
-    Step[2]    = 0.000005;
-    Step[3]    = 0.00000005;
-    Step[4]    = 0.0000000005;
-    Step[5]    = 0.0005;
-    Step[6]    = 0.000005;
-    Step[7]    = 0.000005;
-    Step[8]    = 0.0005;
-    Step[9]    = 0.00000005;
-    Step[10]   = 0.0000005;
-    Step[11]   = 0.00005;
-    Step[12]   = 0.0005;
-    Step[13]   = 0.00000005;
-    Step[14]   = 0.000005;
-    Mini[0]    = 0.0;
-    Mini[1]    = -0.01;
-    Mini[2]    = -0.001;
-    Mini[3]    = -0.01;
-    Mini[4]    = -0.001;
-    Mini[5]    = -0.001;
-    Mini[6]    = -0.001;
-    Mini[7]    = 0.0;
-    Mini[8]    = 0.0;
-    Mini[9]    = -0.001;
-    Mini[10]   = -0.001;
-    Mini[11]   = 0.0;
-    Mini[12]   = 0.0;
-    Mini[13]   = -0.001;
-    Mini[14]   = -0.001;
-    if (MuonType==1) {
-      Maxi[0]    = 1.;
-      Maxi[1]    = 1.;
-      Maxi[2]    = 1.;
-      Maxi[3]    = 1.;
-      Maxi[4]    = 1.;
-      Maxi[5]    = 1.;
-      Maxi[6]    = 1.;
-      Maxi[7]    = 0.1;
-      Maxi[8]    = 1.;
-      Maxi[9]    = 1.;
-      Maxi[10]   = 1.;
-      Maxi[11]   = 1.;
-      Maxi[12]   = 1.;
-      Maxi[13]   = 1.;
-      Maxi[14]   = 1.;
-    } else {
-      Maxi[0]    = 0.1;
-      Maxi[1]    = 0.01;
-      Maxi[2]    = 0.01;
-      Maxi[3]    = 0.01;
-      Maxi[4]    = 0.01;
-      Maxi[5]    = 0.01;
-      Maxi[6]    = 0.1;
-      Maxi[7]    = 0.01;
-      Maxi[8]    = 0.01;
-      Maxi[9]    = 0.01;
-      Maxi[10]   = 0.01;
-      Maxi[11]   = 0.01;
-      Maxi[12]   = 0.01;
-      Maxi[13]   = 0.01;
-      Maxi[14]   = 0.01;
-    }
-    ind[0]      = parResolOrder[0];
-    ind[1]      = parResolOrder[1];
-    ind[2]      = parResolOrder[2];
-    ind[3]      = parResolOrder[3];
-    ind[4]      = parResolOrder[4];
-    ind[5]      = parResolOrder[5];
-    ind[6]      = parResolOrder[6];
-    ind[7]      = parResolOrder[7];
-    ind[8]      = parResolOrder[8];
-    ind[9]      = parResolOrder[9];
-    ind[10]     = parResolOrder[10];
-    ind[11]     = parResolOrder[11];
-    ind[12]     = parResolOrder[12];
-    ind[13]     = parResolOrder[13];
-    ind[14]     = parResolOrder[14];
-    parname[0]  = "Pt res. sc.";
-    parname[1]  = "Pt res. Pt sc.";
-    parname[2]  = "Pt res. Pt^2 sc.";
-    parname[3]  = "Pt res. Pt^3 sc.";
-    parname[4]  = "Pt res. Pt^4 sc.";
-    parname[5]  = "Pt res. Eta sc.";
-    parname[6]  = "Pt res. Eta^2 sc.";
-    parname[7]  = "Cth res. sc.";
-    parname[8]  = "Cth res. 1/Pt sc.";
-    parname[9]  = "Cth res. Eta sc.";
-    parname[10] = "Cth res. Eta^2 sc.";
-    parname[11] = "Phi res. sc.";
-    parname[12] = "Phi res. 1/Pt sc.";
-    parname[13] = "Phi res. Eta sc.";
-    parname[14] = "Phi res. Eta^2 sc.";
-  } else if (ResolFitType==7) {
-    Start[0]   = parResol[0]; // 0.001
-    Start[1]   = parResol[1]; // 0.001
-    Start[2]   = parResol[2]; // 0.001
-    Start[3]   = parResol[3]; // 0.001
-    Start[4]   = parResol[4]; // 0.001
-    Start[5]   = parResol[5]; // 0.000001
-    Start[6]   = parResol[6]; // 0.001
-    Start[7]   = parResol[7]; // 0.001
-    Start[8]   = parResol[8]; // 0.001
-    Start[9]   = parResol[9]; // 0.001
-    Start[10]  = parResol[10]; // 0.001
-    Start[11]  = parResol[11]; // 0.001
-    Step[0]    = 0.002;
-    Step[1]    = 0.00002;
-    Step[2]    = 0.000002;
-    Step[3]    = 0.0002;
-    Step[4]    = 0.00002;
-    Step[5]    = 0.0002;
-    Step[6]    = 0.0000002;
-    Step[7]    = 0.000002;
-    Step[8]    = 0.00002;
-    Step[9]    = 0.0002;
-    Step[10]   = 0.00000002;
-    Step[11]   = 0.000002;
-    Mini[0]    = 0.0;
-    Mini[1]    = -0.01;
-    Mini[2]    = -0.001;
-    Mini[3]    = -0.0001;
-    Mini[4]    = 0.0;
-    Mini[5]    = -0.001;
-    Mini[6]    = -0.001;
-    Mini[7]    = -0.00001;
-    Mini[8]    = 0.0;
-    Mini[9]    = -0.001;
-    Mini[10]   = -0.0001;
-    Mini[11]   = -0.0001;
-    if (MuonType==1) {
-      Maxi[0]    = 1.;
-      Maxi[1]    = 1.;
-      Maxi[2]    = 1.;
-      Maxi[3]    = 1.;
-      Maxi[4]    = 1.;
-      Maxi[5]    = 1.;
-      Maxi[6]    = 1.;
-      Maxi[7]    = 0.1;
-      Maxi[8]    = 1.;
-      Maxi[9]    = 1.;
-      Maxi[10]   = 1.;
-      Maxi[11]   = 1.;
-    } else {
-      Maxi[0]    = 0.1;
-      Maxi[1]    = 0.01;
-      Maxi[2]    = 0.01;
-      Maxi[3]    = 0.01;
-      Maxi[4]    = 0.01;
-      Maxi[5]    = 0.01;
-      Maxi[6]    = 0.1;
-      Maxi[7]    = 0.01;
-      Maxi[8]    = 0.01;
-      Maxi[9]    = 0.01;
-      Maxi[10]   = 0.01;
-      Maxi[11]   = 0.01;
-    }
-    ind[0]      = parResolOrder[0];
-    ind[1]      = parResolOrder[1];
-    ind[2]      = parResolOrder[2];
-    ind[3]      = parResolOrder[3];
-    ind[4]      = parResolOrder[4];
-    ind[5]      = parResolOrder[5];
-    ind[6]      = parResolOrder[6];
-    ind[7]      = parResolOrder[7];
-    ind[8]      = parResolOrder[8];
-    ind[9]      = parResolOrder[9];
-    ind[10]     = parResolOrder[10];
-    ind[11]     = parResolOrder[11];
-    parname[0]  = "Pt res. sc.";
-    parname[1]  = "Pt res. Pt sc.";
-    parname[2]  = "Pt res. Eta sc.";
-    parname[3]  = "Pt res. Eta^2 sc.";
-    parname[4]  = "Cth res. sc.";
-    parname[5]  = "Cth res. 1/Pt sc.";
-    parname[6]  = "Cth res. Eta sc.";
-    parname[7]  = "Cth res. Eta^2 sc.";
-    parname[8]  = "Phi res. sc.";
-    parname[9]  = "Phi res. 1/Pt sc.";
-    parname[10] = "Phi res. Eta sc.";
-    parname[11] = "Phi res. Eta^2 sc.";
-  } else if (ResolFitType==8) {
-    Start[0]   = parResol[0]; // 0.001
-    Start[1]   = parResol[1]; // 0.001
-    Start[2]   = parResol[2]; // 0.001
-    Start[3]   = parResol[3]; // 0.001
-    Start[4]   = parResol[4]; // 0.001
-    Start[5]   = parResol[5]; // 0.000001
-    Start[6]   = parResol[6]; // 0.001
-    Start[7]   = parResol[7]; // 0.001
-    Start[8]   = parResol[8]; // 0.001
-    Start[9]   = parResol[9]; // 0.001
-    Start[10]  = parResol[10]; // 0.001
-    Step[0]    = 0.002;
-    Step[1]    = 0.00002;
-    Step[2]    = 0.00002;
-    Step[3]    = 0.00002;
-    Step[4]    = 0.0002;
-    Step[5]    = 0.0000002;
-    Step[6]    = 0.000002;
-    Step[7]    = 0.00002;
-    Step[8]    = 0.0002;
-    Step[9]   = 0.00000002;
-    Step[10]   = 0.000002;
-    Mini[0]    = 0.0;
-    Mini[1]    = -0.01;
-    Mini[2]    = -0.001;
-    Mini[3]    = 0.0;
-    Mini[4]    = -0.001;
-    Mini[5]    = -0.001;
-    Mini[6]    = -0.00001;
-    Mini[7]    = 0.0;
-    Mini[8]    = -0.001;
-    Mini[9]   = -0.0001;
-    Mini[10]   = -0.0001;
-    if (MuonType==1) {
-      Maxi[0]    = 1.;
-      Maxi[1]    = 1.;
-      Maxi[2]    = 1.;
-      Maxi[3]    = 1.;
-      Maxi[4]    = 1.;
-      Maxi[5]    = 1.;
-      Maxi[6]    = 0.1;
-      Maxi[7]    = 1.;
-      Maxi[8]    = 1.;
-      Maxi[9]   = 1.;
-      Maxi[10]   = 1.;
-    } else {
-      Maxi[0]    = 0.1;
-      Maxi[1]    = 0.01;
-      Maxi[2]    = 0.01;
-      Maxi[3]    = 0.01;
-      Maxi[4]    = 0.01;
-      Maxi[5]    = 0.1;
-      Maxi[6]    = 0.01;
-      Maxi[7]    = 0.01;
-      Maxi[8]    = 0.01;
-      Maxi[9]   = 0.01;
-      Maxi[10]   = 0.01;
-    }
-    ind[0]      = parResolOrder[0];
-    ind[1]      = parResolOrder[1];
-    ind[2]      = parResolOrder[2];
-    ind[3]      = parResolOrder[3];
-    ind[4]      = parResolOrder[4];
-    ind[5]      = parResolOrder[5];
-    ind[6]      = parResolOrder[6];
-    ind[7]      = parResolOrder[7];
-    ind[8]      = parResolOrder[8];
-    ind[9]      = parResolOrder[9];
-    ind[10]     = parResolOrder[10];
-    parname[0]  = "Pt res. sc.";
-    parname[1]  = "Pt res. Pt sc.";
-    parname[2]  = "Pt res. Eta sc.";
-    parname[3]  = "Cth res. sc.";
-    parname[4]  = "Cth res. 1/Pt sc.";
-    parname[5]  = "Cth res. Eta sc.";
-    parname[6]  = "Cth res. Eta^2 sc.";
-    parname[7]  = "Phi res. sc.";
-    parname[8]  = "Phi res. 1/Pt sc.";
-    parname[9] = "Phi res. Eta sc.";
-    parname[10] = "Phi res. Eta^2 sc.";
-  }
+//   if (ResolFitType==1) {
+//     Start[0]   = parResol[0]; // 0.01
+//     Start[1]   = parResol[1]; // 0.01
+//     Start[2]   = parResol[2]; // 0.01
+//     Step[0]    = 0.001;
+//     Step[1]    = 0.001;
+//     Step[2]    = 0.001;
+//     Mini[0]    = 0.0;
+//     Mini[1]    = 0.0;
+//     Mini[2]    = 0.0;
+//     if (MuonType==1) {
+//       Maxi[0]    = 0.4;
+//       Maxi[1]    = 0.4;
+//       Maxi[2]    = 0.4;
+//     } else {
+//       Maxi[0]    = 0.01;
+//       Maxi[1]    = 0.02;
+//       Maxi[2]    = 0.02;
+// //       Maxi[0]    = 2;
+// //       Maxi[1]    = 2;
+// //       Maxi[2]    = 2;
+//     }
+//     ind[0]     = parResolOrder[0];
+//     ind[1]     = parResolOrder[1];
+//     ind[2]     = parResolOrder[2];
+//     parname[0] = "Pt res. sc.";
+//     parname[1] = "Phi res. sc.";
+//     parname[2] = "Cotgth res. sc.";
+//   } else if (ResolFitType==2) {
+//     Start[0]   = parResol[0]; // 1.0; 
+//     Start[1]   = parResol[1]; // 1.0;
+//     Start[2]   = parResol[2]; // 1.0;
+//     Start[3]   = parResol[3]; // 1.0;
+//     Step[0]    = 0.001;
+//     Step[1]    = 0.001;
+//     Step[2]    = 0.001;
+//     Step[3]    = 0.001;
+//     Mini[0]    = 0.0;
+//     Mini[1]    = 0.0;
+//     Mini[2]    = 0.0;
+//     Mini[3]    = 0.0;
+//     if (MuonType==1) {
+//       Maxi[0]    = 1.0;
+//       Maxi[1]    = 1.0;
+//       Maxi[2]    = 1.0;
+//       Maxi[3]    = 1.0;
+//     } else {
+//       Maxi[0]    = 0.01;
+//       Maxi[1]    = 0.02;
+//       Maxi[2]    = 0.02;
+//       Maxi[3]    = 0.02;
+//     }
+//     ind[0]     = parResolOrder[0];
+//     ind[1]     = parResolOrder[1];
+//     ind[2]     = parResolOrder[2];
+//     ind[3]     = parResolOrder[3];
+//     parname[0] = "Pt res. Pt sc";
+//     parname[1] = "Pt res. eta sc";
+//     parname[2] = "Phi res. sc";
+//     parname[3] = "Cot(th) res. sc";
+//   } else if (ResolFitType==3) {
+//     Start[0]   = parResol[0]; // 0.001; 
+//     Start[1]   = parResol[1]; // 0.001;
+//     Start[2]   = parResol[2]; // 0.001;
+//     Start[3]   = parResol[3]; // 0.001;
+//     Start[4]   = parResol[4]; // 0.001;
+//     Step[0]    = 0.001;
+//     Step[1]    = 0.001;
+//     Step[2]    = 0.001;
+//     Step[3]    = 0.001;
+//     Step[4]    = 0.001;
+//     Mini[0]    = 0.0;
+//     Mini[1]    = 0.0;
+//     Mini[2]    = 0.0;
+//     Mini[3]    = 0.0;
+//     Mini[4]    = 0.0;
+//     if (MuonType==1) {
+//       Maxi[0]    = 1.0;
+//       Maxi[1]    = 1.0;
+//       Maxi[2]    = 1.0;
+//       Maxi[3]    = 1.0;
+//       Maxi[4]    = 1.0;
+//     } else {
+//       Maxi[0]    = 0.1;
+//       Maxi[1]    = 0.2;
+//       Maxi[2]    = 0.2;
+//       Maxi[3]    = 0.2;
+//       Maxi[4]    = 0.2;
+//     }
+//     ind[0]     = parResolOrder[0];
+//     ind[1]     = parResolOrder[1];
+//     ind[2]     = parResolOrder[2];
+//     ind[3]     = parResolOrder[3];
+//     ind[4]     = parResolOrder[4];
+//     parname[0] = "Pt res. Pt sc.";
+//     parname[1] = "Pt res. eta sc.";
+//     parname[2] = "Phi res. sc.";
+//     parname[3] = "Cth res. sc.";
+//     parname[4] = "Cth res. eta sc.";
+//   } else if (ResolFitType==4) {
+//     Start[0]   = parResol[0]; // 0.001
+//     Start[1]   = parResol[1]; // 0.001
+//     Start[2]   = parResol[2]; // 0.001
+//     Start[3]   = parResol[3]; // 0.001
+//     Start[4]   = parResol[4]; // 0.001
+//     Start[5]   = parResol[5]; // 0.000001
+//     Step[0]    = 0.001;
+//     Step[1]    = 0.001;
+//     Step[2]    = 0.001;
+//     Step[3]    = 0.001;
+//     Step[4]    = 0.001;
+//     Step[5]    = 0.000001;
+//     Mini[0]    = 0.0;
+//     Mini[1]    = 0.0;
+//     Mini[2]    = 0.0;
+//     Mini[3]    = 0.0;
+//     Mini[4]    = 0.0;
+//     Mini[5]    = 0.0;
+//     if (MuonType==1) {
+//       Maxi[0]    = 1.;
+//       Maxi[1]    = 1.;
+//       Maxi[2]    = 1.;
+//       Maxi[3]    = 1.;
+//       Maxi[4]    = 1.;
+//       Maxi[5]    = 0.1;
+//     } else {
+//       Maxi[0]    = 0.01;
+//       Maxi[1]    = 0.02;
+//       Maxi[2]    = 0.02;
+//       Maxi[3]    = 0.02;
+//       Maxi[4]    = 0.02;
+//       Maxi[5]    = 0.0002;
+//     }
+//     ind[0]     = parResolOrder[0];
+//     ind[1]     = parResolOrder[1];
+//     ind[2]     = parResolOrder[2];
+//     ind[3]     = parResolOrder[3];
+//     ind[4]     = parResolOrder[4];
+//     ind[5]     = parResolOrder[5];
+//     parname[0] = "Pt res. Pt sc.";
+//     parname[1] = "Pt res. eta sc.";
+//     parname[2] = "Phi res. sc.";
+//     parname[3] = "Cth res. sc.";
+//     parname[4] = "Cth res. eta sc.";
+//     parname[5] = "Pt res. Pt^2 sc.";
+//   } else if (ResolFitType==5) {
+//     Start[0]   = parResol[0]; // 0.001
+//     Start[1]   = parResol[1]; // 0.001
+//     Start[2]   = parResol[2]; // 0.001
+//     Start[3]   = parResol[3]; // 0.001
+//     Start[4]   = parResol[4]; // 0.001
+//     Start[5]   = parResol[5]; // 0.000001
+//     Start[6]   = parResol[6]; // 0.001
+//     Step[0]    = 0.001;
+//     Step[1]    = 0.001;
+//     Step[2]    = 0.001;
+//     Step[3]    = 0.001;
+//     Step[4]    = 0.001;
+//     Step[5]    = 0.000001;
+//     Step[6]    = 0.001;
+//     Mini[0]    = 0.0;
+//     Mini[1]    = 0.0;
+//     Mini[2]    = 0.0;
+//     Mini[3]    = 0.0;
+//     Mini[4]    = 0.0;
+//     Mini[5]    = 0.0;
+//     Mini[6]    = 0.0;
+//     if (MuonType==1) {
+//       Maxi[0]    = 1.;
+//       Maxi[1]    = 1.;
+//       Maxi[2]    = 1.;
+//       Maxi[3]    = 1.;
+//       Maxi[4]    = 1.;
+//       Maxi[5]    = 0.1;
+//       Maxi[6]    = 1.;
+//     } else {
+//       Maxi[0]    = 0.01;
+//       Maxi[1]    = 0.02;
+//       Maxi[2]    = 0.02;
+//       Maxi[3]    = 0.02;
+//       Maxi[4]    = 0.02;
+//       Maxi[5]    = 0.0002;
+//       Maxi[6]    = 0.02;
+//     }
+//     ind[0]     = parResolOrder[0];
+//     ind[1]     = parResolOrder[1];
+//     ind[2]     = parResolOrder[2];
+//     ind[3]     = parResolOrder[3];
+//     ind[4]     = parResolOrder[4];
+//     ind[5]     = parResolOrder[5];
+//     ind[6]     = parResolOrder[6];
+//     parname[0] = "Pt res. Pt sc.";
+//     parname[1] = "Pt res. eta sc.";
+//     parname[2] = "Phi res. sc.";
+//     parname[3] = "Cth res. sc.";
+//     parname[4] = "Cth res. eta sc.";
+//     parname[5] = "Pt res. Pt^2 sc.";
+//     parname[6] = "Phi res. pt sc.";
+//   } else if (ResolFitType==6) {
+//     Start[0]   = parResol[0]; // 0.001
+//     Start[1]   = parResol[1]; // 0.001
+//     Start[2]   = parResol[2]; // 0.001
+//     Start[3]   = parResol[3]; // 0.001
+//     Start[4]   = parResol[4]; // 0.001
+//     Start[5]   = parResol[5]; // 0.000001
+//     Start[6]   = parResol[6]; // 0.001
+//     Start[7]   = parResol[7]; // 0.001
+//     Start[8]   = parResol[8]; // 0.001
+//     Start[9]   = parResol[9]; // 0.001
+//     Start[10]  = parResol[10]; // 0.001
+//     Start[11]  = parResol[11]; // 0.001
+//     Start[12]  = parResol[12]; // 0.001
+//     Start[13]  = parResol[13]; // 0.001
+//     Start[14]  = parResol[14]; // 0.001
+//     Step[0]    = 0.005;
+//     Step[1]    = 0.0005;
+//     Step[2]    = 0.000005;
+//     Step[3]    = 0.00000005;
+//     Step[4]    = 0.0000000005;
+//     Step[5]    = 0.0005;
+//     Step[6]    = 0.000005;
+//     Step[7]    = 0.000005;
+//     Step[8]    = 0.0005;
+//     Step[9]    = 0.00000005;
+//     Step[10]   = 0.0000005;
+//     Step[11]   = 0.00005;
+//     Step[12]   = 0.0005;
+//     Step[13]   = 0.00000005;
+//     Step[14]   = 0.000005;
+//     Mini[0]    = 0.0;
+//     Mini[1]    = -0.01;
+//     Mini[2]    = -0.001;
+//     Mini[3]    = -0.01;
+//     Mini[4]    = -0.001;
+//     Mini[5]    = -0.001;
+//     Mini[6]    = -0.001;
+//     Mini[7]    = 0.0;
+//     Mini[8]    = 0.0;
+//     Mini[9]    = -0.001;
+//     Mini[10]   = -0.001;
+//     Mini[11]   = 0.0;
+//     Mini[12]   = 0.0;
+//     Mini[13]   = -0.001;
+//     Mini[14]   = -0.001;
+//     if (MuonType==1) {
+//       Maxi[0]    = 1.;
+//       Maxi[1]    = 1.;
+//       Maxi[2]    = 1.;
+//       Maxi[3]    = 1.;
+//       Maxi[4]    = 1.;
+//       Maxi[5]    = 1.;
+//       Maxi[6]    = 1.;
+//       Maxi[7]    = 0.1;
+//       Maxi[8]    = 1.;
+//       Maxi[9]    = 1.;
+//       Maxi[10]   = 1.;
+//       Maxi[11]   = 1.;
+//       Maxi[12]   = 1.;
+//       Maxi[13]   = 1.;
+//       Maxi[14]   = 1.;
+//     } else {
+//       Maxi[0]    = 0.1;
+//       Maxi[1]    = 0.01;
+//       Maxi[2]    = 0.01;
+//       Maxi[3]    = 0.01;
+//       Maxi[4]    = 0.01;
+//       Maxi[5]    = 0.01;
+//       Maxi[6]    = 0.1;
+//       Maxi[7]    = 0.01;
+//       Maxi[8]    = 0.01;
+//       Maxi[9]    = 0.01;
+//       Maxi[10]   = 0.01;
+//       Maxi[11]   = 0.01;
+//       Maxi[12]   = 0.01;
+//       Maxi[13]   = 0.01;
+//       Maxi[14]   = 0.01;
+//     }
+//     ind[0]      = parResolOrder[0];
+//     ind[1]      = parResolOrder[1];
+//     ind[2]      = parResolOrder[2];
+//     ind[3]      = parResolOrder[3];
+//     ind[4]      = parResolOrder[4];
+//     ind[5]      = parResolOrder[5];
+//     ind[6]      = parResolOrder[6];
+//     ind[7]      = parResolOrder[7];
+//     ind[8]      = parResolOrder[8];
+//     ind[9]      = parResolOrder[9];
+//     ind[10]     = parResolOrder[10];
+//     ind[11]     = parResolOrder[11];
+//     ind[12]     = parResolOrder[12];
+//     ind[13]     = parResolOrder[13];
+//     ind[14]     = parResolOrder[14];
+//     parname[0]  = "Pt res. sc.";
+//     parname[1]  = "Pt res. Pt sc.";
+//     parname[2]  = "Pt res. Pt^2 sc.";
+//     parname[3]  = "Pt res. Pt^3 sc.";
+//     parname[4]  = "Pt res. Pt^4 sc.";
+//     parname[5]  = "Pt res. Eta sc.";
+//     parname[6]  = "Pt res. Eta^2 sc.";
+//     parname[7]  = "Cth res. sc.";
+//     parname[8]  = "Cth res. 1/Pt sc.";
+//     parname[9]  = "Cth res. Eta sc.";
+//     parname[10] = "Cth res. Eta^2 sc.";
+//     parname[11] = "Phi res. sc.";
+//     parname[12] = "Phi res. 1/Pt sc.";
+//     parname[13] = "Phi res. Eta sc.";
+//     parname[14] = "Phi res. Eta^2 sc.";
+//   } else if (ResolFitType==7) {
+//     Start[0]   = parResol[0]; // 0.001
+//     Start[1]   = parResol[1]; // 0.001
+//     Start[2]   = parResol[2]; // 0.001
+//     Start[3]   = parResol[3]; // 0.001
+//     Start[4]   = parResol[4]; // 0.001
+//     Start[5]   = parResol[5]; // 0.000001
+//     Start[6]   = parResol[6]; // 0.001
+//     Start[7]   = parResol[7]; // 0.001
+//     Start[8]   = parResol[8]; // 0.001
+//     Start[9]   = parResol[9]; // 0.001
+//     Start[10]  = parResol[10]; // 0.001
+//     Start[11]  = parResol[11]; // 0.001
+//     Step[0]    = 0.002;
+//     Step[1]    = 0.00002;
+//     Step[2]    = 0.000002;
+//     Step[3]    = 0.0002;
+//     Step[4]    = 0.00002;
+//     Step[5]    = 0.0002;
+//     Step[6]    = 0.0000002;
+//     Step[7]    = 0.000002;
+//     Step[8]    = 0.00002;
+//     Step[9]    = 0.0002;
+//     Step[10]   = 0.00000002;
+//     Step[11]   = 0.000002;
+//     Mini[0]    = 0.0;
+//     Mini[1]    = -0.01;
+//     Mini[2]    = -0.001;
+//     Mini[3]    = -0.0001;
+//     Mini[4]    = 0.0;
+//     Mini[5]    = -0.001;
+//     Mini[6]    = -0.001;
+//     Mini[7]    = -0.00001;
+//     Mini[8]    = 0.0;
+//     Mini[9]    = -0.001;
+//     Mini[10]   = -0.0001;
+//     Mini[11]   = -0.0001;
+//     if (MuonType==1) {
+//       Maxi[0]    = 1.;
+//       Maxi[1]    = 1.;
+//       Maxi[2]    = 1.;
+//       Maxi[3]    = 1.;
+//       Maxi[4]    = 1.;
+//       Maxi[5]    = 1.;
+//       Maxi[6]    = 1.;
+//       Maxi[7]    = 0.1;
+//       Maxi[8]    = 1.;
+//       Maxi[9]    = 1.;
+//       Maxi[10]   = 1.;
+//       Maxi[11]   = 1.;
+//     } else {
+//       Maxi[0]    = 0.1;
+//       Maxi[1]    = 0.01;
+//       Maxi[2]    = 0.01;
+//       Maxi[3]    = 0.01;
+//       Maxi[4]    = 0.01;
+//       Maxi[5]    = 0.01;
+//       Maxi[6]    = 0.1;
+//       Maxi[7]    = 0.01;
+//       Maxi[8]    = 0.01;
+//       Maxi[9]    = 0.01;
+//       Maxi[10]   = 0.01;
+//       Maxi[11]   = 0.01;
+//     }
+//     ind[0]      = parResolOrder[0];
+//     ind[1]      = parResolOrder[1];
+//     ind[2]      = parResolOrder[2];
+//     ind[3]      = parResolOrder[3];
+//     ind[4]      = parResolOrder[4];
+//     ind[5]      = parResolOrder[5];
+//     ind[6]      = parResolOrder[6];
+//     ind[7]      = parResolOrder[7];
+//     ind[8]      = parResolOrder[8];
+//     ind[9]      = parResolOrder[9];
+//     ind[10]     = parResolOrder[10];
+//     ind[11]     = parResolOrder[11];
+//     parname[0]  = "Pt res. sc.";
+//     parname[1]  = "Pt res. Pt sc.";
+//     parname[2]  = "Pt res. Eta sc.";
+//     parname[3]  = "Pt res. Eta^2 sc.";
+//     parname[4]  = "Cth res. sc.";
+//     parname[5]  = "Cth res. 1/Pt sc.";
+//     parname[6]  = "Cth res. Eta sc.";
+//     parname[7]  = "Cth res. Eta^2 sc.";
+//     parname[8]  = "Phi res. sc.";
+//     parname[9]  = "Phi res. 1/Pt sc.";
+//     parname[10] = "Phi res. Eta sc.";
+//     parname[11] = "Phi res. Eta^2 sc.";
+//   } else if (ResolFitType==8) {
+//     Start[0]   = parResol[0]; // 0.001
+//     Start[1]   = parResol[1]; // 0.001
+//     Start[2]   = parResol[2]; // 0.001
+//     Start[3]   = parResol[3]; // 0.001
+//     Start[4]   = parResol[4]; // 0.001
+//     Start[5]   = parResol[5]; // 0.000001
+//     Start[6]   = parResol[6]; // 0.001
+//     Start[7]   = parResol[7]; // 0.001
+//     Start[8]   = parResol[8]; // 0.001
+//     Start[9]   = parResol[9]; // 0.001
+//     Start[10]  = parResol[10]; // 0.001
+//     Step[0]    = 0.002;
+//     Step[1]    = 0.00002;
+//     Step[2]    = 0.00002;
+//     Step[3]    = 0.00002;
+//     Step[4]    = 0.0002;
+//     Step[5]    = 0.0000002;
+//     Step[6]    = 0.000002;
+//     Step[7]    = 0.00002;
+//     Step[8]    = 0.0002;
+//     Step[9]   = 0.00000002;
+//     Step[10]   = 0.000002;
+//     Mini[0]    = 0.0;
+//     Mini[1]    = -0.01;
+//     Mini[2]    = -0.001;
+//     Mini[3]    = 0.0;
+//     Mini[4]    = -0.001;
+//     Mini[5]    = -0.001;
+//     Mini[6]    = -0.00001;
+//     Mini[7]    = 0.0;
+//     Mini[8]    = -0.001;
+//     Mini[9]   = -0.0001;
+//     Mini[10]   = -0.0001;
+//     if (MuonType==1) {
+//       Maxi[0]    = 1.;
+//       Maxi[1]    = 1.;
+//       Maxi[2]    = 1.;
+//       Maxi[3]    = 1.;
+//       Maxi[4]    = 1.;
+//       Maxi[5]    = 1.;
+//       Maxi[6]    = 0.1;
+//       Maxi[7]    = 1.;
+//       Maxi[8]    = 1.;
+//       Maxi[9]   = 1.;
+//       Maxi[10]   = 1.;
+//     } else {
+//       Maxi[0]    = 0.1;
+//       Maxi[1]    = 0.01;
+//       Maxi[2]    = 0.01;
+//       Maxi[3]    = 0.01;
+//       Maxi[4]    = 0.01;
+//       Maxi[5]    = 0.1;
+//       Maxi[6]    = 0.01;
+//       Maxi[7]    = 0.01;
+//       Maxi[8]    = 0.01;
+//       Maxi[9]   = 0.01;
+//       Maxi[10]   = 0.01;
+//     }
+//     ind[0]      = parResolOrder[0];
+//     ind[1]      = parResolOrder[1];
+//     ind[2]      = parResolOrder[2];
+//     ind[3]      = parResolOrder[3];
+//     ind[4]      = parResolOrder[4];
+//     ind[5]      = parResolOrder[5];
+//     ind[6]      = parResolOrder[6];
+//     ind[7]      = parResolOrder[7];
+//     ind[8]      = parResolOrder[8];
+//     ind[9]      = parResolOrder[9];
+//     ind[10]     = parResolOrder[10];
+//     parname[0]  = "Pt res. sc.";
+//     parname[1]  = "Pt res. Pt sc.";
+//     parname[2]  = "Pt res. Eta sc.";
+//     parname[3]  = "Cth res. sc.";
+//     parname[4]  = "Cth res. 1/Pt sc.";
+//     parname[5]  = "Cth res. Eta sc.";
+//     parname[6]  = "Cth res. Eta^2 sc.";
+//     parname[7]  = "Phi res. sc.";
+//     parname[8]  = "Phi res. 1/Pt sc.";
+//     parname[9] = "Phi res. Eta sc.";
+//     parname[10] = "Phi res. Eta^2 sc.";
+//   }
 
-  int shift = parResol.size();
+//   int shift = parResol.size();
 
-  if (ScaleFitType==1) {
-    Start[shift]   = parScale[0]; // 1.0
-    Start[shift+1] = parScale[1]; // 0.0
-    Step[shift]   = 0.001;
-    Step[shift+1] = 0.01;
-    Mini[shift]   = 0.97;
-    Mini[shift+1] = -0.1;
-    Maxi[shift]   = 1.03;
-    Maxi[shift+1] = 0.1;
-//     Mini[shift]   = 0;
-//     Mini[shift+1] = 0;
-//     Maxi[shift]   = 0;
-//     Maxi[shift+1] = 0;
-    ind[shift]   = parScaleOrder[0];
-    ind[shift+1] = parScaleOrder[1];
-    parname[shift]   = "Pt offset";
-    parname[shift+1] = "Pt slope";
-  } else if (ScaleFitType==2) { 
-    Start[shift]   = parScale[0]; // 1.0
-    Start[shift+1] = parScale[1]; // 0.0
-    Step[shift]   = 0.001;
-    Step[shift+1] = 0.01;
-    if (MuonType==1) {
-      Mini[shift]   = 0.9;
-      Mini[shift+1] = -0.3;
-      Maxi[shift]   = 1.1;
-      Maxi[shift+1] = 0.3;
-    } else { 
-      Mini[shift]   = 0.97;
-      Mini[shift+1] = -0.1;
-      Maxi[shift]   = 1.03;
-      Maxi[shift+1] = 0.1;
-    }
-    ind[shift]   = parScaleOrder[0];
-    ind[shift+1] = parScaleOrder[1];
-    parname[shift]   = "Eta offset";
-    parname[shift+1] = "Eta slope";
-  } else if (ScaleFitType==3) { 
-    Start[shift]   = parScale[0]; // 1.0;
-    Start[shift+1] = parScale[1]; // 0.0;
-    Step[shift]   = 0.001; 
-    Step[shift+1] = 0.01; 
-    if (MuonType==1) {
-      Mini[shift]   = 0.9;
-      Mini[shift+1] = -0.1;
-      Maxi[shift]   = 1.1;
-      Maxi[shift+1] = 0.1;
-    } else { 
-      Mini[shift]   = 0.97;
-      Mini[shift+1] = -0.05;
-      Maxi[shift]   = 1.03;
-      Maxi[shift+1] = 0.05;
-    }
-    ind[shift]   = parScaleOrder[0];
-    ind[shift+1] = parScaleOrder[1];
-    parname[shift]   = "Phi offset";
-    parname[shift+1] = "Phi ampl";
-  } else if (ScaleFitType==4) { 
-    Start[shift]   = parScale[0]; // 1.0;
-    Start[shift+1] = parScale[1]; // 0.0;
-    Start[shift+2] = parScale[2]; // 0.0;
-    Step[shift]    = 0.001;
-    Step[shift+1]  = 0.01;
-    Step[shift+2]  = 0.01;
-    if (MuonType==1) {
-      Mini[shift]   = 0.9;
-      Mini[shift+1] = -0.1;
-      Mini[shift+2]  = -0.1;
-      Maxi[shift]   = 1.1;
-      Maxi[shift+1] = 0.1;
-      Maxi[shift+2]  = 0.1;
-    } else { 
-      Mini[shift]   = 0.97;
-      Mini[shift+1] = -0.02;
-      Mini[shift+2]  = -0.02;
-      Maxi[shift]   = 1.03;
-      Maxi[shift+1] = 0.02;
-      Maxi[shift+2] = 0.02;
-    }
-    ind[shift]   = parScaleOrder[0];
-    ind[shift+1] = parScaleOrder[1];
-    ind[shift+2] = parScaleOrder[2];
-    parname[shift]   = "Pt offset";
-    parname[shift+1] = "Pt slope";
-    parname[shift+2] = "Eta slope";
-  } else if (ScaleFitType==5) { 
-    Start[shift]   = parScale[0]; // 1.0;
-    Start[shift+1] = parScale[1]; // 0.0;
-    Start[shift+2] = parScale[2]; // 0.0;
-    Step[shift]    = 0.001;
-    Step[shift+1]  = 0.01;
-    Step[shift+2]  = 0.01;
-   if (MuonType==1) {
-      Mini[shift]   = 0.9;
-      Mini[shift+1] = -0.1;
-      Mini[shift+2]  = -0.3;
-      Maxi[shift]   = 1.1;
-      Maxi[shift+1] = 0.1;
-      Maxi[shift+2]  = 0.3;
-    } else { 
-      Mini[shift]   = 0.97;
-      Mini[shift+1] = -0.02;
-      Mini[shift+2]  = -0.3;
-      Maxi[shift]   = 1.03;
-      Maxi[shift+1] = 0.02;
-      Maxi[shift+2] = 0.3;
-    }
-    ind[shift]   = parScaleOrder[0];
-    ind[shift+1] = parScaleOrder[1];
-    ind[shift+2] = parScaleOrder[2];
-    parname[shift]   = "Pt offset";
-    parname[shift+1] = "Pt slope";
-    parname[shift+2] = "Phi ampl";
-  } else if (ScaleFitType==6) { 
-    Start[shift]   = parScale[0]; // 1.0;
-    Start[shift+1] = parScale[1]; // 0.0;
-    Start[shift+2] = parScale[2]; // 0.0;
-    Step[shift]    = 0.001;
-    Step[shift+1]  = 0.01;
-    Step[shift+2]  = 0.01;
-   if (MuonType==1) {
-      Mini[shift]   = 0.9;
-      Mini[shift+1] = -0.1;
-      Mini[shift+2]  = -0.3;
-      Maxi[shift]   = 1.1;
-      Maxi[shift+1] = 0.1;
-      Maxi[shift+2]  = 0.3;
-    } else { 
-      Mini[shift]   = 0.97;
-      Mini[shift+1] = -0.02;
-      Mini[shift+2]  = -0.3;
-      Maxi[shift]   = 1.03;
-      Maxi[shift+1] = 0.02;
-      Maxi[shift+2] = 0.3;
-    }
-    ind[shift]   = parScaleOrder[0];
-    ind[shift+1] = parScaleOrder[1];
-    ind[shift+2] = parScaleOrder[2];
-    parname[shift]   = "Eta offset";
-    parname[shift+1] = "Eta slope";
-    parname[shift+2] = "Phi ampl";
-  } else if (ScaleFitType==7) { 
-    Start[shift]   = parScale[0]; // 1.0;
-    Start[shift+1] = parScale[1]; // 0.0;
-    Start[shift+2] = parScale[2]; // 0.0;
-    Start[shift+3] = parScale[3]; // 0.0;
-    Step[shift]    = 0.001;
-    Step[shift+1]  = 0.01;
-    Step[shift+2]  = 0.01;
-    Step[shift+3]  = 0.01;
-   if (MuonType==1) {
-      Mini[shift]   = 0.9;
-      Mini[shift+1] = -0.1;
-      Mini[shift+2]  = -0.3;
-      Mini[shift+3]  = -0.3;
-      Maxi[shift]   = 1.1;
-      Maxi[shift+1] = 0.1;
-      Maxi[shift+2]  = 0.3;
-      Maxi[shift+3]  = 0.3;
-   } else { 
-      Mini[shift]   = 0.97;
-      Mini[shift+1] = -0.02;
-      Mini[shift+2]  = -0.3;
-      Mini[shift+3]  = -0.3;
-      Maxi[shift]   = 1.03;
-      Maxi[shift+1] = 0.02;
-      Maxi[shift+2] = 0.3;
-      Maxi[shift+3]  = 0.3;
-    }
-    ind[shift]   = parScaleOrder[0];
-    ind[shift+1] = parScaleOrder[1];
-    ind[shift+2] = parScaleOrder[2];
-    ind[shift+3] = parScaleOrder[3];
-    parname[shift]   = "Pt offset";
-    parname[shift+1] = "Pt slope";
-    parname[shift+2] = "Eta slope";
-    parname[shift+3] = "Phi ampl";
-  } else if (ScaleFitType==8) { 
-    Start[shift]   = parScale[0]; // 1.0;
-    Start[shift+1] = parScale[1]; // 0.0;
-    Start[shift+2] = parScale[2]; // 0.0;
-    Start[shift+3] = parScale[3]; // 0.0;
-    Step[shift]    = 0.001;
-    Step[shift+1]  = 0.01;
-    Step[shift+2]  = 0.01;
-    Step[shift+3]  = 0.01;
-   if (MuonType==1) {
-      Mini[shift]   = 0.9;
-      Mini[shift+1] = -0.3;
-      Mini[shift+2]  = -0.3;
-      Mini[shift+3]  = -0.3;
-      Maxi[shift]   = 1.1;
-      Maxi[shift+1] = 0.3;
-      Maxi[shift+2]  = 0.3;
-      Maxi[shift+3]  = 0.3;
-   } else { 
-      Mini[shift]   = 0.97;
-      Mini[shift+1] = -0.1;
-      Mini[shift+2]  = -0.1;
-      Mini[shift+3]  = -0.1;
-      Maxi[shift]   = 1.03;
-      Maxi[shift+1] = 0.1;
-      Maxi[shift+2] = 0.1;
-      Maxi[shift+3]  = 0.1;
-    }
-    ind[shift]   = parScaleOrder[0];
-    ind[shift+1] = parScaleOrder[1];
-    ind[shift+2] = parScaleOrder[2];
-    ind[shift+3] = parScaleOrder[3];
-    parname[shift]   = "Pt offset";
-    parname[shift+1] = "Pt slope";
-    parname[shift+2] = "Eta slope";
-    parname[shift+3] = "Eta quadr";
-  } else if (ScaleFitType==9) { 
-    Start[shift]   = parScale[0]; // 1.0;
-    Start[shift+1] = parScale[1]; // 0.0;
-    Step[shift]    = 0.001;
-    Step[shift+1]  = 0.01;
-    Mini[shift]    = 0.97;
-    Mini[shift+1]  = -0.1;
-    Maxi[shift]    = 1.03;
-    Maxi[shift+1]  = 0.1;
-    ind[shift]   = parScaleOrder[0];
-    ind[shift+1] = parScaleOrder[1];
-    parname[shift]   = "Pt offset";
-    parname[shift+1] = "Pt expon";
-  } else if (ScaleFitType==10) { 
-    Start[shift]   = parScale[0]; // 1.0;
-    Start[shift+1] = parScale[1]; // 0.0;
-    Start[shift+2] = parScale[2]; // 0.0;
-    Step[shift]    = 0.001;
-    Step[shift+1]  = 0.01;
-    Step[shift+2]  = 0.01;
-    Mini[shift]    = 0.97;
-    Mini[shift+1]  = -0.1;
-    Mini[shift+2]  = -0.001;
-    Maxi[shift]    = 1.03;
-    Maxi[shift+1]  = 0.1;
-    Maxi[shift+2]  = 0.001;
-    ind[shift]   = parScaleOrder[0];
-    ind[shift+1] = parScaleOrder[1];
-    ind[shift+2] = parScaleOrder[2];
-    parname[shift]   = "Pt offset";
-    parname[shift+1] = "Pt slope";
-    parname[shift+2] = "Pt quadr";
-  } else if (ScaleFitType==11) { 
-    Start[shift]   = parScale[0]; // 1.0;
-    Start[shift+1] = parScale[1]; // 0.0;
-    Start[shift+2] = parScale[2]; // 0.0;
-    Start[shift+3] = parScale[3]; // 0.0;
-    Step[shift]    = 0.001;
-    Step[shift+1]  = 0.01;
-    Step[shift+2]  = 0.01;
-    Step[shift+3]  = 0.1;
-    Mini[shift]    = 0.97;
-    Mini[shift+1]  = -0.1;
-    Mini[shift+2]  = -0.02;
-    Mini[shift+3]  = 0.;
-    Maxi[shift]    = 1.03;
-    Maxi[shift+1]  = 0.1;
-    Maxi[shift+2]  = 0.02;
-    Maxi[shift+3]  = 3.1416;
-    ind[shift]   = parScaleOrder[0];
-    ind[shift+1] = parScaleOrder[1];
-    ind[shift+2] = parScaleOrder[2];
-    ind[shift+3] = parScaleOrder[3];
-    parname[shift]   = "Pt scale";
-    parname[shift+1] = "Pt slope";
-    parname[shift+2] = "Phi ampl";
-    parname[shift+3] = "Phi phase";
-  } else if (ScaleFitType==12) { 
-    Start[shift]   = parScale[0]; // 1.0;
-    Start[shift+1] = parScale[1]; // 0.0;
-    Start[shift+2] = parScale[2]; // 0.0;
-    Start[shift+3] = parScale[3]; // 0.0;
-    Start[shift+4] = parScale[4]; // 0.0;
-    Start[shift+5] = parScale[5]; // 0.0;
-    Step[shift]    = 0.001;
-    Step[shift+1]  = 0.01;
-    Step[shift+2]  = 0.01;
-    Step[shift+3]  = 0.01;
-    Step[shift+4]  = 0.01;
-    Step[shift+5]  = 0.1;
-    Mini[shift]    = 0.97;
-    Mini[shift+1]  = -0.1;
-    Mini[shift+2]  = -0.2;
-    Mini[shift+3]  = -0.2;
-    Mini[shift+4]  = -0.02;
-    Mini[shift+5]  = 0.0;
-    Maxi[shift]    = 1.03;
-    Maxi[shift+1]  = 0.1;
-    Maxi[shift+2]  = 0.2;
-    Maxi[shift+3]  = 0.2;
-    Maxi[shift+4]  = 0.02;
-    Maxi[shift+5]  = 3.1416;
-    ind[shift]   = parScaleOrder[0];
-    ind[shift+1] = parScaleOrder[1];
-    ind[shift+2] = parScaleOrder[2];
-    ind[shift+3] = parScaleOrder[3];
-    ind[shift+4] = parScaleOrder[4];
-    ind[shift+5] = parScaleOrder[5];
-    parname[shift]   = "Pt scale";
-    parname[shift+1] = "Pt slope";
-    parname[shift+2] = "Eta slope";
-    parname[shift+3] = "Eta quadr";
-    parname[shift+4] = "Phi ampl";
-    parname[shift+5] = "Phi phase";
-  } else if (ScaleFitType==13) { 
-    Start[shift]   = parScale[0]; // 1.0;
-    Start[shift+1] = parScale[1]; // 0.0;
-    Start[shift+2] = parScale[2]; // 0.0;
-    Start[shift+3] = parScale[3]; // 0.0;
-    Start[shift+4] = parScale[4]; // 0.0;
-    Start[shift+5] = parScale[5]; // 0.0;
-    Start[shift+6] = parScale[6]; // 0.0;
-    Start[shift+7] = parScale[7]; // 0.0;
-    Step[shift]   = 0.001;
-    Step[shift+1] = 0.01;
-    Step[shift+2] = 0.01;
-    Step[shift+3] = 0.01;
-    Step[shift+4] = 0.01;
-    Step[shift+5] = 0.1;
-    Step[shift+6] = 0.01;
-    Step[shift+7] = 0.1;
-    Mini[shift]   = 0.99;
-    Mini[shift+1] = -0.01;
-    Mini[shift+2] = -0.02;
-    Mini[shift+3] = -0.02;
-    Mini[shift+4] = -0.02;
-    Mini[shift+5] = 0.0;
-    Mini[shift+6] = -0.02;
-    Mini[shift+7] = 0.0;
-    Maxi[shift]   = 1.01;
-    Maxi[shift+1] = 0.01;
-    Maxi[shift+2] = 0.02;
-    Maxi[shift+3] = 0.02;
-    Maxi[shift+4] = 0.02;
-    Maxi[shift+5] = 3.1416;
-    Maxi[shift+6] = 0.02;
-    Maxi[shift+7] = 3.1416;
-    ind[shift]   = parScaleOrder[0];
-    ind[shift+1] = parScaleOrder[1];
-    ind[shift+2] = parScaleOrder[2];
-    ind[shift+3] = parScaleOrder[3];
-    ind[shift+4] = parScaleOrder[4];
-    ind[shift+5] = parScaleOrder[5];
-    ind[shift+6] = parScaleOrder[6];
-    ind[shift+7] = parScaleOrder[7];
-    parname[shift]   = "Pt scale";
-    parname[shift+1] = "Pt slope";
-    parname[shift+2] = "Eta slope";
-    parname[shift+3] = "Eta quadr";
-    parname[shift+4] = "Phi ampl +";
-    parname[shift+5] = "Phi phase +";
-    parname[shift+6] = "Phi ampl -";
-    parname[shift+7] = "Phi phase -";
-  } 
+//   if (ScaleFitType==1) {
+//     Start[shift]   = parScale[0]; // 1.0
+//     Start[shift+1] = parScale[1]; // 0.0
+//     Step[shift]   = 0.001;
+//     Step[shift+1] = 0.01;
+//     Mini[shift]   = 0.97;
+//     Mini[shift+1] = -0.1;
+//     Maxi[shift]   = 1.03;
+//     Maxi[shift+1] = 0.1;
+// //     Mini[shift]   = 0;
+// //     Mini[shift+1] = 0;
+// //     Maxi[shift]   = 0;
+// //     Maxi[shift+1] = 0;
+//     ind[shift]   = parScaleOrder[0];
+//     ind[shift+1] = parScaleOrder[1];
+//     parname[shift]   = "Pt offset";
+//     parname[shift+1] = "Pt slope";
+//   } else if (ScaleFitType==2) { 
+//     Start[shift]   = parScale[0]; // 1.0
+//     Start[shift+1] = parScale[1]; // 0.0
+//     Step[shift]   = 0.001;
+//     Step[shift+1] = 0.01;
+//     if (MuonType==1) {
+//       Mini[shift]   = 0.9;
+//       Mini[shift+1] = -0.3;
+//       Maxi[shift]   = 1.1;
+//       Maxi[shift+1] = 0.3;
+//     } else { 
+//       Mini[shift]   = 0.97;
+//       Mini[shift+1] = -0.1;
+//       Maxi[shift]   = 1.03;
+//       Maxi[shift+1] = 0.1;
+//     }
+//     ind[shift]   = parScaleOrder[0];
+//     ind[shift+1] = parScaleOrder[1];
+//     parname[shift]   = "Eta offset";
+//     parname[shift+1] = "Eta slope";
+//   } else if (ScaleFitType==3) { 
+//     Start[shift]   = parScale[0]; // 1.0;
+//     Start[shift+1] = parScale[1]; // 0.0;
+//     Step[shift]   = 0.001; 
+//     Step[shift+1] = 0.01; 
+//     if (MuonType==1) {
+//       Mini[shift]   = 0.9;
+//       Mini[shift+1] = -0.1;
+//       Maxi[shift]   = 1.1;
+//       Maxi[shift+1] = 0.1;
+//     } else { 
+//       Mini[shift]   = 0.97;
+//       Mini[shift+1] = -0.05;
+//       Maxi[shift]   = 1.03;
+//       Maxi[shift+1] = 0.05;
+//     }
+//     ind[shift]   = parScaleOrder[0];
+//     ind[shift+1] = parScaleOrder[1];
+//     parname[shift]   = "Phi offset";
+//     parname[shift+1] = "Phi ampl";
+//   } else if (ScaleFitType==4) { 
+//     Start[shift]   = parScale[0]; // 1.0;
+//     Start[shift+1] = parScale[1]; // 0.0;
+//     Start[shift+2] = parScale[2]; // 0.0;
+//     Step[shift]    = 0.001;
+//     Step[shift+1]  = 0.01;
+//     Step[shift+2]  = 0.01;
+//     if (MuonType==1) {
+//       Mini[shift]   = 0.9;
+//       Mini[shift+1] = -0.1;
+//       Mini[shift+2]  = -0.1;
+//       Maxi[shift]   = 1.1;
+//       Maxi[shift+1] = 0.1;
+//       Maxi[shift+2]  = 0.1;
+//     } else { 
+//       Mini[shift]   = 0.97;
+//       Mini[shift+1] = -0.02;
+//       Mini[shift+2]  = -0.02;
+//       Maxi[shift]   = 1.03;
+//       Maxi[shift+1] = 0.02;
+//       Maxi[shift+2] = 0.02;
+//     }
+//     ind[shift]   = parScaleOrder[0];
+//     ind[shift+1] = parScaleOrder[1];
+//     ind[shift+2] = parScaleOrder[2];
+//     parname[shift]   = "Pt offset";
+//     parname[shift+1] = "Pt slope";
+//     parname[shift+2] = "Eta slope";
+//   } else if (ScaleFitType==5) { 
+//     Start[shift]   = parScale[0]; // 1.0;
+//     Start[shift+1] = parScale[1]; // 0.0;
+//     Start[shift+2] = parScale[2]; // 0.0;
+//     Step[shift]    = 0.001;
+//     Step[shift+1]  = 0.01;
+//     Step[shift+2]  = 0.01;
+//    if (MuonType==1) {
+//       Mini[shift]   = 0.9;
+//       Mini[shift+1] = -0.1;
+//       Mini[shift+2]  = -0.3;
+//       Maxi[shift]   = 1.1;
+//       Maxi[shift+1] = 0.1;
+//       Maxi[shift+2]  = 0.3;
+//     } else { 
+//       Mini[shift]   = 0.97;
+//       Mini[shift+1] = -0.02;
+//       Mini[shift+2]  = -0.3;
+//       Maxi[shift]   = 1.03;
+//       Maxi[shift+1] = 0.02;
+//       Maxi[shift+2] = 0.3;
+//     }
+//     ind[shift]   = parScaleOrder[0];
+//     ind[shift+1] = parScaleOrder[1];
+//     ind[shift+2] = parScaleOrder[2];
+//     parname[shift]   = "Pt offset";
+//     parname[shift+1] = "Pt slope";
+//     parname[shift+2] = "Phi ampl";
+//   } else if (ScaleFitType==6) { 
+//     Start[shift]   = parScale[0]; // 1.0;
+//     Start[shift+1] = parScale[1]; // 0.0;
+//     Start[shift+2] = parScale[2]; // 0.0;
+//     Step[shift]    = 0.001;
+//     Step[shift+1]  = 0.01;
+//     Step[shift+2]  = 0.01;
+//    if (MuonType==1) {
+//       Mini[shift]   = 0.9;
+//       Mini[shift+1] = -0.1;
+//       Mini[shift+2]  = -0.3;
+//       Maxi[shift]   = 1.1;
+//       Maxi[shift+1] = 0.1;
+//       Maxi[shift+2]  = 0.3;
+//     } else { 
+//       Mini[shift]   = 0.97;
+//       Mini[shift+1] = -0.02;
+//       Mini[shift+2]  = -0.3;
+//       Maxi[shift]   = 1.03;
+//       Maxi[shift+1] = 0.02;
+//       Maxi[shift+2] = 0.3;
+//     }
+//     ind[shift]   = parScaleOrder[0];
+//     ind[shift+1] = parScaleOrder[1];
+//     ind[shift+2] = parScaleOrder[2];
+//     parname[shift]   = "Eta offset";
+//     parname[shift+1] = "Eta slope";
+//     parname[shift+2] = "Phi ampl";
+//   } else if (ScaleFitType==7) { 
+//     Start[shift]   = parScale[0]; // 1.0;
+//     Start[shift+1] = parScale[1]; // 0.0;
+//     Start[shift+2] = parScale[2]; // 0.0;
+//     Start[shift+3] = parScale[3]; // 0.0;
+//     Step[shift]    = 0.001;
+//     Step[shift+1]  = 0.01;
+//     Step[shift+2]  = 0.01;
+//     Step[shift+3]  = 0.01;
+//    if (MuonType==1) {
+//       Mini[shift]   = 0.9;
+//       Mini[shift+1] = -0.1;
+//       Mini[shift+2]  = -0.3;
+//       Mini[shift+3]  = -0.3;
+//       Maxi[shift]   = 1.1;
+//       Maxi[shift+1] = 0.1;
+//       Maxi[shift+2]  = 0.3;
+//       Maxi[shift+3]  = 0.3;
+//    } else { 
+//       Mini[shift]   = 0.97;
+//       Mini[shift+1] = -0.02;
+//       Mini[shift+2]  = -0.3;
+//       Mini[shift+3]  = -0.3;
+//       Maxi[shift]   = 1.03;
+//       Maxi[shift+1] = 0.02;
+//       Maxi[shift+2] = 0.3;
+//       Maxi[shift+3]  = 0.3;
+//     }
+//     ind[shift]   = parScaleOrder[0];
+//     ind[shift+1] = parScaleOrder[1];
+//     ind[shift+2] = parScaleOrder[2];
+//     ind[shift+3] = parScaleOrder[3];
+//     parname[shift]   = "Pt offset";
+//     parname[shift+1] = "Pt slope";
+//     parname[shift+2] = "Eta slope";
+//     parname[shift+3] = "Phi ampl";
+//   } else if (ScaleFitType==8) { 
+//     Start[shift]   = parScale[0]; // 1.0;
+//     Start[shift+1] = parScale[1]; // 0.0;
+//     Start[shift+2] = parScale[2]; // 0.0;
+//     Start[shift+3] = parScale[3]; // 0.0;
+//     Step[shift]    = 0.001;
+//     Step[shift+1]  = 0.01;
+//     Step[shift+2]  = 0.01;
+//     Step[shift+3]  = 0.01;
+//    if (MuonType==1) {
+//       Mini[shift]   = 0.9;
+//       Mini[shift+1] = -0.3;
+//       Mini[shift+2]  = -0.3;
+//       Mini[shift+3]  = -0.3;
+//       Maxi[shift]   = 1.1;
+//       Maxi[shift+1] = 0.3;
+//       Maxi[shift+2]  = 0.3;
+//       Maxi[shift+3]  = 0.3;
+//    } else { 
+//       Mini[shift]   = 0.97;
+//       Mini[shift+1] = -0.1;
+//       Mini[shift+2]  = -0.1;
+//       Mini[shift+3]  = -0.1;
+//       Maxi[shift]   = 1.03;
+//       Maxi[shift+1] = 0.1;
+//       Maxi[shift+2] = 0.1;
+//       Maxi[shift+3]  = 0.1;
+//     }
+//     ind[shift]   = parScaleOrder[0];
+//     ind[shift+1] = parScaleOrder[1];
+//     ind[shift+2] = parScaleOrder[2];
+//     ind[shift+3] = parScaleOrder[3];
+//     parname[shift]   = "Pt offset";
+//     parname[shift+1] = "Pt slope";
+//     parname[shift+2] = "Eta slope";
+//     parname[shift+3] = "Eta quadr";
+//   } else if (ScaleFitType==9) { 
+//     Start[shift]   = parScale[0]; // 1.0;
+//     Start[shift+1] = parScale[1]; // 0.0;
+//     Step[shift]    = 0.001;
+//     Step[shift+1]  = 0.01;
+//     Mini[shift]    = 0.97;
+//     Mini[shift+1]  = -0.1;
+//     Maxi[shift]    = 1.03;
+//     Maxi[shift+1]  = 0.1;
+//     ind[shift]   = parScaleOrder[0];
+//     ind[shift+1] = parScaleOrder[1];
+//     parname[shift]   = "Pt offset";
+//     parname[shift+1] = "Pt expon";
+//   } else if (ScaleFitType==10) { 
+//     Start[shift]   = parScale[0]; // 1.0;
+//     Start[shift+1] = parScale[1]; // 0.0;
+//     Start[shift+2] = parScale[2]; // 0.0;
+//     Step[shift]    = 0.001;
+//     Step[shift+1]  = 0.01;
+//     Step[shift+2]  = 0.01;
+//     Mini[shift]    = 0.97;
+//     Mini[shift+1]  = -0.1;
+//     Mini[shift+2]  = -0.001;
+//     Maxi[shift]    = 1.03;
+//     Maxi[shift+1]  = 0.1;
+//     Maxi[shift+2]  = 0.001;
+//     ind[shift]   = parScaleOrder[0];
+//     ind[shift+1] = parScaleOrder[1];
+//     ind[shift+2] = parScaleOrder[2];
+//     parname[shift]   = "Pt offset";
+//     parname[shift+1] = "Pt slope";
+//     parname[shift+2] = "Pt quadr";
+//   } else if (ScaleFitType==11) { 
+//     Start[shift]   = parScale[0]; // 1.0;
+//     Start[shift+1] = parScale[1]; // 0.0;
+//     Start[shift+2] = parScale[2]; // 0.0;
+//     Start[shift+3] = parScale[3]; // 0.0;
+//     Step[shift]    = 0.001;
+//     Step[shift+1]  = 0.01;
+//     Step[shift+2]  = 0.01;
+//     Step[shift+3]  = 0.1;
+//     Mini[shift]    = 0.97;
+//     Mini[shift+1]  = -0.1;
+//     Mini[shift+2]  = -0.02;
+//     Mini[shift+3]  = 0.;
+//     Maxi[shift]    = 1.03;
+//     Maxi[shift+1]  = 0.1;
+//     Maxi[shift+2]  = 0.02;
+//     Maxi[shift+3]  = 3.1416;
+//     ind[shift]   = parScaleOrder[0];
+//     ind[shift+1] = parScaleOrder[1];
+//     ind[shift+2] = parScaleOrder[2];
+//     ind[shift+3] = parScaleOrder[3];
+//     parname[shift]   = "Pt scale";
+//     parname[shift+1] = "Pt slope";
+//     parname[shift+2] = "Phi ampl";
+//     parname[shift+3] = "Phi phase";
+//   } else if (ScaleFitType==12) { 
+//     Start[shift]   = parScale[0]; // 1.0;
+//     Start[shift+1] = parScale[1]; // 0.0;
+//     Start[shift+2] = parScale[2]; // 0.0;
+//     Start[shift+3] = parScale[3]; // 0.0;
+//     Start[shift+4] = parScale[4]; // 0.0;
+//     Start[shift+5] = parScale[5]; // 0.0;
+//     Step[shift]    = 0.001;
+//     Step[shift+1]  = 0.01;
+//     Step[shift+2]  = 0.01;
+//     Step[shift+3]  = 0.01;
+//     Step[shift+4]  = 0.01;
+//     Step[shift+5]  = 0.1;
+//     Mini[shift]    = 0.97;
+//     Mini[shift+1]  = -0.1;
+//     Mini[shift+2]  = -0.2;
+//     Mini[shift+3]  = -0.2;
+//     Mini[shift+4]  = -0.02;
+//     Mini[shift+5]  = 0.0;
+//     Maxi[shift]    = 1.03;
+//     Maxi[shift+1]  = 0.1;
+//     Maxi[shift+2]  = 0.2;
+//     Maxi[shift+3]  = 0.2;
+//     Maxi[shift+4]  = 0.02;
+//     Maxi[shift+5]  = 3.1416;
+//     ind[shift]   = parScaleOrder[0];
+//     ind[shift+1] = parScaleOrder[1];
+//     ind[shift+2] = parScaleOrder[2];
+//     ind[shift+3] = parScaleOrder[3];
+//     ind[shift+4] = parScaleOrder[4];
+//     ind[shift+5] = parScaleOrder[5];
+//     parname[shift]   = "Pt scale";
+//     parname[shift+1] = "Pt slope";
+//     parname[shift+2] = "Eta slope";
+//     parname[shift+3] = "Eta quadr";
+//     parname[shift+4] = "Phi ampl";
+//     parname[shift+5] = "Phi phase";
+//   } else if (ScaleFitType==13) { 
+//     Start[shift]   = parScale[0]; // 1.0;
+//     Start[shift+1] = parScale[1]; // 0.0;
+//     Start[shift+2] = parScale[2]; // 0.0;
+//     Start[shift+3] = parScale[3]; // 0.0;
+//     Start[shift+4] = parScale[4]; // 0.0;
+//     Start[shift+5] = parScale[5]; // 0.0;
+//     Start[shift+6] = parScale[6]; // 0.0;
+//     Start[shift+7] = parScale[7]; // 0.0;
+//     Step[shift]   = 0.001;
+//     Step[shift+1] = 0.01;
+//     Step[shift+2] = 0.01;
+//     Step[shift+3] = 0.01;
+//     Step[shift+4] = 0.01;
+//     Step[shift+5] = 0.1;
+//     Step[shift+6] = 0.01;
+//     Step[shift+7] = 0.1;
+//     Mini[shift]   = 0.99;
+//     Mini[shift+1] = -0.01;
+//     Mini[shift+2] = -0.02;
+//     Mini[shift+3] = -0.02;
+//     Mini[shift+4] = -0.02;
+//     Mini[shift+5] = 0.0;
+//     Mini[shift+6] = -0.02;
+//     Mini[shift+7] = 0.0;
+//     Maxi[shift]   = 1.01;
+//     Maxi[shift+1] = 0.01;
+//     Maxi[shift+2] = 0.02;
+//     Maxi[shift+3] = 0.02;
+//     Maxi[shift+4] = 0.02;
+//     Maxi[shift+5] = 3.1416;
+//     Maxi[shift+6] = 0.02;
+//     Maxi[shift+7] = 3.1416;
+//     ind[shift]   = parScaleOrder[0];
+//     ind[shift+1] = parScaleOrder[1];
+//     ind[shift+2] = parScaleOrder[2];
+//     ind[shift+3] = parScaleOrder[3];
+//     ind[shift+4] = parScaleOrder[4];
+//     ind[shift+5] = parScaleOrder[5];
+//     ind[shift+6] = parScaleOrder[6];
+//     ind[shift+7] = parScaleOrder[7];
+//     parname[shift]   = "Pt scale";
+//     parname[shift+1] = "Pt slope";
+//     parname[shift+2] = "Eta slope";
+//     parname[shift+3] = "Eta quadr";
+//     parname[shift+4] = "Phi ampl +";
+//     parname[shift+5] = "Phi phase +";
+//     parname[shift+6] = "Phi ampl -";
+//     parname[shift+7] = "Phi phase -";
+//   } 
 
-  shift = parResol.size()+parScale.size();
+  int shift = parResol.size()+parScale.size();
 
   if (BgrFitType==1) {
     Start[shift]   = parBgr[0]; // 0.01 

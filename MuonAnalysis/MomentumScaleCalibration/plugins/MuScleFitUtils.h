@@ -5,8 +5,8 @@
  *  
  *  Provide basic functionalities useful for MuScleFit
  *
- *  $Date: 2008/11/04 12:58:33 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/11/10 08:39:18 $
+ *  $Revision: 1.4 $
  *  \author S. Bolognesi - INFN Torino / T. Dorigo - INFN Padova
  */
 
@@ -30,6 +30,7 @@ template <class T> class biasFunctionBase;
 template <class T> class scaleFunctionBase;
 class smearFunctionBase;
 template <class T> class resolutionFunctionBase;
+class backgroundFunctionBase;
 
 class SimTrack; 
 class TString;
@@ -118,7 +119,9 @@ public:
   static resolutionFunctionBase<vector<double> > * resolutionFunctionForVec;
   static int ScaleFitType;
   static scaleFunctionBase<double*> * scaleFunction;
+  static scaleFunctionBase<vector<double> > * scaleFunctionForVec;
   static int BgrFitType;
+  static backgroundFunctionBase * backgroundFunction;
 
   // Parameters used to select whether to do a fit
   static std::vector<int> doResolFit;
