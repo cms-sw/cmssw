@@ -11,7 +11,7 @@
 draw( const TString & resolName, TDirectory * resolDir,
       const TString & functionResolName, TDirectory * functionResolDir,
       const TString & canvasName, TFile * outputFile,
-      const TString & title = "", const TString & xAxisTitle = "", const TString & yAxisTitle = "" ) {
+      const TString & title = "", const TString & xAxisTitle = "", const TString & yAxisTitle = "", double Ymax ) {
   TH1D * resolVSpt = (TH1D*) resolDir->Get(resolName);
   TProfile * functionResolVSpt = (TProfile*) functionResolDir->Get(functionResolName);
 
@@ -24,6 +24,8 @@ draw( const TString & resolName, TDirectory * resolDir,
   resolVSpt->SetTitle(title);
   resolVSpt->GetXaxis()->SetTitle(xAxisTitle);
   resolVSpt->GetYaxis()->SetTitle(yAxisTitle);
+  resolVSpt->SetMaximum(Ymax);
+  resolVSpt->SetMinimum(-Ymax/2);
   resolVSpt->Draw();
   functionResolVSpt->SetMarkerColor(kRed);
   functionResolVSpt->SetLineColor(kRed);
@@ -45,10 +47,10 @@ void ResolCompare() {
   // Remove the stat box
   gStyle->SetOptStat(0);
 
-  TFile * outputFile = new TFile("ComparedResol.root", "RECREATE");
+  TFile * outputFile = new TFile("ComparedResol_ZY_10k_step1.root", "RECREATE");
 
-  TFile * resolFile = new TFile("redrawed.root", "READ");
-  TFile * functionResolFile = new TFile("0_MuScleFit.root", "READ");
+  TFile * resolFile = new TFile("redrawed_ZY_10k_step1.root", "READ");
+  TFile * functionResolFile = new TFile("0_MuScleFit_ZY_10k_step1.root", "READ");
 
   TDirectory * resolDir = 0;
   TDirectory * functionResolDir = 0;
@@ -61,13 +63,13 @@ void ResolCompare() {
        "hFunctionResolPt_ResoVSPt_prof", functionResolDir,
        "resolPtVSpt", outputFile,
        "resolution on pt vs pt",
-       "pt(GeV)", "#sigmapt");
+       "pt(GeV)", "#sigmapt",0.05);
   // VS Eta
   draw("hResolPtGenVSMu_ResoVSEta_resol", resolDir,
        "hFunctionResolPt_ResoVSEta_prof", functionResolDir,
        "resolPtVSeta", outputFile,
        "resolution on pt vs #eta",
-       "#eta", "#sigmapt");
+       "#eta", "#sigmapt",0.05);
 
   // sigmaCotgTheta
   // --------------
@@ -78,13 +80,13 @@ void ResolCompare() {
        "hFunctionResolCotgTheta_ResoVSPt_prof", functionResolDir,
        "resolCotgThetaVSpt", outputFile,
        "resolution on cotg(#theta) vs pt",
-       "pt(GeV)", "#sigmacotg(#theta)");
+       "pt(GeV)", "#sigmacotg(#theta)",0.01);
   // VS Eta
   draw("hResolCotgThetaGenVSMu_ResoVSEta_resol", resolDir,
        "hFunctionResolCotgTheta_ResoVSEta_prof", functionResolDir,
        "resolCotgThetaVSeta", outputFile,
        "resolution on cotg(#theta) vs #eta",
-       "#eta", "#sigmacotg(#theta)");
+       "#eta", "#sigmacotg(#theta)",0.01);
   // sigmaPhi
   // --------
   resolDir = (TDirectory*) resolFile->Get("hResolPhiGenVSMu");
@@ -94,11 +96,11 @@ void ResolCompare() {
        "hFunctionResolPhi_ResoVSPt_prof", functionResolDir,
        "resolPhiVSpt", outputFile,
        "resolution on #phi vs pt",
-       "pt(GeV)", "#sigma#phi");
+       "pt(GeV)", "#sigma#phi",0.01);
   // VS Eta
   draw("hResolPhiGenVSMu_ResoVSEta_resol", resolDir,
        "hFunctionResolPhi_ResoVSEta_prof", functionResolDir,
        "resolPhiVSeta", outputFile,
        "resolution on #phi vs #eta",
-       "#eta", "#sigma#phi");
+       "#eta", "#sigma#phi",0.01);
 }
