@@ -1,957 +1,3235 @@
-/** \file
- *
- *  implementation of RPCMonitorEfficiency class
- *
- *  $Date: 2008/01/22 19:11:44 $
- *  Revision: 1.5 $
- *
- * \author  Camilo Carrillo
- */
+// -*- C++ -*-
+//
+// Package:    RPCMonitorEfficiency
+// Class:      RPCMonitorEfficiency
+// 
+/**\class RPCMonitorEfficiency RPCMonitorEfficiency.cc DQM/RPCMonitorDigi/src/RPCMonitorEfficiency.cc
 
-#include <DQM/RPCMonitorDigi/interface/RPCMonitorEfficiency.h>
+ Description: <one line class summary>
 
-///Log messages
+ Implementation:
+     <Notes on implementation>
+*/
+//
+// Original Author:  pts/45
+//         Created:  Tue May 13 12:23:34 CEST 2008
+// $Id$
+//
+//
+
+
+// system include files
+#include <memory>
+
+// user include files
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
+
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include <Geometry/RPCGeometry/interface/RPCGeometry.h>
+#include <Geometry/RPCGeometry/interface/RPCGeomServ.h>
+#include <Geometry/CommonDetUnit/interface/GeomDet.h>
+#include <Geometry/Records/interface/MuonGeometryRecord.h>
 #include "FWCore/Framework/interface/ESHandle.h"
+#include<string>
+#include<fstream>
+#include <DQMOffline/Muon/interface/RPCBookFolderStructure.h>
+#include <Geometry/CommonTopologies/interface/RectangularStripTopology.h>
+#include <Geometry/CommonTopologies/interface/TrapezoidalStripTopology.h>
 
-#include "Geometry/DTGeometry/interface/DTGeometry.h"
-#include "Geometry/RPCGeometry/interface/RPCGeometry.h"
-#include "Geometry/CommonTopologies/interface/RectangularStripTopology.h"
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
-#include "Geometry/Records/interface/MuonGeometryRecord.h"
+//Root
+#include "TFile.h"
+#include "TF1.h"
+#include "TH1F.h"
+#include "TH1.h"
+#include "TH2F.h"
+#include "TROOT.h"
+#include "TMath.h"
+#include "TCanvas.h"
+#include "TTree.h"
+#include "TGaxis.h"
+#include <TStyle.h>
+#include "TText.h"
+#include "TPaveText.h"
+//
+// class decleration
+//
 
-///Data Format
-#include "DataFormats/RPCDigi/interface/RPCDigi.h"
-#include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
-#include "DataFormats/MuonDetId/interface/RPCDetId.h"
-#include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
-#include "DataFormats/MuonDetId/interface/DTChamberId.h"
-#include "DataFormats/GeometryVector/interface/LocalPoint.h"
+class TFile;
 
+class RPCMonitorEfficiency : public edm::EDAnalyzer {
+public:
+  explicit RPCMonitorEfficiency(const edm::ParameterSet&);
+  ~RPCMonitorEfficiency();  
+  TFile * theFile;
+  TFile * theFileOut;
+  
+  TH1F * statistics;
 
+  TH2F * bxbarrel;
+  TH2F * bxendcap;
+  
+  TH1F * hGlobalResClu1La1;
+  TH1F * hGlobalResClu1La2;
+  TH1F * hGlobalResClu1La3;
+  TH1F * hGlobalResClu1La4;
+  TH1F * hGlobalResClu1La5;
+  TH1F * hGlobalResClu1La6;
 
-#include <cmath>
+  TH1F * hGlobalResClu2La1;
+  TH1F * hGlobalResClu2La2;
+  TH1F * hGlobalResClu2La3;
+  TH1F * hGlobalResClu2La4;
+  TH1F * hGlobalResClu2La5;
+  TH1F * hGlobalResClu2La6;
 
+  TH1F * hGlobalResClu3La1;
+  TH1F * hGlobalResClu3La2;
+  TH1F * hGlobalResClu3La3;
+  TH1F * hGlobalResClu3La4;
+  TH1F * hGlobalResClu3La5;
+  TH1F * hGlobalResClu3La6;
 
-class DTStationIndex{
-public: 
-  DTStationIndex():_region(0),_wheel(0),_sector(0),_station(0){}
-  DTStationIndex(int region, int wheel, int sector, int station) : 
-    _region(region),
-    _wheel(wheel),
-    _sector(sector),
-    _station(station){}
-  ~DTStationIndex(){}
-  int region() const {return _region;}
-  int wheel() const {return _wheel;}
-  int sector() const {return _sector;}
-  int station() const {return _station;}
-  bool operator<(const DTStationIndex& dtind) const{
-    if(dtind.region()!=this->region())
-      return dtind.region()<this->region();
-    else if(dtind.wheel()!=this->wheel())
-      return dtind.wheel()<this->wheel();
-    else if(dtind.sector()!=this->sector())
-      return dtind.sector()<this->sector();
-    else if(dtind.station()!=this->station())
-      return dtind.station()<this->station();
-    return false;
-  }
-private:
-  int _region;
-  int _wheel;
-  int _sector;
-  int _station; 
+  //Endcap                                                                                                                            
+
+  TH1F * hGlobalResClu1R3C;
+  TH1F * hGlobalResClu1R3B;
+  TH1F * hGlobalResClu1R3A;
+  TH1F * hGlobalResClu1R2C;
+  TH1F * hGlobalResClu1R2B;
+  TH1F * hGlobalResClu1R2A;
+
+  TH1F * hGlobalResClu2R3C;
+  TH1F * hGlobalResClu2R3B;
+  TH1F * hGlobalResClu2R3A;
+  TH1F * hGlobalResClu2R2C;
+  TH1F * hGlobalResClu2R2B;
+  TH1F * hGlobalResClu2R2A;
+
+  TH1F * hGlobalResClu3R3C;
+  TH1F * hGlobalResClu3R3B;
+  TH1F * hGlobalResClu3R3A;
+  TH1F * hGlobalResClu3R2C;
+  TH1F * hGlobalResClu3R2B;
+  TH1F * hGlobalResClu3R2A;
+  
+  TH1F * EffBarrel;
+
+  TH1F * EffDistroWm2;
+  TH1F * EffDistroWm1;
+  TH1F * EffDistroW0;
+  TH1F * EffDistroW1;
+  TH1F * EffDistroW2;
+
+  TH1F * EffDistroWm2far;
+  TH1F * EffDistroWm1far;
+  TH1F * EffDistroW0far;
+  TH1F * EffDistroW1far;
+  TH1F * EffDistroW2far;
+
+  TH1F * DoubleGapDistroWm2;
+  TH1F * DoubleGapDistroWm1;
+  TH1F * DoubleGapDistroW0;
+  TH1F * DoubleGapDistroW1;
+  TH1F * DoubleGapDistroW2;
+
+  TH1F * DoubleGapDistroWm2far;
+  TH1F * DoubleGapDistroWm1far;
+  TH1F * DoubleGapDistroW0far;
+  TH1F * DoubleGapDistroW1far;
+  TH1F * DoubleGapDistroW2far;
+
+  TH1F * EffEndCap;
+
+  TH1F * EffDistroDm3;  
+  TH1F * EffDistroDm2;
+  TH1F * EffDistroDm1;
+  TH1F * EffDistroD1;
+  TH1F * EffDistroD2;
+  TH1F * EffDistroD3;
+
+  TH1F * EffDistroDm3far;
+  TH1F * EffDistroDm2far;
+  TH1F * EffDistroDm1far;
+  TH1F * EffDistroD1far;
+  TH1F * EffDistroD2far;
+  TH1F * EffDistroD3far;
+
+  TH1F * histoRPC;
+  TH2F * histoRPC_2D;
+  TH1F * histoDT;
+  TH2F * histoDT_2D;
+  TH1F * histoCSC;
+  TH2F * histoCSC_2D;
+  TH1F * histoPRO;
+  TH2F * histoPRO_2D;
+  TH1F * histoRES;
+  TH1F * BXDistribution;
+  TH1F * histoRealRPC;
+  TH1F * histoResidual;
+
+  TH1F * EffGlobWm2;
+  TH1F * EffGlobWm1;
+  TH1F * EffGlobW0;
+  TH1F * EffGlobW1;
+  TH1F * EffGlobW2;
+
+  TH1F * EffGlobWm2far;
+  TH1F * EffGlobWm1far;
+  TH1F * EffGlobW0far;
+  TH1F * EffGlobW1far;
+  TH1F * EffGlobW2far;
+
+  TH1F * DoubleGapWm2;
+  TH1F * DoubleGapWm1;
+  TH1F * DoubleGapW0;
+  TH1F * DoubleGapW1;
+  TH1F * DoubleGapW2;
+
+  TH1F * DoubleGapWm2far;
+  TH1F * DoubleGapWm1far;
+  TH1F * DoubleGapW0far;
+  TH1F * DoubleGapW1far;
+  TH1F * DoubleGapW2far;
+
+  TH1F * BXGlobWm2;
+  TH1F * BXGlobWm1;
+  TH1F * BXGlobW0;
+  TH1F * BXGlobW1;
+  TH1F * BXGlobW2;
+
+  TH1F * BXGlobWm2far;
+  TH1F * BXGlobWm1far;
+  TH1F * BXGlobW0far;
+  TH1F * BXGlobW1far;
+  TH1F * BXGlobW2far;
+
+  TH1F * MaskedGlobWm2;
+  TH1F * MaskedGlobWm1;
+  TH1F * MaskedGlobW0;
+  TH1F * MaskedGlobW1;
+  TH1F * MaskedGlobW2;
+
+  TH1F * MaskedGlobWm2far;
+  TH1F * MaskedGlobWm1far;
+  TH1F * MaskedGlobW0far;
+  TH1F * MaskedGlobW1far;
+  TH1F * MaskedGlobW2far;
+
+  TH1F * AverageEffWm2;
+  TH1F * AverageEffWm1;
+  TH1F * AverageEffW0;
+  TH1F * AverageEffW1;
+  TH1F * AverageEffW2;
+
+  TH1F * AverageEffWm2far;
+  TH1F * AverageEffWm1far;
+  TH1F * AverageEffW0far;
+  TH1F * AverageEffW1far;
+  TH1F * AverageEffW2far;
+  
+  TH1F * NoPredictionWm2;
+  TH1F * NoPredictionWm1;
+  TH1F * NoPredictionW0;
+  TH1F * NoPredictionW1;
+  TH1F * NoPredictionW2;
+
+  TH1F * NoPredictionWm2far;
+  TH1F * NoPredictionWm1far;
+  TH1F * NoPredictionW0far;
+  TH1F * NoPredictionW1far;
+  TH1F * NoPredictionW2far;
+
+  TH1F * EffGlobDm3;
+  TH1F * EffGlobDm2;
+  TH1F * EffGlobDm1;
+  TH1F * EffGlobD1;
+  TH1F * EffGlobD2;
+  TH1F * EffGlobD3;
+
+  TH1F * EffGlobDm3far;
+  TH1F * EffGlobDm2far;
+  TH1F * EffGlobDm1far;
+  TH1F * EffGlobD1far;
+  TH1F * EffGlobD2far;
+  TH1F * EffGlobD3far;
+
+  TH1F * BXGlobDm3;
+  TH1F * BXGlobDm2;
+  TH1F * BXGlobDm1;
+  TH1F * BXGlobD1;
+  TH1F * BXGlobD2;
+  TH1F * BXGlobD3;
+  
+  TH1F * BXGlobDm3far;
+  TH1F * BXGlobDm2far;
+  TH1F * BXGlobDm1far;
+  TH1F * BXGlobD1far;
+  TH1F * BXGlobD2far;
+  TH1F * BXGlobD3far;
+
+  TH1F * MaskedGlobDm3;
+  TH1F * MaskedGlobDm2;
+  TH1F * MaskedGlobDm1;
+  TH1F * MaskedGlobD1;
+  TH1F * MaskedGlobD2;
+  TH1F * MaskedGlobD3;
+  
+  TH1F * MaskedGlobDm3far;
+  TH1F * MaskedGlobDm2far;
+  TH1F * MaskedGlobDm1far;
+  TH1F * MaskedGlobD1far;
+  TH1F * MaskedGlobD2far;
+  TH1F * MaskedGlobD3far;
+
+  TH1F * AverageEffDm3;
+  TH1F * AverageEffDm2;
+  TH1F * AverageEffDm1;
+  TH1F * AverageEffD1;
+  TH1F * AverageEffD2;
+  TH1F * AverageEffD3;
+
+  TH1F * AverageEffDm3far;
+  TH1F * AverageEffDm2far;
+  TH1F * AverageEffDm1far;
+  TH1F * AverageEffD1far;
+  TH1F * AverageEffD2far;
+  TH1F * AverageEffD3far;
+
+  TH1F * NoPredictionDm3;
+  TH1F * NoPredictionDm2;
+  TH1F * NoPredictionDm1;
+  TH1F * NoPredictionD1;
+  TH1F * NoPredictionD2;
+  TH1F * NoPredictionD3;
+
+  TH1F * NoPredictionDm3far;
+  TH1F * NoPredictionDm2far;
+  TH1F * NoPredictionDm1far;
+  TH1F * NoPredictionD1far;
+  TH1F * NoPredictionD2far;
+  TH1F * NoPredictionD3far;
+
+  TPaveText * pave;
+
+   private:
+      virtual void beginJob(const edm::EventSetup&) ;
+      virtual void analyze(const edm::Event&, const edm::EventSetup&);
+      virtual void endJob() ;
+      std::string file;
+      std::string fileout;
+      std::ofstream rpcInfo;
+      std::ofstream rpcNames;
+      std::ofstream rollsWithData;
+      std::ofstream rollsWithOutData;
+      std::ofstream rollsBarrel;
+      std::ofstream rollsEndCap;
+      std::ofstream rollsPointedForASegment;
+      std::ofstream rollsNotPointedForASegment;
+      std::ofstream bxMeanList;
+      bool prodimages;
+      bool makehtml;
+      bool cosmics;
+      bool dosD;
+      double threshold;
+      bool endcap;
+      bool barrel; 
 };
 
 
-//**********************************************************************************************************
-
-
-
-RPCMonitorEfficiency::RPCMonitorEfficiency( const edm::ParameterSet& pset ){
-  std::map<RPCDetId, int> buff;
-  counter.clear();
-  counter.reserve(3);
-  //std::cout <<" Buff 1"<<std::endl;
-  counter.push_back(buff);
-  //std::cout <<" Buff 2"<<std::endl;
-  counter.push_back(buff);
-  //std::cout <<" Buff 3"<<std::endl;
-  counter.push_back(buff);
-  totalcounter.clear();
-  totalcounter.reserve(3);
-  totalcounter[0]=0;
-  totalcounter[1]=0;
-  totalcounter[2]=0;
-  theRecHits4DLabel = pset.getParameter<std::string>("recHits4DLabel");
-  digiLabel=pset.getParameter<std::string>("digiLabel");
-  EffSaveRootFile  = pset.getUntrackedParameter<bool>("EffSaveRootFile", false); 
-  EffSaveRootFileEventsInterval  = pset.getUntrackedParameter<int>("EffEventsInterval", 10000); 
-  EffRootFileName  = pset.getUntrackedParameter<std::string>("EffRootFileName", "RPCEfficiency.root"); 
-
-  /// get hold of back-end interface
-  dbe = edm::Service<DQMStore>().operator->();
-  
-
-  dbe->showDirStructure();
-
-  _idList.clear(); 
-  //ofrej.open("rejected.txt");
+RPCMonitorEfficiency::RPCMonitorEfficiency(const edm::ParameterSet& iConfig){
+  //now do what ever initialization is needed
+  file=iConfig.getUntrackedParameter<std::string>("fileName");
+  fileout=iConfig.getUntrackedParameter<std::string>("fileOut");  
+  prodimages=iConfig.getUntrackedParameter<bool>("prodimages");
+  makehtml=iConfig.getUntrackedParameter<bool>("makehtml");
+  cosmics=iConfig.getUntrackedParameter<bool>("cosmics");
+  dosD=iConfig.getUntrackedParameter<bool>("dosD");
+  threshold=iConfig.getUntrackedParameter<double>("threshold");
+  endcap=iConfig.getUntrackedParameter<bool>("endcap");
+  barrel=iConfig.getUntrackedParameter<bool>("barrel");
 }
 
-void RPCMonitorEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup ){
-  std::map<RPCDetId, int> buff;
-  char layerLabel[128];
-  char meIdRPC [128];
-  char meIdDT [128];
-  float dx=0.,dy=0.,dz=0.,Xo=0.,Yo=0.,X=0.,Y=0.,Z=0.,p1x=0.,p2x=0.,p3x=0.,p4x=0.,p1z=0.,p2z=0.,p3z=0.,p4z=0.,dx3=0.,dy3=0.,dz3=0.,Xo3=0.,Yo3=0.,x3=0.,x4=0.,z3=0.,z4=0.,m3=0.,m4=0.,xc=0.,zc=0.,b3=0.,b4=0.,w3=0.,w4=0.;
-
-  float widestrip=5.;
-  float widestripsRB4=8.;
-  float circError=3.;
-  float angle=0.01;
-
-  edm::ESHandle<DTGeometry> dtGeo;
-  iSetup.get<MuonGeometryRecord>().get(dtGeo);
-  
-  edm::ESHandle<RPCGeometry> rpcGeo;
-  iSetup.get<MuonGeometryRecord>().get(rpcGeo);
-  
-  edm::Handle<DTRecSegment4DCollection> all4DSegments;
-  iEvent.getByLabel(theRecHits4DLabel, all4DSegments);
-  
-  edm::Handle<RPCDigiCollection> rpcDigis;
-  iEvent.getByLabel(digiLabel, rpcDigis);
-
-  std::map<DTStationIndex,std::set<RPCDetId> > rollstore;
-  for (TrackingGeometry::DetContainer::const_iterator it=rpcGeo->dets().begin();it<rpcGeo->dets().end();it++){
-    RPCRoll* ir = dynamic_cast<RPCRoll*>(*it);
-    RPCDetId rpcId = ir->id();
-    int region=rpcId.region();
-    int wheel=rpcId.ring();
-    int sector=rpcId.sector();
-    int station=rpcId.station();
-    
-    DTStationIndex ind(region,wheel,sector,station);
-    
-    std::set<RPCDetId> myrolls;
-    if (rollstore.find(ind)!=rollstore.end()){
-      myrolls=rollstore[ind];
-    }
-    myrolls.insert(rpcId);
-    rollstore[ind]=myrolls;
-  }
-
-  
-  if(all4DSegments->size()>0){
-    //std::cout<<"Number of Segments in this event = "<<all4DSegments->size()<<std::endl;
-    
-
-    std::map<DTChamberId,int> scounter;
-    DTRecSegment4DCollection::const_iterator segment;  
-
-    
-    for (segment = all4DSegments->begin();segment!=all4DSegments->end(); ++segment){
-      scounter[segment->chamberId()]++;
-    }    
-    
-    //std::cout<<"Loop over all the 4D Segments"<<std::endl;
-    //loop over all the 4D Segments
-
-    for (segment = all4DSegments->begin(); segment != all4DSegments->end(); ++segment){ 
-      DTChamberId DTId = segment->chamberId();
-      //std::cout<<"\t This Segment is in Chamber id: "<<DTId<<std::endl;
-      //std::cout<<"\t Number of segments in this DT = "<<scounter[DTId]<<std::endl;
-      //std::cout<<"\t DT Segment Dimension "<<segment->dimension()<<std::endl; 
-      //std::cout<<"\t Is the only in this DT?"<<std::endl;
-
-      //there must be only one segment per Chamber
-      if(scounter[DTId] == 1){	
-	//std::cout<<"\t \t yes"<<std::endl;
-	int dtWheel = DTId.wheel();
-	int dtStation = DTId.station();
-	int dtSector = DTId.sector();
-	
-	LocalPoint segmentPosition= segment->localPosition();
-	LocalVector segmentDirection=segment->localDirection();
-
-	const GeomDet* gdet=dtGeo->idToDet(segment->geographicalId());
-	const BoundPlane & DTSurface = gdet->surface();
-
-        //check if the dimension of the segment is 4 
-
-	if(segment->dimension()==4){
-	  Xo=segmentPosition.x();
-	  Yo=segmentPosition.y();
-	  dx=segmentDirection.x();
-	  dy=segmentDirection.y();
-	  dz=segmentDirection.z();
-	  //std::cout<<"\t \t Loop over all the rolls asociated to this DT"<<std::endl;
-	  std::set<RPCDetId> rollsForThisDT = 
-	    rollstore[DTStationIndex(0,dtWheel,dtSector,dtStation)];
-	  //Loop over all the rolls
-	  for (std::set<RPCDetId>::iterator iteraRoll = rollsForThisDT.begin();iteraRoll != rollsForThisDT.end(); iteraRoll++){
-	    const RPCRoll* rollasociated = rpcGeo->roll(*iteraRoll);
-	    //To get the roll's surface
-	    const BoundPlane & RPCSurface = rollasociated->surface(); 
-	    //std::cout<<"\t \t RollID: "<<rollasociated->id()<<std::endl;
-	    //std::cout<<"\t \t Doing the extrapolation"<<std::endl;
-	    //std::cout<<"\t \t DT Segment Direction in DTLocal "<<segmentDirection<<std::endl;
-	    //std::cout<<"\t \t DT Segment Point in DTLocal "<<segmentPosition<<std::endl;
-	    
-	    GlobalPoint CenterPointRollGlobal = RPCSurface.toGlobal(LocalPoint(0,0,0));
-	    //std::cout<<"\t \t Center (0,0,0) of the Roll in Global"<<CenterPointRollGlobal<<std::endl;
-	    
-	    LocalPoint CenterRollinDTFrame = DTSurface.toLocal(CenterPointRollGlobal);
-	    //std::cout<<"\t \t Center (0,0,0) Roll In DTLocal"<<CenterRollinDTFrame<<std::endl;
-	    
-	    float D=CenterRollinDTFrame.z();
-	    //std::cout<<"\t \t D="<<D<<"cm"<<std::endl;
-	    
-	    X=Xo+dx*D/dz;
-	    Y=Yo+dy*D/dz;
-	    Z=D;
-	    
-	    const RectangularStripTopology* top_= dynamic_cast<const RectangularStripTopology*> (&(rollasociated->topology()));
-	    LocalPoint xmin = top_->localPosition(0.);
-	    LocalPoint xmax = top_->localPosition((float)rollasociated->nstrips());
-	    float rsize = fabs( xmax.x()-xmin.x() )*0.5;
-	    float stripl = top_->stripLength();
-	  	  
-	    //std::cout<<"\t \t X Predicted in DTLocal= "<<X<<"cm"<<std::endl;
-	    //std::cout<<"\t \t Y Predicted in DTLocal= "<<Y<<"cm"<<std::endl;
-	    //std::cout<<"\t \t Z Predicted in DTLocal= "<<Z<<"cm"<<std::endl;
-	    
-	    GlobalPoint GlobalPointExtrapolated = 
-	      DTSurface.toGlobal(LocalPoint(X,Y,Z));
-	    //std::cout<<"\t \t Point ExtraPolated in Global"<<GlobalPointExtrapolated<< std::endl;
-	    
-	    LocalPoint PointExtrapolatedRPCFrame =
-	      RPCSurface.toLocal(GlobalPointExtrapolated);
-	    //std::cout<<"\t \t Point Extrapolated in RPCLocal"<<PointExtrapolatedRPCFrame<< std::endl;
-	    //std::cout<<"\t \t Does the extrapolation go inside this roll?"<<std::endl;
-	    //conditions to find the right roll to extrapolate
-	    
-	    if(fabs(PointExtrapolatedRPCFrame.z()) < 0.01 && fabs(PointExtrapolatedRPCFrame.x()) < rsize && fabs(PointExtrapolatedRPCFrame.y()) < stripl*0.5){ 
-	      //std::cout<<"\t \t \t yes"<<std::endl;	
-	      //getting the number of the strip
-	      const float stripPredicted = 
-		rollasociated->strip(LocalPoint(PointExtrapolatedRPCFrame.x(),PointExtrapolatedRPCFrame.y(),0.)); 
-	      
-	      //std::cout<<"\t \t \t Candidate"<<rollasociated->id()<<" "<<"(from DT Segment) STRIP---> "<<stripPredicted<< std::endl;
-	      
-	      //--------- HISTOGRAM STRIP PREDICTED FROM DT  -------------------
-	      
-	      RPCDetId  rollId = rollasociated->id();
-	      uint32_t id = rollId.rawId();
-
-	      RPCDetId otherRollId1,otherRollId2;
-
-	      if(rollId.roll() == 1){
-		RPCDetId tempRollId1(rollId.region(),rollId.ring(),rollId.station(),rollId.sector(),rollId.layer(),rollId.subsector(),2);
-		RPCDetId tempRollId2(rollId.region(),rollId.ring(),rollId.station(),rollId.sector(),rollId.layer(),rollId.subsector(),3);
-		otherRollId1 = tempRollId1;
-		otherRollId2 = tempRollId2;
-	      }
-	      else if(rollId.roll() == 2){
-
-		RPCDetId tempRollId1(rollId.region(),rollId.ring(),rollId.station(),rollId.sector(),rollId.layer(),rollId.subsector(),1);
-		RPCDetId tempRollId2(rollId.region(),rollId.ring(),rollId.station(),rollId.sector(),rollId.layer(),rollId.subsector(),3);
-		otherRollId1 = tempRollId1;
-		otherRollId2 = tempRollId2;
-	      }
-	      else if(rollId.roll() == 3){
-		RPCDetId tempRollId1(rollId.region(),rollId.ring(),rollId.station(),rollId.sector(),rollId.layer(),rollId.subsector(),1);
-		RPCDetId tempRollId2(rollId.region(),rollId.ring(),rollId.station(),rollId.sector(),rollId.layer(),rollId.subsector(),2);
-		otherRollId1 = tempRollId1;
-		otherRollId2 = tempRollId2;
-	      }
-
-	      RPCDigiCollection::Range rpcRangeDigi1=rpcDigis->get(otherRollId1);
-	      RPCDigiCollection::Range rpcRangeDigi2=rpcDigis->get(otherRollId2);
-
-	      _idList.push_back(id);
-	      
-	      char detUnitLabel[128];
-	      sprintf(detUnitLabel ,"%d",id);
-	      sprintf(layerLabel ,"layer%d_subsector%d_roll%d",rollId.layer(),rollId.subsector(),rollId.roll());
-	      
-	      std::map<uint32_t, std::map<std::string,MonitorElement*> >::iterator meItr = meCollection.find(id);
-	      if (meItr == meCollection.end()){
-		meCollection[id] = bookDetUnitMEEff(rollId);
-		//std::cout << "\t \t \t Create new histograms  for "<<layerLabel<<std::endl;
-	      }
-	      
-	      std::map<std::string, MonitorElement*> meMap=meCollection[id];
-	      sprintf(meIdDT,"ExpectedOccupancyFromDT_%s",detUnitLabel);
-	      meMap[meIdDT]->Fill(stripPredicted);
-
-	      sprintf(meIdDT,"ExpectedOccupancy2DFromDT_%s",detUnitLabel);
-	      meMap[meIdDT]->Fill(stripPredicted,Y);
-
-	      //std::cout << "\t \t \t One for counterPREDICT"<<std::endl;
-	      totalcounter[0]++;
-	      buff=counter[0];
-	      buff[rollId]++;
-	      counter[0]=buff;
-	      //-------------------------------------------------------------------
-	      
-	      //std::cout<<"\t \t \t We have a Candidate let's see in the digis!"<<std::endl;
-	      
-	      bool anycoincidence=false;
-	      int stripDetected = 0;
-	      RPCDigiCollection::Range rpcRangeDigi=rpcDigis->get(rollasociated->id());
-
-	      int stripCounter = 0;
-
-	      for (RPCDigiCollection::const_iterator digiIt = rpcRangeDigi.first;digiIt!=rpcRangeDigi.second;++digiIt){//loop over the digis in the event
-		stripCounter++;
-		//std::cout<<"\t \t \t \t Digi "<<*digiIt<<std::endl;//print the digis in the event
-		stripDetected=digiIt->strip();
-
-		float res = (float)(stripDetected) - stripPredicted;
-		sprintf(meIdRPC,"RPCResiduals_%s",detUnitLabel);
-		meMap[meIdRPC]->Fill(res);
-		
-		sprintf(meIdRPC,"RPCResiduals2D_%s",detUnitLabel);
-		meMap[meIdRPC]->Fill(res,Y);
-		
-		if(res > 7)
-		  std::cout<<"STRANGE     "<<"EVENTO NUM = "<<iEvent.id().event()<<"   Residuo = "<<res<<"   Strip Num = "<<stripDetected<<"   Strip totali = "<<stripCounter<<std::endl;
-		//compare the strip Detected with the predicted
-		if(fabs((float)(stripDetected) - stripPredicted) < widestrip){
-		  //std::cout <<"\t \t \t \t COINCEDENCE Predict "
-		  //    <<stripPredicted<<" Detect "
-		  //    <<stripDetected<<std::endl;
-		  anycoincidence=true;
-		  //break;//funciona solo para hacerlo mas rapido
-		  //We can not divide two diferents things
-		}
-	      }
-	      if (anycoincidence) {
-		sprintf(meIdRPC,"ExpectedOccupancyFromDT_forCrT_%s",detUnitLabel);
-		meMap[meIdRPC]->Fill(stripPredicted);
-		sprintf(meIdRPC,"RealDetectedOccupancy_%s",detUnitLabel);
-		meMap[meIdRPC]->Fill(stripDetected);
-		sprintf(meIdRPC,"YExpectedOccupancyFromDT_%s",detUnitLabel);
-		meMap[meIdRPC]->Fill(Y);
-
-		for (RPCDigiCollection::const_iterator digiIt1 = rpcRangeDigi1.first;digiIt1!=rpcRangeDigi1.second;++digiIt1){
-
-		  if(fabs(stripDetected - digiIt1->strip()) <= 1){
-		    
-		    sprintf(meIdRPC,"XCrossTalk_1_%s",detUnitLabel);
-		    meMap[meIdRPC]->Fill(stripPredicted);
-
-		    sprintf(meIdRPC,"XDetectCrossTalk_1_%s",detUnitLabel);
-		    meMap[meIdRPC]->Fill(stripDetected);
-
-		    sprintf(meIdRPC,"YCrossTalk_1_%s",detUnitLabel);
-		    meMap[meIdRPC]->Fill(Y);
-		    break;
-		  }
-		}
-
-		for (RPCDigiCollection::const_iterator digiIt2 = rpcRangeDigi2.first;digiIt2!=rpcRangeDigi2.second;++digiIt2){
-
-		  if(fabs(stripDetected - digiIt2->strip()) <= 1){
-		    
-		    sprintf(meIdRPC,"XCrossTalk_2_%s",detUnitLabel);
-		    meMap[meIdRPC]->Fill(stripPredicted);
-
-		    sprintf(meIdRPC,"XDetectCrossTalk_2_%s",detUnitLabel);
-		    meMap[meIdRPC]->Fill(stripDetected);
-
-		    sprintf(meIdRPC,"YCrossTalk_2_%s",detUnitLabel);
-		    meMap[meIdRPC]->Fill(Y);
-		    break;
-		  }
-		}
-
-		sprintf(meIdRPC,"RPCDataOccupancy_%s",detUnitLabel);
-		meMap[meIdRPC]->Fill(stripPredicted);
-
-		sprintf(meIdRPC,"RPCDataOccupancy2D_%s",detUnitLabel);
-		meMap[meIdRPC]->Fill(stripPredicted,Y);
-
-		totalcounter[1]++;
-		buff=counter[1];
-		buff[rollId]++;
-		counter[1]=buff;		
-	      }
-	      else {
-		//std::cout <<"\t \t \t \t XXXXX THIS PREDICTION DOESN'T HAVE ANY CORRESPONDENCE WITH THE DATA"<<std::endl;
-		totalcounter[2]++;
-		buff=counter[2];
-		buff[rollId]++;
-		counter[2]=buff;		
-		//std::cout << "\t \t \t \t One for counterFAIL"<<std::endl;
-		//ofrej<<"Wh "<<dtWheel<<"\t  St "<<dtStation
-		//     <<"\t Se "<<dtSector<<"\t Event "
-		//    <<iEvent.id().event()<<std::endl;
-	      }
-	    }
-	    else {
-	      //std::cout<<"\t \t \t no"<<std::endl;
-	    }//Condition for the right match
-	  }//loop over all the rolls
-
-
-	  // dedicated RB4 analysis part, that misses DT 4D segments
-
-
-	}else if(segment->dimension()==2&&dtStation==4){
-	  
-	  LocalVector segmentDirectionMB4=segmentDirection;
-	  LocalPoint segmentPositionMB4=segmentPosition;
-	  
-
-	  //std::cout<<"\t \t 2D in RB4"<<DTId<<" with D="<<segment->dimension()<<localDirection<<segmentPositionMB4<<std::endl;	  
-	  bool compatiblesegments=false;
-	  Xo=segmentPositionMB4.x();
-	  dx=segmentDirectionMB4.x();
-	  dz=segmentDirectionMB4.z();
-	  //std::cout<<"\t \t Loop over all the segments"<<std::endl;	  
-	  DTRecSegment4DCollection::const_iterator segMB3;  
-
-	  const BoundPlane& DTSurface4 = dtGeo->idToDet(DTId)->surface();
-	  w4 = DTSurface4.bounds().thickness()*0.5; // along local Z
-
-	  for(segMB3=all4DSegments->begin();segMB3!=all4DSegments->end();++segMB3){
-	    DTChamberId dtid = segMB3->chamberId();
-	    if(dtid.station()==3){
-	      const GeomDet* gdet3=dtGeo->idToDet(segMB3->geographicalId());
-	      const BoundPlane & DTSurface3 = gdet3->surface();
-	      w3 = DTSurface3.bounds().thickness()*0.5; // along local Z
-	      
-	      dx3=segMB3->localDirection().x();
-	      dy3=segMB3->localDirection().y();
-	      dz3=segMB3->localDirection().z();
-	      
-	      //LocalVector segDirMB4inMB3Frame=DTSurface3.toLocal(DTSurface4.toGlobal(segmentDirectionMB4));
-
-	      if(fabs(dx-dx3)<=angle&&fabs(dz-dz3)<=angle){//same direction?
-		compatiblesegments=true;
-	      }else{
-		//They don't have the same local dir, and the segments in diferent sectors,compatibles with circle?
-		Xo3=segMB3->localPosition().x();
-		Yo3=segMB3->localPosition().y();
-
-		//Do we have segments compatibles with a muon?
-		
-		// pos=seg.position()
-		// dir=seg.direction()
-		// dest =pos + dir*height*cos(dir.theta())
-		
-		//std::cout<<"Ancho de MB3 w3="<<w3<<" |Ancho de MB4 w4= "<<w4<<std::endl;
-		//std::cout<<"Informacion Inicial MB4"<<segment->localDirection()<<" "<<segment->localPosition()<<std::endl;
-		//std::cout<<"Informacion Inicial MB3"<<segMB3->localDirection()<<" "<<segMB3->localPosition()<<std::endl;
-		compatiblesegments=false;
-		
-		//This in MB3 Local
-		
-		p1x=Xo3+dx3*w3/dz3;
-		p1z=w3;
-		
-		p2x=Xo3-dx3*w3/dz3;
-		p2z=-w3;
-		
-		//This in MB4 Local
-		
-		p3x=Xo+dx*w4/dz;
-		p3z=w4;
-		
-		p4x=Xo-dx*w4/dz;
-		p4z=-w4;
-		
-		LocalPoint P1=LocalPoint(p1x,0,p1z);
-		LocalPoint P2=LocalPoint(p2x,0,p2z);
-		LocalPoint P3=LocalPoint(p3x,0,p3z);
-		LocalPoint P4=LocalPoint(p4x,0,p4z);
-		
-		//std::cout<<"Points in MB3="<<P1<<" --- "<<P2<<std::endl;
-		//std::cout<<"Points in MB4="<<P3<<" --- "<<P4<<std::endl;
-		
-		//Now we have to convert to global
-		
-		LocalPoint P1g=P1;
-		LocalPoint P2g=P2;
-		
-		LocalPoint P3g=DTSurface3.toLocal(DTSurface.toGlobal(P3));
-		LocalPoint P4g=DTSurface3.toLocal(DTSurface.toGlobal(P4));
-		
-		//std::cout<<"Points in MB3 ="<<P1g<<" --- "<<P2g<<std::endl;
-		//std::cout<<"Points in MB4 in MB3Frame="<<P3g<<" --- "<<P4g<<std::endl;
-		
-		
-		float dx3g=P1g.x()-P2g.x();
-		float dz3g=P1g.z()-P2g.z();
-	      
-		float dxg=P3g.x()-P4g.x();
-		float dzg=P3g.z()-P4g.z();
-		
-		//std::cout<<"dx3g="<<dx3g<<" dz3g="<<dz3g<<std::endl;
-		//std::cout<<"dxg="<<dxg<<" dzg="<<dzg<<std::endl;
-		
-		m3=-dx3g/dz3g;
-		m4=-dxg/dzg;
-		
-		x3=(P1g.x()+P2g.x())*0.5;
-		z3=(P1g.z()+P2g.z())*0.5;
-		
-		x4=(P3g.x()+P4g.x())*0.5;
-		z4=(P3g.z()+P4g.z())*0.5;
-		
-		b3=z3-m3*x3;
-		b4=z4-m4*x4;
-		
-		if(m3!=m4){
-		  xc=(b4-b3)/(m3-m4);
-		  zc=m3*xc+b3;
-		
-		  GlobalPoint Pc=GlobalPoint(xc,0,zc);
-		  
-		  //std::cout<<Pc<<std::endl;
-		  
-		  float distance=fabs((GlobalPoint(P2g.x(),0,P2g.z())-GlobalPoint(Pc.x(),0,Pc.z())).mag()-(GlobalPoint(P3g.x(),0,P3g.z())-GlobalPoint(Pc.x(),0,Pc.z())).mag());
-		  
-		  if(distance<circError){
-		    compatiblesegments=true;
-		    //std::cout<<"YES in the same circle... p2 a C="<<P1g<<P2g<<P3g<<P4g<<"Distancia "<<distance<<std::endl;
-		  }
-		  else{
-		    //std::cout<<"NOT in the same circle... p2 a C="<<P1g<<P2g<<P3g<<P4g<<"Distancia "<<distance<<std::endl;
-		    compatiblesegments=false;
-		  }
-		}
-		else{
-		  //std::cout<<"We have the same slope m3="<<m3<<" m4="<<m4<<std::endl;
-		  if(fabs(b3-b4)<=circError){
-		    compatiblesegments=true;
-		    //std::cout<<"and the segments are in a line"<<std::endl;
-		  }else{std::cout<<"But we don't have the same intercept b3="<<b3<<" b4="<<b4<<std::endl;}
-		  compatiblesegments=false;
-		  system("sleep 30");
-		}
-	      }
-		
-	      //conditions in MB3
-	      if(scounter[dtid]==1 && compatiblesegments){
-		//std::cout<<"********\t \t \t In the same event there is a segment in RB3 "<<dtid<<" with D="<<segMB3->dimension()<<segMB3->localDirection()<<segMB3->localPosition()<<"scounter "<<scounter[dtid]<<std::endl;
-		
-		std::set<RPCDetId> rollsForThisDT = 
-		  rollstore[DTStationIndex(0,dtWheel,dtSector,dtStation)];
-		//Loop over all the rolls asociated to RB4
-		for (std::set<RPCDetId>::iterator iteraRoll=rollsForThisDT.begin();iteraRoll != rollsForThisDT.end(); iteraRoll++){
-		  const RPCRoll* rollasociated = rpcGeo->roll(*iteraRoll);
-		  //To get the roll's surface
-		  const BoundPlane & RPCSurfaceRB4 = rollasociated->surface(); 
-		  
-		  const GeomDet* gdet=dtGeo->idToDet(segMB3->geographicalId());
-		  const BoundPlane & DTSurfaceMB3 = gdet->surface();
-		  
-		  //std::cout<<"\t \t \t RollID: should be RB4"<<rollasociated->id()<<std::endl;
-		  //std::cout<<"\t \t \t Making the extrapolation"<<std::endl;
-		  //std::cout<<"\t \t \t DT Segment Direction in MB3 DTLocal "<<segMB3->localDirection()<<std::endl;
-		  //std::cout<<"\t \t \t DT Segment Point in MB3 DTLocal "<<segMB3->localPosition()<<std::endl;
-		  
-		  GlobalPoint CenterPointRollGlobal=RPCSurfaceRB4.toGlobal(LocalPoint(0,0,0));
-		  //std::cout<<"\t \t \t Center (0,0,0) of the RB4 Roll in Global"<<CenterPointRollGlobal<<std::endl;
-		  
-		  LocalPoint CenterRollinDTFrame = DTSurfaceMB3.toLocal(CenterPointRollGlobal);
-		  //std::cout<<"\t \t \t Center (0,0,0) Roll In DT MB3 Local"<<CenterRollinDTFrame<<std::endl;
-		  
-		  float D=CenterRollinDTFrame.z();
-		  //std::cout<<"\t \t \t D="<<D<<"cm"<<std::endl;
-		  
-		  X=Xo3+dx3*D/dz3;
-		  Y=Yo3+dy3*D/dz3;
-		  Z=D;
-		  
-		  const RectangularStripTopology* top_=dynamic_cast<const RectangularStripTopology*>(&(rollasociated->topology()));
-		  LocalPoint xmin = top_->localPosition(0.);
-		  LocalPoint xmax = top_->localPosition((float)rollasociated->nstrips());
-		  float rsize = fabs( xmax.x()-xmin.x() )*0.5;
-		  float stripl = top_->stripLength();
-		  
-		  //std::cout<<"\t \t \t X Predicted in DT MB3 Local= "<<X<<"cm"<<std::endl;
-		  //std::cout<<"\t \t \t Y Predicted in DT MB3 Local= "<<Y<<"cm"<<std::endl;
-		  //std::cout<<"\t \t \t Z Predicted in DT MB3 Local= "<<Z<<"cm"<<std::endl;
-		  
-		  GlobalPoint GlobalPointExtrapolated = DTSurfaceMB3.toGlobal(LocalPoint(X,Y,Z));
-		  //std::cout<<"\t \t \t Point ExtraPolated in Global"<<GlobalPointExtrapolated<< std::endl;
-		  
-		  LocalPoint PointExtrapolatedRPCFrame = RPCSurfaceRB4.toLocal(GlobalPointExtrapolated);
-		  //std::cout<<"\t \t \t Point Extrapolated in RPC RB4 Local"<<PointExtrapolatedRPCFrame<< std::endl;
-		  
-		  //std::cout<<"\t \t \t Does the extrapolation go inside this roll?"<<std::endl;
-		  //conditions to find the right roll to extrapolate
-		  if(fabs(PointExtrapolatedRPCFrame.z()) < 0.01  &&
-		     fabs(PointExtrapolatedRPCFrame.x()) < rsize &&
-		     fabs(PointExtrapolatedRPCFrame.y()) < stripl*0.5){ 
-		    
-		    //std::cout<<"\t \t \t \t yes"<<std::endl;
-		    //getting the number of the strip
-		    const float stripPredicted=
-		      rollasociated->strip(LocalPoint(PointExtrapolatedRPCFrame.x(),PointExtrapolatedRPCFrame.y(),0.)); 
-		    
-		    //std::cout<<"\t \t \t \t Candidate"<<rollasociated->id()<<" "<<"(from DT Segment) STRIP---> "<<stripPredicted<< std::endl;
-		    
-		    //--------- HISTOGRAM STRIP PREDICTED FROM DT  -------------------
-		    
-		    RPCDetId  rollId = rollasociated->id();
-		    uint32_t id = rollId.rawId();
-		    
-		    RPCDetId otherRollId1,otherRollId2;
-		    
-		    if(rollId.roll() == 1){
-		      RPCDetId tempRollId1(rollId.region(),rollId.ring(),rollId.station(),rollId.sector(),rollId.layer(),rollId.subsector(),2);
-		      RPCDetId tempRollId2(rollId.region(),rollId.ring(),rollId.station(),rollId.sector(),rollId.layer(),rollId.subsector(),3);
-		      otherRollId1 = tempRollId1;
-		      otherRollId2 = tempRollId2;
-		    }
-		    else if(rollId.roll() == 2){
-		      
-		      RPCDetId tempRollId1(rollId.region(),rollId.ring(),rollId.station(),rollId.sector(),rollId.layer(),rollId.subsector(),1);
-		      RPCDetId tempRollId2(rollId.region(),rollId.ring(),rollId.station(),rollId.sector(),rollId.layer(),rollId.subsector(),3);
-		      otherRollId1 = tempRollId1;
-		      otherRollId2 = tempRollId2;
-		    }
-		    else if(rollId.roll() == 3){
-		      RPCDetId tempRollId1(rollId.region(),rollId.ring(),rollId.station(),rollId.sector(),rollId.layer(),rollId.subsector(),1);
-		      RPCDetId tempRollId2(rollId.region(),rollId.ring(),rollId.station(),rollId.sector(),rollId.layer(),rollId.subsector(),2);
-		      otherRollId1 = tempRollId1;
-		      otherRollId2 = tempRollId2;
-		    }
-		    RPCDigiCollection::Range rpcRangeDigi1=rpcDigis->get(otherRollId1);
-		    RPCDigiCollection::Range rpcRangeDigi2=rpcDigis->get(otherRollId2);
-
-		    _idList.push_back(id);
-		    
-		    char detUnitLabel[128];
-		    sprintf(detUnitLabel ,"%d",id);
-		    sprintf(layerLabel ,"layer%d_subsector%d_roll%d",rollId.layer(),rollId.subsector(),rollId.roll());
-		    
-		    std::map<uint32_t, std::map<std::string,MonitorElement*> >::iterator meItr = meCollection.find(id);
-		    if (meItr == meCollection.end()){
-		      meCollection[id] = bookDetUnitMEEff(rollId);
-		      std::cout << "\t \t \t \t Create new histograms  for "<<layerLabel<<std::endl;
-		    }
-		    
-		    std::map<std::string, MonitorElement*> meMap=meCollection[id];
-		    sprintf(meIdDT,"ExpectedOccupancyFromDT_%s",detUnitLabel);
-		    meMap[meIdDT]->Fill(stripPredicted);
-
-		    sprintf(meIdDT,"ExpectedOccupancy2DFromDT_%s",detUnitLabel);
-		    meMap[meIdDT]->Fill(stripPredicted,Y);
-
-		    //std::cout << "\t \t \t \t One for counterPREDICT"<<std::endl;
-		    totalcounter[0]++;
-		    buff=counter[0];
-		    buff[rollId]++;
-		    counter[0]=buff;		
-		    
-		    bool anycoincidence=false;
-		    int stripDetected = 0;
-		    RPCDigiCollection::Range rpcRangeDigi = 
-		      rpcDigis->get(rollasociated->id());
-		    		   
-		    int stripCounter = 0;
-
-		    //loop over the digis in the event
-		    for (RPCDigiCollection::const_iterator digiIt = rpcRangeDigi.first;digiIt!=rpcRangeDigi.second;++digiIt){
-		      stripCounter++;
-		      //std::cout<<"\t \t \t \t \t Digi "<<*digiIt<<std::endl;//print the digis in the event
-		      stripDetected=digiIt->strip();
-
-		      stripCounter++;
-		      float res = (float)(stripDetected) - stripPredicted;
-		      sprintf(meIdRPC,"RPCResiduals_%s",detUnitLabel);
-		      meMap[meIdRPC]->Fill(res);
-		
-		      sprintf(meIdRPC,"RPCResiduals2D_%s",detUnitLabel);
-		      meMap[meIdRPC]->Fill(res,Y);
-		      
-		      if(res > 7)
-			std::cout<<"STRANGE     "<<"EVENTO NUM = "<<iEvent.id().event()<<"   Residuo = "<<res<<"   Strip Num = "<<stripDetected<<"   Strip totali = "<<stripCounter<<std::endl;
-		      if(fabs((float)(stripDetected) - stripPredicted)<widestripsRB4){//Detected Vs Predicted
-			//std::cout <<"\t \t \t \t \t COINCEDENCE Predict "<<stripPredicted<<" Detect "<<stripDetected<<std::endl;
-			anycoincidence=true;
-			//break;//funciona solo para hacerlo mas rapido
-		      }
-		    }
-		    if (anycoincidence){
-
-		      sprintf(meIdRPC,"ExpectedOccupancyFromDT_forCrT_%s",detUnitLabel);
-		      meMap[meIdRPC]->Fill(stripPredicted);
-		      sprintf(meIdRPC,"RealDetectedOccupancy_%s",detUnitLabel);
-		      meMap[meIdRPC]->Fill(stripDetected);
-		      sprintf(meIdRPC,"YExpectedOccupancyFromDT_%s",detUnitLabel);
-		      meMap[meIdRPC]->Fill(Y);
-
-		      for (RPCDigiCollection::const_iterator digiIt1 = rpcRangeDigi1.first;digiIt1!=rpcRangeDigi1.second;++digiIt1){
-
-			if(fabs(stripDetected - digiIt1->strip()) <= 1){
-			  
-			  sprintf(meIdRPC,"XCrossTalk_1_%s",detUnitLabel);
-			  meMap[meIdRPC]->Fill(stripPredicted);
-			  
-			  sprintf(meIdRPC,"XDetectCrossTalk_1_%s",detUnitLabel);
-			  meMap[meIdRPC]->Fill(stripDetected);
-			  
-			  sprintf(meIdRPC,"YCrossTalk_1_%s",detUnitLabel);
-			  meMap[meIdRPC]->Fill(Y);
-			  break;
-			}
-		      }
-
-		      for (RPCDigiCollection::const_iterator digiIt2 = rpcRangeDigi2.first;digiIt2!=rpcRangeDigi2.second;++digiIt2){
-			
-			if(fabs(stripDetected - digiIt2->strip()) <= 1){
-			  
-			  sprintf(meIdRPC,"XCrossTalk_2_%s",detUnitLabel);
-			  meMap[meIdRPC]->Fill(stripPredicted);
-			  
-			  sprintf(meIdRPC,"XDetectCrossTalk_2_%s",detUnitLabel);
-			  meMap[meIdRPC]->Fill(stripDetected);
-			  
-			  sprintf(meIdRPC,"YCrossTalk_2_%s",detUnitLabel);
-			  meMap[meIdRPC]->Fill(Y);
-			  break;
-			}
-		      }
-
-		      sprintf(meIdRPC,"RPCDataOccupancy_%s",detUnitLabel);
-		      meMap[meIdRPC]->Fill(stripPredicted);
-
-		      sprintf(meIdRPC,"RPCDataOccupancy2D_%s",detUnitLabel);
-		      meMap[meIdRPC]->Fill(stripPredicted,Y);
-
-		      totalcounter[1]++;
-		      buff=counter[1];
-		      buff[rollId]++;
-		      counter[1]=buff;		
-		    }
-		    else{
-		      totalcounter[2]++;
-		      buff=counter[2];
-		      buff[rollId]++;
-		      counter[2]=buff;		
-		      //std::cout <<"\t \t \t \t \t XXXXX THIS PREDICTION DOESN'T HAVE ANY CORRESPONDENCE WITH THE DATA"<<std::endl;
-		      //std::cout << "\t \t \t \t \t One for counterFAIL"<<std::endl;
-		      //ofrej<<"Wh "<<dtWheel<<"\t St "<<dtStation
-		      //	 <<"\t Se "<<dtSector<<"\t Event "
-		      //	 <<iEvent.id().event()<<std::endl;
-		      
-		    }
-		  }
-		  else{
-		    //std::cout<<"\t \t \t \t no"<<std::endl;
-		  }//Condition for the right match
-		  
-		}//loop over all the rolls FOR RB3 -------------------------------
-	      }//Si tenemos solo un segmento en la chamber
-	    }//Condition Segment in MB3
-	  }//Loop avoer all the segments to see if it is the right MB3
-	}
-	else{
-	  //std::cout<<"\t \t Strange Segment"<<std::endl;
-	}//Is not a 4D Segment neither a 2D in MB4
-      }
-      else {
-	//std::cout<<"\t \t no"<<std::endl;
-      }//There is one segment in the chamber?
-    }//loop over the segments
-  }else {
-    //std::cout<<"This Event doesn't have any DT4DSegment"<<std::endl;
-  }//is ther more than 1 segment in this event?
-  
-}
-
-void RPCMonitorEfficiency::endJob(void){
-  std::map<RPCDetId, int> pred = counter[0];
-  std::map<RPCDetId, int> obse = counter[1];
-  std::map<RPCDetId, int> reje = counter[2];
-
-  std::map<RPCDetId, int>::iterator irpc;
-  for (irpc=pred.begin(); irpc!=pred.end();irpc++){
-    RPCDetId id=irpc->first;
-    int p=pred[id]; 
-    int o=obse[id]; 
-    int r=reje[id]; 
-    assert(p==o+r);
-    float ef = float(o)/float(p);
-    float er = sqrt(ef*(1.-ef)/float(p));
-    std::cout <<"\n "<<id<<"\t Predicted "<<p<<"\t Observed "<<o<<"\t Eff = "<<ef*100.<<" % +/- "<<er*100.<<" %";
-    if(ef<0.8){
-      std::cout<<"\t \t Warning!";
-    } 
-  }
-  
-  float tote = float(totalcounter[1])/float(totalcounter[0]);
-  float totr = sqrt(tote*(1.-tote)/float(totalcounter[0]));
-  std::cout <<"\n\n \t \t TOTAL EFFICIENCY \t Predicted "<<totalcounter[1]<<"\t Observed "<<totalcounter[0]<<"\t Eff = "<<tote*100.<<"\t +/- \t"<<totr*100.<<"%"<<std::endl;
-  std::cout <<totalcounter[1]<<" "<<totalcounter[0]<<" flagcode"<<std::endl;
-
-  
-  std::vector<uint32_t>::iterator meIt;
-  for(meIt = _idList.begin(); meIt != _idList.end(); ++meIt){
-
-    char detUnitLabel[128];
-    char meIdRPC [128];
-    char meIdDT [128];
-    char meIdDTCrT [128];
-    char effIdRPC [128];
-    char meIdRPCCrT [128];
-
-    char XCrTalkId_1 [128];
-    char XCrTalkId_2 [128];
-    char effXCrTalkId_1 [128];
-    char effXCrTalkId_2 [128];
-
-    char XCrTalkDetId_1 [128];
-    char XCrTalkDetId_2 [128];
-    char effXCrTalkDetId_1 [128];
-    char effXCrTalkDetId_2 [128];
-
-    char YCrTalkId_1 [128];
-    char YCrTalkId_2 [128];
-    char effYCrTalkId_1 [128];
-    char effYCrTalkId_2 [128];
-
-    char YCrTalkDTId [128];
-
-    char meIdRPC_2D [128];
-    char meIdDT_2D [128];
-    char effIdRPC_2D [128];
-
-    sprintf(detUnitLabel ,"%d",*meIt);
-    sprintf(meIdRPC,"RPCDataOccupancy_%s",detUnitLabel);
-    sprintf(meIdDT,"ExpectedOccupancyFromDT_%s",detUnitLabel);
-    sprintf(meIdDTCrT,"ExpectedOccupancyFromDT_forCrT_%s",detUnitLabel);
-    sprintf(YCrTalkDTId,"YExpectedOccupancyFromDT_%s",detUnitLabel);
-    sprintf(meIdRPCCrT,"RealDetectedOccupancy_%s",detUnitLabel);
-
-    sprintf(effIdRPC,"EfficienyFromDTExtrapolation_%s",detUnitLabel);
-
-    sprintf(meIdRPC_2D,"RPCDataOccupancy2D_%s",detUnitLabel);
-    sprintf(meIdDT_2D,"ExpectedOccupancy2DFromDT_%s",detUnitLabel);
-    sprintf(effIdRPC_2D,"EfficienyFromDT2DExtrapolation_%s",detUnitLabel);
-
-    sprintf(XCrTalkId_1,"XCrossTalk_1_%s",detUnitLabel);
-    sprintf(XCrTalkId_2,"XCrossTalk_2_%s",detUnitLabel);
-    sprintf(YCrTalkId_1,"YCrossTalk_1_%s",detUnitLabel);
-    sprintf(YCrTalkId_2,"YCrossTalk_2_%s",detUnitLabel);
-    sprintf(XCrTalkDetId_1,"XDetectCrossTalk_1_%s",detUnitLabel);
-    sprintf(XCrTalkDetId_2,"XDetectCrossTalk_2_%s",detUnitLabel);
-
-    sprintf(effXCrTalkId_1,"XCrossTalkFromDTExtrapolation_1_%s",detUnitLabel);
-    sprintf(effXCrTalkId_2,"XCrossTalkFromDTExtrapolation_2_%s",detUnitLabel);
-    sprintf(effXCrTalkDetId_1,"XCrossTalkFromDetectedStrip_1_%s",detUnitLabel);
-    sprintf(effXCrTalkDetId_2,"XCrossTalkFromDetectedStrip_2_%s",detUnitLabel);
-    sprintf(effYCrTalkId_1,"YCrossTalkFromDTExtrapolation_1_%s",detUnitLabel);
-    sprintf(effYCrTalkId_2,"YCrossTalkFromDTExtrapolation_2_%s",detUnitLabel);
-
-    std::map<std::string, MonitorElement*> meMap=meCollection[*meIt];
-
-    for(unsigned int i=1;i<=100;++i){
-      
-      if(meMap[meIdDT]->getBinContent(i) != 0){
-	float eff = meMap[meIdRPC]->getBinContent(i)/meMap[meIdDT]->getBinContent(i);
-	float erreff = sqrt(eff*(1-eff)/meMap[meIdDT]->getBinContent(i));
-	meMap[effIdRPC]->setBinContent(i,eff*100.);
-	meMap[effIdRPC]->setBinError(i,erreff*100.);
-      }
-    }
-    for(unsigned int i=1;i<=100;++i){
-      for(unsigned int j=1;j<=200;++j){
-	if(meMap[meIdDT_2D]->getBinContent(i,j) != 0){
-	  float eff = meMap[meIdRPC_2D]->getBinContent(i,j)/meMap[meIdDT_2D]->getBinContent(i,j);
-	  float erreff = sqrt(eff*(1-eff)/meMap[meIdDT_2D]->getBinContent(i,j));
-	  meMap[effIdRPC_2D]->setBinContent(i,j,eff*100.);
-	  meMap[effIdRPC_2D]->setBinError(i,j,erreff*100.);
-	}
-      }
-    }
-
-    //--------------------  CROSS TALK PLOT ---------------------------------------------------
-
-    //-------------------- With predicted STRIP -----------------------------------------------
-
-    for(unsigned int i=1;i<=100;++i){
-      
-      if(meMap[meIdDTCrT]->getBinContent(i) != 0){
-	float crt = meMap[XCrTalkId_1]->getBinContent(i)/meMap[meIdDTCrT]->getBinContent(i);
-	float errcrt = sqrt(crt*(1-crt)/meMap[meIdDTCrT]->getBinContent(i));
-	meMap[effXCrTalkId_1]->setBinContent(i,crt*100.);
-	meMap[effXCrTalkId_1]->setBinError(i,errcrt*100.);
-      }
-    }
-
-    for(unsigned int i=1;i<=100;++i){
-      
-      if(meMap[meIdDTCrT]->getBinContent(i) != 0){
-	float crt = meMap[XCrTalkId_2]->getBinContent(i)/meMap[meIdDTCrT]->getBinContent(i);
-	float errcrt = sqrt(crt*(1-crt)/meMap[meIdDTCrT]->getBinContent(i));
-	meMap[effXCrTalkId_2]->setBinContent(i,crt*100.);
-	meMap[effXCrTalkId_2]->setBinError(i,errcrt*100.);
-      }
-    }
-
-    //-------------------- With detected STRIP -----------------------------------------------
-
-    for(unsigned int i=1;i<=100;++i){
-      if(meMap[meIdRPCCrT]->getBinContent(i) != 0){
-	float crt = meMap[XCrTalkDetId_1]->getBinContent(i)/meMap[meIdRPCCrT]->getBinContent(i);
-	float errcrt = sqrt(crt*(1-crt)/meMap[meIdRPCCrT]->getBinContent(i));
-	meMap[effXCrTalkDetId_1]->setBinContent(i,crt*100.);
-	meMap[effXCrTalkDetId_1]->setBinError(i,errcrt*100.);
-      }
-    }
-
-    for(unsigned int i=1;i<=100;++i){
-      
-      if(meMap[meIdRPCCrT]->getBinContent(i) != 0){
-	float crt = meMap[XCrTalkDetId_2]->getBinContent(i)/meMap[meIdRPCCrT]->getBinContent(i);
-	float errcrt = sqrt(crt*(1-crt)/meMap[meIdRPCCrT]->getBinContent(i));
-	meMap[effXCrTalkDetId_2]->setBinContent(i,crt*100.);
-	meMap[effXCrTalkDetId_2]->setBinError(i,errcrt*100.);
-      }
-    }
-
-    //-------------------- With Y coordinate -------------------------------------------------
-
-    for(unsigned int i=1;i<=200;++i){
-      
-      if(meMap[YCrTalkDTId]->getBinContent(i) != 0){
-	float crt = meMap[YCrTalkId_1]->getBinContent(i)/meMap[YCrTalkDTId]->getBinContent(i);
-	float errcrt = sqrt(crt*(1-crt)/meMap[YCrTalkDTId]->getBinContent(i));
-	meMap[effYCrTalkId_1]->setBinContent(i,crt*100.);
-	meMap[effYCrTalkId_1]->setBinError(i,errcrt*100.);
-      }
-    }
-
-    for(unsigned int i=1;i<=200;++i){
-      
-      if(meMap[YCrTalkDTId]->getBinContent(i) != 0){
-	float crt = meMap[YCrTalkId_2]->getBinContent(i)/meMap[YCrTalkDTId]->getBinContent(i);
-	float errcrt = sqrt(crt*(1-crt)/meMap[YCrTalkDTId]->getBinContent(i));
-	meMap[effYCrTalkId_2]->setBinContent(i,crt*100.);
-	meMap[effYCrTalkId_2]->setBinError(i,errcrt*100.);
-      }
-    }
-  }
-
-  if(EffSaveRootFile) dbe->save(EffRootFileName);
-  //  theFile->Write();
-  //  theile->Close();
-  std::cout<<"End Job"<<std::endl;
-}
 
 RPCMonitorEfficiency::~RPCMonitorEfficiency(){}
 
+void 
+RPCMonitorEfficiency::beginJob(const edm::EventSetup&){
+  std::cout <<"Begin Job"<<std::endl;
+  theFile = new TFile(file.c_str());
+  if(!theFile)std::cout<<"The File Doesn't exist"<<std::endl;
+  theFileOut = new TFile(fileout.c_str(), "RECREATE");
+  /*rpcInfo.open("RPCInfo.txt");
+  rpcNames.open("RPCNames.txt");
+  rollsWithOutData.open("rollsWithOutData.txt");
+  rollsWithData.open("rollsWithData.txt");
+  rollsBarrel.open("rollsBarrel.txt");
+  rollsEndCap.open("rollsEndCap.txt");
+  rollsPointedForASegment.open("rollsPointedForASegment.txt");
+  rollsNotPointedForASegment.open("rollsNotPointedForASegment.txt");
+  bxMeanList.open("bxMeanList.txt");*/
+}
+
+void RPCMonitorEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
+  //  bool first=false;
+  std::cout <<"\t Getting the RPC Geometry"<<std::endl;
+  edm::ESHandle<RPCGeometry> rpcGeo;
+  iSetup.get<MuonGeometryRecord>().get(rpcGeo);
+
+  int CanvaSizeX = 1200;
+  int CanvaSizeY = 600;
+
+  TCanvas * Ca0;
+  TCanvas * Ca1;
+  TCanvas * Ca2;
+  TCanvas * Ca3;
+  TCanvas * Ca4;
+  TCanvas * Ca5;
+
+  bxendcap= new TH2F ("BXEndCap","BX Distribution for the End Cap",51,-5.0,5.0,51,0.,4.);
+  bxbarrel= new TH2F ("BXBarrel","BX Distribution for the Barrel",51,-5.0,5.0,51,0.,4.);
+  Ca5 = new TCanvas("Ca5","BX by Regions",800,600);
+  
+  Ca2 = new TCanvas("Ca2","Global Efficiency",CanvaSizeX,CanvaSizeY);
+
+  EffBarrel = new TH1F ("EffBarrel","Efficieny Distribution For All The Barrel",40,0.5,100.5);
+
+  EffDistroWm2= new TH1F ("EffDistroWm2near","Efficieny Distribution For Near Side Wheel -2",20,0.5,100.5);
+  EffDistroWm1= new TH1F ("EffDistroWm1near","Efficieny Distribution For Near Side Wheel -1",20,0.5,100.5);
+  EffDistroW0= new TH1F ("EffDistroW0near","Efficieny Distribution For Near Side Wheel 0",20,0.5,100.5);
+  EffDistroW1= new TH1F ("EffDistroW1near","Efficieny Distribution For Near Side Wheel 1",20,0.5,100.5);
+  EffDistroW2= new TH1F ("EffDistroW2near","Efficieny Distribution For Near Side Wheel 2",20,0.5,100.5);
+
+  EffDistroWm2far= new TH1F ("EffDistroWm2far","Efficieny Distribution For Far Side Wheel -2",20,0.5,100.5);
+  EffDistroWm1far= new TH1F ("EffDistroWm1far","Efficieny Distribution For Far Side Wheel -1",20,0.5,100.5);
+  EffDistroW0far= new TH1F ("EffDistroW0far","Efficieny Distribution For For Side Wheel 0",20,0.5,100.5);
+  EffDistroW1far= new TH1F ("EffDistroW1far","Efficieny Distribution For Far Side Wheel 1",20,0.5,100.5);
+  EffDistroW2far= new TH1F ("EffDistroW2far","Efficieny Distribution For Far Side Wheel 2",20,0.5,100.5);
+  
+  DoubleGapDistroWm2= new TH1F ("DoubleGapDistroWm2near","DoubleGapEfficieny Distribution For Near Side Wheel -2",20,0.5,100.5);
+  DoubleGapDistroWm1= new TH1F ("DoubleGapDistroWm1near","DoubleGapEfficieny Distribution For Near Side Wheel -1",20,0.5,100.5);
+  DoubleGapDistroW0= new TH1F ("DoubleGapDistroW0near","DoubleGapEfficieny Distribution For Near Side Wheel 0",20,0.5,100.5);
+  DoubleGapDistroW1= new TH1F ("DoubleGapDistroW1near","DoubleGapEfficieny Distribution For Near Side Wheel 1",20,0.5,100.5);
+  DoubleGapDistroW2= new TH1F ("DoubleGapDistroW2near","DoubleGapEfficieny Distribution For Near Side Wheel 2",20,0.5,100.5);
+  
+  DoubleGapDistroWm2far= new TH1F ("DoubleGapDistroWm2far","DoubleGapEfficieny Distribution For Far Side Wheel -2",20,0.5,100.5);
+  DoubleGapDistroWm1far= new TH1F ("DoubleGapDistroWm1far","DoubleGapEfficieny Distribution For Far Side Wheel -1",20,0.5,100.5);
+  DoubleGapDistroW0far= new TH1F ("DoubleGapDistroW0far","DoubleGapEfficieny Distribution For For Side Wheel 0",20,0.5,100.5);
+  DoubleGapDistroW1far= new TH1F ("DoubleGapDistroW1far","DoubleGapEfficieny Distribution For Far Side Wheel 1",20,0.5,100.5);
+  DoubleGapDistroW2far= new TH1F ("DoubleGapDistroW2far","DoubleGapEfficieny Distribution For Far Side Wheel 2",20,0.5,100.5);
+
+  EffEndCap= new TH1F ("EffDistroEndCap ","Efficieny Distribution For All The EndCaps",60,0.5,100.5);
+
+  EffDistroDm3= new TH1F ("EffDistroDm3near","Efficieny Distribution For Near Side Disk -3",20,0.5,100.5);  
+  EffDistroDm2= new TH1F ("EffDistroDm2near","Efficieny Distribution For Near Side Disk -2",20,0.5,100.5);
+  EffDistroDm1= new TH1F ("EffDistroDm1near","Efficieny Distribution For Near Side Disk -1",20,0.5,100.5);
+  EffDistroD1= new TH1F ("EffDistroD1near","Efficieny Distribution For Near Side Disk 1",20,0.5,100.5);
+  EffDistroD2= new TH1F ("EffDistroD2near","Efficieny Distribution For Near Side Disk 2",20,0.5,100.5);
+  EffDistroD3= new TH1F ("EffDistroD3near","Efficieny Distribution For Near Side Disk 3",20,0.5,100.5);
+
+  EffDistroDm3far= new TH1F ("EffDistroDm3far","Efficieny Distribution For Far Side Disk -3",20,0.5,100.5);
+  EffDistroDm2far= new TH1F ("EffDistroDm2far","Efficieny Distribution For Far Side Disk -2",20,0.5,100.5);
+  EffDistroDm1far= new TH1F ("EffDistroDm1far","Efficieny Distribution For Far Side Disk -1",20,0.5,100.5);
+  EffDistroD1far= new TH1F ("EffDistroD1far","Efficieny Distribution For Far Side Disk 1",20,0.5,100.5);
+  EffDistroD2far= new TH1F ("EffDistroD2far","Efficieny Distribution For Far Side Disk 2",20,0.5,100.5);
+  EffDistroD3far= new TH1F ("EffDistroD3far","Efficieny Distribution For Far Side Disk 3",20,0.5,100.5);
+
+  DoubleGapWm2= new TH1F ("DoubleGapEffWheel_-2near","Double Gap Efficiency Near Side Wheel -2",101,0.5,101.5);
+  DoubleGapWm2far= new TH1F ("DoubleGapEffWheel_-2far","Double Gap Efficiency Far Side Wheel -2",105,0.5,105.5);
+  EffGlobWm2= new TH1F ("GlobEfficiencyWheel_-2near","Efficiency Near Side Wheel -2",101,0.5,101.5);
+  EffGlobWm2far= new TH1F ("GlobEfficiencyWheel_-2far","Efficiency Far Side Wheel -2",105,0.5,105.5);
+  BXGlobWm2=  new TH1F ("GlobBXWheel_-2near","BX Near Side Wheel -2",101,0.5,101.5);
+  BXGlobWm2far=  new TH1F ("GlobBXWheel_-2far","BX Far Side Wheel -2",105,0.5,105.5);
+  MaskedGlobWm2=  new TH1F ("GlobMaskedWheel_-2near","Masked Near Side Wheel -2",101,0.5,101.5);
+  MaskedGlobWm2far=  new TH1F ("GlobMaskedWheel_-2far","Masked Far Side Wheel -2",105,0.5,105.5);
+  AverageEffWm2= new TH1F ("AverageEfficiencyWheel_-2near","Average Efficiency Near Side Wheel -2 ",101,0.5,101.5);
+  AverageEffWm2far = new TH1F ("AverageEfficiencyWheel_-2far","Average Efficiency Far Side Wheel -2 ",105,0.5,105.5);
+  NoPredictionWm2= new TH1F ("NoPredictionWheel_-2near","No Predictions Near Side Wheel -2 ",101,0.5,101.5);
+  NoPredictionWm2far= new TH1F ("NoPredictionWheel_-2far","No Predictions Efficiency Far Side Wheel -2 ",105,0.5,105.5);
+  
+  DoubleGapWm1=  new TH1F ("DoubleGapEffWheel_-1near","Double Gap Efficiency Near Side Wheel -1",101,0.5,101.5);
+  DoubleGapWm1far= new TH1F ("DoubleGapEffWheel_-1far","Double Gap Efficiency Far Side Wheel -1",105,0.5,105.5);
+  EffGlobWm1=  new TH1F ("GlobEfficiencyWheel_-1near","Efficiency Near Side Wheel -1",101,0.5,101.5);
+  EffGlobWm1far= new TH1F ("GlobEfficiencyWheel_-1far","Efficiency Far Side Wheel -1",105,0.5,105.5);
+  BXGlobWm1=  new TH1F ("GlobBXWheel_-1near","BX Near Side Wheel -1",101,0.5,101.5);
+  BXGlobWm1far=  new TH1F ("GlobBXWheel_-1far","BX Far Side Wheel -1",105,0.5,105.5);
+  MaskedGlobWm1=  new TH1F ("GlobMaskedWheel_-1near","Masked Near Side Wheel -1",101,0.5,101.5);
+  MaskedGlobWm1far=  new TH1F ("GlobMaskedWheel_-1far","Masked Far Side Wheel -1",105,0.5,105.5);
+  AverageEffWm1= new TH1F ("AverageEfficiencyWheel_-1near","Average Efficiency Near Side Wheel -1 ",101,0.5,101.5);
+  AverageEffWm1far= new TH1F ("AverageEfficiencyWheel_-1far","Average Efficiency Far Side Wheel -1 ",105,0.5,105.5);
+  NoPredictionWm1= new TH1F ("NoPredictionWheel_-1near","No Predictions Near Side Wheel -1 ",101,0.5,101.5);
+  NoPredictionWm1far= new TH1F ("NoPredictionWheel_-1far","No Predictions Efficiency Far Side Wheel -1 ",105,0.5,105.5);
+
+  DoubleGapW0 =  new TH1F ("DoubleGapEffWheel_0near","Double Gap Efficiency Near Side Wheel 0",101,0.5,101.5);
+  DoubleGapW0far = new TH1F ("DoubleGapEffWheel_0far","Double Gap Efficiency Far Side Wheel 0",105,0.5,105.5);
+  EffGlobW0 =  new TH1F ("GlobEfficiencyWheel_0near","Efficiency Near Side Wheel 0",101,0.5,101.5);
+  EffGlobW0far = new TH1F ("GlobEfficiencyWheel_0far","Efficiency Far Side Wheel 0",105,0.5,105.5);
+  BXGlobW0 =  new TH1F ("GlobBXWheel_0near","BX Near Side Wheel 0",101,0.5,101.5);
+  BXGlobW0far =  new TH1F ("GlobBXWheel_0far","BX Far Side Wheel 0",105,0.5,105.5);
+  MaskedGlobW0 =  new TH1F ("GlobMaskedWheel_0near","Masked Near Side Wheel 0",101,0.5,101.5);
+  MaskedGlobW0far =  new TH1F ("GlobMaskedWheel_0far","Masked Far Side Wheel 0",105,0.5,105.5);
+  AverageEffW0= new TH1F ("AverageEfficiencyWheel_0near","Average Efficiency Near Side Wheel 0 ",101,0.5,101.5);
+  AverageEffW0far= new TH1F ("AverageEfficiencyWheel_0far","Average Efficiency Far Side Wheel 0 ",105,0.5,105.5);
+  NoPredictionW0= new TH1F ("NoPredictionWheel_0near","No Predictions Near Side Wheel 0 ",101,0.5,101.5);
+  NoPredictionW0far= new TH1F ("NoPredictionWheel_0far","No Predictions Efficiency Far Side Wheel 0 ",105,0.5,105.5);
+
+  DoubleGapW1 =  new TH1F ("DoubleGapEffWheel_1near","Double Gap Efficiency Near Side Wheel 1",101,0.5,101.5);
+  DoubleGapW1far = new TH1F ("DoubleGapEffWheel_1far","Double Gap Efficiency Far Side Wheel 1",105,0.5,105.5);  
+  EffGlobW1 =  new TH1F ("GlobEfficiencyWheel_1near","Efficiency Near Side Wheel 1",101,0.5,101.5);
+  EffGlobW1far = new TH1F ("GlobEfficiencyWheel_1far","Efficiency Far Side Wheel 1",105,0.5,105.5);  
+  BXGlobW1 =  new TH1F ("GlobBXWheel_1near","BX Near Side Wheel 1",101,0.5,101.5);
+  BXGlobW1far =  new TH1F ("GlobBXWheel_1far","BX Far Side Wheel 1",105,0.5,105.5);
+  MaskedGlobW1 =  new TH1F ("GlobMaskedWheel_1near","Masked Near Side Wheel 1",101,0.5,101.5);
+  MaskedGlobW1far =  new TH1F ("GlobMaskedWheel_1far","Masked Far Side Wheel 1",105,0.5,105.5);
+  AverageEffW1= new TH1F ("AverageEfficiencyWheel_1near","Average Efficiency Near Side Wheel 1 ",101,0.5,101.5);
+  AverageEffW1far= new TH1F ("AverageEfficiencyWheel_1far","Average Efficiency Far Side Wheel 1 ",105,0.5,105.5);
+  NoPredictionW1= new TH1F ("NoPredictionWheel_1near","No Predictions Near Side Wheel 1 ",101,0.5,101.5);
+  NoPredictionW1far= new TH1F ("NoPredictionWheel_1far","No Predictions Efficiency Far Side Wheel 1 ",105,0.5,105.5);
+
+  DoubleGapW2 =  new TH1F ("DoubleGapEffWheel_2near","Double Gap Efficiency Near Side Wheel 2",101,0.5,101.5);
+  DoubleGapW2far = new TH1F ("DoubleGapEffWheel_2far","Double Gap Efficiency Far Side Wheel 2",105,0.5,105.5);
+  EffGlobW2 =  new TH1F ("GlobEfficiencyWheel_2near","Efficiency Near Side Wheel 2",101,0.5,101.5);
+  EffGlobW2far = new TH1F ("GlobEfficiencyWheel_2far","Efficiency Far Side Wheel 2",105,0.5,105.5);
+  BXGlobW2 =  new TH1F ("GlobBXWheel_2near","BX Near Side Wheel 2",101,0.5,101.5);
+  BXGlobW2far =  new TH1F ("GlobBXWheel_2far","BX Far Side Wheel 2",105,0.5,105.5);
+  MaskedGlobW2 =  new TH1F ("GlobMaskedWheel_2near","Masked Near Side Wheel 2",101,0.5,101.5);
+  MaskedGlobW2far =  new TH1F ("GlobMaskedWheel_2far","Masked Far Side Wheel 2",105,0.5,105.5);
+  AverageEffW2= new TH1F ("AverageEfficiencyWheel_2near","Average Efficiency Near Side Wheel 2 ",101,0.5,101.5);
+  AverageEffW2far= new TH1F ("AverageEfficiencyWheel_2far","Average Efficiency Far Side Wheel 2 ",105,0.5,105.5);
+  NoPredictionW2= new TH1F ("NoPredictionWheel_2near","No Predictions Near Side Wheel 2 ",101,0.5,101.5);
+  NoPredictionW2far= new TH1F ("NoPredictionWheel_2far","No Predictions Efficiency Far Side Wheel 2 ",105,0.5,105.5);
+  
+  //EndCap
+
+  EffGlobD3 = new TH1F ("GlobEfficiencyDisk_3near","Efficiency Near Side Disk 3",109,0.5,109.5);
+  EffGlobD3far =new TH1F ("GlobEfficiencyDisk_3far","Efficiency Far Side Disk 3",109,0.5,109.5);
+  BXGlobD3 = new TH1F ("GlobBXDisk_3near","BX Near Side Disk 3",109,0.5,109.5);
+  BXGlobD3far = new TH1F ("GlobBXDisk_3far","BX Far Side Disk 3",109,0.5,109.5);
+  MaskedGlobD3 = new TH1F ("GlobMaskedDisk_3near","Masked Near Side Disk 3",109,0.5,109.5);
+  MaskedGlobD3far = new TH1F ("GlobMaskedDisk_3far","Masked Far Side Disk 3",109,0.5,109.5);
+  AverageEffD3=new TH1F ("AverageEfficiencyDisk_3near","Average Efficiency Near Side Disk 3 ",109,0.5,109.5);
+  AverageEffD3far=new TH1F ("AverageEfficiencyDisk_3far","Average Efficiency Far Side Disk 3 ",109,0.5,109.5);
+  NoPredictionD3=new TH1F ("NoPredictionDisk_3near","No Predictions Near Side Disk 3 ",109,0.5,109.5);
+  NoPredictionD3far=new TH1F ("NoPredictionDisk_3far","No Predictions Efficiency Far Side Disk 3 ",109,0.5,109.5);
+
+  EffGlobD2 = new TH1F ("GlobEfficiencyDisk_2near","Efficiency Near Side Disk 2",109,0.5,109.5);
+  EffGlobD2far =new TH1F ("GlobEfficiencyDisk_2far","Efficiency Far Side Disk 2",109,0.5,109.5);
+  BXGlobD2 = new TH1F ("GlobBXDisk_2near","BX Near Side Disk 2",109,0.5,109.5);
+  BXGlobD2far = new TH1F ("GlobBXDisk_2far","BX Far Side Disk 2",109,0.5,109.5);
+  MaskedGlobD2 = new TH1F ("GlobMaskedDisk_2near","Masked Near Side Disk 2",109,0.5,109.5);
+  MaskedGlobD2far = new TH1F ("GlobMaskedDisk_2far","Masked Far Side Disk 2",109,0.5,109.5);
+  AverageEffD2=new TH1F ("AverageEfficiencyDisk_2near","Average Efficiency Near Side Disk 2 ",109,0.5,109.5);
+  AverageEffD2far=new TH1F ("AverageEfficiencyDisk_2far","Average Efficiency Far Side Disk 2 ",109,0.5,109.5);
+  NoPredictionD2=new TH1F ("NoPredictionDisk_2near","No Predictions Near Side Disk 2 ",109,0.5,109.5);
+  NoPredictionD2far=new TH1F ("NoPredictionDisk_2far","No Predictions Efficiency Far Side Disk 2 ",109,0.5,109.5);
+
+  EffGlobD1 = new TH1F ("GlobEfficiencyDisk_1near","Efficiency Near Side Disk 1",109,0.5,109.5);
+  EffGlobD1far =new TH1F ("GlobEfficiencyDisk_1far","Efficiency Far Side Disk 1",109,0.5,109.5);
+  BXGlobD1 = new TH1F ("GlobBXDisk_1near","BX Near Side Disk 1",109,0.5,109.5);
+  BXGlobD1far = new TH1F ("GlobBXDisk_1far","BX Far Side Disk 1",109,0.5,109.5);
+  MaskedGlobD1 = new TH1F ("GlobMaskedDisk_1near","Masked Near Side Disk 1",109,0.5,109.5);
+  MaskedGlobD1far = new TH1F ("GlobMaskedDisk_1far","Masked Far Side Disk 1",109,0.5,109.5);
+  AverageEffD1=new TH1F ("AverageEfficiencyDisk_1near","Average Efficiency Near Side Disk 1 ",109,0.5,109.5);
+  AverageEffD1far=new TH1F ("AverageEfficiencyDisk_1far","Average Efficiency Far Side Disk 1 ",109,0.5,109.5);
+  NoPredictionD1=new TH1F ("NoPredictionDisk_1near","No Predictions Near Side Disk 1 ",109,0.5,109.5);
+  NoPredictionD1far=new TH1F ("NoPredictionDisk_1far","No Predictions Efficiency Far Side Disk 1 ",109,0.5,109.5);
+
+  EffGlobDm1 = new TH1F ("GlobEfficiencyDisk_m1near","Efficiency Near Side Disk -1",109,0.5,109.5);
+  EffGlobDm1far =new TH1F ("GlobEfficiencyDisk_m1far","Efficiency Far Side Disk -1",109,0.5,109.5);
+  BXGlobDm1 = new TH1F ("GlobBXDisk_m1near","BX Near Side Disk -1",109,0.5,109.5);
+  BXGlobDm1far = new TH1F ("GlobBXDisk_m1far","BX Far Side Disk -1",109,0.5,109.5);
+  MaskedGlobDm1 = new TH1F ("GlobMaskedDisk_m1near","Masked Near Side Disk -1",109,0.5,109.5);
+  MaskedGlobDm1far = new TH1F ("GlobMaskedDisk_m1far","Masked Far Side Disk -1",109,0.5,109.5);
+  AverageEffDm1=new TH1F ("AverageEfficiencyDisk_m1near","Average Efficiency Near Side Disk -1 ",109,0.5,109.5);
+  AverageEffDm1far=new TH1F ("AverageEfficiencyDisk_m1far","Average Efficiency Far Side Disk -1 ",109,0.5,109.5);
+  NoPredictionDm1=new TH1F ("NoPredictionDisk_m1near","No Predictions Near Side Disk -1 ",109,0.5,109.5);
+  NoPredictionDm1far=new TH1F ("NoPredictionDisk_m1far","No Predictions Efficiency Far Side Disk -1 ",109,0.5,109.5);
+
+  EffGlobDm2 = new TH1F ("GlobEfficiencyDisk_m2near","Efficiency Near Side Disk -2",109,0.5,109.5);
+  EffGlobDm2far =new TH1F ("GlobEfficiencyDisk_m2far","Efficiency Far Side Disk -2",109,0.5,109.5);
+  BXGlobDm2 = new TH1F ("GlobBXDisk_m2near","BX Near Side Disk -2",109,0.5,109.5);
+  BXGlobDm2far = new TH1F ("GlobBXDisk_m2far","BX Far Side Disk -2",109,0.5,109.5);
+  MaskedGlobDm2 = new TH1F ("GlobMaskedDisk_m2near","Masked Near Side Disk -2",109,0.5,109.5);
+  MaskedGlobDm2far = new TH1F ("GlobMaskedDisk_m2far","Masked Far Side Disk -2",109,0.5,109.5);
+  AverageEffDm2=new TH1F ("AverageEfficiencyDisk_m2near","Average Efficiency Near Side Disk -2 ",109,0.5,109.5);
+  AverageEffDm2far=new TH1F ("AverageEfficiencyDisk_m2far","Average Efficiency Far Side Disk -2 ",109,0.5,109.5);
+  NoPredictionDm2=new TH1F ("NoPredictionDisk_m2near","No Predictions Near Side Disk -2 ",109,0.5,109.5);
+  NoPredictionDm2far=new TH1F ("NoPredictionDisk_m2far","No Predictions Efficiency Far Side Disk -2 ",109,0.5,109.5);
+
+  EffGlobDm3 = new TH1F ("GlobEfficiencyDisk_m3near","Efficiency Near Side Disk -3",109,0.5,109.5);
+  EffGlobDm3far =new TH1F ("GlobEfficiencyDisk_m3far","Efficiency Far Side Disk -3",109,0.5,109.5);
+  BXGlobDm3 = new TH1F ("GlobBXDisk_m3near","BX Near Side Disk -3",109,0.5,109.5);
+  BXGlobDm3far = new TH1F ("GlobBXDisk_m3far","BX Far Side Disk -3",109,0.5,109.5);
+  MaskedGlobDm3 = new TH1F ("GlobMaskedDisk_m3near","Masked Near Side Disk -3",109,0.5,109.5);
+  MaskedGlobDm3far = new TH1F ("GlobMaskedDisk_m3far","Masked Far Side Disk -3",109,0.5,109.5);
+  AverageEffDm3=new TH1F ("AverageEfficiencyDisk_m3near","Average Efficiency Near Side Disk -3 ",109,0.5,109.5);
+  AverageEffDm3far=new TH1F ("AverageEfficiencyDisk_m3far","Average Efficiency Far Side Disk -3 ",109,0.5,109.5);
+  NoPredictionDm3=new TH1F ("NoPredictionDisk_m3near","No Predictions Near Side Disk -3 ",109,0.5,109.5);
+  NoPredictionDm3far=new TH1F ("NoPredictionDisk_m3far","No Predictions Efficiency Far Side Disk -3 ",109,0.5,109.5);
 
 
+  //Producing plots for residuals and global statistics.
+
+  Ca3 = new TCanvas("Ca3","Profile",1200,600);
+  
+  gStyle->SetOptStat(1);
+  
+  std::string meIdRES,folder,labeltoSave,command;
+  
+  folder = "DQMData/Muons/MuonSegEff/";
+  
+  meIdRES = folder + "Statistics";
+  statistics = (TH1F*)theFile->Get(meIdRES.c_str());
+  statistics->GetXaxis()->LabelsOption("v");
+  statistics->GetXaxis()->SetLabelSize(0.035);
+  statistics->Draw();
+  labeltoSave = "Statistics.png";
+  Ca3->SetBottomMargin(0.35);
+  Ca3->SaveAs(labeltoSave.c_str()); 
+  Ca3->Clear();
+
+  folder = "DQMData/Muons/MuonSegEff/Residuals/Barrel/";
+ 
+  Ca4 = new TCanvas("Ca4","Residuals",800,600);
+  
+  
+  command = "mkdir resBarrel"; system(command.c_str());
+  
+  meIdRES = folder + "GlobalResidualsClu1La1"; histoRES = (TH1F*)theFile->Get(meIdRES.c_str());  histoRES->Draw(); labeltoSave = "resBarrel/ResidualsClu1La1.png"; histoRES->GetXaxis()->SetTitle("(cm)");
+  Ca4->SetLogy(); Ca4->SaveAs(labeltoSave.c_str()); Ca4->Clear();
+  meIdRES = folder + "GlobalResidualsClu1La2"; histoRES = (TH1F*)theFile->Get(meIdRES.c_str());  histoRES->Draw(); labeltoSave = "resBarrel/ResidualsClu1La2.png"; histoRES->GetXaxis()->SetTitle("(cm)");
+  Ca4->SetLogy(); Ca4->SaveAs(labeltoSave.c_str()); Ca4->Clear();
+  meIdRES = folder + "GlobalResidualsClu1La3"; histoRES = (TH1F*)theFile->Get(meIdRES.c_str());  histoRES->Draw(); labeltoSave = "resBarrel/ResidualsClu1La3.png"; histoRES->GetXaxis()->SetTitle("(cm)");
+  Ca4->SetLogy(); Ca4->SaveAs(labeltoSave.c_str()); Ca4->Clear();
+  meIdRES = folder + "GlobalResidualsClu1La4"; histoRES = (TH1F*)theFile->Get(meIdRES.c_str());  histoRES->Draw(); labeltoSave = "resBarrel/ResidualsClu1La4.png"; histoRES->GetXaxis()->SetTitle("(cm)");
+  Ca4->SetLogy(); Ca4->SaveAs(labeltoSave.c_str()); Ca4->Clear();
+  meIdRES = folder + "GlobalResidualsClu1La5"; histoRES = (TH1F*)theFile->Get(meIdRES.c_str());  histoRES->Draw(); labeltoSave = "resBarrel/ResidualsClu1La5.png"; histoRES->GetXaxis()->SetTitle("(cm)");
+  Ca4->SetLogy(); Ca4->SaveAs(labeltoSave.c_str()); Ca4->Clear();
+  meIdRES = folder + "GlobalResidualsClu1La6"; histoRES = (TH1F*)theFile->Get(meIdRES.c_str());  histoRES->Draw(); labeltoSave = "resBarrel/ResidualsClu1La6.png"; histoRES->GetXaxis()->SetTitle("(cm)");
+  Ca4->SetLogy(); Ca4->SaveAs(labeltoSave.c_str()); Ca4->Clear();
+
+  meIdRES = folder + "GlobalResidualsClu2La1"; histoRES = (TH1F*)theFile->Get(meIdRES.c_str());  histoRES->Draw(); labeltoSave = "resBarrel/ResidualsClu2La1.png"; histoRES->GetXaxis()->SetTitle("(cm)");
+  Ca4->SetLogy(); Ca4->SaveAs(labeltoSave.c_str()); Ca4->Clear();
+  meIdRES = folder + "GlobalResidualsClu2La2"; histoRES = (TH1F*)theFile->Get(meIdRES.c_str());  histoRES->Draw(); labeltoSave = "resBarrel/ResidualsClu2La2.png"; histoRES->GetXaxis()->SetTitle("(cm)");
+  Ca4->SetLogy(); Ca4->SaveAs(labeltoSave.c_str()); Ca4->Clear();
+  meIdRES = folder + "GlobalResidualsClu2La3"; histoRES = (TH1F*)theFile->Get(meIdRES.c_str());  histoRES->Draw(); labeltoSave = "resBarrel/ResidualsClu2La3.png"; histoRES->GetXaxis()->SetTitle("(cm)");
+  Ca4->SetLogy(); Ca4->SaveAs(labeltoSave.c_str()); Ca4->Clear();
+  meIdRES = folder + "GlobalResidualsClu2La4"; histoRES = (TH1F*)theFile->Get(meIdRES.c_str());  histoRES->Draw(); labeltoSave = "resBarrel/ResidualsClu2La4.png"; histoRES->GetXaxis()->SetTitle("(cm)");
+  Ca4->SetLogy(); Ca4->SaveAs(labeltoSave.c_str()); Ca4->Clear();
+  meIdRES = folder + "GlobalResidualsClu2La5"; histoRES = (TH1F*)theFile->Get(meIdRES.c_str());  histoRES->Draw(); labeltoSave = "resBarrel/ResidualsClu2La5.png"; histoRES->GetXaxis()->SetTitle("(cm)");
+  Ca4->SetLogy(); Ca4->SaveAs(labeltoSave.c_str()); Ca4->Clear();
+  meIdRES = folder + "GlobalResidualsClu2La6"; histoRES = (TH1F*)theFile->Get(meIdRES.c_str());  histoRES->Draw(); labeltoSave = "resBarrel/ResidualsClu2La6.png"; histoRES->GetXaxis()->SetTitle("(cm)");
+  Ca4->SetLogy(); Ca4->SaveAs(labeltoSave.c_str()); Ca4->Clear();
+
+  meIdRES = folder + "GlobalResidualsClu3La1"; histoRES = (TH1F*)theFile->Get(meIdRES.c_str());  histoRES->Draw(); labeltoSave = "resBarrel/ResidualsClu3La1.png"; histoRES->GetXaxis()->SetTitle("(cm)");
+  Ca4->SetLogy(); Ca4->SaveAs(labeltoSave.c_str()); Ca4->Clear();
+  meIdRES = folder + "GlobalResidualsClu3La2"; histoRES = (TH1F*)theFile->Get(meIdRES.c_str());  histoRES->Draw(); labeltoSave = "resBarrel/ResidualsClu3La2.png"; histoRES->GetXaxis()->SetTitle("(cm)");
+  Ca4->SetLogy(); Ca4->SaveAs(labeltoSave.c_str()); Ca4->Clear();
+  meIdRES = folder + "GlobalResidualsClu3La3"; histoRES = (TH1F*)theFile->Get(meIdRES.c_str());  histoRES->Draw(); labeltoSave = "resBarrel/ResidualsClu3La3.png"; histoRES->GetXaxis()->SetTitle("(cm)");
+  Ca4->SetLogy(); Ca4->SaveAs(labeltoSave.c_str()); Ca4->Clear();
+  meIdRES = folder + "GlobalResidualsClu3La4"; histoRES = (TH1F*)theFile->Get(meIdRES.c_str());  histoRES->Draw(); labeltoSave = "resBarrel/ResidualsClu3La4.png"; histoRES->GetXaxis()->SetTitle("(cm)");
+  Ca4->SetLogy(); Ca4->SaveAs(labeltoSave.c_str()); Ca4->Clear();
+  meIdRES = folder + "GlobalResidualsClu3La5"; histoRES = (TH1F*)theFile->Get(meIdRES.c_str());  histoRES->Draw(); labeltoSave = "resBarrel/ResidualsClu3La5.png"; histoRES->GetXaxis()->SetTitle("(cm)");
+  Ca4->SetLogy(); Ca4->SaveAs(labeltoSave.c_str()); Ca4->Clear();
+  meIdRES = folder + "GlobalResidualsClu3La6"; histoRES = (TH1F*)theFile->Get(meIdRES.c_str());  histoRES->Draw(); labeltoSave = "resBarrel/ResidualsClu3La6.png"; histoRES->GetXaxis()->SetTitle("(cm)");
+  Ca4->SetLogy(); Ca4->SaveAs(labeltoSave.c_str()); Ca4->Clear();
+  
+  folder = "DQMData/Muons/MuonSegEff/Residuals/EndCap/";
+ 
+  command = "mkdir resEndCap"; system(command.c_str());
+  
+  meIdRES = folder + "GlobalResidualsClu1R2A"; histoRES = (TH1F*)theFile->Get(meIdRES.c_str());  histoRES->Draw(); labeltoSave = "resEndCap/ResidualsClu1R2A.png"; histoRES->GetXaxis()->SetTitle("(cm)");    Ca4->SetLogy(); Ca4->SaveAs(labeltoSave.c_str()); Ca4->Clear();
+  meIdRES = folder + "GlobalResidualsClu1R2B"; histoRES = (TH1F*)theFile->Get(meIdRES.c_str());  histoRES->Draw(); labeltoSave = "resEndCap/ResidualsClu1R2B.png"; histoRES->GetXaxis()->SetTitle("(cm)");    Ca4->SetLogy(); Ca4->SaveAs(labeltoSave.c_str()); Ca4->Clear();
+  meIdRES = folder + "GlobalResidualsClu1R2C"; histoRES = (TH1F*)theFile->Get(meIdRES.c_str());  histoRES->Draw(); labeltoSave = "resEndCap/ResidualsClu1R2C.png"; histoRES->GetXaxis()->SetTitle("(cm)");    Ca4->SetLogy(); Ca4->SaveAs(labeltoSave.c_str()); Ca4->Clear();
+  meIdRES = folder + "GlobalResidualsClu1R3A"; histoRES = (TH1F*)theFile->Get(meIdRES.c_str());  histoRES->Draw(); labeltoSave = "resEndCap/ResidualsClu1R3A.png"; histoRES->GetXaxis()->SetTitle("(cm)");    Ca4->SetLogy(); Ca4->SaveAs(labeltoSave.c_str()); Ca4->Clear();
+  meIdRES = folder + "GlobalResidualsClu1R3B"; histoRES = (TH1F*)theFile->Get(meIdRES.c_str());  histoRES->Draw(); labeltoSave = "resEndCap/ResidualsClu1R3B.png"; histoRES->GetXaxis()->SetTitle("(cm)");    Ca4->SetLogy(); Ca4->SaveAs(labeltoSave.c_str()); Ca4->Clear();
+  meIdRES = folder + "GlobalResidualsClu1R3C"; histoRES = (TH1F*)theFile->Get(meIdRES.c_str());  histoRES->Draw(); labeltoSave = "resEndCap/ResidualsClu1R3C.png"; histoRES->GetXaxis()->SetTitle("(cm)");    Ca4->SetLogy(); Ca4->SaveAs(labeltoSave.c_str()); Ca4->Clear();
+  meIdRES = folder + "GlobalResidualsClu2R2A"; histoRES = (TH1F*)theFile->Get(meIdRES.c_str());  histoRES->Draw(); labeltoSave = "resEndCap/ResidualsClu2R2A.png"; histoRES->GetXaxis()->SetTitle("(cm)");    Ca4->SetLogy(); Ca4->SaveAs(labeltoSave.c_str()); Ca4->Clear();
+  meIdRES = folder + "GlobalResidualsClu2R2B"; histoRES = (TH1F*)theFile->Get(meIdRES.c_str());  histoRES->Draw(); labeltoSave = "resEndCap/ResidualsClu2R2B.png"; histoRES->GetXaxis()->SetTitle("(cm)");    Ca4->SetLogy(); Ca4->SaveAs(labeltoSave.c_str()); Ca4->Clear();
+  meIdRES = folder + "GlobalResidualsClu2R2C"; histoRES = (TH1F*)theFile->Get(meIdRES.c_str());  histoRES->Draw(); labeltoSave = "resEndCap/ResidualsClu2R2C.png"; histoRES->GetXaxis()->SetTitle("(cm)");    Ca4->SetLogy(); Ca4->SaveAs(labeltoSave.c_str()); Ca4->Clear();
+  meIdRES = folder + "GlobalResidualsClu2R3A"; histoRES = (TH1F*)theFile->Get(meIdRES.c_str());  histoRES->Draw(); labeltoSave = "resEndCap/ResidualsClu2R3A.png"; histoRES->GetXaxis()->SetTitle("(cm)");    Ca4->SetLogy(); Ca4->SaveAs(labeltoSave.c_str()); Ca4->Clear();
+  meIdRES = folder + "GlobalResidualsClu2R3B"; histoRES = (TH1F*)theFile->Get(meIdRES.c_str());  histoRES->Draw(); labeltoSave = "resEndCap/ResidualsClu2R3B.png"; histoRES->GetXaxis()->SetTitle("(cm)");    Ca4->SetLogy(); Ca4->SaveAs(labeltoSave.c_str()); Ca4->Clear();
+  meIdRES = folder + "GlobalResidualsClu2R3C"; histoRES = (TH1F*)theFile->Get(meIdRES.c_str());  histoRES->Draw(); labeltoSave = "resEndCap/ResidualsClu2R3C.png"; histoRES->GetXaxis()->SetTitle("(cm)");    Ca4->SetLogy(); Ca4->SaveAs(labeltoSave.c_str()); Ca4->Clear();
+  meIdRES = folder + "GlobalResidualsClu3R2A"; histoRES = (TH1F*)theFile->Get(meIdRES.c_str());  histoRES->Draw(); labeltoSave = "resEndCap/ResidualsClu3R2A.png"; histoRES->GetXaxis()->SetTitle("(cm)");    Ca4->SetLogy(); Ca4->SaveAs(labeltoSave.c_str()); Ca4->Clear();
+  meIdRES = folder + "GlobalResidualsClu3R2B"; histoRES = (TH1F*)theFile->Get(meIdRES.c_str());  histoRES->Draw(); labeltoSave = "resEndCap/ResidualsClu3R2B.png"; histoRES->GetXaxis()->SetTitle("(cm)");    Ca4->SetLogy(); Ca4->SaveAs(labeltoSave.c_str()); Ca4->Clear();
+  meIdRES = folder + "GlobalResidualsClu3R2C"; histoRES = (TH1F*)theFile->Get(meIdRES.c_str());  histoRES->Draw(); labeltoSave = "resEndCap/ResidualsClu3R2C.png"; histoRES->GetXaxis()->SetTitle("(cm)");    Ca4->SetLogy(); Ca4->SaveAs(labeltoSave.c_str()); Ca4->Clear();
+  meIdRES = folder + "GlobalResidualsClu3R3A"; histoRES = (TH1F*)theFile->Get(meIdRES.c_str());  histoRES->Draw(); labeltoSave = "resEndCap/ResidualsClu3R3A.png"; histoRES->GetXaxis()->SetTitle("(cm)");    Ca4->SetLogy(); Ca4->SaveAs(labeltoSave.c_str()); Ca4->Clear();
+  meIdRES = folder + "GlobalResidualsClu3R3B"; histoRES = (TH1F*)theFile->Get(meIdRES.c_str());  histoRES->Draw(); labeltoSave = "resEndCap/ResidualsClu3R3B.png"; histoRES->GetXaxis()->SetTitle("(cm)");    Ca4->SetLogy(); Ca4->SaveAs(labeltoSave.c_str()); Ca4->Clear();
+  meIdRES = folder + "GlobalResidualsClu3R3C"; histoRES = (TH1F*)theFile->Get(meIdRES.c_str());  histoRES->Draw(); labeltoSave = "resEndCap/ResidualsClu3R3C.png"; histoRES->GetXaxis()->SetTitle("(cm)");    Ca4->SetLogy(); Ca4->SaveAs(labeltoSave.c_str()); Ca4->Clear();
+  
+
+  //exit(1);
+  
+  int indexWheel[5];
+  for(int j=0;j<5;j++){
+    indexWheel[j]=0;
+  }
+  
+  int indexWheelf[5];
+  for(int j=0;j<5;j++){
+    indexWheelf[j]=0;
+  }
+
+  int indexDisk[6];
+  for(int j=0;j<6;j++){
+    indexDisk[j]=0;
+  }
+  
+  int indexDiskf[6];
+  for(int j=0;j<6;j++){
+    indexDiskf[j]=0;
+  }
 
 
+  if(makehtml){
+
+    command = "rm *.html" ; system(command.c_str());
+
+    command = "cat htmltemplates/indexhead.html > indexDm3near.html"; system(command.c_str());
+    command = "cat htmltemplates/indexhead.html > indexDm2near.html"; system(command.c_str());
+    command = "cat htmltemplates/indexhead.html > indexDm1near.html"; system(command.c_str());
+
+    command = "cat htmltemplates/indexhead.html > indexDm3far.html"; system(command.c_str());
+    command = "cat htmltemplates/indexhead.html > indexDm2far.html"; system(command.c_str());
+    command = "cat htmltemplates/indexhead.html > indexDm1far.html"; system(command.c_str());
+
+    command = "cat htmltemplates/indexhead.html > indexD3near.html"; system(command.c_str());
+    command = "cat htmltemplates/indexhead.html > indexD2near.html"; system(command.c_str());
+    command = "cat htmltemplates/indexhead.html > indexD1near.html"; system(command.c_str());
+
+    command = "cat htmltemplates/indexhead.html > indexD3far.html"; system(command.c_str());
+    command = "cat htmltemplates/indexhead.html > indexD2far.html"; system(command.c_str());
+    command = "cat htmltemplates/indexhead.html > indexD1far.html"; system(command.c_str());
+
+    command = "cat htmltemplates/indexhead.html > indexWm2near.html"; system(command.c_str());
+    command = "cat htmltemplates/indexhead.html > indexWm2far.html"; system(command.c_str());
+    command = "cat htmltemplates/indexhead.html > indexWm1near.html"; system(command.c_str());
+    command = "cat htmltemplates/indexhead.html > indexWm1far.html"; system(command.c_str());
+    command = "cat htmltemplates/indexhead.html > indexW0near.html"; system(command.c_str());
+    command = "cat htmltemplates/indexhead.html > indexW0far.html"; system(command.c_str());
+    command = "cat htmltemplates/indexhead.html > indexW1near.html"; system(command.c_str());
+    command = "cat htmltemplates/indexhead.html > indexW1far.html"; system(command.c_str());
+    command = "cat htmltemplates/indexhead.html > indexW2near.html"; system(command.c_str());
+    command = "cat htmltemplates/indexhead.html > indexW2far.html"; system(command.c_str());
+    
+  }
+  
+  std::cout<<"Before Rolls Loop"<<std::endl;
+  
+  Ca0 = new TCanvas("Ca0","Profile",400,300);
+  
+  for (TrackingGeometry::DetContainer::const_iterator it=rpcGeo->dets().begin();it<rpcGeo->dets().end();it++){
+    if( dynamic_cast< RPCChamber* >( *it ) != 0 ){
+      RPCChamber* ch = dynamic_cast< RPCChamber* >( *it ); 
+      std::vector< const RPCRoll*> roles = (ch->rolls());
+      for(std::vector<const RPCRoll*>::const_iterator r = roles.begin();r != roles.end(); ++r){
+	RPCDetId rpcId = (*r)->id();
+	RPCGeomServ rpcsrv(rpcId);
+	
+	int sector = rpcId.sector();
+	int station = rpcId.station();
+
+	int nstrips = int((*r)->nstrips());
+
+	if(rpcId.region()==0 && barrel && (!cosmics||((sector!=1||sector!=7) && station!=4))){  
+	  
+	  const RectangularStripTopology* top_= dynamic_cast<const RectangularStripTopology*> (&((*r)->topology()));
+	  float stripl = top_->stripLength();
+	  float stripw = top_->pitch();
+	     
+	  std::string detUnitLabel, meIdRPC, meIdRPC_2D, meIdDT, meIdDT_2D, meIdPRO, meIdPRO_2D, bxDistroId, meIdRealRPC, meIdResidual;
+	 
+	  RPCBookFolderStructure *  folderStr = new RPCBookFolderStructure(); //Anna
+	  std::string folder = "DQMData/Muons/MuonSegEff/" +  folderStr->folderStructure(rpcId);
+		
+	  meIdRPC = folder +"/RPCDataOccupancyFromDT_"+ rpcsrv.name();	
+	  meIdDT =folder+"/ExpectedOccupancyFromDT_"+ rpcsrv.name();
+
+	  bxDistroId =folder+"/BXDistribution_"+ rpcsrv.name();
+	  meIdRealRPC =folder+"/RealDetectedOccupancyFromDT_"+ rpcsrv.name();  
+
+	  meIdPRO = "Profile_For_"+rpcsrv.name();
+	  meIdPRO_2D = "Profile2D_For_"+rpcsrv.name();
+	  meIdResidual =folder+"/RPCResidualsFromDT_"+ rpcsrv.name();
+	  meIdDT_2D =folder+"/ExpectedOccupancy2DFromDT_"+ rpcsrv.name();
+	  meIdRPC_2D = folder +"/RPCDataOccupancy2DFromDT_"+ rpcsrv.name();	
+	  
+
+	  if(dosD){
+	    histoRPC_2D= (TH2F*)theFile->Get(meIdRPC_2D.c_str());
+	    histoDT_2D= (TH2F*)theFile->Get(meIdDT_2D.c_str());
+	    histoResidual= (TH1F*)theFile->Get(meIdResidual.c_str());
+	  }
+
+	  histoRPC= (TH1F*)theFile->Get(meIdRPC.c_str());
+          histoDT= (TH1F*)theFile->Get(meIdDT.c_str());
+          BXDistribution = (TH1F*)theFile->Get(bxDistroId.c_str());
+          histoRealRPC = (TH1F*)theFile->Get(meIdRealRPC.c_str());
+	  
+	  histoPRO= new TH1F (meIdPRO.c_str(),meIdPRO.c_str(),int((*r)->nstrips()),0.5,int((*r)->nstrips())+0.5);
+	  histoPRO_2D= new TH2F (meIdPRO_2D.c_str(),meIdPRO.c_str(),nstrips,-0.5*nstrips*stripw,0.5*nstrips*stripw,nstrips,-0.5*stripl,0.5*stripl);
+	  
+	  std::cout <<folder<<"/"<<rpcsrv.name()<<std::endl;
+
+	  int NumberMasked=0;
+	  int NumberWithOutPrediction=0;
+	  double p = 0;
+	  double o = 0;
+	  float mybxhisto = 0;
+	  float mybxerror = 0;
+	  float ef =0;
+	  float er =0;
+	  float ef2D =0;
+	  float er2D =0;
+	  float buffef = 0;
+	  float buffer = 0;
+	  float sumbuffef = 0;
+	  float sumbuffer = 0;
+	  float averageeff = 0;
+	  float averageerr = 0;
+
+	  float doublegapeff = 0;
+	  float doublegaperr = 0;
+
+	  float bufdoublegapeff = 0;
+	  float bufdoublegaperr = 0;
+	  
+	  int NumberStripsPointed = 0;
+	  double deadStripsContribution=0;
+
+	  if(dosD && histoRPC_2D && histoDT_2D && histoResidual){
+	    std::cout<<"Leidos los histogramas 2D!"<<std::endl;
+	    for(int i=1;i<=nstrips;++i){
+	      for(int j=1;j<=nstrips;++j){
+		if(histoDT_2D->GetBinContent(i,j) != 0){
+		  ef2D = histoRPC_2D->GetBinContent(i,j)/histoDT_2D->GetBinContent(i,j);
+		  er2D = sqrt(ef2D*(1-ef2D)/histoDT_2D->GetBinContent(i,j));
+		}	
+		histoPRO_2D->SetBinContent(i,j,ef2D*100.);
+		histoPRO_2D->SetBinError(i,j,er2D*100.);
+	      }//loop on the boxes
+	    }
+	  }else{
+	    std::cout<<"Warning!!! Alguno de los  histogramas 2D no fue leido!"<<std::endl;
+	  }
+
+	  bool maskeffect[100];
+	  for(int i=0;i<100;i++) maskeffect[i]=false;
+	    
+	  if(histoRPC && histoDT && BXDistribution && histoRealRPC){
+	    std::cout<<"All Histograms Exists"<<std::endl;
+	    int nstrips=(*r)->nstrips();
+	    for(int i=1;i<=int(nstrips);++i){
+	      if(histoRealRPC->GetBinContent(i)==0){
+		if(i==1){
+		  maskeffect[1]=true;
+		  maskeffect[2]=true;
+		  maskeffect[3]=true;
+		}else if(i==2){
+		  maskeffect[1]=true;
+		  maskeffect[2]=true;
+		  maskeffect[3]=true;
+		  maskeffect[4]=true;
+		}else if(i==(*r)->nstrips()){
+		  maskeffect[nstrips-2]=true;
+		  maskeffect[nstrips-1]=true;
+		  maskeffect[nstrips]=true;
+		}else if(i==(*r)->nstrips()-1){
+		  maskeffect[nstrips-3]=true;
+		  maskeffect[nstrips-2]=true;
+		  maskeffect[nstrips-1]=true;
+		  maskeffect[nstrips]=true;
+		}else{
+		  maskeffect[i-2]=true;
+		  maskeffect[i-1]=true;
+		  maskeffect[i]=true;
+		  maskeffect[i+1]=true;
+		  maskeffect[i+2]=true;
+		}
+	      }
+	    }
+	    
+	    float withouteffect=0.;
+	    
+	    for(int i=0;i<=int((*r)->nstrips());i++) if(maskeffect[i]==false) withouteffect++;
+	    
+	    for(int i=1;i<=int((*r)->nstrips());++i){
+	      if(histoRealRPC->GetBinContent(i)==0){
+		NumberMasked++;
+		deadStripsContribution=deadStripsContribution+histoDT->GetBinContent(i);
+	      }
+	      if(histoDT->GetBinContent(i)!=0){
+		if(histoRPC->GetBinContent(i)==0){ 
+		  std::cout<<"The RPC Data was CERO!!!!! Then Efficiency 0";
+		  buffer=0.;
+		  buffef=0.;
+		}else{
+		  buffef = float(histoRPC->GetBinContent(i))/float(histoDT->GetBinContent(i));
+		  buffer = sqrt(buffef*(1.-buffef)/float(histoDT->GetBinContent(i)));
+		}
+		sumbuffef = sumbuffef + buffef;
+		sumbuffer = sumbuffer + buffer*buffer;
+		NumberStripsPointed++;
+		if(maskeffect[i]==false){
+		  bufdoublegapeff=bufdoublegapeff+buffef;
+		  bufdoublegaperr=bufdoublegaperr+buffer*buffer;
+		}
+	      }else{
+		NumberWithOutPrediction++;
+	      }
+
+	      histoPRO->SetBinContent(i,buffef);
+	      histoPRO->SetBinError(i,buffer);
+	      
+	      std::cout<<"\t \t Write in Histo PRO"<<histoPRO->GetBinContent(i)<<std::endl;
+	      std::cout<<"\t \t Strip="<<i<<" RealRPC="<<histoRealRPC->GetBinContent(i)<<" RPC="<<histoRPC->GetBinContent(i)<<" DT="<<histoDT->GetBinContent(i)<<" buffef="<<buffef<<" buffer="<<buffer<<" sumbuffef="<<sumbuffef<<" sumbuffer="<<sumbuffer<<" NumberStripsPointed="<<NumberStripsPointed<<" NumberWithOutPrediction"<<NumberWithOutPrediction<<" Number Masked="<<NumberMasked<<std::endl;
+	    }
+	    
+	    if(NumberStripsPointed!=0){
+	      averageeff = (sumbuffef/float(NumberStripsPointed))*100.;
+	      averageerr = sqrt(sumbuffer/float(NumberStripsPointed))*100.;
+	      EffBarrel->Fill(averageeff);
+	      
+	      doublegapeff=(bufdoublegapeff/withouteffect)*100.;
+	      doublegaperr=sqrt(bufdoublegaperr/withouteffect)*100.;
+	      
+	      int Ring = rpcId.ring();
+	      
+	      if(sector==1||sector==2||sector==3||sector==10||sector==11||sector==12){
+		if(Ring==-2){ EffDistroWm2->Fill(averageeff);       DoubleGapDistroWm2->Fill(doublegapeff);
+		}else if(Ring==-1){ EffDistroWm1->Fill(averageeff); DoubleGapDistroWm1->Fill(doublegapeff);
+		}else if(Ring==0) { EffDistroW0->Fill(averageeff);  DoubleGapDistroW0->Fill(doublegapeff); 
+		}else if(Ring==1) { EffDistroW1->Fill(averageeff);  DoubleGapDistroW1->Fill(doublegapeff); 
+		}else if(Ring==2) { EffDistroW2->Fill(averageeff);  DoubleGapDistroW2->Fill(doublegapeff); 
+		}
+	      }else{
+		if(Ring==-2){ EffDistroWm2far->Fill(averageeff);       DoubleGapDistroWm2far->Fill(doublegapeff);
+		}else if(Ring==-1){ EffDistroWm1far->Fill(averageeff); DoubleGapDistroWm1far->Fill(doublegapeff);
+		}else if(Ring==0) { EffDistroW0far->Fill(averageeff);  DoubleGapDistroW0far->Fill(doublegapeff); 
+		}else if(Ring==1) { EffDistroW1far->Fill(averageeff);  DoubleGapDistroW1far->Fill(doublegapeff); 
+		}else if(Ring==2) { EffDistroW2far->Fill(averageeff);  DoubleGapDistroW2far->Fill(doublegapeff); 
+		}
+	      }
+	    }
+	    
+	    
+	    if(prodimages || makehtml){
+	      command = "mkdir " + rpcsrv.name();
+	      system(command.c_str());
+	    }
+
+	    histoPRO->Write();
+
+	    if(prodimages){
+	      histoPRO->GetXaxis()->SetTitle("Strip");
+	      histoPRO->GetYaxis()->SetTitle("Efficiency (%)");
+	      histoPRO->Draw();
+	      std::string labeltoSave = rpcsrv.name() + "/Profile.png";
+	      Ca0->SaveAs(labeltoSave.c_str());
+	      Ca0->Clear();
+
+	      histoRPC->GetXaxis()->SetTitle("Strip");
+	      histoRPC->GetYaxis()->SetTitle("Occupancy Extrapolation");
+	      histoRPC->Draw();
+	      labeltoSave = rpcsrv.name() + "/RPCOccupancy.png";
+	      Ca0->SaveAs(labeltoSave.c_str());
+	      Ca0->Clear();
+
+	      histoRealRPC->GetXaxis()->SetTitle("Strip");
+	      histoRealRPC->GetYaxis()->SetTitle("RPC Occupancy");
+	      histoRealRPC->Draw();
+	      labeltoSave = rpcsrv.name() + "/DQMOccupancy.png";
+	      Ca0->SaveAs(labeltoSave.c_str());
+	      Ca0->Clear();
+	      
+	      histoDT->GetXaxis()->SetTitle("Strip");
+	      histoDT->GetYaxis()->SetTitle("Expected Occupancy");
+	      histoDT->Draw();
+	      labeltoSave = rpcsrv.name() + "/DTOccupancy.png";
+	      Ca0->SaveAs(labeltoSave.c_str());
+	      Ca0->Clear();
+	      
+	      BXDistribution->GetXaxis()->SetTitle("BX");
+	      BXDistribution->Draw();
+	      labeltoSave = rpcsrv.name() + "/BXDistribution.png";
+	      Ca0->SaveAs(labeltoSave.c_str());
+	      Ca0->Clear();
+	      
+	      if(dosD){
+		histoRPC_2D->GetXaxis()->SetTitle("cm");
+		histoRPC_2D->GetYaxis()->SetTitle("cm");
+		histoRPC_2D->Draw();
+		labeltoSave = rpcsrv.name() + "/RPCOccupancy_2D.png";
+		Ca0->SaveAs(labeltoSave.c_str());
+		Ca0->Clear();
+		
+		histoDT_2D->GetXaxis()->SetTitle("cm");
+		histoDT_2D->GetYaxis()->SetTitle("cm");
+		histoDT_2D->Draw();
+		labeltoSave = rpcsrv.name() + "/DTOccupancy_2D.png";
+		Ca0->SaveAs(labeltoSave.c_str());
+		Ca0->Clear();
+
+		histoPRO_2D->GetXaxis()->SetTitle("cm");
+		histoPRO_2D->GetYaxis()->SetTitle("cm");
+		histoPRO_2D->Draw();
+		labeltoSave = rpcsrv.name() + "/Profile_2D.png";
+		Ca0->SaveAs(labeltoSave.c_str());
+		Ca0->Clear();
+		
+		histoResidual->GetXaxis()->SetTitle("cm");
+		histoResidual->Draw();
+		labeltoSave = rpcsrv.name() + "/Residual.png";
+		Ca0->SaveAs(labeltoSave.c_str());
+		Ca0->Clear();
+	      }
+	    }
+
+	    int Ring = rpcId.ring();
+	    int sector = rpcId.sector();
+	    //Near Side
+
+	    std::cout<<"Before if = "<<makehtml<<std::endl;
+	    if(makehtml){
+	      command = "cp htmltemplates/indexLocal.html " + rpcsrv.name() + "/index.html"; system(command.c_str());
+	      std::cout<<"html for "<<rpcId<<std::endl;
+	      
+	      std::string color = "#0000FF";
+	      if(averageeff<threshold) color = "#ff4500";
+
+	      if(sector==1||sector==2||sector==3||sector==10||sector==11||sector==12){
+		if(Ring==-2){ 
+		  command = "sed -e \"s|roll|" + rpcsrv.name() + "|g\" htmltemplates/indextemplate.html >> indexWm2near.html"; system(command.c_str());
+		  command = "sed -e \"s|roll|" + rpcsrv.name() + "|g\" -e \"s|colore|" + color + "|g\" htmltemplates/indexline.html >> insertWm2near.html"; system(command.c_str());
+		}
+		else if(Ring==-1){ 
+		  command = "sed -e \"s|roll|" + rpcsrv.name() + "|g\" htmltemplates/indextemplate.html >> indexWm1near.html"; system(command.c_str());
+		  command = "sed -e \"s|roll|" + rpcsrv.name() + "|g\" -e \"s|colore|" + color + "|g\" htmltemplates/indexline.html >> insertWm1near.html"; system(command.c_str());
+		}
+		else if(Ring==0){ 
+		  command = "sed -e \"s|roll|" + rpcsrv.name() + "|g\" htmltemplates/indextemplate.html >> indexW0near.html"; system(command.c_str());
+		  command = "sed -e \"s|roll|" + rpcsrv.name() + "|g\" -e \"s|colore|" + color + "|g\" htmltemplates/indexline.html >> insertW0near.html"; system(command.c_str());
+		}
+		else if(Ring==1) { 
+		  command = "sed -e \"s|roll|" + rpcsrv.name() + "|g\" htmltemplates/indextemplate.html >> indexW1near.html"; system(command.c_str());
+		  command = "sed -e \"s|roll|" + rpcsrv.name() + "|g\" -e \"s|colore|" + color + "|g\" htmltemplates/indexline.html >> insertW1near.html"; system(command.c_str());
+		}
+		else if(Ring==2) { 
+		  command = "sed -e \"s|roll|" + rpcsrv.name() + "|g\" htmltemplates/indextemplate.html >> indexW2near.html"; system(command.c_str());
+		  command = "sed -e \"s|roll|" + rpcsrv.name() + "|g\" -e \"s|colore|" + color + "|g\" htmltemplates/indexline.html >> insertW2near.html"; system(command.c_str());
+		}     
+	      }else{
+		if(Ring==-2){ 
+		  command = "sed -e \"s|roll|" + rpcsrv.name() + "|g\" htmltemplates/indextemplate.html >> indexWm2far.html"; system(command.c_str());
+		  command = "sed -e \"s|roll|" + rpcsrv.name() + "|g\" -e \"s|colore|" + color + "|g\" htmltemplates/indexline.html >> insertWm2far.html"; system(command.c_str());
+		}
+		else if(Ring==-1){ 
+		  command = "sed -e \"s|roll|" + rpcsrv.name() + "|g\" htmltemplates/indextemplate.html >> indexWm1far.html"; system(command.c_str());
+		  command = "sed -e \"s|roll|" + rpcsrv.name() + "|g\" -e \"s|colore|" + color + "|g\" htmltemplates/indexline.html >> insertWm1far.html"; system(command.c_str());
+		}
+		else if(Ring==0) { 
+		  command = "sed -e \"s|roll|" + rpcsrv.name() + "|g\" htmltemplates/indextemplate.html >> indexW0far.html"; system(command.c_str());
+		  command = "sed -e \"s|roll|" + rpcsrv.name() + "|g\" -e \"s|colore|" + color + "|g\" htmltemplates/indexline.html >> insertW0far.html"; system(command.c_str());
+		}
+		else if(Ring==1) { 
+		  command = "sed -e \"s|roll|" + rpcsrv.name() + "|g\" htmltemplates/indextemplate.html >> indexW1far.html"; system(command.c_str());
+		  command = "sed -e \"s|roll|" + rpcsrv.name() + "|g\" -e \"s|colore|" + color + "|g\" htmltemplates/indexline.html >> insertW1far.html"; system(command.c_str());
+		}
+		else if(Ring==2) { 
+		  command = "sed -e \"s|roll|" + rpcsrv.name() + "|g\" htmltemplates/indextemplate.html >> indexW2far.html"; system(command.c_str());
+		  command = "sed -e \"s|roll|" + rpcsrv.name() + "|g\" -e \"s|colore|" + color + "|g\" htmltemplates/indexline.html >> insertW2far.html"; system(command.c_str());
+		}     
+	      }
+	    }
+
+	    //exit(1);
+	    mybxhisto = 50.+BXDistribution->GetMean()*10;
+	    mybxerror = BXDistribution->GetRMS()*10;
+	    
+	    bxbarrel->Fill(BXDistribution->GetMean(),BXDistribution->GetRMS());
+	    
+	  }else{
+	    std::cout<<"One of the histograms Doesn't exist for Barrel!!!"<<std::endl;
+	    exit(1);
+	  }
+	  	  
+	  p=histoDT->Integral()-deadStripsContribution;
+	  o=histoRPC->Integral();
+	  
+	  if(p!=0){
+	    ef = float(o)/float(p); 
+	    er = sqrt(ef*(1.-ef)/float(p));
+	  }
+	  
+	  ef=ef*100;
+	  er=er*100;
+	    
+	  std::string camera = rpcsrv.name().c_str();  
+	  float stripsratio = (float(NumberMasked)/float((*r)->nstrips()))*100.;
+	  float nopredictionsratio = (float(NumberWithOutPrediction)/float((*r)->nstrips()))*100.;
+	  
+	  std::cout<<"Filling Global with: Average Eff="<<averageeff<<" Ingegral Eff="<<ef<<" Strips Ratio"<<stripsratio<<" No Predictionratio="<<nopredictionsratio<<std::endl;
+	  
+	  //Near Side
+
+	  int Ring = rpcId.ring();
+	  if((sector==1||sector==2||sector==3||sector==10||sector==11||sector==12)){
+	    if(Ring==-2){
+	      indexWheel[0]++;
+	      EffGlobWm2->SetBinContent(indexWheel[0],ef);
+	      EffGlobWm2->SetBinError(indexWheel[0],er);  
+	      EffGlobWm2->GetXaxis()->SetBinLabel(indexWheel[0],camera.c_str());
+
+	      BXGlobWm2->SetBinContent(indexWheel[0],mybxhisto);  
+	      BXGlobWm2->SetBinError(indexWheel[0],mybxerror);  
+	      BXGlobWm2->GetXaxis()->SetBinLabel(indexWheel[0],camera.c_str());
+	      
+	      MaskedGlobWm2->SetBinContent(indexWheel[0],stripsratio);  
+	      MaskedGlobWm2->GetXaxis()->SetBinLabel(indexWheel[0],camera.c_str());
+
+	      AverageEffWm2->SetBinContent(indexWheel[0],averageeff);
+	      AverageEffWm2->SetBinError(indexWheel[0],averageerr);  
+	      AverageEffWm2->GetXaxis()->SetBinLabel(indexWheel[0],camera.c_str());
+
+	      DoubleGapWm2->SetBinContent(indexWheel[0],doublegapeff);
+	      DoubleGapWm2->SetBinError(indexWheel[0],doublegaperr);  
+	      DoubleGapWm2->GetXaxis()->SetBinLabel(indexWheel[0],camera.c_str());
+	      
+	      NoPredictionWm2->SetBinContent(indexWheel[0],nopredictionsratio);
+              NoPredictionWm2->GetXaxis()->SetBinLabel(indexWheel[0],camera.c_str());
+	    }else if(Ring==-1){
+	      indexWheel[1]++;  
+	      EffGlobWm1->SetBinContent(indexWheel[1],ef);  
+	      EffGlobWm1->SetBinError(indexWheel[1],er);  
+	      EffGlobWm1->GetXaxis()->SetBinLabel(indexWheel[1],camera.c_str());  
+	      
+	      BXGlobWm1->SetBinContent(indexWheel[1],mybxhisto);  
+	      BXGlobWm1->SetBinError(indexWheel[1],mybxerror);  
+	      BXGlobWm1->GetXaxis()->SetBinLabel(indexWheel[1],camera.c_str());
+	      
+	      MaskedGlobWm1->SetBinContent(indexWheel[1],stripsratio);  
+	      MaskedGlobWm1->GetXaxis()->SetBinLabel(indexWheel[1],camera.c_str());
+
+	      AverageEffWm1->SetBinContent(indexWheel[1],averageeff);
+	      AverageEffWm1->SetBinError(indexWheel[1],averageerr);  
+	      AverageEffWm1->GetXaxis()->SetBinLabel(indexWheel[1],camera.c_str());
+	      
+	      DoubleGapWm1->SetBinContent(indexWheel[1],doublegapeff);
+	      DoubleGapWm1->SetBinError(indexWheel[1],doublegaperr);  
+	      DoubleGapWm1->GetXaxis()->SetBinLabel(indexWheel[1],camera.c_str());
+	      
+	      NoPredictionWm1->SetBinContent(indexWheel[1],nopredictionsratio);
+              NoPredictionWm1->GetXaxis()->SetBinLabel(indexWheel[1],camera.c_str());
+
+	    }else if(Ring==0){
+	      indexWheel[2]++;  
+	      EffGlobW0->SetBinContent(indexWheel[2],ef);  
+	      EffGlobW0->SetBinError(indexWheel[2],er);  
+	      EffGlobW0->GetXaxis()->SetBinLabel(indexWheel[2],camera.c_str());  
+	      
+	      BXGlobW0->SetBinContent(indexWheel[2],mybxhisto);  
+	      BXGlobW0->SetBinError(indexWheel[2],mybxerror);  
+	      BXGlobW0->GetXaxis()->SetBinLabel(indexWheel[2],camera.c_str());
+
+	      MaskedGlobW0->SetBinContent(indexWheel[2],stripsratio);  
+	      MaskedGlobW0->GetXaxis()->SetBinLabel(indexWheel[2],camera.c_str());
+	      
+	      AverageEffW0->SetBinContent(indexWheel[2],averageeff);
+	      AverageEffW0->SetBinError(indexWheel[2],averageerr);  
+	      AverageEffW0->GetXaxis()->SetBinLabel(indexWheel[2],camera.c_str());
+
+	      DoubleGapW0->SetBinContent(indexWheel[2],doublegapeff);
+	      DoubleGapW0->SetBinError(indexWheel[2],doublegaperr);  
+	      DoubleGapW0->GetXaxis()->SetBinLabel(indexWheel[2],camera.c_str());
+	      
+	      NoPredictionW0->SetBinContent(indexWheel[2],nopredictionsratio);
+              NoPredictionW0->GetXaxis()->SetBinLabel(indexWheel[2],camera.c_str());	      
+	    }else if(Ring==1){
+	      indexWheel[3]++;  
+	      EffGlobW1->SetBinContent(indexWheel[3],ef);  
+	      EffGlobW1->SetBinError(indexWheel[3],er);  
+	      EffGlobW1->GetXaxis()->SetBinLabel(indexWheel[3],camera.c_str());  
+	      
+	      BXGlobW1->SetBinContent(indexWheel[3],mybxhisto);  
+	      BXGlobW1->SetBinError(indexWheel[3],mybxerror);  
+	      BXGlobW1->GetXaxis()->SetBinLabel(indexWheel[3],camera.c_str());
+
+	      MaskedGlobW1->SetBinContent(indexWheel[3],stripsratio);  
+	      MaskedGlobW1->GetXaxis()->SetBinLabel(indexWheel[3],camera.c_str());
+
+	      AverageEffW1->SetBinContent(indexWheel[3],averageeff);
+	      AverageEffW1->SetBinError(indexWheel[3],averageerr);  
+	      AverageEffW1->GetXaxis()->SetBinLabel(indexWheel[3],camera.c_str());
+
+	      DoubleGapW1->SetBinContent(indexWheel[3],doublegapeff);
+	      DoubleGapW1->SetBinError(indexWheel[3],doublegaperr);  
+	      DoubleGapW1->GetXaxis()->SetBinLabel(indexWheel[3],camera.c_str());
+	      
+	      NoPredictionW1->SetBinContent(indexWheel[3],nopredictionsratio);
+              NoPredictionW1->GetXaxis()->SetBinLabel(indexWheel[3],camera.c_str());	      
+	    }else if(Ring==2){
+	      indexWheel[4]++;
+	      EffGlobW2->SetBinContent(indexWheel[4],ef);
+	      EffGlobW2->SetBinError(indexWheel[4],er);
+	      EffGlobW2->GetXaxis()->SetBinLabel(indexWheel[4],camera.c_str());
+
+	      BXGlobW2->SetBinContent(indexWheel[4],mybxhisto);  
+	      BXGlobW2->SetBinError(indexWheel[4],mybxerror);  
+	      BXGlobW2->GetXaxis()->SetBinLabel(indexWheel[4],camera.c_str());
+	      
+	      MaskedGlobW2->SetBinContent(indexWheel[4],stripsratio);  
+	      MaskedGlobW2->GetXaxis()->SetBinLabel(indexWheel[4],camera.c_str());
+
+	      AverageEffW2->SetBinContent(indexWheel[4],averageeff);
+	      AverageEffW2->SetBinError(indexWheel[4],averageerr);  
+	      AverageEffW2->GetXaxis()->SetBinLabel(indexWheel[4],camera.c_str());
+
+	      DoubleGapW2->SetBinContent(indexWheel[4],doublegapeff);
+	      DoubleGapW2->SetBinError(indexWheel[4],doublegaperr);  
+	      DoubleGapW2->GetXaxis()->SetBinLabel(indexWheel[4],camera.c_str());
+	      
+	      NoPredictionW2->SetBinContent(indexWheel[4],nopredictionsratio);
+              NoPredictionW2->GetXaxis()->SetBinLabel(indexWheel[4],camera.c_str());	      
+	    }
+	  }else{//Far Side 
+	    if(Ring==-2){
+	      indexWheelf[0]++;  
+	      EffGlobWm2far->SetBinContent(indexWheelf[0],ef);  
+	      EffGlobWm2far->SetBinError(indexWheelf[0],er);  
+	      EffGlobWm2far->GetXaxis()->SetBinLabel(indexWheelf[0],camera.c_str());
+
+	      BXGlobWm2far->SetBinContent(indexWheelf[0],mybxhisto);  
+	      BXGlobWm2far->SetBinError(indexWheelf[0],mybxerror);  
+	      BXGlobWm2far->GetXaxis()->SetBinLabel(indexWheelf[0],camera.c_str());
+	      
+	      MaskedGlobWm2far->SetBinContent(indexWheelf[0],stripsratio);
+	      MaskedGlobWm2far->GetXaxis()->SetBinLabel(indexWheelf[0],camera.c_str());
+	      
+	      AverageEffWm2far->SetBinContent(indexWheelf[0],averageeff);
+              AverageEffWm2far->SetBinError(indexWheelf[0],averageerr);
+              AverageEffWm2far->GetXaxis()->SetBinLabel(indexWheelf[0],camera.c_str());
+
+	      DoubleGapWm2far->SetBinContent(indexWheelf[0],doublegapeff);
+	      DoubleGapWm2far->SetBinError(indexWheelf[0],doublegaperr);  
+	      DoubleGapWm2far->GetXaxis()->SetBinLabel(indexWheelf[0],camera.c_str());
+
+              NoPredictionWm2far->SetBinContent(indexWheelf[0],nopredictionsratio);
+              NoPredictionWm2far->GetXaxis()->SetBinLabel(indexWheelf[0],camera.c_str());
+	      
+	    }else if(Ring==-1){
+	      indexWheelf[1]++;  
+	      EffGlobWm1far->SetBinContent(indexWheelf[1],ef);  
+	      EffGlobWm1far->SetBinError(indexWheelf[1],er);  
+	      EffGlobWm1far->GetXaxis()->SetBinLabel(indexWheelf[1],camera.c_str());  
+	      
+	      BXGlobWm1far->SetBinContent(indexWheelf[1],mybxhisto);  
+	      BXGlobWm1far->SetBinError(indexWheelf[1],mybxerror);  
+	      BXGlobWm1far->GetXaxis()->SetBinLabel(indexWheelf[1],camera.c_str());
+	      
+	      MaskedGlobWm1far->SetBinContent(indexWheelf[1],stripsratio);
+	      MaskedGlobWm1far->GetXaxis()->SetBinLabel(indexWheelf[1],camera.c_str());
+
+	      AverageEffWm1far->SetBinContent(indexWheelf[1],averageeff);
+              AverageEffWm1far->SetBinError(indexWheelf[1],averageerr);
+              AverageEffWm1far->GetXaxis()->SetBinLabel(indexWheelf[1],camera.c_str());
+
+	      DoubleGapWm1far->SetBinContent(indexWheelf[1],doublegapeff);
+	      DoubleGapWm1far->SetBinError(indexWheelf[1],doublegaperr);  
+	      DoubleGapWm1far->GetXaxis()->SetBinLabel(indexWheelf[1],camera.c_str());
+
+              NoPredictionWm1far->SetBinContent(indexWheelf[1],nopredictionsratio);
+              NoPredictionWm1far->GetXaxis()->SetBinLabel(indexWheelf[1],camera.c_str());
+
+	    }else  if(Ring==0){
+	      indexWheelf[2]++;  
+	      EffGlobW0far->SetBinContent(indexWheelf[2],ef);  
+	      EffGlobW0far->SetBinError(indexWheelf[2],er);  
+	      EffGlobW0far->GetXaxis()->SetBinLabel(indexWheelf[2],camera.c_str());  
+	      
+	      BXGlobW0far->SetBinContent(indexWheelf[2],mybxhisto);  
+	      BXGlobW0far->SetBinError(indexWheelf[2],mybxerror);  
+	      BXGlobW0far->GetXaxis()->SetBinLabel(indexWheelf[2],camera.c_str());
+
+	      MaskedGlobW0far->SetBinContent(indexWheelf[2],stripsratio);
+	      MaskedGlobW0far->GetXaxis()->SetBinLabel(indexWheelf[2],camera.c_str());
+
+	      AverageEffW0far->SetBinContent(indexWheelf[2],averageeff);
+              AverageEffW0far->SetBinError(indexWheelf[2],averageerr);
+              AverageEffW0far->GetXaxis()->SetBinLabel(indexWheelf[2],camera.c_str());
+	      
+	      DoubleGapW0far->SetBinContent(indexWheelf[2],doublegapeff);
+	      DoubleGapW0far->SetBinError(indexWheelf[2],doublegaperr);  
+	      DoubleGapW0far->GetXaxis()->SetBinLabel(indexWheelf[2],camera.c_str());
+
+              NoPredictionW0far->SetBinContent(indexWheelf[2],nopredictionsratio);
+              NoPredictionW0far->GetXaxis()->SetBinLabel(indexWheelf[2],camera.c_str());
+	    }else if(Ring==1){
+	      indexWheelf[3]++;  
+	      EffGlobW1far->SetBinContent(indexWheelf[3],ef);  
+	      EffGlobW1far->SetBinError(indexWheelf[3],er);  
+	      EffGlobW1far->GetXaxis()->SetBinLabel(indexWheelf[3],camera.c_str());  
+	      
+	      BXGlobW1far->SetBinContent(indexWheelf[3],mybxhisto);  
+	      BXGlobW1far->SetBinError(indexWheelf[3],mybxerror);  
+	      BXGlobW1far->GetXaxis()->SetBinLabel(indexWheelf[3],camera.c_str());
+
+	      MaskedGlobW1far->SetBinContent(indexWheelf[3],stripsratio);
+	      MaskedGlobW1far->GetXaxis()->SetBinLabel(indexWheelf[3],camera.c_str());
+	      
+	      AverageEffW1far->SetBinContent(indexWheelf[3],averageeff);
+              AverageEffW1far->SetBinError(indexWheelf[3],averageerr);
+              AverageEffW1far->GetXaxis()->SetBinLabel(indexWheelf[3],camera.c_str());
+	      
+	      DoubleGapW1far->SetBinContent(indexWheelf[3],doublegapeff);
+	      DoubleGapW1far->SetBinError(indexWheelf[3],doublegaperr);  
+	      DoubleGapW1far->GetXaxis()->SetBinLabel(indexWheelf[3],camera.c_str());
+	      
+              NoPredictionW1far->SetBinContent(indexWheelf[3],nopredictionsratio);
+              NoPredictionW1far->GetXaxis()->SetBinLabel(indexWheelf[3],camera.c_str());
+
+	    }else if(Ring==2){
+	      indexWheelf[4]++;
+	      EffGlobW2far->SetBinContent(indexWheelf[4],ef);
+	      EffGlobW2far->SetBinError(indexWheelf[4],er);
+	      EffGlobW2far->GetXaxis()->SetBinLabel(indexWheelf[4],camera.c_str());
+
+	      BXGlobW2far->SetBinContent(indexWheelf[4],mybxhisto);  
+	      BXGlobW2far->SetBinError(indexWheelf[4],mybxerror);  
+	      BXGlobW2far->GetXaxis()->SetBinLabel(indexWheelf[4],camera.c_str());
+	      
+	      MaskedGlobW2far->SetBinContent(indexWheelf[4],stripsratio);
+	      MaskedGlobW2far->GetXaxis()->SetBinLabel(indexWheelf[4],camera.c_str());
+
+	      AverageEffW2far->SetBinContent(indexWheelf[4],averageeff);
+              AverageEffW2far->SetBinError(indexWheelf[4],averageerr);
+              AverageEffW2far->GetXaxis()->SetBinLabel(indexWheelf[4],camera.c_str());
+	      
+	      DoubleGapW2far->SetBinContent(indexWheelf[4],doublegapeff);
+	      DoubleGapW2far->SetBinError(indexWheelf[4],doublegaperr);  
+	      DoubleGapW2far->GetXaxis()->SetBinLabel(indexWheelf[4],camera.c_str());
+	      
+              NoPredictionW2far->SetBinContent(indexWheelf[4],nopredictionsratio);
+              NoPredictionW2far->GetXaxis()->SetBinLabel(indexWheelf[4],camera.c_str());
+	    }
+	  }
+	}else if(endcap&&!cosmics){//ENDCAPs
+	  std::cout<<"In the EndCap"<<std::endl;
+
+	  const TrapezoidalStripTopology* top_= dynamic_cast<const TrapezoidalStripTopology*> (&((*r)->topology()));
+	  float stripl = top_->stripLength();
+	  float stripw = top_->pitch();
+	  
+	  std::string detUnitLabel, meIdRPC, meIdRPC_2D, meIdCSC, meIdCSC_2D, meIdPRO, meIdPRO_2D, bxDistroId, meIdRealRPC,meIdResidual;
+	 
+	  RPCBookFolderStructure *  folderStr = new RPCBookFolderStructure(); //Anna
+	  std::string folder = "DQMData/Muons/MuonSegEff/" +  folderStr->folderStructure(rpcId);
+	
+	  meIdRPC = folder +"/RPCDataOccupancyFromCSC_"+ rpcsrv.name();	
+	  meIdCSC =folder+"/ExpectedOccupancyFromCSC_"+ rpcsrv.name();
+
+	  bxDistroId =folder+"/BXDistribution_"+ rpcsrv.name();
+	  meIdRealRPC =folder+"/RealDetectedOccupancyFromCSC_"+ rpcsrv.name();
+	  
+	  meIdPRO = "Profile_For_"+rpcsrv.name();
+	  meIdPRO_2D = "Profile2D_For_"+rpcsrv.name();
+	  meIdResidual =folder+"/RPCResidualsFromCSC_"+ rpcsrv.name();
+	  meIdCSC_2D =folder+"/ExpectedOccupancy2DFromCSC_"+ rpcsrv.name();
+	  meIdRPC_2D = folder +"/RPCDataOccupancy2DFromCSC_"+ rpcsrv.name();
+	 
+	  if(dosD){
+	    histoRPC_2D= (TH2F*)theFile->Get(meIdRPC_2D.c_str());
+	    histoCSC_2D= (TH2F*)theFile->Get(meIdCSC_2D.c_str());
+	    histoResidual= (TH1F*)theFile->Get(meIdResidual.c_str());
+	  }
+
+	  
+	  histoRPC= (TH1F*)theFile->Get(meIdRPC.c_str()); if(!histoRPC) std::cout<<meIdRPC<<"Doesn't exist"<<std::endl; 
+	  histoCSC= (TH1F*)theFile->Get(meIdCSC.c_str());if(!histoCSC)std::cout<<meIdCSC<<"Doesn't exist"<<std::endl; 
+	  BXDistribution = (TH1F*)theFile->Get(bxDistroId.c_str());if(!BXDistribution)std::cout<<BXDistribution<<"Doesn't exist"<<std::endl; 
+	  histoRealRPC = (TH1F*)theFile->Get(meIdRealRPC.c_str());if(!histoRealRPC)std::cout<<meIdRealRPC<<"Doesn't exist"<<std::endl; 
+	  
+	  histoPRO= new TH1F (meIdPRO.c_str(),meIdPRO.c_str(),int((*r)->nstrips()),0.5,int((*r)->nstrips())+0.5);
+	  histoPRO_2D= new TH2F (meIdPRO_2D.c_str(),meIdPRO.c_str(),nstrips,-0.5*nstrips*stripw,0.5*nstrips*stripw,nstrips,-0.5*stripl,0.5*stripl);
+	  
+
+	  std::cout <<folder<<"/"<<rpcsrv.name()<<std::endl;
+	  
+	  int NumberMasked=0;
+	  int NumberWithOutPrediction=0;
+	  double p = 0;
+	  double o = 0;
+	  float mybxhisto = 0;
+	  float mybxerror = 0;
+	  float ef =0;
+	  float er =0;
+	  float ef2D =0;
+	  float er2D =0;
+	  float buffef = 0;
+	  float buffer = 0;
+	  float sumbuffef = 0;
+	  float sumbuffer = 0;
+	  float averageeff = 0;
+	  float averageerr = 0;
+	  
+	  int NumberStripsPointed = 0;
+	  double deadStripsContribution = 0;
+	  
+	  if(dosD && histoRPC_2D && histoCSC_2D && histoResidual){
+	    std::cout<<"Leidos los histogramas 2D!"<<std::endl;
+	    for(int i=1;i<=nstrips;++i){
+	      for(int j=1;j<=nstrips;++j){
+		if(histoCSC_2D->GetBinContent(i,j) != 0){
+		  ef2D = histoRPC_2D->GetBinContent(i,j)/histoCSC_2D->GetBinContent(i,j);
+		  er2D = sqrt(ef2D*(1-ef2D)/histoCSC_2D->GetBinContent(i,j));
+		}	
+		histoPRO_2D->SetBinContent(i,j,ef2D*100.);
+		histoPRO_2D->SetBinError(i,j,er2D*100.);
+	      }//loop on the boxes
+	    }
+	  }else{
+	    std::cout<<"Warning!!! Alguno de los  histogramas 2D no fue leido!"<<std::endl;
+	  }
+
+	  
+	  if(histoRPC && histoCSC && BXDistribution && histoRealRPC){
+	    std::cout<<"All Histograms Exists"<<std::endl;
+	    for(int i=1;i<=int((*r)->nstrips());++i){
+	      if(histoRealRPC->GetBinContent(i)==0){
+		NumberMasked++;
+		deadStripsContribution=deadStripsContribution+histoCSC->GetBinContent(i);
+	      }
+	      if(histoCSC->GetBinContent(i)!=0){
+		if(histoRPC->GetBinContent(i)==0){ 
+		  std::cout<<"The RPC Data was CERO!!!!! Then Efficiency 0";
+		  buffer=0.;
+		  buffef=0.;
+		}else{
+		  buffef = double(histoRPC->GetBinContent(i))/double(histoCSC->GetBinContent(i));
+		  buffer = sqrt(buffef*(1.-buffef)/double(histoCSC->GetBinContent(i)));
+		}
+		sumbuffef=sumbuffef+buffef;
+		sumbuffer = sumbuffer + buffer*buffer;
+		NumberStripsPointed++;
+	      }else{
+		NumberWithOutPrediction++;
+	      }
+	      
+	      histoPRO->SetBinContent(i,buffef);
+	      histoPRO->SetBinError(i,buffer);
+
+	      std::cout<<"\t \t Write in Histo PRO"<<histoPRO->GetBinContent(i)<<std::endl;
+	      std::cout<<"\t \t Strip="<<i<<" RealRPC="<<histoRealRPC->GetBinContent(i)<<" RPC="<<histoRPC->GetBinContent(i)<<" CSC="<<histoCSC->GetBinContent(i)<<" buffef="<<buffef<<" buffer="<<buffer<<" sumbuffef="<<sumbuffef<<" sumbuffer="<<sumbuffer<<" NumberStripsPointed="<<NumberStripsPointed<<" NumberWithOutPrediction"<<NumberWithOutPrediction<<" Number Masked="<<NumberMasked<<std::endl;
+	    }
+	    
+	    if(NumberStripsPointed!=0){
+	      averageeff = (sumbuffef/float(NumberStripsPointed))*100.;
+	      averageerr = sqrt(sumbuffer/float(NumberStripsPointed))*100.;
+	      EffEndCap->Fill(averageeff);
+	      //Filling eff distro
+	      int Disk=rpcId.station()*rpcId.region();
+	      if(sector==1||sector==2||sector==6){
+		if(Disk==-3){EffDistroDm3->Fill(averageeff);
+		}else if(Disk==-2){EffDistroDm2->Fill(averageeff);
+		}else if(Disk==-1){EffDistroDm1->Fill(averageeff);
+		}else if(Disk==1){EffDistroD1->Fill(averageeff);
+		}else if(Disk==2){EffDistroD2->Fill(averageeff);
+		}else if(Disk==3){EffDistroD3->Fill(averageeff);
+		}
+	      }else{//Far Side 
+		if(Disk==-3){EffDistroDm3far->Fill(averageeff);
+		}else if(Disk==-2){EffDistroDm2far->Fill(averageeff);
+		}else if(Disk==-1){EffDistroDm1far->Fill(averageeff);
+		}else if(Disk==1){EffDistroD1far->Fill(averageeff);
+		}else if(Disk==2){EffDistroD2far->Fill(averageeff);
+		}else if(Disk==3){EffDistroD3far->Fill(averageeff);
+		}
+	      }//Finishing EndCap
+	      
+
+	      if(prodimages || makehtml){	       
+		command = "mkdir " + rpcsrv.name();
+		system(command.c_str());
+	      }
+
+	      histoPRO->Write();
+
+	      if(prodimages){//ENDCAP
+		histoPRO->GetXaxis()->SetTitle("Strip");
+		histoPRO->GetYaxis()->SetTitle("Efficiency (%)");
+		histoPRO->Draw();
+		std::string labeltoSave = rpcsrv.name() + "/Profile.png";
+		Ca0->SaveAs(labeltoSave.c_str());
+		Ca0->Clear();
+	      
+		histoRPC->GetXaxis()->SetTitle("Strip");
+		histoRPC->GetYaxis()->SetTitle("Occupancy Extrapolation");
+		histoRPC->Draw();
+		labeltoSave = rpcsrv.name() + "/RPCOccupancy.png";
+		Ca0->SaveAs(labeltoSave.c_str());
+		Ca0->Clear();
+	    
+		histoRealRPC->GetXaxis()->SetTitle("Strip");
+		histoRealRPC->GetYaxis()->SetTitle("RPC Occupancy");
+		histoRealRPC->Draw();
+		labeltoSave = rpcsrv.name() + "/DQMOccupancy.png";
+		Ca0->SaveAs(labeltoSave.c_str());
+		Ca0->Clear();
+	      
+		histoCSC->GetXaxis()->SetTitle("Strip");
+		histoCSC->GetYaxis()->SetTitle("Expected Occupancy");
+		histoCSC->Draw();
+		labeltoSave = rpcsrv.name() + "/DTOccupancy.png";
+		Ca0->SaveAs(labeltoSave.c_str());
+		Ca0->Clear();
+	      
+		BXDistribution->GetXaxis()->SetTitle("BX");
+		BXDistribution->Draw();
+		labeltoSave = rpcsrv.name() + "/BXDistribution.png";
+		Ca0->SaveAs(labeltoSave.c_str());
+		Ca0->Clear();
+		
+		if(dosD){
+		  histoRPC_2D->GetXaxis()->SetTitle("cm");
+		  histoRPC_2D->GetYaxis()->SetTitle("cm");
+		  histoRPC_2D->Draw();
+		  labeltoSave = rpcsrv.name() + "/RPCOccupancy_2D.png";
+		  Ca0->SaveAs(labeltoSave.c_str());
+		  Ca0->Clear();
+		   
+		  histoCSC_2D->GetXaxis()->SetTitle("cm");
+		  histoCSC_2D->GetYaxis()->SetTitle("cm");
+		  histoCSC_2D->Draw();
+		  labeltoSave = rpcsrv.name() + "/DTOccupancy_2D.png";
+		  Ca0->SaveAs(labeltoSave.c_str());
+		  Ca0->Clear();
+		  
+		  histoPRO_2D->GetXaxis()->SetTitle("cm");
+		  histoPRO_2D->GetYaxis()->SetTitle("cm");
+		  histoPRO_2D->Draw();
+		  labeltoSave = rpcsrv.name() + "/Profile_2D.png";
+		  Ca0->SaveAs(labeltoSave.c_str());
+		  Ca0->Clear();
+		  
+		  histoResidual->GetXaxis()->SetTitle("cm");
+		  histoResidual->Draw();
+		  labeltoSave = rpcsrv.name() + "/Residual.png";
+		  Ca0->SaveAs(labeltoSave.c_str());
+		  Ca0->Clear();
+		}
+	      }
+	      
+	      int sector = rpcId.sector();
+	      //Near Side
+	      
+	      std::cout<<"Before if = "<<makehtml<<std::endl;
+	      if(makehtml){
+		command = "cp htmltemplates/indexLocal.html " + rpcsrv.name() + "/index.html"; system(command.c_str());
+		std::cout<<"html for "<<rpcId<<std::endl;
+		
+		std::string color = "#0000FF";
+		if(averageeff<threshold) color = "#ff4500";
+		
+		int Disk=rpcId.station()*rpcId.region();
+		
+		if(sector==1||sector==2||sector==3){
+		  if(Disk==-3){ 
+		    command = "sed -e \"s|roll|" + rpcsrv.name() + "|g\" htmltemplates/indextemplate.html >> indexDm3near.html"; system(command.c_str());
+		    command = "sed -e \"s|roll|" + rpcsrv.name() + "|g\" -e \"s|colore|" + color + "|g\" htmltemplates/indexline.html >> insertDm3near.html"; system(command.c_str());
+		  }
+		  else if(Disk==-2){ 
+		    command = "sed -e \"s|roll|" + rpcsrv.name() + "|g\" htmltemplates/ndextemplate.html >> indexDm2near.html"; system(command.c_str());
+		    command = "sed -e \"s|roll|" + rpcsrv.name() + "|g\" -e \"s|colore|" + color + "|g\" htmltemplates/indexline.html >> insertDm2near.html"; system(command.c_str());
+		  }
+		  else if(Disk==-1){ 
+		    command = "sed -e \"s|roll|" + rpcsrv.name() + "|g\" htmltemplates/indextemplate.html >> indexDm1near.html"; system(command.c_str());
+		    command = "sed -e \"s|roll|" + rpcsrv.name() + "|g\" -e \"s|colore|" + color + "|g\" htmltemplates/indexline.html >> insertDm1near.html"; system(command.c_str());
+		  }
+		  else if(Disk==1){ 
+		    command = "sed -e \"s|roll|" + rpcsrv.name() + "|g\" htmltemplates/indextemplate.html >> indexD1near.html"; system(command.c_str());
+		    command = "sed -e \"s|roll|" + rpcsrv.name() + "|g\" -e \"s|colore|" + color + "|g\" htmltemplates/indexline.html >> insertD1near.html"; system(command.c_str());
+		  }
+		  else if(Disk==2) { 
+		    command = "sed -e \"s|roll|" + rpcsrv.name() + "|g\" htmltemplates/indextemplate.html >> indexD2near.html"; system(command.c_str());
+		    command = "sed -e \"s|roll|" + rpcsrv.name() + "|g\" -e \"s|colore|" + color + "|g\" htmltemplates/indexline.html >> insertD2near.html"; system(command.c_str());
+		  }else if(Disk==3){
+		    command = "sed -e \"s|roll|" + rpcsrv.name() + "|g\" htmltemplates/indextemplate.html >> indexD3near.html"; system(command.c_str());
+		    command = "sed -e \"s|roll|" + rpcsrv.name() + "|g\" -e \"s|colore|" + color + "|g\" htmltemplates/indexline.html >> insertD3near.html"; system(command.c_str());
+		  }
+		}else{
+		  if(Disk==-3){ 
+		    command = "sed -e \"s|roll|" + rpcsrv.name() + "|g\" htmltemplates/indextemplate.html >> indexDm3far.html"; system(command.c_str());
+		    command = "sed -e \"s|roll|" + rpcsrv.name() + "|g\" -e \"s|colore|" + color + "|g\" htmltemplates/indexline.html >> insertDm3far.html"; system(command.c_str());
+		  }else if(Disk==-2){ 
+		    command = "sed -e \"s|roll|" + rpcsrv.name() + "|g\" htmltemplates/indextemplate.html >> indexDm2far.html"; system(command.c_str());
+		    command = "sed -e \"s|roll|" + rpcsrv.name() + "|g\" -e \"s|colore|" + color + "|g\" htmltemplates/indexline.html >> insertDm2far.html"; system(command.c_str());
+		  }else if(Disk==-1){ 
+		    command = "sed -e \"s|roll|" + rpcsrv.name() + "|g\" htmltemplates/indextemplate.html >> indexDm1far.html"; system(command.c_str());
+		    command = "sed -e \"s|roll|" + rpcsrv.name() + "|g\" -e \"s|colore|" + color + "|g\" htmltemplates/indexline.html >> insertDm1far.html"; system(command.c_str());
+		  }else if(Disk==1){ 
+		    command = "sed -e \"s|roll|" + rpcsrv.name() + "|g\" htmltemplates/indextemplate.html >> indexD1far.html"; system(command.c_str());
+		    command = "sed -e \"s|roll|" + rpcsrv.name() + "|g\" -e \"s|colore|" + color + "|g\" htmltemplates/indexline.html >> insertD1far.html"; system(command.c_str());
+		  }else if(Disk==2) { 
+		    command = "sed -e \"s|roll|" + rpcsrv.name() + "|g\" htmltemplates/indextemplate.html >> indexD2far.html"; system(command.c_str());
+		    command = "sed -e \"s|roll|" + rpcsrv.name() + "|g\" -e \"s|colore|" + color + "|g\" htmltemplates/indexline.html >> insertD2far.html"; system(command.c_str());
+		  }else if(Disk==3){
+		    command = "sed -e \"s|roll|" + rpcsrv.name() + "|g\" htmltemplates/indextemplate.html >> indexD3far.html"; system(command.c_str());
+		    command = "sed -e \"s|roll|" + rpcsrv.name() + "|g\" -e \"s|colore|" + color + "|g\" htmltemplates/indexline.html >> insertD3far.html"; system(command.c_str());
+		  }
+		}
+	      }
+	    }
+
+	    
+	    mybxhisto = 50.+BXDistribution->GetMean()*10;
+	    mybxerror = BXDistribution->GetRMS()*10;
+	    
+	    bxendcap->Fill(BXDistribution->GetMean(),BXDistribution->GetRMS());
+
+	    
+	  }else{
+	    std::cout<<"One of the histograms Doesn't exist!!!"<<std::endl;
+	    exit(1);
+	  }
+	  
+	  p=histoCSC->Integral()-deadStripsContribution;
+	  o=histoRPC->Integral();
+
+
+	  int Disk = rpcId.station()*rpcId.region();
+	  
+	  if(p!=0){
+	    ef = float(o)/float(p); 
+	    er = sqrt(ef*(1.-ef)/float(p));
+	  }
+	    
+	  ef=ef*100;
+	  er=er*100;
+	    
+	  std::string camera = rpcsrv.name();
+	  
+	  float maskedratio = (float(NumberMasked)/float((*r)->nstrips()))*100.;
+	  float nopredictionsratio = (float(NumberWithOutPrediction)/float((*r)->nstrips()))*100.;
+	  
+	  std::cout<<"p="<<p<<" o="<<o<<std::endl;
+	  std::cout<<"ef="<<ef<<" +/- er="<<er<<std::endl;
+	  std::cout<<"averageeff="<<averageeff<<" +/- averageerr="<<averageerr<<std::endl;
+	  std::cout<<"maskedratio="<<maskedratio<<std::endl;
+	  std::cout<<"nopredictionsratio="<<nopredictionsratio<<std::endl;
+	  
+ 	  //Near Side
+
+	  if(sector==1||sector==2||sector==6){
+	    if(Disk==-3){
+	      indexDisk[0]++;  
+	      EffGlobDm3->SetBinContent(indexDisk[0],ef);  
+	      EffGlobDm3->SetBinError(indexDisk[0],er);  
+	      EffGlobDm3->GetXaxis()->SetBinLabel(indexDisk[0],camera.c_str());
+            
+	      BXGlobDm3->SetBinContent(indexDisk[0],mybxhisto);  
+	      BXGlobDm3->SetBinError(indexDisk[0],mybxerror);  
+	      BXGlobDm3->GetXaxis()->SetBinLabel(indexDisk[0],camera.c_str());
+	      
+	      MaskedGlobDm3->SetBinContent(indexDisk[0],maskedratio);  
+	      MaskedGlobDm3->GetXaxis()->SetBinLabel(indexDisk[0],camera.c_str());
+
+	      AverageEffDm3->SetBinContent(indexDisk[0],averageeff);
+	      AverageEffDm3->SetBinError(indexDisk[0],averageerr);  
+	      AverageEffDm3->GetXaxis()->SetBinLabel(indexDisk[0],camera.c_str());
+	      
+	      NoPredictionDm3->SetBinContent(indexDisk[0],nopredictionsratio);
+              NoPredictionDm3->GetXaxis()->SetBinLabel(indexDisk[0],camera.c_str());
+	    }else if(Disk==-2){
+	      indexDisk[1]++;  
+	      EffGlobDm2->SetBinContent(indexDisk[1],ef);  
+	      EffGlobDm2->SetBinError(indexDisk[1],er);  
+	      EffGlobDm2->GetXaxis()->SetBinLabel(indexDisk[1],camera.c_str());
+
+	      BXGlobDm2->SetBinContent(indexDisk[1],mybxhisto);  
+	      BXGlobDm2->SetBinError(indexDisk[1],mybxerror);  
+	      BXGlobDm2->GetXaxis()->SetBinLabel(indexDisk[1],camera.c_str());
+	      
+	      MaskedGlobDm2->SetBinContent(indexDisk[1],maskedratio);  
+	      MaskedGlobDm2->GetXaxis()->SetBinLabel(indexDisk[1],camera.c_str());
+
+	      AverageEffDm2->SetBinContent(indexDisk[1],averageeff);
+	      AverageEffDm2->SetBinError(indexDisk[1],averageerr);  
+	      AverageEffDm2->GetXaxis()->SetBinLabel(indexDisk[1],camera.c_str());
+	      
+	      NoPredictionDm2->SetBinContent(indexDisk[1],nopredictionsratio);
+              NoPredictionDm2->GetXaxis()->SetBinLabel(indexDisk[1],camera.c_str());
+	    }else if(Disk==-1){
+	      indexDisk[2]++;  
+	      EffGlobDm1->SetBinContent(indexDisk[2],ef);  
+	      EffGlobDm1->SetBinError(indexDisk[2],er);  
+	      EffGlobDm1->GetXaxis()->SetBinLabel(indexDisk[2],camera.c_str());  
+	      
+	      BXGlobDm1->SetBinContent(indexDisk[2],mybxhisto);  
+	      BXGlobDm1->SetBinError(indexDisk[2],mybxerror);  
+	      BXGlobDm1->GetXaxis()->SetBinLabel(indexDisk[2],camera.c_str());
+	      
+	      MaskedGlobDm1->SetBinContent(indexDisk[2],maskedratio);  
+	      MaskedGlobDm1->GetXaxis()->SetBinLabel(indexDisk[2],camera.c_str());
+
+	      AverageEffDm1->SetBinContent(indexDisk[2],averageeff);
+	      AverageEffDm1->SetBinError(indexDisk[2],averageerr);  
+	      AverageEffDm1->GetXaxis()->SetBinLabel(indexDisk[2],camera.c_str());
+	      
+	      NoPredictionDm1->SetBinContent(indexDisk[2],nopredictionsratio);
+              NoPredictionDm1->GetXaxis()->SetBinLabel(indexDisk[2],camera.c_str());
+
+	    }else if(Disk==1){
+	      indexDisk[3]++;  
+	      EffGlobD1->SetBinContent(indexDisk[3],ef);  
+	      EffGlobD1->SetBinError(indexDisk[3],er);  
+	      EffGlobD1->GetXaxis()->SetBinLabel(indexDisk[3],camera.c_str());  
+	      
+	      BXGlobD1->SetBinContent(indexDisk[3],mybxhisto);  
+	      BXGlobD1->SetBinError(indexDisk[3],mybxerror);  
+	      BXGlobD1->GetXaxis()->SetBinLabel(indexDisk[3],camera.c_str());
+
+	      MaskedGlobD1->SetBinContent(indexDisk[3],maskedratio);  
+	      MaskedGlobD1->GetXaxis()->SetBinLabel(indexDisk[3],camera.c_str());
+
+	      AverageEffD1->SetBinContent(indexDisk[3],averageeff);
+	      AverageEffD1->SetBinError(indexDisk[3],averageerr);  
+	      AverageEffD1->GetXaxis()->SetBinLabel(indexDisk[3],camera.c_str());
+	      
+	      NoPredictionD1->SetBinContent(indexDisk[3],nopredictionsratio);
+              NoPredictionD1->GetXaxis()->SetBinLabel(indexDisk[3],camera.c_str());	      
+	    }else if(Disk==2){
+	      indexDisk[4]++;
+	      EffGlobD2->SetBinContent(indexDisk[4],ef);
+	      EffGlobD2->SetBinError(indexDisk[4],er);
+	      EffGlobD2->GetXaxis()->SetBinLabel(indexDisk[4],camera.c_str());
+
+	      BXGlobD2->SetBinContent(indexDisk[4],mybxhisto);  
+	      BXGlobD2->SetBinError(indexDisk[4],mybxerror);  
+	      BXGlobD2->GetXaxis()->SetBinLabel(indexDisk[4],camera.c_str());
+	      
+	      MaskedGlobD2->SetBinContent(indexDisk[4],maskedratio);  
+	      MaskedGlobD2->GetXaxis()->SetBinLabel(indexDisk[4],camera.c_str());
+
+	      AverageEffD2->SetBinContent(indexDisk[4],averageeff);
+	      AverageEffD2->SetBinError(indexDisk[4],averageerr);  
+	      AverageEffD2->GetXaxis()->SetBinLabel(indexDisk[4],camera.c_str());
+	      
+	      NoPredictionD2->SetBinContent(indexDisk[4],nopredictionsratio);
+              NoPredictionD2->GetXaxis()->SetBinLabel(indexDisk[4],camera.c_str());	      
+	    }else if(Disk==3){
+	      indexDisk[5]++;
+	      EffGlobD3->SetBinContent(indexDisk[5],ef);
+	      EffGlobD3->SetBinError(indexDisk[5],er);
+	      EffGlobD3->GetXaxis()->SetBinLabel(indexDisk[5],camera.c_str());
+
+	      BXGlobD3->SetBinContent(indexDisk[5],mybxhisto);  
+	      BXGlobD3->SetBinError(indexDisk[5],mybxerror);  
+	      BXGlobD3->GetXaxis()->SetBinLabel(indexDisk[5],camera.c_str());
+	      
+	      MaskedGlobD3->SetBinContent(indexDisk[5],maskedratio);  
+	      MaskedGlobD3->GetXaxis()->SetBinLabel(indexDisk[5],camera.c_str());
+
+	      AverageEffD3->SetBinContent(indexDisk[5],averageeff);
+	      AverageEffD3->SetBinError(indexDisk[5],averageerr);  
+	      AverageEffD3->GetXaxis()->SetBinLabel(indexDisk[5],camera.c_str());
+	      
+	      NoPredictionD3->SetBinContent(indexDisk[5],nopredictionsratio);
+              NoPredictionD3->GetXaxis()->SetBinLabel(indexDisk[5],camera.c_str());	      
+	    }
+	  }else{//Far Side 
+	    
+	    if(Disk==-3){
+	      indexDiskf[0]++;  
+	      EffGlobDm3far->SetBinContent(indexDiskf[0],ef);  
+	      EffGlobDm3far->SetBinError(indexDiskf[0],er);  
+	      EffGlobDm3far->GetXaxis()->SetBinLabel(indexDiskf[0],camera.c_str());
+
+	      BXGlobDm3far->SetBinContent(indexDiskf[0],mybxhisto);  
+	      BXGlobDm3far->SetBinError(indexDiskf[0],mybxerror);  
+	      BXGlobDm3far->GetXaxis()->SetBinLabel(indexDiskf[0],camera.c_str());
+	      
+	      MaskedGlobDm3far->SetBinContent(indexDiskf[0],maskedratio);
+	      MaskedGlobDm3far->GetXaxis()->SetBinLabel(indexDiskf[0],camera.c_str());
+	      
+	      AverageEffDm3far->SetBinContent(indexDiskf[0],averageeff);
+              AverageEffDm3far->SetBinError(indexDiskf[0],averageerr);
+              AverageEffDm3far->GetXaxis()->SetBinLabel(indexDiskf[0],camera.c_str());
+
+              NoPredictionDm3far->SetBinContent(indexDisk[0],nopredictionsratio);
+              NoPredictionDm3far->GetXaxis()->SetBinLabel(indexDisk[0],camera.c_str());
+
+	    }
+	    else if(Disk==-2){
+	      indexDiskf[1]++;  
+	      EffGlobDm2far->SetBinContent(indexDiskf[1],ef);  
+	      EffGlobDm2far->SetBinError(indexDiskf[1],er);  
+	      EffGlobDm2far->GetXaxis()->SetBinLabel(indexDiskf[1],camera.c_str());
+
+	      BXGlobDm2far->SetBinContent(indexDiskf[1],mybxhisto);  
+	      BXGlobDm2far->SetBinError(indexDiskf[1],mybxerror);  
+	      BXGlobDm2far->GetXaxis()->SetBinLabel(indexDiskf[1],camera.c_str());
+	      
+	      MaskedGlobDm2far->SetBinContent(indexDiskf[1],maskedratio);
+	      MaskedGlobDm2far->GetXaxis()->SetBinLabel(indexDiskf[1],camera.c_str());
+	      
+	      AverageEffDm2far->SetBinContent(indexDiskf[1],averageeff);
+              AverageEffDm2far->SetBinError(indexDiskf[1],averageerr);
+              AverageEffDm2far->GetXaxis()->SetBinLabel(indexDiskf[1],camera.c_str());
+
+              NoPredictionDm2far->SetBinContent(indexDisk[1],nopredictionsratio);
+              NoPredictionDm2far->GetXaxis()->SetBinLabel(indexDisk[1],camera.c_str());
+
+	    }else if(Disk==-1){
+	      indexDiskf[2]++;  
+	      EffGlobDm1far->SetBinContent(indexDiskf[2],ef);  
+	      EffGlobDm1far->SetBinError(indexDiskf[2],er);  
+	      EffGlobDm1far->GetXaxis()->SetBinLabel(indexDiskf[2],camera.c_str());  
+	      
+	      BXGlobDm1far->SetBinContent(indexDiskf[2],mybxhisto);  
+	      BXGlobDm1far->SetBinError(indexDiskf[2],mybxerror);  
+	      BXGlobDm1far->GetXaxis()->SetBinLabel(indexDiskf[2],camera.c_str());
+	      
+	      MaskedGlobDm1far->SetBinContent(indexDiskf[2],maskedratio);
+	      MaskedGlobDm1far->GetXaxis()->SetBinLabel(indexDiskf[2],camera.c_str());
+
+	      AverageEffDm1far->SetBinContent(indexDiskf[2],averageeff);
+              AverageEffDm1far->SetBinError(indexDiskf[2],averageerr);
+              AverageEffDm1far->GetXaxis()->SetBinLabel(indexDiskf[2],camera.c_str());
+
+              NoPredictionDm1far->SetBinContent(indexDiskf[2],nopredictionsratio);
+              NoPredictionDm1far->GetXaxis()->SetBinLabel(indexDiskf[2],camera.c_str());
+
+	    }else if(Disk==1){
+	      indexDiskf[3]++;  
+	      EffGlobD1far->SetBinContent(indexDiskf[3],ef);  
+	      EffGlobD1far->SetBinError(indexDiskf[3],er);  
+	      EffGlobD1far->GetXaxis()->SetBinLabel(indexDiskf[3],camera.c_str());  
+	      
+	      BXGlobD1far->SetBinContent(indexDiskf[3],mybxhisto);  
+	      BXGlobD1far->SetBinError(indexDiskf[3],mybxerror);  
+	      BXGlobD1far->GetXaxis()->SetBinLabel(indexDiskf[3],camera.c_str());
+
+	      MaskedGlobD1far->SetBinContent(indexDiskf[3],maskedratio);
+	      MaskedGlobD1far->GetXaxis()->SetBinLabel(indexDiskf[3],camera.c_str());
+	      
+	      AverageEffD1far->SetBinContent(indexDiskf[3],averageeff);
+              AverageEffD1far->SetBinError(indexDiskf[3],averageerr);
+              AverageEffD1far->GetXaxis()->SetBinLabel(indexDiskf[3],camera.c_str());
+
+              NoPredictionD1far->SetBinContent(indexDiskf[3],nopredictionsratio);
+              NoPredictionD1far->GetXaxis()->SetBinLabel(indexDiskf[3],camera.c_str());
+
+	    }else if(Disk==2){
+	      indexDiskf[4]++;
+	      EffGlobD2far->SetBinContent(indexDiskf[4],ef);
+	      EffGlobD2far->SetBinError(indexDiskf[4],er);
+	      EffGlobD2far->GetXaxis()->SetBinLabel(indexDiskf[4],camera.c_str());
+
+	      BXGlobD2far->SetBinContent(indexDiskf[4],mybxhisto);  
+	      BXGlobD2far->SetBinError(indexDiskf[4],mybxerror);  
+	      BXGlobD2far->GetXaxis()->SetBinLabel(indexDiskf[4],camera.c_str());
+	      
+	      MaskedGlobD2far->SetBinContent(indexDiskf[4],maskedratio);
+	      MaskedGlobD2far->GetXaxis()->SetBinLabel(indexDiskf[4],camera.c_str());
+
+	      AverageEffD2far->SetBinContent(indexDiskf[4],averageeff);
+              AverageEffD2far->SetBinError(indexDiskf[4],averageerr);
+              AverageEffD2far->GetXaxis()->SetBinLabel(indexDiskf[4],camera.c_str());
+
+              NoPredictionD2far->SetBinContent(indexDiskf[4],nopredictionsratio);
+              NoPredictionD2far->GetXaxis()->SetBinLabel(indexDiskf[4],camera.c_str());
+	    }else if(Disk==3){
+	      indexDiskf[5]++;
+	      EffGlobD3far->SetBinContent(indexDiskf[5],ef);
+	      EffGlobD3far->SetBinError(indexDiskf[5],er);
+	      EffGlobD3far->GetXaxis()->SetBinLabel(indexDiskf[5],camera.c_str());
+
+	      BXGlobD3far->SetBinContent(indexDiskf[5],mybxhisto);  
+	      BXGlobD3far->SetBinError(indexDiskf[5],mybxerror);  
+	      BXGlobD3far->GetXaxis()->SetBinLabel(indexDiskf[5],camera.c_str());
+	      
+	      MaskedGlobD3far->SetBinContent(indexDiskf[5],maskedratio);
+	      MaskedGlobD3far->GetXaxis()->SetBinLabel(indexDiskf[5],camera.c_str());
+
+	      AverageEffD3far->SetBinContent(indexDiskf[5],averageeff);
+              AverageEffD3far->SetBinError(indexDiskf[5],averageerr);
+              AverageEffD3far->GetXaxis()->SetBinLabel(indexDiskf[5],camera.c_str());
+
+              NoPredictionD3far->SetBinContent(indexDiskf[5],nopredictionsratio);
+              NoPredictionD3far->GetXaxis()->SetBinLabel(indexDiskf[5],camera.c_str());
+	    }
+	  }//Finishing EndCap
+	}
+      }
+    }
+  }
+
+  if(makehtml){
+    command = "cat htmltemplates/indextail.html >> indexDm3near.html"; system(command.c_str());
+    command = "cat htmltemplates/indextail.html >> indexDm2near.html"; system(command.c_str());
+    command = "cat htmltemplates/indextail.html >> indexDm1near.html"; system(command.c_str());
+
+    command = "cat htmltemplates/indextail.html >> indexD1near.html"; system(command.c_str());
+    command = "cat htmltemplates/indextail.html >> indexD2near.html"; system(command.c_str());
+    command = "cat htmltemplates/indextail.html >> indexD3near.html"; system(command.c_str());
+
+    command = "cat htmltemplates/indextail.html >> indexDm3far.html"; system(command.c_str());
+    command = "cat htmltemplates/indextail.html >> indexDm2far.html"; system(command.c_str());
+    command = "cat htmltemplates/indextail.html >> indexDm1far.html"; system(command.c_str());
+
+    command = "cat htmltemplates/indextail.html >> indexD1far.html"; system(command.c_str());
+    command = "cat htmltemplates/indextail.html >> indexD2far.html"; system(command.c_str());
+    command = "cat htmltemplates/indextail.html >> indexD3far.html"; system(command.c_str());
+
+    command = "cat htmltemplates/indextail.html >> indexWm2near.html"; system(command.c_str());
+    command = "cat htmltemplates/indextail.html >> indexWm2far.html"; system(command.c_str());
+    command = "cat htmltemplates/indextail.html >> indexWm1near.html"; system(command.c_str());
+    command = "cat htmltemplates/indextail.html >> indexWm1far.html"; system(command.c_str());
+    command = "cat htmltemplates/indextail.html >> indexW0near.html"; system(command.c_str());
+    command = "cat htmltemplates/indextail.html >> indexW0far.html"; system(command.c_str());
+    command = "cat htmltemplates/indextail.html >> indexW1near.html"; system(command.c_str());
+    command = "cat htmltemplates/indextail.html >> indexW1far.html"; system(command.c_str());
+    command = "cat htmltemplates/indextail.html >> indexW2near.html"; system(command.c_str());
+    command = "cat htmltemplates/indextail.html >> indexW2far.html"; system(command.c_str());
+  }
+
+  std::cout<<"Outside the loop of rolls"<<std::endl;
+  
+  //Producing Images
+
+  Ca5->Clear();
+  
+  bxbarrel->Draw();
+  bxbarrel->GetYaxis()->SetTitle("RMS (bx Units)");
+  bxbarrel->GetXaxis()->SetTitle("Mean (bx Units)");
+  Ca5->SaveAs("bxbarrel.png");
+  Ca5->SaveAs("bxbarrel.root");
+ 
+
+  Ca5->Clear();
+  
+  bxendcap->Draw();
+  bxendcap->GetYaxis()->SetTitle("RMS (bx Units)");
+  bxendcap->GetXaxis()->SetTitle("Mean (bx Units)");
+  Ca5->SaveAs("bxendcap.png");
+  Ca5->SaveAs("bxendcap.root");
+
+  
+ 
+
+  if(barrel){
+
+    std::cout<<"setting axis for Barrel"<<std::endl;
+    
+    EffGlobWm2->GetXaxis()->LabelsOption("v");
+    std::cout<<"Done the first Barrel"<<std::endl;
+    EffGlobWm1->GetXaxis()->LabelsOption("v");
+    EffGlobW0->GetXaxis()->LabelsOption("v");
+    EffGlobW1->GetXaxis()->LabelsOption("v");
+    EffGlobW2->GetXaxis()->LabelsOption("v");
+
+    EffGlobWm2->GetXaxis()->SetLabelSize(0.03);
+    EffGlobWm1->GetXaxis()->SetLabelSize(0.03);
+    EffGlobW0->GetXaxis()->SetLabelSize(0.03);
+    EffGlobW1->GetXaxis()->SetLabelSize(0.03);
+    EffGlobW2->GetXaxis()->SetLabelSize(0.03);
+
+    EffGlobWm2->GetYaxis()->SetRangeUser(0.,100.);
+    EffGlobWm1->GetYaxis()->SetRangeUser(0.,100.);
+    EffGlobW0->GetYaxis()->SetRangeUser(0.,100.);
+    EffGlobW1->GetYaxis()->SetRangeUser(0.,100.);
+    EffGlobW2->GetYaxis()->SetRangeUser(0.,100.);
+  
+    BXGlobWm2->GetXaxis()->LabelsOption("v");
+    BXGlobWm1->GetXaxis()->LabelsOption("v");
+    BXGlobW0->GetXaxis()->LabelsOption("v");
+    BXGlobW1->GetXaxis()->LabelsOption("v");
+    BXGlobW2->GetXaxis()->LabelsOption("v");
+
+    MaskedGlobWm2->GetXaxis()->LabelsOption("v");
+    MaskedGlobWm1->GetXaxis()->LabelsOption("v");
+    MaskedGlobW0->GetXaxis()->LabelsOption("v");
+    MaskedGlobW1->GetXaxis()->LabelsOption("v");
+    MaskedGlobW2->GetXaxis()->LabelsOption("v");
+
+    EffGlobWm2far->GetXaxis()->LabelsOption("v");
+    EffGlobWm1far->GetXaxis()->LabelsOption("v");
+    EffGlobW0far->GetXaxis()->LabelsOption("v");
+    EffGlobW1far->GetXaxis()->LabelsOption("v");
+    EffGlobW2far->GetXaxis()->LabelsOption("v");
+
+    EffGlobWm2far->GetXaxis()->SetLabelSize(0.03);
+    EffGlobWm1far->GetXaxis()->SetLabelSize(0.03);
+    EffGlobW0far->GetXaxis()->SetLabelSize(0.03);
+    EffGlobW1far->GetXaxis()->SetLabelSize(0.03);
+    EffGlobW2far->GetXaxis()->SetLabelSize(0.03);
+
+    EffGlobWm2far->GetYaxis()->SetRangeUser(0.,100.);
+    EffGlobWm1far->GetYaxis()->SetRangeUser(0.,100.);
+    EffGlobW0far->GetYaxis()->SetRangeUser(0.,100.);
+    EffGlobW1far->GetYaxis()->SetRangeUser(0.,100.);
+    EffGlobW2far->GetYaxis()->SetRangeUser(0.,100.);
+  
+    std::cout<<"Done with Eff Glob"<<std::endl;
+
+    BXGlobWm2far->GetXaxis()->LabelsOption("v");
+    BXGlobWm1far->GetXaxis()->LabelsOption("v");
+    BXGlobW0far->GetXaxis()->LabelsOption("v");
+    BXGlobW1far->GetXaxis()->LabelsOption("v");
+    BXGlobW2far->GetXaxis()->LabelsOption("v");
+
+    MaskedGlobWm2far->GetXaxis()->LabelsOption("v");
+    MaskedGlobWm1far->GetXaxis()->LabelsOption("v");
+    MaskedGlobW0far->GetXaxis()->LabelsOption("v");
+    MaskedGlobW1far->GetXaxis()->LabelsOption("v");
+    MaskedGlobW2far->GetXaxis()->LabelsOption("v");
+
+    std::cout<<"Done with Average Masked"<<std::endl;
+
+    AverageEffWm2->GetXaxis()->LabelsOption("v");
+    AverageEffWm1->GetXaxis()->LabelsOption("v");
+    AverageEffW0->GetXaxis()->LabelsOption("v");
+    AverageEffW1->GetXaxis()->LabelsOption("v");
+    AverageEffW2->GetXaxis()->LabelsOption("v");
+
+    AverageEffWm2far->GetXaxis()->LabelsOption("v");
+    AverageEffWm1far->GetXaxis()->LabelsOption("v");
+    AverageEffW0far->GetXaxis()->LabelsOption("v");
+    AverageEffW1far->GetXaxis()->LabelsOption("v");
+    AverageEffW2far->GetXaxis()->LabelsOption("v");
+    
+    std::cout<<"Done with Average Eff"<<std::endl;
+
+    NoPredictionWm2->GetXaxis()->LabelsOption("v");
+    NoPredictionWm1->GetXaxis()->LabelsOption("v");
+    NoPredictionW0->GetXaxis()->LabelsOption("v");
+    NoPredictionW1->GetXaxis()->LabelsOption("v");
+    NoPredictionW2->GetXaxis()->LabelsOption("v");
+    
+    std::cout<<"Done with No Predictions in near side"<<std::endl;
+
+    NoPredictionWm2far->GetXaxis()->LabelsOption("v"); std::cout<<"Done with Wm2fa  "<<std::endl;
+    NoPredictionWm1far->GetXaxis()->LabelsOption("v"); std::cout<<"Done with Wm1fa  "<<std::endl;
+    NoPredictionW0far->GetXaxis()->LabelsOption("v");  std::cout<<"Done with W0far  "<<std::endl;
+    NoPredictionW1far->GetXaxis()->LabelsOption("v");  std::cout<<"Done with W1far  "<<std::endl;
+    NoPredictionW2far->GetXaxis()->LabelsOption("v");  std::cout<<"Done with W2far  "<<std::endl;
+    
+    std::cout<<"DONE setting axis for Barrel"<<std::endl;
+  }
+  if(endcap){
+    
+    std::cout<<"Label Options"<<std::endl;
+    NoPredictionDm3->GetXaxis()->LabelsOption("v");  std::cout<<"First Histogram"<<std::endl;
+    AverageEffDm3->GetXaxis()->LabelsOption("v");    std::cout<<"2 First Histogram"<<std::endl;
+    EffGlobDm3->GetXaxis()->LabelsOption("v");       std::cout<<"3 First Histogram"<<std::endl;
+    BXGlobDm3->GetXaxis()->LabelsOption("v");        std::cout<<"4 First Histogram"<<std::endl;
+    MaskedGlobDm3->GetXaxis()->LabelsOption("v");    std::cout<<"5 First Histogram"<<std::endl;
+    NoPredictionDm3far->GetXaxis()->LabelsOption("v"); std::cout<<" 6 First Histogram"<<std::endl;
+    AverageEffDm3far->GetXaxis()->LabelsOption("v");   std::cout<<"7 First Histogram"<<std::endl;
+    EffGlobDm3far->GetXaxis()->LabelsOption("v");      std::cout<<"8 First Histogram"<<std::endl;
+    BXGlobDm3far->GetXaxis()->LabelsOption("v");       std::cout<<"9 First Histogram"<<std::endl;
+    MaskedGlobDm3far->GetXaxis()->LabelsOption("v");   std::cout<<"10 First Histogram"<<std::endl;
+    
+    std::cout<<"Label Size"<<std::endl;
+    NoPredictionDm3->GetXaxis()->SetLabelSize(0.03);
+    AverageEffDm3->GetXaxis()->SetLabelSize(0.03);
+    EffGlobDm3->GetXaxis()->SetLabelSize(0.03);
+    BXGlobDm3->GetXaxis()->SetLabelSize(0.03);
+    MaskedGlobDm3->GetXaxis()->SetLabelSize(0.03);
+    NoPredictionDm3far->GetXaxis()->SetLabelSize(0.03);
+    AverageEffDm3far->GetXaxis()->SetLabelSize(0.03);
+    EffGlobDm3far->GetXaxis()->SetLabelSize(0.03);
+    BXGlobDm3far->GetXaxis()->SetLabelSize(0.03);
+    MaskedGlobDm3far->GetXaxis()->SetLabelSize(0.03);
+    
+    std::cout<<"Range User"<<std::endl;
+    NoPredictionDm3->GetYaxis()->SetRangeUser(0.,100.);
+    AverageEffDm3->GetYaxis()->SetRangeUser(0.,100.);
+    EffGlobDm3->GetYaxis()->SetRangeUser(0.,100.);
+    MaskedGlobDm3->GetYaxis()->SetRangeUser(0.,100.);
+    NoPredictionDm3far->GetYaxis()->SetRangeUser(0.,100.);
+    AverageEffDm3far->GetYaxis()->SetRangeUser(0.,100.);
+    EffGlobDm3far->GetYaxis()->SetRangeUser(0.,100.);
+    MaskedGlobDm3far->GetYaxis()->SetRangeUser(0.,100.);
+    NoPredictionDm2->GetYaxis()->SetRangeUser(0.,100.);
+    MaskedGlobDm3far->GetYaxis()->SetRangeUser(0.,100.);
+
+    std::cout<<"Done with Disk m 3"<<std::endl;
+
+    NoPredictionDm2->GetXaxis()->LabelsOption("v");
+    AverageEffDm2->GetXaxis()->LabelsOption("v");
+    EffGlobDm2->GetXaxis()->LabelsOption("v");
+    BXGlobDm2->GetXaxis()->LabelsOption("v");
+    MaskedGlobDm2->GetXaxis()->LabelsOption("v");
+    NoPredictionDm2far->GetXaxis()->LabelsOption("v");
+    AverageEffDm2far->GetXaxis()->LabelsOption("v");
+    EffGlobDm2far->GetXaxis()->LabelsOption("v");
+    BXGlobDm2far->GetXaxis()->LabelsOption("v");
+    MaskedGlobDm2far->GetXaxis()->LabelsOption("v");
+
+    NoPredictionDm2->GetXaxis()->SetLabelSize(0.03);
+    AverageEffDm2->GetXaxis()->SetLabelSize(0.03);
+    EffGlobDm2->GetXaxis()->SetLabelSize(0.03);
+    BXGlobDm2->GetXaxis()->SetLabelSize(0.03);
+    MaskedGlobDm2->GetXaxis()->SetLabelSize(0.03);
+    NoPredictionDm2far->GetXaxis()->SetLabelSize(0.03);
+    AverageEffDm2far->GetXaxis()->SetLabelSize(0.03);
+    EffGlobDm2far->GetXaxis()->SetLabelSize(0.03);
+    BXGlobDm2far->GetXaxis()->SetLabelSize(0.03);
+    MaskedGlobDm2far->GetXaxis()->SetLabelSize(0.03);
+
+    NoPredictionDm2->GetYaxis()->SetRangeUser(0.,100.);
+    AverageEffDm2->GetYaxis()->SetRangeUser(0.,100.);
+    EffGlobDm2->GetYaxis()->SetRangeUser(0.,100.);
+    MaskedGlobDm2->GetYaxis()->SetRangeUser(0.,100.);
+    NoPredictionDm2far->GetYaxis()->SetRangeUser(0.,100.);
+    AverageEffDm2far->GetYaxis()->SetRangeUser(0.,100.);
+    EffGlobDm2far->GetYaxis()->SetRangeUser(0.,100.);
+    MaskedGlobDm2far->GetYaxis()->SetRangeUser(0.,100.);
+
+    std::cout<<"Done with Disk m 2"<<std::endl;
+
+    NoPredictionDm1->GetXaxis()->LabelsOption("v");
+    AverageEffDm1->GetXaxis()->LabelsOption("v");
+    EffGlobDm1->GetXaxis()->LabelsOption("v");
+    BXGlobDm1->GetXaxis()->LabelsOption("v");
+    MaskedGlobDm1->GetXaxis()->LabelsOption("v");
+    NoPredictionDm1far->GetXaxis()->LabelsOption("v");
+    AverageEffDm1far->GetXaxis()->LabelsOption("v");
+    EffGlobDm1far->GetXaxis()->LabelsOption("v");
+    BXGlobDm1far->GetXaxis()->LabelsOption("v");
+    MaskedGlobDm1far->GetXaxis()->LabelsOption("v");
+    NoPredictionD1->GetXaxis()->LabelsOption("v");
+
+    NoPredictionDm1->GetXaxis()->SetLabelSize(0.03);
+    AverageEffDm1->GetXaxis()->SetLabelSize(0.03);
+    EffGlobDm1->GetXaxis()->SetLabelSize(0.03);
+    BXGlobDm1->GetXaxis()->SetLabelSize(0.03);
+    MaskedGlobDm1->GetXaxis()->SetLabelSize(0.03);
+    NoPredictionDm1far->GetXaxis()->SetLabelSize(0.03);
+    AverageEffDm1far->GetXaxis()->SetLabelSize(0.03);
+    EffGlobDm1far->GetXaxis()->SetLabelSize(0.03);
+    BXGlobDm1far->GetXaxis()->SetLabelSize(0.03);
+    MaskedGlobDm1far->GetXaxis()->SetLabelSize(0.03);
+
+    NoPredictionDm1->GetYaxis()->SetRangeUser(0.,100.);
+    AverageEffDm1->GetYaxis()->SetRangeUser(0.,100.);
+    EffGlobDm1->GetYaxis()->SetRangeUser(0.,100.);
+    MaskedGlobDm1->GetYaxis()->SetRangeUser(0.,100.);
+    NoPredictionDm1far->GetYaxis()->SetRangeUser(0.,100.);
+    AverageEffDm1far->GetYaxis()->SetRangeUser(0.,100.);
+    EffGlobDm1far->GetYaxis()->SetRangeUser(0.,100.);
+    MaskedGlobDm1far->GetYaxis()->SetRangeUser(0.,100.);
+
+    std::cout<<"Done with Disk m1"<<std::endl;
+
+    AverageEffD1->GetXaxis()->LabelsOption("v");
+    EffGlobD1->GetXaxis()->LabelsOption("v");
+    BXGlobD1->GetXaxis()->LabelsOption("v");
+    MaskedGlobD1->GetXaxis()->LabelsOption("v");
+    NoPredictionD1far->GetXaxis()->LabelsOption("v");
+    AverageEffD1far->GetXaxis()->LabelsOption("v");
+    EffGlobD1far->GetXaxis()->LabelsOption("v");
+    BXGlobD1far->GetXaxis()->LabelsOption("v");
+    MaskedGlobD1far->GetXaxis()->LabelsOption("v");
+
+    NoPredictionD1->GetXaxis()->SetLabelSize(0.03);
+    AverageEffD1->GetXaxis()->SetLabelSize(0.03);
+    EffGlobD1->GetXaxis()->SetLabelSize(0.03);
+    BXGlobD1->GetXaxis()->SetLabelSize(0.03);
+    MaskedGlobD1->GetXaxis()->SetLabelSize(0.03);
+    NoPredictionD1far->GetXaxis()->SetLabelSize(0.03);
+    AverageEffD1far->GetXaxis()->SetLabelSize(0.03);
+    EffGlobD1far->GetXaxis()->SetLabelSize(0.03);
+    BXGlobD1far->GetXaxis()->SetLabelSize(0.03);
+    MaskedGlobD1far->GetXaxis()->SetLabelSize(0.03);
+
+    NoPredictionD1->GetYaxis()->SetRangeUser(0.,100.);
+    AverageEffD1->GetYaxis()->SetRangeUser(0.,100.);
+    EffGlobD1->GetYaxis()->SetRangeUser(0.,100.);
+    MaskedGlobD1->GetYaxis()->SetRangeUser(0.,100.);
+    NoPredictionD1far->GetYaxis()->SetRangeUser(0.,100.);
+    AverageEffD1far->GetYaxis()->SetRangeUser(0.,100.);
+    EffGlobD1far->GetYaxis()->SetRangeUser(0.,100.);
+    MaskedGlobD1far->GetYaxis()->SetRangeUser(0.,100.);
+
+    std::cout<<"Done with Disk 1"<<std::endl;
+
+    NoPredictionD2->GetXaxis()->LabelsOption("v");
+    AverageEffD2->GetXaxis()->LabelsOption("v");
+    EffGlobD2->GetXaxis()->LabelsOption("v");
+    BXGlobD2->GetXaxis()->LabelsOption("v");
+    MaskedGlobD2->GetXaxis()->LabelsOption("v");
+    NoPredictionD2far->GetXaxis()->LabelsOption("v");
+    AverageEffD2far->GetXaxis()->LabelsOption("v");
+    EffGlobD2far->GetXaxis()->LabelsOption("v");
+    BXGlobD2far->GetXaxis()->LabelsOption("v");
+    MaskedGlobD2far->GetXaxis()->LabelsOption("v");
+
+    NoPredictionD2->GetXaxis()->SetLabelSize(0.03);
+    AverageEffD2->GetXaxis()->SetLabelSize(0.03);
+    EffGlobD2->GetXaxis()->SetLabelSize(0.03);
+    BXGlobD2->GetXaxis()->SetLabelSize(0.03);
+    MaskedGlobD2->GetXaxis()->SetLabelSize(0.03);
+    NoPredictionD2far->GetXaxis()->SetLabelSize(0.03);
+    AverageEffD2far->GetXaxis()->SetLabelSize(0.03);
+    EffGlobD2far->GetXaxis()->SetLabelSize(0.03);
+    BXGlobD2far->GetXaxis()->SetLabelSize(0.03);
+    MaskedGlobD2far->GetXaxis()->SetLabelSize(0.03);
+
+    NoPredictionD2->GetYaxis()->SetRangeUser(0.,100.);
+    AverageEffD2->GetYaxis()->SetRangeUser(0.,100.);
+    EffGlobD2->GetYaxis()->SetRangeUser(0.,100.);
+    MaskedGlobD2->GetYaxis()->SetRangeUser(0.,100.);
+    NoPredictionD2far->GetYaxis()->SetRangeUser(0.,100.);
+    AverageEffD2far->GetYaxis()->SetRangeUser(0.,100.);
+    EffGlobD2far->GetYaxis()->SetRangeUser(0.,100.);
+    MaskedGlobD2far->GetYaxis()->SetRangeUser(0.,100.);
+
+    std::cout<<"Done with Disk 2"<<std::endl;
+
+    NoPredictionD3->GetXaxis()->LabelsOption("v");
+    AverageEffD3->GetXaxis()->LabelsOption("v");
+    EffGlobD3->GetXaxis()->LabelsOption("v");
+    BXGlobD3->GetXaxis()->LabelsOption("v");
+    MaskedGlobD3->GetXaxis()->LabelsOption("v");
+    NoPredictionD3far->GetXaxis()->LabelsOption("v");
+    AverageEffD3far->GetXaxis()->LabelsOption("v");
+    EffGlobD3far->GetXaxis()->LabelsOption("v");
+    BXGlobD3far->GetXaxis()->LabelsOption("v");
+    MaskedGlobD3far->GetXaxis()->LabelsOption("v");
+  
+    NoPredictionD3->GetXaxis()->SetLabelSize(0.03);
+    AverageEffD3->GetXaxis()->SetLabelSize(0.03);
+    EffGlobD3->GetXaxis()->SetLabelSize(0.03);
+    BXGlobD3->GetXaxis()->SetLabelSize(0.03);
+    MaskedGlobD3->GetXaxis()->SetLabelSize(0.03);
+    NoPredictionD3far->GetXaxis()->SetLabelSize(0.03);
+    AverageEffD3far->GetXaxis()->SetLabelSize(0.03);
+    EffGlobD3far->GetXaxis()->SetLabelSize(0.03);
+    BXGlobD3far->GetXaxis()->SetLabelSize(0.03);
+    MaskedGlobD3far->GetXaxis()->SetLabelSize(0.03);
+
+    NoPredictionD3->GetYaxis()->SetRangeUser(0.,100.);
+    AverageEffD3->GetYaxis()->SetRangeUser(0.,100.);
+    EffGlobD3->GetYaxis()->SetRangeUser(0.,100.);
+    MaskedGlobD3->GetYaxis()->SetRangeUser(0.,100.);
+    NoPredictionD3far->GetYaxis()->SetRangeUser(0.,100.);
+    AverageEffD3far->GetYaxis()->SetRangeUser(0.,100.);
+    EffGlobD3far->GetYaxis()->SetRangeUser(0.,100.);
+    MaskedGlobD3far->GetYaxis()->SetRangeUser(0.,100.);
+    
+    std::cout<<"Done with Disk 3"<<std::endl;
+  }
+  
+
+  std::cout<<"Efficiency Images"<<std::endl;
+
+  pave = new TPaveText(35,119,60,102);
+  TText *t1=pave->AddText("BX Distribution (Right Axis ->)");
+  t1->SetTextColor(9);
+  TText *t2=pave->AddText("Average Efficiency (%)");
+  t2->SetTextColor(8);
+  TText *t3=pave->AddText("Integral Efficiency (%)");
+  //black
+  TText *t4=pave->AddText("Strips without Data (ratio)"); 
+  t4->SetTextColor(2);
+  TText *t5=pave->AddText("Strips Never Pointed for a Segment (ratio)");
+  t5->SetTextColor(5);
+
+  pave->SetFillColor(18);
+  
+  t1->SetTextSize(0.019);
+  t2->SetTextSize(0.019);
+  t3->SetTextSize(0.019);
+  t4->SetTextSize(0.019);
+  t5->SetTextSize(0.019);
+
+
+  Ca2->SetBottomMargin(0.4);
+  
+  TGaxis * bxAxis = new TGaxis(104.,0.,104.,100.,-5,5,11,"+L");
+  TGaxis * bxAxisFar = new TGaxis(108.,0.,108.,100.,-5,5,11,"+L");
+  TGaxis * bxAxisEndCap = new TGaxis(112.,0.,112.,100.,-5,5,11,"+L");
+  
+  bxAxis->SetLabelColor(9);
+  bxAxis->SetName("bxAxis");
+  bxAxis->SetTitle("Mean BX (bx Units)");
+  bxAxis->SetTitleColor(9);
+  bxAxis->CenterTitle();
+ 
+ bxAxisFar->SetLabelColor(9);
+ bxAxisFar->SetName("bxAxis");
+ bxAxisFar->SetTitle("Mean BX (bx Units)");
+ bxAxisFar->SetTitleColor(9);
+ bxAxisFar->CenterTitle();
+ 
+ bxAxisEndCap->SetLabelColor(9);
+ bxAxisEndCap->SetName("bxAxis");
+ bxAxisEndCap->SetTitle("Mean BX (bx Units)");
+ bxAxisEndCap->SetTitleColor(9);
+ bxAxisEndCap->CenterTitle();
+ 
+ gStyle->SetOptStat(1);
+
+//Negative EndCap
+
+ command = "mkdir Sides" ; system(command.c_str());
+ command = "mkdir Distro" ; system(command.c_str());
+
+ if(endcap){
+   
+   Ca2->Clear();
+   
+   EffGlobDm3->Draw();
+   EffGlobDm3->GetYaxis()->SetTitle("%");
+   
+   BXGlobDm3->SetMarkerColor(9);
+   BXGlobDm3->SetLineColor(9);
+   BXGlobDm3->Draw("same");
+   
+   MaskedGlobDm3->SetMarkerColor(2);
+   MaskedGlobDm3->SetLineColor(2);
+   MaskedGlobDm3->Draw("same");
+   
+   AverageEffDm3->SetMarkerColor(8);
+   AverageEffDm3->SetLineColor(8);
+   AverageEffDm3->Draw("same");
+   
+   NoPredictionDm3->SetMarkerColor(5);
+   NoPredictionDm3->SetLineColor(5);
+   NoPredictionDm3->Draw("same");
+   
+   pave->Draw();
+
+   bxAxisEndCap->Draw("same");
+  
+   Ca2->SaveAs("Sides/SegEff_Dm3near.png");
+   Ca2->SaveAs("SegEff_Dm3near.root");
+   Ca2->Clear();
+
+
+   EffGlobDm2->Draw();
+   EffGlobDm2->GetYaxis()->SetTitle("%");
+  
+   BXGlobDm2->SetMarkerColor(9);
+   BXGlobDm2->SetLineColor(9);
+   BXGlobDm2->Draw("same");
+
+   MaskedGlobDm2->SetMarkerColor(2);
+   MaskedGlobDm2->SetLineColor(2);
+   MaskedGlobDm2->Draw("same");
+
+   AverageEffDm2->SetMarkerColor(8);
+   AverageEffDm2->SetLineColor(8);
+   AverageEffDm2->Draw("same");
+
+   NoPredictionDm2->SetMarkerColor(5);
+   NoPredictionDm2->SetLineColor(5);
+   NoPredictionDm2->Draw("same");
+
+   pave->Draw();
+
+   bxAxisEndCap->Draw("same");
+  
+   Ca2->SaveAs("Sides/SegEff_Dm2near.png");
+   Ca2->SaveAs("SegEff_Dm2near.root");
+   Ca2->Clear();
+
+
+   EffGlobDm1->Draw();
+   EffGlobDm1->GetYaxis()->SetTitle("%");
+  
+   BXGlobDm1->SetMarkerColor(9);
+   BXGlobDm1->SetLineColor(9);
+   BXGlobDm1->Draw("same");
+
+   MaskedGlobDm1->SetMarkerColor(2);
+   MaskedGlobDm1->SetLineColor(2);
+   MaskedGlobDm1->Draw("same");
+
+   AverageEffDm1->SetMarkerColor(8);
+   AverageEffDm1->SetLineColor(8);
+   AverageEffDm1->Draw("same");
+
+   NoPredictionDm1->SetMarkerColor(5);
+   NoPredictionDm1->SetLineColor(5);
+   NoPredictionDm1->Draw("same");
+
+   pave->Draw();
+
+   bxAxisEndCap->Draw("same");
+  
+   Ca2->SaveAs("Sides/SegEff_Dm1near.png");
+   Ca2->SaveAs("SegEff_Dm1near.root");
+   Ca2->Clear();
+ }
+ 
+ //Barrel
+ if(barrel){
+   
+   Ca2->Clear();
+
+   EffGlobWm2->Draw();
+   EffGlobWm2->GetYaxis()->SetTitle("%");
+  
+   BXGlobWm2->SetMarkerColor(9);
+   BXGlobWm2->SetLineColor(9);
+   BXGlobWm2->Draw("same");
+
+   MaskedGlobWm2->SetMarkerColor(2);
+   MaskedGlobWm2->SetLineColor(2);
+   MaskedGlobWm2->Draw("same");
+
+   AverageEffWm2->SetMarkerColor(8);
+   AverageEffWm2->SetLineColor(8);
+   AverageEffWm2->Draw("same");
+
+   DoubleGapWm2->SetMarkerColor(6);
+   DoubleGapWm2->SetLineColor(6);
+   DoubleGapWm2->Draw("same");
+
+   NoPredictionWm2->SetMarkerColor(5);
+   NoPredictionWm2->SetLineColor(5);
+   NoPredictionWm2->Draw("same");
+
+   pave->Draw();
+ 
+   bxAxis->Draw("same");
+  
+   Ca2->SaveAs("Sides/SegEff_Wm2near.png");
+   Ca2->SaveAs("SegEff_Wm2near.root");
+   Ca2->Clear();
+
+   EffGlobWm2far->Draw();
+   EffGlobWm2far->GetYaxis()->SetTitle("%");
+  
+   BXGlobWm2far->SetMarkerColor(9);
+   BXGlobWm2far->SetLineColor(9);
+   BXGlobWm2far->Draw("same");
+
+   MaskedGlobWm2far->SetMarkerColor(2);
+   MaskedGlobWm2far->SetLineColor(2);
+   MaskedGlobWm2far->Draw("same");
+
+   AverageEffWm2far->SetMarkerColor(8);
+   AverageEffWm2far->SetLineColor(8);
+   AverageEffWm2far->Draw("same");
+
+   DoubleGapWm2far->SetMarkerColor(6);
+   DoubleGapWm2far->SetLineColor(6);
+   DoubleGapWm2far->Draw("same");
+
+   NoPredictionWm2far->SetMarkerColor(5);
+   NoPredictionWm2far->SetLineColor(5);
+   NoPredictionWm2far->Draw("same");
+
+   pave->Draw();
+
+   bxAxisFar->Draw("same");
+  
+   Ca2->SaveAs("Sides/SegEff_Wm2far.png");
+   Ca2->SaveAs("SegEff_Wm2far.root");
+   Ca2->Clear();
+
+   EffGlobWm1->Draw();
+   EffGlobWm1->GetYaxis()->SetTitle("%");
+  
+   BXGlobWm1->SetMarkerColor(9);
+   BXGlobWm1->SetLineColor(9);
+   BXGlobWm1->Draw("same");
+
+   MaskedGlobWm1->SetMarkerColor(2);
+   MaskedGlobWm1->SetLineColor(2);
+   MaskedGlobWm1->Draw("same");
+
+   AverageEffWm1->SetMarkerColor(8);
+   AverageEffWm1->SetLineColor(8);
+   AverageEffWm1->Draw("same");
+
+   DoubleGapWm1->SetMarkerColor(6);
+   DoubleGapWm1->SetLineColor(6);
+   DoubleGapWm1->Draw("same");
+   
+   NoPredictionWm1->SetMarkerColor(5);
+   NoPredictionWm1->SetLineColor(5);
+   NoPredictionWm1->Draw("same");
+ 
+   pave->Draw();
+
+   bxAxis->Draw("same");
+
+   Ca2->SaveAs("Sides/SegEff_Wm1near.png");
+   Ca2->SaveAs("SegEff_Wm1near.root");
+   Ca2->Clear();
+
+   EffGlobWm1far->Draw();
+   EffGlobWm1far->GetYaxis()->SetTitle("%");
+  
+   BXGlobWm1far->SetMarkerColor(9);
+   BXGlobWm1far->SetLineColor(9);
+   BXGlobWm1far->Draw("same");
+
+   MaskedGlobWm1far->SetMarkerColor(2);
+   MaskedGlobWm1far->SetLineColor(2);
+   MaskedGlobWm1far->Draw("same");
+
+   AverageEffWm1far->SetMarkerColor(8);
+   AverageEffWm1far->SetLineColor(8);
+   AverageEffWm1far->Draw("same");
+
+   DoubleGapWm1far->SetMarkerColor(6);
+   DoubleGapWm1far->SetLineColor(6);
+   DoubleGapWm1far->Draw("same");
+
+   NoPredictionWm1far->SetMarkerColor(5);
+   NoPredictionWm1far->SetLineColor(5);
+   NoPredictionWm1far->Draw("same");
+ 
+   pave->Draw();
+
+   bxAxisFar->Draw("same");
+
+   Ca2->SaveAs("Sides/SegEff_Wm1far.png");
+   Ca2->SaveAs("SegEff_Wm1far.root");
+   Ca2->Clear();
+
+   EffGlobW0->Draw();
+   EffGlobW0->GetYaxis()->SetTitle("%");
+  
+   BXGlobW0->SetMarkerColor(9);
+   BXGlobW0->SetLineColor(9);
+   BXGlobW0->Draw("same");
+
+   MaskedGlobW0->SetMarkerColor(2);
+   MaskedGlobW0->SetLineColor(2);
+   MaskedGlobW0->Draw("same");
+
+   AverageEffW0->SetMarkerColor(8);
+   AverageEffW0->SetLineColor(8);
+   AverageEffW0->Draw("same");
+
+   DoubleGapW0->SetMarkerColor(6);
+   DoubleGapW0->SetLineColor(6);
+   DoubleGapW0->Draw("same");
+
+   NoPredictionW0->SetMarkerColor(5);
+   NoPredictionW0->SetLineColor(5);
+   NoPredictionW0->Draw("same");
+ 
+   pave->Draw();
+
+   bxAxis->Draw("same");
+
+   Ca2->SaveAs("Sides/SegEff_W0near.png");
+   Ca2->SaveAs("SegEff_W0near.root");
+   Ca2->Clear();
+
+   EffGlobW0far->Draw();
+   EffGlobW0far->GetYaxis()->SetTitle("%");
+  
+   BXGlobW0far->SetMarkerColor(9);
+   BXGlobW0far->SetLineColor(9);
+   BXGlobW0far->Draw("same");
+
+   MaskedGlobW0far->SetMarkerColor(2);
+   MaskedGlobW0far->SetLineColor(2);
+   MaskedGlobW0far->Draw("same");
+
+   AverageEffW0far->SetMarkerColor(8);
+   AverageEffW0far->SetLineColor(8);
+   AverageEffW0far->Draw("same");
+
+   DoubleGapW0far->SetMarkerColor(6);
+   DoubleGapW0far->SetLineColor(6);
+   DoubleGapW0far->Draw("same");
+
+   NoPredictionW0far->SetMarkerColor(5);
+   NoPredictionW0far->SetLineColor(5);
+   NoPredictionW0far->Draw("same");
+ 
+   pave->Draw();
+
+   bxAxisFar->Draw("same");
+
+   Ca2->SaveAs("Sides/SegEff_W0far.png");
+   Ca2->SaveAs("SegEff_W0far.root");
+   Ca2->Clear();
+
+   EffGlobW1->Draw();
+   EffGlobW1->GetYaxis()->SetTitle("%");
+  
+   BXGlobW1->SetMarkerColor(9);
+   BXGlobW1->SetLineColor(9);
+   BXGlobW1->Draw("same");
+
+   MaskedGlobW1->SetMarkerColor(2);
+   MaskedGlobW1->SetLineColor(2);
+   MaskedGlobW1->Draw("same");
+
+   AverageEffW1->SetMarkerColor(8);
+   AverageEffW1->SetLineColor(8);
+   AverageEffW1->Draw("same");
+
+   DoubleGapW1->SetMarkerColor(6);
+   DoubleGapW1->SetLineColor(6);
+   DoubleGapW1->Draw("same");
+
+   NoPredictionW1->SetMarkerColor(5);
+   NoPredictionW1->SetLineColor(5);
+   NoPredictionW1->Draw("same");
+
+   pave->Draw();
+
+   bxAxis->Draw("same");
+
+   Ca2->SaveAs("Sides/SegEff_W1near.png");
+   Ca2->SaveAs("SegEff_W1near.root");
+   Ca2->Clear();
+
+   EffGlobW1far->Draw();
+   EffGlobW1far->GetYaxis()->SetTitle("%");
+  
+   BXGlobW1far->SetMarkerColor(9);
+   BXGlobW1far->SetLineColor(9);
+   BXGlobW1far->Draw("same");
+
+   MaskedGlobW1far->SetMarkerColor(2);
+   MaskedGlobW1far->SetLineColor(2);
+   MaskedGlobW1far->Draw("same");
+
+   AverageEffW1far->SetMarkerColor(8);
+   AverageEffW1far->SetLineColor(8);
+   AverageEffW1far->Draw("same");
+
+   DoubleGapW1far->SetMarkerColor(6);
+   DoubleGapW1far->SetLineColor(6);
+   DoubleGapW1far->Draw("same");
+
+   NoPredictionW1far->SetMarkerColor(5);
+   NoPredictionW1far->SetLineColor(5);
+   NoPredictionW1far->Draw("same");
+
+   pave->Draw();
+
+   bxAxisFar->Draw("same");
+
+   Ca2->SaveAs("Sides/SegEff_W1far.png");
+   Ca2->SaveAs("SegEff_W1far.root");
+   Ca2->Clear();
+
+   EffGlobW2->Draw();
+   EffGlobW2->GetYaxis()->SetTitle("%");
+  
+   BXGlobW2->SetMarkerColor(9);
+   BXGlobW2->SetLineColor(9);
+   BXGlobW2->Draw("same");
+
+   MaskedGlobW2->SetMarkerColor(2);
+   MaskedGlobW2->SetLineColor(2);
+   MaskedGlobW2->Draw("same");
+
+   AverageEffW2->SetMarkerColor(8);
+   AverageEffW2->SetLineColor(8);
+   AverageEffW2->Draw("same");
+
+   DoubleGapW2->SetMarkerColor(6);
+   DoubleGapW2->SetLineColor(6);
+   DoubleGapW2->Draw("same");
+
+   NoPredictionW2->SetMarkerColor(5);
+   NoPredictionW2->SetLineColor(5);
+   NoPredictionW2->Draw("same");
+
+   pave->Draw();
+  
+   bxAxis->Draw("same");
+
+   Ca2->SaveAs("Sides/SegEff_W2near.png");
+   Ca2->SaveAs("SegEff_W2near.root");
+   Ca2->Clear();
+  
+   EffGlobW2far->Draw();
+   EffGlobW2far->GetYaxis()->SetTitle("%");
+  
+   BXGlobW2far->SetMarkerColor(9);
+   BXGlobW2far->SetLineColor(9);
+   BXGlobW2far->Draw("same");
+
+   MaskedGlobW2far->SetMarkerColor(2);
+   MaskedGlobW2far->SetLineColor(2);
+   MaskedGlobW2far->Draw("same");
+
+   AverageEffW2far->SetMarkerColor(8);
+   AverageEffW2far->SetLineColor(8);
+   AverageEffW2far->Draw("same");
+   
+   DoubleGapW2far->SetMarkerColor(6);
+   DoubleGapW2far->SetLineColor(6);
+   DoubleGapW2far->Draw("same");
+
+   NoPredictionW2far->SetMarkerColor(5);
+   NoPredictionW2far->SetLineColor(5);
+   NoPredictionW2far->Draw("same");
+
+   pave->Draw();
+
+   bxAxisFar->Draw("same");
+  
+   Ca2->SaveAs("Sides/SegEff_W2far.png");
+   Ca2->SaveAs("SegEff_W2far.root");
+   Ca2->Clear();
+ }
+
+ //Positive EndCap
+
+ if(endcap){
+   //POSITIVE
+   EffGlobD1->Draw();
+   EffGlobD1->GetYaxis()->SetTitle("%");
+  
+   BXGlobD1->SetMarkerColor(9);
+   BXGlobD1->SetLineColor(9);
+   BXGlobD1->Draw("same");
+
+   MaskedGlobD1->SetMarkerColor(2);
+   MaskedGlobD1->SetLineColor(2);
+   MaskedGlobD1->Draw("same");
+
+   AverageEffD1->SetMarkerColor(8);
+   AverageEffD1->SetLineColor(8);
+   AverageEffD1->Draw("same");
+
+   NoPredictionD1->SetMarkerColor(5);
+   NoPredictionD1->SetLineColor(5);
+   NoPredictionD1->Draw("same");
+
+   pave->Draw();
+
+   bxAxisEndCap->Draw("same");
+  
+   Ca2->SaveAs("Sides/SegEff_D1near.png");
+   Ca2->SaveAs("SegEff_D1near.root");
+   Ca2->Clear();
+
+   EffGlobD1far->Draw();
+   EffGlobD1far->GetYaxis()->SetTitle("%");
+  
+   BXGlobD1far->SetMarkerColor(9);
+   BXGlobD1far->SetLineColor(9);
+   BXGlobD1far->Draw("same");
+
+   MaskedGlobD1far->SetMarkerColor(2);
+   MaskedGlobD1far->SetLineColor(2);
+   MaskedGlobD1far->Draw("same");
+
+   AverageEffD1far->SetMarkerColor(8);
+   AverageEffD1far->SetLineColor(8);
+   AverageEffD1far->Draw("same");
+
+   NoPredictionD1far->SetMarkerColor(5);
+   NoPredictionD1far->SetLineColor(5);
+   NoPredictionD1far->Draw("same");
+
+   pave->Draw();
+
+   bxAxisEndCap->Draw("same");
+  
+   Ca2->SaveAs("Sides/SegEff_D1far.png");
+   Ca2->SaveAs("SegEff_D1far.root");
+   Ca2->Clear();
+
+   EffGlobD2->Draw();
+   EffGlobD2->GetYaxis()->SetTitle("%");
+  
+   BXGlobD2->SetMarkerColor(9);
+   BXGlobD2->SetLineColor(9);
+   BXGlobD2->Draw("same");
+
+   MaskedGlobD2->SetMarkerColor(2);
+   MaskedGlobD2->SetLineColor(2);
+   MaskedGlobD2->Draw("same");
+
+   AverageEffD2->SetMarkerColor(8);
+   AverageEffD2->SetLineColor(8);
+   AverageEffD2->Draw("same");
+
+   NoPredictionD2->SetMarkerColor(5);
+   NoPredictionD2->SetLineColor(5);
+   NoPredictionD2->Draw("same");
+
+   pave->Draw();
+
+   bxAxisEndCap->Draw("same");
+  
+   Ca2->SaveAs("Sides/SegEff_D2near.png");
+   Ca2->SaveAs("SegEff_D2near.root");
+   Ca2->Clear();
+
+   EffGlobD2far->Draw();
+   EffGlobD2far->GetYaxis()->SetTitle("%");
+  
+   BXGlobD2far->SetMarkerColor(9);
+   BXGlobD2far->SetLineColor(9);
+   BXGlobD2far->Draw("same");
+
+   MaskedGlobD2far->SetMarkerColor(2);
+   MaskedGlobD2far->SetLineColor(2);
+   MaskedGlobD2far->Draw("same");
+
+   AverageEffD2far->SetMarkerColor(8);
+   AverageEffD2far->SetLineColor(8);
+   AverageEffD2far->Draw("same");
+
+   NoPredictionD2far->SetMarkerColor(5);
+   NoPredictionD2far->SetLineColor(5);
+   NoPredictionD2far->Draw("same");
+
+   pave->Draw();
+
+   bxAxisEndCap->Draw("same");
+  
+   Ca2->SaveAs("Sides/SegEff_D2far.png");
+   Ca2->SaveAs("SegEff_D2far.root");
+   Ca2->Clear();
+
+
+   EffGlobD3far->Draw();
+   EffGlobD3far->GetYaxis()->SetTitle("%");
+  
+   BXGlobD3far->SetMarkerColor(9);
+   BXGlobD3far->SetLineColor(9);
+   BXGlobD3far->Draw("same");
+
+   MaskedGlobD3far->SetMarkerColor(2);
+   MaskedGlobD3far->SetLineColor(2);
+   MaskedGlobD3far->Draw("same");
+
+   AverageEffD3far->SetMarkerColor(8);
+   AverageEffD3far->SetLineColor(8);
+   AverageEffD3far->Draw("same");
+
+   NoPredictionD3far->SetMarkerColor(5);
+   NoPredictionD3far->SetLineColor(5);
+   NoPredictionD3far->Draw("same");
+
+   pave->Draw();
+
+   bxAxisEndCap->Draw("same");
+  
+   Ca2->SaveAs("Sides/SegEff_D3far.png");
+   Ca2->SaveAs("SegEff_D3far.root");
+   Ca2->Clear();
+
+   EffGlobD3->Draw();
+   EffGlobD3->GetYaxis()->SetTitle("%");
+  
+   BXGlobD3->SetMarkerColor(9);
+   BXGlobD3->SetLineColor(9);
+   BXGlobD3->Draw("same");
+
+   MaskedGlobD3->SetMarkerColor(2);
+   MaskedGlobD3->SetLineColor(2);
+   MaskedGlobD3->Draw("same");
+
+   AverageEffD3->SetMarkerColor(8);
+   AverageEffD3->SetLineColor(8);
+   AverageEffD3->Draw("same");
+
+   NoPredictionD3->SetMarkerColor(5);
+   NoPredictionD3->SetLineColor(5);
+   NoPredictionD3->Draw("same");
+
+   pave->Draw();
+
+   bxAxisEndCap->Draw("same");
+  
+   Ca2->SaveAs("Sides/SegEff_D3near.png");
+   Ca2->SaveAs("SegEff_D3near.root");
+   Ca2->Clear();
+   
+   //NEGATIVE
+
+   EffGlobDm1->Draw();
+   EffGlobDm1->GetYaxis()->SetTitle("%");
+  
+   BXGlobDm1->SetMarkerColor(9);
+   BXGlobDm1->SetLineColor(9);
+   BXGlobDm1->Draw("same");
+
+   MaskedGlobDm1->SetMarkerColor(2);
+   MaskedGlobDm1->SetLineColor(2);
+   MaskedGlobDm1->Draw("same");
+
+   AverageEffDm1->SetMarkerColor(8);
+   AverageEffDm1->SetLineColor(8);
+   AverageEffDm1->Draw("same");
+
+   NoPredictionDm1->SetMarkerColor(5);
+   NoPredictionDm1->SetLineColor(5);
+   NoPredictionDm1->Draw("same");
+
+   pave->Draw();
+
+   bxAxisEndCap->Draw("same");
+  
+   Ca2->SaveAs("Sides/SegEff_Dm1near.png");
+   Ca2->SaveAs("SegEff_Dm1near.root");
+   Ca2->Clear();
+
+   EffGlobDm1far->Draw();
+   EffGlobDm1far->GetYaxis()->SetTitle("%");
+  
+   BXGlobDm1far->SetMarkerColor(9);
+   BXGlobDm1far->SetLineColor(9);
+   BXGlobDm1far->Draw("same");
+
+   MaskedGlobDm1far->SetMarkerColor(2);
+   MaskedGlobDm1far->SetLineColor(2);
+   MaskedGlobDm1far->Draw("same");
+
+   AverageEffDm1far->SetMarkerColor(8);
+   AverageEffDm1far->SetLineColor(8);
+   AverageEffDm1far->Draw("same");
+
+   NoPredictionDm1far->SetMarkerColor(5);
+   NoPredictionDm1far->SetLineColor(5);
+   NoPredictionDm1far->Draw("same");
+
+   pave->Draw();
+
+   bxAxisEndCap->Draw("same");
+  
+   Ca2->SaveAs("Sides/SegEff_Dm1far.png");
+   Ca2->SaveAs("SegEff_Dm1far.root");
+   Ca2->Clear();
+
+   EffGlobDm2->Draw();
+   EffGlobDm2->GetYaxis()->SetTitle("%");
+  
+   BXGlobDm2->SetMarkerColor(9);
+   BXGlobDm2->SetLineColor(9);
+   BXGlobDm2->Draw("same");
+
+   MaskedGlobDm2->SetMarkerColor(2);
+   MaskedGlobDm2->SetLineColor(2);
+   MaskedGlobDm2->Draw("same");
+
+   AverageEffDm2->SetMarkerColor(8);
+   AverageEffDm2->SetLineColor(8);
+   AverageEffDm2->Draw("same");
+
+   NoPredictionDm2->SetMarkerColor(5);
+   NoPredictionDm2->SetLineColor(5);
+   NoPredictionDm2->Draw("same");
+
+   pave->Draw();
+
+   bxAxisEndCap->Draw("same");
+  
+   Ca2->SaveAs("Sides/SegEff_Dm2near.png");
+   Ca2->SaveAs("SegEff_Dm2near.root");
+   Ca2->Clear();
+
+   EffGlobDm2far->Draw();
+   EffGlobDm2far->GetYaxis()->SetTitle("%");
+  
+   BXGlobDm2far->SetMarkerColor(9);
+   BXGlobDm2far->SetLineColor(9);
+   BXGlobDm2far->Draw("same");
+
+   MaskedGlobDm2far->SetMarkerColor(2);
+   MaskedGlobDm2far->SetLineColor(2);
+   MaskedGlobDm2far->Draw("same");
+
+   AverageEffDm2far->SetMarkerColor(8);
+   AverageEffDm2far->SetLineColor(8);
+   AverageEffDm2far->Draw("same");
+
+   NoPredictionDm2far->SetMarkerColor(5);
+   NoPredictionDm2far->SetLineColor(5);
+   NoPredictionDm2far->Draw("same");
+
+   pave->Draw();
+
+   bxAxisEndCap->Draw("same");
+  
+   Ca2->SaveAs("Sides/SegEff_Dm2far.png");
+   Ca2->SaveAs("SegEff_Dm2far.root");
+   Ca2->Clear();
+
+
+   EffGlobDm3far->Draw();
+   EffGlobDm3far->GetYaxis()->SetTitle("%");
+  
+   BXGlobDm3far->SetMarkerColor(9);
+   BXGlobDm3far->SetLineColor(9);
+   BXGlobDm3far->Draw("same");
+
+   MaskedGlobDm3far->SetMarkerColor(2);
+   MaskedGlobDm3far->SetLineColor(2);
+   MaskedGlobDm3far->Draw("same");
+
+   AverageEffDm3far->SetMarkerColor(8);
+   AverageEffDm3far->SetLineColor(8);
+   AverageEffDm3far->Draw("same");
+
+   NoPredictionDm3far->SetMarkerColor(5);
+   NoPredictionDm3far->SetLineColor(5);
+   NoPredictionDm3far->Draw("same");
+
+   pave->Draw();
+
+   bxAxisEndCap->Draw("same");
+  
+   Ca2->SaveAs("Sides/SegEff_Dm3far.png");
+   Ca2->SaveAs("SegEff_Dm3far.root");
+   Ca2->Clear();
+
+   EffGlobDm3->Draw();
+   EffGlobDm3->GetYaxis()->SetTitle("%");
+  
+   BXGlobDm3->SetMarkerColor(9);
+   BXGlobDm3->SetLineColor(9);
+   BXGlobDm3->Draw("same");
+
+   MaskedGlobDm3->SetMarkerColor(2);
+   MaskedGlobDm3->SetLineColor(2);
+   MaskedGlobDm3->Draw("same");
+
+   AverageEffDm3->SetMarkerColor(8);
+   AverageEffDm3->SetLineColor(8);
+   AverageEffDm3->Draw("same");
+
+   NoPredictionDm3->SetMarkerColor(5);
+   NoPredictionDm3->SetLineColor(5);
+   NoPredictionDm3->Draw("same");
+
+   pave->Draw();
+
+   bxAxisEndCap->Draw("same");
+  
+   Ca2->SaveAs("Sides/SegEff_Dm3near.png");
+   Ca2->SaveAs("SegEff_Dm3near.root");
+   Ca2->Clear();
+ }
+
+ Ca1 = new TCanvas("Ca1","Efficiency",800,600);
+ 
+ 
+ if(barrel){
+   EffBarrel->GetXaxis()->SetTitle("%"); EffBarrel->Draw(); Ca1->SaveAs("Distro/EffDistroBarrel.png");Ca1->SaveAs("EffDistroBarrel.root"); 
+   EffDistroWm2->GetXaxis()->SetTitle("%"); EffDistroWm2->Draw(); Ca1->SaveAs("Distro/EffDistroWm2.png");Ca1->SaveAs("EffDistroWm2.root"); 
+   EffDistroWm1->GetXaxis()->SetTitle("%"); EffDistroWm1->Draw(); Ca1->SaveAs("Distro/EffDistroWm1.png");Ca1->SaveAs("EffDistroWm1.root"); 
+   EffDistroW0->GetXaxis()->SetTitle("%"); EffDistroW0->Draw(); Ca1->SaveAs("Distro/EffDistroW0.png");Ca1->SaveAs("EffDistroW0.root"); 
+   EffDistroW1->GetXaxis()->SetTitle("%"); EffDistroW1->Draw(); Ca1->SaveAs("Distro/EffDistroW1.png");Ca1->SaveAs("EffDistroW1.root"); 
+   EffDistroW2->GetXaxis()->SetTitle("%"); EffDistroW2->Draw(); Ca1->SaveAs("Distro/EffDistroW2.png");Ca1->SaveAs("EffDistroW2.root"); 
+
+   EffDistroWm2far->GetXaxis()->SetTitle("%"); EffDistroWm2far->Draw(); Ca1->SaveAs("Distro/EffDistroWm2far.png");Ca1->SaveAs("EffDistroWm2far.root"); 
+   EffDistroWm1far->GetXaxis()->SetTitle("%"); EffDistroWm1far->Draw(); Ca1->SaveAs("Distro/EffDistroWm1far.png");Ca1->SaveAs("EffDistroWm1far.root"); 
+   EffDistroW0far->GetXaxis()->SetTitle("%"); EffDistroW0far->Draw(); Ca1->SaveAs("Distro/EffDistroW0far.png");Ca1->SaveAs("EffDistroW0far.root"); 
+   EffDistroW1far->GetXaxis()->SetTitle("%"); EffDistroW1far->Draw(); Ca1->SaveAs("Distro/EffDistroW1far.png");Ca1->SaveAs("EffDistroW1far.root"); 
+   EffDistroW2far->GetXaxis()->SetTitle("%"); EffDistroW2far->Draw(); Ca1->SaveAs("Distro/EffDistroW2far.png");Ca1->SaveAs("EffDistroW2far.root"); 
+   
+   DoubleGapDistroWm2->GetXaxis()->SetTitle("%"); DoubleGapDistroWm2->Draw(); Ca1->SaveAs("Distro/DoubleGapDistroWm2.png");Ca1->SaveAs("DoubleGapDistroWm2.root"); 
+   DoubleGapDistroWm1->GetXaxis()->SetTitle("%"); DoubleGapDistroWm1->Draw(); Ca1->SaveAs("Distro/DoubleGapDistroWm1.png");Ca1->SaveAs("DoubleGapDistroWm1.root"); 
+   DoubleGapDistroW0->GetXaxis()->SetTitle("%"); DoubleGapDistroW0->Draw(); Ca1->SaveAs("Distro/DoubleGapDistroW0.png");Ca1->SaveAs("DoubleGapDistroW0.root"); 
+   DoubleGapDistroW1->GetXaxis()->SetTitle("%"); DoubleGapDistroW1->Draw(); Ca1->SaveAs("Distro/DoubleGapDistroW1.png");Ca1->SaveAs("DoubleGapDistroW1.root"); 
+   DoubleGapDistroW2->GetXaxis()->SetTitle("%"); DoubleGapDistroW2->Draw(); Ca1->SaveAs("Distro/DoubleGapDistroW2.png");Ca1->SaveAs("DoubleGapDistroW2.root"); 
+
+   DoubleGapDistroWm2far->GetXaxis()->SetTitle("%"); DoubleGapDistroWm2far->Draw(); Ca1->SaveAs("Distro/DoubleGapDistroWm2far.png");Ca1->SaveAs("DoubleGapDistroWm2far.root"); 
+   DoubleGapDistroWm1far->GetXaxis()->SetTitle("%"); DoubleGapDistroWm1far->Draw(); Ca1->SaveAs("Distro/DoubleGapDistroWm1far.png");Ca1->SaveAs("DoubleGapDistroWm1far.root"); 
+   DoubleGapDistroW0far->GetXaxis()->SetTitle("%"); DoubleGapDistroW0far->Draw(); Ca1->SaveAs("Distro/DoubleGapDistroW0far.png");Ca1->SaveAs("DoubleGapDistroW0far.root"); 
+   DoubleGapDistroW1far->GetXaxis()->SetTitle("%"); DoubleGapDistroW1far->Draw(); Ca1->SaveAs("Distro/DoubleGapDistroW1far.png");Ca1->SaveAs("DoubleGapDistroW1far.root"); 
+   DoubleGapDistroW2far->GetXaxis()->SetTitle("%"); DoubleGapDistroW2far->Draw(); Ca1->SaveAs("Distro/DoubleGapDistroW2far.png");Ca1->SaveAs("DoubleGapDistroW2far.root"); 
+
+ }
+
+ if(endcap){
+   EffEndCap->GetXaxis()->SetTitle("%"); EffEndCap->Draw(); Ca1->SaveAs("Distro/EffDistroEndCap.png");Ca1->SaveAs("EffEndCap.root"); 
+
+   EffDistroDm3->GetXaxis()->SetTitle("%"); EffDistroDm3->Draw(); Ca1->SaveAs("Distro/EffDistroDm3.png");Ca1->SaveAs("EffDistroDm3.root");   
+   EffDistroDm2->GetXaxis()->SetTitle("%"); EffDistroDm2->Draw(); Ca1->SaveAs("Distro/EffDistroDm2.png");Ca1->SaveAs("EffDistroDm2.root"); 
+   EffDistroDm1->GetXaxis()->SetTitle("%"); EffDistroDm1->Draw(); Ca1->SaveAs("Distro/EffDistroDm1.png");Ca1->SaveAs("EffDistroDm1.root"); 
+   EffDistroD1->GetXaxis()->SetTitle("%"); EffDistroD1->Draw(); Ca1->SaveAs("Distro/EffDistroD1.png");Ca1->SaveAs("EffDistroD1.root"); 
+   EffDistroD2->GetXaxis()->SetTitle("%"); EffDistroD2->Draw(); Ca1->SaveAs("Distro/EffDistroD2.png");Ca1->SaveAs("EffDistroD2.root"); 
+   EffDistroD3->GetXaxis()->SetTitle("%"); EffDistroD3->Draw(); Ca1->SaveAs("Distro/EffDistroD3.png");Ca1->SaveAs("EffDistroD3.root"); 
+   
+   EffDistroDm3far->GetXaxis()->SetTitle("%"); EffDistroDm3far->Draw(); Ca1->SaveAs("Distro/EffDistroDm3far.png");Ca1->SaveAs("EffDistroDm3far.root");   
+   EffDistroDm2far->GetXaxis()->SetTitle("%"); EffDistroDm2far->Draw(); Ca1->SaveAs("Distro/EffDistroDm2far.png");Ca1->SaveAs("EffDistroDm2far.root"); 
+   EffDistroDm1far->GetXaxis()->SetTitle("%"); EffDistroDm1far->Draw(); Ca1->SaveAs("Distro/EffDistroDm1far.png");Ca1->SaveAs("EffDistroDm1far.root"); 
+   EffDistroD1far->GetXaxis()->SetTitle("%"); EffDistroD1far->Draw(); Ca1->SaveAs("Distro/EffDistroD1far.png");Ca1->SaveAs("EffDistroD1far.root"); 
+   EffDistroD2far->GetXaxis()->SetTitle("%"); EffDistroD2far->Draw(); Ca1->SaveAs("Distro/EffDistroD2far.png");Ca1->SaveAs("EffDistroD2far.root"); 
+   EffDistroD3far->GetXaxis()->SetTitle("%"); EffDistroD3far->Draw(); Ca1->SaveAs("Distro/EffDistroD3far.png");Ca1->SaveAs("EffDistroD3far.root"); 
+ }
+
+
+ 
+ theFileOut->cd();
+
+ EffBarrel->Write();
+ EffDistroWm2->Write();
+ EffDistroWm1->Write();
+ EffDistroW0->Write();
+ EffDistroW1->Write();
+ EffDistroW2->Write();
+
+ EffDistroWm2far->Write();
+ EffDistroWm1far->Write();
+ EffDistroW0far->Write();
+ EffDistroW1far->Write();
+ EffDistroW2far->Write();
+
+ EffEndCap->Write();
+
+ EffDistroDm3->Write();  
+ EffDistroDm2->Write();
+ EffDistroDm1->Write();
+ EffDistroD1->Write();
+ EffDistroD2->Write();
+ EffDistroD3->Write();
+
+ EffDistroDm3far->Write();
+ EffDistroDm2far->Write();
+ EffDistroDm1far->Write();
+ EffDistroD1far->Write();
+ EffDistroD2far->Write();
+ EffDistroD3far->Write();
+
+ EffGlobWm2->Write();
+ EffGlobWm1->Write();
+ EffGlobW0->Write();
+ EffGlobW1->Write();
+ EffGlobW2->Write();
+
+ EffGlobWm2far->Write();
+ EffGlobWm1far->Write();
+ EffGlobW0far->Write();
+ EffGlobW1far->Write();
+ EffGlobW2far->Write();
+
+ BXGlobWm2->Write();
+ BXGlobWm1->Write();
+ BXGlobW0->Write();
+ BXGlobW1->Write();
+ BXGlobW2->Write();
+
+ BXGlobWm2far->Write();
+ BXGlobWm1far->Write();
+ BXGlobW0far->Write();
+ BXGlobW1far->Write();
+ BXGlobW2far->Write();
+
+ MaskedGlobWm2->Write();
+ MaskedGlobWm1->Write();
+ MaskedGlobW0->Write();
+ MaskedGlobW1->Write();
+ MaskedGlobW2->Write();
+
+ MaskedGlobWm2far->Write();
+ MaskedGlobWm1far->Write();
+ MaskedGlobW0far->Write();
+ MaskedGlobW1far->Write();
+ MaskedGlobW2far->Write();
+
+ AverageEffWm2->Write();
+ AverageEffWm1->Write();
+ AverageEffW0->Write();
+ AverageEffW1->Write();
+ AverageEffW2->Write();
+
+ AverageEffWm2far->Write();
+ AverageEffWm1far->Write();
+ AverageEffW0far->Write();
+ AverageEffW1far->Write();
+ AverageEffW2far->Write();
+
+ NoPredictionWm2->Write();
+ NoPredictionWm1->Write();
+ NoPredictionW0->Write();
+ NoPredictionW1->Write();
+ NoPredictionW2->Write();
+
+ NoPredictionWm2far->Write();
+ NoPredictionWm1far->Write();
+ NoPredictionW0far->Write();
+ NoPredictionW1far->Write();
+ NoPredictionW2far->Write();
+
+ NoPredictionDm3->Write();
+ AverageEffDm3->Write();
+ EffGlobDm3->Write();
+ BXGlobDm3->Write();
+ MaskedGlobDm3->Write();
+ NoPredictionDm3far->Write();
+ AverageEffDm3far->Write();
+ EffGlobDm3far->Write();
+ BXGlobDm3far->Write();
+ MaskedGlobDm3far->Write();
+ NoPredictionDm2->Write();
+ AverageEffDm2->Write();
+ EffGlobDm2->Write();
+ BXGlobDm2->Write();
+ MaskedGlobDm2->Write();
+ NoPredictionDm2far->Write();
+ AverageEffDm2far->Write();
+ EffGlobDm2far->Write();
+ BXGlobDm2far->Write();
+ MaskedGlobDm2far->Write();
+ NoPredictionDm1->Write();
+ AverageEffDm1->Write();
+ EffGlobDm1->Write();
+ BXGlobDm1->Write();
+ MaskedGlobDm1->Write();
+ NoPredictionDm1far->Write();
+ AverageEffDm1far->Write();
+ EffGlobDm1far->Write();
+ BXGlobDm1far->Write();
+ MaskedGlobDm1far->Write();
+ NoPredictionD1->Write();
+ AverageEffD1->Write();
+ EffGlobD1->Write();
+ BXGlobD1->Write();
+ MaskedGlobD1->Write();
+ NoPredictionD1far->Write();
+ AverageEffD1far->Write();
+ EffGlobD1far->Write();
+ BXGlobD1far->Write();
+ MaskedGlobD1far->Write();
+ NoPredictionD2->Write();
+ AverageEffD2->Write();
+ EffGlobD2->Write();
+ BXGlobD2->Write();
+ MaskedGlobD2->Write();
+ NoPredictionD2far->Write();
+ AverageEffD2far->Write();
+ EffGlobD2far->Write();
+ BXGlobD2far->Write();
+ MaskedGlobD2far->Write();
+ NoPredictionD3->Write();
+ AverageEffD3->Write();
+ EffGlobD3->Write();
+ BXGlobD3->Write();
+ MaskedGlobD3->Write();
+ NoPredictionD3far->Write();
+ AverageEffD3far->Write();
+ EffGlobD3far->Write();
+ BXGlobD3far->Write();
+ MaskedGlobD3far->Write();
+
+ Ca2->Close();
+  
+ theFileOut->Close();
+ theFile->Close();
+
+} 
+
+void 
+RPCMonitorEfficiency::endJob(){
+    
+}
+
+DEFINE_FWK_MODULE(RPCMonitorEfficiency);
 
