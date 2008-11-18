@@ -27,9 +27,11 @@ def processFile( file, outputDir ):
      if file == "None":
           return 'infoNotFound.html'
      else:
-          shutil.copy(file, outputDir)
-          return os.path.basename(file)
-     
+          if os.path.isfile(file):
+               shutil.copy(file, outputDir)
+               return os.path.basename(file)
+          else:
+               return file
      
      
 
