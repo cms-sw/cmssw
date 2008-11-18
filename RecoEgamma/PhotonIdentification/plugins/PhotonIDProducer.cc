@@ -1,5 +1,4 @@
 #include "RecoEgamma/PhotonIdentification/plugins/PhotonIDProducer.h"
-#include "DataFormats/EgammaCandidates/interface/PhotonIDAssociation.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 #include "DataFormats/Common/interface/ValueMap.h"
