@@ -2,7 +2,7 @@
 #define FWCore_ParameterSet_ParameterSet_h
 
 // ----------------------------------------------------------------------
-// $Id: ParameterSet.h,v 1.45 2008/11/14 19:41:22 wdd Exp $
+// $Id: ParameterSet.h,v 1.46 2008/11/18 02:04:25 wmtan Exp $
 //
 // Declaration for ParameterSet(parameter set) and related types
 // ----------------------------------------------------------------------
@@ -55,11 +55,15 @@ namespace edm {
     bool fromString(std::string const&);
 
 
-    template <class T>
+    template <typename T>
     T
     getParameter(std::string const&) const;
 
-    template <class T> 
+    template <typename T>
+    T
+    getParameter(char const*) const;
+
+    template <typename T> 
     void 
     addParameter(std::string const& name, T value)
     {
@@ -67,13 +71,25 @@ namespace edm {
       insert(true, name, Entry(name, value, true));
     }
 
-    template <class T>
+    template <typename T>
+    void 
+    addParameter(char const* name, T const& value);
+
+    template <typename T>
     T
     getUntrackedParameter(std::string const&, T const&) const;
 
-    template <class T>
+    template <typename T>
+    T
+    getUntrackedParameter(char const*, T const&) const;
+
+    template <typename T>
     T
     getUntrackedParameter(std::string const&) const;
+
+    template <typename T>
+    T
+    getUntrackedParameter(char const*) const;
 
     /// The returned value is the number of new FileInPath objects
     /// pushed into the vector.
@@ -85,10 +101,11 @@ namespace edm {
     std::vector<std::string> getParameterNames() const;
 
     /// checks if a parameter exists
-    bool exists(const std::string & parameterName) const;
+    bool exists(std::string const& parameterName) const;
+
     /// checks if a parameter exists as a given type
-    template <class T>
-    bool existsAs(const std::string & parameterName, bool trackiness=true) const
+    template <typename T>
+    bool existsAs(std::string const& parameterName, bool trackiness=true) const
     {
        std::vector<std::string> names = getParameterNamesForType<T>(trackiness);
        return std::find(names.begin(), names.end(), parameterName) != names.end();
@@ -96,7 +113,7 @@ namespace edm {
 
     void depricatedInputTagWarning(std::string const& name, std::string const& label) const;
 
-    template <class T>
+    template <typename T>
     std::vector<std::string> getParameterNamesForType(bool trackiness = 
 						      true) const
     {
@@ -111,13 +128,17 @@ namespace edm {
       return result;
     }
     
-    template <class T>
+    template <typename T>
     void
     addUntrackedParameter(std::string const& name, T value)
     {
       // No need to invalidate: this is modifying an untracked parameter!
       insert(true, name, Entry(name, value, false));
     }
+
+    template <typename T>
+    void
+    addUntrackedParameter(char const* name, T const& value);
 
     bool empty() const
     {
@@ -145,7 +166,7 @@ namespace edm {
     // need a simple interface for python
     std::string dump() const;
 
-    friend std::ostream & operator<<(std::ostream & os, const ParameterSet & pset);
+    friend std::ostream & operator<<(std::ostream & os, ParameterSet const& pset);
 
 private:
     typedef std::map<std::string, Entry> table;
@@ -189,6 +210,40 @@ private:
   bool
   operator!=(ParameterSet const& a, ParameterSet const& b) {
     return !(a == b);
+  }
+
+  // ----------------------------------------------------------------------
+  // Non-inlined conversions from char * to string.  Fights code bloat:
+  // DO NOT INLINE these functions!
+
+  template <typename T>
+  T
+  ParameterSet::getParameter(char const* name) const {
+    return getParameter<T>(std::string(name));
+  }
+
+  template <typename T>
+  T
+  ParameterSet::getUntrackedParameter(char const* name, T const& defaultValue) const {
+    return getUntrackedParameter<T>(std::string(name), defaultValue);
+  }
+
+  template <typename T>
+  T
+  ParameterSet::getUntrackedParameter(char const* name) const {
+    return getUntrackedParameter<T>(std::string(name));
+  }
+
+  template <typename T>
+  void
+  ParameterSet::addParameter(char const* name, T const& value) {
+    return addParameter<T>(std::string(name), value);
+  }
+
+  template <typename T>
+  void
+  ParameterSet::addUntrackedParameter(char const* name, T const& value) {
+    return addUntrackedParameter<T>(std::string(name), value);
   }
 
   // specializations
@@ -325,13 +380,13 @@ private:
   inline
   edm::InputTag
   ParameterSet::getParameter<edm::InputTag>(std::string const& name) const {
-    const Entry & e_input = retrieve(name);
+    Entry const& e_input = retrieve(name);
     switch (e_input.typeCode()) 
     {
       case 't':   // InputTag
         return e_input.getInputTag();
       case 'S':   // string
-        const std::string & label = e_input.getString();
+        std::string const& label = e_input.getString();
 	depricatedInputTagWarning(name, label);
         return InputTag( label );
     }
