@@ -1,4 +1,5 @@
 <use name=RecoEgamma/Examples>
+<use name=DataFormats/PatCandidates>
 <library file="*.cc" name=RecoEgammaExamplesPlugins>
 <flags EDM_PLUGIN=1>
 </library>

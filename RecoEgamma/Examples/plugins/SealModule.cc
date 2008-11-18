@@ -15,12 +15,15 @@
 #include "GsfElectronMCAnalyzer.h"
 #include "GsfElectronDataAnalyzer.h"
 #include "GsfElectronFakeAnalyzer.h"
-
+#include "PatPhotonSimpleAnalyzer.h"
 DEFINE_SEAL_MODULE();
 
 #include "PhysicsTools/UtilAlgos/interface/Merger.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
+#include "PhysicsTools/UtilAlgos/interface/ObjectSelector.h"
+#include "PhysicsTools/UtilAlgos/interface/EventSetupInitTrait.h"
+
 typedef Merger<reco::SuperClusterCollection> EgammaSuperClusterMerger;
 DEFINE_FWK_MODULE( EgammaSuperClusterMerger );
 DEFINE_FWK_MODULE(ElectronIDAnalyzer);
@@ -35,3 +38,4 @@ DEFINE_ANOTHER_FWK_MODULE(SimpleConvertedPhotonAnalyzer);
 DEFINE_ANOTHER_FWK_MODULE(SimplePhotonAnalyzer);
 DEFINE_ANOTHER_FWK_MODULE(SiStripElectronAnalyzer);
 DEFINE_ANOTHER_FWK_MODULE(PhotonsWithConversionsAnalyzer);
+DEFINE_ANOTHER_FWK_MODULE(PatPhotonSimpleAnalyzer);
