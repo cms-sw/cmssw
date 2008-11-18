@@ -73,7 +73,7 @@ using namespace reco;
 using namespace std;
 using namespace __gnu_cxx;
 
-struct stAPVGain{unsigned int Index; int DetId; int APVId; int SubDet; float Eta; float R; float Phi; float Thickness; double MPV; double Gain; double PreviousGain;};
+struct stAPVGain{unsigned int Index; int DetId; int APVId; int SubDet; float Eta; float R; float Phi; float Thickness; double MPV; double Gain; double PreviousGain; char Side;};
 
 class SiStripGainFromData : public ConditionDBWriter<SiStripApvGain> {
    public:
@@ -84,6 +84,8 @@ class SiStripGainFromData : public ConditionDBWriter<SiStripApvGain> {
    private:
       virtual void algoBeginJob(const edm::EventSetup&) ;
       virtual void algoEndJob() ;
+      virtual void algoBeginRun(const edm::Run &, const edm::EventSetup &);
+//      virtual void algoBeginRun(const edm::Event& iEvent, const edm::EventSetup& iSetup);
       virtual void algoAnalyze(const edm::Event &, const edm::EventSetup &);
 
       SiStripApvGain* getNewObject();
@@ -110,6 +112,7 @@ class SiStripGainFromData : public ConditionDBWriter<SiStripApvGain> {
       double       MaxTrackChiOverNdf;
       bool         AllowSaturation;
       bool         FirstSetOfConstants;
+      bool         Validation;
       int          CalibrationLevel;
 
       std::string  AlgoMode;
@@ -157,6 +160,18 @@ class SiStripGainFromData : public ConditionDBWriter<SiStripApvGain> {
       TH1F*        MPV_Vs_PathTEC1;
       TH1F*        MPV_Vs_PathTEC2;
 
+
+      TH1F*        Charge_TIB;
+      TH1F*        Charge_TID;
+      TH1F*        Charge_TIDP;
+      TH1F*        Charge_TIDM;
+      TH1F*        Charge_TOB;
+      TH1F*        Charge_TEC;
+      TH1F*        Charge_TEC1;
+      TH1F*        Charge_TEC2;
+      TH1F*        Charge_TECP;
+      TH1F*        Charge_TECM;
+
       TH2F*        MPV_Vs_Phi;
       TH2F*        MPV_Vs_Eta;
       TH2F*        MPV_Vs_R;
@@ -176,6 +191,7 @@ class SiStripGainFromData : public ConditionDBWriter<SiStripApvGain> {
       TH1F*        APV_MPV;
       TH1F*        APV_Gain;
       TH1F*        APV_CumulGain;
+      TH1F*        APV_PrevGain;
       TH1F*        APV_Thickness;
 
       TH1F*        MPVs;
@@ -230,8 +246,12 @@ class SiStripGainFromData : public ConditionDBWriter<SiStripApvGain> {
       TH1F*        MPV_Vs_Beta;
       TH2F*        NStrips_Vs_Beta;
 
-      TH2F*        MPV_Vs_Error;
-      TH2F*        Entries_Vs_Error;
+      TH2F*        Error_Vs_MPV;
+      TH2F*        Error_Vs_Entries;
+      TH2F*        Error_Vs_Eta;
+      TH2F*        Error_Vs_Phi;
+
+      TH2F*        NoMPV_Vs_EtaPhi;
 
       TH2F*        HitLocalPosition;
       TH2F*        HitLocalPositionBefCut;
@@ -282,6 +302,7 @@ SiStripGainFromData::SiStripGainFromData(const edm::ParameterSet& iConfig) : Con
    MaxTrackChiOverNdf  = iConfig.getUntrackedParameter<double>  ("MaxTrackChiOverNdf" ,  3);
    AllowSaturation     = iConfig.getUntrackedParameter<bool>    ("AllowSaturation"    ,  false);
    FirstSetOfConstants = iConfig.getUntrackedParameter<bool>    ("FirstSetOfConstants",  true);
+   Validation          = iConfig.getUntrackedParameter<bool>    ("Validation"         ,  false);
 
    CalibrationLevel    = iConfig.getUntrackedParameter<int>     ("CalibrationLevel"   ,  0);
 
@@ -317,6 +338,7 @@ SiStripGainFromData::algoBeginJob(const edm::EventSetup& iSetup)
    APV_PathLengthM            = new TH1F ("APV_PathLengthM", "APV_PathLengthM", 72785,0,72784);
    APV_MPV                    = new TH1F ("APV_MPV"        , "APV_MPV"        , 72785,0,72784);
    APV_Gain                   = new TH1F ("APV_Gain"       , "APV_Gain"       , 72785,0,72784);
+   APV_PrevGain               = new TH1F ("APV_PrevGain"   , "APV_PrevGain"   , 72785,0,72784);
    APV_CumulGain              = new TH1F ("APV_CumulGain"  , "APV_CumulGain"  , 72785,0,72784);
    APV_Thickness              = new TH1F ("APV_Thickness"  , "APV_Thicknes"   , 72785,0,72784);
 
@@ -330,6 +352,20 @@ SiStripGainFromData::algoBeginJob(const edm::EventSetup& iSetup)
    Charge_Vs_PathTEC          = new TH2F ("Charge_Vs_PathTEC" , "Charge_Vs_PathTEC" ,250,0.2,1.4, 500,0,2000);
    Charge_Vs_PathTEC1         = new TH2F ("Charge_Vs_PathTEC1", "Charge_Vs_PathTEC1",250,0.2,1.4, 500,0,2000);
    Charge_Vs_PathTEC2         = new TH2F ("Charge_Vs_PathTEC2", "Charge_Vs_PathTEC2",250,0.2,1.4, 500,0,2000);
+
+
+   Charge_TIB          = new TH1F ("Charge_TIB" , "Charge_TIB" ,1000,0,2000);
+   Charge_TID          = new TH1F ("Charge_TID" , "Charge_TID" ,1000,0,2000);
+   Charge_TIDP         = new TH1F ("Charge_TID+", "Charge_TID+",1000,0,2000);
+   Charge_TIDM         = new TH1F ("Charge_TID-", "Charge_TID-",1000,0,2000);
+   Charge_TOB          = new TH1F ("Charge_TOB" , "Charge_TOB" ,1000,0,2000);
+   Charge_TEC          = new TH1F ("Charge_TEC" , "Charge_TEC" ,1000,0,2000);
+   Charge_TEC1         = new TH1F ("Charge_TEC1", "Charge_TEC1",1000,0,2000);
+   Charge_TEC2         = new TH1F ("Charge_TEC2", "Charge_TEC2",1000,0,2000);
+   Charge_TECP         = new TH1F ("Charge_TEC+", "Charge_TEC+",1000,0,2000);
+   Charge_TECM         = new TH1F ("Charge_TEC-", "Charge_TEC-",1000,0,2000);
+
+
 /*
    Charge_Vs_PathLength_CS1   = new TH2F ("Charge_Vs_PathLength_CS1", "Charge_Vs_PathLength_CS1"  , 250,0.2,1.4, 500,0,2000);
    Charge_Vs_PathLength_CS2   = new TH2F ("Charge_Vs_PathLength_CS2", "Charge_Vs_PathLength_CS2"  , 250,0.2,1.4, 500,0,2000);
@@ -407,8 +443,15 @@ SiStripGainFromData::algoBeginJob(const edm::EventSetup& iSetup)
       MPV_Vs_Alpha               = new TH1F ("MPV_Vs_Alpha"            , "MPV_Vs_Alpha"          , 220, -20, 200);
       MPV_Vs_Beta                = new TH1F ("MPV_Vs_Beta"             , "MPV_Vs_Beta"           , 220, -20, 200);
 
-      MPV_Vs_Error               = new TH2F ("MPV_Vs_Error"   , "MPV_Vs_Error"    ,600,0,600     ,500 ,0   ,50);
-      Entries_Vs_Error           = new TH2F ("Entries_Vs_Error","Entries_Vs_Error",1000,0,10000  ,500 ,0   ,50); 
+      Error_Vs_MPV               = new TH2F ("Error_Vs_MPV"   , "Error_Vs_MPV"    ,600,0,600     ,500 ,0   ,50);
+      Error_Vs_Entries           = new TH2F ("Error_Vs_Entries","Error_Vs_Entries",1000,0,10000  ,500 ,0   ,50); 
+      Error_Vs_Eta               = new TH2F ("Error_Vs_Eta"   , "Error_Vs_Eta"    ,50  ,-3.0,3.0 ,500 ,0   ,50 );
+      Error_Vs_Phi               = new TH2F ("Error_Vs_Phi"   , "Error_Vs_Phi"    ,50  ,-3.2,3.2 ,500 ,0   ,50);
+
+
+      NoMPV_Vs_EtaPhi          = new TH2F ("NoMPV_Vs_EtaPhi" , "NoMPV_Vs_EtaPhi" ,50,-3.0,3.0   ,50  ,-3.2,3.2);
+
+
 
       NumberOfEntriesByAPV   = new TH1F ("NumberOfEntriesByAPV"   , "NumberOfEntriesByAPV"   , 10000, 0,10000);
       HChi2OverNDF               = new TH1F ("Chi2OverNDF","Chi2OverNDF", 500, 0,25);
@@ -428,10 +471,10 @@ SiStripGainFromData::algoBeginJob(const edm::EventSetup& iSetup)
 
 
    edm::ESHandle<SiStripGain> gainHandle;
-   if(strcmp(AlgoMode.c_str(),"MultiJob")!=0 && !FirstSetOfConstants){
+//   if(strcmp(AlgoMode.c_str(),"MultiJob")!=0 && !FirstSetOfConstants){
       iSetup.get<SiStripGainRcd>().get(gainHandle);
       if(!gainHandle.isValid()){printf("\n#####################\n\nERROR --> gainHandle is not valid\n\n#####################\n\n");exit(0);}
-   }
+//   }
 
    unsigned int Id=0;
    for(unsigned int i=0;i<Det.size();i++){
@@ -465,11 +508,15 @@ SiStripGainFromData::algoBeginJob(const edm::EventSetup& iSetup)
                 APV->Phi           = Phi;
                 APV->R             = R;
                 APV->Thickness     = Thick;
+		APV->Side	   = 0;
 
-                if(!FirstSetOfConstants && gainHandle.isValid()){
-                   SiStripApvGain::Range detGainRange = gainHandle->getRange(APV->DetId);
-                   APV->PreviousGain = *(detGainRange.first + APV->APVId);
-                }
+		if(SubDet==StripSubdetector::TID){
+                   TIDDetId detid = TIDDetId(Detid);
+                   APV->Side =  detid.side();
+                }else if(SubDet==StripSubdetector::TEC){
+                   TECDetId detid = TECDetId(Detid);
+                   APV->Side = detid.side();
+                }                
 
                 APVsCollOrdered.push_back(APV);
 		APVsColl[(APV->DetId<<3) | APV->APVId] = APV;
@@ -632,14 +679,30 @@ SiStripGainFromData::algoEndJob() {
             if(APV->Thickness>0.04)                 MPV_Vs_PhiTEC2->Fill(APV->Phi,APV->MPV); 
             }
 
+            if(APV->SubDet==StripSubdetector::TIB)  Charge_TIB ->Add(Proj,1);
+            if(APV->SubDet==StripSubdetector::TID){ Charge_TID ->Add(Proj,1);
+            if(APV->Side==1)                        Charge_TIDM->Add(Proj,1);
+            if(APV->Side==2)                        Charge_TIDP->Add(Proj,1);
+            }
+            if(APV->SubDet==StripSubdetector::TOB)  Charge_TOB ->Add(Proj,1);
+            if(APV->SubDet==StripSubdetector::TEC){ Charge_TEC ->Add(Proj,1);
+            if(APV->Thickness<0.04)                 Charge_TEC1->Add(Proj,1);
+            if(APV->Thickness>0.04)                 Charge_TEC2->Add(Proj,1);
+            if(APV->Side==1)			    Charge_TECM->Add(Proj,1);
+            if(APV->Side==2)                        Charge_TECP->Add(Proj,1);
+            }
+
+
 //            double Eta_R = (APV->R*20.0)+APV->Eta;
 //            MPV_vs_10RplusEta ->Fill(Eta_R,APV->MPV);           
          }
 
          if(FitResults[0]!=-0.5){
             HChi2OverNDF->Fill(FitResults[4]);
-            MPV_Vs_Error->Fill(FitResults[0],FitResults[1]);
-            Entries_Vs_Error->Fill(Proj->GetEntries(),FitResults[1]);
+            Error_Vs_MPV->Fill(FitResults[0],FitResults[1]);
+            Error_Vs_Entries->Fill(Proj->GetEntries(),FitResults[1]);
+            Error_Vs_Eta->Fill(APV->Eta,FitResults[1]);
+            Error_Vs_Phi->Fill(APV->Phi,FitResults[1]);
          }
          NumberOfEntriesByAPV->Fill(Proj->GetEntries());
          delete Proj;
@@ -664,13 +727,14 @@ SiStripGainFromData::algoEndJob() {
 	     APV->Gain = APV->MPV / MPVmean; // APV->MPV;
              GOOD++;
          }else{        
+             NoMPV_Vs_EtaPhi->Fill(APV->Eta, APV->Phi);
              APV->Gain = 1;
              BAD++;
          }
          if(APV->Gain<=0) APV->Gain = 1;
          APV_Gain->Fill(APV->Index,APV->Gain);
 
-         APV->Gain *= APV->PreviousGain;
+         if(!FirstSetOfConstants)   APV->Gain *= APV->PreviousGain;
          APV_CumulGain->Fill(APV->Index,APV->Gain); 
       }
 
@@ -844,7 +908,7 @@ SiStripGainFromData::algoEndJob() {
          stAPVGain* APV = *it;
          if(APV->MPV>0 && APV->MPV<200){
             bool tmpBug = false;
-            for(int b=0;b<DetIdOfBuggedAPV.size()&&!tmpBug;b++){if(DetIdOfBuggedAPV[b]==APV->DetId)tmpBug=true;}
+            for(unsigned int b=0;b<DetIdOfBuggedAPV.size()&&!tmpBug;b++){if(DetIdOfBuggedAPV[b]==APV->DetId)tmpBug=true;}
             if(!tmpBug){fprintf(Gains,"%i,\n",APV->DetId);DetIdOfBuggedAPV.push_back(APV->DetId);}
          }
       }
@@ -863,10 +927,37 @@ SiStripGainFromData::algoEndJob() {
 }
 
 
+void SiStripGainFromData::algoBeginRun(const edm::Run &, const edm::EventSetup &iSetup){
+
+//void
+//SiStripGainFromData::algoBeginRun(const edm::Event& iEvent, const edm::EventSetup& iSetup){
+   edm::ESHandle<SiStripGain> gainHandle;
+//   if(strcmp(AlgoMode.c_str(),"MultiJob")!=0 && !FirstSetOfConstants){
+      iSetup.get<SiStripGainRcd>().get(gainHandle);
+      if(!gainHandle.isValid()){printf("\n#####################\n\nERROR --> gainHandle is not valid\n\n#####################\n\n");exit(0);}
+
+
+      for(std::vector<stAPVGain*>::iterator it = APVsCollOrdered.begin();it!=APVsCollOrdered.end();it++){
+         stAPVGain* APV = *it;
+
+                if(gainHandle.isValid()){
+                   SiStripApvGain::Range detGainRange = gainHandle->getRange(APV->DetId);
+                   APV->PreviousGain = *(detGainRange.first + APV->APVId);
+                   APV_PrevGain->Fill(APV->Index,APV->PreviousGain);
+//                   printf("PrevGain = %f\n",APV->PreviousGain);
+                   if(APV->PreviousGain<0)APV->PreviousGain = 1;
+                }else{
+//                   printf("GAIN HANDLE IS NOT VALID\n");
+                }
+       }
+}
+
+
 
 void
 SiStripGainFromData::algoAnalyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
+
    if( strcmp(AlgoMode.c_str(),"WriteOnDB")==0 ) return;
 
    if(NEvent==0){
@@ -1042,6 +1133,9 @@ SiStripGainFromData::ComputeChargeOverPath(const SiStripRecHit2D* sistripsimpleh
 //   if(NHighStrip==5)   Charge_Vs_PathLength_CS5->Fill(path, Charge );
 
    HFirstStrip    ->Fill(FirstStrip);
+
+
+   if(Validation){ClusterChargeOverPath=ClusterChargeOverPath/APV->PreviousGain;}
  
    APV_Charge    ->Fill(APV->Index,ClusterChargeOverPath);
    APV_Momentum  ->Fill(APV->Index,trajState.globalMomentum().mag());
