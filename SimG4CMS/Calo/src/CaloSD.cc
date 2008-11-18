@@ -646,7 +646,7 @@ void CaloSD::clearHits() {
 
   hitvec.erase (hitvec.begin(), hitvec.end()); 
   hitMap.erase (hitMap.begin(), hitMap.end());
-  //for (unsigned int i = 0; i<reusehit.size(); i++) { delete reusehit[i]; }
+  for (unsigned int i = 0; i<reusehit.size(); i++) { delete reusehit[i]; }
   reusehit.clear();
   cleanIndex = 0;
   previousID.reset();
