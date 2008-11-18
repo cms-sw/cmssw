@@ -61,10 +61,14 @@ void SiPixelSCurveCalibrationAnalysis::makeThresholdSummary(void){
 	  sipixelobjects::LocalPixel::DcolPxid loc;
 	  loc.dcol = cabling.dcol;
 	  loc.pxid = cabling.pxid;
-	  const sipixelobjects::PixelFEDCabling *theFed= theCablingMap_.product()->fed(realfedID);
-	  const sipixelobjects::PixelFEDLink * link = theFed->link(cabling.link);
-	  const sipixelobjects::PixelROC *theRoc = link->roc(cabling.roc);
+	  // FIX to adhere to new cabling map. To be replaced with CalibTracker/SiPixelTools detid - > hardware id classes ASAP.
+	  //        const sipixelobjects::PixelFEDCabling *theFed= theCablingMap.product()->fed(realfedID);
+	  //        const sipixelobjects::PixelFEDLink * link = theFed->link(cabling.link);
+	  //        const sipixelobjects::PixelROC *theRoc = link->roc(cabling.roc);
 	  sipixelobjects::LocalPixel locpixel(loc);
+	  sipixelobjects::CablingPathToDetUnit path = {realfedID, cabling.link, cabling.roc};  
+	  const sipixelobjects::PixelROC *theRoc = theCablingMap_->findItem(path);
+	  // END of FIX
 	  int newrow= locpixel.rocRow();
 	  int newcol = locpixel.rocCol();
 	  myfile<<rocname<<theRoc->idInDetUnit()<<" "<<newcol<<" "<<newrow<<" "<<thresholdhist->getBinContent(icol+1, irow+1)<<" "<<threshold_error;  // +1 because root bins start at 1
