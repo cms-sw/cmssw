@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.43 2008/11/06 22:05:24 amraktad Exp $
+// $Id: CmsShowMain.cc,v 1.44 2008/11/10 15:33:08 chrjones Exp $
 //
 
 // system include files
@@ -431,7 +431,7 @@ void CmsShowMain::openData()
 void CmsShowMain::quit()
 {
   // m_configurationManager->writeToFile(m_configFileName);
-  gApplication->Terminate(0);
+   gSystem->ExitLoop();
 }
 
 void CmsShowMain::registerPhysicsObject(const FWPhysicsObjectDesc&iItem)
