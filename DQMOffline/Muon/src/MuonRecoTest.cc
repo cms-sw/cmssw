@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/10/21 12:07:47 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/11/17 15:19:30 $
+ *  $Revision: 1.5 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -161,9 +161,9 @@ void MuonRecoTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup
     vector<dqm::me_util::Channel> badChannels = theEtaQReport->getBadChannels();
     for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
 	 channel != badChannels.end(); channel++) {
-      cout<<"[etaEfficiency test] bad ranges: "<<(*channel).getBin()<<"  Contents : "<<(*channel).getContents()<<endl;
+      LogTrace(metname)<<"[etaEfficiency test] bad ranges: "<<(*channel).getBin()<<"  Contents : "<<(*channel).getContents()<<endl;
     }
-    cout<< "-------- type: [etaEfficiency]  "<<theEtaQReport->getMessage()<<" ------- "<<theEtaQReport->getStatus()<<endl;
+    LogTrace(metname)<< "-------- type: [etaEfficiency]  "<<theEtaQReport->getMessage()<<" ------- "<<theEtaQReport->getStatus()<<endl;
   }
   // phi efficiency
   const QReport * thePhiQReport = phiEfficiency->getQReport(EfficiencyCriterionName);
@@ -171,9 +171,9 @@ void MuonRecoTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup
     vector<dqm::me_util::Channel> badChannels = thePhiQReport->getBadChannels();
     for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
 	 channel != badChannels.end(); channel++) {
-      cout<< "[phiEfficiency test] bad ranges: "<<(*channel).getBin()<<"  Contents : "<<(*channel).getContents()<<endl;
+      LogTrace(metname)<< "[phiEfficiency test] bad ranges: "<<(*channel).getBin()<<"  Contents : "<<(*channel).getContents()<<endl;
     }
-    cout<<"-------- type: [phiEfficiency]  "<<thePhiQReport->getMessage()<<" ------- "<<thePhiQReport->getStatus()<<endl;
+    LogTrace(metname)<<"-------- type: [phiEfficiency]  "<<thePhiQReport->getMessage()<<" ------- "<<thePhiQReport->getStatus()<<endl;
   }
 
 }

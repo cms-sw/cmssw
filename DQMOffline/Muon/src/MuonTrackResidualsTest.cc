@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/11/15 21:42:19 $
- *  $Revision: 1.10 $
+ *  $Date: 2008/11/17 15:19:57 $
+ *  $Revision: 1.11 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -120,7 +120,7 @@ void MuonTrackResidualsTest::analyze(const edm::Event& e, const edm::EventSetup&
 
 void MuonTrackResidualsTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
 
-  cout<<"[MuonTrackResidualsTest]: End of LS transition, performing the DQM client operation"<<endl;
+  LogTrace(metname)<<"[MuonTrackResidualsTest]: End of LS transition, performing the DQM client operation"<<endl;
 
   // counts number of lumiSegs 
   nLumiSegs = lumiSeg.id().luminosityBlock();
@@ -167,9 +167,9 @@ void MuonTrackResidualsTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, 
       vector<dqm::me_util::Channel> badChannels = theMeanQReport->getBadChannels();
       for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
 	   channel != badChannels.end(); channel++) {
-	cout << "type:"<<(*hMean).first<<" Bad mean channels: "<<(*channel).getBin()<<"  Contents : "<<(*channel).getContents()<<endl;
+	LogTrace(metname)<< "type:"<<(*hMean).first<<" Bad mean channels: "<<(*channel).getBin()<<"  Contents : "<<(*channel).getContents()<<endl;
       }
-      cout << "-------- type: "<<(*hMean).first<<"  "<<theMeanQReport->getMessage()<<" ------- "<<theMeanQReport->getStatus()<<endl; 
+      LogTrace(metname)<< "-------- type: "<<(*hMean).first<<"  "<<theMeanQReport->getMessage()<<" ------- "<<theMeanQReport->getStatus()<<endl; 
     }
   }
   
@@ -183,9 +183,9 @@ void MuonTrackResidualsTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, 
       vector<dqm::me_util::Channel> badChannels = theSigmaQReport->getBadChannels();
       for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
 	   channel != badChannels.end(); channel++) {
-	cout << "type:"<<(*hSigma).first<<" Bad sigma channels: "<<(*channel).getBin()<<" Contents : "<<(*channel).getContents()<<endl;
+	LogTrace(metname)<< "type:"<<(*hSigma).first<<" Bad sigma channels: "<<(*channel).getBin()<<" Contents : "<<(*channel).getContents()<<endl;
       }
-      cout<< "-------- type: "<<(*hSigma).first<<"  "<<theSigmaQReport->getMessage()<<" ------- "<<theSigmaQReport->getStatus()<<endl;
+      LogTrace(metname) << "-------- type: "<<(*hSigma).first<<"  "<<theSigmaQReport->getMessage()<<" ------- "<<theSigmaQReport->getStatus()<<endl;
     }
   }
 }
