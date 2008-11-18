@@ -12,8 +12,12 @@ import FWCore.ParameterSet.Config as cms
 # Additional modules available for MET Reconstruction using towers w/wo HO included
 
 
+
+from RecoMET.METProducers.METSigParams_cfi import *
+
 met = cms.EDProducer(
     "METProducer",
+    METSignificance_params,
     src = cms.InputTag("towerMaker"),
     METType = cms.string('CaloMET'),
     alias = cms.string('RawCaloMET'),
@@ -21,21 +25,6 @@ met = cms.EDProducer(
     globalThreshold = cms.double(0.5),
     InputType = cms.string('CandidateCollection'),
     
-    #For METSignificance
-    #ECAL:
-    EB_EtResPar = cms.vdouble(0.2,0.03,0.005),
-    EB_PhiResPar = cms.vdouble(0.00502),    # 0.0174/sqrt(12)
-    EE_EtResPar = cms.vdouble(0.2,0.03,0.005),
-    EE_PhiResPar = cms.vdouble(0.02511),    # 0.087/sqrt(12)
-    #HCAL:
-    HB_EtResPar = cms.vdouble(0.,1.22,0.05),
-    HB_PhiResPar = cms.vdouble(0.02511),    # 0.087/sqrt(12)
-    HE_EtResPar = cms.vdouble(0.,1.3,0.05),
-    HE_PhiResPar = cms.vdouble(0.02511),    # 0.087/sqrt(12)
-    HO_EtResPar = cms.vdouble(0.,1.3,0.005),
-    HO_PhiResPar = cms.vdouble(0.02511),    # 0.087/sqrt(12)
-    HF_EtResPar = cms.vdouble(0.,1.82,0.09),
-    HF_PhiResPar = cms.vdouble(0.05022)     # 0.174/sqrt(12)    
     )
 
 metHO = met.clone()
@@ -44,6 +33,7 @@ metHO.alias = 'RawCaloMETHO'
 
 metOpt = cms.EDProducer(
     "METProducer",
+    METSignificance_params,
     src = cms.InputTag("calotoweroptmaker"),
     METType = cms.string('CaloMET'),
     alias = cms.string('RawCaloMETOpt'),
@@ -51,20 +41,6 @@ metOpt = cms.EDProducer(
     globalThreshold = cms.double(0.0),
     InputType = cms.string('CandidateCollection'),
 
-    #ECAL:
-    EB_EtResPar = cms.vdouble(0.2,0.03,0.005),
-    EB_PhiResPar = cms.vdouble(0.00502),    # 0.0174/sqrt(12)
-    EE_EtResPar = cms.vdouble(0.2,0.03,0.005),
-    EE_PhiResPar = cms.vdouble(0.02511),    # 0.087/sqrt(12)
-    #HCAL:
-    HB_EtResPar = cms.vdouble(0.,1.22,0.05),
-    HB_PhiResPar = cms.vdouble(0.02511),    # 0.087/sqrt(12)
-    HE_EtResPar = cms.vdouble(0.,1.3,0.05),
-    HE_PhiResPar = cms.vdouble(0.02511),    # 0.087/sqrt(12)
-    HO_EtResPar = cms.vdouble(0.,1.3,0.005),
-    HO_PhiResPar = cms.vdouble(0.02511),    # 0.087/sqrt(12)
-    HF_EtResPar = cms.vdouble(0.,1.82,0.09),
-    HF_PhiResPar = cms.vdouble(0.05022)     # 0.174/sqrt(12)    
     )
 
 metOptHO = metOpt.clone()
@@ -73,6 +49,7 @@ metOptHO.alias = 'RawCaloMETOptHO'
 
 metNoHF = cms.EDProducer(
     "METProducer",
+    METSignificance_params,
     src = cms.InputTag("towerMaker"),
     METType = cms.string('CaloMET'),
     alias = cms.string('RawCaloMETNoHF'),
@@ -80,21 +57,7 @@ metNoHF = cms.EDProducer(
     globalThreshold = cms.double(0.5),
     InputType = cms.string('CandidateCollection'),
 
-    #ECAL:
-    EB_EtResPar = cms.vdouble(0.2,0.03,0.005),
-    EB_PhiResPar = cms.vdouble(0.00502),    # 0.0174/sqrt(12)
-    EE_EtResPar = cms.vdouble(0.2,0.03,0.005),
-    EE_PhiResPar = cms.vdouble(0.02511),    # 0.087/sqrt(12)
-    #HCAL:
-    HB_EtResPar = cms.vdouble(0.,1.22,0.05),
-    HB_PhiResPar = cms.vdouble(0.02511),    # 0.087/sqrt(12)
-    HE_EtResPar = cms.vdouble(0.,1.3,0.05),
-    HE_PhiResPar = cms.vdouble(0.02511),    # 0.087/sqrt(12)
-    HO_EtResPar = cms.vdouble(0.,1.3,0.005),
-    HO_PhiResPar = cms.vdouble(0.02511),    # 0.087/sqrt(12)
-    HF_EtResPar = cms.vdouble(0.,1.82,0.09),
-    HF_PhiResPar = cms.vdouble(0.05022)     # 0.174/sqrt(12)    
-    )
+)
 
 metNoHFHO = metNoHF.clone()
 metNoHFHO.src = "towerMakerWithHO"
@@ -102,6 +65,7 @@ metNoHFHO.alias = 'RawCaloMETNoHFHO'
 
 metOptNoHF = cms.EDProducer(
     "METProducer",
+    METSignificance_params,
     src = cms.InputTag("calotoweroptmaker"),
     METType = cms.string('CaloMET'),
     alias = cms.string('RawCaloMETOptNoHF'),
@@ -109,22 +73,7 @@ metOptNoHF = cms.EDProducer(
     globalThreshold = cms.double(0.0),
     InputType = cms.string('CandidateCollection'),
 
-    #ECAL:
-    EB_EtResPar = cms.vdouble(0.2,0.03,0.005),
-    EB_PhiResPar = cms.vdouble(0.00502),    # 0.0174/sqrt(12)
-    EE_EtResPar = cms.vdouble(0.2,0.03,0.005),
-    EE_PhiResPar = cms.vdouble(0.02511),    # 0.087/sqrt(12)
-    #HCAL:
-    HB_EtResPar = cms.vdouble(0.,1.22,0.05),
-    HB_PhiResPar = cms.vdouble(0.02511),    # 0.087/sqrt(12)
-    HE_EtResPar = cms.vdouble(0.,1.3,0.05),
-    HE_PhiResPar = cms.vdouble(0.02511),    # 0.087/sqrt(12)
-    HO_EtResPar = cms.vdouble(0.,1.3,0.005),
-    HO_PhiResPar = cms.vdouble(0.02511),    # 0.087/sqrt(12)
-    HF_EtResPar = cms.vdouble(0.,1.82,0.09),
-    HF_PhiResPar = cms.vdouble(0.05022)     # 0.174/sqrt(12)    
     )
-
 metOptNoHFHO = metOptNoHF.clone()
 metOptNoHFHO.src = "calotoweroptmakerWithHO"
 metOptNoHFHO.alias = 'RawCaloMETOptNoHFHO'
