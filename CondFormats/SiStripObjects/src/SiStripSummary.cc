@@ -67,8 +67,8 @@ const SiStripSummary::Range SiStripSummary::getRange(const uint32_t& DetId) cons
 {
 
   RegistryIterator p = std::lower_bound(indexes_.begin(),indexes_.end(),DetId,SiStripSummary::StrictWeakOrdering());
-  if (p==indexes_.end()|| p->detid!=DetId) 
-    return SiStripSummary::Range(v_sum_.end(),v_sum_.end()); 
+  if (p==indexes_.end()|| p->detid!=DetId) {
+    return SiStripSummary::Range(v_sum_.end(),v_sum_.end()); std::cout << "not in range " << std::endl;}
   else 
     return SiStripSummary::Range(v_sum_.begin()+p->ibegin,v_sum_.begin()+p->ibegin+userDBContent_.size());
 }
@@ -91,6 +91,7 @@ std::vector<uint32_t> SiStripSummary::getDetIds() const
 const short SiStripSummary::getPosition(std::string elementName) const
 {
   // returns position of elementName in UserDBContent_
+    
   std::vector<std::string>::const_iterator it = find(userDBContent_.begin(),userDBContent_.end(),elementName);  
   short pos = -1;
   if (it != userDBContent_.end()) pos = it - userDBContent_.begin();
@@ -125,18 +126,25 @@ std::vector<float> SiStripSummary::getSummaryObj(uint32_t& detID, std::vector<st
 {  
   std::vector<float> SummaryObj;
   const SiStripSummary::Range range = getRange(detID);
-  for (unsigned int i=0; i<list.size(); i++){ 
-    const short pos=getPosition(list.at(i));
-    if (pos!=-1) 
-      SummaryObj.push_back(*((range.first)+pos));
-    else 
-      SummaryObj.push_back(-999.);
+  if (range.first != range.second ) {
+   for (unsigned int i=0; i<list.size(); i++){ 
+     const short pos=getPosition(list.at(i));
+     
+     if (pos!=-1) 
+       SummaryObj.push_back(*((range.first)+pos));
+     else 
+       SummaryObj.push_back(-999.);
+   }
   }
+  else 
+   for (unsigned int i=0; i<list.size(); i++) SummaryObj.push_back(-99.); // no summary obj has ever been inserted for this detid, most likely all related histos were not available in DQM
+  
   return SummaryObj;
 }
 
 std::vector<float> SiStripSummary::getSummaryObj(sistripsummary::TrackerRegion region, std::vector<std::string> list) const
-{
+{ 
+ 
   uint32_t fakeDet = region;
   return getSummaryObj(fakeDet,list);
 }
@@ -145,7 +153,10 @@ std::vector<float> SiStripSummary::getSummaryObj(uint32_t& detID) const
 {  
   std::vector<float> SummaryObj;
   const SiStripSummary::Range range = getRange(detID);
-  for (unsigned int i=0; i<userDBContent_.size(); i++) SummaryObj.push_back(*((range.first)+i));
+  if (range.first != range.second ) {
+   for (unsigned int i=0; i<userDBContent_.size(); i++) SummaryObj.push_back(*((range.first)+i));}
+  else {
+   for (unsigned int i=0; i<userDBContent_.size(); i++) SummaryObj.push_back(-99.);} 
   return SummaryObj;
 }
 
@@ -167,9 +178,12 @@ std::vector<float> SiStripSummary::getSummaryObj(std::string elementName) const
     {
       for (unsigned int i=0; i<DetIds_.size(); i++){
 	const SiStripSummary::Range range = getRange(DetIds_.at(i));
+	if (range.first != range.second ) {
 	vSumElement.push_back(*((range.first)+pos));}
+	else { vSumElement.push_back(-99.);}
     }
-   
+  }
+  
   return vSumElement;
 }
 
