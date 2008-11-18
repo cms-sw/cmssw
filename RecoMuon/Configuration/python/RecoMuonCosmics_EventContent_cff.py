@@ -19,6 +19,16 @@ RecoMuonAOD = cms.PSet(
     'keep recoMuons_GLBMuons_*_*', 
 
 
+    # cosmic reco without RPC
+    'keep recoTracks_cosmicMuonsNoRPC_*_*', 
+    'keep recoTrackExtras_cosmicMuonsNoRPC_*_*', 
+    'keep TrackingRecHitsOwned_cosmicMuonsNoRPC_*_*', 
+    'keep recoTracks_globalCosmicMuonsNoRPC_*_*', 
+    'keep recoTrackExtras_globalCosmicMuonsNoRPC_*_*', 
+    'keep TrackingRecHitsOwned_globalCosmicMuonsNoRPC_*_*', 
+    'keep recoMuons_muonsNoRPC_*_*', 
+
+
     # cosimic reco in barrel only
     'keep recoTracks_cosmicMuonsBarrelOnly_*_*', 
     'keep recoTrackExtras_cosmicMuonsBarrelOnly_*_*', 

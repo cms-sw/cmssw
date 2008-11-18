@@ -283,8 +283,40 @@ muonrecoBeamHaloEndCapsOnly = cms.Sequence(globalBeamHaloMuonEndCapslOnly*muonsB
 ### Final sequence for endcaps only ###
 muonRecoEndCapsGR = cms.Sequence(muonrecoforcosmicsEndCapsOnly*muonrecoBeamHaloEndCapsOnly)
 
-##############################################
+########
 
+## Full detector but NO RPC ##
+
+# Stand alone muon track producer
+cosmicMuonsNoRPC = cosmicMuons.clone()
+cosmicMuonsNoRPC.TrajectoryBuilderParameters.EnableRPCMeasurement = False
+
+# Global muon track producer
+globalCosmicMuonsNoRPC = globalCosmicMuons.clone()
+globalCosmicMuonsNoRPC.TrajectoryBuilderParameters.TkTrackCollectionLabel = 'ctfWithMaterialTracksP5'
+globalCosmicMuonsNoRPC.MuonCollectionLabel = 'cosmicMuonsNoRPC'
+
+# Muon Id producer
+muonsNoRPC = muons.clone()
+muonsNoRPC.inputCollectionLabels = ['ctfWithMaterialTracksP5', 'globalCosmicMuonsNoRPC', 'cosmicMuonsNoRPC']
+muonsNoRPC.inputCollectionTypes = ['inner tracks', 'links', 'outer tracks']
+muonsNoRPC.fillIsolation = False
+
+#Sequences
+
+# Stand Alone Tracking
+STAmuontrackingforcosmicsNoRPC = cms.Sequence(cosmicMuonsNoRPC)
+
+# Stand Alone Tracking plus global tracking
+muontrackingforcosmicsNoRPC = cms.Sequence(STAmuontrackingforcosmicsNoRPC*globalCosmicMuonsNoRPC)
+
+# all muons id
+allmuonsNoRPC = cms.Sequence(muonsNoRPC)
+
+# Final sequence
+muonrecoforcosmicsNoRPC = cms.Sequence(muontrackingforcosmicsNoRPC*allmuonsNoRPC)
+
+##############################################
 
 ######################## LHC like Reco #############################
 
@@ -349,7 +381,7 @@ muonRecoLHC = cms.Sequence(muonrecocosmicLHCBarrelOnly*muonrecocosmicLHCEndCapsO
 
 ########################### SEQUENCE TO BE ADDED in ReconstructionGR_cff ##############################################
 
-muonRecoGR = cms.Sequence(muonRecoAllGR*muonRecoBarrelGR*muonRecoEndCapsGR*muonRecoLHC)
+muonRecoGR = cms.Sequence(muonRecoAllGR*muonRecoBarrelGR*muonRecoEndCapsGR*muonrecoforcosmicsNoRPC*muonRecoLHC)
 
 #######################################################################################################################
 
