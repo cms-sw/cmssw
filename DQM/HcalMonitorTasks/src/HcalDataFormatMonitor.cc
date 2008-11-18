@@ -818,7 +818,6 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
   }
   if (CDFProbThisDCC) {
     fillzoos(6,dccid);
-    cout << "CDF Problem to indicate, DCC no. " << dccid -700 << endl;
     //Set the problem flag for the ieta, iphi of any channel in this DCC
     mapDCCproblem(dccid);
   }
@@ -1002,7 +1001,7 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
   HcalHTRData htr;  
   for (int spigot=0; spigot<HcalDCCHeader::SPIGOT_COUNT; spigot++) {    
     if (!dccHeader->getSpigotPresent(spigot)) continue;
-    
+
     halfhtrDIM_y = 1+(spigot*4);
     chsummDIM_y  = halfhtrDIM_y;
     channDIM_y   = 1+(spigot*3);
@@ -1048,17 +1047,15 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
       continue; }
     bool EE = ((dccHeader->getSpigotErrorBits(spigot) >> 2) & 0x01);
     if (EE) { 
-      if (HTRwdcount != 8) {
+      if (HTRwdcount != 8) {	//incompatible Sizes declared. Skip it.
 	meChannSumm_DataIntegrityCheck_->Fill(chsummDIM_x, chsummDIM_y);
-	chsummAOK=false;
-	//incompatible Sizes declared. Skip it.
-	continue; }
-    }else{ //For non-EE,
-      if ((HTRwdcount-NDAQ-NTP) != 20) {
+	chsummAOK=false;}
+      continue;}
+    else{ //For non-EE,
+      if ((HTRwdcount-NDAQ-NTP) != 20) {	//incompatible Sizes declared. Skip it.
 	meChannSumm_DataIntegrityCheck_->Fill(chsummDIM_x, chsummDIM_y);
-	chsummAOK=false;
-	//incompatible Sizes declared. Skip it.
-	continue; } }
+	chsummAOK=false; 
+	continue;} }
 
     if (htr.isHistogramEvent()) continue;
 
@@ -1087,8 +1084,6 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
       meInvHTRData_ -> Fill(spigot,dccid);
       fillzoos(8,dccid);
       mapHTRproblem(dccid,spigot);}
-    //    if (dccid ==709) cout << "Passed HTR Check,  Spigot =  " << spigot << endl;
-
 
     // Fish out Front-End Errors from the precision channels
     const short unsigned int* daq_first, *daq_last, *tp_first, *tp_last;
@@ -1104,11 +1099,12 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
     int lastfibchan =0, samplecounter=0;
     int channum=0; // Valid: [1,24]
     channDIM_x=0;  
+
     // Loop over DAQ words for this spigot
-    for (qie_work=qie_begin; qie_work!=qie_end; ) {
-      if (qie_work->raw()==0xFFFF) {
-	qie_work++; // filler word
-	continue; }
+    for (qie_work=qie_begin; qie_work!=qie_end; qie_work++) {
+      bool yeah = (qie_work->raw()==0xFFFF);
+      if (yeah)  // filler word
+	continue;
       channAOK=true;
       // Beginning digitized hit of this Half-HTR?
       if (qie_work==qie_begin) {
@@ -1116,7 +1112,6 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
 	channDIM_x = (channum*3)+1;
 	lastcapid=qie_work->capid();
 	samplecounter=1;}
-    
       // or the first TS of a this channel's DAQ data?
       else if (qie_work->fiberAndChan() != lastfibchan) {
 	channum= (3* (qie_work->fiber() - 1)) + qie_work->fiberChan();
@@ -1126,17 +1121,16 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
 	  meChann_DataIntegrityCheck_[dccid-700]->Fill(channDIM_x, channDIM_y);
 	  channAOK=false;}
 	samplecounter=1;}
-    
       else { //precision samples not the first timeslice
 	int hope = lastcapid +1;
 	if (hope==4) hope = 0;
 	if (qie_work->capid() != hope){
 	  meChannSumm_DataIntegrityCheck_->Fill(chsummDIM_x+1, chsummDIM_y+1);
 	  meChann_DataIntegrityCheck_[dccid-700]->Fill(channDIM_x+1,
-						       channDIM_y  );
+	  	 				       channDIM_y  );
 	  channAOK=false;}
 	samplecounter++;}
-    
+        
       //For every precision data sample in Hcal:
 
       // FEE - Front End Error
@@ -1146,19 +1140,20 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
 	meChann_DataIntegrityCheck_[dccid-700]->Fill(channDIM_x+1,
 						     channDIM_y+1);
 	channAOK=false;}
-      //Summarize
-      if (!channAOK) chsummAOK=false;
-      else 
-	meChann_DataIntegrityCheck_[dccid-700]->Fill(channDIM_x,
-						     channDIM_y+1);
-      // Prepare for the next round...
-      lastcapid=qie_work->capid();
-      lastfibchan=qie_work->fiberAndChan();
-      qie_work++;}
+    }
+
+    //Summarize
+    if (!channAOK) chsummAOK=false;
+    else 
+      meChann_DataIntegrityCheck_[dccid-700]->Fill(channDIM_x,
+						   channDIM_y+1);
+
+    // Prepare for the next round...
+    lastcapid=qie_work->capid();
+    lastfibchan=qie_work->fiberAndChan();
 
     if (chsummAOK) //better if every event? Here, every half-HTR's event....
       meChannSumm_DataIntegrityCheck_->Fill(chsummDIM_x,chsummDIM_y+2);
-
 
     if ( !(htr.getErrorsWord() >> 8) & 0x00000001) 
       fillzoos(14,dccid);
@@ -1260,9 +1255,8 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
       if((int)htrBCN!=lastBCN_) {meBCNSynch_->Fill(slotnum,cratenum);
       if (prtlvl_==1)cout << "++++ BCN # out of sync, ref, this HTR: "<< lastBCN_ << "  "<<htrBCN <<endl;}
     }
-    
+
     MonitorElement* tmpErr = 0;
-    //    cout << " Just before Det branches, Crate, Slot:  "<< cratenum<<"  "<< slotnum << endl;
     bool valid = false;
     for(int fchan=0; fchan<3 && !valid; fchan++){
       for(int fib=0; fib<9 && !valid; fib++){
@@ -1325,7 +1319,6 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
       }
     }    
   } //  for (int spigot=0; spigot<HcalDCCHeader::SPIGOT_COUNT; spigot++) 
-
   return;
 } // void HcalDataFormatMonitor::unpack(
 
