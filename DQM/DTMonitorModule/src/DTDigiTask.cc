@@ -1,8 +1,8 @@
  /*
  * \file DTDigiTask.cc
  * 
- * $Date: 2008/10/24 14:02:59 $
- * $Revision: 1.51 $
+ * $Date: 2008/10/31 05:46:50 $
+ * $Revision: 1.52 $
  * \author M. Zanetti - INFN Padova
  *
  */
@@ -48,7 +48,7 @@ using namespace std;
 // Contructor
 DTDigiTask::DTDigiTask(const edm::ParameterSet& ps){
   // switch for the verbosity
-  LogTrace("DTDQM|DTMonitormodule|DTDigiTask") <<"[DTDigiTask]: Constructor"<<endl;
+  LogTrace("DTDQM|DTMonitorModule|DTDigiTask") <<"[DTDigiTask]: Constructor"<<endl;
 
   // The label to retrieve the digis 
   dtDigiLabel = ps.getParameter<InputTag>("dtDigiLabel");
@@ -96,7 +96,7 @@ DTDigiTask::DTDigiTask(const edm::ParameterSet& ps){
 
 // destructor
 DTDigiTask::~DTDigiTask(){
-  LogTrace("DTDQM|DTMonitormodule|DTDigiTask") << "DTDigiTask: analyzed " << nevents << " events" << endl;
+  LogTrace("DTDQM|DTMonitorModule|DTDigiTask") << "DTDigiTask: analyzed " << nevents << " events" << endl;
 
 }
 
@@ -104,7 +104,7 @@ DTDigiTask::~DTDigiTask(){
 
 
 void DTDigiTask::endJob(){
-  LogTrace("DTDQM|DTMonitormodule|DTDigiTask") <<"[DTDigiTask] endjob called!"<<endl;
+  LogTrace("DTDQM|DTMonitorModule|DTDigiTask") <<"[DTDigiTask] endjob called!"<<endl;
   
 }
 
@@ -112,7 +112,7 @@ void DTDigiTask::endJob(){
 
 
 void DTDigiTask::beginJob(const edm::EventSetup& context){
-  LogTrace("DTDQM|DTMonitormodule|DTDigiTask") <<"[DTDigiTask]: BeginJob"<<endl;
+  LogTrace("DTDQM|DTMonitorModule|DTDigiTask") <<"[DTDigiTask]: BeginJob"<<endl;
 
   nevents = 0;
 
@@ -122,7 +122,7 @@ void DTDigiTask::beginJob(const edm::EventSetup& context){
 
 
 void DTDigiTask::beginRun(const edm::Run& run, const edm::EventSetup& context) {
-  LogTrace("DTDQM|DTMonitormodule|DTDigiTask") <<"[DTDigiTask]: begin run"<<endl;
+  LogTrace("DTDQM|DTMonitorModule|DTDigiTask") <<"[DTDigiTask]: begin run"<<endl;
 
   // tTrig 
   if (readTTrigDB) 
@@ -180,11 +180,11 @@ void DTDigiTask::beginRun(const edm::Run& run, const edm::EventSetup& context) {
 
 
 void DTDigiTask::beginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
-  LogTrace("DTDQM|DTMonitormodule|DTDigiTask") <<"[DTDigiTask]: Begin of LS transition"<<endl;
+  LogTrace("DTDQM|DTMonitorModule|DTDigiTask") <<"[DTDigiTask]: Begin of LS transition"<<endl;
   
   // Reset the MonitorElements every n (= ResetCycle) Lumi Blocks
   if(lumiSeg.id().luminosityBlock() % resetCycle == 0) {
-    LogVerbatim("DTDQM|DTMonitormodule|DTDigiTask")
+    LogVerbatim("DTDQM|DTMonitorModule|DTDigiTask")
       <<"[DTDigiTask]: Reset at the LS transition : "<<lumiSeg.id().luminosityBlock()<<endl;
     // Loop over all ME
     for(map<string, map<uint32_t, MonitorElement*> > ::const_iterator histo = digiHistos.begin();
@@ -227,7 +227,7 @@ void DTDigiTask::bookHistos(const DTSuperLayerId& dtSL, string folder, string hi
     + "_Sec" + sector.str() 
     + "_SL" + superLayer.str(); 
 
-  LogTrace("DTDQM|DTMonitormodule|DTDigiTask")
+  LogTrace("DTDQM|DTMonitorModule|DTDigiTask")
     << "[DTDigiTask]: booking SL histo:" << histoName
     << " (tag: " << histoTag
     << ") folder: " << topFolder() + "Wheel" + wheel.str() +
@@ -283,7 +283,7 @@ void DTDigiTask::bookHistos(const DTChamberId& dtCh, string folder, string histo
     + "_Sec" + sector.str(); 
 
 
-  LogTrace("DTDQM|DTMonitormodule|DTDigiTask")
+  LogTrace("DTDQM|DTMonitorModule|DTDigiTask")
     << "[DTDigiTask]: booking chamber histo:" 
     << " (tag: " << histoTag
     << ") folder: " << topFolder() + "Wheel" + wheel.str() +
@@ -371,7 +371,7 @@ void DTDigiTask::bookHistos(const int wheelId, string folder, string histoTag) {
   string histoName = histoTag + "_W" + wheel.str(); 
 
 
-  LogTrace("DTDQM|DTMonitormodule|DTDigiTask")
+  LogTrace("DTDQM|DTMonitorModule|DTDigiTask")
     << "[DTDigiTask]: booking wheel histo:" << histoName
     << " (tag: " << histoTag
     << ") folder: " << topFolder() + "Wheel" + wheel.str() + "/" <<endl;
@@ -402,12 +402,12 @@ void DTDigiTask::bookHistos(const int wheelId, string folder, string histoTag) {
 
 // does the real job
 void DTDigiTask::analyze(const edm::Event& event, const edm::EventSetup& c) {
-  LogTrace("DTDQM|DTMonitormodule|DTDigiTask") << "[DTDigiTask] analyze" << endl;
+  LogTrace("DTDQM|DTMonitorModule|DTDigiTask") << "[DTDigiTask] analyze" << endl;
   
   nevents++;
 
   if (nevents%1000 == 0) {
-    LogTrace("DTDQM|DTMonitormodule|DTDigiTask") << "[DTDigiTask] Analyze #Run: " << event.id().run()
+    LogTrace("DTDQM|DTMonitorModule|DTDigiTask") << "[DTDigiTask] Analyze #Run: " << event.id().run()
 						 << " #Event: " << event.id().event() << endl;
   }
   
@@ -423,7 +423,7 @@ void DTDigiTask::analyze(const edm::Event& event, const edm::EventSetup& c) {
   // Status map (for noisy channels)
   ESHandle<DTStatusFlag> statusMap;
   if(checkNoisyChannels) {
-    LogTrace("DTDQM|DTMonitormodule|DTDigiTask") << "    get the map of noisy channels" << endl;
+    LogTrace("DTDQM|DTMonitorModule|DTDigiTask") << "    get the map of noisy channels" << endl;
     // Get the map of noisy channels
     c.get<DTStatusFlagRcd>().get(statusMap);
   }
@@ -433,11 +433,11 @@ void DTDigiTask::analyze(const edm::Event& event, const edm::EventSetup& c) {
 
   // Check if the digi container is empty
   if(dtdigis->begin() == dtdigis->end()) {
-    LogTrace("DTDQM|DTMonitormodule|DTDigiTask") << "Event " << nevents << " empty." << endl;
+    LogTrace("DTDQM|DTMonitorModule|DTDigiTask") << "Event " << nevents << " empty." << endl;
   }
 
   if (filterSyncNoise) { // dosync
-    LogTrace("DTDQM|DTMonitormodule|DTDigiTask") << "     Filter Sync Noise" << endl;
+    LogTrace("DTDQM|DTMonitorModule|DTDigiTask") << "     Filter Sync Noise" << endl;
     
     // Count the # of digis per chamber
     DTDigiCollection::DigiRangeIterator dtLayerId_It;
@@ -466,14 +466,14 @@ void DTDigiTask::analyze(const edm::Event& event, const edm::EventSetup& c) {
 
     // log
     if (syncNoisyChambers.size() != 0) {
-      LogVerbatim("DTDQM|DTMonitormodule|DTDigiTask") << "[DTDigiTask]** Synch Noise in event: " << nevents
+      LogVerbatim("DTDQM|DTMonitorModule|DTDigiTask") << "[DTDigiTask]** Synch Noise in event: " << nevents
 						      << " noisy time-boxes and occupancy will not be filled!" << endl; 
       syncNumTot++;
       syncNum++;
     }
 
     if (nevents%1000 == 0) {
-      LogVerbatim("DTDQM|DTMonitormodule|DTDigiTask") << (syncNumTot*100./nevents) << "% sync noise events since the beginning \n"
+      LogVerbatim("DTDQM|DTMonitorModule|DTDigiTask") << (syncNumTot*100./nevents) << "% sync noise events since the beginning \n"
 						      << (syncNum*0.1) << "% sync noise events in the last 1000 events " << endl;
       syncNum = 0;
     }
