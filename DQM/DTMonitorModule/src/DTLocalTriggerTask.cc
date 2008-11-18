@@ -1,8 +1,8 @@
 /*
  * \file DTLocalTriggerTask.cc
  * 
- * $Date: 2008/07/25 10:20:48 $
- * $Revision: 1.29 $
+ * $Date: 2008/11/05 11:37:55 $
+ * $Revision: 1.30 $
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -38,7 +38,7 @@ using namespace std;
 
 DTLocalTriggerTask::DTLocalTriggerTask(const edm::ParameterSet& ps){
   
-  LogTrace("DTDQM|DTMonitormodule|DTLocalTriggerTask") << "[DTLocalTriggerTask]: Constructor"<<endl;
+  LogTrace("DTDQM|DTMonitorModule|DTLocalTriggerTask") << "[DTLocalTriggerTask]: Constructor"<<endl;
 
   tpMode           = ps.getUntrackedParameter<bool>("testPulseMode", false);
   detailedAnalysis = ps.getUntrackedParameter<bool>("detailedAnalysis", false);
@@ -60,7 +60,7 @@ DTLocalTriggerTask::DTLocalTriggerTask(const edm::ParameterSet& ps){
 
 DTLocalTriggerTask::~DTLocalTriggerTask() {
 
-  LogTrace("DTDQM|DTMonitormodule|DTLocalTriggerTask") << "[DTLocalTriggerTask]: analyzed " << nevents << " events" << endl;
+  LogTrace("DTDQM|DTMonitorModule|DTLocalTriggerTask") << "[DTLocalTriggerTask]: analyzed " << nevents << " events" << endl;
 
 }
 
@@ -68,7 +68,7 @@ DTLocalTriggerTask::~DTLocalTriggerTask() {
 void DTLocalTriggerTask::beginJob(const edm::EventSetup& context){
 
  
-  LogTrace("DTDQM|DTMonitormodule|DTLocalTriggerTask") << "[DTLocalTriggerTask]: BeginJob" << endl;
+  LogTrace("DTDQM|DTMonitorModule|DTLocalTriggerTask") << "[DTLocalTriggerTask]: BeginJob" << endl;
 
   context.get<MuonGeometryRecord>().get(muonGeom);
   nevents = 0;
@@ -194,7 +194,7 @@ void DTLocalTriggerTask::beginJob(const edm::EventSetup& context){
 
 void DTLocalTriggerTask::beginLuminosityBlock(const LuminosityBlock& lumiSeg, const EventSetup& context) {
   
-  LogTrace("DTDQM|DTMonitormodule|DTLocalTriggerTask") << "[DTLocalTriggerTask]: Begin of LS transition" << endl;
+  LogTrace("DTDQM|DTMonitorModule|DTLocalTriggerTask") << "[DTLocalTriggerTask]: Begin of LS transition" << endl;
   
   if(lumiSeg.id().luminosityBlock()%parameters.getUntrackedParameter<int>("ResetCycle", 3) == 0) {
     for(map<uint32_t, map<string, MonitorElement*> > ::const_iterator histo = digiHistos.begin();
@@ -213,7 +213,7 @@ void DTLocalTriggerTask::beginLuminosityBlock(const LuminosityBlock& lumiSeg, co
 
 void DTLocalTriggerTask::endJob(){
 
-  LogVerbatim("DTDQM|DTMonitormodule|DTLocalTriggerTask") << "[DTLocalTriggerTask]: analyzed " << nevents << " events" << endl;
+  LogVerbatim("DTDQM|DTMonitorModule|DTLocalTriggerTask") << "[DTLocalTriggerTask]: analyzed " << nevents << " events" << endl;
   dbe->rmdir(topFolder());
 
 }
@@ -311,7 +311,7 @@ void DTLocalTriggerTask::bookHistos(const DTChamberId& dtCh, string folder, stri
 
   string histoName = histoTag + "_W" + wheel.str() + "_Sec" + sector.str() + "_St" + station.str();
     
-  LogTrace("DTDQM|DTMonitormodule|DTLocalTriggerTask") << "[DTLocalTriggerTask]: booking " << topFolder() << hwFolder << "Wheel" << wheel.str()
+  LogTrace("DTDQM|DTMonitorModule|DTLocalTriggerTask") << "[DTLocalTriggerTask]: booking " << topFolder() << hwFolder << "Wheel" << wheel.str()
 						       << "/Sector" << sector.str()
 						       << "/Station"<< station.str() << "/" << folder << "/" << histoName << endl;
     
