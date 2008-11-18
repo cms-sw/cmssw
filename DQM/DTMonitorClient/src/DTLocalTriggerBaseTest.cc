@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/10/07 14:26:43 $
- *  $Revision: 1.7 $
+ *  $Date: 2008/11/05 11:39:46 $
+ *  $Revision: 1.8 $
  *  \author C. Battilana S. Marcellini - INFN Bologna
  */
 
@@ -187,13 +187,16 @@ void DTLocalTriggerBaseTest::bookSectorHistos(int wheel,int sector,string folder
   stringstream wh; wh << wheel;
   stringstream sc; sc << sector;
   int sectorid = (wheel+3) + (sector-1)*5;
-  string hwFolder = hwSource=="DCC" ? "DCC/" : ""; 
-  dbe->setCurrentFolder(topFolder()+hwFolder+"Wheel"+wh.str()+"/Sector"+sc.str()+"/"+folder);
+  string hwFolder = hwSource=="DCC" ? "DCC/" : "";
+  string basedir = topFolder()+hwFolder+"Wheel"+wh.str()+"/Sector"+sc.str()+"/";
+  if (folder!="") {
+    basedir += folder +"/";
+  }
+  dbe->setCurrentFolder(basedir);
 
   string fullTag = fullName(hTag);
   string hname    = fullTag + "_W" + wh.str()+"_Sec" +sc.str();
-  LogTrace(category()) << "[" << testName << "Test]: booking " << topFolder() << wheel 
-				    <<"/Sector" << sector << "/" << folder << "/" << hname;
+  LogTrace(category()) << "[" << testName << "Test]: booking " << basedir << hname;
   if (hTag.find("Phi") != string::npos || 
       hTag.find("TkvsTrig") != string::npos ){    
     MonitorElement* me = dbe->book1D(hname.c_str(),hname.c_str(),4,0.5,4.5);
@@ -220,12 +223,11 @@ void DTLocalTriggerBaseTest::bookCmsHistos( string hTag ) {
 
   string basedir = topFolder();
    if(hwSource == "DCC") 
-      basedir += "/" + hwSource;
+      basedir += hwSource + "/";
   dbe->setCurrentFolder(basedir);
 
   string hname = fullName(hTag);
-  LogTrace(category()) << "[" << testName << "Test]: booking " <<
-    basedir << "/" << hname;
+  LogTrace(category()) << "[" << testName << "Test]: booking " << basedir << hname;
 
 
     MonitorElement* me = dbe->book2D(hname.c_str(),hname.c_str(),12,1,13,5,-2,3);
@@ -243,14 +245,17 @@ void DTLocalTriggerBaseTest::bookWheelHistos(int wheel, string folder, string hT
   if (hTag.find("Summary") != string::npos ) {
     basedir = topFolder() + hwFolder;   //Book summary histo outside wheel directories
   } else {
-    basedir = topFolder() + hwFolder + "Wheel"+ wh.str()+"/" + folder;
+    basedir = topFolder() + hwFolder + "Wheel" + wh.str() + "/" ;
+    if (folder != "") {
+      basedir += folder +"/" ;
+    }
   }
   dbe->setCurrentFolder(basedir);
 
   string fullTag = fullName(hTag);
   string hname    = fullTag+ "_W" + wh.str();
 
-  LogTrace(category()) << "[" << testName << "Test]: booking "<< basedir << "/" << hname;
+  LogTrace(category()) << "[" << testName << "Test]: booking "<< basedir << hname;
   
   if (hTag.find("Phi")!= string::npos ||
       hTag.find("Summary") != string::npos ){    
