@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Jul 31 15:30:35 EDT 2007
-// $Id: ParameterSetDescription.cc,v 1.3 2008/10/08 22:13:36 wmtan Exp $
+// $Id: ParameterSetDescription.cc,v 1.4 2008/11/14 19:41:23 wdd Exp $
 //
 
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -75,5 +75,31 @@ namespace edm {
           << "Unexpected parameter \"" << parameterName << "\" was defined.  It could be a typo";
       }
     }
+  }
+
+  template<>
+  boost::shared_ptr<ParameterDescription>
+  ParameterSetDescription::add<ParameterSetDescription>(const std::string& iLabel,
+                                                        ParameterSetDescription const& value,
+                                                        bool isTracked,
+                                                        bool optional) {
+    boost::shared_ptr<ParameterDescription> ptr(new ParameterDescriptionTemplate<ParameterSet>(iLabel, isTracked, optional, ParameterSet()));
+    boost::shared_ptr<ParameterSetDescription> copyOfSet(new ParameterSetDescription(value));
+    ptr->setParameterSetDescription(copyOfSet);
+    parameters_.push_back(ptr);
+    return ptr;
+  }
+
+  template<>
+  boost::shared_ptr<ParameterDescription>
+  ParameterSetDescription::add<std::vector<ParameterSetDescription> >(const std::string& iLabel,
+                                                                      std::vector<ParameterSetDescription> const& value,
+                                                                      bool isTracked,
+                                                                      bool optional) {
+    boost::shared_ptr<ParameterDescription> ptr(new ParameterDescriptionTemplate<std::vector<ParameterSet> >(iLabel, isTracked, optional, std::vector<ParameterSet>()));
+    boost::shared_ptr<std::vector<ParameterSetDescription> > copyOfSet(new std::vector<ParameterSetDescription>(value));
+    ptr->setParameterSetDescriptions(copyOfSet);
+    parameters_.push_back(ptr);
+    return ptr;
   }
 }

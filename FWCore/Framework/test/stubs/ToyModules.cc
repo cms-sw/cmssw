@@ -96,9 +96,20 @@ namespace edmtest {
       iDesc.setAllowAnything();
 
       iDesc.add<int>("ivalue", 1);
+      iDesc.addOptional<int>("evalue", 7);
+
+      //add a ParameterSet
+      edm::ParameterSetDescription bar;
+      bar.add<unsigned int>("nDrinks",5);
+      iDesc.add("bar",bar);
+
+      //add a ParameterSet
+      edm::ParameterSetDescription barx;
+      barx.add<unsigned int>("nDrinks",5);
+      iDesc.addOptional("barx",barx);
 
       boost::shared_ptr<edm::ParameterDescription> parDescription;
-      parDescription = iDesc.add<edm::ParameterSet>("subpset", edm::ParameterSet());
+      parDescription = iDesc.addOptional<edm::ParameterSet>("subpset", edm::ParameterSet());
       boost::shared_ptr<edm::ParameterSetDescription> subPsetDescription = 
         parDescription->parameterSetDescription();
 

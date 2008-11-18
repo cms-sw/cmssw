@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Jul 31 15:18:40 EDT 2007
-// $Id: ParameterSetDescription.h,v 1.1 2007/09/17 21:04:37 chrjones Exp $
+// $Id: ParameterSetDescription.h,v 1.2 2008/11/14 19:41:22 wdd Exp $
 //
 
 #include "FWCore/ParameterSet/interface/ParameterDescriptionTemplate.h"
@@ -27,6 +27,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 
 namespace edm {
+
   class ParameterSetDescription
   {
 
@@ -45,17 +46,23 @@ namespace edm {
     void setUnknown();
       
     template<class T>
-      boost::shared_ptr<ParameterDescription> add(const std::string& iLabel, T const& value) {
-      boost::shared_ptr<ParameterDescription> ptr(new ParameterDescriptionTemplate<T>(iLabel, true, value));
-      parameters_.push_back(ptr);
-      return ptr;
+    boost::shared_ptr<ParameterDescription> add(const std::string& iLabel, T const& value) {
+      return add(iLabel, value, true, false);
     }
 
     template<class T>
     boost::shared_ptr<ParameterDescription> addUntracked(const std::string& iLabel, T const& value) {
-      boost::shared_ptr<ParameterDescription> ptr(new ParameterDescriptionTemplate<T>(iLabel, false, value));
-      parameters_.push_back(ptr);
-      return ptr;
+      return add(iLabel, value, false, false);
+    }
+
+    template<class T>
+    boost::shared_ptr<ParameterDescription> addOptional(const std::string& iLabel, T const& value) {
+      return add(iLabel, value, true, true);
+    }
+
+    template<class T>
+    boost::shared_ptr<ParameterDescription> addOptionalUntracked(const std::string& iLabel, T const& value) {
+      return add(iLabel, value, false, true);
     }
 
     //Throws a cms::Exception if invalid
@@ -74,9 +81,29 @@ namespace edm {
 
   private:
 
+    template<class T>
+    boost::shared_ptr<ParameterDescription> add(const std::string& iLabel, T const& value, bool isTracked, bool optional) {
+      boost::shared_ptr<ParameterDescription> ptr(new ParameterDescriptionTemplate<T>(iLabel, isTracked, optional, value));
+      parameters_.push_back(ptr);
+      return ptr;
+    }
+
     bool anythingAllowed_;
     bool unknown_;
     Parameters parameters_;
   };
+
+  template<>
+  boost::shared_ptr<ParameterDescription>
+  ParameterSetDescription::add<ParameterSetDescription>(const std::string& iLabel,
+                                                        ParameterSetDescription const& value,
+                                                        bool isTracked,
+                                                        bool optional);
+  template<>
+  boost::shared_ptr<ParameterDescription>
+  ParameterSetDescription::add<std::vector<ParameterSetDescription> >(const std::string& iLabel,
+                                                                      std::vector<ParameterSetDescription> const& value,
+                                                                      bool isTracked,
+                                                                      bool optional);
 }
 #endif

@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Aug  2 15:33:51 EDT 2007
-// $Id: ParameterDescriptionTemplate.h,v 1.1 2007/09/17 21:04:37 chrjones Exp $
+// $Id: ParameterDescriptionTemplate.h,v 1.2 2008/11/14 19:41:22 wdd Exp $
 //
 
 #include "FWCore/ParameterSet/interface/ParameterDescription.h"
@@ -33,9 +33,10 @@ namespace edm {
 
     ParameterDescriptionTemplate(const std::string& iLabel,
                                  bool isTracked,
+                                 bool optional,
                                  T const& value):
       
-      ParameterDescription(iLabel, isTracked, ParameterTypeToEnum::toEnum<T>()),
+      ParameterDescription(iLabel, isTracked, optional, ParameterTypeToEnum::toEnum<T>()),
       value_(value) {
     }
 
@@ -43,13 +44,15 @@ namespace edm {
     ParameterDescriptionTemplate(const ParameterDescriptionTemplate&); // stop default
     const ParameterDescriptionTemplate& operator=(const ParameterDescriptionTemplate&); // stop default
 
-    virtual void validate_(const ParameterSet& pset) const {
+    virtual void validate_(const ParameterSet& pset, bool & exists) const {
+
+      exists = pset.existsAs<T>(label(), isTracked());
 
       // See if pset has a parameter matching this ParameterDescription
       // In the future, the current plan is to have this insert missing
       // parameters into the ParameterSet with the correct default value.
       // Cannot do that until we get a non const ParameterSet passed in.
-      if (!pset.existsAs<T>(label(), isTracked())) throwParameterNotDefined();
+      if (!optional() && !exists) throwParameterNotDefined();
     }
 
     // virtual void defaultValue_(std::string& value) const {

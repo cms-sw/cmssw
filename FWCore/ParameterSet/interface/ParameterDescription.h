@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Aug  2 15:33:46 EDT 2007
-// $Id: ParameterDescription.h,v 1.2 2008/03/12 19:55:51 wmtan Exp $
+// $Id: ParameterDescription.h,v 1.3 2008/11/14 19:41:22 wdd Exp $
 //
 
 #include <boost/shared_ptr.hpp>
@@ -74,6 +74,7 @@ namespace edm {
     const std::string& label() const { return label_; }
     ParameterTypes type() const { return type_; }
     bool isTracked() const { return isTracked_; }
+    bool optional() const { return optional_; }
 
     // Need to define something like this that returns the value in a
     // string although we probably want to format the string in python
@@ -86,18 +87,25 @@ namespace edm {
     boost::shared_ptr<std::vector<ParameterSetDescription> > parameterSetDescriptions()
       { return parameterSetDescriptions_; }
 
+    void setParameterSetDescription(boost::shared_ptr<ParameterSetDescription> const& value)
+      { parameterSetDescription_ = value; }
+
+    void setParameterSetDescriptions(boost::shared_ptr<std::vector<ParameterSetDescription> > const& value)
+      { parameterSetDescriptions_ = value; }
+
     void throwParameterNotDefined() const;
 
   protected:
     ParameterDescription(const std::string& iLabel,
                          bool isTracked,
+                         bool optional,
                          ParameterTypes iType);
 
   private:
     ParameterDescription(const ParameterDescription&); // stop default
     const ParameterDescription& operator=(const ParameterDescription&); // stop default
 
-    virtual void validate_(const ParameterSet& pset) const = 0;
+    virtual void validate_(const ParameterSet& pset, bool & exists) const = 0;
     void validateParameterSetDescription(const ParameterSet& pset) const;
     void validateParameterSetDescriptions(const ParameterSet& pset) const;
     // virtual void defaultValue_(std::string& value) const = 0;
@@ -105,6 +113,7 @@ namespace edm {
     std::string label_;
     ParameterTypes type_;
     bool isTracked_;
+    bool optional_;
 
     boost::shared_ptr<ParameterSetDescription> parameterSetDescription_;
     boost::shared_ptr<std::vector<ParameterSetDescription> > parameterSetDescriptions_;
