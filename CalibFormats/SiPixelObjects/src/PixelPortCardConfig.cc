@@ -249,7 +249,6 @@ PixelPortCardConfig::PixelPortCardConfig(vector < vector< string> >  &tableMat):
 //    "channelAddress_\t" << channelAddress_  << endl <<
 //    "i2cSpeed_\t"	<< i2cSpeed_        << endl ;
   
-
   for(unsigned int col = 0 ; col < tableMat[1].size() ; col++)    //Goes to every column of the Matrix
     {
       std::string settingName;

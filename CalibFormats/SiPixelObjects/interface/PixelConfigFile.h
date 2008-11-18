@@ -46,6 +46,8 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
+#define DEBUG_CF_ 0
+
 namespace pos{
 /*! \class PixelConfigFile PixelConfigFile.h "interface/PixelConfigFile.h"
 *
@@ -597,7 +599,7 @@ namespace pos{
        return false ;
       }
       in.close() ;
-      std::cout << mthn << "Found " << fileName << std::endl ; 
+      if( DEBUG_CF_ ) std::cout << mthn << "Found " << fileName << std::endl ; 
       return true ;
     }
     //----- End of method added by Dario (March 10, 2008)
@@ -666,16 +668,16 @@ namespace pos{
 	data = (T*) new PixelDetectorConfig(fullpath+"detectconfig.dat");
 	return;
       }else if (typeid(data)==typeid(PixelLowVoltageMap*)){
-	std::cout << mthn << "Will fetch1 PixelLowVoltageMap" << std::endl;
+	//std::cout << mthn << "Will fetch1 PixelLowVoltageMap" << std::endl;
 	assert(dir=="lowvoltagemap");
 	data = (T*) new PixelLowVoltageMap(fullpath+"detectconfig.dat");
-	std::cout << mthn << "Will return1 the PixelLowVoltageMap" << std::endl;
+	//std::cout << mthn << "Will return1 the PixelLowVoltageMap" << std::endl;
 	return;
       }else if (typeid(data)==typeid(PixelMaxVsf*)){
-	std::cout << mthn << "Will fetch1 PixelMaxVsf" << std::endl;
+	//std::cout << mthn << "Will fetch1 PixelMaxVsf" << std::endl;
 	assert(dir=="maxvsf");
 	data = (T*) new PixelMaxVsf(fullpath+"maxvsf.dat");
-	std::cout << mthn << "Will return1 the PixelMaxVsf" << std::endl;
+	//std::cout << mthn << "Will return1 the PixelMaxVsf" << std::endl;
 	return;
       }else if (typeid(data)==typeid(PixelNameTranslation*)){
 	//std::cout << "[pos::PixelConfigFile::get()]\t\t\tWill return PixelDACSettings" << std::endl;

@@ -1,3 +1,10 @@
+/*************************************************************************
+ * XDAQ Components for Pixel Online Software                             *
+ * Copyright (C) 2007, I.N.F.N. Milano Bicocca                           *
+ * All rights reserved.                                                  *
+ * Authors: Dario Menasce, Marco Rovere                                  *
+ ************************************************************************/
+
 #ifndef PixelTimeFormatter_h
 #define PixelTimeFormatter_h
 /**
@@ -13,14 +20,17 @@
 #include <time.h>
 #include <sys/time.h>
 
+#define USE_TIMER_ 0
+
 namespace pos{
   class PixelTimeFormatter
   {
   public:
 
     //---------------------------------------------------------------------------------
-    PixelTimeFormatter(std::string source) 
+    PixelTimeFormatter(std::string source ) 
     {
+     if( !USE_TIMER_) return ;
      origin_ = source ;
      std::cout << "[PixelTimeFormatter::PixelTimeFormatter()]\t\t    Time counter started for " << origin_ << std::endl ;
      startTime_ = getImSecTime() ;
@@ -28,8 +38,9 @@ namespace pos{
     
     void stopTimer(void) 
     {
+     if( !USE_TIMER_ ) return ;
      endTime_ = getImSecTime() ;
-     unsigned int seconds  = (unsigned int)endTime_.tv_sec  - (unsigned int)startTime_.tv_sec  ;
+     unsigned int seconds  = (unsigned int)endTime_.tv_sec - (unsigned int)startTime_.tv_sec  ;
      double useconds = (double)(endTime_.tv_usec - startTime_.tv_usec) / 1000000. ;   
      if( seconds == 0 )
        {
@@ -127,15 +138,15 @@ namespace pos{
   
       return difftime(ft, st) ;
     }
-
+    
     //=================================================================================
     
     private:
     
-     struct timeval startTime_ ;
-     struct timeval endTime_   ;
-     std::string    origin_    ;
-     bool           verbose_   ;
+     struct timeval startTime_      ;
+     struct timeval endTime_        ;
+     std::string    origin_         ;
+     bool           verbose_        ;
   } ;
 }
 
