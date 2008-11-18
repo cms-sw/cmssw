@@ -1,7 +1,8 @@
 #ifndef SiPixelTools_SiPixelFrameReverter_H
 #define SiPixelTools_SiPixelFrameReverter_H
 
-#include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelFedCabling.h"
+#include "CondFormats/SiPixelObjects/interface/CablingPathToDetUnit.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelFrameConverter.h"
 #include "CondFormats/SiPixelObjects/interface/GlobalPixel.h"
 #include "CondFormats/SiPixelObjects/interface/LocalPixel.h"
@@ -20,29 +21,31 @@ class SiPixelFedCablingMap;
 class SiPixelFrameReverter {
 public:
 
-  SiPixelFrameReverter(const edm::EventSetup&, const SiPixelFedCablingTree *);
-
-  typedef std::pair<int,SiPixelFrameConverter*> FEDType;
+  SiPixelFrameReverter(const edm::EventSetup&, const SiPixelFedCabling* map);
 
   void buildStructure(edm::EventSetup const&);
 
+  // Function to find FedId given detId
   int findFedId(uint32_t detId);
 
-  int findLinkInFed(uint32_t, int, int);
+  // Function to find Fed link given detId and pixel row and col on plaquette
+  int findLinkInFed(uint32_t detId, int row, int col);
 
-  int findRocInLink(uint32_t, int, int);
+  // Function to find Roc number on a link given detId and pixel row and col on plaquette
+  int findRocInLink(uint32_t detId, int row, int col);
 
-  int findRocInDet(uint32_t, int, int);
+  // Function to find the Roc number within a plaquette given detId and pixel row and col on plaquette
+  int findRocInDet(uint32_t detId, int row, int col);
 
-  LocalPixel findPixelInRoc(uint32_t, int, int);
+  // Function to find local pixel given detId and pixel row and col on plaquette
+  LocalPixel findPixelInRoc(uint32_t detId, int row, int col);
 
-  //  LocalPixel::DcolPxid findPixelInDcol(uint32_t, int, int);
 
 private:
 
-  const SiPixelFedCablingTree * tree_;
+  const SiPixelFedCabling * map_;
 
-  std::map<uint32_t,FEDType> DetToFedMap;
+  std::map< uint32_t,std::vector<CablingPathToDetUnit> > DetToFedMap;
 
 };
 #endif

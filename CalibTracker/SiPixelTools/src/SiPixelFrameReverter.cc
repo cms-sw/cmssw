@@ -1,6 +1,6 @@
 #include "CalibTracker/SiPixelTools/interface/SiPixelFrameReverter.h"
-#include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
-
+#include "CondFormats/SiPixelObjects/interface/SiPixelFedCabling.h"
+#include "CondFormats/SiPixelObjects/interface/CablingPathToDetUnit.h"
 #include "CondFormats/SiPixelObjects/interface/PixelFEDCabling.h"
 #include "CondFormats/SiPixelObjects/interface/PixelFEDLink.h"
 #include "CondFormats/SiPixelObjects/interface/PixelROC.h"
@@ -23,10 +23,10 @@
 using namespace std;
 using namespace sipixelobjects;
 
-SiPixelFrameReverter::SiPixelFrameReverter(const edm::EventSetup& iSetup, const SiPixelFedCablingTree * tree) 
-  : tree_(tree)
+SiPixelFrameReverter::SiPixelFrameReverter(const edm::EventSetup& iSetup, const SiPixelFedCabling* map) 
+  : map_(map)
 { 
-  // Build tree
+  // Build map
   buildStructure(iSetup);
 }
 
@@ -34,22 +34,7 @@ SiPixelFrameReverter::SiPixelFrameReverter(const edm::EventSetup& iSetup, const 
 void SiPixelFrameReverter::buildStructure(const edm::EventSetup& iSetup) 
 {
 
-  // First build SiPixelFrameConverter for each FED
-
-  int fedId;
-
-  std::map<int,SiPixelFrameConverter*> FedToConverterMap;
-
-  for(fedId = 0; fedId <= 39; fedId++){
-    
-    SiPixelFrameConverter * converter = (tree_ ) ? 
-      new SiPixelFrameConverter(tree_, fedId) : 0;
-
-    FedToConverterMap.insert(pair<int,SiPixelFrameConverter*> (fedId,converter));
-
-  }
-
-  // Next create map connecting each detId to appropriate SiPixelFrameConverter
+  // Create map connecting each detId to appropriate SiPixelFrameConverter
 
   edm::ESHandle<TrackerGeometry> pDD;
   iSetup.get<TrackerDigiGeometryRecord>().get( pDD );
@@ -59,55 +44,11 @@ void SiPixelFrameReverter::buildStructure(const edm::EventSetup& iSetup)
     if(dynamic_cast<PixelGeomDetUnit*>((*it))!=0){
 
       DetId detId = (*it)->geographicalId();
-      const GeomDetUnit      * geoUnit = pDD->idToDetUnit( detId );
+      uint32_t id = detId();
+      std::vector<CablingPathToDetUnit> paths = map_->pathToDetUnit(id);
+      DetToFedMap.insert(pair< uint32_t,std::vector<CablingPathToDetUnit> > (id,paths));
 
-      if(detId.subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel)) {
-	uint32_t id = detId();
-
-	for (fedId = 0; fedId <= 31; fedId++) {
-	  if ( !(*tree_).fed(fedId) ) continue;
-	  const PixelFEDCabling & theFed = *(*tree_).fed(fedId);
-	  for (int idxLink = 1; idxLink <= theFed.numberOfLinks(); idxLink++) {
-	    const PixelFEDLink * link = theFed.link(idxLink);
-	    if (!link) continue;
-	    int numberOfRocs = link->numberOfROCs();
-	    for(int idxRoc = 1; idxRoc <= numberOfRocs; idxRoc++) {
-	      const PixelROC * roc = link->roc(idxRoc);
-	      if (!roc) continue;
-	      if (id == roc->rawId() ) {
-		FEDType fed;
-		fed.first = fedId;
-		fed.second = FedToConverterMap[fedId];
-		DetToFedMap.insert(pair< uint32_t,FEDType > (id,fed));
-	      }  // if (rawId
-	    }  // for(int idxRoc
-	  }  // for (int idxLink
-	}  // for (fedId
-
-      }	else if(detId.subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap)) {
-	uint32_t id = detId();
-
-	for (fedId = 32; fedId <= 39; fedId++) {
-	  if ( !(*tree_).fed(fedId) ) continue;
-	  const PixelFEDCabling & theFed = *(*tree_).fed(fedId);
-	  for (int idxLink = 1; idxLink <= theFed.numberOfLinks(); idxLink++) {
-	    const PixelFEDLink * link = theFed.link(idxLink);
-	    if (!link) continue;
-	    int numberOfRocs = link->numberOfROCs();
-	    for(int idxRoc = 1; idxRoc <= numberOfRocs; idxRoc++) {
-	      const PixelROC * roc = link->roc(idxRoc);
-	      if (!roc) continue;
-	      if (id == roc->rawId() ) {
-		FEDType fed;
-		fed.first = fedId;
-		fed.second = FedToConverterMap[fedId];
-		DetToFedMap.insert(pair< uint32_t,FEDType > (id,fed));
-	      }  // if (rawId
-	    }  // for(int idxRoc
-	  }  // for (int idxLink 
-	}  // for (fedId
-      }  // else if(detId.subdetId()
-    }  // if(dynamic_cast<PixelGeomDetUnit*>
+    }
   }  // for(TrackerGeometry::DetContainer::const_iterator
 
 }  // end buildStructure
@@ -115,83 +56,77 @@ void SiPixelFrameReverter::buildStructure(const edm::EventSetup& iSetup)
 
 int SiPixelFrameReverter::findFedId(uint32_t detId)
 {
-  return DetToFedMap[detId].first;
+  std::vector<CablingPathToDetUnit> path = DetToFedMap[detId];
+  int fedId = (int) path[0].fed;
+  return fedId;
 }
 
 
 int SiPixelFrameReverter::findLinkInFed(uint32_t detId, int row, int col)
 {
-  DetectorIndex detector = {detId, row, col};
-  ElectronicIndex  cabling;
-  int status  = DetToFedMap[detId].second->toCabling(cabling, detector);
-  if (status) {
-    edm::LogError("SiPixelFrameReverter::findLinkInFed") << " Error: status "<<status<<" returned";
-    return -1;
-  } else return cabling.link;
+  std::vector<CablingPathToDetUnit> path = map_->pathToDetUnit(detId);
+  typedef  std::vector<CablingPathToDetUnit>::const_iterator IT;
+  for  (IT it = path.begin(); it != path.end(); ++it) {
+    const PixelROC * roc = map_->findItem(*it); 
+
+    GlobalPixel global = {row, col};
+    LocalPixel local = roc->toLocal(global);
+
+    if(!local.valid()) continue;
+    int link = (int) it->link;
+    return link;
+  }
+  return -1;
 }
 
 
 int SiPixelFrameReverter::findRocInLink(uint32_t detId, int row, int col)
 {
-  DetectorIndex detector = {detId, row, col};
-  ElectronicIndex  cabling;
-  int status  = DetToFedMap[detId].second->toCabling(cabling, detector);
-  if (status) {
-    edm::LogError("SiPixelFrameReverter::findRocInLink") << " Error: status "<<status<<" returned";
-    return -1;
-  } else return cabling.roc;
+  std::vector<CablingPathToDetUnit> path = map_->pathToDetUnit(detId);
+  typedef  std::vector<CablingPathToDetUnit>::const_iterator IT;
+  for  (IT it = path.begin(); it != path.end(); ++it) {
+    const PixelROC * roc = map_->findItem(*it); 
+
+    GlobalPixel global = {row, col};
+    LocalPixel local = roc->toLocal(global);
+
+    if(!local.valid()) continue;
+    int rocInLink = (int) roc->idInLink();
+    return rocInLink;
+  }
+  return -1;
 }
 
 
 int SiPixelFrameReverter::findRocInDet(uint32_t detId, int row, int col)
 {
-  DetectorIndex detector = {detId, row, col};
-  ElectronicIndex  cabling;
-  int status  = DetToFedMap[detId].second->toCabling(cabling, detector);
-  if (status) {
-    edm::LogError("SiPixelFrameReverter::findRocInDet") << " Error: status "<<status<<" returned";
-    return -1;
-  } else {
-    int fedId = DetToFedMap[detId].first;
-    const sipixelobjects::PixelFEDCabling & theFed = *(*tree_).fed( fedId );
-    const PixelFEDLink * link = theFed.link( cabling.link);
-    const PixelROC * roc = link->roc(cabling.roc);
-    int rocInDet = roc->idInDetUnit();
+  std::vector<CablingPathToDetUnit> path = map_->pathToDetUnit(detId);
+  typedef  std::vector<CablingPathToDetUnit>::const_iterator IT;
+  for  (IT it = path.begin(); it != path.end(); ++it) {
+    const PixelROC * roc = map_->findItem(*it); 
+
+    GlobalPixel global = {row, col};
+    LocalPixel local = roc->toLocal(global);
+
+    if(!local.valid()) continue;
+    int rocInDet = (int) roc->idInDetUnit();
     return rocInDet;
   }
+  return -1;
 }
 
 
 LocalPixel SiPixelFrameReverter::findPixelInRoc(uint32_t detId, int row, int col)
 {
-  DetectorIndex detector = {detId, row, col};
-  ElectronicIndex  cabling;
-  int status  = DetToFedMap[detId].second->toCabling(cabling, detector);
-  if (status) {
-    edm::LogError("SiPixelFrameReverter::findPixelInROC") << " Error: status "<<status<<" returned";
-  } else {
-    int fedId = DetToFedMap[detId].first;
-    const sipixelobjects::PixelFEDCabling & theFed = *(*tree_).fed( fedId );
-    const PixelFEDLink * link = theFed.link( cabling.link);
-    const PixelROC * roc = link->roc(cabling.roc);
-    GlobalPixel global = {row, col};
-    LocalPixel  local = roc->toLocal(global);
-    return local;
-  }
-}
+  std::vector<CablingPathToDetUnit> path = map_->pathToDetUnit(detId);
+  typedef  std::vector<CablingPathToDetUnit>::const_iterator IT;
+  for  (IT it = path.begin(); it != path.end(); ++it) {
+    const PixelROC * roc = map_->findItem(*it); 
 
-/*
-LocalPixel::DcolPxid SiPixelFrameReverter::findPixelInDcol(uint32_t detId, int row, int col)
-{
-  DetectorIndex detector = {detId, row, col};
-  ElectronicIndex  cabling;
-  int status  = DetToFedMap[detId].second->toCabling(cabling, detector);
-  if (status) {
-    edm::LogError("SiPixelFrameReverter::findPixelInDcol") << " Error: status "<<status<<" returned";
-    return -1;
-  } else {
-    LocalPixel::DcolPxid local = { cabling.dcol, cabling.pxid };
+    GlobalPixel global = {row, col};
+    LocalPixel local = roc->toLocal(global);
+
+    if(!local.valid()) continue;
     return local;
   }
 }
-*/
