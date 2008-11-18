@@ -8,8 +8,8 @@
  *
  * \file DCCTCCBlock.h
  *
- * $Date: 2007/08/15 14:23:28 $
- * $Revision: 1.6 $
+ * $Date: 2008/11/04 18:09:46 $
+ * $Revision: 1.7 $
  *
  * \author N. Almeida
  * 
@@ -61,6 +61,7 @@ class DCCTCCBlock : public DCCDataBlockPrototype {
     uint nTSamples_;
     uint expNumbTTs_;
     uint expTccId_;
+	uint ps_;
     
     EcalTrigTowerDetId * pTTDetId_;   
     EcalTriggerPrimitiveDigi * pTP_;

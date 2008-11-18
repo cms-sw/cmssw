@@ -14,6 +14,24 @@ int DCCTCCBlock::unpack(uint64_t ** data, uint * dwToEnd, short tccChId){
   datap_      = data;
   data_       = *data;
   
+  // Need at least 1 dw to findout if pseudo-strips readout is enabled
+  if(*dwToEnd == 1){
+    if( ! DCCDataUnpacker::silentMode_ ){
+      edm::LogWarning("EcalRawToDigiDevTCC")
+        <<"EcalRawToDigi@SUB=DCCTCCBlock:unpack"
+        <<"\n Unable to unpack TCC block for event "<<event_->l1A()<<" in fed "<<mapper_->getActiveDCC()
+        <<"\n Only 8 bytes are available until the end of event ..."
+        <<"\n => Skipping to next fed block...";
+     }
+    
+    //todo : add this to error colection
+    
+    return STOP_EVENT_UNPACKING;
+  }
+
+  blockLength_ = getLength();
+  
+  
   if( (*dwToEnd_)<blockLength_ ){
     if( ! DCCDataUnpacker::silentMode_ ){
       edm::LogWarning("EcalRawToDigiDevTCC")
@@ -28,12 +46,15 @@ int DCCTCCBlock::unpack(uint64_t ** data, uint * dwToEnd, short tccChId){
     return STOP_EVENT_UNPACKING;
   }
   
+  
+  
   if(unpackInternalData_){ 
   
     //  Go to the begining of the tcc block
     data_++;
   
     tccId_    = ( *data_ )           & TCC_ID_MASK;
+	ps_       = ( *data_>>TCC_PS_B ) & B_MASK;      
     bx_       = ( *data_>>TCC_BX_B ) & TCC_BX_MASK;
     l1_       = ( *data_>>TCC_L1_B ) & TCC_L1_MASK;
     nTTs_     = ( *data_>>TCC_TT_B ) & TCC_TT_MASK;

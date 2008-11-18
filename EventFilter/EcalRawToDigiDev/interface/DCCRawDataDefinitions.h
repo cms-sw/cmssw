@@ -43,6 +43,9 @@ enum globalFieds{
   NUMB_TCC            = 108,
   NUMB_XTAL           = 5,
   NUMB_STRIP          = 5,
+  NUMB_PSEUDOSTRIPS   = 30,
+  NUMB_TTS_TPG1       = 16,
+  NUMB_TTS_TPG2       = 12,
 
   NUMB_SM_EE_MIN_MIN  = 1,
   NUMB_SM_EE_MIN_MAX  = 9,
@@ -173,6 +176,8 @@ enum towerFields{
 enum tccFields{
   
    TCC_ID_MASK         = 0xFF,
+   
+   TCC_PS_B            = 11,
  
    TCC_BX_MASK         = 0xFFF,
    TCC_BX_B            = 16,

@@ -6,8 +6,8 @@
  * Prototype for ECAL data block unpacking
  * \file DCCDataBlockPrototype.h
  *
- * $Date: 2008/03/09 19:42:57 $
- * $Revision: 1.7 $
+ * $Date: 2008/11/04 18:09:46 $
+ * $Revision: 1.8 $
  * \author N. Almeida
  *
 */
@@ -62,7 +62,7 @@ class DCCDataBlockPrototype {
 
     }
     
-    uint getLength(){ return blockLength_; }
+    virtual uint getLength(){ return blockLength_; }
 
   
   protected :
