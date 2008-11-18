@@ -9,6 +9,10 @@ from optparse import OptionParser
 
 
 def testFileType( file, ext ):
+
+     if file == "None":
+          return
+     
      if os.path.isfile( file ) == False:
           print '%s is not a file' % file
           sys.exit(2)
@@ -18,28 +22,61 @@ def testFileType( file, ext ):
           print '%s does not end with %s' % (file, ext) 
           sys.exit(3)
 
+def processFile( file, outputDir ):
+ 
+     if file == "None":
+          return 'infoNotFound.html'
+     else:
+          shutil.copy(file, outputDir)
+          return os.path.basename(file)
+     
+     
+     
+
 
 parser = OptionParser()
-parser.usage = "usage: %prog <dir with plots> <py generator config> <py sim config> <by benchmark config> <.C plot macro> <template>"
+parser.usage = "usage: %prog <dir with plots> <template>"
 
-
+parser.add_option("-r", "--recipe", dest="recipe",
+                  help="url pointing to a recipe",
+                  default="None")
 parser.add_option("-t", "--title", dest="title",
                   help="Benchmark title",
                   default="")
+parser.add_option("-g", "--gensource", dest="pyGenSource",
+                  help="python file for the source of the generated events",
+                  default="None")
+
+parser.add_option("-s", "--simulation", dest="pySim",
+                  help="python file for the simulation",
+                  default="None")
+
+parser.add_option("-b", "--benchmark", dest="pyBenchmark",
+                  help="python file for the production of the benchmark root files",
+                  default="None")
+
+parser.add_option("-m", "--macro", dest="macro",
+                  help="root macro used for the benchmark plots",
+                  default="None")
+
+
+
 
 (options,args) = parser.parse_args()
  
-if len(args)!=6:
+if len(args)!=2:
     parser.print_help()
     sys.exit(1)
 
 
 dirPlots = args[0]
-genConfig = args[1]
-simConfig = args[2]
-benchmarkConfig = args[3]
-macro = args[4]
-template = args[5]
+templates = args[1]
+
+recipe = options.recipe
+genConfig = options.pyGenSource
+simConfig = options.pySim
+benchmarkConfig = options.pyBenchmark
+macro = options.macro
 
 # information about CMSSW
 cmssw = os.environ['CMSSW_VERSION']
@@ -69,7 +106,11 @@ testFileType(genConfig, ".py")
 testFileType(simConfig, ".py")
 testFileType(benchmarkConfig, ".py")
 testFileType(macro, ".C")
-testFileType(template, ".html")
+
+indexhtml = "%s/%s" % (templates,"index.html")
+testFileType(indexhtml, ".html")
+infonotfoundhtml = "%s/%s" % (templates,"infoNotFound.html")
+testFileType(infonotfoundhtml, ".html")
 
 
 title = os.path.basename( os.getcwd() ) 
@@ -82,12 +123,12 @@ else:
      os.mkdir( outputDir )
 
 
-ifile = open( template )
-indexTemplate = ifile.read()
 
-for file in ( genConfig, simConfig, benchmarkConfig, macro):
-     shutil.copy(file, outputDir) 
-   
+recipeLink = processFile( recipe, outputDir )
+genConfigLink = processFile(genConfig, outputDir  )
+simConfigLink = processFile( simConfig, outputDir )
+benchmarkConfigLink = processFile( benchmarkConfig, outputDir )
+macroLink = processFile(macro, outputDir  )
 
 comments = 'no comment'
 
@@ -99,22 +140,39 @@ for pic in pictures:
     images = "%s\t%s\n" % (images, img)
     shutil.copy(pic, outputDir) 
 
-#print images 
+
+
+
+ifile = open( indexhtml )
+indexTemplate = ifile.read()
 
 s = Template(indexTemplate)
-subst = s.substitute(title = title, 
+subst = s.substitute(title = title,
+                     recipe = recipe,
+                     recipeLink = recipeLink,
                      genConfig = os.path.basename(genConfig),
-                     images = images, 
+                     genConfigLink = genConfigLink,
                      simConfig = os.path.basename(simConfig),
+                     simConfigLink = simConfigLink,
                      benchmarkConfig = os.path.basename(benchmarkConfig),
+                     benchmarkConfigLink = benchmarkConfigLink,
                      macro =  os.path.basename(macro), 
+                     macroLink = macroLink, 
                      comments = comments,
                      cmssw = cmssw,
-                     showTags = showTags
+                     showTags = showTags,
+                     images = images, 
                      )
-
-
-
 ofile = open( '%s/index.html' % outputDir, 'w' )
 ofile.write( subst )
+
+
+ifile = open( infonotfoundhtml )
+infoNotFoundTemplate = ifile.read()
+s2 = Template(infoNotFoundTemplate)
+subst2 = s2.substitute( username = os.environ['USER'] )
+ofile2 = open( '%s/infoNotFound.html' % outputDir, 'w' )
+ofile2.write( subst2 )
+
+
 
