@@ -63,7 +63,9 @@ roadSearchSeeds = cms.EDFilter("RoadSearchSeedFinder",
     # strip rechit collections
     matchedStripRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
     # In the case of double sided sensors, return in addition to matched also rphi rechits which have not been matched
-    InnerSeedRecHitAccessUseRPhi = cms.bool(False)
+    InnerSeedRecHitAccessUseRPhi = cms.bool(False),
+    # Cut on max allowed # of seeds
+    MaxNumberOfSeeds = cms.int32(-1)
 )
 
 

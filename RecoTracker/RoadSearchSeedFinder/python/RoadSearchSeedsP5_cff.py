@@ -19,4 +19,4 @@ roadSearchSeedsP5.InnerSeedRecHitAccessUseStereo = True
 roadSearchSeedsP5.OuterSeedRecHitAccessMode = 'STANDARD'
 roadSearchSeedsP5.OuterSeedRecHitAccessUseRPhi = True
 roadSearchSeedsP5.OuterSeedRecHitAccessUseStereo = True
-
+roadSearchSeedsP5.MaxNumberOfSeeds = 1000
