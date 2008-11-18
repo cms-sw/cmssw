@@ -202,7 +202,7 @@ process.source = cms.Source("PoolSource",
         '/store/data/Commissioning08/Cosmics/RECO/v1/000/067/173/BA055C49-33A1-DD11-B902-000423D99394.root'   
     )
                             )
-process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(10000))
+process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(100000))
 
 process.ctfWithMaterialTracksP5TkCntFilter = cms.EDFilter("TrackCountFilter",
                                                           src = cms.InputTag('ctfWithMaterialTracksP5'),

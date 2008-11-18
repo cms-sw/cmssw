@@ -140,7 +140,6 @@ namespace cms{
 	      double peak=0;
 	      double fwhm=0;
 	      langausN(h,peak,fwhm,0,0,true,"RB");
-	      edm::LogInfo("ClusterThr") << "Fitting" << std::endl;
 	      h->Write();
 	      values[iMPVs]=peak;
 	      values[iFWHMs]=fwhm;
@@ -496,7 +495,7 @@ namespace cms{
 	//if the amplitude of the strip is less than the NeighbourThr*NoiseOfTheStrip it goes out
 	if (stripAmplitudes_[istrip]<Thn*stripNoises_[istrip])
 	  continue;
-	if(stripAmplitudes_[istrip]<2*stripNoises_[istrip] edm::LogInfo("ClusterThr") << "Under digi threshold??" << std::endl;
+	if(stripAmplitudes_[istrip]<2*stripNoises_[istrip]) edm::LogInfo("ClusterThr") << "Under digi threshold??" << std::endl;
 	Signal+=stripAmplitudes_[istrip];//increase Signal with the sum of the amplitudes of all the strips of the cluster
 	Noise+=stripNoises_[istrip]*stripNoises_[istrip];//increase Noise with the sum of the strip noise squared
 	Nstrip++;//increase the strip counter

@@ -259,7 +259,7 @@ void langaus( TH1F *poHist) {
 
 void langausN( TH1F *poHist,double start=0, double stop=0) {
   // Fill Histogram
-  printf("Fitting...\n");
+  cout << "Fitting... " << poHist << endl;
 
   // Setting fit range and start values
   Double_t fr[2];
@@ -291,7 +291,7 @@ void langausN( TH1F *poHist,double start=0, double stop=0) {
 }
 void langausN( TH1F *poHist,Double_t& SNRPeak,Double_t& SNRFWHM,double start=0, double stop=0,bool draw=false, char* opts="RB0") {
   // Fill Histogram
-  printf("Fitting...\n");
+  cout << "Fitting... " << poHist << endl;
 
   // Setting fit range and start values
   Double_t fr[2];
@@ -320,7 +320,7 @@ void langausN( TH1F *poHist,Double_t& SNRPeak,Double_t& SNRFWHM,double start=0, 
 
   SNRPeak=fitparams[1];
   SNRFWHM=fitparams[0];
-  cout << SNRPeak << " " << SNRFWHM << endl;
+  cout << "peak " << SNRPeak << ", fwhm " << SNRFWHM << endl;
   if (draw){
     printf("Fitting done\nPlotting results...\n");
 
