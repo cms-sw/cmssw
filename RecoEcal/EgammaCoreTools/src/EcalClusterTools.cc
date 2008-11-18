@@ -180,7 +180,10 @@ float EcalClusterTools::e2nd( const reco::BasicCluster &cluster, const EcalRecHi
         for ( size_t i = 0; i < v_id.size(); ++i ) {
                 energies.push_back( recHitEnergy( v_id[i], recHits ) );
         }
-       	return *std::max_element(energies.begin(),energies.end());
+        energies.sort(); 	         
+	return *--(--energies.end());
+	
+
 }
 
 
