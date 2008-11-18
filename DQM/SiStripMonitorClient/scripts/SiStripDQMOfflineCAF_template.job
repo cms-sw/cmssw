@@ -7,7 +7,7 @@ set job=JOB_NAME
 set tmpdir=/tmp/$USER/$run/$job
 mkdir -p $tmpdir
 cd CURRENT_DIR/$run/$job
-cmsRun SiStripDQMOfflineGlobalRunCAF.cfg >! DQM_SiStrip_${run}.log
+cmsRun SiStripDQMOfflineGlobalRunCAF_cfg.py >! DQM_SiStrip_${run}.log
 COPY $tmpdir/DQM_SiStrip_${run}.root OUTPUT_DIR/DQM_SiStrip_${job}.root
 COPY DQM_SiStrip_${run}.log OUTPUT_DIR/DQM_SiStrip_${job}.log
 rm -rf $tmpdir

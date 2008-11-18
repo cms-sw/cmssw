@@ -1,35 +1,15 @@
 #include "PhysicsTools/Utilities/src/ExpressionVar.h"
+#include "FWCore/Utilities/interface/EDMException.h"
 #include "Reflex/Object.h"
-#include <assert.h>
 using namespace reco::parser;
 using namespace ROOT::Reflex;
 using namespace std;
 
 ExpressionVar::ExpressionVar(const vector<MethodInvoker>& methods, method::TypeCode retType) : 
   methods_(methods), retType_(retType) { 
-}
-
-bool ExpressionVar::isValidReturnType(method::TypeCode retType)
-{
-   using namespace method;
-   bool ret = false;
-   switch(retType) {
-      case(doubleType) : ret = true; break;
-      case(floatType ) : ret = true; break;
-      case(intType   ) : ret = true; break;
-      case(uIntType  ) : ret = true; break;
-      case(shortType ) : ret = true; break;
-      case(uShortType) : ret = true; break;
-      case(longType  ) : ret = true; break;
-      case(uLongType ) : ret = true; break;
-      case(charType  ) : ret = true; break;
-      case(uCharType ) : ret = true; break;
-      case(boolType  ) : ret = true; break;
-      case(invalid):
-      default:
-        break;
-   }
-   return ret;
+  if(retType == method::invalid)
+    throw edm::Exception(edm::errors::Configuration)
+      << "ExpressionVar: invalid return type\n";
 }
 
 double ExpressionVar::value(const Object & o) const {
@@ -54,7 +34,10 @@ double ExpressionVar::value(const Object & o) const {
   case(uCharType ) : ret = * static_cast<unsigned char  *>(addr); break;
   case(boolType  ) : ret = * static_cast<bool           *>(addr); break;
   default:
-  assert(false);
+    throw edm::Exception(edm::errors::Configuration)
+      << "parser error: method \"" << methods_.back().method().Name() 
+      << "\" return type is \"" << methods_.back().method().TypeOf().Name() 
+      << "\" which is not convertible to double\n";
   };
   return ret;
 }

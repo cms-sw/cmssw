@@ -16,7 +16,7 @@
 //
 // Original Author:  Dan Riley
 //         Created:  Tue May 20 10:31:32 EDT 2008
-// $Id: BranchMapReader.h,v 1.1 2008/06/03 17:35:03 dsr Exp $
+// $Id: BranchMapReader.h,v 1.2 2008/06/12 22:21:30 dsr Exp $
 //
 
 // system include files
@@ -38,7 +38,7 @@ namespace fwlite {
 
   class BranchMapReader {
   public:
-    typedef edm::BranchMapper<edm::EventEntryInfo> eeiMap;
+    typedef edm::BranchMapper eeiMap;
     typedef std::map<edm::BranchID, edm::BranchDescription> bidToDesc;
 
     BranchMapReader(TFile* file);

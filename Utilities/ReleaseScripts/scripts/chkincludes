@@ -50,14 +50,14 @@ if($package eq ""){$package=$src;}
 if($clean)
 {
   my $msg=0;
-  foreach my $file (`find ${localtop}/${src} -name "*.original_file_wo_incchk_changes" -type f`)
+  foreach my $file (`find ${tmpdir}/inccopy/self -name "*.original_file_wo_incchk_changes" -type f`)
   {
     chomp $file;
     $file=~s/\.original_file_wo_incchk_changes//;
-    my $rf=$file; $rf=~s/^${localtop}\/${src}\///;
+    my $rf=$file; $rf=~s/^${tmpdir}\/inccopy\/self\/inc\d+\///;
     if(!$msg){print "Copying original files back to ${localtop}/${src}:\n";$msg=1;}
     print "  $rf\n";
-    system("mv ${file}.original_file_wo_incchk_changes $file");
+    system("mv ${file}.original_file_wo_incchk_changes $file; cp -f $file ${localtop}/src/${rf}");
   }
   if (-d $tmpdir)
   {
@@ -133,6 +133,9 @@ sub processPack ()
     if(-f "extra_includechecker.conf"){system("cat extra_includechecker.conf >> $configfile");}
     &updateMapping($configfile,$incmap);
   }
+  print ">> Waiting for copy process to finish .... ";
+  &SCRAMGenUtils::waitForChild ();
+  print "[ DONE ]\n";
   print ">> Running \"includechecker.pl --config $configfile --tmpdir $tmpdir --keep --detail --recursive --local --skipheaders $xincargs\"\n";
   print ">> Log file for the includechecker.pl processing: ${tmpdir}/log/${uniqpack}\n";
   system("${scriptdir}/includechecker.pl --config $configfile --tmpdir $tmpdir --keep --detail --recursive --local --skipheaders $xincargs 2>&1 > ${tmpdir}/log/${uniqpack}");
@@ -164,20 +167,10 @@ sub processResult ()
       if(exists $cache->{read}{$rf}){next;}
       $cache->{read}{$rf}=1;
       $total++;
-      foreach my $line (`cat $f`)
-      {
-        chomp $line;
-        if($line=~/^\s*\'(ERROR|INTERNAL_SKIP|FINAL_DONE)\'\s*\=\>\s*(\d+)\,\s*$/)
-        {
-	  my $type=$1; my $val=$2;
-	  if($val == 1)
-	  {
-	    if($type eq "ERROR"){push @$failed,$rf;}
-	    elsif($type eq "FINAL_DONE"){push @$done,$rf;}
-	    else{push @$skipped,$rf;}
-	  }
-        }
-      }
+      my $ref=&SCRAMGenUtils::readHashCache($f);
+      if ((exists $ref->{ERROR}) && ($ref->{ERROR}==1)){push @$failed,$rf;next;}
+      if ((exists $ref->{FINAL_DONE}) && ($ref->{FINAL_DONE}==1)){push @$done,$rf;next;}
+      if ((exists $ref->{INTERNAL_SKIP}) && ($ref->{INTERNAL_SKIP}==1)){push @$skipped,$rf;next;}
     }
   }
   print "Total files checked:           $total\n";
@@ -280,7 +273,7 @@ sub copyExternalIncludes ()
 	    if (($t eq "self") && ($d eq "${release}/${src}"))
 	    {
 	      $localbackup="${des}/${t}/${inc}";
-	      &syncDirs("${release}/${src}","${des}/${t}/${inc}");
+	      &syncDirs("${release}/${src}",$localbackup);
 	    }
 	  }
 	}
@@ -312,7 +305,9 @@ sub copyExternalIncludes ()
         if(!$link)
 	{
 	  if($detail){print "  Copying: $d -> ${des}/${t}/${inc}\n";}
-	  system("cp -rL $d ${des}/${t}/${inc}");$link="../${t}/${inc}";
+	  my $pid=&SCRAMGenUtils::forkProcess(10);
+	  if ($pid==0){system("cp -rL $d ${des}/${t}/${inc}"); exit 0;}
+	  $link="../${t}/${inc}";
 	}
         else{system("cd ${des}/${t}; ln -s ${link} $inc");}
       }
@@ -382,7 +377,7 @@ sub help_msg ()
 	"            By default it runs for all sub-system(s) available under\n",
 	"            your src directory.\n",
 	" --clean  To cleanup preveious modifications made by include checker.\n",
-	" --vclean Same as clean but it also deletes the copy external includes.\n",
+	" --vclean Same as clean but it also deletes the copy of external includes.\n",
 	" --update To remove the include checker comments from the modified files\n",
 	"          in your src directory.\n",
 	" --detail For detail output messages.\n";

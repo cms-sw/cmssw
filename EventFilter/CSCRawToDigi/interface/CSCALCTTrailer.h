@@ -12,22 +12,14 @@
 struct CSCALCTTrailer2006 {
   CSCALCTTrailer2006() {
     bzero(this,  sizeInWords()*2); ///size of the trailer
-      e0dLine = 0xDE0D;
-      d_0=0xD;
-      d_1=0xD;
-      zero_0 = 0;
-      zero_1 = 0;
-      d_3 = 0xD;
-      reserved_3 = 1;
   }
-  void setSize(int size) {frameCount = size;}
   short unsigned int sizeInWords() const { ///size of ALCT Header
     return 4;
   }
-  unsigned crc0:11, zero_0:1, d_0:4;
-  unsigned crc1:11, zero_1:1, d_1:4;
+  unsigned crc0:11, reserved_0:5;
+  unsigned crc1:11, reserved_1:5;
   unsigned e0dLine:16;
-  unsigned frameCount:11, reserved_3:1, d_3:4;
+  unsigned frameCount:11, reserved_3:1, reserved_4:4;
 };
 
 struct CSCALCTTrailer2007 {
@@ -49,7 +41,7 @@ class CSCALCTTrailer
 {
 public:
   ///needed for packing
-  CSCALCTTrailer(int size, int firmVersion);
+  CSCALCTTrailer();
   CSCALCTTrailer(const unsigned short * buf);
   CSCALCTTrailer(const CSCALCTStatusDigi & digi) {
     CSCALCTTrailer(digi.trailer());
@@ -60,7 +52,7 @@ public:
   unsigned short * data() {
     switch (firmwareVersion) {
     case 2006:
-      memcpy(theOriginalBuffer, &trailer2006, trailer2006.sizeInWords()*2);
+      memcpy(theOriginalBuffer, &trailer2006, trailer2007.sizeInWords()*2);
       break;
     case 2007:
       memcpy(theOriginalBuffer, &trailer2007, trailer2007.sizeInWords()*2);

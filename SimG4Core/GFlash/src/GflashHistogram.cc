@@ -42,7 +42,6 @@ void GflashHistogram::bookHistogram(TString histFileName)
   deltaStep        = new TH1F("deltaStep","Delta Step",200,0.0,100.);
   kineticEnergy    = new TH1F("kineticEnergy","Kinetic Energy",200,0.0,200.);
   energyLoss       = new TH1F("energyLoss","Energy Loss",200,0.0,200.);
-  energyRatio      = new TH1F("energyRatio","energyLeading/energyTotal",200,0.0,1.);
 
   histFile_->mkdir("GflashHadronShowerProfile");
   histFile_->cd("GflashHadronShowerProfile");

@@ -65,18 +65,19 @@ L1TDEMON::beginJob(const edm::EventSetup&) {
     const int nerr = 5; 
     errordist = dbe->book1D("errorflag","errorflag",nerr, 0, nerr);
 
-    const double tpi = 6.2832;
-    const double amin=   -0.5;
-    const double amax=tpi+0.5;
+    //physical values disabled now, waiting for scale procedure 
+    //const double tpi = 6.2832;
+    //const double amin=   -0.5;
+    //const double amax=tpi+0.5;
 
     //                           ETP,  HTP,  RCT, GCT, DTP, DTF,  CTP, CTF, RPC,LTC, GMT,GLT
-    int    phiNBins[DEnsys] = { 71  , 71  , 18  ,18  ,  12, 255,   12, 255, 255,  0, 100,0};
-    double phiMinim[DEnsys] = {  0.5,  0.5,- 0.5,-0.5,-0.5,   0, -0.5,   0,   0,  0,amin,0};
-    double phiMaxim[DEnsys] = { 71.5, 71.5, 17.5,17.5,11.5, 255, 11.5, 255, 255,  0,amax,0};
+    int    phiNBins[DEnsys] = { 71  , 71  , 18  ,18  ,  12, 255,   12, 255, 255,  0, 255,0};
+    double phiMinim[DEnsys] = {  0.5,  0.5,- 0.5,-0.5,-0.5,   0, -0.5,   0,   0,  0,   0,0};
+    double phiMaxim[DEnsys] = { 71.5, 71.5, 17.5,17.5,11.5, 255, 11.5, 255, 255,  0, 255,0};
 				     	       	      		    
-    int    etaNBins[DEnsys] = { 35  , 35  , 22  ,22  ,   5,  20,    4,  20,  20,  0, 100,0};
-    double etaMinim[DEnsys] = {-17.5,-17.5,- 0.5,-0.5,-2.5,   0, -0.5,   0,   0,  0,-2.5,0};
-    double etaMaxim[DEnsys] = { 17.5, 17.5, 21.5,21.5, 2.5,  63,  3.5,  63,  63,  0, 2.5,0};
+    int    etaNBins[DEnsys] = { 35  , 35  , 22  ,22  ,   5,  20,    4,  20,  20,  0, 20,0};
+    double etaMinim[DEnsys] = {-17.5,-17.5,- 0.5,-0.5,-2.5,   0, -0.5,   0,   0,  0,  0,0};
+    double etaMaxim[DEnsys] = { 17.5, 17.5, 21.5,21.5, 2.5,  63,  3.5,  63,  63,  0, 63,0};
 					       	   
     int    x3NBins [DEnsys] = {    0,    0,    0,   0,   4,   0,    0,   0,   0,  0,   0,0};
     double x3Minim [DEnsys] = {    0,    0,    0,   0, 0.5,   0,    0,   0,   0,  0,   0,0};
@@ -277,6 +278,15 @@ L1TDEMON::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   edm::Handle<L1DataEmulRecord> deRecord;
   iEvent.getByLabel(DEsource_, deRecord);
   
+  if (!deRecord.isValid()) {
+    edm::LogInfo("DataNotFound") 
+      << "Cannot find L1DataEmulRecord with label "
+      << DEsource_.label() 
+      << " Please verrify that comparator was successfully executed."
+      << std::endl;
+      return;
+  }
+
   bool deMatch[DEnsys];
   deRecord->get_status(deMatch);  
   if(verbose()) {

@@ -33,12 +33,15 @@ RPCEventSummary::RPCEventSummary(const ParameterSet& ps ){
 
 RPCEventSummary::~RPCEventSummary(){
   LogVerbatim ("rpceventsummary") << "[RPCEventSummary]: Destructor ";
+
   dbe_=0;
 }
 
 void RPCEventSummary::beginJob(const EventSetup& iSetup){
  LogVerbatim ("rpceventsummary") << "[RPCEventSummary]: Begin job ";
+  
  dbe_ = Service<DQMStore>().operator->();
+
  dbe_->setVerbose(verbose_);
 }
 
@@ -90,28 +93,33 @@ void RPCEventSummary::beginRun(const Run& r, const EventSetup& c){
   for(int i=1; i<=15; i++){
      for (int j=1; j<=12; j++ ){
        if(i==5 || i==11 || (j>6 && (i<6 || i>10)))    
-	 me->setBinContent(i,j,-1);//bins that not correspond to subdetector parts
+	 me->setBinContent(i,j,-1);
        else     
 	 me->setBinContent(i,j,1);
      }
    }
 
+
+
+
  //the reportSummaryContents folder containins a collection of ME floats [0-1] (order of 5-10)
  // which describe the behavior of the respective subsystem sub-components.
-  dbe_->setCurrentFolder(eventInfoPath_+ "/reportSummaryContents");
-  
-  stringstream segName;
-  for(int i=-4; i<=4; i++){
-    if(i>-3 && i<3) {
-      segName.str("");
-      segName<<"RPC_Wheel"<<i;
-      segmentNames.push_back(segName.str());
-    }
-    if(i==0) continue;
-    segName.str("");
-    segName<<"RPC_Disk"<<i;
-    segmentNames.push_back(segName.str());
-  }
+ dbe_->setCurrentFolder(eventInfoPath_+ "/reportSummaryContents");
+
+  segmentNames.push_back("RPC_Wheel-2");
+  segmentNames.push_back("RPC_Wheel-1");
+  segmentNames.push_back("RPC_Wheel0");
+  segmentNames.push_back("RPC_Wheel1");
+  segmentNames.push_back("RPC_Wheel2");
+
+  segmentNames.push_back("RPC_Disk-4");
+  segmentNames.push_back("RPC_Disk-3");
+  segmentNames.push_back("RPC_Disk-2");
+  segmentNames.push_back("RPC_Disk-1");
+  segmentNames.push_back("RPC_Disk1");
+  segmentNames.push_back("RPC_Disk2");
+  segmentNames.push_back("RPC_Disk3");
+  segmentNames.push_back("RPC_Disk4");
   
   //  segmentNames.push_back("RPC_DataIntegrity");
   // segmentNames.push_back("RPC_Timing");
@@ -131,7 +139,7 @@ void RPCEventSummary::analyze(const Event& iEvent, const EventSetup& c) {}
 
 void RPCEventSummary::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& iSetup) {  
   LogVerbatim ("rpceventsummary") <<"[RPCEventSummary]: End of LS transition, performing DQM client operation";
-
+  
   // counts number of lumiSegs 
   nLumiSegs_ = lumiSeg.id().luminosityBlock();
   //check some statements and prescale Factor
@@ -164,8 +172,8 @@ void RPCEventSummary::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSe
 	   barrelMap[detId.ring()][detId.sector()].first += goodFraction;
 	   barrelMap[detId.ring()][detId.sector()].second++ ;
 	 }else if(detId.region()==-1){
-	   endcapMinusMap[-1 * detId.station()][detId.sector()].first +=  badChannels.size();
-	   endcapMinusMap[-1 * detId.station()][detId.sector()].second+=(*r)->nstrips() ;
+	   endcapMinusMap[detId.station()][detId.sector()].first +=  badChannels.size();
+	   endcapMinusMap[detId.station()][detId.sector()].second+=(*r)->nstrips() ;
 	 }else {
 	   endcapPlusMap[detId.station()][detId.sector()].first +=  badChannels.size();
 	   endcapPlusMap[detId.station()][detId.sector()].second+=(*r)->nstrips();
@@ -175,81 +183,91 @@ void RPCEventSummary::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSe
     }
   }//End loop on chamber
   
-  //clear counters
-  allRolls_=0;
-  allGood_=0;
-  
-  this->fillReportSummary(barrelMap, 0);
-  
-  this->fillReportSummary(endcapPlusMap, 1);
-  
-  this->fillReportSummary(endcapMinusMap, -1);
-
-  //Fill report summary
+  //fill report Summary MEs
   MonitorElement *   reportSummary = dbe_->get(eventInfoPath_ +"/reportSummary");
-  if(reportSummary == NULL) return;
-
-  if (allRolls_!=0)   reportSummary->Fill(allGood_/allRolls_);
-  else reportSummary->Fill(-1);
-}
-
-
-//Fill report summary
-void  RPCEventSummary::fillReportSummary(const map<int,map<int,pair<float,float> > > & sumMap, int region){
-
   MonitorElement *   reportSummaryMap = dbe_->get(eventInfoPath_ +"/reportSummaryMap");
-  
-  string path;
-  int binOffSet=0;
+  // MonitorElement *   reportSummaryBarrel = dbe_->get(eventInfoPath_ +"/reportSummaryContents/RPCSummaryBarrel");
 
-  if (region==0){
-    path="/reportSummaryContents/RPC_Wheel";
-    binOffSet=8;
-  }else if (region==1){
-    path="/reportSummaryContents/RPC_Disk";
-    binOffSet=11;
-  }else if (region==-1){
-    path="/reportSummaryContents/RPC_Disk-";
-    binOffSet=5;
-  }
+  
 
   map<int,map<int,pair<float,float> > >::const_iterator itr;
   stringstream meName;
 
-  if (sumMap.size()!=0){
-    //Loop on  report summary data 
-    for (itr=sumMap.begin(); itr!=sumMap.end(); itr++){
-      float Rolls=0; 
-      float Good=0;
-      for (map< int ,  pair<float,float> >::const_iterator meItr = (*itr).second.begin(); meItr!=(*itr).second.end();meItr++){
-	//Fill report summary map, a TH2F ME.
-	if ((*meItr).second.second != 0) 
-	  reportSummaryMap->setBinContent((*itr).first+binOffSet,(*meItr).first, ((*meItr).second.first/(*meItr).second.second) ); 
-	else reportSummaryMap->setBinContent((*itr).first+binOffSet,(*meItr).first,-1);
-	Good += (*meItr).second.first;
-	Rolls  += (*meItr).second.second;
-      }
-      allGood_ += Good;
-      allRolls_ +=  Rolls ;
-      //Fill wheel/disk report summary
-      meName.str("");
-      meName<<eventInfoPath_<<path<<(*itr).first;
-      MonitorElement *   reportSummaryContents = dbe_->get( meName.str());
-      if (Rolls != 0)  reportSummaryContents->Fill(Good/Rolls);
-      else reportSummaryContents->Fill(-1);
-    }  //End Loop on report summary data 
-  }else{
-    for (int j=0; j<=4; j++){
-      meName.str("");
-      meName<<eventInfoPath_<<path<<j;
-      MonitorElement *   reportSummaryContents = dbe_->get( meName.str());
-      if ( reportSummaryContents == NULL) continue;
-	reportSummaryContents->Fill(-1);
-      for(int h =1; h<=12; h++){
-	if(region!=0 && h>6) break; //endcap has only 6 sectors
-	if (region == -1)	reportSummaryMap->setBinContent(-j+binOffSet,h, -1); 
-	else reportSummaryMap->setBinContent(j+binOffSet,h, -1); 
-      }
-    }   
-  }
+  float allRolls=0;
+  float allGood=0;
+
+  //Loop on barrel report summary data 
+  for (itr=barrelMap.begin(); itr!=barrelMap.end(); itr++){
+    float wheelRolls=0; 
+    float wheelGood=0;
+    for (map< int ,  pair<float,float> >::const_iterator meItr = (*itr).second.begin(); meItr!=(*itr).second.end();meItr++){
+      //Fill report summary map, a TH2F ME.
+      if ((*meItr).second.second != 0) 
+	reportSummaryMap->setBinContent((*itr).first+8,(*meItr).first, ((*meItr).second.first/(*meItr).second.second) ); 
+      else reportSummaryMap->setBinContent((*itr).first+8,(*meItr).first,-1);
+      wheelGood += (*meItr).second.first;
+      wheelRolls += (*meItr).second.second;
+    }
+    allGood += wheelGood;
+    allRolls +=  wheelRolls ;
+    //Fill wheel/disk report summary
+    meName.str("");
+    meName<<eventInfoPath_<<"/reportSummaryContents/RPC_Wheel"<<(*itr).first;
+    MonitorElement *   reportSummaryContents = dbe_->get( meName.str());
+    if (wheelRolls != 0)  reportSummaryContents->Fill(wheelGood/wheelRolls);
+    else reportSummary->Fill(-1);
+  }  //End Loop on barrel report summary data 
+
+ //Loop on endcap+ report summary data 
+  for (itr=endcapPlusMap.begin(); itr!=endcapPlusMap.end(); itr++){
+    float diskPRolls=0; 
+    float diskPGood=0;
+    for (map< int ,  pair<float,float> >::const_iterator meItr = (*itr).second.begin(); meItr!=(*itr).second.end();meItr++){
+      //Fill report summary map, a TH2F ME.
+      if ((*meItr).second.second != 0) 
+	reportSummaryMap->setBinContent((*itr).first+11,(*meItr).first, ((*meItr).second.first/(*meItr).second.second) ); 
+      else reportSummaryMap->setBinContent((*itr).first+11,(*meItr).first,-1);
+     diskPGood += (*meItr).second.first;
+     diskPRolls  += (*meItr).second.second;
+    }
+    allGood += diskPGood;
+    allRolls +=  diskPRolls ;
+    //Fill wheel/disk report summary
+    meName.str("");
+    meName<<eventInfoPath_<<"/reportSummaryContents/RPC_Wheel"<<(*itr).first;
+    MonitorElement *   reportSummaryContents = dbe_->get( meName.str());
+    if (diskPRolls != 0)  reportSummaryContents->Fill(diskPGood/diskPRolls);
+    else reportSummary->Fill(-1);
+  }  //End Loop on endcap+ report summary data 
+
+ //Loop on endcap- report summary data 
+
+  for (itr=endcapMinusMap.begin(); itr!=endcapMinusMap.end(); itr++){
+    float diskMRolls=0; 
+    float diskMGood=0;
+    for (map< int ,  pair<float,float> >::const_iterator meItr = (*itr).second.begin(); meItr!=(*itr).second.end();meItr++){
+      //Fill report summary map, a TH2F ME.
+      if ((*meItr).second.second != 0) 
+	reportSummaryMap->setBinContent((-1*(*itr).first)+5,(*meItr).first, ((*meItr).second.first/(*meItr).second.second) ); 
+      else reportSummaryMap->setBinContent((-1*(*itr).first)+5,(*meItr).first,-1);
+     diskMGood += (*meItr).second.first;
+     diskMRolls  += (*meItr).second.second;
+    }
+    allGood += diskMGood;
+    allRolls +=  diskMRolls ;
+    //Fill wheel/disk report summary
+    meName.str("");
+    meName<<eventInfoPath_<<"/reportSummaryContents/RPC_Wheel"<<(*itr).first;
+    MonitorElement *   reportSummaryContents = dbe_->get( meName.str());
+    if (diskMRolls != 0)  reportSummaryContents->Fill(diskMGood/diskMRolls);
+    else reportSummary->Fill(-1);
+  }  //End Loop on endcap- report summary data 
+
+
+  //Fill report summary
+  if (allRolls!=0)   reportSummary->Fill(allGood/allRolls);
+  else reportSummary->Fill(-1);
 }
+
+
+

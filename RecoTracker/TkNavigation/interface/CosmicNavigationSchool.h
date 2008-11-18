@@ -21,7 +21,7 @@ public:
 
   class CosmicNavigationSchoolConfiguration{
   public:
-    CosmicNavigationSchoolConfiguration() : noPXB(false), noPXF(false), noTOB(false), noTIB(false), noTEC(false), noTID(false){}
+    CosmicNavigationSchoolConfiguration() : noPXB(false), noPXF(false), noTOB(false), noTIB(false), noTEC(false), noTID(false) , self(false), allSelf(false) {}
     CosmicNavigationSchoolConfiguration(const edm::ParameterSet conf);
     bool noPXB;
     bool noPXF;
@@ -29,6 +29,9 @@ public:
     bool noTIB;
     bool noTEC;
     bool noTID;
+    
+    bool self;
+    bool allSelf;
   };
 
   void build(const GeometricSearchTracker* theTracker,

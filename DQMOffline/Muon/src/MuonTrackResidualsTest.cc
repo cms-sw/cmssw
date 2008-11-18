@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/06/09 13:41:20 $
- *  $Revision: 1.5 $
+ *  $Date: 2008/07/16 13:20:43 $
+ *  $Revision: 1.6 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -39,8 +39,7 @@ MuonTrackResidualsTest::MuonTrackResidualsTest(const edm::ParameterSet& ps){
   parameters = ps;
 
   theDbe = edm::Service<DQMStore>().operator->();
-  theDbe->setVerbose(1);
-
+ 
   prescaleFactor = parameters.getUntrackedParameter<int>("diagnosticPrescale", 1);
 
 }

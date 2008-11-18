@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2008/08/12 14:33:19 $
- * $Revision: 1.146 $
+ * $Date: 2008/08/20 15:37:46 $
+ * $Revision: 1.148 $
  * \author G. Della Ricca
  *
 */
@@ -440,13 +440,13 @@ void EESummaryClient::setup(void) {
   }
 
   if( meCosmic_[0] ) dqmStore_->removeElement( meCosmic_[0]->getName() );
-  sprintf(histo, "EECT EE - quality summary");
+  sprintf(histo, "EECT EE - cosmic summary");
   meCosmic_[0] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
   meCosmic_[0]->setAxisTitle("jx", 1);
   meCosmic_[0]->setAxisTitle("jy", 2);
 
   if( meCosmic_[1] ) dqmStore_->removeElement( meCosmic_[1]->getName() );
-  sprintf(histo, "EECT EE + quality summary");
+  sprintf(histo, "EECT EE + cosmic summary");
   meCosmic_[1] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
   meCosmic_[1]->setAxisTitle("jx", 1);
   meCosmic_[1]->setAxisTitle("jy", 2);
@@ -1203,11 +1203,11 @@ void EESummaryClient::analyze(void) {
           if ( eetttc ) {
 
             if ( ism >= 1 && ism <= 9 ) {
-              if ( meTriggerTowerEmulError_[0]->getBinContent( jx, jy ) == 6 ) {
+              if ( meTriggerTowerEmulError_[0]->getBinContent( 101 - jx, jy ) == 6 ) {
                 if ( Numbers::validEE(ism, 101 - jx, jy) ) meTriggerTowerEmulError_[0]->setBinContent( 101 - jx, jy, 2 );
               }
             } else {
-              if ( meTriggerTowerEmulError_[1]->getBinContent( jx, jy ) == -1 ) {
+              if ( meTriggerTowerEmulError_[1]->getBinContent( jx, jy ) == 6 ) {
                 if ( Numbers::validEE(ism, jx, jy) ) meTriggerTowerEmulError_[1]->setBinContent( jx, jy, 2 );
               }
             }
@@ -1246,7 +1246,7 @@ void EESummaryClient::analyze(void) {
         float val_ee = meTriggerTowerEmulError_[0]->getBinContent(jx,jy);
 
         // turn each dark color (masked channel) to bright green
-        // for laser & timing turn also yellow into bright green
+        // for laser & timing & trigger turn also yellow into bright green
 
         //  0/3 = red/dark red
         //  1/4 = green/dark green
@@ -1258,7 +1258,7 @@ void EESummaryClient::analyze(void) {
         if(val_ls==2 || val_ls==3 || val_ls==4 || val_ls==5) val_ls=1;
         if(val_tm==2 || val_tm==3 || val_tm==4 || val_tm==5) val_tm=1;
         if(             val_sf==3 || val_sf==4 || val_sf==5) val_sf=1;
-        if(             val_ee==3 || val_ee==4 || val_ee==5) val_ee=1;
+        if(val_ee==2 || val_ee==3 || val_ee==4 || val_ee==5) val_ee=1;
 
         if(val_in==6) xval=6;
         else if(val_in==0) xval=0;
@@ -1324,7 +1324,7 @@ void EESummaryClient::analyze(void) {
         float val_ee = meTriggerTowerEmulError_[1]->getBinContent(jx,jy);
 
         // turn each dark color to bright green
-        // for laser turn also yellow into bright green
+        // for laser & timing & trigger turn also yellow into bright green
 
         //  0/3 = red/dark red
         //  1/4 = green/dark green
@@ -1336,7 +1336,7 @@ void EESummaryClient::analyze(void) {
         if(val_ls==2 || val_ls==3 || val_ls==4 || val_ls==5) val_ls=1;
         if(val_tm==2 || val_tm==3 || val_tm==4 || val_tm==5) val_tm=1;
         if(             val_sf==3 || val_sf==4 || val_sf==5) val_sf=1;
-        if(             val_ee==3 || val_ee==4 || val_ee==5) val_ee=1;
+        if(val_ee==2 || val_ee==3 || val_ee==4 || val_ee==5) val_ee=1;
 
         if(val_in==6) xval=6;
         else if(val_in==0) xval=0;

@@ -1,4 +1,4 @@
-// $Id: FileRecord.cc,v 1.10 2008/06/23 09:37:07 loizides Exp $
+// $Id: FileRecord.cc,v 1.11 2008/08/13 18:51:17 biery Exp $
 
 #include <EventFilter/StorageManager/interface/FileRecord.h>
 #include <EventFilter/StorageManager/interface/Configurator.h>
@@ -24,7 +24,6 @@ FileRecord::FileRecord(int lumi, const string &file, const string &path):
   basePath_(path),
   fileSystem_(""),
   workingDir_("/open/"),
-  mailBoxPath_(path+"/mbox"),
   logPath_(path+"/log"),
   logFile_(logFile()),
   setupLabel_(""),
@@ -36,23 +35,11 @@ FileRecord::FileRecord(int lumi, const string &file, const string &path):
   fileSize_(0), 
   events_(0), 
   firstEntry_(0.0), 
-  lastEntry_(0.0)
+  lastEntry_(0.0),
+  whyClosed_(0)
 {
    // stripp quotes if present
    if(cmsver_[0]=='"') cmsver_=cmsver_.substr(1,cmsver_.size()-2);
-}
-
-
-//
-// *** write mailbox entry 
-// 
-void FileRecord::writeToMailBox()
-{
-  ostringstream oss;
-  oss << mailBoxPath_ << "/" << fileName_ << fileCounterStr() << ".smry";
-  ofstream of(oss.str().c_str());
-  of << completeFileName();
-  of.close();
 }
 
 
@@ -69,44 +56,11 @@ void FileRecord::writeToSummaryCatalog()
 	      << fileSize()             << ind 
 	      << events()               << ind
               << timeStamp(lastEntry()) << ind
-	      << (int) (lastEntry()-firstEntry()) << endl;
+	      << (int) (lastEntry()-firstEntry()) << ind
+	      << whyClosed_ << endl;
   string currentStatString (currentStat.str());
   ofstream of(smParameter_->fileCatalog().c_str(), ios_base::ate | ios_base::out | ios_base::app );
   of << currentStatString;
-  of.close();
-}
-
-
-//
-// *** write notify info to file
-//
-void FileRecord::notifyTier0()
-{
-
-  std::ostringstream oss;
-  oss << "./notifyTier0.pl "
-      << " --FILENAME "     << fileName() << fileCounterStr() <<  ".dat"
-      << " --COUNT "        << fileCounter_                       
-      << " --NEVENTS "      << events_                            
-      << " --FILESIZE "     << fileSize_                          
-      << " --START_TIME "   << (int) firstEntry()
-      << " --STOP_TIME "    << (int) lastEntry()
-      << " --STATUS "       << "closed"
-      << " --RUNNUMBER "    << runNumber_                         
-      << " --LUMISECTION "  << lumiSection_                      
-      << " --PATHNAME "     << filePath()
-      << " --HOSTNAME "     << smParameter_->host()
-      << " --DATASET "      << setupLabel_ 
-      << " --STREAM "       << streamLabel_                      
-      << " --INSTANCE "     << smParameter_->smInstance()        
-      << " --SAFETY "       << smParameter_->initialSafetyLevel()
-      << " --APP_VERSION "  << cmsver_
-      << " --APP_NAME CMSSW"
-      << " --TYPE streamer"               
-      << " --CHECKSUM 0\n";
-
-  ofstream of(logFile_.c_str(), ios_base::ate | ios_base::out | ios_base::app );
-  of << oss.str().c_str();
   of.close();
 }
 
@@ -119,24 +73,26 @@ void FileRecord::updateDatabase()
   std::ostringstream oss;
   oss << "./closeFile.pl "
       << " --FILENAME "     << fileName() << fileCounterStr() <<  ".dat"
-      << " --COUNT "        << fileCounter_                       
+      << " --FILECOUNTER "  << fileCounter_                       
       << " --NEVENTS "      << events_                            
       << " --FILESIZE "     << fileSize_                          
-      << " --START_TIME "   << (int) firstEntry()
-      << " --STOP_TIME "    << (int) lastEntry()
+      << " --STARTTIME "    << (int) firstEntry()
+      << " --STOPTIME "     << (int) lastEntry()
       << " --STATUS "       << "closed"
       << " --RUNNUMBER "    << runNumber_                         
       << " --LUMISECTION "  << lumiSection_                      
       << " --PATHNAME "     << filePath()
       << " --HOSTNAME "     << smParameter_->host()
-      << " --DATASET "      << setupLabel_ 
+      << " --SETUPLABEL "   << setupLabel_ 
       << " --STREAM "       << streamLabel_                      
       << " --INSTANCE "     << smParameter_->smInstance()        
       << " --SAFETY "       << smParameter_->initialSafetyLevel()
-      << " --APP_VERSION "  << cmsver_
-      << " --APP_NAME CMSSW"
+      << " --APPVERSION "   << cmsver_
+      << " --APPNAME CMSSW"
       << " --TYPE streamer"               
+      << " --DEBUGCLOSE "   << whyClosed_
       << " --CHECKSUM 0\n";
+
 
   ofstream of(logFile_.c_str(), ios_base::ate | ios_base::out | ios_base::app );
   of << oss.str().c_str();
@@ -152,22 +108,22 @@ void FileRecord::insertFileInDatabase()
   std::ostringstream oss;
   oss << "./insertFile.pl "
       << " --FILENAME "     << fileName() << fileCounterStr() <<  ".dat"
-      << " --COUNT "        << fileCounter_                       
+      << " --FILECOUNTER "  << fileCounter_                       
       << " --NEVENTS "      << events_                            
       << " --FILESIZE "     << fileSize_                          
-      << " --START_TIME "   << (int) firstEntry()
-      << " --STOP_TIME "    << (int) lastEntry()
+      << " --STARTTIME "   << (int) firstEntry()
+      << " --STOPTIME "    << (int) lastEntry()
       << " --STATUS "       << "open"
       << " --RUNNUMBER "    << runNumber_                         
       << " --LUMISECTION "  << lumiSection_                      
       << " --PATHNAME "     << filePath()
       << " --HOSTNAME "     << smParameter_->host()
-      << " --DATASET "      << setupLabel_ 
+      << " --SETUPLABEL "   << setupLabel_ 
       << " --STREAM "       << streamLabel_                      
       << " --INSTANCE "     << smParameter_->smInstance()        
       << " --SAFETY "       << smParameter_->initialSafetyLevel()
-      << " --APP_VERSION "  << cmsver_
-      << " --APP_NAME CMSSW"
+      << " --APPVERSION "  << cmsver_
+      << " --APPNAME CMSSW"
       << " --TYPE streamer"               
       << " --CHECKSUM 0\n";
 
@@ -429,7 +385,6 @@ void FileRecord::checkDirectories() const
   checkDirectory(fileSystem());
   checkDirectory(fileSystem()+"/open");
   checkDirectory(fileSystem()+"/closed");
-  checkDirectory(mailBoxPath_);
   checkDirectory(logPath_);
 }
 
@@ -474,7 +429,6 @@ void FileRecord::report(ostream &os, int indentation) const
   os << prefix << "basePath_           " << basePath_                   << "\n";  
   os << prefix << "fileSystem_         " << fileSystem_                 << "\n";
   os << prefix << "workingDir_         " << workingDir_                 << "\n";
-  os << prefix << "mailBoxPath_        " << mailBoxPath_                << "\n";
   os << prefix << "logPath_            " << logPath_                    << "\n";
   os << prefix << "logFile_            " << logFile_                    << "\n";
   os << prefix << "setupLabel_         " << setupLabel_                 << "\n";
@@ -488,5 +442,6 @@ void FileRecord::report(ostream &os, int indentation) const
   os << prefix << "events              " << events_                     << "\n";
   os << prefix << "first entry         " << firstEntry_                 << "\n";
   os << prefix << "last entry          " << lastEntry_                  << "\n";
+  os << prefix << "why closed          " << whyClosed_                  << "\n";
   os << prefix << "-----------------------------------------\n";  
 }

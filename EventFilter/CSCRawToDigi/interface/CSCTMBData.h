@@ -29,7 +29,7 @@ class CSCTMBData {
   bool checkSize() const;
   static void setDebug(const bool value) {debug = value;}
   short unsigned int   CWordCnt()   const {return cWordCnt;}
-  int getCRC() const {return theTMBTrailer.crc22();}
+  int getCRC() const {return CRCCnt;}
   const unsigned short size()       const {return size_;}
 
   CSCTMBHeader * tmbHeader()   {return &theTMBHeader;}
@@ -57,6 +57,7 @@ class CSCTMBData {
 
  private:
 
+  int CRCCnt;
   ///@@ not sure what this means for simulation.  I keep this
   /// around so we can calculate CRCs
   unsigned short * theOriginalBuffer;

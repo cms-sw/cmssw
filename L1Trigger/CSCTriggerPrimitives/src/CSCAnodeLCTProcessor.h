@@ -13,8 +13,8 @@
  * in ORCA).
  * Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch), May 2006.
  *
- * $Date: 2008/07/29 10:56:05 $
- * $Revision: 1.14 $
+ * $Date: 2008/05/01 15:51:03 $
+ * $Revision: 1.11 $
  *
  */
 
@@ -70,6 +70,12 @@ class CSCAnodeLCTProcessor
   /** Returns vector of found ALCTs, if any. */
   std::vector<CSCALCTDigi> getALCTs();
 
+  /** Access to times on wires on any layer. */
+  std::vector<int> wireHits(const int layer) const;
+
+  /** Access to time on single wire on any layer. */
+  int wireHit(const int layer, const int wire) const;
+
   /** Pre-defined patterns. */
   enum {NUM_PATTERN_WIRES = 14};
   static const int pattern_envelope[CSCConstants::NUM_ALCT_PATTERNS][NUM_PATTERN_WIRES];
@@ -98,6 +104,8 @@ class CSCAnodeLCTProcessor
   std::vector<CSCWireDigi> digiV[CSCConstants::NUM_LAYERS];
   unsigned int pulse[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIRES];
 
+  std::vector<int> theWireHits[CSCConstants::NUM_LAYERS];
+
   /** Flag for MTCC data. */
   bool isMTCC;
 
@@ -105,19 +113,9 @@ class CSCAnodeLCTProcessor
   bool isTMB07;
 
   /** Configuration parameters. */
-  unsigned int fifo_tbins, fifo_pretrig, drift_delay;
-  unsigned int nplanes_hit_pretrig, nplanes_hit_accel_pretrig;
-  unsigned int nplanes_hit_pattern, nplanes_hit_accel_pattern;
-  unsigned int trig_mode, accel_mode, l1a_window_width;
-
-  /** Default values of configuration parameters. */
-  static const unsigned int def_fifo_tbins, def_fifo_pretrig;
-  static const unsigned int def_drift_delay;
-  static const unsigned int def_nplanes_hit_pretrig, def_nplanes_hit_pattern;
-  static const unsigned int def_nplanes_hit_accel_pretrig;
-  static const unsigned int def_nplanes_hit_accel_pattern;
-  static const unsigned int def_trig_mode, def_accel_mode;
-  static const unsigned int def_l1a_window_width;
+  unsigned int fifo_tbins, fifo_pretrig, bx_width, drift_delay;
+  unsigned int nph_thresh, nph_pattern;
+  unsigned int trig_mode, alct_amode, l1a_window;
 
   /** Chosen pattern mask. */
   int pattern_mask[CSCConstants::NUM_ALCT_PATTERNS][NUM_PATTERN_WIRES];
@@ -126,7 +124,7 @@ class CSCAnodeLCTProcessor
   void setDefaultConfigParameters();
 
   /** Make sure that the parameter values are within the allowed range. */
-  void checkConfigParameters();
+  void checkConfigParameters() const;
 
   /** Clears the quality for a given wire and pattern if it is a ghost. */
   void clear(const int wire, const int pattern);
@@ -139,7 +137,7 @@ class CSCAnodeLCTProcessor
   void ghostCancellationLogic();
   void lctSearch();
   void trigMode(const int key_wire);
-  void accelMode(const int key_wire);
+  void alctAmode(const int key_wire);
 
   std::vector<CSCALCTDigi>
     bestTrackSelector(const std::vector<CSCALCTDigi>& all_alcts);
@@ -150,6 +148,15 @@ class CSCAnodeLCTProcessor
 
   /** Dump digis on wire groups. */
   void dumpDigis(const int wire[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIRES]) const;
+
+  /** Set times on all layers for all wires. */
+  void saveAllHits(const int wires[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIRES]);
+
+  /** Set times on wires on any layer. */
+  void setWireHits(const int layer, const std::vector<int>& wireHits);
+
+  /** Set time on single wire on any layer. */
+  void setWireHit(const int layer, const int wire, const int hit);
 
   void showPatterns(const int key_wire);
 };

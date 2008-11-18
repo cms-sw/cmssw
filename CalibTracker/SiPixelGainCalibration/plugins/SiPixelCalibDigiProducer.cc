@@ -13,7 +13,7 @@
 //
 // Original Author:  Freya Blekman
 //         Created:  Wed Oct 31 15:28:52 CET 2007
-// $Id: SiPixelCalibDigiProducer.cc,v 1.13 2008/02/25 21:10:32 fblekman Exp $
+// $Id: SiPixelCalibDigiProducer.cc,v 1.15 2008/08/26 15:13:31 fblekman Exp $
 //
 //
 
@@ -107,13 +107,13 @@ SiPixelCalibDigiProducer::store()
 void
 SiPixelCalibDigiProducer::fill(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  //  std::cout << "in fill() " << std::endl;
 
   // figure out which calibration point we're on now..
   short icalibpoint = calib_->vcalIndexForEvent(iEventCounter_);
   edm::Handle< edm::DetSetVector<PixelDigi> > pixelDigis;
   iEvent.getByLabel( src_, pixelDigis );
-
+  
+  edm::LogInfo("SiPixelCalibProducer") << "in fill(), calibpoint " << icalibpoint <<" ndigis " << pixelDigis->size() <<  std::endl;
     // loop over the data and store things
   edm::DetSetVector<PixelDigi>::const_iterator digiIter;
   for(digiIter=pixelDigis->begin(); digiIter!=pixelDigis->end(); ++digiIter){// ITERATOR OVER DET IDs
@@ -121,7 +121,6 @@ SiPixelCalibDigiProducer::fill(edm::Event& iEvent, const edm::EventSetup& iSetup
     edm::DetSet<PixelDigi>::const_iterator ipix; // ITERATOR OVER DIGI DATA  
 
     for(ipix = digiIter->data.begin(); ipix!=digiIter->end(); ++ipix){
-
       // fill in the appropriate location of the temporary data container
       fillPixel(detid,ipix->row(),ipix->column(),icalibpoint,ipix->adc());
     }
@@ -132,12 +131,12 @@ SiPixelCalibDigiProducer::fill(edm::Event& iEvent, const edm::EventSetup& iSetup
 // this is the function where we check the cabling map and see if we can assign a fed id to the det ID. 
 // returns false if no fed <-> detid association was found
 bool SiPixelCalibDigiProducer::checkFED(uint32_t detid){
-  //  std::cout << "in checkFED" << std::endl;
+  //  edm::LogInfo("SiPixelCalibProducer") << "in checkFED" << std::endl;
 
   if(detid_to_fedid_[detid])
     return true;
   for(int fedid=0; fedid<=40; ++fedid){
-    //    std::cout << " looking at fedid " << fedid << std::endl;
+    //    edm::LogInfo("SiPixelCalibProducer") << " looking at fedid " << fedid << std::endl;
     SiPixelFrameConverter converter(theCablingMap_.product(),fedid);
     if(converter.hasDetUnit(detid)){
       detid_to_fedid_[detid]=fedid;
@@ -152,8 +151,9 @@ bool SiPixelCalibDigiProducer::checkFED(uint32_t detid){
 // function description:
 // this is the function where we look in the maps to find the correct calibration digi container, after which the data is filled.
 void SiPixelCalibDigiProducer::fillPixel(uint32_t detid, short row, short col, short ipoint, short adc){
-  //  std::cout << " in fillpixel()" << std::endl;
+  //  edm::LogInfo("SiPixelCalibProducer") << " in fillpixel()" << std::endl;
  
+  //  edm::LogInfo("SiPixelCalibProducer") << "in fillPixel " << detid << " " << row << " " << col << " " << ipoint << " " << adc << std::endl;
   if(!checkFED(detid)){
     edm::LogError("SiPixelCalibDigiProducer") << " was unable to match detid " << detid << " to a FED!" << std::endl;
     return;
@@ -184,7 +184,7 @@ void SiPixelCalibDigiProducer::fillPixel(uint32_t detid, short row, short col, s
 // this function cleans up after everything in the pattern is filled. This involves setting the content of the intermediate_data_ containers to zero and completely emptying the map 
 void
 SiPixelCalibDigiProducer::clear(){
-  //  std::cout << "in clear() " << std::endl;
+  //  edm::LogInfo("SiPixelCalibProducer") << "in clear() " << std::endl;
   // this is where we empty the containers so they can be re-filled
   // the idea: the detPixelMap_ container shrinks/expands as a function 
   // of the number of pixels looked at at one particular time... 
@@ -211,7 +211,7 @@ SiPixelCalibDigiProducer::clear(){
 // This method gets the pattern from the calib_ (SiPixelCalibConfiguration) object and fills a vector of pairs that is easier to check 
 void 
 SiPixelCalibDigiProducer::setPattern(){
-  //  std::cout << "in setPattern()" << std::endl;
+  //  edm::LogInfo("SiPixelCalibProducer") << "in setPattern()" << std::endl;
   uint32_t patternnumber = abs(iEventCounter_-1)/pattern_repeat_;
   uint32_t rowpatternnumber = patternnumber/calib_->nColumnPatterns();
   uint32_t colpatternnumber = patternnumber%calib_->nColumnPatterns();
@@ -229,7 +229,7 @@ SiPixelCalibDigiProducer::setPattern(){
       nminuscol++;
     }
     else if(nminuscol==colpatternnumber){
-      //std::cout << "col " << calibcols[icol] << std::endl;
+      //edm::LogInfo("SiPixelCalibProducer") << "col " << calibcols[icol] << std::endl;
       short val=calibcols[icol];
       tempcolvals.push_back(val);
     }
@@ -237,7 +237,7 @@ SiPixelCalibDigiProducer::setPattern(){
       break;
   }
   for(uint32_t irow=0; irow<calibrows.size(); irow++){
-    // std::cout << "row " << irow <<" "<< nminusrow<<" "  << calibrows[irow] << std::endl;
+    // edm::LogInfo("SiPixelCalibProducer") << "row " << irow <<" "<< nminusrow<<" "  << calibrows[irow] << std::endl;
     if(calibrows[irow]==-1)
       nminusrow++;
     else if(nminusrow==rowpatternnumber){
@@ -261,16 +261,6 @@ SiPixelCalibDigiProducer::setPattern(){
 	currentpattern_[npatterns-1]=pattern;
     }
   }
-  
-//   std::cout << "summary of created patterns: " ;
-//   for(uint32_t i=0; i<currentpattern_.size(); ++i){
-//     if(i!=0)
-//       std::cout << " - ";
-//     std::cout << currentpattern_[i].first << ","<< currentpattern_[i].second ;
-   
-//   }
-//   std::cout << std::endl;
-
 }
 
 ////////////////////////////////////////////
@@ -279,8 +269,12 @@ SiPixelCalibDigiProducer::setPattern(){
 void
 SiPixelCalibDigiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  //  std::cout <<"in produce() " << std::endl;
+  //  edm::LogInfo("SiPixelCalibDigiProducer") <<"in produce() " << std::endl;
   using namespace edm;
+  iSetup.get<SiPixelCalibConfigurationRcd>().get(calib_);
+  iSetup.get<TrackerDigiGeometryRecord>().get( theGeometry_ );
+  iSetup.get<SiPixelFedCablingMapRcd>().get(theCablingMap_);
+  pattern_repeat_=calib_->getNTriggers()*calib_->nVCal();
   if(use_realeventnumber_){
     iEventCounter_= iEvent.id().event()-1;
   }
@@ -289,14 +283,15 @@ SiPixelCalibDigiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   if(iEventCounter_%pattern_repeat_==1)
     setPattern();
   
+  //  edm::LogInfo("SiPixelCalibDigiProducer") << "now starting fill..." << std::endl;
   fill(iEvent,iSetup); // fill method where the actual looping over the digis is done.
-
+  //  edm::LogInfo("SiPixelCalibDigiProducer") << "done filling..." << std::endl;
   std::auto_ptr<edm::DetSetVector<SiPixelCalibDigi> > pOut(new edm::DetSetVector<SiPixelCalibDigi>);
   std::auto_ptr<edm::DetSetVector<SiPixelCalibDigiError> > pErr (new edm::DetSetVector<SiPixelCalibDigiError> );
   
   // copy things over into pOut if necessary (this is only once per pattern)
   if(store()){
-    //    std::cout << "in loop" << std::endl;
+    //    edm::LogInfo("SiPixelCalibDigiProducer") << "in loop" << std::endl;
     for(std::map<pixelstruct,SiPixelCalibDigi>::const_iterator idet=intermediate_data_.begin(); idet!=intermediate_data_.end();++idet){
       uint32_t detid=idet->first.first;
       if(!control_pattern_size_){
@@ -335,7 +330,7 @@ bool SiPixelCalibDigiProducer::checkPixel(uint32_t detid, short row, short col){
     return true;
   
   
-  //  std::cout << "Event" << iEventCounter_ << ",now in checkpixel() " << std::endl;
+  edm::LogInfo("SiPixelCalibDigiProducer") << "Event" << iEventCounter_ << ",now in checkpixel() " << std::endl;
   if(currentpattern_.size()==0)
     setPattern();
   //  uint32_t iroc;
@@ -357,7 +352,7 @@ bool SiPixelCalibDigiProducer::checkPixel(uint32_t detid, short row, short col){
   currentpair_.second = locpixel.rocCol();
 
   for(uint32_t i=0; i<currentpattern_.size(); ++i){
-    //    std::cout << "found pair " << currentpair_.first << "," << currentpair_.second << " calib " << currentpattern_[i].first << ","<< currentpattern_[i].second << " input " << row << "," << col << std::endl;
+    //    edm::LogInfo("SiPixelCalibDigiProducer") << "found pair " << currentpair_.first << "," << currentpair_.second << " calib " << currentpattern_[i].first << ","<< currentpattern_[i].second << " input " << row << "," << col << std::endl;
     if(currentpair_==currentpattern_[i]){
       return true;
     }
@@ -393,13 +388,8 @@ bool SiPixelCalibDigiProducer::checkPixel(uint32_t detid, short row, short col){
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-SiPixelCalibDigiProducer::beginJob(const edm::EventSetup& iSetup)
+SiPixelCalibDigiProducer::beginRun(const edm::Run & iRun, const edm::EventSetup& iSetup)
 {
-  iSetup.get<SiPixelCalibConfigurationRcd>().get(calib_);
-  pattern_repeat_=calib_->getNTriggers()*calib_->nVCal();
-  edm::LogInfo("SiPixelCalibDigiProducer") << "got calibration configuration, pattern repeat is " << pattern_repeat_ << ", number of VCal points is " << calib_->nVCal() << std::endl;
-  iSetup.get<TrackerDigiGeometryRecord>().get( theGeometry_ );
-  iSetup.get<SiPixelFedCablingMapRcd>().get(theCablingMap_);
 }
 
 // ------------ method called once each job just after ending the event loop  ------------

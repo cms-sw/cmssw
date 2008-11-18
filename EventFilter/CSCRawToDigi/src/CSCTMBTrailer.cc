@@ -1,37 +1,29 @@
 #include "EventFilter/CSCRawToDigi/interface/CSCTMBTrailer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include <iostream>
 
-CSCTMBTrailer::CSCTMBTrailer(int wordCount, int firmwareVersion) 
-: theFirmwareVersion(firmwareVersion)
+
+CSCTMBTrailer::CSCTMBTrailer(int wordCount) 
 {
-  //FIXME do firmware version
   theData[0] = 0x6e0c;
-  // all the necessary lines from this thing first
-  wordCount += 5;
   // see if we need thePadding to make a multiple of 4
   thePadding = 0;
-
   if(wordCount%4==2) 
     {
       theData[1] = 0x2AAA;
       theData[2] = 0x5555;
       thePadding = 2;
-      wordCount += thePadding;
     }
   // the next four words start with 11011, or a D
   for(int i = 1; i < 5; ++i) 
     {
-      theData[i+thePadding] = 0xD800;
+      theData[i+thePadding] = (0x1B << 11);
     }
-  theData[de0fOffset()] = 0xde0f;
-  // word count excludes the trailer
-  theData[4+thePadding] |= wordCount;
+  theData[3+thePadding] = 0xde0f;
+  theData[4+thePadding] |= wordCount+ thePadding;
 }
 
 
 CSCTMBTrailer::CSCTMBTrailer(unsigned short * buf, unsigned short int firmwareVersion) 
-: theFirmwareVersion(firmwareVersion)
 {
   // take a little too much, maybe
   memcpy(theData, buf, 14);
@@ -51,35 +43,8 @@ CSCTMBTrailer::CSCTMBTrailer(unsigned short * buf, unsigned short int firmwareVe
   }
 }
 
-unsigned int CSCTMBTrailer::crc22() const 
-{  
-  return (theData[crcOffset()] & 0x07ff) +
-            ((theData[crcOffset()+1] & 0x07ff) << 11);
-}
-
-
-void CSCTMBTrailer::setCRC(int crc) 
-{
-  theData[crcOffset()] |= (crc & 0x07ff);
-  theData[crcOffset()+1] |= ((crc>>11) & 0x07ff);
-}
-
+int CSCTMBTrailer::crc22() const {return theData[1+thePadding] & 0x7fff + ((theData[2+thePadding] & 0x7fff) << 11);}
 
 int CSCTMBTrailer::wordCount() const {return theData[4+thePadding] & 0x7ff;}
-
-
-
-void CSCTMBTrailer::selfTest()
-{
-  CSCTMBTrailer trailer(104, 2006);
-  unsigned int crc = 0xb00b1;
-  trailer.setCRC(crc);
-  assert(trailer.crc22() == 0xb00b1);
-
-  CSCTMBTrailer trailer2(104, 2007);
-  crc = 0xb00b1;
-  trailer2.setCRC(crc);
-  assert(trailer2.crc22() == 0xb00b1);
-
-}
+void CSCTMBTrailer::setWordCount(int words) {theData[4+thePadding] |= (words&0x7ff);}
 

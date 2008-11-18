@@ -115,6 +115,11 @@ u28	Tests distinct threshold level for linked statistics destination:
 	are different.
 	---------- UnitTestClient_A
 
+u30	Tests LoggedErrorsSummary, using modues that have normal categories
+	and also grouped categories.   The expectation is that even grouped
+	categories will be separated by module on the per-event summary.
+	---------- UnitTestClient_S
+
 
 Non-regression-suite tests (not run via scramv1 b runtests):
 

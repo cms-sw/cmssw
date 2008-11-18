@@ -1,6 +1,12 @@
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctInternJetData.h"
 
-L1GctInternJetData::L1GctInternJetData() {
+L1GctInternJetData::L1GctInternJetData() :
+  capBlock_(0),
+  capIndex_(0),
+  bx_(0),
+  type_(null),
+  data_(0)
+{
 
 }
 
@@ -113,6 +119,7 @@ void L1GctInternJetData::setData(uint8_t sgnEta,
 				 uint8_t phi,
 				 uint8_t tauVeto,
 				 uint8_t rank) {
+  data_ = 0;
   data_ = rank & 0x3f;
   data_ |= (tauVeto & 0x1) << 6;
   data_ |= (phi & 0x1f) << 7;
@@ -134,21 +141,17 @@ bool L1GctInternJetData::operator==(const L1GctInternJetData& c) const {
 std::ostream& operator<<(std::ostream& s, const L1GctInternJetData& c) {
   s << "L1GctInternJetData :";
   if (c.empty()) { 
-    s << " empty"; 
-    return s; 
+    s << " empty!"; 
   }
-  else {
-    s << " type=" << c.type();
-    s << " oflow=" << c.oflow();
-    s << " et=" << c.et();
-    s << " eta=" << c.eta();
-    s << " phi=" << c.phi();
-    s << " tauVeto=" << c.tauVeto();
-    s << " rank=" << c.rank();
-    s << " cap block=" << std::hex << c.capBlock();
-    s << " index=" << c.capIndex();
-    s << " BX=" << c.bx();
-
-  }
+  s << " type=" << c.type();
+  s << " oflow=" << c.oflow();
+  s << " et=" << c.et();
+  s << " eta=" << c.eta();
+  s << " phi=" << c.phi();
+  s << " tauVeto=" << c.tauVeto();
+  s << " rank=" << c.rank();
+  s << " cap block=" << std::hex << c.capBlock();
+  s << " index=" << c.capIndex();
+  s << " BX=" << c.bx();
   return s; 
 }

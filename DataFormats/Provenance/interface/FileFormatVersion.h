@@ -10,6 +10,8 @@ namespace edm
     FileFormatVersion() : value_(-1) { }
     explicit FileFormatVersion(int vers) : value_(vers)  { }
     bool isValid() const { return value_ >= 0; }
+
+    bool fastCopyPossible() const { return value_ >= 8; }
     
     int value_;
   };

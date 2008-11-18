@@ -11,8 +11,8 @@
   *     [5:4] Section (EM/HAD/Lumi)
   *     [3:0] Channel (depth)
   *
-  * $Date: 2007/07/25 17:38:14 $
-  * $Revision: 1.2 $
+  * $Date: 2006/06/16 16:45:04 $
+  * $Revision: 1.1 $
   * \author J. Mans - Minnesota
   */
 class HcalZDCDetId : public DetId {
@@ -40,27 +40,6 @@ public:
   int depth() const { return id_&0xF; }
   /// get the channel (equivalent to depth)
   int channel() const { return id_&0xF; }
-
-  uint32_t denseIndex() const ;
-
-  static bool validDenseIndex( uint32_t di ) { return ( di < kSizeForDenseIndexing ) ; }
-
-  static HcalZDCDetId detIdFromDenseIndex( uint32_t di ) ;
-
-  static bool validDetId( Section se ,
-			  int     dp   ) ;
-
-   private:
-
-      enum { kDepEM  = 5,
-	     kDepHAD = 4,
-	     kDepLUM = 2,
-	     kDepTot = kDepEM + kDepHAD + kDepLUM };
-
-   public:
-
-      enum { kSizeForDenseIndexing = 2*kDepTot } ;
-
 };
 
 std::ostream& operator<<(std::ostream&,const HcalZDCDetId& id);

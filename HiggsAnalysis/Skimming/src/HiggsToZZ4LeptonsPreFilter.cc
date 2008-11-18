@@ -18,7 +18,7 @@
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Candidate/interface/CandMatchMap.h"
 #include "DataFormats/Common/interface/AssociationVector.h"
-#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
 
 // C++
 #include <iostream>
@@ -68,16 +68,16 @@ bool HiggsToZZ4LeptonsPreFilter::filter(edm::Event& event, const edm::EventSetup
   bool TwoETwoM = false;
 
   // get gen particle candidates 
-  Handle<GenParticleCollection> genParticles;
+  Handle<CandidateCollection> genCandidates;
 
-  event.getByLabel("genParticles", genParticles);
+  event.getByLabel("genParticleCandidates", genCandidates);
 
-  if ( genParticles.isValid() ) {
+  if ( genCandidates.isValid() ) {
 
   int nElec = 0;
   int nMuon = 0;
 
-  for (GenParticleCollection::const_iterator mcIter=genParticles->begin(); mcIter!=genParticles->end(); ++mcIter) {
+  for ( CandidateCollection::const_iterator mcIter=genCandidates->begin(); mcIter!=genCandidates->end(); ++mcIter ) {
     // Muons:
     if ( mcIter->pdgId() == 13 || mcIter->pdgId() == -13) {
       // Mother is a Z

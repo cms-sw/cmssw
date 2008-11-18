@@ -35,7 +35,7 @@ SiPixelTrackerMapCreator::SiPixelTrackerMapCreator(string themEName,
   title << themEName ;
 	
   trackerMap      = new SiPixelTrackerMap(title.str());
-  infoExtractor_  = new SiPixelInformationExtractor();
+  if (infoExtractor_ == 0) infoExtractor_  = new SiPixelInformationExtractor("DQM/SiPixelMonitorClient/test/sipixel_monitorelement_config.xml");
 }
 
 //==============================================================================

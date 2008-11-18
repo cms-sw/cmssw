@@ -1,5 +1,6 @@
 #include "DataFormats/Provenance/interface/BranchType.h"
 #include "DataFormats/Provenance/interface/Provenance.h"
+#include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
@@ -13,7 +14,7 @@ namespace edm {
     }
   }
     Event::Event(EventPrincipal& ep, ModuleDescription const& md) :
-	DataViewImpl<EventEntryInfo>(ep, md, InEvent),
+	DataViewImpl(ep, md, InEvent),
 	aux_(ep.aux()),
 	luminosityBlock_(newLumi(ep, md)),
 	gotBranchIDs_(),

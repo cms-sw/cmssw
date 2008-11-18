@@ -1,7 +1,7 @@
 //----------------------------------------------------------------------
 // EdmFileUtil.cpp
 //
-// $Id: EdmFileUtil.cpp,v 1.15 2008/03/14 04:24:37 wmtan Exp $
+// $Id: EdmFileUtil.cpp,v 1.16 2008/04/24 21:48:30 wdd Exp $
 //
 // Author: Chih-hsiang Cheng, LLNL
 //         Chih-Hsiang.Cheng@cern.ch
@@ -28,6 +28,7 @@
 
 #include "TFile.h"
 
+
 int main(int argc, char* argv[]) {
 
   // Add options here
@@ -45,11 +46,7 @@ int main(int argc, char* argv[]) {
     ("printBranchDetails,b","Call Print()sc for all branches")
     ("tree,t", boost::program_options::value<std::string>(), "Select tree used with -P and -b options")
     ("allowRecovery","Allow root to auto-recover corrupted files") 
-    ("events,e",boost::program_options::value<std::string>(), 
-     "Show event ids for events within a range or set of ranges , e.g., 5-13,30,60-90 ")
-//     ("entries,i",boost::program_options::value<std::string>(), 
-//      "Show entries per branch for each event within a range or set of ranges , e.g., 5-13,30,60-90 ")   
-    ;
+    ("events,e", "Print list of all Events, Runs, and LuminosityBlocks in the file sorted by run number, luminosity block number, and event number.  Also prints the entry numbers and whether it is possible to use fast copy with the file.");
 
   // What trees do we require for this to be a valid collection?
   std::vector<std::string> expectedTrees;
@@ -225,17 +222,8 @@ int main(int argc, char* argv[]) {
 
       // Print out event lists 
       if ( vm.count("events") ) {
-	bool listentries=false;  
-	std::string remainingStr=vm["events"].as<std::string>();
-	edm::printEventLists(remainingStr, nevts, tfile, listentries);
+	edm::printEventLists(tfile);
       }
-      
-//     if ( vm.count("entries") ) {
-//       bool listentries=true;  
-//       std::string remainingStr=vm["entries"].as<std::string>();
-//       edm::printEventLists(remainingStr, nevts, tfile, listentries);   
-//     }
-    
     }
   }
   

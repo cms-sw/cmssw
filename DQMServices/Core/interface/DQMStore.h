@@ -27,6 +27,13 @@ class TProfile2D;
 class DQMStore
 {
 public:
+  enum SaveReferenceTag
+  {
+    SaveWithoutReference,
+    SaveWithReference,
+    SaveWithReferenceForQTest
+  };
+  
   //-------------------------------------------------------------------------
   // ---------------------- Constructors ------------------------------------
   DQMStore(const edm::ParameterSet &pset);
@@ -142,6 +149,7 @@ public:
 				     const std::string &path = "",
 				     const std::string &pattern = "",
 				     const std::string &rewrite = "",
+				     SaveReferenceTag ref = SaveWithReferenceForQTest,
                                      int minStatus = dqm::qstatus::STATUS_OK);
   void				open(const std::string &filename,
 				     bool overwrite = false,

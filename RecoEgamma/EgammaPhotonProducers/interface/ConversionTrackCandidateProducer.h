@@ -3,9 +3,9 @@
 /** \class ConversionTrackCandidateProducer
  **  
  **
- **  $Id: ConversionTrackCandidateProducer.h,v 1.10 2008/08/13 13:22:47 nancy Exp $ 
- **  $Date: 2008/08/13 13:22:47 $ 
- **  $Revision: 1.10 $
+ **  $Id: ConversionTrackCandidateProducer.h,v 1.11 2008/08/15 12:46:40 nancy Exp $ 
+ **  $Date: 2008/08/15 12:46:40 $ 
+ **  $Revision: 1.11 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -45,6 +45,7 @@ class ConversionTrackCandidateProducer : public edm::EDProducer {
 
 
   virtual void beginJob (edm::EventSetup const & es);
+  virtual void beginRun (edm::Run &, edm::EventSetup const & es);
   virtual void produce(edm::Event& evt, const edm::EventSetup& es);
 
  private:

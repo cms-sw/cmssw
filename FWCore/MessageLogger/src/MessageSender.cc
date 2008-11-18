@@ -7,8 +7,18 @@
 #include <iostream>
 #endif
 
+// Change log
+//
+//  1  mf 8/25/08	keeping the error summary information for
+//			LoggedErrorsSummary()
+//			
+
+
 using namespace edm;
 
+bool MessageSender::errorSummaryIsBeingKept = false;		// change log 1
+bool MessageSender::freshError              = false;
+std::map<ErrorSummaryMapKey, unsigned int> MessageSender::errorSummaryMap; 
 
 MessageSender::MessageSender( ELseverityLevel const & sev, 
 			      ELstring const & id,
@@ -48,6 +58,20 @@ MessageSender::~MessageSender()
 #ifdef TRACE_DROP
       if (!drop) std::cerr << "MessageSender::~MessageSender() - Null drop pointer \n";
 #endif
+								// change log 1
+      if ( errorSummaryIsBeingKept && 
+           errorobj_p->xid().severity >= ELwarning ) 
+      {				
+	ELextendedID const & xid = errorobj_p->xid();
+        ErrorSummaryMapKey key (xid.id, xid.module);
+	ErrorSummaryMapIterator i = errorSummaryMap.find(key);
+	if (i != errorSummaryMap.end()) {
+	  ++(i->second);  // same as ++errorSummaryMap[key]
+	} else {
+	  errorSummaryMap[key] = 1;
+	}
+	freshError = true;
+      }
       
       MessageLoggerQ::MLqLOG(errorobj_p);
     }

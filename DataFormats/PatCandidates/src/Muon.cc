@@ -1,5 +1,5 @@
 //
-// $Id: Muon.cc,v 1.9 2008/06/17 13:50:56 gpetrucc Exp $
+// $Id: Muon.cc,v 1.10 2008/06/23 22:22:18 gpetrucc Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/Muon.h"
@@ -58,7 +58,7 @@ reco::TrackRef Muon::track() const {
   if (embeddedTrack_) {
     return reco::TrackRef(&track_, 0);
   } else {
-    return MuonType::track();
+    return MuonType::innerTrack();
   }
 }
 
@@ -68,7 +68,7 @@ reco::TrackRef Muon::standAloneMuon() const {
   if (embeddedStandAloneMuon_) {
     return reco::TrackRef(&standAloneMuon_, 0);
   } else {
-    return MuonType::standAloneMuon();
+    return MuonType::outerTrack();
   }
 }
 
@@ -78,7 +78,7 @@ reco::TrackRef Muon::combinedMuon() const {
   if (embeddedCombinedMuon_) {
     return reco::TrackRef(&combinedMuon_, 0);
   } else {
-    return MuonType::combinedMuon();
+    return MuonType::globalTrack();
   }
 }
 
@@ -104,8 +104,8 @@ bool Muon::isGoodMuon(const MuonType & muon, reco::Muon::SelectionType type) {
 /// embed the Track reconstructed in the tracker only
 void Muon::embedTrack() {
   track_.clear();
-  if (MuonType::track().isNonnull()) {
-      track_.push_back(*MuonType::track());
+  if (MuonType::innerTrack().isNonnull()) {
+      track_.push_back(*MuonType::innerTrack());
       embeddedTrack_ = true;
   }
 }
@@ -114,8 +114,8 @@ void Muon::embedTrack() {
 /// embed the Track reconstructed in the muon detector only
 void Muon::embedStandAloneMuon() {
   standAloneMuon_.clear();
-  if (MuonType::standAloneMuon().isNonnull()) {
-      standAloneMuon_.push_back(*MuonType::standAloneMuon());
+  if (MuonType::outerTrack().isNonnull()) {
+      standAloneMuon_.push_back(*MuonType::outerTrack());
       embeddedStandAloneMuon_ = true;
   }
 }
@@ -124,8 +124,8 @@ void Muon::embedStandAloneMuon() {
 /// embed the Track reconstructed in both tracked and muon detector
 void Muon::embedCombinedMuon() {
   combinedMuon_.clear();
-  if (MuonType::combinedMuon().isNonnull()) {
-      combinedMuon_.push_back(*MuonType::combinedMuon());
+  if (MuonType::globalTrack().isNonnull()) {
+      combinedMuon_.push_back(*MuonType::globalTrack());
       embeddedCombinedMuon_ = true;
   }
 }

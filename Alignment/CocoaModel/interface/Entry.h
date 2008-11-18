@@ -13,7 +13,6 @@
 #include <vector>
 class OpticalObject;
 class EntryData;
-enum EntryDim { ED_length, ED_angle, ED_nodim };
 
 class Entry
 {
@@ -83,7 +82,6 @@ public:
 
   void substractToHalfFittedDisplacementToValue();
 
-  EntryDim getDimType() const { return theDimType;}
 
 private:
   //-----  Fill the attributes with values read from a 'report.out' file
@@ -116,7 +114,6 @@ protected:
   virtual ALIdouble Check_displacementDimensions( ALIdouble displace ){
     return displace; }
   */
-  EntryDim theDimType;
 
 };
 

@@ -11,7 +11,6 @@
 #include "CoralBase/Attribute.h"
 #include "CoralBase/AttributeList.h"
 #include "CoralBase/AttributeSpecification.h"
-#include "RelationalAccess/SchemaException.h"
 #include <memory>
 //#include <iostream>
 cond::SequenceManager::SequenceManager(cond::CoralTransaction& coraldb,
@@ -57,43 +56,25 @@ cond::SequenceManager::incrementId( const std::string& tableName ){
       coral::AttributeList::iterator iAttribute = rowData.begin();
       iAttribute->data< std::string >() = tableName;
       ++iAttribute;
-      unsigned long long startingIdValue = lastIdUsed;
+      unsigned long long startingIdValue = 0;
       iAttribute->data< unsigned long long >() = startingIdValue;
-      try{
-	schema.tableHandle( m_sequenceTableName ).dataEditor().insertRow( rowData );
-	m_tableToId.insert( std::make_pair( tableName, startingIdValue ) );
-	return startingIdValue;
-      }catch(const coral::DataEditorException& er){
-	//std::cout<<"cannot insert, probably already created by others, try lock again"<<std::endl;
-	this->lockEntry( schema, tableName, lastIdUsed );
-	++lastIdUsed;
-	iSequence = m_tableToId.insert( std::make_pair( tableName, lastIdUsed ) ).first;
-	m_whereData->begin()->data<std::string>() = tableName;
-	schema.tableHandle(m_sequenceTableName).dataEditor().updateRows(m_setClause,m_whereClause,*m_whereData );
-	return lastIdUsed;
-	//startingIdValue = lastIdUsed+1;
-	//m_tableToId.insert( std::make_pair( tableName, startingIdValue ) );
-      }catch(std::exception& er){
-	//std::cout<<"real error "<<er.what()<<std::endl;
-	throw cond::Exception(er.what());
-      }
-
+      schema.tableHandle( m_sequenceTableName ).dataEditor().insertRow( rowData );
+      m_tableToId.insert( std::make_pair( tableName, startingIdValue ) );
+      return startingIdValue;
     }
     // Add the entry into the map.
     iSequence = m_tableToId.insert( std::make_pair( tableName, lastIdUsed ) ).first;
   }
   // Increment the oid transiently
   unsigned long long& oid = iSequence->second;
-  this->lockEntry( schema, tableName, oid );
   ++oid;
+
   // Increment the oid in the database as well
-  
   m_whereData->begin()->data<std::string>() = tableName;
   schema.tableHandle(m_sequenceTableName).dataEditor().updateRows(m_setClause,m_whereClause,*m_whereData );
-  
   return oid;
 }
-/*
+
 void
 cond::SequenceManager::updateId( const std::string& tableName, 
 				 unsigned long long lastId ){
@@ -132,7 +113,7 @@ cond::SequenceManager::updateId( const std::string& tableName,
   }
   m_tableToId.insert( std::make_pair( tableName, lastId ) );
 }
-*/
+
 void
 cond::SequenceManager::clear()
 {
@@ -173,13 +154,10 @@ cond::SequenceManager::lockEntry( coral::ISchema& schema,
   coral::ICursor& cursor = query->execute();
   if ( cursor.next() ) {
     lastId = cursor.currentRow().begin()->data< unsigned long long >();
-    //std::cout<<"sequence table lastId "<<lastId<<std::endl;
-    //cursor.close();
-    //std::cout<<"SequenceManager::lockEntry return true"<<std::endl;
+    cursor.close();
     return true;
   }else {
     cursor.close();
-    //std::cout<<"SequenceManager::lockEntry return false"<<std::endl;
     return false;
   }
 }

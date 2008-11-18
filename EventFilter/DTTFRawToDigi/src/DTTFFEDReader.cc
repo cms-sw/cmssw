@@ -5,8 +5,8 @@
 //   L1 DT Track Finder Raw-to-Digi
 //
 //
-//   $Date: 2008/03/17 08:53:11 $
-//   $Revision: 1.11 $
+//   $Date: 2008/02/25 15:53:12 $
+//   $Revision: 1.10 $
 //
 //   Author :
 //   J. Troconiz  UAM Madrid
@@ -80,7 +80,6 @@ bool DTTFFEDReader::fillRawData(edm::Event& e,
 void DTTFFEDReader::analyse(edm::Event& e) {
   clear();
   process(e);
-  match();
   return;
 }
 
@@ -334,49 +333,10 @@ void DTTFFEDReader::process(edm::Event& e) {
     }
     //Output
 
-    //Output
-    if(wheelID==0 && bitsID>=0x8){
-   
-      int wheelTh = bitsID&0x7;
-
-      int etaALL;
-
-      etaALL =  ~(*DTTFiterator)&0x007F;
-      if (etaALL) {
-        etTrack[bxID+1][sectorID][wheelTh][0] =  ~(*DTTFiterator)&0x003F;
-        efTrack[bxID+1][sectorID][wheelTh][0] = (~(*DTTFiterator)&0x0040)>>6;
-      }
-
-      etaALL =  (~(*DTTFiterator)&0x3F80)>>7;
-      if (etaALL) {
-        etTrack[bxID+1][sectorID][wheelTh][1]= (~(*DTTFiterator)&0x1F80)>>7;
-        efTrack[bxID+1][sectorID][wheelTh][1]= (~(*DTTFiterator)&0x2000)>>13;
-      }
-    }
-    //Output
-
   } // end for-loop container content
 
   delete dataWord1;
   delete dataWord2;
-  return;
-}
-
-void DTTFFEDReader::match() {
-
-  for ( L1MuDTTrackContainer::TrackIterator i  = dtTracks.begin();
-                                            i != dtTracks.end();
-                                            i++ ) {
-    int bxTh     = i->bx()+1;
-    int sectorTh = i->scNum();
-    int wheelTh  = i->whNum()+3;
-    if(wheelTh > 3) wheelTh-=1;
-    int muonTh   = i->TrkTag();
-
-    i->setEtaPacked(etTrack[bxTh][sectorTh][wheelTh][muonTh]);
-    i->setFineHaloPacked(efTrack[bxTh][sectorTh][wheelTh][muonTh]);
-  }
-
   return;
 }
 
@@ -397,18 +357,6 @@ void DTTFFEDReader::clear() {
   phiSegments.clear();
   theSegments.clear();
   dtTracks.clear();
-
-  for(int i=0; i<3;  i++){
-    for(int j=0; j<12; j++){
-      for(int k=0; k<6;  k++){
-        for(int l=0; l<2;  l++){
-          etTrack[i][j][k][l] = 0;
-          efTrack[i][j][k][l] = 0;
-        } 
-      } 
-    } 
-  }
-
   return;
 }
 

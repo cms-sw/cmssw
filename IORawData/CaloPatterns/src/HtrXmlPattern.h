@@ -12,7 +12,6 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "CondFormats/HcalObjects/interface/HcalElectronicsMap.h"
 
 //additional include files
 #include "HtrXmlPatternTool.h"
@@ -27,12 +26,11 @@ private:
   virtual void beginJob(const edm::EventSetup&) ;
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
-  virtual void do_hand_fill(const HcalElectronicsMap*);
   HtrXmlPatternTool *m_tool;
   HtrXmlPatternToolParameters *m_toolparameters;
+
   int  m_sets_to_show;
-  bool m_fill_by_hand;
-  bool m_filled;
+  bool m_write_XML;
   bool m_write_root_file;
 };
 

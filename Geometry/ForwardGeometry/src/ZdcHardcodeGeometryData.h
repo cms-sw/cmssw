@@ -17,7 +17,7 @@
  YLUM is the Y position of LUM 
  dYPlate  is half height (DY/2) of the HAD and LUM sections
  dYLum is the half height (DY/2) of the LUM section
- dXPlate is the half width (DX/2) of all sections	
+ dXAll is the half width (DX/2) of all sections	
  all dimmensions are in mm and rads
  Edmundo Garcia, August 2007.
 **/
@@ -32,5 +32,5 @@ static const double tiltangle = 0.7854; // 45 degrees
 static const double theZSectionBoundaries[] = {-500.0,-395.55,-290.0};
 static const double theXChannelBoundaries[] = {-48.0,-28.8,-9.6,9.6,28.8};
 static const double theZLUMChannelBoundaries[] = {-395.55,-346.525,-301.5};
-static const double theZHadChannelBoundaries[] = {-257.4,-118.2,21.0,160.2,};
+static const double theZHadChannelBoundaries[] = {-257.4,118.2,21.0,160.2,};
 #endif

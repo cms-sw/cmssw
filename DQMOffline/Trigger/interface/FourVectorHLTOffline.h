@@ -16,7 +16,7 @@
 //
 // Original Author:  Jeffrey Berryhill
 //         Created:  June 2008
-// $Id: FourVectorHLTOffline.h,v 1.3 2008/08/15 17:50:32 berryhil Exp $
+// $Id: FourVectorHLTOffline.h,v 1.4 2008/08/15 20:17:34 berryhil Exp $
 //
 //
 
@@ -33,6 +33,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
+#include "DataFormats/Common/interface/TriggerResults.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
@@ -83,15 +84,19 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
       bool monitorDaemon_;
       int theHLTOutputType;
       edm::InputTag triggerSummaryLabel_;
-      edm::InputTag triggerResultLabel_;
+      edm::InputTag triggerResultsLabel_;
+      // data across paths
+      MonitorElement* scalersSelect;
+      // helper class to store the data path
 
-      // helper class to store the data
       class PathInfo {
 	PathInfo():
 	  pathIndex_(-1), pathName_("unset"), filterName_("unset"), objectType_(-1)
 	  {};
       public:
-	void setHistos(MonitorElement* const etOn, 
+	void setHistos(
+                       MonitorElement* const NOn, 
+                       MonitorElement* const etOn, 
                        MonitorElement* const etaOn, 
 		       MonitorElement* const phiOn, 
 		       MonitorElement* const etavsphiOn,  
@@ -103,6 +108,7 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
                        MonitorElement* const etaL1, 
 		       MonitorElement* const phiL1, 
 		       MonitorElement* const etavsphiL1) {
+	  NOn_ = NOn;
 	  etOn_ = etOn;
 	  etaOn_ = etaOn;
 	  phiOn_ = phiOn;
@@ -115,6 +121,9 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
 	  etaL1_ = etaL1;
 	  phiL1_ = phiL1;
 	  etavsphiL1_ = etavsphiL1;
+	}
+	MonitorElement * getNOnHisto() {
+	  return NOn_;
 	}
 	MonitorElement * getEtOnHisto() {
 	  return etOn_;
@@ -162,13 +171,14 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
 	PathInfo(std::string pathName, edm::InputTag filterName, size_t type, float ptmin, 
 		 float ptmax):
 	  pathName_(pathName), filterName_(filterName), objectType_(type),
-	  etOn_(0), etaOn_(0), phiOn_(0), etavsphiOn_(0),
+	  NOn_(0),etOn_(0), etaOn_(0), phiOn_(0), etavsphiOn_(0),
 	  etOff_(0), etaOff_(0), phiOff_(0), etavsphiOff_(0),
 	  etL1_(0), etaL1_(0), phiL1_(0), etavsphiL1_(0),
 	  ptmin_(ptmin), ptmax_(ptmax)
 	  {
 	  };
 	  PathInfo(std::string pathName, edm::InputTag filterName, size_t type,
+		   MonitorElement *NOn,
 		   MonitorElement *etOn,
 		   MonitorElement *etaOn,
 		   MonitorElement *phiOn,
@@ -184,7 +194,7 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
 		   float ptmin, float ptmax
 		   ):
 	    pathName_(pathName), filterName_(filterName), objectType_(type),
-	    etOn_(etOn), etaOn_(etaOn), phiOn_(phiOn), etavsphiOn_(etavsphiOn),
+	    NOn_(NOn), etOn_(etOn), etaOn_(etaOn), phiOn_(phiOn), etavsphiOn_(etavsphiOn),
 	    etOff_(etOff), etaOff_(etaOff), phiOff_(phiOff), etavsphiOff_(etavsphiOff),
 	    etL1_(etL1), etaL1_(etaL1), phiL1_(phiL1), etavsphiL1_(etavsphiL1),
 	    ptmin_(ptmin), ptmax_(ptmax)
@@ -200,7 +210,7 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
 	  int objectType_;
 
 	  // we don't own this data
-	  MonitorElement *etOn_, *etaOn_, *phiOn_, *etavsphiOn_;
+	  MonitorElement *NOn_, *etOn_, *etaOn_, *phiOn_, *etavsphiOn_;
 	  MonitorElement *etOff_, *etaOff_, *phiOff_, *etavsphiOff_;
 	  MonitorElement *etL1_, *etaL1_, *phiL1_, *etavsphiL1_;
 

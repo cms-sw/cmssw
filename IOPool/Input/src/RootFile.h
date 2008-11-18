@@ -66,6 +66,7 @@ namespace edm {
 	     InputSource::ProcessingMode processingMode,
 	     int forcedRunOffset,
 	     std::vector<EventID> const& whichEventsToProcess,
+             bool noEventSort,
              bool dropMetaData,
 	     GroupSelectorRules const& groupSelectorRules);
     void reportOpened();
@@ -132,7 +133,7 @@ namespace edm {
     bool selected(BranchDescription const& desc) const;
 
     template <typename T>
-    boost::shared_ptr<BranchMapper<T> > makeBranchMapper(RootTree & rootTree, BranchType const& type) const;
+    boost::shared_ptr<BranchMapper> makeBranchMapper(RootTree & rootTree, BranchType const& type) const;
 
     std::string const file_;
     std::string const logicalFile_;
@@ -155,6 +156,7 @@ namespace edm {
     std::vector<LuminosityBlockID> whichLumisToSkip_;
     std::vector<EventID> whichEventsToProcess_;
     std::vector<EventID>::const_iterator eventListIter_;
+    bool noEventSort_;
     bool fastClonable_;
     bool dropMetaData_;
     GroupSelector groupSelector_;
@@ -173,16 +175,28 @@ namespace edm {
     TTree * eventHistoryTree_;
     History history_;    
     boost::shared_ptr<BranchChildren> branchChildren_;
+    mutable bool nextIDfixup_;
   }; // class RootFile
 
   template <typename T>
-  boost::shared_ptr<BranchMapper<T> >
+  boost::shared_ptr<BranchMapper>
   RootFile::makeBranchMapper(RootTree & rootTree, BranchType const& type) const {
     if (fileFormatVersion_.value_ >= 8) {
-      return rootTree.makeBranchMapper<T>();
+      boost::shared_ptr<BranchMapper> bm = rootTree.makeBranchMapper<T>();
+      // The following block handles files originating from the repacker where the max product ID was not
+      // set correctly in the registry.
+      if (fileFormatVersion_.value_ <= 9) {
+        ProductID pid = bm->maxProductID();
+        if (pid.id() >= productRegistry_->nextID()) {
+          ProductRegistry* pr = const_cast<ProductRegistry*>(productRegistry_.get());
+          pr->setProductIDs(pid.id() + 1);
+          nextIDfixup_ = true;
+        }
+      }
+      return bm;
     } 
     // backward compatibility
-    boost::shared_ptr<BranchMapper<T> > mapper(new BranchMapper<T>);
+    boost::shared_ptr<BranchMapper> mapper(new BranchMapper);
     if (fileFormatVersion_.value_ >= 7) {
       rootTree.fillStatus();
       for(ProductRegistry::ProductList::const_iterator it = productRegistry_->productList().begin(),
@@ -198,7 +212,7 @@ namespace edm {
           br->GetEntry(rootTree.entryNumber());
           br->SetAddress(0);
 	  std::vector<ProductStatus>::size_type index = it->second.oldProductID().id() - 1;
-	  T entry(it->second.branchID(),
+	  EventEntryInfo entry(it->second.branchID(),
 		  rootTree.productStatuses()[index], it->second.oldProductID(), *pb);
 	  mapper->insert(entry);
         }
@@ -215,7 +229,7 @@ namespace edm {
           std::auto_ptr<EntryDescription> entryDesc = pb->convertToEntryDescription();
 	  ProductStatus status = (ppb->creatorStatus() == BranchEntryDescription::Success ? productstatus::present() : productstatus::neverCreated());
 	  // Throws parents away for now.
-	  T entry(it->second.branchID(), status, entryDesc->moduleDescriptionID_, it->second.oldProductID());
+	  EventEntryInfo entry(it->second.branchID(), status, entryDesc->moduleDescriptionID_, it->second.oldProductID());
 	  mapper->insert(entry);
        }
       }

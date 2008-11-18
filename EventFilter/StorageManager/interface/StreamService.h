@@ -1,7 +1,7 @@
 #ifndef STREAMSERVICE_H
 #define STREAMSERVICE_H
 
-// $Id: StreamService.h,v 1.10 2008/08/07 11:33:14 loizides Exp $
+// $Id: StreamService.h,v 1.11 2008/08/13 22:48:11 biery Exp $
 
 #include <EventFilter/StorageManager/interface/FileRecord.h>
 #include <EventFilter/StorageManager/interface/OutputService.h>
@@ -41,6 +41,7 @@ namespace edm {
       void   setHighWaterMark(double d)             { highWaterMark_ = d; }
       void   setLumiSectionTimeOut(double d)        { lumiSectionTimeOut_ = d; }
       virtual void closeTimedOutFiles(int lumi, double timeoutstart) = 0;
+      virtual void closeTimedOutFiles() = 0;
  
       double getCurrentTime() const;
 

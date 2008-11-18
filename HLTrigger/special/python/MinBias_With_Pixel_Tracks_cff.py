@@ -8,5 +8,3 @@ import copy
 from HLTrigger.HLTcore.hltPrescaler_cfi import *
 preMinBiasPixel = copy.deepcopy(hltPrescaler)
 hltMinBiasPixel = cms.Sequence(cms.SequencePlaceholder("hltBegin")+preMinBiasPixel+l1seedMinBiasPixel+cms.SequencePlaceholder("doLocalPixel")+cms.SequencePlaceholder("pixelTrackingForMinBias")+hltPixelCands*hltMinBiasPixelFilter)
-preMinBiasPixel.prescaleFactor = 1
-

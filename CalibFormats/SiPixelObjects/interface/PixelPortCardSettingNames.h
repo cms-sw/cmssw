@@ -1,13 +1,5 @@
 #ifndef PixelPortCardSettingNames_h
 #define PixelPortCardSettingNames_h
-/**
-* \file CalibFormats/SiPixelObjects/interface/PortCardSettingNames.h
-* \brief This is just a naespe populated with default values
-*
-*   A longer explanation will be placed here later
-*
-*/
- 
 
 #include <string>
 namespace pos{
@@ -124,28 +116,26 @@ namespace pos{
     const std::string k_PLL_CTR1 = "PLL_CTR1";
     const std::string k_PLL_CTR2 = "PLL_CTR2";
     const std::string k_PLL_CTR3 = "PLL_CTR3";
-    const std::string k_PLL_CTR4or5 = "PLL_CTR4or5"; // controls either CTR4 (if bit 5 of CTR2 = 0) or CTR5 (if bit 5 of CTR = 1)
-    const std::string k_PLL_CTR4 = "PLL_CTR4"; // has no address defined, needs special handling
-    const std::string k_PLL_CTR5 = "PLL_CTR5"; // has no address defined, needs special handling
+    const std::string k_PLL_CTR4 = "PLL_CTR4";
     
     const unsigned int k_PLL_CTR1_offset = 0x0;
     const unsigned int k_PLL_CTR2_offset = 0x1;
     const unsigned int k_PLL_CTR3_offset = 0x2;
-    const unsigned int k_PLL_CTR4or5_offset = 0x3;
+    const unsigned int k_PLL_CTR4_offset = 0x3;
     
     // PLL fpix
     const unsigned int k_fpix_PLL_base = 0x20;
     const unsigned int k_fpix_PLL_CTR1_address = k_fpix_PLL_base + k_PLL_CTR1_offset;
     const unsigned int k_fpix_PLL_CTR2_address = k_fpix_PLL_base + k_PLL_CTR2_offset;
     const unsigned int k_fpix_PLL_CTR3_address = k_fpix_PLL_base + k_PLL_CTR3_offset;
-    const unsigned int k_fpix_PLL_CTR4or5_address = k_fpix_PLL_base + k_PLL_CTR4or5_offset;
+    const unsigned int k_fpix_PLL_CTR4_address = k_fpix_PLL_base + k_PLL_CTR4_offset;
     
     // PLL bpix
     const unsigned int k_bpix_PLL_base = 0x40;
     const unsigned int k_bpix_PLL_CTR1_address = k_bpix_PLL_base + k_PLL_CTR1_offset;
     const unsigned int k_bpix_PLL_CTR2_address = k_bpix_PLL_base + k_PLL_CTR2_offset;
     const unsigned int k_bpix_PLL_CTR3_address = k_bpix_PLL_base + k_PLL_CTR3_offset;
-    const unsigned int k_bpix_PLL_CTR4or5_address = k_bpix_PLL_base + k_PLL_CTR4or5_offset;
+    const unsigned int k_bpix_PLL_CTR4_address = k_bpix_PLL_base + k_PLL_CTR4_offset;
     
     // Delay25
     const std::string k_Delay25_RDA = "Delay25_RDA";

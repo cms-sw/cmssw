@@ -45,6 +45,7 @@ namespace edm {
     eventsToSkip_(pset.getUntrackedParameter<unsigned int>("skipEvents", 0U)),
     whichLumisToSkip_(pset.getUntrackedParameter<std::vector<LuminosityBlockID> >("lumisToSkip", std::vector<LuminosityBlockID>())),
     eventsToProcess_(pset.getUntrackedParameter<std::vector<EventID> >("eventsToProcess",std::vector<EventID>())),
+    noEventSort_(pset.getUntrackedParameter<bool>("noEventSort", false)),
     skipBadFiles_(pset.getUntrackedParameter<bool>("skipBadFiles", false)),
     treeCacheSize_(pset.getUntrackedParameter<unsigned int>("cacheSize", 0U)),
     treeMaxVirtualSize_(pset.getUntrackedParameter<int>("treeMaxVirtualSize", -1)),
@@ -54,6 +55,14 @@ namespace edm {
     dropMetaData_(pset.getUntrackedParameter<bool>("dropMetaData", false)),
     primarySequence_(primarySequence),
     randomAccess_(false) {
+
+    if (!primarySequence_) noEventSort_ = false;
+    if (noEventSort_ && ((startAtEvent_ > 1) || !eventsToProcess_.empty())) {
+      throw cms::Exception("Configuration")
+        << "Illegal configuration options passed to PoolSource\n"
+        << "You cannot request \"noEventSort\" and also set \"firstEvent\"\n"
+        << "or \"eventsToProcess\".\n";
+    }
 
     StorageFactory *factory = StorageFactory::get();
     for(fileIter_ = fileIterBegin_; fileIter_ != fileIterEnd_; ++fileIter_)
@@ -154,7 +163,7 @@ namespace edm {
 	  startAtRun_, startAtLumi_, startAtEvent_, eventsToSkip_, whichLumisToSkip_,
 	  remainingEvents(), remainingLuminosityBlocks(), treeCacheSize_, treeMaxVirtualSize_,
 	  input_.processingMode(),
-	  forcedRunOffset_, eventsToProcess_,
+	  forcedRunOffset_, eventsToProcess_, noEventSort_,
 	  dropMetaData_, groupSelectorRules_));
       fileIndexes_[fileIter_ - fileIterBegin_] = rootFile_->fileIndexSharedPtr();
     } else {

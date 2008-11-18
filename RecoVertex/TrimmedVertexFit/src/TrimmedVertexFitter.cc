@@ -8,7 +8,7 @@
 TrimmedVertexFitter::TrimmedVertexFitter(const edm::ParameterSet & pSet)
 {
   theRector.setMaxNbOfVertices(1);
-  setPtCut(pSet.getParameter<double>("minPt"));
+  setPtCut(pSet.getParameter<double>("PtCut"));
 }
 
 
@@ -43,16 +43,7 @@ CachingVertex<5> TrimmedVertexFitter::vertex(
 {
   cout << "[TrimmedVertexFitter] method not implemented" << endl;
   throw VertexException("not implemented");
-}
-
-CachingVertex<5> TrimmedVertexFitter::vertex(
-    const vector<RefCountedVertexTrack> & tracks,
-    const reco::BeamSpot & spot ) const
-{
-  cout << "[TrimmedVertexFitter] method not implemented" << endl;
-  throw VertexException("not implemented");
-}
-
+  }
 
 CachingVertex<5> TrimmedVertexFitter::vertex(
     const std::vector<reco::TransientTrack> & tracks, const GlobalPoint& linPoint) const

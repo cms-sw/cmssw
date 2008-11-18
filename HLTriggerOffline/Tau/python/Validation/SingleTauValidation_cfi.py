@@ -15,7 +15,7 @@ SingleTauPathVal = cms.EDFilter("HLTTauValidation",
     NTriggeredLeptons     = cms.untracked.uint32(0),
     DoReferenceAnalysis   = cms.untracked.bool(True),
     OutputFileName        = cms.untracked.string(''),
-    LogFileName           = cms.untracked.string('SingleTauValidation.log'),
+    LogFileName           = cms.untracked.string(''),
     MatchDeltaRL1         = cms.untracked.double(0.5),
     MatchDeltaRHLT        = cms.untracked.double(0.3)
 )
@@ -61,7 +61,7 @@ SingleTauL3Val = cms.EDFilter("HLTTauTrkDQMOfflineSource",
     Type                   = cms.string('L3'),                           
     doReference            = cms.bool(True),
     MatchDeltaR            = cms.double(0.3),
-    OutputFileName         = cms.string('test.root'),
+    OutputFileName         = cms.string(''),
     EtMin                  = cms.double(0.),
     EtMax                  = cms.double(200.),
     NBins                  = cms.int32(50)                            

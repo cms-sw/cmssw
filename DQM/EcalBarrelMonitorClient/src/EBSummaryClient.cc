@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2008/08/11 07:24:13 $
- * $Revision: 1.164 $
+ * $Date: 2008/08/20 15:35:54 $
+ * $Revision: 1.166 $
  * \author G. Della Ricca
  *
 */
@@ -1106,7 +1106,7 @@ void EBSummaryClient::analyze(void) {
         float val_ee = meTriggerTowerEmulError_->getBinContent((ipx-1)/5+1,(iex-1)/5+1);
 
         // turn each dark color (masked channel) to bright green
-        // for laser&timing turn also yellow into bright green
+        // for laser & timing & trigger turn also yellow into bright green
 
         //  0/3 = red/dark red
         //  1/4 = green/dark green
@@ -1118,7 +1118,7 @@ void EBSummaryClient::analyze(void) {
         if(val_ls==2 || val_ls==3 || val_ls==4 || val_ls==5) val_ls=1;
         if(val_tm==2 || val_tm==3 || val_tm==4 || val_tm==5) val_tm=1;
         if(             val_sf==3 || val_sf==4 || val_sf==5) val_sf=1;
-        if(             val_ee==3 || val_ee==4 || val_ee==5) val_ee=1;
+        if(val_ee==2 || val_ee==3 || val_ee==4 || val_ee==5) val_ee=1;
 
         if(val_in==6) xval=6;
         else if(val_in==0) xval=0;

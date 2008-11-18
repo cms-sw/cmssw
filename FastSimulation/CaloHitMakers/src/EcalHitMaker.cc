@@ -44,7 +44,6 @@ EcalHitMaker::EcalHitMaker(CaloGeometryHelper * theCalo,
   myHistos = Histos::instance();
 #endif
   //  myHistos->debug("Constructeur EcalHitMaker");
-  simulatePreshower_ = true;
   X0depthoffset_ = 0. ;
   X0PS1_ = 0.;
   X0PS2_ = 0.; 
@@ -410,7 +409,7 @@ EcalHitMaker::cellLine(std::vector<CaloPoint>& cp)
   cp.clear();
   //  if(myTrack->onVFcal()!=2)
   //    {
-  if(!central_&&onEcal_&&simulatePreshower_) preshowerCellLine(cp);
+  if(!central_&&onEcal_) preshowerCellLine(cp);
   if(onEcal_)ecalCellLine(EcalEntrance_,EcalEntrance_+normal_,cp);
   //    }
   

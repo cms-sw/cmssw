@@ -2,7 +2,6 @@
 #include <ostream>
 
 using namespace std;
-using namespace SurfaceSideDefinition;
 
 ostream& operator<<(std::ostream& os, const TrajectoryStateOnSurface& tsos) {
   os << "global parameters" << endl;

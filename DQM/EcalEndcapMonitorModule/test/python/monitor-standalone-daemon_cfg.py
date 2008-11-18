@@ -85,8 +85,6 @@ process.source = cms.Source("PoolSource",
 #---
 #    fileNames = cms.untracked.vstring('/store/users/dellaric/data/h2b.00016404.A.0.0.root')
 #---
-#    fileNames = cms.untracked.vstring('/store/users/dellaric/data/h2b.00016405.A.0.0.root')
-#---
 #    fileNames = cms.untracked.vstring('/store/users/dellaric/data/h2b.00020937.A.0.0.root')
 #---
 )

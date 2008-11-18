@@ -26,6 +26,8 @@ namespace {
     L1GctEtTotalCollection etTotColl;
     L1GctEtHadCollection etHadColl;
     L1GctJetCountsCollection jetCountsColl;
+    L1GctHFRingEtSumsCollection rinSumsColl;
+    L1GctHFBitCountsCollection bitCountsColl;
 
     // wrapped internal collections
     edm::Wrapper<L1GctInternEmCandCollection> w_internEmCandColl;
@@ -45,6 +47,8 @@ namespace {
     edm::Wrapper<L1GctEtHadCollection> w_etHadColl;
     edm::Wrapper<L1GctEtMissCollection> w_etMissColl;
     edm::Wrapper<L1GctJetCountsCollection> w_jetCountsColl;
+    edm::Wrapper<L1GctHFRingEtSumsCollection> w_ringSumsColl;
+    edm::Wrapper<L1GctHFBitCountsCollection> w_bitCountsColl;
 
     // references, used by L1Extra
     edm::Ref<L1GctEmCandCollection> emRef ;

@@ -25,8 +25,10 @@ import time
 # numbers
 OCT_rwx_r_r = 0744
 # strings
-STR_default   = 'DEFAULT'
-STR_textUsage = """ CMSSW/DQM/SiStripMonitorClient/scripts/submitDQMOfflineCAF.py
+STR_default              = 'DEFAULT'
+STR_nameInputFilesJobCff = 'inputFiles_cff'
+STR_nameCmsswPackage     = 'DQM/SiStripMonitorClient'
+STR_textUsage            = """ CMSSW/DQM/SiStripMonitorClient/scripts/submitDQMOfflineCAF.py
  
  This script submits batch jobs to the CAF in order to process the full
  granularity SiStrip offline DQM.
@@ -70,9 +72,14 @@ STR_textUsage = """ CMSSW/DQM/SiStripMonitorClient/scripts/submitDQMOfflineCAF.p
       
      -d, --dataset PRIMARY_DATASET
          specify dataset for DBS query;
-         available: /Cosmics/Commissioning08-MW33_v1/RECO (default)
+         available: /Cosmics/CRUZET4_v1_CRZT210_V1_SuperPointing_v1/RECO
+                    /Cosmics/CRUZET4_v1_CRZT210_V1_TrackerPointing_v1/RECO
+                    /Cosmics/Commissioning08_CRUZET4_V2P_CRUZET4_InterimReco_v3/RECO
+                    /Cosmics/Commissioning08-CRUZET4_v1/RECO                         (default)
+                    /Cosmics/Commissioning08-CRUZET4_v1/RAW
+                    /Cosmics/Commissioning08-MW33_v1/RECO
                     /Cosmics/Commissioning08-MW33_v1/RAW
-         
+                    
      -o, --outpath PATH
          path to copy job output *.root files to;
          currently (almost) no check performed;
@@ -93,11 +100,14 @@ LSTR_wordArgument = sys.argv[1:]
 # default arguments
 INT_nJobs      = 10
 BOOL_filtersOn = False
-STR_dataset    = '/Cosmics/Commissioning08-MW33_v1/RECO'
-DICT_datasets = {STR_dataset                           :'/store/data/Commissioning08/Cosmics/RECO/MW33_v1',
-                 '/Cosmics/Commissioning08-MW33_v1/RAW':'/store/data/Commissioning08/Cosmics/RAW/MW33_v1'}
-# STR_pathOut    = os.getenv('CASTOR_HOME') + '/DQM'
-# STR_pathMerge  = os.getenv('HOME') + '/scratch0/DQM'
+STR_dataset    = '/Cosmics/Commissioning08-CRUZET4_v1/RECO'
+DICT_datasets = { '/Cosmics/CRUZET4_v1_CRZT210_V1_SuperPointing_v1/RECO'            :'/store/data/CRUZET4_v1/Cosmics/RECO/CRZT210_V1_SuperPointing_v1'            ,
+                  '/Cosmics/CRUZET4_v1_CRZT210_V1_TrackerPointing_v1/RECO'          :'/store/data/CRUZET4_v1/Cosmics/RECO/CRZT210_V1_TrackerPointing_v1'          ,
+                  '/Cosmics/Commissioning08_CRUZET4_V2P_CRUZET4_InterimReco_v3/RECO':'/store/data/Commissioning08/Cosmics/RECO/CRUZET4_V2P_CRUZET4_InterimReco_v3',
+                  STR_dataset                                                       :'/store/data/Commissioning08/Cosmics/RECO/CRUZET4_v1'                        ,
+                  '/Cosmics/Commissioning08-CRUZET4_v1/RAW'                         :'/store/data/Commissioning08/Cosmics/RAW/CRUZET4_v1'                         ,
+                  '/Cosmics/Commissioning08-MW33_v1/RECO'                           :'/store/data/Commissioning08/Cosmics/RECO/MW33_v1'                           ,
+                  '/Cosmics/Commissioning08-MW33_v1/RAW'                            :'/store/data/Commissioning08/Cosmics/RAW/MW33_v1'                            }
 STR_pathOut    = '/castor/cern.ch/user/c/cctrack/DQM'
 STR_pathMerge  = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_TRACKER/DQM/SiStrip/jobs/merged'
 # option lists
@@ -284,10 +294,11 @@ if string.split(str_pathMerge,'/')[1] != 'afs':
   
 # current environment
 
-# FIXME: This should be done in a more flexible way. See r1.4 for proposal...
 str_pathCurrentDir        = os.getcwd()
-str_pathCurrentDirStrings = string.split(str_pathCurrentDir, '/src/') # assumes to be in _the_ release working area
-str_pathCmsswBase         = str_pathCurrentDirStrings[0]              # assumes to be in _the_ release working area 
+str_pathCmsswBase         = os.getenv('CMSSW_BASE')
+str_nameCmsswRel          = os.path.basename(str_pathCmsswBase)
+str_pathCmsswBaseSrc      = str_pathCmsswBase + '/src'
+str_pathCmsswBasePackage  = str_pathCmsswBaseSrc + '/' + STR_nameCmsswPackage
 
 # prepare work area
   
@@ -307,13 +318,23 @@ if os.path.exists(str_nameRun):
       os.rmdir(os.path.join(str_root, name))
   os.rmdir(str_nameRun)
 os.mkdir(str_nameRun)
+str_pathRunIncludeDir = str_pathCmsswBasePackage + '/python/' + str_nameRun
+if os.path.exists(str_pathRunIncludeDir):
+  for str_root, str_dirs, str_files in os.walk(str_pathRunIncludeDir, topdown = False):
+    for name in str_files:
+      os.remove(os.path.join(str_root, name))
+    for name in str_dirs:
+      os.rmdir(os.path.join(str_root, name))
+  os.rmdir(str_pathRunIncludeDir)
+os.mkdir(str_pathRunIncludeDir)
+str_nameInputFilesFile = str_nameRun + '/' + str_nameRun + '.txt'
 
 # dealing with input files
 
-int_nInputFiles       = 0
-file_inputFilesCff = file(str_nameRun + '/' + str_nameRun + '.cff','w')
-str_dbsParams    = urllib.urlencode({'dbsInst': 'cms_dbs_prod_global', 'blockName': '*', 'dataset': str_dataset, 'userMode': 'user', 'run': str_runNumber, 'what': 'cff'})
-lstr_dbsOutput    = urllib.urlopen("https://cmsweb.cern.ch/dbs_discovery/getLFN_txt", str_dbsParams)
+int_nInputFiles    = 0
+file_inputFilesCff = file(str_nameInputFilesFile, 'w')
+str_dbsParams    = urllib.urlencode({'dbsInst': 'cms_dbs_prod_global', 'blockName': '*', 'dataset': str_dataset, 'userMode': 'user', 'run': str_runNumber, 'what': 'py'})
+lstr_dbsOutput   = urllib.urlopen("https://cmsweb.cern.ch/dbs_discovery/getLFN_txt", str_dbsParams)
 str_pathDbsStore = DICT_datasets[str_dataset]
 for str_iLine in lstr_dbsOutput.readlines():
   if str_iLine.find(str_pathDbsStore) > -1:
@@ -338,16 +359,16 @@ print
 
 # loop over single jobs
   
-int_nLinesRead = 0
-file_inputFilesCff = file(str_nameRun + '/' + str_nameRun + '.cff', 'r')
-lstr_linesInput = file_inputFilesCff.readlines()
+int_nLinesRead      = 0
+file_inputFilesCff  = file(str_nameInputFilesFile, 'r')
+lstr_linesInput     = file_inputFilesCff.readlines()
 str_nameMergeScript = 'merge' + str_nameRun + '.job'
 file_mergeScript = file(str_nameRun + '/' + str_nameMergeScript, 'w')
 file_mergeScript.write('#!/bin/tcsh\n')
-file_mergeScript.write('cd ' + str_pathCmsswBase + '/src\n')
+file_mergeScript.write('cd ' + str_pathCmsswBaseSrc + '\n')
 file_mergeScript.write('cmsenv\n')
-file_mergeScript.write('setenv STAGE_SVCCLASS cmscaf\n') # --> added to use CAF stager
-file_mergeScript.write('hadd -f ' + str_pathMerge + '/DQM_SiStrip_' + str_nameRun + '_CAF-standAlone.root \\\n') # --> configurable
+file_mergeScript.write('setenv STAGE_SVCCLASS cmscaf\n')
+file_mergeScript.write('hadd -f ' + str_pathMerge + '/DQM_SiStrip_' + str_nameRun + '_CAF-' + str_nameCmsswRel +'-standAlone.root \\\n') # FIXME: make configurable
 for int_iJob in range(int_nJobs):
   int_nDigits = 1
   if int_iJob >= 10:
@@ -356,30 +377,47 @@ for int_iJob in range(int_nJobs):
   for int_iDigit in range(4-int_nDigits):
     str_nameJob += '0'
   str_nameJob += str(int_iJob)
-  str_pathJobDir   = str_nameRun + "/" + str_nameJob
-  os.mkdir(str_pathJobDir)
-  os.chdir(str_pathJobDir)
-  str_nameInputFilesJobCff = 'inputFiles.cff'
+  # prepare job dir
+  str_nameJobDir = str_nameRun + "/" + str_nameJob
+  os.mkdir(str_nameJobDir)
+  os.chdir(str_nameJobDir)     
+  str_nameJobIncludeDir = STR_nameCmsswPackage + '/python/' + str_nameJobDir
+  str_pathJobIncludeDir = str_pathRunIncludeDir + '/' + str_nameJob
+  str_includeDirPy      = str_nameJobIncludeDir.replace('/','.')
+  str_includeDirPy      = str_includeDirPy.replace('.python.','.')
+  str_outputDir         = '/tmp/' + os.getenv('USER') + '/' + str_nameJobDir
+  # create main configuration file
+  str_sedCommand = 'sed '
   if bool_filtersOn:
-    if str_datatier == 'RECO':
-      os.system('sed -e \"s#RECO_FROM_RAW#//     SiStripDQMRecoFromRaw,#g\" -e \"s#HLT_FILTER#    hltFilter,#g\" -e \"s#INCLUDE_DIRECTORY#' + str_pathCurrentDirStrings[1] + '/' + str_pathJobDir + '#g\" -e \"s#INPUT_FILES#' + str_pathCurrentDirStrings[1] + '/' + str_pathJobDir + '/' + str_nameInputFilesJobCff + '#g\" ' + str_pathCmsswBase + '/src/DQM/SiStripMonitorClient/test/SiStripDQMOfflineGlobalRunCAF_template.cfg > SiStripDQMOfflineGlobalRunCAF.cfg')
-    else:
-      os.system('sed -e \"s#RECO_FROM_RAW#    SiStripDQMRecoFromRaw,#g\" -e \"s#HLT_FILTER#    hltFilter,#g\" -e \"s#INCLUDE_DIRECTORY#' + str_pathCurrentDirStrings[1] + '/' + str_pathJobDir + '#g\" -e \"s#INPUT_FILES#' + str_pathCurrentDirStrings[1] + '/' + str_pathJobDir + '/' + str_nameInputFilesJobCff + '#g\" ' + str_pathCmsswBase + '/src/DQM/SiStripMonitorClient/test/SiStripDQMOfflineGlobalRunCAF_template.cfg > SiStripDQMOfflineGlobalRunCAF.cfg')
+    str_sedCommand += '-e \"s#HLT_FILTER#    process.hltFilter *#g\" '
   else:
-    if str_datatier == 'RECO':
-      os.system('sed -e \"s#RECO_FROM_RAW#//     SiStripDQMRecoFromRaw,#g\" -e \"s#HLT_FILTER#//     hltFilter,#g\" -e \"s#INCLUDE_DIRECTORY#' + str_pathCurrentDirStrings[1] + '/' + str_pathJobDir + '#g\" -e \"s#INPUT_FILES#' + str_pathCurrentDirStrings[1] + '/' + str_pathJobDir + '/' + str_nameInputFilesJobCff + '#g\" ' + str_pathCmsswBase + '/src/DQM/SiStripMonitorClient/test/SiStripDQMOfflineGlobalRunCAF_template.cfg > SiStripDQMOfflineGlobalRunCAF.cfg')
-    else:
-      os.system('sed -e \"s#RECO_FROM_RAW#    SiStripDQMRecoFromRaw,#g\" -e \"s#HLT_FILTER#//     hltFilter,#g\" -e \"s#INCLUDE_DIRECTORY#' + str_pathCurrentDirStrings[1] + '/' + str_pathJobDir + '#g\" -e \"s#INPUT_FILES#' + str_pathCurrentDirStrings[1] + '/' + str_pathJobDir + '/' + str_nameInputFilesJobCff + '#g\" ' + str_pathCmsswBase + '/src/DQM/SiStripMonitorClient/test/SiStripDQMOfflineGlobalRunCAF_template.cfg > SiStripDQMOfflineGlobalRunCAF.cfg')
-  file_inputFilesJobCff = file(str_nameInputFilesJobCff, 'w')
-  file_inputFilesJobCff.write('  source = PoolSource {\n    untracked vstring fileNames = {\n')
+    str_sedCommand += '-e \"s#HLT_FILTER#\#     process.hltFilter *#g\" '
+  if str_datatier == 'RECO':
+    str_sedCommand += '-e \"s#RECO_FROM_RAW#\#     process.SiStripDQMRecoFromRaw *#g\" -e \"s#DQM_FROM_RAW#\#     process.SiStripDQMSourceGlobalRunCAF_fromRAW *#g\" '
+  else:
+    str_sedCommand += '-e \"s#RECO_FROM_RAW#    process.SiStripDQMRecoFromRaw *#g\" -e \"s#DQM_FROM_RAW#    process.SiStripDQMSourceGlobalRunCAF_fromRAW *#g\" '
+  str_sedCommand += '-e \"s#INCLUDE_DIRECTORY#' + str_includeDirPy + '#g\" '
+  str_sedCommand += '-e \"s#INPUT_FILES#' + str_includeDirPy + '.' + STR_nameInputFilesJobCff + '#g\" '
+  str_sedCommand += str_pathCmsswBasePackage + '/test/SiStripDQMOfflineGlobalRunCAF_template_cfg.py > SiStripDQMOfflineGlobalRunCAF_cfg.py'
+  os.system(str_sedCommand)
+  # prepare job include dir
+  os.mkdir(str_pathJobIncludeDir)
+  # create included input files list
+  str_pathInputFilesJobCff = str_pathJobIncludeDir + '/' + STR_nameInputFilesJobCff + '.py'
+  file_inputFilesJobCff = file(str_pathInputFilesJobCff, 'w')
+  file_inputFilesJobCff.write('import FWCore.ParameterSet.Config as cms\n\nsource = cms.Source ("PoolSource",\n    fileNames = cms.untracked.vstring (\n')
   for n_iActualLine in range(int_nLinesRead, min(int_nLinesRead+nInputFilesJob, int_nInputFiles)):
-    str_actualLine  = lstr_linesInput[n_iActualLine]
+    # protections vs. those annoying DBS output format changes come here:
+#     str_linesInput = lstr_linesInput[n_iActualLine]
+    str_linesInput = lstr_linesInput[n_iActualLine].replace(') );',',')
+    str_actualLine = str_linesInput
     if (n_iActualLine+1)%nInputFilesJob == 0 or int_nLinesRead == int_nInputFiles-1:
-      str_actualLine = string.split(lstr_linesInput[n_iActualLine], ',')[0] + '\n'
+      str_actualLine = string.split(str_linesInput, ',')[0] + '\n'
     file_inputFilesJobCff.write(str_actualLine)
     int_nLinesRead += 1
-  file_inputFilesJobCff.write('    }\n  }\n')
+  file_inputFilesJobCff.write('    )\n)\n')
   file_inputFilesJobCff.close()
+  # extend merge script
   str_lineMergeScript = str_pathOut + '/DQM_SiStrip_' + str_nameJob + '.root'
   if bool_useCastor:
     str_lineMergeScript = 'rfio:' + str_lineMergeScript
@@ -387,17 +425,25 @@ for int_iJob in range(int_nJobs):
     str_lineMergeScript += ' \\'
   str_lineMergeScript += '\n'  
   file_mergeScript.write(str_lineMergeScript)
-  os.system('sed -e \"s#OUTPUT_DIRECTORY#/tmp/' + os.getenv('USER') + '/' + str_pathJobDir + '#g\" ' + str_pathCmsswBase + '/src/DQM/SiStripMonitorClient/data/SiStripDQMOfflineGlobalRunCAF_template.cff > SiStripDQMOfflineGlobalRunCAF.cff')
+  # create included configuration file
+  str_sedCommand = 'sed '
+  str_sedCommand += '-e \"s#OUTPUT_DIRECTORY#' + str_outputDir + '#g\" '
+  str_sedCommand += str_pathCmsswBasePackage + '/python/SiStripDQMOfflineGlobalRunCAF_template_cff.py > ' + str_pathJobIncludeDir + '/SiStripDQMOfflineGlobalRunCAF_cff.py'
+  os.system(str_sedCommand)
+  # create job script
+  str_sedCommand = 'sed '
+  str_sedCommand += '-e \"s#CMSSW_BASE#' + str_pathCmsswBase + '#g\" '
+  str_sedCommand += '-e \"s#RUN_NAME#' + str_nameRun + '#g\" '
+  str_sedCommand += '-e \"s#JOB_NAME#' + str_nameJob + '#g\" '
+  str_sedCommand += '-e \"s#CURRENT_DIR#' + str_pathCurrentDir + '#g\" '
   if bool_useCastor:
-    os.system('sed -e \"s#CMSSW_BASE#' + str_pathCmsswBase + '#g\" -e \"s#RUN_NAME#' + str_nameRun + '#g\" -e \"s#JOB_NAME#' + str_nameJob + '#g\" -e \"s#CURRENT_DIR#' + str_pathCurrentDir + '#g\" -e \"s#COPY#rfcp#g\" -e \"s#OUTPUT_DIR#' + str_pathOut + '#g\" ' + str_pathCmsswBase + '/src/DQM/SiStripMonitorClient/scripts/SiStripDQMOfflineCAF_template.job > SiStripDQMOfflineCAF.job')
+    str_sedCommand += '-e \"s#COPY#rfcp#g\" '
   else:
-    os.system('sed -e \"s#CMSSW_BASE#' + str_pathCmsswBase + '#g\" -e \"s#RUN_NAME#' + str_nameRun + '#g\" -e \"s#JOB_NAME#' + str_nameJob + '#g\" -e \"s#CURRENT_DIR#' + str_pathCurrentDir + '#g\" -e \"s#COPY#cp#g\" -e \"s#OUTPUT_DIR#' + str_pathOut + '#g\" ' + str_pathCmsswBase + '/src/DQM/SiStripMonitorClient/scripts/SiStripDQMOfflineCAF_template.job > SiStripDQMOfflineCAF.job')
-  os.chmod('SiStripDQMOfflineCAF.job',OCT_rwx_r_r)
-  if dict_arguments.has_key(LSTR_functionLetters[0]):
-    print '> submitDQMOfflineCAF.py >'
-    print '  ' + os.getcwd() + ' : bsub -q cmscaf SiStripDQMOfflineCAF.job'
-    print
-    os.system('bsub -q cmscaf SiStripDQMOfflineCAF.job')
+    str_sedCommand += '-e \"s#COPY#cp#g\" '
+  str_sedCommand += '-e \"s#OUTPUT_DIR#' + str_pathOut + '#g\" '
+  str_sedCommand += str_pathCmsswBasePackage + '/scripts/SiStripDQMOfflineCAF_template.job > SiStripDQMOfflineCAF.job'
+  os.system(str_sedCommand)
+  # finalize job creation
   os.chdir(str_pathCurrentDir)
   # FIXME: This protection is currently needed. Review calculations again!
   if int_nLinesRead >= int_nInputFiles:
@@ -405,7 +451,32 @@ for int_iJob in range(int_nJobs):
     print
     break
 file_mergeScript.close()
-os.chmod(str_nameRun + '/' + str_nameMergeScript,OCT_rwx_r_r)
+
+# compile
+
+os.chdir(str_pathCmsswBasePackage)
+os.system('scramv1 b python')
+os.chdir(str_pathCurrentDir)
+
+# submit jobs
+
+if dict_arguments.has_key(LSTR_functionLetters[0]):
+  for int_iJob in range(int_nJobs):
+    int_nDigits = 1
+    if int_iJob >= 10:
+      int_nDigits = int(math.log10(int_iJob)) + 1
+    str_nameJobDir = str_nameRun + "/" + str_nameRun + "_"
+    for int_iDigit in range(4-int_nDigits):
+      str_nameJobDir += '0'
+    str_nameJobDir += str(int_iJob)
+    os.chdir(str_nameJobDir)     
+    os.chmod('SiStripDQMOfflineCAF.job',OCT_rwx_r_r)
+    print '> submitDQMOfflineCAF.py >'
+    print '  ' + os.getcwd() + ' : bsub -q cmscaf SiStripDQMOfflineCAF.job'
+    os.system('bsub -q cmscaf SiStripDQMOfflineCAF.job')
+    print
+    os.chdir(str_pathCurrentDir)
+  os.chmod(str_nameRun + '/' + str_nameMergeScript,OCT_rwx_r_r)
 
 # check queue
 

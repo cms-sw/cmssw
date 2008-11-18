@@ -41,6 +41,7 @@ L1TriggerFEVTDEBUG = cms.PSet(
         'keep *_dttfDigis_*_*', 
         'keep *_gctDigis_*_*', 
         'keep *_gmtDigis_*_*', 
-        'keep *_gtDigis_*_*')
+        'keep *_gtDigis_*_*',
+        'keep *_gtEvmDigis_*_*')
 )
 

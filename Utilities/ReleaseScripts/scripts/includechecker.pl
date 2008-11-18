@@ -985,14 +985,9 @@ sub updateFromCachedFiles ()
     {
       my $file=$fp;
       $file=~s/^$bdir\///;
-      #my $pcom=undef;
-      #if(exists $config_cache->{FILES}{$file}{COMPILER_FLAGS_INDEX}){$pcom=$config_cache->{FILES}{$file}{COMPILER_FLAGS_INDEX};}
-      $config_cache->{FILES}{$file}={};
       $config_cache->{FILES}{$file}=&SCRAMGenUtils::readHashCache($fp);
-      #if(defined $pcom){$config_cache->{FILES}{$file}{COMPILER_FLAGS_INDEX}=$pcom;}
     }
   }
-  #if($dir eq $bdir){system("rm -rf $dir");}
 }
 
 sub resotre_backup ()

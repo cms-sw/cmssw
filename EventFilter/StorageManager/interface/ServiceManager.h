@@ -1,10 +1,9 @@
 #ifndef _SERVICEMANAGER_H_
 #define _SERVICEMANAGER_H_
 
-// $Id: ServiceManager.h,v 1.7 2008/08/13 22:48:11 biery Exp $
+// $Id: ServiceManager.h,v 1.10 2008/08/27 22:34:41 biery Exp $
 
 #include "FWCore/ParameterSet/interface/ProcessDesc.h"
-#include "FWCore/Framework/interface/EventSelector.h"
 
 #include "IOPool/Streamer/interface/InitMessage.h"
 #include "IOPool/Streamer/interface/EventMessage.h"
@@ -42,6 +41,8 @@ namespace edm
 
     void manageErrorEventMsg(std::string catalog, uint32 disks, std::string sourceId, FRDEventMsgView& msg);
     
+    void closeFilesIfNeeded();
+
     std::list<std::string>& get_filelist();
     std::list<std::string>& get_currfiles();
     std::vector<uint32>& get_storedEvents();
@@ -54,7 +55,6 @@ namespace edm
     
     std::vector<ParameterSet>              outModPSets_;
     Streams                                managedOutputs_;  
-    boost::shared_ptr<edm::EventSelector>  eventSelector_;
     std::list<std::string>                 filelist_;
     std::list<std::string>                 currfiles_;
     Strings                                psetHLTOutputLabels_;
@@ -63,6 +63,7 @@ namespace edm
     std::vector<std::string>               storedNames_;
     int                                    currentlumi_;
     double                                 timeouttime_;
+    double                                 lasttimechecked_;
     int                                    errorStreamPSetIndex_;
     bool                                   errorStreamCreated_;
   };

@@ -24,8 +24,7 @@ public:
 
   HcalCellType(HcalSubdetector detType, int etaBin, int phiBin, 
 	       int depthSegment, HcalCell cell, int readoutDirection,
-	       double samplingFactor, int numberZ, int nmodule,
-	       double halfSize, int units);
+	       double samplingFactor, int numberZ, int nmodule);
   HcalCellType(const HcalCellType&);
   ~HcalCellType();
 
@@ -50,7 +49,6 @@ public:
 
   /// phi offset in degrees
   double phiOffset() const {return thePhiOffset;}
-  int    unitPhi() const {return theUnitPhi;}
 
   /// Number of halves (forward/backward)
   int nHalves() const {return theNumberOfZ;}
@@ -71,7 +69,6 @@ public:
   double depthMin() const {return theDepthMin;}
   double depthMax() const {return theDepthMax;}
   bool   depthType() const {return theRzFlag;}
-  double halfSize() const {return theHalfSize;}
                                                                                
   /// ratio of real particle energy to deposited energy in the SimHi
   double samplingFactor() const {return theSamplingFactor;}
@@ -88,7 +85,6 @@ private:
   int             theNumberOfPhiBins;
   int             theNumberOfZ;
   int             theActualReadoutDirection;
-  int             theUnitPhi;
 
   bool            theRzFlag;
                                                                                
@@ -98,7 +94,6 @@ private:
   double          thePhiBinWidth;
   double          theDepthMin;
   double          theDepthMax;
-  double          theHalfSize;
   double          theSamplingFactor;
 };
                                                                                

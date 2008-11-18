@@ -29,6 +29,8 @@
 #include "CLHEP/Random/RandFlat.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+// Here zside = xytype - type of plate
+
 #include <vector>
 #include <iostream>
 using namespace std;
@@ -51,31 +53,31 @@ FP420DigiMain::FP420DigiMain(const edm::ParameterSet& conf):conf_(conf){
   thezD3           = conf_.getParameter<double>("zD3");
   theApplyTofCut   = conf_.getParameter<bool>("ApplyTofCut");
   tofCut           = conf_.getParameter<double>("LowtofCutAndTo200ns");
-  xytype           = 2;
+  xytype=2;
   
   if(verbosity>0) {
     std::cout << "theApplyTofCut=" << theApplyTofCut << " tofCut=" << tofCut << std::endl;
     std::cout << "FP420DigiMain theElectronPerADC=" << theElectronPerADC << " theThreshold=" << theThreshold << " noNoise=" << noNoise << std::endl;
   }
-  // X (or Y)define type of sensor (xytype=1 or 2 used to derive it: 1-Y, 2-X)
+  // X (or Y)define type of sensor (zside=1 or 2 used to derive it: 1-Y, 2-X)
   // for every type there is normal pixel size=0.05 and Wide 0.400 mm
   Thick300 = 0.300;       // = 0.300 mm  normalized to 300micron Silicon
   //ENC= 2160.;             //          EquivalentNoiseCharge300um = 2160. + other sources of noise
   ENC= 960.;             //          EquivalentNoiseCharge300um = 2160. + other sources of noise
   
-  ldriftX = 0.050;        // in mm(xytype=1)
-  ldriftY = 0.050;        // in mm(xytype=2)
-  moduleThickness = 0.250; // mm(xytype=1)(xytype=2)
+  ldriftX = 0.050;        // in mm(zside=1)
+  ldriftY = 0.050;        // in mm(zside=2)
+  moduleThickness = 0.250; // mm(zside=1)(zside=2)
   
-  pitchY= 0.050;          // in mm(xytype=1)
-  pitchX= 0.050;          // in mm(xytype=2)
-  numStripsY = 201;        // Y plate number of strips:200*0.050=10mm (xytype=1)
-  numStripsX = 401;        // X plate number of strips:400*0.050=20mm (xytype=2)
+  pitchY= 0.050;          // in mm(zside=1)
+  pitchX= 0.050;          // in mm(zside=2)
+  numStripsY = 201;        // Y plate number of strips:200*0.050=10mm (zside=1)
+  numStripsX = 401;        // X plate number of strips:400*0.050=20mm (zside=2)
   
-  pitchYW= 0.400;          // in mm(xytype=1)
-  pitchXW= 0.400;          // in mm(xytype=2)
-  numStripsYW = 51;        // Y plate number of W strips:50 *0.400=20mm (xytype=1) - W have ortogonal projection
-  numStripsXW = 26;        // X plate number of W strips:25 *0.400=10mm (xytype=2) - W have ortogonal projection
+  pitchYW= 0.400;          // in mm(zside=1)
+  pitchXW= 0.400;          // in mm(zside=2)
+  numStripsYW = 51;        // Y plate number of W strips:50 *0.400=20mm (zside=1) - W have ortogonal projection
+  numStripsXW = 26;        // X plate number of W strips:25 *0.400=10mm (zside=2) - W have ortogonal projection
   
   //  tofCut = 1350.;           // Cut on the particle TOF range  = 1380 - 1500
   elossCut = 0.00003;           // Cut on the particle TOF   = 100 or 50
@@ -93,7 +95,7 @@ FP420DigiMain::FP420DigiMain(const edm::ParameterSet& conf):conf_(conf){
   
   theZSuppressFP420 = new ZeroSuppressFP420(conf_,noiseRMS/theElectronPerADC); 
   thePileUpFP420 = new PileUpFP420();
-  theDConverterFP420 = new DigiConverterFP420(theElectronPerADC,verbosity);
+  theDConverterFP420 = new DigiConverterFP420(theElectronPerADC);
   
   if(verbosity>0) {
     std::cout << "FP420DigiMain end of constructor" << std::endl;
@@ -125,9 +127,9 @@ vector <HDigiFP420> FP420DigiMain::run(const std::vector<PSimHit> &input,
   //  int  zScale=2;
   //  int  sector = (iu-1)/sScale + 1 ;
   //  int  zmodule = (iu - (sector - 1)*sScale - 1) /zScale + 1 ;
-  //  int  xytype = iu - (sector - 1)*sScale - (zmodule - 1)*zScale ;
+  //  int  zside = iu - (sector - 1)*sScale - (zmodule - 1)*zScale ;
   //  if(verbosity>10) {
-  //    std::cout << "FP420DigiMain xytype=" << xytype << " xytype=" << xytype << " zmodule=" << zmodule << " sector=" << sector << std::endl;
+  //    std::cout << "FP420DigiMain xytype=" << xytype << " zside=" << zside << " zmodule=" << zmodule << " sector=" << sector << std::endl;
   //  }
   
   // Y:
@@ -150,9 +152,9 @@ vector <HDigiFP420> FP420DigiMain::run(const std::vector<PSimHit> &input,
   float noiseRMS = ENC*moduleThickness/Thick300;
   
   
-  theHitDigitizerFP420 = new HitDigitizerFP420(moduleThickness,ldrift,ldriftY,ldriftX,thez420,thezD2,thezD3,verbosity);
+  theHitDigitizerFP420 = new HitDigitizerFP420(moduleThickness,ldrift,ldriftY,ldriftX,thez420,thezD2,thezD3);
   int numPixels = numStrips*numStripsW;
-  theGNoiseFP420 = new GaussNoiseFP420(numPixels,noiseRMS,theThreshold,addNoisyPixels,verbosity);
+  theGNoiseFP420 = new GaussNoiseFP420(numPixels,noiseRMS,theThreshold,addNoisyPixels);
   //  theGNoiseFP420 = new GaussNoiseFP420(numStrips,noiseRMS,theThreshold,addNoisyPixels);
   
   
@@ -210,13 +212,13 @@ vector <HDigiFP420> FP420DigiMain::run(const std::vector<PSimHit> &input,
       // if ( losenergy>0) {
       if(verbosity>0) std::cout << " inside tof: OK " << std::endl;
       
-      //   xytype = 1 - Y strips;   =2 - X strips;
-      //	  HitDigitizerFP420::hit_map_type _temp = theHitDigitizerFP420->processHit(ihit,bfield,xytype,numStrips,pitch);
-      HitDigitizerFP420::hit_map_type _temp = theHitDigitizerFP420->processHit(ihit,bfield,xytype,numStrips,pitch,numStripsW,pitchW,moduleThickness,verbosity); 
+      //   zside = 1 - Y strips;   =2 - X strips;
+      //	  HitDigitizerFP420::hit_map_type _temp = theHitDigitizerFP420->processHit(ihit,bfield,zside,numStrips,pitch);
+      HitDigitizerFP420::hit_map_type _temp = theHitDigitizerFP420->processHit(ihit,bfield,xytype,numStrips,pitch,numStripsW,pitchW,moduleThickness); 
       
       
       
-      thePileUpFP420->add(_temp,ihit,verbosity);
+      thePileUpFP420->add(_temp,ihit);
       
     }// if
     else {
@@ -249,7 +251,7 @@ vector <HDigiFP420> FP420DigiMain::run(const std::vector<PSimHit> &input,
   
   
   //                                                                                                                !!!!!
-  push_digis(theZSuppressFP420->zeroSuppress(theDConverterFP420->convert(afterNoise),verbosity),
+  push_digis(theZSuppressFP420->zeroSuppress(theDConverterFP420->convert(afterNoise)),
 	     theLink,afterNoise);
   
   

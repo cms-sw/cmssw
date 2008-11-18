@@ -26,7 +26,6 @@
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -105,23 +104,18 @@ class Analyzer_minbias : public edm::EDAnalyzer {
   map<DetId,double> theFillDetMap_cut4;
    
 // Calo geometry    
-//  const CaloGeometry* geo;
+  const CaloGeometry* geo;
 //  edm::ESHandle<HcalDbService> conditions;
   std::string nameprod;
   edm::InputTag  hbhereco;
   edm::InputTag  horeco;
   edm::InputTag  hfreco;
   bool useMCInfo;
-  bool theRecalib;
-  double hbhecut;
-  double hocut;
-  double hfcut;  
+  
   std::vector<HcalDetId> theHcalId;
 //  CaloMiscalibMapHcal mapHcal_;  
   std::string hcalfile_;
   std::ofstream *myout_hcal;
-  int start;
-  std::vector<DetId> alldid;
 
 };
 }

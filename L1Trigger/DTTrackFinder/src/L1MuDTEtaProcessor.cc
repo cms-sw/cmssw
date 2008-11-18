@@ -9,8 +9,8 @@
 //                one Eta Track Finder (ETF) and 
 //                one Eta Matching Unit (EMU) 
 //
-//   $Date: 2008/05/12 15:00:09 $
-//   $Revision: 1.11 $
+//   $Date: 2008/04/09 15:13:32 $
+//   $Revision: 1.10 $
 //
 //   Author :
 //   N. Neumeister            CERN EP
@@ -346,9 +346,6 @@ void L1MuDTEtaProcessor::runEtaMatchingUnit(const edm::EventSetup& c) {
     
     // assign coarse eta value
     m_eta[i] = theQualPatternLUT->getCoarseEta(sp,adr);
-    if ( m_eta[i] == 99 ) m_eta[i] = 32;
-    if ( m_eta[i] > 31 ) m_eta[i] -= 64;
-    m_eta[i] += 32;
     
     if ( m_foundPattern.empty() ) continue;
     
@@ -365,9 +362,6 @@ void L1MuDTEtaProcessor::runEtaMatchingUnit(const edm::EventSetup& c) {
         // assign fine eta value     
         m_fine[i] = true;
         m_eta[i]  = p.eta();  // improved eta
-        if ( m_eta[i] == 99 ) m_eta[i] = 32;
-        if ( m_eta[i] > 31 ) m_eta[i] -= 64;
-        m_eta[i] += 32;
         m_pattern[i] = (*f_iter);
         break;
       }
@@ -388,9 +382,6 @@ void L1MuDTEtaProcessor::runEtaMatchingUnit(const edm::EventSetup& c) {
     if ( adr1 == adr2 ) {
       // second track gets coarse (default) eta value
       m_eta[idx2]  = theQualPatternLUT->getCoarseEta(i+1,adr2);
-      if ( m_eta[i] == 99 ) m_eta[i] = 32;
-      if ( m_eta[i] > 31 ) m_eta[i] -= 64;
-      m_eta[i] += 32;
       m_pattern[idx2] = 0;
       m_fine[idx2] = false; 
     }  

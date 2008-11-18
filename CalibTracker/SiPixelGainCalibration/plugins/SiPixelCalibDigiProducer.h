@@ -15,7 +15,7 @@
 //
 // Original Author:  Freya Blekman
 //         Created:  Wed Oct 31 15:28:52 CET 2007
-// $Id: SiPixelCalibDigiProducer.h,v 1.8 2008/02/19 13:49:06 fblekman Exp $
+// $Id: SiPixelCalibDigiProducer.h,v 1.9 2008/02/25 21:10:32 fblekman Exp $
 //
 //
 
@@ -60,7 +60,8 @@ class SiPixelCalibDigiProducer : public edm::EDProducer {
 
    private:
 
-      virtual void beginJob(const edm::EventSetup&);
+      virtual void beginJob(const edm::EventSetup&){}
+      virtual void beginRun(const edm::Run &, const edm::EventSetup &);
       virtual void produce(edm::Event& iEvent, const edm::EventSetup& iSetup);
       virtual bool store();
       virtual void setPattern();

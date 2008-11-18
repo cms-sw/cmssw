@@ -12,8 +12,7 @@ from RecoParticleFlow.PFTracking.nuclearRemainingHits_cff import *
 from RecoParticleFlow.PFBlockProducer.particleFlowSimParticle_cff import *
 from RecoParticleFlow.PFBlockProducer.particleFlowBlock_cff import *
 from RecoParticleFlow.PFProducer.particleFlow_cff import *
-from RecoParticleFlow.PFTracking.particleFlowTrack_cff import *
-
-particleFlowRecoNuclear = cms.Sequence(nuclearRemainingHits*caloTowersPFRec*particleFlowCluster*particleFlowTrackWithNuclear*particleFlowBlock*particleFlow)
+from RecoParticleFlow.PFTracking.iterativeTk_cff import *
+particleFlowRecoNuclear = cms.Sequence(iterativeTk*nuclearRemainingHits*caloTowersPFRec*particleFlowCluster*particleFlowTrackWithNuclear*particleFlowBlock*particleFlow)
 particleFlowBlock.useNuclear = True
 

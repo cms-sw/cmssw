@@ -21,7 +21,18 @@ unsigned int SMFUSenderList::size()
   return (unsigned int)senderlist_.size();
 }
 
-boost::shared_ptr<stor::SMFUSenderEntry> SMFUSenderList::findEntry(const char* hltURL, 
+unsigned int SMFUSenderList::numberOfFU()
+{
+  boost::mutex::scoped_lock sl(list_lock_);
+  unsigned int num_RBxOMxFU = (unsigned int)senderlist_.size();
+  if(numberOfRB_ != 0 && numberOfOM_ != 0)
+    return (num_RBxOMxFU/(numberOfRB_ * numberOfOM_));
+  else
+    return 0;
+  
+}
+
+boost::shared_ptr<stor::SMFUSenderEntry> SMFUSenderList::findFirstEntry(const char* hltURL, 
     const char* hltClassName, 
     const unsigned int hltLocalId,
     const unsigned int hltInstance, 
@@ -34,7 +45,77 @@ boost::shared_ptr<stor::SMFUSenderEntry> SMFUSenderList::findEntry(const char* h
    for(list<boost::shared_ptr<stor::SMFUSenderEntry> >::iterator pos = senderlist_.begin(); 
        pos != senderlist_.end(); ++pos)
    {
-      if((*pos)->match(hltURL, hltClassName, hltLocalId, hltInstance, hltTid))
+      if((*pos)->matchFirst(hltURL, hltClassName, hltLocalId, hltInstance, hltTid))
+      {
+        entryPtr = (*pos);
+        return entryPtr;
+      }
+   }
+   return entryPtr;
+}
+
+boost::shared_ptr<stor::SMFUSenderEntry> SMFUSenderList::findEntry(const char* hltURL, 
+    const char* hltClassName, 
+    const unsigned int hltLocalId,
+    const unsigned int hltInstance, 
+    const unsigned int hltTid,
+    const uint32 fuID,
+    const std::string outModName)
+{
+   // initial empty pointer
+   boost::shared_ptr<stor::SMFUSenderEntry> entryPtr;
+   if(senderlist_.empty()) return entryPtr;
+
+   for(list<boost::shared_ptr<stor::SMFUSenderEntry> >::iterator pos = senderlist_.begin(); 
+       pos != senderlist_.end(); ++pos)
+   {
+      if((*pos)->match(hltURL, hltClassName, hltLocalId, hltInstance, hltTid, fuID, outModName))
+      {
+        entryPtr = (*pos);
+        return entryPtr;
+      }
+   }
+   return entryPtr;
+}
+
+boost::shared_ptr<stor::SMFUSenderEntry> SMFUSenderList::findFirstEntry(const char* hltURL, 
+    const char* hltClassName, 
+    const unsigned int hltLocalId,
+    const unsigned int hltInstance, 
+    const unsigned int hltTid,
+    const std::string outModName)
+{
+   // initial empty pointer
+   boost::shared_ptr<stor::SMFUSenderEntry> entryPtr;
+   if(senderlist_.empty()) return entryPtr;
+
+   for(list<boost::shared_ptr<stor::SMFUSenderEntry> >::iterator pos = senderlist_.begin(); 
+       pos != senderlist_.end(); ++pos)
+   {
+      if((*pos)->matchFirst(hltURL, hltClassName, hltLocalId, hltInstance, hltTid, outModName))
+      {
+        entryPtr = (*pos);
+        return entryPtr;
+      }
+   }
+   return entryPtr;
+}
+
+boost::shared_ptr<stor::SMFUSenderEntry> SMFUSenderList::findFirstEntry(const char* hltURL, 
+    const char* hltClassName, 
+    const unsigned int hltLocalId,
+    const unsigned int hltInstance, 
+    const unsigned int hltTid,
+    const uint32 outModId)
+{
+   // initial empty pointer
+   boost::shared_ptr<stor::SMFUSenderEntry> entryPtr;
+   if(senderlist_.empty()) return entryPtr;
+
+   for(list<boost::shared_ptr<stor::SMFUSenderEntry> >::iterator pos = senderlist_.begin(); 
+       pos != senderlist_.end(); ++pos)
+   {
+      if((*pos)->matchFirst(hltURL, hltClassName, hltLocalId, hltInstance, hltTid, outModId))
       {
         entryPtr = (*pos);
         return entryPtr;
@@ -47,20 +128,23 @@ boost::shared_ptr<stor::SMFUSenderEntry> SMFUSenderList::addEntry(const char* hl
     const char* hltClassName, const unsigned int hltLocalId,
     const unsigned int hltInstance, const unsigned int hltTid,
     const unsigned int frameCount, const unsigned int numFrames,
-    toolbox::mem::Reference *ref, const std::string outModName, const uint32 outModId)
+    toolbox::mem::Reference *ref, const std::string outModName, 
+    const uint32 outModId, const uint32 fuID)
 {
    boost::shared_ptr<stor::SMFUSenderEntry> entry_p(new SMFUSenderEntry(hltURL, hltClassName,
                      hltLocalId, hltInstance, hltTid, frameCount, numFrames, 
-                     outModName, outModId, ref));
+                     outModName, outModId, fuID, ref));
    senderlist_.push_back(entry_p);
    return entry_p;
 }
 
-bool stor::SMFUSenderList::eraseEntry(const char* hltURL, const char* hltClassName, 
+/*
+bool stor::SMFUSenderList::eraseFirstFUEntry(const char* hltURL, const char* hltClassName, 
                   const unsigned int hltLocalId,
                   const unsigned int hltInstance, 
                   const unsigned int hltTid)
 {
+   boost::mutex::scoped_lock sl(list_lock_);
    for(list<boost::shared_ptr<stor::SMFUSenderEntry> >::iterator pos = senderlist_.begin(); 
        pos != senderlist_.end(); ++pos)
    {
@@ -72,18 +156,20 @@ bool stor::SMFUSenderList::eraseEntry(const char* hltURL, const char* hltClassNa
    }
    return false;
 }
+*/
 
 int SMFUSenderList::registerDataSender(const char* hltURL,
     const char* hltClassName, const unsigned int hltLocalId,
     const unsigned int hltInstance, const unsigned int hltTid,
     const unsigned int frameCount, const unsigned int numFrames,
-    toolbox::mem::Reference *ref, const std::string outModName, const uint32 outModId)
+    toolbox::mem::Reference *ref, const std::string outModName, 
+    const uint32 outModId, const uint32 fuID)
 {  
   // register FU sender into the list to keep its status
   // Adds to registry data if a new output module
   boost::mutex::scoped_lock sl(list_lock_);
   boost::shared_ptr<stor::SMFUSenderEntry> foundPos = findEntry(hltURL, hltClassName, hltLocalId,
-                                                                hltInstance, hltTid);
+                                                                hltInstance, hltTid, fuID, outModName);
   if(foundPos != NULL)
   {
     // See if this is from the same output module or a new one
@@ -91,7 +177,7 @@ int SMFUSenderList::registerDataSender(const char* hltURL,
     if(!sameOutMod)
     {
       FDEBUG(10) << "registerDataSender: found a new output Module " << outModName << " for URL "
-                 << hltURL << " and Tid " << hltTid << std::endl;
+                 << hltURL << " and Tid " << hltTid << " fu ID " << fuID << std::endl;
       foundPos->addReg2Entry(frameCount, numFrames, outModName, outModId, ref);
       if(foundPos->regIsCopied(outModName)) {
         return 1;
@@ -100,8 +186,8 @@ int SMFUSenderList::registerDataSender(const char* hltURL,
       }
     } else {
       FDEBUG(10) << "registerDataSender: found another frame " << frameCount << " for URL "
-                 << hltURL << " Tid " << hltTid <<  " and output module "
-                 << outModName << std::endl;
+                 << hltURL << " Tid " << hltTid <<  " fu ID " << fuID
+                 << " and output module " << outModName << std::endl;
       // should really check this is not a duplicate frame
       // should check if already all frames were received (indicates reconnect maybe)
       bool regComplete = foundPos->addFrame(frameCount, numFrames, ref, outModName);
@@ -114,10 +200,17 @@ int SMFUSenderList::registerDataSender(const char* hltURL,
   } else {
     FDEBUG(9) << "registerDataSender: found a different FU Sender with frame " 
               << frameCount << " for URL "
-              << hltURL << " and Tid " << hltTid << std::endl;
+              << hltURL << " and Tid " << hltTid << " fu ID " << fuID << std::endl;
+    // try to figure out numbers of RBs, FUs, and OMs
+    boost::shared_ptr<stor::SMFUSenderEntry> tempPos = findFirstEntry(hltURL, hltClassName, hltLocalId,
+                                                                hltInstance, hltTid);
+    if(tempPos == NULL) ++numberOfRB_;
+    tempPos = findFirstEntry(hltURL, hltClassName, hltLocalId, hltInstance, hltTid, outModName);
+    if(tempPos == NULL) ++numberOfOM_;
+    
     // register (add) this FU sender to the list
     foundPos = addEntry(hltURL, hltClassName, hltLocalId, hltInstance, hltTid, 
-                        frameCount, numFrames, ref, outModName, outModId);
+                        frameCount, numFrames, ref, outModName, outModId, fuID);
     // ask Jim about a better design for the return from addEntry to say reg is complete
     if(foundPos == NULL)
     {
@@ -149,8 +242,8 @@ int SMFUSenderList::updateSender4data(const char* hltURL,
 {
   // find this FU sender in the list and update its data statistics
   boost::mutex::scoped_lock sl(list_lock_);
-  boost::shared_ptr<stor::SMFUSenderEntry> foundPos = findEntry(hltURL, hltClassName, hltLocalId,
-                                                                hltInstance, hltTid);
+  boost::shared_ptr<stor::SMFUSenderEntry> foundPos = findFirstEntry(hltURL, hltClassName, hltLocalId,
+                                                                hltInstance, hltTid, outModId);
   if(foundPos != NULL)
   {
     // check if this is the first data frame received
@@ -190,23 +283,26 @@ int SMFUSenderList::updateSender4data(const char* hltURL,
   }
 }
 
+/*
 bool SMFUSenderList::removeDataSender(const char* hltURL,
   const char* hltClassName, const unsigned int hltLocalId,
   const unsigned int hltInstance, const unsigned int hltTid)
 {
   // find this FU sender in the list and update its data statistics
-  boost::mutex::scoped_lock sl(list_lock_);
-  bool didErase = eraseEntry(hltURL, hltClassName, hltLocalId, hltInstance, hltTid);
+  //boost::mutex::scoped_lock sl(list_lock_);  # put lock in erase method instead
+  bool didErase = eraseFirstFUEntry(hltURL, hltClassName, hltLocalId, hltInstance, hltTid);
   return didErase;
 }
+*/
 
 void SMFUSenderList::setRegCheckedOK(const char* hltURL,
     const char* hltClassName, const unsigned int hltLocalId,
-    const unsigned int hltInstance, const unsigned int hltTid, const std::string outModName)
+    const unsigned int hltInstance, const unsigned int hltTid, 
+    const std::string outModName, const uint32 fuID)
 {  
   boost::mutex::scoped_lock sl(list_lock_);
   boost::shared_ptr<stor::SMFUSenderEntry> foundPos = findEntry(hltURL, hltClassName, hltLocalId,
-                                                                hltInstance, hltTid);
+                                                                hltInstance, hltTid, fuID, outModName);
   if(foundPos != NULL)
   {
     foundPos->setregCheckedOK(outModName, true);
@@ -215,11 +311,12 @@ void SMFUSenderList::setRegCheckedOK(const char* hltURL,
 
 char* SMFUSenderList::getRegistryData(const char* hltURL,
     const char* hltClassName, const unsigned int hltLocalId,
-    const unsigned int hltInstance, const unsigned int hltTid, const std::string outModName)
+    const unsigned int hltInstance, const unsigned int hltTid, 
+    const std::string outModName, const uint32 fuID)
 {  
   boost::mutex::scoped_lock sl(list_lock_);
   boost::shared_ptr<stor::SMFUSenderEntry> foundPos = findEntry(hltURL, hltClassName, hltLocalId,
-                                                                hltInstance, hltTid);
+                                                                hltInstance, hltTid, fuID, outModName);
   if(foundPos != NULL)
   {
     return foundPos->getregistryData(outModName);
@@ -230,11 +327,12 @@ char* SMFUSenderList::getRegistryData(const char* hltURL,
 
 unsigned int SMFUSenderList::getRegistrySize(const char* hltURL,
     const char* hltClassName, const unsigned int hltLocalId,
-    const unsigned int hltInstance, const unsigned int hltTid, const std::string outModName)
+    const unsigned int hltInstance, const unsigned int hltTid, 
+    const std::string outModName, const uint32 fuID)
 {  
   boost::mutex::scoped_lock sl(list_lock_);
   boost::shared_ptr<stor::SMFUSenderEntry> foundPos = findEntry(hltURL, hltClassName, hltLocalId,
-                                                                hltInstance, hltTid);
+                                                                hltInstance, hltTid, fuID, outModName);
   if(foundPos != NULL)
   {
     return foundPos->getregistrySize(outModName);
@@ -257,6 +355,7 @@ std::vector<boost::shared_ptr<SMFUSenderStats> > SMFUSenderList::getSenderStats(
                                          (*pos)->gethltLocalId(),
                                          (*pos)->gethltInstance(),
                                          (*pos)->gethltTid(),
+                                         (*pos)->getfuID(),
                                          (*pos)->getRegistryCollection(),
                                          (*pos)->getDatCollection(),
                                          (*pos)->getconnectStatus(),

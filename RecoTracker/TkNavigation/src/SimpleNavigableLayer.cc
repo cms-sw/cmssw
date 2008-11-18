@@ -4,6 +4,7 @@
 
 #include "DataFormats/GeometrySurface/interface/BoundCylinder.h"
 #include "DataFormats/GeometrySurface/interface/BoundDisk.h"
+#include "TrackingTools/PatternTools/interface/TransverseImpactPointExtrapolator.h"
 
 using namespace std;
 
@@ -12,7 +13,46 @@ bool SimpleNavigableLayer::wellInside( const FreeTrajectoryState& fts,
 				       const BarrelDetLayer* bl,
 				       DLC& result) const
 {
-  TSOS propState = propagator(dir).propagate( fts, bl->specificSurface());
+  //TSOS propState = propagator(dir).propagate( fts, bl->specificSurface());
+  TSOS propState ;
+
+  if (bl==detLayer()){
+    //self propagating. step one: go close to the center
+    double dotIn = fts.position().basicVector().dot(fts.momentum().basicVector());
+    TransverseImpactPointExtrapolator middle;
+    GlobalPoint center(0,0,0);
+    propState = middle.extrapolate(fts, center, propagator(dir));
+    if ( !propState.isValid()) return false;
+    FreeTrajectoryState & dest = *propState.freeState();
+    double dot = dest.position().basicVector().dot(dest.momentum().basicVector());
+    std::string dirS;
+    if (dir==alongMomentum) dirS = "alongMomentum";
+    else if (dir==oppositeToMomentum) dirS = "oppositeToMomentum";
+    else dirS = "anyDirection";
+
+    LogDebug("SimpleNavigableLayer")<<"self propagating("<< dir <<") from:\n"
+				    <<fts<<"\n with dot product: "<< dotIn  <<" to \n"
+				    <<dest<<" with dot product: "<< dot<<"\n"
+				    <<" and the direction is: "<<dir<<" = "<<dirS;
+    
+    //second propagation to go on the other side of the barrel
+    propState = propagator(dir).propagate( dest, bl->specificSurface());
+    if ( !propState.isValid()) return false;
+
+    FreeTrajectoryState & dest2 = *propState.freeState();
+    double dot2 = dest2.position().basicVector().dot(dest2.momentum().basicVector());
+    LogDebug("SimpleNavigableLayer")<<"second propagation("<< dir <<") to: \n"
+                   <<dest2<<" with dot product: "<< dot2;
+    //    if (dot*dot2<0){
+    //    if (dot*dotIn>0 || dot*dot2<0){
+    if (dot2*dotIn>0){ // check that before and after are in different side.
+      LogDebug("SimpleNavigableLayer")<<"switch side back: ABORT.";
+      return false;
+    }
+  }else{
+    propState= propagator(dir).propagate( fts, bl->specificSurface());
+  }
+
   if ( !propState.isValid()) return false;
  
   //if requested check that the layer is crossed on the right side
@@ -71,6 +111,12 @@ bool SimpleNavigableLayer::wellInside( const FreeTrajectoryState& fts,
 {
   TSOS propState = propagator(dir).propagate( fts, fl->specificSurface());
   if ( !propState.isValid()) return false;
+
+  if (fl==detLayer()){
+    LogDebug("SimpleNavigableLayer")<<"self propagating from:\n"
+				    <<fts<<"\n to \n"
+				    <<*propState.freeState();
+  }
 
   //if requested avoids crossing over the tracker 
   if (theCheckCrossingSide){

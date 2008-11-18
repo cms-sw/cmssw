@@ -7,12 +7,10 @@
 //
  
 #include <string>
-#include <vector>
 #include <map>
 #include <set>
 #include <fstream>
 #include <iostream>
-#include <sstream>
 #include "CalibFormats/SiPixelObjects/interface/PixelConfigBase.h"
 
 namespace pos{
@@ -21,20 +19,13 @@ namespace pos{
   public:
    
     PixelTTCciConfig(std::string filename);
-    PixelTTCciConfig(std::vector<std::vector<std::string> > &) ;
-    //std::string getTTCConfigPath() {return ttcConfigPath_;}
-    std::stringstream& getTTCConfigStream() {return ttcConfigStream_;}
+    std::string getTTCConfigPath();
 
     virtual void writeASCII(std::string dir) const;
-    virtual void writeXML(      pos::PixelConfigKey key, int version, std::string path)                     const {;}
-    virtual void writeXMLHeader(pos::PixelConfigKey key, int version, std::string path, std::ofstream *out) const {;}
-    virtual void writeXML(                                                              std::ofstream *out) const {;}
-    virtual void writeXMLTrailer(                                                       std::ofstream *out) const {;}
  
   private:
  
-    //std::string ttcConfigPath_;
-    std::stringstream ttcConfigStream_;
+    std::string ttcConfigPath_;
 
   };
 }

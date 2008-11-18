@@ -9,4 +9,3 @@ simpleVertexAnalysis = cms.EDAnalyzer("PrimaryVertexAnalyzer",
 )
 
 
-

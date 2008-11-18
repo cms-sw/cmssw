@@ -1,155 +1,160 @@
 import FWCore.ParameterSet.Config as cms
 
-import HLTriggerOffline.BJet.hltBtagLifetimeAnalyzer_cfi
-# HLT BTag IP-based triggers analyers
-hlt_BTagIP_Jet180 = HLTriggerOffline.BJet.hltBtagLifetimeAnalyzer_cfi.hltBtagLifetimeAnalyzer.clone()
-import HLTriggerOffline.BJet.hltBtagLifetimeAnalyzer_cfi
-hlt_BTagIP_DoubleJet120 = HLTriggerOffline.BJet.hltBtagLifetimeAnalyzer_cfi.hltBtagLifetimeAnalyzer.clone()
-import HLTriggerOffline.BJet.hltBtagLifetimeAnalyzer_cfi
-hlt_BTagIP_TripleJet70 = HLTriggerOffline.BJet.hltBtagLifetimeAnalyzer_cfi.hltBtagLifetimeAnalyzer.clone()
-import HLTriggerOffline.BJet.hltBtagLifetimeAnalyzer_cfi
-hlt_BTagIP_QuadJet40 = HLTriggerOffline.BJet.hltBtagLifetimeAnalyzer_cfi.hltBtagLifetimeAnalyzer.clone()
-import HLTriggerOffline.BJet.hltBtagLifetimeAnalyzer_cfi
-hlt_BTagIP_HT470 = HLTriggerOffline.BJet.hltBtagLifetimeAnalyzer_cfi.hltBtagLifetimeAnalyzer.clone()
-hltBLifetime_modules = cms.PSet(
-    modules = cms.vstring('hlt_BTagIP_Jet180', 
-        'hlt_BTagIP_DoubleJet120', 
-        'hlt_BTagIP_TripleJet70', 
-        'hlt_BTagIP_QuadJet40', 
-        'hlt_BTagIP_HT470')
+import copy
+from HLTriggerOffline.BJet.hltBtagLifetimeAnalyzer_cfi import *
+# HLT Btag Lifetime paths analyers
+hltb1jet = copy.deepcopy(hltBtagLifetimeAnalyzer)
+import copy
+from HLTriggerOffline.BJet.hltBtagLifetimeAnalyzer_cfi import *
+hltb2jet = copy.deepcopy(hltBtagLifetimeAnalyzer)
+import copy
+from HLTriggerOffline.BJet.hltBtagLifetimeAnalyzer_cfi import *
+hltb3jet = copy.deepcopy(hltBtagLifetimeAnalyzer)
+import copy
+from HLTriggerOffline.BJet.hltBtagLifetimeAnalyzer_cfi import *
+hltb4jet = copy.deepcopy(hltBtagLifetimeAnalyzer)
+import copy
+from HLTriggerOffline.BJet.hltBtagLifetimeAnalyzer_cfi import *
+hltbht = copy.deepcopy(hltBtagLifetimeAnalyzer)
+hltBLifetimeModules = cms.PSet(
+    modules = cms.vstring('hltb1jet', 
+        'hltb2jet', 
+        'hltb3jet', 
+        'hltb4jet', 
+        'hltbht')
 )
-hltBLifetime = cms.Sequence(hlt_BTagIP_Jet180+hlt_BTagIP_DoubleJet120+hlt_BTagIP_TripleJet70+hlt_BTagIP_QuadJet40+hlt_BTagIP_HT470)
-hlt_BTagIP_Jet180.triggerPath = 'HLT_BTagIP_Jet180'
-hlt_BTagIP_Jet180.levels = cms.VPSet(cms.PSet(
-    filter = cms.InputTag("hltBLifetimeL1seeds","","HLT"),
-    jets = cms.InputTag("hltIterativeCone5CaloJets","","HLT"),
-    name = cms.string('L1'),
-    title = cms.string('L1')
+hltBLifetime = cms.Sequence(hltb1jet+hltb2jet+hltb3jet+hltb4jet+hltbht)
+hltb1jet.triggerPath = 'HLTB1Jet'
+hltb1jet.levels = cms.VPSet(cms.PSet(
+    filter = cms.InputTag("hltBLifetimeL1seeds"),
+    jets = cms.InputTag("iterativeCone5CaloJets","","HLT"),
+    name = cms.string('preL2'),
+    title = cms.string('pre-L2')
 ), 
     cms.PSet(
-        filter = cms.InputTag("hltBLifetime1jetL2filter","","HLT"),
+        filter = cms.InputTag("hltBLifetime1jetL2filter"),
         jets = cms.InputTag("hltBLifetimeL25Jets","","HLT"),
         tracks = cms.InputTag("hltBLifetimeL25Associator","","HLT"),
         name = cms.string('L2'),
         title = cms.string('L2')
     ), 
     cms.PSet(
-        filter = cms.InputTag("hltBLifetimeL25filter","","HLT"),
+        filter = cms.InputTag("hltBLifetimeL25filter"),
         jets = cms.InputTag("hltBLifetimeL3Jets","","HLT"),
         tracks = cms.InputTag("hltBLifetimeL3Associator","","HLT"),
         name = cms.string('L25'),
         title = cms.string('L2.5')
     ), 
     cms.PSet(
-        filter = cms.InputTag("hltBLifetimeL3filter","","HLT"),
+        filter = cms.InputTag("hltBLifetimeL3filter"),
         jets = cms.InputTag("hltBLifetimeHLTJets"),
         name = cms.string('L3'),
         title = cms.string('L3')
     ))
-hlt_BTagIP_DoubleJet120.triggerPath = 'HLT_BTagIP_DoubleJet120'
-hlt_BTagIP_DoubleJet120.levels = cms.VPSet(cms.PSet(
-    filter = cms.InputTag("hltBLifetimeL1seeds","","HLT"),
-    jets = cms.InputTag("hltIterativeCone5CaloJets","","HLT"),
-    name = cms.string('L1'),
-    title = cms.string('L1')
+hltb2jet.triggerPath = 'HLTB2Jet'
+hltb2jet.levels = cms.VPSet(cms.PSet(
+    filter = cms.InputTag("hltBLifetimeL1seeds"),
+    jets = cms.InputTag("iterativeCone5CaloJets","","HLT"),
+    name = cms.string('preL2'),
+    title = cms.string('pre-L2')
 ), 
     cms.PSet(
-        filter = cms.InputTag("hltBLifetime2jetL2filter","","HLT"),
+        filter = cms.InputTag("hltBLifetime2jetL2filter"),
         jets = cms.InputTag("hltBLifetimeL25Jets","","HLT"),
         tracks = cms.InputTag("hltBLifetimeL25Associator","","HLT"),
         name = cms.string('L2'),
         title = cms.string('L2')
     ), 
     cms.PSet(
-        filter = cms.InputTag("hltBLifetimeL25filter","","HLT"),
+        filter = cms.InputTag("hltBLifetimeL25filter"),
         jets = cms.InputTag("hltBLifetimeL3Jets","","HLT"),
         tracks = cms.InputTag("hltBLifetimeL3Associator","","HLT"),
         name = cms.string('L25'),
         title = cms.string('L2.5')
     ), 
     cms.PSet(
-        filter = cms.InputTag("hltBLifetimeL3filter","","HLT"),
+        filter = cms.InputTag("hltBLifetimeL3filter"),
         jets = cms.InputTag("hltBLifetimeHLTJets"),
         name = cms.string('L3'),
         title = cms.string('L3')
     ))
-hlt_BTagIP_TripleJet70.triggerPath = 'HLT_BTagIP_TripleJet70'
-hlt_BTagIP_TripleJet70.levels = cms.VPSet(cms.PSet(
-    filter = cms.InputTag("hltBLifetimeL1seeds","","HLT"),
-    jets = cms.InputTag("hltIterativeCone5CaloJets","","HLT"),
-    name = cms.string('L1'),
-    title = cms.string('L1')
+hltb3jet.triggerPath = 'HLTB3Jet'
+hltb3jet.levels = cms.VPSet(cms.PSet(
+    filter = cms.InputTag("hltBLifetimeL1seeds"),
+    jets = cms.InputTag("iterativeCone5CaloJets","","HLT"),
+    name = cms.string('preL2'),
+    title = cms.string('pre-L2')
 ), 
     cms.PSet(
-        filter = cms.InputTag("hltBLifetime3jetL2filter","","HLT"),
+        filter = cms.InputTag("hltBLifetime3jetL2filter"),
         jets = cms.InputTag("hltBLifetimeL25Jets","","HLT"),
         tracks = cms.InputTag("hltBLifetimeL25Associator","","HLT"),
         name = cms.string('L2'),
         title = cms.string('L2')
     ), 
     cms.PSet(
-        filter = cms.InputTag("hltBLifetimeL25filter","","HLT"),
+        filter = cms.InputTag("hltBLifetimeL25filter"),
         jets = cms.InputTag("hltBLifetimeL3Jets","","HLT"),
         tracks = cms.InputTag("hltBLifetimeL3Associator","","HLT"),
         name = cms.string('L25'),
         title = cms.string('L2.5')
     ), 
     cms.PSet(
-        filter = cms.InputTag("hltBLifetimeL3filter","","HLT"),
+        filter = cms.InputTag("hltBLifetimeL3filter"),
         jets = cms.InputTag("hltBLifetimeHLTJets"),
         name = cms.string('L3'),
         title = cms.string('L3')
     ))
-hlt_BTagIP_QuadJet40.triggerPath = 'HLT_BTagIP_QuadJet40'
-hlt_BTagIP_QuadJet40.levels = cms.VPSet(cms.PSet(
-    filter = cms.InputTag("hltBLifetimeL1seeds","","HLT"),
-    jets = cms.InputTag("hltIterativeCone5CaloJets","","HLT"),
-    name = cms.string('L1'),
-    title = cms.string('L1')
+hltb4jet.triggerPath = 'HLTB4Jet'
+hltb4jet.levels = cms.VPSet(cms.PSet(
+    filter = cms.InputTag("hltBLifetimeL1seeds"),
+    jets = cms.InputTag("iterativeCone5CaloJets","","HLT"),
+    name = cms.string('preL2'),
+    title = cms.string('pre-L2')
 ), 
     cms.PSet(
-        filter = cms.InputTag("hltBLifetime4jetL2filter","","HLT"),
+        filter = cms.InputTag("hltBLifetime4jetL2filter"),
         jets = cms.InputTag("hltBLifetimeL25Jets","","HLT"),
         tracks = cms.InputTag("hltBLifetimeL25Associator","","HLT"),
         name = cms.string('L2'),
         title = cms.string('L2')
     ), 
     cms.PSet(
-        filter = cms.InputTag("hltBLifetimeL25filter","","HLT"),
+        filter = cms.InputTag("hltBLifetimeL25filter"),
         jets = cms.InputTag("hltBLifetimeL3Jets","","HLT"),
         tracks = cms.InputTag("hltBLifetimeL3Associator","","HLT"),
         name = cms.string('L25'),
         title = cms.string('L2.5')
     ), 
     cms.PSet(
-        filter = cms.InputTag("hltBLifetimeL3filter","","HLT"),
+        filter = cms.InputTag("hltBLifetimeL3filter"),
         jets = cms.InputTag("hltBLifetimeHLTJets"),
         name = cms.string('L3'),
         title = cms.string('L3')
     ))
-hlt_BTagIP_HT470.triggerPath = 'HLT_BTagIP_HT470'
-hlt_BTagIP_HT470.levels = cms.VPSet(cms.PSet(
-    filter = cms.InputTag("hltBLifetimeL1seeds","","HLT"),
-    jets = cms.InputTag("hltIterativeCone5CaloJets","","HLT"),
-    name = cms.string('L1'),
-    title = cms.string('L1')
+hltbht.triggerPath = 'HLTBHT'
+hltbht.levels = cms.VPSet(cms.PSet(
+    filter = cms.InputTag("hltBLifetimeL1seeds"),
+    jets = cms.InputTag("iterativeCone5CaloJets","","HLT"),
+    name = cms.string('preL2'),
+    title = cms.string('pre-L2')
 ), 
     cms.PSet(
-        filter = cms.InputTag("hltBLifetimeHTL2filter","","HLT"),
+        filter = cms.InputTag("hltBLifetimeHTL2filter"),
         jets = cms.InputTag("hltBLifetimeL25Jets","","HLT"),
         tracks = cms.InputTag("hltBLifetimeL25Associator","","HLT"),
         name = cms.string('L2'),
         title = cms.string('L2')
     ), 
     cms.PSet(
-        filter = cms.InputTag("hltBLifetimeL25filter","","HLT"),
+        filter = cms.InputTag("hltBLifetimeL25filter"),
         jets = cms.InputTag("hltBLifetimeL3Jets","","HLT"),
         tracks = cms.InputTag("hltBLifetimeL3Associator","","HLT"),
         name = cms.string('L25'),
         title = cms.string('L2.5')
     ), 
     cms.PSet(
-        filter = cms.InputTag("hltBLifetimeL3filter","","HLT"),
+        filter = cms.InputTag("hltBLifetimeL3filter"),
         jets = cms.InputTag("hltBLifetimeHLTJets"),
         name = cms.string('L3'),
         title = cms.string('L3')

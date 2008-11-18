@@ -12,6 +12,7 @@ const unsigned int L1GctHardwareJetFinder::CENTRAL_COL0 = 0;
 L1GctHardwareJetFinder::L1GctHardwareJetFinder(int id):
   L1GctJetFinderBase(id),
   m_positiveEtaWheel(id >= (int) (L1CaloRegionDetId::N_PHI/2)),
+//   m_protoJetRegions (MAX_REGIONS_IN),
   m_localMaxima     (MAX_JETS_OUT),
   m_clusters        (MAX_JETS_OUT),
   m_numberOfClusters(0)

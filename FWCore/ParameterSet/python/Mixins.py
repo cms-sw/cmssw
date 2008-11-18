@@ -1,4 +1,4 @@
-
+import inspect
 
 class _ConfigureComponent(object):
     """Denotes a class that can be used by the Processes class"""
@@ -519,6 +519,18 @@ class _ValidatingParameterListBase(_ValidatingListBase,_ParameterTypeBase):
     @staticmethod
     def _itemsFromStrings(strings,converter):
         return (converter(x).value() for x in strings)
+
+def saveOrigin(obj, level):
+    frame = inspect.stack()[level+1]
+    filename = str(frame[1])
+    lineNumber = int(frame[2])
+    obj._lineNumber = lineNumber 
+    obj._filename = filename # the full name
+    try:
+        obj._shortFilename = filename.split('python/')[1] #only the part below
+    except:
+        obj._shortFilename = filename
+                                    
 
 if __name__ == "__main__":
 

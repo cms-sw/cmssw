@@ -1,12 +1,10 @@
 <use name=rootcintex>
 <use name=rootcore>
-\\<use name=rootgraphics>
-<use name=root>
+<use name=rootgraphics>
 <use name=RecoLuminosity/TCPReceiver>
 <export>
 	<use name=RecoLuminosity/TCPReceiver>
 	<lib name=RecoLuminosityROOTSchema>
 	<use name=rootcore>
-	\\<use name=rootgraphics>
-	<use name=root>
+	<use name=rootgraphics>
 </export>

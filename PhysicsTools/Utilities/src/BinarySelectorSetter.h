@@ -7,14 +7,14 @@
  * \author original version: Chris Jones, Cornell, 
  *         adapted to Reflex by Luca Lista, INFN
  *
- * \version $Revision: 1.2 $
+ * \version $Revision: 1.1 $
  *
  */
 #include "PhysicsTools/Utilities/src/SelectorStack.h"
 #include "PhysicsTools/Utilities/src/ComparisonStack.h"
 #include "PhysicsTools/Utilities/src/ExpressionStack.h"
 #include "PhysicsTools/Utilities/src/BinarySelector.h"
-#include "PhysicsTools/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/EDMException.h"
 #include <boost/shared_ptr.hpp>
 
 namespace reco {
@@ -25,13 +25,13 @@ namespace reco {
 			    ComparisonStack& cmpStack, ExpressionStack& expStack ) : 
 	selStack_( selStack ), cmpStack_( cmpStack ), expStack_( expStack ) { }
       
-      void operator()(const char * begin, const char *) const {
+      void operator()(const char * , const char *) const {
 	if(expStack_.empty())
-	  throw Exception(begin)
-	    << "Grammar error: empty expression stack. Please contact developer.";
+	  throw edm::Exception(edm::errors::Configuration)
+	    << "Parse error: empty expression stack." << "\"\n";
 	if(cmpStack_.empty())
-	  throw Exception(begin)
-	    << "Grammar error: empty comparator stack. Please contact developer." << "\"";
+	  throw edm::Exception(edm::errors::Configuration)
+	    << "Parse error: empty comparator stack." << "\"\n";
 	boost::shared_ptr<ExpressionBase> rhs = expStack_.back(); expStack_.pop_back();
 	boost::shared_ptr<ExpressionBase> lhs = expStack_.back(); expStack_.pop_back();
 	boost::shared_ptr<ComparisonBase> comp = cmpStack_.back(); cmpStack_.pop_back();

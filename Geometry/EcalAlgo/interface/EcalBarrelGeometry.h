@@ -26,7 +26,7 @@ class EcalBarrelGeometry : public CaloSubdetectorGeometry
 
       typedef EcalBarrelNumberingScheme NumberingScheme ;
 
-      enum { k_NumberOfCellsForCorners = EBDetId::kSizeForDenseIndexing } ;
+      enum CornersCount { k_NumberOfCellsForCorners = 61200 } ;
 
       EcalBarrelGeometry() ;
   

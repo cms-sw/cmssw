@@ -7,7 +7,7 @@
  * \author original version: Chris Jones, Cornell, 
  *         extended by Luca Lista, INFN
  *
- * \version $Revision: 1.15 $
+ * \version $Revision: 1.14 $
  *
  */
 #include "boost/spirit/core.hpp"
@@ -34,13 +34,11 @@
 #include "PhysicsTools/Utilities/src/ExpressionSelectorSetter.h"
 #include "PhysicsTools/Utilities/src/MethodSetter.h"
 #include "PhysicsTools/Utilities/src/MethodArgumentSetter.h"
-#include "PhysicsTools/Utilities/interface/Exception.h"
 // #include "PhysicsTools/Utilities/src/Abort.h"
 
 namespace reco {
   namespace parser {    
     struct Grammar : public boost::spirit::grammar<Grammar> {
-       
       SelectorPtr dummySel_;
       ExpressionPtr dummyExpr_;
       SelectorPtr * sel_; 
@@ -135,16 +133,10 @@ namespace reco {
      BOOST_SPIRIT_DEBUG_RULE(term);
      BOOST_SPIRIT_DEBUG_RULE(power);
      BOOST_SPIRIT_DEBUG_RULE(factor);
-     BOOST_SPIRIT_DEBUG_RULE(or_op);
-     BOOST_SPIRIT_DEBUG_RULE(and_op);
      BOOST_SPIRIT_DEBUG_RULE(comparison_op);
      BOOST_SPIRIT_DEBUG_RULE(binary_comp);
      BOOST_SPIRIT_DEBUG_RULE(trinary_comp);
-     BOOST_SPIRIT_DEBUG_RULE(cut);
-     BOOST_SPIRIT_DEBUG_RULE(fun);
   
-     boost::spirit::assertion<SyntaxErrors> expectParenthesis(kMissingClosingParenthesis);
-     boost::spirit::assertion<SyntaxErrors> expect(kSyntaxError);
   
 	  number = 
 	    real_p [ number_s ];
@@ -154,10 +146,10 @@ namespace reco {
                     ( ch_p('\'') >> *(~ch_p('\''))  >> ch_p('\'') ) [ methodArg_s ];
 	  var = 
 	    (alpha_p >> * alnum_p >> 
-	      ch_p('(') >> metharg >> * (ch_p(',') >> metharg ) >> expectParenthesis(ch_p(')'))) [ method_s ] |
+	      ch_p('(') >> metharg >> * (ch_p(',') >> metharg ) >> ch_p(')')) [ method_s ] |
 	    ( (alpha_p >> * alnum_p) [ method_s ] >> ! (ch_p('(') >> ch_p(')')) ) ;
 	  method = 
-	    (var >> * ((ch_p('.') >> expect(var)))) [ var_s ];
+	    (var >> * ((ch_p('.') >> var))) [ var_s ];
 	  function1 = 
 	    chseq_p("abs") [ abs_s ] | chseq_p("acos") [ acos_s ] | chseq_p("asin") [ asin_s ] |
 	    chseq_p("atan") [ atan_s ] | chseq_p("cos") [ cos_s ] | chseq_p("cosh") [ cosh_s ] |
@@ -168,26 +160,19 @@ namespace reco {
 	    chseq_p("atan2") [ atan2_s ] | chseq_p("chi2prob") [ chi2prob_s ] | chseq_p("pow") [ pow_s ] |
             chseq_p("min") [ min_s ] | chseq_p("max") [ max_s ];
 	  expression = 
-	    term >> * (('+' >> expect(term)) [ plus_s ] |
-		       ('-' >> expect(term)) [ minus_s ]);
+	    term >> * (('+' >> term) [ plus_s ] |
+		       ('-' >> term) [ minus_s ]);
 	  term = 
-	    power >> * (('*' >> expect(power)) [ multiplies_s ] |
-			('/' >> expect(power)) [ divides_s ]);
+	    power >> * (('*' >> power) [ multiplies_s ] |
+			('/' >> power) [ divides_s ]);
 	  power = 
-	    factor >> * (('^' >> expect(factor)) [ power_of_s ]);
+	    factor >> * (('^' >> factor) [ power_of_s ]);
 	  factor = 
 	    number | 
-	    (function1 >> expect(ch_p('(')) >> expect(expression) >> expectParenthesis(ch_p(')'))) [ fun_s ] |
-	    (function2 >> expect(ch_p('(')) >> expect(expression) >> expect(ch_p(',')) >> expect(expression) >> expectParenthesis(ch_p(')'))) [ fun_s ] |
+	    (function1 >> ch_p('(') >> expression >> ch_p(')')) [ fun_s ] |
+	    (function2 >> ch_p('(') >> expression >> ch_p(',') >> expression >> ch_p(')')) [ fun_s ] |
 	    method | 
-	    //NOTE: no 'expectedParenthesis around ending ')' because at this point the partial phrase
-	    //       "(a"
-	    //could refer to an expression, e.g., "(a+b)*c" or a logical expression "(a<1) &&"
-	    //so we need to allow the parser to 'backup' and try a different approach.
-	    //NOTE: if the parser were changed so a logical expression could be used as an expression,e.g.
-	    //  (a<b)+1 <2
-	    // then we could remove such an ambiguity.
-	    '(' >> expression >> ch_p(')') |   
+	    '(' >> expression >> ')' |   
 	    ('-' >> factor) [ negate_s ] |
 	    ('+' >> factor);
 	  comparison_op = 
@@ -199,23 +184,22 @@ namespace reco {
 	    (ch_p('>')              [ greater_s       ]) | 
 	    (ch_p('!') >> ch_p('=') [ not_equal_to_s  ]);
 	  binary_comp = 
-	    expression >> comparison_op >> expect(expression);
+	    expression >> comparison_op >> expression;
 	  trinary_comp = 
-	    expression >> comparison_op >> expect(expression) >> comparison_op >> expect(expression);
+	    expression >> comparison_op >> expression >> comparison_op >> expression;
 	  or_op = (ch_p('|') >> ch_p('|') [ or_s ]) |
 	    (ch_p('|') [ or_s ]);
 	  and_op = (ch_p('&') >> ch_p('&') [ and_s ]) |
 	    (ch_p('&') [ and_s ]); 
 	  logical_expression = 
-            logical_term >> * (or_op >> expect(logical_term));
-	  logical_term = 
-            logical_factor >> * (and_op >> expect(logical_factor));
+            logical_term >> * (or_op >> logical_term);
+          logical_term = 
+            logical_factor >> * (and_op >> logical_factor);
 	  logical_factor =
 	    (trinary_comp [ trinary_s ] | 
 	     binary_comp [ binary_s ] |
-	     (ch_p('!') [ not_s ] >> expect(logical_factor)) |  expression [expr_sel_s] ) [ cut_s ] |
-	     '(' >> logical_expression >> expectParenthesis(ch_p(')'))
-	    ;
+	     (ch_p('!') [ not_s ] >> logical_factor) |  expression [expr_sel_s] ) [ cut_s ] |
+	    '(' >> logical_expression >> ')' ;
 	  cut = logical_expression;
 	  fun = expression [ expr_s ];
 	  start_parsers(cut, fun);

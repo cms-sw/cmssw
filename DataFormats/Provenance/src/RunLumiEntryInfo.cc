@@ -1,3 +1,4 @@
+#include "DataFormats/Provenance/interface/EventEntryInfo.h"
 #include "DataFormats/Provenance/interface/RunLumiEntryInfo.h"
 #include "DataFormats/Provenance/interface/EntryDescriptionID.h"
 #include "DataFormats/Provenance/interface/EventEntryDescription.h"
@@ -13,6 +14,12 @@ namespace edm {
     branchID_(),
     productStatus_(productstatus::uninitialized()),
     moduleDescriptionID_()
+  {}
+
+  RunLumiEntryInfo::RunLumiEntryInfo(EventEntryInfo const& ei) :
+    branchID_(ei.branchID()),
+    productStatus_(ei.productStatus()),
+    moduleDescriptionID_(ei.moduleDescriptionID())
   {}
 
   RunLumiEntryInfo::RunLumiEntryInfo(BranchID const& bid) :
@@ -51,6 +58,11 @@ namespace edm {
      EntryDescriptionRegistry::instance()->getMapped(edid, ed);
      moduleDescriptionID_ = ed.moduleDescriptionID();
   } 
+
+  EventEntryInfo
+  RunLumiEntryInfo::makeEntryInfo() const {
+    return EventEntryInfo(branchID_, productStatus_, moduleDescriptionID_);
+  }
 
   void
   RunLumiEntryInfo::setPresent() {

@@ -25,9 +25,6 @@ secondClusters = cms.EDFilter("TrackClusterRemover",
     stripClusters = cms.InputTag("siStripClusters")
 )
 
-from RecoPixelVertexing.PixelLowPtUtilities.common_cff import BPixError
-from RecoPixelVertexing.PixelLowPtUtilities.common_cff import FPixError
-
 secondLayerTriplets = cms.ESProducer("PixelLayerTripletsESProducer",
     ComponentName = cms.string('SecondLayerTriplets'),
     layerList = cms.vstring('BPix1+BPix2+BPix3', 

@@ -3,9 +3,6 @@
 #include "RecoParticleFlow/PFTracking/interface/PFTrackTransformer.h"
 #include "DataFormats/ParticleFlowReco/interface/PFNuclearInteraction.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 using namespace std;
 using namespace edm;
 PFNuclearProducer::PFNuclearProducer(const ParameterSet& iConfig):
@@ -77,9 +74,7 @@ PFNuclearProducer::produce(Event& iEvent, const EventSetup& iSetup)
 void 
 PFNuclearProducer::beginJob(const EventSetup& iSetup)
 {
-  ESHandle<MagneticField> magneticField;
-  iSetup.get<IdealMagneticFieldRecord>().get(magneticField);
-  pfTransformer_= new PFTrackTransformer(math::XYZVector(magneticField->inTesla(GlobalPoint(0,0,0))));
+  pfTransformer_= new PFTrackTransformer();
   pfTransformer_->OnlyProp();
 }
 

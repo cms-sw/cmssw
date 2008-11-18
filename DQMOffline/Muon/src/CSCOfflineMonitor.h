@@ -122,7 +122,7 @@ private:
   std::vector<MonitorElement*> hRHLayer;
   std::vector<MonitorElement*> hRHX;
   std::vector<MonitorElement*> hRHY;
-  std::vector<MonitorElement*> hRHGlobal;
+  //std::vector<MonitorElement*> hRHGlobal;
   std::vector<MonitorElement*> hRHResid;
   std::vector<MonitorElement*> hSResid;
   std::vector<MonitorElement*> hRHSumQ;
@@ -134,7 +134,7 @@ private:
   std::vector<MonitorElement*> hSCodeNarrow;
   std::vector<MonitorElement*> hSnHits;
   std::vector<MonitorElement*> hSTheta;
-  std::vector<MonitorElement*> hSGlobal;
+  //std::vector<MonitorElement*> hSGlobal;
   MonitorElement *hSnhitsAll;
   MonitorElement *hSChiSqProb;
   MonitorElement *hSGlobalTheta;

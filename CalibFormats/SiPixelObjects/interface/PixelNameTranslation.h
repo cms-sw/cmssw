@@ -1,13 +1,12 @@
 #ifndef PixelNameTranslation_h
 #define PixelNameTranslation_h
-/**
-* \file CalibFormats/SiPixelObjects/interface/PixelNameTranslation.h
-* \brief This class provides a translation from the naming documents standard to specify
-*        the ROC to the corresponding set of
-*        mfec, mfecchanner, hubaddress portadd and rocid
-*
-*   A longer explanation will be placed here later
-*/
+//
+// This class provides a translation from
+// the naming documents standard to specify
+// the ROC to the corresponding set of
+// mfec, mfecchanner, hubaddress portadd and rocid
+//
+//
 
 #include <map>
 #include <string>
@@ -27,17 +26,6 @@ namespace pos{
 
   class PixelDetectorConfig;
 
-/*!  \ingroup ConfigurationObjects "Configuration Objects"
-*    
-*  @{
-*
-*  \class PixelNameTranslation PixelNameTranslation.h
-*  \brief This is the documentation about PixelNameTranslation...
-*
-*   This class provides a translation from the naming documents standard to specify
-*   the ROC to the corresponding set of
-*   mfec, mfecchanner, hubaddress portadd and rocid
-*/
   class PixelNameTranslation: public PixelConfigBase {
 
   public:
@@ -76,17 +64,11 @@ namespace pos{
 					unsigned int roc) const;
 					  
     PixelChannel ChannelFromFEDChannel(unsigned int fednumber, unsigned int fedchannel) const;
-
-    bool FEDChannelExist(unsigned int fednumber, unsigned int fedchannel) const;
 					  
     std::vector<PixelROCName> getROCsFromChannel(const PixelChannel& aChannel) const;
     std::vector<PixelROCName> getROCsFromModule(const PixelModuleName& aModule) const;
 
     void writeASCII(std::string dir="") const;
-    void 	 writeXML(      pos::PixelConfigKey key, int version, std::string path)                     const   ;
-    virtual void writeXMLHeader(pos::PixelConfigKey key, int version, std::string path, std::ofstream *out) const  {;}
-    virtual void writeXML(                                                              std::ofstream *out) const  {;}
-    virtual void writeXMLTrailer(                                                       std::ofstream *out) const  {;}
     
     bool ROCexists(PixelROCName theROC) ; // Added by Dario
     const PixelChannel& getChannelFromHdwAddress(const PixelHdwAddress& aHdwAddress) const;
@@ -96,12 +78,9 @@ namespace pos{
         
     std::map<PixelROCName,PixelHdwAddress> translationtable_;  
 
-    std::map<PixelHdwAddress, PixelROCName, PixelHdwAddress> fedlookup_;  
-
     // This is a bit ugly, since the PixelHdwAddress contains the ROC number, which isn't really relevant to a PixelChannel.
     std::map<PixelChannel, PixelHdwAddress > channelTranslationTable_;
 
   };
 }
-/* @} */
 #endif

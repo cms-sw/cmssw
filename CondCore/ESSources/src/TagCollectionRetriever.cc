@@ -3,6 +3,7 @@
 // Class:      TagCollectionRetriever
 //
 // Author:      Zhen Xie
+// $Id$
 //
 #include "TagCollectionRetriever.h"
 #include "TagDBNames.h"
@@ -12,17 +13,20 @@
 #include "RelationalAccess/ICursor.h"
 #include "CoralBase/AttributeList.h"
 #include "CoralBase/Attribute.h"
+#include "RelationalAccess/SchemaException.h"
 #include "CondCore/DBCommon/interface/CoralTransaction.h"
 #include "CondCore/DBCommon/interface/Exception.h"
-//#include <iostream>
+#include "CondCore/ESSources/interface/Exception.h"
+
 cond::TagCollectionRetriever::TagCollectionRetriever( cond::CoralTransaction& coraldb ):m_coraldb(&coraldb){
 }
 cond::TagCollectionRetriever::~TagCollectionRetriever(){}
 void 
 cond::TagCollectionRetriever::getTagCollection( const std::string& globaltag,
 						std::set<cond::TagMetadata >& result){
-  coral::ITable& tagInventorytable=m_coraldb->nominalSchema().tableHandle(cond::TagDBNames::tagInventoryTable());
-  coral::IQuery* query=m_coraldb->nominalSchema().newQuery();
+  if(!m_coraldb->nominalSchema().existsTable(cond::TagDBNames::tagInventoryTable())){
+    throw cond::nonExistentGlobalTagInventoryException("TagCollectionRetriever::getTagCollection");
+  }
   std::pair<std::string,std::string> treenodepair=parseglobaltag(globaltag);
   std::string treename=treenodepair.first;
   std::string nodename=treenodepair.second;
@@ -36,6 +40,10 @@ cond::TagCollectionRetriever::getTagCollection( const std::string& globaltag,
     treetablename+="_";
     treetablename+=treename;
   }
+  if(!m_coraldb->nominalSchema().existsTable(treetablename)){
+    throw cond::nonExistentGlobalTagException("TagCollectionRetriever::getTagCollection",globaltag);
+  }
+  coral::IQuery* query=m_coraldb->nominalSchema().newQuery();
   //std::cout<<"treetablename "<<treetablename<<std::endl;
   query->addToTableList( treetablename, "p1" );
   query->addToTableList( treetablename, "p2" );
@@ -62,6 +70,7 @@ cond::TagCollectionRetriever::getTagCollection( const std::string& globaltag,
   std::vector<unsigned int>::iterator it;
   std::vector<unsigned int>::iterator itBeg=leaftagids.begin();
   std::vector<unsigned int>::iterator itEnd=leaftagids.end();
+  coral::ITable& tagInventorytable=m_coraldb->nominalSchema().tableHandle(cond::TagDBNames::tagInventoryTable());
   for( it=itBeg; it!=itEnd; ++it ){
     coral::IQuery* leaftagquery=tagInventorytable.newQuery();
     leaftagquery->addToOutputList( "tagname" );

@@ -109,7 +109,7 @@ namespace cms
       CaloSpecificAlgo calo;
       std::auto_ptr<CaloMETCollection> calometcoll; 
       calometcoll.reset(new CaloMETCollection);
-      calometcoll->push_back( calo.addInfo(input, output, noHF) );
+      calometcoll->push_back( calo.addInfo(input, output, noHF, globalThreshold) );
       event.put( calometcoll );
     }
     //-----------------------------------

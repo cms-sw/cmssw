@@ -1,4 +1,4 @@
-// $Id: EventStreamService.cc,v 1.1 2008/08/13 22:48:12 biery Exp $
+// $Id: EventStreamService.cc,v 1.8 2008/09/04 17:44:18 biery Exp $
 
 #include <EventFilter/StorageManager/interface/EventStreamService.h>
 #include <EventFilter/StorageManager/interface/ProgressMarker.h>
@@ -70,6 +70,7 @@ void EventStreamService::stop()
 {
   for (OutputMapIterator it = outputMap_.begin(); it != outputMap_.end(); ) {
     boost::shared_ptr<FileRecord> fd(it->first);
+    fd->setWhyClosed(1);
     outputMap_.erase(it++);
     fillOutputSummaryClosed(fd);
   }
@@ -80,18 +81,61 @@ void EventStreamService::stop()
 // *** close all output service of the previous lumi-section 
 // *** when lumiSectionTimeOut seconds have passed since the
 // *** appearance of the new lumi section and make a record of the file
+// !!! Deprecated - use closeTimedOutFiles() instead !!!
 // 
 void EventStreamService::closeTimedOutFiles(int lumi, double timeoutdiff)
 {
+   // just mark what the code should have done
   for (OutputMapIterator it = outputMap_.begin(); it != outputMap_.end(); ) {
-    if ( (it->second->lumiSection() < lumi-1) || //close old lumi sections in any case
-         ((timeoutdiff > lumiSectionTimeOut_) && //check for timeout of previous lumi sections
-          (it->second->lumiSection() < lumi)) ) {
-      boost::shared_ptr<FileRecord> fd(it->first);
-      outputMap_.erase(it++);
-      fillOutputSummaryClosed(fd);
-    } else 
+
+    int reason = lumi*100000 + it->first->lumiSection()*10;
+
+    // do not touch files from current lumi section
+    if (it->first->lumiSection() == lumi) {
+      it->first->setWhyClosed(reason);
       ++it;
+      continue;
+    }
+
+    if (it->first->lumiSection() < lumi-1) {
+      it->first->setWhyClosed(reason+2);  // close old (N-2) lumi sections in any case
+    } else if (timeoutdiff > lumiSectionTimeOut_) {
+      it->first->setWhyClosed(reason+3);  // check if timeout reached for previous (N-1) lumi sections
+    } else {
+      it->first->setWhyClosed(reason+9);  // default value to catch race condition
+    }
+
+    ++it;
+  }
+
+  // code from rev 1.10 
+  double currentTime = getCurrentTime();
+  for (OutputMapIterator it = outputMap_.begin(); it != outputMap_.end(); ) {
+     if (currentTime - it->second->lastEntry() > lumiSectionTimeOut_) {
+        boost::shared_ptr<FileRecord> fd(it->first);
+        outputMap_.erase(it++);
+        fillOutputSummaryClosed(fd);
+     } else 
+        ++it;
+  }
+}
+
+
+// 
+// *** close all output service when lumiSectionTimeOut seconds have passed
+// *** since the most recent event was added
+// 
+void EventStreamService::closeTimedOutFiles()
+{
+  double currentTime = getCurrentTime();
+  for (OutputMapIterator it = outputMap_.begin(); it != outputMap_.end(); ) {
+     if (currentTime - it->second->lastEntry() > lumiSectionTimeOut_) {
+        boost::shared_ptr<FileRecord> fd(it->first);
+        outputMap_.erase(it++);
+        fillOutputSummaryClosed(fd);
+     } else {
+        ++it;
+     }
   }
 }
 
@@ -106,8 +150,9 @@ boost::shared_ptr<OutputService> EventStreamService::getOutputService(EventMsgVi
        if (it->first->lumiSection() == lumiSection_) {
 	  if (checkEvent(it->first, view))
 	    return it->second;
-	  else {
+	  else { // close file since file size exceeded
             boost::shared_ptr<FileRecord> fd(it->first);
+            fd->setWhyClosed(4);
             outputMap_.erase(it);
             fillOutputSummaryClosed(fd);
             break;
@@ -206,7 +251,7 @@ boost::shared_ptr<FileRecord> EventStreamService::generateFileRecord()
 	 << "." << setfill('0') << std::setw(4) << lumiSection_
 	 << "." << streamLabel_ 
 	 << "." << fileName_
-         << "." << sourceId_;
+	 << "." << setfill('0') << std::setw(2) << sourceId_;
   string fileName = oss.str();
 
   shared_ptr<FileRecord> fd = shared_ptr<FileRecord>(new FileRecord(lumiSection_, fileName, filePath_));    

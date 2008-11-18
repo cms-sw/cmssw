@@ -13,7 +13,7 @@
 //
 // Original Author:  Christian AUTERMANN
 //         Created:  Sat Mar 22 12:58:04 CET 2008
-// $Id: PATHemisphereProducer.h,v 1.4 2008/04/24 07:42:00 adamwo Exp $
+// $Id: PATHemisphereProducer.h,v 1.3 2008/04/08 09:02:18 trommers Exp $
 //
 //
 
@@ -56,18 +56,6 @@ class PATHemisphereProducer : public edm::EDProducer {
       edm::InputTag _patElectrons;
       edm::InputTag _patPhotons;
       edm::InputTag _patTaus;
-
-  float _minJetEt;
-  float _minMuonEt;       
-  float _minElectronEt;       
-  float _minTauEt;       
-  float _minPhotonEt;      
-
-  float _maxJetEta;      
-  float _maxMuonEta;       
-  float _maxElectronEta;     
-  float _maxTauEta;       
-  float _maxPhotonEta;      
 
       int _seedMethod; 
       int _combinationMethod;

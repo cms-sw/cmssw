@@ -10,6 +10,6 @@ class SiNoiseAdder{
  public:
   virtual ~SiNoiseAdder() { }
   virtual void addNoise(std::vector<double>&,unsigned int&,unsigned int&,int,float) = 0;
-  virtual void createRaw(std::vector<double>&,unsigned int&,unsigned int&,int,float,float) = 0;
+  virtual void createRaw(std::vector<double>&,unsigned int&,unsigned int&,int,float) = 0;
 };
 #endif

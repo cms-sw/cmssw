@@ -231,14 +231,14 @@ void CSCOfflineMonitor::beginJob(edm::EventSetup const& iSetup){
       hRHY.push_back(dbe->book1D("hRHYp42","local Y recHit ME +4/2",60,-180.,180.));
 
 
-      hRHGlobal.push_back(dbe->book2D("hRHGlobalp1","recHit global X,Y station +1",400,-800.,800.,400,-800.,800.));
-      hRHGlobal.push_back(dbe->book2D("hRHGlobalp2","recHit global X,Y station +2",400,-800.,800.,400,-800.,800.));
-      hRHGlobal.push_back(dbe->book2D("hRHGlobalp3","recHit global X,Y station +3",400,-800.,800.,400,-800.,800.));
-      hRHGlobal.push_back(dbe->book2D("hRHGlobalp4","recHit global X,Y station +4",400,-800.,800.,400,-800.,800.));
-      hRHGlobal.push_back(dbe->book2D("hRHGlobalm1","recHit global X,Y station -1",400,-800.,800.,400,-800.,800.));
-      hRHGlobal.push_back(dbe->book2D("hRHGlobalm2","recHit global X,Y station -2",400,-800.,800.,400,-800.,800.));
-      hRHGlobal.push_back(dbe->book2D("hRHGlobalm3","recHit global X,Y station -3",400,-800.,800.,400,-800.,800.));
-      hRHGlobal.push_back(dbe->book2D("hRHGlobalm4","recHit global X,Y station -4",400,-800.,800.,400,-800.,800.));
+      //hRHGlobal.push_back(dbe->book2D("hRHGlobalp1","recHit global X,Y station +1",400,-800.,800.,400,-800.,800.));
+      //hRHGlobal.push_back(dbe->book2D("hRHGlobalp2","recHit global X,Y station +2",400,-800.,800.,400,-800.,800.));
+      //hRHGlobal.push_back(dbe->book2D("hRHGlobalp3","recHit global X,Y station +3",400,-800.,800.,400,-800.,800.));
+      //hRHGlobal.push_back(dbe->book2D("hRHGlobalp4","recHit global X,Y station +4",400,-800.,800.,400,-800.,800.));
+      //hRHGlobal.push_back(dbe->book2D("hRHGlobalm1","recHit global X,Y station -1",400,-800.,800.,400,-800.,800.));
+      //hRHGlobal.push_back(dbe->book2D("hRHGlobalm2","recHit global X,Y station -2",400,-800.,800.,400,-800.,800.));
+      //hRHGlobal.push_back(dbe->book2D("hRHGlobalm3","recHit global X,Y station -3",400,-800.,800.,400,-800.,800.));
+      //hRHGlobal.push_back(dbe->book2D("hRHGlobalm4","recHit global X,Y station -4",400,-800.,800.,400,-800.,800.));
 
 
       hRHSumQ.push_back(dbe->book1D("hRHSumQm42","Sum 3x3 recHit Charge (ME -4/2)",250,0,2000));
@@ -358,14 +358,14 @@ void CSCOfflineMonitor::beginJob(edm::EventSetup const& iSetup){
       hSTheta.push_back(dbe->book1D("hSThetap41","local theta segments in ME +4/1",128,-3.2,3.2));
       hSTheta.push_back(dbe->book1D("hSThetap42","local theta segments in ME +4/2",128,-3.2,3.2));
 
-      hSGlobal.push_back(dbe->book2D("hSGlobalp1","segment global X,Y station +1",400,-800.,800.,400,-800.,800.));
-      hSGlobal.push_back(dbe->book2D("hSGlobalp2","segment global X,Y station +2",400,-800.,800.,400,-800.,800.));
-      hSGlobal.push_back(dbe->book2D("hSGlobalp3","segment global X,Y station +3",400,-800.,800.,400,-800.,800.));
-      hSGlobal.push_back(dbe->book2D("hSGlobalp4","segment global X,Y station +4",400,-800.,800.,400,-800.,800.));
-      hSGlobal.push_back(dbe->book2D("hSGlobalm1","segment global X,Y station -1",400,-800.,800.,400,-800.,800.));
-      hSGlobal.push_back(dbe->book2D("hSGlobalm2","segment global X,Y station -2",400,-800.,800.,400,-800.,800.));
-      hSGlobal.push_back(dbe->book2D("hSGlobalm3","segment global X,Y station -3",400,-800.,800.,400,-800.,800.));
-      hSGlobal.push_back(dbe->book2D("hSGlobalm4","segment global X,Y station -4",400,-800.,800.,400,-800.,800.));
+      //hSGlobal.push_back(dbe->book2D("hSGlobalp1","segment global X,Y station +1",400,-800.,800.,400,-800.,800.));
+      //hSGlobal.push_back(dbe->book2D("hSGlobalp2","segment global X,Y station +2",400,-800.,800.,400,-800.,800.));
+      //hSGlobal.push_back(dbe->book2D("hSGlobalp3","segment global X,Y station +3",400,-800.,800.,400,-800.,800.));
+      //hSGlobal.push_back(dbe->book2D("hSGlobalp4","segment global X,Y station +4",400,-800.,800.,400,-800.,800.));
+      //hSGlobal.push_back(dbe->book2D("hSGlobalm1","segment global X,Y station -1",400,-800.,800.,400,-800.,800.));
+      //hSGlobal.push_back(dbe->book2D("hSGlobalm2","segment global X,Y station -2",400,-800.,800.,400,-800.,800.));
+      //hSGlobal.push_back(dbe->book2D("hSGlobalm3","segment global X,Y station -3",400,-800.,800.,400,-800.,800.));
+      //hSGlobal.push_back(dbe->book2D("hSGlobalm4","segment global X,Y station -4",400,-800.,800.,400,-800.,800.));
 
       hSnhitsAll = dbe->book1D("hSnhits","N hits on Segments",7,-0.5,6.5);
       hSChiSqProb = dbe->book1D("hSChiSqProb","segments chi-squared probability",100,0.,1.);
@@ -665,7 +665,7 @@ void CSCOfflineMonitor::analyze(const Event & event, const EventSetup& eventSetu
     // Fill some histograms
     hRHCodeBroad->Fill(kCodeBroad);
     hRHCodeNarrow[kStation-1]->Fill(kCodeNarrow);
-    hRHGlobal[(kStation-1) + ((kEndcap - 1)*4)]->Fill(grecx,grecy);
+    //hRHGlobal[(kStation-1) + ((kEndcap - 1)*4)]->Fill(grecx,grecy);
     hRHLayer[index]->Fill(kLayer);
     hRHX[index]->Fill(xreco);
     hRHY[index]->Fill(yreco);
@@ -787,7 +787,7 @@ void CSCOfflineMonitor::analyze(const Event & event, const EventSetup& eventSetu
     hSGlobalPhi->Fill(globPhi);
     hSnhitsAll->Fill(nhits);
     hSCodeNarrow[kStation-1]->Fill(kCodeNarrow);
-    hSGlobal[(kStation-1) + ((kEndcap - 1)*4)]->Fill(globX,globY);
+    //hSGlobal[(kStation-1) + ((kEndcap - 1)*4)]->Fill(globX,globY);
     hSnHits[index]->Fill(nhits);
     hSTheta[index]->Fill(theta);
     hSResid[index]->Fill(residual);

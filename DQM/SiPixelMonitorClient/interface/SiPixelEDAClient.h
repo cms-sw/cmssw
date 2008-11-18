@@ -63,6 +63,10 @@ private:
   int tkMapFrequency_;
   int summaryFrequency_;
   unsigned int staticUpdateFrequency_;
+  bool actionOnLumiSec_;
+  bool actionOnRunEnd_;
+  int evtOffsetForInit_;
+  std::string summaryXMLfile_;
 
   std::ostringstream html_out_;
 };

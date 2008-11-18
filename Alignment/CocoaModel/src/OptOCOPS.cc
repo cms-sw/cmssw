@@ -8,12 +8,10 @@
 #include "Alignment/CocoaModel/interface/OptOCOPS.h"
 #include "Alignment/CocoaModel/interface/LightRay.h"
 #include "Alignment/CocoaModel/interface/Measurement.h"
-#include "Alignment/CocoaModel/interface/Model.h"
 #ifdef COCOA_VIS
 #include "Alignment/CocoaVisMgr/interface/ALIVRMLMgr.h"
 #include "Alignment/IgCocoaFileWriter/interface/IgCocoaFileMgr.h"
 #endif
-#include "Alignment/CocoaModel/interface/ALILine.h"
 #include "Alignment/CocoaModel/interface/ALIPlane.h"
 #include "Alignment/CocoaDDLObjects/interface/CocoaSolidShapeBox.h"
 #include "Alignment/CocoaUtilities/interface/GlobalOptionMgr.h"
@@ -46,7 +44,7 @@ void OptOCOPS::makeMeasurement( LightRay& lightray, Measurement& meas )
   //---------- Coordinates of dowel point 1 are given with respect to dowel point 2 (in local reference frame)
   ALIdouble posx12 = findExtraEntryValue("dowel1X");
 // Changed default value to .045 from .03
-  if(posx12 == 0. ) posx12 = -0.045; //samir changed sign to correct the dowel 1st pixel
+  if(posx12 == 0. ) posx12 = 0.045;
   CLHEP::Hep3Vector dowel1(posx12,findExtraEntryValue("dowel1Y"), 0.);
   CLHEP::HepRotation rmt = rmGlob(); 
   dowel1 = rmt*dowel1;
@@ -57,8 +55,7 @@ void OptOCOPS::makeMeasurement( LightRay& lightray, Measurement& meas )
   }
 
   //---------- Get line joining dowel1-dowel2 and perpendicular to it inside cops
-//  CLHEP::Hep3Vector line_dowel21 = - (dowel1-dowel2 ); //////
-  CLHEP::Hep3Vector line_dowel21 =  (dowel1-dowel2 ); // samir changed sign to correct the dowel 1st pixel
+  CLHEP::Hep3Vector line_dowel21 = - (dowel1-dowel2 ); //////
   CLHEP::Hep3Vector ZAxis(0.,0,1.); 
   ZAxis = rmt * ZAxis; 
   CLHEP::Hep3Vector line_dowel21_perp = ZAxis.cross( line_dowel21 ); 
@@ -84,16 +81,14 @@ void OptOCOPS::makeMeasurement( LightRay& lightray, Measurement& meas )
   ALIdouble posY;
   ALIbool eexists = findExtraEntryValueIfExists("upCCDYtoDowel2", posY);
   if(!eexists) posY = CCDlength + 0.004;
-  //if(!eexists) posY =  0.004;
   CLHEP::Hep3Vector posxy( posX, posY, 0);
   if(ALIUtils::debug>= 3) std::cout << " %%%% CCD distances to Dowel2: " << std::endl;
   if(ALIUtils::debug>= 3) std::cout << "   up ccd in local RF " << posxy << std::endl; 
   posxy = rmt * posxy;
   if(ALIUtils::debug>= 3) std::cout << "   up ccd in global RF " << posxy << std::endl; 
- // ALILine upCCD( dowel2 + posxy, -line_dowel21 ); 
- // ccds[0] = ALILine( posxy, -line_dowel21 );
-   ALILine upCCD( dowel2 + posxy, line_dowel21 );// Samir changed sign to correct the dowel 1st pixel
-  ccds[0] = ALILine( posxy, line_dowel21 ); // samir changed sign to correct the dowel 1st pixel
+  ALILine upCCD( dowel2 + posxy, -line_dowel21 ); 
+  ccds[0] = ALILine( posxy, -line_dowel21 );
+
   //----- Lower CCD (leftmost point & direction dowel2-dowel1)
   if(ALIUtils::debug>= 3) std::cout << std::endl << "***** DOWN CCD *****" << std::endl 
                             << "********************" << std::endl << std::endl ;
@@ -104,46 +99,35 @@ void OptOCOPS::makeMeasurement( LightRay& lightray, Measurement& meas )
   if(ALIUtils::debug>= 3) std::cout << "   down ccd in local RF " << posxy << std::endl; 
   posxy = rmt * posxy;
   if(ALIUtils::debug>= 3) std::cout << "   down ccd in global RF " << posxy << std::endl; 
-//  ALILine downCCD( dowel2 + posxy, -line_dowel21 );
- // ccds[1] = ALILine( posxy, -line_dowel21 );
-
-ALILine downCCD( dowel2 + posxy, line_dowel21 );//samir changed signto correct the dowel 1st pixel
-  ccds[1] = ALILine( posxy, line_dowel21 ); // samir changed sign to correct the dowel 1st pixel
+  ALILine downCCD( dowel2 + posxy, -line_dowel21 );
+  ccds[1] = ALILine( posxy, -line_dowel21 );
 
   //----- left CCD (uppermost point & direction perpendicular to dowel2-dowel1)
 
   if(ALIUtils::debug>= 3) std::cout << std::endl << "***** LEFT CCD *****" << std::endl
                             << "********************" << std::endl << std::endl;
   eexists = findExtraEntryValueIfExists("leftCCDXtoDowel2", posX);
-//  if(!eexists) posX = -0.002;
-  if(!eexists) posX = -CCDlength - 0.002; // Samir changed sign to correct the dowel 1st pixel
+  if(!eexists) posX = -0.002;
   posY = findExtraEntryValue("leftCCDYtoDowel2");
   posxy = CLHEP::Hep3Vector( posX, posY, 0);
   if(ALIUtils::debug>= 3) std::cout << "   left ccd in local RF " << posxy << std::endl; 
   posxy = rmt * posxy;
   if(ALIUtils::debug>= 3) std::cout << "   left ccd in global RF " << posxy << std::endl; 
- // ALILine leftCCD( dowel2 + posxy, line_dowel21_perp );
- // ccds[2] = ALILine(  posxy, line_dowel21_perp );
-
-  ALILine leftCCD( dowel2 + posxy, -line_dowel21_perp );//samir changed sign to correct the dowel 1st pixel
-  ccds[2] = ALILine(  posxy, -line_dowel21_perp );//samir changed sign to correct the dowel 1st pixel
+  ALILine leftCCD( dowel2 + posxy, line_dowel21_perp );
+  ccds[2] = ALILine(  posxy, line_dowel21_perp );
 
   //----- right CCD (uppermost point & direction perpendicular to dowel2-dowel1)
   if(ALIUtils::debug>= 3) std::cout << std::endl << "***** RIGHT CCD *****" << std::endl 
                             << "*********************" << std::endl<< std::endl ;
   eexists = findExtraEntryValueIfExists("rightCCDXtoDowel2", posX);
- // if(!eexists) posX = -CCDlength - 0.004;
-  if(!eexists) posX =  - 0.004; // samir tried to change in order to adjust the position of 1 st pixel.
+  if(!eexists) posX = -CCDlength - 0.004;
   posY = findExtraEntryValue("rightCCDYtoDowel2");
   posxy = CLHEP::Hep3Vector( posX, posY, 0);
   if(ALIUtils::debug>= 3) std::cout << "   right ccd in local RF " << posxy << std::endl; 
   posxy = rmt * posxy;
   if(ALIUtils::debug>= 3) std::cout << "   right ccd in global RF " << posxy  << std::endl << std::endl; 
- // ALILine rightCCD( dowel2 + posxy, line_dowel21_perp );
- // ccds[3] = ALILine(  posxy, line_dowel21_perp );
-  
-ALILine rightCCD( dowel2 + posxy, -line_dowel21_perp ); //samir changed sign to correct the dowel 1st pixel
-  ccds[3] = ALILine(  posxy, -line_dowel21_perp ); //samir changed sign to correct the dowel 1st pixel
+  ALILine rightCCD( dowel2 + posxy, line_dowel21_perp );
+  ccds[3] = ALILine(  posxy, line_dowel21_perp );
 
   if (ALIUtils::debug >= 3) {
     std::cout << " %%%  Positions of CCDs in global RF: " << std::endl<< std::endl;

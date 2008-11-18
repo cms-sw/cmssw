@@ -55,7 +55,8 @@ HLTTauValidation::HLTTauValidation(const edm::ParameterSet& ps) :
       l25etaeff = store->book1D("l25etaeff","L25 Efficiency vs #eta",50,-2.5,2.5);
       l3etaeff = store->book1D("l3etaeff","L3 Efficiency vs #eta",50,-2.5,2.5);
 
-
+      accepted_events = store->book1D("acceptedEvents","Accepted Events per path",5,0,5);
+      accepted_events_matched = store->book1D("acceptedEventsMatched","Accepted Events per path",6,0,6);
     }
 
 }
@@ -71,6 +72,21 @@ HLTTauValidation::~HLTTauValidation()
 void
 HLTTauValidation::endJob()
 {
+  //Fill histograms
+  accepted_events->setBinContent(1,NLeptonEvents);
+  accepted_events->setBinContent(2,NL1Events);
+  accepted_events->setBinContent(3,NL2Events);
+  accepted_events->setBinContent(4,NL25Events);
+  accepted_events->setBinContent(5,NL3Events);
+
+
+  accepted_events_matched->setBinContent(1,NLeptonEvents_Matched);
+  accepted_events_matched->setBinContent(2,NL1Events_Matched);
+  accepted_events_matched->setBinContent(3,NL2Events_Matched);
+  accepted_events_matched->setBinContent(4,NL25Events_Matched);
+  accepted_events_matched->setBinContent(5,NL3Events_Matched);
+  accepted_events_matched->setBinContent(6,NRefEvents);
+
 
   //Write DQM thing..
   if(outFile_.size()>0)
@@ -78,39 +94,43 @@ HLTTauValidation::endJob()
 
 
   //Write Log File
-  FILE *fp;
-  fp = fopen(logFile_.c_str(),"w");
+  if(logFile_.size()>0)
+    {
 
-  fprintf(fp,"GENERATING OUTPUT--------------------------------------->\n");
-  fprintf(fp,"Reference:\n");
-  fprintf(fp,"   -Number of GOOD Ref Events = %d\n",NRefEvents);
-  fprintf(fp,"Trigger:\n");
-  fprintf(fp,"   -Leptonic Trigger Accepted Events = %d   Accepted and Matched = %d\n",NLeptonEvents,NLeptonEvents_Matched);
-  fprintf(fp,"   -L1 Accepted Events = %d  L1 Accepted and Matched = %d\n",NL1Events,NL1Events_Matched);
-  fprintf(fp,"   -L2 Accepted Events = %d  L2 Accepted and Matched = %d\n",NL2Events,NL2Events_Matched);
-  fprintf(fp,"   -L25 Accepted Events = %d  L25 Accepted and Matched = %d\n",NL25Events,NL25Events_Matched);
-  fprintf(fp,"   -L3 Accepted Events = %d  L3 Accepted and Matched = %d\n",NL3Events,NL3Events_Matched);
-  fprintf(fp,"HLT Acceptance with Ref to Previous Trigger(No Matching):\n");
-  fprintf(fp,"   -L2 = %f +/- %f \n",calcEfficiency(NL2Events,NL1Events)[0],calcEfficiency(NL2Events,NL1Events)[1]);
-  fprintf(fp,"   -L25 = %f +/- %f \n",calcEfficiency(NL25Events,NL2Events)[0],calcEfficiency(NL25Events,NL2Events)[1]);
-  fprintf(fp,"   -L3 = %f +/- %f \n",calcEfficiency(NL3Events,NL25Events)[0],calcEfficiency(NL3Events,NL25Events)[1]);
-  fprintf(fp,"HLT Efficiency with Ref to Previous Trigger(with Matching):\n");
-  fprintf(fp,"   -L2 = %f +/- %f \n",calcEfficiency(NL2Events_Matched,NL1Events_Matched)[0],calcEfficiency(NL2Events_Matched,NL1Events_Matched)[1]);
-  fprintf(fp,"   -L25 = %f +/- %f \n",calcEfficiency(NL25Events_Matched,NL2Events_Matched)[0],calcEfficiency(NL25Events_Matched,NL2Events_Matched)[1]);
-  fprintf(fp,"   -L3 = %f +/- %f \n",calcEfficiency(NL3Events_Matched,NL25Events_Matched)[0],calcEfficiency(NL3Events_Matched,NL25Events_Matched)[1]);
+      FILE *fp;
+      fp = fopen(logFile_.c_str(),"w");
 
-  fprintf(fp,"HLT Efficiency with Ref to L1 Trigger(with Matching):\n");
-  fprintf(fp,"   -L2 = %f +/- %f \n",calcEfficiency(NL2Events_Matched,NL1Events_Matched)[0],calcEfficiency(NL2Events_Matched,NL1Events_Matched)[1]);
-  fprintf(fp,"   -L25 = %f +/- %f \n",calcEfficiency(NL25Events_Matched,NL1Events_Matched)[0],calcEfficiency(NL25Events_Matched,NL1Events_Matched)[1]);
-  fprintf(fp,"   -L3 = %f +/- %f \n",calcEfficiency(NL3Events_Matched,NL1Events_Matched)[0],calcEfficiency(NL3Events_Matched,NL1Events_Matched)[1]);
-  fprintf(fp,"HLT Efficiency with Ref to Matching Object):\n");
-  fprintf(fp,"   -L1 = %f +/- %f \n",calcEfficiency(NL1Events_Matched,NRefEvents)[0],calcEfficiency(NL1Events_Matched,NRefEvents)[1]);
-  fprintf(fp,"   -L2 = %f +/- %f \n",calcEfficiency(NL2Events_Matched,NRefEvents)[0],calcEfficiency(NL2Events_Matched,NRefEvents)[1]);
-  fprintf(fp,"   -L25 = %f +/- %f \n",calcEfficiency(NL25Events_Matched,NRefEvents)[0],calcEfficiency(NL25Events_Matched,NRefEvents)[1]);
-  fprintf(fp,"   -L3 = %f +/- %f \n",calcEfficiency(NL3Events_Matched,NRefEvents)[0],calcEfficiency(NL3Events_Matched,NRefEvents)[1]);
-  fprintf(fp,"--------------------------------------------------------\n");
-  fprintf(fp,"Note: The errors are binomial..");	 
-  fclose(fp);
+      fprintf(fp,"GENERATING OUTPUT--------------------------------------->\n");
+      fprintf(fp,"Reference:\n");
+      fprintf(fp,"   -Number of GOOD Ref Events = %d\n",NRefEvents);
+      fprintf(fp,"Trigger:\n");
+      fprintf(fp,"   -Leptonic Trigger Accepted Events = %d   Accepted and Matched = %d\n",NLeptonEvents,NLeptonEvents_Matched);
+      fprintf(fp,"   -L1 Accepted Events = %d  L1 Accepted and Matched = %d\n",NL1Events,NL1Events_Matched);
+      fprintf(fp,"   -L2 Accepted Events = %d  L2 Accepted and Matched = %d\n",NL2Events,NL2Events_Matched);
+      fprintf(fp,"   -L25 Accepted Events = %d  L25 Accepted and Matched = %d\n",NL25Events,NL25Events_Matched);
+      fprintf(fp,"   -L3 Accepted Events = %d  L3 Accepted and Matched = %d\n",NL3Events,NL3Events_Matched);
+      fprintf(fp,"HLT Acceptance with Ref to Previous Trigger(No Matching):\n");
+      fprintf(fp,"   -L2 = %f +/- %f \n",calcEfficiency(NL2Events,NL1Events)[0],calcEfficiency(NL2Events,NL1Events)[1]);
+      fprintf(fp,"   -L25 = %f +/- %f \n",calcEfficiency(NL25Events,NL2Events)[0],calcEfficiency(NL25Events,NL2Events)[1]);
+      fprintf(fp,"   -L3 = %f +/- %f \n",calcEfficiency(NL3Events,NL25Events)[0],calcEfficiency(NL3Events,NL25Events)[1]);
+      fprintf(fp,"HLT Efficiency with Ref to Previous Trigger(with Matching):\n");
+      fprintf(fp,"   -L2 = %f +/- %f \n",calcEfficiency(NL2Events_Matched,NL1Events_Matched)[0],calcEfficiency(NL2Events_Matched,NL1Events_Matched)[1]);
+      fprintf(fp,"   -L25 = %f +/- %f \n",calcEfficiency(NL25Events_Matched,NL2Events_Matched)[0],calcEfficiency(NL25Events_Matched,NL2Events_Matched)[1]);
+      fprintf(fp,"   -L3 = %f +/- %f \n",calcEfficiency(NL3Events_Matched,NL25Events_Matched)[0],calcEfficiency(NL3Events_Matched,NL25Events_Matched)[1]);
+
+      fprintf(fp,"HLT Efficiency with Ref to L1 Trigger(with Matching):\n");
+      fprintf(fp,"   -L2 = %f +/- %f \n",calcEfficiency(NL2Events_Matched,NL1Events_Matched)[0],calcEfficiency(NL2Events_Matched,NL1Events_Matched)[1]);
+      fprintf(fp,"   -L25 = %f +/- %f \n",calcEfficiency(NL25Events_Matched,NL1Events_Matched)[0],calcEfficiency(NL25Events_Matched,NL1Events_Matched)[1]);
+      fprintf(fp,"   -L3 = %f +/- %f \n",calcEfficiency(NL3Events_Matched,NL1Events_Matched)[0],calcEfficiency(NL3Events_Matched,NL1Events_Matched)[1]);
+      fprintf(fp,"HLT Efficiency with Ref to Matching Object):\n");
+      fprintf(fp,"   -L1 = %f +/- %f \n",calcEfficiency(NL1Events_Matched,NRefEvents)[0],calcEfficiency(NL1Events_Matched,NRefEvents)[1]);
+      fprintf(fp,"   -L2 = %f +/- %f \n",calcEfficiency(NL2Events_Matched,NRefEvents)[0],calcEfficiency(NL2Events_Matched,NRefEvents)[1]);
+      fprintf(fp,"   -L25 = %f +/- %f \n",calcEfficiency(NL25Events_Matched,NRefEvents)[0],calcEfficiency(NL25Events_Matched,NRefEvents)[1]);
+      fprintf(fp,"   -L3 = %f +/- %f \n",calcEfficiency(NL3Events_Matched,NRefEvents)[0],calcEfficiency(NL3Events_Matched,NRefEvents)[1]);
+      fprintf(fp,"--------------------------------------------------------\n");
+      fprintf(fp,"Note: The errors are binomial..");	 
+      fclose(fp);
+    }
  
 }
 
@@ -297,7 +317,7 @@ HLTTauValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     //L1Analysis Seed
       size_t L1ID=0;
       L1ID =trigEv->filterIndex(l1seedFilter_);
-      printf("L1id = %d\n",L1ID);
+      LogDebug("HLTTauValidation") << "L1id = " << L1ID << std::endl;
       if(L1ID!=trigEv->size())
 	{
 	  //Get L1Objects
@@ -338,7 +358,7 @@ HLTTauValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     //L2Analysis Seed
       size_t L2ID=0;
       L2ID =trigEv->filterIndex(l2filter_);
-      printf("L2id = %d\n",L2ID);
+      LogDebug("HLTTauValidation") << "L2id = " << L2ID << std::endl;
    
       if(L2ID!=trigEv->size())
 	{

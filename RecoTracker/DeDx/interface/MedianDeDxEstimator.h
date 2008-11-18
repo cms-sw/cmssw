@@ -1,16 +1,16 @@
-#ifndef RecoTrackerDeDx_MedianDeDxEstimator_h
-#define RecoTrackerDeDx_MedianDeDxEstimator_h
+#ifndef MedianDeDxEstimator_h
+#define MedianDeDxEstimator_h
 
 #include "RecoTracker/DeDx/interface/DeDxTools.h"
-#include "DataFormats/TrackReco/interface/DeDxHit.h"
+#include "DataFormats/TrackReco/interface/TrackDeDxHits.h"
 
 class MedianDeDxEstimator: public BaseDeDxEstimator
 {
 public: 
  MedianDeDxEstimator(float expo) {}
 
- virtual std::pair<float,float> dedx(const reco::DeDxHitCollection & Hits) 
- {return std::make_pair(Hits[Hits.size()/2].charge(),-1); } 
+ virtual float dedx(const reco::TrackDeDxHits & trackWithHits) 
+ {return trackWithHits.second[trackWithHits.second.size()/2].charge(); } 
 };
 
 #endif

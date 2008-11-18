@@ -79,11 +79,6 @@ class dbsBaseGui:
             sys.exit()
 
 
-        self.cmsVersion=string.split(self.basedir,"/")[-1]
-        self.cmsVersion=string.strip(self.cmsVersion)
-        self.cmsVersion=string.split(self.cmsVersion,"_")[1:]
-
-
         # Now set base directory to area of release containing GUI
         self.basedir=self.basedir.strip("\n")
         self.basedir=os.path.join(self.basedir,"src/DQM/HcalMonitorModule/python/dqmdbsGUI")
@@ -181,11 +176,7 @@ class dbsBaseGui:
         self.hbcolor=self.bg # heartbeat color
 
         self.cfgFileName=StringVar()
-        if (string.atoi(self.cmsVersion[0]) < 2 or (string.atoi(self.cmsVersion[0])==2 and string.atoi(self.cmsVersion[1])<1)):
-            self.mycfg="hcal_dqm_dbsgui.cfg"
-        else:
-            self.mycfg="hcal_dqm_dbsgui_cfg.py"
-
+        self.mycfg="hcal_dqm_dbsgui.cfg"
 
         self.autoRunShift=True # automatically updates run entry when new run found
 
@@ -1512,8 +1503,55 @@ class dbsBaseGui:
             print self.callDQMscript.__doc__
         
         time.sleep(1)
+        # Get rid of old file
+        if os.path.isfile(os.path.join(self.basedir,".runOptions.cfi")):
+            os.system("rm %s"%(os.path.join(self.basedir,".runOptions.cfi")))
+        time.sleep(1)
 
-        # Get all files associated with run # i
+        #print os.path.join(self.basedir,".runOptions.cfi")
+        try:
+            temp=open(os.path.join(self.basedir,".runOptions.cfi"),'w')
+        except:
+            self.commentLabel.configure(text="MAJOR ERROR!  Could not write to .runOptions.cfi!  \nCheck file/directory permissions!")
+            self.dqmProgress.configure(text="FAILED!  Couldn't write .runOptions.cfi")
+            self.commentLabel.update_idletasks()
+            time.sleep(2)
+            return False
+        
+        # Allow a different # for each file?
+        #temp.write("replace maxEvents.input=%i\n"%self.filesInDBS[i].maxEvents)
+
+        # If wish to prescale over entire file, calculate prescale here:
+        if (self.prescaleOverRun.get() and self.prescaleOverRunText<>"# prescale (unused) = "):
+            # No longer need to get run info from summary page; already have it from DBS
+            #myruninfo=pyRunSummaryBaseClass.goodHCALRun(i,self.debug)
+            
+            try:
+                # Get prescale value
+                prescaleVal=int(self.filesInDBS[i].totalEvents/self.maxDQMEvents.get())
+                if (self.debug):
+                    print "Run #%i  Total events = %i  Max Events to run = %i  Prescale = %i"%(i,self.filesInDBS[i].totalEvents, self.maxDQMEvents.get(),prescaleVal)
+                if (prescaleVal>0):
+                    temp.write("%s %i\n\n"%(self.prescaleOverRunText,prescaleVal))
+                    # Need to run over all events if using prescale
+                    temp.write("replace maxEvents.input=%i\n"%self.filesInDBS[i].totalEvents)
+                     
+            except:
+                # If above fails for some reason, still dump out the maxEvents replacement (replace with maxDQMEvents)
+                temp.write("replace maxEvents.input=%i\n"%self.maxDQMEvents.get())
+                 
+
+        # Set luminosity blocks over which to run
+        else:
+            temp.write("replace maxEvents.input=%i\n"%self.maxDQMEvents.get())
+
+        if (self.debug):
+            print "run= ",i," lumi increment = ",self.lumiBlockRange.get()
+
+        #if (self.filesInDBS[i].lumiBlockIncrement>0):
+        #    temp.write("# replace lumiblockFilter.startblock=%i\n"%self.filesInDBS[i].currentLumiBlock)
+        #    temp.write("# replace lumiblockFilter.endblock=%i\n"%(self.filesInDBS[i].lumiBlockIncrement+self.filesInDBS[i].currentLumiBlock))
+
         filesToRun=[]
         if (self.lumiBlockRange.get()=="All"):
             filesToRun=self.filesInDBS[i].files
@@ -1522,7 +1560,6 @@ class dbsBaseGui:
             totalevents=0
             for myfile in range(len(self.filesInDBS[i].fileInfo)):
                 myval=self.filesInDBS[i].fileInfo[myfile].lumiBlock
-                
                 # Check over luminosity ranges
                 if (myval>=self.filesInDBS[i].currentLumiBlock and myval<self.filesInDBS[i].currentLumiBlock+int(self.lumiBlockRange.get())):
                     filesToRun.append(self.filesInDBS[i].fileInfo[myfile].fileName)
@@ -1531,120 +1568,29 @@ class dbsBaseGui:
             
         filelength=len(filesToRun)
         if (filelength==0):
-            # increment to next set of lum'y blocks if no runs found in current range (is that what we want?)
-            if (self.lumiBlockRange.get()<>"All"):
-                self.filesInDBS[i].currentLumiBlock=self.filesInDBS[i].currentLumiBlock+int(self.lumiBlockRange.get())
             self.commentLabel.configure(text = "<ERROR> No files found for run %i!"%i)
             self.commentLabel.update_idletasks()
             time.sleep(2)
             return
-
-
-        # Choice 1:  CMSSW version < 2_1_0 (using old .cfg files)
-        if (string.atoi(self.cmsVersion[0])<2 or (string.atoi(self.cmsVersion[0])==2 and string.atoi(self.cmsVersion[1])==0)):
-            # Get rid of old .cfi file
-            if os.path.isfile(os.path.join(self.basedir,".runOptions.cfi")):
-                os.system("rm %s"%(os.path.join(self.basedir,".runOptions.cfi")))
-            time.sleep(1)
-
-            #print os.path.join(self.basedir,".runOptions.cfi")
-            try:
-                temp=open(os.path.join(self.basedir,".runOptions.cfi"),'w')
-            except:
-                self.commentLabel.configure(text="MAJOR ERROR!  Could not write to .runOptions.cfi!  \nCheck file/directory permissions!")
-                self.dqmProgress.configure(text="FAILED!  Couldn't write .runOptions.cfi")
-                self.commentLabel.update_idletasks()
-                time.sleep(2)
-                return False
-
-            # Allow a different # for each file?
-            #temp.write("replace maxEvents.input=%i\n"%self.filesInDBS[i].maxEvents)
-
-            # If wish to prescale over entire file, calculate prescale here:
-            if (self.prescaleOverRun.get() and self.prescaleOverRunText<>"# prescale (unused) = "):
-                # No longer need to get run info from summary page; already have it from DBS
-                #myruninfo=pyRunSummaryBaseClass.goodHCALRun(i,self.debug)
-
-                try:
-                    # Get prescale value
-                    prescaleVal=int(self.filesInDBS[i].totalEvents/self.maxDQMEvents.get())
-                    if (self.debug):
-                        print "Run #%i  Total events = %i  Max Events to run = %i  Prescale = %i"%(i,self.filesInDBS[i].totalEvents, self.maxDQMEvents.get(),prescaleVal)
-                    if (prescaleVal>0):
-                        temp.write("%s %i\n\n"%(self.prescaleOverRunText,prescaleVal))
-                        # Need to run over all events if using prescale
-                        temp.write("replace maxEvents.input=%i\n"%self.filesInDBS[i].totalEvents)
-
-                except:
-                    # If above fails for some reason, still dump out the maxEvents replacement (replace with maxDQMEvents)
-                    temp.write("replace maxEvents.input=%i\n"%self.maxDQMEvents.get())
-
-
-            # Set luminosity blocks over which to run
+        temp.write("replace PoolSource.fileNames={\n")
+        
+        for f in range(0,filelength):
+            temp.write("'%s'"%string.strip(filesToRun[f]))
+            if (f==filelength-1):
+                temp.write("\n")
             else:
-                temp.write("replace maxEvents.input=%i\n"%self.maxDQMEvents.get())
+                temp.write(",\n")
+        temp.write("}\n")
+        temp.close()
+        os.system("chmod a+rw %s"%os.path.join(self.basedir,".runOptions.cfi"))
+        
+        # Now run cmsRun!
+        if not (os.path.isfile(os.path.join(self.basedir,".runOptions.cfi"))):
+            self.commentLabel.configure(text="Could not find .runOptions.cfi file\nFor run #%i"%i)
+            self.commentLabel.update_idletasks()
+            time.sleep(2)
+            return False
 
-            if (self.debug):
-                print "run= ",i," lumi increment = ",self.lumiBlockRange.get()
-
-            #if (self.filesInDBS[i].lumiBlockIncrement>0):
-            #    temp.write("# replace lumiblockFilter.startblock=%i\n"%self.filesInDBS[i].currentLumiBlock)
-            #    temp.write("# replace lumiblockFilter.endblock=%i\n"%(self.filesInDBS[i].lumiBlockIncrement+self.filesInDBS[i].currentLumiBlock))
-
-
-            temp.write("replace PoolSource.fileNames={\n")
-
-            for f in range(0,filelength):
-                temp.write("'%s'"%string.strip(filesToRun[f]))
-                if (f==filelength-1):
-                    temp.write("\n")
-                else:
-                    temp.write(",\n")
-            temp.write("}\n")
-            temp.close()
-            os.system("chmod a+rw %s"%os.path.join(self.basedir,".runOptions.cfi"))
-
-            # Set error if .runOptions.cfi not found
-            if not (os.path.isfile(os.path.join(self.basedir,".runOptions.cfi"))):
-                self.commentLabel.configure(text="Could not find .runOptions.cfi file\nFor run #%i"%i)
-                self.commentLabel.update_idletasks()
-                time.sleep(2)
-                return False
-
-
-        # Choice 2:  new _py file found.  Write file directly to _py; don't use auxiliary .cfi?
-        else:
-            tempinput=open(self.cfgFileName.get(),'r').readlines()
-            tempoutput=[]
-            temp_inreplaceloop=False
-            
-            for myline in tempinput:
-                if (temp_inreplaceloop==False):
-                    tempoutput.append(myline)
-                if (string.find(myline,"###<<<<<<<<<<")>-1):
-                    temp_inreplaceloop=True
-                    # If prescale, need to run over all events (set input = -1) -- add this later?
-                    tempoutput.append("process.maxEvents=cms.untracked.PSet(input = cms.untracked.int32(%i))\n"%self.maxDQMEvents.get())
-                    
-                    tempoutput.append('process.source = cms.Source("PoolSource",\n')
-                    tempoutput.append('\tfileNames= cms.untracked.vstring(\n') # jeff
-                    for f in range(0,filelength):
-                        if (f==filelength-1):
-                            tempoutput.append("\t\t'%s')\n"%string.strip(filesToRun[f]))
-                        else:
-                            tempoutput.append("\t\t'%s',\n"%string.strip(filesToRun[f]))
-                    tempoutput.append("\t)\n")
-                if (string.find(myline,"###>>>>>>>>>>>")>-1):
-                    temp_inreplaceloop=False
-                    tempoutput.append(myline)
-            # rewrite cfg file
-            newcfg=open(self.cfgFileName.get(),'w')
-            for zzz in tempoutput:
-                newcfg.write(zzz)
-            newcfg.close()
-
-        #sys.exit()
-        # Now run on cfgFile
         os.system("cmsRun %s"%self.cfgFileName.get())
 
 

@@ -11,30 +11,12 @@
 #include <string.h> // memcpy
 
 bool CSCTMBHeader::debug = false;
+short unsigned int CSCTMBHeader::firmwareVersion=2006;
 
-CSCTMBHeader::CSCTMBHeader(int firmwareVersion, int firmwareRevision):
- theHeaderFormat(),
- theFirmwareVersion(firmwareVersion)
+CSCTMBHeader::CSCTMBHeader():
+  theHeaderFormat(new CSCTMBHeader2006())
 {
-  if(firmwareVersion == 2006)
-  {
-    theHeaderFormat = boost::shared_ptr<CSCVTMBHeaderFormat>(new CSCTMBHeader2006());
-  }
-  else if(firmwareVersion == 2007)
-  {
-    if(firmwareRevision >= 0x50c3) 
-    {
-      theHeaderFormat = boost::shared_ptr<CSCVTMBHeaderFormat>(new CSCTMBHeader2007_rev0x50c3());
-    }
-    else
-    {
-      theHeaderFormat = boost::shared_ptr<CSCVTMBHeaderFormat>(new CSCTMBHeader2007());
-    }
-  }
-  else
-  {
-    edm::LogError("CSCTMBHeader|CSCRawToDigi") <<"failed to determine TMB firmware version!!";
-  }
+  firmwareVersion = 2006;
 }
 
 //CSCTMBHeader::CSCTMBHeader(const CSCTMBStatusDigi & digi) {
@@ -46,7 +28,7 @@ CSCTMBHeader::CSCTMBHeader(const unsigned short * buf)
 {
   ///first determine the format
   if (buf[0]==0xDB0C) {
-    theFirmwareVersion=2007;
+    firmwareVersion=2007;
     theHeaderFormat = boost::shared_ptr<CSCVTMBHeaderFormat>(new CSCTMBHeader2007(buf));
     if(theHeaderFormat->firmwareRevision() >= 0x50c3)
       {
@@ -54,7 +36,7 @@ CSCTMBHeader::CSCTMBHeader(const unsigned short * buf)
       }
   }
   else if (buf[0]==0x6B0C) {
-    theFirmwareVersion=2006;
+    firmwareVersion=2006;
     theHeaderFormat = boost::shared_ptr<CSCVTMBHeaderFormat>(new CSCTMBHeader2006(buf));
   }
   else {
@@ -134,6 +116,7 @@ CSCTMBHeader2006 CSCTMBHeader::tmbHeader2006()   const {
 void CSCTMBHeader::selfTest()
 {
   static bool debug = false;
+  const int testversion = 2006; // version to be tested; default is 2006.
 
   // tests packing and unpacking
   for(int station = 1; station <= 4; ++station) {
@@ -141,11 +124,11 @@ void CSCTMBHeader::selfTest()
       CSCDetId detId(iendcap, station, 1, 1, 0);
 
       // the next-to-last is the BX, which only gets
-      // saved in two bits and must be the same for clct0 and clct1.
+      // saved in two bits... I guess the bxnPreTrigger is involved?
       //CSCCLCTDigi clct0(1, 1, 4, 0, 0, 30, 3, 0, 1); // valid for 2006
       // In 2007 firmware, there are no distrips, so the 4th argument (strip
       // type) should always be set to 1 (halfstrips).
-      CSCCLCTDigi clct0(1, 1, 4, 1, 0, 30, 4, 2, 1); // valid for 2007
+      CSCCLCTDigi clct0(1, 1, 4, 1, 0, 30, 3, 0, 1); // valid for 2007
       CSCCLCTDigi clct1(1, 1, 2, 1, 1, 31, 1, 2, 2);
 
       // BX of LCT (8th argument) is 1-bit word (the least-significant bit
@@ -153,13 +136,13 @@ void CSCTMBHeader::selfTest()
       CSCCorrelatedLCTDigi lct0(1, 1, 2, 10, 98, 5, 0, 1, 0, 0, 0, 0);
       CSCCorrelatedLCTDigi lct1(2, 1, 2, 20, 15, 9, 1, 0, 0, 0, 0, 0);
 
-      CSCTMBHeader tmbHeader(2007, 0x50c3);
+      CSCTMBHeader tmbHeader;
+      tmbHeader.firmwareVersion = testversion;
       tmbHeader.addCLCT0(clct0);
       tmbHeader.addCLCT1(clct1);
       tmbHeader.addCorrelatedLCT0(lct0);
       tmbHeader.addCorrelatedLCT1(lct1);
       std::vector<CSCCLCTDigi> clcts = tmbHeader.CLCTDigis(detId.rawId());
-      // guess they got reordered
       assert(cscPackerCompare(clcts[0],clct0));
       assert(cscPackerCompare(clcts[1],clct1));
       if (debug) {

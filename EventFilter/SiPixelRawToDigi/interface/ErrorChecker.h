@@ -27,15 +27,15 @@ public:
 
   void setErrorStatus(bool ErrorStatus);
 
-  bool checkHeader(int fedId, const Word64* header, Errors& errors);
+  bool checkHeader(bool& errorsInEvent, int fedId, const Word64* header, Errors& errors);
 
-  bool checkTrailer(int fedId, int nWords, const Word64* trailer, Errors& errors);
+  bool checkTrailer(bool& errorsInEvent, int fedId, int nWords, const Word64* trailer, Errors& errors);
 
-  bool checkROC(int fedId, const SiPixelFrameConverter* converter, 
-		Word32 errorWord, Errors& errors);
+  bool checkROC(bool& errorsInEvent, int fedId, const SiPixelFrameConverter* converter, 
+		Word32& errorWord, Errors& errors);
 
   void conversionError(int fedId, const SiPixelFrameConverter* converter, 
-		       int status, Word32 errorWord, Errors& errors);
+		       int status, Word32& errorWord, Errors& errors);
 
 private:
   bool includeErrors;

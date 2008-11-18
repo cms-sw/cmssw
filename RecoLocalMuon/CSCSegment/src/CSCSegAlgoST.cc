@@ -1364,8 +1364,7 @@ void CSCSegAlgoST::ChooseSegments3(std::vector< ChamberHitContainer > chosen_seg
 
       //mark a pseg bad:
       if(SumCommonHits>1) { // needs to be a card; should be investigated first
-	//chosen_weight[iCand] *= -1.;//what if 0?
-	chosen_weight[iCand] = -1.;
+	chosen_weight[iCand] *= -1.;
 	nr_remaining_candidates -= 1;
       }
       else {

@@ -294,7 +294,7 @@ namespace edm {
   }
 
   void RootOutputFile::writeFileIndex() {
-    fileIndex_.sort();
+    fileIndex_.sortBy_Run_Lumi_Event();
     FileIndex *findexPtr = &fileIndex_;
     TBranch* b = metaDataTree_->Branch(poolNames::fileIndexBranchName().c_str(), &findexPtr, om_->basketSize(), 0);
     assert(b);

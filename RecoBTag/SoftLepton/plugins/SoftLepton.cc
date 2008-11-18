@@ -12,7 +12,7 @@
 
 // Original Author:  fwyzard
 //         Created:  Wed Oct 18 18:02:07 CEST 2006
-// $Id: SoftLepton.cc,v 1.17 2008/03/03 10:52:26 fwyzard Exp $
+// $Id: SoftLepton.cc,v 1.18 2008/04/16 08:13:23 andreasp Exp $
 
 
 #include <memory>
@@ -74,6 +74,7 @@ using namespace edm;
 using namespace reco;
 using namespace ROOT::Math::VectorUtil;
 
+// ------------ static copy of the nominal beamspot --------------------------------------
 const reco::Vertex SoftLepton::s_nominalBeamSpot(
   reco::Vertex::Point( 0, 0, 0 ),
   reco::Vertex::Error( ROOT::Math::SVector<double,6>( 0.0015 * 0.0015, //          0.0,        0.0
@@ -81,6 +82,7 @@ const reco::Vertex SoftLepton::s_nominalBeamSpot(
                                                                   0.0,             0.0, 15. * 15. ) ),
   1, 1, 0 );
 
+// ------------ c'tor --------------------------------------------------------------------
 SoftLepton::SoftLepton(const edm::ParameterSet & iConfig) :
   m_jets(          iConfig.getParameter<edm::InputTag>( "jets" ) ),
   m_primaryVertex( iConfig.getParameter<edm::InputTag>( "primaryVertex" ) ),
@@ -94,11 +96,18 @@ SoftLepton::SoftLepton(const edm::ParameterSet & iConfig) :
   produces<reco::SoftLeptonTagInfoCollection>();
 }
 
-SoftLepton::~SoftLepton() {
+// ------------ d'tor --------------------------------------------------------------------
+SoftLepton::~SoftLepton(void) {
 }
 
+// ------------ method called once per event during the event loop -----------------------
 void
-SoftLepton::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+SoftLepton::produce(edm::Event & event, const edm::EventSetup & setup) {
+
+  // grab a TransientTrack helper from the Event Setup
+  edm::ESHandle<TransientTrackBuilder> builder;
+  setup.get<TransientTrackRecord>().get( "TransientTrackBuilder", builder );
+  m_transientTrackBuilder = builder.product();
 
   // input objects
 
@@ -109,7 +118,7 @@ SoftLepton::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   do { {
     // look for a JetTracksAssociationCollection
     edm::Handle<reco::JetTracksAssociationCollection> h_jtas;
-    iEvent.getByLabel(m_jets, h_jtas);
+    event.getByLabel(m_jets, h_jtas);
     if (h_jtas.isValid()) {
       unsigned int size = h_jtas->size();
       jets.resize(size);
@@ -123,7 +132,7 @@ SoftLepton::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   } { // else...
     // look for a View<Jet>
     edm::Handle<edm::View<reco::Jet> > h_jets;
-    iEvent.getByLabel(m_jets, h_jets);
+    event.getByLabel(m_jets, h_jets);
     if (h_jets.isValid()) {
       unsigned int size = h_jets->size();
       jets.resize(size);
@@ -144,10 +153,10 @@ SoftLepton::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   } else
   if (m_primaryVertex.label() == "beamspot") {
     edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
-    iEvent.getByType(recoBeamSpotHandle);
+    event.getByType(recoBeamSpotHandle);
     vertex = reco::Vertex(recoBeamSpotHandle->position(), recoBeamSpotHandle->covariance3D(), 1, 1, 0);
   } else {
-    iEvent.getByLabel(m_primaryVertex, h_primaryVertex);
+    event.getByLabel(m_primaryVertex, h_primaryVertex);
     if (h_primaryVertex->size()) {
       vertex = h_primaryVertex->front();
     } else {
@@ -163,7 +172,7 @@ SoftLepton::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   do { {
     // look for vector<Electron>
     Handle<reco::ElectronCollection> h_electrons;
-    iEvent.getByLabel(m_leptons, h_electrons);
+    event.getByLabel(m_leptons, h_electrons);
     if (h_electrons.isValid()) {
       for (reco::ElectronCollection::const_iterator electron = h_electrons->begin(); electron != h_electrons->end(); ++electron)
         leptons.push_back(edm::RefToBase<reco::Track>( electron->track() ));
@@ -172,7 +181,7 @@ SoftLepton::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   } { // else
     // look for vector<PixelMatchElectron>
     Handle<reco::PixelMatchGsfElectronCollection> h_electrons;
-    iEvent.getByLabel(m_leptons, h_electrons);
+    event.getByLabel(m_leptons, h_electrons);
     if (h_electrons.isValid()) {
       for (reco::PixelMatchGsfElectronCollection::const_iterator electron = h_electrons->begin(); electron != h_electrons->end(); ++electron)
         leptons.push_back(edm::RefToBase<reco::Track>( electron->track() ));
@@ -181,7 +190,7 @@ SoftLepton::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   } { // else
     // look for vector<GsfElectron>
     Handle<reco::GsfElectronCollection> h_electrons;
-    iEvent.getByLabel(m_leptons, h_electrons);
+    event.getByLabel(m_leptons, h_electrons);
     if (h_electrons.isValid()) {
       for (reco::GsfElectronCollection::const_iterator electron = h_electrons->begin(); electron != h_electrons->end(); ++electron)
         leptons.push_back(edm::RefToBase<reco::Track>( electron->gsfTrack() ));
@@ -190,7 +199,7 @@ SoftLepton::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   } { // else
     // look for vetor<Muon>
     Handle<reco::MuonCollection> h_muons;
-    iEvent.getByLabel(m_leptons, h_muons);
+    event.getByLabel(m_leptons, h_muons);
     if (h_muons.isValid()) {
       for (reco::MuonCollection::const_iterator muon = h_muons->begin(); muon != h_muons->end(); ++muon) {
         if (! muon->combinedMuon().isNull() and muon->caloCompatibility() > m_qualityCut)
@@ -204,7 +213,7 @@ SoftLepton::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   } { // else
     // look for edm::View<Track> 
     Handle<edm::View<reco::Track> > h_tracks;
-    iEvent.getByLabel(m_leptons, h_tracks);
+    event.getByLabel(m_leptons, h_tracks);
     if (h_tracks.isValid()) {
       for (unsigned int i = 0; i < h_tracks->size(); i++)
         leptons.push_back(h_tracks->refAt(i));
@@ -220,16 +229,12 @@ SoftLepton::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     reco::SoftLeptonTagInfo result = tag( jets[i], tracks[i], leptons, vertex );
     outputCollection->push_back( result );
   }
-  iEvent.put( outputCollection );
+  event.put( outputCollection );
 }
 
-// ------------ method called once each job just before starting event loop  ------------
+// ------------ method called once each job just before starting event loop  -------------
 void 
-SoftLepton::beginJob(const edm::EventSetup& iSetup) {
-  // grab a TransientTrack helper from the Event Setup
-  edm::ESHandle<TransientTrackBuilder> builder;
-  iSetup.get<TransientTrackRecord>().get( "TransientTrackBuilder", builder );
-  m_transientTrackBuilder = builder.product();
+SoftLepton::beginJob(const edm::EventSetup & setup) {
 }
 
 // ------------ method called once each job just after ending the event loop  ------------

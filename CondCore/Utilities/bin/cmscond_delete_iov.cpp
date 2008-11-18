@@ -129,7 +129,6 @@ int main( int argc, char** argv ){
   if( deleteAll ){
     try{
       cond::PoolTransaction& pooldb=con.poolTransaction();
-      // irrelevant which tymestamp
       cond::IOVService iovservice(pooldb);
       pooldb.start(false);
       iovservice.deleteAll(withPayload);

@@ -9,9 +9,6 @@
 #include <TDirectory.h>
 #include <TH1F.h>
 
-// Binomial confidence interval - temporary location...
-#include "HLTriggerOffline/BJet/src/confidence.h"
-
 struct RatePlots {
   RatePlots() :
     m_rates(0)
@@ -27,7 +24,7 @@ struct RatePlots {
     TH1::AddDirectory(false);
 
     // a path with N filters can have N+1 rates: initial, after the 1st, ... after the Nth filter
-    m_rates = new TH1I((name + "_rates").c_str(), (title + " rates").c_str(), (levels+1), 0, (levels+1));
+    m_rates = new TH1I((name + "_rates").c_str(),  (title + " rates").c_str(), (levels+1), 0, (levels+1));
 
     // reset sum-of-squares status
     TH1::SetDefaultSumw2(sumw2);
@@ -71,57 +68,18 @@ struct RatePlots {
     return value;
   }
 
-  // returns the requisted confidence interval (default: 1 sigma) 
-  // for the differential efficiency of passing the given filter, 
-  // as computed using the "modified Jeffreys" method;
-  // level "0" means "no filter" and has C.I. [100%, 100%] by default
-  std::pair<double, double> stepConfidence(unsigned int level, double conf = 0.683) const
-  {
-    confidence::interval t;
-    if (level == 0)
-      t = std::make_pair(1., 1.);
-    else if (level > (unsigned int) m_rates->GetNbinsX())
-      t = std::make_pair(NAN, NAN);
-    else if (m_rates->GetBinContent( level ) == 0)
-      t = std::make_pair(0., 1.);
-    else
-      t = confidence::confidence_binomial_jeffreys_modified((int) m_rates->GetBinContent( level ), (int) m_rates->GetBinContent( level+1 ), conf);
-    return t;
-  }
-
   // returns the cumulative efficiency of passing the given filter, 
-  // i.e. the efficiency w.r.t. level "0";
-  // level "0" means "no filter" and has efficiency 100% by default
+  // i.e. the efficiency w.r.t. level "0"
   double efficiency(unsigned int level) const
   {
     double value = 0.;
-    if (level == 0)
-      value = 1.;
-    else if (level > (unsigned int) m_rates->GetNbinsX())
+    if (level > (unsigned int) m_rates->GetNbinsX())
       value = NAN;
     else if (m_rates->GetBinContent( 1 ) == 0)
       value = NAN;
     else
       value = (m_rates->GetBinContent( level+1 ) / m_rates->GetBinContent( 1 ));
     return value;
-  }
-
-  // returns the requisted confidence interval (default: 1 sigma) 
-  // for the cumulative efficiency of passing the given filter, 
-  // as computed using the "modified Jeffreys" method;
-  // i.e. the efficiency w.r.t. level "0"
-  std::pair<double, double> confidence(unsigned int level, double conf = 0.683) const
-  {
-    confidence::interval t;
-    if (level == 0)
-      t = std::make_pair(1., 1.);
-    else if (level > (unsigned int) m_rates->GetNbinsX())
-      t = std::make_pair(NAN, NAN);
-    else if (m_rates->GetBinContent( 1 ) == 0)
-      t = std::make_pair(0., 1.);
-    else
-      t = confidence::confidence_binomial_jeffreys_modified((int) m_rates->GetBinContent( 1 ), (int) m_rates->GetBinContent( level+1 ), conf);
-    return t;
   }
   
   void save(TDirectory & file)

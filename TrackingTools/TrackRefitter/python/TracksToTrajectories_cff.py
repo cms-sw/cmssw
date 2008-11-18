@@ -49,4 +49,3 @@ KFSmootherForRefitInsideOut = cms.ESProducer("KFTrajectorySmootherESProducer",
 )
 
 
-

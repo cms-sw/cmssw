@@ -8,8 +8,11 @@
 namespace cond {
 
   IOVEditorImpl::IOVEditorImpl( cond::PoolTransaction& pooldb,
-				const std::string& token
+				const std::string& token,
+				cond::Time_t globalSince, 
+				cond::Time_t globalTill
 				):m_pooldb(&pooldb),m_token(token),
+				  m_globalSince(globalSince), m_globalTill(globalTill),
 				  m_isActive(false){
   }
   
@@ -21,7 +24,7 @@ namespace cond {
       throw cond::Exception("cond::IOVEditorImpl::create cannot create a IOV using an initialized Editor");
     }
 
-    if(!validTime(firstSince, timetype))
+    if(!validTime(firstSince))
       throw cond::Exception("cond::IOVEditorImpl::create time not in global range");
       
 
@@ -60,18 +63,13 @@ namespace cond {
   }
   
   TimeType IOVEditorImpl::timetype() const {
-    return m_iov->timeType();
+    return (TimeType)(m_iov->timetype);
   }
   
 
-  bool IOVEditorImpl::validTime(cond::Time_t time, cond::TimeType timetype) const {
-    return time>=timeTypeSpecs[timetype].beginValue && time<=timeTypeSpecs[timetype].endValue;   
-
-  }
   bool IOVEditorImpl::validTime(cond::Time_t time) const {
-    return validTime(time,timetype());
+    return time>=m_globalSince && time<=m_globalTill;   
   }
-
 
   
   unsigned int
@@ -154,7 +152,7 @@ namespace cond {
 
     cond::Time_t lastIOV=m_iov->iov.back().first;
     // does it make sense? (in case of mixed till and since insertions...)
-    if (lastIOV<sinceTime) lastIOV=timeTypeSpecs[timetype()].endValue;
+    if (lastIOV<sinceTime) lastIOV=m_globalTill;
     m_iov.markUpdate();
     m_iov->iov.back().first = sinceTime-1;
     return m_iov->add(lastIOV,payloadToken);

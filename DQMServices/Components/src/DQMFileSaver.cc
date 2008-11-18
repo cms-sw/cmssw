@@ -22,17 +22,14 @@ getAnInt(const edm::ParameterSet &ps, int &value, const std::string &name)
       << "'.  Must be -1 or >= 1.";
 }
 
-static void
-saveForOffline(DQMStore *dbe,
-	       const std::string &fileBaseName,
-	       const std::string &workflow,
-	       int run)
+void
+DQMFileSaver::saveForOffline(const std::string &workflow, int run)
 {
   char suffix[64];
   sprintf(suffix, "R%09d", run);
 
   char rewrite[64];
-  sprintf(rewrite, "Run %d/\\1/Run summary/", run);
+  sprintf(rewrite, "\\1Run %d/\\2/Run summary", run);
 
   size_t pos = 0;
   std::string wflow;
@@ -41,20 +38,22 @@ saveForOffline(DQMStore *dbe,
   while ((pos = wflow.find('/', pos)) != std::string::npos)
     wflow.replace(pos++, 1, "__");
 
-  dbe->save(fileBaseName + suffix + wflow + ".root",
-	     "", "^([^/]+)/", rewrite);
+  dbe_->save(fileBaseName_ + suffix + wflow + ".root",
+	     "", "^(Reference/)?([^/]+)", rewrite,
+	     (DQMStore::SaveReferenceTag) saveReference_,
+	     saveReferenceQMin_);
 }
 
-static void
-saveForOnline(DQMStore *dbe,
-	      const std::string &fileBaseName,
-	      const std::string &suffix,
-	      const std::string &rewrite)
+void
+DQMFileSaver::saveForOnline(const std::string &suffix, const std::string &rewrite)
 {
-  std::vector<std::string> systems = (dbe->cd(), dbe->getSubdirs());
+  std::vector<std::string> systems = (dbe_->cd(), dbe_->getSubdirs());
   for (size_t i = 0, e = systems.size(); i != e; ++i)
-    dbe->save(fileBaseName + systems[i] + suffix + ".root",
-	      systems[i], "^([^/]+)/", rewrite);
+    if (systems[i] != "Reference")
+      dbe_->save(fileBaseName_ + systems[i] + suffix + ".root",
+	         systems[i], "^(Reference/)?([^/]+)", rewrite,
+	         (DQMStore::SaveReferenceTag) saveReference_,
+	         saveReferenceQMin_);
 }
 
 //--------------------------------------------------------
@@ -69,6 +68,8 @@ DQMFileSaver::DQMFileSaver(const edm::ParameterSet &ps)
     saveByTime_ (-1),
     saveByRun_ (1),
     saveAtJobEnd_ (false),
+    saveReference_ (DQMStore::SaveWithReferenceForQTest),
+    saveReferenceQMin_ (dqm::qstatus::STATUS_OK),
     forceRunNumber_ (-1),
     fileBaseName_ (""),
     dbe_ (&*edm::Service<DQMStore>()),
@@ -140,6 +141,24 @@ DQMFileSaver::DQMFileSaver(const edm::ParameterSet &ps)
   if (convention_ == RelVal)
     producer_ = workflow_.substr(1, workflow_.find('/', 1)-1);
 
+  // Check how we should save the references.
+  std::string refsave = ps.getUntrackedParameter<std::string>("referenceHandling", "default");
+  if (refsave == "default")
+    ;
+  else if (refsave == "skip")
+    saveReference_ = DQMStore::SaveWithoutReference;
+  else if (refsave == "all")
+    saveReference_ = DQMStore::SaveWithReference;
+  else if (refsave == "qtests")
+    saveReference_ = DQMStore::SaveWithReferenceForQTest;
+  else
+    throw cms::Exception("DQMFileSaver")
+      << "Invalid 'referenceHandling' parameter '" << refsave
+      << "'.  Expected 'default', 'skip', 'all' or 'qtests'.";
+
+  // Check minimum required quality test result for which reference is saved.
+  saveReferenceQMin_ = ps.getUntrackedParameter<int>("referenceRequireStatus", saveReferenceQMin_);
+
   // Get and check the output directory.
   struct stat s;
   dirName_ = ps.getUntrackedParameter<std::string>("dirName", dirName_);
@@ -179,7 +198,7 @@ DQMFileSaver::DQMFileSaver(const edm::ParameterSet &ps)
       << " overridden to a specific value using 'forceRunNumber'.";
 
   // Set up base file name and determine the start time.
-  fileBaseName_ = dirName_ + "/" + producer_ + "_";
+  fileBaseName_ = dirName_ + "/" + producer_ + "_V0001_";
   gettimeofday(&start_, 0);
   saved_ = start_;
 
@@ -235,7 +254,7 @@ void DQMFileSaver::analyze(const edm::Event &e, const edm::EventSetup &)
 	<< " only in Online mode.";
 
     sprintf(suffix, "_R%09d_E%08d", irun_, ievent_);
-    saveForOnline(dbe_, fileBaseName_, suffix, "\\1/");
+    saveForOnline(suffix, "\\1\\2");
     nevent_ = 0;
   }
 
@@ -263,8 +282,8 @@ void DQMFileSaver::analyze(const edm::Event &e, const edm::EventSetup &)
       if ( saveByTime_ > 0 ) saveByTime_ *= 2;
       saved_ = tv;
       sprintf(suffix, "_R%09d_T%08d", irun_, int(totalelapsed));
-      char rewrite[64]; sprintf(rewrite, "Run %d/\\1/Run summary/", irun_);
-      saveForOnline(dbe_, fileBaseName_, suffix, rewrite);
+      char rewrite[64]; sprintf(rewrite, "\\1Run %d/\\2/Run summary", irun_);
+      saveForOnline(suffix, rewrite);
     }
   }
 }
@@ -282,8 +301,8 @@ DQMFileSaver::endLuminosityBlock(const edm::LuminosityBlock &, const edm::EventS
     char suffix[64];
     char rewrite[128];
     sprintf(suffix, "_R%09d_L%06d", irun_, ilumi_);
-    sprintf(rewrite, "Run %d/\\1/By Lumi Section %d-%d/", irun_, ilumiprev_, ilumi_);
-    saveForOnline(dbe_, fileBaseName_, suffix, rewrite);
+    sprintf(rewrite, "\\1Run %d/\\2/By Lumi Section %d-%d", irun_, ilumiprev_, ilumi_);
+    saveForOnline(suffix, rewrite);
     ilumiprev_ = -1;
     nlumi_ = 0;
   }
@@ -297,11 +316,11 @@ DQMFileSaver::endRun(const edm::Run &, const edm::EventSetup &)
     if (convention_ == Online)
     {
       char suffix[64]; sprintf(suffix, "_R%09d", irun_);
-      char rewrite[64]; sprintf(rewrite, "Run %d/\\1/Run summary/", irun_);
-      saveForOnline(dbe_, fileBaseName_, suffix, rewrite);
+      char rewrite[64]; sprintf(rewrite, "\\1Run %d/\\2/Run summary", irun_);
+      saveForOnline(suffix, rewrite);
     }
     else if (convention_ == Offline)
-      saveForOffline(dbe_, fileBaseName_, workflow_, irun_);
+      saveForOffline(workflow_, irun_);
     else
       throw cms::Exception("DQMFileSaver")
 	<< "Internal error.  Can only save files in endRun()"
@@ -326,10 +345,11 @@ DQMFileSaver::endJob(void)
       pos = fileBaseName_.rfind('/');
       std::string stream = fileBaseName_.substr(pos+1, fileBaseName_.size()-pos-2);
       dbe_->save(fileBaseName_ + release + ".root", "",
-		 "^([^/]+)/", stream + "/\\1/");
+		 "^(Reference/)?([^/]+)", "\\1" + stream + "/\\2",
+	         DQMStore::SaveWithReferenceForQTest);
     }
     else if (convention_ == Offline && forceRunNumber_ > 0)
-      saveForOffline(dbe_, fileBaseName_, workflow_, forceRunNumber_);
+      saveForOffline(workflow_, forceRunNumber_);
     else
       throw cms::Exception("DQMFileSaver")
 	<< "Internal error.  Can only save files at the end of the"

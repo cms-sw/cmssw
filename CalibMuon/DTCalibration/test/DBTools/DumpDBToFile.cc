@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/02/19 15:18:28 $
- *  $Revision: 1.8 $
+ *  $Date: 2007/01/24 16:01:30 $
+ *  $Revision: 1.7 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -50,38 +50,6 @@ DumpDBToFile::~DumpDBToFile(){}
 
 
 void DumpDBToFile::beginJob(const EventSetup& setup) {
-  //// Read the right DB accordingly to the parameter dbToDump
-  //  if(dbToDump == "VDriftDB") {
-  //  ESHandle<DTMtime> mTime;
-  //  setup.get<DTMtimeRcd>().get(mTime);
-  //  mTimeMap = &*mTime;
-  //  cout << "[DumpDBToFile] MTime version: " << mTime->version() << endl;
-  //} else if(dbToDump == "TTrigDB") {
-  //  ESHandle<DTTtrig> tTrig;
-  //  setup.get<DTTtrigRcd>().get(tTrig);
-  //  tTrigMap = &*tTrig;
-  //  cout << "[DumpDBToFile] TTrig version: " << tTrig->version() << endl;
-  //} else if(dbToDump == "TZeroDB") {
-  //  ESHandle<DTT0> t0;
-  //  setup.get<DTT0Rcd>().get(t0);
-  //  tZeroMap = &*t0;
-  //  cout << "[DumpDBToFile] T0 version: " << t0->version() << endl;
-  //} else if(dbToDump == "NoiseDB") {
-  //  ESHandle<DTStatusFlag> status;
-  //  setup.get<DTStatusFlagRcd>().get(status);
-  //  statusMap = &*status;
-  //} else if(dbToDump == "DeadDB") {
-  //  ESHandle<DTDeadFlag> dead;
-  //  setup.get<DTDeadFlagRcd>().get(dead);
-  //  deadMap = &*dead;
-  //} else if (dbToDump == "ChannelsDB") {
-  //  ESHandle<DTReadOutMapping> channels;
-  //  setup.get<DTReadOutMappingRcd>().get(channels);
-  //  channelsMap = &*channels;
-  // }
-}
-
-void DumpDBToFile::beginRun( const edm::Run& run, const edm::EventSetup& setup ) {
   // Read the right DB accordingly to the parameter dbToDump
   if(dbToDump == "VDriftDB") {
     ESHandle<DTMtime> mTime;
@@ -111,8 +79,8 @@ void DumpDBToFile::beginRun( const edm::Run& run, const edm::EventSetup& setup )
     setup.get<DTReadOutMappingRcd>().get(channels);
     channelsMap = &*channels;
   }
-
 }
+
 
 void DumpDBToFile::endJob() {
   

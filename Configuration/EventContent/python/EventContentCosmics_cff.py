@@ -48,7 +48,7 @@ import FWCore.ParameterSet.Config as cms
 #    include reconstruction, simulation and analysis
 #  FEVTSIMDIGIHLTDEBUG FEVTSIMHLTDEBUG
 #
-#  $Id: EventContentCosmics_cff.py,v 1.4 2008/07/18 13:58:27 jbrooke Exp $
+#  $Id: EventContentCosmics_cff.py,v 1.5 2008/08/15 17:51:01 andreasp Exp $
 #
 #
 #
@@ -150,7 +150,10 @@ FEVTEventContent.outputCommands.extend(RecoJetsFEVT.outputCommands)
 FEVTEventContent.outputCommands.extend(RecoMETFEVT.outputCommands)
 FEVTEventContent.outputCommands.extend(RecoMuonFEVT.outputCommands)
 FEVTEventContent.outputCommands.extend(BeamSpotFEVT.outputCommands)
+FEVTEventContent.outputCommands.extend(L1TriggerRECO.outputCommands)
+FEVTEventContent.outputCommands.extend(HLTriggerRECO.outputCommands)
 FEVTEventContent.outputCommands.extend(MEtoEDMConverterFEVT.outputCommands)
+
 RECOEventContent.outputCommands.extend(RecoLocalTrackerRECO.outputCommands)
 RECOEventContent.outputCommands.extend(RecoLocalMuonRECO.outputCommands)
 RECOEventContent.outputCommands.extend(RecoLocalCaloRECO.outputCommands)
@@ -164,6 +167,7 @@ RECOEventContent.outputCommands.extend(BeamSpotRECO.outputCommands)
 RECOEventContent.outputCommands.extend(L1TriggerRECO.outputCommands)
 RECOEventContent.outputCommands.extend(HLTriggerRECO.outputCommands)
 RECOEventContent.outputCommands.extend(MEtoEDMConverterRECO.outputCommands)
+
 AODEventContent.outputCommands.extend(RecoLocalTrackerAOD.outputCommands)
 AODEventContent.outputCommands.extend(RecoLocalMuonAOD.outputCommands)
 AODEventContent.outputCommands.extend(RecoLocalCaloAOD.outputCommands)

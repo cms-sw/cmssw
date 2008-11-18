@@ -7,11 +7,6 @@
 #include "DataFormats/ParticleFlowCandidate/interface/IsolatedPFCandidateFwd.h"
 #include "DataFormats/JetReco/interface/PFJet.h"
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
-#include "DataFormats/TauReco/interface/PFTau.h"
-#include "DataFormats/TauReco/interface/PFTauFwd.h"
-
-//TODO just for testing, remove this
-#include "DataFormats/TrackReco/interface/Track.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 
@@ -25,9 +20,6 @@ using namespace std;
 using namespace edm;
 using namespace reco;
 
-const char* PFTopProjector::pfJetsOutLabel_ = "PFJets";
-const char* PFTopProjector::pfCandidatesOutLabel_ = "PFCandidates";
-
 PFTopProjector::PFTopProjector(const edm::ParameterSet& iConfig) {
   
   inputTagPFCandidates_ 
@@ -36,27 +28,19 @@ PFTopProjector::PFTopProjector(const edm::ParameterSet& iConfig) {
   inputTagPileUpPFCandidates_ 
     = iConfig.getParameter<InputTag>("PileUpPFCandidates");
 
-  inputTagIsolatedElectrons_ 
-    = iConfig.getParameter<InputTag>("IsolatedElectrons");
-
-  inputTagIsolatedMuons_ 
-    = iConfig.getParameter<InputTag>("IsolatedMuons");
+  inputTagIsolatedPFCandidates_ 
+    = iConfig.getParameter<InputTag>("IsolatedPFCandidates");
 
   inputTagPFJets_ 
     = iConfig.getParameter<InputTag>("PFJets");
-
-  inputTagPFTaus_ 
-    = iConfig.getParameter<InputTag>("PFTaus");
 
   verbose_ = 
     iConfig.getUntrackedParameter<bool>("verbose",false);
 
 
-  // produces<reco::PFCandidateCollection>("PFCandidates");
-  //  produces<reco::PFJetCollection>("PFJets");
+  produces<reco::PFCandidateCollection>();
+  
 
-  produces<reco::PFCandidateCollection>(pfCandidatesOutLabel_); 
-  produces<reco::PFJetCollection>(pfJetsOutLabel_);
   
   if(verbose_) {    
     ostringstream  msg;
@@ -64,16 +48,12 @@ PFTopProjector::PFTopProjector(const edm::ParameterSet& iConfig) {
        <<inputTagPFCandidates_<<endl
        <<"input PileUpPFCandidateCollection   : "
        <<inputTagPileUpPFCandidates_<<endl 
-       <<"input IsolatedPFCandidates of type muon : "
-       <<inputTagIsolatedMuons_<<endl  
-       <<"input IsolatedPFCandidates of type electron : "
-       <<inputTagIsolatedElectrons_<<endl  
+       <<"input IsolatedPFCandidateCollection : "
+       <<inputTagIsolatedPFCandidates_<<endl  
        <<"input PFJetCollection : "
-       <<inputTagPFJets_<<endl
-       <<"input PFTauCollection : "
-       <<inputTagPFTaus_<<endl;  
+       <<inputTagPFJets_<<endl;  
     cout<<msg.str()<<endl;
-    //     LogInfo("PFTopProjector")<<msg.str();
+//     LogInfo("PFTopProjector")<<msg.str();
   }
 }
 
@@ -87,42 +67,29 @@ void PFTopProjector::beginJob(const edm::EventSetup & es) { }
 
 
 void PFTopProjector::produce(Event& iEvent, 
-			     const EventSetup& iSetup) {
+			  const EventSetup& iSetup) {
+  
+//   LogDebug("PFTopProjector")<<"START event: "<<iEvent.id().event()
+// 			 <<" in run "<<iEvent.id().run()<<endl;
   
   
-  if( verbose_)
-    cout<<"Event -------------------- "<<iEvent.id().event()<<endl;
   
-  // get the various collections
+  // get PFCandidates
 
-  // this collection is the collection of PFCandidates to 
-  // be masked by the other ones
   Handle<PFCandidateCollection> pfCandidates;
   pfpat::fetchCollection(pfCandidates, 
 			 inputTagPFCandidates_, 
 			 iEvent );
-  edm::ProductID pfCandidatesID = pfCandidates.id();
 
-  // for each object in the following collections, the 
-  // PFTopProjector will find and mask all PFCandidates in pfCandidates
-  // involved in the construction of this object
-  
-  // empty input tags can be specified, and will be recognized 
-  // by the fetchCollection function
-  
   Handle<PileUpPFCandidateCollection> pfPileUpCandidates;
   pfpat::fetchCollection(pfPileUpCandidates, 
 			 inputTagPileUpPFCandidates_, 
 			 iEvent );
 
-  Handle<IsolatedPFCandidateCollection> pfIsolatedElectrons;
-  pfpat::fetchCollection(pfIsolatedElectrons, 
-			 inputTagIsolatedElectrons_, 
-			 iEvent );
-
-  Handle<IsolatedPFCandidateCollection> pfIsolatedMuons;
-  pfpat::fetchCollection(pfIsolatedMuons, 
-			 inputTagIsolatedMuons_, 
+  
+  Handle<IsolatedPFCandidateCollection> pfIsolatedCandidates;
+  pfpat::fetchCollection(pfIsolatedCandidates, 
+			 inputTagIsolatedPFCandidates_, 
 			 iEvent );
 
   Handle<PFJetCollection> pfJets;
@@ -130,55 +97,87 @@ void PFTopProjector::produce(Event& iEvent,
 			 inputTagPFJets_, 
 			 iEvent );
 
-  Handle<PFTauCollection> pfTaus;
-  pfpat::fetchCollection(pfTaus, 
-			 inputTagPFTaus_, 
-			 iEvent );
-
   if(verbose_) {
-    cout<<"Top projector: event "<<iEvent.id().event()<<endl;
-    cout<<"product Ids --------------------"<<endl;
-    cout<<"PF       :  "<<pfCandidates.id()<<endl
-	<<"PFPU     :  "<<pfPileUpCandidates.id()<<endl
-	<<"PFIso e  :  "<<pfIsolatedElectrons.id()<<endl
-	<<"PFIso mu :  "<<pfIsolatedMuons.id()<<endl
-	<<"PFJets   :  "<<pfJets.id()<<endl
-	<<"PFTaus   :  "<<pfTaus.id()<<endl;
+    cout<<"Top projector: product Ids --------------------"<<endl;
+    cout<<"PF      :  "<<pfCandidates.id()<<endl
+	<<"PFPU    :  "<<pfPileUpCandidates.id()<<endl
+	<<"PFIso   :  "<<pfIsolatedCandidates.id()<<endl
+	<<"PFJets  :  "<<pfJets.id()<<endl;
   }
 
-  // output PFCandidate collection
-  // will contain a copy of each PFCandidate in pfCandidates
-  // that remains unmasked. 
   auto_ptr< reco::PFCandidateCollection > 
-    pPFCandidateOutput( new reco::PFCandidateCollection ); 
+    pOutput( new reco::PFCandidateCollection ); 
   
-  auto_ptr< reco::PFJetCollection > 
-    pPFJetOutput( new reco::PFJetCollection ); 
-  
-  // mask for each PFCandidate.
-  // at the beginning, all PFCandidates are unmasked.
+
   vector<bool> masked( pfCandidates->size(), false);
     
   assert( pfCandidates.isValid() );
 
+  if(verbose_) 
+    cout<<"\tPFJets ------ "<<endl;
+  
+  if( pfJets.isValid() ) {
+    const PFJetCollection& jets = *pfJets;
+    
+    for(unsigned i=0; i<jets.size(); i++) {
 
-  processCollection( pfTaus, pfCandidates, masked, 
-		     "PFTau");
-  processCollection( pfJets, pfCandidates, masked, 
-		     "PFJet");
-  processCollection( pfPileUpCandidates, pfCandidates, masked, 
-		     "PileUpParticle");
-  processCollection( pfIsolatedElectrons, pfCandidates, masked, 
-		     "IsoElectron");
-  processCollection( pfIsolatedMuons, pfCandidates, masked, 
-		     "IsoMuon");
+      PFJetRef jetRef(pfJets, i );
+      CandidateBaseRef baseRef( jetRef );
+      CandidateBaseRefVector ancestors;
+      refToAncestorPFCandidates( baseRef,
+				 ancestors,
+				 pfCandidates );
 
+      maskAncestors( ancestors, masked );
+    }
+  }
 
+  
+
+  if( pfPileUpCandidates.isValid() ) {
+    
+    const PileUpPFCandidateCollection& pileUps = *pfPileUpCandidates;
+    
+    if(verbose_) 
+      cout<<"\tPFPU ------ "<<pileUps.size()<<endl;
+ 
+    for(unsigned i=0; i<pileUps.size(); i++) {
+      
+      PileUpPFCandidateRef isoRef( pfPileUpCandidates, i ); 
+      CandidateBaseRef baseRef( isoRef );
+      CandidateBaseRefVector ancestors;
+      refToAncestorPFCandidates( baseRef,
+				 ancestors,
+				 pfCandidates );
+
+      maskAncestors( ancestors, masked );
+    }
+  }
+  
+
+  if( pfIsolatedCandidates.isValid() ) {
+
+    const IsolatedPFCandidateCollection& isolated = *pfIsolatedCandidates;
+
+    if(verbose_) 
+      cout<<"\tPFIso ------ "<<isolated.size()<<endl;
+    
+    for(unsigned i=0; i<isolated.size(); i++) {
+
+      
+      IsolatedPFCandidateRef isoRef( pfIsolatedCandidates, i ); 
+      CandidateBaseRef baseRef( isoRef );
+      CandidateBaseRefVector ancestors;
+      refToAncestorPFCandidates( baseRef,
+				 ancestors,
+				 pfCandidates );
+
+      maskAncestors( ancestors, masked );
+    }
+  }
+  
   const PFCandidateCollection& inCands = *pfCandidates;
 
-  if(verbose_) 
-    cout<<" Remaining PFCandidates ------ "<<endl;
-  
   for(unsigned i=0; i<inCands.size(); i++) {
     
     if(masked[i]) {
@@ -189,72 +188,42 @@ void PFTopProjector::produce(Event& iEvent,
     else {
       if(verbose_)
 	cout<<"O "<<i<<" "<<inCands[i]<<endl;
-      PFCandidatePtr motherPtr( pfCandidates, i );
-      pPFCandidateOutput->push_back( inCands[i] );
-      pPFCandidateOutput->back().setSourcePtr(motherPtr);
+      PFCandidateRef motherRef( pfCandidates, i );
+      pOutput->push_back( inCands[i] );
+      pOutput->back().setSourceRef(motherRef);
     }
   }
-
-  iEvent.put( pPFCandidateOutput, pfCandidatesOutLabel_ );
-
-
-  // now mask the jets with the taus (if the jet collection has been provided)
   
-  if( pfJets.isValid() ) {
-    vector<bool> maskedJets( pfJets->size(), false);
-    processCollection( pfTaus, pfJets, maskedJets, 
-		       "PFTau masking PFJets");
 
-    const PFJetCollection& inJets = *pfJets;
-    
-    if(verbose_) 
-      cout<<" Remaining PFJets ------ "<<endl;
-    
-    for(unsigned i=0; i<inJets.size(); i++) {
-      
-      if(maskedJets[i]) {
-	if(verbose_)
-	  cout<<"X "<<i<<" "<<inJets[i]<<endl;
-	continue;
-      }
-      else {
-	if(verbose_)
-	  cout<<"O "<<i<<" "<<inJets[i]<<endl;
-	pPFJetOutput->push_back( inJets[i] );
-      }
-    }
-  }
-
-
-
-  iEvent.put( pPFJetOutput, pfJetsOutLabel_);
+  iEvent.put( pOutput );
   
-  //   LogDebug("PFTopProjector")<<"STOP event: "<<iEvent.id().event()
-  //  			 <<" in run "<<iEvent.id().run()<<endl;
+//   LogDebug("PFTopProjector")<<"STOP event: "<<iEvent.id().event()
+//  			 <<" in run "<<iEvent.id().run()<<endl;
 }
 
 
 void
-  PFTopProjector::ptrToAncestor( reco::CandidatePtr candPtr,
-				 reco::CandidatePtrVector& ancestors,
-				 const edm::ProductID& ancestorsID ) const {
+PFTopProjector::refToAncestorPFCandidates( CandidateBaseRef candRef,
+					   CandidateBaseRefVector& ancestors,
+					   const Handle<PFCandidateCollection> allPFCandidates ) const {
 
   
+
+//   CandidateBaseRefVector mothers = candRef->motherRefs(); 
  
-  unsigned nSources = candPtr->numberOfSourceCandidatePtrs();
-
-//   cout<<"going down from "<<candPtr.id()
-//       <<"/"<<candPtr.key()<<" #mothers "<<nSources
-//       <<" ancestor id "<<ancestorsID<<endl;
+//   cout<<"going down from "<<candRef.id()
+//       <<"/"<<candRef.key()<<" #mothers "<<mothers.size()
+//       <<" ancestor id "<<allPFCandidates.id()<<endl;
   
+  unsigned nSources = candRef->numberOfSourceCandidateRefs();
   for(unsigned i=0; i<nSources; i++) {
+//     cout<<"  mother id "<<mothers[i].id()<<endl;
     
-    CandidatePtr mother = candPtr->sourceCandidatePtr(i);
-//     cout<<"  mother id "<<mother.id()<<endl;
+    CandidateBaseRef mother = candRef->sourceCandidateRef(i);
     
-    if(  mother.id() != ancestorsID ) {
+    if(  mother.id() != allPFCandidates.id() ) {
       // the mother is not yet at lowest level
-      ptrToAncestor( mother, ancestors, ancestorsID);
+      refToAncestorPFCandidates( mother, ancestors, allPFCandidates);
     }
     else {
       // adding mother to the list of ancestors
@@ -265,37 +234,17 @@ void
 
 
 
-void PFTopProjector::maskAncestors( const reco::CandidatePtrVector& ancestors,
+void PFTopProjector::maskAncestors( const reco::CandidateBaseRefVector& ancestors,
 				    std::vector<bool>& masked ) const {
   
   for(unsigned i=0; i<ancestors.size(); i++) {
     unsigned index = ancestors[i].key();
     assert( index<masked.size() );
     
-    //     if(verbose_) {
-    //       ProductID id = ancestors[i].id();
-    //       cout<<"\tmasking "<<index<<", ancestor "<<id<<"/"<<index<<endl;
-    //     }
+    if(verbose_) {
+      ProductID id = ancestors[i].id();
+      cout<<"masking "<<index<<", ancestor "<<id<<"/"<<index<<endl;
+    }
     masked[index] = true;
   }
 }
-
-
-
-// void  PFTopProjector::printAncestors( const reco::CandidatePtrVector& ancestors,
-// 				      const edm::Handle<reco::PFCandidateCollection>& allPFCandidates ) const {
-  
-//   PFCandidateCollection pfs = *allPFCandidates;
-
-//   for(unsigned i=0; i<ancestors.size(); i++) {
-
-//     ProductID id = ancestors[i].id();
-//     assert( id == allPFCandidates.id() );
- 
-//     unsigned index = ancestors[i].key();
-//     assert( index < pfs.size() );
-    
-//     cout<<"\t\t"<<pfs[index]<<endl;
-//   }
-// }
-

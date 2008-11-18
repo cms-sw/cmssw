@@ -21,34 +21,26 @@ class CSCL1TPParameters
   /** returns ALCT fifo_pretrig */
   inline unsigned int alctFifoPretrig() const {return m_alct_fifo_pretrig;}
 
+  /** returns ALCT bx_width */
+  inline unsigned int alctBxWidth() const     {return m_alct_bx_width;}
+
   /** returns ALCT drift_delay */
   inline unsigned int alctDriftDelay() const  {return m_alct_drift_delay;}
 
-  /** returns ALCT nplanes_hit_pretrig */
-  inline unsigned int alctNplanesHitPretrig() const 
-                                     {return m_alct_nplanes_hit_pretrig;}
+  /** returns ALCT nph_thresh */
+  inline unsigned int alctNphThresh() const   {return m_alct_nph_thresh;}
 
-  /** returns ALCT nplanes_hit_pattern */
-  inline unsigned int alctNplanesHitPattern() const
-                                     {return m_alct_nplanes_hit_pattern;}
-
-  /** returns ALCT nplanes_hit_accel_pretrig */
-  inline unsigned int alctNplanesHitAccelPretrig() const
-                                     {return m_alct_nplanes_hit_accel_pretrig;}
-
-  /** returns ALCT nplanes_hit_accel_pattern */
-  inline unsigned int alctNplanesHitAccelPattern() const
-                                     {return m_alct_nplanes_hit_accel_pattern;}
+  /** returns ALCT nph_pattern */
+  inline unsigned int alctNphPattern() const  {return m_alct_nph_pattern;}
 
   /** returns ALCT trig_mode */
   inline unsigned int alctTrigMode() const    {return m_alct_trig_mode;}
 
-  /** returns ALCT accel_mode */
-  inline unsigned int alctAccelMode() const   {return m_alct_accel_mode;}
+  /** returns ALCT alct_amode */
+  inline unsigned int alctAlctAmode() const   {return m_alct_alct_amode;}
 
-  /** returns ALCT l1a_window_width */
-  inline unsigned int alctL1aWindowWidth() const
-                                     {return m_alct_l1a_window_width;}
+  /** returns ALCT l1a_window */
+  inline unsigned int alctL1aWindow() const   {return m_alct_l1a_window;}
 
   /** returns CLCT fifo_tbins */
   inline unsigned int clctFifoTbins() const   {return m_clct_fifo_tbins;}
@@ -56,26 +48,32 @@ class CSCL1TPParameters
   /** returns CLCT fifo_pretrig */
   inline unsigned int clctFifoPretrig() const {return m_clct_fifo_pretrig;}
 
-  /** returns CLCT hit_persist */
-  inline unsigned int clctHitPersist() const  {return m_clct_hit_persist;}
+  /** returns CLCT bx_width */
+  inline unsigned int clctBxWidth() const     {return m_clct_bx_width;}
 
   /** returns CLCT drift_delay */
   inline unsigned int clctDriftDelay() const  {return m_clct_drift_delay;}
 
-  /** returns CLCT nplanes_hit_pretrig */
-  inline unsigned int clctNplanesHitPretrig() const
-                                           {return m_clct_nplanes_hit_pretrig;}
+  /** returns CLCT nph_pattern */
+  inline unsigned int clctNphPattern() const  {return m_clct_nph_pattern;}
 
-  /** returns CLCT nplanes_hit_pattern */
-  inline unsigned int clctNplanesHitPattern() const
-                                           {return m_clct_nplanes_hit_pattern;}
+  /** returns CLCT hs_thresh */
+  inline unsigned int clctHsThresh() const    {return m_clct_hs_thresh;}
 
-  /** returns CLCT pid_thresh_pretrig */
-  inline unsigned int clctPidThreshPretrig() const
-                                           {return m_clct_pid_thresh_pretrig;}
+  /** returns CLCT ds_thresh */
+  inline unsigned int clctDsThresh() const    {return m_clct_ds_thresh;}
 
-  /** returns CLCT min_separation */
-  inline unsigned int clctMinSeparation() const {return m_clct_min_separation;}
+  /** returns CLCT hit_thresh */
+  inline unsigned int clctHitThresh() const   {return m_clct_hit_thresh;}
+
+  /** returns CLCT pid_thresh */
+  inline unsigned int clctPidThresh() const   {return m_clct_pid_thresh;}
+
+  /** returns CLCT sep_src */
+  inline unsigned int clctSepSrc() const      {return m_clct_sep_src;}
+
+  /** returns CLCT sep_vme */
+  inline unsigned int clctSepVme() const      {return m_clct_sep_vme;}
 
   /** sets ALCT fifo_tbins */
   void setAlctFifoTbins(const unsigned int theValue) {
@@ -87,29 +85,24 @@ class CSCL1TPParameters
     m_alct_fifo_pretrig = theValue;
   }
 
+  /** sets ALCT bx_width */
+  void setAlctBxWidth(const unsigned int theValue) {
+    m_alct_bx_width = theValue;
+  }
+
   /** sets ALCT drift_delay */
   void setAlctDriftDelay(const unsigned int theValue) {
     m_alct_drift_delay = theValue;
   }
 
-  /** sets ALCT nplanes_hit_pretrig */
-  void setAlctNplanesHitPretrig(const unsigned int theValue) {
-    m_alct_nplanes_hit_pretrig = theValue;
+  /** sets ALCT nph_thresh */
+  void setAlctNphThresh(const unsigned int theValue) {
+    m_alct_nph_thresh = theValue;
   }
 
-  /** sets ALCT nplanes_hit_pattern */
-  void setAlctNplanesHitPattern(const unsigned int theValue) {
-    m_alct_nplanes_hit_pattern = theValue;
-  }
-
-  /** sets ALCT nplanes_hit_accel_pretrig */
-  void setAlctNplanesHitAccelPretrig(const unsigned int theValue) {
-    m_alct_nplanes_hit_accel_pretrig = theValue;
-  }
-
-  /** sets ALCT nplanes_hit_accel_pattern */
-  void setAlctNplanesHitAccelPattern(const unsigned int theValue) {
-    m_alct_nplanes_hit_accel_pattern = theValue;
+  /** sets ALCT nph_pattern */
+  void setAlctNphPattern(const unsigned int theValue) {
+    m_alct_nph_pattern = theValue;
   }
 
   /** sets ALCT trig_mode */
@@ -117,14 +110,14 @@ class CSCL1TPParameters
     m_alct_trig_mode = theValue;
   }
 
-  /** sets ALCT accel_mode */
-  void setAlctAccelMode(const unsigned int theValue) {
-    m_alct_accel_mode = theValue;
+  /** sets ALCT alct_amode */
+  void setAlctAlctAmode(const unsigned int theValue) {
+    m_alct_alct_amode = theValue;
   }
 
-  /** sets ALCT l1a_window_width */
-  void setAlctL1aWindowWidth(const unsigned int theValue) {
-    m_alct_l1a_window_width = theValue;
+  /** sets ALCT l1a_window */
+  void setAlctL1aWindow(const unsigned int theValue) {
+    m_alct_l1a_window = theValue;
   }
 
   /** sets CLCT fifo_tbins */
@@ -137,9 +130,9 @@ class CSCL1TPParameters
     m_clct_fifo_pretrig = theValue;
   }
 
-  /** sets CLCT hit_persist */
-  void setClctHitPersist(const unsigned int theValue) {
-    m_clct_hit_persist = theValue;
+  /** sets CLCT bx_width */
+  void setClctBxWidth(const unsigned int theValue) {
+    m_clct_bx_width = theValue;
   }
 
   /** sets CLCT drift_delay */
@@ -147,40 +140,55 @@ class CSCL1TPParameters
     m_clct_drift_delay = theValue;
   }
 
-  /** sets CLCT nplanes_hit_pretrig */
-  void setClctNplanesHitPretrig(const unsigned int theValue) {
-    m_clct_nplanes_hit_pretrig = theValue;
+  /** sets CLCT nph_pattern */
+  void setClctNphPattern(const unsigned int theValue) {
+    m_clct_nph_pattern = theValue;
   }
 
-  /** sets CLCT nplanes_hit_pattern */
-  void setClctNplanesHitPattern(const unsigned int theValue) {
-    m_clct_nplanes_hit_pattern = theValue;
+  /** sets CLCT hs_thresh */
+  void setClctHsThresh(const unsigned int theValue) {
+    m_clct_hs_thresh = theValue;
   }
 
-  /** sets CLCT pid_thresh_pretrig */
-  void setClctPidThreshPretrig(const unsigned int theValue) {
-    m_clct_pid_thresh_pretrig = theValue;
+  /** sets CLCT ds_thresh */
+  void setClctDsThresh(const unsigned int theValue) {
+    m_clct_ds_thresh = theValue;
   }
 
-  /** sets CLCT min_separation */
-  void setClctMinSeparation(const unsigned int theValue) {
-    m_clct_min_separation = theValue;
+  /** sets CLCT hit_thresh */
+  void setClctHitThresh(const unsigned int theValue) {
+    m_clct_hit_thresh = theValue;
+  }
+
+  /** sets CLCT pid_thresh */
+  void setClctPidThresh(const unsigned int theValue) {
+    m_clct_pid_thresh = theValue;
+  }
+
+  /** sets CLCT sep_src */
+  void setClctSepSrc(const unsigned int theValue) {
+    m_clct_sep_src = theValue;
+  }
+
+  /** sets CLCT sep_vme */
+  void setClctSepVme(const unsigned int theValue) {
+    m_clct_sep_vme = theValue;
   }
 
  private:
   /** ALCT configuration parameters. */
   unsigned int m_alct_fifo_tbins, m_alct_fifo_pretrig;
-  unsigned int m_alct_drift_delay;
-  unsigned int m_alct_nplanes_hit_pretrig, m_alct_nplanes_hit_accel_pretrig;
-  unsigned int m_alct_nplanes_hit_pattern, m_alct_nplanes_hit_accel_pattern;
-  unsigned int m_alct_trig_mode, m_alct_accel_mode, m_alct_l1a_window_width;
+  unsigned int m_alct_bx_width,   m_alct_drift_delay;
+  unsigned int m_alct_nph_thresh, m_alct_nph_pattern;
+  unsigned int m_alct_trig_mode,  m_alct_alct_amode, m_alct_l1a_window;
 
   /** CLCT configuration parameters. */
-  unsigned int m_clct_fifo_tbins,  m_clct_fifo_pretrig;
-  unsigned int m_clct_hit_persist, m_clct_drift_delay;
-  unsigned int m_clct_nplanes_hit_pretrig, m_clct_nplanes_hit_pattern;
-  unsigned int m_clct_pid_thresh_pretrig;
-  unsigned int m_clct_min_separation;
+  unsigned int m_clct_fifo_tbins, m_clct_fifo_pretrig;
+  unsigned int m_clct_bx_width,   m_clct_drift_delay;
+  unsigned int m_clct_nph_pattern;
+  unsigned int m_clct_hs_thresh,  m_clct_ds_thresh;
+  unsigned int m_clct_hit_thresh, m_clct_pid_thresh;  // new TMB-07 parameters
+  unsigned int m_clct_sep_src,    m_clct_sep_vme;
 };
 
 #endif

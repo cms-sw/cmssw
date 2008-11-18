@@ -155,8 +155,6 @@ DigitizerFP420::DigitizerFP420(const edm::ParameterSet& conf):conf_(conf),stripD
 //  iSetup.getData( pdt );
     
     // Step A: Get Inputs for allTrackerHits
-
-    
     edm::Handle<CrossingFrame<PSimHit> > cf_simhit;
     std::vector<const CrossingFrame<PSimHit> *> cf_simhitvec;
     for(uint32_t i = 0; i< trackerContainers.size();i++){
@@ -165,31 +163,24 @@ DigitizerFP420::DigitizerFP420(const edm::ParameterSet& conf):conf_(conf),stripD
     std::auto_ptr<MixCollection<PSimHit> > allTrackerHits(new MixCollection<PSimHit>(cf_simhitvec));
 
   // use instead of the previous
-    /*    
-	      std::cout <<" ============== DigitizerFP420: start loop           1   " << std::endl;
-    edm::Handle<CrossingFrame<PSimHit> > xFrame;
-	      std::cout <<" ============== DigitizerFP420: start loop           2   " << std::endl;
+    /*
+    Handle<CrossingFrame<PSimHit> > xFrame;
     iEvent.getByLabel("mix","FP420SI",xFrame);
-	      std::cout <<" ============== DigitizerFP420: start loop           3   " << std::endl;
     auto_ptr<MixCollection<PSimHit> > allTrackerHits( new MixCollection<PSimHit>(xFrame.product()) );
-	      std::cout <<" ============== DigitizerFP420: start loop           4   " << std::endl;
 */
 
   // use instead of the previous
-    /*           
+    /*
     edm::Handle<CrossingFrame<PSimHit> > crossingFrame;
       const std::string FP420HitsName("FP420SI");
     bool isHit = true;
     iEvent.getByLabel("mix",FP420HitsName,crossingFrame);
       MixCollection<PSimHit> * FP420Hits = 0 ;
-	      std::cout <<" ============== DigitizerFP420: start loop           1   " << std::endl;
     //    std::auto_ptr<MixCollection<PSimHit> > allTrackerHits(new MixCollection<PSimHit>(crossingFrame.product()));
        FP420Hits = new MixCollection<PSimHit>(crossingFrame.product());
-	      std::cout <<" ============== DigitizerFP420: start loop           2   " << std::endl;
     //  if ( ! FP420Hits->inRegistry()  ) isHit = false;
     //  if ( isHit ) {
      std::auto_ptr<MixCollection<PSimHit> >  allTrackerHits( FP420Hits );
-	      std::cout <<" ============== DigitizerFP420: start loop           3   " << std::endl;
     //  }  
 */
 

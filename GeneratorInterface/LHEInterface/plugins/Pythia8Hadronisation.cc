@@ -37,7 +37,6 @@ class Pythia8Hadronisation : public Hadronisation {
     private:
 	void doInit();
 	std::auto_ptr<HepMC::GenEvent> doHadronisation();
-	double getCrossSection() const;
 	void newRunInfo(const boost::shared_ptr<LHERunInfo> &runInfo);
 
 	const int				pythiaPylistVerbosity;
@@ -53,6 +52,9 @@ class Pythia8Hadronisation : public Hadronisation {
 
 class Pythia8Hadronisation::LHAupLesHouches : public LHAup {
     public:
+	LHAupLesHouches(Hadronisation *hadronisation) :
+					hadronisation(hadronisation) {}
+
 	void loadRunInfo(const boost::shared_ptr<LHERunInfo> &runInfo)
 	{ this->runInfo = runInfo; }
 
@@ -60,9 +62,11 @@ class Pythia8Hadronisation::LHAupLesHouches : public LHAup {
 	{ this->event = event; }
 
     private:
+
 	bool setInit();
 	bool setEvent(int idProcIn);
 
+	Hadronisation			*hadronisation;
 	boost::shared_ptr<LHERunInfo>	runInfo;
 	boost::shared_ptr<LHEEvent>	event;
 };
@@ -82,6 +86,8 @@ bool Pythia8Hadronisation::LHAupLesHouches::setInit()
 	for(int i = 0; i < heprup.NPRUP; i++)
 		addProcess(heprup.LPRUP[i], heprup.XSECUP[i],
 		           heprup.XERRUP[i], heprup.XMAXUP[i]);
+
+	hadronisation->onInit().emit();
 
 	runInfo.reset();
 	return true;
@@ -111,6 +117,8 @@ bool Pythia8Hadronisation::LHAupLesHouches::setEvent(int inProcId)
 		             pdf->x.first, pdf->x.second,
 		             pdf->scalePDF,
 		             pdf->xPDF.first, pdf->xPDF.second);
+
+	hadronisation->onBeforeHadronisation().emit();
 
 	event.reset();
 	return true;
@@ -152,7 +160,7 @@ Pythia8Hadronisation::~Pythia8Hadronisation()
 void Pythia8Hadronisation::doInit()
 {
 	pythia.reset(new Pythia);
-	lhaUP.reset(new LHAupLesHouches);
+	lhaUP.reset(new LHAupLesHouches(this));
 	conv.reset(new HepMC::I_Pythia8);
 
 	for(std::vector<std::string>::const_iterator iter = paramLines.begin();
@@ -206,11 +214,6 @@ std::auto_ptr<HepMC::GenEvent> Pythia8Hadronisation::doHadronisation()
 	}
 
 	return event;
-}
-
-double Pythia8Hadronisation::getCrossSection() const
-{
-	return pythia->info.sigmaGen();
 }
 
 void Pythia8Hadronisation::newRunInfo(

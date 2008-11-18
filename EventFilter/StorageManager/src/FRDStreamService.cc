@@ -1,4 +1,4 @@
-// $Id: FRDStreamService.cc,v 1.1 2008/08/13 22:48:12 biery Exp $
+// $Id: FRDStreamService.cc,v 1.3 2008/09/04 17:44:18 biery Exp $
 
 #include <EventFilter/StorageManager/interface/FRDStreamService.h>
 #include <EventFilter/StorageManager/interface/ProgressMarker.h>
@@ -78,8 +78,21 @@ void FRDStreamService::stop()
 // *** close all output service of the previous lumi-section 
 // *** when lumiSectionTimeOut seconds have passed since the
 // *** appearance of the new lumi section and make a record of the file
+// !!! Deprecated - use closeTimedOutFiles() instead !!!
 // 
 void FRDStreamService::closeTimedOutFiles(int lumi, double timeoutdiff)
+{
+  // since we are currently storing all events in a single file,
+  // we never close files at lumi section boundaries
+
+  return;
+}
+
+// 
+// *** close all output service when lumiSectionTimeOut seconds have passed
+// *** since the most recent event was added
+// 
+void FRDStreamService::closeTimedOutFiles()
 {
   // since we are currently storing all events in a single file,
   // we never close files at lumi section boundaries
@@ -158,7 +171,7 @@ boost::shared_ptr<FileRecord> FRDStreamService::generateFileRecord()
 	 << "." << setfill('0') << std::setw(4) << lumiSection_
 	 << "." << streamLabel_ 
 	 << "." << fileName_
-         << "." << sourceId_;
+	 << "." << setfill('0') << std::setw(2) << sourceId_;
   string fileName = oss.str();
 
   shared_ptr<FileRecord> fd = shared_ptr<FileRecord>(new FileRecord(lumiSection_, fileName, filePath_));    

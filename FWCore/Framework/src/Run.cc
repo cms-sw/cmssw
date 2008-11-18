@@ -10,7 +10,7 @@
 namespace edm {
 
   Run::Run(RunPrincipal& rp, ModuleDescription const& md) :
-	DataViewImpl<RunLumiEntryInfo>(rp, md, InRun),
+	DataViewImpl(rp, md, InRun),
 	aux_(rp.aux()) {
   }
 
@@ -86,8 +86,8 @@ namespace edm {
 	pit->first = 0;
 
 	// set provenance
-	std::auto_ptr<RunLumiEntryInfo> runEntryInfoPtr(
-		new RunLumiEntryInfo(pit->second->branchID(),
+	std::auto_ptr<EventEntryInfo> runEntryInfoPtr(
+		new EventEntryInfo(pit->second->branchID(),
 				    productstatus::present(),
 				    pit->second->moduleDescriptionID()));
 	rp.put(pr, *pit->second, runEntryInfoPtr);

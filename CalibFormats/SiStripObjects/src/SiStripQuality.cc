@@ -1,7 +1,7 @@
 //
 // Author:      Domenico Giordano
 // Created:     Wed Sep 26 17:42:12 CEST 2007
-// $Id: SiStripQuality.cc,v 1.10 2008/07/25 16:07:19 giordano Exp $
+// $Id: SiStripQuality.cc,v 1.11 2008/07/25 17:06:51 giordano Exp $
 //
 #include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
@@ -91,6 +91,26 @@ bool SiStripQuality::operator !=(const SiStripQuality& other) const { return !(*
 void SiStripQuality::add(const SiStripDetCabling *cab){
   SiStripDetCabling_=cab;
   addInvalidConnectionFromCabling();
+  addNotConnectedConnectionFromCabling();
+}
+
+void SiStripQuality::addNotConnectedConnectionFromCabling(){
+  
+  std::map<uint32_t, SiStripDetInfoFileReader::DetInfo > allData = reader->getAllData();
+  std::map<uint32_t, SiStripDetInfoFileReader::DetInfo >::const_iterator iter=allData.begin();
+  std::map<uint32_t, SiStripDetInfoFileReader::DetInfo >::const_iterator iterEnd=allData.end();
+  std::vector<unsigned int> vect;
+  short firstStrip=0;
+  short range=0;
+  for(;iter!=iterEnd;++iter)
+    if (!SiStripDetCabling_->IsConnected(iter->first)){
+      vect.clear();
+      range=iter->second.nApvs*128;
+      LogTrace("SiStripQuality") << "[addNotConnectedConnectionFromCabling] add detid " << iter->first << std::endl;
+      vect.push_back(encode(firstStrip,range));
+      SiStripBadStrip::Range Range(vect.begin(),vect.end());
+      add(iter->first,Range);
+    }
 }
 
 void SiStripQuality::addInvalidConnectionFromCabling(){

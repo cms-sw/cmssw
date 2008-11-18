@@ -51,6 +51,7 @@ void SiPixelRawDumper::analyze(const  edm::Event& ev, const edm::EventSetup& es)
   std::pair<int,int> fedIds = fednum.getSiPixelFEDIds();
 
   PixelDataFormatter formatter(0);
+  bool dummyErrorBool;
 
   for (int fedId = fedIds.first; fedId <= fedIds.second; fedId++) {
     LogDebug("SiPixelRawDumper")<< " GET DATA FOR FED: " <<  fedId ;
@@ -61,7 +62,7 @@ void SiPixelRawDumper::analyze(const  edm::Event& ev, const edm::EventSetup& es)
     const FEDRawData& fedRawData = buffers->FEDData( fedId );
 
     //convert data to digi
-    formatter.interpretRawData( fedId, fedRawData, digis, errors);
+    formatter.interpretRawData( dummyErrorBool, fedId, fedRawData, digis, errors);
   }
 
 }

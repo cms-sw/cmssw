@@ -42,6 +42,7 @@ namespace reco {
       using namespace std;
       Handle<CandidateView> cands;
       evt.getByLabel(src_, cands);
+      
       size_t nMaps = matchMaps_.size();
       std::vector<const GenParticleMatch *> maps;
       maps.reserve( nMaps );
@@ -60,13 +61,10 @@ namespace reco {
 	for(int i = 0; i != size; ++ i) {
 	  const Candidate & cand = (* cands)[i];
 	  GenParticleRef mc = match[cand];
-	  if(mc.isNull()) {
-	    indices[i] = -1; 
-	  } else {
-	    bool found = true;
-	    if(begin!=end) found = find(begin, end, abs(mc->pdgId())) != end;
-	    indices[i] = found ? int(mc.key()) : -1;
-	  }
+	  bool found = true;
+	  if(begin!=end) found =  find(begin, end, abs(mc->pdgId())) != end;
+	  bool ok = mc.isNonnull() && found;
+	  indices[i] = ok ? int(mc.key()) : -1;
 	}
 	CandidateBaseRefProd ref(cands->refAt(0));
 	filler.insert(ref, indices.begin(), indices.end());

@@ -2,10 +2,10 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("TEST")
 process.source = cms.Source("EmptyIOVSource",
-    lastValue= cms.uint64(15),
+    lastTime = cms.untracked.uint32(15),
     timetype = cms.string('timestamp'),
-    firstValue = cms.uint64(11),
-    interval = cms.uint64(1)
+    firstTime = cms.untracked.uint32(11),
+    interval = cms.uint32(1)
 )
 
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",

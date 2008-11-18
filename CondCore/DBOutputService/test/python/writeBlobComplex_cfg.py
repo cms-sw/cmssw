@@ -4,10 +4,10 @@ process = cms.Process("TEST")
 process.load("CondCore.DBCommon.CondDBCommon_cfi")
 process.CondDBCommon.connect = cms.string("sqlite_file:bbcomplex.db")
 process.source = cms.Source("EmptyIOVSource",
-    lastValue = cms.uint64(1),
+    lastRun = cms.untracked.uint32(1),
     timetype = cms.string('runnumber'),
-    firstValue = cms.uint64(1),
-    interval = cms.uint64(1)
+    firstRun = cms.untracked.uint32(1),
+    interval = cms.uint32(1)
 )
 
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",

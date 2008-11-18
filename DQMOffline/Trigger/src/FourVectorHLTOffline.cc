@@ -1,4 +1,4 @@
-// $Id: FourVectorHLTOffline.cc,v 1.8 2008/08/15 17:50:33 berryhil Exp $
+// $Id: FourVectorHLTOffline.cc,v 1.9 2008/08/15 20:17:34 berryhil Exp $
 // See header file for information. 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -10,6 +10,7 @@
 
 #include "DataFormats/HLTReco/interface/TriggerObject.h"
 #include "FWCore/Framework/interface/TriggerNames.h"
+#include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
 
@@ -88,8 +89,16 @@ FourVectorHLTOffline::FourVectorHLTOffline(const edm::ParameterSet& iConfig):
       "list will be ignored." ;
     hltPaths_.clear();
   }
+
+  if (hltPaths_.size() > 0)
+    {
+      // book a histogram of scalers
+     scalersSelect = dbe_->book1D("selectedScalers","Selected Scalers", hltPaths_.size(), 0.0, (double)hltPaths_.size());
+    }
   triggerSummaryLabel_ = 
     iConfig.getParameter<edm::InputTag>("triggerSummaryLabel");
+  triggerResultsLabel_ = 
+    iConfig.getParameter<edm::InputTag>("triggerResultsLabel");
  
   
 }
@@ -118,6 +127,16 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   ++nev_;
   LogDebug("FourVectorHLTOffline")<< "FourVectorHLTOffline: analyze...." ;
   
+  edm::Handle<TriggerResults> triggerResults;
+  iEvent.getByLabel(triggerResultsLabel_,triggerResults);
+  if(!triggerResults.isValid()) { 
+    edm::LogInfo("FourVectorHLTOffline") << "TriggerResults not found, "
+      "skipping event"; 
+    return;
+  }
+    
+
+
   edm::Handle<TriggerEvent> triggerObj;
   iEvent.getByLabel(triggerSummaryLabel_,triggerObj); 
   if(!triggerObj.isValid()) { 
@@ -133,7 +152,10 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
     for(PathInfoCollection::iterator v = hltPaths_.begin();
 	v!= hltPaths_.end(); ++v ) 
 { 
-      
+  // fill scaler histograms
+           
+
+
       const int index = triggerObj->filterIndex(v->getTag());
       if ( index >= triggerObj->sizeFilters() ) {
 	//        cout << "WTF no index "<< index << " of that name "
@@ -142,17 +164,21 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
       }
       LogDebug("FourVectorHLTOffline") << "filling ... " ;
       const trigger::Keys & k = triggerObj->filterKeys(index);
-      Vids  idtype = triggerObj->filterIds(index);
-      int triggertype = idtype[0];
-
+      const trigger::Vids & idtype = triggerObj->filterIds(index);
+      // assume for now the first object type is the same as all objects in the collection
+      // cout << idtype.size() << "\t" << k.size() << endl;
+      int triggertype = 0;     
+      if (idtype.size() > 0) triggertype = *idtype.begin();
+      //      cout << "path " << v->getPath() << "trigger type "<<triggertype << endl;
+      if (k.size() > 0) v->getNOnHisto()->Fill(k.size());
       for (trigger::Keys::const_iterator ki = k.begin(); ki !=k.end(); ++ki ) {
 	v->getEtOnHisto()->Fill(toc[*ki].pt());
 	v->getEtaOnHisto()->Fill(toc[*ki].eta());
 	v->getPhiOnHisto()->Fill(toc[*ki].phi());
 	v->getEtaVsPhiOnHisto()->Fill(toc[*ki].eta(), toc[*ki].phi());
-
+	//  cout << "pdgId "<<toc[*ki].id() << endl;
       // for muon triggers, loop over and fill offline 4-vectors
-      if (triggertype == trigger::TriggerMuon)
+      if (triggertype == trigger::TriggerMuon || triggertype == trigger::TriggerL1Mu)
 	{
          edm::Handle<reco::MuonCollection> muonHandle;
          iEvent.getByLabel("muons",muonHandle);
@@ -458,18 +484,25 @@ FourVectorHLTOffline::beginJob(const edm::EventSetup&)
     if ( ! plotAll_ ) {
       for(PathInfoCollection::iterator v = hltPaths_.begin();
 	  v!= hltPaths_.end(); ++v ) {
-	MonitorElement *etOn, *etaOn, *phiOn, *etavsphiOn=0;
+	MonitorElement *NOn, *etOn, *etaOn, *phiOn, *etavsphiOn=0;
 	MonitorElement *etOff, *etaOff, *phiOff, *etavsphiOff=0;
 	MonitorElement *etL1, *etaL1, *phiL1, *etavsphiL1=0;
 	std::string labelname("dummy");
         labelname = v->getPath();
-	std::string histoname(labelname+"_etOn");
-	std::string title(labelname+" E_t online");
-	etOn =  dbe->book1D(histoname.c_str(),
-			  title.c_str(),nBins_,
-			  v->getPtMin(),
-			  v->getPtMax());
+	std::string histoname(labelname+"_NOn");
+	std::string title(labelname+" N online");
+	NOn =  dbe->book1D(histoname.c_str(),
+			  title.c_str(),10,
+			  0.5,
+			  10.5);
       
+	histoname = labelname+"_etOn";
+	title = labelname+" E_t offline";
+	etOn =  dbe->book1D(histoname.c_str(),
+			   title.c_str(),nBins_, 
+                           v->getPtMin(),
+			   v->getPtMax());
+
 	histoname = labelname+"_etOff";
 	title = labelname+" E_t offline";
 	etOff =  dbe->book1D(histoname.c_str(),
@@ -536,7 +569,7 @@ FourVectorHLTOffline::beginJob(const edm::EventSetup&)
 				nBins_,-2.7,2.7,
 				nBins_,-3.14, 3.14);
 
-	v->setHistos( etOn, etaOn, phiOn, etavsphiOn, etOff, etaOff, phiOff, etavsphiOff, etL1, etaL1, phiL1, etavsphiL1);
+	v->setHistos( NOn, etOn, etaOn, phiOn, etavsphiOn, etOff, etaOff, phiOff, etavsphiOff, etL1, etaL1, phiL1, etavsphiL1);
       }
     }
   }

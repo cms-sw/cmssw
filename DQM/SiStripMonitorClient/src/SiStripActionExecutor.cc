@@ -88,6 +88,18 @@ void SiStripActionExecutor::createSummary(DQMStore* dqm_store) {
   }
 }
 //
+// -- Create and Fill Summary Monitor Elements
+//
+void SiStripActionExecutor::createSummaryOffline(DQMStore* dqm_store) {
+  if (summaryCreator_) {
+    dqm_store->cd();
+    string dname = "MechanicalView";
+    if (goToDir(dqm_store, dname)) {
+      summaryCreator_->createSummary(dqm_store);
+    }
+  }
+}
+//
 // -- create tracker map
 //
 void SiStripActionExecutor::createTkMap(const edm::ParameterSet & tkmapPset, 
@@ -189,6 +201,7 @@ void SiStripActionExecutor::fillGlobalStatus(const edm::ESHandle<SiStripDetCabli
     string dir_path;
     folder_organizer.getFolderName(detId, dir_path);     
     vector<MonitorElement*> detector_mes = dqm_store->getContents(dir_path);
+   
     if (detector_mes.size() == 0 ) continue;
     nDetTot++;
     int error_me = 0;
@@ -433,4 +446,22 @@ void SiStripActionExecutor::resetGlobalStatus() {
     SummaryTECF->Reset();
     SummaryTECB->Reset();
   }
+}
+//
+// -- go to a given Directory
+//
+bool SiStripActionExecutor::goToDir(DQMStore * dqm_store, string name) {
+  string currDir = dqm_store->pwd();
+  string dirName = currDir.substr(currDir.find_last_of("/")+1);
+  if (dirName.find(name) == 0) {
+    return true;
+  }
+  vector<string> subDirVec = dqm_store->getSubdirs();
+  for (vector<string>::const_iterator ic = subDirVec.begin();
+       ic != subDirVec.end(); ic++) {
+    dqm_store->cd(*ic);
+    if (!goToDir(dqm_store, name))  dqm_store->goUp();
+    else return true;
+  }
+  return false;  
 }

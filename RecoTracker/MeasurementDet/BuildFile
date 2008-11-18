@@ -7,6 +7,7 @@
  <use name=DataFormats/TrackerRecHit2D>
  <use name=FWCore/Framework>
  <use name=FWCore/ParameterSet>
+ <use name=FWCore/Services>
  <use name=Geometry/CommonDetUnit>
  <use name=Geometry/Records>
  <use name=Geometry/TrackerGeometryBuilder>
@@ -31,6 +32,7 @@
 <use name=FWCore/Framework>
 <use name=FWCore/MessageLogger>
 <use name=FWCore/ParameterSet>
+<use name=FWCore/Services>
 <use name=Geometry/CommonDetUnit>
 <use name=Geometry/Records>
 <use name=Geometry/TrackerGeometryBuilder>

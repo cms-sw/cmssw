@@ -61,6 +61,7 @@ public:
 ///registration of the test so that the runner can find it
 CPPUNIT_TEST_SUITE_REGISTRATION(testdependentrecord);
 
+namespace {
 class DummyProxyProvider : public edm::eventsetup::DataProxyProvider {
 public:
    DummyProxyProvider() {
@@ -135,7 +136,7 @@ protected:
 private:
   edm::ValidityInterval interval_;   
 };
-
+}
 
 using namespace edm::eventsetup;
 void testdependentrecord::dependentConstructorTest()

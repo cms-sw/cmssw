@@ -242,110 +242,6 @@ void CaloTowersCreationAlgo::finish(CaloTowerCollection& result) {
 }
 
 
-void CaloTowersCreationAlgo::rescaleTowers(const CaloTowerCollection& ctc, CaloTowerCollection& ctcResult) {
-
-    for (CaloTowerCollection::const_iterator ctcItr = ctc.begin();
-      ctcItr != ctc.end(); ++ctcItr) { 
-      
-      CaloTowerDetId  twrId = ctcItr->id(); 
-      double newE_em    = ctcItr->emEnergy();
-      double newE_had   = ctcItr->hadEnergy();
-      double newE_outer = ctcItr->outerEnergy(); 
-
-      double threshold = 0.0; // not used: we do not change thresholds
-      double weight    = 1.0;
-
-      // HF
-      if (ctcItr->ietaAbs()>=30) {
-        double E_short = 0.5 * newE_had;             // from the definitions for HF
-        double E_long  = newE_em + 0.5 * newE_had;   //
-        // scale
-        E_long  *= theHF1weight;
-        E_short *= theHF2weight;
-        // convert
-        newE_em  = E_long - E_short;
-        newE_had = 2.0 * E_short;
-      }
-
-      else {   // barrel/endcap
-
-        // find if its in EB, or EE; determine from first ecal constituent found
-        for (uint iConst = 0; iConst < ctcItr->constituentsSize(); ++iConst) {
-          DetId constId = ctcItr->constituent(iConst);
-          if (constId.det()!=DetId::Ecal) continue;
-          getThresholdAndWeight(constId, threshold, weight);
-          newE_em *= weight;
-          break;
-        }
-        // HO
-        for (uint iConst = 0; iConst < ctcItr->constituentsSize(); ++iConst) {
-          DetId constId = ctcItr->constituent(iConst);
-          if (constId.det()!=DetId::Hcal) continue;
-          if (HcalDetId(constId).subdet()!=HcalOuter) continue;
-          getThresholdAndWeight(constId, threshold, weight);
-          newE_outer *= weight;
-          break;
-        }
-        // HB/HE
-        for (uint iConst = 0; iConst < ctcItr->constituentsSize(); ++iConst) {
-          DetId constId = ctcItr->constituent(iConst);
-          if (constId.det()!=DetId::Hcal) continue;
-          if (HcalDetId(constId).subdet()==HcalOuter) continue;
-          getThresholdAndWeight(constId, threshold, weight);
-          newE_had *= weight;
-          if (ctcItr->ietaAbs()>16) newE_outer *= weight;
-          break;
-        }
-        
-    }   // barrel/endcap region
-
-    // now make the new tower
-
-    double newE_hadTot = (theHOIsUsed &&  twrId.ietaAbs()<16)? newE_had+newE_outer : newE_had;
-
-    GlobalPoint  emPoint = ctcItr->emPosition(); 
-    GlobalPoint hadPoint = ctcItr->emPosition(); 
-
-    double f_em  = 1.0/cosh(emPoint.eta());
-    double f_had = 1.0/cosh(hadPoint.eta());
-
-    CaloTower::LorentzVector towerP4;
-
-    if (ctcItr->ietaAbs()<30) {
-      if (newE_em>0)     towerP4 += CaloTower::PolarLorentzVector(newE_em*f_em,   emPoint.eta(),  emPoint.phi(),  0); 
-      if (newE_hadTot>0) towerP4 += CaloTower::PolarLorentzVector(newE_hadTot*f_had, hadPoint.eta(), hadPoint.phi(), 0); 
-    }
-    else {
-      double newE_tot = newE_em + newE_had;
-      // for HF we use common point for ecal, hcal shower positions regardless of the method
-      if (newE_tot>0) towerP4 += CaloTower::PolarLorentzVector(newE_tot*f_had, hadPoint.eta(), hadPoint.phi(), 0);
-    }
-
-
-
-    CaloTower rescaledTower(twrId, newE_em, newE_had, newE_outer, -1, -1, towerP4, emPoint, hadPoint);
-    // copy the timings, have to convert back to int, 1 unit = 0.01 ns
-    rescaledTower.setEcalTime( int(ctcItr->ecalTime()*100.0 + 0.5) );
-    rescaledTower.setHcalTime( int(ctcItr->hcalTime()*100.0 + 0.5) );
-
-    std::vector<DetId> contains;
-    for (uint iConst = 0; iConst < ctcItr->constituentsSize(); ++iConst) {
-      contains.push_back(ctcItr->constituent(iConst));
-    }
-    rescaledTower.addConstituents(contains);
-
-    ctcResult.push_back(rescaledTower);
-
-    } // end of loop over towers
-
-
-}
-
-
-
-
-
-
 
 void CaloTowersCreationAlgo::assignHit(const CaloRecHit * recHit) {
   DetId detId = recHit->detid();
@@ -499,6 +395,8 @@ void CaloTowersCreationAlgo::rescale(const CaloTower * ct) {
   tower.hadSumTimeTimesE = ct->hcalTime();
   tower.emSumEForTime = 1.0;
   tower.hadSumEForTime = 1.0;
+  
+
 }
 
 CaloTowersCreationAlgo::MetaTower::MetaTower() : 
@@ -531,7 +429,8 @@ CaloTower CaloTowersCreationAlgo::convert(const CaloTowerDetId& id, const MetaTo
     //  - HO is not used to determine direction, however HO energy is added to get "total had energy"
     //  => Check if the tower is within HO coverage before adding E_outer to the "total had" energy
     //     else the energy will be double counted
-    // When summing up the energy of the tower these checks are performed in the loops over RecHits
+    // When summing up the energy of the tower these checks are performed in the loops over RecHits,
+    // so it only affects the alternative methods that are NOT yet used
 
 
     float  ecalTime = (mt.emSumEForTime>0)?   mt.emSumTimeTimesE/mt.emSumEForTime  : -9999;
@@ -552,7 +451,7 @@ CaloTower CaloTowersCreationAlgo::convert(const CaloTowerDetId& id, const MetaTo
     if (id.ietaAbs()<=29 && E_had<theHcalThreshold) {
       E-=E_had;
 
-      if (theHOIsUsed && id.ietaAbs()<16)  E-=E_outer; // not subtracted before, think it should be done
+      if (theHOIsUsed && id.ietaAbs()<16)  E-=E_outer; // has to be done for consistency
      
       E_had=0;
       E_outer=0;
@@ -583,7 +482,7 @@ CaloTower CaloTowersCreationAlgo::convert(const CaloTowerDetId& id, const MetaTo
     break;
 
   case 1 :
-    {   // separate 4-vectors for ECAL, HCAL, add to get the 4-vector of the tower (=>tower has mass!)
+    {
       if (id.ietaAbs()<=29) {
         if (E_em>0) {
           emPoint   = emShwrPos(metaContains, theMomEmDepth, E_em);
@@ -592,8 +491,7 @@ CaloTower CaloTowersCreationAlgo::convert(const CaloTowerDetId& id, const MetaTo
         }
         if (E_had>0) {
           double E_had_tot = (theHOIsUsed && id.ietaAbs()<16)? E_had+E_outer : E_had;
-//          hadPoint  = hadShwrPos(metaContains, theMomHadDepth, E_had_tot);
-          hadPoint  = hadShwrPos(id, theMomHadDepth);
+          hadPoint  = hadShwrPos(metaContains, theMomHadDepth, E_had_tot);
           double hadPf = 1.0/cosh(hadPoint.eta());
           towerP4 += CaloTower::PolarLorentzVector(E_had_tot*hadPf, hadPoint.eta(), hadPoint.phi(), 0); 
         }
@@ -606,93 +504,6 @@ CaloTower CaloTowersCreationAlgo::convert(const CaloTowerDetId& id, const MetaTo
         hadPoint = p;
       }
     }  // end case 1
-    break;
-
-  case 2:
-    {   // use ECAL, HCAL shower position to get weighted overall position, assign full energy to get the 4-vector of the tower (massless tower)
-      if (id.ietaAbs()<=29) {
-        if (E_em>0)  emPoint = emShwrPos(metaContains, theMomEmDepth, E_em);
-        double E_had_tot = (theHOIsUsed && id.ietaAbs()<16)? E_had+E_outer : E_had; 
-        if (E_had>0) hadPoint  = hadShwrPos(metaContains, theMomHadDepth, E_had_tot);
-
-        // common point for EM/HAD components based on predefined depths
-        GlobalPoint p = GlobalPoint( 
-          (E_em*emPoint.x()+E_had_tot*hadPoint.x())/E,
-          (E_em*emPoint.y()+E_had_tot*hadPoint.y())/E,
-          (E_em*emPoint.z()+E_had_tot*hadPoint.z())/E
-          );
-
-        double sumPf = 1.0/cosh(p.eta());
-        if (E>0) towerP4 = CaloTower::PolarLorentzVector(E*sumPf, p.eta(), p.phi(), 0); 
-
-        emPoint  = p;   
-        hadPoint = p;
-
-      }
-      else {  // forward detector: use the CaloTower position 
-        GlobalPoint p=theTowerGeometry->getGeometry(id)->getPosition();
-        double pf=1.0/cosh(p.eta());
-        if (E>0) towerP4 = CaloTower::PolarLorentzVector(E*pf, p.eta(), p.phi(), 0);  // simple momentum assignment, same position
-        emPoint  = p;   
-        hadPoint = p;
-      }
-    }  // end case 2
-    break;
-
-  case 3:
-    {   // separate 4-vectors for ECAL crystals, and HCAL; add to get the 4-vector of the tower (tower has mass!)
-      if (id.ietaAbs()<=29) {
-        if (E_em>0) {
-          
-          emPoint   = emShwrPos(metaContains, theMomEmDepth, E_em);
-          for (std::vector<std::pair<DetId,double> >::iterator mc_it = metaContains.begin(); 
-            mc_it!=metaContains.end(); ++mc_it) {
-              if (mc_it->first.det() == DetId::Ecal) {
-                GlobalPoint p = emCrystalShwrPos(mc_it->first.det(), theMomEmDepth);
-                double pf=1.0/cosh(p.eta());
-                double e = mc_it->second;
-                towerP4 += CaloTower::PolarLorentzVector(e*pf, p.eta(), p.phi(), 0); 
-              }
-          }                    
-          emPoint   = emShwrPos(metaContains, theMomEmDepth, E_em);
-        }
-        if (E_had>0) {
-          double E_had_tot = (theHOIsUsed && id.ietaAbs()<16)? E_had+E_outer : E_had; 
-//          hadPoint = hadShwrPos(metaContains, theMomHadDepth, E_had_tot);
-          hadPoint  = hadShwrPos(id, theMomHadDepth);
-          double hadPf = 1.0/cosh(hadPoint.eta());
-          towerP4 += CaloTower::PolarLorentzVector(E_had_tot*hadPf, hadPoint.eta(), hadPoint.phi(), 0); 
-        }
-      }
-      else {  // forward detector: use the CaloTower position 
-        GlobalPoint p=theTowerGeometry->getGeometry(id)->getPosition();
-        double pf=1.0/cosh(p.eta());
-        towerP4 = CaloTower::PolarLorentzVector(E*pf, p.eta(), p.phi(), 0);  // simple momentum assignment, same position
-        emPoint  = p;   
-        hadPoint = p;
-      }
-    }  // end case 3
-    break;
-
-  case 4:
-    {   // use ECAL position for the tower (when E_cal>0), else default CaloTower position (massless tower)
-      if (id.ietaAbs()<=29) {
-        if (E_em>0)  emPoint = emShwrLogWeightPos(metaContains, theMomEmDepth, E_em);
-        else emPoint = theTowerGeometry->getGeometry(id)->getPosition();
-
-        double sumPf = 1.0/cosh(emPoint.eta());
-        if (E>0) towerP4 = CaloTower::PolarLorentzVector(E*sumPf, emPoint.eta(), emPoint.phi(), 0); 
-        
-        hadPoint = emPoint;
-      }
-      else {  // forward detector: use the CaloTower position 
-        GlobalPoint p=theTowerGeometry->getGeometry(id)->getPosition();
-        double pf=1.0/cosh(p.eta());
-        if (E>0) towerP4 = CaloTower::PolarLorentzVector(E*pf, p.eta(), p.phi(), 0);  // simple momentum assignment, same position
-        emPoint  = p;   
-        hadPoint = p;
-      }
-    }   // end case 4
     break;
 
   }  // end of decision on p4 reconstruction method
@@ -883,8 +694,7 @@ GlobalPoint CaloTowersCreationAlgo::hadSegmentShwrPos(DetId detId, float fracDep
 GlobalPoint CaloTowersCreationAlgo::hadShwrPos(std::vector<std::pair<DetId,double> >& metaContains,
                                                float fracDepth, double hadE) {
                                                   
-  // this is based on available RecHits, can lead to different actual depths if
-  // hits in multi-depth towers are not all there
+                                                  
   if (hadE<=0) return GlobalPoint(0,0,0);
 
   double hadX = 0.0;
@@ -896,8 +706,6 @@ GlobalPoint CaloTowersCreationAlgo::hadShwrPos(std::vector<std::pair<DetId,doubl
   std::vector<std::pair<DetId,double> >::iterator mc_it = metaContains.begin();
   for (; mc_it!=metaContains.end(); ++mc_it) {
     if (mc_it->first.det() != DetId::Hcal) continue;
-    // do not use HO for deirection calculations for now
-    if (HcalDetId(mc_it->first).subdet() == HcalOuter) continue;
     ++nConst;
 
     GlobalPoint p = hadSegmentShwrPos(mc_it->first, fracDepth);
@@ -913,93 +721,6 @@ GlobalPoint CaloTowersCreationAlgo::hadShwrPos(std::vector<std::pair<DetId,doubl
 }
 
 
-GlobalPoint CaloTowersCreationAlgo::hadShwrPos(CaloTowerDetId towerId, float fracDepth) {
-
-  // set depth using geometry of cells that are associated with the
-  // tower (regrdeleess if they have non-zero energies)
-
-//  if (hadE <= 0) return GlobalPoint(0, 0, 0);
-
-  if (fracDepth < 0) fracDepth = 0;
-  else if (fracDepth > 1) fracDepth = 1;
-
-  GlobalPoint point(0,0,0);
-
-  int iEta = towerId.ieta();
-  int iPhi = towerId.iphi();
-
-  HcalDetId frontCellId, backCellId;
-
-  if (towerId.ietaAbs() <= 14) {
-    // barrel, one depth only
-    frontCellId = HcalDetId(HcalBarrel, iEta, iPhi, 1);
-    backCellId  = HcalDetId(HcalBarrel, iEta, iPhi, 1);
-  }
-  else if (towerId.ietaAbs() == 15) {
-    // barrel, two depths
-    frontCellId = HcalDetId(HcalBarrel, iEta, iPhi, 1);
-    backCellId  = HcalDetId(HcalBarrel, iEta, iPhi, 2);
-  }
-  else if (towerId.ietaAbs() == 16) {
-    // barrel and endcap: two depths HB, one depth HE 
-    frontCellId = HcalDetId(HcalBarrel, iEta, iPhi, 1);
-    backCellId  = HcalDetId(HcalEndcap, iEta, iPhi, 3);  // this cell is in endcap!
-  }
-  else if (towerId.ietaAbs() == 17) {
-    // endcap, one depth only
-   frontCellId = HcalDetId(HcalEndcap, iEta, iPhi, 1);
-   backCellId  = HcalDetId(HcalEndcap, iEta, iPhi, 1);
-  }
-  else if (towerId.ietaAbs() >= 18 && towerId.ietaAbs() <= 26) {
-  // endcap: two depths
-  frontCellId = HcalDetId(HcalEndcap, iEta, iPhi, 1);
-  backCellId  = HcalDetId(HcalEndcap, iEta, iPhi, 2);
-  }
-  else if (towerId.ietaAbs() <= 29) {
-  // endcap: three depths
-  frontCellId = HcalDetId(HcalEndcap, iEta, iPhi, 1);
-  // there is no iEta=29 for depth 3
-  if (iEta ==  29) iEta =  28;
-  if (iEta == -29) iEta = -28;
-  backCellId  = HcalDetId(HcalEndcap, iEta, iPhi, 3);
-  }
-  else if (towerId.ietaAbs() >= 30) {
-  // forward, take the goemetry for long fibers
-  frontCellId = HcalDetId(HcalForward, iEta, iPhi, 1);
-  backCellId  = HcalDetId(HcalForward, iEta, iPhi, 1);
-  }
-  else {
-    // should not get here
-    return point;
-  }
-
-  point = hadShwPosFromCells(DetId(frontCellId), DetId(backCellId), fracDepth);
-
-  return point;
-}
-
-GlobalPoint CaloTowersCreationAlgo::hadShwPosFromCells(DetId frontCellId, DetId backCellId, float fracDepth) {
-
-   // uses the "front" and "back" cells
-   // to determine the axis. point set by the predefined depth.
-
-    const CaloCellGeometry* frontCellGeometry = theGeometry->getGeometry(DetId(frontCellId));
-    const CaloCellGeometry* backCellGeometry  = theGeometry->getGeometry(DetId(backCellId));
-
-    GlobalPoint point = frontCellGeometry->getPosition();
-
-    CaloCellGeometry::CornersVec cv = backCellGeometry->getCorners();
-
-    GlobalPoint backPoint = GlobalPoint(0.25 * (cv[4].x() + cv[5].x() + cv[6].x() + cv[7].x()),
-      0.25 * (cv[4].y() + cv[5].y() + cv[6].y() + cv[7].y()),
-      0.25 * (cv[4].z() + cv[5].z() + cv[6].z() + cv[7].z()));
-
-    point += fracDepth * (backPoint - point);
-
-    return point;
-}
-
-
 GlobalPoint CaloTowersCreationAlgo::emShwrPos(std::vector<std::pair<DetId,double> >& metaContains, 
                                               float fracDepth, double emE) {
 
@@ -1009,63 +730,19 @@ GlobalPoint CaloTowersCreationAlgo::emShwrPos(std::vector<std::pair<DetId,double
   double emY = 0.0;
   double emZ = 0.0;
 
-  double eSum = 0;
-
   std::vector<std::pair<DetId,double> >::iterator mc_it = metaContains.begin();
   for (; mc_it!=metaContains.end(); ++mc_it) {
     if (mc_it->first.det() != DetId::Ecal) continue;
     GlobalPoint p = emCrystalShwrPos(mc_it->first, fracDepth);
     double e = mc_it->second;
 
-    if (e>0) {
-      emX += p.x() * e;
-      emY += p.y() * e;
-      emZ += p.z() * e;
-      eSum += e;
-    }
-
+    emX += p.x() * e;
+    emY += p.y() * e;
+    emZ += p.z() * e;
   }
 
-   return GlobalPoint(emX/eSum, emY/eSum, emZ/eSum);
+   return GlobalPoint(emX/emE, emY/emE, emZ/emE);
 }
-
-
-GlobalPoint CaloTowersCreationAlgo::emShwrLogWeightPos(std::vector<std::pair<DetId,double> >& metaContains, 
-                               float fracDepth, double emE) {
-
-  double emX = 0.0;
-  double emY = 0.0;
-  double emZ = 0.0;
-
-  double weight = 0;
-  double sumWeights = 0;
-  double sumEmE = 0;  // add crystals with E/E_EM > 1.5%
-  double crystalThresh = 0.015 * emE;
-
-  std::vector<std::pair<DetId,double> >::iterator mc_it = metaContains.begin();
-  for (; mc_it!=metaContains.end(); ++mc_it) {
-    if (mc_it->first.det() == DetId::Ecal && mc_it->second > crystalThresh) sumEmE += mc_it->second;
-  }
-
-  for (mc_it = metaContains.begin(); mc_it!=metaContains.end(); ++mc_it) {
-    
-    if (mc_it->first.det() != DetId::Ecal || mc_it->second < crystalThresh) continue;
-    
-    GlobalPoint p = emCrystalShwrPos(mc_it->first, fracDepth);
-
-    weight = 4.2 + log(mc_it->second/sumEmE);
-    sumWeights += weight;
-      
-    emX += p.x() * weight;
-    emY += p.y() * weight;
-    emZ += p.z() * weight;
-  }
-
-   return GlobalPoint(emX/sumWeights, emY/sumWeights, emZ/sumWeights);
-}
-
-
-
 
 
 int CaloTowersCreationAlgo::compactTime(float time) {

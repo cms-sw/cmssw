@@ -180,7 +180,7 @@ void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEve
   reco::ElectronPixelSeedCollection pixelSeeds;
   theEvent.getByLabel(pixelSeedProducer_, pixelSeedHandle);
   if (!pixelSeedHandle.isValid()) {
-    if ( nEvt_%100==0 ) std::cout << " PhotonProducer Can't get the product ElectronPixelSeedHandle but Photons will be produced anyway with pixel seed flag set to false "<< "\n";
+    //if ( nEvt_%100==0 ) std::cout << " PhotonProducer Can't get the product ElectronPixelSeedHandle but Photons will be produced anyway with pixel seed flag set to false "<< "\n";
     validPixelSeeds_=false;
   }
   if ( validPixelSeeds_) pixelSeeds = *(pixelSeedHandle.product());
@@ -250,7 +250,7 @@ void PhotonProducer::fillPhotonCollection(
     
     // compute position of ECAL shower
     float e3x3=   EcalClusterTools::e3x3(  *(scRef->seed()), &(*hits), &(*topology)); 
-    float r9 =e3x3/(scRef->rawEnergy()+scRef->preshowerEnergy());
+    float r9 =e3x3/(scRef->rawEnergy());
     float e5x5= EcalClusterTools::e5x5( *(scRef->seed()), &(*hits), &(*topology)); 
 
     math::XYZPoint caloPosition;

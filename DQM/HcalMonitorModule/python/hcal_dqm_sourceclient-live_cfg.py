@@ -70,15 +70,13 @@ process.load("RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_ho_cfi")
 
 process.load("RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_hf_cfi")
 
-process.load("RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_zdc_cfi")
-
 process.prefer("GlobalTag")
 process.options = cms.untracked.PSet(
     Rethrow = cms.untracked.vstring('ProductNotFound', 
         'TooManyProducts', 
         'TooFewProducts')
 )
-process.p = cms.Path(process.hcalDigis*process.horeco*process.hfreco*process.hbhereco*process.zdcreco*process.hcalMonitor*process.hcalClient*process.dqmEnv*process.dqmSaver)
+process.p = cms.Path(process.hcalDigis*process.horeco*process.hfreco*process.hbhereco*process.hcalMonitor*process.hcalClient*process.dqmEnv*process.dqmSaver)
 process.EventStreamHttpReader.consumerName = 'Hcal DQM Consumer'
 process.dqmEnv.subSystemFolder = 'Hcal'
 process.hcalMonitor.PedestalsPerChannel = False

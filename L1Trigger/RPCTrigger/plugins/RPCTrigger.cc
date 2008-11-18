@@ -1,9 +1,3 @@
-/** \file RPCTrigger.cc
- *
- *  $Date: 2008/07/17 17:04:47 $
- *  $Revision: 1.11 $
- *  \author Tomasz Fruboes
- */
 #include "L1Trigger/RPCTrigger/interface/RPCTrigger.h"
 
 // Configuration via eventsetup:
@@ -15,7 +9,6 @@
 
 #include "CondFormats/DataRecord/interface/L1RPCHwConfigRcd.h"
 #include "CondFormats/RPCObjects/interface/L1RPCHwConfig.h"
-
 //#define ML_DEBUG 
 
 
@@ -117,45 +110,50 @@ RPCTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 //  iEvent.getByType(rpcDigis);
   //iEvent.getByLabel("muonRPCDigis",rpcDigis);
   iEvent.getByLabel(m_label, rpcDigis);
-  
-  L1RpcLogConesVec ActiveCones;
-  if (m_buildOwnLinkSystem){
-    ActiveCones = m_theLinksystem.getCones(rpcDigis);
-  } else { //use es
-    edm::ESHandle<L1RPCConeBuilder> coneBuilder;
-    iSetup.get<L1RPCConeBuilderRcd>().get(coneBuilder);
-
-    edm::ESHandle<L1RPCHwConfig> hwConfig;
-    iSetup.get<L1RPCHwConfigRcd>().get(hwConfig);
-
-    ActiveCones = m_theLinksystemFromES.getConesFromES(rpcDigis,coneBuilder,hwConfig);
-    
-  }
-  
-  L1RpcTBMuonsVec2 finalMuons = m_pacTrigger->runEvent(ActiveCones);
-
-  int maxFiredPlanes = 0;
-  
-  for (unsigned int i=0;i<ActiveCones.size();i++){
-      int fpCnt = ActiveCones[i].getFiredPlanesCnt();
-      if (fpCnt > maxFiredPlanes)
-         maxFiredPlanes = fpCnt;
-  }
-
-  // Fill out the products
-  // finalMuons[0]=barell, finalMuons[1]=endcap
-  LogDebug("RPCTrigger") << "---Filling candindates in new event--- " 
-                         << maxFiredPlanes << std::endl;
-  
-  std::vector<L1MuRegionalCand> RPCb = giveFinallCandindates(finalMuons[0],1);
-  std::vector<L1MuRegionalCand> RPCf = giveFinallCandindates(finalMuons[1],3);;
-    
   std::auto_ptr<std::vector<L1MuRegionalCand> > candBarell(new std::vector<L1MuRegionalCand>);
-  candBarell->insert(candBarell->end(), RPCb.begin(), RPCb.end());
-  
   std::auto_ptr<std::vector<L1MuRegionalCand> > candForward(new std::vector<L1MuRegionalCand>);
-  candForward->insert(candForward->end(), RPCf.begin(), RPCf.end());
+    
+  for (int iBx = -1; iBx < 2; ++ iBx) {
+    
+    L1RpcLogConesVec ActiveCones;
+    if (m_buildOwnLinkSystem){
+      ActiveCones = m_theLinksystem.getCones(rpcDigis, iBx);
+    } else { //use es
+      edm::ESHandle<L1RPCConeBuilder> coneBuilder;
+      iSetup.get<L1RPCConeBuilderRcd>().get(coneBuilder);
+
+      edm::ESHandle<L1RPCHwConfig> hwConfig;
+      iSetup.get<L1RPCHwConfigRcd>().get(hwConfig);
+
+      ActiveCones = m_theLinksystemFromES.getConesFromES(rpcDigis, coneBuilder, hwConfig, iBx);
+      
+    }
+    
+    L1RpcTBMuonsVec2 finalMuons = m_pacTrigger->runEvent(ActiveCones);
   
+    int maxFiredPlanes = 0;
+    
+    for (unsigned int i=0;i<ActiveCones.size();i++){
+        int fpCnt = ActiveCones[i].getFiredPlanesCnt();
+        if (fpCnt > maxFiredPlanes)
+          maxFiredPlanes = fpCnt;
+    }
+  
+    // Fill out the products
+    // finalMuons[0]=barell, finalMuons[1]=endcap
+    LogDebug("RPCTrigger") << "---Filling candindates in new event--- " 
+                          << maxFiredPlanes << std::endl;
+    
+    std::vector<L1MuRegionalCand> RPCb = giveFinallCandindates(finalMuons[0],1, iBx);
+    std::vector<L1MuRegionalCand> RPCf = giveFinallCandindates(finalMuons[1],3, iBx);
+      
+    
+    candBarell->insert(candBarell->end(), RPCb.begin(), RPCb.end());
+  
+
+    candForward->insert(candForward->end(), RPCf.begin(), RPCf.end());
+
+  }  
   iEvent.put(candBarell, "RPCb");
   iEvent.put(candForward, "RPCf");
   
@@ -169,7 +167,7 @@ RPCTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
  *
  */
 ///////////////////////////////////////////////////////////////////////////////
-std::vector<L1MuRegionalCand> RPCTrigger::giveFinallCandindates(L1RpcTBMuonsVec finalMuons, short type){
+std::vector<L1MuRegionalCand> RPCTrigger::giveFinallCandindates(L1RpcTBMuonsVec finalMuons, int type, int bx){
 
   std::vector<L1MuRegionalCand> RPCCand;
   
@@ -181,6 +179,8 @@ std::vector<L1MuRegionalCand> RPCTrigger::giveFinallCandindates(L1RpcTBMuonsVec 
     } 
 
     L1MuRegionalCand l1Cand;
+    
+    l1Cand.setBx(bx);
     
     
     l1Cand.setQualityPacked(finalMuons[iMu].getQuality());
@@ -241,7 +241,9 @@ std::vector<L1MuRegionalCand> RPCTrigger::giveFinallCandindates(L1RpcTBMuonsVec 
 
     RPCCand.push_back(l1Cand);
         
-    LogDebug("RPCTrigger") << "Found muonf of pt " << finalMuons[iMu].getPtCode()
+    LogDebug("RPCTrigger") << "Found muonf of pt " 
+        << finalMuons[iMu].getPtCode()
+        << " bx " << l1Cand.bx()
         << " L1Charge " << l1Cand.charge_packed()
         << " ql " << l1Cand.quality()
         << " fp " << finalMuons[iMu].getFiredPlanes()

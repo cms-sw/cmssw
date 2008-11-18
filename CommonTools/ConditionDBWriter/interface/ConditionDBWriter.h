@@ -128,7 +128,7 @@
 //
 // Original Author:  Giacomo Bruno
 //         Created:  May 23 10:04:31 CET 2007
-// $Id: ConditionDBWriter.h,v 1.6 2008/03/05 18:30:24 pierro Exp $
+// $Id: ConditionDBWriter.h,v 1.5 2007/07/09 11:06:33 gbruno Exp $
 //
 //
 
@@ -356,7 +356,7 @@ private:
 	    //	  edm::LogInfo("ConditionDBWriter") << "appending a new DUMMY object to new tag "<<Record_<<" in since mode " << std::endl;
 	    //	  mydbservice->createNewIOV<T>(new T(), mydbservice->endOfTime(), Record_);
 	    edm::LogInfo("ConditionDBWriter") << "appending a new object to existing tag " <<Record_ <<" in since mode " << std::endl;
-	    mydbservice->createNewIOV<T>(objPointer, mydbservice->beginOfTime(), mydbservice->endOfTime(), Record_);
+	    mydbservice->createNewIOV<T>(objPointer, Time_, mydbservice->endOfTime(), Record_);
 
 	    // mydbservice->appendSinceTime<T>(objPointer, Time_, Record_); 
 	  }

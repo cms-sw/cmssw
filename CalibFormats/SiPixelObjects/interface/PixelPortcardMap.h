@@ -1,12 +1,12 @@
 #ifndef PixelPortcardMap_h
 #define PixelPortcardMap_h
-/**
-* \file CalibFormats/SiPixelObjects/interface/PixelPortcardMap.h
-* \brief This class provides the mapping between portcards and the modules controlled by the card
-*
-*   A longer explanation will be placed here later
-*
-*/
+//
+// This class provides the maping between
+// portcards and the modules controlled by
+// the card
+//
+//
+//
  
 #include <string>
 #include <vector>
@@ -18,16 +18,6 @@
 #include "CalibFormats/SiPixelObjects/interface/PixelChannel.h"
 
 namespace pos{
-/*!  \ingroup ConfigurationObjects "Configuration Objects"
-*    
-*  @{
-*
-*  \class PixelPortCardConfig PixelPortCardConfig.h
-*  \brief This is the documentation about PixelNameTranslation...
-*
-*  This class provides the mapping between portcards and the modules controlled by the card
-*   
-*/
   class PixelPortcardMap: public PixelConfigBase
   {
   public:
@@ -57,15 +47,10 @@ namespace pos{
     std::set< std::string > portcards();
 
     virtual void writeASCII(std::string dir) const;
-    void 	 writeXML(      pos::PixelConfigKey key, int version, std::string path)                     const {;}
-    virtual void writeXMLHeader(pos::PixelConfigKey key, int version, std::string path, std::ofstream *out) const {;}
-    virtual void writeXML(                                                              std::ofstream *out) const {;}
-    virtual void writeXMLTrailer(                                                       std::ofstream *out) const {;}
 
   private:
     //                               portcardname, AOH #
     std::map< PixelChannel, std::pair<std::string, int> > map_;
   };
 }
-/* @} */
 #endif

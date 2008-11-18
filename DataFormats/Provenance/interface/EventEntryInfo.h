@@ -25,6 +25,7 @@ and how it came into existence, plus the product identifier and the status.
 namespace edm {
   class EventEntryInfo {
   public:
+    typedef std::vector<EventEntryInfo> EntryInfoVector;
     EventEntryInfo();
     explicit EventEntryInfo(BranchID const& bid);
     EventEntryInfo(BranchID const& bid,
@@ -42,10 +43,16 @@ namespace edm {
     EventEntryInfo(BranchID const& bid,
 		   ProductStatus status,
 		   ModuleDescriptionID const& mdid,
-		   ProductID const& pid = ProductID(),
+		   ProductID const& pid,
 		   std::vector<BranchID> const& parents = std::vector<BranchID>());
 
+    EventEntryInfo(BranchID const& bid,
+		   ProductStatus status,
+		   ModuleDescriptionID const& mdid);
+
     ~EventEntryInfo() {}
+
+    EventEntryInfo makeEntryInfo() const;
 
     void write(std::ostream& os) const;
 
@@ -53,17 +60,22 @@ namespace edm {
     ProductID const& productID() const {return productID_;}
     ProductStatus const& productStatus() const {return productStatus_;}
     EntryDescriptionID const& entryDescriptionID() const {return entryDescriptionID_;}
+    ModuleDescriptionID const& moduleDescriptionID() const {return moduleDescriptionID_;}
     EventEntryDescription const& entryDescription() const;
+    bool noEntryDescription() const {return noEntryDescription_;}
     void setStatus(ProductStatus status) {productStatus_ = status;}
     void setPresent();
     void setNotPresent();
+    void setModuleDescriptionID(ModuleDescriptionID const& mdid) {moduleDescriptionID_ = mdid;}
 
   private:
     BranchID branchID_;
     ProductID productID_;
     ProductStatus productStatus_;
     EntryDescriptionID entryDescriptionID_;
-    mutable boost::shared_ptr<EventEntryDescription> entryDescriptionPtr_;
+    mutable ModuleDescriptionID moduleDescriptionID_; //transient
+    mutable boost::shared_ptr<EventEntryDescription> entryDescriptionPtr_; //! transient
+    bool noEntryDescription_; //!transient
   };
 
   inline
@@ -82,7 +94,6 @@ namespace edm {
   // Only the 'salient attributes' are testing in equality comparison.
   bool operator==(EventEntryInfo const& a, EventEntryInfo const& b);
   inline bool operator!=(EventEntryInfo const& a, EventEntryInfo const& b) { return !(a==b); }
-
   typedef std::vector<EventEntryInfo> EventEntryInfoVector;
 }
 #endif

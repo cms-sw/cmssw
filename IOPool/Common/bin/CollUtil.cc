@@ -1,18 +1,18 @@
 #include "IOPool/Common/bin/CollUtil.h"
-#include "TFile.h" 
+
 #include "DataFormats/Provenance/interface/BranchType.h"
-#include "DataFormats/Provenance/interface/EventAuxiliary.h"
-#include "DataFormats/Provenance/interface/EventID.h"
 #include "DataFormats/Provenance/interface/FileID.h"
-#include "DataFormats/Provenance/interface/Timestamp.h"
-//#include "DataFormats/Common/interface/EDProduct.h"
+#include "DataFormats/Provenance/interface/FileFormatVersion.h"
+#include "DataFormats/Provenance/interface/FileIndex.h"
 
 #include <iostream>
 
-#include "TObject.h"
-#include "TKey.h"
+#include "TFile.h" 
 #include "TList.h"
 #include "TIterator.h"
+#include "TKey.h"
+#include "TTree.h"
+#include "TObject.h"
 #include "TBranch.h"
 
 namespace edm {
@@ -58,90 +58,6 @@ namespace edm {
     }
   }
 
-  // show event if for the specified events
-  //  void showEvents(TFile *hdl, const std::string& trname, const std::string& evtstr) {
-  void showEvents(TFile *hdl, const std::string& trname, const Long64_t& iLow, const Long64_t& iHigh) {
-
-    TTree *tree= (TTree*)hdl->Get(trname.c_str());
-    
-    if ( tree != 0 ) {
-
-      EventAuxiliary* evtAux_=0;
-      TBranch *evtAuxBr = tree->GetBranch(edm::BranchTypeToAuxiliaryBranchName(InEvent).c_str());
-
-      tree->SetBranchAddress(edm::BranchTypeToAuxiliaryBranchName(InEvent).c_str(),&evtAux_);
-      Long64_t max= tree->GetEntries();
-      for (Long64_t i = iLow; i <= iHigh && i < max; ++i) {
-	evtAuxBr->GetEntry(i);
-	if ( evtAux_ != 0 ) {
-	  Timestamp time_=evtAux_->time();
-	  EventID id_=evtAux_->id();
-	  std::cout << id_ << "  time: " << time_.value() << std::endl;
-	}
-	else{
-	  std::cout << "Event: " << i << " Nonsense EventAuxiliary object? " << std::endl;
-	}
-      }
-      
-    } else {
-      std::cout << "ERR cannot find a TTree named \"" << trname << "\""
-                << std::endl;
-      return;
-    }
-
-    return;
-  }
-
-//   void showEventsAndEntries(TFile *hdl, const std::string& trname, const Long64_t& iLow, const Long64_t& iHigh) {
-
-//     TTree *tree= (TTree*)hdl->Get(trname.c_str());
-    
-//     if ( tree != 0 ) {
-
-//       EventAuxiliary* evtAux_=0;
-//       TBranch *evtAuxBr = tree->GetBranch(edm::BranchTypeToAuxiliaryBranchName(InEvent));
-//       tree->SetBranchAddress(edm::BranchTypeToAuxiliaryBranchName(InEvent),&evtAux_);
-//       Long64_t max= tree->GetEntries();
-//       int entrycounter = 0;
-//       for (Long64_t i=iLow; i <= iHigh && i < max; ++i) {
-// 	evtAuxBr->GetEntry(i);
-// 	if ( evtAux_ != 0 ) {
-// 	  Timestamp time_=evtAux_->time();
-// 	  EventID id_=evtAux_->id();
-// 	  std::cout << id_ << "  time: " << time_.value() << std::endl;
-	  
-// 	  // Now count # of entries in each branch for this event
-// 	  Long64_t nB=tree->GetListOfBranches()->GetEntries();
-// 	  std::cout << "No. of branches = " << nB << std::endl;
-	  
-// 	  for ( Long64_t j = 0; j < nB; ++j) {
-// 	    TBranch *br = (TBranch *)tree->GetListOfBranches()->At(j);
-//  	    TString branchName = br->GetName();
-// 	    branchName+="obj.";
-//  	    std::cout << "The branch name is " << branchName << std::endl;
-// 	    // 	    TClass *cp = gROOT->GetClass(br->GetClassName());
-// 	    TClass *cp = gROOT->GetClass(branchName);
-//  	    std::cout << "GotClass " << cp->GetName() << std::endl;	  
-// 	    EDProduct *p = static_cast<EDProduct *>(cp->New());
-// 	    std::cout << "Got EDProduct" << std::endl;
-// 	    br->SetAddress(&p);
-// 	    br->GetEntry(i);
-// 	  }
-// 	}
-// 	else{
-// 	  std::cout << "Event: " << i << " Nonsense EventAuxiliary object? " << std::endl;
-// 	}
-//       }
-      
-//     } else {
-//       std::cout << "ERR cannot find a TTree named \"" << trname << "\""
-//                 << std::endl;
-//       return;
-//     }
-    
-//     return;
-//   }
-
 
   void printBranchNames( TTree *tree) {
 
@@ -181,44 +97,47 @@ namespace edm {
     std::cout << "UUID: " << fid.fid() << std::endl;
   }
 
-  void printEventLists( std::string remainingEvents, int numevents, TFile *tfl, bool entryoption) {
-    bool keepgoing=true;
-    while ( keepgoing ) {
-      int iLow(-1),iHigh(-2);
-      // split by commas
-      std::string::size_type pos= remainingEvents.find_first_of(",");
-      std::string evtstr=remainingEvents;
-	
-      if ( pos == std::string::npos ) {
-	keepgoing=false;
-      }
-      else{
-	evtstr=remainingEvents.substr(0,pos);
-	remainingEvents=remainingEvents.substr(pos+1);
-      }
-      
-      pos= evtstr.find_first_of("-");
-      if ( pos == std::string::npos ) {
-	iLow= (int)atof(evtstr.c_str());
-	iHigh= iLow;
-      } else {
-	iLow= (int)atof(evtstr.substr(0,pos).c_str());
-	iHigh= (int)atof(evtstr.substr(pos+1).c_str());
-      }
-      
-      //    edm::showEvents(tfile,edm::poolNames::eventTreeName(),vm["events"].as<std::string>());
-      if ( iLow < 1 ) iLow=1;
-      if ( iHigh > numevents ) iHigh=numevents;
-      
-      // shift by one.. C++ starts at 0
-      iLow--;
-      iHigh--;
-      if(entryoption==false)
-	showEvents(tfl,edm::poolNames::eventTreeName(),iLow,iHigh);
-//       else if(entryoption==true)
-// 	showEventsAndEntries(tfl,edm::poolNames::eventTreeName(),iLow,iHigh);
+  void printEventLists(TFile *tfl) {
+
+    FileFormatVersion fileFormatVersion;
+    FileFormatVersion *fftPtr = &fileFormatVersion;
+
+    FileIndex fileIndex;
+    FileIndex *findexPtr = &fileIndex;
+
+    TTree *metaDataTree = dynamic_cast<TTree *>(tfl->Get(poolNames::metaDataTreeName().c_str()));
+    metaDataTree->SetBranchAddress(poolNames::fileFormatVersionBranchName().c_str(), &fftPtr);
+    if (metaDataTree->FindBranch(poolNames::fileIndexBranchName().c_str()) != 0) {
+      metaDataTree->SetBranchAddress(poolNames::fileIndexBranchName().c_str(), &findexPtr);
     }
-    
+    else {
+      std::cout << "FileIndex not found.  If this input file was created with release 1_8_0 or later\n"
+                   "this indicates a problem with the file.  This condition should be expected with\n"
+	"files created with earlier releases and printout of the event list will fail.\n";
+      return;
+    }
+    metaDataTree->GetEntry(0);
+
+    std::cout << "\n" << fileIndex;
+
+    std::cout << "\nFileFormatVersion = " << fileFormatVersion << ".  ";
+    if (fileFormatVersion.fastCopyPossible()) std::cout << "This version supports fast copy\n";
+    else std::cout << "This version does not support fast copy\n";
+
+    if (fileIndex.allEventsInEntryOrder()) {
+      std::cout << "Events are sorted such that fast copy is possible in the default mode\n";
+    }
+    else {
+      std::cout << "Events are sorted such that fast copy is NOT possible in the default mode\n";
+    }
+
+    fileIndex.sortBy_Run_Lumi_EventEntry();
+    if (fileIndex.allEventsInEntryOrder()) {
+      std::cout << "Events are sorted such that fast copy is possible in the \"noEventSort\" mode\n";
+    }
+    else {
+      std::cout << "Events are sorted such that fast copy is NOT possible in the \"noEventSort\" mode\n";
+    }
+    std::cout << "(Note that other factors can prevent fast copy from occurring)\n\n";
   }
-  
 }

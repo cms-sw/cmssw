@@ -1,7 +1,7 @@
 /*
         For saving the FU sender list
 
- $Id: SMFUSenderEntry.cc,v 1.7 2008/07/31 20:30:28 biery Exp $
+ $Id: SMFUSenderEntry.cc,v 1.8 2008/08/17 23:18:58 hcheung Exp $
 */
 
 #include "EventFilter/StorageManager/interface/SMFUSenderEntry.h"
@@ -21,10 +21,12 @@ SMFUSenderEntry::SMFUSenderEntry(const char* hltURL,
                  const unsigned int numFramesToAllocate,
                  const std::string outModName,
                  const uint32 outModId,
+                 const uint32 fuID,
                  toolbox::mem::Reference *ref):
   hltLocalId_(hltLocalId), 
   hltInstance_(hltInstance), 
-  hltTid_(hltTid)
+  hltTid_(hltTid),
+  fuID_(fuID)
 {
   copy(hltURL, hltURL+MAX_I2O_SM_URLCHARS, hltURL_);
   copy(hltClassName, hltClassName+MAX_I2O_SM_URLCHARS, hltClassName_);
@@ -258,13 +260,62 @@ bool SMFUSenderEntry::regIsCopied(const std::string outModName) //const
    else return false;
 }
 
-bool SMFUSenderEntry::match(const char* hltURL, const char* hltClassName, 
+bool SMFUSenderEntry::matchFirst(const char* hltURL, const char* hltClassName, 
                              const unsigned int hltLocalId,
                              const unsigned int hltInstance, 
                              const unsigned int hltTid) //const
 {
    if(hltLocalId_ == hltLocalId && hltInstance_ == hltInstance &&
       hltTid_ == hltTid && sameURL(hltURL) && sameClassName(hltClassName))
+   {
+      return true;
+   } else {
+      return false;
+   }
+}
+
+bool SMFUSenderEntry::match(const char* hltURL, const char* hltClassName, 
+                             const unsigned int hltLocalId,
+                             const unsigned int hltInstance, 
+                             const unsigned int hltTid,
+                             const uint32 fuID,
+                             const std::string outModName) //const
+{
+   if(hltLocalId_ == hltLocalId && hltInstance_ == hltInstance &&
+      hltTid_ == hltTid && sameURL(hltURL) && sameClassName(hltClassName) &&
+      fuID_ == fuID && sameOutMod(outModName))
+   {
+      return true;
+   } else {
+      return false;
+   }
+}
+
+bool SMFUSenderEntry::matchFirst(const char* hltURL, const char* hltClassName, 
+                             const unsigned int hltLocalId,
+                             const unsigned int hltInstance, 
+                             const unsigned int hltTid,
+                             const std::string outModName) //const
+{
+   if(hltLocalId_ == hltLocalId && hltInstance_ == hltInstance &&
+      hltTid_ == hltTid && sameURL(hltURL) && sameClassName(hltClassName) &&
+      sameOutMod(outModName))
+   {
+      return true;
+   } else {
+      return false;
+   }
+}
+
+bool SMFUSenderEntry::matchFirst(const char* hltURL, const char* hltClassName, 
+                             const unsigned int hltLocalId,
+                             const unsigned int hltInstance, 
+                             const unsigned int hltTid,
+                             const uint32 outModId) //const
+{
+   if(hltLocalId_ == hltLocalId && hltInstance_ == hltInstance &&
+      hltTid_ == hltTid && sameURL(hltURL) && sameClassName(hltClassName) &&
+      sameOutMod(outModId))
    {
       return true;
    } else {

@@ -23,26 +23,14 @@ namespace Gflash {
   };
 
   //                                                 EB     EE     HB     HE
-  const G4double Zmin[kNumberCalorimeter]   = {0.0, 0.000, 304.5, 0.000, 391.95}; // in cm
+  const G4double Zmin[kNumberCalorimeter]   = {0.0, 0.000, 304.5, 0.000, 391.95};
   const G4double Zmax[kNumberCalorimeter]   = {0.0, 317.0, 390.0, 433.2, 554.10};
   const G4double Rmin[kNumberCalorimeter]   = {0.0, 123.8,  31.6, 177.5,  31.6};
-  const G4double Rmax[kNumberCalorimeter]   = {0.0, 177.5, 171.1, 287.7, 263.9};
+  const G4double Rmax[kNumberCalorimeter]   = {0.0, 175.0, 171.1, 287.7, 263.9};
   const G4double EtaMin[kNumberCalorimeter] = {0.0, 0.000, 1.570, 0.000, 1.570};
   const G4double EtaMax[kNumberCalorimeter] = {0.0, 1.300, 3.000, 1.300, 3.000};
     
   //constants needed for GflashHadronShowerProfile
-
-  const G4double rMoliere[kNumberCalorimeter]  = {2.19, 2.19, 2.19, 2.19, 2.19}; // in cm
-  const G4double radLength[kNumberCalorimeter] = {0.89, 0.89, 0.89, 16.42, 16.42}; // in cm
-  const G4double Z[kNumberCalorimeter]         = {68.360, 68.360, 68.360, 68.360, 68.360}; // mass of molicule
-  const G4double criticalEnergy                = 8.6155 / GeV;
-
-  //cut value for quasi-elastic like interactions on the secondary energy, 
-  //ratio = (Leading Energy of Secondaries)/(Total Energy)
-  const G4double QuasiElasticLike = 0.95;
-
-  //minimum distance to the back of parameterized envelopes in [cm]
-  const G4double MinDistanceToOut = 10.0;
 
   //@@@approximately ScaleSensitive = 0.2 and need fine tune later 
   //@@@set it to 1.0 for the energy shape studies

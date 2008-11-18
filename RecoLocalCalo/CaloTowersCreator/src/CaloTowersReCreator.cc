@@ -81,7 +81,6 @@ void CaloTowersReCreator::produce(edm::Event& e, const edm::EventSetup& c) {
   edm::Handle<CaloTowerCollection> calt;
   e.getByLabel(caloLabel_,calt);
 
-/*
   if (!calt.isValid()) {
     // can't find it!
     if (!allowMissingInputs_) {
@@ -100,29 +99,5 @@ void CaloTowersReCreator::produce(edm::Event& e, const edm::EventSetup& c) {
   // Step D: Put into the event
   if (ctEScales.instanceLabel=="") e.put(prod);
   else e.put(prod,ctEScales.instanceLabel);
-*/
-
-  // modified to rescale the CaloTowers directly
-  // without going through metatowers
-  // required for the algorithms that make use of individual
-  // crystal information
-
-  if (!calt.isValid()) {
-    // can't find it!
-    if (!allowMissingInputs_) {
-      *calt;  // will throw the proper exception
-    }
-  } else {
-    // Step B: Create empty output
-    std::auto_ptr<CaloTowerCollection> prod(new CaloTowerCollection());
-
-    // step C: rescale (without going threough metataowers)
-    algo_.rescaleTowers(*calt, *prod);
-
-    // Step D: Put into the event
-    if (ctEScales.instanceLabel=="") e.put(prod);
-    else e.put(prod,ctEScales.instanceLabel);
-  }
-
 }
 

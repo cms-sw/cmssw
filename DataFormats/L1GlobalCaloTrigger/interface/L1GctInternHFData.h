@@ -66,11 +66,40 @@ class L1GctInternHFData {
   /// get the raw data
   uint32_t raw() const { return data_; }
   
+  /// get value
+  uint16_t value(unsigned const i);
+
   /// get the et sums
   uint16_t et(unsigned const i);
 
   /// get the counts
   uint16_t count(unsigned const i);
+
+
+  // setters  
+  
+  /// set cap block
+  void setCapBlock(uint16_t const capBlock) { capBlock_ = capBlock; }
+
+  /// set cap index
+  void setCapIndex(uint16_t const capIndex) { capIndex_ = capIndex; }
+
+  /// set bx
+  void setBx(uint16_t const bx) { bx_ = bx; }
+
+  /// set type
+  void setType(L1GctInternHFDataType type) { type_ = type; }
+
+  /// set value
+  void setValue(unsigned const i, uint16_t const val);
+
+  /// set the sum
+  void setEt(unsigned const i, uint16_t const et);
+
+  /// set the count
+  void setCount(unsigned const i, uint16_t const count);
+
+  void setData(uint32_t const data) { data_ = data; }
   
 
   /// operators
@@ -80,32 +109,8 @@ class L1GctInternHFData {
   
   /// inequality operator
   bool operator!=(const L1GctInternHFData& c) const { return !(*this == c); }
-  
-  // private methods
- private:
-  
-  /// set cap block
-  void setCapBlock(uint16_t capBlock) { capBlock_ = capBlock; }
-
-  /// set cap index
-  void setCapIndex(uint16_t capIndex) { capIndex_ = capIndex; }
-
-  /// set bx
-  void setBx(uint16_t bx) { bx_ = bx; }
-
-  /// set type
-  void setType(L1GctInternHFDataType type) { type_ = type; }
-
-  /// set the sum
-  void setEt(unsigned i, uint16_t et);
-
-  /// set the count
-  void setCount(unsigned i, uint16_t count);
-
-  void setData(uint32_t data) { data_ = data; }
 
 
-  // private data
  private:
 
   // type of data

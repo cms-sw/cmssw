@@ -21,6 +21,9 @@ protected:
   virtual void endJob(void);
 
 private:
+  void saveForOffline(const std::string &workflow, int run);
+  void saveForOnline(const std::string &suffix, const std::string &rewrite);
+
   enum Convention
   {
     Online,
@@ -39,6 +42,8 @@ private:
   int		saveByTime_;
   int		saveByRun_;
   bool		saveAtJobEnd_;
+  int		saveReference_;
+  int		saveReferenceQMin_;
   int		forceRunNumber_;
 
   std::string	fileBaseName_;

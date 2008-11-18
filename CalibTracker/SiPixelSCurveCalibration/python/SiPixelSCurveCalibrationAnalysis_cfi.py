@@ -33,9 +33,9 @@ siPixelSCurveAnalysis = cms.EDFilter("SiPixelSCurveCalibrationAnalysis",
     maximumSigmaBin = cms.untracked.double(10.0),
     maximumThresholdBin = cms.untracked.double(255.0),
     # write out the sigma and thresholds. Needed as input for hardware                             
-    writeOutThresholdSummary = cms.untracked.bool(true),
+    writeOutThresholdSummary = cms.untracked.bool(True),
     thresholdOutputFileName = cms.untracked.string("thresholds.txt"),
-    alsoWriteZeroThresholds = cms.untracked.bool(false)
+    alsoWriteZeroThresholds = cms.untracked.bool(False)
 )
 
 

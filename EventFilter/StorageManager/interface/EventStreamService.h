@@ -1,7 +1,7 @@
 #ifndef EVENTSTREAMSERVICE_H
 #define EVENTSTREAMSERVICE_H
 
-// $Id: EventStreamService.h,v 1.10 2008/08/07 11:33:14 loizides Exp $
+// $Id: EventStreamService.h,v 1.1 2008/08/13 22:48:11 biery Exp $
 
 // - handling output files per stream make the problem 1-dimensional 
 // - allows to use different file handling rules per stream
@@ -37,6 +37,7 @@ namespace edm {
       void   report(std::ostream &os, int indentation) const;
 
       void   closeTimedOutFiles(int lumi, double timeoutstart);
+      void   closeTimedOutFiles();
  
     private:
       boost::shared_ptr<OutputService>  newOutputService();

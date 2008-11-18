@@ -1,40 +1,101 @@
-from Configuration.StandardSequences.AlCaReco_cff import *
+import FWCore.ParameterSet.Config as cms
+
+# last update: $Date: 2008/08/25 12:45:31 $ by $Author: futyand $
+
+# AlCaReco sequence definitions:
+
+# Tracker Alignment
+# AlCaReco for track based alignment using ZMuMu events
+from Alignment.CommonAlignmentProducer.ALCARECOTkAlZMuMu_cff import *
+# AlCaReco for track based alignment using Cosmic muon events
+from Alignment.CommonAlignmentProducer.ALCARECOTkAlCosmics_cff import *
+from Alignment.CommonAlignmentProducer.ALCARECOTkAlCosmicsHLT_cff import *
+from Alignment.CommonAlignmentProducer.ALCARECOTkAlCosmics0T_cff import *
+from Alignment.CommonAlignmentProducer.ALCARECOTkAlCosmics0THLT_cff import *
+# AlCaReco for track based alignment using isoMu events
+from Alignment.CommonAlignmentProducer.ALCARECOTkAlMuonIsolated_cff import *
+# AlCaReco for track based alignment using J/Psi events
+from Alignment.CommonAlignmentProducer.ALCARECOTkAlJpsiMuMu_cff import *
+# AlCaReco for track based alignment using Upsilon events
+from Alignment.CommonAlignmentProducer.ALCARECOTkAlUpsilonMuMu_cff import *
+# AlCaReco for track based alignment using MinBias events
+from Alignment.CommonAlignmentProducer.ALCARECOTkAlMinBias_cff import *
+# AlCaReco for pixel calibration using muons
+from Calibration.TkAlCaRecoProducers.ALCARECOSiPixelLorentzAngle_cff import *
+# AlCaReco for tracker calibration using MinBias events
+from Calibration.TkAlCaRecoProducers.ALCARECOSiStripCalMinBias_cff import *
+# ECAL Calibration
+# ECAL calibration with isol. electrons
+from Calibration.EcalAlCaRecoProducers.ALCARECOEcalCalElectron_cff import *
+# HCAL Calibration
+# HCAL calibration with dijets
+from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalDijets_cff import *
+# HCAL calibration with gamma+jet
+from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalGammaJet_cff import *
+# HCAL calibration from HO (muons) 
+#  include "Calibration/HcalAlCaRecoProducers/data/ALCARECOHcalCalZMuMu.cff"
+from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalHO_cff import *
+# Muon Alignment with cosmics
+from Alignment.CommonAlignmentProducer.ALCARECOMuAlStandAloneCosmics_cff import *
+from Alignment.CommonAlignmentProducer.ALCARECOMuAlGlobalCosmics_cff import *
+from Alignment.CommonAlignmentProducer.ALCARECOMuAlZeroFieldGlobalCosmics_cff import *
+# Muon Alignment with isolated muons
+from Alignment.CommonAlignmentProducer.ALCARECOMuAlCalIsolatedMu_cff import *
+# Muon Alignment using CSC overlaps
+from Alignment.CommonAlignmentProducer.ALCARECOMuAlOverlaps_cff import *
+# RPC calibration
+from CalibMuon.RPCCalibration.ALCARECORpcCalHLT_cff import *
+# nonbeam alcas
+from Alignment.CommonAlignmentProducer.ALCARECOTkAlBeamHalo_cff import *
+from Alignment.CommonAlignmentProducer.ALCARECOTkAlLAS_cff import *
+from Alignment.CommonAlignmentProducer.ALCARECOMuAlBeamHalo_cff import *
+from Alignment.CommonAlignmentProducer.ALCARECOMuAlBeamHaloOverlaps_cff import *
+
+# NOTE: the ALCARECO DQM modules can not be placed together in a single path 
+# because they act as filters. They are therefore inserted per ALCARECO path.
+from DQMOffline.Configuration.AlCaRecoDQM_cff import *
+
+# AlCaReco path definitions:
+
+pathALCARECOTkAlZMuMu = cms.Path(seqALCARECOTkAlZMuMu*ALCARECOTkAlZMuMuDQM)
+pathALCARECOTkAlMuonIsolated = cms.Path(seqALCARECOTkAlMuonIsolated*ALCARECOTkAlMuonIsolatedDQM)
+pathALCARECOTkAlJpsiMuMu = cms.Path(seqALCARECOTkAlJpsiMuMu*ALCARECOTkAlJpsiMuMuDQM)
+pathALCARECOTkAlUpsilonMuMu = cms.Path(seqALCARECOTkAlUpsilonMuMu*ALCARECOTkAlUpsilonMuMuDQM)
+pathALCARECOTkAlMinBias = cms.Path(seqALCARECOTkAlMinBias*ALCARECOTkAlMinBiasDQM)
+pathALCARECOSiPixelLorentzAngle = cms.Path(seqALCARECOSiPixelLorentzAngle)
+pathALCARECOSiStripCalMinBias = cms.Path(seqALCARECOSiStripCalMinBias)
+pathALCARECOEcalCalElectron = cms.Path(seqALCARECOEcalCalElectron)
+pathALCARECOHcalCalDijets = cms.Path(seqALCARECOHcalCalDijets)
+pathALCARECOHcalCalGammaJet = cms.Path(seqALCARECOHcalCalGammaJet)
+pathALCARECOHcalCalHO = cms.Path(seqALCARECOHcalCalHO)
+pathALCARECOMuAlCalIsolatedMu = cms.Path(seqALCARECOMuAlCalIsolatedMu)
+pathALCARECOMuAlOverlaps = cms.Path(seqALCARECOMuAlOverlaps)
+pathALCARECORpcCalHLT = cms.Path(seqALCARECORpcCalHLT)
+pathALCARECOTkAlBeamHalo = cms.Path(seqALCARECOTkAlBeamHalo)
+pathALCARECOMuAlBeamHaloOverlaps = cms.Path(seqALCARECOMuAlBeamHaloOverlaps)
+pathALCARECOMuAlBeamHalo = cms.Path(seqALCARECOMuAlBeamHalo)
+pathALCARECOTkAlLAS = cms.Path(seqALCARECOTkAlLAS)
+pathALCARECOTkAlCosmicsCTF = cms.Path(seqALCARECOTkAlCosmicsCTF)
+pathALCARECOTkAlCosmicsCosmicTF = cms.Path(seqALCARECOTkAlCosmicsCosmicTF)
+pathALCARECOTkAlCosmicsRS = cms.Path(seqALCARECOTkAlCosmicsRS)
+pathALCARECOTkAlCosmicsCTF0T = cms.Path(seqALCARECOTkAlCosmicsCTF0T*ALCARECOTkAlCosmicsCTF0TDQM)
+pathALCARECOTkAlCosmicsCosmicTF0T = cms.Path(seqALCARECOTkAlCosmicsCosmicTF0T*ALCARECOTkAlCosmicsCosmicTF0TDQM)
+pathALCARECOTkAlCosmicsRS0T = cms.Path(seqALCARECOTkAlCosmicsRS0T*ALCARECOTkAlCosmicsRS0TDQM)
+pathALCARECOTkAlCosmicsCTFHLT = cms.Path(seqALCARECOTkAlCosmicsCTFHLT)
+pathALCARECOTkAlCosmicsCosmicTFHLT = cms.Path(seqALCARECOTkAlCosmicsCosmicTFHLT)
+pathALCARECOTkAlCosmicsRSHLT = cms.Path(seqALCARECOTkAlCosmicsRSHLT)
+pathALCARECOTkAlCosmicsCTF0THLT = cms.Path(seqALCARECOTkAlCosmicsCTF0THLT*ALCARECOTkAlCosmicsCTF0TDQM)
+pathALCARECOTkAlCosmicsCosmicTF0THLT = cms.Path(seqALCARECOTkAlCosmicsCosmicTF0THLT*ALCARECOTkAlCosmicsCosmicTF0TDQM)
+pathALCARECOTkAlCosmicsRS0THLT = cms.Path(seqALCARECOTkAlCosmicsRS0THLT*ALCARECOTkAlCosmicsRS0TDQM)
+pathALCARECOMuAlStandAloneCosmics = cms.Path(seqALCARECOMuAlStandAloneCosmics)
+pathALCARECOMuAlGlobalCosmics = cms.Path(seqALCARECOMuAlGlobalCosmics)
+pathALCARECOMuAlZeroFieldGlobalCosmics = cms.Path(seqALCARECOMuAlZeroFieldGlobalCosmics)
+
+# AlCaReco event content definitions:
+
 from Configuration.EventContent.AlCaRecoOutput_cff import *
 
-class FilteredStream(dict):
-    """a dictionary with fixed keys"""
-    def _blocked_attribute(obj):
-        raise AttributeError, "An FilteredStream defintion cannot be modified after creation."
-    _blocked_attribute = property(_blocked_attribute)
-    __setattr__ = __delitem__ = __setitem__ = clear = _blocked_attribute
-    pop = popitem = setdefault = update = _blocked_attribute
-    def __new__(cls, *args, **kw):
-        new = dict.__new__(cls)
-        dict.__init__(new, *args, **kw)
-        keys = kw.keys()
-        keys.sort()
-        if keys != ['content', 'dataTier', 'name', 'paths', 'responsible', 'selectEvents']:
-           raise ValueError("The needed parameters are: content, dataTier, name, paths, responsible, selectEvents")
-        if not isinstance(kw['name'],str):
-           raise ValueError("name must be of type string")
-        if not isinstance(kw['content'],cms.vstring):
-           raise ValueError("content must be of type vstring")
-        if not isinstance(kw['dataTier'],cms.string):
-           raise ValueError("dataTier must be of type string")
-        if not isinstance(kw['selectEvents'],cms.PSet):
-           raise ValueError("selectEvents must be of type PSet")
-        if not isinstance(kw['paths'],(tuple,cms.Path)):
-           raise ValueError("'paths' must be a tuple of paths")
-        return new
-    def __init__(self, *args, **kw):
-        pass
-    def __repr__(self):
-        return "FilteredStream object: %s" %self["name"]
-    def __getattr__(self,attr):
-        return self[attr]
-
-
-cms.FilteredStream = FilteredStream
+# AlCaReco stream definitions:
 
 ALCARECOStreamTkAlMinBias = cms.FilteredStream(
 	responsible = 'Gero Flucke',
@@ -99,48 +160,12 @@ ALCARECOStreamSiStripCalMinBias = cms.FilteredStream(
 	dataTier = cms.untracked.string('ALCARECO')
 	)
 
-ALCARECOStreamEcalCalPhiSym = cms.FilteredStream(
-	responsible = 'Stefano Argiro',
-	name = 'ALCARECOEcalCalPhiSym',
-	paths  = (pathALCARECOEcalCalPhiSym),
-	content = OutALCARECOEcalCalPhiSym.outputCommands,
-	selectEvents = OutALCARECOEcalCalPhiSym.SelectEvents,
-	dataTier = cms.untracked.string('ALCARECO')
-	)
-
-ALCARECOStreamEcalCalPi0Calib = cms.FilteredStream(
-	responsible = 'Vladimir Litvine',
-	name = 'ALCARECOEcalCalPi0Calib',
-	paths  = (pathALCARECOEcalCalPi0Calib),
-	content = OutALCARECOEcalCalPi0Calib.outputCommands,
-	selectEvents = OutALCARECOEcalCalPi0Calib.SelectEvents,
-	dataTier = cms.untracked.string('ALCARECO')
-	)
-
 ALCARECOStreamEcalCalElectron = cms.FilteredStream(
 	responsible = 'Pietro Govoni',
 	name = 'ALCARECOEcalCalElectron',
 	paths  = (pathALCARECOEcalCalElectron),
 	content = OutALCARECOEcalCalElectron.outputCommands,
 	selectEvents = OutALCARECOEcalCalElectron.SelectEvents,
-	dataTier = cms.untracked.string('ALCARECO')
-	)
-
-ALCARECOStreamHcalCalMinBias = cms.FilteredStream(
-	responsible = 'Grigory Safronov',
-	name = 'ALCARECOHcalCalMinBias',
-	paths  = (pathALCARECOHcalCalMinBias),
-	content = OutALCARECOHcalCalMinBias.outputCommands,
-	selectEvents = OutALCARECOHcalCalMinBias.SelectEvents,
-	dataTier = cms.untracked.string('ALCARECO')
-	)
-
-ALCARECOStreamHcalCalIsoTrk = cms.FilteredStream(
-	responsible = 'Grigory Safronov',
-	name = 'ALCARECOHcalCalIsoTrk',
-	paths  = (pathALCARECOHcalCalIsoTrk),
-	content = OutALCARECOHcalCalIsoTrk.outputCommands,
-	selectEvents = OutALCARECOHcalCalIsoTrk.SelectEvents,
 	dataTier = cms.untracked.string('ALCARECO')
 	)
 
@@ -168,15 +193,6 @@ ALCARECOStreamHcalCalHO = cms.FilteredStream(
 	paths  = (pathALCARECOHcalCalHO),
 	content = OutALCARECOHcalCalHO.outputCommands,
 	selectEvents = OutALCARECOHcalCalHO.SelectEvents,
-	dataTier = cms.untracked.string('ALCARECO')
-	)
-
-ALCARECOStreamMuCaliMinBias = cms.FilteredStream(
-	responsible = 'Jim Pivarski',
-	name = 'ALCARECOMuCaliMinBias',
-	paths  = (pathALCARECOMuCaliMinBias),
-	content = OutALCARECOMuCaliMinBias.outputCommands,
-	selectEvents = OutALCARECOMuCaliMinBias.SelectEvents,
 	dataTier = cms.untracked.string('ALCARECO')
 	)
 

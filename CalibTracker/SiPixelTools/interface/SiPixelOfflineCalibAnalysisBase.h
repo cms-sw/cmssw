@@ -14,7 +14,7 @@
 // Original Author:  Evan Klose Friis
 //    additions by:  Freya Blekman
 //         Created:  Tue Nov  6 17:27:19 CET 2007
-// $Id: SiPixelOfflineCalibAnalysisBase.h,v 1.12 2008/04/21 19:56:31 fblekman Exp $
+// $Id: SiPixelOfflineCalibAnalysisBase.h,v 1.14 2008/08/26 10:03:29 fblekman Exp $
 //
 //
 
@@ -106,6 +106,7 @@ protected:
   std::string calibrationMode_;
   short nTriggers_;
   static std::vector<short> vCalValues_;
+  uint32_t & EventNumber() { return eventCounter_;}
   
 
 private:
@@ -117,6 +118,7 @@ private:
   bool createOutputFile_;
 
   std::vector<uint32_t> runnumbers_;
+  uint32_t eventCounter_;
 
   //store set of detIDs that have been encountered
   //second int argument can be a derived class result flag
@@ -127,6 +129,8 @@ private:
   
   //the beginJob is used to load the calib database.  It then calls the pure
   //virtual calibrationSetup() function.  Derived classes should put beginJob functionality there.
+  virtual void beginRun(const edm::Run &, const edm::EventSetup &);
+  void beginRun(const edm::EventSetup& iSetup);
   void beginJob(const edm::EventSetup& iSetup);
   
   //calibrationSetup will be used by derived classes

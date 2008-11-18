@@ -123,17 +123,16 @@ DCacheFile::open (const char *name,
 
   m_fd = newfd;
 
-  // Disable buffering in dCache library?  This can make dramatic
-  // difference to the system and client performance (factors of
-  // ten difference in the amount of data read, and time spent
-  // reading). Note also that docs say the flag turns off write
-  // buffering -- this turns off all buffering.
+  // Turn off read-ahead, or adjust read-ahead size depending on
+  // whether buffering has been requested.  This is a very tricky
+  // balance here.  Without read-ahead data processing appears to
+  // become exceedingly slow, and with default (1MB) read-ahead
+  // it appears to saturate disk servers and network.  Try tread
+  // reasonable middle ground here.
   if (flags & IOFlags::OpenUnbuffered)
-    dc_noBuffering (m_fd);
-#if 0
+    dc_noBuffering(m_fd);
   else
     dc_setBufferSize(m_fd, 64000);
-#endif
 
   m_close = true;
 

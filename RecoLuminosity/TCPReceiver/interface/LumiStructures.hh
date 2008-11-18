@@ -18,8 +18,8 @@
 #define HCAL_HLX_MAX_BUNCHES 4096
 #define HCAL_HLX_MAX_HLXS 36
 
-#define HCAL_HLX_NUM_BUNCHES 3564
-#define HCAL_HLX_NUM_HLXS 36
+//#define HCAL_HLX_NUM_BUNCHES 3564
+//#define HCAL_HLX_NUM_HLXS 36
 
 // Changes
 // Namespace for the HCAL HLX

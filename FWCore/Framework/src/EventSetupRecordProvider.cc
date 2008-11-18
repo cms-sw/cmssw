@@ -17,6 +17,7 @@
 // user include files
 #include "FWCore/Framework/interface/EventSetupRecordProvider.h"
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
+#include "FWCore/Framework/src/IntersectingIOVRecordIntervalFinder.h"
 #include "FWCore/Framework/interface/DataProxyProvider.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 
@@ -83,9 +84,9 @@ EventSetupRecordProvider::addFinder(boost::shared_ptr<EventSetupRecordIntervalFi
      //dependent records set there finders after the multipleFinders_ has been released
      // but they also have never had a finder set
      if(0 != oldFinder.get()) {
-       cms::Exception("EventSetupMultipleSources")<<"A second source has been added to the Record "
+       cms::Exception("EventSetupMultipleSources")<<"An additional source has been added to the Record "
        <<key_.name()<<"'\n"
-       <<"after all the es_prefers have been dealt with.  This is a logic error, please send email to the framework group.";
+       <<"after all the other sources have been dealt with.  This is a logic error, please send email to the framework group.";
      }
    }
 }
@@ -104,43 +105,10 @@ EventSetupRecordProvider::usePreferred(const DataToPreferredProviderMap& iMap)
 {
   for_all(providers_, boost::bind(&EventSetupRecordProvider::addProxiesToRecord,this,_1,iMap));
   if (1 < multipleFinders_->size()) {
-    //is one of these designated as preferred?
-    typedef EventSetupRecordProvider::DataToPreferredProviderMap PreferredMap;
-    //The DataToPRefferedProviderMap is tailored for this specific Record, therefore
-    // if a finder appears here it is supposed to be used for this Record
-    std::set<ComponentDescription> preferredProviders;
-    for(PreferredMap::const_iterator itPrefered = iMap.begin(), itPreferedEnd = iMap.end();
-         itPrefered != itPreferedEnd;
-         ++itPrefered) {
-      preferredProviders.insert(itPrefered->second);
-    }
-    std::vector<boost::shared_ptr<EventSetupRecordIntervalFinder> > chosen;
-    std::string chosenList;
-    std::string allFinders;
-    for(std::vector<boost::shared_ptr<EventSetupRecordIntervalFinder> >::const_iterator itFinder =
-         multipleFinders_->begin(), itFinderEnd = multipleFinders_->end();
-         itFinder != itFinderEnd;
-         ++itFinder) {
-      allFinders += (*itFinder)->descriptionForFinder().type_+" '"+(*itFinder)->descriptionForFinder().label_+"'\n";
-      
-      if (preferredProviders.find((*itFinder)->descriptionForFinder()) != preferredProviders.end()) {
-        chosen.push_back(*itFinder);
-        chosenList += (*itFinder)->descriptionForFinder().type_+" '"+(*itFinder)->descriptionForFinder().label_+"'\n";
-      }
-    }
-    if (0 == chosen.size()) {
-      throw cms::Exception("EventSetupMultipleSources")<< "the following sources say they can deliver the EventSetup record '"
-      <<key_.name()<<"'\n"
-      <<allFinders
-      <<"Please use an es_prefer statement to choose only one of them as the provider of the record's IOV";
-    }
-    if (1 < chosen.size()) {
-      throw cms::Exception("EventSetupMultipleSources")<<"the following sources have been chosen by es_prefer to deliver the EventSetup record '"
-      <<key_.name()<<"'\n"
-      <<chosenList
-      <<"Please change the es_prefer statements so that only one is chosen";
-    }
-    finder_ = chosen[0];
+     
+     boost::shared_ptr<IntersectingIOVRecordIntervalFinder> intFinder(new IntersectingIOVRecordIntervalFinder(key_));
+     intFinder->swapFinders(*multipleFinders_);
+     finder_ = intFinder;
   }
   //now we get rid of the temporary
   multipleFinders_.reset(0);

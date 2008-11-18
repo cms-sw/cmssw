@@ -9,6 +9,9 @@
  * and four leptons (no flavour requirement).
  * No charge requirements are applied on event.
  *
+ * At this stage, the L3 trigger isn't setup, so mimic L3 trigger
+ * selection using full reconstruction
+ *
  * \author Dominique Fortin - UC Riverside
  *
  */
@@ -46,9 +49,8 @@ class HiggsToZZ4LeptonsSkim : public edm::EDFilter {
 
 
   bool debug;
-  float stiffMinPt;
-  float softMinPt;
-  int nStiffLeptonMin;
+  float muonMinPt;
+  float elecMinEt;
   int nLeptonMin;
 
   // Reco samples

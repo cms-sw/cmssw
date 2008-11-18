@@ -9,8 +9,7 @@ rctDigis = cms.EDProducer("L1RCTProducer",
     useHcalCosmicTiming = cms.bool(False),
     useEcal = cms.bool(True),
     useHcal = cms.bool(True),
-    ecalDigisLabel = cms.InputTag("ecalTriggerPrimitiveDigis"),
-    useCorrectionsLindsey = cms.bool(False)
+    ecalDigisLabel = cms.InputTag("ecalTriggerPrimitiveDigis")
 )
 
 

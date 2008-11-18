@@ -2,7 +2,7 @@
 #define STOR_PARAMETER_H
 
 // Created by Markus Klute on 2007 Jan 29.
-// $Id: Parameter.h,v 1.6 2008/04/21 12:17:24 loizides Exp $
+// $Id: Parameter.h,v 1.7 2008/05/13 18:06:46 loizides Exp $
 //
 // holds configuration parameter for StorageManager
 //
@@ -25,7 +25,7 @@ namespace stor
         setupLabel_("mtcc"),
 	maxFileSize_(-1),
         highWaterMark_(0.9),
-        lumiSectionTimeOut_(10.0),
+        lumiSectionTimeOut_(45.0),
         exactFileSizeTest_(false)
       {
         // strip domainame

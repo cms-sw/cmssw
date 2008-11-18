@@ -1,16 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
 dedxTruncated40 = cms.EDProducer("DeDxEstimatorProducer",
-    tracks                     = cms.InputTag("generalTracks"),
-    trajectoryTrackAssociation = cms.InputTag("generalTracks"),
- 
-    estimator      = cms.string('truncated'),
-    fraction       = cms.double(0.4),
- 
-    UseStrip       = cms.bool(True),
-    UsePixel       = cms.bool(True),
-    MeVperADCStrip = cms.double(3.61e-06*250),
-    MeVperADCPixel = cms.double(3.61e-06)
+    trackDeDxHits = cms.InputTag("dedxHits"),
+    fraction = cms.double(0.4),
+    estimator = cms.string('truncated')
 )
 
 

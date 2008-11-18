@@ -1,17 +1,27 @@
 #include "EventFilter/CSCRawToDigi/interface/CSCALCTHeader.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCDMBHeader.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
-#include "EventFilter/CSCRawToDigi/src/bitset_append.h"
-#include "EventFilter/CSCRawToDigi/src/cscPackerCompare.h"
 #include <iomanip>
 
 bool CSCALCTHeader::debug=false;
 short unsigned int CSCALCTHeader::firmwareVersion=2006; 
 
-CSCALCTHeader::CSCALCTHeader(int chamberType)
-: header2006(chamberType)
-{ //constructor for digi->raw packing based on header2006 
-  memcpy(theOriginalBuffer, &header2006, header2006.sizeInWords()*2);
+CSCALCTHeader::CSCALCTHeader(int chamberType) { //constructor for digi->raw packing based on header2006 
+  // we count from 1 to 10, ME11, ME12, ME13, ME1A, ME21, ME22, ....
+  static int activeFEBsForChamberType[11] = {0,7,7,0xf,7,0x7f, 0xf,0x3f,0xf,0x3f,0xf};
+  static int nTBinsForChamberType[11] = {7,7,7,7,7,7,7,7,7,7,7};
+  header2006.flag_0 = 0xC;
+  header2006.flag_1 = 0;
+  header2006.reserved_1 = 0;
+  header2006.lctChipRead = activeFEBsForChamberType[chamberType];
+  header2006.activeFEBs = header2006.lctChipRead;
+  header2006.nTBins = nTBinsForChamberType[chamberType];
+  if (debug)
+    LogTrace ("CSCALCTHeader|CSCRawToDigi") << "MAKING ALCTHEADER " << chamberType 
+	  << " " << header2006.activeFEBs << " " << header2006.nTBins;
+
+  ///in order to be able to return header via data()
+  memcpy(theOriginalBuffer, &header2006, header2006.sizeForPacking());
 
 }
 
@@ -100,19 +110,20 @@ CSCALCTHeader::CSCALCTHeader(const CSCALCTStatusDigi & digi){
 }
 
 void CSCALCTHeader::setEventInformation(const CSCDMBHeader & dmb) {
-  header2006.setEventInformation(dmb);
+ header2006.l1Acc = dmb.l1a();
+ header2006.cscID = dmb.dmbID();
+ header2006.nTBins = 16;
+ header2006.bxnCount = dmb.bxn();
+ ///have to re-copy header into original buffer to update the data
+ memcpy(theOriginalBuffer, &header2006, header2006.sizeForPacking());
 }
 
-
 unsigned short CSCALCTHeader::nLCTChipRead() const {///header2006 method
-  if(firmwareVersion == 2006) {
-    return header2006.nLCTChipRead();
-  }
-  else {
-    edm::LogError("CSCALCTHeader|CSCRawToDigi")
-      <<"How is nLCTChipRead() supposed to work for ALCTHeader2007?";
-  }
-  return 0;
+int count = 0;
+ for(int i=0; i<7; ++i) {
+   if( (header2006.lctChipRead>>i) & 1) ++count;
+ }
+ return count;
 }
 
 
@@ -124,7 +135,14 @@ std::vector<CSCALCTDigi> CSCALCTHeader::ALCTDigis() const
   switch (firmwareVersion) {
   case 2006:
     {
-      result = alcts2006.ALCTDigis();
+      CSCALCTDigi digi0(alcts2006.alct0_valid, alcts2006.alct0_quality, alcts2006.alct0_accel,
+			alcts2006.alct0_pattern, alcts2006.alct0_key_wire,
+			alcts2006.alct0_bxn_low|(alcts2006.alct0_bxn_high<<3),1);
+      CSCALCTDigi digi1(alcts2006.alct1_valid, alcts2006.alct1_quality, alcts2006.alct1_accel,
+			alcts2006.alct1_pattern, alcts2006.alct1_key_wire,
+			alcts2006.alct1_bxn_low|(alcts2006.alct1_bxn_high<<3),2);
+      digi0.setFullBX(BXNCount()); digi1.setFullBX(BXNCount());
+      result.push_back(digi0); result.push_back(digi1);
       break;
     }
   case 2007:
@@ -132,6 +150,7 @@ std::vector<CSCALCTDigi> CSCALCTHeader::ALCTDigis() const
       for (unsigned int i=0; i<alcts.size(); ++i) {///loop over all alct words
 	CSCALCTDigi digi(alcts[i].valid, alcts[i].quality, alcts[i].accel, alcts[i].pattern,
 			 alcts[i].keyWire, (int)i/2, i%2+1);
+	digi.setFullBX(BXNCount());
 	result.push_back(digi);
       }
       break;
@@ -141,7 +160,6 @@ std::vector<CSCALCTDigi> CSCALCTHeader::ALCTDigis() const
       <<"Empty Digis: ALCT firmware version is bad/not defined!"; 
     break;
   }
-  for(unsigned i = 0; i < result.size(); ++i) {result[i].setFullBX(BXNCount());}
   return result;
 
 }
@@ -149,31 +167,41 @@ std::vector<CSCALCTDigi> CSCALCTHeader::ALCTDigis() const
 
 void CSCALCTHeader::add(const std::vector<CSCALCTDigi> & digis)
 {
+  //FIXME doesn't do any sorting
+  if(digis.size() > 0) addALCT0(digis[0]);
+  if(digis.size() > 1) addALCT1(digis[1]);
+}
+
+void CSCALCTHeader::addALCT0(const CSCALCTDigi & digi)
+{
+  if(firmwareVersion != 2006) {
+    throw cms::Exception("CSCDigi2Raw") 
+      << "The ALCTDigis do not live in the ALCT header past the 2006 firmware version";
+  }
+  alcts2006.alct0_valid = digi.isValid();
+  alcts2006.alct0_quality = digi.getQuality();
+  alcts2006.alct0_accel = digi.getAccelerator();
+  alcts2006.alct0_pattern = digi.getCollisionB();
+  alcts2006.alct0_key_wire = digi.getKeyWG();
+  // probably not right
+  alcts2006.alct0_bxn_low = digi.getBX();
+}
+
+
+void CSCALCTHeader::addALCT1(const CSCALCTDigi & digi)
+{
   if(firmwareVersion != 2006) {
     throw cms::Exception("CSCDigi2Raw")
       << "The ALCTDigis do not live in the ALCT header past the 2006 firmware version";
   }
-  alcts2006.add(digis);
+  alcts2006.alct1_valid = digi.isValid();
+  alcts2006.alct1_quality = digi.getQuality();
+  alcts2006.alct1_accel = digi.getAccelerator();
+  alcts2006.alct1_pattern = digi.getCollisionB();
+  alcts2006.alct1_key_wire = digi.getKeyWG();
+  // probably not right
+  alcts2006.alct1_bxn_low = digi.getBX();
 }
-
-
-boost::dynamic_bitset<> CSCALCTHeader::pack()
-{
-  boost::dynamic_bitset<> result;
-  if(firmwareVersion == 2006)
-  {
-     boost::dynamic_bitset<> header
-       = bitset_utilities::ushortToBitset(header2006.sizeInWords()*16,
-                                          (unsigned short *) &header2006);
-     boost::dynamic_bitset<> alcts 
-       = bitset_utilities::ushortToBitset(alcts2006.sizeInWords()*16,
-                                          (unsigned short *) &alcts2006);
-     result = bitset_utilities::append(header, alcts);
-
-  }
-  return result;
-}
-    
 
 
 void CSCALCTHeader::selfTest()
@@ -185,19 +213,14 @@ void CSCALCTHeader::selfTest()
     CSCALCTDigi alct0(true, 1, 1, 1, 10, 6, 1);
     CSCALCTDigi alct1(true, 1, 1, 0, 11, 6, 2);
 
-    std::vector<CSCALCTDigi> oldAlcts;
-    oldAlcts.push_back(alct0);
-    oldAlcts.push_back(alct1);
     CSCALCTHeader alctHeader(detId.iChamberType());
 
-    alctHeader.add(oldAlcts);
+    alctHeader.addALCT0(alct0);
+    alctHeader.addALCT1(alct1);
 
     std::vector<CSCALCTDigi> alcts = alctHeader.ALCTDigis();
     assert(alcts[0] == alct0);
     assert(alcts[1] == alct1);
-
-    cscClassPackerCompare(alctHeader);
-
   }
 }
 

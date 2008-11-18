@@ -17,7 +17,7 @@ class MuonCkfTrajectoryBuilder : public CkfTrajectoryBuilder {
   virtual ~MuonCkfTrajectoryBuilder();
   
  protected:
-  void collectMeasurement(const std::vector<const DetLayer*>& nl,const TrajectoryStateOnSurface & currentState, std::vector<TM>& result,int& invalidHits,const Propagator *) const;
+  void collectMeasurement(const DetLayer * layer, const std::vector<const DetLayer*>& nl,const TrajectoryStateOnSurface & currentState, std::vector<TM>& result,int& invalidHits,const Propagator *) const;
 
   virtual void findCompatibleMeasurements( const TempTrajectory& traj, std::vector<TrajectoryMeasurement> & result) const;
   

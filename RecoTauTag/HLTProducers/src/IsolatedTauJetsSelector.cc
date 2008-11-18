@@ -28,7 +28,6 @@ void IsolatedTauJetsSelector::produce(edm::Event& iEvent, const edm::EventSetup&
   using namespace edm;
   using namespace std;
   
-  CaloJetCollection * jetCollection =new CaloJetCollection;
   CaloJetCollection * jetCollectionTmp = new CaloJetCollection;
 //    IsolatedTauTagInfoCollection * extendedCollection = new IsolatedTauTagInfoCollection;
 
@@ -42,7 +41,8 @@ void IsolatedTauJetsSelector::produce(edm::Event& iEvent, const edm::EventSetup&
 	const CaloJet* pippo = dynamic_cast<const CaloJet*>((i->jet().get()));
 	CaloJet* mioPippo = const_cast<CaloJet*>(pippo);
 	mioPippo->Particle::setPdgId(15);
-	jetCollectionTmp->push_back(*mioPippo);
+	if(mioPippo)
+	  jetCollectionTmp->push_back(*mioPippo);
 	//	extendedCollection->push_back(*(i)); //to  be used later
 	//	delete pippo;
       }else{
@@ -55,12 +55,12 @@ void IsolatedTauJetsSelector::produce(edm::Event& iEvent, const edm::EventSetup&
 	  CaloJet* mioPippo = const_cast<CaloJet*>(pippo);
 	  mioPippo->Particle::setPdgId(15);
 	  if(useIsolationDiscriminator && (discriminator > 0) ) {
-	    jetCollectionTmp->push_back(*mioPippo);
-	// extendedCollection->push_back(*(i)); //to  be used later
+	    if(mioPippo)
+	      jetCollectionTmp->push_back(*mioPippo);
 	    // delete pippo;
 	  }else if(!useIsolationDiscriminator){
-	    jetCollectionTmp->push_back(*mioPippo);
-	 //   extendedCollection->push_back(*(i)); //to  be used later
+	    if(mioPippo)
+	      jetCollectionTmp->push_back(*mioPippo);
 	    }
 	  }
 	}
@@ -69,14 +69,9 @@ void IsolatedTauJetsSelector::produce(edm::Event& iEvent, const edm::EventSetup&
   }
 
 
-  jetCollection = jetCollectionTmp;
-
-
   
-  auto_ptr<reco::CaloJetCollection> selectedTaus(jetCollection);
-//  auto_ptr<reco::IsolatedTauTagInfoCollection> extColl(extendedCollection);
-  
-  //iEvent.put(extColl);
+  auto_ptr<reco::CaloJetCollection> selectedTaus(jetCollectionTmp);
+
   iEvent.put(selectedTaus);
 
 

@@ -18,70 +18,53 @@ PixelPortcardMap::PixelPortcardMap(std::vector< std::vector < std::string> > &ta
   std::vector< std::string > ins = tableMat[0];
   std::map<std::string , int > colM;
   std::vector<std::string > colNames;
-  colNames.push_back("CONFIG_KEY_ID" );
-  colNames.push_back("CONFG_KEY"     );
-  colNames.push_back("VERSION"       );
-  colNames.push_back("KIND_OF_COND"  );
-  colNames.push_back("SERIAL_NUMBER" );
-  colNames.push_back("PORT_CARD"     );
-  colNames.push_back("PANEL_NAME"    );
-  colNames.push_back("TBM_MODE"      );
-  colNames.push_back("AOH_CHAN"      );
-  
-  for(unsigned int c = 0 ; c < ins.size() ; c++)
-    {
-      for(unsigned int n=0; n<colNames.size(); n++)
-	{
-	  if(tableMat[0][c] == colNames[n])
-	    {
-	      colM[colNames[n]] = c;
-	      break;
-	    }
-	}
-    }//end for
-  for(unsigned int n=0; n<colNames.size(); n++)
-    {
-      if(colM.find(colNames[n]) == colM.end())
-	{
-	  std::cerr << "[PixelPortcardMap::PixelPortcardMap()]\tCouldn't find in the database the column with name " << colNames[n] << std::endl;
-	  assert(0);
-	}
+  colNames.push_back("CONFIG_KEY_ID");//0
+  colNames.push_back("CONFG_KEY");//1
+  colNames.push_back("VERSION");//2
+  colNames.push_back("KIND_OF_COND");
+  colNames.push_back("SERIAL_NUMBER");
+  colNames.push_back("PORT_CARD");
+  colNames.push_back("PANEL_NAME");
+  colNames.push_back("AOH_CHAN");
+
+  for(unsigned int c = 0 ; c < ins.size() ; c++){
+    for(unsigned int n=0; n<colNames.size(); n++){
+      if(tableMat[0][c] == colNames[n]){
+	colM[colNames[n]] = c;
+	break;
+      }
     }
-  
+  }//end for
+  for(unsigned int n=0; n<colNames.size(); n++){
+    if(colM.find(colNames[n]) == colM.end()){
+      std::cerr << "[PixelPortcardMap::PixelPortcardMap()]\tCouldn't find in the database the column with name " << colNames[n] << std::endl;
+      assert(0);
+    }
+  }
+	
 	
 	
   std::string portcardname;
   std::string modulename;
   unsigned int aoh;
   std::string aohstring;
-  std::string tbmChannel;
   
   for(unsigned int r = 1 ; r < tableMat.size() ; r++){    //Goes to every row of the Matrix
-    
+
     portcardname = tableMat[r][colM["PORT_CARD"]];
-    modulename   = tableMat[r][colM["PANEL_NAME"]];
-    aohstring    = tableMat[r][colM["AOH_CHAN"]];
-    tbmChannel   = tableMat[r][colM["TBM_MODE"]] ;
-    cout << "[PixelPortcardMap::PixelPortcardMap()]\t\t\t    "
-      << "Portcardname: " << portcardname
-      << "\tmodulename: "   << modulename
-      << "\taohstring: "    << aohstring
-      << "\ttbmChannel:"   << tbmChannel
-      << endl ;
+    modulename =   tableMat[r][colM["PANEL_NAME"]];
+    aohstring = tableMat[r][colM["AOH_NAME"]];
     //aohname.erase(0,20);  // Is going to be change when Umesh put a AOH Channel column in the view.
     aoh = (((unsigned int)atoi(aohstring.c_str()))+1);
     //std::cout<<aoh<<std::endl;
     PixelModuleName module(modulename);
-    if (module.modulename()!=modulename)
-      {
-	std::cout << "[PixelPortcardMap::PixelPortcardMap()]\t\t\t    Modulename:"<<modulename<<std::endl;
-	std::cout << "[PixelPortcardMap::PixelPortcardMap()]\t\t\t    Parsed to:"<<module.modulename()<<std::endl;
-	assert(0);
-      }
-    if(tbmChannel == "")
-      {
-	tbmChannel = "A";// assert(0); // add TBMChannel to the input, then remove assert
-      }
+    if (module.modulename()!=modulename){
+      std::cout << "Modulename:"<<modulename<<std::endl;
+      std::cout << "Parsed to:"<<module.modulename()<<std::endl;
+      assert(0);
+    }
+
+    std::string tbmChannel = "A";// assert(0); // add TBMChannel to the input, then remove assert
     PixelChannel channel(module, tbmChannel);
     std::pair<std::string, int> portcardAndAOH(portcardname, aoh);
     map_[channel] = portcardAndAOH;
@@ -97,11 +80,11 @@ PixelPortcardMap::PixelPortcardMap(std::string filename):
   std::ifstream in(filename.c_str());
 
   if (!in.good()){
-    std::cout << "[PixelPortcardMap::PixelPortcardMap()]\t\t\t    Could not open: " << filename <<std::endl;
+    std::cout << "Could not open:"<<filename<<std::endl;
     assert(0);
   }
   else {
-    std::cout << "[PixelPortcardMap::PixelPortcardMap()]\t\t\t    Reading from: "   << filename <<std::endl;
+    std::cout << "Opened:"<<filename<<std::endl;
   }
   
   std::string dummy;

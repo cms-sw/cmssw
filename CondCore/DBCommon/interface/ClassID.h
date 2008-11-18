@@ -70,8 +70,8 @@ namespace{ cond::ClassID<type_>  EDM_PLUGIN_SYM(instance_cld, __LINE__)(0); }	\
  DEFINE_EDM_PLUGIN(cond::ClassInfoFactory, cond::ClassID<type_>  , cond::ClassID<type_>().pluginName(cond::idCategories::dictIDCategory).c_str() )
 
 #define PYTHON_ID(type_, plugName_) \
-  namespace pythonID { struct EDM_PLUGIN_SYM(plugName_, __LINE__)  : public cond::ClassID<type_> { EDM_PLUGIN_SYM(plugName_ , __LINE__) () : cond::ClassID<type_>(::plugName_){}};} \
-  DEFINE_EDM_PLUGIN(cond::ClassInfoFactory, EDM_PLUGIN_SYM(pythonID::plugName_, __LINE__) , EDM_PLUGIN_SYM(pythonID::plugName_, __LINE__)().pluginName(cond::idCategories::pythonIDCategory).c_str() )
+  namespace pythonID { struct plugName_ : public cond::ClassID<type_> { plugName_() :  cond::ClassID<type_>(::plugName_){}};} \
+  DEFINE_EDM_PLUGIN(cond::ClassInfoFactory, pythonID::plugName_  , pythonID::plugName_().pluginName(cond::idCategories::pythonIDCategory).c_str() )
 
 
 #endif //  CondCoreDBCommon_ClassID_H

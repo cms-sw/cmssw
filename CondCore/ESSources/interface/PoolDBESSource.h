@@ -9,6 +9,7 @@
 */
 //
 // Author:      Zhen Xie
+// $Id$
 //
 // system include files
 #include <string>
@@ -74,7 +75,6 @@ class PoolDBESSource : public edm::eventsetup::DataProxyProvider,
   typedef std::map<std::string, std::string > DatumToToken;
   DatumToToken m_datumToToken;
   cond::DBSession* m_session;
-  bool initcall;
  private:
   void fillRecordToIOVInfo();
   void fillTagCollectionFromDB( cond::CoralTransaction& coraldb,

@@ -45,8 +45,7 @@ class MuonSeedCreator {
   void setBField( const MagneticField* theField ){ BField = theField; };
 
   /// Create a seed from set of segments
-  TrajectorySeed createSeed(int type, SegmentContainer seg, std::vector<int> layers, int NShower, int NShowerSeg );
-
+  TrajectorySeed createSeed(int type, SegmentContainer seg, std::vector<int> layers, std::vector<int> badSeedLayer);
 
   
  private:
@@ -63,17 +62,11 @@ class MuonSeedCreator {
   /// Estimate transverse momentum of track from single segment
   void estimatePtSingle(SegmentContainer seg, std::vector<int> layers, double& pt, double& spt);
 
-  /// Estimate transverse momentum of track from showering segment
-  void estimatePtShowering(int& NShowers, int& NShowerSeg, double& pt, double& spt);
-
   /// Compute weighted mean pt from different pt estimators
   void weightedPt(std::vector<double> ptEstimate, std::vector<double> sptEstimate, double& ptAvg, double& sptAvg);
 
   /// Compute pt from parameters
   std::vector<double> getPt(std::vector<double> vParameters, double eta, double dPhi);
-
-  /// Scale the dPhi from segment position
-  double scaledPhi(double dphi, double t1);
 
   // Miminum and maximum pt momentum of a track  
   float theMinMomentum;
@@ -131,55 +124,5 @@ class MuonSeedCreator {
   std::vector<double> SMB30;
   std::vector<double> SMB31;
   std::vector<double> SMB32;
-
-  // dphi scaling factors
-
-  std::vector<double> CSC01_1;
-  std::vector<double> CSC12_1;
-  std::vector<double> CSC12_2;
-  std::vector<double> CSC12_3;
-  std::vector<double> CSC13_2;
-  std::vector<double> CSC13_3;
-  std::vector<double> CSC14_3;
-  std::vector<double> CSC23_1;
-  std::vector<double> CSC23_2;
-  std::vector<double> CSC24_1;
-  std::vector<double> CSC34_1;
-
-  std::vector<double> DT12_1;
-  std::vector<double> DT12_2;
-  std::vector<double> DT13_1;
-  std::vector<double> DT13_2;
-  std::vector<double> DT14_1;
-  std::vector<double> DT14_2;
-  std::vector<double> DT23_1;
-  std::vector<double> DT23_2;
-  std::vector<double> DT24_1;
-  std::vector<double> DT24_2;
-  std::vector<double> DT34_1;
-  std::vector<double> DT34_2;
-
-  std::vector<double> OL_1213;
-  std::vector<double> OL_1222;
-  std::vector<double> OL_1232;
-  std::vector<double> OL_2213;
-  std::vector<double> OL_2222;
-
-  std::vector<double> SMB_10S;
-  std::vector<double> SMB_11S;
-  std::vector<double> SMB_12S;
-  std::vector<double> SMB_20S;
-  std::vector<double> SMB_21S;
-  std::vector<double> SMB_22S;
-  std::vector<double> SMB_30S;
-  std::vector<double> SMB_31S;
-  std::vector<double> SMB_32S;
-
-  std::vector<double> SME_11S;
-  std::vector<double> SME_12S;
-  std::vector<double> SME_13S;
-  std::vector<double> SME_21S;
-  std::vector<double> SME_22S;
-
 };
 #endif

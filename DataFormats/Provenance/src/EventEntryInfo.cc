@@ -12,7 +12,9 @@ namespace edm {
     productID_(),
     productStatus_(productstatus::uninitialized()),
     entryDescriptionID_(),
-    entryDescriptionPtr_()
+    moduleDescriptionID_(),
+    entryDescriptionPtr_(),
+    noEntryDescription_(false)
   {}
 
   EventEntryInfo::EventEntryInfo(BranchID const& bid) :
@@ -20,7 +22,9 @@ namespace edm {
     productID_(),
     productStatus_(productstatus::uninitialized()),
     entryDescriptionID_(),
-    entryDescriptionPtr_()
+    moduleDescriptionID_(),
+    entryDescriptionPtr_(),
+    noEntryDescription_(false)
   {}
 
    EventEntryInfo::EventEntryInfo(BranchID const& bid,
@@ -30,7 +34,9 @@ namespace edm {
     productID_(pid),
     productStatus_(status),
     entryDescriptionID_(),
-    entryDescriptionPtr_()
+    moduleDescriptionID_(),
+    entryDescriptionPtr_(),
+    noEntryDescription_(false)
   {}
 
    EventEntryInfo::EventEntryInfo(BranchID const& bid,
@@ -41,7 +47,9 @@ namespace edm {
     productID_(pid),
     productStatus_(status),
     entryDescriptionID_(edid),
-    entryDescriptionPtr_()
+    moduleDescriptionID_(),
+    entryDescriptionPtr_(),
+    noEntryDescription_(false)
   {}
 
    EventEntryInfo::EventEntryInfo(BranchID const& bid,
@@ -52,8 +60,10 @@ namespace edm {
     productID_(pid),
     productStatus_(status),
     entryDescriptionID_(edPtr->id()),
-    entryDescriptionPtr_(edPtr)
-  { EntryDescriptionRegistry::instance()->insertMapped(*edPtr);}
+    moduleDescriptionID_(edPtr->moduleDescriptionID()),
+    entryDescriptionPtr_(edPtr),
+    noEntryDescription_(false)
+    { EntryDescriptionRegistry::instance()->insertMapped(*edPtr);}
 
   EventEntryInfo::EventEntryInfo(BranchID const& bid,
 		   ProductStatus status,
@@ -64,11 +74,31 @@ namespace edm {
     productID_(pid),
     productStatus_(status),
     entryDescriptionID_(),
-    entryDescriptionPtr_(new EventEntryDescription) {
+    moduleDescriptionID_(mdid),
+    entryDescriptionPtr_(new EventEntryDescription),
+    noEntryDescription_(false)
+    {
       entryDescriptionPtr_->parents_ = parents;
       entryDescriptionPtr_->moduleDescriptionID_ = mdid;
       entryDescriptionID_ = entryDescriptionPtr_->id();
       EntryDescriptionRegistry::instance()->insertMapped(*entryDescriptionPtr_);
+  }
+
+  EventEntryInfo::EventEntryInfo(BranchID const& bid,
+		   ProductStatus status,
+		   ModuleDescriptionID const& mdid) :
+    branchID_(bid),
+    productID_(),
+    productStatus_(status),
+    entryDescriptionID_(),
+    moduleDescriptionID_(mdid),
+    entryDescriptionPtr_(),
+    noEntryDescription_(true)
+    { }
+
+  EventEntryInfo
+  EventEntryInfo::makeEntryInfo() const {
+    return *this;
   }
 
   EventEntryDescription const &
@@ -76,6 +106,7 @@ namespace edm {
     if (!entryDescriptionPtr_) {
       entryDescriptionPtr_.reset(new EventEntryDescription);
       EntryDescriptionRegistry::instance()->getMapped(entryDescriptionID_, *entryDescriptionPtr_);
+      moduleDescriptionID_= entryDescriptionPtr_->moduleDescriptionID();
     }
     return *entryDescriptionPtr_;
   }
@@ -100,11 +131,23 @@ namespace edm {
     os << "branch ID = " << branchID() << '\n';
     os << "product ID = " << productID() << '\n';
     os << "product status = " << productStatus() << '\n';
-    os << "entry description ID = " << entryDescriptionID() << '\n';
+    if (noEntryDescription()) {
+      os << "module description ID = " << moduleDescriptionID() << '\n';
+    } else {
+      os << "entry description ID = " << entryDescriptionID() << '\n';
+    }
   }
     
   bool
   operator==(EventEntryInfo const& a, EventEntryInfo const& b) {
+    if (a.noEntryDescription() != b.noEntryDescription()) return false;
+    if (a.noEntryDescription()) {
+      return
+        a.branchID() == b.branchID()
+        && a.productID() == b.productID()
+        && a.productStatus() == b.productStatus()
+        && a.moduleDescriptionID() == b.moduleDescriptionID();
+    }
     return
       a.branchID() == b.branchID()
       && a.productID() == b.productID()

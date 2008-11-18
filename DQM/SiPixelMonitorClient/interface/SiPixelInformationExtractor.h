@@ -35,7 +35,7 @@ class SiPixelInformationExtractor {
 
  public:
 
-  SiPixelInformationExtractor();
+  SiPixelInformationExtractor(  std::string                               summaryXMLfileName);
  ~SiPixelInformationExtractor();
 
   void getSingleModuleHistos(   DQMStore                                * bei, 
@@ -166,6 +166,7 @@ class SiPixelInformationExtractor {
   bool  readQTestMap_;
   bool  readMeMap_;
   bool  flagHotModule_;
+  std::string summaryXMLfileName_;
   
   float qflag_, bpix_flag_, shellmI_flag_, shellmO_flag_, shellpI_flag_;
   float shellpO_flag_, fpix_flag_, hcylmI_flag_, hcylmO_flag_;

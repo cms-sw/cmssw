@@ -10,7 +10,7 @@ such code sees the LuminosityBlock class, which is a proxy for LuminosityBlockPr
 The major internal component of the LuminosityBlockPrincipal
 is the DataBlock.
 
-$Id: LuminosityBlockPrincipal.h,v 1.32 2008/06/24 23:25:39 wmtan Exp $
+$Id: LuminosityBlockPrincipal.h,v 1.33 2008/07/03 04:32:39 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -19,25 +19,22 @@ $Id: LuminosityBlockPrincipal.h,v 1.32 2008/06/24 23:25:39 wmtan Exp $
 
 #include "DataFormats/Provenance/interface/BranchMapper.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
-#include "DataFormats/Provenance/interface/RunLumiEntryInfo.h"
 #include "DataFormats/Provenance/interface/RunID.h"
 #include "FWCore/Framework/interface/Principal.h"
 
 namespace edm {
   class RunPrincipal;
   class UnscheduledHandler;
-  class LuminosityBlockPrincipal : public Principal<RunLumiEntryInfo> {
+  class LuminosityBlockPrincipal : public Principal {
   public:
     typedef LuminosityBlockAuxiliary Auxiliary;
-    typedef LumiEntryInfo EntryInfo;
-    typedef BranchMapper<EntryInfo> Mapper;
-    typedef std::vector<EntryInfo> EntryInfoVector;
-    typedef Principal<EntryInfo> Base;
+    typedef std::vector<LumiEntryInfo> EntryInfoVector;
+    typedef Principal Base;
     LuminosityBlockPrincipal(LuminosityBlockAuxiliary const& aux,
 	boost::shared_ptr<ProductRegistry const> reg,
 	ProcessConfiguration const& pc,
 	ProcessHistoryID const& hist = ProcessHistoryID(),
-	boost::shared_ptr<Mapper> mapper = boost::shared_ptr<Mapper>(new Mapper),
+	boost::shared_ptr<BranchMapper> mapper = boost::shared_ptr<BranchMapper>(new BranchMapper),
 	boost::shared_ptr<DelayedReader> rtrv = boost::shared_ptr<DelayedReader>(new NoDelayedReader));
 
     ~LuminosityBlockPrincipal() {}
@@ -99,13 +96,13 @@ namespace edm {
     getAllProvenance(std::vector<Provenance const *> & provenances) const;
 
     void put(std::auto_ptr<EDProduct> edp,
-	     ConstBranchDescription const& bd, std::auto_ptr<RunLumiEntryInfo> entryInfo);
+	     ConstBranchDescription const& bd, std::auto_ptr<EventEntryInfo> entryInfo);
 
     void addGroup(ConstBranchDescription const& bd);
 
-    void addGroup(std::auto_ptr<EDProduct> prod, ConstBranchDescription const& bd, std::auto_ptr<RunLumiEntryInfo> entryInfo);
+    void addGroup(std::auto_ptr<EDProduct> prod, ConstBranchDescription const& bd, std::auto_ptr<EventEntryInfo> entryInfo);
 
-    void addGroup(ConstBranchDescription const& bd, std::auto_ptr<RunLumiEntryInfo> entryInfo);
+    void addGroup(ConstBranchDescription const& bd, std::auto_ptr<EventEntryInfo> entryInfo);
 
   private:
     virtual void addOrReplaceGroup(std::auto_ptr<Group> g);

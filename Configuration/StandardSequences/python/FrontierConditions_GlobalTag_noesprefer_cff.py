@@ -21,6 +21,11 @@ es_hardcode = cms.ESSource("HcalHardcodeCalibrations",
 
 sistripconn = cms.ESProducer("SiStripConnectivity")
 
+# L1 Fake conditions
+# included for backwards compatibility with existing Global Tags
+# To be removed in CMSSW 22X series
+from L1Trigger.Configuration.L1Trigger_FakeConditions_cff import *
+
 # end fake calibrations
 
 from Configuration.StandardSequences.FrontierConditions_GlobalTag_cfi import *

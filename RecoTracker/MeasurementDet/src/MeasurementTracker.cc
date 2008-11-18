@@ -36,7 +36,7 @@
 #include "CondFormats/DataRecord/interface/SiStripNoisesRcd.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "RecoTracker/MeasurementDet/interface/UpdaterService.h"
+#include "FWCore/Services/interface/UpdaterService.h"
 
 #include <iostream>
 #include <typeinfo>

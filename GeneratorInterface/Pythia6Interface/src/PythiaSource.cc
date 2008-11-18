@@ -1,6 +1,6 @@
 /*
- *  $Date: 2008/05/05 20:05:09 $
- *  $Revision: 1.30 $
+ *  $Date: 2008/08/25 12:21:22 $
+ *  $Revision: 1.34 $
  *  
  *  Filip Moorgat & Hector Naves 
  *  26/10/05
@@ -593,7 +593,7 @@ bool PythiaSource::produce(Event & e) {
     
     evt->weights().push_back( pyint1.vint[96] );
 
-    if (imposeProperTimes_) {
+    if (imposeProperTimes_ || pydat1.mstj[21]==3 || pydat1.mstj[21]==4 ) {
       int dumm;
       HepMC::GenEvent::vertex_const_iterator vbegin = evt->vertices_begin();
       HepMC::GenEvent::vertex_const_iterator vend = evt->vertices_end();
@@ -606,19 +606,37 @@ bool PythiaSource::produce(Event & e) {
                   if ((*pitr)->end_vertex()) continue;
                   if ((*pitr)->status()!=1) continue;
                   int pdgcode= abs((*pitr)->pdg_id());
-                  if (pdgcode!=211 && pdgcode!=321) continue;
-                  double ctau = pydat2.pmas[3][PYCOMP(pdgcode)-1];
+                  // Do nothing if the particle is not expected to decay
+                  if (pydat3.mdcy[0][PYCOMP(pdgcode)-1]!=1) continue;
 
-                  double unif_rand = pyr_(&dumm);
-                  // Value of 0 is excluded, so log(unif_rand) should be OK
-                  double proper_length = - ctau * log(unif_rand);
+                  double ctau = pydat2.pmas[3][PYCOMP(pdgcode)-1];
                   HepMC::FourVector mom = (*pitr)->momentum();
-                  double factor = proper_length/mom.m();
                   HepMC::FourVector vin = (*vitr)->position();
-                  double x = vin.x() + factor * mom.px();
-                  double y = vin.y() + factor * mom.py();
-                  double z = vin.z() + factor * mom.pz();
-                  double t = vin.t() + factor * mom.e();
+                  double x = 0.;
+                  double y = 0.;
+                  double z = 0.;
+                  double t = 0.;
+                  bool decayInRange = false;
+                  while (!decayInRange) {
+                        double unif_rand = pyr_(&dumm);
+                        // Value of 0 is excluded, so following line is OK
+                        double proper_length = - ctau * log(unif_rand);
+                        double factor = proper_length/mom.m();
+                        x = vin.x() + factor * mom.px();
+                        y = vin.y() + factor * mom.py();
+                        z = vin.z() + factor * mom.pz();
+                        t = vin.t() + factor * mom.e();
+                        // Decay must be happen outside a cylindrical region
+                        if (pydat1.mstj[21]==4) {
+                              if (sqrt(x*x+y*y)>pydat1.parj[72] || abs(z)>pydat1.parj[73]) decayInRange = true;
+                        // Decay must be happen outside a given sphere
+                        } else if (pydat1.mstj[21]==3) {
+                              if (sqrt(x*x+y*y+z*z)>pydat1.parj[71]) decayInRange = true;
+                        // Decay is always OK otherwise
+                        } else {
+                              decayInRange = true;
+                        }
+                  }
                   
                   HepMC::GenVertex* vdec = new HepMC::GenVertex(HepMC::FourVector(x,y,z,t));
                   evt->add_vertex(vdec);

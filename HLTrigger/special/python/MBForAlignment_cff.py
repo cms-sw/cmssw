@@ -12,5 +12,3 @@ from HLTrigger.HLTcore.hltPrescaler_cfi import *
 preMBForAlignment = copy.deepcopy(hltPrescaler)
 #   the full sequence
 hltMBForAlignment = cms.Sequence(cms.SequencePlaceholder("hltBegin")+preMBForAlignment+l1seedMinBiasPixel+cms.SequencePlaceholder("doLocalPixel")+cms.SequencePlaceholder("pixelTrackingForMinBias")+hltPixelCands*hltPixelMBForAlignment)
-preMBForAlignment.prescaleFactor = 1
-

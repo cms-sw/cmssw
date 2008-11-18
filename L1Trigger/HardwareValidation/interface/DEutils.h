@@ -215,8 +215,10 @@ DEutils<L1MuRegionalCandCollection>::DEDigi(col_cit itd,  col_cit itm, int aflag
   }
   int cid = de_type();
   int errt = aflag;
-  double x1 = (aflag!=4) ? itd->phiValue() : itm->phiValue();
-  double x2 = (aflag!=4) ? itd->etaValue() : itm->etaValue();
+  //double x1 = (aflag!=4) ? itd->phiValue() : itm->phiValue();
+  //double x2 = (aflag!=4) ? itd->etaValue() : itm->etaValue();
+  double x1 = (aflag!=4) ? itd->phi_packed() : itm->phi_packed();
+  double x2 = (aflag!=4) ? itd->eta_packed() : itm->eta_packed();
   L1DataEmulDigi digi(sid,cid, x1,x2,0, errt);
   unsigned int dw = (aflag==4)?0 : itd->getDataWord();
   unsigned int ew = (aflag==3)?0 : itm->getDataWord();
@@ -229,8 +231,8 @@ DEutils<L1MuRegionalCandCollection>::DEDigi(col_cit itd,  col_cit itm, int aflag
   //(under discussion) need universal mechanism for setting up physical units
   if(0) //check print
     std::cout << "L1DataEmulDigi DEutils<L1MuRegionalCandCollection>] dedigi info"
-	      << " phivalue:" << itd->phiValue()   << "," << itm->phiValue()
-	      << " etavalue:" << itd->etaValue()   << "," << itm->etaValue()
+      //<< " phivalue:" << itd->phiValue()   << "," << itm->phiValue()
+      //<< " etavalue:" << itd->etaValue()   << "," << itm->etaValue()
 	      << " phipackd:" << itd->phi_packed() << "," << itm->phi_packed()
 	      << " etapackd:" << itd->eta_packed() << "," << itm->eta_packed()
 	      << std::endl;
@@ -241,8 +243,10 @@ template<> inline L1DataEmulDigi
 DEutils<L1MuGMTCandCollection>::DEDigi(col_cit itd,  col_cit itm, int aflag) {
   int cid = de_type();
   int errt = aflag;
-  double x1 = (aflag!=4) ? itd->phiValue() : itm->phiValue();
-  double x2 = (aflag!=4) ? itd->etaValue() : itm->etaValue();
+  //double x1 = (aflag!=4) ? itd->phiValue() : itm->phiValue();
+  //double x2 = (aflag!=4) ? itd->etaValue() : itm->etaValue();
+  double x1 = (aflag!=4) ? itd->phiIndex() : itm->phiIndex();
+  double x2 = (aflag!=4) ? itd->etaIndex() : itm->etaIndex();
   L1DataEmulDigi digi(dedefs::GMT,cid, x1,x2,0, errt);
   unsigned int dw = (aflag==4)?0 : itd->getDataWord();
   unsigned int ew = (aflag==3)?0 : itm->getDataWord();
@@ -253,8 +257,8 @@ DEutils<L1MuGMTCandCollection>::DEDigi(col_cit itd,  col_cit itm, int aflag) {
   digi.setRank((float)de,(float)ee);
   if(0) //check print
   std::cout << "l1dataemuldigi l1mugmtcandcoll type:" << cid 
-	    << " eta:" << itd->etaValue() << ", " << itm->etaValue()
-	    << " phi:" << itd->phiValue() << ", " << itm->phiValue()
+    //<< " eta:" << itd->etaValue() << ", " << itm->etaValue()
+    //<< " phi:" << itd->phiValue() << ", " << itm->phiValue()
 	    << std::hex << " word d:" << dw << "e:" << ew << std::dec 
 	    << std::endl;
   return digi;
@@ -885,20 +889,20 @@ inline std::string DEutils<L1MuDTChambThDigiCollection>::print(col_cit it) const
 template <> 
 inline std::string DEutils<L1MuRegionalCandCollection>::print(col_cit it) const {
   std::stringstream ss;
-  const float noval = -10; //L1MuRegionalCand::m_invalidValue;
+  //const float noval = -10; //L1MuRegionalCand::m_invalidValue;
   ss << std::setiosflags(std::ios::showpoint | std::ios::fixed | std::ios::right | std::ios::adjustfield);
   ss   << std::hex << std::setfill('0')    
        << " 0x"    << std::setw(8) << it->getDataWord();
-  if(it->phiValue()==noval || it->etaValue()==noval || it->ptValue()==noval )
+  //if(it->phiValue()==noval || it->etaValue()==noval || it->ptValue()==noval )
     ss << std::hex << std::setfill('0')    
        << " pt:0x" << std::setw(2) << it->pt_packed() 
        << " phi:0x"<< std::setw(2) << it->phi_packed()
        << " eta:0x"<< std::setw(2) << it->eta_packed();
-  else
-    ss << std::dec << std::setfill(' ')
-       << " pt:"   << std::setw(5) << std::setprecision(1) << it->ptValue() <<"[GeV]"
-       << " phi:"  << std::setw(5) << std::setprecision(3) << it->phiValue()<<"[rad]"
-       << " eta:"  << std::setw(6) << std::setprecision(3) << it->etaValue(); 
+  //else
+  //  ss << std::dec << std::setfill(' ')
+  //     << " pt:"   << std::setw(5) << std::setprecision(1) << it->ptValue() <<"[GeV]"
+  //     << " phi:"  << std::setw(5) << std::setprecision(3) << it->phiValue()<<"[rad]"
+  //     << " eta:"  << std::setw(6) << std::setprecision(3) << it->etaValue(); 
   ss   << std::dec << std::setfill(' ')
        << " qua:"  << std::setw(1) << it->quality() 
        << " cha:"  << std::setw(2) << it->chargeValue() 
@@ -915,19 +919,19 @@ template <>
 inline std::string DEutils<L1MuGMTCandCollection>::print(col_cit it) const {
   std::stringstream ss;
   ss << std::setiosflags(std::ios::showpoint | std::ios::fixed | std::ios::right | std::ios::adjustfield);
-  const float noval = -10; //L1MuGMTCand::m_invalidValue;
+  //const float noval = -10; //L1MuGMTCand::m_invalidValue;
   ss   << std::hex << std::setfill('0')    
        << " 0x"    << std::setw(7) << it->getDataWord();
-  if(it->phiValue()==noval || it->etaValue()==noval || it->ptValue()==noval)
+  //if(it->phiValue()==noval || it->etaValue()==noval || it->ptValue()==noval)
     ss << std::hex << std::setfill('0')    
        << " pt:0x" << std::setw(2) << it->ptIndex()
        << " eta:0x"<< std::setw(2) << it->etaIndex()
        << " phi:0x"<< std::setw(3) << it->phiIndex();
-  else
-    ss << std::dec << std::setfill(' ')    
-       << " pt:"   << std::setw(5) << std::setprecision(1) << it->ptValue() <<"[GeV]"
-       << " phi:"  << std::setw(5) << std::setprecision(3) << it->phiValue()<<"[rad]"
-       << " eta:"  << std::setw(6) << std::setprecision(2) << it->etaValue();
+  //else
+  //  ss << std::dec << std::setfill(' ')    
+  //     << " pt:"   << std::setw(5) << std::setprecision(1) << it->ptValue() <<"[GeV]"
+  //     << " phi:"  << std::setw(5) << std::setprecision(3) << it->phiValue()<<"[rad]"
+  //     << " eta:"  << std::setw(6) << std::setprecision(2) << it->etaValue();
   ss   << std::dec << std::setfill(' ')
        << " cha:"  << std::setw(2) << it->charge()  
        << " qua:"  << std::setw(3) << it->quality() 

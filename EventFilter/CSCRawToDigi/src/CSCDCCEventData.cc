@@ -13,7 +13,13 @@ bool CSCDCCEventData::debug = false;
 CSCDCCEventData::CSCDCCEventData(int sourceId, int nDDUs, int bx, int l1a) 
 : theDCCHeader(bx, l1a, sourceId) 
 {
+
   theDDUData.reserve(nDDUs);
+  CSCDDUHeader dduHeader(bx, l1a, sourceId);
+  for(int i = 0; i < nDDUs; ++i) 
+    {
+      theDDUData.push_back(CSCDDUEventData(dduHeader));
+    }
 } 
 
 CSCDCCEventData::CSCDCCEventData(unsigned short *buf, CSCDCCExaminer* examiner)
@@ -80,7 +86,6 @@ void CSCDCCEventData::unpack_data(unsigned short *buf, CSCDCCExaminer* examiner)
   
 }
 	  
-
 bool CSCDCCEventData::check() const 
 {
   // the trailer counts in 64-bit words
@@ -91,30 +96,6 @@ bool CSCDCCEventData::check() const
 
   return  theDCCHeader.check() && theDCCTrailer.check();
 }
-
-
-void CSCDCCEventData::addChamber(CSCEventData & chamber, int dduID, int dduSlot, int dmbID)
-{
-  // first, find this DDU
-  std::vector<CSCDDUEventData>::iterator dduItr;
-  int dduIndex = -1;
-  int nDDUs = theDDUData.size();
-  for(int i = 0; dduIndex == -1 && i < nDDUs; ++i)
-  {
-    if(theDDUData[i].header().source_id() == dduID) dduIndex = i;
-  }
-  if(dduIndex == -1)
-  {
-    // make a new one
-    CSCDDUHeader newDDUHeader(dccHeader().getCDFBunchCounter(), 
-                              dccHeader().getCDFEventNumber(), dduID);
-    theDDUData.push_back(CSCDDUEventData(newDDUHeader));
-    dduIndex = nDDUs;
-    dccHeader().setDAV(dduSlot);
-  }
-  theDDUData[dduIndex].add(chamber, dmbID);
-}
- 
 
 boost::dynamic_bitset<> CSCDCCEventData::pack() 
 {

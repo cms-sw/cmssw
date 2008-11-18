@@ -1,4 +1,4 @@
-// $Id: StreamService.cc,v 1.12 2008/08/13 22:48:12 biery Exp $
+// $Id: StreamService.cc,v 1.14 2008/08/21 09:00:39 loizides Exp $
 
 #include <EventFilter/StorageManager/interface/StreamService.h>
 #include <EventFilter/StorageManager/interface/ProgressMarker.h>
@@ -70,13 +70,18 @@ void StreamService::setStreamParameter()
   // some parameters common to streams are given in the XML file
   // these are defaults, actually set at configure time
 
+  // 02-Sep-2008, KAB:  NOTE that most, if not all, of these parameters are
+  // overwritten with either defaults from stor::Parameter or values set 
+  // in the SM configuration (confdb/online or xml/offline).
+  // The overwrite from the Parameter class happens in ServiceManager::manageInitMsg.
+
   streamLabel_        = parameterSet_.getParameter<string> ("streamLabel");
   maxSize_ = 1048576 * (long long) parameterSet_.getParameter<int> ("maxSize");
   fileName_           = ""; // set by setFileName
   filePath_           = ""; // set by setFilePath
   setupLabel_         = ""; // set by setSetupLabel
   highWaterMark_      = 0.9;// set by setHighWaterMark
-  lumiSectionTimeOut_ = 10; // set by setLumiSectionTimeOut
+  lumiSectionTimeOut_ = 45; // set by setLumiSectionTimeOut
   sourceId_           = ""; // set by setSourceId
   // report(cout, 4);
 }

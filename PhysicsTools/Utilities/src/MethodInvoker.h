@@ -19,7 +19,6 @@ namespace reco {
       ROOT::Reflex::Member method_;
       std::vector<AnyMethodArgument> ints_; // already fixed to the correct type
       std::vector<void*> args_;
-      bool isFunction_;
       void setArgs();
     };
   }

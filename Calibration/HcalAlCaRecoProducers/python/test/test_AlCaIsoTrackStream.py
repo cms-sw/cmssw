@@ -3,6 +3,7 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("iptRECOID2")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 
+
 process.load("Configuration.StandardSequences.VtxSmearedBetafuncEarlyCollision_cff")
 
 process.load("Configuration.StandardSequences.Generator_cff")
@@ -10,7 +11,7 @@ process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
 process.load("Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalIsoTrk_cff")
-process.isoHLT.TriggerResultsTag = cms.InputTag("TriggerResults","","HLT1")
+process.isoHLT.TriggerResultsTag = cms.InputTag("TriggerResults","","HLT")
 
 process.load("Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalIsoTrk_Output_cff")
 

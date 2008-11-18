@@ -41,7 +41,7 @@ public:
 
 
   /// for making events.  Sets the bxnum and lvl1num inside the chamber event
-  void add(CSCEventData &, int dmbId);
+  void add(CSCEventData &);
 
   /// trailer info
   long unsigned int errorstat;

@@ -38,7 +38,4 @@ hltMinBias = cms.Sequence(cms.SequencePlaceholder("hltBegin")+hltl1sMin+hltpreMi
 # Actual HLT path:
 hltZeroBias = cms.Sequence(cms.SequencePlaceholder("hltBegin")+hltl1sZero+hltpreZero)
 hltl1sMin.L1SeedsLogicalExpression = 'L1_MinBias_HTT10'
-hltpreMin.prescaleFactor = 1
 hltl1sZero.L1SeedsLogicalExpression = 'L1_ZeroBias'
-hltpreZero.prescaleFactor = 1
-

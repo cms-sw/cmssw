@@ -6,6 +6,7 @@ import FWCore.ParameterSet.Config as cms
 from RecoLocalTracker.Configuration.RecoLocalTracker_Cosmics_cff import *
 from RecoTracker.Configuration.RecoTrackerP5_cff import *
 from RecoVertex.BeamSpotProducer.BeamSpot_cff import *
+from RecoTracker.Configuration.RecoTrackerBHM_cff import *
 #
 # calorimeters
 #
@@ -41,5 +42,6 @@ jetsCosmics = cms.Sequence(recoCaloTowersGR*recoJetsGR)
 metrecoCosmics = cms.Sequence(metreco)
 egammaCosmics = cms.Sequence(egammarecoCosmics_woElectrons)
 
-reconstructionCosmics = cms.Sequence(localReconstructionCosmics*muonsCosmics*jetsCosmics*metrecoCosmics*egammaCosmics)
 
+reconstructionCosmics = cms.Sequence(localReconstructionCosmics*muonsCosmics*jetsCosmics*metrecoCosmics*egammaCosmics*tracksBeamHaloMuon)
+reconstructionCosmics_woTkBHM = cms.Sequence(localReconstructionCosmics*muonsCosmics*jetsCosmics*metrecoCosmics*egammaCosmics)

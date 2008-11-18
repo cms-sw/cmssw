@@ -27,19 +27,6 @@ void CSCDDUHeader::init()
   header2_1_ = header2_3_ = 0x8000;
 }
 
-
-void CSCDDUHeader::setDMBDAV(int dmbId) 
-{
-  dmb_dav_ |= (1 << dmbId); 
-  // use Ritchie algo to count bits
-  ncsc_ = 0;
-  unsigned short dmbdav = dmb_dav_;
-  for( ; dmbdav; ++ncsc_)
-  {
-    dmbdav &= dmbdav - 1;
-  }
-}
-
 bool CSCDDUHeader::check() const 
 {
   //std::cout <<"SANDRIK"<<std::hex <<header2_1_<<" "<<header2_2_ <<" "<<header2_3_<<std::endl;

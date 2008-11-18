@@ -15,7 +15,7 @@ HLTTauMCProducer::HLTTauMCProducer(const edm::ParameterSet& mc)
   ptMinMCTau_ = mc.getUntrackedParameter<double>("ptMinTau",15);
   ptMinMCMuon_ = mc.getUntrackedParameter<double>("ptMinMuon",2);
   ptMinMCElectron_ = mc.getUntrackedParameter<double>("ptMinElectron",5);
-  m_PDG_   = mc.getUntrackedParameter<int>("BosonID");
+  m_PDG_   = mc.getUntrackedParameter<std::vector<int> >("BosonID");
   etaMax = mc.getUntrackedParameter<double>("EtaMax",2.5);
 
   produces<LorentzVectorCollection>("Leptons");
@@ -52,7 +52,15 @@ void HLTTauMCProducer::produce(edm::Event& iEvent, const edm::EventSetup& iES)
   TLorentzVector neutrino_tmp(0.,0.,0.,0.);
 
   for (;p != myGenEvent->particles_end(); ++p ) {
-    if(abs((*p)->pdg_id())==m_PDG_&&(*p)->end_vertex())
+    //Check the PDG ID
+    bool pdg_ok = false;
+      for(size_t pi =0;pi<m_PDG_.size();++pi)
+	{
+	  if(abs((*p)->pdg_id())==m_PDG_[pi])
+	  pdg_ok = true;
+	}   
+
+    if(pdg_ok&&(*p)->end_vertex())
       {
 	TLorentzVector Boson((*p)->momentum().px(),(*p)->momentum().py(),(*p)->momentum().pz(),(*p)->momentum().e());
 	HepMC::GenVertex::particle_iterator z = (*p)->end_vertex()->particles_begin(HepMC::descendants);

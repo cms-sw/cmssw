@@ -7,9 +7,7 @@
 
 #include "G4Poisson.hh"
 #include "G4ParticleDefinition.hh"
-
-//#define DebugLog
-
+				 
 HFCherenkov::HFCherenkov(edm::ParameterSet const & p) {
 
   edm::ParameterSet m_HF = p.getParameter<edm::ParameterSet>("HFCherenkov");
@@ -41,14 +39,14 @@ HFCherenkov::HFCherenkov(edm::ParameterSet const & p) {
 }
 
 HFCherenkov::~HFCherenkov() {}
-
+	
 int HFCherenkov::computeNPhTrapped(double pBeta, 
                                    double u, double v, double w, 
-				   double step_length, double zFiber,
+				   double step_length, double zFiber, 
 				   double dose, int npe_Dose) {
-
+   
   if (pBeta < (1/ref_index) || step_length < 0.0001) {return 0;}
-
+   
   double uv = sqrt(u*u + v*v);
   int nbOfPhotons = computeNbOfPhotons(pBeta, step_length);
 
@@ -63,7 +61,7 @@ int HFCherenkov::computeNPhTrapped(double pBeta,
       double sinTheta = sin(theta_C);
       double cosTheta = cos(theta_C);
       double sinPhi   = sin(phi_C);
-      double cosPhi   = cos(phi_C);
+      double cosPhi   = cos(phi_C); 
       //photon momentum
       if (uv < 0.001) { // aligned with z-axis
 	u_ph = sinTheta * cosPhi;
@@ -84,30 +82,27 @@ int HFCherenkov::computeNPhTrapped(double pBeta,
 }
 
 
-int HFCherenkov::computeNPE(G4ParticleDefinition* pDef, double pBeta,
-                            double u, double v, double w,
-			    double step_length, double zFiber,
+int HFCherenkov::computeNPE(G4ParticleDefinition* pDef, double pBeta, 
+                            double u, double v, double w, 
+			    double step_length, double zFiber, 
 			    double dose, int npe_Dose) {
 
   clearVectors();
   if (!isApplicable(pDef)) {return 0;}
   if (pBeta < (1/ref_index) || step_length < 0.0001) {
-#ifdef DebugLog
     LogDebug("HFShower") << "HFCherenkov::computeNPE: pBeta " << pBeta 
 			 << " 1/mu " << (1/ref_index) << " step_length " 
 			 << step_length;
-#endif
     return 0;
   }
    
   double uv = sqrt(u*u + v*v);
   int nbOfPhotons = computeNbOfPhotons(pBeta, step_length);
-#ifdef DebugLog
   LogDebug("HFShower") << "HFCherenkov::computeNPE: pBeta " << pBeta 
 		       << " u/v/w " << u << "/" << v << "/" << w 
 		       << " step_length " << step_length << " zFib " << zFiber 
 		       << " nbOfPhotons " << nbOfPhotons;
-#endif
+   
   if (nbOfPhotons < 0) {
     return 0;
   } else if (nbOfPhotons > 0) {
@@ -119,7 +114,7 @@ int HFCherenkov::computeNPE(G4ParticleDefinition* pDef, double pBeta,
       double sinTheta = sin(theta_C);
       double cosTheta = cos(theta_C);
       double sinPhi   = sin(phi_C);
-      double cosPhi   = cos(phi_C);
+      double cosPhi   = cos(phi_C); 
       //photon momentum
       if (uv < 0.001) { // aligned with z-axis
 	u_ph = sinTheta * cosPhi;
@@ -135,11 +130,9 @@ int HFCherenkov::computeNPE(G4ParticleDefinition* pDef, double pBeta,
 					      (lambda2 - lambda1));
       double lambda  = (lambda0/cm) * pow(double(10),7); // lambda is in nm
       wlini.push_back(lambda);
-#ifdef DebugLog
-      LogDebug("HFShower") << "HFCherenkov::computeNPE: " << i << " lambda "
-			   << lambda << " w_ph " << w_ph << " aperture "
+      LogDebug("HFShower") << "HFCherenkov::computeNPE: " << i << " lambda " 
+			   << lambda << " w_ph " << w_ph << " aperture " 
 			   << aperture;
-#endif
       if (w_ph > aperture) { // phton trapped inside fiber
 	wltrap.push_back(lambda);
 	double prob_HF  = 1.0; //photon survived in HF
@@ -151,29 +144,23 @@ int HFCherenkov::computeNPE(G4ParticleDefinition* pDef, double pBeta,
 	  prob_HF  = exp(-z_meters * a_inv ); //photon survived in HF
 	}
 	rand = G4UniformRand();
-#ifdef DebugLog
 	LogDebug("HFShower") << "HFCherenkov::computeNPE: probHF " << prob_HF
 			     << " prob_MX " << prob_MX << " Random " << rand 
 			     << " Survive? " << (rand < (prob_HF * prob_MX));
-#endif
 	if (rand < (prob_HF * prob_MX)) { // survived and sent to light mixer
 	  wlatten.push_back(lambda);
 	  rand = G4UniformRand();
 	  double effHEM = computeHEMEff(lambda);
-#ifdef DebugLog
 	  LogDebug("HFShower") << "HFCherenkov::computeNPE: w_ph " << w_ph 
 			       << " effHEM " << effHEM << " Random " << rand 
 			       << " Survive? " << (w_ph>0.997||(rand<effHEM));
-#endif
 	  if (w_ph>0.997 || (rand<effHEM)) { // survived HEM
 	    wlhem.push_back(lambda);
 	    double qEffic = computeQEff(lambda);
 	    rand = G4UniformRand();
-#ifdef DebugLog
-	    LogDebug("HFShower") << "HFCherenkov::computeNPE: qEffic "
-				 << qEffic << " Random " << rand
+	    LogDebug("HFShower") << "HFCherenkov::computeNPE: qEffic " 
+				 << qEffic << " Random " << rand 
 				 << " Survive? " <<(rand < qEffic);
-#endif
 	    if (rand < qEffic) { // made photoelectron
 	      npe_Dose += 1;
 	      momZ.push_back(w_ph);
@@ -186,9 +173,7 @@ int HFCherenkov::computeNPE(G4ParticleDefinition* pDef, double pBeta,
     }// end of ++NbOfPhotons
   } // end of if(NbOfPhotons)}
   int npe =  npe_Dose; // Nb of photoelectrons
-#ifdef DebugLog
   LogDebug("HFShower") << "HFCherenkov::computeNPE: npe " << npe;
-#endif
   return npe;
 }
 
@@ -237,13 +222,11 @@ int HFCherenkov::computeNbOfPhotons(double beta, G4double stepL) {
   double cherenPhPerLength = 2 * M_PI * alpha * lambdaDiff*cm;
   double d_NOfPhotons = cherenPhPerLength * sin(theta_C)*sin(theta_C) *  (step_length/cm);
   int nbOfPhotons = int(d_NOfPhotons);
-#ifdef DebugLog
   LogDebug("HFShower") << "HFCherenkov::computeNbOfPhotons: StepLength " 
 		       << step_length << " theta_C " << theta_C 
 		       << " lambdaDiff " << lambdaDiff
 		       << " cherenPhPerLength " << cherenPhPerLength 
 		       << " Photons " << d_NOfPhotons << " " << nbOfPhotons;
-#endif
   return nbOfPhotons;
 }
 
@@ -253,10 +236,8 @@ double HFCherenkov::computeQEff(double wavelength) {
   double func     = 1. / (1. + 250.*pow((y/5.),4));
   double qE_R7525 = 0.77 * y * exp(-y) * func ;
   double qeff     = qE_R7525;
-#ifdef DebugLog
   LogDebug("HFShower") << "HFCherenkov::computeQEff: wavelength " << wavelength
 		       << " y/func " << y << "/" << func << " qeff " << qeff;
-#endif
   return qeff;
 }
 
@@ -274,19 +255,17 @@ double HFCherenkov::computeHEMEff(double wavelength) {
       //abs(wavelength - 430.) < 15.
       //hEMEff = 0.95;
       hEMEff = 0.97;
-    } else if (wavelength > 550. && wavelength < 600.) {
-      // abs(wavelength - 575.) < 25.)
+    } else if (wavelength > 550. && wavelength < 600.) { 
+      // abs(wavelength - 575.) < 25.) 
       //hEMEff = 0.96;
       hEMEff = 0.98;
-    } else if (wavelength > 565. && wavelength <= 635.) { // added later
-      // abs(wavelength - 600.) < 35.)
+    } else if (wavelength > 565. && wavelength <= 635.) { // added later 
+      // abs(wavelength - 600.) < 35.) 
       hEMEff = (701.7268 / wavelength) - 0.186;
     }
   }
-#ifdef DebugLog
-  LogDebug("HFShower") << "HFCherenkov::computeHEMEff: wavelength "
+  LogDebug("HFShower") << "HFCherenkov::computeHEMEff: wavelength " 
 		       << wavelength << " hEMEff " << hEMEff;
-#endif
   return hEMEff;
 }
 
@@ -299,9 +278,7 @@ double HFCherenkov::smearNPE(int npe) {
       pe += (val/gain) + 0.001*G4UniformRand();
     }
   }
-#ifdef DebugLog
   LogDebug("HFShower") << "HFCherenkov::smearNPE: npe " << npe << " pe " << pe;
-#endif
   return pe;
 }
 
@@ -318,10 +295,10 @@ void HFCherenkov::clearVectors() {
 
 bool HFCherenkov::isApplicable(const G4ParticleDefinition* aParticleType) {
   bool tmp = (aParticleType->GetPDGCharge() != 0);
-#ifdef DebugLog
   LogDebug("HFShower") << "HFCherenkov::isApplicable: aParticleType " 
 		       << aParticleType->GetParticleName() << " PDGCharge " 
 		       << aParticleType->GetPDGCharge() << " Result " << tmp;
-#endif
   return tmp;
 }
+   
+ 

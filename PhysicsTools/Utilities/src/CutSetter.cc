@@ -6,22 +6,18 @@ using namespace reco::parser;
 
 void CutSetter::operator()( const char *, const char * ) const {
   if( 0 == cut_.get() ) {
-    assert(!selStack_.empty());
     cut_ = selStack_.back();
     selStack_.pop_back();
   } else {
-    assert(!cmbStack_.empty());
     switch ( cmbStack_.back() ) {
     case ( kAnd ) : {
       SelectorPtr lhs = cut_;
-      assert(!selStack_.empty());
       cut_ = SelectorPtr( new AndCombiner( lhs, selStack_.back() ) );
       selStack_.pop_back();
       break;
     }
     case ( kOr ) : {
       SelectorPtr lhs = cut_;
-      assert(!selStack_.empty());
       cut_ = SelectorPtr( new OrCombiner( lhs, selStack_.back() ) );
       selStack_.pop_back();
       break;

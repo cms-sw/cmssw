@@ -7,15 +7,15 @@
  * \author original version: Chris Jones, Cornell, 
  *         adapted to Reflex by Luca Lista, INFN
  *
- * \version $Revision: 1.1 $
+ * \version $Revision: 1.2 $
  *
  */
 #include "PhysicsTools/Utilities/src/SelectorStack.h"
 #include "PhysicsTools/Utilities/src/ExpressionStack.h"
 #include "PhysicsTools/Utilities/src/BinarySelector.h"
+#include "FWCore/Utilities/interface/EDMException.h"
 #include "PhysicsTools/Utilities/src/ExpressionNumber.h"
 #include "PhysicsTools/Utilities/src/Comparison.h"
-#include "PhysicsTools/Utilities/interface/Exception.h"
 #include <boost/shared_ptr.hpp>
 #include <functional>
 
@@ -26,10 +26,10 @@ namespace reco {
       ExpressionSelectorSetter( SelectorStack& selStack, ExpressionStack& expStack ) : 
 	selStack_( selStack ), expStack_( expStack ) { }
       
-      void operator()(const char * begin, const char *) const {
+      void operator()(const char * , const char *) const {
 	if(expStack_.empty())
-	  throw Exception(begin)
-	    << "Grammar error: empty expression stack. Please contact developer." << "\"";
+	  throw edm::Exception(edm::errors::Configuration)
+	    << "Parse error: empty expression stack." << "\"\n";
 	boost::shared_ptr<ExpressionBase> rhs = expStack_.back(); expStack_.pop_back();
 	boost::shared_ptr<ExpressionBase> lhs( new ExpressionNumber(0.0));
 	boost::shared_ptr<ComparisonBase> comp( new Comparison<std::not_equal_to<double> >() );

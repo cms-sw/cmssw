@@ -1,15 +1,14 @@
-#ifndef RecoTrackerDeDx_BaseDeDxEstimator_h
-#define RecoTrackerDeDx_BaseDeDxEstimator_h
-#include "DataFormats/TrackReco/interface/DeDxHit.h"
+#ifndef BaseDeDxEstimator_h
+#define BaseDeDxEstimator_h
+#include "DataFormats/TrackReco/interface/TrackDeDxHits.h"
 
 class BaseDeDxEstimator
 {
 public: 
- virtual std::pair<float,float> dedx(const reco::DeDxHitCollection& Hits) = 0;
+ virtual float dedx(const reco::TrackDeDxHits & trackWithHits) = 0;
 
 
 
 };
 
 #endif
-

@@ -40,7 +40,6 @@ class HFLightCal : public edm::EDAnalyzer {
   TH1F* hsppin[8][3];
   TH1F* hspepin[8][3];
   TH1F* hpedpin[8][3];
-  TH1F* htsmpin[8][3];
 
 };
 

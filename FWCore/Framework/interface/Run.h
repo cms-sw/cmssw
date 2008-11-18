@@ -15,7 +15,7 @@ For its usage, see "FWCore/Framework/interface/DataViewImpl.h"
 */
 /*----------------------------------------------------------------------
 
-$Id: Run.h,v 1.13 2008/05/12 18:14:07 wmtan Exp $
+$Id: Run.h,v 1.14 2008/08/14 17:47:15 paterno Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -27,13 +27,13 @@ $Id: Run.h,v 1.13 2008/05/12 18:14:07 wmtan Exp $
 
 namespace edm {
 
-  class Run : private DataViewImpl<RunLumiEntryInfo>
+  class Run : private DataViewImpl
   {
   public:
     Run(RunPrincipal& rp, const ModuleDescription& md);
     ~Run(){}
 
-    typedef DataViewImpl<RunLumiEntryInfo> Base;
+    typedef DataViewImpl Base;
     // AUX functions.
     RunID const& id() const {return aux_.id();}
     RunNumber_t run() const {return aux_.run();}

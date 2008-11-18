@@ -5,7 +5,7 @@ TauMCProducer  = cms.EDProducer("HLTTauMCProducer",
                               ptMinTau      = cms.untracked.double(10),
                               ptMinMuon     = cms.untracked.double(3),
                               ptMinElectron = cms.untracked.double(5),
-                              BosonID       = cms.untracked.int32(23),
+                              BosonID       = cms.untracked.vint32(23,25,37),
                               EtaMax        = cms.untracked.double(2.5)
 )
 

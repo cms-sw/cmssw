@@ -1,6 +1,6 @@
 /*
- *  $Date: 2008/06/03 19:01:06 $
- *  $Revision: 1.14.2.1 $
+ *  $Date: 2008/06/04 21:57:05 $
+ *  $Revision: 1.15 $
  *  
  *  Filip Moorgat & Hector Naves 
  *  26/10/05
@@ -49,7 +49,7 @@ HepMC::IO_HEPEVT conv;
 
 AlpgenSource::AlpgenSource( const ParameterSet & pset, 
 			    InputSourceDescription const& desc ) :
-  ExternalInputSource(pset, desc), evt(0), 
+  ExternalInputSource(pset, desc, false), evt(0), 
   pythiaPylistVerbosity_ (pset.getUntrackedParameter<int>("pythiaPylistVerbosity",0)),
   pythiaHepMCVerbosity_ (pset.getUntrackedParameter<bool>("pythiaHepMCVerbosity",false)),
   maxEventsToPrint_ (pset.getUntrackedParameter<int>("maxEventsToPrint",1)),

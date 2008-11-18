@@ -356,12 +356,9 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
 		   sh5,rh5,sh6,rh6,
 		   te,"UU",-1);
    
-   // new general range
-   rh1->GetYaxis()->SetRangeUser(0.000009,0.01);
-   sh1->GetYaxis()->SetRangeUser(0.000009,0.01);
    // for multi-track samples
-   //rh1->GetYaxis()->SetRangeUser(0.0008,0.005);
-   //sh1->GetYaxis()->SetRangeUser(0.0008,0.005);
+   rh1->GetYaxis()->SetRangeUser(0.0008,0.005);
+   sh1->GetYaxis()->SetRangeUser(0.0008,0.005);
    // for single particle pt 100
    //rh1->GetYaxis()->SetRangeUser(0.000009,0.0005);
    //sh1->GetYaxis()->SetRangeUser(0.000009,0.0005);
@@ -380,13 +377,9 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
    rh1->GetXaxis()->SetTitleOffset(0.6);
    rh1->GetXaxis()->SetTitle("#eta");
 
-
-   // new general range
-   rh2->GetYaxis()->SetRangeUser(0.00009,0.03);
-   sh2->GetYaxis()->SetRangeUser(0.00009,0.03);
    // for multi-track samples
-   //rh2->GetYaxis()->SetRangeUser(0.0009,0.01);
-   //sh2->GetYaxis()->SetRangeUser(0.0009,0.01);
+   rh2->GetYaxis()->SetRangeUser(0.0009,0.01);
+   sh2->GetYaxis()->SetRangeUser(0.0009,0.01);
    // for single particle pt 10
    //rh2->GetYaxis()->SetRangeUser(0.00009,0.01);
    //sh2->GetYaxis()->SetRangeUser(0.00009,0.01);
@@ -402,12 +395,9 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
    rh2->GetXaxis()->SetTitle("#eta");
 
 
-   // new general range
-   rh3->GetYaxis()->SetRangeUser(0.00009,0.05);  
-   sh3->GetYaxis()->SetRangeUser(0.00009,0.05);
    // for multi-track samples
-   //rh3->GetYaxis()->SetRangeUser(0.0009,0.02);  
-   //sh3->GetYaxis()->SetRangeUser(0.0009,0.02);
+   rh3->GetYaxis()->SetRangeUser(0.0009,0.02);  
+   sh3->GetYaxis()->SetRangeUser(0.0009,0.02);
    //rh3->GetYaxis()->SetRangeUser(0.0009,0.02);
    //sh3->GetYaxis()->SetRangeUser(0.0009,0.02);
    // for single particle pt 100    
@@ -422,13 +412,11 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
    rh3->GetXaxis()->SetTitle("#eta"); 
 
 
-   // new general range
-   rh4->GetYaxis()->SetRangeUser(0.0009,0.1);  
-   sh4->GetYaxis()->SetRangeUser(0.0009,0.1);
    // for multi-track samples
+   rh4->GetYaxis()->SetRangeUser(0.0009,0.08);
+   sh4->GetYaxis()->SetRangeUser(0.0009,0.08);
    //rh4->GetYaxis()->SetRangeUser(0.0009,0.08);
    //sh4->GetYaxis()->SetRangeUser(0.0009,0.08);
-
    rh4->SetTitle("");
    rh4->GetYaxis()->SetTitleSize(0.05);
    rh4->GetYaxis()->SetTitleOffset(1.2);

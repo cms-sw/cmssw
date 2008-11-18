@@ -21,7 +21,7 @@ class OpticalObject;
 class Entry;
 class EntryLength;
 class OpticalAlignMeasurementInfo;
-class OpticalAlignParam;
+
 
 class Measurement
 { 
@@ -38,8 +38,6 @@ public:
   virtual void buildOptONamesList( const std::vector<ALIstring>& wl );
   // Fill the data 
   void fillData(ALIuint coor, const std::vector<ALIstring>& wl );
-  void fillData( ALIuint coor, OpticalAlignParam* oaParam);
-
   // Convert OptOs names in OptOs pointers
   void buildOptOList();
   // Make list including every entry of every ancestor of each Measured OptO
@@ -75,7 +73,7 @@ public:
 
   void copyMeas( Measurement* meas, const std::string& subsstr1, const std::string& subsstr2 );
 
-  void constructFromOA( OpticalAlignMeasurementInfo&  measInfo);
+  void constructFromOA( OpticalAlignMeasurementInfo&  measInfo ) ;
 
  // ACCESS DATA MEMBERS
   const ALIuint dim() const { 

@@ -13,7 +13,7 @@ namespace edm {
 	boost::shared_ptr<ProductRegistry const> reg,
 	ProcessConfiguration const& pc,
 	ProcessHistoryID const& hist,
-	boost::shared_ptr<Mapper> mapper,
+	boost::shared_ptr<BranchMapper> mapper,
 	boost::shared_ptr<DelayedReader> rtrv) :
 	  Base(reg, pc, hist, mapper, rtrv),
 	  aux_(aux),

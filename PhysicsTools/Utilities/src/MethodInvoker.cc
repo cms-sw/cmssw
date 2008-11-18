@@ -7,20 +7,18 @@ using namespace ROOT::Reflex;
 using namespace std;
 
 MethodInvoker::MethodInvoker(const Member & method, const vector<AnyMethodArgument> & ints) :
-  method_(method), ints_(ints), isFunction_(method.IsFunctionMember())
-{ 
+  method_(method), ints_(ints) { 
   setArgs();
 }
 
 MethodInvoker::MethodInvoker(const MethodInvoker & other) :
-  method_(other.method_), ints_(other.ints_), isFunction_(other.isFunction_) {
+  method_(other.method_), ints_(other.ints_) {
   setArgs();
 }
 
 MethodInvoker & MethodInvoker::operator=(const MethodInvoker & other) {
   method_ = other.method_;
   ints_ = other.ints_;
-  isFunction_ = other.isFunction_;
   setArgs();
   return *this;
 }
@@ -43,11 +41,7 @@ Object MethodInvoker::value(const Object & o) const {
 	<< dynType.Name() << "\"\n";
     ret = met.Invoke(Object(dynType, o.Address()), args_);
     } else */
-  if(isFunction_) {
-     ret = method_.Invoke(o, args_);
-  } else {
-     ret = method_.Get(o);
-  }
+  ret = method_.Invoke(o, args_);
   void * addr = ret.Address(); 
   if(addr==0)
     throw edm::Exception(edm::errors::InvalidReference)
@@ -73,7 +67,7 @@ Object MethodInvoker::value(const Object & o) const {
   if(!ret) 
      throw edm::Exception(edm::errors::Configuration)
       << "method \"" << method_.Name() 
-      << "\" returned void invoked on object of type \"" 
-      << o.TypeOf().Name() << "\"\n";
+      << "\" returned void invoked on object of type " 
+      << o.TypeOf().Name() << "\n";
   return ret;
 }

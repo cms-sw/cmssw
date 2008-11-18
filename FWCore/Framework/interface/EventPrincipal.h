@@ -28,24 +28,21 @@ namespace edm {
   class RunPrincipal;
   class UnscheduledHandler;
 
-  class EventPrincipal : public Principal<EventEntryInfo> {
+  class EventPrincipal : public Principal {
   public:
     typedef EventAuxiliary Auxiliary;
-    typedef EventEntryInfo EntryInfo;
-    typedef BranchMapper<EntryInfo> Mapper;
-    typedef std::vector<EntryInfo> EntryInfoVector;
+    typedef std::vector<EventEntryInfo> EntryInfoVector;
 
-    typedef Principal<EntryInfo> Base;
+    typedef Principal Base;
 
     typedef Base::SharedConstGroupPtr SharedConstGroupPtr;
-    typedef GroupT<EventEntryInfo> Group;
     static int const invalidBunchXing = EventAuxiliary::invalidBunchXing;
     static int const invalidStoreNumber = EventAuxiliary::invalidStoreNumber;
     EventPrincipal(EventAuxiliary const& aux,
 	boost::shared_ptr<ProductRegistry const> reg,
 	ProcessConfiguration const& pc,
 	ProcessHistoryID const& hist = ProcessHistoryID(),
-	boost::shared_ptr<Mapper> mapper = boost::shared_ptr<Mapper>(new Mapper),
+	boost::shared_ptr<BranchMapper> mapper = boost::shared_ptr<BranchMapper>(new BranchMapper),
 	boost::shared_ptr<DelayedReader> rtrv = boost::shared_ptr<DelayedReader>(new NoDelayedReader));
     ~EventPrincipal() {}
 

@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/07/15 10:17:20 $
- *  $Revision: 1.12 $
+ *  $Date: 2008/07/15 15:46:19 $
+ *  $Revision: 1.13 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -164,9 +164,9 @@ void MuonRecoAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore * dbe) {
   oneOverptResolution.push_back(dbe->book2D("ResVsPhi_TkGlb_oneOverpt", "ResVsPhi_TkGlb_oneOverpt", phiBin, phiMin, phiMax, pResBin*binFactor*2, pResMin/10, pResMax/10));
   oneOverptResolution.push_back(dbe->book2D("ResVsPhi_GlbSta_oneOverpt", "ResVsPhi_GlbSta_oneOverpt", phiBin, phiMin, phiMax, pResBin*binFactor, pResMin, pResMax));
   oneOverptResolution.push_back(dbe->book2D("ResVsPhi_TkSta_oneOverpt", "ResVsPhi_TkSta_oneOverpt", phiBin, phiMin, phiMax, pResBin*binFactor, pResMin, pResMax));
-  oneOverptResolution.push_back(dbe->book2D("ResVsPt_TkGlb_oneOverpt", "ResVsPt_TkGlb_oneOverpt", ptBin, ptMin, ptMax, pResBin*binFactor*2, pResMin/10, pResMax/10));
-  oneOverptResolution.push_back(dbe->book2D("ResVsPt_GlbSta_oneOverpt", "ResVsPt_GlbSta_oneOverpt", ptBin, ptMin, ptMax, pResBin*binFactor, pResMin, pResMax));
-  oneOverptResolution.push_back(dbe->book2D("ResVsPt_TkSta_oneOverpt", "ResVsPt_TkSta_oneOverpt", ptBin, ptMin, ptMax, pResBin*binFactor, pResMin, pResMax));
+  oneOverptResolution.push_back(dbe->book2D("ResVsPt_TkGlb_oneOverpt", "ResVsPt_TkGlb_oneOverpt", ptBin/5, ptMin, ptMax/100, pResBin*binFactor*2, pResMin/10, pResMax/10));
+  oneOverptResolution.push_back(dbe->book2D("ResVsPt_GlbSta_oneOverpt", "ResVsPt_GlbSta_oneOverpt", ptBin/5, ptMin, ptMax/100, pResBin*binFactor, pResMin, pResMax));
+  oneOverptResolution.push_back(dbe->book2D("ResVsPt_TkSta_oneOverpt", "ResVsPt_TkSta_oneOverpt", ptBin/5, ptMin, ptMax/100, pResBin*binFactor, pResMin, pResMax));
 
   // monitoring of the recHits provenance
   rhBin=parameters.getParameter<int>("rhBin");

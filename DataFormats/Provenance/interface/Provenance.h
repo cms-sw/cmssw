@@ -78,14 +78,12 @@ namespace edm {
 
     void setEventEntryInfo(boost::shared_ptr<EventEntryInfo> bei) const;
 
-    void setStore(boost::shared_ptr<BranchMapper<EventEntryInfo> > store) const {store_ = store;}
-
-    void setStore(boost::shared_ptr<BranchMapper<RunLumiEntryInfo> >) const {}
+    void setStore(boost::shared_ptr<BranchMapper> store) const {store_ = store;}
 
   private:
     ConstBranchDescription const branchDescription_;
     mutable boost::shared_ptr<EventEntryInfo> branchEntryInfoPtr_;
-    mutable boost::shared_ptr<BranchMapper<EventEntryInfo> > store_;
+    mutable boost::shared_ptr<BranchMapper> store_;
   };
   
   inline

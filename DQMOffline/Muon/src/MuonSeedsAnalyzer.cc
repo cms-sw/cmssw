@@ -4,7 +4,7 @@
  *
  *  $Date: 2008/03/25
  18:37:05 $
- *  $Revision: 1.8 $
+ *  $Revision: 1.9 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -110,7 +110,7 @@ void MuonSeedsAnalyzer::beginJob(edm::EventSetup const& iSetup, DQMStore * dbe) 
   histname = "seedPtErrOverPtVsEta_";
   seedPtErrVsEta = dbe->book2D(histname, histname, EtaBin, EtaMin, EtaMax, pErrBin, pErrMin, pErrMax);
   histname = "seedPtErrOverPtVsPt_";
-  seedPtErrVsPt = dbe->book2D(histname, histname, seedPtBin, seedPtMin, seedPtMax, pErrBin, pErrMin, pErrMax);
+  seedPtErrVsPt = dbe->book2D(histname, histname, seedPtBin/5, seedPtMin, seedPtMax, pErrBin, pErrMin, pErrMax);
   histname = "seedPErrOverP_";
   seedPErr = dbe->book1D(histname, histname, pErrBin, pErrMin, pErrMax);
   seedPErr->setAxisTitle("pErr/p");
@@ -119,7 +119,7 @@ void MuonSeedsAnalyzer::beginJob(edm::EventSetup const& iSetup, DQMStore * dbe) 
   histname = "seedPErrOverPVsEta_";
   seedPErrVsEta = dbe->book2D(histname, histname, EtaBin, EtaMin, EtaMax, pErrBin, pErrMin, pErrMax);
   histname = "seedPErrOverPVsPt_";
-  seedPErrVsPt = dbe->book2D(histname, histname, seedPtBin, seedPtMin, seedPtMax, pErrBin, pErrMin, pErrMax);
+  seedPErrVsPt = dbe->book2D(histname, histname, seedPtBin/5, seedPtMin, seedPtMax, pErrBin, pErrMin, pErrMax);
   
   pxyzErrBin = parameters.getParameter<int>("pxyzErrBin");
   pxyzErrMin = parameters.getParameter<double>("pxyzErrMin");

@@ -164,8 +164,6 @@ MuonCandidate::CandidateContainer L3MuonTrajectoryBuilder::trajectories(const Tr
       refittedTk = refitTrajectory(*(*tkt).first);
       if(refittedTk.size() == 1) refittedTkTraj = refittedTk.front();
       
-      LogDebug(category)<< "seedRef " << refittedTkTraj.seedRef().isNonnull();
-
       MuonCandidate* muonCand = new MuonCandidate( 0 ,staCand.second,(*tkt).second, new Trajectory(refittedTkTraj));
       tkTrajs.push_back(muonCand);
       LogTrace(category) << "tpush";
@@ -212,7 +210,6 @@ vector<L3MuonTrajectoryBuilder::TrackCand> L3MuonTrajectoryBuilder::makeTkCandCo
     LogDebug(category) << "Found " << theTkTrajCollection->size() <<" tkCands";
     for (TC::const_iterator tt=theTkTrajCollection->begin();tt!=theTkTrajCollection->end();++tt){
       tkCandColl.push_back(TrackCand(new Trajectory(*tt),reco::TrackRef()));
-      LogDebug(category)<< "seedRef " << tkCandColl.back().first->seedRef().isNonnull();
     } 
     LogTrace(category) << "Found " << tkCandColl.size() << " tkCands from seeds";
     return tkCandColl;

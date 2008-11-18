@@ -94,10 +94,20 @@ bool L1GctInternEtSum::operator==(const L1GctInternEtSum& c) const {
 }
 
 
-/// set Et sum
-void L1GctInternEtSum::setEt(uint32_t et) {
+/// set value
+void L1GctInternEtSum::setValue(uint32_t val) {
   data_ &= 0x80000000;
-  data_ |= et & 0x7ffffff;
+  data_ |= val & 0x7ffffff;
+}
+
+/// set et
+void L1GctInternEtSum::setEt(uint32_t et) {
+  setValue(et);
+}
+
+/// set count
+void L1GctInternEtSum::setCount(uint32_t count) {
+  setValue(count);
 }
 
 /// set overflow bit

@@ -21,7 +21,7 @@ namespace reco {
     /// default constructor
     IsolatedPFCandidate();
     
-    IsolatedPFCandidate( const PFCandidatePtr& candidatePtr, 
+    IsolatedPFCandidate( const PFCandidateRef& candidateRef, 
 			 double isolation );
 
     /// destructor

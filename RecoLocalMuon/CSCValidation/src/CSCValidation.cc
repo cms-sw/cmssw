@@ -5,279 +5,437 @@
  *  Andy Kubik
  *  Northwestern University
  */
-#include "RecoLocalMuon/CSCValidation/src/CSCValidation.h"
+#include "RecoLocalMuon/CSCValidation/interface/CSCValidation.h"
 
 using namespace std;
 using namespace edm;
 
 
-///////////////////
-//  CONSTRUCTOR  //
-///////////////////
+// Constructor
 CSCValidation::CSCValidation(const ParameterSet& pset){
 
   // Get the various input parameters
-  rootFileName         = pset.getUntrackedParameter<string>("rootFileName","valHists.root");
-  isSimulation         = pset.getUntrackedParameter<bool>("isSimulation",false);
-  writeTreeToFile      = pset.getUntrackedParameter<bool>("writeTreeToFile",true);
-  makePlots            = pset.getUntrackedParameter<bool>("makePlots",false);
-  makeComparisonPlots  = pset.getUntrackedParameter<bool>("makeComparisonPlots",false);
-  refRootFile          = pset.getUntrackedParameter<string>("refRootFile","null");
+  rootFileName     = pset.getUntrackedParameter<string>("rootFileName");
+  isSimulation     = pset.getUntrackedParameter<bool>("isSimulation");
 
-  // flags to switch on/off individual modules
-  makeOccupancyPlots   = pset.getUntrackedParameter<bool>("makeOccupancyPlots",true);
-  makeStripPlots       = pset.getUntrackedParameter<bool>("makeStripPlots",true);
-  makeWirePlots        = pset.getUntrackedParameter<bool>("makeWirePlots",true);
-  makeRecHitPlots      = pset.getUntrackedParameter<bool>("makeRecHitPlots",true);
-  makeSimHitPlots      = pset.getUntrackedParameter<bool>("makeSimHitPlots",true);
-  makeSegmentPlots     = pset.getUntrackedParameter<bool>("makeSegmentPlots",true);
-  makePedNoisePlots    = pset.getUntrackedParameter<bool>("makePedNoisePlots",true);
-  makeEfficiencyPlots  = pset.getUntrackedParameter<bool>("makeEfficiencyPlots",true);
-  makeGasGainPlots     = pset.getUntrackedParameter<bool>("makeGasGainPlots",true);
-  makeAFEBTimingPlots  = pset.getUntrackedParameter<bool>("makeAFEBTimingPlots",true);
-  makeCompTimingPlots  = pset.getUntrackedParameter<bool>("makeCompTimingPlots",true);
-  makeADCTimingPlots   = pset.getUntrackedParameter<bool>("makeADCTimingPlots",true);
-  makeRHNoisePlots     = pset.getUntrackedParameter<bool>("makeRHNoisePlots",false);
-  makeCalibPlots       = pset.getUntrackedParameter<bool>("makeCalibPlots",false);
-
-  // set counters to zero
+  // set counter to zero
   nEventsAnalyzed = 0;
-  treeCount = 0;
   
   // Create the root file for the histograms
   theFile = new TFile(rootFileName.c_str(), "RECREATE");
   theFile->cd();
 
-  // Create object of class CSCValHists to manage histograms
-  histos = new CSCValHists();
+  // Create the root tree to hold position info
+  rHTree  = new TTree("rHPositions","Local and Global reconstructed positions for recHits");
+  segTree = new TTree("segPositions","Local and Global reconstructed positions for segments");
 
-  // book histos Eff histos
-  hSSTE = new TH1F("hSSTE","hSSTE",40,0,40);
-  hRHSTE = new TH1F("hRHSTE","hRHSTE",40,0,40);
-  hSEff = new TH1F("hSEff","Segment Efficiency",20,0.5,20.5);
-  hRHEff = new TH1F("hRHEff","recHit Efficiency",20,0.5,20.5);
+  // Create a branch on the tree
+  rHTree->Branch("rHpos",&rHpos,"endcap/I:station/I:ring/I:chamber/I:layer/I:localx/F:localy/F:globalx/F:globaly/F");
+  segTree->Branch("segpos",&segpos,"endcap/I:station/I:ring/I:chamber/I:layer/I:localx/F:localy/F:globalx/F:globaly/F");
 
-  // setup trees to hold global position data for rechits and segments
-  histos->setupTrees();
+  // Create sub-directories for digis/rechits/segments
+  theFile->mkdir("Digis");
+  theFile->mkdir("recHits");
+  theFile->mkdir("Segments");
+  theFile->mkdir("Calib");
+  theFile->cd();
 
+
+  // calib
+  hCalibGainsS = new TH1F("hCalibGainsS","Gains Slope",400,0,400);
+  hCalibXtalkSL = new TH1F("hCalibXtalkSL","Xtalk Slope Left",400,0,400);
+  hCalibXtalkSR = new TH1F("hCalibXtalkSR","Xtalk Slope Right",400,0,400);
+  hCalibXtalkIL = new TH1F("hCalibXtalkIL","Xtalk Intercept Left",400,0,400);
+  hCalibXtalkIR = new TH1F("hCalibXtalkIR","Xtalk Intercept Right",400,0,400);
+  hCalibPedsP = new TH1F("hCalibPedsP","Peds",400,0,400);
+  hCalibPedsR = new TH1F("hCalibPedsR","Peds RMS",400,0,400);
+  hCalibNoise33 = new TH1F("hCalibNoise33","Noise Matrix 33",400,0,400);
+  hCalibNoise34 = new TH1F("hCalibNoise34","Noise Matrix 34",400,0,400);
+  hCalibNoise35 = new TH1F("hCalibNoise35","Noise Matrix 35",400,0,400);
+  hCalibNoise44 = new TH1F("hCalibNoise44","Noise Matrix 44",400,0,400);
+  hCalibNoise45 = new TH1F("hCalibNoise45","Noise Matrix 45",400,0,400);
+  hCalibNoise46 = new TH1F("hCalibNoise46","Noise Matrix 46",400,0,400);
+  hCalibNoise55 = new TH1F("hCalibNoise55","Noise Matrix 55",400,0,400);
+  hCalibNoise56 = new TH1F("hCalibNoise56","Noise Matrix 56",400,0,400);
+  hCalibNoise57 = new TH1F("hCalibNoise57","Noise Matrix 57",400,0,400);
+  hCalibNoise66 = new TH1F("hCalibNoise66","Noise Matrix 66",400,0,400);
+  hCalibNoise67 = new TH1F("hCalibNoise67","Noise Matrix 67",400,0,400);
+  hCalibNoise77 = new TH1F("hCalibNoise77","Noise Matrix 77",400,0,400);
+
+
+
+
+  // wire digis
+  hWireAll  = new TH1F("hWireAll","all wire group numbers",121,-0.5,120.5);
+  hWireTBinAll  = new TH1F("hWireTBinAll","time bins all wires",21,-0.5,20.5);
+  hWirenGroupsTotal = new TH1F("hWirenGroupsTotal","total number of wire groups",101,-0.5,100.5);
+  hWireCodeBroad = new TH1F("hWireCodeBroad","broad scope code for wires",33,-16.5,16.5);
+  hWireCodeNarrow1 = new TH1F("hWireCodeNarrow1","narrow scope wire code station 1",801,-400.5,400.5);
+  hWireCodeNarrow2 = new TH1F("hWireCodeNarrow2","narrow scope wire code station 2",801,-400.5,400.5);
+  hWireCodeNarrow3 = new TH1F("hWireCodeNarrow3","narrow scope wire code station 3",801,-400.5,400.5);
+  hWireCodeNarrow4 = new TH1F("hWireCodeNarrow4","narrow scope wire code station 4",801,-400.5,400.5);
+  hWireLayer1 = new TH1F("hWireLayer1","layer wire station 1",7,-0.5,6.5);
+  hWireLayer2 = new TH1F("hWireLayer2","layer wire station 2",7,-0.5,6.5);
+  hWireLayer3 = new TH1F("hWireLayer3","layer wire station 3",7,-0.5,6.5);
+  hWireLayer4 = new TH1F("hWireLayer4","layer wire station 4",7,-0.5,6.5);
+  hWireWire1  = new TH1F("hWireWire1","wire number station 1",113,-0.5,112.5);
+  hWireWire2  = new TH1F("hWireWire2","wire number station 2",113,-0.5,112.5);
+  hWireWire3  = new TH1F("hWireWire3","wire number station 3",113,-0.5,112.5);
+  hWireWire4  = new TH1F("hWireWire4","wire number station 4",113,-0.5,112.5);
+
+  // strip digis
+  hStripAll = new TH1F("hStripAll","all strip numbers",81,-0.5,80.5);
+  hStripADCAll   = new TH1F("hStripADCAll","all ADC values above cutoff",100,0.,1000.);
+  hStripNFired = new TH1F("hStripNFired","total number of fired strips",601,-0.5,600.5);
+  hStripCodeBroad = new TH1F("hStripCodeBroad","broad scope code for strips",33,-16.5,16.5);
+  hStripCodeNarrow1 = new TH1F("hStripCodeNarrow1","narrow scope strip code station 1",801,-400.5,400.5);
+  hStripCodeNarrow2 = new TH1F("hStripCodeNarrow2","narrow scope strip code station 2",801,-400.5,400.5);
+  hStripCodeNarrow3 = new TH1F("hStripCodeNarrow3","narrow scope strip code station 3",801,-400.5,400.5);
+  hStripCodeNarrow4 = new TH1F("hStripCodeNarrow4","narrow scope strip code station 4",801,-400.5,400.5);
+  hStripLayer1 = new TH1F("hStripLayer1","layer strip station 1",7,-0.5,6.5);
+  hStripLayer2 = new TH1F("hStripLayer2","layer strip station 2",7,-0.5,6.5);
+  hStripLayer3 = new TH1F("hStripLayer3","layer strip station 3",7,-0.5,6.5);
+  hStripLayer4 = new TH1F("hStripLayer4","layer strip station 4",7,-0.5,6.5);
+  hStripStrip1  = new TH1F("hStripStrip1","strip number station 1",81,-0.5,80.5);
+  hStripStrip2  = new TH1F("hStripStrip2","strip number station 2",81,-0.5,80.5);
+  hStripStrip3  = new TH1F("hStripStrip3","strip number station 3",81,-0.5,80.5);
+  hStripStrip4  = new TH1F("hStripStrip4","strip number station 4",81,-0.5,80.5);
+
+  // tmp efficiency histos
+  hSSTE = new TH1F("hSSTE","hSSTE",20,0,20);
+  hRHSTE = new TH1F("hRHSTE","hRHSTE",20,0,20);
+  hSEff = new TH1F("hSEff","Segment Efficiency",10,0.5,10.5);
+  hRHEff = new TH1F("hRHEff","recHit Efficiency",10,0.5,10.5);
+
+  // recHits
+  hRHCodeBroad = new TH1F("hRHCodeBroad","broad scope code for recHits",33,-16.5,16.5);
+  hRHCodeNarrow1 = new TH1F("hRHCodeNarrow1","narrow scope recHit code station 1",801,-400.5,400.5);
+  hRHCodeNarrow2 = new TH1F("hRHCodeNarrow2","narrow scope recHit code station 2",801,-400.5,400.5);
+  hRHCodeNarrow3 = new TH1F("hRHCodeNarrow3","narrow scope recHit code station 3",801,-400.5,400.5);
+  hRHCodeNarrow4 = new TH1F("hRHCodeNarrow4","narrow scope recHit code station 4",801,-400.5,400.5);
+  hRHLayer1 = new TH1F("hRHLayer1","layer recHit station 1",7,-0.5,6.5);
+  hRHLayer2 = new TH1F("hRHLayer2","layer recHit station 2",7,-0.5,6.5);
+  hRHLayer3 = new TH1F("hRHLayer3","layer recHit station 3",7,-0.5,6.5);
+  hRHLayer4 = new TH1F("hRHLayer4","layer recHit station 4",7,-0.5,6.5);
+  hRHX1 = new TH1F("hRHX1","local X recHit station 1",120,-60.,60.);
+  hRHX2 = new TH1F("hRHX2","local X recHit station 2",160,-80.,80.);
+  hRHX3 = new TH1F("hRHX3","local X recHit station 3",160,-80.,80.);
+  hRHX4 = new TH1F("hRHX4","local X recHit station 4",160,-80.,80.);
+  hRHY1 = new TH1F("hRHY1","local Y recHit station 1",50,-100.,100.);
+  hRHY2 = new TH1F("hRHY2","local Y recHit station 2",60,-180.,180.);
+  hRHY3 = new TH1F("hRHY3","local Y recHit station 3",60,-180.,180.);
+  hRHY4 = new TH1F("hRHY4","local Y recHit station 4",60,-180.,180.);
+  hRHGlobal1 = new TH2F("hRHGlobal1","recHit global X,Y station 1",400,-800.,800.,400,-800.,800.);
+  hRHGlobal2 = new TH2F("hRHGlobal2","recHit global X,Y station 2",400,-800.,800.,400,-800.,800.);
+  hRHGlobal3 = new TH2F("hRHGlobal3","recHit global X,Y station 3",400,-800.,800.,400,-800.,800.);
+  hRHGlobal4 = new TH2F("hRHGlobal4","recHit global X,Y station 4",400,-800.,800.,400,-800.,800.);
+  hRHResid11b = new TH1F("hRHResid11b","SimHitX - Reconstructed X (ME11b)",100,-1.0,1.0);
+  hRHResid12 = new TH1F("hRHResid12","SimHitX - Reconstructed X (ME11)",100,-1.0,1.0);
+  hRHResid13 = new TH1F("hRHResid13","SimHitX - Reconstructed X (ME11)",100,-1.0,1.0);
+  hRHResid11a = new TH1F("hRHResid11a","SimHitX - Reconstructed X (ME11a)",100,-1.0,1.0);
+  hRHResid21 = new TH1F("hRHResid21","SimHitX - Reconstructed X (ME21)",100,-1.0,1.0);
+  hRHResid22 = new TH1F("hRHResid22","SimHitX - Reconstructed X (ME22)",100,-1.0,1.0);
+  hRHResid31 = new TH1F("hRHResid31","SimHitX - Reconstructed X (ME31)",100,-1.0,1.0);
+  hRHResid32 = new TH1F("hRHResid32","SimHitX - Reconstructed X (ME32)",100,-1.0,1.0);
+  hRHResid41 = new TH1F("hRHResid41","SimHitX - Reconstructed X (ME41)",100,-1.0,1.0);
+  hRHResid42 = new TH1F("hRHResid42","SimHitX - Reconstructed X (ME42)",100,-1.0,1.0);
+  hRHSumQ11b = new TH1F("hRHSumQ11b","Sum 3x3 recHit Charge (ME11b)",250,0,2000);
+  hRHSumQ12 = new TH1F("hRHSumQ12","Sum 3x3 recHit Charge (ME12)",250,0,2000);
+  hRHSumQ13 = new TH1F("hRHSumQ13","Sum 3x3 recHit Charge (ME13)",250,0,2000);
+  hRHSumQ11a = new TH1F("hRHSumQ11a","Sum 3x3 recHit Charge (ME11a)",250,0,2000);
+  hRHSumQ21 = new TH1F("hRHSumQ21","Sum 3x3 recHit Charge (ME21)",250,0,2000);
+  hRHSumQ22 = new TH1F("hRHSumQ22","Sum 3x3 recHit Charge (ME22)",250,0,2000);
+  hRHSumQ31 = new TH1F("hRHSumQ31","Sum 3x3 recHit Charge (ME31)",250,0,2000);
+  hRHSumQ32 = new TH1F("hRHSumQ32","Sum 3x3 recHit Charge (ME32)",250,0,2000);
+  hRHSumQ41 = new TH1F("hRHSumQ41","Sum 3x3 recHit Charge (ME41)",250,0,2000);
+  hRHSumQ42 = new TH1F("hRHSumQ42","Sum 3x3 recHit Charge (ME42)",250,0,2000);
+  hRHRatioQ11b = new TH1F("hRHRatioQ11b","Ratio (Ql+Qr)/Qc (ME11b)",120,-0.1,1.1);
+  hRHRatioQ12 = new TH1F("hRHRatioQ12","Ratio (Ql+Qr)/Qc (ME12)",120,-0.1,1.1);
+  hRHRatioQ13 = new TH1F("hRHRatioQ13","Ratio (Ql+Qr)/Qc (ME13)",120,-0.1,1.1);
+  hRHRatioQ11a = new TH1F("hRHRatioQ11a","Ratio (Ql+Qr)/Qc (ME11a)",120,-0.1,1.1);
+  hRHRatioQ21 = new TH1F("hRHRatioQ21","Ratio (Ql+Qr)/Qc (ME21)",120,-0.1,1.1);
+  hRHRatioQ22 = new TH1F("hRHRatioQ22","Ratio (Ql+Qr)/Qc (ME22)",120,-0.1,1.1);
+  hRHRatioQ31 = new TH1F("hRHRatioQ31","Ratio (Ql+Qr)/Qc (ME31)",120,-0.1,1.1);
+  hRHRatioQ32 = new TH1F("hRHRatioQ32","Ratio (Ql+Qr)/Qc (ME32)",120,-0.1,1.1);
+  hRHRatioQ41 = new TH1F("hRHRatioQ41","Ratio (Ql+Qr)/Qc (ME41)",120,-0.1,1.1);
+  hRHRatioQ42 = new TH1F("hRHRatioQ42","Ratio (Ql+Qr)/Qc (ME42)",120,-0.1,1.1);
+  hRHTiming11a = new TH1F("hRHTiming11b","recHit Timing (ME11b)",100,0,10);
+  hRHTiming12 = new TH1F("hRHTiming12","recHit Timing (ME12)",100,0,10);
+  hRHTiming13 = new TH1F("hRHTiming13","recHit Timing (ME13)",100,0,10);
+  hRHTiming11b = new TH1F("hRHTiming11a","recHit Timing (ME11a)",100,0,10);
+  hRHTiming21 = new TH1F("hRHTiming21","recHit Timing (ME21)",100,0,10);
+  hRHTiming22 = new TH1F("hRHTiming22","recHit Timing (ME22)",100,0,10);
+  hRHTiming31 = new TH1F("hRHTiming31","recHit Timing (ME31)",100,0,10);
+  hRHTiming32 = new TH1F("hRHTiming32","recHit Timing (ME32)",100,0,10);
+  hRHTiming41 = new TH1F("hRHTiming41","recHit Timing (ME41)",100,0,10);
+  hRHTiming42 = new TH1F("hRHTiming42","recHit Timing (ME42)",100,0,10);
+
+
+
+  // segments
+  hSCodeBroad = new TH1F("hSCodeBroad","broad scope code for recHits",33,-16.5,16.5);
+  hSCodeNarrow1 = new TH1F("hSCodeNarrow1","narrow scope Segment code station 1",801,-400.5,400.5);
+  hSCodeNarrow2 = new TH1F("hSCodeNarrow2","narrow scope Segment code station 2",801,-400.5,400.5);
+  hSCodeNarrow3 = new TH1F("hSCodeNarrow3","narrow scope Segment code station 3",801,-400.5,400.5);
+  hSCodeNarrow4 = new TH1F("hSCodeNarrow4","narrow scope Segment code station 4",801,-400.5,400.5);
+  hSnHits1 = new TH1F("hSnHits1","N hits on Segments in Station 1",7,-0.5,6.5);
+  hSnHits2 = new TH1F("hSnHits2","N hits on Segments in Station 2",7,-0.5,6.5);
+  hSnHits3 = new TH1F("hSnHits3","N hits on Segments in Station 3",7,-0.5,6.5);
+  hSnHits4 = new TH1F("hSnHits4","N hits on Segments in Station 4",7,-0.5,6.5);
+  hSTheta1 = new TH1F("hSTheta1","local theta segments in Station 1",128,-3.2,3.2);
+  hSTheta2 = new TH1F("hSTheta2","local theta segments in Station 2",128,-3.2,3.2);
+  hSTheta3 = new TH1F("hSTheta3","local theta segments in Station 3",128,-3.2,3.2);
+  hSTheta4 = new TH1F("hSTheta4","local theta segments in Station 4",128,-3.2,3.2);
+  hSGlobal1 = new TH2F("hSGlobal1","segment global X,Y station 1",400,-800.,800.,400,-800.,800.);
+  hSGlobal2 = new TH2F("hSGlobal2","segment global X,Y station 2",400,-800.,800.,400,-800.,800.);
+  hSGlobal3 = new TH2F("hSGlobal3","segment global X,Y station 3",400,-800.,800.,400,-800.,800.);
+  hSGlobal4 = new TH2F("hSGlobal4","segment global X,Y station 4",400,-800.,800.,400,-800.,800.);
+  hSnhits = new TH1F("hSnhits","N hits on Segments",7,-0.5,6.5);
+  hSChiSqProb = new TH1F("hSChiSqProb","segments chi-squared probability",100,0.,1.);
+  hSGlobalTheta = new TH1F("hSGlobalTheta","segment global theta",64,0,1.6);
+  hSGlobalPhi   = new TH1F("hSGlobalPhi",  "segment global phi",  128,-3.2,3.2);
+  hSnSegments   = new TH1F("hSnSegments","number of segments",11,-0.5,10.5);
+  hSResid11b = new TH1F("hSResid11b","Fitted Position on Strip - Reconstructed for Layer 3 (ME11b)",100,-0.5,0.5);
+  hSResid12  = new TH1F("hSResid12","Fitted Position on Strip - Reconstructed for Layer 3 (ME12)",100,-0.5,0.5);
+  hSResid13  = new TH1F("hSResid13","Fitted Position on Strip - Reconstructed for Layer 3 (ME13)",100,-0.5,0.5);
+  hSResid11a = new TH1F("hSResid11a","Fitted Position on Strip - Reconstructed for Layer 3 (ME11a)",100,-0.5,0.5);
+  hSResid21  = new TH1F("hSResid21","Fitted Position on Strip - Reconstructed for Layer 3 (ME21)",100,-0.5,0.5);
+  hSResid22  = new TH1F("hSResid22","Fitted Position on Strip - Reconstructed for Layer 3 (ME22)",100,-0.5,0.5);
+  hSResid31  = new TH1F("hSResid31","Fitted Position on Strip - Reconstructed for Layer 3 (ME31)",100,-0.5,0.5);
+  hSResid32  = new TH1F("hSResid32","Fitted Position on Strip - Reconstructed for Layer 3 (ME32)",100,-0.5,0.5);
+  hSResid41  = new TH1F("hSResid41","Fitted Position on Strip - Reconstructed for Layer 3 (ME41)",100,-0.5,0.5);
+  hSResid42  = new TH1F("hSResid42","Fitted Position on Strip - Reconstructed for Layer 3 (ME42)",100,-0.5,0.5);
 
 }
 
-//////////////////
-//  DESTRUCTOR  //
-//////////////////
+// Destructor
 CSCValidation::~CSCValidation(){
-
-  // produce final efficiency histograms
-  histoEfficiency(hRHSTE,hRHEff);
-  histoEfficiency(hSSTE,hSEff);
-  histos->insertPlot(hSEff,"hSEff","Efficiency");
-  histos->insertPlot(hRHEff,"hRHEff","Efficiency");
   
-  // write histos to the specified file
-  histos->writeHists(theFile);
-  if (makePlots) histos->printPlots();
-  if (makeComparisonPlots) histos->printComparisonPlots(refRootFile);
-  if (writeTreeToFile) histos->writeTrees(theFile);
+
+  // Write the histos to file
+
+  theFile->cd();
+
+  // calib
+  theFile->cd("Calib");
+  hCalibGainsS->Write();
+  hCalibXtalkSL->Write();
+  hCalibXtalkSR->Write();
+  hCalibXtalkIL->Write();
+  hCalibXtalkIR->Write();
+  hCalibPedsP->Write();
+  hCalibPedsR->Write();
+  hCalibNoise33->Write();
+  hCalibNoise34->Write();
+  hCalibNoise35->Write();
+  hCalibNoise44->Write();
+  hCalibNoise45->Write();
+  hCalibNoise46->Write();
+  hCalibNoise55->Write();
+  hCalibNoise56->Write();
+  hCalibNoise57->Write();
+  hCalibNoise66->Write();
+  hCalibNoise67->Write();
+  hCalibNoise77->Write();
+  theFile->cd();
+
+  // wire digis
+  theFile->cd("Digis");
+  hWireAll->Write();
+  hWireTBinAll->Write();
+  hWirenGroupsTotal->Write();
+  hWireCodeBroad->Write();
+  hWireCodeNarrow1->Write();
+  hWireCodeNarrow2->Write();
+  hWireCodeNarrow3->Write();
+  hWireCodeNarrow4->Write();
+  hWireLayer1->Write();
+  hWireLayer2->Write();
+  hWireLayer3->Write();
+  hWireLayer4->Write();
+  hWireWire1->Write();
+  hWireWire2->Write();
+  hWireWire3->Write();
+  hWireWire4->Write();
+
+  // strip digis
+  hStripAll->Write();
+  hStripADCAll->Write();
+  hStripNFired->Write();
+  hStripCodeBroad->Write();
+  hStripCodeNarrow1->Write();
+  hStripCodeNarrow2->Write();
+  hStripCodeNarrow3->Write();
+  hStripCodeNarrow4->Write();
+  hStripLayer1->Write();
+  hStripLayer2->Write();
+  hStripLayer3->Write();
+  hStripLayer4->Write();
+  hStripStrip1->Write();
+  hStripStrip2->Write();
+  hStripStrip3->Write();
+  hStripStrip4->Write();
+  theFile->cd();
+
+  // recHits
+  theFile->cd("recHits");
+  hRHCodeBroad->Write();
+  hRHCodeNarrow1->Write();
+  hRHCodeNarrow2->Write();
+  hRHCodeNarrow3->Write();
+  hRHCodeNarrow4->Write();
+  hRHLayer1->Write();
+  hRHLayer2->Write();
+  hRHLayer3->Write();
+  hRHLayer4->Write();
+  hRHX1->Write();
+  hRHX2->Write();
+  hRHX3->Write();
+  hRHX4->Write();
+  hRHY1->Write();
+  hRHY2->Write();
+  hRHY3->Write();
+  hRHY4->Write();
+  hRHGlobal1->Write();
+  hRHGlobal2->Write();
+  hRHGlobal3->Write();
+  hRHGlobal4->Write();
+  if (isSimulation){
+    hRHResid11b->Write();
+    hRHResid12->Write();
+    hRHResid13->Write();
+    hRHResid11a->Write();
+    hRHResid21->Write();
+    hRHResid22->Write();
+    hRHResid31->Write();
+    hRHResid32->Write();
+    hRHResid41->Write();
+    hRHResid42->Write();
+  }
+  hSResid11b->Write();
+  hSResid12->Write();
+  hSResid13->Write();
+  hSResid11a->Write();
+  hSResid21->Write();
+  hSResid22->Write();
+  hSResid31->Write();
+  hSResid32->Write();
+  hSResid41->Write();
+  hSResid42->Write();
+  hRHSumQ11b->Write();
+  hRHSumQ12->Write();
+  hRHSumQ13->Write();
+  hRHSumQ11a->Write();
+  hRHSumQ21->Write();
+  hRHSumQ22->Write();
+  hRHSumQ31->Write();
+  hRHSumQ32->Write();
+  hRHSumQ41->Write();
+  hRHSumQ42->Write();
+  hRHRatioQ11b->Write();
+  hRHRatioQ12->Write();
+  hRHRatioQ13->Write();
+  hRHRatioQ11a->Write();
+  hRHRatioQ21->Write();
+  hRHRatioQ22->Write();
+  hRHRatioQ31->Write();
+  hRHRatioQ32->Write();
+  hRHRatioQ41->Write();
+  hRHRatioQ42->Write();
+  hRHTiming11a->Write();
+  hRHTiming12->Write();
+  hRHTiming13->Write();
+  hRHTiming11b->Write();
+  hRHTiming21->Write();
+  hRHTiming22->Write();
+  hRHTiming31->Write();
+  hRHTiming32->Write();
+  hRHTiming41->Write();
+  hRHTiming42->Write();
+  histoEfficiency(hRHSTE,hRHEff);
+  hRHEff->Write();
+  rHTree->Write();
+  theFile->cd();
+
+  // segments
+  theFile->cd("Segments");
+  hSCodeBroad->Write();
+  hSCodeNarrow1->Write();
+  hSCodeNarrow2->Write();
+  hSCodeNarrow3->Write();
+  hSCodeNarrow4->Write();
+  hSnHits1->Write();
+  hSnHits2->Write();
+  hSnHits3->Write();
+  hSnHits4->Write();
+  hSTheta1->Write();
+  hSTheta2->Write();
+  hSTheta3->Write();
+  hSTheta4->Write();
+  hSGlobal1->Write();
+  hSGlobal2->Write();
+  hSGlobal3->Write();
+  hSGlobal4->Write();
+  hSnhits->Write();
+  hSChiSqProb->Write();
+  hSGlobalTheta->Write();
+  hSGlobalPhi->Write();
+  hSnSegments->Write();
+  histoEfficiency(hSSTE,hSEff);
+  hSEff->Write();
+  segTree->Write();
+  theFile->cd();
+
+  //
   theFile->Close();
 
 }
 
-////////////////
-//  Analysis  //
-////////////////
+// The Analysis  (the main)
 void CSCValidation::analyze(const Event & event, const EventSetup& eventSetup){
   
   // increment counter
   nEventsAnalyzed++;
 
+
   int iRun   = event.id().run();
   int iEvent = event.id().event();
 
-  LogInfo("EventInfo") << "Run: " << iRun << "    Event: " << iEvent;
-
-  // Get the Digis
+  //
+  // These declarations create handles to the types of records that you want
+  // to retrieve from event "e".
+  //
   edm::Handle<CSCWireDigiCollection> wires;
   edm::Handle<CSCStripDigiCollection> strips;
-  edm::Handle<CSCComparatorDigiCollection> compars;
-  if (isSimulation){
-    event.getByLabel("simMuonCSCDigis","MuonCSCWireDigi",wires);
-    event.getByLabel("simMuonCSCDigis","MuonCSCStripDigi",strips);
-    event.getByLabel("simMuonCSCDigis","MuonCSCComparatorDigi",compars);
-  }
-  else {
-    event.getByLabel("muonCSCDigis","MuonCSCWireDigi",wires);
-    event.getByLabel("muonCSCDigis","MuonCSCStripDigi",strips);
-    event.getByLabel("muonCSCDigis","MuonCSCComparatorDigi",compars);
-  }
-
-  // Get the CSC Geometry :
-  ESHandle<CSCGeometry> cscGeom;
-  eventSetup.get<MuonGeometryRecord>().get(cscGeom);
-
-  // Get the RecHits collection :
-  Handle<CSCRecHit2DCollection> recHits;
-  event.getByLabel("csc2DRecHits",recHits);
-
-  // Get the SimHits (if applicable)
-  Handle<PSimHitContainer> simHits;
-  if (isSimulation) event.getByLabel("g4SimHits", "MuonCSCHits", simHits);
-
-  // get CSC segment collection
-  Handle<CSCSegmentCollection> cscSegments;
-  event.getByLabel("cscSegments", cscSegments);
-
-  /////////////////////
-  // Run the modules //
-  /////////////////////
-
-  // Only do this for the first event
-  if (nEventsAnalyzed == 1 && makeCalibPlots) doCalibrations(eventSetup);
-
-  // look at various chamber occupancies
-  if (makeOccupancyPlots) doOccupancies(strips,wires,recHits,cscSegments);
-
-  // general look at strip digis
-  if (makeStripPlots) doStripDigis(strips);
-
-  // general look at wire digis
-  if (makeWirePlots) doWireDigis(wires);
-
-  // general look at rechits
-  if (makeRecHitPlots) doRecHits(recHits,strips,cscGeom);
-
-  // look at simHits
-  if (isSimulation && makeSimHitPlots) doSimHits(recHits,simHits);
-
-  // general look at Segments
-  if (makeSegmentPlots) doSegments(cscSegments,cscGeom);
-
-  // look at Pedestal Noise
-  if (makePedNoisePlots) doPedestalNoise(strips);
+  edm::Handle<CSCComparatorDigiCollection> comparators;
+  edm::Handle<CSCALCTDigiCollection> alcts;
+  edm::Handle<CSCCLCTDigiCollection> clcts;
+  edm::Handle<CSCRPCDigiCollection> rpcs;
+  edm::Handle<CSCCorrelatedLCTDigiCollection> correlatedlcts;
   
-  // look at recHit and segment efficiencies
-  if (makeEfficiencyPlots) doEfficiencies(recHits, cscSegments);
+  // Pass the handle to the method "getByType", which is used to retrieve
+  // one and only one instance of the type in question out of event "e". If
+  // zero or more than one instance exists in the event an exception is thrown.
+  //
 
-  // gas gain
-  if (makeGasGainPlots) doGasGain(*wires,*strips,*recHits);
+  event.getByLabel("muonCSCDigis","MuonCSCWireDigi",wires);
+  event.getByLabel("muonCSCDigis","MuonCSCStripDigi",strips);
+  /*
+  event.getByLabel("muonCSCDigis","MuonCSCComparatorDigi",comparators);
+  event.getByLabel("muonCSCDigis","MuonCSCALCTDigi",alcts);
+  event.getByLabel("muonCSCDigis","MuonCSCCLCTDigi",clcts);
+  event.getByLabel("muonCSCDigis","MuonCSCRPCDigi",rpcs);
+  event.getByLabel("muonCSCDigis","MuonCSCCorrelatedLCTDigi",correlatedlcts);
+  */
 
-  // AFEB timing
-  if (makeAFEBTimingPlots) doAFEBTiming(*wires);
-
-  // Comparators timing
-  if (makeCompTimingPlots) doCompTiming(*compars);
-
-  // strip ADC timing
-  if (makeADCTimingPlots) doADCTiming(*strips,*recHits);
-
-  // recHit Noise
-  if (makeRHNoisePlots) doNoiseHits(recHits,cscSegments,cscGeom,strips);
-
-}
-
-// ==============================================
-//
-// look at Occupancies
-//
-// ==============================================
-
-void CSCValidation::doOccupancies(edm::Handle<CSCStripDigiCollection> strips, edm::Handle<CSCWireDigiCollection> wires,
-                                  edm::Handle<CSCRecHit2DCollection> recHits, edm::Handle<CSCSegmentCollection> cscSegments){
-
-  bool wireo[2][4][4][36];
-  bool stripo[2][4][4][36];
-  bool rechito[2][4][4][36];
-  bool segmento[2][4][4][36];
-
-  for (int e = 0; e < 2; e++){
-    for (int s = 0; s < 4; s++){
-      for (int r = 0; r < 4; r++){
-        for (int c = 0; c < 36; c++){
-          wireo[e][s][r][c] = false;
-          stripo[e][s][r][c] = false;
-          rechito[e][s][r][c] = false;
-          segmento[e][s][r][c] = false;
-        }
-      }
-    }
-  }
-
-  //wires
-  for (CSCWireDigiCollection::DigiRangeIterator j=wires->begin(); j!=wires->end(); j++) {
-    CSCDetId id = (CSCDetId)(*j).first;
-    int kEndcap  = id.endcap();
-    int kRing    = id.ring();
-    int kStation = id.station();
-    int kChamber = id.chamber();
-    std::vector<CSCWireDigi>::const_iterator digiItr = (*j).second.first;
-    std::vector<CSCWireDigi>::const_iterator last = (*j).second.second;
-    wireo[kEndcap-1][kStation-1][kRing-1][kChamber-1] = true;
-  }
-  
-  //strips
-  for (CSCStripDigiCollection::DigiRangeIterator j=strips->begin(); j!=strips->end(); j++) {
-    CSCDetId id = (CSCDetId)(*j).first;
-    int kEndcap  = id.endcap();
-    int kRing    = id.ring();
-    int kStation = id.station();
-    int kChamber = id.chamber();
-    std::vector<CSCStripDigi>::const_iterator digiItr = (*j).second.first;
-    std::vector<CSCStripDigi>::const_iterator last = (*j).second.second;
-    for( ; digiItr != last; ++digiItr) {
-      std::vector<int> myADCVals = digiItr->getADCCounts();
-      bool thisStripFired = false;
-      float thisPedestal = 0.5*(float)(myADCVals[0]+myADCVals[1]);
-      float threshold = 13.3 ;
-      float diff = 0.;
-      for (unsigned int iCount = 0; iCount < myADCVals.size(); iCount++) {
-        diff = (float)myADCVals[iCount]-thisPedestal;
-        if (diff > threshold) { thisStripFired = true; }
-      }
-      if (thisStripFired) {
-        stripo[kEndcap-1][kStation-1][kRing-1][kChamber-1] = true;
-      }
-    }
-  }
-
-  //rechits
-  CSCRecHit2DCollection::const_iterator recIt;
-  for (recIt = recHits->begin(); recIt != recHits->end(); recIt++) {
-    CSCDetId idrec = (CSCDetId)(*recIt).cscDetId();
-    int kEndcap  = idrec.endcap();
-    int kRing    = idrec.ring();
-    int kStation = idrec.station();
-    int kChamber = idrec.chamber();
-    rechito[kEndcap-1][kStation-1][kRing-1][kChamber-1] = true;
-  }
-
-  //segments
-  for(CSCSegmentCollection::const_iterator it=cscSegments->begin(); it != cscSegments->end(); it++) {
-    CSCDetId id  = (CSCDetId)(*it).cscDetId();
-    int kEndcap  = id.endcap();
-    int kRing    = id.ring();
-    int kStation = id.station();
-    int kChamber = id.chamber();
-    segmento[kEndcap-1][kStation-1][kRing-1][kChamber-1] = true;
-  }
-
-  // Fill occupancy plots
-  histos->fillOccupancyHistos(wireo,stripo,rechito,segmento);
-
-}
-
-// ==============================================
-//
-// look at Calibrations
-//
-// ==============================================
-
-void CSCValidation::doCalibrations(const edm::EventSetup& eventSetup){
+  // ==============================================
+  //
+  // look at Calibrations
+  //
+  // ==============================================
 
   // Only do this for the first event
   if (nEventsAnalyzed == 1){
-
-    LogDebug("Calibrations") << "Loading Calibrations...";
-
     // get the gains
     edm::ESHandle<CSCDBGains> hGains;
     eventSetup.get<CSCDBGainsRcd>().get( hGains );
@@ -295,52 +453,43 @@ void CSCValidation::doCalibrations(const edm::EventSetup& eventSetup){
     eventSetup.get<CSCDBPedestalsRcd>().get( hPedestals );
     const CSCDBPedestals* pPedestals = hPedestals.product();
 
-    LogDebug("Calibrations") << "Calibrations Loaded!";
-
     for (int i = 0; i < 400; i++){
-      int bin = i+1;
-      histos->fillCalibHist(pGains->gains[i].gain_slope,"hCalibGainsS","Gains Slope",400,0,400,bin,"Calib");
-      histos->fillCalibHist(pCrosstalk->crosstalk[i].xtalk_slope_left,"hCalibXtalkSL","Xtalk Slope Left",400,0,400,bin,"Calib");
-      histos->fillCalibHist(pCrosstalk->crosstalk[i].xtalk_slope_right,"hCalibXtalkSR","Xtalk Slope Right",400,0,400,bin,"Calib");
-      histos->fillCalibHist(pCrosstalk->crosstalk[i].xtalk_intercept_left,"hCalibXtalkIL","Xtalk Intercept Left",400,0,400,bin,"Calib");
-      histos->fillCalibHist(pCrosstalk->crosstalk[i].xtalk_intercept_right,"hCalibXtalkIR","Xtalk Intercept Right",400,0,400,bin,"Calib");
-      histos->fillCalibHist(pPedestals->pedestals[i].ped,"hCalibPedsP","Peds",400,0,400,bin,"Calib");
-      histos->fillCalibHist(pPedestals->pedestals[i].rms,"hCalibPedsR","Peds RMS",400,0,400,bin,"Calib");
-      histos->fillCalibHist(pNoiseMatrix->matrix[i].elem33,"hCalibNoise33","Noise Matrix 33",400,0,400,bin,"Calib");
-      histos->fillCalibHist(pNoiseMatrix->matrix[i].elem34,"hCalibNoise34","Noise Matrix 34",400,0,400,bin,"Calib");
-      histos->fillCalibHist(pNoiseMatrix->matrix[i].elem35,"hCalibNoise35","Noise Matrix 35",400,0,400,bin,"Calib");
-      histos->fillCalibHist(pNoiseMatrix->matrix[i].elem44,"hCalibNoise44","Noise Matrix 44",400,0,400,bin,"Calib");
-      histos->fillCalibHist(pNoiseMatrix->matrix[i].elem45,"hCalibNoise45","Noise Matrix 45",400,0,400,bin,"Calib");
-      histos->fillCalibHist(pNoiseMatrix->matrix[i].elem46,"hCalibNoise46","Noise Matrix 46",400,0,400,bin,"Calib");
-      histos->fillCalibHist(pNoiseMatrix->matrix[i].elem55,"hCalibNoise55","Noise Matrix 55",400,0,400,bin,"Calib");
-      histos->fillCalibHist(pNoiseMatrix->matrix[i].elem56,"hCalibNoise56","Noise Matrix 56",400,0,400,bin,"Calib");
-      histos->fillCalibHist(pNoiseMatrix->matrix[i].elem57,"hCalibNoise57","Noise Matrix 57",400,0,400,bin,"Calib");
-      histos->fillCalibHist(pNoiseMatrix->matrix[i].elem66,"hCalibNoise66","Noise Matrix 66",400,0,400,bin,"Calib");
-      histos->fillCalibHist(pNoiseMatrix->matrix[i].elem67,"hCalibNoise67","Noise Matrix 67",400,0,400,bin,"Calib");
-      histos->fillCalibHist(pNoiseMatrix->matrix[i].elem77,"hCalibNoise77","Noise Matrix 77",400,0,400,bin,"Calib");
-
- 
-    }
+      hCalibGainsS->SetBinContent(i+1,pGains->gains[i].gain_slope);
+      hCalibXtalkSL->SetBinContent(i+1,pCrosstalk->crosstalk[i].xtalk_slope_left);
+      hCalibXtalkSR->SetBinContent(i+1,pCrosstalk->crosstalk[i].xtalk_slope_right);
+      hCalibXtalkIL->SetBinContent(i+1,pCrosstalk->crosstalk[i].xtalk_intercept_left);
+      hCalibXtalkIR->SetBinContent(i+1,pCrosstalk->crosstalk[i].xtalk_intercept_right);
+      hCalibPedsP->SetBinContent(i+1,pPedestals->pedestals[i].ped);
+      hCalibPedsR->SetBinContent(i+1,pPedestals->pedestals[i].rms);
+      hCalibNoise33->SetBinContent(i+1,pNoiseMatrix->matrix[i].elem33);
+      hCalibNoise34->SetBinContent(i+1,pNoiseMatrix->matrix[i].elem34);
+      hCalibNoise35->SetBinContent(i+1,pNoiseMatrix->matrix[i].elem35);
+      hCalibNoise44->SetBinContent(i+1,pNoiseMatrix->matrix[i].elem44);
+      hCalibNoise45->SetBinContent(i+1,pNoiseMatrix->matrix[i].elem45);
+      hCalibNoise46->SetBinContent(i+1,pNoiseMatrix->matrix[i].elem46);
+      hCalibNoise55->SetBinContent(i+1,pNoiseMatrix->matrix[i].elem55);
+      hCalibNoise56->SetBinContent(i+1,pNoiseMatrix->matrix[i].elem56);
+      hCalibNoise57->SetBinContent(i+1,pNoiseMatrix->matrix[i].elem57);
+      hCalibNoise66->SetBinContent(i+1,pNoiseMatrix->matrix[i].elem66);
+      hCalibNoise67->SetBinContent(i+1,pNoiseMatrix->matrix[i].elem67);
+      hCalibNoise77->SetBinContent(i+1,pNoiseMatrix->matrix[i].elem77);
+    }  
 
   } // end calib
+  
+  // ==============================================
+  //
+  // look at DIGIs
+  //
+  // ==============================================
 
-}
-
-
-// ==============================================
-//
-// look at WIRE DIGIs
-//
-// ==============================================
-
-void CSCValidation::doWireDigis(edm::Handle<CSCWireDigiCollection> wires){
-
+  //
+  // WIRE GROUPS
   int nWireGroupsTotal = 0;
   for (CSCWireDigiCollection::DigiRangeIterator j=wires->begin(); j!=wires->end(); j++) {
     CSCDetId id = (CSCDetId)(*j).first;
     int kEndcap  = id.endcap();
-    int cEndcap  = id.endcap();
-    if (kEndcap == 2) cEndcap = -1;
+    if (kEndcap == 2) kEndcap = -1;
     int kRing    = id.ring();
     int kStation = id.station();
     int kChamber = id.chamber();
@@ -350,41 +499,45 @@ void CSCValidation::doWireDigis(edm::Handle<CSCWireDigiCollection> wires){
     for( ; digiItr != last; ++digiItr) {
       int myWire = digiItr->getWireGroup();
       int myTBin = digiItr->getTimeBin();
+      hWireAll->Fill(myWire);
+      hWireTBinAll->Fill(myTBin);
       nWireGroupsTotal++;
-      int kCodeBroad  = cEndcap * ( 4*(kStation-1) + kRing) ;
-      int kCodeNarrow = cEndcap * ( 100*(kRing-1) + kChamber) ;
-      histos->fill1DHistByType(myWire,"hWireWire","Wiregroup Numbers Fired",id,113,-0.5,112.5,"Digis");
-      histos->fill1DHistByType(kLayer,"hWireLayer","Wires Fired per Layer",id,8,-0.5,7.5,"Digis");
-      histos->fill1DHistByType(myTBin,"hWireTBin","Wire TimeBin Fired",id,17,-0.5,16.5,"Digis");
-      if (kStation == 1) histos->fill1DHist(kCodeNarrow,"hWireCodeNarrow1","narrow scope wire code station 1",801,-400.5,400.5,"Digis");
-      if (kStation == 2) histos->fill1DHist(kCodeNarrow,"hWireCodeNarrow2","narrow scope wire code station 2",801,-400.5,400.5,"Digis");
-      if (kStation == 3) histos->fill1DHist(kCodeNarrow,"hWireCodeNarrow3","narrow scope wire code station 3",801,-400.5,400.5,"Digis");
-      if (kStation == 4) histos->fill1DHist(kCodeNarrow,"hWireCodeNarrow4","narrow scope wire code station 4",801,-400.5,400.5,"Digis");
-      histos->fill1DHist(kCodeBroad,"hWireCodeBroad","broad scope code for wires",33,-16.5,16.5,"Digis");
+      int kCodeBroad  = kEndcap * ( 4*(kStation-1) + kRing) ;
+      int kCodeNarrow = kEndcap * ( 100*(kRing-1) + kChamber) ;
+      hWireCodeBroad->Fill(kCodeBroad);
+      if (kStation == 1) {
+	hWireCodeNarrow1->Fill(kCodeNarrow);
+	hWireLayer1->Fill(kLayer);
+	hWireWire1->Fill(myWire);
+      }
+      if (kStation == 2) {
+	hWireCodeNarrow2->Fill(kCodeNarrow);
+	hWireLayer2->Fill(kLayer);
+	hWireWire2->Fill(myWire);
+      }
+      if (kStation == 3) {
+	hWireCodeNarrow3->Fill(kCodeNarrow);
+	hWireLayer3->Fill(kLayer);
+	hWireWire3->Fill(myWire);
+      }
+      if (kStation == 4) {
+	hWireCodeNarrow4->Fill(kCodeNarrow);
+	hWireLayer4->Fill(kLayer);
+	hWireWire4->Fill(myWire);
+      }
     }
-  } // end wire loop
-
-  // this way you can zero suppress but still store info on # events with no digis
-  if (nWireGroupsTotal == 0) nWireGroupsTotal = -1;
-
-  histos->fill1DHist(nWireGroupsTotal,"hWirenGroupsTotal","Wires Fired Per Event",41,-0.5,40.5,"Digis");
+  }
+  if (nWireGroupsTotal > 0) {hWirenGroupsTotal->Fill(nWireGroupsTotal);}
   
-}
 
-// ==============================================
-//
-// look at STRIP DIGIs
-//
-// ==============================================
-
-void CSCValidation::doStripDigis(edm::Handle<CSCStripDigiCollection> strips){
-
+  //
+  // STRIPS
+  //
   int nStripsFired = 0;
   for (CSCStripDigiCollection::DigiRangeIterator j=strips->begin(); j!=strips->end(); j++) {
     CSCDetId id = (CSCDetId)(*j).first;
     int kEndcap  = id.endcap();
-    int cEndcap  = id.endcap();
-    if (kEndcap == 2) cEndcap = -1;
+    if (kEndcap == 2) kEndcap = -1;
     int kRing    = id.ring();
     int kStation = id.station();
     int kChamber = id.chamber();
@@ -401,82 +554,60 @@ void CSCValidation::doStripDigis(edm::Handle<CSCStripDigiCollection> strips){
       for (unsigned int iCount = 0; iCount < myADCVals.size(); iCount++) {
 	diff = (float)myADCVals[iCount]-thisPedestal;
 	if (diff > threshold) { thisStripFired = true; }
-      } 
-      if (thisStripFired) {
-        nStripsFired++;
-        int kCodeBroad  = cEndcap * ( 4*(kStation-1) + kRing) ;
-        int kCodeNarrow = cEndcap * ( 100*(kRing-1) + kChamber) ;
-        // fill strip histos
-        histos->fill1DHistByType(myStrip,"hStripStrip","Strip Number",id,81,-0.5,80.5,"Digis");
-        histos->fill1DHistByType(kLayer,"hStripLayer","Strips Fired per Layer",id,8,-0.5,7.5,"Digis");
-        if (kStation == 1) histos->fill1DHist(kCodeNarrow,"hStripCodeNarrow1","narrow scope strip code station 1",801,-400.5,400.5,"Digis");
-        if (kStation == 2) histos->fill1DHist(kCodeNarrow,"hStripCodeNarrow2","narrow scope strip code station 2",801,-400.5,400.5,"Digis");
-        if (kStation == 3) histos->fill1DHist(kCodeNarrow,"hStripCodeNarrow3","narrow scope strip code station 3",801,-400.5,400.5,"Digis");
-        if (kStation == 4) histos->fill1DHist(kCodeNarrow,"hStripCodeNarrow4","narrow scope strip code station 4",801,-400.5,400.5,"Digis");
-        histos->fill1DHist(kCodeBroad,"hStripCodeBroad","broad scope code for strips",33,-16.5,16.5,"Digis");
-      }
-    }
-  } // end strip loop
-
-  if (nStripsFired == 0) nStripsFired = -1;
-
-  histos->fill1DHist(nStripsFired,"hStripNFired","Fired Strips per Event",101,-0.5,100.5,"Digis");
-
-}
-
-//=======================================================
-//
-// Look at the Pedestal Noise Distributions
-//
-//=======================================================
-
-void CSCValidation::doPedestalNoise(edm::Handle<CSCStripDigiCollection> strips){
-
-  for (CSCStripDigiCollection::DigiRangeIterator j=strips->begin(); j!=strips->end(); j++) {
-    CSCDetId id = (CSCDetId)(*j).first;
-    int kEndcap  = id.endcap();
-    int cEndcap  = id.endcap();
-    if (kEndcap == 2) cEndcap = -1;
-    int kRing    = id.ring();
-    int kStation = id.station();
-    std::vector<CSCStripDigi>::const_iterator digiItr = (*j).second.first;
-    std::vector<CSCStripDigi>::const_iterator last = (*j).second.second;
-    for( ; digiItr != last; ++digiItr) {
-      int myStrip = digiItr->getStrip();
-      std::vector<int> myADCVals = digiItr->getADCCounts();
-      float TotalADC = getSignal(*strips, id, myStrip);
-      bool thisStripFired = false;
-      float thisPedestal = 0.5*(float)(myADCVals[0]+myADCVals[1]);
-      float thisSignal = (1./6)*(myADCVals[2]+myADCVals[3]+myADCVals[4]+myADCVals[5]+myADCVals[6]+myADCVals[7]);
-      float threshold = 13.3;
-      if(kStation == 1 && kRing == 4)
-	{
-	  kRing = 1;
-	  if(myStrip <= 16) myStrip += 64; // no trapping for any bizarreness
+	if (thisStripFired) {
+	  nStripsFired++;
+	  hStripAll->Fill(myStrip);
+	  hStripADCAll->Fill(diff);
+	  int kCodeBroad  = kEndcap * ( 4*(kStation-1) + kRing) ;
+	  int kCodeNarrow = kEndcap * ( 100*(kRing-1) + kChamber) ;
+	  hStripCodeBroad->Fill(kCodeBroad);
+	  if (kStation == 1) {
+	    hStripCodeNarrow1->Fill(kCodeNarrow);
+	    hStripLayer1->Fill(kLayer);
+	    hStripStrip1->Fill(myStrip);
+	  }
+	  if (kStation == 2) {
+	    hStripCodeNarrow2->Fill(kCodeNarrow);
+	    hStripLayer2->Fill(kLayer);
+	    hStripStrip2->Fill(myStrip);
+	  }
+	  if (kStation == 3) {
+	    hStripCodeNarrow3->Fill(kCodeNarrow);
+	    hStripLayer3->Fill(kLayer);
+	    hStripStrip3->Fill(myStrip);
+	  }
+	  if (kStation == 4) {
+	    hStripCodeNarrow4->Fill(kCodeNarrow);
+	    hStripLayer4->Fill(kLayer);
+	    hStripStrip4->Fill(myStrip);
+	  }
 	}
-      if (TotalADC > threshold) { thisStripFired = true;}
-      if (!thisStripFired){
-	float ADC = thisSignal - thisPedestal;
-        histos->fill1DHist(ADC,"hStripPed","Pedestal Noise Distribution",50,-25.,25.,"PedestalNoise");
-        histos->fill1DHistByType(ADC,"hStripPedME","Pedestal Noise Distribution",id,50,-25.,25.,"PedestalNoise");
-        //histos->fill1DHistByChamber(ADC,"hStripPedME","Pedestal Noise Distribution",id,50,-25.,25.,"PedestalNoise");
       }
     }
   }
+  if (nStripsFired > 0) {hStripNFired->Fill(nStripsFired);}
+    
 
-}
 
+  // ==============================================
+  //
+  // look at RECHITs
+  //
+  // ===============================================
 
-// ==============================================
-//
-// look at RECHITs
-//
-// ==============================================
-
-void CSCValidation::doRecHits(edm::Handle<CSCRecHit2DCollection> recHits, edm::Handle<CSCStripDigiCollection> strips, edm::ESHandle<CSCGeometry> cscGeom){
-
+  // Get the CSC Geometry :
+  ESHandle<CSCGeometry> cscGeom;
+  eventSetup.get<MuonGeometryRecord>().get(cscGeom);
+  
   // Get the RecHits collection :
+  Handle<CSCRecHit2DCollection> recHits; 
+  event.getByLabel("csc2DRecHits",recHits);  
   int nRecHits = recHits->size();
+
+  // Get the SimHits (if applicable)
+  Handle<PSimHitContainer> simHits;
+  if (isSimulation) event.getByLabel("g4SimHits", "MuonCSCHits", simHits);
+ 
  
   // ---------------------
   // Loop over rechits 
@@ -491,50 +622,37 @@ void CSCValidation::doRecHits(edm::Handle<CSCRecHit2DCollection> recHits, edm::H
     // Find chamber with rechits in CSC 
     CSCDetId idrec = (CSCDetId)(*recIt).cscDetId();
     int kEndcap  = idrec.endcap();
-    int cEndcap  = idrec.endcap();
-    if (kEndcap == 2) cEndcap = -1;
+    if (kEndcap == 2) kEndcap = -1;
     int kRing    = idrec.ring();
     int kStation = idrec.station();
     int kChamber = idrec.chamber();
     int kLayer   = idrec.layer();
 
-    // Store rechit as a Local Point:
+    // Store reco hit as a Local Point:
     LocalPoint rhitlocal = (*recIt).localPosition();  
     float xreco = rhitlocal.x();
     float yreco = rhitlocal.y();
-    //float zreco = rhitlocal.z();
-    //float phireco = rhitlocal.phi();
-    //LocalError rerrlocal = (*recIt).localPositionError();  
-    //these errors are squared!
-    //float xxerr = rerrlocal.xx();
-    //float yyerr = rerrlocal.yy();
-    //float xyerr = rerrlocal.xy();
+    float zreco = rhitlocal.z();
+    float phireco = rhitlocal.phi();
+    LocalError rerrlocal = (*recIt).localPositionError();  
+    float xxerr = rerrlocal.xx();
+    float yyerr = rerrlocal.yy();
+    float xyerr = rerrlocal.xy();
 
-    // Find the strip containing this hit
+    // Find the charge associated with this hit
     CSCRecHit2D::ChannelContainer hitstrips = (*recIt).channels();
     int nStrips     =  hitstrips.size();
     int centerid    =  nStrips/2 + 1;
     int centerStrip =  hitstrips[centerid - 1];
-
-    // Find the charge associated with this hit
-
-    CSCRecHit2D::ADCContainer adcs = (*recIt).adcs();
-    int adcsize = adcs.size();
-    float rHSumQ = 0;
-    float sumsides = 0;
-    for (int i = 0; i < adcsize; i++){
-      if (i != 3 && i != 7 && i != 11){
-        rHSumQ = rHSumQ + adcs[i]; 
-      }
-      if (adcsize == 12 && (i < 3 || i > 7) && i < 12){
-        sumsides = sumsides + adcs[i];
-      }
-    }
-    float rHratioQ = sumsides/rHSumQ;
-    if (adcsize != 12) rHratioQ = -99;
+    HepMatrix rHcharge = getCharge3x3(*strips, idrec, centerStrip);    
+    float rHSumQ = rHcharge(1,1) + rHcharge(1,2) + rHcharge(1,3) +
+                   rHcharge(2,1) + rHcharge(2,2) + rHcharge(2,3) +
+                   rHcharge(3,1) + rHcharge(3,2) + rHcharge(3,3);
+    float rHratioQ = (rHcharge(1,1) + rHcharge(1,2) + rHcharge(1,3)  +
+                      rHcharge(3,1) + rHcharge(3,2) + rHcharge(3,3)) /
+                     (rHcharge(2,1) + rHcharge(2,2) + rHcharge(2,3));
 
     // Get the signal timing of this hit
-    //float rHtime = (*recIt).tpeak();
     float rHtime = getTiming(*strips, idrec, centerStrip);
 
     // Get pointer to the layer:
@@ -544,99 +662,154 @@ void CSCValidation::doRecHits(edm::Handle<CSCRecHit2DCollection> recHits, edm::H
     GlobalPoint rhitglobal= csclayer->toGlobal(rhitlocal);
     float grecx   =  rhitglobal.x();
     float grecy   =  rhitglobal.y();
-    //float grecz   =  rhitglobal.z();
-    //float grecphi =  rhitglobal.phi();
-    //float grecr   =  sqrt(grecx*grecx + grecy+grecy);
+    float grecz   =  rhitglobal.z();
+    float grecphi =  rhitglobal.phi();
+    float grecr   =  sqrt(grecx*grecx + grecy+grecy);
 
-    // Fill the rechit position branch
-    if (writeTreeToFile && treeCount < 1000000){
-      histos->fillRechitTree(xreco, yreco, grecx, grecy, kEndcap, kStation, kRing, kChamber, kLayer);
-      treeCount++;
-    }    
 
-    // Simple occupancy variables
-    int kCodeBroad  = cEndcap * ( 4*(kStation-1) + kRing) ;
-    int kCodeNarrow = cEndcap * ( 100*(kRing-1) + kChamber) ;
 
-    // Fill some histograms
-    histos->fill1DHist(kCodeBroad,"hRHCodeBroad","broad scope code for recHits",33,-16.5,16.5,"recHits");
-    if (kStation == 1) histos->fill1DHist(kCodeNarrow,"hRHCodeNarrow1","narrow scope recHit code station 1",801,-400.5,400.5,"recHits");
-    if (kStation == 2) histos->fill1DHist(kCodeNarrow,"hRHCodeNarrow2","narrow scope recHit code station 2",801,-400.5,400.5,"recHits");
-    if (kStation == 3) histos->fill1DHist(kCodeNarrow,"hRHCodeNarrow3","narrow scope recHit code station 3",801,-400.5,400.5,"recHits");
-    if (kStation == 4) histos->fill1DHist(kCodeNarrow,"hRHCodeNarrow4","narrow scope recHit code station 4",801,-400.5,400.5,"recHits");
-    histos->fill1DHistByType(kLayer,"hRHLayer","RecHits per Layer",idrec,8,-0.5,7.5,"recHits");
-    if (kStation == 1 && (kRing == 1 || kRing == 4)) histos->fill1DHistByType(rHSumQ,"hRHSumQ","Sum 3x3 recHit Charge",idrec,125,0,4000,"recHits");
-    else histos->fill1DHistByType(rHSumQ,"hRHSumQ","Sum 3x3 recHit Charge",idrec,125,0,2000,"recHits");
-    //if (kStation == 1 && (kRing == 1 || kRing == 4)) histos->fill1DHistByChamber(rHSumQ,"hRHSumQ","Sum 3x3 recHit Charge",idrec,125,0,4000,"recHits");
-    //else histos->fill1DHistByChamber(rHSumQ,"hRHSumQ","Sum 3x3 recHit Charge",idrec,125,0,2000,"recHits");
-    histos->fill1DHistByType(rHratioQ,"hRHRatioQ","Charge Ratio (Ql+Qr)/Qt",idrec,120,-0.1,1.1,"recHits");
-    histos->fill1DHistByType(rHtime,"hRHTiming","recHit Timing",idrec,100,0,10,"recHits");
-    //histos->fill1DHistByChamber(rHtime,"hRHTiming","recHit Timing",idrec,100,0,10,"recHits");
-    histos->fill2DHistByStation(grecx,grecy,"hRHGlobal","recHit Global Position",idrec,400,-800.,800.,400,-800.,800.,"recHits");
-
-  } //end rechit loop
-
-  if (nRecHits == 0) nRecHits = -1;
-
-  histos->fill1DHist(nRecHits,"hRHnrechits","recHits per Event (all chambers)",41,-0.5,40.5,"recHits");
-
-}
-
-// ==============================================
-//
-// look at SIMHITS
-//
-// ==============================================
-
-void CSCValidation::doSimHits(edm::Handle<CSCRecHit2DCollection> recHits, edm::Handle<PSimHitContainer> simHits){
-
-  CSCRecHit2DCollection::const_iterator recIt;
-  for (recIt = recHits->begin(); recIt != recHits->end(); recIt++) {
-
-    CSCDetId idrec = (CSCDetId)(*recIt).cscDetId();
-    LocalPoint rhitlocal = (*recIt).localPosition();
-    float xreco = rhitlocal.x();
-    float yreco = rhitlocal.y();
     float simHitXres = -99;
     float simHitYres = -99;
     float mindiffX   = 99;
     float mindiffY   = 10;
     // If MC, find closest muon simHit to check resolution:
-    PSimHitContainer::const_iterator simIt;
-    for (simIt = simHits->begin(); simIt != simHits->end(); simIt++){
-      // Get DetID for this simHit:
-      CSCDetId sId = (CSCDetId)(*simIt).detUnitId();
-      // Check if the simHit detID matches that of current recHit
-      // and make sure it is a muon hit:
-      if (sId == idrec && abs((*simIt).particleType()) == 13){
-        // Get the position of this simHit in local coordinate system:
-        LocalPoint sHitlocal = (*simIt).localPosition();
-        // Now we need to make reasonably sure that this simHit is
-        // responsible for this recHit:
-        if ((sHitlocal.x() - xreco) < mindiffX && (sHitlocal.y() - yreco) < mindiffY){
-          simHitXres = (sHitlocal.x() - xreco);
-          simHitYres = (sHitlocal.y() - yreco);
-          mindiffX = (sHitlocal.x() - xreco);
+    if (isSimulation){
+      PSimHitContainer::const_iterator simIt;
+      for (simIt = simHits->begin(); simIt != simHits->end(); simIt++){
+        // Get DetID for this simHit:
+        CSCDetId sId = (CSCDetId)(*simIt).detUnitId();
+        // Check if the simHit detID matches that of current recHit
+        // and make sure it is a muon hit:
+        if (sId == idrec && abs((*simIt).particleType()) == 13){
+          // Get the position of this simHit in local coordinate system:
+          LocalPoint sHitlocal = (*simIt).localPosition();
+          // Now we need to make reasonably sure that this simHit is
+          // responsible for this recHit:
+          if ((sHitlocal.x() - xreco) < mindiffX && (sHitlocal.y() - yreco) < mindiffY){
+            simHitXres = (sHitlocal.x() - xreco);
+            simHitYres = (sHitlocal.y() - yreco);
+            mindiffX = (sHitlocal.x() - xreco);
+          }
         }
       }
     }
 
-    histos->fill1DHistByType(simHitXres,"hRHResid","SimHitX - Reconstructed X",idrec,100,-1.0,1.0,"Resolution");
-    //histos->fill1DHistByChamber(simHitXres,"hRHResid","SimHitX - Reconstructed X",idrec,100,-1.0,1.0,"Resolution");
+    // Fill the rechit position branch
+    rHpos.localx  = xreco;
+    rHpos.localy  = yreco;
+    rHpos.globalx = grecx;
+    rHpos.globaly = grecy;
+    rHpos.endcap  = kEndcap;
+    rHpos.ring    = kRing;
+    rHpos.station = kStation;
+    rHpos.chamber = kChamber;
+    rHpos.layer   = kLayer;
+    rHTree->Fill();
+
+    // Fill some histograms
+    int kCodeBroad  = kEndcap * ( 4*(kStation-1) + kRing) ;
+    int kCodeNarrow = kEndcap * ( 100*(kRing-1) + kChamber) ;
+    hRHCodeBroad->Fill(kCodeBroad);
+    if (kStation == 1) {
+      hRHCodeNarrow1->Fill(kCodeNarrow);
+      hRHLayer1->Fill(kLayer);
+      hRHX1->Fill(xreco);
+      hRHY1->Fill(yreco);
+      hRHGlobal1->Fill(grecx,grecy);
+      if (kRing == 1){
+        if (isSimulation) hRHResid11b->Fill(simHitXres);
+        hRHSumQ11b->Fill(rHSumQ);
+        hRHRatioQ11b->Fill(rHratioQ);
+        hRHTiming11b->Fill(rHtime);
+      }
+      if (kRing == 2){
+        if (isSimulation) hRHResid12->Fill(simHitXres);
+        hRHSumQ12->Fill(rHSumQ);
+        hRHRatioQ12->Fill(rHratioQ);
+        hRHTiming12->Fill(rHtime);
+      }
+      if (kRing == 3){
+        if (isSimulation) hRHResid13->Fill(simHitXres);
+        hRHSumQ13->Fill(rHSumQ);
+        hRHRatioQ13->Fill(rHratioQ);
+        hRHTiming13->Fill(rHtime);
+      }
+      if (kRing == 4){
+        if (isSimulation) hRHResid11a->Fill(simHitXres);
+        hRHSumQ11a->Fill(rHSumQ);
+        hRHRatioQ11a->Fill(rHratioQ);
+        hRHTiming11a->Fill(rHtime);
+      }
+    }
+    if (kStation == 2) {
+      hRHCodeNarrow2->Fill(kCodeNarrow);
+      hRHLayer2->Fill(kLayer);
+      hRHX2->Fill(xreco);
+      hRHY2->Fill(yreco);
+      hRHGlobal2->Fill(grecx,grecy);
+      if (kRing == 1){
+        if (isSimulation) hRHResid21->Fill(simHitXres);
+        hRHSumQ21->Fill(rHSumQ);
+        hRHRatioQ21->Fill(rHratioQ);
+        hRHTiming21->Fill(rHtime);
+      }
+      if (kRing == 2){
+        if (isSimulation) hRHResid22->Fill(simHitXres);
+        hRHSumQ22->Fill(rHSumQ);
+        hRHRatioQ22->Fill(rHratioQ);
+        hRHTiming22->Fill(rHtime);
+      }
+    }
+    if (kStation == 3) {
+      hRHCodeNarrow3->Fill(kCodeNarrow);
+      hRHLayer3->Fill(kLayer);
+      hRHX3->Fill(xreco);
+      hRHY3->Fill(yreco);
+      hRHGlobal3->Fill(grecx,grecy);
+      if (kRing == 1){
+        if (isSimulation) hRHResid31->Fill(simHitXres);
+        hRHSumQ31->Fill(rHSumQ);
+        hRHRatioQ31->Fill(rHratioQ);
+        hRHTiming31->Fill(rHtime);
+      }
+      if (kRing == 2){
+        if (isSimulation) hRHResid32->Fill(simHitXres);
+        hRHSumQ32->Fill(rHSumQ);
+        hRHRatioQ32->Fill(rHratioQ);
+        hRHTiming32->Fill(rHtime);
+      }
+    }
+    if (kStation == 4) {
+      hRHCodeNarrow4->Fill(kCodeNarrow);
+      hRHLayer4->Fill(kLayer);
+      hRHX4->Fill(xreco);
+      hRHY4->Fill(yreco);
+      hRHGlobal4->Fill(grecx,grecy);
+      if (kRing == 1){
+        if (isSimulation) hRHResid41->Fill(simHitXres);
+        hRHSumQ41->Fill(rHSumQ);
+        hRHRatioQ41->Fill(rHratioQ);
+        hRHTiming41->Fill(rHtime);
+      }
+      if (kRing == 2){
+        if (isSimulation) hRHResid42->Fill(simHitXres);
+        hRHSumQ42->Fill(rHSumQ);
+        hRHRatioQ42->Fill(rHratioQ);
+        hRHTiming42->Fill(rHtime);
+      }
+    }
 
   }
 
-}
-
-// ==============================================
-//
-// look at SEGMENTs
-//
-// ===============================================
-
-void CSCValidation::doSegments(edm::Handle<CSCSegmentCollection> cscSegments, edm::ESHandle<CSCGeometry> cscGeom){
+  // ==============================================
+  //
+  // look at SEGMENTs
+  //
+  // ===============================================
 
   // get CSC segment collection
+  Handle<CSCSegmentCollection> cscSegments;
+  event.getByLabel("cscSegments", cscSegments);
   int nSegments = cscSegments->size();
 
   // -----------------------
@@ -648,12 +821,10 @@ void CSCValidation::doSegments(edm::Handle<CSCSegmentCollection> cscSegments, ed
     //
     CSCDetId id  = (CSCDetId)(*it).cscDetId();
     int kEndcap  = id.endcap();
-    int cEndcap  = id.endcap();
-    if (kEndcap == 2) cEndcap = -1;
+    if (kEndcap == 2) kEndcap = -1;
     int kRing    = id.ring();
     int kStation = id.station();
     int kChamber = id.chamber();
-
     //
     float chisq    = (*it).chi2();
     int nhits      = (*it).nRecHits();
@@ -662,11 +833,11 @@ void CSCValidation::doSegments(edm::Handle<CSCSegmentCollection> cscSegments, ed
     LocalPoint localPos = (*it).localPosition();
     float segX     = localPos.x();
     float segY     = localPos.y();
-    //float segZ     = localPos.z();
-    //float segPhi   = localPos.phi();
+    float segZ     = localPos.z();
+    float segPhi   = localPos.phi();
     LocalVector segDir = (*it).localDirection();
     double theta   = segDir.theta();
-    //double phi     = segDir.phi();
+    double phi     = segDir.phi();
 
     //
     // try to get the CSC recHits that contribute to this segment.
@@ -678,40 +849,39 @@ void CSCValidation::doSegments(edm::Handle<CSCSegmentCollection> cscSegments, ed
     for ( vector<CSCRecHit2D>::const_iterator iRH = theseRecHits.begin(); iRH != theseRecHits.end(); iRH++) {
       jRH++;
       CSCDetId idRH = (CSCDetId)(*iRH).cscDetId();
-      //int kEndcap  = idRH.endcap();
+      int kEndcap  = idRH.endcap();
       int kRing    = idRH.ring();
       int kStation = idRH.station();
-      //int kChamber = idRH.chamber();
+      int kChamber = idRH.chamber();
       int kLayer   = idRH.layer();
-
-      // Find the strip containing this hit
-      CSCRecHit2D::ChannelContainer hitstrips = (*iRH).channels();
-      int nStrips     =  hitstrips.size();
-      int centerid    =  nStrips/2 + 1;
-      int centerStrip =  hitstrips[centerid - 1];
 
       // If this segment has 6 hits, find the position of each hit on the strip in units of stripwidth and store values
       if (nRH == 6){
-        float stpos = (*iRH).positionWithinStrip();
-        se(kLayer,1) = (*iRH).errorWithinStrip();
+        const CSCLayer* csclayer = cscGeom->layer( idRH );
+        const CSCLayerGeometry *layerGeom = csclayer->geometry();
+        LocalPoint rhlp = (*iRH).localPosition();
+        float swidth = layerGeom->stripPitch(rhlp);
+        se(kLayer,1) = sqrt((*iRH).localPositionError().xx())/swidth;
         // Take into account half-strip staggering of layers (ME1/1 has no staggering)
-        if (kStation == 1 && (kRing == 1 || kRing == 4)) sp(kLayer,1) = stpos + centerStrip;
+        if (kStation == 1 && (kRing == 1 || kRing == 4)) sp(kLayer,1) = layerGeom->strip(rhlp);
         else{
-          if (kLayer == 1 || kLayer == 3 || kLayer == 5) sp(kLayer,1) = stpos + centerStrip;
-          if (kLayer == 2 || kLayer == 4 || kLayer == 6) sp(kLayer,1) = stpos - 0.5 + centerStrip;
+          if (kLayer == 1 || kLayer == 3 || kLayer == 5) sp(kLayer,1) = layerGeom->strip(rhlp);
+          if (kLayer == 2 || kLayer == 4 || kLayer == 6) sp(kLayer,1) = layerGeom->strip(rhlp) - 0.5;
         }
       }
 
     }
 
     float residual = -99;
+
     // Fit all points except layer 3, then compare expected value for layer 3 to reconstructed value
     if (nRH == 6){
       float expected = fitX(sp,se);
       residual = expected - sp(3,1);
     }
 
-    // global transformation
+    //
+    // global transformation: from Ingo Bloch
     float globX = 0.;
     float globY = 0.;
     float globZ = 0.;
@@ -731,37 +901,93 @@ void CSCValidation::doSegments(edm::Handle<CSCSegmentCollection> cscSegments, ed
       globTheta = globalDirection.theta();
       globPhi   = globalDirection.phi();
     }
-
-    // Simple occupancy variables
-    int kCodeBroad  = cEndcap * ( 4*(kStation-1) + kRing) ;
-    int kCodeNarrow = cEndcap * ( 100*(kRing-1) + kChamber) ;
-
-    // Fill segment position branch
-    if (writeTreeToFile && treeCount < 1000000) histos->fillSegmentTree(segX, segY, globX, globY, kEndcap, kStation, kRing, kChamber);
-
-    // Fill histos
-    histos->fill1DHist(kCodeBroad,"hSCodeBroad","broad scope code for segmentss",33,-16.5,16.5,"Segments");
-    if (kStation == 1) histos->fill1DHist(kCodeNarrow,"hSCodeNarrow1","narrow scope segment code station 1",801,-400.5,400.5,"Segments");
-    if (kStation == 2) histos->fill1DHist(kCodeNarrow,"hSCodeNarrow2","narrow scope segment code station 2",801,-400.5,400.5,"Segments");
-    if (kStation == 3) histos->fill1DHist(kCodeNarrow,"hSCodeNarrow3","narrow scope segment code station 3",801,-400.5,400.5,"Segments");
-    if (kStation == 4) histos->fill1DHist(kCodeNarrow,"hSCodeNarrow4","narrow scope segment code station 4",801,-400.5,400.5,"Segments");
-    histos->fill2DHistByStation(globX,globY,"hSGlobal","Segment Global Positions;global x (cm)",id,400,-800.,800.,400,-800.,800.,"Segments");
-    histos->fill1DHistByType(nhits,"hSnHits","N hits on Segments",id,8,-0.5,7.5,"Segments");
-    histos->fill1DHistByType(theta,"hSTheta","local theta segments",id,128,-3.2,3.2,"Segments");
-    histos->fill1DHistByType(residual,"hSResid","Fitted Position on Strip - Reconstructed for Layer 3",id,100,-0.5,0.5,"Resolution");
-    histos->fill1DHistByType(chisqProb,"hSChiSqProb","segments chi-squared probability",id,110,-0.05,1.05,"Segments");
-    histos->fill1DHist(globTheta,"hSGlobalTheta","segment global theta",64,0,1.6,"Segments");
-    histos->fill1DHist(globPhi,"hSGlobalPhi","segment global phi",128,-3.2,3.2,"Segments");
+    //
 
 
-  } // end segment loop
+    // Fill the segment position branch
+    segpos.localx  = segX;
+    segpos.localy  = segY;
+    segpos.globalx = globX;
+    segpos.globaly = globY;
+    segpos.endcap  = kEndcap;
+    segpos.ring    = kRing;
+    segpos.station = kStation;
+    segpos.chamber = kChamber;
+    segpos.layer   = 0;
+    segTree->Fill();
 
-  if (nSegments == 0) nSegments = -1;
 
-  histos->fill1DHist(nSegments,"hSnSegments","Segments per Event",11,-0.5,10.5,"Segments");
+    // Fill some histograms
+    int kCodeBroad  = kEndcap * ( 4*(kStation-1) + kRing) ;
+    int kCodeNarrow = kEndcap * ( 100*(kRing-1) + kChamber) ;
+    hSCodeBroad->Fill(kCodeBroad);
+    if (kStation == 1) {
+      hSCodeNarrow1->Fill(kCodeNarrow);
+      hSnHits1->Fill(nhits);
+      hSTheta1->Fill(theta);
+      hSGlobal1->Fill(globX,globY);
+      if (kRing == 1){
+        hSResid11b->Fill(residual);
+      }
+      if (kRing == 2){
+        hSResid12->Fill(residual);
+      }
+      if (kRing == 3){
+        hSResid13->Fill(residual);
+      }
+      if (kRing == 4){
+        hSResid11a->Fill(residual);
+      }
+    }
+    if (kStation == 2) {
+      hSCodeNarrow2->Fill(kCodeNarrow);
+      hSnHits2->Fill(nhits);
+      hSTheta2->Fill(theta);
+      hSGlobal2->Fill(globX,globY);
+      if (kRing == 1){
+        hSResid21->Fill(residual);
+      }
+      if (kRing == 2){
+        hSResid22->Fill(residual);
+      }
+    }
+    if (kStation == 3) {
+      hSCodeNarrow3->Fill(kCodeNarrow);
+      hSnHits3->Fill(nhits);
+      hSTheta3->Fill(theta);
+      hSGlobal3->Fill(globX,globY);
+      if (kRing == 1){
+        hSResid31->Fill(residual);
+      }
+      if (kRing == 2){
+        hSResid32->Fill(residual);
+      }
+    }
+    if (kStation == 4) {
+      hSCodeNarrow4->Fill(kCodeNarrow);
+      hSnHits4->Fill(nhits);
+      hSTheta4->Fill(theta);
+      hSGlobal4->Fill(globX,globY);
+      if (kRing == 1){
+        hSResid41->Fill(residual);
+      }
+      if (kRing == 2){
+        hSResid42->Fill(residual);
+      }
+    }
+    hSnhits->Fill(nhits);
+    hSChiSqProb->Fill(chisqProb);
+    hSGlobalTheta->Fill(globTheta);
+    hSGlobalPhi->Fill(globPhi);
+  }
+  hSnSegments->Fill(nSegments);
+
+
+  // do Efficiency
+  doEfficiencies(recHits, cscSegments);
+
 
 }
-
 
 //-------------------------------------------------------------------------------------
 // Fits a straight line to a set of 5 points with errors.  Functions assumes 6 points
@@ -815,8 +1041,6 @@ float CSCValidation::getTiming(const CSCStripDigiCollection& stripdigis, CSCDetI
 
   float ADC[8];
   float timing = 0;
-  float peakADC = 0;
-  int peakTime = 0;
 
   // Loop over strip digis responsible for this recHit and sum charge
   CSCStripDigiCollection::DigiRangeIterator sIt;
@@ -830,6 +1054,68 @@ float CSCValidation::getTiming(const CSCStripDigiCollection& stripdigis, CSCDetI
         int thisStrip = digiItr->getStrip();
         if (thisStrip == (centerStrip)){
           float diff = 0;
+          float peakADC = -1;
+          vector<int> myADCVals = digiItr->getADCCounts();
+          float thisPedestal = 0.5*(float)(myADCVals[0]+myADCVals[1]);
+          for (unsigned int iCount = 0; iCount < myADCVals.size(); iCount++) {
+            diff = (float)myADCVals[iCount]-thisPedestal;
+            ADC[iCount] = diff;
+            if (diff > peakADC){
+              peakADC = diff;
+            }
+          }
+        }
+      }
+
+    }
+
+  }
+
+  timing = (ADC[2]*2 + ADC[3]*3 + ADC[4]*4 + ADC[5]*5 + ADC[6]*6)/(ADC[2] + ADC[3] + ADC[4] + ADC[5] + ADC[6]);
+  return timing;
+
+
+}
+
+
+//---------------------------------------------------------------------------------------
+// Given a set of digis, the CSCDetId, and the central strip of your choosing, returns
+// the 3 time bin x 3 strip charge in the form of a matrix.  The charge matrix is centered
+// on the peak charge of the center strip Will return 0's for strip if no digi is present
+// (i.e. to the left of the leftmost strip in a chamber).  Charge is ped subtracted.
+//---------------------------------------------------------------------------------------
+
+HepMatrix CSCValidation::getCharge3x3(const CSCStripDigiCollection& stripdigis, CSCDetId idRH, int centerStrip){
+
+  float ADC[8];
+  int peakTime = -1;
+  HepMatrix bcharge(3,3);
+  bcharge(1,1) = 0;
+  bcharge(1,2) = 0;
+  bcharge(1,3) = 0;
+  bcharge(2,1) = 0;
+  bcharge(2,2) = 0;
+  bcharge(2,3) = 0;
+  bcharge(3,1) = 0;
+  bcharge(3,2) = 0;
+  bcharge(3,3) = 0;
+
+  // Loop over strip digis responsible for this recHit and sum charge
+  CSCStripDigiCollection::DigiRangeIterator sIt;
+  CSCStripDigiCollection::DigiRangeIterator sIt2;
+
+  for (sIt = stripdigis.begin(); sIt != stripdigis.end(); sIt++){
+    CSCDetId id = (CSCDetId)(*sIt).first;
+    if (id == idRH){
+
+      // First, find the peak charge in the center strip
+      vector<CSCStripDigi>::const_iterator digiItr = (*sIt).second.first;
+      vector<CSCStripDigi>::const_iterator last = (*sIt).second.second;
+      for ( ; digiItr != last; ++digiItr ) {
+        int thisStrip = digiItr->getStrip();
+        if (thisStrip == (centerStrip)){
+          float diff = 0;
+          float peakADC = -1;
           vector<int> myADCVals = digiItr->getADCCounts();
           float thisPedestal = 0.5*(float)(myADCVals[0]+myADCVals[1]);
           for (unsigned int iCount = 0; iCount < myADCVals.size(); iCount++) {
@@ -840,26 +1126,47 @@ float CSCValidation::getTiming(const CSCStripDigiCollection& stripdigis, CSCDetI
               peakTime = iCount;
             }
           }
+          bcharge(2,1) = ADC[peakTime-1];
+          bcharge(2,2) = ADC[peakTime];
+          bcharge(2,3) = ADC[peakTime+1];
         }
       }
 
-    }
+      // Then get the charge on the neighboring strips
+      vector<CSCStripDigi>::const_iterator digiItr2 = (*sIt).second.first;
+      vector<CSCStripDigi>::const_iterator last2 = (*sIt).second.second;
+      for ( ; digiItr2 != last2; ++digiItr2 ) {
+        int thisStrip = digiItr2->getStrip();
+        if (thisStrip == (centerStrip - 1)){
+          float diff = 0;
+          vector<int> myADCVals = digiItr2->getADCCounts();
+          float thisPedestal = 0.5*(float)(myADCVals[0]+myADCVals[1]);
+          for (unsigned int iCount = 0; iCount < myADCVals.size(); iCount++) {
+            diff = (float)myADCVals[iCount]-thisPedestal;
+            ADC[iCount] = diff;
+          }
+          bcharge(1,1) = ADC[peakTime-1];
+          bcharge(1,2) = ADC[peakTime];
+          bcharge(1,3) = ADC[peakTime+1];
+        }
 
+        if (thisStrip == (centerStrip + 1)){
+          float diff = 0;
+          vector<int> myADCVals = digiItr2->getADCCounts();
+          float thisPedestal = 0.5*(float)(myADCVals[0]+myADCVals[1]);
+          for (unsigned int iCount = 0; iCount < myADCVals.size(); iCount++) {
+            diff = (float)myADCVals[iCount]-thisPedestal;
+            ADC[iCount] = diff;
+          }
+          bcharge(3,1) = ADC[peakTime-1];
+          bcharge(3,2) = ADC[peakTime];
+          bcharge(3,3) = ADC[peakTime+1];
+        }
+      }
+    }
   }
 
-  //float normADC;
-  //for (int i = 0; i < 8; i++){
-    //normADC = ADC[i]/ADC[peakTime];
-    //histos->fillProfileByChamber(i,normADC,"signal_profile","Normalized Signal Profile",idRH,8,-0.5,7.5,-0.1,1.1,"SignalProfile");
-  //}
-
-  //histos->fill1DHistByChamber(ADC[0],"ped_subtracted","ADC in first time bin",idRH,400,-300,100,"FirstTBADC");
-  //histos->fill1DHist(ADC[0],"ped_subtracted_all","ADC in first time bin",400,-300,100,"FirstTBADC");
-
-  timing = (ADC[2]*2 + ADC[3]*3 + ADC[4]*4 + ADC[5]*5 + ADC[6]*6)/(ADC[2] + ADC[3] + ADC[4] + ADC[5] + ADC[6]);
-
-  return timing;
-
+  return bcharge;
 }
 
 //----------------------------------------------------------------------------
@@ -889,7 +1196,7 @@ void CSCValidation::doEfficiencies(edm::Handle<CSCRecHit2DCollection> recHits, e
   for (CSCRecHit2DCollection::const_iterator recIt = recHits->begin(); recIt != recHits->end(); recIt++) {
     //CSCDetId idrec = (CSCDetId)(*recIt).cscDetId();
     CSCDetId  idrec = (CSCDetId)(*recIt).cscDetId();
-    AllRecHits[idrec.endcap() -1][idrec.station() -1][idrec.ring() -1][idrec.chamber() -1][idrec.layer() -1] = true;
+    AllRecHits[idrec.endcap() -1][idrec.station() -1][idrec.ring() -1][idrec.chamber()][idrec.layer() -1] = true;
 
   }
    
@@ -899,7 +1206,7 @@ void CSCValidation::doEfficiencies(edm::Handle<CSCRecHit2DCollection> recHits, e
     //if(AllSegments[idrec.endcap() -1][idrec.station() -1][idrec.ring() -1][idrec.chamber()]){
     //MultiSegments[idrec.endcap() -1][idrec.station() -1][idrec.ring() -1][idrec.chamber()] = true;
     //}
-    AllSegments[idseg.endcap() -1][idseg.station() -1][idseg.ring() -1][idseg.chamber() -1] = true;
+    AllSegments[idseg.endcap() -1][idseg.station() -1][idseg.ring() -1][idseg.chamber()] = true;
   }
 
   
@@ -914,8 +1221,8 @@ void CSCValidation::doEfficiencies(edm::Handle<CSCRecHit2DCollection> recHits, e
             }
           }
           int bin = 0;
-          if (iS==0) bin = iR+1+(iE*10);
-          else bin = (iS+1)*2 + (iR+1) + (iE*10);
+          if (iS==0) bin = iR+1;
+          else bin = (iS+1)*2 + (iR+1);
           if(NumberOfLayers>1){
             //if(!(MultiSegments[iE][iS][iR][iC])){
             if(AllSegments[iE][iS][iR][iC]){
@@ -923,16 +1230,16 @@ void CSCValidation::doEfficiencies(edm::Handle<CSCRecHit2DCollection> recHits, e
               hSSTE->AddBinContent(bin);
             }
             //---- All segment events (normalization)
-            hSSTE->AddBinContent(20+bin);
+            hSSTE->AddBinContent(10+bin);
             //}
           }
           if(AllSegments[iE][iS][iR][iC]){
             if(NumberOfLayers==6){
               //---- Efficient rechit events
-              hRHSTE->AddBinContent(bin);;
+              hRHSTE->AddBinContent(bin);
             }
             //---- All rechit events (normalization)
-            hRHSTE->AddBinContent(20+bin);;
+            hRHSTE->AddBinContent(10+bin);
           }
         }
       }
@@ -954,7 +1261,7 @@ void CSCValidation::getEfficiency(float bin, float Norm, std::vector<float> &eff
   eff[0] = Efficiency;
   eff[1] = EffError;
 }
-
+//
 void CSCValidation::histoEfficiency(TH1F *readHisto, TH1F *writeHisto){
   std::vector<float> eff(2);
   int Nbins =  readHisto->GetSize()-2;//without underflows and overflows
@@ -963,941 +1270,15 @@ void CSCValidation::histoEfficiency(TH1F *readHisto, TH1F *writeHisto){
   std::vector<float> EffError(Nbins);
   float Num = 1;
   float Den = 1;
-  for (int i=0;i<20;i++){
+  for (int i=0;i<10;i++){
     Num = readHisto->GetBinContent(i+1);
-    Den = readHisto->GetBinContent(i+21);
+    Den = readHisto->GetBinContent(i+11);
     getEfficiency(Num, Den, eff);
     Efficiency[i] = eff[0];
     EffError[i] = eff[1];
     writeHisto->SetBinContent(i+1, Efficiency[i]);
     writeHisto->SetBinError(i+1, EffError[i]);
-  }
+  }  
 }
-
-
-//---------------------------------------------------------------------------------------
-// Given a set of digis, the CSCDetId, and the central strip of your choosing, returns
-// the avg. Signal-Pedestal for 6 time bin x 5 strip .
-//
-// Author: P. Jindal
-//---------------------------------------------------------------------------------------
-
-float CSCValidation::getSignal(const CSCStripDigiCollection& stripdigis, CSCDetId idCS, int centerStrip){
-
-  float SigADC[5];
-  float TotalADC = 0;
-  SigADC[0] = 0;
-  SigADC[1] = 0;
-  SigADC[2] = 0;
-  SigADC[3] = 0;
-  SigADC[4] = 0;
-
- 
-  // Loop over strip digis 
-  CSCStripDigiCollection::DigiRangeIterator sIt;
-  
-  for (sIt = stripdigis.begin(); sIt != stripdigis.end(); sIt++){
-    CSCDetId id = (CSCDetId)(*sIt).first;
-    if (id == idCS){
-
-      // First, find the Signal-Pedestal for center strip
-      vector<CSCStripDigi>::const_iterator digiItr = (*sIt).second.first;
-      vector<CSCStripDigi>::const_iterator last = (*sIt).second.second;
-      for ( ; digiItr != last; ++digiItr ) {
-        int thisStrip = digiItr->getStrip();
-        if (thisStrip == (centerStrip)){
-	  std::vector<int> myADCVals = digiItr->getADCCounts();
-          float thisPedestal = 0.5*(float)(myADCVals[0]+myADCVals[1]);
-	  float thisSignal = (myADCVals[2]+myADCVals[3]+myADCVals[4]+myADCVals[5]+myADCVals[6]+myADCVals[7]);
-	  SigADC[0] = thisSignal - 6*thisPedestal;
-	}
-     // Now,find the Signal-Pedestal for neighbouring 4 strips
-        if (thisStrip == (centerStrip+1)){
-	  std::vector<int> myADCVals = digiItr->getADCCounts();
-          float thisPedestal = 0.5*(float)(myADCVals[0]+myADCVals[1]);
-	  float thisSignal = (myADCVals[2]+myADCVals[3]+myADCVals[4]+myADCVals[5]+myADCVals[6]+myADCVals[7]);
-	  SigADC[1] = thisSignal - 6*thisPedestal;
-	}
-        if (thisStrip == (centerStrip+2)){
-	  std::vector<int> myADCVals = digiItr->getADCCounts();
-          float thisPedestal = 0.5*(float)(myADCVals[0]+myADCVals[1]);
-	  float thisSignal = (myADCVals[2]+myADCVals[3]+myADCVals[4]+myADCVals[5]+myADCVals[6]+myADCVals[7]);
-	  SigADC[2] = thisSignal - 6*thisPedestal;
-	}
-        if (thisStrip == (centerStrip-1)){
-	  std::vector<int> myADCVals = digiItr->getADCCounts();
-          float thisPedestal = 0.5*(float)(myADCVals[0]+myADCVals[1]);
-	  float thisSignal = (myADCVals[2]+myADCVals[3]+myADCVals[4]+myADCVals[5]+myADCVals[6]+myADCVals[7]);
-	  SigADC[3] = thisSignal - 6*thisPedestal;
-	}
-        if (thisStrip == (centerStrip-2)){
-	  std::vector<int> myADCVals = digiItr->getADCCounts();
-          float thisPedestal = 0.5*(float)(myADCVals[0]+myADCVals[1]);
-	  float thisSignal = (myADCVals[2]+myADCVals[3]+myADCVals[4]+myADCVals[5]+myADCVals[6]+myADCVals[7]);
-	  SigADC[4] = thisSignal - 6*thisPedestal;
-	}
-      }
-      TotalADC = 0.2*(SigADC[0]+SigADC[1]+SigADC[2]+SigADC[3]+SigADC[4]);
-    }
-  }
-  return TotalADC;
-}
-
-//---------------------------------------------------------------------------------------
-// Look at non-associated recHits
-// Author: P. Jindal
-//---------------------------------------------------------------------------------------
-
-void CSCValidation::doNoiseHits(edm::Handle<CSCRecHit2DCollection> recHits, edm::Handle<CSCSegmentCollection> cscSegments,
-                                edm::ESHandle<CSCGeometry> cscGeom,  edm::Handle<CSCStripDigiCollection> strips){
-
-  CSCRecHit2DCollection::const_iterator recIt;
-  for (recIt = recHits->begin(); recIt != recHits->end(); recIt++) {
-
-    CSCDetId idrec = (CSCDetId)(*recIt).cscDetId();
-
-    //Store the Rechits into a Map
-    AllRechits.insert(pair<CSCDetId , CSCRecHit2D>(idrec,*recIt));
-
-    // Find the strip containing this hit
-    CSCRecHit2D::ChannelContainer hitstrips = (*recIt).channels();
-    int nStrips     =  hitstrips.size();
-    //std::cout << " no of strips in Rec Hit " << nStrips << std::endl;
-    int centerid    =  nStrips/2 + 1;
-    int centerStrip =  hitstrips[centerid - 1];
-
-    float  rHsignal = getthisSignal(*strips, idrec, centerStrip);
-    histos->fill1DHist(rHsignal,"hrHSignal", "Signal in the 4th time bin for centre strip",1100,-99,1000,"recHits");
-
-  }
-
-  for(CSCSegmentCollection::const_iterator it=cscSegments->begin(); it != cscSegments->end(); it++) {
-
-    std::vector<CSCRecHit2D> theseRecHits = (*it).specificRecHits();
-    for ( vector<CSCRecHit2D>::const_iterator iRH = theseRecHits.begin(); iRH != theseRecHits.end(); iRH++) {
-      CSCDetId idRH = (CSCDetId)(*iRH).cscDetId();
-      LocalPoint lpRH = (*iRH).localPosition();
-      float xrec = lpRH.x();
-      float yrec = lpRH.y();
-      float zrec = lpRH.z();
-      bool RHalreadyinMap = false;
-      //Store the rechits associated with segments into a Map
-      multimap<CSCDetId , CSCRecHit2D>::iterator segRHit;
-      segRHit = SegRechits.find(idRH);
-      if (segRHit != SegRechits.end()){
-	for( ; segRHit != SegRechits.upper_bound(idRH); ++segRHit){
-	  //for( segRHit = SegRechits.begin(); segRHit != SegRechits.end() ;++segRHit){
-	  LocalPoint lposRH = (segRHit->second).localPosition();
-	  float xpos = lposRH.x();
-	  float ypos = lposRH.y();
-	  float zpos = lposRH.z();
-	  if ( xrec == xpos && yrec == ypos && zrec == zpos){
-	  RHalreadyinMap = true;
-	  //std::cout << " Already exists " <<std ::endl;
-	  break;}
-	}
-      }
-      if(!RHalreadyinMap){ SegRechits.insert(pair<CSCDetId , CSCRecHit2D>(idRH,*iRH));}
-    }
-  }
-
-  findNonAssociatedRecHits(cscGeom,strips);
-
-}
-
-//---------------------------------------------------------------------------------------
-// Given  the list of all rechits and the rechits on a segment finds the rechits 
-// not associated to a segment and stores in a list
-//
-//---------------------------------------------------------------------------------------
-
-void CSCValidation::findNonAssociatedRecHits(edm::ESHandle<CSCGeometry> cscGeom,  edm::Handle<CSCStripDigiCollection> strips){
- 
-  for(multimap<CSCDetId , CSCRecHit2D>::iterator allRHiter =  AllRechits.begin();allRHiter != AllRechits.end(); ++allRHiter){
-	CSCDetId idRH = allRHiter->first;
-    LocalPoint lpRH = (allRHiter->second).localPosition();
-    float xrec = lpRH.x();
-    float yrec = lpRH.y();
-    float zrec = lpRH.z();
-    
-    bool foundmatch = false;
-    multimap<CSCDetId , CSCRecHit2D>::iterator segRHit;
-    segRHit = SegRechits.find(idRH);
-    if (segRHit != SegRechits.end()){
-		for( ; segRHit != SegRechits.upper_bound(idRH); ++segRHit){
-			
-			LocalPoint lposRH = (segRHit->second).localPosition();
-			float xpos = lposRH.x();
-			float ypos = lposRH.y();
-			float zpos = lposRH.z();
-
-			if ( xrec == xpos && yrec == ypos && zrec == zpos){
-				foundmatch = true;}
-	  
-			float d      = 0.;
-			float dclose =1000.;
-
-			if ( !foundmatch) {
-				
-				d = sqrt(pow(xrec-xpos,2)+pow(yrec-ypos,2)+pow(zrec-zpos,2));
-				if (d < dclose) {
-					dclose = d;
-					if( distRHmap.find((allRHiter->second)) ==  distRHmap.end() ) { // entry for rechit does not yet exist, create one
-						distRHmap.insert(make_pair(allRHiter->second,dclose) );
-					}
-					else {
-						// we already have an entry for the detid.
-						distRHmap.erase(allRHiter->second);
-						distRHmap.insert(make_pair(allRHiter->second,dclose)); // fill rechits for the segment with the given detid
-					}
-				}
-			} 	    
-		}
-    }
-    if(!foundmatch){NonAssociatedRechits.insert(pair<CSCDetId , CSCRecHit2D>(idRH,allRHiter->second));}
-  }
-
-  for(map<CSCRecHit2D,float,ltrh>::iterator iter =  distRHmap.begin();iter != distRHmap.end(); ++iter){
-    histos->fill1DHist(iter->second,"hdistRH","Distance of Non Associated RecHit from closest Segment RecHit",500,0.,100.,"NonAssociatedRechits");
-  }
-
-  for(multimap<CSCDetId , CSCRecHit2D>::iterator iter =  NonAssociatedRechits.begin();iter != NonAssociatedRechits.end(); ++iter){
-    CSCDetId idrec = iter->first;
-    int kEndcap  = idrec.endcap();
-    int cEndcap  = idrec.endcap();
-    if (kEndcap == 2)cEndcap = -1;
-    int kRing    = idrec.ring();
-    int kStation = idrec.station();
-    int kChamber = idrec.chamber();
-    int kLayer   = idrec.layer();
-
-    // Store rechit as a Local Point:
-    LocalPoint rhitlocal = (iter->second).localPosition();  
-    float xreco = rhitlocal.x();
-    float yreco = rhitlocal.y();
-
-    // Find the strip containing this hit
-    CSCRecHit2D::ChannelContainer hitstrips = (iter->second).channels();
-    int nStrips     =  hitstrips.size();
-    int centerid    =  nStrips/2 + 1;
-    int centerStrip =  hitstrips[centerid - 1];
-
-
-    // Find the charge associated with this hit
-
-    CSCRecHit2D::ADCContainer adcs = (iter->second).adcs();
-    int adcsize = adcs.size();
-    float rHSumQ = 0;
-    float sumsides = 0;
-    for (int i = 0; i < adcsize; i++){
-      if (i != 3 && i != 7 && i != 11){
-        rHSumQ = rHSumQ + adcs[i]; 
-      }
-      if (adcsize == 12 && (i < 3 || i > 7) && i < 12){
-        sumsides = sumsides + adcs[i];
-      }
-    }
-    float rHratioQ = sumsides/rHSumQ;
-    if (adcsize != 12) rHratioQ = -99;
-
-    // Get the signal timing of this hit
-    //float rHtime = (iter->second).tpeak();
-    float rHtime = getTiming(*strips, idrec, centerStrip);
-
-    // Get the width of this hit
-    int rHwidth = getWidth(*strips, idrec, centerStrip);
-
-
-    // Get pointer to the layer:
-    const CSCLayer* csclayer = cscGeom->layer( idrec );
-
-    // Transform hit position from local chamber geometry to global CMS geom
-    GlobalPoint rhitglobal= csclayer->toGlobal(rhitlocal);
-    float grecx   =  rhitglobal.x();
-    float grecy   =  rhitglobal.y();
-
-
-
-   // Simple occupancy variables
-    int kCodeBroad  = cEndcap * ( 4*(kStation-1) + kRing) ;
-    int kCodeNarrow = cEndcap * ( 100*(kRing-1) + kChamber) ;
-
-    //Fill the non-associated rechits parameters in histogram
-    histos->fill1DHist(kCodeBroad,"hNARHCodeBroad","broad scope code for recHits",33,-16.5,16.5,"NonAssociatedRechits");
-    if (kStation == 1) histos->fill1DHist(kCodeNarrow,"hNARHCodeNarrow1","narrow scope recHit code station 1",801,-400.5,400.5,"NonAssociatedRechits");
-    if (kStation == 2) histos->fill1DHist(kCodeNarrow,"hNARHCodeNarrow2","narrow scope recHit code station 2",801,-400.5,400.5,"NonAssociatedRechits");
-    if (kStation == 3) histos->fill1DHist(kCodeNarrow,"hNARHCodeNarrow3","narrow scope recHit code station 3",801,-400.5,400.5,"NonAssociatedRechits");
-    if (kStation == 4) histos->fill1DHist(kCodeNarrow,"hNARHCodeNarrow4","narrow scope recHit code station 4",801,-400.5,400.5,"NonAssociatedRechits");
-    histos->fill1DHistByType(kLayer,"hNARHLayer","RecHits per Layer",idrec,8,-0.5,7.5,"NonAssociatedRechits");
-    histos->fill1DHistByType(xreco,"hNARHX","Local X of recHit",idrec,160,-80.,80.,"NonAssociatedRechits");
-    histos->fill1DHistByType(yreco,"hNARHY","Local Y of recHit",idrec,60,-180.,180.,"NonAssociatedRechits");
-    if (kStation == 1 && (kRing == 1 || kRing == 4)) histos->fill1DHistByType(rHSumQ,"hNARHSumQ","Sum 3x3 recHit Charge",idrec,250,0,4000,"NonAssociatedRechits");
-    else histos->fill1DHistByType(rHSumQ,"hNARHSumQ","Sum 3x3 recHit Charge",idrec,250,0,2000,"NonAssociatedRechits");
-    histos->fill1DHistByType(rHratioQ,"hNARHRatioQ","Ratio (Ql+Qr)/Qt)",idrec,120,-0.1,1.1,"NonAssociatedRechits");
-    histos->fill1DHistByType(rHtime,"hNARHTiming","recHit Timing",idrec,100,0,10,"NonAssociatedRechits");
-    histos->fill2DHistByStation(grecx,grecy,"hNARHGlobal","recHit Global Position",idrec,400,-800.,800.,400,-800.,800.,"NonAssociatedRechits");
-    histos->fill1DHistByType(rHwidth,"hNARHwidth","width for Non associated recHit",idrec,21,-0.5,20.5,"NonAssociatedRechits");
-    
-  }
-
-   for(multimap<CSCDetId , CSCRecHit2D>::iterator iter =  SegRechits.begin();iter != SegRechits.end(); ++iter){
-	   CSCDetId idrec = iter->first;
-	   int kEndcap  = idrec.endcap();
-	   int cEndcap  = idrec.endcap();
-	   if (kEndcap == 2)cEndcap = -1;
-	   int kRing    = idrec.ring();
-	   int kStation = idrec.station();
-	   int kChamber = idrec.chamber();
-	   int kLayer   = idrec.layer();
-
-	   // Store rechit as a Local Point:
-	   LocalPoint rhitlocal = (iter->second).localPosition();  
-	   float xreco = rhitlocal.x();
-	   float yreco = rhitlocal.y();
-
-	   // Find the strip containing this hit
-	   CSCRecHit2D::ChannelContainer hitstrips = (iter->second).channels();
-	   int nStrips     =  hitstrips.size();
-	   int centerid    =  nStrips/2 + 1;
-	   int centerStrip =  hitstrips[centerid - 1];
-
-
-	   // Find the charge associated with this hit
-	   
-	   CSCRecHit2D::ADCContainer adcs = (iter->second).adcs();
-	   int adcsize = adcs.size();
-	   float rHSumQ = 0;
-	   float sumsides = 0;
-	   for (int i = 0; i < adcsize; i++){
-		   if (i != 3 && i != 7 && i != 11){
-			   rHSumQ = rHSumQ + adcs[i]; 
-		   }
-		   if (adcsize == 12 && (i < 3 || i > 7) && i < 12){
-			   sumsides = sumsides + adcs[i];
-		   }
-	   }
-	   float rHratioQ = sumsides/rHSumQ;
-	   if (adcsize != 12) rHratioQ = -99;
-	   
-	   // Get the signal timing of this hit
-	   //float rHtime = (iter->second).tpeak();
-	   float rHtime = getTiming(*strips, idrec, centerStrip);
-
-	   // Get the width of this hit
-	   int rHwidth = getWidth(*strips, idrec, centerStrip);
-
-
-	   // Get pointer to the layer:
-	   const CSCLayer* csclayer = cscGeom->layer( idrec );
-	   
-	   // Transform hit position from local chamber geometry to global CMS geom
-	   GlobalPoint rhitglobal= csclayer->toGlobal(rhitlocal);
-	   float grecx   =  rhitglobal.x();
-	   float grecy   =  rhitglobal.y();
-
-	   // Simple occupancy variables
-	   int kCodeBroad  = cEndcap * ( 4*(kStation-1) + kRing) ;
-	   int kCodeNarrow = cEndcap * ( 100*(kRing-1) + kChamber) ;
-
-	   //Fill the non-associated rechits global position in histogram
-           histos->fill1DHist(kCodeBroad,"hSegRHCodeBroad","broad scope code for recHits",33,-16.5,16.5,"AssociatedRechits");
-           if (kStation == 1) histos->fill1DHist(kCodeNarrow,"hSegRHCodeNarrow1","narrow scope recHit code station 1",801,-400.5,400.5,"AssociatedRechits");
-           if (kStation == 2) histos->fill1DHist(kCodeNarrow,"hSegRHCodeNarrow2","narrow scope recHit code station 2",801,-400.5,400.5,"AssociatedRechits");
-           if (kStation == 3) histos->fill1DHist(kCodeNarrow,"hSegRHCodeNarrow3","narrow scope recHit code station 3",801,-400.5,400.5,"AssociatedRechits");
-           if (kStation == 4) histos->fill1DHist(kCodeNarrow,"hSegRHCodeNarrow4","narrow scope recHit code station 4",801,-400.5,400.5,"AssociatedRechits");
-           histos->fill1DHistByType(kLayer,"hSegRHLayer","RecHits per Layer",idrec,8,-0.5,7.5,"AssociatedRechits");
-           histos->fill1DHistByType(xreco,"hSegRHX","Local X of recHit",idrec,160,-80.,80.,"AssociatedRechits");
-           histos->fill1DHistByType(yreco,"hSegRHY","Local Y of recHit",idrec,60,-180.,180.,"AssociatedRechits");
-           if (kStation == 1 && (kRing == 1 || kRing == 4)) histos->fill1DHistByType(rHSumQ,"hSegRHSumQ","Sum 3x3 recHit Charge",idrec,250,0,4000,"AssociatedRechits");
-           else histos->fill1DHistByType(rHSumQ,"hSegRHSumQ","Sum 3x3 recHit Charge",idrec,250,0,2000,"AssociatedRechits");
-           histos->fill1DHistByType(rHratioQ,"hSegRHRatioQ","Ratio (Ql+Qr)/Qt)",idrec,120,-0.1,1.1,"AssociatedRechits");
-           histos->fill1DHistByType(rHtime,"hSegRHTiming","recHit Timing",idrec,100,0,10,"AssociatedRechits");
-           histos->fill2DHistByStation(grecx,grecy,"hSegRHGlobal","recHit Global Position",idrec,400,-800.,800.,400,-800.,800.,"AssociatedRechits");
-           histos->fill1DHistByType(rHwidth,"hSegRHwidth","width for Non associated recHit",idrec,21,-0.5,20.5,"AssociatedRechits");
-	   
-   }
-
-   distRHmap.clear();
-   AllRechits.clear();
-   SegRechits.clear();
-   NonAssociatedRechits.clear();
-}
-
-
-
-float CSCValidation::getthisSignal(const CSCStripDigiCollection& stripdigis, CSCDetId idRH, int centerStrip){
-	// Loop over strip digis responsible for this recHit
-	CSCStripDigiCollection::DigiRangeIterator sIt;
-	float thisADC = 0.;
-	bool foundRHid = false;
-	// std::cout<<"iD   S/R/C/L = "<<idRH<<"    "<<idRH.station()<<"/"<<idRH.ring()<<"/"<<idRH.chamber()<<"/"<<idRH.layer()<<std::endl;
-	for (sIt = stripdigis.begin(); sIt != stripdigis.end(); sIt++){
-		CSCDetId id = (CSCDetId)(*sIt).first;
-		//std::cout<<"STRIPS: id    S/R/C/L = "<<id<<"     "<<id.station()<<"/"<<id.ring()<<"/"<<id.chamber()<<"/"<<id.layer()<<std::endl;
-		if (id == idRH){
-			foundRHid = true;
-			vector<CSCStripDigi>::const_iterator digiItr = (*sIt).second.first;
-			vector<CSCStripDigi>::const_iterator last = (*sIt).second.second;
-			//if(digiItr == last ) {std::cout << " Attention1 :: Size of digi collection is zero " << std::endl;}
-			int St = idRH.station();
-			int Rg    = idRH.ring();
-			if (St == 1 && Rg == 4){
-				while(centerStrip> 16) centerStrip -= 16;
-			}
-			for ( ; digiItr != last; ++digiItr ) {
-				int thisStrip = digiItr->getStrip();
-				//std::cout<<" thisStrip = "<<thisStrip<<" centerStrip = "<<centerStrip<<std::endl;
-				std::vector<int> myADCVals = digiItr->getADCCounts();
-				float thisPedestal = 0.5*(float)(myADCVals[0]+myADCVals[1]);
-				float Signal = (float) myADCVals[3];
-				if (thisStrip == (centerStrip)){
-					thisADC = Signal-thisPedestal;
-					//if(thisADC >= 0. && thisADC <2.) {std::cout << " Attention2 :: The Signal is equal to the pedestal " << std::endl;
-					//}
-					//if(thisADC < 0.) {std::cout << " Attention3 :: The Signal is less than the pedestal " << std::endl;
-					//}
-				}
-				if (thisStrip == (centerStrip+1)){
-					std::vector<int> myADCVals = digiItr->getADCCounts();
-				}
-				if (thisStrip == (centerStrip-1)){
-					std::vector<int> myADCVals = digiItr->getADCCounts();
-				}
-			}
-		}
-	}
-	//if(!foundRHid){std::cout << " Attention4 :: Did not find a matching RH id in the Strip Digi collection " << std::endl;}
-	return thisADC;
-}
-
-//---------------------------------------------------------------------------------------
-//
-// Function is meant to take the DetId and center strip number of a recHit and return
-// the width in terms of strips
-//---------------------------------------------------------------------------------------
-
-int CSCValidation::getWidth(const CSCStripDigiCollection& stripdigis, CSCDetId idRH, int centerStrip){
-
-  int width = 1;
-  int widthpos = 0;
-  int widthneg = 0;
-
-  // Loop over strip digis responsible for this recHit and sum charge
-  CSCStripDigiCollection::DigiRangeIterator sIt;
-
-  for (sIt = stripdigis.begin(); sIt != stripdigis.end(); sIt++){
-	  CSCDetId id = (CSCDetId)(*sIt).first;
-	  if (id == idRH){
-		  vector<CSCStripDigi>::const_iterator digiItr = (*sIt).second.first;
-		  vector<CSCStripDigi>::const_iterator first = (*sIt).second.first;
-		  vector<CSCStripDigi>::const_iterator last = (*sIt).second.second;
-		  vector<CSCStripDigi>::const_iterator it = (*sIt).second.first;
-		  vector<CSCStripDigi>::const_iterator itr = (*sIt).second.first;
-		  //std::cout << " IDRH " << id <<std::endl;
-		  int St = idRH.station();
-		  int Rg    = idRH.ring();
-		  if (St == 1 && Rg == 4){
-			  while(centerStrip> 16) centerStrip -= 16;
-		  }
-		  for ( ; digiItr != last; ++digiItr ) {
-			  int thisStrip = digiItr->getStrip();
-			  if (thisStrip == (centerStrip)){
-				  it = digiItr;
-				  for( ; it != last; ++it ) {
-					  int strip = it->getStrip();
-					  std::vector<int> myADCVals = it->getADCCounts();
-					  float thisPedestal = 0.5*(float)(myADCVals[0]+myADCVals[1]);
-					  if(((float)myADCVals[3]-thisPedestal) < 6 || widthpos == 10 || it==last){break;}
-					   if(strip != centerStrip){ widthpos += 1;
-					   }
-				  }
-				  itr = digiItr;
-				  for( ; itr != first; --itr) {
-					  int strip = itr->getStrip();
-					  std::vector<int> myADCVals = itr->getADCCounts();
-					  float thisPedestal = 0.5*(float)(myADCVals[0]+myADCVals[1]);
-					  if(((float)myADCVals[3]-thisPedestal) < 6 || widthneg == 10 || itr==first){break;}	 
-					  if(strip != centerStrip) {widthneg += 1 ; 
-					  }
-				  }
-			  }
-		  }
-	  }
-  }
-  //std::cout << "Widthneg - " <<  widthneg << "Widthpos + " <<  widthpos << std::endl;
-  width =  width + widthneg +  widthpos ;
-  //std::cout << "Width " <<  width << std::endl;
-  return width;
-}
-
-
-//---------------------------------------------------------------------------
-// Module for looking at gas gains
-// Author N. Terentiev
-//---------------------------------------------------------------------------
-
-void CSCValidation::doGasGain(const CSCWireDigiCollection& wirecltn, 
-                              const CSCStripDigiCollection&   strpcltn,
-                              const CSCRecHit2DCollection& rechitcltn) {
-     float y;
-     int channel=0,mult,wire,layer,idlayer,idchamber,ring;
-     int wire_strip_rechit_present;
-     string name,title,endcapstr;
-     ostringstream ss;
-     CSCIndexer indexer;
-     std::map<int,int>::iterator intIt;
-
-     m_single_wire_layer.clear();
-
-  if(nEventsAnalyzed==1) {
-
-  // HV segments, their # and location in terms of wire groups
-
-  m_wire_hvsegm.clear();
-  std::map<int,std::vector<int> >::iterator intvecIt;
-  //                    ME1a ME1b ME1/2 ME1/3 ME2/1 ME2/2 ME3/1 ME3/2 ME4/1 ME4/2 
-  int csctype[10]=     {1,   2,   3,    4,    5,    6,    7,    8,    9,    10};
-  int hvsegm_layer[10]={1,   1,   3,    3,    3,    5,    3,    5,    3,    5};
-  int id;
-  nmbhvsegm.clear();
-  for(int i=0;i<10;i++) nmbhvsegm.push_back(hvsegm_layer[i]);
-  // For ME1/1a
-  std::vector<int> zer_1_1a(49,0);
-  id=csctype[0];
-  if(m_wire_hvsegm.find(id) == m_wire_hvsegm.end()) m_wire_hvsegm[id]=zer_1_1a;
-  intvecIt=m_wire_hvsegm.find(id);
-  for(int wire=1;wire<=48;wire++)  intvecIt->second[wire]=1;  // Segment 1
-
-  // For ME1/1b
-  std::vector<int> zer_1_1b(49,0);
-  id=csctype[1];
-  if(m_wire_hvsegm.find(id) == m_wire_hvsegm.end()) m_wire_hvsegm[id]=zer_1_1b;
-  intvecIt=m_wire_hvsegm.find(id);
-  for(int wire=1;wire<=48;wire++)  intvecIt->second[wire]=1;  // Segment 1
- 
-  // For ME1/2
-  std::vector<int> zer_1_2(65,0);
-  id=csctype[2];
-  if(m_wire_hvsegm.find(id) == m_wire_hvsegm.end()) m_wire_hvsegm[id]=zer_1_2;
-  intvecIt=m_wire_hvsegm.find(id);
-  for(int wire=1;wire<=24;wire++)  intvecIt->second[wire]=1;  // Segment 1
-  for(int wire=25;wire<=48;wire++) intvecIt->second[wire]=2;  // Segment 2
-  for(int wire=49;wire<=64;wire++) intvecIt->second[wire]=3;  // Segment 3
- 
-  // For ME1/3
-  std::vector<int> zer_1_3(33,0);
-  id=csctype[3];
-  if(m_wire_hvsegm.find(id) == m_wire_hvsegm.end()) m_wire_hvsegm[id]=zer_1_3;
-  intvecIt=m_wire_hvsegm.find(id);
-  for(int wire=1;wire<=12;wire++)  intvecIt->second[wire]=1;  // Segment 1
-  for(int wire=13;wire<=22;wire++) intvecIt->second[wire]=2;  // Segment 2
-  for(int wire=23;wire<=32;wire++) intvecIt->second[wire]=3;  // Segment 3
- 
-  // For ME2/1
-  std::vector<int> zer_2_1(113,0);
-  id=csctype[4];
-  if(m_wire_hvsegm.find(id) == m_wire_hvsegm.end()) m_wire_hvsegm[id]=zer_2_1;
-  intvecIt=m_wire_hvsegm.find(id);
-  for(int wire=1;wire<=44;wire++)   intvecIt->second[wire]=1;  // Segment 1
-  for(int wire=45;wire<=80;wire++)  intvecIt->second[wire]=2;  // Segment 2
-  for(int wire=81;wire<=112;wire++) intvecIt->second[wire]=3;  // Segment 3
- 
-  // For ME2/2
-  std::vector<int> zer_2_2(65,0);
-  id=csctype[5];
-  if(m_wire_hvsegm.find(id) == m_wire_hvsegm.end()) m_wire_hvsegm[id]=zer_2_2;
-  intvecIt=m_wire_hvsegm.find(id);
-  for(int wire=1;wire<=16;wire++)  intvecIt->second[wire]=1;  // Segment 1
-  for(int wire=17;wire<=28;wire++) intvecIt->second[wire]=2;  // Segment 2
-  for(int wire=29;wire<=40;wire++) intvecIt->second[wire]=3;  // Segment 3
-  for(int wire=41;wire<=52;wire++) intvecIt->second[wire]=4;  // Segment 4
-  for(int wire=53;wire<=64;wire++) intvecIt->second[wire]=5;  // Segment 5
-
-  // For ME3/1
-  std::vector<int> zer_3_1(97,0);
-  id=csctype[6];
-  if(m_wire_hvsegm.find(id) == m_wire_hvsegm.end()) m_wire_hvsegm[id]=zer_3_1;
-  intvecIt=m_wire_hvsegm.find(id);
-  for(int wire=1;wire<=32;wire++)  intvecIt->second[wire]=1;  // Segment 1
-  for(int wire=33;wire<=64;wire++) intvecIt->second[wire]=2;  // Segment 2
-  for(int wire=65;wire<=96;wire++) intvecIt->second[wire]=3;  // Segment 3
- 
-  // For ME3/2
-  std::vector<int> zer_3_2(65,0);
-  id=csctype[7];
-  if(m_wire_hvsegm.find(id) == m_wire_hvsegm.end()) m_wire_hvsegm[id]=zer_3_2;
-  intvecIt=m_wire_hvsegm.find(id);
-  for(int wire=1;wire<=16;wire++)  intvecIt->second[wire]=1;  // Segment 1
-  for(int wire=17;wire<=28;wire++) intvecIt->second[wire]=2;  // Segment 2
-  for(int wire=29;wire<=40;wire++) intvecIt->second[wire]=3;  // Segment 3
-  for(int wire=41;wire<=52;wire++) intvecIt->second[wire]=4;  // Segment 4
-  for(int wire=53;wire<=64;wire++) intvecIt->second[wire]=5;  // Segment 5
-
-  // For ME4/1
-  std::vector<int> zer_4_1(97,0);
-  id=csctype[8];
-  if(m_wire_hvsegm.find(id) == m_wire_hvsegm.end()) m_wire_hvsegm[id]=zer_4_1;
-  intvecIt=m_wire_hvsegm.find(id);
-  for(int wire=1;wire<=32;wire++)  intvecIt->second[wire]=1;  // Segment 1
-  for(int wire=33;wire<=64;wire++) intvecIt->second[wire]=2;  // Segment 2
-  for(int wire=65;wire<=96;wire++) intvecIt->second[wire]=3;  // Segment 3
-
-  // For ME4/2
-  std::vector<int> zer_4_2(65,0);
-  id=csctype[9];
-  if(m_wire_hvsegm.find(id) == m_wire_hvsegm.end()) m_wire_hvsegm[id]=zer_4_2;
-  intvecIt=m_wire_hvsegm.find(id);
-  for(int wire=1;wire<=16;wire++)  intvecIt->second[wire]=1;  // Segment 1
-  for(int wire=17;wire<=28;wire++) intvecIt->second[wire]=2;  // Segment 2
-  for(int wire=29;wire<=40;wire++) intvecIt->second[wire]=3;  // Segment 3
-  for(int wire=41;wire<=52;wire++) intvecIt->second[wire]=4;  // Segment 4
-  for(int wire=53;wire<=64;wire++) intvecIt->second[wire]=5;  // Segment 5
-
-  } // end of if(nEventsAnalyzed==1)
-
-
-     // do wires, strips and rechits present?
-     wire_strip_rechit_present=0;
-     if(wirecltn.begin() != wirecltn.end())  
-       wire_strip_rechit_present= wire_strip_rechit_present+1;
-     if(strpcltn.begin() != strpcltn.end())    
-       wire_strip_rechit_present= wire_strip_rechit_present+2;
-     if(rechitcltn.begin() != rechitcltn.end())
-       wire_strip_rechit_present= wire_strip_rechit_present+4;
-
-     if(wire_strip_rechit_present==7) {
-
-//       std::cout<<"Event "<<nEventsAnalyzed<<std::endl;
-//       std::cout<<std::endl;
-
-       // cycle on wire collection for all CSC to select single wire hit layers
-       CSCWireDigiCollection::DigiRangeIterator wiredetUnitIt;
- 
-       for(wiredetUnitIt=wirecltn.begin();wiredetUnitIt!=wirecltn.end();
-          ++wiredetUnitIt) {
-          const CSCDetId id = (*wiredetUnitIt).first;
-          idlayer=indexer.dbIndex(id, channel);
-          idchamber=idlayer/10;
-          layer=id.layer();
-          // looping in the layer of given CSC
-          mult=0; wire=0; 
-          const CSCWireDigiCollection::Range& range = (*wiredetUnitIt).second;
-          for(CSCWireDigiCollection::const_iterator digiIt =
-             range.first; digiIt!=range.second; ++digiIt){
-             wire=(*digiIt).getWireGroup();
-             mult++;
-          }     // end of digis loop in layer
-
-          // select layers with single wire hit
-          if(mult==1) {
-            if(m_single_wire_layer.find(idlayer) == m_single_wire_layer.end())
-              m_single_wire_layer[idlayer]=wire;
-          } // end of if(mult==1)
-       }   // end of cycle on detUnit
-
-       // Looping thru rechit collection
-       CSCRecHit2DCollection::const_iterator recIt;
-       CSCRecHit2D::ADCContainer m_adc;
-       CSCRecHit2D::ChannelContainer m_strip;
-       for(recIt = rechitcltn.begin(); recIt != rechitcltn.end(); ++recIt) {
-          CSCDetId id = (CSCDetId)(*recIt).cscDetId();
-          idlayer=indexer.dbIndex(id, channel);
-          idchamber=idlayer/10;
-          layer=id.layer();
-          // select layer with single wire rechit
-          if(m_single_wire_layer.find(idlayer) != m_single_wire_layer.end()) {
-
-            // getting strips comprising rechit
-            m_strip=(CSCRecHit2D::ChannelContainer)(*recIt).channels(); 
-            if(m_strip.size()==3)  {        
-              // get 3X3 ADC Sum
-              m_adc=(CSCRecHit2D::ADCContainer)(*recIt).adcs();
-              std::vector<float> adc_left,adc_center,adc_right;
-              int binmx=0;
-              float adcmax=0.0;
-              unsigned k=0;
- 
-              for(int i=0;i<3;i++) 
-                 for(int j=0;j<4;j++){
-                    if(m_adc[k]>adcmax) {adcmax=m_adc[k]; binmx=j;}
-                    if(i==0) adc_left.push_back(m_adc[k]);
-                    if(i==1) adc_center.push_back(m_adc[k]);
-                    if(i==2) adc_right.push_back(m_adc[k]);
-                    k=k+1;
-                 }
-                float adc_3_3_sum=0.0;
-                for(int j=binmx-1;j<=binmx+1;j++) {
-                   adc_3_3_sum=adc_3_3_sum+adc_left[j]
-                                          +adc_center[j]
-                                          +adc_right[j];
-                }
-
-               if(adc_3_3_sum > 0.0 &&  adc_3_3_sum < 2000.0) {
-
-                 // temporary fix for ME1/1a to avoid triple entries
-                 int flag=0;
-                 if(id.station()==1 && id.ring()==4 &&  m_strip[1]>16)  flag=1;
-                 // end of temporary fix
-                 if(flag==0) {
-
-                 wire= m_single_wire_layer[idlayer];
-                 int chambertype=histos->tempChamberType(id.station(),id.ring());
-                 int hvsgmtnmb=m_wire_hvsegm[chambertype][wire];
-                 int nmbofhvsegm=nmbhvsegm[chambertype-1];
-                 int location= (layer-1)*nmbofhvsegm+hvsgmtnmb;
-                 float x=location;
-                
-                 ss<<"gas_gain_rechit_adc_3_3_sum_location_ME_"<<idchamber;
-                 name=ss.str(); ss.str("");
-                 if(id.endcap()==1) endcapstr = "+";
-                 ring=id.ring();
-                 if(id.station()==1 && id.ring()==4) ring=1;
-                 if(id.endcap()==2) endcapstr = "-"; 
-                 ss<<"Gas Gain Rechit ADC3X3 Sum ME"<<endcapstr<<
-                   id.station()<<"/"<<ring<<"/"<<id.chamber();
-                 title=ss.str(); ss.str("");
-                 x=location;
-                 y=adc_3_3_sum;
-                 histos->fill2DHist(x,y,name.c_str(),title.c_str(),30,1.0,31.0,50,0.0,2000.0,"GasGain");
-
-                 /*
-                   std::cout<<idchamber<<"   "<<id.station()<<" "<<id.ring()<<" "
-                   <<id.chamber()<<"    "<<layer<<" "<< wire<<" "<<m_strip[1]<<" "<<
-                   chambertype<<" "<< hvsgmtnmb<<" "<< nmbofhvsegm<<" "<< 
-                   location<<"   "<<adc_3_3_sum<<std::endl;
-                 */
-               } // end of if flag==0
-               } // end if(adcsum>0.0 && adcsum<2000.0)
-            } // end of if if(m_strip.size()==3
-          } // end of if single wire
-        } // end of looping thru rechit collection
-     }   // end of if wire and strip and rechit present 
-}
-
-//---------------------------------------------------------------------------
-// Module for looking at AFEB Timing
-// Author N. Terentiev
-//---------------------------------------------------------------------------
-
-void CSCValidation::doAFEBTiming(const CSCWireDigiCollection& wirecltn) {
-     ostringstream ss;
-     string name,title,endcapstr;
-     float x,y;
-     int wire,wiretbin,nmbwiretbin,layer,afeb,idlayer,idchamber;
-     int channel=0; // for  CSCIndexer::dbIndex(id, channel); irrelevant here
-     CSCIndexer indexer;
-
-     if(wirecltn.begin() != wirecltn.end())  {
-
-       //std::cout<<std::endl;
-       //std::cout<<"Event "<<nEventsAnalyzed<<std::endl;
-       //std::cout<<std::endl;
-
-       // cycle on wire collection for all CSC
-       CSCWireDigiCollection::DigiRangeIterator wiredetUnitIt;
-       for(wiredetUnitIt=wirecltn.begin();wiredetUnitIt!=wirecltn.end();
-          ++wiredetUnitIt) {
-          const CSCDetId id = (*wiredetUnitIt).first;
-          idlayer=indexer.dbIndex(id, channel);
-          idchamber=idlayer/10;
-          layer=id.layer();
-
-          if (id.endcap() == 1) endcapstr = "+";
-          if (id.endcap() == 2) endcapstr = "-";
-
-          // looping in the layer of given CSC
- 
-          const CSCWireDigiCollection::Range& range = (*wiredetUnitIt).second;
-          for(CSCWireDigiCollection::const_iterator digiIt =
-             range.first; digiIt!=range.second; ++digiIt){
-             wire=(*digiIt).getWireGroup();
-             wiretbin=(*digiIt).getTimeBin();
-             nmbwiretbin=(*digiIt).getTimeBinsOn().size();
-             afeb=3*((wire-1)/8)+(layer+1)/2;
-             
-             // Anode wire group time bin vs afeb for each CSC
-             x=afeb;
-             y=wiretbin;
-             ss<<"afeb_time_bin_vs_afeb_occupancy_ME_"<<idchamber;
-             name=ss.str(); ss.str("");
-             ss<<"Time Bin vs AFEB Occupancy ME"<<endcapstr<<id.station()<<"/"<<id.ring()<<"/"<< id.chamber();
-             title=ss.str(); ss.str("");
-             histos->fill2DHist(x,y,name.c_str(),title.c_str(),42,1.,43.,16,0.,16.,"AFEBTiming");
-
-             // Number of anode wire group time bin vs afeb for each CSC
-             x=afeb;
-             y=nmbwiretbin;
-             ss<<"nmb_afeb_time_bins_vs_afeb_ME_"<<idchamber;
-             name=ss.str(); ss.str("");
-             ss<<"Number of Time Bins vs AFEB ME"<<endcapstr<<id.station()<<"/"<<id.ring()<<"/"<< id.chamber();
-             title=ss.str(); 
-             ss.str("");
-             histos->fill2DHist(x,y,name.c_str(),title.c_str(),42,1.,43.,16,0.,16.,"AFEBTiming");
-             
-          }     // end of digis loop in layer
-       } // end of wire collection loop
-     } // end of      if(wirecltn.begin() != wirecltn.end())
-}
-
-//---------------------------------------------------------------------------
-// Module for looking at Comparitor Timing
-// Author N. Terentiev
-//---------------------------------------------------------------------------
-
-void CSCValidation::doCompTiming(const CSCComparatorDigiCollection& compars) {
-
-     ostringstream ss;      string name,title,endcap;
-     float x,y;
-     int strip,tbin,layer,cfeb,idlayer,idchamber,idum;
-     int channel=0; // for  CSCIndexer::dbIndex(id, channel); irrelevant here
-     CSCIndexer indexer;
-                                                                                
-     if(compars.begin() != compars.end())  {
-                                                                                
-       //std::cout<<std::endl;
-       //std::cout<<"Event "<<nEventsAnalyzed<<std::endl;
-       //std::cout<<std::endl;
-                                                                                
-       // cycle on comparators collection for all CSC
-       CSCComparatorDigiCollection::DigiRangeIterator compdetUnitIt;
-       for(compdetUnitIt=compars.begin();compdetUnitIt!=compars.end();
-          ++compdetUnitIt) {
-          const CSCDetId id = (*compdetUnitIt).first;
-          idlayer=indexer.dbIndex(id, channel); // channel irrelevant here
-          idchamber=idlayer/10;
-          layer=id.layer();
-                                                                                
-          if (id.endcap() == 1) endcap = "+";
-          if (id.endcap() == 2) endcap = "-";
-          // looping in the layer of given CSC
-          const CSCComparatorDigiCollection::Range& range = 
-          (*compdetUnitIt).second;
-          for(CSCComparatorDigiCollection::const_iterator digiIt =
-             range.first; digiIt!=range.second; ++digiIt){
-             strip=(*digiIt).getStrip();
-          /*
-          if(id.station()==1 && (id.ring()==1 || id.ring()==4))
-             std::cout<<idchamber<<" "<<id.station()<<" "<<id.ring()<<" "
-                      <<strip <<std::endl;  
-          */
-             idum=indexer.dbIndex(id, strip); // strips 1-16 of ME1/1a 
-                                              // become strips 65-80 of ME1/1 
-             tbin=(*digiIt).getTimeBin();
-             cfeb=(strip-1)/16+1;
-                                                                                
-             // time bin vs cfeb for each CSC
-
-             x=cfeb;
-             y=tbin;
-             ss<<"comp_time_bin_vs_cfeb_occupancy_ME_"<<idchamber;
-             name=ss.str(); ss.str("");
-             ss<<"Comparator Time Bin vs CFEB Occupancy ME"<<endcap<<
-                 id.station()<<"/"<< id.ring()<<"/"<< id.chamber();             
-             title=ss.str(); ss.str("");
-             histos->fill2DHist(x,y,name.c_str(),title.c_str(),5,1.,6.,16,0.,16.,"CompTiming");
-
-         }     // end of digis loop in layer
-       } // end of collection loop
-     } // end of      if(compars.begin() !=compars.end())
-}
-
-//---------------------------------------------------------------------------
-// Module for looking at Strip Timing
-// Author N. Terentiev
-//---------------------------------------------------------------------------
-
-void CSCValidation::doADCTiming(const CSCStripDigiCollection&   strpcltn,
-                                const CSCRecHit2DCollection& rechitcltn) {
-     float  adc_3_3_sum,adc_3_3_wtbin,x,y;
-     int cfeb,idchamber,ring;
-
-     string name,title,endcapstr;
-     ostringstream ss;
-     std::vector<float> zer(6,0.0);
-
-     CSCIndexer indexer;
-     std::map<int,int>::iterator intIt;
-
-     if(rechitcltn.begin() != rechitcltn.end()) {
-
-  //   std::cout<<"Event "<<nEventsAnalyzed <<std::endl;
-
-       // Looping thru rechit collection
-       CSCRecHit2DCollection::const_iterator recIt;
-       CSCRecHit2D::ADCContainer m_adc;
-       CSCRecHit2D::ChannelContainer m_strip;
-       for(recIt = rechitcltn.begin(); recIt != rechitcltn.end(); ++recIt) {
-          CSCDetId id = (CSCDetId)(*recIt).cscDetId();
-          // getting strips comprising rechit
-          m_strip=(CSCRecHit2D::ChannelContainer)(*recIt).channels();
-          if(m_strip.size()==3) {
-            // get 3X3 ADC Sum
-            m_adc=(CSCRecHit2D::ADCContainer)(*recIt).adcs();
-            std::vector<float> adc_left,adc_center,adc_right;
-            int binmx=0;
-            float adcmax=0.0;
-            unsigned k=0;
-              
-            for(int i=0;i<3;i++)
-               for(int j=0;j<4;j++){
-                  if(m_adc[k]>adcmax) {adcmax=m_adc[k]; binmx=j;}
-                  if(i==0) adc_left.push_back(m_adc[k]);
-                  if(i==1) adc_center.push_back(m_adc[k]);
-                  if(i==2) adc_right.push_back(m_adc[k]);
-                  k=k+1;
-               }
-
-               adc_3_3_sum=0.0;
-               for(int j=binmx-1;j<=binmx+1;j++) { 
-                  adc_3_3_sum=adc_3_3_sum+adc_left[j]
-                                          +adc_center[j]
-                                          +adc_right[j];
-               }
-
-                // ADC weighted time bin
-                if(adc_3_3_sum > 100.0) {
-                  
-                  int centerStrip=m_strip[1]; //take central from 3 strips;
-                // temporary fix
-                  int flag=0;
-                  if(id.station()==1 && id.ring()==4 &&  centerStrip>16) flag=1;
-                // end of temporary fix
-                  if(flag==0) {
-                  adc_3_3_wtbin=getTiming(strpcltn, id, centerStrip);
-                  idchamber=indexer.dbIndex(id, centerStrip)/10; //strips 1-16 ME1/1a
-                                              // become strips 65-80 ME1/1 !!!
-                  /*
-                  if(id.station()==1 && (id.ring()==1 || id.ring()==4))
-                  std::cout<<idchamber<<" "<<id.station()<<" "<<id.ring()<<" "<<m_strip[1]<<" "<<
-                      "      "<<centerStrip<<
-                         " "<<adc_3_3_wtbin<<"     "<<adc_3_3_sum<<std::endl;    
-                  */      
-                 ss<<"adc_3_3_weight_time_bin_vs_cfeb_occupancy_ME_"<<idchamber;
-                 name=ss.str(); ss.str("");
-
-                 string endcapstr;
-                 if(id.endcap() == 1) endcapstr = "+";
-                 if(id.endcap() == 2) endcapstr = "-";
-                 ring=id.ring(); if(id.ring()==4) ring=1;
-                 ss<<"ADC 3X3 Weighted Time Bin vs CFEB Occupancy ME"
-                   <<endcapstr<<id.station()<<"/"<<ring<<"/"<<id.chamber();
-                 title=ss.str(); ss.str("");
-
-                 cfeb=(centerStrip-1)/16+1;
-                 x=cfeb; y=adc_3_3_wtbin;
-                 histos->fill2DHist(x,y,name.c_str(),title.c_str(),5,1.,6.,40,0.,8.,"ADCTiming");                                     
-                 } // end of if flag==0
-                } // end of if (adc_3_3_sum > 100.0)
-            } // end of if if(m_strip.size()==3
-       } // end of the  pass thru CSCRecHit2DCollection
-     }  // end of if (rechitcltn.begin() != rechitcltn.end())
-}
-
-
-void CSCValidation::endJob() {
-
-     std::cout<<"Events in "<<nEventsAnalyzed<<std::endl;
-}
-
 DEFINE_FWK_MODULE(CSCValidation);
 

@@ -1,6 +1,7 @@
 #include "EventFilter/ESRawToDigi/interface/ESUnpacker.h"
 #include "DataFormats/FEDRawData/interface/FEDHeader.h"
 #include "DataFormats/FEDRawData/interface/FEDTrailer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 const int ESUnpacker::bDHEAD    = 2;
 const int ESUnpacker::bDH       = 6;
@@ -95,8 +96,10 @@ void ESUnpacker::interpretRawData(int fedId, const FEDRawData & rawData, ESDigiC
   while (moreHeaders) {
     ++header;
     FEDHeader ESHeader( reinterpret_cast<const unsigned char*>(header) );
-    if ( !ESHeader.check() ) break; // throw exception?
-    if ( ESHeader.sourceID() != fedId) throw cms::Exception("PROBLEM in ESUnpacker !");
+    if ( !ESHeader.check() ) {
+      if (debug_) edm::LogWarning("Invalid Data")<<"ES : Failed header check !";
+      return;
+    } 
 
     fedId_ = ESHeader.sourceID();
     lv1_   = ESHeader.lvl1ID();
@@ -111,6 +114,10 @@ void ESUnpacker::interpretRawData(int fedId, const FEDRawData & rawData, ESDigiC
 
     moreHeaders = ESHeader.moreHeaders();
   }
+  if (fedId_ != fedId) {
+    if (debug_) edm::LogWarning("Invalid Data")<<"Invalid ES data with source id " <<fedId_;
+    return;
+  }
 
   // Event trailer
   const Word64* trailer = reinterpret_cast<const Word64* >(rawData.data())+(nWords-1); ++trailer;
@@ -118,8 +125,16 @@ void ESUnpacker::interpretRawData(int fedId, const FEDRawData & rawData, ESDigiC
   while (moreTrailers) {
     --trailer;
     FEDTrailer ESTrailer(reinterpret_cast<const unsigned char*>(trailer));
-    if ( !ESTrailer.check()) { ++trailer; break; } // throw exception?
-    if ( ESTrailer.lenght()!= nWords) throw cms::Exception("PROBLEM in ESUnpacker !!");
+    if ( !ESTrailer.check()) { ++trailer; break; } 
+
+    if ( ESTrailer.lenght() != nWords) {
+      if (debug_) edm::LogWarning("Invalid Data")<<"Invalid ES data : the length is not correct !";
+      return;
+    }
+    if ( ESTrailer.lenght() < 8) {
+      if (debug_) edm::LogWarning("Invalid Data")<<"Invalid ES data : the length is not correct !";
+      return;
+    }
 
     if (debug_)  {
       cout<<"[ESUnpacker]: FED Trailer candidate. Is trailer? "<<ESTrailer.check();
@@ -131,9 +146,36 @@ void ESUnpacker::interpretRawData(int fedId, const FEDRawData & rawData, ESDigiC
     moreTrailers = ESTrailer.moreTrailers();
   }
 
+  // Check ES data format version
+  int vmajor, vminor;
+  int dccLineCount = 0;
+  for (const Word64* word=(header+1); word!=(header+dccWords+1); ++word) {
+    dccLineCount++;
+    if (dccLineCount==3) {
+      vminor = (*word >> 40) & 0x00ff;
+      vmajor = (*word >> 48) & 0x00ff;
+    }
+  }
+  //cout<<"ES version : "<<vmajor<<" "<<vminor<<endl;
   // DCC data
+  int dccHeaderCount = 0;
+  dccLineCount = 0;
+  int dccHead, dccLine;
+  Word64 m4  = ~(~Word64(0) << 4);
   for (const Word64* word=(header+1); word!=(header+dccWords+1); ++word) {
     if (debug_) cout<<"DCC   : "<<print(*word)<<endl;
+    dccHead = (*word >> 60) & m4;
+    if (dccHead == 3) dccHeaderCount++;
+    dccLine = (*word >> 56) & m4;
+    dccLineCount++;
+    if (dccLine != dccLineCount && vmajor != 1 && vminor !=1) {
+      if (debug_) edm::LogWarning("Invalid Data")<<"Invalid ES data : DCC header order is not correct !";
+      return; 
+    }
+  }
+  if (dccHeaderCount != 6 && vmajor != 1 && vminor !=1) {
+    if (debug_) edm::LogWarning("Invalid Data")<<"Invalid ES data : DCC header lines are "<<dccHeaderCount;
+    return;
   }
   
   // Event data

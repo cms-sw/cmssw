@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/04/24 13:56:16 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/05/07 14:05:09 $
+ *  $Revision: 1.2 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -124,13 +124,12 @@ void DTSegmentsTask::endJob(){
  if(debug)
     cout<<"[DTSegmentsTask] endjob called!"<<endl;
 
- theDbe->showDirStructure();
   bool outputMEsInRootFile = parameters.getParameter<bool>("OutputMEsInRootFile");
   std::string outputFileName = parameters.getParameter<std::string>("OutputFileName");
   if(outputMEsInRootFile){
+    theDbe->showDirStructure();
     theDbe->save(outputFileName);
- }
-
+  }
 
   theDbe->rmdir("DT/DTSegmentsTask");
 }

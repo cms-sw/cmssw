@@ -6,8 +6,8 @@
  *
  *  DQM monitoring source for CaloMET
  *
- *  $Date:$
- *  $Revision:$
+ *  $Date: 2008/04/30 02:14:43 $
+ *  $Revision: 1.1 $
  *  \author F. Chlebana - Fermilab
  */
 
@@ -39,8 +39,10 @@ class CaloMETAnalyzer : public CaloMETAnalyzerBase {
   void beginJob(edm::EventSetup const& iSetup, DQMStore *dbe);
 
   /// Get the analysis
-  void analyze(const edm::Event&, const edm::EventSetup&, const reco::CaloMET& caloMET);
+  void analyze(const edm::Event&, const edm::EventSetup&, 
+	       const reco::CaloMET& caloMET, const reco::CaloMET& caloMETNoHF);
 
+  int evtCounter;
 
  private:
   // ----------member data ---------------------------
@@ -50,6 +52,7 @@ class CaloMETAnalyzer : public CaloMETAnalyzerBase {
   std::string metname;
   // CaloMET Label
   edm::InputTag theCaloMETCollectionLabel;
+  edm::InputTag theCaloMETNoHFCollectionLabel;
 
   //histo binning parameters
   int    etaBin;
@@ -75,10 +78,14 @@ class CaloMETAnalyzer : public CaloMETAnalyzerBase {
   MonitorElement* hCaloMET;
   MonitorElement* hCaloMETPhi;
   MonitorElement* hCaloSumET;
+  MonitorElement* hCaloMExLS;
+  MonitorElement* hCaloMEyLS;
+
   MonitorElement* hCaloMaxEtInEmTowers;
   MonitorElement* hCaloMaxEtInHadTowers;
   MonitorElement* hCaloEtFractionHadronic;
   MonitorElement* hCaloEmEtFraction;
+
   MonitorElement* hCaloHadEtInHB;
   MonitorElement* hCaloHadEtInHO;
   MonitorElement* hCaloHadEtInHE;
@@ -88,6 +95,16 @@ class CaloMETAnalyzer : public CaloMETAnalyzerBase {
   MonitorElement* hCaloEmEtInHF;
   MonitorElement* hCaloEmEtInEE;
   MonitorElement* hCaloEmEtInEB;
+
+  MonitorElement* hCaloMExNoHF;
+  MonitorElement* hCaloMEyNoHF;
+  MonitorElement* hCaloEzNoHF;
+  MonitorElement* hCaloMETSigNoHF;
+  MonitorElement* hCaloMETNoHF;
+  MonitorElement* hCaloMETPhiNoHF;
+  MonitorElement* hCaloSumETNoHF;
+  MonitorElement* hCaloMExNoHFLS;
+  MonitorElement* hCaloMEyNoHFLS;
 
 };
 #endif

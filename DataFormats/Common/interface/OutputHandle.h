@@ -46,10 +46,10 @@ namespace edm {
       entryInfo_(h.entryInfo_),
       whyFailed_(h.whyFailed_){}
 
-    OutputHandle(EDProduct const* prod, ConstBranchDescription const* desc, boost::shared_ptr<T> entryInfo) :
+    OutputHandle(EDProduct const* prod, ConstBranchDescription const* desc, boost::shared_ptr<EventEntryInfo> entryInfo) :
       wrap_(prod),
       desc_(desc),
-      entryInfo_(entryInfo) {}
+      entryInfo_(boost::shared_ptr<T>(new T(*entryInfo))) {}
 
     ///Used when the attempt to get the data failed
     OutputHandle(const boost::shared_ptr<cms::Exception>& iWhyFailed):

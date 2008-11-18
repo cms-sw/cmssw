@@ -131,8 +131,5 @@ class GoodSeedProducer : public edm::EDProducer {
 
       ///TMVA method
       std::string method_;
-
-      ///B field
-      math::XYZVector B_;
 };
 #endif

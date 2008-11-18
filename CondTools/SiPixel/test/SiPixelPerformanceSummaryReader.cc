@@ -31,5 +31,5 @@ void SiPixelPerformanceSummaryReader::analyze(const edm::Event& e, const edm::Ev
                         allDetIds.clear();
   SiPixelPerformanceSummary_->getAllDetIds(allDetIds);
   if (allDetIds.size()>0) SiPixelPerformanceSummary_->print(allDetIds[0]);
-  SiPixelPerformanceSummary_->printAll(); 
+  //SiPixelPerformanceSummary_->printAll(); 
 }
