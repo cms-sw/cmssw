@@ -662,24 +662,24 @@ class resolutionFunctionType8 : public resolutionFunctionBase<T> {
   }
   virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const T & parResol, const vector<int> & parResolOrder, const int muonType) {
 
-    double thisStep[] = { 0.002, 0.00002, 0.00002,
-                          0.00002, 0.0002, 0.0000002, 0.000002,
-                          0.00002, 0.0002, 0.00000002, 0.000002 };
+    double thisStep[] = { 0.0002, 0.000002, 0.00002,
+                          0.00002, 0.00002, 0.0000002, 0.000002,
+                          0.00002, 0.00002, 0.00000002, 0.0000002 };
     TString thisParName[] = { "Pt res. sc.", "Pt res. Pt sc.", "Pt res. Eta sc.",
                               "Cth res. sc.", "Cth res. 1/Pt sc.", "Cth res. Eta sc.", "Cth res. Eta^2 sc.",
                               "Phi res. sc.", "Phi res. 1/Pt sc.", "Phi res. Eta sc.", "Phi res. Eta^2 sc." };
-    double thisMini[] = {  0.0, -0.01, -0.001,
-                           0.0, -0.001, -0.001, -0.00001,
-                           0.0, -0.001, -0.0001, -0.0001 };
+    double thisMini[] = {  0.0, -0.1, 0.0,
+                          -0.1, -0.1, -0.1, -0.1,
+                          -0.1, -0.1, -0.1, -0.1 };
     if( muonType == 1 ) {
-      double thisMaxi[] = { 1., 1., 1.,
-                            1., 1., 1., 0.1,
-                            1., 1., 1., 1. };
+      double thisMaxi[] = { 0.1, 0.1, 2.0,
+                            0.1, 0.1, 0.1, 0.1,
+                            0.1, 1.0, 0.1, 0.1 };
       this->setPar( Start, Step, Mini, Maxi, ind, parname, parResol, parResolOrder, thisStep, thisMini, thisMaxi, thisParName );
     } else {
-      double thisMaxi[] = {  0.1, 0.01, 0.01,
-                             0.01, 0.01, 0.1, 0.01,
-                             0.01, 0.01, 0.01, 0.01 };
+      double thisMaxi[] = {  0.1, 0.1, 2.0,
+                             0.1, 0.1, 0.1, 0.1,
+                             0.1, 1.0, 0.1, 0.1 };
       this->setPar( Start, Step, Mini, Maxi, ind, parname, parResol, parResolOrder, thisStep, thisMini, thisMaxi, thisParName );
     }
   }
