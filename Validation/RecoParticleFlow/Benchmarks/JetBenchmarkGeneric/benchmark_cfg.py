@@ -9,17 +9,17 @@ process.load("DQMServices.Core.DQM_cfg")
 
 process.source = cms.Source("PoolSource",
 fileNames = cms.untracked.vstring(
-'file:aod.root'
+'file:==AOD=='
 )
 )
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
 )
 
-process.load("Validation.RecoParticleFlow.jetBenchmarkGeneric_cff")
+process.load("Validation.RecoParticleFlow.pfJetBenchmark_cfi")
 
 process.p =cms.Path(
-    process.jetBenchmarkGeneric
+    process.pfJetBenchmark
     )
 
 
