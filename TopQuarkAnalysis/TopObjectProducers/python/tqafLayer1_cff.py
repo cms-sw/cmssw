@@ -1,13 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-#
-# tqaf layer1 default sequence for fastsim
-#
-
-## extra includes for fastsim not needed anymore?
-## from PhysicsTools.PatAlgos.famos.famosSequences_cff import *
-
-
 #-----------------------------------------------------------------
 #
 #
@@ -20,6 +12,7 @@ import FWCore.ParameterSet.Config as cms
 # build tqafLayer0 objects (jets, muons, electrons, mets, taus)
 from PhysicsTools.PatAlgos.patLayer0_cff                                      import *
 from TopQuarkAnalysis.TopObjectProducers.full.tqafLayer0_objectCleaning_cff   import *
+from TopQuarkAnalysis.TopObjectProducers.full.tqafLayer0_triggerMatching_cff  import *
 from TopQuarkAnalysis.TopObjectProducers.full.tqafLayer0_mcMatching_cff       import *
 
 # build tqafLayer1 objects (jets, muons, electrons, mets, taus)
@@ -37,18 +30,13 @@ from TopQuarkAnalysis.TopObjectProducers.full.tqafLayer1_objectSelection_cff  im
 #
 #-----------------------------------------------------------------
 
-# build tqafLayer1 objects (calo taus from scratch)
-from TopQuarkAnalysis.TopObjectProducers.tqafLayer1_caloTaus_cff              import *
-# build tqafLayer2 commons (genEvt for top decay chain)
-from TopQuarkAnalysis.TopEventProducers.tqafLayer2_common_cff                 import *
-
-
-
+## std sequence for tqafLayer1 production
+tqafLayer1 = cms.Sequence(patLayer0_patTuple  *
+                          patLayer1
+                          )
 
 ## std sequence for tqafLayer1 production (w/o trigger)
 tqafLayer1_withoutTrigMatch = cms.Sequence(patLayer0_withoutTrigMatch *
-                                           patLayer1                  *
-                                           tqafLayer1_caloTaus        *
-                                           tqafLayer2_common
+                                           patLayer1
                                            )
 

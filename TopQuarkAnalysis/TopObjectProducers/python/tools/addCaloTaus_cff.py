@@ -1,5 +1,15 @@
 import FWCore.ParameterSet.Config as cms
 
+#----------------------------------------------------------------------------------------
+#
+#
+# addtional reco line for caloTaus in parallel to pfTaus in the tqafLayer1 event content.
+# Be aware that this reco line is not in use as long as pfTaus (in the summer08
+# production) will be switched off. It needs to be revised afterwards.
+#
+#
+#----------------------------------------------------------------------------------------
+
 #---------------------------------------
 # object cleaning
 #---------------------------------------
@@ -31,13 +41,13 @@ tqafLayer0MCTruth_withCaloTau = cms.Sequence(
 #---------------------------------------
 # trigger matching
 #---------------------------------------
-from TopQuarkAnalysis.TopObjectProducers.full.tqafLayer0_triggerMatching_cfi import *
+from TopQuarkAnalysis.TopObjectProducers.full.tqafLayer0_triggerMatching_cff import *
 
 ## standard sequence for triggerMatching
-tqafLayer0TrigMatch_withCaloTaus = cms.Sequence(
-    patHLT1Tau * tauTrigMatchHLT1CaloTau +
-    patHLT2TauPixel * tauTrigMatchHLT2CaloTauPixel
-)
+#tqafLayer0TrigMatch_withCaloTaus = cms.Sequence(
+#    patHLT1Tau * tauTrigMatchHLT1CaloTau +
+#    patHLT2TauPixel * tauTrigMatchHLT2CaloTauPixel
+#)
 
 #---------------------------------------
 # caloTau producer and selectors
@@ -88,6 +98,6 @@ tqafLayer1CaloTaus = cms.Sequence(
 tqafLayer1_caloTaus = cms.Sequence(
     tqafLayer0Cleaners_withCaloTau *
     tqafLayer0MCTruth_withCaloTau *
-    tqafLayer0TrigMatch_withCaloTaus *
+#   tqafLayer0TrigMatch_withCaloTaus *
     tqafLayer1CaloTaus
 )
