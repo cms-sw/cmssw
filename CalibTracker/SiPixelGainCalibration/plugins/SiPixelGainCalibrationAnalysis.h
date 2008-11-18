@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Freya Blekman
 //         Created:  Wed Nov 14 15:02:06 CET 2007
-// $Id: SiPixelGainCalibrationAnalysis.h,v 1.19 2008/08/18 10:49:26 fblekman Exp $
+// $Id: SiPixelGainCalibrationAnalysis.h,v 1.20 2008/10/15 14:56:36 fblekman Exp $
 //
 //
 
@@ -41,6 +41,7 @@ Implementation:
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "TLinearFitter.h"
 #include "TGraphErrors.h"
+#include <fstream>
 //
 // class decleration
 //
@@ -96,6 +97,7 @@ private:
   bool sum_ped_cols_;
   bool sum_gain_cols_;
   bool filldb_;
+  bool writeSummary_;
   
   // parameters for database output  
   std::string  recordName_;
@@ -113,4 +115,10 @@ private:
   uint16_t min_nentries_;
   bool useVcalHigh_;
   double scalarVcalHigh_VcalLow_;
+  
+  //Summary
+  ofstream summary_;
+  uint32_t currentDetID_;
+  int* statusNumbers_;
+  
 };

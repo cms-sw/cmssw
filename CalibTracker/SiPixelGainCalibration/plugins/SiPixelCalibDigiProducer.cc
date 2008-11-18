@@ -13,7 +13,7 @@
 //
 // Original Author:  Freya Blekman
 //         Created:  Wed Oct 31 15:28:52 CET 2007
-// $Id: SiPixelCalibDigiProducer.cc,v 1.15 2008/08/26 15:13:31 fblekman Exp $
+// $Id: SiPixelCalibDigiProducer.cc,v 1.16 2008/08/29 14:59:27 fblekman Exp $
 //
 //
 
@@ -32,6 +32,7 @@
 
 #include "DataFormats/SiPixelDigi/interface/SiPixelCalibDigiError.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelFrameConverter.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
 #include "CondFormats/SiPixelObjects/interface/ElectronicIndex.h"
 #include "CondFormats/SiPixelObjects/interface/DetectorIndex.h"
 #include "CondFormats/SiPixelObjects/interface/LocalPixel.h"
