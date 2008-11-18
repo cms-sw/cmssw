@@ -18,7 +18,7 @@ Output_RootFile = "ALCA" # The name of your output file  (will replace XXX_OUTPU
 
 Job_NEvents = -1			# Number of Events by job (will replace XXX_NEVENTS_XXX)
 Job_Start   = 0 			# The Index of your first job
-Job_End     = 123			# The Index of your last  job
+Job_End     = 115			# The Index of your last  job
 Job_SEvents = 0				# Event that you want to skip
 					# The first event will be Job_SEvents+1
 
@@ -173,9 +173,9 @@ for i in range(Job_Start,Job_End):
         input_path = input_path + Output_RootFile + "_cff.py"
 
 
-        if( GetInputFiles(path,Input_CffFile,Job_NEvents,path+"/"+FarmDirectory+"/RootFiles/"+Output_RootFile,i) == 0)
-               print('error during the _cfg.py file creation --> are you sure InputFile_cff.py contains enough lines? \n')
-               continue
+#        if( GetInputFiles(path,Input_CffFile,Job_NEvents,path+"/"+FarmDirectory+"/RootFiles/"+Output_RootFile,i) == 0)
+#               print('error during the _cfg.py file creation --> are you sure InputFile_cff.py contains enough lines? \n')
+#               continue
 		
         
 #	cff_created = 0
