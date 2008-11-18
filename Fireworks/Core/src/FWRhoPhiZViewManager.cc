@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sat Jan  5 14:08:51 EST 2008
-// $Id: FWRhoPhiZViewManager.cc,v 1.43 2008/11/11 15:21:45 chrjones Exp $
+// $Id: FWRhoPhiZViewManager.cc,v 1.44 2008/11/14 16:37:46 chrjones Exp $
 //
 
 // system include files
@@ -75,8 +75,8 @@ const char* const kRhoZViewTypeName = "Rho Z";
 //
 FWRhoPhiZViewManager::FWRhoPhiZViewManager(FWGUIManager* iGUIMgr):
   FWViewManagerBase(),
-  m_rhoPhiGeomProjMgr(0),
-  m_rhoZGeomProjMgr(0),
+  m_rhoPhiGeomProjMgr(),
+  m_rhoZGeomProjMgr(),
   m_eveStore(0),
   m_eveSelection(0),
   m_selectionManager(0),
@@ -91,10 +91,10 @@ FWRhoPhiZViewManager::FWRhoPhiZViewManager(FWGUIManager* iGUIMgr):
    iGUIMgr->registerViewBuilder(kRhoZViewTypeName,f);
 
    //setup geometry projections
-   m_rhoPhiGeomProjMgr = new TEveProjectionManager;
+   m_rhoPhiGeomProjMgr.reset(new TEveProjectionManager);
    //gEve->AddToListTree(m_rhoPhiGeomProjMgr,kTRUE);
 
-   m_rhoZGeomProjMgr = new TEveProjectionManager;
+   m_rhoZGeomProjMgr.reset(new TEveProjectionManager);
    m_rhoZGeomProjMgr->SetProjection(TEveProjection::kPT_RhoZ);
    //gEve->AddToListTree(m_rhoZGeomProjMgr,kTRUE);
 
@@ -420,7 +420,7 @@ void FWRhoPhiZViewManager::makeMuonGeometryRhoPhi()
 
    // set background geometry visibility parameters
 
-   TEveElementIter rhoPhiDT(m_rhoPhiGeomProjMgr,"MuonRhoPhi");
+   TEveElementIter rhoPhiDT(m_rhoPhiGeomProjMgr.get(),"MuonRhoPhi");
    if ( rhoPhiDT.current() ) {
       m_rhoPhiGeom.push_back( rhoPhiDT.current() );
       TEveElementIter iter(rhoPhiDT.current());
@@ -501,7 +501,7 @@ void FWRhoPhiZViewManager::makeMuonGeometryRhoZ()
    m_rhoZGeomProjMgr->ImportElements( container );
    m_rhoZGeomProjMgr->SetCurrentDepth(layer);
 
-   TEveElementIter rhoZDT(m_rhoZGeomProjMgr,"DT");
+   TEveElementIter rhoZDT(m_rhoZGeomProjMgr.get(),"DT");
    if ( rhoZDT.current() ) {
       m_rhoZGeom.push_back( rhoZDT.current() );
       TEveElementIter iter(rhoZDT.current());
@@ -514,7 +514,7 @@ void FWRhoPhiZViewManager::makeMuonGeometryRhoZ()
       }
    }
 
-   TEveElementIter rhoZCSC(m_rhoZGeomProjMgr,"CSC");
+   TEveElementIter rhoZCSC(m_rhoZGeomProjMgr.get(),"CSC");
    if ( rhoZCSC.current() ) {
       m_rhoZGeom.push_back( rhoZCSC.current() );
       TEveElementIter iter(rhoZCSC.current());
@@ -606,7 +606,7 @@ void FWRhoPhiZViewManager::makeMuonGeometryRhoZAdvance()
    m_rhoZGeomProjMgr->ImportElements( container );
    m_rhoZGeomProjMgr->SetCurrentDepth(layer);
 
-   TEveElementIter rhoZDT(m_rhoZGeomProjMgr,"DT");
+   TEveElementIter rhoZDT(m_rhoZGeomProjMgr.get(),"DT");
    if ( rhoZDT.current() ) {
       m_rhoZGeom.push_back( rhoZDT.current() );
       TEveElementIter iter(rhoZDT.current());
@@ -619,7 +619,7 @@ void FWRhoPhiZViewManager::makeMuonGeometryRhoZAdvance()
       }
    }
 
-   TEveElementIter rhoZCSC(m_rhoZGeomProjMgr,"CSC");
+   TEveElementIter rhoZCSC(m_rhoZGeomProjMgr.get(),"CSC");
    if ( rhoZCSC.current() ) {
       m_rhoZGeom.push_back( rhoZCSC.current() );
       TEveElementIter iter(rhoZCSC.current());

@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:23 CDT 2008
-// $Id: CmsShowMainFrame.cc,v 1.22 2008/11/10 15:35:24 chrjones Exp $
+// $Id: CmsShowMainFrame.cc,v 1.23 2008/11/14 15:41:44 chrjones Exp $
 //
 
 // system include files
@@ -91,11 +91,8 @@ TGMainFrame(p, w, h)
    CSGAction *help = new CSGAction(this, cmsshow::sHelp.c_str());
    CSGAction *keyboardShort = new CSGAction(this, cmsshow::sKeyboardShort.c_str());
    m_runEntry = new CSGAction(this, "Run Entry");
-   addToActionMap(m_runEntry);
    m_eventEntry = new CSGAction(this, "Event Entry");
-   addToActionMap(m_eventEntry);
    CSGAction *eventFilter = new CSGAction(this, "Event Filter");
-   addToActionMap(eventFilter);
    m_nextEvent = nextEvent;
    m_previousEvent = previousEvent;
    m_goToFirst = goToFirst;
@@ -319,6 +316,11 @@ TGMainFrame(p, w, h)
 
 CmsShowMainFrame::~CmsShowMainFrame() {
    Cleanup();
+   for(std::vector<CSGAction*>::iterator it= m_actionList.begin(),itEnd = m_actionList.end();
+       it != itEnd;
+       ++it) {
+      delete *it;
+   }
    //delete m_statBar;
 }
 

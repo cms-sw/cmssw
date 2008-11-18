@@ -16,7 +16,7 @@
 //
 // Original Author:
 //         Created:  Sat Jan  5 11:27:34 EST 2008
-// $Id: FWRhoPhiZViewManager.h,v 1.26 2008/11/11 15:21:44 chrjones Exp $
+// $Id: FWRhoPhiZViewManager.h,v 1.27 2008/11/14 16:37:46 chrjones Exp $
 //
 
 // system include files
@@ -27,6 +27,7 @@
 
 // user include files
 #include "Fireworks/Core/interface/FWViewManagerBase.h"
+#include "Fireworks/Core/interface/FWEvePtr.h"
 
 // forward declarations
 class TEveElement;
@@ -101,8 +102,8 @@ class FWRhoPhiZViewManager : public FWViewManagerBase
       TypeToBuilder m_typeToBuilder;
       std::vector<boost::shared_ptr<FWRPZDataProxyBuilderBase> > m_builders;
 
-      TEveProjectionManager* m_rhoPhiGeomProjMgr;
-      TEveProjectionManager* m_rhoZGeomProjMgr;
+      FWEvePtr<TEveProjectionManager> m_rhoPhiGeomProjMgr;
+      FWEvePtr<TEveProjectionManager> m_rhoZGeomProjMgr;
       std::vector<TEveElement*> m_rhoPhiGeom;
       std::vector<TEveElement*> m_rhoZGeom;
 

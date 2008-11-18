@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:11 CDT 2008
-// $Id: CSGAction.cc,v 1.9 2008/11/05 09:16:08 chrjones Exp $
+// $Id: CSGAction.cc,v 1.10 2008/11/06 22:05:24 amraktad Exp $
 //
 
 // system include files
@@ -60,15 +60,8 @@ CSGAction::CSGAction(CmsShowMainFrame *frame, const char *name) {
 
 CSGAction::~CSGAction()
 {
-   for(std::vector<TGButton*>::iterator it = m_buttons.begin(), itEnd = m_buttons.end();
-       it != itEnd;
-       ++it) {
-      delete *it;
-   }
-   delete m_menu;
    delete m_connector;
-   if (m_textEntry) delete m_textEntry;
-   if (m_numberEntry) delete m_numberEntry;
+   //Don't delete GUI parts since they are owned by their GUI parent
 }
 
 //
