@@ -49,6 +49,7 @@ namespace {
     edm::Wrapper<StGenEvent> w_stgen;
     edm::Wrapper<TopGenEvent> w_topgen;
     edm::Wrapper<TtSemiLeptonicEvent> w_tttsemievt;
+    edm::Wrapper<reco::CompositeCandidate> ttcompcand;
 
     edm::RefProd<TtGenEvent> rp_ttgen;
     edm::RefProd<StGenEvent> rp_stgen;

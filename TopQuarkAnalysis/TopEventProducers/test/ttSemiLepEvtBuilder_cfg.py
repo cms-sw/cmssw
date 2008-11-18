@@ -77,6 +77,12 @@ process.load("TopQuarkAnalysis.TopEventProducers.sequences.ttGenEvent_cff")
 process.load("TopQuarkAnalysis.TopEventProducers.sequences.ttSemiLepEvtBuilder_cff")
 process.ttSemiLepEvent.verbosity = cms.int32(1)
 
+## necessary fixes to run 2.2.X on 2.1.X data
+## comment this when running on samples produced
+## with 22X
+from PhysicsTools.PatAlgos.tools.cmsswVersionTools import run22XonSummer08AODSIM
+run22XonSummer08AODSIM(process)
+
 ## process path
 process.p = cms.Path(process.tqafLayer1  *
                      process.makeGenEvt  *
