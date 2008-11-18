@@ -38,7 +38,7 @@ ttSemiLepJetPartonMatch = cms.EDFilter("TtSemiLepJetPartonMatch",
     # (has to be >= 4, can be set to -1 if you want to 
     # take all)
     #-------------------------------------------------
-    nJets = cms.int32(-1)
+    nJets = cms.int32(4)
 )
 
 

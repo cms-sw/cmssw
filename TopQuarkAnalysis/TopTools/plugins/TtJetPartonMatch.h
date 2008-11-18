@@ -79,8 +79,17 @@ TtJetPartonMatch<C>::produce(edm::Event& evt, const edm::EventSetup& setup)
   // prepare vector of jets
   std::vector<pat::JetType> jets;
   for(unsigned int ij=0; ij<topJets->size(); ++ij) {
-    if(nJets_>=(int)partons.size()){ if((int)ij==nJets_) break; }
-    else{ if(ij==partons.size()) break; }
+    // take all jets if nJets_=-1; otherwise
+    // use nJets_ if nJets_ is big enough or
+    // use same number of jets as partons if nJets_ < number of partons
+    if(nJets_!=-1) {
+      if(nJets_>=(int)partons.size()) {
+	if((int)ij==nJets_) break;
+      }
+      else {
+	if(ij==partons.size()) break;
+      }
+    }
     // why are these no pat::Jets? This will explode 
     // once the caloJets are not in anymore!
     const pat::JetType* jet = dynamic_cast<const pat::JetType*>((*topJets)[ij].originalObject());

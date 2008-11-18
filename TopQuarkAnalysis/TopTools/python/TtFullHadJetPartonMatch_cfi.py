@@ -39,7 +39,7 @@ ttFullHadJetPartonMatch = cms.EDFilter("TtFullHadJetPartonMatch",
     # (has to be >= 6, can be set to -1 if you want to 
     # take all)
     #-------------------------------------------------
-    nJets = cms.int32(-1)
+    nJets = cms.int32(6)
 )
 
 
