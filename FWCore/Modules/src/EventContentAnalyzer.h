@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Sep 19 11:49:35 CEST 2005
-// $Id: EventContentAnalyzer.h,v 1.3 2006/01/10 22:11:16 chrjones Exp $
+// $Id: EventContentAnalyzer.h,v 1.4 2007/08/08 03:41:43 chrjones Exp $
 //
 
 // system include files
@@ -28,6 +28,9 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
 // forward declarations
+namespace edm {
+   class ParameterSetDescription;
+}
 
 class EventContentAnalyzer : public edm::EDAnalyzer {
 public:
@@ -36,6 +39,9 @@ public:
    
    virtual void analyze(const edm::Event&, const edm::EventSetup&);
    virtual void endJob();
+
+   static void fillDescription(edm::ParameterSetDescription& iDesc,
+                               std::string const& moduleLabel);
 
 private:
       
