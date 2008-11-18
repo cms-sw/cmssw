@@ -10,6 +10,15 @@ from RecoJets.JetAssociationProducers.j2tParametersVX_cfi import *
 
 myJets = cms.InputTag("pfTopProjection:PFJets")
 
+enableTrigMatch = False
+
+allLayer1Muons.addTrigMatch =  enableTrigMatch
+allLayer1Electrons.addTrigMatch =  enableTrigMatch 
+allLayer1Jets.addTrigMatch =  enableTrigMatch
+allLayer1Taus.addTrigMatch =  enableTrigMatch
+allLayer1METs.addTrigMatch =  enableTrigMatch
+
+
 
 jetGenJetMatch.src = myJets
 jetPartonAssociation.jets = myJets
@@ -82,7 +91,6 @@ muons = "pfMuons"
 
 allLayer1Muons.pfMuonSource =  cms.InputTag( muons )
 allLayer1Muons.useParticleFlow =  cms.bool( True )
-allLayer1Muons.addTrigMatch = cms.bool( True )
 muonMatch.src = cms.InputTag( muons )
 allLayer1Muons.addGenMatch = True
 allLayer1Muons.embedPFCandidate = True
@@ -122,6 +130,9 @@ patLayer1 = cms.Sequence(
     layer1Muons
 )
 
+# disabling trigger matching, due to a dictionnary inconsistency
+# between 2_1_X and 2_2_X
+
 
 patTrigMatch = cms.Sequence(
     #    patTrigMatchCandHLT1ElectronStartup +
@@ -139,7 +150,7 @@ patTrigMatch = cms.Sequence(
 patFromPF2PAT = cms.Sequence (
 #    allLayer0Electrons +
 #    allLayer0Potons + 
-    patTrigMatch +
+#    patTrigMatch +
     jetTrackAssociation +
     patHighLevelReco +
     patMCTruth_withoutElectronPhoton +
