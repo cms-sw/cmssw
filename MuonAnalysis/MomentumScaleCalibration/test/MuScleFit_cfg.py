@@ -196,7 +196,7 @@ process.looper = cms.Looper(
     # This parameters are modified to have a better agreement with Y
     ResolFitType = cms.int32(8),
     parResol = cms.vdouble(-0.007, 0.0001, 1.0,
-                           0.00022, 0.0041, 0.0000028, 0.00054,
+                           -0.00028, 0.0041, 0.0000028, 0.00054,
                            0.00014, 0.0018, -0.00000094, 0.0001),
     parResolFix = cms.vint32(0, 0, 0,
                              0, 0, 0, 0,
