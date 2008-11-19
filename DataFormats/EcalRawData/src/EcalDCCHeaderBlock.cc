@@ -4,6 +4,7 @@ EcalDCCHeaderBlock::EcalDCCHeaderBlock()
 {
   dccId_ = -1; // initialize
   fedId_ = -1; // initialize
+  dccInTTCCommand_ = -1; // initialize
   tccStatus_.reserve(MAX_TCC_SIZE);
   triggerTowerFlag_.reserve(MAX_TT_SIZE);
   feStatus_.reserve(MAX_TT_SIZE);
@@ -19,6 +20,7 @@ EcalDCCHeaderBlock::EcalDCCHeaderBlock()
   dccErrors_=-1;
   orbitNumber_=-1; // do we need it here?
   runType_=-1;
+  zs_=-1;
   basic_trigger_type_=-1;
   LV1event_ =-1;
   runNumber_ =-1;
