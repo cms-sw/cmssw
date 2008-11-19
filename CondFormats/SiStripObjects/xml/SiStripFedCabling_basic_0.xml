@@ -3,11 +3,84 @@
  <PoolDatabase >
   <PoolContainer name="SiStripFedCablingRcd" >
    <Class table="SISTRIPFEDCABLING" id_columns="IOV_VALUE_ID" name="SiStripFedCabling" mapping_version="SiStripFedCabling_basic" >
-     <Blob column="SISTRIPFEDCABLING_CONN" name="connections_"/>
-     <Blob column="SISTRIPFEDCABLING_DETEC" name="detected_"/>
-     <Blob column="SISTRIPFEDCABLING_UNDET" name="undetected_"/>
-     <Blob column="SISTRIPFEDCABLING_FEDS" name="feds_"/>
-     <Blob column="SISTRIPFEDCABLING_REG" name="registry_"/>
+     <Container table="SISTRIPFEDCABLING_CONN" id_columns="IOV_VALUE_ID" name="connections_" position_column="POS" >
+       <Object name="value_type" >
+         <Primitive column="APV0" name="apv0_" />
+         <Primitive column="APV1" name="apv1_" />
+         <Primitive column="CCUADDR" name="ccuAddr_" />
+         <Primitive column="CCUCHAN" name="ccuChan_" />
+         <Primitive column="DCU0X00" name="dcu0x00_" />
+         <Primitive column="DCUID" name="dcuId_" />
+         <Primitive column="DETID" name="detId_" />
+         <Primitive column="FECCRATE" name="fecCrate_" />
+         <Primitive column="FECRING" name="fecRing_" />
+         <Primitive column="FECSLOT" name="fecSlot_" />
+         <Primitive column="FEDCH" name="fedCh_" />
+         <Primitive column="FEDCRATE" name="fedCrate_" />
+         <Primitive column="FEDID" name="fedId_" />
+         <Primitive column="FEDSLOT" name="fedSlot_" />
+         <Primitive column="LENGTH" name="length_" />
+         <Primitive column="LLD0X60" name="lld0x60_" />
+         <Primitive column="MUX0X43" name="mux0x43_" />
+         <Primitive column="NAPVPAIRS" name="nApvPairs_" />
+         <Primitive column="PLL0X44" name="pll0x44_" />
+       </Object >
+     </Container >
+     <Container table="SISTRIPFEDCABLING_DETEC" id_columns="IOV_VALUE_ID" name="detected_" position_column="POS" >
+       <Object name="value_type" >
+         <Primitive column="APV0" name="apv0_" />
+         <Primitive column="APV1" name="apv1_" />
+         <Primitive column="CCUADDR" name="ccuAddr_" />
+         <Primitive column="CCUCHAN" name="ccuChan_" />
+         <Primitive column="DCU0X00" name="dcu0x00_" />
+         <Primitive column="DCUID" name="dcuId_" />
+         <Primitive column="DETID" name="detId_" />
+         <Primitive column="FECCRATE" name="fecCrate_" />
+         <Primitive column="FECRING" name="fecRing_" />
+         <Primitive column="FECSLOT" name="fecSlot_" />
+         <Primitive column="FEDCH" name="fedCh_" />
+         <Primitive column="FEDCRATE" name="fedCrate_" />
+         <Primitive column="FEDID" name="fedId_" />
+         <Primitive column="FEDSLOT" name="fedSlot_" />
+         <Primitive column="LENGTH" name="length_" />
+         <Primitive column="LLD0X60" name="lld0x60_" />
+         <Primitive column="MUX0X43" name="mux0x43_" />
+         <Primitive column="NAPVPAIRS" name="nApvPairs_" />
+         <Primitive column="PLL0X44" name="pll0x44_" />
+       </Object >
+     </Container >
+     <Container table="SISTRIPFEDCABLING_FEDS" id_columns="IOV_VALUE_ID" name="feds_" position_column="POS" >
+       <Primitive column="FEDS" name="value_type" />
+     </Container >
+     <Container table="SISTRIPFEDCABLING_REG" id_columns="IOV_VALUE_ID" name="registry_" position_column="POS" >
+       <Object name="value_type" >
+         <Primitive column="REGISTRY_FIRST" name="first" />
+         <Primitive column="REGISTRY_SECOND" name="second" />
+       </Object >
+     </Container >
+     <Container table="SISTRIPFEDCABLING_UNDET" id_columns="IOV_VALUE_ID" name="undetected_" position_column="POS" >
+       <Object name="value_type" >
+         <Primitive column="APV0" name="apv0_" />
+         <Primitive column="APV1" name="apv1_" />
+         <Primitive column="CCUADDR" name="ccuAddr_" />
+         <Primitive column="CCUCHAN" name="ccuChan_" />
+         <Primitive column="DCU0X00" name="dcu0x00_" />
+         <Primitive column="DCUID" name="dcuId_" />
+         <Primitive column="DETID" name="detId_" />
+         <Primitive column="FECCRATE" name="fecCrate_" />
+         <Primitive column="FECRING" name="fecRing_" />
+         <Primitive column="FECSLOT" name="fecSlot_" />
+         <Primitive column="FEDCH" name="fedCh_" />
+         <Primitive column="FEDCRATE" name="fedCrate_" />
+         <Primitive column="FEDID" name="fedId_" />
+         <Primitive column="FEDSLOT" name="fedSlot_" />
+         <Primitive column="LENGTH" name="length_" />
+         <Primitive column="LLD0X60" name="lld0x60_" />
+         <Primitive column="MUX0X43" name="mux0x43_" />
+         <Primitive column="NAPVPAIRS" name="nApvPairs_" />
+         <Primitive column="PLL0X44" name="pll0x44_" />
+       </Object >
+     </Container >
    </Class >
   </PoolContainer >
  </PoolDatabase >
