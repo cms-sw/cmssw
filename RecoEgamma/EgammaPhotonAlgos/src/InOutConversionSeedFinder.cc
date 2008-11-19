@@ -410,8 +410,6 @@ void InOutConversionSeedFinder::findSeeds(const TrajectoryStateOnSurface & start
   LogDebug("InOutConversionSeedFinder") << " InOutConversionSeedFinder::findSeeds Initial FTS charge " << fts.charge() << " curvature " <<  transverseCurvature << "\n";  
   LogDebug("InOutConversionSeedFinder") << " InOutConversionSeedFinder::findSeeds Initial FTS parameters " << fts <<  "\n"; 
     
-  PropagatorWithMaterial thePropagatorWithMaterial_ (alongMomentum, 0.000511, &(*theMF_) );  
-  //thePropagatorWithMaterial_.setPropagationDirection(alongMomentum);
   
   //float dphi = 0.01;
   float dphi = 0.03;
@@ -447,11 +445,11 @@ void InOutConversionSeedFinder::findSeeds(const TrajectoryStateOnSurface & start
     // Get measurements compatible with the FTS and Estimator
     TSOS tsos(fts, layer->surface() );
     
-    LogDebug("InOutConversionSeedFinder") << "InOutConversionSeedFinder::findSeed propagationDirection " << int(thePropagatorWithMaterial_.propagationDirection() ) << "\n";               
+    LogDebug("InOutConversionSeedFinder") << "InOutConversionSeedFinder::findSeed propagationDirection " << int(thePropagatorAlongMomentum_->propagationDirection() ) << "\n";               
     /// Rememeber that this alwyas give back at least one dummy-innvalid it which prevents from everything getting stopped
     LayerMeasurements theLayerMeasurements_(this->getMeasurementTracker() );
 
-    theFirstMeasurements_ = theLayerMeasurements_.measurements( *layer, tsos, thePropagatorWithMaterial_, *newEstimator);
+    theFirstMeasurements_ = theLayerMeasurements_.measurements( *layer, tsos, *thePropagatorAlongMomentum_, *newEstimator);
     
     delete newEstimator;
     LogDebug("InOutConversionSeedFinder") <<  "InOutConversionSeedFinder::findSeeds  Found " << theFirstMeasurements_.size() << " first hits" << "\n";
@@ -515,8 +513,8 @@ void InOutConversionSeedFinder::findSeeds(const TrajectoryStateOnSurface & start
 	*/
 	
         
-	completeSeed(*tmItr, newfts,  &thePropagatorWithMaterial_, ilayer+1);
-	completeSeed(*tmItr, newfts,  &thePropagatorWithMaterial_, ilayer+2);
+	completeSeed(*tmItr, newfts,  thePropagatorAlongMomentum_, ilayer+1);
+	completeSeed(*tmItr, newfts,  thePropagatorAlongMomentum_, ilayer+2);
 	
 	
       }
@@ -604,8 +602,7 @@ void InOutConversionSeedFinder::createSeed(const TrajectoryMeasurement & m1,  co
   CurvilinearTrajectoryError errors = m1.predictedState().curvilinearError();
   FreeTrajectoryState fts(newgtp, errors);
 
-  PropagatorWithMaterial thePropagatorWithMaterial_ (alongMomentum, 0.000511, &(*theMF_) );
-  TrajectoryStateOnSurface state1 = thePropagatorWithMaterial_.propagate(fts,  m1.recHit()->det()->surface());
+  TrajectoryStateOnSurface state1 = thePropagatorAlongMomentum_->propagate(fts,  m1.recHit()->det()->surface());
   
   /*
     LogDebug("InOutConversionSeedFinder") << "hit surface " <<  m1.recHit()->det()->surface().position() << "\n";
@@ -623,7 +620,7 @@ void InOutConversionSeedFinder::createSeed(const TrajectoryMeasurement & m1,  co
     
     if ( updatedState1.isValid() ) {
       
-      TrajectoryStateOnSurface state2 = thePropagatorWithMaterial_.propagate(*updatedState1.freeTrajectoryState(),  m2.recHit()->det()->surface());
+      TrajectoryStateOnSurface state2 = thePropagatorAlongMomentum_->propagate(*updatedState1.freeTrajectoryState(),  m2.recHit()->det()->surface());
       
       if ( state2.isValid() ) {
 	
