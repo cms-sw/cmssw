@@ -11,7 +11,7 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(10000)
 )
 #############   Define the source file ###############
-process.load("RecoJets.JetAnalyzers.QCDgen_cfi")
+process.load("RecoJets.JetAnalyzers.QCD_GenJets_cfi")
 #process.source = cms.Source("PoolSource",
 #    fileNames = cms.untracked.vstring(
 #'file:/uscms_data/d1/rharris/CMSSW_2_1_8/src/Configuration/GenProduction/test/PYTHIA6_QCDpt_1000_1400_10TeV_GEN_100Kevts.root')
@@ -35,11 +35,11 @@ process.load("RecoJets.JetAnalyzers.QCDgen_cfi")
 #
 process.gen = cms.EDAnalyzer("GenJetAnaPythia",
     JetAlgorithm    = cms.string('sisCone7GenJets'),
-    HistoFileName   = cms.string('TestQCDhistos.root'),
+    HistoFileName   = cms.string('TestQCDhistosGenJets.root'),
     debug           = cms.bool(False),
     NJets           = cms.int32(2),
-    eventsGen       = cms.int32(100000),
-    anaLevel        = cms.string('all'),
+    eventsGen       = cms.int32(800000),
+    anaLevel        = cms.string('Jets'),
     xsecGen         = cms.double(0.0)
 )
 #############   Path       ###########################
