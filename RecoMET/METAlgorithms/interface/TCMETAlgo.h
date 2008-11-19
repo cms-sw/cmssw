@@ -38,6 +38,7 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/METReco/interface/CaloMET.h"
 #include "DataFormats/METReco/interface/CaloMETCollection.h"
+#include "TH2D.h"
 
 class TCMETAlgo 
 {
@@ -45,7 +46,9 @@ class TCMETAlgo
   typedef std::vector<const reco::Candidate> InputCollection;
   TCMETAlgo();
   virtual ~TCMETAlgo();
-  reco::MET CalculateTCMET(edm::Event& event, const edm::EventSetup& setup, const edm::ParameterSet& iConfig);
+  reco::MET CalculateTCMET(edm::Event& event, const edm::EventSetup& setup, const edm::ParameterSet& iConfig, TH2D *response_function);
+  TH2D* getResponseFunction ( );
+
  private:
   double met_x;
   double met_y;
@@ -68,7 +71,7 @@ class TCMETAlgo
   void correctMETforTrack( const reco::Track& );
   void correctSumEtForTrack( const reco::Track&);
   class TVector3 propagateTrack( const reco::Track& );
-  TH2D* getResponseFunction ( );
+
 };
 
 #endif // TCMETAlgo_h
