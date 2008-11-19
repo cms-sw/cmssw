@@ -2,8 +2,8 @@
  *
  *  Implementation of  QTestHandle
  *
- *  $Date: 2008/04/14 14:40:38 $
- *  $Revision: 1.9.2.3 $
+ *  $Date: 2008/05/14 12:38:47 $
+ *  $Revision: 1.10 $
  *  \author Ilaria Segoni
  */
 
@@ -13,7 +13,7 @@
 #include "DQMServices/ClientConfig/interface/QTestConfigure.h"
 #include "DQMServices/ClientConfig/interface/QTestStatusChecker.h"
 
-#include "DQMServices/Core/interface/DQMStore.h"
+bool first_qtests=true;
 
 QTestHandle::QTestHandle()
 {
@@ -22,6 +22,7 @@ QTestHandle::QTestHandle()
   qtChecker    = new QTestStatusChecker;
 
   testsConfigured = false;
+  
 }
 
 QTestHandle::~QTestHandle()
@@ -57,6 +58,7 @@ bool QTestHandle::configureTests(const std::string &configFile, DQMStore *bei)
 
 void QTestHandle::attachTests(DQMStore *bei)
 {
+
   std::map<std::string, std::vector<std::string> > mapMeToTests
     = qtParser->meToTestsList();
 
@@ -68,8 +70,10 @@ void QTestHandle::attachTests(DQMStore *bei)
     const std::vector<std::string> &tests = itr->second;
     for (std::vector<std::string>::const_iterator testsItr = tests.begin();
 	 testsItr != tests.end(); ++testsItr)
-      bei->useQTestByMatch(meName, *testsItr);
+      bei->useQTestByMatch(meName, *testsItr, first_qtests);
   }
+
+  first_qtests=false;
 }
 
 std::pair<std::string,std::string>

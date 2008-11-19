@@ -3,7 +3,8 @@ import FWCore.ParameterSet.Config as cms
 DQMStore = cms.Service("DQMStore",
     referenceFileName = cms.untracked.string(''),
     verbose = cms.untracked.int32(0),
-    collateHistograms = cms.untracked.bool(False)
+    collateHistograms = cms.untracked.bool(False),
+    verboseQT = cms.untracked.bool(True)
 )
 
 DQM = cms.Service("DQM",

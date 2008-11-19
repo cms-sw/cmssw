@@ -5,6 +5,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/JobReport.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "classlib/utils/RegexpMatch.h"
 #include "classlib/utils/Regexp.h"
 #include "classlib/utils/StringOps.h"
@@ -16,6 +17,9 @@
 
 /** @var DQMStore::verbose_
     Universal verbose flag for DQM. */
+
+/** @var DQMStore::verboseQT_
+    Verbose flag for xml-based QTests. */
 
 /** @var DQMStore::reset_
 
@@ -140,6 +144,8 @@ DQMStore::DQMStore(const edm::ParameterSet &pset)
   if (verbose_ > 0)
     std::cout << "DQMStore: verbosity set to " << verbose_ << std::endl;
 
+  verboseQT_ = pset.getUntrackedParameter<bool>("verboseQT", true);
+  
   collateHistograms_ = pset.getUntrackedParameter<bool>("collateHistograms", false);
   if (collateHistograms_)
     std::cout << "DQMStore: histogram collation is enabled\n";
@@ -1818,7 +1824,7 @@ DQMStore::useQTest(const std::string &dir, const std::string &qtname)
 
 /// attach quality test <qc> to monitor elements matching <pattern>.
 void
-DQMStore::useQTestByMatch(const std::string &pattern, const std::string &qtname)
+DQMStore::useQTestByMatch(const std::string &pattern, const std::string &qtname, bool first_qtests )
 {
   QCriterion *qc = getQCriterion(qtname);
   if (! qc)
@@ -1847,20 +1853,26 @@ DQMStore::useQTestByMatch(const std::string &pattern, const std::string &qtname)
   // Apply the quality test.
   MEMap::iterator mi = data_.begin();
   MEMap::iterator me = data_.end();
-  for ( ; mi != me; ++mi)
-    if (rx->match(mi->first))
-      mi->second.addQReport(qts.second);
-}
 
+  unsigned int match_cases=0; // number of matched cases
+  for ( ; mi != me; ++mi)
+    if (rx->match(mi->first)){++match_cases; mi->second.addQReport(qts.second);}
+
+  if (verboseQT_ && first_qtests && match_cases==0 ){
+    edm::LogWarning ("DQMStore::useQTestByMatch")
+    << " ==>> Invalid qtest xml: Link '"<< pattern <<"', QTest '"<< qtname << "'  - no matching ME! <<== ";
+    
+  }
+
+}
 /// run quality tests (also finds updated contents in last monitoring cycle,
 /// including newly added content) 
 void
 DQMStore::runQTests(void)
 {
 
-  if (verbose_ > 0)
-    std::cout << "DQMStore: running runQTests() with reset = "
-              << ( reset_ ? "true" : "false" ) << std::endl;
+  std::cout << "DQMStore: running runQTests() with reset = "
+            << ( reset_ ? "true" : "false" ) << std::endl;
 
   // Apply quality tests to each monitor element, skipping references.
   MEMap::iterator mi = data_.begin();

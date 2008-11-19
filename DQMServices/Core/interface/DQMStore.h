@@ -168,7 +168,7 @@ public:
   QCriterion *			getQCriterion(const std::string &qtname) const;
   QCriterion *			createQTest(const std::string &algoname, const std::string &qtname);
   void				useQTest(const std::string &dir, const std::string &qtname);
-  void				useQTestByMatch(const std::string &pattern, const std::string &qtname);
+  void				useQTestByMatch(const std::string &pattern, const std::string &qtname, bool first_qtests = false );
   void				runQTests(void);
   int				getStatus(const std::string &path = "") const;
 
@@ -259,6 +259,7 @@ private:
   typedef std::map<std::string, QCriterion *(*)(const std::string &)>	QAMap;
  
   unsigned			verbose_;
+  bool                          verboseQT_;
   bool				reset_;
   bool				collateHistograms_;
   std::string			readSelectedDirectory_;
