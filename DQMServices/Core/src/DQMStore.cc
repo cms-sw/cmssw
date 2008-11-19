@@ -1871,8 +1871,9 @@ void
 DQMStore::runQTests(void)
 {
 
-  std::cout << "DQMStore: running runQTests() with reset = "
-            << ( reset_ ? "true" : "false" ) << std::endl;
+  if (verbose_ > 0)
+    std::cout << "DQMStore: running runQTests() with reset = "
+              << ( reset_ ? "true" : "false" ) << std::endl;
 
   // Apply quality tests to each monitor element, skipping references.
   MEMap::iterator mi = data_.begin();
