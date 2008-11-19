@@ -9,7 +9,6 @@ DEFINE_ANOTHER_FWK_MODULE(SiStripThresholdBuilder);
 #include "CondTools/SiStrip/plugins/SiStripThresholdReader.h"
 DEFINE_ANOTHER_FWK_MODULE(SiStripThresholdReader);
 
-
 #include "CondTools/SiStrip/plugins/SiStripPedestalsBuilder.h"
 DEFINE_ANOTHER_FWK_MODULE(SiStripPedestalsBuilder);
 
@@ -45,15 +44,12 @@ DEFINE_ANOTHER_FWK_MODULE(SiStripPerformanceSummaryReader);
 
 #include "CondTools/SiStrip/plugins/SiStripCablingTrackerMap.h"
 DEFINE_ANOTHER_FWK_MODULE(SiStripCablingTrackerMap);
-<<<<<<< SealModules.cc
 
 #include "CondTools/SiStrip/plugins/SiStripFedCablingBuilder.h"
 DEFINE_ANOTHER_FWK_MODULE(SiStripFedCablingBuilder);
 
 #include "CondTools/SiStrip/plugins/SiStripFedCablingReader.h"
 DEFINE_ANOTHER_FWK_MODULE(SiStripFedCablingReader);
-=======
 
 #include "CondTools/SiStrip/plugins/SiStripSummaryReader.h"
 DEFINE_ANOTHER_FWK_MODULE(SiStripSummaryReader);
->>>>>>> 1.5
