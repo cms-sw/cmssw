@@ -32,7 +32,7 @@ namespace cscdqm {
     // Only 8bits are significant; format of DDU id is Dxx
     int dduID = dduHeader.source_id()&0xFF;
 
-    METype* mo = 0;
+    MonitorObject* mo = 0;
 
     if (getEMUHisto(EMU_ALL_DDUS_IN_READOUT, mo)) {
       mo->Fill(dduID);

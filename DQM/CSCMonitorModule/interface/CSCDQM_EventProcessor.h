@@ -26,20 +26,19 @@
 
 #include <TString.h>
 
-#ifndef DQMLOCAL
+#ifdef DQMGLOBAL
 
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCDCCEventData.h"
-#include "DQM/CSCMonitorModule/interface/CSCHistoProvider.h"
 
 #endif
 
 #include "DQM/CSCMonitorModule/interface/CSCDQM_Logger.h"
-#include "DQM/CSCMonitorModule/interface/CSCDQM_HistoType.h"
 #include "DQM/CSCMonitorModule/interface/CSCDQM_Summary.h"
 #include "DQM/CSCMonitorModule/interface/CSCDQM_StripClusterFinder.h"
+#include "DQM/CSCMonitorModule/interface/CSCDQM_HistoProviderIf.h"
 
 #include "EventFilter/CSCRawToDigi/interface/CSCDCCExaminer.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCDDUEventData.h"
@@ -51,13 +50,6 @@
 #define TAG_CSC "CSC_%03d_%02d"
 
 namespace cscdqm {
-
-#ifndef DQMLOCAL
-
-  typedef CSCHistoProvider HPType;
-  typedef CSCMonitorObject METype;
-
-#endif
 
   typedef struct EffParametersType {
     double cold_threshold;
@@ -86,7 +78,7 @@ namespace cscdqm {
 
     public:
       
-      EventProcessor(HPType* p_histoProvider);
+      EventProcessor(HistoProvider* p_histoProvider);
       ~EventProcessor();
 
       void blockHisto(const HistoType histo);
@@ -112,12 +104,12 @@ namespace cscdqm {
 
       const bool histoNotBlocked(const HistoType histo) const;
 
-      const bool getEMUHisto(const HistoType histo, METype* me, const bool ref = false);
-      const bool getDDUHisto(const int dduID, const HistoType histo, METype* me, const bool ref = false);
-      const bool getCSCHisto(const int crateID, const int dmbSlot, const HistoType histo, METype* me, const int adId = 0, const bool ref = false);
+      const bool getEMUHisto(const HistoType histo, MonitorObject* me, const bool ref = false);
+      const bool getDDUHisto(const int dduID, const HistoType histo, MonitorObject* me, const bool ref = false);
+      const bool getCSCHisto(const int crateID, const int dmbSlot, const HistoType histo, MonitorObject* me, const int adId = 0, const bool ref = false);
 
       std::set<HistoType> blocked;
-      HPType* histoProvider;
+      HistoProvider* histoProvider;
       Summary summary;
 
       uint32_t nEvents; 
@@ -143,7 +135,7 @@ namespace cscdqm {
 // Local ONLY stuff 
 // ===================================================================================================
 
-#ifndef DQMGLOBAL
+#ifdef DQMLOCAL
 
     public:
 
@@ -157,7 +149,7 @@ namespace cscdqm {
 // Global ONLY stuff 
 // ===================================================================================================
 
-#ifndef DQMLOCAL
+#ifdef DQMGLOBAL
 
     public:
 

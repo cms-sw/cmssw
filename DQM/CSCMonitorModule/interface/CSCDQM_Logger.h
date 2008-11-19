@@ -20,36 +20,53 @@
 #define CSCDQM_Logger_H
 
 #include <iostream>
+
+#ifdef DQMGLOBAL
+
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
+#define LOG_DEBUG       ((!edm::MessageDrop::instance()->debugEnabled) ? \
+                        LogDebugger() : LogDebugger(true))
+
+#endif
+
+#ifdef DQMLOCAL
+
+#define LOG_DEBUG       LogDebugger()
+
+#endif
 
 #define LOG_ERROR       LogError()
 #define LOG_WARN        LogWarn()
 #define LOG_INFO        LogInfo()
-#define LOG_DEBUG       ((!edm::MessageDrop::instance()->debugEnabled) ? \
-                        LogDebugger() : LogDebugger(true))
 #define LOG_COUT        LogCout()
 
 namespace cscdqm {
 
-  class LogInfo : public edm::LogInfo {
+  class Logger { };
+
+//#ifdef DQMGLOBAL
+
+  class LogInfo : public edm::LogInfo, public Logger {
     public: LogInfo() : edm::LogInfo("") { }
   };
 
-  class LogWarn : public edm::LogWarning {
+  class LogWarn : public edm::LogWarning, public Logger {
     public: LogWarn() : edm::LogWarning("") { }
   };
 
-  class LogError : public edm::LogError {
+  class LogError : public edm::LogError, public Logger {
     public: LogError() : edm::LogError("") { }
   };
 
-  class LogDebugger : public edm::LogDebug_ {
+  class LogDebugger : public edm::LogDebug_, public Logger {
     public: 
       LogDebugger() : edm::LogDebug_() { }
       LogDebugger(const bool& b) : edm::LogDebug_("", __FILE__, __LINE__) { }
   };
 
-  class LogCout {
+//#endif
+
+  class LogCout : public Logger {
     public:
 
       LogCout() {}

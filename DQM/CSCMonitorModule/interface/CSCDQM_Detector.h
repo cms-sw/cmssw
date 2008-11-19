@@ -27,7 +27,7 @@
 #include <sstream>
 #include <iomanip>
 
-#include "DQM/CSCMonitorModule/interface/CSCUtility.h"
+#include "DQM/CSCMonitorModule/interface/CSCDQM_Collection.h"
 
 namespace cscdqm {
 

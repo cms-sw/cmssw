@@ -42,27 +42,27 @@ namespace cscdqm {
     calcEMUFractionHisto(EMU_DMB_L1A_OUT_OF_SYNC_FRACT, EMU_DMB_REPORTING, EMU_DMB_L1A_OUT_OF_SYNC);
 
     unsigned int iter = 0, crateId, dmbId;
-    METype *mo = 0, *mof = 0;
+    MonitorObject *mo = 0, *mof = 0;
     while (histoProvider->nextCSC(iter, crateId, dmbId)) {
 
       std::string cscTag(Form(TAG_CSC, crateId, dmbId));
 
       if (getCSCHisto(crateId, dmbId, CSC_BINCHECK_DATAFLOW_PROBLEMS_TABLE, mo) && 
           getCSCHisto(crateId, dmbId, CSC_BINCHECK_DATAFLOW_PROBLEMS_FREQUENCY, mof)) {
-        mof->getObject()->Reset();
-        mof->getObject()->Add(mo->getObject());
-        mof->getObject()->Scale(1. / (nDMBEvents[cscTag]));
-        mof->getObject()->SetMaximum(1.);
+        mof->getTH1()->Reset();
+        mof->getTH1()->Add(mo->getTH1());
+        mof->getTH1()->Scale(1. / (nDMBEvents[cscTag]));
+        mof->getTH1()->SetMaximum(1.);
         mof->SetEntries(nDMBEvents[cscTag]);
         mo->SetEntries(nDMBEvents[cscTag]);
       }
 
       if (getCSCHisto(crateId, dmbId, CSC_BINCHECK_ERRORSTAT_TABLE, mo) && 
           getCSCHisto(crateId, dmbId, CSC_BINCHECK_ERRORS_FREQUENCY, mof)) {
-        mof->getObject()->Reset();
-        mof->getObject()->Add(mo->getObject());
-        mof->getObject()->Scale(1. / (nDMBEvents[cscTag]));
-        mof->getObject()->SetMaximum(1.);
+        mof->getTH1()->Reset();
+        mof->getTH1()->Add(mo->getTH1());
+        mof->getTH1()->Scale(1. / (nDMBEvents[cscTag]));
+        mof->getTH1()->SetMaximum(1.);
         mof->SetEntries(nDMBEvents[cscTag]);
         mo->SetEntries(nDMBEvents[cscTag]);
       }
@@ -81,12 +81,12 @@ namespace cscdqm {
 
   void EventProcessor::calcEMUFractionHisto(const HistoType result, const HistoType set, const HistoType subset) {
 
-    METype *mo = 0, *mo1 = 0, *mo2 = 0;
+    MonitorObject *mo = 0, *mo1 = 0, *mo2 = 0;
 
     if (getEMUHisto(result, mo) && getEMUHisto(set, mo2) && getEMUHisto(subset, mo1)) {
-      mo->getObject()->Reset();
-      mo->getObject()->Divide(mo1->getObject(), mo2->getObject());
-      mo->getObject()->SetMaximum(1.);
+      mo->getTH1()->Reset();
+      mo->getTH1()->Divide(mo1->getTH1(), mo2->getTH1());
+      mo->getTH1()->SetMaximum(1.);
     }
 
   }

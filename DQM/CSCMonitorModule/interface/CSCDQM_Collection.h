@@ -22,6 +22,8 @@
 #include <string>
 #include <map>
 #include <vector>
+#include <sstream>
+#include <TProfile.h>
 
 #include <xercesc/parsers/XercesDOMParser.hpp>
 #include <xercesc/dom/DOMNodeList.hpp>
@@ -32,6 +34,7 @@
 
 #include "DQM/CSCMonitorModule/interface/CSCDQM_Exception.h"
 #include "DQM/CSCMonitorModule/interface/CSCDQM_Logger.h"
+#include "DQM/CSCMonitorModule/interface/CSCDQM_HistoProviderIf.h"
 
 namespace cscdqm {
 
@@ -41,6 +44,12 @@ namespace cscdqm {
   static const char XML_BOOK_DEFINITION_ID[]  =  "id";
   static const char XML_BOOK_HISTOGRAM[]      =  "Histogram";
   static const char XML_BOOK_DEFINITION_REF[] =  "ref";
+  static const char XML_BOOK_HISTO_NAME[]     =  "Name";
+  static const char XML_BOOK_HISTO_PREFIX[]   =  "Prefix";
+  static const char XML_BOOK_HISTO_TYPE[]     =  "Type";
+  static const char XML_BOOK_HISTO_TITLE[]    =  "Title";
+
+  static const int  DEF_HISTO_COLOR           =  48;
 
   /**
   * Type Definition Section
@@ -66,14 +75,15 @@ namespace cscdqm {
 
     public:
 
-      Collection();
+      Collection(HistoProvider* p_histoProvider);
+      const CoHistoMap& get() const { return collection; };
       void load(const std::string p_bookingFile);
+      void book(const CoHisto& hs) const;
+      void book(const CoHistoProps& h) const;
+      void book(const std::string& prefix) const;
 
-      static const bool getHistoValue(const CoHistoProps& h, const std::string& name, std::string& value, const std::string& def_value = "");
-      static const bool getHistoValue(const CoHistoProps& h, const std::string& name, int& value, const int& def_value = 0);
-      static const bool getHistoValue(const CoHistoProps& h, const std::string name, double& value, const int def_value = 0.0);
-      
-      static const int ParseAxisLabels(const std::string& s, std::map<int, std::string>& labels);
+      void printCollection() const;
+
       static void getCSCTypeToBinMap(std::map<std::string, int>& tmap);
       static const std::string getCSCTypeLabel(int endcap, int station, int ring);
       static const int tokenize(const std::string& str, std::vector<std::string>& tokens, const std::string& delimiters = " ");
@@ -82,11 +92,20 @@ namespace cscdqm {
 
     private:
       
-      const bool isNodeElement(DOMNode*& node) const;
-      const bool isNodeName(DOMNode*& node, const std::string name) const;
-      void getNodeProperties(DOMNode*& node, CoHistoProps& hp) const;
+      static const bool checkHistoValue(const CoHistoProps& h, const std::string& name, std::string& value);
+      static const bool checkHistoValue(const CoHistoProps& h, const std::string& name, int& value);
+      static const bool checkHistoValue(const CoHistoProps& h, const std::string name, double& value);
+
+      static std::string& getHistoValue(const CoHistoProps& h, const std::string& name, std::string& value, const std::string& def_value = "");
+      static int&         getHistoValue(const CoHistoProps& h, const std::string& name, int& value, const int& def_value = 0);
+      static double&      getHistoValue(const CoHistoProps& h, const std::string name, double& value, const int def_value = 0.0);
       
-      CoHistoMap  collection;
+      static const int ParseAxisLabels(const std::string& s, std::map<int, std::string>& labels);
+
+      static void getNodeProperties(DOMNode*& node, CoHistoProps& hp);
+      
+      HistoProvider* histoProvider;
+      CoHistoMap     collection;
 
   };
 

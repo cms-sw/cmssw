@@ -20,12 +20,31 @@
 
 CSCMonitorModuleCmn::CSCMonitorModuleCmn(const edm::ParameterSet& ps) {
 
+  CSCMonitorModuleCmn* hp = const_cast<CSCMonitorModuleCmn*>(this);
+  collection = new cscdqm::Collection(hp);
+  processor = new cscdqm::EventProcessor(hp);
+
   edm::FileInPath bookFile = ps.getParameter<edm::FileInPath>(PARAM_BOOKING_FILE);
-  collection.load(bookFile.fullPath());
+  collection->load(bookFile.fullPath());
+
+  // Get back-end interface
+  dbe = edm::Service<DQMStore>().operator->();
+   
+  // Prebook top level histograms
+  dbe->setCurrentFolder(DIR_EVENTINFO);
+  collection->book("EventInfo");
+
+  dbe->setCurrentFolder(DIR_SUMMARY);
+  collection->book("EMU");
+
+  //collection->printCollection();
+  
 
 }
 
 CSCMonitorModuleCmn::~CSCMonitorModuleCmn() {
+  delete collection;
+  delete processor;
 }
 
 void CSCMonitorModuleCmn::beginJob(const edm::EventSetup& c) {

@@ -21,7 +21,7 @@
 namespace cscdqm {
 
 
-  EventProcessor::EventProcessor(HPType* p_histoProvider) {
+  EventProcessor::EventProcessor(HistoProvider* p_histoProvider) {
 
     histoProvider = p_histoProvider;
 
@@ -56,7 +56,7 @@ namespace cscdqm {
   }
 
 
-  const bool EventProcessor::getEMUHisto(const HistoType histo, METype* me, const bool ref) {
+  const bool EventProcessor::getEMUHisto(const HistoType histo, MonitorObject* me, const bool ref) {
     if (!ref && !histoNotBlocked(histo)) return false;
     EMUHistoType histoT;
     histoT.histoId = histo;
@@ -66,7 +66,7 @@ namespace cscdqm {
   }
 
 
-  const bool EventProcessor::getDDUHisto(const int dduID, const HistoType histo, METype* me, const bool ref) {
+  const bool EventProcessor::getDDUHisto(const int dduID, const HistoType histo, MonitorObject* me, const bool ref) {
     if (!ref && !histoNotBlocked(histo)) return false;
     DDUHistoType histoT;
     histoT.histoId = histo;
@@ -77,7 +77,7 @@ namespace cscdqm {
   }
 
 
-  const bool EventProcessor::getCSCHisto(const int crateID, const int dmbSlot, const HistoType histo, METype* me, const int adId, const bool ref) {
+  const bool EventProcessor::getCSCHisto(const int crateID, const int dmbSlot, const HistoType histo, MonitorObject* me, const int adId, const bool ref) {
     if (!ref && !histoNotBlocked(histo)) return false;
     CSCHistoType histoT;
     histoT.histoId = histo;

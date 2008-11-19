@@ -27,7 +27,7 @@ namespace cscdqm {
 
     nEvents++;
 
-    METype* me = 0;
+    MonitorObject* me = 0;
     if (getEMUHisto(EMU_ALL_READOUT_ERRORS, me)) {
       if(errorStat != 0) {
         me->Fill(nodeNumber, 1);

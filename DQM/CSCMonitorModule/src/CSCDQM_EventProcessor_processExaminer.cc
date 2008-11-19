@@ -34,7 +34,7 @@ namespace cscdqm {
     uint32_t binErrorStatus = binChecker.errors();
     uint32_t binWarningStatus = binChecker.warnings();
 
-    METype* mo = 0;
+    MonitorObject* mo = 0;
     if (getEMUHisto(EMU_ALL_DDUS_FORMAT_ERRORS, mo)) {
 
       std::vector<int> DDUs = binChecker.listOfDDUs();
@@ -131,7 +131,7 @@ namespace cscdqm {
 	}
       }
       
-      METype *mof = 0, *mo1 = 0, *mo2 = 0;
+      MonitorObject *mof = 0, *mo1 = 0, *mo2 = 0;
       if (getCSCHisto(crateID, dmbSlot, CSC_ACTUAL_DMB_CFEB_DAV_RATE, mo)
 	  && getCSCHisto(crateID, dmbSlot, CSC_ACTUAL_DMB_CFEB_DAV_FREQUENCY, mof)) {
 	if (getCSCHisto(crateID, dmbSlot, CSC_DMB_CFEB_DAV_UNPACKING_INEFFICIENCY, mo1)
@@ -200,7 +200,7 @@ namespace cscdqm {
 		mof->SetBinContent(i,1, 100. * (1 - unpacked_dav_num / actual_dav_num));
 	      }				   
 	      mof->SetEntries((int)DMBEvents);
-	      mof->getObject()->SetMaximum(100.0);
+	      mof->getTH1()->SetMaximum(100.0);
 	    }
 	  }	  
 	}
@@ -246,7 +246,7 @@ namespace cscdqm {
 		mof->SetBinContent(i, 1, 100. * (1 - unpacked_dav_num / actual_dav_num));
 	      }				   
 	      mof->SetEntries((int)DMBEvents);
-	      mof->getObject()->SetMaximum(100.0);
+	      mof->getTH1()->SetMaximum(100.0);
 	    }
 	  }
 	  

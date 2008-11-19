@@ -38,7 +38,7 @@ namespace cscdqm {
   
     bool L1A_out_of_sync = false;
   
-    METype* mo = NULL;
+    MonitorObject* mo = NULL;
   
     //  DMB Found
     //  Unpacking of DMB Header and trailer
@@ -117,7 +117,7 @@ namespace cscdqm {
         if(dmb_ddu_l1a_diff > 32) mo->Fill(dmb_ddu_l1a_diff - 64);
         else mo->Fill(dmb_ddu_l1a_diff);
       }
-      mo->SetAxisRange(0.1, 1.1 * (1.0 + mo->getObject()->GetBinContent(mo->getObject()->GetMaximumBin())), "Y");
+      mo->SetAxisRange(0.1, 1.1 * (1.0 + mo->getTH1()->GetBinContent(mo->getTH1()->GetMaximumBin())), "Y");
     }
   
     if (getCSCHisto(crateID, dmbID, CSC_DMB_L1A_VS_DDU_L1A,mo)) mo->Fill((int)(L1ANumber & 0xFF), (int)dmbHeaderL1A);
@@ -144,7 +144,7 @@ namespace cscdqm {
         if(dmb_ddu_bxn_diff > 32)  mo->Fill(dmb_ddu_bxn_diff - 64);
         else mo->Fill(dmb_ddu_bxn_diff);
       }  
-      mo->SetAxisRange(0.1, 1.1 * (1.0 + mo->getObject()->GetBinContent(mo->getObject()->GetMaximumBin())), "Y");
+      mo->SetAxisRange(0.1, 1.1 * (1.0 + mo->getTH1()->GetBinContent(mo->getTH1()->GetMaximumBin())), "Y");
     }
   
     //  if (getCSCHisto(crateID, dmbID, CSC_DMB_BXN_VS_DDU_BXN, mo)) mo->Fill((int)(BXN), (int)dmbHeaderBXN);
@@ -332,7 +332,7 @@ namespace cscdqm {
             if(alct_dmb_l1a_diff > 32) mo->Fill(alct_dmb_l1a_diff - 64);
             else mo->Fill(alct_dmb_l1a_diff);
           }
-          mo->SetAxisRange(0.1, 1.1 * (1.0 + mo->GetBinContent(mo->getObject()->GetMaximumBin())), "Y");
+          mo->SetAxisRange(0.1, 1.1 * (1.0 + mo->GetBinContent(mo->getTH1()->GetMaximumBin())), "Y");
         }
   
         // if (getCSCHisto(crateID, dmbID, CSC_DMB_L1A_VS_ALCT_L1A, mo)) mo->Fill(alctHeader->L1Acc(),dmbHeader->l1a());
@@ -347,7 +347,7 @@ namespace cscdqm {
             if(alct_dmb_bxn_diff > 32)  mo->Fill(alct_dmb_bxn_diff - 64);
             else mo->Fill(alct_dmb_bxn_diff);
           }
-          mo->SetAxisRange(0.1, 1.1 * (1.0 + mo->GetBinContent(mo->getObject()->GetMaximumBin())), "Y");
+          mo->SetAxisRange(0.1, 1.1 * (1.0 + mo->GetBinContent(mo->getTH1()->GetMaximumBin())), "Y");
         }
   
         if (getCSCHisto(crateID, dmbID, CSC_ALCT_BXN, mo)) mo->Fill(alctHeader->BXNCount());
@@ -385,7 +385,7 @@ namespace cscdqm {
               if(alct_dtime > 16)  mo->Fill(alct_dtime - 32);
               else mo->Fill(alct_dtime);
             }
-            mo->SetAxisRange(0.1, 1.1 * (1.0 + mo->GetBinContent(mo->getObject()->GetMaximumBin())), "Y");
+            mo->SetAxisRange(0.1, 1.1 * (1.0 + mo->GetBinContent(mo->getTH1()->GetMaximumBin())), "Y");
           }
   
           if (getCSCHisto(crateID, dmbID, CSC_ALCTXX_DTIME_VS_KEYWG, mo, lct)) {
@@ -445,13 +445,13 @@ namespace cscdqm {
                   if (getCSCHisto(crateID, dmbID, CSC_ALCT_LYXX_RATE, mo, nLayer)) { 
                     mo->Fill(wg);
                     int number_wg = (int)(mo->GetBinContent(wg+1));
-                    Double_t Number_of_entries_ALCT = mo->getObject()->GetEntries();
+                    Double_t Number_of_entries_ALCT = mo->getTH1()->GetEntries();
                     if (getCSCHisto(crateID, dmbID, CSC_ALCT_LYXX_EFFICIENCY, mo, nLayer)) {
                       mo->SetBinContent(wg+1,((float)number_wg));
                       if((Double_t)(DMBEvents) > 0.0) {
-                        mo->getObject()->SetNormFactor(100.0*Number_of_entries_ALCT/(Double_t)(DMBEvents));
+                        mo->getTH1()->SetNormFactor(100.0*Number_of_entries_ALCT/(Double_t)(DMBEvents));
                       } else {
-                        mo->getObject()->SetNormFactor(100.0);
+                        mo->getTH1()->SetNormFactor(100.0);
                       }
                       mo->SetEntries((int)DMBEvents);
                     }
@@ -518,7 +518,7 @@ namespace cscdqm {
                 if(clct_alct_bxn_diff > 2048) mo->Fill(clct_alct_bxn_diff - 4096);
                 else mo->Fill(clct_alct_bxn_diff);
               }
-              mo->SetAxisRange(0.1, 1.1*(1.0+mo->GetBinContent(mo->getObject()->GetMaximumBin())), "Y");
+              mo->SetAxisRange(0.1, 1.1*(1.0+mo->GetBinContent(mo->getTH1()->GetMaximumBin())), "Y");
             }
   
             if (getCSCHisto(crateID, dmbID, CSC_TMB_L1A_VS_ALCT_L1A, mo)) 
@@ -531,7 +531,7 @@ namespace cscdqm {
                 if(clct_alct_l1a_diff > 2048)  mo->Fill(clct_alct_l1a_diff - 4096);
                 else mo->Fill(clct_alct_l1a_diff);
               }
-              mo->SetAxisRange(0.1, 1.1*(1.0+mo->GetBinContent(mo->getObject()->GetMaximumBin())), "Y");
+              mo->SetAxisRange(0.1, 1.1*(1.0+mo->GetBinContent(mo->getTH1()->GetMaximumBin())), "Y");
             }
           } else {
             LOG_ERROR << cscTag << " Can not unpack TMB Header";
@@ -593,7 +593,7 @@ namespace cscdqm {
             if (getCSCHisto(crateID, dmbID, CSC_CSC_EFFICIENCY, mo)) {
               if(nEvents > 0) {
                 mo->SetBinContent(2,((float)CLCTEvent/(float)(DMBEvents)*100.0));
-                mo->getObject()->SetEntries(DMBEvents);
+                mo->getTH1()->SetEntries(DMBEvents);
               }
             }
           }
@@ -609,7 +609,7 @@ namespace cscdqm {
               if(clct_dmb_l1a_diff > 32)  mo->Fill(clct_dmb_l1a_diff - 64);
               else mo->Fill(clct_dmb_l1a_diff);
             }
-            mo->SetAxisRange(0.1, 1.1*(1.0+mo->GetBinContent(mo->getObject()->GetMaximumBin())), "Y");
+            mo->SetAxisRange(0.1, 1.1*(1.0+mo->GetBinContent(mo->getTH1()->GetMaximumBin())), "Y");
           }
   
           // if (getCSCHisto(crateID, dmbID, CSC_DMB_L1A_VS_CLCT_L1A, mo)) mo->Fill(tmbHeader->L1ANumber(),dmbHeader->l1a());
@@ -622,7 +622,7 @@ namespace cscdqm {
               if(clct_dmb_bxn_diff > 32)  mo->Fill(clct_dmb_bxn_diff - 64);
               else mo->Fill(clct_dmb_bxn_diff);
             }
-            mo->SetAxisRange(0.1, 1.1*(1.0+mo->GetBinContent(mo->getObject()->GetMaximumBin())), "Y");
+            mo->SetAxisRange(0.1, 1.1*(1.0+mo->GetBinContent(mo->getTH1()->GetMaximumBin())), "Y");
           }
   
           if (getCSCHisto(crateID, dmbID, CSC_CLCT_BXN, mo)) mo->Fill((int)(tmbHeader->BXNCount()));
@@ -668,7 +668,7 @@ namespace cscdqm {
               if(clct_dtime > 2)  mo->Fill(clct_dtime - 4);
               else mo->Fill(clct_dtime);
             }
-            mo->SetAxisRange(0.1, 1.1 * (1.0 + mo->GetBinContent(mo->getObject()->GetMaximumBin())), "Y");
+            mo->SetAxisRange(0.1, 1.1 * (1.0 + mo->GetBinContent(mo->getTH1()->GetMaximumBin())), "Y");
           }
   
           LOG_DEBUG << "CLCT BX = " << clctsDatas[lct].getBX() << " TMB BX = " << tmbHeader->BXNCount() << " 03 = " << (int)(tmbHeader->BXNCount()&0x3);
@@ -781,18 +781,18 @@ namespace cscdqm {
                       mo->Fill(hstrip);
   
                       double number_hstrip = mo->GetBinContent(hstrip+1);
-                      double Number_of_entries_CLCT = mo->getObject()->GetEntries();
+                      double Number_of_entries_CLCT = mo->getTH1()->GetEntries();
        
                       if (getCSCHisto(crateID, dmbID, CSC_CLCT_LYXX_EFFICIENCY, mo, nLayer)) {
                         mo->SetBinContent(hstrip + 1, number_hstrip);
                         if(DMBEvents > 0) {
                           double norm = (100.0 * Number_of_entries_CLCT) / ((double)(DMBEvents));
                           // if (norm < 1.0) norm=1;
-                          mo->getObject()->SetNormFactor(norm);
+                          mo->getTH1()->SetNormFactor(norm);
                         } else {
-                          mo->getObject()->SetNormFactor(100.0);
+                          mo->getTH1()->SetNormFactor(100.0);
                         }
-                        mo->getObject()->SetEntries(DMBEvents);
+                        mo->getTH1()->SetEntries(DMBEvents);
                       }
                     }
                   }
@@ -893,7 +893,7 @@ namespace cscdqm {
             if (getCSCHisto(crateID, dmbID, CSC_CSC_EFFICIENCY, mo)) {
               if(nEvents > 0) {
                 mo->SetBinContent(3, ((float)CFEBEvent/(float)(DMBEvents)*100.0));
-                mo->getObject()->SetEntries((int)DMBEvents);
+                mo->getTH1()->SetEntries((int)DMBEvents);
               }
             }
           }
@@ -910,37 +910,37 @@ namespace cscdqm {
         LOG_DEBUG <<  "Chamber ID = "<< cscTag << " Crate ID = "<< crateID << " DMB ID = " << dmbID << "nCFEB =" << nCFEB;
   
         // =VB= Optimizations for faster histogram object access 
-        METype* mo_CFEB_SCA_Block_Occupancy = 0;
+        MonitorObject* mo_CFEB_SCA_Block_Occupancy = 0;
         getCSCHisto(crateID, dmbID, CSC_CFEBXX_SCA_BLOCK_OCCUPANCY, mo_CFEB_SCA_Block_Occupancy, nCFEB);
-        METype*  mo_CFEB_Free_SCA_Cells = 0;      
+        MonitorObject*  mo_CFEB_Free_SCA_Cells = 0;      
         getCSCHisto(crateID, dmbID, CSC_CFEBXX_FREE_SCA_CELLS, mo_CFEB_Free_SCA_Cells, nCFEB);
-        METype* mo_CFEB_SCA_Blocks_Locked_by_LCTs = 0;
+        MonitorObject* mo_CFEB_SCA_Blocks_Locked_by_LCTs = 0;
         getCSCHisto(crateID, dmbID, CSC_CFEBXX_SCA_BLOCKS_LOCKED_BY_LCTS, mo_CFEB_SCA_Blocks_Locked_by_LCTs, nCFEB);
-        METype* mo_CFEB_SCA_Blocks_Locked_by_LCTxL1 = 0;
+        MonitorObject* mo_CFEB_SCA_Blocks_Locked_by_LCTxL1 = 0;
         getCSCHisto(crateID, dmbID, CSC_CFEBXX_SCA_BLOCKS_LOCKED_BY_LCTXL1, mo_CFEB_SCA_Blocks_Locked_by_LCTxL1, nCFEB);
-        METype* mo_CFEB_DMB_L1A_diff = 0;
+        MonitorObject* mo_CFEB_DMB_L1A_diff = 0;
         getCSCHisto(crateID, dmbID, CSC_CFEBXX_DMB_L1A_DIFF, mo_CFEB_DMB_L1A_diff, nCFEB);
         
         //LOG_DEBUG << " nSample = " << nSample;
   
         for(int nLayer = 1; nLayer <= N_Layers; ++nLayer) {
           //  =VB= Optimizations for faster histogram object access
-          METype * mo_CFEB_Out_Off_Range_Strips = 0;
+          MonitorObject * mo_CFEB_Out_Off_Range_Strips = 0;
           getCSCHisto(crateID, dmbID, CSC_CFEB_OUT_OFF_RANGE_STRIPS_LYXX, mo_CFEB_Out_Off_Range_Strips, nLayer);
-          METype * mo_CFEB_Active_Samples_vs_Strip = 0;
+          MonitorObject * mo_CFEB_Active_Samples_vs_Strip = 0;
           getCSCHisto(crateID, dmbID, CSC_CFEB_ACTIVE_SAMPLES_VS_STRIP_LYXX, mo_CFEB_Active_Samples_vs_Strip, nLayer);
-          METype * mo_CFEB_Active_Samples_vs_Strip_Profile = 0;
+          MonitorObject * mo_CFEB_Active_Samples_vs_Strip_Profile = 0;
           getCSCHisto(crateID, dmbID, CSC_CFEB_ACTIVE_SAMPLES_VS_STRIP_LYXX_PROFILE, mo_CFEB_Active_Samples_vs_Strip_Profile, nLayer);
-          METype * mo_CFEB_ActiveStrips = 0;
+          MonitorObject * mo_CFEB_ActiveStrips = 0;
           getCSCHisto(crateID, dmbID, CSC_CFEB_ACTIVESTRIPS_LYXX, mo_CFEB_ActiveStrips, nLayer);
-          METype * mo_CFEB_SCA_Cell_Peak = 0;
+          MonitorObject * mo_CFEB_SCA_Cell_Peak = 0;
           getCSCHisto(crateID, dmbID, CSC_CFEB_SCA_CELL_PEAK_LY_XX, mo_CFEB_SCA_Cell_Peak, nLayer);
   
-          METype * mo_CFEB_Pedestal_withEMV_Sample = 0;
+          MonitorObject * mo_CFEB_Pedestal_withEMV_Sample = 0;
           getCSCHisto(crateID, dmbID, CSC_CFEB_PEDESTAL_WITHEMV_SAMPLE_01_LYXX, mo_CFEB_Pedestal_withEMV_Sample, nLayer);
-          METype * mo_CFEB_Pedestal_withRMS_Sample = 0;
+          MonitorObject * mo_CFEB_Pedestal_withRMS_Sample = 0;
           getCSCHisto(crateID, dmbID, CSC_CFEB_PEDESTAL_WITHRMS_SAMPLE_01_LYXX, mo_CFEB_Pedestal_withRMS_Sample, nLayer);
-          METype * mo_CFEB_PedestalRMS_Sample = 0;
+          MonitorObject * mo_CFEB_PedestalRMS_Sample = 0;
           getCSCHisto(crateID, dmbID, CSC_CFEB_PEDESTALRMS_SAMPLE_01_LYXX, mo_CFEB_PedestalRMS_Sample, nLayer);
   
           for(int nSample = 0; nSample < NmbTimeSamples; ++nSample) {
@@ -961,7 +961,7 @@ namespace cscdqm {
                 if(cfeb_dmb_l1a_diff > 32) mo->Fill(cfeb_dmb_l1a_diff - 64);
                 else mo_CFEB_DMB_L1A_diff->Fill(cfeb_dmb_l1a_diff);
               }
-              mo_CFEB_DMB_L1A_diff->SetAxisRange(0.1, 1.1*(1.0+mo_CFEB_DMB_L1A_diff->GetBinContent(mo_CFEB_DMB_L1A_diff->getObject()->GetMaximumBin())), "Y");
+              mo_CFEB_DMB_L1A_diff->SetAxisRange(0.1, 1.1*(1.0+mo_CFEB_DMB_L1A_diff->GetBinContent(mo_CFEB_DMB_L1A_diff->getTH1()->GetMaximumBin())), "Y");
             }
     
             LOG_DEBUG <<  " nSample = " << nSample;
@@ -1046,7 +1046,7 @@ namespace cscdqm {
                   if(cfeb_dmb_L1A_sync_time > 8) mo->Fill(cfeb_dmb_L1A_sync_time-16);
                   else mo->Fill(cfeb_dmb_L1A_sync_time);
                 }
-                mo->SetAxisRange(0.1, 1.1*(1.0+mo->GetBinContent(mo->getObject()->GetMaximumBin())), "Y");
+                mo->SetAxisRange(0.1, 1.1*(1.0+mo->GetBinContent(mo->getTH1()->GetMaximumBin())), "Y");
               }
   
             }
@@ -1108,12 +1108,12 @@ namespace cscdqm {
                   //if (getCSCHisto(crateID, dmbID, CSC_CFEB_PEDESTAL__WITHRMS__SAMPLE_01_LYXX, mo, nLayer)) 
                   if (mo_CFEB_Pedestal_withRMS_Sample) {  
                     mo_CFEB_Pedestal_withRMS_Sample->Fill((int)(nCFEB * 16 + nStrip), Pedestal[nCFEB][nLayer - 1][nStrip - 1]);
-                    PedestalError[nCFEB][nLayer - 1][nStrip - 1] = mo_CFEB_Pedestal_withRMS_Sample->getObject()->GetBinError(nCFEB * 16 + nStrip);
+                    PedestalError[nCFEB][nLayer - 1][nStrip - 1] = mo_CFEB_Pedestal_withRMS_Sample->getTH1()->GetBinError(nCFEB * 16 + nStrip);
   
                     // if (getCSCHisto(crateID, dmbID, CSC_CFEB_PEDESTALRMS_SAMPLE_01_LYXX, mo, nLayer)) 
                     if (mo_CFEB_PedestalRMS_Sample) {
                       mo_CFEB_PedestalRMS_Sample->SetBinContent(nCFEB * 16 + nStrip,PedestalError[nCFEB][nLayer - 1][nStrip - 1]);
-                      mo_CFEB_PedestalRMS_Sample->getObject()->SetBinError(nCFEB * 16 + nStrip, 0.00000000001);
+                      mo_CFEB_PedestalRMS_Sample->getTH1()->SetBinError(nCFEB * 16 + nStrip, 0.00000000001);
                     }
                   }
                 }

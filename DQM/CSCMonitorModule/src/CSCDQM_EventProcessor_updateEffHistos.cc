@@ -22,7 +22,7 @@ namespace cscdqm {
   
   void EventProcessor::updateEfficiencyHistos(EffParametersType& effParams) {
 
-    METype *me = 0, *me1 = 0, *me2 = 0;
+    MonitorObject *me = 0, *me1 = 0, *me2 = 0;
 
     if (getEMUHisto(EMU_CSC_REPORTING, me)) {
 
