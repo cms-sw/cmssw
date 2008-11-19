@@ -2,7 +2,7 @@
 #define FWCore_ParameterSet_ParameterSet_h
 
 // ----------------------------------------------------------------------
-// $Id: ParameterSet.h,v 1.46 2008/11/18 02:04:25 wmtan Exp $
+// $Id: ParameterSet.h,v 1.47 2008/11/18 16:07:48 wmtan Exp $
 //
 // Declaration for ParameterSet(parameter set) and related types
 // ----------------------------------------------------------------------
@@ -43,10 +43,17 @@ namespace edm {
 
     // Entry-handling
     Entry const& retrieve(std::string const&) const;
+    Entry const& retrieve(char const*) const;
 
     Entry const* const retrieveUntracked(std::string const&) const;
+    Entry const* const retrieveUntracked(char const*) const;
+
     Entry const* const retrieveUnknown(std::string const&) const;
+    Entry const* const retrieveUnknown(char const*) const;
+
     void insert(bool ok_to_replace, std::string const& , Entry const&);
+    void insert(bool ok_to_replace, char const* , Entry const&);
+
     void augment(ParameterSet const& from); 
     // encode
     std::string toString() const;
@@ -71,9 +78,13 @@ namespace edm {
       insert(true, name, Entry(name, value, true));
     }
 
-    template <typename T>
+    template <typename T> 
     void 
-    addParameter(char const* name, T const& value);
+    addParameter(char const* name, T value)
+    {
+      invalidate();
+      insert(true, name, Entry(name, value, true));
+    }
 
     template <typename T>
     T
@@ -95,8 +106,8 @@ namespace edm {
     /// pushed into the vector.
     /// N.B.: The vector 'output' is *not* cleared; new entries are
     /// added with push_back.
-    std::vector<edm::FileInPath>::size_type
-    getAllFileInPaths(std::vector<edm::FileInPath>& output) const;
+    std::vector<FileInPath>::size_type
+    getAllFileInPaths(std::vector<FileInPath>& output) const;
 
     std::vector<std::string> getParameterNames() const;
 
@@ -121,7 +132,7 @@ namespace edm {
       // This is icky, but I don't know of another way in the current
       // code to get at the character code that denotes type T.
       T value = T();
-      edm::Entry type_translator("", value, trackiness);
+      Entry type_translator("", value, trackiness);
       char type_code = type_translator.typeCode();
       
       (void)getNamesByCode_(type_code, trackiness, result);
@@ -138,7 +149,11 @@ namespace edm {
 
     template <typename T>
     void
-    addUntrackedParameter(char const* name, T const& value);
+    addUntrackedParameter(char const* name, T value)
+    {
+      // No need to invalidate: this is modifying an untracked parameter!
+      insert(true, name, Entry(name, value, false));
+    }
 
     bool empty() const
     {
@@ -189,6 +204,7 @@ private:
     // get the untracked Entry object, throwing an exception if it is
     // not found.
     Entry const* getEntryPointerOrThrow_(std::string const& name) const;
+    Entry const* getEntryPointerOrThrow_(char const* name) const;
 
     // Return the names of all the entries with the given typecode and
     // given status (trackiness)
@@ -212,40 +228,6 @@ private:
     return !(a == b);
   }
 
-  // ----------------------------------------------------------------------
-  // Non-inlined conversions from char * to string.  Fights code bloat:
-  // DO NOT INLINE these functions!
-
-  template <typename T>
-  T
-  ParameterSet::getParameter(char const* name) const {
-    return getParameter<T>(std::string(name));
-  }
-
-  template <typename T>
-  T
-  ParameterSet::getUntrackedParameter(char const* name, T const& defaultValue) const {
-    return getUntrackedParameter<T>(std::string(name), defaultValue);
-  }
-
-  template <typename T>
-  T
-  ParameterSet::getUntrackedParameter(char const* name) const {
-    return getUntrackedParameter<T>(std::string(name));
-  }
-
-  template <typename T>
-  void
-  ParameterSet::addParameter(char const* name, T const& value) {
-    return addParameter<T>(std::string(name), value);
-  }
-
-  template <typename T>
-  void
-  ParameterSet::addUntrackedParameter(char const* name, T const& value) {
-    return addUntrackedParameter<T>(std::string(name), value);
-  }
-
   // specializations
   // ----------------------------------------------------------------------
   // Bool, vBool
@@ -256,7 +238,7 @@ private:
   ParameterSet::getParameter<bool>(std::string const& name) const {
     return retrieve(name).getBool();
   }
- 
+
   // ----------------------------------------------------------------------
   // Int32, vInt32
   
@@ -266,7 +248,6 @@ private:
   ParameterSet::getParameter<int>(std::string const& name) const {
     return retrieve(name).getInt32();
   }
-
 
   template<>
   inline 
@@ -285,14 +266,12 @@ private:
     return retrieve(name).getInt64();
   }
 
-
   template<>
   inline
   std::vector<boost::int64_t>
   ParameterSet::getParameter<std::vector<boost::int64_t> >(std::string const& name) const {
     return retrieve(name).getVInt64();
   }
-
 
   // ----------------------------------------------------------------------
   // Uint32, vUint32
@@ -327,7 +306,6 @@ private:
   ParameterSet::getParameter<std::vector<boost::uint64_t> >(std::string const& name) const {
     return retrieve(name).getVUInt64();
   }
-
 
   // ----------------------------------------------------------------------
   // Double, vDouble
@@ -368,8 +346,8 @@ private:
 
   template <>
   inline
-  edm::FileInPath
-  ParameterSet::getParameter<edm::FileInPath>(std::string const& name) const {
+  FileInPath
+  ParameterSet::getParameter<FileInPath>(std::string const& name) const {
     return retrieve(name).getFileInPath();
   }
   
@@ -378,8 +356,8 @@ private:
 
   template <>
   inline
-  edm::InputTag
-  ParameterSet::getParameter<edm::InputTag>(std::string const& name) const {
+  InputTag
+  ParameterSet::getParameter<InputTag>(std::string const& name) const {
     Entry const& e_input = retrieve(name);
     switch (e_input.typeCode()) 
     {
@@ -395,81 +373,73 @@ private:
 
   }
 
-
   // ----------------------------------------------------------------------
   // VInputTag
 
   template <>
   inline
-  std::vector<edm::InputTag>
-  ParameterSet::getParameter<std::vector<edm::InputTag> >(std::string const& name) const {
+  std::vector<InputTag>
+  ParameterSet::getParameter<std::vector<InputTag> >(std::string const& name) const {
     return retrieve(name).getVInputTag();
   }
-
 
   // ----------------------------------------------------------------------
   // EventID
 
   template <>
   inline
-  edm::EventID
-  ParameterSet::getParameter<edm::EventID>(std::string const& name) const {
+  EventID
+  ParameterSet::getParameter<EventID>(std::string const& name) const {
     return retrieve(name).getEventID();
   }
-
 
   // ----------------------------------------------------------------------
   // VEventID
 
   template <>
   inline
-  std::vector<edm::EventID>
-  ParameterSet::getParameter<std::vector<edm::EventID> >(std::string const& name) const {
+  std::vector<EventID>
+  ParameterSet::getParameter<std::vector<EventID> >(std::string const& name) const {
     return retrieve(name).getVEventID();
   }
-
-
 
   // ----------------------------------------------------------------------
   // LuminosityBlockID
 
   template <>
   inline
-  edm::LuminosityBlockID
-  ParameterSet::getParameter<edm::LuminosityBlockID>(std::string const& name) const {
+  LuminosityBlockID
+  ParameterSet::getParameter<LuminosityBlockID>(std::string const& name) const {
     return retrieve(name).getLuminosityBlockID();
   }
-
 
   // ----------------------------------------------------------------------
   // VLuminosityBlockID
 
   template <>
   inline
-  std::vector<edm::LuminosityBlockID>
-  ParameterSet::getParameter<std::vector<edm::LuminosityBlockID> >(std::string const& name) const {
+  std::vector<LuminosityBlockID>
+  ParameterSet::getParameter<std::vector<LuminosityBlockID> >(std::string const& name) const {
     return retrieve(name).getVLuminosityBlockID();
   }
-
-
 
   // ----------------------------------------------------------------------
   // PSet, vPSet
   
   template<>
   inline 
-  edm::ParameterSet
-  ParameterSet::getParameter<edm::ParameterSet>(std::string const& name) const {
+  ParameterSet
+  ParameterSet::getParameter<ParameterSet>(std::string const& name) const {
     return retrieve(name).getPSet();
   }
   
   template<>
   inline 
-  std::vector<edm::ParameterSet>
-  ParameterSet::getParameter<std::vector<edm::ParameterSet> >(std::string const& name) const {
+  std::vector<ParameterSet>
+  ParameterSet::getParameter<std::vector<ParameterSet> >(std::string const& name) const {
     return retrieve(name).getVPSet();
   }
-  
+
   // untracked parameters
   
   // ----------------------------------------------------------------------
@@ -698,53 +668,51 @@ private:
 
   template<>
   inline
-  edm::FileInPath
-  ParameterSet::getUntrackedParameter<edm::FileInPath>(std::string const& name, edm::FileInPath const& defaultValue) const {
+  FileInPath
+  ParameterSet::getUntrackedParameter<FileInPath>(std::string const& name, FileInPath const& defaultValue) const {
     Entry const* entryPtr = retrieveUntracked(name);
     return entryPtr == 0 ? defaultValue : entryPtr->getFileInPath();
   }
 
   template<>
   inline
-  edm::FileInPath
-  ParameterSet::getUntrackedParameter<edm::FileInPath>(std::string const& name) const {
+  FileInPath
+  ParameterSet::getUntrackedParameter<FileInPath>(std::string const& name) const {
     return getEntryPointerOrThrow_(name)->getFileInPath();
   }
-
 
   // ----------------------------------------------------------------------
   // InputTag, VInputTag
 
   template<>
   inline
-  edm::InputTag
-  ParameterSet::getUntrackedParameter<edm::InputTag>(std::string const& name, edm::InputTag const& defaultValue) const {
+  InputTag
+  ParameterSet::getUntrackedParameter<InputTag>(std::string const& name, InputTag const& defaultValue) const {
     Entry const* entryPtr = retrieveUntracked(name);
     return entryPtr == 0 ? defaultValue : entryPtr->getInputTag();
   }
 
   template<>
   inline
-  edm::InputTag
-  ParameterSet::getUntrackedParameter<edm::InputTag>(std::string const& name) const {
+  InputTag
+  ParameterSet::getUntrackedParameter<InputTag>(std::string const& name) const {
     return getEntryPointerOrThrow_(name)->getInputTag();
   }
 
   template<>
   inline
-  std::vector<edm::InputTag>
-  ParameterSet::getUntrackedParameter<std::vector<edm::InputTag> >(std::string const& name, 
-                                      std::vector<edm::InputTag> const& defaultValue) const 
+  std::vector<InputTag>
+  ParameterSet::getUntrackedParameter<std::vector<InputTag> >(std::string const& name, 
+                                      std::vector<InputTag> const& defaultValue) const 
   {
     Entry const* entryPtr = retrieveUntracked(name);
     return entryPtr == 0 ? defaultValue : entryPtr->getVInputTag();
   }
 
-
   template<>
   inline
-  std::vector<edm::InputTag>
-  ParameterSet::getUntrackedParameter<std::vector<edm::InputTag> >(std::string const& name) const {
+  std::vector<InputTag>
+  ParameterSet::getUntrackedParameter<std::vector<InputTag> >(std::string const& name) const {
     return getEntryPointerOrThrow_(name)->getVInputTag();
   }
 
@@ -753,77 +721,70 @@ private:
 
   template<>
   inline
-  edm::EventID
-  ParameterSet::getUntrackedParameter<edm::EventID>(std::string const& name, edm::EventID const& defaultValue) const {
+  EventID
+  ParameterSet::getUntrackedParameter<EventID>(std::string const& name, EventID const& defaultValue) const {
     Entry const* entryPtr = retrieveUntracked(name);
     return entryPtr == 0 ? defaultValue : entryPtr->getEventID();
   }
 
   template<>
   inline
-  edm::EventID
-  ParameterSet::getUntrackedParameter<edm::EventID>(std::string const& name) const {
+  EventID
+  ParameterSet::getUntrackedParameter<EventID>(std::string const& name) const {
     return getEntryPointerOrThrow_(name)->getEventID();
   }
 
   template<>
   inline
-  std::vector<edm::EventID>
-  ParameterSet::getUntrackedParameter<std::vector<edm::EventID> >(std::string const& name,
-                                      std::vector<edm::EventID> const& defaultValue) const
+  std::vector<EventID>
+  ParameterSet::getUntrackedParameter<std::vector<EventID> >(std::string const& name,
+                                      std::vector<EventID> const& defaultValue) const
   {
     Entry const* entryPtr = retrieveUntracked(name);
     return entryPtr == 0 ? defaultValue : entryPtr->getVEventID();
   }
 
-
   template<>
   inline
-  std::vector<edm::EventID>
-  ParameterSet::getUntrackedParameter<std::vector<edm::EventID> >(std::string const& name) const {
+  std::vector<EventID>
+  ParameterSet::getUntrackedParameter<std::vector<EventID> >(std::string const& name) const {
     return getEntryPointerOrThrow_(name)->getVEventID();
   }
 
-
-
-  
   // ----------------------------------------------------------------------
   // LuminosityBlockID, VLuminosityBlockID
 
   template<>
   inline
-  edm::LuminosityBlockID
-  ParameterSet::getUntrackedParameter<edm::LuminosityBlockID>(std::string const& name, edm::LuminosityBlockID const& defaultValue) const {
+  LuminosityBlockID
+  ParameterSet::getUntrackedParameter<LuminosityBlockID>(std::string const& name, LuminosityBlockID const& defaultValue) const {
     Entry const* entryPtr = retrieveUntracked(name);
     return entryPtr == 0 ? defaultValue : entryPtr->getLuminosityBlockID();
   }
 
   template<>
   inline
-  edm::LuminosityBlockID
-  ParameterSet::getUntrackedParameter<edm::LuminosityBlockID>(std::string const& name) const {
+  LuminosityBlockID
+  ParameterSet::getUntrackedParameter<LuminosityBlockID>(std::string const& name) const {
     return getEntryPointerOrThrow_(name)->getLuminosityBlockID();
   }
 
   template<>
   inline
-  std::vector<edm::LuminosityBlockID>
-  ParameterSet::getUntrackedParameter<std::vector<edm::LuminosityBlockID> >(std::string const& name,
-                                      std::vector<edm::LuminosityBlockID> const& defaultValue) const
+  std::vector<LuminosityBlockID>
+  ParameterSet::getUntrackedParameter<std::vector<LuminosityBlockID> >(std::string const& name,
+                                      std::vector<LuminosityBlockID> const& defaultValue) const
   {
     Entry const* entryPtr = retrieveUntracked(name);
     return entryPtr == 0 ? defaultValue : entryPtr->getVLuminosityBlockID();
   }
 
-
   template<>
   inline
-  std::vector<edm::LuminosityBlockID>
-  ParameterSet::getUntrackedParameter<std::vector<edm::LuminosityBlockID> >(std::string const& name) const {
+  std::vector<LuminosityBlockID>
+  ParameterSet::getUntrackedParameter<std::vector<LuminosityBlockID> >(std::string const& name) const {
     return getEntryPointerOrThrow_(name)->getVLuminosityBlockID();
   }
-
-
 
   
   // ----------------------------------------------------------------------
@@ -832,7 +793,7 @@ private:
   template<>
   inline 
   ParameterSet
-  ParameterSet::getUntrackedParameter<edm::ParameterSet>(std::string const& name, edm::ParameterSet const& defaultValue) const {
+  ParameterSet::getUntrackedParameter<ParameterSet>(std::string const& name, ParameterSet const& defaultValue) const {
     Entry const* entryPtr = retrieveUntracked(name);
     return entryPtr == 0 ? defaultValue : entryPtr->getPSet();
   }
@@ -840,22 +801,614 @@ private:
   template<>
   inline
   ParameterSet
-  ParameterSet::getUntrackedParameter<edm::ParameterSet>(std::string const& name) const {
+  ParameterSet::getUntrackedParameter<ParameterSet>(std::string const& name) const {
     return getEntryPointerOrThrow_(name)->getPSet();
   }
 
   template<>
   inline 
-  std::vector<edm::ParameterSet>
-  ParameterSet::getUntrackedParameter<std::vector<edm::ParameterSet> >(std::string const& name, std::vector<edm::ParameterSet> const& defaultValue) const {
+  std::vector<ParameterSet>
+  ParameterSet::getUntrackedParameter<std::vector<ParameterSet> >(std::string const& name, std::vector<ParameterSet> const& defaultValue) const {
     Entry const* entryPtr = retrieveUntracked(name);
     return entryPtr == 0 ? defaultValue : entryPtr->getVPSet();
   }
 
   template<>
   inline
-  std::vector<edm::ParameterSet>
-  ParameterSet::getUntrackedParameter<std::vector<edm::ParameterSet> >(std::string const& name) const {
+  std::vector<ParameterSet>
+  ParameterSet::getUntrackedParameter<std::vector<ParameterSet> >(std::string const& name) const {
+    return getEntryPointerOrThrow_(name)->getVPSet();
+  }
+
+  // specializations
+  // ----------------------------------------------------------------------
+  // Bool, vBool
+  
+  template<>
+  inline 
+  bool
+  ParameterSet::getParameter<bool>(char const* name) const {
+    return retrieve(name).getBool();
+  }
+
+  // ----------------------------------------------------------------------
+  // Int32, vInt32
+  
+  template<>
+  inline 
+  int
+  ParameterSet::getParameter<int>(char const* name) const {
+    return retrieve(name).getInt32();
+  }
+
+  template<>
+  inline 
+  std::vector<int>
+  ParameterSet::getParameter<std::vector<int> >(char const* name) const {
+    return retrieve(name).getVInt32();
+  }
+  
+ // ----------------------------------------------------------------------
+  // Int64, vInt64
+
+  template<>
+  inline
+  boost::int64_t
+  ParameterSet::getParameter<boost::int64_t>(char const* name) const {
+    return retrieve(name).getInt64();
+  }
+
+  template<>
+  inline
+  std::vector<boost::int64_t>
+  ParameterSet::getParameter<std::vector<boost::int64_t> >(char const* name) const {
+    return retrieve(name).getVInt64();
+  }
+
+  // ----------------------------------------------------------------------
+  // Uint32, vUint32
+  
+  template<>
+  inline 
+  unsigned int
+  ParameterSet::getParameter<unsigned int>(char const* name) const {
+    return retrieve(name).getUInt32();
+  }
+  
+  template<>
+  inline 
+  std::vector<unsigned int>
+  ParameterSet::getParameter<std::vector<unsigned int> >(char const* name) const {
+    return retrieve(name).getVUInt32();
+  }
+  
+  // ----------------------------------------------------------------------
+  // Uint64, vUint64
+
+  template<>
+  inline
+  boost::uint64_t
+  ParameterSet::getParameter<boost::uint64_t>(char const* name) const {
+    return retrieve(name).getUInt64();
+  }
+
+  template<>
+  inline
+  std::vector<boost::uint64_t>
+  ParameterSet::getParameter<std::vector<boost::uint64_t> >(char const* name) const {
+    return retrieve(name).getVUInt64();
+  }
+
+  // ----------------------------------------------------------------------
+  // Double, vDouble
+  
+  template<>
+  inline 
+  double
+  ParameterSet::getParameter<double>(char const* name) const {
+    return retrieve(name).getDouble();
+  }
+  
+  template<>
+  inline 
+  std::vector<double>
+  ParameterSet::getParameter<std::vector<double> >(char const* name) const {
+    return retrieve(name).getVDouble();
+  }
+  
+  // ----------------------------------------------------------------------
+  // String, vString
+  
+  template<>
+  inline 
+  std::string
+  ParameterSet::getParameter<std::string>(char const* name) const {
+    return retrieve(name).getString();
+  }
+  
+  template<>
+  inline 
+  std::vector<std::string>
+  ParameterSet::getParameter<std::vector<std::string> >(char const* name) const {
+    return retrieve(name).getVString();
+  }
+
+  // ----------------------------------------------------------------------
+  // FileInPath
+
+  template <>
+  inline
+  FileInPath
+  ParameterSet::getParameter<FileInPath>(char const* name) const {
+    return retrieve(name).getFileInPath();
+  }
+  
+  // ----------------------------------------------------------------------
+  // InputTag
+
+  template <>
+  inline
+  InputTag
+  ParameterSet::getParameter<InputTag>(char const* name) const {
+    Entry const& e_input = retrieve(name);
+    switch (e_input.typeCode()) 
+    {
+      case 't':   // InputTag
+        return e_input.getInputTag();
+      case 'S':   // string
+        std::string const& label = e_input.getString();
+	depricatedInputTagWarning(name, label);
+        return InputTag( label );
+    }
+    throw edm::Exception(errors::Configuration, "ValueError") << "type of " 
+       << name << " is expected to be InputTag or string (deprecated)";
+
+  }
+
+  // ----------------------------------------------------------------------
+  // VInputTag
+
+  template <>
+  inline
+  std::vector<InputTag>
+  ParameterSet::getParameter<std::vector<InputTag> >(char const* name) const {
+    return retrieve(name).getVInputTag();
+  }
+
+  // ----------------------------------------------------------------------
+  // EventID
+
+  template <>
+  inline
+  EventID
+  ParameterSet::getParameter<EventID>(char const* name) const {
+    return retrieve(name).getEventID();
+  }
+
+  // ----------------------------------------------------------------------
+  // VEventID
+
+  template <>
+  inline
+  std::vector<EventID>
+  ParameterSet::getParameter<std::vector<EventID> >(char const* name) const {
+    return retrieve(name).getVEventID();
+  }
+
+  // ----------------------------------------------------------------------
+  // LuminosityBlockID
+
+  template <>
+  inline
+  LuminosityBlockID
+  ParameterSet::getParameter<LuminosityBlockID>(char const* name) const {
+    return retrieve(name).getLuminosityBlockID();
+  }
+
+  // ----------------------------------------------------------------------
+  // VLuminosityBlockID
+
+  template <>
+  inline
+  std::vector<LuminosityBlockID>
+  ParameterSet::getParameter<std::vector<LuminosityBlockID> >(char const* name) const {
+    return retrieve(name).getVLuminosityBlockID();
+  }
+
+  // ----------------------------------------------------------------------
+  // PSet, vPSet
+  
+  template<>
+  inline 
+  ParameterSet
+  ParameterSet::getParameter<ParameterSet>(char const* name) const {
+    return retrieve(name).getPSet();
+  }
+  
+  template<>
+  inline 
+  std::vector<ParameterSet>
+  ParameterSet::getParameter<std::vector<ParameterSet> >(char const* name) const {
+    return retrieve(name).getVPSet();
+  }
+
+  // untracked parameters
+  
+  // ----------------------------------------------------------------------
+  // Bool, vBool
+  
+  template<>
+  inline 
+  bool
+  ParameterSet::getUntrackedParameter<bool>(char const* name, bool const& defaultValue) const {
+    Entry const* entryPtr = retrieveUntracked(name);
+    return entryPtr == 0 ? defaultValue : entryPtr->getBool();
+  }
+
+  template<>
+  inline
+  bool
+  ParameterSet::getUntrackedParameter<bool>(char const* name) const {
+    return getEntryPointerOrThrow_(name)->getBool();
+  }
+  
+  
+  // ----------------------------------------------------------------------
+  // Int32, vInt32
+  
+  template<>
+  inline 
+  int
+  ParameterSet::getUntrackedParameter<int>(char const* name, int const& defaultValue) const {
+    Entry const* entryPtr = retrieveUntracked(name);
+    return entryPtr == 0 ? defaultValue : entryPtr->getInt32();
+  }
+
+  template<>
+  inline
+  int
+  ParameterSet::getUntrackedParameter<int>(char const* name) const {
+    return getEntryPointerOrThrow_(name)->getInt32();
+  }
+
+  template<>
+  inline 
+  std::vector<int>
+  ParameterSet::getUntrackedParameter<std::vector<int> >(char const* name, std::vector<int> const& defaultValue) const {
+    Entry const* entryPtr = retrieveUntracked(name);
+    return entryPtr == 0 ? defaultValue : entryPtr->getVInt32();
+  }
+
+  template<>
+  inline
+  std::vector<int>
+  ParameterSet::getUntrackedParameter<std::vector<int> >(char const* name) const {
+    return getEntryPointerOrThrow_(name)->getVInt32();
+  }
+  
+  // ----------------------------------------------------------------------
+  // Uint32, vUint32
+  
+  template<>
+  inline 
+  unsigned int
+  ParameterSet::getUntrackedParameter<unsigned int>(char const* name, unsigned int const& defaultValue) const {
+    Entry const* entryPtr = retrieveUntracked(name);
+    return entryPtr == 0 ? defaultValue : entryPtr->getUInt32();
+  }
+
+  template<>
+  inline
+  unsigned int
+  ParameterSet::getUntrackedParameter<unsigned int>(char const* name) const {
+    return getEntryPointerOrThrow_(name)->getUInt32();
+  }
+  
+  template<>
+  inline 
+  std::vector<unsigned int>
+  ParameterSet::getUntrackedParameter<std::vector<unsigned int> >(char const* name, std::vector<unsigned int> const& defaultValue) const {
+    Entry const* entryPtr = retrieveUntracked(name);
+    return entryPtr == 0 ? defaultValue : entryPtr->getVUInt32();
+  }
+
+  template<>
+  inline
+  std::vector<unsigned int>
+  ParameterSet::getUntrackedParameter<std::vector<unsigned int> >(char const* name) const {
+    return getEntryPointerOrThrow_(name)->getVUInt32();
+  }
+
+
+  // ----------------------------------------------------------------------
+  // Uint64, vUint64
+
+  template<>
+  inline
+  boost::uint64_t
+  ParameterSet::getUntrackedParameter<boost::uint64_t>(char const* name, boost::uint64_t const& defaultValue) const {
+    Entry const* entryPtr = retrieveUntracked(name);
+    return entryPtr == 0 ? defaultValue : entryPtr->getUInt64();
+  }
+
+  template<>
+  inline
+  boost::uint64_t
+  ParameterSet::getUntrackedParameter<boost::uint64_t>(char const* name) const {
+    return getEntryPointerOrThrow_(name)->getUInt64();
+  }
+
+  template<>
+  inline
+  std::vector<boost::uint64_t>
+  ParameterSet::getUntrackedParameter<std::vector<boost::uint64_t> >(char const* name, std::vector<boost::uint64_t> const& defaultValue) const {
+    Entry const* entryPtr = retrieveUntracked(name);
+    return entryPtr == 0 ? defaultValue : entryPtr->getVUInt64();
+  }
+
+  template<>
+  inline
+  std::vector<boost::uint64_t>
+  ParameterSet::getUntrackedParameter<std::vector<boost::uint64_t> >(char const* name) const {
+    return getEntryPointerOrThrow_(name)->getVUInt64();
+  }
+
+
+  // ----------------------------------------------------------------------
+  // Int64, Vint64
+
+  template<>
+  inline
+  boost::int64_t
+  ParameterSet::getUntrackedParameter<boost::int64_t>(char const* name, boost::int64_t const& defaultValue) const {
+    Entry const* entryPtr = retrieveUntracked(name);
+    return entryPtr == 0 ? defaultValue : entryPtr->getInt64();
+  }
+
+  template<>
+  inline
+  boost::int64_t
+  ParameterSet::getUntrackedParameter<boost::int64_t>(char const* name) const {
+    return getEntryPointerOrThrow_(name)->getInt64();
+  }
+
+  template<>
+  inline
+  std::vector<boost::int64_t>
+  ParameterSet::getUntrackedParameter<std::vector<boost::int64_t> >(char const* name, std::vector<boost::int64_t> const& defaultValue) const {
+    Entry const* entryPtr = retrieveUntracked(name);
+    return entryPtr == 0 ? defaultValue : entryPtr->getVInt64();
+  }
+
+  template<>
+  inline
+  std::vector<boost::int64_t>
+  ParameterSet::getUntrackedParameter<std::vector<boost::int64_t> >(char const* name) const {
+    return getEntryPointerOrThrow_(name)->getVInt64();
+  }
+
+  
+  // ----------------------------------------------------------------------
+  // Double, vDouble
+  
+  template<>
+  inline 
+  double
+  ParameterSet::getUntrackedParameter<double>(char const* name, double const& defaultValue) const {
+    Entry const* entryPtr = retrieveUntracked(name);
+    return entryPtr == 0 ? defaultValue : entryPtr->getDouble();
+  }
+
+
+  template<>
+  inline
+  double
+  ParameterSet::getUntrackedParameter<double>(char const* name) const {
+    return getEntryPointerOrThrow_(name)->getDouble();
+  }  
+  
+  template<>
+  inline 
+  std::vector<double>
+  ParameterSet::getUntrackedParameter<std::vector<double> >(char const* name, std::vector<double> const& defaultValue) const {
+    Entry const* entryPtr = retrieveUntracked(name); return entryPtr == 0 ? defaultValue : entryPtr->getVDouble(); 
+  }
+
+  template<>
+  inline
+  std::vector<double>
+  ParameterSet::getUntrackedParameter<std::vector<double> >(char const* name) const {
+    return getEntryPointerOrThrow_(name)->getVDouble();
+  }
+  
+  // ----------------------------------------------------------------------
+  // String, vString
+  
+  template<>
+  inline 
+  std::string
+  ParameterSet::getUntrackedParameter<std::string>(char const* name, std::string const& defaultValue) const {
+    Entry const* entryPtr = retrieveUntracked(name);
+    return entryPtr == 0 ? defaultValue : entryPtr->getString();
+  }
+
+  template<>
+  inline
+  std::string
+  ParameterSet::getUntrackedParameter<std::string>(char const* name) const {
+    return getEntryPointerOrThrow_(name)->getString();
+  }
+  
+  template<>
+  inline 
+  std::vector<std::string>
+  ParameterSet::getUntrackedParameter<std::vector<std::string> >(char const* name, std::vector<std::string> const& defaultValue) const {
+    Entry const* entryPtr = retrieveUntracked(name);
+    return entryPtr == 0 ? defaultValue : entryPtr->getVString();
+  }
+
+
+  template<>
+  inline
+  std::vector<std::string>
+  ParameterSet::getUntrackedParameter<std::vector<std::string> >(char const* name) const {
+    return getEntryPointerOrThrow_(name)->getVString();
+  }
+
+  // ----------------------------------------------------------------------
+  //  FileInPath
+
+  template<>
+  inline
+  FileInPath
+  ParameterSet::getUntrackedParameter<FileInPath>(char const* name, FileInPath const& defaultValue) const {
+    Entry const* entryPtr = retrieveUntracked(name);
+    return entryPtr == 0 ? defaultValue : entryPtr->getFileInPath();
+  }
+
+  template<>
+  inline
+  FileInPath
+  ParameterSet::getUntrackedParameter<FileInPath>(char const* name) const {
+    return getEntryPointerOrThrow_(name)->getFileInPath();
+  }
+
+  // ----------------------------------------------------------------------
+  // InputTag, VInputTag
+
+  template<>
+  inline
+  InputTag
+  ParameterSet::getUntrackedParameter<InputTag>(char const* name, InputTag const& defaultValue) const {
+    Entry const* entryPtr = retrieveUntracked(name);
+    return entryPtr == 0 ? defaultValue : entryPtr->getInputTag();
+  }
+
+  template<>
+  inline
+  InputTag
+  ParameterSet::getUntrackedParameter<InputTag>(char const* name) const {
+    return getEntryPointerOrThrow_(name)->getInputTag();
+  }
+
+  template<>
+  inline
+  std::vector<InputTag>
+  ParameterSet::getUntrackedParameter<std::vector<InputTag> >(char const* name, 
+                                      std::vector<InputTag> const& defaultValue) const 
+  {
+    Entry const* entryPtr = retrieveUntracked(name);
+    return entryPtr == 0 ? defaultValue : entryPtr->getVInputTag();
+  }
+
+  template<>
+  inline
+  std::vector<InputTag>
+  ParameterSet::getUntrackedParameter<std::vector<InputTag> >(char const* name) const {
+    return getEntryPointerOrThrow_(name)->getVInputTag();
+  }
+
+  // ----------------------------------------------------------------------
+  // EventID, VEventID
+
+  template<>
+  inline
+  EventID
+  ParameterSet::getUntrackedParameter<EventID>(char const* name, EventID const& defaultValue) const {
+    Entry const* entryPtr = retrieveUntracked(name);
+    return entryPtr == 0 ? defaultValue : entryPtr->getEventID();
+  }
+
+  template<>
+  inline
+  EventID
+  ParameterSet::getUntrackedParameter<EventID>(char const* name) const {
+    return getEntryPointerOrThrow_(name)->getEventID();
+  }
+
+  template<>
+  inline
+  std::vector<EventID>
+  ParameterSet::getUntrackedParameter<std::vector<EventID> >(char const* name,
+                                      std::vector<EventID> const& defaultValue) const
+  {
+    Entry const* entryPtr = retrieveUntracked(name);
+    return entryPtr == 0 ? defaultValue : entryPtr->getVEventID();
+  }
+
+  template<>
+  inline
+  std::vector<EventID>
+  ParameterSet::getUntrackedParameter<std::vector<EventID> >(char const* name) const {
+    return getEntryPointerOrThrow_(name)->getVEventID();
+  }
+
+  // ----------------------------------------------------------------------
+  // LuminosityBlockID, VLuminosityBlockID
+
+  template<>
+  inline
+  LuminosityBlockID
+  ParameterSet::getUntrackedParameter<LuminosityBlockID>(char const* name, LuminosityBlockID const& defaultValue) const {
+    Entry const* entryPtr = retrieveUntracked(name);
+    return entryPtr == 0 ? defaultValue : entryPtr->getLuminosityBlockID();
+  }
+
+  template<>
+  inline
+  LuminosityBlockID
+  ParameterSet::getUntrackedParameter<LuminosityBlockID>(char const* name) const {
+    return getEntryPointerOrThrow_(name)->getLuminosityBlockID();
+  }
+
+  template<>
+  inline
+  std::vector<LuminosityBlockID>
+  ParameterSet::getUntrackedParameter<std::vector<LuminosityBlockID> >(char const* name,
+                                      std::vector<LuminosityBlockID> const& defaultValue) const
+  {
+    Entry const* entryPtr = retrieveUntracked(name);
+    return entryPtr == 0 ? defaultValue : entryPtr->getVLuminosityBlockID();
+  }
+
+  template<>
+  inline
+  std::vector<LuminosityBlockID>
+  ParameterSet::getUntrackedParameter<std::vector<LuminosityBlockID> >(char const* name) const {
+    return getEntryPointerOrThrow_(name)->getVLuminosityBlockID();
+  }
+
+  
+  // ----------------------------------------------------------------------
+  // PSet, vPSet
+  
+  template<>
+  inline 
+  ParameterSet
+  ParameterSet::getUntrackedParameter<ParameterSet>(char const* name, ParameterSet const& defaultValue) const {
+    Entry const* entryPtr = retrieveUntracked(name);
+    return entryPtr == 0 ? defaultValue : entryPtr->getPSet();
+  }
+
+  template<>
+  inline
+  ParameterSet
+  ParameterSet::getUntrackedParameter<ParameterSet>(char const* name) const {
+    return getEntryPointerOrThrow_(name)->getPSet();
+  }
+
+  template<>
+  inline 
+  std::vector<ParameterSet>
+  ParameterSet::getUntrackedParameter<std::vector<ParameterSet> >(char const* name, std::vector<ParameterSet> const& defaultValue) const {
+    Entry const* entryPtr = retrieveUntracked(name);
+    return entryPtr == 0 ? defaultValue : entryPtr->getVPSet();
+  }
+
+  template<>
+  inline
+  std::vector<ParameterSet>
+  ParameterSet::getUntrackedParameter<std::vector<ParameterSet> >(char const* name) const {
     return getEntryPointerOrThrow_(name)->getVPSet();
   }
 
@@ -864,8 +1417,8 @@ private:
   {
     // Put into 'results' each parameter set in 'top', including 'top'
     // itself.
-    void explode(edm::ParameterSet const& top,
-	       std::vector<edm::ParameterSet>& results);
+    void explode(ParameterSet const& top,
+	       std::vector<ParameterSet>& results);
   }
 
   // Free function to retrieve a parameter set, given the parameter set ID.

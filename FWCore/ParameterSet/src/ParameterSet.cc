@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------
-// $Id: ParameterSet.cc,v 1.37 2008/11/14 19:41:23 wdd Exp $
+// $Id: ParameterSet.cc,v 1.38 2008/11/18 02:04:26 wmtan Exp $
 //
 // definition of ParameterSet's function members
 // ----------------------------------------------------------------------
@@ -90,6 +90,11 @@ namespace edm {
   // ----------------------------------------------------------------------
 
   Entry const*
+  ParameterSet::getEntryPointerOrThrow_(char const* name) const {
+    return getEntryPointerOrThrow_(std::string(name));
+  }
+
+  Entry const*
   ParameterSet::getEntryPointerOrThrow_(std::string const& name) const {
     Entry const* result = retrieveUntracked(name);
     if (result == 0)
@@ -99,13 +104,16 @@ namespace edm {
     return result;
   }
 
-
-
   template <class T, class U> T first(std::pair<T,U> const& p)
   { return p.first; }
 
   template <class T, class U> U second(std::pair<T,U> const& p)
   { return p.second; }
+
+  Entry const&
+  ParameterSet::retrieve(char const* name) const {
+    return retrieve(std::string(name));
+  }
 
   Entry const&
   ParameterSet::retrieve(std::string const& name) const {
@@ -132,6 +140,11 @@ namespace edm {
   }  // retrieve()
 
   Entry const* const
+  ParameterSet::retrieveUntracked(char const* name) const {
+    return retrieveUntracked(std::string(name));
+  }
+
+  Entry const* const
   ParameterSet::retrieveUntracked(std::string const& name) const {
     table::const_iterator  it = tbl_.find(name);
 
@@ -153,6 +166,11 @@ namespace edm {
   }  // retrieve()
 
   Entry const* const
+  ParameterSet::retrieveUnknown(char const* name) const {
+    return retrieveUnknown(std::string(name));
+  }
+
+  Entry const* const
   ParameterSet::retrieveUnknown(std::string const& name) const {
     table::const_iterator  it = tbl_.find(name);
     if (it == tbl_.end()) return 0;
@@ -160,6 +178,11 @@ namespace edm {
   }
 
   // ----------------------------------------------------------------------
+
+  void
+  ParameterSet::insert(bool okay_to_replace, char const* name, Entry const& value) {
+    insert(okay_to_replace, std::string(name), value);
+  }
 
   void
   ParameterSet::insert(bool okay_to_replace, std::string const& name, Entry const& value) {
