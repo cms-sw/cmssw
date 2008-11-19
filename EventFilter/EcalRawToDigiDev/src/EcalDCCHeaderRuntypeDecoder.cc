@@ -89,8 +89,12 @@ void EcalDCCHeaderRuntypeDecoder::DecodeSettingGlobal ( ulong TrigType, ulong de
   bool isLocal = false;
   if (theHeader->getRunType() == EcalDCCHeaderBlock::CALIB_LOCAL)     isLocal = true;
   
-  // if Trigger_Type is physics, there is nothing to decode in the detailed_trigger_tipe field
-  if         (TrigType == 1)     return;
+  // if Trigger_Type is physics, only dccIdInTTCCommand is meaningful
+  if         (TrigType == 1){
+      int dccIdInTTCCommand  = (detTrigType >> H_DCCID_B)    &  H_DCCID_MASK;
+      theHeader-> setDccInTTCCommand( dccIdInTTCCommand );
+      return;
+  }
   
   // if calibration trigger (gap)
   else if (TrigType == 2) {
