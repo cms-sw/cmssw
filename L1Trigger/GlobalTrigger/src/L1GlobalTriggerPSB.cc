@@ -506,7 +506,9 @@ void L1GlobalTriggerPSB::receiveGctObjectData(
 
 }
 
-// receive technical trigger
+// receive technical triggers
+// each L1GtTechnicalTriggerRecord can have more than one technical trigger bit,
+// such that a single producer per system can be used (if desired)
 void L1GlobalTriggerPSB::receiveTechnicalTriggers(edm::Event& iEvent,
     const edm::InputTag& technicalTriggersInputTag, const int iBxInEvent,
     const bool receiveTechTr, const int nrL1TechTr) {
@@ -521,6 +523,10 @@ void L1GlobalTriggerPSB::receiveTechnicalTriggers(edm::Event& iEvent,
         iEvent.getMany(m_techTrigSelector, m_techTrigRecords);
 
         size_t recordsSize = m_techTrigRecords.size();
+        LogTrace("L1GlobalTriggerPSB")
+            << "\n Number of technical trigger records: " << recordsSize << "\n"
+            << std::endl;
+
         for (size_t iRec = 0; iRec < recordsSize; ++iRec) {
 
             const L1GtTechnicalTriggerRecord& ttRecord = *m_techTrigRecords[iRec];
@@ -539,11 +545,11 @@ void L1GlobalTriggerPSB::receiveTechnicalTriggers(edm::Event& iEvent,
                     m_gtTechnicalTriggers.at(ttBitNumber) = ttResult;
 
                     LogTrace("L1GlobalTriggerPSB")
-                        << "\n Add technical trigger with bit number " << ttBitNumber
+                        << "Add for BxInEvent " << iBxInEvent
+                        << " the technical trigger " << (ttBxRecord.gtTechnicalTriggerName())
+                        << " with bit number " << ttBitNumber
                         << " and result " << ttResult
                         << std::endl;
-
-                    break;
 
                 }
 
