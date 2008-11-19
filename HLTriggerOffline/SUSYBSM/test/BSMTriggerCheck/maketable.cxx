@@ -1,12 +1,13 @@
 void makeAtable(string model, bool twiki, bool HLT) {
   
-  TFile* file = new TFile(string("html/SUSYVal/histo_"+model+"/outputfile.root").c_str());
+  //  TFile* file = new TFile(string("html/SUSYVal/histo_"+model+"/outputfile.root").c_str());
+  TFile* file = new TFile(string("html/SUSYVal_168_vs_177/histo_"+model+"/outputfile.root").c_str());
   TH1D* histo1;
   TH1D* histo2;
   vector<string> tablelines;
   
-  string code1 = "1_6_8";
-  string code2 = "1_7_5";
+  string code1 = "1_7_7";
+  string code2 = "1_8_4";
 
   if(twiki == true) 
     tablelines.push_back(model+" | "+code1+" | "+code2+"|");
@@ -18,6 +19,15 @@ void makeAtable(string model, bool twiki, bool HLT) {
     tablelines.push_back(model+" & "+code1+" & "+code2+" \\\\");
     tablelines.push_back("\\hline");
   }    
+
+  vector<int> e_index;
+  vector<string> e_line;
+
+  vector<int> jet_index;
+  vector<string> jet_line;
+
+  vector<int> mu_index;
+  vector<string> mu_line;
 
   for(int iplot=0; iplot<8;iplot++) {
     char name[256];
@@ -51,6 +61,15 @@ void makeAtable(string model, bool twiki, bool HLT) {
 		histo1->GetXaxis()->GetBinLabel(iline+1),
 		eff1, err1, eff2, err2);
       }
+
+      string pathname(histo1->GetXaxis()->GetBinLabel(iline+1));
+      if(HLT == true) {
+      } else {
+	if(pathname.find("EG") != string::npos) {
+	  
+	}
+	  }
+
       tablelines.push_back(string(name));
     }
   }

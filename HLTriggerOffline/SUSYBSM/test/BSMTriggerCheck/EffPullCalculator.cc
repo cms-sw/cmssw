@@ -76,8 +76,10 @@ void EffPullcalculator::CalculatePulls() {
       int index = (iplot-2)*nbin+ipath;
       if(index<int(eff1.size())) {
 	effhisto[iplot]->SetBinContent(ipath+1,eff1[index]);
+	effhisto[iplot]->SetBinError(ipath+1,err_eff1[index]);
 	effhisto[iplot]->GetXaxis()->SetBinLabel(ipath+1,name[index].c_str());
 	effhisto[iplot+10]->SetBinContent(ipath+1,eff2[index]);
+	effhisto[iplot+10]->SetBinError(ipath+1,err_eff2[index]);
 	effhisto[iplot+10]->GetXaxis()->SetBinLabel(ipath+1,name[index].c_str());
       }
     }
@@ -109,7 +111,9 @@ void EffPullcalculator::CalculatePulls() {
   for(int i=0; i< int(SortedEff.size()); i++) {
     if(eff2[SortedEff[i]] != 0. && eff1[SortedEff[i]] != 0.) {
       effhisto[1]->SetBinContent(nb,eff1[SortedEff[i]]);
+      effhisto[1]->SetBinError(nb,err_eff1[SortedEff[i]]);
       effhisto[11]->SetBinContent(nb,eff2[SortedEff[i]]);
+      effhisto[11]->SetBinError(nb,err_eff2[SortedEff[i]]);
       effhisto[1]->GetXaxis()->SetBinLabel(nb,name[SortedEff[i]].c_str());
       effhisto[11]->GetXaxis()->SetBinLabel(nb,name[SortedEff[i]].c_str());
       nb++;
