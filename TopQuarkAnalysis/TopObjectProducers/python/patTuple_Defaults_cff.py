@@ -4,9 +4,11 @@ import FWCore.ParameterSet.Config as cms
 # define derivations from std pat defaults
 #
 
+#-------------------------------------------------------------------------------------------
 #
 # production
 #
+#-------------------------------------------------------------------------------------------
 from PhysicsTools.PatAlgos.producersLayer1.electronProducer_cfi import allLayer1Electrons
 
 ## to used from PhysicsTools/PatAlgos V04-14-03 onwards
