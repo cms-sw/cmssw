@@ -285,9 +285,6 @@ void OutInConversionSeedFinder::startSeed(const FreeTrajectoryState & fts) const
 
       MeasurementEstimator * newEstimator = makeEstimator(layer, dphi);
 
-
-      // PropagatorWithMaterial thePropagatorWithMaterial_ (alongMomentum, 0.000511, &(*theMF_) );
-      // thePropagatorWithMaterial_.setPropagationDirection(alongMomentum);
      
       //std::cout << "OutInSeedFinder::startSeed propagationDirection  " << int(thePropagatorAlongMomentum_->propagationDirection() ) << "\n";       
       
@@ -319,11 +316,6 @@ void OutInConversionSeedFinder::startSeed(const FreeTrajectoryState & fts) const
 	  
 	  FreeTrajectoryState newfts = trackStateFromClusters(fts.charge(), hitPoint, alongMomentum, 0.8);
 	  LogDebug("OutInConversionSeedFinder") << "OutInConversionSeedFinder::startSeed  newfts " << newfts << "\n";
-	   
-	  //	  PropagatorWithMaterial thePropagatorWithMaterial_ (oppositeToMomentum, 0.000511, &(*theMF_) );
-
-
- 
 	  LogDebug("OutInConversionSeedFinder") << "OutInConversionSeedFinder::startSeed propagationDirection  after switching " << int(thePropagatorOppositeToMomentum_->propagationDirection() ) << "\n";        
 	  //  std::cout << "OutInConversionSeedFinder::startSeed propagationDirection  after switching " << int(thePropagatorOppositeToMomentum_->propagationDirection() ) << "\n";        
 
@@ -452,8 +444,8 @@ void OutInConversionSeedFinder::createSeed(const TrajectoryMeasurement & m1,
   LogDebug("OutInConversionSeedFinder") << "original cluster FTS " << fts <<"\n";
 
 
-  //PropagatorWithMaterial thePropagatorOppositeToMomentum_ (oppositeToMomentum, 0.000511, &(*theMF_) );
-  //std::cout  << "OutInConversionSeedFinder::createSeed propagation dir " << int( thePropagatorOppositeToMomentum_.propagationDirection() ) << "\n"; 
+
+  //std::cout  << "OutInConversionSeedFinder::createSeed propagation dir " << int( thePropagatorOppositeToMomentum_->propagationDirection() ) << "\n"; 
   TrajectoryStateOnSurface state1 = thePropagatorOppositeToMomentum_->propagate(fts,  m1.recHit()->det()->surface());
 
   // LogDebug("OutInConversionSeedFinder") << "hit surface " << h1.det().surface().position() << endl;
