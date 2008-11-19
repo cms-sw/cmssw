@@ -55,7 +55,7 @@ TCMETAlgo::TCMETAlgo() {}
 TCMETAlgo::~TCMETAlgo() {}
 //------------------------------------------------------------------------
 
-reco::MET TCMETAlgo::CalculateTCMET(edm::Event& event, const edm::EventSetup& setup, const edm::ParameterSet& iConfig)
+reco::MET TCMETAlgo::CalculateTCMET(edm::Event& event, const edm::EventSetup& setup, const edm::ParameterSet& iConfig, TH2D* response_function)
 { 
   //Get Appropriate Handles for TCMET Calculation
 
@@ -71,7 +71,8 @@ reco::MET TCMETAlgo::CalculateTCMET(edm::Event& event, const edm::EventSetup& se
   setup.get<IdealMagneticFieldRecord>().get(theMagField);
   bField = theMagField.product();
 
-  response_function = getResponseFunction();
+  //  response_function = getResponseFunction();
+  //  response_function = repsonseFunction_->Clone();
 
   //intialize MET, sumEt to caloMET values
 
