@@ -1,7 +1,7 @@
 /** See header file for a class description 
  *
- *  $Date: 2008/11/13 14:34:53 $
- *  $Revision: 1.13 $
+ *  $Date: 2008/11/18 13:21:15 $
+ *  $Revision: 1.14 $
  *  \author S. Bolognesi - INFN Torino / T. Dorigo, M.De Mattia - INFN Padova
  */
 // Some notes:
@@ -157,7 +157,7 @@ double MuScleFitUtils::ResMaxSigma[][3];
 // Masses and widths from PDG 2006, half widths to be revised
 // NB in particular, halfwidths have to be made a function of muonType
 // -------------------------------------------------------------------
-const double MuScleFitUtils::mMu2 = 0.011163612; 
+const double MuScleFitUtils::mMu2 = 0.011163612;
 const double MuScleFitUtils::muMass = 0.105658;
 double MuScleFitUtils::ResHalfWidth[][3];
 int MuScleFitUtils::MuonType;
@@ -454,7 +454,7 @@ MuScleFitUtils::applySmearing (const lorentzVector& muon) {
   }
 
   // Use the smear function selected in the constructor
-  smearFunction->smear( pt, eta, phi, y );
+  smearFunction->smear( pt, eta, phi, y, parSmear );
 
   if (debug>9) {
     cout << "Smearing Pt,eta,phi = " << pt << " " <<  eta << " " 
@@ -483,7 +483,7 @@ MuScleFitUtils::applyBias (const lorentzVector& muon, int chg) {
   // values are used.
   // The functors used are takend from the same group used for the scaling
   // thus the name of the method used is "scale".
-  biasFunction->scale(ptEtaPhiE[0], ptEtaPhiE[1], ptEtaPhiE[2], chg, MuScleFitUtils::parBias);
+  ptEtaPhiE[0] = biasFunction->scale(ptEtaPhiE[0], ptEtaPhiE[1], ptEtaPhiE[2], chg, MuScleFitUtils::parBias);
 
   if (MuScleFitUtils::debug>1) cout << "pt after bias = " << ptEtaPhiE[0] << endl;
 
@@ -521,7 +521,7 @@ lorentzVector MuScleFitUtils::applyScale (const lorentzVector& muon,
 
   // the address of parval[shift] is passed as pointer to double. Internally it is used as a normal array, thus:
   // array[0] = parval[shift], array[1] = parval[shift+1], ...
-  scaleFunction->scale(ptEtaPhiE[0], ptEtaPhiE[1], ptEtaPhiE[2], chg, &(parval[shift]));
+  ptEtaPhiE[0] = scaleFunction->scale(ptEtaPhiE[0], ptEtaPhiE[1], ptEtaPhiE[2], chg, &(parval[shift]));
 
   if (ScaleFitType < 0 || ScaleFitType > 13) {
     cout << "[MuScleFitUtils]: Wrong fit type: " << ScaleFitType << " aborting!";

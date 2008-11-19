@@ -2,6 +2,8 @@
 #define FUNCTIONS_H
 
 #include <vector>
+#include "TMath.h"
+#include "TString.h"
 
 using namespace std;
 
@@ -21,7 +23,7 @@ using namespace std;
 template <class T>
 class scaleFunctionBase {
  public:
-  virtual void scale(double & pt, const double & eta, const double & phi, const int chg, const T & parScale) = 0;
+  virtual double scale(const double & pt, const double & eta, const double & phi, const int chg, const T & parScale) = 0;
   virtual ~scaleFunctionBase() = 0;
   /// This method is used to differentiate parameters among the different functions
   virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const T & parScale, const vector<int> & parScaleOrder, const int muonType) = 0;
@@ -53,7 +55,7 @@ public:
     // scaleFunctionBase<T>::parNum_ = 0;
     this->parNum_ = 0;
   }
-  virtual void scale(double & pt, const double & eta, const double & phi, const int chg, const T & parScale) {}
+  virtual double scale(const double & pt, const double & eta, const double & phi, const int chg, const T & parScale) { return pt; }
   virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const T & parScale, const vector<int> & parScaleOrder, const int muonType) {}
 };
 // Linear in pt
@@ -62,8 +64,8 @@ template <class T>
 class scaleFunctionType1 : public scaleFunctionBase<T> {
 public:
   scaleFunctionType1() { this->parNum_ = 2; }
-  virtual void scale(double & pt, const double & eta, const double & phi, const int chg, const T & parScale) {
-    pt = (parScale[0] + parScale[1]*pt)*pt;
+  virtual double scale(const double & pt, const double & eta, const double & phi, const int chg, const T & parScale) {
+    return ( (parScale[0] + parScale[1]*pt)*pt );
   }
   virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const T & parScale, const vector<int> & parScaleOrder, const int muonType) {
     double thisStep[] = {0.001, 0.01};
@@ -85,8 +87,8 @@ template <class T>
 class scaleFunctionType2 : public scaleFunctionBase<T> {
 public:
   scaleFunctionType2() { this->parNum_ = 2; }
-  virtual void scale(double & pt, const double & eta, const double & phi, const int chg, const T & parScale) {
-    pt = (parScale[0] + parScale[1]*fabs(eta))*pt; 
+  virtual double scale(const double & pt, const double & eta, const double & phi, const int chg, const T & parScale) {
+    return ( (parScale[0] + parScale[1]*fabs(eta))*pt );
   }
   virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const T & parScale, const vector<int> & parScaleOrder, const int muonType) {
     double thisStep[] = {0.001, 0.01};
@@ -108,8 +110,8 @@ template <class T>
 class scaleFunctionType3 : public scaleFunctionBase<T> {
 public:
   scaleFunctionType3() { this->parNum_ = 2; }
-  virtual void scale(double & pt, const double & eta, const double & phi, const int chg, const T & parScale) {
-    pt = (parScale[0] + parScale[1]*sin(phi))*pt; 
+  virtual double scale(const double & pt, const double & eta, const double & phi, const int chg, const T & parScale) {
+    return( (parScale[0] + parScale[1]*sin(phi))*pt ); 
   }
   virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const T & parScale, const vector<int> & parScaleOrder, const int muonType) {
     double thisStep[] = {0.001, 0.01};
@@ -131,9 +133,9 @@ template <class T>
 class scaleFunctionType4 : public scaleFunctionBase<T> {
 public:
   scaleFunctionType4() { this->parNum_ = 3; }
-  virtual void scale(double & pt, const double & eta, const double & phi, const int chg, const T & parScale) {
-    pt = (parScale[0] + parScale[1]*pt + 
-	  parScale[2]*fabs(eta))*pt;
+  virtual double scale(const double & pt, const double & eta, const double & phi, const int chg, const T & parScale) {
+    return( (parScale[0] + parScale[1]*pt + 
+             parScale[2]*fabs(eta))*pt );
   }
   virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const T & parScale, const vector<int> & parScaleOrder, const int muonType) {
     double thisStep[] = {0.001, 0.01, 0.01};
@@ -155,9 +157,9 @@ template <class T>
 class scaleFunctionType5 : public scaleFunctionBase<T> {
 public:
   scaleFunctionType5() { this->parNum_ = 3; }
-  virtual void scale(double & pt, const double & eta, const double & phi, const int chg, const T & parScale) {
-    pt = (parScale[0] + parScale[1]*pt + 
-	  parScale[2]*sin(phi))*pt;
+  virtual double scale(const double & pt, const double & eta, const double & phi, const int chg, const T & parScale) {
+    return( (parScale[0] + parScale[1]*pt + 
+             parScale[2]*sin(phi))*pt );
   }
   virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const T & parScale, const vector<int> & parScaleOrder, const int muonType) {
     double thisStep[] = {0.001, 0.01, 0.01};
@@ -179,9 +181,9 @@ template <class T>
 class scaleFunctionType6 : public scaleFunctionBase<T> {
 public:
   scaleFunctionType6() { this->parNum_ = 3; }
-  virtual void scale(double & pt, const double & eta, const double & phi, const int chg, const T & parScale) {
-    pt = (parScale[0] + parScale[1]*fabs(eta) + 
-	  parScale[2]*sin(phi))*pt;
+  virtual double scale(const double & pt, const double & eta, const double & phi, const int chg, const T & parScale) {
+    return( (parScale[0] + parScale[1]*fabs(eta) + 
+             parScale[2]*sin(phi))*pt );
   }
   virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind,
                              TString* parname, const T & parScale, const vector<int> & parScaleOrder, const int muonType) {
@@ -204,10 +206,10 @@ template <class T>
 class scaleFunctionType7 : public scaleFunctionBase<T> {
 public:
   scaleFunctionType7() { this->parNum_ = 4; }
-  virtual void scale(double & pt, const double & eta, const double & phi, const int chg, const T & parScale) {
-    pt = (parScale[0] + parScale[1]*pt + 
-	  parScale[2]*fabs(eta) + 
-	  parScale[3]*sin(phi))*pt;
+  virtual double scale(const double & pt, const double & eta, const double & phi, const int chg, const T & parScale) {
+    return( (parScale[0] + parScale[1]*pt + 
+             parScale[2]*fabs(eta) + 
+             parScale[3]*sin(phi))*pt );
   }
   virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind,
                              TString* parname, const T & parScale, const vector<int> & parScaleOrder, const int muonType) {
@@ -230,10 +232,10 @@ template <class T>
 class scaleFunctionType8 : public scaleFunctionBase<T> {
 public:
   scaleFunctionType8() { this->parNum_ = 4; }
-  virtual void scale(double & pt, const double & eta, const double & phi, const int chg, const T & parScale) {
-    pt = (parScale[0] + parScale[1]*pt + 
-	  parScale[2]*fabs(eta) +
-	  parScale[3]*eta*eta)*pt;
+  virtual double scale(const double & pt, const double & eta, const double & phi, const int chg, const T & parScale) {
+    return( (parScale[0] + parScale[1]*pt + 
+             parScale[2]*fabs(eta) +
+             parScale[3]*eta*eta)*pt );
   }
   virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const T & parScale, const vector<int> & parScaleOrder, const int muonType) {
     double thisStep[] = {0.001, 0.01, 0.01, 0.01};
@@ -255,8 +257,8 @@ template <class T>
 class scaleFunctionType9 : public scaleFunctionBase<T> {
 public:
   scaleFunctionType9() { this->parNum_ = 2; }
-  virtual void scale(double & pt, const double & eta, const double & phi, const int chg, const T & parScale) {
-    pt = (parScale[0] + exp(parScale[1]*pt))*pt;
+  virtual double scale(const double & pt, const double & eta, const double & phi, const int chg, const T & parScale) {
+    return( (parScale[0] + exp(parScale[1]*pt))*pt );
   }
   virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const T & parScale, const vector<int> & parScaleOrder, const int muonType) {
     double thisStep[] = {0.001, 0.01};
@@ -272,9 +274,9 @@ template <class T>
 class scaleFunctionType10 : public scaleFunctionBase<T> {
 public:
   scaleFunctionType10() { this->parNum_ = 3; }
-  virtual void scale(double & pt, const double & eta, const double & phi, const int chg, const T & parScale) {
-    pt = (parScale[0] + parScale[1]*pt + 
-	  parScale[2]*pt*pt)*pt;
+  virtual double scale(const double & pt, const double & eta, const double & phi, const int chg, const T & parScale) {
+    return( (parScale[0] + parScale[1]*pt + 
+             parScale[2]*pt*pt)*pt );
   }
   virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const T & parScale, const vector<int> & parScaleOrder, const int muonType) {
     double thisStep[] = {0.001, 0.01, 0.01};
@@ -290,9 +292,9 @@ template <class T>
 class scaleFunctionType11 : public scaleFunctionBase<T> {
 public:
   scaleFunctionType11() { this->parNum_ = 4; }
-  virtual void scale(double & pt, const double & eta, const double & phi, const int chg, const T & parScale) {
-    pt = (parScale[0] + parScale[1]*pt + 
-	  (double)chg*parScale[2]*sin(phi+parScale[3]))*pt;
+  virtual double scale(const double & pt, const double & eta, const double & phi, const int chg, const T & parScale) {
+    return( (parScale[0] + parScale[1]*pt + 
+             (double)chg*parScale[2]*sin(phi+parScale[3]))*pt );
   }
   virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const T & parScale, const vector<int> & parScaleOrder, const int muonType) {
     double thisStep[] = {0.001, 0.01, 0.01, 0.1};
@@ -308,11 +310,11 @@ template <class T>
 class scaleFunctionType12 : public scaleFunctionBase<T> {
 public:
   scaleFunctionType12() { this->parNum_ = 6; }
-  virtual void scale(double & pt, const double & eta, const double & phi, const int chg, const T & parScale) {
-   pt = (parScale[0] + parScale[1]*pt + 
-	  parScale[2]*fabs(eta) +
-	  parScale[3]*eta*eta + 
-	  (double)chg*parScale[4]*sin(phi+parScale[5]))*pt;
+  virtual double scale(const double & pt, const double & eta, const double & phi, const int chg, const T & parScale) {
+    return( (parScale[0] + parScale[1]*pt + 
+             parScale[2]*fabs(eta) +
+             parScale[3]*eta*eta + 
+             (double)chg*parScale[4]*sin(phi+parScale[5]))*pt );
   }
   virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const T & parScale, const vector<int> & parScaleOrder, const int muonType) {
     double thisStep[] = {0.001, 0.01, 0.01, 0.01, 0.01, 0.1};
@@ -328,18 +330,19 @@ template <class T>
 class scaleFunctionType13 : public scaleFunctionBase<T> {
 public:
   scaleFunctionType13() { this->parNum_ = 8; }
-  virtual void scale(double & pt, const double & eta, const double & phi, const int chg, const T & parScale) {
+  virtual double scale(const double & pt, const double & eta, const double & phi, const int chg, const T & parScale) {
     if (chg>0) {
-      pt = (parScale[0] + parScale[1]*pt + 
-	    parScale[2]*fabs(eta) +
-	    parScale[3]*eta*eta + 
-	    parScale[4]*sin(phi+parScale[5]))*pt;
-    } else {
-      pt = (parScale[0] + parScale[1]*pt + 
-	    parScale[2]*fabs(eta) +
-	    parScale[3]*eta*eta + 
-	    parScale[6]*sin(phi+parScale[7]))*pt;
+      return( (parScale[0] + parScale[1]*pt + 
+               parScale[2]*fabs(eta) +
+               parScale[3]*eta*eta + 
+               parScale[4]*sin(phi+parScale[5]))*pt );
     }
+    // else {
+    return( (parScale[0] + parScale[1]*pt + 
+             parScale[2]*fabs(eta) +
+             parScale[3]*eta*eta + 
+             parScale[6]*sin(phi+parScale[7]))*pt );
+    // }
   }
   virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const T & parScale, const vector<int> & parScaleOrder, const int muonType) {
     double thisStep[] = {0.001, 0.01, 0.01, 0.01, 0.01, 0.1, 0.01, 0.1};
@@ -410,7 +413,7 @@ static scaleFunctionBase<vector<double> > * scaleFunctionArrayForVec[] = {
 
 class smearFunctionBase {
  public:
-  virtual void smear(double & pt, double & eta, double & phi, const double * y) = 0;
+  virtual void smear(double & pt, double & eta, double & phi, const double * y, const vector<double> & parSmear) = 0;
   smearFunctionBase() { cotgth_ = 0.; }
   virtual ~smearFunctionBase() = 0;
 protected:
@@ -432,39 +435,39 @@ inline smearFunctionBase::~smearFunctionBase() { }  // defined even though it's 
 // -----------
 class smearFunctionType0 : public smearFunctionBase {
  public:
-  virtual void smear(double & pt, double & eta, double & phi, const double * y) { }
+  virtual void smear(double & pt, double & eta, double & phi, const double * y, const vector<double> & parSmear) { }
 };
 // The 3 parameters of smearType1 are: pt dependence of pt smear, phi smear and
 // cotgtheta smear.
 class smearFunctionType1 : public smearFunctionBase {
  public:
-  virtual void smear(double & pt, double & eta, double & phi, const double * y) {
-    pt = pt*(1.0+y[0]*MuScleFitUtils::parSmear[0]*pt);
-    phi = phi*(1.0+y[1]*MuScleFitUtils::parSmear[1]);
+  virtual void smear(double & pt, double & eta, double & phi, const double * y, const vector<double> & parSmear) {
+    pt = pt*(1.0+y[0]*parSmear[0]*pt);
+    phi = phi*(1.0+y[1]*parSmear[1]);
     double tmp = 2*atan(exp(-eta));
-    cotgth_ = cos(tmp)/sin(tmp)*(1.0+y[2]*MuScleFitUtils::parSmear[2]);
+    cotgth_ = cos(tmp)/sin(tmp)*(1.0+y[2]*parSmear[2]);
     smearEta(eta);
   }
 };
 
 class smearFunctionType2 : public smearFunctionBase {
  public:
-  virtual void smear(double & pt, double & eta, double & phi, const double * y) {
-    pt = pt*(1.0+y[0]*MuScleFitUtils::parSmear[0]*pt+y[1]*MuScleFitUtils::parSmear[1]*fabs(eta));
-    phi = phi*(1.0+y[2]*MuScleFitUtils::parSmear[2]);
+  virtual void smear(double & pt, double & eta, double & phi, const double * y, const vector<double> & parSmear) {
+    pt = pt*(1.0+y[0]*parSmear[0]*pt+y[1]*parSmear[1]*fabs(eta));
+    phi = phi*(1.0+y[2]*parSmear[2]);
     double tmp = 2*atan(exp(-eta));
-    cotgth_ = cos(tmp)/sin(tmp)*(1.0+y[3]*MuScleFitUtils::parSmear[3]);
+    cotgth_ = cos(tmp)/sin(tmp)*(1.0+y[3]*parSmear[3]);
     smearEta(eta);
   }
 };
 
 class smearFunctionType3 : public smearFunctionBase {
  public:
-  virtual void smear(double & pt, double & eta, double & phi, const double * y) {
-    pt = pt*(1.0+y[0]*MuScleFitUtils::parSmear[0]*pt+y[1]*MuScleFitUtils::parSmear[1]*fabs(eta));
-    phi = phi*(1.0+y[2]*MuScleFitUtils::parSmear[2]);
+  virtual void smear(double & pt, double & eta, double & phi, const double * y, const vector<double> & parSmear) {
+    pt = pt*(1.0+y[0]*parSmear[0]*pt+y[1]*parSmear[1]*fabs(eta));
+    phi = phi*(1.0+y[2]*parSmear[2]);
     double tmp = 2*atan(exp(-eta));
-    cotgth_ = cos(tmp)/sin(tmp)*(1.0+y[3]*MuScleFitUtils::parSmear[3]+y[4]*MuScleFitUtils::parSmear[4]*fabs(eta));
+    cotgth_ = cos(tmp)/sin(tmp)*(1.0+y[3]*parSmear[3]+y[4]*parSmear[4]*fabs(eta));
     smearEta(eta);
   }
 };
@@ -473,22 +476,22 @@ class smearFunctionType3 : public smearFunctionBase {
 // |eta| dep. of |eta| res., Pt^2 dep. of Pt res.
 class smearFunctionType4 : public smearFunctionBase {
  public:
-  virtual void smear(double & pt, double & eta, double & phi, const double * y) {
-    pt = pt*(1.0+y[0]*MuScleFitUtils::parSmear[0]*pt+y[1]*MuScleFitUtils::parSmear[1]*fabs(eta)+y[5]*MuScleFitUtils::parSmear[5]*pow(pt,2));
-    phi = phi*(1.0+y[2]*MuScleFitUtils::parSmear[2]);
+  virtual void smear(double & pt, double & eta, double & phi, const double * y, const vector<double> & parSmear) {
+    pt = pt*(1.0+y[0]*parSmear[0]*pt+y[1]*parSmear[1]*fabs(eta)+y[5]*parSmear[5]*pow(pt,2));
+    phi = phi*(1.0+y[2]*parSmear[2]);
     double tmp = 2*atan(exp(-eta));
-    cotgth_ = cos(tmp)/sin(tmp)*(1.0+y[3]*MuScleFitUtils::parSmear[3]+y[4]*MuScleFitUtils::parSmear[4]*fabs(eta));
+    cotgth_ = cos(tmp)/sin(tmp)*(1.0+y[3]*parSmear[3]+y[4]*parSmear[4]*fabs(eta));
     smearEta(eta);
   }
 };
 
 class smearFunctionType5 : public smearFunctionBase {
  public:
-  virtual void smear(double & pt, double & eta, double & phi, const double * y) {
-    pt = pt*(1.0+y[0]*MuScleFitUtils::parSmear[0]*pt+y[1]*MuScleFitUtils::parSmear[1]*fabs(eta)+y[5]*MuScleFitUtils::parSmear[5]*pow(pt,2));
-    phi = phi*(1.0+y[2]*MuScleFitUtils::parSmear[2]+y[6]*MuScleFitUtils::parSmear[6]*pt);
+  virtual void smear(double & pt, double & eta, double & phi, const double * y, const vector<double> & parSmear) {
+    pt = pt*(1.0+y[0]*parSmear[0]*pt+y[1]*parSmear[1]*fabs(eta)+y[5]*parSmear[5]*pow(pt,2));
+    phi = phi*(1.0+y[2]*parSmear[2]+y[6]*parSmear[6]*pt);
     double tmp = 2*atan(exp(-eta));
-    cotgth_ = cos(tmp)/sin(tmp)*(1.0+y[3]*MuScleFitUtils::parSmear[3]+y[4]*MuScleFitUtils::parSmear[4]*fabs(eta));
+    cotgth_ = cos(tmp)/sin(tmp)*(1.0+y[3]*parSmear[3]+y[4]*parSmear[4]*fabs(eta));
     smearEta(eta);
   }
 };
@@ -662,24 +665,24 @@ class resolutionFunctionType8 : public resolutionFunctionBase<T> {
   }
   virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const T & parResol, const vector<int> & parResolOrder, const int muonType) {
 
-    double thisStep[] = { 0.0002, 0.000002, 0.00002,
-                          0.00002, 0.00002, 0.0000002, 0.000002,
-                          0.00002, 0.00002, 0.00000002, 0.0000002 };
+    double thisStep[] = { 0.002, 0.00002, 0.00002,
+                          0.00002, 0.0002, 0.0000002, 0.000002,
+                          0.00002, 0.0002, 0.00000002, 0.000002 };
     TString thisParName[] = { "Pt res. sc.", "Pt res. Pt sc.", "Pt res. Eta sc.",
                               "Cth res. sc.", "Cth res. 1/Pt sc.", "Cth res. Eta sc.", "Cth res. Eta^2 sc.",
                               "Phi res. sc.", "Phi res. 1/Pt sc.", "Phi res. Eta sc.", "Phi res. Eta^2 sc." };
-    double thisMini[] = {  0.0, -0.1, 0.0,
-                          -0.1, -0.1, -0.1, -0.1,
-                          -0.1, -0.1, -0.1, -0.1 };
+    double thisMini[] = {  0.0, -0.01, -0.001,
+                           0.0, -0.001, -0.001, -0.00001,
+                           0.0, -0.001, -0.0001, -0.0001 };
     if( muonType == 1 ) {
-      double thisMaxi[] = { 0.1, 0.1, 2.0,
-                            0.1, 0.1, 0.1, 0.1,
-                            0.1, 1.0, 0.1, 0.1 };
+      double thisMaxi[] = { 1., 1., 1.,
+                            1., 1., 1., 0.1,
+                            1., 1., 1., 1. };
       this->setPar( Start, Step, Mini, Maxi, ind, parname, parResol, parResolOrder, thisStep, thisMini, thisMaxi, thisParName );
     } else {
-      double thisMaxi[] = {  0.1, 0.1, 2.0,
-                             0.1, 0.1, 0.1, 0.1,
-                             0.1, 1.0, 0.1, 0.1 };
+      double thisMaxi[] = {  0.1, 0.01, 0.01,
+                             0.01, 0.01, 0.1, 0.01,
+                             0.01, 0.01, 0.01, 0.01 };
       this->setPar( Start, Step, Mini, Maxi, ind, parname, parResol, parResolOrder, thisStep, thisMini, thisMaxi, thisParName );
     }
   }
