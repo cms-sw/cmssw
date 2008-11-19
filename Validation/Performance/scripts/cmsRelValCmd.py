@@ -15,13 +15,16 @@ def get_cmsDriverOptions():
     cmsDriverOptions=""
     if os.path.exists(filename):
         file=open(filename,"r")
-        TTbar=re.compile("^TTbar")
-        IDEAL=re.compile("IDEAL")
+        TTbar=re.compile("TTbar")
+        STARTUP=re.compile("STARTUP")
+        GENSIM=re.compile("GEN,SIM")
         option=re.compile("^--")
         for line in file.readlines():
             #Always pick the TTbar with IDEAL geometry line to pick up the "standard" options:
-            if TTbar.search(line) and IDEAL.search(line):
+            if TTbar.search(line) and STARTUP.search(line) and GENSIM.search(line):
                 tokens=line.split()
+                print line
+                print tokens
                 for token in tokens:
                     found = option.search(token)
                     #Here we can filter out the options we don't care about:
