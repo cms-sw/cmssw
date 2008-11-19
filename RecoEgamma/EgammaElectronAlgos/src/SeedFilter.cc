@@ -94,16 +94,21 @@ void SeedFilter::seeds(edm::Event& e, const edm::EventSetup& setup, const reco::
   //double sigmaZ0Error = recoBeamSpotHandle->sigmaZ0Error();
   //double sq=sqrt(sigmaZ*sigmaZ+sigmaZ0Error*sigmaZ0Error);
   //deltaZVertex = 3*sq; //halflength_;
-      
-  // get the primary vertex
+       
+  // get the primary vertex (if any)
+  reco::VertexCollection vertices;
   edm::Handle<reco::VertexCollection> h_vertices;
-  e.getByLabel(vertexSrc_, h_vertices);
-  
-  const reco::VertexCollection & vertices = * h_vertices;
+  if (e.getByLabel(vertexSrc_, h_vertices)) {
+    vertices = *(h_vertices.product());
+  } else {
+    edm::LogWarning("SeedFilter") << "SeedFilter::seeds" 
+				  << "No vertex collection found: using beam-spot";
+  }
   
   if (!vertices.empty() && useZvertex_) {
     vtxPos = GlobalPoint(vertices.front().x(), vertices.front().y(), vertices.front().z());
     deltaZVertex = halflength_;
+    
   } else {
     edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
     e.getByType(recoBeamSpotHandle);
