@@ -71,7 +71,11 @@ namespace cms
     else if( METtype == "PFMET" )
       produces<PFMETCollection>().setBranchAlias(alias.c_str()); 
     else if (METtype == "TCMET" )
-      produces<METCollection>().setBranchAlias(alias.c_str());
+      {
+	produces<METCollection>().setBranchAlias(alias.c_str());
+	TCMETAlgo ALGO;
+	responseFunction_ = ALGO.getResponseFunction();
+      }
     else                            
       produces<METCollection>().setBranchAlias(alias.c_str()); 
   }
@@ -158,7 +162,7 @@ namespace cms
 	TCMETAlgo tcmetalgorithm;
 	std::auto_ptr<METCollection> tcmetcoll;
 	tcmetcoll.reset(new METCollection);
-	tcmetcoll->push_back( tcmetalgorithm.CalculateTCMET(event, setup, conf_) ) ;
+	tcmetcoll->push_back( tcmetalgorithm.CalculateTCMET(event, setup, conf_, responseFunction_) ) ;
 	event.put( tcmetcoll );
       }
     //----------------------------------
