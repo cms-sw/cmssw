@@ -28,7 +28,7 @@
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Common/interface/OwnVector.h"
-
+#include "TH2F.h"
 namespace cms 
 {
   class METProducer: public edm::EDProducer 
@@ -42,6 +42,7 @@ namespace cms
       virtual ~METProducer();
       //const CandidateCollection* convert( const reco::CaloJetCollection* );
       virtual void produce(edm::Event&, const edm::EventSetup&);
+
     private:
       edm::ParameterSet conf_;
       METAlgo alg_; 
@@ -51,6 +52,10 @@ namespace cms
       std::string alias;
       bool noHF;
       double globalThreshold;
+
+      //Temporary implementation of response function for Track Corrected MET
+      TH2D *responseFunction_;  
+
       //CandidateCollection tempCol;
     };
 }
