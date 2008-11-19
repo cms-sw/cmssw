@@ -50,6 +50,17 @@ void ConversionSeedFinder::setEventSetup(const edm::EventSetup& es  )  {
   es.get<CkfComponentsRecord>().get(measurementTrackerHandle);
   theMeasurementTracker_ = measurementTrackerHandle.product();
   
+  edm::ESHandle<Propagator>  propagatorAlongMomHandle;
+  es.get<TrackingComponentsRecord>().get("alongMomElePropagator",propagatorAlongMomHandle);
+  thePropagatorAlongMomentum_ = &(*propagatorAlongMomHandle);
+ 
+
+  edm::ESHandle<Propagator>  propagatorOppoToMomHandle;
+  es.get<TrackingComponentsRecord>().get("oppositeToMomElePropagator",propagatorOppoToMomHandle);
+  thePropagatorOppositeToMomentum_ = &(*propagatorOppoToMomHandle);
+
+
+
 
 }
 
