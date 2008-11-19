@@ -166,17 +166,17 @@ void DTROMapValidateDBRead::analyze(const edm::Event& e,
     iter++;
   }
 
-  while ( chkFile >> ckwhe
+  while ( chkFile >> ckddu
+                  >> ckros
+                  >> ckrob
+                  >> cktdc
+                  >> ckcha
+                  >> ckwhe
                   >> cksta
                   >> cksec
                   >> ckqua
                   >> cklay
-                  >> ckcel
-                  >> ckddu
-                  >> ckros
-                  >> ckrob
-                  >> cktdc
-                  >> ckcha ) {
+                  >> ckcel ) {
     status = ro->readOutToGeometry( ckddu,
                                     ckros,
                                     ckrob,
