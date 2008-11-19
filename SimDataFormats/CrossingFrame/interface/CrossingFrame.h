@@ -69,6 +69,8 @@ class CrossingFrame
   // get object in pileup when position in the vector is known (for DigiSimLink typically)
 
   const T & getObject(unsigned int ip) const { 
+    // get the object with the index ip in the MixCollection
+    // i.e. signal + pileup objects
     if (ip<0 || ip>getNrSignals()+getNrPileups()) throw cms::Exception("BadIndex")<<"CrossingFrame::getObject called with an invalid index!";
     if (ip<getNrSignals()) {
       return signals_[ip];
@@ -177,6 +179,7 @@ void CrossingFrame<T>::print(int level) const {
 
 template <class T> 
 int  CrossingFrame<T>::getSourceType(unsigned int ip) const {
+  // ip is the index in the pileup vector
   // decide to which source belongs object with index ip in the pileup vector
   // pileup=0, cosmics=1, beam halo+ =2, beam halo- =3 forward =4
   unsigned int bcr= getBunchCrossing(ip)-firstCrossing_; //starts at 0
