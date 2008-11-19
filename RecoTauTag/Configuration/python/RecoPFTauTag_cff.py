@@ -10,7 +10,9 @@ from RecoTauTag.RecoTau.PFRecoTauProducer_cfi import *
 from RecoTauTag.RecoTau.PFRecoTauDiscriminationByIsolation_cfi import *
 from RecoTauTag.RecoTau.PFRecoTauDiscriminationByLeadingTrackFinding_cfi import *
 from RecoTauTag.RecoTau.PFRecoTauDiscriminationByLeadingTrackPtCut_cfi import *
+from RecoTauTag.RecoTau.PFRecoTauDiscriminationByLeadingPionPtCut_cfi import *
 from RecoTauTag.RecoTau.PFRecoTauDiscriminationByTrackIsolation_cfi import *
+from RecoTauTag.RecoTau.PFRecoTauDiscriminationByTrackIsolationUsingLeadingPion_cfi import *
 from RecoTauTag.RecoTau.PFRecoTauDiscriminationByECALIsolation_cfi import *
 from RecoTauTag.RecoTau.PFRecoTauDiscriminationAgainstElectron_cfi import *
 from RecoTauTag.RecoTau.PFRecoTauDiscriminationAgainstMuon_cfi import *
@@ -22,7 +24,9 @@ PFTauDiscrimination = cms.Sequence(
     pfRecoTauDiscriminationByIsolation*
     pfRecoTauDiscriminationByLeadingTrackFinding*
     pfRecoTauDiscriminationByLeadingTrackPtCut*
+    pfRecoTauDiscriminationByLeadingPionPtCut*
     pfRecoTauDiscriminationByTrackIsolation*
+    pfRecoTauDiscriminationByTrackIsolationUsingLeadingPion*
     pfRecoTauDiscriminationByECALIsolation*
     pfRecoTauDiscriminationAgainstElectron*
     pfRecoTauDiscriminationAgainstMuon
@@ -33,7 +37,9 @@ PFTauDiscriminationHighEfficiency = cms.Sequence(
     pfRecoTauDiscriminationByIsolationHighEfficiency*
     pfRecoTauDiscriminationByLeadingTrackFindingHighEfficiency*
     pfRecoTauDiscriminationByLeadingTrackPtCutHighEfficiency*
+    pfRecoTauDiscriminationByLeadingPionPtCutHighEfficiency*
     pfRecoTauDiscriminationByTrackIsolationHighEfficiency*
+    pfRecoTauDiscriminationByTrackIsolationUsingLeadingPionHighEfficiency*
     pfRecoTauDiscriminationByECALIsolationHighEfficiency*
     pfRecoTauDiscriminationAgainstElectronHighEfficiency*
     pfRecoTauDiscriminationAgainstMuonHighEfficiency
