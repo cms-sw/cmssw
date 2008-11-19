@@ -13,7 +13,7 @@
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
-#include "DQMServices/WebComponents/interface/CgiReader.h"
+#include "DQM/TrackerCommon/interface/CgiReader.h"
 
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
