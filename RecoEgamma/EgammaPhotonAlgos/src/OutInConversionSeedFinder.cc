@@ -286,17 +286,17 @@ void OutInConversionSeedFinder::startSeed(const FreeTrajectoryState & fts) const
       MeasurementEstimator * newEstimator = makeEstimator(layer, dphi);
 
 
-      PropagatorWithMaterial thePropagatorWithMaterial_ (alongMomentum, 0.000511, &(*theMF_) );
+      // PropagatorWithMaterial thePropagatorWithMaterial_ (alongMomentum, 0.000511, &(*theMF_) );
       // thePropagatorWithMaterial_.setPropagationDirection(alongMomentum);
      
-      //      std::cout << "OutInSeedFinder::startSeed propagationDirection  " << int(thePropagatorWithMaterial_.propagationDirection() ) << "\n";       
+      //std::cout << "OutInSeedFinder::startSeed propagationDirection  " << int(thePropagatorAlongMomentum_->propagationDirection() ) << "\n";       
       
       TSOS tsos(fts, layer->surface() );
       
       LogDebug("OutInConversionSeedFinder") << "OutInSeedFinder::startSeed  after  TSOS tsos(fts, layer->surface() ) " << "\n";
       
       LayerMeasurements theLayerMeasurements_(this->getMeasurementTracker() );
-      theFirstMeasurements_ = theLayerMeasurements_.measurements( *layer, tsos, thePropagatorWithMaterial_, *newEstimator);
+      theFirstMeasurements_ = theLayerMeasurements_.measurements( *layer, tsos, *thePropagatorAlongMomentum_, *newEstimator);
       
       //std::cout << "OutInSeedFinder::startSeed  after  theFirstMeasurements_   " << theFirstMeasurements_.size() <<  "\n";
       
@@ -320,17 +320,18 @@ void OutInConversionSeedFinder::startSeed(const FreeTrajectoryState & fts) const
 	  FreeTrajectoryState newfts = trackStateFromClusters(fts.charge(), hitPoint, alongMomentum, 0.8);
 	  LogDebug("OutInConversionSeedFinder") << "OutInConversionSeedFinder::startSeed  newfts " << newfts << "\n";
 	   
-	  PropagatorWithMaterial thePropagatorWithMaterial_ (oppositeToMomentum, 0.000511, &(*theMF_) );
+	  //	  PropagatorWithMaterial thePropagatorWithMaterial_ (oppositeToMomentum, 0.000511, &(*theMF_) );
 
 
  
-	  LogDebug("OutInConversionSeedFinder") << "OutInConversionSeedFinder::startSeed propagationDirection  after switching " << int(thePropagatorWithMaterial_.propagationDirection() ) << "\n";        
+	  LogDebug("OutInConversionSeedFinder") << "OutInConversionSeedFinder::startSeed propagationDirection  after switching " << int(thePropagatorOppositeToMomentum_->propagationDirection() ) << "\n";        
+	  //  std::cout << "OutInConversionSeedFinder::startSeed propagationDirection  after switching " << int(thePropagatorOppositeToMomentum_->propagationDirection() ) << "\n";        
 
        
-	  completeSeed(m1, newfts, &thePropagatorWithMaterial_, ilayer-1);
+	  completeSeed(m1, newfts, thePropagatorOppositeToMomentum_, ilayer-1);
 	  // skip a layer, if you haven't already skipped the first layer
 	  if(ilayer == myLayers.size()-1) {
-	    completeSeed(m1, newfts, &thePropagatorWithMaterial_, ilayer-2);
+	    completeSeed(m1, newfts, thePropagatorOppositeToMomentum_, ilayer-2);
 	  }
 	}
       }
@@ -451,9 +452,9 @@ void OutInConversionSeedFinder::createSeed(const TrajectoryMeasurement & m1,
   LogDebug("OutInConversionSeedFinder") << "original cluster FTS " << fts <<"\n";
 
 
-  PropagatorWithMaterial thePropagatorWithMaterial_ (oppositeToMomentum, 0.000511, &(*theMF_) );
-  //std::cout  << "OutInConversionSeedFinder::createSeed propagation dir " << int( thePropagatorWithMaterial_.propagationDirection() ) << "\n"; 
-  TrajectoryStateOnSurface state1 = thePropagatorWithMaterial_.propagate(fts,  m1.recHit()->det()->surface());
+  //PropagatorWithMaterial thePropagatorOppositeToMomentum_ (oppositeToMomentum, 0.000511, &(*theMF_) );
+  //std::cout  << "OutInConversionSeedFinder::createSeed propagation dir " << int( thePropagatorOppositeToMomentum_.propagationDirection() ) << "\n"; 
+  TrajectoryStateOnSurface state1 = thePropagatorOppositeToMomentum_->propagate(fts,  m1.recHit()->det()->surface());
 
   // LogDebug("OutInConversionSeedFinder") << "hit surface " << h1.det().surface().position() << endl;
   // LogDebug("OutInConversionSeedFinder") << "prop to " << typeid(h1.det().surface()).name() << endl;
@@ -464,7 +465,7 @@ void OutInConversionSeedFinder::createSeed(const TrajectoryMeasurement & m1,
     TrajectoryStateOnSurface updatedState1 = theUpdator_.update(state1,  *m1.recHit() );
 
     if ( updatedState1.isValid() ) {
-      TrajectoryStateOnSurface state2 = thePropagatorWithMaterial_.propagate(*updatedState1.freeTrajectoryState(),  m2.recHit()->det()->surface());
+      TrajectoryStateOnSurface state2 = thePropagatorOppositeToMomentum_->propagate(*updatedState1.freeTrajectoryState(),  m2.recHit()->det()->surface());
 
       if ( state2.isValid() ) {
 

@@ -209,7 +209,7 @@ void InOutConversionSeedFinder::fillClusterSeeds() const {
       return;
     }
     
-    PropagatorWithMaterial reversePropagator(oppositeToMomentum, 0.000511, &(*theMF_) );
+    //PropagatorWithMaterial reversePropagator(oppositeToMomentum, 0.000511, &(*theMF_) );
     FreeTrajectoryState * fts = myPointer->updatedState().freeTrajectoryState();
     
     LogDebug("InOutConversionSeedFinder") << " InOutConversionSeedFinder::fillClusterSeeds First FTS charge " << fts->charge() << " Position " << fts->position() << " momentum " << fts->momentum() << " R " << sqrt(fts->position().x()*fts->position().x() + fts->position().y()* fts->position().y() ) << " Z " << fts->position().z() << " phi " << fts->position().phi() << " fts parameters " << fts->parameters() << "\n";
@@ -234,19 +234,19 @@ void InOutConversionSeedFinder::fillClusterSeeds() const {
       // The present layer is actually included in the loop so that a partner can be searched for
       // Applying the propagator to the same layer does not do any harm. It simply does nothing
       
-      const Propagator& newProp=reversePropagator;  
-      LogDebug("InOutConversionSeedFinder") << " InOutConversionSeedFinder::fillClusterSeeds reversepropagator direction " << newProp.propagationDirection()  << "\n";
+      //     const Propagator& newProp=thePropagatorOppositeToMomentum_;  
+      LogDebug("InOutConversionSeedFinder") << " InOutConversionSeedFinder::fillClusterSeeds reversepropagator direction " << thePropagatorOppositeToMomentum_->propagationDirection()  << "\n";
       if (ilayer-1>0) { 
 	
 	if ( allLayers[ilayer] == myLayers[0] ) {
 	  LogDebug("InOutConversionSeedFinder") << " innermost hit R " << myPointer->recHit()->globalPosition().perp() << " Z " << myPointer->recHit()->globalPosition().z() << " phi " <<myPointer->recHit()->globalPosition().phi() << "\n";
 	  LogDebug("InOutConversionSeedFinder") << " surface R " << theTrackerGeom_->idToDet(  myPointer->recHit() ->geographicalId())->surface().position().perp() <<  " Z " <<  theTrackerGeom_->idToDet(  myPointer->recHit() ->geographicalId())->surface().position().z() << " phi " << theTrackerGeom_->idToDet(  myPointer->recHit() ->geographicalId())->surface().position().phi() << "\n";
 	  
-	  stateAtPreviousLayer= newProp.propagate(*fts,   theTrackerGeom_->idToDet(  myPointer->recHit() ->geographicalId())->surface()   );
+	  stateAtPreviousLayer= thePropagatorOppositeToMomentum_->propagate(*fts,   theTrackerGeom_->idToDet(  myPointer->recHit() ->geographicalId())->surface()   );
 	  
 	} else {
 	  
-	  stateAtPreviousLayer= newProp.propagate(*fts, previousLayer->surface() );
+	  stateAtPreviousLayer= thePropagatorOppositeToMomentum_->propagate(*fts, previousLayer->surface() );
 	  LogDebug("InOutConversionSeedFinder") << " InOutConversionSeedFinder::fillClusterSeeds previousLayer->surface() position after " << previousLayer->surface().position() << " layer location " << previousLayer->location() <<   "\n";
 	  
 	}
@@ -257,7 +257,7 @@ void InOutConversionSeedFinder::fillClusterSeeds() const {
 	LogDebug("InOutConversionSeedFinder") << " innermost hit R " << myPointer->recHit()->globalPosition().perp() << " Z " << myPointer->recHit()->globalPosition().z() << " phi " <<myPointer->recHit()->globalPosition().phi() << "\n";
 	LogDebug("InOutConversionSeedFinder") << " surface R " << theTrackerGeom_->idToDet(  myPointer->recHit() ->geographicalId())->surface().position().perp() <<  " Z " <<  theTrackerGeom_->idToDet(  myPointer->recHit() ->geographicalId())->surface().position().z() << " phi " << theTrackerGeom_->idToDet(  myPointer->recHit() ->geographicalId())->surface().position().phi() << "\n";
 	
-	stateAtPreviousLayer= newProp.propagate(*fts,   theTrackerGeom_->idToDet(  myPointer->recHit() ->geographicalId())->surface()   );
+	stateAtPreviousLayer= thePropagatorOppositeToMomentum_->propagate(*fts,   theTrackerGeom_->idToDet(  myPointer->recHit() ->geographicalId())->surface()   );
 	
       }
       
