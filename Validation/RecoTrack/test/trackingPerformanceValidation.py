@@ -11,14 +11,14 @@ import string
 
 #Reference release
 
-RefRelease='CMSSW_2_1_10'
+RefRelease='CMSSW_2_2_0_pre1'
 
 # startup and ideal sample list
-#startupsamples= ['RelValTTbar', 'RelValMinBias', 'RelValBJets_Pt_50_120', 'RelValQCD_Pt_3000_3500']
-startupsamples= ['RelValMinBias', 'RelValQCD_Pt_3000_3500']
+startupsamples= ['RelValTTbar', 'RelValMinBias', 'RelValQCD_Pt_3000_3500']
+#startupsamples= ['RelValTTbar']
 
-#idealsamples= ['RelValSingleMuPt1', 'RelValSingleMuPt10', 'RelValSingleMuPt100', 'RelValSinglePiPt1', 'RelValSinglePiPt10', 'RelValSinglePiPt100', 'RelValSingleElectronPt35', 'RelValTTbar', 'RelValQCD_Pt_3000_3500']
-idealsamples= ['RelValSingleMuPt1','RelValSingleMuPt10', 'RelValSingleMuPt100', 'RelValSinglePiPt1', 'RelValSinglePiPt10', 'RelValSinglePiPt100', 'RelValSingleElectronPt35', 'RelValTTbar', 'RelValQCD_Pt_3000_3500']
+idealsamples= ['RelValSingleMuPt1', 'RelValSingleMuPt10', 'RelValSingleMuPt100', 'RelValSinglePiPt1', 'RelValSinglePiPt10', 'RelValSinglePiPt100', 'RelValSingleElectronPt35', 'RelValTTbar', 'RelValQCD_Pt_3000_3500','RelValMinBias']
+#idealsamples= ['RelValTTbar']
 
 
 
@@ -38,6 +38,7 @@ StartupTag='STARTUP_V7'
 
 # Reference directory name (the macro will search for ReferenceSelection_Quality_Algo)
 ReferenceSelection='IDEAL_V9_noPU'
+StartupReferenceSelection='STARTUP_V7_noPU'
 
 #Reference and new repository
 RefRepository = '/afs/cern.ch/cms/performance/tracker/activities/reconstruction/tracking_performance'
@@ -46,7 +47,7 @@ NewRepository = '/afs/cern.ch/cms/performance/tracker/activities/reconstruction/
 #Default Nevents
 defaultNevents ='-1'
 
-#Put here the number of event to be processed for specific samples (numbers must be strings):
+#Put here the number of event to be processed for specific samples (numbers must be strings) if not specified is -1:
 Events={ 'RelValQCD_Pt_3000_3500':'5000', 'RelValTTbar':'5000', 'RelValQCD_Pt_80_120':'5000', 'RelValBJets_Pt_50_120':'5000'}
 
 # template file names. Usually should not be changed.
@@ -102,7 +103,7 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
 #            cmd+=sample+'/'+NewRelease+'_'+GlobalTag+'*GEN-SIM-DIGI-RAW-HLTDEBUG-RECO* "'
             cmd+=sample+'/'+NewRelease+'_'+GlobalTag+'*GEN-SIM-RECO* "'
             cmd+='|grep '+sample+'|sort|tail -1| cut -d "," -f2 '
-#            print cmd
+            print cmd
             dataset= os.popen(cmd).readline()
             print 'DataSet:  ', dataset
             if dataset!="":
@@ -114,12 +115,12 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
                 filenames+='readFiles = cms.untracked.vstring()\n'
                 filenames+='secFiles = cms.untracked.vstring()\n'
                 filenames+='source = cms.Source ("PoolSource",fileNames = readFiles, secondaryFileNames = secFiles)\n'
-                filenames+='readFiles.extend( (\n'
+                filenames+='readFiles.extend( [\n'
                 for filename in os.popen(cmd2).readlines():
                     filenames+=filename
-                filenames+='));\n'
+                filenames+=']);\n'
                 cmd3='./DDSearchCLI.py  --limit -1 --input="find file.parent where dataset like'+ dataset +'"|grep ' + sample
-                filenames+='secFiles.extend( (\n'
+                filenames+='secFiles.extend( [\n'
                 first=True
                 for line in os.popen(cmd3).readlines():
                     secfilename=line.strip()
@@ -131,7 +132,7 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
                     filenames+=secfilename
                     filenames+="'"
                     
-                filenames+='));\n'
+                filenames+=']);\n'
 #                filenames+='secFiles.extend( (               ) )'
                 cfgFileName=sample
                 cfgFile = open(cfgFileName+'.py' , 'w' )
@@ -232,6 +233,12 @@ for algo in Algos:
         if(quality =='') and (algo==''):
             RefSelection+='_ootb'
         do_validation(idealsamples, IdealTag, quality , algo)
-        RefSelection=NewSelection
+        RefSelection=StartupReferenceSelection
+        if( quality !=''):
+            RefSelection+='_'+quality
+        if(algo!=''):
+            RefSelection+='_'+algo
+        if(quality =='') and (algo==''):
+            RefSelection+='_ootb'
         do_validation(startupsamples, StartupTag, quality , algo)
 
