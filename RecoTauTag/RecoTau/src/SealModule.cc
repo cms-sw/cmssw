@@ -10,7 +10,7 @@
 #include "RecoTauTag/RecoTau/interface/PFRecoTauDiscriminationByLeadingPionPtCut.h"
 #include "RecoTauTag/RecoTau/interface/PFRecoTauDiscriminationAgainstElectron.h"
 #include "RecoTauTag/RecoTau/interface/PFRecoTauDiscriminationAgainstMuon.h"
-#include "RecoTauTag/RecoTau/interface/PFRecoTauDiscriminationByNeutralHadrons.h"
+//#include "RecoTauTag/RecoTau/interface/PFRecoTauDiscriminationByNeutralHadrons.h"
 
 #include "RecoTauTag/RecoTau/interface/CaloRecoTauTagInfoProducer.h"
 #include "RecoTauTag/RecoTau/interface/CaloRecoTauProducer.h"
