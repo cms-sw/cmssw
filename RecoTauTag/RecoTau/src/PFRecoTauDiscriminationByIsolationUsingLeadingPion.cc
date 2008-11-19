@@ -21,7 +21,8 @@ void PFRecoTauDiscriminationByIsolationUsingLeadingPion::produce(Event& iEvent,c
       } else theTrackerIsolationDiscriminator=thePFTauElementsOperators.discriminatorByIsolPFChargedHadrCandsN(TrackerIsolAnnulus_Candsmaxn_);      
       if (theTrackerIsolationDiscriminator==0.){
 	thePFTauDiscriminatorByIsolationUsingLeadingPion->setValue(iPFTau,0.);
-	continue;
+	  std::cout<<"Tracce nel cono di isolamento?"<<std::endl;
+	  continue;
       }
     }    
     
@@ -31,18 +32,21 @@ void PFRecoTauDiscriminationByIsolationUsingLeadingPion::produce(Event& iEvent,c
       theECALIsolationDiscriminator=thePFTauElementsOperators.discriminatorByIsolPFGammaCandsN(ECALIsolAnnulus_Candsmaxn_);
       if (theECALIsolationDiscriminator==0.){
 	thePFTauDiscriminatorByIsolationUsingLeadingPion->setValue(iPFTau,0);
+	std::cout<<"Fotoni nel cono di isolamento?"<<std::endl;
 	continue;
       }
     }
     
     // not optional selection : ask for a leading (Pt>minPt) PFCand / reco::Track in a matching cone around the PFJet axis
-    double theleadElementDiscriminator=0.;
+    double theleadElementDiscriminator=1.;
     if (ManipulateTracks_insteadofChargedHadrCands_){
       if (!thePFTau.leadTrack()) theleadElementDiscriminator=0.;
     }else{
-      if (!thePFTau.leadPFCand()) theleadElementDiscriminator=0.;
+      if (!thePFTau.leadPFCand()) {
+	theleadElementDiscriminator=0.;
+      }
     }
-    if (theleadElementDiscriminator==0) thePFTauDiscriminatorByIsolationUsingLeadingPion->setValue(iPFTau,0);
+    if (theleadElementDiscriminator < 0.5)thePFTauDiscriminatorByIsolationUsingLeadingPion->setValue(iPFTau,0);
     else thePFTauDiscriminatorByIsolationUsingLeadingPion->setValue(iPFTau,1);
   }    
   

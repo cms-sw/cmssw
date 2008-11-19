@@ -95,6 +95,7 @@ PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef,co
   double myPFTau_refInnerPosition_z=0.;
 
   if(myleadPFNeutralCand.isNonnull())myPFTau.setleadPFNeutralCand(myleadPFNeutralCand); 
+
   //Modification to consider leading neutral particle
   if(myleadPFChargedCand.isNonnull()) {
     myleadPFCand = myleadPFChargedCand;
