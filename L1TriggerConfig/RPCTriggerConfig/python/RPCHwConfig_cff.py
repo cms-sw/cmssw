@@ -6,6 +6,7 @@ l1RPCHwConfig = cms.ESProducer("RPCTriggerHwConfig",
     disableTowersInCrates = cms.vint32(),
     enableTowers = cms.vint32(),
     enableCrates = cms.vint32(),
+    enableTowersInCrates = cms.vint32(),
     disableAll = cms.bool(False),
     lastBX = cms.int32(0),
     firstBX = cms.int32(0)
