@@ -3,9 +3,9 @@
 /** \class ConversionSeedFinder
  **  
  **
- **  $Id: ConversionSeedFinder.h,v 1.9 2008/05/08 20:38:48 nancy Exp $ 
- **  $Date: 2008/05/08 20:38:48 $ 
- **  $Revision: 1.9 $
+ **  $Id: ConversionSeedFinder.h,v 1.10 2008/10/18 15:50:16 nancy Exp $ 
+ **  $Date: 2008/10/18 15:50:16 $ 
+ **  $Revision: 1.10 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -115,7 +115,11 @@ class ConversionSeedFinder {
   mutable GlobalPoint theBCPosition_;
   mutable float       theBCEnergy_; 
 
+  const Propagator*  thePropagatorAlongMomentum_;
+  const Propagator*  thePropagatorOppositeToMomentum_;
+
   reco::BeamSpot theBeamSpot_;
+
 
 
 };
