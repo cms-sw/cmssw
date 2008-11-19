@@ -62,22 +62,22 @@ process.digi2track = cms.Sequence(process.siPixelDigis*process.SiStripRawToDigis
                                   process.trackerlocalreco*
                                   process.ckftracks*
                                   process.cutsRecoTracks*
-                                  process.cutsTPEffic*process.cutsTPFake*
+                                  ##process.cutsTPEffic*process.cutsTPFake* these modules are now useless
                                   process.multiTrackValidator)
 
 process.re_tracking = cms.Sequence(process.siPixelRecHits*process.siStripMatchedRecHits*
                                    process.ckftracks*
                                    process.cutsRecoTracks*
-                                   process.cutsTPEffic*process.cutsTPFake*
+                                   ##process.cutsTPEffic*process.cutsTPFake* these modules are now useless
                                    process.multiTrackValidator
                                    )
 
 if (process.multiTrackValidator.label[0] == 'generalTracks'):
-    process.only_validation = cms.Sequence(process.cutsTPEffic*process.cutsTPFake*
+    process.only_validation = cms.Sequence(##process.cutsTPEffic*process.cutsTPFake* these modules are now useless
                                            process.multiTrackValidator)
 else:
     process.only_validation = cms.Sequence(process.cutsRecoTracks*
-                                           process.cutsTPEffic*process.cutsTPFake*
+                                           ##process.cutsTPEffic*process.cutsTPFake* these modules are now useless
                                            process.multiTrackValidator)
 
 
