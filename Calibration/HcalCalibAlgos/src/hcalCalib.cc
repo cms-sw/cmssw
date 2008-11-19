@@ -6,7 +6,7 @@
 //  Anton Anastassov (Northwestern)
 //  Email: aa@fnal.gov
 //
-// $Id: hcalCalib.cc,v 1.1 2008/10/23 17:29:31 anastass Exp $
+// $Id: hcalCalib.cc,v 1.2 2008/10/27 16:10:00 anastass Exp $
 //
 
 #include "Calibration/HcalCalibAlgos/interface/hcalCalib.h"
@@ -59,6 +59,8 @@ TH1F* h1_numEventsTwrIEta;
 TH2F* h2_dHitRefBarrel;
 TH2F* h2_dHitRefEndcap;
 
+// histograms based on iEta, iPhi of refPosition forthe cluster (at the moment: hottest tower)
+// expect range |iEta|<=24 (to do: add flexibility for arbitrary range)
 TH1F* h1_corRespIEta[48];
 
 
@@ -117,6 +119,7 @@ void hcalCalib::Begin(TTree * /*tree*/) {
     h1_corRespIEta[i] = new TH1F(hn, hn, 300, 0, 3.0);
   }
 
+
 }  // end of Begin()
 
 
@@ -139,6 +142,7 @@ Bool_t hcalCalib::Process(Long64_t entry) {
    
   ++nEvents;
   if (!(nEvents%100000)) cout << "event: " << nEvents << endl;
+
 
   h1_allTrkP->Fill(targetE);
    
@@ -195,16 +199,13 @@ Bool_t hcalCalib::Process(Long64_t entry) {
     dEtaHitRef = iEtaMaxE - iEtaHit;
     dPhiHitRef = iPhiMaxE - iPhiHit;
 
-    if (dPhiHitRef== 71) dPhiHitRef =  1;
-    if (dPhiHitRef==-71) dPhiHitRef = -1;
-    if (dPhiHitRef== 70) dPhiHitRef =  2;
-    if (dPhiHitRef==-70) dPhiHitRef = -2;   
+    if (dPhiHitRef < -36) dPhiHitRef += 72;
+    if (dPhiHitRef >  36) dPhiHitRef -= 72;
 
-    if (dEtaHitRef== 2 && iEtaHit==-1) dEtaHitRef =  1;
-    if (dEtaHitRef==-2 && iEtaHit== 1) dEtaHitRef = -1; 
-
-    if (dEtaHitRef== 3 && iEtaHit==-2) dEtaHitRef =  2;
-    if (dEtaHitRef==-3 && iEtaHit== 2) dEtaHitRef = -2; 
+    if  (iEtaHit*iEtaMaxE < 0) {
+      if (dEtaHitRef<0) dEtaHitRef += 1;
+      if (dEtaHitRef>0) dEtaHitRef -= 1;     
+    }
 
       
     if (abs(iEtaHit)<16) h2_dHitRefBarrel->Fill(dEtaHitRef, dPhiHitRef);
@@ -239,6 +240,10 @@ Bool_t hcalCalib::Process(Long64_t entry) {
       
       getIEtaIPhiForHighestE(selectCells, iEtaMaxE, iPhiMaxE);   
       
+      // The ref position for the jet is not used in the minimization at this time.
+      // It will be needed if we attempt to do matrix inversion: then the question is
+      // which value is better suited: the centroid of the jet or the hottest tower...
+
       //    refPos.first  = iEtaHit;
       //    refPos.second = iPhiHit;
       
@@ -276,6 +281,10 @@ Bool_t hcalCalib::Process(Long64_t entry) {
     if (emEnergy > MAX_TRK_EME) acceptEvent=kFALSE;
 
     if (abs(dEtaHitRef)>1 || abs(dPhiHitRef)>1) acceptEvent=kFALSE;
+
+    // Have to check if for |iEta|>20 (and neighboring region) the dPhiHitRef
+    // should be relaxed to 2. The neighboring towers have dPhi=2...
+
 
   }
 
@@ -382,15 +391,16 @@ void hcalCalib::Terminate() {
     corResp /= targetEnergies[i];
 
 
-    // fill histograms for based on iEta of projection of track
+    // fill histograms based on iEta on ref point of the cluster (for now: hottest tower) 
+    // expect range |iEta|<=24 (to do: add flexibility for arbitrary range)
  
     if (CALIB_TYPE=="ISO_TRACK") {
       Int_t ind = refIEtaIPhi[i].first;  
-      ind = (ind>0)? ind +=24 : ind +=23;
+      ind = (ind<0)? ind +=24 : ind +=23;
       if (ind>=0 && ind<48) {
 	h1_corRespIEta[ind]->Fill(corResp);  
       }
-      
+     
       // fill histograms for cases where all towers are in the barrel or endcap
       if (maxIEta<25) {
 	h1_rawResp->Fill(rawResp);
@@ -638,6 +648,7 @@ void hcalCalib::makeTextFile() {
 	    HcalDetId id(HcalSubdetector(sd), eta, phi, d);
 	    Float_t corrFactor = 1.0;
 	    
+
 	    if (abs(eta)>=CALIB_ABS_IETA_MIN && abs(eta)<=CALIB_ABS_IETA_MAX && HcalSubdetector(sd)!=HcalOuter) {
 
 	      // need some care when depths were summed for iEta=16 =>
