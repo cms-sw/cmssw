@@ -40,7 +40,7 @@ OutputDDToDDL::OutputDDToDDL(const edm::ParameterSet& iConfig) : fname_()
   (*xos_) << "<DDDefinition xmlns=\"http://www.cern.ch/cms/DDL\"" << std::endl;
   (*xos_) << " xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"" << std::endl;
   (*xos_) << "xsi:schemaLocation=\"http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd\">" << std::endl;
-
+  (*xos_) << std::scientific;
 }
 OutputDDToDDL::~OutputDDToDDL()
 {
@@ -90,18 +90,22 @@ OutputDDToDDL::beginJob( edm::EventSetup const& es)
   (*xos_) << "</MaterialSection>" << std::endl;
 
   (*xos_) << "<RotationSection label=\"" << ns_ << "\">" << std::endl;
-  DDRotation rotn(DDName("ID","gen"));
-  if ( !rotn.isDefined().second ) {
-    DDRotationMatrix* rotID = new DDRotationMatrix();
-    DDRotation mydr = DDrot (DDName("ID","gen"), rotID);
-    out.rotation(mydr, *xos_);
-  }
+//   DDRotation rotn(DDName("ID","gen"));
+//   if ( !rotn.isDefined().second ) {
+//     DDRotationMatrix* rotID = new DDRotationMatrix();
+//     DDRotation mydr = DDrot (DDName("ID","gen"), rotID);
+//     out.rotation(mydr, *xos_);
+//   }
+  DDRotationMatrix rotm;
   DDRotation::iterator<DDRotation> rit(DDRotation::begin()), red(DDRotation::end());
   for (; rit != red; ++rit) {
     if (! rit->isDefined().second) continue;
     // if it is the identity...
-    if ( *(rit->matrix()) == *(rotn.matrix()) ) continue;
-    out.rotation(*rit, *xos_);
+//     if ( *(rit->matrix()) == *(rotn.matrix()) ) continue;
+    if ( *(rit->matrix()) == rotm ) continue;
+    if ( rit->toString() != ":" ) {
+      out.rotation(*rit, *xos_);
+    }
   } 
   (*xos_) << "</RotationSection>" << std::endl;
 
@@ -121,9 +125,91 @@ OutputDDToDDL::beginJob( edm::EventSetup const& es)
     const DDLogicalPart & lp = *lpit;
       out.logicalPart(lp, *xos_);
   }
+
   (*xos_) << "</LogicalPartSection>" << std::endl;
 
-  typedef graph_type::const_adj_iterator adjl_iterator;
+  //start debug crap
+//   DDExpandedView epv(*pDD);
+
+// //   (*xos_) << "<PosPartSection label=\"" << ns_ << "\">" << std::endl;
+//   DDLogicalPart parent = epv.logicalPart();
+//   DDLogicalPart root = parent;
+//   // need a stack to go deep and come out...
+//   //  std::vector<nav_type>;
+//   int idep(0);
+//   bool doNext = epv.firstChild();
+//   doNext = true;
+//   while ( doNext ) {
+//     // run to the bottom of the parent node.
+//     if ( epv.logicalPart() == root ) doNext = false; // failsafe, i think...
+//     while ( doNext ) {
+//       doNext = epv.firstChild();
+//       if ( doNext ) {
+// 	parent = epv.logicalPart();
+// 	++idep;
+// 	//	std::cout << " idep = " << idep << std::endl;  
+//       }
+//     }
+//     // at this point we have FAILED to find a firstChild, so we stay where we are.
+//     //    std::cout << parent.toString() << " to child " << epv.logicalPart().toString() << " " << epv.translation() << std::endl;
+//     //    (*xos_) 
+//     std::cout << parent.toString() << " to child " << epv.logicalPart().toString() << " " << epv.translation() << std::endl;
+//     // if we have a sibling...
+//     if ( epv.nextSibling() ) {
+//       doNext = true;
+//     } else {
+//       epv.parent();
+//       parent = epv.logicalPart();
+//       doNext = epv.nextSibling();
+//       while ( !doNext && epv.logicalPart() != root && parent != root)  {
+// 	epv.parent();
+// 	parent = epv.logicalPart();
+// 	doNext = epv.nextSibling();
+// 	if ( !doNext ) {
+// 	  if ( epv.logicalPart() == root ) {
+// 	    doNext = false;
+// 	  }
+// 	}
+// 	--idep;
+// 	if ( parent == root || epv.logicalPart() == root ) {
+// 	  doNext = false;
+// 	}
+// 	//	std::cout << " idep = " << idep << std::endl;  
+//       }
+// //       epv.parent();
+// //       parent = epv.logicalPart();
+// //       doNext = true;
+//     }
+//     //    out.position(parent, epv.logicalPart(), rotNumSeed_, *xos_);
+//     // go to the bottom.
+// //     while (epv.nextSibling()) {
+// //       //      out.position(parent, epv.logicalPart(), rotNumSeed_, *xos_);
+
+// //     }
+// //     epv.parent();
+// //     --idep;
+// //     while (epv.nextSibling()) {
+// //       while (epv.firstChild()) {
+// // 	parent = epv.logicalPart();
+// //       }
+// //       while ( epv.nextSibling() ) {
+	
+// // 	parent = epv.logicalPart();
+// // 	doNext = epv.firstChild();
+// //       }
+// //     }
+// //     epv.parent();
+// //     epv.firstChild();
+// //     if ( epv.logicalPart() == root ) {
+// //       if ( !epv.nextSibling() ) {
+// // 	std::cout << "ending the process" << std::endl;
+// // 	doNext = false;
+// //       }
+// //     }
+//     std::cout << " idep = " << idep << std::endl;  
+//   }
+//end debug crap
+  typedef  graph_type::const_adj_iterator adjl_iterator;
   adjl_iterator git = gra.begin();
   adjl_iterator gend = gra.end();    
     

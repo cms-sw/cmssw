@@ -82,8 +82,8 @@ void DDCoreToDDXMLOutput::solid ( const DDSolid& solid, std::ostream& xos ) {
 	  << " rMin=\"" << rs.rIn() << "*mm\""
 	  << " rMax=\"" << rs.rOut() << "*mm\""
 	  << " dz=\"" << rs.zhalf() << "*mm\""
-	  << " startPhi=\"" << rs.startPhi() << "*rad\""
-	  << " deltaPhi=\"" << rs.deltaPhi() << "*rad\"/>"
+	  << " startPhi=\"" << rs.startPhi()/deg << "*deg\""
+	  << " deltaPhi=\"" << rs.deltaPhi()/deg << "*deg\"/>"
 	  << std::endl;
       break;
     }
@@ -94,16 +94,16 @@ void DDCoreToDDXMLOutput::solid ( const DDSolid& solid, std::ostream& xos ) {
       DDTrap rs(solid);
       xos << "<Trapezoid name=\""  << rs.toString() << "\"" //rs.toString() << "\"" //
 	  << " dz=\"" << rs.halfZ() << "*mm\""
-	  << " theta=\"" << rs.theta() << "*rad\""
-	  << " phi=\"" << rs.phi() << "*rad\""
+	  << " theta=\"" << rs.theta()/deg << "*deg\""
+	  << " phi=\"" << rs.phi()/deg << "*deg\""
 	  << " h1=\"" << rs.y1() << "*mm\""
 	  << " bl1=\"" << rs.x1() << "*mm\""
 	  << " tl1=\"" << rs.x2() << "*mm\""
-	  << " alp1=\"" << rs.alpha1() << "*rad\""
+	  << " alp1=\"" << rs.alpha1()/deg << "*deg\""
 	  << " h2=\"" << rs.y2() << "*mm\""
 	  << " bl2=\"" << rs.x3() << "*mm\""
 	  << " tl2=\"" << rs.x4() << "*mm\""
-	  << " alp2=\"" << rs.alpha2() << "*rad\"/>"
+	  << " alp2=\"" << rs.alpha2()/deg << "*deg\"/>"
 	  << std::endl;
       break;
     }
@@ -115,16 +115,16 @@ void DDCoreToDDXMLOutput::solid ( const DDSolid& solid, std::ostream& xos ) {
 	  << " rMax1=\"" << rs.rOutMinusZ() << "*mm\""
 	  << " rMin2=\"" << rs.rInPlusZ() << "*mm\""
 	  << " rMax2=\"" << rs.rOutPlusZ() << "*mm\""
-	  << " startPhi=\"" << rs.phiFrom() << "*rad\""
-	  << " deltaPhi=\"" << rs.deltaPhi() << "*rad\"/>"
+	  << " startPhi=\"" << rs.phiFrom()/deg << "*deg\""
+	  << " deltaPhi=\"" << rs.deltaPhi()/deg << "*deg\"/>"
 	  << std::endl;
       break;
     }
     case ddpolycone_rz: {
       DDPolycone rs(solid);
       xos << "<Polycone name=\""  << rs.toString() << "\""
-	  << " startPhi=\"" << rs.startPhi() << "*rad\""
-	  << " deltaPhi=\"" << rs.deltaPhi() << "*rad\">"
+	  << " startPhi=\"" << rs.startPhi()/deg << "*deg\""
+	  << " deltaPhi=\"" << rs.deltaPhi()/deg << "*deg\">"
 	  << std::endl;
       const std::vector<double> & zV(rs.zVec());
       const std::vector<double> & rV(rs.rVec());
@@ -140,8 +140,8 @@ void DDCoreToDDXMLOutput::solid ( const DDSolid& solid, std::ostream& xos ) {
       DDPolyhedra rs(solid);
       xos << "<Polyhedra name=\""  << rs.toString() << "\""
 	  << " numSide=\"" << rs.sides() << "\""
-	  << " startPhi=\"" << rs.startPhi() << "*rad\""
-	  << " deltaPhi=\"" << rs.deltaPhi() << "*rad\">"
+	  << " startPhi=\"" << rs.startPhi()/deg << "*deg\""
+	  << " deltaPhi=\"" << rs.deltaPhi()/deg << "*deg\">"
 	  << std::endl;
       const std::vector<double> & zV(rs.zVec());
       const std::vector<double> & rV(rs.rVec());
@@ -163,8 +163,8 @@ void DDCoreToDDXMLOutput::solid ( const DDSolid& solid, std::ostream& xos ) {
 //    <ZSection z="[CMSZ1]"   rMin="[Rmin]"  rMax="[CMSR2]" />
       DDPolycone rs(solid);
       xos << "<Polycone name=\""  << rs.toString() << "\""
-	  << " startPhi=\"" << rs.startPhi() << "*rad\""
-	  << " deltaPhi=\"" << rs.deltaPhi() << "*rad\">"
+	  << " startPhi=\"" << rs.startPhi()/deg << "*deg\""
+	  << " deltaPhi=\"" << rs.deltaPhi()/deg << "*deg\">"
 	  << std::endl;
       const std::vector<double> & zV(rs.zVec());
       const std::vector<double> & rMinV(rs.rMinVec());
@@ -182,8 +182,8 @@ void DDCoreToDDXMLOutput::solid ( const DDSolid& solid, std::ostream& xos ) {
       DDPolyhedra rs(solid);
       xos << "<Polyhedra name=\""  << rs.toString() << "\""
 	  << " numSide=\"" << rs.sides() << "\""
-	  << " startPhi=\"" << rs.startPhi() << "*rad\""
-	  << " deltaPhi=\"" << rs.deltaPhi() << "*rad\">"
+	  << " startPhi=\"" << rs.startPhi()/deg << "*deg\""
+	  << " deltaPhi=\"" << rs.deltaPhi()/deg << "*deg\">"
 	  << std::endl;
       const std::vector<double> & zV(rs.zVec());
       const std::vector<double> & rMinV(rs.rMinVec());
@@ -218,8 +218,8 @@ void DDCoreToDDXMLOutput::solid ( const DDSolid& solid, std::ostream& xos ) {
 	  << " zHalf=\"" << rs.zHalf() << "*mm\""
 	  << " rMin=\"" << rs.rIn() << "*mm\""
 	  << " rMax=\"" << rs.rOut() << "*mm\""
-	  << " startPhi=\"" << rs.startPhi() << "*rad\""
-	  << " deltaPhi=\"" << rs.deltaPhi() << "*rad\""
+	  << " startPhi=\"" << rs.startPhi()/deg << "*deg\""
+	  << " deltaPhi=\"" << rs.deltaPhi()/deg << "*deg\""
 	  << " cutAtStart=\"" << rs.cutAtStart() << "*mm\""
 	  << " cutAtDelta=\"" << rs.cutAtDelta() << "*mm\""
 	  << " cutInside=\"" << ( rs.cutInside() ? "true" : "false" ) << "\"/>"
@@ -239,8 +239,8 @@ void DDCoreToDDXMLOutput::solid ( const DDSolid& solid, std::ostream& xos ) {
 	  << " innerRadius=\"" << rs.rMin() << "*mm\""
 	  << " outerRadius=\"" << rs.rMax() << "*mm\""
 	  << " torusRadius=\"" << rs.rTorus() << "*mm\""
-	  << " startPhi=\"" << rs.startPhi() << "*rad\""
-	  << " deltaPhi=\"" << rs.deltaPhi() << "*rad\"/>"
+	  << " startPhi=\"" << rs.startPhi()/deg << "*deg\""
+	  << " deltaPhi=\"" << rs.deltaPhi()/deg << "*deg\"/>"
 	  << std::endl;
       break;
     }
@@ -281,7 +281,7 @@ void DDCoreToDDXMLOutput::material ( const DDMaterial& material, std::ostream& x
    //   return temp;
 }
 
-void DDCoreToDDXMLOutput::rotation ( DDRotation& rotation, std::ostream& xos ) {
+void DDCoreToDDXMLOutput::rotation ( DDRotation& rotation, std::ostream& xos, const std::string& rotn) {
   double tol = 1.0e-3; // Geant4 compatible
   DD3Vector x,y,z; 
   rotation.matrix()->GetComponents(x,y,z); 
@@ -289,28 +289,42 @@ void DDCoreToDDXMLOutput::rotation ( DDRotation& rotation, std::ostream& xos ) {
   // this must be -1
   bool reflection((1.-check)>tol);
   std::string rotName=rotation.toString();
-  DDRotation rotn(DDName("ID","gen"));
-  if ( rotName == ":" ) {
-    rotName = rotn.toString();
-  }
+  // CHECK REMOVED and moved to OutputDDToDDL.cc
+//   DDRotation rotn(DDName("ID","gen"));
+//   if ( rotName == ":" ) {
+//     //    rotName = rotn.toString();
+//     std::cout << "SHOULD NOT HAPPEN!" << std::endl;
+//     xos << "<Rotation FAILED/>" << std::enld;
+//   }
 //  <Rotation name="R2767" phiX="3.50824e-15*deg"
 //                         thetaX="90*deg"
 //                         phiY="90*deg"
 //                         thetaY="90*deg"
 //                         phiZ="45*deg"
 //                         thetaZ="0"/>
+// NEW Check/fix
+  if ( rotName == ":" ) {
+    if ( rotn != "" ) {
+      rotName = rotn;
+      DDRotation rot( DDName(rotn), rotation.matrix() );
+      std:: cout << "new rotation: " << rot << std::endl;
+    } else {
+      std::cout << "WARNING: MAKING AN UNNAMED ROTATION" << std::endl;
+    }
+  }
   if ( !reflection ) {
     xos << "<Rotation ";
   } else {
     xos << "<ReflectionRotation ";
   }
+  //<< std::fixed << std::setprecision(4)
   xos << "name=\"" << rotName << "\""
-      << " phiX=\"" << x.phi() << "*rad\""
-      << " thetaX=\"" << x.theta() << "*rad\""
-      << " phiY=\"" << y.phi() << "*rad\""
-      << " thetaY=\"" << y.theta() << "*rad\""
-      << " phiZ=\"" << z.phi() << "*rad\""
-      << " thetaZ=\"" << z.theta() << "*rad\"/>"
+      << " phiX=\"" << x.phi()/deg << "*deg\""
+      << " thetaX=\"" << x.theta()/deg << "*deg\""
+      << " phiY=\"" << y.phi()/deg << "*deg\""
+      << " thetaY=\"" << y.theta()/deg << "*deg\""
+      << " phiZ=\"" << z.phi()/deg << "*deg\""
+      << " thetaZ=\"" << z.theta()/deg << "*deg\"/>"
       << std::endl;
 }
 
@@ -330,17 +344,17 @@ void DDCoreToDDXMLOutput::position ( const DDLogicalPart& parent
 				     , std::ostream& xos ) {
   std::string rotName = edgeToChild->rot_.toString();
   DDRotationMatrix myIDENT;
-  if ( *(edgeToChild->rot_.matrix()) == myIDENT ) {
-    rotName = "gen:ID";
-  } else if ( rotName == ":" ) {
-      std::ostringstream namestr;
-      namestr << "rotName" << rotNameSeed;
-      ++rotNameSeed;
-      rotName = namestr.str();
-      DDRotationMatrix* dmr = new DDRotationMatrix( *edgeToChild->rot_.matrix() );
-      DDRotation frot = DDrot ( DDName ( rotName, "gen" ), dmr );
-      rotName = frot.toString();
-  }
+//   if ( *(edgeToChild->rot_.matrix()) == myIDENT ) {
+//     rotName = "gen:ID";
+//   } else if ( rotName == ":" ) {
+//       std::ostringstream namestr;
+//       namestr << "rotName" << rotNameSeed;
+//       ++rotNameSeed;
+//       rotName = namestr.str();
+//       DDRotationMatrix* dmr = new DDRotationMatrix( *edgeToChild->rot_.matrix() );
+//       DDRotation frot = DDrot ( DDName ( rotName, "gen" ), dmr );
+//       rotName = frot.toString();
+//   }
 
   //     <PosPart copyNumber="0">
   //       <rParent name="testLogicalParts:MotherOfAllBoxes"/>
@@ -352,10 +366,20 @@ void DDCoreToDDXMLOutput::position ( const DDLogicalPart& parent
   xos << "<PosPart copyNumber=\"" << edgeToChild->copyno_ << "\">" << std::endl;
   xos << "<rParent name=\"" << parent.toString() << "\"/>" << std::endl;
   xos << "<rChild name=\"" << child.toString() << "\"/>" << std::endl;
-  xos << "<rRotation name=\"" << rotName << "\"/>" << std::endl;
-  xos << "<Translation x=\"" << edgeToChild->translation().x() <<"\""
-       << " y=\"" << edgeToChild->translation().y() <<"\""
-       << " z=\"" << edgeToChild->translation().z() <<"\"/>" << std::endl;
+  if ( *(edgeToChild->rot_.matrix()) != myIDENT ) {
+    if ( rotName == ":" ) {
+      rotation(edgeToChild->rot_, xos);
+    } else {
+      xos << "<rRotation name=\"" << rotName << "\"/>" << std::endl;
+    }
+  } // else let default Rotation matrix be created?
+  xos << "<Translation x=\"" << std::fixed << std::setprecision(6) << edgeToChild->translation().x() <<"*mm\""
+      << " y=\"" << std::fixed << std::setprecision(6) << edgeToChild->translation().y() <<"*mm\""
+      << " z=\"" << std::fixed << std::setprecision(6) << edgeToChild->translation().z() <<"*mm\"/>" << std::endl;
+  xos << std::scientific;
+//   xos << "<Translation x=\"" << std::fixed << std::setprecision(6) << edgeToChild->translation().x() <<"*mm\""
+//       << " y=\"" << std::fixed << std::setprecision(4) << edgeToChild->translation().y() <<"*mm\""
+//       << " z=\"" << std::fixed << std::setprecision(4) << edgeToChild->translation().z() <<"*mm\"/>" << std::endl;
   xos << "</PosPart>" << std::endl;
 }
 
