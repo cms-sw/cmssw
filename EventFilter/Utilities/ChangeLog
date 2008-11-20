@@ -1,3 +1,11 @@
+2008-11-20  Philipp Schieferdecker  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-15-01
+	* change StateMachine::findRcmsStateListener(), don't call it in
+	StateMachine::initialize() anymore, must be called by clients (BU,
+	RB, EP, SM) after declaring RCMS state notifier parameters to
+	application infospace!
+
 2008-10-14  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
 	* tag V00-15-00
