@@ -65,7 +65,7 @@ void Compare(bool barrel,
   }
   /* */
 
-  gPad->SaveAs(output);
+  c->SaveAs(output);
 
   /*
   TCanvas *c1 = new TCanvas("c1","",1000,600);

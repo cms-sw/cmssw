@@ -78,7 +78,6 @@ echo "EOF" >> copy_${type}_${name}.sh
 cat >> copy_${type}_${name}.sh << EOF
 cmsRun TEST_cfg.py
 
-
 rfcp $filename $castorname
 rm $filename
 

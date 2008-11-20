@@ -1,6 +1,6 @@
 #!/bin/sh
 
-simu=Full
+simu=Fast
 type=aod
 
 for ((job=0;job<=8;job++));

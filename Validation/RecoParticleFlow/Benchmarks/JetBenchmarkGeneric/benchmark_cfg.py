@@ -17,8 +17,25 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.load("Validation.RecoParticleFlow.pfJetBenchmark_cfi")
+process.load("RecoJets.Configuration.GenJetParticles_cff")
+process.load("RecoJets.Configuration.RecoGenJets_cff") 
+process.load("RecoJets.Configuration.RecoPFJets_cff") 
+process.load("PhysicsTools.HepMCCandAlgos.genParticles_cfi")
+process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
+
+process.iterativeCone5PFJets.inputEtMin = 0.0
+
+# should do a cloning
+process.genParticlesForJets.ignoreParticleIDs.append(14)
+process.genParticlesForJets.ignoreParticleIDs.append(12)
+process.genParticlesForJets.ignoreParticleIDs.append(16)
+process.genParticlesForJets.excludeResonances = False
+
 
 process.p =cms.Path(
+    process.genJetParticles+
+    process.recoGenJets+
+    process.iterativeCone5PFJets+
     process.pfJetBenchmark
     )
 
