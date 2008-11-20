@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/11/06 16:03:13 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/11/20 09:15:19 $
+ *  $Revision: 1.3 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -71,8 +71,7 @@ void DTResolutionAnalysisTest::beginJob(const edm::EventSetup& context){
   for (int wheel=-2; wheel<=2; wheel++){
     bookHistos(wheel);
     for (int sector=1; sector<=12; sector++){
-      cout<<"call to bookHisto"<<endl;
-      bookHistos(wheel, sector);
+       bookHistos(wheel, sector);
     }
   }
 
