@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Nov 19 16:12:27 EST 2008
-// $Id$
+// $Id: FWMuonBuilder.cc,v 1.1 2008/11/20 01:11:05 chrjones Exp $
 //
 
 // system include files
@@ -197,12 +197,18 @@ namespace  {
 //
 FWMuonBuilder::FWMuonBuilder()
 {
+   //NOTE: We call IncRefCount and IncDenyDestroy since TEveTrackPropagator actually has two reference counts being done on it
+   // We only want the one using IncRefCount to actually cause the deletion which is why 'IncDenyDestroy' does not have a matching
+   // DecDenyDestroy.  I'm still using a edm::FWEvePtr to hold the Propagator since I want to know if the propagator is deleted
    m_trackerPropagator.reset(new TEveTrackPropagator()); // propagate within tracker
    m_trackerPropagator->IncRefCount();
+   m_trackerPropagator->IncDenyDestroy(); 
    m_innerPropagator.reset(new TEveTrackPropagator()); // propagate to muon volume
    m_innerPropagator->IncRefCount();
+   m_innerPropagator->IncDenyDestroy();
    m_outerPropagator.reset(new TEveTrackPropagator()); // outer muon propagator
    m_outerPropagator->IncRefCount();
+   m_outerPropagator->IncDenyDestroy();
    //units are Telsa
    m_magneticField = CmsShowMain::getMagneticField();
    m_innerPropagator->SetMagField( -m_magneticField);
