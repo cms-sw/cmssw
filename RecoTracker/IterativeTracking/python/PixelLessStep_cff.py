@@ -54,6 +54,7 @@ import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
 fourthCkfTrajectoryBuilder.ComponentName = 'fourthCkfTrajectoryBuilder'
 fourthCkfTrajectoryBuilder.MeasurementTrackerName = 'fourthMeasurementTracker'
 fourthCkfTrajectoryBuilder.trajectoryFilterName = 'fourthCkfTrajectoryFilter'
+fourthCkfTrajectoryBuilder.minNrOfHitsForRebuild = 5
 
 
 #TRACK CANDIDATES
@@ -98,9 +99,43 @@ fourthlayerpairs = cms.ESProducer("PixelLessLayerPairsESProducer",
     )
 )
 
+
+# track selection
+import RecoTracker.FinalTrackSelectors.selectLoose_cfi
+import RecoTracker.FinalTrackSelectors.selectTight_cfi
 import RecoTracker.FinalTrackSelectors.selectHighPurity_cfi
+import RecoTracker.FinalTrackSelectors.ctfrsTrackListMerger_cfi
+
+pixellessStepLoose = RecoTracker.FinalTrackSelectors.selectLoose_cfi.selectLoose.clone()
+pixellessStepLoose.src = 'fourthWithMaterialTracks'
+pixellessStepLoose.keepAllTracks = False
+pixellessStepLoose.copyExtras = True
+pixellessStepLoose.copyTrajectories = True
+pixellessStepLoose.chi2n_par = 0.6
+pixellessStepLoose.res_par = ( 0.003, 0.001 )
+pixellessStepLoose.minNumberLayers = 5
+pixellessStepLoose.d0_par1 = ( 1.5, 4.0 )
+pixellessStepLoose.dz_par1 = ( 1.5, 4.0 )
+pixellessStepLoose.d0_par2 = ( 1.5, 4.0 )
+pixellessStepLoose.dz_par2 = ( 1.5, 4.0 )
+
+pixellessStepTight = RecoTracker.FinalTrackSelectors.selectTight_cfi.selectTight.clone()
+pixellessStepTight.src = 'pixellessStepLoose'
+pixellessStepTight.keepAllTracks = True
+pixellessStepTight.copyExtras = True
+pixellessStepTight.copyTrajectories = True
+pixellessStepTight.chi2n_par = 0.4
+pixellessStepTight.res_par = ( 0.003, 0.001 )
+pixellessStepTight.minNumberLayers = 5
+pixellessStepTight.d0_par1 = ( 1.1, 4.0 )
+pixellessStepTight.dz_par1 = ( 1.1, 4.0 )
+pixellessStepTight.d0_par2 = ( 1.1, 4.0 )
+pixellessStepTight.dz_par2 = ( 1.1, 4.0 )
+
 pixellessStep = RecoTracker.FinalTrackSelectors.selectHighPurity_cfi.selectHighPurity.clone()
-pixellessStep.src = 'fourthWithMaterialTracks'
+pixellessStep.src = 'pixellessStepTight'
+pixellessStep.keepAllTracks = True
+pixellessStep.copyExtras = True
 pixellessStep.copyTrajectories = True
 pixellessStep.chi2n_par = 0.3
 pixellessStep.res_par = ( 0.003, 0.001 )
@@ -115,4 +150,6 @@ fourthStep = cms.Sequence(fourthClusters*
                           fourthPLSeeds*
                           fourthTrackCandidates*
                           fourthWithMaterialTracks*
+                          pixellessStepLoose*
+                          pixellessStepTight*
                           pixellessStep)

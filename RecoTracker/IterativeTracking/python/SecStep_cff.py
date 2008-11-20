@@ -78,10 +78,75 @@ secWithMaterialTracks.clusterRemovalInfo = 'secClusters'
 
 
 # track selection
+import RecoTracker.FinalTrackSelectors.selectLoose_cfi
+import RecoTracker.FinalTrackSelectors.selectTight_cfi
 import RecoTracker.FinalTrackSelectors.selectHighPurity_cfi
+import RecoTracker.FinalTrackSelectors.ctfrsTrackListMerger_cfi
+
+secStepVtxLoose = RecoTracker.FinalTrackSelectors.selectLoose_cfi.selectLoose.clone()
+secStepVtxLoose.src = 'secWithMaterialTracks'
+secStepVtxLoose.keepAllTracks = False
+secStepVtxLoose.copyExtras = True
+secStepVtxLoose.copyTrajectories = True
+secStepVtxLoose.chi2n_par = 2.0
+secStepVtxLoose.res_par = ( 0.003, 0.001 )
+secStepVtxLoose.d0_par1 = ( 1.2, 3.0 )
+secStepVtxLoose.dz_par1 = ( 1.2, 3.0 )
+secStepVtxLoose.d0_par2 = ( 1.3, 3.0 )
+secStepVtxLoose.dz_par2 = ( 1.3, 3.0 )
+
+secStepTrkLoose = RecoTracker.FinalTrackSelectors.selectLoose_cfi.selectLoose.clone()
+secStepTrkLoose.src = 'secWithMaterialTracks'
+secStepTrkLoose.keepAllTracks = False
+secStepTrkLoose.copyExtras = True
+secStepTrkLoose.copyTrajectories = True
+secStepTrkLoose.chi2n_par = 0.9
+secStepTrkLoose.res_par = ( 0.003, 0.001 )
+secStepTrkLoose.minNumberLayers = 4
+secStepTrkLoose.d0_par1 = ( 1.5, 4.0 )
+secStepTrkLoose.dz_par1 = ( 1.5, 4.0 )
+secStepTrkLoose.d0_par2 = ( 1.5, 4.0 )
+secStepTrkLoose.dz_par2 = ( 1.5, 4.0 )
+
+secStepLoose = RecoTracker.FinalTrackSelectors.ctfrsTrackListMerger_cfi.ctfrsTrackListMerger.clone()
+secStepLoose.TrackProducer1 = 'secStepVtxLoose'
+secStepLoose.TrackProducer2 = 'secStepTrkLoose'
+
+
+secStepVtxTight = RecoTracker.FinalTrackSelectors.selectTight_cfi.selectTight.clone()
+secStepVtxTight.src = 'secStepVtxLoose'
+secStepVtxTight.keepAllTracks = True
+secStepVtxTight.copyExtras = True
+secStepVtxTight.copyTrajectories = True
+secStepVtxTight.chi2n_par = 0.9
+secStepVtxTight.res_par = ( 0.003, 0.001 )
+secStepVtxTight.d0_par1 = ( 0.95, 3.0 )
+secStepVtxTight.dz_par1 = ( 0.9, 3.0 )
+secStepVtxTight.d0_par2 = ( 1.0, 3.0 )
+secStepVtxTight.dz_par2 = ( 1.0, 3.0 )
+
+secStepTrkTight = RecoTracker.FinalTrackSelectors.selectTight_cfi.selectTight.clone()
+secStepTrkTight.src = 'secStepTrkLoose'
+secStepTrkTight.keepAllTracks = True
+secStepTrkTight.copyExtras = True
+secStepTrkTight.copyTrajectories = True
+secStepTrkTight.chi2n_par = 0.7
+secStepTrkTight.res_par = ( 0.003, 0.001 )
+secStepTrkTight.minNumberLayers = 5
+secStepTrkTight.d0_par1 = ( 1.0, 4.0 )
+secStepTrkTight.dz_par1 = ( 1.0, 4.0 )
+secStepTrkTight.d0_par2 = ( 1.0, 4.0 )
+secStepTrkTight.dz_par2 = ( 1.0, 4.0 )
+
+secStepTight = RecoTracker.FinalTrackSelectors.ctfrsTrackListMerger_cfi.ctfrsTrackListMerger.clone()
+secStepTight.TrackProducer1 = 'secStepVtxTight'
+secStepTight.TrackProducer2 = 'secStepTrkTight'
+
 
 secStepVtx = RecoTracker.FinalTrackSelectors.selectHighPurity_cfi.selectHighPurity.clone()
-secStepVtx.src = 'secWithMaterialTracks'
+secStepVtx.src = 'secStepVtxTight'
+secStepVtx.keepAllTracks = True
+secStepVtx.copyExtras = True
 secStepVtx.copyTrajectories = True
 secStepVtx.chi2n_par = 0.9
 secStepVtx.res_par = ( 0.003, 0.001 )
@@ -91,7 +156,9 @@ secStepVtx.d0_par2 = ( 0.9, 3.0 )
 secStepVtx.dz_par2 = ( 0.9, 3.0 )
 
 secStepTrk = RecoTracker.FinalTrackSelectors.selectHighPurity_cfi.selectHighPurity.clone()
-secStepTrk.src = 'secWithMaterialTracks'
+secStepTrk.src = 'secStepTrkTight'
+secStepTrk.keepAllTracks = True
+secStepTrk.copyExtras = True
 secStepTrk.copyTrajectories = True
 secStepTrk.chi2n_par = 0.5
 secStepTrk.res_par = ( 0.003, 0.001 )
@@ -101,9 +168,16 @@ secStepTrk.dz_par1 = ( 0.9, 4.0 )
 secStepTrk.d0_par2 = ( 0.9, 4.0 )
 secStepTrk.dz_par2 = ( 0.9, 4.0 )
 
-import RecoTracker.FinalTrackSelectors.ctfrsTrackListMerger_cfi
 secStep = RecoTracker.FinalTrackSelectors.ctfrsTrackListMerger_cfi.ctfrsTrackListMerger.clone()
 secStep.TrackProducer1 = 'secStepVtx'
 secStep.TrackProducer2 = 'secStepTrk'
 
-secondStep = cms.Sequence(firstfilter*secClusters*secPixelRecHits*secStripRecHits*secTriplets*secTrackCandidates*secWithMaterialTracks*secStepVtx*secStepTrk*secStep)
+secondStep = cms.Sequence(firstfilter*
+                          secClusters*
+                          secPixelRecHits*secStripRecHits*
+                          secTriplets*
+                          secTrackCandidates*
+                          secWithMaterialTracks*
+                          secStepVtxLoose*secStepTrkLoose*secStepLoose*
+                          secStepVtxTight*secStepTrkTight*secStepTight*
+                          secStepVtx*secStepTrk*secStep)

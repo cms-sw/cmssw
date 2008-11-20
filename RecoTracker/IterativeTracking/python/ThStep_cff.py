@@ -104,9 +104,76 @@ thlayerpairs = cms.ESProducer("MixedLayerPairsESProducer",
     )
 )
 
+# track selection
+import RecoTracker.FinalTrackSelectors.selectLoose_cfi
+import RecoTracker.FinalTrackSelectors.selectTight_cfi
 import RecoTracker.FinalTrackSelectors.selectHighPurity_cfi
+import RecoTracker.FinalTrackSelectors.ctfrsTrackListMerger_cfi
+
+thStepVtxLoose = RecoTracker.FinalTrackSelectors.selectLoose_cfi.selectLoose.clone()
+thStepVtxLoose.src = 'thWithMaterialTracks'
+thStepVtxLoose.keepAllTracks = False
+thStepVtxLoose.copyExtras = True
+thStepVtxLoose.copyTrajectories = True
+thStepVtxLoose.chi2n_par = 2.0
+thStepVtxLoose.res_par = ( 0.003, 0.001 )
+thStepVtxLoose.d0_par1 = ( 1.2, 3.0 )
+thStepVtxLoose.dz_par1 = ( 1.2, 3.0 )
+thStepVtxLoose.d0_par2 = ( 1.3, 3.0 )
+thStepVtxLoose.dz_par2 = ( 1.3, 3.0 )
+
+thStepTrkLoose = RecoTracker.FinalTrackSelectors.selectLoose_cfi.selectLoose.clone()
+thStepTrkLoose.src = 'thWithMaterialTracks'
+thStepTrkLoose.keepAllTracks = False
+thStepTrkLoose.copyExtras = True
+thStepTrkLoose.copyTrajectories = True
+thStepTrkLoose.chi2n_par = 0.9
+thStepTrkLoose.res_par = ( 0.003, 0.001 )
+thStepTrkLoose.minNumberLayers = 4
+thStepTrkLoose.d0_par1 = ( 1.8, 4.0 )
+thStepTrkLoose.dz_par1 = ( 1.8, 4.0 )
+thStepTrkLoose.d0_par2 = ( 1.8, 4.0 )
+thStepTrkLoose.dz_par2 = ( 1.8, 4.0 )
+
+thStepLoose = RecoTracker.FinalTrackSelectors.ctfrsTrackListMerger_cfi.ctfrsTrackListMerger.clone()
+thStepLoose.TrackProducer1 = 'thStepVtxLoose'
+thStepLoose.TrackProducer2 = 'thStepTrkLoose'
+
+
+thStepVtxTight = RecoTracker.FinalTrackSelectors.selectTight_cfi.selectTight.clone()
+thStepVtxTight.src = 'thStepVtxLoose'
+thStepVtxTight.keepAllTracks = True
+thStepVtxTight.copyExtras = True
+thStepVtxTight.copyTrajectories = True
+thStepVtxTight.chi2n_par = 0.9
+thStepVtxTight.res_par = ( 0.003, 0.001 )
+thStepVtxTight.d0_par1 = ( 1.0, 3.0 )
+thStepVtxTight.dz_par1 = ( 1.0, 3.0 )
+thStepVtxTight.d0_par2 = ( 1.1, 3.0 )
+thStepVtxTight.dz_par2 = ( 1.1, 3.0 )
+
+thStepTrkTight = RecoTracker.FinalTrackSelectors.selectTight_cfi.selectTight.clone()
+thStepTrkTight.src = 'thStepTrkLoose'
+thStepTrkTight.keepAllTracks = True
+thStepTrkTight.copyExtras = True
+thStepTrkTight.copyTrajectories = True
+thStepTrkTight.chi2n_par = 0.7
+thStepTrkTight.res_par = ( 0.003, 0.001 )
+thStepTrkTight.minNumberLayers = 5
+thStepTrkTight.d0_par1 = ( 1.1, 4.0 )
+thStepTrkTight.dz_par1 = ( 1.1, 4.0 )
+thStepTrkTight.d0_par2 = ( 1.1, 4.0 )
+thStepTrkTight.dz_par2 = ( 1.1, 4.0 )
+
+thStepTight = RecoTracker.FinalTrackSelectors.ctfrsTrackListMerger_cfi.ctfrsTrackListMerger.clone()
+thStepTight.TrackProducer1 = 'thStepVtxTight'
+thStepTight.TrackProducer2 = 'thStepTrkTight'
+
+
 thStepVtx = RecoTracker.FinalTrackSelectors.selectHighPurity_cfi.selectHighPurity.clone()
-thStepVtx.src = 'thWithMaterialTracks'
+thStepVtx.src = 'thStepVtxTight'
+thStepVtx.keepAllTracks = True
+thStepVtx.copyExtras = True
 thStepVtx.copyTrajectories = True
 thStepVtx.chi2n_par = 0.9
 thStepVtx.res_par = ( 0.003, 0.001 )
@@ -116,7 +183,9 @@ thStepVtx.d0_par2 = ( 1.0, 3.0 )
 thStepVtx.dz_par2 = ( 1.0, 3.0 )
 
 thStepTrk = RecoTracker.FinalTrackSelectors.selectHighPurity_cfi.selectHighPurity.clone()
-thStepTrk.src = 'thWithMaterialTracks'
+thStepTrk.src = 'thStepTrkTight'
+thStepTrk.keepAllTracks = True
+thStepTrk.copyExtras = True
 thStepTrk.copyTrajectories = True
 thStepTrk.chi2n_par = 0.5
 thStepTrk.res_par = ( 0.003, 0.001 )
@@ -125,7 +194,6 @@ thStepTrk.d0_par1 = ( 1.0, 4.0 )
 thStepTrk.dz_par1 = ( 1.0, 4.0 )
 thStepTrk.d0_par2 = ( 1.0, 4.0 )
 thStepTrk.dz_par2 = ( 1.0, 4.0 )
-import RecoTracker.FinalTrackSelectors.ctfrsTrackListMerger_cfi
 
 thStep = RecoTracker.FinalTrackSelectors.ctfrsTrackListMerger_cfi.ctfrsTrackListMerger.clone()
 thStep.TrackProducer1 = 'thStepVtx'
@@ -136,6 +204,6 @@ thirdStep = cms.Sequence(thClusters*
                          thPLSeeds*
                          thTrackCandidates*
                          thWithMaterialTracks*
-                         thStepVtx*
-                         thStepTrk*
-                         thStep)
+                         thStepVtxLoose*thStepTrkLoose*thStepLoose*
+                         thStepVtxTight*thStepTrkTight*thStepTight*
+                         thStepVtx*thStepTrk*thStep)
