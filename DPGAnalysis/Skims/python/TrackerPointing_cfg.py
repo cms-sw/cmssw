@@ -13,7 +13,7 @@ process.source = cms.Source("PoolSource",
                             
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.8 $'),
+    version = cms.untracked.string('$Revision: 1.9 $'),
     name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/DPGAnalysis/Skims/python/TrackerPointing_cfg.py,v $'),
     annotation = cms.untracked.string('CRAFT TrackerPointing skim')
 )
@@ -68,7 +68,7 @@ process.out = cms.OutputModule("PoolOutputModule",
                                                                                             'ctfWithMaterialTracksP5TkCntPath',
                                                                                             'rsWithMaterialTracksP5TkCntPath')),
                                dataset = cms.untracked.PSet(
-			                 dataTier = cms.untracked.string('RAW+RECO'),
+			                 dataTier = cms.untracked.string('RAW-RECO'),
                                          filterName = cms.untracked.string('TrackingPointing')),
                                fileName = cms.untracked.string('trackerPointing.root')
                                )
