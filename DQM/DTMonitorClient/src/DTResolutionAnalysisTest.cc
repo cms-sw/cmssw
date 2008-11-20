@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/11/20 09:18:04 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/11/20 10:09:53 $
+ *  $Revision: 1.5 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -45,8 +45,8 @@ DTResolutionAnalysisTest::DTResolutionAnalysisTest(const edm::ParameterSet& ps){
   folderRoot = ps.getUntrackedParameter<string>("folderRoot", "Collector/FU0/");
 
   // permitted test range
-  permittedMeanRange = ps.getUntrackedParameter<double>("permittedMeanRange",0.0005); 
-  permittedSigmaRange = ps.getUntrackedParameter<double>("permittedSigmaRange",0.001); 
+  permittedMeanRange = ps.getUntrackedParameter<double>("permittedMeanRange",0.005); 
+  permittedSigmaRange = ps.getUntrackedParameter<double>("permittedSigmaRange",0.01); 
   
  }
 
@@ -151,7 +151,7 @@ void DTResolutionAnalysisTest::endLuminosityBlock(LuminosityBlock const& lumiSeg
 	  }
 	  if(gfit){
 	    mean = gfit->GetParameter(1); 
-	    sigma = gfit->GetParameter(0);
+	    sigma = gfit->GetParameter(2);
 	  }
 	}
 	else{
