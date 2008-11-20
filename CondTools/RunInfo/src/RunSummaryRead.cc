@@ -202,8 +202,8 @@ select  string_value from cms_runinfo.runsession_parameter   where cms_runinfo.r
 	    << "-- second " << second
 	    << "-- nanosecond " << nanosecond<<std::endl;
    boost::gregorian::date dt(year,month,day);
-   // td in microsecond
-   boost::posix_time::time_duration td(hour,minute,second,nanosecond/1000);  
+   // td in microsecond, fix to utc.....
+   boost::posix_time::time_duration td(hour-1,minute,second,nanosecond/1000);  
    
    boost::posix_time::ptime pt( dt, td); 
    //boost::gregorian::date(year,month,day),
@@ -285,7 +285,8 @@ select  string_value from cms_runinfo.runsession_parameter   where cms_runinfo.r
 	    << "-- second " << second
 	    << "-- nanosecond " << nanosecond<<std::endl;
    boost::gregorian::date dt(year,month,day);
-   boost::posix_time::time_duration td(hour,minute,second,nanosecond/1000);  
+   // fix to utc....
+   boost::posix_time::time_duration td(hour-1,minute,second,nanosecond/1000);  
    boost::posix_time::ptime pt( dt, td); 
    std::cout<<"ptime == "<< pt <<std::endl;          
    temp_sum.m_stop_time_str = boost::posix_time::to_iso_extended_string(pt);
