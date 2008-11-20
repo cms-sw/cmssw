@@ -1,9 +1,9 @@
 #include <iostream>
+#include <utility>
 #include <string>
 
 #include "mcdb.hpp"
 
-#include "FWCore/Framework/interface/GeneratedInputSource.h"
 #include "FWCore/Framework/interface/InputSourceMacros.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -24,20 +24,18 @@ class MCDBSource : public LHESource {
 	explicit MCDBSource(const edm::ParameterSet &params,
 	                    const edm::InputSourceDescription &desc);
 	virtual ~MCDBSource();
-
-    private:
-	mcdb::MCDB	mcdb;
 };
 
-MCDBSource::MCDBSource(const edm::ParameterSet &params,
-                       const edm::InputSourceDescription &desc) :
-        LHESource(params, desc, 0)
+static std::pair<std::vector<std::string>, unsigned int>
+			getFileURLs(const edm::ParameterSet &params)
 {
 	unsigned int articleId = params.getParameter<unsigned int>("articleID");
 
 	edm::LogInfo("Generator|LHEInterface")
 		<< "Reading article id " << articleId << " from MCDB."
 		<< std::endl;
+
+	mcdb::MCDB mcdb;
 
 	mcdb::Article article = mcdb.getArticle(articleId);
 
@@ -93,7 +91,33 @@ MCDBSource::MCDBSource(const edm::ParameterSet &params,
 				   " file." << std::endl;
 	}
 
-	reader.reset(new LHEReader(fileURLs, firstEvent));
+	return std::make_pair(fileURLs, firstEvent);
+}
+
+static edm::ParameterSet augmentPSetFromMCDB(const edm::ParameterSet &params)
+{
+	// note that this is inherently ugly, but the only way to
+	// pass the file URLs to ExternalInputSource, as the MCDB client
+	// is nothing but an MCDB to URL converter
+	// all modified parameters are untracked, so the provenance is
+	// unchanged
+
+	std::pair<std::vector<std::string>, unsigned int> result =
+							getFileURLs(params);
+
+	edm::ParameterSet newParams = params;
+	newParams.addUntrackedParameter<std::vector<std::string> >(
+						"fileNames", result.first);
+	newParams.addUntrackedParameter<unsigned int>(
+						"seekEvent", result.second);
+
+	return newParams;
+}
+
+MCDBSource::MCDBSource(const edm::ParameterSet &params,
+                       const edm::InputSourceDescription &desc) :
+        LHESource(augmentPSetFromMCDB(params), desc)
+{
 }
 
 MCDBSource::~MCDBSource()
