@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/10/10 08:07:18 $
- *  $Revision: 1.18 $
+ *  $Date: 2008/10/10 08:16:39 $
+ *  $Revision: 1.19 $
  *  \author G. Cerminara - INFN Torino
  *  revised by G. Mila - INFN Torino
  */
@@ -238,8 +238,8 @@ void DTSegmentAnalysisTask::bookHistos(DTChamberId chamberId) {
 
 
   theDbe->setCurrentFolder("DT/02-Segments/Wheel" + wheel.str() +
-                           "/Station" + station.str() +
-			   "/Sector" + sector.str());
+			   "/Sector" + sector.str() +
+                           "/Station" + station.str());
   // Create the monitor elements
   vector<MonitorElement *> histos;
   histos.push_back(theDbe->book1D("h4DSegmNHits"+chamberHistoName,

@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/10/10 08:09:57 $
- *  $Revision: 1.20 $
+ *  $Date: 2008/10/10 08:17:54 $
+ *  $Revision: 1.21 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -218,8 +218,8 @@ string DTSegmentAnalysisTest::getMEName(const DTChamberId & chID, string histoTa
   string folderRoot = parameters.getUntrackedParameter<string>("folderRoot", "Collector/FU0/");
   string folderName = 
     folderRoot + "DT/02-Segments/Wheel" +  wheel.str() +
-    "/Station" + station.str() +
-    "/Sector" + sector.str() + "/";
+    "/Sector" + sector.str() +
+    "/Station" + station.str() + "/";
 
   string histoname = folderName + histoTag  
     + "_W" + wheel.str() 
