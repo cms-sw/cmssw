@@ -15,44 +15,61 @@ FrameConversion::FrameConversion( const PixelBarrelName & name, int rocIdInDetUn
   int slopeCol = 0;
   int  rowOffset = 0;
   int  colOffset = 0; 
-  if (name.isHalfModule() ) {
-    slopeRow = -1; 
-    slopeCol = 1;
-    rowOffset = LocalPixel::numRowsInRoc-1;
-    colOffset = rocIdInDetUnit * LocalPixel::numColsInRoc; 
-  } else {
-    if (rocIdInDetUnit <8) {
-      slopeRow = -1;
-      slopeCol = 1;
-      rowOffset = 2*LocalPixel::numRowsInRoc-1;
-      colOffset = rocIdInDetUnit * LocalPixel::numColsInRoc; 
-    } else {
-      slopeRow = 1;
-      slopeCol = -1;
-      rowOffset = 0;
-      colOffset = (16-rocIdInDetUnit)*LocalPixel::numColsInRoc-1; 
-    }
-  } 
 
   //
-  // FIX for negative barrel (not inverted modules)
-  //
   PixelBarrelName::Shell shell = name.shell();
-  if (shell == PixelBarrelName::mO || shell == PixelBarrelName::mI) {
-    slopeRow *= -1;
-    slopeCol *= -1;
-    colOffset = 8*LocalPixel::numColsInRoc-colOffset-1;
-    switch(name.moduleType()) {
-      //case(PixelModuleName::v1x8) : { rowOffset =   LocalPixel::numRowsInRoc-rowOffset-1; break; }
-      case(PixelModuleName::v1x8) : { 
-	slopeRow = -1;  // d.k. 23/10/08 
-	slopeCol = 1;   // d.k. 13/11/08
-	colOffset = rocIdInDetUnit * LocalPixel::numColsInRoc;  // d.k. 13/11/08
-	break; 
-      } 
-      default:                      { rowOffset = 2*LocalPixel::numRowsInRoc-rowOffset-1; break; }
-    }
-  } 
+  if (shell == PixelBarrelName::mO || shell == PixelBarrelName::mI) {  // -Z side
+
+    if (name.isHalfModule() ) {
+
+      slopeRow = -1;  // d.k. 23/10/08 
+      slopeCol = 1;   // d.k. 13/11/08
+      rowOffset = LocalPixel::numRowsInRoc-1;
+      colOffset = rocIdInDetUnit * LocalPixel::numColsInRoc;  // d.k. 13/11/08
+
+    } else {
+
+      if (rocIdInDetUnit <8) {
+	slopeRow = 1;
+	slopeCol = -1;
+
+	rowOffset = 0;
+	colOffset = (8-rocIdInDetUnit)*LocalPixel::numColsInRoc-1;
+
+      } else {
+	slopeRow = -1;
+	slopeCol = 1;
+
+	rowOffset = 2*LocalPixel::numRowsInRoc-1;
+	colOffset = (rocIdInDetUnit-8)*LocalPixel::numColsInRoc;
+
+      }
+    } 
+    
+
+  } else {  // +Z side
+
+    if (name.isHalfModule() ) {
+      slopeRow = -1; 
+      slopeCol = 1;
+      rowOffset = LocalPixel::numRowsInRoc-1;
+      colOffset = rocIdInDetUnit * LocalPixel::numColsInRoc; 
+    } else {  // Full modules
+      if (rocIdInDetUnit <8) {
+	slopeRow = -1;
+	slopeCol = 1;
+	rowOffset = 2*LocalPixel::numRowsInRoc-1;
+	colOffset = rocIdInDetUnit * LocalPixel::numColsInRoc; 
+      } else {
+	slopeRow = 1;
+	slopeCol = -1;
+	rowOffset = 0;
+	colOffset = (16-rocIdInDetUnit)*LocalPixel::numColsInRoc-1; 
+      }
+    } // if modules 
+    
+
+  } // end if +-Z
 
   theRowConversion      = LinearConversion(rowOffset,slopeRow);
   theCollumnConversion =  LinearConversion(colOffset, slopeCol);
