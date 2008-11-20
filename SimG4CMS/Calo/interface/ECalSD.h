@@ -27,9 +27,10 @@ public:
 	 edm::ParameterSet const &, const SimTrackManager*);
   virtual ~ECalSD();
   virtual double                    getEnergyDeposit(G4Step*);
-  virtual uint16_t                  getRadiationLength(G4Step *);
+  uint16_t                          getRadiationLength(G4Step *);
   virtual uint32_t                  setDetUnitId(G4Step*);
   void                              setNumberingScheme(EcalNumberingScheme*);
+  uint16_t                          getDepth(G4Step*);
 
 private:    
 

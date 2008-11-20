@@ -133,6 +133,10 @@ double ECalSD::getEnergyDeposit(G4Step * aStep) {
   } 
 }
 
+uint16_t ECalSD::getDepth(G4Step * aStep) {
+  return getRadiationLength(aStep);
+}
+
 uint16_t ECalSD::getRadiationLength(G4Step * aStep) {
   
   uint16_t thisX0 = 0;

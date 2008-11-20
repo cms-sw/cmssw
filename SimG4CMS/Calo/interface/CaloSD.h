@@ -86,6 +86,8 @@ protected:
   virtual void   initRun();
   virtual bool   filterHit(CaloG4Hit*, double);
 
+  virtual uint16_t getDepth(G4Step*);   
+
 private:
 
   void                 storeHit(CaloG4Hit*);

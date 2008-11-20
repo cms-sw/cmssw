@@ -663,6 +663,8 @@ void CaloSD::clearHits() {
 
 void CaloSD::initRun() {}
 
+uint16_t CaloSD::getDepth(G4Step*) { return 0; }
+
 bool CaloSD::filterHit(CaloG4Hit* hit, double time) {
   return ((time <= tmaxHit) && (hit->getEnergyDeposit() > eminHit));
 }
