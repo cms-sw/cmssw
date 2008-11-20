@@ -10,8 +10,8 @@ patPhotonIds = cms.EDFilter("CandManyValueMapsSkimmerBool",
     collection = cms.InputTag("allLayer0Photons"),
     backrefs   = cms.InputTag("allLayer0Photons"),
     associations = cms.VInputTag(
-        cms.InputTag("PhotonCutBasedIDLoose"),
-        cms.InputTag("PhotonCutBasedIDTight"),
+        cms.InputTag("PhotonIDProd:PhotonCutBasedIDLoose"),
+        cms.InputTag("PhotonIDProd:PhotonCutBasedIDTight")
     ),
     failSilently = cms.untracked.bool(False),
 )
