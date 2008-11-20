@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/11/05 17:35:45 $
- *  $Revision: 1.13 $
+ *  $Date: 2008/11/06 16:02:01 $
+ *  $Revision: 1.14 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -43,8 +43,6 @@ DTResolutionAnalysisTask::DTResolutionAnalysisTask(const ParameterSet& pset) {
   
   prescaleFactor = pset.getUntrackedParameter<int>("diagnosticPrescale", 1);
   resetCycle = pset.getUntrackedParameter<int>("ResetCycle", -1);
-  doSectorSummaries = pset.getUntrackedParameter<bool>("doSectorSummaries", false);
-
 }
 
 
@@ -69,7 +67,6 @@ void DTResolutionAnalysisTask::beginJob(const edm::EventSetup& setup){
   for(vector<DTChamber*>::const_iterator chamber = chambers.begin();
       chamber != chambers.end(); ++chamber) {  // Loop over all chambers
     DTChamberId dtChId = (*chamber)->id();
-    if(doSectorSummaries) bookHistos(dtChId);
     for(int sl = 1; sl <= 3; ++sl) { // Loop over SLs
       if(dtChId.station() == 4 && sl == 2) continue;
       const  DTSuperLayerId dtSLId(dtChId,sl);
@@ -226,7 +223,6 @@ void DTResolutionAnalysisTask::analyze(const edm::Event& event, const edm::Event
 	  edm::LogVerbatim ("DTDQM|DTMonitorModule|DTResolutionAnalysisTask") << "  Warning: dist segment-wire: " << distSegmToWire << endl;
 
 	double residual = distRecHitToWire - distSegmToWire;
-
 	// FIXME: Fill the histos
 	fillHistos(wireId.superlayerId(), distSegmToWire, residual);
 	
@@ -239,65 +235,6 @@ void DTResolutionAnalysisTask::analyze(const edm::Event& event, const edm::Event
     }// End of loop over the rechits of this ChamerId
   }
   // -----------------------------------------------------------------------------
-}
-
-
-void DTResolutionAnalysisTask::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
-  if(!doSectorSummaries) return;
-
-  // counts number of lumiSegs 
-  int nLumiSegs = lumiSeg.id().luminosityBlock();
-
-  // prescale factor
-  if ( nLumiSegs%prescaleFactor != 0 ) return;
-  
-  edm::LogVerbatim ("DTDQM|DTMonitorModule|DTResolutionAnalysisTask") <<"[DTResolutionAnalysisTask]: End of LS transition" << nLumiSegs;
-
-
-  for(map< DTSuperLayerId, vector<MonitorElement*> > ::const_iterator histo = histosPerSL.begin();
-	histo != histosPerSL.end();
-	histo++) {
-      
-    // Fill the test histos
-    int entry=-1;
-    if((*histo).first.station() == 1) entry=0;
-    else if((*histo).first.station() == 2) entry=3;
-    else if((*histo).first.station() == 3) entry=6;
-    else if((*histo).first.station() == 4) entry=9;
-    int BinNumber = entry+(*histo).first.superLayer();
-    if(BinNumber == 12) BinNumber=11;
-
-    // Gaussian Fit
-    float statMean = (*histo).second[0]->getMean(1);
-    float statSigma = (*histo).second[0]->getRMS(1);
-    Double_t mean = -1;
-    Double_t sigma = -1;
-    TH1F * histo_root = (*histo).second[0]->getTH1F();
-    if(histo_root->GetEntries()>20){
-      TF1 *gfit = new TF1("Gaussian","gaus",(statMean-(2*statSigma)),(statMean+(2*statSigma)));
-      try {
-	histo_root->Fit(gfit);
-      } catch (...) {
-	edm::LogError ("DTDQM|DTMonitorModule|DTResolutionAnalysisTask")<< "[DTResolutionAnalysisTask]: Exception when fitting..."
-									<< "SuperLayer : " << (*histo).first;
-	continue;
-      }
-      histo_root->Fit(gfit,"RQ");
-      mean = gfit->GetParameter(1); 
-      sigma = gfit->GetParameter(0);
-    }
-    else{
-      edm::LogVerbatim ("DTDQM|DTMonitorModule|DTResolutionAnalysisTask")
-	<< "[DTResolutionAnalysisTask] Fit of " << (*histo).first
-	<< " not performed because # entries < 20 ";
-    }
-  
-    // Fill the summary histos
-    MeanHistos.find(make_pair((*histo).first.wheel(),(*histo).first.sector()))->second->setBinContent(BinNumber, mean);	
-    SigmaHistos.find(make_pair((*histo).first.wheel(),(*histo).first.sector()))->second->setBinContent(BinNumber, sigma);
-    
-  }
-  
 }
 
 
@@ -320,8 +257,8 @@ void DTResolutionAnalysisTask::bookHistos(DTSuperLayerId slId) {
     "_SL" + superLayer.str();
   
   theDbe->setCurrentFolder("DT/02-Segments/Wheel" + wheel.str() +
-			   "/Station" + station.str() +
-			   "/Sector" + sector.str());
+			   "/Sector" + sector.str() +
+			   "/Station" + station.str());
   // Create the monitor elements
   vector<MonitorElement *> histos;
   // Note hte order matters
@@ -333,47 +270,6 @@ void DTResolutionAnalysisTask::bookHistos(DTSuperLayerId slId) {
 // 				  "Residuals on the distance (cm) from wire (rec_hit - segm_extr) vs distance  (cm)",
 // 				  100, 0, 2.5, 200, -0.4, 0.4));
   histosPerSL[slId] = histos;
-}
-
-
-void DTResolutionAnalysisTask::bookHistos(const DTChamberId & ch) {
-
-  stringstream wheel; wheel << ch.wheel();		
-  stringstream sector; sector << ch.sector();	
-
-
-  string MeanHistoName =  "MeanTest_STEP3_W" + wheel.str() + "_Sec" + sector.str(); 
-  string SigmaHistoName =  "SigmaTest_STEP3_W" + wheel.str() + "_Sec" + sector.str(); 
- 
-  string folder = "DT/02-Segments/Wheel" + wheel.str() + "/Tests";
-  theDbe->setCurrentFolder(folder);
-
-  MeanHistos[make_pair(ch.wheel(),ch.sector())] = theDbe->book1D(MeanHistoName.c_str(),MeanHistoName.c_str(),11,1,12);
-  (MeanHistos[make_pair(ch.wheel(),ch.sector())])->setBinLabel(1,"MB1_SL1",1);
-  (MeanHistos[make_pair(ch.wheel(),ch.sector())])->setBinLabel(2,"MB1_SL2",1);
-  (MeanHistos[make_pair(ch.wheel(),ch.sector())])->setBinLabel(3,"MB1_SL3",1);
-  (MeanHistos[make_pair(ch.wheel(),ch.sector())])->setBinLabel(4,"MB2_SL1",1);
-  (MeanHistos[make_pair(ch.wheel(),ch.sector())])->setBinLabel(5,"MB2_SL2",1);
-  (MeanHistos[make_pair(ch.wheel(),ch.sector())])->setBinLabel(6,"MB2_SL3",1);
-  (MeanHistos[make_pair(ch.wheel(),ch.sector())])->setBinLabel(7,"MB3_SL1",1);
-  (MeanHistos[make_pair(ch.wheel(),ch.sector())])->setBinLabel(8,"MB3_SL2",1);
-  (MeanHistos[make_pair(ch.wheel(),ch.sector())])->setBinLabel(9,"MB3_SL3",1);
-  (MeanHistos[make_pair(ch.wheel(),ch.sector())])->setBinLabel(10,"MB4_SL1",1);
-  (MeanHistos[make_pair(ch.wheel(),ch.sector())])->setBinLabel(11,"MB4_SL3",1);
-
-  SigmaHistos[make_pair(ch.wheel(),ch.sector())] = theDbe->book1D(SigmaHistoName.c_str(),SigmaHistoName.c_str(),11,1,12);
-  (SigmaHistos[make_pair(ch.wheel(),ch.sector())])->setBinLabel(1,"MB1_SL1",1);  
-  (SigmaHistos[make_pair(ch.wheel(),ch.sector())])->setBinLabel(2,"MB1_SL2",1);
-  (SigmaHistos[make_pair(ch.wheel(),ch.sector())])->setBinLabel(3,"MB1_SL3",1);
-  (SigmaHistos[make_pair(ch.wheel(),ch.sector())])->setBinLabel(4,"MB2_SL1",1);
-  (SigmaHistos[make_pair(ch.wheel(),ch.sector())])->setBinLabel(5,"MB2_SL2",1);
-  (SigmaHistos[make_pair(ch.wheel(),ch.sector())])->setBinLabel(6,"MB2_SL3",1);
-  (SigmaHistos[make_pair(ch.wheel(),ch.sector())])->setBinLabel(7,"MB3_SL1",1);
-  (SigmaHistos[make_pair(ch.wheel(),ch.sector())])->setBinLabel(8,"MB3_SL2",1);
-  (SigmaHistos[make_pair(ch.wheel(),ch.sector())])->setBinLabel(9,"MB3_SL3",1);
-  (SigmaHistos[make_pair(ch.wheel(),ch.sector())])->setBinLabel(10,"MB4_SL1",1);
-  (SigmaHistos[make_pair(ch.wheel(),ch.sector())])->setBinLabel(11,"MB4_SL3",1);
-
 }
 
 
