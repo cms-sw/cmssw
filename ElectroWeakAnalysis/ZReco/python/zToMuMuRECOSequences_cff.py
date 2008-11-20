@@ -1,8 +1,0 @@
-import FWCore.ParameterSet.Config as cms
-
-from ElectroWeakAnalysis.ZReco.zToMuMuSequences_cff import *
-zToMuMuSequence = cms.Sequence(cms.SequencePlaceholder("zToMuMuHLTFilter1")+cms.SequencePlaceholder("muonRecoSelectionZToMuMu")+cms.SequencePlaceholder("zToMuMu")+cms.SequencePlaceholder("zToMuMuFilter")+cms.SequencePlaceholder("zToMuMuOneTrack")+cms.SequencePlaceholder("zToMuMuOneTrackFilter")+cms.SequencePlaceholder("zToMuMuOneStandAloneMuonTrack")+cms.SequencePlaceholder("zToMuMuOneStandAloneMuonTrackFilter"))
-zToMuMuRECOSequence = cms.Sequence(cms.SequencePlaceholder("zToMuMuRECOHLTFilter")+cms.SequencePlaceholder("muonRecoSelectionZToMuMu")+cms.SequencePlaceholder("zToMuMu")+cms.SequencePlaceholder("zToMuMuFilter")+cms.SequencePlaceholder("zToMuMuOneTrack")+cms.SequencePlaceholder("zToMuMuOneTrackFilter")+cms.SequencePlaceholder("zToMuMuOneStandAloneMuonTrack")+cms.SequencePlaceholder("zToMuMuOneStandAloneMuonTrackFilter"))
-zToMuMuAnalysisSequence = cms.Sequence(cms.SequencePlaceholder("muonRecoForZToMuMu")+cms.SequencePlaceholder("zToMuMu")+cms.SequencePlaceholder("zToMuMuFilter")+cms.SequencePlaceholder("zToMuMuOneTrack")+cms.SequencePlaceholder("zToMuMuOneTrackFilter")+cms.SequencePlaceholder("zToMuMuOneStandAloneMuonTrack")+cms.SequencePlaceholder("zToMuMuOneStandAloneMuonTrackFilter"))
-zToMuMuAnalysisSequenceData = cms.Sequence(cms.SequencePlaceholder("muonRecoSelectionZToMuMu")+cms.SequencePlaceholder("zToMuMu")+cms.SequencePlaceholder("zToMuMuFilter")+cms.SequencePlaceholder("zToMuMuOneTrack")+cms.SequencePlaceholder("zToMuMuOneTrackFilter")+cms.SequencePlaceholder("zToMuMuOneStandAloneMuonTrack")+cms.SequencePlaceholder("zToMuMuOneStandAloneMuonTrackFilter"))
-
