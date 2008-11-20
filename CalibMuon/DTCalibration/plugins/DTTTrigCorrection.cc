@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/06/20 09:02:25 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/08/13 12:42:09 $
+ *  $Revision: 1.3 $
  *  \author S. Maselli - INFN Torino
  */
 
@@ -32,7 +32,7 @@ DTTTrigCorrection::DTTTrigCorrection(const ParameterSet& pset) {
   debug = pset.getUntrackedParameter<bool>("debug",false);
   ttrigMin = pset.getUntrackedParameter<double>("ttrigMin",0);
   ttrigMax = pset.getUntrackedParameter<double>("ttrigMax",5000);
-
+  rmsLimit = pset.getUntrackedParameter<double>("rmsLimit",5.);
 }
 
 DTTTrigCorrection::~DTTTrigCorrection(){}
@@ -127,7 +127,7 @@ void DTTTrigCorrection::endJob() {
     int chamber = (*sl)->id().chamberId().station();
 
     //check if ttrigMean is similar to the mean
-    if (abs(ttrigMean - average) < 5*rms ){
+    if (abs(ttrigMean - average) < rmsLimit*rms ){
       newTTrigMean = ttrigMean;
       newTTrigSigma = ttrigSigma;
     } else {
@@ -141,7 +141,7 @@ void DTTTrigCorrection::endJob() {
 			tempttrigMean,
 			tempttrigSigma,
 			DTTimeUnits::ns);
-	  if (abs(tempttrigMean - average) < 5*rms) {
+	  if (abs(tempttrigMean - average) < rmsLimit*rms) {
 	    newTTrigMean = tempttrigMean;
 	    newTTrigSigma = tempttrigSigma;
 	    cout <<"Chamber "<< chamber << " sl " << ((*sl)->id().superlayer()) << "has ttrig "<< ttrigMean  
@@ -157,7 +157,7 @@ void DTTTrigCorrection::endJob() {
 			  tempttrigMean,
 			  tempttrigSigma,
 			  DTTimeUnits::ns);
-	    if (abs(tempttrigMean - average) < 5*rms) {
+	    if (abs(tempttrigMean - average) < rmsLimit*rms) {
 	      newTTrigMean = tempttrigMean;
 	      newTTrigSigma = tempttrigSigma;
 	      cout <<"Chamber "<< chamber << " sl " << ((*sl)->id().superlayer()) << "has ttrig "<< ttrigMean  
@@ -176,7 +176,7 @@ void DTTTrigCorrection::endJob() {
 			tempttrigMean,
 			tempttrigSigma,
 			DTTimeUnits::ns);
-	  if (abs(tempttrigMean - average) < 5*rms) {
+	  if (abs(tempttrigMean - average) < rmsLimit*rms) {
 	    newTTrigMean = tempttrigMean;
 	    newTTrigSigma = tempttrigSigma;
 	    cout <<"Chamber "<< chamber << " sl " << ((*sl)->id().superlayer()) << "has ttrig "<< ttrigMean  
@@ -187,7 +187,7 @@ void DTTTrigCorrection::endJob() {
 			  tempttrigMean,
 			  tempttrigSigma,
 			  DTTimeUnits::ns);
-	    if (abs(tempttrigMean - average) < 5*rms) {
+	    if (abs(tempttrigMean - average) < rmsLimit*rms) {
 	      newTTrigMean = tempttrigMean;
 	      newTTrigSigma = tempttrigSigma;
 	      cout <<"Chamber "<< chamber << " sl " << ((*sl)->id().superlayer()) << "has ttrig "<< ttrigMean  
@@ -208,7 +208,7 @@ void DTTTrigCorrection::endJob() {
 			tempttrigMean,
 			tempttrigSigma,
 			DTTimeUnits::ns);
-	  if (abs(tempttrigMean - average) < 5*rms) {
+	  if (abs(tempttrigMean - average) < rmsLimit*rms) {
 	    newTTrigMean = tempttrigMean;
 	    newTTrigSigma = tempttrigSigma;
 	    cout <<"Chamber "<< chamber << " sl " << ((*sl)->id().superlayer()) << "has ttrig "<< ttrigMean  
@@ -224,7 +224,7 @@ void DTTTrigCorrection::endJob() {
 			  tempttrigMean,
 			  tempttrigSigma,
 			  DTTimeUnits::ns);
-	    if (abs(tempttrigMean - average) < 5*rms) {
+	    if (abs(tempttrigMean - average) < rmsLimit*rms) {
 	      newTTrigMean = tempttrigMean;
 	      newTTrigSigma = tempttrigSigma;
 	      cout <<"Chamber "<< chamber << " sl " << ((*sl)->id().superlayer()) << "has ttrig "<< ttrigMean  
