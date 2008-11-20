@@ -7,7 +7,11 @@ from PhysicsTools.HepMCCandAlgos.genParticles_cfi import *
 from PhysicsTools.HepMCCandAlgos.genEventWeight_cfi import *
 from PhysicsTools.HepMCCandAlgos.genEventScale_cfi import *
 from PhysicsTools.HepMCCandAlgos.genEventPdfInfo_cfi import *
+<<<<<<< Generator_cff.py
+from PhysicsTools.HepMCCandAlgos.genEventProcID_cfi import *
+=======
 from PhysicsTools.HepMCCandAlgos.genEventProcID_cfi import * 
+>>>>>>> 1.4
 from RecoJets.Configuration.RecoGenJets_cff import *
 from RecoMET.Configuration.RecoGenMET_cff import *
 from RecoJets.Configuration.GenJetParticles_cff import *
