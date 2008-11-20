@@ -415,12 +415,12 @@ class PerfSuite:
             return cmdout
             
     #############
-    # Display errors in the G4 logfile
+    # Display G4 cerr errors and CMSExceptions in the logfile
     #
     def displayErrors(self,file):
         try:
             for line in open(file,"r"):
-                if "cerr" in line:
+                if "cerr" in line or "CMSException" in line:
                     self.logh.write("ERROR: %s\n" % line)
                     self.ERRORS += 1
         except OSError, detail:
@@ -574,21 +574,24 @@ class PerfSuite:
                     if valgrind and candle == "QCD_80_120":
                         self.valFilterReport(adir)             
                     self.runCmsReport(cpu,adir,candle)
-                    proflogs = []
-                    if   Name == "TimeSize":
-                        proflogs = [ "TimingReport" ]
-                    elif Name == "Valgrind":
-                        pass
-                    elif Name == "IgProf":
-                        pass
-    
-                    for proflog in proflogs:
-                        globpath = os.path.join(adir,"%s_*_%s.log" % (CandFname[candle],proflog))
-                        self.logh.write("Looking for logs that match %s\n" % globpath)
-                        logs     = glob.glob(globpath)
-                        for log in logs:
-                            self.logh.write("Found log %s\n" % log)
-                            self.displayErrors(log)
+                    #proflogs = []
+                    #Change the log testing to look for G4 cerr but also for CMSException
+                    #Also look in the main cmsRelvalreport log (not the TimingReport only)
+                    #That contains all other information.
+                    #if   Name == "TimeSize":
+                    #    proflogs = [ "TimingReport" ]
+                    #elif Name == "Valgrind":
+                    #    pass
+                    #elif Name == "IgProf":
+                    #    pass
+                    #
+                    #for proflog in proflogs:
+                    globpath = os.path.join(adir,"%s.log"%candle)
+                    self.logh.write("Looking for logs that match %s\n" % globpath)
+                    logs     = glob.glob(globpath)
+                    for log in logs:
+                        self.logh.write("Found log %s\n" % log)
+                        self.displayErrors(log)
     
     ############
     # Runs benchmarking, cpu spinlocks on spare cores and profiles selected candles
@@ -849,6 +852,7 @@ class PerfSuite:
                 self.logh.write("There were no errors detected in any of the log files!\n")
             else:
                 self.logh.write("ERROR: There were %s errors detected in the log files, please revise!\n" % self.ERRORS)
+                sys.exit(1)
         except exceptions.Exception, detail:
             self.logh.write(str(detail) + "\n")
             self.logh.flush()
