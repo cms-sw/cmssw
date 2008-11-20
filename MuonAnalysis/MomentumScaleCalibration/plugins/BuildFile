@@ -14,9 +14,9 @@
 <use name=SimDataFormats/Track>
 <use name=hepmc>
 <use name=heppdt>
-
 <use name=CLHEP>
 <use name=root>
+<use name=rootgraphics>
 
 <flags EDM_PLUGIN=1> 
 <use name=ROOTMath>
