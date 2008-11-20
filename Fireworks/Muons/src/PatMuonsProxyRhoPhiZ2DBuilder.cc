@@ -79,7 +79,7 @@ void PatMuonsProxyRhoPhiZ2DBuilder::build(const FWEventItem* iItem,
    fw::NamedCounter counter("muon");
    for ( std::vector<pat::Muon>::const_iterator muon = muons->begin(); muon != muons->end(); ++muon, ++counter )
      {
-	MuonsProxyRhoPhiZ2DBuilder::buildMuon(iItem, &*muon, tList, counter, showEndcap, tracksOnly );
+	m_builder.buildMuon(iItem, &*muon, tList, counter, showEndcap, tracksOnly );
      }
 }
 

@@ -16,10 +16,11 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:42:33 EST 2008
-// $Id: PatMuonsProxyRhoPhiZ2DBuilder.h,v 1.1 2008/09/26 07:15:41 dmytro Exp $
+// $Id: PatMuonsProxyRhoPhiZ2DBuilder.h,v 1.2 2008/11/06 22:05:29 amraktad Exp $
 //
 
 #include "Fireworks/Core/interface/FWRPZ2DDataProxyBuilder.h"
+#include "Fireworks/Muons/interface/FWMuonBuilder.h"
 
 class PatMuonsProxyRhoPhiZ2DBuilder : public FWRPZ2DDataProxyBuilder
 {
@@ -42,16 +43,18 @@ class PatMuonsProxyRhoPhiZ2DBuilder : public FWRPZ2DDataProxyBuilder
       virtual void buildRhoZ(const FWEventItem* iItem,
                                TEveElementList** product);
 
-      static void build(const FWEventItem* iItem,
-			TEveElementList** product,
-			bool showEndcap,
-			bool onlyTracks = false);
-
+      void build(const FWEventItem* iItem,
+                 TEveElementList** product,
+                 bool showEndcap,
+                 bool onlyTracks = false);
+   
       PatMuonsProxyRhoPhiZ2DBuilder(const PatMuonsProxyRhoPhiZ2DBuilder&); // stop default
 
       const PatMuonsProxyRhoPhiZ2DBuilder& operator=(const PatMuonsProxyRhoPhiZ2DBuilder&); // stop default
 
       // ---------- member data --------------------------------
+   FWMuonBuilder m_builder;
+
 };
 
 
