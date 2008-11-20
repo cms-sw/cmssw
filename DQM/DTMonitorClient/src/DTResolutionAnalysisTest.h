@@ -6,8 +6,8 @@
  * *
  *  DQM Test Client
  *
- *  $Date: 2008/11/05 17:43:24 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/11/06 16:03:30 $
+ *  $Revision: 1.2 $
  *  \author  G. Mila - INFN Torino
  *   
  */
@@ -46,14 +46,12 @@ protected:
   /// Analyze
   void analyze(const edm::Event& e, const edm::EventSetup& c);
 
-  /// Endjob
-  void endJob();
-
   /// book the summary histograms
   void bookHistos(int wh);
+  void bookHistos(int wh, int sect);
 
   /// Get the ME name
-  std::string getMEName2D(const DTSuperLayerId & slID);
+  std::string getMEName(const DTSuperLayerId & slID);
 
   void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) ;
 
@@ -69,15 +67,19 @@ private:
   int prescaleFactor;
   int run;
   int percentual;
+  std::string folderRoot;
 
   DQMStore* dbe;
 
-  // quality test names
-  std::string MeanCriterionName; 
-  std::string SigmaCriterionName; 
+  // permitted test ranges
+  double permittedMeanRange; 
+  double permittedSigmaRange; 
 
   edm::ESHandle<DTGeometry> muonGeom;
 
+  // Histograms for tests
+  std::map< std::pair<int,int> , MonitorElement* > MeanHistos;
+  std::map< std::pair<int,int> , MonitorElement* > SigmaHistos;
   // wheel summary histograms  
   std::map< int, MonitorElement* > wheelMeanHistos;
   std::map< int, MonitorElement* > wheelSigmaHistos;
