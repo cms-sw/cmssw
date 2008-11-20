@@ -82,8 +82,8 @@ allLayer1Photons = cms.EDProducer("PATPhotonProducer",
     photonIDSources = cms.PSet(
         # configure many IDs as InputTag <someName> = <someTag>
         # you can comment out those you don't want to save some disk space
-        phoidCutBasedLoose = cms.InputTag("patPhotonIds","PhotonCutBasedIDLoose"),
-        phoidCutBasedTight = cms.InputTag("patPhotonIds","PhotonCutBasedIDTight"),
+        phoidCutBasedLoose = cms.InputTag("patPhotonIds:PhotonIDProdPhotonCutBasedIDLoose"),
+        phoidCutBasedTight = cms.InputTag("patPhotonIds:PhotonIDProdPhotonCutBasedIDTight"),
 
     ),
 
