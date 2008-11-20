@@ -283,6 +283,7 @@ class _TypedParameterizable(_Parameterizable):
                              **myparams)
         returnValue._isModified = False
         returnValue._isFrozen = False
+        saveOrigin(returnValue, 1)
         return returnValue
 
     @staticmethod
