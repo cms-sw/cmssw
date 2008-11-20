@@ -592,7 +592,11 @@ class VEventID(_ValidatingParameterListBase):
     def configValueForItem(self,item,options):
         return EventID.formatValueForConfig(item)
     def pythonValueForItem(self,item, options):
-        return item.dumpPython(options)
+        # we tolerate strings as members
+        if isinstance(item, str):
+            return '"'+item+'"'
+        else:
+            return item.dumpPython(options)
     @staticmethod
     def _valueFromString(value):
         return VEventID(*_ValidatingParameterListBase._itemsFromStrings(value,EventID._valueFromString))
@@ -808,6 +812,7 @@ if __name__ == "__main__":
             veid2 = VEventID("1:2", "3:4")
             self.assertEqual( repr(veid[0]), "cms.EventID(2, 3)" )
             self.assertEqual( repr(veid2[0]), "'1:2'" )
+            self.assertEqual( veid2.dumpPython(), 'cms.VEventID("1:2", "3:4")')
             pset = PSetTester()
             veid.insertInto(pset,'foo')
 
