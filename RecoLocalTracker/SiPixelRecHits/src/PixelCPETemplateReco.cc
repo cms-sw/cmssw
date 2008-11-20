@@ -253,10 +253,6 @@ PixelCPETemplateReco::localPosition(const SiPixelCluster& cluster, const GeomDet
       double lorentz_drift = 60.0; // in microns
       templXrec_ = theTopol->localX( cluster.x() ) - lorentz_drift * micronsToCm; // very rough Lorentz drift correction
       templYrec_ = theTopol->localY( cluster.y() );
-
-      // go back to the module coordinate system 
-      templXrec_ += lp.x();
-      templYrec_ += lp.y();    
     }
   else if ( UseClusterSplitter_ && templQbin_ == 0 )
     {
@@ -276,10 +272,6 @@ PixelCPETemplateReco::localPosition(const SiPixelCluster& cluster, const GeomDet
 	  double lorentz_drift = 60.0; // in microns
 	  templXrec_ = theTopol->localX( cluster.x() ) - lorentz_drift * micronsToCm; // very rough Lorentz drift correction
 	  templYrec_ = theTopol->localY( cluster.y() );
-	
-	  // go back to the module coordinate system 
-	  templXrec_ += lp.x();
-	  templYrec_ += lp.y();    
 	}
       else
 	{
