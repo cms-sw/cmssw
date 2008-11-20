@@ -15,7 +15,7 @@ ESRawToDigi::ESRawToDigi(ParameterSet const& ps)
   ESdigiCollection_ = ps.getParameter<string>("ESdigiCollection");
   debug_ = ps.getUntrackedParameter<bool>("debugMode", false);
 
-  ESUnpacker_ = new ESUnpackerV4(ps);
+  ESUnpacker_ = new ESUnpacker(ps);
 
   produces<ESRawDataCollection>();
   produces<ESLocalRawDataCollection>();
