@@ -1,3 +1,9 @@
+2008-11-20  Philipp Schieferdecker  <philipp.schieferdecker@cern.ch>
+
+	* tag V01-04-03
+	* call fsm_.findRcmsStateListener()
+	* requires EventFilter/Utilities V00-15-01
+
 2008-11-12  Emilio Meschi  <emilio.meschi@cern.ch>
 
 	* tag V01-04-02

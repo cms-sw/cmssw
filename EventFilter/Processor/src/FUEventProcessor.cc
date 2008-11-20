@@ -207,6 +207,9 @@ FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s)
   getApplicationInfoSpace()->addItemChangedListener("globalInputPrescale", this);
   getApplicationInfoSpace()->addItemChangedListener("globalOutputPrescale",this);
 
+  // findRcmsStateListener
+  fsm_.findRcmsStateListener();
+  
   // initialize monitoring infospace
 
   std::stringstream oss2;
