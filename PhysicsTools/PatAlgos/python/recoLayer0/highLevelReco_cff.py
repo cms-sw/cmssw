@@ -31,10 +31,10 @@ from PhysicsTools.PatAlgos.recoLayer0.jetMETCorrections_cff import *
 # default  sequence for extra high-level reconstruction
 patHighLevelReco_withoutPFTau = cms.Sequence(
     patElectronId *
+    patPhotonId *
     patJetFlavourId *
     patLayer0ElectronIsolation *
     patLayer0PhotonIsolation *
-    patLayer0PhotonID *
     patLayer0MuonIsolation *
     patLayer0BTagging *
     patLayer0JetMETCorrections *

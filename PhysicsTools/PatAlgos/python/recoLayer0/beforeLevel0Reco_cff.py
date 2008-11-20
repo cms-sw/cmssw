@@ -14,7 +14,6 @@ patBeforeLevel0Reco_withoutPFTau = cms.Sequence(
     patAODBTagging *
     patAODElectronIsolation *
     patAODPhotonIsolation *
-    patAODPhotonID *
     patAODMuonIsolation *
     patAODJetMETCorrections 
 )
