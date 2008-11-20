@@ -5,7 +5,6 @@
 
 #include <iostream>
 #include <iomanip>
-#include <assert.h>
 #include <math.h>
 
 //DEFINE STATICS
@@ -28,7 +27,6 @@ void L1GctJetEtCalibrationFunction::setParams(const double& htScale,
                                               const double& threshold,
                                               const std::vector< std::vector<double> >& jetCalibFunc,
                                               const std::vector< std::vector<double> >& tauCalibFunc ) {
-  assert ((jetCalibFunc.size() == NUMBER_ETA_VALUES) && (tauCalibFunc.size() == N_CENTRAL_ETA_VALUES));
   m_htScaleLSB = htScale;
   m_threshold  = threshold;
   m_jetCalibFunc = jetCalibFunc;
@@ -37,7 +35,6 @@ void L1GctJetEtCalibrationFunction::setParams(const double& htScale,
 
 /// set the look-up table to return energy, rather than Et
 void L1GctJetEtCalibrationFunction::setConversionToEnergyOn(const std::vector<double>& conversionFunc) {
-  assert (conversionFunc.size() == NUMBER_ETA_VALUES);
   m_convertToEnergy=true;
   m_energyConversion = conversionFunc;
 }
@@ -105,15 +102,16 @@ double L1GctJetEtCalibrationFunction::correctedEt(const double et,
                                                   const unsigned eta,
                                                   const bool tauVeto) const
 {
-  if ((tauVeto && eta>=NUMBER_ETA_VALUES) || (!tauVeto && eta>=N_CENTRAL_ETA_VALUES)) {
+  if (eta>=NUMBER_ETA_VALUES) {
     return 0;
   } else {
     double result=0;
-    if (tauVeto) {
-      assert(eta<m_jetCalibFunc.size());
+    if ((eta>=N_CENTRAL_ETA_VALUES) || tauVeto) {
+      // Use m_jetCalibFunc for central and forward jets.
+      // In forward eta bins we ignore the tau flag (as in the firmware)
       result=findCorrectedEt(et, m_jetCalibFunc.at(eta));
     } else {
-      assert(eta<m_tauCalibFunc.size());
+      // Use m_tauCalibFunc for tau jets (in central eta bins)
       result=findCorrectedEt(et, m_tauCalibFunc.at(eta));
     }
     if (m_convertToEnergy)  { result *= m_energyConversion.at(eta); }
