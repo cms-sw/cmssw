@@ -464,28 +464,15 @@ SiStripFedCabling::SiStripFedCabling( const std::vector<FedChannelConnection>& i
 // -----------------------------------------------------------------------------
 //
 SiStripFedCabling::SiStripFedCabling( const SiStripFedCabling& input ) 
-  : feds_(),
-    registry_(),
-    connections_(),
-    detected_(),
-    undetected_()
+  : feds_( input.feds_ ),
+    registry_( input.registry_ ),
+    connections_( input.connections_ ),
+    detected_( input.detected_ ),
+    undetected_( input.undetected_ )
 {
   LogTrace(mlCabling_)
     << "[SiStripFedCabling::" << __func__ << "]"
     << " Constructing object...";
-
-  std::vector<FedChannelConnection> v_fcc;
-
-  // Retrieve FED ids from cabling map and iterate through                                                                                                                                                    
-  const std::vector<uint16_t>& fedids = input.feds();
-  std::vector<uint16_t>::const_iterator ifed=fedids.begin();
-  for ( ; ifed != fedids.end(); ++ifed ) {
-    //copy the vector of FedChannelConnection for the given ifed 
-    v_fcc.insert(v_fcc.end(),input.connections(*ifed).begin(),input.connections(*ifed).end());
-  }
-
-  buildFedCabling( v_fcc );
-  
 }
 
 // -----------------------------------------------------------------------------
@@ -664,6 +651,12 @@ const std::vector<FedChannelConnection>& SiStripFedCabling::connections( uint16_
     return conns2; 
   } else { return conns1; }
   
+}
+
+// -----------------------------------------------------------------------------
+// Returns active FEDs
+const std::vector<uint16_t>& SiStripFedCabling::feds() const {
+  return feds_;
 }
 
 // -----------------------------------------------------------------------------
