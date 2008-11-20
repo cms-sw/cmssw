@@ -9,6 +9,8 @@
 #include "CalibTracker/SiPixelESProducers/interface/SiPixelFakeGainOfflineESSource.h"
 #include "CalibTracker/SiPixelESProducers/interface/SiPixelFakeLorentzAngleESSource.h"
 #include "CalibTracker/SiPixelESProducers/interface/SiPixelDetInfoFileWriter.h"
+#include "CalibTracker/SiPixelESProducers/interface/SiPixelFakeCPEGenericErrorParmESSource.h"
+#include "CalibTracker/SiPixelESProducers/interface/SiPixelFakeTemplateDBObjectESSource.h"
 #include "CalibTracker/SiPixelESProducers/interface/SiPixelFakeQualityESSource.h"
 
 DEFINE_SEAL_MODULE();
@@ -17,4 +19,6 @@ DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(SiPixelFakeGainForHLTESSource);
 DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(SiPixelFakeGainOfflineESSource);
 DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(SiPixelFakeLorentzAngleESSource);
 DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(SiPixelFakeQualityESSource);
+DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(SiPixelFakeCPEGenericErrorParmESSource);
+DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(SiPixelFakeTemplateDBObjectESSource);
 DEFINE_ANOTHER_FWK_MODULE(SiPixelDetInfoFileWriter);
