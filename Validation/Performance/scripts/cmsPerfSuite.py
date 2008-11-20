@@ -402,12 +402,14 @@ class PerfSuite:
     #############
     # Copy root file from another candle's directory
     # ! Again this is messy. 
-    def cprootfile(self,dir,candle,NumOfEvents):
+    def cprootfile(self,dir,candle,NumOfEvents,cmsdriverOptions):
+        #print "*****\n %s \n******"%cmsdriverOptions[13:-1]
+        #Nasty hack in here to introduce the use of cmsdriverOptions quickly and dirtily...
         cmds = ("cd %s" % dir,
                 "cp -pR ../%s_IgProf/%s_GEN,SIM.root ."  % (candle,CandFname[candle]))
         if self.runCmdSet(cmds):
             self.logh.write("Since there was no ../%s_IgProf/%s_GEN,SIM.root file it will be generated first\n"%(candle,CandFname[candle]))
-            cmd = "cd %s ; cmsDriver.py %s -s GEN,SIM -n %s --fileout %s_GEN,SIM.root >& %s_GEN_SIM_for_valgrind.log" % (dir,KeywordToCfi[candle],str(NumOfEvents),candle,candle)
+            cmd = "cd %s ; cmsDriver.py %s -s GEN,SIM -n %s --fileout %s_GEN,SIM.root %s >& %s_GEN_SIM_for_valgrind.log" % (dir,KeywordToCfi[candle],str(NumOfEvents),candle,cmsdriverOptions[13:-1],candle) #Hack to get rid of the --cmsdriver= in front of the actual cmsdriver options...
             self.printFlush(cmd)
             cmdout=os.popen3(cmd)[2].read()
             if cmdout:
@@ -563,7 +565,7 @@ class PerfSuite:
                         self.logh.write("Valgrind tests **GEN,SIM ONLY** on %s candle\n" % candle    )
                     else:
                         self.logh.write("Valgrind tests **SKIPPING GEN,SIM** on %s candle\n" % candle)
-                        self.cprootfile(adir,candle,NumEvents)              
+                        self.cprootfile(adir,candle,NumEvents,cmsdriverOptions)              
     
                 if self._unittest:
                     # Run cmsDriver.py

@@ -1574,10 +1574,11 @@ def getDirnameDirs(repdir,WebArea):
 # Upload stage to remote location
 def syncToRemoteLoc(stage,drive,path,port):
     stage = addtrailingslash(stage)
-    cmd = "rsync"
+    cmd = "rsync -avz"
     # We must, MUST, do os.path.normpath otherwise rsync will dump the files in the directory
     # we specify on the remote server, rather than creating the CMS_VERSION directory
-    args = "--rsh=\"ssh -l relval\" --port=%s %s %s:%s" % (port,os.path.normpath(stage),drive,path)
+    #--rsh=\"ssh -l relval\" 
+    args = "--port=%s %s %s:%s" % (port,os.path.normpath(stage),drive,path)
     retval = -1
     if _dryrun:
         print              cmd + " --dry-run " + args 
