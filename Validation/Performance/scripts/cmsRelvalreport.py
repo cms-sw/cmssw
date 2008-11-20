@@ -749,7 +749,8 @@ def principal(options):
         
         logger('Process ended on %s\n' %time.asctime())
     
-    logger('Procedure finished on %s' %time.asctime())      
+    logger('Procedure finished on %s' %time.asctime())
+    sys.exit(exit_code)
 
 ###################################################################################################    
         
