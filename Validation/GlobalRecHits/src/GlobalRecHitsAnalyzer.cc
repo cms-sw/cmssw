@@ -2,8 +2,8 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2008/07/23 19:47:47 $
- *  $Revision: 1.13 $
+ *  $Date: 2008/11/07 12:57:15 $
+ *  $Revision: 1.14 $
  *  \author M. Strang SUNY-Buffalo
  *  Testing by Ken Smith
  */
@@ -573,9 +573,6 @@ void GlobalRecHitsAnalyzer::fillECal(const edm::Event& iEvent,
     validRecHitES = false;
   }  
 
-  // UNTIL GEOMETRY IS RETURNED
-  validRecHitES = false;
-  
   // loop over simhits
   const std::string preshowerHitsName(hitsProducer+"EcalHitsES");
   iEvent.getByLabel("mix",preshowerHitsName,crossingFrame);
