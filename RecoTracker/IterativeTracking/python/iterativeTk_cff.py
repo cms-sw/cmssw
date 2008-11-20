@@ -4,6 +4,7 @@ from RecoTracker.IterativeTracking.FirstStep_cff import *
 from RecoTracker.IterativeTracking.SecStep_cff import *
 from RecoTracker.IterativeTracking.ThStep_cff import *
 from RecoTracker.IterativeTracking.PixelLessStep_cff import *
-iterTracking = cms.Sequence(firstStep*secondStep*thirdStep*fourthStep)
+from RecoTracker.IterativeTracking.TobTecStep_cff import *
+iterTracking = cms.Sequence(firstStep*secondStep*thirdStep*fourthStep*fifthStep)
 
 
