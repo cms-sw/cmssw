@@ -4,10 +4,9 @@
  *  All track parameters are passed in the constructor and stored internally.
  */
 
-#include "DataFormats/Candidate/interface/Particle.h"
-
 #include "SimDataFormats/EncodedEventId/interface/EncodedEventId.h"
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "SimDataFormats/TrackingAnalysis/interface/ParticleBase.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingVertex.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
@@ -19,7 +18,7 @@ namespace HepMC {
 }
 class TrackingVertex;
 
-class TrackingParticle : public reco::Particle {
+class TrackingParticle : public ParticleBase {
   
   friend std::ostream& operator<< (std::ostream& s, const TrackingParticle & tp);
   
@@ -102,7 +101,7 @@ public:
   
 private:
   /// production time
-  double t_;
+  float t_;
   /// PDG identifier, signal source, crossing number
   int pdgId_;
   EncodedEventId eventId_;

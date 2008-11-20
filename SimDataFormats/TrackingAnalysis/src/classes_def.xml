@@ -1,4 +1,13 @@
 <lcgdict>
+
+  <class name="ParticleBase">
+    <field name="vertex_" iotype="ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<Float16_t> >" />
+    <field name="p4Polar_" transient="true" />
+    <field name="p4Cartesian_" transient="true" />
+  </class>
+  <class name="std::vector<ParticleBase>" />
+  <class name="edm::Wrapper<std::vector<ParticleBase> >" />
+
   <class name="TrackingVertex" />
   <class name="std::vector<TrackingVertex>" />
   <class name="std::vector<TrackingVertex>::iterator" />
@@ -8,10 +17,11 @@
   <class pattern="edm::RefVector<std::vector<TrackingVertex>,*>" />
   <class name="edm::RefProd<std::vector<TrackingVertex> >" />
 
-  <class name="TrackingParticle" />
+  <class name="TrackingParticle">
     <field name="trackerPSimHit_"   transient="true"/>
     <field name="muonPSimHit_"      transient="true"/>
     <field name="subdetVectorFill_" transient="true"/>
+  </class>
 
   <class name="std::vector<TrackingParticle>" />
   <class name="edm::Wrapper<std::vector<TrackingParticle> >" />

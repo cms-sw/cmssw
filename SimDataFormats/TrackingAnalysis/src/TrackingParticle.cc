@@ -7,7 +7,7 @@ typedef TrackingVertexRefVector::iterator          tv_iterator;
 
 TrackingParticle::TrackingParticle( char q, const LorentzVector & p4, const Point & vtx,
                                     double t, const int pdgId, const int status, const EncodedEventId eventId) :
-  reco::Particle( q, p4, vtx,pdgId,status ), t_( t ), pdgId_( pdgId ), eventId_( eventId ), subdetVectorFill_( false ) {
+  ParticleBase( q, p4, vtx,pdgId,status ), t_( t ), pdgId_( pdgId ), eventId_( eventId ), subdetVectorFill_( false ) {
 }
 
 TrackingParticle::~TrackingParticle() {
@@ -159,7 +159,7 @@ void TrackingParticle::setMatchedHit(const int &hitnumb) {
 
 void TrackingParticle::setVertex(const Point & vtx, double t){
   t_ = t;
-  reco::Particle::setVertex(vtx);
+  ParticleBase::setVertex(vtx);
 }
 
 std::ostream& operator<< (std::ostream& s, const TrackingParticle & tp) {

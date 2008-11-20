@@ -6,7 +6,7 @@
  * A simulated Vertex with links to TrackingParticles
  * for analysis of track and vertex reconstruction
  *
- * \version $Id: TrackingVertex.h,v 1.21 2007/12/28 17:16:51 ewv Exp $
+ * \version $Id: TrackingVertex.h,v 1.22 2008/02/01 20:47:08 ewv Exp $
  *
  */
 
@@ -28,7 +28,7 @@ class TrackingVertex {
 
   typedef edm::RefVector<edm::HepMCProduct, HepMC::GenVertex > GenVertexRefVector;
   typedef edm::Ref<edm::HepMCProduct, HepMC::GenVertex >       GenVertexRef;
-  typedef math::XYZTLorentzVectorD                             LorentzVector;
+  typedef math::XYZTLorentzVectorF                             LorentzVector;
   typedef        GenVertexRefVector::iterator                  genv_iterator;
   typedef    std::vector<SimVertex>::const_iterator            g4v_iterator;
   typedef TrackingParticleRefVector::iterator                  tp_iterator;

@@ -1,3 +1,4 @@
+#include "SimDataFormats/TrackingAnalysis/interface/ParticleBase.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingVertexContainer.h"
@@ -5,6 +6,9 @@
 
 namespace {
   struct dictionary {
+
+    std::vector<ParticleBase> dummy100;
+    edm::Wrapper<std::vector<ParticleBase> > dummy101;
 
     TrackingParticle dummy10;
     TrackingParticleContainer dummy11;
