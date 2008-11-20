@@ -59,6 +59,10 @@ L1GctValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   Handle< L1GctEtMissCollection >  missHtColl ;
   iEvent.getByLabel( m_missHt_tag, missHtColl ) ;
 
+  // Get the internal jet data from the event (for checking Ht)
+  Handle < L1GctInternJetDataCollection > internalJetsColl;
+  iEvent.getByLabel( m_energy_tag, internalJetsColl ) ;
+
   double etTot = 0.0;
   for (L1GctEtTotalCollection::const_iterator jbx=sumEtColl->begin(); jbx!=sumEtColl->end(); jbx++) {
     if (jbx->bx()==0) { etTot  = static_cast<double>(jbx->et()); }
@@ -95,6 +99,21 @@ L1GctValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
     }
   }
 
+  double htFromJets = 0.0;
+  double hxFromJets = 0.0;
+  double hyFromJets = 0.0;
+  for (L1GctInternJetDataCollection::const_iterator jet=internalJetsColl->begin(); jet!=internalJetsColl->end(); jet++) {
+    if (jet->bx()==0 && !jet->empty()) {
+      double jetEt = static_cast<double>(jet->et());
+      int phibin = jet->regionId().iphi();
+      if (phibin>=9) phibin -= 18;
+      double jetAng = (static_cast<double>(phibin)+0.5)*M_PI/9.;
+      htFromJets += jetEt;
+      hxFromJets += jetEt*cos(jetAng);
+      hyFromJets += jetEt*sin(jetAng);
+    }
+  }
+
   theSumEtInLsb->Fill(etTot);
   theSumHtInLsb->Fill(etHad);
   theMissEtInLsb->Fill(etMiss);
@@ -110,6 +129,11 @@ L1GctValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 
   theMissEtVsMissHt->Fill(etMiss*lsbForEt, htMiss*lsbForHt*8);
   theMissEtVsMissHtAngle->Fill(etMAng, htMAng);
+
+  theHtVsInternalJetsSum->Fill(etHad*lsbForHt, htFromJets*lsbForHt);
+  theMissHtVsInternalJetsSum->Fill(htMiss*lsbForHt*8, sqrt(hxFromJets*hxFromJets + hyFromJets*hyFromJets)*lsbForHt);
+  theMissHxVsInternalJetsSum->Fill(htMiss*lsbForHt*cos(htMAng)*8, hxFromJets*lsbForHt);
+  theMissHyVsInternalJetsSum->Fill(htMiss*lsbForHt*sin(htMAng)*8, hyFromJets*lsbForHt);
 
   // Get jet counts from the event
   Handle< L1GctJetCountsCollection > jetCountColl ;
@@ -187,6 +211,16 @@ L1GctValidation::beginJob(const edm::EventSetup&)
   theMissEtVsMissHtAngle = dir0.make<TH2F>("MissEtVsMissHtAngle", "Angle correlation Missing Et vs Missing Ht",
 					   72, -M_PI, M_PI, 72, -M_PI, M_PI);
 
+  theHtVsInternalJetsSum     = dir0.make<TH2F>("HtVsInternalJetsSum", "Ht vs scalar sum of jet Et values (in GCT units)",
+					       128, 0., 2048., 128, 0., 2048.);
+  theMissHtVsInternalJetsSum = dir0.make<TH2F>("MissHtVsInternalJetsSum", "Missing Ht vs vector sum of jet Et values (in GeV)",
+					       128, 0., 512., 128, 0., 512.);
+  theMissHxVsInternalJetsSum = dir0.make<TH2F>("MissHxVsInternalJetsSum", "Missing Ht x component vs sum of jet Et values (in GeV)",
+					       128, -256., 256., 128, -256., 256.);
+  theMissHyVsInternalJetsSum = dir0.make<TH2F>("MissHyVsInternalJetsSum", "Missing Ht y component vs sum of jet Et values (in GeV)",
+					       128, -256., 256., 128, -256., 256.);
+
+
   TFileDirectory dir1 = fs->mkdir("L1GctHfSumsAndJetCounts");
 
   for (unsigned jc=0; jc<L1GctJetCounts::MAX_TOTAL_COUNTS; jc++) {
@@ -203,9 +237,7 @@ L1GctValidation::beginJob(const edm::EventSetup&)
     theJetCounts.push_back(dir1.make<TH1F>(title.c_str(), header.c_str(), 32, 0., 32.));
   }
 
-  // !!!+++
-  // The following needs updating for new Hf sums code
-  // !!!+++
+  // Minimum bias triggers from Hf inner rings
   theHfRing0EtSumPositiveEta = dir1.make<TH1F>("HfRing0EtSumPositiveEta", "Hf Inner Ring0 Et eta+",
                                                60, 0., 30.);
   theHfRing0EtSumNegativeEta = dir1.make<TH1F>("HfRing0EtSumNegativeEta", "Hf Inner Ring0 Et eta-",
