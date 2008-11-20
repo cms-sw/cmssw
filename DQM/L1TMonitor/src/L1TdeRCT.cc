@@ -891,8 +891,8 @@ if(first)
         rctIsoEmEmulOcc_->Fill(iem->regionId().ieta(), iem->regionId().iphi());
 
         // to  show bad channles in the 2D efficiency plots
-        rctIsoEmIneffOcc_->Fill (iem->regionId().ieta(), iem->regionId().iphi(), 0.009999);
-        rctIsoEmEff1Occ_->Fill  (iem->regionId().ieta(), iem->regionId().iphi(), 0.009999);
+        rctIsoEmIneffOcc_->Fill (iem->regionId().ieta(), iem->regionId().iphi(), 0.01);
+        rctIsoEmEff1Occ_->Fill  (iem->regionId().ieta(), iem->regionId().iphi(), 0.01);
 
         int channel;
 
@@ -909,8 +909,8 @@ if(first)
         rctNisoEmEmulOcc_->Fill(iem->regionId().ieta(), iem->regionId().iphi());
 
         // to  show bad channles in the 2D efficiency plots
-        rctNisoEmIneffOcc_->Fill (iem->regionId().ieta(), iem->regionId().iphi(), 0.009999);
-        rctNisoEmEff1Occ_->Fill  (iem->regionId().ieta(), iem->regionId().iphi(), 0.009999);
+        rctNisoEmIneffOcc_->Fill (iem->regionId().ieta(), iem->regionId().iphi(), 0.01);
+        rctNisoEmEff1Occ_->Fill  (iem->regionId().ieta(), iem->regionId().iphi(), 0.01);
 
         int channel;
 //
@@ -936,9 +936,9 @@ if(first)
         rctIsoEmDataOcc_->Fill(iem->regionId().ieta(), iem->regionId().iphi());
 
         // new stuff to avoid 0's in emulator 2D //
-        // rctIsoEmEmulOcc_->Fill(iem->regionId().ieta(), iem->regionId().iphi(),0.0001);
+        // rctIsoEmEmulOcc_->Fill(iem->regionId().ieta(), iem->regionId().iphi(),0.01);
         rctIsoEmOvereffOcc_->Fill (iem->regionId().ieta(),
-                                   iem->regionId().iphi(), 0.009999);
+                                   iem->regionId().iphi(), 0.01);
 
         int channel;
 
@@ -946,7 +946,7 @@ if(first)
         rctIsoEmDataOcc1D_->Fill(channel);
 
         // new stuff to avoid 0's
-        // rctIsoEmEmulOcc1D_->Fill(channel,0.009999);
+        // rctIsoEmEmulOcc1D_->Fill(channel);
 
         electronDataRank[0][nelectrIsoData]=iem->rank();
         electronDataEta[0][nelectrIsoData]=iem->regionId().ieta();
@@ -959,9 +959,9 @@ if(first)
         rctNisoEmDataOcc_->Fill(iem->regionId().ieta(), iem->regionId().iphi());
 
         // new stuff to avoid 0's in emulator 2D //
-        // rctNisoEmEmulOcc_->Fill(iem->regionId().ieta(), iem->regionId().iphi(),0.0001);
+        // rctNisoEmEmulOcc_->Fill(iem->regionId().ieta(), iem->regionId().iphi(),0.01);
         rctNisoEmOvereffOcc_->Fill (iem->regionId().ieta(),
-                                    iem->regionId().iphi(), 0.009999);
+                                    iem->regionId().iphi(), 0.01);
 
         int channel;
 
@@ -969,7 +969,7 @@ if(first)
         rctNisoEmDataOcc1D_->Fill(channel);
 
         // new stuff to avoid 0's
-        // rctNisoEmEmulOcc1D_->Fill(channel,0.009999);
+        // rctNisoEmEmulOcc1D_->Fill(channel);
 
         electronDataRank[1][nelectrNisoData]=iem->rank();
         electronDataEta[1][nelectrNisoData]=iem->regionId().ieta();
@@ -998,33 +998,33 @@ if(first)
 
     // to show bad channels in 2D efficiency plots:
     if(ireg->overFlow()) {
-      rctBitUnmatchedEmulOverFlow2D_->Fill (ireg->gctEta(), ireg->gctPhi(), 0.009999);
-      rctBitMatchedOverFlow2D_->Fill       (ireg->gctEta(), ireg->gctPhi(), 0.009999);
+      rctBitUnmatchedEmulOverFlow2D_->Fill (ireg->gctEta(), ireg->gctPhi(), 0.01);
+      rctBitMatchedOverFlow2D_->Fill       (ireg->gctEta(), ireg->gctPhi(), 0.01);
     }
 
     if(ireg->tauVeto()) {
-      rctBitUnmatchedEmulTauVeto2D_->Fill (ireg->gctEta(), ireg->gctPhi(), 0.009999);
-      rctBitMatchedTauVeto2D_->Fill       (ireg->gctEta(), ireg->gctPhi(), 0.009999);
+      rctBitUnmatchedEmulTauVeto2D_->Fill (ireg->gctEta(), ireg->gctPhi(), 0.01);
+      rctBitMatchedTauVeto2D_->Fill       (ireg->gctEta(), ireg->gctPhi(), 0.01);
     }
 
     if(ireg->mip()) {
-      rctBitUnmatchedEmulMip2D_->Fill (ireg->gctEta(), ireg->gctPhi(), 0.009999);
-      rctBitMatchedMip2D_->Fill       (ireg->gctEta(), ireg->gctPhi(), 0.009999);
+      rctBitUnmatchedEmulMip2D_->Fill (ireg->gctEta(), ireg->gctPhi(), 0.01);
+      rctBitMatchedMip2D_->Fill       (ireg->gctEta(), ireg->gctPhi(), 0.01);
     }
 
     if(ireg->quiet()) {
-      rctBitUnmatchedEmulQuiet2D_->Fill (ireg->gctEta(), ireg->gctPhi(), 0.009999);
-      rctBitMatchedQuiet2D_->Fill       (ireg->gctEta(), ireg->gctPhi(), 0.009999);
+      rctBitUnmatchedEmulQuiet2D_->Fill (ireg->gctEta(), ireg->gctPhi(), 0.01);
+      rctBitMatchedQuiet2D_->Fill       (ireg->gctEta(), ireg->gctPhi(), 0.01);
     }
 
     if(ireg->fineGrain()) {
-      rctBitUnmatchedEmulHfPlusTau2D_->Fill (ireg->gctEta(), ireg->gctPhi(), 0.009999);
-      rctBitMatchedHfPlusTau2D_->Fill       (ireg->gctEta(), ireg->gctPhi(), 0.009999);
+      rctBitUnmatchedEmulHfPlusTau2D_->Fill (ireg->gctEta(), ireg->gctPhi(), 0.01);
+      rctBitMatchedHfPlusTau2D_->Fill       (ireg->gctEta(), ireg->gctPhi(), 0.01);
     }
 
     if(ireg->et() > 0) {
-      rctRegUnmatchedEmulOcc2D_->Fill (ireg->gctEta(), ireg->gctPhi(), 0.009999);
-      rctRegMatchedOcc2D_->Fill       (ireg->gctEta(), ireg->gctPhi(), 0.009999);
+      rctRegUnmatchedEmulOcc2D_->Fill (ireg->gctEta(), ireg->gctPhi(), 0.01);
+      rctRegMatchedOcc2D_->Fill       (ireg->gctEta(), ireg->gctPhi(), 0.01);
     }
 
     nRegionEmul = PHIBINS * ireg->gctEta() + ireg->gctPhi();
@@ -1055,18 +1055,18 @@ if(first)
       rctRegDataOcc2D_      ->Fill(ireg->gctEta(), ireg->gctPhi());
       }
     // to show bad channels in 2D inefficiency:
-    // if(ireg->overFlow())  rctBitEmulOverFlow2D_ ->Fill(ireg->gctEta(), ireg->gctPhi(), 0.009999);
-    // if(ireg->tauVeto())   rctBitEmulTauVeto2D_  ->Fill(ireg->gctEta(), ireg->gctPhi(), 0.009999);
-    // if(ireg->mip())       rctBitEmulMip2D_      ->Fill(ireg->gctEta(), ireg->gctPhi(), 0.009999);
-    // if(ireg->quiet())     rctBitEmulQuiet2D_    ->Fill(ireg->gctEta(), ireg->gctPhi(), 0.009999);
-    // if(ireg->fineGrain()) rctBitEmulHfPlusTau2D_->Fill(ireg->gctEta(), ireg->gctPhi(), 0.009999);
-    // if(ireg->et() > 0)    rctRegEmulOcc2D_      ->Fill(ireg->gctEta(), ireg->gctPhi(), 0.009999);
-    if(ireg->overFlow())  rctBitUnmatchedDataOverFlow2D_ ->Fill(ireg->gctEta(), ireg->gctPhi(), 0.009999);
-    if(ireg->tauVeto())   rctBitUnmatchedDataTauVeto2D_  ->Fill(ireg->gctEta(), ireg->gctPhi(), 0.009999);
-    if(ireg->mip())       rctBitUnmatchedDataMip2D_      ->Fill(ireg->gctEta(), ireg->gctPhi(), 0.009999);
-    if(ireg->quiet())     rctBitUnmatchedDataQuiet2D_    ->Fill(ireg->gctEta(), ireg->gctPhi(), 0.009999);
-    if(ireg->fineGrain()) rctBitUnmatchedDataHfPlusTau2D_->Fill(ireg->gctEta(), ireg->gctPhi(), 0.009999);
-    if(ireg->et() > 0)    rctRegUnmatchedDataOcc2D_      ->Fill(ireg->gctEta(), ireg->gctPhi(), 0.009999);
+    // if(ireg->overFlow())  rctBitEmulOverFlow2D_ ->Fill(ireg->gctEta(), ireg->gctPhi(), 0.01);
+    // if(ireg->tauVeto())   rctBitEmulTauVeto2D_  ->Fill(ireg->gctEta(), ireg->gctPhi(), 0.01);
+    // if(ireg->mip())       rctBitEmulMip2D_      ->Fill(ireg->gctEta(), ireg->gctPhi(), 0.01);
+    // if(ireg->quiet())     rctBitEmulQuiet2D_    ->Fill(ireg->gctEta(), ireg->gctPhi(), 0.01);
+    // if(ireg->fineGrain()) rctBitEmulHfPlusTau2D_->Fill(ireg->gctEta(), ireg->gctPhi(), 0.01);
+    // if(ireg->et() > 0)    rctRegEmulOcc2D_      ->Fill(ireg->gctEta(), ireg->gctPhi(), 0.01);
+    if(ireg->overFlow())  rctBitUnmatchedDataOverFlow2D_ ->Fill(ireg->gctEta(), ireg->gctPhi(), 0.01);
+    if(ireg->tauVeto())   rctBitUnmatchedDataTauVeto2D_  ->Fill(ireg->gctEta(), ireg->gctPhi(), 0.01);
+    if(ireg->mip())       rctBitUnmatchedDataMip2D_      ->Fill(ireg->gctEta(), ireg->gctPhi(), 0.01);
+    if(ireg->quiet())     rctBitUnmatchedDataQuiet2D_    ->Fill(ireg->gctEta(), ireg->gctPhi(), 0.01);
+    if(ireg->fineGrain()) rctBitUnmatchedDataHfPlusTau2D_->Fill(ireg->gctEta(), ireg->gctPhi(), 0.01);
+    if(ireg->et() > 0)    rctRegUnmatchedDataOcc2D_      ->Fill(ireg->gctEta(), ireg->gctPhi(), 0.01);
 
     nRegionData = PHIBINS * ireg->gctEta() + ireg->gctPhi();
 
@@ -1128,8 +1128,8 @@ if(first)
         {
           if(k==0)
           {
-            rctIsoEmEff1Occ_->Fill(electronEmulEta[k][i], electronEmulPhi[k][i], 0.980003);
-            // Weight is for ROOT; when added to initial weight of 0.009999, should just exceed 0.990001
+            rctIsoEmEff1Occ_->Fill(electronEmulEta[k][i], electronEmulPhi[k][i], 0.980001);
+            // Weight is for ROOT; when added to initial weight of 0.01, should just exceed 0.99
 
             int chnl;
 
@@ -1146,15 +1146,16 @@ if(first)
             if(electronEmulRank[k][i]==electronDataRank[k][j])
             {
               rctIsoEmEff2Occ1D_->Fill(chnl);
-              rctIsoEmEff2Occ_->Fill(electronEmulEta[k][i], electronEmulPhi[k][i], 0.990002);
-              // Weight is for ROOT; when added to initial weight of 0.009999, should just exceed 0.990001
+              rctIsoEmEff2Occ_->Fill(electronEmulEta[k][i], electronEmulPhi[k][i], 0.990001);
+              // Weight is for ROOT; should just exceed 0.99
+              // NOTE: Weight is different for eff 2 because this isn't filled initially
             }
           }
 
           else
           {
-            rctNisoEmEff1Occ_->Fill(electronEmulEta[k][i], electronEmulPhi[k][i], 0.980003);
-            // Weight is for ROOT; when added to initial weight of 0.009999, should just exceed 0.990001
+            rctNisoEmEff1Occ_->Fill(electronEmulEta[k][i], electronEmulPhi[k][i], 0.980001);
+            // Weight is for ROOT; when added to initial weight of 0.01, should just exceed 0.99
 
             int chnl;
 
@@ -1171,8 +1172,9 @@ if(first)
             if(electronEmulRank[k][i]==electronDataRank[k][j])
             {
               rctNisoEmEff2Occ1D_->Fill(chnl);
-              rctNisoEmEff2Occ_->Fill(electronEmulEta[k][i], electronEmulPhi[k][i], 0.990002);
-              // Weight is for ROOT; when added to initial weight of 0.009999, should just exceed 0.990001
+              rctNisoEmEff2Occ_->Fill(electronEmulEta[k][i], electronEmulPhi[k][i], 0.990001);
+              // Weight is for ROOT; should just exceed 0.99
+              // NOTE: Weight is different for eff 2 because this isn't filled initially
             }
           }
 
@@ -1184,8 +1186,8 @@ if(first)
       {
         if(k==0)
         {
-          rctIsoEmIneffOcc_->Fill(electronEmulEta[k][i], electronEmulPhi[k][i], 0.980002);
-          // Weight is for ROOT; when added to initial weight of 0.009999, should equal 0.990001
+          rctIsoEmIneffOcc_->Fill(electronEmulEta[k][i], electronEmulPhi[k][i], 0.98);
+          // Weight is for ROOT; when added to initial weight of 0.01, should equal 0.99
 
           int chnl;
 
@@ -1199,8 +1201,8 @@ if(first)
 
         else
         {
-          rctNisoEmIneffOcc_->Fill(electronEmulEta[k][i], electronEmulPhi[k][i], 0.980002);
-          // Weight is for ROOT; when added to initial weight of 0.009999, should equal 0.990001
+          rctNisoEmIneffOcc_->Fill(electronEmulEta[k][i], electronEmulPhi[k][i], 0.98);
+          // Weight is for ROOT; when added to initial weight of 0.01, should equal 0.99
 
           int chnl;
 
@@ -1245,8 +1247,8 @@ if(first)
       {
         if(k==0)
         {
-          rctIsoEmOvereffOcc_->Fill(electronDataEta[k][i], electronDataPhi[k][i], 0.980002);
-          // Weight is for ROOT; when added to initial weight of 0.009999, should equal 0.990001
+          rctIsoEmOvereffOcc_->Fill(electronDataEta[k][i], electronDataPhi[k][i], 0.98);
+          // Weight is for ROOT; when added to initial weight of 0.01, should equal 0.99
 
           int chnl;
 
@@ -1261,8 +1263,8 @@ if(first)
 
         else
         {
-          rctNisoEmOvereffOcc_->Fill(electronDataEta[k][i], electronDataPhi[k][i], 0.980002);
-          // Weight is for ROOT; when added to initial weight of 0.009999, should equal 0.990001
+          rctNisoEmOvereffOcc_->Fill(electronDataEta[k][i], electronDataPhi[k][i], 0.98);
+          // Weight is for ROOT; when added to initial weight of 0.01, should equal 0.99
 
           int chnl;
 
@@ -1307,13 +1309,13 @@ if(first)
 
             chnl = PHIBINS*regionEmulEta[i] + regionEmulPhi[i];
             rctRegMatchedOcc1D_->Fill(chnl);
-            rctRegMatchedOcc2D_->Fill(regionEmulEta[i], regionEmulPhi[i], 0.980003);
-            // Weight is for ROOT; when added to initial weight of 0.009999, should just exceed 0.990001
+            rctRegMatchedOcc2D_->Fill(regionEmulEta[i], regionEmulPhi[i], 0.980001);
+            // Weight is for ROOT; when added to initial weight of 0.01, should just exceed 0.99
 
             if(singlechannelhistos_) rctRegEffChannel_[chnl]->Fill(regionEmulRank[i] - regionDataRank[i]);
 
-            if(regionEmulRank[i] == regionDataRank[i]) rctRegDeltaEtOcc2D_->Fill(regionEmulEta[i], regionEmulPhi[i], 0.990002);
-            // Weight is for ROOT; should just exceed 0.990001
+            if(regionEmulRank[i] == regionDataRank[i]) rctRegDeltaEtOcc2D_->Fill(regionEmulEta[i], regionEmulPhi[i], 0.990001);
+            // Weight is for ROOT; should just exceed 0.99
             // NOTE: Weight is different for eff 2 because this isn't filled initially
 
             regFound = kTRUE;
@@ -1322,29 +1324,29 @@ if(first)
           if(regionEmulOverFlow[i] == true &&
              regionDataOverFlow[i] == true)
           {
-            rctBitMatchedOverFlow2D_->Fill(regionEmulEta[i], regionEmulPhi[i], 0.980003);
+            rctBitMatchedOverFlow2D_->Fill(regionEmulEta[i], regionEmulPhi[i], 0.980001);
             overFlowFound = kTRUE;
           }
 
           if(regionEmulTauVeto[i] == true &&
              regionDataTauVeto[i] == true)
           {
-            rctBitMatchedTauVeto2D_->Fill(regionEmulEta[i], regionEmulPhi[i], 0.980003);
+            rctBitMatchedTauVeto2D_->Fill(regionEmulEta[i], regionEmulPhi[i], 0.980001);
             tauVetoFound = kTRUE;
           }
 
           if (regionEmulMip[i] == true && regionDataMip[i] == true) {
-            rctBitMatchedMip2D_->Fill (regionEmulEta[i], regionEmulPhi[i], 0.980003);
+            rctBitMatchedMip2D_->Fill (regionEmulEta[i], regionEmulPhi[i], 0.980001);
             mipFound = kTRUE;
           }
 
           if (regionEmulQuiet[i] == true && regionDataQuiet[i] == true) {
-            rctBitMatchedQuiet2D_->Fill (regionEmulEta[i], regionEmulPhi[i], 0.980003);
+            rctBitMatchedQuiet2D_->Fill (regionEmulEta[i], regionEmulPhi[i], 0.980001);
             quietFound = kTRUE;
           }
 
           if (regionEmulHfPlusTau[i] == true && regionDataHfPlusTau[i] == true) {
-            rctBitMatchedHfPlusTau2D_->Fill (regionEmulEta[i], regionEmulPhi[i], 0.980003);
+            rctBitMatchedHfPlusTau2D_->Fill (regionEmulEta[i], regionEmulPhi[i], 0.980001);
             hfPlusTauFound = kTRUE;
           }
 
@@ -1368,38 +1370,38 @@ if(first)
 
         chnl = PHIBINS*regionEmulEta[i] + regionEmulPhi[i];
         rctRegUnmatchedEmulOcc1D_->Fill(chnl);
-        rctRegUnmatchedEmulOcc2D_->Fill(regionEmulEta[i], regionEmulPhi[i],0.980002);
-        // Weight is for ROOT; when added to initial weight of 0.009999, should equal 0.990001
+        rctRegUnmatchedEmulOcc2D_->Fill(regionEmulEta[i], regionEmulPhi[i],0.98);
+        // Weight is for ROOT; when added to initial weight of 0.01, should equal 0.99
 
         if(singlechannelhistos_) rctRegIneffChannel_[chnl]->Fill(regionEmulRank[i]);
       }
 
       if(overFlowFound == kFALSE && regionEmulOverFlow[i] == true)
       {
-        rctBitUnmatchedEmulOverFlow2D_->Fill(regionEmulEta[i], regionEmulPhi[i], 0.980002);
+        rctBitUnmatchedEmulOverFlow2D_->Fill(regionEmulEta[i], regionEmulPhi[i], 0.98);
       }
 
       if(tauVetoFound == kFALSE && regionEmulTauVeto[i] == true)
       {
-        rctBitUnmatchedEmulTauVeto2D_->Fill(regionEmulEta[i], regionEmulPhi[i], 0.980002);
+        rctBitUnmatchedEmulTauVeto2D_->Fill(regionEmulEta[i], regionEmulPhi[i], 0.98);
       }
 
       if (mipFound == kFALSE && regionEmulMip[i] == true) {
-        rctBitUnmatchedEmulMip2D_->Fill (regionEmulEta[i], regionEmulPhi[i], 0.980002);
+        rctBitUnmatchedEmulMip2D_->Fill (regionEmulEta[i], regionEmulPhi[i], 0.98);
       }
 
       if (quietFound == kFALSE && regionEmulQuiet[i] == true) {
-        rctBitUnmatchedEmulQuiet2D_->Fill (regionEmulEta[i], regionEmulPhi[i], 0.980002);
+        rctBitUnmatchedEmulQuiet2D_->Fill (regionEmulEta[i], regionEmulPhi[i], 0.98);
       }
 
       if (hfPlusTauFound == kFALSE && regionEmulHfPlusTau[i] == true ) {
-        rctBitUnmatchedEmulHfPlusTau2D_->Fill (regionEmulEta[i], regionEmulPhi[i], 0.980002);
+        rctBitUnmatchedEmulHfPlusTau2D_->Fill (regionEmulEta[i], regionEmulPhi[i], 0.98);
       }
 
-      DivideME1D(rctRegUnmatchedEmulOcc1D_, rctRegEmulOcc1D_, rctRegIneff1D_);
-      DivideME2D(rctRegUnmatchedEmulOcc2D_, rctRegEmulOcc2D_, rctRegIneff2D_);
-      DivideME2D(rctBitUnmatchedEmulOverFlow2D_, rctBitEmulOverFlow2D_, rctBitOverFlowIneff2D_);
-      DivideME2D(rctBitUnmatchedEmulTauVeto2D_, rctBitEmulTauVeto2D_, rctBitTauVetoIneff2D_);
+      DivideME1D (rctRegUnmatchedEmulOcc1D_, rctRegEmulOcc1D_, rctRegIneff1D_);
+      DivideME2D (rctRegUnmatchedEmulOcc2D_, rctRegEmulOcc2D_, rctRegIneff2D_);
+      DivideME2D (rctBitUnmatchedEmulOverFlow2D_, rctBitEmulOverFlow2D_, rctBitOverFlowIneff2D_);
+      DivideME2D (rctBitUnmatchedEmulTauVeto2D_, rctBitEmulTauVeto2D_, rctBitTauVetoIneff2D_);
       DivideME2D (rctBitUnmatchedEmulMip2D_, rctBitEmulMip2D_, rctBitMipIneff2D_);
       DivideME2D (rctBitUnmatchedEmulQuiet2D_, rctBitEmulQuiet2D_, rctBitQuietIneff2D_);
       DivideME2D (rctBitUnmatchedEmulHfPlusTau2D_, rctBitEmulHfPlusTau2D_, rctBitHfPlusTauIneff2D_);
@@ -1408,7 +1410,8 @@ if(first)
 
 //std::cout << " I am here 2 " << std::endl ;
 
-  for(int i = 0; i < nRegionData; i++)
+  // for(int i = 0; i < nRegionData; i++)
+  for (int i = 0; i < PhiEtaMax; i++)
 {
       Bool_t regFound       = kFALSE;
       Bool_t overFlowFound  = kFALSE;
@@ -1451,36 +1454,36 @@ if(first)
 
         chnl = PHIBINS*regionDataEta[i] + regionDataPhi[i];
         rctRegUnmatchedDataOcc1D_->Fill(chnl);
-        rctRegUnmatchedDataOcc2D_->Fill(regionDataEta[i], regionDataPhi[i], 0.980002);
-        // Weight is for ROOT; when added to initial weight of 0.009999, should equal 0.990001
+        rctRegUnmatchedDataOcc2D_->Fill(regionDataEta[i], regionDataPhi[i], 0.98);
+        // Weight is for ROOT; when added to initial weight of 0.01, should equal 0.99
 
         // we try a new definition of overefficiency:
-        DivideME1D(rctRegUnmatchedDataOcc1D_, rctRegDataOcc1D_, rctRegOvereff1D_);
-        DivideME2D(rctRegUnmatchedDataOcc2D_, rctRegDataOcc2D_, rctRegOvereff2D_);
+        // DivideME1D(rctRegUnmatchedDataOcc1D_, rctRegDataOcc1D_, rctRegOvereff1D_);
+        // DivideME2D(rctRegUnmatchedDataOcc2D_, rctRegDataOcc2D_, rctRegOvereff2D_);
         
         if(singlechannelhistos_) rctRegOvereffChannel_[chnl]->Fill(regionDataRank[i]);
       }
 
       if(overFlowFound == kFALSE && regionDataOverFlow[i] == true )
       {
-        rctBitUnmatchedDataOverFlow2D_->Fill(regionDataEta[i], regionDataPhi[i], 0.980002);
+        rctBitUnmatchedDataOverFlow2D_->Fill(regionDataEta[i], regionDataPhi[i], 0.98);
       }
 
       if(tauVetoFound == kFALSE && regionDataTauVeto[i] == true )
       {
-        rctBitUnmatchedDataTauVeto2D_->Fill(regionDataEta[i], regionDataPhi[i], 0.980002);
+        rctBitUnmatchedDataTauVeto2D_->Fill(regionDataEta[i], regionDataPhi[i], 0.98);
       }
 
       if (mipFound == kFALSE && regionDataMip[i] == true ) {
-        rctBitUnmatchedDataMip2D_->Fill (regionDataEta[i], regionDataPhi[i], 0.980002);
+        rctBitUnmatchedDataMip2D_->Fill (regionDataEta[i], regionDataPhi[i], 0.98);
       }
 
       if (quietFound == kFALSE && regionDataQuiet[i] == true ) {
-        rctBitUnmatchedDataQuiet2D_->Fill (regionDataEta[i], regionDataPhi[i], 0.980002);
+        rctBitUnmatchedDataQuiet2D_->Fill (regionDataEta[i], regionDataPhi[i], 0.98);
       }
 
       if (hfPlusTauFound == kFALSE && regionDataHfPlusTau[i] == true ) {
-        rctBitUnmatchedDataHfPlusTau2D_->Fill (regionDataEta[i], regionDataPhi[i], 0.980002);
+        rctBitUnmatchedDataHfPlusTau2D_->Fill (regionDataEta[i], regionDataPhi[i], 0.98);
       }
 
     // we try a new definition of overefficiency:
