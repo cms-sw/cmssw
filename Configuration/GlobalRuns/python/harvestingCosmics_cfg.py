@@ -12,6 +12,7 @@ process.prefer("GlobalTag")
 process.load("Configuration.StandardSequences.Geometry_cff")
 
 process.load("DQMOffline.Configuration.DQMOfflineCosmics_SecondStep_cff")
+process.load("DQMOffline.Configuration.DQMOfflineCosmics_Certification_cff")
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
@@ -33,11 +34,14 @@ process.source.processingMode = "RunsAndLumis"
 
 process.DQMStore.referenceFileName = ''
 process.dqmSaver.convention = 'Offline'
-process.dqmSaver.workflow = '/GlobalCruzet4-A/CMSSW_2_1_X-Testing/RECO'
+process.dqmSaver.workflow = '/Cosmics/CMSSW_2_2_X-Testing/RECO'
 
 process.DQMStore.collateHistograms = False
 process.EDMtoMEConverter.convertOnEndLumi = True
 process.EDMtoMEConverter.convertOnEndRun = False
 
-process.p1 = cms.Path(process.EDMtoMEConverter*process.DQMOfflineCosmics_SecondStep_woHcal*process.dqmSaver)
+process.p1 = cms.Path(process.EDMtoMEConverter*
+                      process.DQMOfflineCosmics_SecondStep*
+                      process.DQMOfflineCosmics_Certification*
+                      process.dqmSaver)
 
