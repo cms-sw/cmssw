@@ -1,3 +1,9 @@
+2008-11-20  Philipp Schieferdecker  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-06-20
+	* call fsm_.findRcmsStateListener(), declare two RMCS state
+	notifier parameters to app infospace.
+
 2008-10-02  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
 	* tag V00-06-19

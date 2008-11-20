@@ -143,6 +143,9 @@ BU::BU(xdaq::ApplicationStub *s)
   // export parameters to info space(s)
   exportParameters();
 
+  // findRcmsStateListener
+  fsm_.findRcmsStateListener();
+  
   // compute parameters for fed size generation (a la Emilio)
   gaussianMean_ =std::log((double)fedSizeMean_);
   gaussianWidth_=std::sqrt(std::log
@@ -643,6 +646,8 @@ void BU::exportParameters()
   gui_->addStandardParam("fedSizeWidth",      &fedSizeWidth_);
   gui_->addStandardParam("useFixedFedSize",   &useFixedFedSize_);
   gui_->addStandardParam("monSleepSec",       &monSleepSec_);
+  gui_->addStandardParam("rcmsStateListener",     fsm_.rcmsStateListener());
+  gui_->addStandardParam("foundRcmsStateListener",fsm_.foundRcmsStateListener());
 
   
   gui_->exportParameters();
