@@ -79,7 +79,7 @@ namespace cscdqm {
  * @return 
  */
 
-  void EventProcessor::calcEMUFractionHisto(const HistoType result, const HistoType set, const HistoType subset) {
+  void EventProcessor::calcEMUFractionHisto(const HistoName& result, const HistoName& set, const HistoName& subset) {
 
     MonitorObject *mo = 0, *mo1 = 0, *mo2 = 0;
 

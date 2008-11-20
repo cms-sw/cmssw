@@ -20,12 +20,13 @@
 
 namespace cscdqm {
 
-#ifndef DQMGLOBAL
+#ifdef DQMLOCAL
 
 
   void EventProcessor::processEvent(const char* data, const int32_t dataSize, const uint32_t errorStat, const int32_t nodeNumber) {
 
     nEvents++;
+    nCSCEvents++;
 
     MonitorObject* me = 0;
     if (getEMUHisto(EMU_ALL_READOUT_ERRORS, me)) {
@@ -60,12 +61,13 @@ namespace cscdqm {
 
 #endif
 
-#ifndef DQMLOCAL
+#ifdef DQMGLOBAL
 
 
-  void EventProcessor::processEvent(const edm::Event& e) {
+  void EventProcessor::processEvent(const edm::Event& e, const edm::InputTag& inputTag) {
 
     nEvents++;
+    bCSCEventCounted = false;
 
     // get a handle to the FED data collection
     // actualy the FED_EVENT_LABEL part of the event
@@ -80,7 +82,12 @@ namespace cscdqm {
       const FEDRawData& fedData = rawdata->FEDData(id);
   
       //if fed has data then unpack it
-      if ( fedData.size() >= 32 ) {
+      if (fedData.size() >= 32) {
+
+        if (!bCSCEventCounted) {
+          nCSCEvents++;
+          bCSCEventCounted = true;
+        }
 
         const uint16_t *data = (uint16_t *) fedData.data();
         bool eventDenied = false;

@@ -179,23 +179,23 @@ namespace cscdqm {
           e_ring = summary.GetEfficiencyHW(adr);
           e_station += e_ring;
           if (summary.getDetector().NumberOfRings(adr.station) > 1) {
-            if (histoProvider->getEffParamHisto(summary.getDetector().AddressName(adr), me)) {
+            if (getParHisto(summary.getDetector().AddressName(adr), me)) {
               me->Fill(e_ring);
             }
           }
         }
         adr.mask.ring = false;
         e_station = e_station / summary.getDetector().NumberOfRings(adr.station);
-        if (histoProvider->getEffParamHisto(summary.getDetector().AddressName(adr), me)) me1->Fill(e_station);
+        if (getParHisto(summary.getDetector().AddressName(adr), me)) me1->Fill(e_station);
         e_side += e_station;
       }
       adr.mask.station = false;
       e_side = e_side / N_STATIONS;
-      if (histoProvider->getEffParamHisto(summary.getDetector().AddressName(adr), me)) me1->Fill(e_side);
+      if (getParHisto(summary.getDetector().AddressName(adr), me)) me1->Fill(e_side);
       e_detector += e_side; 
     }
     e_detector = e_detector / N_SIDES;
-    if (histoProvider->getEffParamHisto("reportSummary", me)) me1->Fill(e_detector);
+    if (getParHisto("reportSummary", me)) me1->Fill(e_detector);
 
   }
 

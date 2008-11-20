@@ -27,7 +27,7 @@
 #include <sstream>
 #include <iomanip>
 
-#include "DQM/CSCMonitorModule/interface/CSCDQM_Collection.h"
+#include "DQM/CSCMonitorModule/interface/CSCDQM_Utility.h"
 
 namespace cscdqm {
 
@@ -83,7 +83,7 @@ typedef struct Address {
     return true;
   };
 
-  Address* operator= (const Address& a) {
+  const Address* operator= (const Address& a) {
     mask.side    = a.mask.side;
     side         = a.side;
     mask.station = a.mask.station;

@@ -45,48 +45,43 @@ namespace cscdqm {
   }
 
 
-  void EventProcessor::blockHisto(const HistoType histo) {
+  void EventProcessor::blockHisto(const HistoName& histo) {
     blocked.insert(histo);
   }
 
 
-  const bool EventProcessor::histoNotBlocked(const HistoType histo) const {
-    std::set<HistoType>::iterator found = blocked.find(histo);
+  const bool EventProcessor::histoBlocked(const HistoName& histo) const {
+    std::set<HistoName>::iterator found = blocked.find(histo);
     return (found != blocked.end());
   }
 
 
-  const bool EventProcessor::getEMUHisto(const HistoType histo, MonitorObject* me, const bool ref) {
-    if (!ref && !histoNotBlocked(histo)) return false;
-    EMUHistoType histoT;
-    histoT.histoId = histo;
-    histoT.reference = ref;
-    histoT.tag = TAG_EMU;
-    return histoProvider->getEMUHisto(histoT, me);
+  const bool EventProcessor::getEMUHisto(const HistoName& histo, MonitorObject*& me, const bool ref) {
+    if (histoBlocked(histo)) return false;
+    EMUHistoType histoT(histo, ref);
+    return histoProvider->getHisto(histoT, me);
   }
 
 
-  const bool EventProcessor::getDDUHisto(const int dduID, const HistoType histo, MonitorObject* me, const bool ref) {
-    if (!ref && !histoNotBlocked(histo)) return false;
-    DDUHistoType histoT;
-    histoT.histoId = histo;
-    histoT.dduId = dduID;
-    histoT.reference = ref;
-    histoT.tag = Form(TAG_DDU, dduID);
-    return histoProvider->getDDUHisto(histoT, me);
+  const bool EventProcessor::getDDUHisto(const int dduID, const HistoName& histo, MonitorObject*& me, const bool ref) {
+    if (histoBlocked(histo)) return false;
+    DDUHistoType histoT(histo, dduID, ref);
+    return histoProvider->getHisto(histoT, me);
   }
 
 
-  const bool EventProcessor::getCSCHisto(const int crateID, const int dmbSlot, const HistoType histo, MonitorObject* me, const int adId, const bool ref) {
-    if (!ref && !histoNotBlocked(histo)) return false;
-    CSCHistoType histoT;
-    histoT.histoId = histo;
-    histoT.crateId = crateID;
-    histoT.dmbId = dmbSlot;
-    histoT.addId = adId;
-    histoT.reference = ref;
-    histoT.tag = Form(TAG_CSC, crateID, dmbSlot);
-    return histoProvider->getCSCHisto(histoT, me);
+  const bool EventProcessor::getCSCHisto(const int crateID, const int dmbSlot, const HistoName& histo, MonitorObject*& me, const int adId, const bool ref) {
+    if (histoBlocked(histo)) return false;
+    CSCHistoType histoT(histo, crateID, dmbSlot, adId, ref);
+    return histoProvider->getHisto(histoT, me);
+  }
+
+
+  const bool EventProcessor::getParHisto(const std::string& name, MonitorObject*& me, const bool ref) {
+    const HistoName histo = const_cast<char*>(name.c_str());
+    if (histoBlocked(histo)) return false;
+    ParHistoType histoT(histo, ref);
+    return histoProvider->getHisto(histoT, me);
   }
 
 

@@ -26,7 +26,6 @@
 CSCMonitorModule::CSCMonitorModule(const edm::ParameterSet& ps){
     
     parameters = ps;
-    CSCUtility::getCSCTypeToBinMap(tmap);
     
     edm::FileInPath fp;
     

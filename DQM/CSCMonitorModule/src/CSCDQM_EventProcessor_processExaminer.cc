@@ -43,8 +43,8 @@ namespace cscdqm {
           long errs = binChecker.errorsForDDU(*ddu_itr);
           int dduID = (*ddu_itr)&0xFF;
           if (errs != 0) {
-            for(int i=0; i<binChecker.nERRORS; i++) { 
-              if ((errs>>i) & 0x1 ) {
+            for(int i = 0; i < binChecker.nERRORS; i++) { 
+              if ((errs >> i) & 0x1 ) {
                 mo->Fill(dduID, i + 1);
               }
             }
@@ -69,14 +69,16 @@ namespace cscdqm {
     }
 
     std::map<int,long> payloads = binChecker.payloadDetailed();
+
     for(std::map<int,long>::const_iterator chamber=payloads.begin(); chamber!=payloads.end(); chamber++) {
 
       int chamberID = chamber->first;
       int crateID = (chamberID >> 4) & 0xFF;
       int dmbSlot = chamberID & 0xF;
+      
       std::string cscTag(Form(TAG_CSC, crateID, dmbSlot));
 
-      if (crateID ==255) { continue; }
+      if (crateID == 255) { continue; }
 
       // Update counters
       nDMBEvents[cscTag]++;

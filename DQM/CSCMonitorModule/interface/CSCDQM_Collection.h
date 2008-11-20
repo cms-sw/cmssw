@@ -34,6 +34,7 @@
 
 #include "DQM/CSCMonitorModule/interface/CSCDQM_Exception.h"
 #include "DQM/CSCMonitorModule/interface/CSCDQM_Logger.h"
+#include "DQM/CSCMonitorModule/interface/CSCDQM_Utility.h"
 #include "DQM/CSCMonitorModule/interface/CSCDQM_HistoProviderIf.h"
 
 namespace cscdqm {
@@ -58,19 +59,6 @@ namespace cscdqm {
   typedef std::map<std::string, CoHistoProps>    CoHisto;
   typedef std::map<std::string, CoHisto>         CoHistoMap;
   
-  /**
-  * @brief  Converting from string to whatever number (failsafe!) 
-  * @param  t result number
-  * @param  s source string
-  * @param  f base
-  * @return true if success, else - false
-  */
-  template <class T>
-  bool stringToNumber(T& t, const std::string& s, std::ios_base& (*f)(std::ios_base&)) {
-    std::istringstream iss(s);
-    return !(iss >> f >> t).fail();
-  }
-
   class Collection {
 
     public:
@@ -83,12 +71,6 @@ namespace cscdqm {
       void book(const std::string& prefix) const;
 
       void printCollection() const;
-
-      static void getCSCTypeToBinMap(std::map<std::string, int>& tmap);
-      static const std::string getCSCTypeLabel(int endcap, int station, int ring);
-      static const int tokenize(const std::string& str, std::vector<std::string>& tokens, const std::string& delimiters = " ");
-      static void splitString(std::string str, const std::string delim, std::vector<std::string>& results);
-      static void trimString(std::string& str);
 
     private:
       

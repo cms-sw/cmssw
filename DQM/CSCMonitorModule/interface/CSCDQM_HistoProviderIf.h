@@ -30,12 +30,9 @@ namespace cscdqm {
 
     public:
     
-      virtual const bool getEMUHisto(const EMUHistoType& histo, MonitorObject* mo) = 0;
-      virtual const bool getDDUHisto(const DDUHistoType& histo, MonitorObject* mo) = 0;
-      virtual const bool getCSCHisto(const CSCHistoType& histo, MonitorObject* mo) = 0;
-      virtual const bool getEffParamHisto(const std::string& paramName, MonitorObject* mo) = 0;
+      virtual const bool getHisto(const HistoType& histo, MonitorObject*& mo) = 0;
 
-      virtual void getCSCFromMap(const unsigned int crateId, const unsigned int dmbId, unsigned int& cscType, unsigned int& cscPosition) = 0;
+      virtual void getCSCFromMap(const unsigned int crateId, const unsigned int dmbId, unsigned int& cscType, unsigned int& cscPosition) const = 0;
       virtual const uint32_t getCSCDetRawId(const int endcap, const int station, const int vmecrate, const int dmb, const int tmb) const = 0;
       virtual const bool nextCSC(unsigned int& iter, unsigned int& crateId, unsigned int& dmbId) const = 0;
 
@@ -55,7 +52,7 @@ namespace cscdqm {
                                             int nchX, double lowX, double highX,
                                             int nchY, double lowY, double highY,
                                             int nchZ, double lowZ, double highZ) = 0;
-      virtual MonitorObject* bookProfile   (const std::string &name,
+      virtual MonitorObject *bookProfile   (const std::string &name,
                                             const std::string &title,
                                             int nchX, double lowX, double highX,
                                             int nchY, double lowY, double highY,
@@ -66,6 +63,7 @@ namespace cscdqm {
                                             int nchY, double lowY, double highY,
                                             int nchZ, double lowZ, double highZ,
                                             const char *option = "s") = 0;
+      virtual void afterBook (MonitorObject*& me) = 0;
   };
 
 }

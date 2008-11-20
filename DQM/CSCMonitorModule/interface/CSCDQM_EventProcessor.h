@@ -45,10 +45,6 @@
 #include "EventFilter/CSCRawToDigi/interface/CSCCFEBTimeSlice.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCCFEBData.h"
 
-#define TAG_EMU "EMU"
-#define TAG_DDU "DDU_%d"
-#define TAG_CSC "CSC_%03d_%02d"
-
 namespace cscdqm {
 
   typedef struct EffParametersType {
@@ -81,7 +77,7 @@ namespace cscdqm {
       EventProcessor(HistoProvider* p_histoProvider);
       ~EventProcessor();
 
-      void blockHisto(const HistoType histo);
+      void blockHisto(const HistoName& histo);
 
       void setDDUCheckMask(const uint32_t mask) { dduCheckMask = mask; }
       const uint32_t getDDUCheckMask() const { return dduCheckMask; }
@@ -94,21 +90,27 @@ namespace cscdqm {
       void updateFractionHistos();
       void updateEfficiencyHistos(EffParametersType& effParams);
 
+      const uint32_t getNEvents() const { return nEvents; } 
+      const uint32_t getNCSCEvents() const { return nCSCEvents; }
+      const uint32_t getNBadEvents() const { return nBadEvents; } 
+      const uint32_t getNGoodEvents() const { return nGoodEvents; }
+
     private:
       
       void processExaminer(const uint16_t *data, const uint32_t dataSize, bool& eventDenied); 
       void processDDU(const CSCDDUEventData& data);
       void processCSC(const CSCEventData& data, const int dduID);
 
-      void calcEMUFractionHisto(const HistoType result, const HistoType set, const HistoType subset);
+      void calcEMUFractionHisto(const HistoName& result, const HistoName& set, const HistoName& subset);
 
-      const bool histoNotBlocked(const HistoType histo) const;
+      const bool histoBlocked(const HistoName& histo) const;
 
-      const bool getEMUHisto(const HistoType histo, MonitorObject* me, const bool ref = false);
-      const bool getDDUHisto(const int dduID, const HistoType histo, MonitorObject* me, const bool ref = false);
-      const bool getCSCHisto(const int crateID, const int dmbSlot, const HistoType histo, MonitorObject* me, const int adId = 0, const bool ref = false);
+      const bool getEMUHisto(const HistoName& histo, MonitorObject*& me, const bool ref = false);
+      const bool getDDUHisto(const int dduID, const HistoName& histo, MonitorObject*& me, const bool ref = false);
+      const bool getCSCHisto(const int crateID, const int dmbSlot, const HistoName& histo, MonitorObject*& me, const int adId = 0, const bool ref = false);
+      const bool getParHisto(const std::string& name, MonitorObject*& me, const bool ref = false);
 
-      std::set<HistoType> blocked;
+      std::set<HistoName> blocked;
       HistoProvider* histoProvider;
       Summary summary;
 
@@ -116,6 +118,8 @@ namespace cscdqm {
       uint32_t nBadEvents; 
       uint32_t nGoodEvents; 
       uint32_t nCSCEvents;
+      bool     bCSCEventCounted;
+
       uint32_t unpackedDMBcount;
       std::map<std::string, uint32_t> nDMBEvents;
       std::map<std::string, CSCCounters> cscCntrs;
@@ -153,12 +157,9 @@ namespace cscdqm {
 
     public:
 
-      void processEvent(const edm::Event& e);
-      void setInputTag(const edm::InputTag p_inputTag) { inputTag = p_inputTag; }
+      void processEvent(const edm::Event& e, const edm::InputTag& inputTag);
 
     private:
-
-      edm::InputTag inputTag;
 
 #endif      
 

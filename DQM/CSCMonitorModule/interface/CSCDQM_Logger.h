@@ -35,10 +35,10 @@
 
 #endif
 
-#define LOG_ERROR       LogError()
-#define LOG_WARN        LogWarn()
-#define LOG_INFO        LogInfo()
-#define LOG_COUT        LogCout()
+#define LOG_ERROR       cscdqm::LogError()
+#define LOG_WARN        cscdqm::LogWarn()
+#define LOG_INFO        cscdqm::LogInfo()
+#define LOG_COUT        cscdqm::LogCout()
 
 namespace cscdqm {
 

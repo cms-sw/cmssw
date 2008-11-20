@@ -23,7 +23,8 @@
 /// Global stuff
 #include <iostream>
 #include <cstring>
-//#include <boost/shared_ptr.hpp>
+#include <typeinfo>
+#include <map>
 
 /// DQM Framework stuff
 #include <FWCore/Framework/interface/EDAnalyzer.h>
@@ -31,9 +32,13 @@
 #include <DQMServices/Core/interface/DQMStore.h>
 #include <DQMServices/Core/interface/MonitorElement.h>
 #include <FWCore/ServiceRegistry/interface/Service.h>
+#include <FWCore/Framework/interface/ESHandle.h>
+#include <FWCore/Framework/interface/EventSetup.h>
 
 /// CSC Framework stuff
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
+#include "CondFormats/CSCObjects/interface/CSCCrateMap.h"
+#include "CondFormats/DataRecord/interface/CSCCrateMapRcd.h"
 
 /// CSCDQM Framework stuff
 #include "DQM/CSCMonitorModule/interface/CSCDQM_EventProcessor.h"
@@ -44,50 +49,87 @@
 
 /// Local Constants
 static const char PARAM_BOOKING_FILE[]   = "BookingFile";
+
+static const char INPUT_TAG_LABEL[]      = "source";
+
 static const char DIR_ROOT[]             = "CSC/";
 static const char DIR_SUMMARY[]          = "CSC/Summary/";
+static const char DIR_DDU[]              = "CSC/DDU/";
+static const char DIR_CSC[]              = "CSC/Chamber/";
 static const char DIR_EVENTINFO[]        = "CSC/EventInfo/";
+
+typedef std::map<std::string, CSCMonitorObject*> MOCacheMap;
+typedef std::bitset<32>                          Bitset32;
 
 class CSCMonitorModuleCmn: public edm::EDAnalyzer, public cscdqm::HistoProvider {
  
+  ///
+  // Global stuff
+  ///
+
   public:
 
     CSCMonitorModuleCmn(const edm::ParameterSet& ps);
     virtual ~CSCMonitorModuleCmn();
 
-    const bool getEMUHisto(const cscdqm::EMUHistoType& histo, cscdqm::MonitorObject* mo);
-    const bool getDDUHisto(const cscdqm::DDUHistoType& histo, cscdqm::MonitorObject* mo);
-    const bool getCSCHisto(const cscdqm::CSCHistoType& histo, cscdqm::MonitorObject* mo);
-    const bool getEffParamHisto(const std::string& paramName, cscdqm::MonitorObject* mo);
+  private:
 
-    void getCSCFromMap(const unsigned int crateId, const unsigned int dmbId, unsigned int& cscType, unsigned int& cscPosition);
+    cscdqm::Collection     *collection;
+    cscdqm::EventProcessor *processor;
+    DQMStore               *dbe;
+    edm::InputTag          inputTag;
+    MOCacheMap             moCache;
+
+    /** Pointer to crate mapping from database **/
+    const CSCCrateMap* pcrate;
+
+    /** Fractional histograms update stuff */
+    Bitset32        fractUpdateKey;
+    uint32_t        fractUpdateEvF;
+    
+  ///
+  // HistoProvider Implementation
+  ///
+
+  public:
+
+    const bool getHisto(const cscdqm::HistoType& histo, cscdqm::MonitorObject*& mo);
+
+    void getCSCFromMap(const unsigned int crateId, const unsigned int dmbId, unsigned int& cscType, unsigned int& cscPosition) const;
     const uint32_t getCSCDetRawId(const int endcap, const int station, const int vmecrate, const int dmb, const int tmb) const;
     const bool nextCSC(unsigned int& iter, unsigned int& crateId, unsigned int& dmbId) const;
 
     cscdqm::MonitorObject* bookInt (const std::string &name) {
-      return new CSCMonitorObject(*dbe->bookInt(name));
+      return new CSCMonitorObject(dbe->bookInt(name));
     }
     cscdqm::MonitorObject* bookFloat (const std::string &name) {
-      return new CSCMonitorObject(*dbe->bookFloat(name));
+      return new CSCMonitorObject(dbe->bookFloat(name));
     }
     cscdqm::MonitorObject* bookString (const std::string &name, const std::string &value) {
-      return new CSCMonitorObject(*dbe->bookString(name, value));
+      return new CSCMonitorObject(dbe->bookString(name, value));
     }
     cscdqm::MonitorObject* book1D (const std::string &name, const std::string &title, int nchX, double lowX, double highX) {
-      return new CSCMonitorObject(*dbe->book1D(name, title, nchX, lowX, highX));
+      return new CSCMonitorObject(dbe->book1D(name, title, nchX, lowX, highX));
     }
     cscdqm::MonitorObject* book2D (const std::string &name, const std::string &title, int nchX, double lowX, double highX, int nchY, double lowY, double highY) {
-      return new CSCMonitorObject(*dbe->book2D(name, title, nchX, lowX, highX, nchY, lowY, highY));
+      return new CSCMonitorObject(dbe->book2D(name, title, nchX, lowX, highX, nchY, lowY, highY));
     }
     cscdqm::MonitorObject* book3D (const std::string &name, const std::string &title, int nchX, double lowX, double highX, int nchY, double lowY, double highY, int nchZ, double lowZ, double highZ) {
-      return new CSCMonitorObject(*dbe->book3D(name, title, nchX, lowX, highX, nchY, lowY, highY, nchZ, lowZ, highZ));
+      return new CSCMonitorObject(dbe->book3D(name, title, nchX, lowX, highX, nchY, lowY, highY, nchZ, lowZ, highZ));
     }
     cscdqm::MonitorObject* bookProfile (const std::string &name, const std::string &title, int nchX, double lowX, double highX, int nchY, double lowY, double highY, const char *option = "s") {
-      return new CSCMonitorObject(*dbe->bookProfile(name, title, nchX, lowX, highX, nchY, lowY, highY, option));
+      return new CSCMonitorObject(dbe->bookProfile(name, title, nchX, lowX, highX, nchY, lowY, highY, option));
     }
     cscdqm::MonitorObject* bookProfile2D (const std::string &name, const std::string &title, int nchX, double lowX, double highX, int nchY, double lowY, double highY, int nchZ, double lowZ, double highZ, const char *option = "s") {
-      return new CSCMonitorObject(*dbe->bookProfile2D(name, title, nchX, lowX, highX, nchY, lowY, highY, nchZ, lowZ, highZ, option));
+      return new CSCMonitorObject(dbe->bookProfile2D(name, title, nchX, lowX, highX, nchY, lowY, highY, nchZ, lowZ, highZ, option));
     }
+    void afterBook (cscdqm::MonitorObject*& me) {
+      if (me != NULL) delete me;
+    }
+
+  /// 
+  // EDAnalyzer Implementation
+  /// 
 
   protected:
 
@@ -98,12 +140,6 @@ class CSCMonitorModuleCmn: public edm::EDAnalyzer, public cscdqm::HistoProvider 
     void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& context) ;
     void endRun(const edm::Run& r, const edm::EventSetup& c);
     void endJob();
-
-  private:
-
-    cscdqm::Collection     *collection;
-    cscdqm::EventProcessor *processor;
-    DQMStore               *dbe;
 
 };
 

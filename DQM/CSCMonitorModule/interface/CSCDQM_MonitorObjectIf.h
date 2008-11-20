@@ -19,6 +19,7 @@
 #ifndef CSCDQM_MonitorObjectIf_H
 #define CSCDQM_MonitorObjectIf_H
 
+#include <boost/shared_ptr.hpp>
 #include <TH1.h>
 
 namespace cscdqm {

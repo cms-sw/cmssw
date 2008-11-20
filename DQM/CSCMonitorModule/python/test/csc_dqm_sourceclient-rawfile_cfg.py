@@ -83,7 +83,7 @@ process.dqmSaver.dirName = '.'
 # Magnetic Field
 #-----------------------------
 
-process.load("Configuration.GlobalRuns.ForceZeroTeslaField_cff")
+process.load("Configuration/StandardSequences/MagneticField_cff")
 
 #-------------------------------------------------
 # GEOMETRY

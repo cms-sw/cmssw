@@ -13,7 +13,6 @@ process.load("DQM.CSCMonitorModule.test.csc_dqm_sourceclient_cfi")
 #-------------------------------------------------
 
 process.load("DQMOffline.Muon.CSCMonitor_cfi")
-process.load("Configuration/StandardSequences/MagneticField_cff")
 process.load("Configuration/StandardSequences/RawToDigi_Data_cff")
 process.load("Configuration.StandardSequences.Reconstruction_cff")
 process.csc2DRecHits.readBadChambers = cms.bool(False)
@@ -128,7 +127,7 @@ process.dqmSaver.dirName = '.'
 # Magnetic Field
 #-----------------------------
 
-process.load("Configuration.GlobalRuns.ForceZeroTeslaField_cff")
+process.load("Configuration/StandardSequences/MagneticField_cff")
 
 #-------------------------------------------------
 # GEOMETRY

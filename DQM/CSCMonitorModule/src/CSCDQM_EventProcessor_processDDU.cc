@@ -234,7 +234,6 @@ namespace cscdqm {
     int nCSCs = chamberDatas.size();
   
     for(int i = 0; i < nCSCs; i++) {
-      nCSCEvents++;
       unpackedDMBcount++;
       processCSC(chamberDatas[i], dduID);
     }
