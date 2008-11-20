@@ -164,7 +164,10 @@ FUResourceBroker::FUResourceBroker(xdaq::ApplicationStub *s)
   
   // publish all parameters to app info space
   exportParameters();
-
+  
+  // findRcmsStateListener
+  fsm_.findRcmsStateListener();
+  
   // set application icon for hyperdaq
   getApplicationDescriptor()->setAttribute("icon", "/evf/images/rbicon.jpg");
   FUResource::useEvmBoard_ = useEvmBoard_;
