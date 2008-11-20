@@ -156,18 +156,18 @@ TopElecAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setup)
     TID = elec->trackerIsoDeposit();
    
     //Isolation Cone coordinates
-    double IsoCone_eta=TID->eta();
-    double IsoCone_phi=TID->phi();
+    //double IsoCone_eta=TID->eta();
+    //double IsoCone_phi=TID->phi();
     
     
     //Veto Cone coordinates
-    double VetoCone_eta =TID->veto().vetoDir.eta();
-    double VetoCone_phi =TID->veto().vetoDir.phi();
-    float  VetoCone_size=TID->veto().dR;
+    //double VetoCone_eta =TID->veto().vetoDir.eta();
+    //double VetoCone_phi =TID->veto().vetoDir.phi();
+    //float  VetoCone_size=TID->veto().dR;
     
    
     //get the candidate tag
-    float Cand_Tag_T =TID->candEnergy();
+    //float Cand_Tag_T =TID->candEnergy();
     
     //get the deposit & count within the isolation cone with the different cone size
     double radius=0.0;
@@ -195,8 +195,8 @@ TopElecAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setup)
 
 
     //get the candidate tag
-    float Cand_Tag_E =EID->candEnergy();
-    float Cand_Tag_H =HID->candEnergy();
+    //float Cand_Tag_E =EID->candEnergy();
+    //float Cand_Tag_H =HID->candEnergy();
 
 
     //get the deposit & count within the isolation cone with the different cone size
