@@ -239,8 +239,8 @@ void L1GctJetLeafCard::process() {
 
     for (unsigned i=0; i<3; ++i) {
       unsigned jphi = 2*(phiPosition*3+i);
-      m_hxSum = m_hxSum + exComponent(htStripSum.at(2*i), htStripSum.at(2*i+1), jphi);
-      m_hySum = m_hySum + eyComponent(htStripSum.at(2*i), htStripSum.at(2*i+1), jphi);
+      m_hxSum = m_hxSum + hxComponent(htStripSum.at(2*i), htStripSum.at(2*i+1), jphi);
+      m_hySum = m_hySum + hyComponent(htStripSum.at(2*i), htStripSum.at(2*i+1), jphi);
     }
 
     m_hfSums = 
@@ -292,6 +292,27 @@ L1GctJetLeafCard::eyComponent(const L1GctJetLeafCard::etTotalType etStrip0,
 			      const unsigned jphi) const {
   unsigned fact0 = (2*jphi+15) % 36;
   unsigned fact1 = (2*jphi+17) % 36;
+  return etValueForJetFinder(etStrip0, fact0, etStrip1, fact1);
+}
+
+// The same thing for Hx and Hy. Note that due to the exchange of data between jetfinders,
+// the phi rotations are different for jet "strip sums" than for the raw region energies above
+
+L1GctJetLeafCard::etComponentType
+L1GctJetLeafCard::hxComponent(const L1GctJetLeafCard::etTotalType etStrip0,
+                              const L1GctJetLeafCard::etTotalType etStrip1,
+			      const unsigned jphi) const {
+  unsigned fact0 = (2*jphi+10) % 36;
+  unsigned fact1 = (2*jphi+ 4) % 36;
+  return etValueForJetFinder(etStrip0, fact0, etStrip1, fact1);
+}
+
+L1GctJetLeafCard::etComponentType
+L1GctJetLeafCard::hyComponent(const L1GctJetLeafCard::etTotalType etStrip0,
+                              const L1GctJetLeafCard::etTotalType etStrip1,
+			      const unsigned jphi) const {
+  unsigned fact0 = (2*jphi+19) % 36;
+  unsigned fact1 = (2*jphi+13) % 36;
   return etValueForJetFinder(etStrip0, fact0, etStrip1, fact1);
 }
 

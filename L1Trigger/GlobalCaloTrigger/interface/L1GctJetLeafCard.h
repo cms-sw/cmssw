@@ -169,6 +169,9 @@ public:
   // factors to find the corresponding Ex and Ey
   etComponentType exComponent(const etTotalType etStrip0, const etTotalType etStrip1, const unsigned jphi) const;
   etComponentType eyComponent(const etTotalType etStrip0, const etTotalType etStrip1, const unsigned jphi) const;
+  // The same thing for Hx and Hy
+  etComponentType hxComponent(const etTotalType etStrip0, const etTotalType etStrip1, const unsigned jphi) const;
+  etComponentType hyComponent(const etTotalType etStrip0, const etTotalType etStrip1, const unsigned jphi) const;
   // Here is where the rotations are actually done
   etComponentType etValueForJetFinder(const etTotalType etStrip0, const unsigned fact0,
                                       const etTotalType etStrip1, const unsigned fact1) const;
