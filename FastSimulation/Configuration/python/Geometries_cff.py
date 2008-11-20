@@ -2,10 +2,10 @@ import FWCore.ParameterSet.Config as cms
 
 # The CMS Geometry files
 # Pilot 2 geometry doesn't contain the preshower
-from Configuration.StandardSequences.GeometryPilot2_cff import *
+#from Configuration.StandardSequences.GeometryPilot2_cff import *
 
 # To use the "full" CMS geometry, comment the prevous line, and uncomment the following one:
-#from Configuration.StandardSequences.Geometry_cff import *
+from Configuration.StandardSequences.Geometry_cff import *
 
 # The tracker geometry left-over (for aligned/misaligned geometry)
 # The goemetry used for reconstruction must not be misaligned.
