@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/11/20 09:15:19 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/11/20 09:18:04 $
+ *  $Revision: 1.4 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -213,7 +213,7 @@ void DTResolutionAnalysisTest::endLuminosityBlock(LuminosityBlock const& lumiSeg
 	}
 	
 	// Sigma test
-	double sigma = MeanHistos.find(make_pair(wheel,sector))->second->getBinContent(bin);
+	double sigma = SigmaHistos.find(make_pair(wheel,sector))->second->getBinContent(bin);
 	if(sigma>permittedSigmaRange){
 	  edm::LogError("DTDQM|DTMonitorClient|DTResolutionAnalysisTest") << "Bad sigma: wh: " << wheel
 									  << " st: " << stationFromBin(bin)
