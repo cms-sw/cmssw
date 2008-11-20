@@ -265,10 +265,6 @@ class SiStripFedCabling {
 
 std::ostream& operator<<( std::ostream&, const SiStripFedCabling::ConnsRange& );
 
-inline const std::vector<uint16_t>& SiStripFedCabling::feds() const { 
-  return feds_; 
-}
-
 inline const std::vector<FedChannelConnection>& SiStripFedCabling::detected() const { 
   return detected_; 
 }
