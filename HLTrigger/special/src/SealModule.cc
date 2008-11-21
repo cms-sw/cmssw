@@ -6,6 +6,7 @@
 #include "HLTrigger/special/interface/HLTEcalIsolationFilter.h"
 #include "HLTrigger/special/interface/HLTEcalPhiSymFilter.h"
 #include "HLTrigger/special/interface/HLTHcalPhiSymFilter.h"
+#include "HLTrigger/special/interface/HLTHcalNoiseFilter.h"
 #include "HLTrigger/special/interface/HLTPi0RecHitsFilter.h"
 #include "HLTrigger/special/interface/HLTEtaRecHitsFilter.h"
 #include "HLTrigger/special/interface/HLTCSCOverlapFilter.h"
@@ -27,6 +28,7 @@ DEFINE_FWK_MODULE(HLTPixelIsolTrackFilter);
 DEFINE_FWK_MODULE(HLTEcalIsolationFilter);
 DEFINE_FWK_MODULE(HLTEcalPhiSymFilter);
 DEFINE_FWK_MODULE(HLTHcalPhiSymFilter);
+DEFINE_FWK_MODULE(HLTHcalNoiseFilter);
 DEFINE_FWK_MODULE(HLTPi0RecHitsFilter);
 DEFINE_FWK_MODULE(HLTEtaRecHitsFilter);
 DEFINE_FWK_MODULE(HLTCSCOverlapFilter);
