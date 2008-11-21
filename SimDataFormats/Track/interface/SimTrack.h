@@ -41,6 +41,8 @@ public:
 
   inline void setTkMomentum(const math::XYZTLorentzVectorD& mom) { tkmomentum = mom; }
 
+  inline void setVertexIndex(const int v) { ivert=v;}
+
 private: 
 
     int ivert;

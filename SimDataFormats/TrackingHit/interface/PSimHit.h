@@ -117,6 +117,9 @@ public:
    */
   unsigned short processType() const {return theProcessType;}
 
+
+  void setTof(float tof) {theTof=tof;}
+
 protected:
   
   // properties

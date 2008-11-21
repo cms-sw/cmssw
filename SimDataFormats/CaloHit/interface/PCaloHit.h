@@ -50,6 +50,8 @@ public:
 
   EncodedEventId eventId() const {return theEventId;}
 
+  // new method used by the new transient CF
+  void setTime(float t) {myTime=t;}
 
   //Comparisons
 

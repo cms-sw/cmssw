@@ -28,6 +28,9 @@ public:
     void setEventId(EncodedEventId e) {eId=e;}
     EncodedEventId eventId() const {return eId;}
 
+    void setTof(float tof){
+      theVertex.SetXYZT(theVertex.x(),theVertex.y(),theVertex.z(),tof);
+    }
 private:
     EncodedEventId eId;
     math::XYZTLorentzVectorD theVertex ;
