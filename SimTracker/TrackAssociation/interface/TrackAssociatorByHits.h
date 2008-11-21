@@ -73,6 +73,9 @@ class TrackAssociatorByHits : public TrackAssociatorBase {
 		std::vector<SimHitIdpr>&,
 		TrackingParticleCollection::const_iterator) const;
 
+  template<typename iter>
+  int getDoubleCount(iter,iter,TrackerHitAssociator*,TrackingParticleCollection::const_iterator) const;
+
  private:
   // ----- member data
   const edm::ParameterSet& conf_;
