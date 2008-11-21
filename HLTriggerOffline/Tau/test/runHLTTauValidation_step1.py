@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("HLT")
+process = cms.Process("HLTVAL")
 
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
@@ -14,36 +14,15 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('file:/scratch/bachtis/RECO-ZTT-GEN-SIM-DIGI-0013.root')
+    fileNames = cms.untracked.vstring(
+        '/store/relval/CMSSW_3_0_0_pre2/RelValZTT/GEN-SIM-DIGI-RAW-HLTDEBUG/STARTUP_V7_v2/0001/00C9C666-B3B2-DD11-A3E5-000423D9853C.root',
+                '/store/relval/CMSSW_3_0_0_pre2/RelValZTT/GEN-SIM-DIGI-RAW-HLTDEBUG/STARTUP_V7_v2/0001/0AAE2E10-B3B2-DD11-AC65-001617E30CC8.root',
+                '/store/relval/CMSSW_3_0_0_pre2/RelValZTT/GEN-SIM-DIGI-RAW-HLTDEBUG/STARTUP_V7_v2/0001/0C25E503-B3B2-DD11-8BF3-000423D98EA8.root',
+                '/store/relval/CMSSW_3_0_0_pre2/RelValZTT/GEN-SIM-DIGI-RAW-HLTDEBUG/STARTUP_V7_v2/0001/1469C60D-B3B2-DD11-BF43-000423D99F3E.root',
+                '/store/relval/CMSSW_3_0_0_pre2/RelValZTT/GEN-SIM-DIGI-RAW-HLTDEBUG/STARTUP_V7_v2/0001/16FCDE64-B3B2-DD11-B009-000423D6B42C.root',
+                '/store/relval/CMSSW_3_0_0_pre2/RelValZTT/GEN-SIM-DIGI-RAW-HLTDEBUG/STARTUP_V7_v2/0001/223CA255-B3B2-DD11-A293-000423D6C8E6.root',
+                                      )
 )
-
-process.load("Configuration.StandardSequences.GeometryPilot2_cff")
-process.load("Configuration.StandardSequences.MagneticField_cff")
-
-# Conditions: fake or frontier
-# process.load("Configuration.StandardSequences.FakeConditions_cff")
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = 'STARTUP_V4::All'
-
-process.load("Configuration.StandardSequences.L1Emulator_cff")
-# Choose a menu/prescale/mask from one of the choices
-# in L1TriggerConfig.L1GtConfigProducers.Luminosity
-process.load("Configuration.StandardSequences.L1TriggerDefaultMenu_cff")
-
-# run HLT
-process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
-process.load("HLTrigger.Configuration.HLT_2E30_cff")
-process.schedule = process.HLTSchedule
-
-process.hltL1gtTrigReport = cms.EDAnalyzer( "L1GtTrigReport",
-    UseL1GlobalTriggerRecord = cms.bool( False ),
-    L1GtRecordInputTag = cms.InputTag( "hltGtDigis" )
-)
-process.hltTrigReport = cms.EDAnalyzer( "HLTrigReport",
-    HLTriggerResults = cms.InputTag( 'TriggerResults','','HLT' )
-)
-process.HLTAnalyzerEndpath = cms.EndPath( process.hltL1gtTrigReport + process.hltTrigReport )
-process.schedule.append(process.HLTAnalyzerEndpath)
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.DQMStore = cms.Service("DQMStore")
@@ -56,9 +35,6 @@ process.load("DQMServices.Components.DQMEnvironment_cfi")
 process.load("HLTriggerOffline.Tau.Validation.HLTTauValidation_cff")
 process.load("DQMServices.Components.MEtoEDMConverter_cff")
 
-#Load The Post processor
-process.load("HLTriggerOffline.Tau.Validation.HLTTauPostValidation_cfi")
-
 
 process.output = cms.OutputModule("PoolOutputModule",
            outputCommands = cms.untracked.vstring('drop *','keep *_MEtoEDMConverter_*_*'),
@@ -68,8 +44,8 @@ process.output = cms.OutputModule("PoolOutputModule",
 #Define the Paths
 process.validation = cms.Path(process.HLTTauVal)
 process.postProcess = cms.EndPath(process.MEtoEDMConverter+process.output)
-process.schedule.append(process.validation)
-process.schedule.append(process.postProcess)
+process.schedule=cms.Schedule(process.validation,process.postProcess)
+
 
 
 
