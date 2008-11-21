@@ -33,7 +33,7 @@ process.DQMStore = cms.Service("DQMStore");
 
 
 process.maxEvents = cms.untracked.PSet(
- input = cms.untracked.int32(5000)
+# input = cms.untracked.int32(5000)
 )
 
 
@@ -45,24 +45,22 @@ photonValidation.OutputFileName = 'PhotonValidationRelVal219_SingleGammaPt35Test
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
 
-# official RelVal 219 single Photons pt=10GeV
-#    '/store/relval/CMSSW_2_1_9/RelValSingleGammaPt10/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/IDEAL_V9_v2/0000/1A55E486-B185-DD11-B52A-000423D6A6F4.root',
-#    '/store/relval/CMSSW_2_1_9/RelValSingleGammaPt10/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/IDEAL_V9_v2/0000/6EC604C6-AF85-DD11-9B52-000423D6B2D8.root',
-#    '/store/relval/CMSSW_2_1_9/RelValSingleGammaPt10/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/IDEAL_V9_v2/0000/84D42DD1-B185-DD11-8A64-000423D6B5C4.root',
-#    '/store/relval/CMSSW_2_1_9/RelValSingleGammaPt10/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/IDEAL_V9_v2/0001/B01D3DDF-0487-DD11-A5A3-001617C3B69C.root'
+ # official RelVal 3000pre2 single Photons pt=35GeV
+  '/store/relval/CMSSW_3_0_0_pre2/RelValSingleGammaPt35/GEN-SIM-RECO/IDEAL_V9_v2/0001/F0EF2B52-6FB2-DD11-84F5-0030487A18F2.root'
+   
+    ),
+                            
+                            
+    secondaryFileNames = cms.untracked.vstring(
+   # official RelVal 3000pre2 single Photons pt=35GeV 
+
+  '/store/relval/CMSSW_3_0_0_pre2/RelValSingleGammaPt35/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_V9_v2/0001/3AB121FC-1CB4-DD11-9D43-000423D98868.root',
+  '/store/relval/CMSSW_3_0_0_pre2/RelValSingleGammaPt35/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_V9_v2/0001/46D2E3E4-6EB2-DD11-B302-0030487D0D3A.root',
+  '/store/relval/CMSSW_3_0_0_pre2/RelValSingleGammaPt35/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_V9_v2/0001/70F19AE4-6EB2-DD11-A3D1-0030487C608C.root'
+  
     
-# official RelVal 219 single Photons pt=35GeV
-'/store/relval/CMSSW_2_1_9/RelValSingleGammaPt35/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/IDEAL_V9_v2/0000/3652B809-B585-DD11-A8D9-000423D9939C.root',
-'/store/relval/CMSSW_2_1_9/RelValSingleGammaPt35/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/IDEAL_V9_v2/0000/48AFC4AC-B485-DD11-A63C-000423D94C68.root',
-'/store/relval/CMSSW_2_1_9/RelValSingleGammaPt35/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/IDEAL_V9_v2/0000/4E76DF7F-B385-DD11-955C-000423D6A6F4.root',
-'/store/relval/CMSSW_2_1_9/RelValSingleGammaPt35/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/IDEAL_V9_v2/0001/725453E4-0487-DD11-A22C-000423D94494.root'
-
-
-
-
-)
-
-)
+    )
+ )
 
 
 
