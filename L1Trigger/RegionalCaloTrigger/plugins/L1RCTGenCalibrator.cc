@@ -32,6 +32,7 @@ void L1RCTGenCalibrator::saveCalibrationInfo(const view_vector& calib_to,const e
   if(debug() > 0) edm::LogVerbatim("saveCalibrationInfo()") << "--------------- Begin L1RCTGenCalibration::saveCalibrationInfo() ---------------\n";
 
   event_data temp; // event information to save for reprocessing later
+
   std::vector<generator>* gtemp = &(temp.gen_particles);
   std::vector<region>* regtemp = &(temp.regions);
   std::vector<tpg>* tpgtemp = &(temp.tpgs);
@@ -53,10 +54,87 @@ void L1RCTGenCalibrator::saveCalibrationInfo(const view_vector& calib_to,const e
 	}
     }
 
-  temp.event = eventNumber();
+  temp.event = totalEvents();
   temp.run = runNumber();
 
-  data_.push_back(temp);
+  if(!farmout()) 
+    data_.push_back(temp);
+  else
+    {
+      root_structs::Event evt;
+      root_structs::Generator gen;
+      root_structs::Region rgn;
+      root_structs::TPG ttpg;
+
+      evt.event = temp.event;
+      evt.run = temp.run;
+
+      gen.nGen = temp.gen_particles.size();
+      rgn.nRegions = temp.regions.size();
+      ttpg.nTPG = temp.tpgs.size();
+      
+      for(unsigned i = 0; i < gen.nGen && i < 100; ++i)
+	{
+	  gen.particle_type[i] = temp.gen_particles[i].particle_type;
+	  gen.et[i] = temp.gen_particles[i].et;
+	  gen.eta[i] = temp.gen_particles[i].eta;
+	  gen.phi[i] = temp.gen_particles[i].phi;
+	  gen.crate[i] = temp.gen_particles[i].loc.crate;
+	  gen.card[i] = temp.gen_particles[i].loc.card;
+	  gen.region[i] = temp.gen_particles[i].loc.region;
+	}
+
+      for(unsigned i = 0; i < rgn.nRegions; ++i)
+	{
+	  rgn.linear_et[i] = temp.regions[i].linear_et;
+	  rgn.ieta[i] = temp.regions[i].ieta;
+	  rgn.iphi[i] = temp.regions[i].iphi;
+	  rgn.eta[i] = temp.regions[i].eta;
+	  rgn.phi[i] = temp.regions[i].phi;
+	  rgn.crate[i] = temp.regions[i].loc.crate;
+	  rgn.card[i] = temp.regions[i].loc.card;
+	  rgn.region[i] = temp.regions[i].loc.region;
+	}
+
+      for(unsigned i = 0; i< ttpg.nTPG; ++i)
+	{
+	  ttpg.ieta[i] = temp.tpgs[i].ieta;
+	  ttpg.iphi[i] = temp.tpgs[i].iphi;
+	  ttpg.eta[i] = temp.tpgs[i].eta;
+	  ttpg.phi[i] = temp.tpgs[i].phi;
+	  ttpg.ecalEt[i] = temp.tpgs[i].ecalEt;
+	  ttpg.hcalEt[i] = temp.tpgs[i].hcalEt;
+	  ttpg.ecalE[i] = temp.tpgs[i].ecalE;
+	  ttpg.hcalE[i] = temp.tpgs[i].hcalE;
+	  ttpg.crate[i] = temp.tpgs[i].loc.crate;
+	  ttpg.card[i] = temp.tpgs[i].loc.card;
+	  ttpg.region[i] = temp.tpgs[i].loc.region;
+	}
+
+      if(Tree()->GetBranch("Event"))
+	Tree()->GetBranch("Event")->SetAddress(&evt);
+      else
+	Tree()->Branch("Event",&evt,"event/i:run");
+
+      if(Tree()->GetBranch("Generator"))
+	Tree()->GetBranch("Generator")->SetAddress(&gen);
+      else
+	Tree()->Branch("Generator",&gen,"nGen/i:particle_type[100]/I:et[100]/D:eta[100]:phi[100]:crate[100]/i:card[100]:region[100]");
+      
+      if(Tree()->GetBranch("Region"))
+	Tree()->GetBranch("Region")->SetAddress(&rgn);
+      else
+	Tree()->Branch("Region",&rgn,"nRegions/i:linear_et[200]/I:ieta[200]:iphi[200]:eta[200]:phi[200]:crate[200]/i:card[200]:region[200]");
+
+      if(Tree()->GetBranch("CaloTPG"))
+	Tree()->GetBranch("CaloTPG")->SetAddress(&ttpg);
+      else
+	Tree()->Branch("CaloTPG",&ttpg,"nTPG/i:ieta[3100]/I:iphi[3100]:eta[3100]:phi[3100]:ecalEt[3100]/D:hcalEt[3100]:ecalE[3100]:hcalE[3100]:crate[3100]/i:card[3100]:region[3100]");
+      
+      Tree()->Fill();
+      if(totalEvents() % 100 == 0) Tree()->AutoSave("SaveSelf");
+    }
+    
   if(debug() > 0) edm::LogVerbatim("saveCalibrationInfo()") << "--------------- End L1RCTGenCalibration::saveCalibrationInfo() ---------------\n";
 }
 
@@ -68,6 +146,13 @@ void L1RCTGenCalibrator::postProcessing()
   // first event data loop, calibrate ecal, hcal with NI pions
   for(std::vector<event_data>::const_iterator i = data_.begin(); i != data_.end(); ++i)
     {
+      /*
+      for(int n = 0; n < 28; ++n)
+	{
+	  std::cout << "Trigger Tower " <<  n + 1 << ": " << iph[n] << ' ' << ipi[n] << ' ' << ipi2[n] << std::endl;
+	}
+      */
+
       nEvents++;
       hEvent->Fill(i->event);
       hRun->Fill(i->run);
@@ -344,15 +429,25 @@ void L1RCTGenCalibrator::postProcessing()
       double pi_peak  = hPionDeltaEOverE[i]->GetBinCenter(hPionDeltaEOverE[i]->GetMaximumBin());
       double pi_upper = pi_peak + hPionDeltaEOverE[i]->GetRMS();
       double pi_lower = pi_peak - hPionDeltaEOverE[i]->GetRMS();
-
+      
       phGaus[i] = new TF1(TString("phGaus")+=i,"gaus",ph_lower,ph_upper);
       piGaus[i] = new TF1(TString("piGaus")+=i,"gaus",pi_lower,pi_upper);
       
-      hPhotonDeltaEOverE[i]->Fit(phGaus[i],fitOpts().c_str());
-      hPionDeltaEOverE[i]->Fit(piGaus[i],fitOpts().c_str());
-
-      he_low_smear_[i]  = 1/(1 - phGaus[i]->GetParameter(1));
-      he_high_smear_[i] = 1/(1 - piGaus[i]->GetParameter(1));
+      if(hPhotonDeltaEOverE[i]->GetEntries() > 100)
+	{
+	  hPhotonDeltaEOverE[i]->Fit(phGaus[i],fitOpts().c_str());
+	  he_low_smear_[i] = 1/(1 - phGaus[i]->GetParameter(1));
+	}
+      else
+	he_low_smear_[i] = 1;
+	
+      if(hPionDeltaEOverE[i]->GetEntries() > 100)
+	{
+	  hPionDeltaEOverE[i]->Fit(piGaus[i],fitOpts().c_str());
+	  he_high_smear_[i] = 1/(1 - piGaus[i]->GetParameter(1));
+	}
+      else
+	he_high_smear_[i] = 1;
     }
 
   for(int i = 0; i < 28; ++i)
@@ -382,6 +477,7 @@ void L1RCTGenCalibrator::saveGenInfo(const reco::GenParticle* g_ , const edm::Ha
   ecal_iter ei;
   hcal_iter hi;
   region_iter ri;
+  unsigned reg_sum = 0;
 
   if((g_->pdgId() == 22 || abs(g_->pdgId()) == 211)  && g_->pt() > 9.5 && fabs(g_->eta()) < 2.5)
     {
@@ -421,6 +517,7 @@ void L1RCTGenCalibrator::saveGenInfo(const reco::GenParticle* g_ , const edm::Ha
 	  if( find<region>(r_save, *r) == -1 && isSelfOrNeighbor( r_save.loc, gen.loc ) &&
 	      r_save.linear_et > 2 )
 	    {
+	      reg_sum += r_save.linear_et;
 	      r_save.ieta = ri->gctEta();
 	      r_save.iphi = ri->gctPhi();
 	      
@@ -435,6 +532,9 @@ void L1RCTGenCalibrator::saveGenInfo(const reco::GenParticle* g_ , const edm::Ha
 	      hRCTRegionEta->Fill(l1Geometry()->globalEtaBinCenter(r_save.ieta));
 	      hRCTRegionPhi->Fill(l1Geometry()->emJetPhiBinCenter(r_save.iphi));
 
+	      r_save.eta = l1Geometry()->globalEtaBinCenter(r_save.ieta);
+	      r_save.phi = l1Geometry()->emJetPhiBinCenter(r_save.iphi);
+
 	      hGenPhivsRegionPhi->Fill(gen.phi,l1Geometry()->emJetPhiBinCenter(r_save.iphi));
 	      hGenEtavsRegionEta->Fill(gen.eta,l1Geometry()->globalEtaBinCenter(r_save.ieta));
 
@@ -442,39 +542,47 @@ void L1RCTGenCalibrator::saveGenInfo(const reco::GenParticle* g_ , const edm::Ha
 	    }
 	}
 
-      for(ei = e_->begin(); ei != e_->end(); ++ei)
-	for(hi = h_->begin(); hi != h_->end(); ++hi)
+      if(reg_sum)
+	for(ei = e_->begin(); ei != e_->end(); ++ei)
 	  {	    
-	    if(ei->id().ieta() == hi->id().ieta() && ei->id().iphi() == hi->id().iphi() && ecalE(*ei) + hcalE(*hi) > 0.5)
-	      {		
+	    for(hi = h_->begin(); hi != h_->end(); ++hi)
+	      if(hi->id().ieta() == ei->id().ieta() && hi->id().iphi() == ei->id().iphi())
+		break;
+	    
+	    if(hi != h_->end() && ecalE(*ei) + hcalE(*hi) > 0.5)
+	      {
 		tpg t_save;
-	      		
+		
 		t_save.ieta = ei->id().ieta();
 		t_save.iphi = ei->id().iphi();		
 		t_save.loc = makeRctLocation(t_save.ieta, t_save.iphi);
-
-		if( isSelfOrNeighbor(t_save.loc, gen.loc) )
-		{
-		  t_save.ecalEt = ecalEt(*ei);
-		  t_save.hcalEt = hcalEt(*hi);
-		  t_save.ecalE = ecalE(*ei);
-		  t_save.hcalE = hcalE(*hi);
 		
-		  if( find<tpg>(t_save, *tp) == -1 )
-		    {
-		      if(debug() > 0)
-			LogTrace("AddingTPG") << "Adding TPG to data record:\n"
-					      << "ieta  : " << t_save.ieta << " "
-					      << "\tiphi  : " << t_save.iphi << " "
-					      << "\tecalEt: " << t_save.ecalEt << " "
-					      << "\thcalEt: " << t_save.hcalEt << " "
-					      << "\nregion: " << t_save.loc.region << " "
-					      << "\tcard  : " << t_save.loc.card << " "
-					      << "\tcrate : " << t_save.loc.crate << " ";
-		      
-		      tp->push_back(t_save);
-		    }
-		}
+		if( isSelfOrNeighbor(t_save.loc, gen.loc) )
+		  {
+		    t_save.ecalEt = ecalEt(*ei);
+		    t_save.hcalEt = hcalEt(*hi);
+		    t_save.ecalE = ecalE(*ei);
+		    t_save.hcalE = hcalE(*hi);
+		    
+		    etaValue(t_save.ieta,t_save.eta);
+		    phiValue(t_save.iphi,t_save.phi);
+
+		    if( find<tpg>(t_save, *tp) == -1 )
+		      {
+			if(debug() > 0)
+			  LogTrace("AddingTPG") << "Adding TPG to data record:\n"
+						<< "ieta  : " << t_save.ieta << " "
+						<< "\tiphi  : " << t_save.iphi << " "
+						<< "\tecalEt: " << t_save.ecalEt << " "
+						<< "\thcalEt: " << t_save.hcalEt << " "
+						<< "\nregion: " << t_save.loc.region << " "
+						<< "\tcard  : " << t_save.loc.card << " "
+						<< "\tcrate : " << t_save.loc.crate << " ";
+			
+			tp->push_back(t_save);
+		      }
+		  }
+		
 	      }
 	  }
     }

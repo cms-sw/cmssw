@@ -18,10 +18,11 @@
      endJob()   -- this calls postProcessing() and takes care of printing out the resulting _cff.py  and .root files.
 
  When you inherit from this class you must define:
-     bookHistograms() -- instanciate all your histograms here... also use putHist(histo = new TH1X()) to keep track of your histograms
+     bookHistograms() -- instanciate all your histograms here... also use putHist(histo = new TH1X()) to keep track of your histograms (or anything else for that matter)
      saveCalibrationInfo() -- anything you need to do to your data during analyze(), i.e. plotting raw energies, 
                               saving data for later and making sanity check plots.
      postProcessing() -- this is anything you need to do in endJob(). i.e. doing fits and determining coefficients
+                         If you set "FarmoutMode" to true then this is not run, Just remember to set up a TTree for your data.
  
 Debug levels: (feel free to add more in your derived classes!) requires you to use " if (debug()) { code }"
 -1 = quiet mode no output from anything
@@ -35,7 +36,7 @@ Debug levels: (feel free to add more in your derived classes!) requires you to u
 //
 // Original Author:  pts/47
 //         Created:  Thu Jul 13 21:38:08 CEST 2006
-// $Id: L1RCTCalibrator.h,v 1.5 2008/08/07 22:28:58 lgray Exp $
+// $Id: L1RCTCalibrator.h,v 1.6 2008/08/19 20:22:46 lgray Exp $
 //
 //
 
@@ -86,6 +87,7 @@ Debug levels: (feel free to add more in your derived classes!) requires you to u
 #include "DataFormats/Candidate/interface/Candidate.h"
 
 #include "TFile.h"
+#include "TTree.h"
 
 //
 // class declaration
@@ -95,25 +97,29 @@ class L1RCTCalibrator : public edm::EDAnalyzer
  public: 
   // nested classes
   class rct_location
-    { 
+    {       
       public:
       int crate, card, region;
       
       bool operator==(const rct_location& r) const { return (crate == r.crate && card == r.card && region == r.region); }
     };
 
-  struct region
+  class region
   {
+  public:
     int linear_et, ieta, iphi;
+    double eta, phi;
     rct_location loc;
 
-    bool operator==(const region& r) const { return (loc == r.loc); }
+    bool operator==(const region& r) const { return (loc == r.loc); }    
   };
-  
-  struct tpg
+
+  class tpg
   {
+  public:    
     int ieta, iphi;
     double ecalEt, hcalEt, ecalE, hcalE;
+    double eta,phi;
     rct_location loc;
 
     bool operator==(const tpg& r) const { return ((ieta == r.ieta) && (iphi == r.iphi)); }
@@ -143,7 +149,7 @@ class L1RCTCalibrator : public edm::EDAnalyzer
   virtual void postProcessing() = 0;
 
   virtual void bookHistograms() = 0;
-
+    
 protected:
   // ----------protected member functions---------------
   void deltaR(const double& eta1, double phi1, 
@@ -187,11 +193,15 @@ protected:
   // saves pointer to Histogram in a vector, making writing out easier later.
   void putHist(TObject* o) { hists_.push_back(o); }
 
+  TTree* Tree() {return theTree_;}
+
   // use these to access debug level, fit options, and event/run number.
   const std::string& fitOpts() const { return fitOpts_; }
   const int& debug() const { return debug_; }
   const int& eventNumber() const { return event_; }
   const int& runNumber() const { return run_; }
+  const bool& farmout() const { return farmout_; }
+  const int& totalEvents() const { return total_; }
 
   // use these functions to access the pointers to various scales
   // it is safer than using the bare pointer.
@@ -226,17 +236,16 @@ protected:
   std::string outfile_;
   const int debug_; // -1 for quiet mode, 0 for LogInfo/Warning/Error, 1 for "0 + verbose couts and fits", 
                     // 9 for empty coefficient tables, 10 for output sanity check
-  bool python_;  
+  bool python_, farmout_;  
   const double deltaEtaBarrel_, maxEtaBarrel_, deltaPhi_;
   const std::vector<double> endcapEta_;
   const std::string fitOpts_;
-  int event_, run_;
+  int event_, run_, total_;
   TFile *rootOut_;
-
+  TTree *theTree_;
   //vector of all pointers to histograms
   std::vector<TObject*> hists_;
 };
-
 //
 // constants, enums and typedefs
 //

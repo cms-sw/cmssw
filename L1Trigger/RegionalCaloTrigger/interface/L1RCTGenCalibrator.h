@@ -15,7 +15,7 @@
 //
 // Original Author:  pts/47
 //         Created:  Thu Jul 13 21:38:08 CEST 2006
-// $Id: L1RCTGenCalibrator.h,v 1.5 2008/08/14 14:20:27 lgray Exp $
+// $Id: L1RCTGenCalibrator.h,v 1.6 2008/08/19 20:22:46 lgray Exp $
 //
 //
 
@@ -26,6 +26,7 @@
 #include "TGraph2DErrors.h"
 #include "TF1.h"
 #include "TF2.h"
+#include "TVectorT.h"
 
 #include "RooDataSet.h"
 #include "RooRealVar.h"
@@ -66,8 +67,9 @@ class L1RCTGenCalibrator : public L1RCTCalibrator
 							 phi == r.phi && eta == r.eta ); }
   };
     
-  struct event_data
+  class event_data
   {
+  public: 
     unsigned event;
     unsigned run;
     std::vector<generator> gen_particles;
@@ -129,5 +131,39 @@ private:
 //
 // static data member definitions
 //
+
+namespace root_structs
+{
+  struct Event
+  {
+    unsigned event, run;
+  };
+
+  struct Generator
+  {
+    unsigned nGen;
+    int particle_type[100];
+    double et[100],eta[100],phi[100];
+    unsigned crate[100],card[100],region[100];
+  };
+
+  struct Region
+  {
+    unsigned nRegions;
+    int linear_et[200], ieta[200],iphi[200];
+    double eta[200],phi[200];
+    unsigned crate[200],card[200],region[200];
+  };
+  
+  struct TPG
+  {
+    unsigned nTPG;
+    int ieta[3100],iphi[3100];
+    double eta[3100],phi[3100],ecalEt[3100],hcalEt[3100],ecalE[3100],hcalE[3100];
+    unsigned crate[3100],card[3100],region[3100];
+  };
+
+}
+
 
 #endif

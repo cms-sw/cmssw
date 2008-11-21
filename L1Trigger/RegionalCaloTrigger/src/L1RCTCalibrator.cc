@@ -26,11 +26,13 @@ L1RCTCalibrator::L1RCTCalibrator(edm::ParameterSet const& ps):
   outfile_(ps.getParameter<std::string>("OutputFile")),
   debug_(ps.getUntrackedParameter<int>("debug",-1)),
   python_(ps.getUntrackedParameter<bool>("PythonOut")),
+  farmout_(ps.getUntrackedParameter<bool>("FarmoutMode")),
   deltaEtaBarrel_(ps.getParameter<double>("DeltaEtaBarrel")),
   maxEtaBarrel_(ps.getParameter<int>("TowersInBarrel")*deltaEtaBarrel_),
   deltaPhi_(ps.getParameter<double>("TowerDeltaPhi")),
   endcapEta_(ps.getParameter<std::vector<double> >("EndcapEtaBoundaries")),
-  fitOpts_((debug_ > 0) ? "ELMRNF" : "QELMRNF")
+  fitOpts_((debug_ > -1) ? "ELMRNF" : "QELMRNF"),
+  total_(0)
 {
   for(int i = 0; i < 28; ++i)
     {
@@ -57,6 +59,8 @@ L1RCTCalibrator::~L1RCTCalibrator()
 void L1RCTCalibrator::analyze(const edm::Event& e, const edm::EventSetup& es)
 {
   if(debug_ > 8) return; // don't need to run analyze if we're just making sure parts of the code work or making an empty table
+
+  total_++;
 
   // RCT parameters (thresholds, etc)
   edm::ESHandle<L1RCTParameters> rctParameters;
@@ -104,30 +108,32 @@ void L1RCTCalibrator::analyze(const edm::Event& e, const edm::EventSetup& es)
   event_ = e.id().event();
   run_ = e.id().run();
 
-  if( debug_ < 9 ) saveCalibrationInfo(the_cands, ecal, hcal, regions);
+  saveCalibrationInfo(the_cands, ecal, hcal, regions);
 }
 
 void L1RCTCalibrator::writeHistograms()
 {
   for(std::vector<TObject*>::const_iterator i = hists_.begin(); i != hists_.end(); ++i)
     (*i)->Write();
-
 }
 
 void L1RCTCalibrator::beginJob(const edm::EventSetup& es)
 {
   if(!sanityCheck()) throw cms::Exception("Failed Sanity Check") << "Coordinate recalculation failed!\n";
   
-  rootOut_ = new TFile((outfile_ + std::string(".root")).c_str(),"RECREATE");
+  rootOut_ = new TFile(outfile_.c_str(),"RECREATE");
   rootOut_->cd();
   
+  if(farmout_) putHist(theTree_ = new TTree("L1RCTCalibrator","RCT Calibration Tree"));
+  else theTree_ = NULL;		 
+
   bookHistograms();
 }
 
 
 void L1RCTCalibrator::endJob()
 {
-  if(debug_ < 9) postProcessing();
+  if(debug_ < 9 && !farmout_) postProcessing();
  
   rootOut_->cd();
   writeHistograms();
@@ -135,14 +141,17 @@ void L1RCTCalibrator::endJob()
   rootOut_->Write();
   rootOut_->Close();
 
-  std::ofstream out;  
-  if(debug_ > 0)
+  if(!farmout_)
     {
-      printCfFragment(std::cout);
+      std::ofstream out;  
+      if(debug_ > 0)
+	{
+	  printCfFragment(std::cout);
+	}
+      out.open((outfile_ + ((python_) ? std::string("_cff.py") : std::string(".cff"))).c_str());
+      printCfFragment(out);
+      out.close(); 
     }
-  out.open((outfile_ + ((python_) ? std::string("_cff.py") : std::string(".cff"))).c_str());
-  printCfFragment(out);
-  out.close(); 
 }
 
 //This prints out a nicely formatted .cfi file to be included in RCTConfigProducer.cfi
@@ -150,34 +159,36 @@ void L1RCTCalibrator::printCfFragment(std::ostream& out) const
 {
   double* p = NULL;
 
-  out << ((python_) ? "import FWCore.ParameterSet.Config as cms\n\nrct_calibration = cms.PSet(\n" : "block rct_calibration = {\n");
+  out.flush();
+  
+  out << ((python_) ? "import FWCore.ParameterSet.Config as cms\n\nrct_calibration = cms.PSet(" : "block rct_calibration = {") << std::endl;
   for(int i = 0; i < 6; ++i)
     {
       switch(i)
 	{
 	case 0:
 	  p = const_cast<double*>(reinterpret_cast<const double*>(ecal_));
-	  out << ((python_) ? "\tecal_calib_Lindsey = cms.vdouble(\n" : "\tvdouble ecal_calib_Lindsey = {\n");
+	  out << ((python_) ? "\tecal_calib_Lindsey = cms.vdouble(" : "\tvdouble ecal_calib_Lindsey = {") << std::endl;
 	  break;
 	case 1:
 	  p = const_cast<double*>(reinterpret_cast<const double*>(hcal_));
-	  out << ((python_) ? "\thcal_calib_Lindsey = cms.vdouble(\n" : "\tvdouble hcal_calib_Lindsey = {\n");
+	  out << ((python_) ? "\thcal_calib_Lindsey = cms.vdouble(" : "\tvdouble hcal_calib_Lindsey = {") << std::endl;
 	  break;
 	case 2:
 	  p = const_cast<double*>(reinterpret_cast<const double*>(hcal_high_));
-	  out << ((python_) ? "\thcal_high_calib_Lindsey = cms.vdouble(\n" : "\tvdouble hcal_high_calib_Lindsey = {\n");
+	  out << ((python_) ? "\thcal_high_calib_Lindsey = cms.vdouble(" : "\tvdouble hcal_high_calib_Lindsey = {") << std::endl;
 	  break;
 	case 3:
 	  p = const_cast<double*>(reinterpret_cast<const double*>(cross_));
-	  out << ((python_) ? "\tcross_terms_Lindsey = cms.vdouble(\n" : "\tvdouble cross_terms_Lindsey = {\n");
+	  out << ((python_) ? "\tcross_terms_Lindsey = cms.vdouble(" : "\tvdouble cross_terms_Lindsey = {") << std::endl;
 	  break;
 	case 4:
 	  p = const_cast<double*>(reinterpret_cast<const double*>(he_low_smear_));
-	  out << ((python_) ? "\tHoverE_low_Lindsey = cms.vdouble(\n" : "\tvdouble HoverE_low_Lindsey = {\n");
+	  out << ((python_) ? "\tHoverE_low_Lindsey = cms.vdouble(" : "\tvdouble HoverE_low_Lindsey = {") << std::endl;
 	  break;
 	case 5:
 	  p = const_cast<double*>(reinterpret_cast<const double*>(he_high_smear_));
-	  out << ((python_) ? "\tHoverE_high_Lindsey = cms.vdouble(\n" : "\tvdouble HoverE_high_Lindsey = {\n");
+	  out << ((python_) ? "\tHoverE_high_Lindsey = cms.vdouble(" : "\tvdouble HoverE_high_Lindsey = {") << std::endl;
 	};
 
       for(int j = 0; j < 28; ++j)
@@ -189,7 +200,7 @@ void L1RCTCalibrator::printCfFragment(std::ostream& out) const
 	      if(q[0] != -999 && q[1] != -999 && q[2] != -999)
 		{
 		  out << "\t\t" << q[0] << ", " << q[1] << ", " << q[2];
-		  out << ((j==27) ? "\n" : ",\n");
+		  out << ((j==27) ? "" : ",") << std::endl;
 		}
 	    }
 	  else if( p == reinterpret_cast<const double*>(cross_) )
@@ -200,24 +211,24 @@ void L1RCTCalibrator::printCfFragment(std::ostream& out) const
 		{
 		  out << "\t\t" << q[0] << ", " << q[1] << ", " << q[2] << ", "
 		      << q[3] << ", " << q[4] << ", " << q[5];
-		  out << ((j==27) ? "\n" : ",\n");
+		  out << ((j==27) ? "" : ",") << std::endl;
 		}
 	    }
 	  else
 	    {
 	      double *q = p;
 	      if(q[j] != -999)
-		out << "\t\t" << q[j] << ((j==27) ? "\n" : ",\n");
+		out << "\t\t" << q[j] << ((j==27) ? "" : ",") << std::endl;
 	    }
 	}
       if(python_)
 	{
-	  out << ((i != 5) ? "\t),\n" : "\t)\n");
+	  out << ((i != 5) ? "\t)," : "\t)") << std::endl;
 	}
       else 
-	out << "\t}\n";
+	out << "\t}" << std::endl;
     }
-  out << ((python_) ? ")\n" : "}\n");
+  out << ((python_) ? ")" : "}") << std::endl;
 }
 
 double L1RCTCalibrator::uniPhi(const double& phi) const
@@ -558,8 +569,8 @@ double L1RCTCalibrator::avgPhi(const std::vector<tpg>& t) const
     {
       double temp_phi;
       phiValue(i->iphi, temp_phi);
-      n = (i->ecalE + i->hcalE)*temp_phi;
-      d = i->ecalE + i->hcalE;
+      n = (i->ecalEt + i->hcalEt)*temp_phi;
+      d = i->ecalEt + i->hcalEt;
     }
 
   return n/d;
@@ -573,8 +584,8 @@ double L1RCTCalibrator::avgEta(const std::vector<tpg>& t) const
     {
       double temp_eta;
       etaValue(i->ieta, temp_eta);
-      n = (i->ecalE + i->hcalE)*temp_eta;
-      d = i->ecalE + i->hcalE;
+      n = (i->ecalEt + i->hcalEt)*temp_eta;
+      d = i->ecalEt + i->hcalEt;
     }
   return n/d;
 }
