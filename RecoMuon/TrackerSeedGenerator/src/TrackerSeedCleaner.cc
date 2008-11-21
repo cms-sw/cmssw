@@ -2,8 +2,8 @@
  * \class TrackerSeedCleaner
  *  Reference class for seeds cleaning
  *  Seeds Cleaner based on sharedHits cleaning, direction cleaning and pt cleaning
- *  $Date: 2008/05/01 18:14:28 $
- *  $Revision: 1.5 $
+ *  $Date: 2008/05/08 18:59:34 $
+ *  $Revision: 1.6 $
     \author A. Grelli -  Purdue University, Pavia University
  */
 
@@ -88,7 +88,7 @@ void TrackerSeedCleaner::clean( const reco::TrackRef& muR, const RectangularEtaP
 	TrajectoryStateOnSurface state = tsTransform.transientState( seed->startingState(), recHit->surface(), theProxyService->magneticField().product());
 
 	TrajectoryStateClosestToBeamLine tsAtClosestApproachSeed = tscblBuilder(*state.freeState(),bs);//as in TrackProducerAlgorithms
-
+	if (!tsAtClosestApproachSeed.isValid()) continue;
 	GlobalPoint vSeed1 = tsAtClosestApproachSeed.trackStateAtPCA().position();
 	GlobalVector pSeed = tsAtClosestApproachSeed.trackStateAtPCA().momentum();
 	GlobalPoint vSeed(vSeed1.x()-bs.x0(),vSeed1.y()-bs.y0(),vSeed1.z()-bs.z0());
