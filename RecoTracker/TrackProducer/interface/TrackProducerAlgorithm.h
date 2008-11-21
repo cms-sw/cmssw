@@ -4,8 +4,8 @@
 /** \class TrackProducerAlgorithm
  *  This class calls the Final Fit and builds the Tracks then produced by the TrackProducer or by the TrackRefitter
  *
- *  $Date: 2008/02/18 16:32:39 $
- *  $Revision: 1.19 $
+ *  $Date: 2008/03/03 22:55:29 $
+ *  $Revision: 1.20 $
  *  \author cerati
  */
 
@@ -35,7 +35,8 @@ public:
   typedef std::pair<Trajectory*, std::pair<T*,PropagationDirection> > AlgoProduct; 
   typedef std::vector< AlgoProduct >  AlgoProductCollection;
   typedef edm::RefToBase<TrajectorySeed> SeedRef;
-
+  typedef edm::AssociationMap<edm::OneToOne<std::vector<T>,std::vector<VertexConstraint> > > 
+  VtxConstraintAssociationCollection;
  public:
 
   /// Constructor
@@ -77,9 +78,10 @@ public:
 		       AlgoProductCollection &);
 
   /// Run the Final Fit taking TrackVtxConstraintAssociation as input (Refitter with vertex constraint)
+  ///   currently hit sorting is disabled - will work (only) with standard tracks
   void runWithVertex(const TrackingGeometry *, 
 		     const MagneticField *, 
-		     const TrackVtxConstraintAssociationCollection&,
+		     const VtxConstraintAssociationCollection&,
 		     const TrajectoryFitter *,
 		     const Propagator *,
 		     const TransientTrackingRecHitBuilder*,

@@ -26,6 +26,7 @@
 #include "RecoTracker/TransientTrackingRecHit/interface/TRecHit2DPosConstraint.h"
 #include "RecoTracker/TransientTrackingRecHit/interface/TRecHit1DMomConstraint.h"
 #include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
+#include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/ErrorFrameTransformer.h"
 #include "TrackingTools/TrackFitters/interface/RecHitSorter.h"
 
@@ -197,7 +198,7 @@ TrackProducerAlgorithm<T>::runWithMomentum(const TrackingGeometry * theG,
 template <class T> void
 TrackProducerAlgorithm<T>::runWithVertex(const TrackingGeometry * theG,
 					 const MagneticField * theMF,
-					 const TrackVtxConstraintAssociationCollection& theTCollectionWithConstraint,
+					 const VtxConstraintAssociationCollection& theTCollectionWithConstraint,
 					 const TrajectoryFitter * theFitter,
 					 const Propagator * thePropagator,
 					 const TransientTrackingRecHitBuilder* builder,
@@ -206,8 +207,13 @@ TrackProducerAlgorithm<T>::runWithVertex(const TrackingGeometry * theG,
 
   edm::LogInfo("TrackProducer") << "Number of input Tracks: " << theTCollectionWithConstraint.size() << "\n";
   
+//   PropagatorWithMaterial myPropagator(anyDirection,0.105,theMF);
+  AnalyticalPropagator myPropagator(theMF,anyDirection);  // no material surface inside 1st hit
+  TransverseImpactPointExtrapolator extrapolator(myPropagator);
+
   int cont = 0;
-  for (TrackVtxConstraintAssociationCollection::const_iterator i=theTCollectionWithConstraint.begin(); i!=theTCollectionWithConstraint.end();i++) {
+  for ( typename VtxConstraintAssociationCollection::const_iterator i=theTCollectionWithConstraint.begin(); 
+	i!=theTCollectionWithConstraint.end();i++) {
       try{
 	const T * theT = i->key.get();
 
@@ -215,6 +221,24 @@ TrackProducerAlgorithm<T>::runWithVertex(const TrackingGeometry * theG,
 
 	float ndof=0;
 	PropagationDirection seedDir = theT->seedDirection();
+
+
+	// FreeTrajectoryState from track position and momentum
+	GlobalPoint tkpos(theT->vertex().x(),theT->vertex().y(),theT->vertex().z());
+	GlobalVector tkmom(theT->momentum().x(),theT->momentum().y(),theT->momentum().z());
+	FreeTrajectoryState fts(tkpos,tkmom,theT->charge(),theMF);
+	// Extrapolation to transverse IP plane at vertex constraint position
+	GlobalPoint pos = i->val->first;
+	GlobalError err = i->val->second;
+	TrajectoryStateOnSurface tsosAtVtx = extrapolator.extrapolate(fts,pos);
+	const Surface& surfAtVtx = tsosAtVtx.surface();
+	// Conversion of vertex constraint parameters and errors to local system
+	//   (assumes projection normal to plane - sufficient if transverse components are small)
+	LocalPoint vtxPosL = surfAtVtx.toLocal(pos);
+	LocalError vtxErrL = ErrorFrameTransformer().transform(err,surfAtVtx);
+	// Construction of the virtual hit
+	TransientTrackingRecHit::RecHitPointer vtxhit = 
+	  TRecHit2DPosConstraint::build(vtxPosL,vtxErrL,&surfAtVtx);
 
 	// WARNING: here we assume that the hits are correcly sorted according to seedDir
 	TransientTrackingRecHit::RecHitContainer hits;       
@@ -224,30 +248,33 @@ TrackProducerAlgorithm<T>::runWithVertex(const TrackingGeometry * theG,
 
 	TrajectoryStateOnSurface theInitialStateForRefitting = getInitialState(theT,hits,theG,theMF);
 
-	const LocalPoint testpoint(0,0,0);
-	GlobalPoint pos = i->val->first;
-	GlobalError err = i->val->second;
+// 	const LocalPoint testpoint(0,0,0);
+// 	GlobalPoint pos = i->val->first;
+// 	GlobalError err = i->val->second;
 
-	Propagator* myPropagator = new PropagatorWithMaterial(anyDirection,0.105,theMF);
-	TransverseImpactPointExtrapolator extrapolator(*myPropagator);
-	TrajectoryStateOnSurface tsosAtVtx = extrapolator.extrapolate(theInitialStateForRefitting,pos);
+// 	Propagator* myPropagator = new PropagatorWithMaterial(anyDirection,0.105,theMF);
+// 	TransverseImpactPointExtrapolator extrapolator(*myPropagator);
+// 	TrajectoryStateOnSurface tsosAtVtx = extrapolator.extrapolate(theInitialStateForRefitting,pos);
 	
-	const Surface * surfAtVtx = &tsosAtVtx.surface();
+// 	const Surface * surfAtVtx = &tsosAtVtx.surface();
 	
 
-	LocalError testerror = ErrorFrameTransformer().transform(err, *surfAtVtx);
+// 	LocalError testerror = ErrorFrameTransformer().transform(err, *surfAtVtx);
 	
 	
-	TransientTrackingRecHit::RecHitPointer testhit = TRecHit2DPosConstraint::build(testpoint,testerror,surfAtVtx);
+// 	TransientTrackingRecHit::RecHitPointer testhit = TRecHit2DPosConstraint::build(testpoint,testerror,surfAtVtx);
 	
 	//push constraining hit and sort along seed direction
-	hits.push_back(testhit);
-	RecHitSorter sorter = RecHitSorter();
-	hits = sorter.sortHits(hits,seedDir);   // warning: I doubt it works for cosmic or beam halo tracks
+// 	hits.push_back(testhit);
+// 	RecHitSorter sorter = RecHitSorter();
+// 	hits = sorter.sortHits(hits,seedDir);   // warning: I doubt it works for cosmic or beam halo tracks
+	//insertion of the constraint in the lists of hits
+	//  (assume hits ordered from inside to outside)
+	hits.insert(hits.begin(),vtxhit);
 
 	//use the state on the surface of the first hit (could be the constraint or not)
-	theInitialStateForRefitting = myPropagator->propagate(*theInitialStateForRefitting.freeState(), *(hits[0]->surface()) );	  
-	delete myPropagator;
+	theInitialStateForRefitting = 
+	  myPropagator.propagate(theInitialStateForRefitting,*(hits[0]->surface()));
 
 	// the seed has dummy state and hits.What matters for the fitting is the seedDirection;
 	const TrajectorySeed seed = TrajectorySeed(PTrajectoryStateOnDet(),
