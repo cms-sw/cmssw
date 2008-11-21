@@ -1,5 +1,5 @@
 //
-//  SiPixelTemplateReco.cc (Version 5.00)
+//  SiPixelTemplateReco.cc (Version 5.01)
 //
 //  Add goodness-of-fit to algorithm, include single pixel clusters in chi2 calculation
 //  Try "decapitation" of large single pixels
@@ -21,6 +21,7 @@
 //  Incorporate "cluster repair" to handle dead pixels
 //  Take truncation size from new pixmax information
 //  Change to allow template sizes to be changed at compile time
+//  Move interpolation range error to LogDebug
 //
 //  Created by Morris Swartz on 10/27/06.
 //  Copyright 2006 __TheJohnsHopkinsUniversity__. All rights reserved.
@@ -46,7 +47,7 @@
 #define ENDL " "
 #else
 #include "SiPixelTemplateReco.h"
-static int theVerboseLevel = {2};
+//static int theVerboseLevel = {2};
 #define LOGERROR(x) std::cout << x << ": "
 #define LOGDEBUG(x) std::cout << x << ": "
 #define ENDL std::endl
@@ -113,7 +114,7 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, bool fpix, float cotalpha, floa
 // check to see of the track direction is in the physical range of the loaded template
 
 	if(!templ.interpolate(id, fpix, cotalpha, cotbeta)) {
-	   LOGERROR("SiPixelTemplateReco") << "input cluster direction cot(alpha) = " << cotalpha << ", cot(beta) = " << cotbeta << " is not within the acceptance of fpix = "
+	   LOGDEBUG("SiPixelTemplateReco") << "input cluster direction cot(alpha) = " << cotalpha << ", cot(beta) = " << cotbeta << " is not within the acceptance of fpix = "
 	   << fpix << ", template ID = " << id << ", no reconstruction performed" << ENDL;	
 	   return 20;
 	}

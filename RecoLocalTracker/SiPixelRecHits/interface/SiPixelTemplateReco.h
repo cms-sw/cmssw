@@ -1,5 +1,5 @@
 //
-//  SiPixelTemplateReco.cc (Version 5.00)
+//  SiPixelTemplateReco.cc (Version 5.01)
 //
 //  Add goodness-of-fit to algorithm, include single pixel clusters in chi2 calculation
 //  Try "decapitation" of large single pixels
@@ -19,7 +19,9 @@
 //  Replace 4 cout's with LogError's
 //  Add LogDebug I/O to report various common errors
 //  Incorporate "cluster repair" to handle dead pixels
+//  Take truncation size from new pixmax information
 //  Change to allow template sizes to be changed at compile time
+//  Move interpolation range error to LogDebug
 //
 //  Created by Morris Swartz on 10/27/06.
 //  Copyright 2006 __TheJohnsHopkinsUniversity__. All rights reserved.

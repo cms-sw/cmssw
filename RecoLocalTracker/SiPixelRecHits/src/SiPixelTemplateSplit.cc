@@ -1,5 +1,5 @@
 //
-//  SiPixelTemplateSplit.cc (Version 0.50)
+//  SiPixelTemplateSplit.cc (Version 0.51)
 //
 //  Procedure to fit two templates (same angle hypotheses) to a single cluster
 //  Return two x- and two y-coordinates for the cluster
@@ -10,6 +10,7 @@
 //  Incorporate "cluster repair" to handle dead pixels
 //  Take truncation size from new pixmax information
 //  Change to allow template sizes to be changed at compile time
+//  Move interpolation range error to LogDebug
 //
 
 #include <math.h>
@@ -96,7 +97,7 @@ int SiPixelTemplateReco::PixelTempSplit(int id, bool fpix, float cotalpha, float
 // check to see of the track direction is in the physical range of the loaded template
 
 	if(!templ.interpolate(id, fpix, cotalpha, cotbeta)) {
-	   LOGERROR("SiPixelTemplateReco") << "input cluster direction cot(alpha) = " << cotalpha << ", cot(beta) = " << cotbeta << " is not within the acceptance of fpix = "
+	   LOGDEBUG("SiPixelTemplateReco") << "input cluster direction cot(alpha) = " << cotalpha << ", cot(beta) = " << cotbeta << " is not within the acceptance of fpix = "
 	   << fpix << ", template ID = " << id << ", no reconstruction performed" << ENDL;	
 	   return 20;
 	}

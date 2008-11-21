@@ -1,5 +1,5 @@
 //
-//  SiPixelTemplateSplit.cc (Version 0.5)
+//  SiPixelTemplateSplit.cc (Version 0.51)
 //
 //  Procedure to fit two templates (same angle hypotheses) to a single cluster
 //  Return two x- and two y-coordinates for the cluster
@@ -10,6 +10,7 @@
 //  Incorporate "cluster repair" to handle dead pixels
 //  Take truncation size from new pixmax information
 //  Change to allow template sizes to be changed at compile time
+//  Move interpolation range error to LogDebug
 //
  
 #ifndef SI_PIXEL_TEMPLATE_STANDALONE
