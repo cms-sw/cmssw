@@ -7,7 +7,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Particle.h,v 1.27 2008/02/21 09:04:06 llista Exp $
+ * \version $Id: ParticleBase.h,v 1.1 2008/11/20 19:32:49 bazterra Exp $
  *
  */
 #include "DataFormats/Math/interface/Point3D.h"
@@ -22,13 +22,13 @@ public:
     /// electric charge type
     typedef int Charge;
     /// Lorentz vector
-    typedef math::XYZTLorentzVectorF LorentzVector;
+    typedef math::XYZTLorentzVectorD LorentzVector;
     /// Lorentz vector
     typedef math::PtEtaPhiMLorentzVector PolarLorentzVector;
     /// point in the space
-    typedef math::XYZPointF Point;
+    typedef math::XYZPointD Point;
     /// point in the space
-    typedef math::XYZVectorF Vector;
+    typedef math::XYZVectorD Vector;
     /// default constructor
     ParticleBase() : cachePolarFixed_( false ) { }
     /// constructor from values

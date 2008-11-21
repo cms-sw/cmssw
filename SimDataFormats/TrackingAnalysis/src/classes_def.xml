@@ -1,7 +1,7 @@
 <lcgdict>
 
   <class name="ParticleBase">
-    <field name="vertex_" iotype="ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<Float16_t> >" />
+    <field name="vertex_" iotype="ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<Float32_t> >" />
     <field name="p4Polar_" transient="true" />
     <field name="p4Cartesian_" transient="true" />
   </class>
