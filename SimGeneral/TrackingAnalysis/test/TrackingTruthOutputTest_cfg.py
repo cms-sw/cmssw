@@ -15,9 +15,9 @@ process.source = cms.Source(
 
 process.myOutputTest = cms.EDAnalyzer(
   'TrackingTruthOutputTest',
-  trackingTruth = cms.untracked.InputTag('mergedtruth'),
+  trackingTruth = cms.untracked.InputTag('mergedtruth', 'MergedTrackTruth'),
   dumpVertexes = cms.untracked.bool(False),
-  dumpOnlyBremsstrahlung = cms.untracked.bool(False)  
+  dumpOnlyBremsstrahlung = cms.untracked.bool(True)  
 )
 
 process.p = cms.EndPath(process.myOutputTest)

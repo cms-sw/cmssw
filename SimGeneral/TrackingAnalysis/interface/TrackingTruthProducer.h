@@ -57,15 +57,18 @@ private:
     edm::Handle<edm::HepMCProduct>            hepmc_;
 
     std::auto_ptr<MixCollection<PSimHit> >    pSimHits_;
-
     std::auto_ptr<MixCollection<SimTrack> >   simTracks_;
     std::auto_ptr<MixCollection<SimVertex> >  simVertexes_;
 
     std::auto_ptr<TrackingParticleCollection> trackingParticles_;
     std::auto_ptr<TrackingVertexCollection>   trackingVertexes_;
-
     TrackingParticleRefProd refTrackingParticles_;
     TrackingVertexRefProd   refTrackingVertexes_;
+
+    std::auto_ptr<TrackingParticleCollection> mergedTrackingParticles_;
+    std::auto_ptr<TrackingVertexCollection>   mergedTrackingVertexes_;
+    TrackingParticleRefProd refMergedTrackingParticles_;
+    TrackingVertexRefProd   refMergedTrackingVertexes_;
 
     typedef map<EncodedEventId, unsigned int> EncodedEventIdToIndex;
     typedef map<EncodedTruthId, unsigned int> EncodedTruthIdToIndex;
@@ -81,6 +84,13 @@ private:
         Associator &
     );
 
+    void mergeBremsstrahlung();
+
+    bool isBremsstrahlungVertex(
+      TrackingVertex const & vertex,
+      auto_ptr<TrackingParticleCollection> & tPC
+    );
+    
     void createTrackingTruth();
 
     bool setTrackingParticle(

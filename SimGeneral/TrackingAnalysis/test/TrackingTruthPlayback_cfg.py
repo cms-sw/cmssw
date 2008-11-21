@@ -13,7 +13,9 @@ process.output = cms.OutputModule(
   fileName = cms.untracked.string('TrackingTruthPlayback.root'),
   outputCommands = cms.untracked.vstring(
     'keep edmHepMCProduct_source_*_*',
-    'keep *_mergedtruth__*'
+    'keep *_mergedtruth__*',
+    'keep *_mergedtruth_*_*'
+
   )
 )
 
