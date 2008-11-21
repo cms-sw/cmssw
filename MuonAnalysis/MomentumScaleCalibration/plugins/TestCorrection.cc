@@ -31,7 +31,7 @@ TestCorrection::TestCorrection(const edm::ParameterSet& iConfig) :
   correctedPtVsEta_ = new TProfile("correctedPtVsEta", "corrected pt vs eta", 1000, 0, 100, -3., 3.);
   eventCounter_ = 0;
   // Create the corrector and set the parameters
-  corrector_.reset(new MomentumScaleCorrector<reco::Muon>( iConfig.getUntrackedParameter<string>("CorrectionsIdentifier") ) );
+  corrector_.reset(new MomentumScaleCorrector( iConfig.getUntrackedParameter<string>("CorrectionsIdentifier") ) );
 }
 
 

@@ -16,7 +16,7 @@
 //
 // Original Author:  Marco De Mattia
 //         Created:  Thu Sep 11 12:16:00 CEST 2008
-// $Id$
+// $Id: TestCorrection.h,v 1.1 2008/11/19 18:11:20 demattia Exp $
 //
 //
 
@@ -98,7 +98,7 @@ private:
 
   int eventCounter_;
 
-  auto_ptr<MomentumScaleCorrector<reco::Muon> > corrector_;
+  auto_ptr<MomentumScaleCorrector> corrector_;
 };
 
 #endif // TESTCORRECTION_HH
