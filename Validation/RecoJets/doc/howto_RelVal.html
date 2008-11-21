@@ -1,0 +1,51 @@
+<!--     To read this HowTo, open it in a web browser...    //-->
+
+
+<h1> How to do a validation?</h1>
+
+<p>
+1) First <b>check out</b> the latest version of <b>Jet Plus Tracks</b>. The instructions can be found under:
+<a href="https://twiki.cern.ch/twiki/bin/view/CMS/JetPlusTracksCorrections"><src="https://twiki.cern.ch/twiki/bin/view/CMS/JetPlusTracksCorrections" alt=""> https://twiki.cern.ch/twiki/bin/view/CMS/JetPlusTracksCorrections </a>
+<br>
+</p>
+
+<p>
+2) <b>cvs co Validation/RecoJets</b><br>
+&nbsp Check out the JetMet release validation package.
+</p>
+
+<p>
+3) <b>cmsRun alljets_validation_cfg.py</b>
+<br>
+&nbsp Edit the alljets_validation_cfg.py file, and define over which samples you would like to run. For comparing two different releases you have to run alljets_validation_cfg.py two times (once for each sample).<br>
+&nbsp You get two root files containing the histograms.
+</p>
+
+<p>
+4) <b>./validation.sh</b><br>
+&nbsp Run the validation.sh script. This script produces all the plots that are available. You are asked by the script to enter the name of the files you want to compare and the name of the directory where the plots should be stored. This name is also the title in the histograms.<br>
+<p/>
+
+<p>
+5) Open the <b>index.html</b> file (located in the new directory) in a web browser. Now you can look at all the plots...
+</p>
+
+<p>
+<h4>Example:</h4>
+The alljets_validation_cfg.py runs per default over a CMSSW_2_1_10/RelValQCD_Pt_80_120/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/STARTUP_V7_v2 sample.<br>
+&nbsp <FONT face="courier">cmsRun alljets_validation_cfg.py</FONT face><br>
+The histogramms are now saved in a file called QCD_80_120_STARTUP_V7_v2.root<br>
+To get the plots run now the script:<br>
+&nbsp <FONT face="courier"> ./validation</FONT><br>
+The prompt shows:<br>
+&nbsp <FONT face="courier">This script produces all the histograms and plots...</FONT><br>
+&nbsp <FONT face="courier">Enter the REFERNCE.root file, the NEW.root file and the directory name/histo title([REFERNCE.root] [NEW.root] [title]):</FONT><br>
+For a test compare the file to itself, and safe the files in a directory called testdir<br>
+&nbsp <FONT face="courier">QCD_80_120_STARTUP_V7_v2.root QCD_80_120_STARTUP_V7_v2.root testdir</FONT><br>
+now look at the plots...<br>
+&nbsp <FONT face="courier">firefox testdir/index.html</FONT><br>
+
+
+
+
+
