@@ -1,0 +1,13 @@
+<use name=FWCore/Framework>
+<use name=FWCore/ParameterSet>
+<use name=DataFormats/Common>
+## <use name=GeneratorInterface/Core>
+<use name=SimDataFormats/HepMCProduct>
+<use name=SimDataFormats/GeneratorProducts>
+<use name=hepmc> 
+<use name=pythia6>
+
+<library file="*.cc" name=GeneratorInterfacePythia6GeneratorFilter>
+  <flags EDM_PLUGIN=1>
+</library>
+
