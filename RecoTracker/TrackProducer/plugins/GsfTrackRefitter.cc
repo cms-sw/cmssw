@@ -8,6 +8,7 @@
 
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
+#include "TrackingTools/GsfTracking/interface/GsfTrackConstraintAssociation.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
 GsfTrackRefitter::GsfTrackRefitter(const edm::ParameterSet& iConfig):
@@ -18,15 +19,15 @@ GsfTrackRefitter::GsfTrackRefitter(const edm::ParameterSet& iConfig):
   setConf(iConfig);
   setSrc( iConfig.getParameter<edm::InputTag>( "src" ), iConfig.getParameter<edm::InputTag>( "beamSpot" ));
   setAlias( iConfig.getParameter<std::string>( "@module_label" ) );
-//   std::string  constraint_str = iConfig.getParameter<std::string>( "constraint" );
+  std::string  constraint_str = iConfig.getParameter<std::string>( "constraint" );
 
-//   if (constraint_str == "") constraint_ = none;
+  if (constraint_str == "") constraint_ = none;
 //   else if (constraint_str == "momentum") constraint_ = momentum;
-//   else if (constraint_str == "vertex") constraint_ = vertex;
-//   else {
-//     edm::LogError("GsfTrackRefitter")<<"constraint: "<<constraint_str<<" not understood. Set it to 'momentum', 'vertex' or leave it empty";    
-//     throw cms::Exception("GsfTrackRefitter") << "unknown type of contraint! Set it to 'momentum', 'vertex' or leave it empty";    
-//   }
+  else if (constraint_str == "vertex") constraint_ = vertex;
+  else {
+    edm::LogError("GsfTrackRefitter")<<"constraint: "<<constraint_str<<" not understood. Set it to 'momentum', 'vertex' or leave it empty";    
+    throw cms::Exception("GsfTrackRefitter") << "unknown type of contraint! Set it to 'momentum', 'vertex' or leave it empty";    
+  }
 
   //register your products
   produces<reco::GsfTrackCollection>().setBranchAlias( alias_ + "GsfTracks" );
@@ -66,6 +67,8 @@ void GsfTrackRefitter::produce(edm::Event& theEvent, const edm::EventSetup& setu
   //
   AlgoProductCollection algoResults;
   reco::BeamSpot bs;
+  switch(constraint_){
+  case none :
     {
       edm::Handle<reco::GsfTrackCollection> theTCollection;
       getFromEvt(theEvent,theTCollection,bs);
@@ -76,8 +79,25 @@ void GsfTrackRefitter::produce(edm::Event& theEvent, const edm::EventSetup& setu
 	theAlgo.runWithTrack(theG.product(), theMF.product(), *theTCollection, 
 			     theFitter.product(), thePropagator.product(), theBuilder.product(), bs, algoResults);
       }catch (cms::Exception &e){ edm::LogError("TrackProducer") << "cms::Exception caught during theAlgo.runWithTrack." << "\n" << e << "\n"; throw; }
+      break;
     }
-
+  case vertex :
+    {
+      edm::Handle<GsfTrackVtxConstraintAssociationCollection> theTCollectionWithConstraint;
+      theEvent.getByType(theTCollectionWithConstraint);
+      edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
+      theEvent.getByLabel(bsSrc_,recoBeamSpotHandle);
+      bs = *recoBeamSpotHandle;      
+      if (theTCollectionWithConstraint.failedToGet()){
+	edm::LogError("TrackRefitter")<<"could not get TrackVtxConstraintAssociationCollection product."; break;}
+      LogDebug("TrackRefitter") << "run the algorithm" << "\n";
+      try {
+      theAlgo.runWithVertex(theG.product(), theMF.product(), *theTCollectionWithConstraint, 
+			    theFitter.product(), thePropagator.product(), theBuilder.product(), bs, algoResults);      
+      }catch (cms::Exception &e){ edm::LogError("TrackProducer") << "cms::Exception caught during theAlgo.runWithTrack." << "\n" << e << "\n"; throw; }
+    }
+    //default... there cannot be any other possibility due to the check in the ctor
+  }
   
   //put everything in th event
   putInEvt(theEvent, outputRHColl, outputTColl, outputTEColl, outputGsfTEColl, outputTrajectoryColl, algoResults, bs);

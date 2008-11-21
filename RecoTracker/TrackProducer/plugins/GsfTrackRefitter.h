@@ -19,8 +19,10 @@ public:
 
 private:
   TrackProducerAlgorithm<reco::GsfTrack> theAlgo;
-//   enum Constraint { none, momentum, vertex };
-//   Constraint constraint_;
+  enum Constraint { none, 
+// 		    momentum, 
+		    vertex };
+  Constraint constraint_;
 };
 
 #endif

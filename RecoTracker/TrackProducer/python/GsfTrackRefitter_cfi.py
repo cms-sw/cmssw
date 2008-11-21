@@ -7,7 +7,8 @@ GsfTrackRefitter = cms.EDFilter("GsfTrackRefitter",
     useHitsSplitting = cms.bool(False),
     TrajectoryInEvent = cms.bool(False),
     TTRHBuilder = cms.string('WithTrackAngle'),
-    Propagator = cms.string('fwdGsfElectronPropagator')
+    Propagator = cms.string('fwdGsfElectronPropagator'),
+    constraint = cms.string('')
 )
 
 
