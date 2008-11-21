@@ -16,7 +16,7 @@ ecalDBConditions = cms.ESSource("PoolDBESSource",
             record = cms.string('EcalTBWeightsRcd'),
             tag = cms.string('EcalTBWeights_preliminary')
         )),
-    connect = cms.string('frontier://Frontier/CMS_ECAL_H4_COND_2007'), ##Frontier/CMS_ECAL_H4_COND_2007" 
+    connect = cms.string('frontier://FrontierProd/CMS_COND_21X_ECAL_H4'), ##Frontier/CMS_ECAL_H4_COND_2007" 
 
     siteLocalConfig = cms.untracked.bool(True)
 )
