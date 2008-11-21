@@ -4,40 +4,55 @@
 #include <iosfwd>
 #include "SimDataFormats/EncodedEventId/interface/EncodedEventId.h"
 
-class EncodedTruthId : public EncodedEventId {
+class EncodedTruthId : public EncodedEventId
+{
 
-  friend std::ostream& operator<< (std::ostream& os, const EncodedTruthId & id);
+    friend std::ostream& operator<< (std::ostream& os, const EncodedTruthId & id);
 
- public:
+public:
 
 // Constructors
-  EncodedTruthId();
-  EncodedTruthId(EncodedEventId eid, int index);
+    EncodedTruthId();
+    EncodedTruthId(EncodedEventId eid, int index);
 
 // Getters
-  int index() const { return index_; }
+    int index() const
+    {
+        return index_;
+    }
 
 // Operators
-  int operator==(const EncodedTruthId& id) const {
-    if (EncodedEventId::operator==(id)) {
-      return index_ == id.index_;
-    } else {
-      return EncodedEventId::operator==(id);
+    int operator==(const EncodedTruthId& id) const
+    {
+        if (EncodedEventId::operator==(id))
+        {
+            return index_ == id.index_;
+        }
+        else
+        {
+            return EncodedEventId::operator==(id);
+        }
     }
-  }
 
-  int operator!=(const EncodedTruthId& id) const { return !(operator==(id)); }
-
-  int operator<( const EncodedTruthId& id) const {
-    if (EncodedEventId::operator==(id)) {
-      return index_ < id.index_;
-    } else {
-      return (EncodedEventId::operator<(id));
+    int operator!=(const EncodedTruthId& id) const
+    {
+        return !(operator==(id));
     }
-  }
 
- private:
-  int index_;
+    int operator<( const EncodedTruthId& id) const
+    {
+        if (EncodedEventId::operator==(id))
+        {
+            return index_ < id.index_;
+        }
+        else
+        {
+            return (EncodedEventId::operator<(id));
+        }
+    }
+
+private:
+    int index_;
 };
 
 std::ostream& operator<<(std::ostream & os , EncodedTruthId& id);
