@@ -539,30 +539,6 @@ class SimpleValueVectorVariable : public CachingVariable {
   uint index_;
 };
 
-#include "DataFormats/Common/interface/TriggerResults.h"
-#include "FWCore/Framework/interface/TriggerNames.h"
-
-class HLTBitVariable : public CachingVariable {
- public:
-  HLTBitVariable(CachingVariableFactoryArg arg ) :
-    CachingVariable("HLTBitVariable",arg.n,arg.iConfig),
-    src_(edm::Service<InputTagDistributorService>()->retrieve("src",arg.iConfig)),
-    bitName_(arg.n){ arg.m[arg.n]=this;}
-    CachingVariable::evalType eval(const edm::Event & iEvent) const{
-      edm::Handle<edm::TriggerResults> hltHandle;
-      iEvent.getByLabel(src_, hltHandle);
-      if (hltHandle.failedToGet()) return std::make_pair(false,0);
-      edm::TriggerNames trgNames;
-      trgNames.init(*hltHandle);
-      unsigned int index = trgNames.triggerIndex(bitName_);
-      if ( index==trgNames.size() ) return std::make_pair(false,0);
-      else return std::make_pair(true, hltHandle->accept(index));
-
-    }
- private:
-  edm::InputTag src_;
-  std::string bitName_;
-};
 
 
 

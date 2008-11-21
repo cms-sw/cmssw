@@ -8,4 +8,5 @@
 <use name=PhysicsTools/Utilities>
 <use name=DataFormats/Candidate>
 <use name=DataFormats/HepMCCandidate>
+<use name=DataFormats/L1GlobalTrigger>
 </library>

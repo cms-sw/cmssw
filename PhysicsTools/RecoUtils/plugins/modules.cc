@@ -30,3 +30,8 @@ typedef ExpressionVariable<reco::GenParticle,configurableAnalysis::GenParticle> 
 
 DEFINE_EDM_PLUGIN(CachingVariableFactory, CandidateExpressionVariable, "CandidateExpressionVariable");
 DEFINE_EDM_PLUGIN(CachingVariableFactory, GenParticleExpressionVariable, "GenParticleExpressionVariable");
+
+#include "PhysicsTools/RecoUtils/plugins/TriggerVariables.h"
+
+DEFINE_EDM_PLUGIN(CachingVariableFactory, HLTBitVariable, "HLTBitVariable");
+DEFINE_EDM_PLUGIN(VariableComputerFactory, L1BitComputer, "L1BitComputer");
