@@ -1,4 +1,4 @@
-#!/usr/bin/expect
+#!/usr/bin/env expect
 set dir [lindex $argv 0]
 set username [lindex $argv 1]
 set password [lindex $argv 2]
