@@ -72,8 +72,8 @@
  **  
  **
  **  $Id: PhotonValidator
- **  $Date: 2008/09/30 18:37:58 $ 
- **  $Revision: 1.12 $
+ **  $Date: 2008/10/07 17:44:54 $ 
+ **  $Revision: 1.13 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -347,6 +347,12 @@ void PhotonValidator::beginJob( const edm::EventSetup& setup)
   double dEtaTracksMax = parameters_.getParameter<double>("dEtaTracksMax"); 
   int    dEtaTracksBin = parameters_.getParameter<int>("dEtaTracksBin"); 
 
+  double povereMin = parameters_.getParameter<double>("povereMin");
+  double povereMax = parameters_.getParameter<double>("povereMax");
+  int povereBin = parameters_.getParameter<int>("povereBin");
+
+
+
   //////// set up vectors
   initVectors();
 
@@ -550,9 +556,9 @@ void PhotonValidator::beginJob( const edm::EventSetup& setup)
     h_EoverPTracks_[1][2] = dbe_->book1D(histname+"Endcap"," photons conversion E/p: Endcap Ecal ",100, 0., 5.);
 
     histname="PoverEtracks";
-    h_PoverETracks_[1][0] = dbe_->book1D(histname+"All"," photons conversion p/E: all Ecal ",100, 0., 2.5);
-    h_PoverETracks_[1][1] = dbe_->book1D(histname+"Barrel"," photons conversion p/E: Barrel Ecal",100, 0., 2.5);
-    h_PoverETracks_[1][2] = dbe_->book1D(histname+"Endcap"," photons conversion p/E: Endcap Ecal ",100, 0., 2.5);
+    h_PoverETracks_[1][0] = dbe_->book1D(histname+"All"," photons conversion p/E: all Ecal ",povereBin, povereMin, povereMax);
+    h_PoverETracks_[1][1] = dbe_->book1D(histname+"Barrel"," photons conversion p/E: Barrel Ecal",povereBin, povereMin, povereMax);
+    h_PoverETracks_[1][2] = dbe_->book1D(histname+"Endcap"," photons conversion p/E: Endcap Ecal ",povereBin, povereMin, povereMax);
 
 
 
@@ -874,6 +880,7 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
   nSimPho_=0;
   nSimConv_[0]=0;
   nSimConv_[1]=0;
+  cout << " PhotonValidator mcPhotons.size() " << mcPhotons.size() << endl;
   for ( std::vector<PhotonMCTruth>::const_iterator mcPho=mcPhotons.begin(); mcPho !=mcPhotons.end(); mcPho++) {
     if ( (*mcPho).fourMomentum().et() < minPhoEtCut_ ) continue;
   
