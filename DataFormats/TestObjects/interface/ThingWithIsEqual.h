@@ -6,7 +6,7 @@ namespace edmtest {
   struct ThingWithIsEqual {
     ~ThingWithIsEqual() { }
     ThingWithIsEqual():a() { }
-    bool isProductEqual(ThingWithIsEqual const& thingWithIsEqual);
+    bool isProductEqual(ThingWithIsEqual const& thingWithIsEqual) const;
     int a;
   };
 

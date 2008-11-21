@@ -5,7 +5,7 @@
   
 Wrapper: A template wrapper around EDProducts to hold the product ID.
 
-$Id: Wrapper.h,v 1.28 2008/02/12 21:41:26 chrjones Exp $
+$Id: Wrapper.h,v 1.29 2008/03/31 21:12:11 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -48,10 +48,10 @@ namespace edm {
   private:
     virtual bool isPresent_() const {return present;}
 #ifndef __REFLEX__
-    virtual bool isMergeable_();
-    virtual bool mergeProduct_(EDProduct* newProduct);
-    virtual bool hasIsProductEqual_();
-    virtual bool isProductEqual_(EDProduct* newProduct);
+    virtual bool isMergeable_() const;
+    virtual bool mergeProduct_(EDProduct const* newProduct);
+    virtual bool hasIsProductEqual_() const;
+    virtual bool isProductEqual_(EDProduct const* newProduct) const;
 #endif
     virtual void do_fillView(ProductID const& id,
 			     std::vector<void const*>& pointers,
@@ -191,56 +191,56 @@ namespace edm {
   template <typename T>
   struct DoAssign
   {
-    void operator()(T& a, T& b) { a = b; }
+    void operator()(T& a, T const& b) { a = b; }
   };
 
 #ifndef __REFLEX__
   template <typename T>
   struct IsMergeable
   {
-    bool operator()(T& a) { return true; }
+    bool operator()(T const& a) const { return true; }
   };
 
   template <typename T>
   struct IsNotMergeable
   {
-    bool operator()(T& a) { return false; }
+    bool operator()(T const& a) const { return false; }
   };
 
   template <typename T>
   struct DoMergeProduct
   {
-    bool operator()(T& a, T& b) { return a.mergeProduct(b); }
+    bool operator()(T & a, T const& b) { return a.mergeProduct(b); }
   };
 
   template <typename T>
   struct DoNotMergeProduct
   {
-    bool operator()(T& a, T& b) { return true; }
+    bool operator()(T & a, T const& b) { return true; }
   };
 
   template <typename T>
   struct DoHasIsProductEqual
   {
-    bool operator()(T& a) { return true; }
+    bool operator()(T const& a) const { return true; }
   };
 
   template <typename T>
   struct DoNotHasIsProductEqual
   {
-    bool operator()(T& a) { return false; }
+    bool operator()(T const& a) const { return false; }
   };
 
   template <typename T>
   struct DoIsProductEqual
   {
-    bool operator()(T& a, T& b) { return a.isProductEqual(b); }
+    bool operator()(T const& a, T const& b) const { return a.isProductEqual(b); }
   };
 
   template <typename T>
   struct DoNotIsProductEqual
   {
-    bool operator()(T& a, T& b) { return true; }
+    bool operator()(T const& a, T const& b) const { return true; }
   };
 #endif
 
@@ -328,7 +328,7 @@ namespace edm {
    
 #ifndef __REFLEX__
   template <class T>
-  bool Wrapper<T>::isMergeable_()
+  bool Wrapper<T>::isMergeable_() const
   { 
     typename boost::mpl::if_c<detail::has_mergeProduct_function<T>::value, 
       IsMergeable<T>, 
@@ -337,9 +337,9 @@ namespace edm {
   }
 
   template <class T>
-  bool Wrapper<T>::mergeProduct_(EDProduct* newProduct)
+  bool Wrapper<T>::mergeProduct_(EDProduct const* newProduct)
   { 
-    Wrapper<T>* wrappedNewProduct = dynamic_cast<Wrapper<T>* >(newProduct);
+    Wrapper<T> const* wrappedNewProduct = dynamic_cast<Wrapper<T> const* >(newProduct);
     if (wrappedNewProduct == 0) return false;
     typename boost::mpl::if_c<detail::has_mergeProduct_function<T>::value, 
       DoMergeProduct<T>, 
@@ -348,7 +348,7 @@ namespace edm {
   }
 
   template <class T>
-  bool Wrapper<T>::hasIsProductEqual_()
+  bool Wrapper<T>::hasIsProductEqual_() const
   { 
     typename boost::mpl::if_c<detail::has_isProductEqual_function<T>::value, 
       DoHasIsProductEqual<T>, 
@@ -357,9 +357,9 @@ namespace edm {
   }
 
   template <class T>
-  bool Wrapper<T>::isProductEqual_(EDProduct* newProduct)
+  bool Wrapper<T>::isProductEqual_(EDProduct const* newProduct) const
   { 
-    Wrapper<T>* wrappedNewProduct = dynamic_cast<Wrapper<T>* >(newProduct);
+    Wrapper<T> const* wrappedNewProduct = dynamic_cast<Wrapper<T> const* >(newProduct);
     if (wrappedNewProduct == 0) return false;
     typename boost::mpl::if_c<detail::has_isProductEqual_function<T>::value, 
       DoIsProductEqual<T>, 

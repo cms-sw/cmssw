@@ -6,7 +6,7 @@
 EDProduct: The base class of all things that will be inserted into the
 Event.
 
-$Id: EDProduct.h,v 1.13 2008/01/23 23:35:18 wdd Exp $
+$Id: EDProduct.h,v 1.14 2008/01/24 23:38:35 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -36,10 +36,10 @@ namespace edm {
                           std::vector<void const*>& oPtr) const;
 
 #ifndef __REFLEX__
-    bool isMergeable() {return isMergeable_();}
-    bool mergeProduct(EDProduct* newProduct) {return mergeProduct_(newProduct);}
-    bool hasIsProductEqual() {return hasIsProductEqual_();}
-    bool isProductEqual(EDProduct* newProduct) {return isProductEqual_(newProduct);}
+    bool isMergeable() const {return isMergeable_();}
+    bool mergeProduct(EDProduct const* newProduct) {return mergeProduct_(newProduct);}
+    bool hasIsProductEqual() const {return hasIsProductEqual_();}
+    bool isProductEqual(EDProduct const* newProduct) const {return isProductEqual_(newProduct);}
 #endif
 
   private:
@@ -49,10 +49,10 @@ namespace edm {
     virtual bool isPresent_() const {return true;}
 
 #ifndef __REFLEX__
-    virtual bool isMergeable_() { return true; }
-    virtual bool mergeProduct_(EDProduct* newProduct) { return true; }
-    virtual bool hasIsProductEqual_() { return true; }
-    virtual bool isProductEqual_(EDProduct* newProduct) { return true; }
+    virtual bool isMergeable_() const { return true; }
+    virtual bool mergeProduct_(EDProduct const* newProduct) { return true; }
+    virtual bool hasIsProductEqual_() const { return true; }
+    virtual bool isProductEqual_(EDProduct const* newProduct) const { return true; }
 #endif
 
     virtual void do_fillView(ProductID const& id,
