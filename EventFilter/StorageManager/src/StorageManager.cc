@@ -1,4 +1,4 @@
-// $Id: StorageManager.cc,v 1.90 2008/10/14 22:01:06 biery Exp $
+// $Id: StorageManager.cc,v 1.91 2008/10/22 01:00:54 loizides Exp $
 
 #include <iostream>
 #include <iomanip>
@@ -155,6 +155,9 @@ StorageManager::StorageManager(xdaq::ApplicationStub * s)
 
   ispace->fireItemAvailable("rcmsStateListener", fsm_.rcmsStateListener());
   ispace->fireItemAvailable("foundRcmsStateListener", fsm_.foundRcmsStateListener());
+  // 21-Nov-2008, KAB: the findRcmsStateListener call needs to go after the
+  // calls to add the RCMS vars to the application infospace.
+  fsm_.findRcmsStateListener();
 
   ispace->addItemRetrieveListener("closedFiles", this);
 
