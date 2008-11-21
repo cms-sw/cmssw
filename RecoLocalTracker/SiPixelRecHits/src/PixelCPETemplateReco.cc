@@ -51,7 +51,7 @@ PixelCPETemplateReco::PixelCPETemplateReco(edm::ParameterSet const & conf,
   GlobalPoint center(0.0, 0.0, 0.0);
   float field_magnitude = magfield_->inTesla(center).mag();
 
-  DoCosmics_ = conf.getUntrackedParameter<bool>("DoCosmics");
+  DoCosmics_ = conf.getParameter<bool>("DoCosmics");
 
   if ( field_magnitude > 3.9 ) 
     {
@@ -68,7 +68,7 @@ PixelCPETemplateReco::PixelCPETemplateReco(edm::ParameterSet const & conf,
 	} 
       else 
 	{	 
-	  //--- allow for zero field operation with new template ID=2
+	  //--- allow for zero field operation with new template ID=12
 	  templID_ = 12;
 	}
     }
