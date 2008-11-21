@@ -73,7 +73,7 @@ void Draw(const bool doHalfEta = false) {
 
   // ************************************************************
   // List of Files
-  FileList->Add( TFile::Open("0_MuScleFit.root") );    // 1
+  FileList->Add( TFile::Open("0_MuScleFit_Y.root") );    // 1
 
   draw( Target, FileList, doHalfEta );
 }
@@ -124,6 +124,7 @@ void draw( TDirectory *target, TList *sourcelist, const bool doHalfEta ) {
             h2->RebinX(4);
             xBins /= 4;
           }
+          if( namesIt->Contains("PtGenVSMu_ResoVSPt") ) h2->RebinY(8);
           TH1D * h1 = h2->ProjectionX();
           // h1->Clear();
           h1->Reset();
