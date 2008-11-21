@@ -20,7 +20,7 @@ reco::TrackResiduals trajectoryToResiduals (const Trajectory &trajectory,
      for (; forward ? i_fwd != i_end : i_bwd != i_rend; 
 	  ++i_fwd, ++i_bwd, ++i_residual) {
 	  const TrajectoryMeasurement *i = forward ? &*i_fwd : &*i_bwd;
-	  if (!i->recHit()->isValid()) 
+	  if (!i->recHit()->isValid()||i->recHit()->det()==0) 
 	       continue;
 	  TrajectoryStateCombiner combine;
 	  TrajectoryStateOnSurface combo = combine(i->forwardPredictedState(),
