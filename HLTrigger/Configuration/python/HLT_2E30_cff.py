@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_0_0/pre3/HLT/V9 (CMSSW_3_0_0_pre2_HLT2)
+# /dev/CMSSW_3_0_0/pre3/HLT/V10 (CMSSW_3_0_X_2008-11-20-0200_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_0_0/pre3/HLT/V9')
+  tableName = cms.string('/dev/CMSSW_3_0_0/pre3/HLT/V10')
 )
 
 BTagRecord = cms.ESSource( "EmptyESSource",
@@ -57,7 +57,9 @@ ParametrizedMagneticFieldProducer = cms.ESProducer( "ParametrizedMagneticFieldPr
   version = cms.string( "OAE_1103l_071212" ),
   parameters = cms.PSet(  BValue = cms.string( "3_8T" ) )
 )
-CaloTopologyBuilder = cms.ESProducer( "CaloTopologyBuilder" )
+CaloTopologyBuilder = cms.ESProducer( "CaloTopologyBuilder",
+  appendToDataLabel = cms.string( "" )
+)
 Chi2EstimatorForL2Refit = cms.ESProducer( "Chi2MeasurementEstimatorESProducer",
   ComponentName = cms.string( "Chi2EstimatorForL2Refit" ),
   MaxChi2 = cms.double( 1000.0 ),
@@ -92,7 +94,8 @@ KFFitterSmootherForL2Muon = cms.ESProducer( "KFFittingSmootherESProducer",
   appendToDataLabel = cms.string( "" )
 )
 CaloTowerConstituentsMapBuilder = cms.ESProducer( "CaloTowerConstituentsMapBuilder",
-  MapFile = cms.untracked.string( "Geometry/CaloTopology/data/CaloTowerEEGeometric.map.gz" )
+  MapFile = cms.untracked.string( "Geometry/CaloTopology/data/CaloTowerEEGeometric.map.gz" ),
+  appendToDataLabel = cms.string( "" )
 )
 Chi2EstimatorForL3Refit = cms.ESProducer( "Chi2MeasurementEstimatorESProducer",
   ComponentName = cms.string( "Chi2EstimatorForL3Refit" ),
@@ -213,7 +216,8 @@ MaterialPropagator = cms.ESProducer( "PropagatorWithMaterialESProducer",
   PropagationDirection = cms.string( "alongMomentum" ),
   Mass = cms.double( 0.105 ),
   MaxDPhi = cms.double( 1.6 ),
-  useRungeKutta = cms.bool( False )
+  useRungeKutta = cms.bool( False ),
+  appendToDataLabel = cms.string( "" )
 )
 MeasurementTracker = cms.ESProducer( "MeasurementTrackerESProducer",
   ComponentName = cms.string( "" ),
@@ -246,6 +250,7 @@ MuonCkfTrajectoryBuilder = cms.ESProducer( "MuonCkfTrajectoryBuilderESProducer",
   trajectoryFilterName = cms.string( "muonCkfTrajectoryFilter" ),
   useSeedLayer = cms.bool( False ),
   rescaleErrorIfFail = cms.double( 1.0 ),
+  appendToDataLabel = cms.string( "" ),
   maxCand = cms.int32( 5 ),
   lostHitPenalty = cms.double( 30.0 ),
   intermediateCleaning = cms.bool( False ),
@@ -255,25 +260,27 @@ MuonDetLayerGeometryESProducer = cms.ESProducer( "MuonDetLayerGeometryESProducer
   appendToDataLabel = cms.string( "" )
 )
 MuonTransientTrackingRecHitBuilderESProducer = cms.ESProducer( "MuonTransientTrackingRecHitBuilderESProducer",
-  ComponentName = cms.string( "MuonRecHitBuilder" )
+  ComponentName = cms.string( "MuonRecHitBuilder" ),
+  appendToDataLabel = cms.string( "" )
 )
 OppositeMaterialPropagator = cms.ESProducer( "PropagatorWithMaterialESProducer",
   ComponentName = cms.string( "PropagatorWithMaterialOpposite" ),
   PropagationDirection = cms.string( "oppositeToMomentum" ),
   Mass = cms.double( 0.105 ),
   MaxDPhi = cms.double( 1.6 ),
-  useRungeKutta = cms.bool( False )
+  useRungeKutta = cms.bool( False ),
+  appendToDataLabel = cms.string( "" )
 )
 PixelCPEGenericESProducer = cms.ESProducer( "PixelCPEGenericESProducer",
   ComponentName = cms.string( "PixelCPEGeneric" ),
-  eff_charge_cut_lowX = cms.untracked.double( 0.0 ),
-  eff_charge_cut_lowY = cms.untracked.double( 0.0 ),
-  eff_charge_cut_highX = cms.untracked.double( 1.0 ),
-  eff_charge_cut_highY = cms.untracked.double( 1.0 ),
-  size_cutX = cms.untracked.double( 3.0 ),
-  size_cutY = cms.untracked.double( 3.0 ),
-  inflate_errors = cms.untracked.bool( False ),
-  inflate_all_errors_no_trk_angle = cms.untracked.bool( False ),
+  eff_charge_cut_lowX = cms.double( 0.0 ),
+  eff_charge_cut_lowY = cms.double( 0.0 ),
+  eff_charge_cut_highX = cms.double( 1.0 ),
+  eff_charge_cut_highY = cms.double( 1.0 ),
+  size_cutX = cms.double( 3.0 ),
+  size_cutY = cms.double( 3.0 ),
+  inflate_errors = cms.bool( False ),
+  inflate_all_errors_no_trk_angle = cms.bool( False ),
   appendToDataLabel = cms.string( "" ),
   TanLorentzAnglePerTesla = cms.double( 0.106 ),
   PixelErrorParametrization = cms.string( "NOTcmsim" ),
@@ -285,14 +292,16 @@ RKTrackerPropagator = cms.ESProducer( "PropagatorWithMaterialESProducer",
   PropagationDirection = cms.string( "alongMomentum" ),
   Mass = cms.double( 0.105 ),
   MaxDPhi = cms.double( 1.6 ),
-  useRungeKutta = cms.bool( True )
+  useRungeKutta = cms.bool( True ),
+  appendToDataLabel = cms.string( "" )
 )
 RungeKuttaTrackerPropagator = cms.ESProducer( "PropagatorWithMaterialESProducer",
   ComponentName = cms.string( "RungeKuttaTrackerPropagator" ),
   PropagationDirection = cms.string( "alongMomentum" ),
   Mass = cms.double( 0.105 ),
   MaxDPhi = cms.double( 1.6 ),
-  useRungeKutta = cms.bool( True )
+  useRungeKutta = cms.bool( True ),
+  appendToDataLabel = cms.string( "" )
 )
 SiStripRegionConnectivity = cms.ESProducer( "SiStripRegionConnectivity",
   EtaDivisions = cms.untracked.uint32( 20 ),
@@ -1902,7 +1911,7 @@ hltL1IsoSingleElectronHcalIsolFilter = cms.EDFilter( "HLTEgammaHcalIsolFilter",
     L1NonIsoCand = cms.InputTag( "hltL1NonIsoRecoEcalCandidate" )
 )
 hltSiPixelDigis = cms.EDProducer( "SiPixelRawToDigi",
-    InputLabel = cms.untracked.string( "rawDataCollector" )
+    InputLabel = cms.untracked.InputTag( "rawDataCollector" )
 )
 hltSiPixelClusters = cms.EDProducer( "SiPixelClusterProducer",
     src = cms.InputTag( "hltSiPixelDigis" ),
