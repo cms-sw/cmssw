@@ -10,7 +10,7 @@ process.load("CondCore.DBCommon.CondDBSetup_cfi")
 process.maxEvents = cms.untracked.PSet(  input = cms.untracked.int32(1000) )
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-     '/store/data/Commissioning08/Cosmics/RAW/v1/000/066/375/FC48E9B6-DC9A-DD11-AEEA-000423D6BA18.root'
+        '/store/data/Commissioning08/Cosmics/RAW/v1/000/067/838/006945C8-40A5-DD11-BD7E-001617DBD556.root'
     )
 )
 
@@ -56,21 +56,20 @@ process.ALCARECOStreamMuAlCalIsolatedMu = cms.OutputModule("PoolOutputModule",
 )
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.1 $'),
+    version = cms.untracked.string('$Revision: 1.2 $'),
     name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/GlobalRuns/python/recoT0DQM_AlCaOnly_cfg.py,v $'),
-    annotation = cms.untracked.string('CRUZET Prompt Reco with DQM with Mag field at 0T.  Only AlCaReco is output')
+    annotation = cms.untracked.string('CRUZET Prompt Reco with DQM with Mag field at 3.8T.  Only AlCaReco is output')
 )
 process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) ) ## default is false
 
 
 # Conditions (Global Tag is used here):
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.connect = "frontier://PromptProd/CMS_COND_21X_GLOBALTAG"
-process.GlobalTag.globaltag = "CRAFT_V1P::All"
+process.GlobalTag.globaltag = "CRAFT_ALL_V3::All"
 process.prefer("GlobalTag")
 
-# Magnetic fiuld: force mag field to be 0 tesla
-process.load("Configuration.StandardSequences.MagneticField_0T_cff")
+# Magnetic fiuld: force mag field to be 3.8 tesla
+process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 
 #Geometry
 process.load("Configuration.StandardSequences.Geometry_cff")
@@ -89,15 +88,13 @@ process.load("DQMOffline.Configuration.DQMOfflineCosmics_cff")
 process.load("DQMServices.Components.MEtoEDMConverter_cff")
 
 #L1 trigger validation
-#process.load("L1Trigger.HardwareValidation.L1HardwareValidation_cff")
+process.load("L1Trigger.HardwareValidation.L1HardwareValidation_cff")
 process.load("L1Trigger.Configuration.L1Config_cff")
-process.load("L1TriggerConfig.CSCTFConfigProducers.CSCTFConfigProducer_cfi")
-process.load("L1TriggerConfig.CSCTFConfigProducers.L1MuCSCTFConfigurationRcdSrc_cfi")
-
-process.roadSearchSeedsP5.MaxNumberOfCosmicClusters = 100
+#process.load("L1TriggerConfig.CSCTFConfigProducers.CSCTFConfigProducer_cfi")
+#process.load("L1TriggerConfig.CSCTFConfigProducers.L1MuCSCTFConfigurationRcdSrc_cfi")
 
 #Paths
-process.raw2digi_step = cms.Path(process.RawToDigi_woGCT)
+process.raw2digi_step = cms.Path(process.RawToDigi)
 process.reconstruction_step = cms.Path(process.reconstructionCosmics)
 process.dqm_step = cms.Path(process.DQMOfflineCosmics * process.MEtoEDMConverter)
 process.pathALCARECORpcCalHLT = cms.Path(process.seqALCARECORpcCalHLT)
