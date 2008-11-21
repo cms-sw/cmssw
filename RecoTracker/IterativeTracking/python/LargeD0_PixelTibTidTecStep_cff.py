@@ -32,7 +32,7 @@ largeD0step3Clusters = cms.EDFilter("TrackClusterRemover",
 
 # Propagator taking into account momentum uncertainty in multiple
 # scattering calculation.
-from TrackingTools.MaterialEffects.Propagators_PtMin09_cff import *
+#from TrackingTools.MaterialEffects.Propagators_PtMin09_cff import *
 
 #TRACKER HITS
 import RecoLocalTracker.SiPixelRecHits.SiPixelRecHits_cfi
@@ -57,12 +57,12 @@ from RecoTracker.TkSeedGenerator.GlobalMixedSeeds_cff import *
 import RecoTracker.TkSeedGenerator.GlobalMixedSeeds_cfi
 largeD0step3Seeds = RecoTracker.TkSeedGenerator.GlobalMixedSeeds_cfi.globalMixedSeeds.clone()
 largeD0step3Seeds.OrderedHitsFactoryPSet.SeedingLayers = 'largeD0step3LayerPairs'
-largeD0step3Seeds.RegionFactoryPSet.RegionPSet.ptMin = 0.9
+largeD0step3Seeds.RegionFactoryPSet.RegionPSet.ptMin = 0.6
 largeD0step3Seeds.RegionFactoryPSet.RegionPSet.originRadius = 4.0
 largeD0step3Seeds.RegionFactoryPSet.RegionPSet.originHalfLength = 15.0
-largeD0step3Seeds.propagator = cms.string('PropagatorWithMaterialPtMin09')
+#largeD0step3Seeds.propagator = cms.string('PropagatorWithMaterialPtMin09')
 # The fast-helix fit doesn't work well for large d0 pixel pair seeding.
-largeD0step3Seeds.UseFastHelix = False
+#largeD0step3Seeds.UseFastHelix = False
 
 
 #TRAJECTORY MEASUREMENT
@@ -77,18 +77,18 @@ import TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi
 
 largeD0step3CkfTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi.trajectoryFilterESProducer.clone()
 largeD0step3CkfTrajectoryFilter.ComponentName = 'largeD0step3CkfTrajectoryFilter'
-#largeD0step3CkfTrajectoryFilter.filterPset.maxLostHits = 1
+largeD0step3CkfTrajectoryFilter.filterPset.maxLostHits = 0
 #largeD0step3CkfTrajectoryFilter.filterPset.maxConsecLostHits = 2
 largeD0step3CkfTrajectoryFilter.filterPset.minimumNumberOfHits = 7
-largeD0step3CkfTrajectoryFilter.filterPset.minPt = 0.9
+largeD0step3CkfTrajectoryFilter.filterPset.minPt = 0.6
 largeD0step3CkfTrajectoryFilter.filterPset.minHitsMinPt = 3
 
 largeD0step3CkfInOutTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi.trajectoryFilterESProducer.clone()
 largeD0step3CkfInOutTrajectoryFilter.ComponentName = 'largeD0step3CkfInOutTrajectoryFilter'
-#largeD0step3CkfInOutTrajectoryFilter.filterPset.maxLostHits = 1
+largeD0step3CkfInOutTrajectoryFilter.filterPset.maxLostHits = 0
 #largeD0step3CkfInOutTrajectoryFilter.filterPset.maxConsecLostHits = 2
 largeD0step3CkfInOutTrajectoryFilter.filterPset.minimumNumberOfHits = 7
-largeD0step3CkfInOutTrajectoryFilter.filterPset.minPt = 0.9
+largeD0step3CkfInOutTrajectoryFilter.filterPset.minPt = 0.6
 largeD0step3CkfInOutTrajectoryFilter.filterPset.minHitsMinPt = 3
 
 #TRAJECTORY BUILDER

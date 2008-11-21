@@ -54,7 +54,7 @@ largeD0step2layerpairs.FPix.HitProducer = 'largeD0step2PixelRecHits'
 import RecoTracker.TkSeedGenerator.GlobalPixelSeeds_cfi
 largeD0step2Seeds = RecoTracker.TkSeedGenerator.GlobalPixelSeeds_cfi.globalPixelSeeds.clone()
 largeD0step2Seeds.OrderedHitsFactoryPSet.SeedingLayers = 'largeD0step2LayerPairs'
-largeD0step2Seeds.RegionFactoryPSet.RegionPSet.ptMin = 0.9
+largeD0step2Seeds.RegionFactoryPSet.RegionPSet.ptMin = 0.6
 largeD0step2Seeds.RegionFactoryPSet.RegionPSet.originRadius = 2.5
 largeD0step2Seeds.RegionFactoryPSet.RegionPSet.originHalfLength = 15
 largeD0step2Seeds.propagator = cms.string('PropagatorWithMaterialPtMin09')
@@ -76,7 +76,7 @@ largeD0step2CkfTrajectoryFilter.ComponentName = 'largeD0step2CkfTrajectoryFilter
 #largeD0step2CkfTrajectoryFilter.filterPset.maxLostHits = 1
 #largeD0step2CkfTrajectoryFilter.filterPset.maxConstep2LostHits = 2
 largeD0step2CkfTrajectoryFilter.filterPset.minimumNumberOfHits = 6
-largeD0step2CkfTrajectoryFilter.filterPset.minPt = 0.9
+largeD0step2CkfTrajectoryFilter.filterPset.minPt = 0.6
 largeD0step2CkfTrajectoryFilter.filterPset.minHitsMinPt = 3
 
 #TRAJECTORY BUILDER
