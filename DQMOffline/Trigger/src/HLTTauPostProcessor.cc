@@ -179,28 +179,32 @@ HLTTauPostProcessor::calculatePathEfficiencies(std::string folder,std::string hi
     if(eff)
       {
 	//Calculate Efficiencies with ref to truth
-	MonitorElement * effRefTruth = dbe->book1D("PathEffMatchedRef","Efficiency with Matching",eff->getNbinsX(),0,eff->getNbinsX());
-	for(int i =1;i<=eff->getNbinsX();++i)
+	MonitorElement * effRefTruth = dbe->book1D("PathEffMatchedRef","Efficiency with Matching",eff->getNbinsX()-1,0,eff->getNbinsX()-1);
+	for(int i =2;i<=eff->getNbinsX();++i)
 	  {
-	    effRefTruth->setBinContent(i,calcEfficiency(eff->getBinContent(i),eff->getBinContent(1))[0]);
-	    effRefTruth->setBinError(i,calcEfficiency(eff->getBinContent(i),eff->getBinContent(1))[1]);
+	    effRefTruth->setBinContent(i-1,calcEfficiency(eff->getBinContent(i),eff->getBinContent(1))[0]);
+	    effRefTruth->setBinError(i-1,calcEfficiency(eff->getBinContent(i),eff->getBinContent(1))[1]);
+	    effRefTruth->setBinLabel(i-1,eff->getTH1F()->GetXaxis()->GetBinLabel(i));
+
 	  }
 
 
 	//Calculate Efficiencies with ref to L1
-	MonitorElement * effRefL1 = dbe->book1D("PathEffMatchedRefL1","Efficiency with Matching Ref to L1",eff->getNbinsX()-1,0,eff->getNbinsX()-1);
-	for(int i =2;i<=eff->getNbinsX();++i)
+	MonitorElement * effRefL1 = dbe->book1D("PathEffMatchedRefL1","Efficiency with Matching Ref to L1",eff->getNbinsX()-2,0,eff->getNbinsX()-2);
+	for(int i =3;i<=eff->getNbinsX();++i)
 	  {
-	    effRefL1->setBinContent(i-1,calcEfficiency(eff->getBinContent(i),eff->getBinContent(1))[0]);
-	    effRefL1->setBinError(i-1,calcEfficiency(eff->getBinContent(i),eff->getBinContent(1))[1]);
+	    effRefL1->setBinContent(i-2,calcEfficiency(eff->getBinContent(i),eff->getBinContent(2))[0]);
+	    effRefL1->setBinError(i-2,calcEfficiency(eff->getBinContent(i),eff->getBinContent(2))[1]);
+	    effRefL1->setBinLabel(i-2,eff->getTH1F()->GetXaxis()->GetBinLabel(i));
 	  }
 
 	//Calculate Efficiencies with ref to previous
 	MonitorElement * effRefPrevious = dbe->book1D("PathEffMatchedRefPrevious","Efficiency with Matching Ref To previous",eff->getNbinsX()-1,0,eff->getNbinsX()-1);
-	for(int i =2;i<=eff->getNbinsX();++i)
+	for(int i = 2;i<=eff->getNbinsX();++i)
 	  {
 	    effRefPrevious->setBinContent(i-1,calcEfficiency(eff->getBinContent(i),eff->getBinContent(i-1))[0]);
-	    effRefPrevious->setBinError(i-1,calcEfficiency(eff->getBinContent(i),eff->getBinContent(1))[i-1]);
+	    effRefPrevious->setBinError(i-1,calcEfficiency(eff->getBinContent(i),eff->getBinContent(i-1))[1]);
+	    effRefPrevious->setBinLabel(i-1,eff->getTH1F()->GetXaxis()->GetBinLabel(i));
 	  }
       }
   }
