@@ -234,13 +234,14 @@ void ESUnpacker::interpretRawData(int fedId, const FEDRawData & rawData, ESRawDa
 void ESUnpacker::word2digi(int kid, int kPACE[4], const Word64 & word, ESDigiCollection & digis) 
 {
 
+  int pace  = (word >> 53) & m2;
+  if (kPACE[pace]==0) return;
+
   int adc[3];
   adc[0]    = (word >> 0)  & m16;
   adc[1]    = (word >> 16) & m16;
   adc[2]    = (word >> 32) & m16;
   int strip = (word >> 48) & m5;
-  int pace  = (word >> 53) & m2;
-  if (kPACE[pace]==0) return;
   if (debug_) cout<<kid<<" "<<strip<<" "<<pace<<" "<<adc[0]<<" "<<adc[1]<<" "<<adc[2]<<endl;
 
   int zside, plane, ix, iy;
