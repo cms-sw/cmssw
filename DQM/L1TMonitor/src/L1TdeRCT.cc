@@ -1487,6 +1487,7 @@ if(first)
       }
 
     // we try a new definition of overefficiency:
+    DivideME1D(rctRegUnmatchedDataOcc1D_, rctRegDataOcc1D_, rctRegOvereff1D_);
     DivideME2D(rctRegUnmatchedDataOcc2D_, rctRegDataOcc2D_, rctRegOvereff2D_);
     DivideME2D(rctBitUnmatchedDataOverFlow2D_, rctBitDataOverFlow2D_, rctBitOverFlowOvereff2D_);
     DivideME2D(rctBitUnmatchedDataTauVeto2D_, rctBitDataTauVeto2D_, rctBitTauVetoOvereff2D_);
