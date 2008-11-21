@@ -2,14 +2,12 @@ import FWCore.ParameterSet.Config as cms
 
 ecal2007TBWeightUncalibRecHit = cms.EDProducer("EcalTBWeightUncalibRecHitProducer",
     use2004OffsetConvention = cms.untracked.bool(False),
-    EBdigiCollection = cms.string('ebDigis'),
-    EEigiCollection = cms.string('eeDigis'),
-    tdcRecInfoCollection = cms.string('EcalTBTDCRecInfo'),
+    EBdigiCollection = cms.InputTag("",""),
+    EEdigiCollection = cms.InputTag("ecalTBunpack","eeDigis"),
+    tdcRecInfoCollection = cms.InputTag("ecal2007H4TBTDCReconstructor","EcalTBTDCRecInfo"),
     EBhitCollection = cms.string('EcalUncalibRecHitsEB'),
     EEhitCollection = cms.string('EcalUncalibRecHitsEE'),                                               
-    digiProducer = cms.string('ecalTBunpack'),
     nbTimeBin = cms.int32(25),
-    tdcRecInfoProducer = cms.string('ecal2007H4TBTDCReconstructor')
 )
 
 
