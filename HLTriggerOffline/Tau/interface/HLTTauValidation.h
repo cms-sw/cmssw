@@ -68,16 +68,12 @@ class HLTTauValidation : public edm::EDAnalyzer {
   std::vector<unsigned> nTriggeredLeptons_;
 
   bool doRefAnalysis_;
-  double matchDeltaR_;
+  std::vector<double> matchDeltaR_;
+
 
 
   //MonitorElements
   MonitorElement *accepted_events;
   MonitorElement *accepted_events_matched;
-
-  //Define Numbers 
-  //  std::vector<int> NEventsPassed;
-  //std::vector<int> NEventsPassedMatched;
-
 };
 #endif

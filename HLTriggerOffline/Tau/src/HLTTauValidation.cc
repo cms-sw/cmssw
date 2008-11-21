@@ -12,7 +12,7 @@ HLTTauValidation::HLTTauValidation(const edm::ParameterSet& ps) :
   nTriggeredTaus_(ps.getUntrackedParameter<std::vector<unsigned> >("NTriggeredTaus")),
   nTriggeredLeptons_(ps.getUntrackedParameter<std::vector<unsigned> >("NTriggeredLeptons")),
   doRefAnalysis_(ps.getUntrackedParameter<bool>("DoReferenceAnalysis",false)),
-  matchDeltaR_(ps.getUntrackedParameter<double>("MatchDeltaR",0.3))
+  matchDeltaR_(ps.getUntrackedParameter<std::vector<double> >("MatchDeltaR"))
 {
   //initialize 
 
@@ -160,14 +160,14 @@ HLTTauValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 			      size_t nT=0;
 				for(size_t j=0;j<taus.size();++j)
 				  {
-				    if(match(taus[j],*refC,matchDeltaR_))
+				    if(match(taus[j],*refC,matchDeltaR_[i]))
 				      nT++;
 
 				  }
 			      size_t nL=0;
 				for(size_t j=0;j<leptons.size();++j)
 				  {
-				    if(match(leptons[j],*refCL,matchDeltaR_))
+				    if(match(leptons[j],*refCL,matchDeltaR_[i]))
 				      nL++;
 
 				  }

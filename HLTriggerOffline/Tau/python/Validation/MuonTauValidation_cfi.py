@@ -17,12 +17,13 @@ MuonTauPathVal = cms.EDFilter("HLTTauValidation",
                                    cms.InputTag("hltFilterL25MuonTauPtLeadTk","","HLT"),
                                    cms.InputTag("hltFilterPixelTrackIsolatedTauJetsMuonTau","","HLT")
                            ),                           
+    MatchDeltaR           = cms.untracked.vdouble(0.5,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3),    #One per filter
     NTriggeredTaus        = cms.untracked.vuint32(1,1,0,0,0,0,0,1,1,1), #The first one is for the ref events
     NTriggeredLeptons     = cms.untracked.vuint32(1,1,1,1,1,1,1,0,0,0), #the first one is for the ref events
     TauType               = cms.untracked.vint32(86,0,0,0,0,0,94,94,94),
     LeptonType            = cms.untracked.vint32(81,81,93,93,93,93,0,0,0),                            
     DoReferenceAnalysis   = cms.untracked.bool(True),
-    MatchDeltaR           = cms.untracked.double(0.3)
+
 )
 
 MuonTauL2Val = cms.EDFilter("HLTTauCaloDQMOfflineSource",

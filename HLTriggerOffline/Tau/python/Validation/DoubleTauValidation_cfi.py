@@ -11,12 +11,12 @@ DoubleTauPathVal = cms.EDFilter("HLTTauValidation",
                                      cms.InputTag("hltFilterL25PixelTauPtLeadTk","","HLT"),
                                      cms.InputTag("hltFilterL25PixelTau","","HLT")
                                      ),
+    MatchDeltaR           = cms.untracked.vdouble(0.5,0.3,0.3,0.3),    #One per filter
     NTriggeredTaus        = cms.untracked.vuint32(2,2,2,2,2), #The first one is for the ref events
     NTriggeredLeptons     = cms.untracked.vuint32(0,0,0,0,0), #the first one is for the ref events
     TauType               = cms.untracked.vint32(86,94,94,94),
     LeptonType            = cms.untracked.vint32(0,0,0,0),                            
     DoReferenceAnalysis   = cms.untracked.bool(True),
-    MatchDeltaR           = cms.untracked.double(0.3)
 )
 
 DoubleTauL2Val = cms.EDFilter("HLTTauCaloDQMOfflineSource",

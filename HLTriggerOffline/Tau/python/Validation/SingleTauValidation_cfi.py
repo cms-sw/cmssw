@@ -6,6 +6,7 @@ SingleTauPathVal = cms.EDFilter("HLTTauValidation",
     refTauCollection      = cms.untracked.InputTag("TauMCProducer","HadronicTauOneAndThreeProng"),
     refLeptonCollection   = cms.untracked.InputTag("NOTHING"),
     DQMFolder             = cms.untracked.string('HLT/HLTTAU/SingleTau/Path'),
+    MatchDeltaR           = cms.untracked.vdouble(0.5,0.0,0.3,0.3,0.3),    #One per filter
     Filter                = cms.untracked.VInputTag(
                                      cms.InputTag("hltL1sSingleTau","","HLT"),
                                      cms.InputTag("hlt1METSingleTau","","HLT"),
@@ -17,8 +18,7 @@ SingleTauPathVal = cms.EDFilter("HLTTauValidation",
     NTriggeredLeptons     = cms.untracked.vuint32(0,0,0,0,0,0), #the first one is for the ref events
     TauType               = cms.untracked.vint32(86,0,94,94,94),
     LeptonType            = cms.untracked.vint32(0,0,0,0,0),                            
-    DoReferenceAnalysis   = cms.untracked.bool(True),
-    MatchDeltaR           = cms.untracked.double(0.3)
+    DoReferenceAnalysis   = cms.untracked.bool(True)
 )
 
 SingleTauL2Val = cms.EDFilter("HLTTauCaloDQMOfflineSource",
