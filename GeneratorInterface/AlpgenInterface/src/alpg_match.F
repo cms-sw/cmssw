@@ -387,7 +387,7 @@ C     LOCAL VARIABLES
 C     USER ACCESS TO MATCHING PARAMETERS
       INTEGER IUSRMAT
       PARAMETER (IUSRMAT=1)
-      character*132                           CXpar
+      character*512                           CXpar
       integer         Ixpar 
       double precision            RXpar
       common /EXGPAR/ IXpar(100), RXpar(100), CXpar(100)
@@ -482,7 +482,7 @@ C     HERWIG: HEPEVT EVENT RECORD FOR FINAL STATE STARTS AT 7=6+1
 C     PYTHIA: ALL SHOWERS ORIGINATE FROM IHEP=O
         IEND=0
 C     PYTHIA: HEPEVT EVENT RECORD FOR FINAL STATE STARTS AT 7=6+1
-        IHEPMIN=6
+        IHEPMIN=0
         IDPRUP=661
       ENDIF
       IF(IHRD.LE.2) THEN
