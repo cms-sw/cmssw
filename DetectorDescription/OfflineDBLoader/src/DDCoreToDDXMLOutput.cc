@@ -317,7 +317,7 @@ void DDCoreToDDXMLOutput::rotation ( DDRotation& rotation, std::ostream& xos, co
   } else {
     xos << "<ReflectionRotation ";
   }
-  //<< std::fixed << std::setprecision(4)
+  //  xos << std::fixed << std::setprecision(4);
   xos << "name=\"" << rotName << "\""
       << " phiX=\"" << x.phi()/deg << "*deg\""
       << " thetaX=\"" << x.theta()/deg << "*deg\""
@@ -326,6 +326,7 @@ void DDCoreToDDXMLOutput::rotation ( DDRotation& rotation, std::ostream& xos, co
       << " phiZ=\"" << z.phi()/deg << "*deg\""
       << " thetaZ=\"" << z.theta()/deg << "*deg\"/>"
       << std::endl;
+  //  xos << std::fixed << std::setprecision(6);
 }
 
 void DDCoreToDDXMLOutput::logicalPart ( const DDLogicalPart& lp, std::ostream& xos ) {
@@ -373,13 +374,11 @@ void DDCoreToDDXMLOutput::position ( const DDLogicalPart& parent
       xos << "<rRotation name=\"" << rotName << "\"/>" << std::endl;
     }
   } // else let default Rotation matrix be created?
-  xos << "<Translation x=\"" << std::fixed << std::setprecision(6) << edgeToChild->translation().x() <<"*mm\""
-      << " y=\"" << std::fixed << std::setprecision(6) << edgeToChild->translation().y() <<"*mm\""
-      << " z=\"" << std::fixed << std::setprecision(6) << edgeToChild->translation().z() <<"*mm\"/>" << std::endl;
-  xos << std::scientific;
-//   xos << "<Translation x=\"" << std::fixed << std::setprecision(6) << edgeToChild->translation().x() <<"*mm\""
-//       << " y=\"" << std::fixed << std::setprecision(4) << edgeToChild->translation().y() <<"*mm\""
-//       << " z=\"" << std::fixed << std::setprecision(4) << edgeToChild->translation().z() <<"*mm\"/>" << std::endl;
+  //  xos  << std::fixed << std::setprecision(4);
+  xos << "<Translation x=\"" << edgeToChild->translation().x() <<"*mm\""
+      << " y=\"" << edgeToChild->translation().y() <<"*mm\""
+      << " z=\"" << edgeToChild->translation().z() <<"*mm\"/>" << std::endl;
+  //  xos  << std::fixed << std::setprecision(6);
   xos << "</PosPart>" << std::endl;
 }
 
