@@ -12,7 +12,7 @@
   
 Hash:
 
-$Id: Hash.h,v 1.3 2007/11/07 04:32:38 wmtan Exp $
+$Id: Hash.h,v 1.4 2008/11/04 20:26:51 elmer Exp $
 
   Note: The call to 'fixup' in every member function is a temporary
   measure for backwards compatibility. It is necessary in every function
@@ -59,6 +59,12 @@ namespace edm {
     
     bool isCompactForm()const;
     
+    template<class Archive>
+    void serialize(Archive & ar, const unsigned int version)
+    {
+      ar & hash_;
+    }
+
   private:
 
     /// Hexified version of data *must* contain a multiple of 2
