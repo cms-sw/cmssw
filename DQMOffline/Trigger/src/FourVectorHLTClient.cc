@@ -5,7 +5,7 @@
    date of first version: Sept 2008
 
 */
-//$Id: FourVectorHLTClient.cc,v 1.2 2008/10/15 09:39:35 rekovic Exp $
+//$Id: FourVectorHLTClient.cc,v 1.3 2008/10/29 14:49:08 rekovic Exp $
 
 #include "DQMOffline/Trigger/interface/FourVectorHLTClient.h"
 
@@ -80,25 +80,11 @@ void FourVectorHLTClient::initialize(){
 void FourVectorHLTClient::beginJob(const EventSetup& context){
 
 
-  LogDebug("FourVectorHLTClient")<<"[FourVectorHLTClient]: Begin Job" << endl;
+  LogDebug("FourVectorHLTClient")<<"[FourVectorHLTClient]: beginJob" << endl;
   // get backendinterface  
   dbe_ = Service<DQMStore>().operator->();
 
 
-  TString summaryFolder = clientDir_ + TString("/reportSummaryContents");
-  TString summaryPath = summaryFolder + TString("reportSummary");
-
-  dbe_->setCurrentFolder(summaryFolder.Data());
-  
-
-  if ( reportSummary_ = dbe_->get(summaryPath.Data())) {
-      dbe_->removeElement(reportSummary_->getName()); 
-  }
-
-  reportSummary_ = dbe_->bookFloat("reportSummary");
-
-  //initialize reportSummary to 1
-  if (reportSummary_) reportSummary_->Fill(-999);
 
   
 
@@ -107,6 +93,24 @@ void FourVectorHLTClient::beginJob(const EventSetup& context){
 //--------------------------------------------------------
 void FourVectorHLTClient::beginRun(const Run& r, const EventSetup& context) {
 
+  LogDebug("FourVectorHLTClient")<<"[FourVectorHLTClient]: beginRun" << endl;
+	/*
+  TString summaryFolder = clientDir_ + TString("/reportSummaryContents/");
+  TString summaryPath = summaryFolder + TString("reportSummary");
+
+  dbe_->setCurrentFolder(summaryFolder.Data());
+  
+
+  reportSummary_ = dbe_->get(summaryPath.Data());
+  if ( reportSummary_ ) {
+      dbe_->removeElement(reportSummary_->getName()); 
+  }
+
+  reportSummary_ = dbe_->bookFloat("reportSummary");
+
+  //initialize reportSummary to 1
+  if (reportSummary_) reportSummary_->Fill(-999);
+	*/
 
 }
 

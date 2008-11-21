@@ -28,7 +28,7 @@ allLayer1Photons = cms.EDProducer("PATPhotonProducer",
       userFunctionLabels = cms.vstring("")
     ),
 
-    embedSuperCluster = cms.bool(False), ## whether to embed in AOD externally stored supercluster
+    embedSuperCluster = cms.bool(True), ## whether to embed in AOD externally stored supercluster
 
     # Isolation configurables
     #   store isolation values

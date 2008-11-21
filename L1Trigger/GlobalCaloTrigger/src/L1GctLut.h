@@ -60,6 +60,12 @@ public:
   template <int KAddressBits, int KDataBits>
   int operator!=(const L1GctLut<KAddressBits, KDataBits>& rhsLut) const { return !equalityCheck(rhsLut); }
 
+  bool setupOk() { return m_setupOk; }
+
+  /// control output messages
+  void setVerbose() { m_verbose = true; }
+  void setTerse() { m_verbose = false; }
+
 protected:
   
   L1GctLut();
@@ -70,6 +76,7 @@ protected:
   bool equalityCheck(const L1GctLut<KAddressBits, KDataBits>& c) const;
 
   bool m_setupOk;
+  bool m_verbose;
 
 private:
 

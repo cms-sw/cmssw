@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  "Federico Ferri federi
 //         Created:  Mon Apr  7 14:11:00 CEST 2008
-// $Id: testEcalClusterTools.cc,v 1.7 2008/10/03 14:59:28 sharper Exp $
+// $Id: testEcalClusterTools.cc,v 1.3 2008/04/28 19:27:51 meridian Exp $
 //
 //
 
@@ -117,7 +117,7 @@ void testEcalClusterTools::analyze(const edm::Event& ev, const edm::EventSetup& 
                 std::cout << "e1x3..................... " << EcalClusterTools::e1x3( *it, ebRecHits, topology ) << std::endl;
                 std::cout << "e3x1..................... " << EcalClusterTools::e3x1( *it, ebRecHits, topology ) << std::endl;
                 std::cout << "e1x5..................... " << EcalClusterTools::e1x5( *it, ebRecHits, topology ) << std::endl;
-                //std::cout << "e5x1..................... " << EcalClusterTools::e5x1( *it, ebRecHits, topology ) << std::endl;
+                std::cout << "e5x1..................... " << EcalClusterTools::e5x1( *it, ebRecHits, topology ) << std::endl;
                 std::cout << "e2x2..................... " << EcalClusterTools::e2x2( *it, ebRecHits, topology ) << std::endl;
                 std::cout << "e3x3..................... " << EcalClusterTools::e3x3( *it, ebRecHits, topology ) << std::endl;
                 std::cout << "e4x4..................... " << EcalClusterTools::e4x4( *it, ebRecHits, topology ) << std::endl;
@@ -126,7 +126,6 @@ void testEcalClusterTools::analyze(const edm::Event& ev, const edm::EventSetup& 
                 std::cout << "e2x5Left................. " << EcalClusterTools::e2x5Left( *it, ebRecHits, topology ) << std::endl;
                 std::cout << "e2x5Top.................. " << EcalClusterTools::e2x5Top( *it, ebRecHits, topology ) << std::endl;
                 std::cout << "e2x5Bottom............... " << EcalClusterTools::e2x5Bottom( *it, ebRecHits, topology ) << std::endl;
-		std::cout << "e2x5Max.................. " << EcalClusterTools::e2x5Max( *it, ebRecHits, topology ) << std::endl;
                 std::cout << "eMax..................... " << EcalClusterTools::eMax( *it, ebRecHits ) << std::endl;
                 std::cout << "e2nd..................... " << EcalClusterTools::e2nd( *it, ebRecHits ) << std::endl;
                 std::vector<float> vEta = EcalClusterTools::energyBasketFractionEta( *it, ebRecHits );
@@ -145,8 +144,6 @@ void testEcalClusterTools::analyze(const edm::Event& ev, const edm::EventSetup& 
                 std::cout << "lat...................... " << vLat[0] << " " << vLat[1] << " " << vLat[2] << std::endl;
                 std::vector<float> vCov = EcalClusterTools::covariances( *it, ebRecHits, topology, geometry );
                 std::cout << "covariances.............. " << vCov[0] << " " << vCov[1] << " " << vCov[2] << std::endl;
-		std::vector<float> vLocCov = EcalClusterTools::localCovariances( *it, ebRecHits, topology );
-                std::cout << "local covariances........ " << vLocCov[0] << " " << vLocCov[1] << " " << vLocCov[2] << std::endl;
                 std::cout << "zernike20................ " << EcalClusterTools::zernike20( *it, ebRecHits, geometry ) << std::endl;
                 std::cout << "zernike42................ " << EcalClusterTools::zernike42( *it, ebRecHits, geometry ) << std::endl;
         }
@@ -159,7 +156,7 @@ void testEcalClusterTools::analyze(const edm::Event& ev, const edm::EventSetup& 
                 std::cout << "e1x3..................... " << EcalClusterTools::e1x3( *it, eeRecHits, topology ) << std::endl;
                 std::cout << "e3x1..................... " << EcalClusterTools::e3x1( *it, eeRecHits, topology ) << std::endl;
                 std::cout << "e1x5..................... " << EcalClusterTools::e1x5( *it, eeRecHits, topology ) << std::endl;
-                //std::cout << "e5x1..................... " << EcalClusterTools::e5x1( *it, eeRecHits, topology ) << std::endl;
+                std::cout << "e5x1..................... " << EcalClusterTools::e5x1( *it, eeRecHits, topology ) << std::endl;
                 std::cout << "e2x2..................... " << EcalClusterTools::e2x2( *it, eeRecHits, topology ) << std::endl;
                 std::cout << "e3x3..................... " << EcalClusterTools::e3x3( *it, eeRecHits, topology ) << std::endl;
                 std::cout << "e4x4..................... " << EcalClusterTools::e4x4( *it, eeRecHits, topology ) << std::endl;
@@ -174,8 +171,6 @@ void testEcalClusterTools::analyze(const edm::Event& ev, const edm::EventSetup& 
                 std::cout << "lat...................... " << vLat[0] << " " << vLat[1] << " " << vLat[2] << std::endl;
                 std::vector<float> vCov = EcalClusterTools::covariances( *it, eeRecHits, topology, geometry );
                 std::cout << "covariances.............. " << vCov[0] << " " << vCov[1] << " " << vCov[2] << std::endl;
-		std::vector<float> vLocCov = EcalClusterTools::localCovariances( *it, eeRecHits, topology );
-                std::cout << "local covariances........ " << vLocCov[0] << " " << vLocCov[1] << " " << vLocCov[2] << std::endl;
                 std::cout << "zernike20................ " << EcalClusterTools::zernike20( *it, eeRecHits, geometry ) << std::endl;
                 std::cout << "zernike42................ " << EcalClusterTools::zernike42( *it, eeRecHits, geometry ) << std::endl;
         }

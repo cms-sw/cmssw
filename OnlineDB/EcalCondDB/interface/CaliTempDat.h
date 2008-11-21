@@ -24,9 +24,6 @@ class CaliTempDat : public IDataItem {
   inline void setR25(float c) { m_r25 = c; }
   inline float getR25() const { return m_r25; }
 
-  inline void setOffset(float c) { m_offset = c; }
-  inline float getOffset() const { return m_offset; }
-
   inline void setTaskStatus(bool s) { m_taskStatus = s; }
   inline bool getTaskStatus() const { return m_taskStatus; }
 
@@ -48,7 +45,6 @@ class CaliTempDat : public IDataItem {
   // User data
   float m_beta;
   float m_r25;
-  float m_offset;
   bool m_taskStatus;
   
   

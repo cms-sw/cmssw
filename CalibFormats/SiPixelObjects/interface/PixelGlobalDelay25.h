@@ -30,13 +30,8 @@ namespace pos{
     PixelGlobalDelay25(std::string filename);
     virtual ~PixelGlobalDelay25(); 
 
-    unsigned int getDelay(unsigned int offset=0) const; // delays in steps of 0.499 ns (Delay25 step)
-    unsigned int getCyclicDelay(unsigned int offset=0) const; // delays in steps of 0.499 ns (Delay25 step)
-    unsigned int getTTCrxDelay(unsigned int offset) const; // delays in steps of 0.10396 ns (TTCrx step)
-    unsigned int getTTCrxDelay() const; // delays in steps of 0.10396 ns (TTCrx step)
-                                        // but assumes that the default TTCrx delay is 0 ns
-
-
+    unsigned int getDelay(unsigned int offset=0) const; // !!! delays in steps of 0.499 ns (Delay25 step)
+    unsigned int getTTCrxDelay(unsigned int offset=0) const; // !!! delays in steps of 0.10396 ns (TTCrx step)
     virtual void writeASCII(std::string dir) const;
     void 	 writeXML(      pos::PixelConfigKey key, int version, std::string path)                     const {;}
     virtual void writeXMLHeader(pos::PixelConfigKey key, int version, std::string path, std::ofstream *out) const {;}

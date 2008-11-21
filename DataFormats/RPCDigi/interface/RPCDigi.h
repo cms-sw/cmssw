@@ -5,15 +5,14 @@
  *
  * Digi for Rsisitive Plate Chamber
  *  
- *  $Date: 2006/05/16 14:36:29 $
- *  $Revision: 1.8 $
+ *  $Date: 2006/04/05 15:03:07 $
+ *  $Revision: 1.7 $
  *
  * \author I. Segoni -- CERN & M. Maggi -- INFN Bari
  *
  */
 
 #include <boost/cstdint.hpp>
-#include <iosfwd>
 
 class RPCDigi{
 
@@ -33,7 +32,11 @@ private:
   int32_t  bx_; 
 };
 
-std::ostream & operator<<(std::ostream & o, const RPCDigi& digi);
 
+#include<iostream>
+inline std::ostream & operator<<(std::ostream & o, const RPCDigi& digi) {
+  return o << " " << digi.strip()
+	   << " " << digi.bx();
+}
 #endif
 

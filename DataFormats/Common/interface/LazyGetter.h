@@ -3,6 +3,7 @@
 
 #include <algorithm>
 #include <vector>
+#include <iostream>
 #include "boost/concept_check.hpp"
 #include "boost/iterator/transform_iterator.hpp"
 #include "boost/shared_ptr.hpp"

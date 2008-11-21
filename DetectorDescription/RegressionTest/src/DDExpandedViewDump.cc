@@ -1,10 +1,12 @@
 namespace std { } using namespace std;
+#include <iostream>
 #include <sstream>
 #include <cstdlib>
 #include <set>
 #include <algorithm>
 #include <string>
 #include "DetectorDescription/RegressionTest/interface/DDExpandedViewDump.h"
+#include "DetectorDescription/Core/interface/DDExpandedView.h"
 
 void DDExpandedViewDump(ostream & os, DDExpandedView & ex, size_t skip, size_t sto)
 {

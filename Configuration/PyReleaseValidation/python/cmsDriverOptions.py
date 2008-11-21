@@ -56,10 +56,12 @@ parser.add_option("-n", "--number",
 
 parser.add_option("--mc",
                   help="Specify that simulation is to be processed (default = guess based on options",
+                  action="store_true",
                   default=False,
                   dest="isMC")
 parser.add_option("--data",
                   help="Specify that data is to be processed (default = guess based on options",
+                  action="store_true",
                   default=False,
                   dest="isData")
 

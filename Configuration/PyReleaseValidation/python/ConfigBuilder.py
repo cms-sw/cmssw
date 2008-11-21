@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.95 $"
+__version__ = "$Revision: 1.96 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -154,7 +154,6 @@ class ConfigBuilder(object):
 
         # here we check if we have fastsim or fullsim
         if "FAST" in self._options.step:
-            self.contentFile = "FastSimulation/Configuration/EventContent_cff"
             self.imports=['FastSimulation/Configuration/RandomServiceInitialization_cff']
 
             # pile up handling for fastsim
@@ -302,12 +301,16 @@ class ConfigBuilder(object):
 	self.EVTCONTDefaultCFF="Configuration/EventContent/EventContent_cff"
 	self.defaultMagField='38T'
 	self.defaultBeamSpot='Early10TeVCollision'
+
+        # if fastsim switch event content
+	if "FASTSIM" in self._options.step:
+		self.EVTCONTDefaultCFF = "FastSimulation/Configuration/EventContent_cff"
 	
-# if its MC then change the raw2digi
+        # if its MC then change the raw2digi
 	if self._options.isMC==True:
 		self.RAW2DIGIDefaultCFF="Configuration/StandardSequences/RawToDigi_cff"
 
-# now for #%#$#! different scenarios
+        # now for #%#$#! different scenarios
 
 	if self._options.scenario=='nocoll' or self._options.scenario=='cosmics':
 	    self.SIMDefaultCFF="Configuration/StandardSequences/SimNOBEAM_cff"	
@@ -340,9 +343,9 @@ class ConfigBuilder(object):
 	if self._options.eventcontent != None:
 	    self.eventcontent=self._options.eventcontent	
 
-# for alca, skims, etc
+    # for alca, skims, etc
     def addExtraStream(self,name,stream):
-# define output module and go from there
+    # define output module and go from there
         output = cms.OutputModule("PoolOutputModule")
 	output.SelectEvents = stream.selectEvents
 	output.outputCommands = stream.content
@@ -577,7 +580,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.95 $"),
+              (version=cms.untracked.string("$Revision: 1.96 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )

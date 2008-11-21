@@ -7,20 +7,17 @@ import FWCore.ParameterSet.Config as cms
 # RPC Geometry
 #------------------------------------ DT ------------------------------------------------
 # 1D RecHits
-# from RecoLocalMuon.DTRecHit.dt1DRecHits_ParamDrift_cfi import *
+from RecoLocalMuon.DTRecHit.dt1DRecHits_ParamDrift_cfi import *
 #	include "RecoLocalMuon/DTRecHit/data/dt1DRecHits_LinearDrift.cfi"
 #	include "RecoLocalMuon/DTRecHit/data/dt1DRecHits_LinearDriftFromDB.cfi"
-from RecoLocalMuon.DTRecHit.dt1DRecHits_LinearDriftFromDB_cfi import *
 # 2D Segments
-# from RecoLocalMuon.DTSegment.dt2DSegments_CombPatternReco2D_ParamDrift_cfi import *
+from RecoLocalMuon.DTSegment.dt2DSegments_CombPatternReco2D_ParamDrift_cfi import *
 #	include "RecoLocalMuon/DTSegment/data/dt2DSegments_CombPatternReco2D_LinearDrift.cfi"
 #	include "RecoLocalMuon/DTSegment/data/dt2DSegments_CombPatternReco2D_LinearDriftFromDB.cfi"
-from RecoLocalMuon.DTSegment.dt2DSegments_CombPatternReco2D_LinearDriftFromDB_cfi import *
 # 4D Segments
-# from RecoLocalMuon.DTSegment.dt4DSegments_CombPatternReco4D_ParamDrift_cfi import *
+from RecoLocalMuon.DTSegment.dt4DSegments_CombPatternReco4D_ParamDrift_cfi import *
 #	include "RecoLocalMuon/DTSegment/data/dt4DSegments_CombPatternReco4D_LinearDrift.cfi"
 #	include "RecoLocalMuon/DTSegment/data/dt4DSegments_CombPatternReco4D_LinearDriftFromDB.cfi"
-from RecoLocalMuon.DTSegment.dt4DSegments_CombPatternReco4D_LinearDriftFromDB_cfi import *
 #------------------------------------ CSC -----------------------------------------------
 # 2D RecHit	
 from RecoLocalMuon.CSCRecHitD.cscRecHitD_cfi import *

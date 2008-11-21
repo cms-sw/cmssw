@@ -4,7 +4,7 @@
 <library file="CVRAnalysis.cc VertexHisto.cc TrackHisto.cc" name=CVRAnalysis>
 	<use name=FWCore/Framework>
 	<use name=FWCore/ParameterSet>
-	<use name=Workspace/DataHarvesting>
+	<use name=RaveBase/DataHarvesting>
 	<use name=RecoVertex/ConfigurableVertexReco>
 	<use name=SimTracker/TrackAssociation>
 	<use name=SimDataFormats/TrackingAnalysis>

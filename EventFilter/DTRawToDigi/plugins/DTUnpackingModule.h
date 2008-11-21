@@ -4,8 +4,8 @@
 /** \class DTUnpackingModule
  *  The unpacking module for DTs.
  *
- *  $Date: 2007/09/04 08:07:26 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/06/19 13:37:36 $
+ *  $Revision: 1.5 $
  * \author N. Amapane - S. Argiro' - M. Zanetti
  */
 
@@ -40,6 +40,7 @@ class DTUnpackingModule: public edm::EDProducer {
   /// if not you need to set the range by hand
   int minFEDid_;
   int maxFEDid_;
+  bool dqmOnly;
 };
 
 #endif

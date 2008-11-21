@@ -135,8 +135,8 @@ void HLTInfo::analyze(const edm::Handle<edm::TriggerResults>                 & h
                       const edm::Handle<L1GlobalTriggerReadoutRecord>        & L1GTRR,
                       const edm::Handle<L1GlobalTriggerObjectMapRecord>      & L1GTOMRec,
                       const edm::Handle<L1GctJetCountsCollection>            & L1GctCounts,
-                      const edm::Handle<L1GctHFBitCounts>                    & l1GctHFBitCounts,
-                      const edm::Handle<L1GctHFRingEtSums>                   & l1GctHFRingEtSums,
+		      const edm::Handle<L1GctHFBitCounts>                    & l1GctHFBitCounts,
+		      const edm::Handle<L1GctHFRingEtSums>                   & l1GctHFRingEtSums,
                       TTree* HltTree) {
 
 //   std::cout << " Beginning HLTInfo " << std::endl;

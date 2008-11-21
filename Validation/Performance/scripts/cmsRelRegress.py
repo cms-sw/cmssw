@@ -77,16 +77,18 @@ def regressReports(olddir,newdir,oldRelName = "",newRelName=""):
                               "SimpleMemoryCheck",
                               "EdmSize"]
                 if profset == "IgProf":
-                    Profs = [ "IgProfMemTotal",
+                    Profs = [ "IgProfperf", #This was missing!
+                              "IgProfMemTotal",
                               "IgProfMemLive"]
-
 
                     
                 for prof in Profs:
                     if   prof == "EdmSize" or prof == "valgrind":
                         stepLogs = glob.glob("%s/%s_*_%s"       % (adir,CandFname[candle],prof))
-                    elif prof == "IgProfMemLive" or prof == "IgProfMemTotal":
-                        stepLogs = glob.glob("%s/%s_*_%s.gz"       % (adir,CandFname[candle],prof))                        
+                    elif prof == "IgProfMemLive" or prof == "IgProfMemTotal": 
+                        stepLogs = glob.glob("%s/%s_*_%s.gz"       % (adir,CandFname[candle],"IgProfMemTotal")) #This hack necessary since we reuse the IgProfMemTotal profile for MemLive too (it's a unique IgProfMem profile, read with different counters) 
+                    elif prof == "IgProfperf":
+                        stepLogs = glob.glob("%s/%s_*_%s.gz"       % (adir,CandFname[candle],prof))
                     elif prof == "SimpleMemoryCheck":
                         stepLogs = os.path.join(adir,"%s.log" % candle)
                     elif prof == "TimingReport":
@@ -94,19 +96,22 @@ def regressReports(olddir,newdir,oldRelName = "",newRelName=""):
 
                     profdir = os.path.basename(adir)
 
-                    if prof == "TimingReport" or prof == "EdmSize" or prof == "valgrind" or prof == "IgProfMemTotal" or prof == "IgProfMemLive":
-                        stepreg = re.compile("%s_([^_]*(_PILEUP)?)_%s((.log)|(.gz))?" % (CandFname[candle],prof))
+                    if prof == "TimingReport" or prof == "EdmSize" or prof == "valgrind" or prof == "IgProfMemTotal" or prof == "IgProfMemLive" or prof == "IgProfperf":
+                        if prof == "IgProfMemLive": #This hack necessary since we reuse the IgProfMemTotal profile for MemLive too (it's a unique IgProfMem profile, read with different counters)
+                            stepreg = re.compile("%s_([^_]*(_PILEUP)?)_%s((.log)|(.gz))?" % (CandFname[candle],"IgProfMemTotal"))
+                        else:
+                            stepreg = re.compile("%s_([^_]*(_PILEUP)?)_%s((.log)|(.gz))?" % (CandFname[candle],prof))
                         
                         for log in stepLogs:
                             base = os.path.basename(log)
-                            if prof == "IgProfMemTotal" or prof == "IgProfMemLive":
+                            if prof == "IgProfMemTotal" or prof == "IgProfMemLive" or prof == "IgProfperf":
                                 base = base.split(".gz")[0]
                             searchob = stepreg.search(base)
                             if searchob:
                                 step = searchob.groups()[0]
                                 outpath = os.path.join(adir,"%s_%s_%s_regression" % (CandFname[candle],step,prof))
                                 oldlog  = os.path.join(olddir,"%s_%s" % (candle,profset),base)
-                                if prof == "IgProfMemTotal" or prof == "IgProfMemLive":
+                                if prof == "IgProfMemTotal" or prof == "IgProfMemLive" or prof == "IgProfperf":
                                     oldlog  = os.path.join(olddir,"%s_%s" % (candle,profset),base + ".gz")
                                 if not os.path.exists(outpath):
                                     os.mkdir(outpath)
@@ -131,8 +136,15 @@ def regressReports(olddir,newdir,oldRelName = "",newRelName=""):
                                             cpr.cmpTimingReport(rootf, outd, oldlog, log, 1, batch = True, prevrev = oldRelName)
                                         elif prof == "valgrind":
                                             cpr.cmpCallgrindReport(outpath,oldlog,log)
-                                        elif prof == "IgProfMemTotal" or prof == "IgProfMemSize":
-                                            cpr.cmpIgProfReport(outpath,oldlog,log)
+                                        elif prof == "IgProfperf":
+                                            IgProfMemOpt="" #No need to specify the counter, for IgProfPerf...
+                                            cpr.cmpIgProfReport(outpath,oldlog,log,IgProfMemOpt)
+                                        elif prof == "IgProfMemTotal":
+                                            IgProfMemOpt="-y MEM_TOTAL"
+                                            cpr.cmpIgProfReport(outpath,oldlog,log,IgProfMemOpt)
+                                        elif prof == "IgProfMemLive":
+                                            IgProfMemOpt="-y MEM_LIVE"
+                                            cpr.cmpIgProfReport(outpath,oldlog,log,IgProfMemOpt)
                                     except cpr.PerfReportErr,detail:
                                         print "WARNING: Perfreport return non-zero exit status when comparing %s and %s. Perfreport output follows" % (oldlog,log)
                                         print detail.message

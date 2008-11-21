@@ -21,7 +21,7 @@
 
 /** \class HcalDataIntegrityTask
  *
- * $Date: 2008/10/15 21:47:50 $
+ * $Date: 2008/10/15 20:03:36 $
  * $Revision: 1.1 $
  * \author J. Temple -- University of Maryland
  * copied from W. Fisher/J. St. John's DataFormat code
@@ -82,6 +82,7 @@ class HcalDataIntegrityTask: public HcalBaseMonitor
 
   MonitorElement* fedEntries_;
   MonitorElement* fedFatal_;
+  MonitorElement* fedNonFatal_;
 
 
   //Member variables for reference values to be used in consistency checks.

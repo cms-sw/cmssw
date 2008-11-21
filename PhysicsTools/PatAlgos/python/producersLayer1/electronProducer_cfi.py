@@ -32,8 +32,8 @@ allLayer1Electrons = cms.EDProducer("PATElectronProducer",
 
     # Embedding of AOD items
     embedTrack        = cms.bool(False), ## whether to embed in AOD externally stored track (note: gsf electrons don't have a track)
-    embedGsfTrack     = cms.bool(False), ## whether to embed in AOD externally stored gsf track
-    embedSuperCluster = cms.bool(False), ## whether to embed in AOD externally stored supercluster
+    embedGsfTrack     = cms.bool(True), ## whether to embed in AOD externally stored gsf track
+    embedSuperCluster = cms.bool(True), ## whether to embed in AOD externally stored supercluster
 
     # resolution configurables
     addResolutions   = cms.bool(True),
@@ -97,6 +97,7 @@ allLayer1Electrons = cms.EDProducer("PATElectronProducer",
         eidRobustTight = cms.InputTag("patElectronIds","eidRobustTight"),
         eidLoose       = cms.InputTag("patElectronIds","eidLoose"),
         eidTight       = cms.InputTag("patElectronIds","eidTight"),
+        eidRobustHighEnergy = cms.InputTag("patElectronIds","eidRobustHighEnergy"),
     ),
 
     # Trigger matching configurables
@@ -115,6 +116,12 @@ allLayer1Electrons = cms.EDProducer("PATElectronProducer",
     # Efficiencies
     addEfficiencies = cms.bool(False),
     efficiencies    = cms.PSet(),
+    
+##  FIXME: commented to make the code run with 220
+##  # electron cluster shape configurables
+##  addElectronShapes = cms.bool(True),
+##  reducedBarrelRecHitCollection = cms.InputTag("reducedEcalRecHitsEB"),
+##  reducedEndcapRecHitCollection = cms.InputTag("reducedEcalRecHitsEE"),
 
 )
 

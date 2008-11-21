@@ -52,26 +52,23 @@ CaloGeometryLoader<T>::CaloGeometryLoader()
 
 template <class T>
 typename CaloGeometryLoader<T>::PtrType
-CaloGeometryLoader<T>::load( const DDCompactView*  cpv        ,
-			     const Alignments*     alignments ,
-			     const AlignTransform* global       ) 
+CaloGeometryLoader<T>::load( const DDCompactView* cpv   ,
+			     const Alignments*    alignments  ) 
 {
    PtrType geom ( new T ) ;
 
    makeGeometry( cpv,
 		 dynamic_cast<T*>( geom.get() ),
-		 alignments,
-		 global ) ;
+		 alignments ) ;
 
    return geom ;
 }
 
 template <class T>
 void 
-CaloGeometryLoader<T>::makeGeometry( const DDCompactView*  cpv        ,
-				     T*                    geom       ,
-				     const Alignments*     alignments ,
-				     const AlignTransform* global       )
+CaloGeometryLoader<T>::makeGeometry( const DDCompactView* cpv  ,
+				     T*                   geom ,
+				     const Alignments*    alignments )
 {
    DDFilteredView fv0 ( *cpv ) ;
    fv0.addFilter( m_filter ) ;
@@ -116,9 +113,7 @@ CaloGeometryLoader<T>::makeGeometry( const DDCompactView*  cpv        ,
       assert( 0 == at || ( whichTransform( DetId( at->rawId() ) ) ==
 			   whichTransform( id ) ) ) ;
 
-      const HepTransform3D atr ( 0 == at ? ht3d :
-				 ( 0 == global ? at->transform()*ht3d :
-				   global->transform()*at->transform()*ht3d ) ) ;
+      const HepTransform3D atr ( 0 == at ? ht3d : at->transform()*ht3d ) ;
 //				 HepTransform3D( at->rotation(), 
 //						 at->translation()  )*ht3d ) ;
 

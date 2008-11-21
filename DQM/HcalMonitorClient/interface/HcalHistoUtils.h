@@ -1,23 +1,6 @@
 #ifndef GUARD_HCALTESTUTILS_h
 #define GUARD_HCALTESTUTILS_h
 
-#define UTILS_ETAMIN -44.5
-#define UTILS_ETAMAX 44.5
-#define UTILS_PHIMIN -0.5
-#define UTILS_PHIMAX 73.5
-
-// Set spacing of dashed lines in 2-D plots
-#define UTILS_VERTLINESPACE 5
-#define UTILS_HORIZLINESPACE 5
-
-#include "TROOT.h"
-#include "TStyle.h"
-#include "TColor.h"
-
-#include "TH1F.h"
-#include "TH2F.h"
-#include "TFile.h"
-
 /******************************************************************************
  *
  * HcalTestUtils.h
@@ -48,7 +31,6 @@
 
 #include "DQMServices/Core/interface/DQMStore.h"
 
-
 template <class myHist>
 myHist* getAnyHisto(myHist* hist,
 		    std::string name, std::string process, DQMStore* dbe_,
@@ -74,7 +56,7 @@ myHist* getAnyHisto(myHist* hist,
 
   if (!me) 
     {
-      if (verb) cout <<"SORRY, COULD NOT FIND HISTOGRAM NAMED ["<< title<<"]"<<endl;
+      if (verb) cout <<"SORRY, COULD NOT FIND HISTOGRAM NAMED "<< title<<endl;
       return NULL; // ME not found
     } // if (!me)
 
@@ -172,12 +154,10 @@ std::string getAnyIMG(int runNo,myHist* hist, int size, std::string htmlDir,
     {
       return ""; // no histogram provided
     }
-  
-  // Grab the histogram's title, and convert it to something more palatable for use as a file name
-  
+
   // Run cleanString algorithm  -- direct call of cleanString causes a crash 
   std::string name = (std::string)hist->GetTitle();
-  //cout <<"NAME = ["<<name<<"]"<<endl;
+  //cout <<"TITLE = "<<name<<endl;
   for ( unsigned int i = 0; i < name.size(); ++i ) {
     if ( name.substr(i, 6) == " - Run" ){
       name.replace(i, name.size()-i, "");
@@ -188,28 +168,14 @@ std::string getAnyIMG(int runNo,myHist* hist, int size, std::string htmlDir,
     if ( name.substr(i, 5) == "__Run" ){
       name.replace(i, name.size()-i, "");
     }
-
-    if (name.substr(i,1) == "(" || name.substr(i,1)==")")
-      name.replace(i,1,"_");
-    if (name.substr(i,1)==",")
-      name.replace(i,1,"_");
-    if (name.substr(i,1)=="<")
-      name.replace(i,1,"_lt_");
-    if (name.substr(i,1)==">")
-      name.replace(i,1,"_gt_");
-    if (name.substr(i,1)=="+")
-      name.replace(i,1,"_plus_");
-    if (name.substr(i,1)=="#")
-      name.replace(i,1,"");
-
   } // for (unsigned int i=0; i< name.size();
-  //cout <<"NEWNAME = ["<<name<<"]"<<endl;
+
 
   char dest[512]; // stores name of destination .gif file
   if(runNo>-1) sprintf(dest,"%s - Run %d",name.c_str(),runNo);
   else sprintf(dest,"%s",name.c_str());
 
-  //hist->SetTitle(dest); // no need to change the histogram title itself, right?
+  hist->SetTitle(dest);
   std::string title = dest;
 
   int xwid = 900; 
@@ -257,14 +223,12 @@ std::string getAnyIMG(int runNo,myHist* hist, int size, std::string htmlDir,
   std::string histtype=hist->ClassName();
  
   // Set grids to on for all TH2F histograms (maybe add for others later?)
-  /*
-    // we now draw the lines directly, so that we can set our own grid spacing
   if (histtype=="TH2F")
     {
       can->SetGridx();
       can->SetGridy();
-      }
-  */
+    }
+
 
   // Don't draw stat box for color plots
   if (((std::string)hist->GetOption())=="col" || 
@@ -275,29 +239,6 @@ std::string getAnyIMG(int runNo,myHist* hist, int size, std::string htmlDir,
 
   hist->Draw(hist->GetOption());// I think that Draw should automatically use the GetOption() value, but include it here to be sure.
   
-  int vertlinespace=UTILS_VERTLINESPACE;
-  int horizlinespace=UTILS_HORIZLINESPACE;
-  if (histtype=="TH2F")
-    {
-      // Draw vertical lines
-      for (int xx=int(UTILS_ETAMIN);xx<=int(UTILS_ETAMAX);++xx)
-	{
-	  if (xx%vertlinespace!=0) continue;
-	  TLine *vert = new TLine(xx,UTILS_PHIMIN,xx,UTILS_PHIMAX);
-	  vert->SetLineStyle(3);
-	  vert->Draw("same");
-	}
-      // Draw horizontal lines
-      for (int yy=-int(UTILS_PHIMIN);yy<=int(UTILS_PHIMAX);++yy)
-	{
-	  if (yy%horizlinespace!=0) continue;
-	  TLine *horiz = new TLine(UTILS_ETAMIN,yy,UTILS_ETAMAX,yy);
-	  horiz->SetLineStyle(3);
-	  horiz->Draw("same");
-	}
-      
-    }
-
   can->SaveAs(saveName.c_str());  
   delete can;
 

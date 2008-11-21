@@ -95,7 +95,7 @@ RKPropagatorInS::propagateParametersOnPlane( const FreeTrajectoryState& ts,
       return GlobalParametersWithPath( res, s);
     } else {
       //do someting
-      LogDebug("RKPropagatorInS")<< "Straight line propgation to plane failed !!"; 
+      edm::LogError("RKPropagatorInS")<< "Straight line propgation to plane failed !!"; 
       return GlobalParametersWithPath( );
     }
   }

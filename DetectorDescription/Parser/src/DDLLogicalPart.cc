@@ -16,16 +16,21 @@
 // DDL Parser components
 #include "DDLElementRegistry.h"
 #include "DDLLogicalPart.h"
+#include "DDXMLElement.h"
 
 
 // DDCore dependencies
 #include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
+#include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Base/interface/DDdebug.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"
+#include "DetectorDescription/Base/interface/DDException.h"
 
 // CLHEP dependencies
+#include "CLHEP/Units/SystemOfUnits.h"
 
+#include <string>
 
 // Default constructor
 DDLLogicalPart::DDLLogicalPart()

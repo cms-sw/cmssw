@@ -5,9 +5,9 @@
  * An Electron with GsfTrack seeded from an ElectronPixelSeed
  * adapted from the TRecElectron class in ORCA
  *
- * \author U.Berthon, ClaudeCharlot, LLR
+ * \author U.Berthon, ClaudeCharlot,LLR
  *
- * \version $Id: GsfElectron.h,v 1.10 2008/10/20 12:25:00 chamont Exp $
+ * \version $Id: GsfElectron.h,v 1.6 2008/04/10 08:45:06 uberthon Exp $
  *
  */
 
@@ -26,18 +26,6 @@
 // Ursula Berthon - LLR Ecole polytechnique
 // 
 // $Log: GsfElectron.h,v $
-// Revision 1.10  2008/10/20 12:25:00  chamont
-// few doxygen comments
-//
-// Revision 1.9  2008/10/17 13:41:50  chamont
-// new attributes for cluster shape and best fitting ctf track
-//
-// Revision 1.8  2008/09/18 08:08:23  charlot
-// updated description of classification
-//
-// Revision 1.7  2008/04/21 14:05:23  llista
-// added virtual function to identify particle type
-//
 // Revision 1.6  2008/04/10 08:45:06  uberthon
 // remove ClusterShape from GsfElectron, remove obsolete classes PixelMatchElectron, PixelMatchGsfElectron
 //
@@ -69,32 +57,24 @@
 
 
 #include <vector>
-#include <limits>
 
 namespace reco {
 
 class GsfElectron : public RecoCandidate {
 
  public:
+  
+  GsfElectron() { } 
 
-  GsfElectron() ;
- 
-  //! one must give almost all attributes values when creating an electron
-  GsfElectron(
-	const LorentzVector & p4,
-	const SuperClusterRef scl,
-	const GsfTrackRef gsfTrack,
-	const GlobalPoint & tssuperPos, const GlobalVector & tssuperMom,
-	const GlobalPoint & tsseedPos, const GlobalVector & tsseedMom,
-	const GlobalPoint & innPos, const GlobalVector & innMom,
-	const GlobalPoint & vtxPos, const GlobalVector & vtxMom,
-	const GlobalPoint & outPos, const GlobalVector & outMom,
-	double HoE,
-	float scSigmaEtaEta =std::numeric_limits<float>::infinity(),
-	float scSigmaIEtaIEta =std::numeric_limits<float>::infinity(),
-	float scE1x5 =0., float scE2x5Max =0., float scE5x5 =0.,
-        const TrackRef ctfTrack =TrackRef(), const float shFracInnerHits =0.
-	) ;
+  GsfElectron(const LorentzVector & p4,
+			const SuperClusterRef scl, 
+			const GsfTrackRef gsft,
+			const GlobalPoint tssuperPos, const GlobalVector tssuperMom, 
+			const GlobalPoint tsseedPos, const GlobalVector tsseedMom, 
+			const GlobalPoint innPos, const GlobalVector innMom, 
+			const GlobalPoint vtxPos, const GlobalVector vtxMom, 
+			const GlobalPoint outPos, const GlobalVector outMom, 
+                        double HoE);
 
   virtual ~GsfElectron(){};
 
@@ -102,12 +82,11 @@ class GsfElectron : public RecoCandidate {
 
   // particle behaviour
    /** The electron classification.
-      barrel  :   0: golden,  10: bigbrem,  20: narrow, 30-34: showering,
+      barrel  :   0: golden,  10: bigbrem,  20: narrow, 30-34: showering, 
                 (30: showering nbrem=0, 31: showering nbrem=1, 32: showering nbrem=2 ,33: showering nbrem=3, 34: showering nbrem>=4)
-                 40: crack, 41: eta gaps, 42: phi gaps 
+                 40: crack
       endcaps : 100: golden, 110: bigbrem, 120: narrow, 130-134: showering
                (130: showering nbrem=0, 131: showering nbrem=1, 132: showering nbrem=2 ,133: showering nbrem=3, 134: showering nbrem>=4)
-                140: crack
    */
   int classification() const {return electronClass_;}
 
@@ -117,8 +96,7 @@ class GsfElectron : public RecoCandidate {
   void setDeltaEtaSuperClusterAtVtx(float de) {deltaEtaSuperClusterAtVtx_=de;}
   void setDeltaPhiSuperClusterAtVtx (float dphi) {deltaPhiSuperClusterAtVtx_=dphi;}
 
-  void setSuperCluster(const reco::SuperClusterRef &scl) // used by GsfElectronSelector.h
-    { superCluster_=scl ; }
+  void setSuperCluster(const reco::SuperClusterRef &scl) {superCluster_=scl;}
   void setGsfTrack(const reco::GsfTrackRef &t) { track_=t;}
 
   // supercluster and electron track related quantities
@@ -166,20 +144,16 @@ class GsfElectron : public RecoCandidate {
   //! determine the class of the electron
   void classifyElectron(const int myclass);
 
-  //! the error on the supercluster energy
+  //! the errors on the supercluster energy and track momentum
   float caloEnergyError() const {return energyError_;}
-  //! the error on the supercluster track momentum
   float trackMomentumError() const {return trackMomentumError_;}
 
   //! get associated superCluster Pointer
   SuperClusterRef superCluster() const { return superCluster_; } 
 
   //! get associated GsfTrack pointer
-  reco::GsfTrackRef gsfTrack() const { return track_ ; }
-  //! get the CTF track best matching the GTF associated to this electron
-  reco::TrackRef track() const { return ctfTrack_ ; }
-  //! measure the fraction of common hits between the GSF and CTF tracks
-  float shFracInnerHits() const { return shFracInnerHits_ ; }
+  reco::GsfTrackRef gsfTrack() const { return track_; } 
+  reco::TrackRef track() const {return TrackRef();} 
 
   //! number of related brem clusters
   int numberOfClusters() const {return superCluster_->clustersSize();}
@@ -190,18 +164,7 @@ class GsfElectron : public RecoCandidate {
 
   bool isElectron() const;
 
-  //! a characteristic from the associated super-cluster
-  float scSigmaEtaEta() const { return scSigmaEtaEta_ ; }
-  //! a characteristic from the associated super-cluster
-  float scSigmaIEtaIEta() const { return scSigmaIEtaIEta_ ; }
-  //! a characteristic from the associated super-cluster
-  float scE1x5() const { return scE1x5_ ; }
-  //! a characteristic from the associated super-cluster
-  float scE2x5Max() const { return scE2x5Max_ ; }
-  //! a characteristic from the associated super-cluster
-  float scE5x5() const { return scE5x5_ ; }
-
-private:
+ private:
 
   // temporary
   //  float ecalEta(float EtaParticle , float Zvertex, float plane_Radius);
@@ -235,23 +198,12 @@ private:
   bool energyScaleCorrected_;
   bool momentumFromEpCombination_;
 
-  // super-cluster characteristics
-  float scSigmaEtaEta_ ;
-  float scSigmaIEtaIEta_ ;
-  float scE1x5_ ;
-  float scE2x5Max_ ;
-  float scE5x5_ ;
-
-  // ctf track
-  reco::TrackRef ctfTrack_;
-  float shFracInnerHits_;
-
   /// check overlap with another candidate
   virtual bool overlap( const Candidate & ) const;
 
 };
 
-  typedef GsfElectron PixelMatchGsfElectron ;
+  typedef GsfElectron PixelMatchGsfElectron;
 
 }
 #endif

@@ -112,3 +112,65 @@ patHLT1MET65 = cms.EDProducer("PATTrigProducer",
 )
 
 
+## patTuple ##
+
+# HLT_IsoMu11 - L1_SingleMu7
+patHLTIsoMu11 = cms.EDProducer("PATTrigProducer",
+    triggerEvent = cms.InputTag("hltTriggerSummaryAOD","","HLT"),
+    filterName = cms.InputTag("hltSingleMuIsoL3IsoFiltered","","HLT")
+)
+
+# HLT_Mu11 - L1_SingleMu7
+patHLTMu11 = cms.EDProducer("PATTrigProducer",
+    triggerEvent = cms.InputTag("hltTriggerSummaryAOD","","HLT"),
+    filterName = cms.InputTag("hltSingleMuNoIsoL3PreFiltered11","","HLT")
+)
+
+# HLT_DoubleIsoMu3 - L1_DoubleMu3
+patHLTDoubleIsoMu3 = cms.EDProducer("PATTrigProducer",
+    triggerEvent = cms.InputTag("hltTriggerSummaryAOD","","HLT"),
+    filterName = cms.InputTag("","","HLT")
+)
+
+# HLT_DoubleMu3 - L1_DoubleMu3
+patHLTDoubleMu3 = cms.EDProducer("PATTrigProducer",
+    triggerEvent = cms.InputTag("hltTriggerSummaryAOD","","HLT"),
+    filterName = cms.InputTag("hltDiMuonIsoL3IsoFiltered","","HLT")
+)
+
+# HLT_IsoEle15_LW_L1I - L1_SingleIsoEG12
+patHLTIsoEle15LWL1I = cms.EDProducer("PATTrigProducer",
+    triggerEvent = cms.InputTag("hltTriggerSummaryAOD","","HLT"),
+    filterName = cms.InputTag("hltL1IsoLargeWindowSingleElectronTrackIsolFilter","","HLT")
+)
+
+# HLT_Ele15_LW_L1R - L1_SingleEG10
+patHLTEle15LWL1R = cms.EDProducer("PATTrigProducer",
+    triggerEvent = cms.InputTag("hltTriggerSummaryAOD","","HLT"),
+    filterName = cms.InputTag("hltL1NonIsoHLTNonIsoSingleElectronLWEt15TrackIsolFilter","","HLT")
+)
+
+# HLT_DoubleIsoEle10_LW_L1I - L1_DoubleIsoEG8
+patHLTDoubleIsoEle10LWL1I = cms.EDProducer("PATTrigProducer",
+    triggerEvent = cms.InputTag("hltTriggerSummaryAOD","","HLT"),
+    filterName = cms.InputTag("hltL1IsoLargeWindowDoubleElectronTrackIsolFilter","","HLT")
+)
+
+# HLT_DoubleEle5_SW_L1R - L1_DoubleEG5
+patHLTDoubleEle5SWL1R = cms.EDProducer("PATTrigProducer",
+    triggerEvent = cms.InputTag("hltTriggerSummaryAOD","","HLT"),
+    filterName = cms.InputTag("hltL1NonIsoHLTNonIsoDoubleElectronEt5TrackIsolFilter","","HLT")
+)
+
+# HLT_LooseIsoTau_MET30_L1MET - L1_TauJet30_ETM30
+patHLTLooseIsoTauMET30L1MET = cms.EDProducer("PATTrigProducer",
+    triggerEvent = cms.InputTag("hltTriggerSummaryAOD","","HLT"),
+    filterName = cms.InputTag("hltFilterSingleTauMETEcalIsolationRelaxed","","HLT")
+)
+
+# HLT_DoubleIsoTau_Trk3 - L1_DoubleTauJet40
+patHLTDoubleIsoTauTrk3 = cms.EDProducer("PATTrigProducer",
+    triggerEvent = cms.InputTag("hltTriggerSummaryAOD","","HLT"),
+    filterName = cms.InputTag("hltFilterL25PixelTau","","HLT")
+)
+           

@@ -16,7 +16,7 @@ namespace GenParticlesHelper {
 		     reco::GenParticleRefVector& particleRefs, 
 		     int pdgId, int status );
 
-  /// find all descendents of a given status and pdgId (recursive)
+  /// find all descendents of a given status and pdgId
   void findDescendents(const reco::GenParticleRef& base, 
 		       reco::GenParticleRefVector& descendents, 
 		       int status, int pdgId=0 );
@@ -25,9 +25,6 @@ namespace GenParticlesHelper {
   void findSisters(const reco::GenParticleRef& baseSister, 
 		   reco::GenParticleRefVector& sisterRefs);
 
-  /// does the particle have an ancestor with this pdgId and this status? 
-  bool hasAncestor( const reco::GenParticle* particle,
-		    int pdgId, int status );
 
   std::ostream& operator<<( std::ostream& out, 
 			    const reco::GenParticleRef& genRef );

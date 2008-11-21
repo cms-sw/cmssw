@@ -8,7 +8,7 @@
 //     <Notes on implementation>
 //
 // Author:      Zhen Xie
-// $Id: PoolDBESSource.cc,v 1.105 2008/10/03 15:53:15 xiezhen Exp $
+// $Id: PoolDBESSource.cc,v 1.104 2008/09/03 13:47:15 xiezhen Exp $
 //
 // system include files
 #include "boost/shared_ptr.hpp"
@@ -276,13 +276,8 @@ PoolDBESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey& iKey
   cond::Time_t abtime;
   if( timetype == cond::timestamp ){
     abtime=(cond::Time_t)iTime.time().value();
-  }else if( timetype == cond::runnumber){
-    abtime=(cond::Time_t)iTime.eventID().run();
-  }else if( timetype ==  cond::lumiid ){
-    edm::LuminosityBlockID lum(iTime.eventID().run(), iTime.luminosityBlockNumber());
-    abtime=(cond::Time_t)lum.value();
   }else{
-    throw cond::Exception("invalid timetype");
+    abtime=(cond::Time_t)iTime.eventID().run();
   }
   //std::cout<<"abtime "<<abtime<<std::endl;
   cond::Connection* c=cond::ConnectionHandler::Instance().getConnection(pos->second.begin()->pfn);
@@ -303,16 +298,9 @@ PoolDBESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey& iKey
   if( timetype == cond::timestamp ){
     start=edm::IOVSyncValue( edm::Timestamp(validity.first) );
     stop=edm::IOVSyncValue( edm::Timestamp(validity.second) );
-  }else if( timetype == cond::runnumber ){
+  }else{
     start=edm::IOVSyncValue( edm::EventID(validity.first,0) );
     stop=edm::IOVSyncValue( edm::EventID(validity.second,edm::EventID::maxEventNumber()) );
-  }else if( timetype == cond::lumiid ){
-    edm::LuminosityBlockID lumstart((boost::uint64_t)validity.first);
-    start=edm::IOVSyncValue(edm::EventID(lumstart.run(),0), lumstart.luminosityBlock());
-    edm::LuminosityBlockID lumstop((boost::uint64_t)validity.second);
-    stop=edm::IOVSyncValue(edm::EventID(lumstop.run(),edm::EventID::maxEventNumber()), lumstop.luminosityBlock());
-  }else{
-    throw cond::Exception("invalid timetype");
   }
   //std::cout<<"setting validity "<<validity.first<<" "<<validity.second<<" for ibtime "<<abtime<< std::endl;
   oInterval = edm::ValidityInterval( start, stop );

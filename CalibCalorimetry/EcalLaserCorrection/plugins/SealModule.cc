@@ -1,4 +1,5 @@
 #include "FWCore/PluginManager/interface/ModuleDef.h"
+#include "FWCore/Framework/interface/SourceFactory.h"
 
 #include "CalibCalorimetry/EcalLaserCorrection/plugins/EcalLaserCorrectionService.h"
 

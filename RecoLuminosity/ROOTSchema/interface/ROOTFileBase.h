@@ -9,64 +9,68 @@ ahunt@princeton.edu
 */
 #include "RecoLuminosity/TCPReceiver/interface/ICTypeDefs.hh"
 #include "RecoLuminosity/TCPReceiver/interface/LumiStructures.hh"
+#include "RecoLuminosity/TCPReceiver/interface/TimeStamp.h"
 
 #include <string>
-#include <sstream>
+
+#include "TFile.h"
+#include "TTree.h"
 
 namespace HCAL_HLX{
 
-  class ROOTFileBase{
+  class ROOTFileBase: public HCAL_HLX::TimeStamp{
     
   public:
     
     ROOTFileBase();
-    virtual ~ROOTFileBase();
+    ~ROOTFileBase();
     
-    void SetDir( const std::string &dir );
-
-    void SetFileType( const std::string &type );
-    void SetDate( const std::string &date);
-
-    void SetFileName(const HCAL_HLX::LUMI_SECTION &lumiSection);
-
-    void SetFileName(unsigned int runNumber, 
-		     unsigned int sectionNumber);
-
-    std::string GetDir(){ return dirName_; }
     std::string GetFileName(){ return fileName_; }
+    void SetFileName(const std::string& fileName);
     
-    void SetEtSumOnly( bool bEtSumOnly );
+    std::string GetOutputDir(){ return outputDir_; }
+    void SetOutputDir(std::string dir){ outputDir_ = dir; }
+    
+    std::string CreateRunFileName(const unsigned int runNumber, const unsigned int firstSection);
+    std::string CreateLSFileName(const unsigned int runNumber, const unsigned int sectionNumber);
     
   protected:
 
-    void Init();
-    void CleanUp();
-
-    virtual void CreateTree() = 0;
-
-    HCAL_HLX::LUMI_SECTION        *lumiSection_;
-
-    HCAL_HLX::LUMI_SECTION_HEADER *Header_;
-    HCAL_HLX::LUMI_SUMMARY        *Summary_;
-    HCAL_HLX::LUMI_DETAIL         *Detail_;
+    unsigned int fileCounter_;
     
-    HCAL_HLX::ET_SUM_SECTION      *EtSumPtr_[36];
-    HCAL_HLX::OCCUPANCY_SECTION   *OccupancyPtr_[36];
-    HCAL_HLX::LHC_SECTION         *LHCPtr_[36];
+    TTree *m_tree;
+    TFile *m_file;
     
-    HCAL_HLX::LUMI_THRESHOLD      *Threshold_;
-    HCAL_HLX::LEVEL1_TRIGGER      *L1Trigger_;
-    HCAL_HLX::HLT                 *HLT_;
-    HCAL_HLX::TRIGGER_DEADTIME    *TriggerDeadtime_;
-    HCAL_HLX::LUMI_HF_RING_SET    *RingSet_;
-
-    std::string filePrefix_;    
+    HCAL_HLX::LUMI_THRESHOLD      *Threshold;
+    HCAL_HLX::LEVEL1_TRIGGER      *L1Trigger;
+    HCAL_HLX::HLT                 *HLT;
+    HCAL_HLX::TRIGGER_DEADTIME    *TriggerDeadtime;
+    HCAL_HLX::LUMI_HF_RING_SET    *RingSet;
+    
+    HCAL_HLX::LUMI_SECTION_HEADER *Header;
+    HCAL_HLX::LUMI_SUMMARY        *Summary;
+    HCAL_HLX::LUMI_DETAIL         *Detail;
+    
+    HCAL_HLX::ET_SUM_SECTION      *EtSum;
+    HCAL_HLX::OCCUPANCY_SECTION   *Occupancy;
+    HCAL_HLX::LHC_SECTION         *LHC;
+    
+    HCAL_HLX::ET_SUM_SECTION      *EtSumPtr[HCAL_HLX_MAX_HLXS];
+    HCAL_HLX::OCCUPANCY_SECTION   *OccupancyPtr[HCAL_HLX_MAX_HLXS];
+    HCAL_HLX::LHC_SECTION         *LHCPtr[HCAL_HLX_MAX_HLXS];
+    
     std::string fileName_;
-    std::string dirName_;        
-
-    bool bEtSumOnly_;
-    std::string date_;
-    std::string fileType_;
+    std::string outputDir_;        
+    std::string outputFilePrefix_;
+      
+    void CreateTree(const HCAL_HLX::LUMI_SECTION &localSection);
+    void FillTree(const HCAL_HLX::LUMI_SECTION &localSection);
+    void CloseTree();
+    void InsertInformation();
+    
+    template< class T >
+      void MakeBranch(const T &in, T **out, int HLXNum);
+    
   };
 }
 #endif

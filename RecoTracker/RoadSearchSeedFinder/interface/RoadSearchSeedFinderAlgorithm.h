@@ -14,9 +14,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
-// $Author: noeding $
-// $Date: 2008/03/18 22:19:37 $
-// $Revision: 1.19 $
+// $Author: arizzi $
+// $Date: 2008/06/19 15:01:04 $
+// $Revision: 1.20 $
 //
 
 #include <string>
@@ -116,6 +116,8 @@ class RoadSearchSeedFinderAlgorithm
   double       mergeSeedsCenterCut_C_;
   double       mergeSeedsRadiusCut_C_;
   unsigned int mergeSeedsDifferentHitsCut_;
+
+  int          maxNumberOfSeeds_;
 
   DetHitAccess innerSeedHitVector_;
   DetHitAccess outerSeedHitVector_;

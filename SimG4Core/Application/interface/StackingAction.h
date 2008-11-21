@@ -25,7 +25,6 @@ private:
   bool   savePDandCinTracker, savePDandCinCalo, savePDandCinMuon;
   bool   killHeavy, trackNeutrino, saveFirstSecondary;
   double kmaxIon, kmaxNeutron, kmaxProton;
-  double maxTrackTime;
 };
 
 #endif

@@ -15,6 +15,7 @@ using namespace std;
 
 #include <iostream>
 #include <iomanip>
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "PhysicsTools/KinFitter/interface/TKinFitter.h"
 #include "PhysicsTools/KinFitter/interface/TAbsFitParticle.h"
 #include "PhysicsTools/KinFitter/interface/TAbsFitConstraint.h"
@@ -211,7 +212,7 @@ void TKinFitter::addMeasParticle( TAbsFitParticle* particle ) {
   if ( particle != 0 ) {
     _measParticles.push_back( particle );
   } else {
-    cout << "Particle points to NULL." << endl;
+    edm::LogError ("NullPointer") << "Measured particle points to NULL. It will not be added to the KinFitter.";
   }
 
   countMeasParams();
@@ -247,7 +248,7 @@ void TKinFitter::addUnmeasParticle( TAbsFitParticle* particle ) {
   if ( particle != 0 ) {
     _unmeasParticles.push_back( particle );
   } else {
-    cout << "Particle points to NULL." << endl;
+    edm::LogError ("NullPointer") << "Unmeasured particle points to NULL. It will not be added to the KinFitter.";
   }
 
   countUnmeasParams();
@@ -352,31 +353,19 @@ Int_t TKinFitter::fit() {
     calcLambda();
    
     if( _verbosity >= 3 ) {
-      cout << endl << "================   A   ================" << endl;
-      _A.Print();
-      cout << endl << "================   B   ================" << endl;
-      _B.Print();
-      cout << endl << "================  VBinv   ================" << endl;
-      _VBinv.Print();
-      cout << endl << "================  VB   ================" << endl;
-      _VB.Print();
-      cout << endl << "================  V   ================" << endl;
-      _V.Print();
-      cout << endl << "================  deltaY   ================" << endl;
-      _deltaY.Print();
-      cout << endl << "================  deltaA   ================" << endl;
-      _deltaA.Print();
-      cout << endl << "================  C32T   ================" << endl;
-      _C32T.Print();
-      cout << endl << "================  C   ================" << endl;
-      _c.Print();
+      printMatrix( _A      , "A"      );
+      printMatrix( _B      , "B"      );
+      printMatrix( _VBinv  , "VBinv"  );
+      printMatrix( _VB     , "VB"     );
+      printMatrix( _V      , "V"      );
+      printMatrix( _deltaY , "deltaY" );
+      printMatrix( _deltaA , "deltaA" );
+      printMatrix( _C32T   , "C32T"   );
+      printMatrix( _c      , "C"      );
     }
 
     if( _verbosity >= 2 ) {
-      cout << endl << endl << endl << endl;
       print();   
-      cout <<"---------" <<endl ;
-      cout << endl << endl << endl << endl;
     }
 
     // Apply calculated corrections to measured and unmeasured particles
@@ -392,6 +381,15 @@ Int_t TKinFitter::fit() {
     currF = getF();
     prevS = currS;
     currS = getS();
+
+    if( TMath::IsNaN(currF) ) {
+      edm::LogInfo ("KinFitter") << "The current value of F is NaN. Fit will be aborted.";
+      _status = -10;
+    }
+    if( TMath::IsNaN(currS) ) {
+      edm::LogInfo ("KinFitter") << "The current value of S is NaN. Fit will be aborted.";
+      _status = -10;
+    }
 
     // If S or F are getting bigger reduce step width
 //     Int_t nstep =0;
@@ -413,12 +411,12 @@ Int_t TKinFitter::fit() {
     isConverged = converged(currF, prevS, currS);
 
  
-  } while ( (! isConverged) && (_nbIter < _maxNbIter) );
+  } while ( (! isConverged) && (_nbIter < _maxNbIter) && (_status != -10) );
 
   // Calculate covariance matrices
   calcB();
   calcVB();
-
+  
   if ( _nParA > 0 ) {
     calcA();
     calcVA();
@@ -431,14 +429,15 @@ Int_t TKinFitter::fit() {
   calcC33();
   calcVFit();
   applyVFit();
-
+  
   // Set status information
-  if (! isConverged ) {
-    _status = 1;
-  } else {
+  if (isConverged) {
     _status = 0;
   }
-
+  else if (_status != -10) {
+    _status = 1;
+  }
+  
   // print status
   if ( _verbosity >= 1 ) {
     print();
@@ -452,7 +451,8 @@ void TKinFitter::setCovMatrix( TMatrixD &V ) {
   // Set the covariance matrix of the measured particles
 
   if ( (V.GetNrows() != _nParB) || (V.GetNcols() != _nParB) ) {
-    cout << "Matrix needs to be a " << _nParB << "x" << _nParB << " matrix." << endl;
+    edm::LogError ("WrongMatrixSize")
+      << "Covariance matrix of measured particles needs to be a " << _nParB << "x" << _nParB << " matrix.";
   } else {
     _V.ResizeTo( V );
     _V = V;
@@ -501,7 +501,11 @@ Bool_t TKinFitter::calcV() {
 
   _Vinv.ResizeTo( _V );
   _Vinv = _V;
-  _Vinv.Invert();
+  try {
+    _Vinv.Invert();
+  } catch (cms::Exception& e) {
+    edm::LogInfo ("KinFitter") << "Failed to invert covariance matrix V.";
+  }
 
   return true;
 
@@ -565,10 +569,14 @@ Bool_t TKinFitter::calcB() {
       TMatrixD* derivConstr = _constraints[indexConstr]->getDerivative( particle );
       TMatrixD deriv( *derivConstr,  TMatrixD::kMult, *derivParticle );
       if (_verbosity >= 3) {
-	cout << endl << "===  B deriv: Particle -> " << particle->GetName()<<" Constraint -> " 
-	     << _constraints[indexConstr]->GetName()<< "===" << endl;
-	derivParticle->Print();
-	derivConstr->Print();
+	TString matrixName = "B deriv: Particle -> ";
+	matrixName += particle->GetName();
+	printMatrix( *derivParticle, matrixName );
+	matrixName = "B deriv: Constraint -> ";
+	matrixName += _constraints[indexConstr]->GetName();
+	matrixName += " , Particle -> ";
+	matrixName += particle->GetName();
+	printMatrix( *derivConstr, matrixName );
       }	
       for (int indexParam = 0; indexParam < deriv.GetNcols(); indexParam++) {
 	_B(indexConstr,indexParam+offsetParam) = deriv(0, indexParam);
@@ -589,9 +597,9 @@ Bool_t TKinFitter::calcB() {
     if (deriv != 0) {
 
       if (_verbosity >= 3) {
-	cout << endl << "===  B deriv alpha: Constraint -> " 
-	     << constraint->GetName() << "===" << endl;
-	deriv->Print();
+	TString matrixName = "B deriv alpha: Constraint -> ";
+	matrixName += constraint->GetName();
+	printMatrix( *deriv, matrixName );
       }	
       for (int indexParam = 0; indexParam < deriv->GetNcols(); indexParam++) {
 	_B( iC, indexParam+offsetParam ) = (*deriv)(0, indexParam);
@@ -620,7 +628,12 @@ Bool_t TKinFitter::calcVB() {
 
   _VB.ResizeTo( _VBinv );
   _VB = _VBinv;
-  _VB.Invert();
+  try {
+    _VB.Invert();
+  } catch (cms::Exception& e) {
+    edm::LogInfo ("KinFitter") << "Failed to invert matrix VB. Fit will be aborted.";
+    _status = -10;
+  }
 
   return true;
 
@@ -636,7 +649,12 @@ Bool_t TKinFitter::calcVA() {
 
   _VAinv.ResizeTo( _VA );
   _VAinv = _VA;
-  _VAinv.Invert();
+  try {
+    _VAinv.Invert();
+  } catch (cms::Exception& e) {
+    edm::LogInfo ("KinFitter") << "Failed to invert matrix VA. Fit will be aborted.";
+    _status = -10;
+  }
 
   return true;
 
@@ -796,9 +814,7 @@ Bool_t TKinFitter::calcC() {
     }
 
     if ( _verbosity >= 3 ) {
-      cout << "  ==== deltaastar =====" << endl;
-      deltaastar.Print();
-      cout << endl;
+      printMatrix( deltaastar, "deltaastar" );
     }
 
   }
@@ -842,9 +858,7 @@ Bool_t TKinFitter::calcC() {
   }
 
   if ( _verbosity >= 3 ) {
-    cout << "  ==== deltaystar =====" << endl;
-    deltaystar.Print();
-    cout << endl;
+    printMatrix( deltaystar, "deltaystar" );
   }
 
   // calculate f*
@@ -1120,6 +1134,10 @@ TString TKinFitter::getStatusString() {
       statusstring = "RUNNING";
       break;
     }
+    case -10: {
+      statusstring = "ABORTED";
+      break;
+    }
     case 0: {
       statusstring = "CONVERGED";
       break;
@@ -1136,82 +1154,126 @@ TString TKinFitter::getStatusString() {
 
 void TKinFitter::print() {
 
-  cout << endl << endl;
-  cout << setprecision( 4 );
-  cout << "Status: " << getStatusString();
-  cout << "   F=" << getF() << "   S=" << getS() << "   N=" << _nbIter << "   NDF=" << getNDF() << endl;
-  cout << "measured particles:" << endl;
+  edm::LogVerbatim log("KinFitter");
+  log << "\n"
+      << "\n";
+  // Print status of fit
+  log << "Status: " << getStatusString()
+      << "   F=" << getF() << "   S=" << getS() << "   N=" << _nbIter << "   NDF=" << getNDF() << "\n";
+  // Print measured particles
+  log << "measured particles: \n";
   Int_t parIndex = 0;
   for (unsigned int iP = 0; iP < _measParticles.size(); iP++) {
     TAbsFitParticle* particle = _measParticles[iP];
     Int_t nParP = particle->getNPar();
     const TMatrixD* par = particle->getParCurr();
-    //const TMatrixD* parIni = particle->getParIni();
     const TMatrixD* covP = particle->getCovMatrix();
-    cout << setw(3) << setiosflags(ios::right) << iP;
-    cout << setw(15) << setiosflags(ios::right) << particle->GetName();
-    cout << setw(3) << " ";
+    log << setw(3) << setiosflags(ios::right) << iP;
+    log << setw(15) << setiosflags(ios::right) << particle->GetName();
+    log << setw(3) << " ";
     for (int iPar = 0; iPar < nParP; iPar++) {
       if (iPar > 0) {
-	cout << setiosflags(ios::right) << setw(21) << " ";
+	log << setiosflags(ios::right) << setw(21) << " ";
       }
       TString colstr = "";
       colstr += parIndex;
       colstr += ":";
-      cout << setw(4) << colstr;
-      cout << setw(2) << " ";   
-      cout << setiosflags(ios::left) << setiosflags(ios::scientific) << setprecision(3);
-      cout << setw(15) << (*par)(iPar, 0);
+      log << setw(4) << colstr;
+      log << setw(2) << " ";   
+      log << setiosflags(ios::left) << setiosflags(ios::scientific) << setprecision(3);
+      log << setw(15) << (*par)(iPar, 0);
       if(_nbIter > 0 && _status < 10) {
-	cout << setw(15) << TMath::Sqrt( _yaVFit(iPar, iPar) );
+	log << setw(15) << TMath::Sqrt( _yaVFit(iPar, iPar) );
       } else {
-	cout << setw(15) << " ";
+	log << setw(15) << " ";
       }
-      cout << setw(15) << TMath::Sqrt( (*covP)(iPar, iPar) );
-      cout << endl;
+      log << setw(15) << TMath::Sqrt( (*covP)(iPar, iPar) );
+      log << "\n";
       parIndex++;
     }
-    particle->print();
+    log << particle->getInfoString();
   }
-
-  cout << "unmeasured particles:" << endl;
+  // Print unmeasured particles
+  log << "unmeasured particles: \n";
   parIndex = 0;
   for (unsigned int iP = 0; iP < _unmeasParticles.size(); iP++) {
     TAbsFitParticle* particle = _unmeasParticles[iP];
     Int_t nParP = particle->getNPar();
     const TMatrixD* par = particle->getParCurr();
-    //const TMatrixD* parIni = particle->getParIni();
-    cout << setw(3) << setiosflags(ios::right) << iP;
-    cout << setw(15) << particle->GetName();
-    cout << setw(3) << " ";
+    log << setw(3) << setiosflags(ios::right) << iP;
+    log << setw(15) << particle->GetName();
+    log << setw(3) << " ";
     for (int iPar = 0; iPar < nParP; iPar++) {
       if (iPar > 0) {
-	cout << setiosflags(ios::right) << setw(21) << " ";
+	log << setiosflags(ios::right) << setw(21) << " ";
       }
       TString colstr = "";
       colstr += parIndex;
       colstr += ":";
-      cout << setw(4) << colstr;
-      cout << setw(2) << " ";
-
-      cout << setiosflags(ios::left) << setiosflags(ios::scientific) << setprecision(3);
-      cout << setw(15) << (*par)(iPar, 0);
+      log << setw(4) << colstr;
+      log << setw(2) << " ";
+      log << setiosflags(ios::left) << setiosflags(ios::scientific) << setprecision(3);
+      log << setw(15) << (*par)(iPar, 0);
       if(_nbIter > 0 && _status < 10) {
-	cout << setw(15) << TMath::Sqrt( _yaVFit(iPar+_nParB, iPar+_nParB) );
+	log << setw(15) << TMath::Sqrt( _yaVFit(iPar+_nParB, iPar+_nParB) );
       } else {
-	cout << setw(15) << " ";
+	log << setw(15) << " ";
       }
-      cout << endl;
-
+      log << "\n";
       parIndex++;
     }
-    particle->print();
-
+    log << particle->getInfoString();
   }
-  cout << endl;
-  cout << "constraints: "<< endl;
+  log << "\n";
+  // Print constraints
+  log << "constraints: \n";
   for (unsigned int indexConstr = 0; indexConstr < _constraints.size(); indexConstr++) {
-    _constraints[indexConstr]->print();
+    log << _constraints[indexConstr]->getInfoString();
   }
-  cout << endl;
+  log << "\n";
+
+}
+
+void TKinFitter::printMatrix(const TMatrixD &matrix, const TString name) {
+  // produce a tabular printout for matrices
+  // this function is a modified version of Root's TMatrixTBase<Element>::Print method
+  // which could not be used together with the MessageLogger
+
+  if (!matrix.IsValid()) {
+    edm::LogWarning ("InvalidMatrix") << "Matrix " << name << " is invalid.";
+    return;
+  }
+
+  edm::LogVerbatim log("KinFitter");
+
+  const Int_t nCols  = matrix.GetNcols();
+  const Int_t nRows  = matrix.GetNrows();
+  const Int_t colsPerSheet = 5;
+  char topbar[100];
+  Int_t nk = 6+13*TMath::Min(colsPerSheet, nCols);
+  for(Int_t i = 0; i < nk; i++) topbar[i] = '-';
+  topbar[nk] = 0;
+
+  Int_t sw = (70-name.Length())/2;
+ 
+  log << setfill('=') << setw(sw) << "=  " << name << setw(sw) << left << "  ="  << "\n"
+      << setfill(' ') << right << "\n";
+
+  log << nRows << "x" << nCols << " matrix is as follows \n";
+
+  for (Int_t iSheet = 0; iSheet < nCols; iSheet += colsPerSheet) {
+    log << "\n"
+	<< "     |";
+    for (Int_t iCol = iSheet; iCol < iSheet+colsPerSheet && iCol < nCols; iCol++)
+      log << setw(8) << iCol << "    |";
+    log << "\n"
+	<< topbar << " \n";
+    for(Int_t iRow = 0; iRow < nRows; iRow++) {
+      log << setw(4) << iRow << " |";
+      for (Int_t iCol = iSheet; iCol < iSheet+colsPerSheet && iCol < nCols; iCol++)
+	log << setw(12) << matrix(iRow, iCol) << " ";
+      log << "\n";
+    }
+  }
+
 }

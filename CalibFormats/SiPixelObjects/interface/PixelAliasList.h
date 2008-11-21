@@ -251,19 +251,6 @@ namespace pos{
       return versionMmap ;
     }
     
-    pathVersionAliasMmap getVersionData(std::string koc)
-    {
-      pathVersionAliasMmap result ;
-      for(pathVersionAliasMmap::iterator it = versionMmap.begin() ;it != versionMmap.end() ; it ++)
-	{
-	  if((*it).first.find(koc) != std::string::npos)
-	    {
-	      result[(*it).first] = (*it).second ;
-	    }
-	}
-      return result ;
-    }
-
     std::vector<pathAliasPair> getConfigAliases(std::string path) {
      std::vector<pathAliasPair> configAliasVector ;
      for(pathAliasMmap::iterator it=aliasMmap.begin(); it!=aliasMmap.end(); it++){
@@ -278,12 +265,6 @@ namespace pos{
     unsigned int nAliases() { return pixelConfigAliases_.size(); }
     std::string name(unsigned int i) { return pixelConfigAliases_[i].name();}  
     unsigned int key(unsigned int i) { return pixelConfigAliases_[i].key();}
-    PixelConfigAlias operator[](unsigned int i) {return pixelConfigAliases_[i];}
-
-    unsigned int nVersionAliases() { return pixelVersionAliases_.size(); }
-    std::string path(unsigned int i) { return pixelVersionAliases_[i].path();}  
-    unsigned int version(unsigned int i) { return pixelVersionAliases_[i].version();}
-    std::string alias(unsigned int i) { return pixelVersionAliases_[i].alias();}  
 
   private:
 

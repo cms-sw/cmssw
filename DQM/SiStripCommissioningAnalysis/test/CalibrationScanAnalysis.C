@@ -26,7 +26,7 @@ typedef std::map<Parameters,std::vector<TH1*> > SummaryV;
 #define DATAPATH "/DQMData/Collate/SiStrip/"
 #define HISTOPATH "/DQMData/Collate/SiStrip/ControlView/"
 
-//#define DEBUG_ON
+#define DEBUG_ON
 
 class CalibrationScanAnalysis
 {
@@ -50,7 +50,6 @@ class CalibrationScanAnalysis
     void loadPresentValues();
     float getX(const TGraph*, const float&) const;
     bool checkInput() const;
-    TH1F* fixHisto(std::vector<std::string>&,TH1*) const;
     
   private:
     bool tuneISHA_, tuneVFS_;
@@ -75,14 +74,8 @@ CalibrationScanAnalysis::~CalibrationScanAnalysis() {
 }
 
 void CalibrationScanAnalysis::addFile(const std::string& filename) {
-  TFile* test = new TFile(filename.c_str());
-  bool noFile = test->IsZombie();
-  test->Close();
-  delete test;
-  if(!noFile) {
-    TFile* newFile = new TFile(filename.c_str(),"UPDATE");
-    addFile(newFile);
-  }
+  TFile* newFile = new TFile(filename.c_str(),"UPDATE");
+  addFile(newFile);
 }
 
 void CalibrationScanAnalysis::addFile(TFile* newFile) {
@@ -109,7 +102,6 @@ void CalibrationScanAnalysis::addFile(TFile* newFile) {
 }
 
 void CalibrationScanAnalysis::getSummaries(FileList::const_iterator file) {
-  std::cout << "." << std::flush;
   std::vector<TH1*> result;  
   TFile* input = file->second;
   TDirectory* directory = input->GetDirectory(HISTOPATH);
@@ -154,11 +146,9 @@ void CalibrationScanAnalysis::analyze() {
 #endif
   
   // load data from files
-  std::cout << "Loading data from files..." << std::endl;
   for(FileList::const_iterator it=files_.begin();it!=files_.end();++it) {
     getSummaries(it);
   }
-  std::cout << endl;
   sortByGeometry();
   loadPresentValues();
 
@@ -166,7 +156,6 @@ void CalibrationScanAnalysis::analyze() {
   if(!checkInput()) return;
 
   // check if both ISHA and VFS have to be tuned
-  std::cout << "Preparing analysis..." << std::endl;
   int minISHA = 1000;
   int maxISHA = 0;
   int minVFS  = 1000;
@@ -203,12 +192,10 @@ void CalibrationScanAnalysis::analyze() {
   vfsValues.unique();
 
   // loop over apvs (bins)
-  std::cout << "Running analysis..." << std::endl;
   for(unsigned int apv=1;apv<=nAPVs;++apv) {
      TGraph* g1 = new TGraph();
      TGraph* g2 = new TGraph();
      int ii=0;
-     cout << "\r" << setw(5) << setfill('0') << apv << flush; 
 
      // loop over the VFS values
      for(std::list<unsigned int>::const_iterator vfs = vfsValues.begin(); vfs!=vfsValues.end(); ++vfs,++ii) {
@@ -239,7 +226,7 @@ void CalibrationScanAnalysis::analyze() {
      g2->Write(name2.c_str());
 #endif
      // analyse the graphs
-     float best_vfs  = tuneVFS_  ? getX(g2,50) : 
+     float best_vfs  = tuneVFS_  ? getX(g2,36) : 
                                    presentValues_[summaries_.begin()->second[0]->GetXaxis()->GetBinLabel(apv)].second;
      // now that VFS is optimized, take the ISHA values for the closest VFS point
      // for ISHA, we consider the rise time for VFS values close to the optimal
@@ -282,13 +269,12 @@ void CalibrationScanAnalysis::analyze() {
                                    presentValues_[summaries_.begin()->second[0]->GetXaxis()->GetBinLabel(apv)].first;
 
      // save the result
-     result_[summaries_.begin()->second[0]->GetXaxis()->GetBinLabel(apv)] = std::make_pair((int)round(best_isha),(int)round(best_vfs));
-
+     result_[summaries_.begin()->second[0]->GetXaxis()->GetBinLabel(apv)] = 
+                         std::make_pair((int)round(best_isha),(int)round(best_vfs));
      // cleaning
      delete g1;
      delete g2;
   }
-  std::cout << std::endl;
 
 #ifdef DEBUG_ON
   debugFile->Write();
@@ -301,8 +287,6 @@ void CalibrationScanAnalysis::analyze() {
 bool CalibrationScanAnalysis::checkInput() const {
 
   // check that we have data
-  std::cout << "Checking data integrity." << std::endl;
-  std::cout << "Step 1/5" << std::endl;
   if(!summaries_.size()) {
     std::cerr << "Error: No summary histogram found." << std::endl
               << " Did you load any file ? " << std::endl;
@@ -317,7 +301,6 @@ bool CalibrationScanAnalysis::checkInput() const {
 
   // check that we have the same entries in each record,
   // check that the binning is the same in all histograms
-  std::cout << "Step 2/5" << std::endl;
   int nbinsAll = -1;
   std::vector<std::string> namesAll;
   for(SummaryV::const_iterator summary = summaries_.begin(); summary!=summaries_.end(); ++summary) {
@@ -337,21 +320,18 @@ bool CalibrationScanAnalysis::checkInput() const {
        if(nbinsAll<0) nbinsAll = nbins;
        if(nbins != nbinsAll) {
          std::cerr << "Error: The number of bins is not the same in all inputs." << std::endl;
-// non fatal
-//         return 0;
+         return 0;
        }
     }
   }
 
   // check that we have at least 2 histograms with measurements
-  std::cout << "Step 3/5" << std::endl;
   if(namesAll.size()<2) {
     std::cerr << "Error: The number of available measurements is smaller than 2." << std::endl;
     return 0;
   }
 
   // check that the bin labels are all the same
-  std::cout << "Step 4/5" << std::endl;
   std::vector<std::string> labelsAll;
   for(SummaryV::const_iterator summary = summaries_.begin(); summary!=summaries_.end(); ++summary) {
     const std::vector<TH1*>& observables = summary->second;
@@ -362,13 +342,10 @@ bool CalibrationScanAnalysis::checkInput() const {
            labelsAll.push_back(label);
          } else {
            if(labelsAll[i-1] != label) {
-*((TH1F*)(*histo)) = TH1F(*(fixHisto(labelsAll,*histo)));
-/*
              std::cerr << "Error: Incoherency in bin labels. Bin " << i 
                        << " of " << (*histo)->GetName() << " is " << label
                        << " and not " << labelsAll[i] << "." << std::endl;
              return 0;
-*/
            }
          }
        }
@@ -376,17 +353,13 @@ bool CalibrationScanAnalysis::checkInput() const {
   }
 
   // check that all APVs have an associated geometry
-  std::cout << "Step 5/5" << std::endl;
-   for(std::vector<std::string>::const_iterator apvLabel = labelsAll.begin();
-       apvLabel != labelsAll.end(); ++apvLabel) {
-     if(geometries_.find(*apvLabel)==geometries_.end()) {
-       std::cerr << "Error: Geometry unknown for APV " << *apvLabel << std::endl;
-       // made this a non-fatal error
- //      return 0;
-       std::string label = *apvLabel;
-       ((CalibrationScanAnalysis*)this)->geometries_[label] = 0; 
-     }
-   }
+  for(std::vector<std::string>::const_iterator apvLabel = labelsAll.begin();
+      apvLabel != labelsAll.end(); ++apvLabel) {
+    if(geometries_.find(*apvLabel)==geometries_.end()) {
+      std::cerr << "Error: Geometry unknown for APV " << *apvLabel << std::endl;
+      return 0;
+    }
+  }
 
   return 1;
 
@@ -462,7 +435,6 @@ void CalibrationScanAnalysis::loadPresentValues() {
 void CalibrationScanAnalysis::sanitizeResult(unsigned int cut, bool doItForISHA, bool doItForVFS) {
 
   // create and fill the utility histograms (similar to the draw method)
-  std::cout << "Applying sanity constraints on the results." << std::endl;
   std::map<int,TH2F*> histos;
   for(std::map<std::string, int>::iterator it = geometries_.begin(); it!= geometries_.end(); ++it) {
     if(histos.find(it->second)==histos.end()) {
@@ -479,18 +451,17 @@ void CalibrationScanAnalysis::sanitizeResult(unsigned int cut, bool doItForISHA,
   }
 
   // second loop to cut at x RMS
-  int lowVFS,highVFS,lowISHA,highISHA,geom;
+  int lowVFS,highVFS,lowISHA,highISHA;
   for(std::map<std::string, Parameters>::iterator apvValue = result_.begin();
       apvValue != result_.end(); ++apvValue) {
-    geom = geometries_[apvValue->first];
-    lowISHA  = (int)round(histos[geom]->GetMean(1) - 
-                          cut*histos[geom]->GetRMS(1));
-    highISHA = (int)round(histos[geom]->GetMean(1) + 
-                          cut*histos[geom]->GetRMS(1));
-    lowVFS   = (int)round(histos[geom]->GetMean(2) - 
-                          cut*histos[geom]->GetRMS(2));
-    highVFS  = (int)round(histos[geom]->GetMean(2) + 
-                          cut*histos[geom]->GetRMS(2));
+    lowISHA  = (int)round(histos[geometries_[apvValue->first]]->GetMean(1) - 
+                          cut*histos[geometries_[apvValue->first]]->GetRMS(1));
+    highISHA = (int)round(histos[geometries_[apvValue->first]]->GetMean(1) + 
+                          cut*histos[geometries_[apvValue->first]]->GetRMS(1));
+    lowVFS   = (int)round(histos[geometries_[apvValue->first]]->GetMean(2) - 
+                          cut*histos[geometries_[apvValue->first]]->GetRMS(2));
+    highVFS  = (int)round(histos[geometries_[apvValue->first]]->GetMean(2) + 
+                          cut*histos[geometries_[apvValue->first]]->GetRMS(2));
     if((apvValue->second.first<lowISHA || apvValue->second.first>highISHA) && doItForISHA) { 
       apvValue->second.first = (int)round((lowISHA+highISHA)/2.);
     }
@@ -533,17 +504,14 @@ void CalibrationScanAnalysis::print(Option_t*) const {
 
 void CalibrationScanAnalysis::draw(Option_t*) const {
 
-  std::cout << "Drawing results..." << std::endl;
+  new TCanvas;
 
   // first create the histograms
-  std::cout << "   - first create the 2D histograms" << std::endl;
-  new TCanvas;
   std::map<int,TH2F*> histos;
   for(std::map<std::string, int>::const_iterator it = geometries_.begin(); it!= geometries_.end(); ++it) {
     if(histos.find(it->second)==histos.end()) {
       TH2F* histo = new TH2F(Form("modulesGeometry%d",it->second),
                              Form("Module Geometry %d",it->second),255,-1.25,0.6625,255,0,255);
-      histo->SetDirectory(0);
       histo->GetXaxis()->SetTitle("VFS");
       histo->GetYaxis()->SetTitle("ISHA");
       histo->SetMarkerStyle(7);
@@ -553,22 +521,18 @@ void CalibrationScanAnalysis::draw(Option_t*) const {
   }
 
   // loop over apvs
-  std::cout << "   - loop over apvs" << std::endl;
   for(std::map<std::string, Parameters>::const_iterator apvValue = result_.begin();
       apvValue != result_.end(); ++apvValue) {
     histos[geometries_.find(apvValue->first)->second]->Fill(-1.25+apvValue->second.second*0.0075,apvValue->second.first);
   }
 
   // draw the histograms
-  std::cout << "   - draw the histograms" << std::endl;
   for(std::map<int,TH2F*>::iterator h = histos.begin(); h != histos.end(); ++h) {
     h->second->Draw(h == histos.begin() ? "" : "same");
   }
 
   // draw the histogram with the mean per geometry
-  std::cout << "   - draw the histogram with the mean per geometry" << std::endl;
   TH2F* histo = new TH2F("Geometries","Geometries",255,-1.25,0.6625,255,0,255);
-  histo->SetDirectory(0);
   histo->GetXaxis()->SetTitle("VFS");
   histo->GetYaxis()->SetTitle("ISHA");
   histo->SetMarkerStyle(20);
@@ -580,27 +544,22 @@ void CalibrationScanAnalysis::draw(Option_t*) const {
   
 //////////////////////////////////////////////////////////////
 
+  new TCanvas;
 
   // first create the histograms
-  std::cout << "   - create the 1D histograms" << std::endl;
-  new TCanvas;
   std::map<int,TH1F*> histosVFS;
   std::map<int,TH1F*> histosISHA;
   for(std::map<std::string, int>::const_iterator it = geometries_.begin(); it!= geometries_.end(); ++it) {
     if(histosVFS.find(it->second)==histosVFS.end()) {
       TH1F* histoVFS = new TH1F(Form("VFSmodulesGeometry%d",it->second),
                                 Form("VFS for Module Geometry %d",it->second),255,0,255);
-      histoVFS->SetDirectory(0);
       histosVFS[it->second] = histoVFS;
       TH1F* histoISHA = new TH1F(Form("ISHAmodulesGeometry%d",it->second),
                                  Form("ISHA for Module Geometry %d",it->second),255,0,255);
-      histoISHA->SetDirectory(0);
       histosISHA[it->second] = histoISHA;
     }
   }
-
   // loop over apvs
-  std::cout << "   - loop over apvs" << std::endl;
   for(std::map<std::string, Parameters>::const_iterator apvValue = result_.begin();
       apvValue != result_.end(); ++apvValue) {
     histosISHA[geometries_.find(apvValue->first)->second]->Fill(apvValue->second.first);
@@ -608,7 +567,6 @@ void CalibrationScanAnalysis::draw(Option_t*) const {
   }
 
   // draw the histograms
-  std::cout << "   - draw the histograms" << std::endl;
   for(std::map<int,TH1F*>::iterator h = histosISHA.begin(); h != histosISHA.end(); ++h) {
     h->second->Draw(h == histosISHA.begin() ? "" : "same");
   }
@@ -622,9 +580,6 @@ void CalibrationScanAnalysis::draw(Option_t*) const {
 }
 
 void CalibrationScanAnalysis::save(const char* fileName) {
-
-  std::cout << "Saving results..." << std::endl;
-/*
   // save in the input files
   for(FileList::const_iterator it=files_.begin();it!=files_.end();++it) {
     TFile* input = it->second;
@@ -652,7 +607,7 @@ void CalibrationScanAnalysis::save(const char* fileName) {
     }
     input->Write();
   }
-*/
+
   // save in a file for TkConfigurationDb
   std::ostream * output;
   TString filen = fileName;
@@ -688,17 +643,3 @@ void CalibrationScanAnalysis::save(const char* fileName) {
   }
 }
 
-TH1F* CalibrationScanAnalysis::fixHisto(std::vector<std::string>& names,TH1* histo) const
-{
-   // prepare an histogram to replace input
-   TH1F* newHisto = new TH1F(histo->GetName(),histo->GetTitle(),names.size(),histo->GetXaxis()->GetXmin(),histo->GetXaxis()->GetXmax());
-   std::cout << "fixing histo " << histo->GetName() << " at " << histo << " by " << newHisto << std::endl;
-   for(std::vector<std::string>::iterator name=names.begin();name!=names.end();++name) {
-     newHisto->GetXaxis()->SetBinLabel(name-names.begin()+1,name->c_str());
-     int pos = histo->GetXaxis()->FindBin(name->c_str());
-     if(pos!=-1) {
-       newHisto->SetBinContent(pos,histo->GetBinContent(pos));
-     }
-   }
-   return newHisto;
-}

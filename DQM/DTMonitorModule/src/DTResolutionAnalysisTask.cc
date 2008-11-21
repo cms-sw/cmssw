@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/07/25 15:14:18 $
- *  $Revision: 1.11 $
+ *  $Date: 2008/11/05 17:35:45 $
+ *  $Revision: 1.13 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -34,19 +34,24 @@ using namespace std;
 
 DTResolutionAnalysisTask::DTResolutionAnalysisTask(const ParameterSet& pset) {
 
-  debug = pset.getUntrackedParameter<bool>("debug","false");
+  edm::LogVerbatim ("DTDQM|DTMonitorModule|DTResolutionAnalysisTask") << "[DTResolutionAnalysisTask] Constructor called!" << endl;
 
   // the name of the 4D rec hits collection
   theRecHits4DLabel = pset.getParameter<string>("recHits4DLabel");
   // the name of the rechits collection
   theRecHitLabel = pset.getParameter<string>("recHitLabel");
   
+  prescaleFactor = pset.getUntrackedParameter<int>("diagnosticPrescale", 1);
   resetCycle = pset.getUntrackedParameter<int>("ResetCycle", -1);
+  doSectorSummaries = pset.getUntrackedParameter<bool>("doSectorSummaries", false);
 
 }
 
 
 DTResolutionAnalysisTask::~DTResolutionAnalysisTask(){
+
+  edm::LogVerbatim ("DTDQM|DTMonitorModule|DTResolutionAnalysisTask") << "[DTResolutionAnalysisTask] Destructor called!" << endl;
+
 }
 
 
@@ -59,23 +64,28 @@ void DTResolutionAnalysisTask::beginJob(const edm::EventSetup& setup){
   setup.get<MuonGeometryRecord>().get(dtGeom);
 
 
-  // Book the histograms (for each SL)
+  // Book the histograms
   vector<DTChamber*> chambers = dtGeom->chambers();
   for(vector<DTChamber*>::const_iterator chamber = chambers.begin();
       chamber != chambers.end(); ++chamber) {  // Loop over all chambers
     DTChamberId dtChId = (*chamber)->id();
+    if(doSectorSummaries) bookHistos(dtChId);
     for(int sl = 1; sl <= 3; ++sl) { // Loop over SLs
       if(dtChId.station() == 4 && sl == 2) continue;
       const  DTSuperLayerId dtSLId(dtChId,sl);
       bookHistos(dtSLId);
     }
   }
+
 }
+
 
 
 
 void DTResolutionAnalysisTask::beginLuminosityBlock(const LuminosityBlock& lumiSeg,
 						    const EventSetup& context) {
+
+  edm::LogVerbatim ("DTDQM|DTMonitorModule|DTResolutionAnalysisTask") << "[DTResolutionTask]: Begin of LS transition"<<endl;
   
   if(resetCycle != -1 && lumiSeg.id().luminosityBlock() % resetCycle == 0) {
     for(map<DTSuperLayerId, vector<MonitorElement*> > ::const_iterator histo = histosPerSL.begin();
@@ -91,13 +101,16 @@ void DTResolutionAnalysisTask::beginLuminosityBlock(const LuminosityBlock& lumiS
 
 
 void DTResolutionAnalysisTask::endJob(){
+
+ edm::LogVerbatim ("DTDQM|DTMonitorModule|DTResolutionAnalysisTask") << "[DTResolutionAnalysisTask] endjob called!"<<endl;
+
 }
   
 
 
 void DTResolutionAnalysisTask::analyze(const edm::Event& event, const edm::EventSetup& setup) {
-  if(debug)
-    cout << "[DTResolutionAnalysisTask] Analyze #Run: " << event.id().run()
+
+  edm::LogVerbatim ("DTDQM|DTMonitorModule|DTResolutionAnalysisTask") << "[DTResolutionAnalysisTask] Analyze #Run: " << event.id().run()
 	 << " #Event: " << event.id().event() << endl;
 
   
@@ -117,9 +130,8 @@ void DTResolutionAnalysisTask::analyze(const edm::Event& event, const edm::Event
     // Get the range for the corresponding ChamerId
     DTRecSegment4DCollection::range  range = all4DSegments->get(*chamberId);
     int nsegm = distance(range.first, range.second);
-    if(debug)
-      cout << "   Chamber: " << *chamberId << " has " << nsegm
-	   << " 4D segments" << endl;
+    edm::LogVerbatim ("DTDQM|DTMonitorModule|DTResolutionAnalysisTask") << "   Chamber: " << *chamberId << " has " << nsegm
+									<< " 4D segments" << endl;
     // Get the chamber
     const DTChamber* chamber = dtGeom->chamber(*chamberId);
 
@@ -127,21 +139,18 @@ void DTResolutionAnalysisTask::analyze(const edm::Event& event, const edm::Event
     for (DTRecSegment4DCollection::const_iterator segment4D = range.first;
 	 segment4D!=range.second;
 	 ++segment4D) {
-      if(debug)
-	cout << "   == RecSegment dimension: " << (*segment4D).dimension() << endl;
+      edm::LogVerbatim ("DTDQM|DTMonitorModule|DTResolutionAnalysisTask") << "   == RecSegment dimension: " << (*segment4D).dimension() << endl;
       
       // If Statio != 4 skip RecHits with dimension != 4
       // For the Station 4 consider 2D RecHits
       if((*chamberId).station() != 4 && (*segment4D).dimension() != 4) {
-	if(debug)
-	  cout << "[DTResolutionAnalysisTask]***Warning: RecSegment dimension is not 4 but "
+	edm::LogVerbatim ("DTDQM|DTMonitorModule|DTResolutionAnalysisTask") << "[DTResolutionAnalysisTask]***Warning: RecSegment dimension is not 4 but "
 	       << (*segment4D).dimension() << "!" << endl;
-// 	continue; //FIXME: remove the if
+ 	continue;
       } else if((*chamberId).station() == 4 && (*segment4D).dimension() != 2) {
-	if(debug)
-	  cout << "[DTResolutionAnalysisTask]***Warning: RecSegment dimension is not 2 but "
+	edm::LogVerbatim ("DTDQM|DTMonitorModule|DTResolutionAnalysisTask") << "[DTResolutionAnalysisTask]***Warning: RecSegment dimension is not 2 but "
 	       << (*segment4D).dimension() << "!" << endl;
-// 	continue;
+ 	continue;
       }
 
 
@@ -157,24 +166,22 @@ void DTResolutionAnalysisTask::analyze(const edm::Event& event, const edm::Event
 	vector<DTRecHit1D> phiRecHits = phiSeg->specificRecHits();
 
 	if(phiRecHits.size() != 8) {
-	  if(debug)
-	    cout << "[DTResolutionAnalysisTask] Phi segments has: " << phiRecHits.size()
+	  edm::LogVerbatim ("DTDQM|DTMonitorModule|DTResolutionAnalysisTask") << "[DTResolutionAnalysisTask] Phi segments has: " << phiRecHits.size()
 		 << " hits" << endl; // FIXME: info output
-	  // 	continue; // FIXME: remove the if
+	  continue;
 	}
 	copy(phiRecHits.begin(), phiRecHits.end(), back_inserter(recHits1D_S3));
       } else {
-	if(debug) cout << "[DTResolutionAnalysisTask] 4D segment has not phi component!" << endl;
+	edm::LogVerbatim ("DTDQM|DTMonitorModule|DTResolutionAnalysisTask") << "[DTResolutionAnalysisTask] 4D segment has not phi component!" << endl;
       }
 
       if((*segment4D).hasZed()) {
 	const DTSLRecSegment2D* zSeg = (*segment4D).zSegment();
 	vector<DTRecHit1D> zRecHits = zSeg->specificRecHits();
 	if(zRecHits.size() != 4) {
-	  if(debug)
-	    cout << "[DTResolutionAnalysisTask] Theta segments has: " << zRecHits.size()
+	  edm::LogVerbatim ("DTDQM|DTMonitorModule|DTResolutionAnalysisTask") << "[DTResolutionAnalysisTask] Theta segments has: " << zRecHits.size()
 		 << " hits, skipping" << endl; // FIXME: info output
-// 	  continue; // FIXME: remove the if
+ 	  continue;
 	}
 	copy(zRecHits.begin(), zRecHits.end(), back_inserter(recHits1D_S3));
       }
@@ -215,20 +222,18 @@ void DTResolutionAnalysisTask::analyze(const edm::Event& event, const edm::Event
 	  distSegmToWire = fabs(wirePosInChamber.y() - segPosAtZWire.y());
 	}
 
-	if(distSegmToWire > 2.1 && debug)
-	  cout << "  Warning: dist segment-wire: " << distSegmToWire << endl;
+	if(distSegmToWire > 2.1)
+	  edm::LogVerbatim ("DTDQM|DTMonitorModule|DTResolutionAnalysisTask") << "  Warning: dist segment-wire: " << distSegmToWire << endl;
 
 	double residual = distRecHitToWire - distSegmToWire;
 
 	// FIXME: Fill the histos
 	fillHistos(wireId.superlayerId(), distSegmToWire, residual);
-
-	if(debug) {
-	  cout << "     Dist. segment extrapolation - wire (cm): " << distSegmToWire << endl;
-	  cout << "     Dist. RecHit - wire (cm): " << distRecHitToWire << endl;
-	  cout << "     Residual (cm): " << residual << endl;
-	}
-
+	
+	edm::LogVerbatim ("DTDQM|DTMonitorModule|DTResolutionAnalysisTask") << "     Dist. segment extrapolation - wire (cm): " << distSegmToWire << endl;
+	edm::LogVerbatim ("DTDQM|DTMonitorModule|DTResolutionAnalysisTask") << "     Dist. RecHit - wire (cm): " << distRecHitToWire << endl;
+	edm::LogVerbatim ("DTDQM|DTMonitorModule|DTResolutionAnalysisTask") << "     Residual (cm): " << residual << endl;
+	
 			  
       }// End of loop over 1D RecHit inside 4D segment
     }// End of loop over the rechits of this ChamerId
@@ -237,11 +242,69 @@ void DTResolutionAnalysisTask::analyze(const edm::Event& event, const edm::Event
 }
 
 
+void DTResolutionAnalysisTask::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
+  if(!doSectorSummaries) return;
+
+  // counts number of lumiSegs 
+  int nLumiSegs = lumiSeg.id().luminosityBlock();
+
+  // prescale factor
+  if ( nLumiSegs%prescaleFactor != 0 ) return;
   
+  edm::LogVerbatim ("DTDQM|DTMonitorModule|DTResolutionAnalysisTask") <<"[DTResolutionAnalysisTask]: End of LS transition" << nLumiSegs;
+
+
+  for(map< DTSuperLayerId, vector<MonitorElement*> > ::const_iterator histo = histosPerSL.begin();
+	histo != histosPerSL.end();
+	histo++) {
+      
+    // Fill the test histos
+    int entry=-1;
+    if((*histo).first.station() == 1) entry=0;
+    else if((*histo).first.station() == 2) entry=3;
+    else if((*histo).first.station() == 3) entry=6;
+    else if((*histo).first.station() == 4) entry=9;
+    int BinNumber = entry+(*histo).first.superLayer();
+    if(BinNumber == 12) BinNumber=11;
+
+    // Gaussian Fit
+    float statMean = (*histo).second[0]->getMean(1);
+    float statSigma = (*histo).second[0]->getRMS(1);
+    Double_t mean = -1;
+    Double_t sigma = -1;
+    TH1F * histo_root = (*histo).second[0]->getTH1F();
+    if(histo_root->GetEntries()>20){
+      TF1 *gfit = new TF1("Gaussian","gaus",(statMean-(2*statSigma)),(statMean+(2*statSigma)));
+      try {
+	histo_root->Fit(gfit);
+      } catch (...) {
+	edm::LogError ("DTDQM|DTMonitorModule|DTResolutionAnalysisTask")<< "[DTResolutionAnalysisTask]: Exception when fitting..."
+									<< "SuperLayer : " << (*histo).first;
+	continue;
+      }
+      histo_root->Fit(gfit,"RQ");
+      mean = gfit->GetParameter(1); 
+      sigma = gfit->GetParameter(0);
+    }
+    else{
+      edm::LogVerbatim ("DTDQM|DTMonitorModule|DTResolutionAnalysisTask")
+	<< "[DTResolutionAnalysisTask] Fit of " << (*histo).first
+	<< " not performed because # entries < 20 ";
+    }
+  
+    // Fill the summary histos
+    MeanHistos.find(make_pair((*histo).first.wheel(),(*histo).first.sector()))->second->setBinContent(BinNumber, mean);	
+    SigmaHistos.find(make_pair((*histo).first.wheel(),(*histo).first.sector()))->second->setBinContent(BinNumber, sigma);
+    
+  }
+  
+}
+
+
 // Book a set of histograms for a given SL
 void DTResolutionAnalysisTask::bookHistos(DTSuperLayerId slId) {
-  if(debug)
-    cout << "   Booking histos for SL: " << slId << endl;
+  
+  edm::LogVerbatim ("DTDQM|DTMonitorModule|DTResolutionAnalysisTask") << "   Booking histos for SL: " << slId << endl;
 
   // Compose the chamber name
   stringstream wheel; wheel << slId.wheel();	
@@ -273,6 +336,45 @@ void DTResolutionAnalysisTask::bookHistos(DTSuperLayerId slId) {
 }
 
 
+void DTResolutionAnalysisTask::bookHistos(const DTChamberId & ch) {
+
+  stringstream wheel; wheel << ch.wheel();		
+  stringstream sector; sector << ch.sector();	
+
+
+  string MeanHistoName =  "MeanTest_STEP3_W" + wheel.str() + "_Sec" + sector.str(); 
+  string SigmaHistoName =  "SigmaTest_STEP3_W" + wheel.str() + "_Sec" + sector.str(); 
+ 
+  string folder = "DT/02-Segments/Wheel" + wheel.str() + "/Tests";
+  theDbe->setCurrentFolder(folder);
+
+  MeanHistos[make_pair(ch.wheel(),ch.sector())] = theDbe->book1D(MeanHistoName.c_str(),MeanHistoName.c_str(),11,1,12);
+  (MeanHistos[make_pair(ch.wheel(),ch.sector())])->setBinLabel(1,"MB1_SL1",1);
+  (MeanHistos[make_pair(ch.wheel(),ch.sector())])->setBinLabel(2,"MB1_SL2",1);
+  (MeanHistos[make_pair(ch.wheel(),ch.sector())])->setBinLabel(3,"MB1_SL3",1);
+  (MeanHistos[make_pair(ch.wheel(),ch.sector())])->setBinLabel(4,"MB2_SL1",1);
+  (MeanHistos[make_pair(ch.wheel(),ch.sector())])->setBinLabel(5,"MB2_SL2",1);
+  (MeanHistos[make_pair(ch.wheel(),ch.sector())])->setBinLabel(6,"MB2_SL3",1);
+  (MeanHistos[make_pair(ch.wheel(),ch.sector())])->setBinLabel(7,"MB3_SL1",1);
+  (MeanHistos[make_pair(ch.wheel(),ch.sector())])->setBinLabel(8,"MB3_SL2",1);
+  (MeanHistos[make_pair(ch.wheel(),ch.sector())])->setBinLabel(9,"MB3_SL3",1);
+  (MeanHistos[make_pair(ch.wheel(),ch.sector())])->setBinLabel(10,"MB4_SL1",1);
+  (MeanHistos[make_pair(ch.wheel(),ch.sector())])->setBinLabel(11,"MB4_SL3",1);
+
+  SigmaHistos[make_pair(ch.wheel(),ch.sector())] = theDbe->book1D(SigmaHistoName.c_str(),SigmaHistoName.c_str(),11,1,12);
+  (SigmaHistos[make_pair(ch.wheel(),ch.sector())])->setBinLabel(1,"MB1_SL1",1);  
+  (SigmaHistos[make_pair(ch.wheel(),ch.sector())])->setBinLabel(2,"MB1_SL2",1);
+  (SigmaHistos[make_pair(ch.wheel(),ch.sector())])->setBinLabel(3,"MB1_SL3",1);
+  (SigmaHistos[make_pair(ch.wheel(),ch.sector())])->setBinLabel(4,"MB2_SL1",1);
+  (SigmaHistos[make_pair(ch.wheel(),ch.sector())])->setBinLabel(5,"MB2_SL2",1);
+  (SigmaHistos[make_pair(ch.wheel(),ch.sector())])->setBinLabel(6,"MB2_SL3",1);
+  (SigmaHistos[make_pair(ch.wheel(),ch.sector())])->setBinLabel(7,"MB3_SL1",1);
+  (SigmaHistos[make_pair(ch.wheel(),ch.sector())])->setBinLabel(8,"MB3_SL2",1);
+  (SigmaHistos[make_pair(ch.wheel(),ch.sector())])->setBinLabel(9,"MB3_SL3",1);
+  (SigmaHistos[make_pair(ch.wheel(),ch.sector())])->setBinLabel(10,"MB4_SL1",1);
+  (SigmaHistos[make_pair(ch.wheel(),ch.sector())])->setBinLabel(11,"MB4_SL3",1);
+
+}
 
 
 // Fill a set of histograms for a given SL 
@@ -285,4 +387,6 @@ void DTResolutionAnalysisTask::fillHistos(DTSuperLayerId slId,
   //   histos[1]->Fill(distExtr, residual); 
 
 }
+
+
 

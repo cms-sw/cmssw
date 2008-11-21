@@ -84,9 +84,8 @@ EcalTPGParamBuilder::EcalTPGParamBuilder(edm::ParameterSet const& pSet)
   sliding_ = pSet.getParameter<unsigned int>("sliding") ;
   sampleMax_ = pSet.getParameter<unsigned int>("weight_sampleMax") ;
 
-  forcedPedestalValue_ = pSet.getParameter<int>("forcedPedestalValue") ;
-  forceEtaSlice_ = pSet.getParameter<bool>("forceEtaSlice") ;
-    
+  std::cout<<"here we are in EcalTPGParamBuilder::EcalTPGParamBuilder 1/2"<<endl;
+
   LUT_option_ = pSet.getParameter<std::string>("LUT_option") ;
   LUT_threshold_EB_ = pSet.getParameter<double>("LUT_threshold_EB") ;
   LUT_threshold_EE_ = pSet.getParameter<double>("LUT_threshold_EE") ;
@@ -97,10 +96,14 @@ EcalTPGParamBuilder::EcalTPGParamBuilder(edm::ParameterSet const& pSet)
   LUT_noise_EE_ =pSet.getParameter<double>("LUT_noise_EE") ;
   LUT_constant_EE_ =pSet.getParameter<double>("LUT_constant_EE") ;
 
+
+  std::cout<<"here we are in EcalTPGParamBuilder::EcalTPGParamBuilder after LUT"<<endl;
+
   TTF_lowThreshold_EB_ = pSet.getParameter<double>("TTF_lowThreshold_EB") ;
   TTF_highThreshold_EB_ = pSet.getParameter<double>("TTF_highThreshold_EB") ;
   TTF_lowThreshold_EE_ = pSet.getParameter<double>("TTF_lowThreshold_EE") ;
   TTF_highThreshold_EE_ = pSet.getParameter<double>("TTF_highThreshold_EE") ;
+  std::cout<<"here we are in EcalTPGParamBuilder::EcalTPGParamBuilder after TTF"<<endl;
 
   FG_lowThreshold_EB_ = pSet.getParameter<double>("FG_lowThreshold_EB") ;
   FG_highThreshold_EB_ = pSet.getParameter<double>("FG_highThreshold_EB") ;
@@ -146,6 +149,8 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
 
   std::cout<< "we are in analyze"<< endl; 
 
+
+  // geometry
   // geometry
   ESHandle<CaloGeometry> theGeometry;
   ESHandle<CaloSubdetectorGeometry> theEndcapGeometry_handle, theBarrelGeometry_handle;
@@ -306,48 +311,9 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
   map<EcalLogicID, FEConfigLinDat> linset ;
   map<EcalLogicID, FEConfigParamDat> linparamset ;
 
-  map<int, linStruc> linEtaSlice ;
-
   // loop on EB xtals
   if (writeToFiles_) (*out_file_)<<"COMMENT ====== barrel crystals ====== "<<std::endl ;
-  const std::vector<DetId>& ebCells = theBarrelGeometry_->getValidDetIds(DetId::Ecal, EcalBarrel);
-
-  // special case of eta slices
-  for (vector<DetId>::const_iterator it = ebCells.begin(); it != ebCells.end(); ++it) {
-    EBDetId id(*it) ;
-    double theta = theBarrelGeometry_->getGeometry(id)->getPosition().theta() ;
-    if (!useTransverseEnergy_) theta = acos(0.) ;
-    const EcalTrigTowerDetId towid= id.tower();
-    towerListEB.push_back(towid.rawId()) ;
-    const EcalTriggerElectronicsId elId = theMapping_->getTriggerElectronicsId(id) ;
-    int dccNb = theMapping_->DCCid(towid) ;
-    int tccNb = theMapping_->TCCid(towid) ;
-    int towerInTCC = theMapping_->iTT(towid) ; // from 1 to 68 (EB)
-    int stripInTower = elId.pseudoStripId() ;  // from 1 to 5
-    int xtalInStrip = elId.channelId() ;       // from 1 to 5
-
-    if (tccNb == 37 && stripInTower == 3 && xtalInStrip == 3 && (towerInTCC-1)%4==0) {
-      int etaSlice = (towerInTCC-1)/4+1 ;
-      coeffStruc coeff ;
-      getCoeff(coeff, calibMap, id.rawId()) ;
-      getCoeff(coeff, gainMap, id.rawId()) ;
-      getCoeff(coeff, pedMapNew, id.rawId()) ;
-      linStruc lin ;
-      for (int i=0 ; i<3 ; i++) {
-	int mult, shift ;
-	bool ok = computeLinearizerParam(theta, coeff.gainRatio_[i], coeff.calibCoeff_, "EB", mult , shift) ;
-	if (!ok) std::cout << "unable to compute the parameters for SM="<< id.ism()<<" xt="<< id.ic()<<" " <<dec<<id.rawId()<<std::endl ;  
-	else {
-	  lin.pedestal_[i] = coeff.pedestals_[i] ;
-	  lin.mult_[i] = mult ;
-	  lin.shift_[i] = shift ;
-	}
-      }
-      linEtaSlice[etaSlice] = lin ;
-    }
-  }
-
-  // general case
+  std::vector<DetId> ebCells = theBarrelGeometry_->getValidDetIds(DetId::Ecal, EcalBarrel);
   for (vector<DetId>::const_iterator it = ebCells.begin(); it != ebCells.end(); ++it) {
     EBDetId id(*it) ;
     double theta = theBarrelGeometry_->getGeometry(id)->getPosition().theta() ;
@@ -358,10 +324,9 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
     stripListEB.push_back(elId.rawId() & 0xfffffff8) ;
     int dccNb = theMapping_->DCCid(towid) ;
     int tccNb = theMapping_->TCCid(towid) ;
-    int towerInTCC = theMapping_->iTT(towid) ; // from 1 to 68 (EB)
-    int stripInTower = elId.pseudoStripId() ;  // from 1 to 5
-    int xtalInStrip = elId.channelId() ;       // from 1 to 5
-    int etaSlice = (towerInTCC-1)/4+1 ;
+    int towerInTCC = theMapping_->iTT(towid) ;
+    int stripInTower = elId.pseudoStripId() ;
+    int xtalInStrip = elId.channelId() ;
 
     FEConfigPedDat ped ;
     FEConfigLinDat lin ;
@@ -375,47 +340,29 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
     
 
     // compute and fill linearization parameters
-
-    // case of eta slice
-    if (forceEtaSlice_) {
-      map<int, linStruc>::const_iterator itLin = linEtaSlice.find(etaSlice);
-      if (itLin != linEtaSlice.end()) {
-	if (writeToFiles_) {
-	  for (int i=0 ; i<3 ; i++) 
-	    (*out_file_) << hex <<" 0x"<<itLin->second.pedestal_[i]<<" 0x"<<itLin->second.mult_[i]<<" 0x"<<itLin->second.shift_[i]<<std::endl;
-	}
+    for (int i=0 ; i<3 ; i++) {
+      int mult, shift ;
+      bool ok = computeLinearizerParam(theta, coeff.gainRatio_[i], coeff.calibCoeff_, "EB", mult , shift) ;
+      if (!ok) std::cout << "unable to compute the parameters for SM="<< id.ism()<<" xt="<< id.ic()<<" " <<dec<<id.rawId()<<std::endl ;  
+      else {
+	if (writeToFiles_) (*out_file_) << hex <<" 0x"<<coeff.pedestals_[i]<<" 0x"<<mult<<" 0x"<<shift<<std::endl; 
 	if (writeToDB_) {
-	  for (int i=0 ; i<3 ; i++) {
-	    if (i==0)  {ped.setPedMeanG12(itLin->second.pedestal_[i]) ; lin.setMultX12(itLin->second.mult_[i]) ; lin.setShift12(itLin->second.shift_[i]) ; } 
-	    if (i==1)  {ped.setPedMeanG6(itLin->second.pedestal_[i]) ; lin.setMultX6(itLin->second.mult_[i]) ; lin.setShift6(itLin->second.shift_[i]) ; } 
-	    if (i==2)  {ped.setPedMeanG1(itLin->second.pedestal_[i]) ; lin.setMultX1(itLin->second.mult_[i]) ; lin.setShift1(itLin->second.shift_[i]) ; } 
-	  }
+	  if (i==0)  {ped.setPedMeanG12(coeff.pedestals_[i]) ; lin.setMultX12(mult) ; lin.setShift12(shift) ; } 
+	  if (i==1)  {ped.setPedMeanG6(coeff.pedestals_[i]) ; lin.setMultX6(mult) ; lin.setShift6(shift) ; } 
+	  if (i==2)  {ped.setPedMeanG1(coeff.pedestals_[i]) ; lin.setMultX1(mult) ; lin.setShift1(shift) ; }
 	}
       }
     }
-    else {
-      // general case
-      for (int i=0 ; i<3 ; i++) {
-	int mult, shift ;
-	bool ok = computeLinearizerParam(theta, coeff.gainRatio_[i], coeff.calibCoeff_, "EB", mult , shift) ;
-	if (!ok) std::cout << "unable to compute the parameters for SM="<< id.ism()<<" xt="<< id.ic()<<" " <<dec<<id.rawId()<<std::endl ;  
-	else {
-	  if (writeToFiles_) (*out_file_) << hex <<" 0x"<<coeff.pedestals_[i]<<" 0x"<<mult<<" 0x"<<shift<<std::endl; 
-	  if (writeToDB_) {
-	    if (i==0)  {ped.setPedMeanG12(coeff.pedestals_[i]) ; lin.setMultX12(mult) ; lin.setShift12(shift) ; } 
-	    if (i==1)  {ped.setPedMeanG6(coeff.pedestals_[i]) ; lin.setMultX6(mult) ; lin.setShift6(shift) ; } 
-	    if (i==2)  {ped.setPedMeanG1(coeff.pedestals_[i]) ; lin.setMultX1(mult) ; lin.setShift1(shift) ; }
-	  }
-	}
-      }
-      if (writeToDB_) {
-	int ixtal=(id.ism()-1)*1700+(id.ic()-1);
-	EcalLogicID logicId =my_EcalLogicId[ixtal];
-	pedset[logicId] = ped ;
-	linset[logicId] = lin ;	
-      }
+    if (writeToDB_) {
+      int ixtal=(id.ism()-1)*1700+(id.ic()-1);
+      EcalLogicID logicId =my_EcalLogicId[ixtal];
+      pedset[logicId] = ped ;
+      linset[logicId] = lin ;
+
     }
+
   } //ebCells
+
 
   if (writeToDB_) {
     // EcalLogicID  of the whole barrel is: my_EcalLogicId_EB
@@ -431,11 +378,14 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
   }
 
 
+
+  if(DBEE_){
+
   // loop on EE xtals
   if (writeToFiles_) (*out_file_)<<"COMMENT ====== endcap crystals ====== "<<std::endl ;
 
-  
-  const std::vector<DetId> & eeCells = theEndcapGeometry_->getValidDetIds(DetId::Ecal, EcalEndcap);
+
+  std::vector<DetId> eeCells = theEndcapGeometry_->getValidDetIds(DetId::Ecal, EcalEndcap);
   for (vector<DetId>::const_iterator it = eeCells.begin(); it != eeCells.end(); ++it) {
     EEDetId id(*it);
     double theta = theEndcapGeometry_->getGeometry(id)->getPosition().theta() ;
@@ -475,6 +425,8 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
       getCoeff(coeff, gainMap, id.rawId()) ;
       getCoeff(coeff, pedMap, id.rawId()) ;
     }
+
+
   
     // compute and fill linearization parameters
     for (int i=0 ; i<3 ; i++) {
@@ -495,7 +447,6 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
       linset[logicId] = lin ;
     }
   } //eeCells
-
   if (writeToDB_ ) {
     // EcalLogicID  of the whole barrel is: my_EcalLogicId_EB
     FEConfigParamDat linparam ;
@@ -507,6 +458,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
     linparamset[my_EcalLogicId_EE] = linparam ;
   }
 
+  }
   std::cout<< "we are in analyze 2"<< endl; 
 
   if (writeToDB_) {
@@ -686,7 +638,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
   if (writeToFiles_) {
     (*out_file_) <<std::endl ;
     (*out_file_) <<"LUT 0"<<std::endl ;
-    for (int i=0 ; i<1024 ; i++) (*out_file_)<<"0x"<<hex<<lut_EB[i]<<endl ;
+    for (int i=0 ; i<1024 ; i++) (*out_file_)<<"0x"<<hex<<lut_EB[i]<<" " ;
     (*out_file_)<<endl ;
   }
   
@@ -698,7 +650,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
   if (newLUT && writeToFiles_) { 
     (*out_file_) <<std::endl ;
     (*out_file_) <<"LUT 1"<<std::endl ;
-    for (int i=0 ; i<1024 ; i++) (*out_file_)<<"0x"<<hex<<lut_EE[i]<<endl ;
+    for (int i=0 ; i<1024 ; i++) (*out_file_)<<"0x"<<hex<<lut_EE[i]<<" " ;
     (*out_file_)<<endl ;
   }
 
@@ -1135,12 +1087,12 @@ void EcalTPGParamBuilder::computeLUT(int * lut, std::string det)
   // Now, add TTF thresholds to LUT and apply LUT threshold if needed
   for (int j=0 ; j<1024 ; j++) {
     double Et_GeV = Et_sat/1024*(j+0.5) ;
-    if (Et_GeV <= LUT_threshold) lut[j] = 0 ; // LUT threshold
     int ttf = 0x0 ;    
     if (Et_GeV >= TTF_highThreshold) ttf = 3 ;
     if (Et_GeV >= TTF_lowThreshold && Et_GeV < TTF_highThreshold) ttf = 1 ;
     ttf = ttf << 8 ;
     lut[j] += ttf ;
+    if (Et_GeV <= LUT_threshold) lut[j] = 0 ;
   }
 
 }
@@ -1171,18 +1123,10 @@ void EcalTPGParamBuilder::getCoeff(coeffStruc & coeff, const EcalGainRatioMap & 
 
 void EcalTPGParamBuilder::getCoeff(coeffStruc & coeff, const EcalPedestalsMap & pedMap, uint rawId)
 {
+  // get current pedestal
   coeff.pedestals_[0] = 0 ;
   coeff.pedestals_[1] = 0 ;
   coeff.pedestals_[2] = 0 ;
-
-  if (forcedPedestalValue_ >= 0) {
-    coeff.pedestals_[0] = forcedPedestalValue_ ;
-    coeff.pedestals_[1] = forcedPedestalValue_ ;
-    coeff.pedestals_[2] = forcedPedestalValue_ ;  
-    return ;
-  }
-
-  // get current pedestal
   EcalPedestalsMapIterator pedIter = pedMap.find(rawId);
   if (pedIter != pedMap.end()) {
     EcalPedestals::Item aped = (*pedIter);

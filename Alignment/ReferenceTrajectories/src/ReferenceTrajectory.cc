@@ -1,7 +1,7 @@
 //  Author     : Gero Flucke (based on code by Edmund Widl replacing ORCA's TkReferenceTrack)
 //  date       : 2006/09/17
-//  last update: $Date: 2008/10/10 17:03:37 $
-//  by         : $Author: flucke $
+//  last update: $Date: 2008/02/21 12:31:07 $
+//  by         : $Author: ewidl $
 
 #include "Alignment/ReferenceTrajectories/interface/ReferenceTrajectory.h"
 #include "DataFormats/GeometrySurface/interface/Surface.h" 
@@ -243,10 +243,6 @@ void ReferenceTrajectory::fillMeasurementAndError(const TransientTrackingRecHit:
 {
   // get the measurements and their errors, use information updated with tsos if improving
   // (GF: Also for measurements or only for errors or do the former not change?)
-  // GF 10/2008: I doubt that it makes sense to update the hit with the tsos here:
-  //             That is an analytical extrapolation and not the best guess of the real 
-  //             track state on the module, but the latter should be better to get the best
-  //             hit uncertainty estimate!
   TransientTrackingRecHit::ConstRecHitPointer newHitPtr(hitPtr->canImproveWithTrack() ?
 							hitPtr->clone(updatedTsos) : hitPtr);
 
@@ -258,13 +254,6 @@ void ReferenceTrajectory::fillMeasurementAndError(const TransientTrackingRecHit:
   theMeasurementsCov[iRow][iRow]     = localMeasurementCov.xx();
   theMeasurementsCov[iRow][iRow+1]   = localMeasurementCov.xy();
   theMeasurementsCov[iRow+1][iRow+1] = localMeasurementCov.yy();
-  // GF: Should be a loop once the hit dimension is not hardcoded as nMeasPerHit (to be checked):
-  // for (int i = 0; i < hitPtr->dimension(); ++i) {
-  //   theMeasurements[iRow+i]   = hitPtr->parameters()[i]; // fixme: parameters() is by value!
-  //   for (int j = i; j < hitPtr->dimension(); ++j) {
-  //     theMeasurementsCov[iRow+i][iRow+j] = hitPtr->parametersError()[i][j];
-  //   }
-  // }
 }
   
 
@@ -279,10 +268,6 @@ void ReferenceTrajectory::fillDerivatives(const AlgebraicMatrix &projection,
   for (int i = 0; i < parameters().num_row(); ++i) {
     theDerivatives[iRow  ][i] = projectedJacobian[0][i];
     theDerivatives[iRow+1][i] = projectedJacobian[1][i];
-    // GF: Should be a loop once the hit dimension is not hardcoded as nMeasPerHit (to be checked):
-    // for (int j = 0; j < projection.num_col(); ++j) {
-    //   theDerivatives[iRow+j][i] = projectedJacobian[j][i];
-    // }
   }
 }
 
@@ -296,10 +281,6 @@ void ReferenceTrajectory::fillTrajectoryPositions(const AlgebraicMatrix &project
   const AlgebraicVector localPosition(projection * mixedLocalParams);
   theTrajectoryPositions[iRow] = localPosition[0];
   theTrajectoryPositions[iRow+1] = localPosition[1];
-  // GF: Should be a loop once the hit dimension is not hardcoded as nMeasPerHit (to be checked):
-  // for (int j = 0; j < projection.num_col(); ++j) {
-  //   theTrajectoryPositions[iRow+j] = localPosition[j];
-  // }
 }
 
 //__________________________________________________________________________________
@@ -310,8 +291,6 @@ void ReferenceTrajectory::addMaterialEffectsCov(const std::vector<AlgebraicMatri
 						const std::vector<AlgebraicSymMatrix> &allDeltaParameterCovs)
 {
   // the uncertainty due to multiple scattering is 'transferred' to the error matrix of the hits
-
-  // GF: Needs update once hit dimension is not hardcoded as nMeasPerHit!
 
   AlgebraicSymMatrix materialEffectsCov(nMeasPerHit * allJacobians.size(), 0);
 

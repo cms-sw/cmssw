@@ -2,8 +2,8 @@
 /*
  * \file DTDataIntegrityTask.cc
  * 
- * $Date: 2008/06/30 12:39:46 $
- * $Revision: 1.48 $
+ * $Date: 2008/10/08 15:09:40 $
+ * $Revision: 1.49 $
  * \author M. Zanetti (INFN Padova), S. Bolognesi (INFN Torino)
  *
  */
@@ -83,8 +83,8 @@ void DTDataIntegrityTask::postEndJob(){
 
 void DTDataIntegrityTask::bookHistos() {
   // Standard FED integrity histos
-  if(!hltMode) dbe->setCurrentFolder("DT/FEDIntegrity/");
-  else dbe->setCurrentFolder("DT/FEDIntegrity_EvF/");
+  if(!hltMode) dbe->setCurrentFolder("DT/FEDIntegrity_SM/");
+  else dbe->setCurrentFolder("DT/FEDIntegrity/");
 
   hFEDEntry = dbe->book1D("FEDEntries","# entries per DT FED",5,770,775);
   hFEDFatal = dbe->book1D("FEDFatal","# fatal errors DT FED",5,770,775);

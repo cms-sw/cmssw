@@ -1,5 +1,5 @@
 //
-// $Id: PATJetProducer.cc,v 1.24 2008/10/06 13:29:16 gpetrucc Exp $
+// $Id: PATJetProducer.cc,v 1.26 2008/11/04 14:12:58 auterman Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATJetProducer.h"
@@ -199,11 +199,12 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
     }
 
     if (addJetCorrFactors_) {
-        // calculate the energy correction factors
-        const JetCorrFactors & jcf = (*jetCorrs)[jetRef];
-        ajet.setP4(jcf.scaleDefault() * itJet->p4());
-        ajet.setNoCorrFactor(1./jcf.scaleDefault());
-        ajet.setJetCorrFactors(jcf);
+      // calculate the energy correction factors
+      const JetCorrFactors & jcf = (*jetCorrs)[jetRef];
+      ajet.setJetCorrFactors(jcf);
+      // set current defauklt which is JetCorrFactors::L3
+      ajet.setJetCorrStep(JetCorrFactors::L3);
+      ajet.setP4(fabs(jcf.correction(JetCorrFactors::L3)) * itJet->p4());
     }
 
     // get the MC flavour information for this jet
@@ -252,6 +253,7 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
 //       (*theBResoCalc_)(abjet);
 //       ajet.setBResolutions(abjet.resolutionEt(), abjet.resolutionEta(), abjet.resolutionPhi(), abjet.resolutionA(), abjet.resolutionB(), abjet.resolutionC(), abjet.resolutionD(), abjet.resolutionTheta());
 //     }
+
 
     // add b-tag info if available & required
     if (addBTagInfo_) {

@@ -32,8 +32,11 @@ namespace HcalDigiPerChan
     ///shapes by channel
     _mei=tool.find(digi.id()); // look for a histogram with this hit's id
     if (_mei!=tool.end()){
-      if (_mei->second==0) cout << "HcalDigiMonitor::perChanHists, Found the histo, but it's null??";
-      else{
+      //if (_mei->second==0 )
+      //cout << "HcalDigiMonitor::perChanHists, Found the histo, but it's null??";
+      //else
+      if (_mei->second!=0)
+	{
 	for (int i=0; i<digi.size(); ++i) tool[digi.id()]->Fill(i,ampl[i]);
       }
     }
@@ -145,8 +148,7 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
   baseFolder_ = rootFolder_+"DigiMonitor";
 
   occThresh_ = ps.getUntrackedParameter<int>("DigiOccThresh", -9999);
-  if (fVerbosity)
-    cout << "Digi occupancy threshold set to " << occThresh_ << endl;
+  if (fVerbosity) cout << "Digi occupancy threshold set to " << occThresh_ << endl;
 
   doFCpeds_ = ps.getUntrackedParameter<bool>("PedestalsInFC", true);
 
@@ -159,60 +161,34 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
 
   if ( ps.getUntrackedParameter<bool>("DigisPerChannel", false) ) doPerChannel_ = true;  
 
-  etaMax_ = ps.getUntrackedParameter<double>("MaxEta", 44.5);
-  etaMin_ = ps.getUntrackedParameter<double>("MinEta", -44.5);
-  
-  if (etaMax_ > 44.5)
-    {
-      cout <<"<HcalDigiMonitor> WARNING:  etaMax_ value of "<<etaMax_<<" exceeds maximum allowed value of 44.5"<<endl;
-      cout <<"                  Value being set back to 44.5."<<endl;
-      cout <<"                  Additional code changes are necessary to allow value of "<<etaMax_<<endl;
-      etaMax_ = 44.5;
-    }
-
-  if (etaMin_ < -44.5)
-    {
-      cout <<"<HcalDigiMonitor> WARNING:  etaMin_ value of "<<etaMin_<<" exceeds minimum allowed value of 44.5"<<endl;
-      cout <<"                  Value being set back to -44.5."<<endl;
-      cout <<"                  Additional code changes are necessary to allow value of "<<etaMin_<<endl;
-      etaMin_ = -44.5;
-    }
-
-
+  etaMax_ = ps.getUntrackedParameter<double>("MaxEta", 42.5);
+  etaMin_ = ps.getUntrackedParameter<double>("MinEta", -42.5);
   etaBins_ = (int)(etaMax_ - etaMin_);
-  if (fVerbosity)
-    cout << "Digi eta min/max set to " << etaMin_ << "/" <<etaMax_ << endl;
+  if (fVerbosity) cout << "Digi eta min/max set to " << etaMin_ << "/" <<etaMax_ << endl;
 
   phiMax_ = ps.getUntrackedParameter<double>("MaxPhi", 73.5);
   phiMin_ = ps.getUntrackedParameter<double>("MinPhi", -0.5);
   phiBins_ = (int)(phiMax_ - phiMin_);
-  if (fVerbosity)
-    cout << "Digi phi min/max set to " << phiMin_ << "/" <<phiMax_ << endl;
+  if (fVerbosity) cout << "Digi phi min/max set to " << phiMin_ << "/" <<phiMax_ << endl;
 
    // The number of consecutive events for which a cell must not have a digi in order to be considered dead
 
   checkNevents_ = ps.getUntrackedParameter<int>("checkNevents",100); 
-  hbHists.checkNevents = ps.getUntrackedParameter<int>("HBcheckNevents",checkNevents_); 
-  heHists.checkNevents = ps.getUntrackedParameter<int>("HEcheckNevents",checkNevents_); 
-  hoHists.checkNevents = ps.getUntrackedParameter<int>("HOcheckNevents",checkNevents_); 
-  hfHists.checkNevents = ps.getUntrackedParameter<int>("HFcheckNevents",checkNevents_); 
+
   ievt_=0;
 
 
-  for (int eta=0;eta<(etaBins_-2);++eta)
-    {
-      for (int phi=0;phi<72;++phi)
-	{
-	  for (int depth=0;depth<4;++depth)
-	    {
-	      pedcounts[eta][phi][depth]=0;
-	      rawpedsum[eta][phi][depth]=0;
-	      rawpedsum2[eta][phi][depth]=0;
-	      subpedsum[eta][phi][depth]=0;
-	      subpedsum2[eta][phi][depth]=0;
-	    } // loop over depth
-	} // loop over phi
-    } // loop over eta
+  for (int eta=0;eta<83;++eta){
+    for (int phi=0;phi<72;++phi){
+      for (int depth=0;depth<4;++depth){
+	pedcounts[eta][phi][depth]=0;
+	rawpedsum[eta][phi][depth]=0;
+	rawpedsum2[eta][phi][depth]=0;
+	subpedsum[eta][phi][depth]=0;
+	subpedsum2[eta][phi][depth]=0;
+      }
+    }
+  }
   
   for (int ii=0;ii<10;++ii)
     {
@@ -255,23 +231,23 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
     meEVT_->Fill(ievt_);
     
     OCC_L1 = m_dbe->book2D("Digi Depth 1 Occupancy Map","Digi Depth 1 Occupancy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
-    OCC_L1 -> setAxisTitle("i#eta",1);  OCC_L1 -> setAxisTitle("i#phi",2);
+    OCC_L1 -> setAxisTitle("ieta",1);  OCC_L1 -> setAxisTitle("iphi",2);
 
     OCC_L2 = m_dbe->book2D("Digi Depth 2 Occupancy Map","Digi Depth 2 Occupancy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
-    OCC_L2 -> setAxisTitle("i#eta",1);  OCC_L2 -> setAxisTitle("i#phi",2);
+    OCC_L2 -> setAxisTitle("ieta",1);  OCC_L2 -> setAxisTitle("iphi",2);
 
     OCC_L3 = m_dbe->book2D("Digi Depth 3 Occupancy Map","Digi Depth 3 Occupancy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
-    OCC_L3 -> setAxisTitle("i#eta",1);  OCC_L3 -> setAxisTitle("i#phi",2);
+    OCC_L3 -> setAxisTitle("ieta",1);  OCC_L3 -> setAxisTitle("iphi",2);
 
     OCC_L4 = m_dbe->book2D("Digi Depth 4 Occupancy Map","Digi Depth 4 Occupancy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
-    OCC_L4 -> setAxisTitle("i#eta",1);  OCC_L4 -> setAxisTitle("i#phi",2);
+    OCC_L4 -> setAxisTitle("ieta",1);  OCC_L4 -> setAxisTitle("iphi",2);
 
     OCC_ETA = m_dbe->book1D("Digi Eta Occupancy Map","Digi Eta Occupancy Map",etaBins_,etaMin_,etaMax_);
-    OCC_ETA -> setAxisTitle("i#eta",1);  
+    OCC_ETA -> setAxisTitle("ieta",1);  
     OCC_ETA -> setAxisTitle("# of Events",2);
 
     OCC_PHI = m_dbe->book1D("Digi Phi Occupancy Map","Digi Phi Occupancy Map",phiBins_,phiMin_,phiMax_);
-    OCC_PHI -> setAxisTitle("i#phi",1);  
+    OCC_PHI -> setAxisTitle("iphi",1);  
     OCC_PHI -> setAxisTitle("# of Events",2);
 
     OCC_ELEC_VME = m_dbe->book2D("Digi VME Occupancy Map","Digi VME Occupancy Map",40,-0.25,19.75,18,-0.5,17.5);
@@ -285,8 +261,8 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
     OCC_ELEC_DCC -> setAxisTitle("DCC Id",2);
 
     ERR_MAP_GEO = m_dbe->book2D("Digi Geo Error Map","Digi Geo Error Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
-    ERR_MAP_GEO -> setAxisTitle("i#eta",1);  
-    ERR_MAP_GEO -> setAxisTitle("i#phi",2);
+    ERR_MAP_GEO -> setAxisTitle("ieta",1);  
+    ERR_MAP_GEO -> setAxisTitle("iphi",2);
 
     ERR_MAP_VME = m_dbe->book2D("Digi VME Error Map","Digi VME Error Map",40,-0.25,19.75,18,-0.5,17.5);
     ERR_MAP_VME -> setAxisTitle("HTR Slot",1);  
@@ -320,7 +296,6 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
 
     hbHists.origcheck=ps.getUntrackedParameter<bool>("checkHB","true");
     hbHists.check=hbHists.origcheck;
-    hbHists.type=1;
 
     hbHists.SHAPE_tot =  m_dbe->book1D("HB Digi Shape","HB Digi Shape",10,-0.5,9.5);
     hbHists.SHAPE_THR_tot =  m_dbe->book1D("HB Digi Shape - over thresh","HB Digi Shape - over thresh",10,-0.5,9.5);
@@ -352,8 +327,8 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
     hbHists.QIE_DV ->setBinLabel(4,"Err=1, DV=1",1);
     
     hbHists.ERR_MAP_GEO = m_dbe->book2D("HB Digi Geo Error Map","HB Digi Geo Error Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
-    hbHists.ERR_MAP_GEO -> setAxisTitle("i#eta",1);  
-    hbHists.ERR_MAP_GEO -> setAxisTitle("i#phi",2);
+    hbHists.ERR_MAP_GEO -> setAxisTitle("ieta",1);  
+    hbHists.ERR_MAP_GEO -> setAxisTitle("iphi",2);
 
 
     hbHists.ERR_MAP_VME = m_dbe->book2D("HB Digi VME Error Map","HB Digi VME Error Map",40,-0.25,19.75,18,-0.5,17.5);
@@ -368,27 +343,27 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
     hbHists.ERR_MAP_DCC -> setAxisTitle("DCC Id",2);
 
     hbHists.OCC_MAP_GEO1 = m_dbe->book2D("HB Digi Depth 1 Occupancy Map","HB Digi Depth 1 Occupancy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
-    hbHists.OCC_MAP_GEO1 -> setAxisTitle("i#eta",1);  
-    hbHists.OCC_MAP_GEO1 -> setAxisTitle("i#phi",2);
+    hbHists.OCC_MAP_GEO1 -> setAxisTitle("ieta",1);  
+    hbHists.OCC_MAP_GEO1 -> setAxisTitle("iphi",2);
 
     hbHists.OCC_MAP_GEO2 = m_dbe->book2D("HB Digi Depth 2 Occupancy Map","HB Digi Depth 2 Occupancy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
-    hbHists.OCC_MAP_GEO2 -> setAxisTitle("i#eta",1);  
-    hbHists.OCC_MAP_GEO2 -> setAxisTitle("i#phi",2);
+    hbHists.OCC_MAP_GEO2 -> setAxisTitle("ieta",1);  
+    hbHists.OCC_MAP_GEO2 -> setAxisTitle("iphi",2);
 
     hbHists.OCC_MAP_GEO3 = m_dbe->book2D("HB Digi Depth 3 Occupancy Map","HB Digi Depth 3 Occupancy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
-    hbHists.OCC_MAP_GEO3 -> setAxisTitle("i#eta",1);  
-    hbHists.OCC_MAP_GEO3 -> setAxisTitle("i#phi",2);
+    hbHists.OCC_MAP_GEO3 -> setAxisTitle("ieta",1);  
+    hbHists.OCC_MAP_GEO3 -> setAxisTitle("iphi",2);
 
     hbHists.OCC_MAP_GEO4 = m_dbe->book2D("HB Digi Depth 4 Occupancy Map","HB Digi Depth 4 Occupancy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
-    hbHists.OCC_MAP_GEO4 -> setAxisTitle("i#eta",1);  
-    hbHists.OCC_MAP_GEO4 -> setAxisTitle("i#phi",2);
+    hbHists.OCC_MAP_GEO4 -> setAxisTitle("ieta",1);  
+    hbHists.OCC_MAP_GEO4 -> setAxisTitle("iphi",2);
 
     hbHists.OCC_ETA = m_dbe->book1D("HB Digi Eta Occupancy Map","HB Digi Eta Occupancy Map",etaBins_,etaMin_,etaMax_);
-    hbHists.OCC_ETA -> setAxisTitle("i#eta",1);  
+    hbHists.OCC_ETA -> setAxisTitle("ieta",1);  
     hbHists.OCC_ETA -> setAxisTitle("# of Events",2);
 
     hbHists.OCC_PHI = m_dbe->book1D("HB Digi Phi Occupancy Map","HB Digi Phi Occupancy Map",phiBins_,phiMin_,phiMax_);
-    hbHists.OCC_PHI -> setAxisTitle("i#phi",1);  
+    hbHists.OCC_PHI -> setAxisTitle("iphi",1);  
     hbHists.OCC_PHI -> setAxisTitle("# of Events",2);
 
     hbHists.OCC_MAP_VME = m_dbe->book2D("HB Digi VME Occupancy Map","HB Digi VME Occupancy Map",40,-0.25,19.75,18,-0.5,17.5);
@@ -416,7 +391,6 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
     m_dbe->setCurrentFolder(baseFolder_+"/HE");
     heHists.origcheck=ps.getUntrackedParameter<bool>("checkHE","true");
     heHists.check=heHists.origcheck;
-    heHists.type=2;
 
     heHists.SHAPE_tot =  m_dbe->book1D("HE Digi Shape","HE Digi Shape",10,-0.5,9.5);
     heHists.SHAPE_THR_tot =  m_dbe->book1D("HE Digi Shape - over thresh","HE Digi Shape - over thresh",10,-0.5,9.5);
@@ -447,8 +421,8 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
     heHists.CAPID_T0 -> setAxisTitle("# of Events",2);
 
     heHists.ERR_MAP_GEO = m_dbe->book2D("HE Digi Geo Error Map","HE Digi Geo Error Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
-    heHists.ERR_MAP_GEO -> setAxisTitle("i#eta",1);  
-    heHists.ERR_MAP_GEO -> setAxisTitle("i#phi",2);
+    heHists.ERR_MAP_GEO -> setAxisTitle("ieta",1);  
+    heHists.ERR_MAP_GEO -> setAxisTitle("iphi",2);
 
     heHists.ERR_MAP_VME = m_dbe->book2D("HE Digi VME Error Map","HE Digi VME Error Map",40,-0.25,19.75,18,-0.5,17.5);
     heHists.ERR_MAP_VME -> setAxisTitle("HTR Slot",1);  
@@ -461,27 +435,27 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
     heHists.ERR_MAP_DCC -> setAxisTitle("DCC Id",2);
 
     heHists.OCC_MAP_GEO1 = m_dbe->book2D("HE Digi Depth 1 Occupancy Map","HE Digi Depth 1 Occupancy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
-    heHists.OCC_MAP_GEO1 -> setAxisTitle("i#eta",1);  
-    heHists.OCC_MAP_GEO1 -> setAxisTitle("i#phi",2);
+    heHists.OCC_MAP_GEO1 -> setAxisTitle("ieta",1);  
+    heHists.OCC_MAP_GEO1 -> setAxisTitle("iphi",2);
 
     heHists.OCC_MAP_GEO2 = m_dbe->book2D("HE Digi Depth 2 Occupancy Map","HE Digi Depth 2 Occupancy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
-    heHists.OCC_MAP_GEO2 -> setAxisTitle("i#eta",1);  
-    heHists.OCC_MAP_GEO2 -> setAxisTitle("i#phi",2);
+    heHists.OCC_MAP_GEO2 -> setAxisTitle("ieta",1);  
+    heHists.OCC_MAP_GEO2 -> setAxisTitle("iphi",2);
 
     heHists.OCC_MAP_GEO3 = m_dbe->book2D("HE Digi Depth 3 Occupancy Map","HE Digi Depth 3 Occupancy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
-    heHists.OCC_MAP_GEO3 -> setAxisTitle("i#eta",1);  
-    heHists.OCC_MAP_GEO3 -> setAxisTitle("i#phi",2);
+    heHists.OCC_MAP_GEO3 -> setAxisTitle("ieta",1);  
+    heHists.OCC_MAP_GEO3 -> setAxisTitle("iphi",2);
 
     heHists.OCC_MAP_GEO4 = m_dbe->book2D("HE Digi Depth 4 Occupancy Map","HE Digi Depth 4 Occupancy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
-    heHists.OCC_MAP_GEO4 -> setAxisTitle("i#eta",1);  
-    heHists.OCC_MAP_GEO4 -> setAxisTitle("i#phi",2);
+    heHists.OCC_MAP_GEO4 -> setAxisTitle("ieta",1);  
+    heHists.OCC_MAP_GEO4 -> setAxisTitle("iphi",2);
 
     heHists.OCC_ETA = m_dbe->book1D("HE Digi Eta Occupancy Map","HE Digi Eta Occupancy Map",etaBins_,etaMin_,etaMax_);
-    heHists.OCC_ETA -> setAxisTitle("i#eta",1);  
+    heHists.OCC_ETA -> setAxisTitle("ieta",1);  
     heHists.OCC_ETA -> setAxisTitle("# of Events",2);
 
     heHists.OCC_PHI = m_dbe->book1D("HE Digi Phi Occupancy Map","HE Digi Phi Occupancy Map",phiBins_,phiMin_,phiMax_);
-    heHists.OCC_PHI -> setAxisTitle("i#phi",1);  
+    heHists.OCC_PHI -> setAxisTitle("iphi",1);  
     heHists.OCC_PHI -> setAxisTitle("# of Events",2);
 
     heHists.OCC_MAP_VME = m_dbe->book2D("HE Digi VME Occupancy Map","HE Digi VME Occupancy Map",40,-0.25,19.75,18,-0.5,17.5);
@@ -509,7 +483,6 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
     m_dbe->setCurrentFolder(baseFolder_+"/HF");
     hfHists.origcheck=ps.getUntrackedParameter<bool>("checkHF","true");
     hfHists.check=hfHists.origcheck;
-    hfHists.type=4;
 
     hfHists.SHAPE_tot =  m_dbe->book1D("HF Digi Shape","HF Digi Shape",10,-0.5,9.5);
     hfHists.SHAPE_THR_tot =  m_dbe->book1D("HF Digi Shape - over thresh","HF Digi Shape - over thresh",10,-0.5,9.5);
@@ -540,8 +513,8 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
     hfHists.CAPID_T0 -> setAxisTitle("# of Events",2);
 
     hfHists.ERR_MAP_GEO = m_dbe->book2D("HF Digi Geo Error Map","HF Digi Geo Error Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
-    hfHists.ERR_MAP_GEO -> setAxisTitle("i#eta",1);  
-    hfHists.ERR_MAP_GEO -> setAxisTitle("i#phi",2);
+    hfHists.ERR_MAP_GEO -> setAxisTitle("ieta",1);  
+    hfHists.ERR_MAP_GEO -> setAxisTitle("iphi",2);
 
     hfHists.ERR_MAP_VME = m_dbe->book2D("HF Digi VME Error Map","HF Digi VME Error Map",40,-0.25,19.75,18,-0.5,17.5);
     hfHists.ERR_MAP_VME -> setAxisTitle("HTR Slot",1);  
@@ -554,27 +527,27 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
     hfHists.ERR_MAP_DCC -> setAxisTitle("DCC Id",2);
 
     hfHists.OCC_MAP_GEO1 = m_dbe->book2D("HF Digi Depth 1 Occupancy Map","HF Digi Depth 1 Occupancy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
-    hfHists.OCC_MAP_GEO1 -> setAxisTitle("i#eta",1);  
-    hfHists.OCC_MAP_GEO1 -> setAxisTitle("i#phi",2);
+    hfHists.OCC_MAP_GEO1 -> setAxisTitle("ieta",1);  
+    hfHists.OCC_MAP_GEO1 -> setAxisTitle("iphi",2);
 
     hfHists.OCC_MAP_GEO2 = m_dbe->book2D("HF Digi Depth 2 Occupancy Map","HF Digi Depth 2 Occupancy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
-    hfHists.OCC_MAP_GEO2 -> setAxisTitle("i#eta",1);  
-    hfHists.OCC_MAP_GEO2 -> setAxisTitle("i#phi",2);
+    hfHists.OCC_MAP_GEO2 -> setAxisTitle("ieta",1);  
+    hfHists.OCC_MAP_GEO2 -> setAxisTitle("iphi",2);
 
     hfHists.OCC_MAP_GEO3 = m_dbe->book2D("HF Digi Depth 3 Occupancy Map","HF Digi Depth 3 Occupancy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
-    hfHists.OCC_MAP_GEO3 -> setAxisTitle("i#eta",1);  
-    hfHists.OCC_MAP_GEO3 -> setAxisTitle("i#phi",2);
+    hfHists.OCC_MAP_GEO3 -> setAxisTitle("ieta",1);  
+    hfHists.OCC_MAP_GEO3 -> setAxisTitle("iphi",2);
 
     hfHists.OCC_MAP_GEO4 = m_dbe->book2D("HF Digi Depth 4 Occupancy Map","HF Digi Depth 4 Occupancy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
-    hfHists.OCC_MAP_GEO4 -> setAxisTitle("i#eta",1);  
-    hfHists.OCC_MAP_GEO4 -> setAxisTitle("i#phi",2);
+    hfHists.OCC_MAP_GEO4 -> setAxisTitle("ieta",1);  
+    hfHists.OCC_MAP_GEO4 -> setAxisTitle("iphi",2);
 
     hfHists.OCC_ETA = m_dbe->book1D("HF Digi Eta Occupancy Map","HF Digi Eta Occupancy Map",etaBins_,etaMin_,etaMax_);
-    hfHists.OCC_ETA -> setAxisTitle("i#eta",1);  
+    hfHists.OCC_ETA -> setAxisTitle("ieta",1);  
     hfHists.OCC_ETA -> setAxisTitle("# of Events",2);
 
     hfHists.OCC_PHI = m_dbe->book1D("HF Digi Phi Occupancy Map","HF Digi Phi Occupancy Map",phiBins_,phiMin_,phiMax_);
-    hfHists.OCC_PHI -> setAxisTitle("i#phi",1);  
+    hfHists.OCC_PHI -> setAxisTitle("iphi",1);  
     hfHists.OCC_PHI -> setAxisTitle("# of Events",2);
 
 
@@ -603,8 +576,6 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
     m_dbe->setCurrentFolder(baseFolder_+"/HO");
     hoHists.origcheck=ps.getUntrackedParameter<bool>("checkHO","true");
     hoHists.check=hoHists.origcheck;
-    hoHists.type=3;
-
     hoHists.SHAPE_tot =  m_dbe->book1D("HO Digi Shape","HO Digi Shape",10,-0.5,9.5);
     hoHists.SHAPE_THR_tot =  m_dbe->book1D("HO Digi Shape - over thresh","HO Digi Shape - over thresh",10,-0.5,9.5);
     hoHists.DIGI_NUM =  m_dbe->book1D("HO # of Digis","HO # of Digis",2200,-0.5,2199.5);
@@ -634,8 +605,8 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
     hoHists.CAPID_T0 -> setAxisTitle("# of Events",2);
 
     hoHists.ERR_MAP_GEO = m_dbe->book2D("HO Digi Geo Error Map","HO Digi Geo Error Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
-    hoHists.ERR_MAP_GEO -> setAxisTitle("i#eta",1);  
-    hoHists.ERR_MAP_GEO -> setAxisTitle("i#phi",2);
+    hoHists.ERR_MAP_GEO -> setAxisTitle("ieta",1);  
+    hoHists.ERR_MAP_GEO -> setAxisTitle("iphi",2);
 
     hoHists.ERR_MAP_VME = m_dbe->book2D("HO Digi VME Error Map","HO Digi VME Error Map",40,-0.25,19.75,18,-0.5,17.5);
     hoHists.ERR_MAP_VME -> setAxisTitle("HTR Slot",1);  
@@ -648,27 +619,27 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
     hoHists.ERR_MAP_DCC -> setAxisTitle("DCC Id",2);
 
     hoHists.OCC_MAP_GEO1 = m_dbe->book2D("HO Digi Depth 1 Occupancy Map","HO Digi Depth 1 Occupancy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
-    hoHists.OCC_MAP_GEO1 -> setAxisTitle("i#eta",1);  
-    hoHists.OCC_MAP_GEO1 -> setAxisTitle("i#phi",2);
+    hoHists.OCC_MAP_GEO1 -> setAxisTitle("ieta",1);  
+    hoHists.OCC_MAP_GEO1 -> setAxisTitle("iphi",2);
 
     hoHists.OCC_MAP_GEO2 = m_dbe->book2D("HO Digi Depth 2 Occupancy Map","HO Digi Depth 2 Occupancy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
-    hoHists.OCC_MAP_GEO2 -> setAxisTitle("i#eta",1);  
-    hoHists.OCC_MAP_GEO2 -> setAxisTitle("i#phi",2);
+    hoHists.OCC_MAP_GEO2 -> setAxisTitle("ieta",1);  
+    hoHists.OCC_MAP_GEO2 -> setAxisTitle("iphi",2);
 
     hoHists.OCC_MAP_GEO3 = m_dbe->book2D("HO Digi Depth 3 Occupancy Map","HO Digi Depth 3 Occupancy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
-    hoHists.OCC_MAP_GEO3 -> setAxisTitle("i#eta",1);  
-    hoHists.OCC_MAP_GEO3 -> setAxisTitle("i#phi",2);
+    hoHists.OCC_MAP_GEO3 -> setAxisTitle("ieta",1);  
+    hoHists.OCC_MAP_GEO3 -> setAxisTitle("iphi",2);
 
     hoHists.OCC_MAP_GEO4 = m_dbe->book2D("HO Digi Depth 4 Occupancy Map","HO Digi Depth 4 Occupancy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
-    hoHists.OCC_MAP_GEO4 -> setAxisTitle("i#eta",1);  
-    hoHists.OCC_MAP_GEO4 -> setAxisTitle("i#phi",2);
+    hoHists.OCC_MAP_GEO4 -> setAxisTitle("ieta",1);  
+    hoHists.OCC_MAP_GEO4 -> setAxisTitle("iphi",2);
 
     hoHists.OCC_ETA = m_dbe->book1D("HO Digi Eta Occupancy Map","HO Digi Eta Occupancy Map",etaBins_,etaMin_,etaMax_);
-    hoHists.OCC_ETA -> setAxisTitle("i#eta",1);  
+    hoHists.OCC_ETA -> setAxisTitle("ieta",1);  
     hoHists.OCC_ETA -> setAxisTitle("# of Events",2);
 
     hoHists.OCC_PHI = m_dbe->book1D("HO Digi Phi Occupancy Map","HO Digi Phi Occupancy Map",phiBins_,phiMin_,phiMax_);
-    hoHists.OCC_PHI -> setAxisTitle("i#phi",1);  
+    hoHists.OCC_PHI -> setAxisTitle("iphi",1);  
     hoHists.OCC_PHI -> setAxisTitle("# of Events",2);
 
 
@@ -703,7 +674,6 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
 					  etaBins_, etaMin_, etaMax_, 
 					  phiBins_, phiMin_, phiMax_); 
 
-    /*
     RAW_PEDESTAL_MEAN[0] = m_dbe->book2D("RawPedestalMeanDepth1","Raw Pedestal Mean Value Map (Time Slices 0-1) Depth 1",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
     RAW_PEDESTAL_MEAN[0]->setAxisTitle("i#eta",1);
     RAW_PEDESTAL_MEAN[0]->setAxisTitle("i#phi",2);
@@ -760,7 +730,7 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
     SUB_PEDESTAL_RMS[3]  = m_dbe->book2D("SubPedestalRMSDepth4", "Sub Pedestal RMS Map (Time Slices 0-1) Depth 4", etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
     SUB_PEDESTAL_RMS[3]->setAxisTitle("i#eta",1);
     SUB_PEDESTAL_RMS[3]->setAxisTitle("i#phi",2);
-    */
+
     std::stringstream histname; 
     std::stringstream histtitle; 
 
@@ -810,47 +780,29 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
 	sprintf(title,"HB Problem Cell Depth %i -- ADC Sum is zero",d+1);
 	hbHists.problemCell_ADCSumIsZero.push_back(m_dbe->book2D(name,title,etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_));
 
-	m_dbe->setCurrentFolder(baseFolder_+"/HB/PedestalPlots"); 
-	sprintf(name,"HB_etaphi_raw_pedestal_mean_depth%i",d+1);
+	sprintf(name,"HB_raw_pedestal_mean_depth%i",d+1);
 	sprintf(title,"HB raw pedestal mean depth %i (time slices 0-1)",d+1);
 	hbHists.RAW_PEDESTAL_MEAN[d]  = m_dbe->book2D(name, title, etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
 	hbHists.RAW_PEDESTAL_MEAN[d]->setAxisTitle("i#eta",1);
 	hbHists.RAW_PEDESTAL_MEAN[d]->setAxisTitle("i#phi",2);
-	sprintf(name,"HB_etaphi_raw_pedestal_rms_depth%i",d+1);
+	sprintf(name,"HB_raw_pedestal_RMS_depth%i",d+1);
 	sprintf(title,"HB raw pedestal RMS depth %i (time slices 0-1)",d+1);
 	hbHists.RAW_PEDESTAL_RMS[d]   = m_dbe->book2D(name, title, etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
 	hbHists.RAW_PEDESTAL_RMS[d]->setAxisTitle("i#eta",1);
 	hbHists.RAW_PEDESTAL_RMS[d]->setAxisTitle("i#phi",2);
 
-	sprintf(name,"HB_etaphi_sub_pedestal_mean_depth%i",d+1);
+	sprintf(name,"HB_sub_pedestal_mean_depth%i",d+1);
 	sprintf(title,"HB subtracted pedestal mean depth %i (time slices 0-1)",d+1);
 	hbHists.SUB_PEDESTAL_MEAN[d] = m_dbe->book2D(name, title, etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
 	hbHists.SUB_PEDESTAL_MEAN[d]->setAxisTitle("i#eta",1);
 	hbHists.SUB_PEDESTAL_MEAN[d]->setAxisTitle("i#phi",2);
-	sprintf(name,"HB_etaphi_sub_pedestal_rms_depth%i",d+1);
+	sprintf(name,"HB_sub_pedestal_RMS_depth%i",d+1);
 	sprintf(title,"HB subtracted pedestal RMS depth %i (time slices 0-1)",d+1);
 	hbHists.SUB_PEDESTAL_RMS[d]  = m_dbe->book2D(name, title, etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
 	hbHists.SUB_PEDESTAL_RMS[d]->setAxisTitle("i#eta",1);
 	hbHists.SUB_PEDESTAL_RMS[d]->setAxisTitle("i#phi",2);
 
-	sprintf(name,"HB_raw_pedestal_mean_depth%i",d+1);
-	sprintf(title,"HB raw pedestal means depth %i (time slices 0-1)",d+1);
-	hbHists.RAW_PEDESTAL_MEAN_1D[d]=m_dbe->book1D(name,title,100,0,10);
-	hbHists.RAW_PEDESTAL_MEAN_1D[d]->setAxisTitle("Pedestal Mean (ADC counts)",1);
-	sprintf(name,"HB_sub_pedestal_mean_depth%i",d+1);
-	sprintf(title,"HB sub pedestal means depth %i (time slices 0-1)",d+1);
-	hbHists.SUB_PEDESTAL_MEAN_1D[d]=m_dbe->book1D(name,title,200,-3,3);
-	hbHists.SUB_PEDESTAL_MEAN_1D[d]->setAxisTitle("Subtracted Pedestal Mean (ADC counts)",1);
 
-	sprintf(name,"HB_raw_pedestal_rms_depth%i",d+1);
-	sprintf(title,"HB raw pedestal RMS: depth %i (time slices 0-1)",d+1);
-	hbHists.RAW_PEDESTAL_RMS_1D[d]=m_dbe->book1D(name,title,100,0,5);
-	hbHists.RAW_PEDESTAL_RMS_1D[d]->setAxisTitle("Pedestal RMS (ADC counts)",1);
-	
-	sprintf(name,"HB_sub_pedestal_rms_depth%i",d+1);
-	sprintf(title,"HB sub pedestal RMS: depth %i (time slices 0-1)",d+1);
-	hbHists.SUB_PEDESTAL_RMS_1D[d]=m_dbe->book1D(name,title,200,-3,3);
-	hbHists.SUB_PEDESTAL_RMS_1D[d]->setAxisTitle("Subtracted Pedestal RMS (ADC counts)",1);
       }
 
    //HE 
@@ -888,47 +840,27 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
 	sprintf(title,"HE Problem Cell Depth %i -- ADC Sum is zero",d+1);
 	heHists.problemCell_ADCSumIsZero.push_back(m_dbe->book2D(name,title,etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_));
 
-	m_dbe->setCurrentFolder(baseFolder_+"/HE/PedestalPlots"); 
-	sprintf(name,"HE_etaphi_raw_pedestal_mean_depth%i",d+1);
+	sprintf(name,"HE_raw_pedestal_mean_depth%i",d+1);
 	sprintf(title,"HE raw pedestal mean depth %i (time slices 0-1)",d+1);
 	heHists.RAW_PEDESTAL_MEAN[d]  = m_dbe->book2D(name, title, etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
 	heHists.RAW_PEDESTAL_MEAN[d]->setAxisTitle("i#eta",1);
 	heHists.RAW_PEDESTAL_MEAN[d]->setAxisTitle("i#phi",2);
-	sprintf(name,"HE_etaphi_raw_pedestal_rms_depth%i",d+1);
+	sprintf(name,"HE_raw_pedestal_RMS_depth%i",d+1);
 	sprintf(title,"HE raw pedestal RMS depth %i (time slices 0-1)",d+1);
 	heHists.RAW_PEDESTAL_RMS[d]   = m_dbe->book2D(name, title, etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
 	heHists.RAW_PEDESTAL_RMS[d]->setAxisTitle("i#eta",1);
 	heHists.RAW_PEDESTAL_RMS[d]->setAxisTitle("i#phi",2);
 
-	sprintf(name,"HE_etaphi_sub_pedestal_mean_depth%i",d+1);
+	sprintf(name,"HE_sub_pedestal_mean_depth%i",d+1);
 	sprintf(title,"HE subtracted pedestal mean depth %i (time slices 0-1)",d+1);
 	heHists.SUB_PEDESTAL_MEAN[d] = m_dbe->book2D(name, title, etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
 	heHists.SUB_PEDESTAL_MEAN[d]->setAxisTitle("i#eta",1);
 	heHists.SUB_PEDESTAL_MEAN[d]->setAxisTitle("i#phi",2);
-	sprintf(name,"HE_etaphi_sub_pedestal_rms_depth%i",d+1);
+	sprintf(name,"HE_sub_pedestal_RMS_depth%i",d+1);
 	sprintf(title,"HE subtracted pedestal RMS depth %i (time slices 0-1)",d+1);
 	heHists.SUB_PEDESTAL_RMS[d]  = m_dbe->book2D(name, title, etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
 	heHists.SUB_PEDESTAL_RMS[d]->setAxisTitle("i#eta",1);
 	heHists.SUB_PEDESTAL_RMS[d]->setAxisTitle("i#phi",2);
-
-	sprintf(name,"HE_raw_pedestal_mean_depth%i",d+1);
-	sprintf(title,"HE raw pedestal means depth %i (time slices 0-1)",d+1);
-	heHists.RAW_PEDESTAL_MEAN_1D[d]=m_dbe->book1D(name,title,100,0,10);
-	heHists.RAW_PEDESTAL_MEAN_1D[d]->setAxisTitle("Pedestal Mean (ADC counts)",1);
-	sprintf(name,"HE_sub_pedestal_mean_depth%i",d+1);
-	sprintf(title,"HE sub pedestal means depth %i (time slices 0-1)",d+1);
-	heHists.SUB_PEDESTAL_MEAN_1D[d]=m_dbe->book1D(name,title,200,-3,3);
-	heHists.SUB_PEDESTAL_MEAN_1D[d]->setAxisTitle("Subtracted Pedestal Mean (ADC counts)",1);
-
-	sprintf(name,"HE_raw_pedestal_rms_depth%i",d+1);
-	sprintf(title,"HE raw pedestal RMS: depth %i (time slices 0-1)",d+1);
-	heHists.RAW_PEDESTAL_RMS_1D[d]=m_dbe->book1D(name,title,100,0,5);
-	heHists.RAW_PEDESTAL_RMS_1D[d]->setAxisTitle("Pedestal RMS (ADC counts)",1);
-	
-	sprintf(name,"HE_sub_pedestal_rms_depth%i",d+1);
-	sprintf(title,"HE sub pedestal RMS: depth %i (time slices 0-1)",d+1);
-	heHists.SUB_PEDESTAL_RMS_1D[d]=m_dbe->book1D(name,title,200,-3,3);
-	heHists.SUB_PEDESTAL_RMS_1D[d]->setAxisTitle("Subtracted Pedestal RMS (ADC counts)",1);
       }
 
     //HO 
@@ -962,47 +894,29 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
 	sprintf(name,"HO_problem_ADCSumIsZero_depth%i",d+1);
 	sprintf(title,"HO Problem Cell Depth %i -- ADC Sum is zero",d+1);
 	hoHists.problemCell_ADCSumIsZero.push_back(m_dbe->book2D(name,title,etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_));
-	m_dbe->setCurrentFolder(baseFolder_+"/HO/PedestalPlots"); 
-	sprintf(name,"HO_etaphi_raw_pedestal_mean_depth%i",d+1);
+
+	sprintf(name,"HO_raw_pedestal_mean_depth%i",d+1);
 	sprintf(title,"HO raw pedestal mean depth %i (time slices 0-1)",d+1);
 	hoHists.RAW_PEDESTAL_MEAN[d]  = m_dbe->book2D(name, title, etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
 	hoHists.RAW_PEDESTAL_MEAN[d]->setAxisTitle("i#eta",1);
 	hoHists.RAW_PEDESTAL_MEAN[d]->setAxisTitle("i#phi",2);
-	sprintf(name,"HO_etaphi_raw_pedestal_rms_depth%i",d+1);
+	sprintf(name,"HO_raw_pedestal_RMS_depth%i",d+1);
 	sprintf(title,"HO raw pedestal RMS depth %i (time slices 0-1)",d+1);
 	hoHists.RAW_PEDESTAL_RMS[d]   = m_dbe->book2D(name, title, etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
 	hoHists.RAW_PEDESTAL_RMS[d]->setAxisTitle("i#eta",1);
 	hoHists.RAW_PEDESTAL_RMS[d]->setAxisTitle("i#phi",2);
 
-	sprintf(name,"HO_etaphi_sub_pedestal_mean_depth%i",d+1);
+	sprintf(name,"HO_sub_pedestal_mean_depth%i",d+1);
 	sprintf(title,"HO subtracted pedestal mean depth %i (time slices 0-1)",d+1);
 	hoHists.SUB_PEDESTAL_MEAN[d] = m_dbe->book2D(name, title, etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
 	hoHists.SUB_PEDESTAL_MEAN[d]->setAxisTitle("i#eta",1);
 	hoHists.SUB_PEDESTAL_MEAN[d]->setAxisTitle("i#phi",2);
-	sprintf(name,"HO_etaphi_sub_pedestal_rms_depth%i",d+1);
+	sprintf(name,"HO_sub_pedestal_RMS_depth%i",d+1);
 	sprintf(title,"HO subtracted pedestal RMS depth %i (time slices 0-1)",d+1);
 	hoHists.SUB_PEDESTAL_RMS[d]  = m_dbe->book2D(name, title, etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
 	hoHists.SUB_PEDESTAL_RMS[d]->setAxisTitle("i#eta",1);
 	hoHists.SUB_PEDESTAL_RMS[d]->setAxisTitle("i#phi",2);
-	
-	sprintf(name,"HO_raw_pedestal_mean_depth%i",d+1);
-	sprintf(title,"HO raw pedestal means depth %i (time slices 0-1)",d+1);
-	hoHists.RAW_PEDESTAL_MEAN_1D[d]=m_dbe->book1D(name,title,100,0,10);
-	hoHists.RAW_PEDESTAL_MEAN_1D[d]->setAxisTitle("Pedestal Mean (ADC counts)",1);
-	sprintf(name,"HO_sub_pedestal_mean_depth%i",d+1);
-	sprintf(title,"HO sub pedestal means depth %i (time slices 0-1)",d+1);
-	hoHists.SUB_PEDESTAL_MEAN_1D[d]=m_dbe->book1D(name,title,200,-3,3);
-	hoHists.SUB_PEDESTAL_MEAN_1D[d]->setAxisTitle("Subtracted Pedestal Mean (ADC counts)",1);
 
-	sprintf(name,"HO_raw_pedestal_rms_depth%i",d+1);
-	sprintf(title,"HO raw pedestal RMS: depth %i (time slices 0-1)",d+1);
-	hoHists.RAW_PEDESTAL_RMS_1D[d]=m_dbe->book1D(name,title,100,0,5);
-	hoHists.RAW_PEDESTAL_RMS_1D[d]->setAxisTitle("Pedestal RMS (ADC counts)",1);
-		
-	sprintf(name,"HO_sub_pedestal_rms_depth%i",d+1);
-	sprintf(title,"HO sub pedestal RMS: depth %i (time slices 0-1)",d+1);
-	hoHists.SUB_PEDESTAL_RMS_1D[d]=m_dbe->book1D(name,title,200,-3,3);
-	hoHists.SUB_PEDESTAL_RMS_1D[d]->setAxisTitle("Subtracted Pedestal RMS (ADC counts)",1);
       }
 
    //HF 
@@ -1038,47 +952,28 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
 	sprintf(name,"HF_problem_ADCSumIsZero_depth%i",d+1);
 	sprintf(title,"HF Problem Cell Depth %i -- ADC Sum is zero",d+1);
 	hfHists.problemCell_ADCSumIsZero.push_back(m_dbe->book2D(name,title,etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_));
-	m_dbe->setCurrentFolder(baseFolder_+"/HF/PedestalPlots"); 
-	sprintf(name,"HF_etaphi_raw_pedestal_mean_depth%i",d+1);
+
+	sprintf(name,"HF_raw_pedestal_mean_depth%i",d+1);
 	sprintf(title,"HF raw pedestal mean depth %i (time slices 0-1)",d+1);
 	hfHists.RAW_PEDESTAL_MEAN[d]  = m_dbe->book2D(name, title, etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
 	hfHists.RAW_PEDESTAL_MEAN[d]->setAxisTitle("i#eta",1);
 	hfHists.RAW_PEDESTAL_MEAN[d]->setAxisTitle("i#phi",2);
-	sprintf(name,"HF_etaphi_raw_pedestal_rms_depth%i",d+1);
+	sprintf(name,"HF_raw_pedestal_RMS_depth%i",d+1);
 	sprintf(title,"HF raw pedestal RMS depth %i (time slices 0-1)",d+1);
 	hfHists.RAW_PEDESTAL_RMS[d]   = m_dbe->book2D(name, title, etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
 	hfHists.RAW_PEDESTAL_RMS[d]->setAxisTitle("i#eta",1);
 	hfHists.RAW_PEDESTAL_RMS[d]->setAxisTitle("i#phi",2);
 
-	sprintf(name,"HF_etaphi_sub_pedestal_mean_depth%i",d+1);
+	sprintf(name,"HF_sub_pedestal_mean_depth%i",d+1);
 	sprintf(title,"HF subtracted pedestal mean depth %i (time slices 0-1)",d+1);
 	hfHists.SUB_PEDESTAL_MEAN[d] = m_dbe->book2D(name, title, etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
 	hfHists.SUB_PEDESTAL_MEAN[d]->setAxisTitle("i#eta",1);
 	hfHists.SUB_PEDESTAL_MEAN[d]->setAxisTitle("i#phi",2);
-	sprintf(name,"HF_etaphi_sub_pedestal_rms_depth%i",d+1);
+	sprintf(name,"HF_sub_pedestal_RMS_depth%i",d+1);
 	sprintf(title,"HF subtracted pedestal RMS depth %i (time slices 0-1)",d+1);
 	hfHists.SUB_PEDESTAL_RMS[d]  = m_dbe->book2D(name, title, etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
 	hfHists.SUB_PEDESTAL_RMS[d]->setAxisTitle("i#eta",1);
 	hfHists.SUB_PEDESTAL_RMS[d]->setAxisTitle("i#phi",2);
-	
-	sprintf(name,"HF_raw_pedestal_mean_depth%i",d+1);
-	sprintf(title,"HF raw pedestal means depth %i (time slices 0-1)",d+1);
-	hfHists.RAW_PEDESTAL_MEAN_1D[d]=m_dbe->book1D(name,title,100,0,10);
-	hfHists.RAW_PEDESTAL_MEAN_1D[d]->setAxisTitle("Pedestal Mean (ADC counts)",1);
-	sprintf(name,"HF_sub_pedestal_mean_depth%i",d+1);
-	sprintf(title,"HF sub pedestal means depth %i (time slices 0-1)",d+1);
-	hfHists.SUB_PEDESTAL_MEAN_1D[d]=m_dbe->book1D(name,title,200,-3,3);
-	hfHists.SUB_PEDESTAL_MEAN_1D[d]->setAxisTitle("Subtracted Pedestal Mean (ADC counts)",1);
-
-	sprintf(name,"HF_raw_pedestal_rms_depth%i",d+1);
-	sprintf(title,"HF raw pedestal RMS: depth %i (time slices 0-1)",d+1);
-	hfHists.RAW_PEDESTAL_RMS_1D[d]=m_dbe->book1D(name,title,100,0,5);
-	hfHists.RAW_PEDESTAL_RMS_1D[d]->setAxisTitle("Pedestal RMS (ADC counts)",1);
-		
-	sprintf(name,"HF_sub_pedestal_rms_depth%i",d+1);
-	sprintf(title,"HF sub pedestal RMS: depth %i (time slices 0-1)",d+1);
-	hfHists.SUB_PEDESTAL_RMS_1D[d]=m_dbe->book1D(name,title,100,0,5);
-	hfHists.SUB_PEDESTAL_RMS_1D[d]->setAxisTitle("Subtracted Pedestal RMS (ADC counts)",1);
       } // for (int d=0;d<4;++d)
 
 
@@ -1173,40 +1068,40 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
 								      phiBins_,phiMin_,phiMax_)); 
       }
 
-    hcalHists.PROBLEMDIGICELLS -> setAxisTitle("i#eta",1);  
-    hcalHists.PROBLEMDIGICELLS -> setAxisTitle("i#phi",2);
-    hbHists.PROBLEMDIGICELLS -> setAxisTitle("i#eta",1);  
-    hbHists.PROBLEMDIGICELLS -> setAxisTitle("i#phi",2);
-    heHists.PROBLEMDIGICELLS -> setAxisTitle("i#eta",1);  
-    heHists.PROBLEMDIGICELLS -> setAxisTitle("i#phi",2);
-    hoHists.PROBLEMDIGICELLS -> setAxisTitle("i#eta",1);  
-    hoHists.PROBLEMDIGICELLS -> setAxisTitle("i#phi",2);
-    hfHists.PROBLEMDIGICELLS -> setAxisTitle("i#eta",1);  
-    hfHists.PROBLEMDIGICELLS -> setAxisTitle("i#phi",2);
+    hcalHists.PROBLEMDIGICELLS -> setAxisTitle("ieta",1);  
+    hcalHists.PROBLEMDIGICELLS -> setAxisTitle("iphi",2);
+    hbHists.PROBLEMDIGICELLS -> setAxisTitle("ieta",1);  
+    hbHists.PROBLEMDIGICELLS -> setAxisTitle("iphi",2);
+    heHists.PROBLEMDIGICELLS -> setAxisTitle("ieta",1);  
+    heHists.PROBLEMDIGICELLS -> setAxisTitle("iphi",2);
+    hoHists.PROBLEMDIGICELLS -> setAxisTitle("ieta",1);  
+    hoHists.PROBLEMDIGICELLS -> setAxisTitle("iphi",2);
+    hfHists.PROBLEMDIGICELLS -> setAxisTitle("ieta",1);  
+    hfHists.PROBLEMDIGICELLS -> setAxisTitle("iphi",2);
    
     for (int d=0;d<4;++d)
       {
-	hcalHists.PROBLEMDIGICELLS_DEPTH[d] -> setAxisTitle("i#eta",1);  
-	hcalHists.PROBLEMDIGICELLS_DEPTH[d] -> setAxisTitle("i#phi",2);
+	hcalHists.PROBLEMDIGICELLS_DEPTH[d] -> setAxisTitle("ieta",1);  
+	hcalHists.PROBLEMDIGICELLS_DEPTH[d] -> setAxisTitle("iphi",2);
 	if (d<2)
 	  {
-	    hbHists.PROBLEMDIGICELLS_DEPTH[d] -> setAxisTitle("i#eta",1);  
-	    hbHists.PROBLEMDIGICELLS_DEPTH[d] -> setAxisTitle("i#phi",2);
+	    hbHists.PROBLEMDIGICELLS_DEPTH[d] -> setAxisTitle("ieta",1);  
+	    hbHists.PROBLEMDIGICELLS_DEPTH[d] -> setAxisTitle("iphi",2);
 	  }
 	if (d<3)
 	  {
-	    heHists.PROBLEMDIGICELLS_DEPTH[d] -> setAxisTitle("i#eta",1);  
-	    heHists.PROBLEMDIGICELLS_DEPTH[d] -> setAxisTitle("i#phi",2);
+	    heHists.PROBLEMDIGICELLS_DEPTH[d] -> setAxisTitle("ieta",1);  
+	    heHists.PROBLEMDIGICELLS_DEPTH[d] -> setAxisTitle("iphi",2);
 	  }
 	if (d==3)
 	  {
-	    hoHists.PROBLEMDIGICELLS_DEPTH[d] -> setAxisTitle("i#eta",1);  
-	    hoHists.PROBLEMDIGICELLS_DEPTH[d] -> setAxisTitle("i#phi",2);
+	    hoHists.PROBLEMDIGICELLS_DEPTH[d] -> setAxisTitle("ieta",1);  
+	    hoHists.PROBLEMDIGICELLS_DEPTH[d] -> setAxisTitle("iphi",2);
 	  }
 	if (d<2)
 	  {
-	    hfHists.PROBLEMDIGICELLS_DEPTH[d] -> setAxisTitle("i#eta",1);  
-	    hfHists.PROBLEMDIGICELLS_DEPTH[d] -> setAxisTitle("i#phi",2);
+	    hfHists.PROBLEMDIGICELLS_DEPTH[d] -> setAxisTitle("ieta",1);  
+	    hfHists.PROBLEMDIGICELLS_DEPTH[d] -> setAxisTitle("iphi",2);
 	  }
       }
 
@@ -1222,8 +1117,7 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
 				   const HcalUnpackerReport& report)
 { 
   if(!m_dbe) { 
-    if(fVerbosity) 
-      cout <<"HcalDigiMonitor::processEvent   DQMStore not instantiated!!!"<<endl; 
+    if(fVerbosity) printf("HcalDigiMonitor::processEvent   DQMStore not instantiated!!!\n");  
     return; 
   }
   
@@ -1293,20 +1187,30 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
   }
 
   // Check for consistently missing digis
-  if (ievt_>0)
-
+  if (ievt_>0 && ievt_%(checkNevents_)==0)
     {
-      if (ievt_%hbHists.checkNevents==0)
-	reset_Nevents(hbHists);
-      if (ievt_%heHists.checkNevents==0)
-	reset_Nevents(heHists);
-      if (ievt_%hoHists.checkNevents==0)
-	reset_Nevents(hoHists);
-      if (ievt_%hfHists.checkNevents==0)
-	reset_Nevents(hfHists);
-	      
-      // Fill pedestal histograms;
-      if (ievt_%checkNevents_ ==0) fillPedestalHistos();
+      if (showTiming) 
+	{
+	  cpu_timer.reset(); cpu_timer.start();
+	}
+      reset_Nevents();
+      if (showTiming)
+	{
+	  cpu_timer.stop();
+	  cout <<"TIMER:: HcalDigiMonitor DIGI CheckNevents -> "<<cpu_timer.cpuTime()<<endl;
+	  cpu_timer.reset(); cpu_timer.start();
+	}
+      
+      // Fill some diagnostic histograms only every N events
+      fill_Nevents(hbHists);
+      fill_Nevents(heHists);
+      fill_Nevents(hoHists);
+      fill_Nevents(hfHists);
+      if (showTiming)
+	{
+	  cpu_timer.stop();
+	  cout <<"TIMER:: HcalDigiMonitor DIGI fill_Nevents -> "<<cpu_timer.cpuTime()<<endl;
+	}
     }
 
   return;
@@ -1355,21 +1259,21 @@ void HcalDigiMonitor::fill_Nevents(DigiHists& h)
 }// void fill_Nevents(DigiHists& h)
 
 
-void HcalDigiMonitor::fillPedestalHistos(void)
+void HcalDigiMonitor::reset_Nevents(void)
 {
-  // Fills pedestal histograms
-  if (fVerbosity) 
-    cout <<"<HcalDigiMonitor> Entered fillPedestalHistos routine"<<endl;
+  if (fVerbosity)
+    cout <<"<HcalDigiMonitor> Entered reset_Nevents routine"<<endl;
   
+  // Fill Pedestal Histograms
   int mydepth=0;
 
-  for (int eta=0;eta<(etaBins_-2);++eta)
+  for (int eta=0;eta<83;++eta)
     {
       for (int phi=0;phi<72;++phi)
 	{
 	  for (int depth=0;depth<4;++depth)
 	    {
-	      if (fabs(eta-int(etaBins_-2)/2)>28 && depth>1) // shift HF cells back to their appropriate depths
+	      if (fabs(eta-41)>28 && depth>1) // shift HF cells back to their appropriate depths
 		mydepth=depth-2;
 	      else mydepth=depth;
 
@@ -1379,147 +1283,105 @@ void HcalDigiMonitor::fillPedestalHistos(void)
 	      // Also, first bins around eta,phi are empty.
 	      // Thus, eta,phi must be shifted by +2 (+1 for bin count, +1 to ignore empty row)
 	      
-	      if (fabs(eta-int(etaBins_-2)/2)==29 && depth>=2)
+	      if (fabs(eta-41)==29 && depth==2)
 		// This value of eta is shared by HB, HE -- add their values together.  Maybe average them at some point instead?
 		{
 		  // raw pedestals
-		  double myval= rawpedsum[eta][phi][depth]/pedcounts[eta][phi][depth]; // HF
-		  double myval2 = rawpedsum[eta][phi][mydepth]/pedcounts[eta][phi][mydepth]; // HE
-		  //RAW_PEDESTAL_MEAN[mydepth]->setBinContent(eta+2,phi+2,myval+myval2);
-		  double RMS = 1.0*rawpedsum2[eta][phi][depth]/pedcounts[eta][phi][depth]-myval*myval;
+		  double myval= rawpedsum[eta][phi][depth]/pedcounts[eta][phi][2]; // HF
+		  double myval2 = rawpedsum[eta][phi][0]/pedcounts[eta][phi][0]; // HE
+		  RAW_PEDESTAL_MEAN[mydepth]->setBinContent(eta+2,phi+2,myval+myval2);
+		  double RMS = 1.0*rawpedsum2[eta][phi][2]/pedcounts[eta][phi][2]-myval*myval;
 		  RMS=pow(fabs(RMS),0.5); // HF
 		  hfHists.RAW_PEDESTAL_MEAN[mydepth]->setBinContent(eta+2,phi+2,myval);
 		  hfHists.RAW_PEDESTAL_RMS[mydepth]->setBinContent(eta+2,phi+2,RMS);
-		  hfHists.RAW_PEDESTAL_MEAN_1D[mydepth]->Fill(myval);
-		  hfHists.RAW_PEDESTAL_RMS_1D[mydepth]->Fill(RMS);
-		  
 
-		  double RMS2 = 1.0*rawpedsum2[eta][phi][mydepth]/pedcounts[eta][phi][mydepth]-myval2*myval2;
+		  double RMS2 = 1.0*rawpedsum2[eta][phi][0]/pedcounts[eta][phi][0]-myval2*myval2;
 		  RMS2=pow(fabs(RMS2),0.5); // HE
-		  //RAW_PEDESTAL_RMS[mydepth]->setBinContent(eta+2,phi+2,RMS+RMS2);
+		  RAW_PEDESTAL_RMS[mydepth]->setBinContent(eta+2,phi+2,RMS+RMS2);
 		  heHists.RAW_PEDESTAL_MEAN[mydepth]->setBinContent(eta+2,phi+2,myval2);
 		  heHists.RAW_PEDESTAL_RMS[mydepth]->setBinContent(eta+2,phi+2,RMS2);
-		  heHists.RAW_PEDESTAL_MEAN_1D[mydepth]->Fill(myval2);
-		  heHists.RAW_PEDESTAL_RMS_1D[mydepth]->Fill(RMS2);
+
 		  
 		  // subtracted pedestals
-		  myval= subpedsum[eta][phi][depth]/pedcounts[eta][phi][depth]; // HF
-		  myval2 = subpedsum[eta][phi][mydepth]/pedcounts[eta][phi][mydepth]; // HE
-		  //SUB_PEDESTAL_MEAN[mydepth]->setBinContent(eta+2,phi+2,myval+myval2);
-		  RMS = 1.0*subpedsum2[eta][phi][depth]/pedcounts[eta][phi][depth]-myval*myval;
+		  myval= subpedsum[eta][phi][2]/pedcounts[eta][phi][2]; // HF
+		  myval2 = subpedsum[eta][phi][0]/pedcounts[eta][phi][0]; // HE
+		  SUB_PEDESTAL_MEAN[mydepth]->setBinContent(eta+2,phi+2,myval+myval2);
+		  RMS = 1.0*subpedsum2[eta][phi][2]/pedcounts[eta][phi][2]-myval*myval;
 		  
 		  RMS=pow(fabs(RMS),0.5); // HF
 		  hfHists.SUB_PEDESTAL_MEAN[mydepth]->setBinContent(eta+2,phi+2,myval);
 		  hfHists.SUB_PEDESTAL_RMS[mydepth]->setBinContent(eta+2,phi+2,RMS);
-		  hfHists.SUB_PEDESTAL_MEAN_1D[mydepth]->Fill(myval);
-		  hfHists.SUB_PEDESTAL_RMS_1D[mydepth]->Fill(RMS);
-		  
-		  RMS2 = 1.0*subpedsum2[eta][phi][mydepth]/pedcounts[eta][phi][mydepth]-myval2*myval2;
+
+		  RMS2 = 1.0*subpedsum2[eta][phi][0]/pedcounts[eta][phi][0]-myval2*myval2;
 	
 		  RMS2=pow(fabs(RMS2),0.5); // HE
 		  heHists.SUB_PEDESTAL_MEAN[mydepth]->setBinContent(eta+2,phi+2,myval2);
 		  heHists.SUB_PEDESTAL_RMS[mydepth]->setBinContent(eta+2,phi+2,RMS2);
-		  heHists.SUB_PEDESTAL_MEAN_1D[mydepth]->Fill(myval2);
-		  heHists.SUB_PEDESTAL_RMS_1D[mydepth]->Fill(RMS2);
-		  
-		  //SUB_PEDESTAL_RMS[mydepth]->setBinContent(eta+2,phi+2,RMS+RMS2);
+
+		  SUB_PEDESTAL_RMS[mydepth]->setBinContent(eta+2,phi+2,RMS+RMS2);
 		}
 
 	      else
 		{
 		  double myval= rawpedsum[eta][phi][depth]/pedcounts[eta][phi][depth];
-		  //RAW_PEDESTAL_MEAN[mydepth]->setBinContent(eta+2,phi+2,myval);
+		  RAW_PEDESTAL_MEAN[mydepth]->setBinContent(eta+2,phi+2,myval);
 		  double RMS = 1.0*rawpedsum2[eta][phi][depth]/pedcounts[eta][phi][depth]-myval*myval;
 		  
 		  RMS=pow(fabs(RMS),0.5); // use fabs just in case we run into rounding issues near 0
-		  //RAW_PEDESTAL_RMS[mydepth]->setBinContent(eta+2,phi+2,RMS);
+		  RAW_PEDESTAL_RMS[mydepth]->setBinContent(eta+2,phi+2,RMS);
 		  
 		  double sub_myval= subpedsum[eta][phi][depth]/pedcounts[eta][phi][depth];
-		  //SUB_PEDESTAL_MEAN[mydepth]->setBinContent(eta+2,phi+2,sub_myval);
+		  SUB_PEDESTAL_MEAN[mydepth]->setBinContent(eta+2,phi+2,sub_myval);
 		  double sub_RMS = 1.0*subpedsum2[eta][phi][depth]/pedcounts[eta][phi][depth]-sub_myval*sub_myval;
 		  
 		  sub_RMS=pow(fabs(RMS),0.5);
-		  //SUB_PEDESTAL_RMS[mydepth]->setBinContent(eta+2,phi+2,sub_RMS);
+		  SUB_PEDESTAL_RMS[mydepth]->setBinContent(eta+2,phi+2,sub_RMS);
 
 		  // HB
-		  if (fabs(eta-int(etaBins_-2)/2)<17 && mydepth<2)
+		  if (fabs(eta-41)<17 && mydepth<2)
 		    {
 		      hbHists.RAW_PEDESTAL_MEAN[mydepth]->setBinContent(eta+2,phi+2,myval);
 		      hbHists.RAW_PEDESTAL_RMS[mydepth]->setBinContent(eta+2,phi+2,RMS);
 		      hbHists.SUB_PEDESTAL_MEAN[mydepth]->setBinContent(eta+2,phi+2,sub_myval);
 		      hbHists.SUB_PEDESTAL_RMS[mydepth]->setBinContent(eta+2,phi+2,sub_RMS);
-		      hbHists.RAW_PEDESTAL_MEAN_1D[mydepth]->Fill(myval);
-		      hbHists.RAW_PEDESTAL_RMS_1D[mydepth]->Fill(RMS);
-		      hbHists.SUB_PEDESTAL_MEAN_1D[mydepth]->Fill(sub_myval);
-		      hbHists.SUB_PEDESTAL_RMS_1D[mydepth]->Fill(sub_RMS);
 		    }
 		  // HE -- layer 29 already taken care of above
-		  if (fabs(eta-int(etaBins_-2)/2)>16 && fabs(eta-int(etaBins_-2)/2)<27 && mydepth<2)
+		  if (fabs(eta-41)>16 && fabs(eta-41)<27 && mydepth<2)
 		    {
 		      heHists.RAW_PEDESTAL_MEAN[mydepth]->setBinContent(eta+2,phi+2,myval);
 		      heHists.RAW_PEDESTAL_RMS[mydepth]->setBinContent(eta+2,phi+2,RMS);
 		      heHists.SUB_PEDESTAL_MEAN[mydepth]->setBinContent(eta+2,phi+2,sub_myval);
 		      heHists.SUB_PEDESTAL_RMS[mydepth]->setBinContent(eta+2,phi+2,sub_RMS);
-		      heHists.RAW_PEDESTAL_MEAN_1D[mydepth]->Fill(myval);
-		      heHists.RAW_PEDESTAL_RMS_1D[mydepth]->Fill(RMS);
-		      heHists.SUB_PEDESTAL_MEAN_1D[mydepth]->Fill(sub_myval);
-		      heHists.SUB_PEDESTAL_RMS_1D[mydepth]->Fill(sub_RMS);
 		    }
-		  if (fabs(eta-int(etaBins_-2)/2)>26 && fabs(eta-int(etaBins_-2)/2)<29 && mydepth<3)
+		  if (fabs(eta-41)>26 && fabs(eta-41)<29 && mydepth<3)
 		    {
 		      heHists.RAW_PEDESTAL_MEAN[mydepth]->setBinContent(eta+2,phi+2,myval);
 		      heHists.RAW_PEDESTAL_RMS[mydepth]->setBinContent(eta+2,phi+2,RMS);
 		      heHists.SUB_PEDESTAL_MEAN[mydepth]->setBinContent(eta+2,phi+2,sub_myval);
 		      heHists.SUB_PEDESTAL_RMS[mydepth]->setBinContent(eta+2,phi+2,sub_RMS);
-		      heHists.RAW_PEDESTAL_MEAN_1D[mydepth]->Fill(myval);
-		      heHists.RAW_PEDESTAL_RMS_1D[mydepth]->Fill(RMS);
-		      heHists.SUB_PEDESTAL_MEAN_1D[mydepth]->Fill(sub_myval);
-		      heHists.SUB_PEDESTAL_RMS_1D[mydepth]->Fill(sub_RMS);
 		    }
-		  
 		  // H0
-		  if (fabs(eta-int(etaBins_-2)/2)<16 && mydepth==3)
+		  if (fabs(eta-41)<16 && mydepth==3)
 		    {
 		      hoHists.RAW_PEDESTAL_MEAN[mydepth]->setBinContent(eta+2,phi+2,myval);
 		      hoHists.RAW_PEDESTAL_RMS[mydepth]->setBinContent(eta+2,phi+2,RMS);
 		      hoHists.SUB_PEDESTAL_MEAN[mydepth]->setBinContent(eta+2,phi+2,sub_myval);
 		      hoHists.SUB_PEDESTAL_RMS[mydepth]->setBinContent(eta+2,phi+2,sub_RMS);
-		      hoHists.RAW_PEDESTAL_MEAN_1D[mydepth]->Fill(myval);
-		      hoHists.RAW_PEDESTAL_RMS_1D[mydepth]->Fill(RMS);
-		      hoHists.SUB_PEDESTAL_MEAN_1D[mydepth]->Fill(sub_myval);
-		      hoHists.SUB_PEDESTAL_RMS_1D[mydepth]->Fill(sub_RMS);
 		    }
 		  //HF -- layer 29 already taken care of above
-		  if (fabs(eta-int(etaBins_-2)/2)>29 && fabs(eta-int(etaBins_-2)/2)<42 && mydepth<2)
+		  if (fabs(eta-41)>29 && fabs(eta-41)<42 && mydepth<2)
 		    {
 		      hfHists.RAW_PEDESTAL_MEAN[mydepth]->setBinContent(eta+2,phi+2,myval);
 		      hfHists.RAW_PEDESTAL_RMS[mydepth]->setBinContent(eta+2,phi+2,RMS);
 		      hfHists.SUB_PEDESTAL_MEAN[mydepth]->setBinContent(eta+2,phi+2,sub_myval);
 		      hfHists.SUB_PEDESTAL_RMS[mydepth]->setBinContent(eta+2,phi+2,sub_RMS);
-		      hfHists.RAW_PEDESTAL_MEAN_1D[mydepth]->Fill(myval);
-		      hfHists.RAW_PEDESTAL_RMS_1D[mydepth]->Fill(RMS);
-		      hfHists.SUB_PEDESTAL_MEAN_1D[mydepth]->Fill(sub_myval);
-		      hfHists.SUB_PEDESTAL_RMS_1D[mydepth]->Fill(sub_RMS);
 		    }
 		} // else
 	      
 	    } // for (int depth)
 	} // for (int phi)
     } // for (int eta)
-  return;
-} // void HcalDigiMonitor::fillPedestalHistos(void)
 
-
-void HcalDigiMonitor::reset_Nevents(DigiHists& h)
-{
-  if (fVerbosity)
-    cout <<"<HcalDigiMonitor> Entered reset_Nevents routine"<<endl;
-  
-  if (showTiming)
-    {
-      cpu_timer.stop();
-      cpu_timer.reset(); cpu_timer.start();
-    }
   double temp;
   int eta,phi;
 
@@ -1537,195 +1399,188 @@ void HcalDigiMonitor::reset_Nevents(DigiHists& h)
 	  if (eta==0) continue; 
 	  if (abs(eta)>41) continue;
 
-	  if (h.type==1) // HB
+	  // HB first
+	  if (abs(eta)<17)
 	    {
-	      if (abs(eta)<17)
-		{
-		  
-		  
-		  if (h.check) temp=h.PROBLEMDIGICELLS_TEMP_DEPTH[0]->GetBinContent(ieta,iphi);
-		  if (h.check && temp==0) // no digis found for an interval of (checkNevents_)
-		    {
-		      h.PROBLEMDIGICELLS->Fill(eta,phi,h.checkNevents);
-		      h.PROBLEMDIGICELLS_DEPTH[0]->Fill(eta,phi,h.checkNevents);
-		      h.problemCell_noDigi[0]->Fill(eta,phi,h.checkNevents);
-		      hcalHists.PROBLEMDIGICELLS->Fill(eta,phi,h.checkNevents);
-		      hcalHists.PROBLEMDIGICELLS_DEPTH[0]->Fill(eta,phi,checkNevents_);
-		      
-		    }
-		  
-		  if (abs(eta)>14) // last two rows of HB have two depths
-		    {
-		      if (h.check) temp=h.PROBLEMDIGICELLS_TEMP_DEPTH[1]->GetBinContent(ieta,iphi);
-		      if (h.check && temp==0)
-			{
-			  h.PROBLEMDIGICELLS->Fill(eta,phi,h.checkNevents);
-			  h.PROBLEMDIGICELLS_DEPTH[1]->Fill(eta,phi,h.checkNevents);
-			  h.problemCell_noDigi[1]->Fill(eta,phi,h.checkNevents);
-			  hcalHists.PROBLEMDIGICELLS->Fill(eta,phi,h.checkNevents);
-			  hcalHists.PROBLEMDIGICELLS_DEPTH[1]->Fill(eta,phi,h.checkNevents);
-			}
-		    }
-		} // if (abs(eta)<17)  // HB Block
-	    } // if (h.type==1)
 
-	  else if (h.type==3) // HO loop
-	    {
-	      // HO loop -- depth = 4
-	      if (abs(eta)<16)
+	      
+	      if (hbHists.check) temp=hbHists.PROBLEMDIGICELLS_TEMP_DEPTH[0]->GetBinContent(ieta,iphi);
+	      if (hbHists.check && temp==0) // no digis found for an interval of (checkNevents_)
 		{
-		  if (h.check) temp=h.PROBLEMDIGICELLS_TEMP_DEPTH[3]->GetBinContent(ieta,iphi);
-		  if (h.check && temp==0)
-		    {
-		      h.PROBLEMDIGICELLS->Fill(eta,phi,h.checkNevents);
-		      h.PROBLEMDIGICELLS_DEPTH[3]->Fill(eta,phi,h.checkNevents);
-		      h.problemCell_noDigi[3]->Fill(eta,phi,h.checkNevents);
-		      hcalHists.PROBLEMDIGICELLS->Fill(eta,phi,h.checkNevents);
-		      hcalHists.PROBLEMDIGICELLS_DEPTH[3]->Fill(eta,phi,h.checkNevents);
-		      
-		    }
-		} // if (abs(eta)<16)
-	    } // else if (h.type==3)
-
-	  else if (h.type==2) // HE loop (careful; phi values are odd only for eta>20)
-	    {
-	      if (abs(eta)==16) // at eta=16, HE depth=3
-		{
-		  if (h.check) temp=h.PROBLEMDIGICELLS_TEMP_DEPTH[2]->GetBinContent(ieta,iphi);
-		  if (h.check && temp==0)
-		    {
-		      h.PROBLEMDIGICELLS->Fill(eta,phi,h.checkNevents);
-		      h.PROBLEMDIGICELLS_DEPTH[2]->Fill(eta,phi,h.checkNevents);
-		      h.problemCell_noDigi[2]->Fill(eta,phi,h.checkNevents);
-		      hcalHists.PROBLEMDIGICELLS->Fill(eta,phi,h.checkNevents);
-		      hcalHists.PROBLEMDIGICELLS_DEPTH[2]->Fill(eta,phi,h.checkNevents);
-		    }
-		} // if (abs(eta)==16)
-
-	      if (abs(eta)>16 && abs(eta)<30) // HE has depth = 1-2 for eta=18-29; 27-28 also depth=3
-		// This differs from documentation, which claimed that depth=3 for eta=28-29
-		{
-		  if (abs(eta)<21 ||(abs(eta)>20 && (phi%2)==1)) // decreased phi segementation above eta=20
-		    {
-		      if ( h.check) temp=h.PROBLEMDIGICELLS_TEMP_DEPTH[0]->GetBinContent(ieta,iphi);
-		      if (h.check && temp==0)
-			{
-			  h.PROBLEMDIGICELLS->Fill(eta,phi,h.checkNevents);
-			  h.PROBLEMDIGICELLS_DEPTH[0]->Fill(eta,phi,h.checkNevents);
-			  h.problemCell_noDigi[0]->Fill(eta,phi,h.checkNevents);
-			  hcalHists.PROBLEMDIGICELLS->Fill(eta,phi,h.checkNevents);
-			  hcalHists.PROBLEMDIGICELLS_DEPTH[0]->Fill(eta,phi,h.checkNevents);
-			}
-		    }  
-		  if (abs(eta)>17) // only one layer for HE in eta=17 -- skip it when filling depth=2
-		    {
-		      if (abs(eta)>20 && (phi%2)==0)
-			continue;
-		      if (h.check) temp=h.PROBLEMDIGICELLS_TEMP_DEPTH[1]->GetBinContent(ieta,iphi);
-		      
-		      if (h.check && temp==0)
-			{
-			  h.PROBLEMDIGICELLS->Fill(eta,phi,h.checkNevents);
-			  h.PROBLEMDIGICELLS_DEPTH[1]->Fill(eta,phi,h.checkNevents);
-			  h.problemCell_noDigi[1]->Fill(eta,phi,h.checkNevents);
-			  hcalHists.PROBLEMDIGICELLS->Fill(eta,phi,h.checkNevents);
-			  hcalHists.PROBLEMDIGICELLS_DEPTH[1]->Fill(eta,phi,h.checkNevents);
-			}
-		    }
+		  hbHists.PROBLEMDIGICELLS->Fill(eta,phi,checkNevents_);
+		  hbHists.PROBLEMDIGICELLS_DEPTH[0]->Fill(eta,phi,checkNevents_);
+		  hbHists.problemCell_noDigi[0]->Fill(eta,phi,checkNevents_);
+		  hcalHists.PROBLEMDIGICELLS->Fill(eta,phi,checkNevents_);
+		  hcalHists.PROBLEMDIGICELLS_DEPTH[0]->Fill(eta,phi,checkNevents_);
 		  
-		  if (abs(eta)>26 && abs(eta)<29 && (phi%2)==1) // depth 3
-		    {
-		      if (h.check) temp=h.PROBLEMDIGICELLS_TEMP_DEPTH[2]->GetBinContent(ieta,iphi);
-		      
-		      if (h.check && temp==0)
-			{
-			  h.PROBLEMDIGICELLS->Fill(eta,phi,h.checkNevents);
-			  h.PROBLEMDIGICELLS_DEPTH[2]->Fill(eta,phi,h.checkNevents);
-			  h.problemCell_noDigi[2]->Fill(eta,phi,h.checkNevents);
-			  hcalHists.PROBLEMDIGICELLS->Fill(eta,phi,h.checkNevents);
-			  hcalHists.PROBLEMDIGICELLS_DEPTH[2]->Fill(eta,phi,h.checkNevents);
-			}
-		    } // if (abs(eta)>26 && abs(eta)<29 ...)
-		} //  if (abs(eta)>15 && abs(eta)<30) // ends HE loop
-	    } // else if (h.type==2)
+		}
 
-	  else if (h.type==4) // HF Loop
-	    {
-	      if (abs(eta)>28 && abs(eta)<40 && (phi%2)==1)
+	      if (abs(eta)>14) // last two rows of HB have two depths
 		{
-		  // depth 1
-		  if (h.check) temp=h.PROBLEMDIGICELLS_TEMP_DEPTH[0]->GetBinContent(ieta,iphi);
-		  
-		  if (h.check && temp==0)
+		  if (hbHists.check) temp=hbHists.PROBLEMDIGICELLS_TEMP_DEPTH[1]->GetBinContent(ieta,iphi);
+		  if (hbHists.check && temp==0)
 		    {
-		      h.PROBLEMDIGICELLS->Fill(eta,phi,h.checkNevents);
-		      h.PROBLEMDIGICELLS_DEPTH[0]->Fill(eta,phi,h.checkNevents);
-		      h.problemCell_noDigi[0]->Fill(eta,phi,h.checkNevents);
-		      hcalHists.PROBLEMDIGICELLS->Fill(eta,phi,h.checkNevents);
-		      hcalHists.PROBLEMDIGICELLS_DEPTH[0]->Fill(eta,phi,h.checkNevents);
-		    }
-		  //depth2
-		  if (h.check) temp=h.PROBLEMDIGICELLS_TEMP_DEPTH[1]->GetBinContent(ieta,iphi);
-		  
-		  if (h.check && temp==0)
-		    {
-		      h.PROBLEMDIGICELLS->Fill(eta,phi,h.checkNevents);
-		      h.PROBLEMDIGICELLS_DEPTH[1]->Fill(eta,phi,h.checkNevents);
-		      h.problemCell_noDigi[1]->Fill(eta,phi,h.checkNevents);
-		      hcalHists.PROBLEMDIGICELLS->Fill(eta,phi,h.checkNevents);
-		      hcalHists.PROBLEMDIGICELLS_DEPTH[1]->Fill(eta,phi,h.checkNevents);
+		      hbHists.PROBLEMDIGICELLS->Fill(eta,phi,checkNevents_);
+		      hbHists.PROBLEMDIGICELLS_DEPTH[1]->Fill(eta,phi,checkNevents_);
+		      hbHists.problemCell_noDigi[1]->Fill(eta,phi,checkNevents_);
+		      hcalHists.PROBLEMDIGICELLS->Fill(eta,phi,checkNevents_);
+		      hcalHists.PROBLEMDIGICELLS_DEPTH[1]->Fill(eta,phi,checkNevents_);
 		    }
 		}
-	      
-	      else if (abs(eta)>39 && (phi%4)==3)
+	    } // if (abs(eta)<17)  // HB Block
+
+	  // HO loop -- depth = 4
+	  if (abs(eta)<16)
+	    {
+	      if (hoHists.check) temp=hoHists.PROBLEMDIGICELLS_TEMP_DEPTH[3]->GetBinContent(ieta,iphi);
+	      if (hoHists.check && temp==0)
 		{
-		  // depth 1
-		  if (h.check) temp=h.PROBLEMDIGICELLS_TEMP_DEPTH[0]->GetBinContent(ieta,iphi);
+		  hoHists.PROBLEMDIGICELLS->Fill(eta,phi,checkNevents_);
+		  hoHists.PROBLEMDIGICELLS_DEPTH[3]->Fill(eta,phi,checkNevents_);
+		  hoHists.problemCell_noDigi[3]->Fill(eta,phi,checkNevents_);
+		  hcalHists.PROBLEMDIGICELLS->Fill(eta,phi,checkNevents_);
+		  hcalHists.PROBLEMDIGICELLS_DEPTH[3]->Fill(eta,phi,checkNevents_);
 		  
-		  if (h.check && temp==0)
+		}
+	    } // if (abs(eta)<16)
+	  
+	  // HE loop (careful; phi values are odd only for eta>20)
+
+	  if (abs(eta)==16) // at eta=16, HE depth=3
+	    {
+	      if (heHists.check) temp=heHists.PROBLEMDIGICELLS_TEMP_DEPTH[2]->GetBinContent(ieta,iphi);
+	      if (heHists.check && temp==0)
+		{
+		  heHists.PROBLEMDIGICELLS->Fill(eta,phi,checkNevents_);
+		  heHists.PROBLEMDIGICELLS_DEPTH[2]->Fill(eta,phi,checkNevents_);
+		  heHists.problemCell_noDigi[2]->Fill(eta,phi,checkNevents_);
+		  hcalHists.PROBLEMDIGICELLS->Fill(eta,phi,checkNevents_);
+		  hcalHists.PROBLEMDIGICELLS_DEPTH[2]->Fill(eta,phi,checkNevents_);
+		}
+	    }
+
+	  if (abs(eta)>16 && abs(eta)<30) // HE has depth = 1-2 for eta=18-29; 27-28 also depth=3
+	    // This differs from documentation, which claimed that depth=3 for eta=28-29
+	    {
+	      if (abs(eta)<21 ||(abs(eta)>20 && (phi%2)==1)) // decreased phi segementation above eta=20
+		{
+		  if ( heHists.check) temp=heHists.PROBLEMDIGICELLS_TEMP_DEPTH[0]->GetBinContent(ieta,iphi);
+		  if (heHists.check && temp==0)
 		    {
-		      
-		      h.PROBLEMDIGICELLS->Fill(eta,phi,h.checkNevents);
-		      h.PROBLEMDIGICELLS_DEPTH[0]->Fill(eta,phi,h.checkNevents);
-		      h.problemCell_noDigi[0]->Fill(eta,phi,h.checkNevents);
-		      hcalHists.PROBLEMDIGICELLS->Fill(eta,phi,h.checkNevents);
-		      hcalHists.PROBLEMDIGICELLS_DEPTH[0]->Fill(eta,phi,h.checkNevents);
+		      heHists.PROBLEMDIGICELLS->Fill(eta,phi,checkNevents_);
+		      heHists.PROBLEMDIGICELLS_DEPTH[0]->Fill(eta,phi,checkNevents_);
+		      heHists.problemCell_noDigi[0]->Fill(eta,phi,checkNevents_);
+		      hcalHists.PROBLEMDIGICELLS->Fill(eta,phi,checkNevents_);
+		      hcalHists.PROBLEMDIGICELLS_DEPTH[0]->Fill(eta,phi,checkNevents_);
 		    }
-		  
-		  //depth2
-		  if (h.check) temp=h.PROBLEMDIGICELLS_TEMP_DEPTH[1]->GetBinContent(ieta,iphi);
-		  
-		  if (h.check && temp==0)
+		}  
+	      if (abs(eta)>17) // only one layer for HE in eta=17 -- skip it when filling depth=2
+		{
+		  if (abs(eta)>20 && (phi%2)==0)
+		    continue;
+		  if (heHists.check) temp=heHists.PROBLEMDIGICELLS_TEMP_DEPTH[1]->GetBinContent(ieta,iphi);
+	
+		  if (heHists.check && temp==0)
 		    {
-		      h.PROBLEMDIGICELLS->Fill(eta,phi,h.checkNevents);
-		      h.PROBLEMDIGICELLS_DEPTH[1]->Fill(eta,phi,h.checkNevents);
-		      h.problemCell_noDigi[1]->Fill(eta,phi,h.checkNevents);
-		      hcalHists.PROBLEMDIGICELLS->Fill(eta,phi,h.checkNevents);
-		      hcalHists.PROBLEMDIGICELLS_DEPTH[1]->Fill(eta,phi,h.checkNevents);
+		      heHists.PROBLEMDIGICELLS->Fill(eta,phi,checkNevents_);
+		      heHists.PROBLEMDIGICELLS_DEPTH[1]->Fill(eta,phi,checkNevents_);
+		      heHists.problemCell_noDigi[1]->Fill(eta,phi,checkNevents_);
+		      hcalHists.PROBLEMDIGICELLS->Fill(eta,phi,checkNevents_);
+		      hcalHists.PROBLEMDIGICELLS_DEPTH[1]->Fill(eta,phi,checkNevents_);
 		    }
-		} // end HF loop
-	    } // else if (h.type==4)
+		}
+
+	      if (abs(eta)>26 && abs(eta)<29 && (phi%2)==1) // depth 3
+		{
+		  if (heHists.check) temp=heHists.PROBLEMDIGICELLS_TEMP_DEPTH[2]->GetBinContent(ieta,iphi);
+		  
+		  if (heHists.check && temp==0)
+		    {
+		      heHists.PROBLEMDIGICELLS->Fill(eta,phi,checkNevents_);
+		      heHists.PROBLEMDIGICELLS_DEPTH[2]->Fill(eta,phi,checkNevents_);
+		      heHists.problemCell_noDigi[2]->Fill(eta,phi,checkNevents_);
+		      hcalHists.PROBLEMDIGICELLS->Fill(eta,phi,checkNevents_);
+		      hcalHists.PROBLEMDIGICELLS_DEPTH[2]->Fill(eta,phi,checkNevents_);
+		    }
+		} // if (abs(eta)>26 && abs(eta)<29 ...)
+	    } //  if (abs(eta)>15 && abs(eta)<30) // ends HE loop
+	  
+
+
+	  // HF Loop
+	  if (abs(eta)>28 && abs(eta)<40 && (phi%2)==1)
+	    {
+	      // depth 1
+	      if (hfHists.check) temp=hfHists.PROBLEMDIGICELLS_TEMP_DEPTH[0]->GetBinContent(ieta,iphi);
+	
+	      if (hfHists.check && temp==0)
+		{
+		  hfHists.PROBLEMDIGICELLS->Fill(eta,phi,checkNevents_);
+		  hfHists.PROBLEMDIGICELLS_DEPTH[0]->Fill(eta,phi,checkNevents_);
+		  hfHists.problemCell_noDigi[0]->Fill(eta,phi,checkNevents_);
+		  hcalHists.PROBLEMDIGICELLS->Fill(eta,phi,checkNevents_);
+		  hcalHists.PROBLEMDIGICELLS_DEPTH[0]->Fill(eta,phi,checkNevents_);
+		}
+	      //depth2
+	      if (hfHists.check) temp=hfHists.PROBLEMDIGICELLS_TEMP_DEPTH[1]->GetBinContent(ieta,iphi);
+	
+	      if (hfHists.check && temp==0)
+		{
+		  hfHists.PROBLEMDIGICELLS->Fill(eta,phi,checkNevents_);
+		  hfHists.PROBLEMDIGICELLS_DEPTH[1]->Fill(eta,phi,checkNevents_);
+		  hfHists.problemCell_noDigi[1]->Fill(eta,phi,checkNevents_);
+		  hcalHists.PROBLEMDIGICELLS->Fill(eta,phi,checkNevents_);
+		  hcalHists.PROBLEMDIGICELLS_DEPTH[1]->Fill(eta,phi,checkNevents_);
+		}
+	    }
+
+	  else if (abs(eta)>39 && (phi%4)==3)
+	    {
+	      // depth 1
+	      if (hfHists.check) temp=hfHists.PROBLEMDIGICELLS_TEMP_DEPTH[0]->GetBinContent(ieta,iphi);
+	      
+	      if (hfHists.check && temp==0)
+		{
+
+		  hfHists.PROBLEMDIGICELLS->Fill(eta,phi,checkNevents_);
+		  hfHists.PROBLEMDIGICELLS_DEPTH[0]->Fill(eta,phi,checkNevents_);
+		  hfHists.problemCell_noDigi[0]->Fill(eta,phi,checkNevents_);
+		  hcalHists.PROBLEMDIGICELLS->Fill(eta,phi,checkNevents_);
+		  hcalHists.PROBLEMDIGICELLS_DEPTH[0]->Fill(eta,phi,checkNevents_);
+		}
+	      
+	      //depth2
+	      if (hfHists.check) temp=hfHists.PROBLEMDIGICELLS_TEMP_DEPTH[1]->GetBinContent(ieta,iphi);
+	      
+	      if (hfHists.check && temp==0)
+		{
+	      hfHists.PROBLEMDIGICELLS->Fill(eta,phi,checkNevents_);
+	      hfHists.PROBLEMDIGICELLS_DEPTH[1]->Fill(eta,phi,checkNevents_);
+	      hfHists.problemCell_noDigi[1]->Fill(eta,phi,checkNevents_);
+	      hcalHists.PROBLEMDIGICELLS->Fill(eta,phi,checkNevents_);
+	      hcalHists.PROBLEMDIGICELLS_DEPTH[1]->Fill(eta,phi,checkNevents_);
+		}
+	    } // end HF loop
+
 	} //for (int iphi=1; ...)
     } // for (int ieta=1; ...)
   
   // Reset temporary histograms
-  if (h.check) h.PROBLEMDIGICELLS_TEMP->Reset();
-    
+  hcalHists.PROBLEMDIGICELLS_TEMP->Reset();
+  if (hbHists.check) hbHists.PROBLEMDIGICELLS_TEMP->Reset();
+  if (heHists.check) heHists.PROBLEMDIGICELLS_TEMP->Reset();
+  if (hoHists.check) hoHists.PROBLEMDIGICELLS_TEMP->Reset();
+  if (hfHists.check) hfHists.PROBLEMDIGICELLS_TEMP->Reset();
+  
   for (int d=0;d<4;++d)
     {
-      if (h.check) h.PROBLEMDIGICELLS_TEMP_DEPTH[d]->Reset();
+      hcalHists.PROBLEMDIGICELLS_TEMP_DEPTH[d]->Reset();
+      if (hbHists.check) hbHists.PROBLEMDIGICELLS_TEMP_DEPTH[d]->Reset();
+      if (heHists.check) heHists.PROBLEMDIGICELLS_TEMP_DEPTH[d]->Reset();
+      if (hoHists.check) hoHists.PROBLEMDIGICELLS_TEMP_DEPTH[d]->Reset();
+      if (hfHists.check) hfHists.PROBLEMDIGICELLS_TEMP_DEPTH[d]->Reset();
     }
 
-  // Fill diagnostic histograms every N events
-  fill_Nevents(h);
-
-  if (showTiming)
-    {
-      cpu_timer.stop();
-      cout <<"TIMER:: HcalDigiMonitor DIGI Check_Nevents for subdetector "<<h.type<<" -> "<<cpu_timer.cpuTime()<<endl;
-    }
-
-  return;
 } //void HcalDigiMonitor::reset_Nevents(void)
 
 
@@ -1834,18 +1689,18 @@ void HcalDigiMonitor::HBHEDigiCheck(const HBHEDigiCollection& hbhe, DigiHists& h
 	      // add pedestal plots
 	      if (k<2) // only plot for first 2 time slices
 		{	      
-		  pedcounts[iEta+(int)((etaBins_-2)/2)][iPhi-1][iDepth-1]++;
+		  pedcounts[iEta+41][iPhi-1][iDepth-1]++;
 		  myval=digi.sample(k).adc();
-		  rawpedsum[iEta+(int)((etaBins_-2)/2)][iPhi-1][iDepth-1]+=myval;
-		  rawpedsum2[iEta+(int)((etaBins_-2)/2)][iPhi-1][iDepth-1]+=myval*myval;
+		  rawpedsum[iEta+41][iPhi-1][iDepth-1]+=myval;
+		  rawpedsum2[iEta+41][iPhi-1][iDepth-1]+=myval*myval;
 		
 
 		  if (doFCpeds_) // Pedestals in fC; convert digi ADC to fC as well
 		    myval=tool[k]-calibs_.pedestal(digi.sample(k).capid());
 		  else
 		    myval=digi.sample(k).adc()-calibs_.pedestal(digi.sample(k).capid());
-		  subpedsum[iEta+(int)((etaBins_-2)/2)][iPhi-1][iDepth-1]+=myval;
-		  subpedsum2[iEta+(int)((etaBins_-2)/2)][iPhi-1][iDepth-1]+=myval*myval;
+		  subpedsum[iEta+41][iPhi-1][iDepth-1]+=myval;
+		  subpedsum2[iEta+41][iPhi-1][iDepth-1]+=myval*myval;
 		}
 	    }
 
@@ -1972,16 +1827,16 @@ void HcalDigiMonitor::HBHEDigiCheck(const HBHEDigiCollection& hbhe, DigiHists& h
 	      if (digi.sample(k).adc() > maxadc) maxadc = digi.sample(k).adc();
 	      if (k<2) // only plot for first 2 time slices
 		{	      
-		  pedcounts[iEta+(int)((etaBins_-2)/2)][iPhi-1][iDepth-1]++;
+		  pedcounts[iEta+41][iPhi-1][iDepth-1]++;
 		  myval=digi.sample(k).adc();
-		  rawpedsum[iEta+(int)((etaBins_-2)/2)][iPhi-1][iDepth-1]+=myval;
-		  rawpedsum2[iEta+(int)((etaBins_-2)/2)][iPhi-1][iDepth-1]+=myval*myval;
+		  rawpedsum[iEta+41][iPhi-1][iDepth-1]+=myval;
+		  rawpedsum2[iEta+41][iPhi-1][iDepth-1]+=myval*myval;
 		  if (doFCpeds_) // Pedestals in fC; convert digi ADC to fC as well
 		    myval=tool[k]-calibs_.pedestal(digi.sample(k).capid());
 		  else
 		    myval=digi.sample(k).adc()-calibs_.pedestal(digi.sample(k).capid());
-		  subpedsum[iEta+(int)((etaBins_-2)/2)][iPhi-1][iDepth-1]+=myval;
-		  subpedsum2[iEta+(int)((etaBins_-2)/2)][iPhi-1][iDepth-1]+=myval*myval;
+		  subpedsum[iEta+41][iPhi-1][iDepth-1]+=myval;
+		  subpedsum2[iEta+41][iPhi-1][iDepth-1]+=myval*myval;
 		}
 	    }
 
@@ -2155,16 +2010,16 @@ void HcalDigiMonitor::HODigiCheck(const HODigiCollection& ho, DigiHists& hoHists
 
 	      if (k<2) // only plot for first 2 time slices
 		{	      
-		  pedcounts[iEta+(int)((etaBins_-2)/2)][iPhi-1][iDepth-1]++;
+		  pedcounts[iEta+41][iPhi-1][iDepth-1]++;
 		  myval=digi.sample(k).adc();
-		  rawpedsum[iEta+(int)((etaBins_-2)/2)][iPhi-1][iDepth-1]+=myval;
-		  rawpedsum2[iEta+(int)((etaBins_-2)/2)][iPhi-1][iDepth-1]+=myval*myval;
+		  rawpedsum[iEta+41][iPhi-1][iDepth-1]+=myval;
+		  rawpedsum2[iEta+41][iPhi-1][iDepth-1]+=myval*myval;
 		  if (doFCpeds_) // Pedestals in fC; convert digi ADC to fC as well
 		    myval=tool[k]-calibs_.pedestal(digi.sample(k).capid());
 		  else
 		    myval=digi.sample(k).adc()-calibs_.pedestal(digi.sample(k).capid());
-		  subpedsum[iEta+(int)((etaBins_-2)/2)][iPhi-1][iDepth-1]+=myval;
-		  subpedsum2[iEta+(int)((etaBins_-2)/2)][iPhi-1][iDepth-1]+=myval*myval;
+		  subpedsum[iEta+41][iPhi-1][iDepth-1]+=myval;
+		  subpedsum2[iEta+41][iPhi-1][iDepth-1]+=myval*myval;
 		}
 	    }
 
@@ -2325,16 +2180,16 @@ void HcalDigiMonitor::HFDigiCheck(const HFDigiCollection& hf, DigiHists& hfHists
 	     if (k<2) // only plot for first 2 time slices
 	       {	      
 		 // Depth values increased by 2 to avoid overlap with HE at |eta|=29
-		 pedcounts[iEta+(int)((etaBins_-2)/2)][iPhi-1][iDepth+1]++;
+		 pedcounts[iEta+41][iPhi-1][iDepth+1]++;
 		 myval=digi.sample(k).adc();
-		 rawpedsum[iEta+(int)((etaBins_-2)/2)][iPhi-1][iDepth+1]+=myval;
-		 rawpedsum2[iEta+(int)((etaBins_-2)/2)][iPhi-1][iDepth+1]+=myval*myval;
+		 rawpedsum[iEta+41][iPhi-1][iDepth+1]+=myval;
+		 rawpedsum2[iEta+41][iPhi-1][iDepth+1]+=myval*myval;
 		 if (doFCpeds_) // Pedestals in fC; convert digi ADC to fC as well
 		   myval=tool[k]-calibs_.pedestal(digi.sample(k).capid());
 		 else
 		   myval=digi.sample(k).adc()-calibs_.pedestal(digi.sample(k).capid());
-		 subpedsum[iEta+(int)((etaBins_-2)/2)][iPhi-1][iDepth+1]+=myval;
-		 subpedsum2[iEta+(int)((etaBins_-2)/2)][iPhi-1][iDepth+1]+=myval*myval;
+		 subpedsum[iEta+41][iPhi-1][iDepth+1]+=myval;
+		 subpedsum2[iEta+41][iPhi-1][iDepth+1]+=myval*myval;
 	       }
 	   }
    

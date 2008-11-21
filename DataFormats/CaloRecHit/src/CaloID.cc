@@ -1,5 +1,4 @@
 #include "DataFormats/CaloRecHit/interface/CaloID.h"
-#include <iostream>
 
 using namespace reco;
 using namespace std;

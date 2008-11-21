@@ -2,8 +2,8 @@
  *  Class:PostProcessor 
  *
  *
- *  $Date: 2008/09/23 05:08:04 $
- *  $Revision: 1.6 $
+ *  $Date: 2008/09/24 05:09:10 $
+ *  $Revision: 1.7 $
  * 
  *  \author Junghwan Goh - SungKyunKwan University
  */
@@ -26,6 +26,8 @@ typedef vector<string> vstring;
 
 PostProcessor::PostProcessor(const ParameterSet& pset)
 {
+  verbose_ = pset.getUntrackedParameter<unsigned int>("verbose", 0);
+
   commands_ = pset.getParameter<vstring>("commands");
   effCmds_ = pset.getParameter<vstring>("efficiency");
   resCmds_ = pset.getParameter<vstring>("resolution");
@@ -139,7 +141,7 @@ void PostProcessor::endJob()
   }
 */
 
-  theDQM->showDirStructure();
+  if ( verbose_ > 0 ) theDQM->showDirStructure();
 
   if ( ! outputFileName_.empty() ) theDQM->save(outputFileName_);
 }

@@ -1,76 +1,78 @@
 <MonElementConfiguration> 
 <TkMap name="Summary Map" update_frequency="200">
-     <MonElement name="ndigis"></MonElement> 
-     <MonElement name="adc"></MonElement> 
+     <MonElement name="ndigis">         </MonElement> 
+     <MonElement name="adc">            </MonElement> 
 </TkMap>
 <SummaryPlot>
 <SubStructureBarrelLevel name="Ladder_" update_frequency="300"> 
      <MonElement name="errorType">	</MonElement> 
      <MonElement name="NErrors">	</MonElement> 
-     <MonElement name="TBMMessage"></MonElement> 
-     <MonElement name="TBMType"></MonElement> 
-     <MonElement name="ndigis"></MonElement> 
-     <MonElement name="adc"></MonElement> 
+     <MonElement name="TBMMessage">     </MonElement>
+     <MonElement name="TBMType">	</MonElement> 
+     <MonElement name="ndigis">         </MonElement> 
+     <MonElement name="adc">            </MonElement> 
      <MonElement name="nclusters"></MonElement>
-     <MonElement name="charge"></MonElement> 
-     <MonElement name="size">   </MonElement>
+     <MonElement name="charge"> </MonElement>
+     <MonElement name="size">	</MonElement>
 </SubStructureBarrelLevel> 
 <SubStructureGrandBarrelLevel name="Layer_" update_frequency="300"> 
      <MonElement name="errorType">	</MonElement> 
      <MonElement name="NErrors">	</MonElement> 
-     <MonElement name="TBMMessage"></MonElement> 
-     <MonElement name="TBMType"></MonElement> 
-     <MonElement name="ndigis"></MonElement> 
+     <MonElement name="TBMMessage">     </MonElement>
+     <MonElement name="TBMType">	</MonElement> 
+     <MonElement name="ndigis">         </MonElement>
      <MonElement name="ndigisFREQ"></MonElement>  
-     <MonElement name="adc"></MonElement> 
-     <MonElement name="adcCOMB"></MonElement> 
+     <MonElement name="adc">            </MonElement> 
+     <MonElement name="adcCOMB"> </MonElement>
      <MonElement name="nclusters"></MonElement>
      <MonElement name="charge"> </MonElement>
-     <MonElement name="chargeCOMB"> </MonElement>
-     <MonElement name="size">   </MonElement>
+     <MonElement name="chargeCOMB"></MonElement>
+     <MonElement name="size">	</MonElement>
 </SubStructureGrandBarrelLevel> 
 <SubStructureEndcapLevel name="Panel_" update_frequency="300"> 
      <MonElement name="errorType">	</MonElement> 
      <MonElement name="NErrors">	</MonElement> 
-     <MonElement name="TBMMessage"></MonElement> 
-     <MonElement name="TBMType"></MonElement> 
-     <MonElement name="ndigis"></MonElement> 
-     <MonElement name="adc"></MonElement> 
+     <MonElement name="TBMMessage">	</MonElement> 
+     <MonElement name="TBMType">	</MonElement> 
+     <MonElement name="ndigis">         </MonElement> 
+     <MonElement name="adc">            </MonElement> 
      <MonElement name="nclusters"></MonElement>
      <MonElement name="charge"> </MonElement>
-     <MonElement name="size">   </MonElement>
+     <MonElement name="size">	</MonElement>
 </SubStructureEndcapLevel> 
 <SubStructureGrandEndcapLevel name="Blade_" update_frequency="300"> 
      <MonElement name="errorType">	</MonElement> 
      <MonElement name="NErrors">	</MonElement> 
-     <MonElement name="TBMMessage"></MonElement> 
-     <MonElement name="TBMType"></MonElement> 
-     <MonElement name="ndigis"></MonElement> 
+     <MonElement name="TBMMessage">	</MonElement> 
+     <MonElement name="TBMType">	</MonElement> 
+     <MonElement name="ndigis">         </MonElement>
      <MonElement name="ndigisFREQ"></MonElement>  
-     <MonElement name="adc"></MonElement> 
-     <MonElement name="adcCOMB"></MonElement> 
+     <MonElement name="adc">            </MonElement> 
+     <MonElement name="adcCOMB"> </MonElement>
      <MonElement name="nclusters"></MonElement>
      <MonElement name="charge"> </MonElement>
-     <MonElement name="chargeCOMB"> </MonElement>
-     <MonElement name="size">   </MonElement>
+     <MonElement name="chargeCOMB"></MonElement>
+     <MonElement name="size">	</MonElement>
 </SubStructureGrandEndcapLevel> 
-<SubStructureNonDetId name="AdditionalPixelErrors" update_frequency="300"> 
-     <MonElement name="errorType"></MonElement> 
-     <MonElement name="fullType"></MonElement> 
-     <MonElement name="NErrors"></MonElement> 
-     <MonElement name="TBMType"></MonElement> 
-     <MonElement name="EvtNbr"></MonElement> 
-     <MonElement name="TBMMessage"></MonElement> 
-     <MonElement name="chanNmbr"></MonElement> 
-     <MonElement name="evtSize"></MonElement> 
-     <MonElement name="linkId"></MonElement> 
-</SubStructureNonDetId> 
+
+<SubStructureNonDetId name="AdditionalPixelErrors" update_frequency="300"> 	 
+	      <MonElement name="errorType"></MonElement> 	 
+	      <MonElement name="fullType"></MonElement> 	 
+	      <MonElement name="NErrors"></MonElement> 	 
+	      <MonElement name="TBMType"></MonElement> 	 
+	      <MonElement name="EvtNbr"></MonElement> 	 
+	      <MonElement name="TBMMessage"></MonElement> 	 
+	      <MonElement name="chanNmbr"></MonElement> 	 
+	      <MonElement name="evtSize"></MonElement> 	 
+	      <MonElement name="linkId"></MonElement> 	 
+	 </SubStructureNonDetId>
 </SummaryPlot>
 
 <QTests>
 <QTestMessageLimit name="limit" value="0">
 </QTestMessageLimit>
 </QTests>
+
 
 <Source>
 <SourceType name="source" code="5">
@@ -81,5 +83,6 @@
 <CalibType name="use" value="0">
 </CalibType>
 </Calib>
+
 
 </MonElementConfiguration> 

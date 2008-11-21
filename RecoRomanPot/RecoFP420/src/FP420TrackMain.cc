@@ -27,9 +27,7 @@ FP420TrackMain::FP420TrackMain(const edm::ParameterSet& conf):conf_(conf)  {
   dn0   = conf_.getParameter<int>("NumberFP420Detectors");
   sn0_ = conf_.getParameter<int>("NumberFP420Stations");
   pn0_ = conf_.getParameter<int>("NumberFP420SPlanes");
-  //  rn0_ = 3;
-  rn0_ = 7;
-  xytype_ = conf_.getParameter<int>("NumberFP420SPTypes");
+  zn0_ = conf_.getParameter<int>("NumberFP420SPTypes");
   z420_           = conf_.getParameter<double>("z420");
   zD2_            = conf_.getParameter<double>("zD2");
   zD3_            = conf_.getParameter<double>("zD3");
@@ -40,7 +38,7 @@ FP420TrackMain::FP420TrackMain(const edm::ParameterSet& conf):conf_(conf)  {
   
   if (verbosity > 0) {
     std::cout << "FP420TrackMain constructor::" << std::endl;
-    std::cout << "sn0=" << sn0_ << " pn0=" << pn0_ << " xytype=" << xytype_ << std::endl;
+    std::cout << "sn0=" << sn0_ << " pn0=" << pn0_ << " zn0=" << zn0_ << std::endl;
     std::cout << "trackMode = " << trackMode_ << std::endl;
     std::cout << "dXX=" << dXX_ << " dYY=" << dYY_ << std::endl;
     std::cout << "chiCutX=" << chiCutX_ << " chiCutY=" << chiCutY_ << std::endl;
@@ -58,9 +56,6 @@ FP420TrackMain::FP420TrackMain(const edm::ParameterSet& conf):conf_(conf)  {
   pitchY_= 0.050;// 
   pitchXW_= 0.400;
   pitchYW_= 0.400;// 
-
-  XsensorSize_=8.0;
-  YsensorSize_=8.0;
 
 //
   double zBlade = 5.00;
@@ -110,15 +105,14 @@ FP420TrackMain::FP420TrackMain(const edm::ParameterSet& conf):conf_(conf)  {
 //	   trackMode_ == "TrackProducerSophisticatedFP420"  ||
 //	   trackMode_ == "TrackProducer3DFP420" )  {
 
-	finderParameters_ = new TrackProducerFP420(sn0_, pn0_, rn0_, xytype_, z420_, zD2_, zD3_,
+	finderParameters_ = new TrackProducerFP420(sn0_, pn0_, zn0_, z420_, zD2_, zD3_,
 						   pitchX_, pitchY_,
 						   pitchXW_, pitchYW_,
 						   ZGapLDet_, ZSiStep_,
 						   ZSiPlane_, ZSiDetL_, ZSiDetR_,
 						   UseHalfPitchShiftInX_, UseHalfPitchShiftInY_,
 						   UseHalfPitchShiftInXW_, UseHalfPitchShiftInYW_,
-						   dXX_,dYY_,chiCutX_,chiCutY_,zinibeg_,verbosity,
-						   XsensorSize_,YsensorSize_);
+						   dXX_,dYY_,chiCutX_,chiCutY_,zinibeg_);
 	validTrackerizer_ = true;
       } 
       else {
@@ -145,7 +139,7 @@ void FP420TrackMain::run(edm::Handle<ClusterCollectionFP420> &input, std::auto_p
     /*
       for (int sector=1; sector<sn0_; sector++) {
       for (int zmodule=1; zmodule<pn0_; zmodule++) {
-      for (int zside=1; zside<rn0_; zside++) {
+      for (int zside=1; zside<zn0_; zside++) {
       int sScale = 2*(pn0-1);
       //      int index = FP420NumberingScheme::packFP420Index(det, zside, sector, zmodule);
       // intindex is a continues numbering of FP420

@@ -767,14 +767,17 @@ def createCandlHTML(tmplfile,candlHTML,CurrentCandle,WebArea,repdir,ExecutionDat
         else:
             INDEX.write("<li><a href=\"%s\">%s %s %s (%s events)</a></li>\n" % (ProfileReportLink,CurrentProfile,Profiler,step,NumOfEvents))
             
-    NumOfEvents={ #These numbers are used in the index.html they are not automatically matched to the actual
-                   #ones (one should automate this, by looking into the cmsCreateSimPerfTestPyRelVal.log logfile)
+    NumOfEvents={
+        #FIXME:
+        #These numbers are used in the index.html they are not automatically matched to the actual
+        #ones (one should automate this, by looking into the cmsCreateSimPerfTestPyRelVal.log logfile)
                 DirName[0] : TimeSizeNumOfEvents,
                 DirName[1] : IgProfNumOfEvents,
                 DirName[2] : ValgrindNumOfEvents
                 }
 
-    Profile=( #These need to match the profile directory names ending within the candle directories
+    Profile=(
+        #These need to match the profile directory names ending within the candle directories
               "TimingReport",
               "TimeReport",
               "SimpleMemReport",
@@ -797,7 +800,7 @@ def createCandlHTML(tmplfile,candlHTML,CurrentCandle,WebArea,repdir,ExecutionDat
                            "edproduce.html",
                            "esproduce.html"
                            )
-    OutputHtml={ #These are the filenames to be linked in the index.html page for each profile
+    OutputHtml={ #These are the filenames to be linked in the candle html page for each profile
                  Profile[0] : "*TimingReport.html", #The wildcard spares the need to know the candle name
                  Profile[1] : "TimeReport.html", #This is always the same (for all candles)
                  Profile[2] : "*.html", #This is supposed to be *SimpleMemoryCheck.html, but there is a bug in cmsRelvalreport.py and it is called TimingReport.html!
@@ -839,7 +842,8 @@ def createCandlHTML(tmplfile,candlHTML,CurrentCandle,WebArea,repdir,ExecutionDat
                             profs = Profile[4:8]
                         elif CurDir == DirName[2]:
                             profs = Profile[8:9]
-                            
+                        #This could be optimized, but for now just comment the code:
+                        #This for cycle takes care of the case in which there are regression reports to link to the html:
                         for prof in profs:
                             if _verbose:
                                 print "Scanning for profile information for: ", prof
@@ -917,7 +921,7 @@ def createCandlHTML(tmplfile,candlHTML,CurrentCandle,WebArea,repdir,ExecutionDat
                                         CAND.write(html)
                                         CAND.write("\n</tr></table>")   
 
-                            elif prof == "EdmSize" or prof == "IgProfMemTotal" or prof == "IgProfMemLive" or prof == "valgrind":
+                            elif prof == "EdmSize" or prof == "IgProfMemTotal" or prof == "IgProfMemLive" or prof== "IgProfperf" or prof == "valgrind":
                                 regresPath = os.path.join(LocalPath,"%s_*_%s_regression" % (CandFname[CurrentCandle],prof))
                                 regresses  = glob.glob(regresPath)
                                 stepreg = re.compile("%s_([^_]*(_PILEUP)?)_%s_regression" % (CandFname[CurrentCandle],prof))
@@ -935,12 +939,12 @@ def createCandlHTML(tmplfile,candlHTML,CurrentCandle,WebArea,repdir,ExecutionDat
                                         if found:
                                             step = found.groups()[0]
                                         htmlpage = ""
-                                        if prof == "IgProfMemLive" or prof == "IgProfMemTotal" or prof == "valgrind":
+                                        if prof == "IgProfMemLive" or prof == "IgProfMemTotal" or prof== "IgProfperf" or prof == "valgrind":
                                             htmlpage = "overall.html"
                                         else:
                                             htmlpage = "objects_pp.html"
                                         CAND.write("<a href=\"%s/%s/%s\">%s %s regression report</a><br/>\n" % (LocalDirname,base,htmlpage,prof,step))
-                                        
+                    #Here we go back to the "non-regression" reports listing
                     CandleLogFiles = []
                     if os.path.exists(LocalPath):
                         thedir = os.listdir(LocalPath)
@@ -1021,7 +1025,8 @@ def createCandlHTML(tmplfile,candlHTML,CurrentCandle,WebArea,repdir,ExecutionDat
 
                                 else:
                                     for prolink in ProfileReportLink:
-                                        _writeReportLink(CAND,prolink,CurrentProfile,step,NumOfEvents[CurDir])
+                                        if "regression" not in prolink: #To avoid duplication of links to regression reports!
+                                            _writeReportLink(CAND,prolink,CurrentProfile,step,NumOfEvents[CurDir])
 
 
                     if PrintedOnce:
@@ -1515,7 +1520,12 @@ def createWebReports(WebArea,repdir,ExecutionDate,LogFiles,cmsScimarkResults,dat
 
             elif dirbreg.search(NewFileLine):
                 #Create a subdirectory DirectoryBrowsing to circumvent the fact the dir is not browsable if there is an index.html in it.
-                os.symlink("./","%s/DirectoryBrowsing" % WebArea)
+                #Bug! This does not work since it points to index.html automatically!
+                #os.symlink("./","%s/DirectoryBrowsing" % WebArea)
+                #Actually all the following is done later...
+                #Create a physical directory first
+                #os.mkdir("%s/DirectoryBrowsing" % WebArea)
+                #Then will populate it with symbolic links(once they have been copied there!) from all WebArea files, except index.html, see down towards the end!
                 INDEX.write("Click <a href=\"./DirectoryBrowsing/\">here</a> to browse the directory containing all results (except the root files)\n")
 
             elif pubdreg.search(NewFileLine):
@@ -1554,6 +1564,10 @@ def getDirnameDirs(repdir,WebArea):
     dirstocp = filter(lambda x: _containsDirName(x),map(lambda x: repdir + x,Dir))
     map(lambda x: _print4Lambda(x,WebArea),dirstocp)
     syscp(dirstocp,WebArea + "/")
+    os.mkdir("%s/DirectoryBrowsing" % WebArea)
+    for file in os.listdir(WebArea):
+        if file != "Index.html":
+            os.symlink("%s/%s"%(WebArea,file),"%s/DirectoryBrowsing/%s" % (WebArea,file))
 
 #######################
 #
@@ -1718,13 +1732,7 @@ def syscp(srcs,dest):
                 print "ERROR: file to be copied %s does not exist" % foo
             
 def print_header():
-    print """
-  *****************************************
-   
-     %s CMS-CMG Group
-     CERN 2008
-   
-  *****************************************\n""" % PROG_NAME
+    print "%s\n" % PROG_NAME
 
 if __name__ == "__main__":
     main()

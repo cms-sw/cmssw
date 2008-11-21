@@ -64,8 +64,7 @@ namespace pat {
 
     HistoGroup( std::string dir = "cand", std::string groupName = "Candidate", std::string groupLabel = "cand",
 		double pt1=0, double pt2=200, double m1=0, double m2=200,
-		TFileDirectory * parentDir=0,
-		bool isMC = false);
+		TFileDirectory * parentDir=0);
     virtual ~HistoGroup();
 
     //!  Fill all histograms for one Physics Object
@@ -150,8 +149,6 @@ namespace pat {
     PhysVarHisto * h_phi_  ;   //!< phi of each object
     PhysVarHisto * h_mass_ ;   //!< invariant mass of each object (useless for non-composite???)
 
-    bool           isMC_;      //!< for GenParticles
-
     // &&& Design worry: if we add another group to this group,
     // &&&               will we end up with a duplicate of the above?
   };
@@ -170,7 +167,7 @@ namespace pat {
   HistoGroup<PHYS_OBJECT>::
     HistoGroup( std::string dir, std::string groupName, std::string groupLabel,
 		double pt1, double pt2, double m1, double m2,
-		TFileDirectory * parentDir, bool isMC )
+		TFileDirectory * parentDir )
     :
     prepend_(groupLabel),   //!<   What's used in histo names
     dir_ (dir),
@@ -178,7 +175,6 @@ namespace pat {
     verboseLevel_(0),       //! verbosity: turned off by hand
     currDir_(0),
     parentDir_(parentDir),
-    isMC_(isMC),
     nBins_(20), pt1_(pt1), pt2_(pt2), m1_(m1), m2_(m2),
     h_size_(0),
     h_pt_(0), h_eta_(0), h_phi_(0), h_mass_(0)
@@ -195,12 +191,9 @@ namespace pat {
 
     std::string name, title;
 
-
     name  = prepend_+"CollSize"; title = "Number of "+groupName_+"s";
     addHisto( h_size_ = new PhysVarHisto( name.c_str(), title.c_str(),  nBins_, -0.5, nBins_ + 0.5, currDir_, "", "I" ) );
 
-    
-    if ( !isMC_ ) {
     name  = prepend_+"Pt";  title = groupName_+"  p_{T};p_{T} (GeV/c)";
     addHisto( h_pt_   = new PhysVarHisto( name.c_str(), title.c_str(),  nBins_, pt1_, pt2_, currDir_, "", "vD") );
 
@@ -212,22 +205,6 @@ namespace pat {
 
     name  = prepend_+"Mass";   title = groupName_+" invariant mass;Mass (GeV/c^{2})";
     addHisto( h_mass_ = new PhysVarHisto( name.c_str(), title.c_str(), nBins_, m1_, m2_, currDir_, "", "vD") );
-
-    } else {
-      
-    name  = prepend_+"Pt";  title = groupName_+"  p_{T};p_{T} (GeV/c)";
-    addHisto( h_pt_   = new PhysVarHisto( name.c_str(), title.c_str(),  nBins_, pt1_, pt2_, currDir_, "", "vD", true, false, true) );
-
-    name  = prepend_+"Eta"; title = groupName_+" #eta;#eta";
-    addHisto( h_eta_  = new PhysVarHisto( name.c_str(), title.c_str(), nBins_, -3.0, 3.0, currDir_, "", "vD", true, false, true) );
-
-    name  = prepend_+"Phi"; title = groupName_+" #phi;#phi";
-    addHisto( h_phi_  = new PhysVarHisto( name.c_str(), title.c_str(), nBins_, -TMath::Pi(), TMath::Pi(), currDir_, "", "vD", true, false, true) );
-
-    name  = prepend_+"Mass";   title = groupName_+" invariant mass;Mass (GeV/c^{2})";
-    addHisto( h_mass_ = new PhysVarHisto( name.c_str(), title.c_str(), nBins_, m1_, m2_, currDir_, "", "vD", true, false, true) );
-
-    }
 
   }
 

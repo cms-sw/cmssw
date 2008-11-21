@@ -267,6 +267,19 @@ void MuonCSCSeedFromRecHits::makeDefaultSeed(TrajectorySeed & seed) const
 bool 
 MuonCSCSeedFromRecHits::createDefaultEndcapSeed(ConstMuonRecHitPointer last, 
 				 TrajectorySeed & seed) const {
+  const std::string metname = "Muon|RecoMuon|MuonSeedFinder";
+  
+  AlgebraicSymMatrix mat(5,0) ;
+
+  // this perform H.T() * parErr * H, which is the projection of the 
+  // the measurement error (rechit rf) to the state error (TSOS rf)
+  // Legenda:
+  // H => is the 4x5 projection matrix
+  // parError the 4x4 parameter error matrix of the RecHit
+  
+  mat = last->parametersError().similarityT( last->projectionMatrix() );
+  
+  // We want pT but it's not in RecHit interface, so we've put it within this class
   //float momentum = computeDefaultPt(last);
   std::vector<double> momentum = thePtExtractor->pT_extract(last, last);
   // FIXME

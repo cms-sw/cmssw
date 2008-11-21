@@ -11,7 +11,7 @@ Description: Input text file to be loaded into the source cards and output RCT d
 //
 // Original Author:  Alex Tapper
 //         Created:  Fri Mar  9 19:11:51 CET 2007
-// $Id: SourceCardTextToRctDigi.cc,v 1.5 2007/09/26 19:45:51 tapper Exp $
+// $Id: SourceCardTextToRctDigi.cc,v 1.4 2007/08/07 00:09:33 nuno Exp $
 //
 //
 
@@ -200,25 +200,44 @@ void SourceCardTextToRctDigi::produce(edm::Event& iEvent, const edm::EventSetup&
     // Make region collections
     for (int i=0; i<7; i++){// Receiver card
       for (int j=0; j<2; j++){// Region
-        rgn->push_back(L1CaloRegion::makeHBHERegion(RC[crate][i][j],RCof[crate][i][j],RCtau[crate][i][j],MIPbits[crate][i][j],Qbits[crate][i][j],crate,i,j));
+        rgn->push_back(L1CaloRegion(RC[crate][i][j],RCof[crate][i][j],RCtau[crate][i][j],MIPbits[crate][i][j],Qbits[crate][i][j],crate,i,j));
       }
     }
     
     // Make HF region collections
     for (int i=0; i<4; i++){// Eta bin
       for (int j=0; j<2; j++){// HF0, HF1
-        rgn->push_back(L1CaloRegion::makeHFRegion(HF[crate][i][j],HFQ[crate][i][j],crate,i+(4*j)));// region=eta+4*phi for eta 0-3 
+        rgn->push_back(L1CaloRegion(HF[crate][i][j],HFQ[crate][i][j],crate,i+(4*j)));// region=eta+4*phi for eta 0-3 
       }
     }
   }
 
   // Debug info
   for (L1CaloEmCollection::const_iterator iem=em->begin(); iem!=em->end(); iem++){
-    LogDebug("Electrons") << (*iem);
+    LogDebug("Electrons") << "Rank=" << iem->rank() 
+                          << " Card=" << iem->rctCard()
+                          << " Region=" << iem->rctRegion() 
+                          << " Crate=" << iem->rctCrate() 
+                          << " Isolated=" << iem->isolated() << endl;
   }
   
   for (L1CaloRegionCollection::const_iterator irgn=rgn->begin(); irgn!=rgn->end(); irgn++){
-      LogDebug("HFRegions") << (*irgn);
+    if (irgn->id().isHf()){
+      LogDebug("HFRegions") << "Et=" << irgn->et()
+                            << " FineGrain=" << irgn->fineGrain()
+                            << " Eta=" << irgn->id().rctEta()
+                            << " Phi=" << irgn->id().rctPhi()
+                            << " Crate=" << irgn->rctCrate();
+    } else {
+      LogDebug("Regions") << "Et=" << irgn->et()
+                          << " OverFlow=" << irgn->overFlow()
+                          << " tauVeto=" << irgn->tauVeto()
+                          << " mip=" << irgn->mip()
+                          << " quiet=" << irgn->quiet()
+                          << " Card=" << irgn->rctCard()
+                          << " Region=" << irgn->rctRegionIndex()
+                          << " Crate=" << irgn->rctCrate();
+    }
   }
 
   iEvent.put(em);

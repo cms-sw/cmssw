@@ -78,9 +78,16 @@ def getParameters():
                       choices= ("timing", "simplememory","edmsize","igprof","callgrind",""),
                       help='Type of report to perform regrssion on. Default is TimingReport.' ,
                       default="timing",
-                      dest='reporttype')      
+                      dest='reporttype')
+    parser.add_option('-i',
+                      '--IgProfMemOption',
+                      type="choice",
+                      choices= ("-y MEM_TOTAL", "-y MEM_LIVE",""),
+                      help='Eventual IgProfMem counter to use for the regression. Default is no argument (IgProfPerf).' ,
+                      default="",
+                      dest='igprofmem')
     (options,args) = parser.parse_args()
-    if not len(args) == 2:
+    if len(args) < 2:
         parser.error("ERROR: Not enough arguments")
         sys.exit()
 
@@ -88,7 +95,7 @@ def getParameters():
     path1 = os.path.abspath(args[0])
     path2 = os.path.abspath(args[1])    
     if os.path.exists(path1) and os.path.exists(path2):
-        return (path1, path2, options.startevt, options.reporttype)
+        return (path1, path2, options.startevt, options.reporttype, options.igprofmem)
     else:
         print "Error: one of the paths does not exist"
         sys.exit()
@@ -957,7 +964,7 @@ def rmtree(path):
                 print detail
             os.remove(path)
 
-def perfreport(perftype,file1,file2,outdir):
+def perfreport(perftype,file1,file2,outdir,IgProfMemopt=""):
     src = ""
     try:
         src = os.environ["CMSSW_SEARCH_PATH"]
@@ -998,7 +1005,7 @@ def perfreport(perftype,file1,file2,outdir):
 
     tmpdir  = tmp.mkdtemp(prefix=os.path.join(outdir,"tmp"))
 
-    perfcmd = "%s %s -c %s -t%s -i %s -r %s -o %s" % (os.path.join(prRoot,"bin","perfreport"),proftype,xmlfile,tmpdir,file2,file1,outdir)            
+    perfcmd = "%s %s %s -c %s -t%s -i %s -r %s -o %s" % (os.path.join(prRoot,"bin","perfreport"),proftype,IgProfMemopt,xmlfile,tmpdir,file2,file1,outdir)            
     cmd     = "tcsh -c \"cd %s ; eval `scramv1 runtime -csh` ; cd - ;source %s/etc/profile.d/init.csh ; %s\"" % (loc,prRoot,perfcmd)
     
     process  = os.popen(cmd)
@@ -1038,7 +1045,7 @@ def ungzip(inf,outh):
 def ungzip2(inf,out):
     os.system("gzip -c -d %s > %s" % (inf,out)) 
 
-def cmpIgProfReport(outdir,file1,file2):
+def cmpIgProfReport(outdir,file1,file2,IgProfMemOpt=""):
     (tfile1, tfile2) = ("", "")
     try:
         # don't make temp files in /tmp because it's never bloody big enough
@@ -1051,7 +1058,7 @@ def cmpIgProfReport(outdir,file1,file2):
         ungzip2(file1,tfile1)
         ungzip2(file2,tfile2)        
 
-        perfreport(1,tfile1,tfile2,outdir)
+        perfreport(1,tfile1,tfile2,outdir,IgProfMemOpt)
 
         os.remove(tfile1)
         os.remove(tfile2)
@@ -1075,7 +1082,7 @@ def cmpCallgrindReport(outdir,file1,file2):
 def _main():
     outdir = os.getcwd()
     
-    (file1,file2,secsperbin,reporttype)  = getParameters()
+    (file1,file2,secsperbin,reporttype,IgProfMemOptions)  = getParameters()
 
     try:
         if   reporttype == "timing":
@@ -1089,7 +1096,7 @@ def _main():
         elif reporttype == "callgrind":
             cmpCallgrindReport(outdir,file1,file2)
         elif reporttype == "igprof":
-            cmpIgProfReport(outdir,file1,file2)            
+            cmpIgProfReport(outdir,file1,file2,IgProfMemOptions)            
     except TimingParseErr, detail:
         print "WARNING: Could not parse data from Timing report file %s; not performing regression" % detail.message
     except SimpMemParseErr, detail:

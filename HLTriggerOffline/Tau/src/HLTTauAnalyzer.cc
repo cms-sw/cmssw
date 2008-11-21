@@ -215,8 +215,7 @@ void HLTTauAnalyzer::MakeLevel2METAnalysis( const edm::Event& iEvent )
   if(!isL1Accepted) return;
   edm::Handle<TriggerFilterObjectWithRefs> recoMET;
   if(!iEvent.getByLabel( metReco,recoMET )) return;
-  VRmet metRefVec;
-  //VRcalomet metRefVec;
+VRcalomet metRefVec;
  recoMET->getObjects(trigger::TriggerMET,metRefVec);
   if(metRefVec.size() > 0) {
     isL2METAccepted = true;

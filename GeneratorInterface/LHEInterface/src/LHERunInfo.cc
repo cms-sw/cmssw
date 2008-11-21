@@ -1,10 +1,13 @@
 #include <algorithm>
 #include <iostream>
+#include <iomanip>
 #include <string>
 #include <cctype>
 #include <vector>
 #include <memory>
 #include <cmath>
+
+#include <boost/bind.hpp>
 
 #include <xercesc/dom/DOM.hpp>
 #include <xercesc/parsers/XercesDOMParser.hpp>
@@ -78,6 +81,30 @@ LHERunInfo::LHERunInfo(const HEPRUP &heprup) :
 	init();
 }
 
+LHERunInfo::LHERunInfo(const HEPRUP &heprup,
+                       const std::vector<LHERunInfoProduct::Header> &headers,  
+                       const std::vector<std::string> &comments) :
+	heprup(heprup)
+{
+	std::copy(headers.begin(), headers.end(),
+	          std::back_inserter(this->headers));
+	std::copy(comments.begin(), comments.end(),
+	          std::back_inserter(this->comments));
+
+	init();
+}
+                                                      
+LHERunInfo::LHERunInfo(const LHERunInfoProduct &product) :
+	heprup(product.heprup())
+{
+	std::copy(product.headers_begin(), product.headers_end(),
+	          std::back_inserter(headers));
+	std::copy(product.comments_begin(), product.comments_end(),
+	          std::back_inserter(comments));
+
+	init();
+}
+                                                      
 LHERunInfo::~LHERunInfo()
 {
 }
@@ -102,7 +129,7 @@ bool LHERunInfo::operator == (const LHERunInfo &other) const
 }
 
 void LHERunInfo::count(int process, CountMode mode, double eventWeight,
-                      double matchWeight)
+                       double brWeight, double matchWeight)
 {
 	std::vector<Process>::iterator proc =
 		std::lower_bound(processes.begin(), processes.end(), process);
@@ -111,6 +138,7 @@ void LHERunInfo::count(int process, CountMode mode, double eventWeight,
 
 	switch(mode) {
 	    case kAccepted:
+		proc->acceptedBr.add(eventWeight * brWeight * matchWeight);
 		proc->accepted.add(eventWeight * matchWeight);
 	    case kKilled:
 		proc->killed.add(eventWeight * matchWeight);
@@ -125,14 +153,16 @@ LHERunInfo::XSec LHERunInfo::xsec() const
 {
 	double sigSelSum = 0.0;
 	double sigSum = 0.0;
+	double sigBrSum = 0.0;
 	double err2Sum = 0.0;
+	double errBr2Sum = 0.0;
 
 	for(std::vector<Process>::const_iterator proc = processes.begin();
 	    proc != processes.end(); ++proc) {
 		unsigned int idx = proc->heprupIndex;
 
 		double sigmaSum, sigma2Sum, sigma2Err;
-		if (std::abs(heprup.IDWTUP == 3)) {
+		if (std::abs(heprup.IDWTUP) == 3) {
 			sigmaSum = proc->tried.n * heprup.XSECUP[idx];
 			sigma2Sum = sigmaSum * heprup.XSECUP[idx];
 			sigma2Err = proc->tried.n * heprup.XERRUP[idx]
@@ -146,11 +176,14 @@ LHERunInfo::XSec LHERunInfo::xsec() const
 		if (!proc->killed.n)
 			continue;
 
-		double sigmaAvg = sigmaSum / proc->tried.n;
-		double fracAcc = (double)proc->killed.n / proc->selected.n;
-		double sigmaFin = sigmaAvg * fracAcc;
+		double sigmaAvg = sigmaSum / proc->tried.sum;
+		double fracAcc = proc->killed.sum / proc->selected.sum;
+		double fracBr = proc->accepted.sum > 0.0 ?
+		                proc->acceptedBr.sum / proc->accepted.sum : 1;
+		double sigmaFin = sigmaAvg * fracAcc * fracBr;
+		double sigmaFinBr = sigmaFin * fracBr;
 
-		double deltaFin = sigmaFin;
+		double relErr = 1.0;
 		if (proc->killed.n > 1) {
 			double sigmaAvg2 = sigmaAvg * sigmaAvg;
 			double delta2Sig =
@@ -160,21 +193,115 @@ LHERunInfo::XSec LHERunInfo::xsec() const
 				((double)proc->selected.n - proc->killed.n) /
 				((double)proc->selected.n * proc->killed.n);
 			double delta2Sum = delta2Sig + delta2Veto
-			                   + sigma2Err / sigmaSum;
-			deltaFin = sigmaFin * (delta2Sum > 0.0 ?
-						std::sqrt(delta2Sum) : 0.0);
+			                   + sigma2Err / sigma2Sum;
+			relErr = (delta2Sum > 0.0 ?
+					std::sqrt(delta2Sum) : 0.0);
 		}
+		double deltaFin = sigmaFin * relErr;
+		double deltaFinBr = sigmaFinBr * relErr;
 
 		sigSelSum += sigmaAvg;
 		sigSum += sigmaFin;
+		sigBrSum += sigmaFinBr;
 		err2Sum += deltaFin * deltaFin;
+		errBr2Sum += deltaFinBr * deltaFinBr;
 	}
 
 	XSec result;
-	result.value = 1.0e-9 * sigSum;
-	result.error = 1.0e-9 * std::sqrt(err2Sum);
+	result.value = 1.0e-9 * sigBrSum;
+	result.error = 1.0e-9 * std::sqrt(errBr2Sum);
 
 	return result;
+}
+
+void LHERunInfo::statistics() const
+{
+	double sigSelSum = 0.0;
+	double sigSum = 0.0;
+	double sigBrSum = 0.0;
+	double err2Sum = 0.0;
+	double errBr2Sum = 0.0;
+	unsigned long nAccepted = 0;
+	unsigned long nTried = 0;
+
+	std::cout << std::endl;
+	std::cout << "Process and cross-section statistics" << std::endl;
+	std::cout << "------------------------------------" << std::endl;
+	std::cout << "Process\tevents\ttried\txsec [pb]\t\taccepted [%]"
+	          << std::endl;
+
+	for(std::vector<Process>::const_iterator proc = processes.begin();
+	    proc != processes.end(); ++proc) {
+		unsigned int idx = proc->heprupIndex;
+
+		double sigmaSum, sigma2Sum, sigma2Err;
+		if (std::abs(heprup.IDWTUP) == 3) {
+			sigmaSum = proc->tried.n * heprup.XSECUP[idx];
+			sigma2Sum = sigmaSum * heprup.XSECUP[idx];
+			sigma2Err = proc->tried.n * heprup.XERRUP[idx]
+			                          * heprup.XERRUP[idx];
+		} else {
+			sigmaSum = proc->tried.sum;
+			sigma2Sum = proc->tried.sum2;
+			sigma2Err = 0.0;
+		}
+
+		if (!proc->selected.n) {
+			std::cout << proc->process << "\t0\t0\tn/a\t\t\tn/a"
+			          << std::endl;
+			continue;
+		}
+
+		double sigmaAvg = sigmaSum / proc->tried.sum;
+		double fracAcc = proc->killed.sum / proc->selected.sum;
+		double fracBr = proc->accepted.sum > 0.0 ?
+		                proc->acceptedBr.sum / proc->accepted.sum : 1;
+		double sigmaFin = sigmaAvg * fracAcc;
+		double sigmaFinBr = sigmaFin * fracBr;
+
+		double relErr = 1.0;
+		if (proc->killed.n > 1) {
+			double sigmaAvg2 = sigmaAvg * sigmaAvg;
+			double delta2Sig =
+				(sigma2Sum / proc->tried.n - sigmaAvg2) /
+				(proc->tried.n * sigmaAvg2);
+			double delta2Veto =
+				((double)proc->selected.n - proc->killed.n) /
+				((double)proc->selected.n * proc->killed.n);
+			double delta2Sum = delta2Sig + delta2Veto
+			                   + sigma2Err / sigma2Sum;
+			relErr = (delta2Sum > 0.0 ?
+					std::sqrt(delta2Sum) : 0.0);
+		}
+		double deltaFin = sigmaFin * relErr;
+		double deltaFinBr = sigmaFinBr * relErr;
+
+		std::cout << proc->process << "\t"
+		          << proc->accepted.n << "\t"
+		          << proc->tried.n << "\t"
+		          << std::scientific << std::setprecision(3)
+		          << sigmaFinBr << " +/- "
+		          << deltaFinBr << "\t"
+		          << std::fixed << std::setprecision(1)
+		          << (fracAcc * 100) << std::endl;
+
+		nAccepted += proc->accepted.n;
+		nTried += proc->tried.n;
+		sigSelSum += sigmaAvg;
+		sigSum += sigmaFin;
+		sigBrSum += sigmaFinBr;
+		err2Sum += deltaFin * deltaFin;
+		errBr2Sum += deltaFinBr * deltaFinBr;
+	}
+
+	std::cout << "Total\t"
+	          << nAccepted << "\t"
+	          << nTried << "\t"
+	          << std::scientific << std::setprecision(3)
+	          << sigBrSum << " +/- "
+	          << std::sqrt(errBr2Sum) << "\t"
+	          << std::fixed << std::setprecision(1)
+	          << (sigSum / sigSelSum * 100) << std::endl;
 }
 
 LHERunInfo::Header::Header() :
@@ -201,6 +328,72 @@ LHERunInfo::Header::~Header()
 {
 	if (xmlDoc)
 		xmlDoc->release();
+}
+
+static void fillLines(std::vector<std::string> &lines, const char *data,
+                      int len = -1)
+{
+	const char *end = len >= 0 ? (data + len) : 0;
+	while(*data && (!end || data < end)) {
+		std::size_t len = std::strcspn(data, "\r\n");
+		if (end && data + len > end)
+			len = end - data;
+		if (data[len] == '\r' && data[len + 1] == '\n')
+			len += 2;
+		else if (data[len])
+			len++;
+		lines.push_back(std::string(data, len));
+		data += len;
+	}
+}
+
+static std::vector<std::string> domToLines(const DOMNode *node)
+{
+	std::vector<std::string> result;
+	DOMImplementation *impl =
+		DOMImplementationRegistry::getDOMImplementation(
+							XMLUniStr("Core"));
+	std::auto_ptr<DOMWriter> writer(
+		static_cast<DOMImplementationLS*>(impl)->createDOMWriter());
+
+	writer->setEncoding(XMLUniStr("UTF-8"));
+	XMLSimpleStr buffer(writer->writeToString(*node));
+
+	const char *p = std::strchr((const char*)buffer, '>') + 1;
+	const char *q = std::strrchr(p, '<');
+	fillLines(result, p, q - p);
+
+	return result;
+}
+
+std::vector<std::string> LHERunInfo::findHeader(const std::string &tag) const
+{
+	const LHERunInfo::Header *header = 0;
+	for(std::vector<Header>::const_iterator iter = headers.begin();
+	    iter != headers.end(); ++iter) {
+		if (iter->tag() == tag)
+			return std::vector<std::string>(iter->begin(),
+			                                iter->end());
+		if (iter->tag() == "header")
+			header = &*iter;
+	}
+
+	if (!header)
+		return std::vector<std::string>();
+
+	const DOMNode *root = header->getXMLNode();
+	if (!root)
+		return std::vector<std::string>();
+
+	for(const DOMNode *iter = root->getFirstChild();
+	    iter; iter = iter->getNextSibling()) {
+		if (iter->getNodeType() != DOMNode::ELEMENT_NODE)
+			continue;
+		if (tag == (const char*)XMLSimpleStr(iter->getNodeName()))
+			return domToLines(iter);
+	}
+
+	return std::vector<std::string>();
 }
 
 namespace {

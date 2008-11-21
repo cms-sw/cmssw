@@ -13,7 +13,9 @@
 using namespace std;
 
 #include <iostream>
+#include <iomanip>
 #include "PhysicsTools/KinFitter/interface/TFitConstraintM.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TLorentzVector.h"
 #include "TClass.h"
 
@@ -52,8 +54,9 @@ TFitConstraintM::TFitConstraintM(vector<TAbsFitParticle*>* ParList1,
     _TheMassConstraint = Mass;
   }
   else if(Mass < 0) {
-    _TheMassConstraint = 0;
-    cout << "TFitConstraintM : Mass cannot be set to a negative value." << endl;
+    edm::LogWarning ("NegativeMassConstr")
+      << "Mass constraint in TFitConstraintM cannot be set to a negative value, will be set to 0.";
+    _TheMassConstraint = 0.;
   }
 }
 
@@ -79,8 +82,9 @@ TFitConstraintM::TFitConstraintM(const TString &name, const TString &title,
     _TheMassConstraint = Mass;
   }
   else if(Mass < 0) {
-    _TheMassConstraint = 0;
-    cout << "TFitConstraintM : Mass cannot be set to a negative value." << endl;
+    edm::LogWarning ("NegativeMassConstr")
+      << "Mass constraint in TFitConstraintM cannot be set to a negative value, will be set to 0.";
+    _TheMassConstraint = 0.;
   }
 }
 void TFitConstraintM::addParticle1( TAbsFitParticle* particle ) {
@@ -167,12 +171,26 @@ TMatrixD* TFitConstraintM::getDerivative( TAbsFitParticle* particle ) {
       const TLorentzVector* FourVec = (_ParList1[i])->getCurr4Vec();
       Pf += (*FourVec);
     }
+    if( Pf.M() == 0. ) {
+      edm::LogInfo ("KinFitter")
+	<< "Division by zero in "
+	<< IsA()->GetName() << " (named " << GetName() << ", titled " << GetTitle()
+	<< ") will lead to Inf in derivative matrix for particle "
+	<< particle->GetName() << ".";
+    }
     Factor = 1./ Pf.M();
   } else if (OnList( &_ParList2, particle) ) {
     UInt_t Npart = _ParList2.size();
     for (unsigned int i=0; i<Npart; i++) {
       const TLorentzVector* FourVec = (_ParList2[i])->getCurr4Vec();
       Pf += (*FourVec);
+    }
+    if( Pf.M() == 0. ) {
+      edm::LogInfo ("KinFitter")
+	<< "Division by zero in "
+	<< IsA()->GetName() << " (named " << GetName() << ", titled " << GetTitle()
+	<< ") will lead to Inf in derivative matrix for particle "
+	<< particle->GetName() << ".";
     }
     Factor = -1./Pf.M();
   } else {
@@ -236,13 +254,27 @@ Double_t TFitConstraintM::CalcMass(vector<TAbsFitParticle*>* List, Bool_t IniVal
   return P.M();
 }
 
+TString TFitConstraintM::getInfoString() {
+  // Collect information to be used for printout
+
+  stringstream info;
+  info << scientific << setprecision(6);
+
+  info << "__________________________" << endl
+       << endl;
+  info <<"OBJ: " << IsA()->GetName() << "\t" << GetName() << "\t" << GetTitle() << endl;
+
+  info << "initial value: " << getInitValue() << endl;
+  info << "current value: " << getCurrentValue() << endl;
+  info << "mass: " << _TheMassConstraint << endl;
+
+  return info.str();
+
+}
+
 void TFitConstraintM::print() {
+  // Print constraint contents
 
-  cout << "__________________________" << endl << endl;
-  cout <<"OBJ: " << IsA()->GetName() << "\t" << GetName() << "\t" << GetTitle() << endl;
-
-  cout << "initial value: " << getInitValue() << endl;
-  cout << "current value: " << getCurrentValue() << endl;
-  cout << "mass: " << _TheMassConstraint << endl;
+  edm::LogVerbatim("KinFitter") << this->getInfoString();
 
 }

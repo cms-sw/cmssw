@@ -11,7 +11,7 @@ allPfJets.src = 'pfNoMuonsNoPileUp:PFCandidates'
 pfJets.src = 'allPfJets'
 
 
-pfJetsSequence = cms.Sequence(
+pfJetSequence = cms.Sequence(
     pfNoMuonsNoPileUp+
     allPfJets+
     pfJets

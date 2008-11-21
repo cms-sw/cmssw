@@ -1,5 +1,5 @@
 //
-//  SiPixelTemplateReco.cc (Version 4.00)
+//  SiPixelTemplateReco.cc (Version 5.01)
 //
 //  Add goodness-of-fit to algorithm, include single pixel clusters in chi2 calculation
 //  Try "decapitation" of large single pixels
@@ -18,6 +18,10 @@
 //  Return error if no pixels in cluster
 //  Replace 4 cout's with LogError's
 //  Add LogDebug I/O to report various common errors
+//  Incorporate "cluster repair" to handle dead pixels
+//  Take truncation size from new pixmax information
+//  Change to allow template sizes to be changed at compile time
+//  Move interpolation range error to LogDebug
 //
 //  Created by Morris Swartz on 10/27/06.
 //  Copyright 2006 __TheJohnsHopkinsUniversity__. All rights reserved.
@@ -27,6 +31,7 @@
 #include <math.h>
 #include <algorithm>
 #include <vector>
+#include <utility>
 #include <iostream>
 // ROOT::Math has a c++ function that does the probability calc, but only in v5.12 and later
 //#include "Math/DistFunc.h"
@@ -42,7 +47,7 @@
 #define ENDL " "
 #else
 #include "SiPixelTemplateReco.h"
-static int theVerboseLevel = {2};
+//static int theVerboseLevel = {2};
 #define LOGERROR(x) std::cout << x << ": "
 #define LOGDEBUG(x) std::cout << x << ": "
 #define ENDL std::endl
@@ -60,7 +65,7 @@ using namespace SiPixelTemplateReco;
 //! \param   cotalpha - (input) the cotangent of the alpha track angle (see CMS IN 2004/014) 
 //! \param    cotbeta - (input) the cotangent of the beta track angle (see CMS IN 2004/014)  
 //! \param    cluster - (input) boost multi_array container of 7x21 array of pixel signals, 
-//!           origin of local coords (0,0) at center of pixel cluster[0][0].                      
+//!           origin of local coords (0,0) at center of pixel cluster[0][0].  Set dead pixels to small non-zero values (0.1 e).                    
 //! \param    ydouble - (input) STL vector of 21 element array to flag a double-pixel
 //! \param    xdouble - (input) STL vector of 7 element array to flag a double-pixel
 //! \param      templ - (input) the template used in the reconstruction
@@ -77,28 +82,28 @@ using namespace SiPixelTemplateReco;
 //!                      1       faster, searches reduced 25 bin range (no big pix) + 33 bins (big pix at ends) at full density
 //!                      2       faster yet, searches same range as 1 but at 1/2 density
 //!                      3       fastest, searches same range as 1 but at 1/4 density (no big pix) and 1/2 density (big pix in cluster)
-//! \param   dlengthy - (output) difference between actual cluster y-length and y-template size in pixels (> 0 when cluster is larger)
-//! \param   dlengthx - (output) difference between actual cluster x-length and x-template size in pixels (> 0 when cluster is larger)
+//! \param    deadpix - (input) bool to indicate that there are dead pixels to be included in the analysis
+//! \param    zeropix - (input) vector of index pairs pointing to the dead pixels
 // *************************************************************************************************************************************
 int SiPixelTemplateReco::PixelTempReco2D(int id, bool fpix, float cotalpha, float cotbeta, array_2d cluster, 
 		    std::vector<bool> ydouble, std::vector<bool> xdouble, 
 		    SiPixelTemplate& templ, 
-		    float& yrec, float& sigmay, float& proby, float& xrec, float& sigmax, float& probx, int& qbin, int speed, float& dlengthy, float& dlengthx)
+		    float& yrec, float& sigmay, float& proby, float& xrec, float& sigmax, float& probx, int& qbin, int speed, bool deadpix, std::vector<std::pair<int, int> > zeropix)
 			
 {
     // Local variables 
 	static int i, j, k, minbin, binl, binh, binq, midpix, fypix, nypix, lypix, logypx;
-    static int fxpix, nxpix, lxpix, logxpx, shifty, shiftx;
+    static int fxpix, nxpix, lxpix, logxpx, shifty, shiftx, nyzero[TYSIZE];
 	static unsigned int nclusx, nclusy;
 	static int deltaj, jmin, jmax, fxbin, lxbin, fybin, lybin, djy, djx;
 	static float sythr, sxthr, rnorm, delta, sigma, sigavg, pseudopix, qscale;
-	static float ss2, ssa, sa2, ssba, saba, sba2, rat, fq, qtotal;
-	static float originx, originy, qfy, qly, qfx, qlx, bias, err, maxpix;
+	static float ss2, ssa, sa2, ssba, saba, sba2, rat, fq, qtotal, qpixel;
+	static float originx, originy, qfy, qly, qfx, qlx, bias, err, maxpix, minmax;
 	static double chi2x, meanx, chi2y, meany, chi2ymin, chi2xmin, chi2;
 	static double hchi2, hndof;
-	static float ytemp[41][25], xtemp[41][11], ysum[25], xsum[11], ysort[25], xsort[11];
-	static float chi2ybin[41], chi2xbin[41], ysig2[25], xsig2[11];
-	static bool yd[25], xd[11], anyyd, anyxd;
+	static float ytemp[41][BYSIZE], xtemp[41][BXSIZE], ysum[BYSIZE], xsum[BXSIZE], ysort[BYSIZE], xsort[BXSIZE];
+	static float chi2ybin[41], chi2xbin[41], ysig2[BYSIZE], xsig2[BXSIZE];
+	static bool yd[BYSIZE], xd[BXSIZE], anyyd, anyxd;
 	const float ysize={150.}, xsize={100.};
 	
 // The minimum chi2 for a valid one pixel cluster = pseudopixel contribution only
@@ -106,9 +111,14 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, bool fpix, float cotalpha, floa
 	const double mean1pix={0.100}, chi21min={0.160};
 		      
 // First, interpolate the template needed to analyze this cluster     
+// check to see of the track direction is in the physical range of the loaded template
+
+	if(!templ.interpolate(id, fpix, cotalpha, cotbeta)) {
+	   LOGDEBUG("SiPixelTemplateReco") << "input cluster direction cot(alpha) = " << cotalpha << ", cot(beta) = " << cotbeta << " is not within the acceptance of fpix = "
+	   << fpix << ", template ID = " << id << ", no reconstruction performed" << ENDL;	
+	   return 20;
+	}
    
-    templ.interpolate(id, fpix, cotalpha, cotbeta);
-	
 // Define size of pseudopixel
 
     pseudopix = 0.2*templ.s50();
@@ -123,8 +133,8 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, bool fpix, float cotalpha, floa
 	   LOGERROR("SiPixelTemplateReco") << "input cluster container (BOOST Multiarray) has wrong number of dimensions" << ENDL;	
 	   return 3;
 	}
-	nclusx = cluster.size();
-	nclusy = cluster.num_elements()/nclusx;
+	nclusx = cluster.shape()[0];
+	nclusy = cluster.shape()[1];
 	if(nclusx != xdouble.size()) {
 	   LOGERROR("SiPixelTemplateReco") << "input cluster container x-size is not equal to double pixel flag container size" << ENDL;	
 	   return 4;
@@ -136,8 +146,8 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, bool fpix, float cotalpha, floa
 	
 // enforce maximum size	
 	
-	if(nclusx > 7) {nclusx = 7;}
-	if(nclusy > 21) {nclusy = 21;}
+	if(nclusx > TXSIZE) {nclusx = TXSIZE;}
+	if(nclusy > TYSIZE) {nclusy = TYSIZE;}
 	
 // First, rescale all pixel charges       
 
@@ -150,8 +160,9 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, bool fpix, float cotalpha, floa
 // Next, sum the total charge and "decapitate" big pixels         
 
 	qtotal = 0.;
-    for(i=0; i<nclusy; ++i) {
-	   maxpix = templ.symax();
+	minmax = templ.pixmax();
+	for(i=0; i<nclusy; ++i) {
+	   maxpix = minmax;
 	   if(ydouble[i]) {maxpix *=2.;}
 	   for(j=0; j<nclusx; ++j) {
 		  qtotal += cluster[j][i];
@@ -159,9 +170,62 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, bool fpix, float cotalpha, floa
 	   }
 	}
 	
+// Do the cluster repair here	
+	
+    if(deadpix) {
+	   fypix = BYM3; lypix = -1;
+       for(i=0; i<nclusy; ++i) {
+	      ysum[i] = 0.; nyzero[i] = 0;
+// Do preliminary cluster projection in y
+	      for(j=0; j<nclusx; ++j) {
+		     ysum[i] += cluster[j][i];
+		  }
+		  if(ysum[i] > 0.) {
+// identify ends of cluster to determine what the missing charge should be
+		     if(i < fypix) {fypix = i;}
+			 if(i > lypix) {lypix = i;}
+		  }
+	   }
+	   
+// Now loop over dead pixel list and "fix" everything	
+
+//First see if the cluster ends are redefined and that we have only one dead pixel per column
+
+	   std::vector<std::pair<int, int> >::const_iterator zeroIter = zeropix.begin(), zeroEnd = zeropix.end();
+       for ( ; zeroIter != zeroEnd; ++zeroIter ) {
+	      i = zeroIter->second;
+		  if(i<0 || i>TYSIZE-1) {LOGERROR("SiPixelTemplateReco") << "dead pixel column y-index " << i << ", no reconstruction performed" << ENDL;	
+	                       return 11;}
+						   
+// count the number of dead pixels in each column
+		  ++nyzero[i];
+// allow them to redefine the cluster ends
+		  if(i < fypix) {fypix = i;}
+		  if(i > lypix) {lypix = i;}
+	   }
+	   
+	   nypix = lypix-fypix+1;
+	   
+// Now adjust the charge in the dead pixels to sum to 0.5*truncation value in the end columns and the truncation value in the interior columns
+	   
+       for (zeroIter = zeropix.begin(); zeroIter != zeroEnd; ++zeroIter ) {	   
+	      i = zeroIter->second; j = zeroIter->first;
+		  if(j<0 || j>TXSIZE-1) {LOGERROR("SiPixelTemplateReco") << "dead pixel column x-index " << j << ", no reconstruction performed" << ENDL;	
+	                       return 12;}
+		  if((i == fypix || i == lypix) && nypix > 1) {maxpix = templ.symax()/2.;} else {maxpix = templ.symax();}
+		  if(ydouble[i]) {maxpix *=2.;}
+		  if(nyzero[i] > 0 && nyzero[i] < 3) {qpixel = (maxpix - ysum[i])/(float)nyzero[i];} else {qpixel = 1.;}
+		  if(qpixel < 1.) {qpixel = 1.;}
+          cluster[j][i] = qpixel;
+// Adjust the total cluster charge to reflect the charge of the "repaired" cluster
+		  qtotal += qpixel;
+	   }
+// End of cluster repair section
+	} 
+		
 // Next, make y-projection of the cluster and copy the double pixel flags into a 25 element container         
 
-    for(i=0; i<25; ++i) { ysum[i] = 0.; yd[i] = false;}
+    for(i=0; i<BYSIZE; ++i) { ysum[i] = 0.; yd[i] = false;}
 	k=0;
 	anyyd = false;
     for(i=0; i<nclusy; ++i) {
@@ -182,12 +246,12 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, bool fpix, float cotalpha, floa
 		  yd[k] = false;
 	      ++k;
 	   }
-	   if(k > 24) {break;}
+	   if(k > BYM1) {break;}
 	}
 		 
 // Next, make x-projection of the cluster and copy the double pixel flags into an 11 element container         
 
-    for(i=0; i<11; ++i) { xsum[i] = 0.; xd[i] = false;}
+    for(i=0; i<BXSIZE; ++i) { xsum[i] = 0.; xd[i] = false;}
 	k=0;
 	anyxd = false;
     for(j=0; j<nclusx; ++j) {
@@ -208,7 +272,7 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, bool fpix, float cotalpha, floa
 		  xd[k]=false;
 	      ++k;
 	   }
-	   if(k > 10) {break;}
+	   if(k > BXM1) {break;}
 	}
         
 // next, identify the y-cluster ends, count total pixels, nypix, and logical pixels, logypx   
@@ -217,7 +281,7 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, bool fpix, float cotalpha, floa
 	nypix=0;
 	lypix=0;
 	logypx=0;
-	for(i=0; i<25; ++i) {
+	for(i=0; i<BYSIZE; ++i) {
 	   if(ysum[i] > 0.) {
 	      if(fypix == -1) {fypix = i;}
 		  if(!yd[i]) {
@@ -229,21 +293,16 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, bool fpix, float cotalpha, floa
 		}
 	}
 	
-	dlengthy = (float)nypix - templ.clsleny();
+//	dlengthy = (float)nypix - templ.clsleny();
 	
 // Make sure cluster is continuous
 
 	if((lypix-fypix+1) != nypix || nypix == 0) { 
 	   LOGDEBUG("SiPixelTemplateReco") << "y-length of pixel cluster doesn't agree with number of pixels above threshold" << ENDL;
 	   if (theVerboseLevel > 2) {
-          LOGDEBUG("SiPixelTemplateReco") <<
-           "ysum[0-9] = " << ysum[0] << ", " << ysum[1] << ", " << ysum[2] << ", " << ysum[3] << ", " << ysum[4] << ", "
-		                  << ysum[5] << ", " << ysum[6] << ", " << ysum[7] << ", " << ysum[8] << ", " << ysum[9] << ENDL;
-          LOGDEBUG("SiPixelTemplateReco") <<
-           "ysum[10-19] = " << ysum[10] << ", " << ysum[11] << ", " << ysum[12] << ", " << ysum[13] << ", " << ysum[14] << ", "
-		                  << ysum[15] << ", " << ysum[16] << ", " << ysum[17] << ", " << ysum[18] << ", " << ysum[19] << ENDL;
-          LOGDEBUG("SiPixelTemplateReco") <<
-           "ysum[20-24] = " << ysum[20] << ", " << ysum[21] << ", " << ysum[22] << ", " << ysum[23] << ", " << ysum[24] << ENDL;
+          LOGDEBUG("SiPixelTemplateReco") << "ysum[] = ";
+          for(i=0; i<BYSIZE-1; ++i) {LOGDEBUG("SiPixelTemplateReco") << ysum[i] << ", ";}           
+		  LOGDEBUG("SiPixelTemplateReco") << ysum[BYSIZE-1] << ENDL;
        }
 	
 	   return 1; 
@@ -251,17 +310,12 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, bool fpix, float cotalpha, floa
 	
 // If cluster is longer than max template size, technique fails
 
-	if(nypix > 21) { 
+	if(nypix > TYSIZE) { 
 	   LOGDEBUG("SiPixelTemplateReco") << "y-length of pixel cluster is larger than maximum template size" << ENDL;
 	   if (theVerboseLevel > 2) {
-          LOGDEBUG("SiPixelTemplateReco") <<
-           "ysum[0-9] = " << ysum[0] << ", " << ysum[1] << ", " << ysum[2] << ", " << ysum[3] << ", " << ysum[4] << ", "
-		                  << ysum[5] << ", " << ysum[6] << ", " << ysum[7] << ", " << ysum[8] << ", " << ysum[9] << ENDL;
-          LOGDEBUG("SiPixelTemplateReco") <<
-           "ysum[10-19] = " << ysum[10] << ", " << ysum[11] << ", " << ysum[12] << ", " << ysum[13] << ", " << ysum[14] << ", "
-		                  << ysum[15] << ", " << ysum[16] << ", " << ysum[17] << ", " << ysum[18] << ", " << ysum[19] << ENDL;
-          LOGDEBUG("SiPixelTemplateReco") <<
-           "ysum[20-24] = " << ysum[20] << ", " << ysum[21] << ", " << ysum[22] << ", " << ysum[23] << ", " << ysum[24] << ENDL;
+          LOGDEBUG("SiPixelTemplateReco") << "ysum[] = ";
+          for(i=0; i<BYSIZE-1; ++i) {LOGDEBUG("SiPixelTemplateReco") << ysum[i] << ", ";}           
+		  LOGDEBUG("SiPixelTemplateReco") << ysum[BYSIZE-1] << ENDL;
        }
 	
 	   return 6; 
@@ -270,7 +324,7 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, bool fpix, float cotalpha, floa
 // next, center the cluster on pixel 12 if necessary   
 
 	midpix = (fypix+lypix)/2;
-	shifty = 12 - midpix;
+	shifty = BHY - midpix;
 	if(shifty > 0) {
 	   for(i=lypix; i>=fypix; --i) {
 	      ysum[i+shifty] = ysum[i];
@@ -291,11 +345,11 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, bool fpix, float cotalpha, floa
 	
 // If the cluster boundaries are OK, add pesudopixels, otherwise quit
 	
-	if(fypix > 1 && fypix < 23) {
+	if(fypix > 1 && fypix < BYM2) {
 	   ysum[fypix-1] = pseudopix;
 	   ysum[fypix-2] = pseudopix;
 	} else {return 8;}
-	if(lypix > 1 && lypix < 23) {
+	if(lypix > 1 && lypix < BYM2) {
 	   ysum[lypix+1] = pseudopix;	
 	   ysum[lypix+2] = pseudopix;
 	} else {return 8;}
@@ -314,7 +368,7 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, bool fpix, float cotalpha, floa
 	nxpix=0;
 	lxpix=0;
 	logxpx=0;
-	for(i=0; i<11; ++i) {
+	for(i=0; i<BXSIZE; ++i) {
 	   if(xsum[i] > 0.) {
 	      if(fxpix == -1) {fxpix = i;}
 		  if(!xd[i]) {
@@ -326,7 +380,7 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, bool fpix, float cotalpha, floa
 		}
 	}
 	
-	dlengthx = (float)nxpix - templ.clslenx();
+//	dlengthx = (float)nxpix - templ.clslenx();
 	
 // Make sure cluster is continuous
 
@@ -334,9 +388,9 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, bool fpix, float cotalpha, floa
 	
 	   LOGDEBUG("SiPixelTemplateReco") << "x-length of pixel cluster doesn't agree with number of pixels above threshold" << ENDL;
 	   if (theVerboseLevel > 2) {
-          LOGDEBUG("SiPixelTemplateReco") <<
-           "xsum[0-10] = " << xsum[0] << ", " << xsum[1] << ", " << xsum[2] << ", " << xsum[3] << ", " << xsum[4] << ", "
-		                  << xsum[5] << ", " << xsum[6] << ", " << xsum[7] << ", " << xsum[8] << ", " << xsum[9] << ", " << xsum[10] << ENDL;
+          LOGDEBUG("SiPixelTemplateReco") << "xsum[] = ";
+          for(i=0; i<BXSIZE-1; ++i) {LOGDEBUG("SiPixelTemplateReco") << xsum[i] << ", ";}           
+		  LOGDEBUG("SiPixelTemplateReco") << ysum[BXSIZE-1] << ENDL;
        }
 
 	   return 2; 
@@ -344,13 +398,13 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, bool fpix, float cotalpha, floa
 
 // If cluster is longer than max template size, technique fails
 
-	if(nxpix > 7) { 
+	if(nxpix > TXSIZE) { 
 	
 	   LOGDEBUG("SiPixelTemplateReco") << "x-length of pixel cluster is larger than maximum template size" << ENDL;
 	   if (theVerboseLevel > 2) {
-          LOGDEBUG("SiPixelTemplateReco") <<
-           "xsum[0-10] = " << xsum[0] << ", " << xsum[1] << ", " << xsum[2] << ", " << xsum[3] << ", " << xsum[4] << ", "
-		                  << xsum[5] << ", " << xsum[6] << ", " << xsum[7] << ", " << xsum[8] << ", " << xsum[9] << ", " << xsum[10] << ENDL;
+          LOGDEBUG("SiPixelTemplateReco") << "xsum[] = ";
+          for(i=0; i<BXSIZE-1; ++i) {LOGDEBUG("SiPixelTemplateReco") << xsum[i] << ", ";}           
+		  LOGDEBUG("SiPixelTemplateReco") << ysum[BXSIZE-1] << ENDL;
        }
 
 	   return 7; 
@@ -359,7 +413,7 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, bool fpix, float cotalpha, floa
 // next, center the cluster on pixel 5 if necessary   
 
 	midpix = (fxpix+lxpix)/2;
-	shiftx = 5 - midpix;
+	shiftx = BHX - midpix;
 	if(shiftx > 0) {
 	   for(i=lxpix; i>=fxpix; --i) {
 	      xsum[i+shiftx] = xsum[i];
@@ -380,11 +434,11 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, bool fpix, float cotalpha, floa
 	
 // If the cluster boundaries are OK, add pesudopixels, otherwise quit
 	
-	if(fxpix > 1 && fxpix < 9) {
+	if(fxpix > 1 && fxpix < BXM2) {
 	   xsum[fxpix-1] = pseudopix;
 	   xsum[fxpix-2] = pseudopix;
 	} else {return 9;}
-	if(lxpix > 1 && lxpix < 9) {
+	if(lxpix > 1 && lxpix < BXM2) {
 	   xsum[lxpix+1] = pseudopix;
 	   xsum[lxpix+2] = pseudopix;
 	} else {return 9;}
@@ -417,7 +471,7 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, bool fpix, float cotalpha, floa
 // Return the charge bin via the parameter list unless the charge is too small (then flag it)
 	
 	qbin = binq;
-	if(qtotal < 0.95*templ.qmin()) {qbin = 4;} else {qbin = binq;}
+	if(!deadpix && qtotal < 0.95*templ.qmin()) {qbin = 4;} else {qbin = binq;}
 
 	if (theVerboseLevel > 9) {
        LOGDEBUG("SiPixelTemplateReco") <<
@@ -509,7 +563,7 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, bool fpix, float cotalpha, floa
 	
 // Evaluate pixel-by-pixel uncertainties (weights) for the templ analysis 
 
-	for(i=0; i<25; ++i) { ysig2[i] = 0.;}
+	for(i=0; i<BYSIZE; ++i) { ysig2[i] = 0.;}
 	templ.ysigma2(fypix, lypix, sythr, ysum, ysig2);
 			  
 // Find the template bin that minimizes the Chi^2 
@@ -626,7 +680,7 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, bool fpix, float cotalpha, floa
 		   	   
 // uncertainty and final correction depend upon charge bin 	   
 	   
-	   yrec = (0.125*binl+9.5+rat*(binh-binl)*0.125-(float)shifty+originy)*ysize - bias;
+	   yrec = (0.125*binl+BHY-2.5+rat*(binh-binl)*0.125-(float)shifty+originy)*ysize - bias;
 	   sigmay = templ.yrms(binq);
 	   
 // Do goodness of fit test in y  
@@ -680,7 +734,7 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, bool fpix, float cotalpha, floa
 	   
 // Evaluate pixel-by-pixel uncertainties (weights) for the templ analysis 
 
-	for(i=0; i<11; ++i) { xsig2[i] = 0.; }
+	for(i=0; i<BXSIZE; ++i) { xsig2[i] = 0.; }
 	templ.xsigma2(fxpix, lxpix, sxthr, xsum, xsig2);
 			  
 // Find the template bin that minimizes the Chi^2 
@@ -795,7 +849,7 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, bool fpix, float cotalpha, floa
 	   
 // uncertainty and final correction depend upon charge bin 	   
 	   
-	   xrec = (0.125*binl+2.5+rat*(binh-binl)*0.125-(float)shiftx+originx)*xsize - bias;
+	   xrec = (0.125*binl+BHX-2.5+rat*(binh-binl)*0.125-(float)shiftx+originx)*xsize - bias;
 	   sigmax = templ.xrms(binq);
 	   
 // Do goodness of fit test in x  
@@ -849,9 +903,10 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, bool fpix, float cotalpha, floa
 			
 {
     // Local variables 
-	static float dlengthy, dlengthx;
+	const bool deadpix = false;
+	std::vector<std::pair<int, int> > zeropix;
     
 	return SiPixelTemplateReco::PixelTempReco2D(id, fpix, cotalpha, cotbeta, cluster, ydouble, xdouble, templ, 
-		yrec, sigmay, proby, xrec, sigmax, probx, qbin, speed, dlengthy, dlengthx);
+		yrec, sigmay, proby, xrec, sigmax, probx, qbin, speed, deadpix, zeropix);
 
 } // PixelTempReco2D

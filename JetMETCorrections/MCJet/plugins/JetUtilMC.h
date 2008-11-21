@@ -1,8 +1,8 @@
-#ifndef JETUTILMC_H
-#define JETUTILMC_H
+#ifndef JET_MYJET_H
+#define JET_MYJET_H
 
 #include <cmath>
-namespace {
+
 class PtGreater {
   public:
   template <typename T> bool operator () (const T& i, const T& j) {
@@ -44,7 +44,6 @@ double radius(double eta1, double phi1,double eta2, double phi2){
 
 template <typename T1,typename T2> double radius(const T1&  t1,const T2& t2){
   return radius(t1->eta(),t1->phi(),t2->eta(),t2->phi());
-}
 }
 
 #endif

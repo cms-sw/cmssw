@@ -26,9 +26,9 @@ namespace popcon{
     
   private:
     std::string m_name;
-    boost::int64_t m_since;
-    boost::int64_t m_increment;
-    boost::int64_t m_number;
+    unsigned long long m_since;
+    unsigned long long m_increment;
+    unsigned int m_number;
   };
 }
 #endif // POPCON_EX_PEDESTALS_SRC_H

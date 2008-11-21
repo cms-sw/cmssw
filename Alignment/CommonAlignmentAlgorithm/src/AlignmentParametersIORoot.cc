@@ -4,9 +4,7 @@
 #include "TTree.h"
 
 #include "Alignment/CommonAlignment/interface/Alignable.h" 
-#include "Alignment/CommonAlignment/interface/AlignmentParameters.h"
-//#include "Alignment/CommonAlignmentParametrization/interface/RigidBodyAlignmentParameters.h"
-#include "Alignment/CommonAlignmentParametrization/interface/AlignmentParametersFactory.h"
+#include "Alignment/CommonAlignmentParametrization/interface/RigidBodyAlignmentParameters.h"
 
 // ----------------------------------------------------------------------------
 // constructor
@@ -23,7 +21,6 @@ void AlignmentParametersIORoot::createBranches(void)
 {
   tree->Branch("parSize",   &theCovRang,   "CovRang/I");
   tree->Branch("Id",        &theId,        "Id/i");
-  tree->Branch("paramType", &theParamType, "paramType/I");
   tree->Branch("Par",       &thePar,       "Par[CovRang]/D");
   tree->Branch("covarSize", &theCovarRang, "CovarRang/I");
   tree->Branch("Cov",       &theCov,       "Cov[CovarRang]/D");
@@ -39,7 +36,6 @@ void AlignmentParametersIORoot::setBranchAddresses(void)
   tree->SetBranchAddress("covarSize", &theCovarRang);
   tree->SetBranchAddress("Id",        &theId);
   tree->SetBranchAddress("Par",       &thePar);
-  tree->SetBranchAddress("paramType", &theParamType);
   tree->SetBranchAddress("Cov",       &theCov);
   tree->SetBranchAddress("ObjId",     &theObjId);
   tree->SetBranchAddress("HieraLevel",&theHieraLevel);
@@ -75,7 +71,6 @@ int AlignmentParametersIORoot::writeOne(Alignable* ali)
   }
 
   theId = ali->id();
-  theParamType = ap->type();
   theObjId = ali->alignableObjectId();
   theHieraLevel = ap->hierarchyLevel();
 
@@ -88,6 +83,7 @@ int AlignmentParametersIORoot::writeOne(Alignable* ali)
 AlignmentParameters* AlignmentParametersIORoot::readOne( Alignable* ali, int& ierr )
 {
   
+  AlignmentParameters* alipar = 0;
   AlgebraicVector par(nParMax,0);
   AlgebraicSymMatrix cov(nParMax,0);
   const std::vector<bool> &sel = ali->alignmentParameters()->selector();
@@ -105,13 +101,10 @@ AlignmentParameters* AlignmentParametersIORoot::readOne( Alignable* ali, int& ie
 			if(row-1<col) {cov[row][col]=theCov[count];count++;}
 		  }
 		} 
-	  using namespace AlignmentParametersFactory;
-	  ParametersType parType = parametersType(theParamType);
-	  AlignmentParameters* alipar1 = createParameters(ali, parType, sel); 
-	  AlignmentParameters* alipar = alipar1->clone(par,cov);
+	  // FIXME: In future should check which kind of parameters to construct...
+	  alipar = new RigidBodyAlignmentParameters(ali,par,cov,sel);
 	  alipar->setValid(true); 
 	  ierr=0;
-	  delete alipar1;
 	  return alipar;
 	}
 

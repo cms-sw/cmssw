@@ -5,8 +5,8 @@
  * \file HcalSummaryClient.h
  *
  * Code ported from DQM/EcalBarrelMonitorClient/interface/EBSummaryClient.h
- * $Date: 2008/09/03 13:45:52 $
- * $Revision: 1.12 $
+ * $Date: 2008/07/17 17:24:08 $
+ * $Revision: 1.11 $
  * \author Jeff Temple
  *
 */
@@ -82,7 +82,7 @@ class HcalSummaryClient : public HcalBaseClient {
   bool cloneME_;
   
   bool verbose_;
-  int debug_;
+  bool debug_;
   
   std::string prefixME_;
   

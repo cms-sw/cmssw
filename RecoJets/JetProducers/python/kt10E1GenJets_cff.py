@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-# $Id: kt10E1GenJets_cff.py,v 1.3 2008/07/16 03:37:08 fedor Exp $
+# $Id: kt10E1GenJets_cff.py,v 1.4 2008/08/20 16:10:09 oehler Exp $
 from RecoJets.JetProducers.GenJetParameters_cfi import *
 from RecoJets.JetProducers.FastjetParameters_cfi import *
 from RecoJets.JetProducers.KtJetParameters_cfi import *

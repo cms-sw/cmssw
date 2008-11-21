@@ -57,10 +57,14 @@ class PFSimParticleProducer : public edm::EDProducer {
   edm::InputTag  inputTagSim_;  
 
   //MC Truth Matching 
+  //modif-beg
+  bool mctruthMatchingInfo_;
+  edm::InputTag    inputTagFamosSimHits_;
+  //modif-end
+
   edm::InputTag    inputTagRecTracks_;
   edm::InputTag    inputTagEcalRecHitsEB_;
   edm::InputTag    inputTagEcalRecHitsEE_;
-  edm::InputTag    inputTagFamosSimHits_;
 
   // parameters for retrieving true particles information --
 
@@ -74,9 +78,6 @@ class PFSimParticleProducer : public edm::EDProducer {
 
   /// verbose ?
   bool   verbose_;
-
-  /// unfolded mode ?
-  bool unfoldedMode_;
 
 };  
 

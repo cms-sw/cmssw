@@ -13,7 +13,6 @@ zeeHLT = cms.EDFilter("HLTHighLevel",
         'HLT_DoubleIsoEle10_L1I'),
     byName = cms.bool(True),
     andOr = cms.bool(True),
-    throw = cms.untracked.bool(False), #dont throw except on unknown path name
     TriggerResultsTag = cms.InputTag("TriggerResults")
 )
 

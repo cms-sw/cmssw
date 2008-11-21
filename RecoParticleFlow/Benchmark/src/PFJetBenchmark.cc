@@ -36,9 +36,11 @@ using namespace std;
 
 class MonitorElement;
 
-PFJetBenchmark::PFJetBenchmark() {}
+PFJetBenchmark::PFJetBenchmark() : file_(0) {}
 
-PFJetBenchmark::~PFJetBenchmark() {}
+PFJetBenchmark::~PFJetBenchmark() {
+  if(file_) file_->Close();
+}
 
 void PFJetBenchmark::write() {
    // Store the DAQ Histograms 

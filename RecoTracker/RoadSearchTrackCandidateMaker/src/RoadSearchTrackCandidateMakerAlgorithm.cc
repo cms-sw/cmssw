@@ -10,8 +10,8 @@
 // Created:         Wed Mar 15 13:00:00 UTC 2006
 //
 // $Author: burkett $
-// $Date: 2008/08/13 18:46:50 $
-// $Revision: 1.58 $
+// $Date: 2008/11/18 18:59:22 $
+// $Revision: 1.61 $
 //
 
 #include <vector>
@@ -1366,8 +1366,14 @@ FreeTrajectoryState RoadSearchTrackCandidateMakerAlgorithm::initialTrajectoryFro
 
 
           FastHelix helix(outer, middle, inner, es);
-          if (!helix.isValid()) return fts;
-          
+	  // check that helix is OK
+          if (!helix.isValid() || 
+	      isnan(helix.stateAtVertex().parameters().momentum().perp())) return fts;
+	  // simple cuts on pt and dz
+	  if (helix.stateAtVertex().parameters().momentum().perp() < 0.5 ||
+	      std::abs(helix.stateAtVertex().parameters().position().z()) > 550.0)
+	    return fts;
+
           AlgebraicSymMatrix55 C = AlgebraicMatrixID();
           float zErr = dz2;
           float transverseErr = dr2; // assume equal cxx cyy

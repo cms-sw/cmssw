@@ -1,8 +1,8 @@
 /*
  * \file EEClusterTask.cc
  *
- * $Date: 2008/10/25 09:14:51 $
- * $Revision: 1.54 $
+ * $Date: 2008/08/05 15:37:25 $
+ * $Revision: 1.52 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -533,9 +533,6 @@ void EEClusterTask::analyze(const Event& e, const EventSetup& c){
 
       if ( Numbers::subDet( dcch ) != EcalEndcap ) continue;
 
-      if ( dcch.getRunType() == EcalDCCHeaderBlock::BEAMH4 ||
-           dcch.getRunType() == EcalDCCHeaderBlock::BEAMH2 ) enable = true;
-
       if ( dcch.getRunType() == EcalDCCHeaderBlock::COSMIC ||
            dcch.getRunType() == EcalDCCHeaderBlock::MTCC ||
            dcch.getRunType() == EcalDCCHeaderBlock::COSMICS_GLOBAL ||
@@ -553,8 +550,6 @@ void EEClusterTask::analyze(const Event& e, const EventSetup& c){
     LogWarning("EEClusterTask") << EcalRawDataCollection_ << " not available";
 
   }
-
-  if ( ! enable ) return;
 
   if ( ! init_ ) this->setup();
 

@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: PixelHitMatcher.cc,v 1.29 2008/10/02 13:12:53 charlot Exp $
+// $Id: PixelHitMatcher.cc,v 1.28 2008/09/30 15:53:28 charlot Exp $
 //
 //
 
@@ -91,43 +91,9 @@ void PixelHitMatcher::setES(const MagneticField* magField, const MeasurementTrac
   prop2ndLayer = new PropagatorWithMaterial(alongMomentum,mass,theMagField);
 }
 
-//==================== helper code ====================
-
-class PhiCheck
- {
-  public :
-    static float normalize( float phi )
-      {
-       if (phi>CLHEP::pi)
-        { phi -= (2*CLHEP::pi) ; }
-       if (phi<-CLHEP::pi)
-        { phi += (2*CLHEP::pi) ; }
-       return phi ;
-      }
-    PhiCheck( float refPhi ) : refPhi_(refPhi) {}
-    bool operator()( float phi )
-      {
-       float dPhi = normalize(refPhi_-phi) ;
-       if (fabs(dPhi)>2.5)
-        { return false ; }
-       else
-        { return true ; }
-      }
-   private :
-     float refPhi_ ;
-  } ;
-      
-Hep3Vector point_to_vector( const GlobalPoint & p )
- { return Hep3Vector(p.x(),p.y(),p.z()) ; }
- 
-//========================= compatible hits =========================
-
-vector< pair< RecHitWithDist, PixelHitMatcher::ConstRecHitPointer > >
-PixelHitMatcher::compatibleHits
- ( const GlobalPoint & xmeas,
-   const GlobalPoint & vprim,
-   float energy, float fcharge)
- {
+vector<pair<RecHitWithDist, PixelHitMatcher::ConstRecHitPointer> > 
+ PixelHitMatcher::compatibleHits(const GlobalPoint& xmeas,
+  const GlobalPoint& vprim, float energy, float fcharge) {
   
   float SCl_phi = xmeas.phi();
 
@@ -327,7 +293,7 @@ PixelHitMatcher::compatibleHits
 	      //  pxrh = secondHit.measurementsInNextLayers()[0].recHit();	  
 	      pxrh = secondHit.measurementsInNextLayers()[shit].recHit();
 	      
-	      pair<RecHitWithDist,ConstRecHitPointer> compatiblePair = pair<RecHitWithDist,ConstRecHitPointer>(rh,pxrh) ;
+	      pair<RecHitWithDist, ConstRecHitPointer> compatiblePair = pair<RecHitWithDist, ConstRecHitPointer>(rh,pxrh);
 	      result.push_back(compatiblePair);
 	      break;
 	    }
@@ -353,11 +319,10 @@ float PixelHitMatcher::getVertex(){
   return vertex_;
 }
 
-std::vector<SeedWithInfo>
-PixelHitMatcher::compatibleSeeds
- ( TrajectorySeedCollection *seeds,const GlobalPoint& xmeas,
-   const GlobalPoint& vprim, float energy, float fcharge)
- {
+std::vector<TrajectorySeed> PixelHitMatcher::compatibleSeeds(TrajectorySeedCollection *seeds,const GlobalPoint& xmeas,
+							     const GlobalPoint& vprim,
+							     float energy,
+							     float fcharge){
 
   int charge = int(fcharge);
 
@@ -367,7 +332,7 @@ PixelHitMatcher::compatibleSeeds
   PerpendicularBoundPlaneBuilder bpb;
   TrajectoryStateOnSurface tsos(fts, *bpb(fts.position(), fts.momentum()));
   
-  std::vector<SeedWithInfo> result;
+  std::vector<TrajectorySeed> result;
   mapTsos_.clear();
   mapTsos2_.clear();
   mapTsos_.reserve(seeds->size());
@@ -409,9 +374,12 @@ PixelHitMatcher::compatibleSeeds
  	else est=meas1stFLayer.estimate(tsos1,hitPos); 
 	if (!est.first)    continue;
 
-	// UB add test on phidiff
-        PhiCheck phiCheck(xmeas.phi()) ;
-        if (!phiCheck(hitPos.phi())) continue ;
+	//UB add test on phidiff
+	float SCl_phi = xmeas.phi();
+	float localDphi = SCl_phi-hitPos.phi();
+	if(localDphi>CLHEP::pi)localDphi-=(2*CLHEP::pi);
+	if(localDphi<-CLHEP::pi)localDphi+=(2*CLHEP::pi);
+	if(fabs(localDphi)>2.5)continue;
 
 	// now second Hit
 	it++;
@@ -457,14 +425,8 @@ PixelHitMatcher::compatibleSeeds
 	  GlobalPoint hitPos2=geomdet2->surface().toGlobal(lp2); 
 	  std::pair<bool,double> est2;
  	  if (id2.subdetId()%2==1) est2=meas2ndBLayer.estimate(tsos2,hitPos2);
- 	  else est2=meas2ndFLayer.estimate(tsos2,hitPos2);
-	  if (est2.first)
-	   {
-            int subDet2 = id2.subdetId() ;  
-	    float dRz2 = (subDet2%2==1)?(hitPos2.z()-tsos2.globalPosition().z()):(hitPos2.perp()-tsos2.globalPosition().perp()) ;
-            float dPhi2 = PhiCheck::normalize(hitPos2.phi() - tsos2.globalPosition().phi()) ;
-	    result.push_back(SeedWithInfo((*seeds)[i],subDet2,dRz2,dPhi2)) ;
-	   }
+ 	  else est2=meas2ndFLayer.estimate(tsos2,hitPos2); 
+	  if (est2.first) result.push_back((*seeds)[i]);
 	}
 
       } 
@@ -473,4 +435,9 @@ PixelHitMatcher::compatibleSeeds
 
   return result; 
 }
+
+
+
+
+
 

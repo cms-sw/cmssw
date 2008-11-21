@@ -69,8 +69,6 @@ void FUShmDqmCell::clear()
 void FUShmDqmCell::writeData(unsigned int   runNumber,
 			     unsigned int   evtAtUpdate,
 			     unsigned int   folderId,
-			     unsigned int   fuProcessId,
-			     unsigned int   fuGuid,
 			     unsigned char *data,
 			     unsigned int   dataSize)
 {
@@ -85,8 +83,6 @@ void FUShmDqmCell::writeData(unsigned int   runNumber,
   runNumber_  =runNumber;
   evtAtUpdate_=evtAtUpdate;
   folderId_   =folderId;
-  fuProcessId_=fuProcessId;
-  fuGuid_     =fuGuid;
   unsigned char* targetAddr=payloadAddr();
   memcpy(targetAddr,data,dataSize);
   eventSize_=dataSize;

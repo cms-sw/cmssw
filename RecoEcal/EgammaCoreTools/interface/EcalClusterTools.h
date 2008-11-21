@@ -6,8 +6,6 @@
  * various cluster tools (e.g. cluster shapes)
  *
  * \author Federico Ferri
- *
- * editing author: M.B. Anderson
  * 
  * \version $Id: 
  *
@@ -29,36 +27,19 @@ class EcalClusterTools {
                 ~EcalClusterTools() {};
 
                 // various energies in the matrix nxn surrounding the maximum energy crystal of the input cluster
-                //NOTE (29/10/08): we now use an eta/phi coordinate system rather than phi/eta
-                //to minmise possible screwups, for now e5x1 isnt defined all the majority of people who call it actually want e1x5 and 
-                //it is thought it is better that their code doesnt compile rather than pick up the wrong function
-                //therefore in this version and later e1x5 = e5x1 in the old version 
-                //so 1x5 is 1 crystal in eta and 5 crystals in phi
-                //note e3x2 does not have a definate eta/phi geometry, it takes the maximum 3x2 block containing the 
-                //seed regardless of whether that 3 in eta or phi
                 static float e1x3( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology* topology );
                 static float e3x1( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology* topology );
                 static float e1x5( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology* topology );
-                //static float e5x1( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology* topology );
+                static float e5x1( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology* topology );
                 static float e2x2( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology* topology );
                 static float e3x2( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology* topology );
                 static float e3x3( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology* topology );
                 static float e4x4( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology* topology );
                 static float e5x5( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology* topology );
-                // energy in the 2x5 strip right of the max crystal (does not contain max crystal)
-		// 2 crystals wide in eta, 5 wide in phi.
                 static float e2x5Right( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology* topology );
-                // energy in the 2x5 strip left of the max crystal (does not contain max crystal)
                 static float e2x5Left( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology* topology );
-                // energy in the 5x2 strip above the max crystal (does not contain max crystal)
-		// 5 crystals wide in eta, 2 wide in phi.
                 static float e2x5Top( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology* topology );
-                // energy in the 5x2 strip below the max crystal (does not contain max crystal)                
                 static float e2x5Bottom( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology* topology );
-                // energy in a 2x5 strip containing the seed (max) crystal.
-                // 2 crystals wide in eta, 5 wide in phi.
-                // it is the maximum of either (1x5left + 1x5center) or (1x5right + 1x5center)
-		static float e2x5Max( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology* topology );
                 // energies in the crystal left, right, top, bottom w.r.t. to the most energetic crystal
                 static float eLeft( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology* topology );
                 static float eRight( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology* topology );
@@ -78,16 +59,6 @@ class EcalClusterTools {
                 static std::vector<float> lat( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloGeometry *geometry, bool logW = true, float w0 = 4.7 );
                 // return a vector v with v[0] = covEtaEta, v[1] = covEtaPhi, v[2] = covPhiPhi
                 static std::vector<float> covariances(const reco::BasicCluster &cluster, const EcalRecHitCollection* recHits, const CaloTopology *topology, const CaloGeometry* geometry, float w0 = 4.7);
-                // return a vector v with v[0] = covIEtaIEta, v[1] = covIEtaIPhi, v[2] = covIPhiIPhi
-                //for the endcap, only covIEtaIEta is defined, covIEtaIPhi and covIPhiIPhi are zeroed
-                //this function calculates differences in eta/phi in units of crystals not global eta/phi
-                //this is gives better performance in the crack regions of the calorimeter but gives otherwise identical results to covariances function
-                //   except that it doesnt need an eta based correction funtion in the endcap 
-                //it is multipled by an approprate crystal size to ensure it gives similar values to covariances(...)
-                //
-                //Warning: covIEtaIEta has been studied by egamma, but so far covIPhiIPhi hasnt been studied extensively so there could be a bug in 
-                //         the covIPhiIEta or covIPhiIPhi calculations. I dont think there is but as it hasnt been heavily used, there might be one
-                static std::vector<float> localCovariances(const reco::BasicCluster &cluster, const EcalRecHitCollection* recHits, const CaloTopology *topology, float w0 = 4.7);
                 
                 static double zernike20( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloGeometry *geometry, double R0 = 6.6, bool logW = true, float w0 = 4.7 );
                 static double zernike42( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloGeometry *geometry, double R0 = 6.6, bool logW = true, float w0 = 4.7 );
@@ -113,8 +84,6 @@ class EcalClusterTools {
 
                 static std::vector<EcalClusterEnergyDeposition> getEnergyDepTopology( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloGeometry *geometry, bool logW, float w0 );
                 static math::XYZVector meanClusterPosition( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology *topology, const CaloGeometry *geometry );
-                //returns energy weighted mean of <iEta,iPhi>, iPhi is not defined for endcap and is returned as zero 
-                static std::pair<float,float>  meanClusterPositionInCrysCoord(const reco::BasicCluster &cluster, const EcalRecHitCollection* recHits,const CaloTopology *topology);
 
                 static double f00(double r) { return 1; }
                 static double f11(double r) { return r; }
@@ -139,8 +108,6 @@ class EcalClusterTools {
                         return res;
                 }
 
-                static float getIEta(const DetId& id);
-                static float getIPhi(const DetId& id);
 };
 
 #endif

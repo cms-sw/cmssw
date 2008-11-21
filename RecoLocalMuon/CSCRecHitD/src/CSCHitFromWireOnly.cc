@@ -3,7 +3,10 @@
  * Finds wiregroup with hits, and fill in CSCWireHitCollection
  * which includes only DetId and wiregroup #
  *
+ * \author  Dominique Fortin - UCR
+ *
  */
+//---- Some changes from Stoyan Stoynev - NU 
 
 #include <RecoLocalMuon/CSCRecHitD/src/CSCHitFromWireOnly.h>
 #include <RecoLocalMuon/CSCRecHitD/src/CSCWireHit.h>
@@ -28,6 +31,9 @@ CSCHitFromWireOnly::CSCHitFromWireOnly( const edm::ParameterSet& ps ) : recoCond
 CSCHitFromWireOnly::~CSCHitFromWireOnly(){}
 
 
+/* runWire
+ *
+ */
 std::vector<CSCWireHit> CSCHitFromWireOnly::runWire( const CSCDetId& id, const CSCLayer* layer, const CSCWireDigiCollection::Range& rwired ) {
   
   std::vector<CSCWireHit> hitsInLayer;
@@ -51,20 +57,20 @@ std::vector<CSCWireHit> CSCHitFromWireOnly::runWire( const CSCDetId& id, const C
       n_wgroup = 1;
     } else {
       if ( !addToCluster( wdigi ) ) {
-	      // Make Wire Hit from cluster, delete old cluster and start new one
-	      float whit_pos = findWireHitPosition();
-      	bool deadWG_left = isDeadWG( id, wire_in_cluster.at(0) -1 ); 
-	      bool deadWG_right = isDeadWG( id, wire_in_cluster.at(wire_in_cluster.size()-1) + 1);
+	// Make Wire Hit from cluster, delete old cluster and start new one
+	float whit_pos = findWireHitPosition();
+	bool deadWG_left = isDeadWG( id, wire_in_cluster.at(0) -1 ); 
+	bool deadWG_right = isDeadWG( id, wire_in_cluster.at(wire_in_cluster.size()-1) + 1);
         bool isDeadWGAround = false;
-	      if(deadWG_left || deadWG_right){
-	        isDeadWGAround = true;
-	      } 
-	      CSCWireHit whit(id, whit_pos, wire_in_cluster, theTime, isDeadWGAround );
-	      hitsInLayer.push_back( whit );	
-	      makeWireCluster( wdigi );
-	      n_wgroup = 1;
+	if(deadWG_left || deadWG_right){
+	  isDeadWGAround = true;
+	} 
+	CSCWireHit whit(id, whit_pos, wire_in_cluster, theTime, isDeadWGAround );
+	hitsInLayer.push_back( whit );	
+	makeWireCluster( wdigi );
+	n_wgroup = 1;
       } else {
-	      n_wgroup++;
+	n_wgroup++;
       }
     }
     // Don't forget to fill last wire hit !!!
@@ -74,7 +80,7 @@ std::vector<CSCWireHit> CSCHitFromWireOnly::runWire( const CSCDetId& id, const C
       bool deadWG_right = isDeadWG( id, wire_in_cluster.at(wire_in_cluster.size()-1) + 1); 
       bool isDeadWGAround = false;
       if(deadWG_left || deadWG_right){
-      	isDeadWGAround = true;
+	isDeadWGAround = true;
       } 
       CSCWireHit whit(id, whit_pos, wire_in_cluster, theTime, isDeadWGAround );
       hitsInLayer.push_back( whit );
@@ -86,6 +92,9 @@ std::vector<CSCWireHit> CSCHitFromWireOnly::runWire( const CSCDetId& id, const C
 }
 
 
+/* makeWireCluster
+ *
+ */
 void CSCHitFromWireOnly::makeWireCluster(const CSCWireDigi & digi) {
   wire_cluster.clear();
   wire_in_cluster.clear();
@@ -95,6 +104,9 @@ void CSCHitFromWireOnly::makeWireCluster(const CSCWireDigi & digi) {
 }
 
 
+/* addToCluster
+ *
+ */
 bool CSCHitFromWireOnly::addToCluster(const CSCWireDigi & digi) {
 
   

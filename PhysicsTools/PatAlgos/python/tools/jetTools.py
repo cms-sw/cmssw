@@ -1,36 +1,15 @@
 import FWCore.ParameterSet.Config as cms
 
-class MassSearchReplaceParamVisitor(object):
-    """Visitor that travels within a cms.Sequence, looks for a parameter and replace its value"""
-    def __init__(self,paramName,paramSearch,paramValue):
-        self._paramName   = paramName
-        self._paramValue  = paramValue
-        self._paramSearch = paramSearch
-    def enter(self,visitee):
-        if (hasattr(visitee,self._paramName)):
-            if getattr(visitee,self._paramName) == self._paramSearch:
-                print "Replaced %s.%s: %s => %s" % (visitee,self._paramName,getattr(visitee,self._paramName),self._paramValue)
-                setattr(visitee,self._paramName,self._paramValue)
-    def leave(self,visitee):
-        pass
-class MassSearchParamVisitor(object):
-    """Visitor that travels within a cms.Sequence, looks for a parameter and returns a list of modules that have it"""
-    def __init__(self,paramName,paramSearch):
-        self._paramName   = paramName
-        self._paramSearch = paramSearch
-        self._modules = []
-    def enter(self,visitee):
-        if (hasattr(visitee,self._paramName)):
-            if getattr(visitee,self._paramName) == self._paramSearch:
-                self._modules.append(visitee)
-    def leave(self,visitee):
-        pass
-    def modules(self):
-        return self._modules
-    
-def massSearchReplaceParam(sequence,paramName,paramOldValue,paramValue):
-    sequence.visit(MassSearchReplaceParamVisitor(paramName,paramOldValue,paramValue))
-    
+from PhysicsTools.PatAlgos.tools.helpers import *
+
+def switchJECParameters(jetCorrFactors,newalgo,newtype="Calo",oldalgo="IC5",oldtype="Calo"):
+    """Replace input tags in the JetCorrFactorsProducer"""
+    for (k,v) in jetCorrFactors.parameters_().items(): 
+        vv = v.value();
+        if (vv != "none"): 
+            setattr(jetCorrFactors, k, vv.replace(oldalgo+oldtype,newalgo+newtype).replace(oldalgo,newalgo) )
+            # the first replace is good for L2, L3; the last for L7 (which don't have type dependency, at least not in the name)
+
 def runBTagging(process,jetCollection,label) :
     """Define a sequence to run BTagging on AOD on top of jet collection 'jetCollection', appending 'label' to module labels.
        The sequence will be called "btaggingAOD" + 'label', and will already be added to the process (but not to any Path)
@@ -111,9 +90,10 @@ def switchJetCollection(process,jetCollection,layers=[0,1],runCleaner="CaloJet",
                         None must be written without quotes!
           doBTagging  : True to run the BTagging sequence on top of this jets, and import it into PAT.
           doJTA       : Run Jet Tracks Association and Jet Charge (will be forced to True if doBTagging is true)
-          jetCorrLabel: Name of the JEC to pick L2+L3 corrections from (e.g. 'Icone5', 'Scone7', ...), or None for no JEC 
-                        It tries to find a 'L2L3JetCorrector' + jetCorrLabel, or otherwise to create if as a 
-                        JetCorrectionServiceChain of 'L2RelativeJetCorrector'+jetCorrLabel and 'L3AbsoluteJetCorrector'+jetCorrLabel.
+          jetCorrLabel: Name of the algorithm and jet type JEC to pick corrections from, or None for no JEC 
+                        Examples are ('IC5','Calo'), ('SC7','Calo'), ('KT4','PF')
+                        It tries to find a 'L2L3JetCorrector' + algo + type , or otherwise to create if as a 
+                        JetCorrectionServiceChain of 'L2RelativeJetCorrector' and 'L3AbsoluteJetCorrector'
           doType1MET  : If jetCorrLabel is not 'None', set this to 'True' to remake Type1 MET from these jets
                         NOTE: at the moment it must be False for non-CaloJets otherwise the JetMET POG module crashes.
 
@@ -184,20 +164,22 @@ def switchJetCollection(process,jetCollection,layers=[0,1],runCleaner="CaloJet",
     if jetCorrLabel != None:
         if jetCorrLabel == False : raise ValueError, "In switchJetCollection 'jetCorrLabel' must be set to None, not False"
         if jetCorrLabel == "None": raise ValueError, "In switchJetCollection 'jetCorrLabel' must be set to None (without quotes), not 'None'"
-        if not hasattr( process, 'L2L3JetCorrector' + jetCorrLabel ):
+        if type(jetCorrLabel) != type(('IC5','Calo')): 
+            raise ValueError, "In switchJetCollection 'jetCorrLabel' must be None, or a tuple ('Algo', 'Type')"
+        if not hasattr( process, 'L2L3JetCorrector%s%s' % jetCorrLabel ):
             setattr( process, 
-                        'L2L3JetCorrector' + jetCorrLabel, 
+                        'L2L3JetCorrector%s%s' % jetCorrLabel, 
                         cms.ESSource("JetCorrectionServiceChain",
-                            correctors = cms.vstring('L2RelativeJetCorrector' + jetCorrLabel,
-                                                     'L3AbsoluteJetCorrector' + jetCorrLabel),
-                            label      = cms.string('L2L3JetCorrector' + jetCorrLabel)
+                            correctors = cms.vstring('L2RelativeJetCorrector%s%s' % jetCorrLabel,
+                                                     'L3AbsoluteJetCorrector%s%s' % jetCorrLabel),
+                            label      = cms.string('L2L3JetCorrector%s%s' % jetCorrLabel)
                         )
                     )
-        process.jetCorrFactors.jetSource              = jetCollection
-        process.jetCorrFactors.defaultJetCorrector    = 'L2L3JetCorrector' + jetCorrLabel
+        switchJECParameters(process.jetCorrFactors, jetCorrLabel[0], jetCorrLabel[1], oldalgo='IC5',oldtype='Calo')
+        process.jetCorrFactors.jetSource = jetCollection
         if doType1MET:
             process.corMetType1Icone5.inputUncorJetsLabel = jetCollection
-            process.corMetType1Icone5.corrector           = 'L2L3JetCorrector' + jetCorrLabel
+            process.corMetType1Icone5.corrector           = 'L2L3JetCorrector%s%s' % jetCorrLabel
         if runCleaner == None:
             process.globalReplace('layer0JetCorrFactors', process.jetCorrFactors.copy())
             process.patLayer0.remove(process.jetCorrFactors)
@@ -218,9 +200,10 @@ def addJetCollection(process,jetCollection,postfixLabel,
                         None must be written without quotes!
           doBTagging  : True to run the BTagging sequence on top of this jets, and import it into PAT.
           doJTA       : Run Jet Tracks Association and Jet Charge (will be forced to True if doBTagging is true)
-          jetCorrLabel: Name of the JEC to pick L2+L3 corrections from (e.g. 'Icone5', 'Scone7', ...), or None for no JEC 
-                        It tries to find a 'L2L3JetCorrector' + jetCorrLabel, or otherwise to create if as a 
-                        JetCorrectionServiceChain of 'L2RelativeJetCorrector'+jetCorrLabel and 'L3AbsoluteJetCorrector'+jetCorrLabel.
+          jetCorrLabel: Name of the algorithm and jet type JEC to pick corrections from, or None for no JEC 
+                        Examples are ('IC5','Calo'), ('SC7','Calo'), ('KT4','PF')
+                        It tries to find a 'L2L3JetCorrector' + algo + type , or otherwise to create if as a 
+                        JetCorrectionServiceChain of 'L2RelativeJetCorrector' and 'L3AbsoluteJetCorrector'
           doType1MET  : Make also a new MET (NOT IMPLEMENTED)
           doL1Counters: copy also the filter modules that accept/reject the event looking at the number of jets
 
@@ -372,25 +355,29 @@ def addJetCollection(process,jetCollection,postfixLabel,
     if jetCorrLabel != None:
         if jetCorrLabel == False : raise ValueError, "In addJetCollection 'jetCorrLabel' must be set to None, not False"
         if jetCorrLabel == "None": raise ValueError, "In addJetCollection 'jetCorrLabel' must be set to None (without quotes), not 'None'"
-        if not hasattr( process, 'L2L3JetCorrector' + jetCorrLabel ):
+        if type(jetCorrLabel) != type(('IC5','Calo')): 
+            raise ValueError, "In switchJetCollection 'jetCorrLabel' must be None, or a tuple ('Algo', 'Type')"
+        if not hasattr( process, 'L2L3JetCorrector%s%s' % jetCorrLabel ):
             setattr( process, 
-                        'L2L3JetCorrector' + jetCorrLabel, 
+                        'L2L3JetCorrector%s%s' % jetCorrLabel, 
                         cms.ESSource("JetCorrectionServiceChain",
-                            correctors = cms.vstring('L2RelativeJetCorrector' + jetCorrLabel,
-                                                     'L3AbsoluteJetCorrector' + jetCorrLabel),
-                            label      = cms.string('L2L3JetCorrector' + jetCorrLabel)
+                            correctors = cms.vstring('L2RelativeJetCorrector%s%s' % jetCorrLabel,
+                                                     'L3AbsoluteJetCorrector%s%s' % jetCorrLabel),
+                            label      = cms.string('L2L3JetCorrector%s%s' % jetCorrLabel)
                         )
                     )
         if runCleaner != None:
             addClone('jetCorrFactors',       jetSource           = cms.InputTag(jetCollection), 
-                                             defaultJetCorrector = cms.string('L2L3JetCorrector' + jetCorrLabel))
+                                             defaultJetCorrector = cms.string('L2L3JetCorrector%s%s' % jetCorrLabel))
             addClone('layer0JetCorrFactors', association = cms.InputTag('jetCorrFactors'+postfixLabel),
                                              collection  = cms.InputTag(newLabel0),
                                              backrefs    = cms.InputTag(newLabel0))
+            switchJECParameters( getattr(process,'jetCorrFactors'+postfixLabel), jetCorrLabel[0], jetCorrLabel[1], oldalgo='IC5',oldtype='Calo' )
         else:
             addAlso('layer0JetCorrFactors', process.jetCorrFactors.clone(
                                                 jetSource           = cms.InputTag(jetCollection),
-                                                 defaultJetCorrector = cms.string('L2L3JetCorrector' + jetCorrLabel)))
+                                                defaultJetCorrector = cms.string('L2L3JetCorrector%s%s' % jetCorrLabel)))
+            switchJECParameters( getattr(process,'layer0JetCorrFactors'+postfixLabel), jetCorrLabel[0], jetCorrLabel[1], oldalgo='IC5',oldtype='Calo' )
         if l1Jets != None:
             fixInputTag(l1Jets.jetCorrFactorsSource)
     else:

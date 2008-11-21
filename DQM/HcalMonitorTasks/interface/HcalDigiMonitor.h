@@ -11,8 +11,8 @@
 
 /** \class HcalDigiMonitor
   *  
-  * $Date: 2008/10/01 16:33:10 $
-  * $Revision: 1.32 $
+  * $Date: 2008/08/20 17:52:28 $
+  * $Revision: 1.29 $
   * \author W. Fisher - FNAL
   */
 
@@ -22,7 +22,6 @@ struct DigiHists
   // check whether to create histograms for each subdetector
   bool origcheck;
   bool check;
-  int checkNevents;
   
   bool makeDiagnostics; // determine whether or not to make diagnostic plots
   
@@ -72,13 +71,6 @@ struct DigiHists
   MonitorElement* RAW_PEDESTAL_RMS[4];
   MonitorElement* SUB_PEDESTAL_MEAN[4];
   MonitorElement* SUB_PEDESTAL_RMS[4];
-  // 1D versions of pedestal plots
-  MonitorElement* RAW_PEDESTAL_MEAN_1D[4];
-  MonitorElement* RAW_PEDESTAL_RMS_1D[4];
-  MonitorElement* SUB_PEDESTAL_MEAN_1D[4];
-  MonitorElement* SUB_PEDESTAL_RMS_1D[4];
-
-  
 
   
   std::vector<MonitorElement*> TS_SUM_P, TS_SUM_M;
@@ -115,8 +107,7 @@ private:  ///Methods
   void fillErrors(const HBHEDataFrame& hb);
   void fillErrors(const HODataFrame& ho);
   void fillErrors(const HFDataFrame& hf);
-  void fillPedestalHistos(void);
-  void reset_Nevents(DigiHists& h);
+  void reset_Nevents(void);
   void fill_Nevents(DigiHists& h);
   void setupHists(DigiHists& hist,  DQMStore* dbe); // enable this feature at some point
 
@@ -167,19 +158,17 @@ private:
   MonitorElement* BQDIGI_FRAC;
   
   //Quick pedestal code
-  int pedcounts[87][72][4];
-  float rawpedsum[87][72][4];
-  float rawpedsum2[87][72][4];
-  float subpedsum[87][72][4]; 
-  float subpedsum2[87][72][4]; 
+  int pedcounts[83][72][4];
+  float rawpedsum[83][72][4];
+  float rawpedsum2[83][72][4];
+  float subpedsum[83][72][4]; 
+  float subpedsum2[83][72][4]; 
 
-  /*
   MonitorElement* RAW_PEDESTAL_MEAN[4];
   MonitorElement* RAW_PEDESTAL_RMS[4];
   MonitorElement* SUB_PEDESTAL_MEAN[4]; 
   MonitorElement* SUB_PEDESTAL_RMS[4]; 
-  */
-
+ 
   DigiHists hbHists, heHists, hfHists, hoHists, hcalHists;
 
 };

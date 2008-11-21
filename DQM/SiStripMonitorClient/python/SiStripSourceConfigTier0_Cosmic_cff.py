@@ -1,5 +1,15 @@
 import FWCore.ParameterSet.Config as cms
 
+# FED integrity Check
+from DQM.SiStripMonitorHardware.siStripFEDCheck_cfi import *
+siStripFEDCheck.HistogramUpdateFrequency = 0
+siStripFEDCheck.DoPayloadChecks          = True
+siStripFEDCheck.CheckChannelLengths      = True
+siStripFEDCheck.CheckChannelPacketCodes  = True
+siStripFEDCheck.CheckFELengths           = True
+siStripFEDCheck.CheckChannelStatus       = True
+
+
 # SiStripMonitorDigi ####
 from DQM.SiStripMonitorDigi.SiStripMonitorDigi_cfi import *
 SiStripMonitorDigi.Mod_On = False
@@ -90,6 +100,6 @@ SiStripDQMTier0_ckf = cms.Sequence(SiStripMonitorTrack_ckf*MonitorTrackResiduals
 
 SiStripDQMTier0_rs = cms.Sequence(SiStripMonitorTrack_rs*MonitorTrackResiduals_rs*TrackMon_rs)
 
-SiStripDQMTier0 = cms.Sequence(SiStripMonitorDigi*SiStripMonitorCluster*SiStripMonitorTrack_ckf*MonitorTrackResiduals_ckf*TrackMon_cosmicTk*TrackMon_ckf*TrackMon_rs*dqmInfoSiStrip)
+SiStripDQMTier0 = cms.Sequence(siStripFEDCheck*SiStripMonitorDigi*SiStripMonitorCluster*SiStripMonitorTrack_ckf*MonitorTrackResiduals_ckf*TrackMon_cosmicTk*TrackMon_ckf*TrackMon_rs*dqmInfoSiStrip)
 
 

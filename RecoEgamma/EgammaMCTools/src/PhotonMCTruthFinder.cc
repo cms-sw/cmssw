@@ -176,7 +176,7 @@ std::vector<PhotonMCTruth> PhotonMCTruthFinder::find(std::vector<SimTrack> theSi
 
 	 if ( phoMotherType == 111 || phoMotherType == 221 || phoMotherType == 331 ) {
 	 
-	   //std::cout << " Parent to this vertex   motherId " << phoMotherId << " mother type " <<  phoMotherType << " Sim track ID " <<  theSimTracks[phoMotherId].trackId() << std::endl;
+	   //std::cout << " Parent to this vertex   motherId " << motherId << " mother type " <<  phoMotherType << " Sim track ID " <<  theSimTracks[motherId].trackId() <<  " Pt " << motherPt <<  " vtx R " << R << std::endl;
 	   //std::cout << " Son of a pizero or eta " << phoMotherType << std::endl;
 	 }
 	 
@@ -331,8 +331,7 @@ std::vector<PhotonMCTruth> PhotonMCTruthFinder::find(std::vector<SimTrack> theSi
        HepLorentzVector phoMotherMom(0.,0.,0.,0.);
        HepLorentzVector phoMotherVtx(0.,0.,0.,0.); 
 
-       if ( phoMotherId >= 0) {
-	
+       if ( phoMotherId > 0) {
 	 phoMotherVtxIndex = theSimTracks[phoMotherId].vertIndex();
 	 SimVertex motherVtx = theSimVertices[ phoMotherVtxIndex];
 	 motherVtxPosition =math::XYZTLorentzVectorD (motherVtx.position().x(),
@@ -344,8 +343,7 @@ std::vector<PhotonMCTruth> PhotonMCTruthFinder::find(std::vector<SimTrack> theSi
 	 phoMotherMom.setPy( theSimTracks[phoMotherId].momentum().y());
 	 phoMotherMom.setPz( theSimTracks[phoMotherId].momentum().z() );
 	 phoMotherMom.setE( theSimTracks[phoMotherId].momentum().t());
-	 // std::cout << " PhotonMCTruthFinder mother " << phoMotherId << " type " << phoMotherType << " Momentum" <<  phoMotherMom.et() << std::endl;	
- 
+	 
 	 phoMotherVtx.setX ( motherVtxPosition.x());
 	 phoMotherVtx.setY ( motherVtxPosition.y());
 	 phoMotherVtx.setZ ( motherVtxPosition.z());

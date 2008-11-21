@@ -28,7 +28,7 @@ class EcalEndcapGeometry : public CaloSubdetectorGeometry
 
       typedef EcalEndcapNumberingScheme NumberingScheme ;
 
-      enum { k_NumberOfCellsForCorners = EEDetId::kSizeForDenseIndexing } ;
+      enum CornersCount { k_NumberOfCellsForCorners = 14648 } ;
 
       EcalEndcapGeometry() ;
   
@@ -57,8 +57,6 @@ class EcalEndcapGeometry : public CaloSubdetectorGeometry
       static std::string producerName() { return "EcalEndcap" ; }
 
       static unsigned int numberOfAlignments() { return 4 ; }
-
-      static unsigned int whichGlobal() { return (unsigned int)DetId::Ecal ; } // global position record index
 
    private:
 

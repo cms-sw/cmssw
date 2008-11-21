@@ -46,11 +46,11 @@ void PhotonIDProducer::produce(edm::Event& e, const edm::EventSetup& c) {
 
   // Loop over photons and calculate photon ID using specified technique(s)
   reco::PhotonCollection::const_iterator photon;
-//   for (photon = (*photons).begin();
-//        photon != (*photons).end(); ++photon) {
-//     reco::PhotonID phoID = cutBasedAlgo_->calculate(&(*photon),e, c);
-//     photonIDCollection.push_back(phoID);
-//   }
+  for (photon = (*photons).begin();
+       photon != (*photons).end(); ++photon) {
+    reco::PhotonID phoID = cutBasedAlgo_->calculate(&(*photon),e, c);
+    photonIDCollection.push_back(phoID);
+  }
   
   // Add output electron ID collection to the event
   photonIDCollection_p->assign(photonIDCollection.begin(),

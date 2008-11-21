@@ -1,11 +1,11 @@
-// $Id: EcalMonitorPrescaler.cc,v 1.10 2008/10/29 13:17:10 dellaric Exp $
+// $Id: EcalMonitorPrescaler.cc,v 1.7 2008/01/22 18:47:42 muzaffar Exp $
 
 /*!
   \file EcalMonitorPrescaler.cc
   \brief Ecal specific Prescaler
   \author G. Della Ricca
-  \version $Revision: 1.10 $
-  \date $Date: 2008/10/29 13:17:10 $
+  \version $Revision: 1.7 $
+  \date $Date: 2008/01/22 18:47:42 $
 */
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -34,8 +34,6 @@ EcalMonitorPrescaler::EcalMonitorPrescaler(ParameterSet const& ps) {
   ledPrescaleFactor_ = ps.getUntrackedParameter<int>("ledPrescaleFactor", 0);
   pedestalPrescaleFactor_ = ps.getUntrackedParameter<int>("pedestalPrescaleFactor", 0);
   testpulsePrescaleFactor_ = ps.getUntrackedParameter<int>("testpulsePrescaleFactor", 0);
-
-  pedestaloffsetPrescaleFactor_ = ps.getUntrackedParameter<int>("pedestaloffsetPrescaleFactor", 0);
 
   triggertowerPrescaleFactor_ = ps.getUntrackedParameter<int>("triggertowerPrescaleFactor" , 0);
   timingPrescaleFactor_ = ps.getUntrackedParameter<int>("timingPrescaleFactor" , 0);
@@ -74,6 +72,10 @@ bool EcalMonitorPrescaler::filter(Event & e, EventSetup const&) {
     if ( count_ % timingPrescaleFactor_ == 0 ) status = true;
   }
 
+  if ( clusterPrescaleFactor_ ) {
+    if ( count_ % clusterPrescaleFactor_ == 0 ) status = true;
+  }
+
   Handle<EcalRawDataCollection> dcchs;
 
   if ( e.getByLabel(EcalRawDataCollection_, dcchs) ) {
@@ -107,12 +109,6 @@ bool EcalMonitorPrescaler::filter(Event & e, EventSetup const&) {
         }
       }
 
-      if ( dcch.getRunType() == EcalDCCHeaderBlock::PEDESTAL_OFFSET_SCAN ) {
-        if ( pedestaloffsetPrescaleFactor_ ) {
-          if ( count_ % pedestaloffsetPrescaleFactor_ == 0 ) status = true;
-        }
-      }
-
       if ( dcch.getRunType() == EcalDCCHeaderBlock::COSMIC ||
            dcch.getRunType() == EcalDCCHeaderBlock::MTCC ||
            dcch.getRunType() == EcalDCCHeaderBlock::COSMICS_GLOBAL ||
@@ -121,17 +117,6 @@ bool EcalMonitorPrescaler::filter(Event & e, EventSetup const&) {
            dcch.getRunType() == EcalDCCHeaderBlock::PHYSICS_LOCAL ) {
         if ( cosmicPrescaleFactor_ ) {
           if ( count_ % cosmicPrescaleFactor_ == 0 ) status = true;
-        }
-      }
-
-      if ( dcch.getRunType() == EcalDCCHeaderBlock::COSMIC ||
-           dcch.getRunType() == EcalDCCHeaderBlock::MTCC ||
-           dcch.getRunType() == EcalDCCHeaderBlock::COSMICS_GLOBAL ||
-           dcch.getRunType() == EcalDCCHeaderBlock::PHYSICS_GLOBAL ||
-           dcch.getRunType() == EcalDCCHeaderBlock::COSMICS_LOCAL ||
-           dcch.getRunType() == EcalDCCHeaderBlock::PHYSICS_LOCAL ) {
-        if ( clusterPrescaleFactor_ ) {
-          if ( count_ % clusterPrescaleFactor_ == 0 ) status = true;
         }
       }
 

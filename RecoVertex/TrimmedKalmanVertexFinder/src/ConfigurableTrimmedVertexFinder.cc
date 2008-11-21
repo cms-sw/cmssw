@@ -21,20 +21,14 @@ vector<TransientVertex> ConfigurableTrimmedVertexFinder::vertices(
 {
   vector<TransientTrack> remaining;
 
-  return vertices(tracks, remaining, reco::BeamSpot(), false );
+  return vertices(tracks, remaining);
 
 }
 
-vector<TransientVertex> ConfigurableTrimmedVertexFinder::vertices(
-  const vector<TransientTrack> & tracks, const reco::BeamSpot & spot ) const
-{
-  vector<TransientTrack> remaining;
-  return vertices ( tracks, remaining, spot, true );
-}
 
 vector<TransientVertex> ConfigurableTrimmedVertexFinder::vertices(
-  const vector<TransientTrack> & tracks, vector<TransientTrack> & unused,
-  const reco::BeamSpot & spot, bool use_spot ) const
+  const vector<TransientTrack> & tracks, vector<TransientTrack> & unused) 
+  const
 {
   resetEvent(tracks);
   analyseInputTracks(tracks);
@@ -50,8 +44,7 @@ vector<TransientVertex> ConfigurableTrimmedVertexFinder::vertices(
     }
   }
 
-  vector<TransientVertex> all = vertexCandidates(filtered, unused,
-      spot, use_spot );
+  vector<TransientVertex> all = vertexCandidates(filtered, unused);
 
   analyseVertexCandidates(all);
 
@@ -65,8 +58,7 @@ vector<TransientVertex> ConfigurableTrimmedVertexFinder::vertices(
 
 
 vector<TransientVertex> ConfigurableTrimmedVertexFinder::vertexCandidates(
-  const vector<TransientTrack> & tracks, vector<TransientTrack> & unused,
-  const reco::BeamSpot & spot, bool use_spot ) const 
+  const vector<TransientTrack> & tracks, vector<TransientTrack> & unused) const 
 {
 
   vector<TransientVertex> cand;
@@ -84,15 +76,9 @@ vector<TransientVertex> ConfigurableTrimmedVertexFinder::vertexCandidates(
     //    cout << "PVCF:compat cut after setting " 
     //	 << theClusterFinder.trackCompatibilityCut() << endl;
 
-    vector<TransientVertex> newVertices;
-    if ( cand.size() == 0 && use_spot )
-    {
-      newVertices = theClusterFinder.vertices(remain, spot );
-    } else {
-      newVertices = theClusterFinder.vertices(remain);
-    }
+    vector<TransientVertex> newVertices = theClusterFinder.vertices(remain);
     if (newVertices.empty()) break;
-
+    
     analyseClusterFinder(newVertices, remain);
     
     for (vector<TransientVertex>::const_iterator iv = newVertices.begin();

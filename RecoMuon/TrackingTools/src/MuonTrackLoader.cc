@@ -3,8 +3,8 @@
  *  Class to load the product in the event
  *
 
- *  $Date: 2008/10/23 17:11:01 $
- *  $Revision: 1.71 $
+ *  $Date: 2008/08/05 16:07:28 $
+ *  $Revision: 1.68 $
 
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
@@ -21,10 +21,6 @@
 #include "TrackingTools/GeomPropagators/interface/TrackerBounds.h"
 #include "TrackingTools/PatternTools/interface/TrajectorySmoother.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
-#include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
-#include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
-
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -348,27 +344,10 @@ MuonTrackLoader::loadTracks(const CandidateContainer& muonCands,
     links->setGlobalTrack(combinedTR);
     if(thePutTkTrackFlag) links->setTrackerTrack(trackerTR);
   }
-
-  //missing hits quality check  
-  for (  links = trackLinksCollection->begin();  links != trackLinksCollection->end(); ++links ) {
-    int hitTk = ( links->trackerTrack().isNonnull()) ? links->trackerTrack().get()->hitPattern().numberOfValidTrackerHits() : 0;
-    int hitGlbTk = ( links->globalTrack().isNonnull()) ?  links->globalTrack().get()->hitPattern().numberOfValidTrackerHits() : 0;
-    int hitSta =  ( links->standAloneTrack().isNonnull()) ? links->standAloneTrack().get()->recHitsSize() : 0;
-    int hitGlbSta = ( links->globalTrack().isNonnull()) ? links->globalTrack().get()->hitPattern().numberOfValidMuonHits() : 0;
-    int hitGlb =  ( links->globalTrack().isNonnull()) ? links->globalTrack().get()->hitPattern().numberOfValidHits() : 0;
-        
-    int missingSta = hitSta-hitGlbSta;
-    int missingTk = hitTk-hitGlbTk;
-    
-    if (fabs(missingSta + missingTk) > 3){
-      LogTrace(metname)<<"Global Muon Missing Hits!";
-      LogTrace(metname)<<" nGlb: " << hitGlb << " nSta: " << hitSta << " nTk:" << hitTk << " nStaMissing: " <<  missingSta << " nTkMissing: " << missingTk;
-    }
-  }
   
   // put the MuonCollection in the event
   LogTrace(metname) << "put the MuonCollection in the event" << "\n";
-  
+
   return event.put(trackLinksCollection);
 }
 
@@ -688,17 +667,13 @@ reco::TrackExtra MuonTrackLoader::buildTrackExtra(const Trajectory& trajectory) 
   TrajectoryStateOnSurface outerTSOS;
   TrajectoryStateOnSurface innerTSOS;
   unsigned int innerId=0, outerId=0;
-  TrajectoryMeasurement::ConstRecHitPointer outerRecHit;
-  DetId outerDetId;
-
+  
   if (trajectory.direction() == alongMomentum) {
     LogTrace(metname)<<"alongMomentum";
     outerTSOS = trajectory.lastMeasurement().updatedState();
     innerTSOS = trajectory.firstMeasurement().updatedState();
     outerId = trajectory.lastMeasurement().recHit()->geographicalId().rawId();
     innerId = trajectory.firstMeasurement().recHit()->geographicalId().rawId();
-    outerRecHit =  trajectory.lastMeasurement().recHit();
-    outerDetId =   trajectory.lastMeasurement().recHit()->geographicalId();
   } 
   else if (trajectory.direction() == oppositeToMomentum) {
     LogTrace(metname)<<"oppositeToMomentum";
@@ -706,30 +681,15 @@ reco::TrackExtra MuonTrackLoader::buildTrackExtra(const Trajectory& trajectory) 
     innerTSOS = trajectory.lastMeasurement().updatedState();
     outerId = trajectory.firstMeasurement().recHit()->geographicalId().rawId();
     innerId = trajectory.lastMeasurement().recHit()->geographicalId().rawId();
-    outerRecHit =  trajectory.firstMeasurement().recHit();
-    outerDetId =   trajectory.firstMeasurement().recHit()->geographicalId();
   }
   else LogError(metname)<<"Wrong propagation direction!";
   
-  const GeomDet *outerDet = theService->trackingGeometry()->idToDet(outerDetId);
-  GlobalPoint outerTSOSPos = outerTSOS.globalParameters().position();
-  bool inside = outerDet->surface().bounds().inside(outerDet->toLocal(outerTSOSPos));
-
-  
-  GlobalPoint hitPos = (outerRecHit->isValid()) ? outerRecHit->globalPosition() :  outerTSOS.globalParameters().position() ;
-  
-  if(!inside) {
-    LogTrace(metname)<<"The Global Muon outerMostMeasurementState is not compatible with the recHit detector! Setting outerMost postition to recHit position if recHit isValid: " << outerRecHit->isValid();
-    LogTrace(metname)<<"From " << outerTSOSPos << " to " <<  hitPos;
-  }
-  
-  
   //build the TrackExtra
-  GlobalPoint v = (inside) ? outerTSOSPos : hitPos ;
+  GlobalPoint v = outerTSOS.globalParameters().position();
   GlobalVector p = outerTSOS.globalParameters().momentum();
   math::XYZPoint  outpos( v.x(), v.y(), v.z() );   
   math::XYZVector outmom( p.x(), p.y(), p.z() );
-  
+
   v = innerTSOS.globalParameters().position();
   p = innerTSOS.globalParameters().momentum();
   math::XYZPoint  inpos( v.x(), v.y(), v.z() );   
@@ -743,3 +703,4 @@ reco::TrackExtra MuonTrackLoader::buildTrackExtra(const Trajectory& trajectory) 
   return trackExtra;
  
 }
+

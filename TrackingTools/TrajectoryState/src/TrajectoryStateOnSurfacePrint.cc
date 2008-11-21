@@ -58,14 +58,9 @@ ostream& operator<<(std::ostream& os, const TrajectoryStateOnSurface& tsos) {
     }
   }
   os << "Defined at ";
-  if ( tsos.surfaceSide()==SurfaceSideDefinition::beforeSurface )  os << "beforeSurface";
-  else if ( tsos.surfaceSide()==SurfaceSideDefinition::afterSurface )  os << "afterSurface";
+  if ( tsos.surfaceSide()==beforeSurface )  os << "beforeSurface";
+  else if ( tsos.surfaceSide()==afterSurface )  os << "afterSurface";
   else  os << "atCenterOfSurface";
   os << endl;
-
-  // magnetic field
-  os << "Magnetic field in inverse GeV: " << tsos.globalParameters().magneticFieldInInverseGeV(tsos.globalPosition());
-  os <<endl;
-
   return os;
 }
