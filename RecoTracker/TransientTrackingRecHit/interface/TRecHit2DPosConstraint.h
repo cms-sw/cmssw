@@ -2,6 +2,7 @@
 #define RECOTRACKER_TRANSIENTRACKINGRECHIT_TRecHit2DPosConstraint_H
 
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
+#include "DataFormats/GeometrySurface/interface/ReferenceCounted.h"
 
 class GeomDetUnit;
 
@@ -60,12 +61,13 @@ public:
     return RecHitPointer( new TRecHit2DPosConstraint( pos, err, surface));
   }
 
-  virtual const Surface * surface() const {return surface_;}
+  virtual const Surface * surface() const {return &(*surface_);}
 
 private:
-  const LocalPoint& pos_;
-  const LocalError& err_;
-  const Surface* surface_;
+  const LocalPoint pos_;
+  const LocalError err_;
+//   const Surface* surface_;
+  ConstReferenceCountingPointer<Surface> surface_;
   /// Creates the TrackingRecHit internally, avoids redundent cloning
   TRecHit2DPosConstraint(const LocalPoint& pos,
 			 const LocalError& err,
