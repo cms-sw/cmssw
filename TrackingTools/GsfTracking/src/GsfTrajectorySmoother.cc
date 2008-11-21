@@ -119,7 +119,7 @@ GsfTrajectorySmoother::trajectories(const Trajectory& aTraj) const {
       // 	}
       //     }
       predTsos = propagator()->propagate(currTsos,
-					 (*itm).recHit()->det()->surface());
+					 *(*itm).recHit()->surface());
     }
     if ( predTsos.isValid() && theConvolutor && theMatBeforeUpdate )
       predTsos = (*theConvolutor)(predTsos,
@@ -195,7 +195,7 @@ GsfTrajectorySmoother::trajectories(const Trajectory& aTraj) const {
   {
     //     TimeMe t(*propTimer,false);
     predTsos = propagator()->propagate(currTsos,
-				       avtm.front().recHit()->det()->surface());
+				       *avtm.front().recHit()->surface());
   }
   if ( predTsos.isValid() && theConvolutor && theMatBeforeUpdate )
     predTsos = (*theConvolutor)(predTsos,
