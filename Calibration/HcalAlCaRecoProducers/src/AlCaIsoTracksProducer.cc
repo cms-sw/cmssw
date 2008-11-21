@@ -108,6 +108,7 @@ AlCaIsoTracksProducer::AlCaIsoTracksProducer(const edm::ParameterSet& iConfig)
   
   m_dvCut = iConfig.getParameter<double>("vtxCut");
   m_ddirCut = iConfig.getParameter<double>("RIsolAtECALSurface");
+  useConeCorr_=iConfig.getParameter<bool>("UseLowPtConeCorrection");
   m_pCut = iConfig.getParameter<double>("MinTrackP");
   m_ptCut = iConfig.getParameter<double>("MinTrackPt");
   m_ecalCut = iConfig.getUntrackedParameter<double>("NeutralIsolCut",8.);
@@ -120,11 +121,13 @@ AlCaIsoTracksProducer::AlCaIsoTracksProducer(const edm::ParameterSet& iConfig)
   isolE_ = iConfig.getParameter<double>("MaxNearbyTrackEnergy");
   etaMax_= iConfig.getParameter<double>("MaxTrackEta");
   cluRad_ = iConfig.getParameter<double>("ECALClusterRadius");
-  ringRad_ = iConfig.getParameter<double>("ECALOuterRingRadius");
+  ringOutRad_ = iConfig.getParameter<double>("ECALRingOuterRadius");
+  ringInnRad_=iConfig.getParameter<double>("ECALRingInnerRadius");  
 
   checkHLTMatch_=iConfig.getParameter<bool>("CheckHLTMatch");
   hltEventTag_=iConfig.getParameter<edm::InputTag>("hltTriggerEventLabel");  
   hltFiltTag_=iConfig.getParameter<edm::InputTag>("hltL3FilterLabel");
+  
   //////////
 //
 // Parameters for track associator   ===========================
@@ -229,7 +232,7 @@ void AlCaIsoTracksProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
     double etaecal=info.trkGlobPosAtEcal.eta();
     double phiecal=info.trkGlobPosAtEcal.phi();
     
-    double thetaecal = 2*atan(exp(-etaecal));
+//    double thetaecal = 2*atan(exp(-etaecal));
 
     //check matching to HLT object to make sure that ecal FEDs are present (optional)
 
@@ -250,14 +253,20 @@ void AlCaIsoTracksProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 	
 	double etaecal1=info1.trkGlobPosAtEcal.eta();
 	double phiecal1=info1.trkGlobPosAtEcal.phi();
-	
+   
+        if (etaecal1==0&&phiecal1==0) continue;	
+
 	double ecDist=getDistInCM(etaecal,phiecal,etaecal1,phiecal1);
 
 	// increase required separation for low momentum tracks
 	double factor=1.;
 	double factor1=1.;
-	if(ptrack<10.)factor+=(10.-ptrack)/20.;
-	if(ptrack1<10.)factor1+=(10.-ptrack1)/20.;
+
+	if (useConeCorr_)
+	   {
+	     if(ptrack<10.)factor+=(10.-ptrack)/20.;
+	     if(ptrack1<10.)factor1+=(10.-ptrack1)/20.;
+	   }
 
 	if( ecDist <  m_ddirCut*factor*factor1 ) 
 	  {
@@ -279,47 +288,12 @@ void AlCaIsoTracksProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 	
       } //second track loop
 
-    // here check neutral isolation
-    
     bool noNeutrals = false;
     
-    if (noChargedTracks) 
+    // we have a good charge-isolated track, so check neutral isolation and write it out
+	
+    if(noChargedTracks) 
       {
-	double ddR = 0.1;
-	double eecal=info.coneEnergy(ddR,TrackDetMatchInfo::EcalRecHits);
-    
-	double dAngleNeut;
-	if (fabs(etaecal)<1.479) dAngleNeut=atan((67.5*pow(129.,-1))*cos(acos(-1.)/2.-thetaecal));
-	else dAngleNeut=atan((67.5*pow(275.,-1))*fabs(cos(thetaecal)));
-	
-	double ddR1=fabs(log(tan(thetaecal/2))-log(tan((thetaecal-dAngleNeut)/2)));
-	double ddR2=fabs(log(tan(thetaecal/2))-log(tan((thetaecal+dAngleNeut)/2)));
-	ddR=fmax(ddR1,ddR2);
-	
-	double eecal2 = info.coneEnergy(ddR,TrackDetMatchInfo::EcalRecHits);
-	double dEring = eecal2-eecal;
-	
-	if(dEring < m_ecalCut) noNeutrals=true;
-      }
-	// we have a good isolated track, so write it out
-	
-    if((noNeutrals||skipNeutrals_)&&noChargedTracks) 
-      {
-	// Take info on the track extras and keep it in the outercollection
-	
-	reco::TrackExtraRef myextra = (*track).extra();
-	reco::TrackExtraRef teref= reco::TrackExtraRef ( rTrackExtras, idx ++ );
-	
-	outputTColl->push_back(*track);
-	reco::Track & mytrack = outputTColl->back();
-	
-	mytrack.setExtra( teref );
-	outputExTColl->push_back(*myextra);
-	//	reco::TrackExtra & tx = outputExTColl->back();
-	
-	//Create IsolatedPixelTrackCandidate (will change naming in future release) 
-	reco::IsolatedPixelTrackCandidate newHITCandidate(reco::TrackRef(trackCollection,track-trackCollection->begin()), l1extra::L1JetParticleRef(edm::ProductID(0)), maxPNearby, sumPNearby);
-
 	//find ecal cluster energy and write ecal recHits
 	double ecClustR=0;
 	double ecOutRingR=0;
@@ -340,13 +314,13 @@ void AlCaIsoTracksProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 	      {
 		ecClustR+=ehit->energy();
 	      }
-	    if (dHitCM>cluRad_&&dHitCM<ringRad_)
+	    if (dHitCM>ringInnRad_&&dHitCM<ringOutRad_)
 	      {
 		ecOutRingR+=ehit->energy();
 	      }
 	    //////////////////////////////////
 			    
-	    // check whether hit was used ot not, if not used push into usedHits
+	    // check whether hit was used or not, if not used push into usedHits
 	    bool hitIsUsed=false;
 	    int hitHashedIndex=-10000;
 	    if (ehit->id().subdetId()==EcalBarrel)
@@ -373,8 +347,32 @@ void AlCaIsoTracksProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 		outputEColl->push_back(*ehit);
 	      }   
 	  }
+
 	usedHits.clear();
-	//set ecal energy deposition and save candidate
+	
+	//check neutrals 
+        if (ecOutRingR<m_ecalCut) noNeutrals=true;
+	else noNeutrals=false;
+
+	if (noNeutrals||skipNeutrals_)
+	{
+
+        // Take info on the track extras and keep it in the outercollection
+
+        reco::TrackExtraRef myextra = (*track).extra();
+        reco::TrackExtraRef teref= reco::TrackExtraRef ( rTrackExtras, idx ++ );
+
+        outputTColl->push_back(*track);
+        reco::Track & mytrack = outputTColl->back();
+
+        mytrack.setExtra( teref );
+        outputExTColl->push_back(*myextra);
+        //      reco::TrackExtra & tx = outputExTColl->back();
+
+        //Create IsolatedPixelTrackCandidate (will change naming in future release)
+        reco::IsolatedPixelTrackCandidate newHITCandidate(reco::TrackRef(trackCollection,track-trackCollection->begin()), l1extra::L1JetParticleRef(edm::ProductID(0)), maxPNearby, sumPNearby);
+
+	//set cluster energy deposition and ring energy deposition and push_back
 	newHITCandidate.SetEnergyIn(ecClustR);
 	newHITCandidate.SetEnergyOut(ecOutRingR);
 	outputHcalIsoTrackColl->push_back(newHITCandidate);
@@ -403,6 +401,7 @@ void AlCaIsoTracksProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 	      {
 		outputHColl->push_back(*hhit);
 	      }
+	    }
 	  }
 	
 	nisotr++;
