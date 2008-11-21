@@ -34,6 +34,7 @@ Test program for edm::Event.
 #include "FWCore/Framework/interface/RunPrincipal.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/OrphanHandle.h"
+#include "DataFormats/Common/interface/Wrapper.h"
 #include "FWCore/Framework/interface/Selector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -653,6 +654,9 @@ void testEvent::getByLabel()
   CPPUNIT_ASSERT(h->value == 100);
   BasicHandle bh2(principal_->getByLabel(TypeID(typeid(edmtest::IntProduct)), "modMulti", "int1", "nomatch"));
   CPPUNIT_ASSERT(!bh2.isValid());
+
+  boost::shared_ptr<Wrapper<edmtest::IntProduct> const> ptr = getProductByTag<edmtest::IntProduct>(*principal_, inputTag);
+  CPPUNIT_ASSERT(ptr->product()->value == 200);
 }
 
 

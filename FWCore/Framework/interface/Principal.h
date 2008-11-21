@@ -30,10 +30,13 @@ pointer to a Group, when queried.
 #include "DataFormats/Provenance/interface/EventEntryInfo.h"
 #include "DataFormats/Common/interface/EDProductGetter.h"
 #include "DataFormats/Common/interface/OutputHandle.h"
+#include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/Provenance/interface/ProcessHistory.h"
 #include "DataFormats/Provenance/interface/ProductStatus.h"
 #include "FWCore/Framework/interface/Group.h"
 #include "FWCore/Framework/interface/NoDelayedReader.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/TypeID.h"
 
 
 namespace edm {
@@ -64,10 +67,6 @@ namespace edm {
 
     BasicHandle  getBySelector(TypeID const& tid,
                                SelectorBase const& s) const;
-
-    BasicHandle  getByLabel(TypeID const& tid,
-			    std::string const& label,
-                            std::string const& productInstanceName) const;
 
     BasicHandle  getByLabel(TypeID const& tid,
 			    std::string const& label,
@@ -213,5 +212,11 @@ namespace edm {
     return OutputHandle<T>(g->product().get(), &g->productDescription(), g->entryInfoPtr());
   }
 
+  template <typename PROD>
+  inline
+  boost::shared_ptr<Wrapper<PROD> const> 	 
+  getProductByTag(Principal const& ep, InputTag const& tag) {
+    return boost::dynamic_pointer_cast<Wrapper<PROD> const>(ep.getByLabel(TypeID(typeid(PROD)), tag.label(), tag.instance(), tag.process()).product());
+  }
 }
 #endif

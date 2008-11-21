@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Mar 30 15:48:37 EST 2006
-// $Id: GenericHandle.cc,v 1.8 2008/05/14 19:45:13 wmtan Exp $
+// $Id: GenericHandle.cc,v 1.9 2008/06/18 22:37:58 wmtan Exp $
 //
 
 // system include files
@@ -68,7 +68,7 @@ edm::Event::getByLabel<GenericObject>(std::string const& label,
                                       const std::string& productInstanceName,
                                       Handle<GenericObject>& result) const
 {
-  BasicHandle bh = this->getByLabel_(TypeID(result.type().TypeInfo()), label, productInstanceName);
+  BasicHandle bh = this->getByLabel_(TypeID(result.type().TypeInfo()), label, productInstanceName, std::string());
   convert_handle(bh, result);  // throws on conversion error
   if(!bh.failedToGet()) {
     addToGotBranchIDs(*bh.provenance());

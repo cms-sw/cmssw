@@ -190,11 +190,6 @@ namespace edm {
     BasicHandle 
     getByLabel_(TypeID const& tid,
 		std::string const& label,
-		std::string const& productInstanceName) const;
-
-    BasicHandle 
-    getByLabel_(TypeID const& tid,
-		std::string const& label,
 		std::string const& productInstanceName,
 		std::string const& processName) const;
 
@@ -376,10 +371,7 @@ namespace edm {
   DataViewImpl::getByLabel(InputTag const& tag, Handle<PROD>& result) const
   {
     result.clear();
-    if (tag.process().empty()) {
-      return getByLabel(tag.label(), tag.instance(), result);
-    }
-    BasicHandle bh = this->getByLabel_(TypeID(typeid(PROD)), tag.label(), tag.instance(),tag.process());
+    BasicHandle bh = this->getByLabel_(TypeID(typeid(PROD)), tag.label(), tag.instance(), tag.process());
     convert_handle(bh, result);  // throws on conversion error
     if (bh.failedToGet()) {
       return false;
@@ -395,7 +387,7 @@ namespace edm {
 			   Handle<PROD>& result) const
   {
     result.clear();
-    BasicHandle bh = this->getByLabel_(TypeID(typeid(PROD)), label, productInstanceName);
+    BasicHandle bh = this->getByLabel_(TypeID(typeid(PROD)), label, productInstanceName, std::string());
     convert_handle(bh, result);  // throws on conversion error
     if (bh.failedToGet()) {
       return false;

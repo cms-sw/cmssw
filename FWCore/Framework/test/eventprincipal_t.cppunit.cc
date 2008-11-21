@@ -263,7 +263,7 @@ void test_ep::failgetbyLabelTest()
 
   std::string label("this does not exist");
 
-  edm::BasicHandle h(pEvent_->getByLabel(tid, label, std::string()));
+  edm::BasicHandle h(pEvent_->getByLabel(tid, label, std::string(), std::string()));
   CPPUNIT_ASSERT(h.failedToGet());
 }
 

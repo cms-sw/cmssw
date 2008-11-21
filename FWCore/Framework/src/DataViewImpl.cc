@@ -43,14 +43,6 @@ namespace edm {
     return principal_.getBySelector(tid, sel);
   }
 
-  BasicHandle
-  DataViewImpl::getByLabel_(TypeID const& tid,
-		     std::string const& label,
-                     std::string const& productInstanceName) const
-  {
-    return principal_.getByLabel(tid, label, productInstanceName);
-  }
-
   void
   DataViewImpl::getMany_(TypeID const& tid,
 		  SelectorBase const& sel,

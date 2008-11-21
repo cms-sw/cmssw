@@ -162,40 +162,6 @@ namespace edm {
   }
 
   BasicHandle
-  Principal::getByLabel(TypeID const& productType, 
-			std::string const& label,
-			std::string const& productInstanceName) const {
-    BasicHandleVec results;
-
-    edm::Selector sel(edm::ModuleLabelSelector(label) &&
-                      edm::ProductInstanceNameSelector(productInstanceName));
-
-    int nFound = findGroups(productType,
-                            preg_->productLookup(),
-                            sel,
-                            results,
-                            true);
-
-    if (nFound == 0) {
-      boost::shared_ptr<cms::Exception> whyFailed( new edm::Exception(edm::errors::ProductNotFound) );
-      *whyFailed
-	<< "getByLabel: Found zero products matching all criteria\n"
-	<< "Looking for type: " << productType << "\n"
-	<< "Looking for module label: " << label << "\n"
-	<< "Looking for productInstanceName: " << productInstanceName << "\n";
-      return BasicHandle(whyFailed);
-    }
-    if (nFound > 1) {
-      throw edm::Exception(edm::errors::ProductNotFound)
-        << "getByLabel: Found "<<nFound<<" products rather than one which match all criteria\n"
-	<< "Looking for type: " << productType << "\n"
-	<< "Looking for module label: " << label << "\n"
-	<< "Looking for productInstanceName: " << productInstanceName << "\n";
-    }
-    return results[0];
-  }
-
-  BasicHandle
   Principal::getByLabel(TypeID const& productType,
 			std::string const& label,
 			std::string const& productInstanceName,
@@ -221,7 +187,7 @@ namespace edm {
 	<< "Looking for type: " << productType << "\n"
 	<< "Looking for module label: " << label << "\n"
 	<< "Looking for productInstanceName: " << productInstanceName << "\n"
-	<< "Looking for process: " << processName << "\n";
+	<< (processName.empty() ? "" : "Looking for process: ") << processName << "\n";
       return BasicHandle(whyFailed);
     }
     if (nFound > 1) {
@@ -230,7 +196,7 @@ namespace edm {
 	<< "Looking for type: " << productType << "\n"
 	<< "Looking for module label: " << label << "\n"
 	<< "Looking for productInstanceName: " << productInstanceName << "\n"
-	<< "Looking for process: " << processName << "\n";
+	<< (processName.empty() ? "" : "Looking for process: ") << processName << "\n";
     }
     return results[0];
   }
