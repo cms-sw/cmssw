@@ -1,7 +1,7 @@
 #!/bin/sh 
 
 echo "This script produces all the histograms and plots..."
-echo -e "Enter the REFERNCE.root file, the NEW.root file and the directory name/histo title([REFERNCE.root] [NEW.root] [title]): "
+echo -e "Enter the REFERNCE.root file, the NEW.root file and the directory name/histogram title([REFERNCE.root] [NEW.root] [title]): "
 read reference new title
 
 if [ -n "$reference" ]; then
