@@ -17,7 +17,7 @@ RunSummaryHandler::RunSummaryHandler(const edm::ParameterSet& pset) :
   // m_connect(pset.getUntrackedParameter<std::string>("OnlineConn","")),
  
   m_user(pset.getUntrackedParameter<std::string>("OnlineDBUser","CMS_RUNINFO")), 
-  m_pass(pset.getUntrackedParameter<std::string>("OnlineDBPass","MICKEY2MOUSE"))
+  m_pass(pset.getUntrackedParameter<std::string>("OnlineDBPass","********"))
 
 {
   m_connectionString= "oracle://cms_omds_lb/CMS_RUNINFO";
