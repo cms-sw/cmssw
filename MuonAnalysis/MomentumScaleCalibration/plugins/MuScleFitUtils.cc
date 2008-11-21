@@ -1,7 +1,7 @@
 /** See header file for a class description 
  *
- *  $Date: 2008/11/18 13:21:15 $
- *  $Revision: 1.14 $
+ *  $Date: 2008/11/19 18:12:25 $
+ *  $Revision: 1.15 $
  *  \author S. Bolognesi - INFN Torino / T. Dorigo, M.De Mattia - INFN Padova
  */
 // Some notes:
@@ -1070,6 +1070,11 @@ void MuScleFitUtils::minimizeLikelihood () {
   setLikeParameters (Start, Step, Mini, Maxi, ind, parname);
 
   for (int ipar=0; ipar<parnumber; ipar++) {
+    // cout << "parname["<<ipar<<"] = " << parname[ipar] << endl;
+    // cout << "Start["<<ipar<<"] = " << Start[ipar] << endl;
+    // cout << "Step["<<ipar<<"] = " << Step[ipar] << endl;
+    // cout << "Mini["<<ipar<<"] = " << Mini[ipar] << endl;
+    // cout << "Maxi["<<ipar<<"] = " << Maxi[ipar] << endl;
     rmin.mnparm (ipar, parname[ipar], Start[ipar], Step[ipar], Mini[ipar], Maxi[ipar], ierror);
   }
 
@@ -1108,62 +1113,25 @@ void MuScleFitUtils::minimizeLikelihood () {
   double cglo;
   int n_times = 0;
   // n_times = number of loops required to unlock all parameters.
+
+  int scaleParNum = scaleFunction->parNum();
+  cout << "number of parameters for scaleFunction = " << scaleParNum << endl;
+  cout << "number of parameters for resolutionFunction = " << resParNum << endl;
+
   for (int i=0; i<parnumber; i++) {
-    if (n_times<ind[i]) n_times = ind[i];  // NB ind[] has been set as parorder[] previously
+    // NB ind[] has been set as parorder[] previously
+    if (n_times<ind[i]) {
+      // Set the n_times only if we will do the fit
+      if ( i<resParNum && doResolFit[loopCounter] ) n_times = ind[i];
+      else if( i<scaleParNum && doResolFit[loopCounter]) n_times = ind[i];
+      else if( doBackgroundFit[loopCounter]) n_times = ind[i];
+    }
   }
   for (int iorder=0; iorder<n_times+1; iorder++) { // Repeat fit n_times times
     bool somethingtodo = false;
-//    for (int jpar=parResol.size(); jpar<parnumber; jpar++) {      
-// 	if (parfix[jpar]==0 && ind[jpar]==iorder) { // parfix=0 means parameter is free
-// 	  rmin.Release(jpar);
-// 	  somethingtodo = true;
-// 	}
-//    } 
-    // NB kludge!
-    // The following if-else block bypasses the normal procedure and
-    // imposes a fixed procedure of fitting: first, parameters describing
-    // the resolution are fit; then the scale is fit twice (once to correct,
-    // the second time to verify the correction); and finally everything is
-    // fixed to its final values and the resolution is fit again.
-    // ---------------------------------------------------------------------
-//     if (loopCounter<1) {
-//       // Release resolution parameters and fit them at iteration 0
-//       // ---------------------------------------------------------
-//       for (unsigned int ipar=0; ipar<parResol.size(); ipar++) {
-// 	if (parfix[ipar]==0 && ind[ipar]==iorder) {
-// 	  rmin.Release (ipar);
-// 	  somethingtodo = true;
-// 	}
-//       }
-//     } else if (loopCounter<3) {
-//       // Fix resolution parameters and fit scale and bgr at iterations 1 and 2
-//       // ---------------------------------------------------------------------
-//       for (unsigned int ipar=0; ipar<parResol.size(); ipar++) {
-// 	rmin.FixParameter (ipar);
-//       }
-//       // Keep the background fixed for now
-//       // for (int ipar=parResol.size(); ipar<parnumber; ipar++) {      
-//       for (unsigned int ipar=parResol.size(); ipar<parResol.size()+parScale.size(); ipar++) {      
-// 	if (parfix[ipar]==0 && ind[ipar]==iorder) { // parfix=0 means parameter is free
-// 	  rmin.Release (ipar);
-// 	  somethingtodo = true;
-// 	}
-//       } 
-//     } else if (loopCounter>=3) {
-//       // Temporary kludge to fit resolution at loops>2
-//       // ---------------------------------------------
-//       for (unsigned int ipar=0; ipar<parResol.size(); ipar++) {
-// 	if (parfix[ipar]==0 && ind[ipar]==iorder) {
-// 	  rmin.Release (ipar);
-// 	  somethingtodo = true;
-// 	}
-//       }
-//       for (int ipar=parResol.size(); ipar<parnumber; ipar++) {
-// 	rmin.FixParameter (ipar);
-//       }
-//     }
 
-    // Modification of the kludge: use parameters from cfg to select which fit to do.
+    // Use parameters from cfg to select which fit to do
+    // -------------------------------------------------
     if (doResolFit[loopCounter]) {
       // Release resolution parameters and fit them
       // ------------------------------------------
