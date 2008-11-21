@@ -55,7 +55,7 @@ namespace edm {
     // Scheduled for on demand production
     bool onDemand() const;
 
-    EDProduct const* product() const { return product_.get(); }
+    boost::shared_ptr<EDProduct> product() const { return product_; }
 
     boost::shared_ptr<EventEntryInfo> entryInfoPtr() const {return entryInfo_;}
 
