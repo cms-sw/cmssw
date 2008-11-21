@@ -149,7 +149,7 @@ namespace cscdqm {
   };
 
   /**
-   * @class ParamHistoType
+   * @class ParHistoType
    * @brief Parameter Histogram Type
    */
   class ParHistoType : public HistoType {
