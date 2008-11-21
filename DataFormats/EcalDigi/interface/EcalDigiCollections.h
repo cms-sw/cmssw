@@ -5,6 +5,7 @@
 #include "DataFormats/EcalDigi/interface/EEDataFrame.h"
 #include "DataFormats/EcalDigi/interface/ESDataFrame.h"
 #include "DataFormats/EcalDigi/interface/EcalTriggerPrimitiveDigi.h"
+#include "DataFormats/EcalDigi/interface/EcalPseudoStripInputDigi.h"
 #include "DataFormats/EcalDigi/interface/EBSrFlag.h"
 #include "DataFormats/EcalDigi/interface/EESrFlag.h"
 #include "DataFormats/EcalDigi/interface/EcalPnDiodeDigi.h"
@@ -68,6 +69,7 @@ void swap(EEDigiCollection& lhs, EEDigiCollection& rhs) {
 
 typedef edm::SortedCollection<ESDataFrame> ESDigiCollection;
 typedef edm::SortedCollection<EcalTriggerPrimitiveDigi> EcalTrigPrimDigiCollection;
+typedef edm::SortedCollection<EcalPseudoStripInputDigi> EcalPSInputDigiCollection;
 typedef edm::SortedCollection<EBSrFlag> EBSrFlagCollection;
 typedef edm::SortedCollection<EESrFlag> EESrFlagCollection;
 typedef edm::SortedCollection<EcalPnDiodeDigi> EcalPnDiodeDigiCollection;

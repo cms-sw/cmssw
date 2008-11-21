@@ -7,10 +7,12 @@ namespace {
     std::vector<EcalFEMSample> vFEM_;
     std::vector<ESSample> vESSample_;
     std::vector<EcalTriggerPrimitiveSample> vETPS_;
+    std::vector<EcalPseudoStripInputSample> vEPSIS_;
     std::vector<EcalMatacqDigi> vMD_;
 
     edm::SortedCollection<ESDataFrame> vES_;
     edm::SortedCollection<EcalTriggerPrimitiveDigi> vETP_;
+    edm::SortedCollection<EcalPseudoStripInputDigi> vEPSI_;
     edm::SortedCollection<EBSrFlag> vEBSRF_;
     edm::SortedCollection<EESrFlag> vEESRF_;
     edm::SortedCollection<EcalPnDiodeDigi> vEPN_;
@@ -38,6 +40,7 @@ namespace {
 
     edm::Wrapper< edm::SortedCollection<ESDataFrame> > theESw_;
     edm::Wrapper< edm::SortedCollection<EcalTriggerPrimitiveDigi> > theETPw_;
+    edm::Wrapper< edm::SortedCollection<EcalPseudoStripInputDigi> > theEPSIw_;
     edm::Wrapper< edm::SortedCollection<EBSrFlag> > theEBSRFw_;
     edm::Wrapper< edm::SortedCollection<EESrFlag> > theEESRFw_;
     edm::Wrapper< edm::SortedCollection<EcalPnDiodeDigi> > theEPNw_; 
