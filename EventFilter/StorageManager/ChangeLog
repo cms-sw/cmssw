@@ -1,3 +1,10 @@
+2008-11-21  Kurt Biery <biery@fnal.gov>
+
+	* tag V04-01-01
+	* Added a necessary call to the state machine findRcmsStateListener
+	  method in StorageManager.cc after the RCMS parameters are added
+	  to the application infospace.
+
 2008-10-24  Constantin Loizides <loizides@mit.edu>
 
 	* tag V04-01-00
