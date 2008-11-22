@@ -5,7 +5,7 @@
   
 Wrapper: A template wrapper around EDProducts to hold the product ID.
 
-$Id: Wrapper.h,v 1.29 2008/03/31 21:12:11 wmtan Exp $
+$Id: Wrapper.h,v 1.30 2008/11/21 00:00:17 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -191,7 +191,7 @@ namespace edm {
   template <typename T>
   struct DoAssign
   {
-    void operator()(T& a, T const& b) { a = b; }
+    void operator()(T& a, T& b) { a = b; }
   };
 
 #ifndef __REFLEX__
