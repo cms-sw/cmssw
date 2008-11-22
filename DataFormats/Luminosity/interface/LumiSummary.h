@@ -11,7 +11,7 @@
  *         David Dagenhart
  *
  * \version   1st Version June 7 2007
- * $Id: LumiSummary.h,v 1.3 2008/06/05 15:03:20 wdd Exp $
+ * $Id: LumiSummary.h,v 1.4 2008/10/23 21:38:25 wdd Exp $
  *
  ************************************************************/
  
@@ -79,7 +79,7 @@ class LumiSummary {
   
     float avgInsRecLumiErr() const { return avginsdellumierr_ * liveFrac(); }
   
-    bool isProductEqual(LumiSummary const& next);
+    bool isProductEqual(LumiSummary const& next) const;
 
   private :
 

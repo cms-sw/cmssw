@@ -1,5 +1,5 @@
 
-// $Id: LumiDetails.cc,v 1.3 2008/02/06 20:57:26 wdd Exp $
+// $Id: LumiDetails.cc,v 1.4 2008/10/23 21:38:25 wdd Exp $
 
 #include "DataFormats/Luminosity/interface/LumiDetails.h"
 
@@ -8,7 +8,7 @@
 using namespace std;
 
 bool
-LumiDetails::isProductEqual(LumiDetails const& next) {
+LumiDetails::isProductEqual(LumiDetails const& next) const {
   return (lumietsum_ == next.lumietsum_ &&
           lumietsumerr_ == next.lumietsumerr_ &&
           lumietsumqual_ == next.lumietsumqual_ &&

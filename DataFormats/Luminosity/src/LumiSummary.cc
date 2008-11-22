@@ -1,5 +1,5 @@
 
-// $Id: LumiSummary.cc,v 1.2 2008/02/06 20:57:26 wdd Exp $
+// $Id: LumiSummary.cc,v 1.3 2008/10/23 21:38:25 wdd Exp $
 
 #include "DataFormats/Luminosity/interface/LumiSummary.h"
 
@@ -8,7 +8,7 @@
 using namespace std;
 
 bool
-LumiSummary::isProductEqual(LumiSummary const& next) {
+LumiSummary::isProductEqual(LumiSummary const& next) const {
   return (avginsdellumi_ == next.avginsdellumi_ &&
           avginsdellumierr_ == next.avginsdellumierr_ &&
           lumisecqual_ == next.lumisecqual_ &&
