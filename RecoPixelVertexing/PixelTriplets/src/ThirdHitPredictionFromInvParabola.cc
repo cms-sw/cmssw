@@ -62,7 +62,7 @@ ThirdHitPredictionFromInvParabola::Range ThirdHitPredictionFromInvParabola::oper
   double invr2 = 1/radius/radius;
   double u = invr2;
   double v = 0.;
-  int nIter=10;
+  int nIter=5;
 
   Range ip = (charge > 0) ? theIpRangePlus : theIpRangeMinus;
 

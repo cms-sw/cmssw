@@ -21,7 +21,7 @@ public:
       const PixelRecoLineRZ & line,
       const PixelRecoPointRZ & constraint,
       bool useMultipleScattering,
-      bool useBendingCorrection);
+      bool useBendingCorrection = false);
 
   ~ThirdHitCorrection();
  

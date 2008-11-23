@@ -1,5 +1,5 @@
-#ifndef PixelTripletHLTGenerator_H
-#define PixelTripletHLTGenerator_H
+#ifndef PixelTripletLargeTipGenerator_H
+#define PixelTripletLargeTipGenerator_H
 
 /** A HitTripletGenerator from HitPairGenerator and vector of
     Layers. The HitPairGenerator provides a set of hit pairs.
@@ -19,14 +19,14 @@
 #include <vector>
 
 
-class PixelTripletHLTGenerator : public HitTripletGeneratorFromPairAndLayers {
+class PixelTripletLargeTipGenerator : public HitTripletGeneratorFromPairAndLayers {
 
 typedef CombinedHitTripletGenerator::LayerCacheType       LayerCacheType;
 
 public:
-  PixelTripletHLTGenerator( const edm::ParameterSet& cfg); 
+  PixelTripletLargeTipGenerator( const edm::ParameterSet& cfg);
 
-  virtual ~PixelTripletHLTGenerator() { delete thePairGenerator; }
+  virtual ~PixelTripletLargeTipGenerator() { delete thePairGenerator; }
 
   virtual void init( const HitPairGenerator & pairs,
       const std::vector<ctfseeding::SeedingLayer> & layers, LayerCacheType* layerCache);
@@ -38,9 +38,11 @@ public:
   const std::vector<ctfseeding::SeedingLayer> & thirdLayers() const { return theLayers; }
 
 private:
+
   bool checkPhiInRange(float phi, float phi1, float phi2) const;
   std::pair<float,float> mergePhiRanges(
-      const std::pair<float,float> &r1, const std::pair<float,float> &r2) const; 
+      const std::pair<float,float> &r1, const std::pair<float,float> &r2) const;
+
 
 private:
   HitPairGenerator * thePairGenerator;

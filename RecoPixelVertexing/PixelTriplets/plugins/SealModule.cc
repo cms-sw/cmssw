@@ -7,6 +7,9 @@ DEFINE_SEAL_MODULE();
 #include "RecoPixelVertexing/PixelTriplets/src/PixelTripletHLTGenerator.h"
 DEFINE_EDM_PLUGIN(HitTripletGeneratorFromPairAndLayersFactory, PixelTripletHLTGenerator, "PixelTripletHLTGenerator");
 
+#include "RecoPixelVertexing/PixelTriplets/src/PixelTripletLargeTipGenerator.h"
+DEFINE_EDM_PLUGIN(HitTripletGeneratorFromPairAndLayersFactory, PixelTripletLargeTipGenerator, "PixelTripletLargeTipGenerator");
+
 #include "RecoTracker/TkTrackingRegions/interface/OrderedHitsGeneratorFactory.h"
 #include "RecoTracker/TkTrackingRegions/interface/OrderedHitsGenerator.h"
 #include "RecoPixelVertexing/PixelTriplets/interface/CombinedHitTripletGenerator.h"

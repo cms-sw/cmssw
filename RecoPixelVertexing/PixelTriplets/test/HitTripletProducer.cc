@@ -8,6 +8,11 @@
 #include "RecoTracker/TkTrackingRegions/interface/OrderedHitsGenerator.h"
 #include "RecoTracker/TkTrackingRegions/interface/GlobalTrackingRegion.h"
 
+#include "UserCode/konec/test/R2DTimerObserver.h"
+#include "TH1D.h"
+#include "TFile.h"
+
+
 
 class HitTripletProducer : public edm::EDAnalyzer {
 public:
@@ -19,18 +24,26 @@ public:
 private:
   edm::ParameterSet theConfig;
   OrderedHitsGenerator * theGenerator;
+  TH1D *hCPU, *hNum;
 };
 
 HitTripletProducer::HitTripletProducer(const edm::ParameterSet& conf) 
   : theConfig(conf), theGenerator(0)
 {
   edm::LogInfo("HitTripletProducer")<<" CTOR";
+  hCPU = new TH1D ("hCPU","hCPU",140,0.,0.070);
+  hNum = new TH1D ("hNum","hNum",250,0.,500.);
 }
 
 HitTripletProducer::~HitTripletProducer() 
 { 
   edm::LogInfo("HitTripletProducer")<<" DTOR";
   delete theGenerator;
+
+  TFile rootFile("analysis.root", "RECREATE", "my histograms");
+  hCPU->Write();
+  hNum->Write();
+  rootFile.Close();
 }
 
 void HitTripletProducer::beginJob(const edm::EventSetup& es)
@@ -46,7 +59,12 @@ void HitTripletProducer::analyze(
 {
 
   GlobalTrackingRegion region;
+  static R2DTimerObserver timer("**** MY TIMING REPORT ***");
+  timer.start();
   const OrderedSeedingHits & triplets = theGenerator->run(region,ev,es);
+  timer.stop(); 
+  hCPU->Fill( timer.lastMeasurement().real() );
+  hNum->Fill(triplets.size());
   edm::LogInfo("HitTripletProducer") << "size of triplets: "<<triplets.size();
 
 }

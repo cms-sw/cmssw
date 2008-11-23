@@ -14,29 +14,32 @@
 class DetLayer;
 class OrderedHitPair;
 class MultipleScatteringParametrisation;
-namespace pixelrecoutilities { class  LongitudinalBendingCorrection; }
 
 class ThirdHitRZPrediction {
 public:
   typedef PixelRecoRange<float> Range;
   typedef TkTrackingRegionsMargin<float> Margin;
 
-  ThirdHitRZPrediction(const GlobalPoint &gp1, const GlobalPoint &gp2, 
-      float tolerance, const DetLayer* layer=0);
+  ThirdHitRZPrediction();
+  ThirdHitRZPrediction(const PixelRecoLineRZ &line, 
+      float tolerance, const DetLayer* layer = 0);
 
-  Range operator()( const DetLayer *layer=0 ); 
-  Range operator()(float rORz);
+  Range operator()(const DetLayer *layer = 0); 
+  inline Range operator()(float rORz) const { return (*this)(rORz, theLine); }
+  Range operator()(float rORz, const PixelRecoLineRZ &line) const;
 
-  Range detRange() const { return theDetRange; }
+  const Range & detRange() const { return theDetRange; }
+  const Range & detSize() const { return theDetSize; }
 
+  void initTolerance(float tolerance) {  theTolerance =  Margin(tolerance,tolerance); }
+  void initLine(const PixelRecoLineRZ &line) { theLine = line; }
   void initLayer(const DetLayer *layer);
 private:
 
 
   bool theBarrel, theForward;
-  Range theDetRange;
+  Range theDetRange, theDetSize;
   Margin theTolerance;
   PixelRecoLineRZ theLine;
-  
 };
 #endif
