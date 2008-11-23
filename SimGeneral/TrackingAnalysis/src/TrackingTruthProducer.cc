@@ -374,8 +374,8 @@ void TrackingTruthProducer::createTrackingTruth()
         // the function return true if it is tracable
         if ( setTrackingParticle(simTrack, trackingParticle) )
         {
-            cout << std::endl << "Found a tracebla track with #SimHits : " << trackingParticle. matchedHit() << std::endl;
-
+            cout << std::endl << "Found a tracebla track with #SimHits : " << trackingParticle.matchedHit() << std::endl;
+                
             // Follows the path upward recovering the history of the particle
             SimTrack const * currentSimTrack = & simTrack;
 
@@ -414,7 +414,9 @@ void TrackingTruthProducer::createTrackingTruth()
                     trackingParticleIndex = trackingParticles_->size();
                     // Push the tp in to the collection
                     trackingParticles_->push_back(trackingParticle);
-
+                    // Vetoed the simTrack
+                    vetoedTracks.insert( make_pair(simTrackIndex, trackingParticleIndex) );
+                    
                     cout << "Adding primaty tp with index : " << trackingParticleIndex << std::endl;
                 }
 

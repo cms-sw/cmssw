@@ -5,7 +5,7 @@ process = cms.Process('rackingTruthOutputTest')
 process.load('FWCore/MessageService/MessageLogger_cfi')
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(200)
+    input = cms.untracked.int32(10)
 )
 
 process.source = cms.Source(
@@ -16,7 +16,8 @@ process.source = cms.Source(
 process.myOutputTest = cms.EDAnalyzer(
   'TrackingTruthOutputTest',
   trackingTruth = cms.untracked.InputTag('mergedtruth', 'MergedTrackTruth'),
-  dumpVertexes = cms.untracked.bool(False),
+  # trackingTruth = cms.untracked.InputTag('mergedtruth'),
+  dumpVertexes = cms.untracked.bool(True),
   dumpOnlyBremsstrahlung = cms.untracked.bool(True)  
 )
 
