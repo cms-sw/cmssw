@@ -515,11 +515,9 @@ PixelCPEBase::driftDirection( GlobalVector bfield ) const {
 	Frame detFrame(theDet->surface().position(), theDet->surface().rotation());
 	LocalVector Bfield = detFrame.toLocal(bfield);
 
-	//dfehling note: since we control the cpes, we should not thrown an
-	//exception; For example - template DO NOT NEED
-	//if(lorentzAngle_ == 0){
-	//	throw cms::Exception("invalidPointer") << "[PixelCPEBase::driftDirection] zero pointer to lorentz angle record ";
-	//}
+	if(lorentzAngle_ == 0){
+		throw cms::Exception("invalidPointer") << "[PixelCPEBase::driftDirection] zero pointer to lorentz angle record ";
+	}
 	double langle = lorentzAngle_->getLorentzAngle(theDet->geographicalId().rawId());
 	float alpha2;
 	if (alpha2Order) {

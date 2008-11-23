@@ -27,7 +27,6 @@ process.PoolDBESSource = cms.ESSource("PoolDBESSource",
                                       )
 
 process.reader = cms.EDFilter("SiPixelCPEGenericErrorParmReader")
-#process.reader = cms.EDFilter("PxCPEdbReader")
 
 process.myprint = cms.OutputModule("AsciiOutputModule")
 

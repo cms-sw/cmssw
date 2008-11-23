@@ -21,7 +21,7 @@ class SiPixelCPEGenericErrorParmUploader : public edm::EDAnalyzer {
       virtual void beginJob(const edm::EventSetup&) ;
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
-     	std::string theFileName ;
+			edm::FileInPath theFileName ;
 			double theVersion;
 
 };

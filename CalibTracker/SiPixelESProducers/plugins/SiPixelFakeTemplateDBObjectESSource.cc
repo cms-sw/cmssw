@@ -20,8 +20,7 @@ std::auto_ptr<SiPixelTemplateDBObject> SiPixelFakeTemplateDBObjectESSource::prod
 	SiPixelTemplateDBObject * obj = new SiPixelTemplateDBObject();
 	obj->fillDB(templateID_);
 	
-	//	std::cout << *obj << std::endl;
-	
+	//std::cout << *obj << std::endl;
 	return std::auto_ptr<SiPixelTemplateDBObject>(obj);
 }
 

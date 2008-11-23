@@ -12,8 +12,8 @@
 
 class SiPixelTemplateDBObject {
 public:
-	SiPixelTemplateDBObject():index_(0),maxIndex_(0),numOfTempl_(1),isValid_(true),sVector_(250000,999.9) {
-		sVector_.reserve(250000);
+	SiPixelTemplateDBObject():index_(0),maxIndex_(0),numOfTempl_(1),isValid_(true),sVector_(0) {
+		sVector_.reserve(1000000);
 	}
 	virtual ~SiPixelTemplateDBObject(){}
 	

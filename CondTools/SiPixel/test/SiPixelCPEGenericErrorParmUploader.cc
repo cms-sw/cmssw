@@ -6,7 +6,7 @@
 
 
 SiPixelCPEGenericErrorParmUploader::SiPixelCPEGenericErrorParmUploader(const edm::ParameterSet& iConfig):
-	theFileName( iConfig.getParameter<std::string>("fileName") ),
+	theFileName( iConfig.getParameter<edm::FileInPath>("fileName") ),
 	theVersion( iConfig.getParameter<double>("version"))
 {
 }
@@ -30,7 +30,7 @@ SiPixelCPEGenericErrorParmUploader::endJob()
 {
   //--- Make the POOL-ORA thingy to store the vector of error structs (DbEntry)
 	SiPixelCPEGenericErrorParm* obj = new SiPixelCPEGenericErrorParm;
-	obj->fillCPEGenericErrorParm(theVersion,theFileName.c_str());
+	obj->fillCPEGenericErrorParm(theVersion,(theFileName.fullPath()).c_str());
 	//	std::cout << *obj << std::endl;
 
   //--- Create a new IOV

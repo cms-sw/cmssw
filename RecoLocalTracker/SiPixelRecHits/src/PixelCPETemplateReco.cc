@@ -41,8 +41,8 @@ const int cluster_matrix_size_y = 21;
 //  in setTheDet().  Here we only load the templates into the template store templ_ .
 //-----------------------------------------------------------------------------
 PixelCPETemplateReco::PixelCPETemplateReco(edm::ParameterSet const & conf, 
-					   const MagneticField * mag, const SiPixelTemplateDBObject * templateDBobject) 
-  : PixelCPEBase(conf, mag, 0, 0, templateDBobject)
+					   const MagneticField * mag, const SiPixelLorentzAngle * lorentzAngle, const SiPixelTemplateDBObject * templateDBobject) 
+  : PixelCPEBase(conf, mag, lorentzAngle, 0, templateDBobject)
 {
   // &&& initialize the templates, etc.
   
@@ -250,8 +250,8 @@ PixelCPETemplateReco::localPosition(const SiPixelCluster& cluster, const GeomDet
 
       // Gavril: what do we do in this case ? For now, just return the cluster center of gravity in microns
       // In the x case, apply a rough Lorentz drift correction
-      double lorentz_drift = 60.0; // in microns
-      templXrec_ = theTopol->localX( cluster.x() ) - lorentz_drift * micronsToCm; // very rough Lorentz drift correction
+			double lorentz_drift = 60.0; // in microns
+			templXrec_ = theTopol->localX( cluster.x() ) - lorentz_drift * micronsToCm; // very rough Lorentz drift correction
       templYrec_ = theTopol->localY( cluster.y() );
     }
   else if ( UseClusterSplitter_ && templQbin_ == 0 )

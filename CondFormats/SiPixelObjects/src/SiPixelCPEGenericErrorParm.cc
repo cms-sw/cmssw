@@ -1,27 +1,22 @@
 #include "CondFormats/SiPixelObjects/interface/SiPixelCPEGenericErrorParm.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
 #include <fstream>
 
 void SiPixelCPEGenericErrorParm::fillCPEGenericErrorParm(double version, std::string file)
 {
-	//--- Make the POOL-ORA thingy to store the vector of error structs (DbEntry)
-	// SiPixelCPEParmErrors* pErrors = new SiPixelCPEParmErrors();
-  //pErrors->reserve();   // Default 1000 elements.  Optimize?  &&&
-
-  //--- Open the file
-  std::ifstream in;
-  in.open(file.c_str());
+	//--- Open the file
+	std::ifstream in(file.c_str(), std::ios::in);
 
 	//--- Currently do not need to store part of detector, but is in input file
 	int part;
-	//	float version = 1.3;
 	set_version(version);
-	
+
   DbEntry Entry;
   in >> part >> Entry.bias >> Entry.pix_height >> Entry.ave_Qclus >> Entry.sigma >> Entry.rms;
 
   while(!in.eof()) {
     errors_.push_back( Entry );
-
+		
     in >> part            >> Entry.bias  >> Entry.pix_height
 			 >> Entry.ave_Qclus >> Entry.sigma >> Entry.rms;
   }

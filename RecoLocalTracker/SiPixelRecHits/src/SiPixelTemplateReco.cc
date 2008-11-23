@@ -112,7 +112,6 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, bool fpix, float cotalpha, floa
 		      
 // First, interpolate the template needed to analyze this cluster     
 // check to see of the track direction is in the physical range of the loaded template
-
 	if(!templ.interpolate(id, fpix, cotalpha, cotbeta)) {
 	   LOGDEBUG("SiPixelTemplateReco") << "input cluster direction cot(alpha) = " << cotalpha << ", cot(beta) = " << cotbeta << " is not within the acceptance of fpix = "
 	   << fpix << ", template ID = " << id << ", no reconstruction performed" << ENDL;	

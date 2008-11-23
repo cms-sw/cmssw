@@ -29,8 +29,7 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
                                           )
 
 process.uploader = cms.EDAnalyzer("SiPixelCPEGenericErrorParmUploader",
-#process.uploader = cms.EDAnalyzer("SiPixelCPEGenericPxCPEdbUploader",
-                                  fileName=cms.string('../data/residuals.dat'),
+                                  fileName = cms.FileInPath('RecoLocalTracker/SiPixelRecHits/data/residuals.dat'),
                                   version=cms.double(1.0)
 )
 

@@ -83,12 +83,22 @@ bool SiPixelTemplate::pushfile(int filenum)
 
 //  Create a filename for this run 
 
- std::ostringstream tout;
- tout << "template_summary_zp" << std::setw(4) << std::setfill('0') << std::right << filenum << ".out" << std::ends;
- std::string tempf = tout.str();
- tempfile = tempf.c_str();
-	
-//  open the template file 
+// std::ostringstream tout;
+// tout << "template_summary_zp" << std::setw(4) << std::setfill('0') << std::right << filenum << ".out" << std::ends;
+// std::string tempf = tout.str();
+// tempfile = tempf.c_str();
+
+	std::ostringstream tout;
+	tout << "RecoLocalTracker/SiPixelRecHits/data/template_summary_zp" 
+      << std::setw(4) << std::setfill('0') << std::right << filenum << ".out" << std::ends;
+	std::string tempf = tout.str();
+ 
+ // std::cout << "tempf = " << tempf << std::endl;
+ edm::FileInPath file( tempf.c_str() );
+ tempfile = (file.fullPath()).c_str();
+ // std::cout << "tempfile = " << tempfile << std::endl;
+
+ //  open the template file 
 
  std::ifstream in_file(tempfile, std::ios::in);
  
@@ -695,7 +705,8 @@ bool SiPixelTemplate::pushfile(const SiPixelTemplateDBObject& dbobject)
 		
 		if(db.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file, no template load" << ENDL; return false;}
 		
-		LOGINFO("SiPixelTemplate") << "Template ID = " << theCurrentTemp.head.ID << ", NBy = " << theCurrentTemp.head.NBy << ", NByx = " << theCurrentTemp.head.NByx 
+		//		LOGINFO("SiPixelTemplate") << "Template ID = " << theCurrentTemp.head.ID << ", NBy = " << theCurrentTemp.head.NBy << ", NByx = " << theCurrentTemp.head.NByx
+			std::cout << "Template ID = " << theCurrentTemp.head.ID << ", NBy = " << theCurrentTemp.head.NBy << ", NByx = " << theCurrentTemp.head.NByx 
 		 << ", NBxx = " << theCurrentTemp.head.NBxx << ", NFy = " << theCurrentTemp.head.NFy << ", NFyx = " << theCurrentTemp.head.NFyx
 		 << ", NFxx = " << theCurrentTemp.head.NFxx << ", Barrel bias voltage " << theCurrentTemp.head.Bbias << ", FPix bias voltage " << theCurrentTemp.head.Fbias << ", temperature "
 		 << theCurrentTemp.head.temperature << ", fluence " << theCurrentTemp.head.fluence << ", Q-scaling factor " << theCurrentTemp.head.qscale
@@ -1242,20 +1253,19 @@ bool SiPixelTemplate::interpolate(int id, bool fpix, float cotalpha, float cotbe
 
 
 // Check to see if interpolation is valid     
-
-if(id != id_current || fpix != fpix_current || cotalpha != cota_current || cotbeta != cotb_current) {
+	if(id != id_current || fpix != fpix_current || cotalpha != cota_current || cotbeta != cotb_current) {
 
 	fpix_current = fpix; cota_current = cotalpha; cotb_current = cotbeta; success = true;
 	
 	if(id != id_current) {
 
 // Find the index corresponding to id
-
+		
        index_id = -1;
        for(i=0; i<thePixelTemp.size(); ++i) {
 	
 	      if(id == thePixelTemp[i].head.ID) {
-	   
+					   
 	         index_id = i;
 		     id_current = id;
 		     break;
