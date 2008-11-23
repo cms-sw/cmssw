@@ -733,8 +733,8 @@ void analyse_residuals::Loop()
 		h_forward_yres_npix_rms[k]->SetBinContent(i+1, rms);
 	      }
 	    fprintf( datfile,
-		     "%d %d %d %f %f \n",
-		     3, k, i, sigma, rms );
+		     "%d %d %d %d %f %f \n",
+		     3, 0, k, i, sigma, rms );
 	    
 	  }   
       
@@ -804,8 +804,8 @@ void analyse_residuals::Loop()
 		
 	      }
 	    fprintf( datfile,
-		     "%d %d %d %f %f \n",
-		     4, k, i, sigma, rms );
+		     "%d %d %d %d %f %f \n",
+		     4, 0, k, i, sigma, rms );
 	    
 	  }
       
