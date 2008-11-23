@@ -395,6 +395,13 @@ GroupedCkfTrajectoryBuilder::advanceOneLayer (TempTrajectory& traj,
     TSOS stateToUse = stateAndLayers.first;
     if ((*il)==traj.lastLayer())
       {
+	// ---- BE CAREFUL ----
+	// Self navigation has to be used only when there aren't other compatible layers!
+	// Jumping from one side of a barrel layer to the other, can allow to
+	// skip many many layers *without* having penalty for the lost measurements
+	if(stateAndLayers.second.size()>=2) continue; 
+	// ---------
+
 	LogDebug("CkfPattern")<<" self propagating in advanceOneLayer.\n from: \n"<<stateToUse;
 	//self navigation case
 	// go to a middle point first
