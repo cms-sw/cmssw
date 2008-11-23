@@ -7,6 +7,7 @@
  */
 #include <string>
 #include <iterator>
+#include <vector>
 
 namespace edm { class EventSetup; }
 namespace HepPDT { class ParticleData; }
@@ -38,122 +39,91 @@ private:
 };
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Utilities/interface/EDMException.h"
 
 namespace edm {
+  namespace pdtentry {
+    PdtEntry getPdtEntry(Entry const& e, char const* name);
+    std::vector<PdtEntry> getPdtEntryVector(Entry const& e, char const* name);
+  }
+
   template<>
   inline PdtEntry ParameterSet::getParameter<PdtEntry>(std::string const& name) const {
-    const Entry & e = retrieve(name);
-    if ( e.typeCode() == 'I' ) 
-      return PdtEntry( e.getInt32() );
-    else if( e.typeCode() == 'S' ) 
-      return PdtEntry( e.getString() );
-    else 
-      throw Exception(errors::Configuration, "EntryError")
-	<< "can not convert representation of " << name 
-	<< " to value of type PdtEntry. "
-	<< "Please, provide a parameter either of type int32 or string.";
+    Entry const& e = retrieve(name);
+    return pdtentry::getPdtEntry(e, name.c_str());
   }
 
   template<>
   inline PdtEntry ParameterSet::getUntrackedParameter<PdtEntry>(std::string const& name) const {
-    const Entry * e = getEntryPointerOrThrow_(name);
-    if ( e->typeCode() == 'I' ) 
-      return PdtEntry( e->getInt32() );
-    else if( e->typeCode() == 'S' ) 
-      return PdtEntry( e->getString() );
-    else 
-      throw Exception(errors::Configuration, "EntryError")
-	<< "can not convert representation of " << name 
-	<< " to value of type PdtEntry. "
-	<< "Please, provide a parameter either of type int32 or string.";
+    Entry const* e = getEntryPointerOrThrow_(name);
+    return pdtentry::getPdtEntry(*e, name.c_str());
   }
 
   template<>
   inline PdtEntry ParameterSet::getUntrackedParameter<PdtEntry>(std::string const& name, 
-								const PdtEntry & defaultValue ) const {
-    const Entry * e = retrieveUntracked(name);
-    if ( e == 0 ) return defaultValue;
-    if ( e->typeCode() == 'I' ) 
-      return PdtEntry( e->getInt32() );
-    else if( e->typeCode() == 'S' ) 
-      return PdtEntry( e->getString() );
-    else 
-      throw Exception(errors::Configuration, "EntryError")
-	<< "can not convert representation of " << name 
-	<< " to value of type PdtEntry. "
-	<< "Please, provide a parameter either of type int32 or string.";
+								PdtEntry const& defaultValue) const {
+    Entry const* e = retrieveUntracked(name);
+    if (e == 0) return defaultValue;
+    return pdtentry::getPdtEntry(*e, name.c_str());
+  }
+
+  template<>
+  inline PdtEntry ParameterSet::getParameter<PdtEntry>(char const* name) const {
+    Entry const& e = retrieve(name);
+    return pdtentry::getPdtEntry(e, name);
+  }
+
+  template<>
+  inline PdtEntry ParameterSet::getUntrackedParameter<PdtEntry>(char const* name) const {
+    Entry const* e = getEntryPointerOrThrow_(name);
+    return pdtentry::getPdtEntry(*e, name);
+  }
+
+  template<>
+  inline PdtEntry ParameterSet::getUntrackedParameter<PdtEntry>(char const* name, 
+								PdtEntry const& defaultValue) const {
+    Entry const* e = retrieveUntracked(name);
+    if (e == 0) return defaultValue;
+    return pdtentry::getPdtEntry(*e, name);
   }
 
   template<>
   inline std::vector<PdtEntry> ParameterSet::getParameter<std::vector<PdtEntry> >(std::string const& name) const {
-    const Entry & e = retrieve(name);
-    std::vector<PdtEntry> ret;
-    if ( e.typeCode() == 'i' ) { 
-      std::vector<int> v( e.getVInt32() );
-      for( std::vector<int>::const_iterator i = v.begin(); i != v.end(); ++ i )
-        ret.push_back( PdtEntry( * i ) );
-      return ret;
-    }
-    else if( e.typeCode() == 's' ) {
-      std::vector<std::string> v( e.getVString() );
-      for( std::vector<std::string>::const_iterator i = v.begin(); i != v.end(); ++ i )
-        ret.push_back( PdtEntry( * i ) );
-      return ret;
-    }
-    else 
-      throw Exception(errors::Configuration, "EntryError")
-	<< "can not convert representation of " << name 
-	<< " to value of type PdtEntry. "
-	<< "Please, provide a parameter either of type int32 or string.";
+    Entry const& e = retrieve(name);
+    return pdtentry::getPdtEntryVector(e, name.c_str());
   }
 
   template<>
   inline std::vector<PdtEntry> ParameterSet::getUntrackedParameter<std::vector<PdtEntry> >(std::string const& name) const {
-    const Entry * e = getEntryPointerOrThrow_(name);
-    std::vector<PdtEntry> ret;
-    if ( e->typeCode() == 'i' ) { 
-      std::vector<int> v( e->getVInt32() );
-      for( std::vector<int>::const_iterator i = v.begin(); i != v.end(); ++ i )
-        ret.push_back( PdtEntry( * i ) );
-      return ret;
-    }
-    else if( e->typeCode() == 's' ) {
-      std::vector<std::string> v( e->getVString() );
-      for( std::vector<std::string>::const_iterator i = v.begin(); i != v.end(); ++ i )
-        ret.push_back( PdtEntry( * i ) );
-      return ret;
-    }
-    else 
-      throw Exception(errors::Configuration, "EntryError")
-	<< "can not convert representation of " << name 
-	<< " to value of type PdtEntry. "
-	<< "Please, provide a parameter either of type int32 or string.";
+    Entry const* e = getEntryPointerOrThrow_(name);
+    return pdtentry::getPdtEntryVector(*e, name.c_str());
   }
 
   template<>
   inline std::vector<PdtEntry> ParameterSet::getUntrackedParameter<std::vector<PdtEntry> >(std::string const& name,
-											   const std::vector<PdtEntry> & defaultValue ) const {
-    const Entry * e = retrieveUntracked(name);
-    if ( e == 0 ) return defaultValue;
-    std::vector<PdtEntry> ret;
-    if ( e->typeCode() == 'i' ) { 
-      std::vector<int> v( e->getVInt32() );
-      for( std::vector<int>::const_iterator i = v.begin(); i != v.end(); ++ i )
-        ret.push_back( PdtEntry( * i ) );
-      return ret;
-    }
-    else if( e->typeCode() == 's' ) {
-      std::vector<std::string> v( e->getVString() );
-      for( std::vector<std::string>::const_iterator i = v.begin(); i != v.end(); ++ i )
-        ret.push_back( PdtEntry( * i ) );
-      return ret;
-    }
-    else 
-      throw Exception(errors::Configuration, "EntryError")
-	<< "can not convert representation of " << name 
-	<< " to value of type PdtEntry. "
-	<< "Please, provide a parameter either of type int32 or string.";
+								   std::vector<PdtEntry> const& defaultValue) const {
+    Entry const* e = retrieveUntracked(name);
+    if (e == 0) return defaultValue;
+    return pdtentry::getPdtEntryVector(*e, name.c_str());
+  }
+
+  template<>
+  inline std::vector<PdtEntry> ParameterSet::getParameter<std::vector<PdtEntry> >(char const* name) const {
+    Entry const& e = retrieve(name);
+    return pdtentry::getPdtEntryVector(e, name);
+  }
+
+  template<>
+  inline std::vector<PdtEntry> ParameterSet::getUntrackedParameter<std::vector<PdtEntry> >(char const* name) const {
+    Entry const* e = getEntryPointerOrThrow_(name);
+    return pdtentry::getPdtEntryVector(*e, name);
+  }
+
+  template<>
+  inline std::vector<PdtEntry> ParameterSet::getUntrackedParameter<std::vector<PdtEntry> >(char const* name,
+								   std::vector<PdtEntry> const& defaultValue) const {
+    Entry const* e = retrieveUntracked(name);
+    if (e == 0) return defaultValue;
+    return pdtentry::getPdtEntryVector(*e, name);
   }
 
   template<>
