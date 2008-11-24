@@ -134,6 +134,16 @@ void SiPixelEDAClient::beginJob(const edm::EventSetup& eSetup){
   nLumiSecs_ = 0;
   nEvents_   = 0;
 
+  // Setting up QTests:
+  sipixelActionExecutor_->setupQTests(bei_);
+  // Creating Summary Histos:
+  sipixelActionExecutor_->createSummary(bei_);
+  // Creating occupancy plots:
+  sipixelActionExecutor_->bookOccupancyPlots(bei_, hiRes_);
+  // Booking summary report ME's:
+  sipixelInformationExtractor_->bookGlobalQualityFlag(bei_, noiseRate_,Tier0Flag_);
+  if(!Tier0Flag_) nFEDs_ = 40;
+
   //cout<<"...leaving SiPixelEDAClient::beginJob. "<<endl;
 }
 //
@@ -160,31 +170,23 @@ void SiPixelEDAClient::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg,
 void SiPixelEDAClient::analyze(const edm::Event& e, const edm::EventSetup& eSetup){
 //  cout<<"[SiPixelEDAClient::analyze()] "<<endl;
   nEvents_++;  
-  if(nEvents_==evtOffsetForInit_){
-//  cout<<"Doing the initializing now!"<<endl;
-    //cout << " Setting up QTests " << endl;
-    sipixelWebInterface_->setActionFlag(SiPixelWebInterface::setupQTest);
-    sipixelWebInterface_->performAction();
-    //cout << " Creating Summary Histos" << endl;
-    sipixelWebInterface_->setActionFlag(SiPixelWebInterface::Summary);
-    sipixelWebInterface_->performAction();
-    //cout << " Creating occupancy plots" << endl;
-    sipixelActionExecutor_->bookOccupancyPlots(bei_, hiRes_);
-    //cout << " Booking summary report ME's" << endl;
-    sipixelInformationExtractor_->bookGlobalQualityFlag(bei_, noiseRate_,Tier0Flag_);
-    // check if any Pixel FED is in readout:
-    edm::Handle<FEDRawDataCollection> rawDataHandle;
-    e.getByLabel("source", rawDataHandle);
-    const FEDRawDataCollection& rawDataCollection = *rawDataHandle;
-    nFEDs_ = 0;
-    for(int i = 0; i != 40; i++){
-      if(rawDataCollection.FEDData(i).size() && rawDataCollection.FEDData(i).data()) nFEDs_++;
+  if(!Tier0Flag_){
+   
+    if(nEvents_==1){
+      // check if any Pixel FED is in readout:
+      edm::Handle<FEDRawDataCollection> rawDataHandle;
+      e.getByLabel("source", rawDataHandle);
+      const FEDRawDataCollection& rawDataCollection = *rawDataHandle;
+      nFEDs_ = 0;
+      for(int i = 0; i != 40; i++){
+        if(rawDataCollection.FEDData(i).size() && rawDataCollection.FEDData(i).data()) nFEDs_++;
+      }
     }
-    //cout<<"nFEDs_= "<<nFEDs_<<endl; 
+    
+    sipixelWebInterface_->setActionFlag(SiPixelWebInterface::CreatePlots);
+    sipixelWebInterface_->performAction();
   }
-  sipixelWebInterface_->setActionFlag(SiPixelWebInterface::CreatePlots);
-  sipixelWebInterface_->performAction();
-
+  
 }
 //
 // -- End Luminosity Block
