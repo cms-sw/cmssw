@@ -6,8 +6,8 @@
  * *
  *  DQM Test Client
  *
- *  $Date: 2008/05/28 09:14:35 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/10/07 09:40:33 $
+ *  $Revision: 1.4 $
  *  \author  G. Mila - INFN Torino
  *   
  */
@@ -48,10 +48,10 @@ public:
   /// Destructor
   virtual ~DTSegmentAnalysisTest();
 
-protected:
 
   /// BeginJob
   void beginJob(const edm::EventSetup& c);
+  void endJob(void);
 
   /// Analyze
   void analyze(const edm::Event& e, const edm::EventSetup& c);
@@ -84,7 +84,7 @@ private:
   std::map< std::pair<int,int>, MonitorElement* > chi2Histos;
   std::map< std::pair<int,int>, MonitorElement* > segmRecHitHistos;
   std::map< int, MonitorElement* > summaryHistos;
-
+  bool normalizeHistoPlots;
 };
 
 #endif
