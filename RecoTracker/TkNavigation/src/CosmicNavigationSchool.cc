@@ -197,10 +197,11 @@ void CosmicNavigationSchool::establishInverseRelations(SymmetricLayerFinder& sym
       if (navigableLayer)
 	navigableLayer->setInwardLinks( reachedBarrelLayersMap[*i],reachedForwardLayersMap[*i] );
     }	
-    buildAdditionalBarrelLinks();
+    //buildAdditionalBarrelLinks();
     buildAdditionalForwardLinks(symFinder); 
 
 }
+
 
 void CosmicNavigationSchool::buildAdditionalBarrelLinks(){
     for ( vector<BarrelDetLayer*>::iterator i = theBarrelLayers.begin(); i != theBarrelLayers.end(); i++) {
@@ -209,6 +210,7 @@ void CosmicNavigationSchool::buildAdditionalBarrelLinks(){
         if (i+1 != theBarrelLayers.end() )navigableLayer->setAdditionalLink(*(i+1), outsideIn);
     }
 }
+
 
 void CosmicNavigationSchool::buildAdditionalForwardLinks(SymmetricLayerFinder& symFinder){
     //the first layer of FPIX should not check the crossing side (since there are no inner layers to be tryed first)
