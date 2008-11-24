@@ -1,7 +1,7 @@
 #!/bin/sh
 
-castorDir=/castor/cern.ch/user/p/pjanot/CMSSW220pre1/
-cmsswDir=/afs/cern.ch/user/p/pjanot/scratch0/CMSSW_2_2_0_pre1/src
+castorDir=/castor/cern.ch/user/p/pjanot/CMSSW220/
+cmsswDir=/afs/cern.ch/user/p/pjanot/scratch0/CMSSW_2_2_0/src
 
 for ((energy=0; energy<=8; energy++));
 # 0 -> 3 : 1nd
@@ -55,7 +55,7 @@ for ((energy=0; energy<=8; energy++));
     recofilename="reco_"${name}".root"
     echo $name
     
-    seed1=$(( ($job+1) + 143123*($energy+1) ))
+    seed1=$(( ($job+1) + 143223*($energy+1) ))
     sed -e "s/==SEED==/${seed1}/" -e "s/==BINLOW==/${ptmin}/" -e "s/==BINHIGH==/${ptmax}/" QCDFullSim_cfg.py > tmp_cfg
     
 #Start to write the script
@@ -85,7 +85,7 @@ rfcp reco.root $castorDir$recofilename
 EOF
 echo "Save files : "$castorDir$displayfilename", "$castorDir$aodfilename", "$castorDir$recofilename
 chmod 755 job_${name}.sh
-#bsub -q cmst3 -J $name $PWD/job_${name}.sh
+bsub -q cmst3 -J $name $PWD/job_${name}.sh
 
 
   done

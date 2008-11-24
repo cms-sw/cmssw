@@ -1,8 +1,8 @@
 #!/bin/sh
 
-cmsswDir=/afs/cern.ch/user/p/pjanot/scratch0/CMSSW_2_2_0_pre1/src
-castorDir=/castor/cern.ch/user/p/pjanot/CMSSW220pre1
-castor="\/castor\/cern.ch\/user\/p\/pjanot\/CMSSW220pre1"
+cmsswDir=/afs/cern.ch/user/p/pjanot/scratch0/CMSSW_2_2_0/src
+castorDir=/castor/cern.ch/user/p/pjanot/CMSSW220
+castor="\/castor\/cern.ch\/user\/p\/pjanot\/CMSSW220"
 simu=Full
 
 for ((out=0; out<=2; out++));

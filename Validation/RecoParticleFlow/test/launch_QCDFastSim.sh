@@ -1,7 +1,7 @@
 #!/bin/sh
 
-castorDir=/castor/cern.ch/user/p/pjanot/CMSSW220pre1/
-cmsswDir=/afs/cern.ch/user/p/pjanot/scratch0/CMSSW_2_2_0_pre1/src
+castorDir=/castor/cern.ch/user/p/pjanot/CMSSW220/
+cmsswDir=/afs/cern.ch/user/p/pjanot/scratch0/CMSSW_2_2_0/src
 
 for ((energy=0; energy<=8; energy++));
   do
@@ -80,7 +80,7 @@ rfcp reco.root $castorDir$recofilename
 EOF
 echo "Save files : "$castorDir$displayfilename", "$castorDir$aodfilename", "$castorDir$recofilename
 chmod 755 job_${name}.sh
-bsub -q 1nd -J $name $PWD/job_${name}.sh
+bsub -q cmst3 -J $name $PWD/job_${name}.sh
 
 
 done
