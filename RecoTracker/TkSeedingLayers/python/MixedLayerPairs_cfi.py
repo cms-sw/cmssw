@@ -1,5 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
+# This is standard pixel-pair seeding, but making use of TEC disks
+# in forward region to boost acceptance.
+
 mixedlayerpairs = cms.ESProducer("MixedLayerPairsESProducer",
     ComponentName = cms.string('MixedLayerPairs'),
     layerList = cms.vstring('BPix1+BPix2', 
