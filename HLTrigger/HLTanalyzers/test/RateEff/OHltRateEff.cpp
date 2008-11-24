@@ -1515,6 +1515,9 @@ void BookMenu_SmallMenu8E29(OHltMenu*  menu, double &iLumi, double &nBunches) {
   menu->AddL1("L1_SingleIsoEG8", 1); 
   menu->AddL1("L1_SingleIsoEG10", 1); 
   menu->AddL1("L1_SingleIsoEG12", 1); 
+  menu->AddL1("L1_SingleIsoEG15", 1); 
+  menu->AddL1("L1_SingleIsoEG20", 1); 
+  menu->AddL1("L1_SingleIsoEG25", 1); 
   menu->AddL1("L1_DoubleIsoEG8", 1); 
   menu->AddL1("L1_SingleEG2", 20); 
   menu->AddL1("L1_SingleEG5", 1); 
@@ -1670,6 +1673,9 @@ void BookMenu_L1Menu8E29(OHltMenu*  menu, double &iLumi, double &nBunches) {
   menu->AddL1("L1_SingleIsoEG12", 1); 
   menu->AddL1("L1_SingleIsoEG10", 1);  
   menu->AddL1("L1_SingleIsoEG12", 1);  
+  menu->AddL1("L1_SingleIsoEG15", 1);  
+  menu->AddL1("L1_SingleIsoEG20", 1);  
+  menu->AddL1("L1_SingleIsoEG25", 1);  
   menu->AddL1("L1_DoubleIsoEG8", 1);  
   menu->AddL1("L1_SingleEG2", 5000);  
   menu->AddL1("L1_SingleEG5", 1);  
@@ -1730,6 +1736,9 @@ void BookMenu_L1Menu8E29(OHltMenu*  menu, double &iLumi, double &nBunches) {
   menu->AddHlt("L1_SingleIsoEG8", "L1_SingleIsoEG8","1",1,"-","",1.,1,0,0,0,0);      
   menu->AddHlt("L1_SingleIsoEG10", "L1_SingleIsoEG10","1",1,"-","",1.,1,0,0,0,0);      
   menu->AddHlt("L1_SingleIsoEG12", "L1_SingleIsoEG12","1",1,"-","",1.,2,0,0,0,0);      
+  menu->AddHlt("L1_SingleIsoEG15", "L1_SingleIsoEG15","1",1,"-","",1.,2,0,0,0,0);      
+  menu->AddHlt("L1_SingleIsoEG20", "L1_SingleIsoEG20","1",1,"-","",1.,2,0,0,0,0);      
+  menu->AddHlt("L1_SingleIsoEG25", "L1_SingleIsoEG25","1",1,"-","",1.,2,0,0,0,0);      
   menu->AddHlt("L1_DoubleIsoEG8", "L1_DoubleIsoEG8","1",1,"-","",1.,2,0,0,0,0);        
   menu->AddHlt("L1_SingleEG2", "L1_SingleEG2","5000",1,"-","",1.,1,1,0,0,0);           
   menu->AddHlt("L1_SingleEG5", "L1_SingleEG5","1",1,"-","",1.,1,1,0,0,0);            
@@ -1971,9 +1980,11 @@ void BookMenu_L1Menu1E31(OHltMenu*  menu, double &iLumi, double &nBunches) {
   menu->AddL1("L1_ETT60", 5000); 
   menu->AddL1("L1_SingleIsoEG5", 1); 
   menu->AddL1("L1_SingleIsoEG8", 1); 
+  menu->AddL1("L1_SingleIsoEG10", 1); 
   menu->AddL1("L1_SingleIsoEG12", 1); 
   menu->AddL1("L1_SingleIsoEG15", 1); 
   menu->AddL1("L1_SingleIsoEG20", 1); 
+  menu->AddL1("L1_SingleIsoEG25", 1); 
   menu->AddL1("L1_DoubleIsoEG8", 1); 
   menu->AddL1("L1_SingleEG2", 500); 
   menu->AddL1("L1_SingleEG5", 1000); 

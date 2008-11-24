@@ -50,7 +50,7 @@ void OHltTree::Loop( vector<int> * iCount, vector<int> * sPureCount, vector<int>
   }
 
   //for (int it = 0; it < NL1trig; it++) {
-  for (int it = 0; it < 120; it++) {
+  for (int it = 0; it < 128; it++) {
     iCountL1NoPrescale.push_back(0);
   }
 
