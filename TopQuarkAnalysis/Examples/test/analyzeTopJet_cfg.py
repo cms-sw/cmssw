@@ -59,9 +59,25 @@ process.load("Configuration.StandardSequences.MagneticField_cff")
 # two lines
 #-------------------------------------------------
 
+## to apply jet correction factors different from
+## the pat default uncomment this; needs to be
+## called bevor pat/tqafLayer1 is produced
+process.load("TopQuarkAnalysis.TopObjectProducers.tools.switchJetCorrections_cff")
+
 ## std sequence for tqaf layer1
-process.load("TopQuarkAnalysis.TopObjectProducers.tqafLayer1_full_cff")
-process.p0 = cms.Path(process.tqafLayer1)
+process.load("TopQuarkAnalysis.TopObjectProducers.tqafLayer1_cff")
+
+## necessary fixes to run 2.2.X on 2.1.X data
+## comment this when running on samples produced
+## with 22X
+from PhysicsTools.PatAlgos.tools.cmsswVersionTools import run22XonSummer08AODSIM
+run22XonSummer08AODSIM(process)
+
+#-------------------------------------------------
+# process paths;
+#-------------------------------------------------
+
+process.p0   = cms.Path(process.tqafLayer1)
 
 #-------------------------------------------------
 # analyze jets
