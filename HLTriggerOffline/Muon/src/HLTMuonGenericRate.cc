@@ -511,6 +511,7 @@ HLTMuonGenericRate::begin()
 
     myLabel = theL1CollectionLabel;
     myLabel = myLabel(myLabel.Index("L1"),myLabel.Length());
+    myLabel = myLabel(0,myLabel.Index("Filtered")+8);
 
     newFolder = "HLT/Muon/Distributions/" + theTriggerName;
     dbe_->setCurrentFolder( newFolder.Data() );
