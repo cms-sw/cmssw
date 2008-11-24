@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/10/10 08:16:39 $
- *  $Revision: 1.19 $
+ *  $Date: 2008/11/20 09:13:20 $
+ *  $Revision: 1.20 $
  *  \author G. Cerminara - INFN Torino
  *  revised by G. Mila - INFN Torino
  */
@@ -13,6 +13,7 @@
 // Framework
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -32,12 +33,14 @@
 #include "CondFormats/DataRecord/interface/DTStatusFlagRcd.h"
 #include "CondFormats/DTObjects/interface/DTStatusFlag.h"
 
+#include "DQM/DTMonitorModule/interface/DTTimeEvolutionHisto.h"
+
 #include <iterator>
 
 using namespace edm;
 using namespace std;
 
-DTSegmentAnalysisTask::DTSegmentAnalysisTask(const edm::ParameterSet& pset) {
+DTSegmentAnalysisTask::DTSegmentAnalysisTask(const edm::ParameterSet& pset) : nEventsInLS(0) {
 
   edm::LogVerbatim ("DTDQM|DTMonitorModule|DTSegmentAnalysisTask") << "[DTSegmentAnalysisTask] Constructor called!";
 
@@ -47,10 +50,15 @@ DTSegmentAnalysisTask::DTSegmentAnalysisTask(const edm::ParameterSet& pset) {
   theRecHits4DLabel = pset.getParameter<string>("recHits4DLabel");
   // Get the map of noisy channels
   checkNoisyChannels = pset.getUntrackedParameter<bool>("checkNoisyChannels","false");
+  // # of bins in the time histos
+  nTimeBins = pset.getUntrackedParameter<int>("nTimeBins",100);
+  // # of LS per bin in the time histos
+  nLSTimeBin = pset.getUntrackedParameter<int>("nLSTimeBin",2);
+  // switch on/off sliding bins in time histos
+  slideTimeBins = pset.getUntrackedParameter<bool>("slideTimeBins",true);
 
   // Get the DQM needed services
   theDbe = edm::Service<DQMStore>().operator->();
-  theDbe->setCurrentFolder("DT/02-Segments");
 
  }
 
@@ -73,10 +81,32 @@ void DTSegmentAnalysisTask::beginJob(const edm::EventSetup& context){
     bookHistos((*ch_it)->id());
   }
 
+  // book sector time-evolution histos
+  int modeTimeHisto = 0;
+  if(!slideTimeBins) modeTimeHisto = 1;
+  for(int wheel = -2; wheel != 3; ++wheel) { // loop over wheels
+    for(int sector = 1; sector <= 12; ++sector) { // loop over sectors
+      stringstream wheelstr; wheelstr << wheel;	
+      stringstream sectorstr; sectorstr << sector;
+      string sectorHistoName = "NSegmPerEvent_W" + wheelstr.str()
+	+ "_Sec" + sectorstr.str();
+      string sectorHistoTitle = "# segm. W" + wheelstr.str() + " Sect." + sectorstr.str();
+
+      theDbe->setCurrentFolder("DT/02-Segments/Wheel" + wheelstr.str() +
+			       "/Sector" + sectorstr.str());
+      histoTimeEvol[wheel][sector] = new DTTimeEvolutionHisto(&(*theDbe),sectorHistoName,sectorHistoTitle,
+							      nTimeBins,nLSTimeBin,slideTimeBins,modeTimeHisto);
+    }
+  }
+
+  theDbe->setCurrentFolder("DT/EventInfo/");
+
+  hNevtPerLS = new DTTimeEvolutionHisto(&(*theDbe),"NevtPerLS","# evt.",nTimeBins,nLSTimeBin,slideTimeBins,2);
+
 }
 
 
-void DTSegmentAnalysisTask::endJob(){
+void DTSegmentAnalysisTask::endJob() {
  
   edm::LogVerbatim ("DTDQM|DTMonitorModule|DTSegmentAnalysisTask") <<"[DTSegmentAnalysisTask] endjob called!";
 
@@ -87,7 +117,7 @@ void DTSegmentAnalysisTask::endJob(){
 
 
 void DTSegmentAnalysisTask::analyze(const edm::Event& event, const edm::EventSetup& setup) {
-
+  nEventsInLS++;
   edm::LogVerbatim ("DTDQM|DTMonitorModule|DTSegmentAnalysisTask") << "[DTSegmentAnalysisTask] Analyze #Run: " << event.id().run()
 			       << " #Event: " << event.id().event();
   if(!(event.id().event()%1000))
@@ -239,7 +269,8 @@ void DTSegmentAnalysisTask::bookHistos(DTChamberId chamberId) {
 
   theDbe->setCurrentFolder("DT/02-Segments/Wheel" + wheel.str() +
 			   "/Sector" + sector.str() +
-                           "/Station" + station.str());
+			   "/Station" + station.str());
+
   // Create the monitor elements
   vector<MonitorElement *> histos;
   histos.push_back(theDbe->book1D("h4DSegmNHits"+chamberHistoName,
@@ -258,13 +289,15 @@ void DTSegmentAnalysisTask::bookHistos(DTChamberId chamberId) {
 void DTSegmentAnalysisTask::fillHistos(DTChamberId chamberId,
 				   int nHits,
 				   float chi2) {
-  
-  if(chamberId.sector()!=13 && chamberId.sector()!=14)
-    summaryHistos[chamberId.wheel()]->Fill(chamberId.sector(),chamberId.station());
-  if(chamberId.sector()==13)
-    summaryHistos[chamberId.wheel()]->Fill(4,chamberId.station());
-  if(chamberId.sector()==14)
-    summaryHistos[chamberId.wheel()]->Fill(10,chamberId.station());
+  int sector = chamberId.sector();
+  if(chamberId.sector()==13) {
+    sector = 4;
+  } else if(chamberId.sector()==14) {
+     sector = 10;
+  }
+
+  summaryHistos[chamberId.wheel()]->Fill(sector,chamberId.station());
+  histoTimeEvol[chamberId.wheel()][sector]->accumulateValueTimeSlot(1);
 
   vector<MonitorElement *> histos =  histosPerCh[chamberId];                          
   histos[0]->Fill(nHits);
@@ -272,4 +305,23 @@ void DTSegmentAnalysisTask::fillHistos(DTChamberId chamberId,
     histos[1]->Fill(chi2);
   }
 
+}
+
+
+void DTSegmentAnalysisTask::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& eSetup) {
+
+  cout << "[DTSegmentAnalysisTask] End LS: " << lumiSeg.luminosityBlock()
+       << " ==================================================================" << endl;
+  hNevtPerLS->updateTimeSlot(lumiSeg.luminosityBlock(), nEventsInLS);
+ // book sector time-evolution histos
+  for(int wheel = -2; wheel != 3; ++wheel) {
+    for(int sector = 1; sector <= 12; ++sector) {
+      histoTimeEvol[wheel][sector]->updateTimeSlot(lumiSeg.luminosityBlock(), nEventsInLS);
+    }
+  }
+}
+
+
+void DTSegmentAnalysisTask::beginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& eSetup) {
+  nEventsInLS = 0;
 }
