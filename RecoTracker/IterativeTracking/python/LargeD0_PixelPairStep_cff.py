@@ -38,7 +38,7 @@ import TrackingTools.MaterialEffects.MaterialPropagator_cfi
 MaterialPropagatorPtMin06 = TrackingTools.MaterialEffects.MaterialPropagator_cfi.MaterialPropagator.clone()
 MaterialPropagatorPtMin06.ComponentName = 'PropagatorWithMaterialPtMin06'
 MaterialPropagatorPtMin06.ptMin = 0.6
-> 
+ 
 import TrackingTools.MaterialEffects.OppositeMaterialPropagator_cfi
 OppositeMaterialPropagatorPtMin06 = TrackingTools.MaterialEffects.OppositeMaterialPropagator_cfi.OppositeMaterialPropagator.clone()
 OppositeMaterialPropagatorPtMin06.ComponentName = 'PropagatorWithMaterialOppositePtMin06'
