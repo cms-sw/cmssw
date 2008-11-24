@@ -85,11 +85,12 @@ class CellStat:
         self.status={}
         return
 
+    # Need to changes these once HcalChannelStatus is updated (should be shifting 6 and 5 bits, respectively, not 5 and 4)
     def Dead(self,run):
-        return (self.status[run]>20)
+        return ((self.status[run]>>5)&0x1)
 
     def Hot(self,run):
-        return (self.status[run]>0 and self.status[run]<20)
+        return ((self.status[run]>>4)&0x1)
 
     def AlwaysHot(self):
         count=0
@@ -180,9 +181,12 @@ class RunStatusGui:
         else:
             self.root=parent
 
+        self.root.title("Bad Cell Checker")
+
+        # Set Size of TCanvas plot based on monitor screen size
         self.screenwidth=self.root.winfo_screenwidth()
         self.screenheight=self.root.winfo_screenheight()
-        # Set size of TCanvases 
+        # Speficy height, width of canvas here
         self.canwidth=700
         self.canheight=500
         if (self.screenwidth<1000):
@@ -330,7 +334,12 @@ class RunStatusGui:
         self.ChooseCells.bind('<Return>',lambda event:self.DrawCellStatus())
 
         self.ChooseCells.grid(row=1,column=1)
-
+        self.ShowAll=Button(self.ChooserFrame,
+                            text="Back to\nCells vs. Time\n plot",
+                            bg="white",
+                            foreground="black",
+                            command=lambda x=self:x.DrawCells())
+        self.ShowAll.grid(row=2,column=1,pady=50,sticky=EW)
         return
 
     def makePicFrame(self):
@@ -465,6 +474,10 @@ class RunStatusGui:
         self.AlwaysHotList=[]
         self.AlwaysDeadList=[]
 
+        if (len(self.Runs)==0):
+            self.Print("No runs found so far")
+            return
+
         for i in self.Runs:
             Runs.append(i)
             deadcount=0
@@ -506,6 +519,11 @@ class RunStatusGui:
         mg.Add(hotGraph)
         c1 = TCanvas('c1','test',200, 10, self.canwidth, self.canheight )
 
+        gStyle.SetOptTitle(1)
+        mg.Draw("ap")
+        mg.GetYaxis().SetTitle("# of cells")
+        mg.GetXaxis().SetTitle("Run #")
+        mg.SetTitle("# of Bad Cells/Run (Red = Dead, Blue = Hot)")
         mg.Draw("ap")
         c1.Update()
         c1.Print("badcelldisplay_file.gif")
@@ -539,19 +557,47 @@ class RunStatusGui:
             self.Print("Could not find info for cell '%s'."%newid)
             return
         values=array('i')
-        for i in Runs:
+        self.Runs.sort()
+        if (len(self.Runs)>1):
+            width=self.Runs[-1]-self.Runs[0]+1
+            mymin=self.Runs[0]
+            mymax=self.Runs[-1]+1
+        else:
+            width=1
+            mymin=self.Runs[0]
+            mymax=self.Runs[0]+1
+        gStyle.SetOptStat(0)
+        gStyle.SetPalette(1)
+        gr=TH2F("gr","Single Cell Status",width,mymin,mymax,5,0,5)
+        if (width==1):
+            gr.GetXaxis().SetBinLabel(1,`self.Runs[0]`)
+        gr.GetYaxis().SetBinLabel(1,"Good")
+        gr.GetYaxis().SetBinLabel(2,"Hot")
+        gr.GetYaxis().SetBinLabel(3,"Dead")
+        gr.GetYaxis().SetBinLabel(4,"Unknown")
+        gr.GetYaxis().SetBinLabel(5,"No Run")
+        for i in self.Runs:
             if i in self.Cells[newid].status.keys():
-                values.append(self.Cells[newid].status[i])
+                # Need to check bit assignments here
+                # hot cells
+                if ((self.Cells[newid].status[i]>>5)&0x1):
+                    gr.Fill(i,1)
+                # dead cells
+                if ((self.Cells[newid].status[i]>>4)&0x1):
+                    print self.Cells[newid].status[i]
+                    gr.Fill(i,2)
+                if (self.Cells[newid].status[i]==0):
+                    gr.Fill(i,0)
             else:
-                values.append(100)
-        gr=TGraph(len(Runs),Runs,values)
-        gr.SetTitle("Cell %s  (32 = dead, 16 = hot)"%newid)
+                gr.Fill(i,4)
+        #gr=TGraph(len(Runs),Runs,values)
+        #gr.SetTitle("Cell %s  (32 = dead, 16 = hot)"%newid)
         gr.GetXaxis().SetTitle("Run #")
-        gr.SetMarkerColor(1)
-        gr.SetMarkerStyle(20)
-        gr.SetMinimum(0)
+        #gr.SetMarkerColor(1)
+        #gr.SetMarkerStyle(20)
+        #gr.SetMinimum(0)
         c1 = TCanvas('c1','test',200, 10, self.canwidth, self.canheight )
-        gr.Draw("AP")
+        gr.Draw("col")
         c1.Update()
         c1.Print("badcelldisplay_file.gif")
         c1.Close()
@@ -565,7 +611,7 @@ class RunStatusGui:
         print "\nPrinting cells:"
         text.sort()
         for i in text:
-            print i, convertID(i)
+            print "%s\t\t%s"%(i, convertID(i))
         print
         return
     
@@ -576,6 +622,7 @@ class RunStatusGui:
         self.commentLabel.configure(text=text)
         self.commentLabel.update()
         return
+
 ###############################################
 
 if __name__=="__main__":
