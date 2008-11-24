@@ -8,8 +8,8 @@
  *                  to the Global Trigger
 */                  
 //                
-//   $Date: 2007/04/27 13:16:00 $
-//   $Revision: 1.3 $ 
+//   $Date: 2008/04/16 23:25:10 $
+//   $Revision: 1.4 $ 
 //
 //   Original Author :
 //   Hannes Sakulin      HEPHY / Vienna
@@ -190,8 +190,15 @@ class L1MuTriggerScales {
   /// get the GMT eta scale
   const L1MuScale* getGMTEtaScale() const { return &m_GMTEtaScale ; };
 
+  /// set the GMT eta scale
+  void setGMTEtaScale(const L1MuSymmetricBinnedScale& scale)  { m_GMTEtaScale = scale ; };
+
+
   /// get the phi scale
   const L1MuScale* getPhiScale() const { return &m_PhiScale;};
+
+  /// set the phi scale
+  void setPhiScale(const L1MuBinnedScale& scale)  { m_PhiScale = scale ; };
   
 /*   /// get the Pt scale */
 /*   const L1MuScale* getPtScale() const { return &m_PtScale;}; */
