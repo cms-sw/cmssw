@@ -6,8 +6,8 @@
  * *
  *  DQM Client for global summary
  *
- *  $Date: 2008/07/02 14:33:56 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/10/22 09:38:14 $
+ *  $Revision: 1.1 $
  *  \author  G. Mila - INFN Torino
  *   
  */
@@ -15,20 +15,10 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include <FWCore/Framework/interface/EDAnalyzer.h>
-#include "DataFormats/Common/interface/Handle.h"
-#include <FWCore/Framework/interface/ESHandle.h>
-#include <FWCore/Framework/interface/Event.h>
-#include <FWCore/Framework/interface/MakerMacros.h>
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include <FWCore/Framework/interface/LuminosityBlock.h>
 
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Framework/interface/Run.h"
+class DQMStore;
+class MonitorElement;
 
-#include <memory>
-#include <string>
 
 class DTOfflineSummaryClients: public edm::EDAnalyzer{
 
@@ -39,8 +29,6 @@ public:
   
   /// Destructor
   virtual ~DTOfflineSummaryClients();
-
-protected:
 
   /// BeginRun
   void beginRun(edm::Run const& run, edm::EventSetup const& eSetup);
@@ -56,6 +44,9 @@ protected:
 
   /// DQM Client Diagnostic
   void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& c);
+
+protected:
+
 
 private:
 

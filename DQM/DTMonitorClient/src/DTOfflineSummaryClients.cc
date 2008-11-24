@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/11/06 16:08:17 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/11/06 16:57:53 $
+ *  $Revision: 1.3 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -15,6 +15,7 @@
 #include <FWCore/Framework/interface/Event.h>
 #include <FWCore/Framework/interface/EventSetup.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
+#include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
@@ -100,7 +101,7 @@ void DTOfflineSummaryClients::analyze(const Event& event, const EventSetup& cont
 void DTOfflineSummaryClients::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
   
   LogVerbatim("DTDQM|DTMonitorClient|DTOfflineSummaryClients")
-    << "[DTSummaryClients]: End of LS transition, performing the DQM client operation" << endl;
+    << "[DTOfflineSummaryClients]: End of LS transition, performing the DQM client operation" << endl;
 
   // reset the monitor elements
   summaryReportMap->Reset();
