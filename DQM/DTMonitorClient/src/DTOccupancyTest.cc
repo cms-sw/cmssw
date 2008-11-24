@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/10/17 13:44:36 $
- *  $Revision: 1.10 $
+ *  $Date: 2008/11/03 14:20:32 $
+ *  $Revision: 1.11 $
  *  \author G. Cerminara - University and INFN Torino
  */
 
@@ -561,6 +561,6 @@ int DTOccupancyTest::runOccupancyTest(TH2F *histo, const DTChamberId& chId) {
 
 
 string DTOccupancyTest::topFolder() const {
-  if(tpMode) return string("DT/99-TestPulses/");
+  if(tpMode) return string("DT/10-TestPulses/");
   return string("DT/01-Digi/");
 }
