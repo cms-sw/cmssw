@@ -359,13 +359,13 @@ class PerfSuite:
     #############
     # If the minbias root file does not exist for qcd profiling then run a cmsDriver command to create it
     #
-    def getPrereqRoot(self,rootdir,rootfile):
+    def getPrereqRoot(self,rootdir,rootfile,cmsdriverOptions=""):
         self.logh.write("WARNING: %s file required to run QCD profiling does not exist. Now running cmsDriver.py to get Required Minbias root file\n"   % (rootdir + "/" +rootfile))
     
         if not os.path.exists(rootdir):
             os.system("mkdir -p %s" % rootdir)
         if not self._debug:
-            cmd = "cd %s ; cmsDriver.py MinBias_cfi -s GEN,SIM -n %s >& ../minbias_for_pileup_generate.log" % (rootdir,str(10))
+            cmd = "cd %s ; cmsDriver.py MinBias_cfi -s GEN,SIM -n %s %s >& ../minbias_for_pileup_generate.log" % (rootdir,str(10),cmsdriverOptions)
             self.logh.write(cmd)
             os.system(cmd)
         if not os.path.exists(rootdir + "/" + rootfile):
@@ -374,14 +374,14 @@ class PerfSuite:
     #############
     # Check if QCD will run and if so check the root file is there. If it is not create it.
     #
-    def checkQcdConditions(self,candles,TimeSizeEvents,rootdir,rootfile):
+    def checkQcdConditions(self,candles,TimeSizeEvents,rootdir,rootfile,cmsdriverOptions=""):
         if TimeSizeEvents < MIN_REQ_TS_EVENTS :
             self.logh.write("WARNING: TimeSizeEvents is less than %s but QCD needs at least that to run. PILE-UP will be ignored\n" % MIN_REQ_TS_EVENTS)
             
             
         rootfilepath = rootdir + "/" + rootfile
         if not os.path.exists(rootfilepath):
-            self.getPrereqRoot(rootdir,rootfile)
+            self.getPrereqRoot(rootdir,rootfile,cmsdriverOptions)
             if not os.path.exists(rootfilepath) and not self._debug:
                 self.logh.write("ERROR: Could not create or find a rootfile %s with enough TimeSize events for QCD exiting...\n" % rootfilepath)
                 sys.exit()
@@ -402,14 +402,16 @@ class PerfSuite:
     #############
     # Copy root file from another candle's directory
     # ! Again this is messy. 
-    def cprootfile(self,dir,candle,NumOfEvents,cmsdriverOptions):
-        #print "*****\n %s \n******"%cmsdriverOptions[13:-1]
-        #Nasty hack in here to introduce the use of cmsdriverOptions quickly and dirtily...
+
+    def cprootfile(self,dir,candle,NumOfEvents,cmsdriverOptions=""):
         cmds = ("cd %s" % dir,
                 "cp -pR ../%s_IgProf/%s_GEN,SIM.root ."  % (candle,CandFname[candle]))
+        
         if self.runCmdSet(cmds):
             self.logh.write("Since there was no ../%s_IgProf/%s_GEN,SIM.root file it will be generated first\n"%(candle,CandFname[candle]))
-            cmd = "cd %s ; cmsDriver.py %s -s GEN,SIM -n %s --fileout %s_GEN,SIM.root %s >& %s_GEN_SIM_for_valgrind.log" % (dir,KeywordToCfi[candle],str(NumOfEvents),candle,cmsdriverOptions[13:-1],candle) #Hack to get rid of the --cmsdriver= in front of the actual cmsdriver options...
+
+            cmd = "cd %s ; cmsDriver.py %s -s GEN,SIM -n %s --fileout %s_GEN,SIM.root %s>& %s_GEN_SIM_for_valgrind.log" % (dir,KeywordToCfi[candle],str(NumOfEvents),candle,cmsdriverOptions,candle)
+
             self.printFlush(cmd)
             cmdout=os.popen3(cmd)[2].read()
             if cmdout:
@@ -436,10 +438,43 @@ class PerfSuite:
     # Filter lines in the valgrind report that match GEN,SIM
     #
     def valFilterReport(self,dir):
-        cmds = ("cd %s" % dir,
-                "grep -v \"step=GEN,SIM\" SimulationCandles_%s.txt > tmp" % (self.cmssw_version),
-                "mv tmp SimulationCandles_%s.txt"                         % (self.cmssw_version))
-        self.runCmdSet(cmds)
+        #cmds = ("cd %s" % dir,
+        #        "grep -v \"step=GEN,SIM\" SimulationCandles_%s.txt > tmp" % (self.cmssw_version),
+        #        "mv tmp SimulationCandles_%s.txt"                         % (self.cmssw_version))
+        #FIXME:
+        #Quick and dirty hack to have valgrind MemCheck run on 5 events on both GEN,SIM and DIGI in QCD_80_120, while removing the line for GEN,SIM for Callgrind
+        InputFileName=os.path.join(dir,"SimulationCandles_%s.txt"%(self.cmssw_version))
+        InputFile=open(InputFileName,"r")
+        InputLines=InputFile.readlines()
+        InputFile.close()
+        Outputfile=open(InputFileName,"w")
+        simRegxp=re.compile("step=GEN,SIM")
+        digiRegxp=re.compile("step=DIGI")
+        CallgrindRegxp=re.compile("ValgrindFCE")
+        MemcheckRegxp=re.compile("Memcheck")
+        NumEvtRegxp=re.compile("-n 1")#FIXME Either use the ValgrindEventNumber or do a more general match!
+        for line in InputLines:
+            if simRegxp.search(line) and CallgrindRegxp.search(line):
+                continue
+            elif simRegxp.search(line) and MemcheckRegxp.search(line):
+                #Modify
+                if NumEvtRegxp.search(line):
+                    line=NumEvtRegxp.sub(r"-n 5",line)
+                else:
+                    print "The number of Memcheck event was not changed since the original number of Callgrind event was not 1!"
+                Outputfile.write(line)
+            elif digiRegxp.search(line) and MemcheckRegxp.search(line):
+                #Modify
+                if NumEvtRegxp.search(line):
+                    line=NumEvtRegxp.sub(r"-n 5",line)
+                else:
+                    print "The number of Memcheck event was not changed since the original number of Callgrind event was not 1!"
+                Outputfile.write(line)
+            else:
+                Outputfile.write(line)
+        Outputfile.close()
+            
+        #self.runCmdSet(cmds)
     
     ##################
     # Run cmsScimark benchmarks a number of times
@@ -565,7 +600,9 @@ class PerfSuite:
                         self.logh.write("Valgrind tests **GEN,SIM ONLY** on %s candle\n" % candle    )
                     else:
                         self.logh.write("Valgrind tests **SKIPPING GEN,SIM** on %s candle\n" % candle)
-                        self.cprootfile(adir,candle,NumEvents,cmsdriverOptions)              
+
+                        #self.cprootfile(adir,candle,NumEvents,cmsdriverOptions[13:-1])#Nasty hack to propagate cmsdriverOptions to potential cmsDriver.py commands to create necessary root files...              
+
     
                 if self._unittest:
                     # Run cmsDriver.py
@@ -588,7 +625,9 @@ class PerfSuite:
                     #    pass
                     #
                     #for proflog in proflogs:
-                    globpath = os.path.join(adir,"%s.log"%candle)
+                    #With the change from 2>1&|tee to >& to preserve exit codes, we need now to check all logs...
+                    #less nice... we might want to do this externally so that in post-processing its a re-usable tool
+                    globpath = os.path.join(adir,"*.log") #"%s.log"%candle)
                     self.logh.write("Looking for logs that match %s\n" % globpath)
                     logs     = glob.glob(globpath)
                     for log in logs:
@@ -746,7 +785,7 @@ class PerfSuite:
                 candles = self.checkQcdConditions(candles,
                                              TimeSizeEvents,
                                              os.path.join(perfsuitedir,"%s_%s" % ("MinBias","TimeSize")),
-                                             "%s_cfi_GEN_SIM.root" % "MinBias")
+                                             "%s_cfi_GEN_SIM.root" % "MinBias",cmsdriverOptions[13:-1])#Really nasty hack to pass the cmsdriverOptions to the various checkers that could run cmsDriver.py to create needed input files
     
             #TimeSize tests:
             if TimeSizeEvents > 0:
