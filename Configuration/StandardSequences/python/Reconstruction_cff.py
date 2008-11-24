@@ -18,6 +18,7 @@ from RecoPixelVertexing.Configuration.RecoPixelVertexing_cff import *
 #include "RecoBTau/Configuration/data/RecoBTau.cff"
 from RecoJets.Configuration.RecoJetAssociations_cff import *
 from RecoJets.Configuration.RecoPFJets_cff import *
+from RecoMET.Configuration.RecoPFMET_cff import *
 from RecoBTag.Configuration.RecoBTag_cff import *
 #
 # please understand that division global,highlevel is completely fake !
