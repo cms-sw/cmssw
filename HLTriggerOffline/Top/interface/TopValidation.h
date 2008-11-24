@@ -1,4 +1,7 @@
 
+#ifndef HLTriggerOffline_TopValidation_H
+#define HLTriggerOffline_TopValidation_H 
+
 
 // system include files
 #include <memory>
@@ -65,13 +68,6 @@
 #include <math.h> 
 #include <TMath.h>
 #include "TFile.h"
-
-
-using namespace std;
-using namespace edm;
-using namespace HepMC;
-
-using namespace reco;
 
 
 
@@ -526,3 +522,6 @@ bool outputMEsInRootFile;
  
   
 };
+
+
+#endif
