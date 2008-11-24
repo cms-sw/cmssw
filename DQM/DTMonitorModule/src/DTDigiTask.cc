@@ -1,8 +1,8 @@
  /*
  * \file DTDigiTask.cc
  * 
- * $Date: 2008/10/31 05:46:50 $
- * $Revision: 1.52 $
+ * $Date: 2008/11/18 17:55:42 $
+ * $Revision: 1.53 $
  * \author M. Zanetti - INFN Padova
  *
  */
@@ -135,6 +135,9 @@ void DTDigiTask::beginRun(const edm::Run& run, const edm::EventSetup& context) {
   
   // ----------------------------------------------------------------------
   if(doStaticBooking) {  // Static histo booking
+    // book the event counter
+    dbe->setCurrentFolder(topFolder());
+    nEventMonitor = dbe->bookFloat("nProcessedEvents");
     for(int wh = -2; wh <= 2; ++wh) { // loop over wheels
       if(doAllHitsOccupancies) bookHistos(wh, string("Occupancies"), "OccupancyAllHits");
       if(doNoiseOccupancies) bookHistos(wh, string("Occupancies"), "OccupancyNoiseHits");
@@ -405,7 +408,7 @@ void DTDigiTask::analyze(const edm::Event& event, const edm::EventSetup& c) {
   LogTrace("DTDQM|DTMonitorModule|DTDigiTask") << "[DTDigiTask] analyze" << endl;
   
   nevents++;
-
+  nEventMonitor->Fill(nevents);
   if (nevents%1000 == 0) {
     LogTrace("DTDQM|DTMonitorModule|DTDigiTask") << "[DTDigiTask] Analyze #Run: " << event.id().run()
 						 << " #Event: " << event.id().event() << endl;
@@ -680,7 +683,7 @@ string DTDigiTask::triggerSource() {
 
 
 string DTDigiTask::topFolder() const {
-  if(tpMode) return string("DT/99-TestPulses/");
+  if(tpMode) return string("DT/10-TestPulses/");
   return string("DT/01-Digi/");
 }
 
