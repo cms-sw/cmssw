@@ -15,7 +15,6 @@ process.output = cms.OutputModule(
     'keep edmHepMCProduct_source_*_*',
     'keep *_mergedtruth__*',
     'keep *_mergedtruth_*_*'
-
   )
 )
 

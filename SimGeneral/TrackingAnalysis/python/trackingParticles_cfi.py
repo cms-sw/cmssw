@@ -21,7 +21,11 @@ mergedtruth = cms.EDProducer("TrackingTruthProducer",
         'g4SimHitsTrackerHitsTOBLowTof', 
         'g4SimHitsTrackerHitsTOBHighTof', 
         'g4SimHitsTrackerHitsTECLowTof', 
-        'g4SimHitsTrackerHitsTECHighTof'),
+        'g4SimHitsTrackerHitsTECHighTof',
+      	'g4SimHitsMuonDTHits',
+	'g4SimHitsMuonCSCHits',
+	'g4SimHitsMuonRPCHits'
+    ),        
     volumeZ = cms.double(3000.0)
 )
 

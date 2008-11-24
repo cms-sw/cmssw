@@ -113,13 +113,13 @@ void TrackingTruthProducer::associator(
     Associator & association
 )
 {
+	int index = 0;
     // Clear the association map
     association.clear();
     // Create a association from simtracks to overall index in the mix collection
-    for (int index = 0; index != mixCollection->size(); ++index)
+    for (typename MixCollection<Object>::MixItr iterator = mixCollection->begin(); iterator != mixCollection->end(); ++iterator, ++index)
     {
-        Object const & object = mixCollection->getObject(index);
-        typename Associator::key_type objectId = typename Associator::key_type(object.eventId(), object.trackId());
+        typename Associator::key_type objectId = typename Associator::key_type(iterator->eventId(), iterator->trackId());
         association.insert( make_pair(objectId, index) );
     }
 }

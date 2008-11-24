@@ -505,6 +505,10 @@ void TrackingTruthProducer::createTrackingTruth()
                     trackingVertexes_->at(trackingVertexIndex).addParentTrack(
                         TrackingParticleRef(refTrackingParticles_, vetoedTracks[nextSimTrackIndex])
                     );
+                    // Add the vertex to list of decay vertexes of the new tp
+                    trackingParticles_->at(vetoedTracks[nextSimTrackIndex]).addDecayVertex(
+                        TrackingVertexRef(refTrackingVertexes_, trackingVertexIndex)
+                    );                    
                     break;
                 }
 
@@ -548,17 +552,18 @@ bool TrackingTruthProducer::setTrackingParticle(
     int genParticleIndex = simTrack.genpartIndex();
     bool signalEvent = (trackEventId.event() == 0 && trackEventId.bunchCrossing() == 0);
 
-    // Get the generated particle
-    const HepMC::GenParticle * genParticle = hepmc_->GetEvent()->barcode_to_particle(genParticleIndex);
-
     // In the case of a existing generated particle and track
     // event is signal redefine status a pdgId
     if (genParticleIndex >= 0 && signalEvent)
+    {
+        // Get the generated particle
+        const HepMC::GenParticle * genParticle = hepmc_->GetEvent()->barcode_to_particle(genParticleIndex);
         if (genParticle)
         {
             status = genParticle->status();
             pdgId  = genParticle->pdg_id();
         }
+    }
 
     // Create a tp from the simtrack
     trackingParticle = TrackingParticle(
@@ -615,7 +620,8 @@ bool TrackingTruthProducer::setTrackingParticle(
             newDetector = detectorId.subdetId();
 
             // Count hits using layers for glued detectors
-            if (oldLayer != newLayer || (oldLayer==newLayer && oldDetector!=newDetector) ) totalSimHits++;
+            // newlayer !=0 excludes Muon layers set to 0 by LayerFromDetid
+            if ( ( oldLayer != newLayer || (oldLayer==newLayer && oldDetector!=newDetector ) ) && newLayer != 0 ) totalSimHits++;
         }
     }
 
@@ -717,7 +723,7 @@ void TrackingTruthProducer::addCloseGenVertexes(TrackingVertex & trackingVertex)
 }
 
 
-int TrackingTruthProducer::LayerFromDetid(const unsigned int& detid)
+int TrackingTruthProducer::LayerFromDetid(const unsigned int & detid)
 {
     DetId detId = DetId(detid);
     
