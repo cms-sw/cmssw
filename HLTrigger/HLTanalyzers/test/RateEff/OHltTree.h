@@ -2486,8 +2486,13 @@ void OHltTree::SetMapBitOfStandardHLTPath() {
   map_BitOfStandardHLTPath["L1_DoubleMu3"] = L1_DoubleMu3;             
   map_BitOfStandardHLTPath["L1_TripleMu3"] = L1_TripleMu3;             
 
+  map_BitOfStandardHLTPath["L1_SingleIsoEG5"] = L1_SingleIsoEG5;       
+  map_BitOfStandardHLTPath["L1_SingleIsoEG8"] = L1_SingleIsoEG8;       
   map_BitOfStandardHLTPath["L1_SingleIsoEG10"] = L1_SingleIsoEG10;       
   map_BitOfStandardHLTPath["L1_SingleIsoEG12"] = L1_SingleIsoEG12;       
+  map_BitOfStandardHLTPath["L1_SingleIsoEG15"] = L1_SingleIsoEG15;       
+  map_BitOfStandardHLTPath["L1_SingleIsoEG25"] = L1_SingleIsoEG25;       
+  map_BitOfStandardHLTPath["L1_SingleIsoEG20"] = L1_SingleIsoEG20;       
   map_BitOfStandardHLTPath["L1_DoubleIsoEG8"] = L1_DoubleIsoEG8;         
 
   map_BitOfStandardHLTPath["L1_SingleEG2"] = L1_SingleEG2;            
@@ -2496,6 +2501,8 @@ void OHltTree::SetMapBitOfStandardHLTPath() {
   map_BitOfStandardHLTPath["L1_SingleEG10"] = L1_SingleEG10;            
   map_BitOfStandardHLTPath["L1_SingleEG12"] = L1_SingleEG12;           
   map_BitOfStandardHLTPath["L1_SingleEG15"] = L1_SingleEG15;          
+  map_BitOfStandardHLTPath["L1_SingleEG20"] = L1_SingleEG20;          
+  map_BitOfStandardHLTPath["L1_SingleEG25"] = L1_SingleEG25;          
   map_BitOfStandardHLTPath["L1_DoubleEG1"] = L1_DoubleEG1;            
   map_BitOfStandardHLTPath["L1_DoubleEG5"] = L1_DoubleEG5;             
   map_BitOfStandardHLTPath["L1_DoubleEG10"] = L1_DoubleEG10;            
@@ -2904,8 +2911,13 @@ void OHltTree::SetMapL1BitOfStandardHLTPath() {
   map_L1BitOfStandardHLTPath["L1_DoubleMu3"] = L1_DoubleMu3;             
   map_L1BitOfStandardHLTPath["L1_TripleMu3"] = L1_TripleMu3;             
 
+  map_L1BitOfStandardHLTPath["L1_SingleIsoEG5"] = L1_SingleIsoEG5;       
+  map_L1BitOfStandardHLTPath["L1_SingleIsoEG8"] = L1_SingleIsoEG8;       
   map_L1BitOfStandardHLTPath["L1_SingleIsoEG10"] = L1_SingleIsoEG10;       
   map_L1BitOfStandardHLTPath["L1_SingleIsoEG12"] = L1_SingleIsoEG12;       
+  map_L1BitOfStandardHLTPath["L1_SingleIsoEG15"] = L1_SingleIsoEG15;       
+  map_L1BitOfStandardHLTPath["L1_SingleIsoEG25"] = L1_SingleIsoEG25;       
+  map_L1BitOfStandardHLTPath["L1_SingleIsoEG20"] = L1_SingleIsoEG20;       
   map_L1BitOfStandardHLTPath["L1_DoubleIsoEG8"] = L1_DoubleIsoEG8;         
 
   map_L1BitOfStandardHLTPath["L1_SingleEG2"] = L1_SingleEG2;            
@@ -2914,6 +2926,8 @@ void OHltTree::SetMapL1BitOfStandardHLTPath() {
   map_L1BitOfStandardHLTPath["L1_SingleEG10"] = L1_SingleEG10;            
   map_L1BitOfStandardHLTPath["L1_SingleEG12"] = L1_SingleEG12;           
   map_L1BitOfStandardHLTPath["L1_SingleEG15"] = L1_SingleEG15;          
+  map_L1BitOfStandardHLTPath["L1_SingleEG20"] = L1_SingleEG20;          
+  map_L1BitOfStandardHLTPath["L1_SingleEG25"] = L1_SingleEG25;          
   map_L1BitOfStandardHLTPath["L1_DoubleEG1"] = L1_DoubleEG1;            
   map_L1BitOfStandardHLTPath["L1_DoubleEG5"] = L1_DoubleEG5;             
   map_L1BitOfStandardHLTPath["L1_DoubleEG10"] = L1_DoubleEG10;            
