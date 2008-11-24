@@ -85,19 +85,19 @@ class CellStat:
         self.status={}
         return
 
-    # Need to changes these once HcalChannelStatus is updated (should be shifting 6 and 5 bits, respectively, not 5 and 4)
+    # Need to changes these once HcalChannelStatus is updated (should be shifting 5 and 6 bits, respectively, not 4 and 5)
     def Dead(self,run):
-        return ((self.status[run]>>5)&0x1)
+        return ((self.status[run]>>4)&0x1)
 
     def Hot(self,run):
-        return ((self.status[run]>>4)&0x1)
+        return ((self.status[run]>>5)&0x1)
 
     def AlwaysHot(self):
         count=0
         hot=0
         for i in self.status.keys():
             count=count+1
-            if (self.status[i]>0 and self.status[i]<20):
+            if ((self.status[i]>>5)&0x1):
                 hot=hot+1
         if (hot>=0.90*count):
             self.Alwayshot=True
@@ -108,7 +108,7 @@ class CellStat:
         dead=0
         for i in self.status.keys():
             count=count+1
-            if (self.status[i]>=20):
+            if ((self.status[i]>>4)&0x1):
                 dead=dead+1
         #if (self.status[i]):
         #    print "count = ",count,"  DEAD = ",dead
@@ -320,12 +320,18 @@ class RunStatusGui:
         
     def makeChooserFrame(self):
         ''' Provide entries to choose a cell to display.'''
+        self.ShowAll=Button(self.ChooserFrame,
+                            text="Back to\nCells vs. Time\n plot",
+                            bg="white",
+                            foreground="black",
+                            command=lambda x=self:x.DrawCells())
+        self.ShowAll.grid(row=0,column=1,pady=50,sticky=EW)
         Label(self.ChooserFrame,
               text="Choose Cell:",
-              bg=self.bg).grid(row=0,column=0,columnspan=2)
+              bg=self.bg).grid(row=1,column=0,columnspan=2)
         Label(self.ChooserFrame,
               text="Cell ID:",
-              bg=self.bg).grid(row=1,column=0)
+              bg=self.bg).grid(row=2,column=0)
         self.ChooseCells=Entry(self.ChooserFrame,
                                textvar=self.CellID,
                                bg="white",
@@ -333,13 +339,7 @@ class RunStatusGui:
                                )
         self.ChooseCells.bind('<Return>',lambda event:self.DrawCellStatus())
 
-        self.ChooseCells.grid(row=1,column=1)
-        self.ShowAll=Button(self.ChooserFrame,
-                            text="Back to\nCells vs. Time\n plot",
-                            bg="white",
-                            foreground="black",
-                            command=lambda x=self:x.DrawCells())
-        self.ShowAll.grid(row=2,column=1,pady=50,sticky=EW)
+        self.ChooseCells.grid(row=2,column=1)
         return
 
     def makePicFrame(self):
@@ -411,17 +411,29 @@ class RunStatusGui:
         self.Runs=[]
         self.Print("Searching web page for files...")
         try:
-            out=urlopen(self.webname.get()).readlines()
-        except:
-            self.Print("ERROR - Could not read web page '%s'"%self.webname.get())
-            return
+            www=self.webname.get()
+            out=urlopen(www).readlines()
+        except IOError:
+            if not (www.startswith("http://")):
+                try:
+                    www="http://"+www
+                    self.webname.set(www)
+                    out=urlopen(www).readlines()
+                except:
+                    self.Print("ERROR - Could not read web page '%s'"%www)
+                    return
 
+        self.Print("Reading from %s"%www)
         statfiles={}
         
         for i in out:
             if string.find(i,".txt")>-1:
                 try:
-                    temp=string.split(i,'"')[5]
+                    temp=string.split(i,'"')
+                    for z in temp:
+                        if (string.strip(z)).endswith(".txt") and (string.upper(string.strip(z))).startswith("HCAL"):
+                            temp=z
+                            break
                     if (string.find(string.upper(temp),"HCAL")>-1):
                         run=string.split(temp,"_")[1]
                         if (run.startswith("run")):
@@ -434,7 +446,7 @@ class RunStatusGui:
                                 self.Runs.append(run)
                             statfiles[temp]=run
 
-                except SyntaxError:
+                except:
                     self.Print("ERROR -- Could not parse web line '%s'"%i)
 
         for i in statfiles.keys():
@@ -447,7 +459,7 @@ class RunStatusGui:
                 self.Print("Reading page '%s'"%webname)
                 out=urlopen(webname).readlines()
             except:
-                self.Print("ERROR -- Could not read '%s'"%webnamd)
+                self.Print("ERROR -- Could not read '%s'"%webname)
                 continue
             for line in out:
                 try:
@@ -458,7 +470,7 @@ class RunStatusGui:
                     if id not in self.Cells.keys():
                         self.Cells[id]=CellStat(id)
                     self.Cells[id].read(run,line)
-                except SyntaxError:
+                except:
                     continue
                     #self.Print("ERROR -- Could not read line '%s'"%line)
         self.Print("Finished reading files")
@@ -571,25 +583,27 @@ class RunStatusGui:
         gr=TH2F("gr","Single Cell Status",width,mymin,mymax,5,0,5)
         if (width==1):
             gr.GetXaxis().SetBinLabel(1,`self.Runs[0]`)
-        gr.GetYaxis().SetBinLabel(1,"Good")
-        gr.GetYaxis().SetBinLabel(2,"Hot")
-        gr.GetYaxis().SetBinLabel(3,"Dead")
-        gr.GetYaxis().SetBinLabel(4,"Unknown")
-        gr.GetYaxis().SetBinLabel(5,"No Run")
-        for i in self.Runs:
+        gr.GetYaxis().SetBinLabel(1,"No Run")
+        gr.GetYaxis().SetBinLabel(2,"Good")
+        gr.GetYaxis().SetBinLabel(3,"Hot")
+        gr.GetYaxis().SetBinLabel(4,"Dead")
+        gr.GetYaxis().SetBinLabel(5,"Unknown")
+
+        for i in range(mymin,mymax+1):
+        #for i in self.Runs:
             if i in self.Cells[newid].status.keys():
                 # Need to check bit assignments here
                 # hot cells
                 if ((self.Cells[newid].status[i]>>5)&0x1):
-                    gr.Fill(i,1)
+                    gr.Fill(i,2)
                 # dead cells
                 if ((self.Cells[newid].status[i]>>4)&0x1):
                     print self.Cells[newid].status[i]
-                    gr.Fill(i,2)
+                    gr.Fill(i,3)
                 if (self.Cells[newid].status[i]==0):
-                    gr.Fill(i,0)
+                    gr.Fill(i,1)
             else:
-                gr.Fill(i,4)
+                gr.Fill(i,0)
         #gr=TGraph(len(Runs),Runs,values)
         #gr.SetTitle("Cell %s  (32 = dead, 16 = hot)"%newid)
         gr.GetXaxis().SetTitle("Run #")
