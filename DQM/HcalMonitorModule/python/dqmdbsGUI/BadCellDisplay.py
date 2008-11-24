@@ -63,7 +63,7 @@ def calcDetID(ID):
     detid=detid|(phi&0x7f)
     name="%x"%detid
     name=string.upper(name)
-    return detid
+    return name
 
 
 
@@ -563,7 +563,7 @@ class RunStatusGui:
                 
     def printCellList(self,text):
         print "\nPrinting cells:"
-        text=text.sort()
+        text.sort()
         for i in text:
             print i, convertID(i)
         print
