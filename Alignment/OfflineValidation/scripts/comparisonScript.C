@@ -42,23 +42,23 @@ void comparisonScript(string inFile="../test/testComparison.root",string outDir=
 	
 	// plots the normal 3x3 plus dx/dy vs. r/z/phi
 	// stores each histogram to output file (including dr/dz/r*dphi 1D plots)
-	c1.plot3x5( levelCut, "Tracker",true,"Tracker.png", true );
-	c1.plot3x5( levelCut+PXBCut, "PXB", true,  "PXB.png", true );
-	c1.plot3x5( levelCut+PXFCut, "PXF", true,  "PXF.png", true );
-	c1.plot3x5( levelCut+TIBCut, "TIB", true,  "TIB.png", true );
-	c1.plot3x5( levelCut+TIDCut, "TID", true,  "TID.png", true );
-	c1.plot3x5( levelCut+TOBCut, "TOB", true,  "TOB.png", true );
-	c1.plot3x5( levelCut+TECCut, "TEC", true,  "TEC.png", true );
+	c1.plot3x5( levelCut, "Tracker",true,"Tracker.eps", true );
+	c1.plot3x5( levelCut+PXBCut, "PXB", true,  "PXB.eps", true );
+	c1.plot3x5( levelCut+PXFCut, "PXF", true,  "PXF.eps", true );
+	c1.plot3x5( levelCut+TIBCut, "TIB", true,  "TIB.eps", true );
+	c1.plot3x5( levelCut+TIDCut, "TID", true,  "TID.eps", true );
+	c1.plot3x5( levelCut+TOBCut, "TOB", true,  "TOB.eps", true );
+	c1.plot3x5( levelCut+TECCut, "TEC", true,  "TEC.eps", true );
 
 	//again this time only for 2D modules
 
-	c1.plot3x5( levelCut+Det2dCut, "Tracker2D",true,"Tracker2D.png", true );
-	//c1.plot3x5( levelCut+PXBCut+Det2dCut, "PXB2D", true,  "PXB2D.png", true );
-	//c1.plot3x5( levelCut+PXFCut+Det2dCut, "PXF2D", true,  "PXF2D.png", true );
-	c1.plot3x5( levelCut+TIBCut+Det2dCut, "TIB2D", true,  "TIB2D.png", true );
-	c1.plot3x5( levelCut+TIDCut+Det2dCut, "TID2D", true,  "TID2D.png", true );
-	c1.plot3x5( levelCut+TOBCut+Det2dCut, "TOB2D", true,  "TOB2D.png", true );
-	c1.plot3x5( levelCut+TECCut+Det2dCut, "TEC2D", true,  "TEC2D.png", true );
+	c1.plot3x5( levelCut+Det2dCut, "Tracker2D",true,"Tracker2D.eps", true );
+	//c1.plot3x5( levelCut+PXBCut+Det2dCut, "PXB2D", true,  "PXB2D.eps", true );
+	//c1.plot3x5( levelCut+PXFCut+Det2dCut, "PXF2D", true,  "PXF2D.eps", true );
+	c1.plot3x5( levelCut+TIBCut+Det2dCut, "TIB2D", true,  "TIB2D.eps", true );
+	c1.plot3x5( levelCut+TIDCut+Det2dCut, "TID2D", true,  "TID2D.eps", true );
+	c1.plot3x5( levelCut+TOBCut+Det2dCut, "TOB2D", true,  "TOB2D.eps", true );
+	c1.plot3x5( levelCut+TECCut+Det2dCut, "TEC2D", true,  "TEC2D.eps", true );
 
 	/*
 	// plots the normal 3x3 plus dx/dy vs. r/z/phi 2D profile plots

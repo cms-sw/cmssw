@@ -332,6 +332,22 @@ void comparisonPlots::plot3x5(TCut Cut, char* dirName, bool savePlot, std::strin
 	h_rdphi->Draw();
 	if (savePlot) c0->Print((_outputDir+"plot3x1_"+plotName).c_str());
 	
+	mgr_drVr->SetTitle("#Delta r vs. r");           
+	mgr_dzVr->SetTitle("#Delta z vs. r");           
+	mgr_rdphiVr->SetTitle("r#Delta #phi vs. r");    
+	mgr_dxVr->SetTitle("#Delta x vs. r");           
+	mgr_dyVr->SetTitle("#Delta y vs. r");           
+	mgr_drVz->SetTitle("#Delta r vs. z");           
+	mgr_dzVz->SetTitle("#Delta z vs. z");           
+	mgr_rdphiVz->SetTitle("r#Delta #phi vs. z");    
+	mgr_dxVz->SetTitle("#Delta x vs. z");           
+	mgr_dyVz->SetTitle("#Delta y vs. z");           
+	mgr_drVphi->SetTitle("#Delta r vs. #phi");      
+	mgr_dzVphi->SetTitle("#Delta z vs. #phi");      
+	mgr_rdphiVphi->SetTitle("r#Delta #phi vs. #phi");
+	mgr_dxVphi->SetTitle("#Delta x vs. #phi");      
+	mgr_dyVphi->SetTitle("#Delta y vs. #phi");   
+	
 	// ---------  draw histograms ---------
 	TCanvas* c = new TCanvas("c", "c", 200, 10, 1200, 700);
 	c->SetFillColor(0);
