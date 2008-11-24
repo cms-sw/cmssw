@@ -8,6 +8,7 @@ segmentTest = cms.EDAnalyzer("DTSegmentAnalysisTest",
                              segmRecHitTestName = cms.untracked.string('segmRecHitInRange'),
                              #Permetted value of chi2 segment quality
                              chi2Threshold = cms.untracked.double(5.0),
+                             normalizeHistoPlots = cms.untracked.bool(False)
                              )
 
 
