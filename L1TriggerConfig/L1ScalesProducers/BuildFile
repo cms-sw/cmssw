@@ -5,6 +5,7 @@
 <use name=CondFormats/DataRecord>
 <use name=CalibFormats/CaloTPG>
 <use name=CalibCalorimetry/EcalTPGTools>
+<use name=CondTools/L1Trigger>
 <flags EDM_PLUGIN=1>
 
 <export>
