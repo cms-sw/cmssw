@@ -7,7 +7,6 @@
 #define MomentumScaleCorrector_h
 
 #include "MuonAnalysis/MomentumScaleCalibration/plugins/Functions.h"
-#include "DataFormats/TrackReco/interface/Track.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include <fstream>
 
