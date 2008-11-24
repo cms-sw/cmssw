@@ -24,6 +24,8 @@
 #include <vector>
 #include <sstream>
 
+#include <boost/regex.hpp> 
+
 namespace cscdqm {
 
   /**
@@ -43,6 +45,8 @@ namespace cscdqm {
 
     public:
 
+      static const bool regexMatch(const boost::regex& expression, const std::string& message);
+      static const bool regexMatch(const std::string& expression, const std::string& message);
       static const int getCSCTypeBin(const std::string& cstr);
       static const std::string getCSCTypeLabel(int endcap, int station, int ring);
       static const int tokenize(const std::string& str, std::vector<std::string>& tokens, const std::string& delimiters = " ");

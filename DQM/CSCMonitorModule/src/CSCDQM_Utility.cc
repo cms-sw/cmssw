@@ -126,4 +126,15 @@ namespace cscdqm {
       str.erase(str.begin(), str.end());
   }
   
+  
+  const bool Utility::regexMatch(const boost::regex& re_expression, const std::string& message) {
+    boost::cmatch what;
+    return boost::regex_match(message.c_str(), what, re_expression);
+  }
+
+  const bool Utility::regexMatch(const std::string& expression, const std::string& message) {
+    boost::regex re_expression(expression);
+    return regexMatch(re_expression, message);
+  }
+
 }

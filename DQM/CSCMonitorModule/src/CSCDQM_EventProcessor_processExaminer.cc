@@ -35,7 +35,7 @@ namespace cscdqm {
     uint32_t binWarningStatus = binChecker.warnings();
 
     MonitorObject* mo = 0;
-    if (getEMUHisto(EMU_ALL_DDUS_FORMAT_ERRORS, mo)) {
+    if (getEMUHisto(h::EMU_ALL_DDUS_FORMAT_ERRORS, mo)) {
 
       std::vector<int> DDUs = binChecker.listOfDDUs();
       for (std::vector<int>::iterator ddu_itr = DDUs.begin(); ddu_itr != DDUs.end(); ++ddu_itr) {
@@ -87,14 +87,14 @@ namespace cscdqm {
 
       long DMBEvents = nDMBEvents[cscTag];
 
-      if (getEMUHisto(EMU_DMB_REPORTING, mo)) {
+      if (getEMUHisto(h::EMU_DMB_REPORTING, mo)) {
         mo->Fill(crateID, dmbSlot);
       }
 
       unsigned int cscType   = 0;
       unsigned int cscPosition = 0;
       histoProvider->getCSCFromMap(crateID, dmbSlot, cscType, cscPosition);
-      if (cscType && cscPosition && getEMUHisto(EMU_CSC_REPORTING, mo)) {
+      if (cscType && cscPosition && getEMUHisto(h::EMU_CSC_REPORTING, mo)) {
         mo->Fill(cscPosition, cscType);
       }
 
@@ -107,37 +107,37 @@ namespace cscdqm {
       int cfeb_dav_num = 0;
       
       if (alct_dav == 0) {
-	if (cscType && cscPosition && getEMUHisto(EMU_CSC_WO_ALCT, mo)) {
+	if (cscType && cscPosition && getEMUHisto(h::EMU_CSC_WO_ALCT, mo)) {
           mo->Fill(cscPosition, cscType);
 	}
-	if (getEMUHisto(EMU_DMB_WO_ALCT, mo)) {
+	if (getEMUHisto(h::EMU_DMB_WO_ALCT, mo)) {
 	  mo->Fill(crateID, dmbSlot);
 	}
       }
      
       if (tmb_dav == 0) {
-	if (cscType && cscPosition && getEMUHisto(EMU_CSC_WO_CLCT, mo)) {
+	if (cscType && cscPosition && getEMUHisto(h::EMU_CSC_WO_CLCT, mo)) {
           mo->Fill(cscPosition, cscType);
 	}
-	if (getEMUHisto(EMU_DMB_WO_CLCT, mo)) {
+	if (getEMUHisto(h::EMU_DMB_WO_CLCT, mo)) {
 	  mo->Fill(crateID, dmbSlot);
 	}
       }
 
       if (cfeb_dav == 0) {
-	if (cscType && cscPosition && getEMUHisto(EMU_CSC_WO_CFEB, mo)) {
+	if (cscType && cscPosition && getEMUHisto(h::EMU_CSC_WO_CFEB, mo)) {
           mo->Fill(cscPosition, cscType);
 	}
-	if (getEMUHisto(EMU_DMB_WO_CFEB, mo)) {
+	if (getEMUHisto(h::EMU_DMB_WO_CFEB, mo)) {
 	  mo->Fill(crateID, dmbSlot);
 	}
       }
       
       MonitorObject *mof = 0, *mo1 = 0, *mo2 = 0;
-      if (getCSCHisto(crateID, dmbSlot, CSC_ACTUAL_DMB_CFEB_DAV_RATE, mo)
-	  && getCSCHisto(crateID, dmbSlot, CSC_ACTUAL_DMB_CFEB_DAV_FREQUENCY, mof)) {
-	if (getCSCHisto(crateID, dmbSlot, CSC_DMB_CFEB_DAV_UNPACKING_INEFFICIENCY, mo1)
-	    && getCSCHisto(crateID, dmbSlot, CSC_DMB_CFEB_DAV, mo2)) {
+      if (getCSCHisto(crateID, dmbSlot, h::CSC_ACTUAL_DMB_CFEB_DAV_RATE, mo)
+	  && getCSCHisto(crateID, dmbSlot, h::CSC_ACTUAL_DMB_CFEB_DAV_FREQUENCY, mof)) {
+	if (getCSCHisto(crateID, dmbSlot, h::CSC_DMB_CFEB_DAV_UNPACKING_INEFFICIENCY, mo1)
+	    && getCSCHisto(crateID, dmbSlot, h::CSC_DMB_CFEB_DAV, mo2)) {
           for (int i=1; i<=5; i++) {
 	    double actual_dav_num = mo->GetBinContent(i);
 	    double unpacked_dav_num = mo2->GetBinContent(i);
@@ -160,16 +160,16 @@ namespace cscdqm {
 
       }
       
-      if (getCSCHisto(crateID, dmbSlot, CSC_ACTUAL_DMB_CFEB_DAV_MULTIPLICITY_RATE, mo)
-	  && getCSCHisto(crateID, dmbSlot, CSC_ACTUAL_DMB_CFEB_DAV_MULTIPLICITY_FREQUENCY, mof)) {
+      if (getCSCHisto(crateID, dmbSlot, h::CSC_ACTUAL_DMB_CFEB_DAV_MULTIPLICITY_RATE, mo)
+	  && getCSCHisto(crateID, dmbSlot, h::CSC_ACTUAL_DMB_CFEB_DAV_MULTIPLICITY_FREQUENCY, mof)) {
 	for (unsigned short i = 1; i < 7; i++) {
 	  float cfeb_entries =  mo->GetBinContent(i);
 	  mof->SetBinContent(i, ((float)cfeb_entries / (float)(DMBEvents) * 100.0));
 	}
 	mof->SetEntries((int)DMBEvents);
 
-	if (getCSCHisto(crateID, dmbSlot, CSC_DMB_CFEB_DAV_MULTIPLICITY_UNPACKING_INEFFICIENCY, mo1)
-	    && getCSCHisto(crateID, dmbSlot, CSC_DMB_CFEB_DAV_MULTIPLICITY, mo2)) {	   
+	if (getCSCHisto(crateID, dmbSlot, h::CSC_DMB_CFEB_DAV_MULTIPLICITY_UNPACKING_INEFFICIENCY, mo1)
+	    && getCSCHisto(crateID, dmbSlot, h::CSC_DMB_CFEB_DAV_MULTIPLICITY, mo2)) {	   
 	  for (unsigned short i = 1; i < 7; i++) {
 	    float actual_dav_num = mo->GetBinContent(i);
 	    float unpacked_dav_num = mo2->GetBinContent(i);
@@ -182,19 +182,19 @@ namespace cscdqm {
 	mo->Fill(cfeb_dav_num);
       }
 
-      if (getCSCHisto(crateID, dmbSlot, CSC_DMB_CFEB_ACTIVE_VS_DAV, mo)) mo->Fill(cfeb_dav, cfeb_active);
+      if (getCSCHisto(crateID, dmbSlot, h::CSC_DMB_CFEB_ACTIVE_VS_DAV, mo)) mo->Fill(cfeb_dav, cfeb_active);
 
       // Fill Histogram for FEB DAV Efficiency
-      if (getCSCHisto(crateID, dmbSlot, CSC_ACTUAL_DMB_FEB_DAV_RATE, mo)) {
-	if (getCSCHisto(crateID, dmbSlot, CSC_ACTUAL_DMB_FEB_DAV_FREQUENCY, mo1)) {
+      if (getCSCHisto(crateID, dmbSlot, h::CSC_ACTUAL_DMB_FEB_DAV_RATE, mo)) {
+	if (getCSCHisto(crateID, dmbSlot, h::CSC_ACTUAL_DMB_FEB_DAV_FREQUENCY, mo1)) {
 	  for (int i = 1; i < 4; i++) {
 	    float dav_num = mo->GetBinContent(i);
 	    mo1->SetBinContent(i, ((float)dav_num / (float)(DMBEvents) * 100.0));
 	  }
 	  mo1->SetEntries((int)DMBEvents);
 
-	  if (getCSCHisto(crateID, dmbSlot, CSC_DMB_FEB_DAV_UNPACKING_INEFFICIENCY, mof)
-     	      && getCSCHisto(crateID, dmbSlot, CSC_DMB_FEB_DAV_RATE, mo2)) {	   
+	  if (getCSCHisto(crateID, dmbSlot, h::CSC_DMB_FEB_DAV_UNPACKING_INEFFICIENCY, mof)
+     	      && getCSCHisto(crateID, dmbSlot, h::CSC_DMB_FEB_DAV_RATE, mo2)) {	   
 	    for (int i = 1; i < 4; i++) {
 	      float actual_dav_num = mo->GetBinContent(i);
 	      float unpacked_dav_num = mo2->GetBinContent(i);
@@ -221,7 +221,7 @@ namespace cscdqm {
 
       float feb_combination_dav = -1.0;
       // Fill Histogram for Different Combinations of FEB DAV Efficiency
-      if (getCSCHisto(crateID, dmbSlot, CSC_ACTUAL_DMB_FEB_COMBINATIONS_DAV_RATE, mo)) {
+      if (getCSCHisto(crateID, dmbSlot, h::CSC_ACTUAL_DMB_FEB_COMBINATIONS_DAV_RATE, mo)) {
 	if(alct_dav == 0 && tmb_dav == 0 && cfeb_dav == 0) feb_combination_dav = 0.0; // Nothing
 	if(alct_dav >  0 && tmb_dav == 0 && cfeb_dav == 0) feb_combination_dav = 1.0; // ALCT Only
 	if(alct_dav == 0 && tmb_dav >  0 && cfeb_dav == 0) feb_combination_dav = 2.0; // TMB Only
@@ -232,15 +232,15 @@ namespace cscdqm {
 	if(alct_dav >  0 && tmb_dav >  0 && cfeb_dav >  0) feb_combination_dav = 7.0; // ALCT+TMB+CFEB
 	// mo->Fill(feb_combination_dav);
 
-	if (getCSCHisto(crateID, dmbSlot, CSC_ACTUAL_DMB_FEB_COMBINATIONS_DAV_FREQUENCY, mo1)) {
+	if (getCSCHisto(crateID, dmbSlot, h::CSC_ACTUAL_DMB_FEB_COMBINATIONS_DAV_FREQUENCY, mo1)) {
 	  for (int i = 1; i < 9; i++) {
 	    float feb_combination_dav_number = mo->GetBinContent(i);
 	    mo1->SetBinContent(i, ((float)feb_combination_dav_number / (float)(DMBEvents) * 100.0));
 	  }
 	  mo1->SetEntries(DMBEvents);
 	  
-	  if (getCSCHisto(crateID, dmbSlot, CSC_DMB_FEB_COMBINATIONS_DAV_UNPACKING_INEFFICIENCY, mof)
-     	      && getCSCHisto(crateID, dmbSlot, CSC_DMB_FEB_COMBINATIONS_DAV_RATE, mo2)) {	   
+	  if (getCSCHisto(crateID, dmbSlot, h::CSC_DMB_FEB_COMBINATIONS_DAV_UNPACKING_INEFFICIENCY, mof)
+     	      && getCSCHisto(crateID, dmbSlot, h::CSC_DMB_FEB_COMBINATIONS_DAV_RATE, mo2)) {	   
 	    for (int i = 1; i < 9; i++) {
 	      float actual_dav_num = mo->GetBinContent(i);
 	      float unpacked_dav_num = mo2->GetBinContent(i);
@@ -274,7 +274,7 @@ namespace cscdqm {
       unsigned int cscPosition = 0;
       histoProvider->getCSCFromMap(crateID, dmbSlot, cscType, cscPosition);
 
-      if (getCSCHisto(crateID, dmbSlot, CSC_BINCHECK_DATAFLOW_PROBLEMS_TABLE, mo)) {
+      if (getCSCHisto(crateID, dmbSlot, h::CSC_BINCHECK_DATAFLOW_PROBLEMS_TABLE, mo)) {
 	for(int bit = 0; bit < binChecker.nSTATUSES; bit++)
 	  if( chamber->second & (1 << bit) ) {
 	    mo->Fill(0., bit);
@@ -285,10 +285,10 @@ namespace cscdqm {
       
       int anyInputFull = chamber->second & 0x3F;
       if(anyInputFull){
-	if(cscType && cscPosition && getEMUHisto(EMU_CSC_DMB_INPUT_FIFO_FULL, mo)){
+	if(cscType && cscPosition && getEMUHisto(h::EMU_CSC_DMB_INPUT_FIFO_FULL, mo)){
 	  mo->Fill(cscPosition, cscType);
 	}
-	if (getEMUHisto(EMU_DMB_INPUT_FIFO_FULL, mo)) {
+	if (getEMUHisto(h::EMU_DMB_INPUT_FIFO_FULL, mo)) {
 	  mo->Fill(crateID, dmbSlot);
 	}
       }
@@ -296,20 +296,20 @@ namespace cscdqm {
 
       int anyInputTO = (chamber->second >> 7) & 0x3FFF;
       if(anyInputTO){
-	if(cscType && cscPosition && getEMUHisto(EMU_CSC_DMB_INPUT_TIMEOUT, mo)){
+	if(cscType && cscPosition && getEMUHisto(h::EMU_CSC_DMB_INPUT_TIMEOUT, mo)){
 	  mo->Fill(cscPosition, cscType);
 	}
-	if (getEMUHisto(EMU_DMB_INPUT_TIMEOUT, mo)) {
+	if (getEMUHisto(h::EMU_DMB_INPUT_TIMEOUT, mo)) {
 	  mo->Fill(crateID, dmbSlot);
 	}
       }
       
       if (chamber->second & (1 << 22)) {
-	if (getEMUHisto(EMU_DMB_FORMAT_WARNINGS, mo)) {
+	if (getEMUHisto(h::EMU_DMB_FORMAT_WARNINGS, mo)) {
 	  mo->Fill(crateID, dmbSlot);
 	}
   
-	if (cscType && cscPosition && getEMUHisto(EMU_CSC_FORMAT_WARNINGS, mo)) {
+	if (cscType && cscPosition && getEMUHisto(h::EMU_CSC_FORMAT_WARNINGS, mo)) {
 	  mo->Fill(cscPosition, cscType);
 	}
 	
@@ -342,7 +342,7 @@ namespace cscdqm {
 
       bool isCSCError = false;
 
-      if (getCSCHisto(crateID, dmbSlot, CSC_BINCHECK_ERRORSTAT_TABLE, mo)) {
+      if (getCSCHisto(crateID, dmbSlot, h::CSC_BINCHECK_ERRORSTAT_TABLE, mo)) {
 	for(int bit = 5; bit < 24; bit++) {
 	  if( chamber->second & (1 << bit) ) {
 	    isCSCError = true;
@@ -356,22 +356,22 @@ namespace cscdqm {
 
 	//LOG4CPLUS_WARN(logger_,eTag << "Format Errors "<< cscTag << ": 0x" << std::hex << chamber->second);
 
-	if (getEMUHisto(EMU_DMB_FORMAT_ERRORS, mo)) {
+	if (getEMUHisto(h::EMU_DMB_FORMAT_ERRORS, mo)) {
 	  mo->Fill(crateID, dmbSlot);
 	}
 
-	if (!eventDenied  && getEMUHisto(EMU_DMB_UNPACKED_WITH_ERRORS, mo)) {
+	if (!eventDenied  && getEMUHisto(h::EMU_DMB_UNPACKED_WITH_ERRORS, mo)) {
 	  mo->Fill(crateID, dmbSlot);
 	}
 
 	unsigned int cscType   = 0;
 	unsigned int cscPosition = 0;
 	histoProvider->getCSCFromMap(crateID, dmbSlot, cscType, cscPosition );
-	if ( cscType && cscPosition && getEMUHisto(EMU_CSC_FORMAT_ERRORS, mo)) {
+	if ( cscType && cscPosition && getEMUHisto(h::EMU_CSC_FORMAT_ERRORS, mo)) {
 	  mo->Fill(cscPosition, cscType);
 	}
 
-	if (!eventDenied  && cscType && cscPosition && getEMUHisto(EMU_CSC_UNPACKED_WITH_ERRORS, mo)) {
+	if (!eventDenied  && cscType && cscPosition && getEMUHisto(h::EMU_CSC_UNPACKED_WITH_ERRORS, mo)) {
 	  mo->Fill(cscPosition, cscType);
 	}
       }

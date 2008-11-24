@@ -34,27 +34,27 @@ namespace cscdqm {
 
     MonitorObject* mo = 0;
 
-    if (getEMUHisto(EMU_ALL_DDUS_IN_READOUT, mo)) {
+    if (getEMUHisto(h::EMU_ALL_DDUS_IN_READOUT, mo)) {
       mo->Fill(dduID);
     }
 
     std::string dduTag = Form(TAG_DDU, dduID);
 
-    if (getDDUHisto(dduID, DDU_BUFFER_SIZE, mo)) mo->Fill(dduData.size());
+    if (getDDUHisto(dduID, h::DDU_BUFFER_SIZE, mo)) mo->Fill(dduData.size());
 
     // DDU word counter
     int trl_word_count = 0;
     trl_word_count = dduTrailer.wordcount();
-    if (getDDUHisto(dduID, DDU_WORD_COUNT, mo)) mo->Fill(trl_word_count );
+    if (getDDUHisto(dduID, h::DDU_WORD_COUNT, mo)) mo->Fill(trl_word_count );
   
     //LOG4CPLUS_DEBUG(logger_,dduTag << " Trailer Word (64 bits) Count = " << std::dec << trl_word_count);
   
     if (trl_word_count > 0) { 
-      if (getEMUHisto(EMU_ALL_DDUS_EVENT_SIZE, mo)) {
+      if (getEMUHisto(h::EMU_ALL_DDUS_EVENT_SIZE, mo)) {
         mo->Fill(dduID, log10((double)trl_word_count));
       }
     }
-    if (getEMUHisto(EMU_ALL_DDUS_AVERAGE_EVENT_SIZE, mo)) {
+    if (getEMUHisto(h::EMU_ALL_DDUS_AVERAGE_EVENT_SIZE, mo)) {
       mo->Fill(dduID, trl_word_count);
     }
 
@@ -64,7 +64,7 @@ namespace cscdqm {
     // DDU Header bunch crossing number (BXN)
     BXN = dduHeader.bxnum();
     // LOG4CPLUS_WARN(logger_,dduTag << " DDU Header BXN Number = " << std::dec << BXN);
-    if (getDDUHisto(dduID, DDU_BXN, mo)) mo->Fill(BXN);
+    if (getDDUHisto(dduID, h::DDU_BXN, mo)) mo->Fill(BXN);
 
     // L1A number from DDU Header
     int L1ANumber_previous_event = L1ANumbers[dduID];
@@ -73,8 +73,8 @@ namespace cscdqm {
     //LOG4CPLUS_DEBUG(logger_,dduTag << " Header L1A Number = " << std::dec << L1ANumber);
     int L1A_inc = L1ANumber - L1ANumber_previous_event;
     if (!fFirstEvent) {
-      if (getDDUHisto(dduID, DDU_L1A_INCREMENT, mo)) mo->Fill(L1A_inc);
-      if (getEMUHisto(EMU_ALL_DDUS_L1A_INCREMENT, mo)) {
+      if (getDDUHisto(dduID, h::DDU_L1A_INCREMENT, mo)) mo->Fill(L1A_inc);
+      if (getEMUHisto(h::EMU_ALL_DDUS_L1A_INCREMENT, mo)) {
         if      (L1A_inc > 100000){ L1A_inc = 19;}
         else if (L1A_inc > 30000) { L1A_inc = 18;}
         else if (L1A_inc > 10000) { L1A_inc = 17;}
@@ -114,63 +114,63 @@ namespace cscdqm {
     for (int i = 0; i < 15; ++i) {
       if ((dmb_dav_header >> i) & 0x1) {
         dmb_dav_header_cnt++;      
-        if (getDDUHisto(dduID, DDU_DMB_DAV_HEADER_OCCUPANCY_RATE, mo)) {
+        if (getDDUHisto(dduID, h::DDU_DMB_DAV_HEADER_OCCUPANCY_RATE, mo)) {
   	mo->Fill(i + 1);
   	freq = (100.0 * mo->GetBinContent(i + 1)) / nEvents;
-          if (getDDUHisto(dduID, DDU_DMB_DAV_HEADER_OCCUPANCY, mo)) 
+          if (getDDUHisto(dduID, h::DDU_DMB_DAV_HEADER_OCCUPANCY, mo)) 
             mo->SetBinContent(i+1,freq);
         }
-        if (getEMUHisto(EMU_ALL_DDUS_INPUTS_WITH_DATA, mo)) {
+        if (getEMUHisto(h::EMU_ALL_DDUS_INPUTS_WITH_DATA, mo)) {
           mo->Fill(dduID, i);
         }
       }
   
       if( (ddu_connected_inputs >> i) & 0x1 ){
         ddu_connected_inputs_cnt++;
-        if (getDDUHisto(dduID, DDU_DMB_CONNECTED_INPUTS_RATE, mo)) {
+        if (getDDUHisto(dduID, h::DDU_DMB_CONNECTED_INPUTS_RATE, mo)) {
   	mo->Fill(i + 1);
   	freq = (100.0 * mo->GetBinContent(i + 1)) / nEvents;
-  	if (getDDUHisto(dduID, DDU_DMB_CONNECTED_INPUTS, mo))
+  	if (getDDUHisto(dduID, h::DDU_DMB_CONNECTED_INPUTS, mo))
             mo->SetBinContent(i + 1, freq);
         }
-        if (getEMUHisto(EMU_ALL_DDUS_LIVE_INPUTS, mo)) {
+        if (getEMUHisto(h::EMU_ALL_DDUS_LIVE_INPUTS, mo)) {
           mo->Fill(dduID, i);
         }
       }
   
       if( (csc_error_state >> i) & 0x1 ){
-        if (getDDUHisto(dduID, DDU_CSC_ERRORS_RATE, mo)) {
+        if (getDDUHisto(dduID, h::DDU_CSC_ERRORS_RATE, mo)) {
   	mo->Fill(i + 1);
   	freq = (100.0 * mo->GetBinContent(i + 1)) / nEvents;
-  	if (getDDUHisto(dduID, DDU_CSC_ERRORS, mo)) 
+  	if (getDDUHisto(dduID, h::DDU_CSC_ERRORS, mo)) 
             mo->SetBinContent(i + 1, freq);
         }
-        if (getEMUHisto(EMU_ALL_DDUS_INPUTS_ERRORS, mo)) {
+        if (getEMUHisto(h::EMU_ALL_DDUS_INPUTS_ERRORS, mo)) {
           mo->Fill(dduID, i + 2);
         }
       }
   	
       if((csc_warning_state >> i) & 0x1 ){
-        if (getDDUHisto(dduID, DDU_CSC_WARNINGS_RATE, mo)) {
+        if (getDDUHisto(dduID, h::DDU_CSC_WARNINGS_RATE, mo)) {
   	mo->Fill(i + 1);
   	freq = (100.0 * mo->GetBinContent(i + 1)) / nEvents;
-  	if (getDDUHisto(dduID, DDU_CSC_WARNINGS, mo)) mo->SetBinContent(i + 1, freq);
+  	if (getDDUHisto(dduID, h::DDU_CSC_WARNINGS, mo)) mo->SetBinContent(i + 1, freq);
         }
-        if (getEMUHisto(EMU_ALL_DDUS_INPUTS_WARNINGS, mo)) {
+        if (getEMUHisto(h::EMU_ALL_DDUS_INPUTS_WARNINGS, mo)) {
           mo->Fill(dduID, i + 2);
         }
       }
     }
   
-    if (getEMUHisto(EMU_ALL_DDUS_AVERAGE_LIVE_INPUTS, mo)) {
+    if (getEMUHisto(h::EMU_ALL_DDUS_AVERAGE_LIVE_INPUTS, mo)) {
       mo->Fill(dduID, ddu_connected_inputs_cnt);
     }
   
-    if (getEMUHisto(EMU_ALL_DDUS_AVERAGE_INPUTS_WITH_DATA, mo)) {
+    if (getEMUHisto(h::EMU_ALL_DDUS_AVERAGE_INPUTS_WITH_DATA, mo)) {
       mo->Fill(dduID, dmb_dav_header_cnt);
     }
   
-    if (getEMUHisto(EMU_ALL_DDUS_INPUTS_ERRORS, mo)) {
+    if (getEMUHisto(h::EMU_ALL_DDUS_INPUTS_ERRORS, mo)) {
       if (csc_error_state > 0) {
         mo->Fill(dduID, 1); // Any Input
       } else {
@@ -178,7 +178,7 @@ namespace cscdqm {
       }
     }
   
-    if (getEMUHisto(EMU_ALL_DDUS_INPUTS_WARNINGS, mo)) {
+    if (getEMUHisto(h::EMU_ALL_DDUS_INPUTS_WARNINGS, mo)) {
       if (csc_warning_state > 0) {
         mo->Fill(dduID, 1); // Any Input
       } else { 
@@ -186,12 +186,12 @@ namespace cscdqm {
       }
     }
   
-    if (getDDUHisto(dduID, DDU_DMB_DAV_HEADER_OCCUPANCY, mo)) mo->SetEntries(nEvents);
-    if (getDDUHisto(dduID, DDU_DMB_CONNECTED_INPUTS, mo)) mo->SetEntries(nEvents);
-    if (getDDUHisto(dduID, DDU_CSC_ERRORS, mo)) mo->SetEntries(nEvents);
-    if (getDDUHisto(dduID, DDU_CSC_WARNINGS, mo)) mo->SetEntries(nEvents);
-    if (getDDUHisto(dduID, DDU_DMB_ACTIVE_HEADER_COUNT, mo)) mo->Fill(dmb_active_header);
-    if (getDDUHisto(dduID, DDU_DMB_DAV_HEADER_COUNT_VS_DMB_ACTIVE_HEADER_COUNT, mo)) 
+    if (getDDUHisto(dduID, h::DDU_DMB_DAV_HEADER_OCCUPANCY, mo)) mo->SetEntries(nEvents);
+    if (getDDUHisto(dduID, h::DDU_DMB_CONNECTED_INPUTS, mo)) mo->SetEntries(nEvents);
+    if (getDDUHisto(dduID, h::DDU_CSC_ERRORS, mo)) mo->SetEntries(nEvents);
+    if (getDDUHisto(dduID, h::DDU_CSC_WARNINGS, mo)) mo->SetEntries(nEvents);
+    if (getDDUHisto(dduID, h::DDU_DMB_ACTIVE_HEADER_COUNT, mo)) mo->Fill(dmb_active_header);
+    if (getDDUHisto(dduID, h::DDU_DMB_DAV_HEADER_COUNT_VS_DMB_ACTIVE_HEADER_COUNT, mo)) 
       mo->Fill(dmb_active_header,dmb_dav_header_cnt);
   
     // Check binary Error status at DDU Trailer
@@ -200,17 +200,17 @@ namespace cscdqm {
     // LOG4CPLUS_DEBUG(logger_,dduTag << " Trailer Error Status = 0x" << std::hex << trl_errorstat);
     for (int i = 0; i < 32; i++) {
       if ((trl_errorstat >> i) & 0x1) {
-        if (getDDUHisto(dduID, DDU_TRAILER_ERRORSTAT_RATE, mo)) { 
+        if (getDDUHisto(dduID, h::DDU_TRAILER_ERRORSTAT_RATE, mo)) { 
   	mo->Fill(i);
   	double freq = (100.0 * mo->GetBinContent(i + 1)) / nEvents;
-  	if (getDDUHisto(dduID, DDU_TRAILER_ERRORSTAT_FREQUENCY, mo)) 
+  	if (getDDUHisto(dduID, h::DDU_TRAILER_ERRORSTAT_FREQUENCY, mo)) 
             mo->SetBinContent(i+1, freq);
         }
-        if (getDDUHisto(dduID, DDU_TRAILER_ERRORSTAT_TABLE, mo)) 
+        if (getDDUHisto(dduID, h::DDU_TRAILER_ERRORSTAT_TABLE, mo)) 
           mo->Fill(0.,i);
       }
     }
-    if (getEMUHisto(EMU_ALL_DDUS_TRAILER_ERRORS, mo)) {
+    if (getEMUHisto(h::EMU_ALL_DDUS_TRAILER_ERRORS, mo)) {
       if (trl_errorstat) {
         mo->Fill(dduID, 1); // Any Error
         for (int i = 0; i < 32; i++) {	
@@ -223,8 +223,8 @@ namespace cscdqm {
       }
     }
   	
-    if (getDDUHisto(dduID, DDU_TRAILER_ERRORSTAT_TABLE, mo)) mo->SetEntries(nEvents);
-    if (getDDUHisto(dduID, DDU_TRAILER_ERRORSTAT_FREQUENCY, mo)) mo->SetEntries(nEvents);
+    if (getDDUHisto(dduID, h::DDU_TRAILER_ERRORSTAT_TABLE, mo)) mo->SetEntries(nEvents);
+    if (getDDUHisto(dduID, h::DDU_TRAILER_ERRORSTAT_FREQUENCY, mo)) mo->SetEntries(nEvents);
   
     // Unpack all founded CSC
     std::vector<CSCEventData> chamberDatas;
@@ -238,7 +238,7 @@ namespace cscdqm {
       processCSC(chamberDatas[i], dduID);
     }
   
-    if (getDDUHisto(dduID, DDU_DMB_UNPACKED_VS_DAV, mo)) mo->Fill(dmb_active_header, unpackedDMBcount);
+    if (getDDUHisto(dduID, h::DDU_DMB_UNPACKED_VS_DAV, mo)) mo->Fill(dmb_active_header, unpackedDMBcount);
   
     fFirstEvent = false;
   

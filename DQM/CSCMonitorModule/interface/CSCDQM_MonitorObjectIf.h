@@ -40,6 +40,7 @@ namespace cscdqm {
       virtual double GetBinContent(const int binX, int binY) = 0;
       virtual void SetAxisRange(const double from, const double to, const std::string axis) = 0;
       virtual void setAxisTitle(const std::string title, const int axisN) = 0;
+      virtual TObject *getRefRootObject(void) const = 0;
 
   };
 

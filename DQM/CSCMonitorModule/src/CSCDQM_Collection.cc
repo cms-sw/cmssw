@@ -19,7 +19,7 @@
 
 namespace cscdqm {
 
-  Collection::Collection(HistoProvider* p_histoProvider) {
+  Collection::Collection(HistoProvider* p_histoProvider) : exprOnDemand(REGEXP_ONDEMAND) {
     histoProvider = p_histoProvider;
   }
 
@@ -95,6 +95,9 @@ namespace cscdqm {
 
           std::string name   = hp[XML_BOOK_HISTO_NAME];
           std::string prefix = hp[XML_BOOK_HISTO_PREFIX];
+
+          // Check if this histogram is an ON DEMAND histogram?
+          hp[XML_BOOK_ONDEMAND] = (Utility::regexMatch(exprOnDemand, name) ? XML_BOOK_ONDEMAND_TRUE : XML_BOOK_ONDEMAND_FALSE );
 
           CoHistoMap::iterator it = collection.find(prefix);
           if (it == collection.end()) {
@@ -238,10 +241,10 @@ namespace cscdqm {
   
     while (pos != std::string::npos) {
       std::string label_pair = tmp.substr(0, pos);
-      tmp.replace(0,pos+1,"");
+      tmp.replace(0, pos + 1, "");
       if (label_pair.find("=") != std::string::npos) {
-        int nbin = strtol(label_pair.substr(0,label_pair.find("=")).c_str(),  &stopstring, 10);
-        std::string label = label_pair.substr(label_pair.find("=")+1, label_pair.length());
+        int nbin = strtol(label_pair.substr(0, label_pair.find("=")).c_str(), &stopstring, 10);
+        std::string label = label_pair.substr(label_pair.find("=") + 1, label_pair.length());
         while (label.find("\'") != std::string::npos) {
           label.erase(label.find("\'"),1);
         }
@@ -261,9 +264,25 @@ namespace cscdqm {
 
   void Collection::book(const CoHisto& hs) const {
     for (CoHisto::const_iterator i = hs.begin(); i != hs.end(); i++) {
-      book(i->second);
+      CoHistoProps h = i->second;
+      if (h[XML_BOOK_ONDEMAND] == XML_BOOK_ONDEMAND_FALSE) {
+        book(i->second);
+      }
     }
   }
+
+  /*
+  void Collection::bookOnDemand(const std::string& prefix, const HistoName& name, const int addId) const {
+    CoHistoMap::const_iterator i = collection.find(prefix);
+    if (i != collection.end()) {
+      CoHisto hs  = i->second;
+      CoHisto::const_iterator j = hs.find(name);
+      if (j != hs.end()) { 
+        book(j->second, addId);
+      }
+    }
+  }
+  */
 
   void Collection::book(const CoHistoProps& h) const {
 
@@ -271,10 +290,15 @@ namespace cscdqm {
       std::string name, type, title, s;
       int i1, i2, i3;
       double d1, d2, d3, d4, d5, d6;
+      bool ondemand = (getHistoValue(h, XML_BOOK_ONDEMAND, s, XML_BOOK_ONDEMAND_FALSE) == XML_BOOK_ONDEMAND_TRUE ? true : false);
       
       if (!checkHistoValue(h, XML_BOOK_HISTO_NAME, name))   { throw Exception("Histogram does not have name!"); }
       if (!checkHistoValue(h, XML_BOOK_HISTO_TYPE, type))   { throw Exception("Histogram does not have type!"); }
       if (!checkHistoValue(h, XML_BOOK_HISTO_TITLE, title)) { title = name; }
+
+      if (ondemand) {
+         /// TODO: Add on demand formating (reuse Utility class) 
+      }
 
       if (type == "h1") {
         me = histoProvider->book1D(name, title,

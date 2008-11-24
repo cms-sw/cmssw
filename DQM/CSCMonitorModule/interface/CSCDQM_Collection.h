@@ -49,7 +49,11 @@ namespace cscdqm {
   static const char XML_BOOK_HISTO_PREFIX[]   =  "Prefix";
   static const char XML_BOOK_HISTO_TYPE[]     =  "Type";
   static const char XML_BOOK_HISTO_TITLE[]    =  "Title";
+  static const char XML_BOOK_ONDEMAND[]       =  "OnDemand";
+  static const char XML_BOOK_ONDEMAND_TRUE[]  =  "1";
+  static const char XML_BOOK_ONDEMAND_FALSE[] =  "0";
 
+  static const char REGEXP_ONDEMAND[]         =  "^.*%d.*$";
   static const int  DEF_HISTO_COLOR           =  48;
 
   /**
@@ -88,6 +92,8 @@ namespace cscdqm {
       
       HistoProvider* histoProvider;
       CoHistoMap     collection;
+
+      boost::regex exprOnDemand;
 
   };
 

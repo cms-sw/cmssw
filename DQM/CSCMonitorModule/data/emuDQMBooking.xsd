@@ -9,6 +9,10 @@
 				<xs:element name="Histogram" type="HistogramType" minOccurs="0" maxOccurs="unbounded"/>
 			</xs:sequence>
 		</xs:complexType>
+                <xs:unique name="UniqueHistogramName">
+                        <xs:selector xpath="Histogram/Name"/>
+                        <xs:field    xpath="."/>
+                </xs:unique>
 	</xs:element>
 	
 	<xs:complexType name="DefinitionType">
@@ -23,7 +27,7 @@
 		<xs:complexContent>
 			<xs:extension base="BaseHistogramType">
 				<xs:sequence>
-					<xs:element name="Name" type="xs:ID"/>
+					<xs:element name="Name" type="xs:string"/>
 				</xs:sequence>
 				<xs:attribute name="ref" type="xs:IDREF" use="optional"/>
 			</xs:extension>

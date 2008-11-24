@@ -19,6 +19,8 @@
 #ifndef CSCDQM_HistoNames_H
 #define CSCDQM_HistoNames_H 
 
+namespace h {
+
 const HistoName CSC_ACTUAL_DMB_CFEB_DAV_FREQUENCY = "Actual_DMB_CFEB_DAV_Frequency";
 const HistoName CSC_ACTUAL_DMB_CFEB_DAV_MULTIPLICITY_FREQUENCY = "Actual_DMB_CFEB_DAV_multiplicity_Frequency";
 const HistoName CSC_ACTUAL_DMB_CFEB_DAV_MULTIPLICITY_RATE = "Actual_DMB_CFEB_DAV_multiplicity_Rate";
@@ -186,16 +188,16 @@ const HistoName EMU_CSC_FORMAT_WARNINGS_FRACT = "CSC_Format_Warnings_Fract";
 const HistoName EMU_CSC_L1A_OUT_OF_SYNC = "CSC_L1A_out_of_sync";
 const HistoName EMU_CSC_L1A_OUT_OF_SYNC_FRACT = "CSC_L1A_out_of_sync_Fract";
 const HistoName EMU_CSC_REPORTING = "CSC_Reporting";
-const HistoName EMU_CSC_STATS_CFEB_BWORDS = "0";
-const HistoName EMU_CSC_STATS_FIFOFULL_ERR = "0";
-const HistoName EMU_CSC_STATS_FORMAT_ERR = "0";
-const HistoName EMU_CSC_STATS_INPUTTO_ERR = "0";
-const HistoName EMU_CSC_STATS_L1SYNC_ERR = "0";
-const HistoName EMU_CSC_STATS_OCCUPANCY = "0";
-const HistoName EMU_CSC_STATS_SUMMARY = "0";
-const HistoName EMU_CSC_STATS_WO_ALCT = "0";
-const HistoName EMU_CSC_STATS_WO_CFEB = "0";
-const HistoName EMU_CSC_STATS_WO_CLCT = "0";
+const HistoName EMU_CSC_STATS_CFEB_BWORDS = HISTO_SKIP;
+const HistoName EMU_CSC_STATS_FIFOFULL_ERR = HISTO_SKIP;
+const HistoName EMU_CSC_STATS_FORMAT_ERR = HISTO_SKIP;
+const HistoName EMU_CSC_STATS_INPUTTO_ERR = HISTO_SKIP;
+const HistoName EMU_CSC_STATS_L1SYNC_ERR = HISTO_SKIP;
+const HistoName EMU_CSC_STATS_OCCUPANCY = HISTO_SKIP;
+const HistoName EMU_CSC_STATS_SUMMARY = HISTO_SKIP;
+const HistoName EMU_CSC_STATS_WO_ALCT = HISTO_SKIP;
+const HistoName EMU_CSC_STATS_WO_CFEB = HISTO_SKIP;
+const HistoName EMU_CSC_STATS_WO_CLCT = HISTO_SKIP;
 const HistoName EMU_CSC_UNPACKED = "CSC_Unpacked";
 const HistoName EMU_CSC_UNPACKED_FRACT = "CSC_Unpacked_Fract";
 const HistoName EMU_CSC_UNPACKED_WITH_ERRORS = "CSC_Unpacked_with_errors";
@@ -226,10 +228,12 @@ const HistoName EMU_DMB_WO_CFEB_FRACT = "DMB_wo_CFEB_Fract";
 const HistoName EMU_DMB_WO_CLCT = "DMB_wo_CLCT";
 const HistoName EMU_DMB_WO_CLCT_FRACT = "DMB_wo_CLCT_Fract";
 const HistoName EMU_PHYSICS_EMU = "reportSummaryMap";
-const HistoName EMU_PHYSICS_ME1 = "Summary_ME1";
-const HistoName EMU_PHYSICS_ME2 = "Summary_ME2";
-const HistoName EMU_PHYSICS_ME3 = "Summary_ME3";
-const HistoName EMU_PHYSICS_ME4 = "Summary_ME4";
+const HistoName EMU_PHYSICS_ME1 = "Physics_ME1";
+const HistoName EMU_PHYSICS_ME2 = "Physics_ME2";
+const HistoName EMU_PHYSICS_ME3 = "Physics_ME3";
+const HistoName EMU_PHYSICS_ME4 = "Physics_ME4";
+
+}
 
 #endif
 

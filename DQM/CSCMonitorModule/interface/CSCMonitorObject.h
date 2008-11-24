@@ -19,8 +19,6 @@
 #ifndef CSCMonitorObject_H
 #define CSCMonitorObject_H
 
-#include <TH1.h>
-
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQM/CSCMonitorModule/interface/CSCDQM_MonitorObjectIf.h"
 
@@ -80,6 +78,10 @@ class CSCMonitorObject : public cscdqm::MonitorObject {
     void setAxisTitle(const std::string title, const int axisN) { 
       me->setAxisTitle(title, axisN);  
     } 
+
+    TObject *getRefRootObject(void) const {
+      return me->getRefRootObject();
+    }
 
 };
 

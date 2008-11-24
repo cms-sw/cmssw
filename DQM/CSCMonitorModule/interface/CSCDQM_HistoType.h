@@ -25,6 +25,9 @@
 namespace cscdqm {
 
   typedef char* HistoName; 
+  namespace h {
+    const HistoName HISTO_SKIP = "0";
+  }
 
   static const char TAG_EMU[] = "EMU";
   static const char TAG_DDU[] = "DDU_%d";
@@ -42,17 +45,14 @@ namespace cscdqm {
     private:
 
       HistoName   id;
-      bool        ref;
 
     public:
 
-      HistoType(const HistoName& p_id, const bool p_ref = false) {
+      HistoType(const HistoName& p_id) {
         id  = p_id;
-        ref = p_ref;
       }
       
       const HistoName&  getId() const { return id;  }
-      const bool        isRef() const { return ref; }
 
       const std::string getUID() const {
         std::string uid(getTag());
@@ -68,7 +68,6 @@ namespace cscdqm {
 
       const HistoType& operator= (const HistoType& t) {
         id  = t.getId();
-        ref = t.isRef();
         return *this;
       }
 
@@ -92,7 +91,7 @@ namespace cscdqm {
 
     public:
 
-      EMUHistoType(const HistoName& p_id, const bool p_ref = false) : HistoType(p_id, p_ref) { }
+      EMUHistoType(const HistoName& p_id) : HistoType(p_id) { }
       const std::string getTag() const { return TAG_EMU; }
 
   };
@@ -109,7 +108,7 @@ namespace cscdqm {
 
     public:
 
-      DDUHistoType(const HistoName& p_id, const unsigned int p_dduId, const bool p_ref = false) : HistoType(p_id, p_ref) {
+      DDUHistoType(const HistoName& p_id, const unsigned int p_dduId) : HistoType(p_id) {
         dduId = p_dduId;
       }
 
@@ -133,8 +132,8 @@ namespace cscdqm {
 
     public:
 
-      CSCHistoType(const HistoName& p_id, const unsigned int p_crateId, const unsigned int p_dmbId, const unsigned int p_addId, const bool p_ref = false) : 
-        HistoType(p_id, p_ref) {
+      CSCHistoType(const HistoName& p_id, const unsigned int p_crateId, const unsigned int p_dmbId, const unsigned int p_addId) : 
+        HistoType(p_id) {
         crateId = p_crateId;
         dmbId = p_dmbId;
         addId = p_addId;
@@ -156,7 +155,7 @@ namespace cscdqm {
 
     public:
 
-      ParHistoType(const HistoName& p_id, const bool p_ref = false) : HistoType(p_id, p_ref) { }
+      ParHistoType(const HistoName& p_id) : HistoType(p_id) { }
       const std::string getTag() const { return TAG_PAR; }
 
   };

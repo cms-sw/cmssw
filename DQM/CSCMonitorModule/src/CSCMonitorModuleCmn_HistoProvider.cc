@@ -20,67 +20,101 @@
 
 const bool CSCMonitorModuleCmn::getHisto(const cscdqm::HistoType& histo, cscdqm::MonitorObject*& mo) {
 
+  if (histo.getId() == cscdqm::h::HISTO_SKIP)         { return false; }
   if (typeid(histo)  == typeid(cscdqm::CSCHistoType)) { return false; }
-  if (histo.isRef()) return false;
 
-  /// Check if MO is already in the cache. If so - return it and exit
+  // Check if MO is already in the cache. If so - return it and exit
   MOCacheMap::const_iterator i = moCache.find(histo.getUID());
   if (i != moCache.end()) {
     mo = i->second;
     return true;
   }
 
-  /// Take a type and initialize stuff
+  // Take a type and initialize stuff
   const std::type_info& t = typeid(histo);
   std::string path("");
 
-  /// Construct appropriate path (depends on histo type)
-  if (t == typeid(cscdqm::EMUHistoType)) {
-    path.append(DIR_SUMMARY);
-  } else
-  if (t == typeid(cscdqm::DDUHistoType)) {
+  // Construct appropriate path (depends on histo type)
+  // EMU Level
+  if (t == EMUHistoT) {
+
+    if (histo.getId() == cscdqm::h::EMU_PHYSICS_EMU) {
+      path.append(DIR_EVENTINFO);
+    } else {
+      path.append(DIR_SUMMARY);
+    }
+
+  // DDU Level
+  } else if (t == DDUHistoT) {
+
     path.append(DIR_DDU);
     path.append(histo.getTag());
     path.append("/");
-  } else
-  if (t == typeid(cscdqm::CSCHistoType)) {
+
+  // CSC Level
+  } else if (t == CSCHistoT) {
+
     path.append(DIR_CSC);
     path.append(histo.getTag());
     path.append("/");
-  } else
-    return false;
+
+  // Parameter Level
+  } else if (t == ParHistoT) {
+
+    path.append(DIR_SUMMARY_CONTENTS);
+
+  // Other? Exit
+  } else return false;
 
   std::string id(path);
   id.append(histo.getId());
 
-  /// Get it from DBE
+  // Get MonitorElement from DBE
   MonitorElement* me = dbe->get(id);
+
+  // If MonitorElement was not found
   if (me == NULL) {
-    if (t == typeid(cscdqm::EMUHistoType)) {
+
+    // For EMU Level - report Error and return false
+    if (t == EMUHistoT) {
+
       LOG_INFO << "MO [" << t.name() << "] not found: " << histo.getUID() << " in path " << id;
       return false;
-    } else
-    if (t == typeid(cscdqm::DDUHistoType)) {
+
+    // For DDU level - book histograms
+    } else if (t == DDUHistoT) {
+
       dbe->setCurrentFolder(path);
-      LOG_INFO << "Booking DDU histograms in " << path;
       collection->book("DDU");
-    } else
-    if (t == typeid(cscdqm::CSCHistoType)) {
+
+    // For CSC Level - book histograms
+    } else if (t == CSCHistoT) {
+
       dbe->setCurrentFolder(path);
-      LOG_INFO << "Booking CSC histograms in " << path;
       collection->book("CSC");
-    } else
-      return false;
+
+    // For Parameter Level - book histogram
+    } else if (t == ParHistoT) {
+
+      dbe->setCurrentFolder(path);
+      bookFloat(histo.getId());
+
+    // Other? Exit 
+    } else return false;
+
+    // Try getting again, if null again - report and exit
     me = dbe->get(id);
     if (me == NULL) {
       LOG_INFO << "MO [" << t.name() << "] not found: " << histo.getUID() << " in path " << id;
       return false;
     }
+
   }
 
+  // Put MonitorElement to cache for the future fast retrieval
   moCache[histo.getUID()] = new CSCMonitorObject(me);
 
-  /// Put to cache for the future
+  // get it from cache and return
   mo = moCache[histo.getUID()];
 
   return true;

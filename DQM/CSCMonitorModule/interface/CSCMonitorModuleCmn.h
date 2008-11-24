@@ -52,11 +52,16 @@ static const char PARAM_BOOKING_FILE[]   = "BookingFile";
 
 static const char INPUT_TAG_LABEL[]      = "source";
 
-static const char DIR_ROOT[]             = "CSC/";
 static const char DIR_SUMMARY[]          = "CSC/Summary/";
 static const char DIR_DDU[]              = "CSC/DDU/";
 static const char DIR_CSC[]              = "CSC/Chamber/";
 static const char DIR_EVENTINFO[]        = "CSC/EventInfo/";
+static const char DIR_SUMMARY_CONTENTS[] = "CSC/EventInfo/reportSummaryContents/";
+
+static const std::type_info& EMUHistoT   = typeid(cscdqm::EMUHistoType);
+static const std::type_info& DDUHistoT   = typeid(cscdqm::DDUHistoType);
+static const std::type_info& CSCHistoT   = typeid(cscdqm::CSCHistoType);
+static const std::type_info& ParHistoT   = typeid(cscdqm::ParHistoType);
 
 typedef std::map<std::string, CSCMonitorObject*> MOCacheMap;
 typedef std::bitset<32>                          Bitset32;
@@ -74,11 +79,13 @@ class CSCMonitorModuleCmn: public edm::EDAnalyzer, public cscdqm::HistoProvider 
 
   private:
 
-    cscdqm::Collection     *collection;
-    cscdqm::EventProcessor *processor;
-    DQMStore               *dbe;
-    edm::InputTag          inputTag;
-    MOCacheMap             moCache;
+    cscdqm::Collection        *collection;
+    cscdqm::EventProcessor    *processor;
+    DQMStore                  *dbe;
+    edm::InputTag             inputTag;
+    MOCacheMap                moCache;
+
+    cscdqm::EffParametersType effParams;
 
     /** Pointer to crate mapping from database **/
     const CSCCrateMap* pcrate;
