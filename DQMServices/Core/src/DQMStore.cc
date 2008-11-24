@@ -5,7 +5,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/JobReport.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "classlib/utils/RegexpMatch.h"
 #include "classlib/utils/Regexp.h"
 #include "classlib/utils/StringOps.h"
@@ -143,8 +142,6 @@ DQMStore::DQMStore(const edm::ParameterSet &pset)
   verbose_ = pset.getUntrackedParameter<int>("verbose", 0);
   if (verbose_ > 0)
     std::cout << "DQMStore: verbosity set to " << verbose_ << std::endl;
-
-  verboseQT_ = pset.getUntrackedParameter<bool>("verboseQT", true);
   
   collateHistograms_ = pset.getUntrackedParameter<bool>("collateHistograms", false);
   if (collateHistograms_)
@@ -1823,8 +1820,8 @@ DQMStore::useQTest(const std::string &dir, const std::string &qtname)
 }
 
 /// attach quality test <qc> to monitor elements matching <pattern>.
-void
-DQMStore::useQTestByMatch(const std::string &pattern, const std::string &qtname, bool first_qtests )
+int 
+DQMStore::useQTestByMatch(const std::string &pattern, const std::string &qtname)
 {
   QCriterion *qc = getQCriterion(qtname);
   if (! qc)
@@ -1854,16 +1851,15 @@ DQMStore::useQTestByMatch(const std::string &pattern, const std::string &qtname,
   MEMap::iterator mi = data_.begin();
   MEMap::iterator me = data_.end();
 
-  unsigned int match_cases=0; // number of matched cases
+  int cases=0;
   for ( ; mi != me; ++mi)
-    if (rx->match(mi->first)){++match_cases; mi->second.addQReport(qts.second);}
+    if (rx->match(mi->first)){
+    ++cases; 
+    mi->second.addQReport(qts.second);
+   }
 
-  if (verboseQT_ && first_qtests && match_cases==0 ){
-    edm::LogWarning ("DQMStore::useQTestByMatch")
-    << " ==>> Invalid qtest xml: Link '"<< pattern <<"', QTest '"<< qtname << "'  - no matching ME! <<== ";
-    
-  }
-
+  //return the number of matched cases
+  return cases;
 }
 /// run quality tests (also finds updated contents in last monitoring cycle,
 /// including newly added content) 

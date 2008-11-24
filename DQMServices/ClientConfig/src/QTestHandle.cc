@@ -2,8 +2,8 @@
  *
  *  Implementation of  QTestHandle
  *
- *  $Date: 2008/05/14 12:38:47 $
- *  $Revision: 1.10 $
+ *  $Date: 2008/11/19 20:39:55 $
+ *  $Revision: 1.11 $
  *  \author Ilaria Segoni
  */
 
@@ -12,8 +12,9 @@
 #include "DQMServices/ClientConfig/interface/QTestConfigurationParser.h"
 #include "DQMServices/ClientConfig/interface/QTestConfigure.h"
 #include "DQMServices/ClientConfig/interface/QTestStatusChecker.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-bool first_qtests=true;
+bool firstTime=true;
 
 QTestHandle::QTestHandle()
 {
@@ -56,24 +57,30 @@ bool QTestHandle::configureTests(const std::string &configFile, DQMStore *bei)
   return false;
 }
 
-void QTestHandle::attachTests(DQMStore *bei)
+void QTestHandle::attachTests(DQMStore *bei, bool verboseQT)
 {
 
   std::map<std::string, std::vector<std::string> > mapMeToTests
     = qtParser->meToTestsList();
-
+ 
+ 
   for (std::map<std::string, std::vector<std::string> >::iterator itr = mapMeToTests.begin();
        itr != mapMeToTests.end();
        ++itr)
   {
     const std::string &meName = itr->first;
     const std::vector<std::string> &tests = itr->second;
+    
     for (std::vector<std::string>::const_iterator testsItr = tests.begin();
-	 testsItr != tests.end(); ++testsItr)
-      bei->useQTestByMatch(meName, *testsItr, first_qtests);
+	 testsItr != tests.end(); ++testsItr){
+      int cases =  bei->useQTestByMatch(meName, *testsItr);
+      if (firstTime && verboseQT && cases == 0)
+       edm::LogWarning ("QTestHandle::attachTests")
+       << " ==>> Invalid qtest xml: Link '"<< meName 
+       <<"', QTest '"<< *testsItr << "'  - no matching ME! <<== ";
+      }
   }
-
-  first_qtests=false;
+  firstTime = false;
 }
 
 std::pair<std::string,std::string>

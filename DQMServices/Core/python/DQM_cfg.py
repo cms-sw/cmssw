@@ -1,11 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-DQMStore = cms.Service("DQMStore",
-    referenceFileName = cms.untracked.string(''),
-    verbose = cms.untracked.int32(0),
-    collateHistograms = cms.untracked.bool(False),
-    verboseQT = cms.untracked.bool(True)
-)
+# needed backend
+from DQMServices.Core.DQMStore_cfg import *
 
 DQM = cms.Service("DQM",
     debug = cms.untracked.bool(False),
