@@ -11,14 +11,17 @@
 <use name=CondCore/DBOutputService>
 <use name=CalibMuon/DTDigiSync>
 <use name=CalibMuon/DTCalibration>
+<use name=DQM/DTMonitorModule>
 <use name=boost>
 <use name=rootgraphics>
 
 <export>
- <lib name=DQMDTMonitorModule>
+ <lib name=DQMDTMonitorClient>
  <use name=FWCore/Framework>
  <use name=FWCore/MessageLogger>
  <use name=DataFormats/FEDRawData>
+
+
  <use name=DQMServices/Core>
  <use name=DataFormats/DTDigi>
  <use name=CondFormats/DTObjects>
