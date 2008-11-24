@@ -23,9 +23,17 @@
 // modifications by Walter Brown. This version is based on the
 // ValuePtr found in the Fermilab ZOOM library.
 //
+//
+// Supports the following syntax
+//   value_ptr<T> ptr(...);
+//   if (ptr) { ...
+// Where the conditional will evaluate as true if and only if the
+// pointer the value_ptr contains is not null.
+//
 // ----------------------------------------------------------------------
 
 #include <algorithm>  // for std::swap()
+#include <memory>
 
 namespace edm
 {
@@ -110,6 +118,37 @@ namespace edm
       return *this;
     }
 
+    // --------------------------------------------------
+    // Copy-like construct/assign from auto_ptr<>:
+    // --------------------------------------------------
+
+    value_ptr( std::auto_ptr<T> orig ) :
+      myP(orig.release())
+    { }
+
+    value_ptr &  operator = ( std::auto_ptr<T> orig )  
+    {
+      value_ptr<T>  temp( orig );
+      swap(temp);
+      return *this;
+    }
+
+  // The following typedef, function, and operator definition
+  // support the following syntax:
+  //   value_ptr<T> ptr(..);
+  //   if (ptr) { ...
+  // Where the conditional will evaluate as true if and only if the
+  // pointer value_ptr contains is not null.
+  private:
+    typedef void (value_ptr::*bool_type)() const;
+    void this_type_does_not_support_comparisons() const {}
+
+  public:
+    operator bool_type() const {
+      return myP != 0 ? 
+        &value_ptr<T>::this_type_does_not_support_comparisons : 0;
+    }
+
   private:
 
     // --------------------------------------------------
@@ -145,6 +184,34 @@ namespace edm
   void  
   swap(  value_ptr<T> & vp1, value_ptr<T> & vp2 ) { vp1.swap( vp2 ); }
 
+  // Do not allow nonsensical comparisons that the bool_type
+  // conversion operator definition above would otherwise allow.
+  // The function call inside the next 4 operator definitions is
+  // private, so compilation will fail if there is an attempt to
+  // instantiate these 4 operators.
+  template <typename T, typename U> 
+  bool operator==(const value_ptr<T>& lhs,const U& rhs) {
+    lhs.this_type_does_not_support_comparisons();	
+    return false;	
+  }
+
+  template <typename T, typename U> 
+  bool operator!=(const value_ptr<T>& lhs,const U& rhs) {
+    lhs.this_type_does_not_support_comparisons();	
+    return false;	
+  }
+
+  template <typename T, typename U> 
+  bool operator==(const U& lhs,const value_ptr<T>& rhs) {
+    rhs.this_type_does_not_support_comparisons();	
+    return false;	
+  }
+
+  template <typename T, typename U> 
+  bool operator!=(const U& lhs,const value_ptr<T>& rhs) {
+    rhs.this_type_does_not_support_comparisons();	
+    return false;	
+  }
 }
 
 
