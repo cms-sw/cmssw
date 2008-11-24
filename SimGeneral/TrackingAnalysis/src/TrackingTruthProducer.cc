@@ -203,7 +203,7 @@ void TrackingTruthProducer::mergeBremsstrahlung()
 
             // Add the electron segments from the electron daughter
             // track must not be the same particle as daughter
-            if (track != daughter)
+            // if (track != daughter)
                 for (TrackingParticle::g4t_iterator isegment = daughter->g4Track_begin(); isegment != daughter->g4Track_end(); ++isegment)
                 {
                     track->addG4Track(*isegment);
@@ -415,7 +415,7 @@ void TrackingTruthProducer::createTrackingTruth()
                     // Push the tp in to the collection
                     trackingParticles_->push_back(trackingParticle);
                     // Vetoed the simTrack
-                    vetoedTracks.insert( make_pair(simTrackIndex, trackingParticleIndex) );
+                    // vetoedTracks.insert( make_pair(simTrackIndex, trackingParticleIndex) );
                     
                     cout << "Adding primaty tp with index : " << trackingParticleIndex << std::endl;
                 }
