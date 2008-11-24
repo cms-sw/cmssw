@@ -685,7 +685,7 @@ bool SiPixelTemplate::pushfile(const SiPixelTemplateDBObject& dbobject)
 // Read-in a header string first and print it    
     
 		SiPixelTemplateDBObject::char2float temp;
-		for (int i=0; i<20; ++i) {
+		for (i=0; i<20; ++i) {
 			temp.f = db.sVector()[db.index()];
 			theCurrentTemp.head.title[4*i] = temp.c[0];
 			theCurrentTemp.head.title[4*i+1] = temp.c[1];
@@ -695,19 +695,18 @@ bool SiPixelTemplate::pushfile(const SiPixelTemplateDBObject& dbobject)
 		}
 		theCurrentTemp.head.title[79] = '\0';
 		LOGINFO("SiPixelTemplate") << "Loading Pixel Template File - " << theCurrentTemp.head.title << ENDL;
-    
+		    
 // next, the header information     
     
 		db >> theCurrentTemp.head.ID >> theCurrentTemp.head.NBy >> theCurrentTemp.head.NByx >> theCurrentTemp.head.NBxx
 			 >> theCurrentTemp.head.NFy >> theCurrentTemp.head.NFyx >> theCurrentTemp.head.NFxx >> theCurrentTemp.head.Bbias 
 			 >> theCurrentTemp.head.Fbias >> theCurrentTemp.head.temperature >> theCurrentTemp.head.fluence >> theCurrentTemp.head.qscale
 			 >> theCurrentTemp.head.s50 >> theCurrentTemp.head.templ_version;
-		
+
 		if(db.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file, no template load" << ENDL; return false;}
-		
-		//		LOGINFO("SiPixelTemplate") << "Template ID = " << theCurrentTemp.head.ID << ", NBy = " << theCurrentTemp.head.NBy << ", NByx = " << theCurrentTemp.head.NByx
-			std::cout << "Template ID = " << theCurrentTemp.head.ID << ", NBy = " << theCurrentTemp.head.NBy << ", NByx = " << theCurrentTemp.head.NByx 
-		 << ", NBxx = " << theCurrentTemp.head.NBxx << ", NFy = " << theCurrentTemp.head.NFy << ", NFyx = " << theCurrentTemp.head.NFyx
+
+		LOGINFO("SiPixelTemplate") << "Template ID = " << theCurrentTemp.head.ID << ", NBy = " << theCurrentTemp.head.NBy << ", NByx = " << theCurrentTemp.head.NBy
+     << ", NBxx = " << theCurrentTemp.head.NBxx << ", NFy = " << theCurrentTemp.head.NFy << ", NFyx = " << theCurrentTemp.head.NFyx
 		 << ", NFxx = " << theCurrentTemp.head.NFxx << ", Barrel bias voltage " << theCurrentTemp.head.Bbias << ", FPix bias voltage " << theCurrentTemp.head.Fbias << ", temperature "
 		 << theCurrentTemp.head.temperature << ", fluence " << theCurrentTemp.head.fluence << ", Q-scaling factor " << theCurrentTemp.head.qscale
 		 << ", 1/2 threshold " << theCurrentTemp.head.s50 << ", Template Version " << theCurrentTemp.head.templ_version << ENDL;    

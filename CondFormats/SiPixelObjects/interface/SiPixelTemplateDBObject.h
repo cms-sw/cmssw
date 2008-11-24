@@ -12,7 +12,7 @@
 
 class SiPixelTemplateDBObject {
 public:
-	SiPixelTemplateDBObject():index_(0),maxIndex_(0),numOfTempl_(1),isValid_(true),sVector_(0) {
+	SiPixelTemplateDBObject():index_(0),maxIndex_(0),numOfTempl_(1),isInvalid_(false),sVector_(0) {
 		sVector_.reserve(1000000);
 	}
 	virtual ~SiPixelTemplateDBObject(){}
@@ -26,6 +26,7 @@ public:
 	//- Fills interger from dbobject
 	SiPixelTemplateDBObject& operator>>( int& i)
 		{
+			isInvalid_ = false;
 			if(index_<=maxIndex_) {
 				i = (int) (*this).sVector_[index_];
 				index_++;
@@ -37,6 +38,7 @@ public:
 	//- Fills float from dbobject
 	SiPixelTemplateDBObject& operator>>( float& f)
 		{
+			isInvalid_ = false;
 			if(index_<=maxIndex_) {
 				f = (*this).sVector_[index_];
 				index_++;
@@ -47,8 +49,8 @@ public:
 		}
 
 	//- Functions to monitor integrity of dbobject
-	void setInvalid() {isValid_ = false;}
-	bool fail() {return isValid_;}
+	void setInvalid() {isInvalid_ = true;}
+	bool fail() {return isInvalid_;}
 	
 	//- Accessor functions
 	int index() {return index_;}
@@ -95,7 +97,7 @@ private:
   int index_;
 	int maxIndex_;
 	int numOfTempl_;
-	bool isValid_;
+	bool isInvalid_;
 	std::vector<float> sVector_;
 	std::map<unsigned int,short> templ_ID;
 		};//end SiPixelTemplateDBObject
