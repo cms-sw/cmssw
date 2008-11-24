@@ -5,6 +5,7 @@
 <use name=CalibFormats/SiStripObjects>
 <use name=CondFormats/SiStripObjects>
 <use name=CondFormats/DataRecord>
+<use name=CondFormats/RunInfo>
 <use name=CommonTools/TrackerMap>
 <use name=CalibTracker/Records>
 <use name=DQM/TrackerCommon>
@@ -24,6 +25,7 @@
   <use name=CalibFormats/SiStripObjects>
   <use name=CondFormats/SiStripObjects>
   <use name=CondFormats/DataRecord>
+  <use name=CondFormats/RunInfo>
   <use name=CommonTools/TrackerMap>
   <use name=CalibTracker/Records>
   <use name=DQM/TrackerCommon>

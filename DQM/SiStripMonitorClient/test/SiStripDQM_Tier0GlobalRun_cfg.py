@@ -16,8 +16,10 @@ process.MessageLogger = cms.Service("MessageLogger",
 #-----------------------------
 process.source = cms.Source("PoolSource",
      fileNames = cms.untracked.vstring(
-#      '/store/data/Commissioning08/Cosmics/RAW/CRUZET4_v1/000/058/630/0029CA89-9B71-DD11-8B56-001617C3B6FE.root'
-  '/store/data/Commissioning08/Cosmics/RAW/CRUZET4_v1/000/058/630/FABD3B62-AE71-DD11-A71C-001617E30F48.root'
+
+#    '/store/data/Commissioning08/Calo/RAW/v1/000/067/647/00247884-48A3-DD11-A10C-001D09F24498.root'
+    '/store/data/Commissioning08/Calo/RAW/v1/000/067/647/0029FCB8-85A3-DD11-9395-000423D94E1C.root'
+
      )
 )                            
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(2000))
@@ -26,7 +28,7 @@ process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(2000))
 # DQM Environment
 #-----------------------------
 process.load("DQMServices.Core.DQM_cfg")
-process.DQMStore.referenceFileName = '/home/dqmdevlocal/reference/sistrip_reference.root'
+#process.DQMStore.referenceFileName = '/home/dqmdevlocal/reference/sistrip_reference.root'
 
 process.load("DQMServices.Components.DQMEnvironment_cfi")
 
@@ -52,7 +54,7 @@ process.load("Configuration.StandardSequences.Geometry_cff")
 #--------------------------
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.GlobalTag.connect = "frontier://FrontierProd/CMS_COND_21X_GLOBALTAG"
-process.GlobalTag.globaltag = "CRAFT_V4P::All"
+process.GlobalTag.globaltag = "CRAFT_ALL_V3::All"
 process.es_prefer_GlobalTag = cms.ESPrefer('PoolDBESSource','GlobalTag')
 
 #-----------------------

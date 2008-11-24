@@ -9,7 +9,7 @@ process.load("Configuration.StandardSequences.Geometry_cff")
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.GlobalTag.connect = "frontier://PromptProd/CMS_COND_21X_GLOBALTAG"
-process.GlobalTag.globaltag = "CRAFT_V4P::All"
+process.GlobalTag.globaltag = "CRAFT_ALL_V3::All"
 process.prefer("GlobalTag")
 
 process.load("DQM.SiStripMonitorClient.SiStripClientConfig_Tier0_cff")
