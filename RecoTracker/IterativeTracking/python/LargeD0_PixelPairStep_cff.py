@@ -14,10 +14,10 @@ largeD0step2Clusters = cms.EDFilter("TrackClusterRemover",
 #    stripClusters = cms.InputTag("largeD0step1Clusters"),
 
 # To run this step independently of the other large d0 tracking iterations ...
-    trajectories = cms.InputTag("pixellessStep"),
-    oldClusterRemovalInfo = cms.InputTag("fourthClusters"),
-    pixelClusters = cms.InputTag("fourthClusters"),
-    stripClusters = cms.InputTag("fourthClusters"),
+    trajectories = cms.InputTag("tobtecStep"),
+    oldClusterRemovalInfo = cms.InputTag("fifthClusters"),
+    pixelClusters = cms.InputTag("fifthClusters"),
+    stripClusters = cms.InputTag("fifthClusters"),
 
 # To run it independently of all tracking iterations ...
 #    trajectories = cms.InputTag("zeroStepFilter"),
@@ -33,7 +33,16 @@ largeD0step2Clusters = cms.EDFilter("TrackClusterRemover",
 
 # Propagator taking into account momentum uncertainty in multiple
 # scattering calculation.
-from TrackingTools.MaterialEffects.Propagators_PtMin09_cff import *
+#from TrackingTools.MaterialEffects.Propagators_PtMin09_cff import *
+import TrackingTools.MaterialEffects.MaterialPropagator_cfi
+MaterialPropagatorPtMin06 = TrackingTools.MaterialEffects.MaterialPropagator_cfi.MaterialPropagator.clone()
+MaterialPropagatorPtMin06.ComponentName = 'PropagatorWithMaterialPtMin06'
+MaterialPropagatorPtMin06.ptMin = 0.6
+> 
+import TrackingTools.MaterialEffects.OppositeMaterialPropagator_cfi
+OppositeMaterialPropagatorPtMin06 = TrackingTools.MaterialEffects.OppositeMaterialPropagator_cfi.OppositeMaterialPropagator.clone()
+OppositeMaterialPropagatorPtMin06.ComponentName = 'PropagatorWithMaterialOppositePtMin06'
+OppositeMaterialPropagatorPtMin06.ptMin = 0.6
 
 #TRACKER HITS
 import RecoLocalTracker.SiPixelRecHits.SiPixelRecHits_cfi
@@ -57,7 +66,7 @@ largeD0step2Seeds.OrderedHitsFactoryPSet.SeedingLayers = 'largeD0step2LayerPairs
 largeD0step2Seeds.RegionFactoryPSet.RegionPSet.ptMin = 0.6
 largeD0step2Seeds.RegionFactoryPSet.RegionPSet.originRadius = 2.5
 largeD0step2Seeds.RegionFactoryPSet.RegionPSet.originHalfLength = 15
-largeD0step2Seeds.propagator = cms.string('PropagatorWithMaterialPtMin09')
+largeD0step2Seeds.propagator = cms.string('PropagatorWithMaterialPtMin06')
 # The fast-helix fit doesn't work well for large d0 pixel pair seeding.
 largeD0step2Seeds.UseFastHelix = False
 
@@ -90,9 +99,8 @@ largeD0step2CkfTrajectoryBuilder.minNrOfHitsForRebuild = 6
 #largeD0step2CkfTrajectoryBuilder.maxCand = 5
 #largeD0step2CkfTrajectoryBuilder.lostHitPenalty = 100.
 #largeD0step2CkfTrajectoryBuilder.alwaysUseInvalidHits = False
-largeD0step2CkfTrajectoryBuilder.propagatorAlong = cms.string('PropagatorWithMaterialPtMin09')
-largeD0step2CkfTrajectoryBuilder.propagatorOpposite = cms.string('PropagatorWithMaterialOppositePtMin09')
-
+largeD0step2CkfTrajectoryBuilder.propagatorAlong = cms.string('PropagatorWithMaterialPtMin06')
+largeD0step2CkfTrajectoryBuilder.propagatorOpposite = cms.string('PropagatorWithMaterialOppositePtMin06')
 
 #TRACK CANDIDATES
 import RecoTracker.CkfPattern.CkfTrackCandidates_cfi

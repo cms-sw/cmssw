@@ -7,10 +7,10 @@ import FWCore.ParameterSet.Config as cms
 #HIT REMOVAL
 largeD0step1Clusters = cms.EDFilter("TrackClusterRemover",
 # To run this step, eliminating hits from all previous iterations ...   
-    trajectories = cms.InputTag("pixellessStep"),
-    oldClusterRemovalInfo = cms.InputTag("fourthClusters"),
-    pixelClusters = cms.InputTag("fourthClusters"),
-    stripClusters = cms.InputTag("fourthClusters"),
+    trajectories = cms.InputTag("tobtecStep"),
+    oldClusterRemovalInfo = cms.InputTag("fifthClusters"),
+    pixelClusters = cms.InputTag("fifthClusters"),
+    stripClusters = cms.InputTag("fifthClusters"),
 
 # To run it independently of all tracking iterations ...
 #    trajectories = cms.InputTag("zeroStepFilter"),

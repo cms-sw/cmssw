@@ -13,10 +13,10 @@ largeD0step5Clusters = cms.EDFilter("TrackClusterRemover",
 #    stripClusters = cms.InputTag("largeD0step4Clusters"),
 
 # To run this step independently of the other large d0 tracking iterations ...
-    trajectories = cms.InputTag("pixellessStep"),
-    oldClusterRemovalInfo = cms.InputTag("fourthClusters"),
-    pixelClusters = cms.InputTag("fourthClusters"),
-    stripClusters = cms.InputTag("fourthClusters"),
+    trajectories = cms.InputTag("tobtecStep"),
+    oldClusterRemovalInfo = cms.InputTag("fifthClusters"),
+    pixelClusters = cms.InputTag("fifthClusters"),
+    stripClusters = cms.InputTag("fifthClusters"),
 
 # To run it independently of all tracking iterations ...
 #    trajectories = cms.InputTag("zeroStepFilter"),
