@@ -1,6 +1,8 @@
 <?xml version='1.0' encoding="UTF-8"?>
-<!DOCTYPE Mapping SYSTEM "InMemory">
-<Mapping version="DTREADOUTMAPPING-1.0" >
-<Class name="DTReadOutMapping" >
-</Class >
-</Mapping >
+<!DOCTYPE PoolDatabase SYSTEM "InMemory">
+ <PoolDatabase >
+  <PoolContainer name="DTReadOutMappingRcd" >
+   <Class name="DTReadOutMapping" mapping_version="DTReadOutMapping-1.0" >
+   </Class >
+  </PoolContainer >
+ </PoolDatabase >

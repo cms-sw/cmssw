@@ -1,6 +1,8 @@
 <?xml version='1.0' encoding="UTF-8"?>
-<!DOCTYPE Mapping SYSTEM "InMemory">
-<Mapping version="DTConfigList-1.0" >
-<Class name="DTConfigList" >
-</Class >
-</Mapping >
+<!DOCTYPE PoolDatabase SYSTEM "InMemory">
+ <PoolDatabase >
+  <PoolContainer name="DTConfigList" >
+   <Class name="DTConfigList" mapping_version="DTConfigList-1.0" >
+   </Class >
+  </PoolContainer >
+ </PoolDatabase >

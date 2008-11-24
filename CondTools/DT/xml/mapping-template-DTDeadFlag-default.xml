@@ -1,6 +1,8 @@
 <?xml version='1.0' encoding="UTF-8"?>
-<!DOCTYPE Mapping SYSTEM "InMemory">
-<Mapping version="DTDeadFlag-1.0" >
-<Class name="DTDeadFlag" >
-</Class >
-</Mapping >
+<!DOCTYPE PoolDatabase SYSTEM "InMemory">
+ <PoolDatabase >
+  <PoolContainer name="DTDeadFlagRcd" >
+   <Class name="DTDeadFlag" mapping_version="DTDeadFlag-1.0" >
+   </Class >
+  </PoolContainer >
+ </PoolDatabase >

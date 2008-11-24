@@ -1,6 +1,8 @@
 <?xml version='1.0' encoding="UTF-8"?>
-<!DOCTYPE Mapping SYSTEM "InMemory">
-<Mapping version="DTMtime-1.0" >
-<Class name="DTMtime" >
-</Class >
-</Mapping >
+<!DOCTYPE PoolDatabase SYSTEM "InMemory">
+ <PoolDatabase >
+  <PoolContainer name="DTMtimeRcd" >
+   <Class name="DTMtime" mapping_version="DTMtime-1.0" >
+   </Class >
+  </PoolContainer >
+ </PoolDatabase >

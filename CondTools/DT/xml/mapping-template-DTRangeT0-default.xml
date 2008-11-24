@@ -1,6 +1,8 @@
 <?xml version='1.0' encoding="UTF-8"?>
-<!DOCTYPE Mapping SYSTEM "InMemory">
-<Mapping version="DTTtrig-1.0" >
-<Class name="DTRangeT0" >
-</Class >
-</Mapping >
+<!DOCTYPE PoolDatabase SYSTEM "InMemory">
+ <PoolDatabase >
+  <PoolContainer name="DTRangeT0Rcd" >
+   <Class name="DTRangeT0" mapping_version="DTRangeT0-1.0" >
+   </Class >
+  </PoolContainer >
+ </PoolDatabase >
