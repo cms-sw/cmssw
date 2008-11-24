@@ -13,7 +13,7 @@
 //
 // Original Author:  Domenico GIORDANO
 //         Created:  Wed Oct  3 12:11:10 CEST 2007
-// $Id: SiStripHotStripAlgorithmFromClusterOccupancy.h,v 1.3 2008/11/04 16:31:30 giordano Exp $
+// $Id: SiStripHotStripAlgorithmFromClusterOccupancy.h,v 1.4 2008/11/07 15:36:19 giordano Exp $
 //
 //
 
@@ -48,16 +48,18 @@ public:
   void setOccupancyThreshold(long double occupancy){occupancy_=occupancy;minNevents_=occupancy_*Nevents_;}
   void setNumberOfEvents(uint32_t Nevents);
   void extractBadStrips(SiStripQuality*,HistoMap&);
-  std::vector<double> getStripOccupancy(){return _StripOccupancy;}
+  std::vector<std::pair<double, int> > getStripOccupancyHotStrips(){return _StripOccupancyHotStrips;}
+  std::vector<std::pair<double, int> > getStripOccupancyAllStrips(){return _StripOccupancyAllStrips;}
   
  private:
 
   struct pHisto{   
 
-    pHisto():_NEntries(0),_NEmptyBins(0){};
+    pHisto():_NEntries(0),_NEmptyBins(0),_SubdetId(0){};
     TH1F* _th1f;
     int _NEntries;
     int _NEmptyBins;
+    int _SubdetId;
   };
 
   void iterativeSearch(pHisto&,std::vector<unsigned int>&);
@@ -71,7 +73,9 @@ public:
   long double occupancy_;
 
   SiStripQuality *pQuality;
-  std::vector<double> _StripOccupancy;
+  std::vector<std::pair<double, int> > _StripOccupancyHotStrips;
+  std::vector<std::pair<double, int> > _StripOccupancyAllStrips;
+
   std::stringstream ss;   
 };
 #endif
