@@ -246,7 +246,7 @@ L1RCTLutWriter::writeRcLutFile(unsigned short card)
 {
 
   // don't mess yet with name
-  char filename[64];
+  char filename[256];
   char command[64];
   if (card != 6)
     {
@@ -360,7 +360,7 @@ void
 L1RCTLutWriter::writeEicLutFile(unsigned short card)
 {
   // try timestamp
-  char filename[64];
+  char filename[256];
   char command[64];
   if (card != 6)
     {
@@ -406,7 +406,7 @@ L1RCTLutWriter::writeEicLutFile(unsigned short card)
 void 
 L1RCTLutWriter::writeJscLutFile()
 {
-  char filename[64];
+  char filename[256];
   char command[64];
   sprintf(filename, "JSC-%s.dat", keyName_.c_str() );
 
@@ -479,7 +479,7 @@ L1RCTLutWriter::writeThresholdsFile(unsigned int eicThreshold,
 {
   //
   std::ofstream thresholdsFile;
-  char filename[64];
+  char filename[256];
   sprintf(filename, "Thresholds-%s.dat", keyName_.c_str() );
   thresholdsFile.open(filename, ios::trunc);
 
