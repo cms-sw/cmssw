@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: ElectronDetailView.cc,v 1.12 2008/07/22 00:25:23 jmuelmen Exp $
+// $Id: ElectronDetailView.cc,v 1.16 2008/11/19 17:26:15 jmuelmen Exp $
 //
 
 // system include files
@@ -30,8 +30,10 @@
 #include "TEveText.h"
 #include "TEveTrack.h"
 #include "TEveTrackPropagator.h"
+#include "TEveLegoEventHandler.h"
 #include "TEveViewer.h"
 #include "TGLViewer.h"
+#include "TGLWidget.h"
 #include "TGTextView.h"
 #include "TRandom3.h"
 #include "TH2.h"
@@ -218,14 +220,17 @@ void ElectronDetailView::build_projected (TEveElementList **product,
 	  
 	  TEveCaloLego* lego = new TEveCaloLego(data);
 	  lego->SetPlaneColor(kBlue-5);
-	  lego->Set2DMode(TEveCaloLego::kValSize);
+
+	  // tempoary solution until we get pointer to gl viewer
+	  lego->SetProjection(TEveCaloLego::k3D);
+	  //  TEveLegoEventHandler *leh = new TEveLegoEventHandler("Lego EH", v->GetGLWidget(), lego->GetObject(), "fooo");
+	  //  ve->SetEventHandler(leh);
+
 	  lego->SetName("TwoHistLego");
 	  printf("%f %f, %f %f\n", x_min, x_max, y_min, y_max);
  	  lego->SetEta(x_min - 0.1, x_max + 0.1); // eta min, max
-	  // this does not work:
- 	  // lego->SetPhiWithRng(y_min - 0.1, y_max + 0.1); // phi, half-range
-	  // instead, do the following:
-  	  lego->SetPhiWithRng(-M_PI, M_PI); // phi, half-range
+
+	  lego->SetPhiWithRng((y_min + y_max)*0.5, (y_max-y_min)*1.2); // phi, half-range
 	  tList->AddElement(lego);
 	  
 	  // overlay lego
