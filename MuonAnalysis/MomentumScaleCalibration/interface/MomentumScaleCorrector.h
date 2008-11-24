@@ -13,12 +13,30 @@
 
 /**
  * This is used to have a common set of functions for the specialized templates to use.
- * It has a protected constructor, so it cannot be used directly.
+ * The constructor receives the name identifying the parameters for the correction function.
+ * It reads the parameters from a txt file in data/.
  */
-//template <class T>
-class MomentumScaleCorrectorBase
+class MomentumScaleCorrector
 {
  public:
+  /**
+   * The constructor takes a string identifying the parameters to read. It
+   * parses the txt file containing the parameters, extracts the index of the
+   * correction function and saves the corresponding pointer. It then fills the
+   * vector of parameters.
+   */
+  MomentumScaleCorrector( TString identifier )
+  {
+    identifier.Prepend("MuonAnalysis/MomentumScaleCalibration/data/");
+    identifier.Append(".txt");
+    edm::FileInPath fileWithFullPath(identifier.Data());
+    readParameters( fileWithFullPath.fullPath() );
+  }
+  ~MomentumScaleCorrector() {
+    if( parScaleArray_ != 0 ) {
+      delete[] parScaleArray_;
+    }
+  }
   /// Method to do the corrections. It is templated to work with all the track types.
   template <class U>
   double operator()( const U & track ) {
@@ -26,26 +44,15 @@ class MomentumScaleCorrectorBase
     return ( scaleFunction_->scale( track.pt(), track.eta(), track.phi(), track.charge(), parScaleArray_) );
   }
  protected:
-  MomentumScaleCorrectorBase() {};
-  ~MomentumScaleCorrectorBase() {
-    if( parScaleArray_ != 0 ) {
-      delete[] parScaleArray_;
-    }
-  };
   /// Parser of the parameters file
-  //pair<vector<double>, vector<double> > readParameters( TString fileName );
   void readParameters( TString fileName );
-  // scaleFunctionBase<vector<double> > * scaleFunction_;
   scaleFunctionBase<double * > * scaleFunction_;
   vector<double> parScale_;
   // We will use the array for the function calls because it is faster than the vector for random access.
   double * parScaleArray_;
 };
 
-//template <class T>
-// pair<vector<double>, vector<double> >
-//MomentumScaleCorrectorBase<T>::readParameters( TString fileName )
-void MomentumScaleCorrectorBase::readParameters( TString fileName )
+void MomentumScaleCorrector::readParameters( TString fileName )
 {
   parScaleArray_ = 0;
   // vector<double> parameterErrors;
@@ -124,57 +131,5 @@ void MomentumScaleCorrectorBase::readParameters( TString fileName )
   }
   // return make_pair(parameters, parameterErrors);
 }
-
-/**
- * Momentum correction class </br>
- * The constructor receives the name identifying the parameters for the correction function.
- * It reads the parameters from a txt file in data/. Being a template,
- * the type of the template parameter selects also the parameters to be read.
- * This is achieved by template specialization.
- * The generic template class is used for globalMuons.
- */
-template <class T>
-class MomentumScaleCorrector : public
-// MomentumScaleCorrectorBase<T>
-MomentumScaleCorrectorBase
-{
- public:
-  /**
-   * The constructor takes a string identifying the parameters to read. It
-   * parses the txt file containing the parameters, extracts the index of the
-   * correction function and saves the corresponding pointer. It then fills the
-   * vector of parameters.
-   */
-  MomentumScaleCorrector( TString identifier )
-  {
-    identifier.Prepend("MuonAnalysis/MomentumScaleCalibration/data/");
-    identifier.Append("_globalMuons.txt");
-    edm::FileInPath fileWithFullPath(identifier.Data());
-    // This used because it is a template
-    // Alternatively it is also ok to do: MomentumScaleCorrectorBase<T>::readParameters( fileWithFullPath.fullPath() );
-    // pair<vector<double>, vector<double> > parameters( this->readParameters( fileWithFullPath.fullPath() ) );
-    this->readParameters( fileWithFullPath.fullPath() );
-  }
-  ~MomentumScaleCorrector() {}
-};
-
-/// Specialization used for tracker only tracks
-template <>
-class MomentumScaleCorrector<reco::Track> : public
-//MomentumScaleCorrectorBase<reco::Track>
-MomentumScaleCorrectorBase
-{
-  MomentumScaleCorrector( TString identifier )
-  {
-    identifier.Prepend("MuonAnalysis/MomentumScaleCalibration/data/");
-    identifier.Append("_trackerTracks.txt");
-    edm::FileInPath fileWithFullPath(identifier.Data());
-    // This used because it is a template
-    // Alternatively it is also ok to do: MomentumScaleCorrectorBase<T>::readParameters( fileWithFullPath.fullPath() );
-    // pair<vector<double>, vector<double> > parameters( this->readParameters( fileWithFullPath.fullPath() ) );
-    this->readParameters( fileWithFullPath.fullPath() );
-  }
-};
-/// Specialization used for standAlone muons
 
 #endif // MomentumScaleCorrector_h
