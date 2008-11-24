@@ -45,7 +45,7 @@ void setTPaveText(const TF1 * fit, TPaveText * paveText) {
 }
 
 TGraphErrors* fit2DProj(TString name, TString path, int minEntries, int rebinX, int rebinY, int fitType,
-                        TFile * outputFile, const TString & resonanceType = "Y", const double & xDisplace = 0.);
+                        TFile * outputFile, const TString & resonanceType = "Y", const double & xDisplace = 0., const TString & append = "");
 void macroPlot( TString name, const TString & nameFile1 = "0_MuScleFit.root", const TString & nameFile2 = "4_MuScleFit.root",
                 const TString & title = "", const TString & resonanceType = "Y", const int rebinX = 0, const int rebinY = 0, const int fitType = 1 );
 
@@ -90,7 +90,7 @@ Double_t lorentzianPlusLinear(Double_t *x, Double_t *par) {
  * This function fits TH2F slices with a selected fitType function (gaussian, lorentz, ...).
  */
 TGraphErrors* fit2DProj(TString name, TString path, int minEntries, int rebinX, int rebinY, int fitType,
-                        TFile * outputFile, const TString & resonanceType, const double & xDisplace) {
+                        TFile * outputFile, const TString & resonanceType, const double & xDisplace, const TString & append) {
 
   //Read the TH2 from file
   TFile *inputFile = new TFile(path);
@@ -111,7 +111,10 @@ TGraphErrors* fit2DProj(TString name, TString path, int minEntries, int rebinX, 
   vector<double> Xcenter;
   vector<double> Ex;
 
-  TFile *fileOut=new TFile("fitCompare2.root","RECREATE");
+  TString fileOutName("fitCompare2");
+  fileOutName += append;
+  fileOutName += ".root";
+  TFile *fileOut=new TFile(fileOutName,"RECREATE");
 
   for (int i=1; i<=(histo->GetXaxis()->GetNbins());i++) {
 
@@ -257,15 +260,18 @@ TF1* gaussianFit(TH1* histoY, const TString & resonanceType){
     fit->SetParLimits(2, 3.09, 3.15);
   }
   if( resonanceType == "Y" ) {
-    fit = new TF1(name,gaussian,9,11,3);
-    fit->SetParLimits(2, 9.2, 9.8);
+    fit = new TF1(name,gaussian,8.5,10.5,3);
+    // fit = new TF1(name,gaussian,9,11,3);
+    fit->SetParLimits(2, 9.2, 9.6);
+    fit->SetParLimits(1, 0.09, 0.1);
   }
   if( resonanceType == "Z" ) {
     fit = new TF1(name,gaussian,80,100,3);
     fit->SetParLimits(2, 80, 100);
+    fit->SetParLimits(1, 0.01, 1);
   }
   fit->SetParameters(histoY->GetMaximum(),histoY->GetRMS(),histoY->GetMean());
-  fit->SetParLimits(1, 0.01, 1);
+  // fit->SetParLimits(1, 0.01, 1);
   //   fit->SetParLimits(1, 40, 60);
   fit->SetParNames("norm","width","mean");
   fit->SetLineWidth(2);
@@ -287,7 +293,7 @@ TF1* lorentzianFit(TH1* histoY, const TString & resonanceType){
     fit = new TF1(name, lorentzian, 9, 10, 3);
   }
   if( resonanceType == "Z" ) {
-    fit = new TF1(name, lorentzian, 80, 100, 3);
+    fit = new TF1(name, lorentzian, 85, 95, 3);
   }
   fit->SetParameters(histoY->GetMaximum(),histoY->GetRMS(),histoY->GetMean());
   fit->SetParNames("norm","width","mean");
@@ -328,8 +334,8 @@ void macroPlot( TString name, const TString & nameFile1, const TString & nameFil
 
 //   TGraphErrors *grM_1 = fit2DProj(name,nameFile1,100,4,1, outputFile);
 //   TGraphErrors *grM_2 = fit2DProj(name,nameFile2,100,4,1, outputFile);
-  TGraphErrors *grM_1 = fit2DProj(name, nameFile1, 100, rebinX, rebinY, fitType, outputFile, resonanceType);
-  TGraphErrors *grM_2 = fit2DProj(name, nameFile2, 100, rebinX, rebinY, fitType, outputFile, resonanceType);
+  TGraphErrors *grM_1 = fit2DProj(name, nameFile1, 100, rebinX, rebinY, fitType, outputFile, resonanceType, 0, "_1");
+  TGraphErrors *grM_2 = fit2DProj(name, nameFile2, 100, rebinX, rebinY, fitType, outputFile, resonanceType, 0, "_2");
 
   TCanvas *c = new TCanvas(name+"_Z",name+"_Z");
   c->SetGridx();
@@ -377,10 +383,10 @@ void macroPlot( TString name, const TString & nameFile1, const TString & nameFil
 
   /*****************PARABOLIC FIT (ETA)********************/
   if( name.Contains("Eta") ) {
-    TF1 *fit1 = new TF1("fit1","pol2",-3.2,3.2);
+    TF1 *fit1 = new TF1("fit1",onlyParabolic,-3.2,3.2,3);
     fit1->SetLineWidth(2);
     fit1->SetLineColor(1);
-    grM_1->Fit("fit1","R");
+    grM_1->Fit("fit1","", "", -3, 3);
     setTPaveText(fit1, paveText1);
 
     TF1 *fit2 = new TF1("fit2","pol0",-3.2,3.2);
@@ -411,20 +417,24 @@ void macroPlot( TString name, const TString & nameFile1, const TString & nameFil
   }
   /*****************************************/ 
   if( name.Contains("Pt") ) {
-    TF1 * fit1 = new TF1("fit1", linear, 0., 150., 2);
+    // TF1 * fit1 = new TF1("fit1", linear, 0., 150., 2);
+    TF1 * fit1 = new TF1("fit1", "[0]", 0., 150.);
     fit1->SetParameters(0., 1.);
     fit1->SetParNames("scale","pt coefficient");
     fit1->SetLineWidth(2);
     fit1->SetLineColor(1);
-    grM_1->Fit("fit1","","",0.,150.);
+    if( name.Contains("Z") ) grM_1->Fit("fit1","","",0.,150.);
+    else grM_1->Fit("fit1","","",0.,27.);
     setTPaveText(fit1, paveText1);
 
-    TF1 * fit2 = new TF1("fit2", linear, 0., 150., 2);
+    // TF1 * fit2 = new TF1("fit2", linear, 0., 150., 2);
+    TF1 * fit2 = new TF1("fit2", "[0]", 0., 150.);
     fit2->SetParameters(0., 1.);
     fit2->SetParNames("scale","pt coefficient");
     fit2->SetLineWidth(2);
     fit2->SetLineColor(2);
-    grM_2->Fit("fit2","","",0.,150.);
+    if( name.Contains("Z") ) grM_2->Fit("fit2","","",0.,150.);
+    grM_2->Fit("fit2","","",0.,27.);
     setTPaveText(fit2, paveText2);
   }
 
