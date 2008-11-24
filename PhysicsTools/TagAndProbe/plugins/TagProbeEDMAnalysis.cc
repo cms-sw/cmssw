@@ -756,8 +756,8 @@ void TagProbeEDMAnalysis::TPEffSBS( string &fileName, string &bvar,
       SideBandSubtraction(*FailProbes, *SBSFailProbes, SBSPeak_, SBSStanDev_);
 
       // Count the number of passing and failing probes in the region
-      double npassR = SBSPassProbes->Integral("width");
-      double nfailR = SBSFailProbes->Integral("width");
+      double npassR = SBSPassProbes->Integral("");
+      double nfailR = SBSFailProbes->Integral("");
 
       if((npassR + nfailR) != 0){
 	Double_t eff = npassR/(npassR + nfailR);
@@ -821,6 +821,9 @@ void TagProbeEDMAnalysis::TPEffSBS2D( string &fileName, string &bvar1,
   string hname = "sbs_eff_" + bvar1 + "_" + bvar2;
   string htitle = "SBS Efficiency: " + bvar1 + " vs " + bvar2;
   
+  string hdname = "sbs_den_" + bvar1 + "_" + bvar2; 
+  string hdtitle = "SBS Denominator vs " + bvar1 + " vs " + bvar2; 
+  
   stringstream condition;
   stringstream histoName;
   stringstream histoTitle;;
@@ -830,6 +833,8 @@ void TagProbeEDMAnalysis::TPEffSBS2D( string &fileName, string &bvar1,
    cout << "There are " << bnbins1 << " bins for var1 " << endl;
 
    TH2F effhist(hname.c_str(),htitle.c_str(),bnbins1,&bins1[0],
+		bnbins2,&bins2[0]);
+   TH2F denhist(hdname.c_str(),hdtitle.c_str(),bnbins1,&bins1[0],
 		bnbins2,&bins2[0]);
 
    TH1F* PassProbes(0);
@@ -939,8 +944,8 @@ void TagProbeEDMAnalysis::TPEffSBS2D( string &fileName, string &bvar1,
 			     SBSPeak_, SBSStanDev_);
 
 	 // Count the number of passing and failing probes in the region
-	 double npassR = SBSPassProbes->Integral("width");
-	 double nfailR = SBSFailProbes->Integral("width");
+	 double npassR = SBSPassProbes->Integral("");
+	 double nfailR = SBSFailProbes->Integral("");
 
 	 if((npassR + nfailR) != 0){
 	    Double_t eff = npassR/(npassR + nfailR);
@@ -953,6 +958,10 @@ void TagProbeEDMAnalysis::TPEffSBS2D( string &fileName, string &bvar1,
 	    // Fill the efficiency hist
 	    effhist.SetBinContent(bin1+1,bin2+1,eff);
 	    effhist.SetBinError(bin1+1,bin2+1,effErr);
+	    
+            denhist.SetBinContent(bin1+1,bin2+1,(npassR + nfailR));
+	    denhist.SetBinError(bin1+1,bin2+1,pow(npassR + nfailR,0.5));
+	      
 	 }else {
 	    cout << " no probes " << endl;
 	 }
@@ -970,7 +979,8 @@ void TagProbeEDMAnalysis::TPEffSBS2D( string &fileName, string &bvar1,
    
    outRootFile_->cd();
    effhist.Write();
-
+   denhist.Write();
+   
    cout << "Wrote eff hist!" << endl;
 
    if(PassProbes)    delete PassProbes;

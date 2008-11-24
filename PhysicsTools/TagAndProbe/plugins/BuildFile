@@ -24,3 +24,4 @@
    <use name=DataFormats/BTauReco>
    <use name=SimDataFormats/HepMCProduct>
 </library>
+ 

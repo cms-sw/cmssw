@@ -187,6 +187,7 @@ void eTriggerCandProducer::produce(edm::Event &event,
        double dRval = deltaR((float)electron.eta(), (float)electron.phi(), 
 			     TO.eta(), TO.phi());	
        hltTrigger = (abs(TO.id())==11) && (dRval < delRMatchingCut_);
+ 
        if( hltTrigger ) break;
      }       
 

@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Mon May  5 09:05:35 CDT 2008
-// $Id: TagProbeEDMNtuple.h,v 1.4 2008/10/02 23:23:27 kalanand Exp $
+// $Id: TagProbeEDMNtuple.h,v 1.5 2008/10/07 18:11:21 kalanand Exp $
 //
 // Kalanand Mishra: October 7, 2008 
 // Added vertex information of the tag & probe candidates in edm::TTree
@@ -73,6 +73,8 @@ class TagProbeEDMNtuple : public edm::EDProducer
       bool MatchObjects( const reco::Candidate *hltObj, 
 			 const reco::CandidateBaseRef& tagObj,
 			 bool exact = true );
+
+      int getBestProbe(int ptype, const reco::CandidateBaseRef &tag, std::vector< std::pair<reco::CandidateBaseRef,double> > vprobes);
       
       // ----------member data ---------------------------
       edm::Event* m_event;
@@ -121,6 +123,10 @@ class TagProbeEDMNtuple : public edm::EDProducer
 
       // whether to use exact Delta_R matching in ProbePassProbeOverlap 
       bool checkExactOverlap_;
+
+      // Vectors of strings on the picking of the "best" probe
+      std::vector<std::string> bestProbeCriteria_;
+      std::vector<double> bestProbeInvMass_;
 };
 
 #endif

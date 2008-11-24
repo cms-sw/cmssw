@@ -13,7 +13,7 @@
 //
 // Original Author:  Nadia Adam
 //         Created:  Mon May  5 08:47:29 CDT 2008
-// $Id: TagProbeEDMNtuple.cc,v 1.8 2008/10/07 18:11:21 kalanand Exp $
+// $Id: TagProbeEDMNtuple.cc,v 1.9 2008/10/10 17:07:10 neadam Exp $
 //
 //
 // Kalanand Mishra: October 7, 2008 
@@ -79,7 +79,6 @@ TagProbeEDMNtuple::TagProbeEDMNtuple(const edm::ParameterSet& iConfig)
    candPDGId_ = 13;
    if( candType_ != "Muon" ) candPDGId_ = 11;
 
-
    checkExactOverlap_ = iConfig.getUntrackedParameter<bool> (
       "checkExactOverlap", true );
 
@@ -116,7 +115,6 @@ TagProbeEDMNtuple::TagProbeEDMNtuple(const edm::ParameterSet& iConfig)
    jetTags_ = iConfig.getUntrackedParameter<string>("jets","iterativeCone5CaloJets");
 
    // ********************************* //
-
 
 
    // ********** Tag-Probes ********** //
@@ -228,6 +226,30 @@ TagProbeEDMNtuple::TagProbeEDMNtuple(const edm::ParameterSet& iConfig)
    delRMatchingCut_ = iConfig.getUntrackedParameter<double>("triggerDelRMatch",0.15);
    delPtRelMatchingCut_ = iConfig.getUntrackedParameter<double>("triggerDelPtRelMatch",0.15);
    // ******************************************** //
+
+   // ********** Best Probe Criteria ********** //
+   const std::string dBestProbeCriteria("OneProbe");
+   std::vector<std::string> defaultBestProbeCriteria;
+   bestProbeCriteria_ = iConfig.getUntrackedParameter< std::vector<std::string> >(
+      "BestProbeCriteria", defaultBestProbeCriteria);
+   if( (int)bestProbeCriteria_.size() < map_size )
+   {
+      cout << "Notice: Number of TagProbe maps bigger than number of BestProbeCriteria" << endl;
+      for( int i=0; i<(map_size-(int)bestProbeCriteria_.size()); ++i ) 
+	 bestProbeCriteria_.push_back(dBestProbeCriteria);
+   } 
+
+   const double dBestProbeInvMass(91.1876);
+   std::vector<double> defaultBestProbeInvMass;
+   bestProbeInvMass_ = iConfig.getUntrackedParameter< std::vector<double> >(
+      "BestProbeInvMass", defaultBestProbeInvMass);
+   if( (int)bestProbeInvMass_.size() < map_size )
+   {
+      cout << "Notice: Number of TagProbe maps bigger than number of BestProbeInvMass" << endl;
+      for( int i=0; i<(map_size-(int)bestProbeInvMass_.size()); ++i ) 
+	 bestProbeInvMass_.push_back(dBestProbeInvMass);
+   } 
+   // ***************************************** //
 
    // ******* Register the output products ******* //
    produces< int >( "run" ).setBranchAlias( "Run" );     /* Run number */
@@ -407,22 +429,22 @@ TagProbeEDMNtuple::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    // Set the private event & setup pointers
    m_event = &iEvent;
    m_setup = &iSetup;
-
+   
    // Fill the run and event number information
    fillRunEventInfo();
-
+   
    // Fill event level trigger info
    fillTriggerInfo();
-
+   
    // Fill MC Information
    fillMCInfo();
-
+   
    // Fill Tag-Probe Info
    fillTagProbeInfo();
-
+   
    // Fill Efficiency Info for true muons
    fillTrueEffInfo();
-
+   
    return; 
 }
 
@@ -747,22 +769,23 @@ TagProbeEDMNtuple::fillTagProbeInfo()
 	    vector< pair<CandidateBaseRef,double> > vprobes = (*tagprobes)[tag];
 
 	    // If there are two probes with the tag continue
-	    if( vprobes.size() > 1 ) continue;
+	    if( vprobes.size() > 1 ) {std::cout << " More than 1 probe for type " << itype << std::endl; }///continue;}
 
-	    math::XYZTLorentzVector tpP4 = tag->p4() + (vprobes[0].first)->p4();
+            int probenum = 0;
+            probenum = getBestProbe(itype, tag, vprobes);
+            if (probenum < 0) continue; //Nothing matched the criteria
 
+	    math::XYZTLorentzVector tpP4 = tag->p4() + (vprobes[probenum].first)->p4();
 	    // Is this Tag-Probe pair from a true Z?
 	    // See if both the daughters are matched.
 	    int tptrue = 0;
  	    bool tagFromZ   = CandFromZ((*tagmatch)[tag]);
- 	    bool probeFromZ = CandFromZ((*allprobematch)[vprobes[0].first]);
+ 	    bool probeFromZ = CandFromZ((*allprobematch)[vprobes[probenum].first]);
 
 	    // If both tag and probe are from Z .. set to true
 	    if( tagFromZ && probeFromZ ) tptrue = 1;
-
 	    // Is this probe in the set that pass the efficiency criteria?
-	    int ppass = ProbePassProbeOverlap(vprobes[0].first,passprobemuons);
-
+	    int ppass = ProbePassProbeOverlap(vprobes[probenum].first,passprobemuons);
 	    // Did this tag cause an HLT trigger?
 	    bool hltTrigger = false;
 
@@ -870,19 +893,19 @@ TagProbeEDMNtuple::fillTagProbeInfo()
 
 
 
-	    dp   = (vprobes[0].first)->p();
-	    dpx  = (vprobes[0].first)->px();
-	    dpy  = (vprobes[0].first)->py();
-	    dpz  = (vprobes[0].first)->pz();
-	    dpt  = (vprobes[0].first)->pt();
-	    de   = (vprobes[0].first)->energy();
-	    det  = (vprobes[0].first)->et();
-	    dq   = (vprobes[0].first)->charge();
-	    deta = (vprobes[0].first)->eta();
-	    dphi = (vprobes[0].first)->phi();
-	    vx   = (vprobes[0].first)->vx();
-	    vy   = (vprobes[0].first)->vy();
-	    vz   = (vprobes[0].first)->vz();
+	    dp   = (vprobes[probenum].first)->p();
+	    dpx  = (vprobes[probenum].first)->px();
+	    dpy  = (vprobes[probenum].first)->py();
+	    dpz  = (vprobes[probenum].first)->pz();
+	    dpt  = (vprobes[probenum].first)->pt();
+	    de   = (vprobes[probenum].first)->energy();
+	    det  = (vprobes[probenum].first)->et();
+	    dq   = (vprobes[probenum].first)->charge();
+	    deta = (vprobes[probenum].first)->eta();
+	    dphi = (vprobes[probenum].first)->phi();
+	    vx   = (vprobes[probenum].first)->vx();
+	    vy   = (vprobes[probenum].first)->vy();
+	    vz   = (vprobes[probenum].first)->vz();
 
 	    tp_probe_p_->push_back(    dp );
 	    tp_probe_px_->push_back(   dpx );
@@ -905,7 +928,7 @@ TagProbeEDMNtuple::fillTagProbeInfo()
 
 	    if(candType_ != "Muon") {	
 	      reco::SuperClusterRef SC 
-		= (vprobes[0].first)->get<SuperClusterRef>();
+		= (vprobes[probenum].first)->get<SuperClusterRef>();
 	      float theta = SC->position().Theta();
 	      deta = SC->eta();
 	      dphi = SC->phi();
@@ -1066,7 +1089,6 @@ TagProbeEDMNtuple::fillTrueEffInfo()
    auto_ptr< vector<float> > cnd_Deteta_( new vector<float> ); 
    auto_ptr< vector<float> > cnd_Detphi_( new vector<float> ); 
 
-
    // Should change this to get the eff info for all types of tag-probe!!
    Handle<GenParticleCollection> genparticles;
    if ( !m_event->getByLabel(genParticlesTag_,genparticles) ) {
@@ -1179,7 +1201,7 @@ TagProbeEDMNtuple::fillTrueEffInfo()
 	    if( mcRef.isNull() ) continue;
 	    if( tagmatch.isValid() && tags.isValid() )
 	    {
-	       // Loop over the tag muons
+	       // Loop over the tag muons	      
 	       CandidateView::const_iterator f = tags->begin();
 	       for( ; f != tags->end(); ++f )
 	       {
@@ -1241,7 +1263,7 @@ TagProbeEDMNtuple::fillTrueEffInfo()
 	       }
 	    }
 	    if( apmatch.isValid() && aprobes.isValid() )
-	    {
+	    {	      
 	       // Loop over the tag muons
 	       CandidateView::const_iterator f = aprobes->begin();
 	       for( ; f != aprobes->end(); ++f )
@@ -1307,19 +1329,18 @@ TagProbeEDMNtuple::fillTrueEffInfo()
 	       }
 	    }
 	    if( ppmatch.isValid() && pprobes.isValid() )
-	    {
+	    {     
 	       // Loop over the tag muons
-	       CandidateView::const_iterator f = pprobes->begin();
+	       CandidateView::const_iterator f = pprobes->begin();	       
 	       for( ; f != pprobes->end(); ++f )
 	       {
-		  unsigned int index = f - pprobes->begin();
-		  CandidateBaseRef probeRef = pprobes->refAt(index);
-		  if( probeRef.isNull() ) continue;
-		  GenParticleRef mcMatchRef = (*ppmatch)[probeRef];
-		  if( mcMatchRef.isNull() ) continue;
-
+		  unsigned int index = f - pprobes->begin();		  
+		  CandidateBaseRef probeRef = pprobes->refAt(index);		  
+		  if( probeRef.isNull() ) continue;                
+		  GenParticleRef mcMatchRef = (*ppmatch)[probeRef];                 
+		  if( mcMatchRef.isNull() ) continue;                  
 		  if( &(*mcRef)==&(*mcMatchRef) ) 
-		  {
+		  {                     
 		     fppb = 1;
 		     if( ftag == 0 && fapb == 0 )
 		     {
@@ -1352,11 +1373,9 @@ TagProbeEDMNtuple::fillTrueEffInfo()
 			  Detet  = ret;
 			  Detphi = rphi;
 			  Deteta = reta;
-     	      	      
 			  reco::SuperClusterRef SC 
 			    = probeRef->get<SuperClusterRef>();
-
-			  if ( SC.isNonnull() ) {
+                          if ( SC.isNonnull() ) {
 			    float theta = SC->position().Theta();
 			    Deteta = SC->eta();
 			    Detphi = SC->phi();
@@ -1459,7 +1478,7 @@ TagProbeEDMNtuple::fillTrueEffInfo()
    m_event->put( cnd_Dete_, "CndeDet" );  
    m_event->put( cnd_Detet_, "CndetDet" ); 
    m_event->put( cnd_Deteta_, "CndetaDet" ); 
-   m_event->put( cnd_Detphi_, "CndphiDet" ); 
+   m_event->put( cnd_Detphi_, "CndphiDet" );  
 }
 // *********************************************************************** //
 
@@ -1502,13 +1521,10 @@ int TagProbeEDMNtuple::ProbePassProbeOverlap( const CandidateBaseRef& probe,
    {
       for( int ipp=0; ipp<(int)passprobes->size(); ++ipp )
       {
-
 	 bool isOverlap = MatchObjects(&((*passprobes)[ipp]),
 				       probe,checkExactOverlap_);
 
-
 	 if(candType_ != "Muon" ) {
-
 	   reco::SuperClusterRef probeSC;
 	   reco::SuperClusterRef passprobeSC; 
 
@@ -1546,13 +1562,63 @@ bool TagProbeEDMNtuple::MatchObjects( const Candidate *hltObj,
    double hPt  = hltObj->pt();
 
    double dRval = deltaR(tEta, tPhi, hEta, hPhi);
-   double dPtRel = 999.0;
+   double dPtRel = 999.0; 
    if( tPt > 0.0 ) dPtRel = fabs( hPt - tPt )/tPt;
 
    // If we are comparing two objects for which the candidates should
    // be exactly the same, cut hard. Otherwise take cuts from user.
    if( exact ) return ( dRval < 1e-3 && dPtRel < 1e-3 );
    else        return ( dRval < delRMatchingCut_ && dPtRel < delPtRelMatchingCut_ );
+}
+// ************************************************************** //
+
+
+// ***************** Trigger object matching ******************** //
+int TagProbeEDMNtuple::getBestProbe(int ptype, const reco::CandidateBaseRef& tag,
+				      std::vector< std::pair<CandidateBaseRef,double> > vprobes )
+{
+   int tempProbeNum = 0;
+   if (bestProbeCriteria_[ptype] == "OneProbe")
+   {
+       if (vprobes.size() > 1) {return -1;}
+       else {return 0;}
+   }
+   else if (bestProbeCriteria_[ptype] == "InvMass" )
+   { 
+      double invMass = 0.;
+      double particleMass = bestProbeInvMass_[ptype];
+      for ( uint myProbe = 0; myProbe < vprobes.size(); ++myProbe)
+      {
+          //Find the probe closest in inv mass.
+          math::XYZTLorentzVector tpP4 = tag->p4() + (vprobes[myProbe].first)->p4();
+          double pinvMass = tpP4.M();
+          if (fabs(pinvMass-particleMass) < fabs(invMass-particleMass)) {tempProbeNum = myProbe; invMass = pinvMass; }
+      }
+      return tempProbeNum;
+   } 
+   else if (bestProbeCriteria_[ptype] == "HighestProbePt" )
+   {
+      double thePt = 0.;
+      for ( uint myProbe = 0; myProbe < vprobes.size(); ++myProbe)
+         {
+            //Find the probe highest Pt.
+            math::XYZTLorentzVector tpP4 = tag->p4() + (vprobes[myProbe].first)->p4();
+            double ptp = (vprobes[myProbe].first)->pt();
+            if (ptp > thePt) {tempProbeNum = myProbe; thePt = ptp; }
+         }
+      return tempProbeNum;
+   }
+   else if (std::strstr(bestProbeCriteria_[ptype].c_str(),"Random") )
+   {
+       uint numberOfProbes = vprobes.size();
+       if (int (numberOfProbes) < (atoi(bestProbeCriteria_[ptype].substr(6).c_str())+1)) return ((m_event->id().event())%numberOfProbes);
+       else return -1;
+
+   }
+   else {return -1;}
+
+   //One should never reach this point
+   return 0;
 }
 // ************************************************************** //
 
