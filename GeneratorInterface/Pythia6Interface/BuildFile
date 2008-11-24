@@ -1,6 +1,6 @@
 <use name=boost>
 <use name=FWCore/Framework>
-<use name=SimDataFormats/HepMCProduct>
+<use name=SimDataFormats/GeneratorProducts>
 #<use name=hepmc> 
 <use name=clhep> 
 <use name=pythia6>
@@ -14,7 +14,7 @@
 <export>
  <use name=boost>
  <use name=FWCore/Framework>
- <use name=SimDataFormats/HepMCProduct>
+ <use name=SimDataFormats/GeneratorProducts>
 # <use name=hepmc> 
  <use name=clhep> 
  <use name=pythia6>

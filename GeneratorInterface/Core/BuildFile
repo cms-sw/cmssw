@@ -1,8 +1,8 @@
-<use name=SimDataFormats/HepMCProduct>
+# <use name=SimDataFormats/HepMCProduct>
 <use name=SimDataFormats/GeneratorProducts>
 <use name=hepmc> 
 <export>
-	<use name=SimDataFormats/HepMCProduct>
+	# <use name=SimDataFormats/HepMCProduct>
 	<use name=SimDataFormats/GeneratorProducts>
         <use name=hepmc> 
 	<lib name=GeneratorInterfaceCore>

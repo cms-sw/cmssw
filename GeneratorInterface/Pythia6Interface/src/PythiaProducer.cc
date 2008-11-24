@@ -1,6 +1,6 @@
 /*
- *  $Date: 2008/08/25 12:21:22 $
- *  $Revision: 1.8 $
+ *  $Date: 2008/08/25 15:26:22 $
+ *  $Revision: 1.9 $
  *  
  *  Filip Moorgat & Hector Naves 
  *  26/10/05
@@ -16,8 +16,8 @@
 
 #include "GeneratorInterface/Pythia6Interface/interface/PythiaProducer.h"
 #include "GeneratorInterface/Pythia6Interface/interface/PYR.h"
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
-#include "SimDataFormats/HepMCProduct/interface/GenInfoProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenInfoProduct.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"

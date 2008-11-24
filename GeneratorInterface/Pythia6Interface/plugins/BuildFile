@@ -2,7 +2,7 @@
 <use name=FWCore/ParameterSet>
 <use name=DataFormats/Common>
 ## <use name=GeneratorInterface/Core>
-<use name=SimDataFormats/HepMCProduct>
+## <use name=SimDataFormats/HepMCProduct>
 <use name=SimDataFormats/GeneratorProducts>
 <use name=hepmc> 
 <use name=pythia6>

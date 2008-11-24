@@ -18,7 +18,7 @@
 
 
 //#include "GeneratorInterface/LHEInterface/interface/LHEEvent.h"
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 namespace edm
 {
