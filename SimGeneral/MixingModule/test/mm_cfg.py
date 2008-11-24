@@ -1,7 +1,3 @@
-# The following comments couldn't be translated into the new config version:
-
-# include "FWCore/MessageLogger/data/MessageLogger.cfi"
-
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("PRODMIXNEW")
@@ -15,12 +11,11 @@ process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService
 
 process.SimpleMemoryCheck = cms.Service("SimpleMemoryCheck",
     oncePerEventMode = cms.untracked.bool(True),
-    ignoreTotal = cms.untracked.int32(1) ## default is one
-
+    ignoreTotal = cms.untracked.int32(1)
 )
 
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('rfio:/castor/cern.ch/cms/store/relval/2008/4/5/RelVal-RelValSingleElectronPt35-1207397810/0000/20AC78F1-1403-DD11-B5CC-000423D987E0.root')
+    fileNames = cms.untracked.vstring('rfio:/castor/cern.ch/cms/store/relval/2008/6/22/RelVal-RelValSingleElectronPt35-1213987236-IDEAL_V2-2nd/0006/4CF7711A-E241-DD11-A987-000423D99658.root')
 )
 
 process.maxEvents = cms.untracked.PSet(
@@ -29,7 +24,7 @@ process.maxEvents = cms.untracked.PSet(
 process.out = cms.OutputModule("PoolOutputModule",
     outputCommands = cms.untracked.vstring('drop *_*_*_*', 
         'keep *_*_*_PRODMIXNEW'),
-    fileName = cms.untracked.string('file:/tmp/Cum.root')
+    fileName = cms.untracked.string('file:/tmp/Cum_store.root')
 )
 
 process.MessageLogger = cms.Service("MessageLogger",

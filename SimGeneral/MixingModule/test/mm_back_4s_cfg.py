@@ -1,8 +1,4 @@
-# The following comments couldn't be translated into the new config version:
-
-# this is an example of how to run playback with 4 sources
-# the file Cum_store_4s.root is supposed to have been run with 
-#     module rndmStore = RandomEngineStateProducer { } or equivalent
+# This is an example how to run with 4 sources, and in playback mode
 
 import FWCore.ParameterSet.Config as cms
 
@@ -10,7 +6,6 @@ process = cms.Process("PRODMIXBack")
 process.load("SimGeneral.MixingModule.mixLowLumPU_4sources_cfi")
 
 process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
-    restoreStateLabel = cms.untracked.string('rndmStore'),
     moduleSeeds = cms.PSet(
         mix = cms.untracked.uint32(77)
     )

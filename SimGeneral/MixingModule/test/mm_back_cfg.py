@@ -1,9 +1,5 @@
-# The following comments couldn't be translated into the new config version:
-
-# this is an example of how to run playback with input pileup
-# the file Cum_store.root is supposed to have been run with 
-#     module rndmStore = RandomEngineStateProducer { } or equivalent
-
+# This is an example to run in playback mode
+# Please note that it must be run with the same configuration as the initial job
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("PRODMIXBack")
@@ -16,8 +12,8 @@ process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService
 )
 
 process.source = cms.Source("PoolSource",
-    skipEvents = cms.untracked.uint32(4),
-    fileNames = cms.untracked.vstring('file:Cum_store.root')
+    skipEvents = cms.untracked.uint32(1),
+    fileNames = cms.untracked.vstring('file:/tmp/Cum_store.root')
 )
 
 process.maxEvents = cms.untracked.PSet(
@@ -47,5 +43,4 @@ process.MessageLogger = cms.Service("MessageLogger",
 process.p = cms.Path(process.mix)
 process.outpath = cms.EndPath(process.out)
 process.mix.playback = True
-
 
