@@ -13,7 +13,7 @@
 //
 // Original Author:  "Frank Chlebana"
 //         Created:  Sun Oct  5 13:57:25 CDT 2008
-// $Id: DataCertificationJetMET.cc,v 1.17 2008/11/13 07:59:03 hatake Exp $
+// $Id: DataCertificationJetMET.cc,v 1.18 2008/11/13 10:07:50 hatake Exp $
 //
 //
 
@@ -31,7 +31,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
+// #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -42,7 +42,7 @@
 // Some switches
 #define NJetAlgo 4
 #define NL3Flags 3
-#define DEBUG    0
+#define DEBUG    1
 #define METFIT   0
 
 //
@@ -108,7 +108,7 @@ DataCertificationJetMET::analyze(const edm::Event& iEvent, const edm::EventSetup
   using namespace edm;
    
 #ifdef THIS_IS_AN_EVENT_EXAMPLE
-  Handle<ExampleData> pIn;
+  Handle<ExampleData> pIn; 
   iEvent.getByLabel("example",pIn);
 #endif
    
@@ -119,103 +119,162 @@ DataCertificationJetMET::analyze(const edm::Event& iEvent, const edm::EventSetup
 
 }
 
+
 // ------------ method called once each job just before starting event loop  ------------
 void 
 DataCertificationJetMET::beginJob(const edm::EventSetup&)
 {
-  
-  int verbose  = 0;
-  int testType = 1; 
 
-  //----------------------------------------------------------------
-  // Open input files
-  //----------------------------------------------------------------
+  if (DEBUG) std::cout << ">>> BeginJob <<<" << std::endl;
+
+}
+
+
+// ------------ method called once each job just before starting event loop  ------------
+void 
+DataCertificationJetMET::endJob()
+{
+  
+  if (DEBUG) std::cout << ">>> EndJob <<<" << std::endl;
+
+  int verbose  = 0;
+  int testType = 0; 
 
   verbose   = conf_.getUntrackedParameter<int>("Verbose");
-  testType  = conf_.getUntrackedParameter<int>("TestType");
-  //
+  if (DEBUG) std::cout << ">>>DEBUG: verbose         = " <<  verbose   << std::endl;
+
+  // -----------------------------------------
   // testType 0: no comparison with histograms
   //          1: KS test
   //          2: Chi2 test
+  //
+  testType  = conf_.getUntrackedParameter<int>("TestType");
+  testType  = 0;
+  if (DEBUG) std::cout << ">>>DEBUG: TestType        = " <<  testType  << std::endl;  
 
-  std::string filename    = conf_.getUntrackedParameter<std::string>("fileName");
-  if (DEBUG) std::cout << "FileName           = " << filename    << std::endl;
-
-  std::string reffilename;
-  if (testType>=1){
-    reffilename = conf_.getUntrackedParameter<std::string>("refFileName");
-    if (DEBUG) std::cout << "Reference FileName = " << reffilename << std::endl;
-  }
-
-  // -- Current & Reference Run
-  //---------------------------------------------
-  dbe = edm::Service<DQMStore>().operator->();
-  dbe->open(filename);
-  if (testType>=1) dbe->open(reffilename);
-
-  std::vector<MonitorElement*> mes = dbe->getAllContents("");
-  if (DEBUG) std::cout << "found " <<  mes.size() << " monitoring elements!" << std::endl;
-
-  dbe->setCurrentFolder("/");
-  std::string currDir = dbe->pwd();
-  if (DEBUG) std::cout << "--- Current Directory " << currDir << std::endl;
-
-  std::vector<std::string> subDirVec = dbe->getSubdirs();
-
+  std::vector<MonitorElement*> mes;
+  std::vector<std::string> subDirVec;
   std::string RunDir;
   std::string RunNum;
   int         RunNumber;
   std::string RefRunDir;
   std::string RefRunNum;
   int         RefRunNumber;
+    
+  std::string filename    = conf_.getUntrackedParameter<std::string>("fileName");
+  if (DEBUG) std::cout << ">>>DEBUG: FileName        = " << filename    << std::endl;
+  bool InMemory = true;
 
-  // 
-  std::vector<std::string>::const_iterator ic = subDirVec.begin();
+  if (filename != "") InMemory = false;
+  if (DEBUG) std::cout << "InMemory           = " << InMemory    << std::endl;
 
-  // *** If the same file is read in then we have only one subdirectory
-  int ind = 0;
-  for (std::vector<std::string>::const_iterator ic = subDirVec.begin();
-       ic != subDirVec.end(); ic++) {
-    if (ind == 0) {
-      RefRunDir = *ic;
-      RefRunNum = *ic;
-      RunDir = *ic;
-      RunNum = *ic;
+  if (InMemory) {
+    //----------------------------------------------------------------
+    // Histograms are in memory
+    //----------------------------------------------------------------
+
+    dbe = edm::Service<DQMStore>().operator->();
+    //  if (DEBUG) std::cout << "--- DIR ---" << std::endl;
+    //  dbe->showDirStructure();
+    //  if (DEBUG) std::cout << "--- DIR ---" << std::endl;
+    
+    mes = dbe->getAllContents("");
+    if (DEBUG) std::cout << "1 >>> found " <<  mes.size() << " monitoring elements!" << std::endl;
+
+    dbe->setCurrentFolder("JetMET");
+    subDirVec = dbe->getSubdirs();
+
+    for (std::vector<std::string>::const_iterator ic = subDirVec.begin();
+	 ic != subDirVec.end(); ic++) {    
+      if (DEBUG) std::cout << "-AAA- Dir = >>" << ic->c_str() << "<<" << std::endl;
     }
-    if (ind == 1) {
-      RunDir = *ic;
-      RunNum = *ic;
+
+    RunDir    = "";
+    RefRunDir = "";
+
+  } else {
+    //----------------------------------------------------------------
+    // Open input files
+    //----------------------------------------------------------------
+
+    std::string filename    = conf_.getUntrackedParameter<std::string>("fileName");
+    if (DEBUG) std::cout << "FileName           = " << filename    << std::endl;
+
+    std::string reffilename;
+    if (testType>=1){
+      reffilename = conf_.getUntrackedParameter<std::string>("refFileName");
+      if (DEBUG) std::cout << "Reference FileName = " << reffilename << std::endl;
     }
-    if (DEBUG) std::cout << "-XXX- Dir = >>" << ic->c_str() << "<<" << std::endl;
-    ind++;
+
+    // -- Current & Reference Run
+    //---------------------------------------------
+    dbe = edm::Service<DQMStore>().operator->();
+    //  dbe->open(filename);
+    //  if (testType>=1) dbe->open(reffilename);
+
+    mes = dbe->getAllContents("");
+    if (DEBUG) std::cout << "found " <<  mes.size() << " monitoring elements!" << std::endl;
+    
+    dbe->setCurrentFolder("/");
+    std::string currDir = dbe->pwd();
+    if (DEBUG) std::cout << "--- Current Directory " << currDir << std::endl;
+
+    subDirVec = dbe->getSubdirs();
+
+    // 
+    //  std::vector<std::string>::const_iterator ic = subDirVec.begin();
+    
+    // *** If the same file is read in then we have only one subdirectory
+    int ind = 0;
+    for (std::vector<std::string>::const_iterator ic = subDirVec.begin();
+	 ic != subDirVec.end(); ic++) {
+      if (ind == 0) {
+	RefRunDir = *ic;
+	RefRunNum = *ic;
+	RunDir = *ic;
+	RunNum = *ic;
+      }
+      if (ind == 1) {
+	RunDir = *ic;
+	RunNum = *ic;
+      }
+      if (DEBUG) std::cout << "-XXX- Dir = >>" << ic->c_str() << "<<" << std::endl;
+      ind++;
+    }
+
+    //
+    // Current
+    //
+    if (RunDir == "JetMET") {
+      RunDir = "";
+      if (DEBUG) std::cout << "-XXX- RunDir = >>" << RunDir.c_str() << "<<" << std::endl;
+    }
+    RunNum.erase(0,4);
+    RunNumber = atoi(RunNum.c_str());
+    if (DEBUG) std::cout << "--- >>" << RunNumber << "<<" << std::endl;
+
+    //
+    // Reference
+    //
+    if (testType>=1){
+      
+      if (RefRunDir == "JetMET") {
+	RefRunDir = "";
+	if (DEBUG) std::cout << "-XXX- RefRunDir = >>" << RefRunDir.c_str() << "<<" << std::endl;
+      }
+      RefRunNum.erase(0,4);
+      RefRunNumber = atoi(RefRunNum.c_str());
+      if (DEBUG) std::cout << "--- >>" << RefRunNumber << "<<" << std::endl;
+      
+    }
+    //  ic++;
   }
 
-  //
-  // Current
-  //
-  if (RunDir == "JetMET") {
-    RunDir = "";
-    if (DEBUG) std::cout << "-XXX- RunDir = >>" << RunDir.c_str() << "<<" << std::endl;
-  }
-  RunNum.erase(0,4);
-  RunNumber = atoi(RunNum.c_str());
-  if (DEBUG) std::cout << "--- >>" << RunNumber << "<<" << std::endl;
 
-  //
-  // Reference
-  //
-  if (testType>=1){
+  //----------------------------------------------------------------
+  // Reference Histograms
+  //----------------------------------------------------------------
 
-    if (RefRunDir == "JetMET") {
-      RefRunDir = "";
-      if (DEBUG) std::cout << "-XXX- RefRunDir = >>" << RefRunDir.c_str() << "<<" << std::endl;
-    }
-    RefRunNum.erase(0,4);
-    RefRunNumber = atoi(RefRunNum.c_str());
-    if (DEBUG) std::cout << "--- >>" << RefRunNumber << "<<" << std::endl;
-
-  }
-  //  ic++;
 
   //----------------------------------------------------------------
   // Book integers/histograms for data certification results
@@ -379,6 +438,7 @@ DataCertificationJetMET::beginJob(const edm::EventSetup&)
 
     meRef = dbe->get(refHistoName+"Pt");
     meNew = dbe->get(newHistoName+"Pt");    
+
     if ((meRef) && (meNew)) {
       TH1F *refHisto = meRef->getTH1F();
       TH1F *newHisto = meNew->getTH1F();
@@ -703,6 +763,13 @@ DataCertificationJetMET::beginJob(const edm::EventSetup&)
   meNew = dbe->get(newHistoName+"CaloMExNoHF_LS");  if (meNew) hCaloMExNoHF_LS = meNew->getTH2F();
   meNew = dbe->get(newHistoName+"CaloMEyNoHF_LS");  if (meNew) hCaloMEyNoHF_LS = meNew->getTH2F();
 
+  if (meNew) {
+    if (verbose > 0) std::cout << ">>> meNew Found!!!" << std::endl;    
+  } else {
+    if (verbose > 0) std::cout << ">>> meNew Not Found!!!" << std::endl;    
+    return;
+  }
+
   // Prepare reference histograms
   TH1F *hRefMExy[6];
   TH1F *hRefMETPhi[2];
@@ -857,10 +924,23 @@ DataCertificationJetMET::beginJob(const edm::EventSetup&)
   for (int LS=1; LS<nLSBins; LS++){
 
     // Projection returns a 
-    sprintf(ctitle,"CaloMEx_%04d",LS);     CaloMEx_LS[LS]=hCaloMEx_LS->ProjectionX(ctitle,LS+1,LS+1);
-    sprintf(ctitle,"CaloMEy_%04d",LS);     CaloMEy_LS[LS]=hCaloMEy_LS->ProjectionX(ctitle,LS+1,LS+1);
-    sprintf(ctitle,"CaloMExNoHF_%04d",LS); CaloMExNoHF_LS[LS]=hCaloMExNoHF_LS->ProjectionX(ctitle,LS+1,LS+1);
-    sprintf(ctitle,"CaloMEyNoHF_%04d",LS); CaloMEyNoHF_LS[LS]=hCaloMEyNoHF_LS->ProjectionX(ctitle,LS+1,LS+1);
+
+    sprintf(ctitle,"CaloMEx_%04d",LS);     
+    if (verbose > 0) std::cout << ">>> ProjectX " << ctitle
+			       << std::endl;    
+    CaloMEx_LS[LS]=hCaloMEx_LS->ProjectionX(ctitle,LS+1,LS+1);
+    sprintf(ctitle,"CaloMEy_%04d",LS);     
+    if (verbose > 0) std::cout << ">>> ProjectX " << ctitle
+			       << std::endl;    
+    CaloMEy_LS[LS]=hCaloMEy_LS->ProjectionX(ctitle,LS+1,LS+1);
+    sprintf(ctitle,"CaloMExNoHF_%04d",LS); 
+    if (verbose > 0) std::cout << ">>> ProjectX " << ctitle
+			       << std::endl;    
+    CaloMExNoHF_LS[LS]=hCaloMExNoHF_LS->ProjectionX(ctitle,LS+1,LS+1);
+    sprintf(ctitle,"CaloMEyNoHF_%04d",LS); 
+    if (verbose > 0) std::cout << ">>> ProjectX " << ctitle
+			       << std::endl;    
+    CaloMEyNoHF_LS[LS]=hCaloMEyNoHF_LS->ProjectionX(ctitle,LS+1,LS+1);
 
     if (METFIT){
       if (CaloMEx_LS[LS]->GetSum()>0.) {
@@ -1118,12 +1198,7 @@ DataCertificationJetMET::beginJob(const edm::EventSetup&)
   // -- 
   //dbe->rmdir(RefRunDir); // Delete reference plots from DQMStore
   // --
-  
-}
 
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-DataCertificationJetMET::endJob() {
 
   //  LogTrace(metname)<<"[DataCertificationJetMET] Saving the histos";
   //  bool outputFile            = conf_.getParameter<bool>("OutputFile");
@@ -1131,14 +1206,17 @@ DataCertificationJetMET::endJob() {
 
   bool outputFile            = conf_.getUntrackedParameter<bool>("OutputFile");
   std::string outputFileName = conf_.getUntrackedParameter<std::string>("OutputFileName");
-
   if (DEBUG) std::cout << ">>> endJob " << outputFile << std:: endl;
 
   if(outputFile){
     //dbe->showDirStructure();
     dbe->save(outputFileName);
   }
+
+
 }
+
+
 
 // ------------------------------------------------------------
 int 
