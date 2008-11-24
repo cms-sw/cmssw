@@ -8,6 +8,8 @@
 #include "TString.h"
 #include <iostream>
 #include "TStyle.h"
+#include "TGraph.h"
+#include "TMultiGraph.h"
 
 comparisonPlots::comparisonPlots(std::string filename, std::string outputDir, std::string outputFilename)
 {
@@ -69,43 +71,43 @@ void comparisonPlots::plot3x5(TCut Cut, char* dirName, bool savePlot, std::strin
 	double minimumDX, maximumDX;
 	double minimumDY, maximumDY;
 	if (autolimits){
-	// ---------  get right limits for histogram ---------
-	TH1F* phr = new TH1F("phr", "phr", 200, 0, 200);
-	TH1F* phz = new TH1F("phz", "phz", 400, -200, 200);
-	TH1F* phphi = new TH1F("phphi", "phphi", 200, -3.15, 3.15);
-	TH1F* phdr = new TH1F("phdr", "phdr", 2000, -10, 10);
-	TH1F* phdz = new TH1F("phdz", "phdz", 2000, -10, 10);
-	TH1F* phrdphi = new TH1F("phrdphi", "phrdphi", 200, -10, 10);
-	TH1F* phdx = new TH1F("phdx", "phy", 2000, -10, 10);
-	TH1F* phdy = new TH1F("phdy", "phy", 2000, -10, 10);
-	data->Project("phr","r",Cut);
-	data->Project("phz","z",Cut);
-	data->Project("phphi","phi",Cut);
-	data->Project("phdr","dr",Cut);
-	data->Project("phdz","dz",Cut);
-	data->Project("phrdphi","r*dphi",Cut);
-	data->Project("phdx","dx",Cut);
-	data->Project("phdy","dy",Cut);
-	getHistMaxMin(phr, maximumR, minimumR, 0);
-	getHistMaxMin(phz, maximumZ, minimumZ, 0);
-	getHistMaxMin(phphi, maximumPhi, minimumPhi, 0);
-	getHistMaxMin(phdr, maximumDR, minimumDR, 1);
-	getHistMaxMin(phdz, maximumDZ, minimumDZ, 1);
-	getHistMaxMin(phrdphi, maximumRDPhi, minimumRDPhi, 1);
-	getHistMaxMin(phdx, maximumDX, minimumDX, 1);
-	getHistMaxMin(phdy, maximumDY, minimumDY, 1);
+		// ---------  get right limits for histogram ---------
+		TH1F* phr = new TH1F("phr", "phr", 200, 0, 200);
+		TH1F* phz = new TH1F("phz", "phz", 400, -300, 300);
+		TH1F* phphi = new TH1F("phphi", "phphi", 200, -3.15, 3.15);
+		TH1F* phdr = new TH1F("phdr", "phdr", 2000, -10, 10);
+		TH1F* phdz = new TH1F("phdz", "phdz", 2000, -10, 10);
+		TH1F* phrdphi = new TH1F("phrdphi", "phrdphi", 200, -10, 10);
+		TH1F* phdx = new TH1F("phdx", "phy", 2000, -10, 10);
+		TH1F* phdy = new TH1F("phdy", "phy", 2000, -10, 10);
+		data->Project("phr","r",Cut);
+		data->Project("phz","z",Cut);
+		data->Project("phphi","phi",Cut);
+		data->Project("phdr","dr",Cut);
+		data->Project("phdz","dz",Cut);
+		data->Project("phrdphi","r*dphi",Cut);
+		data->Project("phdx","dx",Cut);
+		data->Project("phdy","dy",Cut);
+		getHistMaxMin(phr, maximumR, minimumR, 0);
+		getHistMaxMin(phz, maximumZ, minimumZ, 0);
+		getHistMaxMin(phphi, maximumPhi, minimumPhi, 0);
+		getHistMaxMin(phdr, maximumDR, minimumDR, 1);
+		getHistMaxMin(phdz, maximumDZ, minimumDZ, 1);
+		getHistMaxMin(phrdphi, maximumRDPhi, minimumRDPhi, 1);
+		getHistMaxMin(phdx, maximumDX, minimumDX, 1);
+		getHistMaxMin(phdy, maximumDY, minimumDY, 1);
 	}
 	else{
-	minimumR = 0., maximumR = 200.; 
-	minimumZ = -200., maximumZ = 200.; 
-	minimumPhi = -3.15, maximumPhi = 3.15;
-	minimumDR = -1, maximumDR = 1;
-	minimumDZ = -1, maximumDZ = 1;
-	minimumRDPhi = -1, maximumRDPhi = 1;
-	minimumDX = -1, maximumDX = 1;
-	minimumDY = -1, maximumDY = 1;
+		minimumR = 0., maximumR = 200.; 
+		minimumZ = -300., maximumZ = 300.; 
+		minimumPhi = -3.15, maximumPhi = 3.15;
+		minimumDR = -1, maximumDR = 1;
+		minimumDZ = -1, maximumDZ = 1;
+		minimumRDPhi = -1, maximumRDPhi = 1;
+		minimumDX = -1, maximumDX = 1;
+		minimumDY = -1, maximumDY = 1;
 	}
-		
+	
 	
 	// ---------  declare histograms ---------
 	TH1F* h_dr = new TH1F("h_dr", "#Delta r", 2000, minimumDR, maximumDR);
@@ -127,26 +129,196 @@ void comparisonPlots::plot3x5(TCut Cut, char* dirName, bool savePlot, std::strin
 	TH2F* h_dxVphi = new TH2F("h_dxVphi","#Delta x vs. #phi", 200,minimumPhi,maximumPhi, 200,minimumDX,maximumDX);
 	TH2F* h_dyVphi = new TH2F("h_dyVphi","#Delta y vs. #phi", 200,minimumPhi,maximumPhi, 200,minimumDY,maximumDY);
 	
+	h_drVr->SetMarkerStyle(6);
+	h_dzVr->SetMarkerStyle(6);
+	h_rdphiVr->SetMarkerStyle(6);
+	h_dxVr->SetMarkerStyle(6);
+	h_dyVr->SetMarkerStyle(6);
+	h_drVz->SetMarkerStyle(6);
+	h_dzVz->SetMarkerStyle(6);
+	h_rdphiVz->SetMarkerStyle(6);
+	h_dxVz->SetMarkerStyle(6);
+	h_dyVz->SetMarkerStyle(6);
+	h_drVphi->SetMarkerStyle(6);
+	h_dzVphi->SetMarkerStyle(6);
+	h_rdphiVphi->SetMarkerStyle(6);
+	h_dxVphi->SetMarkerStyle(6);
+	h_dyVphi->SetMarkerStyle(6);
+	
+	TCut zCut[2];
+	zCut[0] = "z < 0";
+	zCut[1] = "z >= 0";
+	
 	// ---------  project tree onto histograms ---------
 	data->Project("h_dr","dr",Cut);
 	data->Project("h_dz","dz",Cut);
 	data->Project("h_rdphi","r*dphi",Cut);
 	data->Project("h_drVr", "dr:r",Cut);
+	TGraph* gr_drVr_Array[2];
+	TMultiGraph* mgr_drVr=new TMultiGraph();
+	for ( int i = 0; i < 2; i++) {
+		data->Draw("dr:r",Cut);	  
+		gr_drVr_Array[i] = new TGraph(data->GetSelectedRows(),data->GetV2(),data->GetV1());
+		gr_drVr_Array[i]->SetMarkerColor(4);	  
+		gr_drVr_Array[i]->SetMarkerStyle(6);	  
+		mgr_drVr->Add(gr_drVr_Array[i],"p");
+	}	
+	
 	data->Project("h_dzVr", "dz:r",Cut);
+	TGraph* gr_dzVr_Array[2];
+	TMultiGraph* mgr_dzVr=new TMultiGraph();
+	for ( int i = 0; i < 2; i++) {
+		data->Draw("dz:r",Cut+zCut[i]);	  
+		gr_dzVr_Array[i] = new TGraph(data->GetSelectedRows(),data->GetV2(),data->GetV1());
+		gr_dzVr_Array[i]->SetMarkerColor((i+1)*2);	  
+		gr_dzVr_Array[i]->SetMarkerStyle(6);	  
+		mgr_dzVr->Add(gr_dzVr_Array[i],"p");
+	}
+	
 	data->Project("h_rdphiVr", "r*dphi:r",Cut);
+	TGraph* gr_rdphiVr_Array[2];
+	TMultiGraph* mgr_rdphiVr=new TMultiGraph();
+	for ( int i = 0; i < 2; i++) {
+		data->Draw("r*dphi:r",Cut+zCut[i]);	  
+		gr_rdphiVr_Array[i] = new TGraph(data->GetSelectedRows(),data->GetV2(),data->GetV1());
+		gr_rdphiVr_Array[i]->SetMarkerColor((i+1)*2);	  
+		gr_rdphiVr_Array[i]->SetMarkerStyle(6);	  
+		mgr_rdphiVr->Add(gr_rdphiVr_Array[i],"p");
+	}
+	
 	data->Project("h_dxVr", "dx:r",Cut);
+	TGraph* gr_dxVr_Array[2];
+	TMultiGraph* mgr_dxVr=new TMultiGraph();
+	for ( int i = 0; i < 2; i++) {
+		data->Draw("dx:r",Cut+zCut[i]);	  
+		gr_dxVr_Array[i] = new TGraph(data->GetSelectedRows(),data->GetV2(),data->GetV1());
+		gr_dxVr_Array[i]->SetMarkerColor((i+1)*2);	  
+		gr_dxVr_Array[i]->SetMarkerStyle(6);	  
+		mgr_dxVr->Add(gr_dxVr_Array[i],"p");
+	}
+	
 	data->Project("h_dyVr", "dy:r",Cut);
+	TGraph* gr_dyVr_Array[2];
+	TMultiGraph* mgr_dyVr=new TMultiGraph();
+	for ( int i = 0; i < 2; i++) {
+		data->Draw("dy:r",Cut+zCut[i]);	  
+		gr_dyVr_Array[i] = new TGraph(data->GetSelectedRows(),data->GetV2(),data->GetV1());
+		gr_dyVr_Array[i]->SetMarkerColor((i+1)*2);	  
+		gr_dyVr_Array[i]->SetMarkerStyle(6);	  
+		mgr_dyVr->Add(gr_dyVr_Array[i],"p");
+	}
+	
 	data->Project("h_drVz", "dr:z",Cut);
+	TGraph* gr_drVz_Array[2];
+	TMultiGraph* mgr_drVz=new TMultiGraph();
+	for ( int i = 0; i < 2; i++) {
+		data->Draw("dr:z",Cut+zCut[i]);	  
+		gr_drVz_Array[i] = new TGraph(data->GetSelectedRows(),data->GetV2(),data->GetV1());
+		gr_drVz_Array[i]->SetMarkerColor((i+1)*2);	  
+		gr_drVz_Array[i]->SetMarkerStyle(6);	  
+		mgr_drVz->Add(gr_drVz_Array[i],"p");
+	}
+	
 	data->Project("h_dzVz", "dz:z",Cut);
+	TGraph* gr_dzVz_Array[2];
+	TMultiGraph* mgr_dzVz=new TMultiGraph();
+	for ( int i = 0; i < 2; i++) {
+		data->Draw("dz:z",Cut+zCut[i]);	  
+		gr_dzVz_Array[i] = new TGraph(data->GetSelectedRows(),data->GetV2(),data->GetV1());
+		gr_dzVz_Array[i]->SetMarkerColor((i+1)*2);	  
+		gr_dzVz_Array[i]->SetMarkerStyle(6);	  
+		mgr_dzVz->Add(gr_dzVz_Array[i],"p");
+	}
+	
 	data->Project("h_rdphiVz", "r*dphi:z",Cut);
+	TGraph* gr_rdphiVz_Array[2];
+	TMultiGraph* mgr_rdphiVz=new TMultiGraph();
+	for ( int i = 0; i < 2; i++) {
+		data->Draw("r*dphi:z",Cut+zCut[i]);	  
+		gr_rdphiVz_Array[i] = new TGraph(data->GetSelectedRows(),data->GetV2(),data->GetV1());
+		gr_rdphiVz_Array[i]->SetMarkerColor((i+1)*2);	  
+		gr_rdphiVz_Array[i]->SetMarkerStyle(6);	  
+		mgr_rdphiVz->Add(gr_rdphiVz_Array[i],"p");
+	}
+	
 	data->Project("h_dxVz", "dx:z",Cut);
+	TGraph* gr_dxVz_Array[2];
+	TMultiGraph* mgr_dxVz=new TMultiGraph();
+	for ( int i = 0; i < 2; i++) {
+		data->Draw("dx:z",Cut+zCut[i]);	  
+		gr_dxVz_Array[i] = new TGraph(data->GetSelectedRows(),data->GetV2(),data->GetV1());
+		gr_dxVz_Array[i]->SetMarkerColor((i+1)*2);	  
+		gr_dxVz_Array[i]->SetMarkerStyle(6);	  
+		mgr_dxVz->Add(gr_dxVz_Array[i],"p");
+	}
+	
 	data->Project("h_dyVz", "dy:z",Cut);
+	TGraph* gr_dyVz_Array[2];
+	TMultiGraph* mgr_dyVz=new TMultiGraph();
+	for ( int i = 0; i < 2; i++) {
+		data->Draw("dy:z",Cut+zCut[i]);	  
+		gr_dyVz_Array[i] = new TGraph(data->GetSelectedRows(),data->GetV2(),data->GetV1());
+		gr_dyVz_Array[i]->SetMarkerColor((i+1)*2);	  
+		gr_dyVz_Array[i]->SetMarkerStyle(6);	  
+		mgr_dyVz->Add(gr_dyVz_Array[i],"p");
+	}
+	
 	data->Project("h_drVphi", "dr:phi",Cut);
+	TGraph* gr_drVphi_Array[2];
+	TMultiGraph* mgr_drVphi=new TMultiGraph();
+	for ( int i = 0; i < 2; i++) {
+		data->Draw("dr:phi",Cut+zCut[i]);	  
+		gr_drVphi_Array[i] = new TGraph(data->GetSelectedRows(),data->GetV2(),data->GetV1());
+		gr_drVphi_Array[i]->SetMarkerColor((i+1)*2);	  
+		gr_drVphi_Array[i]->SetMarkerStyle(6);	  
+		mgr_drVphi->Add(gr_drVphi_Array[i],"p");
+	}
+	
 	data->Project("h_dzVphi", "dz:phi",Cut);
+	TGraph* gr_dzVphi_Array[2];
+	TMultiGraph* mgr_dzVphi=new TMultiGraph();
+	for ( int i = 0; i < 2; i++) {
+		data->Draw("dz:phi",Cut+zCut[i]);	  
+		gr_dzVphi_Array[i] = new TGraph(data->GetSelectedRows(),data->GetV2(),data->GetV1());
+		gr_dzVphi_Array[i]->SetMarkerColor((i+1)*2);	  
+		gr_dzVphi_Array[i]->SetMarkerStyle(6);	  
+		mgr_dzVphi->Add(gr_dzVphi_Array[i],"p");
+	}
+	
 	data->Project("h_rdphiVphi", "r*dphi:phi",Cut);
+	TGraph* gr_rdphiVphi_Array[2];
+	TMultiGraph* mgr_rdphiVphi=new TMultiGraph();
+	for ( int i = 0; i < 2; i++) {
+		data->Draw("r*dphi:phi",Cut+zCut[i]);	  
+		gr_rdphiVphi_Array[i] = new TGraph(data->GetSelectedRows(),data->GetV2(),data->GetV1());
+		gr_rdphiVphi_Array[i]->SetMarkerColor((i+1)*2);	  
+		gr_rdphiVphi_Array[i]->SetMarkerStyle(6);	  
+		mgr_rdphiVphi->Add(gr_rdphiVphi_Array[i],"p");
+	}
+	
 	data->Project("h_dxVphi", "dx:phi",Cut);
+	TGraph* gr_dxVphi_Array[2];
+	TMultiGraph* mgr_dxVphi=new TMultiGraph();
+	for ( int i = 0; i < 2; i++) {
+		data->Draw("dx:phi",Cut+zCut[i]);	  
+		gr_dxVphi_Array[i] = new TGraph(data->GetSelectedRows(),data->GetV2(),data->GetV1());
+		gr_dxVphi_Array[i]->SetMarkerColor((i+1)*2);	  
+		gr_dxVphi_Array[i]->SetMarkerStyle(6);	  
+		mgr_dxVphi->Add(gr_dxVphi_Array[i],"p");
+	}
+	
 	data->Project("h_dyVphi", "dy:phi",Cut);
-	 
+	TGraph* gr_dyVphi_Array[2];
+	TMultiGraph* mgr_dyVphi=new TMultiGraph();
+	for ( int i = 0; i < 2; i++) {
+		data->Draw("dy:phi",Cut+zCut[i]);	  
+		gr_dyVphi_Array[i] = new TGraph(data->GetSelectedRows(),data->GetV2(),data->GetV1());
+		gr_dyVphi_Array[i]->SetMarkerColor((i+1)*2);	  
+		gr_dyVphi_Array[i]->SetMarkerStyle(6);	  
+		mgr_dyVphi->Add(gr_dyVphi_Array[i],"p");
+	}
+	
+	
 	
 	// ---------  draw histograms ---------
 	TCanvas* c0 = new TCanvas("c0", "c0", 200, 10, 900, 300);
@@ -159,7 +331,6 @@ void comparisonPlots::plot3x5(TCut Cut, char* dirName, bool savePlot, std::strin
 	c0->cd(3);
 	h_rdphi->Draw();
 	if (savePlot) c0->Print((_outputDir+"plot3x1_"+plotName).c_str());
-
 	
 	// ---------  draw histograms ---------
 	TCanvas* c = new TCanvas("c", "c", 200, 10, 1200, 700);
@@ -168,35 +339,54 @@ void comparisonPlots::plot3x5(TCut Cut, char* dirName, bool savePlot, std::strin
 	data->SetMarkerStyle(6);
 	c->Divide(5,3);
 	c->cd(1);
-	h_drVr->Draw();
+	if (!autolimits) h_drVr->Draw();
+	if (autolimits) mgr_drVr->Draw("a");
+	c->Update();
 	c->cd(2);
-	h_dzVr->Draw();
+	if (!autolimits) h_dzVr->Draw();
+	if (autolimits) mgr_dzVr->Draw("a");
+	c->Update();
 	c->cd(3);
-	h_rdphiVr->Draw();
+	if (!autolimits) h_rdphiVr->Draw();
+	if (autolimits) mgr_rdphiVr->Draw("a");
 	c->cd(4);
-	h_dxVr->Draw();
+	if (!autolimits) h_dxVr->Draw();
+	if (autolimits) mgr_dxVr->Draw("a");
 	c->cd(5);
-	h_dyVr->Draw();
+	if (!autolimits) h_dyVr->Draw();
+	if (autolimits) mgr_dyVr->Draw("a");
 	c->cd(6);
-	h_drVz->Draw();
+	if (!autolimits) h_drVz->Draw();
+	if (autolimits) mgr_drVz->Draw("a");
 	c->cd(7);
-	h_dzVz->Draw();
+	if (!autolimits) h_dzVz->Draw();
+	if (autolimits) mgr_dzVz->Draw("a");
 	c->cd(8);
-	h_rdphiVz->Draw();
+	if (!autolimits) h_rdphiVz->Draw();
+	if (autolimits) mgr_rdphiVz->Draw("a");
 	c->cd(9);
-	h_dxVz->Draw();
+	if (!autolimits) h_dxVz->Draw();
+	if (autolimits) mgr_dxVz->Draw("a");
 	c->cd(10);
-	h_dyVz->Draw();
+	if (!autolimits) h_dyVz->Draw();
+	if (autolimits) mgr_dyVz->Draw("a");
 	c->cd(11);
-	h_drVphi->Draw();
+	if (!autolimits) h_drVphi->Draw();
+	if (autolimits) mgr_drVphi->Draw("a");
 	c->cd(12);
-	h_dzVphi->Draw();
+	if (!autolimits) h_dzVphi->Draw();
+	if (autolimits) mgr_dzVphi->Draw("a");
 	c->cd(13);
-	h_rdphiVphi->Draw();
+	if (!autolimits) h_rdphiVphi->Draw();
+	if (autolimits) mgr_rdphiVphi->Draw("a");
 	c->cd(14);
-	h_dxVphi->Draw();
+	if (!autolimits) h_dxVphi->Draw();
+	if (autolimits) mgr_dxVphi->Draw("a");
 	c->cd(15);
-	h_dyVphi->Draw();
+	if (!autolimits) h_dyVphi->Draw();
+	if (autolimits) mgr_dyVphi->Draw("a");
+	
+	c->Update();
 	
 	// ---------  set output directory for histograms ---------
 	plotDir->cd();
@@ -217,8 +407,8 @@ void comparisonPlots::plot3x5Profile(TCut Cut, char* dirName, int nBins, bool sa
 	s = s + dirName;
 	s.append("_profile");
 	TDirectory* plotDir = output->mkdir( s.data() );
-
-
+	
+	
 	double minimumR, maximumR;
 	double minimumZ, maximumZ;
 	double minimumPhi, maximumPhi;
@@ -228,41 +418,41 @@ void comparisonPlots::plot3x5Profile(TCut Cut, char* dirName, int nBins, bool sa
 	double minimumDX, maximumDX;
 	double minimumDY, maximumDY;
 	if (autolimits){
-	// ---------  get right limits for histogram ---------
-	TH1F* phr = new TH1F("phr", "phr", 200, 0, 200);
-	TH1F* phz = new TH1F("phz", "phz", 400, -200, 200);
-	TH1F* phphi = new TH1F("phphi", "phphi", 200, -3.15, 3.15);
-	TH1F* phdr = new TH1F("phdr", "phdr", 2000, -10, 10);
-	TH1F* phdz = new TH1F("phdz", "phdz", 2000, -10, 10);
-	TH1F* phrdphi = new TH1F("phrdphi", "phrdphi", 200, -10, 10);
-	TH1F* phdx = new TH1F("phdx", "phy", 2000, -10, 10);
-	TH1F* phdy = new TH1F("phdy", "phy", 2000, -10, 10);
-	data->Project("phr","r",Cut);
-	data->Project("phz","z",Cut);
-	data->Project("phphi","phi",Cut);
-	data->Project("phdr","dr",Cut);
-	data->Project("phdz","dz",Cut);
-	data->Project("phrdphi","r*dphi",Cut);
-	data->Project("phdx","dx",Cut);
-	data->Project("phdy","dy",Cut);
-	getHistMaxMin(phr, maximumR, minimumR, 0);
-	getHistMaxMin(phz, maximumZ, minimumZ, 0);
-	getHistMaxMin(phphi, maximumPhi, minimumPhi, 0);
-	getHistMaxMin(phdr, maximumDR, minimumDR, 1);
-	getHistMaxMin(phdz, maximumDZ, minimumDZ, 1);
-	getHistMaxMin(phrdphi, maximumRDPhi, minimumRDPhi, 1);
-	getHistMaxMin(phdx, maximumDX, minimumDX, 1);
-	getHistMaxMin(phdy, maximumDY, minimumDY, 1);
+		// ---------  get right limits for histogram ---------
+		TH1F* phr = new TH1F("phr", "phr", 200, 0, 200);
+		TH1F* phz = new TH1F("phz", "phz", 400, -300, 300);
+		TH1F* phphi = new TH1F("phphi", "phphi", 200, -3.15, 3.15);
+		TH1F* phdr = new TH1F("phdr", "phdr", 2000, -10, 10);
+		TH1F* phdz = new TH1F("phdz", "phdz", 2000, -10, 10);
+		TH1F* phrdphi = new TH1F("phrdphi", "phrdphi", 200, -10, 10);
+		TH1F* phdx = new TH1F("phdx", "phy", 2000, -10, 10);
+		TH1F* phdy = new TH1F("phdy", "phy", 2000, -10, 10);
+		data->Project("phr","r",Cut);
+		data->Project("phz","z",Cut);
+		data->Project("phphi","phi",Cut);
+		data->Project("phdr","dr",Cut);
+		data->Project("phdz","dz",Cut);
+		data->Project("phrdphi","r*dphi",Cut);
+		data->Project("phdx","dx",Cut);
+		data->Project("phdy","dy",Cut);
+		getHistMaxMin(phr, maximumR, minimumR, 0);
+		getHistMaxMin(phz, maximumZ, minimumZ, 0);
+		getHistMaxMin(phphi, maximumPhi, minimumPhi, 0);
+		getHistMaxMin(phdr, maximumDR, minimumDR, 1);
+		getHistMaxMin(phdz, maximumDZ, minimumDZ, 1);
+		getHistMaxMin(phrdphi, maximumRDPhi, minimumRDPhi, 1);
+		getHistMaxMin(phdx, maximumDX, minimumDX, 1);
+		getHistMaxMin(phdy, maximumDY, minimumDY, 1);
 	}
 	else{
-	minimumR = 0., maximumR = 200.; 
-	minimumZ = -200., maximumZ = 200.; 
-	minimumPhi = -3.15, maximumPhi = 3.15;
-	minimumDR = -1, maximumDR = 1;
-	minimumDZ = -1, maximumDZ = 1;
-	minimumRDPhi = -1, maximumRDPhi = 1;
-	minimumDX = -1, maximumDX = 1;
-	minimumDY = -1, maximumDY = 1;
+		minimumR = 0., maximumR = 200.; 
+		minimumZ = -300., maximumZ = 300.; 
+		minimumPhi = -3.15, maximumPhi = 3.15;
+		minimumDR = -1, maximumDR = 1;
+		minimumDZ = -1, maximumDZ = 1;
+		minimumRDPhi = -1, maximumRDPhi = 1;
+		minimumDX = -1, maximumDX = 1;
+		minimumDY = -1, maximumDY = 1;
 	}
 	
 	// ---------  declare histograms ---------
@@ -380,7 +570,7 @@ void comparisonPlots::getMaxMin(){
 		if (dy_ > maxDY) maxDY = dy_;
 	}
 }
-	
+
 
 void comparisonPlots::getHistMaxMin(TH1* hist, double &max, double &min, int flag){
 	
@@ -390,13 +580,13 @@ void comparisonPlots::getHistMaxMin(TH1* hist, double &max, double &min, int fla
 		if (binContent > 0){
 			//double binWidth = hist->GetBinLowEdge(i) - hist->GetBinLowEdge(i-1);
 			//std::cout << "bin width1: " << hist->GetBinWidth(i) << ", bin width2: " << binWidth << std::endl;
-			if (flag == 0) max = hist->GetBinLowEdge(i) + 2.*hist->GetBinWidth(i);
-			if (flag == 1) max = hist->GetBinLowEdge(i) + hist->GetBinWidth(i);
+			if (flag == 0) max = hist->GetBinLowEdge(i) + 2.*hist->GetBinWidth(i) + 0.1*hist->GetBinLowEdge(i);
+			if (flag == 1) max = hist->GetBinLowEdge(i) + hist->GetBinWidth(i) + 0.1*hist->GetBinLowEdge(i);
 		}
 	}
 	for (int i = (nBins-1); i >= 0; i--){
 		double binContent = hist->GetBinContent(i);
-		if (binContent > 0) min = hist->GetBinLowEdge(i);
+		if (binContent > 0) min = hist->GetBinLowEdge(i) - 0.1*hist->GetBinLowEdge(i);
 	}
 	//std::cout << "max: " << max << ", min: " << min << std::endl;
 }
