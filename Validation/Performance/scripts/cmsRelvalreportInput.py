@@ -79,7 +79,6 @@ def checkSteps(steps):
         if "-" in step:
             split = astep.split("-")
             astep = split[0]
-
         idx = AllSteps.index(astep)
         if not ( idx == -2 ):
             if lstidx > idx:
@@ -94,7 +93,8 @@ def getSteps(userSteps):
 
     # Then split the user steps into "steps"
     gsreg = re.compile('GEN-SIM')
-    StepsTokens = userSteps.split(r",")
+    greg = re.compile('GEN') #Add a second hack (due to the first) to handle the step 1 case GEN-HLT
+    StepsTokens = userSteps.split(",")
     steps = [] 
     for astep in StepsTokens:
 
@@ -103,7 +103,9 @@ def getSteps(userSteps):
 
         if gsreg.search(astep):
             astep = gsreg.sub(r"GEN,SIM", astep)
-
+        elif greg.search(astep):
+            astep = greg.sub(r"GEN,SIM", astep)
+            
         # print astep
         # Finally collect all the steps into the @Steps array:
 
@@ -487,7 +489,8 @@ def writeCommands(simcandles,
         userSteps = steps
     else:
         #Handling the case of the first user step not being the first step (GEN,SIM):
-        if not (steps[0] == AllSteps[0]):
+        print steps
+        if not (steps[0] == AllSteps[0]) and (steps[0].split("-")[0] != "GEN,SIM"):
             #Write the necessary line to run without profiling all the steps before the wanted ones in one shot:
             (stepIndex, rootFileStr) = writePrerequisteSteps(simcandles,steps,acandle,NumberOfEvents,cmsDriverOptions)
             
@@ -508,7 +511,8 @@ def writeCommands(simcandles,
             runSteps = AllSteps[start:lst]
             numOfSteps = (lst - start) + 1
             stopIndex = start + numOfSteps
-        #Handling the case in which the first user step is the same as the first step (GEN,SIM) 
+        #Handling the case in which the first user step is the same as the first step (GEN,SIM)
+        #elif  not (steps[0] == AllSteps[0]) and (steps[0].split("-")[0] == "GEN"):
         else:
             #Handling the case of the last step being a composite one:
             if "-" in steps[-1]:
