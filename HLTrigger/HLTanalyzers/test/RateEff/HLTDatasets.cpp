@@ -536,9 +536,8 @@ HLTDatasets::HLTDatasets(const std::vector<TString>& triggerNames, const Char_t*
               if (triggerIndex < 0 || (emulationIndex >= 0 && preferEmulatedTriggers))
                 datasetsConfig.back().push_back(Trigger(emulationName, emulationIndex));
               else datasetsConfig.back().push_back(Trigger(line, triggerIndex));
-              notInDataset[triggerIndex]      = kFALSE;
-              if (emulationIndex >= 0)
-                notInDataset[emulationIndex]  = kFALSE;
+              if (triggerIndex >= 0)      notInDataset[triggerIndex]    = kFALSE;
+              if (emulationIndex >= 0)    notInDataset[emulationIndex]  = kFALSE;
             }
           }
         }
@@ -770,7 +769,7 @@ void HLTDatasets::report(const Char_t* luminosity, const Char_t* outputPrefix, c
     for (UInt_t iSample = 0; iSample < numDiagnostics; ++iSample) {
       const SampleDiagnostics&      sample          = diagnostics[iSample];
       ////std::cout << " +++   " << sample.name << " = " << sample.numProcessedEvents << std::endl;
-      if (/*sample.typeOfSample == PHYSICS_SAMPLE &&*/ sample.numProcessedEvents > 0) {
+      if (sample.typeOfSample == PHYSICS_SAMPLE && sample.numProcessedEvents > 0) {
         TString     errata;
         errata.Form("{\\bf %s}~:~", TString(sample.name).ReplaceAll("samples", " samples").Data());
         sample[iSet].report(tablesFile, sample, errata, significantDigits);

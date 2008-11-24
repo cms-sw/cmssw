@@ -473,6 +473,9 @@ public :
   Int_t           L1_VBF_Mu7_Tau_TauHad;
   Int_t           L1_VBF_QuadJet;
   Int_t           L1_ZeroBias;
+
+  Int_t           L1_Dummy;
+
   //20X only
   /*
   Int_t	   L1_DoubleEG10_ETM20
@@ -2693,13 +2696,16 @@ void OHltTree::SetMapL1BitOfStandardHLTPath() {
   map_L1BitOfStandardHLTPath["HLT_MinBiasEcal"] = L1_SingleEG2 + L1_DoubleEG1;
   map_L1BitOfStandardHLTPath["HLT_MinBiasPixel"] = L1_ZeroBias;
   map_L1BitOfStandardHLTPath["HLT_MinBiasPixel_Trk5"] = L1_ZeroBias;
-  map_L1BitOfStandardHLTPath["HLT_BackwardBSC"] = 38 + 39;
-  map_L1BitOfStandardHLTPath["HLT_ForwardBSC"] = 36 + 37;
+  //map_L1BitOfStandardHLTPath["HLT_BackwardBSC"] = 38 + 39;
+  //map_L1BitOfStandardHLTPath["HLT_ForwardBSC"] = 36 + 37;
+  //map_L1BitOfStandardHLTPath["HLT_BackwardBSC"] = L1_Dummy;
+  //map_L1BitOfStandardHLTPath["HLT_ForwardBSC"] = L1_Dummy;
   map_L1BitOfStandardHLTPath["HLT_CSCBeamHalo"] = L1_SingleMuBeamHalo;
   map_L1BitOfStandardHLTPath["HLT_CSCBeamHaloOverlapRing1"] = L1_SingleMuBeamHalo;
   map_L1BitOfStandardHLTPath["HLT_CSCBeamHaloOverlapRing2"] = L1_SingleMuBeamHalo;
   map_L1BitOfStandardHLTPath["HLT_CSCBeamHaloRing2or3"] = L1_SingleMuBeamHalo;
-  map_L1BitOfStandardHLTPath["HLT_TrackerCosmics"] = 24 + 25 + 26 + 27 + 28;
+  //map_L1BitOfStandardHLTPath["HLT_TrackerCosmics"] = 24 + 25 + 26 + 27 + 28;
+  //map_L1BitOfStandardHLTPath["HLT_TrackerCosmics"] = L1_Dummy;
   map_L1BitOfStandardHLTPath["AlCa_IsoTrack"] = L1_SingleJet30 + L1_SingleJet50 + L1_SingleJet70 + L1_SingleJet100 + L1_SingleTauJet30 + L1_SingleTauJet40 + L1_SingleTauJet60 + L1_SingleTauJet80;
   map_L1BitOfStandardHLTPath["AlCa_EcalPhiSym"] = L1_ZeroBias + L1_SingleJetCountsHFTow + L1_DoubleJetCountsHFTow + L1_SingleEG2 + L1_DoubleEG1 + L1_SingleJetCountsHFRing0Sum3 + L1_DoubleJetCountsHFRing0Sum3 + L1_SingleJetCountsHFRing0Sum6 + L1_DoubleJetCountsHFRing0Sum6;
   map_L1BitOfStandardHLTPath["AlCa_EcalPi0"] = L1_SingleIsoEG5 + L1_SingleIsoEG8 + L1_SingleIsoEG10 + L1_SingleIsoEG12 + L1_SingleIsoEG15 + L1_SingleIsoEG20 + L1_SingleIsoEG25 + L1_SingleEG5 + L1_SingleEG8 + L1_SingleEG10 + L1_SingleEG12 + L1_SingleEG15 + L1_SingleEG20 + L1_SingleEG25;
