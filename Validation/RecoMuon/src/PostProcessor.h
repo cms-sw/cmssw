@@ -6,8 +6,8 @@
  *
  *  DQM histogram post processor
  *
- *  $Date: 2008/09/23 05:08:04 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/11/05 17:28:44 $
+ *  $Revision: 1.5 $
  *
  *  \author Junghwan Goh - SungKyunKwan University
  */
@@ -41,16 +41,11 @@ class PostProcessor : public edm::EDAnalyzer
                          const std::string& srcMEName);
 
  private:
-  void processLoop( const std::string& dir, std::vector<boost::tokenizer<elsc>::value_type> args) ;
-  void computeFunction( const std::string& dir, std::vector<boost::tokenizer<elsc>::value_type> args) ;
-
- private:
   unsigned int verbose_;
 
   DQMStore* theDQM;
   std::string subDir_;
   std::string outputFileName_;
-  std::vector<std::string> commands_;
   std::vector<std::string> effCmds_, resCmds_;
 };
 

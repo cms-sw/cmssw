@@ -2,8 +2,8 @@
  *  Class:PostProcessor 
  *
  *
- *  $Date: 2008/09/24 05:09:10 $
- *  $Revision: 1.7 $
+ *  $Date: 2008/11/05 17:28:44 $
+ *  $Revision: 1.8 $
  * 
  *  \author Junghwan Goh - SungKyunKwan University
  */
@@ -28,7 +28,6 @@ PostProcessor::PostProcessor(const ParameterSet& pset)
 {
   verbose_ = pset.getUntrackedParameter<unsigned int>("verbose", 0);
 
-  commands_ = pset.getParameter<vstring>("commands");
   effCmds_ = pset.getParameter<vstring>("efficiency");
   resCmds_ = pset.getParameter<vstring>("resolution");
 
@@ -117,30 +116,6 @@ void PostProcessor::endJob()
     }
   }
 
-/*
-  for(vstring::const_iterator iCmd = commands_.begin();
-      iCmd != commands_.end(); ++iCmd) {
-    const string& cmd = *iCmd;
-
-    // Parse a command using boost::tokenizer
-    using namespace boost;
-    typedef escaped_list_separator<char> elsc;
-    tokenizer<elsc> tokens(cmd, elsc("\\", " \t", "\'"));
-
-    vector<tokenizer<elsc>::value_type> args;
-    copy(tokens.begin(), tokens.end(), args.begin());
-
-    if ( args.empty() ) continue;
-
-    if (args[1][0] != 'C' ) {
-      processLoop(args[0],args);
-    }
-    else {
-      computeFunction(args[0],args);
-    }
-  }
-*/
-
   if ( verbose_ > 0 ) theDQM->showDirStructure();
 
   if ( ! outputFileName_.empty() ) theDQM->save(outputFileName_);
@@ -192,11 +167,6 @@ void PostProcessor::computeEfficiency(const string& startDir, const string& effi
     LogError("PostProcessor") << "computeEfficiency() : Cannot book effic-ME from the DQM\n";
     return;
   }
-
-//  hReco->Sumw2();
-//  hSim->Sumw2();
-
-  //  efficME->getTH1F()->Divide(hReco, hSim, 1., 1., "B");
 
   const int nBin = efficME->getNbinsX();
   for(int bin = 0; bin <= nBin; ++bin) {
@@ -256,85 +226,6 @@ void PostProcessor::computeResolution(const string& startDir, const string& name
   fitTool.getFittedSigmaWithError(sigmaME);
 //  fitTool.getFittedChisqWithError(chi2ME); // N/A
 
-}
-
-void PostProcessor::processLoop( const std::string& startDir, vector<boost::tokenizer<elsc>::value_type> args) 
-{
-  if(theDQM->dirExists(startDir)) theDQM->cd(startDir);
-
-  std::vector<std::string> subDirs =   theDQM->getSubdirs();
-  std::vector<std::string> mes     =  theDQM->getMEs();
-
-  /*
-  std::cout << " ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
-
-  std::cout << " ------------------------------------------------------------\n"
-	    << "                    Current Directory:                   \n"
-	    << theDQM->pwd() << std::endl
-	    << " ------------------------------------------------------------\n";
-
-  std::cout << " ------------------------------------------------------------\n"
-	    << "                    SubDirs:                     \n"
-	    << " ------------------------------------------------------------\n";
-  
-  std::copy(subDirs.begin(), subDirs.end(),
-	    std::ostream_iterator<std::string>(std::cout, "\n"));
-  
-  std::cout << " ------------------------------------------------------------\n";
-
-  std::cout << " ------------------------------------------------------------\n"
-	    << "                    MEs:                     \n"
-	    << " ------------------------------------------------------------\n";
-  
-  std::copy(mes.begin(), mes.end(),
-	    std::ostream_iterator<std::string>(std::cout, "\n"));
-  
-  std::cout << " ------------------------------------------------------------\n";
-  std::cout << " ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
-  */
-
-  for(vstring::const_iterator iDir = subDirs.begin(); iDir != subDirs.end();++iDir) {
-    const string& theSubDir = *iDir;
-    processLoop(theSubDir,args);
-  }
-    computeFunction(startDir,args);
-}
-
-void PostProcessor::computeFunction( const std::string& startDir, vector<boost::tokenizer<elsc>::value_type> args) 
-{
-  if(theDQM->dirExists(startDir)) theDQM->cd(startDir);
-  
-  string path1, path2;
-  switch ( args[1][0] ) {
-    // Efficiency plots
-  case 'C':
-  case 'c':
-  case 'E':
-  case 'e':
-    if ( args.size() != 6 ) break;;
-    path1.clear();
-    path1 += startDir;
-    path1 += "/";
-    path1 += args[4];
-    path2.clear();
-    path2 += startDir;
-    path2 += "/";
-    path2 += args[5];
-    computeEfficiency(startDir,args[2], args[3], path1, path2);
-    break;
-    // Resolution plots
-  case 'R':
-  case 'r':
-    if ( args.size() != 5 ) break;;
-    path1.clear();
-    path1 += startDir;
-    path1 += "/";
-    path1 += args[4];
-    computeResolution(startDir,args[2], args[3], path1);
-    break;
-  default:
-    LogError("PostProcessor") << "Invalid command\n";
-  }
 }
 
 /* vim:set ts=2 sts=2 sw=2 expandtab: */
