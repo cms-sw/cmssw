@@ -8,6 +8,7 @@ class RPCGeomServ{
  public:
   RPCGeomServ(const RPCDetId& id);
   virtual ~RPCGeomServ();
+  virtual std::string shortname();
   virtual std::string name();
   virtual int eta_partition(); 
   virtual int chambernr();
@@ -18,10 +19,11 @@ class RPCGeomServ{
 
  protected:
   RPCGeomServ();
-
+  
  protected:
   const RPCDetId* _id;
   std::string _n;
+  std::string _sn;
   int _t;
   int _cnr;
   bool _z;

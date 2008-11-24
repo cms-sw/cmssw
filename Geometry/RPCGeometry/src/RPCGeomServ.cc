@@ -4,22 +4,19 @@
 #include <iomanip>
 
 RPCGeomServ::RPCGeomServ::RPCGeomServ(const RPCDetId& id) : 
-  _id(&id), _n(""), _t(-99), _z(true), _a(true)
+  _id(&id), _n(""), _sn(""), _t(-99), _z(true), _a(true)
 {}
 
 
 RPCGeomServ::~RPCGeomServ()
 {}
-  
-
+ 
 std::string 
 RPCGeomServ::name()
 {
-
   if (_n.size()<1){
     std::string buf;
-
-
+    
     if (_id->region()==0){
       buf="W";
       {
@@ -47,7 +44,6 @@ RPCGeomServ::name()
 	//	os <<"S"<<std::setw(2)<<std::setfill('0')
 	//   <<_id->sector()<<std::setfill(' ');
 	if (_id->station()>2){
-	  
 	  if (_id->sector()== 4 && _id->station()==4){
 	    if ( _id->subsector()==1){
 	      os<<"--";
@@ -62,7 +58,13 @@ RPCGeomServ::name()
 	      os <<"++";
 	    }
 	  }
-	  else {
+	  
+	  if(_id->station()==3){
+	    if (_id->subsector()==1)
+	      os <<"-";
+	    else
+	      os <<"+";
+	  }else if(_id->station()==4 && _id->sector()!=9 && _id->sector()!=11 && _id->sector()!=4){
 	    if (_id->subsector()==1)
 	      os <<"-";
 	    else
@@ -70,8 +72,6 @@ RPCGeomServ::name()
 	  }
 	}
 	
-
-
 	os<<"_";
 	os <<"S"<<std::setw(2)<<std::setfill('0')
 	   <<_id->sector()<<std::setfill(' ');
@@ -125,6 +125,68 @@ RPCGeomServ::name()
   }
   return _n;
 }
+
+std::string 
+RPCGeomServ::shortname()
+{
+  if (_sn.size()<1)
+    {
+    std::string buf;
+
+    if (_id->region()==0){
+      std::stringstream os;
+      os <<"RB"<<_id->station();
+      if (_id->station()<=2){
+	if (_id->layer()==1){
+	  os<<"in";
+	}else{
+	  os<<"out";
+	}
+      }else{
+	if (_id->sector()== 4 && _id->station()==4){
+	  if ( _id->subsector()==1){
+	    os<<"--";
+	  }
+	  else if ( _id->subsector()==2){
+	    os <<"-+";
+	  }
+	  else if ( _id->subsector()==3){
+	    os <<"+-";
+	  }
+	  else if ( _id->subsector()==4){
+	    os <<"++";
+	  }
+	}
+	if(_id->station()==3){
+	  if (_id->subsector()==1)
+	    os <<"-";
+	  else
+	    os <<"+";
+	}else if(_id->station()==4 && _id->sector()!=9 && _id->sector()!=11 && _id->sector()!=4){
+	  if (_id->subsector()==1)
+	    os <<"-";
+	  else
+	    os <<"+";
+	}
+      }
+      if (_id->roll()==1)
+	os<<"_B";
+      else if (_id->roll() == 3)
+	os<<"_F";
+      else if (_id->roll() == 2)
+	os<<"_M";
+      buf += os.str();
+    }
+    else {
+      std::stringstream os;
+      os <<"Ri"<<_id->ring()<<"_Su"<<_id->subsector();
+      buf += os.str();
+    }
+    _sn=buf;
+  }
+  return _sn;
+}
+
 
 int 
 RPCGeomServ::eta_partition()
@@ -286,7 +348,6 @@ RPCGeomServ::chambernr()
   
 }
 
-
 int 
 RPCGeomServ::segment(){
   int seg=0;
@@ -358,7 +419,7 @@ RPCGeomServ::aclockwise()
 
 
 
-RPCGeomServ::RPCGeomServ() : _id(0), _n(""), _t (-99), _z(false), _a(false)
+RPCGeomServ::RPCGeomServ() : _id(0), _n(""), _sn(""), _t (-99), _z(false), _a(false)
 {} 
 
 
