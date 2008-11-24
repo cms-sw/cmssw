@@ -1,5 +1,4 @@
 <use name=boost>
-
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
 <use name=FWCore/PluginManager>
@@ -18,7 +17,6 @@
 <use name=DataFormats/EgammaCandidates>
 <use name=DataFormats/HepMCCandidate>
 <use name=root>
-<use name=rootroofit>
 
 <export>
 <lib name=L1TriggerRegionalCaloTrigger>
@@ -41,5 +39,4 @@
 <use name=DataFormats/HepMCCandidate>
 <use name=clhep>
 <use name=root>
-<use name=rootroofit>
 </export>

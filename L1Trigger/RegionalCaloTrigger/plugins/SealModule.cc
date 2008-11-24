@@ -5,10 +5,8 @@
 #include "L1Trigger/RegionalCaloTrigger/interface/L1RCTSaveInput.h"
 #include "L1Trigger/RegionalCaloTrigger/interface/L1RCTRelValAnalyzer.h"
 #include "L1Trigger/RegionalCaloTrigger/interface/L1RCTLutWriter.h"
-#include "L1Trigger/RegionalCaloTrigger/interface/L1RCTGenCalibrator.h"
 
 DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(L1RCTGenCalibrator);
 DEFINE_ANOTHER_FWK_MODULE(L1RCTProducer);
 DEFINE_ANOTHER_FWK_MODULE(L1RCTInputProducer);
 DEFINE_ANOTHER_FWK_MODULE(L1RCTTestAnalyzer);
