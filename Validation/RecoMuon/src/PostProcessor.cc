@@ -161,7 +161,7 @@ void PostProcessor::computeEfficiency(const string& startDir, const string& effi
     newEfficMEName.erase(0, shiftPos+1);
   }
   theDQM->setCurrentFolder(efficDir);
-  ME* efficME = theDQM->book1D(newEfficMEName, efficMETitle, hSim->GetNbinsX(), hSim->GetXaxis()->GetXmin(), hSim->GetXaxis()->GetXmax());
+  ME* efficME = theDQM->book1D(newEfficMEName, efficMETitle, hSim->GetNbinsX(), hSim->GetXaxis()->GetXmin(), hSim->GetXaxis()->GetXmax()); 
 
   if ( !efficME ) {
     LogError("PostProcessor") << "computeEfficiency() : Cannot book effic-ME from the DQM\n";
@@ -179,6 +179,16 @@ void PostProcessor::computeEfficiency(const string& startDir, const string& effi
   }
   efficME->setEntries(simME->getEntries());
 
+  // Global efficiency
+  ME* efficME_value = theDQM->bookFloat(newEfficMEName+"_value");
+  ME* efficME_error = theDQM->bookFloat(newEfficMEName+"_error");
+
+  const float nSimAll = hSim->GetEntries();
+  const float nRecoAll = hReco->GetEntries();
+  const float efficAll = nSimAll ? nRecoAll/nSimAll : 0;
+  const float errorAll = nSimAll && efficAll < 1 ? sqrt(efficAll*(1-efficAll)/nSimAll) : 0;
+  efficME_value->Fill(efficAll);
+  efficME_error->Fill(errorAll);
 }
 
 void PostProcessor::computeResolution(const string& startDir, const string& namePrefix, const string& titlePrefix,
