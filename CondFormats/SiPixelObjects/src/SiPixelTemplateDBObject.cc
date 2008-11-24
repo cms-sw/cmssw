@@ -15,7 +15,7 @@ SiPixelTemplateDBObject::fillDB(const vstring& atitles){
 
 	// Set the number of templates to be passed to the dbobject
 	numOfTempl_ = atitles.size();
-		
+
 	//  open the template file(s) 
 	for(int m=0; m<numOfTempl_; ++m){
 
@@ -55,12 +55,13 @@ SiPixelTemplateDBObject::fillDB(const vstring& atitles){
 		}
 			
 		// Fill the dbobject
+		in_file >> tempstore;
 		while(!in_file.eof()) {
-			in_file >> tempstore;
-			sVector_.push_back(tempstore);
 			++maxIndex_;
+			sVector_.push_back(tempstore);
+			in_file >> tempstore;
 		}
-		--maxIndex_; // To account for incrementing before realizing we hit the eof
+		
 		in_file.close();
 		tout.clear();
 		tempf.clear();
@@ -225,7 +226,6 @@ std::ostream& operator<<(std::ostream& s, const SiPixelTemplateDBObject& dbobjec
 				}
 			}
 		}
-		++index;
 	}
 	return s;
 }
