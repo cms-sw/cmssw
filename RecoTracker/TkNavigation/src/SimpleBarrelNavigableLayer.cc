@@ -219,11 +219,12 @@ SimpleBarrelNavigableLayer::nextLayers( const FreeTrajectoryState& fts,
     }
   } else if (!dirOppositeXORisInOutTrackBarrel && dirOppositeXORisInOutTrackFWD){
     wellInside(ftsWithoutErrors, dir, theInnerBarrelLayers.begin(), theInnerBarrelLayers.end(), result);	
-    wellInside(ftsWithoutErrors, dir, theInnerRightForwardLayers.begin(), theInnerRightForwardLayers.end(), result);
-    wellInside(ftsWithoutErrors, dir, theInnerLeftForwardLayers.begin(), theInnerLeftForwardLayers.end(), result);
+
     if (signZmomentumXORdir){	
+      wellInside(ftsWithoutErrors, dir, theInnerLeftForwardLayers.begin(), theInnerLeftForwardLayers.end(), result);
       wellInside(ftsWithoutErrors, dir, theOuterLeftForwardLayers.begin(), theOuterLeftForwardLayers.end(), result);	
     }	else {
+      wellInside(ftsWithoutErrors, dir, theInnerRightForwardLayers.begin(), theInnerRightForwardLayers.end(), result);
       wellInside(ftsWithoutErrors, dir, theOuterRightForwardLayers.begin(), theOuterRightForwardLayers.end(), result);
     }
   } else {
@@ -240,7 +241,7 @@ SimpleBarrelNavigableLayer::nextLayers( const FreeTrajectoryState& fts,
   cout << "goingIntoTheBarrel: " << goingIntoTheBarrel << endl;
 #endif  
 
-  if (theSelfSearch){
+  if (theSelfSearch && result.size()==0){
     if (!goingIntoTheBarrel){     LogDebug("SimpleBarrelNavigableLayer")<<" state is not going toward the center of the barrel. not adding self search.";}
     else{
       const BarrelDetLayer * bl = dynamic_cast<const BarrelDetLayer *>(detLayer());      uint before=result.size();
