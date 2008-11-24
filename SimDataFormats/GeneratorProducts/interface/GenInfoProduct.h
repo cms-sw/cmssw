@@ -26,7 +26,7 @@ namespace edm {
     GenInfoProduct(GenInfoProduct const& x);
 
     virtual bool mergeProduct(const GenInfoProduct &other);
-    virtual bool isProductEqual(const GenInfoProduct &other)
+    virtual bool isProductEqual(const GenInfoProduct &other) const
     { return cs_ == other.cs_ && cs2_ == other.cs2_ && fe_ == other.fe_; }
 
   private:

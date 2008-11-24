@@ -117,7 +117,7 @@ class LHERunInfoProduct {
 	{ return !(*this == other); }
 
 	bool mergeProduct(const LHERunInfoProduct &other);
-    	bool isProductEqual(const LHERunInfoProduct &other)
+    	bool isProductEqual(const LHERunInfoProduct &other) const
     	{ return *this == other; }
 
     private:
