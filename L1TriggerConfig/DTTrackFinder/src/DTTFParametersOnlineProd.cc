@@ -13,7 +13,7 @@
 //
 // Original Author:  Werner Man-Li Sun
 //         Created:  Fri Oct  3 00:26:52 CEST 2008
-// $Id: DTTFParametersOnlineProd.cc,v 1.2 2008/11/10 08:30:43 troco Exp $
+// $Id: DTTFParametersOnlineProd.cc,v 1.3 2008/11/14 20:23:42 wsun Exp $
 //
 //
 
@@ -172,12 +172,12 @@ DTTFParametersOnlineProd::newObject( const std::string& objectKey )
 
      // Map of sector+wheel name to bit number in crate mask
      std::map< std::string, unsigned int > crateMaskBitmap ;
-     crateMaskBitmap.insert( std::make_pair( "N2",  0 ) ) ;
-     crateMaskBitmap.insert( std::make_pair( "N1",  4 ) ) ;
-     crateMaskBitmap.insert( std::make_pair( "N0",  8 ) ) ;
-     crateMaskBitmap.insert( std::make_pair( "P0", 16 ) ) ;
-     crateMaskBitmap.insert( std::make_pair( "P1", 20 ) ) ;
-     crateMaskBitmap.insert( std::make_pair( "P2", 24 ) ) ;
+     crateMaskBitmap.insert( std::make_pair( "N2", 24 ) ) ;
+     crateMaskBitmap.insert( std::make_pair( "N1", 20 ) ) ;
+     crateMaskBitmap.insert( std::make_pair( "N0", 16 ) ) ;
+     crateMaskBitmap.insert( std::make_pair( "P0",  8 ) ) ;
+     crateMaskBitmap.insert( std::make_pair( "P1",  4 ) ) ;
+     crateMaskBitmap.insert( std::make_pair( "P2",  0 ) ) ;
 
      // Needed over and over later
      std::vector< std::string > phtfMaskColumns ;
@@ -227,7 +227,7 @@ DTTFParametersOnlineProd::newObject( const std::string& objectKey )
              if ( wheelNames[ iwh ] == "P2" ) phtfEnabled += ( crateMask >> 24 ) & 0x10 ;
              if ( wheelNames[ iwh ] == "N2" ) phtfEnabled += ( crateMask >> 25 ) & 0x10 ;
 
-	     std::cout << "Bits " << maskBit << " (" << sectorWheelName
+	     std::cout << "Bits " << std::dec << maskBit << " (" << sectorWheelName
 		       << ") of mask " << std::hex << crateMask << " is "
 		       << std::hex << phtfEnabled << std::endl ;
 
@@ -395,6 +395,7 @@ DTTFParametersOnlineProd::disablePHTF(
   dttfParameters->set_soc_run_21( nwh, isc, true ) ;
   dttfParameters->set_soc_nbx_del( nwh, isc, true ) ;
   dttfParameters->set_soc_csc_etacanc( nwh, isc, true ) ;
+  dttfParameters->set_soc_openlut_extr( nwh, isc, false ) ;
 }
 
 // ------------ method called to produce the data  ------------
