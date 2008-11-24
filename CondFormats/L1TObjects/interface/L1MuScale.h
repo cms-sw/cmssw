@@ -6,8 +6,8 @@
 //                 
 //                  
 //                
-//   $Date: 2007/04/30 14:20:47 $
-//   $Revision: 1.5 $ 
+//   $Date: 2008/04/16 23:25:10 $
+//   $Revision: 1.6 $ 
 //
 //   Original Author :
 //   Hannes Sakulin      HEPHY / Vienna
@@ -56,6 +56,12 @@ class L1MuScale {
   
   /// pack a value
   virtual unsigned getPacked(float value) const = 0;
+
+  /// get number of bins
+  virtual unsigned getNBins() const = 0;
+
+  /// get value of the underlying vector for bin i
+  virtual float getValue(unsigned i) const = 0;
 
   virtual std::string print() const = 0;
 
@@ -178,6 +184,12 @@ class L1MuBinnedScale : public L1MuScale {
 
   /// get the lower edge of the first bin
   virtual float getScaleMin() const { return m_Scale[0]; }
+
+  /// get number of bins
+  virtual unsigned getNBins() const { return m_NBins; }
+
+  /// get value of the underlying vector for bin i
+  virtual float getValue(unsigned i) const { return m_Scale[i]; }
 
   virtual std::string print() const {
     std::ostringstream str;
@@ -315,6 +327,12 @@ class L1MuSymmetricBinnedScale : public L1MuScale {
 
   /// get the lower edge of the first bin (positive half)
   virtual float getScaleMin() const { return m_Scale[0]; }
+
+  /// get number of bins
+  virtual unsigned getNBins() const { return m_NBins; }
+
+  /// get value of the underlying vector for bin i
+  virtual float getValue(unsigned i) const { return m_Scale[i]; }
 
   virtual std::string print() const {
     std::ostringstream str;
