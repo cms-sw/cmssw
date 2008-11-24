@@ -30,6 +30,7 @@ public :
   Int_t           NrecoJetCal;
   Int_t           NrecoJetGen;
   Int_t           NrecoTowCal;
+  Int_t           NrecoJetCorCal;
   Float_t         recoJetCalPt[43000];   //[NrecoJetCal]
   Float_t         recoJetCalPhi[43000];   //[NrecoJetCal]
   Float_t         recoJetCalEta[43000];   //[NrecoJetCal]
@@ -47,6 +48,10 @@ public :
   Float_t         recoTowEm[684000];   //[NrecoTowCal]
   Float_t         recoTowHad[684000];   //[NrecoTowCal]
   Float_t         recoTowOE[684000];   //[NrecoTowCal]
+  Float_t         recoJetCorCalPt[43000];   //[NrecoJetCorCal]
+  Float_t         recoJetCorCalPhi[43000];   //[NrecoJetCorCal]
+  Float_t         recoJetCorCalEta[43000];   //[NrecoJetCorCal]
+  Float_t         recoJetCorCalE[43000];   //[NrecoJetCorCal]
   Float_t         recoMetCal;
   Float_t         recoMetCalPhi;
   Float_t         recoMetCalSum;
@@ -65,6 +70,9 @@ public :
   Int_t           ohTauL25Tiso[5000];   //[NohTau]
   Float_t         ohTauL3Tpt[5000];   //[NohTau]
   Int_t           ohTauL3Tiso[5000];   //[NohTau]
+  Int_t           NohBJetL2;     //
+  Float_t         ohBJetL2CorrectedEt[5000];  //[NohBJetL2]
+  Float_t         ohBJetL2Et[5000];  //[NohBJetL2] 
   Int_t           NohBJetLife;
   Float_t         ohBJetLifeL2E[1000];   //[NohBJetLife]
   Float_t         ohBJetLifeL2ET[1000];   //[NohBJetLife]
@@ -691,6 +699,7 @@ public :
   TBranch        *b_NrecoJetCal;   //!
   TBranch        *b_NrecoJetGen;   //!
   TBranch        *b_NrecoTowCal;   //!
+  TBranch        *b_NrecoJetCorCal; //!
   TBranch        *b_recoJetCalPt;   //!
   TBranch        *b_recoJetCalPhi;   //!
   TBranch        *b_recoJetCalEta;   //!
@@ -717,6 +726,10 @@ public :
   TBranch        *b_recoHTCal;   //!
   TBranch        *b_recoHTCalPhi;   //!
   TBranch        *b_recoHTCalSum;   //!
+  TBranch        *b_recoJetCorCalPt;   //!
+  TBranch        *b_recoJetCorCalPhi;   //!
+  TBranch        *b_recoJetCorCalEta;   //!
+  TBranch        *b_recoJetCorCalE;   //!
   TBranch        *b_NohTau;   //!
   TBranch        *b_ohTauEta;   //!
   TBranch        *b_ohTauPhi;   //!
@@ -726,6 +739,9 @@ public :
   TBranch        *b_ohTauL25Tiso;   //!
   TBranch        *b_ohTauL3Tpt;   //!
   TBranch        *b_ohTauL3Tiso;   //!
+  TBranch        *b_NohBJetL2;      //!
+  TBranch        *b_ohBJetL2CorrectedEt;    //!
+  TBranch        *b_ohBJetL2Et;    //!
   TBranch        *b_NohBJetLife;   //!
   TBranch        *b_ohBJetLifeL2E;   //!
   TBranch        *b_ohBJetLifeL2ET;   //!
@@ -1446,8 +1462,11 @@ public :
   int OpenHlt1MuonPassed(double ptl1,double ptl2,double ptl3,double dr,int iso);
   int OpenHlt2MuonPassed(double ptl1,double ptl2,double ptl3,double dr,int iso);
   int OpenHlt1JetPassed(double pt);
+  int OpenHlt1CorJetPassed(double pt);
   int OpenHltFwdJetPassed(double esum);
   int OpenHltDiJetAvePassed(double pt);
+  int OpenHltCorDiJetAvePassed(double pt);
+  int OHltTree::OpenHltQuadJetPassed(double pt);
 
 private:
   int Ntrig;
@@ -1554,6 +1573,7 @@ void OHltTree::Init(TTree *tree)
   fChain->SetBranchAddress("NrecoJetCal", &NrecoJetCal, &b_NrecoJetCal);
   fChain->SetBranchAddress("NrecoJetGen", &NrecoJetGen, &b_NrecoJetGen);
   fChain->SetBranchAddress("NrecoTowCal", &NrecoTowCal, &b_NrecoTowCal);
+  fChain->SetBranchAddress("NrecoJetCorCal", &NrecoJetCorCal, &b_NrecoJetCorCal);
   fChain->SetBranchAddress("recoJetCalPt", recoJetCalPt, &b_recoJetCalPt);
   fChain->SetBranchAddress("recoJetCalPhi", recoJetCalPhi, &b_recoJetCalPhi);
   fChain->SetBranchAddress("recoJetCalEta", recoJetCalEta, &b_recoJetCalEta);
@@ -1571,6 +1591,10 @@ void OHltTree::Init(TTree *tree)
   fChain->SetBranchAddress("recoTowEm", &recoTowEm, &b_recoTowEm);
   fChain->SetBranchAddress("recoTowHad", &recoTowHad, &b_recoTowHad);
   fChain->SetBranchAddress("recoTowOE", &recoTowOE, &b_recoTowOE);
+  fChain->SetBranchAddress("recoJetCorCalPt", recoJetCorCalPt, &b_recoJetCorCalPt);
+  fChain->SetBranchAddress("recoJetCorCalPhi", recoJetCorCalPhi, &b_recoJetCorCalPhi);
+  fChain->SetBranchAddress("recoJetCorCalEta", recoJetCorCalEta, &b_recoJetCorCalEta);
+  fChain->SetBranchAddress("recoJetCorCalE", recoJetCorCalE, &b_recoJetCorCalE);
   fChain->SetBranchAddress("recoMetCal", &recoMetCal, &b_recoMetCal);
   fChain->SetBranchAddress("recoMetCalPhi", &recoMetCalPhi, &b_recoMetCalPhi);
   fChain->SetBranchAddress("recoMetCalSum", &recoMetCalSum, &b_recoMetCalSum);
@@ -1589,6 +1613,9 @@ void OHltTree::Init(TTree *tree)
   fChain->SetBranchAddress("ohTauL25Tiso", ohTauL25Tiso, &b_ohTauL25Tiso);
   fChain->SetBranchAddress("ohTauL3Tpt", ohTauL3Tpt, &b_ohTauL3Tpt);
   fChain->SetBranchAddress("ohTauL3Tiso", ohTauL3Tiso, &b_ohTauL3Tiso);
+  fChain->SetBranchAddress("NohBJetL2", &NohBJetL2, &b_NohBJetL2);
+  fChain->SetBranchAddress("ohBJetL2CorrectedEt", &ohBJetL2CorrectedEt, &b_ohBJetL2CorrectedEt);
+  fChain->SetBranchAddress("ohBJetL2Et", &ohBJetL2Et, &b_ohBJetL2Et);
   fChain->SetBranchAddress("NohBJetLife", &NohBJetLife, &b_NohBJetLife);
   fChain->SetBranchAddress("ohBJetLifeL2E", ohBJetLifeL2E, &b_ohBJetLifeL2E);
   fChain->SetBranchAddress("ohBJetLifeL2ET", ohBJetLifeL2ET, &b_ohBJetLifeL2ET);
