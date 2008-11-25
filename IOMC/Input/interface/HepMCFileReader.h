@@ -1,7 +1,7 @@
 #ifndef Input_HepMCFileReader_h
 #define Input_HepMCFileReader_h
 
-// $Id:$
+// $Id: HepMCFileReader.h,v 1.3 2007/05/29 21:00:22 weng Exp $
 
 /** \class HepMCFileReader
 * 
@@ -12,8 +12,8 @@
 *  always invoke the method initialize before starting using the interface
 *  it exposes.
 *
-*  $Date: 2007/03/22 18:17:57 $
-*  $Revision: 1.2 $
+*  $Date: 2007/05/29 21:00:22 $
+*  $Revision: 1.3 $
 *  \author G. Bruno - CERN, EP Division
 */   
 
@@ -34,8 +34,10 @@ class HepMCFileReader {
   HepMCFileReader();
   
   public: 
+  enum FileMode { MODE_ASCII, MODE_EXTASCII, MODE_GENEVENT };
+
   virtual ~HepMCFileReader(); 
-  virtual void initialize(const std::string &filename, bool useExtendedAscii);  
+  virtual void initialize(const std::string &filename, FileMode mode);
   inline bool isInitialized() const;
 
   virtual bool setEvent(int event);

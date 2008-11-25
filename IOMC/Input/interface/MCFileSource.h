@@ -1,7 +1,7 @@
 #ifndef Input_MCFileSource_h
 #define Input_MCFileSource_h
 
-// $Id: MCFileSource.h,v 1.4 2007/05/29 21:00:22 weng Exp $
+// $Id: MCFileSource.h,v 1.7 2007/06/19 13:48:03 weng Exp $
 
 /** \class MCFileSource
  *
@@ -11,8 +11,8 @@
 
 #include "FWCore/Sources/interface/ExternalInputSource.h"
 
+#include "IOMC/Input/interface/HepMCFileReader.h"
 
-class HepMCFileReader;
 
 namespace HepMC{
   class GenEvent;
@@ -36,7 +36,7 @@ namespace edm
     
     HepMCFileReader *reader_;
     HepMC::GenEvent *evt_;
-    bool useExtendedAscii_;
+    HepMCFileReader::FileMode mode_;
   };
 } 
 
