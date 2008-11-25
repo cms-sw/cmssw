@@ -45,7 +45,7 @@ namespace cscdqm {
     MonitorObject *mo = 0, *mof = 0;
     while (histoProvider->nextCSC(iter, crateId, dmbId)) {
 
-      std::string cscTag(Form(TAG_CSC, crateId, dmbId));
+      std::string cscTag = CSCHistoType::getPath(crateId, dmbId);
 
       if (getCSCHisto(crateId, dmbId, h::CSC_BINCHECK_DATAFLOW_PROBLEMS_TABLE, mo) && 
           getCSCHisto(crateId, dmbId, h::CSC_BINCHECK_DATAFLOW_PROBLEMS_FREQUENCY, mof)) {

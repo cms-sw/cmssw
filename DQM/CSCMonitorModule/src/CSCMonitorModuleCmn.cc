@@ -44,12 +44,14 @@ CSCMonitorModuleCmn::CSCMonitorModuleCmn(const edm::ParameterSet& ps) : inputTag
   // Prebook top level histograms
   dbe->setCurrentFolder(DIR_EVENTINFO);
   collection->book("EventInfo");
+  bookedHisto.insert("EventInfo");
 
   dbe->setCurrentFolder(DIR_SUMMARY);
   collection->book("EMU");
+  bookedHisto.insert("EMU");
 
-  collection->printCollection();
-  throw cscdqm::Exception("End of game");
+  //collection->printCollection();
+  //throw cscdqm::Exception("End of game");
 
 }
 
@@ -83,7 +85,7 @@ void CSCMonitorModuleCmn::analyze(const edm::Event& e, const edm::EventSetup& c)
   // Update fractional histograms if appropriate
   if (processor->getNCSCEvents() > 0 && fractUpdateKey.test(2) && (processor->getNEvents() % fractUpdateEvF) == 0) {
     processor->updateFractionHistos();
-    processor->updateEfficiencyHistos(effParams);
+    //processor->updateEfficiencyHistos(effParams);
   }
     
 }

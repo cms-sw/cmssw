@@ -19,7 +19,7 @@
 
 namespace cscdqm {
 
-  Collection::Collection(HistoProvider* p_histoProvider) : exprOnDemand(REGEXP_ONDEMAND) {
+  Collection::Collection(HistoProvider* p_histoProvider) {
     histoProvider = p_histoProvider;
   }
 
@@ -97,7 +97,7 @@ namespace cscdqm {
           std::string prefix = hp[XML_BOOK_HISTO_PREFIX];
 
           // Check if this histogram is an ON DEMAND histogram?
-          hp[XML_BOOK_ONDEMAND] = (Utility::regexMatch(exprOnDemand, name) ? XML_BOOK_ONDEMAND_TRUE : XML_BOOK_ONDEMAND_FALSE );
+          hp[XML_BOOK_ONDEMAND] = (Utility::regexMatch(REGEXP_ONDEMAND, name) ? XML_BOOK_ONDEMAND_TRUE : XML_BOOK_ONDEMAND_FALSE );
 
           CoHistoMap::iterator it = collection.find(prefix);
           if (it == collection.end()) {
@@ -271,20 +271,18 @@ namespace cscdqm {
     }
   }
 
-  /*
   void Collection::bookOnDemand(const std::string& prefix, const HistoName& name, const int addId) const {
     CoHistoMap::const_iterator i = collection.find(prefix);
     if (i != collection.end()) {
       CoHisto hs  = i->second;
       CoHisto::const_iterator j = hs.find(name);
-      if (j != hs.end()) { 
+      if (j != hs.end()) {
         book(j->second, addId);
       }
     }
   }
-  */
 
-  void Collection::book(const CoHistoProps& h) const {
+  void Collection::book(const CoHistoProps& h, const int addId) const {
 
       MonitorObject* me = NULL;
       std::string name, type, title, s;
@@ -297,7 +295,8 @@ namespace cscdqm {
       if (!checkHistoValue(h, XML_BOOK_HISTO_TITLE, title)) { title = name; }
 
       if (ondemand) {
-         /// TODO: Add on demand formating (reuse Utility class) 
+        name = Utility::getNameById(name, addId);
+        title = Utility::getNameById(title, addId);
       }
 
       if (type == "h1") {
@@ -354,9 +353,28 @@ namespace cscdqm {
       if(me != NULL) {
 
         TH1 *th = me->getTH1();
-        if(checkHistoValue(h, "XTitle", s)) me->setAxisTitle(s, 1);
-        if(checkHistoValue(h, "YTitle", s)) me->setAxisTitle(s, 2);
-        if(checkHistoValue(h, "ZTitle", s)) me->setAxisTitle(s, 3);
+
+        if(checkHistoValue(h, "XTitle", s)) {
+          if (ondemand) {
+            s = Utility::getNameById(s, addId);
+          }
+          me->setAxisTitle(s, 1);
+        }
+
+        if(checkHistoValue(h, "YTitle", s)) {
+          if (ondemand) {
+            s = Utility::getNameById(s, addId);
+          }
+          me->setAxisTitle(s, 2);
+        }
+
+        if(checkHistoValue(h, "ZTitle", s)) {
+          if (ondemand) {
+            s = Utility::getNameById(s, addId);
+          }
+          me->setAxisTitle(s, 3);
+        }
+
         if(checkHistoValue(h, "SetOption", s)) th->SetOption(s.c_str());
         if(checkHistoValue(h, "SetStats", i1)) th->SetStats(i1);
         th->SetFillColor(getHistoValue(h, "SetFillColor", i1, DEF_HISTO_COLOR));
@@ -413,6 +431,19 @@ namespace cscdqm {
 
       histoProvider->afterBook(me);
 
+  }
+
+  const bool Collection::isOnDemand(const std::string& prefix, const HistoName& name) const {
+    CoHistoMap::const_iterator i = collection.find(prefix);
+    if (i != collection.end()) {
+      CoHisto hs  = i->second;
+      CoHisto::const_iterator j = hs.find(name);
+      if (j != hs.end()) { 
+        std::string s;
+        return (getHistoValue(j->second, XML_BOOK_ONDEMAND, s, XML_BOOK_ONDEMAND_FALSE) == XML_BOOK_ONDEMAND_TRUE);
+      }
+    }
+    return false;
   }
 
   /**

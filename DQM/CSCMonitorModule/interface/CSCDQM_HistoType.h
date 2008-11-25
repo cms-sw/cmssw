@@ -22,6 +22,8 @@
 #include <string>
 #include <iostream>  
 
+#include "DQM/CSCMonitorModule/interface/CSCDQM_Utility.h"
+
 namespace cscdqm {
 
   typedef char* HistoName; 
@@ -29,10 +31,8 @@ namespace cscdqm {
     const HistoName HISTO_SKIP = "0";
   }
 
-  static const char TAG_EMU[] = "EMU";
-  static const char TAG_DDU[] = "DDU_%d";
-  static const char TAG_CSC[] = "CSC_%03d_%02d";
-  static const char TAG_PAR[] = "PARAMETER";
+  static const char PATH_DDU[]     = "DDU_%d";
+  static const char PATH_CSC[]     = "CSC_%03d_%02d";
 
   #include "DQM/CSCMonitorModule/interface/CSCDQM_HistoNames.h"
 
@@ -44,42 +44,45 @@ namespace cscdqm {
 
     private:
 
-      HistoName   id;
+      HistoName hname;
 
     public:
 
-      HistoType(const HistoName& p_id) {
-        id  = p_id;
-      }
+      HistoType(const HistoName& p_hname) { hname  = p_hname; }
       
-      const HistoName&  getId() const { return id;  }
+      const HistoName&  getHistoName() const { return hname; }
+      virtual const std::string getName() const { return hname; }
 
-      const std::string getUID() const {
-        std::string uid(getTag());
+      const std::string getFullPath() const {
+        std::string uid(getPath());
         uid.append("/");
-        uid.append(id);
+        uid.append(getName());
         return uid;
       }
 
       const bool operator== (const HistoType& t) const {
-        if (getUID().compare(t.getUID()) == 0)  return true;
+        if (getFullPath().compare(t.getFullPath()) == 0)  return true;
         return false;
       }
 
       const HistoType& operator= (const HistoType& t) {
-        id  = t.getId();
+        hname  = t.getHistoName();
         return *this;
       }
 
       const bool operator< (const HistoType& t) const {
-        return (getUID() < t.getUID());
+        return (getFullPath() < t.getFullPath());
       }
 
       friend std::ostream& operator<<(std::ostream& out, const HistoType& t) {
-        return out << t.getUID();
+        return out << t.getFullPath();
       }
 
-      virtual const std::string getTag() const { return ""; }
+      virtual const std::string getPath() const     { return ""; }
+      virtual const unsigned int getCrateId() const { return  0; }
+      virtual const unsigned int getDMBId() const   { return  0; }
+      virtual const unsigned int getAddId() const   { return  0; }
+      virtual const unsigned int getDDUId() const   { return  0; }
 
   };
 
@@ -92,7 +95,6 @@ namespace cscdqm {
     public:
 
       EMUHistoType(const HistoName& p_id) : HistoType(p_id) { }
-      const std::string getTag() const { return TAG_EMU; }
 
   };
 
@@ -108,13 +110,13 @@ namespace cscdqm {
 
     public:
 
-      DDUHistoType(const HistoName& p_id, const unsigned int p_dduId) : HistoType(p_id) {
-        dduId = p_dduId;
-      }
-
+      DDUHistoType(const HistoName& p_id, const unsigned int p_dduId) : HistoType(p_id) { dduId = p_dduId; }
       const unsigned int getDDUId() const { return dduId; }
+      const std::string getPath() const { return getPath(dduId); }
 
-      const std::string getTag() const { return Form(TAG_DDU, dduId); }
+      static const std::string getPath(const unsigned int p_dduId) { 
+        return Form(PATH_DDU, p_dduId); 
+      }
 
   };
 
@@ -132,7 +134,7 @@ namespace cscdqm {
 
     public:
 
-      CSCHistoType(const HistoName& p_id, const unsigned int p_crateId, const unsigned int p_dmbId, const unsigned int p_addId) : 
+      CSCHistoType(const HistoName& p_id, const unsigned int p_crateId, const unsigned int p_dmbId, const unsigned int p_addId = 0) : 
         HistoType(p_id) {
         crateId = p_crateId;
         dmbId = p_dmbId;
@@ -142,8 +144,23 @@ namespace cscdqm {
       const unsigned int getCrateId() const { return crateId; }
       const unsigned int getDMBId() const { return dmbId; }
       const unsigned int getAddId() const { return addId; }
+      const std::string  getName() const { return Utility::getNameById(getHistoName(), getAddId()); }
+      const std::string  getPath() const { return getPath(crateId, dmbId); }
 
-      const std::string getTag() const { return Form(TAG_CSC, crateId, dmbId); }
+      static const std::string getPath(const unsigned int p_crateId, const unsigned int p_dmbId) { 
+        return Form(PATH_CSC, p_crateId, p_dmbId); 
+      }
+
+      const CSCHistoType& operator= (const CSCHistoType& t) {
+        HistoType *h1 = const_cast<CSCHistoType*>(this);
+        const HistoType *h2 = &t;
+        *h1 = *h2;
+        crateId = t.getCrateId();
+        dmbId   = t.getDMBId();
+        addId   = t.getAddId();
+        return *this;
+      }
+
 
   };
 
@@ -156,7 +173,6 @@ namespace cscdqm {
     public:
 
       ParHistoType(const HistoName& p_id) : HistoType(p_id) { }
-      const std::string getTag() const { return TAG_PAR; }
 
   };
 

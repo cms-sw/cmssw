@@ -25,13 +25,13 @@
 
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 #define LOG_DEBUG       ((!edm::MessageDrop::instance()->debugEnabled) ? \
-                        LogDebugger() : LogDebugger(true))
+                        cscdqm::LogDebugger() : cscdqm::LogDebugger(true))
 
 #endif
 
 #ifdef DQMLOCAL
 
-#define LOG_DEBUG       LogDebugger()
+#define LOG_DEBUG       cscdqm::LogDebugger()
 
 #endif
 

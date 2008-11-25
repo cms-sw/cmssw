@@ -24,9 +24,13 @@
 #include <vector>
 #include <sstream>
 
-#include <boost/regex.hpp> 
+#include <boost/shared_ptr.hpp>
+#include <TString.h>
+#include <TPRegexp.h>
 
 namespace cscdqm {
+
+  static const TPRegexp REGEXP_ONDEMAND("^.*%d.*$");
 
   /**
   * @brief  Converting from string to whatever number (failsafe!) 
@@ -45,8 +49,11 @@ namespace cscdqm {
 
     public:
 
-      static const bool regexMatch(const boost::regex& expression, const std::string& message);
+      static const std::string getNameById(const std::string& name, const int id);
+
+      static const bool regexMatch(const TPRegexp& re_expression, const std::string& message);
       static const bool regexMatch(const std::string& expression, const std::string& message);
+
       static const int getCSCTypeBin(const std::string& cstr);
       static const std::string getCSCTypeLabel(int endcap, int station, int ring);
       static const int tokenize(const std::string& str, std::vector<std::string>& tokens, const std::string& delimiters = " ");

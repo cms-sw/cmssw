@@ -127,14 +127,20 @@ namespace cscdqm {
   }
   
   
-  const bool Utility::regexMatch(const boost::regex& re_expression, const std::string& message) {
-    boost::cmatch what;
-    return boost::regex_match(message.c_str(), what, re_expression);
+  const bool Utility::regexMatch(const TPRegexp& re_expression, const std::string& message) {
+    TPRegexp *re = const_cast<TPRegexp*>(&re_expression);
+    return re->MatchB(message);
   }
 
   const bool Utility::regexMatch(const std::string& expression, const std::string& message) {
-    boost::regex re_expression(expression);
-    return regexMatch(re_expression, message);
+    return regexMatch(TPRegexp(expression), message);
+  }
+
+  const std::string Utility::getNameById(const std::string& name, const int id) {
+    if (regexMatch(REGEXP_ONDEMAND, name)) {
+      return Form(name.c_str(), id);
+    }
+    return name;
   }
 
 }

@@ -58,7 +58,7 @@ namespace cscdqm {
     dmbID = dmbHeader->dmbID();
     chamberID = (((crateID) << 4) + dmbID) & 0xFFF;
   
-    std::string cscTag(Form(TAG_CSC, crateID, dmbID));
+    std::string cscTag = CSCHistoType::getPath(crateID, dmbID);
   
     unsigned long errors = binChecker.errorsForChamber(chamberID);
     if ((errors & binCheckMask) > 0 ) {
@@ -71,7 +71,7 @@ namespace cscdqm {
       return;
     }
   
-    uint32_t detRawId = histoProvider->getCSCDetRawId(-1, -1, crateID, dmbID, -1);
+    uint32_t detRawId = histoProvider->getCSCDetId(crateID, dmbID).rawId();
     if (!detRawId) {
       return;
     }

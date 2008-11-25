@@ -33,7 +33,7 @@ namespace cscdqm {
       virtual const bool getHisto(const HistoType& histo, MonitorObject*& mo) = 0;
 
       virtual void getCSCFromMap(const unsigned int crateId, const unsigned int dmbId, unsigned int& cscType, unsigned int& cscPosition) const = 0;
-      virtual const uint32_t getCSCDetRawId(const int endcap, const int station, const int vmecrate, const int dmb, const int tmb) const = 0;
+      virtual const CSCDetId getCSCDetId(const unsigned int crateId, const unsigned int dmbId) const = 0;
       virtual const bool nextCSC(unsigned int& iter, unsigned int& crateId, unsigned int& dmbId) const = 0;
 
       virtual MonitorObject *bookInt       (const std::string &name) = 0;

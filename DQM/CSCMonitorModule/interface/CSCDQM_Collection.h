@@ -30,7 +30,6 @@
 #include <xercesc/dom/DOMElement.hpp>
 #include <xercesc/sax/ErrorHandler.hpp>
 #include <xercesc/sax/SAXParseException.hpp>
-#include <boost/shared_ptr.hpp>
 
 #include "DQM/CSCMonitorModule/interface/CSCDQM_Exception.h"
 #include "DQM/CSCMonitorModule/interface/CSCDQM_Logger.h"
@@ -53,7 +52,6 @@ namespace cscdqm {
   static const char XML_BOOK_ONDEMAND_TRUE[]  =  "1";
   static const char XML_BOOK_ONDEMAND_FALSE[] =  "0";
 
-  static const char REGEXP_ONDEMAND[]         =  "^.*%d.*$";
   static const int  DEF_HISTO_COLOR           =  48;
 
   /**
@@ -68,16 +66,18 @@ namespace cscdqm {
     public:
 
       Collection(HistoProvider* p_histoProvider);
-      const CoHistoMap& get() const { return collection; };
+      const CoHistoMap& getCollection() const { return collection; };
       void load(const std::string p_bookingFile);
-      void book(const CoHisto& hs) const;
-      void book(const CoHistoProps& h) const;
+
       void book(const std::string& prefix) const;
+      void book(const CoHisto& hs) const;
+      void book(const CoHistoProps& h, const int addId = 0) const;
+      void bookOnDemand(const std::string& prefix, const HistoName& name, const int addId) const;
+
+      const bool isOnDemand(const std::string& prefix, const HistoName& name) const;
 
       void printCollection() const;
 
-    private:
-      
       static const bool checkHistoValue(const CoHistoProps& h, const std::string& name, std::string& value);
       static const bool checkHistoValue(const CoHistoProps& h, const std::string& name, int& value);
       static const bool checkHistoValue(const CoHistoProps& h, const std::string name, double& value);
@@ -86,14 +86,14 @@ namespace cscdqm {
       static int&         getHistoValue(const CoHistoProps& h, const std::string& name, int& value, const int& def_value = 0);
       static double&      getHistoValue(const CoHistoProps& h, const std::string name, double& value, const int def_value = 0.0);
       
+    private:
+      
       static const int ParseAxisLabels(const std::string& s, std::map<int, std::string>& labels);
-
       static void getNodeProperties(DOMNode*& node, CoHistoProps& hp);
       
       HistoProvider* histoProvider;
       CoHistoMap     collection;
 
-      boost::regex exprOnDemand;
 
   };
 

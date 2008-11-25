@@ -24,7 +24,9 @@
 #include <iostream>
 #include <cstring>
 #include <typeinfo>
+#include <vector>
 #include <map>
+#include <set>
 
 /// DQM Framework stuff
 #include <FWCore/Framework/interface/EDAnalyzer.h>
@@ -43,6 +45,7 @@
 /// CSCDQM Framework stuff
 #include "DQM/CSCMonitorModule/interface/CSCDQM_EventProcessor.h"
 #include "DQM/CSCMonitorModule/interface/CSCDQM_Collection.h"
+#include "DQM/CSCMonitorModule/interface/CSCDQM_Logger.h"
 
 /// Local stuff
 #include "DQM/CSCMonitorModule/interface/CSCMonitorObject.h"
@@ -58,13 +61,18 @@ static const char DIR_CSC[]              = "CSC/Chamber/";
 static const char DIR_EVENTINFO[]        = "CSC/EventInfo/";
 static const char DIR_SUMMARY_CONTENTS[] = "CSC/EventInfo/reportSummaryContents/";
 
+/// Local Types
+
 static const std::type_info& EMUHistoT   = typeid(cscdqm::EMUHistoType);
 static const std::type_info& DDUHistoT   = typeid(cscdqm::DDUHistoType);
 static const std::type_info& CSCHistoT   = typeid(cscdqm::CSCHistoType);
 static const std::type_info& ParHistoT   = typeid(cscdqm::ParHistoType);
 
 typedef std::map<std::string, CSCMonitorObject*> MOCacheMap;
+typedef std::set<std::string>                    bookedHistoSet;
+typedef std::vector<cscdqm::CSCHistoType>        bookedCSCSet;
 typedef std::bitset<32>                          Bitset32;
+
 
 class CSCMonitorModuleCmn: public edm::EDAnalyzer, public cscdqm::HistoProvider {
  
@@ -84,6 +92,8 @@ class CSCMonitorModuleCmn: public edm::EDAnalyzer, public cscdqm::HistoProvider 
     DQMStore                  *dbe;
     edm::InputTag             inputTag;
     MOCacheMap                moCache;
+    bookedHistoSet            bookedHisto;
+    bookedCSCSet              bookedCSCs;
 
     cscdqm::EffParametersType effParams;
 
@@ -103,7 +113,9 @@ class CSCMonitorModuleCmn: public edm::EDAnalyzer, public cscdqm::HistoProvider 
     const bool getHisto(const cscdqm::HistoType& histo, cscdqm::MonitorObject*& mo);
 
     void getCSCFromMap(const unsigned int crateId, const unsigned int dmbId, unsigned int& cscType, unsigned int& cscPosition) const;
-    const uint32_t getCSCDetRawId(const int endcap, const int station, const int vmecrate, const int dmb, const int tmb) const;
+    const CSCDetId getCSCDetId(const unsigned int crateId, const unsigned int dmbId) const { 
+      return pcrate->detId(crateId, dmbId, 0, 0); 
+    }
     const bool nextCSC(unsigned int& iter, unsigned int& crateId, unsigned int& dmbId) const;
 
     cscdqm::MonitorObject* bookInt (const std::string &name) {

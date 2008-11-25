@@ -107,7 +107,8 @@ namespace cscdqm {
 
       const bool getEMUHisto(const HistoName& histo, MonitorObject*& me);
       const bool getDDUHisto(const int dduID, const HistoName& histo, MonitorObject*& me);
-      const bool getCSCHisto(const int crateID, const int dmbSlot, const HistoName& histo, MonitorObject*& me, const int adId = -1);
+      const bool getCSCHisto(const int crateID, const int dmbSlot, const HistoName& histo, MonitorObject*& me);
+      const bool getCSCHisto(const int crateID, const int dmbSlot, const HistoName& histo, MonitorObject*& me, const int adId);
       const bool getParHisto(const std::string& name, MonitorObject*& me);
 
       std::set<HistoName> blocked;

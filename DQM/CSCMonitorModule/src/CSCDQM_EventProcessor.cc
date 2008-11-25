@@ -70,6 +70,13 @@ namespace cscdqm {
   }
 
 
+  const bool EventProcessor::getCSCHisto(const int crateID, const int dmbSlot, const HistoName& histo, MonitorObject*& me) {
+    if (histoBlocked(histo)) return false;
+    CSCHistoType histoT(histo, crateID, dmbSlot);
+    return histoProvider->getHisto(histoT, me);
+  }
+
+
   const bool EventProcessor::getCSCHisto(const int crateID, const int dmbSlot, const HistoName& histo, MonitorObject*& me, const int adId) {
     if (histoBlocked(histo)) return false;
     CSCHistoType histoT(histo, crateID, dmbSlot, adId);
