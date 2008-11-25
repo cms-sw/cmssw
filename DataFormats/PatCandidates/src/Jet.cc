@@ -1,5 +1,5 @@
 //
-// $Id: Jet.cc,v 1.24 2008/10/09 17:48:24 lowette Exp $
+// $Id: Jet.cc,v 1.25 2008/11/04 13:53:52 auterman Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/Jet.h"
@@ -130,7 +130,7 @@ int Jet::partonFlavour() const {
 /// Copy of this jet with correction factor to target step, starting from jetCorrStep()
 Jet Jet::correctedJet(const std::string &step, const std::string &flavour) const {
     Jet ret(*this);
-    ret.setP4(p4() * jetCorrFactors().correction(jetCorrFactors().corrStep(step, flavour), jetCorrStep()));
+    ret.setP4(p4() * fabs(jetCorrFactors().correction(jetCorrFactors().corrStep(step, flavour), jetCorrStep())));
     ret.setJetCorrStep(jetCorrFactors().corrStep(step, flavour));
     return ret;
 }
