@@ -96,9 +96,10 @@ class CellStat:
         count=0
         hot=0
         for i in self.status.keys():
-            count=count+1
-            if ((self.status[i]>>5)&0x1):
-                hot=hot+1
+            if (self.status[i]&0x1==0): # only count runs where cell is present
+                count=count+1
+                if ((self.status[i]>>5)&0x1):
+                    hot=hot+1
         if (hot>=0.90*count):
             self.Alwayshot=True
         return self.Alwayshot
@@ -107,9 +108,11 @@ class CellStat:
         count=0
         dead=0
         for i in self.status.keys():
-            count=count+1
-            if ((self.status[i]>>4)&0x1):
-                dead=dead+1
+            # bit 1 is a disabled/not present bit
+            if (self.status[i]&0x1==0): # only count urns where cell is present
+                count=count+1
+                if ((self.status[i]>>4)&0x1):
+                    dead=dead+1
         #if (self.status[i]):
         #    print "count = ",count,"  DEAD = ",dead
         if (dead>=0.90*count):
@@ -587,13 +590,15 @@ class RunStatusGui:
         gr.GetYaxis().SetBinLabel(2,"Good")
         gr.GetYaxis().SetBinLabel(3,"Hot")
         gr.GetYaxis().SetBinLabel(4,"Dead")
-        gr.GetYaxis().SetBinLabel(5,"Unknown")
+        gr.GetYaxis().SetBinLabel(5,"Disabled")
 
         for i in range(mymin,mymax+1):
         #for i in self.Runs:
             if i in self.Cells[newid].status.keys():
                 # Need to check bit assignments here
-                # hot cells
+                if ((self.Cells[newid].status[i])&0x1):
+                    gr.Fill(i,4)
+                # hot cells               
                 if ((self.Cells[newid].status[i]>>5)&0x1):
                     gr.Fill(i,2)
                 # dead cells
@@ -607,12 +612,14 @@ class RunStatusGui:
         #gr=TGraph(len(Runs),Runs,values)
         #gr.SetTitle("Cell %s  (32 = dead, 16 = hot)"%newid)
         gr.GetXaxis().SetTitle("Run #")
-        #gr.SetMarkerColor(1)
-        #gr.SetMarkerStyle(20)
-        #gr.SetMinimum(0)
+        gr.SetMarkerColor(1)
+        gr.SetMarkerStyle(20)
+        gr.SetMinimum(0)
         c1 = TCanvas('c1','test',200, 10, self.canwidth, self.canheight )
-        gr.Draw("col")
+
+        gr.Draw() # was "col"
         c1.Update()
+
         c1.Print("badcelldisplay_file.gif")
         c1.Close()
         GUIimage=PhotoImage(file="badcelldisplay_file.gif")
