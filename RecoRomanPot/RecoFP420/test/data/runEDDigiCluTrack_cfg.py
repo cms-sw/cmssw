@@ -37,7 +37,7 @@ process.source = cms.Source("FlatRandomEGunSource",
         MaxEta = cms.untracked.double(9.9),
         MaxPhi = cms.untracked.double(3.227),
         MinEta = cms.untracked.double(8.7),
-        MinE = cms.untracked.double(7000.0),
+        MinE = cms.untracked.double(6930.0),
         MinPhi = cms.untracked.double(3.053),
         MaxE = cms.untracked.double(7000.0)
     ),
@@ -57,10 +57,15 @@ process.outpath = cms.EndPath(process.o1)
 process.schedule = cms.Schedule(process.p1,process.outpath)
 
 process.MessageLogger.cerr.default.limit = 10
-process.FlatVtxSmearingParameters.MinX = -1.5
-process.FlatVtxSmearingParameters.MaxX = -1.5
+process.FlatVtxSmearingParameters.MinX = -0.5
+process.FlatVtxSmearingParameters.MaxX = -2.5
 process.FlatVtxSmearingParameters.MinY = 0.0
 process.FlatVtxSmearingParameters.MaxY = 0.0
+process.FlatVtxSmearingParameters.MinZ = 41800.
+process.FlatVtxSmearingParameters.MaxZ = 41800.
+process.FP420Digi.ApplyTofCut = False
+process.FP420Cluster.VerbosityLevel = 1
+#process.FP420Track.VerbosityLevel = 1
 process.FlatVtxSmearingParameters.MinZ = 41000.
 process.FlatVtxSmearingParameters.MaxZ = 41000.
 process.FP420Digi.ApplyTofCut = False
