@@ -78,23 +78,42 @@ FP420Test::FP420Test(const edm::ParameterSet &p){
   // Initialization:
 
   theFP420NumberingScheme = new FP420NumberingScheme();
+  pn0 = 6;
+  sn0 = 3;
+  rn00 = 7;
 
-                          float  zUnit = 2700.; 
-  // with 1.250 m of half Z-tube Trd1     
-    // z1 - right after Ist Station (before 2nd window)
-                            z1 = 13.0 ; 
-                               //+2500     
-    // z2 - right after IInd Station (before 4th window)
-                            //z2 = 2513.;
-                               //+2500     
-			    z2 = z1+zUnit;
-    // z3 - right after IIIth Station (before 6th window)
-			    // z3 = 5013.; 
-                               //+2500     
-			    z3 = z1+2*zUnit;
-    // z4 - right after IVth Station (before 8th window)
-			    // z4 = 7513.; 
-			    z4 = z1+3*zUnit;
+  z420          = 420000.0; // mm
+  zD2           = 4000.0;  // mm
+  zD3           = 8000.0;  // mm
+  //
+  zBlade = 5.00;
+  gapBlade = 1.6;
+  double gapSupplane = 1.6;
+  ZSiPlane=2*zBlade+gapBlade+gapSupplane;
+  
+  double ZKapton = 0.1;
+  ZSiStep=ZSiPlane+ZKapton;
+  
+  double ZBoundDet = 0.020;
+  double ZSiElectr = 0.250;
+  double ZCeramDet = 0.500;
+  //
+  ZSiDet = 0.250;
+  ZGapLDet= zBlade/2-(ZSiDet+ZSiElectr+ZBoundDet+ZCeramDet/2);
+  //
+  //  ZSiStation = 5*(2*(5.+1.6)+0.1)+2*6.+1.0 =  79.5  
+  double ZSiStation = (pn0-1)*(2*(zBlade+gapBlade)+ZKapton)+2*6.+0.0;   // =  78.5  
+  // 11.=e1, 12.=e2 in zzzrectangle.xml
+  double eee1=11.;
+  double eee2=12.;
+  
+  zinibeg = (eee1-eee2)/2.;
+  
+  z1 = zinibeg + (ZSiStation+10.)/2 + z420; // z1 - right after 1st Station
+  z2 = z1+zD2;                       //z2 - right after middle Station
+  z3 = z1+zD3;                       //z3 - right after last   Station
+  z4 = z1+2*zD3;
+  //==================================
 
  fp420eventntuple = new TNtuple("NTfp420event","NTfp420event","evt");
 
@@ -186,20 +205,21 @@ void Fp420AnalysisHistManager::BookHistos()
     HistInit("PrimaryEta", "Primary Eta",   100,   9., 12. );
     HistInit("PrimaryPhigrad", "Primary Phigrad",   100,   0.,360. );
     HistInit("PrimaryTh", "Primary Th",   100,   0.,180. );
-    HistInit("PrimaryLastpoZ", "Primary Lastpo Z",   100, -90.,12000. );
+    HistInit("PrimaryLastpoZ", "Primary Lastpo Z",   100, -200.,430000. );
     HistInit("PrimaryLastpoX", "Primary Lastpo X Z<z4",   100, -30., 30. );
     HistInit("PrimaryLastpoY", "Primary Lastpo Y Z<z4",   100, -30., 30. );
     HistInit("XLastpoNumofpart", "Primary Lastpo X n>10",   100, -30., 30. );
     HistInit("YLastpoNumofpart", "Primary Lastpo Y n>10",   100, -30., 30. );
     HistInit("VtxX", "Vtx X",   100, -50., 50. );
     HistInit("VtxY", "Vtx Y",   100, -50., 50. );
-    HistInit("VtxZ", "Vtx Z",   100, -50., 50. );
+    HistInit("VtxZ", "Vtx Z",   100, -200.,430000. );
         // Book the histograms and add them to the array
     HistInit("SumEDep", "This is sum Energy deposited",   100,   -1,   199.);
     HistInit("TrackL", "This is TrackL",   100,   0.,   12000.);
-    HistInit("zHits", "z Hits all events",                20,   -200.,   8300.);
-    HistInit("zHitsnoMI", "z Hits no MI",                 20,   -200.,   8300.);
-    HistInit("zHitsTrLoLe", "z Hits TrLength bigger 8300",20,   -200.,   8300.);
+    HistInit("zHits", "z Hits all events",                100, 400000.,430000. );
+    HistInit("zHitsnoMI", "z Hits no MI",                 100, 400000.,430000. );
+    HistInit("zHitsTrLoLe", "z Hits TrLength bigger 8300",100, 400000.,430000. );
+    HistInit("NumberOfHits", "NumberOfHits",100, 0.,300. );
 }
 
 //-----------------------------------------------------------------------------
@@ -1055,6 +1075,7 @@ void FP420Test::update(const EndOfEvent * evt) {
       std::cout << "FP420Test: theCAFI->entries = " << theCAFI->entries() << std::endl;
     }
  // edm::LogInfo("FP420Test") << "theCAFI->entries="<< theCAFI->entries();
+    TheHistManager->GetHisto("NumberOfHits")->Fill(theCAFI->entries());
 
   // access to the G4 hit collections ----> variant 2: give 0 hits
 //  FP420G4HitCollection *   theCAFI;
@@ -1167,23 +1188,39 @@ void FP420Test::update(const EndOfEvent * evt) {
     int det, zside, sector, zmodule;
 //    CaloNumberingPacker::unpackCastorIndex(unitID, det, zside, sector, zmodule);
     FP420NumberingScheme::unpackFP420Index(unitID, det, zside, sector, zmodule);
+    int justlayer = theFP420NumberingScheme->FP420NumberingScheme::unpackLayerIndex(rn00, zside);// 1,2
+    if(justlayer<1||justlayer>2) {
+      std::cout << "FP420Test:WRONG  justlayer= " << justlayer << std::endl; 
+    }
     // zside=1,2 ; zmodule=1,10 ; sector=1,3
-      //UserNtuples->fillg44(float(sector),1.);
-      //UserNtuples->fillg45(float(zmodule),1.);
-      //UserNtuples->fillg46(float(zside),1.);
-//      int sScale = 20;
+    //UserNtuples->fillg44(float(sector),1.);
+    //UserNtuples->fillg45(float(zmodule),1.);
+    //UserNtuples->fillg46(float(zside),1.);
+    //      int sScale = 20;
     // intindex is a continues numbering of FP420
-//int zScale = 2; unsigned int intindex = sScale*(sector - 1)+zScale*(zmodule - 1)+zside; //intindex=1-30:X,Y,X,Y,X,Y...
-// int zScale = 10;   unsigned int intindex = sScale*(sector - 1)+zScale*(zside - 1)+zmodule; //intindex=1-30:XXXXXXXXXX,YYYYYYYYYY,...
-      //UserNtuples->fillg40(float(intindex),1.);
-      //UserNtuples->fillg48(float(intindex),losenergy);
-//
-//=======================================
-      G4ThreeVector middle = (hitExitLocalPoint+hitEntryLocalPoint)/2.;
-      themapz[unitID]  = hitPoint.z()+middle.z();
-//=======================================
-// Y
-	   if(zside==1) {
+    //int zScale = 2; unsigned int intindex = sScale*(sector - 1)+zScale*(zmodule - 1)+zside; //intindex=1-30:X,Y,X,Y,X,Y...
+    // int zScale = 10;   unsigned int intindex = sScale*(sector - 1)+zScale*(zside - 1)+zmodule; //intindex=1-30:XXXXXXXXXX,YYYYYYYYYY,...
+    //UserNtuples->fillg40(float(intindex),1.);
+    //UserNtuples->fillg48(float(intindex),losenergy);
+    //
+    //=======================================
+    //   G4ThreeVector middle = (hitExitLocalPoint+hitEntryLocalPoint)/2.;
+    G4ThreeVector middle = (hitExitLocalPoint-hitEntryLocalPoint)/2.;
+    themapz[unitID]  = hitPoint.z()+fabs(middle.z());
+    if (verbosity > 2) {
+      std::cout << "1111111111111111111111111111111111111111111111111111111111111111111111111 " << std::endl;
+      std::cout << "FP420Test: det, zside, sector, zmodule = " << det << zside << sector << zmodule << std::endl;
+      std::cout << "FP420Test: justlayer = " << justlayer << std::endl;
+      std::cout << "FP420Test: hitExitLocalPoint = " << hitExitLocalPoint << std::endl;
+      std::cout << "FP420Test: hitEntryLocalPoint = " << hitEntryLocalPoint << std::endl;
+      std::cout << "FP420Test:  middle= " << middle << std::endl;
+      std::cout << "FP420Test:  hitPoint.z()-419000.= " << hitPoint.z()-419000. << std::endl;
+      
+      std::cout << "FP420Test:zHits-419000. = " << themapz[unitID]-419000. << std::endl;
+    }
+    //=======================================
+    // Y
+    if(zside==1) {
 	     //UserNtuples->fillg24(losenergy,1.);
 	     if(losenergy > 0.00003) {
 	       themap1[unitID] += 1.;
@@ -1325,16 +1362,90 @@ void FP420Test::update(const EndOfEvent * evt) {
    }  // for loop on all hits ENDED  ENDED  ENDED  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
    //     !!!!!!!!!!!!!
+   
+   //======================================================================================================SUMHIT
+   //UserNtuples->fillg29(totallosenergy,1.);
+   //UserNtuples->fillg36(nhit11,1.);
+   //UserNtuples->fillg37(nhit12,1.);
+   //UserNtuples->fillg38(nhit13,1.);
+   //======================================================================================================SUMHIT
+   //   int rn00=3;//test only with 2 sensors in superlayer, not 4
+    //	  int rn00=rn0;//always
+   if (verbosity > 2) {
+     std::cout << "22222222222222222222222222222222222222222222222222222222222222222222222222 " << std::endl;
+   } 
+  int det = 1;
+   int allplacesforsensors=7;
+   for (int sector=1; sector < sn0; sector++) {
+     for (int zmodule=1; zmodule<pn0; zmodule++) {
+       for (int zsideinorder=1; zsideinorder<allplacesforsensors; zsideinorder++) {
+	 int zside = theFP420NumberingScheme->FP420NumberingScheme::realzside(rn00, zsideinorder);//1,3,5,2,4,6
+	 if (verbosity > 2) {
+	   std::cout << "FP420Test:  sector= " << sector << " zmodule= " << zmodule << " zsideinorder= " << zsideinorder << " zside= " << zside << std::endl; 
+	 }	 
+	 if(zside != 0) {
+	   int justlayer = theFP420NumberingScheme->FP420NumberingScheme::unpackLayerIndex(rn00, zside);// 1,2
+	   if(justlayer<1||justlayer>2) {
+	     std::cout << "FP420Test:WRONG  justlayer= " << justlayer << std::endl; 
+	   }
+	   int copyinlayer = theFP420NumberingScheme->FP420NumberingScheme::unpackCopyIndex(rn00, zside);// 1,2,3
+	   if(copyinlayer<1||copyinlayer>3) {
+	     std::cout << "FP420Test:WRONG  copyinlayer= " << copyinlayer << std::endl; 
+	   }
+	   int orientation = theFP420NumberingScheme->FP420NumberingScheme::unpackOrientation(rn00, zside);// Front: = 1; Back: = 2
+	   if(orientation<1||orientation>2) {
+	     std::cout << "FP420Test:WRONG  orientation= " << orientation << std::endl; 
+	   }
+	   
+	   // iu is a continues numbering of planes(!)  over two arm FP420 set up
+	   int detfixed=1;// use this treatment for each set up arm, hence no sense to do it defferently for +FP420 and -FP420;
+	   //                                                                    and  ...[ii] massives have prepared in such a way
+	   unsigned int ii=theFP420NumberingScheme->FP420NumberingScheme::packMYIndex(rn00,pn0,sn0,detfixed,justlayer,sector,zmodule)-1;
+	   // ii = 0-19   --> 20 items
+	   if (verbosity > 2) {
+	     std::cout << "FP420Test:  justlayer = " << justlayer << " copyinlayer = " << copyinlayer << " orientation = " << orientation << " ii= " << ii << std::endl; 
+	   }	   
+	   double zdiststat = 0.;
+	   if(sn0<4) {
+	     if(sector==2) zdiststat = zD3;
+	   }
+	   else {
+	     if(sector==2) zdiststat = zD2;
+	     if(sector==3) zdiststat = zD3;
+	   }
+	   double kplane = -(pn0-1)/2 - 0.5  +  (zmodule-1); //-3.5 +0...5 = -3.5,-2.5,-1.5,+2.5,+1.5
+	   double zcurrent = zinibeg + z420 + (ZSiStep-ZSiPlane)/2  + kplane*ZSiStep + zdiststat;  
+	   //double zcurrent = zinibeg +(ZSiStep-ZSiPlane)/2  + kplane*ZSiStep + (sector-1)*zUnit;  
+	   if (verbosity > 2) {
+	     std::cout << "FP420Test:  Leftzcurrent-419000. = " << zcurrent-419000. << std::endl; 
+	     std::cout << "FP420Test:  ZGapLDet = " << ZGapLDet << std::endl; 
+	   }	   
+	   if(justlayer==1){
+	     if(orientation==1) zcurrent += (ZGapLDet+ZSiDet/2);
+	     if(orientation==2) zcurrent += zBlade-(ZGapLDet+ZSiDet/2);
+	   }
+	   if(justlayer==2){
+	     if(orientation==1) zcurrent += (ZGapLDet+ZSiDet/2)+zBlade+gapBlade;
+	     if(orientation==2) zcurrent += 2*zBlade+gapBlade-(ZGapLDet+ZSiDet/2);
+	   }
+	   //   .
+	   //
+	   if(det == 2) zcurrent = -zcurrent;
+	   //
+	   if (verbosity > 2) {
+	     std::cout << "FP420Test:  zcurrent-419000. = " << zcurrent-419000. << std::endl; 
+	   }
+	   //================================== end of for loops in continuius number iu:
+	 }//if(zside!=0
+       }   // for superlayer
+     }   // for zmodule
+   }   // for sector
+   
 
-//======================================================================================================SUMHIT
-  //UserNtuples->fillg29(totallosenergy,1.);
-  //UserNtuples->fillg36(nhit11,1.);
-  //UserNtuples->fillg37(nhit12,1.);
-  //UserNtuples->fillg38(nhit13,1.);
-//======================================================================================================SUMHIT
-
-
-
+   if (verbosity > 2) {
+     std::cout << "----------------------------------------------------------------------------- " << std::endl;
+   }   
+   
 
 
 //======================================================================================================CHECK

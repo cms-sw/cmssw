@@ -41,14 +41,18 @@
 <!--  -->
 <!--  -->
 <!--  -->
-<!-- y-size from tube center to bottom of flat horizontal pocket part    was 12.3-->
+<!-- y-size from tube center to bottom of flat horizontal pocket part -->
  <Constant name="gap"      value="4.3*mm"/>
+<!--                          +4.3+0.05+0.15 = 4.5     -->
 <!--  -->
 <!--    y-distance from tube center to top of flat pocket part:  -->
 <!-- it's used because of previous set up , re-calculated as:  -->
  <Constant name="BoxYshft" value="[gap]+[dYcopper]+[dYsteel]"/>
-<!--                          +12.3+0.05+0.15 = 12.5     -->
 <!--  -->
+<!--  -->
+<!-- dYGap is a gap between top of flat horizontal part of pocket and detector(YSiStation) bottom -->
+ <Constant name="dYGap"             value="0.2*mm"/>
+<!-- so, y-size from tube center to detector bottom is 4.5+0.2=4.7-->
 <!--  -->
 <!--    Complete Unit size for tube with radius TubR: -->
 <!--  -->
@@ -128,43 +132,81 @@
 <!--  -->
 <!-- Station itself: -->
 <!--  -->
- <Constant name="XSiStation"               value="64.0*mm"/>
- <Constant name="XSiPlane"          value="20.0*mm"/>
- <Constant name="XSiDet"            value="10.0*mm"/>
- <Constant name="XSiDetCer"            value="15.0*mm"/>
+ <Constant name="XSiStation"               value="102.0*mm"/>
+ <Constant name="XSiPlane"          value="101.0*mm"/>
+ <Constant name="XSiDet"            value="7.2*mm"/>
+ <Constant name="XSiDetCer"            value="10.0*mm"/>
+ <Constant name="XSiOutCer"            value="10.0*mm"/>
+ <Constant name="XSiOut0Cer"            value="10.0*mm"/>
+ <Constant name="XTurnPlate"            value="20.0*mm"/>
+ <Constant name="XTurn0Plate"            value="30.0*mm"/>
+ <Constant name="XFlexes"                value="50.0*mm"/>
+ <Constant name="XMccCard"                value="100.0*mm"/>
 <!--  -->
- <Constant name="YSiStation"               value="60.0*mm"/>
- <Constant name="YSiPlane"          value="50.0*mm"/>
- <Constant name="YSiDet"            value="20.0*mm"/>
+ <Constant name="XDropOutCer"               value="([XSiDetCer]+[XSiOutCer])/2"/>
+ <Constant name="XDropTurnPlate"               value="([XSiDetCer]+[XTurnPlate])/2+[XSiOutCer]"/>
+<!--  -->
+<!--  -->
+ <Constant name="YSiStation"               value="182.0*mm"/>
+ <Constant name="YSiPlane"          value="181.0*mm"/>
+ <Constant name="YSiDet"            value="8.0*mm"/>
  <Constant name="YSiDetCer"            value="30.0*mm"/>
+ <Constant name="YSiOutCer"            value="40.0*mm"/>
+ <Constant name="YSiOut0Cer"            value="10.0*mm"/>
+ <Constant name="YTurnPlate"            value="60.0*mm"/>
+ <Constant name="YTurn0Plate"            value="20.0*mm"/>
+ <Constant name="YFlexes"                value="40.0*mm"/>
+ <Constant name="YMccCard"                value="80.0*mm"/>
 <!--  -->
  <Constant name="YDropPlane"               value="-([YSiStation]-[YSiPlane])/2"/>
- <Constant name="YDropDet"               value="-([YSiPlane]-[YSiDet])/2"/>
+ <Constant name="YDropDet1"               value="-([YSiPlane]-[YSiDet])/2"/>
+ <Constant name="YDropDet2"               value="-([YSiPlane]-[YSiDet])/2+[YSiDet]"/>
+ <Constant name="YDropDet3"               value="-([YSiPlane]-[YSiDet])/2+[YSiDet]+[YSiDet]"/>
  <Constant name="YDropDetCer"               value="-([YSiPlane]-[YSiDetCer])/2"/>
- <Constant name="YDropGas"               value="-([YSiStation]-[YGasWall])/2"/>
-<!-- dYGap is a gap between top of flat horizontal part of pocket and detector(YSiStation) bottom -->
- <Constant name="dYGap"             value="0.2*mm"/>
+ <Constant name="YDropOutCer"               value="-([YSiPlane]-[YSiOutCer])/2"/>
+ <Constant name="YDropOut0Cer"               value="-([YSiPlane]-[YSiOut0Cer])/2+[YSiDetCer]"/>
+ <Constant name="YDropTurnPlate"               value="-([YSiPlane]-[YTurnPlate])/2"/>
+ <Constant name="YDropTurn0Plate"               value="-([YSiPlane]-[YTurn0Plate])/2+[YSiOutCer]"/>
+ <Constant name="YDropFlexes"               value="-([YSiPlane]-[YFlexes])/2+[YTurnPlate]"/>
+ <Constant name="YDropMccCard"               value="-([YSiPlane]-[YMccCard])/2+[YTurnPlate]+[YFlexes]"/>
 <!--  -->
+ <Constant name="YDropGas"               value="-([YSiStation]-[YGasWall])/2"/>
+<!--  -->
+<!--  -->
+ <Constant name="zFlexes"             value="1.0*mm"/>
+ <Constant name="zMccCard"             value="2.0*mm"/>
 <!--  -->
  <Constant name="zBlade"             value="5.0*mm"/>
- <Constant name="gapBlade"             value="1.6*mm"/>
+ <Constant name="gapBlade"           value="1.6*mm"/>
+ <Constant name="gapSupplane"       value="1.6*mm"/>
 <!-- z- dimension of one plane -->
 <!-- <Constant name="ZSiPlane"          value="2.000*mm"/>-->
- <Constant name="ZSiPlane"          value="2*([zBlade]+[gapBlade])"/>
+ <Constant name="ZSiPlane"          value="2*[zBlade]+[gapBlade]+[gapSupplane]"/>
 <!-- plane containe the next content: -->
-<!-- z-size of left Si plate  -->
- <Constant name="ZSiDetL"           value="0.250*mm"/>
+<!-- z-size of sensitive Si plate  -->
+ <Constant name="ZSiDet"           value="0.250*mm"/>
 <!-- z-size of glue material between plates       -->
  <Constant name="ZBoundDet"         value="0.020*mm"/>
 <!-- z-size of electronic Si plate  -->
  <Constant name="ZSiElectr"           value="0.250*mm"/>
-<!--z-size of right Si plate  (it was 0.300 before) -->
- <Constant name="ZSiDetR"           value="0.250*mm"/>
-<!-- z-size of ceramic plate in plane (it was 1.0,0.5,0.3 before)-->
+<!-- z-size of sensor  -->
+ <Constant name="ZSensor"           value="[ZSiDet]+[ZBoundDet]+[ZSiElectr]"/>
+<!-- z-size of ceramic plate in active area inside superplane (it was 1.0,0.5,0.3 before)-->
  <Constant name="ZCeramDet"         value="0.5*mm"/>
 <!-- z dimention of left gap at the beginning of Si plate  -->
 <!--  <Constant name="ZGapLDet"           value="0.100*mm"/> -->
- <Constant name="ZGapLDet"           value="[zBlade]/2-([ZSiDetL]+[ZSiElectr]+[ZBoundDet]+[ZCeramDet]/2)"/>
+ <Constant name="ZGapLDet"           value="[zBlade]/2-([ZSensor]+[ZCeramDet]/2)"/>
+<!--   -->
+ <Constant name="Zbeg2plane"           value="-[ZSiPlane]/2+[zBlade]+[gapBlade]"/>
+<!--  -->
+<!--        before left sensor of 1-st plane in superplane                  -->
+ <Constant name="Zsen11"           value="-[ZSiPlane]/2+[ZGapLDet]"/>
+<!--        before right sensor of 1-st plane in superplane                  -->
+ <Constant name="Zsen12"           value="-[ZSiPlane]/2+[zBlade]/2+[ZCeramDet]/2"/>
+<!--        before left sensor of 2-nd plane in superplane                  -->
+ <Constant name="Zsen21"           value="[Zbeg2plane]+[ZGapLDet]"/>
+<!--        before right sensor of 2-nd plane in superplane                  -->
+ <Constant name="Zsen22"           value="[Zbeg2plane]+[zBlade]/2+[ZCeramDet]/2"/>
 <!--  -->
 <!-- distanse between superplanes-->
  <Constant name="ZKapton"           value="0.100*mm"/>
@@ -176,16 +218,7 @@
  <Constant name="Zedge2"              value="12.0*mm"/>  
  <Constant name="ZedgeG1"              value="11.0*mm"/>  
  <Constant name="ZedgeG2"              value="12.0*mm"/>  
-<!-- <Constant name="Zbetween"           value="[ZGasWall]+[Zedges]"/> -->
- <Constant name="Zbetween"           value="0.0*mm"/>  
-<!-- <Constant name="ZSiStation"               value="[NumberPl]*[ZSiStep]+2*[ZStFrame]+[Zbetween]"/>  -->
-
-<!-- <Constant name="ZSiSuperPlane"       value="[NumberPl]*[ZSiStep]+2*[ZStFrame]+[Zbetween]"/> -->
-<!-- <Constant name="ZSiStation"               value="[ZSiSuperPlane]+[ZGasWall]+[Zedges]"/> -->
-<!-- <Constant name="ZSiSupPlPos"               value="-[ZSiStation]/2+[Zedges]/2+[ZSiSuperPlane]/2"/> -->
-
- <Constant name="ZSiSuperPlane"       value="[NumberPl]*[ZSiStep]+2*[ZStFrame]+[Zbetween]"/>
- <Constant name="ZSiStation"               value="[ZSiSuperPlane]"/>
+ <Constant name="ZSiStation"       value="[NumberPl]*[ZSiStep]+2*[ZStFrame]"/>
 
 <!--  ZSiStation = 8*(2*(5.+1.6)+0.1)+2*6.+0.0 = 118.4  -->
 <!--  ZSiStation = 5*(2*(5.+1.6)+0.1)+2*6.+1.0 =  79.5  -->
@@ -467,12 +500,20 @@
 <!-- -->
  <Box name="SIPLANE" dx="[XSiPlane]/2" dy="[YSiPlane]/2" dz="[ZSiPlane]/2"/>
 <!-- -->
- <Box name="SIDETL"    dx="[XSiDet]/2" dy="[YSiDet]/2" dz="[ZSiDetL]/2"/>
+ <Box name="SENSOR1"    dx="[XSiDet]/2" dy="[YSiDet]/2" dz="[ZSensor]/2"/>
+ <Box name="SENSOR2"    dx="[XSiDet]/2" dy="[YSiDet]/2" dz="[ZSensor]/2"/>
+ <Box name="SIDETL"    dx="[XSiDet]/2" dy="[YSiDet]/2" dz="[ZSiDet]/2"/>
  <Box name="BOUNDDET"  dx="[XSiDet]/2" dy="[YSiDet]/2" dz="[ZBoundDet]/2"/>
- <Box name="SIDETR"    dx="[XSiDet]/2" dy="[YSiDet]/2" dz="[ZSiDetR]/2"/>
+ <Box name="SIDETR"    dx="[XSiDet]/2" dy="[YSiDet]/2" dz="[ZSiDet]/2"/>
  <Box name="SIELECTR" dx="[XSiDet]/2" dy="[YSiDet]/2" dz="[ZSiElectr]/2"/>
 <!-- -->
  <Box name="CERAMDET" dx="[XSiDetCer]/2" dy="[YSiDetCer]/2" dz="[ZCeramDet]/2"/>
+ <Box name="CERAMOUT" dx="[XSiOutCer]/2" dy="[YSiOutCer]/2" dz="[zBlade]/2"/>
+ <Box name="CERAMOUT0" dx="[XSiOut0Cer]/2" dy="[YSiOut0Cer]/2" dz="[zBlade]/2"/>
+ <Box name="TurnPlate" dx="[XTurnPlate]/2" dy="[YTurnPlate]/2" dz="[zBlade]/2"/>
+ <Box name="Turn0Plate" dx="[XTurn0Plate]/2" dy="[YTurn0Plate]/2" dz="[zBlade]/2"/>
+ <Box name="Flexes" dx="[XFlexes]/2" dy="[YFlexes]/2" dz="[zFlexes]/2"/>
+ <Box name="MccCard" dx="[XMccCard]/2" dy="[YMccCard]/2" dz="[zMccCard]/2"/>
 <!-- -->
 <!-- Si Det.:SISTATION:SIPLANE:(SIDETL+BOUNDDET        +SIDETR + CERAMDET) --> 
  <Box name="GASTOFALL" dx="[XGasWall]/2" dy="[YGasWall]/2" dz="[ZGasWall]/2"/>
@@ -537,6 +578,14 @@
   <rSolid name="SISTATION"/>
   <rMaterial name="materialsfp420:Air"/>
  </LogicalPart>
+ <LogicalPart name="SENSOR1" category="unspecified">
+  <rSolid name="SENSOR1"/>
+  <rMaterial name="materialsfp420:Air"/>
+ </LogicalPart>
+ <LogicalPart name="SENSOR2" category="unspecified">
+  <rSolid name="SENSOR2"/>
+  <rMaterial name="materialsfp420:Air"/>
+ </LogicalPart>
  <LogicalPart name="SIPLANE" category="unspecified">
   <rSolid name="SIPLANE"/>
   <rMaterial name="materialsfp420:Air"/>
@@ -560,7 +609,9 @@
  <LogicalPart name="CERAMDET" category="unspecified">
   <rSolid name="CERAMDET"/>
    <rMaterial name="materialsfp420:BladeSi70Al30"/> 
+ </LogicalPart>
 <!--  -->
+<!--   <rMaterial name="materialsfp420:BladeSi70Al30"/>  -->
 <!--   <rMaterial name="materialsfp420:Ceramic"/>   -->
 <!--  -->
 <!--   <rMaterial name="materialsfp420:Carbon"/>  -->
@@ -575,6 +626,29 @@
 <!--   <rMaterial name="materialsfp420:Silicon"/>      -->
 <!--   <rMaterial name="materialsfp420:Si O_2"/>       -->
 <!--   <rMaterial name="materialsfp420:Doped Quartz"/> -->
+ <LogicalPart name="CERAMOUT" category="unspecified">
+  <rSolid name="CERAMOUT"/>
+   <rMaterial name="materialsfp420:Air"/> 
+ </LogicalPart>
+ <LogicalPart name="CERAMOUT0" category="unspecified">
+  <rSolid name="CERAMOUT0"/>
+   <rMaterial name="materialsfp420:Air"/> 
+ </LogicalPart>
+ <LogicalPart name="TurnPlate" category="unspecified">
+  <rSolid name="TurnPlate"/>
+   <rMaterial name="materialsfp420:Air"/> 
+ </LogicalPart>
+ <LogicalPart name="Turn0Plate" category="unspecified">
+  <rSolid name="Turn0Plate"/>
+   <rMaterial name="materialsfp420:Air"/> 
+ </LogicalPart>
+ <LogicalPart name="Flexes" category="unspecified">
+  <rSolid name="Flexes"/>
+   <rMaterial name="materialsfp420:Air"/> 
+ </LogicalPart>
+ <LogicalPart name="MccCard" category="unspecified">
+  <rSolid name="MccCard"/>
+   <rMaterial name="materialsfp420:Air"/> 
  </LogicalPart>
 <!--  -->
 <!--                    GASTOFALL   StainlessSteel   Air     -->
@@ -684,10 +758,6 @@
 <!--  -->
 <PosPartSection label="zzzrectangle.xml">
 <!--  -->
-<!--  [Zbetween] is added to keep the same distance(8m) between edges superplanes for case of 2 stations-->
-<!--    <Translation x="0*fm" y="0*fm" z="0*fm+[ZUnit]-[Zbetween]" />-->
-<!-- for 4 stations half z dimension of FP420E bigger 3.5 * [ZUnit]:    -->
-<!-- ( 3.5 * 2500mm = 8750mm  ); now there dZ = 10.0*m - it is large enough   -->
 <!--  -->
  <PosPart copyNumber="1">
    <rParent name="fp420:FP420E"/>
@@ -905,7 +975,6 @@
   <rRotation name="FP420Rot:FP420MAIN"/>
  </PosPart>
 <!--  -->
-<!-- +[Zbetween]/2  ??? -->
  <PosPart copyNumber="1">
    <rParent name="zzzrectangle:FP420Ex1"/>
    <rChild name="zzzrectangle:SISTATION"/>
@@ -934,13 +1003,13 @@
  <PosPart copyNumber="1">
    <rParent name="zzzrectangle:SISTATION"/>
    <rChild name="zzzrectangle:SIPLANE"/>
-  <Translation x="0*fm" y="[YDropPlane]" z="-2*[ZSiStep]+[Zbetween]/2" />
+  <Translation x="0*fm" y="[YDropPlane]" z="-2*[ZSiStep]" />
   <rRotation name="FP420Rot:FP420MAIN"/>
  </PosPart>
  <PosPart copyNumber="2">
    <rParent name="zzzrectangle:SISTATION"/>
    <rChild name="zzzrectangle:SIPLANE"/>
-  <Translation x="0*fm" y="[YDropPlane]" z="-1*[ZSiStep]+[Zbetween]/2" />
+  <Translation x="0*fm" y="[YDropPlane]" z="-1*[ZSiStep]" />
   <rRotation name="FP420Rot:FP420MAIN"/>
  </PosPart>
  <PosPart copyNumber="3">
@@ -952,13 +1021,13 @@
  <PosPart copyNumber="4">
    <rParent name="zzzrectangle:SISTATION"/>
    <rChild name="zzzrectangle:SIPLANE"/>
-  <Translation x="0*fm" y="[YDropPlane]" z="1*[ZSiStep]+[Zbetween]/2" />
+  <Translation x="0*fm" y="[YDropPlane]" z="1*[ZSiStep]" />
   <rRotation name="FP420Rot:FP420MAIN"/>
  </PosPart>
  <PosPart copyNumber="5">
    <rParent name="zzzrectangle:SISTATION"/>
    <rChild name="zzzrectangle:SIPLANE"/>
-  <Translation x="0*fm" y="[YDropPlane]" z="2*[ZSiStep]+[Zbetween]/2" />
+  <Translation x="0*fm" y="[YDropPlane]" z="2*[ZSiStep]" />
   <rRotation name="FP420Rot:FP420MAIN"/>
  </PosPart>
 <!--  -->
@@ -975,58 +1044,193 @@
  </PosPart>
 <!--  -->
 <!--  -->
+<!-- 1st plane of superlayer -->
+<!--  -->
+ <PosPart copyNumber="1">
+   <rParent name="zzzrectangle:SIPLANE"/>
+   <rChild name="zzzrectangle:CERAMDET"/>
+  <Translation x="0*fm" y="[YDropDetCer]" z="-[ZSiPlane]/2+[zBlade]/2" />
+  <rRotation name="FP420Rot:FP420MAIN"/>
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="zzzrectangle:SIPLANE"/>
+   <rChild name="zzzrectangle:SENSOR1"/>
+  <Translation x="0*fm" y="[YDropDet1]" z="[Zsen11]+[ZSensor]/2" />
+  <rRotation name="FP420Rot:FP420MAIN"/>
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="zzzrectangle:SIPLANE"/>
+   <rChild name="zzzrectangle:SENSOR2"/>
+  <Translation x="0*fm" y="[YDropDet2]" z="[Zsen12]+[ZSensor]/2" />
+  <rRotation name="FP420Rot:FP420MAIN"/>
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="zzzrectangle:SIPLANE"/>
+   <rChild name="zzzrectangle:CERAMOUT"/>
+  <Translation x="[XDropOutCer]" y="[YDropOutCer]" z="-[ZSiPlane]/2+[zBlade]/2" />
+  <rRotation name="FP420Rot:FP420MAIN"/>
+ </PosPart>
+ <PosPart copyNumber="2">
+   <rParent name="zzzrectangle:SIPLANE"/>
+   <rChild name="zzzrectangle:CERAMOUT"/>
+  <Translation x="-[XDropOutCer]" y="[YDropOutCer]" z="-[ZSiPlane]/2+[zBlade]/2" />
+  <rRotation name="FP420Rot:FP420MAIN"/>
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="zzzrectangle:SIPLANE"/>
+   <rChild name="zzzrectangle:CERAMOUT0"/>
+  <Translation x="0*fm" y="[YDropOut0Cer]" z="-[ZSiPlane]/2+[zBlade]/2" />
+  <rRotation name="FP420Rot:FP420MAIN"/>
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="zzzrectangle:SIPLANE"/>
+   <rChild name="zzzrectangle:TurnPlate"/>
+  <Translation x="[XDropTurnPlate]" y="[YDropTurnPlate]" z="-[ZSiPlane]/2+[zBlade]/2" />
+  <rRotation name="FP420Rot:FP420MAIN"/>
+ </PosPart>
+ <PosPart copyNumber="2">
+   <rParent name="zzzrectangle:SIPLANE"/>
+   <rChild name="zzzrectangle:TurnPlate"/>
+  <Translation x="-[XDropTurnPlate]" y="[YDropTurnPlate]" z="-[ZSiPlane]/2+[zBlade]/2" />
+  <rRotation name="FP420Rot:FP420MAIN"/>
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="zzzrectangle:SIPLANE"/>
+   <rChild name="zzzrectangle:Turn0Plate"/>
+  <Translation x="0*fm" y="[YDropTurn0Plate]" z="-[ZSiPlane]/2+[zBlade]/2" />
+  <rRotation name="FP420Rot:FP420MAIN"/>
+ </PosPart>
+<!--  -->
+<!-- 2nd plane of superlayer -->
+<!--  -->
+ <PosPart copyNumber="2">
+   <rParent name="zzzrectangle:SIPLANE"/>
+   <rChild name="zzzrectangle:CERAMDET"/>
+  <Translation x="0*fm" y="[YDropDetCer]" z="[Zbeg2plane]+[zBlade]/2" />
+  <rRotation name="FP420Rot:FP420MAIN"/>
+ </PosPart>
+ <PosPart copyNumber="2">
+   <rParent name="zzzrectangle:SIPLANE"/>
+   <rChild name="zzzrectangle:SENSOR1"/>
+  <Translation x="0*fm+[PitchXW]/2" y="[YDropDet1]+[PitchX]/2" z="[Zsen21]+[ZSensor]/2" />
+  <rRotation name="FP420Rot:FP420MAIN"/>
+ </PosPart>
+ <PosPart copyNumber="2">
+   <rParent name="zzzrectangle:SIPLANE"/>
+   <rChild name="zzzrectangle:SENSOR2"/>
+  <Translation x="0*fm+[PitchXW]/2" y="[YDropDet3]+[PitchX]/2" z="[Zsen22]+[ZSensor]/2" />
+  <rRotation name="FP420Rot:FP420MAIN"/>
+ </PosPart>
+ <PosPart copyNumber="3">
+   <rParent name="zzzrectangle:SIPLANE"/>
+   <rChild name="zzzrectangle:CERAMOUT"/>
+  <Translation x="[XDropOutCer]" y="[YDropOutCer]" z="[Zbeg2plane]+[zBlade]/2" />
+  <rRotation name="FP420Rot:FP420MAIN"/>
+ </PosPart>
+ <PosPart copyNumber="4">
+   <rParent name="zzzrectangle:SIPLANE"/>
+   <rChild name="zzzrectangle:CERAMOUT"/>
+  <Translation x="-[XDropOutCer]" y="[YDropOutCer]" z="[Zbeg2plane]+[zBlade]/2" />
+  <rRotation name="FP420Rot:FP420MAIN"/>
+ </PosPart>
+ <PosPart copyNumber="2">
+   <rParent name="zzzrectangle:SIPLANE"/>
+   <rChild name="zzzrectangle:CERAMOUT0"/>
+  <Translation x="0*fm" y="[YDropOut0Cer]" z="[Zbeg2plane]+[zBlade]/2" />
+  <rRotation name="FP420Rot:FP420MAIN"/>
+ </PosPart>
+ <PosPart copyNumber="3">
+   <rParent name="zzzrectangle:SIPLANE"/>
+   <rChild name="zzzrectangle:TurnPlate"/>
+  <Translation x="[XDropTurnPlate]" y="[YDropTurnPlate]" z="[Zbeg2plane]+[zBlade]/2" />
+  <rRotation name="FP420Rot:FP420MAIN"/>
+ </PosPart>
+ <PosPart copyNumber="4">
+   <rParent name="zzzrectangle:SIPLANE"/>
+   <rChild name="zzzrectangle:TurnPlate"/>
+  <Translation x="-[XDropTurnPlate]" y="[YDropTurnPlate]" z="[Zbeg2plane]+[zBlade]/2" />
+  <rRotation name="FP420Rot:FP420MAIN"/>
+ </PosPart>
+ <PosPart copyNumber="2">
+   <rParent name="zzzrectangle:SIPLANE"/>
+   <rChild name="zzzrectangle:Turn0Plate"/>
+  <Translation x="0*fm" y="[YDropTurn0Plate]" z="[Zbeg2plane]+[zBlade]/2" />
+  <rRotation name="FP420Rot:FP420MAIN"/>
+ </PosPart>
 <!--  -->
 <!--  -->
  <PosPart copyNumber="1">
    <rParent name="zzzrectangle:SIPLANE"/>
+   <rChild name="zzzrectangle:Flexes"/>
+  <Translation x="0*fm" y="[YDropFlexes]" z="0*fm" />
+  <rRotation name="FP420Rot:FP420MAIN"/>
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="zzzrectangle:SIPLANE"/>
+   <rChild name="zzzrectangle:MccCard"/>
+  <Translation x="0*fm" y="[YDropMccCard]" z="0*fm" />
+  <rRotation name="FP420Rot:FP420MAIN"/>
+ </PosPart>
+<!--  -->
+<!--  -->
+ <PosPart copyNumber="1">
+   <rParent name="zzzrectangle:SENSOR1"/>
    <rChild name="zzzrectangle:SIDETL"/>
-  <Translation x="0*fm" y="[YDropDet]" z="-[ZSiPlane]/2+[ZGapLDet]+[ZSiDetL]/2" />
+  <Translation x="0*fm" y="0*fm" z="-[ZSensor]/2+[ZSiDet]/2" />
   <rRotation name="FP420Rot:FP420MAIN"/>
  </PosPart>
  <PosPart copyNumber="1">
-   <rParent name="zzzrectangle:SIPLANE"/>
+   <rParent name="zzzrectangle:SENSOR1"/>
    <rChild name="zzzrectangle:BOUNDDET"/>
-  <Translation x="0*fm" y="[YDropDet]" z="-[ZSiPlane]/2+[ZGapLDet]+[ZSiDetL]+[ZBoundDet]/2" />
+  <Translation x="0*fm" y="0*fm" z="-[ZSensor]/2+[ZSiDet]+[ZBoundDet]/2" />
   <rRotation name="FP420Rot:FP420MAIN"/>
  </PosPart>
  <PosPart copyNumber="1">
-   <rParent name="zzzrectangle:SIPLANE"/>
+   <rParent name="zzzrectangle:SENSOR1"/>
    <rChild name="zzzrectangle:SIELECTR"/>
-  <Translation x="0*fm" y="[YDropDet]" z="-[ZSiPlane]/2+[ZGapLDet]+[ZSiDetL]+[ZBoundDet]+[ZSiElectr]/2" />
-  <rRotation name="FP420Rot:FP420MAIN"/>
- </PosPart>
- <PosPart copyNumber="1">
-   <rParent name="zzzrectangle:SIPLANE"/>
-   <rChild name="zzzrectangle:CERAMDET"/>
-  <Translation x="0*fm" y="[YDropDetCer]" z="-[ZSiPlane]/2+[ZGapLDet]+[ZSiDetL]+[ZBoundDet]+[ZSiElectr]+[ZCeramDet]/2" />
+  <Translation x="0*fm" y="0*fm" z="-[ZSensor]/2+[ZSiDet]+[ZBoundDet]+[ZSiElectr]/2" />
   <rRotation name="FP420Rot:FP420MAIN"/>
  </PosPart>
 <!--  -->
+<!-- 
  <PosPart copyNumber="1">
-   <rParent name="zzzrectangle:SIPLANE"/>
+   <rParent name="zzzrectangle:SENSOR2"/>
    <rChild name="zzzrectangle:SIDETR"/>
-  <Translation x="0*fm+[PitchXW]/2" y="[YDropDet]+[PitchX]/2" z="[ZGapLDet]+[ZSiDetR]/2" />
+  <Translation x="0*fm" y="0*fm" z="-[ZSensor]/2+[ZSiDet]/2" />
   <rRotation name="FP420Rot:FP420MAIN"/>
  </PosPart>
- <PosPart copyNumber="2">
-   <rParent name="zzzrectangle:SIPLANE"/>
+ <PosPart copyNumber="1">
+   <rParent name="zzzrectangle:SENSOR2"/>
    <rChild name="zzzrectangle:BOUNDDET"/>
-  <Translation x="0*fm+[PitchXW]/2" y="[YDropDet]+[PitchX]/2" z="[ZGapLDet]+[ZSiDetR]+[ZBoundDet]/2" />
+  <Translation x="0*fm" y="0*fm" z="-[ZSensor]/2+[ZSiDet]+[ZBoundDet]/2" />
   <rRotation name="FP420Rot:FP420MAIN"/>
  </PosPart>
- <PosPart copyNumber="2">
-   <rParent name="zzzrectangle:SIPLANE"/>
+ <PosPart copyNumber="1">
+   <rParent name="zzzrectangle:SENSOR2"/>
    <rChild name="zzzrectangle:SIELECTR"/>
-  <Translation x="0*fm+[PitchXW]/2" y="[YDropDet]+[PitchX]/2" z="[ZGapLDet]+[ZSiDetR]+[ZBoundDet]+[ZSiElectr]/2" />
+  <Translation x="0*fm" y="0*fm" z="-[ZSensor]/2+[ZSiDet]+[ZBoundDet]+[ZSiElectr]/2" />
   <rRotation name="FP420Rot:FP420MAIN"/>
  </PosPart>
- <PosPart copyNumber="2">
-   <rParent name="zzzrectangle:SIPLANE"/>
-   <rChild name="zzzrectangle:CERAMDET"/>
-  <Translation x="0*fm" y="[YDropDetCer]" z="[ZGapLDet]+[ZSiDetR]+[ZBoundDet]+[ZSiElectr]+[ZCeramDet]/2" />
-  <rRotation name="FP420Rot:FP420MAIN"/>
- </PosPart>
+-->
 <!--  -->
+ <PosPart copyNumber="1">
+   <rParent name="zzzrectangle:SENSOR2"/>
+   <rChild name="zzzrectangle:SIELECTR"/>
+  <Translation x="0*fm" y="0*fm" z="-[ZSensor]/2+[ZSiElectr]/2" />
+  <rRotation name="FP420Rot:FP420MAIN"/>
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="zzzrectangle:SENSOR2"/>
+   <rChild name="zzzrectangle:BOUNDDET"/>
+  <Translation x="0*fm" y="0*fm" z="-[ZSensor]/2+[ZSiElectr]+[ZBoundDet]/2" />
+  <rRotation name="FP420Rot:FP420MAIN"/>
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="zzzrectangle:SENSOR2"/>
+   <rChild name="zzzrectangle:SIDETR"/>
+  <Translation x="0*fm" y="0*fm" z="-[ZSensor]/2+[ZSiElectr]+[ZBoundDet]+[ZSiDet]/2" />
+  <rRotation name="FP420Rot:FP420MAIN"/>
+ </PosPart>
 <!--  -->
 <!--  -->
 </PosPartSection>

@@ -95,18 +95,22 @@ unsigned int FP420NumberingScheme::getUnitID(const G4Step* aStep) const {
 	station   = stationgen;
       } else if(name[ich] == "SIPLANE") {
 	plane   = copyno[ich];
-      // SIDETL (or R) can be ether X or Y type in next readout code
+      // SIDETL (or R) can be ether X or Y type in next schemes of readout
 	//        !!! (=...) zside
-	//      1         2        3     <---copyno
-	//   Front(=2) Empty(=4) Back(=6)     <--SIDETR
-	//   Front(=1) Back(=3) Empty(=5)     <--SIDETL
 	//
-      } else if(name[ich] == "SIDETR") {
-	//	zside   = 2;// OLD
-	zside   = 2 * copyno[ich] ;//= 2   4   6
-      } else if(name[ich] == "SIDETL") {
-	//	zside   = 1;// OLD
-	zside   = 2 * copyno[ich] - 1 ;//= 1   3   5
+	//      1                  2     <---copyno
+	//   Front(=2) Empty(=4) Back(=6)     <--SIDETR OR SENSOR2
+	//      1         2              <---copyno
+	//   Front(=1) Back(=3) Empty(=5)     <--SIDETL OR SENSOR1
+	//
+      } else if(name[ich] == "SENSOR2") {
+	//    } else if(name[ich] == "SIDETR") {
+	//	zside   = 4 * copyno[ich] - 2 ;//= 2   6 (copyno=1,2)
+	zside   = 3 * copyno[ich];//= 3   6 (copyno=1,2)
+      } else if(name[ich] == "SENSOR1") {
+	//     } else if(name[ich] == "SIDETL") {
+	//	zside   = 2 * copyno[ich] - 1 ;//= 1   3 (copyno=1,2)
+	zside   = copyno[ich];//= 1   2 (copyno=1,2)
       }
       //
       //  std::cout << "FP420NumberingScheme  " << "ich=" << ich  << "copyno" << copyno[ich] << "name="  << name[ich] << std::endl;

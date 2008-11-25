@@ -11,7 +11,7 @@
 using namespace std;
 
 static float capacitive_coupling[2] =  {.80,.10};
-static float FiducialXYZ[3] =  {5.,10.,0.250};// dX/2, dY/2,dZ -- mm fiducial dimension of Si plate
+static float FiducialXYZ[3] =  {3.6,4.,0.250};// dX/2, dY/2,dZ -- mm fiducial dimension of Si plate
 
 IChargeFP420::hit_map_type InduceChargeFP420::induce(CDrifterFP420::collection_type _collection_points, int numStrips, double localPitch, int numStripsW, double localPitchW, int xytype, int verbosity){
   signalCoupling.clear();
@@ -143,7 +143,7 @@ IChargeFP420::hit_map_type InduceChargeFP420::induce(CDrifterFP420::collection_t
       x[i] = totalIntegrationRange; // save strip integral 
       
       if(totalIntegrationRange<=0.) std::cout << " upperBound= " << upperBound << " lowerBound= " << lowerBound << std::endl;
-      if(verbosity>1) {
+      if(verbosity==-30) {
 	std::cout << " *InduceChargeFP420:====================================X i =  " << i << std::endl;
 	std::cout << " upperBound= " << upperBound << " lowerBound= " << lowerBound << std::endl;
 	std::cout << " totalIntegrationRange= " << totalIntegrationRange << std::endl;
@@ -186,7 +186,7 @@ IChargeFP420::hit_map_type InduceChargeFP420::induce(CDrifterFP420::collection_t
       
       if(totalIntegrationRange<=0.) std::cout << " upperBoundW= " << upperBoundW << " lowerBoundW= " << lowerBoundW << std::endl;
       
-      if(verbosity>1) {
+      if(verbosity==-30) {
 	std::cout << " *InduceChargeFP420:====================================XW  i= " << i << std::endl;
 	std::cout << " upperBoundW= " << upperBoundW << " lowerBoundW= " << lowerBoundW << std::endl;
 	std::cout << " totalIntegrationRange= " << totalIntegrationRange << std::endl;

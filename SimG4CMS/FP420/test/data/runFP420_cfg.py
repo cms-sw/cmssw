@@ -33,10 +33,12 @@ process.source = cms.Source("FlatRandomEGunSource",
     PGunParameters = cms.untracked.PSet(
         PartID = cms.untracked.vint32(2212),
         MaxEta = cms.untracked.double(9.9),
-        MaxPhi = cms.untracked.double(3.227),
+#        MaxPhi = cms.untracked.double(3.227),
+        MaxPhi = cms.untracked.double(3.1),
         MinEta = cms.untracked.double(8.7),
         MinE = cms.untracked.double(6930.0),
-        MinPhi = cms.untracked.double(3.053),
+#        MinPhi = cms.untracked.double(3.053),
+        MinPhi = cms.untracked.double(-3.1),
         MaxE = cms.untracked.double(7000.0)
     ),
     Verbosity = cms.untracked.int32(0)
@@ -52,12 +54,17 @@ process.Tracer = cms.Service("Tracer")
 
 process.p1 = cms.Path(process.VtxSmeared*process.g4SimHits)
 process.outpath = cms.EndPath(process.o1)
+# first row of sensors
+#process.VtxSmeared.MeanX = -1.0
+# 2nd row of sensors
 process.VtxSmeared.MeanX = -1.5
+# 3rd row of sensors
+#process.VtxSmeared.MeanX = -2.5
 process.VtxSmeared.MeanY = 0.
-process.VtxSmeared.MeanZ = 41000.0
-process.VtxSmeared.SigmaX = 0.0015
-process.VtxSmeared.SigmaY = 0.0015
-process.VtxSmeared.SigmaZ = 10.0
+process.VtxSmeared.MeanZ = 41900.0
+process.VtxSmeared.SigmaX = 0.15
+process.VtxSmeared.SigmaY = 0.15
+process.VtxSmeared.SigmaZ = 1.0
 process.g4SimHits.UseMagneticField = False
 process.g4SimHits.Generator.ApplyPhiCuts = True
 process.g4SimHits.Generator.ApplyEtaCuts = False

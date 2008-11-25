@@ -218,7 +218,12 @@ private:
 
 
  // z:
- double z1, z2, z3, z4; 
+ double z1, z2, z3, z4, zD2, zD3; 
+ int sn0, dn0, pn0, rn0;
+ int rn00;
+ double	ZSiDet, z420;
+ double	ZGapLDet, ZBoundDet, ZSiStep, ZSiPlane, zinibeg;
+ double	 zBlade, gapBlade;
 
 private:
 

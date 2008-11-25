@@ -41,7 +41,7 @@ class FP420NumberingScheme {
   
   unsigned packMYIndex(int rn0, int pn0, int sn0, 
 		       int det, int zside, int sector,int zmodule){
-    int zScale=(rn0-1); // rn0=3 - current
+    int zScale=(rn0-1); // rn0=3 - current --> for update  rn0=7
     int sScale = zScale*(pn0-1);//pn0=6
     int dScale = sScale*(sn0-1);//sn0=3
     
@@ -101,7 +101,8 @@ class FP420NumberingScheme {
   int realzside(int rn0, int zsideinorder){
     // zsideinorder:1 2 3 4 5 6
     //sensorsold    1 0 0 2 0 0 
-    //sensorsnew    1 0 5 2 4 0 
+    //sensorsnew    1 0 5 2 4 0 ???
+    //sensorsnew    1 3 0 2 0 6 
     //zside         1 3 5 2 4 6  over layers 1 and 2
     int  zside,zsidereal;
     if(zsideinorder<0) {zside = 0;}
@@ -115,8 +116,9 @@ class FP420NumberingScheme {
       if(zside>2) zsidereal=0;
     }
     //new:
-    if(rn0==3){
-      if(zside==3 || zside==6) zsidereal=0;
+    if(rn0==7){
+      //    if(zside==3 || zside==6) zsidereal=0; // ????
+      if(zside==4 || zside==5) zsidereal=0;
     }
     //
     return zsidereal;

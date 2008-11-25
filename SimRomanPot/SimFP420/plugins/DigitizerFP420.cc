@@ -280,6 +280,7 @@ namespace cms
       if(verbosity>0) {
 	std::cout <<" ===" << std::endl;
 	std::cout <<" ============== DigitizerFP420: start loop over det iu " << std::endl;
+	std::cout <<" ============== DigitizerFP420: SimHitMap.size()= " << SimHitMap.size() << std::endl;
 	std::cout <<" ===" << std::endl;
       }
       bool first = true;
@@ -311,7 +312,7 @@ namespace cms
 	for (;simHitIter != simHitIterEnd; ++simHitIter) {
 	  const PSimHit ihit = *simHitIter;
 	  unsigned int unitID = ihit.detUnitId();
-	  if(verbosity>0) std::cout <<" ====== DigitizerFP420: unitID= " << unitID << " i=  " << i << std::endl;
+	  if(verbosity>0 || verbosity==-50) std::cout <<" ====== DigitizerFP420: unitID= " << unitID << "Hit number i=  " << i << std::endl;
 	  int det, zside, sector, zmodule; 
 	  FP420NumberingScheme::unpackFP420Index(unitID, det, zside, sector, zmodule);
 	  // <------
@@ -327,6 +328,7 @@ namespace cms
 	  
 	  
 	  unsigned int iu = theFP420NumberingScheme->FP420NumberingScheme::packMYIndex(rn0, pn0, sn0, det, zside, sector, zmodule);
+	  if(verbosity>0 || verbosity==-50) std::cout <<"for Hits iu = " << iu <<" sector = " << sector <<" zmodule = " << zmodule <<" zside = " << zside << "  det=" << det << std::endl;
 	  //   int zScale=(rn0-1), sScale = (rn0-1)*(pn0-1), dScale = (rn0-1)*(pn0-1)*(sn0-1);
 	  //  unsigned int iu = dScale*(det - 1)+sScale*(sector - 1)+zScale*(zmodule - 1)+zside;
 
@@ -433,8 +435,8 @@ namespace cms
 		int layer = theFP420NumberingScheme->FP420NumberingScheme::unpackLayerIndex(rn0,zside);
 		int orient = theFP420NumberingScheme->FP420NumberingScheme::unpackOrientation(rn0,zside);
 		std::cout << "****DigitizerFP420:check2" << std::endl;
-		std::cout <<" iu = " << iu <<" sector = " << sector <<" zmodule = " << zmodule <<" zside = " << zside << "  det=" << det << std::endl;
-		std::cout <<" layer = " << layer <<" orient = " << orient << std::endl;
+		//	std::cout <<" iu = " << iu <<" sector = " << sector <<" zmodule = " << zmodule <<" zside = " << zside << "  det=" << det << std::endl;
+		//	std::cout <<" layer = " << layer <<" orient = " << orient << std::endl;
 		int newdet, newzside, newsector, newzmodule;
 		theFP420NumberingScheme->FP420NumberingScheme::unpackMYIndex(iu, rn0, pn0, sn0, newdet, newzside, newsector, newzmodule);
 		std::cout <<" newdet = " << newdet <<" newsector = " << newsector <<" newzmodule = " << newzmodule <<" newzside = " << newzside << std::endl;
@@ -455,8 +457,10 @@ namespace cms
 		  //  std::sort(collector.begin(),collector.end());
 		std::cout <<" ===" << std::endl;
 		std::cout <<"======  collector size = " << collector.size() << std::endl;
-		std::cout <<" iu = " << iu << std::endl;
-		std::cout <<" ===" << std::endl;
+		if(collector.size()>0) {
+		  std::cout <<" iu = " << iu <<" sector = " << sector <<" zmodule = " << zmodule <<" zside = " << zside << "  det=" << det <<" layer = " << layer <<" orient = " << orient << std::endl;
+		  std::cout <<" ===" << std::endl;
+		}
 		vector<HDigiFP420>::const_iterator simHitIter = collector.begin();
 		vector<HDigiFP420>::const_iterator simHitIterEnd = collector.end();
 		for (;simHitIter != simHitIterEnd; ++simHitIter) {
