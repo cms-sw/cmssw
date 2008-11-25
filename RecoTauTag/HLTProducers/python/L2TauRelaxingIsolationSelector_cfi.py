@@ -1,3 +1,6 @@
+import FWCore.ParameterSet.Config as cms
+
+
 hltL2TauRelaxingIsolationSelector = cms.EDProducer( "L2TauRelaxingIsolationSelector",
                                                 L2InfoAssociation = cms.InputTag( 'hltL2TauIsolationProducer','L2TauIsolationInfoAssociator' ),
                                                 EcalIsolationEt = cms.vdouble( 5.0,0.025,0.0),
