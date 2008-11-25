@@ -2641,7 +2641,7 @@ void BookMenu_SmallMenu1E31(OHltMenu*  menu, double &iLumi, double &nBunches) {
   
   //menu->AddHlt("OpenHLT_L1Photon5","L1_SingleEG5","1000",10,"","",1.5,0,1,0,0,0);  
   //menu->AddHlt("OpenHLT_Photon10_L1R","L1_SingleEG8","1",1,"","",1.5,0,1,0,0,0);  
-  menu->AddHlt("HLT_Photon15_L1R","L1_SingleEG12","1",5,"","",1.5,0,1,0,0,0);  
+  menu->AddHlt("HLT_Photon15_L1R","L1_SingleEG10","5",5,"","",1.5,0,1,0,0,0);  
   //menu->AddHlt("OpenHLT_Photon20_L1R","L1_SingleEG12","1",1,"","",1.5,0,1,0,0,0);  
   menu->AddHlt("HLT_Photon25_L1R","L1_SingleEG15","1",1,"","",1.5,0,1,0,0,0); 
   //menu->AddHlt("OpenHLT_Photon25_L1R","L1_SingleEG15","1",1,"","",1.5,0,1,0,0,0);  
