@@ -6,7 +6,7 @@
  * *
  *  DQM Client for global summary
  *
- *  $Date: 2008/10/22 09:38:14 $
+ *  $Date: 2008/10/27 16:28:41 $
  *  $Revision: 1.1 $
  *  \author  G. Mila - INFN Torino
  *   
@@ -51,7 +51,9 @@ protected:
   void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& c);
 
   /// test operations
-  void doTests(std::string type, std::string AlgoName, int bin);
+  void doKinematicsTests(std::string muonType, int bin, double weight);
+  void doResidualsTests(std::string type, std::string parameter, int bin);
+  void doMuonIDTests();
   
 private:
 
@@ -59,18 +61,24 @@ private:
   // Switch for verbosity
   std::string metname;
 
-  // data type
-  std::string dataType;
   // test ranges
+  double etaExpected;
+  double phiExpected;
   double etaSpread;
   double phiSpread;
   double chi2Fraction;
   double chi2Spread;
+  double resEtaSpread_tkGlb;
+  double resEtaSpread_glbSta;
+  double resPhiSpread_tkGlb;
+  double resPhiSpread_glbSta;
+  double numMatchedExpected;
+  double sigmaResSegmTrackExp;
 
   // the report MEs
-  MonitorElement*  summaryReport;
-  MonitorElement*  summaryReportMap;
-  std::vector<MonitorElement*>  theSummaryContents;
+  MonitorElement* kinematicsSummaryMap;
+  MonitorElement* residualsSummaryMap;
+  MonitorElement* muonIdSummaryMap;
 
 };
 
