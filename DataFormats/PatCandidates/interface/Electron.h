@@ -1,5 +1,5 @@
 //
-// $Id: Electron.h,v 1.17 2008/10/08 11:44:30 fronga Exp $
+// $Id: Electron.h,v 1.18 2008/11/13 15:33:21 salerno Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Electron_h
@@ -16,7 +16,7 @@
    https://hypernews.cern.ch/HyperNews/CMS/get/physTools.html
 
   \author   Steven Lowette, Giovanni Petrucciani, Frederic Ronga
-  \version  $Id: Electron.h,v 1.17 2008/10/08 11:44:30 fronga Exp $
+  \version  $Id: Electron.h,v 1.18 2008/11/13 15:33:21 salerno Exp $
 */
 
 
@@ -113,12 +113,12 @@ namespace pat {
         setElectronIDs(ids);
       }
       /// Store the cluster shape variables associated to the electron
-      void setClusterShapes ( float , float , float , float , float ) ;
-      float scSigmaEtaEta()   { return  scSigmaEtaEta_ ; }
-      float scSigmaIEtaIEta() { return  scSigmaIEtaIEta_ ; }  
-      float scE1x5()          { return  scE1x5_ ; }
-      float scE2x5Max()       { return  scE2x5Max_ ; }        
-      float scE5x5()          { return  scE5x5_ ; } 	      
+      void setClusterShapes ( const float& , const float& , const float& , const float& , const float& ) ;
+      const float scSigmaEtaEta()   const { return  scSigmaEtaEta_ ; }
+      const float scSigmaIEtaIEta() const { return  scSigmaIEtaIEta_ ; }  
+      const float scE1x5()          const { return  scE1x5_ ; }
+      const float scE2x5Max()       const { return  scE2x5Max_ ; }        
+      const float scE5x5()          const { return  scE5x5_ ; } 	      
 
     protected:
 

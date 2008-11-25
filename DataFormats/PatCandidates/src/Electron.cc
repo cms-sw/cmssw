@@ -1,5 +1,5 @@
 //
-// $Id: Electron.cc,v 1.11 2008/10/07 18:49:59 lowette Exp $
+// $Id: Electron.cc,v 1.12 2008/11/13 15:33:21 salerno Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/Electron.h"
@@ -152,7 +152,8 @@ bool Electron::isElectronIDAvailable(const std::string & name) const {
     return false;
 }
 /// method to store the electron's cluster shape
-void Electron::setClusterShapes (float scSigmaEtaEta, float scSigmaIEtaIEta, float scE1x5, float scE2x5Max, float scE5x5) 
+void Electron::setClusterShapes (const float& scSigmaEtaEta, const float& scSigmaIEtaIEta, 
+                                 const float& scE1x5, const float& scE2x5Max, const float& scE5x5) 
   { 
     scSigmaEtaEta_ = scSigmaEtaEta ; 
     scSigmaIEtaIEta_ = scSigmaIEtaIEta ;
