@@ -4,8 +4,8 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2008/11/10 13:41:56 $
- * $Revision: 1.92 $
+ * $Date: 2008/11/25 10:27:05 $
+ * $Revision: 1.93 $
  * \author W Fisher
  *
 */
@@ -420,7 +420,7 @@ void HcalMonitorModule::endJob(void) {
 	    {
 	      // Set bit 1 for cells which aren't present
 	      if ((id.subdet()==HcalBarrel &&!HBpresent_) ||
-		  (id.subdet()==HcalEndCap &&!HEpresent_) ||
+		  (id.subdet()==HcalEndcap &&!HEpresent_) ||
 		  (id.subdet()==HcalOuter  &&!HOpresent_) ||
 		  (id.subdet()==HcalForward&&!HFpresent_))
 		{
