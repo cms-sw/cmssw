@@ -76,8 +76,11 @@ class Histogram2D {
 	Value_t normalizedXValue(AxisX_t x, AxisY_t y) const;
 	Value_t normalizedYValue(AxisX_t x, AxisY_t y) const;
 
+	Value_t binError(int bin) const { return std::sqrt(binContent(bin)); }
+	Value_t binError(int binX, int binY) const
+	{ return binError(bin2D(binX, binY)); }
 	Value_t error(AxisX_t x, AxisY_t y) const
-	{ return std::sqrt(binContent(findBin(x, y))); }
+	{ return binError(findBin(x, y)); }
 	Value_t normalizedError(AxisX_t x, AxisY_t y) const
 	{ return std::sqrt(binContent(findBin(x, y))) / normalization(); }
 	Value_t normalizedXError(AxisX_t x, AxisY_t y) const;

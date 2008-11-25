@@ -63,8 +63,8 @@ class Histogram {
 	Value_t normalizedValue(Axis_t x) const
 	{ return binContent(findBin(x)) / normalization(); }
 
-	Value_t error(Axis_t x) const
-	{ return std::sqrt(binContent(findBin(x))); }
+	Value_t binError(int bin) const { return std::sqrt(binContent(bin)); }
+	Value_t error(Axis_t x) const { return binError(findBin(x)); }
 	Value_t normalizedError(Axis_t x) const
 	{ return std::sqrt(binContent(findBin(x))) / normalization(); }
 
