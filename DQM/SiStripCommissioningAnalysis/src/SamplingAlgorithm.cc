@@ -149,11 +149,11 @@ void SamplingAlgorithm::analyse() {
     // initialize  the fit (overal latency)
     float max = prof->GetBinCenter(prof->GetMaximumBin());
     float ampl = prof->GetMaximum();
-    peak_fitter_->SetParameters(0.,50-max,ampl/20.,50,10);
+    peak_fitterA_->SetParameters(0.,50-max,ampl/20.,50,10);
 
     // fit
-    if(prof->Fit(peak_fitter_,"Q")==0)
-      prof->Fit(peak_fitter_,"QEM");
+    if(prof->Fit(peak_fitterA_,"Q")==0)
+      prof->Fit(peak_fitterA_,"QEM");
 
     // Set monitorables
     samp_->max_   = peak_fitterA_->GetMaximumX();
