@@ -23,6 +23,7 @@
 <use name=SimDataFormats/HepMCProduct>                                                                                
 <use name=SimTracker/TrackAssociation>
 
+<use name=rootrflx>
 
 <use name=CLHEP>
 <use name=root>
