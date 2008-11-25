@@ -27,8 +27,7 @@ public:
 
   typedef std::vector<ClusterFP420>::const_iterator           ClusterFP420Iter;
 
-  //TrackProducerFP420(int, int, double, double, double, double, double, double, double, double, bool, bool, double, double, float, float);
-  TrackProducerFP420(int, int, int, int, double, double, double, double, double, double, double, double, double, double, double, double, bool, bool, bool, bool, double, double, float, float, double, int, double, double);
+  TrackProducerFP420(int, int, int, int, double, double, double, double, double, double, double, double, double, double, double, double, double, bool, bool, bool, bool, double, double, float, float, double, int, double, double);
 
   //  std::vector<TrackFP420> trackFinderMaxAmplitude(ClusterCollectionFP420 input);
   //  std::vector<TrackFP420> trackFinderMaxAmplitude2(ClusterCollectionFP420 input);
@@ -76,8 +75,9 @@ private:
 	//double ZBoundDet;
 	double ZSiStep;
 	double ZSiPlane;
-	double ZSiDetL;
-	double ZSiDetR;
+	double ZSiDet ;
+	double zBlade;
+	double gapBlade;
 
 	double dXX;
 	double dYY;

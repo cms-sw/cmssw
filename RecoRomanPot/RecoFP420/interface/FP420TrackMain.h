@@ -70,8 +70,9 @@ class FP420TrackMain
 	//	double ZBoundDet_;
 	double ZSiStep_;
 	double ZSiPlane_;
-	double ZSiDetL_;
-	double ZSiDetR_;
+	double ZSiDet_;
+	double zBlade_;
+	double gapBlade_;
 
 	double dXX_;
 	double dYY_;

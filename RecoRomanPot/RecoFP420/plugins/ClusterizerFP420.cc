@@ -56,9 +56,7 @@ namespace cms
     dn0   = conf_.getParameter<int>("NumberFP420Detectors");
     sn0   = conf_.getParameter<int>("NumberFP420Stations");
     pn0 = conf_.getParameter<int>("NumberFP420SPlanes");
-      rn0 = 7;
-    //rn0 = 3;
-    
+    rn0 = 7;
     if (verbosity > 0) {
       std::cout << "Creating a ClusterizerFP420" << std::endl;
       std::cout << "ClusterizerFP420: dn0=" << dn0 << " sn0=" << sn0 << " pn0=" << pn0 <<  " rn0=" << rn0 << std::endl;

@@ -20,7 +20,7 @@ using namespace std;
 //#define debug3d
 //#define debug3d30
 
-TrackProducerFP420::TrackProducerFP420(int asn0, int apn0, int arn0, int axytype, double az420, double azD2, double azD3, double apitchX, double apitchY, double apitchXW, double apitchYW, double aZGapLDet, double aZSiStep, double aZSiPlane, double aZSiDetL, double aZSiDetR, bool aUseHalfPitchShiftInX, bool aUseHalfPitchShiftInY, bool aUseHalfPitchShiftInXW, bool aUseHalfPitchShiftInYW, double adXX, double adYY, float achiCutX, float achiCutY, double azinibeg, int verbosity, double aXsensorSize, double aYsensorSize) {
+TrackProducerFP420::TrackProducerFP420(int asn0, int apn0, int arn0, int axytype, double az420, double azD2, double azD3, double apitchX, double apitchY, double apitchXW, double apitchYW, double aZGapLDet, double aZSiStep, double aZSiPlane, double aZSiDet, double azBlade, double agapBlade, bool aUseHalfPitchShiftInX, bool aUseHalfPitchShiftInY, bool aUseHalfPitchShiftInXW, bool aUseHalfPitchShiftInYW, double adXX, double adYY, float achiCutX, float achiCutY, double azinibeg, int verbosity, double aXsensorSize, double aYsensorSize) {
   //
   // Everything that depend on the det
   //
@@ -40,8 +40,10 @@ TrackProducerFP420::TrackProducerFP420(int asn0, int apn0, int arn0, int axytype
   ZGapLDet = aZGapLDet;
   ZSiStep = aZSiStep; 
   ZSiPlane = aZSiPlane;
-  ZSiDetL = aZSiDetL;
-  ZSiDetR = aZSiDetR;
+  ZSiDet = aZSiDet;
+  zBlade = azBlade;
+  gapBlade = agapBlade;
+
   UseHalfPitchShiftInX = aUseHalfPitchShiftInX;
   UseHalfPitchShiftInY = aUseHalfPitchShiftInY;
   UseHalfPitchShiftInXW = aUseHalfPitchShiftInXW;
@@ -51,8 +53,8 @@ TrackProducerFP420::TrackProducerFP420(int asn0, int apn0, int arn0, int axytype
   chiCutX = achiCutX;
   chiCutY = achiCutY;
   zinibeg = azinibeg;
-  aXsensorSize = XsensorSize;
-  aYsensorSize = YsensorSize;
+  XsensorSize = aXsensorSize;
+  YsensorSize = aYsensorSize;
 
   if (verbos > 0) {
     std::cout << "TrackProducerFP420: call constructor" << std::endl;
@@ -62,7 +64,7 @@ TrackProducerFP420::TrackProducerFP420(int asn0, int apn0, int arn0, int axytype
     std::cout << " pitchX= " << pitchX << " pitchY= " << pitchY << std::endl;
     std::cout << " ZGapLDet= " << ZGapLDet << std::endl;
     std::cout << " ZSiStep= " << ZSiStep << " ZSiPlane= " << ZSiPlane << std::endl;
-    std::cout << " ZSiDetL= " <<ZSiDetL  << " ZSiDetR= " << ZSiDetR << std::endl;
+    std::cout << " ZSiDet= " <<ZSiDet  << std::endl;
     std::cout << " UseHalfPitchShiftInX= " << UseHalfPitchShiftInX << " UseHalfPitchShiftInY= " << UseHalfPitchShiftInY << std::endl;
     std::cout << "TrackProducerFP420:----------------------" << std::endl;
     std::cout << " dXX= " << dXX << " dYY= " << dYY << std::endl;
@@ -93,6 +95,10 @@ std::vector<TrackFP420> TrackProducerFP420::trackFinderSophisticated(edm::Handle
   double AxW[10]; double BxW[10]; double CxW[10]; int MxW[10];
   double AyW[10]; double ByW[10]; double CyW[10]; int MyW[10];
   if (verbos > 0) {
+    std::cout << "===============================================================================" << std::endl; 
+    std::cout << "=================================================================" << std::endl; 
+    std::cout << "==========================================================" << std::endl; 
+    std::cout << "=                                                 =" << std::endl; 
     std::cout << "TrackProducerFP420: Start trackFinderSophisticated " << std::endl; 
   }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -103,7 +109,8 @@ std::vector<TrackFP420> TrackProducerFP420::trackFinderSophisticated(edm::Handle
     return rhits;
   }
 // sn0= 3 - 2St configuration, sn0= 4 - 3St configuration 
-  if( sn0 < 3 || sn0 > 4 ){
+//  if( sn0 < 3 || sn0 > 4 ){
+  if( sn0 != 3 ){
     std::cout << "TrackProducerFP420:ERROR in trackFinderSophisticated: check sn0 (configuration) = " << sn0 << std::endl; 
     return rhits;
   }
@@ -111,15 +118,16 @@ std::vector<TrackFP420> TrackProducerFP420::trackFinderSophisticated(edm::Handle
   int zbeg = 1, zmax=3;// means layer 1 and 2 in superlayer, i.e. for loop: 1,2
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   //   .
-  int reshits = 15;// max # cl for every X and Y plane
-  //  int resplanes = 30;
-  int nX[30], nY[30];// resplanes =30 NUMBER OF PLANES; nX, nY - # cl for every X and Y plane
-  int uX[30], uY[30];// resplanes =30 NUMBER OF PLANES; nX, nY - current # cl used for every X and Y plane
-  double zX[15][30], xX[15][30], wX[15][30];
-  double zY[15][30], yY[15][30], wY[15][30];
-  double             yXW[15][30], wXW[15][30];
-  double             xYW[15][30], wYW[15][30];
-  bool qX[15][30], qY[15][30];
+  int reshits1 = 12;// is max # cl in sensor of copyinlayer=1
+  int reshits2 = 24;// (reshits2-reshits1) is max # cl in sensors of copyinlayers= 2 or 3
+  //  int resplanes = 20;
+  int nX[20], nY[20];// resplanes =20 NUMBER OF PLANES; nX, nY - # cl for every X and Y plane
+  int uX[20], uY[20];// resplanes =20 NUMBER OF PLANES; nX, nY - current # cl used for every X and Y plane
+  double zX[24][20], xX[24][20], wX[24][20];
+  double zY[24][20], yY[24][20], wY[24][20];
+  double             yXW[24][20], wXW[24][20];
+  double             xYW[24][20], wYW[24][20];
+  bool qX[24][20], qY[24][20];
   //   .
   int txf = 0; int txs1 = 0; int txss = 0;
   int tyf = 0; int tys1 = 0; int tyss = 0;
@@ -141,36 +149,39 @@ std::vector<TrackFP420> TrackProducerFP420::trackFinderSophisticated(edm::Handle
     float Yshift = pitchW/2.;
     
     //
-    int rn00=3;//test only with 2 sensors in superlayer, not 4
-    //	  int rn00=rn0;//always
+    int nmetcurx=0;
+    int nmetcury=0;
+    unsigned int ii0 = 999999;
     int allplacesforsensors=7;
     for (int sector=1; sector < sn0; sector++) {
       for (int zmodule=1; zmodule<pn0; zmodule++) {
 	for (int zsideinorder=1; zsideinorder<allplacesforsensors; zsideinorder++) {
-	  int zside = theFP420NumberingScheme->FP420NumberingScheme::realzside(rn00, zsideinorder);//1,3,5,2,4,6
-	  if (verbos > 0) {
-	    std::cout << "TrackProducerFP420:  sector= " << sector << " zmodule= " << zmodule << " zsideinorder= " << zsideinorder << " zside= " << zside << std::endl; 
+	  int zside = theFP420NumberingScheme->FP420NumberingScheme::realzside(rn0, zsideinorder);// 1, 3, 5, 2, 4, 6
+	  if (verbos  == -49) {
+	    std::cout << "TrackProducerFP420:  sector= " << sector << " zmodule= " << zmodule << " zsideinorder= " << zsideinorder << " zside= " << zside << " det= " << det << std::endl; 
 	  }
 	  if(zside != 0) {
-	    int justlayer = theFP420NumberingScheme->FP420NumberingScheme::unpackLayerIndex(rn00, zside);// 1,2
+	    int justlayer = theFP420NumberingScheme->FP420NumberingScheme::unpackLayerIndex(rn0, zside);// 1, 2
 	    if(justlayer<1||justlayer>2) {
 	      std::cout << "TrackProducerFP420:WRONG  justlayer= " << justlayer << std::endl; 
 	    }
-	    int copyinlayer = theFP420NumberingScheme->FP420NumberingScheme::unpackCopyIndex(rn00, zside);// 1,2,3
+	    int copyinlayer = theFP420NumberingScheme->FP420NumberingScheme::unpackCopyIndex(rn0, zside);// 1, 2, 3
 	    if(copyinlayer<1||copyinlayer>3) {
 	      std::cout << "TrackProducerFP420:WRONG  copyinlayer= " << copyinlayer << std::endl; 
 	    }
-	    int orientation = theFP420NumberingScheme->FP420NumberingScheme::unpackOrientation(rn00, zside);// Front: = 1; Back: = 2
+	    int orientation = theFP420NumberingScheme->FP420NumberingScheme::unpackOrientation(rn0, zside);// Front: = 1; Back: = 2
 	    if(orientation<1||orientation>2) {
 	      std::cout << "TrackProducerFP420:WRONG  orientation= " << orientation << std::endl; 
 	    }
-	    
-	    // iu is a continues numbering of planes(!)  over two arm FP420 set up
-	    int detfixed=1;// use this treatment for each set up arm, hence no sense to do it defferently for +FP420 and -FP420;
-	    //                                                                    and  ...[ii] massives have prepared in such a way
-	    unsigned int ii=theFP420NumberingScheme->FP420NumberingScheme::packMYIndex(rn00,pn0,sn0,detfixed,justlayer,sector,zmodule)-1;
+	    // ii is a continues numbering of planes(!)  over two arm FP420 set up
+	    //                                                                    and  ...[ii] massives have prepared in use of ii
+	    int detfixed=1;// use this treatment for each set up arm, hence no sense to repete the same for +FP420 and -FP420;
+	    int nlayers=3;// 2=3-1
+	    unsigned int ii = theFP420NumberingScheme->FP420NumberingScheme::packMYIndex(nlayers,pn0,sn0,detfixed,justlayer,sector,zmodule)-1;// substruct 1 from 1(+1), 2(+2), 3(+3),4(+4),5...,6...,7...,8...,9...,10... (1st Station)              ,11...,12...,13,...20... (2nd Station)
 	    // ii = 0-19   --> 20 items
-	    if (verbos > 0) {
+	    ///////// unsigned int ii=theFP420NumberingScheme->FP420NumberingScheme::packMYIndex(rn0,pn0,sn0,detfixed,justlayer,sector,zmodule)-1;// OLD
+
+	    if (verbos == -49) {
 	      std::cout << "TrackProducerFP420:  justlayer= " << justlayer << " copyinlayer= " << copyinlayer << " ii= " << ii << std::endl; 
 	    }
 	    
@@ -187,10 +198,12 @@ std::vector<TrackFP420> TrackProducerFP420::trackFinderSophisticated(edm::Handle
 	    //double zcurrent = zinibeg +(ZSiStep-ZSiPlane)/2  + kplane*ZSiStep + (sector-1)*zUnit;  
 	    
 	    if(justlayer==1){
-	      zcurrent += (ZGapLDet+ZSiDetL/2);
+	     if(orientation==1) zcurrent += (ZGapLDet+ZSiDet/2);
+	     if(orientation==2) zcurrent += zBlade-(ZGapLDet+ZSiDet/2);
 	    }
 	    if(justlayer==2){
-	      zcurrent += (ZGapLDet+ZSiDetR/2)+ZSiPlane/2;
+	     if(orientation==1) zcurrent += (ZGapLDet+ZSiDet/2)+zBlade+gapBlade;
+	     if(orientation==2) zcurrent += 2*zBlade+gapBlade-(ZGapLDet+ZSiDet/2);
 	    }
 	    //   .
 	    //
@@ -222,12 +235,16 @@ std::vector<TrackFP420> TrackProducerFP420::trackFinderSophisticated(edm::Handle
 	    if(copyinlayer==2) { XXXDelta = XsensorSize;}
 	    if(copyinlayer==3) { XXXDelta = 2.*XsensorSize;}
 	    double YYYDelta = 0.0;
-	    if(copyinlayer==2) { YYYDelta = YsensorSize;}
-	    if(copyinlayer==3) { YYYDelta = 2.*YsensorSize;}
+	    if(copyinlayer==2) { YYYDelta = XsensorSize;}
+	    if(copyinlayer==3) { YYYDelta = 2.*XsensorSize;}
 	    //   .
 	    //   GET CLUSTER collection  !!!!
 	    //   .
 	    unsigned int iu=theFP420NumberingScheme->FP420NumberingScheme::packMYIndex(rn0,pn0,sn0,det,zside,sector,zmodule);
+	    if (verbos > 0 ) {
+	      std::cout << "TrackProducerFP420: check        iu = " << iu << std::endl; 
+	      std::cout << "TrackProducerFP420:  sector= " << sector << " zmodule= " << zmodule << " zside= " << zside << " det= " << det << " rn0= " << rn0 << " pn0= " << pn0 << " sn0= " << sn0 << " copyinlayer= " << copyinlayer << std::endl; 
+	    }
 	    //============================================================================================================ put into currentclust
 	    std::vector<ClusterFP420> currentclust;
 	    currentclust.clear();
@@ -241,7 +258,7 @@ std::vector<TrackFP420> TrackProducerFP420::trackFinderSophisticated(edm::Handle
 	      currentclust.push_back(*sort_begin);
 	    } // for
 	    
-	    if (verbos > 0) {
+	    if (verbos > 0 ) {
 	      std::cout << "TrackProducerFP420: currentclust.size = " << currentclust.size() << std::endl; 
 	    }
 	    //============================================================================================================
@@ -250,27 +267,38 @@ std::vector<TrackFP420> TrackProducerFP420::trackFinderSophisticated(edm::Handle
 	    vector<ClusterFP420>::const_iterator simHitIterEnd = currentclust.end();
 	    
 	    if(xytype ==1){
-	      nY[ii] = 0;// # cl in every Y plane (max is reshits)
-	      uY[ii] = 0;// current used # cl in every X plane 
+	      if(ii != ii0) {
+		ii0=ii;
+		nY[ii] = 0;// # cl in every Y plane (max is reshits)
+		uY[ii] = 0;// current used # cl in every X plane 
+		nmetcury=0;
+	      }
 	    }
 	    else if(xytype ==2){
-	      nX[ii] = 0;// # cl in every X plane (max is reshits)
-	      uX[ii] = 0;// current used # cl in every X plane 
+	      if(ii != ii0) {
+		ii0=ii;
+		nX[ii] = 0;// # cl in every X plane (max is reshits)
+		uX[ii] = 0;// current used # cl in every X plane 
+		nmetcurx=0;
+	      }
 	    }
-	    // loop in #clusters
+	    // loop in #clusters of current sensor
 	    for (;simHitIter != simHitIterEnd; ++simHitIter) {
 	      const ClusterFP420 icluster = *simHitIter;
 	      
 	      // fill vectors for track reconstruction
 	      
-	      
 	      //disentangle complicated pattern recognition of hits?
 	      // Y:
 	      if(xytype ==1){
 		nY[ii]++;		
-		if(nY[ii]>reshits){
-		  nY[ii]=reshits;
-		  std::cout << "WARNING-ERROR:TrackproducerFP420: currentclust.size()= " << currentclust.size() <<" bigger reservated number of hits" << " zcurrent=" << zY[nY[ii]-1][ii] << " ii= "  << ii << std::endl;
+		if(copyinlayer==1 && nY[ii]>reshits1){
+		  nY[ii]=reshits1;
+		  std::cout << "WARNING-ERROR:TrackproducerFP420: currentclust.size()= " << currentclust.size() <<" bigger reservated number of hits" << " zcurrent=" << zY[nY[ii]-1][ii] << " copyinlayer= "  << copyinlayer << " ii= "  << ii << std::endl;
+		}
+		if(copyinlayer !=1 && nY[ii]>reshits2){
+		  nY[ii]=reshits2;
+		  std::cout << "WARNING-ERROR:TrackproducerFP420: currentclust.size()= " << currentclust.size() <<" bigger reservated number of hits" << " zcurrent=" << zY[nY[ii]-1][ii] << " copyinlayer= "  << copyinlayer << " ii= "  << ii << std::endl;
 		}
 		zY[nY[ii]-1][ii] = zcurrent;
 		yY[nY[ii]-1][ii] = icluster.barycenter()*pitch+0.5*pitch+YYYDelta;
@@ -279,18 +307,31 @@ std::vector<TrackFP420> TrackProducerFP420::trackFinderSophisticated(edm::Handle
 		yY[nY[ii]-1][ii] = yY[nY[ii]-1][ii] - dYYcur; 
 		wY[nY[ii]-1][ii] = 1./(icluster.barycerror()*pitch);//reciprocal of the variance for each datapoint in y
 		wY[nY[ii]-1][ii] *= wY[nY[ii]-1][ii];//reciprocal of the variance for each datapoint in y
-		xYW[nY[ii]-1][ii] =-(xYW[nY[ii]-1][ii]+dYYWcur); 
+		if(det == 2) {
+		  xYW[nY[ii]-1][ii] =(xYW[nY[ii]-1][ii]+dYYWcur); 
+		}
+		else {
+		  xYW[nY[ii]-1][ii] =-(xYW[nY[ii]-1][ii]+dYYWcur); 
+		}
 		wYW[nY[ii]-1][ii] = 1./(icluster.barycerrorW()*pitchW);//reciprocal of the variance for each datapoint in y
 		wYW[nY[ii]-1][ii] *= wYW[nY[ii]-1][ii];//reciprocal of the variance for each datapoint in y
 		qY[nY[ii]-1][ii] = true;
-		if(nY[ii]==reshits) break;
+		if(copyinlayer==1 && nY[ii]==reshits1) break;
+		if(copyinlayer !=1 && nY[ii]==reshits2) break;
 	      }
 	      // X:
 	      else if(xytype ==2){
 		nX[ii]++;	
-		if(nX[ii]>reshits){
-		  std::cout << "WARNING-ERROR:TrackproducerFP420: currentclust.size()= " << currentclust.size() <<" bigger reservated number of hits" << std::endl;
-		  nX[ii]=reshits;
+		if (verbos == -49) {
+		  std::cout << "TrackproducerFP420: nX[ii]= " << nX[ii] << " Ncl= " << currentclust.size() << " copyinlayer= "  << copyinlayer << " ii= " << ii << " zcurrent = " << zcurrent << " xX= " << icluster.barycenter()*pitch+0.5*pitch+XXXDelta << " yXW= " << icluster.barycenterW()*pitchW+0.5*pitchW << " det= " << det << " cl.size= " << icluster.amplitudes().size() << " cl.ampl[0]= " << icluster.amplitudes()[0] << std::endl;
+		}
+		if(copyinlayer==1 && nX[ii]>reshits1){
+		  std::cout << "WARNING-ERROR:TrackproducerFP420: nX[ii]= " << nX[ii] <<" bigger reservated number of hits" << " currentclust.size()= " << currentclust.size() << " copyinlayer= "  << copyinlayer << " ii= " << ii << std::endl;
+		  nX[ii]=reshits1;
+		}
+		if(copyinlayer !=1 && nX[ii]>reshits2){
+		  std::cout << "WARNING-ERROR:TrackproducerFP420: nX[ii]= " << nX[ii] <<" bigger reservated number of hits" << " currentclust.size()= " << currentclust.size() << " copyinlayer= "  << copyinlayer << " ii= " << ii << std::endl;
+		  nX[ii]=reshits2;
 		}
 		zX[nX[ii]-1][ii] = zcurrent;
 		xX[nX[ii]-1][ii] = icluster.barycenter()*pitch+0.5*pitch+XXXDelta;
@@ -299,36 +340,52 @@ std::vector<TrackFP420> TrackProducerFP420::trackFinderSophisticated(edm::Handle
 		xX[nX[ii]-1][ii] =-(xX[nX[ii]-1][ii]+dXXcur); 
 		wX[nX[ii]-1][ii] = 1./(icluster.barycerror()*pitch);//reciprocal of the variance for each datapoint in y
 		wX[nX[ii]-1][ii] *= wX[nX[ii]-1][ii];//reciprocal of the variance for each datapoint in y
-		yXW[nX[ii]-1][ii] = yXW[nX[ii]-1][ii] - dXXWcur; 
+		if(det == 2) {
+		  yXW[nX[ii]-1][ii] = -(yXW[nX[ii]-1][ii] - dXXWcur); 
+		}
+		else {
+		  yXW[nX[ii]-1][ii] = yXW[nX[ii]-1][ii] - dXXWcur; 
+		}
 		wXW[nX[ii]-1][ii] = 1./(icluster.barycerrorW()*pitchW);//reciprocal of the variance for each datapoint in y
 		wXW[nX[ii]-1][ii] *= wXW[nX[ii]-1][ii];//reciprocal of the variance for each datapoint in y
 		qX[nX[ii]-1][ii] = true;
-		if (verbos > 0) {
-		  std::cout << "trackFinderSophisticated: nX[ii]= " << nX[ii]<< " ii = " << ii << " zcurrent = " << zcurrent << " xX[nX[ii]-1][ii] = " << xX[nX[ii]-1][ii] << std::endl;
-		  std::cout << " wX[nX[ii]-1][ii] = " << wX[nX[ii]-1][ii] << " wXW[nX[ii]-1][ii] = " << wXW[nX[ii]-1][ii] << std::endl;
-		  std::cout << " -icluster.barycenter()*pitch = " << -icluster.barycenter()*pitch << " -dXXcur = " << -dXXcur << std::endl;
+		if (verbos == -29) {
+		  std::cout << "trackFinderSophisticated: nX[ii]= " << nX[ii]<< " ii = " << ii << " zcurrent = " << zcurrent << " yXW[nX[ii]-1][ii] = " << yXW[nX[ii]-1][ii] << " xX[nX[ii]-1][ii] = " << xX[nX[ii]-1][ii] << std::endl;
+		  std::cout << "  XXXDelta= " << XXXDelta << "  dXXcur= " << dXXcur << "  -dXXWcur= " << -dXXWcur << std::endl;
+		  std::cout << "  icluster.barycerrorW()*pitchW= " << icluster.barycerrorW()*pitchW << "  wXW[nX[ii]-1][ii]= " <<wXW[nX[ii]-1][ii]  << std::endl;
+		  std::cout << " -icluster.barycenterW()*pitchW+0.5*pitchW = " << icluster.barycenterW()*pitchW+0.5*pitchW << std::endl;
 		  std::cout << "============================================================" << std::endl;
 		}
-		if(nX[ii]==reshits) break;
-	      }
+		if (verbos  > 0) {
+		  std::cout << "trackFinderSophisticated: nX[ii]= " << nX[ii]<< " ii = " << ii << " zcurrent = " << zcurrent << " xX[nX[ii]-1][ii] = " << xX[nX[ii]-1][ii] << std::endl;
+		  std::cout << " wX[nX[ii]-1][ii] = " << wX[nX[ii]-1][ii] << " wXW[nX[ii]-1][ii] = " << wXW[nX[ii]-1][ii] << std::endl;
+		  std::cout << " -icluster.barycenter()*pitch-0.5*pitch = " << -icluster.barycenter()*pitch-0.5*pitch << " -dXXcur = " << -dXXcur << " -XXXDelta = " << -XXXDelta << std::endl;
+		  std::cout << "============================================================" << std::endl;
+		}
+
+		if(copyinlayer==1 && nX[ii]==reshits1) break;
+		if(copyinlayer !=1 && nX[ii]==reshits2) break;
+	      }// if(xytype
 	      
 	    } // for loop in #clusters (can be breaked)
 	    
 	    // Y:
 	    if(xytype ==1){
-	      if(nY[ii] != 0) {  /* # Y-planes w/ clusters */
+	      if(nY[ii] > nmetcury) {  /* # Y-planes w/ clusters */
+		nmetcury=nY[ii];
 		++tyf; if(sector==1) ++tys1; if(sector==(sn0-1)) ++tyss;
 	      }	  
 	    }
 	    // X:
 	    else if(xytype ==2){
-	      if(nX[ii] != 0) {  /* # X-planes w/ clusters */
+	      if(nX[ii] > nmetcurx) {  /* # X-planes w/ clusters */
+		nmetcurx=nX[ii];
 		++txf; if(sector==1) ++txs1; if(sector==(sn0-1)) ++txss;
 	      }	  
 	    }
 	    //================================== end of for loops in continuius number iu:
 	  }//if(zside!=0
-	}   // for superlayer
+	}   // for zsideinorder
       }   // for zmodule
     }   // for sector
     if (verbos > 0) {
@@ -344,13 +401,16 @@ std::vector<TrackFP420> TrackProducerFP420::trackFinderSophisticated(edm::Handle
     //===========================================================================================================================
 
   //  int nitMax=5;// max # iterations to find track
-  int nitMax=5;// max # iterations to find track
+  int nitMax=10;// max # iterations to find track using go over of different XZ and YZ fits to find the good chi2X and chi2Y simultaneously(!!!) 
 
   // criteria for track selection: 
   // track is selected if for 1st station #cl >=pys1Cut
   //  int  pys1Cut = 5, pyssCut = 5, pyallCut=12;
   //  int  pys1Cut = 1, pyssCut = 1, pyallCut= 3;
-  int  pys1Cut = 3, pyssCut = 3, pyallCut= 6;
+
+//  int  pys1Cut = 3, pyssCut = 3, pyallCut= 6; // before geom. update
+//  int  pys1Cut = 2, pyssCut = 2, pyallCut= 4; // bad for 5 layers per station
+  int  pys1Cut = 3, pyssCut = 1, pyallCut= 5;
   
   //  double yyyvtx = 0.0, xxxvtx = -15;  //mm
   
@@ -378,7 +438,14 @@ std::vector<TrackFP420> TrackProducerFP420::trackFinderSophisticated(edm::Handle
     // sigman=0.24, ssigma = 4.2, sigmam=0.33;
     //  sigman=0.18, ssigma = 3.9, sigmam=0.18;
     // sigman=0.18, ssigma = 3.6, sigmam=0.18;
-    sigman=0.18, ssigma = 3.3, sigmam=0.18;
+    //
+
+    //
+
+    //  sigman=0.18, ssigma = 3.3, sigmam=0.18;// before geometry update for 4 sensors per superlayer
+    //    sigman=0.30, ssigma = 7.1, sigmam=0.40;// for update
+     sigman=0.30, ssigma = 8.0, sigmam=1.0;// for matching update to find point nearby to fit track in 1st plane of 2nd Station 
+    //
   }
   if (verbos > 0) {
     std::cout << "trackFinderSophisticated: ssigma= " << ssigma << std::endl;
@@ -403,7 +470,7 @@ std::vector<TrackFP420> TrackProducerFP420::trackFinderSophisticated(edm::Handle
     //
     //
     double tg0 = 0.;
-    int qAcl[30], qAii[30], fip=0, niteration = 0;
+    int qAcl[20], qAii[20], fip=0, niteration = 0;
     int ry = 0, rys1 = 0, ryss = 0;
     int tas1=tys1, tass=tyss, taf=tyf;
     bool SelectTracks = true;
@@ -411,7 +478,7 @@ std::vector<TrackFP420> TrackProducerFP420::trackFinderSophisticated(edm::Handle
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   //   .
 
-  double yA[15][30], zA[15][30], wA[15][30]; int nA[30], uA[30]; bool qA[15][30];
+  double yA[24][20], zA[24][20], wA[24][20]; int nA[20], uA[20]; bool qA[24][20];
     //
     // Y:
   //======================    start road finder  for xytypecurrent = 1      ===========================================================
@@ -459,7 +526,7 @@ std::vector<TrackFP420> TrackProducerFP420::trackFinderSophisticated(edm::Handle
 	nA[ii] = nX[ii];
 	uA[ii] = uX[ii];
 	for (int cl=0; cl<nA[ii]; ++cl) {
-	  if (verbos > 0) {
+	  if (verbos == -29) {
 	    std::cout << " cl= " << cl << " xX[cl][ii]= " << xX[cl][ii] << std::endl;
 	    std::cout << " zX[cl][ii]= " << zX[cl][ii] << " wX[cl][ii]= " << wX[cl][ii] << " qX[cl][ii]= " << qX[cl][ii] << std::endl;
 	  }
@@ -475,9 +542,12 @@ std::vector<TrackFP420> TrackProducerFP420::trackFinderSophisticated(edm::Handle
 
     
   //======================    start road finder        ====================================================
+    if (verbos > 0) {
+      std::cout << "                  start road finder                        " << std::endl;
+    }
     do {
-      double fyY[30], fzY[30], fwY[30];
-      double fyYW[30],         fwYW[30];
+      double fyY[20], fzY[20], fwY[20];
+      double fyYW[20],         fwYW[20];
       int py = 0, pys1 = 0, pyss = 0;
       bool NewStation = false, py1first = false;
       for (int sector=1; sector < sn0; ++sector) {
@@ -489,15 +559,16 @@ std::vector<TrackFP420> TrackProducerFP420::trackFinderSophisticated(edm::Handle
 	for (int zmodule=1; zmodule<pn0; ++zmodule) {
 	  for (int justlayer=zbeg; justlayer<zmax; justlayer++) {
 	    // iu is a continues numbering of planes(!) 
-	    int detfixed=1;// use this treatment for each set up arm, hence no sense to do it defferently for +FP420 and -FP420;
-	    //                                                                    and  ...[ii] massives have prepared in such a way
-	    unsigned int ii=theFP420NumberingScheme->FP420NumberingScheme::packMYIndex(rn00,pn0,sn0,detfixed,justlayer,sector,zmodule)-1;
-	    // 0-19   --> 20 items
-
+	    int detfixed=1;// use this treatment for each set up arm, hence no sense to do it differently for +FP420 and -FP420;
+	    int nlayers=3;// 2=3-1
+	    unsigned int ii = theFP420NumberingScheme->FP420NumberingScheme::packMYIndex(nlayers,pn0,sn0,detfixed,justlayer,sector,zmodule)-1;// substruct 1 from 1(+1), 2(+2), 3(+3),4(+4),5...,6...,7...,8...,9...,10... (1st Station)              ,11...,12...,13,...20... (2nd Station)
+	    // ii = 0-19   --> 20 items
+	    
 	    if(nA[ii]!=0  && uA[ii]!= nA[ii]) { 
 	      
 	      ++py; if(sector==1) ++pys1; if(sector==(sn0-1)) ++pyss;
 	      if(py==2 && sector==1) { 
+		// find closest cluster in X                   .
 		double dymin=9999999., df2; int cl2=-1;
 		for (int cl=0; cl<nA[ii]; ++cl) {
 		  if(qA[cl][ii]){
@@ -508,6 +579,7 @@ std::vector<TrackFP420> TrackProducerFP420::trackFinderSophisticated(edm::Handle
 		    }//if(df2		
 		  }//if(qA		
 		}//for(cl
+		// END of finding of closest cluster in X                   .
 		if(cl2!=-1){
 		  t=(yA[cl2][ii]-fyY[fip])/(zA[cl2][ii]-fzY[fip]);
 		  t1 = t*wA[cl2][ii];
@@ -540,116 +612,139 @@ std::vector<TrackFP420> TrackProducerFP420::trackFinderSophisticated(edm::Handle
 		}//if(cl2!=-1
 	      }//if(py==2
 	      else {
+		//                                                                                                                 .
+		bool clLoopTrue = true;
 		int clcurr=-1;
-		for (int cl=0; cl<nA[ii]; ++cl) {
-		  if(qA[cl][ii]){
-		    clcurr = cl;
-		    if(py<3 ){
-		      if(py==1) { 
-			py1first = true;
-			fip=py-1;
-			qA[cl][ii] = false;//point is taken, mark it for not using again
-			fyY[py-1]=yA[cl][ii];
-			fzY[py-1]=zA[cl][ii];
-			fwY[py-1]=wA[cl][ii];
-			qAcl[py-1] = cl;
-			qAii[py-1] = ii;
-			++uA[ii];
-			if (verbos > 0) std::cout << " point is taken, mark it uA[ii]= " << uA[ii] << std::endl;
-		      }//if py=1
-		      if(uA[ii]==nA[ii]){/* no points anymore for this plane */
-			++ry; if(sector==1) ++rys1; if(sector==(sn0-1)) ++ryss;
-		      }//if(uA
-		    }//py<3
-		    else {
-		      if(NewStation){
-			if( sn0 < 4 ) {
-			  sigma = ssigma;
-			}
-			else {
-			  sigma = ssigma/(sn0-1-sector);
-			}
-			//	std::cout << " sector= " << sector << " sn0= " << sn0 << " sigma= " << sigma << std::endl;
-			//	std::cout << " stattimes= " << stattimes << " ssigma= " << ssigma << " sigmam= " << sigmam << std::endl;
-
-			//sigma = ssigma/(sn0-sector);
-			//if(stattimes==1 || sector==3 ) sigma = msigma * sqrt(1./wA[cl][ii]);
-
-			if(stattimes==1 || sector==3 ) sigma = sigmam; // (1st $3rd Stations for 3St. configur. ), 1st only for 2St. conf.
-			//	if(stattimes==1 || sector==(sn0-1) ) sigma = sigmam;
-
-			double cov00, cov01, cov11, c0Y, c1Y, chisqY;
-			gsl_fit_wlinear (fzY, 1, fwY, 1, fyY, 1, py-1, 
-					 &c0Y, &c1Y, &cov00, &cov01, &cov11, 
-					 &chisqY);
-			sm = c0Y+ c1Y*zA[cl][ii];
-			
-			if (verbos > 0) {
-			  std::cout << " sector= " << sector << " sn0= " << sn0 << " sigma= " << sigma << std::endl;
-			  std::cout << " stattimes= " << stattimes << " ssigma= " << ssigma << " sigmam= " << sigmam << std::endl;
-			  std::cout << " sm= " << sm << " c0Y= " << c0Y << " c1Y= " << c1Y << " chisqY= " << chisqY << std::endl;
-			  std::cout << " zA[cl][ii]= " << zA[cl][ii] << " ii= " << ii << " cl= " << cl << std::endl;
-			  for (int ct=0; ct<py-1; ++ct) {
-			    std::cout << " py-1= " << py-1 << " fzY[ct]= " << fzY[ct] << std::endl;
-			    std::cout << " fyY[ct]= " << fyY[ct] << " fwY[ct]= " << fwY[ct] << std::endl;
-			  }
-			}
-			
-		      }//NewStation 1
-		      else{
-			t=(yA[cl][ii]-fyY[fip])/(zA[cl][ii]-fzY[fip]);
-			t1 += t*wA[cl][ii];
-			t2 += wA[cl][ii];
-			tav=t1/t2;
-			sm = fyY[fip]+tav*(zA[cl][ii]-fzY[fip]);
-			//sigma = nsigma * sqrt(1./wA[cl][ii]);
-			sigma = sigman;
-		      }
-
-		      double diffpo = yA[cl][ii]-sm;
-		      if (verbos > 0) {
-			std::cout << " diffpo= " << diffpo << " yA[cl][ii]= " << yA[cl][ii] << " sm= " << sm << " sigma= " << sigma << std::endl;
-		      }
-		      
-		      if(abs(diffpo) < sigma ) {
-			if(NewStation){
-			  ++stattimes;
-			  if(stattimes==1) {
-			    fip=py-1;
-			    t1 = 0; t2 = 0;
-			  }
-			  else if(stattimes==2){
-			    NewStation = false; 
-			    t=(yA[cl][ii]-fyY[fip])/(zA[cl][ii]-fzY[fip]);
-			    //t1 += t*wA[cl][ii];
-			    //t2 += wA[cl][ii];
-			    t1 = t*wA[cl][ii];
-			    t2 = wA[cl][ii];
-			  }//if(stattime
-			}//if(NewStation 2
-			fyY[py-1]=yA[cl][ii];
-			fzY[py-1]=zA[cl][ii];
-			fwY[py-1]=wA[cl][ii];
-			qA[cl][ii] = false;//point is taken, mark it for not using again
-			qAcl[py-1] = cl;
-			qAii[py-1] = ii;
-			++uA[ii];
-			if (verbos > 0) {
-			  std::cout << " 3333 point is taken, mark it uA[ii]= " << uA[ii] << std::endl;
-			}
+		for (int clind=0; clind<nA[ii]; ++clind) {
+		  if(clLoopTrue) {
+		    int cl=clind;
+		    if(qA[cl][ii]){
+		      clcurr = cl;
+		      if(py<3 ){
+			if(py==1) { 
+			  py1first = true;
+			  fip=py-1;
+			  qA[cl][ii] = false;//point is taken, mark it for not using again
+			  fyY[py-1]=yA[cl][ii];
+			  fzY[py-1]=zA[cl][ii];
+			  fwY[py-1]=wA[cl][ii];
+			  qAcl[py-1] = cl;
+			  qAii[py-1] = ii;
+			  ++uA[ii];
+			  if (verbos > 0) std::cout << " point is taken, mark it uA[ii]= " << uA[ii] << std::endl;
+			}//if py=1
 			if(uA[ii]==nA[ii]){/* no points anymore for this plane */
 			  ++ry; if(sector==1) ++rys1; if(sector==(sn0-1)) ++ryss;
-			}//if(cl==
-			//  break; // to go on neyt plane
-		      }//if abs
-		      else{
-			t1 -= t*wA[cl][ii]; t2 -= wA[cl][ii];
-		      }//if abs
-		    }// if py<3 and else py>3
-		    
-		    if(!qA[cl][ii]) break;// go on neyt plane if point is found among clusters of current plane;
-		  }// if qA
+			}//if(uA
+		      }//py<3
+		      else {
+			if(NewStation){
+			  if( sn0 < 4 ) {
+			    // stattimes=0 case (point of 1st plane to be matched in new Station)
+			    sigma = ssigma;
+			  }
+			  else {
+			    sigma = ssigma/(sn0-1-sector);
+			  }
+			  //sigma = ssigma/(sn0-sector);
+			  //if(stattimes==1 || sector==3 ) sigma = msigma * sqrt(1./wA[cl][ii]);
+			  if(stattimes==1 || sector==3 ) sigma = sigmam; // (1st $3rd Stations for 3St. configur. ), 1st only for 2St. conf.
+			  //	if(stattimes==1 || sector==(sn0-1) ) sigma = sigmam;
+			  
+			  double cov00, cov01, cov11, c0Y, c1Y, chisqY;
+			  gsl_fit_wlinear (fzY, 1, fwY, 1, fyY, 1, py-1, 
+					   &c0Y, &c1Y, &cov00, &cov01, &cov11, 
+					   &chisqY);
+			  
+			  // find closest cluster in X                   .
+			  int cl2match=-1;
+			  double dymin=9999999., df2; 
+			  for (int clmatch=0; clmatch<nA[ii]; ++clmatch) {
+			    if(qA[clmatch][ii]){
+			      double smmatch = c0Y+ c1Y*zA[clmatch][ii];
+			      df2 = abs(smmatch-yA[clmatch][ii]);
+			      if(df2 < dymin) {
+				dymin = df2;
+				cl2match=clmatch;
+			      }//if(df2		
+			    }//if(qA		
+			  }//for(clmatch
+			  
+			  if(cl2match != -1) {
+			    cl=cl2match;
+			    clLoopTrue = false; // just not continue the clinid loop
+			  }
+			  
+			  sm = c0Y+ c1Y*zA[cl][ii];
+			  
+			  if (verbos > 0) {
+			    std::cout << " sector= " << sector << " sn0= " << sn0 << " sigma= " << sigma << std::endl;
+			    std::cout << " stattimes= " << stattimes << " ssigma= " << ssigma << " sigmam= " << sigmam << std::endl;
+			    std::cout << " sm= " << sm << " c0Y= " << c0Y << " c1Y= " << c1Y << " chisqY= " << chisqY << std::endl;
+			    std::cout << " zA[cl][ii]= " << zA[cl][ii] << " ii= " << ii << " cl= " << cl << std::endl;
+			    for (int ct=0; ct<py-1; ++ct) {
+			      std::cout << " py-1= " << py-1 << " fzY[ct]= " << fzY[ct] << std::endl;
+			      std::cout << " fyY[ct]= " << fyY[ct] << " fwY[ct]= " << fwY[ct] << std::endl;
+			    }
+			  }
+			  
+			}//NewStation 1
+			else{
+			  t=(yA[cl][ii]-fyY[fip])/(zA[cl][ii]-fzY[fip]);
+			  t1 += t*wA[cl][ii];
+			  t2 += wA[cl][ii];
+			  tav=t1/t2;
+			  sm = fyY[fip]+tav*(zA[cl][ii]-fzY[fip]);
+			  //sigma = nsigma * sqrt(1./wA[cl][ii]);
+			  sigma = sigman;
+			}
+			
+			double diffpo = yA[cl][ii]-sm;
+			if (verbos > 0) {
+			  std::cout << " diffpo= " << diffpo << " yA[cl][ii]= " << yA[cl][ii] << " sm= " << sm << " sigma= " << sigma << std::endl;
+			}
+			
+			if(abs(diffpo) < sigma ) {
+			  if(NewStation){
+			    ++stattimes;
+			    if(stattimes==1) {
+			      fip=py-1;
+			      t1 = 0; t2 = 0;
+			    }
+			    else if(stattimes==2){
+			      NewStation = false; 
+			      t=(yA[cl][ii]-fyY[fip])/(zA[cl][ii]-fzY[fip]);
+			      //t1 += t*wA[cl][ii];
+			      //t2 += wA[cl][ii];
+			      t1 = t*wA[cl][ii];
+			      t2 = wA[cl][ii];
+			    }//if(stattime
+			  }//if(NewStation 2
+			  fyY[py-1]=yA[cl][ii];
+			  fzY[py-1]=zA[cl][ii];
+			  fwY[py-1]=wA[cl][ii];
+			  qA[cl][ii] = false;//point is taken, mark it for not using again
+			  qAcl[py-1] = cl;
+			  qAii[py-1] = ii;
+			  ++uA[ii];
+			  if (verbos > 0) {
+			    std::cout << " 3333 point is taken, mark it uA[ii]= " << uA[ii] << std::endl;
+			  }
+			  if(uA[ii]==nA[ii]){/* no points anymore for this plane */
+			    ++ry; if(sector==1) ++rys1; if(sector==(sn0-1)) ++ryss;
+			  }//if(cl==
+			  //  break; // to go on next plane
+			}//if abs
+			else{
+			  t1 -= t*wA[cl][ii]; t2 -= wA[cl][ii];
+			}//if abs
+		      }// if py<3 and else py>3
+		      
+		      if(!qA[cl][ii]) break;// go on next plane if point is found among clusters of current plane;
+		    }// if qA
+		  } // if clLoopTrue
 		}// for cl     --  can be break and return to "for zmodule"
+		//                                                                                                                 .
 		if( (py!=1 && clcurr != -1 && qA[clcurr][ii]) || (py==1 && !py1first)) { 
 		  // if point is not found - continue natural loop, but reduce py 
 		  py--; if(sector==1) pys1--;  if(sector==(sn0-1)) pyss--;
@@ -672,23 +767,34 @@ std::vector<TrackFP420> TrackProducerFP420::trackFinderSophisticated(edm::Handle
       }
       // do fit:
       else{
-	////////////////////////////    main fit for Narrow pixels
+	////////////////////////////    main fit for Narrow pixels !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	double cov00, cov01, cov11;
 	double c0Y, c1Y, chisqY;
 	gsl_fit_wlinear (fzY, 1, fwY, 1, fyY, 1, py, 
 			 &c0Y, &c1Y, &cov00, &cov01, &cov11, 
 			 &chisqY);
 	////////////////////////////
-	if (verbos > 0) {
-	  float chindfx;
-	  if(py>2) {
-	    chindfx = chisqY/(py-2);
-	  }
-	  else{
-	    //	  chindfy = chisqY;
-	    chindfx = 9999;
-	  }//py
-	  std::cout << " Do FIT XZ: chindfx= " << chindfx << std::endl;
+	// collect cases where the nearby points with the same coordinate exists
+//	int pyrepete=py+2;
+//	if(py < 11 && chisqY/(py-2) < 0.5) {
+//	  double fyYold=999999.;
+//	  for (int ipy=0; ipy<py; ++ipy) {
+//	    if( fyY[ipy]!=fyYold) --pyrepete;
+//	    fyYold=fyY[ipy];
+//	  }
+//	}
+	////////////////////////////
+	float chindfx;
+	if(py>2) {
+	  chindfx = chisqY/(py-2);
+	}
+	else{
+	  //	  chindfy = chisqY;
+	  chindfx = 9999;
+	}//py
+	if (verbos  > 0) {
+	  //	  std::cout << " Do FIT XZ: chindfx= " << chindfx << " chisqY= " << chisqY << " py= " << py << " pyrepete= " << pyrepete << std::endl;
+	  std::cout << " Do FIT XZ: chindfx= " << chindfx << " chisqY= " << chisqY << " py= " << py << std::endl;
 	}
 	
 	////////////////////////////    second order fit for Wide pixels
@@ -708,13 +814,13 @@ std::vector<TrackFP420> TrackProducerFP420::trackFinderSophisticated(edm::Handle
 	  else if(xytypecurrent ==2){
 	    fyYW[ipy]=yXW[qAcl[ipy]][qAii[ipy]];
 	    fwYW[ipy]=wXW[qAcl[ipy]][qAii[ipy]];
-	    if (verbos > 0) {
+	    if (verbos ==-29) {
 	      std::cout << " ipy= " << ipy << std::endl;
 	      std::cout << " qAcl[ipy]= " << qAcl[ipy] << " qAii[ipy]= " << qAii[ipy] << std::endl;
 	      std::cout << " fyYW[ipy]= " << fyYW[ipy] << " fwYW[ipy]= " << fwYW[ipy] << std::endl;
 	    }
 	  }
-	}
+	}// for
 
 
 
@@ -726,10 +832,13 @@ std::vector<TrackFP420> TrackProducerFP420::trackFinderSophisticated(edm::Handle
 	gsl_fit_wlinear (fzY, 1, fwYW, 1, fyYW, 1, py, 
 			 &w0Y, &w1Y, &wov00, &wov01, &wov11, 
 			 &whisqY);
-	////////////////////////////
+	////////////////////////////////////////////////////////////////////////////////////
+
+
+
 	float chindfy;
 	if(py>2) {
-	  chindfy = chisqY/(py-2);
+	  chindfy = whisqY/(py-2);
 	}
 	else{
 	  //	  chindfy = chisqY;
@@ -739,19 +848,22 @@ std::vector<TrackFP420> TrackProducerFP420::trackFinderSophisticated(edm::Handle
 	if (verbos > 0) {
 	  std::cout << " chindfy= " << chindfy << " chiCutY= " << chiCutY << std::endl;
 	}
+
+
 	if(xytypecurrent ==1){
-	  if(chindfy < chiCutX ) {
+	  if(chindfx < chiCutX && chindfy < chiCutY) {
 	    ++numberYtracks;
 	    Ay[numberYtracks-1] = c0Y; 
 	    By[numberYtracks-1] = c1Y; 
 	    Cy[numberYtracks-1] = chisqY; 
+	    //  My[numberYtracks-1] = py-pyrepete;
 	    My[numberYtracks-1] = py;
 	    AyW[numberYtracks-1] = w0Y; 
 	    ByW[numberYtracks-1] = w1Y; 
 	    CyW[numberYtracks-1] = whisqY; 
 	    MyW[numberYtracks-1] = py;
 	    if (verbos > 0) {
-	      if(py>30) {
+	      if(py>20) {
 		std::cout << " niteration = " << niteration << std::endl;
 		std::cout << " chindfy= " << chindfy << " py= " << py << std::endl;
 		std::cout << " c0Y= " << c0Y << " c1Y= " << c1Y << std::endl;
@@ -761,11 +873,12 @@ std::vector<TrackFP420> TrackProducerFP420::trackFinderSophisticated(edm::Handle
 	  }//chindfy
 	}
 	else if(xytypecurrent ==2){
-	  if(chindfy < chiCutY ) {
+	  if(chindfx < chiCutX && chindfy < chiCutY) {
 	    ++numberXtracks;
 	    Ax[numberXtracks-1] = c0Y; 
 	    Bx[numberXtracks-1] = c1Y; 
 	    Cx[numberXtracks-1] = chisqY; 
+	    //   Mx[numberXtracks-1] = py-pyrepete;
 	    Mx[numberXtracks-1] = py;
 	    AxW[numberXtracks-1] = w0Y; 
 	    BxW[numberXtracks-1] = w1Y; 
@@ -784,7 +897,8 @@ std::vector<TrackFP420> TrackProducerFP420::trackFinderSophisticated(edm::Handle
       }//  if else
       
       // do not select tracks anymore if
-      if (verbos > 0) {
+      if (verbos  > 0) {
+	std::cout << "Current iteration, niteration >= " << niteration << std::endl;
 	std::cout << " numberYtracks= " << numberYtracks << std::endl;
 	std::cout << " numberXtracks= " << numberXtracks << std::endl;
 	std::cout << " pys1= " << pys1 << " pyss = " << pyss << " py = " << py << std::endl;
@@ -799,15 +913,10 @@ std::vector<TrackFP420> TrackProducerFP420::trackFinderSophisticated(edm::Handle
       }
       else{
 	++niteration;
-	if (verbos > 0) {
-	  if(niteration > nitMax-1){
-	    std::cout << "Neyt iteration, niteration >= " << niteration << std::endl;
-	  }
-	}
       }
       
     } while(SelectTracks && niteration < nitMax );      
-  //======================    finish do loop finder for  xytypecurrent     ====================================================
+    //======================    finish do loop finder for  xytypecurrent     ====================================================
     
     //============
     
@@ -922,7 +1031,7 @@ std::vector<TrackFP420> TrackProducerFP420::trackFinderSophisticated(edm::Handle
       //  tx=tr;
       //ty=tr;
       if (verbos > 0) {
-	if(Mx[tx]>30) {
+	if(Mx[tx]>20) {
 	  std::cout << " for track tr= " << tr << " tx= " << tx << " ty= " << ty << std::endl;
 	  std::cout << " Ax= " << Ax[tx]   << " Ay= " << Ay[ty]   << std::endl;
 	  std::cout << " Bx= " << Bx[tx]   << " By= " << By[ty]   << std::endl;
