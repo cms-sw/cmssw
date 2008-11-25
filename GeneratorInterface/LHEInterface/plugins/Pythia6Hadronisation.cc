@@ -249,14 +249,17 @@ std::auto_ptr<HepMC::GenEvent> Pythia6Hadronisation::doHadronisation()
 
 	call_pyevnt();
 
+	if (iterations > 1 || hepeup_.nup <= 0 || pypars.msti[0] == 1) {
+		fortranCallback.instance = 0;
+		return std::auto_ptr<HepMC::GenEvent>();
+	}
+
 	std::for_each(addons.begin(), addons.end(),
 	              boost::bind(&Addon::afterEvent, _1));
 
 	call_pyhepc(1);
-	fortranCallback.instance = 0;
 
-	if (iterations > 1 || hepeup_.nup <= 0 || pypars.msti[0] == 1)
-		return std::auto_ptr<HepMC::GenEvent>();
+	fortranCallback.instance = 0;
 
 	std::auto_ptr<HepMC::GenEvent> event(conv.read_next_event());
 
