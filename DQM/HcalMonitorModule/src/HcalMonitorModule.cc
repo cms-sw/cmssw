@@ -4,8 +4,8 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2008/11/10 06:47:40 $
- * $Revision: 1.91 $
+ * $Date: 2008/11/10 13:41:56 $
+ * $Revision: 1.92 $
  * \author W Fisher
  *
 */
@@ -411,13 +411,22 @@ void HcalMonitorModule::endJob(void) {
 	  if (mydetids[i].det()!=4) continue; // not hcal
 	  //HcalDetId id(mydetids[i]);
 	  HcalDetId id=mydetids[i];
+
 	  // get original channel status item
 	  const HcalChannelStatus* origstatus=chanquality_->getValues(mydetids[i]);
 	  // make copy of status
 	  HcalChannelStatus* mystatus=new HcalChannelStatus(origstatus->rawId(),origstatus->getValue());
 	  if (myquality_.find(id)!=myquality_.end())
 	    {
-
+	      // Set bit 1 for cells which aren't present
+	      if ((id.subdet()==HcalBarrel &&!HBpresent_) ||
+		  (id.subdet()==HcalEndCap &&!HEpresent_) ||
+		  (id.subdet()==HcalOuter  &&!HOpresent_) ||
+		  (id.subdet()==HcalForward&&!HFpresent_))
+		{
+		  mystatus->setBit(1);
+		  continue;
+		}
 	      // check dead cells
 	      if ((myquality_[id]>>5)&0x1)
 		  mystatus->setBit(5);
