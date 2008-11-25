@@ -27,6 +27,7 @@ class FineDelayTask : public CommissioningTask {
 
   float fiberLengthCorrection_;
 
+  static MonitorElement * mode_;
 };
 
 #endif // DQM_SiStripCommissioningSources_FineDelayTask_h

@@ -15,25 +15,37 @@ using namespace sistrip;
 
 // ----------------------------------------------------------------------------
 // 
-SamplingAlgorithm::SamplingAlgorithm( SamplingAnalysis* const anal ) 
+SamplingAlgorithm::SamplingAlgorithm( SamplingAnalysis* const anal, uint32_t latencyCode ) 
   : CommissioningAlgorithm(anal),
     histo_(0,""),
     deconv_fitter_(0),
-    peak_fitter_(0),
+    peak_fitterA_(0),
+    peak_fitterB_(0),
+    latencyCode_(latencyCode),
     samp_(0)
 {
-   peak_fitter_ = new TF1("peak_fitter",fpeak_convoluted,-4800,0,5);
-   peak_fitter_->SetNpx(2000);
-   peak_fitter_->FixParameter(0,0);
-   peak_fitter_->SetParLimits(1,0,4800);
-   peak_fitter_->SetParLimits(2,0,20);
-   peak_fitter_->FixParameter(3,50);
-   peak_fitter_->SetParLimits(4,0,100);
-   peak_fitter_->SetParameters(0.,1250,10,50,10);
+   peak_fitterA_ = new TF1("peak_fitterA",fpeak_convoluted,-4800,0,5);
+   peak_fitterA_->SetNpx(2000);
+   peak_fitterA_->FixParameter(0,0);
+   peak_fitterA_->SetParLimits(1,0,4800);
+   peak_fitterA_->SetParLimits(2,0,20);
+   peak_fitterA_->FixParameter(3,50);
+   peak_fitterA_->SetParLimits(4,0,100);
+   peak_fitterA_->SetParameters(0.,1250,10,50,10);
+
+   peak_fitterB_ = new TF1("peak_fitterB",fpeak_convoluted,-100,100,5);
+   peak_fitterB_->SetNpx(200);
+   peak_fitterB_->FixParameter(0,0);
+   peak_fitterB_->SetParLimits(1,-100,100);
+   peak_fitterB_->SetParLimits(2,0,20);
+   peak_fitterB_->FixParameter(3,50);
+   peak_fitterB_->SetParLimits(4,0,100);
+   peak_fitterB_->SetParameters(0.,-50,10,50,10);
+
    deconv_fitter_ = new TF1("deconv_fitter",fdeconv_convoluted,-50,50,5);
    deconv_fitter_->SetNpx(1000);
    deconv_fitter_->FixParameter(0,0);
-   deconv_fitter_->SetParLimits(1,-10,10);
+   deconv_fitter_->SetParLimits(1,-50,50);
    deconv_fitter_->SetParLimits(2,0,200);
    deconv_fitter_->SetParLimits(3,5,100);
    deconv_fitter_->FixParameter(3,50);
@@ -144,18 +156,31 @@ void SamplingAlgorithm::analyse() {
       prof->Fit(peak_fitter_,"QEM");
 
     // Set monitorables
-    samp_->max_   = peak_fitter_->GetMaximumX();
-    samp_->error_ = peak_fitter_->GetParError(1);
+    samp_->max_   = peak_fitterA_->GetMaximumX();
+    samp_->error_ = peak_fitterA_->GetParError(1);
 
   } else { // sistrip::FINE_DELAY
 
-    // fit
-    if(prof->Fit(deconv_fitter_,"Q")==0)
-      prof->Fit(deconv_fitter_,"QEM");
-
-    // Set monitorables
-    samp_->max_   = deconv_fitter_->GetMaximumX();
-    samp_->error_ = deconv_fitter_->GetParError(1);
+    // initialize  the fit (overal latency)
+    float max = prof->GetBinCenter(prof->GetMaximumBin());
+    float ampl = prof->GetMaximum();
+    deconv_fitter_->SetParameters(0.,-max,ampl/10.,50,20);
+    peak_fitterB_->SetParameters(0.,50-max,ampl/20.,50,10);
+    if(latencyCode_&0x80) { // deconv mode
+      // fit
+      if(prof->Fit(deconv_fitter_,"Q")==0)
+         prof->Fit(deconv_fitter_,"QEM");
+      // Set monitorables
+      samp_->max_   = deconv_fitter_->GetMaximumX();
+      samp_->error_ = deconv_fitter_->GetParError(1);
+    } else { // peak mode
+      // fit
+      if(prof->Fit(peak_fitterB_,"Q")==0)
+         prof->Fit(peak_fitterB_,"QEM");
+      // Set monitorables
+      samp_->max_   = peak_fitterB_->GetMaximumX();
+      samp_->error_ = peak_fitterB_->GetParError(1);
+    }
 
   }
 

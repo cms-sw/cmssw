@@ -1,4 +1,4 @@
-// Last commit: $Id: FineDelayHistosUsingDb.h,v 1.7 2008/03/08 17:24:52 delaer Exp $
+// Last commit: $Id: FineDelayHistosUsingDb.h,v 1.8 2008/05/06 12:38:06 bainbrid Exp $
 
 #ifndef DQM_SiStripCommissioningClients_FineDelayHistosUsingDb_H
 #define DQM_SiStripCommissioningClients_FineDelayHistosUsingDb_H
@@ -28,7 +28,7 @@ class FineDelayHistosUsingDb : public CommissioningHistosUsingDb, public Samplin
 			  const edm::EventSetup& );
 
   virtual void uploadConfigurations();
-  
+
  private:
   
   bool update( SiStripConfigDb::DeviceDescriptionsRange );
@@ -39,10 +39,11 @@ class FineDelayHistosUsingDb : public CommissioningHistosUsingDb, public Samplin
 
   void computeDelays();
 
-  std::map<unsigned int,unsigned int > delays_;
+  std::map<unsigned int,float > delays_;
 
   const TrackerGeometry* tracker_;
   
+  bool cosmic_;
 };
 
 #endif // DQM_SiStripCommissioningClients_FineDelayHistosUsingDb_H

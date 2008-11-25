@@ -18,7 +18,7 @@ class SamplingAlgorithm : public CommissioningAlgorithm {
   
  public:
   
-  SamplingAlgorithm( SamplingAnalysis* const );
+  SamplingAlgorithm( SamplingAnalysis* const, uint32_t latencyCode = 0 );
   
   virtual ~SamplingAlgorithm() {;}
   
@@ -45,9 +45,13 @@ class SamplingAlgorithm : public CommissioningAlgorithm {
   
   /** Fitter in peak and deconvolution mode */
   TF1* deconv_fitter_;
-  
-  TF1* peak_fitter_;
+  TF1* peak_fitterA_;
+  TF1* peak_fitterB_;
 
+  /** latency code for fine delay scans */
+  uint32_t latencyCode_;
+
+  /** SamplingAnalysis object */
   SamplingAnalysis* samp_;
   
 };

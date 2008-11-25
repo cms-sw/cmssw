@@ -2,6 +2,7 @@
 #include "DataFormats/SiStripCommon/interface/SiStripHistoTitle.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include <DQMServices/Core/interface/MonitorElement.h>
 
 #define NBINS (500)
 #define LOWBIN (-125)
@@ -11,6 +12,7 @@
 // -----------------------------------------------------------------------------
 //
 std::map<std::string, CommissioningTask::HistoSet> FineDelayTask::timingMap_;
+MonitorElement* FineDelayTask::mode_ = NULL;
 
 // -----------------------------------------------------------------------------
 //
@@ -46,7 +48,8 @@ void FineDelayTask::book() {
   					 sistrip::DET_KEY, 
 					 0,
 					 sistrip::TRACKER, 
-					 0 ).title(); 
+					 0,
+					 sistrip::extrainfo::clusterCharge_ ).title(); 
   // look if such an histogram is already booked
   if(timingMap_.find(title)!=timingMap_.end()) {
     // if already booked, use it
@@ -66,7 +69,13 @@ void FineDelayTask::book() {
   timing_ = &(timingMap_[title]);
   LogDebug("Commissioning") << "Binning is " << timing_->vNumOfEntries_.size();
   LogDebug("Commissioning") << "[FineDelayTask::book] done";
-  
+  if(!mode_) {
+    std::string pwd = dqm()->pwd();
+    std::string rootDir = pwd.substr(0,pwd.find(sistrip::root_ + "/")+sistrip::root_.size());
+    dqm()->setCurrentFolder( rootDir );
+    mode_ = dqm()->bookInt("latencyCode");
+  }
+
 }
 
 // -----------------------------------------------------------------------------
@@ -76,14 +85,20 @@ void FineDelayTask::fill( const SiStripEventSummary& summary,
   LogDebug("Commissioning") << "[FineDelayTask::fill]";
   // retrieve the delay from the EventSummary
   float delay = const_cast<SiStripEventSummary&>(summary).ttcrx();
-  float correctedDelay = delay;
+  uint32_t latencyCode = (const_cast<SiStripEventSummary&>(summary).layerScanned()>>24)&0xff;
+  LogDebug("Commissioning") << "[FineDelayTask::fill]: layerScanned() is " << const_cast<SiStripEventSummary&>(summary).layerScanned();
+  int latencyShift = latencyCode & 0x3f;             // number of bunch crossings between current value and start of scan... must be positive
+  if((latencyCode>>6)==2) latencyShift -= 3;         // layer in deconv, rest in peak
+  if((latencyCode>>6)==1) latencyShift += 3;         // layer in peak, rest in deconv
+  float correctedDelay = delay - (latencyShift*25.); // shifts the delay so that 0 corresponds to the current settings.
+
   LogDebug("Commissioning") << "[FineDelayTask::fill]; the delay is " << delay;
   // loop on the strips to find the (maybe) non-zero digi
   for(unsigned int strip=0;strip<digis.data.size();strip++) {
     if(digis.data[strip].adc()!=0) {
       // apply the TOF correction
       float tof = (digis.data[strip].adc()>>8)/10.;
-      correctedDelay = delay - tof;
+      correctedDelay = delay - (latencyShift*25.) - tof;
       if((digis.data[strip].adc()>>8)==255) continue; // skip hit if TOF is in overflow
       // compute the bin
       float nbins = NBINS;
@@ -94,6 +109,7 @@ void FineDelayTask::fill( const SiStripEventSummary& summary,
                                 << " at corrected delay of " << correctedDelay
 				<< " in bin " << bin << "  (tof is " << tof << "( since adc = " << digis.data[strip].adc() << "))";
       updateHistoSet( *timing_,bin,digis.data[strip].adc()&0xff);
+      if(mode_) mode_->Fill(latencyCode);
     }
   }
 }

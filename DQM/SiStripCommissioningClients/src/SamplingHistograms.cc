@@ -23,6 +23,11 @@ SamplingHistograms::SamplingHistograms( DQMStore* bei,const sistrip::RunType& ta
        << "[SamplingHistograms::" << __func__ << "]"
        << " Constructing object...";
   factory_ = auto_ptr<SamplingSummaryFactory>( new SamplingSummaryFactory );
+  // retreive the latency code from the root file
+  std::string dataPath = sistrip::collate_ + "/" + sistrip::root_ + "/latencyCode";
+  MonitorElement* codeElement = bei->get(dataPath);
+  if(codeElement) latencyCode_ = codeElement->getIntValue() ;
+  else latencyCode_ = 0;
 }
 
 // -----------------------------------------------------------------------------
@@ -34,6 +39,11 @@ SamplingHistograms::SamplingHistograms( DQMOldReceiver* mui,const sistrip::RunTy
        << "[SamplingHistograms::" << __func__ << "]"
        << " Constructing object...";
   factory_ = auto_ptr<SamplingSummaryFactory>( new SamplingSummaryFactory );
+  // retreive the latency code from the root file
+  std::string dataPath = sistrip::collate_ + "/" + sistrip::root_ + "/latencyCode";
+  MonitorElement* codeElement = bei()->get(dataPath);
+  if(codeElement) latencyCode_ = codeElement->getIntValue() ;
+  else latencyCode_ = 0;
 }
 
 // -----------------------------------------------------------------------------
@@ -77,7 +87,7 @@ void SamplingHistograms::histoAnalysis( bool debug ) {
     // Perform histo analysis
     SamplingAnalysis* anal = new SamplingAnalysis( iter->first );
     anal->setSoNcut(sOnCut_);
-    SamplingAlgorithm algo( anal );
+    SamplingAlgorithm algo( anal, latencyCode_ );
     algo.analysis( profs );
     data()[iter->first] = anal; 
     

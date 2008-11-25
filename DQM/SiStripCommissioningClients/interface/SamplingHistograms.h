@@ -23,6 +23,8 @@ class SamplingHistograms : virtual public CommissioningHistograms {
   
   float sOnCut_;
 
+  int latencyCode_;
+
 };
 
 #endif // DQM_SiStripCommissioningClients_SamplingHistograms_H

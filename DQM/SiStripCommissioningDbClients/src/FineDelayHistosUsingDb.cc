@@ -1,4 +1,4 @@
-// Last commit: $Id: FineDelayHistosUsingDb.cc,v 1.11 2008/05/23 12:37:00 delaer Exp $
+// Last commit: $Id: FineDelayHistosUsingDb.cc,v 1.12 2008/05/28 14:56:12 delaer Exp $
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
@@ -23,7 +23,8 @@ using namespace sistrip;
 /** */
 FineDelayHistosUsingDb::FineDelayHistosUsingDb( DQMOldReceiver* mui,
 						SiStripConfigDb* const db ) 
-  : CommissioningHistosUsingDb( db ),
+  : CommissioningHistograms( mui, FINE_DELAY ),
+    CommissioningHistosUsingDb( db, mui, FINE_DELAY ),
     SamplingHistograms( mui, FINE_DELAY ),
     tracker_(0)
 {
@@ -64,6 +65,7 @@ void FineDelayHistosUsingDb::configure( const edm::ParameterSet& pset,
   setup.get<TrackerDigiGeometryRecord>().get(estracker);
   tracker_=&(* estracker);
   SamplingHistograms::configure(pset,setup);
+  cosmic_ = pset.getParameter<bool>("cosmic");
 }
 
 // -----------------------------------------------------------------------------
@@ -134,9 +136,8 @@ void FineDelayHistosUsingDb::computeDelays() {
   if(delays_.size()>0) return;
 
   // the point from which track should originate
-  float x = 0.;
-  float y = 0.;
-  float z = 0.;
+  float x = 0.; float y = 0.; float z = 0.;
+  if(cosmic_) { y = 385.; z=20.; } // mean entry point of cosmics
   GlobalPoint referenceP_ = GlobalPoint(x,y,z);
   const double c = 30; // cm/ns
   
@@ -163,7 +164,7 @@ void FineDelayHistosUsingDb::computeDelays() {
         float dist = tracker_->idToDetUnit(DetId(iconn->detId()))->toLocal(referenceP_).mag(); 
         float tof  = dist/c ;
         // compute the PLL delay shift for the module as delay + tof 
-        int delay = int(round(bestDelay_+tof));
+        float delay = bestDelay_+tof;
         // store that in the map
         delays_[SiStripFecKey( iconn->fecCrate(),
                                iconn->fecSlot(),
@@ -212,8 +213,8 @@ bool FineDelayHistosUsingDb::update( SiStripConfigDb::DeviceDescriptionsRange de
     SiStripFecKey fec_path = SiStripFecKey( fec_key );
     
     // extract the delay from the map
-    int delay = delays_[fec_key];
-    int delayCoarse = delay/25;
+    float delay = desc->getDelayCoarse()*25+desc->getDelayFine()*25./24. + delays_[fec_key];
+    int delayCoarse = int(delay/25);
     int delayFine   = int(round((delay-25*delayCoarse)*24./25.));
     if(delayFine==24) { delayFine=0; ++delayCoarse; }
     //  maximum coarse setting
@@ -309,11 +310,11 @@ void FineDelayHistosUsingDb::update( SiStripConfigDb::FedDescriptionsRange feds 
       int fedDelayFine = (*ifed)->getFineDelay(fedChannel);
       int fedDelay = int(fedDelayCoarse*25. - fedDelayFine*24./25.);
       // extract the delay from the map
-      int delay = delays_[SiStripFecKey( iconn->fecCrate(),
-                                         iconn->fecSlot(),
-                                         iconn->fecRing(),
-                                         iconn->ccuAddr(),
-                                         iconn->ccuChan(), 0 ).key()];
+      int delay = int(round( delays_[SiStripFecKey( iconn->fecCrate(),
+                                                    iconn->fecSlot(),
+                                                    iconn->fecRing(),
+                                                    iconn->ccuAddr(),
+                                                    iconn->ccuChan(), 0 ).key()]));
       // compute the FED delay
       // this is done by substracting the best (PLL) delay to the present value (from the db)
       fedDelay -= delay;
