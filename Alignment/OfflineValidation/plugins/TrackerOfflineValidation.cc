@@ -13,7 +13,7 @@
 //
 // Original Author:  Erik Butz
 //         Created:  Tue Dec 11 14:03:05 CET 2007
-// $Id: TrackerOfflineValidation.cc,v 1.19 2008/11/14 16:46:15 flucke Exp $
+// $Id: TrackerOfflineValidation.cc,v 1.20 2008/11/25 08:25:58 flucke Exp $
 //
 //
 
@@ -1161,12 +1161,12 @@ TrackerOfflineValidation::fillTree(TTree &tree,
     //mean and RMS values (extracted from histograms(normalized Xprime on module level)
     treeMem.meanNormX = it->second.NormResXprimeHisto->GetMean();
     treeMem.rmsNormX = it->second.NormResXprimeHisto->GetRMS();
+
     double stats[20];
-    if(it->second.NormResXprimeHisto->GetEntries()>0){
-      it->second.NormResXprimeHisto->GetStats(stats);
-//GF       treeMem.chi2PerDof_ = stats[3]/(stats[0]-1);
-      if (stats[0]) treeMem.chi2PerDof = stats[3]/stats[0];
-    }
+    it->second.NormResXprimeHisto->GetStats(stats);
+    // GF  treeMem.chi2PerDofX = stats[3]/(stats[0]-1);
+    if (stats[0]) treeMem.chi2PerDofX = stats[3]/stats[0];
+    
     treeMem.sigmaNormX = Fwhm(it->second.NormResXprimeHisto)/2.355;
     treeMem.histNameX = it->second.ResXprimeHisto->GetName();
     treeMem.histNameNormX = it->second.NormResXprimeHisto->GetName();
@@ -1186,16 +1186,34 @@ TrackerOfflineValidation::fillTree(TTree &tree,
     // mean and RMS values in local y (extracted from histograms(normalized Yprime on module level)
     // might exist in pixel only
     if (it->second.ResYprimeHisto) {//(stripYResiduals_){
-      treeMem.meanY = it->second.ResYprimeHisto->GetMean();
-      treeMem.rmsY = it->second.ResYprimeHisto->GetRMS();
-      treeMem.histNameY = it->second.ResYprimeHisto->GetName();
+      TH1 *h = it->second.ResYprimeHisto;
+      treeMem.meanY = h->GetMean();
+      treeMem.rmsY  = h->GetRMS();
+      
+      if (useFit_) { // fit function which returns mean and sigma from the fit
+	std::pair<float,float> fitMeanSigma = 
+	  this->fitResiduals(h, h->GetMean(), h->GetRMS());
+	treeMem.fitMeanY  = fitMeanSigma.first;
+	treeMem.fitSigmaY = fitMeanSigma.second;
+      }
+      treeMem.histNameY = h->GetName();
     }
     if (it->second.NormResYprimeHisto) {
-      treeMem.meanNormY = it->second.NormResYprimeHisto->GetMean();
-      treeMem.rmsNormY = it->second.NormResYprimeHisto->GetRMS();
-      treeMem.histNameNormY = it->second.ResYprimeHisto->GetName();
-    }
+      TH1 *h = it->second.NormResYprimeHisto;
+      treeMem.meanNormY = h->GetMean();
+      treeMem.rmsNormY  = h->GetRMS();
+      h->GetStats(stats); // stats buffer defined above
+      if (stats[0]) treeMem.chi2PerDofY = stats[3]/stats[0];
 
+      if (useFit_) { // fit function which returns mean and sigma from the fit
+	std::pair<float,float> fitMeanSigma = 
+	  this->fitResiduals(h, h->GetMean(), h->GetRMS());
+	treeMem.fitMeanNormY  = fitMeanSigma.first;
+	treeMem.fitSigmaNormY = fitMeanSigma.second;
+      }
+      treeMem.histNameNormY = h->GetName();
+    }
+    
     tree.Fill();
   }
 }
@@ -1204,6 +1222,7 @@ std::pair<float,float>
 TrackerOfflineValidation::fitResiduals(TH1 *hist,float meantmp,float rmstmp)
 {
   std::pair<float,float> fitResult(9999., 9999.);
+  if (!hist || hist->GetEntries() < 20) return fitResult;
 
   try { // for < CMSSW_2_2_0 since ROOT warnings from fit are converted to exceptions
     // Remove the try/catch for more recent CMSSW!

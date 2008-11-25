@@ -8,7 +8,7 @@ are copied into a new Ttree.
 The mean and RMS values for the different residuals are taken from the merged 
 histograms and filled into the tree after the merging procedure.
 
-File names canbe given in two ways: 
+File names can be given in two ways: 
 1)
 Provide a comma separated list of filenames as argument to hadd.
 2)
@@ -44,6 +44,7 @@ if (gSystem->Getenv("CMSSW_RELEASE_BASE") != '\0') {
 #include "TKey.h"
 #include "TF1.h"
 #include "TString.h"
+#include "TObjString.h"
 
 // global variables:
 bool copiedTree_ = false;
@@ -77,13 +78,14 @@ void hadd(const char *filesSeparatedByKommaOrEmpty = "") {
     std::cin>>nEvt;
 
     names = new TObjArray;
+    names->SetOwner();
     for (Int_t i = 1; i != nEvt+1 ; ++i){
       TString fileName = inputFileName;
-      names->Add(TObjString((fileName += i) += ".root"));
+      names->Add(new TObjString((fileName += i) += ".root"));
     }
   } else {
     // decode file name from komma separated list
-    TObjArray *names = fileNames.Tokenize(",");
+    names = fileNames.Tokenize(","); // is already owner
   }
 
   TList *FileList = new TList();
@@ -302,12 +304,10 @@ void RewriteTree( TDirectory *target, TTree *tree, const std::map<unsigned int,T
       treeVar->fitMeanNormX  = meanSigma.first; // get mean value from histogram
       treeVar->fitSigmaNormX = meanSigma.second; // get sigma value from histogram
       
-      if(h->GetEntries()>0){
-	double stats[20];
-	h->GetStats(stats);
-	// 	treeVar->chi2PerDof_ = stats[3]/(stats[0]-1); // GF: why -1?
-	if (stats[0]) treeVar->chi2PerDof = stats[3]/stats[0];
-      }
+      double stats[20];
+      h->GetStats(stats);
+      // 	treeVar->chi2PerDofX = stats[3]/(stats[0]-1); // GF: why -1?
+      if (stats[0]) treeVar->chi2PerDofX = stats[3]/stats[0];
       delete h; h = 0;
     } else {
       std::cout << "Module " << treeVar->moduleId << " without hist normX: " 
@@ -352,6 +352,11 @@ void RewriteTree( TDirectory *target, TTree *tree, const std::map<unsigned int,T
       if (h) {
 	treeVar->meanY = h->GetMean();      //get mean value from histogram
 	treeVar->rmsY = h->GetRMS();        //get RMS value from histogram
+
+	const std::pair<float,float> meanSigma = FitResiduals(h, h->GetMean(), h->GetRMS());
+	treeVar->fitMeanY = meanSigma.first;
+	treeVar->fitSigmaY= meanSigma.second;
+
 	delete h; h = 0;
       } else {
 	std::cout << "Module " << treeVar->moduleId << " without hist Y " 
@@ -367,6 +372,14 @@ void RewriteTree( TDirectory *target, TTree *tree, const std::map<unsigned int,T
       if (h) {
 	treeVar->meanNormY = h->GetMean(); //get mean value from histogram
 	treeVar->rmsNormY = h->GetRMS();   //get RMS value from histogram
+
+	const std::pair<float,float> meanSigma = FitResiduals(h, h->GetMean(), h->GetRMS());
+	treeVar->fitMeanNormY  = meanSigma.first; // get mean value from histogram
+	treeVar->fitSigmaNormY = meanSigma.second; // get sigma value from histogram
+
+	double stats[20];
+	h->GetStats(stats);
+	if (stats[0]) treeVar->chi2PerDofY = stats[3]/stats[0];
 	delete h; h = 0;
       } else {
 	std::cout << "Module " << treeVar->moduleId << " without hist norm Y " 
@@ -384,6 +397,7 @@ void RewriteTree( TDirectory *target, TTree *tree, const std::map<unsigned int,T
 std::pair<float,float> FitResiduals(TH1 *h,float meantmp,float rmstmp)
 {
   std::pair<float,float> fitResult(9999., 9999.);
+  if (!h || h->GetEntries() < 20) return fitResult;
 
   // first fit: two RMS around mean
   TF1 func("tmp", "gaus", meantmp - 2.*rmstmp, meantmp + 2.*rmstmp); 

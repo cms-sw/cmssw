@@ -37,10 +37,11 @@ struct TkOffTreeVariables
   {
     // variable Float_t's
     meanLocalX = meanNormLocalX = meanX = meanNormX = meanY = meanNormY 
-      = chi2PerDof 
+      = chi2PerDofX = chi2PerDofY
       = rmsLocalX = rmsNormLocalX = rmsX = rmsNormX = rmsY = rmsNormY
       = sigmaX = sigmaNormX
       = fitMeanX = fitSigmaX = fitMeanNormX = fitSigmaNormX  
+      = fitMeanY = fitSigmaY = fitMeanNormY = fitSigmaNormY  
       = numberOfUnderflows = numberOfOverflows = numberOfOutliers = 0.;
 
     // variable Int_t's
@@ -54,10 +55,11 @@ struct TkOffTreeVariables
   ///////////////////////////////////////////////////////////////////////////////
   Float_t meanLocalX, meanNormLocalX, 
     meanX, meanNormX,    //mean value read out from modul histograms
-    meanY, meanNormY, chi2PerDof,
+    meanY, meanNormY, chi2PerDofX, chi2PerDofY,
     rmsLocalX, rmsNormLocalX, rmsX, rmsNormX,  //rms value read out from modul histograms
     rmsY, rmsNormY,sigmaX,sigmaNormX,
     fitMeanX, fitSigmaX, fitMeanNormX, fitSigmaNormX,
+    fitMeanY, fitSigmaY, fitMeanNormY, fitSigmaNormY,
     posR, posPhi, posEta,                     //global coordiantes    
     posX, posY, posZ,             //global coordiantes 
     numberOfUnderflows, numberOfOverflows, numberOfOutliers;
