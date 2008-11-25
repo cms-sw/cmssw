@@ -84,6 +84,7 @@ hltIcone5Cen1 = cms.EDProducer("IterativeConeJetProducer",
     seedThreshold = cms.double(1.0),
     debugLevel = cms.untracked.int32(0),
     jetType = cms.untracked.string('CaloJet'),
+    jetPtMin = cms.double(0.0),
     inputEMin = cms.double(0.0)
 )
 
@@ -105,6 +106,7 @@ hltIcone5Cen2 = cms.EDProducer("IterativeConeJetProducer",
     seedThreshold = cms.double(1.0),
     debugLevel = cms.untracked.int32(0),
     jetType = cms.untracked.string('CaloJet'),
+    jetPtMin = cms.double(0.0),
     inputEMin = cms.double(0.0)
 )
 
@@ -126,6 +128,7 @@ hltIcone5Cen3 = cms.EDProducer("IterativeConeJetProducer",
     seedThreshold = cms.double(1.0),
     debugLevel = cms.untracked.int32(0),
     jetType = cms.untracked.string('CaloJet'),
+    jetPtMin = cms.double(0.0),
     inputEMin = cms.double(0.0)
 )
 
@@ -147,6 +150,7 @@ hltIcone5Cen4 = cms.EDProducer("IterativeConeJetProducer",
     seedThreshold = cms.double(1.0),
     debugLevel = cms.untracked.int32(0),
     jetType = cms.untracked.string('CaloJet'),
+    jetPtMin = cms.double(0.0),
     inputEMin = cms.double(0.0)
 )
 
