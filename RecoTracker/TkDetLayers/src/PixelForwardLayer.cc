@@ -51,12 +51,10 @@ PixelForwardLayer::PixelForwardLayer(vector<const PixelBlade*>& blades):
 
   for(vector<const GeometricSearchDet*>::const_iterator it=theComps.begin(); 
       it!=theComps.end(); it++){
-    int index = theBinFinder.binIndex((*it)->surface().position().phi());
-    cout << "blades phi,z,r,index: " 
+    LogDebug("TkDetLayers") << "blades phi,z,r: " 
 			    << (*it)->surface().position().phi() << " , "
 			    << (*it)->surface().position().z() <<   " , "
-			    << (*it)->surface().position().perp() << " , "
-			    << index << endl;
+			    << (*it)->surface().position().perp();
   }
   //-----------------------------------
 
@@ -104,11 +102,7 @@ PixelForwardLayer::groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
 		   tsos, prop, est, nextResult)) {
       int crossingSide = LayerCrossingSide().endcapSide( tsos, prop);
       int theHelicity = computeHelicity(theComps[theBinFinder.binIndex(crossings.closestIndex)],
-      theComps[theBinFinder.binIndex(crossings.nextIndex)] );
-
-      //int theHelicity = computeHelicity(theComps[theBinFinder.binIndex(crossings.nextIndex)],
-      //					theComps[theBinFinder.binIndex(crossings.closestIndex)] );
-
+					theComps[theBinFinder.binIndex(crossings.nextIndex)] );
       DetGroupMerger::orderAndMergeTwoLevels( closestResult, nextResult, result, 
 					      theHelicity, crossingSide);
     }
@@ -124,18 +118,6 @@ PixelForwardLayer::groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
   if (window > 0.5*detWidth) {
     searchNeighbors( tsos, prop, est, crossings, window, result);
   } 
-  /*
-    for (vector<DetGroup>::const_iterator it=result.begin(); it!=result.end();++it){
-      cout << "--- result loop in PixelForwarLayrs" << endl;
-      for(vector<DetGroupElement>::const_iterator it2=it->begin(); it2!=it->end();++it2){
-	cout << "=== resultGroup Det r,phi,z: " 
-	     << it2->det()->position().perp() << " , " 
-	     << it2->det()->position().phi()  << " , " 
-	     << it2->det()->position().z()    << endl;
-      }
-    }
-  */
-
 }
 
 
@@ -214,84 +196,30 @@ PixelForwardLayer::computeCrossings( const TrajectoryStateOnSurface& startingSta
 
   HelixPlaneCrossing::PositionType  turbinePoint( turbineCrossing.position(thePath.second));
   HelixPlaneCrossing::DirectionType turbineDir( turbineCrossing.direction(thePath.second));
-
-  /*
-  cout << "+++ turbine point r, phi,eta, z:   " 
-       << turbinePoint.perp() << " , "
-       << turbinePoint.phi() << " , "       
-       << turbinePoint.eta() << " , "
-       << turbinePoint.z() << endl;
-  */
-
   int closestIndex = theBinFinder.binIndex(turbinePoint.phi());
 
   const BoundPlane& closestPlane( static_cast<const BoundPlane&>( 
     theComps[closestIndex]->surface()));
-  
-  /*
-  cout << "+++ closest plane has r,phi,eta,z: "
-       << closestPlane.position().perp() << " , "
-       << closestPlane.position().phi() << " , "
-       << closestPlane.position().eta() << " , "
-       << closestPlane.position().z() << endl;
-  */
+
 
   HelixArbitraryPlaneCrossing2Order theBladeCrossing(turbinePoint, turbineDir, rho);
 
   pair<bool,double> theClosestBladePath = theBladeCrossing.pathLength( closestPlane );
   LocalPoint closestPos = closestPlane.toLocal(GlobalPoint(theBladeCrossing.position(theClosestBladePath.second)) );
     
-  GlobalPoint glob = GlobalPoint(theBladeCrossing.position(theClosestBladePath.second));
-  /*
-  cout << "intersection on blade r,phi,eta,z: " 
-       << glob.perp() << " , " 
-       << glob.phi() << " , " 
-       << glob.eta() << " , " 
-       << glob.z() << endl;
-  */
   float closestDist = closestPos.x(); // use fact that local X perp to global Y
-
-  //cout << "---dist in local x: " << closestDist << endl;
 
   //int next = turbinePoint.phi() - closestPlane.position().phi() > 0 ? closest+1 : closest-1;
   int nextIndex = PhiLess()( closestPlane.position().phi(), turbinePoint.phi()) ? 
     closestIndex+1 : closestIndex-1;
-  //closestIndex-1 : closestIndex+1;
-
-  int oppositeNext = PhiLess()( closestPlane.position().phi(), turbinePoint.phi()) ? closestIndex-1 : closestIndex+1;
-
-  /*
-  cout << "---first,next,opposite indeces: " 
-       << closestIndex << " , " 
-       << nextIndex  << " , "
-       << oppositeNext <<endl;
-  */
 
   const BoundPlane& nextPlane( static_cast<const BoundPlane&>( 
     theComps[ theBinFinder.binIndex(nextIndex)]->surface()));
 
-  const BoundPlane& oppositePlane( static_cast<const BoundPlane&>( 
-    theComps[ theBinFinder.binIndex(oppositeNext)]->surface()));
-
   pair<bool,double> theNextBladePath    = theBladeCrossing.pathLength( nextPlane );
   LocalPoint nextPos = nextPlane.toLocal(GlobalPoint(theBladeCrossing.position(theNextBladePath.second)) );
 
-  pair<bool,double> theOppositeBladePath    = theBladeCrossing.pathLength( oppositePlane );
-  LocalPoint oppositePos = oppositePlane.toLocal(GlobalPoint(theBladeCrossing.position(theOppositeBladePath.second)) );
-
-
   float nextDist = nextPos.x();
-  float oppositeDist = oppositePos.x();
-  
-  /*
-  cout << "---distNext in local x: " << nextDist << endl;
-  cout << "---distOpposite in local x: " << oppositeDist << endl;
-  */
-  if(fabs(oppositeDist)<fabs(nextDist)){
-    cout << "###### WARNING: fabs(oppositeDist)<fabs(nextDist)" << endl;
-    nextDist = oppositeDist;
-    nextIndex = oppositeNext; 
-  }
 
   if (fabs(closestDist) < fabs(nextDist)) {
     return SubTurbineCrossings( closestIndex, nextIndex, nextDist);
