@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/10/21 10:42:27 $
- *  $Revision: 1.15 $
+ *  $Date: 2008/10/21 13:47:35 $
+ *  $Revision: 1.16 $
  *  \author F. Chlebana - Fermilab
  */
 
@@ -34,7 +34,6 @@ JetMETAnalyzer::JetMETAnalyzer(const edm::ParameterSet& pSet) {
   // Calo Jet Collection Label
   theSCJetCollectionLabel   = parameters.getParameter<edm::InputTag>("SCJetsCollectionLabel");
   theICJetCollectionLabel   = parameters.getParameter<edm::InputTag>("ICJetsCollectionLabel");
-//theCaloJetCollectionLabel = parameters.getParameter<edm::InputTag>("CaloJetsCollectionLabel");
 
   thePFJetCollectionLabel   = parameters.getParameter<edm::InputTag>("PFJetsCollectionLabel");
 
@@ -43,17 +42,12 @@ JetMETAnalyzer::JetMETAnalyzer(const edm::ParameterSet& pSet) {
 
   theTriggerResultsLabel    = parameters.getParameter<edm::InputTag>("TriggerResultsLabel");
   
-//theSCJetAnalyzerFlag      = parameters.getUntrackedParameter<bool>("DoSCJetAnalysis",true);
-//theICJetAnalyzerFlag      = parameters.getUntrackedParameter<bool>("DoICJetAnalysis",true);
-  theJetAnalyzerFlag        = parameters.getUntrackedParameter<bool>("DoJetAnalysis",true);
-
-  thePFJetAnalyzerFlag      = parameters.getUntrackedParameter<bool>("DoPFJetAnalysis",true);
+  theJetAnalyzerFlag        = parameters.getUntrackedParameter<bool>("DoJetAnalysis",    true);
+  thePFJetAnalyzerFlag      = parameters.getUntrackedParameter<bool>("DoPFJetAnalysis",  true);
   theCaloMETAnalyzerFlag    = parameters.getUntrackedParameter<bool>("DoCaloMETAnalysis",true);
 
   // --- do the analysis on the Jets
   if(theJetAnalyzerFlag) {
-    //    theJetAnalyzer    = new JetAnalyzer(parameters.getParameter<ParameterSet>("jetAnalysis"));
-    //    theJetAnalyzer->setSource("CaloJets");
     theSCJetAnalyzer  = new JetAnalyzer(parameters.getParameter<ParameterSet>("jetAnalysis"));
     theSCJetAnalyzer->setSource("SISConeJets");
     theICJetAnalyzer  = new JetAnalyzer(parameters.getParameter<ParameterSet>("jetAnalysis"));
@@ -76,7 +70,6 @@ JetMETAnalyzer::JetMETAnalyzer(const edm::ParameterSet& pSet) {
 // ***********************************************************
 JetMETAnalyzer::~JetMETAnalyzer() {   
   if(theJetAnalyzerFlag) {
-    //    delete theJetAnalyzer;
     delete theSCJetAnalyzer;
     delete theICJetAnalyzer;
   }
@@ -94,7 +87,6 @@ void JetMETAnalyzer::beginJob(edm::EventSetup const& iSetup) {
   dbe = edm::Service<DQMStore>().operator->();
 
   if(theJetAnalyzerFlag) { 
-    //    theJetAnalyzer->beginJob(iSetup, dbe);
     theSCJetAnalyzer->beginJob(iSetup, dbe);
     theICJetAnalyzer->beginJob(iSetup, dbe);
   }
@@ -126,65 +118,37 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     unsigned int n = triggerResults->size();
     for (unsigned int i=0; i!=n; i++) {
 
-      //      std::cout << ">>> Trigger Name = " << triggerNames.triggerName(i)
-      //                << " Accept = " << triggerResults.accept(i)
-      //                << std::endl;
-      
-
       if ( triggerNames.triggerName(i) == LoJetTrigger ) {
 	JetLoPass =  triggerResults->accept(i);
 	if (DEBUG) std::cout << "Found  HLT_Jet30" << std::endl;
       }
-      //      if ( triggerNames.triggerName(i) == "HLT_L1Jet15" ) {
-      //	JetLoPass =  triggerResults->accept(i);
-      //      }
       if ( triggerNames.triggerName(i) == HiJetTrigger ) {
 	JetHiPass =  triggerResults->accept(i);
       }
     }
 
-    //     std::cout << "triggerResults is valid" << std::endl;
-    //     std::cout << triggerResults << std::endl;
-    //     std::cout << triggerResults.isValid() << std::endl;
-
   } else {
 
     edm::Handle<TriggerResults> *tr = new edm::Handle<TriggerResults>;
     triggerResults = (*tr);
-    //     std::cout << "triggerResults is not valid" << std::endl;
-    //     std::cout << triggerResults << std::endl;
-    //     std::cout << triggerResults.isValid() << std::endl;
 
     if (DEBUG) std::cout << "trigger not valid " << std::endl;
-    edm::LogInfo("JetAnalyzer") << "TriggerResults::HLT not found, "
+    edm::LogInfo("JetMETAnalyzer") << "TriggerResults::HLT not found, "
       "automatically select events";
-    //return;
+
   }
 
   if (DEBUG) {
     std::cout << ">>> Trigger  Lo = " <<  JetLoPass
-	      << " Hi = " <<    JetHiPass
+	      <<             " Hi = " <<  JetHiPass
 	      << std::endl;
   }
 
   // **** Get the Calo Jet container
   edm::Handle<reco::CaloJetCollection> caloJets;
 
-  /****
-  iEvent.getByLabel(theCaloJetCollectionLabel, caloJets);
-  if(caloJets.isValid()){
-    for (reco::CaloJetCollection::const_iterator cal = caloJets->begin(); cal!=caloJets->end(); ++cal){
-      if(theJetAnalyzerFlag){
-	LogTrace(metname)<<"[JetMETAnalyzer] Call to the Jet analyzer";
-	theJetAnalyzer->analyze(iEvent, iSetup, *cal);
-      }
-    }
-  }
-  ****/
-
   // **** Get the SISCone Jet container
   iEvent.getByLabel(theSCJetCollectionLabel, caloJets);
-
 
   if(caloJets.isValid()){
     theSCJetAnalyzer->setJetHiPass(JetHiPass);
@@ -198,13 +162,12 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 	} else {
 	  theSCJetAnalyzer->setLeadJetFlag(0);
 	}
-	//	theSCJetAnalyzer->analyze(iEvent, iSetup, *triggerResults, *cal);
 	theSCJetAnalyzer->analyze(iEvent, iSetup, *cal);
       }
     }
   }
 
-  // **** Get the Iterative Cone  Jet container
+  // **** Get the Iterative Cone Jet container
   iEvent.getByLabel(theICJetCollectionLabel, caloJets);
 
   if(caloJets.isValid()){
@@ -258,7 +221,8 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       LogTrace(metname)<<"[JetMETAnalyzer] Call to the CaloMET analyzer";
       theCaloMETAnalyzer->analyze(iEvent, iSetup,
 				  *triggerResults,
-				  *calomet, *calometNoHF);
+				  *calomet, 
+				  *calometNoHF);
     }
   }
 

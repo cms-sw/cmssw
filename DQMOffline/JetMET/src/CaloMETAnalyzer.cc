@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/10/21 10:42:27 $
- *  $Revision: 1.6 $
+ *  $Date: 2008/10/21 20:25:26 $
+ *  $Revision: 1.7 $
  *  \author F. Chlebana - Fermilab
  */
 
@@ -135,21 +135,6 @@ void CaloMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
     //
     //
-    // Check if each HLT trigger defined in jetMETAnalyzer_cfi is accepted or not
-    // 
-    /*
-    const string invalid("@@invalid@@");
-    if (n>0) {
-      std::cout << "  HLT trigger paths requested: index, name and valididty:" << std::endl;
-      for (unsigned int i=0; i!=n; i++) {
-        bool validity ( (HLTPathsJetMBByIndex_[i]<triggerResults.size()) && (HLTPathsJetMBByName_[i]!=invalid) );
-	std::cout << " " << HLTPathsJetMBByIndex_[i]
-		  << " " << HLTPathsJetMBByName_[i]
-		  << " " << validity << std::endl;
-      }
-    }
-    */
-
     // count number of requested Jet or MB HLT paths which have fired
     unsigned int fired(0);
     for (unsigned int i=0; i!=n; i++) {
@@ -159,15 +144,6 @@ void CaloMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
         }
       }
     }
-
-    // ...Loop over trigger paths and check bits for jet triggers
-    /*
-    for (int itrig = 0; itrig != ntrigs; ++itrig){
-      string trigName=triggerNames.triggerName(itrig);
-      bool accept = triggerResults.accept(itrig);
-      std::cout << trigName << " " << accept << std::endl;
-    }
-    */
 
     if (fired==0) return;
 
@@ -214,14 +190,6 @@ void CaloMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   int myLuminosityBlock;
   //  myLuminosityBlock = (evtCounter++)/1000;
   myLuminosityBlock = iEvent.luminosityBlock();
-  /****
-  cout << " Run: "              << iEvent.id().run()
-       << " Event: "            << iEvent.id().event()
-       << " LumiSection: "      << iEvent.luminosityBlock() 
-       << " evtCounter: "       << evtCounter 
-       << " myLumiosityBlock: " << myLuminosityBlock 
-       << endl;
-  ***/
   //
 
   hCaloMEx->Fill(caloMEx);
