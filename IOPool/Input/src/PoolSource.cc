@@ -9,12 +9,17 @@
 #include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "TTreeCache.h"
 
 #include <set>
 
 namespace edm {
+
+  class LuminosityBlockID;
+  class EventID;
+
   namespace {
     void checkHistoryConsistency(Principal const& primary, Principal const& secondary) {
       ProcessHistory const& ph1 = primary.processHistory();
@@ -215,5 +220,47 @@ namespace edm {
     assert (!primary());
     primaryFileSequence_->dropUnwantedBranches_(wantedBranches);
   }
-}
 
+  void
+  PoolSource::fillDescription(edm::ParameterSetDescription& iDesc,
+                              std::string const& moduleLabel) {
+
+    iDesc.addOptionalUntracked<unsigned int>("firstRun", 1U);
+    iDesc.addOptionalUntracked<unsigned int>("firstLuminosityBlock", 1U);
+    iDesc.addOptionalUntracked<unsigned int>("firstEvent", 1U);
+    iDesc.addOptionalUntracked<unsigned int>("skipEvents", 0U);
+
+    std::vector<LuminosityBlockID> defaultLumis;
+    iDesc.addOptionalUntracked<std::vector<LuminosityBlockID> >("lumisToSkip", defaultLumis);
+
+    std::vector<EventID> defaultEvents;
+    iDesc.addOptionalUntracked<std::vector<EventID> >("eventsToProcess", defaultEvents);
+
+    iDesc.addOptionalUntracked<bool>("noEventSort", false);
+    iDesc.addOptionalUntracked<bool>("skipBadFiles", false);
+    iDesc.addOptionalUntracked<unsigned int>("cacheSize", 0U);
+    iDesc.addOptionalUntracked<int>("treeMaxVirtualSize", -1);
+    iDesc.addOptionalUntracked<unsigned int>("setRunNumber", 0U);
+
+    std::vector<std::string> defaultStrings(1U, std::string("keep *"));
+    iDesc.addOptionalUntracked<std::vector<std::string> >("inputCommands", defaultStrings);
+
+    iDesc.addOptionalUntracked<bool>("dropMetaData", false);
+
+    std::string defaultString("permissive");
+    iDesc.addOptionalUntracked<std::string>("fileMatchMode", defaultString);
+
+    defaultString = "checkEachRealDataFile";
+    iDesc.addOptionalUntracked<std::string>("duplicateCheckMode", defaultString);
+
+    defaultStrings.clear();
+    iDesc.addUntracked<std::vector<std::string> >("fileNames", defaultStrings);
+    iDesc.addOptionalUntracked<std::vector<std::string> >("secondaryFileNames", defaultStrings);
+
+    defaultString.clear();
+    iDesc.addOptionalUntracked<std::string>("overrideCatalog", defaultString);
+
+    defaultString = "RunsLumisAndEvents";
+    iDesc.addOptionalUntracked<std::string>("processingMode", defaultString);
+  }
+}
