@@ -1,9 +1,9 @@
 #include "IORawData/SiStripInputSources/plugins/FEDRawDataAnalyzer.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
+#include "DataFormats/FEDRawData/src/fed_trailer.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "interface/shared/fed_trailer.h"
 #include <iostream>
 #include <sstream>
 #include <iomanip>
