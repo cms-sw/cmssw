@@ -7,8 +7,6 @@ public:
   //typedef unsigned int ChannelType;
 
   HDigiFP420() : strip_(0), adc_(0) {
- //   numStripsY = 200;        // Y plane number of strips:200*0.050=10mm (zside=1) H
- //   numStripsX = 400;        // X plane number of strips:400*0.050=20mm (zside=2) V
 }
 
   HDigiFP420( int strip, int adc) : strip_(strip), adc_(adc) {
@@ -34,8 +32,10 @@ public:
   //		  int ix= istrip.channel() - iy*numStripsY;
   //                                             //
 private:
-  static const int  numStripsY= 200 ;        // Y plate number of strips:200*0.050=10mm (zside=1)
-  static const int  numStripsX= 400 ;        // X plate number of strips:400*0.050=20mm (zside=2)
+  static const int  numStripsY = 144;        // Y plate number of strips:144*0.050=7.2mm (xytype=1)
+  static const int  numStripsX = 160;        // X plate number of strips:160*0.050=8.0mm (xytype=2)
+  //static const int  numStripsY= 200 ;        // Y plate number of strips:200*0.050=10mm (zside=1)
+  //static const int  numStripsX= 400 ;        // X plate number of strips:400*0.050=20mm (zside=2)
   short strip_;
   short adc_;
 };

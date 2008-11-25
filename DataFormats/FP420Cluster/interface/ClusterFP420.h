@@ -10,7 +10,7 @@ public:
   typedef std::vector<HDigiFP420>::const_iterator   HDigiFP420Iter;
   typedef std::pair<HDigiFP420Iter,HDigiFP420Iter>   HDigiFP420Range;
 
-  //ClusterFP420() : detId_(0) , zside_(0) {}
+  //ClusterFP420() : detId_(0) , xytype_(0) {}
   ClusterFP420() : detId_(0)  {}
 
   //The range is assumed to be non-empty.
@@ -23,8 +23,8 @@ public:
   //global ID of the corresponding DetUnit --> iu index
   unsigned int globalId() const {return detId_;}
 
-  // since zside=2 all the time, no sense to record it into collection, so do comment the next line:
-  //unsigned int globalType() const {return zside_;}
+  // since xytype=2 all the time, no sense to record it into collection, so do comment the next line:
+  //unsigned int globalType() const {return xytype_;}
 
   const std::vector<short>&  amplitudes() const {return amplitudes_;}
 
@@ -37,7 +37,7 @@ public:
 private:
 
   unsigned int           detId_;
-  //  unsigned int           zside_;
+  //  unsigned int           xytype_;
   short                firstStrip_;
   std::vector<short>   amplitudes_;
   float                barycenter_;

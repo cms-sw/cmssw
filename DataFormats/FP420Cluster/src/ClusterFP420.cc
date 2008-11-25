@@ -13,20 +13,20 @@ using namespace std;
 //#define mydigidebug10
 //#define mydigidebug11
 
-//static float const_ps1s2[3] =  {0.050,.0139,0.0045};// pitch, sigma_1channel, sigma_2channels - Narrow
-//static float constW_ps1s2[3] = {0.400,.0920,0.0280};// pitch, sigma_1channel, sigma_2channels - Wide
+//static float const_ps1s2[3] =  {0.050,.0139,0.0045};// pitch, sigma_1channelCluster, sigma_2channelsCluster - Narrow , mm
+//static float constW_ps1s2[3] = {0.400,.0920,0.0280};// pitch, sigma_1channelCluster, sigma_2channelsCluster - Wide , mm
 
-static float const_ps1s2[3] =  {0.050,.0135,0.0086};// pitch, sigma_1channel, sigma_2channels - Narrow
-static float constW_ps1s2[3] = {0.400,.1149,0.0648};// pitch, sigma_1channel, sigma_2channels - Wide
+static float const_ps1s2[3] =  {0.050,.0135,0.0086};// pitch, sigma_1channelCluster, sigma_2channelsCluster - Narrow , mm
+static float constW_ps1s2[3] = {0.400,.1149,0.0648};// pitch, sigma_1channelCluster, sigma_2channelsCluster - Wide , mm
 
-// sense of zside here is X or Y type planes. Now we are working with X only, i.e. zside=2
-ClusterFP420::ClusterFP420( unsigned int detid, unsigned int zside, const HDigiFP420Range& range, 
+// sense of xytype here is X or Y type planes. Now we are working with X only, i.e. xytype=2
+ClusterFP420::ClusterFP420( unsigned int detid, unsigned int xytype, const HDigiFP420Range& range, 
 			    float & cog ,float & err ) :
   detId_(detid), firstStrip_(range.first->strip())
-//  detId_(detid), zside_(zside), firstStrip_(range.first->strip())
+//  detId_(detid), xytype_(xytype), firstStrip_(range.first->strip())
 {
   // For the range of strips in cluster assign adc(,its numbers i->strip()) calculate cog... 
-  // strip   :    0-400 or 0-250
+  // strip   :    
 #ifdef mydigidebug11
    std::cout << "===================================== firstStrip = " << firstStrip_ << std::endl;
    std::cout << "==range.first->strip() = " << range.first->strip() << std::endl;
@@ -51,7 +51,7 @@ ClusterFP420::ClusterFP420( unsigned int detid, unsigned int zside, const HDigiF
 #endif
    /*
     /// check if digis consecutive: put amplitude=0 for 
-      if (i!=ibeg && (difNarr(zside,i,i-1) > 1 || difWide(zside,i,i-1) > 1)   ){
+      if (i!=ibeg && (difNarr(xytype,i,i-1) > 1 || difWide(xytype,i,i-1) > 1)   ){
     if (lastStrip>0 && i->strip() != lastStrip + 1) {
                  for (int j=0; j < i->strip()-(lastStrip+1); j++) {
 		   amplitudes_.push_back( 0);
@@ -66,14 +66,14 @@ ClusterFP420::ClusterFP420( unsigned int detid, unsigned int zside, const HDigiF
 #endif
 
     amplitudes_.push_back(amp);
-    if(zside == 1) {
+    if(xytype == 1) {
       sumx += i->stripH()*amp;
       sumy += i->stripHW()*amp;
       suma += amp;
       sumxx += (i->stripH()) * (i->stripH()) * amp;
       sumyy += (i->stripHW()) * (i->stripHW()) * amp;
     }
-    else if(zside == 2) {
+    else if(xytype == 2) {
       sumx += i->stripV()*amp;
       sumy += i->stripVW()*amp;
       suma += amp;
@@ -81,7 +81,7 @@ ClusterFP420::ClusterFP420( unsigned int detid, unsigned int zside, const HDigiF
       sumyy += (i->stripVW()) * (i->stripVW()) * amp;
     }
     else {
-      std::cout << " ClusterFP420: wrong zside = " << zside << std::endl;
+      std::cout << " ClusterFP420: wrong xytype = " << xytype << std::endl;
     }
 
 #ifdef mydigidebug11
@@ -213,45 +213,62 @@ ClusterFP420::ClusterFP420( unsigned int detid, unsigned int zside, const HDigiF
 	int  mysn0 = 2;
 	
 	// number of planes 
-	int  mypn0 = 5;
+	int  mypn0 = 5; // number of superplanes
+
+	// number of station
+	int  myrn0 = 6;//  6 possible sensors in superlayer
+	
 
 
 
 
 
 
-
+	// comment:              detID = theFP420NumberingScheme->FP420NumberingScheme::packMYIndex(rn0, pn0, sn0, det, zside, sector, zmodule);
   // unpack from detId_:
- 	int  sScale = 2*mypn0;
-	//	int  zScale=2;
-	int  sector = (detId_-1)/sScale + 1 ;
-	//	int  zmodule = (detId_ - (sector - 1)*sScale - 1) /zScale + 1 ;
-	//////	int  zside = detId_ - (sector - 1)*sScale - (zmodule - 1)*zScale ;
+
+    int sScale = myrn0*mypn0, dScale = myrn0*mypn0*mysn0;
+    
+    int  det = (detId_-1)/dScale + 1;
+    int  sector = (detId_-1- dScale*(det - 1))/sScale + 1;
+
+#ifdef mydigidebug11
+   std::cout << "sector = " << sector << " det= " << det << std::endl;
+#endif
+
+  // unpack from detId_ (OLD):
+    // 	int  sScale = 2*mypn0;
+    //int  sector = (detId_-1)/sScale + 1 ;
+
+
+
 	float a = 0.00001;
 
 
+	/////////////////////////////////////////////////////////////////// real configuration
 	if(mysn0 == 2) {
 	  if(sector==2) {
-	    a = 0.0026+((0.0075-0.0026)/7.)*(mypn0-2); // 8 m 
+	    a = 0.0026+((0.0075-0.0026)/7.)*(mypn0-2); // at 8 m in mm 
 	      }
 	}
+	/////////////////////////////////////////////////////////////////// for stydies:
 	else if(mysn0 == 3) {
 	  if(sector==2) {
-	    a = 0.0011+((0.0030-0.0011)/7.)*(mypn0-2); // 4 m 
+	    a = 0.0011+((0.0030-0.0011)/7.)*(mypn0-2); // at 4 m  in mm 
 	      }
 	  else if(sector==3) {
-	    a = 0.0022+((0.0068-0.0022)/7.)*(mypn0-2); // 8 m 
+	    a = 0.0022+((0.0068-0.0022)/7.)*(mypn0-2); // at 8 m  in mm 
 	      }
 	}
 	else if(mysn0 == 4) {
 	  if(sector==2) {
-	    a = 0.0009+((0.0024-0.0009)/7.)*(mypn0-2); // 2.7 m 
+	    a = 0.0009+((0.0024-0.0009)/7.)*(mypn0-2); // at 2.7 m  in mm 
 	      }
 	  else if(sector==3) {
-	    a = 0.0018+((0.0050-0.0018)/7.)*(mypn0-2); // 5.4 m 
+	    a = 0.0018+((0.0050-0.0018)/7.)*(mypn0-2); // at 5.4 m  in mm 
 	      }
 	  else if(sector==4) {
-	    a = 0.0026+((0.0075-0.0026)/7.)*(mypn0-2); // 8.1 m 
+	    a = 0.0026+((0.0075-0.0026)/7.)*(mypn0-2); // at 8.1 m  in mm 
 	      }
 	}
 
