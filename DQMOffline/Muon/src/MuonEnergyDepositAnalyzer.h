@@ -6,8 +6,8 @@
  *
  *  DQM monitoring source for muon energy deposits
  *
- *  $Date: 2008/03/28 15:21:03 $
- *  $Revision: 1.6 $
+ *  $Date: 2008/10/24 16:17:18 $
+ *  $Revision: 1.7 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -86,6 +86,9 @@ class MuonEnergyDepositAnalyzer : public MuonAnalyzerBase {
   MonitorElement * hcalS9DepEnergyEndcap;
   MonitorElement * hoDepEnergy;
   MonitorElement * hoS9DepEnergy;
+  MonitorElement * ecalS9PointingMuDepEnergy;
+  MonitorElement * hcalS9PointingMuDepEnergy;
+  MonitorElement * hoS9PointingMuDepEnergy;
 
 };
 #endif  
