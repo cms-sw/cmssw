@@ -35,6 +35,14 @@
  <SpecPar name="fp420_silicon_station">
    <PartSelector path="//SISTATION"/>
    <PartSelector path="//SIPLANE"/>
+   <PartSelector path="//SENSOR1"/>
+   <PartSelector path="//SENSOR2"/>
+   <PartSelector path="//CERAMOUT"/>
+   <PartSelector path="//CERAMOUT0"/>
+   <PartSelector path="//TurnPlate"/>
+   <PartSelector path="//Turn0Plate"/>
+   <PartSelector path="//Flexes"/>
+   <PartSelector path="//MccCard"/>
    <PartSelector path="//BOUNDDET"/>
       <Parameter name="CMSCutsRegion" value="SidetRegion" eval="false"/>
       <Parameter name="ProdCutsForElectrons" value="1000*mm"/>
@@ -59,6 +67,7 @@
  </SpecPar>  
  <SpecPar name="fp420_ceramic">
    <PartSelector path="//CERAMDET"/>
+   <PartSelector path="//SIELECTR"/>
       <Parameter name="CMSCutsRegion" value="SidetRegion" eval="false"/>
       <Parameter name="ProdCutsForElectrons" value="10000*mm"/>
       <Parameter name="ProdCutsForPositrons" value="10000*mm"/>
