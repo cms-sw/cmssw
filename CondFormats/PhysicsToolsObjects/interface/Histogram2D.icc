@@ -414,7 +414,7 @@ int Histogram2D<Value_t, AxisX_t, AxisY_t>::findBinX(AxisX_t x) const
 		x -= limitsX.min;
 		x *= stride - 2;
 		x /= limitsX.width();
-		return clamp(0, (int)(std::floor(x) + 1.5), (int)stride - 1);
+		return clamp(0, (int)(std::floor(x)) + 1, (int)stride - 1);
 	} else
 		return std::upper_bound(binULimitsX.begin(),
 		                        binULimitsX.end(), x) -
@@ -429,7 +429,7 @@ int Histogram2D<Value_t, AxisX_t, AxisY_t>::findBinY(AxisY_t y) const
 		y -= limitsY.min;
 		y *= size - 2;
 		y /= limitsY.width();
-		return clamp(0, (int)(std::floor(y) + 1.5), (int)size - 1);
+		return clamp(0, (int)(std::floor(y)) + 1, (int)size - 1);
 	} else
 		return std::upper_bound(binULimitsY.begin(),
 		                        binULimitsY.end(), y) -

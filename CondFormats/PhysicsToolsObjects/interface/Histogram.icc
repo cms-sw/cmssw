@@ -216,7 +216,7 @@ int Histogram<Value_t, Axis_t>::findBin(Axis_t x) const
 		x -= limits.min;
 		x *= size - 2;
 		x /= limits.width();
-		return clamp(0, (int)(std::floor(x) + 1.5), (int)size - 1);
+		return clamp(0, (int)(std::floor(x)) + 1, (int)size - 1);
 	} else
 		return std::upper_bound(binULimits.begin(),
 		                        binULimits.end(), x) -
