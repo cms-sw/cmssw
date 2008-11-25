@@ -15,6 +15,7 @@
 <use name=RecoLocalTracker/ClusterParameterEstimator>
 <use name=CondFormats/SiStripObjects>
 <use name=CalibFormats/SiStripObjects>
+<use name=TrackingTools/TransientTrackingRecHit>
 <export>
 <lib name=RecoLocalTrackerSiStripRecHitConverter>
 <use name=DataFormats/Common>

@@ -7,7 +7,11 @@
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 #include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 
+#include "TrackingTools/TransientTrackingRecHit/interface/HelpertRecHit2DLocalPos.h"
 #include<boost/bind.hpp>
+
+#include <DataFormats/TrackingRecHit/interface/AlignmentPositionError.h>
+
 
 
 
@@ -195,7 +199,27 @@ SiStripRecHitMatcher::match( const SiStripRecHit2D *monoRH,
   // FIXME: here for test...
   double sigmap12 = monoRH->sigmaPitch();
   if (sigmap12<0) {
-    MeasurementError errormonoRH=topol.measurementError(monoRH->localPosition(),monoRH->localPositionError());
+    //AlgebraicSymMatrix tmpMatrix = monoRH->parametersError();
+    HelpertRecHit2DLocalPos helper;
+    /*
+    std::cout << "DEBUG START" << std::endl;
+    std::cout << "APE mono,stereo,glued : " 
+	      << stripdet->alignmentPositionError()->globalError().cxx()  << " , "
+	      << partnerstripdet->alignmentPositionError()->globalError().cxx()  << " , "
+	      << gluedDet->alignmentPositionError()->globalError().cxx()  << std::endl;
+    */
+
+    AlgebraicSymMatrix tmpMatrix = helper.parError(monoRH->localPositionError(),*stripdet);
+    //std::cout << "DEBUG END" << std::endl;
+    LocalError tmpError(tmpMatrix[0][0],tmpMatrix[0][1],tmpMatrix[1][1]);  
+    MeasurementError errormonoRH=topol.measurementError(monoRH->localPosition(),tmpError);
+    /*
+    std::cout << "localPosError.xx(), helper.xx(), param.xx(): "
+	 << monoRH->localPositionError().xx() << " , "
+	 << monoRH->parametersError()[0][0] << " , "
+	 << tmpMatrix[0][0] << std::endl;
+    */
+    //MeasurementError errormonoRH=topol.measurementError(monoRH->localPosition(),monoRH->localPositionError());
     double pitch=topol.localPitch(monoRH->localPosition());
     monoRH->setSigmaPitch(sigmap12=errormonoRH.uu()*pitch*pitch);
   }
@@ -269,7 +293,12 @@ SiStripRecHitMatcher::match( const SiStripRecHit2D *monoRH,
     // FIXME: here for test...
     double sigmap22 = (*seconditer)->sigmaPitch();
     if (sigmap22<0) {
-      MeasurementError errorstereoRH=partnertopol.measurementError((*seconditer)->localPosition(),(*seconditer)->localPositionError());
+      //AlgebraicSymMatrix tmpMatrix = (*seconditer)->parametersError();
+      HelpertRecHit2DLocalPos helper;
+      AlgebraicSymMatrix tmpMatrix = helper.parError((*seconditer)->localPositionError(),*partnerstripdet);
+      LocalError tmpError(tmpMatrix[0][0],tmpMatrix[0][1],tmpMatrix[1][1]);
+      MeasurementError errorstereoRH=partnertopol.measurementError((*seconditer)->localPosition(),tmpError);
+      //MeasurementError errorstereoRH=partnertopol.measurementError((*seconditer)->localPosition(),(*seconditer)->localPositionError());
       double pitch=partnertopol.localPitch((*seconditer)->localPosition());
       (*seconditer)->setSigmaPitch(sigmap22=errorstereoRH.uu()*pitch*pitch);
     }
