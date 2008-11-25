@@ -5,7 +5,7 @@
  */
 // Original Author:  Dorian Kcira
 //         Created:  Wed Feb  1 16:42:34 CET 2006
-// $Id: SiStripMonitorCluster.cc,v 1.47 2008/11/06 13:33:10 giordano Exp $
+// $Id: SiStripMonitorCluster.cc,v 1.48 2008/11/21 19:21:47 dutta Exp $
 #include <vector>
 #include <numeric>
 #include <fstream>
@@ -413,61 +413,11 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
 void SiStripMonitorCluster::endJob(void){
   bool outputMEsInRootFile = conf_.getParameter<bool>("OutputMEsInRootFile");
   std::string outputFileName = conf_.getParameter<std::string>("OutputFileName");
-  if(outputMEsInRootFile){
-
-    std::ofstream monitor_summary("monitor_cluster_summary.txt");
-    monitor_summary<<"++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"<<std::endl;
-    monitor_summary<<"SiStripMonitorCluster::endJob ModuleMEMap.size()="<<ModuleMEMap.size()<<std::endl;
-
-    for(std::map<uint32_t, ModMEs>::const_iterator idet = ModuleMEMap.begin(); idet!= ModuleMEMap.end(); idet++ ){
-
-      monitor_summary<<"SiStripTkDQM|SiStripMonitorCluster"<<"      ++++++detid  "<<idet->first<<std::endl<<std::endl;
-
-      if(moduleswitchncluson) {
-	monitor_summary<<"SiStripTkDQM|SiStripMonitorCluster"<<"              +++ NumberOfClusters "<<(idet->second).NumberOfClusters->getEntries()<<" "<<(idet->second).NumberOfClusters->getMean()<<" "<<(idet->second).NumberOfClusters->getRMS()<<std::endl;
-      }
-
-      if(moduleswitchclusposon) {
-	monitor_summary<<"SiStripTkDQM|SiStripMonitorCluster"<<"              +++ ClusterPosition "<<(idet->second).ClusterPosition->getEntries()<<" "<<(idet->second).ClusterPosition->getMean()<<" "<<(idet->second).ClusterPosition->getRMS()<<std::endl;
-      }
-
-      if(moduleswitchcluswidthon) {
-	monitor_summary<<"SiStripTkDQM|SiStripMonitorCluster"<<"              +++ ClusterWidth "<<(idet->second).ClusterWidth->getEntries()<<" "<<(idet->second).ClusterWidth->getMean()<<" "<<(idet->second).ClusterWidth->getRMS()<<std::endl;
-      }
-
-      if(moduleswitchcluschargeon) {
-	monitor_summary<<"SiStripTkDQM|SiStripMonitorCluster"<<"              +++ ClusterCharge "<<(idet->second).ClusterCharge->getEntries()<<" "<<(idet->second).ClusterCharge->getMean()<<" "<<(idet->second).ClusterCharge->getRMS()<<std::endl;
-      }
-
-      if(moduleswitchclusnoiseon) {
-	monitor_summary<<"SiStripTkDQM|SiStripMonitorCluster"<<"              +++ ClusterNoise "<<(idet->second).ClusterNoise->getEntries()<<" "<<(idet->second).ClusterNoise->getMean()<<" "<<(idet->second).ClusterNoise->getRMS()<<std::endl;
-      }
-
-      if(moduleswitchclusstonon) {
-	monitor_summary<<"SiStripTkDQM|SiStripMonitorCluster"<<"              +++ ClusterSignalOverNoise "<<(idet->second).ClusterSignalOverNoise->getEntries()<<" "<<(idet->second).ClusterSignalOverNoise->getMean()<<" "<<(idet->second).ClusterSignalOverNoise->getRMS()<<std::endl;
-      }
-
-      if (moduleswitchlocaloccupancy) {
-	monitor_summary<<"SiStripTkDQM|SiStripMonitorCluster"<<"              +++ ModuleLocalOccupancy "<<(idet->second).ModuleLocalOccupancy->getEntries()<<" "<<(idet->second).ModuleLocalOccupancy->getMean()<<" "<<(idet->second).ModuleLocalOccupancy->getRMS()<<std::endl;
-      }
-
-      if (moduleswitchnrclusterizedstrip) {
-        monitor_summary<<"SiStripTkDQM|SiStripMonitorCluster"<<"              +++ NrOfClusterizedStrips "<<(idet->second).NrOfClusterizedStrips->getEntries()<<" "<<(idet->second).NrOfClusterizedStrips->getMean()<<" "<<(idet->second).NrOfClusterizedStrips->getRMS()<<std::endl;
-      }
-       
-    }
-
-    monitor_summary<<"++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"<<std::endl;
-  
-    // save histos in a file
-    dqmStore_->save(outputFileName);
-    
-  }//end of if
-
+ 
+  // save histos in a file
+  if(outputMEsInRootFile) dqmStore_->save(outputFileName);
 }
-
-
-
+//
 // -- Reset MEs
 //------------------------------------------------------------------------------
 void SiStripMonitorCluster::ResetModuleMEs(uint32_t idet){
