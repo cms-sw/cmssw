@@ -107,6 +107,13 @@ public:
 	bool tb_isTB_;
 	double tb_eta_, tb_phi_;
 	int tb_run_, tb_pdg_;
+	double tb_tof_, tb_ck3_, tb_ck2_;
+	char tb_vetosPassed_;
+	double tb_energyEvent_, tb_energyEcal_, tb_energyHcal_;
+	std::vector<CalibratableElement> tb_ecal_, tb_hcal_;
+	int tb_numEcal_, tb_numHcal_;
+	CalibratableElement tb_meanEcal_, tb_meanHcal_;
+	
 	//leading track
 	double recotrk_numHits_, recotrk_quality_, recotrk_charge_;
 	double recotrk_etaEcal_, recotrk_phiEcal_;

@@ -17,7 +17,7 @@ std::ostream& pftools::operator<<(std::ostream& s, const Calibratable& calib_) {
 	<< calib_.cand_energyHcal_<< "), ";
 	s << "\t["<< calib_.cand_eta_<< ", "
 	<< calib_.cand_phi_<< "]\n";
-	
+
 	return s;
 }
 
@@ -27,11 +27,15 @@ void Calibratable::recompute() {
 	cluster_meanHcal_ = computeMean(cluster_hcal_);
 	rechits_meanEcal_ = computeMean(rechits_ecal_);
 	rechits_meanHcal_ = computeMean(rechits_hcal_);
+	tb_meanEcal_ = computeMean(tb_ecal_);
+	tb_meanHcal_ = computeMean(tb_hcal_);
 
 	cluster_numEcal_ = cluster_ecal_.size();
 	cluster_numHcal_ = cluster_hcal_.size();
 	rechits_numEcal_ = rechits_ecal_.size();
 	rechits_numHcal_ = rechits_hcal_.size();
+	tb_numEcal_ = tb_ecal_.size();
+	tb_numHcal_ = tb_hcal_.size();
 
 	cluster_energyEvent_ = cluster_meanEcal_.energy_* cluster_ecal_.size()
 			+ cluster_meanHcal_.energy_* cluster_hcal_.size();
@@ -42,6 +46,11 @@ void Calibratable::recompute() {
 			+ rechits_meanHcal_.energy_* rechits_hcal_.size();
 	rechits_energyEcal_ = rechits_meanEcal_.energy_* rechits_ecal_.size();
 	rechits_energyHcal_ = rechits_meanHcal_.energy_* rechits_hcal_.size();
+
+	tb_energyEvent_ = tb_meanEcal_.energy_ * tb_ecal_.size()
+			+ tb_meanHcal_.energy_ * tb_hcal_.size();
+	tb_energyEcal_ = tb_meanEcal_.energy_ * tb_ecal_.size();
+	tb_energyHcal_ = tb_meanHcal_.energy_ * tb_hcal_.size();
 
 	cands_num_ = cands_.size();
 	cands_mean_ = computeMean(cands_);
@@ -113,8 +122,21 @@ void Calibratable::reset() {
 	tb_isTB_ = false;
 	tb_eta_ = 0.0;
 	tb_phi_ = 0.0;
-	tb_run_ = 0; 
+	tb_run_ = 0;
 	tb_pdg_ = 0;
+	tb_tof_ = 0;
+	tb_ck3_ = 0;
+	tb_ck2_ = 0;
+	tb_vetosPassed_ = 0;
+	tb_energyEvent_ = 0;
+	tb_energyEcal_ = 0;
+	tb_energyHcal_ = 0;
+	tb_ecal_.clear();
+	tb_hcal_.clear();
+	tb_numEcal_ = 0;
+	tb_numHcal_ = 0;
+	tb_meanEcal_.reset();
+	tb_meanHcal_.reset();
 
 	sim_etaEcal_ = 0;
 	sim_etaHcal_ = 0;

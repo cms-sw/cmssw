@@ -1,4 +1,3 @@
-
 <lcgdict>
   <class name="pftools::TreeUtility"/>
   <class name="pftools::Calibrator"/>
@@ -27,4 +26,3 @@
   <class name="std::vector<boost::shared_ptr<pftools::DetectorElement> >"/>
   <class name="std::vector<boost::shared_ptr<pftools::ParticleDeposit> >"/>
  </lcgdict>
-
