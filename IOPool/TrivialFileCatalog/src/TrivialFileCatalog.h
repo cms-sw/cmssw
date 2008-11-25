@@ -8,7 +8,7 @@
 #endif
 #include <list>
 #include <utility>
-#include <SealBase/Regexp.h>
+#include <CoralBase/Regexp.h>
 #include <xercesc/dom/DOM.hpp>
 
 namespace pool 
@@ -173,6 +173,7 @@ public:
 			      FCBuf<FileCatalog::FileID>& buf, 
 			      const size_t& start );
 
+
 private:
     /** For the time being the only allowed configuration item is a
      *  prefix to be added to the GUID/LFN.
@@ -183,8 +184,8 @@ private:
     
     
     typedef struct {
-	seal::Regexp pathMatch;
-	seal::Regexp destinationMatch;	
+	coral::Regexp pathMatch;
+	coral::Regexp destinationMatch;	
 	std::string result;
 	std::string chain;
     } Rule;
@@ -192,28 +193,8 @@ private:
     typedef std::list <Rule> Rules;
     typedef std::map <std::string, Rules> ProtocolRules;
 
-    /** API to add rules to the TrivialFileCatalog
-        without having to specify them in the xml file.
-        @param protocol [IN] protocol to which the rule is associated.
-        @param destinationMatchRegexp [IN] regular expression matching the destination 
-        @param pathMatchRegexp [IN] regular expression matching 
-        @param result [IN] format of the transformed path
-        @param chain [IN] what to chain this rule with
-        @param direct [IN] wether the rule is to be used for direct (lnf-to-pfn)
-                           or inverse (pfn-to-lfn) mapping.
-        @param back [IN] wether the rule needs to be added at the end or at the front of
-                         list of rules.
-     */
-    void addRule (const std::string &protocol,
-                  const std::string &destinationMatchRegexp,
-                  const std::string &pathMatchRegexp,
-                  const std::string &result,
-                  const std::string &chain,
-                  bool direct=true, bool back=true);
-
-
-    
-    void parseRule (xercesc::DOMNode *ruleNode, bool direct);
+    void parseRule (xercesc::DOMNode *ruleNode, 
+		    ProtocolRules &rules);
     
     std::string applyRules (const ProtocolRules& protocolRules,
 			    const std::string & protocol,
@@ -230,7 +211,7 @@ private:
     
     std::string 		m_fileType;
     std::string			m_filename;
-    seal::StringList		m_protocols;
+    coral::StringList		m_protocols;
     std::string			m_destination;    
 };    
     

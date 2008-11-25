@@ -6,10 +6,12 @@
 #include <string>
 #include <stdexcept>
 #ifndef POOL_PFNCATALOG_H
-#include "IOPool/PFNCatalog/interface/PFNCatalog.h"
+#include "PFNCatalog.h"
 #endif
 #include "FileCatalog/FCException.h"
-
+#include "Reflex/PluginService.h"
+using namespace pool;
+PLUGINSVC_FACTORY_WITH_ID(PFNCatalog,std::string("pfncatalog"),FCImpl*())
 
 pool::PFNCatalog::PFNCatalog ()
 {  

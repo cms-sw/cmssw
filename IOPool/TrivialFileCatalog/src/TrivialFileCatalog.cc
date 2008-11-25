@@ -6,12 +6,12 @@
 #include <set>
 #include <string>
 #include <stdexcept>
+#include <cassert>
 #ifndef POOL_TRIVIALFILECATALOG_H
-#include "IOPool/TrivialFileCatalog/interface/TrivialFileCatalog.h"
+#include "TrivialFileCatalog.h"
 #endif
-#include "POOLCore/PoolMessageStream.h"
+#include "CoralBase/MessageStream.h"
 #include "FileCatalog/FCException.h"
-
 
 #include <xercesc/dom/DOM.hpp>
 #include <xercesc/parsers/XercesDOMParser.hpp>
@@ -20,12 +20,14 @@
 #include <cstdlib>
 #include <fstream>
 #include <iostream>
-#include <SealBase/StringList.h>
-#include <SealBase/StringOps.h>
-#include <SealBase/DebugAids.h>
-#include <SealBase/Regexp.h>
-
+#include <CoralBase/StringList.h>
+#include <CoralBase/StringOps.h>
+#include <CoralBase/Regexp.h>
+#include "Reflex/PluginService.h"
 using namespace xercesc;
+using namespace pool;
+
+PLUGINSVC_FACTORY_WITH_ID( TrivialFileCatalog,std::string("trivialcatalog"),FCImpl*())
 
 int pool::TrivialFileCatalog::s_numberOfInstances = 0;
 
@@ -45,17 +47,17 @@ pool::TrivialFileCatalog::TrivialFileCatalog ()
       m_fileType ("ROOT_All"),
       m_destination ("any")
 {  
-    PoolMessageStream trivialLog("TrivialFileCatalog", seal::Msg::Nil);
+    coral::MessageStream trivialLog("TrivialFileCatalog");
     try { 
-	trivialLog <<seal::Msg::Info << "Xerces-c initialization Number "
-	  << s_numberOfInstances <<seal::endmsg;
+	trivialLog <<coral::Info << "Xerces-c initialization Number "
+	  << s_numberOfInstances <<coral::MessageStream::endmsg;
 	if (s_numberOfInstances==0) 
 	    XMLPlatformUtils::Initialize();  
     }
     catch (const XMLException& e) {
-	trivialLog <<seal::Msg::Fatal << "Xerces-c error in initialization \n"
+	trivialLog <<coral::Fatal << "Xerces-c error in initialization \n"
 	      << "Exception message is:  \n"
-	      << _toString(e.getMessage()) << seal::endmsg;
+	      << _toString(e.getMessage()) <<coral::MessageStream::endmsg;
         throw(std::runtime_error("Standard pool exception : Fatal Error on pool::TrivialFileCatalog"));
     }
     ++s_numberOfInstances;
@@ -67,9 +69,10 @@ pool::TrivialFileCatalog::~TrivialFileCatalog ()
 }
 
 void
-pool::TrivialFileCatalog::parseRule (DOMNode *ruleNode, bool direct) 
+pool::TrivialFileCatalog::parseRule (DOMNode *ruleNode, 
+				     ProtocolRules &rules)
 {
-    if (!ruleNode)
+    if (! ruleNode)
     {
 	throw FCTransactionException
 	    ("TrivialFileCatalog::connect",
@@ -85,45 +88,29 @@ pool::TrivialFileCatalog::parseRule (DOMNode *ruleNode, bool direct)
 	     ":Malformed trivial catalog"); 		
     }
 	    
-    this->addRule (_toString (ruleElement->getAttribute (_toDOMS ("protocol"))),
-                   _toString (ruleElement->getAttribute (_toDOMS ("destination-match"))),
-                   _toString (ruleElement->getAttribute (_toDOMS ("path-match"))),
-                   _toString (ruleElement->getAttribute (_toDOMS ("result"))),
-                   _toString (ruleElement->getAttribute (_toDOMS ("chain"))), direct);
-}
+    std::string protocol 
+	= _toString (ruleElement->getAttribute (_toDOMS ("protocol")));	    
+    std::string destinationMatchRegexp
+	= _toString (ruleElement->getAttribute (_toDOMS ("destination-match")));
 
-void
-pool::TrivialFileCatalog::addRule (const std::string &protocol,
-                                   const std::string &destinationMatchRegexp,
-                                   const std::string &pathMatchRegexp,
-                                   const std::string &result,
-                                   const std::string &chain, 
-                                   bool direct, bool back)
-{
-    std::string _destMatchRegexp = ".*";
-    if (!destinationMatchRegexp.empty ()) 
-    _destMatchRegexp = destinationMatchRegexp; 
+    if (destinationMatchRegexp.empty ())
+	destinationMatchRegexp = ".*";
 
+    std::string pathMatchRegexp 
+	= _toString (ruleElement->getAttribute (_toDOMS ("path-match")));
+    std::string result 
+	= _toString (ruleElement->getAttribute (_toDOMS ("result")));
+    std::string chain 
+	= _toString (ruleElement->getAttribute (_toDOMS ("chain")));
+    					    
     Rule rule;
     rule.pathMatch.setPattern (pathMatchRegexp);
     rule.pathMatch.compile ();
-    rule.destinationMatch.setPattern (_destMatchRegexp);
-    rule.destinationMatch.compile ();
+    rule.destinationMatch.setPattern (destinationMatchRegexp);
+    rule.destinationMatch.compile ();    
     rule.result = result;
     rule.chain = chain;
-    if (direct) {
-        if (back) {
-            m_directRules[protocol].push_back (rule);
-        } else {
-            m_directRules[protocol].push_front (rule);
-        }
-    } else {
-        if (back) {
-            m_inverseRules[protocol].push_back (rule);
-        } else {
-            m_inverseRules[protocol].push_front (rule);
-        }
-    }
+    rules[protocol].push_back (rule);    
 }
 
 void
@@ -131,9 +118,9 @@ pool::TrivialFileCatalog::connect ()
 {
     try
     {
-	PoolMessageStream trivialLog("TrivialFileCatalog", seal::Msg::Nil);
-  	trivialLog << seal::Msg::Info << "Connecting to the catalog "
-		   << m_url << seal::endmsg;
+	coral::MessageStream trivialLog("TrivialFileCatalog");
+  	trivialLog << coral::Info << "Connecting to the catalog "
+		   << m_url << coral::MessageStream::endmsg;
 
 	if (m_url.find ("file:") != std::string::npos)
 	{
@@ -147,19 +134,19 @@ pool::TrivialFileCatalog::connect ()
 		 ": Malformed url for file catalog configuration"); 
 	}
 
-	seal::StringList tokens = seal::StringOps::split (m_url, "?"); 
+	coral::StringList tokens = coral::StringOps::split (m_url, "?"); 
 	m_filename = tokens[0];
 
 	if (tokens.size () == 2)
 	{
 	    std::string options = tokens[1];
-	    seal::StringList optionTokens = seal::StringOps::split (options, "&");
+	    coral::StringList optionTokens = coral::StringOps::split (options, "&");
 
-	    for (seal::StringList::iterator option = optionTokens.begin ();
+	    for (coral::StringList::iterator option = optionTokens.begin ();
 		 option != optionTokens.end ();
 		 option++)
 	    {
-		seal::StringList argTokens = seal::StringOps::split (*option, "=") ;
+		coral::StringList argTokens = coral::StringOps::split (*option, "=") ;
 		if (argTokens.size () != 2)
 		{
 		    throw FCTransactionException
@@ -172,7 +159,7 @@ pool::TrivialFileCatalog::connect ()
 		
 		if (key == "protocol")
 		{
-		    m_protocols = seal::StringOps::split (value, ",");
+		    m_protocols = coral::StringOps::split (value, ",");
 		}
 		else if (key == "destination")
 		{
@@ -190,9 +177,9 @@ pool::TrivialFileCatalog::connect ()
 	configFile.open (m_filename.c_str ());
 	
 	
-	trivialLog << seal::Msg::Info
+	trivialLog << coral::Info
 		   << "Using catalog configuration " 
-		   << m_filename << seal::endmsg;
+		   << m_filename << coral::MessageStream::endmsg;
 	
 	if (!configFile.good () || !configFile.is_open ())
 	{
@@ -209,7 +196,7 @@ pool::TrivialFileCatalog::connect ()
 	parser->setDoNamespaces(false);
 	parser->parse(m_filename.c_str());	
 	DOMDocument* doc = parser->getDocument();
-	ASSERT (doc);
+	assert(doc);
 	
 	/* trivialFileCatalog matches the following xml schema
 	   FIXME: write a proper DTD
@@ -233,7 +220,7 @@ pool::TrivialFileCatalog::connect ()
 
 	    for (unsigned int i=0; i<ruleTagsNum; i++) {
 		DOMNode* ruleNode =	rules->item(i);
-		parseRule (ruleNode, true);
+		parseRule (ruleNode, m_directRules);
 	    }
 	}
 	/*Then we handle the pfn-to-lfn bit*/
@@ -244,7 +231,7 @@ pool::TrivialFileCatalog::connect ()
 	
 	    for (unsigned int i=0; i<ruleTagsNum; i++){
 		DOMNode* ruleNode =	rules->item(i);
-		parseRule (ruleNode, false);
+		parseRule (ruleNode, m_inverseRules);
 	    }	    
 	}
 	
@@ -337,7 +324,7 @@ pool::TrivialFileCatalog::lookupFileByPFN (const std::string & pfn,
     fid = "";
     std::string tmpPfn = pfn;
     
-    for (seal::StringList::const_iterator protocol = m_protocols.begin ();
+    for (coral::StringList::const_iterator protocol = m_protocols.begin ();
 	 protocol != m_protocols.end ();
 	 protocol++)
     {
@@ -364,7 +351,7 @@ pool::TrivialFileCatalog::lookupFileByLFN (const std::string& lfn,
 }
 
 std::string
-replaceWithRegexp (const seal::RegexpMatch matches, 
+replaceWithRegexp (const coral::RegexpMatch matches, 
 		   const std::string inputString,
 		   const std::string outputFormat)
 {
@@ -378,16 +365,16 @@ replaceWithRegexp (const seal::RegexpMatch matches,
 	 i++)
     {
 	// If this is not true, man, we are in trouble...
-	ASSERT (i < 1000000);
+	assert( i<1000000 );
 	sprintf (buffer, "%i", i);
 	std::string variableRegexp = std::string ("[$]") + buffer;
 	std::string matchResult = matches.matchString (inputString, i);
 	
-	seal::Regexp sustitutionToken (variableRegexp);
+	coral::Regexp sustitutionToken (variableRegexp);
 	
 	//std::cerr << "Current match: " << matchResult << std::endl;
 	
-	result = seal::StringOps::replace (result, 
+	result = coral::StringOps::replace (result, 
 					   sustitutionToken, 
 					   matchResult);
     }
@@ -430,7 +417,7 @@ pool::TrivialFileCatalog::applyRules (const ProtocolRules& protocolRules,
 		applyRules (protocolRules, chain, destination, direct, name);		
 	}
 	    
-	seal::RegexpMatch matches;
+	coral::RegexpMatch matches;
 	i->pathMatch.match (name, 0, 0, &matches);
 	
 	name = replaceWithRegexp (matches, 
@@ -464,7 +451,7 @@ pool::TrivialFileCatalog::lookupBestPFN (const FileCatalog::FileID& fid,
     pfn = "";
     std::string lfn = fid;
     
-    for (seal::StringList::const_iterator protocol = m_protocols.begin ();
+    for (coral::StringList::const_iterator protocol = m_protocols.begin ();
 	 protocol != m_protocols.end ();
 	 protocol++)
     {
@@ -536,8 +523,8 @@ pool::TrivialFileCatalog::retrievePFN (const std::string& query,
 				    "Catalog not connected");
     // The only query supported is lfn='something' or pfn='something'
     // No spaces allowed in something.
-    seal::Regexp grammar ("(lfname|guid)='(.*)'");
-    seal::RegexpMatch grammarMatches;
+    coral::Regexp grammar ("(lfname|guid)='(.*)'");
+    coral::RegexpMatch grammarMatches;
     
     grammar.match (query, 0, 0, &grammarMatches);
     
@@ -551,7 +538,7 @@ pool::TrivialFileCatalog::retrievePFN (const std::string& query,
     
     std::string lfn = grammarMatches.matchString (query, 2);
     
-    for (seal::StringList::iterator protocol = m_protocols.begin ();
+    for (coral::StringList::iterator protocol = m_protocols.begin ();
 	 protocol != m_protocols.end ();
 	 protocol++)
     {
@@ -585,8 +572,8 @@ pool::TrivialFileCatalog::retrieveLFN (const std::string& query,
     // The only query supported is lfn='something' or pfn='something'
     // No spaces allowed in something.
 
-    seal::Regexp grammar ("(pfname|guid)='(.*)'");
-    seal::RegexpMatch grammarMatches;
+    coral::Regexp grammar ("(pfname|guid)='(.*)'");
+    coral::RegexpMatch grammarMatches;
     
     grammar.match (query, 0, 0, &grammarMatches);
     
@@ -610,7 +597,7 @@ pool::TrivialFileCatalog::retrieveLFN (const std::string& query,
     }
     
 
-    for (seal::StringList::iterator protocol = m_protocols.begin ();
+    for (coral::StringList::iterator protocol = m_protocols.begin ();
 	 protocol != m_protocols.end ();
 	 protocol++)
     {
