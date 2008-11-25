@@ -639,7 +639,7 @@ ofstream htmlFile;
   // Hot cells persistently above some threshold energy
   if (hotclient_test_persistent_)
     {
-      htmlFile << "<h2><strong><a name=\"PERSISTENT_PROBLEMS\">Persistent Hot CellProblems</strong></h2>"<<endl;
+      htmlFile << "<h2><strong><a name=\"PERSISTENT_PROBLEMS\">Persistent Hot Cell Problems</strong></h2>"<<endl;
       htmlFile <<"A cell fails this test if its rechit energy is above threshold for "<<hotclient_checkNevents_persistent_<<" consecutive events.<br>"<<endl;
       htmlFile <<"<a href= \"#EXPERT_HOTCELL_TOP\" > Back to Top</a><br>"<<endl;
       htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
@@ -648,8 +648,8 @@ ofstream htmlFile;
       for (int i=0;i<3;++i)
 	{
 	  htmlFile << "<tr align=\"left\">" << endl;
-	  htmlAnyHisto(runNo,AbovePersistentThresholdCellsByDepth[mydepth[2*i]],"i#eta","i#phi", 92, htmlFile, htmlDir,1,1);
-	  htmlAnyHisto(runNo,AbovePersistentThresholdCellsByDepth[mydepth[2*i]+1],"i#eta","i#phi", 92, htmlFile, htmlDir,1,1);
+	  htmlAnyHisto(runNo,AbovePersistentThresholdCellsByDepth[mydepth[2*i]],"i#eta","i#phi", 92, htmlFile, htmlDir,0,0);
+	  htmlAnyHisto(runNo,AbovePersistentThresholdCellsByDepth[mydepth[2*i]+1],"i#eta","i#phi", 92, htmlFile, htmlDir,0,0);
 	  htmlFile <<"</tr>"<<endl;
 	}
       htmlFile <<"</table>"<<endl;

@@ -255,7 +255,7 @@ std::string getAnyIMG(int runNo,myHist* hist, int size, std::string htmlDir,
   hist->SetXTitle(xlab);
   hist->SetYTitle(ylab);
   std::string histtype=hist->ClassName();
- 
+  //can->GetFrame()->SetFillColor(21); // change canvas to different default color?   
 
   // Don't draw stat box for color plots
   if (((std::string)hist->GetOption())=="col" || 
@@ -271,19 +271,26 @@ std::string getAnyIMG(int runNo,myHist* hist, int size, std::string htmlDir,
   int horizlinespace=UTILS_HORIZLINESPACE;
   if (histtype=="TH2F")
     {
+      TAxis *xaxis = hist->GetXaxis();
+      TAxis *yaxis=hist->GetYaxis();
       // Draw vertical lines
-      for (int xx=int(UTILS_ETAMIN);xx<=int(UTILS_ETAMAX);++xx)
+      //for (int xx=int(UTILS_ETAMIN);xx<=int(UTILS_ETAMAX);++xx)
+      for (int xx=int(xaxis->GetXmin());
+	   xx<=int(xaxis->GetXmax()); ++xx)
 	{
 	  if (xx%vertlinespace!=0) continue;
-	  TLine *vert = new TLine(xx,UTILS_PHIMIN,xx,UTILS_PHIMAX);
+	  //TLine *vert = new TLine(xx,UTILS_PHIMIN,xx,UTILS_PHIMAX);
+	  TLine *vert = new TLine(xx,yaxis->GetXmin(),xx,yaxis->GetXmax());
 	  vert->SetLineStyle(3);
 	  vert->Draw("same");
 	}
       // Draw horizontal lines
-      for (int yy=-int(UTILS_PHIMIN);yy<=int(UTILS_PHIMAX);++yy)
+      //for (int yy=-int(UTILS_PHIMIN);yy<=int(UTILS_PHIMAX);++yy)
+      for (int yy=int(yaxis->GetXmin()); yy<=int(yaxis->GetXmax());++yy)
 	{
 	  if (yy%horizlinespace!=0) continue;
-	  TLine *horiz = new TLine(UTILS_ETAMIN,yy,UTILS_ETAMAX,yy);
+	  //TLine *horiz = new TLine(UTILS_ETAMIN,yy,UTILS_ETAMAX,yy);
+	  TLine *horiz = new TLine(xaxis->GetXmin(),yy,xaxis->GetXmax(),yy);
 	  horiz->SetLineStyle(3);
 	  horiz->Draw("same");
 	}
@@ -294,12 +301,10 @@ std::string getAnyIMG(int runNo,myHist* hist, int size, std::string htmlDir,
   if (hist->GetMaximum()>0 && hist->GetMinimum()>0)
     {
       // Don't bother with this yet until we get something useful working
-      /*
       if (setLogx)
 	can->SetLogx();
       if (setLogy)
 	can->SetLogy();  
-      */
     }	
   can->SaveAs(saveName.c_str());  
   delete can;

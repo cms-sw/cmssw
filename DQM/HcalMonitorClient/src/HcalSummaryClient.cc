@@ -217,6 +217,26 @@ void HcalSummaryClient::setup(void)
     for (int iphi=1; iphi<=phiBins_;++iphi)
       me->setBinContent(ieta,iphi,-1);
   
+  // Make new simplified status histogram
+  histo.str("");
+  histo<<"simplifiedReportSummaryMap";
+  me=dqmStore_->get(prefixME_+"/EventInfo/"+histo.str().c_str());
+  if (me)
+    dqmStore_->removeElement(me->getName());
+  me = dqmStore_->book2D(histo.str().c_str(), histo.str().c_str(), 
+			 5,0,5,1,0,1);
+  TH2F* myhist=me->getTH2F();
+  myhist->GetXaxis()->SetBinLabel(1,"HB");
+  myhist->GetXaxis()->SetBinLabel(2,"HE");
+  myhist->GetXaxis()->SetBinLabel(3,"HO");
+  myhist->GetXaxis()->SetBinLabel(4,"HF");
+  myhist->GetYaxis()->SetBinLabel(1,"Status");
+  // Add ZDC at some point
+  myhist->GetXaxis()->SetBinLabel(5,"ZDC");
+  myhist->SetBinContent(5,1,-1); // no ZDC info known
+  myhist->SetOption("textcolz");
+  //myhist->SetOptStat(0);
+
   return;
       
 } // void HcalSummaryClient::setup(void)
@@ -265,6 +285,10 @@ void HcalSummaryClient::analyze(void)
   for (int ieta=1;ieta<=etaBins_;++ieta)
     for (int iphi=1; iphi<=phiBins_;++iphi)
       reportMap->setBinContent(ieta,iphi,-1);
+
+  MonitorElement* simpleMap = dqmStore_->get(prefixME_ + "/EventInfo/simplifiedReportSummaryMap");
+  for (int ix=1;ix<=5;++ix)
+    simpleMap->setBinContent(ix,1,-1);
 
   // Set values to 'unknown' status; they'll be set by analyze_everything routines 
 
@@ -413,18 +437,40 @@ void HcalSummaryClient::analyze(void)
   dqmStore_->setCurrentFolder( prefixME_ + "/EventInfo" );
   
   me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummary");
-  if (me) me->Fill(status_global_);
+  if (me) 
+    {
+      me->Fill(status_global_);
+      //simpleMap->setBinContent(5,1,status_global_);
+    }
 
   dqmStore_->setCurrentFolder( prefixME_ + "/EventInfo/reportSummaryContents" );
   if ( me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryContents/Hcal_HB") )
-    me->Fill(status_HB_);						 
+    {
+      me->Fill(status_HB_);
+      simpleMap->setBinContent(1,1,status_HB_);
+    }
   if ( me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryContents/Hcal_HE") )
-    me->Fill(status_HE_);						 
+    {
+      me->Fill(status_HE_);
+      simpleMap->setBinContent(2,1,status_HE_);
+    }
   if ( me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryContents/Hcal_HO") )
-    me->Fill(status_HO_);						 
+    {
+      me->Fill(status_HO_);
+      simpleMap->setBinContent(3,1,status_HO_);
+    }
   if ( me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryContents/Hcal_HF") )
-    me->Fill(status_HF_);
-  
+    {
+      me->Fill(status_HF_);
+      simpleMap->setBinContent(4,1,status_HF_);
+    }
+  // test for ZDC info
+  if ( me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryContents/Hcal_ZDC") )
+    {
+      me->Fill(status_ZDC_);
+      simpleMap->setBinContent(5,1,status_ZDC_);
+    }
+
   dqmStore_->setCurrentFolder( prefixME_);
 
  return;
@@ -851,6 +897,9 @@ void HcalSummaryClient::htmlOutput(int& run, time_t& mytime, int& minlumi, int& 
   me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryMap");
   obj2f = me->getTH2F();
 
+  me = dqmStore_->get(prefixME_ + "/EventInfo/simplifiedReportSummaryMap");
+  TH2F* simple2f = me->getTH2F();
+
   // Standard error palette, extended to greys for - values
   static int pcol[40];
   float rgb[20][3];
@@ -883,7 +932,7 @@ void HcalSummaryClient::htmlOutput(int& run, time_t& mytime, int& minlumi, int& 
     } // for (int i=0;i<20;++i)
  
    gStyle->SetPalette(40, pcol);
- 
+   gStyle->SetOptStat(0);
    if( obj2f ) 
      {
        obj2f->SetMinimum(-1.);
@@ -896,7 +945,8 @@ void HcalSummaryClient::htmlOutput(int& run, time_t& mytime, int& minlumi, int& 
       htmlFile << "<table  width=100% border=1><tr>" << endl; 
       htmlFile << "<tr align=\"center\">" << endl;  
       htmlAnyHisto(run,obj2f,"i#eta","i#phi",92,htmlFile,htmlDir);
-      htmlFile <<"</tr></table><hr>"<<endl;
+      htmlAnyHisto(run,simple2f,"","",92,htmlFile,htmlDir);
+      htmlFile <<"</tr></table>"<<endl;
 
     } // if (obj2f)
 
