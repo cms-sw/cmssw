@@ -16,6 +16,8 @@ process.MessageLogger = cms.Service(
 # Magnetic Field
 #-------------------------------------------------
 process.load("Configuration.StandardSequences.MagneticField_0T_cff")
+process.prefer("VolumeBasedMagneticFieldESProducer")
+
 
 #-------------------------------------------------
 # CMS Geometry

@@ -13,7 +13,8 @@ process.MessageLogger = cms.Service(
 #-------------------------------------------------
 ## MAGNETIC FIELD
 #-------------------------------------------------
-process.load("Configuration.GlobalRuns.ForceZeroTeslaField_cff")
+process.load("Configuration.StandardSequences.MagneticField_0T_cff")
+process.prefer("VolumeBasedMagneticFieldESProducer")
 
 #-------------------------------------------------
 ## GEOMETRY
