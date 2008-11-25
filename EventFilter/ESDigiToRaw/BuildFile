@@ -6,7 +6,6 @@
 <use name=EventFilter/FEDInterface>
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
-<use name=Foundation/PluginManager>
 <use name=rootrflx>
 
 <export>
@@ -16,6 +15,5 @@
    <use name=DataFormats/FEDRawData>
    <use name=FWCore/Framework>
    <use name=FWCore/ParameterSet>
-   <use name=Foundation/PluginManager>
    <use name=rootrflx>
 </export>

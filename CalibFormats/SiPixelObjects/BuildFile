@@ -1,5 +1,4 @@
 <use name=FWCore/Framework>
-<use name=Foundation/PluginManager>
 <use name=FWCore/ParameterSet>
 <use name=FWCore/MessageLogger>
 <use name=PhysicsTools/UtilAlgos>
@@ -10,7 +9,6 @@
    <lib name=CalibFormatsSiPixelObjects>
    <use name=FWCore/Framework>
    <use name=PhysicsTools/UtilAlgos>
-   <use name=Foundation/PluginManager>
    <use name=FWCore/ParameterSet>
    <use name=FWCore/MessageLogger>
    <use name=CondCore/DBCommon>
