@@ -2,9 +2,7 @@
 #include "CondFormats/PhysicsToolsObjects/interface/Histogram2D.h"
 #include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
 
-using namespace PhysicsTools::Calibration;
-
-EVENTSETUP_DATA_REG(HistogramF);
-EVENTSETUP_DATA_REG(HistogramD);
-EVENTSETUP_DATA_REG(HistogramF2D);
-EVENTSETUP_DATA_REG(HistogramD2D);
+EVENTSETUP_DATA_REG(PhysicsTools::Calibration::HistogramF);
+EVENTSETUP_DATA_REG(PhysicsTools::Calibration::HistogramD);
+EVENTSETUP_DATA_REG(PhysicsTools::Calibration::HistogramF2D);
+EVENTSETUP_DATA_REG(PhysicsTools::Calibration::HistogramD2D);
