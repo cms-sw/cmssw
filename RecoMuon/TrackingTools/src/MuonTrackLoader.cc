@@ -3,8 +3,8 @@
  *  Class to load the product in the event
  *
 
- *  $Date: 2008/10/30 18:19:23 $
- *  $Revision: 1.72 $
+ *  $Date: 2008/10/31 15:57:46 $
+ *  $Revision: 1.73 $
 
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
@@ -571,27 +571,8 @@ pair<bool,reco::Track> MuonTrackLoader::buildTrackAtPCA(const Trajectory& trajec
   MuonPatternRecoDumper debug;
   
   // FIXME: check the prop direction
-  TrajectoryStateOnSurface innerTSOS;
+  TrajectoryStateOnSurface innerTSOS = geometricalInnermostState(trajectory);
   
-  if (trajectory.direction() == alongMomentum) {
-    LogTrace(metname)<<"alongMomentum";
-    innerTSOS = trajectory.firstMeasurement().updatedState();
-  } 
-  else if (trajectory.direction() == oppositeToMomentum) { 
-    LogTrace(metname)<<"oppositeToMomentum";
-    innerTSOS = trajectory.lastMeasurement().updatedState();
-  }
-  else LogError(metname)<<"Wrong propagation direction!";
-  
-  LogTrace(metname) << "TSOS before the extrapolation at PCA";
-  LogTrace(metname) << debug.dumpTSOS(innerTSOS);
-  LogTrace(metname) << innerTSOS.freeState()->parameters();
-  LogTrace(metname) << "Cartesian Errors";
-  LogTrace(metname) << innerTSOS.freeState()->cartesianError().matrix();
-  LogTrace(metname) << "Curvilinear Errors";
-  LogTrace(metname) << innerTSOS.freeState()->curvilinearError().matrix();
-
-
   // This is needed to extrapolate the tsos at vertex
   LogTrace(metname) << "Propagate to PCA...";
   pair<bool,FreeTrajectoryState> 
@@ -744,4 +725,66 @@ reco::TrackExtra MuonTrackLoader::buildTrackExtra(const Trajectory& trajectory) 
   
   return trackExtra;
  
+}
+
+TrajectoryStateOnSurface MuonTrackLoader::geometricalInnermostState(const Trajectory& trajectory) const {
+
+  TrajectoryStateOnSurface innerTSOS;
+
+  const string metname = "Muon|RecoMuon|MuonTrackLoader";
+
+  for (vector<TrajectoryMeasurement>::const_iterator iMeas = trajectory.measurements().begin(); iMeas != trajectory.measurements().end(); iMeas++) {
+       LogTrace(metname) << "tsos "<<iMeas->updatedState().globalPosition() ;
+  }
+
+  // the following part find the geometrical innermost trajectory state
+  // of the leg with more measurements first
+  // and then get the geometrical innermost trajectory state.
+  // assuming all measurements are correctly ordered,
+  // it takes O(1) time for the normal cases, i.e., not traversing muons
+
+  vector<TrajectoryMeasurement>::const_iterator iMeasFront = trajectory.measurements().begin();
+  vector<TrajectoryMeasurement>::const_iterator iMeasBack = trajectory.measurements().end() - 1;
+
+  for (; iMeasBack != iMeasFront && iMeasBack != (iMeasFront+1); ++iMeasFront, --iMeasBack) {
+      GlobalPoint frontpos = iMeasFront->updatedState().globalPosition();
+      GlobalPoint backpos = iMeasBack->updatedState().globalPosition();
+      GlobalVector frontmom = iMeasFront->updatedState().globalMomentum();
+      GlobalVector backmom = iMeasBack->updatedState().globalMomentum();
+
+      if ( frontpos.basicVector().dot( frontmom.basicVector() ) *
+         backpos.basicVector().dot( backmom.basicVector() ) > 0 ) {
+        if (frontpos.mag() < backpos.mag() ) {
+           innerTSOS = 
+             ( (iMeasFront != trajectory.measurements().begin() ) && (iMeasFront - 1)->updatedState().globalPosition().mag() < frontpos.mag() ) ?
+                 (iMeasFront-1)->updatedState() : iMeasFront->updatedState();
+           break;
+        } else {
+           innerTSOS = 
+             ( (iMeasBack != trajectory.measurements().end() - 1 ) && (iMeasBack+1)->updatedState().globalPosition().mag() < backpos.mag() ) ?
+                (iMeasBack+1)->updatedState() : iMeasBack->updatedState();
+           break;
+        }
+      }
+    }
+    //can only reach here when 2-leg have same (or +/-1) number of measurements
+    //or the track is very short
+  if (iMeasBack == iMeasFront ) innerTSOS = iMeasFront->updatedState();
+  else if ( iMeasBack == (iMeasFront+1) ) {
+          innerTSOS = (iMeasFront->updatedState().globalPosition().mag() < iMeasBack->updatedState().globalPosition().mag() ) ?
+             iMeasFront->updatedState() : iMeasBack->updatedState();
+  }
+
+  MuonPatternRecoDumper debug;
+
+  LogTrace(metname) << "TSOS before the extrapolation at PCA";
+  LogTrace(metname) << debug.dumpTSOS(innerTSOS);
+  LogTrace(metname) << innerTSOS.freeState()->parameters();
+  LogTrace(metname) << "Cartesian Errors";
+  LogTrace(metname) << innerTSOS.freeState()->cartesianError().matrix();
+  LogTrace(metname) << "Curvilinear Errors";
+  LogTrace(metname) << innerTSOS.freeState()->curvilinearError().matrix();
+
+  return innerTSOS;
+
 }
