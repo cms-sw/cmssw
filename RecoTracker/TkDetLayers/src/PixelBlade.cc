@@ -87,7 +87,7 @@ PixelBlade::groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
     if(nextResult.empty())    return;
     
     DetGroupElement nextGel( nextResult.front().front());  
-    int crossingSide = LayerCrossingSide().barrelSide( nextGel.trajectoryState(), prop);
+    int crossingSide = LayerCrossingSide().endcapSide( nextGel.trajectoryState(), prop);
 
     DetGroupMerger::orderAndMergeTwoLevels( closestResult, nextResult, result,
 					    crossings.closestIndex(), crossingSide);   
@@ -103,9 +103,28 @@ PixelBlade::groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
     searchNeighbors( tsos, prop, est, crossings.other(), window,
 		     nextResult, true);
     
-    int crossingSide = LayerCrossingSide().barrelSide( closestGel.trajectoryState(), prop);
+    int crossingSide = LayerCrossingSide().endcapSide( closestGel.trajectoryState(), prop);
+    /*
+    cout << "closest, next sizes: " 
+	 << closestResult.size() << " , "
+	 << nextResult.size() << endl;
+    
+    cout << "crossingSide: " << crossingSide << endl;
+    */
     DetGroupMerger::orderAndMergeTwoLevels( closestResult, nextResult, result,
 					    crossings.closestIndex(), crossingSide);
+    /*
+    for (vector<DetGroup>::const_iterator it=result.begin(); it!=result.end();++it){
+      cout << "+++result loop" << endl;
+      for(vector<DetGroupElement>::const_iterator it2=it->begin(); it2!=it->end();++it2){
+	cout << "=== resultGroup Det r,phi,z: " 
+	     << it2->det()->position().perp() << " , " 
+	     << it2->det()->position().phi()  << " , " 
+	     << it2->det()->position().z()    << endl;
+      }
+    }
+    */
+
   }
 }
 
@@ -266,4 +285,5 @@ PixelBlade::findPosition(int index,int diskSectorType) const
   vector<const GeomDet*> diskSector = diskSectorType == 0 ? theFrontDets : theBackDets; 
   return (diskSector[index])->surface().position();
 }
+
 
