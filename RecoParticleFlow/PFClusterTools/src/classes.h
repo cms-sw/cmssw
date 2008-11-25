@@ -12,15 +12,12 @@
 #include "RecoParticleFlow/PFClusterTools/interface/SpaceVoxel.h"    
 #include "RecoParticleFlow/PFClusterTools/interface/TreeUtility.h"
 #include "RecoParticleFlow/PFClusterTools/interface/SingleParticleWrapper.h"
-//#include "RecoParticleFlow/PFClusterTools/interface/Exercises.h"
 #include "RecoParticleFlow/PFClusterTools/interface/Exercises2.h"
 #include "RecoParticleFlow/PFClusterTools/interface/Exercises3.h"
 #include "RecoParticleFlow/PFClusterTools/interface/CalibrationResultWrapper.h"
 #include "RecoParticleFlow/PFClusterTools/interface/CalibrationProvenance.h"
 #include "RecoParticleFlow/PFClusterTools/interface/CalibrationTarget.h"
 #include "RecoParticleFlow/PFClusterTools/interface/Calibratable.h"
-#include "RecoParticleFlow/PFClusterTools/interface/Calibration.h"
-#include "RecoParticleFlow/PFClusterTools/interface/LinearCalibration.h"
 #include "RecoParticleFlow/PFClusterTools/interface/IO.h"
 #include "RecoParticleFlow/PFClusterTools/interface/Utils.h"
 #include "RecoParticleFlow/PFClusterTools/interface/PFClusterCalibration.h"
@@ -34,8 +31,6 @@ namespace {
 	pftools::CandidateWrapper cw;
 	std::vector<pftools::CalibratableElement> svce;
 	std::vector<pftools::CandidateWrapper> svcw;
-	pftools::Calibration calib;
-	pftools::LinearCalibration linCalib;
 	
   }
 }

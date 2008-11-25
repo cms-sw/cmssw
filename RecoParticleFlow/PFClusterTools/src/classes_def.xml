@@ -13,8 +13,6 @@
   <class name="pftools::Exercises3"/>
   <class name="pftools::CalibrationResultWrapper"/>
   <class name="pftools::Calibratable" />
-  <class name="pftools::Calibration" />
-  <class name="pftools::LinearCalibration" />
   <class name="pftools::CalibratableElement" />
   <class name="pftools::CandidateWrapper" />
   <class name="pftools::IO" />
