@@ -1,3 +1,5 @@
+#include <algorithm>
+
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
 #include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
@@ -62,6 +64,7 @@ TrackingTruthProducer::TrackingTruthProducer(const edm::ParameterSet &conf)
         produces<TrackingParticleCollection>("MergedTrackTruth");
     }
 }
+
 
 void TrackingTruthProducer::produce(Event &event, const EventSetup &)
 {
@@ -205,16 +208,21 @@ void TrackingTruthProducer::mergeBremsstrahlung()
             // track must not be the same particle as daughter
             // if (track != daughter)
             for (TrackingParticle::g4t_iterator isegment = daughter->g4Track_begin(); isegment != daughter->g4Track_end(); ++isegment)
-            {
                 track->addG4Track(*isegment);
-            }
 
             // Copy all the simhits to the new track
             for (std::vector<PSimHit>::const_iterator ihit = daughter->pSimHit_begin(); ihit != daughter->pSimHit_end(); ++ihit)
                 track->addPSimHit(*ihit);
 
+            // Make a copy of the decay vertexes of the track
+            TrackingVertexRefVector decayVertices( track->decayVertices() );
+            
             // Clear the decay vertex list
             track->clearDecayVertices();
+
+            // Add the remaining vertexes
+            for (TrackingVertexRefVector::const_iterator idecay = decayVertices.begin(); idecay != decayVertices.end(); ++idecay)
+            	if ( (*idecay).key() != index ) track->addDecayVertex(*idecay);
 
             // Redirect all the decay source vertexes to those in the electron daughter
             for (TrackingParticle::tv_iterator idecay = daughter->decayVertices_begin(); idecay != daughter->decayVertices_end(); ++idecay)
@@ -636,9 +644,6 @@ bool TrackingTruthProducer::setTrackingParticle(
         trackingParticle.addGenParticle( GenParticleRef(hepmc_, genParticleIndex) );
 
     return true;
-    // if (totalSimHits) return true;
-
-    // return false;
 }
 
 

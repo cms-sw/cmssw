@@ -10,7 +10,7 @@ process.load("SimGeneral.TrackingAnalysis.trackingParticles_cfi")
 # Output definition
 process.output = cms.OutputModule(
   'PoolOutputModule',
-  fileName = cms.untracked.string('TrackingTruthPlayback.root'),
+  fileName = cms.untracked.string('TrackingTruth.root'),
   outputCommands = cms.untracked.vstring(
     'keep edmHepMCProduct_source_*_*',
     'keep *_mergedtruth__*',
