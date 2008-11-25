@@ -12,7 +12,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Sep 19 11:47:28 CEST 2005
-// $Id: EventContentAnalyzer.cc,v 1.28 2008/04/04 22:35:26 wmtan Exp $
+// $Id: EventContentAnalyzer.cc,v 1.29 2008/11/18 18:51:32 wdd Exp $
 //
 //
 
@@ -377,10 +377,17 @@ EventContentAnalyzer::endJob()
 void
 EventContentAnalyzer::fillDescription(edm::ParameterSetDescription& iDesc,
                             std::string const& moduleLabel) {
-   iDesc.addOptionalUntracked<std::string>("indentation", std::string("++"));
-   iDesc.addOptionalUntracked<std::string>("verboseIndentation", std::string("  "));
-   iDesc.addOptionalUntracked<std::vector<std::string> >("verboseForModuleLabels", std::vector<std::string>());
+
+
+   std::string defaultString("++");
+   iDesc.addOptionalUntracked<std::string>("indentation", defaultString);
+
+   defaultString = "  ";
+   iDesc.addOptionalUntracked<std::string>("verboseIndentation", defaultString);
+
+   std::vector<std::string> defaultVString;
+   iDesc.addOptionalUntracked<std::vector<std::string> >("verboseForModuleLabels", defaultVString);
    iDesc.addOptionalUntracked<bool>("verbose", false);
-   iDesc.addOptionalUntracked<std::vector<std::string> >("getDataForModuleLabels", std::vector<std::string>());
+   iDesc.addOptionalUntracked<std::vector<std::string> >("getDataForModuleLabels", defaultVString);
    iDesc.addOptionalUntracked<bool>("getData", false);
 }
