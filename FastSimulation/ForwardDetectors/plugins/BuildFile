@@ -1,0 +1,12 @@
+<library name="ProtonTaggerFilter" file="ProtonTaggerFilter.cc AcceptanceTableHelper.cc">
+<use name=root>
+<use name=FWCore/Framework>
+<use name=FWCore/ParameterSet>
+<use name=FWCore/PluginManager>
+<use name=FWCore/ServiceRegistry>
+<use name=FWCore/Utilities>
+<use name=Utilities/General>
+<use name=hepmc>
+<use name=SimDataFormats/HepMCProduct>
+<flags EDM_PLUGIN=1>
+</library>
