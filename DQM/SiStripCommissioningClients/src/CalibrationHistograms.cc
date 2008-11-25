@@ -25,10 +25,7 @@ CalibrationHistograms::CalibrationHistograms( DQMStore* bei,const sistrip::RunTy
   LogTrace(mlDqmClient_) 
        << "[CalibrationHistograms::" << __func__ << "]"
        << " Constructing object...";
-  std::string pwd = bei->pwd();
-  std::string calchanPath = pwd.substr(0,pwd.find(sistrip::root_ + "/")+sistrip::root_.size()+1);
-  calchanPath += "/calchan";
-  MonitorElement* calchanElement = bei->get(calchanPath);
+  MonitorElement* calchanElement = bei->get(sistrip::collate_ + "/" + sistrip::root_ + "/calchan");
   if(calchanElement) {
     calchan_ = calchanElement->getIntValue();
     edm::LogVerbatim(mlDqmClient_)
@@ -40,13 +37,9 @@ CalibrationHistograms::CalibrationHistograms( DQMStore* bei,const sistrip::RunTy
       << "CalChan value not found at " << calchanPath
       << ". Using " << calchan_;
   }
-  std::string ishaPath = pwd.substr(0,pwd.find(sistrip::root_ + "/")+sistrip::root_.size()+1);
-  ishaPath += "/isha";
-  MonitorElement* ishaElement = bei->get(ishaPath);
+  MonitorElement* ishaElement = bei->get(sistrip::collate_ + "/" + sistrip::root_ + "/isha");
   if(ishaElement) isha_ = ishaElement->getIntValue() ;
-  std::string vfsPath = pwd.substr(0,pwd.find(sistrip::root_ + "/")+sistrip::root_.size()+1);
-  vfsPath += "/vfs";
-  MonitorElement* vfsElement = bei->get(vfsPath);
+  MonitorElement* vfsElement = bei->get(sistrip::collate_ + "/" + sistrip::root_ + "/vfs");
   if(vfsElement) vfs_ = vfsElement->getIntValue() ;
 }
 
@@ -60,10 +53,7 @@ CalibrationHistograms::CalibrationHistograms( DQMOldReceiver* mui,const sistrip:
        << "[CalibrationHistograms::" << __func__ << "]"
        << " Constructing object...";
   factory_ = auto_ptr<CalibrationSummaryFactory>( new CalibrationSummaryFactory );
-  std::string pwd = bei()->pwd();
-  std::string calchanPath = pwd.substr(0,pwd.find(sistrip::root_ + "/")+sistrip::root_.size()+1);
-  calchanPath += "/calchan";
-  MonitorElement* calchanElement = bei()->get(calchanPath);
+  MonitorElement* calchanElement = bei()->get(sistrip::collate_ + "/" + sistrip::root_ + "/calchan");
   if(calchanElement) {
     calchan_ = calchanElement->getIntValue() ;
     edm::LogVerbatim(mlDqmClient_)
@@ -75,13 +65,9 @@ CalibrationHistograms::CalibrationHistograms( DQMOldReceiver* mui,const sistrip:
       << "CalChan value not found at " << calchanPath
       << ". Using " << calchan_;
   }
-  std::string ishaPath = pwd.substr(0,pwd.find(sistrip::root_ + "/")+sistrip::root_.size()+1);
-  ishaPath += "/isha";
-  MonitorElement*  ishaElement = bei()->get(ishaPath);
+  MonitorElement*  ishaElement = bei()->get(sistrip::collate_ + "/" + sistrip::root_ + "/isha");
   if(ishaElement) isha_ = ishaElement->getIntValue() ;
-  std::string vfsPath = pwd.substr(0,pwd.find(sistrip::root_ + "/")+sistrip::root_.size()+1);
-  vfsPath += "/vfs";
-  MonitorElement*  vfsElement = bei()->get(vfsPath);
+  MonitorElement*  vfsElement = bei()->get(sistrip::collate_ + "/" + sistrip::root_ + "/vfs");
   if(vfsElement) vfs_ = vfsElement->getIntValue() ;
 }
 
