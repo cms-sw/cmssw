@@ -2,6 +2,4 @@
 
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisModules/interface/EcalCorrelatedNoisePedestalRunAnalyzer.h"
 
-DEFINE_SEAL_MODULE();
-
-DEFINE_ANOTHER_FWK_MODULE(EcalCorrelatedNoisePedestalRunAnalyzer);
+DEFINE_FWK_MODULE(EcalCorrelatedNoisePedestalRunAnalyzer);
