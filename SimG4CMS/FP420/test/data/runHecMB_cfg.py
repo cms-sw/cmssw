@@ -32,7 +32,7 @@ process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService
 )
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(100)
+    input = cms.untracked.int32(50)
 )
 process.source = cms.Source("PythiaSource",
     pythiaHepMCVerbosity = cms.untracked.bool(False),
