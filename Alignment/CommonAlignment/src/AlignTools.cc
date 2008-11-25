@@ -20,8 +20,8 @@ AlgebraicVector align::diffAlignables(Alignable* refAli, Alignable*curAli, const
 	//create points
 	align::GlobalVectors refVs;
 	align::GlobalVectors curVs;
-	align::createPoints(&refVs, refAli, weightBy, weightById, weightByIdVector);
-	align::createPoints(&curVs, curAli, weightBy, weightById, weightByIdVector);
+	 align::createPoints(&refVs, refAli, weightBy, weightById, weightByIdVector);
+	 align::createPoints(&curVs, curAli, weightBy, weightById, weightByIdVector);
 	
 	//redefine the set of points
 	//find the translational difference
@@ -30,15 +30,16 @@ AlgebraicVector align::diffAlignables(Alignable* refAli, Alignable*curAli, const
 	//CM difference (needed below in rotational transformation)
 	align::GlobalVector pointsCM = align::centerOfMass(curVs);
 	align::PositionType alignableCM = curAli->globalPosition();
+
 	align::GlobalVector cmdiff(alignableCM.x()-pointsCM.x(), alignableCM.y()-pointsCM.y(), alignableCM.z()-pointsCM.z());
 	
 	
 	//readjust points before finding rotation
 	align::GlobalVector CMref = align::centerOfMass(refVs);
-	align::GlobalVector CMcur = align::centerOfMass(curVs);
+//	align::GlobalVector CMcur = align::centerOfMass(curVs);
 	for (unsigned int k = 0; k < refVs.size(); ++k){
 		refVs[k] -= CMref;
-		curVs[k] -= CMcur;
+		curVs[k] -= pointsCM; //CMcur;
 	}
 	
 	//find rotational difference
@@ -65,7 +66,6 @@ AlgebraicVector align::diffAlignables(Alignable* refAli, Alignable*curAli, const
 	return deltaRW;
 	
 }
-
 //Moves the alignable by the AlgebraicVector
 void align::moveAlignable(Alignable* ali, AlgebraicVector diff){
 	
@@ -80,6 +80,9 @@ void align::moveAlignable(Alignable* ali, AlgebraicVector diff){
 //Creates the points which are used in diffAlignables
 void align::createPoints(align::GlobalVectors* Vs, Alignable* ali, const std::string &weightBy, bool weightById, const std::vector< unsigned int > &weightByIdVector){
 	
+     std::string copy=weightBy;
+     std::transform(copy.begin(), copy.end(), copy.begin(),  (int(*)(int)) toupper);
+     if(copy != "SELF"){
 	
 	const align::Alignables& comp = ali->components();
 	unsigned int nComp = comp.size();
@@ -107,10 +110,26 @@ void align::createPoints(align::GlobalVectors* Vs, Alignable* ali, const std::st
 			}
 		}
 	}
+     }
+     else{
+        bool createPointsForDetUnit = true;
+        if (weightById) createPointsForDetUnit = align::readModuleList( ali->id(), ali->mother()->id(), weightByIdVector);
+        if (createPointsForDetUnit){
+               //if no survey information, create local points
+               if(!(ali->survey())){
+                     align::ErrorMatrix error;
+                     ali->setSurvey( new SurveyDet (ali->surface(), error*1e-6) );
+               }
+               const align::GlobalPoints& points = ali->surface().toGlobal(ali->survey()->localPoints());
+               for (unsigned int j = 0; j < points.size(); ++j){
+                     align::GlobalVector dummy(points[j].x(),points[j].y(),points[j].z());
+                     Vs->push_back(dummy);
+               }
+        }
+     }
 	
 }
-
-
+/////////////////
 bool align::readModuleList(unsigned int aliId, unsigned int motherId, const std::vector< unsigned int > &weightByIdVector){
 	
 	bool foundId = false; 
