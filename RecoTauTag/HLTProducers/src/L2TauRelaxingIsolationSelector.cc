@@ -8,7 +8,7 @@ L2TauRelaxingIsolationSelector::L2TauRelaxingIsolationSelector(const edm::Parame
   associationInput_(iConfig.getParameter<edm::InputTag>("L2InfoAssociation")),
   ecalIsolEt_(iConfig.getParameter<std::vector<double> >("EcalIsolationEt")),
   towerIsolEt_(iConfig.getParameter<std::vector<double> >("TowerIsolationEt")),
-  nClusters_(iConfig.getParameter<std::vector<double> >("NumberOfClustersInAnnulus")),
+  nClusters_(iConfig.getParameter<std::vector<double> >("NumberOfClusters")),
   phiRMS_(iConfig.getParameter<std::vector<double> >("ClusterPhiRMS")),
   etaRMS_(iConfig.getParameter<std::vector<double> >("ClusterEtaRMS")),
   drRMS_(iConfig.getParameter<std::vector<double> >("ClusterDRRMS")),
@@ -54,7 +54,7 @@ L2TauRelaxingIsolationSelector::produce(edm::Event& iEvent, const edm::EventSetu
 	     if(l2info.SeedTowerEt>seedTowerEt_)
 	       if(l2info.ECALIsolConeCut< ecalIsolEt_[0]+ecalIsolEt_[1]*jet.et()+ecalIsolEt_[2]*jet.et()*jet.et())
 		 if(l2info.ECALClusterNClusters <(int)(nClusters_[0]+nClusters_[1]*jet.et()+nClusters_[2]*jet.et()*jet.et()))
-		   if(l2info.ECALClusterEtaRMS <etaRMS_[0]+etaRMS_[1]*jet.et()+etaRMS_[1]*jet.et()*jet.et())
+		   if(l2info.ECALClusterEtaRMS <etaRMS_[0]+etaRMS_[1]*jet.et()+etaRMS_[2]*jet.et()*jet.et())
 		     if(l2info.ECALClusterPhiRMS <phiRMS_[0]+phiRMS_[1]*jet.et()+phiRMS_[2]*jet.et()*jet.et())
 		       if(l2info.ECALClusterDRRMS <drRMS_[0]+drRMS_[1]*jet.et()+drRMS_[2]*jet.et()*jet.et())
 			 if(l2info.TowerIsolConeCut<towerIsolEt_[0]+towerIsolEt_[1]*jet.et()+towerIsolEt_[2]*jet.et()*jet.et())
