@@ -34,8 +34,7 @@ CalibrationHistograms::CalibrationHistograms( DQMStore* bei,const sistrip::RunTy
   } else {
     edm::LogWarning(mlDqmClient_)
       << "[CalibrationHistograms::" << __func__ << "]"
-      << "CalChan value not found at " << calchanPath
-      << ". Using " << calchan_;
+      << "CalChan value not found. Using " << calchan_;
   }
   MonitorElement* ishaElement = bei->get(sistrip::collate_ + "/" + sistrip::root_ + "/isha");
   if(ishaElement) isha_ = ishaElement->getIntValue() ;
@@ -62,8 +61,7 @@ CalibrationHistograms::CalibrationHistograms( DQMOldReceiver* mui,const sistrip:
   } else {
     edm::LogWarning(mlDqmClient_)
       << "[CalibrationHistograms::" << __func__ << "]"
-      << "CalChan value not found at " << calchanPath
-      << ". Using " << calchan_;
+      << "CalChan value not found. Using " << calchan_;
   }
   MonitorElement*  ishaElement = bei()->get(sistrip::collate_ + "/" + sistrip::root_ + "/isha");
   if(ishaElement) isha_ = ishaElement->getIntValue() ;
