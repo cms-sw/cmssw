@@ -263,7 +263,7 @@ LHEReader::LHEReader(const edm::ParameterSet &params) :
 
 LHEReader::LHEReader(const std::vector<std::string> &fileNames,
                      unsigned int firstEvent) :
-	fileURLs(fileNames), firstEvent(firstEvent),
+	fileURLs(fileNames), firstEvent(firstEvent), maxEvents(-1),
 	curIndex(0), handler(new XMLHandler())
 {
 }
