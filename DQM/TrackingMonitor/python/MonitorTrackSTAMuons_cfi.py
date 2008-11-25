@@ -80,7 +80,10 @@ MonitorTrackSTAMuons = cms.EDFilter("TrackingMonitor",
     ptErrBin = cms.int32(100),
     RecLayBin = cms.int32(120),
     RecLayMax = cms.double(120.0),
-    RecLayMin = cms.double(0.0)
+    RecLayMin = cms.double(0.0),
+    RecLostBin = cms.int32(120),
+    RecLostMin = cms.double(0.0),
+    RecLostMax = cms.double(20)
     
 )
 

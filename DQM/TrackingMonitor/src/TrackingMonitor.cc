@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/07/22 22:43:36 $
- *  $Revision: 1.10 $
+ *  $Date: 2008/11/05 18:19:58 $
+ *  $Revision: 1.11 $
  *  \author Suchandra Dutta , Giorgia Mila
  */
 
@@ -43,6 +43,10 @@ void TrackingMonitor::beginJob(edm::EventSetup const& iSetup) {
   int    TKHitBin = conf_.getParameter<int>("RecHitBin");
   double TKHitMin = conf_.getParameter<double>("RecHitMin");
   double TKHitMax = conf_.getParameter<double>("RecHitMax");
+
+  int    TKLostBin = conf_.getParameter<int>("RecLostBin");
+  double TKLostMin = conf_.getParameter<double>("RecLostMin");
+  double TKLostMax = conf_.getParameter<double>("RecLostMax");
 
   int    TKLayBin = conf_.getParameter<int>("RecLayBin");
   double TKLayMin = conf_.getParameter<double>("RecLayMin");
@@ -86,6 +90,14 @@ void TrackingMonitor::beginJob(edm::EventSetup const& iSetup) {
   histname = "NumberOfRecHitsPerTrack_";
   NumberOfRecHitsPerTrack = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, TKHitBin, TKHitMin, TKHitMax);
   NumberOfRecHitsPerTrack->setAxisTitle("Number of RecHits of each track");
+
+  histname = "NumberOfRecHitsFoundPerTrack_";
+  NumberOfRecHitsFoundPerTrack = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, TKHitBin, TKHitMin, TKHitMax);
+  NumberOfRecHitsFoundPerTrack->setAxisTitle("Number of RecHits found for each track");
+
+  histname = "NumberOfRecHitsLostPerTrack_";
+  NumberOfRecHitsLostPerTrack = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, TKLostBin, TKLostMin, TKLostMax);
+  NumberOfRecHitsLostPerTrack->setAxisTitle("Number of RecHits lost for each track");
 
   histname = "NumberOfMeanRecHitsPerTrack_";
   NumberOfMeanRecHitsPerTrack = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, TKHitBin, TKHitMin, TKHitMax);
@@ -170,7 +182,9 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   for (reco::TrackCollection::const_iterator track = trackCollection->begin(); track!=trackCollection->end(); ++track) {
 
     NumberOfRecHitsPerTrack->Fill(track->recHitsSize());
-    totalRecHits += track->recHitsSize();
+    NumberOfRecHitsFoundPerTrack->Fill(track->found());
+    NumberOfRecHitsLostPerTrack->Fill(track->lost());
+    totalRecHits += track->found();
 
     NumberOfLayersPerTrack->Fill(track->hitPattern().trackerLayersWithMeasurement());
     totalLayers += track->hitPattern().trackerLayersWithMeasurement();
@@ -460,9 +474,9 @@ void TrackingMonitor::fillHistosForState(const edm::EventSetup& iSetup, const re
     tkmes.TrackPhi->Fill(phi);
     tkmes.TrackEta->Fill(eta);
     tkmes.TrackTheta->Fill(theta);
-    tkmes.NumberOfRecHitsPerTrackVsPhi->Fill(phi, track.recHitsSize());
-    tkmes.NumberOfRecHitsPerTrackVsTheta->Fill(theta, track.recHitsSize());
-    tkmes.NumberOfRecHitsPerTrackVsEta->Fill(eta, track.recHitsSize());
+    tkmes.NumberOfRecHitsPerTrackVsPhi->Fill(phi, track.found());
+    tkmes.NumberOfRecHitsPerTrackVsTheta->Fill(theta, track.found());
+    tkmes.NumberOfRecHitsPerTrackVsEta->Fill(eta, track.found());
     
     tkmes.Chi2overDoFVsTheta->Fill(theta, track.normalizedChi2());
     tkmes.Chi2overDoFVsPhi->Fill(phi, track.normalizedChi2());

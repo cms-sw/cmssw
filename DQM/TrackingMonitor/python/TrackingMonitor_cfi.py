@@ -46,6 +46,10 @@ TrackMon = cms.EDFilter("TrackingMonitor",
     RecHitMin = cms.double(-0.5),
     RecHitMax = cms.double(99.5),
 
+    RecLostBin = cms.int32(20),
+    RecLostMin = cms.double(-0.5),
+    RecLostMax = cms.double(19.5),
+
     RecLayBin = cms.int32(100),
     RecLayMin = cms.double(-0.5),
     RecLayMax = cms.double(99.5),

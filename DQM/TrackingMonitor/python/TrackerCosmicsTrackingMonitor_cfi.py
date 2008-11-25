@@ -58,6 +58,10 @@ TrackerCosmicTrackMon = cms.EDFilter("TrackingMonitor",
     RecHitMax = cms.double(34.5),
     RecHitMin = cms.double(-0.5),
 
+    RecLostBin = cms.int32(10),
+    RecLostMax = cms.double(9.5),
+    RecLostMin = cms.double(-0.5),
+
     RecLayBin = cms.int32(35),
     RecLayMax = cms.double(34.5),
     RecLayMin = cms.double(-0.5),
