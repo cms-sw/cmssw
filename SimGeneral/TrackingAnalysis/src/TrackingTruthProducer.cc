@@ -195,7 +195,7 @@ void TrackingTruthProducer::mergeBremsstrahlung()
                     // Set the new parent vertex to the vertex of the source track
                     pointer->setParentVertex( track->parentVertex() );
                     // Get a non-const pointer to the parent vertex
-					TrackingVertex * vertex = &trackingVertexes_->at( track->parentVertex().key() );
+                    TrackingVertex * vertex = &trackingVertexes_->at( track->parentVertex().key() );
                     // Add the photon to the doughter list of the parent vertex 
                     vertex->addDaughterTrack( *idaughter );                    
                 }
@@ -204,10 +204,10 @@ void TrackingTruthProducer::mergeBremsstrahlung()
             // Add the electron segments from the electron daughter
             // track must not be the same particle as daughter
             // if (track != daughter)
-                for (TrackingParticle::g4t_iterator isegment = daughter->g4Track_begin(); isegment != daughter->g4Track_end(); ++isegment)
-                {
-                    track->addG4Track(*isegment);
-                }
+            for (TrackingParticle::g4t_iterator isegment = daughter->g4Track_begin(); isegment != daughter->g4Track_end(); ++isegment)
+            {
+                track->addG4Track(*isegment);
+            }
 
             // Copy all the simhits to the new track
             for (std::vector<PSimHit>::const_iterator ihit = daughter->pSimHit_begin(); ihit != daughter->pSimHit_end(); ++ihit)
@@ -415,7 +415,7 @@ void TrackingTruthProducer::createTrackingTruth()
                     // Push the tp in to the collection
                     trackingParticles_->push_back(trackingParticle);
                     // Vetoed the simTrack
-                    // vetoedTracks.insert( make_pair(simTrackIndex, trackingParticleIndex) );
+                    vetoedTracks.insert( make_pair(simTrackIndex, trackingParticleIndex) );
                     
                     cout << "Adding primaty tp with index : " << trackingParticleIndex << std::endl;
                 }
@@ -426,7 +426,7 @@ void TrackingTruthProducer::createTrackingTruth()
                 // Get the simTrack parent index
                 unsigned int parentSimVertexIndex = currentSimTrack->vertIndex();
 
-                cout << "Getting parent simtrack index: " << parentSimVertexIndex << std::endl;
+                cout << "Getting parent simvertex index: " << parentSimVertexIndex << std::endl;
 
                 // Create a new tv
                 TrackingVertex trackingVertex;
