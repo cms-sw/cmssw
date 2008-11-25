@@ -61,7 +61,6 @@ REGISTER_PLUGIN(SiStripThresholdRcd,SiStripThreshold);
 #include "CondFormats/DataRecord/interface/SiStripSummaryRcd.h"
 REGISTER_PLUGIN(SiStripSummaryRcd,SiStripSummary);
 
-
 #include "CondFormats/PhysicsToolsObjects/interface/Histogram2D.h"
 #include "CondFormats/DataRecord/interface/SiStripDeDxMipRcd.h"
 REGISTER_PLUGIN(SiStripDeDxMipRcd, PhysicsTools::Calibration::HistogramD2D);
