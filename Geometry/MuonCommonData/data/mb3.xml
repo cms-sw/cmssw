@@ -43,7 +43,8 @@
   <Constant name="MB3Height_With1RPC" value="326./2.+0.25*mm"/>
 
 <!--- #### MB3Chim: Constants for DT RPCs -->
-  <Constant name="MB3ChimRPC_GasRight_y_pos" value="[mbCommon:MBRPC_GasRight_y_pos]-([mbCommon:MBRPC_z]-[mbCommon:MBChimRPC_z])"/>
+  <Constant name="MB3ChimRPC_GasRight_y_pos" value="[mbCommon:MBRPC_GasRight_y_pos]-([mbCommon:MBRPC_z]-[mbCommon:MBChimRPC_z])/2.-4.*mm"/>
+  <Constant name="MB3ChimRPC_GasLeft_y_pos" value="[mbCommon:MBRPC_GasLeft_y_pos]-([mbCommon:MBRPC_z]-[mbCommon:MBChimRPC_z])/2.-4.*mm"/>
 
 </ConstantsSection>
 
@@ -248,6 +249,7 @@
 <!-- ####  MB3Chim: RPC chambers -->
  <Box name="MB3ChimRPC" dx="[mb3:MB3RPC_x]" dy="[mbCommon:MBChimRPC_z]" dz="[mbCommon:MBRPC_y]"/>
  <Box name="MB3ChimRPC_GasLeft" dx="[mb3:MB3RPC_Gas_x]" dy="[mbCommon:MBChimRPC_OGasLeft_z]" dz="[mbCommon:MBRPC_Gas_y]"/>
+ <Box name="MB3ChimRPC_GasRight" dx="[mb3:MB3RPC_Gas_x]" dy="[mbCommon:MBChimRPC_OGasRight_z]" dz="[mbCommon:MBRPC_Gas_y]"/>
 
 </SolidSection>
 
@@ -564,7 +566,7 @@
   <rMaterial name="materials:M_RPC_Gas"/>
  </LogicalPart>
  <LogicalPart name="MB3ChimRPC_GasRight" category="unspecified">
-  <rSolid name="MB3RPC_GasRight"/>
+  <rSolid name="MB3ChimRPC_GasRight"/>
   <rMaterial name="materials:M_RPC_Gas"/>
  </LogicalPart>
 
@@ -1833,13 +1835,13 @@
    <rParent name="mb3:MB3ChimRPC_P"/>
    <rChild name="mb3:MB3ChimRPC_GasLeft"/>
   <rRotation name="rotations:R180" />
-  <Translation x="[mb3:MB3RPC_Gas_x_pos]" y="-[mbCommon:MBRPC_GasLeft_y_pos]" z="0*cm" />
+  <Translation x="[mb3:MB3RPC_Gas_x_pos]" y="-[mb3:MB3ChimRPC_GasLeft_y_pos]" z="0*cm" />
  </PosPart>
  <PosPart copyNumber="2">
    <rParent name="mb3:MB3ChimRPC_P"/>
    <rChild name="mb3:MB3ChimRPC_GasLeft"/>
   <rRotation name="rotations:R180" />
-  <Translation x="-[mb3:MB3RPC_Gas_x_pos]" y="-[mbCommon:MBRPC_GasLeft_y_pos]" z="0*cm" />
+  <Translation x="-[mb3:MB3RPC_Gas_x_pos]" y="-[mb3:MB3ChimRPC_GasLeft_y_pos]" z="0*cm" />
  </PosPart>
  <PosPart copyNumber="1">
    <rParent name="mb3:MB3ChimRPC_P"/>
@@ -1863,13 +1865,13 @@
    <rParent name="mb3:MB3ChimRPC_N"/>
    <rChild name="mb3:MB3ChimRPC_GasLeft"/>
   <rRotation name="rotations:R180" />
-  <Translation x="-[mb3:MB3RPC_Gas_x_pos]" y="-[mbCommon:MBRPC_GasLeft_y_pos]" z="0*cm" />
+  <Translation x="-[mb3:MB3RPC_Gas_x_pos]" y="-[mb3:MB3ChimRPC_GasLeft_y_pos]" z="0*cm" />
  </PosPart>
  <PosPart copyNumber="2">
    <rParent name="mb3:MB3ChimRPC_N"/>
    <rChild name="mb3:MB3ChimRPC_GasLeft"/>
   <rRotation name="rotations:R180" />
-  <Translation x="[mb3:MB3RPC_Gas_x_pos]" y="-[mbCommon:MBRPC_GasLeft_y_pos]" z="0*cm" />
+  <Translation x="[mb3:MB3RPC_Gas_x_pos]" y="-[mb3:MB3ChimRPC_GasLeft_y_pos]" z="0*cm" />
  </PosPart>
  <PosPart copyNumber="1">
    <rParent name="mb3:MB3ChimRPC_N"/>

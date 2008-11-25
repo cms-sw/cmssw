@@ -42,7 +42,9 @@
   <Constant name="MB1RPC_O_x_pos" value="60.2*mm"/>
 
 <!--- #### MB1Chim: Constants for DT RPCs -->
-  <Constant name="MB1ChimRPC_GasRight_y_pos" value="[mbCommon:MBRPC_GasRight_y_pos]-([mbCommon:MBRPC_z]-[mbCommon:MBChimRPC_z])"/>
+  <Constant name="MB1ChimRPC_GasRight_y_pos" value="[mbCommon:MBRPC_GasRight_y_pos]-([mbCommon:MBRPC_z]-[mbCommon:MBChimRPC_z])/2.-4.*mm"/>
+  <Constant name="MB1ChimRPC_GasLeft_y_pos" value="[mbCommon:MBRPC_GasLeft_y_pos]-([mbCommon:MBRPC_z]-[mbCommon:MBChimRPC_z])/2.-4.*mm"/> 
+
 
 </ConstantsSection>
 
@@ -303,6 +305,7 @@
 <!-- ####  MB1Chim: RPC chambers -->
  <Box name="MB1ChimRPC" dx="[mb1:MB1RPC_x]" dy="[mbCommon:MBChimRPC_z]" dz="[mbCommon:MBRPC_y]"/>
  <Box name="MB1ChimRPC_GasLeft" dx="[mb1:MB1RPC_Gas_x]" dy="[mbCommon:MBChimRPC_OGasLeft_z]" dz="[mbCommon:MBRPC_Gas_y]"/>
+ <Box name="MB1ChimRPC_GasRight" dx="[mb1:MB1RPC_Gas_x]" dy="[mbCommon:MBChimRPC_OGasRight_z]" dz="[mbCommon:MBRPC_Gas_y]"/>
 
 </SolidSection>
 
@@ -652,7 +655,7 @@
   <rMaterial name="materials:M_RPC_Gas"/>
  </LogicalPart>
  <LogicalPart name="MB1ChimRPC_IGasRight" category="unspecified">
-  <rSolid name="MB1RPC_GasRight"/>
+  <rSolid name="MB1ChimRPC_GasRight"/>
   <rMaterial name="materials:M_RPC_Gas"/>
  </LogicalPart>
  <LogicalPart name="MB1ChimRPC_OP" category="unspecified">
@@ -668,7 +671,7 @@
   <rMaterial name="materials:M_RPC_Gas"/>
  </LogicalPart>
  <LogicalPart name="MB1ChimRPC_OGasRight" category="unspecified">
-  <rSolid name="MB1RPC_GasRight"/>
+  <rSolid name="MB1ChimRPC_GasRight"/>
   <rMaterial name="materials:M_RPC_Gas"/>
  </LogicalPart>
 
@@ -2014,7 +2017,7 @@
    <rParent name="mb1:MB1ChimRPC_IP"/>
    <rChild name="mb1:MB1ChimRPC_IGasLeft"/>
   <rRotation name="rotations:R180" />
-  <Translation x="0*cm" y="-[mbCommon:MBRPC_GasLeft_y_pos]" z="0*cm" />
+  <Translation x="0*cm" y="-[mb1:MB1ChimRPC_GasLeft_y_pos]" z="0*cm" />
  </PosPart>
  <PosPart copyNumber="1">
    <rParent name="mb1:MB1ChimRPC_IP"/>
@@ -2032,7 +2035,7 @@
    <rParent name="mb1:MB1ChimRPC_OP"/>
    <rChild name="mb1:MB1ChimRPC_OGasLeft"/>
   <rRotation name="rotations:RPCD" />
-  <Translation x="0*cm" y="-[mbCommon:MBRPC_GasLeft_y_pos]" z="0*cm" />
+  <Translation x="0*cm" y="-[mb1:MB1ChimRPC_GasLeft_y_pos]" z="0*cm" />
  </PosPart>
  <PosPart copyNumber="1">
    <rParent name="mb1:MB1ChimRPC_OP"/>
@@ -2050,7 +2053,7 @@
    <rParent name="mb1:MB1ChimRPC_IN"/>
    <rChild name="mb1:MB1ChimRPC_IGasLeft"/>
   <rRotation name="rotations:R180" />
-  <Translation x="0*cm" y="-[mbCommon:MBRPC_GasLeft_y_pos]" z="0*cm" />
+  <Translation x="0*cm" y="-[mb1:MB1ChimRPC_GasLeft_y_pos]" z="0*cm" />
  </PosPart>
  <PosPart copyNumber="1">
    <rParent name="mb1:MB1ChimRPC_IN"/>
@@ -2068,7 +2071,7 @@
    <rParent name="mb1:MB1ChimRPC_ON"/>
    <rChild name="mb1:MB1ChimRPC_OGasLeft"/>
   <rRotation name="rotations:RPCD" />
-  <Translation x="0*cm" y="-[mbCommon:MBRPC_GasLeft_y_pos]" z="0*cm" />
+  <Translation x="0*cm" y="-[mb1:MB1ChimRPC_GasLeft_y_pos]" z="0*cm" />
  </PosPart>
  <PosPart copyNumber="1">
    <rParent name="mb1:MB1ChimRPC_ON"/>

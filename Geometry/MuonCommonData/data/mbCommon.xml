@@ -128,7 +128,9 @@
 
   <Constant name="MBRPC_z" value="2455./2.*mm"/>
 
-  <Constant name="MBChimRPC_OGasLeft_z" value="389.5*mm"/>
+  <Constant name="MBChimRPC_OGasLeft_z" value="389.5+195./2.*mm"/>
+
+  <Constant name="MBChimRPC_OGasRight_z" value="626.-195./2.*mm"/>
 
   <Constant name="MBRPC_GasLeft_z" value="584.5*mm"/>
 

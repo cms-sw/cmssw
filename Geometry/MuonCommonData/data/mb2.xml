@@ -45,10 +45,13 @@
   <Constant name="MB2RPC_O_x_pos" value="27.3*mm"/>
 
 <!--- #### MB2Chim: Constants for DT RPCs -->
-  <Constant name="MB2ChimRPC_IGasLeft_y_pos" value="[mb2:MB2RPC_IGasLeft_y_pos]"/>
-  <Constant name="MB2ChimRPC_IGasMiddle_y_pos" value="[mb2:MB2RPC_IGasMiddle_y_pos]+([mbCommon:MBRPC_z]-[mbCommon:MBChimRPC_z])"/>
-  <Constant name="MB2ChimRPC_IGasRight_y_pos" value="[mb2:MB2RPC_IGasRight_y_pos]-([mbCommon:MBRPC_z]-[mbCommon:MBChimRPC_z])"/>
-  <Constant name="MB2ChimRPC_OGasRight_y_pos" value="[mbCommon:MBRPC_GasRight_y_pos]-([mbCommon:MBRPC_z]-[mbCommon:MBChimRPC_z])"/>
+  <Constant name="MB2ChimRPC_IGasLeft_y_pos" value="[mb2:MB2RPC_IGasLeft_y_pos]-([mbCommon:MBRPC_z]-[mbCommon:MBChimRPC_z])/2-4.*mm"/>
+
+  <Constant name="MB2ChimRPC_IGasMiddle_y_pos" value="[mb2:MB2RPC_IGasMiddle_y_pos]"/>
+  <Constant name="MB2ChimRPC_IGasRight_y_pos" value="[mb2:MB2RPC_IGasRight_y_pos]-([mbCommon:MBRPC_z]-[mbCommon:MBChimRPC_z])/2.-4.*mm"/>
+
+  <Constant name="MB2ChimRPC_OGasRight_y_pos" value="[mbCommon:MBRPC_GasRight_y_pos]-([mbCommon:MBRPC_z]-[mbCommon:MBChimRPC_z])/2-4.*mm"/>  
+  <Constant name="MB2ChimRPC_OGasLeft_y_pos" value="[mbCommon:MBRPC_GasLeft_y_pos]-([mbCommon:MBRPC_z]-[mbCommon:MBChimRPC_z])/2.-4.*mm"/>
 
 </ConstantsSection>
 
@@ -260,8 +263,12 @@
 
 <!-- ####  MB2Chim: RPC chambers -->
  <Box name="MB2ChimRPC" dx="[mb2:MB2RPC_x]" dy="[mbCommon:MBChimRPC_z]" dz="[mbCommon:MBRPC_y]"/>
- <Box name="MB2ChimRPC_IGasLeft" dx="[mb2:MB2RPC_Gas_x]" dy="379./2*mm" dz="[mbCommon:MBRPC_Gas_y]"/>
+ <Box name="MB2ChimRPC_IGasLeft" dx="[mb2:MB2RPC_Gas_x]"  dy="(379.+195.)/2*mm" dz="[mbCommon:MBRPC_Gas_y]"/>
+ <Box name="MB2ChimRPC_IGasRight" dx="[mb2:MB2RPC_Gas_x]" dy="(852.-195.)/2*mm" dz="[mbCommon:MBRPC_Gas_y]"/>
+
+
  <Box name="MB2ChimRPC_OGasLeft" dx="[mb2:MB2RPC_Gas_x]" dy="[mbCommon:MBChimRPC_OGasLeft_z]" dz="[mbCommon:MBRPC_Gas_y]"/>
+ <Box name="MB2ChimRPC_OGasRight" dx="[mb2:MB2RPC_Gas_x]" dy="[mbCommon:MBChimRPC_OGasRight_z]" dz="[mbCommon:MBRPC_Gas_y]"/>
 
 </SolidSection>
 
@@ -683,7 +690,7 @@ plus MB2ChimP (32P) , MB2ChimN (32N)
   <rMaterial name="materials:M_RPC_Gas"/>
  </LogicalPart>
  <LogicalPart name="MB2ChimRPC_IGasRight" category="unspecified">
-  <rSolid name="MB23RPC_IGasRight"/>
+  <rSolid name="MB2ChimRPC_IGasRight"/>
   <rMaterial name="materials:M_RPC_Gas"/>
  </LogicalPart>
  <LogicalPart name="MB2ChimRPC_OP" category="unspecified">
@@ -699,7 +706,7 @@ plus MB2ChimP (32P) , MB2ChimN (32N)
   <rMaterial name="materials:M_RPC_Gas"/>
  </LogicalPart>
  <LogicalPart name="MB2ChimRPC_OGasRight" category="unspecified">
-  <rSolid name="MB22RPC_OGasRight"/>
+  <rSolid name="MB2ChimRPC_OGasRight"/>
   <rMaterial name="materials:M_RPC_Gas"/>
  </LogicalPart>
 
@@ -2202,7 +2209,7 @@ plus MB2ChimP (32P) , MB2ChimN (32N)
    <rParent name="mb2:MB2ChimRPC_OP"/>
    <rChild name="mb2:MB2ChimRPC_OGasLeft"/>
   <rRotation name="rotations:RPCD" />
-  <Translation x="0*cm" y="-[mbCommon:MBRPC_GasLeft_y_pos]" z="0*cm" />
+  <Translation x="0*cm" y="-[mb2:MB2ChimRPC_OGasLeft_y_pos]" z="0*cm" />
  </PosPart>
  <PosPart copyNumber="1">
    <rParent name="mb2:MB2ChimRPC_OP"/>
@@ -2246,7 +2253,7 @@ plus MB2ChimP (32P) , MB2ChimN (32N)
    <rChild name="mb2:MB2ChimRPC_OGasLeft"/>
   <rRotation name="rotations:RPCD" />
 
-  <Translation x="0*cm" y="-[mbCommon:MBRPC_GasLeft_y_pos]" z="0*cm" />
+  <Translation x="0*cm" y="-[mb2:MB2ChimRPC_OGasLeft_y_pos]" z="0*cm" />
  </PosPart>
  <PosPart copyNumber="1">
    <rParent name="mb2:MB2ChimRPC_ON"/>
