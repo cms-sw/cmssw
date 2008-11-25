@@ -44,7 +44,6 @@ CalibrationAlgorithm::CalibrationAlgorithm( CalibrationAnalysis* const anal )
 // ----------------------------------------------------------------------------
 // 
 void CalibrationAlgorithm::extract( const std::vector<TH1*>& histos) {
-LogDebug(mlCommissioning_) << "##CD## in extract" ;
   if ( !anal() ) {
     edm::LogWarning(mlCommissioning_)
       << "[CalibrationAlgorithm::" << __func__ << "]"
@@ -93,7 +92,6 @@ LogDebug(mlCommissioning_) << "##CD## in extract" ;
     // Extract calibration histo
     histo_[cnt].first = *ihis;
     histo_[cnt].second = (*ihis)->GetTitle();
-LogDebug(mlCommissioning_) << "##CD## in extract got histogram " << cnt;
   }
   
 }
@@ -163,8 +161,6 @@ void CalibrationAlgorithm::analyse() {
       }
     }
     
-    LogDebug(mlCommissioning_)
-      << "start the calibration analysis for APV " << apv << " strip " << strip;
     // rescale the plot
     correctDistribution(histo_[i].first);
     
@@ -193,15 +189,6 @@ void CalibrationAlgorithm::analyse() {
   
     // chi2
     cal_->chi2_[apv][strip] = fit->GetChisquare();
-    
-    LogDebug(mlCommissioning_) 
-      << "Results: " 
-      << cal_->chi2_[apv][strip] << " " 
-      << cal_->smearing_[apv][strip] << " " 
-      << cal_->timeConstant_[apv][strip] << " " 
-      << cal_->riseTime_[apv][strip] << " " 
-      << cal_->tail_[apv][strip] << " " 
-      << cal_->amplitude_[apv][strip];
     
     //compute mean, max, min, spread
     Amean[apv] += cal_->amplitude_[apv][strip]/nStrips;
