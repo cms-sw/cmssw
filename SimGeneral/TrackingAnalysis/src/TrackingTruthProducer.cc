@@ -1,5 +1,3 @@
-#include <algorithm>
-
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
 #include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
@@ -18,10 +16,6 @@
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingVertex.h"
 
 #include "SimGeneral/TrackingAnalysis/interface/TrackingTruthProducer.h"
-
-
-using namespace edm;
-using namespace std;
 
 
 typedef edm::Ref<edm::HepMCProduct, HepMC::GenParticle > GenParticleRef;
@@ -154,8 +148,6 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &)
         event.put(trackingParticles_);
         event.put(trackingVertexes_);
     }
-
-    cout << "Saving in the event" << std::endl << std::endl;
 }
 
 
@@ -250,8 +242,6 @@ void TrackingTruthProducer::mergeBremsstrahlung()
             excludedTP.insert( daughterRef.key() );
         }
     }
-
-    std::cout << "Generating the merged collection." << std::endl;
 
     edm::LogInfo(MessageCategory_) << "Generating the merged collection." << std::endl;
 
@@ -382,8 +372,6 @@ void TrackingTruthProducer::createTrackingTruth()
         // the function return true if it is tracable
         if ( setTrackingParticle(simTrack, trackingParticle) )
         {
-            cout << std::endl << "Found a tracebla track with #SimHits : " << trackingParticle.matchedHit() << std::endl;
-                
             // Follows the path upward recovering the history of the particle
             SimTrack const * currentSimTrack = & simTrack;
 
@@ -413,8 +401,6 @@ void TrackingTruthProducer::createTrackingTruth()
                     trackingVertexes_->at(trackingVertexIndex).addParentTrack(
                         TrackingParticleRef(refTrackingParticles_, trackingParticleIndex)
                     );
-
-                    cout << "Adding secondary tp with index : " << trackingParticleIndex << std::endl;
                 }
                 else
                 {
@@ -424,8 +410,6 @@ void TrackingTruthProducer::createTrackingTruth()
                     trackingParticles_->push_back(trackingParticle);
                     // Vetoed the simTrack
                     vetoedTracks.insert( make_pair(simTrackIndex, trackingParticleIndex) );
-                    
-                    cout << "Adding primaty tp with index : " << trackingParticleIndex << std::endl;
                 }
 
                 // Verify if the parent simVertex has a simTrack or if the source is a vetoSimVertex
@@ -433,8 +417,6 @@ void TrackingTruthProducer::createTrackingTruth()
 
                 // Get the simTrack parent index
                 unsigned int parentSimVertexIndex = currentSimTrack->vertIndex();
-
-                cout << "Getting parent simvertex index: " << parentSimVertexIndex << std::endl;
 
                 // Create a new tv
                 TrackingVertex trackingVertex;
@@ -446,12 +428,8 @@ void TrackingTruthProducer::createTrackingTruth()
                 // Check for a already visited parent simTrack
                 if ( !vetoSimVertex )
                 {
-                    cout << "Vertex was not visited before: " << parentSimVertexIndex << std::endl;
-
                     // Set the tv by using simvertex
                     trackingVertexIndex = setTrackingVertex(*parentSimVertex, trackingVertex);
-
-                    cout << "Vertex setted return tv index: " << trackingVertexIndex << std::endl;
 
                     // Check if a new vertex needs to be created
                     if (trackingVertexIndex < 0)
@@ -460,8 +438,6 @@ void TrackingTruthProducer::createTrackingTruth()
                         trackingVertexIndex = trackingVertexes_->size();
                         // Push the new tv in to the collection
                         trackingVertexes_->push_back(trackingVertex);
-
-                        cout << "Vertex added with tv index: " << trackingVertexIndex << std::endl;
                     }
                     else
                     {
@@ -471,19 +447,12 @@ void TrackingTruthProducer::createTrackingTruth()
                         double t = position.t();
                         // Set the vertex postion of the tp to the closest vertex
                         trackingParticles_->at(trackingParticleIndex).setVertex(xyz, t);
-
-                        cout << "Merged vertex with index: " << trackingVertexIndex << std::endl;
                     }
 
                     vetoedSimVertexes.insert( make_pair(parentSimVertexIndex, trackingVertexIndex) );
                 }
                 else
-                {
                     trackingVertexIndex = vetoedSimVertexes[parentSimVertexIndex];
-                    cout << "Visited vertex with index: " << trackingVertexIndex << std::endl;
-                }
-
-                cout << "Setting up vertex reference" << std::endl;
 
                 // Set the newly created tv as parent vertex
                 trackingParticles_->at(trackingParticleIndex).setParentVertex(
@@ -525,9 +494,6 @@ void TrackingTruthProducer::createTrackingTruth()
 
                 // Set the current simTrack as the next simTrack
                 currentSimTrack = & simTracks_->getObject(nextSimTrackIndex);
-
-                cout << "SimTrack with history" << std::endl;
-
             }
             while (!currentSimTrack->noVertex());
         }
