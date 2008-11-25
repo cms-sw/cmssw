@@ -101,9 +101,10 @@ DoHLTJets = cms.Path(HLTBeginSequence +
 
 # create the tau HLT reco path
 from HLTrigger.HLTanalyzers.OpenHLT_Tau_cff import *
-DoHLTTau = cms.Path(HLTBeginSequence + 
-    hltTauPrescaler + 
-    hltTauL1SeedFilter + 
+DoHLTTau = cms.Path(
+    HLTBeginSequence + 
+    #hltTauPrescaler + 
+    #hltTauL1SeedFilter + 
     OpenHLTCaloTausCreatorSequence + 
     hltMet + 
     hltL2TauJets + 
