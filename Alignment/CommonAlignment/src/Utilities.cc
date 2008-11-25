@@ -115,7 +115,6 @@ align::RotationType align::diffRot(const GlobalVectors& current,
   for (unsigned int j = 0; j < nPoints; ++j)
   {
     const GlobalVector& r = nominal[j];
-
   // Inertial tensor: I_ij = delta_ij * r^2 - r_i * r_j (sum over points)
 
     I.fast(1, 1) += r.y() * r.y() + r.z() * r.z();
@@ -125,7 +124,7 @@ align::RotationType align::diffRot(const GlobalVectors& current,
     I.fast(3, 1) -= r.x() * r.z();
     I.fast(3, 2) -= r.y() * r.z();
   }
-
+ int count=0;
   while (true)
   {
     AlgebraicVector rhs(3); // sum of dr * r
@@ -147,6 +146,11 @@ align::RotationType align::diffRot(const GlobalVectors& current,
     rot *= toMatrix(dOmega); // add to rotation
 
     if (dOmega.normsq() < tolerance) break; // converges, so exit loop
+    count++;
+    if(count>100000){
+       std::cout<<"diffRot infinite loop: dOmega is "<<dOmega.normsq()<<"\n";
+       break;
+    }
 
   // Not yet converge; move current vectors to new positions and find dr
 
