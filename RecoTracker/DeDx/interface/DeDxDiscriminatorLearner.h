@@ -1,8 +1,8 @@
-#ifndef TrackRecoDeDx_DeDxDiscriminatorProducer_H
-#define TrackRecoDeDx_DeDxDiscriminatorProducer_H
+#ifndef TrackRecoDeDx_DeDxDiscriminatorLearner_H
+#define TrackRecoDeDx_DeDxDiscriminatorLearner_H
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+//#include "FWCore/Framework/interface/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -28,9 +28,7 @@
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 
-//#include "CommonTools/ConditionDBWriter/interface/ConditionDBWriter.h"
-//#include "CondFormats/SiStripObjects/interface/SiStripDeDxProb.h"
-//#include "CondFormats/DataRecord/interface/SiStripDeDxProbRcd.h"
+#include "CommonTools/ConditionDBWriter/interface/ConditionDBWriter.h"
 #include "CondFormats/PhysicsToolsObjects/interface/Histogram2D.h"
 
 #include "TFile.h"
@@ -52,19 +50,23 @@ using namespace __gnu_cxx;
 // class declaration
 //
 
-class DeDxDiscriminatorProducer : public edm::EDProducer {
+class DeDxDiscriminatorLearner : public ConditionDBWriter<PhysicsTools::Calibration::HistogramD2D> {
 
 public:
 
-  explicit DeDxDiscriminatorProducer(const edm::ParameterSet&);
-  ~DeDxDiscriminatorProducer();
+  explicit DeDxDiscriminatorLearner(const edm::ParameterSet&);
+  ~DeDxDiscriminatorLearner();
 
 private:
-  virtual void beginJob(const edm::EventSetup&) ;
-  virtual void produce(edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ;
+  virtual void algoBeginJob(const edm::EventSetup&) ;
+  virtual void algoAnalyze(edm::Event&, const edm::EventSetup&);
+  virtual void algoEndJob();
+
+  PhysicsTools::Calibration::HistogramD2D * getNewObject();
+
 
   bool IsFarFromBorder(TrajectoryStateOnSurface trajState, const uint32_t detid, const edm::EventSetup* iSetup);
+  
   double ComputeChargeOverPath(const SiStripRecHit2D* sistripsimplehit,TrajectoryStateOnSurface trajState, const edm::EventSetup* iSetup,  const Track* track, double trajChi2OverN);
 
   // ----------member data ---------------------------
@@ -76,13 +78,9 @@ private:
   double MeVperADCPixel;
   double MeVperADCStrip;
 
-  //  const edm::EventSetup* iSetup_;
+  // const edm::EventSetup* iSetup_;
   //  const edm::Event*      iEvent_;
   //  const TrackerGeometry* m_tracker;
-
-   PhysicsTools::Calibration::HistogramD2D DeDxMap_;
-//  edm::ESHandle<SiStripDeDxProb> DeDxMapHandle_;
-
 
   TFile*       MapFile;
   std::string  MapFileName;
@@ -110,15 +108,15 @@ private:
 
   vector<float> MeasurementProbabilities;
 
-   private :
-      struct stModInfo{int DetId; int SubDet; float Eta; float R; float Thickness; int NAPV; };
+private :
+  struct stModInfo{int DetId; int SubDet; float Eta; float R; float Thickness; int NAPV; };
 
-      class isEqual{
-         public:
-                 template <class T> bool operator () (const T& PseudoDetId1, const T& PseudoDetId2) { return PseudoDetId1==PseudoDetId2; }
-      };
+  class isEqual{
+  public:
+    template <class T> bool operator () (const T& PseudoDetId1, const T& PseudoDetId2) { return PseudoDetId1==PseudoDetId2; }
+  };
 
-      hash_map<unsigned int, stModInfo*,  hash<unsigned int>, isEqual > MODsColl;
+  hash_map<unsigned int, stModInfo*,  hash<unsigned int>, isEqual > MODsColl;
 };
 
 #endif

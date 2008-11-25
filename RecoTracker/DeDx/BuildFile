@@ -6,6 +6,9 @@
 <use name=DataFormats/TrackerRecHit2D>
 <use name=Geometry/Records>
 <use name=Geometry/TrackerGeometryBuilder>
+<use name=CondCore/DBOutputService>
+<use name=CondFormats/PhysicsToolsObjects>
+<use name=CondFormats/DataRecord>
 <use name=rootcore>
 <use name=root>
 
@@ -21,6 +24,9 @@
    <use name=DataFormats/TrackerRecHit2D>
    <use name=Geometry/Records>
    <use name=Geometry/TrackerGeometryBuilder>
+   <use name=CondCore/DBOutputService>
+   <use name=CondFormats/PhysicsToolsObjects>
+   <use name=CondFormats/DataRecord>
    <use name=rootcore>
    <use name=root>
 </export>
