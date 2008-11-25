@@ -100,7 +100,8 @@ class CellStat:
                 count=count+1
                 if ((self.status[i]>>5)&0x1):
                     hot=hot+1
-        if (hot>=0.90*count):
+
+        if (count>0 and hot>=0.90*count):
             self.Alwayshot=True
         return self.Alwayshot
     
@@ -115,7 +116,7 @@ class CellStat:
                     dead=dead+1
         #if (self.status[i]):
         #    print "count = ",count,"  DEAD = ",dead
-        if (dead>=0.90*count):
+        if (count>0 and dead>=0.90*count):
             self.Alwaysdead=True
         return self.Alwaysdead
 
@@ -562,13 +563,13 @@ class RunStatusGui:
             self.Print("Checking for info on cell '%s'"%self.CellID.get())
             try:
                 newid=calcDetID(self.CellID.get())
-                print newid
+                #print newid
             except:
-                print newid
+                #print newid
                 self.Print("Could not find info for cell '%s'"%newid)
                 return
         if newid not in self.Cells:
-            print newid
+            #print newid
             self.Print("Could not find info for cell '%s'."%newid)
             return
         values=array('i')
@@ -603,7 +604,7 @@ class RunStatusGui:
                     gr.Fill(i,2)
                 # dead cells
                 if ((self.Cells[newid].status[i]>>4)&0x1):
-                    print self.Cells[newid].status[i]
+                    #print self.Cells[newid].status[i]
                     gr.Fill(i,3)
                 if (self.Cells[newid].status[i]==0):
                     gr.Fill(i,1)
@@ -617,7 +618,7 @@ class RunStatusGui:
         gr.SetMinimum(0)
         c1 = TCanvas('c1','test',200, 10, self.canwidth, self.canheight )
 
-        gr.Draw() # was "col"
+        gr.Draw("col") # was "col" -- make configurable?
         c1.Update()
 
         c1.Print("badcelldisplay_file.gif")
