@@ -59,7 +59,7 @@ using namespace std;
 //
 SiPixelEDAClient::SiPixelEDAClient(const edm::ParameterSet& ps) :
   ModuleWeb("SiPixelEDAClient"){
- //cout<<"Entering  SiPixelEDAClient::SiPixelEDAClient: "<<endl;
+// cout<<"Entering  SiPixelEDAClient::SiPixelEDAClient: "<<endl;
  
   string localPath = string("DQM/SiPixelMonitorClient/test/loader.html");
   ifstream fin(edm::FileInPath(localPath).fullPath().c_str(), ios::in);
@@ -96,7 +96,7 @@ SiPixelEDAClient::SiPixelEDAClient(const edm::ParameterSet& ps) :
   sipixelInformationExtractor_ = new SiPixelInformationExtractor(offlineXMLfile_);
   sipixelActionExecutor_ = new SiPixelActionExecutor(offlineXMLfile_);
   
- //cout<<"...leaving  SiPixelEDAClient::SiPixelEDAClient. "<<endl;
+// cout<<"...leaving  SiPixelEDAClient::SiPixelEDAClient. "<<endl;
 }
 //
 // -- Destructor
@@ -120,7 +120,7 @@ SiPixelEDAClient::~SiPixelEDAClient(){
 // -- Begin Job
 //
 void SiPixelEDAClient::beginJob(const edm::EventSetup& eSetup){
-  //cout<<"Entering SiPixelEDAClient::beginJob: "<<endl;
+//  cout<<"Entering SiPixelEDAClient::beginJob: "<<endl;
 
   // Read the summary configuration file
   if (!sipixelWebInterface_->readConfiguration(tkMapFrequency_,summaryFrequency_)) {
@@ -133,7 +133,8 @@ void SiPixelEDAClient::beginJob(const edm::EventSetup& eSetup){
   }
   nLumiSecs_ = 0;
   nEvents_   = 0;
-
+  
+  bei_->setCurrentFolder("Pixel/");
   // Setting up QTests:
   sipixelActionExecutor_->setupQTests(bei_);
   // Creating Summary Histos:
@@ -144,7 +145,7 @@ void SiPixelEDAClient::beginJob(const edm::EventSetup& eSetup){
   sipixelInformationExtractor_->bookGlobalQualityFlag(bei_, noiseRate_,Tier0Flag_);
   if(!Tier0Flag_) nFEDs_ = 40;
 
-  //cout<<"...leaving SiPixelEDAClient::beginJob. "<<endl;
+//  cout<<"...leaving SiPixelEDAClient::beginJob. "<<endl;
 }
 //
 // -- Begin Run
