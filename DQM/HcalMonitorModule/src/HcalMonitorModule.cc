@@ -4,8 +4,8 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2008/11/25 10:27:05 $
- * $Revision: 1.93 $
+ * $Date: 2008/11/25 10:27:48 $
+ * $Revision: 1.94 $
  * \author W Fisher
  *
 */
@@ -425,11 +425,11 @@ void HcalMonitorModule::endJob(void) {
 		  (id.subdet()==HcalForward&&!HFpresent_))
 		{
 		  mystatus->setBit(1);
-		  continue;
 		}
+	      // Only perform these checks if bit 0 not set?
 	      // check dead cells
 	      if ((myquality_[id]>>5)&0x1)
-		  mystatus->setBit(5);
+		mystatus->setBit(5);
 	      else
 		mystatus->unsetBit(5);
 	      // check hot cells
@@ -437,7 +437,7 @@ void HcalMonitorModule::endJob(void) {
 		mystatus->setBit(6);
 	      else
 		mystatus->unsetBit(6);
-	    }
+	    } // if (myquality.find_...)
 	  newChanQual->addValues(*mystatus);
 	} // for (unsigned int i=0;...)
       // Now dump out to text file
