@@ -32,7 +32,7 @@ process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService
 )
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(50)
+    input = cms.untracked.int32(100)
 )
 process.source = cms.Source("PythiaSource",
     pythiaHepMCVerbosity = cms.untracked.bool(False),
@@ -90,10 +90,12 @@ process.o1 = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('HecMBEvent.root')
 )
 
+process.Timing = cms.Service("Timing")
+process.Tracer = cms.Service("Tracer")
 process.p1 = cms.Path(process.VtxSmeared*process.LHCTransport*process.g4SimHits)
 process.outpath = cms.EndPath(process.o1)
 process.schedule = cms.Schedule(process.p1,process.outpath)
-
+process.g4SimHits.Physics.DefaultCutValue =  1000.
 process.g4SimHits.UseMagneticField = False
 process.g4SimHits.Generator.ApplyEtaCuts = False
 process.g4SimHits.Generator.HepMCProductLabel = 'LHCTransport'
