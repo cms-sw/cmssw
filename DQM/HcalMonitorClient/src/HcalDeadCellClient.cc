@@ -416,7 +416,7 @@ void HcalDeadCellClient::htmlOutput(int runNo, string htmlDir, string htmlName)
   if (deadclient_test_occupancy_) htmlFile<<"<br> A cell's digi is not present for a number of consecutive events; "<<endl;
   if (deadclient_test_rechit_occupancy_) htmlFile<<"<br> A cell's rec hit is not present for a number of consecutive events; "<<endl;
 
-  if (deadclient_test_pedestal_ ) htmlFile<<"<br> A cell's ADC sum is less than (pedestal + N sigma);"<<endl;
+  if (deadclient_test_pedestal_ ) htmlFile<<"<br> A cell's ADC sum is consistently less than (pedestal + N sigma);"<<endl;
   if (deadclient_test_energy_   ) htmlFile<<"<br> A cell's energy is consistently less than a threshold value;"<<endl;
   if (deadclient_test_neighbor_ ) htmlFile<<"<br> A cell's energy is much less than the average of its neighbors;"<<endl;
   htmlFile<<"</td>"<<endl;
