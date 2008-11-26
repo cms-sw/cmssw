@@ -909,6 +909,69 @@ std::ostream& operator<< ( std::ostream& os, const SiStripFedCabling& cabling ) 
 
 
 // -----------------------------------------------------------------------------
+// TO BE DEPRECATED! TO BE DEPRECATED! TO BE DEPRECATED! 
+SiStripFedCabling::SiStripFedCabling( const std::vector<FedChannelConnection>& input ) 
+  : feds_(),
+    registry_(),
+    connections_(),
+    detected_(),
+    undetected_()
+{
+  LogTrace(mlCabling_)
+    << "[SiStripFedCabling::" << __func__ << "]"
+    << " Constructing object...";
+  buildFedCabling( ConnsConstIterRange( input.begin(), 
+					input.end() ) );
+}
+
+// -----------------------------------------------------------------------------
+// TO BE DEPRECATED! TO BE DEPRECATED! TO BE DEPRECATED! 
+void SiStripFedCabling::buildFedCabling( const std::vector<FedChannelConnection>& input ) {
+  buildFedCabling( ConnsConstIterRange( input.begin(), 
+					input.end() ) );
+}
+
+// -----------------------------------------------------------------------------
+// TO BE DEPRECATED! TO BE DEPRECATED! TO BE DEPRECATED! 
+const std::vector<FedChannelConnection>& SiStripFedCabling::connections( uint16_t fed_id ) const {
+  static std::vector<FedChannelConnection> output;
+  output.clear();
+  ConnsConstIterRange input = fedConnections( fed_id );
+  if ( input.empty() ) {
+    output.resize( input.size() );
+    std::copy( input.begin(), input.end(), output.begin() );
+  } else { output.resize( 96, FedChannelConnection() ); }
+  return output;
+}
+
+// -----------------------------------------------------------------------------
+// TO BE DEPRECATED! TO BE DEPRECATED! TO BE DEPRECATED! 
+const FedChannelConnection& SiStripFedCabling::connection( uint16_t fed_id, 
+							   uint16_t fed_ch ) const {
+  static FedChannelConnection output;
+  output = fedConnection( fed_id, fed_ch );
+  return output;
+}
+
+// -----------------------------------------------------------------------------
+// TO BE DEPRECATED! TO BE DEPRECATED! TO BE DEPRECATED! 
+const std::vector<uint16_t>& SiStripFedCabling::feds() const {
+  return feds_;
+}
+
+// -----------------------------------------------------------------------------
+// TO BE DEPRECATED! TO BE DEPRECATED! TO BE DEPRECATED! 
+const std::vector<FedChannelConnection>& SiStripFedCabling::detected() const { 
+  return detected_;
+}
+
+// -----------------------------------------------------------------------------
+// TO BE DEPRECATED! TO BE DEPRECATED! TO BE DEPRECATED! 
+const std::vector<FedChannelConnection>& SiStripFedCabling::undetected() const{ 
+  return undetected_;
+}
+
+// -----------------------------------------------------------------------------
 //
 SiStripFedCabling::SiStripFedCabling( ConnsConstIterRange input ) 
   : feds_(),
@@ -1095,7 +1158,7 @@ std::ostream& operator<<( std::ostream& os, const SiStripFedCabling::ConnsRange&
 
 // -----------------------------------------------------------------------------
 // Returns connection info for FE devices connected to given FED 
-SiStripFedCabling::ConnsConstIterRange SiStripFedCabling::connections( uint16_t fed_id ) const {
+SiStripFedCabling::ConnsConstIterRange SiStripFedCabling::fedConnections( uint16_t fed_id ) const {
   uint16_t index = fed_id - FEDNumbering::getSiStripFEDIds().first;
   if ( index < registry_.size() ) { 
     return range( registry_[ index ] ).range();
@@ -1104,9 +1167,9 @@ SiStripFedCabling::ConnsConstIterRange SiStripFedCabling::connections( uint16_t 
 
 // -----------------------------------------------------------------------------
 // Returns connection info for FE devices connected to given FED id and channel
-FedChannelConnection SiStripFedCabling::connection( uint16_t fed_id, 
-						    uint16_t fed_ch ) const {
-  ConnsConstIterRange conns = connections( fed_id );
+FedChannelConnection SiStripFedCabling::fedConnection( uint16_t fed_id, 
+						       uint16_t fed_ch ) const {
+  ConnsConstIterRange conns = fedConnections( fed_id );
   if ( !conns.empty() && conns.size() == 96 && fed_ch < 96 ) {
     return *( conns.begin() + fed_ch ); 
   } else { return FedChannelConnection(); }

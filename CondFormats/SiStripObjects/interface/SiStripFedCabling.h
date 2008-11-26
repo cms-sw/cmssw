@@ -359,14 +359,37 @@ class SiStripFedCabling {
   
   typedef std::vector<ConnsPair> Registry;
   
+  // -------------------- TO BE DEPRECATED! --------------------
+  
+  /** TO BE DEPRECATED! TO BE DEPRECATED! TO BE DEPRECATED! */
+  SiStripFedCabling( const std::vector<FedChannelConnection>& );
+  
+  /** TO BE DEPRECATED! TO BE DEPRECATED! TO BE DEPRECATED! */
+  void buildFedCabling( const std::vector<FedChannelConnection>& );
+  
+  /** TO BE DEPRECATED! TO BE DEPRECATED! TO BE DEPRECATED! */
+  const std::vector<FedChannelConnection>& connections( uint16_t fed_id ) const; 
+  
+  /** TO BE DEPRECATED! TO BE DEPRECATED! TO BE DEPRECATED! */
+  const FedChannelConnection& connection( uint16_t fed_id, uint16_t fed_ch ) const; 
+  
+  /** TO BE DEPRECATED! TO BE DEPRECATED! TO BE DEPRECATED! */
+  const std::vector<uint16_t>& feds() const;
+  
+  /** TO BE DEPRECATED! TO BE DEPRECATED! TO BE DEPRECATED! */
+  const std::vector<FedChannelConnection>& detected() const; 
+  
+  /** TO BE DEPRECATED! TO BE DEPRECATED! TO BE DEPRECATED! */
+  const std::vector<FedChannelConnection>& undetected() const; 
+  
   // -------------------- Constructors, destructors --------------------
-
+  
   /** Constructor taking FED channel connection objects as input. */
   SiStripFedCabling( ConnsConstIterRange );
-
+  
   /** Copy constructor. */
   SiStripFedCabling( const SiStripFedCabling& ); 
-
+  
   /** Public default constructor. */
   SiStripFedCabling();
 
@@ -376,19 +399,19 @@ class SiStripFedCabling {
   // -------------------- Methods to retrieve connections --------------------
 
   /** Retrieve vector of active FED ids. */
-  FedsConstIterRange feds() const;
+  FedsConstIterRange fedIds() const;
   
-  /** Returns all connection info for a given FED id. */
-  ConnsConstIterRange connections( uint16_t fed_id ) const; 
+  /** Returns all connection objects for a given FED id. */
+  ConnsConstIterRange fedConnections( uint16_t fed_id ) const; 
   
-  /** Returns Connection info for a given FED id and channel. */
-  FedChannelConnection connection( uint16_t fed_id, uint16_t fed_ch ) const; 
+  /** Returns connection object for a given FED id and channel. */
+  FedChannelConnection fedConnection( uint16_t fed_id, uint16_t fed_ch ) const; 
   
   /** Returns information for "detected, but unconnected" devices. */
-  ConnsConstIterRange detected() const; 
+  ConnsConstIterRange detectedDevices() const; 
   
   /** Returns information for all "undetected" devices. */
-  ConnsConstIterRange undetected() const; 
+  ConnsConstIterRange undetectedDevices() const; 
 
   // -------------------- Utility methods --------------------
   
@@ -459,15 +482,15 @@ class SiStripFedCabling {
 
 std::ostream& operator<<( std::ostream&, const SiStripFedCabling::ConnsRange& );
 
-inline SiStripFedCabling::FedsConstIterRange SiStripFedCabling::feds() const {
+inline SiStripFedCabling::FedsConstIterRange SiStripFedCabling::fedIds() const {
   return FedsConstIterRange( feds_.begin(), feds_.end() );
 }
 
-inline SiStripFedCabling::ConnsConstIterRange SiStripFedCabling::detected() const { 
+inline SiStripFedCabling::ConnsConstIterRange SiStripFedCabling::detectedDevices() const { 
   return ConnsConstIterRange( detected_.begin(), detected_.end() ); 
 }
 
-inline SiStripFedCabling::ConnsConstIterRange SiStripFedCabling::undetected() const{ 
+inline SiStripFedCabling::ConnsConstIterRange SiStripFedCabling::undetectedDevices() const{ 
   return ConnsConstIterRange( undetected_.begin(), undetected_.end() ); 
 }
 
