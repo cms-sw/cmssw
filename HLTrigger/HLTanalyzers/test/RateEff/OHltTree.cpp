@@ -897,8 +897,8 @@ void OHltTree::Loop( vector<int> * iCount, vector<int> * sPureCount, vector<int>
 	  int max =  (NohBJetL2 > 2) ? 2 : NohBJetL2;
           for(int i = 0; i < max; i++) { 
             if(ohBJetL2CorrectedEt[i] > 20.) { // ET cut
-	      if(ohBJetPerfL25Discriminator[i] > 0.5) { // Level 2.5 b tag
-		if(ohBJetPerfL3Discriminator[i] > 0.5) { // Level 3 b tag
+	      if(ohBJetPerfL25Tag[i] > 0.5) { // Level 2.5 b tag
+		if(ohBJetPerfL3Tag[i] > 0.5) { // Level 3 b tag
 		  rc++; 
 		} 
 	      }
@@ -1355,10 +1355,10 @@ int  OHltTree::OpenHlt1PhotonPassed(float Et, int L1iso, float Tiso, float Eiso,
   int rc = 0;
   // Loop over all oh photons
   for (int i=0;i<NohPhot;i++) {
-    if ( ohPhotEt[i] > Et) {
-      if ( ohPhotL1iso[i] >= L1iso ) {
-        if( ohPhotTiso[i]<Tiso ) {
-          if( ohPhotEiso[i] < Eiso ) {
+    if ( ohPhotEt[i] > Et) { 
+      if ( ohPhotL1iso[i] >= L1iso ) { 
+        if( ohPhotTiso[i]<Tiso ) { 
+          if( ohPhotEiso[i] < Eiso ) { 
             if( (TMath::Abs(ohPhotEta[i]) < 1.5 && ohPhotHiso[i] < HisoBR )  ||
               (1.5 < TMath::Abs(ohPhotEta[i]) && TMath::Abs(ohPhotEta[i]) < 2.5 && ohPhotHiso[i] < HisoEC ) || 
               (ohPhotHiso[i]/ohPhotEt[i] < 0.05) ) {

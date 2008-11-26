@@ -105,8 +105,8 @@ public :
   Float_t         ohBJetPerfL2ET[1000];   //[NohBJetPerf]
   Float_t         ohBJetPerfL2Eta[1000];   //[NohBJetPerf]
   Float_t         ohBJetPerfL2Phi[1000];   //[NohBJetPerf]
-  Int_t           ohBJetPerfL25Discriminator[1000];   //[NohBJetPerf]
-  Int_t           ohBJetPerfL3Discriminator[1000];   //[NohBJetPerf]
+  Int_t           ohBJetPerfL25Tag[1000];   //[NohBJetPerf]
+  Int_t           ohBJetPerfL3Tag[1000];   //[NohBJetPerf]
   Int_t           NrecoElec;
   Float_t         recoElecPt[4000];   //[NrecoElec]
   Float_t         recoElecPhi[4000];   //[NrecoElec]
@@ -774,8 +774,8 @@ public :
   TBranch        *b_ohBJetPerfL2ET;   //!
   TBranch        *b_ohBJetPerfL2Eta;   //!
   TBranch        *b_ohBJetPerfL2Phi;   //!
-  TBranch        *b_ohBJetPerfL25Discriminator;   //!
-  TBranch        *b_ohBJetPerfL3Discriminator;   //!
+  TBranch        *b_ohBJetPerfL25Tag;   //!
+  TBranch        *b_ohBJetPerfL3Tag;   //!
   TBranch        *b_NrecoElec;   //!
   TBranch        *b_recoElecPt;   //!
   TBranch        *b_recoElecPhi;   //!
@@ -1648,8 +1648,8 @@ void OHltTree::Init(TTree *tree)
   fChain->SetBranchAddress("ohBJetPerfL2ET", ohBJetPerfL2ET, &b_ohBJetPerfL2ET);
   fChain->SetBranchAddress("ohBJetPerfL2Eta", ohBJetPerfL2Eta, &b_ohBJetPerfL2Eta);
   fChain->SetBranchAddress("ohBJetPerfL2Phi", ohBJetPerfL2Phi, &b_ohBJetPerfL2Phi);
-  fChain->SetBranchAddress("ohBJetPerfL25Discriminator", ohBJetPerfL25Discriminator, &b_ohBJetPerfL25Discriminator);
-  fChain->SetBranchAddress("ohBJetPerfL3Discriminator", ohBJetPerfL3Discriminator, &b_ohBJetPerfL3Discriminator);
+  fChain->SetBranchAddress("ohBJetPerfL25Tag", ohBJetPerfL25Tag, &b_ohBJetPerfL25Tag);
+  fChain->SetBranchAddress("ohBJetPerfL3Tag", ohBJetPerfL3Tag, &b_ohBJetPerfL3Tag);
   fChain->SetBranchAddress("NrecoElec", &NrecoElec, &b_NrecoElec);
   fChain->SetBranchAddress("recoElecPt", &recoElecPt, &b_recoElecPt);
   fChain->SetBranchAddress("recoElecPhi", &recoElecPhi, &b_recoElecPhi);
