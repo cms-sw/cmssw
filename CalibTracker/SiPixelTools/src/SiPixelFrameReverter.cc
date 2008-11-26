@@ -74,7 +74,7 @@ global)
     LocalPixel local = roc->toLocal(global);
 
     if(!local.valid()) continue;
-    int link = (short) it->link;
+    short link = (short) it->link;
     return link;
   }
   return -1;
@@ -92,7 +92,7 @@ short SiPixelFrameReverter::findRocInLink(uint32_t detId, GlobalPixel global)
     LocalPixel local = roc->toLocal(global);
 
     if(!local.valid()) continue;
-    int rocInLink = (short) roc->idInLink();
+    short rocInLink = (short) roc->idInLink();
     return rocInLink;
   }
   return -1;
@@ -110,7 +110,7 @@ short SiPixelFrameReverter::findRocInDet(uint32_t detId, GlobalPixel global)
     LocalPixel local = roc->toLocal(global);
 
     if(!local.valid()) continue;
-    int rocInDet = (short) roc->idInDetUnit();
+    short rocInDet = (short) roc->idInDetUnit();
     return rocInDet;
   }
   return -1;
