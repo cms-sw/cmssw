@@ -484,7 +484,7 @@ void OHltTree::Loop( vector<int> * iCount, vector<int> * sPureCount, vector<int>
 
 
       else if (trignames[it].CompareTo("OpenHLT_Photon15_L1R") == 0) {    
-        if ( L1_SingleEG12==1 ) {      // L1 Seed                                 
+        if ( L1_SingleEG10==1 ) {      // L1 Seed                                 
           L1AssHLTBit[it] = true;   
 
           if(OpenHlt1PhotonPassed(15.,0,999.,999.,999.,999.)>=1) {     
@@ -847,18 +847,6 @@ void OHltTree::Loop( vector<int> * iCount, vector<int> * sPureCount, vector<int>
 	    triggerBitNoPrescale[it] = true;     
 	    if ((iCountNoPrescale[it]) % map_pathHLTPrescl.find(trignames[it])->second == 0) {     
 	      triggerBit[it] = true;     
-	    }     
-	  }     
-	}
-      }    
-      
-      else if (trignames[it].CompareTo("OpenHLT_Photon15_L1R") == 0) {    
-	if ( L1_SingleEG12==1 ) {      // L1 Seed                                 
-          L1AssHLTBit[it] = true;   
-	  if(OpenHlt1PhotonPassed(15.,0,999.,999.,999.,999.)>=1) {     
-	    triggerBitNoPrescale[it] = true;     
-	    if ((iCountNoPrescale[it]) % map_pathHLTPrescl.find(trignames[it])->second == 0) {     
-		triggerBit[it] = true;     
 	    }     
 	  }     
 	}
