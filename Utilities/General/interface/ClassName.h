@@ -3,6 +3,7 @@
 //
 #include <typeinfo>
 #include <string>
+#include <cstdlib>
 
 inline std::string firstNonNumeric(const char * sc) {
   std::string s(sc);

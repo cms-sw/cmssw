@@ -1,6 +1,7 @@
 #include "Utilities/General/interface/BackTrace.h"
 #include "Utilities/General/interface/ClassName.h"
 #include <iostream>
+#include <cstring>
 
 BackTrace::BackTrace() {}
 
