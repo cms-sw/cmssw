@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sat Jan  5 14:08:51 EST 2008
-// $Id: FWRhoPhiZViewManager.cc,v 1.44 2008/11/14 16:37:46 chrjones Exp $
+// $Id: FWRhoPhiZViewManager.cc,v 1.45 2008/11/18 21:56:16 chrjones Exp $
 //
 
 // system include files
@@ -42,8 +42,6 @@
 // user include files
 #include "Fireworks/Core/interface/FWRhoPhiZViewManager.h"
 #include "Fireworks/Core/interface/FWRPZDataProxyBuilderBase.h"
-#include "Fireworks/Core/interface/FWRPZDataProxyBuilder.h"
-#include "Fireworks/Core/interface/FWRPZ2DDataProxyBuilder.h"
 #include "Fireworks/Core/interface/FWGUIManager.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/DetIdToMatrix.h"
@@ -53,9 +51,10 @@
 #include "Fireworks/Core/interface/TEveElementIter.h"
 #include "Fireworks/Core/interface/FWRhoPhiZView.h"
 #include "Fireworks/Core/interface/FWSelectionManager.h"
-#include "Fireworks/Core/interface/FWRPZDataProxyBuilderFactory.h"
+#include "Fireworks/Core/interface/FWRPZDataProxyBuilderBaseFactory.h"
 
 #include "Fireworks/Core/interface/FWEDProductRepresentationChecker.h"
+#include "Fireworks/Core/interface/FWSimpleRepresentationChecker.h"
 #include "Fireworks/Core/interface/FWTypeToRepresentations.h"
 
 #include <sstream>
@@ -111,14 +110,14 @@ FWRhoPhiZViewManager::FWRhoPhiZViewManager(FWGUIManager* iGUIMgr):
    //create a list of the available ViewManager's
    std::set<std::string> rpzBuilders;
 
-   std::vector<edmplugin::PluginInfo> available = FWRPZDataProxyBuilderFactory::get()->available();
+   std::vector<edmplugin::PluginInfo> available = FWRPZDataProxyBuilderBaseFactory::get()->available();
    std::transform(available.begin(),
                   available.end(),
                   std::inserter(rpzBuilders,rpzBuilders.begin()),
                   boost::bind(&edmplugin::PluginInfo::name_,_1));
 
-   if(edmplugin::PluginManager::get()->categoryToInfos().end()!=edmplugin::PluginManager::get()->categoryToInfos().find(FWRPZDataProxyBuilderFactory::get()->category())) {
-      available = edmplugin::PluginManager::get()->categoryToInfos().find(FWRPZDataProxyBuilderFactory::get()->category())->second;
+   if(edmplugin::PluginManager::get()->categoryToInfos().end()!=edmplugin::PluginManager::get()->categoryToInfos().find(FWRPZDataProxyBuilderBaseFactory::get()->category())) {
+      available = edmplugin::PluginManager::get()->categoryToInfos().find(FWRPZDataProxyBuilderBaseFactory::get()->category())->second;
       std::transform(available.begin(),
                      available.end(),
                      std::inserter(rpzBuilders,rpzBuilders.begin()),
@@ -133,32 +132,6 @@ FWRhoPhiZViewManager::FWRhoPhiZViewManager(FWGUIManager* iGUIMgr):
       //std::cout <<"purpose "<<purpose<<std::endl;
       m_typeToBuilder[purpose]=std::make_pair(*it,true);
    }
-
-
-   rpzBuilders.clear();
-   available = FWRPZ2DDataProxyBuilderFactory::get()->available();
-   std::transform(available.begin(),
-                  available.end(),
-                  std::inserter(rpzBuilders,rpzBuilders.begin()),
-                  boost::bind(&edmplugin::PluginInfo::name_,_1));
-
-   if(edmplugin::PluginManager::get()->categoryToInfos().end()!=edmplugin::PluginManager::get()->categoryToInfos().find(FWRPZ2DDataProxyBuilderFactory::get()->category())) {
-      available = edmplugin::PluginManager::get()->categoryToInfos().find(FWRPZDataProxyBuilderFactory::get()->category())->second;
-      std::transform(available.begin(),
-                     available.end(),
-                     std::inserter(rpzBuilders,rpzBuilders.begin()),
-                     boost::bind(&edmplugin::PluginInfo::name_,_1));
-   }
-
-   for(std::set<std::string>::iterator it = rpzBuilders.begin(), itEnd=rpzBuilders.end();
-       it!=itEnd;
-       ++it) {
-      std::string::size_type first = it->find_first_of('@')+1;
-      std::string  purpose = it->substr(first,it->find_last_of('@')-first);
-      //std::cout <<"purpose "<<purpose<<std::endl;
-      m_typeToBuilder[purpose]=std::make_pair(*it,false);
-   }
-
 }
 
 // FWRhoPhiZViewManager::FWRhoPhiZViewManager(const FWRhoPhiZViewManager& rhs)
@@ -269,27 +242,14 @@ FWRhoPhiZViewManager::makeProxyBuilderFor(const FWEventItem* iItem)
 {
    TypeToBuilder::iterator itFind = m_typeToBuilder.find(iItem->purpose());
    if(itFind != m_typeToBuilder.end()) {
-      if(itFind->second.second) {
-         //std::cout << "\tinterpreting as FWRPZDataProxyBuilder " << std::endl;
-         FWRPZDataProxyBuilder* builder = FWRPZDataProxyBuilderFactory::get()->create(itFind->second.first);
-
-         if(0!=builder) {
-            boost::shared_ptr<FWRPZDataProxyBuilder> pB( builder );
-            builder->setItem(iItem);
-            m_builders.push_back(pB);
-            pB->setViews(&m_rhoPhiViews,&m_rhoZViews);
-         }
-      } else {
-         //std::cout << "\tinterpreting as FWRPZ2DDataProxyBuilder " << std::endl;
-         FWRPZ2DDataProxyBuilder* builder = FWRPZ2DDataProxyBuilderFactory::get()->create(itFind->second.first);
-         if(0!=builder) {
-            boost::shared_ptr<FWRPZ2DDataProxyBuilder> pB( builder );
-            builder->setItem(iItem);
-            m_builders.push_back(pB);
-            pB->setViews(&m_rhoPhiViews,&m_rhoZViews);
-         }
+      FWRPZDataProxyBuilderBase* builder = FWRPZDataProxyBuilderBaseFactory::get()->create(itFind->second.first);
+      
+      if(0!=builder) {
+         boost::shared_ptr<FWRPZDataProxyBuilderBase> pB( builder );
+         builder->setItem(iItem);
+         m_builders.push_back(pB);
+         pB->setViews(&m_rhoPhiViews,&m_rhoZViews);
       }
-
    }
 }
 
@@ -816,12 +776,19 @@ FWTypeToRepresentations
 FWRhoPhiZViewManager::supportedTypesAndRepresentations() const
 {
    FWTypeToRepresentations returnValue;
+   const std::string kSimple("simple#");
    for(TypeToBuilder::const_iterator it = m_typeToBuilder.begin(), itEnd = m_typeToBuilder.end();
        it != itEnd;
        ++it) {
-      returnValue.add(boost::shared_ptr<FWRepresentationCheckerBase>( new FWEDProductRepresentationChecker(
-                                                                                                           it->second.first.substr(0,it->second.first.find_first_of('@')),
+      if(it->second.first.substr(0,kSimple.size()) == kSimple) {
+         returnValue.add(boost::shared_ptr<FWRepresentationCheckerBase>( new FWSimpleRepresentationChecker(
+                                                                                                           it->second.first.substr(kSimple.size(),it->second.first.find_first_of('@')-kSimple.size()),
                                                                                                            it->first)));
+      } else {
+         returnValue.add(boost::shared_ptr<FWRepresentationCheckerBase>( new FWEDProductRepresentationChecker(
+                                                                                                              it->second.first.substr(0,it->second.first.find_first_of('@')),
+                                                                                                              it->first)));
+      }
    }
    return returnValue;
 
