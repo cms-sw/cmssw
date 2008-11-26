@@ -1,8 +1,8 @@
 #!/usr/local/bin/perl
 #     R. Mankel, DESY Hamburg     09-Jul-2007
 #     A. Parenti, DESY Hamburg    24-Apr-2008
-#     $Revision: 1.11 $
-#     $Date: 2008/08/12 21:45:39 $
+#     $Revision: 1.12 $
+#     $Date: 2008/10/28 18:37:05 $
 #
 #  Check output from jobs that have FETCH status
 #  
@@ -34,6 +34,7 @@ for ($i=0; $i<@JOBID; ++$i) {
   $nEvent = 0;
   $cputime = -1;
   $pedeAbend = 0;
+  $pedeLogErr = 0;
   $exceptionCaught = 0;
   $timeout = 0;
   $cfgerr = 0;
@@ -143,7 +144,29 @@ for ($i=0; $i<@JOBID; ++$i) {
       } else {
 	print "mps_check.pl cannot find $eazeLog to test\n";
       }
-      # Add check on millepede.log[.gz] as well?
+
+      # if there is a millepede.log file, check it as well
+      $eazeLog = "jobData/@JOBDIR[$i]/millepede.log";
+      $logZipped = "no";
+      if (-r $eazeLog.".gz") {
+        system "gunzip ".$eazeLog.".gz";
+        $logZipped = "true";
+      }
+      if (-r $eazeLog) {
+      # open the input file
+        open INFILE,"$eazeLog";
+      # scan records in input file
+        while ($line = <INFILE>) {
+	  if (($line =~ m/step no descending/) eq 1) { $pedeLogErr = 1;}
+	  if (($line =~ m/Constraint equation discrepancies:/) eq 1) { $pedeLogErr = 1;}
+        }
+        close INFILE;
+        if ($logZipped eq "true") {
+	  system "gzip $eazeLog";
+        }
+      } else {
+        print "mps_check.pl cannot find $eazeLog to test\n";
+      }
     }
 
     $farmhost = " ";
@@ -221,6 +244,11 @@ for ($i=0; $i<@JOBID; ++$i) {
     if ($pedeAbend eq 1) {
 	print "@JOBDIR[$i] @JOBID[$i] Pede did not end normally\n";
 	$remark = "pede failed";
+	$okStatus = "FAIL";
+    }
+    if ($pedeLogErr eq 1) {
+	print "@JOBDIR[$i] @JOBID[$i] Problems in running Pede\n";
+	$remark = "pede error";
 	$okStatus = "FAIL";
     }
 
