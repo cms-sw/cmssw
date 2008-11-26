@@ -24,6 +24,8 @@ class TkHistoMap{
   void setBinContent(uint32_t& detid,float value);
   void add(uint32_t& detid,float value);
 
+  void save(std::string filename);
+
  private:
 
   void createTkHistoMap(std::string& path, std::string& MapName, float& baseline);

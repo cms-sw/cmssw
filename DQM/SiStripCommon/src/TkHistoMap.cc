@@ -11,6 +11,10 @@ TkHistoMap::TkHistoMap(std::string path, std::string MapName,float baseline):
   createTkHistoMap(path,MapName, baseline);
 }
 
+void TkHistoMap::save(std::string filename){
+  dqmStore_->save(filename);
+}
+
 void TkHistoMap::createTkHistoMap(std::string& path, std::string& MapName, float& baseline){
   
   std::string folder=path;
