@@ -3,11 +3,14 @@
 
 #include <map>
 
+#include "DataFormats/Common/interface/Handle.h"
+
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DataFormats/Common/interface/Handle.h"
+#include "PhysicsTools/RecoAlgos/interface/TrackingParticleSelector.h"
+
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
@@ -77,6 +80,9 @@ private:
     EncodedEventIdToIndex   eventIdCounter_;
     EncodedTruthIdToIndexes trackIdToHits_;
     EncodedTruthIdToIndex   trackIdToIndex_;
+
+    bool selectorFlag_;
+    TrackingParticleSelector selector_;
 
     template<typename Object, typename Associator>
     void associator(

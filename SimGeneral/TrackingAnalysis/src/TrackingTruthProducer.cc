@@ -23,18 +23,34 @@ typedef edm::Ref<edm::HepMCProduct, HepMC::GenVertex >   GenVertexRef;
 typedef math::XYZTLorentzVectorD    LorentzVector;
 typedef math::XYZPoint Vector;
 
-TrackingTruthProducer::TrackingTruthProducer(const edm::ParameterSet &conf)
+TrackingTruthProducer::TrackingTruthProducer(const edm::ParameterSet & config)
 {
-    conf_ = conf;
-    distanceCut_           = conf_.getParameter<double>("vertexDistanceCut");
-    dataLabels_            = conf_.getParameter<vector<string> >("HepMCDataLabels");
-    simHitLabel_           = conf_.getParameter<string>("simHitLabel");
-    hitLabelsVector_       = conf_.getParameter<vector<string> >("TrackerHitLabels");
-    volumeRadius_          = conf_.getParameter<double>("volumeRadius");
-    volumeZ_               = conf_.getParameter<double>("volumeZ");
-    discardOutVolume_      = conf_.getParameter<bool>("discardOutVolume");
-    discardHitsFromDeltas_ = conf_.getParameter<bool>("DiscardHitsFromDeltas");
-    mergedBremsstrahlung_  = conf_.getParameter<bool>("mergedBremsstrahlung");
+    distanceCut_           = config.getParameter<double>("vertexDistanceCut");
+    dataLabels_            = config.getParameter<vector<string> >("HepMCDataLabels");
+    simHitLabel_           = config.getParameter<string>("simHitLabel");
+    hitLabelsVector_       = config.getParameter<vector<string> >("TrackerHitLabels");
+    volumeRadius_          = config.getParameter<double>("volumeRadius");
+    volumeZ_               = config.getParameter<double>("volumeZ");
+    mergedBremsstrahlung_  = config.getParameter<bool>("mergedBremsstrahlung");
+
+    if ( config.exists("select") )
+    {
+        edm::ParameterSet param = config.getParameter<edm::ParameterSet>("select");
+    	selector_ = TrackingParticleSelector(
+    	    param.getParameter<double>("ptMinTP"),
+            param.getParameter<double>("minRapidityTP"),
+            param.getParameter<double>("maxRapidityTP"),
+            param.getParameter<double>("tipTP"),
+            param.getParameter<double>("lipTP"),
+            param.getParameter<int>("minHitTP"),
+            param.getParameter<bool>("signalOnlyTP"),
+            param.getParameter<bool>("chargedOnlyTP"),
+            param.getParameter<std::vector<int> >("pdgIdTP")
+        );
+        selectorFlag_ = true;
+    }
+    else
+        selectorFlag_ = false;
 
     MessageCategory_       = "TrackingTruthProducer";
 
@@ -43,7 +59,6 @@ TrackingTruthProducer::TrackingTruthProducer(const edm::ParameterSet &conf)
     edm::LogInfo (MessageCategory_) << "Volume radius set to "       << volumeRadius_ << " mm";
     edm::LogInfo (MessageCategory_) << "Volume Z      set to "       << volumeZ_      << " mm";
     edm::LogInfo (MessageCategory_) << "Discard out of volume? "     << discardOutVolume_;
-    edm::LogInfo (MessageCategory_) << "Discard Hits from Deltas? "  << discardHitsFromDeltas_;
 
     if (!mergedBremsstrahlung_)
     {
@@ -608,6 +623,8 @@ bool TrackingTruthProducer::setTrackingParticle(
     // Add the generator information
     if (genParticleIndex >= 0 && signalEvent)
         trackingParticle.addGenParticle( GenParticleRef(hepmc_, genParticleIndex) );
+
+    if (selectorFlag_) return selector_(trackingParticle);
 
     return true;
 }

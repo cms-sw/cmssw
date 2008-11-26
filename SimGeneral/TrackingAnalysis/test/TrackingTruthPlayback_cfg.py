@@ -22,7 +22,7 @@ process.path = cms.Path(process.mix*process.trackingParticles)
 process.outpath = cms.EndPath(process.output)
 
 # Input definition
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
 readFiles = cms.untracked.vstring()
 secFiles = cms.untracked.vstring() 
 process.source = cms.Source ("PoolSource",fileNames = readFiles, secondaryFileNames = secFiles)

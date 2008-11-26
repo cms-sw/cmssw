@@ -59,13 +59,13 @@ void TrackingTruthOutputTest::analyze(const edm::Event& event, const edm::EventS
      cout << endl << "Dumping only merged tracks: " << endl;
      for (TrackingParticleCollection::const_iterator iTrack = mergedPH->begin(); iTrack != mergedPH->end(); ++iTrack)
         if (iTrack->g4Tracks().size() > 1)
-          cout << *iTrack << endl;
+            cout << *iTrack << endl;
   }
   else
   {
     cout << endl << "Dump of merged tracks: " << endl;
     for (TrackingParticleCollection::const_iterator iTrack = mergedPH->begin(); iTrack != mergedPH->end(); ++iTrack)
-      cout << *iTrack << endl;
+        cout << *iTrack << endl;
   }
 }
 
