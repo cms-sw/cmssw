@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: ElectronDetailView.cc,v 1.16 2008/11/19 17:26:15 jmuelmen Exp $
+// $Id: ElectronDetailView.cc,v 1.17 2008/11/24 19:39:14 amraktad Exp $
 //
 
 // system include files
@@ -171,8 +171,8 @@ void ElectronDetailView::build_projected (TEveElementList **product,
 	  std::vector<DetId> detids = i->superCluster()->getHitsByDetId();
 	  seed_detids = i->superCluster()->seed()->
 	       getHitsByDetId();
-	  const int subdetId = 
-	       seed_detids.size() != 0 ? seed_detids.begin()->subdetId() : -1;
+	  //  const int subdetId = 
+	  //   seed_detids.size() != 0 ? seed_detids.begin()->subdetId() : -1;
 #if 0
 	  for (int i = 0; i < 100; ++i) {
 	       double eta = 0.01 * r.Rndm() - 0.4;
@@ -219,6 +219,7 @@ void ElectronDetailView::build_projected (TEveElementList **product,
 	  // lego
 	  
 	  TEveCaloLego* lego = new TEveCaloLego(data);
+          lego->SetAutoRebin(kFALSE);
 	  lego->SetPlaneColor(kBlue-5);
 
 	  // tempoary solution until we get pointer to gl viewer
@@ -226,11 +227,8 @@ void ElectronDetailView::build_projected (TEveElementList **product,
 	  //  TEveLegoEventHandler *leh = new TEveLegoEventHandler("Lego EH", v->GetGLWidget(), lego->GetObject(), "fooo");
 	  //  ve->SetEventHandler(leh);
 
-	  lego->SetName("TwoHistLego");
+	  lego->SetName("ElectronDetail Lego");
 	  printf("%f %f, %f %f\n", x_min, x_max, y_min, y_max);
- 	  lego->SetEta(x_min - 0.1, x_max + 0.1); // eta min, max
-
-	  lego->SetPhiWithRng((y_min + y_max)*0.5, (y_max-y_min)*1.2); // phi, half-range
 	  tList->AddElement(lego);
 	  
 	  // overlay lego
@@ -313,8 +311,7 @@ void ElectronDetailView::fillData (const std::vector<DetId> &detids,
 	       data->FillSlice(slice, size);
 	  }
      }
-     data->SetEtaBins(new TAxis(10, x_min, x_max));
-     data->SetPhiBins(new TAxis(10, y_min, y_max));
+     data->SetAxisFromBins(1e-2, 1e-2);
 }
      
 TEveElementList *ElectronDetailView::makeLabels (
