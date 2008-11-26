@@ -26,24 +26,24 @@ ExampleScenario = cms.PSet(
     MuonMisalignmentScenarioSettings,
     DTSectors = cms.PSet(
         scale = cms.double(1.0),
-        dZ = cms.double(0.0),
+        dZ = cms.double(1.0),
         dX = cms.double(0.0),
         dY = cms.double(0.0),
         distribution = cms.string('gaussian'),
         phiZ = cms.double(0.001),
         phiY = cms.double(0.0),
         phiX = cms.double(0.0)
-    ),
-    Muons = cms.PSet(
-        scale = cms.double(1.0),
-        dZ = cms.double(0.0),
-        dX = cms.double(0.0),
-        dY = cms.double(0.0),
-        distribution = cms.string('gaussian'),
-        phiZ = cms.double(0.0),
-        phiY = cms.double(0.0),
-        phiX = cms.double(0.0)
     )
+    #Muon = cms.PSet(
+    #    scale = cms.double(1.0),
+    #    dZ = cms.double(0.1),
+    #    dX = cms.double(0.1),
+    #    dY = cms.double(0.2),
+    #    distribution = cms.string('gaussian'),
+    #    phiZ = cms.double(0.0),
+    #    phiY = cms.double(0.0),
+    #    phiX = cms.double(0.0)
+    #)
 )
 # -----------------------------------------------------------------------
 #  "Misalignment" scenario without misalignment...
@@ -149,7 +149,7 @@ Muon100InversepbScenario = cms.PSet(
             phiX = cms.double(0.0001)
         )
     ),
-    Muons = cms.PSet(
+    Muon = cms.PSet(
         scale = cms.double(1.0),
         scaleError = cms.double(1.0),
         dZ = cms.double(0.1),

@@ -12,7 +12,7 @@ process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")
 # Misalignment example scenario producer
 from Alignment.MuonAlignment.Scenarios_cff import *
 process.MisalignedMuon = cms.ESProducer("MisalignedMuonESProducer",
-    Muon100InversepbScenario #MuonNoMovementsScenario #  from Scenarios_cff
+    ExampleScenario #MuonNoMovementsScenario #  from Scenarios_cff
 )
 
 # or standard stuff 
