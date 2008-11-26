@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripEventSummary.cc,v 1.9 2008/04/02 10:27:11 delaer Exp $
+// Last commit: $Id: SiStripEventSummary.cc,v 1.10 2008/06/09 12:55:03 delaer Exp $
 
 #include "DataFormats/SiStripCommon/interface/SiStripEventSummary.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
@@ -108,23 +108,29 @@ void SiStripEventSummary::commissioningInfo( const uint32_t* const buffer,
 	} 
 	ii++;
       }
-      std::stringstream ss;
-      ss << "[SiStripEventSummary::" << __func__ << "]";
       if ( !found ) { 
-	ss << " Did not find DeviceId/DCUid for event " 
-	   << event << "!";
-	edm::LogWarning(mlDigis_) << ss.str();
+	if ( edm::isDebugEnabled() ) {
+	  std::stringstream ss;
+	  ss << "[SiStripEventSummary::" << __func__ << "]"
+	     << " Did not find DeviceId/DCUid for event " 
+	     << event << "!";
+	  edm::LogWarning(mlDigis_) << ss.str();
+	}
 	params_[0] = 0; 
 	params_[1] = 0; 
 	params_[2] = 0;
 	params_[3] = 0;
       } else {
-	ss << " Found DeviceId/DCUid for event " 
-	   << event << ": 0x" 
-	   << std::hex << std::setw(8) << std::setfill('0') << params_[0] << std::dec
-	   << "/0x"
-	   << std::hex << std::setw(8) << std::setfill('0') << params_[3] << std::dec;
-	LogTrace(mlDigis_) << ss.str();
+	if ( edm::isDebugEnabled() ) {
+	  std::stringstream ss;
+	  ss << "[SiStripEventSummary::" << __func__ << "]"
+	     << " Found DeviceId/DCUid for event " 
+	     << event << ": 0x" 
+	     << std::hex << std::setw(8) << std::setfill('0') << params_[0] << std::dec
+	     << "/0x"
+	     << std::hex << std::setw(8) << std::setfill('0') << params_[3] << std::dec;
+	  LogTrace(mlDigis_) << ss.str();
+	}
       }
 
     } else {
@@ -153,10 +159,12 @@ void SiStripEventSummary::commissioningInfo( const uint32_t* const buffer,
 
   } else { 
     
-    edm::LogWarning(mlDigis_)
-      << "[SiStripEventSummary::" << __func__ << "]"
-      << " Unexpected commissioning task: "
-      << runType_;
+    if ( edm::isDebugEnabled() ) {
+      edm::LogWarning(mlDigis_)
+	<< "[SiStripEventSummary::" << __func__ << "]"
+	<< " Unexpected commissioning task: "
+	<< runType_;
+    }
 
   }
 
@@ -176,20 +184,24 @@ void SiStripEventSummary::commissioningInfo( const uint32_t& daq1,
   else if ( temp == uint16_t(2) ) { valid_ = false; }
   else if ( temp == uint16_t(3) && 
 	    daq1 == sistrip::invalid32_ ) {
-    edm::LogWarning(mlDigis_)
-      << "[SiStripEventSummary::" << __func__ << "]"
-      << " DAQ register contents set to invalid: 0x"
-      << std::hex 
-      << std::setw(8) << std::setfill('0') << daq1 
-      << std::dec;
+    if ( edm::isDebugEnabled() ) {
+      edm::LogWarning(mlDigis_)
+	<< "[SiStripEventSummary::" << __func__ << "]"
+	<< " DAQ register contents set to invalid: 0x"
+	<< std::hex 
+	<< std::setw(8) << std::setfill('0') << daq1 
+	<< std::dec;
+    }
     valid_ = false;
   } else {
-    edm::LogWarning(mlDigis_)
-      << "[SiStripEventSummary::" << __func__ << "]"
-      << " Unexpected bit pattern set in DAQ1: 0x"
-      << std::hex 
-      << std::setw(8) << std::setfill('0') << daq1 
-      << std::dec;
+    if ( edm::isDebugEnabled() ) {
+      edm::LogWarning(mlDigis_)
+	<< "[SiStripEventSummary::" << __func__ << "]"
+	<< " Unexpected bit pattern set in DAQ1: 0x"
+	<< std::hex 
+	<< std::setw(8) << std::setfill('0') << daq1 
+	<< std::dec;
+    }
     valid_ = false;
   }
   
@@ -235,10 +247,12 @@ void SiStripEventSummary::commissioningInfo( const uint32_t& daq1,
   } else if ( runType_ == sistrip::FAST_CABLING ) { 
     params_[0] = (daq2>>0)&0xFF; // key
   } else { 
-    edm::LogWarning(mlDigis_)
-      << "[SiStripEventSummary::" << __func__ << "]"
-      << " Unexpected commissioning task: "
-      << runType_;
+    if ( edm::isDebugEnabled() ) {
+      edm::LogWarning(mlDigis_)
+	<< "[SiStripEventSummary::" << __func__ << "]"
+	<< " Unexpected commissioning task: "
+	<< runType_;
+    }
   }
 
 }
