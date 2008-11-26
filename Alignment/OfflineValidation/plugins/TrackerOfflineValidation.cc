@@ -13,7 +13,7 @@
 //
 // Original Author:  Erik Butz
 //         Created:  Tue Dec 11 14:03:05 CET 2007
-// $Id: TrackerOfflineValidation.cc,v 1.20 2008/11/25 08:25:58 flucke Exp $
+// $Id: TrackerOfflineValidation.cc,v 1.21 2008/11/25 20:21:27 flucke Exp $
 //
 //
 
@@ -157,9 +157,9 @@ private:
 
   void setSummaryBin(int bin, TH1* targetHist, TH1* sourceHist);
     
-  float Fwhm(const TH1* hist);
-  std::pair<float,float> fitResiduals(TH1 *hist, float meantmp, float rmstmp);
-void fitSumResiduals(const TH1 *hist);
+  float Fwhm(const TH1* hist) const;
+  std::pair<float,float> fitResiduals(TH1 *hist) const; //, float meantmp, float rmstmp);
+
   // From MillePedeAlignmentMonitor: Get Index for Arbitary vector<class> by name
   template <class OBJECT_TYPE>  
   int GetIndex(const std::vector<OBJECT_TYPE*> &vec, const TString &name);
@@ -276,7 +276,8 @@ TrackerOfflineValidation::checkBookHists(const edm::EventSetup &es)
     this->bookGlobalHists(trackglobal);
     
     // recursively book histogramms on lowest level
-    this->bookDirHists(static_cast<TFileDirectory&>(*fs), aliTracker, aliobjid);  
+//     this->bookDirHists(static_cast<TFileDirectory&>(*fs), aliTracker, aliobjid);  
+    this->bookDirHists(*fs, aliTracker, aliobjid);  
   } else { // histograms booked, but changed TrackerGeometry?
     edm::LogWarning("GeometryChange") << "@SUB=checkBookHists"
 				      << "TrackerGeometry changed, but will not re-book hists!";
@@ -399,14 +400,10 @@ TrackerOfflineValidation::bookDirHists( TFileDirectory &tfd, const Alignable& al
     std::string structurename  = aliobjid.typeToName((alivec)[i]->alignableObjectId());
     LogDebug("TrackerOfflineValidation") << "StructureName = " << structurename;
     std::stringstream dirname;
-    
-    // add no suffix counter to Strip and Pixel
-    // just aesthetics
-    if(structurename != "Strip" && structurename != "Pixel") {
-      dirname << structurename << "_" << i+1;
-    } else {
-      dirname << structurename;
-    }
+    dirname << structurename;
+    // add no suffix counter to Strip and Pixel, just aesthetics
+    if (structurename != "Strip" && structurename != "Pixel") dirname << "_" << i+1;
+
     if (structurename.find("Endcap",0) != std::string::npos )   {
       TFileDirectory f = tfd.mkdir((dirname.str()).c_str());
       bookHists(f, *(alivec)[i], ali.alignableObjectId() , i, aliobjid);
@@ -471,10 +468,10 @@ TrackerOfflineValidation::bookHists(TFileDirectory &tfd, const Alignable& ali, a
 		      << wheel_or_layer << subdetandlayer.second << "_module_" << id.rawId();
   histotitle << "Residual for module " << id.rawId() << ";x_{pred} - x_{rec} [cm]";
   normhistotitle << "Normalized Residual for module " << id.rawId() << ";x_{pred} - x_{rec}/#sigma";
-  xprimehistotitle << "X' Residual for module " << id.rawId() << ";x_{pred} - x_{rec} [cm]";
-  normxprimehistotitle << "Normalized X' Residual for module " << id.rawId() << ";x_{pred} - x_{rec}/#sigma";
-  yprimehistotitle << "Y' Residual for module " << id.rawId() << ";y_{pred} - y_{rec} [cm]";
-  normyprimehistotitle << "Normalized Y' Residual for module " << id.rawId() << ";y_{pred} - y_{rec}/#sigma";
+  xprimehistotitle << "X' Residual for module " << id.rawId() << ";(x_{pred} - x_{rec})' [cm]";
+  normxprimehistotitle << "Normalized X' Residual for module " << id.rawId() << ";(x_{pred} - x_{rec})'/#sigma";
+  yprimehistotitle << "Y' Residual for module " << id.rawId() << ";(y_{pred} - y_{rec})' [cm]";
+  normyprimehistotitle << "Normalized Y' Residual for module " << id.rawId() << ";(y_{pred} - y_{rec})'/#sigma";
   
   
   if( this->isDetOrDetUnit( subtype ) ) {
@@ -583,8 +580,8 @@ TrackerOfflineValidation::getBinning(uint32_t subDetId,
       else binningPSet        = parset_.getParameter<edm::ParameterSet>("TH1XprimeResStripModules");                
       break;
     case NormXprimeResidual :
-      if(isPixel) binningPSet = parset_.getParameter<edm::ParameterSet>("TH1NormXprimeResPixelModules");                
-      else binningPSet        = parset_.getParameter<edm::ParameterSet>("TH1NormXprimeResStripModules");                
+      if(isPixel) binningPSet = parset_.getParameter<edm::ParameterSet>("TH1NormXprimeResPixelModules");
+      else binningPSet        = parset_.getParameter<edm::ParameterSet>("TH1NormXprimeResStripModules");
       break;
     case YprimeResidual :
       if(isPixel) binningPSet = parset_.getParameter<edm::ParameterSet>("TH1YResPixelModules");                
@@ -623,6 +620,7 @@ TrackerOfflineValidation::summarizeBinInContainer( int bin, SummaryContainer &ta
   
   this->setSummaryBin(bin, targetContainer.summaryXResiduals_, sourceContainer.sumXResiduals_);
   this->setSummaryBin(bin, targetContainer.summaryNormXResiduals_, sourceContainer.sumNormXResiduals_);
+  // If no y-residual hists, just returns:
   this->setSummaryBin(bin, targetContainer.summaryYResiduals_, sourceContainer.sumYResiduals_);
   this->setSummaryBin(bin, targetContainer.summaryNormYResiduals_, sourceContainer.sumNormYResiduals_);
 
@@ -869,31 +867,30 @@ TrackerOfflineValidation::collateSummaryHists( TFileDirectory &tfd, const Aligna
  
     LogDebug("TrackerOfflineValidation") << "StructureName = " << structurename;
     std::stringstream dirname;
+    dirname << structurename;
     
     // add no suffix counter to strip and pixel -> just aesthetics
-    if(structurename != "Strip" && structurename != "Pixel") {
-      dirname << structurename << "_" << iComp+1;
-    } else {
-      dirname << structurename;
-    }
+    if (structurename != "Strip" && structurename != "Pixel") dirname << "_" << iComp+1;
     
     if(  !(this->isDetOrDetUnit( (alivec)[iComp]->alignableObjectId()) )
 	 || (alivec)[0]->components().size() > 1 ) {
       TFileDirectory f = tfd.mkdir((dirname.str()).c_str());
       this->collateSummaryHists( f, *(alivec)[iComp], i, aliobjid, v_profiles);
       v_levelProfiles.push_back(this->bookSummaryHists(tfd, *(alivec[iComp]), ali.alignableObjectId(), iComp, aliobjid));
+      TH1 *hY = v_levelProfiles[iComp].sumYResiduals_;
+      TH1 *hNormY = v_levelProfiles[iComp].sumNormYResiduals_;
       for(uint n = 0; n < v_profiles.size(); ++n) {
 	this->summarizeBinInContainer(n+1, v_levelProfiles[iComp], v_profiles[n] );
 	v_levelProfiles[iComp].sumXResiduals_->Add(v_profiles[n].sumXResiduals_);
 	v_levelProfiles[iComp].sumNormXResiduals_->Add(v_profiles[n].sumNormXResiduals_);
-	v_levelProfiles[iComp].sumYResiduals_->Add(v_profiles[n].sumYResiduals_);
-	v_levelProfiles[iComp].sumNormYResiduals_->Add(v_profiles[n].sumNormYResiduals_);
+	if (hY)     hY->Add(v_profiles[n].sumYResiduals_);         // only if existing
+	if (hNormY) hNormY->Add(v_profiles[n].sumNormYResiduals_); // dito (pxl, stripYResiduals_)
       }
       //add fit values to stat box
-      fitSumResiduals(v_levelProfiles[iComp].sumXResiduals_);
-      fitSumResiduals(v_levelProfiles[iComp].sumNormXResiduals_);
-      fitSumResiduals(v_levelProfiles[iComp].sumYResiduals_);
-      fitSumResiduals(v_levelProfiles[iComp].sumNormYResiduals_);
+      this->fitResiduals(v_levelProfiles[iComp].sumXResiduals_);
+      this->fitResiduals(v_levelProfiles[iComp].sumNormXResiduals_);
+      if (hY)     this->fitResiduals(hY);     // only if existing (pixel or stripYResiduals_)
+      if (hNormY) this->fitResiduals(hNormY); // dito
     } else {
       // nothing to be done for det or detunits
       continue;
@@ -908,99 +905,108 @@ TrackerOfflineValidation::bookSummaryHists(TFileDirectory &tfd, const Alignable&
 					   align::StructureType type, int i, 
 					   const AlignableObjectId &aliobjid)
 {
+  const uint aliSize = ali.components().size();
+  const align::StructureType alitype = ali.alignableObjectId();
+  const align::StructureType subtype = ali.components()[0]->alignableObjectId();
+  const char *aliTypeName = aliobjid.typeToName(alitype).c_str(); // lifetime of char* OK
+  const char *aliSubtypeName = aliobjid.typeToName(subtype).c_str();
+  const char *typeName = aliobjid.typeToName(type).c_str();
 
-  uint subsize = ali.components().size();
-  align::StructureType alitype = ali.alignableObjectId();
-  align::StructureType subtype = ali.components()[0]->alignableObjectId();
+  const DetId aliDetId = ali.id(); 
+  // y residuals only if pixel or specially requested for strip:
+  const bool bookResidY = this->isPixel(aliDetId.subdetId()) || stripYResiduals_;
+
   SummaryContainer sumContainer;
   
-  if( subtype  != align::AlignableDet || (subtype  == align::AlignableDet && ali.components()[0]->components().size() == 1)
-      ) {
-    sumContainer.summaryXResiduals_ = tfd.make<TH1F>(Form("h_summaryX%s_%d",aliobjid.typeToName(alitype).c_str(),i), 
-				Form("Summary for substructures in %s %d (X' - coordinate);%s ;#LT #Delta x #GT",
-				     aliobjid.typeToName(alitype).c_str(),i,aliobjid.typeToName(subtype).c_str()),
-				subsize,0.5,subsize+0.5)  ;
-
-    sumContainer.summaryNormXResiduals_ = tfd.make<TH1F>(Form("h_summaryNormX%s_%d",aliobjid.typeToName(alitype).c_str(),i), 
-				Form("Summary for substructures in %s %d (normalized X' - coordinate);%s ;#LT #Delta x #GT",
-				     aliobjid.typeToName(alitype).c_str(),i,aliobjid.typeToName(subtype).c_str()),
-				subsize,0.5,subsize+0.5)  ;
+  // Book summary hists with one bin per component, 
+  // but special case for Det with two DetUnit that we want to summarize one level up 
+  // (e.g. in TOBRods with 12 bins for 6 stereo and 6 rphi DetUnit.)
+  //    component of ali is not Det or Det with just one components
+  const uint subcompSize = ali.components()[0]->components().size();
+  if (subtype != align::AlignableDet || subcompSize == 1) { // Det with 1 comp. should not exist anymore...
+    const TString title(Form("Summary for substructures in %s %d;%s;",aliTypeName,i,aliSubtypeName));
+    sumContainer.summaryXResiduals_ = tfd.make<TH1F>(Form("h_summaryX%s_%d",aliTypeName,i), 
+						     title + "#LT #Delta x' #GT",
+						     aliSize, 0.5, aliSize+0.5);
+    sumContainer.summaryNormXResiduals_ = tfd.make<TH1F>(Form("h_summaryNormX%s_%d",aliTypeName,i), 
+							 title + "#LT #Delta x'/#sigma #GT",
+							 aliSize,0.5,aliSize+0.5);
     
-    sumContainer.summaryYResiduals_ = tfd.make<TH1F>(Form("h_summaryY%s_%d",aliobjid.typeToName(alitype).c_str(),i), 
-				Form("Summary for substructures in %s %d (Y' - coordinate);%s;#LT #Delta y #GT",
-				     aliobjid.typeToName(alitype).c_str(),i,aliobjid.typeToName(subtype).c_str()),
-				subsize,0.5,subsize+0.5)  ;
-
-    sumContainer.summaryNormYResiduals_ = tfd.make<TH1F>(Form("h_summaryNormY%s_%d",aliobjid.typeToName(alitype).c_str(),i), 
-				Form("Summary for substructures in %s %d (normalized Y' - coordinate);%s ;#LT #Delta y #GT",
-				     aliobjid.typeToName(alitype).c_str(),i,aliobjid.typeToName(subtype).c_str()),
-				subsize,0.5,subsize+0.5)  ;
-
-
-  } else if( subtype == align::AlignableDet && subsize > 1) {
-    sumContainer.summaryXResiduals_ = tfd.make<TH1F>(Form("h_summaryX%s_%d",aliobjid.typeToName(alitype).c_str(),i), 
-				Form("Summary for substructures in %s %d (X' - coordinate);%s;#LT #Delta x #GT",
-				     aliobjid.typeToName(alitype).c_str(),i,aliobjid.typeToName(subtype).c_str()),
-				(2*subsize),0.5,2*subsize+0.5)  ;  
+    if (bookResidY) {
+      sumContainer.summaryYResiduals_ = tfd.make<TH1F>(Form("h_summaryY%s_%d",aliTypeName,i), 
+						       title + "#LT #Delta y' #GT",
+						       aliSize, 0.5, aliSize+0.5);
+      sumContainer.summaryNormYResiduals_ = tfd.make<TH1F>(Form("h_summaryNormY%s_%d",aliTypeName,i), 
+							   title + "#LT #Delta y'/#sigma #GT",
+							   aliSize,0.5,aliSize+0.5);
+    }
     
-    sumContainer.summaryNormXResiduals_ = tfd.make<TH1F>(Form("h_summaryNormX%s_%d",aliobjid.typeToName(alitype).c_str(),i), 
-				Form("Summary for substructures in %s %d (normalized X' - coordinate);%s;#LT #Delta x #GT",
-				     aliobjid.typeToName(alitype).c_str(),i,aliobjid.typeToName(subtype).c_str()),
-				(2*subsize),0.5,2*subsize+0.5)  ;  
-    
-    sumContainer.summaryYResiduals_ = tfd.make<TH1F>(Form("h_summaryY%s_%d",aliobjid.typeToName(alitype).c_str(),i), 
-				Form("Summary for substructures in %s %d (Y' - coordinate);%s;#LT #Delta y #GT",
-				     aliobjid.typeToName(alitype).c_str(),i,aliobjid.typeToName(subtype).c_str()),
-				(2*subsize),0.5,2*subsize+0.5)  ;  
+  } else if (subtype == align::AlignableDet && subcompSize > 1) { // fixed: was aliSize before
+    if (subcompSize != 2) { // strange... expect only 2 DetUnits in DS layers
+      // this 2 is hardcoded factor 2 in binning below and also assummed later on
+      edm::LogError("Alignment") << "@SUB=bookSummaryHists"
+				 << "Det with " << subcompSize << " components";
+    }
+    // title contains x-title
+    const TString title(Form("Summary for substructures in %s %d;%s;", aliTypeName, i,
+			     aliobjid.typeToName(ali.components()[0]->components()[0]->alignableObjectId()).c_str()));
+    sumContainer.summaryXResiduals_ 
+      = tfd.make<TH1F>(Form("h_summaryX%s_%d", aliTypeName, i), 
+		       title + "#LT #Delta x' #GT", (2*aliSize), 0.5, 2*aliSize+0.5);
+    sumContainer.summaryNormXResiduals_ 
+      = tfd.make<TH1F>(Form("h_summaryNormX%s_%d", aliTypeName, i), 
+		       title + "#LT #Delta x'/#sigma #GT", (2*aliSize), 0.5, 2*aliSize+0.5);
 
-    sumContainer.summaryNormYResiduals_ = tfd.make<TH1F>(Form("h_summaryNormY%s_%d",aliobjid.typeToName(alitype).c_str(),i), 
-				Form("Summary for substructures in %s %d (normalized Y' - coordinate);%s;#LT #Delta y #GT",
-				     aliobjid.typeToName(alitype).c_str(),i,aliobjid.typeToName(subtype).c_str()),
-				(2*subsize),0.5,2*subsize+0.5)  ;  
-
+    if (bookResidY) {
+      sumContainer.summaryYResiduals_ 
+	= tfd.make<TH1F>(Form("h_summaryY%s_%d", aliTypeName, i), 
+			 title + "#LT #Delta y' #GT", (2*aliSize), 0.5, 2*aliSize+0.5);
+      sumContainer.summaryNormYResiduals_ 
+	= tfd.make<TH1F>(Form("h_summaryNormY%s_%d", aliTypeName, i), 
+			 title + "#LT #Delta y'/#sigma #GT", (2*aliSize), 0.5, 2*aliSize+0.5);
+    }
 
   } else {
-    edm::LogWarning("TrackerOfflineValidation") << "@SUB=TrackerOfflineValidation::bookSummaryHists" 
-						<< "No summary histogramm for hierarchy level " 
-						<< aliobjid.typeToName(subtype);      
+    edm::LogError("TrackerOfflineValidation") << "@SUB=TrackerOfflineValidation::bookSummaryHists" 
+					      << "No summary histogramm for hierarchy level " 
+					      << aliTypeName << " in subdet " << aliDetId.subdetId();
   }
-  DetId aliDetId = ali.id(); 
+
+  // Now book hists that just sum up the residual histograms from lower levels.
+  // Axis title is copied from lowest level module of structure.
+  // Should be safe that y-hists are only touched if non-null pointers...
   int nbins = 0;
   double xmin = 0., xmax = 0.;
+  const TString sumTitle(Form("Residual for %s %d in %s;", aliTypeName, i, typeName));
+  const ModuleHistos &xTitHists = this->getHistStructFromMap(aliDetId); // for x-axis titles
   this->getBinning(aliDetId.subdetId(), XprimeResidual, nbins, xmin, xmax);
-  sumContainer.sumXResiduals_ = tfd.make<TH1F>(Form("h_Xprime_%s_%d",aliobjid.typeToName(alitype).c_str(),i), 
-				Form("X' Residual for %s %d in %s ",aliobjid.typeToName(alitype).c_str(),i,
-				     aliobjid.typeToName(type).c_str(),aliobjid.typeToName(subtype).c_str()),
+  sumContainer.sumXResiduals_ = tfd.make<TH1F>(Form("h_Xprime_%s_%d", aliTypeName, i),
+					       sumTitle + xTitHists.ResXprimeHisto->GetXaxis()->GetTitle(),
 					       nbins, xmin, xmax);
   
   this->getBinning(aliDetId.subdetId(), NormXprimeResidual, nbins, xmin, xmax);
-  sumContainer.sumNormXResiduals_ = tfd.make<TH1F>(Form("h_NormXprime_%s_%d",aliobjid.typeToName(alitype).c_str(),i), 
-						   Form("Normalized X' Residual for %s %d in %s ",
-							aliobjid.typeToName(alitype).c_str(),i,
-							aliobjid.typeToName(type).c_str(),
-							aliobjid.typeToName(subtype).c_str()),
+  sumContainer.sumNormXResiduals_ = tfd.make<TH1F>(Form("h_NormXprime_%s_%d",aliTypeName,i), 
+						   sumTitle + xTitHists.NormResXprimeHisto->GetXaxis()->GetTitle(),
 						   nbins, xmin, xmax);
-
-  this->getBinning(aliDetId.subdetId(), YprimeResidual, nbins, xmin, xmax);
-  sumContainer.sumYResiduals_ = tfd.make<TH1F>(Form("h_Yprime_%s_%d",aliobjid.typeToName(alitype).c_str(),i), 
-				Form("Y' Residual for %s %d in %s ",aliobjid.typeToName(alitype).c_str(),i,
-				     aliobjid.typeToName(type).c_str(),aliobjid.typeToName(subtype).c_str()),
-					       nbins, xmin, xmax);
-
-  this->getBinning(aliDetId.subdetId(), NormYprimeResidual, nbins, xmin, xmax);
-  sumContainer.sumNormYResiduals_ = tfd.make<TH1F>(Form("h_NormYprime_%s_%d",aliobjid.typeToName(alitype).c_str(),i), 
-						   Form("Normalized Y' Residual for %s %d in %s ",
-							aliobjid.typeToName(alitype).c_str(),i,
-							aliobjid.typeToName(type).c_str(),
-							aliobjid.typeToName(subtype).c_str()),
-						   nbins, xmin, xmax);
-
+  if (bookResidY) {
+    this->getBinning(aliDetId.subdetId(), YprimeResidual, nbins, xmin, xmax);
+    sumContainer.sumYResiduals_ = tfd.make<TH1F>(Form("h_Yprime_%s_%d",aliTypeName,i), 
+						 sumTitle + xTitHists.ResYprimeHisto->GetXaxis()->GetTitle(),
+						 nbins, xmin, xmax);
+    
+    this->getBinning(aliDetId.subdetId(), NormYprimeResidual, nbins, xmin, xmax);
+    sumContainer.sumNormYResiduals_ = tfd.make<TH1F>(Form("h_NormYprime_%s_%d",aliTypeName,i), 
+						     sumTitle + xTitHists.NormResYprimeHisto->GetXaxis()->GetTitle(),
+						     nbins, xmin, xmax);
+  }
   
+  // If we are at the lowest level, we already sum up and fill the summary.
+
   // special case I: For DetUnits and Detwith  only one subcomponent start filling summary histos
-  if( (  subtype == align::AlignableDet && ali.components()[0]->components().size() == 1) || 
+  if( (  subtype == align::AlignableDet && subcompSize == 1) || 
       subtype  == align::AlignableDetUnit  
       ) {
-    for(uint k=0;k<subsize;++k) {
+    for(uint k = 0; k < aliSize; ++k) {
       DetId detid = ali.components()[k]->id();
       ModuleHistos &histStruct = this->getHistStructFromMap(detid);
       this->summarizeBinInContainer(k+1, detid.subdetId() ,sumContainer, histStruct );
@@ -1011,12 +1017,10 @@ TrackerOfflineValidation::bookSummaryHists(TFileDirectory &tfd, const Alignable&
       	sumContainer.sumNormYResiduals_->Add(histStruct.NormResYprimeHisto);
       }
     }
-  }
-  // special case II: Fill summary histos for dets with two detunits 
-  else if( subtype == align::AlignableDet && subsize > 1) {
-    for(uint k = 0; k < subsize; ++k) { 
-      uint jEnd = ali.components()[0]->components().size();
-      for(uint j = 0; j <  jEnd; ++j) {
+  } else if( subtype == align::AlignableDet && subcompSize > 1) { // fixed: was aliSize before
+    // special case II: Fill summary histos for dets with two detunits 
+    for(uint k = 0; k < aliSize; ++k) {
+      for(uint j = 0; j < subcompSize; ++j) { // assumes all have same size (as binning does)
 	DetId detid = ali.components()[k]->components()[j]->id();
 	ModuleHistos &histStruct = this->getHistStructFromMap(detid);	
 	this->summarizeBinInContainer(2*k+j+1, detid.subdetId() ,sumContainer, histStruct );
@@ -1029,17 +1033,14 @@ TrackerOfflineValidation::bookSummaryHists(TFileDirectory &tfd, const Alignable&
       }
     }
   }
-
   
   return sumContainer;
-
 }
 
 
 float 
-TrackerOfflineValidation::Fwhm (const TH1* hist) 
+TrackerOfflineValidation::Fwhm (const TH1* hist) const
 {
-  float fwhm = 0.;
   float max = hist->GetMaximum();
   int left = -1, right = -1;
   for(unsigned int i = 1, iEnd = hist->GetNbinsX(); i <= iEnd; ++i) {
@@ -1063,8 +1064,7 @@ TrackerOfflineValidation::Fwhm (const TH1* hist)
       }
     }
   }
-  fwhm = hist->GetXaxis()->GetBinCenter(right) - hist->GetXaxis()->GetBinCenter(left);
-  return fwhm;
+  return hist->GetXaxis()->GetBinCenter(right) - hist->GetXaxis()->GetBinCenter(left);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
@@ -1144,14 +1144,13 @@ TrackerOfflineValidation::fillTree(TTree &tree,
       
       //call fit function which returns mean and sigma from the fit
       //for absolute residuals
-       std::pair<float,float> fitResult1 = fitResiduals(it->second.ResXprimeHisto, it->second.ResXprimeHisto->GetMean(), it->second.ResXprimeHisto->GetRMS());
-       treeMem.fitMeanX = fitResult1.first;
-       treeMem.fitSigmaX = fitResult1.second;
-       //for normalized residuals
-       std::pair<float,float> fitResult2 = fitResiduals(it->second.NormResXprimeHisto, it->second.NormResXprimeHisto->GetMean(), it->second.NormResXprimeHisto->GetRMS());
-       treeMem.fitMeanNormX = fitResult2.first;
-       treeMem.fitSigmaNormX = fitResult2.second;
-
+      std::pair<float,float> fitResult1 = this->fitResiduals(it->second.ResXprimeHisto);
+      treeMem.fitMeanX = fitResult1.first;
+      treeMem.fitSigmaX = fitResult1.second;
+      //for normalized residuals
+      std::pair<float,float> fitResult2 = this->fitResiduals(it->second.NormResXprimeHisto);
+      treeMem.fitMeanNormX = fitResult2.first;
+      treeMem.fitSigmaNormX = fitResult2.second;
     }
 
     int numberOfBins=it->second.ResXprimeHisto->GetNbinsX();
@@ -1191,8 +1190,7 @@ TrackerOfflineValidation::fillTree(TTree &tree,
       treeMem.rmsY  = h->GetRMS();
       
       if (useFit_) { // fit function which returns mean and sigma from the fit
-	std::pair<float,float> fitMeanSigma = 
-	  this->fitResiduals(h, h->GetMean(), h->GetRMS());
+	std::pair<float,float> fitMeanSigma = this->fitResiduals(h);
 	treeMem.fitMeanY  = fitMeanSigma.first;
 	treeMem.fitSigmaY = fitMeanSigma.second;
       }
@@ -1206,8 +1204,7 @@ TrackerOfflineValidation::fillTree(TTree &tree,
       if (stats[0]) treeMem.chi2PerDofY = stats[3]/stats[0];
 
       if (useFit_) { // fit function which returns mean and sigma from the fit
-	std::pair<float,float> fitMeanSigma = 
-	  this->fitResiduals(h, h->GetMean(), h->GetRMS());
+	std::pair<float,float> fitMeanSigma = this->fitResiduals(h);
 	treeMem.fitMeanNormY  = fitMeanSigma.first;
 	treeMem.fitSigmaNormY = fitMeanSigma.second;
       }
@@ -1219,18 +1216,21 @@ TrackerOfflineValidation::fillTree(TTree &tree,
 }
 
 std::pair<float,float> 
-TrackerOfflineValidation::fitResiduals(TH1 *hist,float meantmp,float rmstmp)
+TrackerOfflineValidation::fitResiduals(TH1 *hist) const
 {
   std::pair<float,float> fitResult(9999., 9999.);
   if (!hist || hist->GetEntries() < 20) return fitResult;
 
+  float mean  = hist->GetMean();
+  float sigma = hist->GetRMS();
+
   try { // for < CMSSW_2_2_0 since ROOT warnings from fit are converted to exceptions
     // Remove the try/catch for more recent CMSSW!
     // first fit: two RMS around mean
-    TF1 func("tmp", "gaus", meantmp - 2.*rmstmp, meantmp + 2.*rmstmp); 
+    TF1 func("tmp", "gaus", mean - 2.*sigma, mean + 2.*sigma); 
     if (0 == hist->Fit(&func,"QNR")) { // N: do not blow up file by storing fit!
-      float mean  = func.GetParameter(1);
-      float sigma = func.GetParameter(2);
+      mean  = func.GetParameter(1);
+      sigma = func.GetParameter(2);
       // second fit: three sigma of first fit around mean of first fit
       func.SetRange(mean - 3.*sigma, mean + 3.*sigma);
       // I: integral gives more correct results if binning is too wide
@@ -1252,34 +1252,5 @@ TrackerOfflineValidation::fitResiduals(TH1 *hist,float meantmp,float rmstmp)
   return fitResult;
 }
 
-void 
-TrackerOfflineValidation::fitSumResiduals(const TH1 *h)
-{
-  
-  try{// GF remove for 22X and 30X, but look at return value of hist->Fit(..)!
-    TH1*hist=0;
-    hist = const_cast<TH1*>(h);
-    float meantmp = hist->GetMean();
-    float rmstmp = hist->GetRMS();
-    TF1 *ftmp1= new TF1("ftmp1","gaus",meantmp-2*rmstmp, meantmp+2*rmstmp); 
-    hist->Fit("ftmp1","Q0LR");
-    float mean = ftmp1->GetParameter(1);
-    float sigma = ftmp1->GetParameter(2);
-    delete ftmp1;
-    TF1 *ftmp2= new TF1("ftmp2","gaus",mean-3*sigma,mean+3*sigma); 
-    hist->Fit("ftmp2","Q0LR");
-    if (hist->GetFunction(ftmp2->GetName())) { // GF: Take care that it is later on drawn:
-      hist->GetFunction(ftmp2->GetName())->ResetBit(TF1::kNotDraw);
-    } else {
-      edm::LogError("Alignment") << "Could not reset kNotDraw bit of " << ftmp2->GetName();
-    }
-
-    delete ftmp2;
-    
-  }catch (cms::Exception const & e) {
-    std::cout << e.what() << std::endl;
-    std::cout <<"set values of fit to 9999" << std::endl;
-  }
- }
 //define this as a plug-in
 DEFINE_FWK_MODULE(TrackerOfflineValidation);
