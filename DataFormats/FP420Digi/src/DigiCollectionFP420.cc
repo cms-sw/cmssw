@@ -8,6 +8,7 @@
 //#include "SimRomanPot/DataFormats/interface/DigiCollectionFP420.h"
 #include "DataFormats/FP420Digi/interface/DigiCollectionFP420.h"
 
+#include <algorithm>
 //#include <iostream>
 //#define mydigidebug
 
