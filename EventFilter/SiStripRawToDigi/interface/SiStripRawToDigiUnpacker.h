@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripRawToDigiUnpacker.h,v 1.22 2008/10/27 18:48:49 bainbrid Exp $
+// Last commit: $Id: SiStripRawToDigiUnpacker.h,v 1.23 2008/11/26 16:45:12 bainbrid Exp $
 
 #ifndef EventFilter_SiStripRawToDigi_SiStripRawToDigiUnpacker_H
 #define EventFilter_SiStripRawToDigi_SiStripRawToDigiUnpacker_H
@@ -103,9 +103,9 @@ class SiStripRawToDigiUnpacker {
 
   bool first_;
 
-  bool quiet_;
-
   bool useDaqRegister_;
+
+  bool quiet_;
 
   struct DetSet_SiStripDig_registry {
     uint32_t detid;
