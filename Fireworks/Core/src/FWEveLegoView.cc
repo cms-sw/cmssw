@@ -9,7 +9,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWEveLegoView.cc,v 1.28 2008/11/14 15:34:08 chrjones Exp $
+// $Id: FWEveLegoView.cc,v 1.29 2008/11/18 21:56:16 chrjones Exp $
 //
 
 // system include files
@@ -166,6 +166,7 @@ FWEveLegoView::FWEveLegoView(TGFrame* iParent, TEveElementList* list):
 
 FWEveLegoView::~FWEveLegoView()
 {
+   m_scene.destroyElement();
    //NOTE: have to do this EVIL activity to avoid double deletion. The fFrame inside glviewer
    // was added to a CompositeFrame which will delete it.  However, TGLEmbeddedViewer will also
    // delete fFrame in its destructor
@@ -174,7 +175,6 @@ FWEveLegoView::~FWEveLegoView()
    delete glviewer;
 
    m_viewer.destroyElement();
-   m_scene.destroyElement();
    delete m_cameraMatrix;
    delete m_cameraMatrixBase;
    delete m_orthoCameraMatrix;
