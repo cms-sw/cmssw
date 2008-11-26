@@ -112,13 +112,13 @@ void plotTEC(TString fullPath, TString Option){
   h->Draw(Option);
 }
 
-void TkHistoMapDisplay(TString File="", TString path="", TString TkmapName="", TString referenceFile="", TString refSubDet=""){
+void TkHistoMapDisplay(TString File="", TString path="", TString TkmapName="", TString referenceFile="", TString refSubDet="", TString opt=""){
 
   std::cout << "File " << File.Data() << " reference " << referenceFile.Data()<< std::endl;
 
 
   _file=new TFile(File);
-    std::cout<< _file << std::endl;
+  
   CTIB=new TCanvas("TIB","TIB");
   CTOB=new TCanvas("TOB","TOB");
   CTID=new TCanvas("TID","TID");
@@ -130,10 +130,13 @@ void TkHistoMapDisplay(TString File="", TString path="", TString TkmapName="", T
   
   _afile=_file;
   gStyle->SetOptStat(0);
-  plotTIB(path+TString("/")+TkmapName, "ZCOL");
-  plotTOB(path+TString("/")+TkmapName, "ZCOL");
-  plotTID(path+TString("/")+TkmapName, "ZCOL");
-  plotTEC(path+TString("/")+TkmapName, "ZCOL");
+  gStyle->SetPalette(1,0);
+  if(opt=="")
+    opt="COLZ";
+  plotTIB(path+TString("/")+TkmapName, opt);
+  plotTOB(path+TString("/")+TkmapName, opt);
+  plotTID(path+TString("/")+TkmapName, opt);
+  plotTEC(path+TString("/")+TkmapName, opt);
   
   
   if(referenceFile!=TString("")){
