@@ -9,6 +9,7 @@
 #include <memory>
 #include <vector>
 #include <cmath>
+#include <set>
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -19,30 +20,100 @@
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 
-class GenEventKTValueProducer : public edm::EDProducer {
- public:
-  /// constructor
-  GenEventKTValueProducer( const edm::ParameterSet & );
-
- private:
-  void produce( edm::Event& evt, const edm::EventSetup& es );
-  edm::InputTag src_;
-};
-
 using namespace std;
 using namespace edm;
 using namespace reco;
+
+class GenEventKTValueProducer : public EDProducer {
+ public:
+  /// constructor
+  GenEventKTValueProducer( const ParameterSet & );
+
+ private:
+  void produce( Event& evt, const EventSetup& es );
+  edm::InputTag src_;
+};
+
+namespace {
+  struct MatrixElement {
+    vector<const Candidate*> incoming;
+    vector<const Candidate*> outgoing;
+  };
+}
+
+// Funky shit to identify the actual incoming and outgoing partons in a
+// Herwig++ matrix element documentation, which is actually represented
+// as the Feynman graph with multiple vertices
+// This code walks the whole graph and stops when it leaves status 3
+// parts and also checks for general consistency and aborts if problems
+// are detected
+static bool findHerwigPPME( const Candidate *seed, MatrixElement &me )
+{
+  me.incoming.clear();
+  me.outgoing.clear();
+
+  set<const Candidate*> visited, seeds;
+
+  visited.insert(seed);
+  seeds.insert(seed);
+
+  while( !seeds.empty() ) {
+    set<const Candidate*> tmp;
+
+    for( std::set<const Candidate*>::const_iterator iter = seeds.begin();
+         iter != seeds.end(); ++iter ) {
+
+      const Candidate *cand = *iter;
+      unsigned int nMothers = cand->numberOfMothers();
+      unsigned int nDaughters = cand->numberOfDaughters();
+
+      // this cannot be the matrix element, since we reached open ends
+      if ( !nMothers || !nDaughters )
+        return false;
+
+      if ( nMothers == 1 && cand->mother()->status() != 3 ) {
+        // we found an incoming parton
+        me.incoming.push_back( cand );
+      } else {
+        // check all mothers on the next iteration
+        for( unsigned int i = 0; i < nMothers; i++ ) {
+          const Candidate *mother = cand->mother( i );
+          if ( mother->status() != 3 )
+            continue;
+          if ( visited.find( mother ) == visited.end() ) {
+            visited.insert( mother );
+            tmp.insert( mother );
+          }
+        }
+      }
+
+      if ( nDaughters == 1 && cand->daughter(0)->status() != 3 ) {
+        // we found an outgoing parton
+        me.outgoing.push_back( cand );
+      } else {
+        // check all daughters on the next iteration
+        for( unsigned int i = 0; i < nDaughters; i++ ) {
+          const Candidate *daughter = cand->daughter( i );
+          if ( daughter->status() != 3 )
+            continue;
+          if ( visited.find( daughter ) == visited.end() ) {
+            visited.insert( daughter );
+            tmp.insert( daughter );
+          }
+        }
+      }
+    }
+
+    swap(seeds, tmp);
+  }
+
+  return me.incoming.size() > 1 && me.outgoing.size() > 1;
+}
 
 GenEventKTValueProducer::GenEventKTValueProducer( const ParameterSet & p ) :
   src_( p.getParameter<InputTag>( "src" ) )
 {
   produces<double>();
-}
-
-
-static bool allowedParton( int pdgId )
-{
-  return (std::abs(pdgId) % 1000000) < 80;
 }
 
 void GenEventKTValueProducer::produce( Event& evt, const EventSetup& es )
@@ -51,41 +122,53 @@ void GenEventKTValueProducer::produce( Event& evt, const EventSetup& es )
 
   evt.getByLabel( src_, genParticles );
 
-  double bestMass2 = -1.;
-  const Candidate *bestMothers[2] = { 0, 0 };
+  auto_ptr<double> event_kt_value( new double( -1. ) );
 
-  // find the hard interaction
+  vector<const Candidate*> herwigPPMECandidates;
+
+  // find the hard interaction(s)
   for(GenParticleCollection::const_iterator iter = genParticles->begin();
       iter != genParticles->end(); ++iter) {
-    if ( iter->status() == 1 ||
-         !allowedParton( iter->pdgId() ) ||
-         iter->numberOfMothers() != 2 )
+
+    int status = iter->status();
+
+    if ( status != 3 || iter->numberOfMothers() != 2 )
       continue;
 
     const Candidate *mothers[2] = { iter->mother(0), iter->mother(1) };
-    double mass2 = ( mothers[0]->p4() + mothers[1]->p4() ).M2();
-    if (mass2 > bestMass2) {
-      bestMass2 = mass2;
-      bestMothers[0] = mothers[0];
-      bestMothers[1] = mothers[1];
+
+    // we only look at daughters once
+    if (mothers[0]->daughter(0) != &*iter)
+      continue;
+
+    if ( mothers[0]->numberOfDaughters() > 1 ) {
+      // we have a good "standard" documentation line
+      double maxKT = -1.;
+      for( Candidate::const_iterator iter2 = mothers[0]->begin();
+           iter2 != mothers[0]->end(); ++iter2 ) {
+        if ( iter2->status() == 3 &&
+             ( iter2->mother(0) == mothers[1] ||
+               iter2->mother(1) == mothers[1] ) )
+          maxKT = max( maxKT, iter2->pt() );
+      }
+
+      if ( maxKT > 0. ) {
+        *event_kt_value = maxKT;
+        break;
+      }
+    } else {
+      MatrixElement me;
+      if ( !findHerwigPPME( &*iter, me ) )
+        continue;
+
+      // ok, we have found a Herwig++ matrix element with a subsection
+      // of the status 2 graph with all one-mother-one-daughter endpoints...
+      for( vector<const Candidate*>::const_iterator out = me.outgoing.begin();
+           out != me.outgoing.end(); ++out )
+        *event_kt_value = max( *event_kt_value, (*out)->pt() );
     }
   }
 
-  auto_ptr<double> event_kt_value( new double( -1. ) );
-
-  if ( bestMothers[0] ) {
-    // now loop over all daughters that have those two mothers
-    for(Candidate::const_iterator iter = bestMothers[0]->begin();
-        iter != bestMothers[0]->end(); ++iter) {
-      if ( iter->numberOfMothers() == 2 &&
-           ( iter->mother(1) == bestMothers[1] ||
-             iter->mother(0) == bestMothers[1] ) &&
-           allowedParton( iter->pdgId() ) )
-        *event_kt_value = std::max( *event_kt_value, iter->pt() );
-    }
-  }
-
-  std::cout << "kt_value = " << *event_kt_value << std::endl;
   evt.put( event_kt_value );
 }
 
