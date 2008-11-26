@@ -1,6 +1,5 @@
 <flags EDM_PLUGIN=1>
 <use name=FWCore/Framework>
-<use name=Foundation/PluginManager>
 <use name=FWCore/ParameterSet>
 <use name=DataFormats/TrackerRecHit2D>
 <use name=Geometry/TrackerGeometryBuilder>
@@ -16,7 +15,6 @@
 <lib name=RecoLocalTrackerSubCollectionProducers>
 
 <use name=FWCore/Framework>
-<use name=Foundation/PluginManager>
 <use name=FWCore/ParameterSet>
 <use name=DataFormats/TrackerRecHit2D>
 <use name=Geometry/TrackerGeometryBuilder>
