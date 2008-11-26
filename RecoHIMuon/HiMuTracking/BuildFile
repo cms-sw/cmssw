@@ -1,5 +1,4 @@
 <use name=FWCore/Framework>
-<use name=Foundation/PluginManager>
 <use name=FWCore/ParameterSet>
 <use name=TrackingTools/TrackFitters>
 <use name=TrackingTools/PatternTools>

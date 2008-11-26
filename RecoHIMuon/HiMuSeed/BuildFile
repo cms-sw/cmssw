@@ -2,7 +2,6 @@
 <use name=clhep>
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
-<use name=Foundation/PluginManager>
 <use name=Geometry/Records>
 <use name=TrackingTools/MaterialEffects>
 <use name=Geometry/CommonDetUnit>
@@ -38,7 +37,6 @@
   <use name=clhep>
   <use name=FWCore/Framework>
   <use name=FWCore/ParameterSet>
-  <use name=Foundation/PluginManager>
   <use name=Geometry/Records>
   <use name=TrackingTools/MaterialEffects>
   <use name=Geometry/CommonDetUnit>
