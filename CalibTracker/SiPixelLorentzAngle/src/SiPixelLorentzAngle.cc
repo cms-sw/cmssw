@@ -25,15 +25,19 @@
 
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
-
+#include "TrackingTools/TrackFitters/interface/TrajectoryStateCombiner.h"
+#include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 int lower_bin_;
 
 using namespace std;
+using namespace edm;
+using namespace reco;
 
 SiPixelLorentzAngle::SiPixelLorentzAngle(edm::ParameterSet const& conf) : 
-		conf_(conf), filename_(conf.getParameter<std::string>("fileName")), filenameFit_(conf.getParameter<std::string>("fileNameFit")),hist_depth_(conf.getParameter<int>("binsDepth")), hist_drift_(conf.getParameter<int>("binsDrift")), ptmin_(conf.getParameter<double>("ptMin")), simData_(conf.getParameter<bool>("simData"))
+		conf_(conf), filename_(conf.getParameter<std::string>("fileName")), filenameFit_(conf.getParameter<std::string>("fileNameFit")), ptmin_(conf.getParameter<double>("ptMin")), simData_(conf.getParameter<bool>("simData")),	normChi2Max_(conf.getParameter<double>("normChi2Max")), clustSizeYMin_(conf.getParameter<int>("clustSizeYMin")), residualMax_(conf.getParameter<double>("residualMax")), clustChargeMax_(conf.getParameter<double>("clustChargeMax")),hist_depth_(conf.getParameter<int>("binsDepth")), hist_drift_(conf.getParameter<int>("binsDrift"))
 {
-  	anglefinder_=new  TrackLocalAngle(conf);
+//   	anglefinder_=new  TrackLocalAngle(conf);
 	hist_x_ = 50;
 	hist_y_ = 100;
 	min_x_ = -500.;
@@ -43,10 +47,9 @@ SiPixelLorentzAngle::SiPixelLorentzAngle(edm::ParameterSet const& conf) :
 	width_ = 0.0285;
 	min_depth_ = -100.;
 	max_depth_ = 400.;
-	min_drift_ = -1000.; //-200.;
+	min_drift_ = -1000.; //-200.;(conf.getParameter<double>("residualMax"))
 	max_drift_ = 1000.; //400.;
-	event_counter_ = 0;
-	hits_layer1_module7_ = 0;
+
 }
 
 // Virtual destructor needed.
@@ -56,8 +59,7 @@ void SiPixelLorentzAngle::beginJob(const edm::EventSetup& c)
 {
 
 // 	cout << "started SiPixelLorentzAngle" << endl;
-	ntracks = 200;
-  	hFile_ = new TFile (filename_.c_str(), "RECREATE" );
+ 	hFile_ = new TFile (filename_.c_str(), "RECREATE" );
 	int bufsize = 64000;
 	// create tree structure
 	SiPixelLorentzAngleTree_ = new TTree("SiPixelLorentzAngleTree_","SiPixel LorentzAngle tree", bufsize);
@@ -109,9 +111,11 @@ void SiPixelLorentzAngle::beginJob(const edm::EventSetup& c)
 	h_cluster_shape_noadc_rot_  = new TH2F("h_cluster_shape_noadc_rot","cluster shape without adc weight", hist_x_, min_x_, max_x_, hist_y_, -max_y_, -min_y_);
 	h_cluster_shape_rot_  = new TH2F("h_cluster_shape_rot","cluster shape", hist_x_, min_x_, max_x_, hist_y_, -max_y_, -min_y_);
 	
-	eventcounter_ = 0;
-	eventnumber_ = -1;
-	trackcounter_ = 0;
+	event_counter_ = 0;
+	trackEventsCounter_ = 0;
+// 	trackcounter_ = 0;
+	hitCounter_ = 0;
+	usedHitCounter_ = 0;
 	
 	edm::ESHandle<TrackerGeometry> estracker;
 	c.get<TrackerDigiGeometryRecord>().get(estracker);
@@ -123,8 +127,8 @@ void SiPixelLorentzAngle::beginJob(const edm::EventSetup& c)
 void SiPixelLorentzAngle::analyze(const edm::Event& e, const edm::EventSetup& es)
 {  
 	event_counter_++;
-	if(event_counter_ % 500 == 0) cout << "event number " << event_counter_ << endl;
-// 	cout << "event number " << event_counter_ << endl;
+// 	if(event_counter_ % 500 == 0) cout << "event number " << event_counter_ << endl;
+	cout << "event number " << event_counter_ << endl;
 	TrackerHitAssociator* associate;
 	if(simData_) associate = new TrackerHitAssociator(e); else associate = 0; 
 	// restet values
@@ -140,158 +144,156 @@ void SiPixelLorentzAngle::analyze(const edm::Event& e, const edm::EventSetup& es
 	run_       = e.id().run();
 	event_     = e.id().event();
 	
-	if(event_ != eventnumber_){
-		eventcounter_+=1;
-		eventnumber_ = event_;
-	}
-  
-	using namespace edm;
-	// initialise the new reconstuction of the track (to get position and angles on the pixel)
-	anglefinder_->init(e,es);
-	LogDebug("SiPixelLorentzAngle::analyze")<<"Getting tracks";
-	std::string src=conf_.getParameter<std::string>( "src" );
-	edm::Handle<reco::TrackCollection> trackCollection;
-	e.getByLabel(src, trackCollection);
-	const reco::TrackCollection *tracks=trackCollection.product();
-	reco::TrackCollection::const_iterator tciter;
-	// "are there tracks"
-	if(tracks->size()>0){
-		// iterate over tracks
-		for(tciter=tracks->begin();tciter!=tracks->end();tciter++){
-			pt_ = tciter->pt();
-// 			cout << "pt track: " << pt_ << endl;
-			if (pt_ < ptmin_) continue;
-// 			cout << "ok" << endl;
-			eta_ = tciter->momentum().eta();
-			phi_ = tciter->momentum().phi();
-			chi2_ = tciter->chi2();
-			ndof_ = tciter->ndof();
-			// reconstuct the track again (to get position and angles on the pixel)
-			std::vector<std::pair<SiPixelRecHit*,TrackLocalAngle::Trackhit> > tmptrackhit=anglefinder_->findPixelParameters(*tciter);
-			std::vector<std::pair<SiPixelRecHit*,TrackLocalAngle::Trackhit> >::iterator tmpiter;
+	// get the association map between tracks and trajectories
+	edm::Handle<TrajTrackAssociationCollection> trajTrackCollectionHandle;
+	e.getByLabel(conf_.getParameter<std::string>("src"),trajTrackCollectionHandle);
+	if(trajTrackCollectionHandle->size() >0){
+		trackEventsCounter_++;
+		for(TrajTrackAssociationCollection::const_iterator it = trajTrackCollectionHandle->begin(); it!=trajTrackCollectionHandle->end();++it){
+			const Track&      track = *it->val;
+			const Trajectory& traj  = *it->key;
+		
+			// get the trajectory measurements
+			std::vector<TrajectoryMeasurement> tmColl = traj.measurements(); 
+// 			TrajectoryStateOnSurface tsos = tsoscomb( itTraj->forwardPredictedState(), itTraj->backwardPredictedState() );
+			pt_ = track.pt();
+			eta_ = track.eta();
+			phi_ = track.phi();
+			chi2_ = traj.chiSquared();
+			ndof_ = traj.ndof();
+			if(pt_ < ptmin_) continue;
+			// iterate over trajectory measurements
 			std::vector<PSimHit> matched;
-			// iterate over track hits
-			for(tmpiter=tmptrackhit.begin();tmpiter!=tmptrackhit.end();tmpiter++){
-				DetId detIdObj((tmpiter->first)->geographicalId());
-				unsigned int subid = detIdObj.subdetId();
-				// "Pixel Barrel only"
-				if (subid == 1) {
-					
-					const PixelGeomDetUnit * theGeomDet = dynamic_cast<const PixelGeomDetUnit*> ( tracker->idToDet(detIdObj) );
-					const RectangularPixelTopology * topol = dynamic_cast<const RectangularPixelTopology*>(&(theGeomDet->specificTopology()));
-					
-					PXBDetId pxbdetIdObj(detIdObj);
-					layer_ = pxbdetIdObj.layer();
-					ladder_ = pxbdetIdObj.ladder();
-					module_ = pxbdetIdObj.module();
-			          // Flipped modules
-					float tmp1 = theGeomDet->surface().toGlobal(Local3DPoint(0.,0.,0.)).perp();
-					float tmp2 = theGeomDet->surface().toGlobal(Local3DPoint(0.,0.,1.)).perp();
-          			if ( tmp2<tmp1 ) isflipped_ = 1;
-					else isflipped_ = 0;
+			for(std::vector<TrajectoryMeasurement>::const_iterator itTraj = tmColl.begin(); itTraj != tmColl.end(); itTraj++) {
+				if(! itTraj->updatedState().isValid()) continue;
+				TransientTrackingRecHit::ConstRecHitPointer recHit = itTraj->recHit();
+				if(! recHit->isValid() || recHit->geographicalId().det() != DetId::Tracker ) continue;
+				uint subDetID = (recHit->geographicalId().subdetId());
+				if( subDetID != PixelSubdetector::PixelBarrel) continue;
+				hitCounter_++;
+			
+				DetId detIdObj = recHit->geographicalId();
+				const PixelGeomDetUnit * theGeomDet = dynamic_cast<const PixelGeomDetUnit*> ( tracker->idToDet(detIdObj) );
+				if(!theGeomDet) continue;
+				const RectangularPixelTopology * topol = dynamic_cast<const RectangularPixelTopology*>(&(theGeomDet->specificTopology()));
+				if(!topol) continue;
+				PXBDetId pxbdetIdObj(detIdObj);
+				layer_ = pxbdetIdObj.layer();
+				ladder_ = pxbdetIdObj.ladder();
+				module_ = pxbdetIdObj.module();
+				float tmp1 = theGeomDet->surface().toGlobal(Local3DPoint(0.,0.,0.)).perp();
+				float tmp2 = theGeomDet->surface().toGlobal(Local3DPoint(0.,0.,1.)).perp();
+				if ( tmp2<tmp1 ) isflipped_ = 1;
+				else isflipped_ = 0;
+				const SiPixelRecHit * recHitPix = dynamic_cast<const SiPixelRecHit *>((*recHit).hit());
+				if(!recHitPix) continue;
+				rechit_.x  = recHitPix->localPosition().x();
+				rechit_.y  = recHitPix->localPosition().y();
+				SiPixelRecHit::ClusterRef const& cluster = recHitPix->cluster();	
 
-					SiPixelRecHit rechit = (*tmpiter->first);
-					SiPixelRecHit::ClusterRef const& cluster = rechit.cluster();				
-					rechit_.x  = rechit.localPosition().x();
-					rechit_.y  = rechit.localPosition().y();
 					// fill entries in clust_
-					clust_.x = (cluster)->x();
-					clust_.y = (cluster)->y();
-					clust_.charge = (cluster->charge())/1000.;
-					clust_.size_x = cluster->sizeX();
-					clust_.size_y = cluster->sizeY();
-					clust_.maxPixelCol = cluster->maxPixelCol();
-					clust_.maxPixelRow = cluster->maxPixelRow();
-					clust_.minPixelCol = cluster->minPixelCol();
-					clust_.minPixelRow = cluster->minPixelRow();
+				clust_.x = (cluster)->x();
+				clust_.y = (cluster)->y();
+				clust_.charge = (cluster->charge())/1000.;
+				clust_.size_x = cluster->sizeX();
+				clust_.size_y = cluster->sizeY();
+				clust_.maxPixelCol = cluster->maxPixelCol();
+				clust_.maxPixelRow = cluster->maxPixelRow();
+				clust_.minPixelCol = cluster->minPixelCol();
+				clust_.minPixelRow = cluster->minPixelRow();
 					// fill entries in pixinfo_:
-					fillPix(*cluster ,topol);
+				fillPix(*cluster ,topol);
+				// fill the trackhit info
+				TrajectoryStateOnSurface tsos=itTraj->updatedState();
+				if(!tsos.isValid()){
+					cout << "tsos not valid" << endl;
+					continue;	
+				}	
+				LocalVector trackdirection=tsos.localDirection();
+				LocalPoint trackposition=tsos.localPosition();
+
+				if(trackdirection.z()==0) continue;				
+				// the local position and direction
+				trackhit_.alpha = atan2(trackdirection.z(),trackdirection.x());
+				trackhit_.beta = atan2(trackdirection.z(),trackdirection.y());
+				trackhit_.gamma = atan2(trackdirection.x(),trackdirection.y());
+				trackhit_.x = trackposition.x();
+				trackhit_.y = trackposition.y();
+				
+
+				// fill entries in simhit_:	
+				if(simData_){
+					matched.clear();        
+					matched = associate->associateHit((*recHitPix));	
+					float dr_start=9999.;
+					for (std::vector<PSimHit>::iterator isim = matched.begin(); isim != matched.end(); ++isim){
+						DetId simdetIdObj((*isim).detUnitId());
+						if (simdetIdObj == detIdObj) {
+							float sim_x1 = (*isim).entryPoint().x(); // width (row index, in col direction)
+							float sim_y1 = (*isim).entryPoint().y(); // length (col index, in row direction)
+							float sim_x2 = (*isim).exitPoint().x();
+							float sim_y2 = (*isim).exitPoint().y();
+							float sim_xpos = 0.5*(sim_x1+sim_x2);
+							float sim_ypos = 0.5*(sim_y1+sim_y2);
+							float sim_px = (*isim).momentumAtEntry().x();
+							float sim_py = (*isim).momentumAtEntry().y();
+							float sim_pz = (*isim).momentumAtEntry().z();
 					
-					// fill entries in trackhit_:
-					trackhit_=tmpiter->second;	
-					
-					// fill entries in simhit_:	
-					if(simData_){
-						matched.clear();        
-						matched = associate->associateHit((*tmpiter->first));	
-						float dr_start=9999.;
-						for (std::vector<PSimHit>::iterator isim = matched.begin(); isim != matched.end(); ++isim){
-							DetId simdetIdObj((*isim).detUnitId());
-							if (simdetIdObj == detIdObj) {
-								float sim_x1 = (*isim).entryPoint().x(); // width (row index, in col direction)
-								float sim_y1 = (*isim).entryPoint().y(); // length (col index, in row direction)
-								float sim_x2 = (*isim).exitPoint().x();
-								float sim_y2 = (*isim).exitPoint().y();
-								float sim_xpos = 0.5*(sim_x1+sim_x2);
-								float sim_ypos = 0.5*(sim_y1+sim_y2);
-								float sim_px = (*isim).momentumAtEntry().x();
-								float sim_py = (*isim).momentumAtEntry().y();
-								float sim_pz = (*isim).momentumAtEntry().z();
-					
-								float dr = (sim_xpos-(rechit.localPosition().x()))*(sim_xpos-rechit.localPosition().x()) +
-										(sim_ypos-rechit.localPosition().y())*(sim_ypos-rechit.localPosition().y());
-								if(dr<dr_start) {
-									simhit_.x     = sim_xpos;
-									simhit_.y     = sim_ypos;
-									simhit_.alpha = atan2(sim_pz, sim_px);
-									simhit_.beta  = atan2(sim_pz, sim_py);
-									simhit_.gamma = atan2(sim_px, sim_py);
-									dr_start = dr;
-								}
+							float dr = (sim_xpos-(recHitPix->localPosition().x()))*(sim_xpos-recHitPix->localPosition().x()) +
+									(sim_ypos-recHitPix->localPosition().y())*(sim_ypos-recHitPix->localPosition().y());
+							if(dr<dr_start) {
+								simhit_.x     = sim_xpos;
+								simhit_.y     = sim_ypos;
+								simhit_.alpha = atan2(sim_pz, sim_px);
+								simhit_.beta  = atan2(sim_pz, sim_py);
+								simhit_.gamma = atan2(sim_px, sim_py);
+								dr_start = dr;
 							}
-						} // end of filling simhit_
+						}
+					} // end of filling simhit_
+				}
+				// is one pixel in cluster a large pixel ? (hit will be excluded)
+				bool large_pix = false;
+				for (int j = 0; j <  pixinfo_.npix; j++){
+					int colpos = static_cast<int>(pixinfo_.col[j]-0.5);
+					if (pixinfo_.row[j] == 0 || pixinfo_.row[j] == 79 || pixinfo_.row[j] == 80 || pixinfo_.row[j] == 159 || colpos % 52 == 0 || colpos % 52 == 51 ){
+						large_pix = true;	
 					}
-					
-					// is one pixel in cluster a large pixel ? (hit will be excluded)
-					bool large_pix = false;
+				}
+				
+				double residual = TMath::Sqrt( (trackhit_.x - rechit_.x) * (trackhit_.x - rechit_.x) + (trackhit_.y - rechit_.y) * (trackhit_.y - rechit_.y) );
+
+				SiPixelLorentzAngleTree_->Fill();
+				if( !large_pix && (chi2_/ndof_) < normChi2Max_ && cluster->sizeY() >= clustSizeYMin_ && residual < residualMax_ && (cluster->charge() < clustChargeMax_)){
+					usedHitCounter_++;
+					// iterate over pixels in hit
 					for (int j = 0; j <  pixinfo_.npix; j++){
-						int colpos = static_cast<int>(pixinfo_.col[j]-0.5);
-						if (pixinfo_.row[j] == 0 || pixinfo_.row[j] == 79 || pixinfo_.row[j] == 80 || pixinfo_.row[j] == 159 || colpos % 52 == 0 || colpos % 52 == 51 ){
-							large_pix = true;	
+							// use trackhits
+						float dx = (pixinfo_.x[j]  - (trackhit_.x - width_/2. / TMath::Tan(trackhit_.alpha))) * 10000.;
+						float dy = (pixinfo_.y[j]  - (trackhit_.y - width_/2. / TMath::Tan(trackhit_.beta))) * 10000.;
+						float depth = dy * tan(trackhit_.beta);
+						float drift = dx - dy * tan(trackhit_.gamma);
+						_h_drift_depth_adc_[module_ + (layer_ -1) * 8]->Fill(drift, depth, pixinfo_.adc[j]);
+						_h_drift_depth_adc2_[module_ + (layer_ -1) * 8]->Fill(drift, depth, pixinfo_.adc[j]*pixinfo_.adc[j]);
+						_h_drift_depth_noadc_[module_ + (layer_ -1) * 8]->Fill(drift, depth);		
+						if( layer_ == 3 && module_==1 && isflipped_){
+							float dx_rot = dx * TMath::Cos(trackhit_.gamma) + dy * TMath::Sin(trackhit_.gamma);
+							float dy_rot = dy * TMath::Cos(trackhit_.gamma) - dx * TMath::Sin(trackhit_.gamma) ;
+							h_cluster_shape_adc_->Fill(dx, dy, pixinfo_.adc[j]);
+							h_cluster_shape_noadc_->Fill(dx, dy);
+							h_cluster_shape_adc_rot_->Fill(dx_rot, dy_rot, pixinfo_.adc[j]);
+							h_cluster_shape_noadc_rot_->Fill(dx_rot, dy_rot);
 						}
 					}
+				}
+			}	//end iteration over trajectory measurements
+		} //end iteration over trajectories
+	}
 
-					double residual = TMath::Sqrt( (trackhit_.x - rechit_.x) * (trackhit_.x - rechit_.x) + (trackhit_.y - rechit_.y) * (trackhit_.y - rechit_.y) );
-					// "good hit?"
-					// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-					// remove cut on number of hits !!!!!!!!!!!!!!!!!!
-					// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-// 					if( !large_pix && (chi2_/ndof_) < 2. && (cluster->charge())/1000. < 120. && cluster->sizeY() >= 4 && hits_layer1_module7_ < ntracks){
-// 					if( !large_pix && (chi2_/ndof_) < 2. && (cluster->charge())/1000. < 120. && cluster->sizeY() >= 4){
-					if( !large_pix && (chi2_/ndof_) < 2. && (cluster->charge())/1000. < 120. && cluster->sizeY() >= 4 && (residual < 0.005)){
-						SiPixelLorentzAngleTree_->Fill();
-						// iterate over pixels in hit
-						for (int j = 0; j <  pixinfo_.npix; j++){
-							// use trackhits
-							float dx = (pixinfo_.x[j]  - (trackhit_.x - width_/2. / TMath::Tan(trackhit_.alpha))) * 10000.;
-							float dy = (pixinfo_.y[j]  - (trackhit_.y - width_/2. / TMath::Tan(trackhit_.beta))) * 10000.;
-// 							if (dx > 300){
-// 								cout << "event " << "dx =" << dx<< endl;
-// 								cout << "simhit x: " << simhit_.x << ", trackhit x: " << trackhit_.x << ", chi2_: " << chi2_ << ", ndof: " << ndof_ <<", rechit x " << rechit_.x << " pix x: " << pixinfo_.x[j] << ", pix row " << pixinfo_.row[j]<< ", pix col " << pixinfo_.col[j]<<endl;
-// 							}
-							float depth = dy * tan(trackhit_.beta);
-							float drift = dx - dy * tan(trackhit_.gamma);
-							_h_drift_depth_adc_[module_ + (layer_ -1) * 8]->Fill(drift, depth, pixinfo_.adc[j]);
-							_h_drift_depth_adc2_[module_ + (layer_ -1) * 8]->Fill(drift, depth, pixinfo_.adc[j]*pixinfo_.adc[j]);
-							_h_drift_depth_noadc_[module_ + (layer_ -1) * 8]->Fill(drift, depth);		
-							if( layer_ == 3 && module_==1 && isflipped_){
-								float dx_rot = dx * TMath::Cos(trackhit_.gamma) + dy * TMath::Sin(trackhit_.gamma);
-								float dy_rot = dy * TMath::Cos(trackhit_.gamma) - dx * TMath::Sin(trackhit_.gamma) ;
-								h_cluster_shape_adc_->Fill(dx, dy, pixinfo_.adc[j]);
-								h_cluster_shape_noadc_->Fill(dx, dy);
-								h_cluster_shape_adc_rot_->Fill(dx_rot, dy_rot, pixinfo_.adc[j]);
-								h_cluster_shape_noadc_rot_->Fill(dx_rot, dy_rot);
-							}				
-						} // end iteration over pixels in hit
-// 						if( layer_ == 1 && module_==7) hits_layer1_module7_++;
-// 						if(hits_layer1_module7_ == ntracks) events_needed_ = event_counter_;
-					} // end "good hit?"
-				} // end "Pixel Barrel only"
-				// delete pointer ro rechit created in TrackLocalAngle::findPixelParameters
-				delete tmpiter->first;
-			} // end iteration over track hits
-		} // end iteration over tracks
-	} // end of "are there tracks"
+	
+	
+	
+	
 }
 
 void SiPixelLorentzAngle::endJob()
@@ -347,7 +349,9 @@ void SiPixelLorentzAngle::endJob()
 	hFile_->Write();
 	hFile_->Close();
 	cout << "events: " << event_counter_ << endl;
-// 	cout << "events used for " << ntracks << " tracks: " << events_needed_ << endl;
+	cout << "events with tracks: " << trackEventsCounter_ << endl;	
+	cout << "hits in the pixel: " << hitCounter_ << endl;
+	cout << "number of used Hits: " << usedHitCounter_ << endl;
 }
 
 void SiPixelLorentzAngle::fillPix(const SiPixelCluster & LocPix, const RectangularPixelTopology * topol)

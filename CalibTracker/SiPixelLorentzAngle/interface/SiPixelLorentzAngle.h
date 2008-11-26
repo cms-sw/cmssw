@@ -21,7 +21,7 @@
 #include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h" 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "CalibTracker/SiPixelLorentzAngle/interface/TrackLocalAngle.h"
+// #include "CalibTracker/SiPixelLorentzAngle/interface/TrackLocalAngle.h"
 #include "Geometry/TrackerTopology/interface/RectangularPixelTopology.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
@@ -43,6 +43,41 @@
 * 
 */
 
+namespace{
+	static const int maxpix = 100;
+	struct Pixinfo
+	{
+		int npix;
+		float row[maxpix];
+		float col[maxpix];
+		float adc[maxpix];
+		float x[maxpix];
+		float y[maxpix];
+	};
+	struct Hit{
+		float x;
+		float y;
+		double alpha;
+		double beta;
+		double gamma;
+	};
+	struct Clust {
+		float x;
+		float y;
+		float charge;
+		int size_x;
+		int size_y;
+		int maxPixelCol;
+		int maxPixelRow;
+		int minPixelCol;
+		int minPixelRow;
+	};
+	struct Rechit {
+		float x;
+		float y;
+	};
+}
+
 class SiPixelLorentzAngle : public edm::EDAnalyzer
 {
  public:
@@ -59,70 +94,40 @@ class SiPixelLorentzAngle : public edm::EDAnalyzer
 	void fillPix(const SiPixelCluster & LocPix, const RectangularPixelTopology * topol);
 	void findMean(int i, int i_ring);
 	
-	edm::ParameterSet conf_;
-	std::string filename_;
-	std::string filenameFit_;
-	int event_counter_;
-  	TrackLocalAngle *anglefinder_;
+	TFile* hFile_;
+	TTree* SiPixelLorentzAngleTree_;
 	
-  	int run_;
-  	int event_;
-  	int module_;
+	// tree branches
+	int run_;
+	int event_;
+	int module_;
 	int ladder_;
-  	int layer_;
+	int layer_;
 	int isflipped_;
 	float pt_;
 	float eta_;
 	float phi_;
 	double chi2_;
 	double ndof_;
-  	int eventcounter_, eventnumber_, trackcounter_;
+	Pixinfo pixinfo_;
+	Hit simhit_, trackhit_;
+	Clust clust_;
+	Rechit rechit_;
+	
+	// parameters from config file
+	edm::ParameterSet conf_;
+	std::string filename_;
+	std::string filenameFit_;
 	double ptmin_;
 	bool simData_;
+	double normChi2Max_;
+	int clustSizeYMin_;
+	double residualMax_;
+	double clustChargeMax_;
+	int hist_depth_;
+	int hist_drift_;
 	
-	TrackLocalAngle::Trackhit trackhit_;
-	
-	static const int maxpix = 100;
-	
-	struct Pixinfo
-	{
-		int npix;
-		float row[maxpix];
-		float col[maxpix];
-		float adc[maxpix];
-  		float x[maxpix];
-		float y[maxpix];
-	} pixinfo_;
-	
-	struct Simhit{
-		float x;
-		float y;
-		double alpha;
-		double beta;
-		double gamma;
-	} simhit_;
-	
-	struct Clust {
-		float x;
-		float y;
-		float charge;
-		int size_x;
-		int size_y;
-		int maxPixelCol;
-		int maxPixelRow;
-		int minPixelCol;
-		int minPixelRow;
-	} clust_;
-	
-	struct Rechit {
-		float x;
-		float y;
-	} rechit_;
-	
-	
-  	TFile* hFile_;
-  	TTree* SiPixelLorentzAngleTree_;
-	
+	// histogram etc
 	int hist_x_;
 	int hist_y_;
 	double min_x_;
@@ -134,13 +139,7 @@ class SiPixelLorentzAngle : public edm::EDAnalyzer
 	double max_depth_;
 	double min_drift_;
 	double max_drift_;
-	int hist_depth_;
-	int hist_drift_;
 	
-// 	int lower_bin_;
-// 	int upper_bin_;
-	
-
 	std::map<int, TH2F*> _h_drift_depth_adc_;
 	std::map<int, TH2F*> _h_drift_depth_adc2_;
 	std::map<int, TH2F*> _h_drift_depth_noadc_;
@@ -154,22 +153,21 @@ class SiPixelLorentzAngle : public edm::EDAnalyzer
 	TH2F *h_cluster_shape_noadc_rot_;
 	TH2F *h_cluster_shape_rot_;
 	
-	bool seed_plus_;
-  	PropagatorWithMaterial  *thePropagator;
-  	PropagatorWithMaterial  *thePropagatorOp;
-  	KFUpdator *theUpdator;
-  	Chi2MeasurementEstimator *theEstimator;
-  	const TransientTrackingRecHitBuilder *RHBuilder;
-  	const KFTrajectorySmoother * theSmoother;
-  	const KFTrajectoryFitter * theFitter;
-  	const TrackerGeometry * tracker;
-  	const MagneticField * magfield;
-  	TrajectoryStateTransform tsTransform;
 	
-	int hits_layer1_module7_;
-	int events_needed_;
-	int ntracks;
-  
+	int event_counter_, trackEventsCounter_, hitCounter_, usedHitCounter_;
+
+	// CMSSW classes needed
+	PropagatorWithMaterial  *thePropagator;
+	PropagatorWithMaterial  *thePropagatorOp;
+	KFUpdator *theUpdator;
+	Chi2MeasurementEstimator *theEstimator;
+	const TransientTrackingRecHitBuilder *RHBuilder;
+	const KFTrajectorySmoother * theSmoother;
+	const KFTrajectoryFitter * theFitter;
+	const TrackerGeometry * tracker;
+	const MagneticField * magfield;
+	TrajectoryStateTransform tsTransform;
+
 };
 
 
