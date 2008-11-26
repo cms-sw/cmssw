@@ -190,6 +190,4 @@ TauJetCorrectorExample::endJob() {
 }
 
 //define this as a plug-in
-//DEFINE_FWK_MODULE(TauJetCorrectorExample);
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(TauJetCorrectorExample);
+DEFINE_FWK_MODULE(TauJetCorrectorExample);
