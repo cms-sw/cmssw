@@ -17,12 +17,7 @@
   <class pattern="edm::RefVector<std::vector<TrackingVertex>,*>" />
   <class name="edm::RefProd<std::vector<TrackingVertex> >" />
 
-  <class name="TrackingParticle">
-    <field name="trackerPSimHit_"   transient="true"/>
-    <field name="muonPSimHit_"      transient="true"/>
-    <field name="subdetVectorFill_" transient="true"/>
-  </class>
-
+  <class name="TrackingParticle"/>
   <class name="std::vector<TrackingParticle>" />
   <class name="edm::Wrapper<std::vector<TrackingParticle> >" />
   <class pattern="edm::Ref<std::vector<TrackingParticle>,*>" />

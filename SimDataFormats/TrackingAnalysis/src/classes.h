@@ -4,8 +4,10 @@
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingVertexContainer.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 
-namespace {
-  struct dictionary {
+namespace
+{
+struct dictionary
+{
 
     std::vector<ParticleBase> dummy100;
     edm::Wrapper<std::vector<ParticleBase> > dummy101;
@@ -35,5 +37,5 @@ namespace {
     std::vector<PSimHit>::const_iterator hcIt1;
     std::vector<PSimHit>::iterator hcIt2;
 
-  };
+};
 }

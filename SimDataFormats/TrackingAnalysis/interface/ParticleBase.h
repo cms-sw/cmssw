@@ -7,7 +7,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: ParticleBase.h,v 1.1 2008/11/20 19:32:49 bazterra Exp $
+ * \version $Id: ParticleBase.h,v 1.2 2008/11/21 15:28:44 bazterra Exp $
  *
  */
 #include "DataFormats/Math/interface/Point3D.h"
@@ -33,7 +33,7 @@ public:
     ParticleBase() : cachePolarFixed_( false ) { }
     /// constructor from values
     ParticleBase( Charge q, const LorentzVector & p4, const Point & vertex = Point( 0, 0, 0 ),
-              int pdgId = 0, int status = 0, bool integerCharge = true ) :
+                  int pdgId = 0, int status = 0, bool integerCharge = true ) :
             qx3_( q ), pt_( p4.pt() ), eta_( p4.eta() ), phi_( p4.phi() ), mass_( p4.mass() ),
             vertex_( vertex ), pdgId_( pdgId ), status_( status ),
             cachePolarFixed_( false ), cacheCartesianFixed_( false )
@@ -42,7 +42,7 @@ public:
     }
     /// constructor from values
     ParticleBase( Charge q, const PolarLorentzVector & p4, const Point & vertex = Point( 0, 0, 0 ),
-              int pdgId = 0, int status = 0, bool integerCharge = true ) :
+                  int pdgId = 0, int status = 0, bool integerCharge = true ) :
             qx3_( q ), pt_( p4.pt() ), eta_( p4.eta() ), phi_( p4.phi() ), mass_( p4.mass() ),
             vertex_( vertex ), pdgId_( pdgId ), status_( status ),
             cachePolarFixed_( false ), cacheCartesianFixed_( false )
