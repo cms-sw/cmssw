@@ -33,6 +33,7 @@ namespace cscdqm {
        
       // If reference for CSC_Reporting is defined - use it
       // Else - do it flat way
+       
       if (tobj) {
         TH2* ref = dynamic_cast<TH2*>(tobj);
         summary.ReadReportingChambersRef(rep, ref, 
@@ -82,8 +83,8 @@ namespace cscdqm {
       }
 
     }
-    
-    if (getEMUHisto(h::EMU_CSC_STATS_SUMMARY, me)){
+
+    if (getEMUHisto(h::EMU_CSC_STATS_SUMMARY, me)) {
       TH2* tmp = dynamic_cast<TH2*>(me->getTH1());
       summary.WriteChamberState(tmp, 0x1, 3, true, false);
       summary.WriteChamberState(tmp, HWSTATUSERRORBITS, 2, false, true);
@@ -134,10 +135,10 @@ namespace cscdqm {
       TH2* tmp = dynamic_cast<TH2*>(me->getTH1());
       summary.WriteChamberState(tmp, 0x800, 2, true, false);
     }
-
-  //
-  // Write summary information
-  //
+    
+    //
+    // Write summary information
+    //
 
     if (getEMUHisto(h::EMU_PHYSICS_ME1, me)){
       TH2* tmp = dynamic_cast<TH2*>(me->getTH1());
@@ -160,12 +161,13 @@ namespace cscdqm {
     }
 
     if (getEMUHisto(h::EMU_PHYSICS_EMU, me)) {
-      TH2* tmp=dynamic_cast<TH2*>(me->getTH1());
+      TH2* tmp = dynamic_cast<TH2*>(me->getTH1());
       summary.WriteMap(tmp);
     }
 
     // Looping via addresses (scope: side->station->ring) and
     // filling in HW efficiencies
+    
     Address adr;
     adr.mask.station = adr.mask.ring = adr.mask.chamber = adr.mask.layer = adr.mask.cfeb = adr.mask.hv = false;
     adr.mask.side = true;
@@ -189,16 +191,16 @@ namespace cscdqm {
         }
         adr.mask.ring = false;
         e_station = e_station / summary.getDetector().NumberOfRings(adr.station);
-        if (getParHisto(summary.getDetector().AddressName(adr), me)) me1->Fill(e_station);
+        if (getParHisto(summary.getDetector().AddressName(adr), me)) me->Fill(e_station);
         e_side += e_station;
       }
       adr.mask.station = false;
       e_side = e_side / N_STATIONS;
-      if (getParHisto(summary.getDetector().AddressName(adr), me)) me1->Fill(e_side);
+      if (getParHisto(summary.getDetector().AddressName(adr), me)) me->Fill(e_side);
       e_detector += e_side; 
     }
     e_detector = e_detector / N_SIDES;
-    if (getParHisto("reportSummary", me)) me1->Fill(e_detector);
+    if (getParHisto(h::PAR_REPORT_SUMMARY, me)) me->Fill(e_detector);
 
   }
 

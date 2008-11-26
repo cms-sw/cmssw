@@ -24,6 +24,11 @@
 
 namespace cscdqm {
 
+  /**
+   * @class Exception
+   * @brief Application level Exception that is used to cut-off application
+   * execution in various cases.
+   */
   class Exception: public std::exception {
     private:
 

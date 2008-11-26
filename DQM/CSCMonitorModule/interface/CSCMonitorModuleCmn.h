@@ -74,6 +74,10 @@ typedef std::vector<cscdqm::CSCHistoType>        bookedCSCSet;
 typedef std::bitset<32>                          Bitset32;
 
 
+/**
+ * @class CSCMonitorModuleCmn
+ * @brief Common CSC DQM Module that uses CSCDQM Framework  
+ */
 class CSCMonitorModuleCmn: public edm::EDAnalyzer, public cscdqm::HistoProvider {
  
   ///
@@ -118,33 +122,18 @@ class CSCMonitorModuleCmn: public edm::EDAnalyzer, public cscdqm::HistoProvider 
     }
     const bool nextCSC(unsigned int& iter, unsigned int& crateId, unsigned int& dmbId) const;
 
-    cscdqm::MonitorObject* bookInt (const std::string &name) {
-      return new CSCMonitorObject(dbe->bookInt(name));
-    }
-    cscdqm::MonitorObject* bookFloat (const std::string &name) {
-      return new CSCMonitorObject(dbe->bookFloat(name));
-    }
-    cscdqm::MonitorObject* bookString (const std::string &name, const std::string &value) {
-      return new CSCMonitorObject(dbe->bookString(name, value));
-    }
-    cscdqm::MonitorObject* book1D (const std::string &name, const std::string &title, int nchX, double lowX, double highX) {
-      return new CSCMonitorObject(dbe->book1D(name, title, nchX, lowX, highX));
-    }
-    cscdqm::MonitorObject* book2D (const std::string &name, const std::string &title, int nchX, double lowX, double highX, int nchY, double lowY, double highY) {
-      return new CSCMonitorObject(dbe->book2D(name, title, nchX, lowX, highX, nchY, lowY, highY));
-    }
-    cscdqm::MonitorObject* book3D (const std::string &name, const std::string &title, int nchX, double lowX, double highX, int nchY, double lowY, double highY, int nchZ, double lowZ, double highZ) {
-      return new CSCMonitorObject(dbe->book3D(name, title, nchX, lowX, highX, nchY, lowY, highY, nchZ, lowZ, highZ));
-    }
-    cscdqm::MonitorObject* bookProfile (const std::string &name, const std::string &title, int nchX, double lowX, double highX, int nchY, double lowY, double highY, const char *option = "s") {
-      return new CSCMonitorObject(dbe->bookProfile(name, title, nchX, lowX, highX, nchY, lowY, highY, option));
-    }
-    cscdqm::MonitorObject* bookProfile2D (const std::string &name, const std::string &title, int nchX, double lowX, double highX, int nchY, double lowY, double highY, int nchZ, double lowZ, double highZ, const char *option = "s") {
-      return new CSCMonitorObject(dbe->bookProfile2D(name, title, nchX, lowX, highX, nchY, lowY, highY, nchZ, lowZ, highZ, option));
-    }
-    void afterBook (cscdqm::MonitorObject*& me) {
-      if (me != NULL) delete me;
-    }
+    cscdqm::MonitorObject* bookInt (const std::string &name);
+    cscdqm::MonitorObject *bookInt (const std::string &name, const int default_value);
+    cscdqm::MonitorObject* bookFloat (const std::string &name);
+    cscdqm::MonitorObject *bookFloat (const std::string &name, const float default_value);
+    cscdqm::MonitorObject* bookString (const std::string &name, const std::string &value);
+    cscdqm::MonitorObject* book1D (const std::string &name, const std::string &title, int nchX, double lowX, double highX);
+    cscdqm::MonitorObject* book2D (const std::string &name, const std::string &title, int nchX, double lowX, double highX, int nchY, double lowY, double highY);
+    cscdqm::MonitorObject* book3D (const std::string &name, const std::string &title, int nchX, double lowX, double highX, int nchY, double lowY, double highY, int nchZ, double lowZ, double highZ);
+    cscdqm::MonitorObject* bookProfile (const std::string &name, const std::string &title, int nchX, double lowX, double highX, int nchY, double lowY, double highY, const char *option = "s");
+    cscdqm::MonitorObject* bookProfile2D (const std::string &name, const std::string &title, int nchX, double lowX, double highX, int nchY, double lowY, double highY, int nchZ, double lowZ, double highZ, const char *option = "s");
+
+    void afterBook (cscdqm::MonitorObject*& me);
 
   /// 
   // EDAnalyzer Implementation

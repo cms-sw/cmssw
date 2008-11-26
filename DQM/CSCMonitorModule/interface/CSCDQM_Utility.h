@@ -45,6 +45,10 @@ namespace cscdqm {
     return !(iss >> f >> t).fail();
   }
 
+  /**
+   * @class Utility
+   * @brief General and CSCDQM Framework related utility routines
+   */
   class Utility {
 
     public:

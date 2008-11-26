@@ -72,9 +72,9 @@
 #define SUMCONTENTS_FOLDER "EventInfo/reportSummaryContents/"
 
 /**
- * Class Definition
+ * @class CSCMonitorModule
+ * @brief Online CSC DQM module
  */
-
 class CSCMonitorModule: public edm::EDAnalyzer {
 
   public:

@@ -24,6 +24,12 @@
 
 namespace cscdqm {
 
+  /**
+   * @class MonitorObject
+   * @brief Monitoring Object interface used to cover Root object and provide
+   * common interface to EventProcessor and Collection objects. Used by
+   * HistoProvider interface.
+   */
   class MonitorObject {
   
     public: 
@@ -38,7 +44,7 @@ namespace cscdqm {
       virtual void SetBinContent(const int binX, const int binY, const double value) = 0;
       virtual double GetBinContent(const int binX) = 0;
       virtual double GetBinContent(const int binX, int binY) = 0;
-      virtual void SetAxisRange(const double from, const double to, const std::string axis) = 0;
+      virtual void SetAxisRange(const double from, const double to, const std::string& axis) = 0;
       virtual void setAxisTitle(const std::string title, const int axisN) = 0;
       virtual TObject *getRefRootObject(void) const = 0;
 

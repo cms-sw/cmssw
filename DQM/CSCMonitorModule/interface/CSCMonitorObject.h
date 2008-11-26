@@ -22,6 +22,10 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQM/CSCMonitorModule/interface/CSCDQM_MonitorObjectIf.h"
 
+/**
+ * @class CSCMonitorObject
+ * @brief cscdqm::MonitorObject implementation used in CSCMonitorModuleCmn
+ */
 class CSCMonitorObject : public cscdqm::MonitorObject {
 
   private:
@@ -73,7 +77,9 @@ class CSCMonitorObject : public cscdqm::MonitorObject {
       return me->getBinContent(binX, binY); 
     }
     
-    void SetAxisRange(const double from, const double to, const std::string axis) {   }
+    void SetAxisRange(const double from, const double to, const std::string& axis) {
+      me->getTH1()->SetAxisRange(from, to, axis.c_str());
+    }
     
     void setAxisTitle(const std::string title, const int axisN) { 
       me->setAxisTitle(title, axisN);  

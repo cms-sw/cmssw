@@ -61,6 +61,11 @@ namespace cscdqm {
   typedef std::map<std::string, CoHistoProps>    CoHisto;
   typedef std::map<std::string, CoHisto>         CoHistoMap;
   
+  /**
+   * @class Collection
+   * @brief Manage collection of histograms, load histogram definitions from
+   * XML file and book histograms by calling HistoProvider routines.  
+   */
   class Collection {
 
     public:
@@ -97,6 +102,11 @@ namespace cscdqm {
 
   };
 
+  /**
+   * @class BookingFileErrorHandler
+   * @brief Takes care of errors and warnings while parsing Histogram booking
+   * file in XML format.
+   */
   class BookingFileErrorHandler : public ErrorHandler {
 
     public:

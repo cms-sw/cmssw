@@ -47,6 +47,9 @@
 
 namespace cscdqm {
 
+  /**
+   * @brief  Structure to provide a set of efficiency parameters.
+   */
   typedef struct EffParametersType {
     double cold_threshold;
     double cold_sigfail;
@@ -58,6 +61,9 @@ namespace cscdqm {
     double nodata_sigfail;
   };
 
+  /**
+   * @brief  Switch on/off CRC check for various levels
+   */
   typedef enum BinCheckerCRCType { 
     ALCT, 
     CFEB, 
@@ -66,6 +72,10 @@ namespace cscdqm {
 
   typedef std::map<std::string, uint32_t> CSCCounters;
 
+  /**
+   * @class EventProcessor
+   * @brief Object used to process Events and compute statistics
+   */
   class EventProcessor {
 
 // ===================================================================================================

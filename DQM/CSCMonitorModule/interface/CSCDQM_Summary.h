@@ -26,6 +26,7 @@
 #include <iostream>
 
 #include "DQM/CSCMonitorModule/interface/CSCDQM_Detector.h"
+#include "DQM/CSCMonitorModule/interface/CSCDQM_Logger.h"
 
 #define HWSTATUSBITSETSIZE    12
 #define HWSTATUSERRORBITS     0xffe
@@ -37,27 +38,38 @@
 
 namespace cscdqm {
 
+/**
+  * @brief Hardware Status Bit values used in Summary efficiency calculation
+  */
 enum HWStatusBit {
 
-  DATA,         // Data available (reporting)
-  MASKED,       // HW element was masked out (not in readout)
-  HOT,          // HW element is hot by comparing with reference histogram 
-  COLD,         // HW element is cold comparing with reference histogram
+  DATA,         /// Data available (reporting)
+  MASKED,       /// HW element was masked out (not in readout)
+  HOT,          /// HW element is hot by comparing with reference histogram 
+  COLD,         /// HW element is cold comparing with reference histogram
 
-  FORMAT_ERR,   // Format errors
-  L1SYNC_ERR,   // L1A out of sync errors
-  FIFOFULL_ERR, // DMB FIFO full error
-  INPUTTO_ERR,  // DMB Input timeout error
+  FORMAT_ERR,   /// Format errors
+  L1SYNC_ERR,   /// L1A out of sync errors
+  FIFOFULL_ERR, /// DMB FIFO full error
+  INPUTTO_ERR,  /// DMB Input timeout error
 
-  NODATA_ALCT,  // No ALCT data
-  NODATA_CLCT,  // No CLCT data
-  NODATA_CFEB,  // No CFEB data
-  CFEB_BWORDS   // Data with CFEB BWORDS
+  NODATA_ALCT,  /// No ALCT data
+  NODATA_CLCT,  /// No CLCT data
+  NODATA_CFEB,  /// No CFEB data
+  CFEB_BWORDS   /// Data with CFEB BWORDS
 
 };
 
+/**
+ * @brief  Hardware Status Bits structure used in Summary efficiency
+ * calculation and storage
+ */
 typedef std::bitset<HWSTATUSBITSETSIZE> HWStatusBitSet;
 
+/**
+ * @class Summary
+ * @brief Hardware and Physics Efficiency data structures and routines 
+ */
 class Summary {
 
   public:

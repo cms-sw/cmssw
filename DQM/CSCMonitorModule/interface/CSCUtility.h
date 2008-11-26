@@ -64,6 +64,10 @@ bool stringToNumber(T& t, const std::string& s, std::ios_base& (*f)(std::ios_bas
 #define get16bits(d) ((((uint32_t)(((const uint8_t *)(d))[1])) << 8) + (uint32_t)(((const uint8_t *)(d))[0]) )
 #endif
 
+/**
+ * @class CSCUtility
+ * @brief CSCMonitorModule and CSCHLTMonitorModule utility routines
+ */
 class CSCUtility {
 
   public:

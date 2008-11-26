@@ -10,6 +10,10 @@
 
 namespace cscdqm {
 
+  /**
+   * @class StripCluster
+   * @brief Strip Cluster
+   */
 class StripCluster {
  public:
   std::vector<StripClusterFitData> ClusterPulseMapHeight;

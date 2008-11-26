@@ -5,6 +5,10 @@
 
 namespace cscdqm {
 
+  /**
+   * @class ClusterLocalMax
+   * @brief Local Maximum of the Cluster
+   */
 class ClusterLocalMax {
  public:
   int Time;

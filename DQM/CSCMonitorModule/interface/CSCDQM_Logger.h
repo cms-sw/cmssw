@@ -42,22 +42,46 @@
 
 namespace cscdqm {
 
+  /**
+   * @class Logger
+   * @brief Base Logger Object (empty)
+   */
   class Logger { };
 
 //#ifdef DQMGLOBAL
 
+  /**
+   * @class LogInfo
+   * @brief Information level logger. Use LOG_INFO macros instead, i.e.
+   * LOG_INFO << "x = " << x;
+   */
   class LogInfo : public edm::LogInfo, public Logger {
     public: LogInfo() : edm::LogInfo("") { }
   };
 
+  /**
+   * @class LogWarn
+   * @brief Warning level logger. Use LOG_WARN macros instead, i.e. LOG_WARN
+   * << "x = " << x;
+   */
   class LogWarn : public edm::LogWarning, public Logger {
     public: LogWarn() : edm::LogWarning("") { }
   };
 
+  /**
+   * @class LogError
+   * @brief Error level logger. Use LOG_ERROR macros instead, i.e. LOG_ERROR <<
+   * "x = " << x;
+   */
   class LogError : public edm::LogError, public Logger {
     public: LogError() : edm::LogError("") { }
   };
 
+  /**
+   * @class LogDebugger
+   * @brief Debug Level logger. Use LOG_DEBUG macros instead, i.e. LOG_DEBUG <<
+   * "x = " << x;
+   */
   class LogDebugger : public edm::LogDebug_, public Logger {
     public: 
       LogDebugger() : edm::LogDebug_() { }
@@ -66,6 +90,11 @@ namespace cscdqm {
 
 //#endif
 
+  /**
+   * @class LogCout
+   * @brief Simple logger that prints stuff to std::cout. Use LOG_COUT macros
+   * instead, i.e. LOG_COUT << "x = " << x;
+   */
   class LogCout : public Logger {
     public:
 

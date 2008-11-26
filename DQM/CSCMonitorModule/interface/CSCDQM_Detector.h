@@ -50,6 +50,9 @@ namespace cscdqm {
 //#define P_X(i)        int(i / partitions_y)
 //#define P_Y(i,x)      (i - x * partitions_y)
 
+/**
+  * @brief  Mask of the address which is used to switch on and off appropriate Address fields.
+  */
 typedef struct AddressMask {
   bool side;
   bool station;
@@ -60,6 +63,10 @@ typedef struct AddressMask {
   bool hv;
 };
 
+/**
+  * @brief  Structure to store detector addresses of any granularity: from
+  * whole detector to the single HV element.
+  */
 typedef struct Address {
 
   unsigned int side;
@@ -103,6 +110,9 @@ typedef struct Address {
 
 };
 
+/**
+ * @brief  Area covered by Address in eta/phy space
+ */
 typedef struct AddressBox {
   Address adr;
   float xmin;
@@ -111,6 +121,9 @@ typedef struct AddressBox {
   float ymax;
 };
 
+/**
+ * @brief  Structure to store eta/phy atomic element for Physics efficiency.
+ */
 struct AddressBoxStationPartition {
   unsigned int from[2];
   unsigned int to[2];
@@ -119,6 +132,10 @@ struct AddressBoxStationPartition {
 typedef std::map<const unsigned int, std::vector<unsigned int> > PartitionMap;
 typedef PartitionMap::iterator PartitionMapIterator;
 
+/**
+ * @class Detector
+ * @brief Detector geometry and addressing related imformation and routines
+ */
 class Detector {
 
   public:

@@ -26,6 +26,11 @@
 
 namespace cscdqm {
 
+  /**
+   * @class HistoProvider
+   * @brief Interface for Histogram providing objects. Used by Event Processor
+   * to retrieve MonitorObject 's and by Collection to book MonitorObject 's
+   */
   class HistoProvider {
 
     public:
@@ -37,7 +42,9 @@ namespace cscdqm {
       virtual const bool nextCSC(unsigned int& iter, unsigned int& crateId, unsigned int& dmbId) const = 0;
 
       virtual MonitorObject *bookInt       (const std::string &name) = 0;
+      virtual MonitorObject *bookInt       (const std::string &name, const int default_value) = 0;
       virtual MonitorObject *bookFloat     (const std::string &name) = 0;
+      virtual MonitorObject *bookFloat     (const std::string &name, const float default_value) = 0;
       virtual MonitorObject *bookString    (const std::string &name,
                                             const std::string &value) = 0; 
       virtual MonitorObject *book1D        (const std::string &name,

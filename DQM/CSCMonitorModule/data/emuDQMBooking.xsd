@@ -36,31 +36,18 @@
 	
 	<xs:complexType name="BaseHistogramType">
 		<xs:sequence>
+			<xs:element name="Descr" type="xs:string" minOccurs="0"/>
+			<xs:element name="Folder" type="xs:string" minOccurs="0"/>
+			<xs:element name="LabelsOption" type="xs:string" minOccurs="0"/>
 			<xs:element name="Prefix" minOccurs="0">
 				<xs:simpleType>
 					<xs:restriction base="xs:string">
 						<xs:enumeration value="CSC"/>
 						<xs:enumeration value="DDU"/>
 						<xs:enumeration value="EMU"/>
-						<xs:enumeration value="EventInfo"/>
 					</xs:restriction>
 				</xs:simpleType>
 			</xs:element>
-			<xs:element name="Type" minOccurs="0">
-				<xs:simpleType>
-					<xs:restriction base="xs:string">
-						<xs:enumeration value="h1"/>
-						<xs:enumeration value="h2"/>
-						<xs:enumeration value="hp"/>
-					</xs:restriction>
-				</xs:simpleType>
-			</xs:element>
-			<xs:element name="XBins" type="xs:integer" minOccurs="0"/>
-			<xs:element name="XMax" type="xs:integer" minOccurs="0"/>
-			<xs:element name="XMin" type="xs:integer" minOccurs="0"/>
-			<xs:element name="Descr" type="xs:string" minOccurs="0"/>
-			<xs:element name="Folder" type="xs:string" minOccurs="0"/>
-			<xs:element name="LabelsOption" type="xs:string" minOccurs="0"/>
 			<xs:element name="SetErrorOption" type="xs:string" minOccurs="0"/>
 			<xs:element name="SetGridx" type="xs:integer" minOccurs="0"/>
 			<xs:element name="SetGridy" type="xs:integer" minOccurs="0"/>
@@ -75,9 +62,9 @@
 			<xs:element name="SetMinimum" type="xs:integer" minOccurs="0"/>
 			<xs:element name="SetNdivisionsX" type="xs:integer" minOccurs="0"/>
 			<xs:element name="SetNdivisionsY" type="xs:integer" minOccurs="0"/>
-			<xs:element name="SetOptStat" type="xs:string" minOccurs="0"/>
 			<xs:element name="SetOption" type="xs:string" minOccurs="0"/>
-			<xs:element name="SetRightMargin" type="xs:integer" minOccurs="0"/>
+			<xs:element name="SetOptStat" type="xs:string" minOccurs="0"/>
+			<xs:element name="SetRightMargin" type="xs:double" minOccurs="0"/>
 			<xs:element name="SetStats" minOccurs="0">
 				<xs:simpleType>
 					<xs:restriction base="xs:byte">
@@ -90,6 +77,18 @@
 			<xs:element name="SetXLabels" type="xs:string" minOccurs="0"/>
 			<xs:element name="SetYLabels" type="xs:string" minOccurs="0"/>
 			<xs:element name="Title" type="xs:string" minOccurs="0"/>
+			<xs:element name="Type" minOccurs="0">
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:enumeration value="h1"/>
+						<xs:enumeration value="h2"/>
+						<xs:enumeration value="hp"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="XBins" type="xs:integer" minOccurs="0"/>
+			<xs:element name="XMax" type="xs:integer" minOccurs="0"/>
+			<xs:element name="XMin" type="xs:integer" minOccurs="0"/>
 			<xs:element name="XTitle" type="xs:string" minOccurs="0"/>
 			<xs:element name="YBins" type="xs:integer" minOccurs="0"/>
 			<xs:element name="YMax" type="xs:integer" minOccurs="0"/>
