@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 #postProcessor = cms.EDFilter("PostProcessor",
 HLTMuonPostVal = cms.EDFilter("PostProcessor",
     subDir         = cms.untracked.string('HLT/Muon/Distributions/*'),
-    outputFileName = cms.untracked.string('PostProcessor.root'),
+    outputFileName = cms.untracked.string(''),
     commands       = cms.vstring(),
     resolution     = cms.vstring(),                                    
     efficiency     = cms.vstring(
