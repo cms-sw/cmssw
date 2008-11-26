@@ -10,6 +10,11 @@ process = cms.Process("TEST")
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cerr.threshold = cms.untracked.string('INFO')
 process.MessageLogger.categories = cms.untracked.vstring('TEST')
+process.MessageLogger.categories.append('TtSemiLeptonicEvent')
+process.MessageLogger.cerr.INFO = cms.untracked.PSet(
+    default             = cms.untracked.PSet( limit = cms.untracked.int32( 0) ),
+    TtSemiLeptonicEvent = cms.untracked.PSet( limit = cms.untracked.int32(-1) ),
+)
 
 #-------------------------------------------------
 # process configuration
@@ -76,11 +81,13 @@ run22XonSummer08AODSIM(process)
 
 #-------------------------------------------------
 # to produce TQAF relevant Layer 2 parts if not
-# already place uncomment the following three
-# lines
+# already in place uncomment the following lines;
+# set verbosity to 1 to get additional per-event
+# printout from the TtSemiLepEvent
 #-------------------------------------------------
 process.load("TopQuarkAnalysis.TopEventProducers.sequences.ttGenEvent_cff")
 process.load("TopQuarkAnalysis.TopEventProducers.sequences.ttSemiLepEvtBuilder_cff")
+process.ttSemiLepEvent.verbosity = cms.int32(0)
 process.p1 = cms.Path(process.makeGenEvt * process.makeTtSemiLepEvent)
 
 #-------------------------------------------------
