@@ -27,7 +27,6 @@
 
 //CMSSW include files
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
-#include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/ClusterShape.h"
