@@ -5,9 +5,15 @@ import FWCore.ParameterSet.Config as cms
 #
 
 #HIT REMOVAL
+trkfilter1 = cms.EDFilter("QualityFilter",
+    TrackQuality = cms.string('highPurity'),
+    recTracks = cms.InputTag("tobtecStep")
+)
+
 largeD0step1Clusters = cms.EDFilter("TrackClusterRemover",
 # To run this step, eliminating hits from all previous iterations ...   
-    trajectories = cms.InputTag("tobtecStep"),
+#    trajectories = cms.InputTag("tobtecStep"),
+    trajectories = cms.InputTag("trkfilter1"),
     oldClusterRemovalInfo = cms.InputTag("fifthClusters"),
     pixelClusters = cms.InputTag("fifthClusters"),
     stripClusters = cms.InputTag("fifthClusters"),
@@ -123,7 +129,8 @@ largeD0step1WithMaterialTracks.clusterRemovalInfo = 'largeD0step1Clusters'
 largeD0step1WithMaterialTracks.AlgorithmName = cms.string('iter1LargeD0')
 largeD0step1WithMaterialTracks.Fitter = 'largeD0step1FittingSmootherWithOutlierRejection'
 
-largeD0step1 = cms.Sequence(largeD0step1Clusters*
+largeD0step1 = cms.Sequence(trkfilter1*
+                          largeD0step1Clusters*
                           largeD0step1PixelRecHits*largeD0step1StripRecHits*
                           largeD0step1Seeds*
                           largeD0step1TrackCandidates*

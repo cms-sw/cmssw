@@ -5,6 +5,11 @@ import FWCore.ParameterSet.Config as cms
 #
 
 #HIT REMOVAL
+trkfilter5 = cms.EDFilter("QualityFilter",
+    TrackQuality = cms.string('highPurity'),
+    recTracks = cms.InputTag("tobtecStep")
+)
+
 largeD0step5Clusters = cms.EDFilter("TrackClusterRemover",
 # To run this step, eliminating hits from all previous iterations ...   
 #    trajectories = cms.InputTag("largeD0step4"),
@@ -13,7 +18,8 @@ largeD0step5Clusters = cms.EDFilter("TrackClusterRemover",
 #    stripClusters = cms.InputTag("largeD0step4Clusters"),
 
 # To run this step independently of the other large d0 tracking iterations ...
-    trajectories = cms.InputTag("tobtecStep"),
+#    trajectories = cms.InputTag("tobtecStep"),
+    trajectories = cms.InputTag("trkfilter5"),
     oldClusterRemovalInfo = cms.InputTag("fifthClusters"),
     pixelClusters = cms.InputTag("fifthClusters"),
     stripClusters = cms.InputTag("fifthClusters"),
@@ -139,7 +145,8 @@ largeD0step5WithMaterialTracks.clusterRemovalInfo = 'largeD0step5Clusters'
 largeD0step5WithMaterialTracks.AlgorithmName = cms.string('iter5LargeD0')
 largeD0step5WithMaterialTracks.Fitter = 'largeD0step5FittingSmootherWithOutlierRejection'
 
-largeD0step5 = cms.Sequence(largeD0step5Clusters*
+largeD0step5 = cms.Sequence(trkfilter5*
+                          largeD0step5Clusters*
                           largeD0step5PixelRecHits*largeD0step5StripRecHits*
                           largeD0step5Seeds*
                           largeD0step5TrackCandidates*
