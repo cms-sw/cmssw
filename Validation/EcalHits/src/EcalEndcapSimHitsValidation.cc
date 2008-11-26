@@ -162,9 +162,9 @@ void EcalEndcapSimHitsValidation::beginJob(const edm::EventSetup& c){
 
 void EcalEndcapSimHitsValidation::endJob(){
 
-  for ( int myStep = 0; myStep<26; myStep++){
-    if (meEELongitudinalShower_) meEELongitudinalShower_->Fill(float(myStep), eRLength[myStep]/myEntries);
-  }
+  //for ( int myStep = 0; myStep<26; myStep++){
+  //  if (meEELongitudinalShower_) meEELongitudinalShower_->Fill(float(myStep), eRLength[myStep]/myEntries);
+  //}
 
 }
 
@@ -319,7 +319,11 @@ void EcalEndcapSimHitsValidation::analyze(const edm::Event& e, const edm::EventS
   if( MyPEcalValidInfo.isValid() ) {
     if ( MyPEcalValidInfo->ee1x1() > 0. ) {
       std::vector<float>  EX0 = MyPEcalValidInfo->eX0();
-      for (int myStep=0; myStep< 26; myStep++ ) { eRLength[myStep] += EX0[myStep]; }
+      if (meEELongitudinalShower_) meEELongitudinalShower_->Reset();
+      for (int myStep=0; myStep< 26; myStep++ ) { 
+	eRLength[myStep] += EX0[myStep]; 
+	if (meEELongitudinalShower_) meEELongitudinalShower_->Fill(float(myStep), eRLength[myStep]/myEntries);
+      }
     }
   }
 }
