@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Jun 28 09:51:27 PDT 2008
-// $Id: FWRPZDataProxyBuilderBase.h,v 1.1 2008/07/01 04:05:56 chrjones Exp $
+// $Id: FWRPZDataProxyBuilderBase.h,v 1.2 2008/11/06 22:05:23 amraktad Exp $
 //
 
 // system include files
@@ -64,9 +64,13 @@ public:
                     TEveElementList* iElements,
                     std::vector<FWModelId>& iIds);
 
+   ///Used by the plugin system to determine how the proxy uses the data from FWEventItem
+   static
+   std::string typeOfBuilder();
+   
 protected:
    std::vector<FWModelId>& ids() {return m_ids;}
-   const FWEventItem* item() {return m_item;}
+   const FWEventItem* item() const {return m_item;}
 
    //Override these two functions if you need to handle model changes in a unique way
    virtual void modelChanges(const FWModelIds& iIds,

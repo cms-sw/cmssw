@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Jun 28 09:51:35 PDT 2008
-// $Id: FWRPZDataProxyBuilderBase.cc,v 1.5 2008/08/18 19:57:10 chrjones Exp $
+// $Id: FWRPZDataProxyBuilderBase.cc,v 1.6 2008/11/06 22:05:26 amraktad Exp $
 //
 
 // system include files
@@ -231,7 +231,7 @@ FWRPZDataProxyBuilderBase::applyChangesToAllModels(TEveElement* iElements)
    //it appears that passing iterators to 0 length vector to a set causes a crash
    if(m_item->size()) {
       //cassert(m_ids.size() >= m_item->size());
-      if ( ! m_ids.size() >= m_item->size() ) return;
+      if ( !( m_ids.size() >= m_item->size() ) ) return;
       //any of them may have changed so we need to update them all
       FWModelIds ids(m_ids.begin(),m_ids.begin()+m_item->size());
       modelChanges(ids,iElements);
@@ -293,4 +293,10 @@ FWRPZDataProxyBuilderBase::setUserData(const FWEventItem* iItem,TEveElementList*
          setUserDataElementAndChildren(*it,&(*itId));
       }
    }
+}
+
+std::string 
+FWRPZDataProxyBuilderBase::typeOfBuilder()
+{
+   return std::string();
 }
