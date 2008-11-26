@@ -1,4 +1,4 @@
-//$Id: SprSimpleReader.cc,v 1.8 2007/11/30 20:13:35 narsky Exp $
+//$Id: SprSimpleReader.cc,v 1.4 2007/12/01 01:29:46 narsky Exp $
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprSimpleReader.hh"
@@ -13,6 +13,7 @@
 #include <fstream>
 #include <iostream>
 #include <sstream>
+#include <memory>
 
 using namespace std;
 

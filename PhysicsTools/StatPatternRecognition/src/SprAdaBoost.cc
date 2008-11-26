@@ -1,4 +1,4 @@
-//$Id: SprAdaBoost.cc,v 1.9 2007/05/25 17:59:17 narsky Exp $
+//$Id: SprAdaBoost.cc,v 1.2 2007/09/21 22:32:08 narsky Exp $
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprAdaBoost.hh"
@@ -14,6 +14,7 @@
 #include <functional>
 #include <algorithm>
 #include <cmath>
+#include <memory>
 
 using namespace std;
 

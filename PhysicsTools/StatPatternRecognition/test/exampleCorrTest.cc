@@ -1,4 +1,4 @@
-//$Id: exampleCorrTest.cc,v 1.2 2006/10/19 21:27:54 narsky Exp $
+//$Id: exampleCorrTest.cc,v 1.2 2007/09/21 22:32:11 narsky Exp $
 /*
   Tests zero correlation for two bivariate Gaussian densities:
 
@@ -19,6 +19,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <memory>
 
 using namespace std;
 

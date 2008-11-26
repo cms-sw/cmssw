@@ -1,4 +1,4 @@
-//$Id: SprBagger.cc,v 1.9 2007/10/25 22:11:09 narsky Exp $
+//$Id: SprBagger.cc,v 1.3 2007/10/30 18:56:14 narsky Exp $
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprBagger.hh"
@@ -15,6 +15,7 @@
 #include <functional>
 #include <algorithm>
 #include <cmath>
+#include <memory>
 
 using namespace std;
 

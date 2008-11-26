@@ -1,4 +1,4 @@
-//$Id: exampleUserCuts.cc,v 1.5 2007/10/22 21:23:41 narsky Exp $
+//$Id: exampleUserCuts.cc,v 1.3 2007/10/30 18:56:14 narsky Exp $
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprAbsFilter.hh"
@@ -9,6 +9,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <memory>
 
 using namespace std;
 

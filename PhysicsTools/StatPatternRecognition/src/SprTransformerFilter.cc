@@ -1,4 +1,4 @@
-//$Id: SprTransformerFilter.cc,v 1.2 2007/11/12 04:41:17 narsky Exp $
+//$Id: SprTransformerFilter.cc,v 1.1 2007/11/12 06:19:18 narsky Exp $
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprTransformerFilter.hh"
@@ -12,6 +12,7 @@
 #include <cassert>
 #include <algorithm>
 #include <iterator>
+#include <memory>
 
 using namespace std;
 

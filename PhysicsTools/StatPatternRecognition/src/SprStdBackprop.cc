@@ -1,4 +1,4 @@
-//$Id: SprStdBackprop.cc,v 1.6 2007/05/25 17:59:18 narsky Exp $
+//$Id: SprStdBackprop.cc,v 1.2 2007/09/21 22:32:10 narsky Exp $
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprStdBackprop.hh"
@@ -16,6 +16,7 @@
 #include <sstream>
 #include <utility>
 #include <cassert>
+#include <cstring>
 
 using namespace std;
 

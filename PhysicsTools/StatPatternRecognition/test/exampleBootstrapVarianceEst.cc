@@ -1,4 +1,4 @@
-//$Id: exampleBootstrapVarianceEst.cc,v 1.4 2007/10/05 20:03:10 narsky Exp $
+//$Id: exampleBootstrapVarianceEst.cc,v 1.3 2007/10/07 21:03:09 narsky Exp $
 /*
   This example estimates RMS of the correlation coefficient estimator obtained 
   for 20 points drawn from a bivariate Gaussian density with covariance matrix 
@@ -32,6 +32,7 @@
 #include <string>
 #include <vector>
 #include <cmath>
+#include <memory>
 
 using namespace std;
 
