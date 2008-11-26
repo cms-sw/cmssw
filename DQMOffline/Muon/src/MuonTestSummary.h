@@ -6,8 +6,8 @@
  * *
  *  DQM Client for global summary
  *
- *  $Date: 2008/10/27 16:28:41 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/11/25 11:15:23 $
+ *  $Revision: 1.2 $
  *  \author  G. Mila - INFN Torino
  *   
  */
@@ -54,6 +54,7 @@ protected:
   void doKinematicsTests(std::string muonType, int bin, double weight);
   void doResidualsTests(std::string type, std::string parameter, int bin);
   void doMuonIDTests();
+  void doEnergyTests(std::string nameHisto, std::string muonType, int bin);
   
 private:
 
@@ -79,6 +80,7 @@ private:
   MonitorElement* kinematicsSummaryMap;
   MonitorElement* residualsSummaryMap;
   MonitorElement* muonIdSummaryMap;
+  MonitorElement* energySummaryMap;
 
 };
 

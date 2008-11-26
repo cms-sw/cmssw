@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/10/27 16:28:51 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/11/25 11:15:18 $
+ *  $Revision: 1.2 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -19,6 +19,8 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+
+#include "DQMOffline/Muon/test/langauFit.C"
 #include <string>
 
 using namespace edm;
@@ -84,6 +86,17 @@ void MuonTestSummary::beginJob(const edm::EventSetup& context){
   muonIdSummaryMap->setBinLabel(2,"#assSegm");
   muonIdSummaryMap->setBinLabel(3,"resTrackSegm");
 
+  // energy test report
+  energySummaryMap = dbe->book2D("energySummaryMap","Energy deposits test summary",3,1,4,3,1,4);
+  energySummaryMap->setAxisTitle("muons",1);
+  energySummaryMap->setBinLabel(1,"GLB",1);
+  energySummaryMap->setBinLabel(2,"TK",1);
+  energySummaryMap->setBinLabel(3,"STA",1);
+  energySummaryMap->setAxisTitle("calorimeter tested",2);
+  energySummaryMap->setBinLabel(1,"ECAL",2);
+  energySummaryMap->setBinLabel(2,"HAD",2);
+  energySummaryMap->setBinLabel(3,"H0",2);
+
 }
 
 void MuonTestSummary::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
@@ -106,6 +119,18 @@ void MuonTestSummary::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSe
 
   // fill the muonID report summary
   doMuonIDTests();
+
+  // fill the energy report summary
+  doEnergyTests("ecalS9PointingMuDepEnergy_","Glb_muons", 1);
+  doEnergyTests("hadS9PointingMuDepEnergy_", "Glb_muons", 1);
+  doEnergyTests("hoS9PointingMuDepEnergy_", "Glb_muons", 1);
+  doEnergyTests("ecalS9PointingMuDepEnergy_", "Tk_muons", 2);
+  doEnergyTests("hadS9PointingMuDepEnergy_", "Tk_muons", 2);
+  doEnergyTests("hoS9PointingMuDepEnergy_", "Tk_muons", 2);
+  doEnergyTests("ecalS9PointingMuDepEnergy_", "Sta_muons", 3);
+  doEnergyTests("hadS9PointingMuDepEnergy_", "Sta_muons", 3);
+  doEnergyTests("hoS9PointingMuDepEnergy_", "Sta_muons", 3);
+  
 
  }
 
@@ -331,7 +356,46 @@ void MuonTestSummary::doMuonIDTests(){
 }
 
 
+void MuonTestSummary::doEnergyTests(string histname, string muonType, int binNumber){
 
-  
+  // num matches test
+  string path = "Muons/MuonEnergyDepositAnalyzer/"+histname+muonType;
+  MonitorElement * energyHisto = dbe->get(path);
+  Double_t hPeak=-1, hFWHM=-1;
+  if(energyHisto){
 
-  
+    TH1F * energyHisto_root = energyHisto->getTH1F();
+    
+    // Setting fit range and start values
+    Double_t fitRange[2];
+    Double_t startValues[4], parlimitslo[4], parlimitshi[4], fitPar[4], fitParErr[4];
+    fitRange[0]=0.0;
+    fitRange[1]=3.0;
+
+    startValues[0]=1.8; startValues[1]=20.0; startValues[2]=50000.0; startValues[3]=3.0;
+    parlimitslo[0]=0.5; parlimitslo[1]=5.0; parlimitslo[2]=1.0; parlimitslo[3]=0.4;
+    parlimitshi[0]=5.0; parlimitshi[1]=50.0; parlimitshi[2]=1000000.0; parlimitshi[3]=5.0;
+    
+    Double_t chisqr;
+    Int_t    ndf;
+    TF1 *fit = langaufit(energyHisto_root,fitRange,startValues,parlimitslo,parlimitshi,fitPar,fitParErr,&chisqr,&ndf);
+    if(fit)
+      langaupro(fitPar,hPeak,hFWHM);
+   }
+
+  if(histname=="ecalS9PointingMuDepEnergy_" && hPeak>0.2 && hPeak<0.3)
+    energySummaryMap->setBinContent(binNumber,1, 1.0/3.0);
+  if(histname=="ecalS9PointingMuDepEnergy_" && !(hPeak>0.2 && hPeak<0.3))
+    energySummaryMap->setBinContent(binNumber,1, 0);
+    
+  if(histname=="hadS9PointingMuDepEnergy_" && hPeak>2 && hPeak<3.5)
+    energySummaryMap->setBinContent(binNumber,2, 1.0/3.0);
+  if(histname=="hadS9PointingMuDepEnergy_" && !(hPeak>2 && hPeak<3.5))
+    energySummaryMap->setBinContent(binNumber,2, 0);
+
+  if(histname=="hoS9PointingMuDepEnergy_" && hPeak>2 && hPeak<3.5)
+    energySummaryMap->setBinContent(binNumber,3, 1.0/3.0);
+  if(histname=="hoS9PointingMuDepEnergy_" && !(hPeak>2 && hPeak<3.5))
+    energySummaryMap->setBinContent(binNumber,3, 0);
+
+}
