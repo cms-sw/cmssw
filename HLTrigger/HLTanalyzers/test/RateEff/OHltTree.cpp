@@ -514,7 +514,7 @@ void OHltTree::Loop( vector<int> * iCount, vector<int> * sPureCount, vector<int>
 
       else if(trignames[it].CompareTo("OpenHLT_Ele15_LW_L1R") == 0) {
         if ( L1_SingleEG10=1 ) { // L1 Seed
-          if(OpenHlt1LWElectronPassed(15,1,9999.,9999.)>=1) {
+          if(OpenHlt1LWElectronPassed(15.,1,9999.,9999.)>=1) {
             triggerBitNoPrescale[it] = true;
             if ((iCountNoPrescale[it]) % map_pathHLTPrescl.find(trignames[it])->second == 0) {
               triggerBit[it] = true;
@@ -888,6 +888,19 @@ void OHltTree::Loop( vector<int> * iCount, vector<int> * sPureCount, vector<int>
 	}
       }    
 
+      else if (trignames[it].CompareTo("OpenHLT_DoubleIsoPhoton20_L1R") == 0) {     
+        if ( L1_DoubleEG10==1 ) {      // L1 Seed                                  
+          L1AssHLTBit[it] = true;    
+          if(OpenHlt1PhotonPassed(20.,0,1.,1.5,6.,4.)>=2) {      
+	    triggerBitNoPrescale[it] = true;      
+            if ((iCountNoPrescale[it]) % map_pathHLTPrescl.find(trignames[it])->second == 0) {      
+              triggerBit[it] = true;      
+            }      
+	  }      
+        } 
+      }     
+
+
       else if (trignames[it].CompareTo("OpenHLT_BTagMu_Jet20_Calib") == 0) {
         if ( L1_Mu5_Jet15==1 ) {      // L1 Seed
           L1AssHLTBit[it] = true;   
@@ -1222,6 +1235,24 @@ void OHltTree::PrintOhltVariables(int level, int type)
       cout << "recoElecEta["<<i<<"] = " << recoElecEta[i] << endl;
 
     }
+    cout << "oh: number of electrons = " << NohEleLW << endl; 
+    for (int i=0;i<NohEleLW;i++) { 
+      cout << "ohEleEtLW["<<i<<"] = " << ohEleEtLW[i] << endl; 
+      cout << "ohElePhiLW["<<i<<"] = " << ohElePhiLW[i] << endl; 
+      cout << "ohEleEtaLW["<<i<<"] = " << ohEleEtaLW[i] << endl; 
+      cout << "ohEleELW["<<i<<"] = " << ohEleELW[i] << endl; 
+      cout << "ohElePLW["<<i<<"] = " << ohElePLW[i] << endl; 
+      cout << "ohElePtLW["<<i<<"] =" <<  ohElePLW[i] * TMath::Sin(2*TMath::ATan(TMath::Exp(-1*ohEleEtaLW[i]))) << endl; 
+      cout << "ohEleHisoLW["<<i<<"] = " << ohEleHisoLW[i] << endl; 
+      cout << "ohEleTisoLW["<<i<<"] = " << ohEleTisoLW[i] << endl; 
+      cout << "ohEleL1isoLW["<<i<<"] = " << ohEleL1isoLW[i] << endl; 
+      cout << "ohEleHisoLW["<<i<<"]/ohEleEtLW["<<i<<"] = " << ohEleHisoLW[i]/ohEleEtLW[i] << endl; 
+      cout << "ohEleNewSCLW["<<i<<"] = " << ohEleNewSCLW[i] << endl;  
+      cout << "ohElePixelSeedsLW["<<i<<"] = " << ohElePixelSeedsLW[i] << endl; 
+    } 
+
+
+
     break;
 
   case photon:
