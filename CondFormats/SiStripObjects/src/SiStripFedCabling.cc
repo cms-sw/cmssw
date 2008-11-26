@@ -645,9 +645,9 @@ const std::vector<FedChannelConnection>& SiStripFedCabling::connections( uint16_
 
   uint16_t index = fed_id - FEDNumbering::getSiStripFEDIds().first;
   if ( index < registry_.size() ) { 
-    ConnsRange range;// = range( registry_[ index ] );
-    conns2.resize( range.size() );
-    std::copy( range.begin(), range.end(), conns2.begin() );
+    ConnsRange conns = range( registry_[ index ] );
+    conns2.resize( conns.size() );
+    std::copy( conns.begin(), conns.end(), conns2.begin() );
     return conns2; 
   } else { return conns1; }
   
