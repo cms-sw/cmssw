@@ -117,11 +117,6 @@ HLTMuonGenericRate::HLTMuonGenericRate( const ParameterSet& pset,
 
 void HLTMuonGenericRate::finish()
 {
-  NumberOfEvents    ->Fill(theEventNumber    );
-  NumberOfL1Events  ->Fill(theNumberOfL1Events  );
-  MinPtCut          ->Fill(theMinPtCut          );
-  MaxEtaCut         ->Fill(theMaxEtaCut         );
-
   if ( m_makeNtuple ) {
     theFile->cd();
     theNtuple->Write();
@@ -139,6 +134,9 @@ void HLTMuonGenericRate::analyze( const Event & iEvent )
   LogTrace( "HLTMuonVal" ) << "In analyze for L1 trigger " << 
     theL1CollectionLabel << " Event:" << theEventNumber;  
 
+  // Update event numbers
+  NumberOfEvents  ->Fill(theEventNumber     ); 
+  NumberOfL1Events->Fill(theNumberOfL1Events);
 
   //////////////////////////////////////////////////////////////////////////
   // Get all generated and reconstructed muons and create structs to hold  
@@ -520,6 +518,9 @@ HLTMuonGenericRate::begin()
     NumberOfL1Events   = dbe_->bookInt("NumberOfL1Events");
     MinPtCut           = dbe_->bookFloat("MinPtCut");
     MaxEtaCut          = dbe_->bookFloat("MaxEtaCut");
+    MinPtCut ->Fill(theMinPtCut );
+    MaxEtaCut->Fill(theMaxEtaCut);
+    
 
     if (m_useMuonFromGenerator){
       hPassMaxPtGen.push_back( bookIt( "genPassMaxPt_All", "Highest Gen Muon Pt", theMaxPtParameters) );
