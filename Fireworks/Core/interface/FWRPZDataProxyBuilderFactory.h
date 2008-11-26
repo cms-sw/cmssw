@@ -16,22 +16,13 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Jun  5 20:13:37 EDT 2008
-// $Id: FWRPZDataProxyBuilderFactory.h,v 1.1 2008/06/09 19:48:44 chrjones Exp $
+// $Id: FWRPZDataProxyBuilderFactory.h,v 1.2 2008/11/06 22:05:23 amraktad Exp $
 //
 
 // system include files
 
 // user include files
-#include "Fireworks/Core/interface/register_dataproxybuilder_macro.h"
-#include "FWCore/PluginManager/interface/PluginFactory.h"
+#include "Fireworks/Core/interface/FWRPZDataProxyBuilderBaseFactory.h"
 
-// forward declarations
-class FWRPZDataProxyBuilder;
-
-typedef edmplugin::PluginFactory<FWRPZDataProxyBuilder*()> FWRPZDataProxyBuilderFactory;
-
-#define REGISTER_FWRPZDATAPROXYBUILDER(_name_,_type_,_purpose_) \
-DEFINE_PROXYBUILDER_METHODS(_name_,_type_,_purpose_); \
-DEFINE_EDM_PLUGIN(FWRPZDataProxyBuilderFactory,_name_,_name_::classTypeName()+"@"+_name_::classPurpose()+"@" #_name_)
-
+#define REGISTER_FWRPZDATAPROXYBUILDER(_name_,_type_,_purpose_)  REGISTER_FWRPZDATAPROXYBUILDERBASE(_name_,_type_,_purpose_)
 #endif
