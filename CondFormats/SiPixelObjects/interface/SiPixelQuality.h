@@ -12,6 +12,12 @@
 #include <utility>
 
 #include "DataFormats/DetId/interface/DetId.h"
+#include "CondFormats/SiPixelObjects/interface/GlobalPixel.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "CondFormats/DataRecord/interface/SiPixelFedCablingMapRcd.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelFedCabling.h"
+
 
 class SiPixelQuality {
 
@@ -83,6 +89,7 @@ class SiPixelQuality {
   bool IsModuleBad(const uint32_t & detid) const;  //returns True if module disabled
   bool IsModuleUsable(const uint32_t& detid) const;  //returns True if module NOT disabled
   bool IsRocBad(const uint32_t& detid, const short& rocNb) const;  //returns True if ROC is disabled
+  bool IsAreaBad(uint32_t detid, sipixelobjects::GlobalPixel global,  const edm::EventSetup& es, const SiPixelFedCabling* map ) const;
   short getBadRocs(const uint32_t& detid) const;  //returns bad Rocs for given DetId
   //each bad roc correspond to a bit to 1: num=
   //0 <-> all good rocs
