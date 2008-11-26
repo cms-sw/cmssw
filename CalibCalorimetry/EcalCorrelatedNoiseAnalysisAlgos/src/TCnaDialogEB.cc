@@ -6,7 +6,7 @@
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEBParameters.h"
 
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TCnaDialogEB.h"
-
+#include <cstdlib>
 
 ClassImp(TCnaDialogEB)
 //______________________________________________________________________________
