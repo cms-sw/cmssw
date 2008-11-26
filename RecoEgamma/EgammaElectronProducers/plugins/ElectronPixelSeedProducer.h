@@ -28,6 +28,7 @@
   
 class  ElectronPixelSeedGenerator;
 class SeedFilter;
+class TrajectorySeedCollection;
 
 class ElectronPixelSeedProducer : public edm::EDProducer
 {
