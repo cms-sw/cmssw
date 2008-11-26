@@ -41,7 +41,6 @@ public:
                          double maxEOverPBarrel, double maxEOverPEndcaps, 
                          double minEOverPBarrel, double minEOverPEndcaps,
                          double maxDeltaEta, double maxDeltaPhi, 
-			 bool highPtPresel, double highPtMin,
 		         bool applyEtaCorrection, bool applyAmbResolution);
   ~GsfElectronAlgo();
 
@@ -100,10 +99,6 @@ public:
   // position to the supercluster
   double maxDeltaPhi_;
 
-  // high pt preselection parameters
-  bool highPtPreselection_;
-  double highPtMin_;
-  
   // if this parameter is false, only SC level Escale correctoins are applied
   bool applyEtaCorrection_;
   

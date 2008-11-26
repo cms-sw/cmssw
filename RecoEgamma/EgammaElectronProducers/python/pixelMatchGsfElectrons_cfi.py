@@ -22,9 +22,6 @@ pixelMatchGsfElectrons = cms.EDProducer("GsfElectronProducer",
     maxEOverPEndcaps = cms.double(10000.0),
     maxDeltaEta = cms.double(0.02),
     maxDeltaPhi = cms.double(0.1),
-    # high Et preselection
-    highPtPreselection = cms.bool(False),
-    highPtMin = cms.double(150.0),
     # electron algo
     ElectronType = cms.string(''),
     # nested parameter set for TransientInitialStateEstimator

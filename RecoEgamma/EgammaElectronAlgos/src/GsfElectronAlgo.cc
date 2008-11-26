@@ -12,7 +12,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Thu july 6 13:22:06 CEST 2006
-// $Id: GsfElectronAlgo.cc,v 1.26 2008/10/21 13:01:21 chamont Exp $
+// $Id: GsfElectronAlgo.cc,v 1.27 2008/10/31 14:17:24 chamont Exp $
 //
 //
 
@@ -90,12 +90,10 @@ GsfElectronAlgo::GsfElectronAlgo
    double maxEOverPBarrel, double maxEOverPEndcaps,
    double minEOverPBarrel, double minEOverPEndcaps,
    double maxDeltaEta, double maxDeltaPhi,
-   bool highPtPresel, double highPtMin,
    bool applyEtaCorrection, bool applyAmbResolution )
  : maxEOverPBarrel_(maxEOverPBarrel), maxEOverPEndcaps_(maxEOverPEndcaps),
    minEOverPBarrel_(minEOverPBarrel), minEOverPEndcaps_(minEOverPEndcaps),
    maxDeltaEta_(maxDeltaEta), maxDeltaPhi_(maxDeltaPhi),
-   highPtPreselection_(highPtPresel), highPtMin_(highPtMin),
    applyEtaCorrection_(applyEtaCorrection), applyAmbResolution_(applyAmbResolution),
    cacheIDGeom_(0),cacheIDTopo_(0),cacheIDTDGeom_(0),cacheIDMagField_(0)
  {
@@ -265,23 +263,12 @@ bool GsfElectronAlgo::preSelection(const SuperCluster& clus)
 
   LogDebug("")<< "========== preSelection ==========";
 
-  double rt2 = clus.x()*clus.x() + clus.y()*clus.y();
-  double r2 = rt2 + clus.z()*clus.z();
-  double Et =clus.energy()*sqrt(rt2/r2);
-
-  // pt min
-  LogDebug("") << "pT : " << vtxMom_.perp();
-
   // E/p cut
   LogDebug("") << "E/p : " << clus.energy()/vtxMom_.mag();
-
-  // no E/p preselection for high pT electrons
-  if (!highPtPreselection_ || Et <= highPtMin_) {
-    if ((subdet_==EcalBarrel) && (clus.energy()/vtxMom_.mag() > maxEOverPBarrel_)) return false;
-    if ((subdet_==EcalEndcap) && (clus.energy()/vtxMom_.mag() > maxEOverPEndcaps_)) return false;
-    if ((subdet_==EcalBarrel) && (clus.energy()/vtxMom_.mag() < minEOverPBarrel_)) return false;
-    if ((subdet_==EcalEndcap) && (clus.energy()/vtxMom_.mag() < minEOverPEndcaps_)) return false;
-  }
+  if ((subdet_==EcalBarrel) && (clus.energy()/vtxMom_.mag() > maxEOverPBarrel_)) return false;
+  if ((subdet_==EcalEndcap) && (clus.energy()/vtxMom_.mag() > maxEOverPEndcaps_)) return false;
+  if ((subdet_==EcalBarrel) && (clus.energy()/vtxMom_.mag() < minEOverPBarrel_)) return false;
+  if ((subdet_==EcalEndcap) && (clus.energy()/vtxMom_.mag() < minEOverPEndcaps_)) return false;
   LogDebug("") << "E/p criteria is satisfied ";
 
   // delta eta criteria
