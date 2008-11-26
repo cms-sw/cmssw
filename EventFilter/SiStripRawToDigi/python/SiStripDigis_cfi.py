@@ -6,6 +6,7 @@ siStripDigis = cms.EDProducer("SiStripRawToDigiModule",
     AppendedBytes     = cms.untracked.int32(0),
     FedEventDumpFreq  = cms.untracked.int32(0),
     FedBufferDumpFreq = cms.untracked.int32(0),
+    UseDaqRegister    = cms.untracked.bool(False),
     UseFedKey         = cms.untracked.bool(False),
     TriggerFedId      = cms.untracked.int32(0)
 )

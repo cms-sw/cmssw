@@ -39,6 +39,7 @@ SiStripRawToDigiUnpacker::SiStripRawToDigiUnpacker( int16_t appended_bytes,
   event_(0),
   once_(true),
   first_(true),
+  useDaqRegister_(false),
   quiet_(true)
 {
   if ( edm::isDebugEnabled() ) {
@@ -142,7 +143,7 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
     // Recast data to suit Fed9UEvent
     Fed9U::u32* data_u32 = reinterpret_cast<Fed9U::u32*>( const_cast<unsigned char*>( output.data() ) );
     Fed9U::u32  size_u32 = static_cast<Fed9U::u32>( output.size() / 4 ); 
-
+    
     // Check on FEDRawData pointer
     if ( !data_u32 ) {
       if ( edm::isDebugEnabled() ) {
@@ -174,7 +175,7 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
    
     // Check if EventSummary ("trigger FED info") needs updating
     if ( first_fed ) {
-      //updateEventSummary( fedEvent_, summary ); //@@ temporarily suppress statements from SiStripEventSummary!
+      if ( useDaqRegister_ ) { updateEventSummary( fedEvent_, summary ); }
       first_fed = false;
     }
     

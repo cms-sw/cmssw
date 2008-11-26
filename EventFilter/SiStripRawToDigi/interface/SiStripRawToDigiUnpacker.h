@@ -1,4 +1,4 @@
-// Last commit: $Id: $
+// Last commit: $Id: SiStripRawToDigiUnpacker.h,v 1.22 2008/10/27 18:48:49 bainbrid Exp $
 
 #ifndef EventFilter_SiStripRawToDigi_SiStripRawToDigiUnpacker_H
 #define EventFilter_SiStripRawToDigi_SiStripRawToDigiUnpacker_H
@@ -62,6 +62,8 @@ class SiStripRawToDigiUnpacker {
   void locateStartOfFedBuffer( const uint16_t& fed_id, const FEDRawData& input, FEDRawData& output );
 
   inline void quiet( bool );
+
+  inline void useDaqRegister( bool );
   
  private:
   
@@ -102,6 +104,8 @@ class SiStripRawToDigiUnpacker {
   bool first_;
 
   bool quiet_;
+
+  bool useDaqRegister_;
 
   struct DetSet_SiStripDig_registry {
     uint32_t detid;
@@ -157,6 +161,8 @@ sistrip::FedReadoutMode SiStripRawToDigiUnpacker::fedReadoutMode( const uint16_t
 }
 
 void SiStripRawToDigiUnpacker::quiet( bool quiet ) { quiet_ = quiet; }
+
+void SiStripRawToDigiUnpacker::useDaqRegister( bool use ) { useDaqRegister_ = use; }
 
 #endif // EventFilter_SiStripRawToDigi_SiStripRawToDigiUnpacker_H
 
