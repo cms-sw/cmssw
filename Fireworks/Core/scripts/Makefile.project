@@ -41,7 +41,7 @@ ifeq ($(shell uname), Linux)
 else 
    ifeq ($(shell uname), Darwin)
       MAKESHAREDLIB := -dynamiclib
-      ExecLibs = -lCore -lGUI -lRIO -lNet -L./ -l$(LibProject) -l$(LibCore) -lCore
+      ExecLibs = -lEve -lRGL -lCore -lGUI -lRIO -lNet -L./ -l$(LibProject) -l$(LibCore) -lCore
       ExtraProjectLibs = -lEve -lGeom -lGeomPainter -lGraf3d \
 		 -lGui -lGpad -lGraf -lHist -lPhysics -lGed -lEG -lTree \
 		-lTreePlayer -lRGL -lFTGL -lNet -lRIO -lRint -lRGL -lGui -lCore \
@@ -54,7 +54,8 @@ endif
 ProjectLinkerFlags = $(MAKESHAREDLIB) -m32 -Lexternal/lib -L$(FWROOTSYS)/lib $(addprefix -l,$(ProjectLibs)) $(ProjectMissingFlags)
 
 # cmsShow source code and its object files
-ProjectSources = $(wildcard src/*/*/src/*.cc)
+ProjectSourcesDirs = src plugins
+ProjectSources = $(foreach dir,$(ProjectSourcesDirs),$(wildcard src/*/*/$(dir)/*.cc))
 ProjectBuildFiles = $(wildcard src/*/*/BuildFile)
 ProjectObjects = $(addprefix tmp/,$(ProjectSources:.cc=.o))
 
@@ -95,6 +96,9 @@ lib$(LibProject).$(SO_EXT): $(ProjectObjects) $(ProjectRootDicObjects) $(Project
 	$(LINKER) $(ProjectLinkerFlags) $(ExtraProjectLibs) \
 	-o lib$(LibProject).$(SO_EXT) $(ProjectObjects) $(ProjectRootDicObjects) $(ProjectDictionaryObjects)
 
+#debugMake: 
+#	echo "$(ProjectSourcesDirs) $(ProjectSources)"
+   
 ######################################################################################
 # 
 #                General rules for making object files
