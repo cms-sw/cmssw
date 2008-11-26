@@ -386,15 +386,22 @@ void DDCoreToDDXMLOutput::position ( const DDLogicalPart& parent
 void DDCoreToDDXMLOutput::specpar ( const DDSpecifics& sp, std::ostream& xos ) {
 
   xos << "<SpecPar name=\"" << sp.toString() << "\" eval=\"false\">" << std::endl;
-  std::vector<DDPartSelection>::const_iterator sit(sp.selection().begin()), sed(sp.selection().end());
+  //  std::vector<DDPartSelection>::const_iterator sit(sp.selection().begin()), sed(sp.selection().end());
   
   // ========...  all the selection strings out as strings by using the DDPartSelection's std::ostream function...
-  for (; sit != sed; ++sit) {
-    std::ostringstream selStringStream;
-    selStringStream << *sit;
-    xos << "<PartSelector path=\"" << selStringStream.str() << "\"/>" << std::endl;
+  const std::vector<DDPartSelection> sels = sp.selection();
+//   for (; sit != sed; ++sit) {
+//     std::ostringstream selStringStream;
+//     selStringStream << *sit;
+//     xos << "<PartSelector path=\"" << selStringStream.str() << "\"/>" << std::endl;
+//   }
+  std::vector<DDPartSelection>::const_iterator psit = sels.begin();
+  std::vector<DDPartSelection>::const_iterator psendit = sels.end();
+  for (; psit != psendit ; ++psit) {
+    xos << "<PartSelector path=\"" << *psit << "\"/>" << std::endl;
   }
-  // =========  ... and iterate over all DDValues...
+
+ // =========  ... and iterate over all DDValues...
   DDsvalues_type::const_iterator vit(sp.specifics().begin()), ved(sp.specifics().end());
    for (; vit != ved; ++vit) {
     const DDValue & v = vit->second;
