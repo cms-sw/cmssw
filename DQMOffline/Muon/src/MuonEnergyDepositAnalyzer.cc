@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/11/17 15:18:53 $
- *  $Revision: 1.9 $
+ *  $Date: 2008/11/25 16:39:45 $
+ *  $Revision: 1.10 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -65,9 +65,15 @@ void MuonEnergyDepositAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore 
   histname = "ecalS9DepositedEnergyEndcap_";
   ecalS9DepEnergyEndcap = dbe->book1D(histname+AlgoName, "Energy deposited in the ECAL endcap 3*3 towers", emS9NoBin, emS9NoMin, emS9NoMax);
   ecalS9DepEnergyEndcap->setAxisTitle("GeV");
-  histname = "ecalS9PointingMuDepositedEnergy_";
-  ecalS9PointingMuDepEnergy = dbe->book1D(histname+AlgoName, "Pointing muons energy deposited in the ECAL 3*3 towers", emS9NoBin, emS9NoMin, emS9NoMax);
-  ecalS9PointingMuDepEnergy->setAxisTitle("GeV"); 
+  histname = "ecalS9PointingMuDepositedEnergy_Glb_";
+  ecalS9PointingMuDepEnergy_Glb = dbe->book1D(histname+AlgoName, "Pointing glb muons energy deposited in the ECAL 3*3 towers", emS9NoBin, emS9NoMin, emS9NoMax);
+  ecalS9PointingMuDepEnergy_Glb->setAxisTitle("GeV"); 
+  histname = "ecalS9PointingMuDepositedEnergy_Tk_";
+  ecalS9PointingMuDepEnergy_Tk = dbe->book1D(histname+AlgoName, "Pointing tk muons energy deposited in the ECAL 3*3 towers", emS9NoBin, emS9NoMin, emS9NoMax);
+  ecalS9PointingMuDepEnergy_Tk->setAxisTitle("GeV"); 
+  histname = "ecalS9PointingMuDepositedEnergy_Sta_";
+  ecalS9PointingMuDepEnergy_Sta = dbe->book1D(histname+AlgoName, "Pointing sta muons energy deposited in the ECAL 3*3 towers", emS9NoBin, emS9NoMin, emS9NoMax);
+  ecalS9PointingMuDepEnergy_Sta->setAxisTitle("GeV"); 
   
   hadNoBin = parameters.getParameter<int>("hadSizeBin");
   hadNoMin = parameters.getParameter<double>("hadSizeMin");
@@ -88,9 +94,15 @@ void MuonEnergyDepositAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore 
   histname = "hadS9DepositedEnergyEndcap_";
   hcalS9DepEnergyEndcap = dbe->book1D(histname+AlgoName, "Energy deposited in the HCAL endcap 3*3 towers", hadS9NoBin, hadS9NoMin, hadS9NoMax);
   hcalS9DepEnergyEndcap->setAxisTitle("GeV");
-  histname = "hadS9PointingMuDepositedEnergy_";
-  hcalS9PointingMuDepEnergy = dbe->book1D(histname+AlgoName, "Pointing muons energy deposited in the HCAL endcap 3*3 towers", hadS9NoBin, hadS9NoMin, hadS9NoMax);
-  hcalS9PointingMuDepEnergy->setAxisTitle("GeV");
+  histname = "hadS9PointingMuDepositedEnergy_Glb";
+  hcalS9PointingMuDepEnergy_Glb = dbe->book1D(histname+AlgoName, "Pointing glb muons energy deposited in the HCAL endcap 3*3 towers", hadS9NoBin, hadS9NoMin, hadS9NoMax);
+  hcalS9PointingMuDepEnergy_Glb->setAxisTitle("GeV");
+  histname = "hadS9PointingMuDepositedEnergy_Tk_";
+  hcalS9PointingMuDepEnergy_Tk = dbe->book1D(histname+AlgoName, "Pointing tk muons energy deposited in the HCAL endcap 3*3 towers", hadS9NoBin, hadS9NoMin, hadS9NoMax);
+  hcalS9PointingMuDepEnergy_Tk->setAxisTitle("GeV");
+  histname = "hadS9PointingMuDepositedEnergy_Sta_";
+  hcalS9PointingMuDepEnergy_Sta = dbe->book1D(histname+AlgoName, "Pointing sta muons energy deposited in the HCAL endcap 3*3 towers", hadS9NoBin, hadS9NoMin, hadS9NoMax);
+  hcalS9PointingMuDepEnergy_Sta->setAxisTitle("GeV");
 
   hoNoBin = parameters.getParameter<int>("hoSizeBin");
   hoNoMin = parameters.getParameter<double>("hoSizeMin");
@@ -105,9 +117,15 @@ void MuonEnergyDepositAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore 
   histname = "hoS9DepositedEnergy_";
   hoS9DepEnergy = dbe->book1D(histname+AlgoName, "Energy deposited in the HO 3*3 towers", hoS9NoBin, hoS9NoMin, hoS9NoMax);
   hoS9DepEnergy->setAxisTitle("GeV");
-  histname = "hoS9PointingMuDepositedEnergy_";
-  hoS9PointingMuDepEnergy = dbe->book1D(histname+AlgoName, "Pointing muons energy deposited in the HO 3*3 towers", hoS9NoBin, hoS9NoMin, hoS9NoMax);
-  hoS9PointingMuDepEnergy->setAxisTitle("GeV");
+  histname = "hoS9PointingMuDepositedEnergy_Glb";
+  hoS9PointingMuDepEnergy_Glb = dbe->book1D(histname+AlgoName, "Pointing glb muons energy deposited in the HO 3*3 towers", hoS9NoBin, hoS9NoMin, hoS9NoMax);
+  hoS9PointingMuDepEnergy_Glb->setAxisTitle("GeV");
+  histname = "hoS9PointingMuDepositedEnergy_Tk";
+  hoS9PointingMuDepEnergy_Tk = dbe->book1D(histname+AlgoName, "Pointing tk muons energy deposited in the HO 3*3 towers", hoS9NoBin, hoS9NoMin, hoS9NoMax);
+  hoS9PointingMuDepEnergy_Tk->setAxisTitle("GeV");
+  histname = "hoS9PointingMuDepositedEnergy_Sta";
+  hoS9PointingMuDepEnergy_Sta = dbe->book1D(histname+AlgoName, "Pointing sta muons energy deposited in the HO 3*3 towers", hoS9NoBin, hoS9NoMin, hoS9NoMax);
+  hoS9PointingMuDepEnergy_Sta->setAxisTitle("GeV");
 
 }
 
@@ -174,14 +192,25 @@ void MuonEnergyDepositAnalyzer::analyze(const edm::Event& iEvent, const edm::Eve
   TSOS = TransTrack.impactPointState();
   // section for vertex pointing muon
   if((abs(TSOS.globalPosition().z())<20) && (abs(TSOS.globalPosition().perp())<10)){
-    // 3*3 ECAL
-    ecalS9PointingMuDepEnergy->Fill(muEnergy.emS9);
-    // 3*3 HCAL
-    hcalS9PointingMuDepEnergy->Fill(muEnergy.hadS9);
-    // 3*3 H0
-    hoS9PointingMuDepEnergy->Fill(muEnergy.hoS9);
+    // GLB muon
+    if(recoMu.isGlobalMuon()){
+      ecalS9PointingMuDepEnergy_Glb->Fill(muEnergy.emS9);
+      hcalS9PointingMuDepEnergy_Glb->Fill(muEnergy.hadS9);
+      hoS9PointingMuDepEnergy_Glb->Fill(muEnergy.hoS9);
+    }
+    // TK muon
+    if(recoMu.isTrackerMuon() && !(recoMu.isGlobalMuon())){
+      ecalS9PointingMuDepEnergy_Tk->Fill(muEnergy.emS9);
+      hcalS9PointingMuDepEnergy_Tk->Fill(muEnergy.hadS9);
+      hoS9PointingMuDepEnergy_Tk->Fill(muEnergy.hoS9);
+    }
+    // STA muon
+    if(recoMu.isStandAloneMuon() && !(recoMu.isGlobalMuon())){
+      ecalS9PointingMuDepEnergy_Sta->Fill(muEnergy.emS9);
+      hcalS9PointingMuDepEnergy_Sta->Fill(muEnergy.hadS9);
+      hoS9PointingMuDepEnergy_Sta->Fill(muEnergy.hoS9);
+    } 
   }
-  
 
 }
 
