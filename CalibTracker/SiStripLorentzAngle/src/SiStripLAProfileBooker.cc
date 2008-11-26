@@ -43,7 +43,7 @@
 #include <TStyle.h>
 #include <TF1.h>
 
- 
+
 class DetIdLess 
   : public std::binary_function< const SiStripRecHit2D*,const SiStripRecHit2D*,bool> {
 public:
@@ -92,7 +92,8 @@ void SiStripLAProfileBooker::beginJob(const edm::EventSetup& c){
       activeDets.push_back(Iditer->rawId());
     }
   }
-
+  
+  
   edm::InputTag TkTag = conf_.getParameter<edm::InputTag>("Tracks");
   //Get Ids;
   double ModuleRangeMin=conf_.getParameter<double>("ModuleXMin");
@@ -168,7 +169,7 @@ void SiStripLAProfileBooker::beginJob(const edm::EventSetup& c){
       if(stripdet==0)continue;
       const StripTopology& topol=(StripTopology&)stripdet->topology();
       float thickness=stripdet->specificSurface().bounds().thickness();
-		
+      
       folder_organizer.setDetectorFolder(Iditer->rawId());
       hid = hidmanager.createHistoId(TkTag.label().c_str(),"det",Iditer->rawId());
       MonitorElement * profile=dbe_->bookProfile(hid,hid,module_bin,ModuleRangeMin,ModuleRangeMax,20,0,5,"");
@@ -208,9 +209,6 @@ void SiStripLAProfileBooker::beginJob(const edm::EventSetup& c){
 	}
       }
       
-      //tracksnumber=0;
-      //tracksnumber=dbe_->book1D("TracksNumber","Number of reconstructed tracks",100,0,100);
-      
     } 
   } 
   
@@ -231,8 +229,6 @@ SiStripLAProfileBooker::~SiStripLAProfileBooker() {
   detparmap::iterator detpariter;
   for( detpariter=detmap.begin(); detpariter!=detmap.end();++detpariter)delete detpariter->second;
   for( detpariter=summarydetmap.begin(); detpariter!=summarydetmap.end();++detpariter)delete detpariter->second;
-  fitmap::iterator  fitpar;
-  for( fitpar=summaryfits.begin(); fitpar!=summaryfits.end();++fitpar)delete fitpar->second;
   delete hFile;
 }  
 
@@ -716,192 +712,7 @@ void SiStripLAProfileBooker::getlayer(const DetId & detid, std::string &name,uns
 }
  
 void SiStripLAProfileBooker::endJob(){
-  fitmap fits;
 
-  //Histograms fit
-  TF1 *fitfunc=0;
-  //TF1 *FitFunction=0;
-  double ModuleRangeMin=conf_.getParameter<double>("ModuleFitXMin");
-  double ModuleRangeMax=conf_.getParameter<double>("ModuleFitXMax");
-  double TIBRangeMin=conf_.getParameter<double>("TIBFitXMin");
-  double TIBRangeMax=conf_.getParameter<double>("TIBFitXMax");
-  double TOBRangeMin=conf_.getParameter<double>("TOBFitXMin");
-  double TOBRangeMax=conf_.getParameter<double>("TOBFitXMax");
-  bool Fit_Result=conf_.getParameter<bool>("Fit_Result");
-  
-  char *fit_r;
-  
-  if(Fit_Result==true){
-  fit_r="E";
-  }else{
-  fit_r="N";
-  }
-  
-  histomap::iterator hist_it;
-  fitfunc= new TF1("fitfunc","([4]/[3])*[1]*(TMath::Abs(x-[0]))+[2]",-1,1);
-    
-  for(hist_it=histos.begin();hist_it!=histos.end(); hist_it++){
-    if(hist_it->first != 1){
-    if(hist_it->second->getEntries()>100){
-      float thickness=0,pitch=-1;
-      detparmap::iterator detparit=detmap.find(hist_it->first);
-      if(detparit!=detmap.end()){
-	thickness = detparit->second->thickness;
-	pitch = detparit->second->pitch;
-      }
-      
-      fitfunc->SetParameter(0, 0);
-      fitfunc->SetParameter(1, 0);
-      fitfunc->SetParameter(2, 1);
-      fitfunc->FixParameter(3, pitch);
-      fitfunc->FixParameter(4, thickness);
-
-      TProfile* theProfile=ExtractTObject<TProfile>().extract(hist_it->second);
-      
-      gStyle->SetOptFit(111);
-      theProfile->Fit("fitfunc",fit_r,"",ModuleRangeMin, ModuleRangeMax);
-            
-      detparmap::iterator thedet=detmap.find(hist_it->first);
-      LocalVector localmagdir;
-      if(thedet!=detmap.end())localmagdir=thedet->second->magfield;
-      float localmagfield = localmagdir.mag();
-
-      histofit *fit= new histofit;
-      fits[hist_it->first] =fit;
-      
-      fit->chi2 = fitfunc->GetChisquare();
-      fit->ndf  = fitfunc->GetNDF();
-      fit->p0   = fitfunc->GetParameter(0)/localmagfield;
-      fit->p1   = fitfunc->GetParameter(1);
-      fit->p2   = fitfunc->GetParameter(2);
-      fit->errp0   = fitfunc->GetParError(0)/localmagfield;
-      fit->errp1   = fitfunc->GetParError(1);
-      fit->errp2   = fitfunc->GetParError(2);
-    }
-  }
-  }
-    
-  histomap::iterator summaryhist_it;
-  
-  for(summaryhist_it=summaryhisto.begin();summaryhist_it!=summaryhisto.end(); summaryhist_it++){
-    if(summaryhist_it->second->getEntries()>100){
-      float thickness=0,pitch=-1;
-      detparmap::iterator detparit=summarydetmap.find(summaryhist_it->first);
-      if(detparit!=summarydetmap.end()){
-	thickness = detparit->second->thickness;
-	pitch = detparit->second->pitch;
-      }
-      
-      fitfunc->SetParameter(0, 0);
-      fitfunc->SetParameter(1, 0);
-      fitfunc->SetParameter(2, 1);
-      fitfunc->FixParameter(3, pitch);
-      fitfunc->FixParameter(4, thickness);
-    
-      TProfile* thesummaryProfile=ExtractTObject<TProfile>().extract(summaryhist_it->second);
-      if ((summaryhist_it->first)/10==int (StripSubdetector::TIB)||(summaryhist_it->first)/10==int(StripSubdetector::TID)){
-	gStyle->SetOptFit(111);	
-	thesummaryProfile->Fit("fitfunc",fit_r,"",TIBRangeMin, TIBRangeMax);
-	}
-      else if ((summaryhist_it->first)/10==int (StripSubdetector::TOB)||(summaryhist_it->first)/10==int(StripSubdetector::TEC)){
-	gStyle->SetOptFit(111);
-	thesummaryProfile->Fit("fitfunc",fit_r,"",TOBRangeMin, TOBRangeMax);
-	}
-      //if(fitresult==0){
-	histofit * summaryfit=new histofit;
-	summaryfits[summaryhist_it->first] = summaryfit;
-	summaryfit->chi2 = fitfunc->GetChisquare();
-	summaryfit->ndf  = fitfunc->GetNDF();
-	summaryfit->p0   = fitfunc->GetParameter(0);
-	summaryfit->p1   = fitfunc->GetParameter(1);
-	summaryfit->p2   = fitfunc->GetParameter(2);
-	summaryfit->errp0   = fitfunc->GetParError(0);
-	summaryfit->errp1   = fitfunc->GetParError(1);
-	summaryfit->errp2   = fitfunc->GetParError(2);
-	// }
-    }
-  }
-    
-  delete fitfunc;
-  
-  //File with fit parameters  
-  
-  std::string fitName=conf_.getParameter<std::string>("fitName");
-  fitName+=".txt";
-  
-  ofstream fit;
-  fit.open(fitName.c_str());
-   
-  fit<<">>> TOTAL EVENTS = "<<eventcounter<<std::endl;
-  
-  fit<<">>> NUMBER OF TRACJECTORIES = "<<trajcounter<<std::endl;
-  
-  fit<<">>> WORSE DOUBLE HITS = "<<worse_double_hit<<std::endl;
-  
-  fit<<">>> BETTER DOUBLE HITS (not substitued in the tree !!!) = "<<better_double_hit<<std::endl;
-  
-  fit<<">>> NUMBER OF RECHITS = "<<hitcounter<<std::endl;
-  
-  fit<<">>> NUMBER OF RECHITS (2ndLoop) = "<<hitcounter_2ndloop<<std::endl;
-  
-  fit<<">>> NUMBER OF DETECTOR HISTOGRAMS = "<<histos.size()<<std::endl;
-     
-  std::string subdetector;
-  for(summaryhist_it=summaryhisto.begin();summaryhist_it!=summaryhisto.end(); summaryhist_it++){
-    if ((summaryhist_it->first)/10==int (StripSubdetector::TIB))subdetector="TIB";
-    else if ((summaryhist_it->first)/10==int (StripSubdetector::TID))subdetector="TID";
-    else if ((summaryhist_it->first)/10==int (StripSubdetector::TOB))subdetector="TOB";
-    else if ((summaryhist_it->first)/10==int (StripSubdetector::TEC))subdetector="TEC";
-    float thickness=0,pitch=-1;
-    detparmap::iterator detparit=summarydetmap.find(summaryhist_it->first);
-    if(detparit!=summarydetmap.end()){
-      thickness = detparit->second->thickness;
-      pitch = detparit->second->pitch;
-    }    
-    fitmap::iterator  fitpar=summaryfits.find(summaryhist_it->first);
-    
-    fit<<std::endl<<"--------------------------- SUMMARY FIT: "<<subdetector<<" LAYER/RING "<<(summaryhist_it->first%10)<<" -------------------------"<<std::endl<<std::endl;
-    fit<<"Number of entries = "<<summaryhist_it->second->getEntries()<<std::endl<<std::endl;
-    fit<<"Detector thickness = "<<thickness<<" um "<<std::endl;
-    fit<<"Detector pitch = "<<pitch<<" um "<<std::endl<<std::endl;    
-    if(fitpar!=summaryfits.end()){
-      fit<<"Chi Square/ndf = "<<(fitpar->second->chi2)/(fitpar->second->ndf)<<std::endl;
-      fit<<"NdF        = "<<fitpar->second->ndf<<std::endl;
-      fit<<"p0 = "<<fitpar->second->p0<<"     err p0 = "<<fitpar->second->errp0<<std::endl;
-      fit<<"p1 = "<<fitpar->second->p1<<"     err p1 = "<<fitpar->second->errp1<<std::endl;
-      fit<<"p2 = "<<fitpar->second->p2<<"     err p2 = "<<fitpar->second->errp2<<std::endl<<std::endl;
-    }
-    else fit<<"no fit parameters available"<<std::endl;
-  }
-    
-  for(hist_it=histos.begin();hist_it!=histos.end(); hist_it++){   
-  if(hist_it->first != 1){
-    float thickness=0,pitch=-1;
-    detparmap::iterator detparit=detmap.find(hist_it->first);
-    if(detparit!=detmap.end()){
-      thickness = detparit->second->thickness;
-      pitch = detparit->second->pitch;
-    }    
-    fitmap::iterator  fitpar=fits.find(hist_it->first);
-    if(hist_it->second->getEntries()>0){
-      fit<<std::endl<<"-------------------------- MODULE HISTOGRAM FIT ------------------------"<<std::endl<<std::endl;
-      DetId id= DetId(hist_it->first);
-      fit<<"Module id= "<<id.rawId()<<std::endl<<std::endl;
-      fit<<"Number of entries = "<<hist_it->second->getEntries()<<std::endl<<std::endl;
-      fit<<"Detector thickness = "<<thickness<<" um "<<std::endl;
-      fit<<"Detector pitch = "<<pitch<<" um "<<std::endl<<std::endl;
-      if(fitpar!=fits.end()){
-	fit<<"Chi Square/ndf = "<<(fitpar->second->chi2)/(fitpar->second->ndf)<<std::endl;
-	fit<<"NdF        = "<<fitpar->second->ndf<<std::endl;
-	fit<<"p0 = "<<fitpar->second->p0<<"     err p0 = "<<fitpar->second->errp0<<std::endl;
-	fit<<"p1 = "<<fitpar->second->p1<<"     err p1 = "<<fitpar->second->errp1<<std::endl;
-	fit<<"p2 = "<<fitpar->second->p2<<"     err p2 = "<<fitpar->second->errp2<<std::endl<<std::endl;
-      }    
-    }
-  }
-  }
-    
-  fit.close(); 
   std::string outputFile_ =conf_.getUntrackedParameter<std::string>("fileName", "LorentzAngle.root");
   dbe_->save(outputFile_);
   

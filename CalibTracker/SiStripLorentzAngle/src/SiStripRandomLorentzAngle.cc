@@ -7,6 +7,7 @@
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "CLHEP/Random/RandGauss.h"
+#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 using namespace std;
 
   //Constructor
@@ -32,9 +33,27 @@ void SiStripRandomLorentzAngle::algoBeginJob(const edm::EventSetup& c){
   for(TrackerGeometry::DetUnitContainer::const_iterator it = pDD->detUnits().begin(); it != pDD->detUnits().end(); it++){
     
     if( dynamic_cast<StripGeomDetUnit*>((*it))!=0){
+    
+      //float hallMobility = -1;
+    
       uint32_t detid=((*it)->geographicalId()).rawId();
 
       double thickness=(*it)->specificSurface().bounds().thickness();
+      thickness=thickness*10000;
+      edm::LogInfo("SiStripLorentzAngle") <<" ### THICKNESS = "<<thickness<<std::endl;
+      
+      StripSubdetector subid(detid);
+            
+      /*if(subid.subdetId() == int (StripSubdetector::TIB)){
+      hallMobility=0.01738;
+      edm::LogInfo("SiStripLorentzAngle") <<" ### TIB HALL MOBILITY = "<<hallMobility<<std::endl;}
+      if(subid.subdetId() == int (StripSubdetector::TOB)){
+      hallMobility=0.02225;
+      edm::LogInfo("SiStripLorentzAngle") <<" ### TOB HALL MOBILITY = "<<hallMobility<<std::endl;}
+      if((subid.subdetId() == int (StripSubdetector::TID)) || (subid.subdetId() == int (StripSubdetector::TEC))){
+      hallMobility=0.;
+      edm::LogInfo("SiStripLorentzAngle") <<" ### TID/TEC HALL MOBILITY = "<<hallMobility<<std::endl;}*/
+      
       float temperaturernd;
       if(temperatureerror_>0)temperaturernd=RandGauss::shoot(temperature_,temperatureerror_);
       else temperaturernd=temperature_;

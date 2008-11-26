@@ -31,14 +31,22 @@ void SiStripCalibLorentzAngle::algoBeginJob(const edm::EventSetup& c){
   c.get<TrackerDigiGeometryRecord>().get(estracker);
   const TrackerGeometry *tracker=&(*estracker); 
   
+  //c.get<IdealMagneticFieldRecord>().get(magfield_);
+  
+  //get magnetic field and geometry from ES
+  edm::ESHandle<MagneticField> magfield_;
   c.get<IdealMagneticFieldRecord>().get(magfield_);
+  //const MagneticField *  magfield=&(*magfield_);
 
   edm::ESHandle<SiStripLorentzAngle> SiStripLorentzAngle_;
   c.get<SiStripLorentzAngleRcd>().get(SiStripLorentzAngle_);
   detid_la= SiStripLorentzAngle_->getLorentzAngles();
-
+  
   DQMStore* dbe_ = edm::Service<DQMStore>().operator->();
   std::string inputFile_ =conf_.getUntrackedParameter<std::string>("fileName", "LorentzAngle.root");
+  std::string outputFile_ =conf_.getUntrackedParameter<std::string>("out_fileName", "LorentzAngle.root");
+  std::string LAreport_ =conf_.getUntrackedParameter<std::string>("LA_Report", "LorentzAngle.root");
+  std::string LAProbFit_ =conf_.getUntrackedParameter<std::string>("LA_ProbFit", "LorentzAngle.root");
   dbe_->open(inputFile_);
   
   // use SistripHistoId for producing histogram id (and title)
@@ -56,12 +64,15 @@ void SiStripCalibLorentzAngle::algoBeginJob(const edm::EventSetup& c){
   dbe_->setCurrentFolder("LorentzAngle_Plots/2IT_BadFit_Histos/TOB");
   dbe_->setCurrentFolder("LorentzAngle_Plots/2IT_GoodFit_Histos/TIB");
   dbe_->setCurrentFolder("LorentzAngle_Plots/2IT_GoodFit_Histos/TOB");
+  dbe_->setCurrentFolder("LorentzAngle_Plots/1IT_GoodFit_Histos/TIB");
+  dbe_->setCurrentFolder("LorentzAngle_Plots/1IT_GoodFit_Histos/TOB");
   
   dbe_->cd("LorentzAngle_Plots/Histos");
   
   MonitorElement * LA_plot=dbe_->book1D("TanLAPerTesla","TanLAPerTesla",1000,-0.5,0.5); 
   MonitorElement * LA_err_plot=dbe_->book1D("TanLAPerTesla Error","TanLAPerTesla Error",1000,0,1);
   MonitorElement * LA_chi2norm_plot=dbe_->book1D("TanLAPerTesla Chi2norm","TanLAPerTesla Chi2norm",2000,0,10);
+  MonitorElement * MagneticField=dbe_->book1D("MagneticField","MagneticField",500,0,5);
   
   dbe_->cd("LorentzAngle_Plots/Histos/TIB");
   
@@ -175,10 +186,31 @@ void SiStripCalibLorentzAngle::algoBeginJob(const edm::EventSetup& c){
   histos[42] = LA_Z_plot_TOB5;
   histos[43] = LA_Z_plot_TOB6;
   
+  histos[44] = MagneticField;
+  
+  hFile = new TFile (conf_.getUntrackedParameter<std::string>("treeName").c_str(), "RECREATE" );
+  
+  ModuleTree = new TTree("ModuleTree", "ModuleTree");
+  ModuleTree->Branch("TreeHistoEntries", &TreeHistoEntries, "TreeHistoEntries/F");
+  ModuleTree->Branch("TreeGlobalX", &TreeGlobalX, "TreeGlobalX/F");
+  ModuleTree->Branch("TreeGlobalY", &TreeGlobalY, "TreeGlobalY/F");
+  ModuleTree->Branch("TreeGlobalZ", &TreeGlobalZ, "TreeGlobalZ/F");
+  ModuleTree->Branch("TreeGoodFit", &TreeGoodFit, "TreeGoodFit/I");
+  ModuleTree->Branch("TreeBadFit", &TreeBadFit, "TreeBadFit/I");
+  ModuleTree->Branch("muH", &muH, "muH/F");
+  ModuleTree->Branch("TreeTIB", &TreeTIB, "TreeTIB/I");
+  ModuleTree->Branch("TreeTOB", &TreeTOB, "TreeTOB/I");
+  ModuleTree->Branch("Layer", &Layer, "Layer/I");
+  ModuleTree->Branch("theBfield", &theBfield, "theBfield/F");
+  ModuleTree->Branch("gphi", &gphi, "gphi/F");
+  ModuleTree->Branch("geta", &geta, "geta/F");
+  ModuleTree->Branch("gR", &gR, "gR/F");
+  
   gphi=-99;
   geta=-99;
   gz = -99;
-   
+  Layer = 0;
+     
   int histocounter = 0;
   int NotEnoughEntries = 0;
   int ZeroEntries = 0;
@@ -188,7 +220,6 @@ void SiStripCalibLorentzAngle::algoBeginJob(const edm::EventSetup& c){
   int SecondIT_badfit = 0;
   int SecondIT_goodfit = 0;
   int no_mod_histo = 0;
-  int Layer = 0;
   float chi2norm = 0;
   LocalPoint p =LocalPoint(0,0,0);
   
@@ -201,29 +232,86 @@ void SiStripCalibLorentzAngle::algoBeginJob(const edm::EventSetup& c){
   double FitCuts_p1=conf_.getParameter<double>("FitCuts_p1");
   double FitCuts_p2=conf_.getParameter<double>("FitCuts_p2");
   double FitCuts_chi2=conf_.getParameter<double>("FitCuts_chi2");
+  double FitCuts_ParErr_p0=conf_.getParameter<double>("FitCuts_ParErr_p0");
+  double p0_guess=conf_.getParameter<double>("p0_guess");
+  double p1_guess=conf_.getParameter<double>("p1_guess");
+  double p2_guess=conf_.getParameter<double>("p2_guess");
   
   TF1 *fitfunc= new TF1("fitfunc","([4]/[3])*[1]*(TMath::Abs(x-[0]))+[2]",-1,1);
   TF1 *fitfunc2IT= new TF1("fitfunc2IT","([4]/[3])*[1]*(TMath::Abs(x-[0]))+[2]",-1,1);
  
   ofstream LA_pf;
-  LA_pf.open("LA_Prob_Fit.txt");
+  LA_pf.open(LAProbFit_.c_str());
+  ofstream NoEntries;
+  NoEntries.open("NoEntriesModules.txt");
   ofstream Rep;
-  Rep.open("LA_Report.txt");
+  Rep.open(LAreport_.c_str());
   
   gStyle->SetOptStat(1110);
   
   for(histo=histolist.begin();histo!=histolist.end();++histo){
   
+  /*double p0_guess=conf_.getParameter<double>("p0_guess");
+  double p1_guess=conf_.getParameter<double>("p1_guess");
+  double p2_guess=conf_.getParameter<double>("p2_guess");*/
+  
   FitFunction = 0;
   FitFunction2IT = 0;
   bool Good2ITFit = false;
+  bool ModuleHisto = true;
+  //bool GoodPhi = false;
+  TreeHistoEntries = -99;
+  TreeGlobalX = -99;
+  TreeGlobalY = -99;
+  TreeGlobalZ = -99;
+  TreeGoodFit = 0;
+  TreeBadFit = 0;
+  muH = -1;
+  TreeTIB = 0;
+  TreeTOB = 0;
   
-    if((*histo)->getEntries()<=FitCuts_Entries){
+    uint32_t id=hidmanager.getComponentId((*histo)->getName());
+    DetId detid(id);
+    StripSubdetector subid(id);
+    const GeomDetUnit * stripdet;
+    
+    if(!(stripdet=tracker->idToDetUnit(subid))){
+    no_mod_histo++;
+    ModuleHisto=false;
+    edm::LogInfo("SiStripCalibLorentzAngle")<<"### NO MODULE HISTOGRAM";}
+    
+    if(stripdet!=0 && ModuleHisto==true){
+    
+    //get module coordinates
+    const GlobalPoint gposition = (stripdet->surface()).toGlobal(p);
+    TreeHistoEntries = (*histo)->getEntries();
+    TreeGlobalX = gposition.x();
+    TreeGlobalY = gposition.y();
+    TreeGlobalZ = gposition.z();
+    
+    //get magnetic field
+    const StripGeomDetUnit* det = dynamic_cast<const StripGeomDetUnit*>(estracker->idToDetUnit(detid));
+    if (det==0){
+    edm::LogError("SiStripCalibLorentzAngle") << "[SiStripCalibLorentzAngle::getNewObject] the detID " << id << " doesn't seem to belong to Tracker" <<std::endl; 	
+    continue;
+    }
+    LocalVector lbfield=(det->surface()).toLocal(magfield_->inTesla(det->surface().position()));
+    theBfield = lbfield.mag();
+    theBfield = (theBfield > 0) ? theBfield : 0.00001; 
+    histos[44]->Fill(theBfield);
+    
+    }
+    if(stripdet==0)continue;
+      
+    if(((*histo)->getEntries()<=FitCuts_Entries)&&ModuleHisto==true){
     uint32_t id0=hidmanager.getComponentId((*histo)->getName());
     DetId detid0(id0);
     StripSubdetector subid0(id0);
     
-    if((*histo)->getEntries()==0){
+    if(((*histo)->getEntries()==0)&&ModuleHisto==true){
+    
+    NoEntries<<"NO ENTRIES MODULE, ID = "<<id<<std::endl;
+    
     edm::LogInfo("SiStripCalibLorentzAngle")<<"### HISTOGRAM WITH 0 ENTRIES => TYPE:"<<subid0.subdetId();
     ZeroEntries++;
     }else{    
@@ -232,28 +320,20 @@ void SiStripCalibLorentzAngle::algoBeginJob(const edm::EventSetup& c){
     
     }
   
-    if((*histo)->getEntries()>FitCuts_Entries){
+    if(((*histo)->getEntries()>FitCuts_Entries)&&ModuleHisto==true){
     
-      histocounter++;
-      
-      uint32_t id=hidmanager.getComponentId((*histo)->getName());
-      DetId detid(id);
-      StripSubdetector subid(id);
-      
-      const GeomDetUnit * stripdet;
-      if(!(stripdet=tracker->idToDetUnit(subid))){
-      no_mod_histo++;
-      edm::LogInfo("SiStripCalibLorentzAngle")<<"### NO MODULE HISTOGRAM";}
-      
+      histocounter++;   
           
       if(subid.subdetId() == int (StripSubdetector::TIB)){
       TIBDetId TIBid=TIBDetId(subid);
       Layer = TIBid.layer();
+      TreeTIB = 1;
       edm::LogInfo("SiStripCalibLorentzAngle")<<"TIB layer = "<<Layer;}
       
       if(subid.subdetId() == int (StripSubdetector::TOB)){
-      TOBDetId TOBid=TIBDetId(subid);
+      TOBDetId TOBid=TOBDetId(subid);
       Layer = TOBid.layer();
+      TreeTOB = 1;
       edm::LogInfo("SiStripCalibLorentzAngle")<<"TOB layer = "<<Layer;}
       
       edm::LogInfo("SiStripCalibLorentzAngle")<<"id: "<<id;    
@@ -262,8 +342,11 @@ void SiStripCalibLorentzAngle::algoBeginJob(const edm::EventSetup& c){
       const GlobalPoint gposition = (stripdet->surface()).toGlobal(p);
       gphi = gposition.phi();
       geta = gposition.eta();
+      gR = sqrt(pow(gposition.x(),2)+pow(gposition.y(),2));
       gz = gposition.z();}
       if(stripdet==0)continue;
+      
+      //if((gphi>-2.2 && gphi<-0.2) || (gphi>1 && gphi<2.4))GoodPhi=true;
             
       float thickness=stripdet->specificSurface().bounds().thickness();
       const StripTopology& topol=(StripTopology&)stripdet->topology();
@@ -271,57 +354,57 @@ void SiStripCalibLorentzAngle::algoBeginJob(const edm::EventSetup& c){
            
       TProfile* theProfile=ExtractTObject<TProfile>().extract(*histo);
             
-      fitfunc->SetParameter(0, 0);
-      fitfunc->SetParameter(1, 0);
-      fitfunc->SetParameter(2, 1);
+      fitfunc->SetParameter(0, p0_guess);
+      fitfunc->SetParameter(1, p1_guess);
+      fitfunc->SetParameter(2, p2_guess);
       fitfunc->FixParameter(3, pitch);
       fitfunc->FixParameter(4, thickness);
       
       theProfile->Fit("fitfunc","E","",ModuleRangeMin, ModuleRangeMax);
+      
       FitFunction = theProfile->GetFunction("fitfunc");
       chi2norm = FitFunction->GetChisquare()/FitFunction->GetNDF();
       
-      // if(geta>-1 && geta<1){
-   
-      if(FitFunction->GetParameter(0)>FitCuts_p0 || FitFunction->GetParameter(1)<FitCuts_p1 || FitFunction->GetParameter(2)<FitCuts_p2 || chi2norm>FitCuts_chi2){
+      if(FitFunction->GetParameter(0)>FitCuts_p0 || FitFunction->GetParameter(1)<FitCuts_p1 || FitFunction->GetParameter(2)<FitCuts_p2 || chi2norm>FitCuts_chi2 || FitFunction->GetParError(0)<FitCuts_ParErr_p0){
       
       FirstIT_badfit++;   
             
-      fitfunc2IT->SetParameter(0, 0);
-      fitfunc2IT->SetParameter(1, 0);
-      fitfunc2IT->SetParameter(2, 1);
+      fitfunc2IT->SetParameter(0, p0_guess);
+      fitfunc2IT->SetParameter(1, p1_guess);
+      fitfunc2IT->SetParameter(2, p2_guess);
       fitfunc2IT->FixParameter(3, pitch);
       fitfunc2IT->FixParameter(4, thickness);
       
       //2nd Iteration
       theProfile->Fit("fitfunc2IT","E","",ModuleRangeMin2IT, ModuleRangeMax2IT);
+      
       FitFunction = theProfile->GetFunction("fitfunc2IT");
       chi2norm = FitFunction->GetChisquare()/FitFunction->GetNDF();
       
       //2nd Iteration failed
-      if(FitFunction->GetParameter(0)>FitCuts_p0 || FitFunction->GetParameter(1)<FitCuts_p1 || FitFunction->GetParameter(2)<FitCuts_p2 || chi2norm>FitCuts_chi2){
+      if(FitFunction->GetParameter(0)>FitCuts_p0 || FitFunction->GetParameter(1)<FitCuts_p1 || FitFunction->GetParameter(2)<FitCuts_p2 || chi2norm>FitCuts_chi2 || FitFunction->GetParError(0)<FitCuts_ParErr_p0){
       
       if(subid.subdetId() == int (StripSubdetector::TIB)){
       dbe_->cd("LorentzAngle_Plots/2IT_BadFit_Histos/TIB");
       }else{
-      dbe_->cd("LorentzAngle_Plots/2IT_BadFit_Histos/TOB");}    
-      
-      SecondIT_badfit++;      
+      dbe_->cd("LorentzAngle_Plots/2IT_BadFit_Histos/TOB");}  
+            
+      SecondIT_badfit++;
+      TreeBadFit=1;     
       gStyle->SetOptFit(111);
       
       std::string name="Fit_Histo";    
       std::stringstream badfitnum;
       badfitnum<<SecondIT_badfit;
       name+=badfitnum.str();
-          
+      
       MonitorElement * fit_histo=dbe_->bookProfile(name.c_str(),theProfile);
-      fit_histo->getTProfile()->GetFunction("fitfunc2IT")->Write();
-            
+          
       }
       
       //2nd Iteration ok
-      
-      if(FitFunction->GetParameter(0)<FitCuts_p0 && FitFunction->GetParameter(1)>FitCuts_p1 && FitFunction->GetParameter(2)>FitCuts_p2 && chi2norm<FitCuts_chi2){
+     
+      if(FitFunction->GetParameter(0)<FitCuts_p0 && FitFunction->GetParameter(1)>FitCuts_p1 && FitFunction->GetParameter(2)>FitCuts_p2 && chi2norm<FitCuts_chi2 && FitFunction->GetParError(0)>FitCuts_ParErr_p0){
       
       if(subid.subdetId() == int (StripSubdetector::TIB)){
       dbe_->cd("LorentzAngle_Plots/2IT_GoodFit_Histos/TIB");
@@ -337,7 +420,7 @@ void SiStripCalibLorentzAngle::algoBeginJob(const edm::EventSetup& c){
       name+=goodfitnum.str();
            
       MonitorElement * fit_histo=dbe_->bookProfile(name.c_str(),theProfile);
-      fit_histo->getTProfile()->GetFunction("fitfunc2IT")->Write();    
+	   
       Good2ITFit = true;
       }
             
@@ -361,27 +444,36 @@ void SiStripCalibLorentzAngle::algoBeginJob(const edm::EventSetup& c){
       
       }  
                        
-      if(FitFunction->GetParameter(0)<FitCuts_p0 && FitFunction->GetParameter(1)>FitCuts_p1 && FitFunction->GetParameter(2)>FitCuts_p2 && chi2norm<FitCuts_chi2){
-     
-	if(Good2ITFit==false){FirstIT_goodfit++;}
+      if(FitFunction->GetParameter(0)<FitCuts_p0 && FitFunction->GetParameter(1)>FitCuts_p1 && FitFunction->GetParameter(2)>FitCuts_p2 && chi2norm<FitCuts_chi2 && FitFunction->GetParError(0)>FitCuts_ParErr_p0){
+      
+	if(Good2ITFit==false){
+	
+	FirstIT_goodfit++;
+	
+	if(subid.subdetId() == int (StripSubdetector::TIB)){
+        dbe_->cd("LorentzAngle_Plots/1IT_GoodFit_Histos/TIB");
+        }else{
+        dbe_->cd("LorentzAngle_Plots/1IT_GoodFit_Histos/TOB");}  
+                
+        gStyle->SetOptFit(111);
+      
+        std::string name="Fit_Histo";    
+        std::stringstream FirstITgoodfitnum;
+        FirstITgoodfitnum<<FirstIT_badfit;
+        name+=FirstITgoodfitnum.str();
+	
+	MonitorElement * fit_histo=dbe_->bookProfile(name.c_str(),theProfile);
+	
+	}
 	
 	GoodFit++;
+	TreeGoodFit=1;
 	
 	dbe_->cd("LorentzAngle_Plots");
             
 	edm::LogInfo("SiStripCalibLorentzAngle")<<FitFunction->GetParameter(0);
-		
-	// get magnetic field
-	const StripGeomDetUnit* det = dynamic_cast<const StripGeomDetUnit*>(estracker->idToDetUnit(detid));
-	if (det==0){
-	  edm::LogError("SiStripCalibLorentzAngle") << "[SiStripCalibLorentzAngle::getNewObject] the detID " << id << " doesn't seem to belong to Tracker" <<std::endl; 	
-	  continue;
-	}
-	LocalVector lbfield=(det->surface()).toLocal(magfield_->inTesla(det->surface().position()));
-	float theBfield = lbfield.mag();
-	theBfield = (theBfield > 0) ? theBfield : 0.00001; 
 	
-	float muH = -(FitFunction->GetParameter(0))/theBfield; 
+	muH = -(FitFunction->GetParameter(0))/theBfield; 
 
 	detid_la[id]= muH;
 	
@@ -462,15 +554,18 @@ void SiStripCalibLorentzAngle::algoBeginJob(const edm::EventSetup& c){
 	}
 	
        }
-    } 
+    }
+    
+    ModuleTree->Fill();
+     
   }
-//  }
   
-  Rep<<"- NR.OF TIB AND TOB MODULES = 7932"<<std::endl<<std::endl;
+  
+  Rep<<"- NR.OF TIB AND TOB MODULES = 7932"<<std::endl<<std::endl<<std::endl;
+  Rep<<"- NO MODULE HISTOS FOUND = "<<no_mod_histo<<std::endl<<std::endl;
   Rep<<"- NR.OF HISTOS WITH ENTRIES > "<<FitCuts_Entries<<" = "<<histocounter<<std::endl<<std::endl;
-  Rep<<"- NR.OF HISTOS WITH ENTRIES < "<<FitCuts_Entries<<" = "<<NotEnoughEntries<<std::endl<<std::endl;
-  Rep<<"- NR.OF HISTOS WITH  0 ENTRIES = "<<ZeroEntries<<std::endl<<std::endl;
-  Rep<<"- NO MODULE HISTOS = "<<no_mod_histo<<std::endl<<std::endl;
+  Rep<<"- NR.OF HISTOS WITH ENTRIES <= "<<FitCuts_Entries<<" (!=0) = "<<NotEnoughEntries<<std::endl<<std::endl;
+  Rep<<"- NR.OF HISTOS WITH 0 ENTRIES = "<<ZeroEntries<<std::endl<<std::endl<<std::endl;
   Rep<<"- NR.OF GOOD FIT (FIRST IT + SECOND IT GOOD FIT)= "<<GoodFit<<std::endl<<std::endl;
   Rep<<"- NR.OF FIRST IT GOOD FIT = "<<FirstIT_goodfit<<std::endl<<std::endl;
   Rep<<"- NR.OF SECOND IT GOOD FIT = "<<SecondIT_goodfit<<std::endl<<std::endl;
@@ -479,25 +574,32 @@ void SiStripCalibLorentzAngle::algoBeginJob(const edm::EventSetup& c){
     
   LA_pf.close();
   Rep.close();
-    
-  dbe_->save("LA_plots.root","LorentzAngle_Plots/2IT_BadFit_Histos/TIB");
-  dbe_->save("LA_plots.root","LorentzAngle_Plots/2IT_BadFit_Histos/TOB");
-  dbe_->save("LA_plots.root","LorentzAngle_Plots/2IT_GoodFit_Histos/TIB");
-  dbe_->save("LA_plots.root","LorentzAngle_Plots/2IT_GoodFit_Histos/TOB");
-  dbe_->save("LA_plots.root","LorentzAngle_Plots/Histos/TIB");
-  dbe_->save("LA_plots.root","LorentzAngle_Plots/Histos/TOB");
-  dbe_->save("LA_plots.root","LorentzAngle_Plots/Profiles/TIB");
-  dbe_->save("LA_plots.root","LorentzAngle_Plots/Profiles/TOB");
-  dbe_->save("LA_plots.root","LorentzAngle_Plots/Histos");
-  dbe_->save("LA_plots.root","LorentzAngle_Plots/Profiles");
-  dbe_->save("LA_plots.root","LorentzAngle_Plots");
+  NoEntries.close();
+  
+  dbe_->save(outputFile_,"LorentzAngle_Plots/1IT_GoodFit_Histos/TIB");
+  dbe_->save(outputFile_,"LorentzAngle_Plots/1IT_GoodFit_Histos/TOB");   
+  dbe_->save(outputFile_,"LorentzAngle_Plots/2IT_BadFit_Histos/TIB");
+  dbe_->save(outputFile_,"LorentzAngle_Plots/2IT_BadFit_Histos/TOB");
+  dbe_->save(outputFile_,"LorentzAngle_Plots/2IT_GoodFit_Histos/TIB");
+  dbe_->save(outputFile_,"LorentzAngle_Plots/2IT_GoodFit_Histos/TOB");
+  dbe_->save(outputFile_,"LorentzAngle_Plots/Histos/TIB");
+  dbe_->save(outputFile_,"LorentzAngle_Plots/Histos/TOB");
+  dbe_->save(outputFile_,"LorentzAngle_Plots/Profiles/TIB");
+  dbe_->save(outputFile_,"LorentzAngle_Plots/Profiles/TOB");
+  dbe_->save(outputFile_,"LorentzAngle_Plots/Histos");
+  dbe_->save(outputFile_,"LorentzAngle_Plots/Profiles");
+  dbe_->save(outputFile_,"LorentzAngle_Plots"); 
+  
+  hFile->Write();
+  hFile->Close();    
   
 }
 
 // Virtual destructor needed.
 
-SiStripCalibLorentzAngle::~SiStripCalibLorentzAngle() {  
-}  
+SiStripCalibLorentzAngle::~SiStripCalibLorentzAngle(){
+}
+  
 
 // Analyzer: Functions that gets called by framework every event
 

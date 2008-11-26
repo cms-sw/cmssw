@@ -76,6 +76,6 @@ process.sistripLAProfile.SUM_bin = 120
 process.sistripLAProfile.Fit_Result = cms.bool(True)
 process.sistripLAProfile.fileName = 'file:~/scratch0/CMSSW_2_1_6/src/CalibTracker/SiStripLorentzAngle/test/TEST_ALCARECO/histo_test_RelVal_210.root'
 process.sistripLAProfile.treeName = 'file:~/scratch0/CMSSW_2_1_6/src/CalibTracker/SiStripLorentzAngle/test/TEST_ALCARECO/LATrees_test_RelVal_210.root'
-
+process.sistripLAProfile.fitName = 'file:~/scratch0/CMSSW_2_1_6/src/CalibTracker/SiStripLorentzAngle/test/TEST_ALCARECO/fit_test_RelVal_210'
 
 

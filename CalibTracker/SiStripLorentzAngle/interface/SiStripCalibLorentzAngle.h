@@ -24,6 +24,8 @@
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include <TF1.h>
+#include <TTree.h>
+#include <TFile.h>
 
 class SiStripCalibLorentzAngle : public ConditionDBWriter<SiStripLorentzAngle>
 {
@@ -42,20 +44,19 @@ class SiStripCalibLorentzAngle : public ConditionDBWriter<SiStripLorentzAngle>
   edm::ESHandle<MagneticField> magfield_;
   typedef std::map <unsigned int, MonitorElement*> histomap;
   histomap histos;
-  TF1 *FitFunction;
-  TF1 *FitFunction2IT;
-  float gphi, geta, gz;
+  TF1 *fitfunc, *fitfunc2IT, *FitFunction2IT, *FitFunction;
+  float gR, gphi, geta, gz, TreeHistoEntries, TreeGlobalX, TreeGlobalY, TreeGlobalZ, muH, theBfield;
   const GlobalPoint gposition;
+  int TreeGoodFit, TreeBadFit, TreeTIB, TreeTOB, Layer;
+  
+  std::string outputFile_;
+  
+  TTree* ModuleTree;
+  TFile* hFile;
   
   std::map< uint32_t, float> detid_la;
   edm::ParameterSet conf_;
-  //double appliedVoltage_;
-  //double chargeMobility_;
-  //double temperature_;
-  //double temperatureerror_;
-  //double rhall_;
-  //double holeBeta_;
-  //double holeSaturationVelocity_;
+  
 };
 
 

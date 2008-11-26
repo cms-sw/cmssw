@@ -27,8 +27,8 @@
 class SiStripLAProfileBooker : public edm::EDAnalyzer
 {
  public:
-  typedef struct {double chi2; int ndf; double p0; double p1; double p2; double errp0; double errp1; double errp2;} histofit ;
-  typedef std::map <unsigned int, histofit*> fitmap;
+  //typedef struct {double chi2; int ndf; double p0; double p1; double p2; double errp0; double errp1; double errp2;} histofit ;
+  //typedef std::map <unsigned int, histofit*> fitmap;
   
   explicit SiStripLAProfileBooker(const edm::ParameterSet& conf);
   
@@ -62,7 +62,7 @@ class SiStripLAProfileBooker : public edm::EDAnalyzer
   
   detparmap detmap;
   detparmap summarydetmap;
-  fitmap summaryfits;
+  //fitmap summaryfits;
   edm::ParameterSet conf_;
   std::string treename_;
   

@@ -27,11 +27,9 @@ sistripLAProfile = cms.EDFilter("SiStripLAProfileBooker",
     TIBFitXMax = cms.double(0.3),
     TOBFitXMin = cms.double(-0.3),
     TOBFitXMax = cms.double(0.3),
-    Fit_Result = cms.bool(True),
     #NHitMin = cms.int32(8),
      
     #output files
-    fitName = cms.string('fit_results'),
     treeName = cms.untracked.string('SiStripLATrees.root'),
     fileName = cms.untracked.string('trackhisto.root')
 )
