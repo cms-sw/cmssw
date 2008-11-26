@@ -5,6 +5,10 @@
 <use name=DataFormats/EcalRecHit>
 <use name=DataFormats/EcalDetId>
 <use name=root>
+<use name=Geometry/CaloEventSetup>
+<use name=Geometry/CaloGeometry>
+<use name=Geometry/EcalAlgo>
+<use name=Geometry/CaloTopology>
 <flags EDM_PLUGIN=1>
 <export>
    <lib name=RecoTBCaloEcalSimpleTBAnalysis>
@@ -13,5 +17,9 @@
    <use name=DataFormats/EcalDigi>
    <use name=DataFormats/EcalRecHit>
    <use name=DataFormats/EcalDetId>
+<use name=Geometry/CaloEventSetup>
+<use name=Geometry/CaloGeometry>
+<use name=Geometry/EcalAlgo>
+<use name=Geometry/CaloTopology>
    <use name=root>
 </export>
