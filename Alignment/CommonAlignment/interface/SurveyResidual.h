@@ -8,8 +8,8 @@
  *  For more info, please refer to
  *    http://www.pha.jhu.edu/~gritsan/cms/cms-note-survey.pdf
  *
- *  $Date: 2007/10/08 13:21:29 $
- *  $Revision: 1.5 $
+ *  $Date: 2007/11/09 07:45:04 $
+ *  $Revision: 1.6 $
  *  \author Chung Khim Lae
  */
 
@@ -39,7 +39,7 @@ class SurveyResidual
   inline bool valid() const;
 
   /// Find residual for the alignable in local frame.
-  /// Returns a vector of 6 numbers: first 3 are linear, last 3 are angular.
+  /// Returns a vector based on the alignable's dof.
   AlgebraicVector sensorResidual() const;
 
   /// Find residuals in local frame for points on the alignable
@@ -65,10 +65,12 @@ class SurveyResidual
 		 
   // Cache some values for calculation
 
-  const AlignableSurface& theSurface; // current surface
-
   const Alignable* theMother; // mother that matches the structure type
                               // given in constructor
+
+  const AlignableSurface& theSurface; // current surface
+
+  const std::vector<bool>& theSelector; // flags for selected parameters
 
   std::vector<const Alignable*> theSisters; // list of final daughters for
                                             // finding mother's position
@@ -76,7 +78,7 @@ class SurveyResidual
   align::GlobalVectors theNominalVs; // nominal points from mother's pos
   align::GlobalVectors theCurrentVs; // current points rotated to nominal surf
 
-  align::ErrorMatrix theInverseCovariance;
+  align::ErrorMatrix theCovariance;
 };
 
 bool SurveyResidual::valid() const

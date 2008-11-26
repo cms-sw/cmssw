@@ -1,4 +1,5 @@
 #include "Alignment/CommonAlignment/interface/Alignable.h"
+#include "Alignment/CommonAlignment/interface/AlignmentParameters.h"
 #include "Alignment/CommonAlignment/interface/SurveyDet.h"
 #include "DataFormats/Math/interface/Matrix.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -10,8 +11,9 @@ using namespace align;
 SurveyResidual::SurveyResidual(const Alignable& ali,
 			       StructureType type,
 			       bool bias):
+  theMother(0),
   theSurface( ali.surface() ),
-  theMother(0)
+  theSelector( ali.alignmentParameters()->selector() )
 {
 // Find mother matching given type
 
@@ -51,32 +53,44 @@ SurveyResidual::SurveyResidual(const Alignable& ali,
 
 AlgebraicVector SurveyResidual::sensorResidual() const
 {
+  std::vector<Scalar> pars; // selected parameters
+
+  pars.reserve(AlignParams::kSize);
+
+// Find linear displacements.
+
   align::LocalVector deltaR = theSurface.toLocal(theCurrentVs[0] - theNominalVs[0]);
 
+  if (theSelector[0]) pars.push_back( deltaR.x() );
+  if (theSelector[1]) pars.push_back( deltaR.y() );
+  if (theSelector[2]) pars.push_back( deltaR.z() );
+
 // Match the centers of current and nominal surfaces to find the angular
-// displacement about the center.
+// displacements about the center. Only do this if angular dof are selected.
 
-  GlobalVectors nominalVs = theNominalVs;
-  GlobalVectors currentVs = theCurrentVs;
-
-  for (unsigned int j = 0; j < nominalVs.size(); ++j)
+  if (theSelector[3] || theSelector[4] || theSelector[5])
   {
-    nominalVs[j] -= theNominalVs[0]; // move to nominal pos
-    currentVs[j] -= theCurrentVs[0]; // move to current pos
+    GlobalVectors nominalVs = theNominalVs;
+    GlobalVectors currentVs = theCurrentVs;
+
+    for (unsigned int j = 0; j < nominalVs.size(); ++j)
+    {
+      nominalVs[j] -= theNominalVs[0]; // move to nominal pos
+      currentVs[j] -= theCurrentVs[0]; // move to current pos
+    }
+
+    RotationType rot = diffRot(nominalVs, currentVs); // frame rotation
+
+    EulerAngles deltaW = toAngles( theSurface.toLocal(rot) );
+
+    if (theSelector[3]) pars.push_back( deltaW(1) );
+    if (theSelector[4]) pars.push_back( deltaW(2) );
+    if (theSelector[5]) pars.push_back( deltaW(3) );
   }
+  
+  AlgebraicVector deltaRW( pars.size() ); // (deltaR, deltaW)
 
-  RotationType rot = diffRot(nominalVs, currentVs); // frame rotation
-
-  EulerAngles deltaW = toAngles( theSurface.toLocal(rot) );
-
-  AlgebraicVector deltaRW(6); // (deltaR, deltaW)
-
-  deltaRW(1) = deltaR.x();
-  deltaRW(2) = deltaR.y();
-  deltaRW(3) = deltaR.z();
-  deltaRW(4) = deltaW(1);
-  deltaRW(5) = deltaW(2);
-  deltaRW(6) = deltaW(3);
+  for (unsigned int j = 0; j < pars.size(); ++j) deltaRW(j + 1) = pars[j];
 
   return deltaRW;
 }
@@ -99,13 +113,34 @@ LocalVectors SurveyResidual::pointsResidual() const
 
 AlgebraicSymMatrix SurveyResidual::inverseCovariance() const
 {
-  AlgebraicSymMatrix copy(ErrorMatrix::kRows);
+  if (theSelector.size() != ErrorMatrix::kRows)
+  {
+    throw cms::Exception("LogicError")
+      << "Mismatched number of dof between ErrorMatrix and Selector.";
+  }
+
+  std::vector<unsigned int> indices; // selected indices
+
+  indices.reserve(ErrorMatrix::kRows);
 
   for (unsigned int i = 0; i < ErrorMatrix::kRows; ++i)
-    for (unsigned int j = 0; j <= i; ++j)
-      copy.fast(i + 1, j + 1) = theInverseCovariance(i, j);
+    if (theSelector[i]) indices.push_back(i);
 
-  return copy;
+  AlgebraicSymMatrix invCov( indices.size() );
+
+  for (unsigned int i = 0; i < indices.size(); ++i)
+    for (unsigned int j = 0; j <= i; ++j)
+      invCov.fast(i + 1, j + 1) = theCovariance(indices[i], indices[j]);
+
+  int fail(0); invCov.invert(fail);
+
+  if (fail)
+  {
+    throw cms::Exception("ConfigError")
+      << "Cannot invert survey error " << invCov;
+  }
+
+  return invCov;
 }
 
 void SurveyResidual::findSisters(const Alignable* ali,
@@ -223,15 +258,7 @@ void SurveyResidual::calculate(const Alignable& ali)
     jac(4, 3) = deltaR.yx(); jac(4, 4) = deltaR.yy(); jac(4, 5) = deltaR.yz();
     jac(5, 3) = deltaR.zx(); jac(5, 4) = deltaR.zy(); jac(5, 5) = deltaR.zz();
 
-    theInverseCovariance += ROOT::Math::Similarity( jac, a->survey()->errors() );
-  }
-
-  if ( !theInverseCovariance.Invert() )
-  {
-    throw cms::Exception("ConfigError")
-      << "Cannot invert survey error of Alignable (id = "  << ali.id()
-      << ") of residual type " << theMother->alignableObjectId()
-      << theInverseCovariance;
+    theCovariance += ROOT::Math::Similarity( jac, a->survey()->errors() );
   }
 }
 
