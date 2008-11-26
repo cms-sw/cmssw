@@ -83,4 +83,4 @@ void VerticesProxy3DBuilder::build(const FWEventItem* item, TEveElementList** pr
    }
 }
 
-REGISTER_FWRPZDATAPROXYBUILDER(VerticesProxy3DBuilder,reco::VertexCollection,"Vertices");
+REGISTER_FWRPZDATAPROXYBUILDERBASE(VerticesProxy3DBuilder,reco::VertexCollection,"Vertices");

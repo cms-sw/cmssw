@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Id: ECalCaloTowerProxyRhoPhiZ2DBuilder.cc,v 1.18 2008/11/06 22:05:21 amraktad Exp $
+// $Id: ECalCaloTowerProxyRhoPhiZ2DBuilder.cc,v 1.19 2008/11/10 18:07:57 amraktad Exp $
 //
 
 // system include files
@@ -166,7 +166,7 @@ ECalCaloTowerProxyRhoPhiZ2DBuilder::getThetaBins()
 //
 // const member functions
 //
-REGISTER_FWRPZ2DDATAPROXYBUILDER(ECalCaloTowerProxyRhoPhiZ2DBuilder,CaloTowerCollection,"ECalRhoZSeparate");
+REGISTER_FWRPZDATAPROXYBUILDERBASE(ECalCaloTowerProxyRhoPhiZ2DBuilder,CaloTowerCollection,"ECalRhoZSeparate");
 
 //
 // static member functions

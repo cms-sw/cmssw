@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Id: HCalCaloTowerProxy3DBuilder.cc,v 1.6 2008/11/06 22:05:21 amraktad Exp $
+// $Id: HCalCaloTowerProxy3DBuilder.cc,v 1.7 2008/11/10 18:07:57 amraktad Exp $
 //
 
 // system include files
@@ -82,4 +82,4 @@ HCalCaloTowerProxy3DBuilder::histName() const
    return "hcal3D";
 }
 
-REGISTER_FWRPZDATAPROXYBUILDER(HCalCaloTowerProxy3DBuilder,CaloTowerCollection,"HCal");
+REGISTER_FWRPZDATAPROXYBUILDERBASE(HCalCaloTowerProxy3DBuilder,CaloTowerCollection,"HCal");

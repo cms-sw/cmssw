@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: L1MetProxyRhoPhiZ2DBuilder.cc,v 1.2 2008/11/04 20:29:24 amraktad Exp $
+// $Id: L1MetProxyRhoPhiZ2DBuilder.cc,v 1.3 2008/11/06 22:05:21 amraktad Exp $
 //
 
 // system include files
@@ -171,4 +171,4 @@ L1MetProxyRhoPhiZ2DBuilder::buildRhoZ(const FWEventItem* iItem,
    }
 }
 
-REGISTER_FWRPZ2DDATAPROXYBUILDER(L1MetProxyRhoPhiZ2DBuilder,l1extra::L1EtMissParticleCollection,"L1-MET");
+REGISTER_FWRPZDATAPROXYBUILDERBASE(L1MetProxyRhoPhiZ2DBuilder,l1extra::L1EtMissParticleCollection,"L1-MET");

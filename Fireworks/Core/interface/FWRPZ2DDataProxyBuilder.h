@@ -16,7 +16,7 @@
 //
 // Original Author:
 //         Created:  Sat Jan  5 15:02:03 EST 2008
-// $Id: FWRPZ2DDataProxyBuilder.h,v 1.10 2008/07/01 04:43:54 chrjones Exp $
+// $Id: FWRPZ2DDataProxyBuilder.h,v 1.11 2008/11/06 22:05:23 amraktad Exp $
 //
 
 // system include files
@@ -25,7 +25,7 @@
 
 // user include files
 #include "Fireworks/Core/interface/FWModelChangeSignal.h"
-#include "Fireworks/Core/interface/FWRPZ2DDataProxyBuilderFactory.h"
+#include "Fireworks/Core/interface/FWRPZDataProxyBuilderBaseFactory.h"
 #include "Fireworks/Core/interface/FWRPZDataProxyBuilderBase.h"
 
 // forward declarations

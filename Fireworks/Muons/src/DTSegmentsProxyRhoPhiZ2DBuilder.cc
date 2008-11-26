@@ -161,4 +161,4 @@ DTSegmentsProxyRhoPhiZ2DBuilder::applyChangesToAllModels(TEveElement* iElements)
    }
 }
 
-REGISTER_FWRPZ2DDATAPROXYBUILDER(DTSegmentsProxyRhoPhiZ2DBuilder,DTRecSegment4DCollection,"DT-segments");
+REGISTER_FWRPZDATAPROXYBUILDERBASE(DTSegmentsProxyRhoPhiZ2DBuilder,DTRecSegment4DCollection,"DT-segments");

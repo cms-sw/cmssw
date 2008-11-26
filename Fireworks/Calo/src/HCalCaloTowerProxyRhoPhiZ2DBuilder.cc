@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: HCalCaloTowerProxyRhoPhiZ2DBuilder.cc,v 1.9 2008/11/04 20:29:24 amraktad Exp $
+// $Id: HCalCaloTowerProxyRhoPhiZ2DBuilder.cc,v 1.10 2008/11/06 22:05:21 amraktad Exp $
 //
 
 // system include files
@@ -72,7 +72,7 @@ HCalCaloTowerProxyRhoPhiZ2DBuilder::buildRhoZ(const FWEventItem* iItem,
 //
 // const member functions
 //
-REGISTER_FWRPZ2DDATAPROXYBUILDER(HCalCaloTowerProxyRhoPhiZ2DBuilder,CaloTowerCollection,"HCalRhoZSeparate");
+REGISTER_FWRPZDATAPROXYBUILDERBASE(HCalCaloTowerProxyRhoPhiZ2DBuilder,CaloTowerCollection,"HCalRhoZSeparate");
 //
 // static member functions
 //

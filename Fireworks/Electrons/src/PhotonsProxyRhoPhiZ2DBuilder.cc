@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: PhotonsProxyRhoPhiZ2DBuilder.cc,v 1.4 2008/11/06 22:05:28 amraktad Exp $
+// $Id: PhotonsProxyRhoPhiZ2DBuilder.cc,v 1.5 2008/11/09 19:10:37 jmuelmen Exp $
 //
 
 // system include files
@@ -181,4 +181,4 @@ PhotonsProxyRhoPhiZ2DBuilder::buildRhoZ(const FWEventItem* iItem,
      }
 }
 
-REGISTER_FWRPZ2DDATAPROXYBUILDER(PhotonsProxyRhoPhiZ2DBuilder,reco::PhotonCollection,"Photons");
+REGISTER_FWRPZDATAPROXYBUILDERBASE(PhotonsProxyRhoPhiZ2DBuilder,reco::PhotonCollection,"Photons");

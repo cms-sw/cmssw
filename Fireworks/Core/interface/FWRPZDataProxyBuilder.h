@@ -16,7 +16,7 @@
 //
 // Original Author:
 //         Created:  Sat Jan  5 15:02:03 EST 2008
-// $Id: FWRPZDataProxyBuilder.h,v 1.13 2008/07/09 20:03:43 chrjones Exp $
+// $Id: FWRPZDataProxyBuilder.h,v 1.14 2008/11/06 22:05:23 amraktad Exp $
 //
 
 // system include files
@@ -24,7 +24,7 @@
 #include "TEveElement.h"
 
 // user include files
-#include "Fireworks/Core/interface/FWRPZDataProxyBuilderFactory.h"
+#include "Fireworks/Core/interface/FWRPZDataProxyBuilderBaseFactory.h"
 #include "Fireworks/Core/interface/FWModelChangeSignal.h"
 #include "Fireworks/Core/interface/FWRPZDataProxyBuilderBase.h"
 

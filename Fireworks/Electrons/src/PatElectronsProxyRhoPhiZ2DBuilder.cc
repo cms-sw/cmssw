@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: PatElectronsProxyRhoPhiZ2DBuilder.cc,v 1.2 2008/11/04 20:29:25 amraktad Exp $
+// $Id: PatElectronsProxyRhoPhiZ2DBuilder.cc,v 1.3 2008/11/06 22:05:28 amraktad Exp $
 //
 
 // system include files
@@ -115,4 +115,4 @@ PatElectronsProxyRhoPhiZ2DBuilder::buildRhoZ(const FWEventItem* iItem,
      }
 }
 
-REGISTER_FWRPZ2DDATAPROXYBUILDER(PatElectronsProxyRhoPhiZ2DBuilder,std::vector<pat::Electron>,"PatElectrons");
+REGISTER_FWRPZDATAPROXYBUILDERBASE(PatElectronsProxyRhoPhiZ2DBuilder,std::vector<pat::Electron>,"PatElectrons");

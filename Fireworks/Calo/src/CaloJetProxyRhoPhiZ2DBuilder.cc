@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: CaloJetProxyRhoPhiZ2DBuilder.cc,v 1.20 2008/11/06 19:49:22 amraktad Exp $
+// $Id: CaloJetProxyRhoPhiZ2DBuilder.cc,v 1.21 2008/11/06 22:05:21 amraktad Exp $
 //
 
 // system include files
@@ -265,5 +265,5 @@ void CaloJetProxyRhoPhiZ2DBuilder::buildJetRhoZ(  const FWEventItem* iItem,
    tList->AddElement(container);
 }
 
-REGISTER_FWRPZ2DDATAPROXYBUILDER(CaloJetProxyRhoPhiZ2DBuilder,reco::CaloJetCollection,"Jets");
+REGISTER_FWRPZDATAPROXYBUILDERBASE(CaloJetProxyRhoPhiZ2DBuilder,reco::CaloJetCollection,"Jets");
 

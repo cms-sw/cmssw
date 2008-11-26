@@ -14,7 +14,7 @@
 //
 // Original Author:
 //         Created:  Thu Dec  6 18:01:21 PST 2007
-// $Id: SiStripProxy3DBuilder.cc,v 1.2 2008/11/03 11:50:03 amraktad Exp $
+// $Id: SiStripProxy3DBuilder.cc,v 1.3 2008/11/06 22:05:30 amraktad Exp $
 //
 
 // system include files
@@ -106,4 +106,4 @@ SiStripProxy3DBuilder::applyChangesToAllModels(TEveElement* iElements)
       iElements->ElementChanged();
    }
 }
-REGISTER_FWRPZDATAPROXYBUILDER(SiStripProxy3DBuilder,edmNew::DetSetVector<SiStripCluster>,"SiStrip");
+REGISTER_FWRPZDATAPROXYBUILDERBASE(SiStripProxy3DBuilder,edmNew::DetSetVector<SiStripCluster>,"SiStrip");

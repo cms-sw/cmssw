@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: PatJetProxyRhoPhiZ2DBuilder.cc,v 1.2 2008/11/04 20:29:25 amraktad Exp $
+// $Id: PatJetProxyRhoPhiZ2DBuilder.cc,v 1.3 2008/11/06 22:05:21 amraktad Exp $
 //
 
 // system include files
@@ -117,5 +117,5 @@ PatJetProxyRhoPhiZ2DBuilder::buildRhoZ(const FWEventItem* iItem,
    }
 }
 
-REGISTER_FWRPZ2DDATAPROXYBUILDER(PatJetProxyRhoPhiZ2DBuilder,std::vector<pat::Jet>,"PatJets");
+REGISTER_FWRPZDATAPROXYBUILDERBASE(PatJetProxyRhoPhiZ2DBuilder,std::vector<pat::Jet>,"PatJets");
 

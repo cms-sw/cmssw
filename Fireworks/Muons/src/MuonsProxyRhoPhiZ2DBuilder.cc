@@ -81,4 +81,4 @@ void MuonsProxyRhoPhiZ2DBuilder::build(const FWEventItem* iItem,
      }
 }
 
-REGISTER_FWRPZ2DDATAPROXYBUILDER(MuonsProxyRhoPhiZ2DBuilder,reco::MuonCollection,"Muons");
+REGISTER_FWRPZDATAPROXYBUILDERBASE(MuonsProxyRhoPhiZ2DBuilder,reco::MuonCollection,"Muons");

@@ -152,4 +152,4 @@ CSCSegmentsProxyRhoPhiZ2DBuilder::applyChangesToAllModels(TEveElement* iElements
    }
 }
 
-REGISTER_FWRPZ2DDATAPROXYBUILDER(CSCSegmentsProxyRhoPhiZ2DBuilder,CSCSegmentCollection,"CSC-segments");
+REGISTER_FWRPZDATAPROXYBUILDERBASE(CSCSegmentsProxyRhoPhiZ2DBuilder,CSCSegmentCollection,"CSC-segments");

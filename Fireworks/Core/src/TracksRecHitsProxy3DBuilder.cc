@@ -15,7 +15,7 @@
 // Original Author:
 //         Created:  Thu Dec  6 18:01:21 PST 2007
 // Based on
-// $Id: TracksRecHitsProxy3DBuilder.cc,v 1.9 2008/11/03 11:50:02 amraktad Exp $
+// $Id: TracksRecHitsProxy3DBuilder.cc,v 1.10 2008/11/06 22:05:27 amraktad Exp $
 // New File:
 // $Id: TracksRecHitsProxy3DBuilder.cc,v 1.0 2008/02/22 10:37:00 Tom Danielson
 //
@@ -116,5 +116,5 @@ TracksRecHitsProxy3DBuilder::applyChangesToAllModels(TEveElement* iElements)
    }
 }
 
-REGISTER_FWRPZDATAPROXYBUILDER(TracksRecHitsProxy3DBuilder,reco::TrackCollection,"TrackHits");
+REGISTER_FWRPZDATAPROXYBUILDERBASE(TracksRecHitsProxy3DBuilder,reco::TrackCollection,"TrackHits");
 

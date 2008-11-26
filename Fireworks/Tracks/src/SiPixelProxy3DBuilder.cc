@@ -14,7 +14,7 @@
 //
 // Original Author:
 //         Created:  Thu Dec  6 18:01:21 PST 2007
-// $Id: SiPixelProxy3DBuilder.cc,v 1.2 2008/11/03 11:50:03 amraktad Exp $
+// $Id: SiPixelProxy3DBuilder.cc,v 1.3 2008/11/06 22:05:30 amraktad Exp $
 //
 
 // system include files
@@ -105,4 +105,4 @@ SiPixelProxy3DBuilder::applyChangesToAllModels(TEveElement* iElements)
    }
 }
 
-REGISTER_FWRPZDATAPROXYBUILDER(SiPixelProxy3DBuilder,SiPixelClusterCollectionNew,"SiPixel");
+REGISTER_FWRPZDATAPROXYBUILDERBASE(SiPixelProxy3DBuilder,SiPixelClusterCollectionNew,"SiPixel");

@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: L1JetTrigProxyRhoPhiZ2DBuilder.cc,v 1.9 2008/11/04 20:29:24 amraktad Exp $
+// $Id: L1JetTrigProxyRhoPhiZ2DBuilder.cc,v 1.10 2008/11/06 22:05:21 amraktad Exp $
 //
 //
 // system include files
@@ -202,4 +202,4 @@ L1JetTrigProxyRhoPhiZ2DBuilder::buildRhoZ(const FWEventItem* iItem,
 
 }
 
-REGISTER_FWRPZ2DDATAPROXYBUILDER(L1JetTrigProxyRhoPhiZ2DBuilder,l1extra::L1JetParticleCollection,"L1-Jets");
+REGISTER_FWRPZDATAPROXYBUILDERBASE(L1JetTrigProxyRhoPhiZ2DBuilder,l1extra::L1JetParticleCollection,"L1-Jets");

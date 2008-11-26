@@ -149,4 +149,4 @@ RPCActiveChamberProxyRhoPhiZ2DBuilder::applyChangesToAllModels(TEveElement* iEle
    }
 }
 
-REGISTER_FWRPZ2DDATAPROXYBUILDER(RPCActiveChamberProxyRhoPhiZ2DBuilder,RPCRecHitCollection,"RPCHits");
+REGISTER_FWRPZDATAPROXYBUILDERBASE(RPCActiveChamberProxyRhoPhiZ2DBuilder,RPCRecHitCollection,"RPCHits");

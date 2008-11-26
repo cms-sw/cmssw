@@ -14,7 +14,7 @@
 //
 // Original Author:
 //         Created:  Thu Dec  6 18:01:21 PST 2007
-// $Id: TracksProxy3DBuilder.cc,v 1.21 2008/11/20 01:15:27 chrjones Exp $
+// $Id: TracksProxy3DBuilder.cc,v 1.22 2008/11/26 02:17:24 chrjones Exp $
 //
 
 // system include files
@@ -99,4 +99,4 @@ void TracksProxy3DBuilder::build(const FWEventItem* iItem, TEveElementList** pro
     }
 }
 
-//REGISTER_FWRPZDATAPROXYBUILDER(TracksProxy3DBuilder,reco::TrackCollection,"Tracks");
+//REGISTER_FWRPZDATAPROXYBUILDERBASE(TracksProxy3DBuilder,reco::TrackCollection,"Tracks");

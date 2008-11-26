@@ -83,4 +83,4 @@ void PatMuonsProxyRhoPhiZ2DBuilder::build(const FWEventItem* iItem,
      }
 }
 
-REGISTER_FWRPZ2DDATAPROXYBUILDER(PatMuonsProxyRhoPhiZ2DBuilder,std::vector<pat::Muon>,"PatMuons");
+REGISTER_FWRPZDATAPROXYBUILDERBASE(PatMuonsProxyRhoPhiZ2DBuilder,std::vector<pat::Muon>,"PatMuons");
