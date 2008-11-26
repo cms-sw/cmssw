@@ -30,15 +30,15 @@ public:
 
   // Function to find Fed link given detId and pixel row and col on plaquette
   // returns -1 if link can't be found
-  int findLinkInFed(uint32_t detId, GlobalPixel global);
+  short findLinkInFed(uint32_t detId, GlobalPixel global);
 
   // Function to find Roc number on a link given detId and pixel row and col on plaquette
   // returns -1 if Roc can't be found
-  int findRocInLink(uint32_t detId, GlobalPixel global);
+  short findRocInLink(uint32_t detId, GlobalPixel global);
 
   // Function to find the Roc number within a plaquette given detId and pixel row and col on plaquette
   // returns -1 if Roc can't be found
-  int findRocInDet(uint32_t detId, GlobalPixel global);
+  short findRocInDet(uint32_t detId, GlobalPixel global);
 
   // Function to find local pixel given detId and pixel row and col on plaquette
   LocalPixel findPixelInRoc(uint32_t detId, GlobalPixel global);
@@ -52,3 +52,5 @@ private:
 
 };
 #endif
+
+

@@ -62,7 +62,8 @@ int SiPixelFrameReverter::findFedId(uint32_t detId)
 }
 
 
-int SiPixelFrameReverter::findLinkInFed(uint32_t detId, GlobalPixel global)
+short SiPixelFrameReverter::findLinkInFed(uint32_t detId, GlobalPixel 
+global)
 {
   std::vector<CablingPathToDetUnit> path = map_->pathToDetUnit(detId);
   typedef  std::vector<CablingPathToDetUnit>::const_iterator IT;
@@ -73,14 +74,14 @@ int SiPixelFrameReverter::findLinkInFed(uint32_t detId, GlobalPixel global)
     LocalPixel local = roc->toLocal(global);
 
     if(!local.valid()) continue;
-    int link = (int) it->link;
+    short link = (short) it->link;
     return link;
   }
   return -1;
 }
 
 
-int SiPixelFrameReverter::findRocInLink(uint32_t detId, GlobalPixel global)
+short SiPixelFrameReverter::findRocInLink(uint32_t detId, GlobalPixel global)
 {
   std::vector<CablingPathToDetUnit> path = map_->pathToDetUnit(detId);
   typedef  std::vector<CablingPathToDetUnit>::const_iterator IT;
@@ -91,14 +92,14 @@ int SiPixelFrameReverter::findRocInLink(uint32_t detId, GlobalPixel global)
     LocalPixel local = roc->toLocal(global);
 
     if(!local.valid()) continue;
-    int rocInLink = (int) roc->idInLink();
+    short rocInLink = (short) roc->idInLink();
     return rocInLink;
   }
   return -1;
 }
 
 
-int SiPixelFrameReverter::findRocInDet(uint32_t detId, GlobalPixel global)
+short SiPixelFrameReverter::findRocInDet(uint32_t detId, GlobalPixel global)
 {
   std::vector<CablingPathToDetUnit> path = map_->pathToDetUnit(detId);
   typedef  std::vector<CablingPathToDetUnit>::const_iterator IT;
@@ -109,7 +110,7 @@ int SiPixelFrameReverter::findRocInDet(uint32_t detId, GlobalPixel global)
     LocalPixel local = roc->toLocal(global);
 
     if(!local.valid()) continue;
-    int rocInDet = (int) roc->idInDetUnit();
+    short rocInDet = (short) roc->idInDetUnit();
     return rocInDet;
   }
   return -1;
