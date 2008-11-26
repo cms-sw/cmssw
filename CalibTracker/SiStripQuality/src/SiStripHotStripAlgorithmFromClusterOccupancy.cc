@@ -2,6 +2,7 @@
 
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "DataFormats/DetId/interface/DetId.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
 
 
@@ -11,7 +12,7 @@ SiStripHotStripAlgorithmFromClusterOccupancy::~SiStripHotStripAlgorithmFromClust
 
 void SiStripHotStripAlgorithmFromClusterOccupancy::extractBadStrips(SiStripQuality* siStripQuality,HistoMap& DM){
 
-  _StripOccupancy.clear();
+  _StripOccupancyHotStrips.clear();
 
   LogTrace("SiStripHotStripAlgorithmFromClusterOccupancy")<<"[SiStripHotStripAlgorithmFromClusterOccupancy::extractBadStrips] "<<std::endl;
 
@@ -23,7 +24,10 @@ void SiStripHotStripAlgorithmFromClusterOccupancy::extractBadStrips(SiStripQuali
     pHisto phisto;
     phisto._th1f=it->second.get();
     phisto._NEntries=phisto._th1f->GetEntries();
+
     detid=it->first;
+    DetId detectorId=DetId(detid);
+    phisto._SubdetId=detectorId.subdetId();
     
    if (edm::isDebugEnabled())
      LogTrace("SiStripHotStrip") << "Analyzing detid " << detid<< std::endl;
@@ -54,10 +58,11 @@ void SiStripHotStripAlgorithmFromClusterOccupancy::iterativeSearch(pHisto& histo
   size_t startingSize=vect.size();
   long double diff=1.-prob_; 
   
-  int Nbins=histo._th1f->GetNbinsX();
-  int ibinStart= 1; 
-  int ibinStop= Nbins+1; 
-  int MaxEntry=(int)histo._th1f->GetMaximum();
+  int Nbins     = histo._th1f->GetNbinsX();
+  int ibinStart = 1; 
+  int ibinStop  = Nbins+1; 
+  int MaxEntry  = (int)histo._th1f->GetMaximum();
+  int subdetid  = histo._SubdetId;
 
   std::vector<long double> vPoissonProbs(MaxEntry+1,0);
   long double meanVal=1.*histo._NEntries/(1.*Nbins-histo._NEmptyBins); 
@@ -65,11 +70,13 @@ void SiStripHotStripAlgorithmFromClusterOccupancy::iterativeSearch(pHisto& histo
 
   for (Int_t i=ibinStart; i<ibinStop; ++i){
     unsigned int entries= (unsigned int)histo._th1f->GetBinContent(i);
+    _StripOccupancyAllStrips.push_back(std::make_pair(entries/(double) Nevents_,subdetid));
+
     if (entries<=MinNumEntriesPerStrip_ || entries <= minNevents_)
       continue;
 
     if(diff<vPoissonProbs[entries]){
-      _StripOccupancy.push_back(entries/(double) Nevents_);
+      _StripOccupancyHotStrips.push_back(std::make_pair(entries/(double) Nevents_,subdetid));
       histo._th1f->SetBinContent(i,0.);
       histo._NEntries-=entries;
       histo._NEmptyBins++;
