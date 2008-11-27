@@ -15,7 +15,8 @@ l1PromptAnalysis = cms.EDFilter("L1PromptAnalysis",
     gctIsoEmSource = cms.InputTag("l1GctHwDigis","isoEm","L1Prompt"),
     gctEnergySumsSource = cms.InputTag("l1GctHwDigis","","L1Prompt"),
     gctTauJetsSource = cms.InputTag("l1GctHwDigis","tauJets","L1Prompt"),
-    rctSource = cms.InputTag("l1GctHwDigis","","L1Prompt")
+    rctSource = cms.InputTag("l1GctHwDigis","","L1Prompt"),
+    dttfSource = cms.InputTag("l1dttfunpack","","L1Prompt")
     )
 
 
