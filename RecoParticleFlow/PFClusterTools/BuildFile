@@ -1,13 +1,19 @@
 <use name=FWCore/Framework>
-<use name=FWCore/FWLite>
-#<use name=FWCore/ParameterSet>
+<use name=FWCore/ParameterSet>
 <use name=DataFormats/ParticleFlowReco>
+<use name=DataFormats/Candidate>
 <use name=root>
 <use name=rootcore>
 <use name=rootrflx>
+<use name=rootinteractive>
+<use name=PhysicsTools/UtilAlgos>
+<use name=DataFormats/ParticleFlowCandidate>
 <export>
-  <lib name=RecoParticleFlowPFClusterTools>
-  <use name=FWCore/Framework>
-#  <use name=FWCore/ParameterSet>
-#  <use name=DataFormats/ParticleFlowReco>
+   <lib name=RecoParticleFlowPFClusterTools>
+   <use name=FWCore/Framework>
+   <use name=DataFormats/ParticleFlowReco>
+   <use name=DataFormats/ParticleFlowCandidate>
+   <use name=DataFormats/Candidate>
+   <use name=FWCore/ParameterSet>
+   <use name=PhysicsTools/UtilAlgos>
 </export>
