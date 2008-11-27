@@ -1,0 +1,8 @@
+#!/bin/tcsh
+cd /afs/cern.ch/user/v/vadler/cms/SiStripDQM/CMSSW_2_1_12/src
+cmsenv
+setenv STAGE_SVCCLASS cmscaf
+set run=R000069351
+set outdir=/afs/cern.ch/cms/CAF/CMSCOMM/COMM_TRACKER/DQM/SiStrip/jobs/output
+cd ${CMSSW_BASE}/src/DQMOffline/CalibTracker/test/CRAFTCalib
+cmsRun SiStripDQMBadStripsValidation_cfg.py >&! ${outdir}/SiStripDQMBadStripsValidation-${run}.log 
