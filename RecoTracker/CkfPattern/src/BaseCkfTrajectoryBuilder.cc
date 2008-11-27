@@ -221,10 +221,21 @@ std::string BaseCkfTrajectoryBuilder::dumpMeasurement(const TrajectoryMeasuremen
   std::stringstream buffer;
   buffer
     <<"layer pointer: "<<tm.layer()<<"\n"
-    <<"estimate: "<<tm.estimate()<<"\n"
-    <<"forward state: \n"
-    <<"x: "<<tm.forwardPredictedState().globalPosition()<<"\n"
-    <<"p: "<<tm.forwardPredictedState().globalMomentum()<<"\n"
+    <<"estimate: "<<tm.estimate()<<"\n";
+  if (tm.updatedState().isValid())
+    buffer<<"updated state: \n"
+	  <<"x: "<<tm.updatedState().globalPosition()<<"\n"
+	  <<"p: "<<tm.updatedState().globalMomentum()<<"\n";
+  else if (tm.forwardPredictedState().isValid())
+    buffer<<"forward predicted state: \n"
+	  <<"x: "<<tm.forwardPredictedState().globalPosition()<<"\n"
+	  <<"p: "<<tm.forwardPredictedState().globalMomentum()<<"\n";
+  else if(tm.predictedState().isValid())
+    buffer<<"predicted state: \n"
+	  <<"x: "<<tm.predictedState().globalPosition()<<"\n"
+	  <<"p: "<<tm.predictedState().globalMomentum()<<"\n";
+  else buffer<<"no valid state\n";
+  buffer
     //        <<"geomdet pointer from rechit: "<<tm.recHit()->det()<<"\n"
     <<"detId: "<<tm.recHit()->geographicalId().rawId();
   if (tm.recHit()->isValid()){

@@ -158,10 +158,19 @@ std::string BaseCkfTrajectoryBuilder::dumpCandidates( collection & candidates) c
     buffer<<ic++<<"] ";
     if (!traj->measurements().empty()){
       const TrajectoryMeasurement & last = traj->lastMeasurement();
-      const TrajectoryStateOnSurface & tsos = last.updatedState();
-      buffer<<"with: "<<traj->measurements().size()<<" measurements."<< traj->lostHits() << " lost, " << traj->foundHits()<<" found, chi2="<<traj->chiSquared()<<"\n"
-	    <<"Last state\n x: "<<tsos.globalPosition()<<"\n p: "<<tsos.globalMomentum()<<"\n"
-	    <<" hit is: "<<(last.recHit()->isValid()?"valid":"invalid")<<"\n";
+
+      buffer<<"with: "<<traj->measurements().size()<<" measurements."<< traj->lostHits() << " lost, " << traj->foundHits()<<" found, chi2="<<traj->chiSquared()<<"\n";
+      if (last.updatedState().isValid()) {
+	const TrajectoryStateOnSurface & tsos = last.updatedState();
+	buffer <<"Last [Updated] state\n x: "<<tsos.globalPosition()<<"\n p: "<<tsos.globalMomentum()<<"\n";
+      } else if(last.forwardPredictedState().isValid()){
+	const TrajectoryStateOnSurface & tsos = last.forwardPredictedState();
+	buffer <<"Last [fwdPredicted] state\n x: "<<tsos.globalPosition()<<"\n p: "<<tsos.globalMomentum()<<"\n";
+      } else if (last.predictedState().isValid()){
+	const TrajectoryStateOnSurface & tsos = last.predictedState();
+	buffer <<"Last [Predicted] state\n x: "<<tsos.globalPosition()<<"\n p: "<<tsos.globalMomentum()<<"\n";
+      }
+      buffer <<" hit is: "<<(last.recHit()->isValid()?"valid":"invalid")<<"\n";
     }
     else{
       buffer<<" no measurement. \n";}
