@@ -69,7 +69,7 @@ diff cablingReader1.log cablingReader2.log >& diffReader1Reader2.log
 
 # new structure, new interface
 cd $CMSSW_BASE/src/
-cvs co -r HEAD CondFormats/SiStripObjects
+cvs co -r V14-01-00 CondFormats/SiStripObjects
 showtags
 
 # build
