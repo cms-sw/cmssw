@@ -86,6 +86,7 @@ print CFGFILE "process = cms.Process(\"L1Prompt\")\n";
 print CFGFILE "\n";
 print CFGFILE "process.load(\"L1TriggerConfig.L1GeometryProducers.l1CaloGeometry_cfi\")\n"; 
 print CFGFILE "process.load(\"L1TriggerConfig.L1GeometryProducers.l1CaloGeomRecordSource_cff\")\n"; 
+print CFGFILE "process.load(\"L1TriggerOffline.L1Analyzer.dttfUnpack_cff\")\n"; 
 print CFGFILE "process.load(\"L1TriggerOffline.L1Analyzer.gtUnpack_cff\")\n"; 
 print CFGFILE "process.load(\"L1TriggerOffline.L1Analyzer.gctUnpack_cff\")\n"; 
 print CFGFILE "process.load(\"L1TriggerOffline.L1Analyzer.L1PromptAnalysis_cfi\")\n";
@@ -113,7 +114,7 @@ print CFGFILE "process.maxEvents = cms.untracked.PSet(\n";
 print CFGFILE "    input = cms.untracked.int32($nEvents)\n";
 print CFGFILE ")\n";
 print CFGFILE "\n";
-print CFGFILE "process.p = cms.Path(process.l1GtUnpack+process.l1GctHwDigis+process.l1GtEvmUnpack+process.l1PromptAnalysis)\n";
+print CFGFILE "process.p = cms.Path(process.l1GtUnpack+process.l1GctHwDigis+process.l1GtEvmUnpack+process.l1dttfunpack+process.l1PromptAnalysis)\n";
 print CFGFILE "\n";
 
 print "bsub -J $RUN -q cmscaf -o $RUN\_$myn.log submit.ch l1prompt_$RUN\_$myn\_cfg.py $RUN\_$myn\n";
