@@ -12,28 +12,26 @@
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 
-namespace ROOT {
-  namespace Reflex {
-    std::ostream& operator<< (std::ostream& os, Type const& t) {
-      os << t.Name();
-      return os;
-    }
+namespace Reflex {
+  std::ostream& operator<< (std::ostream& os, Type const& t) {
+    os << t.Name();
+    return os;
+  }
 
-    std::ostream& operator<< (std::ostream& os, TypeTemplate const& tt) {
-      os << tt.Name();
-      return os;
-    }
+  std::ostream& operator<< (std::ostream& os, TypeTemplate const& tt) {
+    os << tt.Name();
+    return os;
   }
 }
 
-using ROOT::Reflex::Base;
-using ROOT::Reflex::FINAL;
-using ROOT::Reflex::Member;
-using ROOT::Reflex::Object;
-using ROOT::Reflex::SCOPED;
-using ROOT::Reflex::Type;
-using ROOT::Reflex::TypeTemplate;
-using ROOT::Reflex::Type_Iterator;
+using Reflex::Base;
+using Reflex::FINAL;
+using Reflex::Member;
+using Reflex::Object;
+using Reflex::SCOPED;
+using Reflex::Type;
+using Reflex::TypeTemplate;
+using Reflex::Type_Iterator;
 
 
 namespace edm
@@ -116,8 +114,8 @@ namespace edm
   }
 
   bool
-  is_RefVector(ROOT::Reflex::Type const& possible_ref_vector,
-	       ROOT::Reflex::Type& value_type)
+  is_RefVector(Reflex::Type const& possible_ref_vector,
+	       Reflex::Type& value_type)
   {
 
     static TypeTemplate ref_vector_template_id(TypeTemplate::ByName("edm::RefVector", 3));
@@ -129,8 +127,8 @@ namespace edm
   }
 
   bool
-  is_RefToBaseVector(ROOT::Reflex::Type const& possible_ref_vector,
-		     ROOT::Reflex::Type& value_type)
+  is_RefToBaseVector(Reflex::Type const& possible_ref_vector,
+		     Reflex::Type& value_type)
   {
 
     static TypeTemplate ref_vector_template_id(TypeTemplate::ByName("edm::RefToBaseVector", 1));

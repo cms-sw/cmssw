@@ -7,7 +7,7 @@ ReflexTools provides a small number of Reflex-based tools, used in
 the CMS event model.  
 
 
-$Id: ReflexTools.h,v 1.8 2008/01/17 01:01:35 wmtan Exp $
+$Id: ReflexTools.h,v 1.9 2008/09/23 16:03:12 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -19,15 +19,12 @@ $Id: ReflexTools.h,v 1.8 2008/01/17 01:01:35 wmtan Exp $
 #include "Reflex/Type.h"
 #include "Reflex/Object.h"
 
-namespace ROOT
+namespace Reflex
 {
-  namespace Reflex
-  {
-    class Type;
-    class TypeTemplate;
-    std::ostream& operator<< (std::ostream& os, Type const& t);  
-    std::ostream& operator<< (std::ostream& os, TypeTemplate const& tt);
-  }
+  class Type;
+  class TypeTemplate;
+  std::ostream& operator<< (std::ostream& os, Type const& t);  
+  std::ostream& operator<< (std::ostream& os, TypeTemplate const& tt);
 }
 
 namespace edm
@@ -37,12 +34,12 @@ namespace edm
   
   bool 
   find_nested_type_named(std::string const& nested_type,
-			 ROOT::Reflex::Type const& type_to_search,
-			 ROOT::Reflex::Type& found_type);
+			 Reflex::Type const& type_to_search,
+			 Reflex::Type& found_type);
 
   inline
   bool 
-  value_type_of(ROOT::Reflex::Type const& t, ROOT::Reflex::Type& found_type)
+  value_type_of(Reflex::Type const& t, Reflex::Type& found_type)
   {
     return find_nested_type_named("value_type", t, found_type);
   }
@@ -50,8 +47,8 @@ namespace edm
 
   inline
   bool 
-  wrapper_type_of(ROOT::Reflex::Type const& possible_wrapper,
-		  ROOT::Reflex::Type& found_wrapped_type)
+  wrapper_type_of(Reflex::Type const& possible_wrapper,
+		  Reflex::Type& found_wrapped_type)
   {
     return find_nested_type_named("wrapped_type",
 				  possible_wrapper,
@@ -65,31 +62,31 @@ namespace edm
   // Note there is special support of edm::RefVector<Seq<X> >, which
   // will be recognized as a sequence of X.
   bool 
-  is_sequence_wrapper(ROOT::Reflex::Type const& possible_sequence_wrapper,
-		      ROOT::Reflex::Type& found_sequence_value_type);
+  is_sequence_wrapper(Reflex::Type const& possible_sequence_wrapper,
+		      Reflex::Type& found_sequence_value_type);
 
   bool 
-  if_edm_ref_get_value_type(ROOT::Reflex::Type const& possible_ref,
-			    ROOT::Reflex::Type& value_type);
+  if_edm_ref_get_value_type(Reflex::Type const& possible_ref,
+			    Reflex::Type& value_type);
 
   bool 
-  if_edm_refToBase_get_value_type(ROOT::Reflex::Type const& possible_ref,
-				  ROOT::Reflex::Type& value_type);
+  if_edm_refToBase_get_value_type(Reflex::Type const& possible_ref,
+				  Reflex::Type& value_type);
 
   bool
-  is_RefVector(ROOT::Reflex::Type const& possible_ref_vector,
-	       ROOT::Reflex::Type& value_type);
+  is_RefVector(Reflex::Type const& possible_ref_vector,
+	       Reflex::Type& value_type);
 
   bool
-  is_RefToBaseVector(ROOT::Reflex::Type const& possible_ref_vector,
-		     ROOT::Reflex::Type& value_type);
+  is_RefToBaseVector(Reflex::Type const& possible_ref_vector,
+		     Reflex::Type& value_type);
 
   void checkDictionaries(std::string const& name, bool noComponents = false);
   void checkAllDictionaries();
   StringSet & missingTypes();
 
-  void public_base_classes(const ROOT::Reflex::Type& type,
-                           std::vector<ROOT::Reflex::Type>& baseTypes);
+  void public_base_classes(const Reflex::Type& type,
+                           std::vector<Reflex::Type>& baseTypes);
 
   /// Try to convert the un-typed pointer raw (which we promise is a
   /// pointer to an object whose dynamic type is denoted by
@@ -104,12 +101,12 @@ namespace edm
 
   template <class T>
   T const*
-  reflex_cast(void* raw, ROOT::Reflex::Type const& dynamicType)
+  reflex_cast(void* raw, Reflex::Type const& dynamicType)
   {
-    static const ROOT::Reflex::Type 
-      toType(ROOT::Reflex::Type::ByTypeInfo(typeid(T)));
+    static const Reflex::Type 
+      toType(Reflex::Type::ByTypeInfo(typeid(T)));
 
-    ROOT::Reflex::Object obj(dynamicType, raw);
+    Reflex::Object obj(dynamicType, raw);
     return static_cast<T const*>(obj.CastObject(toType).Address());
 
     // This alternative implementation of reflex_cast would allow us
@@ -127,7 +124,7 @@ namespace edm
   // implementation of reflex_cast (above). If we have to be rid of
   // that dependency, the alternative implementation of reflex_cast
   // uses this function, at the cost of some speed: repeated lookups
-  // of the same ROOT::Reflex::Type object for the same type will have
+  // of the same Reflex::Type object for the same type will have
   // to be made.
 
   /// Take an un-typed pointer raw (which we promise is a pointer to
@@ -141,7 +138,7 @@ namespace edm
   
   void const*
   reflex_pointer_adjust(void* raw,
-			ROOT::Reflex::Type const& dynamicType,
+			Reflex::Type const& dynamicType,
 			std::type_info const& toType);
   
 }
