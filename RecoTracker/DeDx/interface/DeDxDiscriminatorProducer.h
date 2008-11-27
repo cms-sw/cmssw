@@ -1,15 +1,11 @@
 #ifndef TrackRecoDeDx_DeDxDiscriminatorProducer_H
 #define TrackRecoDeDx_DeDxDiscriminatorProducer_H
-// user include files
+
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
-
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include "RecoTracker/DeDx/interface/BaseDeDxEstimator.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
@@ -28,15 +24,12 @@
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 
-//#include "CommonTools/ConditionDBWriter/interface/ConditionDBWriter.h"
-//#include "CondFormats/SiStripObjects/interface/SiStripDeDxProb.h"
-//#include "CondFormats/DataRecord/interface/SiStripDeDxProbRcd.h"
 #include "CondFormats/PhysicsToolsObjects/interface/Histogram2D.h"
 
-#include "TFile.h"
-#include "TH1F.h"
+#include "RecoTracker/DeDx/interface/DeDxDiscriminatorTools.h"
+
+
 #include "TH2F.h"
-#include "TROOT.h"
 
 #include <ext/hash_map>
 
@@ -48,9 +41,6 @@ using namespace __gnu_cxx;
 
 
 
-//
-// class declaration
-//
 
 class DeDxDiscriminatorProducer : public edm::EDProducer {
 
@@ -64,8 +54,9 @@ private:
   virtual void produce(edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
 
-  bool IsFarFromBorder(TrajectoryStateOnSurface trajState, const uint32_t detid, const edm::EventSetup* iSetup);
-  double ComputeChargeOverPath(const SiStripRecHit2D* sistripsimplehit,TrajectoryStateOnSurface trajState, const edm::EventSetup* iSetup,  const Track* track, double trajChi2OverN);
+  double GetProbability       (const SiStripRecHit2D* sistripsimplehit,TrajectoryStateOnSurface trajState);
+  double ComputeDiscriminator (std::vector<double>& vect_probs);
+
 
   // ----------member data ---------------------------
   edm::InputTag                     m_trajTrackAssociationTag;
@@ -76,16 +67,9 @@ private:
   double MeVperADCPixel;
   double MeVperADCStrip;
 
-  //  const edm::EventSetup* iSetup_;
-  //  const edm::Event*      iEvent_;
-  //  const TrackerGeometry* m_tracker;
+  const TrackerGeometry* m_tracker;
 
-   PhysicsTools::Calibration::HistogramD2D DeDxMap_;
-//  edm::ESHandle<SiStripDeDxProb> DeDxMapHandle_;
-
-
-  TFile*       MapFile;
-  std::string  MapFileName;
+  PhysicsTools::Calibration::HistogramD2D DeDxMap_;
 
   double       MinTrackMomentum;
   double       MaxTrackMomentum;
@@ -94,21 +78,12 @@ private:
   unsigned int MaxNrStrips;
   unsigned int MinTrackHits;
   double       MaxTrackChiOverNdf;
-  bool         AllowSaturation;
 
-  bool         DiscriminatorMode;
   unsigned int Formula;
 
-  InputTag     TrackProducer;
-  InputTag     TrajToTrackProducer;
+  TH2D*        Prob_ChargePath;
 
-  TH2F*        Charge_Vs_Path_Barrel;
-  TH2F*        Charge_Vs_Path_Endcap;
 
-  TH2F*        PCharge_Vs_Path_Barrel;
-  TH2F*        PCharge_Vs_Path_Endcap;
-
-  vector<float> MeasurementProbabilities;
 
    private :
       struct stModInfo{int DetId; int SubDet; float Eta; float R; float Thickness; int NAPV; };

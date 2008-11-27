@@ -118,8 +118,6 @@ void DeDxDiscriminatorLearner::algoAnalyze(edm::Event& iEvent, const edm::EventS
       if(track.found()<MinTrackHits                                    ){printf("Hits Cut\n");continue;}
 
       vector<TrajectoryMeasurement> measurements = traj.measurements();
-      if(traj.foundHits()<(int)MinTrackHits)continue;
-
       for(vector<TrajectoryMeasurement>::const_iterator measurement_it = measurements.begin(); measurement_it!=measurements.end(); measurement_it++)
       {
          TrajectoryStateOnSurface trajState = measurement_it->updatedState();

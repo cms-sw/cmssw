@@ -15,7 +15,7 @@
 //         Created:  Thu May 31 14:09:02 CEST 2007
 //    Code Updates:  loic Quertenmont (querten)
 //         Created:  Thu May 10 14:09:02 CEST 2008
-// $Id: DeDxDiscriminatorProducer.cc,v 1.3 2008/09/15 09:43:12 querten Exp $
+// $Id: DeDxDiscriminatorProducer.cc,v 1.4 2008/11/25 16:44:00 gbruno Exp $
 //
 //
 
@@ -23,17 +23,12 @@
 // system include files
 #include <memory>
 #include "DataFormats/Common/interface/ValueMap.h"
+#include "DataFormats/TrackReco/interface/DeDxData.h"
+
 
 #include "RecoTracker/DeDx/interface/DeDxDiscriminatorProducer.h"
-#include "DataFormats/TrackReco/interface/DeDxData.h"
-//#include "DataFormats/TrackReco/interface/TrackDeDxHits.h"
-//#include "DataFormats/TrackReco/interface/DeDxHit.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
-
-#include "RecoTracker/DeDx/interface/GenericAverageDeDxEstimator.h"
-#include "RecoTracker/DeDx/interface/TruncatedAverageDeDxEstimator.h"
-#include "RecoTracker/DeDx/interface/MedianDeDxEstimator.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
@@ -60,8 +55,6 @@ DeDxDiscriminatorProducer::DeDxDiscriminatorProducer(const edm::ParameterSet& iC
    if(!usePixel && !useStrip)
    edm::LogWarning("DeDxHitsProducer") << "Pixel Hits AND Strip Hits will not be used to estimate dEdx --> BUG, Please Update the config file";
 
-   DiscriminatorMode   = iConfig.getUntrackedParameter<bool>("DiscriminatorMode", true);
-   MapFileName         = iConfig.getParameter<std::string>("MapFile");
    Formula             = iConfig.getUntrackedParameter<unsigned>("Formula"            ,  0);
 
    MinTrackMomentum    = iConfig.getUntrackedParameter<double>  ("minTrackMomentum"   ,  3.0);
@@ -70,61 +63,36 @@ DeDxDiscriminatorProducer::DeDxDiscriminatorProducer(const edm::ParameterSet& iC
    MaxTrackEta         = iConfig.getUntrackedParameter<double>  ("maxTrackEta"        ,  5.0);
    MaxNrStrips         = iConfig.getUntrackedParameter<unsigned>("maxNrStrips"        ,  2);
    MinTrackHits        = iConfig.getUntrackedParameter<unsigned>("MinTrackHits"       ,  8);
-   AllowSaturation     = iConfig.getUntrackedParameter<bool>    ("AllowSaturation"    ,  false);
 }
 
 
 DeDxDiscriminatorProducer::~DeDxDiscriminatorProducer(){}
 
 // ------------ method called once each job just before starting event loop  ------------
-void  DeDxDiscriminatorProducer::beginJob(const edm::EventSetup& iSetup){
-
-   cout << "TEST1\n";
-
-
+void  DeDxDiscriminatorProducer::beginJob(const edm::EventSetup& iSetup)
+{
    edm::ESHandle<PhysicsTools::Calibration::HistogramD2D> DeDxMapHandle_;    
    iSetup.get<SiStripDeDxMipRcd>().get(DeDxMapHandle_);
    DeDxMap_ = *DeDxMapHandle_.product();
 
-   //   iSetup_                  = &iSetup;
-
-   cout << "TEST2\n";
-
-
-   MapFile                   = new TFile(MapFileName.c_str(), "RECREATE");
-/*      Charge_Vs_Path_Barrel     = new TH2F ("Charge_Vs_Path_Barrel"     , "Charge_Vs_Path_Barrel" , 250, 0.2, 1.4, 1000, 0, 5000);
-      Charge_Vs_Path_Endcap     = new TH2F ("Charge_Vs_Path_Endcap"     , "Charge_Vs_Path_Endcap" , 250, 0.2, 1.4, 1000, 0, 5000);
-
-      MapFile                   = new TFile(MapFileName.c_str());
-
-      Charge_Vs_Path_Barrel     = (TH2F*) MapFile->FindObjectAny("Charge_Vs_Path_Barrel");
-      Charge_Vs_Path_Endcap     = (TH2F*) MapFile->FindObjectAny("Charge_Vs_Path_Endcap");
-*/
-
-
-      PCharge_Vs_Path_Barrel    = new TH2F ("PCharge_Vs_Path_Barrel"     , "PCharge_Vs_Path_Barrel" , DeDxMap_.numberOfBinsX(), 0.2, 1.4, DeDxMap_.numberOfBinsY() , 0, 5000);
-      PCharge_Vs_Path_Endcap    = new TH2F ("PCharge_Vs_Path_Endcap"     , "PCharge_Vs_Path_Endcap" , 250, 0.2, 1.4, 1000, 0, 5000);
-
-   cout << "TEST3\n";
+   Prob_ChargePath  = new TH2D ("Prob_ChargePath"     , "Prob_ChargePath" , DeDxMap_.numberOfBinsX(), 0.2, 1.4, DeDxMap_.numberOfBinsY() , 0, 5000);
 
    
-   for(int i=0;i<PCharge_Vs_Path_Barrel->GetXaxis()->GetNbins();i++){
-      for(int j=0;j<PCharge_Vs_Path_Barrel->GetYaxis()->GetNbins();j++){
-//         printf("%06i/%06i  & %06i/%06i\n",i,PCharge_Vs_Path_Barrel->GetXaxis()->GetNbins(), j, PCharge_Vs_Path_Barrel->GetYaxis()->GetNbins());
-         float tmp1 = DeDxMap_.binContent(i,j);
-	 //         float tmp2 = DeDxMap_.binError  (i,j);
-	 //   printf("%3i-%3i --> %6f - %6f\n",i,j,tmp1, tmp2);
-         PCharge_Vs_Path_Barrel->SetBinContent (i, j, tmp1);
-	 //         PCharge_Vs_Path_Barrel->SetBinError   (i, j, tmp2);
+   for(int i=0;i<Prob_ChargePath->GetXaxis()->GetNbins();i++){
+      double Ni = 0;
+      for(int j=0;j<Prob_ChargePath->GetYaxis()->GetNbins();j++){ Ni+=DeDxMap_.binContent(i,j);} 
+
+      for(int j=0;j<Prob_ChargePath->GetYaxis()->GetNbins();j++){
+         double tmp = 0;
+         for(int k=0;k<=j;k++){ tmp+=DeDxMap_.binContent(i,k);}
+
+         Prob_ChargePath->SetBinContent (i, j, tmp/Ni);
       }
    }
 
    edm::ESHandle<TrackerGeometry> tkGeom;
    iSetup.get<TrackerDigiGeometryRecord>().get( tkGeom );
-   //   m_tracker=&(* tkGeom );
-
-   cout << "TEST4\n";
-
+   m_tracker = tkGeom.product();
 
    vector<GeomDet*> Det = tkGeom->dets();
    for(unsigned int i=0;i<Det.size();i++){
@@ -155,28 +123,16 @@ void  DeDxDiscriminatorProducer::beginJob(const edm::EventSetup& iSetup){
       }
    }
  
-   cout << "TEST5\n";
-
 }
 
-// ------------ method called once each job just after ending the event loop  ------------
-void  DeDxDiscriminatorProducer::endJob(){
-   cout << "TEST6\n";
-
-   PCharge_Vs_Path_Barrel->Write();
-
-   MapFile->Write();
-   MapFile->Close();
+void  DeDxDiscriminatorProducer::endJob()
+{
 }
 
 
 
 void DeDxDiscriminatorProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  return;
-/*
-  iEvent_ = &iEvent;  
-
   auto_ptr<ValueMap<DeDxData> > trackDeDxDiscrimAssociation(new ValueMap<DeDxData> );  
   ValueMap<DeDxData>::Filler filler(*trackDeDxDiscrimAssociation);
 
@@ -189,26 +145,19 @@ void DeDxDiscriminatorProducer::produce(edm::Event& iEvent, const edm::EventSetu
  
    std::vector<DeDxData> dEdxDiscrims( TrajToTrackMap.size() );
 
-
-   cout << "DDP  TEST1\n";
-
-
    unsigned track_index = 0;
    for(TrajTrackAssociationCollection::const_iterator it = TrajToTrackMap.begin(); it!=TrajToTrackMap.end(); ++it, track_index++) {
-      dEdxDiscrims[track_index] = DeDxData(-1, -1, 0 );
+      dEdxDiscrims[track_index] = DeDxData(-1, -2, 0 );
 
       const Track      track = *it->val;
       const Trajectory traj  = *it->key;
 
-      if(track.eta()<MinTrackEta || track.eta()>MaxTrackEta){printf("Eta Cut\n");continue;}
-      if(track.p()<MinTrackMomentum || track.p()>MaxTrackMomentum){printf("Pt Cut\n");continue;}
-      if(track.found()<MinTrackHits){printf("Hits Cut\n");continue;}
+      if(track.eta()  <MinTrackEta      || track.eta()>MaxTrackEta     ){printf("Eta  Cut\n");continue;}
+      if(track.p()    <MinTrackMomentum || track.p()  >MaxTrackMomentum){printf("Pt   Cut\n");continue;}
+      if(track.found()<MinTrackHits                                    ){printf("Hits Cut\n");continue;}
 
-
+      std::vector<double> vect_probs;
       vector<TrajectoryMeasurement> measurements = traj.measurements();
-      if(traj.foundHits()<(int)MinTrackHits)continue;
-
-      MeasurementProbabilities.clear();
       for(vector<TrajectoryMeasurement>::const_iterator measurement_it = measurements.begin(); measurement_it!=measurements.end(); measurement_it++){
 
          TrajectoryStateOnSurface trajState = measurement_it->updatedState();
@@ -220,195 +169,110 @@ void DeDxDiscriminatorProducer::produce(edm::Event& iEvent, const edm::EventSetu
 
          if(sistripsimplehit)
          {
-             ComputeChargeOverPath(sistripsimplehit, trajState, &iSetup, &track, traj.chiSquared());
+	     vect_probs.push_back(GetProbability(sistripsimplehit, trajState));
          }else if(sistripmatchedhit){
-             ComputeChargeOverPath(sistripmatchedhit->monoHit()  ,trajState, &iSetup, &track, traj.chiSquared());
-             ComputeChargeOverPath(sistripmatchedhit->stereoHit(),trajState, &iSetup, &track, traj.chiSquared());
+             vect_probs.push_back(GetProbability(sistripmatchedhit->monoHit()  , trajState));
+             vect_probs.push_back(GetProbability(sistripmatchedhit->stereoHit(), trajState));
          }else{
          }
       }
 
-
-      if(DiscriminatorMode){
-         int size = MeasurementProbabilities.size();
-
-         double estimator = 1;
-         if(Formula==0){
-            double P = 1;
-            for(int i=0;i<size;i++){
-               if(MeasurementProbabilities[i]<=0.001){P *= pow(0.001f, 1.0f/size);}
-               else                                  {P *= pow(MeasurementProbabilities[i], 1.0f/size);}
-            }
-            estimator = P;
-         }else if(Formula==1){
-
-            if(MeasurementProbabilities.size()>0){
-
-              std::sort(MeasurementProbabilities.begin(), MeasurementProbabilities.end(), std::less<double>() );
-              for(int i=0;i<size;i++){if(MeasurementProbabilities[i]<=0.001)MeasurementProbabilities[i] = 0.001f;    }
-
-               double SumJet = 0.;
-               for(int i=0;i<size;i++){ SumJet+= log(MeasurementProbabilities[i]); }
-
-              double Loginvlog=log(-SumJet);
-              double Prob =1.;
-              double lfact=1.;
-
-              for(int l=1; l!=size; l++){
-                   lfact*=l;
-                   Prob+=exp(l*Loginvlog-log(1.*lfact));
-               }
-
-               double LogProb=log(Prob);
-               double ProbJet=std::min(exp(std::max(LogProb+SumJet,-30.)),1.);
-               estimator = -log10(ProbJet)/4.;
-               estimator = 1-estimator;
-            }else{
-               estimator = -1;
-            }
-         }else if(Formula==2){
-           estimator = -2;
-           if(size>0){
-               std::sort(MeasurementProbabilities.begin(), MeasurementProbabilities.end(), std::less<double>() );
-               double P = 1.0/(12*size);
-               for(int i=1;i<=size;i++){
-                  P += pow(MeasurementProbabilities[i-1] - ((2.0*i-1.0)/(2.0*size)),2);
-               }
-               P *= (1.0/size);
-               estimator = P;
-               if(estimator>=0.333)printf("BUG\n");
-            }
-         }else{
-           estimator = -2;
-           if(size>0){
-               std::sort(MeasurementProbabilities.begin(), MeasurementProbabilities.end(), std::less<double>() );
-               double P = 1.0/(12*size);
-               for(int i=1;i<=size;i++){
-                  P += MeasurementProbabilities[i-1] * pow(MeasurementProbabilities[i-1] - ((2.0*i-1.0)/(2.0*size)),2);
-               }
-               P *= (1.0/size);
-               estimator = P;
-               if(estimator>=0.333)printf("BUG\n");
-           }
-         }
-
-         dEdxDiscrims[track_index] = DeDxData(estimator, -1, size );
-      }
+      double estimator          = ComputeDiscriminator(vect_probs);
+      int    size               = vect_probs.size();
+      dEdxDiscrims[track_index] = DeDxData(estimator, -1, size );
    }
 
   filler.insert(trackCollectionHandle, dEdxDiscrims.begin(), dEdxDiscrims.end());
   filler.fill();
   iEvent.put(trackDeDxDiscrimAssociation);
-  */
 }
 
 
-double
-DeDxDiscriminatorProducer::ComputeChargeOverPath(const SiStripRecHit2D* sistripsimplehit,TrajectoryStateOnSurface trajState, const edm::EventSetup* iSetup,  const Track* track, double trajChi2OverN)
+double DeDxDiscriminatorProducer::GetProbability(const SiStripRecHit2D* sistripsimplehit,TrajectoryStateOnSurface trajState)
 {
-
-   LocalVector          trackDirection = trajState.localDirection();
-   double                  cosine      = trackDirection.z()/trackDirection.mag();
-   const SiStripCluster*   Cluster     = (sistripsimplehit->cluster()).get();
-   const vector<uint8_t>&  Ampls       = Cluster->amplitudes();
-   uint32_t                DetId       = Cluster->geographicalId();
-   int                     FirstStrip  = Cluster->firstStrip();
-   bool                    Saturation  = false;
-   bool                    Overlaping  = false;
-   int                     Charge      = 0;
-   stModInfo* MOD                      = MODsColl[DetId];
+   // Get All needed variables
+   LocalVector             trackDirection = trajState.localDirection();
+   double                  cosine         = trackDirection.z()/trackDirection.mag();
+   const SiStripCluster*   cluster        = (sistripsimplehit->cluster()).get();
+   const vector<uint8_t>&  ampls          = cluster->amplitudes();
+   uint32_t                detId          = cluster->geographicalId();
+//   int                     firstStrip     = cluster->firstStrip();
+   stModInfo* MOD                         = MODsColl[detId];
 
 
-   if(!IsFarFromBorder(trajState,DetId, iSetup)){/*printf("tooCloseFromBorder\n");*/return -1;}
+   // Sanity Checks
+   if( ampls.size()>MaxNrStrips)                                                                      {return -1;}
+// if( DeDxDiscriminatorTools::IsSaturatingStrip  (ampls))                                            {return -1;}
+// if( DeDxDiscriminatorTools::IsSpanningOver2APV (firstStrip, ampls.size()))                         {return -1;}
+// if(!DeDxDiscriminatorTools::IsFarFromBorder    (trajState, m_tracker->idToDetUnit(DetId(detId)) )) {return -1;}
 
 
-   if(FirstStrip==0                                  )Overlaping=true;
-   if(FirstStrip==128                                )Overlaping=true;
-   if(FirstStrip==256                                )Overlaping=true;
-   if(FirstStrip==384                                )Overlaping=true;
-   if(FirstStrip==512                                )Overlaping=true;
-   if(FirstStrip==640                                )Overlaping=true;
+   // Find Probability for this given Charge and Path
+   double charge = DeDxDiscriminatorTools::charge(ampls);
+   double path   = DeDxDiscriminatorTools::path(cosine,MOD->Thickness);
 
-   if(FirstStrip<=127 && FirstStrip+Ampls.size()>127)Overlaping=true;
-   if(FirstStrip<=255 && FirstStrip+Ampls.size()>255)Overlaping=true;
-   if(FirstStrip<=383 && FirstStrip+Ampls.size()>383)Overlaping=true;
-   if(FirstStrip<=511 && FirstStrip+Ampls.size()>511)Overlaping=true;
-   if(FirstStrip<=639 && FirstStrip+Ampls.size()>639)Overlaping=true;
-
-   if(FirstStrip+Ampls.size()==127                   )Overlaping=true;
-   if(FirstStrip+Ampls.size()==255                   )Overlaping=true;
-   if(FirstStrip+Ampls.size()==383                   )Overlaping=true;
-   if(FirstStrip+Ampls.size()==511                   )Overlaping=true;
-   if(FirstStrip+Ampls.size()==639                   )Overlaping=true;
-   if(FirstStrip+Ampls.size()==767                   )Overlaping=true;
-//   if(!DiscriminatorMode && Overlaping){printf("Overlapping\n");return -1;}
+   int    BinX   = Prob_ChargePath->GetXaxis()->FindBin(path);
+   int    BinY   = Prob_ChargePath->GetYaxis()->FindBin(charge/path);
+   
+   return Prob_ChargePath->GetBinContent(BinX,BinY);
+}
 
 
-   for(unsigned int a=0;a<Ampls.size();a++){Charge+=Ampls[a];if(Ampls[a]>=254)Saturation=true;}
-   double path                    = (10.0*MOD->Thickness)/fabs(cosine);
-   double ClusterChargeOverPath   = (double)Charge / path ;
+double DeDxDiscriminatorProducer::ComputeDiscriminator(std::vector<double>& vect_probs)
+{
+   double estimator = -1;
+   int    size      = vect_probs.size();
+   if(size<=0)return estimator;
 
-   if(Ampls.size()>MaxNrStrips)      {/*printf("tooMuchStrips\n");*/return -1;}
-//   if(!DiscriminatorMode && Saturation && !AllowSaturation){printf("Saturation\n");return -1;}
+   if(Formula==0){
+      double P = 1;
+      for(int i=0;i<size;i++){
+         if(vect_probs[i]<=0.0001){P *= pow(0.0001       , 1.0/size);}
+         else                     {P *= pow(vect_probs[i], 1.0/size);}
+      }
+      estimator = P;
+   }else if(Formula==1){
+      std::sort(vect_probs.begin(), vect_probs.end(), std::less<double>() );
+      for(int i=0;i<size;i++){if(vect_probs[i]<=0.0001)vect_probs[i] = 0.0001;    }
 
-   if(!DiscriminatorMode){
-      if(MOD->SubDet == StripSubdetector::TIB || MOD->SubDet == StripSubdetector::TOB) Charge_Vs_Path_Barrel->Fill(path,ClusterChargeOverPath);
-      if(MOD->SubDet == StripSubdetector::TID || MOD->SubDet == StripSubdetector::TEC) Charge_Vs_Path_Endcap->Fill(path,ClusterChargeOverPath);
+      double SumJet = 0.;
+      for(int i=0;i<size;i++){ SumJet+= log(vect_probs[i]); }
+
+      double Loginvlog=log(-SumJet);
+      double Prob =1.;
+      double lfact=1.;
+
+      for(int l=1; l!=size; l++){
+         lfact*=l;
+         Prob+=exp(l*Loginvlog-log(1.*lfact));
+      }
+
+      double LogProb=log(Prob);
+      double ProbJet=std::min(exp(std::max(LogProb+SumJet,-30.)),1.);
+      estimator = -log10(ProbJet)/4.;
+      estimator = 1-estimator;
+   }else if(Formula==2){
+      std::sort(vect_probs.begin(), vect_probs.end(), std::less<double>() );
+      double P = 1.0/(12*size);
+      for(int i=1;i<=size;i++){
+         P += pow(vect_probs[i-1] - ((2.0*i-1.0)/(2.0*size)),2);
+      }
+      P *= (1.0/size);
+      estimator = P;
+      if(estimator>=0.333)printf("BUG\n");
    }else{
-      TH2F* MapToUse = NULL;
-      if(MOD->SubDet == StripSubdetector::TIB || MOD->SubDet == StripSubdetector::TOB) MapToUse = PCharge_Vs_Path_Barrel;
-      if(MOD->SubDet == StripSubdetector::TID || MOD->SubDet == StripSubdetector::TEC) MapToUse = PCharge_Vs_Path_Endcap;
-
-      int   BinX  = MapToUse->GetXaxis()->FindBin(path);
-      int   BinY  = MapToUse->GetYaxis()->FindBin(ClusterChargeOverPath);
-
-      float Prob = MapToUse->GetBinContent(BinX,BinY);
-
-      if(Prob>=0)MeasurementProbabilities.push_back(Prob);
+      std::sort(vect_probs.begin(), vect_probs.end(), std::less<double>() );
+      double P = 1.0/(12*size);
+      for(int i=1;i<=size;i++){
+         P += vect_probs[i-1] * pow(vect_probs[i-1] - ((2.0*i-1.0)/(2.0*size)),2);
+      }
+      P *= (1.0/size);
+      estimator = P;
+      if(estimator>=0.333)printf("BUG\n");
    }
 
-   return ClusterChargeOverPath;
+   return estimator;
 }
-
-
-bool DeDxDiscriminatorProducer::IsFarFromBorder(TrajectoryStateOnSurface trajState, const uint32_t detid, const edm::EventSetup* iSetup)
-{
-  edm::ESHandle<TrackerGeometry> tkGeom; iSetup->get<TrackerDigiGeometryRecord>().get( tkGeom );
-
-  LocalPoint  HitLocalPos   = trajState.localPosition();
-  LocalError  HitLocalError = trajState.localError().positionError() ;
-
-  const GeomDetUnit* it = tkGeom->idToDetUnit(DetId(detid));
-  if (dynamic_cast<const StripGeomDetUnit*>(it)==0 && dynamic_cast<const PixelGeomDetUnit*>(it)==0) {
-     std::cout << "this detID doesn't seem to belong to the Tracker" << std::endl;
-     return false;
-  }
-
-  const BoundPlane plane = it->surface();
-  const TrapezoidalPlaneBounds* trapezoidalBounds( dynamic_cast<const TrapezoidalPlaneBounds*>(&(plane.bounds())));
-  const RectangularPlaneBounds* rectangularBounds( dynamic_cast<const RectangularPlaneBounds*>(&(plane.bounds())));
-
-  double DistFromBorder = 1.0;
-  double HalfWidth      = it->surface().bounds().width()  /2.0;
-  double HalfLength     = it->surface().bounds().length() /2.0;
-
-  if(trapezoidalBounds)
-  {
-     std::vector<float> const & parameters = (*trapezoidalBounds).parameters();
-     HalfLength     = parameters[3];
-     double t       = (HalfLength + HitLocalPos.y()) / (2*HalfLength) ;
-     HalfWidth      = parameters[0] + (parameters[1]-parameters[0]) * t;
-  }else if(rectangularBounds){
-     HalfWidth      = it->surface().bounds().width()  /2.0;
-     HalfLength     = it->surface().bounds().length() /2.0;
-  }else{return false;}
-
-//  if (fabs(HitLocalPos.x())+HitLocalError.xx() >= (HalfWidth  - DistFromBorder) ) return false;//Don't think is really necessary
-  if (fabs(HitLocalPos.y())+HitLocalError.yy() >= (HalfLength - DistFromBorder) ) return false;
-
-  return true;
-}
-
 
 
 //define this as a plug-in
