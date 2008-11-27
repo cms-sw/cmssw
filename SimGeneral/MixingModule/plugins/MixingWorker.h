@@ -21,7 +21,6 @@
 #include <string>
 #include <typeinfo>
 #include "MixingWorkerBase.h"
-#include "MixingModule.h"
 
 namespace edm
 {
@@ -40,7 +39,7 @@ namespace edm
 
           trackerHigh_=false;
           if (isTracker) 
-	      if (subdet.find("HighTof")!=std::string::npos) 		trackerHigh_=true;
+	    if (subdet.find("HighTof")!=std::string::npos) 		trackerHigh_=true;
 	}
 
       /**Default destructor*/
@@ -48,13 +47,18 @@ namespace edm
 
     public:
 
+      void setTof() {
+	crFrame_->setTof();
+      }
+
       virtual void put(edm::Event &e) {
         std::auto_ptr<CrossingFrame<T> > pOut(crFrame_);
 	e.put(pOut,label_);
+	LogDebug("MixingModule") <<" CF was put for type "<<typeid(T).name()<<" with "<<label_;
       }
 
       virtual void createnewEDProduct(){
-        crFrame_=new CrossingFrame<T>(minBunch_,maxBunch_,bunchSpace_,subdet_,maxNbSources_);//FIXME: subdet not needed in CF
+        crFrame_=new CrossingFrame<T>(minBunch_,maxBunch_,bunchSpace_,subdet_,maxNbSources_);
       }
 
       virtual void addSignals(const edm::Event &e){
@@ -76,7 +80,7 @@ namespace edm
 	  bool got = e->getByLabel(tag_,result_t);
 	  if (got) {
 	    LogDebug("MixingModule") <<result_t.product()->size()<<"  pileup objects  added, eventNr "<<eventNr;
-	    crFrame_->addPileups(bcr,result_t.product(),eventNr);
+            crFrame_->addPileups(bcr,const_cast<std::vector<T> *>(result_t.product()),eventNr);
 	  }
 	}
       virtual void setBcrOffset() {crFrame_->setBcrOffset();}
@@ -90,6 +94,6 @@ namespace edm
       static const int highTrackTof;
       static const int limHighLowTof;
     };
- }//edm
+}//edm
 
 #endif

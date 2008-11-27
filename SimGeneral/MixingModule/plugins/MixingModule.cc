@@ -217,13 +217,18 @@ namespace edm
 	for (unsigned int isource=0;isource<maxNbSources_;++isource) {
 	  workers_[ii]->setSourceOffset(isource);
 	  if (doit_[isource])   {
-	    merge(bunchCrossing, (pileup_[isource])[bunchCrossing-minBunch_],ii,setup);
+	    merge(bunchCrossing, (pileup_[isource])[bunchCrossing-minBunch_],ii,setup,isource);
 	  }	
 	}
       }
-      workers_[ii]->put(e);
     }
-  }
+
+    // we have to do the ToF transformation for PSimHits once all pileup has been added
+     for (unsigned int ii=0;ii<workers_.size();ii++) {
+      workers_[ii]->setTof();
+      workers_[ii]->put(e);
+     }
+ }
 
   void MixingModule::addPileups(const int bcr, Event *e, unsigned int eventNr,unsigned int worker, const edm::EventSetup& setup) {    // fill in pileup part of CrossingFrame
 

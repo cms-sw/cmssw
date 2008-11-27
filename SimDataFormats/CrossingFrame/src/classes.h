@@ -12,20 +12,19 @@
 
 namespace {
   struct dictionary {
- 	CrossingFrame<PSimHit> dummy1;
-
  	CrossingFramePlaybackInfo dummy0;
+ 	CrossingFrame<PSimHit> dummy1;
  	CrossingFrame<PCaloHit> dummy2;
  	CrossingFrame<SimTrack> dummy3;
  	CrossingFrame<SimVertex> dummy4;
  	CrossingFrame<edm::HepMCProduct> dummy5;
 
         std::vector<int> dummy9;
-        std::vector<PSimHit> dummy10;
-        std::vector<PCaloHit> dummy11;
-        std::vector<SimTrack> dummy12;
-        std::vector<SimVertex> dummy13;
-        std::vector<edm::HepMCProduct> dummy14;
+        std::vector<const PSimHit *> dummy10;
+        std::vector<const PCaloHit *> dummy11;
+        std::vector<const SimTrack *> dummy12;
+        std::vector<const SimVertex *> dummy13;
+        std::vector<const edm::HepMCProduct *> dummy14;
 
         edm::Wrapper<CrossingFramePlaybackInfo > dummy19;
         edm::Wrapper<CrossingFrame<PSimHit> > dummy20;

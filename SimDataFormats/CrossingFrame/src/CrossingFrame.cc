@@ -1,9 +1,9 @@
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
 #include "SimDataFormats/EncodedEventId/interface/EncodedEventId.h"
-#include "SimDataFormats/Track/interface/SimTrack.h"
-#include "DataFormats/HcalDetId/interface/HcalDetId.h"
+//#include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/Math/interface/Vector3D.h"
 
+#include "SimDataFormats/Track/interface/SimTrack.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
@@ -16,42 +16,30 @@ using namespace edm;
 template <> const int  CrossingFrame<PSimHit>::limHighLowTof = 36;
 
 template <> 
-void CrossingFrame<SimTrack>::addPileups(const int bcr, const std::vector<SimTrack> *simtracks, unsigned int evtNr, int vertexoffset,bool checkTof,bool high) { 
+void CrossingFrame<SimTrack>::addPileups(const int bcr, std::vector<SimTrack> *simtracks, unsigned int evtNr, int vertexoffset,bool checkTof,bool high) { 
 
   EncodedEventId id(bcr,evtNr);
-  for (unsigned int i=0;i<simtracks->size();++i)
-    if ((*simtracks)[i].noVertex()) {
-      SimTrack track((*simtracks)[i]);
-      track.setEventId(id);
-      pileups_.push_back(track);
-    }
-    else {
-      SimTrack track((*simtracks)[i].type(),(*simtracks)[i].momentum(),(*simtracks)[i].vertIndex()+vertexoffset, (*simtracks)[i].genpartIndex());
-      track.setEventId(id);
-      track.setTrackId((*simtracks)[i].trackId());
-      pileups_.push_back(track);
-    }
-}
-
-template <> 
-void CrossingFrame<SimVertex>::addPileups(const int bcr, const std::vector<SimVertex> *simvertices, unsigned int evtNr, int vertexoffset,bool checkTof,bool high) { 
-
-  EncodedEventId id(bcr,evtNr);
-  for (unsigned int i=0;i<simvertices->size();++i) {
-    SimVertex vertex(math::XYZVectorD( (*simvertices)[i].position().x(),
-				       (*simvertices)[i].position().y(),
-   				       (*simvertices)[i].position().z() ),
-		     ((*simvertices)[i].position()).t()+bcr*bunchSpace_,
-    		     (*simvertices)[i].parentIndex());
-    
-    //    SimVertex vertex((*simvertices)[i].position(),((*simvertices)[i].position())[3]+bcr*bunchSpace_,(*simvertices)[i].parentIndex());
-    vertex.setEventId(EncodedEventId(bcr,evtNr));
-    pileups_.push_back(vertex);
+  for (unsigned int i=0;i<simtracks->size();++i){
+    (*simtracks)[i].setEventId(id);
+    if (!(*simtracks)[i].noVertex()) 
+      (*simtracks)[i].setVertexIndex((*simtracks)[i].vertIndex()+vertexoffset);
+    pileups_.push_back(&((*simtracks)[i]));
   }
 }
 
 template <> 
-void CrossingFrame<PSimHit>::addPileups(const int bcr, const std::vector<PSimHit> *simhits, unsigned int evtNr, int vertexoffset,bool checkTof,bool high) { 
+void CrossingFrame<SimVertex>::addPileups(const int bcr, std::vector<SimVertex> *simvertices, unsigned int evtNr, int vertexoffset,bool checkTof,bool high) { 
+
+  EncodedEventId id(bcr,evtNr);
+  for (unsigned int i=0;i<simvertices->size();++i) {
+    (*simvertices)[i].setEventId(id);
+    (*simvertices)[i].setTof((*simvertices)[i].position().t()+bcr*bunchSpace_);
+    pileups_.push_back(&((*simvertices)[i]));
+  }
+}
+
+template <> 
+void CrossingFrame<PSimHit>::addPileups(const int bcr, std::vector<PSimHit> *simhits, unsigned int evtNr, int vertexoffset,bool checkTof,bool high) { 
 
   EncodedEventId id(bcr,evtNr);
 
@@ -64,33 +52,53 @@ void CrossingFrame<PSimHit>::addPileups(const int bcr, const std::vector<PSimHit
       accept=high ? newtof>= limHighLowTof : newtof < limHighLowTof;
     }
     if (!checkTof || accept) {
-      PSimHit hit((*simhits)[i].entryPoint(), (*simhits)[i].exitPoint(),(*simhits)[i].pabs(),
-		  (*simhits)[i].timeOfFlight() + bcr*bunchSpace_, 
-		  (*simhits)[i].energyLoss(), (*simhits)[i].particleType(),
-		  (*simhits)[i].detUnitId(), (*simhits)[i].trackId(),
-		  (*simhits)[i].thetaAtEntry(),  (*simhits)[i].phiAtEntry(),  (*simhits)[i].processType());
-      hit.setEventId(id);
-      pileups_.push_back(hit);
+      (*simhits)[i].setEventId(id);
+      // For simhits a container may be used twice (high+low)
+      // and the acceptance depends onb ToF
+      // Therefore we transform only at the end.
+      pileups_.push_back(&((*simhits)[i]));
       count++;
     }  
   }
 }
 
 template <> 
-void CrossingFrame<PCaloHit>::addPileups(const int bcr, const std::vector<PCaloHit> *calohits, unsigned int evtNr, int vertexoffset,bool checkTof,bool high) { 
+void CrossingFrame<PCaloHit>::addPileups(const int bcr, std::vector<PCaloHit> *calohits, unsigned int evtNr, int vertexoffset,bool checkTof,bool high) { 
 
   EncodedEventId id(bcr,evtNr);
   for (unsigned int i=0;i<calohits->size();++i) {
     PCaloHit hit((*calohits)[i].id(),(*calohits)[i].energyEM(),(*calohits)[i].energyHad(),(*calohits)[i].time()+bcr*bunchSpace_,(*calohits)[i].geantTrackId());
-    hit.setEventId(id);
-    pileups_.push_back(hit);
+    (*calohits)[i].setEventId(id);
+    (*calohits)[i].setTime((*calohits)[i].time()+bcr*bunchSpace_);
+    pileups_.push_back(&((*calohits)[i]));
   }
 }
 
 template <> 
-void CrossingFrame<edm::HepMCProduct>::addPileups(const int bcr, const std::vector<edm::HepMCProduct> *mcps, unsigned int evtNr, int vertexoffset,bool checkTof,bool high) { 
-  for (unsigned int i=0;i<mcps->size();++i) {
-    pileups_.push_back((*mcps)[i]);
-  }
+void CrossingFrame<edm::HepMCProduct>::addPileups(const int bcr, std::vector<edm::HepMCProduct> *mcps, unsigned int evtNr, int vertexoffset,bool checkTof,bool high) { 
+  LogWarning("CrossingFrame")<<"addPileups should never be called for a HepMCProduct!!";
 }
 
+template <> 
+void  CrossingFrame<PSimHit>::setTof() {
+  // only for simhits: containers may be used twice, and result depends on ToF
+  // that is why we have to do the ToF transformation right at the end
+  for (unsigned int i=0;i<pileups_.size();++i) {
+    const_cast<PSimHit *>(pileups_[i])->setTof(pileups_[i]->timeOfFlight() + getBunchCrossing(i)*bunchSpace_);
+  } 
+} 
+//ATTENTION:======================================================================================
+// THIS UGLY IMPLEMENTATION WAS DONE TO OVERCOME A TEMPLATE PROBLEM THAT REMAINS TO BE UNDERSTOOD
+// AS SOON AS THERE IS A DEFAULT IMPLEMENTATION FOR setTof THIS DEFAULT WAS TAKEN IN ALL CASES
+//================================================================================================
+template <> 
+void  CrossingFrame<PCaloHit>::setTof() {}
+
+template <> 
+void  CrossingFrame<SimTrack>::setTof() {}
+
+template <> 
+void  CrossingFrame<SimVertex>::setTof() {}
+
+template <> 
+void  CrossingFrame<edm::HepMCProduct>::setTof() {}

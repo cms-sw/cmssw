@@ -52,7 +52,8 @@ namespace edm
       virtual void setSourceOffset(const unsigned int s)=0;
       virtual void setOppositeTag(InputTag& opp) {opp_=opp;}
       virtual void setCheckTof(bool checktof) {checktof_=checktof;}
-   
+      virtual void setTof()=0;
+  
     protected:
       int const minBunch_;
       int const maxBunch_;
