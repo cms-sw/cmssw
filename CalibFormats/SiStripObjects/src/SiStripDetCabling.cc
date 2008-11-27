@@ -3,7 +3,7 @@
 // Class  :     SiStripDetCabling
 // Original Author:  dkcira
 //         Created:  Wed Mar 22 12:24:33 CET 2006
-// $Id: SiStripDetCabling.cc,v 1.14 2008/01/22 18:44:27 muzaffar Exp $
+// $Id: SiStripDetCabling.cc,v 1.15 2008/02/06 16:40:42 bainbrid Exp $
 #include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 using namespace std;
@@ -265,3 +265,21 @@ bool SiStripDetCabling::IsInMap(const uint32_t& det_id, const std::map<uint32_t,
   return (it!=map.end());
 }
 
+// -----------------------------------------------------------------------------
+/** Added missing print method. */
+void SiStripDetCabling::print( std::stringstream& ss ) const {
+  typedef std::vector<FedChannelConnection> Conns;
+  typedef std::map<uint32_t,Conns> ConnsMap;
+  ConnsMap::const_iterator ii = fullcabling_.begin();
+  ConnsMap::const_iterator jj = fullcabling_.end();
+  ss << "[SiStripDetCabling::" << __func__ << "]"
+     << " Printing DET cabling for " << fullcabling_.size()
+     << " modules " << std::endl;
+  for ( ; ii != jj; ++ii ) {
+    ss << "Printing " << ii->second.size()
+       << " connections for DetId: " << ii->first << std::endl;
+    Conns::const_iterator iii = ii->second.begin();
+    Conns::const_iterator jjj = ii->second.end();
+    for ( ; iii != jjj; ++iii ) { ss << *iii << std::endl; }
+  }
+}

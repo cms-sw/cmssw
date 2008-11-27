@@ -10,7 +10,7 @@
 */
 // Original Author:  dkcira
 //         Created:  Wed Mar 22 12:24:20 CET 2006
-// $Id: SiStripDetCabling.h,v 1.5 2007/05/16 08:22:22 dkcira Exp $
+// $Id: SiStripDetCabling.h,v 1.6 2007/11/19 15:35:45 giordano Exp $
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 #include "CondFormats/SiStripObjects/interface/FedChannelConnection.h"
 #include <boost/cstdint.hpp>
@@ -45,6 +45,9 @@ class SiStripDetCabling
     bool IsDetected(const uint32_t& det_id) const;
     bool IsUndetected(const uint32_t& det_id) const;
 
+    /** Added missing print method. */
+    void print( std::stringstream& ) const;
+    
   private:
     SiStripDetCabling(const SiStripDetCabling&); // stop default
     const SiStripDetCabling& operator=(const SiStripDetCabling&); // stop default
