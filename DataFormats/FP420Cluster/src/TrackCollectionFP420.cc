@@ -6,6 +6,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 #include "DataFormats/FP420Cluster/interface/TrackCollectionFP420.h"
 #include <iostream>
+#include <algorithm>
 using namespace std;
 //#define mydigidebug
 

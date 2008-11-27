@@ -5,6 +5,7 @@
 // Modifications: 
 ///////////////////////////////////////////////////////////////////////////////
 #include "DataFormats/FP420Cluster/interface/RecoCollectionFP420.h"
+#include <algorithm>
 #include <iostream>
 using namespace std;
 //#define mydigidebug
