@@ -14,9 +14,9 @@ class SiStripFedCablingReader : public edm::EDAnalyzer {
   
   ~SiStripFedCablingReader() {;}
 
-  void analyze(const edm::Event&, const edm::EventSetup&){;}
-
   void beginRun( const edm::Run&, const edm::EventSetup& );
+
+  void analyze(const edm::Event&, const edm::EventSetup&){;}
   
  private:
 
