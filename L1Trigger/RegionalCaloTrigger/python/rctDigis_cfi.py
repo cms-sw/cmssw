@@ -12,7 +12,7 @@ rctDigis = cms.EDProducer("L1RCTProducer",
     ecalDigisLabel = cms.InputTag("ecalTriggerPrimitiveDigis"),
     UseMCAsInput = cms.bool(True),
     HFShift = cms.int32(-2),
-    HBShift = cms.int32(1)
+    HBShift = cms.int32(1),
     useCorrectionsLindsey = cms.bool(False)
 )
 
