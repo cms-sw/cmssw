@@ -1,0 +1,4 @@
+<use name=RecoParticleFlow/PFClusterTools>
+<library file="*.cc" name=RecoParticleFlowPFClusterToolsPlugins>
+         <flags EDM_PLUGIN=1>
+</library
