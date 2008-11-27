@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 #
-# $Id$
+# $Id: getRunInfo.py,v 1.5 2008/11/17 18:49:02 vadler Exp $
 #
 
 ## CMSSW/DQM/SiStripMonitorClient/scripts/getRunInfo.py
@@ -55,7 +55,11 @@ DICT_tagsRunRegistry['OFFLINE_COMMENT'] = 'DQM offline shifter\'s comment      '
 DICT_tagsRunRegistry['BFIELD']          = 'magnetic field at run creation time'
 DICT_tagsRunRegistry['BFIELD_COMMENT']  = 'comment on magnetic field          '
 STR_htlConfig = 'HLT Config ID'
+STR_runStart  = 'START_TIME'
+STR_runEnd    = 'STOP_TIME'
 DICT_keysRunSummary                       = {}
+DICT_keysRunSummary[STR_runStart]         = 'start time         '
+DICT_keysRunSummary[STR_runEnd]           = 'end time           '
 DICT_keysRunSummary['BField']             = 'magnetic field     '
 DICT_keysRunSummary['HLT Version']        = 'HLT version        '
 DICT_keysRunSummary['L1 Rate']            = 'L1 rate            '
@@ -79,8 +83,6 @@ global Str_passwd
 global Str_userID
 global Str_run
 global Dict_runRegistry
-global Str_timeStart
-global Str_timeEnd
 global Float_magneticField
 global Dict_wbmRunSummary
 global Lstr_hltPaths
@@ -91,8 +93,6 @@ global Dict_maxLenDbsDatasets
 # initialise
 Str_run                = sys.argv[1]
 Dict_runRegistry       = {}
-Str_timeStart          = 'hallo'
-Str_timeEnd            = 'hallo'
 Float_magneticField    = -999.0
 Dict_wbmRunSummary     = {}
 Lstr_hltPaths          = []
@@ -168,19 +168,6 @@ def Func_MakeShellWord(str_python):
   Adds shell escape charakters to Python strings
   """
   return str_python.replace('?','\\?').replace('=','\\=').replace(' ','\\ ').replace('&','\\&').replace(':','\\:')
-  
-## Func_ConvertLocal2UTC(str_local)
-#
-# Converts a local timestamp to UTC with a given offset
-def Func_ConvertLocal2UTC(str_local):
-  """  Func_ConvertLocal2UTC(str_local)
-  Converts a local timestamp to UTC with a given offset
-  """
-  lstr_date = str_local.split(' ')[0].split('.')
-  lstr_time = str_local.split(' ')[1].split(':')
-  dt_old    = datetime.datetime(int(lstr_date[0]),int(lstr_date[1]),int(lstr_date[2]),int(lstr_time[0]),int(lstr_time[1]),int(lstr_time[2]))
-  dt_new    = dt_old - TD_shiftUTC
-  return str(dt_new).replace('-','.')
   
 ## Func_GetWBMInfo(str_name, str_path)
 #
@@ -261,6 +248,53 @@ def Func_FillInfoRunRegistry():
     return False
   return True
   
+## Func_FillInfoRunSummary()
+#    
+# Retrieves run info from RunSummary and fills it into containers
+def Func_FillInfoRunSummary():
+  """ Func_FillInfoRunSummary():
+  Retrieves run info from RunSummary and fills it into containers
+  """
+  str_nameRunSummary = 'RunSummary?RUN=' + Str_run
+  Func_GetWBMInfo(str_nameRunSummary, STR_wwwWBM)
+  Func_CopyWBMInfo(Func_MakeShellWord(str_nameRunSummary))
+  file_wbmRunSummary = file(str_nameRunSummary, 'r')
+  bool_table      = False
+  int_tableHeader = 0
+  int_tableItem   = 0
+  int_startItem   = 0
+  int_endItem     = 0
+  for str_wbmRunSummary in file_wbmRunSummary.readlines():
+    if str_wbmRunSummary.find('<TABLE CLASS="params"><THEAD><TR>') >= 0:
+      bool_table = True
+    if str_wbmRunSummary.find('</TBODY></TABLE>') >= 0:
+      bool_table = False
+    if bool_table:
+      if str_wbmRunSummary.startswith('<TH>'):
+        int_tableHeader += 1
+        if str_wbmRunSummary.find(STR_runStart) >= 0:
+          int_startItem = int_tableHeader
+        if str_wbmRunSummary.find(STR_runEnd) >= 0:
+          int_endItem = int_tableHeader
+      if str_wbmRunSummary.startswith('<TD'):
+        int_tableItem += 1
+        if int_tableItem == int_startItem:
+          Dict_wbmRunSummary[STR_runStart] = str_wbmRunSummary.split('&nbsp;</TD>')[0].split('<TD>')[-1]
+        if int_tableItem == int_endItem:
+          Dict_wbmRunSummary[STR_runEnd] = str_wbmRunSummary.split('&nbsp;</TD>')[0].split('<TD>')[-1]
+      continue
+    for str_keyRunSummary in DICT_keysRunSummary.keys():
+      if str_wbmRunSummary.find(str_keyRunSummary) >= 0:
+        Dict_wbmRunSummary[str_keyRunSummary] = str_wbmRunSummary.split('</TD></TR>')[0].split('>')[-1]
+        break
+    for str_summaryKeysTrigger in DICT_keysRunSummaryTrigger.keys():
+      if str_wbmRunSummary.find(str_summaryKeysTrigger) >= 0:
+        Dict_wbmRunSummary[str_summaryKeysTrigger] = str_wbmRunSummary.split('</A></TD></TR>')[0].split('>')[-1]
+        if str_summaryKeysTrigger == 'HLT Key':
+           Dict_wbmRunSummary[STR_htlConfig] = str_wbmRunSummary.split('HLTConfiguration?KEY=')[1].split('>')[0]
+  file_wbmRunSummary.close()
+  os.remove(str_nameRunSummary)
+  
 ## Func_FillInfoMagnetHistory()
 #    
 # Retrieves run info from MagnetHistory and fills it into containers
@@ -276,33 +310,9 @@ def Func_FillInfoMagnetHistory(str_timeStart, str_timeEnd):
   for str_wbmMagnetHistory in file_wbmMagnetHistory.readlines():
     if str_wbmMagnetHistory.find('BFIELD, Tesla') >= 0:
       float_avMagMeasure = float(str_wbmMagnetHistory.split('</A>')[0].split('>')[-1])
-  os.remove(str_nameMagnetHistory)
+  file_wbmMagnetHistory.close()
+#   os.remove(str_nameMagnetHistory)
   return float_avMagMeasure
-  
-## Func_FillInfoRunSummary()
-#    
-# Retrieves run info from RunSummary and fills it into containers
-def Func_FillInfoRunSummary():
-  """ Func_FillInfoRunSummary():
-  Retrieves run info from RunSummary and fills it into containers
-  """
-  str_nameRunSummary = 'RunSummary?RUN=' + Str_run
-  Func_GetWBMInfo(str_nameRunSummary, STR_wwwWBM)
-  Func_CopyWBMInfo(Func_MakeShellWord(str_nameRunSummary))
-  file_wbmRunSummary = file(str_nameRunSummary, 'r')
-  lstr_wbmRunSummary = []
-  for str_wbmRunSummary in file_wbmRunSummary.readlines():
-    lstr_wbmRunSummary.append(str_wbmRunSummary) # store run summary information
-    for str_keyRunSummary in DICT_keysRunSummary.keys():
-      if str_wbmRunSummary.find(str_keyRunSummary) >= 0:
-        Dict_wbmRunSummary[str_keyRunSummary] = str_wbmRunSummary.split('</TD></TR>')[0].split('>')[-1]
-        break
-    for str_summaryKeysTrigger in DICT_keysRunSummaryTrigger.keys():
-      if str_wbmRunSummary.find(str_summaryKeysTrigger) >= 0:
-        Dict_wbmRunSummary[str_summaryKeysTrigger] = str_wbmRunSummary.split('</A></TD></TR>')[0].split('>')[-1]
-        if str_summaryKeysTrigger == 'HLT Key':
-           Dict_wbmRunSummary[STR_htlConfig] = str_wbmRunSummary.split('HLTConfiguration?KEY=')[1].split('>')[0]
-  os.remove(str_nameRunSummary)
   
 ## Func_FillInfoHlt()
 #    
@@ -324,6 +334,7 @@ def Func_FillInfoHlt():
       bool_foundPaths = False
     if bool_foundPaths and str_wbmHlt.startswith('<TR><TD ALIGN=RIGHT>'):
       Lstr_hltPaths.append(str_wbmHlt.split('</TD>')[1].split('<TD>')[-1])
+  file_wbmHlt.close()
   os.remove(str_nameHlt)
   return (len(Lstr_hltPaths)>0)
   
@@ -391,23 +402,6 @@ if bool_runRegistry:
   for str_htmlTag in DICT_tagsRunRegistry.keys():
     if str_htmlTag in Dict_runRegistry:
       print '> getRunInfo.py > %s: %s' %(DICT_tagsRunRegistry[str_htmlTag],Dict_runRegistry[str_htmlTag])
-    
-# get run MagnetHistory info
-
-if Dict_runRegistry.has_key('START_TIME') and Dict_runRegistry.has_key('END_TIME'): # need run registry start and end time here
-  Str_timeStart       = Func_ConvertLocal2UTC(Dict_runRegistry['START_TIME'])
-  Str_timeEnd         = Func_ConvertLocal2UTC(Dict_runRegistry['END_TIME'])
-  Float_magneticField = Func_FillInfoMagnetHistory(Str_timeStart, Str_timeEnd)
-
-# print run MagnetHistory info
-
-if Float_magneticField >= 0.0:
-  print
-  print '> getRunInfo.py > * information from magnet history *'
-  print
-  print '> getRunInfo.py > run start time (UTC)    : %s' %(Str_timeStart)
-  print '> getRunInfo.py > run end   time (UTC)    : %s' %(Str_timeEnd)
-  print '> getRunInfo.py > (average) magnetic field: %f T' %(Float_magneticField)
   
 # get run RunSummary entries
 
@@ -424,6 +418,19 @@ for str_key in DICT_keysRunSummary.keys():
 for str_key in DICT_keysRunSummaryTrigger.keys():
   if str_key in Dict_wbmRunSummary:
     print '> getRunInfo.py > %s: %s' %(DICT_keysRunSummaryTrigger[str_key],Dict_wbmRunSummary[str_key])
+    
+# get run MagnetHistory info
+
+if Dict_wbmRunSummary.has_key(STR_runStart) and Dict_wbmRunSummary.has_key(STR_runEnd): # need run summary start and end time here
+  Float_magneticField = Func_FillInfoMagnetHistory(Dict_wbmRunSummary[STR_runStart],Dict_wbmRunSummary[STR_runEnd])
+  
+# print run MagnetHistory info
+
+if Float_magneticField >= 0.0:
+  print
+  print '> getRunInfo.py > * information from magnet history *'
+  print
+  print '> getRunInfo.py > (average) magnetic field: %s T' %(str(Float_magneticField))
   
 # get run HLT info
 

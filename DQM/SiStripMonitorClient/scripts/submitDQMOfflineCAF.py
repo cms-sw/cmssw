@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 #
-# $Id: submitDQMOfflineCAF.py,v 1.21 2008/10/29 20:37:00 vadler Exp $
+# $Id: submitDQMOfflineCAF.py,v 1.22 2008/11/07 11:07:01 vadler Exp $
 #
 
 ## CMSSW/DQM/SiStripMonitorClient/scripts/submitDQMOfflineCAF.py
@@ -281,13 +281,14 @@ def Func_MkDir(str_path):
   """ Function Func_MkDir():
   Create new directory
   """
-  if os.path.exists(str_path):
-    for str_root, str_dirs, str_files in os.walk(str_path, topdown = False):
-      for name in str_files:
-        os.remove(os.path.join(str_root, name))
-      for name in str_dirs:
-        os.rmdir(os.path.join(str_root, name))
-    os.rmdir(str_path)
+#   if os.path.exists(str_path):
+#     for str_root, str_dirs, str_files in os.walk(str_path, topdown = False):
+#       for name in str_files:
+#         os.remove(os.path.join(str_root, name))
+#       for name in str_dirs:
+#         os.rmdir(os.path.join(str_root, name))
+#     os.rmdir(str_path)
+  shutil.rmtree(str_path)
   os.mkdir(str_path)
   
 ## Function Func_MagConfig(float_magFieldMeasured)
