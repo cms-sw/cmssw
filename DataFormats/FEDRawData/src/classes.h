@@ -5,11 +5,11 @@
 #include <DataFormats/Common/interface/RefProd.h>
 
  namespace{ 
-   struct dictionary {
+   namespace {
      FEDRawData              a1; 
      std::vector<FEDRawData> a2;
      FEDRawDataCollection    a3;
      edm::Wrapper<FEDRawDataCollection> d;
      edm::RefProd<FEDRawDataCollection> r;
-   };
+   }
  }

@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2008/02/06 17:09:00 $
- *  $Revision: 1.11 $
+ *  $Date: 2008/02/20 13:30:04 $
+ *  $Revision: 1.12 $
  *  \author G. Bruno  - CERN, EP Division
  */
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
@@ -388,6 +388,12 @@ void FEDNumbering::init()
 bool FEDNumbering::inRange(int i) 
 {
   if(init_) init();
+  return in_[i];
+}
+bool FEDNumbering::inRangeNoGT(int i) 
+{
+  if(init_) init();
+  if((i>=MINTriggerGTPFEDID && i<=MAXTriggerGTPFEDID) || (i>=MINTriggerEGTPFEDID && i<=MAXTriggerEGTPFEDID)) return false;
   return in_[i];
 }
 

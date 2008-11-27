@@ -68,6 +68,7 @@ class FEDNumbering {
   static void init();
 
   static bool inRange(int);
+  static bool inRangeNoGT(int);
 
   static const std::string &fromDet(int);
 
