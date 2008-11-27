@@ -2,22 +2,22 @@ import FWCore.ParameterSet.Config as cms
 
 # configuration for HLTBtagLifetimeAnalyzer
 hltBtagLifetimeAnalyzer = cms.EDAnalyzer("HLTBtagLifetimeAnalyzer",
+    triggerResults = cms.InputTag("TriggerResults","","HLT"),
     mcRadius = cms.double(0.1),
     outputFile = cms.string('plots.root'),
     computeStepEfficiencies = cms.bool(False),
     computeCumulativeEfficiencies = cms.bool(True),
-    offlineRadius = cms.double(0.1), ## matching my pseudo-rapidity cone
-
+    offlineRadius = cms.double(0.1),                        # matching my pseudo-rapidity cone
     vertex = cms.InputTag("pixelVertices"),
-    offlineBJets = cms.InputTag("jetProbabilityBJetTags"), ## match to offline btagged jets
-
+    offlineBJets = cms.InputTag("jetProbabilityBJetTags"),  # match to offline btagged jets
     triggerPath = cms.string('HLT_BTagIP_Jet180'),
-    levels = cms.VPSet(cms.PSet(
-        filter = cms.InputTag("hltL1sBLifetime","","HLT"),
-        jets = cms.InputTag("hltIterativeCone5CaloJets","","HLT"),
-        name = cms.string('L1'),
-        title = cms.string('L1')
-    ), 
+    levels = cms.VPSet(
+        cms.PSet(
+            filter = cms.InputTag("hltL1sBLifetime","","HLT"),
+            jets = cms.InputTag("hltIterativeCone5CaloJets","","HLT"),
+            name = cms.string('L1'),
+            title = cms.string('L1')
+        ), 
         cms.PSet(
             filter = cms.InputTag("hltBLifetime1jetL2filter","","HLT"),
             jets = cms.InputTag("hltBLifetimeL25Jets","","HLT"),
@@ -39,35 +39,25 @@ hltBtagLifetimeAnalyzer = cms.EDAnalyzer("HLTBtagLifetimeAnalyzer",
             title = cms.string('L3')
         )),
     offlineCuts = cms.PSet(
-        cut50 = cms.double(0.6), ## roughy 50% eff. in 1.7.0
-
-        cut20 = cms.double(1.1), ## roughy 20% eff. in 1.7.0
-
-        cut80 = cms.double(0.3) ## roughy 80% eff. in 1.7.0
-
+        cut50 = cms.double(0.6),    # roughy 50% eff. in 1.7.0
+        cut20 = cms.double(1.1),    # roughy 20% eff. in 1.7.0
+        cut80 = cms.double(0.3)     # roughy 80% eff. in 1.7.0
     ),
     jetConfiguration = cms.PSet(
-        maxEta = cms.double(5.0), ## pseudorapidity
-
-        maxEnergy = cms.double(300.0) ## GeV
-
+        maxEta = cms.double(5.0),       # pseudorapidity
+        maxEnergy = cms.double(300.0)   # GeV
     ),
-    triggerResults = cms.InputTag("TriggerResults","","HLT"),
     mcFlavours = cms.PSet(
-        light = cms.vuint32(1, 2, 3, 21), ## udsg
-
+        light = cms.vuint32(1, 2, 3, 21),   # udsg
         c = cms.vuint32(4),
         b = cms.vuint32(5),
         g = cms.vuint32(21),
         uds = cms.vuint32(1, 2, 3)
     ),
-    mcPartons = cms.InputTag("hltIC5byValAlgo"), ## pick hltIC5byValPhys or hltIC5byValAlgo
-
+    mcPartons = cms.InputTag("hltIC5byValAlgo"),    # pick hltIC5byValPhys or hltIC5byValAlgo
     vertexConfiguration = cms.PSet(
-        maxZ = cms.double(20.0), ## cm
-
-        maxR = cms.double(0.05) ## cm
-
+        maxZ = cms.double(20.0),    # cm
+        maxR = cms.double(0.05)     # cm
     )
 )
 
