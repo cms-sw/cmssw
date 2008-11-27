@@ -1,3 +1,8 @@
+2008-11-27  Emilio Meschi  <emilio.meschi@cern.ch>
+	* tag V01-06-12-03
+	* branch tag for 2XX series for online use. Fix problem with fake 
+	events and access to gt data
+
 2008-11-04  Emilio Meschi  <emilio.meschi@cern.ch>
 	* tag V01-06-12-02
 	* branch tag for 2XX series to allow release of DaqSource for online use
