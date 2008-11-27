@@ -6,8 +6,8 @@
  * *
  *  DQM Client for global summary
  *
- *  $Date: 2008/11/25 11:15:23 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/11/26 14:26:10 $
+ *  $Revision: 1.3 $
  *  \author  G. Mila - INFN Torino
  *   
  */
@@ -81,6 +81,9 @@ private:
   MonitorElement* residualsSummaryMap;
   MonitorElement* muonIdSummaryMap;
   MonitorElement* energySummaryMap;
+  MonitorElement* summaryReport;
+  MonitorElement*  summaryReportMap;
+  std::vector<MonitorElement*>  theSummaryContents;
 
 };
 
