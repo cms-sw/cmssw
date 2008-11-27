@@ -43,36 +43,34 @@ hcalClient = cms.EDFilter("HcalMonitorClient",
                           CapIdRMS_ErrThresh        = cms.untracked.double(0.25),
 
                           # Dead Cell Client
-                          DeadCellClient                            = cms.untracked.bool(True),
-                          DeadCellClient_test_occupancy             = cms.untracked.bool(True),
-                          DeadCellClient_test_rechit_occupancy      = cms.untracked.bool(True),
-                          DeadCellClient_test_pedestal              = cms.untracked.bool(True),
-                          DeadCellClient_test_energy                = cms.untracked.bool(True),
-                          DeadCellClient_test_neighbor              = cms.untracked.bool(False),
-                          DeadCellClient_checkNevents               = cms.untracked.int32(100),
-                          DeadCellClient_checkNevents_occupancy     = cms.untracked.int32(100),
-                          DeadCellClient_checkNevents_rechit_occupancy = cms.untracked.int32(100),
-                          DeadCellClient_checkNevents_pedestal      = cms.untracked.int32(100),
-                          DeadCellClient_checkNevents_energy        = cms.untracked.int32(100),
-                          DeadCellClient_checkNevents_neighbor      = cms.untracked.int32(100),
-                          DeadCellClient_minErrorFlag               = cms.untracked.double(0.05),
-                          DeadCellClient_makeDiagnosticPlots        = cms.untracked.bool(False),
+                          DeadCellClient                                = cms.untracked.bool(True),
+                          DeadCellClient_test_occupancy                 = cms.untracked.bool(True),
+                          DeadCellClient_test_rechit_occupancy          = cms.untracked.bool(True),
+                          DeadCellClient_test_pedestal                  = cms.untracked.bool(True),
+                          DeadCellClient_test_energy                    = cms.untracked.bool(True),
+                          DeadCellClient_test_neighbor                  = cms.untracked.bool(False),
+                          DeadCellClient_checkNevents                   = cms.untracked.int32(100),
+                          DeadCellClient_checkNevents_occupancy         = cms.untracked.int32(100),
+                          DeadCellClient_checkNevents_rechit_occupancy  = cms.untracked.int32(100),
+                          DeadCellClient_checkNevents_pedestal          = cms.untracked.int32(100),
+                          DeadCellClient_checkNevents_energy            = cms.untracked.int32(100),
+                          DeadCellClient_checkNevents_neighbor          = cms.untracked.int32(100),
+                          DeadCellClient_minErrorFlag                   = cms.untracked.double(0.05),
+                          DeadCellClient_makeDiagnosticPlots            = cms.untracked.bool(False),
 
                           # Hot Cell Client
-                          HotCellClient                            = cms.untracked.bool(True),
-                          HotCellClient_test_persistent             = cms.untracked.bool(True),
-                          HotCellClient_test_pedestal              = cms.untracked.bool(True),
-                          HotCellClient_test_energy                = cms.untracked.bool(True),
-                          HotCellClient_test_neighbor              = cms.untracked.bool(False),
-                          HotCellClient_checkNevents               = cms.untracked.int32(100),
-                          HotCellClient_checkNevents_persistent     = cms.untracked.int32(100),
-                          HotCellClient_checkNevents_pedestal      = cms.untracked.int32(100),
-                          HotCellClient_checkNevents_energy        = cms.untracked.int32(100),
-                          HotCellClient_checkNevents_neighbor      = cms.untracked.int32(100),
-                          HotCellClient_minErrorFlag               = cms.untracked.double(0.05),
-                          HotCellClient_makeDiagnosticPlots        = cms.untracked.bool(False),
-
-                          
+                          HotCellClient                                 = cms.untracked.bool(True),
+                          HotCellClient_test_persistent                 = cms.untracked.bool(True),
+                          HotCellClient_test_pedestal                   = cms.untracked.bool(True),
+                          HotCellClient_test_energy                     = cms.untracked.bool(True),
+                          HotCellClient_test_neighbor                   = cms.untracked.bool(False),
+                          HotCellClient_checkNevents                    = cms.untracked.int32(100),
+                          HotCellClient_checkNevents_persistent         = cms.untracked.int32(100),
+                          HotCellClient_checkNevents_pedestal           = cms.untracked.int32(100),
+                          HotCellClient_checkNevents_energy             = cms.untracked.int32(100),
+                          HotCellClient_checkNevents_neighbor           = cms.untracked.int32(100),
+                          HotCellClient_minErrorFlag                    = cms.untracked.double(0.05),
+                          HotCellClient_makeDiagnosticPlots             = cms.untracked.bool(False),
                           
                           # DataFormatClient
                           DataFormatClient          = cms.untracked.bool(True),
@@ -86,8 +84,11 @@ hcalClient = cms.EDFilter("HcalMonitorClient",
                           LEDMEAN_ErrThresh         = cms.untracked.double(2.25),
 
                           # RecHit Client
-                          RecHitClient              = cms.untracked.bool(True),
-
+                          RecHitClient                                  = cms.untracked.bool(True),
+                          RecHitClient_checkNevents                     = cms.untracked.int32(500),
+                          RecHitClient_minErrorFlag                     = cms.untracked.double(0.00),
+                          RecHitClient_makeDiagnosticPlots              = cms.untracked.bool(False),
+                          
                           # CaloTowerClient
                           CaloTowerClient           = cms.untracked.bool(False),
 
@@ -104,8 +105,9 @@ def setHcalClientValuesFromMonitor(client, origmonitor, debug=False):
     
     #Reads variables from monitor module, and sets the client's copy of those variables to the same value.
     #This way, when you disable the DataFormat Monitor, the DataFormat client is also turned off automatically, etc.
-    
-    client.PedestalClient    = monitor.PedestalMonitor
+
+    # Pedestal Client
+    client.PedestalClient                         = monitor.PedestalMonitor
     client.PedestalClient_nominalPedMeanInADC     = monitor.PedestalMonitor_nominalPedMeanInADC
     client.PedestalClient_nominalPedWidthInADC    = monitor.PedestalMonitor_nominalPedWidthInADC
     client.PedestalClient_maxPedMeanDiffADC       = monitor.PedestalMonitor_maxPedMeanDiffADC
@@ -113,8 +115,9 @@ def setHcalClientValuesFromMonitor(client, origmonitor, debug=False):
     client.PedestalClient_pedestalsInFC           = monitor.PedestalMonitor_pedestalsInFC
     client.PedestalClient_startingTimeSlice       = monitor.PedestalMonitor_startingTimeSlice
     client.PedestalClient_endingTimeSlice         = monitor.PedestalMonitor_endingTimeSlice
-    #client.PedestalClient_minErrorFlag            = monitor.PedestalMonitor_minErrorFlag # want to keep these separate?
+    #client.PedestalClient_minErrorFlag           = monitor.PedestalMonitor_minErrorFlag # want to keep these separate?
 
+    # Dead Cell
     client.DeadCellClient                         = monitor.DeadCellMonitor
     client.DeadCellClient_test_occupancy          = monitor.DeadCellMonitor_test_occupancy
     client.DeadCellClient_test_pedestal           = monitor.DeadCellMonitor_test_pedestal
@@ -124,29 +127,31 @@ def setHcalClientValuesFromMonitor(client, origmonitor, debug=False):
     client.DeadCellClient_checkNevents_pedestal   = monitor.DeadCellMonitor_checkNevents_pedestal
     client.DeadCellClient_checkNevents_neighbor   = monitor.DeadCellMonitor_checkNevents_neighbor       
     client.DeadCellClient_checkNevents_energy     = monitor.DeadCellMonitor_checkNevents_energy        
-    #client.DeadCellClient_minErrorFlag            = monitor.DeadCellMonitor_minErrorFlag # want to keep these separate?
+    #client.DeadCellClient_minErrorFlag           = monitor.DeadCellMonitor_minErrorFlag # want to keep these separate?
     client.DeadCellClient_makeDiagnosticPlots     = monitor.DeadCellMonitor_makeDiagnosticPlots          
 
-
-    client.HotCellClient                         = monitor.HotCellMonitor
+    # Hot Cell
+    client.HotCellClient                          = monitor.HotCellMonitor
     client.HotCellClient_test_persistent          = monitor.HotCellMonitor_test_persistent
-    client.HotCellClient_test_pedestal           = monitor.HotCellMonitor_test_pedestal
-    client.HotCellClient_test_energy             = monitor.HotCellMonitor_test_energy
-    client.HotCellClient_test_neighbor           = monitor.HotCellMonitor_test_neighbor
+    client.HotCellClient_test_pedestal            = monitor.HotCellMonitor_test_pedestal
+    client.HotCellClient_test_energy              = monitor.HotCellMonitor_test_energy
+    client.HotCellClient_test_neighbor            = monitor.HotCellMonitor_test_neighbor
     client.HotCellClient_checkNevents_persistent  = monitor.HotCellMonitor_checkNevents_persistent
-    client.HotCellClient_checkNevents_pedestal   = monitor.HotCellMonitor_checkNevents_pedestal
-    client.HotCellClient_checkNevents_neighbor   = monitor.HotCellMonitor_checkNevents_neighbor
-    client.HotCellClient_checkNevents_energy     = monitor.HotCellMonitor_checkNevents_energy
+    client.HotCellClient_checkNevents_pedestal    = monitor.HotCellMonitor_checkNevents_pedestal
+    client.HotCellClient_checkNevents_neighbor    = monitor.HotCellMonitor_checkNevents_neighbor
+    client.HotCellClient_checkNevents_energy      = monitor.HotCellMonitor_checkNevents_energy
     #client.HotCellClient_minErrorFlag            = monitor.HotCellMonitor_minErrorFlag # want to keep these separate?
-    client.HotCellClient_makeDiagnosticPlots     = monitor.HotCellMonitor_makeDiagnosticPlots
-                                            
+    client.HotCellClient_makeDiagnosticPlots      = monitor.HotCellMonitor_makeDiagnosticPlots
+
+    # Rec Hit Client
+    client.RecHitClient                           = monitor.RecHitMonitor
+    client.RecHitClient_checkNevents              = monitor.RecHitMonitor_checkNevents
+    client.RecHitClient_minErrorFlag              = monitor.RecHitMonitor_minErrorFlag
+    client.RecHitClient_makeDiagnosticPlots       = monitor.RecHitMonitor_makeDiagnosticPlots
 
     client.DigiClient        = monitor.DigiMonitor
-
     client.DataFormatClient  = monitor.DataFormatMonitor
-    client.HotCellClient     = monitor.HotCellMonitor
     client.LEDClient         = monitor.LEDMonitor
-    client.RecHitClient      = monitor.RecHitMonitor
     client.CaloTowerClient   = monitor.CaloTowerMonitor
     client.TrigPrimClient    = monitor.TrigPrimMonitor
 
@@ -184,10 +189,12 @@ def setHcalClientValuesFromMonitor(client, origmonitor, debug=False):
         print "\t\t make diagnostics? ",client.HotCellClient_makeDiagnosticPlots
                                                                                         
         print "DataFormat Client  = ", client.DataFormatClient
-        print "HotCell Client     = ", client.HotCellClient
         print "Summary Client     = ", client.SummaryClient
         print "LED Client         = ", client.LEDClient
         print "RecHit Client      = ", client.RecHitClient
+        print "\t\t CheckNevents  = ",   client.RecHitClient_checkNevents
+        print "\t\t MinErrorFlag  = ",   client.RecHitClient_minErrorFlag
+        print "\t\t make diagnostics? ", client.RecHitClient_makeDiagnosticPlots
         print "CaloTower Client   = ", client.CaloTowerClient
         print "TrigPrim Client    = ", client.TrigPrimClient
 
