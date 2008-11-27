@@ -66,9 +66,9 @@ ReducedRecHitCollectionProducer::produce (edm::Event& iEvent,
      {
        Handle< DetIdCollection > detId;
        iEvent.getByLabel(interestingDetIdCollections_[t],detId);
-       if( !detIds.isValid() ) continue;
+       if( !detId.isValid() ) continue;
        
-       for (unsigned int ii=0;ii<(*detIds).size();ii++)
+       for (unsigned int ii=0;ii<(*detId).size();ii++)
 	 {
 	   if (std::find(xtalsToStore.begin(),xtalsToStore.end(),(*detId)[ii]) == xtalsToStore.end())
 	     xtalsToStore.push_back((*detId)[ii]);
