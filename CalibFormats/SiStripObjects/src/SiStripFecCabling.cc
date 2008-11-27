@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripFecCabling.cc,v 1.25 2008/05/16 15:26:11 bainbrid Exp $
+// Last commit: $Id: SiStripFecCabling.cc,v 1.26 2008/07/03 09:25:59 bainbrid Exp $
 
 #include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripFecCabling.h"
@@ -274,10 +274,16 @@ NumberOfDevices SiStripFecCabling::countDevices() const {
 // -----------------------------------------------------------------------------
 //
 void SiStripFecCabling::print( std::stringstream& ss ) const {
+  ss << "[SiStripFecCabling::" << __func__ << "] Printing FEC cabling:" << std::endl;
+  ss << "Printing cabling for " << crates().size() << " crates" << std::endl;
   for ( std::vector<SiStripFecCrate>::const_iterator icrate = crates().begin(); icrate != crates().end(); icrate++ ) {
+    ss << "Printing cabling for " << icrate->fecs().size() << " FECs for crate " << icrate->fecCrate() << std::endl;
     for ( std::vector<SiStripFec>::const_iterator ifec = icrate->fecs().begin(); ifec != icrate->fecs().end(); ifec++ ) {
+      ss << "Printing cabling for " << ifec->rings().size() << " rings for FEC " << ifec->fecSlot() << std::endl;
       for ( std::vector<SiStripRing>::const_iterator iring = ifec->rings().begin(); iring != ifec->rings().end(); iring++ ) {
+	ss << "Printing cabling for " << iring->ccus().size() << " CCUs for ring " << iring->fecRing() << std::endl;
 	for ( std::vector<SiStripCcu>::const_iterator iccu = iring->ccus().begin(); iccu != iring->ccus().end(); iccu++ ) {
+	  ss << "Printing cabling for " << iccu->modules().size() << " modules for CCU " << iccu->ccuAddr() << std::endl;
 	  for ( std::vector<SiStripModule>::const_iterator imod = iccu->modules().begin(); imod != iccu->modules().end(); imod++ ) {
 	    ss << *imod << std::endl;
 	  } 
@@ -290,6 +296,7 @@ void SiStripFecCabling::print( std::stringstream& ss ) const {
 // -----------------------------------------------------------------------------
 //
 void SiStripFecCabling::terse( std::stringstream& ss ) const {
+  ss << "[SiStripFecCabling::" << __func__ << "] Printing FEC cabling:" << std::endl;
   for ( std::vector<SiStripFecCrate>::const_iterator icrate = crates().begin(); icrate != crates().end(); icrate++ ) {
     for ( std::vector<SiStripFec>::const_iterator ifec = icrate->fecs().begin(); ifec != icrate->fecs().end(); ifec++ ) {
       for ( std::vector<SiStripRing>::const_iterator iring = ifec->rings().begin(); iring != ifec->rings().end(); iring++ ) {
