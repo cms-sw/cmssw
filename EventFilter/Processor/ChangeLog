@@ -1,3 +1,9 @@
+2008-11-27  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V01-04-04
+	* fix problem with scaler message containing 0 lsid
+	* added python configuration capability
+
 2008-11-20  Philipp Schieferdecker  <philipp.schieferdecker@cern.ch>
 
 	* tag V01-04-03

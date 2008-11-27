@@ -20,6 +20,7 @@
 #include "FWCore/PluginManager/interface/PresenceFactory.h"
 #include "FWCore/PluginManager/interface/ProblemTracker.h"
 #include "FWCore/ParameterSet/interface/MakeParameterSets.h"
+#include "FWCore/ParameterSet/interface/PythonProcessDesc.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/Presence.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -118,6 +119,7 @@ FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s)
   , hasPrescaleService_(true)
   , hasModuleWebRegistry_(true)
   , isRunNumberSetter_(true)
+  , isPython_(false)
   , outprev_(true)
   , monSleepSec_(1)
   , wlMonitoring_(0)
@@ -192,6 +194,7 @@ FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s)
   ispace->fireItemAvailable("hasPrescaleService",   &hasPrescaleService_);
   ispace->fireItemAvailable("hasModuleWebRegistry", &hasModuleWebRegistry_);
   ispace->fireItemAvailable("isRunNumberSetter",    &isRunNumberSetter_);
+  ispace->fireItemAvailable("isPython",             &isPython_);
   ispace->fireItemAvailable("monSleepSec",          &monSleepSec_);
   ispace->fireItemAvailable("lsTimeOut",            &lsTimeOut_);
   ispace->fireItemAvailable("rcmsStateListener",     fsm_.rcmsStateListener());
@@ -331,7 +334,6 @@ bool FUEventProcessor::getTriggerReport(bool useLock)
     {
       it = scalersComplete_.append();
       it->setField("instance",instance_);
-      it->setField("lsid", localLsIncludingTimeOuts_);
     }
   timeval tv;
   if(useLock) {
@@ -372,6 +374,7 @@ bool FUEventProcessor::getTriggerReport(bool useLock)
 			lumiSectionsCtr_[rollingLsIndex_] = pair<unsigned int, unsigned int>(localLsIncludingTimeOuts_.value_,
 											     evtProcessor_->totalEvents()-
 											     allPastLumiProcessed_);
+			it->setField("lsid", localLsIncludingTimeOuts_);
 			fireScalersUpdate();
 		      }
 
@@ -386,6 +389,7 @@ bool FUEventProcessor::getTriggerReport(bool useLock)
 	      lastLsTimedOut_ = false; 
 	    }
 	}
+      it->setField("lsid", localLsIncludingTimeOuts_);
     }
     xdata::Serializable *psid = ispace->find("prescaleSetIndex");
     if(psid) {
@@ -654,17 +658,25 @@ void FUEventProcessor::initEventProcessor()
   // job configuration string
   ParameterSetRetriever pr(configString_.value_);
   configuration_ = pr.getAsString();
-  
+  if (configString_.value_.size() > 3 && configString_.value_.substr(configString_.value_.size()-3) == ".py") isPython_ = true;
   boost::shared_ptr<edm::ParameterSet> params; // change this name!
   boost::shared_ptr<vector<edm::ParameterSet> > pServiceSets;
+  boost::shared_ptr<edm::ProcessDesc> pdesc;
   try{
-    makeParameterSets(configuration_, params, pServiceSets);
+    if(isPython_)
+      {
+	PythonProcessDesc ppdesc = PythonProcessDesc(configuration_);
+	pdesc = ppdesc.processDesc();
+      }
+    else
+      pdesc = boost::shared_ptr<edm::ProcessDesc>(new edm::ProcessDesc(configuration_));
   }
   catch(cms::Exception &e){
     reasonForFailedState_ = e.explainSelf();
     fsm_.fireFailed(reasonForFailedState_,this);
     return;
   } 
+  pServiceSets = pdesc->getServicesPSets();
   // add default set of services
   if(!servicesDone_) {
     internal::addServiceMaybe(*pServiceSets,"DQMStore");
@@ -723,17 +735,17 @@ void FUEventProcessor::initEventProcessor()
   // instantiate the event processor
   try{
     vector<string> defaultServices;
+    vector<string> forcedServices;
     defaultServices.push_back("MessageLogger");
     defaultServices.push_back("InitRootHandlers");
     defaultServices.push_back("JobReportService");
-
+    pdesc->addServices(defaultServices, forcedServices);
     monitorInfoSpace_->lock();
     if (0!=evtProcessor_) delete evtProcessor_;
 
-    evtProcessor_ = new edm::EventProcessor(configuration_,
+    evtProcessor_ = new edm::EventProcessor(pdesc,
 					    serviceToken_,
-					    edm::serviceregistry::kTokenOverrides,
-					    defaultServices);
+					    edm::serviceregistry::kTokenOverrides);
 
     monitorInfoSpace_->unlock();
     //    evtProcessor_->setRunNumber(runNumber_.value_);
@@ -1053,6 +1065,14 @@ void FUEventProcessor::defaultWebPage(xgi::Input  *in, xgi::Output *out)
   *out << "</td>" << endl;
   *out << "<td>" << endl;
   *out << hasShMem_.toString() << endl;
+  *out << "</td>" << endl;
+  *out << "</tr>"                                            << endl;
+  *out << "<tr>" << endl;
+  *out << "<td >" << endl;
+  *out << "Is Python Config" << endl;
+  *out << "</td>" << endl;
+  *out << "<td>" << endl;
+  *out << isPython_.toString() << endl;
   *out << "</td>" << endl;
   *out << "</tr>"                                            << endl;
   *out << "<tr>" << endl;
@@ -1890,8 +1910,9 @@ bool FUEventProcessor::fireScalersUpdate()
   headers->addHeader("x-xdaq-tags", "tag");
   tagName = envelope.createName( "originator", "", "");
   sampleElement.addAttribute(tagName,at.toString());
-
+  
   xdata::exdr::AutoSizeOutputStreamBuffer outBuffer;
+
   try
     {
       serializer.exportAll( &scalersComplete_, &outBuffer );
@@ -1901,7 +1922,7 @@ bool FUEventProcessor::fireScalersUpdate()
       LOG4CPLUS_WARN(getApplicationLogger(),
 		     "Exception in serialization of scalers table");      
       localLog("-W- Exception in serialization of scalers table");      
-      return false;
+      return true;
     }
   
   xoap::AttachmentPart * attachment = msg->createAttachmentPart(outBuffer.getBuffer(), outBuffer.tellp(), "application/x-xdata+exdr");
@@ -1930,7 +1951,7 @@ bool FUEventProcessor::fireScalersUpdate()
       LOG4CPLUS_WARN(getApplicationLogger(),message.c_str());
       string lmessage = "-W- "+message;
       localLog(lmessage);
-      return false;
+      return true;
    }
   delete appdesc; 
   delete ctxdsc;

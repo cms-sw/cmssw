@@ -158,6 +158,7 @@ namespace evf
     xdata::Boolean                   hasPrescaleService_;
     xdata::Boolean                   hasModuleWebRegistry_;
     xdata::Boolean                   isRunNumberSetter_;
+    xdata::Boolean                   isPython_;
     bool                             outprev_;
     std::vector<edm::ModuleDescription const*> descs_; //module description array
     std::map<std::string,int>        modmap_;
