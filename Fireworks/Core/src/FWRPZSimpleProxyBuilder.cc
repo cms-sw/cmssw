@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Nov 19 12:39:36 EST 2008
-// $Id$
+// $Id: FWRPZSimpleProxyBuilder.cc,v 1.1 2008/11/26 02:15:48 chrjones Exp $
 //
 
 // system include files
@@ -24,6 +24,8 @@
 // user include files
 #include "Fireworks/Core/interface/FWRPZSimpleProxyBuilder.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
+#include "Fireworks/Core/src/changeElementAndChildren.h"
+#include "Fireworks/Core/interface/setUserDataElementAndChildren.h"
 
 //
 // constants, enums and typedefs
@@ -118,20 +120,6 @@ FWRPZSimpleProxyBuilder::getRhoZProduct() const
    return m_containerPtr.get();
 }
 
-static
-void
-setUserDataElementAndChildren(TEveElement* iElement,
-                              const void* iInfo)
-{
-   iElement->SetUserData(const_cast<void*>(iInfo));
-   for(TEveElement::List_i itElement = iElement->BeginChildren(),
-       itEnd = iElement->EndChildren();
-       itElement != itEnd;
-       ++itElement) {
-      setUserDataElementAndChildren(*itElement, iInfo);
-   }
-}
-
 void 
 FWRPZSimpleProxyBuilder::build()
 {
@@ -157,8 +145,8 @@ FWRPZSimpleProxyBuilder::build()
             build(static_cast<const char*>(modelData)+m_objectOffset,index,*itemHolder);
          }
          const FWEventItem::ModelInfo& info = item()->modelInfo(index);
-         itemHolder->SetMainColor(info.displayProperties().color());
-         setUserDataElementAndChildren(itemHolder.get(), static_cast<void*>(&(*itId)));
+         changeElementAndChildren(itemHolder.get(), info);
+         fireworks::setUserDataElementAndChildren(itemHolder.get(), static_cast<void*>(&(*itId)));
          itemHolder->SetRnrSelf(info.displayProperties().isVisible());
          itemHolder->SetRnrChildren(info.displayProperties().isVisible());
          itemHolder->ElementChanged();
