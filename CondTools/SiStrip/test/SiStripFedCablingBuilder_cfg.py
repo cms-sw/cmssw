@@ -9,12 +9,9 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("FedCablingBuilder")
 
 process.MessageLogger = cms.Service("MessageLogger",
-    debugModules = cms.untracked.vstring(''),
+    debugModules = cms.untracked.vstring('*'),
     cablingBuilder = cms.untracked.PSet(
-        threshold = cms.untracked.string('INFO')
-    ),
-    cout = cms.untracked.PSet(
-        threshold = cms.untracked.string('INFO')
+        threshold = cms.untracked.string('DEBUG')
     ),
     destinations = cms.untracked.vstring('cablingBuilder.log')
 )
