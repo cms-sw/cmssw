@@ -33,7 +33,7 @@ source = cms.Source("PyquenSource",
                     
     maxEventsToPrint = cms.untracked.int32(0), ## events to print if pythiaPylistVerbosit
 
-    aBeamTarget = cms.double(207.0), ## beam/target atomic number
+    aBeamTarget = cms.double(208.0), ## beam/target atomic number
 
     doCollisionalEnLoss = cms.bool(True) ## if true, perform partonic collisional en loss
 
