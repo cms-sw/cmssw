@@ -4,8 +4,8 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2008/11/25 10:27:48 $
- * $Revision: 1.94 $
+ * $Date: 2008/11/25 10:36:34 $
+ * $Revision: 1.95 $
  * \author W Fisher
  *
 */
@@ -55,7 +55,7 @@ HcalMonitorModule::HcalMonitorModule(const edm::ParameterSet& ps){
   
   dbe_ = Service<DQMStore>().operator->();
   
-  debug_ = ps.getUntrackedParameter<int>("debug", 0);
+  debug_=ps.getUntrackedParameter<int>("debug", 0);
   
   showTiming_ = ps.getUntrackedParameter<bool>("showTiming", false);
   dump2database_   = ps.getUntrackedParameter<bool>("dump2database",false); // dumps output to database file
@@ -763,8 +763,8 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
     // But is ZDC is okay, we'll make rec hit plots for that as well.
     if (zdchitOK_)
       {
-	if (debug_) cout <<"PROCESSING ZDC!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"<<endl;
-	rhMon_->processZDC(*zdc_hits);
+	if (debug_>1) cout <<"PROCESSING ZDC!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"<<endl;
+	//rhMon_->processZDC(*zdc_hits);
       }
     }
   if (showTiming_)

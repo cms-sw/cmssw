@@ -206,6 +206,16 @@ hcalMonitor = cms.EDFilter("HcalMonitorModule",
                            
                            HotCellMonitor_minErrorFlag                    = cms.untracked.double(0.05),
                            
+                           # RECHIT MONITOR
+                           RecHitMonitor                                  = cms.untracked.bool(True),
+                           RecHitMonitor_checkNevents                     = cms.untracked.int32(500),
+                           RecHitMonitor_minErrorFlag                     = cms.untracked.double(0.),
+                           RecHitMonitor_energyThreshold                  = cms.untracked.double(2.),
+                           RecHitMonitor_HB_energyThreshold               = cms.untracked.double(2.),
+                           RecHitMonitor_HO_energyThreshold               = cms.untracked.double(2.),
+                           RecHitMonitor_HE_energyThreshold               = cms.untracked.double(2.),
+                           RecHitMonitor_HF_energyThreshold               = cms.untracked.double(2.),
+                           RecHitMonitor_ZDC_energyThreshold              = cms.untracked.double(2.),
 
                            diagnosticPrescaleLS = cms.untracked.int32(-1),
                            MakeDigiDiagnosticPlots = cms.untracked.bool(False),
@@ -213,9 +223,7 @@ hcalMonitor = cms.EDFilter("HcalMonitorModule",
                            BeamMonitor = cms.untracked.bool(True),
                            ExpertMonitor = cms.untracked.bool(False),
 
-                           RecHitOccThresh = cms.untracked.double(2.0),
                            MonitorDaemon = cms.untracked.bool(True),
-                           RecHitMonitor = cms.untracked.bool(True),
                            caloTowerLabel = cms.InputTag("towerMaker"),
                            MTCCMonitor = cms.untracked.bool(False),
                            HcalAnalysis = cms.untracked.bool(False),
@@ -226,13 +234,11 @@ hcalMonitor = cms.EDFilter("HcalMonitorModule",
                            LEDPerChannel = cms.untracked.bool(True),
 
                            hbheRecHitLabel = cms.InputTag("hbhereco"),
-                           HotCellDigiSigma = cms.untracked.double(5.0),
                            DataFormatMonitor = cms.untracked.bool(True),
                            DataIntegrityTask = cms.untracked.bool(False),
                            minADCcount = cms.untracked.double(0.0),
 
                            makeSubdetHistos= cms.untracked.bool(True),
-                           ped_Nsigma = cms.untracked.double(-3.1),
                            HotCells = cms.untracked.vstring(),
                            diagnosticPrescaleEvt = cms.untracked.int32(-1),
                            DumpPhiHigh = cms.untracked.int32(10),
@@ -241,6 +247,7 @@ hcalMonitor = cms.EDFilter("HcalMonitorModule",
                            TrigPrimMonitor = cms.untracked.bool(True),
 
                            checkNevents = cms.untracked.int32(250),
+                           # Will deprecate these with new version of digi monitor
                            HBcheckNevents = cms.untracked.int32(250),
                            HEcheckNevents = cms.untracked.int32(250),
                            HOcheckNevents = cms.untracked.int32(1000),
@@ -268,6 +275,7 @@ def setHcalTaskValues(process):
     process.PedestalMonitor_minErrorFlag = minErrorFlag
     process.DeadCellMonitor_minErrorFlag = minErrorFlag
     process.HotCellMonitor_minErrorFlag  = minErrorFlag
+    process.RecHitMonitor_minErrorFlag  = minErrorFlag
     
     # set checkNevents
     checkNevents = deepcopy(process.checkNevents)
@@ -283,6 +291,8 @@ def setHcalTaskValues(process):
     process.HotCellMonitor_checkNevents_pedestal          = checkNevents
     process.HotCellMonitor_checkNevents_neighbor          = checkNevents
     process.HotCellMonitor_checkNevents_energy            = checkNevents
+    process.RecHitMonitor_checkNevents                    = checkNevents
+
 
     # set pedestalsInFC
     pedestalsInFC = deepcopy(process.pedestalsInFC)
@@ -294,7 +304,7 @@ def setHcalTaskValues(process):
     makeDiagnosticPlots                         = deepcopy(process.MakeDiagnosticPlots)
     process.DeadCellMonitor_makeDiagnosticPlots = makeDiagnosticPlots
     process.HotCellMonitor_makeDiagnosticPlots  = makeDiagnosticPlots
-
+    process.RecHitMonitor_makeDiagnosticPlots   = makeDiagnosticPlots
     return
 
 
@@ -435,5 +445,12 @@ def setHcalSubdetTaskValues(process):
     process.HotCellMonitor_HO_persistentThreshold           = hot_persistentThreshold
     process.HotCellMonitor_HF_persistentThreshold           = hot_persistentThreshold
     process.HotCellMonitor_ZDC_persistentThreshold          = hot_persistentThreshold
-    
+
+    # Rec Hit Monitor
+    rechit_energyThreshold = deepcopy(process.RecHitMonitor_energyThreshold)
+    process.DeadCellMonitor_HB_energyThreshold           = rechit_energyThreshold
+    process.DeadCellMonitor_HE_energyThreshold           = rechit_energyThreshold
+    process.DeadCellMonitor_HO_energyThreshold           = rechit_energyThreshold
+    process.DeadCellMonitor_HF_energyThreshold           = rechit_energyThreshold
+    process.DeadCellMonitor_ZDC_energyThreshold          = rechit_energyThreshold
     return 
