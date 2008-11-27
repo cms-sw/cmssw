@@ -6,7 +6,8 @@ hltL1IsoLargeWindowElectronsRegionalCTFFinalFitWithMaterial = cms.EDFilter("Fast
     #	ctfL1IsoLargeWindowWithMaterialTracks
     #    }
     SaveTracksOnly = cms.untracked.bool(True),
-    TrackProducers = cms.VInputTag(cms.InputTag("globalPixelWithMaterialTracks"))
+    TrackProducers = cms.VInputTag(cms.InputTag("globalPixelWithMaterialTracks"),
+                                   cms.InputTag("globalPixelTrackCandidates"))
 )
 
 # The sequence
