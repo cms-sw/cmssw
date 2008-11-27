@@ -1,4 +1,6 @@
 #include "CondTools/SiStrip/plugins/SiStripFedCablingReader.h"
+#include "CalibFormats/SiStripObjects/interface/SiStripFecCabling.h"
+#include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 #include "CondFormats/DataRecord/interface/SiStripFedCablingRcd.h"
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -8,17 +10,31 @@
 
 // -----------------------------------------------------------------------------
 // 
+SiStripFedCablingReader::SiStripFedCablingReader( const edm::ParameterSet& pset ) :
+  printFecCabling_( pset.getUntrackedParameter<bool>("PrintFecCabling",false) ),
+  printDetCabling_( pset.getUntrackedParameter<bool>("PrintDetCabling",false) )
+{;}
+
+// -----------------------------------------------------------------------------
+// 
 void SiStripFedCablingReader::beginRun( const edm::Run& run, 
-				      const edm::EventSetup& setup ) {
+					const edm::EventSetup& setup ) {
   
   edm::ESHandle<SiStripFedCabling> cabling;
   setup.get<SiStripFedCablingRcd>().get( cabling ); 
+
+  SiStripFecCabling* fec = new SiStripFecCabling( *cabling );
+  SiStripDetCabling* det = new SiStripDetCabling( *cabling );
   
   {
     std::stringstream ss;
     ss << "[testSiStripFedCabling::" << __func__ << "]"
        << " VERBOSE DEBUG" << std::endl;
     cabling->print( ss );
+    ss << std::endl;
+    if ( printFecCabling_ ) { fec->print( ss ); }
+    ss << std::endl;
+    if ( printDetCabling_ ) { det->print( ss ); }
     ss << std::endl;
     edm::LogVerbatim("testSiStripFedCabling") << ss.str();
   }
@@ -28,6 +44,8 @@ void SiStripFedCablingReader::beginRun( const edm::Run& run,
     ss << "[testSiStripFedCabling::" << __func__ << "]"
        << " TERSE DEBUG" << std::endl;
     cabling->terse( ss );
+    ss << std::endl;
+    if ( printFecCabling_ ) { fec->terse( ss ); }
     ss << std::endl;
     edm::LogVerbatim("testSiStripFedCabling") << ss.str();
   }

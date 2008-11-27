@@ -10,15 +10,19 @@ class SiStripFedCablingReader : public edm::EDAnalyzer {
 
  public:
   
-  SiStripFedCablingReader( const edm::ParameterSet& ) {;}
+  SiStripFedCablingReader( const edm::ParameterSet& );
   
   ~SiStripFedCablingReader() {;}
 
   void analyze(const edm::Event&, const edm::EventSetup&){;}
 
-  
   void beginRun( const edm::Run&, const edm::EventSetup& );
   
+ private:
+
+  bool printFecCabling_;
+  bool printDetCabling_;
+
 };
 
 #endif // CondTools_SiStrip_FedCablingReader_H

@@ -43,8 +43,10 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     ))
 )
 
-process.fedcablingbuilder = cms.EDFilter("SiStripFedCablingBuilder")
-
+process.fedcablingbuilder = cms.EDFilter("SiStripFedCablingBuilder",
+                                         PrintFecCabling = cms.untracked.bool(True),
+                                         PrintDetCabling = cms.untracked.bool(True)
+)
 
 process.p1 = cms.Path(process.fedcablingbuilder)
 

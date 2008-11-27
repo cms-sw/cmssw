@@ -16,5 +16,10 @@ class SiStripFedCablingBuilder : public edm::EDAnalyzer {
 
   virtual void analyze(const edm::Event& , const edm::EventSetup& );
 
+ private:
+
+  bool printFecCabling_;
+  bool printDetCabling_;
+
 };
 #endif

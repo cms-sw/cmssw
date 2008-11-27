@@ -41,8 +41,10 @@ process.poolDBESSource = cms.ESSource("PoolDBESSource",
     ))
 )
 
-process.fedcablingreader = cms.EDFilter("SiStripFedCablingReader")
-
+process.fedcablingreader = cms.EDFilter("SiStripFedCablingReader",
+                                        PrintFecCabling = cms.untracked.bool(True),
+                                        PrintDetCabling = cms.untracked.bool(True)
+)
 
 process.p1 = cms.Path(process.fedcablingreader)
 
