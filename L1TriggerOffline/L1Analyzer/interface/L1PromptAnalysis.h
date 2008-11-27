@@ -6,8 +6,8 @@
  *   Description:  This code is designed for l1 prompt analysis
 //                 starting point is a GMTTreeMaker By Ivan Mikulec. 
 */                
-//   $Date: 2008/09/16 17:49:44 $
-//   $Revision: 1.1 $
+//   $Date: 2008/10/24 15:41:51 $
+//   $Revision: 1.2 $
 //
 //   I. Mikulec            HEPHY Vienna
 //
@@ -56,6 +56,9 @@ class TTree;
     const int MAXGMT = 12;
     const int MAXGT = 12;
     const int MAXRCTREG = 400;
+    const int MAXDTPH = 50;
+    const int MAXDTTH = 50;
+    const int MAXDTTR = 50;
 
 class L1PromptAnalysis : public edm::EDAnalyzer {
 
@@ -237,6 +240,44 @@ class L1PromptAnalysis : public edm::EDAnalyzer {
     float rctEmPhi[MAXRCTREG];
     float rctEmRnk[MAXRCTREG];
     int rctEmBx[MAXRCTREG];
+    
+// DTTF
+    edm::InputTag dttfSource_; 
+        
+    int dttf_phSize;
+    int dttf_phBx[MAXDTPH]; 
+    int dttf_phWh[MAXDTPH]; 
+    int dttf_phSe[MAXDTPH]; 
+    int dttf_phSt[MAXDTPH]; 
+    float dttf_phAng[MAXDTPH];
+    float dttf_phBandAng[MAXDTPH];
+    int dttf_phCode[MAXDTPH]; 
+    float dttf_phX[MAXDTPH];
+    float dttf_phY[MAXDTPH];
+
+    int dttf_thSize;
+    int dttf_thBx[MAXDTTH];
+    int dttf_thWh[MAXDTTH];
+    int dttf_thSe[MAXDTTH];
+    int dttf_thSt[MAXDTTH];
+    float dttf_thX[MAXDTTH]; 
+    float dttf_thY[MAXDTTH]; 
+    float dttf_thTheta[MAXDTTH][7];
+    int dttf_thCode[MAXDTTH][7]; 
+    
+    int dttf_trSize;
+    int dttf_trBx[MAXDTTR]; 
+    int dttf_trTag[MAXDTTR];
+    int dttf_trQual[MAXDTTR]; 
+    int dttf_trPtPck[MAXDTTR];
+    float dttf_trPtVal[MAXDTTR];
+    int dttf_trPhiPck[MAXDTTR]; 
+    float dttf_trPhiVal[MAXDTTR]; 
+    int dttf_trPhiGlob[MAXDTTR]; 
+    int dttf_trChPck[MAXDTTR];
+    int dttf_trWh[MAXDTTR]; 
+    int dttf_trSc[MAXDTTR]; 
+///  
 
 
     TFile* m_file;

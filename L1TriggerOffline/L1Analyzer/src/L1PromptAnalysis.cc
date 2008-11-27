@@ -58,6 +58,11 @@
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEtSums.h"
 #include "DataFormats/L1CaloTrigger/interface/L1CaloCollections.h"
 
+#include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h"
+#include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhDigi.h"
+#include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambThContainer.h"
+#include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambThDigi.h"
+#include "DataFormats/L1DTTrackFinder/interface/L1MuDTTrackContainer.h"
 
 
 using namespace std;
@@ -84,9 +89,11 @@ L1PromptAnalysis::L1PromptAnalysis(const edm::ParameterSet& ps) : m_file(0), m_t
   gctEnergySumsSource_ = ps.getParameter<edm::InputTag>("gctEnergySumsSource");
   gctIsoEmSource_ = ps.getParameter<edm::InputTag>("gctIsoEmSource");
   gctNonIsoEmSource_ = ps.getParameter<edm::InputTag>("gctNonIsoEmSource");
-  
 //rct
   rctSource_= ps.getParameter< edm::InputTag >("rctSource");
+//dt  
+  dttfSource_ =  ps.getParameter< edm::InputTag >("dttfSource") ;
+
 }
 
 //--------------
@@ -688,7 +695,7 @@ void L1PromptAnalysis::analyze(const edm::Event& e, const edm::EventSetup& es) {
 
     // Isolated EM
     if ( verbose_ ) {
-      edm::LogInfo("L1TGCT") << "L1TGCT: number of iso em cands: " 
+      edm::LogInfo("L1Prompt") << "L1TGCT: number of iso em cands: " 
 		<< l1IsoEm->size() << std::endl;
     }
     int iie=0;
@@ -703,7 +710,7 @@ void L1PromptAnalysis::analyze(const edm::Event& e, const edm::EventSetup& es) {
 
     // Non-isolated EM
     if ( verbose_ ) {
-      edm::LogInfo("L1TGCT") << "L1TGCT: number of non-iso em cands: " 
+      edm::LogInfo("L1Prompt") << "L1TGCT: number of non-iso em cands: " 
 		<< l1NonIsoEm->size() << std::endl;
     }
     gctNonIsoEmSize = l1NonIsoEm->size();
@@ -742,7 +749,7 @@ void L1PromptAnalysis::analyze(const edm::Event& e, const edm::EventSetup& es) {
   e.getByLabel(rctSource_,em);
   
   if (!em.isValid()) {
-    edm::LogInfo("DataNotFound") << "can't find L1CaloEmCollection with label "
+    edm::LogInfo("L1Prompt") << "can't find L1CaloEmCollection with label "
 			       << rctSource_.label() ;
     doEmRCT = false;
   }
@@ -751,7 +758,7 @@ void L1PromptAnalysis::analyze(const edm::Event& e, const edm::EventSetup& es) {
   edm::Handle < L1CaloRegionCollection > rgn;
   e.getByLabel(rctSource_,rgn);
   if (!rgn.isValid()) {
-    edm::LogInfo("DataNotFound") << "can't find L1CaloRegionCollection with label "
+    edm::LogInfo("L1Prompt") << "can't find L1CaloRegionCollection with label "
 			       << rctSource_.label() ;
     doHdRCT = false;
   }
@@ -788,6 +795,198 @@ void L1PromptAnalysis::analyze(const edm::Event& e, const edm::EventSetup& es) {
       rctEmBx[iem]=emit->bx();
       iem++;
   }
+  }
+
+///////////////////////DTTF///////////////////////////
+
+  bool doDTPH = true; 
+  bool doDTTH = true; 
+  bool doDTTR = true; 
+   dttf_phSize = 0;
+   dttf_thSize = 0;
+   dttf_trSize = 0;
+
+  
+  edm::Handle<L1MuDTChambPhContainer > myL1MuDTChambPhContainer;  
+  e.getByLabel(dttfSource_,myL1MuDTChambPhContainer);
+  
+  if (!myL1MuDTChambPhContainer.isValid()) {
+    edm::LogInfo("L1Prompt") << "can't find L1MuDTChambPhContainer with label "
+			     << dttfSource_.label() ;
+    doDTPH=false;
+  }
+  
+  if ( doDTPH ) {
+  L1MuDTChambPhContainer::Phi_Container *myPhContainer =  
+    myL1MuDTChambPhContainer->getContainer();
+
+   
+  for( int ii=0; ii<MAXDTPH;  ii++) 
+    {           		
+      dttf_phBx[ii] = -999;
+      dttf_phWh[ii] = -999;
+      dttf_phSe[ii] = -999;
+      dttf_phSt[ii] = -999;
+      dttf_phAng[ii] = -999.;
+      dttf_phBandAng[ii] = -999.;
+      dttf_phCode[ii] = -999;
+      dttf_phX[ii] = -999.;
+      dttf_phY[ii] = -999.;
+    }
+
+
+  dttf_phSize = myPhContainer->size();
+   int iphtr=0;
+   for( L1MuDTChambPhContainer::Phi_Container::const_iterator 
+	 DTPhDigiItr =  myPhContainer->begin() ;
+       DTPhDigiItr != myPhContainer->end() ;
+       ++DTPhDigiItr ) 
+    {        
+      if(iphtr>MAXDTPH-1) continue;
+      dttf_phBx[iphtr] = DTPhDigiItr->bxNum() - DTPhDigiItr->Ts2Tag()+1;
+      dttf_phWh[iphtr] = DTPhDigiItr->whNum();
+      dttf_phSe[iphtr] = DTPhDigiItr->scNum();
+      dttf_phSt[iphtr] = DTPhDigiItr->stNum();
+      dttf_phAng[iphtr] = DTPhDigiItr->phi();
+      dttf_phBandAng[iphtr] = DTPhDigiItr->phiB();
+      dttf_phCode[iphtr] = DTPhDigiItr->code();
+      dttf_phX[iphtr] = DTPhDigiItr->scNum();
+      dttf_phY[iphtr] = DTPhDigiItr->stNum()+4*(DTPhDigiItr->whNum()+2);
+      
+      iphtr++;
+    }
+    }
+
+
+//  const L1MuDTChambPhDigi* bestPhQualMap[5][12][4];
+//  memset(bestPhQualMap,0,240*sizeof(L1MuDTChambPhDigi*));
+   
+////
+
+  edm::Handle<L1MuDTChambThContainer > myL1MuDTChambThContainer;  
+  e.getByLabel(dttfSource_,myL1MuDTChambThContainer);
+  
+  if (!myL1MuDTChambThContainer.isValid()) {
+    edm::LogInfo("L1Prompt") << "can't find L1MuDTChambThContainer with label "
+			     << dttfSource_.label() ;
+    edm::LogInfo("L1Prompt") << "if this fails try to add DATA to the process name." ;
+
+    doDTTH =false;
+  }
+
+  if ( doDTTH ) {
+  L1MuDTChambThContainer::The_Container* myThContainer =  
+    myL1MuDTChambThContainer->getContainer();
+
+
+  for( int ii=0; ii<MAXDTTH;  ii++) 
+    {           		
+      dttf_thBx[ii] = -999;
+      dttf_thWh[ii] =  -999;
+      dttf_thSe[ii] =  -999;
+      dttf_thSt[ii] =  -999;
+      dttf_thX[ii] = -999.;
+      dttf_thY[ii] =  -999.;
+      for (int j = 0; j < 7; j++)
+	{
+         dttf_thTheta[ii][j] =  -999.;
+         dttf_thCode[ii][j] =  -999;
+	}      
+      
+    }
+
+
+//  int bestThQualMap[5][12][3];
+//  memset(bestThQualMap,0,180*sizeof(int));
+
+   int ithtr=0;
+   dttf_thSize = myThContainer->size();
+
+   for( L1MuDTChambThContainer::The_Container::const_iterator 
+	 DTThDigiItr =  myThContainer->begin() ;
+       DTThDigiItr != myThContainer->end() ;
+       ++DTThDigiItr ) 
+     {  
+     
+      if(ithtr>MAXDTTH-1) continue;
+      dttf_thBx[ithtr] = DTThDigiItr->bxNum() + 1;
+      dttf_thWh[ithtr] = DTThDigiItr->whNum();
+      dttf_thSe[ithtr] = DTThDigiItr->scNum();
+      dttf_thSt[ithtr] = DTThDigiItr->stNum();
+      dttf_thX[ithtr] = DTThDigiItr->stNum()+4*(DTThDigiItr->whNum()+2);
+//	  int xpos = iwh*4+ist+1; ????
+      dttf_thY[ithtr] = DTThDigiItr->scNum();
+      for (int j = 0; j < 7; j++)
+	{
+         dttf_thTheta[ithtr][j] = DTThDigiItr->position(j);
+         dttf_thCode[ithtr][j] = DTThDigiItr->code(j);
+	}
+      ithtr++;
+     
+    }
+    }
+
+//
+
+  edm::Handle<L1MuDTTrackContainer > myL1MuDTTrackContainer;
+
+  std::string trstring;
+  trstring = dttfSource_.label()+":"+"DATA"+":"+dttfSource_.process();
+  edm::InputTag trInputTag(trstring);
+  e.getByLabel(trInputTag,myL1MuDTTrackContainer);
+  
+  if (!myL1MuDTTrackContainer.isValid()) {
+    edm::LogInfo("L1Prompt") << "can't find L1MuDTTrackContainer with label "
+                               << dttfSource_.label() ;
+    doDTTR=false;
+  }
+
+  if ( doDTTR ) {
+  L1MuDTTrackContainer::TrackContainer *tr =  myL1MuDTTrackContainer->getContainer();
+
+  
+
+  for( int ii=0; ii<MAXDTTR;  ii++) 
+    {           		
+	
+	dttf_trBx[ii] =-999;
+	dttf_trTag[ii] =-999; 
+	dttf_trQual[ii] =-999;
+	dttf_trPtPck[ii] =-999;
+	dttf_trPtVal[ii] =-999.;
+	dttf_trPhiPck[ii] =-999;
+	dttf_trPhiVal[ii] =-999.;
+	dttf_trPhiGlob[ii] =-999;
+	dttf_trChPck[ii] =-999;
+	dttf_trWh[ii] =-999;
+	dttf_trSc[ii] =-999;
+
+  }
+
+  int idttr=0; 
+  dttf_trSize = tr->size();
+  for ( L1MuDTTrackContainer::TrackContainer::const_iterator i 
+	  = tr->begin(); i != tr->end(); ++i ) {
+        if(idttr>MAXDTTR-1) continue;	
+	dttf_trBx[idttr] = i->bx()+1;  
+	dttf_trTag[idttr] = i->TrkTag();  
+	dttf_trQual[idttr] = i->quality_packed(); 
+	dttf_trPtPck[idttr] = i->pt_packed();
+	dttf_trPtVal[idttr] = i->ptValue();
+	dttf_trPhiPck[idttr] = i->phi_packed(); 
+	dttf_trPhiVal[idttr] = i->phiValue();
+        int phi_local = i->phi_packed();//range: 0 < phi_local < 31 
+        if(phi_local > 15) phi_local -= 32; //range: -16 < phi_local < 15
+        int phi_global = phi_local + 12*i->scNum(); //range: -16 < phi_global < 147
+        if(phi_global < 0) phi_global = 144; //range: 0 < phi_global < 147
+        if(phi_global > 143) phi_global -= 144; //range: 0 < phi_global < 143
+	dttf_trPhiGlob[idttr] = phi_global;
+	dttf_trChPck[idttr] = i->charge_packed(); 
+	dttf_trWh[idttr] = i->whNum();
+	dttf_trSc[idttr] = i->scNum();
+        idttr++;	  
+  }
+  
   }
 
 
@@ -978,7 +1177,44 @@ void L1PromptAnalysis::book() {
     m_tree->Branch("rctEmRnk",rctEmRnk,"rctEmRnk[rctEmSize]/F");
     m_tree->Branch("rctEmBx",rctEmBx,"rctEmBx[rctEmSize]/I");
  }
+
+  if(dttfSource_.label() != "none") {
+//dtph
+    m_tree->Branch("dttf_phSize",&dttf_phSize,"dttf_phSize/I");
+    m_tree->Branch("dttf_phBx",dttf_phBx,"dttf_phBx[dttf_phSize]/I");
+    m_tree->Branch("dttf_phWh",dttf_phWh,"dttf_phWh[dttf_phSize]/I");
+    m_tree->Branch("dttf_phSe",dttf_phSe,"dttf_phSe[dttf_phSize]/I");
+    m_tree->Branch("dttf_phSt",dttf_phSt,"dttf_phSt[dttf_phSize]/I");
+    m_tree->Branch("dttf_phAng",dttf_phAng,"dttf_phAng[dttf_phSize]/F");
+    m_tree->Branch("dttf_phBandAng",dttf_phBandAng,"dttf_phBandAng[dttf_phSize]/F");
+    m_tree->Branch("dttf_phCode",dttf_phCode,"dttf_phCode[dttf_phSize]/I");
+    m_tree->Branch("dttf_phX",dttf_phX,"dttf_phX[dttf_phSize]/F");
+    m_tree->Branch("dttf_phY",dttf_phY,"dttf_phY[dttf_phSize]/F");
+//dtth
+    m_tree->Branch("dttf_thSize",&dttf_thSize,"dttf_thSize/I");
+    m_tree->Branch("dttf_thBx",dttf_thBx,"dttf_thBx[dttf_thSize]/I");
+    m_tree->Branch("dttf_thWh",dttf_thWh,"dttf_thWh[dttf_thSize]/I");
+    m_tree->Branch("dttf_thSe",dttf_thSe,"dttf_thSe[dttf_thSize]/I");
+    m_tree->Branch("dttf_thSt",dttf_thSt,"dttf_thSt[dttf_thSize]/I");
+    m_tree->Branch("dttf_thX",dttf_thX,"dttf_thX[dttf_thSize]/F");
+    m_tree->Branch("dttf_thY",dttf_thY,"dttf_thY[dttf_thSize]/F");
+    m_tree->Branch("dttf_thTheta",dttf_thTheta,"dttf_thTheta[dttf_thSize][7]/F");
+    m_tree->Branch("dttf_thCode",dttf_thCode,"dttf_thCode[dttf_thSize][7]/I");
+//dttr
+    m_tree->Branch("dttf_trSize",&dttf_trSize,"dttf_trSize/I");
+    m_tree->Branch("dttf_trBx"  , dttf_trBx,  "dttf_trBx[dttf_trSize]/I");
+    m_tree->Branch("dttf_trQual", dttf_trQual,"dttf_trQual[dttf_trSize]/I");
+    m_tree->Branch("dttf_trTag" , dttf_trTag, "dttf_trTag[dttf_trSize]/I");
+    m_tree->Branch("dttf_trPtPck",dttf_trPtPck,"dttf_trPtPck[dttf_trSize]/I");
+    m_tree->Branch("dttf_trPtVal",dttf_trPtVal,"dttf_trPtVal[dttf_trSize]/F");
+    m_tree->Branch("dttf_trPhiPck",dttf_trPhiPck,"dttf_trPhiPck[dttf_trSize]/I");
+    m_tree->Branch("dttf_trPhiVal",dttf_trPhiVal,"dttf_trPhiVal[dttf_trSize]/F");
+    m_tree->Branch("dttf_trPhiGlob",dttf_trPhiGlob,"dttf_trPhiGlob[dttf_trSize]/I");
+    m_tree->Branch("dttf_trChPck",dttf_trChPck,"dttf_trChPck[dttf_trSize]/I");
+    m_tree->Branch("dttf_trWh",dttf_trWh,"dttf_trWh[dttf_trSize]/I");
+    m_tree->Branch("dttf_trSc",dttf_trSc,"dttf_trSc[dttf_trSize]/I");
  
+  }
  
 }
 
