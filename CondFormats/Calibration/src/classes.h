@@ -14,6 +14,8 @@
 
 #include "CondFormats/Calibration/interface/Efficiency.h"
 #include "CondFormats/Calibration/interface/big.h"
+
+#include "CondFormats/Calibration/interface/LuminosityInfo.h"
 namespace {
   std::vector< Pedestals::Item >::iterator tmp0;
   std::vector< Pedestals::Item >::const_iterator tmp1;
