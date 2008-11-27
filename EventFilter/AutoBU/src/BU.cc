@@ -138,7 +138,7 @@ BU::BU(xdaq::ApplicationStub *s)
   
   // determine valid fed ids
   for (unsigned int i=0;i<(unsigned int)FEDNumbering::lastFEDId()+1;i++)
-    if (FEDNumbering::inRange(i)) validFedIds_.push_back(i);
+    if (FEDNumbering::inRangeNoGT(i)) validFedIds_.push_back(i);
   
   // export parameters to info space(s)
   exportParameters();
