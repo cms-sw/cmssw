@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 #
-# $Id: getRunInfo.py,v 1.5 2008/11/17 18:49:02 vadler Exp $
+# $Id: getRunInfo.py,v 1.6 2008/11/27 17:18:38 vadler Exp $
 #
 
 ## CMSSW/DQM/SiStripMonitorClient/scripts/getRunInfo.py
@@ -311,7 +311,7 @@ def Func_FillInfoMagnetHistory(str_timeStart, str_timeEnd):
     if str_wbmMagnetHistory.find('BFIELD, Tesla') >= 0:
       float_avMagMeasure = float(str_wbmMagnetHistory.split('</A>')[0].split('>')[-1])
   file_wbmMagnetHistory.close()
-#   os.remove(str_nameMagnetHistory)
+  os.remove(str_nameMagnetHistory)
   return float_avMagMeasure
   
 ## Func_FillInfoHlt()
