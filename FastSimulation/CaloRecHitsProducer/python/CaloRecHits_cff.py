@@ -31,6 +31,7 @@ caloRecHits = cms.EDProducer("CaloRecHitsProducer",
         HCAL = cms.PSet(
             MixedSimHits = cms.InputTag("mix","famosSimHitsHcalHits"),
             EnableSaturation = cms.bool(True),
+            NoiseFromDb = cms.bool(True),
 
             NoiseHB = cms.double(0.20),
             ThresholdHB = cms.double(-0.5),
