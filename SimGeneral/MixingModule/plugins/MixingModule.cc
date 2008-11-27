@@ -217,7 +217,8 @@ namespace edm
 	for (unsigned int isource=0;isource<maxNbSources_;++isource) {
 	  workers_[ii]->setSourceOffset(isource);
 	  if (doit_[isource])   {
-	    merge(bunchCrossing, (pileup_[isource])[bunchCrossing-minBunch_],ii,setup,isource);
+	    //	    merge(bunchCrossing, (pileup_[isource])[bunchCrossing-minBunch_],ii,setup,isource);
+	    merge(bunchCrossing, (pileup_[isource])[bunchCrossing-minBunch_],ii,setup);
 	  }	
 	}
       }
