@@ -20,23 +20,35 @@ void SiStripFedCablingBuilder::analyze(const edm::Event& evt, const edm::EventSe
 
   edm::LogInfo("SiStripFedCablingBuilder") << "... creating dummy SiStripFedCabling Data for Run " << run << "\n " << std::endl;
 
-   edm::ESHandle<SiStripFedCabling> _siStripFedCabling;
-   iSetup.get<SiStripFedCablingRcd>().get( _siStripFedCabling ); 
-
-   SiStripFedCabling* fed = new SiStripFedCabling( *( _siStripFedCabling.product() ) );
-   SiStripFecCabling* fec = new SiStripFecCabling( *fed );
-   SiStripDetCabling* det = new SiStripDetCabling( *fed );
+  edm::ESHandle<SiStripFedCabling> _siStripFedCabling;
+  iSetup.get<SiStripFedCablingRcd>().get( _siStripFedCabling ); 
    
-   if ( !fed || !fec || !det ) {
-     edm::LogError("testSiStripFedCabling") 
-       << " NULL pointer for at least one of"
-       << " FED/FEC/DET cabling objects: "
-       << fed << "/" << fec << "/" << det;
-   }
+  edm::LogVerbatim("SiStripFedCablingBuilder") 
+    << "[SiStripFedCablingBuilder::" << __func__ << "]"
+    << " Building FED cabling...";
+  SiStripFedCabling* fed = new SiStripFedCabling( *( _siStripFedCabling.product() ) );
+  edm::LogVerbatim("SiStripFedCablingBuilder") 
+    << "[SiStripFedCablingBuilder::" << __func__ << "]"
+    << " Building FEC cabling...";
+  SiStripFecCabling* fec = new SiStripFecCabling( *fed );
+  edm::LogVerbatim("SiStripFedCablingBuilder") 
+    << "[SiStripFedCablingBuilder::" << __func__ << "]"
+    << " Building DET cabling...";
+  SiStripDetCabling* det = new SiStripDetCabling( *fed );
+  edm::LogVerbatim("SiStripFedCablingBuilder") 
+    << "[SiStripFedCablingBuilder::" << __func__ << "]"
+    << " Finished building FED/FEC/DET cabling...";
    
+  if ( !fed || !fec || !det ) {
+    edm::LogError("SiStripFedCablingBuilder") 
+      << " NULL pointer for at least one of"
+      << " FED/FEC/DET cabling objects: "
+      << fed << "/" << fec << "/" << det;
+  }
+  
   {
     std::stringstream ss;
-    ss << "[testSiStripFedCabling::" << __func__ << "]"
+    ss << "[SiStripFedCablingBuilder::" << __func__ << "]"
        << " VERBOSE DEBUG" << std::endl;
     fed->print( ss );
     ss << std::endl;
@@ -44,27 +56,27 @@ void SiStripFedCablingBuilder::analyze(const edm::Event& evt, const edm::EventSe
     ss << std::endl;
     if ( printDetCabling_ ) { det->print( ss ); }
     ss << std::endl;
-    edm::LogVerbatim("testSiStripFedCabling") << ss.str();
+    edm::LogVerbatim("SiStripFedCablingBuilder") << ss.str();
   }
   
   {
     std::stringstream ss;
-    ss << "[testSiStripFedCabling::" << __func__ << "]"
+    ss << "[SiStripFedCablingBuilder::" << __func__ << "]"
        << " TERSE DEBUG" << std::endl;
     fed->terse( ss );
     ss << std::endl;
     if ( printFecCabling_ ) { fec->terse( ss ); }
     ss << std::endl;
-    edm::LogVerbatim("testSiStripFedCabling") << ss.str();
+    edm::LogVerbatim("SiStripFedCablingBuilder") << ss.str();
   }
   
   {
     std::stringstream ss;
-    ss << "[testSiStripFedCabling::" << __func__ << "]"
+    ss << "[SiStripFedCablingBuilder::" << __func__ << "]"
        << " SUMMARY DEBUG" << std::endl;
     fed->summary( ss );
     ss << std::endl;
-    edm::LogVerbatim("testSiStripFedCabling") << ss.str();
+    edm::LogVerbatim("SiStripFedCablingBuilder") << ss.str();
   }
   
 

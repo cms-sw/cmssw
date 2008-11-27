@@ -28,7 +28,7 @@ void SiStripFedCablingReader::beginRun( const edm::Run& run,
   
   {
     std::stringstream ss;
-    ss << "[testSiStripFedCabling::" << __func__ << "]"
+    ss << "[SiStripFedCablingReader::" << __func__ << "]"
        << " VERBOSE DEBUG" << std::endl;
     cabling->print( ss );
     ss << std::endl;
@@ -36,27 +36,27 @@ void SiStripFedCablingReader::beginRun( const edm::Run& run,
     ss << std::endl;
     if ( printDetCabling_ ) { det->print( ss ); }
     ss << std::endl;
-    edm::LogVerbatim("testSiStripFedCabling") << ss.str();
+    edm::LogVerbatim("SiStripFedCablingReader") << ss.str();
   }
   
   {
     std::stringstream ss;
-    ss << "[testSiStripFedCabling::" << __func__ << "]"
+    ss << "[SiStripFedCablingReader::" << __func__ << "]"
        << " TERSE DEBUG" << std::endl;
     cabling->terse( ss );
     ss << std::endl;
     if ( printFecCabling_ ) { fec->terse( ss ); }
     ss << std::endl;
-    edm::LogVerbatim("testSiStripFedCabling") << ss.str();
+    edm::LogVerbatim("SiStripFedCablingReader") << ss.str();
   }
   
   {
     std::stringstream ss;
-    ss << "[testSiStripFedCabling::" << __func__ << "]"
+    ss << "[SiStripFedCablingReader::" << __func__ << "]"
        << " SUMMARY DEBUG" << std::endl;
     cabling->summary( ss );
     ss << std::endl;
-    edm::LogVerbatim("testSiStripFedCabling") << ss.str();
+    edm::LogVerbatim("SiStripFedCablingReader") << ss.str();
   }
   
 }
