@@ -919,7 +919,7 @@ SiStripFedCabling::SiStripFedCabling( const std::vector<FedChannelConnection>& i
 {
   LogTrace(mlCabling_)
     << "[SiStripFedCabling::" << __func__ << "]"
-    << " Constructing object...";
+    << " Constructing object for vector of connections...";
   buildFedCabling( ConnsConstIterRange( input.begin(), 
 					input.end() ) );
 }
@@ -937,7 +937,7 @@ const std::vector<FedChannelConnection>& SiStripFedCabling::connections( uint16_
   static std::vector<FedChannelConnection> output;
   output.clear();
   ConnsConstIterRange input = fedConnections( fed_id );
-  if ( input.empty() ) {
+  if ( !input.empty() ) {
     output.resize( input.size() );
     std::copy( input.begin(), input.end(), output.begin() );
   } else { output.resize( 96, FedChannelConnection() ); }
@@ -982,7 +982,7 @@ SiStripFedCabling::SiStripFedCabling( ConnsConstIterRange input )
 {
   LogTrace(mlCabling_)
     << "[SiStripFedCabling::" << __func__ << "]"
-    << " Constructing object...";
+    << " Constructing object from connection range...";
   buildFedCabling( input );
 }
 
@@ -997,7 +997,7 @@ SiStripFedCabling::SiStripFedCabling( const SiStripFedCabling& input )
 {
   LogTrace(mlCabling_)
     << "[SiStripFedCabling::" << __func__ << "]"
-    << " Constructing object...";
+    << " Copy constructing object...";
 }
 
 // -----------------------------------------------------------------------------
@@ -1011,7 +1011,7 @@ SiStripFedCabling::SiStripFedCabling()
 {
   LogTrace(mlCabling_) 
     << "[SiStripFedCabling::" << __func__ << "]"
-    << " Constructing object...";
+    << " Default constructing object...";
 }
 
 // -----------------------------------------------------------------------------
