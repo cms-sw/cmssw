@@ -8,7 +8,8 @@ from FastSimulation.Tracking.GlobalPixelTracking_cff import *
 # L3 pixel-seeded tracks for Single Tau Collection (pT>1GeV/c)
 hltL3TauCtfWithMaterialTracks = cms.EDFilter("FastTrackMerger",
     SaveTracksOnly = cms.untracked.bool(True),
-    TrackProducers = cms.VInputTag(cms.InputTag("globalPixelWithMaterialTracks")),
+    TrackProducers = cms.VInputTag(cms.InputTag("globalPixelWithMaterialTracks"),
+                                   cms.InputTag("globalPixelTrackCandidates")),
     ptMin = cms.untracked.double(1.0)
 )
 
