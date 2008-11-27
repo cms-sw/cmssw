@@ -22,6 +22,7 @@ cvs update -A CondTools/SiStrip/plugins/SiStripFedCablingBuilder.cc
 cvs update -A CondTools/SiStrip/plugins/SiStripFedCablingReader.cc
 cvs update -A CondTools/SiStrip/test/SiStripFedCablingBuilder_cfg.py
 cvs update -A CondTools/SiStrip/test/SiStripFedCablingReader_cfg.py
+cvs update -A CondTools/SiStrip/test/test_Cabling.sh
 
 # old structure, old interface
 cd $CMSSW_BASE/src/
