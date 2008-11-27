@@ -131,7 +131,7 @@ private:
   // output configuration
   std::string m_outputFile;
 
-  // leep a cache of the path description
+  // keep a cache of the path description
   std::vector<std::string>          m_pathModules;
   unsigned int                      m_pathIndex;
   bool                              m_pathCached;
