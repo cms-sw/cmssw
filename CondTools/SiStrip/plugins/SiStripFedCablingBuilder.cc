@@ -18,13 +18,13 @@ SiStripFedCablingBuilder::SiStripFedCablingBuilder( const edm::ParameterSet& pse
 
 // -----------------------------------------------------------------------------
 // 
-void SiStripFedCablingReader::beginRun( const edm::Run& run, 
-					const edm::EventSetup& setup ) {
+void SiStripFedCablingBuilder::beginRun( const edm::Run& run, 
+					 const edm::EventSetup& setup ) {
 
   edm::LogInfo("SiStripFedCablingBuilder") << "... creating dummy SiStripFedCabling Data for Run " << run.run() << "\n " << std::endl;
 
   edm::ESHandle<SiStripFedCabling> _siStripFedCabling;
-  iSetup.get<SiStripFedCablingRcd>().get( _siStripFedCabling ); 
+  setup.get<SiStripFedCablingRcd>().get( _siStripFedCabling ); 
    
   edm::LogVerbatim("SiStripFedCablingBuilder") 
     << "[SiStripFedCablingBuilder::" << __func__ << "]"
