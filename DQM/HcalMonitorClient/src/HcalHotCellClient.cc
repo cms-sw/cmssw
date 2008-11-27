@@ -551,7 +551,7 @@ ofstream htmlFile;
 
 
   // Plot overall errors
-  htmlFile << "<h2><strong><a name=\"OVERALL_PEDS\">Eta-Phi Maps of Problem Cells By Depth</strong></h2>"<<endl;
+  htmlFile << "<h2><strong><a name=\"OVERALL_PROBLEMS\">Eta-Phi Maps of Problem Cells By Depth</strong></h2>"<<endl;
   htmlFile <<" These plots of problem cells combine results from all hot cell tests<br>"<<endl;
   htmlFile <<"<a href= \"#EXPERT_HOTCELL_TOP\" > Back to Top</a><br>"<<endl;
   htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
@@ -704,7 +704,7 @@ ofstream htmlFile;
     {
       cpu_timer.stop();  cout <<"TIMER:: HcalHotCellClient  HTMLEXPERTOUTPUT ->"<<cpu_timer.cpuTime()<<endl;
     }
-
+  return;
 } // void HcalHotCellClient::htmlExpertOutput(...)
 
 

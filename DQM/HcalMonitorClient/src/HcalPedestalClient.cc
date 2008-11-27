@@ -851,7 +851,7 @@ ofstream htmlFile;
     {
       cpu_timer.stop();  cout <<"TIMER:: HcalPedestalClient  HTMLEXPERTOUTPUT ->"<<cpu_timer.cpuTime()<<endl;
     }
-
+  return;
 } // void HcalPedestalClient::htmlExpertOutput(...)
 
 
