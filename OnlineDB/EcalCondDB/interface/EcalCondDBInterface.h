@@ -1,7 +1,7 @@
 /***********************************************/
 /* EcalCondDBInterface.h		       */
 /* 					       */
-/* $Id: EcalCondDBInterface.h,v 1.15 2008/05/08 13:30:59 fra Exp $ 	        		       */
+/* $Id: EcalCondDBInterface.h,v 1.16 2008/06/16 09:33:02 fra Exp $ 	        		       */
 /* 					       */
 /* Interface to the Ecal Conditions DB.	       */
 /***********************************************/
@@ -220,6 +220,9 @@ class EcalCondDBInterface : public EcalDBConnection {
    *   Return a Run List
    */
   RunList fetchRunList(RunTag tag) throw(std::runtime_error);
+  RunList fetchRunList(RunTag tag, int min_run, int max_run) throw(std::runtime_error);
+  RunList fetchRunListByLocation(RunTag tag, int min_run, int max_run , const LocationDef locDef) throw(std::runtime_error);
+  RunList fetchRunListLastNRuns(RunTag tag, int max_run, int n_runs) throw(std::runtime_error);
 
  /**
    *   Return a PTM Temp List

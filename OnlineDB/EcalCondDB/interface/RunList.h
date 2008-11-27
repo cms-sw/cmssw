@@ -8,6 +8,8 @@
 #include "OnlineDB/EcalCondDB/interface/RunTag.h"
 #include "OnlineDB/EcalCondDB/interface/Tm.h"
 #include "OnlineDB/EcalCondDB/interface/RunIOV.h"
+#include "OnlineDB/EcalCondDB/interface/LocationDef.h"
+#include "OnlineDB/EcalCondDB/interface/RunTypeDef.h"
 
 typedef int run_t;
 
@@ -26,6 +28,9 @@ class RunList  : public IDBObject {
   
   // Methods from IUniqueDBObject
   void fetchRuns() throw(std::runtime_error);
+  void fetchRuns(int min_run, int max_run) throw(std::runtime_error);
+  void fetchLastNRuns( int max_run, int n_runs  ) throw(std::runtime_error);
+  void fetchRunsByLocation (int min_run, int max_run, const LocationDef locDef )  throw(std::runtime_error);
 
 
  private:

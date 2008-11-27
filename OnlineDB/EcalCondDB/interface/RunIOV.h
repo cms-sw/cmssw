@@ -28,6 +28,9 @@ class RunIOV : public IIOV {
   RunTag getRunTag() const;
   void setID(int id);
 
+  void setDBInsertionTime(Tm dbtime){m_dbtime=dbtime;}
+  Tm getDBInsertionTime(){return m_dbtime;}
+ 
 
   // Methods from IUniqueDBObject
   int getID(){ return m_ID;} ;
@@ -52,6 +55,7 @@ class RunIOV : public IIOV {
   Tm m_runStart;
   Tm m_runEnd;
   RunTag m_runTag;
+  Tm m_dbtime;
 
   int writeDB() throw(std::runtime_error);
   int updateEndTimeDB() throw(std::runtime_error);

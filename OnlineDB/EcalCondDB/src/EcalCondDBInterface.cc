@@ -1,4 +1,4 @@
-// $Id: EcalCondDBInterface.cc,v 1.12 2008/06/16 09:33:02 fra Exp $
+// $Id: EcalCondDBInterface.cc,v 1.13 2008/09/05 10:59:03 fra Exp $
 
 #include <iostream>
 #include <string>
@@ -477,6 +477,35 @@ RunList EcalCondDBInterface::fetchRunList(RunTag tag)
   r.fetchRuns();
   return r;
 }
+
+RunList EcalCondDBInterface::fetchRunList(RunTag tag, int min_run, int max_run) throw(std::runtime_error){
+  RunList r;
+  r.setConnection(env, conn);
+  r.setRunTag(tag);
+  r.fetchRuns( min_run,  max_run);
+  return r;
+}
+
+RunList EcalCondDBInterface::fetchRunListByLocation(RunTag tag, int min_run, int max_run , const LocationDef locDef) 
+  throw(std::runtime_error) {
+  RunList r;
+  r.setConnection(env, conn);
+  r.setRunTag(tag);
+  r.fetchRunsByLocation( min_run,  max_run, locDef);
+  return r;
+}
+
+RunList EcalCondDBInterface::fetchRunListLastNRuns(RunTag tag, int max_run, int n_runs) 
+  throw(std::runtime_error){
+  RunList r;
+  r.setConnection(env, conn);
+  r.setRunTag(tag);
+  r.fetchLastNRuns( max_run,  n_runs);
+  return r;
+}
+
+
+
 
 LMFRunList EcalCondDBInterface::fetchLMFRunList(RunTag tag, LMFRunTag lmfrunTag)
   throw(runtime_error)
