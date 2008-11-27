@@ -44,7 +44,7 @@ caloRecHits = cms.EDProducer("CaloRecHitsProducer",
             NoiseHF = cms.double(0.0),
             ThresholdHF = cms.double(0.5),
 
-            fileNameHcal = cms.string('hcalmiscalib_startup.xml'),
+            fileNameHcal = cms.string('hcalmiscalib_0.0.xml'),
             Refactor = cms.double(1.0),
             Refactor_mean = cms.double(1.0)
 
