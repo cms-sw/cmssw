@@ -10,7 +10,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Fri Sep 23 11:38:38 CEST 2005
-// $Id: TestMix.cc,v 1.11 2008/03/12 14:01:04 uberthon Exp $
+// $Id: TestMix.cc,v 1.12 2008/11/27 15:52:37 uberthon Exp $
 //
 //
 
@@ -162,15 +162,15 @@ TestMix::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     int count3=0;
     std::cout <<" \nWe got "<<col3->sizeSignal()<<" signal vertices and "<<col3->sizePileup()<<" pileup vertices, total: "<<col3->size()<<std::endl;
     for (cfi3=col3->begin(); cfi3!=col3->end();cfi3++) {
-      std::cout<<" SimVertex "<<count3<<" has parent index  "<<cfi3->parentIndex()<<" bunchcr "<<cfi3.bunch()<<" trigger "<<cfi3.getTrigger()<<", from EncodedEventId: "<<cfi3->eventId().bunchCrossing() <<" "<<cfi3->eventId().event() <<std::endl;
-      SimVertex myvtx=(*cfi3);
-      std::cout<<"Same with op*: "<<count3<<" has parent index  "<<myvtx.parentIndex()<<" bunchcr "<<cfi3.bunch()<<" trigger "<<cfi3.getTrigger()<<", from EncodedEventId: "<<myvtx.eventId().bunchCrossing() <<" "<<myvtx.eventId().event() <<std::endl;
+      std::cout<<" SimVertex "<<count3<<" has parent index  "<<cfi3->parentIndex()<<" Lorentzvector: "<<cfi3->position()<<" bunchcr "<<cfi3.bunch()<<" trigger "<<cfi3.getTrigger()<<", from EncodedEventId: "<<cfi3->eventId().bunchCrossing() <<" "<<cfi3->eventId().event() <<std::endl;
+      //      SimVertex myvtx=(*cfi3);
+      //      std::cout<<"Same with op*: "<<count3<<" has parent index  "<<myvtx.parentIndex()<<" Lorentzvector: "<<myvtx.position()<<" bunchcr "<<cfi3.bunch()<<" trigger "<<cfi3.getTrigger()<<", from EncodedEventId: "<<myvtx.eventId().bunchCrossing() <<" "<<myvtx.eventId().event() <<std::endl;
       count3++; 
     }
   }
 
   //test MixCollection constructor with several subdetector names
-  bool got1,got2;
+  bool got1,got2=false;
   std::auto_ptr<MixCollection<PSimHit> > all_trackhits;
   std::auto_ptr<MixCollection<PSimHit> > all_trackhits2;
   std::cout<<"\n=================== Starting test for coll of several ROU-s ==================="<<std::endl;
@@ -249,20 +249,13 @@ TestMix::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     if (ii3!=ii2) std::cout<<" Problem when re-using iterator!!"<<std::endl;
     else  std::cout<<" \nNo problem when re-using iterator."<<std::endl;
   }
-  // test access to non-filled collections
-  //cases:   0) ok, collection has members
-  //         1) bunchrange given outside of existent bunchcrossing numbers ==>exc
+  // bunchrange given outside of existent bunchcrossing numbers ==>exc
 
   std::cout<<"\n=================== Starting tests for abnormal conditions ==================="<<std::endl;
-
-  // test case 0
   if (got1) {
-    std::cout<<"\n[ Testing abnormal conditions case 0]Should be all ok: registry: "<<all_trackhits->inRegistry()<<" size: "<<all_trackhits->size()<<std::endl;
-
-						  // test case 1
-						  std::cout<<"\n[ Testing abnormal conditions case 1] Should throw an exception " <<std::endl;
-												MixCollection<PSimHit> * col21=0;
-												col21=new MixCollection<PSimHit>(cf_simhit.product(),std::pair<int,int>(-10,20));
+    std::cout<<"\n[ Testing abnormal conditions:] Should throw an exception " <<std::endl;
+    MixCollection<PSimHit> * col21=0;
+    col21=new MixCollection<PSimHit>(cf_simhit.product(),std::pair<int,int>(-10,20));
   }
 }
 

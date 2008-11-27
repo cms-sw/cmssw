@@ -54,7 +54,7 @@ namespace edm
       virtual void put(edm::Event &e) {
         std::auto_ptr<CrossingFrame<T> > pOut(crFrame_);
 	e.put(pOut,label_);
-	LogDebug("MixingModule") <<" CF was put for type "<<typeid(T).name()<<" with "<<label_;
+	LogDebug("MixingModule") <<" CF was put for type "<<typeid(T).name()<<" with label "<<label_;
       }
 
       virtual void createnewEDProduct(){
