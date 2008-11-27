@@ -408,7 +408,7 @@ void HcalRecHitsMaker::loadHcalRecHits(edm::Event &iEvent,HBHERecHitCollection& 
       // poor man saturation
       if(energy>sat_[cellhashedindex]) 
 	{
-	  std::cout << " Op saturation " << energy << " " << sat_[cellhashedindex] << " HE " << std::endl;
+	  //	  std::cout << " Op saturation " << energy << " " << sat_[cellhashedindex] << " HE " << std::endl;
 	  energy=sat_[cellhashedindex];
 	}
 
