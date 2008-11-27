@@ -7,7 +7,7 @@
 #include "TrackingTools/MeasurementDet/interface/MeasurementDetException.h"
 #include "TrackingTools/MeasurementDet/interface/MeasurementDetSystem.h"
 #include "TrackingTools/DetLayers/interface/DetGroup.h"
-
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 using namespace std;
 
 vector<TrajectoryMeasurement>
@@ -23,12 +23,14 @@ LayerMeasurements::measurements( const DetLayer& layer,
   if (compatDets.empty()) {
     pair<bool, TrajectoryStateOnSurface> compat =
       layer.compatible( startingState, prop, est);
+    
 
     if ( compat.first) {
       result.push_back( TrajectoryMeasurement( compat.second, 
 					       InvalidTransientRecHit::build(0, TrackingRecHit::missing,&layer), 0.F,
 					       &layer));
-    }
+      LogDebug("LayerMeasurements")<<"adding a missing hit.";
+    }else LogDebug("LayerMeasurements")<<"adding not measurement.";
     return result;
   }
 
@@ -36,6 +38,7 @@ LayerMeasurements::measurements( const DetLayer& layer,
   vector<TrajectoryMeasurement> tmpResult = gsdm.get( layer, compatDets, startingState, prop, est);
 
   for(vector<TrajectoryMeasurement>::const_iterator tmpIt=tmpResult.begin();tmpIt!=tmpResult.end();tmpIt++){
+    LogDebug("LayerMeasurements")<<"adding a measurement which rechit is: "<<(tmpIt->recHit()->isValid()?"valid":"invalid");
     result.push_back(  TrajectoryMeasurement(tmpIt->predictedState(),tmpIt->recHit(),tmpIt->estimate(),&layer)  );
   }
   
@@ -77,6 +80,7 @@ LayerMeasurements::groupedMeasurements( const DetLayer& layer,
     vector<TrajectoryMeasurement> tmpVec2;
     tmpVec2.reserve(tmpVec.size());
     for(vector<TrajectoryMeasurement>::const_iterator tmpIt=tmpVec.begin();tmpIt!=tmpVec.end();tmpIt++){
+      LogDebug("LayerMeasurements")<<"[grouped] temporaryly adding a measurement which rechit is: "<<(tmpIt->recHit()->isValid()?"valid":"invalid");
       tmpVec2.push_back(  TrajectoryMeasurement(tmpIt->predictedState(),tmpIt->recHit(),tmpIt->estimate(),&layer)  );
     }
 
