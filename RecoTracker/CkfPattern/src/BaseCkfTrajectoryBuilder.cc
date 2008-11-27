@@ -148,11 +148,12 @@ BaseCkfTrajectoryBuilder::addToResult (TempTrajectory& tmptraj,
                                        bool inOut) const
 {
   // quality check
-  //  std::cout<<"ADDTORESULT "<<inOut<<" "<<tmptraj.foundHits()<<" "<<qualityFilter(tmptraj, inOut)<<std::endl;
   if ( !qualityFilter(tmptraj, inOut) )  return;
-  Trajectory traj = tmptraj.toTrajectory();	
+  Trajectory traj = tmptraj.toTrajectory();
   // discard latest dummy measurements
   while (!traj.empty() && !traj.lastMeasurement().recHit()->isValid()) traj.pop();
+  LogDebug("CkfPattern")<<inOut<<"=inOut option. pushing a Trajectory with: "<<traj.foundHits()<<" found hits. "<<traj.lostHits()
+			<<" lost hits. Popped :"<<(tmptraj.measurements().size())-(traj.measurements().size())<<" hits.";
   result.push_back( traj);
 }
 void 
@@ -165,6 +166,8 @@ BaseCkfTrajectoryBuilder::addToResult (TempTrajectory& tmptraj,
   // discard latest dummy measurements
   TempTrajectory traj = tmptraj;
   while (!traj.empty() && !traj.lastMeasurement().recHit()->isValid()) traj.pop();
+  LogDebug("CkfPattern")<<inOut<<"=inOut option. pushing a TempTrajectory with: "<<traj.foundHits()<<" found hits. "<<traj.lostHits()
+			<<" lost hits. Popped :"<<(tmptraj.measurements().size())-(traj.measurements().size())<<" hits.";
   result.push_back( traj );
 }
 
