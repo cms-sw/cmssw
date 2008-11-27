@@ -9,16 +9,19 @@
 #include <fstream>
 #include <sstream>
 
+// -----------------------------------------------------------------------------
+// 
 SiStripFedCablingBuilder::SiStripFedCablingBuilder( const edm::ParameterSet& pset ) :
   printFecCabling_( pset.getUntrackedParameter<bool>("PrintFecCabling",false) ),
   printDetCabling_( pset.getUntrackedParameter<bool>("PrintDetCabling",false) )
 {;}
 
-void SiStripFedCablingBuilder::analyze(const edm::Event& evt, const edm::EventSetup& iSetup){
+// -----------------------------------------------------------------------------
+// 
+void SiStripFedCablingReader::beginRun( const edm::Run& run, 
+					const edm::EventSetup& setup ) {
 
-  unsigned int run=evt.id().run();
-
-  edm::LogInfo("SiStripFedCablingBuilder") << "... creating dummy SiStripFedCabling Data for Run " << run << "\n " << std::endl;
+  edm::LogInfo("SiStripFedCablingBuilder") << "... creating dummy SiStripFedCabling Data for Run " << run.run() << "\n " << std::endl;
 
   edm::ESHandle<SiStripFedCabling> _siStripFedCabling;
   iSetup.get<SiStripFedCablingRcd>().get( _siStripFedCabling ); 

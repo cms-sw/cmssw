@@ -14,7 +14,9 @@ class SiStripFedCablingBuilder : public edm::EDAnalyzer {
 
   ~SiStripFedCablingBuilder(){};
 
-  virtual void analyze(const edm::Event& , const edm::EventSetup& );
+  void beginRun( const edm::Run&, const edm::EventSetup& );
+
+  void analyze(const edm::Event& , const edm::EventSetup& ) {;}
 
  private:
 
