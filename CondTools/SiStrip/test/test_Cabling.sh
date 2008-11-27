@@ -70,7 +70,6 @@ diff cablingReader1.log cablingReader2.log >& diffReader1Reader2.log
 # new structure, new interface
 cd $CMSSW_BASE/src/
 cvs co -r HEAD CondFormats/SiStripObjects
-replace "//#define SISTRIPCABLING_USING_NEW_INTERFACE" "#define SISTRIPCABLING_USING_NEW_INTERFACE" -- CondFormats/SiStripObjects/interface/SiStripFedCabling.h
 showtags
 
 # build
