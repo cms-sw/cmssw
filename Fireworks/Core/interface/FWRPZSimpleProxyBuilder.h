@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Nov 19 10:40:21 EST 2008
-// $Id$
+// $Id: FWRPZSimpleProxyBuilder.h,v 1.1 2008/11/26 02:15:49 chrjones Exp $
 //
 
 // system include files
@@ -24,6 +24,7 @@
 
 // user include files
 #include "Fireworks/Core/interface/FWRPZDataProxyBuilderBase.h"
+#include "Fireworks/Core/interface/FWRPZDataProxyBuilderBaseFactory.h"
 #include "Fireworks/Core/interface/FWEvePtr.h"
 
 // forward declarations
