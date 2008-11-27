@@ -39,6 +39,13 @@ void popcon::RPCEMapSourceHandler::getNewObjects()
   }
 
 // now construct new cabling map from online DB
+  time_t rawtime;
+  time(&rawtime); //time since January 1, 1970
+  tm * ptm = gmtime(&rawtime);//GMT time
+  char buffer[20];
+  strftime(buffer,20,"%d/%m/%Y_%H:%M:%S",ptm);
+  string eMap_version=(string)buffer;
+
   eMap =  new RPCEMap(eMap_version);
       if (m_dummy==0) {
         if (m_connect=="") {
@@ -103,14 +110,6 @@ void popcon::RPCEMapSourceHandler::DisconnectOnlineDB()
 
 void popcon::RPCEMapSourceHandler::readEMap0()
 {
-
-  time_t rawtime;
-  time(&rawtime); //time since January 1, 1970
-  tm * ptm = gmtime(&rawtime);//GMT time
-  char buffer[20];
-  strftime(buffer,20,"%d/%m/%Y_%H:%M:%S",ptm);
-  string eMap_version=(string)buffer;
-
   Statement* stmt = conn->createStatement();
   string sqlQuery ="";
 
@@ -305,13 +304,6 @@ void popcon::RPCEMapSourceHandler::readEMap0()
 
 void popcon::RPCEMapSourceHandler::readEMap1()
 {
-  time_t rawtime;
-  time(&rawtime); //time since January 1, 1970
-  tm * ptm = gmtime(&rawtime);//GMT time
-  char buffer[20];
-  strftime(buffer,20,"%d/%m/%Y_%H:%M:%S",ptm);
-  string eMap_version=(string)buffer;
-
   coralTr->start( true );
   coral::ISchema& schema = coralTr->nominalSchema();
   std::string condition="";
