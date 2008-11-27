@@ -97,7 +97,7 @@ using namespace reco;
 
 
 
-  double genericAverage(const reco::DeDxHitCollection &hits, float expo )
+double genericAverage(const reco::DeDxHitCollection &hits, float expo )
 {
  double result=0;
  size_t n = hits.size();
@@ -107,6 +107,13 @@ using namespace reco;
  }
  return (n>0)?pow(result/n,1./expo):0.;
 }
+
+
+
+
+
+
+
 
 
 }
