@@ -60,6 +60,7 @@ namespace popcon
     cond::Connection * connection ;
     cond::CoralTransaction * coralTr;
     std::string m_name;
+    int m_dummy;
     int m_validate;
     std::string m_connect;
     std::string m_authpath;

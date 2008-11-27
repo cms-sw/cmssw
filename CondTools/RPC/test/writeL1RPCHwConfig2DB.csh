@@ -80,8 +80,9 @@ process Write2DB = {
     untracked bool loggingOn = true
     bool SinceAppendMode = true
     PSet Source = {
-      untracked int32 Validate = 0
-      untracked string OnlineConn = "oracle://cms_omds_lb/CMS_RPC_CONF"
+      untracked int32 WriteDummy = 0
+      untracked int32 Validate = 1
+      untracked string OnlineConn = "oracle://CMS_OMDS_LB/CMS_RPC_CONF"
       untracked string OnlineAuthPath = "."
     }
   }

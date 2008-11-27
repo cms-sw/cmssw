@@ -5,6 +5,7 @@
 
 popcon::RPCEMapSourceHandler::RPCEMapSourceHandler(const edm::ParameterSet& ps) :
   m_name(ps.getUntrackedParameter<std::string>("name","RPCEMapSourceHandler")),
+  m_dummy(ps.getUntrackedParameter<int>("WriteDummy",0)),
   m_validate(ps.getUntrackedParameter<int>("Validate",0)),
   m_connect(ps.getUntrackedParameter<std::string>("OnlineConn","")),
   m_authpath(ps.getUntrackedParameter<std::string>("OnlineAuthPath",".")),
@@ -38,6 +39,8 @@ void popcon::RPCEMapSourceHandler::getNewObjects()
   }
 
 // now construct new cabling map from online DB
+  eMap =  new RPCEMap(eMap_version);
+      if (m_dummy==0) {
         if (m_connect=="") {
           ConnectOnlineDB(m_host,m_sid,m_user,m_pass,m_port);
           readEMap0();
@@ -46,6 +49,7 @@ void popcon::RPCEMapSourceHandler::getNewObjects()
           readEMap1();
         }
         DisconnectOnlineDB();
+      }
 
         cond::Time_t snc=mydbservice->currentTime();
 	
@@ -111,7 +115,6 @@ void popcon::RPCEMapSourceHandler::readEMap0()
   string sqlQuery ="";
 
   cout << endl <<"RPCEMapSourceHandler: start to build RPC e-Map..." << flush << endl << endl;
-  eMap =  new RPCEMap(eMap_version);
 
   // Get FEDs
   RPCEMap::dccItem thisDcc;
@@ -315,7 +318,6 @@ void popcon::RPCEMapSourceHandler::readEMap1()
   coral::AttributeList conditionData;
 
   cout << endl <<"RPCEMapSourceHandler: start to build RPC e-Map..." << flush << endl << endl;
-  eMap =  new RPCEMap(eMap_version);
 
   // Get FEDs
   RPCEMap::dccItem thisDcc;

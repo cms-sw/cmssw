@@ -5,6 +5,7 @@
 
 popcon::L1RPCHwConfigSourceHandler::L1RPCHwConfigSourceHandler(const edm::ParameterSet& ps):
   m_name(ps.getUntrackedParameter<std::string>("name","L1RPCHwConfigSourceHandler")),
+  m_dummy(ps.getUntrackedParameter<int>("WriteDummy",0)),
   m_validate(ps.getUntrackedParameter<int>("Validate",0)),
   m_connect(ps.getUntrackedParameter<std::string>("OnlineConn","")),
   m_authpath(ps.getUntrackedParameter<std::string>("OnlineAuthPath",".")),
@@ -49,6 +50,8 @@ void popcon::L1RPCHwConfigSourceHandler::getNewObjects()
   }
 
 // now construct new object from online DB
+  disabledDevs =  new L1RPCHwConfig();
+      if (m_dummy==0) {
         if (m_connect=="") {
           ConnectOnlineDB(m_host,m_sid,m_user,m_pass,m_port);
           readHwConfig0();
@@ -57,6 +60,7 @@ void popcon::L1RPCHwConfigSourceHandler::getNewObjects()
           readHwConfig1();
         }
         DisconnectOnlineDB();
+      }
 
         cond::Time_t snc=mydbservice->currentTime();
 
@@ -112,7 +116,6 @@ void popcon::L1RPCHwConfigSourceHandler::readHwConfig0()
   Statement* stmt = conn->createStatement();
   string sqlQuery ="";
   cout << endl <<"L1RPCHwConfigSourceHandler: start to build L1RPC Hw Config..." << flush << endl << endl;
-  disabledDevs =  new L1RPCHwConfig();
 
 // get disabled crates and translate into towers/sectors/segments
   sqlQuery = "select tb.towerto, tb.towerfrom, tb.sector ";
@@ -202,8 +205,6 @@ void popcon::L1RPCHwConfigSourceHandler::readHwConfig1()
   std::string condition="";
   coral::AttributeList conditionData;
   cout << endl <<"L1RPCHwConfigSourceHandler: start to build L1RPC Hw Config..." << flush << endl << endl;
-
-  disabledDevs =  new L1RPCHwConfig();
 
 // get disabled crates and translate into towers/sectors/segments
   coral::IQuery* query1 = schema.newQuery();
