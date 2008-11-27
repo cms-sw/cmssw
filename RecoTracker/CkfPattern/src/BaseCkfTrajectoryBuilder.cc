@@ -196,5 +196,46 @@ BaseCkfTrajectoryBuilder::findStateAndLayers(const TempTrajectory& traj) const
     }
 }
 
-
-
+std::string BaseCkfTrajectoryBuilder::dumpMeasurements(const std::vector<TrajectoryMeasurement> & v) const
+{
+  std::stringstream buffer;
+  buffer<<v.size()<<" total measurements\n";
+  std::vector<TrajectoryMeasurement>::const_iterator it=v.begin();
+  for (; it!=v.end();++it){
+    buffer<<dumpMeasurement(*it);
+    buffer<<"\n";}
+  return buffer.str();
+}
+std::string BaseCkfTrajectoryBuilder::dumpMeasurements(const cmsutils::bqueue<TM> & v) const
+{
+  std::stringstream buffer;
+  buffer<<v.size()<<" total measurements\n";
+  cmsutils::bqueue<TM>::const_iterator it=v.rbegin();
+  for (; it!=v.rend();--it){
+    buffer<<dumpMeasurement(*it);
+    buffer<<"\n";}
+  return buffer.str();
+}
+std::string BaseCkfTrajectoryBuilder::dumpMeasurement(const TrajectoryMeasurement & tm) const
+{
+  std::stringstream buffer;
+  buffer
+    <<"layer pointer: "<<tm.layer()<<"\n"
+    <<"estimate: "<<tm.estimate()<<"\n"
+    <<"forward state: \n"
+    <<"x: "<<tm.forwardPredictedState().globalPosition()<<"\n"
+    <<"p: "<<tm.forwardPredictedState().globalMomentum()<<"\n"
+    //        <<"geomdet pointer from rechit: "<<tm.recHit()->det()<<"\n"
+    <<"detId: "<<tm.recHit()->geographicalId().rawId();
+  if (tm.recHit()->isValid()){
+    buffer<<"\n hit global x: "<<tm.recHit()->globalPosition()
+	  <<"\n hit global error: "<<tm.recHit()->globalPositionError().matrix()
+	  <<"\n hit local x:"<<tm.recHit()->localPosition()
+	  <<"\n hit local error"<<tm.recHit()->localPositionError();
+  }else buffer<<"\n (-,-,-)";
+  buffer<<"\n fwdPred " << tm.forwardPredictedState().isValid()
+	<<"\n bwdPred " << tm.backwardPredictedState().isValid()
+	<<"\n upPred " << tm.updatedState().isValid();
+  //SimIdPrinter()(tm.recHit());
+  return buffer.str();
+}

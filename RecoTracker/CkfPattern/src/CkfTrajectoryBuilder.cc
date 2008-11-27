@@ -27,68 +27,6 @@
 using namespace std;
 
 
-std::string dumpMeasurement(const TrajectoryMeasurement & tm)
-{
-  std::stringstream buffer;
-  buffer<<"layer pointer: "<<tm.layer()<<"\n"
-        <<"estimate: "<<tm.estimate()<<"\n"
-        <<"forward state: \n"
-        <<"x: "<<tm.forwardPredictedState().globalPosition()<<"\n"
-        <<"p: "<<tm.forwardPredictedState().globalMomentum()<<"\n"
-        <<"geomdet pointer from rechit: "<<tm.recHit()->det()<<"\n"
-        <<"detId: "<<tm.recHit()->geographicalId().rawId();
-  if (tm.recHit()->isValid()){
-    buffer<<"\n hit global x: "<<tm.recHit()->globalPosition()
-	  <<"\n hit global error: "<<tm.recHit()->globalPositionError().matrix()
-	  <<"\n hit local x:"<<tm.recHit()->localPosition()
-	  <<"\n hit local error"<<tm.recHit()->localPositionError();
-  }
-  return buffer.str();
-}
-std::string dumpMeasurements(const std::vector<TrajectoryMeasurement> & v)
-{
-  std::stringstream buffer;
-  buffer<<v.size()<<" total measurements\n";
-  for (std::vector<TrajectoryMeasurement>::const_iterator it = v.begin(); it!=v.end();++it){
-    buffer<<dumpMeasurement(*it);
-    buffer<<"\n";}
-  return buffer.str();
-}
-
-std::string dumpCandidates(CkfTrajectoryBuilder::TempTrajectoryContainer & candidates){
-  std::stringstream buffer;
-  uint ic=0;
-  for (CkfTrajectoryBuilder::TempTrajectoryContainer::const_iterator traj=candidates.begin();
-       traj!=candidates.end(); traj++) {  
-    buffer<<ic++<<"] ";
-    if (!traj->measurements().empty()){
-      const TrajectoryMeasurement & last = traj->lastMeasurement();
-      const TrajectoryStateOnSurface & tsos = last.updatedState();
-      buffer<<"with: "<<traj->measurements().size()<<" measurements. Last state\n x: "<<tsos.globalPosition()<<"\n p: "<<tsos.globalMomentum()<<"\n";
-    }
-    else{
-      buffer<<" no measurement. \n";}
-  }
-  return buffer.str();
-}
-std::string dumpCandidates(CkfTrajectoryBuilder::TrajectoryContainer & candidates){
-  std::stringstream buffer;
-  uint ic=0;
-  for (CkfTrajectoryBuilder::TrajectoryContainer::const_iterator traj=candidates.begin();
-       traj!=candidates.end(); traj++) {  
-    buffer<<ic++<<"] ";
-    if (!traj->measurements().empty()){
-      const TrajectoryMeasurement & last = traj->lastMeasurement();
-      const TrajectoryStateOnSurface & tsos = last.updatedState();
-      buffer<<"with: "<<traj->measurements().size()<<" measurements. Last state\n x: "<<tsos.globalPosition()<<"\n p: "<<tsos.globalMomentum()<<"\n";
-    }
-    else{
-      buffer<<" no measurement. \n";}
-  }
-  return buffer.str();
-}
-
-
 CkfTrajectoryBuilder::
   CkfTrajectoryBuilder(const edm::ParameterSet&              conf,
 		       const TrajectoryStateUpdator*         updator,

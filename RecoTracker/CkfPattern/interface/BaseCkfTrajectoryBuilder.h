@@ -30,6 +30,7 @@ class TrackingRegion;
 class TrajectoryMeasurementGroup;
 class TrajectoryCleaner;
 
+#include "TrackingTools/PatternTools/interface/bqueue.h"
 
 /** The component of track reconstruction that, strating from a seed,
  *  reconstructs all possible trajectories.
@@ -126,6 +127,10 @@ public:
   mutable const Propagator*             theForwardPropagator;
   mutable const Propagator*             theBackwardPropagator;
 
+  template< class collection > std::string dumpCandidates( collection & candidates) const;
+  std::string dumpMeasurements(const std::vector<TrajectoryMeasurement> & v) const;
+  std::string dumpMeasurements(const cmsutils::bqueue<TM> & v) const;
+  std::string dumpMeasurement(const TrajectoryMeasurement & tm) const;
 
  private:
   //  int theMaxLostHit;            /**< Maximum number of lost hits per trajectory candidate.*/
@@ -139,7 +144,30 @@ public:
   const TrajectoryFilter* theFilter; /** Filter used at end of complete tracking */
   const TrajectoryFilter* theInOutFilter; /** Filter used at end of in-out tracking */
 
+
 };
+
+
+
+template< class collection > 
+std::string BaseCkfTrajectoryBuilder::dumpCandidates( collection & candidates) const{
+  std::stringstream buffer;
+  uint ic=0;
+  typename collection::const_iterator traj=candidates.begin();
+  for (;traj!=candidates.end(); traj++) {  
+    buffer<<ic++<<"] ";
+    if (!traj->measurements().empty()){
+      const TrajectoryMeasurement & last = traj->lastMeasurement();
+      const TrajectoryStateOnSurface & tsos = last.updatedState();
+      buffer<<"with: "<<traj->measurements().size()<<" measurements."<< traj->lostHits() << " lost, " << traj->foundHits()<<" found, chi2="<<traj->chiSquared()<<"\n"
+	    <<"Last state\n x: "<<tsos.globalPosition()<<"\n p: "<<tsos.globalMomentum()<<"\n"
+	    <<" hit is: "<<(last.recHit()->isValid()?"valid":"invalid")<<"\n";
+    }
+    else{
+      buffer<<" no measurement. \n";}
+  }
+  return buffer.str();
+}
 
 
 #endif
