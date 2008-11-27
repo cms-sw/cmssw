@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Nov 26 14:52:01 EST 2008
-// $Id$
+// $Id: FWElectronRPZProxyBuilder.cc,v 1.1 2008/11/27 00:47:07 chrjones Exp $
 //
 
 // system include files
@@ -105,6 +105,10 @@ FWElectronRPZProxyBuilder::~FWElectronRPZProxyBuilder()
 void 
 FWElectronRPZProxyBuilder::buildRhoPhi(const reco::GsfElectron& iData, unsigned int iIndex,TEveElement& oItemHolder) const
 {
+   const unsigned int nBuffer = 1024;
+   char title[nBuffer];
+   snprintf(title, nBuffer, "%s, Pt: %0.1f GeV",item()->modelName(iIndex).c_str(), iData.pt());
+   oItemHolder.SetElementTitle(title);
    if ( iData.superCluster().isAvailable() ) {
       std::vector<DetId> detids = iData.superCluster()->getHitsByDetId();
       std::vector<double> phis;
@@ -133,6 +137,10 @@ FWElectronRPZProxyBuilder::buildRhoPhi(const reco::GsfElectron& iData, unsigned 
 void 
 FWElectronRPZProxyBuilder::buildRhoZ(const reco::GsfElectron& iData, unsigned int iIndex,TEveElement& oItemHolder) const
 {
+   const unsigned int nBuffer = 1024;
+   char title[nBuffer];
+   snprintf(title, nBuffer, "%s, Pt: %0.1f GeV",item()->modelName(iIndex).c_str(), iData.pt());
+   oItemHolder.SetElementTitle(title);
    if ( iData.superCluster().isAvailable() ) {
       double theta_max = 0;
       double theta_min = 10;
