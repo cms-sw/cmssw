@@ -9,7 +9,7 @@
 #include <string>
 
 #define SISTRIPCABLING_USING_NEW_STRUCTURE
-//#define SISTRIPCABLING_USING_NEW_INTERFACE
+#define SISTRIPCABLING_USING_NEW_INTERFACE
 
 
 // -------------------------------------------------------
