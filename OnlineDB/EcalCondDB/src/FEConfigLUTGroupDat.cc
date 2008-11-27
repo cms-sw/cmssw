@@ -137,7 +137,7 @@ void FEConfigLUTGroupDat::fetchData(map< EcalLogicID, FEConfigLUTGroupDat >* fil
   try {
 
     m_readStmt->setSQL("SELECT d.group_id, d.lut_id, d.lut_value "
-		 "FROM fe_config_lut_per_group_dat d "
+		 "FROM fe_lut_per_group_dat d "
 		 "WHERE lut_conf_id = :lut_conf_id order by d.group_id, d.lut_id ");
     m_readStmt->setInt(1, iconfID);
     ResultSet* rset = m_readStmt->executeQuery();
@@ -152,9 +152,9 @@ void FEConfigLUTGroupDat::fetchData(map< EcalLogicID, FEConfigLUTGroupDat >* fil
     int ig=igold;
 
     while(rset->next()) {
-      ig=rset->getInt(7);
-      int il=rset->getInt(8);  
-      int ival=rset->getInt(9);
+      ig=rset->getInt(1);
+      int il=rset->getInt(2);  
+      int ival=rset->getInt(3);
       if(ig!=igold){
 	
 	p.first = EcalLogicID( "Group_id",  ig );   // a dummy logic_id

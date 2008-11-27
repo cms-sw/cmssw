@@ -110,12 +110,12 @@ void FEConfigWeightGroupDat::fetchData(map< EcalLogicID, FEConfigWeightGroupDat 
       p.first = EcalLogicID( "Group_id",     // name
 			     ig );        // logic_id
 			   
-      dat.setWeightGroupId( rset->getInt(7) );  
-      dat.setWeight0( rset->getFloat(8) );  
-      dat.setWeight1( rset->getFloat(9) );  
-      dat.setWeight2( rset->getFloat(10) );  
-      dat.setWeight3( rset->getFloat(11) );  
-      dat.setWeight4( rset->getFloat(12) );  
+      dat.setWeightGroupId( rset->getInt(1) );  
+      dat.setWeight0( rset->getFloat(2) );  
+      dat.setWeight1( rset->getFloat(3) );  
+      dat.setWeight2( rset->getFloat(4) );  
+      dat.setWeight3( rset->getFloat(5) );  
+      dat.setWeight4( rset->getFloat(6) );  
     
       p.second = dat;
       fillMap->insert(p);

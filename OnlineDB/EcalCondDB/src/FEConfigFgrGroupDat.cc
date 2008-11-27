@@ -110,12 +110,12 @@ void FEConfigFgrGroupDat::fetchData(map< EcalLogicID, FEConfigFgrGroupDat >* fil
       p.first = EcalLogicID( "Group_id",     // name
 			     ig );        // logic_id
 			   
-      dat.setFgrGroupId( rset->getInt(7) );  
-      dat.setThreshLow( rset->getFloat(8) );  
-      dat.setThreshHigh( rset->getFloat(9) );  
-      dat.setRatioLow( rset->getFloat(10) );  
-      dat.setRatioHigh( rset->getFloat(11) );  
-      dat.setLUTConfId( rset->getInt(12) );  
+      dat.setFgrGroupId( rset->getInt(1) );  
+      dat.setThreshLow( rset->getFloat(2) );  
+      dat.setThreshHigh( rset->getFloat(3) );  
+      dat.setRatioLow( rset->getFloat(4) );  
+      dat.setRatioHigh( rset->getFloat(5) );  
+      dat.setLUTConfId( rset->getInt(6) );  
     
       p.second = dat;
       fillMap->insert(p);
