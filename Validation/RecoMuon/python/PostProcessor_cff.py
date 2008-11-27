@@ -24,13 +24,11 @@ postProcessorMuonMultiTrack = cms.EDFilter("PostProcessor",
                              "ptres_vs_pt '#sigma(p_{T}) vs p_{T}' ptres_vs_pt",
                              "thetapull_vs_eta '#theta Pull vs #eta' thetapull_vs_eta",
                              "thetapull_vs_phi '#theta Pull vs #phi' thetapull_vs_phi"),
-    commands = cms.vstring(""),
     outputFileName = cms.untracked.string("")
 )
 
 postProcessorRecoMuon = cms.EDFilter("PostProcessor",
     subDir = cms.untracked.string("RecoMuonV/RecoMuon_*"),
-    commands = cms.vstring(""),
 
     efficiency = cms.vstring("Trk/EffP   'Efficiency vs p'     Trk/P   Muons/SimP  ",
                              "Trk/EffPt  'Efficiency vs p_{T}' Trk/Pt  Muons/SimPt ",
