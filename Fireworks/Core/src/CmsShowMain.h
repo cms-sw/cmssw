@@ -16,7 +16,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:34:30 PST 2007
-// $Id: CmsShowMain.h,v 1.8 2008/10/21 19:20:39 chrjones Exp $
+// $Id: CmsShowMain.h,v 1.9 2008/11/06 22:05:24 amraktad Exp $
 //
 
 // system include files
@@ -48,6 +48,7 @@ class TMonitor;
 class TSocket;
 class CmsShowNavigator;
 class CmsShowTaskExecutor;
+class CSGAction;
 
 namespace fireworks {
    class Context;
@@ -108,6 +109,9 @@ private:
    void playBackward();
    void stopPlaying();
    void reachedEnd();
+
+  void setPlayDelay(CSGAction* act);  
+
   // ---------- member data --------------------------------
   std::auto_ptr<FWConfigurationManager> m_configurationManager;
   std::auto_ptr<FWModelChangeManager> m_changeManager;

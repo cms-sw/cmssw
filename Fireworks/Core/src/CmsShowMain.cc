@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.44 2008/11/10 15:33:08 chrjones Exp $
+// $Id: CmsShowMain.cc,v 1.45 2008/11/18 03:39:51 chrjones Exp $
 //
 
 // system include files
@@ -41,6 +41,7 @@
 #include "TGTextEntry.h"
 #include "TStopwatch.h"
 #include "TGFileDialog.h"
+#include "TGSlider.h"
 
 //needed to work around a bug
 #include "TApplication.h"
@@ -756,6 +757,13 @@ CmsShowMain::setupDataHandling()
      action->activated.connect(boost::bind(&CmsShowNavigator::goToRun,m_navigator, action));
    if (CSGAction* action = m_guiManager->getAction("Event Entry"))
      action->activated.connect(boost::bind(&CmsShowNavigator::goToEvent,m_navigator, action));
+
+   if (CSGAction* action = m_guiManager->getAction("Play Delay"))
+   {
+     action->getSlider()->SetPosition(m_playDelay);
+     action->activated.connect(boost::bind(&CmsShowMain::setPlayDelay,this, action));     
+   }
+
    if (CSGAction* action = m_guiManager->getAction("Event Filter"))
      action->activated.connect(boost::bind(&CmsShowNavigator::filterEvents,m_navigator,action));
 
@@ -773,6 +781,15 @@ CmsShowMain::setupDataHandling()
       m_navigator->loadFile(m_inputFileName);
    }
 }
+
+void
+CmsShowMain::setPlayDelay(CSGAction* action)
+{
+  m_playDelay = action->getSlider()->GetPosition();
+  m_playTimer->Reset();
+  m_playTimer->SetTime(m_playDelay);
+}
+
 void
 CmsShowMain::setupDebugSupport()
 {

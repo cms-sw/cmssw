@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:11 CDT 2008
-// $Id: CSGAction.cc,v 1.10 2008/11/06 22:05:24 amraktad Exp $
+// $Id: CSGAction.cc,v 1.11 2008/11/18 21:56:16 chrjones Exp $
 //
 
 // system include files
@@ -19,6 +19,8 @@
 #include <TGMenu.h>
 #include "TGTextEntry.h"
 #include "TGNumberEntry.h"
+#include "TGSlider.h"
+
 // user include files
 #include "Fireworks/Core/interface/CSGAction.h"
 #include "Fireworks/Core/src/CSGConnector.h"
@@ -135,6 +137,20 @@ void CSGAction::createNumberEntry(TGCompositeFrame* p, bool intType, TGLayoutHin
      m_numberEntry = new TGNumberEntryField(p, id);
    p->AddFrame(m_numberEntry, l);
    TQObject::Connect(m_numberEntry, "ReturnPressed()", "CSGAction", this, "activate()");
+}
+
+void CSGAction::createDelaySlider(TGCompositeFrame* p, Int_t min, Int_t max, UInt_t type, TGLayoutHints* l, Int_t id)
+{
+   if (m_slider != 0)
+      delete m_slider;
+   
+   m_slider = new TGHSlider(p, 148, 5, kSlider1 | kScaleNo);
+   p->AddFrame(m_slider, l);
+   m_slider->SetBackgroundColor(0x111111);
+
+   m_slider->SetRange(min, max);
+   TQObject::Connect(m_slider, "Released()", "CSGAction", this, "activate()");
+   m_slider->SetPosition(0);
 }
 
 void CSGAction::createPictureButton(TGCompositeFrame* p, const TGPicture* pic, TGLayoutHints* l, Int_t id, GContext_t norm, UInt_t option) {

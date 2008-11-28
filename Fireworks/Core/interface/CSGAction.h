@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 18:15:56 CDT 2008
-// $Id: CSGAction.h,v 1.6 2008/11/05 09:03:43 chrjones Exp $
+// $Id: CSGAction.h,v 1.7 2008/11/06 22:05:22 amraktad Exp $
 //
 
 // system include files
@@ -37,6 +37,7 @@ class TString;
 
 class TGTextEntry;
 class TGNumberEntryField;
+class TGHSlider;
 class FWCustomIconsButton;
 
 class CSGAction : public sigc::trackable {
@@ -51,6 +52,7 @@ public:
    TString getSCCombo() const;
    TGTextEntry  *getTextEntry() const { return m_textEntry; }
    TGNumberEntryField *getNumberEntry() const { return m_numberEntry; }
+   TGHSlider *getSlider() const { return m_slider; }
    Int_t getKeycode() const;
    Int_t getModcode() const;
    TGPopupMenu *getMenu() const;
@@ -68,6 +70,7 @@ public:
    void createTextButton(TGCompositeFrame* p, TGLayoutHints* l = 0, Int_t id = -1, GContext_t norm = TGButton::GetDefaultGC()(), FontStruct_t font = TGTextButton::GetDefaultFontStruct(), UInt_t option = kRaisedFrame|kDoubleBorder);
    void createTextEntry(TGCompositeFrame* p, TGLayoutHints* l = 0, const char* text = 0, Int_t id = -1);
    void createNumberEntry(TGCompositeFrame* p,  bool intType, TGLayoutHints* l = 0, Int_t id = -1);
+   void createDelaySlider(TGCompositeFrame* p, Int_t min, Int_t max, UInt_t type, TGLayoutHints* l = 0, Int_t id = -1);
    void createPictureButton(TGCompositeFrame* p, const TGPicture* pic, TGLayoutHints* l = 0, Int_t id = -1, GContext_t norm = TGButton::GetDefaultGC()(), UInt_t option = kRaisedFrame|kDoubleBorder);
    FWCustomIconsButton* createCustomIconsButton(TGCompositeFrame* p,
                                 const TGPicture* upPic,
@@ -117,6 +120,7 @@ private:
    Bool_t m_globalEnabled;
    TGTextEntry* m_textEntry;
    TGNumberEntryField* m_numberEntry;
+   TGHSlider*          m_slider;
 };
 
 
