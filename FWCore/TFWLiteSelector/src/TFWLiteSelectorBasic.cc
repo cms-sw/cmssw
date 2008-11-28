@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Jun 27 17:58:10 EDT 2006
-// $Id: TFWLiteSelectorBasic.cc,v 1.40 2008/07/03 04:23:10 wmtan Exp $
+// $Id: TFWLiteSelectorBasic.cc,v 1.41 2008/08/22 01:40:30 wmtan Exp $
 //
 
 // system include files
@@ -83,8 +83,8 @@ namespace edm {
       }
       //find the class type
       const std::string fullName = edm::wrappedClassName(bDesc.className());
-      ROOT::Reflex::Type classType = ROOT::Reflex::Type::ByName(fullName);
-      if( classType == ROOT::Reflex::Type() ) {
+      Reflex::Type classType = Reflex::Type::ByName(fullName);
+      if( classType == Reflex::Type() ) {
         throw cms::Exception("MissingDictionary") 
         <<"could not find dictionary for type '"<<fullName<<"'"
         <<"\n Please make sure all the necessary libraries are available.";
@@ -94,7 +94,7 @@ namespace edm {
       //We can't use reflex to create the instance since Reflex uses 'malloc' instead of new
       /*
       //use reflex to create an instance of it
-      ROOT::Reflex::Object wrapperObj = classType.Construct();
+      Reflex::Object wrapperObj = classType.Construct();
       if( 0 == wrapperObj.Address() ) {
         throw cms::Exception("FailedToCreate") <<"could not create an instance of '"<<fullName<<"'";
       }
@@ -111,7 +111,7 @@ namespace edm {
       branch->SetAddress( &address );
       
       /*
-      ROOT::Reflex::Object edProdObj = wrapperObj.CastObject( ROOT::Reflex::Type::ByName("edm::EDProduct") );
+      Reflex::Object edProdObj = wrapperObj.CastObject( Reflex::Type::ByName("edm::EDProduct") );
       
       edm::EDProduct* prod = reinterpret_cast<edm::EDProduct*>(edProdObj.Address());
        */

@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May  8 15:01:20 EDT 2007
-// $Id: Event.h,v 1.13 2008/07/24 20:38:45 dsr Exp $
+// $Id: Event.h,v 1.14 2008/07/30 19:18:41 dsr Exp $
 //
 #if !defined(__CINT__) && !defined(__MAKECINT__)
 // system include files
@@ -104,7 +104,7 @@ private:
   struct Data {
     TBranch* branch_;
     Long64_t lastEvent_;
-    ROOT::Reflex::Object obj_;
+    Reflex::Object obj_;
     void * pObj_; //ROOT requires the address of the pointer be stable
     edm::EDProduct* pProd_;
     

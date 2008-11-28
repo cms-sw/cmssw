@@ -216,7 +216,7 @@ namespace edm {
       vint.push_back(i->second.branchID());
       //[could use productID instead]
         
-      ROOT::Reflex::Type type(ROOT::Reflex::Type::ByName(i->second.className()));
+      Reflex::Type type(Reflex::Type::ByName(i->second.className()));
       if (bool(type)) {
         
         // Here we look in the object named "type" for a typedef
@@ -226,7 +226,7 @@ namespace edm {
         // I do not throw an exception here if the check fails
         // because there are known cases where the dictionary does
         // not exist and we do not need to support those cases.
-        ROOT::Reflex::Type valueType;
+        Reflex::Type valueType;
         if ((is_RefVector(type, valueType) || 
 	     is_RefToBaseVector(type, valueType ) || 
 	     value_type_of(type, valueType)) 
@@ -235,10 +235,10 @@ namespace edm {
           fillElementLookup(valueType, i->second.branchID(), i->first);
           
           // Repeat this for all public base classes of the value_type
-          std::vector<ROOT::Reflex::Type> baseTypes;
+          std::vector<Reflex::Type> baseTypes;
           public_base_classes(valueType, baseTypes);
           
-          for (std::vector<ROOT::Reflex::Type>::iterator iter = baseTypes.begin(),
+          for (std::vector<Reflex::Type>::iterator iter = baseTypes.begin(),
 	       iend = baseTypes.end();
                iter != iend;
                ++iter) {
@@ -249,7 +249,7 @@ namespace edm {
     }
   }
 
-  void ProductRegistry::fillElementLookup(const ROOT::Reflex::Type & type,
+  void ProductRegistry::fillElementLookup(const Reflex::Type & type,
                                           const BranchID& id,
                                           const BranchKey& bk) const
   {

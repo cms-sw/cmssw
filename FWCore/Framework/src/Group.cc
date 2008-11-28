@@ -6,8 +6,8 @@
 #include "FWCore/Utilities/interface/ReflexTools.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-using ROOT::Reflex::Type;
-using ROOT::Reflex::TypeTemplate;
+using Reflex::Type;
+using Reflex::TypeTemplate;
 
 namespace edm {
 

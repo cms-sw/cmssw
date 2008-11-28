@@ -34,13 +34,13 @@ class GenericObjectOwner
 
    public:
       GenericObjectOwner(): m_ownData(false){}
-      explicit GenericObjectOwner(ROOT::Reflex::Object const& iObject,
+      explicit GenericObjectOwner(Reflex::Object const& iObject,
                                   bool iOwnData=true):
          m_object(iObject), m_ownData(iOwnData) {}
       ~GenericObjectOwner();
 
       // ---------- const member functions ---------------------
-      ROOT::Reflex::Object object() const;
+      Reflex::Object object() const;
    
       // ---------- static member functions --------------------
 
@@ -54,7 +54,7 @@ class GenericObjectOwner
       GenericObjectOwner const& operator=(GenericObjectOwner const&); // stop default
 
       // ---------- member data --------------------------------
-      ROOT::Reflex::Object m_object;
+      Reflex::Object m_object;
       bool m_ownData;
 };
 
@@ -68,7 +68,7 @@ class GenericObjectOwner
       OrphanHandle(OrphanHandle<GenericObjectOwner> const& h):
       prod_(h.prod_.object(),false), id_(h.id_) {}
       
-      OrphanHandle(ROOT::Reflex::Object const& prod, ProductID const& id):
+      OrphanHandle(Reflex::Object const& prod, ProductID const& id):
       prod_(prod,false), id_(id) {}
       
       //~OrphanHandle();
@@ -122,8 +122,8 @@ class GenericObjectOwner
       ConstBranchDescription const& desc =
       getBranchDescription(TypeID(product->object().TypeOf().TypeInfo()), productInstanceName);
       
-      ROOT::Reflex::Type const wrapperType=ROOT::Reflex::Type::ByName(wrappedClassName(desc.fullClassName()));
-      if(wrapperType == ROOT::Reflex::Type() ) {
+      Reflex::Type const wrapperType=Reflex::Type::ByName(wrappedClassName(desc.fullClassName()));
+      if(wrapperType == Reflex::Type() ) {
          throw edm::Exception(errors::DictionaryNotFound, "NoWrapperDictionary")
          << "Event::put: the class type '" << desc.fullClassName()
          << "' was passed to put but the Reflex dictionary for the required class '"
@@ -138,12 +138,12 @@ class GenericObjectOwner
       std::string s("void(");
       s+=desc.fullClassName();
       s+="*)";
-      ROOT::Reflex::Type ptrT = ROOT::Reflex::Type::ByName(s);
-      ROOT::Reflex::Object oWrapper(wrapperType.Construct(ptrT,args));
+      Reflex::Type ptrT = Reflex::Type::ByName(s);
+      Reflex::Object oWrapper(wrapperType.Construct(ptrT,args));
       //ownership was transfered to the wrapper
       product.release();
 
-      static ROOT::Reflex::Type s_edproductType( ROOT::Reflex::Type::ByTypeInfo(typeid(EDProduct)));
+      static Reflex::Type s_edproductType( Reflex::Type::ByTypeInfo(typeid(EDProduct)));
       EDProduct *wp(reinterpret_cast<EDProduct*>(oWrapper.CastObject(s_edproductType).Address()));
       putProducts().push_back(std::make_pair(wp, &desc));
       

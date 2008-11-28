@@ -283,7 +283,7 @@ void testPtr::comparisonTest() {
 
 
 namespace {
-  using namespace ROOT::Reflex;
+  using namespace Reflex;
    struct TestGetter : public edm::EDProductGetter {
       EDProduct const* hold_;
       EDProduct const* getIt(ProductID const&) const {

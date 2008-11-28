@@ -7,7 +7,7 @@ ReflexTools provides a small number of Reflex-based tools, used in
 the CMS event model.  
 
 
-$Id: ReflexTools.h,v 1.9 2008/09/23 16:03:12 wmtan Exp $
+$Id: ReflexTools.h,v 1.10 2008/11/27 01:36:31 elmer Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -19,13 +19,7 @@ $Id: ReflexTools.h,v 1.9 2008/09/23 16:03:12 wmtan Exp $
 #include "Reflex/Type.h"
 #include "Reflex/Object.h"
 
-namespace Reflex
-{
-  class Type;
-  class TypeTemplate;
-  std::ostream& operator<< (std::ostream& os, Type const& t);  
-  std::ostream& operator<< (std::ostream& os, TypeTemplate const& tt);
-}
+#include "FWCore/Utilities/interface/UseReflex.h"
 
 namespace edm
 {

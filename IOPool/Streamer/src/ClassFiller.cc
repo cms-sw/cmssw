@@ -15,8 +15,8 @@
 #include <algorithm>
 
 namespace edm {
-  std::string getName(ROOT::Reflex::Type& cc) {
-    return cc.Name(ROOT::Reflex::SCOPED);
+  std::string getName(Reflex::Type& cc) {
+    return cc.Name(Reflex::SCOPED);
   }
 
   void loadCap(std::string const& name) {
@@ -33,7 +33,7 @@ namespace edm {
 
   void doBuildRealData(std::string const& name) {
     FDEBUG(3) << "doing BuildRealData for " << name << "\n";
-    ROOT::Reflex::Type cc = ROOT::Reflex::Type::ByName(name);
+    Reflex::Type cc = Reflex::Type::ByName(name);
     TClass* ttest = TClass::GetClass(getName(cc).c_str());
     if (ttest != 0) {
       ttest->BuildRealData();
@@ -59,8 +59,8 @@ namespace edm {
   }
 
   namespace {
-    ROOT::Reflex::Type const getReflectClass(std::type_info const& ti) {
-      ROOT::Reflex::Type const typ = ROOT::Reflex::Type::ByTypeInfo(ti);
+    Reflex::Type const getReflectClass(std::type_info const& ti) {
+      Reflex::Type const typ = Reflex::Type::ByTypeInfo(ti);
       return typ;
     }
 
@@ -85,7 +85,7 @@ namespace edm {
 
   // ---------------------
   TClass* getTClass(std::type_info const& ti) {
-    ROOT::Reflex::Type const typ = getReflectClass(ti);
-    return getRootClass(typ.Name(ROOT::Reflex::SCOPED));
+    Reflex::Type const typ = getReflectClass(ti);
+    return getRootClass(typ.Name(Reflex::SCOPED));
   }
 }

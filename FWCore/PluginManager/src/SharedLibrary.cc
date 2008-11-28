@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Apr  5 15:30:15 EDT 2007
-// $Id: SharedLibrary.cc,v 1.1.2.2 2007/04/09 18:46:51 chrjones Exp $
+// $Id: SharedLibrary.cc,v 1.2 2007/04/12 12:51:12 wmtan Exp $
 //
 
 // system include files
@@ -35,7 +35,7 @@ namespace edmplugin {
   library_(0),
   path_(iName)
 {
-    std::auto_ptr<ROOT::Reflex::SharedLibrary> lib(new ROOT::Reflex::SharedLibrary(iName.native_file_string()));
+    std::auto_ptr<Reflex::SharedLibrary> lib(new Reflex::SharedLibrary(iName.native_file_string()));
     if( !lib->Load() ) {
       throw cms::Exception("PluginLibraryLoadError")<<"unable to load "<<iName.native_file_string()<<" because "<<lib->Error();
     }

@@ -12,6 +12,7 @@
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 
+namespace ROOT {
 namespace Reflex {
   std::ostream& operator<< (std::ostream& os, Type const& t) {
     os << t.Name();
@@ -22,6 +23,7 @@ namespace Reflex {
     os << tt.Name();
     return os;
   }
+}
 }
 
 using Reflex::Base;

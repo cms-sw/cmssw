@@ -59,26 +59,26 @@ std::string formatClassName(const std::string& iName) {
 static const char* kNameValueSep = "=";
 ///convert the object information to the correct type and print it
 template<typename T>
-static void doPrint(const std::string&iName,const ROOT::Reflex::Object& iObject, const std::string& iIndent) {
+static void doPrint(const std::string&iName,const Reflex::Object& iObject, const std::string& iIndent) {
    std::cout << iIndent<< iName <<kNameValueSep<<*reinterpret_cast<T*>(iObject.Address())<<"\n";
 }
 
 template<>
-static void doPrint<char>(const std::string&iName,const ROOT::Reflex::Object& iObject, const std::string& iIndent) {
+static void doPrint<char>(const std::string&iName,const Reflex::Object& iObject, const std::string& iIndent) {
    std::cout << iIndent<< iName <<kNameValueSep<<static_cast<int>(*reinterpret_cast<char*>(iObject.Address()))<<"\n";
 }
 template<>
-static void doPrint<unsigned char>(const std::string&iName,const ROOT::Reflex::Object& iObject, const std::string& iIndent) {
+static void doPrint<unsigned char>(const std::string&iName,const Reflex::Object& iObject, const std::string& iIndent) {
    std::cout << iIndent<< iName <<kNameValueSep<<static_cast<unsigned int>(*reinterpret_cast<unsigned char*>(iObject.Address()))<<"\n";
 }
 
 template<>
-static void doPrint<bool>(const std::string&iName,const ROOT::Reflex::Object& iObject, const std::string& iIndent) {
+static void doPrint<bool>(const std::string&iName,const Reflex::Object& iObject, const std::string& iIndent) {
    std::cout << iIndent<< iName <<kNameValueSep<<((*reinterpret_cast<bool*>(iObject.Address()))?"true":"false")<<"\n";
 }
 
 
-typedef void(*FunctionType)(const std::string&,const ROOT::Reflex::Object&, const std::string&);
+typedef void(*FunctionType)(const std::string&,const Reflex::Object&, const std::string&);
 typedef std::map<std::string, FunctionType> TypeToPrintMap;
 
 template<typename T>
@@ -87,9 +87,9 @@ static void addToMap(TypeToPrintMap& iMap){
 }
 
 static bool printAsBuiltin(const std::string& iName,
-                           const ROOT::Reflex::Object iObject,
+                           const Reflex::Object iObject,
                            const std::string& iIndent){
-   typedef void(*FunctionType)(const std::string&,const ROOT::Reflex::Object&, const std::string&);
+   typedef void(*FunctionType)(const std::string&,const Reflex::Object&, const std::string&);
    typedef std::map<std::string, FunctionType> TypeToPrintMap;
    static TypeToPrintMap s_map;
    static bool isFirst = true;
@@ -116,22 +116,22 @@ static bool printAsBuiltin(const std::string& iName,
    return true;
 }
 static bool printAsContainer(const std::string& iName,
-                             const ROOT::Reflex::Object& iObject,
+                             const Reflex::Object& iObject,
                              const std::string& iIndent,
                              const std::string& iIndentDelta);
 
 static void printObject(const std::string& iName,
-                        const ROOT::Reflex::Object& iObject,
+                        const Reflex::Object& iObject,
                         const std::string& iIndent,
                         const std::string& iIndentDelta) {
-   using namespace ROOT::Reflex;
+   using namespace Reflex;
    std::string printName = iName;
    Object objectToPrint = iObject;
    std::string indent(iIndent);
    if(iObject.TypeOf().IsPointer()) {
      std::cout<<iIndent<<iName<<kNameValueSep<<formatClassName(iObject.TypeOf().Name())<<std::hex<<iObject.Address()<<std::dec<<"\n";
       Type pointedType = iObject.TypeOf().ToType();
-      if(ROOT::Reflex::Type::ByName("void") == pointedType ||
+      if(Reflex::Type::ByName("void") == pointedType ||
          pointedType.IsPointer() ||
          iObject.Address()==0) {
          return;
@@ -139,9 +139,9 @@ static void printObject(const std::string& iName,
       return;
        
       //have the code that follows print the contents of the data to which the pointer points
-      objectToPrint = ROOT::Reflex::Object(pointedType, iObject.Address());
+      objectToPrint = Reflex::Object(pointedType, iObject.Address());
       //try to convert it to its actual type (assuming the original type was a base class)
-      objectToPrint = ROOT::Reflex::Object(objectToPrint.CastObject(objectToPrint.DynamicType()));
+      objectToPrint = Reflex::Object(objectToPrint.CastObject(objectToPrint.DynamicType()));
       printName = std::string("*")+iName;
       indent +=iIndentDelta;
    }
@@ -164,7 +164,7 @@ static void printObject(const std::string& iName,
    std::cout<<indent<<printName<<" "<<formatClassName(typeName)<<"\n";
    indent+=iIndentDelta;
    //print all the data members
-   for(ROOT::Reflex::Member_Iterator itMember = objectToPrint.TypeOf().DataMember_Begin();
+   for(Reflex::Member_Iterator itMember = objectToPrint.TypeOf().DataMember_Begin();
        itMember != objectToPrint.TypeOf().DataMember_End();
        ++itMember){
       //std::cout <<"     debug "<<itMember->Name()<<" "<<itMember->TypeOf().Name()<<"\n";
@@ -184,10 +184,10 @@ static void printObject(const std::string& iName,
 }
 
 static bool printAsContainer(const std::string& iName,
-                             const ROOT::Reflex::Object& iObject,
+                             const Reflex::Object& iObject,
                              const std::string& iIndent,
                              const std::string& iIndentDelta){
-   using namespace ROOT::Reflex;
+   using namespace Reflex;
    Object sizeObj;
    try {
       sizeObj = iObject.Invoke("size");

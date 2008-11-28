@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May  8 15:07:03 EDT 2007
-// $Id: Event.cc,v 1.20 2008/07/30 19:18:41 dsr Exp $
+// $Id: Event.cc,v 1.22 2008/09/23 20:42:30 dsr Exp $
 //
 
 // system include files
@@ -267,7 +267,7 @@ void getBranchData(edm::EDProductGetter* iGetter,
   //WORK AROUND FOR ROOT!!
   //Create a new instance so that we can clear any cache the object uses
   //this slows the code down 
-  ROOT::Reflex::Object obj = iData.obj_;
+  Reflex::Object obj = iData.obj_;
   iData.obj_ = iData.obj_.TypeOf().Construct();
   iData.pObj_ = iData.obj_.Address();
   iData.branch_->SetAddress(&(iData.pObj_));
@@ -388,11 +388,11 @@ Event::getBranchDataFor(const std::type_info& iInfo,
       //We do not already have this data as another key
       
       //Use Reflex to create an instance of the object to be used as a buffer
-      ROOT::Reflex::Type rType = ROOT::Reflex::Type::ByTypeInfo(iInfo);
-      if(rType == ROOT::Reflex::Type()) {
+      Reflex::Type rType = Reflex::Type::ByTypeInfo(iInfo);
+      if(rType == Reflex::Type()) {
         throw cms::Exception("UnknownType")<<"No Reflex dictionary exists for type "<<iInfo.name();
       }
-      ROOT::Reflex::Object obj = rType.Construct();
+      Reflex::Object obj = rType.Construct();
       
       if(obj.Address() == 0) {
         throw cms::Exception("ConstructionFailed")<<"failed to construct an instance of "<<rType.Name();
@@ -559,8 +559,8 @@ Event::getByProductID(edm::ProductID const& iID) const
 
     //std::cout <<"  get Type for class"<<std::endl;
     //Calculate the key from the branch description
-    ROOT::Reflex::Type type( ROOT::Reflex::Type::ByName(edm::wrappedClassName(bDesc.fullClassName())));
-    assert( ROOT::Reflex::Type() != type) ;
+    Reflex::Type type( Reflex::Type::ByName(edm::wrappedClassName(bDesc.fullClassName())));
+    assert( Reflex::Type() != type) ;
 
     //std::cout <<"  build key"<<std::endl;
     //Only the product instance label may be empty
@@ -603,9 +603,9 @@ Event::getByProductID(edm::ProductID const& iID) const
   if(0==itFound->second->pProd_) {
     //std::cout <<"  need to convert"<<std::endl;
     //need to convert pointer to proper type
-    static ROOT::Reflex::Type sEDProd( ROOT::Reflex::Type::ByTypeInfo(typeid(edm::EDProduct)));
-    //assert( sEDProd != ROOT::Reflex::Type() );
-    ROOT::Reflex::Object edProdObj = itFound->second->obj_.CastObject( sEDProd );
+    static Reflex::Type sEDProd( Reflex::Type::ByTypeInfo(typeid(edm::EDProduct)));
+    //assert( sEDProd != Reflex::Type() );
+    Reflex::Object edProdObj = itFound->second->obj_.CastObject( sEDProd );
         
     itFound->second->pProd_ = reinterpret_cast<edm::EDProduct*>(edProdObj.Address());
 

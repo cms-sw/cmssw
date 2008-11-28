@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Oct 20 11:45:38 CEST 2007
-// $Id: fillPtrVector.h,v 1.2 2008/02/15 05:57:03 wmtan Exp $
+// $Id: fillPtrVector.h,v 1.3 2008/04/22 22:17:35 wmtan Exp $
 //
 
 // system include files
@@ -55,8 +55,8 @@ namespace edm {
           oPtr.push_back(address);
         }
       } else {
-        using ROOT::Reflex::Type;
-        using ROOT::Reflex::Object;
+        using Reflex::Type;
+        using Reflex::Object;
         static const Type s_type(Type::ByTypeInfo(typeid(element_type)));
         Type toType=Type::ByTypeInfo(iToType);
         

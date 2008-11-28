@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Mar 30 15:48:37 EST 2006
-// $Id: GenericHandle.cc,v 1.9 2008/06/18 22:37:58 wmtan Exp $
+// $Id: GenericHandle.cc,v 1.10 2008/11/21 23:39:50 wmtan Exp $
 //
 
 // system include files
@@ -20,7 +20,7 @@ namespace edm {
 void convert_handle(BasicHandle const& orig,
                     Handle<GenericObject>& result)
 {
-  using namespace ROOT::Reflex;
+  using namespace Reflex;
   if(orig.failedToGet()) {
     result.setWhyFailed(orig.whyFailed());
     return;

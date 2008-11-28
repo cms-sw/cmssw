@@ -2,10 +2,11 @@
 #define DataFormats_Common_RefHolderBase_h
 /* \class edm::reftobase::Base
  *
- * $Id: RefHolderBase.h,v 1.9 2008/03/02 17:26:04 gpetrucc Exp $
+ * $Id: RefHolderBase.h,v 1.10 2008/04/22 22:17:35 wmtan Exp $
  *
  */
 #include "Reflex/Type.h"
+#include "FWCore/Utilities/interface/UseReflex.h"
 
 namespace edm {
   class ProductID;
@@ -51,7 +52,7 @@ namespace edm {
       // and cast it to the type specified by toType, using Reflex.
       // Return 0 if the real type is not toType nor a subclass of
       // toType.
-      virtual void const* pointerToType(ROOT::Reflex::Type const& toType) const = 0;
+      virtual void const* pointerToType(Reflex::Type const& toType) const = 0;
     };
 
     //------------------------------------------------------------------
@@ -66,7 +67,7 @@ namespace edm {
     T const*
     RefHolderBase::getPtr() const
     {
-      static ROOT::Reflex::Type s_type(ROOT::Reflex::Type::ByTypeInfo(typeid(T)));
+      static Reflex::Type s_type(Reflex::Type::ByTypeInfo(typeid(T)));
       return static_cast<T const*>(pointerToType(s_type));
     }
 

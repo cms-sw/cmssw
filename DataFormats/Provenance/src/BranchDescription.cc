@@ -152,13 +152,13 @@ namespace edm {
       branchID_.setID(branchName());
     }
 
-    ROOT::Reflex::Type t = ROOT::Reflex::Type::ByName(fullClassName());
-    ROOT::Reflex::PropertyList p = t.Properties();
+    Reflex::Type t = Reflex::Type::ByName(fullClassName());
+    Reflex::PropertyList p = t.Properties();
     transient() = (p.HasProperty("persistent") ? p.PropertyAsString("persistent") == std::string("false") : false);
 
     wrappedName() = wrappedClassName(fullClassName());
-    type() = ROOT::Reflex::Type::ByName(wrappedName());
-    ROOT::Reflex::PropertyList wp = type().Properties();
+    type() = Reflex::Type::ByName(wrappedName());
+    Reflex::PropertyList wp = type().Properties();
     if (wp.HasProperty("splitLevel")) {
 	splitLevel() = strtol(wp.PropertyAsString("splitLevel").c_str(), 0, 0);
 	if (splitLevel() < 0) {

@@ -1,6 +1,6 @@
 /*----------------------------------------------------------------------
   
-$Id: TypeID.cc,v 1.3 2007/09/29 03:42:52 wmtan Exp $
+$Id: TypeID.cc,v 1.4 2008/10/08 22:07:25 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include <ostream>
@@ -9,6 +9,7 @@ $Id: TypeID.cc,v 1.3 2007/09/29 03:42:52 wmtan Exp $
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "Reflex/Type.h"
 #include "boost/thread/tss.hpp"
+#include "FWCore/Utilities/interface/UseReflex.h"
 
 namespace edm {
   void
@@ -18,12 +19,12 @@ namespace edm {
 
   static
   std::string typeToClassName(const std::type_info& iType) {
-    ROOT::Reflex::Type t = ROOT::Reflex::Type::ByTypeInfo(iType);
+    Reflex::Type t = Reflex::Type::ByTypeInfo(iType);
     if (!bool(t)) {
       throw edm::Exception(errors::DictionaryNotFound,"NoMatch")
       << "TypeID::className: No dictionary for class " << iType.name() << '\n';
     }
-    return t.Name(ROOT::Reflex::SCOPED);
+    return t.Name(Reflex::SCOPED);
   }
   
   std::string
@@ -92,7 +93,7 @@ namespace edm {
 
   bool
   TypeID::hasDictionary() const {
-    return bool(ROOT::Reflex::Type::ByTypeInfo(typeInfo()));
+    return bool(Reflex::Type::ByTypeInfo(typeInfo()));
   }
 
   std::ostream&

@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb  7 17:21:22 EST 2008
-// $Id$
+// $Id: GenericObjectOwner.cc,v 1.1 2008/02/12 21:48:33 chrjones Exp $
 //
 
 // system include files
@@ -62,7 +62,7 @@ GenericObjectOwner::~GenericObjectOwner()
 void 
 GenericObjectOwner::swap(GenericObjectOwner& iOther)
 {
-   ROOT::Reflex::Object old(m_object);
+   Reflex::Object old(m_object);
    m_object = iOther.m_object;
    iOther.m_object = m_object;
 }
@@ -70,7 +70,7 @@ GenericObjectOwner::swap(GenericObjectOwner& iOther)
 //
 // const member functions
 //
-ROOT::Reflex::Object 
+Reflex::Object 
 GenericObjectOwner::object() const
 {
    return m_object;

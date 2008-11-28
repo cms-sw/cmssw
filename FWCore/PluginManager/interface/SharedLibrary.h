@@ -16,20 +16,17 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Apr  5 15:30:08 EDT 2007
-// $Id: SharedLibrary.h,v 1.1.2.2 2007/04/09 18:46:49 chrjones Exp $
+// $Id: SharedLibrary.h,v 1.2 2007/04/12 12:51:12 wmtan Exp $
 //
 
 // system include files
 #include <boost/filesystem/path.hpp>
 
 // user include files
+#include "FWCore/Utilities/interface/UseReflex.h"
 
 // forward declarations
-namespace ROOT {
-  namespace Reflex {
-    class SharedLibrary;
-  }
-}
+
 namespace edmplugin {
 class SharedLibrary
 {
@@ -52,7 +49,7 @@ class SharedLibrary
       const SharedLibrary& operator=(const SharedLibrary&); // stop default
 
       // ---------- member data --------------------------------
-      mutable ROOT::Reflex::SharedLibrary* library_;
+      mutable Reflex::SharedLibrary* library_;
       boost::filesystem::path path_;
 };
 

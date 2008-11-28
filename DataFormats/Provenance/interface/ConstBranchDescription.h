@@ -44,7 +44,7 @@ namespace edm {
     bool const& produced() const {return ptr_->produced();}
     bool const& present() const {return ptr_->present();}
     bool const& transient() const {return ptr_->transient();}
-    ROOT::Reflex::Type const& type() const {return ptr_->type();}
+    Reflex::Type const& type() const {return ptr_->type();}
     int const& splitLevel() const {return ptr_->splitLevel();}
     int const& basketSize() const {return ptr_->basketSize();}
 

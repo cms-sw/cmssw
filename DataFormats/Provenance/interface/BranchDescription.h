@@ -21,6 +21,7 @@ This description also applies to every product instance on the branch.
 #include "DataFormats/Provenance/interface/Transient.h"
 
 #include "Reflex/Type.h"
+#include "FWCore/Utilities/interface/UseReflex.h"
 /*
   BranchDescription
 
@@ -79,7 +80,7 @@ namespace edm {
     bool & produced() const {return transients_.get().produced_;}
     bool & present() const {return transients_.get().present_;}
     bool & transient() const {return transients_.get().transient_;}
-    ROOT::Reflex::Type & type() const {return transients_.get().type_;}
+    Reflex::Type & type() const {return transients_.get().type_;}
     int & splitLevel() const {return transients_.get().splitLevel_;}
     int & basketSize() const {return transients_.get().basketSize_;}
 
@@ -134,7 +135,7 @@ namespace edm {
       bool transient_;
 
       // The Reflex Type of the wrapped object.
-      ROOT::Reflex::Type type_;
+      Reflex::Type type_;
 
       // The split level of the branch, as marked
       // in the data dictionary.
