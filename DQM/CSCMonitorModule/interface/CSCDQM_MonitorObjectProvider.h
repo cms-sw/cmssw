@@ -23,6 +23,7 @@
 
 #include "DQM/CSCMonitorModule/interface/CSCDQM_HistoType.h"
 #include "DQM/CSCMonitorModule/interface/CSCDQM_MonitorObject.h"
+#include "DQM/CSCMonitorModule/interface/CSCDQM_Configuration.h"
 
 namespace cscdqm {
 

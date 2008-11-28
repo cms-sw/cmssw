@@ -39,6 +39,7 @@
 #include "DQM/CSCMonitorModule/interface/CSCDQM_Summary.h"
 #include "DQM/CSCMonitorModule/interface/CSCDQM_StripClusterFinder.h"
 #include "DQM/CSCMonitorModule/interface/CSCDQM_MonitorObjectProvider.h"
+#include "DQM/CSCMonitorModule/interface/CSCDQM_Configuration.h"
 
 #include "EventFilter/CSCRawToDigi/interface/CSCDCCExaminer.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCDDUEventData.h"
