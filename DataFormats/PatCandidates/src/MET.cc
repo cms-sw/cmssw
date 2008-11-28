@@ -1,5 +1,5 @@
 //
-// $Id: MET.cc,v 1.11 2008/10/07 18:22:18 lowette Exp $
+// $Id: MET.cc,v 1.12 2008/10/08 18:26:16 lowette Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/MET.h"
@@ -13,21 +13,21 @@ MET::MET(): uncorInfo_(0) {
 }
 
 
-/// constructor from METType
-MET::MET(const METType & aMET) : PATObject<METType>(aMET), uncorInfo_(0) {
+/// constructor from reco::MET
+MET::MET(const reco::MET & aMET) : PATObject<reco::MET>(aMET), uncorInfo_(0) {
     const reco::CaloMET * calo = dynamic_cast<const reco::CaloMET *>(&aMET);
     if (calo != 0) caloMET_.push_back(calo->getSpecific());
 }
 
 
-/// constructor from ref to METType
-MET::MET(const edm::RefToBase<METType> & aMETRef) : PATObject<METType>(aMETRef), uncorInfo_(0) {
+/// constructor from ref to reco::MET
+MET::MET(const edm::RefToBase<reco::MET> & aMETRef) : PATObject<reco::MET>(aMETRef), uncorInfo_(0) {
     const reco::CaloMET * calo = dynamic_cast<const reco::CaloMET *>(aMETRef.get());
     if (calo != 0) caloMET_.push_back(calo->getSpecific());
 }
 
-/// constructor from ref to METType
-MET::MET(const edm::Ptr<METType> & aMETRef) : PATObject<METType>(aMETRef), uncorInfo_(0) {
+/// constructor from ref to reco::MET
+MET::MET(const edm::Ptr<reco::MET> & aMETRef) : PATObject<reco::MET>(aMETRef), uncorInfo_(0) {
     const reco::CaloMET * calo = dynamic_cast<const reco::CaloMET *>(aMETRef.get());
     if (calo != 0) caloMET_.push_back(calo->getSpecific());
 }

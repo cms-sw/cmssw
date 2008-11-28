@@ -181,7 +181,7 @@
   <class name="pat::PATObject<reco::MET>" />
   <class name="pat::PATObject<reco::LeafCandidate>" />
   <class name="pat::PATObject<reco::CompositeCandidate>" />
-  <class name="pat::PATObject<reco::PFParticle>" />
+  <class name="pat::PATObject<reco::PFCandidate>" />
   <class name="pat::PATObject<reco::RecoCandidate>" />
   <class name="pat::Lepton<reco::GsfElectron>" />
   <class name="pat::Lepton<reco::Muon>" />
