@@ -72,3 +72,52 @@ const uint32_t SiStripRegionCabling::physicalLayer(const SubDet subdet, const ui
   else if (subdet == TEC) return TIDLAYERS + layer;
   else return ALLLAYERS;
 }
+
+// -----------------------------------------------------------------------------
+//
+void SiStripRegionCabling::print( std::stringstream& ss ) const {
+  uint32_t valid = 0;
+  uint32_t total = 0;
+  ss << "[SiStripRegionCabling::" << __func__ << "] Printing REGION cabling:" << std::endl;
+  ss << "Printing cabling for " << regioncabling_.size() << " regions" << std::endl;
+  Cabling::const_iterator id = regioncabling_.begin();
+  Cabling::const_iterator jd = regioncabling_.end();
+  for ( ; id != jd; ++id ) {
+    ss << "Printing cabling for " << id->size()
+       << " regions for partition " << static_cast<int32_t>( id - regioncabling_.begin() )
+       << std::endl;
+    RegionCabling::const_iterator ir = id->begin();
+    RegionCabling::const_iterator jr = id->end();
+    for ( ; ir != jr; ++ir ) {
+      ss << "Printing cabling for " << ir->size()
+	 << " wedges for region " << static_cast<int32_t>( ir - id->begin() )
+	 << std::endl;
+      WedgeCabling::const_iterator iw = ir->begin();
+      WedgeCabling::const_iterator jw = ir->end();
+      for ( ; iw != jw; ++iw ) {
+	ss << "Printing cabling for " << iw->size()
+	   << " elements for wedge " << static_cast<int32_t>( iw - ir->begin() )
+	   << std::endl;
+	ElementCabling::const_iterator ie = iw->begin();
+	ElementCabling::const_iterator je = iw->end();
+	for ( ; ie != je; ++ie ) {
+	  ss << "Printing cabling for " << ie->second.size()
+	     << " connections for element (DetId) " << ie->first
+	     << std::endl;
+	  std::vector<FedChannelConnection>::const_iterator ic = ie->second.begin();
+	  std::vector<FedChannelConnection>::const_iterator jc = ie->second.end();
+	  for ( ; ic != jc; ++ic ) {
+	    if ( ic->isConnected() ) { valid++; }
+	    total++;
+	    ic->print(ss);
+	    ss << std::endl;
+	  }
+	}
+      }
+    }
+  }
+  ss << "Number of connected:   " << valid << std::endl
+     << "Number of connections: " << total << std::endl;
+}
+
+

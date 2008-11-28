@@ -7,6 +7,7 @@
 #include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
 #include "DataFormats/Common/interface/RefGetter.h"
 #include "DataFormats/Common/interface/Handle.h"
+#include <sstream>
 #include <vector>
 #include <map>
 #include <cmath>
@@ -120,6 +121,9 @@ class SiStripRegionCabling {
 				const double deltaphi, 
 				const SubDet subdet, 
 				const uint32_t layer) const;
+  
+  /** */
+  void print( std::stringstream& ) const;
   
  private:
  
