@@ -5,8 +5,8 @@
 //   Description: Sector Receiver 
 //
 //
-//   $Date: 2008/10/01 14:41:05 $
-//   $Revision: 1.13 $
+//   $Date: 2008/11/28 10:30:51 $
+//   $Revision: 1.14 $
 //
 //   Author :
 //   N. Neumeister            CERN EP
@@ -139,7 +139,7 @@ void L1MuDTSectorReceiver::receiveDTBXData(int bx, const edm::Event& e, const ed
         } 
         else if ( station == 2 ) {
           if ( pars->get_inrec_chdis_st2(lwheel, sector) ) continue;
-          if ( qual < pars->get_inrec_qual_st3(lwheel, sector) ) continue;
+          if ( qual < pars->get_inrec_qual_st2(lwheel, sector) ) continue;
           } 
         else if ( station == 3 ) {
           if ( pars->get_inrec_chdis_st3(lwheel, sector) ) continue;
