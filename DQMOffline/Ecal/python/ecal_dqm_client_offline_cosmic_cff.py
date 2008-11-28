@@ -8,7 +8,8 @@ dqmQTestEB = cms.EDFilter("QualityTester",
     prescaleFactor = cms.untracked.int32(1),
     qtList = cms.untracked.FileInPath('DQM/EcalBarrelMonitorModule/test/data/EcalBarrelQualityTests.xml'),
     getQualityTestsFromFile = cms.untracked.bool(True),
-    qtestOnEndRun = cms.untracked.bool(True)
+    qtestOnEndRun = cms.untracked.bool(True),
+    verboseQT = cms.untracked.bool(False)
 )
 
 dqmQTestEE = cms.EDFilter("QualityTester",
@@ -16,7 +17,8 @@ dqmQTestEE = cms.EDFilter("QualityTester",
     prescaleFactor = cms.untracked.int32(1),
     qtList = cms.untracked.FileInPath('DQM/EcalEndcapMonitorModule/test/data/EcalEndcapQualityTests.xml'),
     getQualityTestsFromFile = cms.untracked.bool(True),
-    qtestOnEndRun = cms.untracked.bool(True)
+    qtestOnEndRun = cms.untracked.bool(True),
+    verboseQT = cms.untracked.bool(False)
 )
 
 eb_dqm_client_offline = cms.Sequence(ecalBarrelMonitorClient*dqmQTestEB)
