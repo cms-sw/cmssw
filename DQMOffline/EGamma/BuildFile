@@ -11,6 +11,7 @@
 <use name=DQMServices/Components>
 <use name=DQMServices/Core>
 <use name=DQMServices/WebComponents>
+<use name=HLTrigger/HLTcore>
 <use name=clhep>
 <flags EDM_PLUGIN=1>
 <export>
@@ -29,4 +30,5 @@
   <use name=DQMServices/Core>
   <use name=DQMServices/WebComponents>
   <use name=clhep>
+  <use name=HLTrigger/HLTcore>	
 </export>
