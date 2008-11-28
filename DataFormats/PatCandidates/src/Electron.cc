@@ -1,5 +1,5 @@
 //
-// $Id: Electron.cc,v 1.12 2008/11/13 15:33:21 salerno Exp $
+// $Id: Electron.cc,v 1.13 2008/11/25 08:58:00 fronga Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/Electron.h"
@@ -10,7 +10,7 @@ using namespace pat;
 
 /// default constructor
 Electron::Electron() :
-    Lepton<ElectronType>(),
+    Lepton<reco::GsfElectron>(),
     embeddedGsfTrack_(false),
     embeddedSuperCluster_(false),
     embeddedTrack_(false),
@@ -23,9 +23,9 @@ Electron::Electron() :
 }
 
 
-/// constructor from ElectronType
-Electron::Electron(const ElectronType & anElectron) :
-    Lepton<ElectronType>(anElectron),
+/// constructor from reco::GsfElectron
+Electron::Electron(const reco::GsfElectron & anElectron) :
+    Lepton<reco::GsfElectron>(anElectron),
     embeddedGsfTrack_(false),
     embeddedSuperCluster_(false),
     embeddedTrack_(false),
@@ -38,9 +38,9 @@ Electron::Electron(const ElectronType & anElectron) :
 }
 
 
-/// constructor from ref to ElectronType
-Electron::Electron(const edm::RefToBase<ElectronType> & anElectronRef) :
-    Lepton<ElectronType>(anElectronRef),
+/// constructor from ref to reco::GsfElectron
+Electron::Electron(const edm::RefToBase<reco::GsfElectron> & anElectronRef) :
+    Lepton<reco::GsfElectron>(anElectronRef),
     embeddedGsfTrack_(false),
     embeddedSuperCluster_(false),
     embeddedTrack_(false),
@@ -52,9 +52,9 @@ Electron::Electron(const edm::RefToBase<ElectronType> & anElectronRef) :
 {
 }
 
-/// constructor from ref to ElectronType
-Electron::Electron(const edm::Ptr<ElectronType> & anElectronRef) :
-    Lepton<ElectronType>(anElectronRef),
+/// constructor from Ptr to reco::GsfElectron
+Electron::Electron(const edm::Ptr<reco::GsfElectron> & anElectronRef) :
+    Lepton<reco::GsfElectron>(anElectronRef),
     embeddedGsfTrack_(false),
     embeddedSuperCluster_(false),
     embeddedTrack_(false),
@@ -72,40 +72,40 @@ Electron::~Electron() {
 }
 
 
-/// override the ElectronType::gsfTrack method, to access the internal storage of the supercluster
+/// override the reco::GsfElectron::gsfTrack method, to access the internal storage of the supercluster
 reco::GsfTrackRef Electron::gsfTrack() const {
   if (embeddedGsfTrack_) {
     return reco::GsfTrackRef(&gsfTrack_, 0);
   } else {
-    return ElectronType::gsfTrack();
+    return reco::GsfElectron::gsfTrack();
   }
 }
 
 
-/// override the ElectronType::superCluster method, to access the internal storage of the supercluster
+/// override the reco::GsfElectron::superCluster method, to access the internal storage of the supercluster
 reco::SuperClusterRef Electron::superCluster() const {
   if (embeddedSuperCluster_) {
     return reco::SuperClusterRef(&superCluster_, 0);
   } else {
-    return ElectronType::superCluster();
+    return reco::GsfElectron::superCluster();
   }
 }
 
 
-/// override the ElectronType::track method, to access the internal storage of the track
+/// override the reco::GsfElectron::track method, to access the internal storage of the track
 reco::TrackRef Electron::track() const {
   if (embeddedTrack_) {
     return reco::TrackRef(&track_, 0);
   } else {
-    return ElectronType::track();
+    return reco::GsfElectron::track();
   }
 }
 
 /// method to store the electron's gsfTrack internally
 void Electron::embedGsfTrack() {
   gsfTrack_.clear();
-  if (ElectronType::gsfTrack().isNonnull()) {
-      gsfTrack_.push_back(*ElectronType::gsfTrack());
+  if (reco::GsfElectron::gsfTrack().isNonnull()) {
+      gsfTrack_.push_back(*reco::GsfElectron::gsfTrack());
       embeddedGsfTrack_ = true;
   }
 }
@@ -114,8 +114,8 @@ void Electron::embedGsfTrack() {
 /// method to store the electron's supercluster internally
 void Electron::embedSuperCluster() {
   superCluster_.clear();
-  if (ElectronType::superCluster().isNonnull()) {
-      superCluster_.push_back(*ElectronType::superCluster());
+  if (reco::GsfElectron::superCluster().isNonnull()) {
+      superCluster_.push_back(*reco::GsfElectron::superCluster());
       embeddedSuperCluster_ = true;
   }
 }
@@ -124,8 +124,8 @@ void Electron::embedSuperCluster() {
 /// method to store the electron's track internally
 void Electron::embedTrack() {
   track_.clear();
-  if (ElectronType::track().isNonnull()) {
-      track_.push_back(*ElectronType::track());
+  if (reco::GsfElectron::track().isNonnull()) {
+      track_.push_back(*reco::GsfElectron::track());
       embeddedTrack_ = true;
   }
 }

@@ -1,5 +1,5 @@
 //
-// $Id: Tau.h,v 1.19 2008/10/08 18:27:09 lowette Exp $
+// $Id: Tau.h,v 1.20 2008/10/16 13:33:03 veelken Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Tau_h
@@ -17,7 +17,7 @@
    https://hypernews.cern.ch/HyperNews/CMS/get/physTools.html
 
   \author   Steven Lowette, Christophe Delaere, Giovanni Petrucciani, Frederic Ronga, Colin Bernet
-  \version  $Id: Tau.h,v 1.19 2008/10/08 18:27:09 lowette Exp $
+  \version  $Id: Tau.h,v 1.20 2008/10/16 13:33:03 veelken Exp $
 */
 
 
@@ -28,6 +28,7 @@
 
 #include "DataFormats/PatCandidates/interface/TauPFSpecific.h"
 #include "DataFormats/PatCandidates/interface/TauCaloSpecific.h"
+
 
 // Define typedefs for convenience
 namespace pat {
@@ -41,9 +42,7 @@ namespace pat {
 // Class definition
 namespace pat {
 
-  typedef reco::BaseTau TauType;
-
-  class Tau : public Lepton<TauType> {
+  class Tau : public Lepton<reco::BaseTau> {
 
     public:
 
@@ -52,11 +51,11 @@ namespace pat {
       /// default constructor
       Tau();
       /// constructor from a reco tau
-      Tau(const TauType & aTau);
+      Tau(const reco::BaseTau & aTau);
       /// constructor from a RefToBase to a reco tau (to be superseded by Ptr counterpart)
-      Tau(const edm::RefToBase<TauType> & aTauRef);
+      Tau(const edm::RefToBase<reco::BaseTau> & aTauRef);
       /// constructor from a Ptr to a reco tau
-      Tau(const edm::Ptr<TauType> & aTauRef);
+      Tau(const edm::Ptr<reco::BaseTau> & aTauRef);
       /// destructor
       virtual ~Tau();
 
@@ -64,11 +63,11 @@ namespace pat {
       virtual Tau * clone() const { return new Tau(*this); }
 
       // ---- methods for content embedding ----
-      /// override the TauType::isolationTracks method, to access the internal storage of the track
+      /// override the reco::BaseTau::isolationTracks method, to access the internal storage of the isolation tracks
       reco::TrackRefVector isolationTracks() const;
-      /// override the TauType::track method, to access the internal storage of the track
+      /// override the reco::BaseTau::leadTrack method, to access the internal storage of the leading track
       reco::TrackRef leadTrack() const;
-      /// override the TauType::track method, to access the internal storage of the track
+      /// override the reco::BaseTau::signalTracks method, to access the internal storage of the signal tracks
       reco::TrackRefVector signalTracks() const;
       /// method to store the isolation tracks internally
       void embedIsolationTracks();

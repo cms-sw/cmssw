@@ -1,5 +1,5 @@
 //
-// $Id: Muon.h,v 1.19 2008/10/10 13:55:55 lowette Exp $
+// $Id: Muon.h,v 1.20 2008/10/10 17:44:57 lowette Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Muon_h
@@ -16,7 +16,7 @@
    https://hypernews.cern.ch/HyperNews/CMS/get/physTools.html
 
   \author   Steven Lowette, Giovanni Petrucciani, Frederic Ronga, Colin Bernet
-  \version  $Id: Muon.h,v 1.19 2008/10/10 13:55:55 lowette Exp $
+  \version  $Id: Muon.h,v 1.20 2008/10/10 17:44:57 lowette Exp $
 */
 
 
@@ -42,22 +42,18 @@ namespace pat {
 namespace pat {
 
 
-  typedef reco::Muon MuonType;
-  typedef reco::MuonCollection MuonTypeCollection;
-
-
-  class Muon : public Lepton<MuonType> {
+  class Muon : public Lepton<reco::Muon> {
 
     public:
 
       /// default constructor
       Muon();
       /// constructor from a reco muon
-      Muon(const MuonType & aMuon);
+      Muon(const reco::Muon & aMuon);
       /// constructor from a RefToBase to a reco muon (to be superseded by Ptr counterpart)
-      Muon(const edm::RefToBase<MuonType> & aMuonRef);
+      Muon(const edm::RefToBase<reco::Muon> & aMuonRef);
       /// constructor from a Ptr to a reco muon
-      Muon(const edm::Ptr<MuonType> & aMuonRef);
+      Muon(const edm::Ptr<reco::Muon> & aMuonRef);
       /// destructor
       virtual ~Muon();
 

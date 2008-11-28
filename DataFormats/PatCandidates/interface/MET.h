@@ -1,5 +1,5 @@
 //
-// $Id: MET.h,v 1.16 2008/10/08 11:44:31 fronga Exp $
+// $Id: MET.h,v 1.17 2008/10/08 18:26:16 lowette Exp $
 //
 
 #ifndef DataFormats_PatCandidates_MET_h
@@ -16,7 +16,7 @@
    https://hypernews.cern.ch/HyperNews/CMS/get/physTools.html
 
   \author   Steven Lowette, Giovanni Petrucciani, Frederic Ronga, Slava Krutelyov
-  \version  $Id: MET.h,v 1.16 2008/10/08 11:44:31 fronga Exp $
+  \version  $Id: MET.h,v 1.17 2008/10/08 18:26:16 lowette Exp $
 */
 
 
@@ -33,25 +33,23 @@ namespace pat {
   typedef edm::RefVector<METCollection> METRefVector; 
 }
 
+
 // Class definition
 namespace pat {
 
 
-  typedef reco::MET METType;
-
-
-  class MET : public PATObject<METType> {
+  class MET : public PATObject<reco::MET> {
 
     public:
 
       /// default constructor
       MET();
-      /// constructor from METType
-      MET(const METType & aMET);
-      /// constructor from a RefToBase to METType (to be superseded by Ptr counterpart)
-      MET(const edm::RefToBase<METType> & aMETRef);
-      /// constructor from a Ptr to a METType
-      MET(const edm::Ptr<METType> & aMETRef);
+      /// constructor from reco::MET
+      MET(const reco::MET & aMET);
+      /// constructor from a RefToBase to reco::MET (to be superseded by Ptr counterpart)
+      MET(const edm::RefToBase<reco::MET> & aMETRef);
+      /// constructor from a Ptr to a reco::MET
+      MET(const edm::Ptr<reco::MET> & aMETRef);
       /// destructor
       virtual ~MET();
 

@@ -1,5 +1,5 @@
 //
-// $Id: Particle.h,v 1.4 2008/06/03 22:28:07 gpetrucc Exp $
+// $Id: Particle.h,v 1.5 2008/10/08 19:04:42 gpetrucc Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Particle_h
@@ -12,12 +12,13 @@
    Particle implements an analysis-level particle class within the 'pat'
    namespace.
 
-  \author   Steven Lowette
-  \version  $Id: Particle.h,v 1.4 2008/06/03 22:28:07 gpetrucc Exp $
+  \author   Steven Lowette, Giovanni Petrucciani
+  \version  $Id: Particle.h,v 1.5 2008/10/08 19:04:42 gpetrucc Exp $
 */
 
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
 #include "DataFormats/PatCandidates/interface/PATObject.h"
+
 
 // Define typedefs for convenience
 namespace pat {
@@ -30,17 +31,18 @@ namespace pat {
 namespace pat {
 
 
-  typedef reco::LeafCandidate ParticleType;
-
-
-  class Particle : public PATObject<ParticleType> {
+  class Particle : public PATObject<reco::LeafCandidate> {
 
     public:
 
+      /// default constructor
       Particle();
-      Particle(const ParticleType & aParticle);
+      /// constructor from a LeafCandidate
+      Particle(const reco::LeafCandidate & aParticle);
+      /// destructor
       virtual ~Particle();
 
+      /// required reimplementation of the Candidate's clone method
       virtual Particle * clone() const { return new Particle(*this); }
 
   };

@@ -1,5 +1,5 @@
 //
-// $Id: Photon.h,v 1.17 2008/11/17 20:16:04 askew Exp $
+// $Id: Photon.h,v 1.18 2008/11/17 22:41:50 askew Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Photon_h
@@ -16,7 +16,7 @@
    https://hypernews.cern.ch/HyperNews/CMS/get/physTools.html
 
   \author   Steven Lowette, Giovanni Petrucciani, Frederic Ronga
-  \version  $Id: Photon.h,v 1.17 2008/11/17 20:16:04 askew Exp $
+  \version  $Id: Photon.h,v 1.18 2008/11/17 22:41:50 askew Exp $
 */
 
 #include "DataFormats/PatCandidates/interface/PATObject.h"
@@ -24,6 +24,7 @@
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/PatCandidates/interface/Isolation.h"
+
 
 // Define typedefs for convenience
 namespace pat {
@@ -38,10 +39,7 @@ namespace pat {
 namespace pat {
 
 
-  typedef reco::Photon PhotonType;
-
-
-  class Photon : public PATObject<PhotonType> {
+  class Photon : public PATObject<reco::Photon> {
 
     public:
 
@@ -50,11 +48,11 @@ namespace pat {
       /// default constructor
       Photon();
       /// constructor from a reco photon
-      Photon(const PhotonType & aPhoton);
+      Photon(const reco::Photon & aPhoton);
       /// constructor from a RefToBase to a reco photon (to be superseded by Ptr counterpart)
-      Photon(const edm::RefToBase<PhotonType> & aPhotonRef);
+      Photon(const edm::RefToBase<reco::Photon> & aPhotonRef);
       /// constructor from a Ptr to a reco photon
-      Photon(const edm::Ptr<PhotonType> & aPhotonRef);
+      Photon(const edm::Ptr<reco::Photon> & aPhotonRef);
       /// destructor
       virtual ~Photon();
 

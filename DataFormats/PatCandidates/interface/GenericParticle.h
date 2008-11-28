@@ -1,5 +1,5 @@
 //
-// $Id: GenericParticle.h,v 1.4 2008/07/22 12:44:19 gpetrucc Exp $
+// $Id: GenericParticle.h,v 1.5 2008/10/08 11:44:31 fronga Exp $
 //
 
 #ifndef DataFormats_PatCandidates_GenericParticle_h
@@ -13,7 +13,7 @@
    namespace.
 
   \author   Giovanni Petrucciani
-  \version  $Id: GenericParticle.h,v 1.4 2008/07/22 12:44:19 gpetrucc Exp $
+  \version  $Id: GenericParticle.h,v 1.5 2008/10/08 11:44:31 fronga Exp $
 */
 
 #include "DataFormats/PatCandidates/interface/PATObject.h"
@@ -54,6 +54,7 @@ namespace pat {
       /// destructor
       virtual ~GenericParticle();
 
+      /// required reimplementation of the Candidate's clone method
       virtual GenericParticle * clone() const { return new GenericParticle(*this); }
 
       /// Checks for overlap with another candidate. 

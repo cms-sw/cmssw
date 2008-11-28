@@ -1,5 +1,5 @@
 //
-// $Id: Jet.cc,v 1.25 2008/11/04 13:53:52 auterman Exp $
+// $Id: Jet.cc,v 1.26 2008/11/25 11:31:10 rwolf Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/Jet.h"
@@ -11,7 +11,7 @@ using namespace pat;
 
 /// default constructor
 Jet::Jet() :
-  PATObject<JetType>(JetType()),
+  PATObject<reco::Jet>(reco::Jet()),
   embeddedCaloTowers_(false),
   partonFlavour_(0), 
   jetCharge_(0.)
@@ -19,9 +19,9 @@ Jet::Jet() :
 }
 
 
-/// constructor from a JetType
-Jet::Jet(const JetType & aJet) :
-  PATObject<JetType>(aJet),
+/// constructor from a reco::Jet
+Jet::Jet(const reco::Jet & aJet) :
+  PATObject<reco::Jet>(aJet),
   embeddedCaloTowers_(false),
   partonFlavour_(0), 
   jetCharge_(0.0)
@@ -29,9 +29,9 @@ Jet::Jet(const JetType & aJet) :
   tryImportSpecific(aJet);
 }
 
-/// constructor from ref to JetType
-Jet::Jet(const edm::Ptr<JetType> & aJetRef) :
-  PATObject<JetType>(aJetRef),
+/// constructor from ref to reco::Jet
+Jet::Jet(const edm::Ptr<reco::Jet> & aJetRef) :
+  PATObject<reco::Jet>(aJetRef),
   embeddedCaloTowers_(false),
   partonFlavour_(0), 
   jetCharge_(0.0)
@@ -39,9 +39,9 @@ Jet::Jet(const edm::Ptr<JetType> & aJetRef) :
   tryImportSpecific(*aJetRef);
 }
 
-/// constructor from ref to JetType
-Jet::Jet(const edm::RefToBase<JetType> & aJetRef) :
-  PATObject<JetType>(aJetRef),
+/// constructor from ref to reco::Jet
+Jet::Jet(const edm::RefToBase<reco::Jet> & aJetRef) :
+  PATObject<reco::Jet>(aJetRef),
   embeddedCaloTowers_(false),
   partonFlavour_(0), 
   jetCharge_(0.0)
@@ -50,7 +50,7 @@ Jet::Jet(const edm::RefToBase<JetType> & aJetRef) :
 }
 
 /// constructor helper that tries to import the specific info from the source jet
-void Jet::tryImportSpecific(const JetType &source) {
+void Jet::tryImportSpecific(const reco::Jet &source) {
     const std::type_info & type = typeid(source);
     if (type == typeid(reco::CaloJet)) {
         specificCalo_.push_back( (static_cast<const reco::CaloJet &>(source)).getSpecific() );

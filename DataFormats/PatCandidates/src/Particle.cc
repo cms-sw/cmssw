@@ -1,5 +1,5 @@
 //
-// $Id: Particle.cc,v 1.1 2008/01/07 11:48:25 lowette Exp $
+// $Id: Particle.cc,v 1.1 2008/01/15 12:59:32 lowette Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/Particle.h"
@@ -9,12 +9,12 @@ using namespace pat;
 
 
 /// default constructor
-Particle::Particle() : PATObject<ParticleType>(ParticleType(0, ParticleType::LorentzVector(0, 0, 0, 0), ParticleType::Point(0,0,0))) {
+Particle::Particle() : PATObject<reco::LeafCandidate>(reco::LeafCandidate(0, reco::LeafCandidate::LorentzVector(0, 0, 0, 0), reco::LeafCandidate::Point(0,0,0))) {
 }
 
 
-/// constructor from ParticleType
-Particle::Particle(const ParticleType & aParticle) : PATObject<ParticleType>(aParticle) {
+/// constructor from reco::LeafCandidate
+Particle::Particle(const reco::LeafCandidate & aParticle) : PATObject<reco::LeafCandidate>(aParticle) {
 }
 
 

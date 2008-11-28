@@ -1,5 +1,5 @@
 //
-// $Id: Electron.h,v 1.18 2008/11/13 15:33:21 salerno Exp $
+// $Id: Electron.h,v 1.19 2008/11/25 08:57:59 fronga Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Electron_h
@@ -16,7 +16,7 @@
    https://hypernews.cern.ch/HyperNews/CMS/get/physTools.html
 
   \author   Steven Lowette, Giovanni Petrucciani, Frederic Ronga
-  \version  $Id: Electron.h,v 1.18 2008/11/13 15:33:21 salerno Exp $
+  \version  $Id: Electron.h,v 1.19 2008/11/25 08:57:59 fronga Exp $
 */
 
 
@@ -38,10 +38,8 @@ namespace pat {
 // Class definition
 namespace pat {
 
-  typedef reco::GsfElectron ElectronType;
-  typedef reco::GsfElectronCollection ElectronTypeCollection;
 
-  class Electron : public Lepton<ElectronType> {
+  class Electron : public Lepton<reco::GsfElectron> {
 
     public:
 
@@ -50,11 +48,11 @@ namespace pat {
       /// default constructor
       Electron();
       /// constructor from a reco electron
-      Electron(const ElectronType & anElectron);
+      Electron(const reco::GsfElectron & anElectron);
       /// constructor from a RefToBase to a reco electron (to be superseded by Ptr counterpart)
-      Electron(const edm::RefToBase<ElectronType> & anElectronRef);
+      Electron(const edm::RefToBase<reco::GsfElectron> & anElectronRef);
       /// constructor from a Ptr to a reco electron
-      Electron(const edm::Ptr<ElectronType> & anElectronRef);
+      Electron(const edm::Ptr<reco::GsfElectron> & anElectronRef);
       /// destructor
       virtual ~Electron();
 
@@ -62,11 +60,11 @@ namespace pat {
       virtual Electron * clone() const { return new Electron(*this); }
 
       // ---- methods for content embedding ----
-      /// override the ElectronType::gsfTrack method, to access the internal storage of the supercluster
+      /// override the reco::GsfElectron::gsfTrack method, to access the internal storage of the supercluster
       reco::GsfTrackRef gsfTrack() const;
-      /// override the ElectronType::superCluster method, to access the internal storage of the supercluster
+      /// override the reco::GsfElectron::superCluster method, to access the internal storage of the supercluster
       reco::SuperClusterRef superCluster() const;
-      /// override the ElectronType::track method, to access the internal storage of the track
+      /// override the reco::GsfElectron::track method, to access the internal storage of the track
       reco::TrackRef track() const;
       /// method to store the electron's GsfTrack internally
       void embedGsfTrack();

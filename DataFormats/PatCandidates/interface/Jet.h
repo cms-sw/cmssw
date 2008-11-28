@@ -1,5 +1,5 @@
 //
-// $Id: Jet.h,v 1.27 2008/10/09 17:48:23 lowette Exp $
+// $Id: Jet.h,v 1.28 2008/11/04 13:53:52 auterman Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Jet_h
@@ -12,8 +12,8 @@
    Jet implements the analysis-level calorimeter jet class within the
    'pat' namespace
 
-  \author   Steven Lowette
-  \version  $Id: Jet.h,v 1.27 2008/10/09 17:48:23 lowette Exp $
+  \author   Steven Lowette, Giovanni Petrucciani, Roger Wolf, Christian Autermann
+  \version  $Id: Jet.h,v 1.28 2008/11/04 13:53:52 auterman Exp $
 */
 
 
@@ -38,6 +38,7 @@
 #include "DataFormats/Common/interface/Ptr.h"
 #include "DataFormats/Common/interface/OwnVector.h"
 
+
 // Define typedefs for convenience
 namespace pat {
   class Jet;
@@ -46,30 +47,32 @@ namespace pat {
   typedef edm::RefVector<JetCollection> JetRefVector; 
 }
 
+
 // Class definition
 namespace pat {
 
-  typedef reco::Jet JetType;
   typedef reco::CaloJet::Specific CaloSpecific;
   typedef reco::PFJet::Specific PFSpecific;
 
-  class Jet : public PATObject<JetType> {
+  class Jet : public PATObject<reco::Jet> {
 
     public:
 
       /// default constructor
       Jet();
-      /// constructor from a JetType
-      Jet(const JetType & aJet);
-      /// constructor from ref to JetType
-      Jet(const edm::RefToBase<JetType> & aJetRef);
-      /// constructor from ref to JetType
-      Jet(const edm::Ptr<JetType> & aJetRef);
+      /// constructor from a reco::Jet
+      Jet(const reco::Jet & aJet);
+      /// constructor from ref to reco::Jet
+      Jet(const edm::RefToBase<reco::Jet> & aJetRef);
+      /// constructor from ref to reco::Jet
+      Jet(const edm::Ptr<reco::Jet> & aJetRef);
       /// destructor
       virtual ~Jet();
 
+      /// required reimplementation of the Candidate's clone method
       virtual Jet * clone() const { return new Jet(*this); }
 
+      // ---- methods for MC matching ----
       /// return the matched generated parton
       const reco::GenParticle * genParton() const { return genParticle(); }
       /// return the matched generated jet
@@ -77,6 +80,7 @@ namespace pat {
       /// return the flavour of the parton underlying the jet
       int partonFlavour() const;
 
+      // ---- methods for jet corrections ----
       // Return true if this jet carries jet energy correction information
       bool  hasJetCorrFactors() const { return !jetEnergyCorrections_.empty(); }
       /// return the correction factor for this jet. Throws an exception if they're not available.
@@ -123,12 +127,11 @@ namespace pat {
       void setJetCorrFactors(const std::string &set, const JetCorrFactors & jetCorrF);
 #endif
 
+      // ---- methods for accessing b-tagging info ----
       /// get b discriminant from label name
       float bDiscriminator(const std::string &theLabel) const;
-
       /// get vector of paire labelname-disciValue
       const std::vector<std::pair<std::string, float> > & getPairDiscri() const;
-
       /// Get a tagInfo with the given name, or NULL if none is found. 
       /// You should omit the 'TagInfos' part from the label
       const reco::BaseTagInfo            * tagInfo(const std::string &label) const;
@@ -144,16 +147,24 @@ namespace pat {
       /// If the label is empty or not specified, it returns the first tagInfo of that type (if any one exists)
       /// You should omit the 'TagInfos' part from the label
       const reco::SecondaryVertexTagInfo * tagInfoSecondaryVertex(const std::string &label="") const;
+      /// method to add a algolabel-discriminator pair
+      void addBDiscriminatorPair(const std::pair<std::string, float> & thePair);
       /// Sets a tagInfo with the given name from an edm::Ptr<T> to it. 
       /// If the label ends with 'TagInfos', the 'TagInfos' is stripped out.
       void  addTagInfo(const std::string &label, 
                        const edm::Ptr<reco::BaseTagInfo> &info) ;
 
+      // ---- track related methods ----
       /// method to return the JetCharge computed when creating the Jet
       float jetCharge() const;
       /// method to return a vector of refs to the tracks associated to this jet
       const reco::TrackRefVector & associatedTracks() const;
+      /// method to set the jet charge
+      void setJetCharge(float jetCharge);
+      /// method to set the vector of refs to the tracks associated to this jet
+      void setAssociatedTracks(const reco::TrackRefVector &tracks);
 
+      // ---- methods for content embedding ----
       /// method to store the CaloJet constituents internally
       void setCaloTowers(const std::vector<CaloTowerPtr> & caloTowers);
       /// method to set the matched parton
@@ -166,56 +177,53 @@ namespace pat {
 //      void setJetCorrFactors(const JetCorrFactors & jetCorrF);
 //      /// method to set correction factor to go back to an uncorrected jet
 //      void setNoCorrFactor(float noCorrF);
-      /// method to add a algolabel-discriminator pair
-      void addBDiscriminatorPair(const std::pair<std::string, float> & thePair);
 
-      /// method to set the jet charge
-      void setJetCharge(float jetCharge);
-
-      /// method to set the vector of refs to the tracks associated to this jet
-      void setAssociatedTracks(const reco::TrackRefVector &tracks);
-
+      // ---- jet specific methods ----
+      /// check to see if the jet is a reco::CaloJet
       bool isCaloJet()  const { return !specificCalo_.empty(); }
+      /// check to see if the jet is a reco::PFJet
       bool isPFJet()    const { return !specificPF_.empty(); }
+      /// check to see if the jet is no more than a reco::BasicJet
       bool isBasicJet() const { return !(isCaloJet() || isPFJet()); }
-
+      /// retrieve the calo specific part of the jet
       const CaloSpecific & caloSpecific() const { 
           if (specificCalo_.empty()) throw cms::Exception("Type Mismatch") << "This PAT jet was not made from a CaloJet.\n";
           return specificCalo_[0];
       }
+      /// retrieve the pf specific part of the jet
       const PFSpecific & pfSpecific() const { 
           if (specificPF_.empty()) throw cms::Exception("Type Mismatch") << "This PAT jet was not made from a PFJet.\n";
           return specificPF_[0];
       }
 
-      //================== Calo Jet specific information ====================
-      /** Returns the maximum energy deposited in ECAL towers*/
+      // ---- Calo Jet specific information ----
+      /// Returns the maximum energy deposited in ECAL towers
       float maxEInEmTowers() const {return caloSpecific().mMaxEInEmTowers;}
-      /** Returns the maximum energy deposited in HCAL towers*/
+      /// Returns the maximum energy deposited in HCAL towers
       float maxEInHadTowers() const {return caloSpecific().mMaxEInHadTowers;}
-      /** Returns the jet hadronic energy fraction*/
+      /// Returns the jet hadronic energy fraction
       float energyFractionHadronic () const {return caloSpecific().mEnergyFractionHadronic;}
-      /** Returns the jet electromagnetic energy fraction*/
+      /// Returns the jet electromagnetic energy fraction
       float emEnergyFraction() const {return caloSpecific().mEnergyFractionEm;}
-      /** Returns the jet hadronic energy in HB*/
+      /// Returns the jet hadronic energy in HB
       float hadEnergyInHB() const {return caloSpecific().mHadEnergyInHB;}
-      /** Returns the jet hadronic energy in HO*/
+      /// Returns the jet hadronic energy in HO
       float hadEnergyInHO() const {return caloSpecific().mHadEnergyInHO;}
-      /** Returns the jet hadronic energy in HE*/
+      /// Returns the jet hadronic energy in HE
       float hadEnergyInHE() const {return caloSpecific().mHadEnergyInHE;}
-      /** Returns the jet hadronic energy in HF*/
+      /// Returns the jet hadronic energy in HF
       float hadEnergyInHF() const {return caloSpecific().mHadEnergyInHF;}
-      /** Returns the jet electromagnetic energy in EB*/
+      /// Returns the jet electromagnetic energy in EB
       float emEnergyInEB() const {return caloSpecific().mEmEnergyInEB;}
-      /** Returns the jet electromagnetic energy in EE*/
+      /// Returns the jet electromagnetic energy in EE
       float emEnergyInEE() const {return caloSpecific().mEmEnergyInEE;}
-      /** Returns the jet electromagnetic energy extracted from HF*/
+      /// Returns the jet electromagnetic energy extracted from HF
       float emEnergyInHF() const {return caloSpecific().mEmEnergyInHF;}
-      /** Returns area of contributing towers */
+      /// Returns area of contributing towers
       float towersArea() const {return caloSpecific().mTowersArea;}
-      /** Returns the number of constituents carrying a 90% of the total Jet energy*/
+      /// Returns the number of constituents carrying a 90% of the total Jet energy*/
       int n90() const {return nCarrying (0.9);}
-      /** Returns the number of constituents carrying a 60% of the total Jet energy*/
+      /// Returns the number of constituents carrying a 60% of the total Jet energy*/
       int n60() const {return nCarrying (0.6);}
 
       /// convert generic constituent to specific type
@@ -227,7 +235,7 @@ namespace pat {
       /// If the caloTowers were embedded, these reference are transient only and must not be persisted
       std::vector<CaloTowerPtr> getCaloConstituents () const;
 
-    //================== PF Jet specific information ====================
+      // ---- PF Jet specific information ----
       /// chargedHadronEnergy
       float chargedHadronEnergy () const {return pfSpecific().mChargedHadronEnergy;}
       ///  chargedHadronEnergyFraction
@@ -275,14 +283,13 @@ namespace pat {
  
     protected:
 
-      // information originally in external branches
+      // ---- for content embedding ----
       bool embeddedCaloTowers_;
       CaloTowerCollection caloTowers_;
-      // MC info
+      // ---- MC info ----
       std::vector<reco::GenJet> genJet_;
       int partonFlavour_;
-      // energy scale correction factors
-
+      // ---- energy scale correction factors ----
       pat::JetCorrFactors::CorrStep    jetEnergyCorrectionStep_;
       std::vector<pat::JetCorrFactors> jetEnergyCorrections_;
 #if TO_BE_ADDED_LATER
@@ -291,25 +298,26 @@ namespace pat {
       // This means jetEnergyCorrectionExtraNames_.size() < jetEnergyCorrections_.size()
       std::vector<std::string>         jetEnergyCorrectionExtraNames_;
 #endif
-
-      // b-tag related members
+      // ---- b-tag related members ----
       std::vector<std::pair<std::string, float> >           pairDiscriVector_;
-      // track association
-      reco::TrackRefVector associatedTracks_;
-      // jet charge members
-      float jetCharge_;
-
       std::vector<std::string>          tagInfoLabels_;
       edm::OwnVector<reco::BaseTagInfo> tagInfos_;  
-      template<typename T> const T * tagInfoByType() const ; 
-
+      // ---- track related members ----
+      float jetCharge_;
+      reco::TrackRefVector associatedTracks_;
+      // ---- specific members ----
       std::vector<CaloSpecific> specificCalo_;
       std::vector<PFSpecific>   specificPF_;
-      void tryImportSpecific(const JetType &source);
-
 #if TO_BE_PORTED_LATER
-    static const std::string correctionNames_[NrOfCorrections];
+      static const std::string correctionNames_[NrOfCorrections];
 #endif
+
+    private:
+
+      // ---- helper functions ----
+      void tryImportSpecific(const reco::Jet &source);
+      template<typename T> const T * tagInfoByType() const;
+
   };
 
 

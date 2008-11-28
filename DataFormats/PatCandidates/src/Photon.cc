@@ -1,5 +1,5 @@
 //
-// $Id: Photon.cc,v 1.15 2008/07/08 20:56:48 gpetrucc Exp $
+// $Id: Photon.cc,v 1.16 2008/11/17 22:41:51 askew Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/Photon.h"
@@ -10,29 +10,29 @@ using pat::Photon;
 
 /// default constructor
 Photon::Photon() :
-    PATObject<PhotonType>(PhotonType()),
+    PATObject<reco::Photon>(reco::Photon()),
     embeddedSuperCluster_(false)
 {
 }
 
 
-/// constructor from PhotonType
-Photon::Photon(const PhotonType & aPhoton) :
-    PATObject<PhotonType>(aPhoton),
+/// constructor from reco::Photon
+Photon::Photon(const reco::Photon & aPhoton) :
+    PATObject<reco::Photon>(aPhoton),
     embeddedSuperCluster_(false)
 {
 }
 
-/// constructor from ref to PhotonType
-Photon::Photon(const edm::RefToBase<PhotonType> & aPhotonRef) :
-    PATObject<PhotonType>(aPhotonRef),
+/// constructor from ref to reco::Photon
+Photon::Photon(const edm::RefToBase<reco::Photon> & aPhotonRef) :
+    PATObject<reco::Photon>(aPhotonRef),
     embeddedSuperCluster_(false)
 {
 }
 
-/// constructor from ref to PhotonType
-Photon::Photon(const edm::Ptr<PhotonType> & aPhotonRef) :
-    PATObject<PhotonType>(aPhotonRef),
+/// constructor from ref to reco::Photon
+Photon::Photon(const edm::Ptr<reco::Photon> & aPhotonRef) :
+    PATObject<reco::Photon>(aPhotonRef),
     embeddedSuperCluster_(false)
 {
 }
@@ -48,15 +48,15 @@ reco::SuperClusterRef Photon::superCluster() const {
   if (embeddedSuperCluster_) {
     return reco::SuperClusterRef(&superCluster_, 0);
   } else {
-    return PhotonType::superCluster();
+    return reco::Photon::superCluster();
   }
 }
 
 /// method to store the photon's supercluster internally
 void Photon::embedSuperCluster() {
   superCluster_.clear();
-  if (PhotonType::superCluster().isNonnull()) {
-      superCluster_.push_back(*PhotonType::superCluster());
+  if (reco::Photon::superCluster().isNonnull()) {
+      superCluster_.push_back(*reco::Photon::superCluster());
       embeddedSuperCluster_ = true;
   }
 }

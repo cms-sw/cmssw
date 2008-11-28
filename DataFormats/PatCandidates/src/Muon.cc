@@ -1,5 +1,5 @@
 //
-// $Id: Muon.cc,v 1.14 2008/10/10 13:55:55 lowette Exp $
+// $Id: Muon.cc,v 1.15 2008/10/10 17:44:57 lowette Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/Muon.h"
@@ -10,7 +10,7 @@ using namespace pat;
 
 /// default constructor
 Muon::Muon() :
-    Lepton<MuonType>(),
+    Lepton<reco::Muon>(),
     embeddedTrack_(false),
     embeddedStandAloneMuon_(false),
     embeddedCombinedMuon_(false),
@@ -20,9 +20,9 @@ Muon::Muon() :
 }
 
 
-/// constructor from MuonType
-Muon::Muon(const MuonType & aMuon) :
-    Lepton<MuonType>(aMuon),
+/// constructor from reco::Muon
+Muon::Muon(const reco::Muon & aMuon) :
+    Lepton<reco::Muon>(aMuon),
     embeddedTrack_(false),
     embeddedStandAloneMuon_(false),
     embeddedCombinedMuon_(false),
@@ -32,9 +32,9 @@ Muon::Muon(const MuonType & aMuon) :
 }
 
 
-/// constructor from ref to MuonType
-Muon::Muon(const edm::RefToBase<MuonType> & aMuonRef) :
-    Lepton<MuonType>(aMuonRef),
+/// constructor from ref to reco::Muon
+Muon::Muon(const edm::RefToBase<reco::Muon> & aMuonRef) :
+    Lepton<reco::Muon>(aMuonRef),
     embeddedTrack_(false),
     embeddedStandAloneMuon_(false),
     embeddedCombinedMuon_(false),
@@ -44,9 +44,9 @@ Muon::Muon(const edm::RefToBase<MuonType> & aMuonRef) :
 }
 
 
-/// constructor from ref to MuonType
-Muon::Muon(const edm::Ptr<MuonType> & aMuonRef) :
-    Lepton<MuonType>(aMuonRef),
+/// constructor from ref to reco::Muon
+Muon::Muon(const edm::Ptr<reco::Muon> & aMuonRef) :
+    Lepton<reco::Muon>(aMuonRef),
     embeddedTrack_(false),
     embeddedStandAloneMuon_(false),
     embeddedCombinedMuon_(false),
@@ -66,7 +66,7 @@ reco::TrackRef Muon::track() const {
   if (embeddedTrack_) {
     return reco::TrackRef(&track_, 0);
   } else {
-    return MuonType::innerTrack();
+    return reco::Muon::innerTrack();
   }
 }
 
@@ -76,7 +76,7 @@ reco::TrackRef Muon::standAloneMuon() const {
   if (embeddedStandAloneMuon_) {
     return reco::TrackRef(&standAloneMuon_, 0);
   } else {
-    return MuonType::outerTrack();
+    return reco::Muon::outerTrack();
   }
 }
 
@@ -86,7 +86,7 @@ reco::TrackRef Muon::combinedMuon() const {
   if (embeddedCombinedMuon_) {
     return reco::TrackRef(&combinedMuon_, 0);
   } else {
-    return MuonType::globalTrack();
+    return reco::Muon::globalTrack();
   }
 }
 
@@ -104,8 +104,8 @@ reco::IsolatedPFCandidateRef Muon::pfCandidateRef() const {
 /// embed the Track reconstructed in the tracker only
 void Muon::embedTrack() {
   track_.clear();
-  if (MuonType::innerTrack().isNonnull()) {
-      track_.push_back(*MuonType::innerTrack());
+  if (reco::Muon::innerTrack().isNonnull()) {
+      track_.push_back(*reco::Muon::innerTrack());
       embeddedTrack_ = true;
   }
 }
@@ -114,8 +114,8 @@ void Muon::embedTrack() {
 /// embed the Track reconstructed in the muon detector only
 void Muon::embedStandAloneMuon() {
   standAloneMuon_.clear();
-  if (MuonType::outerTrack().isNonnull()) {
-      standAloneMuon_.push_back(*MuonType::outerTrack());
+  if (reco::Muon::outerTrack().isNonnull()) {
+      standAloneMuon_.push_back(*reco::Muon::outerTrack());
       embeddedStandAloneMuon_ = true;
   }
 }
@@ -124,8 +124,8 @@ void Muon::embedStandAloneMuon() {
 /// embed the Track reconstructed in both tracked and muon detector
 void Muon::embedCombinedMuon() {
   combinedMuon_.clear();
-  if (MuonType::globalTrack().isNonnull()) {
-      combinedMuon_.push_back(*MuonType::globalTrack());
+  if (reco::Muon::globalTrack().isNonnull()) {
+      combinedMuon_.push_back(*reco::Muon::globalTrack());
       embeddedCombinedMuon_ = true;
   }
 }

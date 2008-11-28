@@ -1,5 +1,5 @@
 //
-// $Id: PFParticle.h,v 1.1 2008/07/24 12:43:52 cbern Exp $
+// $Id: PFParticle.h,v 1.2 2008/10/08 19:04:42 gpetrucc Exp $
 //
 
 #ifndef DataFormats_PatCandidates_PFParticle_h
@@ -14,7 +14,7 @@
    isolated leptons or photons, or inside jets, end up as pat::PFParticles.
 
   \author   Colin Bernet
-  \version  $Id: PFParticle.h,v 1.1 2008/07/24 12:43:52 cbern Exp $
+  \version  $Id: PFParticle.h,v 1.2 2008/10/08 19:04:42 gpetrucc Exp $
 */
 
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
@@ -29,21 +29,24 @@ namespace pat {
   typedef edm::RefVector<PFParticleCollection> PFParticleRefVector; 
 }
 
+
+// Class definition
 namespace pat {
 
 
-  typedef reco::PFCandidate PFParticleType;
-  
+  class PFParticle : public PATObject<reco::PFCandidate> {
+    
+    public:
+    
+      /// default constructor
+      PFParticle() {}
+      /// constructor from ref
+      PFParticle(const edm::RefToBase<reco::PFCandidate> & aPFParticle);
+      /// destructor
+      virtual ~PFParticle() {}
 
-  class PFParticle : public PATObject<PFParticleType> {
-    
-  public:
-    
-    PFParticle() {}
-
-    PFParticle(const edm::RefToBase<PFParticleType> & aPFParticle);
-    
-    virtual PFParticle * clone() const { return new PFParticle(*this); }
+      /// required reimplementation of the Candidate's clone method
+      virtual PFParticle * clone() const { return new PFParticle(*this); }
     
   };
   
