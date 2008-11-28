@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
+
 photonAnalysis = cms.EDAnalyzer("PhotonAnalyzer",
 
     Name = cms.untracked.string('photonAnalysis'),
@@ -9,28 +10,32 @@ photonAnalysis = cms.EDAnalyzer("PhotonAnalyzer",
 
     barrelEcalHits = cms.InputTag("ecalRecHit","EcalRecHitsEB"),
     endcapEcalHits = cms.InputTag("ecalRecHit","EcalRecHitsEE"),
+                                
 
+    triggerResultsHLT = cms.InputTag("TriggerResults","","HLT"),
+    triggerResultsFU = cms.InputTag("TriggerResults","","FU"),
+                                
     prescaleFactor = cms.untracked.int32(1),
 
-    cutStep = cms.double(50.0),
-    numberOfSteps = cms.int32(2),                          
-
     useBinning = cms.bool(False),
-                             
-
+    useTriggerFiltering = cms.bool(True),                             
+    standAlone = cms.bool(False),
+                                
     minPhoEtCut = cms.double(0.0),
               
-
+    cutStep = cms.double(50.0),
+    numberOfSteps = cms.int32(2),
+                                
     # DBE verbosity
     Verbosity = cms.untracked.int32(0),
                                 # 1 provides basic output
                                 # 2 provides output of the fill step + 1
                                 # 3 provides output of the store step + 2
                                 
-    isolationStrength = cms.int32(1),
-                                # 1 => Loose Photon
-                                # 2 => Tight Photon
-                                
+    isolationStrength = cms.int32(2),
+                                # 1 => Loose EM
+                                # 2 => Loose Photon
+                                # 3 => Tight Photon
 
  
 
@@ -61,7 +66,7 @@ photonAnalysis = cms.EDAnalyzer("PhotonAnalyzer",
     dPhiTracksBin = cms.int32(100),
     dPhiTracksMin = cms.double(-0.5),
     dPhiTracksMax = cms.double(0.5),
-# parameters for pizer finding                                
+# parameters for pizero finding                                
     seleXtalMinEnergy = cms.double(0.0),
     clusSeedThr = cms.double(0.5),
     clusPhiSize = cms.int32(3),
@@ -82,8 +87,8 @@ photonAnalysis = cms.EDAnalyzer("PhotonAnalyzer",
     seleMinvMinPi0 = cms.double(0.0),
 #                                
     OutputMEsInRootFile = cms.bool(False),
+ 
     OutputFileName = cms.string('DQMOfflinePhotons.root'),
 
+
 )
-
-
