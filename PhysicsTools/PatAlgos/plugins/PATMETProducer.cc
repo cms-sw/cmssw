@@ -1,5 +1,5 @@
 //
-// $Id: PATMETProducer.cc,v 1.6 2008/09/30 21:33:05 srappocc Exp $
+// $Id: PATMETProducer.cc,v 1.7 2008/10/06 13:29:16 gpetrucc Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATMETProducer.h"
@@ -57,7 +57,7 @@ PATMETProducer::~PATMETProducer() {
 void PATMETProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) {
  
   // Get the vector of MET's from the event
-  edm::Handle<edm::View<METType> > mets;
+  edm::Handle<edm::View<reco::MET> > mets;
   iEvent.getByLabel(metSrc_, mets);
 
   if (efficiencyLoader_.enabled()) efficiencyLoader_.newEvent(iEvent);
@@ -70,11 +70,11 @@ void PATMETProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
 
   // loop over mets
   std::vector<MET> * patMETs = new std::vector<MET>(); 
-  for (edm::View<METType>::const_iterator itMET = mets->begin(); itMET != mets->end(); itMET++) {
+  for (edm::View<reco::MET>::const_iterator itMET = mets->begin(); itMET != mets->end(); itMET++) {
     // construct the MET from the ref -> save ref to original object
     unsigned int idx = itMET - mets->begin();
-    edm::RefToBase<METType> metsRef = mets->refAt(idx);
-    edm::Ptr<METType> metsPtr = mets->ptrAt(idx);
+    edm::RefToBase<reco::MET> metsRef = mets->refAt(idx);
+    edm::Ptr<reco::MET> metsPtr = mets->ptrAt(idx);
     MET amet(metsRef);
     // add the generated MET
     if (addGenMET_) amet.setGenMET((*genMETs)[idx]);

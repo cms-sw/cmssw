@@ -1,5 +1,5 @@
 //
-// $Id: PATElectronProducer.h,v 1.11 2008/09/30 21:33:05 srappocc Exp $
+// $Id: PATElectronProducer.h,v 1.12 2008/11/13 15:52:04 salerno Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATElectronProducer_h
@@ -10,10 +10,10 @@
   \brief    Produces pat::Electron's
 
    The PATElectronProducer produces analysis-level pat::Electron's starting from
-   a collection of objects of ElectronType.
+   a collection of objects of reco::GsfElectron.
 
   \author   Steven Lowette, James Lamb
-  \version  $Id: PATElectronProducer.h,v 1.11 2008/09/30 21:33:05 srappocc Exp $
+  \version  $Id: PATElectronProducer.h,v 1.12 2008/11/13 15:52:04 salerno Exp $
 */
 
 
@@ -62,7 +62,7 @@ namespace pat {
 
     private:
 
-      double electronID(const edm::Handle<edm::View<ElectronType> > & elecs, 
+      double electronID(const edm::Handle<edm::View<reco::GsfElectron> > & elecs, 
                         const edm::Handle<reco::ElectronIDAssociationCollection> & elecIDs,
 	                unsigned int idx);
     private:

@@ -1,5 +1,5 @@
 //
-// $Id: PATElectronProducer.cc,v 1.19 2008/10/19 21:11:56 gpetrucc Exp $
+// $Id: PATElectronProducer.cc,v 1.20 2008/11/13 15:52:04 salerno Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATElectronProducer.h"
@@ -134,7 +134,7 @@ PATElectronProducer::~PATElectronProducer() {
 void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) {
 
   // Get the collection of electrons from the event
-  edm::Handle<edm::View<ElectronType> > electrons;
+  edm::Handle<edm::View<reco::GsfElectron> > electrons;
   iEvent.getByLabel(electronSrc_, electrons);
 
   if (isolator_.enabled()) isolator_.beginEvent(iEvent,iSetup);
@@ -173,11 +173,11 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
    }
 
   std::vector<Electron> * patElectrons = new std::vector<Electron>();
-  for (edm::View<ElectronType>::const_iterator itElectron = electrons->begin(); itElectron != electrons->end(); ++itElectron) {
+  for (edm::View<reco::GsfElectron>::const_iterator itElectron = electrons->begin(); itElectron != electrons->end(); ++itElectron) {
     // construct the Electron from the ref -> save ref to original object
     unsigned int idx = itElectron - electrons->begin();
-    edm::RefToBase<ElectronType> elecsRef = electrons->refAt(idx);
-    edm::Ptr<ElectronType> electronPtr = electrons->ptrAt(idx);
+    edm::RefToBase<reco::GsfElectron> elecsRef = electrons->refAt(idx);
+    edm::Ptr<reco::GsfElectron> electronPtr = electrons->ptrAt(idx);
     Electron anElectron(elecsRef);
     if (embedGsfTrack_) anElectron.embedGsfTrack();
     if (embedSuperCluster_) anElectron.embedSuperCluster();
@@ -270,11 +270,11 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
 }
 
 
-double PATElectronProducer::electronID(const edm::Handle<edm::View<ElectronType> > & electrons,
+double PATElectronProducer::electronID(const edm::Handle<edm::View<reco::GsfElectron> > & electrons,
                                        const edm::Handle<reco::ElectronIDAssociationCollection> & elecIDs,
 	                               unsigned int idx) {
   //find elecID for elec with index idx
-  edm::Ref<std::vector<ElectronType> > elecsRef = electrons->refAt(idx).castTo<edm::Ref<std::vector<ElectronType> > >();
+  edm::Ref<std::vector<reco::GsfElectron> > elecsRef = electrons->refAt(idx).castTo<edm::Ref<std::vector<reco::GsfElectron> > >();
   reco::ElectronIDAssociationCollection::const_iterator elecID = elecIDs->find( elecsRef );
 
   //return corresponding elecID (only 

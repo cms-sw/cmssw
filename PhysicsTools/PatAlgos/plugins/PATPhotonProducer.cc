@@ -1,5 +1,5 @@
 //
-// $Id: PATPhotonProducer.cc,v 1.16 2008/11/17 20:03:27 askew Exp $
+// $Id: PATPhotonProducer.cc,v 1.17 2008/11/17 22:41:53 askew Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATPhotonProducer.h"
@@ -103,7 +103,7 @@ PATPhotonProducer::~PATPhotonProducer() {
 void PATPhotonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) {
  
   // Get the vector of Photon's from the event
-  edm::Handle<edm::View<PhotonType> > photons;
+  edm::Handle<edm::View<reco::Photon> > photons;
   iEvent.getByLabel(photonSrc_, photons);
 
   // prepare the MC matching
@@ -138,11 +138,11 @@ void PATPhotonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSe
 
   // loop over photons
   std::vector<Photon> * PATPhotons = new std::vector<Photon>(); 
-  for (edm::View<PhotonType>::const_iterator itPhoton = photons->begin(); itPhoton != photons->end(); itPhoton++) {
+  for (edm::View<reco::Photon>::const_iterator itPhoton = photons->begin(); itPhoton != photons->end(); itPhoton++) {
     // construct the Photon from the ref -> save ref to original object
     unsigned int idx = itPhoton - photons->begin();
-    edm::RefToBase<PhotonType> photonRef = photons->refAt(idx);
-    edm::Ptr<PhotonType> photonPtr = photons->ptrAt(idx);
+    edm::RefToBase<reco::Photon> photonRef = photons->refAt(idx);
+    edm::Ptr<reco::Photon> photonPtr = photons->ptrAt(idx);
     Photon aPhoton(photonRef);
     if (embedSuperCluster_) aPhoton.embedSuperCluster();
 

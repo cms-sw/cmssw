@@ -1,5 +1,5 @@
 //
-// $Id: PATJetProducer.cc,v 1.26 2008/11/04 14:12:58 auterman Exp $
+// $Id: PATJetProducer.cc,v 1.27 2008/11/17 19:32:48 rwolf Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATJetProducer.h"
@@ -129,7 +129,7 @@ PATJetProducer::~PATJetProducer() {
 void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) {
 
   // Get the vector of jets
-  edm::Handle<edm::View<JetType> > jets;
+  edm::Handle<edm::View<reco::Jet> > jets;
   iEvent.getByLabel(jetsSrc_, jets);
 
   if (efficiencyLoader_.enabled()) efficiencyLoader_.newEvent(iEvent);
@@ -184,12 +184,12 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
 
   // loop over jets
   std::vector<Jet> * patJets = new std::vector<Jet>(); 
-  for (edm::View<JetType>::const_iterator itJet = jets->begin(); itJet != jets->end(); itJet++) {
+  for (edm::View<reco::Jet>::const_iterator itJet = jets->begin(); itJet != jets->end(); itJet++) {
 
     // construct the Jet from the ref -> save ref to original object
     unsigned int idx = itJet - jets->begin();
-    edm::RefToBase<JetType> jetRef = jets->refAt(idx);
-    edm::Ptr<JetType> jetPtr = jets->ptrAt(idx); 
+    edm::RefToBase<reco::Jet> jetRef = jets->refAt(idx);
+    edm::Ptr<reco::Jet> jetPtr = jets->ptrAt(idx); 
     Jet ajet(jetRef);
 
     // ensure the internal storage of the jet constituents

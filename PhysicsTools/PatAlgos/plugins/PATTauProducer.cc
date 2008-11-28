@@ -1,5 +1,5 @@
 //
-// $Id: PATTauProducer.cc,v 1.17 2008/10/06 13:29:16 gpetrucc Exp $
+// $Id: PATTauProducer.cc,v 1.18 2008/10/16 13:18:04 veelken Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATTauProducer.h"
@@ -126,7 +126,7 @@ void PATTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
 
   std::auto_ptr<std::vector<Tau> > patTaus(new std::vector<Tau>()); 
 
-  edm::Handle<edm::View<TauType> > anyTaus;
+  edm::Handle<edm::View<reco::BaseTau> > anyTaus;
   try {
     iEvent.getByLabel(tauSrc_, anyTaus);
   } catch (const edm::Exception &e) {
@@ -147,8 +147,8 @@ void PATTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
   if (addGenJetMatch_) iEvent.getByLabel(genJetMatchSrc_, genJetMatch); 
 
   for (size_t idx = 0, ntaus = anyTaus->size(); idx < ntaus; ++idx) {
-    edm::RefToBase<TauType> tausRef = anyTaus->refAt(idx);
-    edm::Ptr<TauType> tausPtr = anyTaus->ptrAt(idx);
+    edm::RefToBase<reco::BaseTau> tausRef = anyTaus->refAt(idx);
+    edm::Ptr<reco::BaseTau> tausPtr = anyTaus->ptrAt(idx);
     
     Tau aTau(tausRef);
     if (embedLeadTrack_)       aTau.embedLeadTrack();

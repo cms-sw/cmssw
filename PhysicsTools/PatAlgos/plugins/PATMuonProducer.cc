@@ -1,5 +1,5 @@
 //
-// $Id: PATMuonProducer.cc,v 1.18 2008/10/13 13:49:08 cbern Exp $
+// $Id: PATMuonProducer.cc,v 1.19 2008/10/19 21:11:56 gpetrucc Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATMuonProducer.h"
@@ -179,9 +179,9 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
     } 
   }
   else {
-    edm::Handle<edm::View<MuonType> > muons;
+    edm::Handle<edm::View<reco::Muon> > muons;
     iEvent.getByLabel(muonSrc_, muons);
-    for (edm::View<MuonType>::const_iterator itMuon = muons->begin(); itMuon != muons->end(); ++itMuon) {
+    for (edm::View<reco::Muon>::const_iterator itMuon = muons->begin(); itMuon != muons->end(); ++itMuon) {
       
       
       // construct the Muon from the ref -> save ref to original object
@@ -209,7 +209,7 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
       }
 
       // add sel to selected
-      edm::Ptr<MuonType> muonsPtr = muons->ptrAt(idx);
+      edm::Ptr<reco::Muon> muonsPtr = muons->ptrAt(idx);
       if ( useUserData_ ) {
 	userDataHelper_.add( aMuon, iEvent, iSetup );
       }

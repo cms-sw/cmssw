@@ -1,5 +1,5 @@
 //
-// $Id: PATPFParticleProducer.h,v 1.1 2008/07/24 12:45:38 cbern Exp $
+// $Id: PATPFParticleProducer.h,v 1.2 2008/09/01 14:47:38 gpetrucc Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATPFParticleProducer_h
@@ -10,10 +10,10 @@
   \brief    Produces pat::PFParticle's
 
    The PATPFParticleProducer produces analysis-level pat::PFParticle's starting from
-   a collection of objects of PFParticleType.
+   a collection of objects of reco::PFCandidate.
 
   \author   Steven Lowette, Roger Wolf
-  \version  $Id: PATPFParticleProducer.h,v 1.1 2008/07/24 12:45:38 cbern Exp $
+  \version  $Id: PATPFParticleProducer.h,v 1.2 2008/09/01 14:47:38 gpetrucc Exp $
 */
 
 
@@ -51,7 +51,7 @@ namespace pat {
 
     private:
       void 
-	fetchCandidateCollection(edm::Handle< edm::View<PFParticleType> >& c, 
+	fetchCandidateCollection(edm::Handle< edm::View<reco::PFCandidate> >& c, 
 				 const edm::InputTag& tag, 
 				 const edm::Event& iSetup) const;
 

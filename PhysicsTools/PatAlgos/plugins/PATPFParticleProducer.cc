@@ -1,5 +1,5 @@
 //
-// $Id: PATPFParticleProducer.cc,v 1.1 2008/07/24 12:45:38 cbern Exp $
+// $Id: PATPFParticleProducer.cc,v 1.2 2008/09/01 14:47:38 gpetrucc Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATPFParticleProducer.h"
@@ -55,7 +55,7 @@ void PATPFParticleProducer::produce(edm::Event & iEvent,
 				    const edm::EventSetup & iSetup) {
 
   // Get the collection of PFCandidates from the event
-  edm::Handle<edm::View<PFParticleType> > pfCandidates;
+  edm::Handle<edm::View<reco::PFCandidate> > pfCandidates;
 
   fetchCandidateCollection(pfCandidates, 
 			   pfCandidateSrc_, 
@@ -71,14 +71,14 @@ void PATPFParticleProducer::produce(edm::Event & iEvent,
 
   // loop over PFCandidates
   std::vector<PFParticle> * patPFParticles = new std::vector<PFParticle>();
-  for (edm::View<PFParticleType>::const_iterator 
+  for (edm::View<reco::PFCandidate>::const_iterator 
 	 itPFParticle = pfCandidates->begin(); 
        itPFParticle != pfCandidates->end(); 
        ++itPFParticle) {
 
     // construct the PFParticle from the ref -> save ref to original object
     unsigned int idx = itPFParticle - pfCandidates->begin();
-    edm::RefToBase<PFParticleType> pfCandidatesRef = pfCandidates->refAt(idx);
+    edm::RefToBase<reco::PFCandidate> pfCandidatesRef = pfCandidates->refAt(idx);
 
     PFParticle aPFParticle(pfCandidatesRef);
 
@@ -104,7 +104,7 @@ void PATPFParticleProducer::produce(edm::Event & iEvent,
 }
 
 void 
-PATPFParticleProducer::fetchCandidateCollection( edm::Handle< edm::View<PFParticleType> >& c, 
+PATPFParticleProducer::fetchCandidateCollection( edm::Handle<edm::View<reco::PFCandidate> >& c, 
 						 const edm::InputTag& tag, 
 						 const edm::Event& iEvent) const {
   
