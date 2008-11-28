@@ -19,7 +19,7 @@
 
 namespace cscdqm {
 
-  Collection::Collection(const Configuration* p_config) {
+  Collection::Collection(Configuration* const p_config) {
     config = p_config;
     provider = config->provider;
     load();

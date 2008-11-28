@@ -116,7 +116,7 @@ namespace cscdqm {
         dmb_dav_header_cnt++;      
         if (getDDUHisto(dduID, h::DDU_DMB_DAV_HEADER_OCCUPANCY_RATE, mo)) {
   	mo->Fill(i + 1);
-  	freq = (100.0 * mo->GetBinContent(i + 1)) / nEvents;
+  	freq = (100.0 * mo->GetBinContent(i + 1)) / config->getNEvents();
           if (getDDUHisto(dduID, h::DDU_DMB_DAV_HEADER_OCCUPANCY, mo)) 
             mo->SetBinContent(i+1,freq);
         }
@@ -129,7 +129,7 @@ namespace cscdqm {
         ddu_connected_inputs_cnt++;
         if (getDDUHisto(dduID, h::DDU_DMB_CONNECTED_INPUTS_RATE, mo)) {
   	mo->Fill(i + 1);
-  	freq = (100.0 * mo->GetBinContent(i + 1)) / nEvents;
+  	freq = (100.0 * mo->GetBinContent(i + 1)) / config->getNEvents();
   	if (getDDUHisto(dduID, h::DDU_DMB_CONNECTED_INPUTS, mo))
             mo->SetBinContent(i + 1, freq);
         }
@@ -141,7 +141,7 @@ namespace cscdqm {
       if( (csc_error_state >> i) & 0x1 ){
         if (getDDUHisto(dduID, h::DDU_CSC_ERRORS_RATE, mo)) {
   	mo->Fill(i + 1);
-  	freq = (100.0 * mo->GetBinContent(i + 1)) / nEvents;
+  	freq = (100.0 * mo->GetBinContent(i + 1)) / config->getNEvents();
   	if (getDDUHisto(dduID, h::DDU_CSC_ERRORS, mo)) 
             mo->SetBinContent(i + 1, freq);
         }
@@ -153,7 +153,7 @@ namespace cscdqm {
       if((csc_warning_state >> i) & 0x1 ){
         if (getDDUHisto(dduID, h::DDU_CSC_WARNINGS_RATE, mo)) {
   	mo->Fill(i + 1);
-  	freq = (100.0 * mo->GetBinContent(i + 1)) / nEvents;
+  	freq = (100.0 * mo->GetBinContent(i + 1)) / config->getNEvents();
   	if (getDDUHisto(dduID, h::DDU_CSC_WARNINGS, mo)) mo->SetBinContent(i + 1, freq);
         }
         if (getEMUHisto(h::EMU_ALL_DDUS_INPUTS_WARNINGS, mo)) {
@@ -186,10 +186,10 @@ namespace cscdqm {
       }
     }
   
-    if (getDDUHisto(dduID, h::DDU_DMB_DAV_HEADER_OCCUPANCY, mo)) mo->SetEntries(nEvents);
-    if (getDDUHisto(dduID, h::DDU_DMB_CONNECTED_INPUTS, mo)) mo->SetEntries(nEvents);
-    if (getDDUHisto(dduID, h::DDU_CSC_ERRORS, mo)) mo->SetEntries(nEvents);
-    if (getDDUHisto(dduID, h::DDU_CSC_WARNINGS, mo)) mo->SetEntries(nEvents);
+    if (getDDUHisto(dduID, h::DDU_DMB_DAV_HEADER_OCCUPANCY, mo)) mo->SetEntries(config->getNEvents());
+    if (getDDUHisto(dduID, h::DDU_DMB_CONNECTED_INPUTS, mo)) mo->SetEntries(config->getNEvents());
+    if (getDDUHisto(dduID, h::DDU_CSC_ERRORS, mo)) mo->SetEntries(config->getNEvents());
+    if (getDDUHisto(dduID, h::DDU_CSC_WARNINGS, mo)) mo->SetEntries(config->getNEvents());
     if (getDDUHisto(dduID, h::DDU_DMB_ACTIVE_HEADER_COUNT, mo)) mo->Fill(dmb_active_header);
     if (getDDUHisto(dduID, h::DDU_DMB_DAV_HEADER_COUNT_VS_DMB_ACTIVE_HEADER_COUNT, mo)) 
       mo->Fill(dmb_active_header,dmb_dav_header_cnt);
@@ -202,7 +202,7 @@ namespace cscdqm {
       if ((trl_errorstat >> i) & 0x1) {
         if (getDDUHisto(dduID, h::DDU_TRAILER_ERRORSTAT_RATE, mo)) { 
   	mo->Fill(i);
-  	double freq = (100.0 * mo->GetBinContent(i + 1)) / nEvents;
+  	double freq = (100.0 * mo->GetBinContent(i + 1)) / config->getNEvents();
   	if (getDDUHisto(dduID, h::DDU_TRAILER_ERRORSTAT_FREQUENCY, mo)) 
             mo->SetBinContent(i+1, freq);
         }
@@ -223,8 +223,8 @@ namespace cscdqm {
       }
     }
   	
-    if (getDDUHisto(dduID, h::DDU_TRAILER_ERRORSTAT_TABLE, mo)) mo->SetEntries(nEvents);
-    if (getDDUHisto(dduID, h::DDU_TRAILER_ERRORSTAT_FREQUENCY, mo)) mo->SetEntries(nEvents);
+    if (getDDUHisto(dduID, h::DDU_TRAILER_ERRORSTAT_TABLE, mo)) mo->SetEntries(config->getNEvents());
+    if (getDDUHisto(dduID, h::DDU_TRAILER_ERRORSTAT_FREQUENCY, mo)) mo->SetEntries(config->getNEvents());
   
     // Unpack all founded CSC
     std::vector<CSCEventData> chamberDatas;
@@ -234,11 +234,11 @@ namespace cscdqm {
     int nCSCs = chamberDatas.size();
   
     for(int i = 0; i < nCSCs; i++) {
-      unpackedDMBcount++;
+      config->incNUnpackedDMB();
       processCSC(chamberDatas[i], dduID);
     }
   
-    if (getDDUHisto(dduID, h::DDU_DMB_UNPACKED_VS_DAV, mo)) mo->Fill(dmb_active_header, unpackedDMBcount);
+    if (getDDUHisto(dduID, h::DDU_DMB_UNPACKED_VS_DAV, mo)) mo->Fill(dmb_active_header, config->getNUnpackedDMB());
   
     fFirstEvent = false;
   

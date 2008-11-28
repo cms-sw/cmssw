@@ -110,7 +110,7 @@ void CSCMonitorModuleCmn::analyze(const edm::Event& e, const edm::EventSetup& c)
   processor->processEvent(e, inputTag);
 
   // Update fractional histograms if appropriate
-  if (processor->getNCSCEvents() > 0 && fractUpdateKey.test(2) && (processor->getNEvents() % fractUpdateEvF) == 0) {
+  if (config.getNEventsCSC() > 0 && fractUpdateKey.test(2) && (config.getNEvents() % fractUpdateEvF) == 0) {
     processor->updateFractionHistos();
     processor->updateEfficiencyHistos();
   }

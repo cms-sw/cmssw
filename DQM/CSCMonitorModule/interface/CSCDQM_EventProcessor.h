@@ -63,16 +63,11 @@ namespace cscdqm {
 
     public:
       
-      EventProcessor(const Configuration* p_config);
+      EventProcessor(Configuration* const p_config);
       ~EventProcessor() { }
 
       void updateFractionHistos();
       void updateEfficiencyHistos();
-
-      const uint32_t getNEvents() const { return nEvents; } 
-      const uint32_t getNCSCEvents() const { return nCSCEvents; }
-      const uint32_t getNBadEvents() const { return nBadEvents; } 
-      const uint32_t getNGoodEvents() const { return nGoodEvents; }
 
     private:
       
@@ -89,16 +84,11 @@ namespace cscdqm {
       const bool getParHisto(const std::string& name, MonitorObject*& me);
 
       MonitorObjectProvider* provider;
-      const Configuration*   config;
+      Configuration* config;
       Summary summary;
 
-      uint32_t nEvents; 
-      uint32_t nBadEvents; 
-      uint32_t nGoodEvents; 
-      uint32_t nCSCEvents;
-      bool     bCSCEventCounted;
+      bool bCSCEventCounted;
 
-      uint32_t unpackedDMBcount;
       std::map<std::string, uint32_t> nDMBEvents;
       std::map<std::string, CSCCounters> cscCntrs;
 

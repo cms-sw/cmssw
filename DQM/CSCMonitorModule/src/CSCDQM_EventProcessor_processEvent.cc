@@ -25,8 +25,8 @@ namespace cscdqm {
 
   void EventProcessor::processEvent(const char* data, const int32_t dataSize, const uint32_t errorStat, const int32_t nodeNumber) {
 
-    nEvents++;
-    nCSCEvents++;
+    config->incNEvents();
+    config->incNEventsCSC();
 
     MonitorObject* me = 0;
     if (getEMUHisto(EMU_ALL_READOUT_ERRORS, me)) {
@@ -52,7 +52,7 @@ namespace cscdqm {
     processExaminer(tmp, dataSize / sizeof(short), eventDenied);
 
     if (!eventDenied) {
-      nGoodEvents++;
+      config->incNEventsGood();
       CSCDDUEventData dduData((short unsigned int*) tmp, &binChecker);
       processDDU(dduData);
     }
@@ -66,7 +66,7 @@ namespace cscdqm {
 
   void EventProcessor::processEvent(const edm::Event& e, const edm::InputTag& inputTag) {
 
-    nEvents++;
+    config->incNEvents();
     bCSCEventCounted = false;
 
     // get a handle to the FED data collection
@@ -86,7 +86,7 @@ namespace cscdqm {
 
         // Count in CSC Event!
         if (!bCSCEventCounted) {
-          nCSCEvents++;
+          config->incNEventsCSC();
           bCSCEventCounted = true;
         }
 
@@ -102,7 +102,7 @@ namespace cscdqm {
 
         if (!eventDenied) {
 
-          nGoodEvents++;
+          config->incNEventsGood();
 
           if (binChecker.warnings() != 0) {
             if (getEMUHisto(h::EMU_FED_NONFATAL, mo)) mo->Fill(id);

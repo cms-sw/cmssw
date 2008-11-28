@@ -65,7 +65,7 @@ namespace cscdqm {
     }
 
     if ( (binErrorStatus != 0) || (binWarningStatus != 0) ) {
-      nBadEvents++;
+      config->incNEventsBad();
     }
 
     std::map<int,long> payloads = binChecker.payloadDetailed();

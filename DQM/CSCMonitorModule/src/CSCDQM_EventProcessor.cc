@@ -21,16 +21,10 @@
 namespace cscdqm {
 
 
-  EventProcessor::EventProcessor(const Configuration* p_config) {
+  EventProcessor::EventProcessor(Configuration* const p_config) {
 
     config = p_config;
     provider = config->provider;
-
-    nEvents = 0;
-    nBadEvents = 0;
-    nGoodEvents = 0;
-    nCSCEvents = 0;
-    unpackedDMBcount = 0;
 
     fFirstEvent = true;
     fCloseL1As = true;

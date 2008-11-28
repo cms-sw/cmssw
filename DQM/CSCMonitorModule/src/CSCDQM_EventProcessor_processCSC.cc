@@ -93,7 +93,7 @@ namespace cscdqm {
     }
   
     //    Efficiency of the chamber
-    float DMBEff = float(DMBEvents) / float(nEvents);
+    float DMBEff = float(DMBEvents) / float(config->getNEvents());
     if(DMBEff > 1.0) {
       LOG_ERROR <<   cscTag  << " has efficiency " << DMBEff << " which is greater than 1";
     }
@@ -175,8 +175,8 @@ namespace cscdqm {
     if (getCSCHisto(crateID, dmbID, h::CSC_DMB_CFEB_SYNC, mo)) mo->Fill(dmb_cfeb_sync);
   
     if (getEMUHisto(h::EMU_DMB_UNPACKED, mo)) { 
-      mo->Fill(crateID,dmbID);
-      //  mo->SetEntries(nEvents);
+      mo->Fill(crateID, dmbID);
+      //  mo->SetEntries(config->getNEvents());
     }
   
     // if (getCSCHisto(crateID, dmbID, h::CSC_DMB_CFEB_ACTIVE, mo) mo->Fill((dmbTrailer->header_1a>>5)&0x1F); //KK
@@ -304,9 +304,9 @@ namespace cscdqm {
           uint32_t ALCTEvent = (uint32_t)mo->GetBinContent(3);
           trigCnts["ALCT"] = ALCTEvent;
           if (getCSCHisto(crateID, dmbID, h::CSC_CSC_EFFICIENCY, mo)){
-            if(nEvents > 0) {
+            if(config->getNEvents() > 0) {
               //KK
-              //h[hname]->SetBinContent(3, ((float)ALCTEvent/(float)(nEvents)*100.0));
+              //h[hname]->SetBinContent(3, ((float)ALCTEvent/(float)(config->getNEvents()) * 100.0));
               mo->SetBinContent(1, ((float)ALCTEvent / (float)(DMBEvents) * 100.0));
               //KKend
               mo->SetEntries((int)DMBEvents);
@@ -591,7 +591,7 @@ namespace cscdqm {
             uint32_t CLCTEvent = (uint32_t)mo->GetBinContent(4);
             trigCnts["CLCT"] = CLCTEvent;
             if (getCSCHisto(crateID, dmbID, h::CSC_CSC_EFFICIENCY, mo)) {
-              if(nEvents > 0) {
+              if(config->getNEvents() > 0) {
                 mo->SetBinContent(2,((float)CLCTEvent/(float)(DMBEvents)*100.0));
                 mo->getTH1()->SetEntries(DMBEvents);
               }
@@ -891,7 +891,7 @@ namespace cscdqm {
             uint32_t CFEBEvent = (uint32_t)mo->GetBinContent(5);
             trigCnts["CFEB"] = CFEBEvent;
             if (getCSCHisto(crateID, dmbID, h::CSC_CSC_EFFICIENCY, mo)) {
-              if(nEvents > 0) {
+              if(config->getNEvents() > 0) {
                 mo->SetBinContent(3, ((float)CFEBEvent/(float)(DMBEvents)*100.0));
                 mo->getTH1()->SetEntries((int)DMBEvents);
               }
@@ -906,7 +906,7 @@ namespace cscdqm {
         //-------------B
         NmbTimeSamples= (cfebData[nCFEB])->nTimeSamples();
         //-------------E
-        LOG_DEBUG <<  "nEvents = " << nEvents;
+        LOG_DEBUG <<  "NEvents = " << config->getNEvents();
         LOG_DEBUG <<  "Chamber ID = "<< cscTag << " Crate ID = "<< crateID << " DMB ID = " << dmbID << "nCFEB =" << nCFEB;
   
         // =VB= Optimizations for faster histogram object access 

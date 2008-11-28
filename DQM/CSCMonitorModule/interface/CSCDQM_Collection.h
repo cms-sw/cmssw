@@ -71,7 +71,7 @@ namespace cscdqm {
 
     public:
 
-      Collection(const Configuration* p_config);
+      Collection(Configuration* const p_config);
 
       void book(const std::string& prefix) const;
       void book(const CoHisto& hs) const;
@@ -97,7 +97,7 @@ namespace cscdqm {
       static void getNodeProperties(DOMNode*& node, CoHistoProps& hp);
       
       MonitorObjectProvider* provider;
-      const Configuration*   config;
+      Configuration*         config;
 
       CoHistoMap             collection;
 

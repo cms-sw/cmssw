@@ -66,7 +66,37 @@ namespace cscdqm {
 
         provider = NULL;
 
+        reset();
+
       }
+
+      void reset() {
+        nEvents = 0;
+        nEventsBad = 0;
+        nEventsGood = 0;
+        nEventsCSC = 0;
+        nUnpackedDMB = 0;
+      }
+
+      const unsigned long getNEvents() const      { return nEvents; }
+      const unsigned long getNEventsBad() const   { return nEventsBad; }
+      const unsigned long getNEventsGood() const  { return nEventsGood; }
+      const unsigned long getNEventsCSC() const   { return nEventsCSC; }
+      const unsigned long getNUnpackedDMB() const { return nUnpackedDMB; }
+
+      void incNEvents()      { nEvents++; }
+      void incNEventsBad()   { nEventsBad++; }
+      void incNEventsGood()  { nEventsGood++; }
+      void incNEventsCSC()   { nEventsCSC++; }
+      void incNUnpackedDMB() { nUnpackedDMB++; }
+
+    private:
+
+      unsigned long nEvents;
+      unsigned long nEventsBad;
+      unsigned long nEventsGood;
+      unsigned long nEventsCSC;
+      unsigned long nUnpackedDMB; 
 
   };
 
