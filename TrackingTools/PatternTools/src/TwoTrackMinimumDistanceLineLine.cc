@@ -16,7 +16,10 @@ bool TwoTrackMinimumDistanceLineLine::calculate(
   	(theH.magneticField().inTesla(hOrig).z() != 0.)) )
   {
     edm::LogWarning ("TwoTrackMinimumDistanceLineLine")
-      << "charge of input track is not zero or field non zero";
+      << "charge of input track is not zero or field non zero"
+      << "\n positions: "<<gOrig<<" , "<<hOrig
+      << "\n Bz fields: "<<theG.magneticField().inTesla(gOrig).z()<<" , "<<theH.magneticField().inTesla(hOrig).z()
+      << "\n charges: "<<theG.charge()<<" , "<<theH.charge();
     return true;
   };
 
