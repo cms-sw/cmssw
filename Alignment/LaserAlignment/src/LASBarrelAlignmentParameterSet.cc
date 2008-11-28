@@ -87,7 +87,7 @@ void LASBarrelAlignmentParameterSet::Dump( void ) {
   const std::string subdetNames[6] = { " TEC+  ", " TEC-  ", " TIB+  ", " TIB-  ", " TOB+  ", " TOB-  " };
 
   std::cout << " Detector parameters: " << std::endl;
-  std::cout << " -------------------" << std::endl;
+  std::cout << " --------------------" << std::endl;
   std::cout << " Values:     PHI1         X1          Y1         PHI2         X2          Y2   " << std::endl;
   for( int subdet = 0; subdet < 6; ++subdet ) {
     std::cout <<subdetNames[subdet];

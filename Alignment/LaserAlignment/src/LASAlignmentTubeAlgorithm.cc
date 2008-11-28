@@ -140,14 +140,6 @@ LASBarrelAlignmentParameterSet LASAlignmentTubeAlgorithm::CalculateParameters( L
     beamReducedZ[1] /= ( disk9EndFaceZPositions.at( 1 ) - disk9EndFaceZPositions.at( 0 ) );
     
 
-    ////////////////////////////////////////////////////////////////////////////////////////
-//     std::cout << "@@@@ " << theSide << "  " << halfbarrel << "  " << measuredCoordinates.GetTIBTOBEntry( det, beam, pos ).GetZ() << "  "
-// 	      << endFaceZPositions.at( det ).at( theSide ).at( 0 ) << "  " << endFaceZPositions.at( det ).at( theSide ).at( 1 ) << "  "
-// 	      << detReducedZ[0] << "  " << detReducedZ[1] << std::endl;
-    ////////////////////////////////////////////////////////////////////////////////////////
-
-
-
     // residual in r*phi (in the formulas this corresponds to y_ik)
     const double phiResidual = measuredCoordinates.GetTIBTOBEntry( det, beam, pos ).GetPhi() - nominalCoordinates.GetTIBTOBEntry( det, beam, pos ).GetPhi();
 

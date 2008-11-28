@@ -142,29 +142,32 @@ std::pair<double,double>& LASEndcapAlignmentParameterSet::GetBeamParameter( int 
 void LASEndcapAlignmentParameterSet::Dump( void ) {
   
   std::cout << " [LASEndcapAlignmentParameterSet::Dump] -- Dumping parameters:" << std::endl;
+  std::cout << std::endl;
+  std::cout << "  Disk parameters:" << std::endl;
+  std:: cout << " ----------------" << std::endl;
   for( int det = 0; det < 2; ++det ) {
-    std::cout << "   " << (det==0 ? "TEC+" : "TEC-") << " disk parameters in format: dPhi±e dX±e dY±e (rad/mm): " << std::endl;
+    std::cout << "  " << (det==0 ? "TEC+" : "TEC-") << ":          dPHI \xb1  \bE                 dX \xb1  \bE                 dY \xb1  \bE          (rad/mm): " << std::endl;
     for( int disk = 0; disk < 9; ++disk ) {
-      std::cout << "    disk " << disk << ": ";
-      for( int par = 0; par < 3; ++par ) std::cout << "  " << std::setw( 9 ) << std::setprecision( 6 ) << std::right << GetDiskParameter( det, disk, par ).first 
-						   << " ± " << std::setw( 9 ) << std::setprecision( 6 ) << std::left << GetDiskParameter( det, disk, par ).second;
+      std::cout << "  disk " << disk << ": ";
+      for( int par = 0; par < 3; ++par ) std::cout << std::right << std::setw( 11 ) << std::fixed << std::setprecision( 6 ) << GetDiskParameter( det, disk, par ).first 
+						   << " \xb1 " << std::left << std::setw( 9 ) << std::fixed << std::setprecision( 6 ) << GetDiskParameter( det, disk, par ).second;
       std::cout << std::endl;
     }
   }
 
   for( int det = 0; det < 2; ++det ) {
-    std::cout << "   " << (det==0 ? "TEC+" : "TEC-") << " global parameters in format: dPhi0±e dPhiT±e dX0±e dXT±e dY0±e dYT±e (rad/mm): " << std::endl;
-    for( int par = 0; par < 6; ++par ) std::cout << "   " << std::setw( 9 ) << std::setprecision( 6 ) << std::right << GetGlobalParameter( det, par ).first 
-						 << " ± " << std::setw( 9 ) << std::setprecision( 6 ) << std::left << GetGlobalParameter( det, par ).second;
+    std::cout << "  " << (det==0 ? "TEC+" : "TEC-") << " global parameters in format: dPhi0\xb1 \be  dPhiT\xb1 \be  dX0\xb1 \be  dXT\xb1 \be  dY0\xb1 \be  dYT\xb1 \be (rad/mm): " << std::endl;
+    for( int par = 0; par < 6; ++par ) std::cout << std::setw( 11 ) << std::setprecision( 6 ) << std::right << GetGlobalParameter( det, par ).first 
+						 << " \xb1 " << std::setw( 9 ) << std::setprecision( 6 ) << std::left << GetGlobalParameter( det, par ).second;
     std::cout << std::endl;
   }
 
   for( int det = 0; det < 2; ++det ) {
-    std::cout << "   " << (det==0 ? "TEC+" : "TEC-") << " beam parameters in format: dPhi1±e dPhi2±e (rad): " << std::endl;
+    std::cout << "  " << (det==0 ? "TEC+" : "TEC-") << " beam parameters in format: dPhi1\xb1 \be dPhi2\xb1 \be (rad): " << std::endl;
     for( int beam = 0; beam < 8; ++beam ) {
-      std::cout << "    beam " << beam << ": ";
-      for( int par = 0; par < 2; ++par ) std::cout << std::setw( 9 ) << std::setprecision( 6 ) << std::right << GetBeamParameter( det, beam, par ).first 
-						   << " ± " << std::setw( 9 ) << std::setprecision( 6 ) << std::left << GetBeamParameter( det, beam, par ).second;
+      std::cout << "  beam " << beam << ": ";
+      for( int par = 0; par < 2; ++par ) std::cout << std::setw( 11 ) << std::setprecision( 6 ) << std::right << GetBeamParameter( det, beam, par ).first 
+						   << " \xb1 " << std::setw( 9 ) << std::setprecision( 6 ) << std::left << GetBeamParameter( det, beam, par ).second;
       std::cout << std::endl;
     }
   }

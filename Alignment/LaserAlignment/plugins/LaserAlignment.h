@@ -4,8 +4,8 @@
 /** \class LaserAlignment
  *  Main reconstruction module for the Laser Alignment System
  *
- *  $Date: 2008/07/09 12:39:05 $
- *  $Revision: 1.16 $
+ *  $Date: 2008/07/17 14:28:13 $
+ *  $Revision: 1.17 $
  *  \author Maarten Thomas
  */
 
@@ -147,6 +147,9 @@ class LaserAlignment : public edm::EDProducer, public TObject {
   
   // for debugging only, wil disappear
   void DumpPosFileSet( LASGlobalData<LASCoordinateSet>& );
+
+  // for debugging only
+  void DumpHitmaps( LASGlobalData<int> );
 
 
   int theEvents;
