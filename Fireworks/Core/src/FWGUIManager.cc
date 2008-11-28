@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.78 2008/11/10 18:07:57 amraktad Exp $
+// $Id: FWGUIManager.cc,v 1.79 2008/11/14 16:44:03 chrjones Exp $
 //
 
 // system include files
@@ -759,6 +759,17 @@ TGMainFrame *FWGUIManager::createTextView (TGTab *p)
      //printf("current tab: %d\n", p->GetCurrent());
      m_textViewFrame[2] = p->AddTab("Tracking");
      //printf("current tab: %d\n", p->GetCurrent());
+
+     const unsigned int kTabColor=0x5f5f5f;
+     TGTabElement *tabel = 0;
+     tabel = p->GetTabTab("Physics objects");
+     tabel->SetBackgroundColor(kTabColor);
+     tabel = p->GetTabTab("Triggers");
+     tabel->SetBackgroundColor(kTabColor);
+     tabel = p->GetTabTab("Tracking");
+     tabel->SetBackgroundColor(kTabColor);
+     tabel = p->GetTabTab("Views");
+     tabel->SetBackgroundColor(kTabColor);
 
      p->MapSubwindows();
      p->MapWindow();
