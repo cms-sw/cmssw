@@ -413,6 +413,16 @@ RecoMuonValidator::RecoMuonValidator(const ParameterSet& pset)
 
 //  seedPropagatorName_ = pset.getParameter<string>("SeedPropagator");
 
+  ParameterSet tpset = pset.getParameter<ParameterSet>("tpSelector");
+  tpSelector_ = TrackingParticleSelector(tpset.getParameter<double>("ptMin"),
+                                         tpset.getParameter<double>("minRapidity"),
+                                         tpset.getParameter<double>("maxRapidity"),
+                                         tpset.getParameter<double>("tip"),
+                                         tpset.getParameter<double>("lip"),
+                                         tpset.getParameter<int>("minHit"),
+                                         tpset.getParameter<bool>("signalOnly"),
+                                         tpset.getParameter<bool>("chargedOnly"),
+                                         tpset.getParameter<std::vector<int> >("pdgId"));
 
   // the service parameters
   ParameterSet serviceParameters 
@@ -682,6 +692,8 @@ void RecoMuonValidator::analyze(const Event& event, const EventSetup& eventSetup
   // Analyzer reco::Track
   for(TrackingParticleCollection::size_type i=0; i<nSim; i++) {
     TrackingParticleRef simRef(simHandle, i);
+    const TrackingParticle* simTP = simRef.get();
+    if ( ! tpSelector_(*simTP) ) continue;
 
     const double simP   = simRef->p();
     const double simPt  = simRef->pt();
@@ -696,8 +708,6 @@ void RecoMuonValidator::analyze(const Event& event, const EventSetup& eventSetup
     commonME_->hSimPhi_->Fill(simPhi);
 
     commonME_->hNSimHits_->Fill(nSimHits);
-
-    const TrackingParticle* simTP = simRef.get();
 
     // Get sim-reco association for a simRef
     vector<pair<RefToBase<Track>, double> > trkMuRefV, staMuRefV, glbMuRefV;

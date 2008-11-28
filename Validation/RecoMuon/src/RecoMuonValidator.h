@@ -9,6 +9,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
 
+#include "PhysicsTools/RecoAlgos/interface/TrackingParticleSelector.h"
+
 class DQMStore;
 class MonitorElement;
 class MuonServiceProxy;
@@ -46,6 +48,7 @@ class RecoMuonValidator : public edm::EDAnalyzer
   bool doAbsEta_;
   bool doAssoc_;
 
+  TrackingParticleSelector tpSelector_;
   TrackAssociatorBase* trkMuAssociator_, * staMuAssociator_, * glbMuAssociator_;
 
   struct MuonME;
