@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_0_0/pre3/HLT/V14 (CMSSW_3_0_X_2008-11-20-0200_HLT1)
+# /dev/CMSSW_3_0_0/pre3/HLT/V15 (CMSSW_3_0_X_2008-11-20-0200_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_0_0/pre3/HLT/V14')
+  tableName = cms.string('/dev/CMSSW_3_0_0/pre3/HLT/V15')
 )
 
 BTagRecord = cms.ESSource( "EmptyESSource",
@@ -9052,7 +9052,7 @@ hltL1sMinBias = cms.EDFilter( "HLTLevel1GTSeed",
 hltPreMinBias = cms.EDFilter( "HLTPrescaler" )
 hltL1sMinBiasHcal = cms.EDFilter( "HLTLevel1GTSeed",
     L1TechTriggerSeeding = cms.bool( False ),
-    L1SeedsLogicalExpression = cms.string( "L1_SingleHfBitCountsRing1_1 OR L1_DoubleHfBitCountsRing1_P1N1 OR L1_SingleHfRingEtSumsRing1_4 OR L1_DoubleHfRingEtSumsRing1_P4N4 OR L1_SingleHfRingEtSumsRing1_4 OR L1_DoubleHfRingEtSumsRing2_P4N4" ),
+    L1SeedsLogicalExpression = cms.string( "L1_SingleHfBitCountsRing1_1 OR L1_DoubleHfBitCountsRing1_P1N1 OR L1_SingleHfRingEtSumsRing1_4 OR L1_DoubleHfRingEtSumsRing1_P4N4 OR L1_SingleHfRingEtSumsRing2_4 OR L1_DoubleHfRingEtSumsRing2_P4N4" ),
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     L1GtObjectMapTag = cms.InputTag( "hltL1GtObjectMap" ),
     L1CollectionsTag = cms.InputTag( "hltL1extraParticles" ),
