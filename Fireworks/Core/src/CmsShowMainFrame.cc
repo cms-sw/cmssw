@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:23 CDT 2008
-// $Id: CmsShowMainFrame.cc,v 1.23 2008/11/14 15:41:44 chrjones Exp $
+// $Id: CmsShowMainFrame.cc,v 1.24 2008/11/18 21:56:16 chrjones Exp $
 //
 
 // system include files
@@ -30,8 +30,12 @@
 #include <TGNumberEntry.h>
 #include <TTimer.h>
 #include <KeySymbols.h>
-#include "TGTextEntry.h"
+#include <TGTextEntry.h>
+#include <TG3DLine.h>
+#include <TGSlider.h>
+
 #include <TSystem.h>
+#include <TImage.h>
 // user include files
 #include "DataFormats/FWLite/interface/Event.h"
 #include "DataFormats/Provenance/interface/EventID.h"
@@ -43,6 +47,7 @@
 #include "Fireworks/Core/interface/BuilderUtils.h"
 
 #include "Fireworks/Core/interface/FWGUIManager.h"
+#include "Fireworks/Core/interface/FWCustomIconsButton.h"
 
 //
 // constants, enums and typedefs
@@ -57,8 +62,11 @@
 // constructors and destructor
 //
 CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIManager *m) :
-TGMainFrame(p, w, h)
+   TGMainFrame(p, w, h)
 {
+   const unsigned int kBackgroundColor=0x2f2f2f;
+   const unsigned int kTextColor= 0xb3b3b3;
+
    Connect("CloseWindow()","CmsShowMainFrame",this,"quit()");
 
    m_manager = m;
@@ -92,6 +100,7 @@ TGMainFrame(p, w, h)
    CSGAction *keyboardShort = new CSGAction(this, cmsshow::sKeyboardShort.c_str());
    m_runEntry = new CSGAction(this, "Run Entry");
    m_eventEntry = new CSGAction(this, "Event Entry");
+   m_delaySlider = new CSGAction(this, "Play Delay");
    CSGAction *eventFilter = new CSGAction(this, "Event Filter");
    m_nextEvent = nextEvent;
    m_previousEvent = previousEvent;
@@ -108,6 +117,7 @@ TGMainFrame(p, w, h)
    playEventsBack->setToolTip("Play events backwards");
 
    TGMenuBar *menuBar = new TGMenuBar(this, this->GetWidth(), 12);
+   menuBar->SetBackgroundColor(kBackgroundColor);
 
    TGPopupMenu *fileMenu = new TGPopupMenu(gClient->GetRoot());
    menuBar->AddPopup("File", fileMenu, new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 0, 0));
@@ -178,111 +188,124 @@ TGMainFrame(p, w, h)
 
    AddFrame(menuBar, new TGLayoutHints(kLHintsExpandX,2,2,2,2));
 
-   /*DEBUGGING menu
-   FontStruct_t font = gClient->GetResourcePool()->GetMenuHiliteFont()->GetFontStruct();
-   std::vector<CSGAction*>::iterator it_act;
-   printf("Width of <shift> : %d\n", gVirtualX->TextWidth(font, "<shift> ", 8));
-   for (it_act = m_actionList.begin(); it_act != m_actionList.end(); ++it_act) {
-     if ((*it_act)->getMenu() != 0 && (*it_act)->getMenu()->GetEntry((*it_act)->getMenuEntry()) != 0) {
-       printf("Menu %s has width %d\n", (*it_act)->getMenu()->GetEntry((*it_act)->getMenuEntry())->GetLabel()->Data(), gVirtualX->TextWidth(font, (*it_act)->getMenu()->GetEntry((*it_act)->getMenuEntry())->GetLabel()->Data(), (*it_act)->getMenu()->GetEntry((*it_act)->getMenuEntry())->GetLabel()->Length()));
-     }
-   }
-    */
+   TString coreIcondir(Form("%s/src/Fireworks/Core/icons/",gSystem->Getenv("CMSSW_BASE")));
 
-   /*
-   if(0==gSystem->Getenv("ROOTSYS")) {
-     std::cerr<<"environment variable ROOTSYS is not set" <<
-       std::endl;
-     throw std::runtime_error("ROOTSYS environment variable not set");
-   }
-   TString icondir(Form("%s/icons/",gSystem->Getenv("ROOTSYS")));
-   */
-
-   const unsigned int kBackgroundColor=0x2f2f2f;
-   const unsigned int kTextColor= 0xb3b3b3;
    TGHorizontalFrame *fullbar = new TGHorizontalFrame(this, this->GetWidth(), 30,0,kBackgroundColor);
    m_statBar = new TGStatusBar(this, this->GetWidth(), 12);
    AddFrame(m_statBar, new TGLayoutHints(kLHintsBottom | kLHintsExpandX));
    MapSubwindows();
    Layout();
    MapWindow();
-   //printf("this->GetWidth(): %d\n", this->GetWidth());
-   /*TGToolBar *tools = new TGToolBar(fullbar, 400, 30);
-   tools->SetBackgroundColor(kBlack);*/
-   TGCompositeFrame* tools = new TGHorizontalFrame(fullbar,10,10,0,kBackgroundColor);
-   TString coreIcondir(Form("%s/src/Fireworks/Core/icons/",gSystem->Getenv("CMSSW_BASE")));
 
-   goToFirst->createCustomIconsButton(tools,fClient->GetPicture(coreIcondir+"button-gotofirst.png"),
+
+   /**************************************************************************/
+   // controls
+   
+   TGCompositeFrame* controls = new TGVerticalFrame(fullbar, 10, 20, 0, kBackgroundColor);
+
+   TGCompositeFrame* buttons = new TGHorizontalFrame(controls,10,10, 0, kBackgroundColor);
+
+   goToFirst->createCustomIconsButton(buttons,
+                                      fClient->GetPicture(coreIcondir+"button-gotofirst.png"),
                                       fClient->GetPicture(coreIcondir+"button-gotofirst-over.png"),
                                       fClient->GetPicture(coreIcondir+"button-gotofirst-disabled.png"),
                                       new TGLayoutHints(kLHintsCenterY | kLHintsLeft, 7,0,5,0));
-   playEventsBack->createCustomIconsButton(tools,fClient->GetPicture(coreIcondir+"button-backward.png"),
+
+   playEventsBack->createCustomIconsButton(buttons,
+                                           fClient->GetPicture(coreIcondir+"button-backward.png"),
                                            fClient->GetPicture(coreIcondir+"button-backward-over.png"),
                                            fClient->GetPicture(coreIcondir+"button-backward-disabled.png"),
                                            fClient->GetPicture(coreIcondir+"button-pause.png"),
                                            fClient->GetPicture(coreIcondir+"button-pause-over.png"),
-                                          new TGLayoutHints(kLHintsCenterY | kLHintsLeft, 7,0,5,0));
-   previousEvent->createCustomIconsButton(tools,fClient->GetPicture(coreIcondir+"button-stepback.png"),
-                                      fClient->GetPicture(coreIcondir+"button-stepback-over.png"),
-                                      fClient->GetPicture(coreIcondir+"button-stepback-disabled.png"),
-                                      new TGLayoutHints(kLHintsCenterY | kLHintsLeft, 7,0,5,0));
-   nextEvent->createCustomIconsButton(tools,fClient->GetPicture(coreIcondir+"button-stepforward.png"),
+                                           new TGLayoutHints(kLHintsCenterY | kLHintsLeft, 2,0,5,0));
+
+
+   previousEvent->createCustomIconsButton(buttons,
+                                          fClient->GetPicture(coreIcondir+"button-stepback.png"),
+                                          fClient->GetPicture(coreIcondir+"button-stepback-over.png"),
+                                          fClient->GetPicture(coreIcondir+"button-stepback-disabled.png"),
+                                          new TGLayoutHints(kLHintsCenterY | kLHintsLeft, 2,0,5,0));
+
+   nextEvent->createCustomIconsButton(buttons,
+                                      fClient->GetPicture(coreIcondir+"button-stepforward.png"),
                                       fClient->GetPicture(coreIcondir+"button-stepforward-over.png"),
                                       fClient->GetPicture(coreIcondir+"button-stepforward-disabled.png"),
-                                      new TGLayoutHints(kLHintsCenterY | kLHintsLeft, 7,0,5,0));
-   playEvents->createCustomIconsButton(tools,fClient->GetPicture(coreIcondir+"button-forward.png"),
+                                      new TGLayoutHints(kLHintsCenterY | kLHintsLeft, 2,0,5,0));
+
+   playEvents->createCustomIconsButton(buttons,
+                                       fClient->GetPicture(coreIcondir+"button-forward.png"),
                                        fClient->GetPicture(coreIcondir+"button-forward-over.png"),
                                        fClient->GetPicture(coreIcondir+"button-forward-disabled.png"),
                                        fClient->GetPicture(coreIcondir+"button-pause.png"),
                                        fClient->GetPicture(coreIcondir+"button-pause-over.png"),
-                                       new TGLayoutHints(kLHintsCenterY | kLHintsLeft, 7,0,5,0));
-   goToLast->createCustomIconsButton(tools,fClient->GetPicture(coreIcondir+"button-gotolast.png"),
-                                      fClient->GetPicture(coreIcondir+"button-gotolast-over.png"),
-                                      fClient->GetPicture(coreIcondir+"button-gotolast-disabled.png"),
-                                      new TGLayoutHints(kLHintsCenterY | kLHintsLeft, 7,0,5,0));
+                                       new TGLayoutHints(kLHintsCenterY | kLHintsLeft, 2, 0,5,0));
+
+   goToLast->createCustomIconsButton(buttons,
+                                     fClient->GetPicture(coreIcondir+"button-gotolast.png"),
+                                     fClient->GetPicture(coreIcondir+"button-gotolast-over.png"),
+                                     fClient->GetPicture(coreIcondir+"button-gotolast-disabled.png"),
+                                     new TGLayoutHints(kLHintsCenterY | kLHintsLeft, 2,0,5,0));
+
    
-   fullbar->AddFrame(tools, new TGLayoutHints(kLHintsLeft,2,2,2,2));
-   // TGHorizontalFrame *texts = new TGHorizontalFrame(fullbar, fullbar->GetWidth() - tools->GetWidth(), 60);
-   TGVerticalFrame *texts   = new TGVerticalFrame(fullbar, fullbar->GetWidth() - tools->GetWidth(), 60,0,kBackgroundColor);
+  
+   controls->AddFrame(buttons, new TGLayoutHints(kLHintsTop | kLHintsLeft, 10, 0, 0, 0));
 
-   fullbar->AddFrame(texts, new TGLayoutHints(kLHintsExpandX,20,2,2,2));
-   AddFrame(fullbar, new TGLayoutHints(kLHintsExpandX,2,2,2,2));
+   TGHorizontalFrame* sliderFrame = new TGHorizontalFrame(controls, 10, 10, 0, kBackgroundColor);
+   m_delaySlider->createDelaySlider(sliderFrame, 0, 10000, kSlider1|kScaleBoth, new TGLayoutHints(kLHintsCenterY | kLHintsLeft, 10, 9, 2, 2));
+   controls->AddFrame(sliderFrame, new TGLayoutHints(kLHintsTop | kLHintsLeft, 15, 0, 0, 0));
 
-   TGHorizontalFrame *runInfo   = new TGHorizontalFrame(texts, fullbar->GetWidth() - tools->GetWidth(), 30, 0, kBackgroundColor);
-   texts->AddFrame(runInfo, new TGLayoutHints(kLHintsExpandX|kLHintsExpandY,0,0,0,0));
-   TGHorizontalFrame *evtFilter = new TGHorizontalFrame(texts, fullbar->GetWidth() - tools->GetWidth(), 30, 0, kBackgroundColor);
-   texts->AddFrame(evtFilter, new TGLayoutHints(kLHintsExpandX|kLHintsExpandY,0,0,0,0));
+   fullbar->AddFrame(controls, new TGLayoutHints(kLHintsLeft,2, 2, 5, 5));
+   
 
-   //printf("text width: %d\n", this->GetWidth()-tools->GetWidth());
-   TGLabel *runText = new TGLabel(runInfo, "Run");
-   UInt_t maxWidth = runText->GetWidth();
-   TGLabel *filterText = new TGLabel(evtFilter, "Filter");
-   if(maxWidth < filterText->GetWidth()) {
-      maxWidth = filterText->GetWidth();
-   }
-   runText->SetBackgroundColor(kBackgroundColor);
-   runText->SetTextColor(kTextColor);
-   runInfo->AddFrame(runText, new TGLayoutHints(kLHintsCenterY|kLHintsLeft,maxWidth-runText->GetWidth(),0,0,0));
-   m_runEntry->createNumberEntry(runInfo, new TGLayoutHints(kLHintsCenterY|kLHintsLeft,10,0,0,0));
-   TGLabel *eventText = new TGLabel(runInfo, "Event");
-   eventText->SetBackgroundColor(kBackgroundColor);
-   eventText->SetTextColor(kTextColor);
-   runInfo->AddFrame(eventText, new TGLayoutHints(kLHintsCenterY|kLHintsLeft,10,0,0,0));
-   m_eventEntry->createNumberEntry(runInfo, new TGLayoutHints(kLHintsCenterY|kLHintsLeft,10,0,0,0));
-   TGLabel* timeLabel = new TGLabel(runInfo,"Time");
-   timeLabel->SetBackgroundColor(kBackgroundColor);
-   timeLabel->SetTextColor(kTextColor);
-   runInfo->AddFrame(timeLabel, new TGLayoutHints(kLHintsCenterY|kLHintsLeft,10,0,0,0));
-   m_timeText = new TGLabel(runInfo, "");
+   /**************************************************************************/
+   // entries
+   
+   Int_t maxW =  fullbar->GetWidth() - controls->GetWidth();
+   TGVerticalFrame *texts = new TGVerticalFrame(fullbar, 400, 44, kFixedSize, kBackgroundColor);
+   Int_t entryHeight = 20;
+ 
+   // upper row
+   TGHorizontalFrame *runInfo = new TGHorizontalFrame(texts, maxW, entryHeight, 0);
+   runInfo->SetBackgroundColor(kBackgroundColor);
+   TGHorizontalFrame *rLeft = new TGHorizontalFrame(runInfo, 200, 20);
+   makeLabel(rLeft, "Run");
+   m_runEntry->createNumberEntry(rLeft, new TGLayoutHints(kLHintsNormal | kLHintsExpandX, 0,0,0,0));
+   runInfo->AddFrame(rLeft, new TGLayoutHints(kLHintsLeft));
+
+   TGHorizontalFrame *rRight = new TGHorizontalFrame(runInfo, 200, 20);
+   makeLabel(rRight, "Event");
+   m_eventEntry->createNumberEntry(rRight, new TGLayoutHints(kLHintsNormal | kLHintsExpandX, 0,0,0,0));
+   runInfo->AddFrame(rRight, new TGLayoutHints(kLHintsRight));
+
+   texts->AddFrame(runInfo, new TGLayoutHints(kLHintsNormal | kLHintsExpandX, 0,0,0,1));
+
+   // low row
+   TGHorizontalFrame *evtFilter = new TGHorizontalFrame(texts, maxW, entryHeight, 0);
+   makeLabel(evtFilter, "Filter");
+   eventFilter->createTextEntry(evtFilter, new TGLayoutHints(kLHintsLeft | kLHintsExpandX, 0,0,0,0));
+   texts->AddFrame(evtFilter, new TGLayoutHints(kLHintsNormal | kLHintsExpandX, 0,0,1,0));
+
+   fullbar->AddFrame(texts, new TGLayoutHints(kLHintsNormal| kLHintsCenterY, 20, 5, 5, 5));
+
+   /**************************************************************************/
+   // time
+   m_timeText = new TGLabel(fullbar, "Time to set ...");
    m_timeText->SetTextJustify(kTextLeft);
    m_timeText->SetBackgroundColor(kBackgroundColor);
    m_timeText->SetTextColor(kTextColor);
-   runInfo->AddFrame(m_timeText, new TGLayoutHints(kLHintsCenterY|kLHintsLeft|kLHintsExpandX,5,0,0,0));
+   fullbar->AddFrame( m_timeText, new TGLayoutHints(kLHintsExpandY | kLHintsExpandX| kLHintsCenterY, 10, 10, 0, 0));
 
-   filterText->SetBackgroundColor(kBackgroundColor);
-   filterText->SetTextColor(kTextColor);
-   evtFilter->AddFrame(filterText, new TGLayoutHints(kLHintsCenterY|kLHintsLeft,maxWidth-filterText->GetWidth(),0,0,0));
-   eventFilter->createTextEntry(evtFilter, new TGLayoutHints(kLHintsCenterY|kLHintsLeft|kLHintsExpandX,0,0,0,0));
+   /**************************************************************************/
+   //  logo
+   TGVerticalFrame* logoFrame = new TGVerticalFrame(fullbar, 140, 48, kFixedSize);
+
+   TImage *logoImg  = TImage::Open(coreIcondir+"logo-fireworks.png");
+   logoFrame->SetBackgroundPixmap(logoImg->GetPixmap());
+   fullbar->AddFrame(logoFrame, new TGLayoutHints(kLHintsRight | kLHintsCenterY, 0, 5, 0, 0));
+  
+
+   /**************************************************************************/
+   AddFrame(fullbar, new TGLayoutHints(kLHintsExpandX, 1, 1, 1, 1));
 
    //Start disabled
    goToFirst->disable();
@@ -550,4 +573,24 @@ CmsShowMainFrame::getRunEntry() const {
 CSGAction*
 CmsShowMainFrame::getEventEntry() const {
   return m_eventEntry;
+}
+
+void
+CmsShowMainFrame::makeLabel(TGHorizontalFrame* p, const char* txt)
+{
+   // Utility function.
+
+   Int_t labW = 50;
+   Int_t labH = 20;
+   const unsigned int kBackgroundColor=0x2f2f2f;
+   const unsigned int kTextColor= 0xb3b3b3;
+   
+   p->SetBackgroundColor(kBackgroundColor);
+   TGCompositeFrame *lframe = new TGHorizontalFrame(p, labW, labH, kFixedSize);
+   lframe->SetBackgroundColor(kBackgroundColor);
+   TGLabel* label = new TGLabel(lframe, txt);
+   label->SetBackgroundColor(kBackgroundColor);
+   label->SetTextColor(kTextColor);
+   lframe->AddFrame(label,     new TGLayoutHints(kLHintsRight | kLHintsBottom));
+   p->AddFrame(lframe, new TGLayoutHints(kLHintsLeft  | kLHintsBottom, 0, 4, 0, 0));
 }

@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 18:11:16 CDT 2008
-// $Id: CmsShowMainFrame.h,v 1.12 2008/11/06 22:05:22 amraktad Exp $
+// $Id: CmsShowMainFrame.h,v 1.13 2008/11/10 15:35:24 chrjones Exp $
 //
 
 // system include files
@@ -88,12 +88,14 @@ private:
 
    const CmsShowMainFrame& operator=(const CmsShowMainFrame&); // stop default
 
+   void makeLabel(TGHorizontalFrame* p, const char* txt);
    // ---------- member data --------------------------------
    std::vector<CSGAction*> m_actionList;
    FWGUIManager *m_manager;
    Long_t m_delay;
    CSGAction *m_runEntry;
    CSGAction *m_eventEntry;
+   CSGAction *m_delaySlider;
    TGLabel* m_timeText;
    CSGAction *m_nextEvent;
    CSGAction *m_previousEvent;
