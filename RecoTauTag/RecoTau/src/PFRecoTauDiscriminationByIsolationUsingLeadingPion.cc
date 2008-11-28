@@ -21,7 +21,6 @@ void PFRecoTauDiscriminationByIsolationUsingLeadingPion::produce(Event& iEvent,c
       } else theTrackerIsolationDiscriminator=thePFTauElementsOperators.discriminatorByIsolPFChargedHadrCandsN(TrackerIsolAnnulus_Candsmaxn_);      
       if (theTrackerIsolationDiscriminator==0.){
 	thePFTauDiscriminatorByIsolationUsingLeadingPion->setValue(iPFTau,0.);
-	  std::cout<<"Tracce nel cono di isolamento?"<<std::endl;
 	  continue;
       }
     }    
@@ -32,7 +31,6 @@ void PFRecoTauDiscriminationByIsolationUsingLeadingPion::produce(Event& iEvent,c
       theECALIsolationDiscriminator=thePFTauElementsOperators.discriminatorByIsolPFGammaCandsN(ECALIsolAnnulus_Candsmaxn_);
       if (theECALIsolationDiscriminator==0.){
 	thePFTauDiscriminatorByIsolationUsingLeadingPion->setValue(iPFTau,0);
-	std::cout<<"Fotoni nel cono di isolamento?"<<std::endl;
 	continue;
       }
     }
