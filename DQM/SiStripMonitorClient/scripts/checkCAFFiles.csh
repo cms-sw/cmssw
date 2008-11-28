@@ -6,4 +6,5 @@ echo
 set CASTOR_DIR=/castor/cern.ch/user/c/cctrack/DQM/reduced
 echo "Found in ${CASTOR_DIR}:"
 rfdir ${CASTOR_DIR} | grep ${1}
+echo
 cd $OLD_DIR
