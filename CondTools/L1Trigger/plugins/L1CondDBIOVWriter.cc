@@ -13,7 +13,7 @@
 //
 // Original Author:  Werner Man-Li Sun
 //         Created:  Sun Mar  2 20:09:46 CET 2008
-// $Id: L1CondDBIOVWriter.cc,v 1.5 2008/09/27 02:38:19 wsun Exp $
+// $Id: L1CondDBIOVWriter.cc,v 1.6 2008/11/13 02:13:42 wsun Exp $
 //
 //
 
@@ -96,13 +96,13 @@ L1CondDBIOVWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
    L1TriggerKey::RecordToKey recordTypeToKeyMap ;
 
    bool triggerKeyIOVUpdated = true ;
+
    if( !m_ignoreTriggerKey )
      {
-       // Do nothing if TSC key is null
        if( !m_tscKey.empty() )
 	 {
-	   // Use TSC key and L1TriggerKeyList to find next run's L1TriggerKey
-	   // token
+	   // Use TSC key and L1TriggerKeyList to find next run's
+	   // L1TriggerKey token
 	   std::string keyToken = keyList->token( m_tscKey ) ;
 
 	   // Update IOV sequence for this token with since-time = new run 
@@ -114,15 +114,27 @@ L1CondDBIOVWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 
 	   recordTypeToKeyMap = key.recordToKeyMap() ;
 	 }
+       else
+	 {
+	   // For use with Run Settings, no corresponding L1TrigerKey in
+	   // ORCON.
+
+	   // Get L1TriggerKey from EventSetup
+	   ESHandle< L1TriggerKey > esKey ;
+	   iSetup.get< L1TriggerKeyRcd >().get( esKey ) ;
+
+	   recordTypeToKeyMap = esKey->recordToKeyMap() ;
+	 }
      }
    else
      {
-       std::map<std::string, std::string >::const_iterator recordTypeToTagItr =
-	 m_recordTypeToTagMap.begin() ;
-       std::map<std::string, std::string >::const_iterator recordTypeToTagEnd =
-	 m_recordTypeToTagMap.end() ;
+       std::map<std::string, std::string >::const_iterator
+	 recordTypeToTagItr = m_recordTypeToTagMap.begin() ;
+       std::map<std::string, std::string >::const_iterator
+	 recordTypeToTagEnd = m_recordTypeToTagMap.end() ;
 
-       for( ; recordTypeToTagItr != recordTypeToTagEnd ; ++recordTypeToTagItr )
+       for( ; recordTypeToTagItr != recordTypeToTagEnd ;
+	    ++recordTypeToTagItr )
 	 {
 	   recordTypeToKeyMap.insert(
 	     std::make_pair( recordTypeToTagItr->first, m_tscKey ) ) ;
@@ -160,7 +172,6 @@ L1CondDBIOVWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 		   throw cond::Exception(
 		     "L1CondDBIOVWriter: empty payload token" );
 		 }
-	       // assert( !payloadToken.empty() ) ;
 
 	       // Find tag for IOV token
 	       std::map<std::string, std::string >::const_iterator
