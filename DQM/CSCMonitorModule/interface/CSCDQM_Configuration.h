@@ -20,6 +20,7 @@
 #define CSCDQM_Configuration_H
 
 #include <string>
+#include "DQM/CSCMonitorModule/interface/CSCDQM_MonitorObjectProvider.h"
 
 namespace cscdqm {
 
@@ -51,6 +52,8 @@ namespace cscdqm {
       double EFF_NODATA_THRESHOLD;
       double EFF_NODATA_SIGFAIL;
 
+      MonitorObjectProvider* provider;
+
       Configuration() {
 
         BINCHECKER_CRC_ALCT = false;
@@ -60,6 +63,8 @@ namespace cscdqm {
         DDU_CHECK_MASK    = 0xFFFFFFFF;
         BINCHECK_MASK     = 0xFFFFFFFF;
         DDU_BINCHECK_MASK = 0x02080016;
+
+        provider = NULL;
 
       }
 

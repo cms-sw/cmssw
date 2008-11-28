@@ -71,7 +71,7 @@ namespace cscdqm {
 
     public:
 
-      Collection(MonitorObjectProvider* p_provider, const Configuration* p_config);
+      Collection(const Configuration* p_config);
 
       void book(const std::string& prefix) const;
       void book(const CoHisto& hs) const;

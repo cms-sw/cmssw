@@ -63,7 +63,7 @@ namespace cscdqm {
 
     public:
       
-      EventProcessor(MonitorObjectProvider* p_provider, const Configuration* p_config);
+      EventProcessor(const Configuration* p_config);
       ~EventProcessor() { }
 
       void updateFractionHistos();

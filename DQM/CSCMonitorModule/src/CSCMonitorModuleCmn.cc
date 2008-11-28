@@ -36,9 +36,10 @@ CSCMonitorModuleCmn::CSCMonitorModuleCmn(const edm::ParameterSet& ps) : inputTag
   edm::FileInPath bookFile = ps.getParameter<edm::FileInPath>(PARAM_BOOKING_FILE);
   config.BOOKING_XML_FILE = bookFile.fullPath();
    
-  CSCMonitorModuleCmn* hp = const_cast<CSCMonitorModuleCmn*>(this);
-  collection = new cscdqm::Collection(hp, &config);
-  processor = new cscdqm::EventProcessor(hp, &config);
+  config.provider = const_cast<CSCMonitorModuleCmn*>(this);
+
+  collection = new cscdqm::Collection(&config);
+  processor = new cscdqm::EventProcessor(&config);
   dbe = edm::Service<DQMStore>().operator->();
 
   // Prebook top level histograms

@@ -21,10 +21,10 @@
 namespace cscdqm {
 
 
-  EventProcessor::EventProcessor(MonitorObjectProvider* p_provider, const Configuration* p_config) {
+  EventProcessor::EventProcessor(const Configuration* p_config) {
 
-    provider = p_provider;
     config = p_config;
+    provider = config->provider;
 
     nEvents = 0;
     nBadEvents = 0;

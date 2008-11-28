@@ -19,9 +19,9 @@
 
 namespace cscdqm {
 
-  Collection::Collection(MonitorObjectProvider* p_provider, const Configuration* p_config) {
-    provider = p_provider;
+  Collection::Collection(const Configuration* p_config) {
     config = p_config;
+    provider = config->provider;
     load();
   }
 
