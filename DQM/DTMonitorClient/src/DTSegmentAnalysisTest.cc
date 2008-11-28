@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/11/20 09:15:51 $
- *  $Revision: 1.22 $
+ *  $Date: 2008/11/24 09:25:33 $
+ *  $Revision: 1.23 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -287,6 +287,10 @@ void DTSegmentAnalysisTest::bookHistos() {
   
 
 void DTSegmentAnalysisTest::endJob() {
+}
+
+
+void DTSegmentAnalysisTest::endRun(Run const& run, EventSetup const& eSetup) {
   if(normalizeHistoPlots) {
     MonitorElement* hNevtPerLS = dbe->get("DT/EventInfo/NevtPerLS");
     if(hNevtPerLS != 0) {
@@ -307,3 +311,5 @@ void DTSegmentAnalysisTest::endJob() {
     }
   }
 }
+
+
