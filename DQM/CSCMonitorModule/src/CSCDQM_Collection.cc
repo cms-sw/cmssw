@@ -19,8 +19,8 @@
 
 namespace cscdqm {
 
-  Collection::Collection(HistoProvider* p_histoProvider) {
-    histoProvider = p_histoProvider;
+  Collection::Collection(MonitorObjectProvider* p_provider) {
+    provider = p_provider;
   }
 
   
@@ -300,13 +300,13 @@ namespace cscdqm {
       }
 
       if (type == "h1") {
-        me = histoProvider->book1D(name, title,
+        me = provider->book1D(name, title,
           getHistoValue(h, "XBins", i1, 1),
           getHistoValue(h, "XMin",  d1, 0),
           getHistoValue(h, "XMax",  d2, 1));
       } else
       if(type == "h2") {
-        me = histoProvider->book2D(name, title,
+        me = provider->book2D(name, title,
           getHistoValue(h, "XBins", i1, 1),
           getHistoValue(h, "XMin",  d1, 0),
           getHistoValue(h, "XMax",  d2, 1),
@@ -315,7 +315,7 @@ namespace cscdqm {
           getHistoValue(h, "YMax",  d4, 1));
       } else
       if(type == "h3") {
-        me = histoProvider->book3D(name, title,
+        me = provider->book3D(name, title,
           getHistoValue(h, "XBins", i1, 1),
           getHistoValue(h, "XMin",  d1, 0),
           getHistoValue(h, "XMax",  d2, 1),
@@ -327,7 +327,7 @@ namespace cscdqm {
           getHistoValue(h, "ZMax",  d6, 1));
       } else
       if(type == "hp") {
-        me = histoProvider->bookProfile(name, title,
+        me = provider->bookProfile(name, title,
           getHistoValue(h, "XBins", i1, 1),
           getHistoValue(h, "XMin",  d1, 0),
           getHistoValue(h, "XMax",  d2, 1),
@@ -336,7 +336,7 @@ namespace cscdqm {
           getHistoValue(h, "YMax",  d4, 1));
       } else
       if(type == "hp2") {
-        me = histoProvider->bookProfile2D(name, title,
+        me = provider->bookProfile2D(name, title,
           getHistoValue(h, "XBins", i1, 1),
           getHistoValue(h, "XMin",  d1, 0),
           getHistoValue(h, "XMax",  d2, 1),
@@ -429,7 +429,7 @@ namespace cscdqm {
 
       }
 
-      histoProvider->afterBook(me);
+      provider->afterBook(me);
 
   }
 

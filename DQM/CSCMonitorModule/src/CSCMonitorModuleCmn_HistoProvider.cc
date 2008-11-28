@@ -1,7 +1,7 @@
 /*
  * =====================================================================================
  *
- *       Filename:  CSCMonitorModuleCmn_HistoProvider.cc
+ *       Filename:  CSCMonitorModuleCmn_MonitorObjectProvider.cc
  *
  *    Description:  Histogram Provider methods for CSCMonitorModuleCmn object
  *

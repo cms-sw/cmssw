@@ -34,7 +34,7 @@
 #include "DQM/CSCMonitorModule/interface/CSCDQM_Exception.h"
 #include "DQM/CSCMonitorModule/interface/CSCDQM_Logger.h"
 #include "DQM/CSCMonitorModule/interface/CSCDQM_Utility.h"
-#include "DQM/CSCMonitorModule/interface/CSCDQM_HistoProviderIf.h"
+#include "DQM/CSCMonitorModule/interface/CSCDQM_MonitorObjectProvider.h"
 
 namespace cscdqm {
 
@@ -64,13 +64,13 @@ namespace cscdqm {
   /**
    * @class Collection
    * @brief Manage collection of histograms, load histogram definitions from
-   * XML file and book histograms by calling HistoProvider routines.  
+   * XML file and book histograms by calling MonitorObjectProvider routines.  
    */
   class Collection {
 
     public:
 
-      Collection(HistoProvider* p_histoProvider);
+      Collection(MonitorObjectProvider* p_provider);
       const CoHistoMap& getCollection() const { return collection; };
       void load(const std::string p_bookingFile);
 
@@ -96,7 +96,7 @@ namespace cscdqm {
       static const int ParseAxisLabels(const std::string& s, std::map<int, std::string>& labels);
       static void getNodeProperties(DOMNode*& node, CoHistoProps& hp);
       
-      HistoProvider* histoProvider;
+      MonitorObjectProvider* provider;
       CoHistoMap     collection;
 
 

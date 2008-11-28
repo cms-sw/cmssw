@@ -38,7 +38,7 @@
 #include "DQM/CSCMonitorModule/interface/CSCDQM_Logger.h"
 #include "DQM/CSCMonitorModule/interface/CSCDQM_Summary.h"
 #include "DQM/CSCMonitorModule/interface/CSCDQM_StripClusterFinder.h"
-#include "DQM/CSCMonitorModule/interface/CSCDQM_HistoProviderIf.h"
+#include "DQM/CSCMonitorModule/interface/CSCDQM_MonitorObjectProvider.h"
 
 #include "EventFilter/CSCRawToDigi/interface/CSCDCCExaminer.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCDDUEventData.h"
@@ -84,7 +84,7 @@ namespace cscdqm {
 
     public:
       
-      EventProcessor(HistoProvider* p_histoProvider);
+      EventProcessor(MonitorObjectProvider* p_provider);
       ~EventProcessor();
 
       void blockHisto(const HistoName& histo);
@@ -122,7 +122,7 @@ namespace cscdqm {
       const bool getParHisto(const std::string& name, MonitorObject*& me);
 
       std::set<HistoName> blocked;
-      HistoProvider* histoProvider;
+      MonitorObjectProvider* provider;
       Summary summary;
 
       uint32_t nEvents; 

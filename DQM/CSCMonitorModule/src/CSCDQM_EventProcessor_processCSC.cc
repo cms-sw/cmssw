@@ -71,14 +71,14 @@ namespace cscdqm {
       return;
     }
   
-    uint32_t detRawId = histoProvider->getCSCDetId(crateID, dmbID).rawId();
+    uint32_t detRawId = provider->getCSCDetId(crateID, dmbID).rawId();
     if (!detRawId) {
       return;
     }
     
     unsigned int cscType = 0;
     unsigned int cscPosition = 0;
-    histoProvider->getCSCFromMap(crateID, dmbID, cscType, cscPosition );
+    provider->getCSCFromMap(crateID, dmbID, cscType, cscPosition );
   
     // if (cscName != "") cscTag+=" ["+cscName+"]";
     // nDMBEvents[cscTag]++;

@@ -93,7 +93,7 @@ namespace cscdqm {
 
       unsigned int cscType   = 0;
       unsigned int cscPosition = 0;
-      histoProvider->getCSCFromMap(crateID, dmbSlot, cscType, cscPosition);
+      provider->getCSCFromMap(crateID, dmbSlot, cscType, cscPosition);
       if (cscType && cscPosition && getEMUHisto(h::EMU_CSC_REPORTING, mo)) {
         mo->Fill(cscPosition, cscType);
       }
@@ -272,7 +272,7 @@ namespace cscdqm {
 
       unsigned int cscType   = 0;
       unsigned int cscPosition = 0;
-      histoProvider->getCSCFromMap(crateID, dmbSlot, cscType, cscPosition);
+      provider->getCSCFromMap(crateID, dmbSlot, cscType, cscPosition);
 
       if (getCSCHisto(crateID, dmbSlot, h::CSC_BINCHECK_DATAFLOW_PROBLEMS_TABLE, mo)) {
 	for(int bit = 0; bit < binChecker.nSTATUSES; bit++)
@@ -366,7 +366,7 @@ namespace cscdqm {
 
 	unsigned int cscType   = 0;
 	unsigned int cscPosition = 0;
-	histoProvider->getCSCFromMap(crateID, dmbSlot, cscType, cscPosition );
+	provider->getCSCFromMap(crateID, dmbSlot, cscType, cscPosition );
 	if ( cscType && cscPosition && getEMUHisto(h::EMU_CSC_FORMAT_ERRORS, mo)) {
 	  mo->Fill(cscPosition, cscType);
 	}

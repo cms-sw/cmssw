@@ -1,7 +1,7 @@
 /*
  * =====================================================================================
  *
- *       Filename:  CSCDQM_HistoProviderIf.h
+ *       Filename:  CSCDQM_MonitorObjectProviderIf.h
  *
  *    Description:  Histo Provider Interface
  *
@@ -16,22 +16,22 @@
  * =====================================================================================
  */
 
-#ifndef CSCDQM_HistoProviderIf_H
-#define CSCDQM_HistoProviderIf_H
+#ifndef CSCDQM_MonitorObjectProviderIf_H
+#define CSCDQM_MonitorObjectProviderIf_H
 
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 
 #include "DQM/CSCMonitorModule/interface/CSCDQM_HistoType.h"
-#include "DQM/CSCMonitorModule/interface/CSCDQM_MonitorObjectIf.h"
+#include "DQM/CSCMonitorModule/interface/CSCDQM_MonitorObject.h"
 
 namespace cscdqm {
 
   /**
-   * @class HistoProvider
+   * @class MonitorObjectProvider
    * @brief Interface for Histogram providing objects. Used by Event Processor
    * to retrieve MonitorObject 's and by Collection to book MonitorObject 's
    */
-  class HistoProvider {
+  class MonitorObjectProvider {
 
     public:
     

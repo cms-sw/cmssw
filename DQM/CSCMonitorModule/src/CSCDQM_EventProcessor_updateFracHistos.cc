@@ -43,7 +43,7 @@ namespace cscdqm {
 
     unsigned int iter = 0, crateId, dmbId;
     MonitorObject *mo = 0, *mof = 0;
-    while (histoProvider->nextCSC(iter, crateId, dmbId)) {
+    while (provider->nextCSC(iter, crateId, dmbId)) {
 
       std::string cscTag = CSCHistoType::getPath(crateId, dmbId);
 

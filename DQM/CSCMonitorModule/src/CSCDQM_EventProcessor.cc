@@ -21,9 +21,9 @@
 namespace cscdqm {
 
 
-  EventProcessor::EventProcessor(HistoProvider* p_histoProvider) {
+  EventProcessor::EventProcessor(MonitorObjectProvider* p_provider) {
 
-    histoProvider = p_histoProvider;
+    provider = p_provider;
 
     nEvents = 0;
     nBadEvents = 0;
@@ -59,28 +59,28 @@ namespace cscdqm {
   const bool EventProcessor::getEMUHisto(const HistoName& histo, MonitorObject*& me) {
     if (histoBlocked(histo)) return false;
     EMUHistoType histoT(histo);
-    return histoProvider->getHisto(histoT, me);
+    return provider->getHisto(histoT, me);
   }
 
 
   const bool EventProcessor::getDDUHisto(const int dduID, const HistoName& histo, MonitorObject*& me) {
     if (histoBlocked(histo)) return false;
     DDUHistoType histoT(histo, dduID);
-    return histoProvider->getHisto(histoT, me);
+    return provider->getHisto(histoT, me);
   }
 
 
   const bool EventProcessor::getCSCHisto(const int crateID, const int dmbSlot, const HistoName& histo, MonitorObject*& me) {
     if (histoBlocked(histo)) return false;
     CSCHistoType histoT(histo, crateID, dmbSlot);
-    return histoProvider->getHisto(histoT, me);
+    return provider->getHisto(histoT, me);
   }
 
 
   const bool EventProcessor::getCSCHisto(const int crateID, const int dmbSlot, const HistoName& histo, MonitorObject*& me, const int adId) {
     if (histoBlocked(histo)) return false;
     CSCHistoType histoT(histo, crateID, dmbSlot, adId);
-    return histoProvider->getHisto(histoT, me);
+    return provider->getHisto(histoT, me);
   }
 
 
@@ -88,7 +88,7 @@ namespace cscdqm {
     const HistoName histo = const_cast<char*>(name.c_str());
     if (histoBlocked(histo)) return false;
     ParHistoType histoT(histo);
-    return histoProvider->getHisto(histoT, me);
+    return provider->getHisto(histoT, me);
   }
 
 

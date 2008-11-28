@@ -78,7 +78,7 @@ typedef std::bitset<32>                          Bitset32;
  * @class CSCMonitorModuleCmn
  * @brief Common CSC DQM Module that uses CSCDQM Framework  
  */
-class CSCMonitorModuleCmn: public edm::EDAnalyzer, public cscdqm::HistoProvider {
+class CSCMonitorModuleCmn: public edm::EDAnalyzer, public cscdqm::MonitorObjectProvider {
  
   ///
   // Global stuff
@@ -109,7 +109,7 @@ class CSCMonitorModuleCmn: public edm::EDAnalyzer, public cscdqm::HistoProvider 
     uint32_t        fractUpdateEvF;
     
   ///
-  // HistoProvider Implementation
+  // MonitorObjectProvider Implementation
   ///
 
   public:
