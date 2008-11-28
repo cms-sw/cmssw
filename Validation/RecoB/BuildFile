@@ -1,7 +1,6 @@
 <use name=root>
 <use name=DataFormats/BTauReco>
 <use name=DQMServices/Core>
-<use name=DQMServices/QualityTests>
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
 <use name=FWCore/Utilities>
@@ -12,7 +11,6 @@
    <use name=root>
    <use name=DataFormats/BTauReco>
    <use name=DQMServices/Core>
-   <use name=DQMServices/QualityTests>
    <use name=FWCore/Framework>
    <use name=FWCore/ParameterSet>
    <use name=FWCore/Utilities>
