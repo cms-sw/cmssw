@@ -14,8 +14,10 @@ addpkg CondTools/SiStrip
 # temp patches
 cvs update -A CalibFormats/SiStripObjects/interface/SiStripFecCabling.h
 cvs update -A CalibFormats/SiStripObjects/interface/SiStripDetCabling.h
+cvs update -A CalibFormats/SiStripObjects/interface/SiStripRegionCabling.h
 cvs update -A CalibFormats/SiStripObjects/src/SiStripFecCabling.cc
 cvs update -A CalibFormats/SiStripObjects/src/SiStripDetCabling.cc
+cvs update -A CalibFormats/SiStripObjects/src/SiStripRegionCabling.cc
 cvs update -A CondTools/SiStrip/plugins/SiStripFedCablingBuilder.h
 cvs update -A CondTools/SiStrip/plugins/SiStripFedCablingReader.h
 cvs update -A CondTools/SiStrip/plugins/SiStripFedCablingBuilder.cc

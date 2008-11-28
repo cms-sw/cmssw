@@ -22,6 +22,7 @@ class SiStripFedCablingBuilder : public edm::EDAnalyzer {
 
   bool printFecCabling_;
   bool printDetCabling_;
+  bool printRegionCabling_;
 
 };
 #endif
