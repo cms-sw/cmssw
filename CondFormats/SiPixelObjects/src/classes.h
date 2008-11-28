@@ -52,5 +52,6 @@ namespace{
   std::vector<SiPixelQuality::disabledModuleType>::const_iterator p10;
 }
 
-
-
+#include "CondFormats/SiPixelObjects/interface/PixelDCSObject.h"
+template class PixelDCSObject<bool>;
+template class PixelDCSObject<float>;

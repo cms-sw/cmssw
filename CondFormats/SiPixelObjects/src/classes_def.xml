@@ -45,6 +45,9 @@
   <class name="SiPixelQuality::disabledModuleType"/>
   <class name="std::vector<SiPixelQuality::disabledModuleType>"/>  
 
+  <class pattern="PixelDCSObject<*>"/> 
+  <class pattern="PixelDCSObject<*>::Item"/> 
+
   <class pattern="*pair*"/>
   <class pattern="*vector*"/>
   <class pattern="*map*"/>
