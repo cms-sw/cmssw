@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: setup_sm.sh,v 1.26 2008/11/14 06:59:43 loizides Exp $
+# $Id: setup_sm.sh,v 1.27 2008/11/14 07:02:16 loizides Exp $
 
 if test -e "/etc/profile.d/sm_env.sh"; then 
     source /etc/profile.d/sm_env.sh;
@@ -114,7 +114,7 @@ start () {
 
             startwantedservices
             modifykparams
-            mount -oro,remount /dev/sda1 /boot/
+            #mount -oro,remount /dev/sda1 /boot/
             ;;
         *)
             echo "Unknown host: $hname"
