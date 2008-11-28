@@ -1,5 +1,9 @@
 #!/bin/csh
 #
+set goon = 1
+set period = 1800
+#
+while ($goon == 1)
 cat >! inspectRunInfo.py << %
 import os,sys, DLFCN
 sys.setdlopenflags(DLFCN.RTLD_GLOBAL+DLFCN.RTLD_LAZY)
@@ -7,9 +11,12 @@ sys.setdlopenflags(DLFCN.RTLD_GLOBAL+DLFCN.RTLD_LAZY)
 from pluginCondDBPyInterface import *
 a = FWIncantation()
 rdbms = RDBMS("/afs/cern.ch/cms/DB/conddb")
+#rdbms = RDBMS("/nfshome0/xiezhen/conddb")
 
 dbName =  "oracle://cms_orcoff_prod/CMS_COND_21X_RUN_INFO"
 logName = "oracle://cms_orcoff_prod/CMS_COND_21X_POPCONLOG"
+#dbName =  "oracle://cms_orcon_prod/CMS_COND_21X_RUN_INFO"
+#logName = "oracle://cms_orcon_prod/CMS_COND_21X_POPCONLOG"
 
 rdbms.setLogger(logName)
 from CondCore.Utilities import iovInspector as inspect
@@ -92,4 +99,11 @@ process Write2DB = {
 %%
 #
 cmsRun -p writeL1RPCHwConfig2DB.cfg
+#
+if ( -f writeL1RPCHwConfig2DB.inp )then
+ set goon = `cat writeL1RPCHwConfig2DB.inp`
+endif
+#
+sleep $period
+end
 #
