@@ -19,7 +19,7 @@ process.source = cms.Source("PoolSource",
 process.load("Configuration.EventContent.EventContentCosmics_cff")
 
 process.FEVT = cms.OutputModule("PoolOutputModule",
-    process.FEVTEventContent,
+    process.RECOEventContent,
     dataset = cms.untracked.PSet(dataTier = cms.untracked.string('RECO')),
     fileName = cms.untracked.string('promptrecoCosmics.root')
 )
@@ -86,8 +86,8 @@ process.ALCARECOStreamMuAlCalIsolatedMu = cms.OutputModule("PoolOutputModule",
 )
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.21 $'),
-    name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/GlobalRuns/python/recoT0DQM_EvContent_cfg.py,v $'),
+    version = cms.untracked.string('$Revision: 1.1 $'),
+    name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/GlobalRuns/python/recoT0DQM_EvContent_wAlca_cfg.py,v $'),
     annotation = cms.untracked.string('CRUZET Prompt Reco with DQM with Mag field at 0T')
 )
 process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) ) ## default is false
@@ -95,8 +95,8 @@ process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) ) #
 
 # Conditions (Global Tag is used here):
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.connect = "frontier://PromptProd/CMS_COND_21X_GLOBALTAG"
-process.GlobalTag.globaltag = "CRUZET4_V4P::All"
+#process.GlobalTag.connect = "frontier://PromptProd/CMS_COND_21X_GLOBALTAG"
+process.GlobalTag.globaltag = "CRAFT_30X::All"
 process.prefer("GlobalTag")
 
 # Magnetic fiuld: force mag field to be 0 tesla
