@@ -20,27 +20,27 @@
 
 CSCMonitorModuleCmn::CSCMonitorModuleCmn(const edm::ParameterSet& ps) : inputTag(INPUT_TAG_LABEL) {
 
-  CSCMonitorModuleCmn* hp = const_cast<CSCMonitorModuleCmn*>(this);
-  collection = new cscdqm::Collection(hp);
-  processor = new cscdqm::EventProcessor(hp);
-  dbe = edm::Service<DQMStore>().operator->();
-
   fractUpdateKey = ps.getUntrackedParameter<unsigned int>("FractUpdateKey", 1);
   fractUpdateEvF = ps.getUntrackedParameter<unsigned int>("FractUpdateEventFreq", 1);
 
   edm::ParameterSet psEffPar = ps.getUntrackedParameter<edm::ParameterSet>("effParameters");
-  effParams.cold_sigfail = psEffPar.getUntrackedParameter<double>("sigfail_cold"  , 5.0);
-  effParams.cold_threshold = psEffPar.getUntrackedParameter<double>("threshold_cold", 0.1);
-  effParams.err_sigfail = psEffPar.getUntrackedParameter<double>("sigfail_err", 5.0);
-  effParams.err_threshold = psEffPar.getUntrackedParameter<double>("threshold_err", 0.1);
-  effParams.hot_sigfail = psEffPar.getUntrackedParameter<double>("sigfail_hot"   , 2.0);
-  effParams.hot_threshold = psEffPar.getUntrackedParameter<double>("threshold_hot" , 0.1);
-  effParams.nodata_sigfail = psEffPar.getUntrackedParameter<double>("sigfail_nodata", 5.0);
-  effParams.nodata_threshold = psEffPar.getUntrackedParameter<double>("threshold_nodata", 1.0);
+  config.EFF_COLD_SIGFAIL = psEffPar.getUntrackedParameter<double>("sigfail_cold"  , 5.0);
+  config.EFF_COLD_THRESHOLD = psEffPar.getUntrackedParameter<double>("threshold_cold", 0.1);
+  config.EFF_ERR_SIGFAIL = psEffPar.getUntrackedParameter<double>("sigfail_err", 5.0);
+  config.EFF_NODATA_THRESHOLD = psEffPar.getUntrackedParameter<double>("threshold_err", 0.1);
+  config.EFF_HOT_SIGFAIL = psEffPar.getUntrackedParameter<double>("sigfail_hot"   , 2.0);
+  config.EFF_HOT_THRESHOLD = psEffPar.getUntrackedParameter<double>("threshold_hot" , 0.1);
+  config.EFF_NODATA_SIGFAIL = psEffPar.getUntrackedParameter<double>("sigfail_nodata", 5.0);
+  config.EFF_NODATA_THRESHOLD = psEffPar.getUntrackedParameter<double>("threshold_nodata", 1.0);
 
   edm::FileInPath bookFile = ps.getParameter<edm::FileInPath>(PARAM_BOOKING_FILE);
-  collection->load(bookFile.fullPath());
+  config.BOOKING_XML_FILE = bookFile.fullPath();
    
+  CSCMonitorModuleCmn* hp = const_cast<CSCMonitorModuleCmn*>(this);
+  collection = new cscdqm::Collection(hp, &config);
+  processor = new cscdqm::EventProcessor(hp, &config);
+  dbe = edm::Service<DQMStore>().operator->();
+
   // Prebook top level histograms
   dbe->setCurrentFolder(DIR_SUMMARY);
   collection->book("EMU");
@@ -111,7 +111,7 @@ void CSCMonitorModuleCmn::analyze(const edm::Event& e, const edm::EventSetup& c)
   // Update fractional histograms if appropriate
   if (processor->getNCSCEvents() > 0 && fractUpdateKey.test(2) && (processor->getNEvents() % fractUpdateEvF) == 0) {
     processor->updateFractionHistos();
-    processor->updateEfficiencyHistos(effParams);
+    processor->updateEfficiencyHistos();
   }
     
 }

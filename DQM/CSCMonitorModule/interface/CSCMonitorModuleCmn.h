@@ -46,6 +46,7 @@
 #include "DQM/CSCMonitorModule/interface/CSCDQM_EventProcessor.h"
 #include "DQM/CSCMonitorModule/interface/CSCDQM_Collection.h"
 #include "DQM/CSCMonitorModule/interface/CSCDQM_Logger.h"
+#include "DQM/CSCMonitorModule/interface/CSCDQM_Configuration.h"
 
 /// Local stuff
 #include "DQM/CSCMonitorModule/interface/CSCMonitorObject.h"
@@ -93,13 +94,12 @@ class CSCMonitorModuleCmn: public edm::EDAnalyzer, public cscdqm::MonitorObjectP
 
     cscdqm::Collection        *collection;
     cscdqm::EventProcessor    *processor;
+    cscdqm::Configuration     config;
     DQMStore                  *dbe;
     edm::InputTag             inputTag;
     MOCacheMap                moCache;
     bookedHistoSet            bookedHisto;
     bookedCSCSet              bookedCSCs;
-
-    cscdqm::EffParametersType effParams;
 
     /** Pointer to crate mapping from database **/
     const CSCCrateMap* pcrate;

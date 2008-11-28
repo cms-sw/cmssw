@@ -19,8 +19,10 @@
 
 namespace cscdqm {
 
-  Collection::Collection(MonitorObjectProvider* p_provider) {
+  Collection::Collection(MonitorObjectProvider* p_provider, const Configuration* p_config) {
     provider = p_provider;
+    config = p_config;
+    load();
   }
 
   
@@ -29,9 +31,9 @@ namespace cscdqm {
    * @param  bookingFile Booking file to load
    * @return 
    */
-  void Collection::load(const std::string bookingFile) {
+  void Collection::load() {
 
-    LOG_INFO << "Booking histograms from " << bookingFile;
+    LOG_INFO << "Booking histograms from " << config->BOOKING_XML_FILE;
 
     try {
 
@@ -47,7 +49,7 @@ namespace cscdqm {
       BookingFileErrorHandler eh;
       parser->setErrorHandler(&eh);
 
-      parser->parse(bookingFile.c_str());
+      parser->parse(config->BOOKING_XML_FILE.c_str());
       DOMDocument *doc = parser->getDocument();
       DOMNode *docNode = (DOMNode*) doc->getDocumentElement();
 

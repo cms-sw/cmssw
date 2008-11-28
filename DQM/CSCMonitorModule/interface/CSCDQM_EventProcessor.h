@@ -40,6 +40,7 @@
 #include "DQM/CSCMonitorModule/interface/CSCDQM_StripClusterFinder.h"
 #include "DQM/CSCMonitorModule/interface/CSCDQM_MonitorObjectProvider.h"
 #include "DQM/CSCMonitorModule/interface/CSCDQM_Configuration.h"
+#include "DQM/CSCMonitorModule/interface/CSCDQM_Configuration.h"
 
 #include "EventFilter/CSCRawToDigi/interface/CSCDCCExaminer.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCDDUEventData.h"
@@ -47,29 +48,6 @@
 #include "EventFilter/CSCRawToDigi/interface/CSCCFEBData.h"
 
 namespace cscdqm {
-
-  /**
-   * @brief  Structure to provide a set of efficiency parameters.
-   */
-  typedef struct EffParametersType {
-    double cold_threshold;
-    double cold_sigfail;
-    double hot_threshold;
-    double hot_sigfail;
-    double err_threshold;
-    double err_sigfail;
-    double nodata_threshold;
-    double nodata_sigfail;
-  };
-
-  /**
-   * @brief  Switch on/off CRC check for various levels
-   */
-  typedef enum BinCheckerCRCType { 
-    ALCT, 
-    CFEB, 
-    TMB 
-  };
 
   typedef std::map<std::string, uint32_t> CSCCounters;
 
@@ -85,19 +63,11 @@ namespace cscdqm {
 
     public:
       
-      EventProcessor(MonitorObjectProvider* p_provider);
-      ~EventProcessor();
-
-      void setDDUCheckMask(const uint32_t mask) { dduCheckMask = mask; }
-      const uint32_t getDDUCheckMask() const { return dduCheckMask; }
-      void setBinCheckMask(const uint32_t mask) { binCheckMask = mask; }
-      uint32_t getBinCheckMask() const { return binCheckMask; }
-
-      void setBinCheckerCRC(const BinCheckerCRCType crc, const bool value);
-      void setBinCheckerOutput(const bool value);
+      EventProcessor(MonitorObjectProvider* p_provider, const Configuration* p_config);
+      ~EventProcessor() { }
 
       void updateFractionHistos();
-      void updateEfficiencyHistos(EffParametersType& effParams);
+      void updateEfficiencyHistos();
 
       const uint32_t getNEvents() const { return nEvents; } 
       const uint32_t getNCSCEvents() const { return nCSCEvents; }
@@ -119,6 +89,7 @@ namespace cscdqm {
       const bool getParHisto(const std::string& name, MonitorObject*& me);
 
       MonitorObjectProvider* provider;
+      const Configuration*   config;
       Summary summary;
 
       uint32_t nEvents; 
@@ -132,9 +103,6 @@ namespace cscdqm {
       std::map<std::string, CSCCounters> cscCntrs;
 
       CSCDCCExaminer binChecker;
-      uint32_t dduCheckMask;
-      uint32_t binCheckMask;
-      uint32_t dduBinCheckMask; 
 
       std::map<uint32_t,uint32_t> L1ANumbers;
       uint32_t L1ANumber;

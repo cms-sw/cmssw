@@ -43,7 +43,7 @@ namespace cscdqm {
     }
 
     bool eventDenied = false;
-    if (((uint32_t) errorStat & dduCheckMask) > 0) {
+    if (((uint32_t) errorStat & config->get(CONF_DDU_CHECK_MASK)) > 0) {
       eventDenied = true;
     }
 

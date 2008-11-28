@@ -35,6 +35,7 @@
 #include "DQM/CSCMonitorModule/interface/CSCDQM_Logger.h"
 #include "DQM/CSCMonitorModule/interface/CSCDQM_Utility.h"
 #include "DQM/CSCMonitorModule/interface/CSCDQM_MonitorObjectProvider.h"
+#include "DQM/CSCMonitorModule/interface/CSCDQM_Configuration.h"
 
 namespace cscdqm {
 
@@ -70,9 +71,7 @@ namespace cscdqm {
 
     public:
 
-      Collection(MonitorObjectProvider* p_provider);
-      const CoHistoMap& getCollection() const { return collection; };
-      void load(const std::string p_bookingFile);
+      Collection(MonitorObjectProvider* p_provider, const Configuration* p_config);
 
       void book(const std::string& prefix) const;
       void book(const CoHisto& hs) const;
@@ -93,12 +92,14 @@ namespace cscdqm {
       
     private:
       
+      void load();
       static const int ParseAxisLabels(const std::string& s, std::map<int, std::string>& labels);
       static void getNodeProperties(DOMNode*& node, CoHistoProps& hp);
       
       MonitorObjectProvider* provider;
-      CoHistoMap     collection;
+      const Configuration*   config;
 
+      CoHistoMap             collection;
 
   };
 

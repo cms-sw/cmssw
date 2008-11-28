@@ -21,9 +21,10 @@
 namespace cscdqm {
 
 
-  EventProcessor::EventProcessor(MonitorObjectProvider* p_provider) {
+  EventProcessor::EventProcessor(MonitorObjectProvider* p_provider, const Configuration* p_config) {
 
     provider = p_provider;
+    config = p_config;
 
     nEvents = 0;
     nBadEvents = 0;
@@ -34,16 +35,7 @@ namespace cscdqm {
     fFirstEvent = true;
     fCloseL1As = true;
 
-    dduCheckMask = 0xFFFFFFFF;
-    binCheckMask = 0xFFFFFFFF;
-    dduBinCheckMask = 0x02080016;
-
   }
-
-
-  EventProcessor::~EventProcessor() {
-  }
-
 
   const bool EventProcessor::getEMUHisto(const HistoName& histo, MonitorObject*& me) {
     EMUHistoType histoT(histo);
@@ -73,29 +65,6 @@ namespace cscdqm {
     const HistoName histo = const_cast<char*>(name.c_str());
     ParHistoType histoT(histo);
     return provider->getHisto(histoT, me);
-  }
-
-
-  void EventProcessor::setBinCheckerCRC(const BinCheckerCRCType crc, const bool value) {
-    switch (crc) {
-      case ALCT:
-        binChecker.crcALCT(value);
-      case CFEB:
-        binChecker.crcCFEB(value);
-      case TMB:
-        binChecker.crcTMB(value);
-    };
-  }
-
-
-  void EventProcessor::setBinCheckerOutput(const bool value) {
-    if (value) {
-      binChecker.output1().show();
-      binChecker.output2().show();
-    } else {
-      binChecker.output1().hide();
-      binChecker.output2().hide();
-    }
   }
 
 }

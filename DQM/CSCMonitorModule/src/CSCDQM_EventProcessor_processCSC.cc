@@ -61,7 +61,7 @@ namespace cscdqm {
     std::string cscTag = CSCHistoType::getPath(crateID, dmbID);
   
     unsigned long errors = binChecker.errorsForChamber(chamberID);
-    if ((errors & binCheckMask) > 0 ) {
+    if ((errors & config->BINCHECK_MASK) > 0 ) {
       LOG_WARN << "Format Errors " << cscTag << ": 0x" << hex << errors << " Skipped CSC Unpacking";
       return;
     }
