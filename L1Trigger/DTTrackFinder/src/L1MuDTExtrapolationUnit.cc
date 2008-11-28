@@ -5,8 +5,8 @@
 //   Description: Extrapolation Unit
 //
 //
-//   $Date: 2007/03/30 09:05:32 $
-//   $Revision: 1.3 $
+//   $Date: 2008/10/13 07:44:43 $
+//   $Revision: 1.4 $
 //
 //   Author :
 //   N. Neumeister            CERN EP
@@ -40,6 +40,8 @@
 #include "L1Trigger/DTTrackFinder/src/L1MuDTSecProcId.h"
 #include "L1Trigger/DTTrackFinder/src/L1MuDTDataBuffer.h"
 #include "L1Trigger/DTTrackFinder/src/L1MuDTTrackSegPhi.h"
+#include "CondFormats/L1TObjects/interface/L1MuDTTFParameters.h"
+#include "CondFormats/DataRecord/interface/L1MuDTTFParametersRcd.h"
 
 using namespace std;
 
@@ -100,6 +102,8 @@ L1MuDTExtrapolationUnit::~L1MuDTExtrapolationUnit() {
 //
 void L1MuDTExtrapolationUnit::run(const edm::EventSetup& c) {
 
+  c.get< L1MuDTTFParametersRcd >().get( pars );
+
   SEUmap::const_iterator iter;
   for ( iter = m_SEUs.begin(); iter != m_SEUs.end(); iter++ ) {
 
@@ -121,7 +125,8 @@ void L1MuDTExtrapolationUnit::run(const edm::EventSetup& c) {
   //
   // use EX21 to cross-check EX12
   //
-  if ( L1MuDTTFConfig::getUseEX21() ) {
+  bool run_21 = pars->get_soc_run_21(m_sp.id().wheel(), m_sp.id().sector());
+  if ( L1MuDTTFConfig::getUseEX21() || run_21 ) {
 
     // search for EX12 + EX21 single extrapolation units
     for ( unsigned int startAdr = 0; startAdr < 2; startAdr++ ) {
@@ -346,10 +351,8 @@ pair<int,int> L1MuDTExtrapolationUnit::which_ext(Extrapolation ext) {
     case EX24 : { source = 2; target = 4; break; }
     case EX34 : { source = 3; target = 4; break; }
     case EX15 : { source = 1; target = 3; break; }
-    case EX16 : { source = 1; target = 4; break; }
     case EX25 : { source = 2; target = 3; break; }
-    case EX26 : { source = 2; target = 4; break; }
-    case EX56 : { source = 3; target = 4; break; }
+    default : { source = 1; target = 2; break; }
   }
 
   return pair<int,int>(source,target);

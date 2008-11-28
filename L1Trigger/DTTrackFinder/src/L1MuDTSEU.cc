@@ -5,8 +5,8 @@
 //   Description: Single Extrapolation Unit
 //
 //
-//   $Date: 2007/02/27 11:44:00 $
-//   $Revision: 1.2 $
+//   $Date: 2007/03/30 09:05:32 $
+//   $Revision: 1.3 $
 //
 //   Author :
 //   N. Neumeister            CERN EP
@@ -56,7 +56,7 @@ L1MuDTSEU::L1MuDTSEU(const L1MuDTSectorProcessor& sp, Extrapolation ext, unsigne
   m_EUXs.reserve(12);
 
   for ( int target_ts = 0; target_ts < 12; target_ts++ ) {
-    m_EUXs.push_back( new L1MuDTEUX(*this,target_ts) );
+    m_EUXs.push_back( new L1MuDTEUX(m_sp,*this,target_ts) );
   }
 
   m_ERS = new L1MuDTERS(*this);
@@ -144,8 +144,9 @@ void L1MuDTSEU::run(const edm::EventSetup& c) {
 
   if ( m_ERS ) m_ERS->run();
 
-  if ( m_ERS->address(0) != 15 ) m_QStable.set(m_ERS->address(0));
-  if ( m_ERS->address(1) != 15 ) m_QStable.set(m_ERS->address(1));
+  //  if ( m_ERS->address(0) != 15 ) m_QStable.set(m_ERS->address(0));
+  //  if ( m_ERS->address(1) != 15 ) m_QStable.set(m_ERS->address(1));
+  m_QStable = m_EXtable;
 
 }
 

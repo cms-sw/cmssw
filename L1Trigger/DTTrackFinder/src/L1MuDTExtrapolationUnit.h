@@ -13,8 +13,8 @@
  *   in the adjacent wheel (next wheel neighbour)
  *
  *
- *   $Date: 2007/03/30 09:05:32 $
- *   $Revision: 1.3 $
+ *   $Date: 2008/02/18 17:38:04 $
+ *   $Revision: 1.4 $
  *
  *   N. Neumeister            CERN EP
  */
@@ -42,8 +42,10 @@
 //------------------------------------
 
 #include "CondFormats/L1TObjects/interface/L1MuDTExtParam.h"
+#include <FWCore/Framework/interface/ESHandle.h>
 class L1MuDTSectorProcessor;
 class L1MuDTSEU;
+class L1MuDTTFParameters;
 
 //              ---------------------
 //              -- Class Interface --
@@ -97,6 +99,8 @@ class L1MuDTExtrapolationUnit : public L1AbstractProcessor {
     const L1MuDTSectorProcessor& m_sp;   // reference to Sector Processor
 
     mutable SEUmap m_SEUs;               // Single Extrapolation Units
+
+    edm::ESHandle< L1MuDTTFParameters > pars;
  
 };
 

@@ -5,8 +5,8 @@
 //   Description: Sector Processor
 //
 //
-//   $Date: 2008/02/18 17:38:04 $
-//   $Revision: 1.4 $
+//   $Date: 2008/05/09 15:01:59 $
+//   $Revision: 1.5 $
 //
 //   Author :
 //   N. Neumeister            CERN EP
@@ -107,7 +107,7 @@ L1MuDTSectorProcessor::~L1MuDTSectorProcessor() {
 void L1MuDTSectorProcessor::run(int bx, const edm::Event& e, const edm::EventSetup& c) {
 
   // receive data and store them into the data buffer
-  if ( m_SectorReceiver ) m_SectorReceiver->run(bx, e);
+  if ( m_SectorReceiver ) m_SectorReceiver->run(bx, e, c);
 
   // check content of data buffer
   if ( m_DataBuffer ) {

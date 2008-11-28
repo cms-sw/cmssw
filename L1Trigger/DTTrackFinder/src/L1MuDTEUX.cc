@@ -5,8 +5,8 @@
 //   Description: Extrapolator
 //
 //
-//   $Date: 2008/10/01 14:14:24 $
-//   $Revision: 1.8 $
+//   $Date: 2008/10/13 07:44:43 $
+//   $Revision: 1.9 $
 //
 //   Author :
 //   N. Neumeister            CERN EP
@@ -31,10 +31,13 @@
 
 #include "L1Trigger/DTTrackFinder/src/L1MuDTTFConfig.h"
 #include "CondFormats/L1TObjects/interface/L1MuDTExtParam.h"
+#include "L1Trigger/DTTrackFinder/src/L1MuDTSectorProcessor.h"
 #include "L1Trigger/DTTrackFinder/src/L1MuDTSEU.h"
 #include "L1Trigger/DTTrackFinder/src/L1MuDTTrackSegPhi.h"
 #include "CondFormats/L1TObjects/interface/L1MuDTExtLut.h"
 #include "CondFormats/DataRecord/interface/L1MuDTExtLutRcd.h"
+#include "CondFormats/L1TObjects/interface/L1MuDTTFParameters.h"
+#include "CondFormats/DataRecord/interface/L1MuDTTFParametersRcd.h"
 
 using namespace std;
 
@@ -46,8 +49,8 @@ using namespace std;
 // Constructors --
 //----------------
 
-L1MuDTEUX::L1MuDTEUX(const L1MuDTSEU& seu, int id) : 
-    m_seu(seu), m_id(id), 
+L1MuDTEUX::L1MuDTEUX(const L1MuDTSectorProcessor& sp, const L1MuDTSEU& seu, int id) : 
+    m_sp(sp), m_seu(seu), m_id(id), 
     m_result(false), m_quality(0), m_address(15),
     m_start(0), m_target(0) {
 
@@ -87,6 +90,7 @@ bool L1MuDTEUX::operator==(const L1MuDTEUX& eux) const {
 void L1MuDTEUX::run(const edm::EventSetup& c) {
 
   c.get< L1MuDTExtLutRcd >().get( theExtLUTs );
+  c.get< L1MuDTTFParametersRcd >().get( pars );
 
   if ( L1MuDTTFConfig::Debug(4) ) cout << "Run EUX "  << m_id << endl;
   if ( L1MuDTTFConfig::Debug(4) ) cout << "start :  " << *m_start  << endl;
@@ -109,10 +113,7 @@ void L1MuDTEUX::run(const edm::EventSetup& c) {
 
     switch ( m_seu.ext() ) {
       case EX13 : { lut_idx = EX15; break; }
-      case EX14 : { lut_idx = EX16; break; }
       case EX23 : { lut_idx = EX25; break; }
-      case EX24 : { lut_idx = EX26; break; }
-      case EX34 : { lut_idx = EX56; break; }
       default   : { lut_idx = m_seu.ext(); break; }
     }
 
@@ -123,9 +124,16 @@ void L1MuDTEUX::run(const edm::EventSetup& c) {
                                        << endl;
 
   // Extrapolation TS quality filter
-  switch ( theExtFilter ) {
-    default : { break; }
-  }
+  int qcut = 0;
+  if ( m_seu.ext() == EX12 ) qcut = pars->get_soc_qcut_st1(m_sp.id().wheel(), m_sp.id().sector());
+  if ( m_seu.ext() == EX13 ) qcut = pars->get_soc_qcut_st1(m_sp.id().wheel(), m_sp.id().sector());
+  if ( m_seu.ext() == EX14 ) qcut = pars->get_soc_qcut_st1(m_sp.id().wheel(), m_sp.id().sector());
+  if ( m_seu.ext() == EX21 ) qcut = pars->get_soc_qcut_st2(m_sp.id().wheel(), m_sp.id().sector());
+  if ( m_seu.ext() == EX23 ) qcut = pars->get_soc_qcut_st2(m_sp.id().wheel(), m_sp.id().sector());
+  if ( m_seu.ext() == EX24 ) qcut = pars->get_soc_qcut_st2(m_sp.id().wheel(), m_sp.id().sector());
+  if ( m_seu.ext() == EX34 ) qcut = pars->get_soc_qcut_st4(m_sp.id().wheel(), m_sp.id().sector());
+
+  if ( m_start->quality() < qcut ) return;
   
   // calculate bit shift
   int sh_phi  = 12 - nbit_phi;
@@ -157,7 +165,8 @@ void L1MuDTEUX::run(const edm::EventSetup& c) {
   if ( phi_offset < -(1 << (nbit_phi-1)) +1 ) return;
 
   // is phi-difference within the extrapolation window?
-  if (( diff >= low && diff <= high ) || L1MuDTTFConfig::getopenLUTs() ) {
+  bool openlut = pars->get_soc_openlut_extr(m_sp.id().wheel(), m_sp.id().sector());
+  if (( diff >= low && diff <= high ) || L1MuDTTFConfig::getopenLUTs() || openlut ) {
     m_result = true;
     int qual_st = m_start->quality();
     int qual_ta = m_target->quality();
@@ -187,7 +196,7 @@ void L1MuDTEUX::load(const L1MuDTTrackSegPhi* start_ts,
   m_target = target_ts;
 
   // in case of EX34 and EX21 exchange start and target
-  if ( ( m_seu.ext() == EX34 && abs(target_ts->wheel()) != 3 ) || ( m_seu.ext() == EX21 ) ) {
+  if ( ( m_seu.ext() == EX34 ) || ( m_seu.ext() == EX21 ) ) {
     m_start  = target_ts;
     m_target = start_ts;
   }

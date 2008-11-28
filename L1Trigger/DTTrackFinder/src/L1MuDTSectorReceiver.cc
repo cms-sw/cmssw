@@ -5,8 +5,8 @@
 //   Description: Sector Receiver 
 //
 //
-//   $Date: 2008/06/16 09:00:37 $
-//   $Revision: 1.12 $
+//   $Date: 2008/10/01 14:41:05 $
+//   $Revision: 1.13 $
 //
 //   Author :
 //   N. Neumeister            CERN EP
@@ -41,6 +41,8 @@
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h"
 #include "DataFormats/L1CSCTrackFinder/interface/TrackStub.h"
 #include "DataFormats/L1CSCTrackFinder/interface/CSCTriggerContainer.h"
+#include "CondFormats/L1TObjects/interface/L1MuDTTFParameters.h"
+#include "CondFormats/DataRecord/interface/L1MuDTTFParametersRcd.h"
 
 using namespace std;
 
@@ -74,14 +76,16 @@ L1MuDTSectorReceiver::~L1MuDTSectorReceiver() {
 //
 // receive track segment data from the DTBX and CSC chamber triggers
 //
-void L1MuDTSectorReceiver::run(int bx, const edm::Event& e) {
+void L1MuDTSectorReceiver::run(int bx, const edm::Event& e, const edm::EventSetup& c) {
+
+  c.get< L1MuDTTFParametersRcd >().get( pars );
 
   // get track segments from DTBX chamber trigger
-  receiveDTBXData(bx,e);
+  receiveDTBXData(bx, e, c);
   
   // get track segments from CSC chamber trigger
   if ( L1MuDTTFConfig::overlap() && m_sp.ovl() ) { 
-    receiveCSCData(bx,e);
+    receiveCSCData(bx, e, c);
   }
 
 }
@@ -98,7 +102,7 @@ void L1MuDTSectorReceiver::reset() {
 //
 // receive track segment data from the DTBX chamber trigger
 //
-void L1MuDTSectorReceiver::receiveDTBXData(int bx, const edm::Event& e) {
+void L1MuDTSectorReceiver::receiveDTBXData(int bx, const edm::Event& e, const edm::EventSetup& c) {
 
   edm::Handle<L1MuDTChambPhContainer> dttrig;
   e.getByLabel(L1MuDTTFConfig::getDTDigiInputTag(),dttrig);
@@ -125,12 +129,40 @@ void L1MuDTSectorReceiver::receiveDTBXData(int bx, const edm::Event& e) {
         int phib = ts->phiB();
         int qual = ts->code();
         bool tag = (reladr%2 == 1) ? true : false;
+
+        int lwheel = m_sp.id().wheel();
+        lwheel = abs(lwheel)/lwheel*(abs(wheel)+1);
+
+        if ( station == 1 ) {
+          if ( pars->get_inrec_chdis_st1(lwheel, sector) ) continue;
+          if ( qual < pars->get_inrec_qual_st1(lwheel, sector) ) continue;
+        } 
+        else if ( station == 2 ) {
+          if ( pars->get_inrec_chdis_st2(lwheel, sector) ) continue;
+          if ( qual < pars->get_inrec_qual_st3(lwheel, sector) ) continue;
+          } 
+        else if ( station == 3 ) {
+          if ( pars->get_inrec_chdis_st3(lwheel, sector) ) continue;
+          if ( qual < pars->get_inrec_qual_st3(lwheel, sector) ) continue;
+        } 
+        else if ( station == 4 ) {
+          if ( pars->get_inrec_chdis_st4(lwheel, sector) ) continue;
+          if ( qual < pars->get_inrec_qual_st4(lwheel, sector) ) continue;
+        } 
+
+        if ( reladr/2 == 1 && qual < pars->get_soc_stdis_n(m_sp.id().wheel(), m_sp.id().sector())  ) continue;
+        if ( reladr/2 == 2 && qual < pars->get_soc_stdis_wl(m_sp.id().wheel(), m_sp.id().sector()) ) continue;
+        if ( reladr/2 == 3 && qual < pars->get_soc_stdis_zl(m_sp.id().wheel(), m_sp.id().sector()) ) continue;
+        if ( reladr/2 == 4 && qual < pars->get_soc_stdis_wr(m_sp.id().wheel(), m_sp.id().sector()) ) continue;
+        if ( reladr/2 == 5 && qual < pars->get_soc_stdis_zr(m_sp.id().wheel(), m_sp.id().sector()) ) continue;
+
         //
         // out-of-time TS filter (compare TS at +-1 bx)
         // 
         bool skipTS = false;
 
-        if ( L1MuDTTFConfig::getTSOutOfTimeFilter() ) {
+        bool nbx_del = pars->get_soc_nbx_del(m_sp.id().wheel(), m_sp.id().sector());
+        if ( L1MuDTTFConfig::getTSOutOfTimeFilter() || nbx_del ) {
  
           int sh_phi = 12 - L1MuDTTFConfig::getNbitsExtPhi();
           int tolerance = L1MuDTTFConfig::getTSOutOfTimeWindow();
@@ -186,7 +218,7 @@ void L1MuDTSectorReceiver::receiveDTBXData(int bx, const edm::Event& e) {
 //
 // receive track segment data from CSC chamber trigger
 //
-void L1MuDTSectorReceiver::receiveCSCData(int bx, const edm::Event& e) {
+void L1MuDTSectorReceiver::receiveCSCData(int bx, const edm::Event& e, const edm::EventSetup& c) {
   
   if ( (L1MuDTTFConfig::getCSCTrSInputTag()).label() == "none" ) return;
 
@@ -239,6 +271,8 @@ void L1MuDTSectorReceiver::receiveCSCData(int bx, const edm::Event& e) {
     dphi = dphi*62.*M_PI/180.;
     int phi = static_cast<int>(floor( dphi ));
     if ( phi < -2048 || phi > 2047 ) continue; 
+
+    if ( qual < pars->get_soc_qual_csc(m_sp.id().wheel(), m_sp.id().sector()) ) continue;
 
     if ( ncsc < 2 ) {
       int address = 16 + ncsc;

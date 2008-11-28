@@ -9,8 +9,8 @@
  *   actual extrapolation
  *
  *
- *   $Date: 2007/03/30 09:05:32 $
- *   $Revision: 1.3 $
+ *   $Date: 2008/02/18 17:38:04 $
+ *   $Revision: 1.4 $
  *
  *   N. Neumeister            CERN EP
  */
@@ -38,8 +38,10 @@
 
 #include <FWCore/Framework/interface/ESHandle.h>
 class L1MuDTTrackSegPhi;
+class L1MuDTSectorProcessor;
 class L1MuDTSEU;
 class L1MuDTExtLut;
+class L1MuDTTFParameters;
 
 //              ---------------------
 //              -- Class Interface --
@@ -50,7 +52,7 @@ class L1MuDTEUX : public L1AbstractProcessor {
   public:
 
     /// constructor
-    L1MuDTEUX(const L1MuDTSEU& seu, int id );
+    L1MuDTEUX(const L1MuDTSectorProcessor& sp, const L1MuDTSEU& seu, int id );
 
     /// destructor
     virtual ~L1MuDTEUX();
@@ -106,6 +108,7 @@ class L1MuDTEUX : public L1AbstractProcessor {
 
   private:
 
+    const L1MuDTSectorProcessor& m_sp;
     const L1MuDTSEU& m_seu;           // reference to Single Extrapolation Unit 
     int              m_id;            // index of start TS
 
@@ -120,6 +123,8 @@ class L1MuDTEUX : public L1AbstractProcessor {
     static int               theExtFilter;     // extrapolation quality filter
     static unsigned short    nbit_phi;         // number of bits used for phi
     static unsigned short    nbit_phib;        // number of bits used for phib
+
+    edm::ESHandle< L1MuDTTFParameters > pars;
 
 };
 

@@ -9,8 +9,8 @@
  *   and stores it into the Data Buffer
  *
  *
- *   $Date: 2007/01/18 17:37:33 $
- *   $Revision: 1.2 $
+ *   $Date: 2007/04/01 10:05:05 $
+ *   $Revision: 1.5 $
  *
  *   N. Neumeister            CERN EP
  *   J. Troconiz              UAM Madrid
@@ -35,8 +35,10 @@
 //------------------------------------
 
 #include <DataFormats/Common/interface/Handle.h>
+#include <FWCore/Framework/interface/ESHandle.h>
 #include <FWCore/Framework/interface/Event.h>
 class L1MuDTSectorProcessor;
+class L1MuDTTFParameters;
 
 //              ---------------------
 //              -- Class Interface --
@@ -53,7 +55,7 @@ class L1MuDTSectorReceiver {
     virtual ~L1MuDTSectorReceiver();
 
     /// receive track segment data from the DTBX and CSC chamber triggers
-    void run(int bx, const edm::Event& e);
+    void run(int bx, const edm::Event& e, const edm::EventSetup& c);
     
     /// clear Sector Receiver
     void reset();
@@ -61,10 +63,10 @@ class L1MuDTSectorReceiver {
   private:
 
     /// receive track segment data from DTBX chamber trigger
-    void receiveDTBXData(int bx, const edm::Event& e);
+    void receiveDTBXData(int bx, const edm::Event& e, const edm::EventSetup& c);
 
     /// receive track segment data from CSC chamber trigger
-    void receiveCSCData(int bx, const edm::Event& e);
+    void receiveCSCData(int bx, const edm::Event& e, const edm::EventSetup& c);
     
     /// find the right sector for a given address
     int address2sector(int adr) const;
@@ -75,6 +77,8 @@ class L1MuDTSectorReceiver {
   private:
 
     L1MuDTSectorProcessor& m_sp;
+
+    edm::ESHandle< L1MuDTTFParameters > pars;
 
 };
   
