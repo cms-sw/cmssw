@@ -87,8 +87,6 @@ namespace cscdqm {
       EventProcessor(MonitorObjectProvider* p_provider);
       ~EventProcessor();
 
-      void blockHisto(const HistoName& histo);
-
       void setDDUCheckMask(const uint32_t mask) { dduCheckMask = mask; }
       const uint32_t getDDUCheckMask() const { return dduCheckMask; }
       void setBinCheckMask(const uint32_t mask) { binCheckMask = mask; }
@@ -113,15 +111,12 @@ namespace cscdqm {
 
       void calcEMUFractionHisto(const HistoName& result, const HistoName& set, const HistoName& subset);
 
-      const bool histoBlocked(const HistoName& histo) const;
-
       const bool getEMUHisto(const HistoName& histo, MonitorObject*& me);
       const bool getDDUHisto(const int dduID, const HistoName& histo, MonitorObject*& me);
       const bool getCSCHisto(const int crateID, const int dmbSlot, const HistoName& histo, MonitorObject*& me);
       const bool getCSCHisto(const int crateID, const int dmbSlot, const HistoName& histo, MonitorObject*& me, const int adId);
       const bool getParHisto(const std::string& name, MonitorObject*& me);
 
-      std::set<HistoName> blocked;
       MonitorObjectProvider* provider;
       Summary summary;
 

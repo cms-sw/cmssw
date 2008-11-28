@@ -45,40 +45,25 @@ namespace cscdqm {
   }
 
 
-  void EventProcessor::blockHisto(const HistoName& histo) {
-    blocked.insert(histo);
-  }
-
-
-  const bool EventProcessor::histoBlocked(const HistoName& histo) const {
-    std::set<HistoName>::iterator found = blocked.find(histo);
-    return (found != blocked.end());
-  }
-
-
   const bool EventProcessor::getEMUHisto(const HistoName& histo, MonitorObject*& me) {
-    if (histoBlocked(histo)) return false;
     EMUHistoType histoT(histo);
     return provider->getHisto(histoT, me);
   }
 
 
   const bool EventProcessor::getDDUHisto(const int dduID, const HistoName& histo, MonitorObject*& me) {
-    if (histoBlocked(histo)) return false;
     DDUHistoType histoT(histo, dduID);
     return provider->getHisto(histoT, me);
   }
 
 
   const bool EventProcessor::getCSCHisto(const int crateID, const int dmbSlot, const HistoName& histo, MonitorObject*& me) {
-    if (histoBlocked(histo)) return false;
     CSCHistoType histoT(histo, crateID, dmbSlot);
     return provider->getHisto(histoT, me);
   }
 
 
   const bool EventProcessor::getCSCHisto(const int crateID, const int dmbSlot, const HistoName& histo, MonitorObject*& me, const int adId) {
-    if (histoBlocked(histo)) return false;
     CSCHistoType histoT(histo, crateID, dmbSlot, adId);
     return provider->getHisto(histoT, me);
   }
@@ -86,7 +71,6 @@ namespace cscdqm {
 
   const bool EventProcessor::getParHisto(const std::string& name, MonitorObject*& me) {
     const HistoName histo = const_cast<char*>(name.c_str());
-    if (histoBlocked(histo)) return false;
     ParHistoType histoT(histo);
     return provider->getHisto(histoT, me);
   }
