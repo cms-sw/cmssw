@@ -11,19 +11,19 @@ DQMStore = cms.Service("DQMStore")
 
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(-1)
+    input = cms.untracked.int32(1000)
 )
 
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
 
+        '/store/relval/CMSSW_2_2_0_pre1/RelValGammaJets_Pt_80_120/GEN-SIM-RECO/STARTUP_V7_v1/0000/70BBDA00-1AAF-DD11-A7C3-001617DBD556.root',
+        '/store/relval/CMSSW_2_2_0_pre1/RelValGammaJets_Pt_80_120/GEN-SIM-RECO/STARTUP_V7_v1/0000/D0EDC0E8-CDAE-DD11-B7DD-001617C3B69C.root',
+        '/store/relval/CMSSW_2_2_0_pre1/RelValGammaJets_Pt_80_120/GEN-SIM-RECO/STARTUP_V7_v1/0000/E22B5AD8-CCAE-DD11-9D23-000423D98634.root',
+        '/store/relval/CMSSW_2_2_0_pre1/RelValGammaJets_Pt_80_120/GEN-SIM-RECO/STARTUP_V7_v1/0000/FE048742-CDAE-DD11-8A18-000423D9970C.root'
 
-        '/store/relval/CMSSW_2_1_6/RelValSingleGammaPt35/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/IDEAL_V9_v1/0000/024D606A-C078-DD11-BA5C-001D09F24498.root',
-        '/store/relval/CMSSW_2_1_6/RelValSingleGammaPt35/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/IDEAL_V9_v1/0000/02EDC451-C078-DD11-8C66-0019B9F707D8.root',
-        '/store/relval/CMSSW_2_1_6/RelValSingleGammaPt35/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/IDEAL_V9_v1/0000/06EEB605-C078-DD11-8FC3-001D09F27067.root',
-        '/store/relval/CMSSW_2_1_6/RelValSingleGammaPt35/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/IDEAL_V9_v1/0000/881B6B6A-C078-DD11-81E6-001D09F2514F.root',
-        '/store/relval/CMSSW_2_1_6/RelValSingleGammaPt35/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/IDEAL_V9_v1/0001/A2A5E967-EB78-DD11-8847-001617C3B6DE.root'
+
 
 ))
 
@@ -33,6 +33,15 @@ process.FEVT = cms.OutputModule("PoolOutputModule",
     outputCommands = cms.untracked.vstring("keep *_MEtoEDMConverter_*_*"),
     fileName = cms.untracked.string('photonsMEtoEDMConverter.root')
 )
+
+from DQMOffline.EGamma.photonAnalyzer_cfi import *
+photonAnalysis.OutputMEsInRootFile = cms.bool(True)
+photonAnalysis.OutputFileName = 'DQMPhotonsStandaloneForMC.root'
+photonAnalysis.Verbosity = cms.untracked.int32(0)
+photonAnalysis.useTriggerFiltering = cms.bool(False)
+photonAnalysis.standAlone = cms.bool(True)
+
+
 
 #process.p1 = cms.Path(process.MEtoEDMConverter)
 #process.p1 = cms.Path(process.photonAnalysis*process.MEtoEDMConverter)
