@@ -67,7 +67,7 @@ void SiStripFedCablingReader::beginRun( const edm::Run& run,
     ss << std::endl;
     if ( printRegionCabling_ && region.isValid() ) { region->print( ss ); }
     ss << std::endl;
-    LogTrace("SiStripFedCablingReader") << ss.str();
+    edm::LogVerbatim("SiStripFedCablingReader") << ss.str();
   }
   
   {

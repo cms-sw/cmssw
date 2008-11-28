@@ -70,7 +70,7 @@ void SiStripFedCablingBuilder::beginRun( const edm::Run& run,
     ss << std::endl;
     if ( printRegionCabling_ && region.isValid() ) { region->print( ss ); }
     ss << std::endl;
-    LogTrace("SiStripFedCablingBuilder") << ss.str();
+    edm::LogVerbatim("SiStripFedCablingBuilder") << ss.str();
   }
   
   {
