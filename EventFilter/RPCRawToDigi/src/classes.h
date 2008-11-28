@@ -4,12 +4,16 @@
 
 namespace {
   namespace { 
+    std::map< std::pair<int,int>, int > a1;
+    edm::Wrapper<std::map< std::pair<int,int>, int > > a2;
     std::pair<int, std::vector<int> > b1;
     edm::Wrapper<std::pair<int, std::vector<int> > > b2;
     std::map<int, std::vector<int> > c1;
     edm::Wrapper<std::map<int, std::vector<int> > > c2;
     RPCRawDataCounts d1;
     edm::Wrapper<RPCRawDataCounts> d2;
+
+
 
     LinkBoardElectronicIndex e1;
     edm::Wrapper<LinkBoardElectronicIndex> e2;

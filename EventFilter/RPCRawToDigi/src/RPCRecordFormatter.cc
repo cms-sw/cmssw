@@ -1,8 +1,8 @@
 /** \file
  * Implementation of class RPCRecordFormatter
  *
- *  $Date: 2008/07/08 06:57:03 $
- *  $Revision: 1.38 $
+ *  $Date: 2008/07/30 10:37:44 $
+ *  $Revision: 1.39 $
  *
  * \author Ilaria Segoni
  */
@@ -17,6 +17,8 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
+
+#include "EventFilter/RPCRawToDigi/interface/ReadoutError.h"
 
 
 
@@ -91,7 +93,7 @@ int RPCRecordFormatter::recordUnpack(
 {
 
   static bool debug = edm::MessageDrop::instance()->debugEnabled;
-  int status = 0;
+  ReadoutError error;
   int triggerBX = event.triggerBx();
   int currentBX = event.recordBX().bx();
   int currentRMB = event.recordSLD().rmb(); 
@@ -105,7 +107,7 @@ int RPCRecordFormatter::recordUnpack(
 
   if(synchro) synchro->push_back( make_pair(eleIndex,RPCRawSynchro::bxDifference(event)));
 
-  if(readoutMapping == 0) return status;
+  if(readoutMapping == 0) return error.type();
   const LinkBoardSpec* linkBoard = readoutMapping->location(eleIndex);
   if (!linkBoard) {
     if (debug) LogDebug("")<<" ** PROBLEM ** Invalid Linkboard location, skip CD event, " 
@@ -113,16 +115,16 @@ int RPCRecordFormatter::recordUnpack(
               << "dccInputChannelNum: " <<eleIndex.dccInputChannelNum
               << " tbLinkInputNum: "<<eleIndex.tbLinkInputNum
               << " lbNumInLink: "<<eleIndex.lbNumInLink;
-    status = RPCRawDataCounts::InvalidLB;
-    if(counter) counter->addReadoutError(status);
-    return status;
+    error = ReadoutError(ReadoutError::InvalidLB);
+    if(counter) counter->addReadoutError(currentFED,error );
+    return error.type();
   }
 
   std::vector<int> packStrips = event.recordCD().packedStrips();
   if (packStrips.size() ==0) {
-    status = RPCRawDataCounts::EmptyPackedStrips;
-    if(counter) counter->addReadoutError(status);
-    return status;
+    error = ReadoutError(ReadoutError::EmptyPackedStrips);
+    if(counter) counter->addReadoutError(currentFED, error);
+    return error.type();
   }
   for(std::vector<int>::iterator is = packStrips.begin(); is != packStrips.end(); ++is) {
 
@@ -133,14 +135,14 @@ int RPCRecordFormatter::recordUnpack(
     int geomStrip = duFrame.second;
     if (!rawDetId) {
       if (debug) LogTrace("") << " ** PROBLEM ** no rawDetId, skip at least part of CD data";
-      status = RPCRawDataCounts::InvalidDetId;
-      if (counter) counter->addReadoutError(status);
+      error = ReadoutError(ReadoutError::InvalidDetId);
+      if (counter) counter->addReadoutError(currentFED, error);
       continue;
     }
     if (geomStrip==0) {
       if(debug) LogTrace("") <<" ** PROBLEM ** no strip found";
-      status = RPCRawDataCounts::InvalidStrip;
-      if (counter) counter->addReadoutError(status);
+      error = ReadoutError(ReadoutError::InvalidStrip);
+      if (counter) counter->addReadoutError(currentFED, error);
       continue;
     }
 
@@ -154,5 +156,5 @@ int RPCRecordFormatter::recordUnpack(
     }
     if (prod) prod->insertDigi(RPCDetId(rawDetId),digi);
   }
-  return status;
+  return error.type();
 }

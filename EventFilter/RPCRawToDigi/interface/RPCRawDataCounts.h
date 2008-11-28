@@ -4,36 +4,35 @@
 #include <map>
 #include <vector>
 #include <string>
-#include "TH1F.h"
+
+namespace rpcrawtodigi { class DataRecord; }
+namespace rpcrawtodigi { class ReadoutError; }
+class TH1F;
+class TH2F;
 
 class RPCRawDataCounts {
 public:
-  enum ReadoutError { NoProblem = 0,
-         HeaderCheckFail = 1,
-         InconsitentFedId = 2,
-         TrailerCheckFail = 3,
-         InconsistentDataSize = 4,  
-         InvalidLB = 5,
-         EmptyPackedStrips = 6,
-         InvalidDetId = 7,
-         InvalidStrip = 8 };
+
   RPCRawDataCounts() {}
   ~RPCRawDataCounts() { }
-  void addRecordType(int fed, int type, int weight=1);
-  void addReadoutError(int error, int weight=1);
+  void addDccRecord(int fedId, const rpcrawtodigi::DataRecord & record, int weight=1);
+  void addReadoutError(int fedId, const rpcrawtodigi::ReadoutError & error, int weight=1);
   void operator+= (const RPCRawDataCounts& );
   std::string print() const;
 
-  void recordTypeVector(int fedid, std::vector<double>& out) const;
-  void readoutErrorVector(std::vector<double>& out) const;
+  void fillRecordTypeHisto(int fedId, TH1F* histo) const;
+  void fillReadoutErrorHisto(int fedId, TH1F* histo) const;
+  void fillGoodEventsHisto(TH2F* histo) const;
+  void fillBadEventsHisto(TH2F* histo) const;
   
-  TH1F * recordTypeHisto(int fedid) const;
-  TH1F * readoutErrorHisto() const;
-
-  static std::string readoutErrorName(const ReadoutError & code); 
+  TH1F * emptyRecordTypeHisto(int fedId) const;
+  TH1F * emptyReadoutErrorHisto(int fedId) const;
 
 private:
-   std::map<int, std::vector<int> > theRecordTypes; 
-   std::map<int,int> theReadoutErrors; 
+
+  std::map< std::pair<int,int>, int> theRecordTypes;
+  std::map< std::pair<int,int>, int> theReadoutErrors; 
+  std::map< std::pair<int,int>, int> theGoodEvents;
+  std::map< std::pair<int,int>, int> theBadEvents;
 };
 #endif

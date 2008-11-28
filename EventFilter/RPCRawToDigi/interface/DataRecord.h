@@ -9,8 +9,8 @@
 namespace rpcrawtodigi { 
 class DataRecord {
 public:
-  typedef uint16_t RecordType;
-  enum recordName {
+  typedef uint16_t Data;
+  enum DataRecordType {
     None = 0,
     StartOfBXData = 1,
     StartOfTbLinkInputNumberData = 2,
@@ -22,19 +22,18 @@ public:
     RDM  = 8, 
     UndefinedType = 9
   };
-  
 
 public:
 
-  DataRecord(const RecordType & data = 0) : theData(data) {}
+  explicit DataRecord(const Data& data = None) : theData(data) {}
 
   virtual ~DataRecord() {}
 
-  const RecordType & data() const { return theData; }
+  const Data & data() const { return theData; }
   
-  recordName type() const;
+  DataRecordType type() const;
 
-  static std::string name(const recordName & code);
+  static std::string name(const DataRecordType& code);
 
   std::string print() const {
     std::ostringstream str;
@@ -42,10 +41,10 @@ public:
     return str.str();
   }
 
-  static std::string print(const DataRecord & data);
+  static std::string print(const DataRecord & record);
   
 protected:
-  RecordType theData;
+  Data theData;
 
 };
 }

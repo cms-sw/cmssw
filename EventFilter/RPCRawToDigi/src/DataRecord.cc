@@ -10,37 +10,38 @@
 
 using namespace rpcrawtodigi;
 
-DataRecord::recordName  DataRecord::type() const 
+DataRecord::DataRecordType  DataRecord::type() const 
 {
-  recordName wordType = UndefinedType;
-  if (RecordBX::matchType(theData)) wordType = StartOfBXData;
-  if (RecordSLD::matchType(theData)) wordType = StartOfTbLinkInputNumberData;
-  if (RecordCD::matchType(theData)) wordType = ChamberData;
-  if (EmptyWord::matchType(theData)) wordType = Empty;
-  if (ErrorRCDM::matchType(theData)) wordType = RCDM;
-  if (ErrorSDDM::matchType(theData)) wordType = SDDM;
-  if (ErrorRDDM::matchType(theData)) wordType = RDDM;
-  if (ErrorRDM::matchType(theData))  wordType = RDM;
+  DataRecordType wordType = UndefinedType;
+  if (RecordBX::matchType(*this)) wordType = StartOfBXData;
+  if (RecordSLD::matchType(*this)) wordType = StartOfTbLinkInputNumberData;
+  if (RecordCD::matchType(*this)) wordType = ChamberData;
+  if (EmptyWord::matchType(*this)) wordType = Empty;
+  if (ErrorRCDM::matchType(*this)) wordType = RCDM;
+  if (ErrorSDDM::matchType(*this)) wordType = SDDM;
+  if (ErrorRDDM::matchType(*this)) wordType = RDDM;
+  if (ErrorRDM::matchType(*this))  wordType = RDM;
+
   return wordType;
 }
 
-std::string DataRecord::print(const DataRecord & data) 
+std::string DataRecord::print(const DataRecord & record) 
 {
   std::ostringstream str;
   
-  if (RecordBX::matchType(data)) return RecordBX(data).print();
-  if (RecordSLD::matchType(data)) return RecordSLD(data).print();
-  if (RecordCD::matchType(data)) return RecordCD(data).print();
-  if (EmptyWord::matchType(data)) return EmptyWord().print();
-  if (ErrorRCDM::matchType(data)) return ErrorRCDM(data).print();
-  if (ErrorSDDM::matchType(data)) return ErrorSDDM().print();
-  if (ErrorRDDM::matchType(data)) return ErrorRDDM(data).print();
-  if (ErrorRDM::matchType(data))  return ErrorRDM(data).print();
+  if (RecordBX::matchType(record)) return RecordBX(record).print();
+  if (RecordSLD::matchType(record)) return RecordSLD(record).print();
+  if (RecordCD::matchType(record)) return RecordCD(record).print();
+  if (EmptyWord::matchType(record)) return EmptyWord().print();
+  if (ErrorRCDM::matchType(record)) return ErrorRCDM(record).print();
+  if (ErrorSDDM::matchType(record)) return ErrorSDDM(record).print();
+  if (ErrorRDDM::matchType(record)) return ErrorRDDM(record).print();
+  if (ErrorRDM::matchType(record))  return ErrorRDM(record).print();
 
   return str.str();
 }
 
-std::string DataRecord::name(const recordName & code)
+std::string DataRecord::name(const DataRecordType& code)
 {
   std::string result;
   switch (code) {

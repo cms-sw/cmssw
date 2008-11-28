@@ -62,8 +62,6 @@ std::vector<int> RecordCD::packedStrips() const
   return strips;
 }
 
-RecordCD::RecordCD(RecordType lbData) : DataRecord(0) { theData = lbData; }
-
 std::string RecordCD::print() const
 {
   std::ostringstream str;

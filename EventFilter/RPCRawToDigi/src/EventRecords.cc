@@ -40,7 +40,7 @@ bool EventRecords::samePartition(const EventRecords & r) const
 {
   if (this->recordBX().data() != r.recordBX().data() ) return false;
   if (this->recordSLD().data() != r.recordSLD().data() ) return false;
-  typedef DataRecord::RecordType Record; 
+  typedef DataRecord::Data Record; 
   Record mask = 0xFF << 8;
   Record lb1 = this->recordCD().data() & mask;
   Record lb2 = r.recordCD().data() & mask;
@@ -58,7 +58,7 @@ vector<EventRecords> EventRecords::mergeRecords(const vector<EventRecords> & dat
     for (IR ir = result.begin(), irEnd = result.end(); ir != irEnd; ++ir) {
       EventRecords & event = *ir;
       if (id->samePartition( event)) {
-        DataRecord::RecordType lbd = event.recordCD().data();
+        DataRecord::Data lbd = event.recordCD().data();
         lbd |= id->recordCD().data();
         event.add( RecordCD(lbd) );
         merged = true;
@@ -70,7 +70,7 @@ vector<EventRecords> EventRecords::mergeRecords(const vector<EventRecords> & dat
 
 }
 
-std::string EventRecords::print(DataRecord::recordName type) const
+std::string EventRecords::print(const DataRecord::DataRecordType& type) const
 {
   std::ostringstream str;
   str <<" ==>";

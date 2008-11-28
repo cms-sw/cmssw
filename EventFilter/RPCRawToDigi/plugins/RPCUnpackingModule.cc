@@ -20,6 +20,7 @@
 #include "CondFormats/DataRecord/interface/RPCEMapRcd.h"
 #include "RPCReadOutMappingWithFastSearch.h"
 #include "EventFilter/RPCRawToDigi/interface/DataRecord.h"
+#include "EventFilter/RPCRawToDigi/interface/ReadoutError.h"
 #include "EventFilter/RPCRawToDigi/interface/EventRecords.h"
 #include "EventFilter/RPCRawToDigi/interface/DebugDigisPrintout.h"
 #include "EventFilter/RPCRawToDigi/interface/RPCRawSynchro.h"
@@ -100,12 +101,12 @@ void RPCUnpackingModule::produce(Event & ev, const EventSetup& es)
       header++;
       FEDHeader fedHeader( reinterpret_cast<const unsigned char*>(header));
       if (!fedHeader.check()) {
-        producedRawDataCounts->addReadoutError(RPCRawDataCounts::HeaderCheckFail); 
+        producedRawDataCounts->addReadoutError(fedId, ReadoutError(ReadoutError::HeaderCheckFail)); 
         if (debug) LogTrace("") <<" ** PROBLEM **, header.check() failed, break"; 
         break; 
       }
       if ( fedHeader.sourceID() != fedId) {
-        producedRawDataCounts->addReadoutError(RPCRawDataCounts::InconsitentFedId); 
+        producedRawDataCounts->addReadoutError(fedId, ReadoutError(ReadoutError::InconsitentFedId)); 
         if (debug) LogTrace ("") <<" ** PROBLEM **, fedHeader.sourceID() != fedId"
             << "fedId = " << fedId<<" sourceID="<<fedHeader.sourceID(); 
       }
@@ -132,12 +133,12 @@ void RPCUnpackingModule::produce(Event & ev, const EventSetup& es)
       trailer--;
       FEDTrailer fedTrailer(reinterpret_cast<const unsigned char*>(trailer));
       if ( !fedTrailer.check()) {
-        producedRawDataCounts->addReadoutError(RPCRawDataCounts::TrailerCheckFail);
+        producedRawDataCounts->addReadoutError(fedId, ReadoutError(ReadoutError::TrailerCheckFail));
         if (debug) LogTrace("") <<" ** PROBLEM **, trailer.check() failed, break";
         break;
       }
       if ( fedTrailer.lenght()!= nWords) {
-        producedRawDataCounts->addReadoutError(RPCRawDataCounts::InconsistentDataSize); 
+        producedRawDataCounts->addReadoutError(fedId, ReadoutError(ReadoutError::InconsistentDataSize)); 
         if (debug) LogTrace("")<<" ** PROBLEM **, fedTrailer.lenght()!= nWords, break";
         break;
       }
@@ -166,14 +167,13 @@ void RPCUnpackingModule::produce(Event & ev, const EventSetup& es)
     EventRecords event(triggerBX);
     for (const Word64* word = header+1; word != trailer; word++) {
       for( int iRecord=1; iRecord<=4; iRecord++){
-        typedef DataRecord::RecordType Record;
-        const Record* pRecord = reinterpret_cast<const Record* >(word+1)-iRecord;
-        DataRecord data(*pRecord);
-        event.add(data);
+        const DataRecord::Data* pRecord = reinterpret_cast<const DataRecord::Data* >(word+1)-iRecord;
+        DataRecord record(*pRecord);
+        event.add(record);
         if (debug) {
           std::ostringstream str;
-          str <<"record: "<<data.print()<<" hex: "<<hex<<*pRecord<<dec;
-          str <<" type:"<<data.type()<<DataRecord::print(data);
+          str <<"record: "<<record.print()<<" hex: "<<hex<<*pRecord<<dec;
+          str <<" type:"<<record.type()<<DataRecord::print(record);
           if (event.complete()) {
             str<< " --> dccId: "<<fedId
                << " dccInputChannelNum: " <<event.recordSLD().rmb()
@@ -184,7 +184,7 @@ void RPCUnpackingModule::produce(Event & ev, const EventSetup& es)
           }
           LogTrace("") << str.str();
         }
-        producedRawDataCounts->addRecordType(fedId, data.type());
+        producedRawDataCounts->addDccRecord(fedId, record);
         int statusTMP = 0;
         if (event.complete()) statusTMP= 
             interpreter.recordUnpack( event, 

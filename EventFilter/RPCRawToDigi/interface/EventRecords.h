@@ -39,7 +39,7 @@ public:
 
   static std::vector<EventRecords> mergeRecords(const std::vector<EventRecords> & r); 
 
-  std::string print(DataRecord::recordName type) const;
+  std::string print(const DataRecord::DataRecordType& type) const;
 
 private:
   int theTriggerBX;

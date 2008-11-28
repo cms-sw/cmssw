@@ -1,131 +1,123 @@
 #include "EventFilter/RPCRawToDigi/interface/RPCRawDataCounts.h"
 #include "EventFilter/RPCRawToDigi/interface/DataRecord.h"
+#include "EventFilter/RPCRawToDigi/interface/RecordSLD.h"
+#include "EventFilter/RPCRawToDigi/interface/ErrorRDDM.h"
+#include "EventFilter/RPCRawToDigi/interface/ErrorRDM.h"
+#include "EventFilter/RPCRawToDigi/interface/ErrorRCDM.h"
+#include "EventFilter/RPCRawToDigi/interface/ReadoutError.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <vector>
 #include <iostream>
 #include <sstream>
 
+#include "TH1F.h"
+#include "TH2F.h"
+
 using namespace rpcrawtodigi;
 using namespace std;
 
-  typedef std::map<int,int>::const_iterator IRE;
-  typedef std::map<int, std::vector<int> >::const_iterator IRT;
+typedef std::map< std::pair<int,int>, int >::const_iterator IT;
 
-void RPCRawDataCounts::addRecordType(int fed, int type, int weight)
+void RPCRawDataCounts::addDccRecord(int fed, const rpcrawtodigi::DataRecord & record, int weight)
 {
-  if (theRecordTypes.find(fed) == theRecordTypes.end()) {
-    theRecordTypes[fed]=vector<int>( 10,0);
+  DataRecord::DataRecordType type = record.type();
+  switch (type) {
+    case (DataRecord::StartOfTbLinkInputNumberData) : { theGoodEvents[make_pair(fed, RecordSLD(record).rmb())] += weight; break; }
+    case (DataRecord::RDDM)                         : { theBadEvents[make_pair(fed,ErrorRDDM(record).rmb())]   += weight; break;}
+    case (DataRecord::RDM)                          : { theBadEvents[make_pair(fed,ErrorRDM(record).rmb())]    += weight; break;}
+    case (DataRecord::RCDM)                         : { theBadEvents[make_pair(fed,ErrorRCDM(record).rmb())]   += weight; break;}
+    default : {}
   }
-  vector<int> & v = theRecordTypes[fed]; 
-  v[type] += weight;
+  
+  theRecordTypes[ make_pair(fed,type) ] += weight;
 }
 
-void RPCRawDataCounts::addReadoutError(int error, int weight)
+void RPCRawDataCounts::addReadoutError(int fed, const rpcrawtodigi::ReadoutError & e, int weight)
 {
-  if ( theReadoutErrors.find(error) == theReadoutErrors.end() ) theReadoutErrors[error]=0;
-  theReadoutErrors[error] += weight;
+  theReadoutErrors[ make_pair(fed,e.type()) ] +=  weight;
 }
 
 void RPCRawDataCounts::operator+= (const RPCRawDataCounts & o)
 {
-  for (IRE ire=o.theReadoutErrors.begin(); ire != o.theReadoutErrors.end();++ire)
-  {
-    addReadoutError(ire->first,ire->second);
+
+  for (IT irt= o.theRecordTypes.begin(); irt != o.theRecordTypes.end(); ++irt) {
+    theRecordTypes[ make_pair(irt->first.first,irt->first.second) ] += irt->second;
   }
-  for (IRT irt= o.theRecordTypes.begin(); irt != o.theRecordTypes.end(); ++irt) {
-    int fed = irt->first;
-    const vector<int> & v = irt->second;
-    for (unsigned int itype=0; itype < v.size(); itype++) 
-      addRecordType(fed, static_cast<int>(itype), v[itype]);
+
+  for (IT ire=o.theReadoutErrors.begin(); ire != o.theReadoutErrors.end();++ire) {
+    theReadoutErrors[ make_pair(ire->first.first,ire->first.second) ] += ire->second;
+  }
+
+  for (IT ire=o.theGoodEvents.begin(); ire != o.theGoodEvents.end();++ire) {
+    theGoodEvents[ make_pair(ire->first.first,ire->first.second) ] += ire->second;
+  }
+
+  for (IT ire=o.theBadEvents.begin(); ire != o.theBadEvents.end();++ire) {
+    theBadEvents[ make_pair(ire->first.first,ire->first.second) ] += ire->second;
   }
 }
 
 std::string RPCRawDataCounts::print() const 
 {
   std::ostringstream str;
-  for (IRT irt=theRecordTypes.begin(); irt != theRecordTypes.end(); ++irt) {
-    str << "FED: "<<irt->first<<" ";
-    const vector<int> & v = irt->second;
-    for (unsigned int itype=0; itype < v.size(); itype++) str <<v[itype]<<", ";
-    str << endl; 
+  for (IT irt=theRecordTypes.begin(); irt != theRecordTypes.end(); ++irt) {
+    str << "RECORD ("<<irt->first.first<<","<<irt->first.second<<")"<<irt->second;
   }
-  for (IRE ire=theReadoutErrors.begin(); ire != theReadoutErrors.end();++ire) {
-    str <<"ERROR("<<ire->first<<")="<<ire->second<<endl;
+  for (IT ire=theReadoutErrors.begin(); ire != theReadoutErrors.end();++ire) {
+    str <<"ERROR("<<ire->first.first<<","<<ire->first.second<<")="<<ire->second<<endl;
   } 
   return str.str();
 }
 
-
-void RPCRawDataCounts::recordTypeVector(int fedId, std::vector<double>& out) const {
-  out.clear();
-  IRT irt = theRecordTypes.find(fedId);
-  if (irt != theRecordTypes.end()) {
-    const vector<int> & v = irt->second;
-    for (int i=1; i<=9; ++i) {
-      out.push_back(double(i));
-      out.push_back(v[i]);
-    }
-  }
-}
-
-void RPCRawDataCounts::readoutErrorVector(std::vector<double>& out) const {
-  out.clear();
-  for (int i=1; i<9; ++i) {
-    IRE ire = theReadoutErrors.find(i);
-    if(ire != theReadoutErrors.end()) {
-     out.push_back(ire->first);
-     out.push_back(ire->second);
-    }
-  }
-}
-
-
-TH1F * RPCRawDataCounts::recordTypeHisto(int fedId) const {
+TH1F * RPCRawDataCounts::emptyRecordTypeHisto(int fedId) const {
   std::ostringstream str;
   str <<"recordType_"<<fedId;
   TH1F * result = new TH1F(str.str().c_str(),str.str().c_str(),9, 0.5,9.5);
   result->SetTitleOffset(1.4,"x"); 
   for (unsigned int i=1; i<=9; ++i) {
-    DataRecord::recordName code = static_cast<DataRecord::recordName>(i);
+    DataRecord::DataRecordType code = static_cast<DataRecord::DataRecordType>(i);
     result->GetXaxis()->SetBinLabel(i,DataRecord::name(code).c_str());
   }
-
-  IRT irt = theRecordTypes.find(fedId);
-  if (irt != theRecordTypes.end()) {
-    const vector<int> & v = irt->second;
-    for (int i=1; i<=9; ++i) result->Fill(float(i),v[i]);
-  } 
   return result;
 }
 
-TH1F * RPCRawDataCounts::readoutErrorHisto() const {
+TH1F * RPCRawDataCounts::emptyReadoutErrorHisto(int fedId) const {
   std::ostringstream str;
-  str <<"readoutErrors";
+  str <<"readoutErrors_"<<fedId;
   TH1F * result = new TH1F(str.str().c_str(),str.str().c_str(),8, 0.5,8.5);
   for (unsigned int i=1; i<=8; ++i) {
-    RPCRawDataCounts::ReadoutError code =  static_cast<RPCRawDataCounts::ReadoutError>(i);
-    result->GetXaxis()->SetBinLabel(i,readoutErrorName(code).c_str());
-  }
-  for (int i=1; i<9; ++i) {
-    IRE ire = theReadoutErrors.find(i);
-    if(ire != theReadoutErrors.end()) result->Fill(ire->first,ire->second);  
+    ReadoutError::ReadoutErrorType code =  static_cast<ReadoutError::ReadoutErrorType>(i);
+    result->GetXaxis()->SetBinLabel(i,ReadoutError::name(code).c_str());
   }
   return result;
 }
 
-std::string RPCRawDataCounts:: readoutErrorName(const ReadoutError & code)
+void RPCRawDataCounts::fillRecordTypeHisto(int fedId, TH1F* histo) const
 {
-  std::string result;
-  switch (code) {
-    case (HeaderCheckFail)      : { result = "HeaderCheckFail"; break; }
-    case (InconsitentFedId)     : { result = "InconsitentFedId"; break; }
-    case (TrailerCheckFail)     : { result = "TrailerCheckFail"; break; }
-    case (InconsistentDataSize) : { result = "InconsistentDataSize"; break; }
-    case (InvalidLB)            : { result = "InvalidLB"; break; }
-    case (EmptyPackedStrips)    : { result = "EmptyPackedStrips"; break; }
-    case (InvalidDetId)         : { result = "InvalidDetId"; break; }
-    case (InvalidStrip)         : { result = "InvalidStrip"; break; }
-    default                     : { result = "NoProblem"; } 
+  for (IT irt=theRecordTypes.begin(); irt != theRecordTypes.end(); ++irt) {
+    if (irt->first.first != fedId) continue;
+    histo->Fill(irt->first.second,irt->second);
   }
-  return result;
 }
+
+void RPCRawDataCounts::fillReadoutErrorHisto(int fedId, TH1F* histo) const
+{
+  for (IT ire=theReadoutErrors.begin(); ire != theReadoutErrors.end(); ++ire) {
+    if (ire->first.first != fedId) continue;
+    histo->Fill(ire->first.second,ire->second);
+  }
+}
+
+void RPCRawDataCounts::fillGoodEventsHisto(TH2F* histo) const
+{
+   for (IT it = theGoodEvents.begin(); it != theGoodEvents.end(); ++it)
+       histo->Fill(it->first.second, it->first.first, it->second);
+}
+
+void RPCRawDataCounts::fillBadEventsHisto(TH2F* histo) const
+{
+   for (IT it = theBadEvents.begin(); it != theBadEvents.end(); ++it)
+       histo->Fill(it->first.second, it->first.first, it->second);
+}
+

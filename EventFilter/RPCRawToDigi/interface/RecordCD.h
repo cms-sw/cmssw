@@ -38,7 +38,7 @@ public:
       const std::vector<int> & packedStrips);
 
   // set LB from raw
-  RecordCD(RecordType lbData);
+  RecordCD(const Data & lbData) : DataRecord(lbData) {} 
 
   // specialize given recort to this type
   RecordCD(const DataRecord & rec) : DataRecord(rec) {}
