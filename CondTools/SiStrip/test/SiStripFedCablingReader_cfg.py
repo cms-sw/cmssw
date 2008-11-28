@@ -3,9 +3,9 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("FedCablingReader")
 
 process.MessageLogger = cms.Service("MessageLogger",
-    debugModules = cms.untracked.vstring('*'),
+    debugModules = cms.untracked.vstring(''),
     cablingReader = cms.untracked.PSet(
-        threshold = cms.untracked.string('DEBUG')
+        threshold = cms.untracked.string('INFO')
     ),
     destinations = cms.untracked.vstring('cablingReader.log')
 )
