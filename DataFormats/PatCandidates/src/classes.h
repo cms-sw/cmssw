@@ -302,19 +302,19 @@ namespace {
 
   /*   RefToBase<AODType> from PATObjects. In addition to the ones for Candidate    */
   /*  
-  edm::reftobase::Holder<pat::ElectronType, pat::ElectronRef>	rb_e_h_p_e;
-  edm::reftobase::Holder<pat::MuonType, pat::MuonRef>	        rb_mu_h_p_mu;
-  edm::reftobase::Holder<pat::TauType, pat::TauRef>	        rb_t_h_p_t;
-  edm::reftobase::Holder<pat::PhotonType, pat::PhotonRef>	rb_ph_h_p_ph;
-  edm::reftobase::Holder<pat::JetType, pat::JetRef>	        rb_j_h_p_j;
-  edm::reftobase::Holder<pat::METType, pat::METRef>	        rb_m_h_p_m;
+  edm::reftobase::Holder<reco::GsfElectron, pat::ElectronRef>	rb_e_h_p_e;
+  edm::reftobase::Holder<reco::Muon, pat::MuonRef>	        rb_mu_h_p_mu;
+  edm::reftobase::Holder<reco::BaseTau, pat::TauRef>	        rb_t_h_p_t;
+  edm::reftobase::Holder<reco::Photon, pat::PhotonRef>		rb_ph_h_p_ph;
+  edm::reftobase::Holder<reco::Jet, pat::JetRef>	        rb_j_h_p_j;
+  edm::reftobase::Holder<reco::MET, pat::METRef>	        rb_m_h_p_m;
 
-  edm::reftobase::VectorHolder<pat::ElectronType, pat::ElectronRefVector>   rb_e_vh_p_e;
-  edm::reftobase::VectorHolder<pat::MuonType, pat::MuonRefVector>	    rb_mu_vh_p_mu;
-  edm::reftobase::VectorHolder<pat::TauType, pat::TauRefVector>	            rb_t_vh_p_t;
-  edm::reftobase::VectorHolder<pat::PhotonType, pat::PhotonRefVector>       rb_ph_vh_p_ph;
-  edm::reftobase::VectorHolder<pat::JetType, pat::JetRefVector>	            rb_j_vh_p_j;
-  edm::reftobase::VectorHolder<pat::METType, pat::METRefVector>	            rb_m_vh_p_m;
+  edm::reftobase::VectorHolder<reco::GsfElectron, pat::ElectronRefVector>   rb_e_vh_p_e;
+  edm::reftobase::VectorHolder<reco::Muon, pat::MuonRefVector>		    rb_mu_vh_p_mu;
+  edm::reftobase::VectorHolder<reco::BaseTau, pat::TauRefVector> 	    rb_t_vh_p_t;
+  edm::reftobase::VectorHolder<reco::Photon, pat::PhotonRefVector>	    rb_ph_vh_p_ph;
+  edm::reftobase::VectorHolder<reco::Jet, pat::JetRefVector> 		    rb_j_vh_p_j;
+  edm::reftobase::VectorHolder<reco::MET, pat::METRefVector> 		    rb_m_vh_p_m;
   */
 
   /*   ==========================================================================================================================

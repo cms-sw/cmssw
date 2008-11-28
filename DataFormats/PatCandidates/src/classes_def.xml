@@ -173,19 +173,19 @@
               PAT Dataformats: PatObjects
        ========================================================================================================================== -->
   <!-- PAT Base Templates -->
-  <class name="pat::PATObject<pat::ElectronType>" />
-  <class name="pat::PATObject<pat::MuonType>" />
-  <class name="pat::PATObject<pat::TauType>" />
-  <class name="pat::PATObject<pat::PhotonType>" />
-  <class name="pat::PATObject<pat::JetType>" />
-  <class name="pat::PATObject<pat::METType>" />
-  <class name="pat::PATObject<pat::ParticleType>" />
-  <class name="pat::PATObject<pat::CompositeCandidateType>" />
-  <class name="pat::PATObject<pat::PFParticleType>" />
+  <class name="pat::PATObject<reco::GsfElectron>" />
+  <class name="pat::PATObject<reco::Muon>" />
+  <class name="pat::PATObject<reco::BaseTau>" />
+  <class name="pat::PATObject<reco::Photon>" />
+  <class name="pat::PATObject<reco::Jet>" />
+  <class name="pat::PATObject<reco::MET>" />
+  <class name="pat::PATObject<reco::LeafCandidate>" />
+  <class name="pat::PATObject<reco::CompositeCandidate>" />
+  <class name="pat::PATObject<reco::PFParticle>" />
   <class name="pat::PATObject<reco::RecoCandidate>" />
-  <class name="pat::Lepton<pat::ElectronType>" />
-  <class name="pat::Lepton<pat::MuonType>" />
-  <class name="pat::Lepton<pat::TauType>" />
+  <class name="pat::Lepton<reco::GsfElectron>" />
+  <class name="pat::Lepton<reco::Muon>" />
+  <class name="pat::Lepton<reco::BaseTau>" />
 
   <!-- PAT Objects, and embedded data  -->
   <class name="pat::Electron" />
@@ -345,18 +345,18 @@
 
   <!-- RefToBase<AODType> from PATObjects. In addition to the ones for Candidate  -->
   <!--
-  <class name="edm::reftobase::Holder<pat::ElectronType, pat::ElectronRef>" />
-  <class name="edm::reftobase::Holder<pat::MuonType, pat::MuonRef>" />
-  <class name="edm::reftobase::Holder<pat::TauType, pat::TauRef>" />
-  <class name="edm::reftobase::Holder<pat::PhotonType, pat::PhotonRef>" />
-  <class name="edm::reftobase::Holder<pat::JetType, pat::JetRef>" />
-  <class name="edm::reftobase::Holder<pat::METType, pat::METRef>" />
-  <class name="edm::reftobase::VectorHolder<pat::ElectronType, pat::ElectronRefVector>" />
-  <class name="edm::reftobase::VectorHolder<pat::MuonType, pat::MuonRefVector>" />
-  <class name="edm::reftobase::VectorHolder<pat::TauType, pat::TauRefVector>" />
-  <class name="edm::reftobase::VectorHolder<pat::PhotonType, pat::PhotonRefVector>" />
-  <class name="edm::reftobase::VectorHolder<pat::JetType, pat::JetRefVector>" />
-  <class name="edm::reftobase::VectorHolder<pat::METType, pat::METRefVector>" />
+  <class name="edm::reftobase::Holder<reco::GstElectron, pat::ElectronRef>" />
+  <class name="edm::reftobase::Holder<reco::Muon, pat::MuonRef>" />
+  <class name="edm::reftobase::Holder<reco::BaseTau, pat::TauRef>" />
+  <class name="edm::reftobase::Holder<reco::Photon, pat::PhotonRef>" />
+  <class name="edm::reftobase::Holder<reco::Jet, pat::JetRef>" />
+  <class name="edm::reftobase::Holder<reco::MET, pat::METRef>" />
+  <class name="edm::reftobase::VectorHolder<reco::GsfElectron, pat::ElectronRefVector>" />
+  <class name="edm::reftobase::VectorHolder<reco::Muon, pat::MuonRefVector>" />
+  <class name="edm::reftobase::VectorHolder<reco::BaseTau, pat::TauRefVector>" />
+  <class name="edm::reftobase::VectorHolder<reco::Photon, pat::PhotonRefVector>" />
+  <class name="edm::reftobase::VectorHolder<reco::Jet, pat::JetRefVector>" />
+  <class name="edm::reftobase::VectorHolder<reco::MET, pat::METRefVector>" />
   -->
 
   <!-- ==========================================================================================================================

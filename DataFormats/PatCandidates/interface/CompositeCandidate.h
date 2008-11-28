@@ -1,5 +1,5 @@
 //
-// $Id: CompositeCandidate.h,v 1.5 2008/10/08 19:04:42 gpetrucc Exp $
+// $Id: CompositeCandidate.h,v 1.1 2008/10/23 20:21:13 srappocc Exp $
 //
 
 #ifndef DataFormats_PatCandidates_CompositeCandidate_h
@@ -12,12 +12,13 @@
    CompositeCandidate implements an analysis-level particle class within the 'pat'
    namespace.
 
-  \author   Steven Lowette
-  \version  $Id: CompositeCandidate.h,v 1.5 2008/10/08 19:04:42 gpetrucc Exp $
+  \author   Sal Rappoccio
+  \version  $Id: CompositeCandidate.h,v 1.1 2008/10/23 20:21:13 srappocc Exp $
 */
 
 #include "DataFormats/Candidate/interface/CompositeCandidate.h"
 #include "DataFormats/PatCandidates/interface/PATObject.h"
+
 
 // Define typedefs for convenience
 namespace pat {
@@ -27,20 +28,23 @@ namespace pat {
   typedef edm::RefVector<CompositeCandidateCollection> CompositeCandidateRefVector; 
 }
 
+
+// Class definition
 namespace pat {
-
-
-  typedef reco::CompositeCandidate CompositeCandidateType;
 
 
   class CompositeCandidate : public PATObject<reco::CompositeCandidate> {
 
     public:
 
+      /// default constructor
       CompositeCandidate();
-      CompositeCandidate(const CompositeCandidateType & aCompositeCandidate);
+      /// constructor from a composite candidate
+      CompositeCandidate(const reco::CompositeCandidate & aCompositeCandidate);
+      /// destructor
       virtual ~CompositeCandidate();
 
+      /// required reimplementation of the Candidate's clone method
       virtual CompositeCandidate * clone() const { return new CompositeCandidate(*this); }
 
   };
