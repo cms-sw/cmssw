@@ -55,6 +55,7 @@ public:
   struct QValue
   {
     int			code;
+    float		qtresult;
     std::string		message;
     std::string		qtname;
     std::string		algorithm;
