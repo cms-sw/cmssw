@@ -1,8 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 # TrackingParticle (MC truth) selectors
-muonTP = cms.EDFilter("TrackingParticleSelector",
-#    src = cms.InputTag("trackingParticles"),
+muonTPSet = cms.PSet(
     src = cms.InputTag("mergedtruth", "MergedTrackTruth"),
     pdgId = cms.vint32(13, -13),
     tip = cms.double(3.5),
@@ -13,6 +12,10 @@ muonTP = cms.EDFilter("TrackingParticleSelector",
     maxRapidity = cms.double(2.4),
     signalOnly = cms.bool(True),
     chargedOnly = cms.bool(True)
+)
+
+muonTP = cms.EDFilter("TrackingParticleSelector",
+    muonTPSet
 )
 
 # RecoTrack selectors
