@@ -1,5 +1,56 @@
 #ifndef PhotonAnalyzer_H
 #define PhotonAnalyzer_H
+
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
+//
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/Exception.h"
+// DataFormats
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackExtra.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/Common/interface/ValueMap.h"
+#include "DataFormats/EgammaCandidates/interface/Conversion.h"
+#include "DataFormats/EgammaCandidates/interface/ConversionFwd.h"
+#include "DataFormats/EgammaCandidates/interface/Photon.h"
+#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
+
+#include "DataFormats/EgammaReco/interface/SuperCluster.h"
+#include "DataFormats/EcalDetId/interface/EBDetId.h"
+#include "DataFormats/EcalDetId/interface/EEDetId.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
+#include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
+#include "DataFormats/RecoCandidate/interface/RecoEcalCandidateFwd.h"
+#include "DataFormats/HLTReco/interface/TriggerEvent.h"
+#include "DataFormats/Common/interface/TriggerResults.h"
+#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
+/// EgammaCoreTools
+#include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
+#include "RecoEcal/EgammaCoreTools/interface/EcalEtaPhiRegion.h"
+#include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
+// Geometry
+#include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
+#include "Geometry/CaloTopology/interface/CaloTopology.h"
+#include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
+#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/CaloTopology/interface/EcalEndcapTopology.h"
+#include "Geometry/CaloTopology/interface/EcalBarrelTopology.h"
+//
+#include "TFile.h"
+#include "TH1.h"
+#include "TH2.h"
+#include "TTree.h"
+#include "TVector3.h"
+#include "TProfile.h"
+//
+
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
@@ -18,12 +69,12 @@
 //
 #include <map>
 #include <vector>
-#include <iostream>
+
 /** \class PhotonAnalyzer
  **  
  **
  **  $Id: PhotonAnalyzer
- **  $Date: 2008/09/29 12:41:34 $ 
+ **  $Date: 2008/09/30 19:51:05 $ 
  **  authors: 
  **   Nancy Marinelli, U. of Notre Dame, US  
  **   Jamie Antonelli, U. of Notre Dame, US
@@ -59,11 +110,14 @@ class PhotonAnalyzer : public edm::EDAnalyzer
   //
 
   float  phiNormalization( float& a);
+  void makePizero(const edm::EventSetup& es, const edm::Handle<EcalRecHitCollection> eb, const edm::Handle<EcalRecHitCollection> ee ); 
+
+
   void doProfileX(TH2 * th2, MonitorElement* me);
   void doProfileX(MonitorElement * th2m, MonitorElement* me);
   void dividePlots(MonitorElement* dividend, MonitorElement* numerator, MonitorElement* denominator);
-  void makePizero(const edm::EventSetup& es, const edm::Handle<EcalRecHitCollection> eb, const edm::Handle<EcalRecHitCollection> ee ); 
-
+  void dividePlots(MonitorElement* dividend, MonitorElement* numerator, double denominator); 
+      
       
   std::string fName_;
   DQMStore *dbe_;
@@ -83,6 +137,12 @@ class PhotonAnalyzer : public edm::EDAnalyzer
   edm::InputTag barrelEcalHits_;
   edm::InputTag endcapEcalHits_;  
 
+  edm::InputTag triggerSummary_;
+  edm::InputTag triggerResultsHLT_;
+  edm::InputTag triggerResultsFU_;
+
+  HLTConfigProvider hltConfig_;
+
 
   double minPhoEtCut_;
 
@@ -90,6 +150,8 @@ class PhotonAnalyzer : public edm::EDAnalyzer
   int numberOfSteps_;
 
   bool useBinning_;
+  bool useTriggerFiltering_;
+  bool standAlone_;
 
   int isolationStrength_; 
 
@@ -119,7 +181,8 @@ class PhotonAnalyzer : public edm::EDAnalyzer
 
 
   std::stringstream currentFolder_;
-
+   
+  MonitorElement*  h_triggers_;
 
   MonitorElement*  hMinvPi0EB_;
   MonitorElement*  hPt1Pi0EB_;
@@ -145,6 +208,9 @@ class PhotonAnalyzer : public edm::EDAnalyzer
   std::vector<MonitorElement*> p_efficiencyVsEta_;
   std::vector<MonitorElement*> p_efficiencyVsEt_;
 
+  std::vector<MonitorElement*> p_convFractionVsEta_;
+  std::vector<MonitorElement*> p_convFractionVsEt_;
+
   std::vector<MonitorElement*> h_phoE_part_;
   std::vector<std::vector<MonitorElement*> > h_phoE_isol_;
   std::vector<std::vector<std::vector<MonitorElement*> > > h_phoE_;
@@ -169,6 +235,10 @@ class PhotonAnalyzer : public edm::EDAnalyzer
   std::vector<std::vector<MonitorElement*> > h_phoDistribution_isol_;
   std::vector<std::vector<std::vector<MonitorElement*> > > h_phoDistribution_;
 
+
+  std::vector<MonitorElement*> h_phoConvEt_part_;
+  std::vector<std::vector<MonitorElement*> > h_phoConvEt_isol_;
+  std::vector<std::vector<std::vector<MonitorElement*> > > h_phoConvEt_;
 
   std::vector<MonitorElement*> h_nConv_part_;
   std::vector<std::vector<MonitorElement*> > h_nConv_isol_;
@@ -207,6 +277,10 @@ class PhotonAnalyzer : public edm::EDAnalyzer
 
   std::vector<MonitorElement*> h_convVtxRvsZ_isol_;
   std::vector<std::vector<MonitorElement*> > h_convVtxRvsZ_;
+  std::vector<MonitorElement*> h_convVtxRvsZLowEta_isol_;
+  std::vector<std::vector<MonitorElement*> > h_convVtxRvsZLowEta_;
+  std::vector<MonitorElement*> h_convVtxRvsZHighEta_isol_;
+  std::vector<std::vector<MonitorElement*> > h_convVtxRvsZHighEta_;
 
   std::vector<MonitorElement*> h_r9VsEt_isol_;
   std::vector<std::vector<MonitorElement*> > h_r9VsEt_;
