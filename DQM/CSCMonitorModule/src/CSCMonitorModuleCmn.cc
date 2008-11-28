@@ -38,13 +38,12 @@ CSCMonitorModuleCmn::CSCMonitorModuleCmn(const edm::ParameterSet& ps) : inputTag
    
   config.provider = const_cast<CSCMonitorModuleCmn*>(this);
 
-  collection = new cscdqm::Collection(&config);
-  processor = new cscdqm::EventProcessor(&config);
+  dispatcher = new cscdqm::Dispatcher(&config);
   dbe = edm::Service<DQMStore>().operator->();
 
   // Prebook top level histograms
   dbe->setCurrentFolder(DIR_SUMMARY);
-  collection->book("EMU");
+  dispatcher->getCollection()->book("EMU");
   bookedHisto.insert("EMU");
 
   // Booking parameters
@@ -77,14 +76,13 @@ CSCMonitorModuleCmn::CSCMonitorModuleCmn(const edm::ParameterSet& ps) : inputTag
   dbe->setCurrentFolder(DIR_EVENTINFO);
   bookFloat(cscdqm::h::PAR_REPORT_SUMMARY, -1.0);
 
-  //collection->printCollection();
+  //dispatcher->getCollection()->printCollection();
   //throw cscdqm::Exception("End of game");
 
 }
 
 CSCMonitorModuleCmn::~CSCMonitorModuleCmn() {
-  delete collection;
-  delete processor;
+  delete dispatcher;
   while (!moCache.empty()) {
     delete moCache.begin()->second;
     moCache.erase(moCache.begin());
@@ -107,12 +105,12 @@ void CSCMonitorModuleCmn::analyze(const edm::Event& e, const edm::EventSetup& c)
   c.get<CSCCrateMapRcd>().get(hcrate);
   pcrate = hcrate.product();
     
-  processor->processEvent(e, inputTag);
+  dispatcher->processEvent(e, inputTag);
 
   // Update fractional histograms if appropriate
   if (config.getNEventsCSC() > 0 && fractUpdateKey.test(2) && (config.getNEvents() % fractUpdateEvF) == 0) {
-    processor->updateFractionHistos();
-    processor->updateEfficiencyHistos();
+    dispatcher->updateFractionHistos();
+    dispatcher->updateEfficiencyHistos();
   }
     
 }

@@ -43,10 +43,9 @@
 #include "CondFormats/DataRecord/interface/CSCCrateMapRcd.h"
 
 /// CSCDQM Framework stuff
-#include "DQM/CSCMonitorModule/interface/CSCDQM_EventProcessor.h"
-#include "DQM/CSCMonitorModule/interface/CSCDQM_Collection.h"
 #include "DQM/CSCMonitorModule/interface/CSCDQM_Logger.h"
 #include "DQM/CSCMonitorModule/interface/CSCDQM_Configuration.h"
+#include "DQM/CSCMonitorModule/interface/CSCDQM_Dispatcher.h"
 
 /// Local stuff
 #include "DQM/CSCMonitorModule/interface/CSCMonitorObject.h"
@@ -92,10 +91,9 @@ class CSCMonitorModuleCmn: public edm::EDAnalyzer, public cscdqm::MonitorObjectP
 
   private:
 
-    cscdqm::Collection        *collection;
-    cscdqm::EventProcessor    *processor;
     cscdqm::Configuration     config;
-    DQMStore                  *dbe;
+    cscdqm::Dispatcher       *dispatcher;
+    DQMStore                 *dbe;
     edm::InputTag             inputTag;
     MOCacheMap                moCache;
     bookedHistoSet            bookedHisto;

@@ -111,7 +111,7 @@ const bool CSCMonitorModuleCmn::getHisto(const cscdqm::HistoType& histo, cscdqm:
       if (bhi == bookedHisto.end()) {
         //LOG_INFO << "Booking DDU histo set for = " <<  histo.getPath();
         dbe->setCurrentFolder(path);
-        collection->book("DDU");
+        dispatcher->getCollection()->book("DDU");
         bookedHisto.insert(histo.getPath());
         search_again = true;
       }
@@ -127,7 +127,7 @@ const bool CSCMonitorModuleCmn::getHisto(const cscdqm::HistoType& histo, cscdqm:
       bookedHistoSet::iterator bhi = bookedHisto.find(histo.getPath());
       if (bhi == bookedHisto.end()) {
         //LOG_INFO << "Booking CSC histo set for = " <<  histo.getPath();
-        collection->book("CSC");
+        dispatcher->getCollection()->book("CSC");
         bookedHisto.insert(histo.getPath());
         cscdqm::HistoType *general_histo = const_cast<cscdqm::HistoType*>(&histo);
         cscdqm::CSCHistoType *cschisto   = dynamic_cast<cscdqm::CSCHistoType*>(general_histo);
@@ -135,11 +135,11 @@ const bool CSCMonitorModuleCmn::getHisto(const cscdqm::HistoType& histo, cscdqm:
         search_again = true;
       }
 
-      if (collection->isOnDemand("CSC", histo.getHistoName())) {
+      if (dispatcher->getCollection()->isOnDemand("CSC", histo.getHistoName())) {
         bookedHistoSet::iterator bhi = bookedHisto.find(histo.getFullPath());
         if (bhi == bookedHisto.end()) {
           //LOG_INFO << "Booking CSC histogram on demand: HistoName = " <<  histo.getHistoName() << " addId = " << histo.getAddId() << " fullPath = " << histo.getFullPath();
-          collection->bookOnDemand("CSC", histo.getHistoName(), histo.getAddId());
+          dispatcher->getCollection()->bookOnDemand("CSC", histo.getHistoName(), histo.getAddId());
           bookedHisto.insert(histo.getFullPath());
           search_again = true;
         }

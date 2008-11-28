@@ -110,8 +110,6 @@ namespace cscdqm {
 
       void processEvent(const char* data, const int32_t dataSize, const uint32_t errorStat, const int32_t nodeNumber);
 
-    private:
-
 #endif      
 
 // ===================================================================================================
@@ -123,8 +121,6 @@ namespace cscdqm {
     public:
 
       void processEvent(const edm::Event& e, const edm::InputTag& inputTag);
-
-    private:
 
 #endif      
 
