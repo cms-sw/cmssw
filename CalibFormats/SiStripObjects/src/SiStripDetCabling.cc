@@ -3,7 +3,7 @@
 // Class  :     SiStripDetCabling
 // Original Author:  dkcira
 //         Created:  Wed Mar 22 12:24:33 CET 2006
-// $Id: SiStripDetCabling.cc,v 1.15 2008/02/06 16:40:42 bainbrid Exp $
+// $Id: SiStripDetCabling.cc,v 1.16 2008/11/27 13:25:52 bainbrid Exp $
 #include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 using namespace std;
@@ -268,6 +268,8 @@ bool SiStripDetCabling::IsInMap(const uint32_t& det_id, const std::map<uint32_t,
 // -----------------------------------------------------------------------------
 /** Added missing print method. */
 void SiStripDetCabling::print( std::stringstream& ss ) const {
+  uint32_t valid = 0;
+  uint32_t total = 0;
   typedef std::vector<FedChannelConnection> Conns;
   typedef std::map<uint32_t,Conns> ConnsMap;
   ConnsMap::const_iterator ii = fullcabling_.begin();
@@ -280,6 +282,12 @@ void SiStripDetCabling::print( std::stringstream& ss ) const {
        << " connections for DetId: " << ii->first << std::endl;
     Conns::const_iterator iii = ii->second.begin();
     Conns::const_iterator jjj = ii->second.end();
-    for ( ; iii != jjj; ++iii ) { ss << *iii << std::endl; }
+    for ( ; iii != jjj; ++iii ) { 
+      if ( iii->isConnected() ) { valid++; }
+      total++;
+      ss << *iii << std::endl; 
+    }
   }
+  ss << "Number of connected:   " << valid << std::endl
+     << "Number of connections: " << total << std::endl;
 }

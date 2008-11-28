@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripFecCabling.cc,v 1.26 2008/07/03 09:25:59 bainbrid Exp $
+// Last commit: $Id: SiStripFecCabling.cc,v 1.27 2008/11/27 13:26:22 bainbrid Exp $
 
 #include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripFecCabling.h"
@@ -274,6 +274,8 @@ NumberOfDevices SiStripFecCabling::countDevices() const {
 // -----------------------------------------------------------------------------
 //
 void SiStripFecCabling::print( std::stringstream& ss ) const {
+  uint32_t valid = 0;
+  uint32_t total = 0;
   ss << "[SiStripFecCabling::" << __func__ << "] Printing FEC cabling:" << std::endl;
   ss << "Printing cabling for " << crates().size() << " crates" << std::endl;
   for ( std::vector<SiStripFecCrate>::const_iterator icrate = crates().begin(); icrate != crates().end(); icrate++ ) {
@@ -285,12 +287,23 @@ void SiStripFecCabling::print( std::stringstream& ss ) const {
 	for ( std::vector<SiStripCcu>::const_iterator iccu = iring->ccus().begin(); iccu != iring->ccus().end(); iccu++ ) {
 	  ss << "Printing cabling for " << iccu->modules().size() << " modules for CCU " << iccu->ccuAddr() << std::endl;
 	  for ( std::vector<SiStripModule>::const_iterator imod = iccu->modules().begin(); imod != iccu->modules().end(); imod++ ) {
+
+	    SiStripModule::FedCabling conns = imod->fedChannels();
+	    SiStripModule::FedCabling::const_iterator ii = conns.begin();
+	    SiStripModule::FedCabling::const_iterator jj = conns.end();
+	    for ( ; ii != jj; ++ii ) {
+	      if ( ii->second.fedId_ != sistrip::invalid_ &&
+		   ii->second.fedCh_ != sistrip::invalid_ ) { valid++; }
+	      total++;
+	    }
 	    ss << *imod << std::endl;
 	  } 
 	}
       }
     }
   }
+  ss << "Number of connected:   " << valid << std::endl
+     << "Number of connections: " << total << std::endl;
 }
 
 // -----------------------------------------------------------------------------
