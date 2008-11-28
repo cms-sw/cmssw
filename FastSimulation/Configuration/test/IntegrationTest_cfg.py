@@ -39,10 +39,10 @@ process.caloRecHits.RecHitsFactory.doMiscalib = True
 process.famosSimHits.ApplyAlignment = True
 process.misalignedTrackerGeometry.applyAlignment = True
 
-# Apply HCAL miscalibration (not ideal in that case) . Choose between hcalmiscalib_startup.xml , hcalmiscalib_1pb.xml , hcalmiscalib_10pb.xml (startup is the default)
-process.caloRecHits.RecHitsFactory.HCAL.Refactor = 1.0
-process.caloRecHits.RecHitsFactory.HCAL.Refactor_mean = 1.0
-#process.caloRecHits.RecHitsFactory.HCAL.fileNameHcal = "hcalmiscalib_startup.xml"
+#  Attention ! for the HCAL IDEAL==STARTUP
+#process.caloRecHits.RecHitsFactory.HCAL.Refactor = 1.0
+#process.caloRecHits.RecHitsFactory.HCAL.Refactor_mean = 1.0
+#process.caloRecHits.RecHitsFactory.HCAL.fileNameHcal = "hcalmiscalib_0.0.xml"
 
 # Famos with everything !
 process.p1 = cms.Path(process.famosWithEverything)

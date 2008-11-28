@@ -27,7 +27,8 @@ process.load("FastSimulation.Configuration.HZZllll_cfi")
 
 
 # Famos sequences (fake conditions)
-process.load("FastSimulation.Configuration.CommonInputsFake_cff")
+process.load("FastSimulation.Configuration.CommonInputs_cff")
+process.GlobalTag.globaltag = "IDEAL_30X::All"
 process.load("FastSimulation.Configuration.FamosSequences_cff")
 
 # Parametrized magnetic field (new mapping, 4.0 and 3.8T)
