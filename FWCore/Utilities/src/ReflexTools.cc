@@ -1,6 +1,7 @@
 #include <algorithm>
 #include <sstream>
 
+#include "boost/algorithm/string.hpp"
 #include "boost/thread/tss.hpp"
 
 #include "Reflex/Base.h"
@@ -12,20 +13,6 @@
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 
-namespace ROOT {
-namespace Reflex {
-  std::ostream& operator<< (std::ostream& os, Type const& t) {
-    os << t.Name();
-    return os;
-  }
-
-  std::ostream& operator<< (std::ostream& os, TypeTemplate const& tt) {
-    os << tt.Name();
-    return os;
-  }
-}
-}
-
 using Reflex::Base;
 using Reflex::FINAL;
 using Reflex::Member;
@@ -34,7 +21,6 @@ using Reflex::SCOPED;
 using Reflex::Type;
 using Reflex::TypeTemplate;
 using Reflex::Type_Iterator;
-
 
 namespace edm
 {
@@ -187,7 +173,8 @@ namespace edm
       for (Type x = t.ToType(); x != null && x != t; t = x, x = t.ToType()) {}
   
       std::string name = t.Name(SCOPED);
-  
+      boost::trim(name);
+
       if (s_types->end() != s_types->find(name)) {
 	// Already been processed.  Prevents infinite loop.
 	return;

@@ -15,7 +15,10 @@
 // Then, to migrate to 5.21, just remove the three lines indicated below.
 // An #ifdef may be used if desired.
 
-namespace ROOT { // Remove this line for ROOT 5.21.
+#include "Reflex/Type.h"
+#include "Reflex/TypeTemplate.h"
+
+//namespace ROOT { // Remove this line for ROOT 5.21.
 namespace Reflex {
   class Base;
   class Member;
@@ -24,11 +27,19 @@ namespace Reflex {
   class SharedLibrary;
   class Type;
   class TypeTemplate;
-  std::ostream& operator<< (std::ostream& os, Type const& t);  
-  std::ostream& operator<< (std::ostream& os, TypeTemplate const& tt);
+  inline
+  std::ostream& operator<< (std::ostream& os, Type const& t) {
+    os << t.Name();
+    return os;
+  } 
+  inline
+  std::ostream& operator<< (std::ostream& os, TypeTemplate const& tt) {
+    os << tt.Name();
+    return os;
+  }
 }
-} // Remove this line for ROOT 5.21.
+//} // Remove this line for ROOT 5.21.
 
-using namespace ROOT; // Remove this line for ROOT 5.21.
+//using namespace ROOT; // Remove this line for ROOT 5.21.
 
 #endif
