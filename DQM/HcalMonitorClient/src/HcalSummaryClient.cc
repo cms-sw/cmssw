@@ -842,7 +842,7 @@ void HcalSummaryClient::resetSummaryPlot(int Subdet)
 void HcalSummaryClient::htmlOutput(int& run, time_t& mytime, int& minlumi, int& maxlumi, string& htmlDir, string& htmlName)
 {
 
- cout << "Preparing HcalSummaryClient html output ..." << endl;
+  if (debug_) cout << "Preparing HcalSummaryClient html output ..." << endl;
 
   htmlFile.open((htmlDir + htmlName).c_str());
 

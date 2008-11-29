@@ -1,5 +1,5 @@
-#ifndef GUARD_HCALTESTUTILS_h
-#define GUARD_HCALTESTUTILS_h
+#ifndef GUARD_HCALTESTUTILS_H
+#define GUARD_HCALTESTUTILS_H
 
 #define UTILS_ETAMIN -44.5
 #define UTILS_ETAMAX 44.5
@@ -275,26 +275,31 @@ std::string getAnyIMG(int runNo,myHist* hist, int size, std::string htmlDir,
       TAxis *yaxis=hist->GetYaxis();
       // Draw vertical lines
       //for (int xx=int(UTILS_ETAMIN);xx<=int(UTILS_ETAMAX);++xx)
-      for (int xx=int(xaxis->GetXmin());
-	   xx<=int(xaxis->GetXmax()); ++xx)
+      if (xaxis->GetXmax()<100) // ad hoc method for only drawing grids for eta-phi graphs
 	{
-	  if (xx%vertlinespace!=0) continue;
-	  //TLine *vert = new TLine(xx,UTILS_PHIMIN,xx,UTILS_PHIMAX);
-	  TLine *vert = new TLine(xx,yaxis->GetXmin(),xx,yaxis->GetXmax());
-	  vert->SetLineStyle(3);
-	  vert->Draw("same");
+	  for (int xx=int(xaxis->GetXmin());
+	       xx<=int(xaxis->GetXmax()); ++xx)
+	    {
+	      if (xx%vertlinespace!=0) continue;
+	      //TLine *vert = new TLine(xx,UTILS_PHIMIN,xx,UTILS_PHIMAX);
+	      TLine *vert = new TLine(xx,yaxis->GetXmin(),xx,yaxis->GetXmax());
+	      vert->SetLineStyle(3);
+	      vert->Draw("same");
+	    }
 	}
       // Draw horizontal lines
       //for (int yy=-int(UTILS_PHIMIN);yy<=int(UTILS_PHIMAX);++yy)
-      for (int yy=int(yaxis->GetXmin()); yy<=int(yaxis->GetXmax());++yy)
+      if (yaxis->GetXmax()<100)
 	{
-	  if (yy%horizlinespace!=0) continue;
-	  //TLine *horiz = new TLine(UTILS_ETAMIN,yy,UTILS_ETAMAX,yy);
-	  TLine *horiz = new TLine(xaxis->GetXmin(),yy,xaxis->GetXmax(),yy);
-	  horiz->SetLineStyle(3);
-	  horiz->Draw("same");
+	  for (int yy=int(yaxis->GetXmin()); yy<=int(yaxis->GetXmax());++yy)
+	    {
+	      if (yy%horizlinespace!=0) continue;
+	      //TLine *horiz = new TLine(UTILS_ETAMIN,yy,UTILS_ETAMAX,yy);
+	      TLine *horiz = new TLine(xaxis->GetXmin(),yy,xaxis->GetXmax(),yy);
+	      horiz->SetLineStyle(3);
+	      horiz->Draw("same");
+	    }
 	}
-      
     }
   
   // SetLogx, SetLogy don't seem to work.  Why not?
@@ -350,11 +355,11 @@ void htmlAnyHisto(int runNo, myHist *hist,
       // Add thumbnail image to html code, linked to full-sized image
       if (imgName.size() != 0 )
 	{
-	htmlFile << "<td><a href=\"" <<  imgName << "\"><img src=\"" <<  imgNameTMB << "\"></a></td>" << endl;
+	htmlFile << "<td align=\"center\"><a href=\"" <<  imgName << "\"><img src=\"" <<  imgNameTMB << "\"></a></td>" << endl;
 	}
       else
 	{
-	  htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
+	  htmlFile << "<td aling=\"center\"><img src=\"" << " " << "\"></td>" << endl;
 	}
     } // (hist != NULL)
 
