@@ -12,8 +12,8 @@
 
 /** \class HcalBeamMonitor
   *
-  * $Date: 2008/08/18 11:20:28 $
-  * $Revision: 1.2 $
+  * $Date: 2008/09/05 21:10:49 $
+  * $Revision: 1.3 $
   * \author J. Temple - Univ. of Maryland
   */
 
@@ -37,11 +37,17 @@ class HcalBeamMonitor:  public HcalBaseMonitor {
   int ievt_;
   MonitorElement* meEVT_;
 
-
+  bool     beammon_makeDiagnostics_;
+  int      beammon_checkNevents_;
+  double   beammon_minErrorFlag_;
   std::map<int,MonitorElement* > HB_CenterOfEnergyRadius;
   std::map<int,MonitorElement* > HE_CenterOfEnergyRadius;
   std::map<int,MonitorElement* > HF_CenterOfEnergyRadius;
   std::map<int,MonitorElement* > HO_CenterOfEnergyRadius;
+
+
+  MonitorElement* ProblemBeamCells;
+  std::vector<MonitorElement*> ProblemBeamCellsByDepth;
 
   MonitorElement* CenterOfEnergyRadius;
   MonitorElement* CenterOfEnergy;
