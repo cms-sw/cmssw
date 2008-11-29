@@ -18,7 +18,7 @@
 #include "Reflex/Type.h"
 #include "Reflex/TypeTemplate.h"
 
-//namespace ROOT { // Remove this line for ROOT 5.21.
+namespace ROOT { // Remove this line for ROOT 5.21.
 namespace Reflex {
   class Base;
   class Member;
@@ -38,8 +38,8 @@ namespace Reflex {
     return os;
   }
 }
-//} // Remove this line for ROOT 5.21.
+} // Remove this line for ROOT 5.21.
 
-//using namespace ROOT; // Remove this line for ROOT 5.21.
+using namespace ROOT; // Remove this line for ROOT 5.21.
 
 #endif
