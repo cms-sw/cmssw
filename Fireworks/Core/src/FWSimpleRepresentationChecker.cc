@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Nov 25 10:54:28 EST 2008
-// $Id$
+// $Id: FWSimpleRepresentationChecker.cc,v 1.1 2008/11/26 01:52:30 chrjones Exp $
 //
 
 // system include files
@@ -108,8 +108,11 @@ FWSimpleRepresentationChecker::infoFor(const std::string& iTypeName) const
    boost::shared_ptr<FWItemAccessorBase> accessor = factory.accessorFor(clss);
    
    const TClass* modelClass = accessor->modelType();
-   if(0==modelClass) {
+   //std::cout <<"   "<<modelClass->GetName()<<" "<< bool(modelClass == clss)<< std::endl;
+   
+   if(0==modelClass || 0 == modelClass->GetTypeInfo()) {
       //some containers e.g. vector<int> do not have known TClasses for their elements
+      // or the contained type may be unknown to ROOT
       return FWRepresentationInfo();
    }
    ROOT::Reflex::Type modelType =
