@@ -89,7 +89,7 @@ class TPtoRecoTrack
     double          s_theta()       const {return s_p().theta();}
     double          s_lambda()      const {return M_PI/2-s_p().theta();}
     double          s_phi()         const {return s_p().phi();}
-    double          s_eta()         const {return -0.5*log( tan (0.5*s_p().theta()) );}
+    double          s_eta()         const {return -1.0*log( tan (0.5*s_p().theta()) );}
   
     double          s_dxy()         const {return ( - s_v().x() * s_p().y() + s_v().y() * s_p().x() ) / s_p().perp();}
     double          s_dsz()         const {return s_v().z()*s_p().perp()/ s_p().mag() - ((s_v().x()*s_p().x() + s_v().y()*s_p().y()) / s_p().perp()) * s_p().z()/s_p().mag();}
