@@ -157,7 +157,7 @@ PFTauDiscriminantManager::mainTrack()
       }
 
       //if there are more than three tracks, only take the top three, by Pt
-      TauTagTools::sortByDescendingPt<reco::Candidate> ptSorter;
+      TauTagTools::sortByAscendingPt<reco::Candidate> ptSorter;
       sort(myChargedCandidates.begin(), myChargedCandidates.end(), ptSorter);
       size_t maxTracks = (nTracks > 3) ? 3 : nTracks;
       int    charge    = 0;
