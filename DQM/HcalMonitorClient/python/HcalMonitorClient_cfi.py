@@ -95,7 +95,12 @@ hcalClient = cms.EDFilter("HcalMonitorClient",
                           # TrigPrimClient
                           TrigPrimClient            = cms.untracked.bool(True),
 
-)
+                          # BeamClient
+                          BeamClient                     = cms.untracked.bool(True),
+                          BeamClient_checkNevents        = cms.untracked.int32(100),
+                          BeamClient_minErrorFlag        = cms.untracked.double(0.05),
+                          BeamClient_makeDiagosticPlots  = cms.untracked.bool(False)
+                          )
 
 
 
@@ -106,6 +111,9 @@ def setHcalClientValuesFromMonitor(client, origmonitor, debug=False):
     #Reads variables from monitor module, and sets the client's copy of those variables to the same value.
     #This way, when you disable the DataFormat Monitor, the DataFormat client is also turned off automatically, etc.
 
+    # Set update period of client to checkNevents value of monitor 
+    #client.diagnosticPrescaleEvt                  = monitor.checkNevents # combine checkNevents and diagnosticPrescaleEvt into one?
+    
     # Pedestal Client
     client.PedestalClient                         = monitor.PedestalMonitor
     client.PedestalClient_nominalPedMeanInADC     = monitor.PedestalMonitor_nominalPedMeanInADC
@@ -149,6 +157,12 @@ def setHcalClientValuesFromMonitor(client, origmonitor, debug=False):
     client.RecHitClient_minErrorFlag              = monitor.RecHitMonitor_minErrorFlag
     client.RecHitClient_makeDiagnosticPlots       = monitor.RecHitMonitor_makeDiagnosticPlots
 
+    # Beam Client
+    client.BeamClient                             = monitor.BeamMonitor
+    client.BeamClient_checkNevents                = monitor.BeamMonitor_checkNevents
+    client.BeamClient_minErrorFlag                = monitor.BeamMonitor_minErrorFlag
+    client.BeamClient_makeDiagnosticPlots         = monitor.BeamMonitor_makeDiagnosticPlots
+    
     client.DigiClient        = monitor.DigiMonitor
     client.DataFormatClient  = monitor.DataFormatMonitor
     client.LEDClient         = monitor.LEDMonitor
@@ -178,24 +192,28 @@ def setHcalClientValuesFromMonitor(client, origmonitor, debug=False):
 
         print "HotCell Client    = ", client.HotCellClient
         print "\t\t Test HotCell persistently above threshold? ", client.HotCellClient_test_persistent
-        print "\t\t Test HotCell pedestal? ", client.HotCellClient_test_pedestal
-        print "\t\t Test HotCell energy? ", client.HotCellClient_test_energy
-        print "\t\t Test HotCell neighbor? ", client.HotCellClient_test_neighbor
-        print "\t\t CheckNevents HotCell persistent", client.HotCellClient_checkNevents_persistent
-        print "\t\t CheckNevents HotCell pedestal", client.HotCellClient_checkNevents_pedestal
-        print "\t\t CheckNevents HotCell energy", client.HotCellClient_checkNevents_energy
-        print "\t\t CheckNevents HotCell neighbor", client.HotCellClient_checkNevents_neighbor
-        print "\t\t Min Error Flag  = ",client.HotCellClient_minErrorFlag
-        print "\t\t make diagnostics? ",client.HotCellClient_makeDiagnosticPlots
+        print "\t\t Test HotCell pedestal? ",                     client.HotCellClient_test_pedestal
+        print "\t\t Test HotCell energy? ",                       client.HotCellClient_test_energy
+        print "\t\t Test HotCell neighbor? ",                     client.HotCellClient_test_neighbor
+        print "\t\t CheckNevents HotCell persistent",             client.HotCellClient_checkNevents_persistent
+        print "\t\t CheckNevents HotCell pedestal",               client.HotCellClient_checkNevents_pedestal
+        print "\t\t CheckNevents HotCell energy",                 client.HotCellClient_checkNevents_energy
+        print "\t\t CheckNevents HotCell neighbor",               client.HotCellClient_checkNevents_neighbor
+        print "\t\t Min Error Flag  = ",                          client.HotCellClient_minErrorFlag
+        print "\t\t make diagnostics? ",                          client.HotCellClient_makeDiagnosticPlots
                                                                                         
-        print "DataFormat Client  = ", client.DataFormatClient
-        print "Summary Client     = ", client.SummaryClient
-        print "LED Client         = ", client.LEDClient
-        print "RecHit Client      = ", client.RecHitClient
+        print "DataFormat Client  = ",   client.DataFormatClient
+        print "Summary Client     = ",   client.SummaryClient
+        print "LED Client         = ",   client.LEDClient
+        print "RecHit Client      = ",   client.RecHitClient
         print "\t\t CheckNevents  = ",   client.RecHitClient_checkNevents
         print "\t\t MinErrorFlag  = ",   client.RecHitClient_minErrorFlag
         print "\t\t make diagnostics? ", client.RecHitClient_makeDiagnosticPlots
-        print "CaloTower Client   = ", client.CaloTowerClient
-        print "TrigPrim Client    = ", client.TrigPrimClient
+        print "Beam Client      = ",     client.BeamClient
+        print "\t\t CheckNevents  = ",   client.BeamClient_checkNevents
+        print "\t\t MinErrorFlag  = ",   client.BeamClient_minErrorFlag
+        print "\t\t make diagnostics? ", client.BeamClient_makeDiagnosticPlots
+        print "CaloTower Client   = ",   client.CaloTowerClient
+        print "TrigPrim Client    = ",   client.TrigPrimClient
 
     return
