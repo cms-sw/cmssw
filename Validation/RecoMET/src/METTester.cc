@@ -32,7 +32,9 @@
 #include "DataFormats/METReco/interface/GenMETCollection.h"
 #include "DataFormats/METReco/interface/MET.h"
 #include "DataFormats/METReco/interface/METCollection.h"
-
+#include "DataFormats/METReco/interface/PFMET.h"
+#include "DataFormats/METReco/interface/PFMETCollection.h"
+ 
 #include <vector>
 #include <utility>
 #include <ostream>
@@ -122,7 +124,18 @@ void METTester::beginJob(const edm::EventSetup& iSetup)
 	me["hMETPhi"]             = dbe_->book1D("METTask_METPhi","METTask_METPhi",80,-4,4);
 	me["hSumET"]              = dbe_->book1D("METTask_SumET","METTask_SumET",4001,0,4001);
       }
-    
+    else if (METType_ == "PFMET")
+      {
+	// PFMET Histograms                                                                                                                  
+        me["hNevents"]                = dbe_->book1D("METTask_Nevents","METTask_Nevents",1,0,1);
+        me["hMEx"]                = dbe_->book1D("METTask_MEx","METTask_MEx",2001,-500,501);
+        me["hMEy"]                = dbe_->book1D("METTask_MEy","METTask_MEy",2001,-500,501);
+        me["hEz"]                 = dbe_->book1D("METTask_Ez","METTask_Ez",2001,-500,501);
+        me["hMETSig"]             = dbe_->book1D("METTask_METSig","METTask_METSig",51,0,51);
+        me["hMET"]                = dbe_->book1D("METTask_MET","METTask_MET",2001,0,2001);
+        me["hMETPhi"]             = dbe_->book1D("METTask_METPhi","METTask_METPhi",80,-4,4);
+        me["hSumET"]              = dbe_->book1D("METTask_SumET","METTask_SumET",4001,0,4001);
+      }
     else
       {
 	edm::LogInfo("OutputInfo") << " METType not correctly specified!'";// << outputFile_.c_str();
@@ -232,8 +245,40 @@ void METTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       me["hGenInvisibleEnergy"]->Fill(genInvisibleEnergy);
       me["hGenAuxiliaryEnergy"]->Fill(genAuxiliaryEnergy);
     }
+  else if( METType_ == "PFMET")
+    {
+      const PFMET *pfmet;
+      edm::Handle<PFMETCollection> hpfmetcol;
+      iEvent.getByLabel(inputMETLabel_,hpfmetcol);
+      if(!hpfmetcol.isValid()){
+	edm::LogInfo("OutputInfo") << "falied to retrieve data require by MET Task";
+	edm::LogInfo("OutputInfo") << "MET Taks cannot continue...!";
+	return;
+      }
+      else
+	{
+	  const PFMETCollection *pfmetcol = hpfmetcol.product();
+	  pfmet = &(pfmetcol->front());
+	}
 
-  else if (METType_ == "MET")
+      // Reconstructed MET Information                                                                                                     
+      double SumET = pfmet->sumEt();
+      double METSig = pfmet->mEtSig();
+      double Ez = pfmet->e_longitudinal();
+      double MET = pfmet->pt();
+      double MEx = pfmet->px();
+      double MEy = pfmet->py();
+      double METPhi = pfmet->phi();
+
+      me["hMEx"]->Fill(MEx);
+      me["hMEy"]->Fill(MEy);
+      me["hMET"]->Fill(MET);
+      me["hMETPhi"]->Fill(METPhi);
+      me["hSumET"]->Fill(SumET);
+      me["hMETSig"]->Fill(METSig);
+      me["hEz"]->Fill(Ez);
+    }
+      else if (METType_ == "MET")
     {
       const MET *met;
       // Get Generated MET
