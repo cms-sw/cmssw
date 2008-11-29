@@ -23,7 +23,7 @@ class PFRecoTauDiscriminationByNeutralHadrons : public EDProducer {
  public:
   explicit PFRecoTauDiscriminationByNeutralHadrons(const ParameterSet& iConfig){   
     PFTauProducer_                      = iConfig.getParameter<InputTag>("PFTauProducer");
-    neutralHadrons_      = iConfig.getParameter<int>("NumberOfAllowedNeutralHadronsInSignalCone");   
+    neutralHadrons_                     = iConfig.getParameter<unsigned int>("NumberOfAllowedNeutralHadronsInSignalCone");   
     
     produces<PFTauDiscriminator>();
   }
@@ -33,7 +33,7 @@ class PFRecoTauDiscriminationByNeutralHadrons : public EDProducer {
   virtual void produce(Event&, const EventSetup&);
  private:  
   InputTag PFTauProducer_;
-  int neutralHadrons_;   
+  unsigned int neutralHadrons_;   
 };
 #endif
 
