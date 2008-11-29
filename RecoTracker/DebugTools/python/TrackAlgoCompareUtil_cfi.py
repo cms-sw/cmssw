@@ -1,18 +1,30 @@
 import FWCore.ParameterSet.Config as cms
 
-trackAlgoCompare = cms.EDFilter("TrackAlgoCompareUtil",
-    associatormap_algoA = cms.InputTag("trackingParticleRecoTrackAsssociation"),
-    vertexLabel_algoB = cms.InputTag("offlinePrimaryVerticesFromCTFTracks"),
-    vertexLabel_algoA = cms.InputTag("offlinePrimaryVerticesFromCTFTracks"),
-    associatormap_algoB = cms.InputTag("assoc2secStepTk"),
-    beamSpotLabel = cms.InputTag("offlineBeamSpot"),
-    UseAssociators = cms.bool(False),
-    UseVertex = cms.bool(False),
-    trackLabel_algoB = cms.InputTag("secStep"),
+trackAlgoCompareUtil = cms.EDProducer("TrackAlgoCompareUtil",
+    # recoTrack labels A and B
     trackLabel_algoA = cms.InputTag("generalTracks"),
-    assocLabel = cms.untracked.string('TrackAssociatorByHits'),
+    trackLabel_algoB = cms.InputTag("generalTracks"),
+
+    # recoVertex labels A and B
+    UseVertex = cms.bool(True),
+    vertexLabel_algoA = cms.InputTag("offlinePrimaryVertices"),
+    vertexLabel_algoB = cms.InputTag("offlinePrimaryVertices"),
+
+    # trackingParticle/vertex labels (efficiency and fakes)
     trackingParticleLabel_effic = cms.InputTag("mergedtruth","MergedTrackTruth"),
-    trackingParticleLabel_fakes = cms.InputTag("mergedtruth","MergedTrackTruth")
+    trackingParticleLabel_fakes = cms.InputTag("mergedtruth","MergedTrackTruth"),
+
+    # beam spot label (used to calc. points of closest approach...etc.)
+    beamSpotLabel = cms.InputTag("offlineBeamSpot"),
+
+    # associator label (by hits default)
+    assocLabel_algoA = cms.untracked.string('TrackAssociatorByHits'),
+    assocLabel_algoB = cms.untracked.string('TrackAssociatorByHits'),
+    
+    # if an asociation map exist in the event, use it--its faster
+    UseAssociators = cms.bool(False),
+    associatormap_algoA = cms.InputTag("trackingParticleRecoTrackAsssociation"),
+    associatormap_algoB = cms.InputTag("trackingParticleRecoTrackAsssociation")
 )
 
 

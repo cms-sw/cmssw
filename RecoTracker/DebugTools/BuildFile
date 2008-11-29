@@ -1,6 +1,3 @@
-<use name=RecoTracker/CkfPattern>
-<use name=SimTracker/TrackerHitAssociation>
-<use name=SimTracker/TrackAssociation>
 <use name=SimDataFormats/HepMCProduct>
 
 <use name=AnalysisDataFormats/TrackInfo>
