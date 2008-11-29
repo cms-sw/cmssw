@@ -187,11 +187,12 @@ void HcalBaseMonitor::setupDepthHists2D(MonitorElement* &h, std::vector<MonitorE
      values in HcalBaseMonitor.h
   */
 
+  /*
   if (showTiming)
     {
       cpu_timer.reset(); cpu_timer.start();
     }
-
+  */
   stringstream name;
   name<<Name;
   stringstream unitname;
@@ -215,11 +216,12 @@ void HcalBaseMonitor::setupDepthHists2D(MonitorElement* &h, std::vector<MonitorE
   h->setAxisTitle("i#phi",2);
   
   setupDepthHists2D(hh, Name, Units);
-
+  /*
   if (showTiming)
     {
       cpu_timer.stop();  cout <<"TIMER:: HcalBaseMonitor SETUPDEPTHHISTS2D_OVERALL "<<name.str().c_str()<<" -> "<<cpu_timer.cpuTime()<<endl;
     }
+  */
   return;
 } // void HcalBaseMonitor::setupDepthHists2D(MonitorElement* &h, std::vector<MonitorElement*> &hh, char* Name, char* Units)
 
@@ -232,12 +234,13 @@ void HcalBaseMonitor::setupDepthHists2D(std::vector<MonitorElement*> &hh, char* 
      (4 depths, + 2 for separate HE histograms).
      Bins are automatically set for eta/phi indices
   */
-
+  
+  /*
   if (showTiming)
     {
       cpu_timer.reset(); cpu_timer.start();
     }
-
+  */
   stringstream name;
   name<<Name;
 
@@ -284,12 +287,12 @@ void HcalBaseMonitor::setupDepthHists2D(std::vector<MonitorElement*> &hh, char* 
       hh[i]->setAxisTitle("i#eta",1);
       hh[i]->setAxisTitle("i#phi",2);
     }
- 
+  /* 
   if (showTiming)
     {
       cpu_timer.stop();  cout <<"TIMER:: HcalBaseMonitor SETUPDEPTHHISTS2D "<<name.str().c_str()<<" -> "<<cpu_timer.cpuTime()<<endl;
     }
-
+  */
   return;
 } // void HcalBaseMonitor::setupDepthHists2D(std::vector<MonitorElement*> &hh, char* Name, char* Units)
 
