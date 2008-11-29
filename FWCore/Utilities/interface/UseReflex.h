@@ -19,6 +19,7 @@
 
 #include "Reflex/Type.h"
 #include "Reflex/TypeTemplate.h"
+#include "RVersion.h"
 
 #if ROOT_VERSION_CODE <= ROOT_VERSION(5,19,0)
 namespace ROOT { // Remove this line for ROOT 5.21.
