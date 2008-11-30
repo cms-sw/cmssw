@@ -3,3 +3,4 @@
 
 EVENTSETUP_DATA_REG(PixelDCSObject<bool>);
 EVENTSETUP_DATA_REG(PixelDCSObject<float>);
+EVENTSETUP_DATA_REG(PixelDCSObject<CaenChannel>);

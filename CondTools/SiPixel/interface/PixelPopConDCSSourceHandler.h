@@ -1,6 +1,21 @@
 #ifndef CondTools_SiPixel_PixelPopConDCSSourceHandler_h
 #define CondTools_SiPixel_PixelPopConDCSSourceHandler_h
 
+/** \class PixelPopConDCSSourceHandler
+ *
+ *  Template class for the source handler of DCS data.
+ *
+ *  Specify the object type via the template parameter Type.
+ *
+ *  $Date: $
+ *  $Revision: $
+ *  \author Chung Khim Lae
+ */
+
+#include "CoralBase/Attribute.h"
+#include "CoralBase/AttributeList.h"
+#include "RelationalAccess/ICursor.h"
+
 #include "CondCore/PopCon/interface/PopConSourceHandler.h"
 #include "CondFormats/SiPixelObjects/interface/PixelDCSObject.h"
 #include "CondTools/SiPixel/interface/PixelDCSBase.h"
@@ -12,21 +27,23 @@ class PixelPopConDCSSourceHandler:
 {
   public:
 
+  /// Init PixelDCSBase from cfg file.
   PixelPopConDCSSourceHandler( const edm::ParameterSet& );
 
+  /// Get data from DB by calling PixelDCSBase::getData().
   virtual void getNewObjects();
 
+  /// Name of this source handler.
   virtual std::string id() const;
 
   private:
 
-  virtual coral::AttributeList outputDefn() const;
+  /// Specialise this template to assign values to a non-POD object type from a row in DB.
+  static inline void setValue( Type& value, const coral::AttributeList& );
 
+  /// Fill object from all rows in DB.
   virtual void fillObject( coral::ICursor& );
 };
-
-#include "CoralBase/Attribute.h"
-#include "RelationalAccess/ICursor.h"
 
 template <class Type>
 PixelPopConDCSSourceHandler<Type>::PixelPopConDCSSourceHandler(const edm::ParameterSet& cfg):
@@ -35,13 +52,35 @@ PixelPopConDCSSourceHandler<Type>::PixelPopConDCSSourceHandler(const edm::Parame
 }
 
 template <class Type>
-coral::AttributeList PixelPopConDCSSourceHandler<Type>::outputDefn() const
+void PixelPopConDCSSourceHandler<Type>::setValue(Type& value, const coral::AttributeList& row)
 {
-  coral::AttributeList output;
+  const size_t nTable = row.size() - 1; // row includes name
 
-  output.extend("value", typeid(Type) );
+  if (1 != nTable)
+  {
+    throw cms::Exception("PixelPopConDCSSourceHandler")
+        << "Found " << nTable << " last value tables instead of 1. "
+        << "Check your cfg.\n";
+  }
 
-  return output;
+  value = row[0].data<float>();
+}
+
+template <>
+void PixelPopConDCSSourceHandler<CaenChannel>::setValue(CaenChannel& value, const coral::AttributeList& row)
+{
+  const size_t nTable = row.size() - 1; // row includes name
+
+  if (3 != nTable)
+  {
+    throw cms::Exception("PixelPopConDCSSourceHandler<CaenChannel>")
+        << "CaenChannel has 3 values (isOn, iMon, vMon) "
+        << "but your cfg has " << nTable << " last value tables.\n";
+  }
+
+  value.isOn = row[0].data<float>();
+  value.iMon = row[1].data<float>();
+  value.vMon = row[2].data<float>();
 }
 
 template <class Type>
@@ -52,15 +91,13 @@ void PixelPopConDCSSourceHandler<Type>::fillObject(coral::ICursor& cursor)
   while ( cursor.next() )
   {
     const coral::AttributeList& row = cursor.currentRow();
-row.toOutputStream(std::cout) << '\n';
+
     typename PixelDCSObject<Type>::Item datum;
 
     datum.name = row["name"].data<std::string>();
-    datum.value = row[0].data<Type>();
-
+    setValue(datum.value, row);
     data->items.push_back(datum);
   }
-  std::cout << "Number of rows = " << data->items.size() << std::endl;
 
   this->m_to_transfer.push_back( std::make_pair(data, 1) );
 }

@@ -47,6 +47,7 @@
 
   <class pattern="PixelDCSObject<*>"/> 
   <class pattern="PixelDCSObject<*>::Item"/> 
+  <class pattern="PixelDCSObject<*>::Type"/> 
 
   <class pattern="*pair*"/>
   <class pattern="*vector*"/>
