@@ -22,7 +22,7 @@ process.load("Configuration.EventContent.EventContentCosmics_cff")
 process.FEVT = cms.OutputModule("PoolOutputModule",
     process.RECOEventContent,
     dataset = cms.untracked.PSet(dataTier = cms.untracked.string('RECO')),
-    fileName = cms.untracked.string('promptrecoCosmics.root')
+    fileName = cms.untracked.string('promptrecoCosmics_38T.root')
 )
 
 process.FEVT.outputCommands.append('keep CaloTowersSorted_calotoweroptmaker_*_*')
@@ -46,7 +46,7 @@ process.FEVT.outputCommands.append('keep recoCandidatesOwned_caloTowersOpt_*_*')
 process.FEVT.outputCommands.append('keep RPCDetIdRPCDigiMuonDigiCollection_muonRPCDigis_*_*')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.16 $'),
+    version = cms.untracked.string('$Revision: 1.17 $'),
     name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/GlobalRuns/python/recoT0DQM_EvContent_38T_cfg.py,v $'),
     annotation = cms.untracked.string('CRUZET Prompt Reco with DQM with Mag field at 3.8T')
 )
