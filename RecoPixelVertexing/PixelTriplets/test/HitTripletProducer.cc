@@ -12,7 +12,7 @@
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegion.h"
 #include "RecoTracker/TkTrackingRegions/interface/GlobalTrackingRegion.h"
 
-#include "UserCode/konec/test/R2DTimerObserver.h"
+//#include "UserCode/konec/test/R2DTimerObserver.h"
 #include "TH1D.h"
 #include "TFile.h"
 
@@ -75,11 +75,11 @@ void HitTripletProducer::analyze(
   Regions regions = theRegionProducer->regions(ev,es);
   const TrackingRegion & region = *regions[0];
 
-  static R2DTimerObserver timer("**** MY TIMING REPORT ***");
-  timer.start();
+//  static R2DTimerObserver timer("**** MY TIMING REPORT ***");
+//  timer.start();
   const OrderedSeedingHits & triplets = theGenerator->run(region,ev,es);
-  timer.stop(); 
-  hCPU->Fill( timer.lastMeasurement().real() );
+//  timer.stop(); 
+//  hCPU->Fill( timer.lastMeasurement().real() );
   hNum->Fill(triplets.size());
   edm::LogInfo("HitTripletProducer") << "size of triplets: "<<triplets.size();
 
