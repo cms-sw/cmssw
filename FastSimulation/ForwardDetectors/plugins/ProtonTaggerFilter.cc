@@ -8,7 +8,7 @@
  * Author: Dmitry Zaborov
  */
 
-// Version: $Id: ProtonTaggerFilter.cc,v 1.7 2008/01/22 20:42:16 muzaffar Exp $
+// Version: $Id: ProtonTaggerFilter.cc,v 1.1 2008/11/25 17:34:15 beaudett Exp $
 
 #include "FastSimulation/ForwardDetectors/plugins/ProtonTaggerFilter.h"
 
@@ -17,8 +17,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Utilities/interface/Exception.h"
-
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "DataFormats/Common/interface/Handle.h"
 
 
