@@ -17,7 +17,7 @@ SiStripMonitorTrack.Trend_On      = False
 SiStripMonitorTrack.CCAnalysis_On = True
 
 #### TrackInfo ####
-from RecoTracker.TrackProducer.RefitterWithMaterial_cff import *
+from RecoTracker.TrackProducer.TrackRefitters_cff import *
 
 #-----------------------
 #  Reconstruction Modules
