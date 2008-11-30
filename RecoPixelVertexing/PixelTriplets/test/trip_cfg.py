@@ -4,7 +4,7 @@ process = cms.Process("TripletTest")
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000))
 process.source = cms.Source("PoolSource", fileNames =  cms.untracked.vstring(
  'file:data/cmssw20x/ttbar.root'
-#  'file:data/cmssw20x/SingleMu_1000m.root'
+#  'file:data/cmssw20x/SingleMu_10m.root'
 ))
 
 process.MessageLogger = cms.Service("MessageLogger",
@@ -29,6 +29,7 @@ process.siPixelClusters.src = cms.InputTag('simSiPixelDigis')
 from RecoPixelVertexing.PixelTriplets.PixelTripletHLTGenerator_cfi import *
 from RecoPixelVertexing.PixelTriplets.PixelTripletLargeTipGenerator_cfi import *
 from RecoPixelVertexing.PixelTrackFitting.PixelTracks_cfi import *
+from RecoTracker.TkTrackingRegions.GlobalTrackingRegion_cfi import *
 
 process.triplets = cms.EDFilter("HitTripletProducer",
   OrderedHitsFactoryPSet = cms.PSet(
@@ -36,8 +37,16 @@ process.triplets = cms.EDFilter("HitTripletProducer",
     SeedingLayers = cms.string("PixelLayerTriplets"),
     GeneratorPSet = cms.PSet( PixelTripletHLTGenerator )
 #    GeneratorPSet = cms.PSet( PixelTripletLargeTipGenerator )
+  ),
+    RegionFactoryPSet = cms.PSet(
+        RegionPSetBlock,
+        ComponentName = cms.string('GlobalRegionProducer')
   )
+
 )
 #process.triplets.OrderedHitsFactoryPSet.GeneratorPSet.useFixedPreFiltering = cms.bool(True)
+#process.triplets.RegionFactoryPSet.RegionPSet.ptMin = cms.double(1000.00)
+#process.triplets.RegionFactoryPSet.RegionPSet.originRadius = cms.double(0.001)
+#process.triplets.RegionFactoryPSet.RegionPSet.originHalfLength = cms.double(0.0001)
 
 process.p = cms.Path(pixeltrackerlocalreco+process.triplets)

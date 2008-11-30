@@ -31,16 +31,20 @@ public:
   ThirdHitPredictionFromInvParabola(const GlobalPoint & P1, const GlobalPoint & P2,
     double ip, double curv, double tolerance);
 
-  Range operator()(double radius, int charge) const;
+//  inline Range operator()(double radius, int charge) const { return rangeRPhiSlow(radius,charge,1); } 
+  inline Range operator()(double radius, int charge) const { return rangeRPhi(radius,charge); } 
+
+  Range rangeRPhi(double radius, int charge) const;
+  Range rangeRPhiSlow(double radius, int charge, int nIter=5) const;
 
   void init( const GlobalPoint & P1, const GlobalPoint & P2,  double ip, double curv);
-
 private:
 
   double coeffA(const double & impactParameter, int charge) const;
   double coeffB(const double & impactParameter, int charge) const;
   double predV(const double & u, const double & ip, int charge) const;
   double ipFromCurvature(const double & curvature, int charge) const;
+
 
 private:
 
@@ -74,6 +78,7 @@ private:
   Rotation theRotation;
   typedef MappedPoint<double> PointUV;
   PointUV p1, p2;
+  PointUV findPointAtCurve(double radius, int charge, double ip) const;
 
   Range theIpRangePlus, theIpRangeMinus; 
   float theTolerance;

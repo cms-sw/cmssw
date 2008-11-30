@@ -6,6 +6,10 @@
 
 #include "RecoTracker/TkTrackingRegions/interface/OrderedHitsGeneratorFactory.h"
 #include "RecoTracker/TkTrackingRegions/interface/OrderedHitsGenerator.h"
+
+#include "RecoTracker/TkTrackingRegions/interface/TrackingRegionProducerFactory.h"
+#include "RecoTracker/TkTrackingRegions/interface/TrackingRegionProducer.h"
+#include "RecoTracker/TkTrackingRegions/interface/TrackingRegion.h"
 #include "RecoTracker/TkTrackingRegions/interface/GlobalTrackingRegion.h"
 
 #include "UserCode/konec/test/R2DTimerObserver.h"
@@ -24,6 +28,7 @@ public:
 private:
   edm::ParameterSet theConfig;
   OrderedHitsGenerator * theGenerator;
+  TrackingRegionProducer* theRegionProducer;
   TH1D *hCPU, *hNum;
 };
 
@@ -52,13 +57,24 @@ void HitTripletProducer::beginJob(const edm::EventSetup& es)
       theConfig.getParameter<edm::ParameterSet>("OrderedHitsFactoryPSet");
   std::string orderedName = orderedPSet.getParameter<std::string>("ComponentName");
   theGenerator = OrderedHitsGeneratorFactory::get()->create( orderedName, orderedPSet);
+
+  edm::ParameterSet regfactoryPSet =
+      theConfig.getParameter<edm::ParameterSet>("RegionFactoryPSet");
+  std::string regfactoryName = regfactoryPSet.getParameter<std::string>("ComponentName");
+  theRegionProducer = TrackingRegionProducerFactory::get()->create(regfactoryName,regfactoryPSet);
+
 }
 
 void HitTripletProducer::analyze(
     const edm::Event& ev, const edm::EventSetup& es)
 {
 
-  GlobalTrackingRegion region;
+//  GlobalTrackingRegion region;
+
+  typedef std::vector<TrackingRegion* > Regions;
+  Regions regions = theRegionProducer->regions(ev,es);
+  const TrackingRegion & region = *regions[0];
+
   static R2DTimerObserver timer("**** MY TIMING REPORT ***");
   timer.start();
   const OrderedSeedingHits & triplets = theGenerator->run(region,ev,es);

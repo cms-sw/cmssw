@@ -54,15 +54,62 @@ void ThirdHitPredictionFromInvParabola::
   theIpRangeMinus = ipRangeMinus.intersection(ipRange);
 }
     
-ThirdHitPredictionFromInvParabola::Range ThirdHitPredictionFromInvParabola::operator()(
+
+ThirdHitPredictionFromInvParabola::PointUV ThirdHitPredictionFromInvParabola::findPointAtCurve(
+    double r, int c, double ip) const
+{
+  //
+  // assume u=(1-alpha^2/2)/r v=alpha/r
+  // solve qudratic equation neglecting aplha^4 term
+  //
+  double A = coeffA(ip,c);
+  double B = coeffB(ip,c);
+
+  double delta = 1-4*(B/2+ip/r)*(-B+A*r-ip/r);
+  double sqrtdelta = (delta > 0) ? sqrt(delta) : 0.;
+  double alpha = (c>0)?  (-c+sqrtdelta)/(B+2*ip/r) :  (-c-sqrtdelta)/(B+2*ip/r);
+
+  double v = alpha/r;
+  double d2 = 1/r/r - sqr(v);
+  double u = (d2 > 0) ? sqrt(d2) : 0.;
+
+  return PointUV(u,v,&theRotation);
+}
+
+ThirdHitPredictionFromInvParabola::Range ThirdHitPredictionFromInvParabola::rangeRPhi(
     double radius, int charge) const
+{
+  Range predRPhi(1.,-1.);
+  Range ip = (charge > 0) ? theIpRangePlus : theIpRangeMinus;
+
+  PointUV pred_tmp1 = findPointAtCurve(radius,charge,ip.min());
+  PointUV pred_tmp2 = findPointAtCurve(radius,charge,ip.max());
+
+  double phi1 = pred_tmp1.unmap().phi();
+  while ( phi1 >= M_PI) phi1 -= 2*M_PI;
+  while ( phi1 < -M_PI) phi1 += 2*M_PI;
+  double phi2 = phi1+radius*(pred_tmp2.v()-pred_tmp1.v()); 
+  
+  if (ip.empty()) {
+    Range r1(phi1*radius-theTolerance, phi1*radius+theTolerance); 
+    Range r2(phi2*radius-theTolerance, phi2*radius+theTolerance); 
+    predRPhi = r1.intersection(r2);
+  } else {
+    Range r(phi1, phi2); 
+    r.sort();
+    predRPhi= Range(radius*r.min()-theTolerance, radius*r.max()+theTolerance);
+  }
+
+  return predRPhi;
+}
+ThirdHitPredictionFromInvParabola::Range ThirdHitPredictionFromInvParabola::rangeRPhiSlow(
+    double radius, int charge, int nIter) const
 {
   Range predRPhi(1.,-1.);
 
   double invr2 = 1/radius/radius;
-  double u = invr2;
+  double u = sqrt(invr2);
   double v = 0.;
-  int nIter=5;
 
   Range ip = (charge > 0) ? theIpRangePlus : theIpRangeMinus;
 
@@ -77,6 +124,8 @@ ThirdHitPredictionFromInvParabola::Range ThirdHitPredictionFromInvParabola::oper
   while ( phi1 < -M_PI) phi1 += 2*M_PI;
 
 
+  u = sqrt(invr2); 
+  v=0;
   for (int i=0; i < nIter; ++i) {
     v = predV(u, ip.max(), charge); 
     double d2 = invr2-sqr(v);
@@ -102,6 +151,7 @@ ThirdHitPredictionFromInvParabola::Range ThirdHitPredictionFromInvParabola::oper
   return predRPhi;
 
 }
+
 
 double ThirdHitPredictionFromInvParabola::
     ipFromCurvature(const double & curvature, int charge) const 
