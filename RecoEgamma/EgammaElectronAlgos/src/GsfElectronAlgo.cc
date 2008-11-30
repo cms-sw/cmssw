@@ -2,17 +2,17 @@
 //
 // Package:    EgammaElectronAlgos
 // Class:      GsfElectronAlgo
-// 
+//
 /**\class GsfElectronAlgo EgammaElectronAlgos/GsfElectronAlgo
 
  Description: top algorithm producing TrackCandidate and Electron objects from supercluster
               driven pixel seeded Ckf tracking
- 
+
 */
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Thu july 6 13:22:06 CEST 2006
-// $Id: GsfElectronAlgo.cc,v 1.27 2008/10/31 14:17:24 chamont Exp $
+// $Id: GsfElectronAlgo.cc,v 1.28 2008/11/26 16:18:14 charlot Exp $
 //
 //
 
@@ -43,7 +43,6 @@
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/Records/interface/CaloTopologyRecord.h"
 
-
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
@@ -70,23 +69,25 @@
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "DataFormats/Candidate/interface/OverlapChecker.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "CLHEP/Units/PhysicalConstants.h"
 #include <TMath.h>
-#include <sstream>
 #include <Math/VectorUtil.h>
 #include <Math/Point3D.h>
+#include <sstream>
+#include <algorithm>
 
 
-using namespace edm;
-using namespace std;
-using namespace reco;
+using namespace edm ;
+using namespace std ;
+using namespace reco ;
 
 GsfElectronAlgo::GsfElectronAlgo
- ( const edm::ParameterSet& conf,
+ ( const edm::ParameterSet & conf,
    double maxEOverPBarrel, double maxEOverPEndcaps,
    double minEOverPBarrel, double minEOverPEndcaps,
    double maxDeltaEta, double maxDeltaPhi,
@@ -99,13 +100,13 @@ GsfElectronAlgo::GsfElectronAlgo
  {
   // this is the new version allowing to configurate the algo
   // interfaces still need improvement!!
-  mtsTransform_ = new MultiTrajectoryStateTransform;
-  geomPropBw_=0;	
-  geomPropFw_=0;	
+  mtsTransform_ = new MultiTrajectoryStateTransform ;
+  geomPropBw_ = 0 ;
+  geomPropFw_ = 0 ;
 
   // get nested parameter set for the TransientInitialStateEstimator
   ParameterSet tise_params = conf.getParameter<ParameterSet>("TransientInitialStateEstimatorParameters") ;
-  
+
   // get input collections
   hcalRecHits_ = conf.getParameter<edm::InputTag>("hcalRecHits");
   tracks_ = conf.getParameter<edm::InputTag>("tracks");
@@ -162,11 +163,11 @@ void  GsfElectronAlgo::run(Event& e, GsfElectronCollection & outEle) {
   edm::Handle< EcalRecHitCollection > pEERecHits;
   e.getByLabel( reducedEndcapRecHitCollection_, pEERecHits ) ;
 
-  
+
   // for HoE calculation
   edm::Handle<HBHERecHitCollection> hbhe;
   mhbhe_=0;
-  bool got = e.getByLabel(hcalRecHits_,hbhe);  
+  bool got = e.getByLabel(hcalRecHits_,hbhe);
   if (got) mhbhe_=  new HBHERecHitMetaCollection(*hbhe);
 
   // get the beamspot from the Event:
@@ -175,9 +176,9 @@ void  GsfElectronAlgo::run(Event& e, GsfElectronCollection & outEle) {
   const math::XYZPoint bsPosition = recoBeamSpotHandle->position();
 
   // temporay array for electron before amb. solving
-  std::vector<GsfElectron> tempEle;
+  GsfElectronPtrCollection tempEle;
 
-  // create electrons 
+  // create electrons
   process(tracksH,ctfTracksH,pEBRecHits,pEERecHits,bsPosition,tempEle);
 
   std::ostringstream str;
@@ -186,38 +187,39 @@ void  GsfElectronAlgo::run(Event& e, GsfElectronCollection & outEle) {
   str << "\nEvent " << e.id();
   str << "\nNumber of final electron tracks: " << tracksH.product()->size();
   str << "\nNumber of final electrons: " << tempEle.size();
-  for (vector<GsfElectron>::const_iterator it = tempEle.begin(); it != tempEle.end(); it++) {
-    str << "\nNew electron with charge, pt, eta, phi : "  << it->charge() << " , " 
-        << it->pt() << " , " << it->eta() << " , " << it->phi();
+  for (GsfElectronPtrCollection::const_iterator it = tempEle.begin(); it != tempEle.end(); it++) {
+    str << "\nNew electron with charge, pt, eta, phi : "  << (*it)->charge() << " , "
+        << (*it)->pt() << " , " << (*it)->eta() << " , " << (*it)->phi();
   }
- 
+
   str << "\n=================================================";
   LogDebug("GsfElectronAlgo") << str.str();
 
-  std::ostringstream str2;
+  if (applyAmbResolution_)
+   {
 
-  if (applyAmbResolution_) {
-  
     resolveElectrons(tempEle, outEle);
+
+    std::ostringstream str2 ;
 
     str2 << "\n========== GsfElectronAlgo Info (after amb. solving) ==========";
     str2 << "\nEvent " << e.id();
     str2 << "\nNumber of final electron tracks: " << tracksH.product()->size();
     str2 << "\nNumber of final electrons: " << outEle.size();
-    for (vector<GsfElectron>::const_iterator it = outEle.begin(); it != outEle.end(); it++) {
-      str2 << "\nNew electron with charge, pt, eta, phi : "  << it->charge() << " , " 
+    for ( GsfElectronCollection::const_iterator it = outEle.begin(); it != outEle.end(); it++) {
+      str2 << "\nNew electron with charge, pt, eta, phi : "  << it->charge() << " , "
           << it->pt() << " , " << it->eta() << " , " << it->phi();
     }
-
     str2 << "\n=================================================";
-    LogDebug("GsfElectronAlgo") << str2.str();
+    LogDebug("GsfElectronAlgo") << str2.str() ;
 
-  } else {
-  
-    outEle = tempEle;
-  
-  }
-  
+   }
+  else
+   {
+    for ( GsfElectronPtrCollection::const_iterator it = tempEle.begin() ; it != tempEle.end() ; it++ )
+     { outEle.push_back(**it) ; }
+   }
+
   delete mhbhe_;
   return;
 }
@@ -228,7 +230,7 @@ void GsfElectronAlgo::process(
   edm::Handle<EcalRecHitCollection> reducedEBRecHits,
   edm::Handle<EcalRecHitCollection> reducedEERecHits,
   const math::XYZPoint & bsPosition,
-  GsfElectronCollection & outEle )
+  GsfElectronPtrCollection & outEle )
  {
   const GsfTrackCollection * gsfTrackCollection = gsfTracksH.product() ;
   for (unsigned int i=0;i<gsfTrackCollection->size();++i) {
@@ -240,7 +242,7 @@ void GsfElectronAlgo::process(
     const SuperClusterRef & scRef=getTrSuperCluster(gsfTrackRef);
     const SuperCluster theClus=*scRef;
     std::vector<DetId> vecId=theClus.seed()->getHitsByDetId();
-    subdet_ =vecId[0].subdetId();  
+    subdet_ =vecId[0].subdetId();
 
     // calculate Trajectory StatesOnSurface....
     if (!calculateTSOS(t,theClus, bsPosition)) continue;
@@ -291,9 +293,9 @@ bool GsfElectronAlgo::preSelection(const SuperCluster& clus)
 
   LogDebug("") << "electron has passed preselection criteria ";
   LogDebug("") << "=================================================";
-  return true;  
+  return true;
 
-}  
+}
 
 GlobalVector GsfElectronAlgo::computeMode(const TrajectoryStateOnSurface &tsos) {
 
@@ -326,7 +328,7 @@ GlobalVector GsfElectronAlgo::computeMode(const TrajectoryStateOnSurface &tsos) 
     mode_Py = pyUtils.mode().mean();
     mode_Pz = pzUtils.mode().mean();
   } else edm::LogInfo("") << "tsos not valid!!";
-  return GlobalVector(mode_Px,mode_Py,mode_Pz);	
+  return GlobalVector(mode_Px,mode_Py,mode_Pz);
 
 }
 
@@ -337,7 +339,7 @@ void GsfElectronAlgo::createElectron
    const TrackRef & ctfTrackRef, const float shFracInnerHits,
    edm::Handle<EcalRecHitCollection> reducedEBRecHits,
    edm::Handle<EcalRecHitCollection> reducedEERecHits,
-   GsfElectronCollection & outEle )
+   GsfElectronPtrCollection & outEle )
 
  {
       GlobalVector innMom=computeMode(innTSOS_);
@@ -372,7 +374,7 @@ void GsfElectronAlgo::createElectron
       float scE5x5 = EcalClusterTools::e5x5(seedCluster,reducedRecHits,topology) ;
 
       //create electron
-      double scale = (*scRef).energy()/vtxMom_.mag();    
+      double scale = (*scRef).energy()/vtxMom_.mag();
       math::XYZTLorentzVectorD momentum= math::XYZTLorentzVector(vtxMom_.x()*scale,
 								 vtxMom_.y()*scale,
 								 vtxMom_.z()*scale,
@@ -380,7 +382,7 @@ void GsfElectronAlgo::createElectron
       // should be coming from supercluster!
       HoECalculator calc(theCaloGeom);
       double HoE=calc(&(*scRef),mhbhe_);
-      GsfElectron ele(momentum,scRef,trackRef,sclPos_,sclMom,seedPos,seedMom,innPos,innMom,vtxPos,vtxMom_,outPos,outMom,HoE,
+      GsfElectron * ele = new GsfElectron(momentum,scRef,trackRef,sclPos_,sclMom,seedPos,seedMom,innPos,innMom,vtxPos,vtxMom_,outPos,outMom,HoE,
         scSigmaEtaEta,scSigmaIEtaIEta,scE1x5,scE2x5,scE5x5,ctfTrackRef,shFracInnerHits) ;
 
       // and set various properties
@@ -388,19 +390,19 @@ void GsfElectronAlgo::createElectron
       float trackEta=ecpc.ecalEta(trackRef->innerMomentum(),trackRef->innerPosition());
       float trackPhi=ecpc.ecalPhi(theMagField.product(),trackRef->innerMomentum(),trackRef->innerPosition(),trackRef->charge());
 
-      ele.setDeltaEtaSuperClusterAtVtx((*scRef).position().eta() - trackEta);
+      ele->setDeltaEtaSuperClusterAtVtx((*scRef).position().eta() - trackEta);
       float dphi = (*scRef).position().phi() - trackPhi;
       if (fabs(dphi)>CLHEP::pi)
 	dphi = dphi < 0? CLHEP::twopi + dphi : dphi - CLHEP::twopi;
-      ele.setDeltaPhiSuperClusterAtVtx(dphi);
+      ele->setDeltaPhiSuperClusterAtVtx(dphi);
 
       // set corrections + classification
       ElectronClassification theClassifier;
-      theClassifier.correct(ele);
+      theClassifier.correct(*ele);
       ElectronEnergyCorrector theEnCorrector;
-      theEnCorrector.correct(ele, applyEtaCorrection_);
+      theEnCorrector.correct(*ele, applyEtaCorrection_);
       ElectronMomentumCorrector theMomCorrector;
-      theMomCorrector.correct(ele,vtxTSOS_);
+      theMomCorrector.correct(*ele,vtxTSOS_);
 
       outEle.push_back(ele);
 }
@@ -420,98 +422,76 @@ bsPosition){
 
     //at vertex
     // innermost state propagation to the beam spot position
-    vtxTSOS_ 
+    vtxTSOS_
       = TransverseImpactPointExtrapolator(*geomPropBw_).extrapolate(innTSOS_,GlobalPoint(bsPosition.x(),bsPosition.y(),bsPosition.z()));
     if (!vtxTSOS_.isValid()) vtxTSOS_=innTSOS_;
 
     //at seed
-    outTSOS_ 
+    outTSOS_
       = mtsTransform_->outerStateOnSurface(t, *(trackerHandle_.product()), theMagField.product());
     if (!outTSOS_.isValid()) return false;
-    
-    //    TrajectoryStateOnSurface seedTSOS 
-    seedTSOS_ 
+
+    //    TrajectoryStateOnSurface seedTSOS
+    seedTSOS_
      = TransverseImpactPointExtrapolator(*geomPropFw_).extrapolate(outTSOS_,GlobalPoint(theClus.seed()->position().x(),theClus.seed()->position().y(),theClus.seed()->position().z()));
     if (!seedTSOS_.isValid()) seedTSOS_=outTSOS_;
 
     //at scl
-   sclTSOS_ 
+   sclTSOS_
     = TransverseImpactPointExtrapolator(*geomPropFw_).extrapolate(innTSOS_,GlobalPoint(theClus.x(),theClus.y(),theClus.z()));
     if (!sclTSOS_.isValid()) sclTSOS_=outTSOS_;
     return true;
 }
 
-void GsfElectronAlgo::resolveElectrons(std::vector<reco::GsfElectron> & tempEle, reco::GsfElectronCollection & outEle) {
 
-  typedef std::set<const reco::GsfElectron *> set_container;
-  typedef std::vector<const reco::GsfElectron *> container;
-  typedef container::const_iterator const_iterator;
-  typedef set_container::const_iterator set_const_iterator;
+//=======================================================================================
+// Ambiguity solving
+//=======================================================================================
 
-//  container selected;
-  set_container resolved_el;
-  std::multimap< const reco::GsfElectron *,  const reco::GsfElectron *> ambigus_el;  
-  set_container ambigus;
+bool better_electron( const reco::GsfElectron * e1, const reco::GsfElectron * e2 )
+ { return (fabs(e1->eSuperClusterOverP()-1)<fabs(e2->eSuperClusterOverP()-1)) ; }
 
-//  selected_.clear();
-//  resolved_el_.clear();
-//  ambigus_el_.clear();
+void GsfElectronAlgo::resolveElectrons( GsfElectronPtrCollection & inEle, reco::GsfElectronCollection & outEle )
+ {
+  GsfElectronPtrCollection::iterator e1, e2 ;
+  OverlapChecker overlap ;
+  inEle.sort(better_electron) ;
+  for( e1 = inEle.begin() ;  e1 != inEle.end() ; ++e1 )
+   {
+		LogDebug("GsfElectronAlgo")
+      << "Blessing electron with E/P " << (*e1)->eSuperClusterOverP()
+      << ", cluster " << (*e1)->superCluster().get()
+      << " & track " << (*e1)->gsfTrack().get()
+			<< std::endl ;
+    outEle.push_back(**e1) ;
+    for( e2 = e1, ++e2 ;  e2 != inEle.end() ; )
+     {
+      if (overlap(**e1,**e2))
+       {
+				LogDebug("GsfElectronAlgo")
+		      << "Discarding electron with E/P " << (*e2)->eSuperClusterOverP()
+		      << ", cluster " << (*e2)->superCluster().get()
+		      << " and track " << (*e2)->gsfTrack().get()
+					<< std::endl ;
+ 			  e2 = inEle.erase(e2) ;
+			 }
+      else
+       { ++e2 ; }
+     }
+   }
+ }
 
-  // fill map of ambiguous electrons
-  for( std::vector<reco::GsfElectron>::const_iterator el1 = tempEle.begin();  el1 != tempEle.end(); el1++ ) {
-    for( std::vector<reco::GsfElectron>::const_iterator el2 = el1+1;  el2 != tempEle.end(); el2++ ) {
-      if((el1->caloEnergy() == el2->caloEnergy() && 
-      	  el1->caloPosition() == el2->caloPosition()) || 
-      	 (el1->gsfTrack()== el2->gsfTrack())) {
-//	std::cout<<"ambigus : "<<el1->eta()<<" "<<el2->eta()
-//	         <<" "<<el1->caloEnergy()<<" "<<el2->caloEnergy()
-//	         <<" "<<el1->gsfTrack()->momentum().rho()<<" "<<el2->gsfTrack()->momentum().rho()
-//	         <<" "<<el1->trackMomentumAtVtx().rho()<<" "<<el2->trackMomentumAtVtx().rho()
-//	         <<" "<<el1->p4().t()<<" "<<el2->p4().t()
-//	         <<" "<<el1->eSuperClusterOverP()<<" "<<el2->eSuperClusterOverP()
-//		 <<std::endl;
-      	ambigus_el.insert(pair<const GsfElectron *,const GsfElectron *>(&(*el1),&(*el2)));
-	ambigus.insert(&(*el1));
-	ambigus.insert(&(*el2));
-      }
-    }
-    set<const reco::GsfElectron *>::iterator it = ambigus.find(& * el1);
-    //    if (it == ambigus.end()) resolved_el_.push_back(& * el1);
-    if (it == ambigus.end()) {
-      resolved_el.insert(&(*el1));
-      outEle.push_back(*el1);
-    }
-  }
 
-  // resolve ambiguities
-  for (map< const reco::GsfElectron *,  const reco::GsfElectron *>::iterator it2= ambigus_el.begin(); it2!=ambigus_el.end();it2++){
-    //cout<<"ambigus = "<<it2->first->eta()<<" "<<it2->second->eta()<<endl;
-    if (fabs(it2->first->eSuperClusterOverP()-1)<= fabs(it2->second->eSuperClusterOverP()-1)){
-      set_const_iterator it= resolved_el.find(it2->first);
-      if (it == resolved_el.end()) {
-	resolved_el.insert(it2->first);
-	outEle.push_back(*it2->first);
-      }
-    }
-    else  {
-      set_const_iterator it= resolved_el.find(it2->second);
-      if (it == resolved_el.end()){
-	resolved_el.insert(it2->second);
-	outEle.push_back(*it2->second);
-
-      }
-    }      
-  }    
-
-}
-
+//=======================================================================================
 // Code from Puneeth Kalavase
+//=======================================================================================
+
 pair<TrackRef,float> GsfElectronAlgo::getCtfTrackRef(const GsfTrackRef& gsfTrackRef, edm::Handle<reco::TrackCollection> ctfTracksH ) {
 
   float maxFracShared = 0;
   TrackRef ctfTrackRef = TrackRef() ;
   const TrackCollection * ctfTrackCollection = ctfTracksH.product() ;
-  
+
   //get the Hit Pattern for the gsfTrack
   const HitPattern& gsfHitPattern = gsfTrackRef->hitPattern();
 
@@ -524,7 +504,7 @@ pair<TrackRef,float> GsfElectronAlgo::getCtfTrackRef(const GsfTrackRef& gsfTrack
     double dPhi = gsfTrackRef->phi() - ctfTkIter->phi();
     double pi = acos(-1.);
     if(fabs(dPhi) > pi) dPhi = 2*pi - fabs(dPhi);
-        
+
     //dont want to look at every single track in the event!
     if(sqrt(dEta*dEta + dPhi*dPhi) > 0.3) continue;
 
@@ -534,7 +514,7 @@ pair<TrackRef,float> GsfElectronAlgo::getCtfTrackRef(const GsfTrackRef& gsfTrack
     int numCtfInnerHits = 0;
     //get the CTF Track Hit Pattern
     const HitPattern& ctfHitPattern = ctfTkIter->hitPattern();
-    
+
     for(trackingRecHit_iterator elHitsIt = gsfTrackRef->recHitsBegin();
         elHitsIt != gsfTrackRef->recHitsEnd(); elHitsIt++, gsfHitCounter++) {
       if(!((**elHitsIt).isValid()))  //count only valid Hits
@@ -542,7 +522,7 @@ pair<TrackRef,float> GsfElectronAlgo::getCtfTrackRef(const GsfTrackRef& gsfTrack
 
       //look only in the pixels/TIB/TID
       uint32_t gsfHit = gsfHitPattern.getHitPattern(gsfHitCounter);
-      if(!(gsfHitPattern.pixelHitFilter(gsfHit) || 
+      if(!(gsfHitPattern.pixelHitFilter(gsfHit) ||
 	   gsfHitPattern.stripTIBHitFilter(gsfHit) ||
 	   gsfHitPattern.stripTIDHitFilter(gsfHit) ) ) continue;
       numGsfInnerHits++;
@@ -564,11 +544,11 @@ pair<TrackRef,float> GsfElectronAlgo::getCtfTrackRef(const GsfTrackRef& gsfTrack
           break;
         }
       }//ctfHits iterator
-          
+
     }//gsfHits iterator
 
     if ( static_cast<float>(shared)/min(numGsfInnerHits,numCtfInnerHits) > maxFracShared ) {
-      maxFracShared = static_cast<float>(shared)/min(numGsfInnerHits, numCtfInnerHits); 
+      maxFracShared = static_cast<float>(shared)/min(numGsfInnerHits, numCtfInnerHits);
       ctfTrackRef = TrackRef(ctfTracksH,counter);
     }
 
