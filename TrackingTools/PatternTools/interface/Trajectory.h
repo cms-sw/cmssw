@@ -203,6 +203,7 @@ public:
   
   void setSeedRef(const edm::RefToBase<TrajectorySeed> & seedRef) { seedRef_ = seedRef ; } 
 
+  TrajectoryStateOnSurface  geometricalInnermostState() const;
 
 private:
 
