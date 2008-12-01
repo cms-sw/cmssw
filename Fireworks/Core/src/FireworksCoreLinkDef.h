@@ -9,7 +9,7 @@
 #include "Fireworks/Core/src/fwCintInterfaces.h"
 #include "Fireworks/Core/interface/FWTextView.h"
 #include "Fireworks/Core/src/CSGConnector.h"
-#include "Fireworks/Core/src/FWIntValueListenerBase.h"
+#include "Fireworks/Core/interface/FWIntValueListenerBase.h"
 #include "Fireworks/Core/src/CmsShowMain.h"
 #include "Fireworks/Core/src/FWGUIEventDataAdder.h"
 #include "Fireworks/Core/src/FWColorSelect.h"

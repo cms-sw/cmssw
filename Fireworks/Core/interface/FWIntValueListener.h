@@ -1,7 +1,7 @@
 #ifndef Fireworks_Core_FWIntValueListener_h
 #define Fireworks_Core_FWIntValueListener_h
 
-#include "FWIntValueListenerBase.h"
+#include "Fireworks/Core/interface/FWIntValueListenerBase.h"
 #include <sigc++/sigc++.h>
 
 class FWIntValueListener : public FWIntValueListenerBase {
