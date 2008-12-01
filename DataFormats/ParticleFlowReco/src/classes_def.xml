@@ -131,7 +131,13 @@
   <class name="edm::reftobase::RefHolder<edm::Ref<std::vector<reco::ConvBremSeed>,reco::ConvBremSeed,edm::refhelper::FindUsingAdvance<std::vector<reco::ConvBremSeed>,reco::ConvBremSeed> > >"/>
   <class name="edm::reftobase::Holder<reco::ConvBremSeed,edm::Ref<std::vector<reco::ConvBremSeed>,reco::ConvBremSeed,edm::refhelper::FindUsingAdvance<std::vector<reco::ConvBremSeed>,reco::ConvBremSeed> > >"/>
 
-
+  <class name="pftools::CalibrationResultWrapper"/>
+  <class name="pftools::Calibratable" />
+  <class name="pftools::CalibratableElement" />
+  <class name="pftools::CandidateWrapper" />
+  <class name="std::vector<pftools::CalibratableElement>" />
+  <class name="std::vector<pftools::CandidateWrapper>" />
+  <class name="std::vector<pftools::CalibrationResultWrapper> "/>
 
 
 </selection>

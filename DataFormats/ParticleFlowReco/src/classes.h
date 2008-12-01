@@ -38,6 +38,11 @@
 #include "DataFormats/ParticleFlowReco/interface/PFV0.h"
 #include "DataFormats/ParticleFlowReco/interface/ConvBremSeed.h"
 #include "DataFormats/ParticleFlowReco/interface/ConvBremSeedFwd.h"
+//Includes by Jamie
+#include "DataFormats/ParticleFlowReco/interface/Calibratable.h"
+#include "DataFormats/ParticleFlowReco/interface/CalibrationResultWrapper.h"
+#include "DataFormats/ParticleFlowReco/interface/CalibrationProvenance.h"
+
 namespace { 
   struct dictionary {
 
@@ -115,6 +120,14 @@ namespace {
     edm::reftobase::Holder< reco::ConvBremSeed, edm::Ref<reco::ConvBremSeedCollection> > dummy46;
     edm::reftobase::RefHolder< edm::Ref<reco::ConvBremSeedCollection> > dummy47;
 
+    /* Calibratable bits */
+    pftools::Calibratable dummy50;
+    std::vector<pftools::Calibratable> dummy51;
+    pftools::CalibrationResultWrapper dummy52;
+    pftools::CalibratableElement dummy53;
+    pftools::CandidateWrapper dumm54;
+    std::vector<pftools::CalibratableElement> dummy55;
+    std::vector<pftools::CandidateWrapper> dummy56;
 
   };
 }
