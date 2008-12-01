@@ -426,7 +426,8 @@ myFilter::filter(edm::Event& evt, edm::EventSetup const& es) {
   if (filter_NRBX)         _passNRBX++;
   if (filter_HLT)          _passHLT++;
 
-  return result;
+  //  return result;
+  return false;
 }
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(myFilter);

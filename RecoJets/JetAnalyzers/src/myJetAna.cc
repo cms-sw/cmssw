@@ -237,6 +237,18 @@ void myJetAna::beginJob( const EventSetup & ) {
   h_EmEnergy   = fs->make<TH2F>( "EmEnergy",  "Em Energy",  90, -45, 45, 73, 0, 73 );
   h_HadEnergy  = fs->make<TH2F>( "HadEnergy", "Had Energy", 90, -45, 45, 73, 0, 73 );
 
+  st_Pt            = fs->make<TH1F>( "st_Pt", "Pt", 200, 0, 200 );
+  st_Constituents  = fs->make<TH1F>( "st_Constituents", "Constituents", 200, 0, 200 );
+  st_Energy        = fs->make<TH1F>( "st_Energy", "Tower Energy", 200, 0, 200 );
+  st_EmEnergy      = fs->make<TH1F>( "st_EmEnergy", "Tower EmEnergy", 200, 0, 200 );
+  st_HadEnergy     = fs->make<TH1F>( "st_HadEnergy", "Tower HadEnergy", 200, 0, 200 );
+  st_OuterEnergy   = fs->make<TH1F>( "st_OuterEnergy", "Tower OuterEnergy", 200, 0, 200 );
+  st_Eta           = fs->make<TH1F>( "st_Eta", "Eta", 100, -4, 4 );
+  st_Phi           = fs->make<TH1F>( "st_Phi", "Phi", 50, -M_PI, M_PI );
+  st_iEta          = fs->make<TH1F>( "st_iEta", "iEta", 60, -30, 30 );
+  st_iPhi          = fs->make<TH1F>( "st_iPhi", "iPhi", 80, 0, 80 );
+  st_Frac          = fs->make<TH1F>( "st_Frac", "Frac", 100, 0, 1 );
+
 }
 
 // ************************
@@ -823,6 +835,7 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
   for ( CaloJetCollection::const_iterator ijet=caloJets->begin(); ijet!=caloJets->end(); ijet++) {
 
     Double_t jetPt  = ijet->pt();
+    Double_t jetEta = ijet->eta();
     Double_t jetPhi = ijet->phi();
 
     //    if (jetPt>5.0) {
@@ -836,12 +849,59 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
       const std::vector<CaloTowerPtr> jetCaloRefs = ijet->getCaloConstituents();
       int nConstituents = jetCaloRefs.size();
       for (int i = 0; i <nConstituents ; i++){
+	
         UsedTowerList.push_back(jetCaloRefs[i]);
       }
-
+      
       SumPtJet +=jetPt;
 
     //    }
+
+      if ( (jetPt>80.0) && (fabs(jetEta) < 1.3) ){
+	st_Pt->Fill( jetPt );
+	int nConstituents = ijet->getCaloConstituents().size();
+	st_Constituents->Fill( nConstituents );
+	
+	float maxEne = 0.;
+	float totEne = 0.;
+	  
+	for(unsigned twr=0; twr<ijet->getCaloConstituents().size(); ++twr){
+	  CaloTowerPtr tower = (ijet->getCaloConstituents())[twr];
+	  //	  CaloTowerDetId id = tower->id();     
+	  if( tower->et()>0. ){
+
+	    if (tower->energy() > maxEne) maxEne = tower->energy();
+	    totEne += tower->energy();
+
+	    st_Energy->Fill( tower->energy() );
+	    st_EmEnergy->Fill( tower->emEnergy() );
+	    st_HadEnergy->Fill( tower->hadEnergy() );
+	    st_OuterEnergy->Fill( tower->outerEnergy() );
+
+	    st_Eta->Fill( tower->eta() );
+	    st_Phi->Fill( tower->phi() );
+
+	    st_iEta->Fill( tower->ieta() );
+	    st_iPhi->Fill( tower->iphi() );
+
+	    std::cout << ">>> Towers :  " 
+		      << " " << tower->energy() 
+		      << " " << tower->emEnergy()
+		      << " " << tower->hadEnergy()
+		      << " " << tower->outerEnergy()
+		      << " " << tower->et()
+		      << " " << tower->emEt() 
+		      << " " << tower->hadEt() 
+		      << " " << tower->outerEt() 
+		      << " " << tower->eta() 
+		      << " " << tower->phi() 	    
+		      << std::endl;
+	  
+	  }
+	}
+	st_Frac->Fill( maxEne / totEne );
+
+      }
 
   }
 

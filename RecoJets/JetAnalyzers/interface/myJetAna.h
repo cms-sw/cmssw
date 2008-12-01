@@ -189,6 +189,18 @@ private:
   TH2F *h_EmEnergy;
   TH2F *h_HadEnergy;
 
+  TH1F *st_Pt;
+  TH1F *st_Constituents;
+  TH1F *st_Energy;
+  TH1F *st_EmEnergy;
+  TH1F *st_HadEnergy;
+  TH1F *st_OuterEnergy;
+  TH1F *st_Eta;
+  TH1F *st_Phi;
+  TH1F *st_iEta;
+  TH1F *st_iPhi;
+  TH1F *st_Frac;
+
 };
 
 #endif
