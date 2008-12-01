@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.47 2008/12/01 12:27:37 dmytro Exp $
+// $Id: CmsShowMain.cc,v 1.48 2008/12/01 15:51:06 amraktad Exp $
 //
 
 // system include files
@@ -65,6 +65,7 @@
 #include "Fireworks/Core/interface/MuonPUViewManager.h"
 #include "Fireworks/Core/interface/FWPhysicsObjectDesc.h"
 #include "Fireworks/Core/interface/ElectronDetailView.h"
+#include "Fireworks/Core/interface/PhotonDetailView.h"
 #include "Fireworks/Core/interface/TrackDetailView.h"
 #include "Fireworks/Core/interface/MuonDetailView.h"
 #include "Fireworks/Core/interface/GenParticleDetailView.h"
@@ -719,6 +720,7 @@ CmsShowMain::setupDetailedViewManagers()
   m_guiManager->updateStatus("Setting up detailed views...");
    // register detail viewers
    registerDetailView("Electrons", new ElectronDetailView);
+   registerDetailView("Photons", new PhotonDetailView);
    registerDetailView("Muons", new MuonDetailView);
    registerDetailView("Tracks", new TrackDetailView);
    registerDetailView("GenParticles", new GenParticleDetailView);
