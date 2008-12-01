@@ -20,31 +20,39 @@ hcalMonitor = cms.EDFilter("HcalMonitorModule",
                            checkHB = cms.untracked.bool(True),
                            checkHO = cms.untracked.bool(True),
 
+                           MonitorDaemon = cms.untracked.bool(True),
+                           HcalAnalysis = cms.untracked.bool(False),
+                           HotCells = cms.untracked.vstring(),
+                           checkNevents = cms.untracked.int32(250),
+                           
                            #minimum Error Rate that will cause problem histograms to be filled.  Should normally be 0, or close to it?
                            minErrorFlag = cms.untracked.double(0.05), 
 
                            # Turn on/off timing diagnostic info
-                           showTiming          = cms.untracked.bool(False),
-                           dump2database       = cms.untracked.bool(False),
-                           # Make expert-level diagnostic plots (enabling this may drastically slow code!)
-                           MakeDiagnosticPlots = cms.untracked.bool(False),
+                            diagnosticPrescaleLS = cms.untracked.int32(-1),
+                           diagnosticPrescaleEvt = cms.untracked.int32(-1),
+                           diagnosticPrescaleTime = cms.untracked.int32(-1),
+                           diagnosticPrescaleUpdate = cms.untracked.int32(-1),
 
+                           showTiming          = cms.untracked.bool(False), # shows time taken by each process
+                           dump2database       = cms.untracked.bool(False), # dumps channel status to text file
+                           # Make expert-level diagnostic plots (enabling this may drastically slow code!)
+                           makeDiagnosticPlots = cms.untracked.bool(False),
+
+                           # Specify Pedestal Units
                            pedestalsInFC                               = cms.untracked.bool(False),
-                           DumpThreshold = cms.untracked.double(500.0),
-                           thresholds = cms.untracked.vdouble(15.0, 5.0, 2.0, 1.5, 1.0),
-                           coolcellfrac = cms.untracked.double(0.5),
-                           hoRecHitLabel = cms.InputTag("horeco"),
-                           DigiMonitor = cms.untracked.bool(True),
+                           # Specify Digis
                            digiLabel = cms.InputTag("hcalDigis"),
+                           #Specify RecHits
+                           hbheRecHitLabel = cms.InputTag("hbhereco"),
+                           hoRecHitLabel = cms.InputTag("horeco"),
                            hfRecHitLabel = cms.InputTag("hfreco"),
                            zdcRecHitLabel = cms.InputTag("zdcreco"),                           
                            hcalLaserLabel = cms.InputTag("hcalLaserReco"),                       
-                           DumpPhiLow = cms.untracked.int32(10),
-                           DigiOccThresh = cms.untracked.int32(0),
-                           RecHitsPerChannel = cms.untracked.bool(False),
 
                            # PEDESTAL MONITOR
                            PedestalMonitor                              = cms.untracked.bool(True),
+                           # Add in a make diagnostic plot variable here somewhere?  Peds don't currently have diagnostic plots
                            PedestalMonitor_pedestalsPerChannel          = cms.untracked.bool(True), # not used
                            PedestalMonitor_pedestalsInFC                = cms.untracked.bool(False),
                            PedestalMonitor_nominalPedMeanInADC          = cms.untracked.double(3.),
@@ -205,59 +213,69 @@ hcalMonitor = cms.EDFilter("HcalMonitorModule",
                            HotCellMonitor_HF_neighbor_HotEnergyFrac       = cms.untracked.double(.02),
                            
                            HotCellMonitor_minErrorFlag                    = cms.untracked.double(0.05),
-                           
+
+                           # DIGI MONITOR
+                           DigiMonitor = cms.untracked.bool(True),
+                           # Will deprecate these with new version of digi monitor
+                           MakeDigiDiagnosticPlots = cms.untracked.bool(False),
+                           HBcheckNevents = cms.untracked.int32(250),
+                           HEcheckNevents = cms.untracked.int32(250),
+                           HOcheckNevents = cms.untracked.int32(1000),
+                           HFcheckNevents = cms.untracked.int32(250),
+                           DigisPerChannel = cms.untracked.bool(False),
+                           DigiOccThresh = cms.untracked.int32(0),
+
                            # RECHIT MONITOR
                            RecHitMonitor                                  = cms.untracked.bool(True),
                            RecHitMonitor_checkNevents                     = cms.untracked.int32(500),
                            RecHitMonitor_minErrorFlag                     = cms.untracked.double(0.),
+                           RecHitMonitor_makeDiagnosticPlots              = cms.untracked.bool(False),
                            RecHitMonitor_energyThreshold                  = cms.untracked.double(2.),
                            RecHitMonitor_HB_energyThreshold               = cms.untracked.double(2.),
                            RecHitMonitor_HO_energyThreshold               = cms.untracked.double(2.),
                            RecHitMonitor_HE_energyThreshold               = cms.untracked.double(2.),
                            RecHitMonitor_HF_energyThreshold               = cms.untracked.double(2.),
                            RecHitMonitor_ZDC_energyThreshold              = cms.untracked.double(2.),
+                           
+                           # BEAM MONITOR
+                           BeamMonitor                                    = cms.untracked.bool(True),
+                           BeamMonitor_checkNevents                       = cms.untracked.int32(500),
+                           BeamMonitor_minErrorFlag                       = cms.untracked.double(0.),
+                           BeamMonitor_makeDiagnosticPlots                = cms.untracked.bool(False),
 
-                           diagnosticPrescaleLS = cms.untracked.int32(-1),
-                           MakeDigiDiagnosticPlots = cms.untracked.bool(False),
-                           CaloTowerMonitor = cms.untracked.bool(False),
-                           BeamMonitor = cms.untracked.bool(True),
-                           ExpertMonitor = cms.untracked.bool(False),
+                           # DATA FORMAT MONITOR
+                           DataFormatMonitor = cms.untracked.bool(True),
+                           dfPrtLvl = cms.untracked.int32(0), # this seems similar to the debug int we have; deprecate this?
 
-                           MonitorDaemon = cms.untracked.bool(True),
-                           caloTowerLabel = cms.InputTag("towerMaker"),
-                           MTCCMonitor = cms.untracked.bool(False),
-                           HcalAnalysis = cms.untracked.bool(False),
-                           DumpEtaHigh = cms.untracked.int32(10),
-                           DigisPerChannel = cms.untracked.bool(False),
+                           # DATA INTEGRITY TASK
+                           DataIntegrityTask = cms.untracked.bool(False),
+
+                           # TRIG PRIM MONITOR
+                           TrigPrimMonitor = cms.untracked.bool(True),
+                           gtLabel = cms.InputTag("l1GtUnpack"),
+
+                           # LED MONITOR
+                           LEDMonitor = cms.untracked.bool(True),
                            LED_ADC_Thresh = cms.untracked.double(-1000.0),
-                           diagnosticPrescaleTime = cms.untracked.int32(-1),
                            LEDPerChannel = cms.untracked.bool(True),
 
-                           hbheRecHitLabel = cms.InputTag("hbhereco"),
-                           DataFormatMonitor = cms.untracked.bool(True),
-                           DataIntegrityTask = cms.untracked.bool(False),
-                           minADCcount = cms.untracked.double(0.0),
+                           # ------------- DEPRECATED/UNUSED MONITORS ----------------------- #
+                           # EXPERT MONITOR (should generally be turned off)
+                           ExpertMonitor = cms.untracked.bool(False),
 
-                           makeSubdetHistos= cms.untracked.bool(True),
-                           HotCells = cms.untracked.vstring(),
-                           diagnosticPrescaleEvt = cms.untracked.int32(-1),
-                           DumpPhiHigh = cms.untracked.int32(10),
-                           gtLabel = cms.InputTag("l1GtUnpack"),
-                           DumpEtaLow = cms.untracked.int32(0),
-                           TrigPrimMonitor = cms.untracked.bool(True),
+                           # CALO TOWER MONITOR
+                           CaloTowerMonitor = cms.untracked.bool(False),
+                           caloTowerLabel = cms.InputTag("towerMaker"),
 
-                           checkNevents = cms.untracked.int32(250),
-                           # Will deprecate these with new version of digi monitor
-                           HBcheckNevents = cms.untracked.int32(250),
-                           HEcheckNevents = cms.untracked.int32(250),
-                           HOcheckNevents = cms.untracked.int32(1000),
-                           HFcheckNevents = cms.untracked.int32(250),
-                           
-                           diagnosticPrescaleUpdate = cms.untracked.int32(-1),
-                           
+                           # MTCC MONITOR
+                           MTCCMonitor = cms.untracked.bool(False),
                            MTCCOccThresh = cms.untracked.double(10.0),
-                           LEDMonitor = cms.untracked.bool(True),
-                           dfPrtLvl = cms.untracked.int32(0)
+                           DumpPhiLow = cms.untracked.int32(10),
+                           DumpPhiHigh = cms.untracked.int32(10),
+                           DumpEtaLow = cms.untracked.int32(0),
+                           DumpEtaHigh = cms.untracked.int32(10),
+                           DumpThreshold = cms.untracked.double(500.0),
+                           # --------------------------------------------------------------- #
                            )
 
 
@@ -275,8 +293,9 @@ def setHcalTaskValues(process):
     process.PedestalMonitor_minErrorFlag = minErrorFlag
     process.DeadCellMonitor_minErrorFlag = minErrorFlag
     process.HotCellMonitor_minErrorFlag  = minErrorFlag
-    process.RecHitMonitor_minErrorFlag  = minErrorFlag
-    
+    process.RecHitMonitor_minErrorFlag   = minErrorFlag
+    process.BeamMonitor_minErrorFlag     = minErrorFlag
+
     # set checkNevents
     checkNevents = deepcopy(process.checkNevents)
     process.PedestalMonitor_checkNevents                  = checkNevents
@@ -292,7 +311,7 @@ def setHcalTaskValues(process):
     process.HotCellMonitor_checkNevents_neighbor          = checkNevents
     process.HotCellMonitor_checkNevents_energy            = checkNevents
     process.RecHitMonitor_checkNevents                    = checkNevents
-
+    process.BeamMonitor_checkNevents                      = checkNevents
 
     # set pedestalsInFC
     pedestalsInFC = deepcopy(process.pedestalsInFC)
@@ -301,10 +320,11 @@ def setHcalTaskValues(process):
     process.HotCellMonitor_pedestalsInFC  = pedestalsInFC
 
     # set makeDiagnoticPlots
-    makeDiagnosticPlots                         = deepcopy(process.MakeDiagnosticPlots)
+    makeDiagnosticPlots                         = deepcopy(process.makeDiagnosticPlots)
     process.DeadCellMonitor_makeDiagnosticPlots = makeDiagnosticPlots
     process.HotCellMonitor_makeDiagnosticPlots  = makeDiagnosticPlots
     process.RecHitMonitor_makeDiagnosticPlots   = makeDiagnosticPlots
+    process.BeamMonitor_makeDiagnosticPlots     = makeDiagnosticPlots
     return
 
 
