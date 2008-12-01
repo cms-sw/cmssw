@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Nov 26 14:52:01 EST 2008
-// $Id: FWElectronRPZProxyBuilder.cc,v 1.1 2008/11/27 00:47:07 chrjones Exp $
+// $Id: FWElectronRPZProxyBuilder.cc,v 1.3 2008/11/29 03:01:47 dmytro Exp $
 //
 
 // system include files
@@ -106,6 +106,8 @@ void
 FWElectronRPZProxyBuilder::buildRhoPhi(const reco::GsfElectron& iData, unsigned int iIndex,TEveElement& oItemHolder) const
 {
    if ( iData.superCluster().isAvailable() ) {
+      TEveGeoManagerHolder gmgr(TEveGeoShape::GetGeoMangeur());
+
       std::vector<DetId> detids = iData.superCluster()->getHitsByDetId();
       std::vector<double> phis;
       for (std::vector<DetId>::const_iterator id = detids.begin(); id != detids.end(); ++id) {
@@ -133,6 +135,8 @@ FWElectronRPZProxyBuilder::buildRhoPhi(const reco::GsfElectron& iData, unsigned 
 void 
 FWElectronRPZProxyBuilder::buildRhoZ(const reco::GsfElectron& iData, unsigned int iIndex,TEveElement& oItemHolder) const
 {
+   TEveGeoManagerHolder gmgr(TEveGeoShape::GetGeoMangeur());
+
    if ( iData.superCluster().isAvailable() ) {
       double theta_max = 0;
       double theta_min = 10;
