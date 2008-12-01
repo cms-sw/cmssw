@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWGlimpseView.cc,v 1.19 2008/11/06 22:05:25 amraktad Exp $
+// $Id: FWGlimpseView.cc,v 1.20 2008/11/10 18:07:57 amraktad Exp $
 //
 
 // system include files
@@ -238,7 +238,7 @@ FWGlimpseView::setFrom(const FWConfiguration& iFrom)
    for ( unsigned int i = 0; i < 16; ++i ){
       std::ostringstream os;
       os << i;
-      const FWConfiguration* value = iFrom.valueForKey( matrixName + os.str() + "Lego" );
+      const FWConfiguration* value = iFrom.valueForKey( matrixName + os.str() + "Glimpse" );
       assert( value );
       std::istringstream s(value->value());
       s>>((*m_cameraMatrix)[i]);
@@ -250,7 +250,7 @@ FWGlimpseView::setFrom(const FWConfiguration& iFrom)
    for ( unsigned int i = 0; i < 16; ++i ){
       std::ostringstream os;
       os << i;
-      const FWConfiguration* value = iFrom.valueForKey( matrixName + os.str() + "Lego" );
+      const FWConfiguration* value = iFrom.valueForKey( matrixName + os.str() + "Glimpse" );
       assert( value );
       std::istringstream s(value->value());
       s>>((*m_cameraMatrixBase)[i]);
@@ -297,7 +297,7 @@ FWGlimpseView::addTo(FWConfiguration& iTo) const
       osIndex << i;
       std::ostringstream osValue;
       osValue << (*m_cameraMatrix)[i];
-      iTo.addKeyValue(matrixName+osIndex.str()+"Lego",FWConfiguration(osValue.str()));
+      iTo.addKeyValue(matrixName+osIndex.str()+"Glimpse",FWConfiguration(osValue.str()));
    }
 
    // transformation matrix base
@@ -308,7 +308,7 @@ FWGlimpseView::addTo(FWConfiguration& iTo) const
       osIndex << i;
       std::ostringstream osValue;
       osValue << (*m_cameraMatrixBase)[i];
-      iTo.addKeyValue(matrixName+osIndex.str()+"Lego",FWConfiguration(osValue.str()));
+      iTo.addKeyValue(matrixName+osIndex.str()+"Glimpse",FWConfiguration(osValue.str()));
    }
      {
 	assert ( m_cameraFOV );
