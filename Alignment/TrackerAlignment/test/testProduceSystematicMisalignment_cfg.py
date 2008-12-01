@@ -36,30 +36,9 @@ process.trackerGeom = cms.ESSource("PoolDBESSource",
 										
 											
 # input
-process.misalign = cms.EDAnalyzer("TrackerSystematicMisalignments",
-								  # grab an existing geometry
-								  fromDBGeom = cms.untracked.bool(True),
-								  # flags	
-								  radialFlag = cms.untracked.bool(True),
-								  telescopeFlag = cms.untracked.bool(False),
-								  layerRotFlag = cms.untracked.bool(False),
-								  bowingFlag = cms.untracked.bool(False),
-								  zExpFlag = cms.untracked.bool(False),
-								  twistFlag = cms.untracked.bool(False),	
-								  ellipticalFlag = cms.untracked.bool(False),
-								  skewFlag = cms.untracked.bool(False),
-								  saggitaFlag = cms.untracked.bool(False),
-								  #epsilons
-								  radialEpsilon = cms.untracked.double(5e-3), # default 5e-4 ~ 600 um
-								  telescopeEpsilon = cms.untracked.double(1e-2), # default 5e-4 ~ 600 um
-								  layerRotEpsilon = cms.untracked.double(9.43e-5), # 9.43e-6
-								  bowingEpsilon = cms.untracked.double(9e-8), #6.77e-9
-								  zExpEpsilon = cms.untracked.double(5e-3), # 2.02e-4
-								  twistEpsilon = cms.untracked.double(2e-5),	# 2.04e-6
-								  ellipticalEpsilon = cms.untracked.double(5e-3), # 5e-4
-								  skewEpsilon = cms.untracked.double(5.5e-1), # 5.5e-2
-								  saggitaEpsilon = cms.untracked.double(5.0e-3) #5.0e-4
-								  )
+process.load("Alignment.TrackerAlignment.TrackerSystematicMisalignments_cfi")
+process.TrackerSystematicMisalignments.fromDBGeom = True
+process.TrackerSystematicMisalignments.radialEpsilon = 5e-4 # default 5e-4 ~ 600 um
 	
 # output
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
@@ -75,6 +54,6 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
 										  connect = cms.string('sqlite_file:test.db')
 )
 
-process.p = cms.Path( process.misalign )
+process.p = cms.Path( process.TrackerSystematicMisalignments )
 
 

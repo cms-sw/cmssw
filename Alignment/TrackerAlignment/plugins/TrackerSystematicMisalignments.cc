@@ -31,17 +31,6 @@ TrackerSystematicMisalignments::TrackerSystematicMisalignments(const edm::Parame
 	// use existing geometry
 	m_fromDBGeom = cfg.getUntrackedParameter< bool > ("fromDBGeom");
 	
-	// flags
-	m_radialFlag = cfg.getUntrackedParameter< bool > ("radialFlag");
-	m_telescopeFlag = cfg.getUntrackedParameter< bool > ("telescopeFlag");
-	m_layerRotFlag = cfg.getUntrackedParameter< bool > ("layerRotFlag");
-	m_bowingFlag = cfg.getUntrackedParameter< bool > ("bowingFlag");
-	m_zExpFlag = cfg.getUntrackedParameter< bool > ("zExpFlag");
-	m_twistFlag = cfg.getUntrackedParameter< bool > ("twistFlag");
-	m_ellipticalFlag = cfg.getUntrackedParameter< bool > ("ellipticalFlag");
-	m_skewFlag = cfg.getUntrackedParameter< bool > ("skewFlag");
-	m_saggitaFlag = cfg.getUntrackedParameter< bool > ("saggitaFlag");
-	
 	// constants
 	m_radialEpsilon = cfg.getUntrackedParameter< double > ("radialEpsilon");
 	m_telescopeEpsilon = cfg.getUntrackedParameter< double > ("telescopeEpsilon");
@@ -53,31 +42,31 @@ TrackerSystematicMisalignments::TrackerSystematicMisalignments(const edm::Parame
 	m_skewEpsilon = cfg.getUntrackedParameter< double > ("skewEpsilon");
 	m_saggitaEpsilon = cfg.getUntrackedParameter< double > ("saggitaEpsilon");
 	
-	if (m_radialFlag){
+	if (m_radialEpsilon > -990.0){
 		edm::LogWarning("MisalignedTracker") << "Applying radial ...";		
 	}
-	if (m_telescopeFlag){
+	if (m_telescopeEpsilon > -990.0){
 		edm::LogWarning("MisalignedTracker") << "Applying telescope ...";		
 	}
-	if (m_layerRotFlag){
+	if (m_layerRotEpsilon > -990.0){
 		edm::LogWarning("MisalignedTracker") << "Applying layer rotation ...";		
 	}
-	if (m_bowingFlag){
+	if (m_bowingEpsilon > -990.0){
 		edm::LogWarning("MisalignedTracker") << "Applying bowing ...";		
 	}
-	if (m_zExpFlag){
+	if (m_zExpEpsilon > -990.0){
 		edm::LogWarning("MisalignedTracker") << "Applying z-expansion ...";		
 	}
-	if (m_twistFlag){
+	if (m_twistEpsilon > -990.0){
 		edm::LogWarning("MisalignedTracker") << "Applying twist ...";		
 	}
-	if (m_ellipticalFlag){
+	if (m_ellipticalEpsilon > -990.0){
 		edm::LogWarning("MisalignedTracker") << "Applying elliptical ...";		
 	}
-	if (m_skewFlag){
+	if (m_skewEpsilon > -990.0){
 		edm::LogWarning("MisalignedTracker") << "Applying skew ...";		
 	}
-	if (m_saggitaFlag){
+	if (m_saggitaEpsilon > -990.0){
 		edm::LogWarning("MisalignedTracker") << "Applying saggita ...";		
 	}
 	
@@ -85,15 +74,12 @@ TrackerSystematicMisalignments::TrackerSystematicMisalignments(const edm::Parame
 
 void TrackerSystematicMisalignments::beginJob(const edm::EventSetup& setup)
 {
-	std::cout << "IN BEGIN JOB" << std::endl;
-	
-	
+		
 }
 
 
 void TrackerSystematicMisalignments::analyze(const edm::Event& event, const edm::EventSetup& setup){
 	
-	std::cout << "IN ANALYZE" << std::endl;
 	
 	edm::ESHandle<GeometricDet>  geom;
 	setup.get<IdealGeometryRecord>().get(geom);	 
@@ -179,40 +165,40 @@ align::GlobalVector TrackerSystematicMisalignments::findSystematicMis( align::Po
 	double oldPhi = globalPos.phi();
 	double oldR = sqrt(globalPos.x()*globalPos.x() + globalPos.y()*globalPos.y());
 	
-	if (m_radialFlag){
+	if (m_radialEpsilon > -990.0){
 		newX += m_radialEpsilon*oldX;
 		newY += m_radialEpsilon*oldY;
 	}
-	if (m_telescopeFlag){
+	if (m_telescopeEpsilon > -990.0){
 		newZ += m_telescopeEpsilon*oldR;
 	}
-	if (m_layerRotFlag){
+	if (m_layerRotEpsilon > -990.0){
 		double xP = oldR*cos(oldPhi+m_layerRotEpsilon*(oldR-57.0));
 		double yP = oldR*sin(oldPhi+m_layerRotEpsilon*(oldR-57.0));
 		newX += (xP - oldX);
 		newY += (yP - oldY);
 	}
-	if (m_bowingFlag){
+	if (m_bowingEpsilon > -990.0){
 		newX += oldX*m_bowingEpsilon*(271.846*271.846-oldZ*oldZ);
 		newY += oldY*m_bowingEpsilon*(271.846*271.846-oldZ*oldZ);
 	}
-	if (m_zExpFlag){
+	if (m_zExpEpsilon > -990.0){
 		newZ += oldZ*m_zExpEpsilon;
 	}
-	if (m_twistFlag){
+	if (m_twistEpsilon > -990.0){
 		double xP = oldR*cos(oldPhi+m_twistEpsilon*oldZ);
 		double yP = oldR*sin(oldPhi+m_twistEpsilon*oldZ);
 		newX += (xP - oldX);
 		newY += (yP - oldY);
 	}
-	if (m_ellipticalFlag){
+	if (m_ellipticalEpsilon > -990.0){
 		newX += oldX*m_ellipticalEpsilon*cos(2.0*oldPhi);
 		newY += oldY*m_ellipticalEpsilon*cos(2.0*oldPhi);
 	}
-	if (m_skewFlag){
+	if (m_skewEpsilon > -990.0){
 		newZ += m_skewEpsilon*cos(oldPhi);
 	}
-	if (m_saggitaFlag){
+	if (m_saggitaEpsilon > -990.0){
 		// newX += oldX/fabs(oldX)*m_saggitaEpsilon; // old one...
 		newY += oldR*m_saggitaEpsilon;
 	}

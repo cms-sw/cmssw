@@ -5,8 +5,8 @@
  *
  *  Class to misaligned tracker from DB.
  *
- *  $Date: 2007/10/08 16:38:04 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/12/01 14:58:07 $
+ *  $Revision: 1.1 $
  *  \author Chung Khim Lae
  */
 // user include files
@@ -46,16 +46,6 @@ private:
 	
 	// configurables needed for the systematic misalignment
 	bool m_fromDBGeom;
-	
-	bool m_radialFlag;
-	bool m_telescopeFlag;
-	bool m_layerRotFlag;
-	bool m_bowingFlag;
-	bool m_zExpFlag;
-	bool m_twistFlag;
-	bool m_ellipticalFlag;
-	bool m_skewFlag;
-	bool m_saggitaFlag;
 	
 	double m_radialEpsilon;
 	double m_telescopeEpsilon;
