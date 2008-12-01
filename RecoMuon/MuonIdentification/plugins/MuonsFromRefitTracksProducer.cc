@@ -3,7 +3,7 @@
   \brief    Replaces the kinematic information in the input muons with those of the chosen refit tracks.
 
   \author   Jordan Tucker
-  \version  $Id$
+  \version  $Id: MuonsFromRefitTracksProducer.cc,v 1.1 2008/11/26 21:37:29 tucker Exp $
 */
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -126,7 +126,7 @@ Muon* MuonsFromRefitTracksProducer::cloneAndSwitchTrack(const Muon& muon,
 
 void MuonsFromRefitTracksProducer::produce(Event& event, const EventSetup& eSetup) {
   // Get the global muons from the event.
-  Handle<MuonCollection> muons;
+  Handle<View<Muon> > muons;
   event.getByLabel(src, muons);
 
   // If we can't get the global muon collection, or below the
@@ -146,7 +146,7 @@ void MuonsFromRefitTracksProducer::produce(Event& event, const EventSetup& eSetu
   auto_ptr<MuonCollection> cands(new MuonCollection);
 
   if (ok) {
-    MuonCollection::const_iterator muon;
+    View<Muon>::const_iterator muon;
     for (muon = muons->begin(); muon != muons->end(); muon++) {
       if (!muon->isGlobalMuon()) continue;
 
