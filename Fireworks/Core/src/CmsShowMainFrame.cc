@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:23 CDT 2008
-// $Id: CmsShowMainFrame.cc,v 1.25 2008/11/28 22:26:05 amraktad Exp $
+// $Id: CmsShowMainFrame.cc,v 1.26 2008/12/01 15:51:06 amraktad Exp $
 //
 
 // system include files
@@ -117,8 +117,8 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    playEventsBack->setToolTip("Play events backwards");
 
    TGMenuBar *menuBar = new TGMenuBar(this, this->GetWidth(), 14);
-   menuBar->SetBackgroundColor(backgroundColor);
-   menuBar->SetForegroundColor(textColor);
+
+  
 
    TGPopupMenu *fileMenu = new TGPopupMenu(gClient->GetRoot());
    menuBar->AddPopup("File", fileMenu, new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 0, 0));
@@ -186,6 +186,13 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    menuBar->AddPopup("Help", helpMenu, new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 0, 0));
    help->createMenuEntry(helpMenu);
    keyboardShort->createMenuEntry(helpMenu);
+
+   // colors
+   menuBar->SetBackgroundColor(backgroundColor);
+   TIter next(menuBar->GetTitles());
+   TGMenuTitle *title;
+   while ((title = (TGMenuTitle *)next())) 
+      title->SetTextColor(textColor);
 
    AddFrame(menuBar, new TGLayoutHints(kLHintsExpandX, 0, 0, 0, 0));
 
@@ -256,7 +263,6 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
 
    /**************************************************************************/
 
-
    TGHorizontalFrame* sliderFrame = new TGHorizontalFrame(controlFrame, 10, 10, 0, backgroundColor);
    TImage *imgSld  = TImage::Open(coreIcondir+"slider-bg-down.png");
    sliderFrame->SetBackgroundPixmap(imgSld->GetPixmap());
@@ -268,7 +274,7 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    
    /**************************************************************************/
    // delay label
-   TGVerticalFrame* delayFrame = new TGVerticalFrame(fullbar, 10, 10, 0, 0x2f2f2f);
+   TGVerticalFrame* delayFrame = new TGVerticalFrame(fullbar, 60, 10, 0, 0x2f2f2f);
    TGLabel *label = new TGLabel(delayFrame, "Delay");
    label->SetTextJustify(kTextCenterX);
    label->SetTextColor(0xb3b3b3);
@@ -276,7 +282,7 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    delayFrame->AddFrame(label, new TGLayoutHints(kLHintsTop | kLHintsCenterX, 0, 0, 35, 0));
    m_delaySlider->createLabel(delayFrame, "0.0s", 0xffffff, backgroundColor,  new TGLayoutHints(kLHintsTop | kLHintsCenterX, 0, 0, 0, 0));
 
-   fullbar->AddFrame(delayFrame, new TGLayoutHints(kLHintsTop | kLHintsExpandY | kLHintsLeft, 0, 0, 0, 0));
+   fullbar->AddFrame(delayFrame, new TGLayoutHints(kLHintsTop | kFixedSize, 0, 0, 0, 0));
 
    /**************************************************************************/
    // text/num entries

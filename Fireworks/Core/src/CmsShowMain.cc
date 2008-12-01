@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.48 2008/12/01 15:51:06 amraktad Exp $
+// $Id: CmsShowMain.cc,v 1.49 2008/12/01 17:08:58 jmuelmen Exp $
 //
 
 // system include files
@@ -771,7 +771,7 @@ CmsShowMain::setupDataHandling()
    if (CSGAction* action = m_guiManager->getAction("Play Delay"))
    {
      action->getSlider()->SetPosition(m_playDelay);
-     action->getLabel()->SetText(Form("%.1f", m_playDelay*0.001));
+     action->getLabel()->SetText(Form(" %.1fs ", m_playDelay*0.001));
      action->activated.connect(boost::bind(&CmsShowMain::setPlayDelay,this, action));     
    }
 
@@ -797,7 +797,7 @@ void
 CmsShowMain::setPlayDelay(CSGAction* action)
 {
   m_playDelay = action->getSlider()->GetPosition();
-  action->getLabel()->SetText(Form("%.1f", m_playDelay*0.001));
+  action->getLabel()->SetText(Form("%.1fs", m_playDelay*0.001));
   m_playTimer->Reset();
   m_playTimer->SetTime(m_playDelay);
 }
