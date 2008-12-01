@@ -423,7 +423,8 @@ HCALResponse::responseHCAL(int mip, double energy, double eta, int partype)
 
   // e/gamma
   if(partype == 0) {
-    ieta -=  maxHDeta;  // HF starts at eta=3, but resp.vector from index = 0
+    ieta -= 30;  // HF starts at ieta=30 till ieta=51 
+                 // but resp.vector from index=0 through 20
     if(ieta >= maxEMeta ) ieta = maxEMeta;
     else if(ieta < 0) ieta = 0;
  
@@ -456,12 +457,14 @@ HCALResponse::responseHCAL(int mip, double energy, double eta, int partype)
       interHD(mip, energy, ie, ieta);        // extrapolation with last interv.
       
     }
+
     
     // finally apply energy scale correction
     mean  *= eResponseCorrection;
     mean  += eBias;
     sigma *= eResponseCorrection;      
     
+
   }
   
   // muons
