@@ -20,9 +20,9 @@
 #include "CondFormats/DataRecord/interface/SiPixelCPEGenericErrorParmRcd.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelTemplateDBObject.h"
 #include "CondFormats/DataRecord/interface/SiPixelTemplateDBObjectRcd.h"
+#include "CondFormats/SiPixelObjects/interface/PixelDCSObject.h"
+#include "CondFormats/DataRecord/interface/PixelDCSRcds.h"
 
-
-DEFINE_SEAL_MODULE();
 
 REGISTER_PLUGIN(SiPixelFedCablingMapRcd,SiPixelFedCablingMap);
 REGISTER_PLUGIN(SiPixelGainCalibrationRcd,SiPixelGainCalibration);
@@ -34,3 +34,7 @@ REGISTER_PLUGIN(SiPixelPerformanceSummaryRcd,SiPixelPerformanceSummary);
 REGISTER_PLUGIN(SiPixelQualityRcd,SiPixelQuality);
 REGISTER_PLUGIN(SiPixelCPEGenericErrorParmRcd,SiPixelCPEGenericErrorParm);
 REGISTER_PLUGIN(SiPixelTemplateDBObjectRcd,SiPixelTemplateDBObject);
+
+REGISTER_PLUGIN(PixelCaenChannelIsOnRcd, PixelDCSObject<bool>);
+REGISTER_PLUGIN(PixelCaenChannelIMonRcd, PixelDCSObject<float>);
+REGISTER_PLUGIN(PixelCaenChannelRcd, PixelDCSObject<CaenChannel>);
