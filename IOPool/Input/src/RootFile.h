@@ -73,7 +73,8 @@ namespace edm {
              bool dropMetaData,
 	     GroupSelectorRules const& groupSelectorRules,
              bool dropMergeable,
-             boost::shared_ptr<edm::DuplicateChecker> duplicateChecker);
+             boost::shared_ptr<edm::DuplicateChecker> duplicateChecker,
+             bool dropDescendentsOfDroppedProducts);
     void reportOpened();
     void close(bool reallyClose);
     std::auto_ptr<EventPrincipal> readCurrentEvent(
@@ -185,6 +186,7 @@ namespace edm {
     boost::shared_ptr<BranchChildren> branchChildren_;
     mutable bool nextIDfixup_;
     boost::shared_ptr<edm::DuplicateChecker> duplicateChecker_;
+    bool dropDescendents_;
   }; // class RootFile
 
   template <typename T>

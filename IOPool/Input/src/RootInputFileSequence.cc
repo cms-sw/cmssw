@@ -55,7 +55,8 @@ namespace edm {
     dropMetaData_(pset.getUntrackedParameter<bool>("dropMetaData", false)),
     primarySequence_(primarySequence),
     randomAccess_(false),
-    duplicateChecker_() {
+    duplicateChecker_(),
+    dropDescendents_(pset.getUntrackedParameter<bool>("dropDescendentsOfDroppedBranches", true)) {
 
     if (!primarySequence_) noEventSort_ = false;
     if (noEventSort_ && ((startAtEvent_ > 1) || !eventsToProcess_.empty())) {
@@ -177,7 +178,7 @@ namespace edm {
 	  remainingEvents(), remainingLuminosityBlocks(), treeCacheSize_, treeMaxVirtualSize_,
 	  input_.processingMode(),
 	  forcedRunOffset_, eventsToProcess_, noEventSort_,
-	  dropMetaData_, groupSelectorRules_, !primarySequence_, duplicateChecker_));
+	  dropMetaData_, groupSelectorRules_, !primarySequence_, duplicateChecker_, dropDescendents_));
       fileIndexes_[fileIter_ - fileIterBegin_] = rootFile_->fileIndexSharedPtr();
     } else {
       if (!skipBadFiles) {
