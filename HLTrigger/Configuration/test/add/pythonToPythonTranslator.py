@@ -8,15 +8,9 @@ import sys, os, os.path
 # enable tracing cms.Sequences, cms.Paths and cms.EndPaths for all imported modules (thus, process.load(...), too)
 import tracingImport
 
-sys.path.append(os.environ["PWD"])
-
-filename = sys.argv[1].rstrip('.py')
-
-theConfig = __import__(filename)
-
 result = dict()
 result['procname']       = ''
-result['main_input']     = DictTypes.SortedKeysDict()
+result['main_input']     = None
 result['looper']         = DictTypes.SortedKeysDict()
 result['psets']          = DictTypes.SortedKeysDict()
 result['modules']        = DictTypes.SortedKeysDict()
@@ -84,12 +78,14 @@ def prepareParameter(parameter):
         return (type(parameter).__name__, trackedness(parameter), fixup(parameter.value()) )
 
 def parsePSet(module):
+  if module is None: return
   config = DictTypes.SortedKeysDict()
   for parameterName,parameter in module.parameters_().iteritems():
     config[parameterName] = prepareParameter(parameter)
   return config
 
 def parseSource(module):
+  if module is None: return
   config = DictTypes.SortedKeysDict()
   config['@classname'] = ('string','tracked',module.type_())
   for parameterName,parameter in module.parameters_().iteritems():
@@ -97,6 +93,7 @@ def parseSource(module):
   return config
 
 def parseModule(name, module):
+  if module is None: return
   config = DictTypes.SortedKeysDict()
   config['@classname'] = ('string','tracked',module.type_())
   config['@label'] = ('string','tracked',name)
@@ -106,8 +103,8 @@ def parseModule(name, module):
 
 def parseModules(process):
   result['procname'] = process.process
-  
-  result['main_input']['source'] = parseSource(process.source)
+ 
+  result['main_input'] = parseSource(process.source)
 
   for name,item in process.producers.iteritems():
     result['modules'][name] = parseModule(name, item)
@@ -158,8 +155,9 @@ def parseModules(process):
   result['endpaths'].list  = [ path for path in tracingImport.original_endpaths  if path in result['endpaths'].list ]
   result['sequences'].list = [ path for path in tracingImport.original_sequences if path in result['sequences'].list ]
 
+  # nothing to do for 'main_input' as it's a single item
+  
   # sort alphabetically everything else
-  result['main_input'].list.sort()
   result['modules'].list.sort()
   result['output_modules'].sort()
   result['es_sources'].list.sort()
@@ -169,8 +167,26 @@ def parseModules(process):
   result['services'].list.sort()
 
 
+# find and load the input file
+sys.path.append(os.environ["PWD"])
+filename = sys.argv[1].rstrip('.py')
+theConfig = __import__(filename)
+
+try: 
+    #'process' in theConfig.__dict__:
+    theProcess = theConfig.process
+except:
+    # what if the file is just a fragment ?
+    # try to load it into a brand new process...
+    theProcess = cms.Process('')
+    try:
+        theProcess.load(filename)
+    except:
+        sys.err.write('Unable to parse configuation fragment %s into a new Process\n' % sys.argv[1])
+        sys.exit(1)
+
 # parse the configuration
-parseModules(theConfig.process)
+parseModules(theProcess)
 
 # now dump it to the screen as wanted by the HLT parser
 hltAcceptedOrder = ['main_input','looper', 'psets', 'modules', 'es_modules', 'es_sources', 'es_prefers', 'output_modules', 'sequences', 'paths', 'endpaths', 'services', 'schedule']
@@ -182,19 +198,18 @@ for key in hltAcceptedOrder:
     if key in ('output_modules', 'schedule'):
         print ", '%s': %s" %(key, result[key])
     elif key in ('main_input',):
-        print ", '%s':  {" %key
-        comma = ''
-        for object in result[key].itervalues():
-            print comma+str(dumpObject(object,key))[1:-1]
-            comma = ', '
-        print '} # end of %s' %key
+        print ", '%s':  {" % key
+        # in case no source is defined, leave an empty block in the output
+        if result[key] is not None:
+            print str(dumpObject(result[key], key))[1:-1]
+        print '} # end of %s' % key
     else:
-        print ", '%s':  {" %key
+        print ", '%s':  {" % key
         comma = ''
         for name,object in result[key].iteritems():
             print comma+"'%s': %s" %(name, dumpObject(object,key))
             comma = ', '
-        print '} # end of %s' %key
+        print '} # end of %s' % key
 
 print '}'
 
