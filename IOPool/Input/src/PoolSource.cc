@@ -238,7 +238,7 @@ namespace edm {
 
     iDesc.addOptionalUntracked<bool>("noEventSort", false);
     iDesc.addOptionalUntracked<bool>("skipBadFiles", false);
-    iDesc.addOptionalUntracked<bool>("dropDescendentsOfDroppedBranches", true);
+    iDesc.addOptionalUntracked<bool>("dropDescendantsOfDroppedBranches", true);
     iDesc.addOptionalUntracked<unsigned int>("cacheSize", 0U);
     iDesc.addOptionalUntracked<int>("treeMaxVirtualSize", -1);
     iDesc.addOptionalUntracked<unsigned int>("setRunNumber", 0U);

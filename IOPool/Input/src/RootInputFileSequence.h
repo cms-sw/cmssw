@@ -5,7 +5,7 @@
 
 RootInputFileSequence: This is an InputSource
 
-$Id: RootInputFileSequence.h,v 1.20 2008/10/15 22:37:37 wdd Exp $
+$Id: RootInputFileSequence.h,v 1.21 2008/12/01 20:11:38 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -112,7 +112,7 @@ namespace edm {
     bool randomAccess_;
     boost::shared_ptr<edm::DuplicateChecker> duplicateChecker_;
 
-    bool dropDescendents_;
+    bool dropDescendants_;
   }; // class RootInputFileSequence
 }
 #endif

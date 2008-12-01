@@ -7,7 +7,7 @@ namespace edm {
     // For each parent(child)
     for (BranchIDSet::const_iterator ci = items.begin(), ce = items.end();
 	ci != ce; ++ci) {
-      // Insert the BranchID of the parents(children) into the set of ancestors(descendents).
+      // Insert the BranchID of the parents(children) into the set of ancestors(descendants).
       // If the insert succeeds, append recursively.
       if (itemSet.insert(*ci).second) {
 	append_(lookup, *ci, itemSet);
@@ -31,8 +31,8 @@ namespace edm {
   }
 
   void
-  BranchChildren::appendToDescendents(BranchID parent, BranchIDSet& descendents) const {
-    descendents.insert(parent);
-    append_(childLookup_, parent, descendents);
+  BranchChildren::appendToDescendants(BranchID parent, BranchIDSet& descendants) const {
+    descendants.insert(parent);
+    append_(childLookup_, parent, descendants);
   }
 }
