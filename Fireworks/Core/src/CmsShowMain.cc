@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.49 2008/12/01 17:08:58 jmuelmen Exp $
+// $Id: CmsShowMain.cc,v 1.50 2008/12/01 17:25:19 amraktad Exp $
 //
 
 // system include files
@@ -43,6 +43,7 @@
 #include "TStopwatch.h"
 #include "TGFileDialog.h"
 #include "TGSlider.h"
+#include "FWIntValueListener.h"
 
 //needed to work around a bug
 #include "TApplication.h"
@@ -770,9 +771,13 @@ CmsShowMain::setupDataHandling()
 
    if (CSGAction* action = m_guiManager->getAction("Play Delay"))
    {
+     TGSlider* slider =  action->getSlider();
      action->getSlider()->SetPosition(m_playDelay);
      action->getLabel()->SetText(Form(" %.1fs ", m_playDelay*0.001));
-     action->activated.connect(boost::bind(&CmsShowMain::setPlayDelay,this, action));     
+
+     FWIntValueListener* listener = new FWIntValueListener();
+     TQObject::Connect(slider, "PositionChanged(Int_t)", "FWIntValueListenerBase", listener, "setValue(Int_t)");
+     listener->valueChanged_.connect(boost::bind(&CmsShowMain::setPlayDelay, this, action));
    }
 
    if (CSGAction* action = m_guiManager->getAction("Event Filter"))

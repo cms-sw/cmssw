@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:11 CDT 2008
-// $Id: CSGAction.cc,v 1.12 2008/11/28 22:21:46 amraktad Exp $
+// $Id: CSGAction.cc,v 1.13 2008/12/01 15:51:06 amraktad Exp $
 //
 
 // system include files
@@ -159,7 +159,6 @@ void CSGAction::createDelaySlider(TGCompositeFrame* p, Int_t min, Int_t max, con
    m_slider->SetRange(min, max);
    m_slider->SetPosition(0);
 
-   TQObject::Connect(m_slider, "Released()", "CSGAction", this, "activate()");
    m_slider->SetBackgroundColor(0x111111);
    m_slider->ChangeSliderPic(buttPath);
 }
