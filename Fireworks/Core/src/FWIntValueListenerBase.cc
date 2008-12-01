@@ -1,4 +1,4 @@
-#include "FWIntValueListenerBase.h"
+#include "Fireworks/Core/interface/FWIntValueListenerBase.h"
 
 ClassImp(FWIntValueListenerBase)
 

@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.50 2008/12/01 17:25:19 amraktad Exp $
+// $Id: CmsShowMain.cc,v 1.51 2008/12/01 22:24:33 amraktad Exp $
 //
 
 // system include files
@@ -43,7 +43,6 @@
 #include "TStopwatch.h"
 #include "TGFileDialog.h"
 #include "TGSlider.h"
-#include "FWIntValueListener.h"
 
 //needed to work around a bug
 #include "TApplication.h"
@@ -84,6 +83,8 @@
 #include "Fireworks/Core/interface/ActionsList.h"
 
 #include "Fireworks/Core/src/CmsShowTaskExecutor.h"
+#include "Fireworks/Core/interface/FWIntValueListener.h"
+
 
 //
 // constants, enums and typedefs

@@ -1,4 +1,4 @@
-#include "FWIntValueListener.h"
+#include "Fireworks/Core/interface/FWIntValueListener.h"
 
 void FWIntValueListener::setValueImp(Int_t val)
 {
