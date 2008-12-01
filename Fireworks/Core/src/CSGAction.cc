@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:11 CDT 2008
-// $Id: CSGAction.cc,v 1.11 2008/11/18 21:56:16 chrjones Exp $
+// $Id: CSGAction.cc,v 1.12 2008/11/28 22:21:46 amraktad Exp $
 //
 
 // system include files
@@ -17,6 +17,7 @@
 #include <TQObject.h>
 #include <KeySymbols.h>
 #include <TGMenu.h>
+#include "TGLabel.h"
 #include "TGTextEntry.h"
 #include "TGNumberEntry.h"
 #include "TGSlider.h"
@@ -108,6 +109,14 @@ void CSGAction::setToolTip(const std::string& tip) {
   if (m_tools != 0) m_tools->fTipText = tip.c_str();
 }
 
+void CSGAction::createLabel(TGCompositeFrame* p, const char* txt, UInt_t txtCol, UInt_t bgCol, TGLayoutHints* l, Int_t id) {
+   m_label = new TGLabel(p, txt);
+   m_label->SetBackgroundColor(bgCol);
+   m_label->SetTextJustify(kTextCenterX);
+   m_label->SetTextColor(txtCol);
+   p->AddFrame(m_label, l);
+}
+
 void CSGAction::createTextButton(TGCompositeFrame* p, TGLayoutHints* l, Int_t id, GContext_t norm, FontStruct_t font, UInt_t option) {
    TGTextButton* textButton = new TGTextButton(p, m_name.c_str(), id, norm, font, option);
    if (m_toolTip != "") textButton->SetToolTipText(m_toolTip.c_str(), m_frame->getDelay());
@@ -139,18 +148,20 @@ void CSGAction::createNumberEntry(TGCompositeFrame* p, bool intType, TGLayoutHin
    TQObject::Connect(m_numberEntry, "ReturnPressed()", "CSGAction", this, "activate()");
 }
 
-void CSGAction::createDelaySlider(TGCompositeFrame* p, Int_t min, Int_t max, UInt_t type, TGLayoutHints* l, Int_t id)
+void CSGAction::createDelaySlider(TGCompositeFrame* p, Int_t min, Int_t max, const char* buttPath,  TGLayoutHints* l, Int_t id)
 {
    if (m_slider != 0)
       delete m_slider;
    
-   m_slider = new TGHSlider(p, 148, 5, kSlider1 | kScaleNo);
+   m_slider = new TGHSlider(p, 109, 3, kSlider1 | kScaleNo);
    p->AddFrame(m_slider, l);
-   m_slider->SetBackgroundColor(0x111111);
 
    m_slider->SetRange(min, max);
-   TQObject::Connect(m_slider, "Released()", "CSGAction", this, "activate()");
    m_slider->SetPosition(0);
+
+   TQObject::Connect(m_slider, "Released()", "CSGAction", this, "activate()");
+   m_slider->SetBackgroundColor(0x111111);
+   m_slider->ChangeSliderPic(buttPath);
 }
 
 void CSGAction::createPictureButton(TGCompositeFrame* p, const TGPicture* pic, TGLayoutHints* l, Int_t id, GContext_t norm, UInt_t option) {

@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 18:11:16 CDT 2008
-// $Id: CmsShowMainFrame.h,v 1.13 2008/11/10 15:35:24 chrjones Exp $
+// $Id: CmsShowMainFrame.h,v 1.14 2008/11/28 22:26:05 amraktad Exp $
 //
 
 // system include files
@@ -88,7 +88,7 @@ private:
 
    const CmsShowMainFrame& operator=(const CmsShowMainFrame&); // stop default
 
-   void makeLabel(TGHorizontalFrame* p, const char* txt);
+  void makeFixedSizeLabel(TGHorizontalFrame* p, const char* txt, UInt_t bgCol, UInt_t txtCol);
    // ---------- member data --------------------------------
    std::vector<CSGAction*> m_actionList;
    FWGUIManager *m_manager;

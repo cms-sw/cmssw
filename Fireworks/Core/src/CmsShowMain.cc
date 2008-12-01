@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.46 2008/11/28 22:21:46 amraktad Exp $
+// $Id: CmsShowMain.cc,v 1.47 2008/12/01 12:27:37 dmytro Exp $
 //
 
 // system include files
@@ -38,6 +38,7 @@
 
 #include "TGButton.h"
 #include "TGComboBox.h"
+#include "TGLabel.h"
 #include "TGTextEntry.h"
 #include "TStopwatch.h"
 #include "TGFileDialog.h"
@@ -768,6 +769,7 @@ CmsShowMain::setupDataHandling()
    if (CSGAction* action = m_guiManager->getAction("Play Delay"))
    {
      action->getSlider()->SetPosition(m_playDelay);
+     action->getLabel()->SetText(Form("%.1f", m_playDelay*0.001));
      action->activated.connect(boost::bind(&CmsShowMain::setPlayDelay,this, action));     
    }
 
@@ -793,6 +795,7 @@ void
 CmsShowMain::setPlayDelay(CSGAction* action)
 {
   m_playDelay = action->getSlider()->GetPosition();
+  action->getLabel()->SetText(Form("%.1f", m_playDelay*0.001));
   m_playTimer->Reset();
   m_playTimer->SetTime(m_playDelay);
 }

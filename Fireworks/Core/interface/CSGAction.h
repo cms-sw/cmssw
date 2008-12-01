@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 18:15:56 CDT 2008
-// $Id: CSGAction.h,v 1.7 2008/11/06 22:05:22 amraktad Exp $
+// $Id: CSGAction.h,v 1.8 2008/11/28 22:21:46 amraktad Exp $
 //
 
 // system include files
@@ -39,6 +39,7 @@ class TGTextEntry;
 class TGNumberEntryField;
 class TGHSlider;
 class FWCustomIconsButton;
+class TGLabel;
 
 class CSGAction : public sigc::trackable {
 
@@ -47,6 +48,7 @@ public:
    virtual ~CSGAction();
 
    // ---------- const member functions ---------------------
+   TGLabel  *getLabel() const { return m_label; }
    const std::string& getName() const;
    const std::string& getToolTip() const;
    TString getSCCombo() const;
@@ -67,10 +69,11 @@ public:
    // ---------- member functions ---------------------------
    void setName(const std::string& name);
    void setToolTip(const std::string& tip);
+   void createLabel(TGCompositeFrame* p, const char* txt, UInt_t txtCol,  UInt_t bgCol, TGLayoutHints* l = 0, Int_t id = -1);
    void createTextButton(TGCompositeFrame* p, TGLayoutHints* l = 0, Int_t id = -1, GContext_t norm = TGButton::GetDefaultGC()(), FontStruct_t font = TGTextButton::GetDefaultFontStruct(), UInt_t option = kRaisedFrame|kDoubleBorder);
    void createTextEntry(TGCompositeFrame* p, TGLayoutHints* l = 0, const char* text = 0, Int_t id = -1);
    void createNumberEntry(TGCompositeFrame* p,  bool intType, TGLayoutHints* l = 0, Int_t id = -1);
-   void createDelaySlider(TGCompositeFrame* p, Int_t min, Int_t max, UInt_t type, TGLayoutHints* l = 0, Int_t id = -1);
+   void createDelaySlider(TGCompositeFrame* p, Int_t min, Int_t max, const char* slB, TGLayoutHints* l = 0, Int_t id = -1);
    void createPictureButton(TGCompositeFrame* p, const TGPicture* pic, TGLayoutHints* l = 0, Int_t id = -1, GContext_t norm = TGButton::GetDefaultGC()(), UInt_t option = kRaisedFrame|kDoubleBorder);
    FWCustomIconsButton* createCustomIconsButton(TGCompositeFrame* p,
                                 const TGPicture* upPic,
@@ -108,6 +111,7 @@ private:
    std::string m_name;
    std::string m_toolTip;
    TString m_scCombo;
+   TGLabel *m_label;
    std::vector<TGButton*> m_buttons;
    Int_t m_keycode;
    Int_t m_modcode;
