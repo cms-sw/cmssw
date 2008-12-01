@@ -2,8 +2,8 @@
 #define TREEUTILITY_HH_
 #include "RecoParticleFlow/PFClusterTools/interface/DetectorElement.h"
 #include "RecoParticleFlow/PFClusterTools/interface/ParticleDeposit.h"
-#include "RecoParticleFlow/PFClusterTools/interface/Calibratable.h"
-#include "RecoParticleFlow/PFClusterTools/interface/CalibrationTarget.h"
+#include "DataFormats/ParticleFlowReco/interface/Calibratable.h"
+#include "DataFormats/ParticleFlowReco/interface/CalibrationProvenance.h"
 
 #include <boost/shared_ptr.hpp>
 #include <TFile.h>
@@ -28,12 +28,6 @@ public:
 	TreeUtility();
 	virtual ~TreeUtility();
 
-	void recreateFromRootFile(TFile& file,
-			std::vector<DetectorElementPtr >& elements,
-			std::vector<ParticleDepositPtr >& toBeFilled);
-
-	void recreateFromRootFile(TFile& f);
-
 	unsigned getCalibratablesFromRootFile(TChain& tree,
 			std::vector<Calibratable>& toBeFilled);
 
@@ -43,7 +37,6 @@ public:
 			CalibrationTarget target, DetectorElementPtr offset,
 			DetectorElementPtr ecal, DetectorElementPtr hcal, bool includeOffset = false);
 
-	std::vector<ParticleDepositPtr> extractParticles(TFile& f);
 	
 private:
 	std::map<std::string, unsigned> vetos_;

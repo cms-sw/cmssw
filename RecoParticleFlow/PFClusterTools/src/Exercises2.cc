@@ -1,12 +1,11 @@
 #include "RecoParticleFlow/PFClusterTools/interface/Exercises2.h"
 #include "RecoParticleFlow/PFClusterTools/interface/PFToolsException.h"
 #include "RecoParticleFlow/PFClusterTools/interface/TreeUtility.h"
-#include "RecoParticleFlow/PFClusterTools/interface/Calibratable.h"
+#include "DataFormats/ParticleFlowReco/interface/Calibratable.h"
 #include "RecoParticleFlow/PFClusterTools/interface/DetectorElement.h"
 #include "RecoParticleFlow/PFClusterTools/interface/Calibrator.h"
 #include "RecoParticleFlow/PFClusterTools/interface/LinearCalibrator.h"
 #include "RecoParticleFlow/PFClusterTools/interface/SpaceManager.h"
-#include "RecoParticleFlow/PFClusterTools/interface/CalibrationTarget.h"
 #include "RecoParticleFlow/PFClusterTools/interface/Region.h"
 
 #include <TFile.h>

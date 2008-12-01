@@ -1,11 +1,10 @@
 #ifndef EXERCISES2_H_
 #define EXERCISES2_H_
 
-#include "RecoParticleFlow/PFClusterTools/interface/Calibratable.h"
+#include "DataFormats/ParticleFlowReco/interface/Calibratable.h"
 #include "RecoParticleFlow/PFClusterTools/interface/Calibrator.h"
-#include "RecoParticleFlow/PFClusterTools/interface/CalibrationTarget.h"
 #include "RecoParticleFlow/PFClusterTools/interface/DetectorElement.h"
-#include "RecoParticleFlow/PFClusterTools/interface/CalibrationProvenance.h"
+#include "DataFormats/ParticleFlowReco/interface/CalibrationProvenance.h"
 #include "RecoParticleFlow/PFClusterTools/interface/SpaceManager.h"
 #include "RecoParticleFlow/PFClusterTools/interface/IO.h"
 #include "RecoParticleFlow/PFClusterTools/interface/PFClusterCalibration.h"

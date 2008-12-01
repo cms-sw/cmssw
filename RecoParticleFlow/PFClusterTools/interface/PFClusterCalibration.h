@@ -2,8 +2,8 @@
 #define PFCLUSTERCALIBRATION_H_
 
 #include "RecoParticleFlow/PFClusterTools/interface/DetectorElementType.h"
-#include "RecoParticleFlow/PFClusterTools/interface/Calibratable.h"
-#include "RecoParticleFlow/PFClusterTools/interface/CalibrationResultWrapper.h"
+#include "DataFormats/ParticleFlowReco/interface/Calibratable.h"
+#include "DataFormats/ParticleFlowReco/interface/CalibrationResultWrapper.h"
 //#include "RecoParticleFlow/PFClusterTools/interface/IO.h"
 
 #include <vector>
@@ -51,7 +51,9 @@ public:
 	double getCalibratedHcalEnergy(const double& ecalE, const double& hcalE,
 			const double& eta, const double& phi) const;
 
-	/* Returns the calibrated particle energy with the correction
+	/* DEPRECATED METHOD - do not use.
+	 * 
+	 * Returns the calibrated particle energy with the correction
 	 * Note: for, say, ecalOnly particles:
 	 * energy = correction_function([calibrated ecalEnergy + hcalEnergy(v small)])
 	 * ditto hcalOnly
@@ -94,7 +96,7 @@ public:
 
 	/* Threshold for ecalOnly and hcalOnly evaluation. */
 	void setEcalHcalEnergyCuts(const double& ecalCut, const double& hcalCut) {
-		std::cout << __PRETTY_FUNCTION__ << "WARNING! These will be ignored.\n";
+		//std::cout << __PRETTY_FUNCTION__ << "WARNING! These will be ignored.\n";
 		ecalOnlyDiv_ = ecalCut;
 		hcalOnlyDiv_ = hcalCut;
 	}

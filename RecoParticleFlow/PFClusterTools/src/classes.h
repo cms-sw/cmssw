@@ -11,26 +11,9 @@
 #include "RecoParticleFlow/PFClusterTools/interface/ParticleDeposit.h"  
 #include "RecoParticleFlow/PFClusterTools/interface/SpaceVoxel.h"    
 #include "RecoParticleFlow/PFClusterTools/interface/TreeUtility.h"
-#include "RecoParticleFlow/PFClusterTools/interface/SingleParticleWrapper.h"
 #include "RecoParticleFlow/PFClusterTools/interface/Exercises2.h"
 #include "RecoParticleFlow/PFClusterTools/interface/Exercises3.h"
-#include "RecoParticleFlow/PFClusterTools/interface/CalibrationResultWrapper.h"
-#include "RecoParticleFlow/PFClusterTools/interface/CalibrationProvenance.h"
-#include "RecoParticleFlow/PFClusterTools/interface/CalibrationTarget.h"
-#include "RecoParticleFlow/PFClusterTools/interface/Calibratable.h"
 #include "RecoParticleFlow/PFClusterTools/interface/IO.h"
 #include "RecoParticleFlow/PFClusterTools/interface/Utils.h"
 #include "RecoParticleFlow/PFClusterTools/interface/PFClusterCalibration.h"
 
-namespace { 
-  namespace {
-	pftools::SingleParticleWrapper spw;
-	pftools::CalibrationResultWrapper crw;
-	pftools::Calibratable c;
-	pftools::CalibratableElement ce;
-	pftools::CandidateWrapper cw;
-	std::vector<pftools::CalibratableElement> svce;
-	std::vector<pftools::CandidateWrapper> svcw;
-	
-  }
-}

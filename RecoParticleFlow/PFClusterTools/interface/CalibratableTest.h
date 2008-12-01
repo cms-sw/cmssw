@@ -13,7 +13,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "PhysicsTools/UtilAlgos/interface/TFileService.h"
 
-#include "RecoParticleFlow/PFClusterTools/interface/Calibratable.h"
+#include "DataFormats/ParticleFlowReco/interface/Calibratable.h"
 
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/PFSimParticleFwd.h"
@@ -121,14 +121,14 @@ private:
 
 	//The Calibratable object
 	pftools::Calibratable* calib_;
-	
-	//Size of cone around sim particle to look for PFCandidates
-	double deltaRCandToSim_;
 
 	//Increment nWrites_ for every record written to the tree
 	//Incremement nFails_ for every event/particle not written to the tree (thisEventPasses_ == false)
 	unsigned nParticleWrites_, nParticleFails_;
 	unsigned nEventWrites_, nEventFails_;
+	
+	//Size of cone around sim particle to look for PFCandidates
+	double deltaRCandToSim_;
 
 	//Collection input tags
 	edm::InputTag inputTagCandidates_;

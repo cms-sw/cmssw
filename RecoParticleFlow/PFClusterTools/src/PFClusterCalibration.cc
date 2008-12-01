@@ -1,5 +1,6 @@
 #include "RecoParticleFlow/PFClusterTools/interface/PFClusterCalibration.h"
-#include "RecoParticleFlow/PFClusterTools/interface/CalibrationProvenance.h"
+#include "DataFormats/ParticleFlowReco/interface/CalibrationProvenance.h"
+#include "DataFormats/ParticleFlowReco/interface/Calibratable.h"
 
 #include <cmath>
 #include <cassert>
