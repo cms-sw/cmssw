@@ -12,7 +12,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Thu july 6 13:22:06 CEST 2006
-// $Id: GsfElectronAlgo.cc,v 1.28 2008/11/26 16:18:14 charlot Exp $
+// $Id: GsfElectronAlgo.cc,v 1.29 2008/11/30 20:32:56 chamont Exp $
 //
 //
 
@@ -69,7 +69,6 @@
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
-#include "DataFormats/Candidate/interface/OverlapChecker.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -454,27 +453,33 @@ bool better_electron( const reco::GsfElectron * e1, const reco::GsfElectron * e2
 void GsfElectronAlgo::resolveElectrons( GsfElectronPtrCollection & inEle, reco::GsfElectronCollection & outEle )
  {
   GsfElectronPtrCollection::iterator e1, e2 ;
-  OverlapChecker overlap ;
   inEle.sort(better_electron) ;
   for( e1 = inEle.begin() ;  e1 != inEle.end() ; ++e1 )
    {
-		LogDebug("GsfElectronAlgo")
+    LogDebug("GsfElectronAlgo")
       << "Blessing electron with E/P " << (*e1)->eSuperClusterOverP()
       << ", cluster " << (*e1)->superCluster().get()
-      << " & track " << (*e1)->gsfTrack().get()
-			<< std::endl ;
+      << " & track " << (*e1)->gsfTrack().get() ;
     outEle.push_back(**e1) ;
     for( e2 = e1, ++e2 ;  e2 != inEle.end() ; )
      {
-      if (overlap(**e1,**e2))
+      if ((*e1)->superCluster()==(*e2)->superCluster())
        {
-				LogDebug("GsfElectronAlgo")
-		      << "Discarding electron with E/P " << (*e2)->eSuperClusterOverP()
-		      << ", cluster " << (*e2)->superCluster().get()
-		      << " and track " << (*e2)->gsfTrack().get()
-					<< std::endl ;
- 			  e2 = inEle.erase(e2) ;
-			 }
+        LogDebug("GsfElectronAlgo")
+          << "Discarding electron with E/P " << (*e2)->eSuperClusterOverP()
+          << ", cluster " << (*e2)->superCluster().get()
+          << " and track " << (*e2)->gsfTrack().get() ;
+        (*e1)->addAmbiguousGsfTrack((*e2)->gsfTrack()) ;
+        e2 = inEle.erase(e2) ;
+       }
+      else if ((*e1)->gsfTrack()==(*e2)->gsfTrack())
+       {
+        LogDebug("GsfElectronAlgo")
+          << "Forgetting electron with E/P " << (*e2)->eSuperClusterOverP()
+          << ", cluster " << (*e2)->superCluster().get()
+          << " and track " << (*e2)->gsfTrack().get() ;
+        e2 = inEle.erase(e2) ;
+       }
       else
        { ++e2 ; }
      }

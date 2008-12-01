@@ -1,13 +1,13 @@
 #ifndef GsfElectron_h
 #define GsfElectron_h
-/** \class reco::Electron 
+/** \class reco::Electron
  *
  * An Electron with GsfTrack seeded from an ElectronPixelSeed
  * adapted from the TRecElectron class in ORCA
  *
  * \author U.Berthon, ClaudeCharlot, LLR
  *
- * \version $Id: GsfElectron.h,v 1.10 2008/10/20 12:25:00 chamont Exp $
+ * \version $Id: GsfElectron.h,v 1.11 2008/10/21 12:57:56 chamont Exp $
  *
  */
 
@@ -24,8 +24,11 @@
 //
 // Claude Charlot - CNRS & IN2P3, LLR Ecole polytechnique
 // Ursula Berthon - LLR Ecole polytechnique
-// 
+//
 // $Log: GsfElectron.h,v $
+// Revision 1.11  2008/10/21 12:57:56  chamont
+// use infinity as a defaut value for new attributes scSigmaEtaEta and scSigmaIEtaIEta, and code cleaning
+//
 // Revision 1.10  2008/10/20 12:25:00  chamont
 // few doxygen comments
 //
@@ -60,9 +63,9 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h" 
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
-#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h" 
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
@@ -78,7 +81,7 @@ class GsfElectron : public RecoCandidate {
  public:
 
   GsfElectron() ;
- 
+
   //! one must give almost all attributes values when creating an electron
   GsfElectron(
 	const LorentzVector & p4,
@@ -104,7 +107,7 @@ class GsfElectron : public RecoCandidate {
    /** The electron classification.
       barrel  :   0: golden,  10: bigbrem,  20: narrow, 30-34: showering,
                 (30: showering nbrem=0, 31: showering nbrem=1, 32: showering nbrem=2 ,33: showering nbrem=3, 34: showering nbrem>=4)
-                 40: crack, 41: eta gaps, 42: phi gaps 
+                 40: crack, 41: eta gaps, 42: phi gaps
       endcaps : 100: golden, 110: bigbrem, 120: narrow, 130-134: showering
                (130: showering nbrem=0, 131: showering nbrem=1, 132: showering nbrem=2 ,133: showering nbrem=3, 134: showering nbrem>=4)
                 140: crack
@@ -119,7 +122,10 @@ class GsfElectron : public RecoCandidate {
 
   void setSuperCluster(const reco::SuperClusterRef &scl) // used by GsfElectronSelector.h
     { superCluster_=scl ; }
-  void setGsfTrack(const reco::GsfTrackRef &t) { track_=t;}
+  void setGsfTrack( const reco::GsfTrackRef & t )
+   { track_=t ; }
+  void addAmbiguousGsfTrack( const reco::GsfTrackRef & t )
+   { ambiguousGsfTracks_.push_back(t) ; }
 
   // supercluster and electron track related quantities
   //! the super cluster energy corrected by EnergyScaleFactor
@@ -157,10 +163,10 @@ class GsfElectron : public RecoCandidate {
   bool isEnergyScaleCorrected() const {return energyScaleCorrected_;}
   //! tell if class dependant E-p combination has been determined
   bool isMomentumCorrected() const {return momentumFromEpCombination_;}
-  //! handle electron energy correction.  Rescales 4 momentum from corrected 
+  //! handle electron energy correction.  Rescales 4 momentum from corrected
   //! energy value and sets momentumFromEpCombination_ to true
   void correctElectronFourMomentum(const math::XYZTLorentzVectorD & momentum,float & enErr, float  & tMerr);
-  //! handle electron supercluster energy scale correction.  Propagates new 
+  //! handle electron supercluster energy scale correction.  Propagates new
   //! energy value to all electron attributes and sets energyScaleCorrected_ to true
   void correctElectronEnergyScale(const float newEnergy);
   //! determine the class of the electron
@@ -172,7 +178,7 @@ class GsfElectron : public RecoCandidate {
   float trackMomentumError() const {return trackMomentumError_;}
 
   //! get associated superCluster Pointer
-  SuperClusterRef superCluster() const { return superCluster_; } 
+  SuperClusterRef superCluster() const { return superCluster_; }
 
   //! get associated GsfTrack pointer
   reco::GsfTrackRef gsfTrack() const { return track_ ; }
@@ -201,6 +207,16 @@ class GsfElectron : public RecoCandidate {
   //! a characteristic from the associated super-cluster
   float scE5x5() const { return scE5x5_ ; }
 
+  //! accessor to the ambiguous gsf tracks
+  GsfTrackRefVector::size_type ambiguousGsfTracksSize() const
+   { return ambiguousGsfTracks_.size() ; }
+  //! accessor to the ambiguous gsf tracks
+  GsfTrackRefVector::const_iterator ambiguousGsfTracksBegin() const
+   { return ambiguousGsfTracks_.begin() ; }
+  //! accessor to the ambiguous gsf tracks
+  GsfTrackRefVector::const_iterator ambiguousGsfTracksEnd() const
+   { return ambiguousGsfTracks_.end() ; }
+
 private:
 
   // temporary
@@ -211,7 +227,7 @@ private:
   math::XYZVector trackPositionAtVtx_;
   math::XYZVector trackMomentumAtCalo_;
   math::XYZVector trackPositionAtCalo_;
-  math::XYZVector trackMomentumOut_; 
+  math::XYZVector trackMomentumOut_;
 
   float energyError_;
   float trackMomentumError_;
@@ -245,6 +261,9 @@ private:
   // ctf track
   reco::TrackRef ctfTrack_;
   float shFracInnerHits_;
+
+  // ambiguous gsf tracks
+  reco::GsfTrackRefVector ambiguousGsfTracks_ ;
 
   /// check overlap with another candidate
   virtual bool overlap( const Candidate & ) const;
