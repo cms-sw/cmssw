@@ -8,5 +8,6 @@ hltL1IsoEgammaRegionalCTFFinalFitWithMaterial = cms.EDFilter("FastTrackMerger",
 )
 
 # The sequence
-HLTL1IsoEgammaRegionalRecoTrackerSequence = cms.Sequence(cms.SequencePlaceholder("globalPixelTracking")+hltL1IsoEgammaRegionalCTFFinalFitWithMaterial)
+HLTL1IsoEgammaRegionalRecoTrackerSequence = cms.Sequence(cms.SequencePlaceholder("globalPixelTracking")+
+                                                         hltL1IsoEgammaRegionalCTFFinalFitWithMaterial)
 

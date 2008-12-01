@@ -19,14 +19,14 @@ import RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi
 globalPixelWithMaterialTracks = RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi.ctfWithMaterialTracks.clone()
 globalPixelWithMaterialTracks.src = 'globalPixelTrackCandidates'
 globalPixelWithMaterialTracks.TTRHBuilder = 'WithoutRefit'
-globalPixelWithMaterialTracks.Fitter = 'KFFittingSmoother'
+globalPixelWithMaterialTracks.Fitter = 'KFFittingSmootherWithOutlierRejection'
 globalPixelWithMaterialTracks.Propagator = 'PropagatorWithMaterial'
 globalPixelWithMaterialTracks.TrajectoryInEvent = cms.bool(True)
 
 globalPixelWithMaterialTracksForElectrons = RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi.ctfWithMaterialTracks.clone()
 globalPixelWithMaterialTracksForElectrons.src = 'globalPixelTrackCandidatesForElectrons'
 globalPixelWithMaterialTracksForElectrons.TTRHBuilder = 'WithoutRefit'
-globalPixelWithMaterialTracksForElectrons.Fitter = 'KFFittingSmoother'
+globalPixelWithMaterialTracksForElectrons.Fitter = 'KFFittingSmootherWithOutlierRejection'
 globalPixelWithMaterialTracksForElectrons.Propagator = 'PropagatorWithMaterial'
 globalPixelWithMaterialTracksForElectrons.TrajectoryInEvent = cms.bool(True)
 
