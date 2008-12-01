@@ -1,5 +1,5 @@
 /*
- * $Id: HydjetSource.cc,v 1.21 2008/06/04 09:15:46 yilmaz Exp $
+ * $Id: HydjetSource.cc,v 1.22 2008/06/04 10:11:28 yilmaz Exp $
  *
  * Interface to the HYDJET generator, produces HepMC events
  *
@@ -31,6 +31,13 @@
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 #include "SimDataFormats/HiGenData/interface/GenHIEvent.h"
 
+namespace {
+  int convertStatus(int pyst){
+    if(pyst > 10) return 2;
+    else return 1;
+  }
+
+}
 
 using namespace edm;
 using namespace std;
@@ -147,7 +154,7 @@ HepMC::GenParticle* HydjetSource::build_hyjet(int index, int barcode)
 								    hyjets.phj[2][index],  // pz
 								    hyjets.phj[3][index]), // E
 						  hyjets.khj[1][index],// id
-						  hyjets.khj[0][index] // status
+						  convertStatus(hyjets.khj[0][index]) // status
 						  );
    p->suggest_barcode(barcode);
 
