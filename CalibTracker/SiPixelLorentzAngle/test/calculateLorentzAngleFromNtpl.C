@@ -1,7 +1,7 @@
 {
 // 	setTDRStyle();
 	
-	TFile *f = new TFile("/afs/cern.ch/user/w/wilke/scratch0/CMSSW_2_1_12/src/CalibTracker/SiPixelLorentzAngle/test/crab_0_081121_121109/res/lorentzangle.root");
+	TFile *f = new TFile("/localscratch/w/wilke/crab/crab_0_081201_140909/res/lorentzangle.root");
 	f->cd();
 	
 	TF1 *f1 = new TF1("f1","[0] + [1]*x",50., 235.); 
@@ -35,7 +35,7 @@
 	float phi_;
 	double chi2_;
 	double ndof_;
-	int maxpix = 100;
+	int maxpix = 200;
 	struct Pixinfo
 	{
 		int npix;
@@ -108,8 +108,14 @@
 				large_pix = true;	
 			}
 		}
+		// is it one of the problematic half ladders? (needs to be excluded)
+		if( (layer_ == 1 && (ladder_ == 5 || ladder_ == 6 || ladder_ == 15 || ladder_ == 16)) ||
+					 (layer_ == 2 && (ladder_ == 8 || ladder_ == 9 || ladder_ == 24 || ladder_ == 25)) ||
+					 (layer_ == 3 && (ladder_ ==11 || ladder_ == 12 || ladder_ == 33 || ladder_ == 34)) ) {
+			continue;
+		}
 		double residual = TMath::Sqrt( (trackhit_.x - rechit_.x) * (trackhit_.x - rechit_.x) + (trackhit_.y - rechit_.y) * (trackhit_.y - rechit_.y) );
-		if( (clust_.size_y >= 3) && (chi2_/ndof_) < 10 && !large_pix && module_>4){
+		if( (clust_.size_y >= 2) && (chi2_/ndof_) < 2 && !large_pix && residual < 0.01){
 		for (int j = 0; j <  pixinfo_.npix; j++){
 							// use trackhits
 // 							if (dx > 300){

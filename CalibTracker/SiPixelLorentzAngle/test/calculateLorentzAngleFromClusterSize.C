@@ -1,16 +1,29 @@
+double fitFunction(double *x, double *par)
+{
+	double a;
+	if(x[0] < par[0]) a = par[1] + (x[0] - par[0]) * par[2]  + (x[0] - par[0]) *(x[0] - par[0]) * par[4] ;
+	else 		a = par[1] + (x[0] - par[0]) * par[3] + (x[0] - par[0]) * (x[0] - par[0]) * par[5] ;
+	return a;
+}
+	
+int calculateLorentzAngleFromClusterSize()
 {
 // 	setTDRStyle();
-	
-	TFile *f = new TFile("/afs/cern.ch/user/w/wilke/scratch0/CMSSW_2_1_12/src/CalibTracker/SiPixelLorentzAngle/test/crab_0_081121_121109/res/lorentzangle.root");
+	cout << "hallo" << endl;
+	TFile *f = new TFile("/localscratch/w/wilke/crab/crab_0_081201_140909/res/lorentzangle.root");
 	f->cd();
-	
-	TF1 *f1 = new TF1("f1","[0] + [1]*x + [2]*x*x + [3]*x*x*x" ,0, 180); 
+// 	
+	TF1 *f1 = new TF1("f1",fitFunction,70, 110, 8); 
 	f1->SetParName(0,"p0");
 	f1->SetParName(1,"p1");	
 	f1->SetParName(2,"p2");
-// 	f1->SetParameter(0,0);
-// 	f1->SetParameter(1,0.4);
-	
+	f1->SetParName(3,"p3");
+	f1->SetParName(4,"p4");
+	f1->SetParName(5,"p5");
+	f1->SetParameters(45,2,-0.01,0.01);
+// // 	f1->SetParameter(0,0);
+// // 	f1->SetParameter(1,0.4);
+// 	
 	int hist_drift_ = 200;
 	int hist_depth_ = 50;
 	double min_drift_ = -1000;
@@ -18,7 +31,7 @@
 	double min_depth_ = -100;
 	double max_depth_ = 400;
 	double width_ = 0.0285;
-	int anglebins = 90;
+	int anglebins = 45;
 // 	ofstream fLorentzFit( "lorentzFit.txt", ios::trunc );
 // 	fLorentzFit.precision( 4 );
 // 	fLorentzFit << "module" << "\t" << "layer" << "\t" << "offset" << "\t" << "error" << "\t" << "slope" << "\t" << "error" << "\t" "rel.err" << "\t" "pull" << "\t" << "chi2" << "\t" << "prob" << endl;
@@ -35,15 +48,15 @@
 	float phi_;
 	double chi2_;
 	double ndof_;
-	int maxpix = 100;
+	const int maxpix = 200;
 	struct Pixinfo
 	{
 		int npix;
-		float row[maxpix];
-		float col[maxpix];
-		float adc[maxpix];
-		float x[maxpix];
-		float y[maxpix];
+		float row[200];
+		float col[200];
+		float adc[200];
+		float x[200];
+		float y[200];
 	} pixinfo_;
 	
 	struct Hit{
@@ -152,9 +165,9 @@
 	h_sizex_alpha->Draw("colz");
 	c1->cd(2);
 	h_mean->Draw();
-// 	c1->cd(4);
+	c1->cd(4);
 
-// 	h_mean->Fit(f1,"ERQ");
+	h_mean->Fit(f1,"ERQ");
 // 	double p0 = f1->GetParameter(0);
 // 	double e0 = f1->GetParError(0);
 // 	double p1 = f1->GetParameter(1);
@@ -162,9 +175,5 @@
 // 	double chi2 = f1->GetChisquare();
 // 	double prob = f1->GetProb();	
 	
-// 	delete h_mean;
-// 	delete h_drift_depth_adc_slice_;
-// 	cout << "offset" << "\t" << "error" << "\t" << "slope" << "\t" << "error" << "\t" "rel.err" << "\t" << "chi2" << "\t" << "prob" << endl;
-// 	cout  << p0 << "\t" << e0 << "\t" << p1 << "\t" << e1 << "\t" << e1 / p1 *100. << "\t" << chi2 << "\t" << prob << endl;
-	
+	return 0;
 }
