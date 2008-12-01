@@ -29,3 +29,5 @@ cat muonTriggerRateTimeAnalyzer_cfg.py | sed "s:vstring():vstring($FILES):" > an
 cmsRun ana.py
 cmsRun PostProcessor_cfg.py
 
+jobName=`echo $1 | sed "s/\/\(.*\)\/.*_\(._._._.*\)\/.*/\1_\2/"`
+mv PostProcessor.root $jobName.root
