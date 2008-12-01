@@ -69,29 +69,31 @@ void RPCFEDIntegrity::analyze(const Event& iEvent, const EventSetup& c) {
 
   //loop  on all FEDS
   for (int fedId=minFEDNum_ ;fedId<maxFEDNum_+1;fedId++) {
-    v1.clear();
+    v1.clear(); // v1 is cleared in  recordTypeVector() but you never know
     aCounts->recordTypeVector(fedId,v1); 
-
-    if(fedOccupancy.find(fedId)== fedOccupancy.end() || fedOccupancy.size()==0) fedOccupancy[fedId]=0;
     
+    bool fatal = false;
+    bool nonfatal = false;
+    unsigned int err = 2; // err = 0,1 means non problems,we 
+
     //loop on errors
-    for (unsigned int err = 1 ; err<v1.size(); err +=2){//get onlz even elements of the vector
-       fedOccupancy[fedId] += v1[err];
-
-      if(err-1!=0 && err-1 <= FATAL_LIMIT){
-	me= dbe_->get(prefixDir_+"/FEDIntegrity/FEDFatal");
-	me ->Fill(fedId,v1[err]);
+    while( err<(v1.size()-1) && (!fatal || !nonfatal)){
+      if(v1[err]<= FATAL_LIMIT && v1[err+1]!=0) { 
+	fatal=true;
+	break;
+      } else if (v1[err+1]!=0) {
+	nonfatal = true;
+	break;
       }
-      else if (err-1!=0){
-	me= dbe_->get(prefixDir_+"/FEDIntegrity/FEDNonFatal");
-	me ->Fill(fedId,v1[err]);
-      }
-
+      err ++;
     }//end loop o errors
+    
+    me = dbe_->get(prefixDir_+"/FEDIntegrity/FEDEntries");
+    if(me!=0 && v1.size()!=0) me->Fill(fedId);
 
-      me = dbe_->get(prefixDir_+"/FEDIntegrity/FEDEntries");
+    me= dbe_->get(prefixDir_+"/FEDIntegrity/FEDFatal");
+    if(me!=0 && v1.size()!=0) me->Fill(fedId);
 
-      if(me!=0) me->Fill(fedId, fedOccupancy[fedId] );
   }//end loop on all FEDs
 }
 

@@ -13,4 +13,6 @@ rpcRawDataCount = cms.EDAnalyzer("RPCMonitorRaw",
   histoFileName = cms.untracked.string('rpcMonitorRaw.root')
 )
 
+
+
 rpcDATAIntegrity= cms.Sequence(rpcFEDIntegrity * rpcRawDataCount)

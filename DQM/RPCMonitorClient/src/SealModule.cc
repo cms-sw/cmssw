@@ -12,3 +12,5 @@ DEFINE_ANOTHER_FWK_MODULE(RPCMon_SS_Dbx_Global);
 DEFINE_ANOTHER_FWK_MODULE(RPCFEDIntegrity);
 #include <DQM/RPCMonitorClient/interface/RPCMonitorRaw.h>
 DEFINE_ANOTHER_FWK_MODULE(RPCMonitorRaw);
+#include <DQM/RPCMonitorClient/interface/RPCDaqInfo.h>
+DEFINE_ANOTHER_FWK_MODULE(RPCDaqInfo);
