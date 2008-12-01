@@ -1,8 +1,8 @@
 /*
  * \file EBSelectiveReadoutTask.cc
  *
- * $Date: 2008/10/31 11:17:11 $
- * $Revision: 1.19 $
+ * $Date: 2008/11/03 16:58:50 $
+ * $Revision: 1.20 $
  * \author P. Gras
  * \author E. Di Marco
  *
@@ -52,7 +52,7 @@ EBSelectiveReadoutTask::EBSelectiveReadoutTask(const ParameterSet& ps){
   EBUnsuppressedDigiCollection_ = ps.getParameter<edm::InputTag>("EBUsuppressedDigiCollection");
   EBSRFlagCollection_ = ps.getParameter<edm::InputTag>("EBSRFlagCollection");
   EcalTrigPrimDigiCollection_ = ps.getParameter<edm::InputTag>("EcalTrigPrimDigiCollection");
-  EcalFEDRawCollection_ = ps.getParameter<edm::InputTag>("EcalFEDRawCollection");
+  FEDRawDataCollection_ = ps.getParameter<edm::InputTag>("FEDRawDataCollection");
 
   // histograms...
   EBDccEventSize_ = 0;
@@ -216,7 +216,7 @@ void EBSelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
   ievt_++;
 
   Handle<FEDRawDataCollection> raw;
-  if ( e.getByLabel(EcalFEDRawCollection_, raw) ) {
+  if ( e.getByLabel(FEDRawDataCollection_, raw) ) {
 
     for ( int iDcc = 0; iDcc < nEBDcc; ++iDcc ) {
 
@@ -225,7 +225,7 @@ void EBSelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
     }
 
   } else {
-    LogWarning("EBSelectiveReadoutTask") << EcalFEDRawCollection_ << " not available";
+    LogWarning("EBSelectiveReadoutTask") << FEDRawDataCollection_ << " not available";
   }
   
   TH2F *h01 = UtilsClient::getHisto<TH2F*>( EBFullReadoutSRFlagMap_ );

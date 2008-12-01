@@ -1,8 +1,8 @@
 /*
  * \file EESelectiveReadoutTask.cc
  *
- * $Date: 2008/10/26 17:41:30 $
- * $Revision: 1.16 $
+ * $Date: 2008/11/03 16:58:50 $
+ * $Revision: 1.17 $
  * \author P. Gras
  * \author E. Di Marco
  *
@@ -53,7 +53,7 @@ EESelectiveReadoutTask::EESelectiveReadoutTask(const ParameterSet& ps){
   EEUnsuppressedDigiCollection_ = ps.getParameter<edm::InputTag>("EEUsuppressedDigiCollection");
   EESRFlagCollection_ = ps.getParameter<edm::InputTag>("EESRFlagCollection");
   EcalTrigPrimDigiCollection_ = ps.getParameter<edm::InputTag>("EcalTrigPrimDigiCollection");
-  EcalFEDRawCollection_ = ps.getParameter<edm::InputTag>("EcalFEDRawCollection");
+  FEDRawDataCollection_ = ps.getParameter<edm::InputTag>("FEDRawDataCollection");
 
   // histograms...
   EEDccEventSize_ = 0;
@@ -286,7 +286,7 @@ void EESelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
   ievt_++;
 
   Handle<FEDRawDataCollection> raw;
-  if ( e.getByLabel(EcalFEDRawCollection_, raw) ) {
+  if ( e.getByLabel(FEDRawDataCollection_, raw) ) {
 
     int EEFirstFED[2];
     EEFirstFED[0] = 601; // EE-
@@ -307,7 +307,7 @@ void EESelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
     }
 
   } else {
-    LogWarning("EESelectiveReadoutTask") << EcalFEDRawCollection_ << " not available";
+    LogWarning("EESelectiveReadoutTask") << FEDRawDataCollection_ << " not available";
   }
 
   TH2F *h01[2];

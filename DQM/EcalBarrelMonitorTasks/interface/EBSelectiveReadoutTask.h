@@ -4,8 +4,8 @@
 /*
  * \file EBSelectiveReadoutTask.h
  *
- * $Date: 2008/07/28 14:59:51 $
- * $Revision: 1.7 $
+ * $Date: 2008/07/30 16:20:33 $
+ * $Revision: 1.8 $
  * \author P. Gras
  * \author E. Di Marco
  *
@@ -243,7 +243,7 @@ edm::InputTag EBUnsuppressedDigiCollection_;
 edm::InputTag EcalRecHitCollection_;
 edm::InputTag EBSRFlagCollection_;
 edm::InputTag EcalTrigPrimDigiCollection_;
-edm::InputTag EcalFEDRawCollection_;
+edm::InputTag FEDRawDataCollection_;
 
 MonitorElement* EBDccEventSize_;
 MonitorElement* EBReadoutUnitForcedBitMap_;

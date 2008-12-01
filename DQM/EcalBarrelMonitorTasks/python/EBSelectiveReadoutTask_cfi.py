@@ -8,5 +8,5 @@ ecalBarrelSelectiveReadoutTask = cms.EDAnalyzer("EBSelectiveReadoutTask",
     EBUsuppressedDigiCollection = cms.InputTag("ecalUnsuppressedDigis"),
     EBSRFlagCollection = cms.InputTag("ecalEBunpacker"),
     EcalTrigPrimDigiCollection = cms.InputTag("ecalEBunpacker:EcalTriggerPrimitives"),
-    EcalFEDRawCollection = cms.InputTag("source")
+    FEDRawDataCollection = cms.InputTag("source")
 )
