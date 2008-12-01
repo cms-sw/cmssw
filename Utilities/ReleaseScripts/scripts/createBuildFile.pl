@@ -6,7 +6,7 @@ use SCRAMGenUtils;
 use FileHandle;
 use IPC::Open2;
 
-$|=1; 
+$|=1;
 
 #get the command-line options
 if(&GetOptions(
