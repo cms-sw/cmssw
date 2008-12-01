@@ -47,8 +47,8 @@ namespace cscdqm {
 
       std::string cscTag = CSCHistoType::getPath(crateId, dmbId);
 
-      if (getCSCHisto(crateId, dmbId, h::CSC_BINCHECK_DATAFLOW_PROBLEMS_TABLE, mo) && 
-          getCSCHisto(crateId, dmbId, h::CSC_BINCHECK_DATAFLOW_PROBLEMS_FREQUENCY, mof)) {
+      if (getCSCHisto(h::CSC_BINCHECK_DATAFLOW_PROBLEMS_TABLE, crateId, dmbId, mo) && 
+          getCSCHisto(h::CSC_BINCHECK_DATAFLOW_PROBLEMS_FREQUENCY, crateId, dmbId, mof)) {
         mof->getTH1()->Reset();
         mof->getTH1()->Add(mo->getTH1());
         mof->getTH1()->Scale(1. / (nDMBEvents[cscTag]));
@@ -57,8 +57,8 @@ namespace cscdqm {
         mo->SetEntries(nDMBEvents[cscTag]);
       }
 
-      if (getCSCHisto(crateId, dmbId, h::CSC_BINCHECK_ERRORSTAT_TABLE, mo) && 
-          getCSCHisto(crateId, dmbId, h::CSC_BINCHECK_ERRORS_FREQUENCY, mof)) {
+      if (getCSCHisto(h::CSC_BINCHECK_ERRORSTAT_TABLE, crateId, dmbId, mo) && 
+          getCSCHisto(h::CSC_BINCHECK_ERRORS_FREQUENCY, crateId, dmbId, mof)) {
         mof->getTH1()->Reset();
         mof->getTH1()->Add(mo->getTH1());
         mof->getTH1()->Scale(1. / (nDMBEvents[cscTag]));

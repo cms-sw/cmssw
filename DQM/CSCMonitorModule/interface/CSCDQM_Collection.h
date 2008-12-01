@@ -31,6 +31,8 @@
 #include <xercesc/sax/ErrorHandler.hpp>
 #include <xercesc/sax/SAXParseException.hpp>
 
+#include <boost/shared_ptr.hpp>
+
 #include "DQM/CSCMonitorModule/interface/CSCDQM_Exception.h"
 #include "DQM/CSCMonitorModule/interface/CSCDQM_Logger.h"
 #include "DQM/CSCMonitorModule/interface/CSCDQM_Utility.h"

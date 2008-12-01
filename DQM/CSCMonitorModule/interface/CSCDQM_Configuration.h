@@ -20,9 +20,17 @@
 #define CSCDQM_Configuration_H
 
 #include <string>
+
+#include <boost/function.hpp>
+#include <boost/bind.hpp>
+
 #include "DQM/CSCMonitorModule/interface/CSCDQM_MonitorObjectProvider.h"
 
 namespace cscdqm {
+
+  class Dispatcher;
+
+  //typedef boost::function< bool(const HistoName&, MonitorObject*&) > getEMUHistoCallBack;
 
   /**
    * @class Configuration
@@ -51,6 +59,8 @@ namespace cscdqm {
       double EFF_ERR_SIGFAIL;
       double EFF_NODATA_THRESHOLD;
       double EFF_NODATA_SIGFAIL;
+
+      boost::function< bool (const HistoType& histoT, MonitorObject*&) > getHisto;
 
       MonitorObjectProvider* provider;
 

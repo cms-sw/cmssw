@@ -36,8 +36,12 @@ void CSCMonitorModule::monitorEvent(const edm::Event& e){
   // Get a handle to the FED data collection
   // actualy the FED_EVENT_LABEL part of the event
   edm::Handle<FEDRawDataCollection> rawdata;
-  e.getByLabel( inputObjectsTag, rawdata);
-
+  try { 
+    e.getByLabel( inputObjectsTag, rawdata);
+  } catch (...) { 
+    LOGWARNING("e.getByLabel") << "No product: " << inputObjectsTag << " in FEDRawDataCollection";
+    return; 
+  }
   // Lets run through the DCC's 
   for (int id = FEDNumbering::getCSCFEDIds().first; id <= FEDNumbering::getCSCFEDIds().second; ++id) {
 

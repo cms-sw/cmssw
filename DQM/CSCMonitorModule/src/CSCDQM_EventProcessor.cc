@@ -33,32 +33,32 @@ namespace cscdqm {
 
   const bool EventProcessor::getEMUHisto(const HistoName& histo, MonitorObject*& me) {
     EMUHistoType histoT(histo);
-    return provider->getHisto(histoT, me);
+    return config->getHisto(histoT, me);
   }
 
 
-  const bool EventProcessor::getDDUHisto(const int dduID, const HistoName& histo, MonitorObject*& me) {
+  const bool EventProcessor::getDDUHisto(const HistoName& histo, const int dduID, MonitorObject*& me) {
     DDUHistoType histoT(histo, dduID);
-    return provider->getHisto(histoT, me);
+    return config->getHisto(histoT, me);
   }
 
 
-  const bool EventProcessor::getCSCHisto(const int crateID, const int dmbSlot, const HistoName& histo, MonitorObject*& me) {
+  const bool EventProcessor::getCSCHisto(const HistoName& histo, const int crateID, const int dmbSlot, MonitorObject*& me) {
     CSCHistoType histoT(histo, crateID, dmbSlot);
-    return provider->getHisto(histoT, me);
+    return config->getHisto(histoT, me);
   }
 
 
-  const bool EventProcessor::getCSCHisto(const int crateID, const int dmbSlot, const HistoName& histo, MonitorObject*& me, const int adId) {
+  const bool EventProcessor::getCSCHisto(const HistoName& histo, const int crateID, const int dmbSlot, const int adId, MonitorObject*& me) {
     CSCHistoType histoT(histo, crateID, dmbSlot, adId);
-    return provider->getHisto(histoT, me);
+    return config->getHisto(histoT, me);
   }
 
 
   const bool EventProcessor::getParHisto(const std::string& name, MonitorObject*& me) {
     const HistoName histo = const_cast<char*>(name.c_str());
     ParHistoType histoT(histo);
-    return provider->getHisto(histoT, me);
+    return config->getHisto(histoT, me);
   }
 
 }

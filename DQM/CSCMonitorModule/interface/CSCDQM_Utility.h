@@ -63,6 +63,7 @@ namespace cscdqm {
       static const int tokenize(const std::string& str, std::vector<std::string>& tokens, const std::string& delimiters = " ");
       static void splitString(std::string str, const std::string delim, std::vector<std::string>& results);
       static void trimString(std::string& str);
+      static uint32_t fastHash(const char * data, int len);
 
   };
 

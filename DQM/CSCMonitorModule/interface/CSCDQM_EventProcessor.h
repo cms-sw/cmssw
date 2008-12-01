@@ -68,6 +68,10 @@ namespace cscdqm {
 
       void updateFractionHistos();
       void updateEfficiencyHistos();
+      void updateFractionAndEfficiencyHistos() {
+        updateFractionHistos();
+        updateEfficiencyHistos();
+      }
 
     private:
       
@@ -78,9 +82,9 @@ namespace cscdqm {
       void calcEMUFractionHisto(const HistoName& result, const HistoName& set, const HistoName& subset);
 
       const bool getEMUHisto(const HistoName& histo, MonitorObject*& me);
-      const bool getDDUHisto(const int dduID, const HistoName& histo, MonitorObject*& me);
-      const bool getCSCHisto(const int crateID, const int dmbSlot, const HistoName& histo, MonitorObject*& me);
-      const bool getCSCHisto(const int crateID, const int dmbSlot, const HistoName& histo, MonitorObject*& me, const int adId);
+      const bool getDDUHisto(const HistoName& histo, const int dduID, MonitorObject*& me);
+      const bool getCSCHisto(const HistoName& histo, const int crateID, const int dmbSlot, MonitorObject*& me);
+      const bool getCSCHisto(const HistoName& histo, const int crateID, const int dmbSlot, const int adId, MonitorObject*& me);
       const bool getParHisto(const std::string& name, MonitorObject*& me);
 
       MonitorObjectProvider* provider;

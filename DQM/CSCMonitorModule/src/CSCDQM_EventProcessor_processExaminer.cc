@@ -134,10 +134,10 @@ namespace cscdqm {
       }
       
       MonitorObject *mof = 0, *mo1 = 0, *mo2 = 0;
-      if (getCSCHisto(crateID, dmbSlot, h::CSC_ACTUAL_DMB_CFEB_DAV_RATE, mo)
-	  && getCSCHisto(crateID, dmbSlot, h::CSC_ACTUAL_DMB_CFEB_DAV_FREQUENCY, mof)) {
-	if (getCSCHisto(crateID, dmbSlot, h::CSC_DMB_CFEB_DAV_UNPACKING_INEFFICIENCY, mo1)
-	    && getCSCHisto(crateID, dmbSlot, h::CSC_DMB_CFEB_DAV, mo2)) {
+      if (getCSCHisto(h::CSC_ACTUAL_DMB_CFEB_DAV_RATE, crateID, dmbSlot, mo)
+	  && getCSCHisto(h::CSC_ACTUAL_DMB_CFEB_DAV_FREQUENCY, crateID, dmbSlot, mof)) {
+	if (getCSCHisto(h::CSC_DMB_CFEB_DAV_UNPACKING_INEFFICIENCY, crateID, dmbSlot, mo1)
+	    && getCSCHisto(h::CSC_DMB_CFEB_DAV, crateID, dmbSlot, mo2)) {
           for (int i=1; i<=5; i++) {
 	    double actual_dav_num = mo->GetBinContent(i);
 	    double unpacked_dav_num = mo2->GetBinContent(i);
@@ -160,16 +160,16 @@ namespace cscdqm {
 
       }
       
-      if (getCSCHisto(crateID, dmbSlot, h::CSC_ACTUAL_DMB_CFEB_DAV_MULTIPLICITY_RATE, mo)
-	  && getCSCHisto(crateID, dmbSlot, h::CSC_ACTUAL_DMB_CFEB_DAV_MULTIPLICITY_FREQUENCY, mof)) {
+      if (getCSCHisto(h::CSC_ACTUAL_DMB_CFEB_DAV_MULTIPLICITY_RATE, crateID, dmbSlot, mo)
+	  && getCSCHisto(h::CSC_ACTUAL_DMB_CFEB_DAV_MULTIPLICITY_FREQUENCY, crateID, dmbSlot, mof)) {
 	for (unsigned short i = 1; i < 7; i++) {
 	  float cfeb_entries =  mo->GetBinContent(i);
 	  mof->SetBinContent(i, ((float)cfeb_entries / (float)(DMBEvents) * 100.0));
 	}
 	mof->SetEntries((int)DMBEvents);
 
-	if (getCSCHisto(crateID, dmbSlot, h::CSC_DMB_CFEB_DAV_MULTIPLICITY_UNPACKING_INEFFICIENCY, mo1)
-	    && getCSCHisto(crateID, dmbSlot, h::CSC_DMB_CFEB_DAV_MULTIPLICITY, mo2)) {	   
+	if (getCSCHisto(h::CSC_DMB_CFEB_DAV_MULTIPLICITY_UNPACKING_INEFFICIENCY, crateID, dmbSlot, mo1)
+	    && getCSCHisto(h::CSC_DMB_CFEB_DAV_MULTIPLICITY, crateID, dmbSlot, mo2)) {	   
 	  for (unsigned short i = 1; i < 7; i++) {
 	    float actual_dav_num = mo->GetBinContent(i);
 	    float unpacked_dav_num = mo2->GetBinContent(i);
@@ -182,19 +182,19 @@ namespace cscdqm {
 	mo->Fill(cfeb_dav_num);
       }
 
-      if (getCSCHisto(crateID, dmbSlot, h::CSC_DMB_CFEB_ACTIVE_VS_DAV, mo)) mo->Fill(cfeb_dav, cfeb_active);
+      if (getCSCHisto(h::CSC_DMB_CFEB_ACTIVE_VS_DAV, crateID, dmbSlot, mo)) mo->Fill(cfeb_dav, cfeb_active);
 
       // Fill Histogram for FEB DAV Efficiency
-      if (getCSCHisto(crateID, dmbSlot, h::CSC_ACTUAL_DMB_FEB_DAV_RATE, mo)) {
-	if (getCSCHisto(crateID, dmbSlot, h::CSC_ACTUAL_DMB_FEB_DAV_FREQUENCY, mo1)) {
+      if (getCSCHisto(h::CSC_ACTUAL_DMB_FEB_DAV_RATE, crateID, dmbSlot, mo)) {
+	if (getCSCHisto(h::CSC_ACTUAL_DMB_FEB_DAV_FREQUENCY, crateID, dmbSlot, mo1)) {
 	  for (int i = 1; i < 4; i++) {
 	    float dav_num = mo->GetBinContent(i);
 	    mo1->SetBinContent(i, ((float)dav_num / (float)(DMBEvents) * 100.0));
 	  }
 	  mo1->SetEntries((int)DMBEvents);
 
-	  if (getCSCHisto(crateID, dmbSlot, h::CSC_DMB_FEB_DAV_UNPACKING_INEFFICIENCY, mof)
-     	      && getCSCHisto(crateID, dmbSlot, h::CSC_DMB_FEB_DAV_RATE, mo2)) {	   
+	  if (getCSCHisto(h::CSC_DMB_FEB_DAV_UNPACKING_INEFFICIENCY, crateID, dmbSlot, mof)
+     	      && getCSCHisto(h::CSC_DMB_FEB_DAV_RATE, crateID, dmbSlot, mo2)) {	   
 	    for (int i = 1; i < 4; i++) {
 	      float actual_dav_num = mo->GetBinContent(i);
 	      float unpacked_dav_num = mo2->GetBinContent(i);
@@ -221,7 +221,7 @@ namespace cscdqm {
 
       float feb_combination_dav = -1.0;
       // Fill Histogram for Different Combinations of FEB DAV Efficiency
-      if (getCSCHisto(crateID, dmbSlot, h::CSC_ACTUAL_DMB_FEB_COMBINATIONS_DAV_RATE, mo)) {
+      if (getCSCHisto(h::CSC_ACTUAL_DMB_FEB_COMBINATIONS_DAV_RATE, crateID, dmbSlot, mo)) {
 	if(alct_dav == 0 && tmb_dav == 0 && cfeb_dav == 0) feb_combination_dav = 0.0; // Nothing
 	if(alct_dav >  0 && tmb_dav == 0 && cfeb_dav == 0) feb_combination_dav = 1.0; // ALCT Only
 	if(alct_dav == 0 && tmb_dav >  0 && cfeb_dav == 0) feb_combination_dav = 2.0; // TMB Only
@@ -232,15 +232,15 @@ namespace cscdqm {
 	if(alct_dav >  0 && tmb_dav >  0 && cfeb_dav >  0) feb_combination_dav = 7.0; // ALCT+TMB+CFEB
 	// mo->Fill(feb_combination_dav);
 
-	if (getCSCHisto(crateID, dmbSlot, h::CSC_ACTUAL_DMB_FEB_COMBINATIONS_DAV_FREQUENCY, mo1)) {
+	if (getCSCHisto(h::CSC_ACTUAL_DMB_FEB_COMBINATIONS_DAV_FREQUENCY, crateID, dmbSlot, mo1)) {
 	  for (int i = 1; i < 9; i++) {
 	    float feb_combination_dav_number = mo->GetBinContent(i);
 	    mo1->SetBinContent(i, ((float)feb_combination_dav_number / (float)(DMBEvents) * 100.0));
 	  }
 	  mo1->SetEntries(DMBEvents);
 	  
-	  if (getCSCHisto(crateID, dmbSlot, h::CSC_DMB_FEB_COMBINATIONS_DAV_UNPACKING_INEFFICIENCY, mof)
-     	      && getCSCHisto(crateID, dmbSlot, h::CSC_DMB_FEB_COMBINATIONS_DAV_RATE, mo2)) {	   
+	  if (getCSCHisto(h::CSC_DMB_FEB_COMBINATIONS_DAV_UNPACKING_INEFFICIENCY, crateID, dmbSlot, mof)
+     	      && getCSCHisto(h::CSC_DMB_FEB_COMBINATIONS_DAV_RATE, crateID, dmbSlot, mo2)) {	   
 	    for (int i = 1; i < 9; i++) {
 	      float actual_dav_num = mo->GetBinContent(i);
 	      float unpacked_dav_num = mo2->GetBinContent(i);
@@ -274,7 +274,7 @@ namespace cscdqm {
       unsigned int cscPosition = 0;
       provider->getCSCFromMap(crateID, dmbSlot, cscType, cscPosition);
 
-      if (getCSCHisto(crateID, dmbSlot, h::CSC_BINCHECK_DATAFLOW_PROBLEMS_TABLE, mo)) {
+      if (getCSCHisto(h::CSC_BINCHECK_DATAFLOW_PROBLEMS_TABLE, crateID, dmbSlot, mo)) {
 	for(int bit = 0; bit < binChecker.nSTATUSES; bit++)
 	  if( chamber->second & (1 << bit) ) {
 	    mo->Fill(0., bit);
@@ -342,7 +342,7 @@ namespace cscdqm {
 
       bool isCSCError = false;
 
-      if (getCSCHisto(crateID, dmbSlot, h::CSC_BINCHECK_ERRORSTAT_TABLE, mo)) {
+      if (getCSCHisto(h::CSC_BINCHECK_ERRORSTAT_TABLE, crateID, dmbSlot, mo)) {
 	for(int bit = 5; bit < 24; bit++) {
 	  if( chamber->second & (1 << bit) ) {
 	    isCSCError = true;

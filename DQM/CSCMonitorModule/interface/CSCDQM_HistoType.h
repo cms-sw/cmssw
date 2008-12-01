@@ -93,8 +93,12 @@ namespace cscdqm {
        * @return true if HistoTypes match, false - otherwise
        */
       const bool operator== (const HistoType& t) const {
-        if (getFullPath().compare(t.getFullPath()) == 0)  return true;
-        return false;
+        if (strcmp(getHistoName(), t.getHistoName()) != 0)  return false;
+        if (getDDUId() != t.getDDUId()) return false;
+        if (getCrateId() != t.getCrateId()) return false;
+        if (getDMBId() != t.getDMBId()) return false;
+        if (getAddId() != t.getAddId()) return false;
+        return true;
       }
 
       /**
@@ -113,7 +117,12 @@ namespace cscdqm {
        * @return true if t is "more" than this
        */
       const bool operator< (const HistoType& t) const {
-        return (getFullPath() < t.getFullPath());
+        if (strcmp(getHistoName(), t.getHistoName()) < 0) return true; 
+        if (getDDUId() < t.getDDUId())  return true;
+        if (getCrateId() < t.getCrateId())  return true;
+        if (getDMBId() < t.getDMBId())  return true;
+        if (getAddId() < t.getAddId())  return true;
+        return false;
       }
 
       /**
@@ -205,6 +214,20 @@ namespace cscdqm {
        */
       static const std::string getPath(const unsigned int p_dduId) { 
         return Form(PATH_DDU, p_dduId); 
+      }
+
+      /**
+       * @brief  Assignment (=) operator. Calls base assignment operator and
+       * assigns DDU-related data
+       * @param  t Histogram to be taken data from
+       * @return resulting histogram (this)
+       */
+      const DDUHistoType& operator= (const DDUHistoType& t) {
+        HistoType *h1 = const_cast<DDUHistoType*>(this);
+        const HistoType *h2 = &t;
+        *h1 = *h2;
+        dduId   = t.getDDUId();
+        return *this;
       }
 
   };

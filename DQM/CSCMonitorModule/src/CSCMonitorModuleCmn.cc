@@ -109,8 +109,7 @@ void CSCMonitorModuleCmn::analyze(const edm::Event& e, const edm::EventSetup& c)
 
   // Update fractional histograms if appropriate
   if (config.getNEventsCSC() > 0 && fractUpdateKey.test(2) && (config.getNEvents() % fractUpdateEvF) == 0) {
-    dispatcher->updateFractionHistos();
-    dispatcher->updateEfficiencyHistos();
+    dispatcher->updateFractionAndEfficiencyHistos();
   }
     
 }

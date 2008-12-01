@@ -19,11 +19,38 @@
 #ifndef CSCDQM_Dispatcher_H
 #define CSCDQM_Dispatcher_H
 
+#include <boost/thread.hpp>
+#include <boost/thread/mutex.hpp>
+
 #include "DQM/CSCMonitorModule/interface/CSCDQM_Configuration.h"
 #include "DQM/CSCMonitorModule/interface/CSCDQM_EventProcessor.h"
 #include "DQM/CSCMonitorModule/interface/CSCDQM_Collection.h"
+#include "DQM/CSCMonitorModule/interface/CSCDQM_Cache.h"
 
 namespace cscdqm {
+
+  class EventProcessorMutex : private boost::noncopyable {
+
+    private:
+
+      bool locked;
+      EventProcessor processor;
+
+    public:
+
+      EventProcessorMutex(Configuration* const p_config) : processor(p_config) {
+        locked = false;
+      }
+
+      void updateFractionAndEfficiencyHistos() {
+        if (!locked) {
+          locked = true;
+          processor.updateFractionAndEfficiencyHistos();
+          locked = false;
+        }
+      }
+
+  };
 
   /**
    * @class Dispatcher
@@ -33,21 +60,22 @@ namespace cscdqm {
 
     public:
 
-      Dispatcher(Configuration* const p_config) : collection(p_config), processor(p_config) {
-        config = p_config;
-      }
+      Dispatcher(Configuration* const p_config);
 
-      void updateFractionHistos() { processor.updateFractionHistos(); }
-      void updateEfficiencyHistos() { processor.updateEfficiencyHistos(); }
+      void updateFractionAndEfficiencyHistos();
 
       Collection* getCollection() { return &collection; }
        
+      const bool getHisto(const HistoType& histoT, MonitorObject*& me);
+
     private:
 
-      cscdqm::Configuration  *config;
-      cscdqm::Collection     collection;
-      cscdqm::EventProcessor processor;
-    
+      Configuration       *config;
+      Collection          collection;
+      EventProcessor      processor;
+      EventProcessorMutex processorFract;
+      Cache               cache;
+
 // ===================================================================================================
 // Local ONLY stuff 
 // ===================================================================================================
