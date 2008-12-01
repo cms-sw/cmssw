@@ -90,15 +90,12 @@ class PixelThresholdClusterizer : public PixelClusterizerBase {
   float theClusterThreshold;  // Cluster threshold in electrons
   int   theConversionFactor;  // adc to electron conversion factor
   int   theOffset;            // adc to electron conversion offset
-  int clustercount;
-  int deadend;
 
   //! Geometry-related information
   int  theNumOfRows;
   int  theNumOfCols;
   uint32_t detid_;
   bool dead_flag;
-  bool deadend_flag;
   bool doMissCalibrate; // Use calibration or not
   bool doSplitClusters;
   //! Private helper methods:
