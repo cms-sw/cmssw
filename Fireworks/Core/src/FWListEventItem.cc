@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 28 11:13:37 PST 2008
-// $Id: FWListEventItem.cc,v 1.22 2008/07/16 20:48:58 chrjones Exp $
+// $Id: FWListEventItem.cc,v 1.23 2008/11/06 22:05:25 amraktad Exp $
 //
 
 // system include files
@@ -42,145 +42,6 @@
 //
 // static data member definitions
 //
-static
-const std::vector<std::string>&
-defaultMemberFunctionNames()
-{
-   static std::vector<std::string> s_names;
-   if(s_names.empty()){
-      s_names.push_back("pt");
-      s_names.push_back("et");
-      s_names.push_back("energy");
-   }
-   return s_names;
-}
-
-static
-ROOT::Reflex::Member
-recursiveFindMember(const std::string& iName,
-                    const ROOT::Reflex::Type& iType)
-{
-   using namespace ROOT::Reflex;
-
-   Member temp = iType.MemberByName(iName);
-   if(temp) {return temp;}
-
-   //try all base classes
-   for(Base_Iterator it = iType.Base_Begin(), itEnd = iType.Base_End();
-       it != itEnd;
-       ++it) {
-      temp = recursiveFindMember(iName,it->ToType());
-      if(temp) {break;}
-   }
-   return temp;
-}
-
-
-static
-ROOT::Reflex::Member
-findDefaultMember(const TClass* iClass) {
-   using namespace ROOT::Reflex;
-   if(0==iClass) {
-      return Member();
-   }
-
-   Type rType = Type::ByTypeInfo(*(iClass->GetTypeInfo()));
-   assert(rType != Type() );
-   //std::cout <<"Type "<<rType.Name(SCOPED)<<std::endl;
-
-   Member returnValue;
-   const std::vector<std::string>& names = defaultMemberFunctionNames();
-   for(std::vector<std::string>::const_iterator it = names.begin(), itEnd=names.end();
-       it != itEnd;
-       ++it) {
-      //std::cout <<" trying function "<<*it<<std::endl;
-      Member temp = recursiveFindMember(*it,rType);
-      if(temp) {
-         if(0==temp.FunctionParameterSize(true)) {
-            //std::cout <<"    FOUND "<<temp.Name()<<std::endl;
-            //std::cout <<"     in type "<<temp.DeclaringType().Name(SCOPED)<<std::endl;
-            returnValue = temp;
-            break;
-         }
-      }
-   }
-   return returnValue;
-}
-
-namespace {
-   template <class T>
-   std::string valueToString(const std::string& iName, const ROOT::Reflex::Object& iObj) {
-      std::stringstream s;
-      s.setf(std::ios_base::fixed,std::ios_base::floatfield);
-      s.precision(2);
-      T temp = *(reinterpret_cast<T*>(iObj.Address()));
-      s<<iName <<" = "<<temp;
-      return s.str();
-   }
-
-   typedef std::string(*FunctionType)(const std::string&,const ROOT::Reflex::Object&);
-   typedef std::map<std::string, FunctionType> TypeToStringMap;
-
-   template<typename T>
-   static void addToStringMap(TypeToStringMap& iMap) {
-      iMap[typeid(T).name()]=valueToString<T>;
-   }
-
-   template <class T>
-   double valueToDouble(const ROOT::Reflex::Object& iObj) {
-      return double(*(reinterpret_cast<T*>(iObj.Address())));
-   }
-
-   typedef double(*DoubleFunctionType)(const ROOT::Reflex::Object&);
-   typedef std::map<std::string, DoubleFunctionType> TypeToDoubleMap;
-
-   template<typename T>
-   static void addToDoubleMap(TypeToDoubleMap& iMap) {
-      iMap[typeid(T).name()]=valueToDouble<T>;
-   }
-
-}
-
-static
-std::string
-stringValueFor(const ROOT::Reflex::Object& iObj, const ROOT::Reflex::Member& iMember) {
-   static TypeToStringMap s_map;
-   if(s_map.empty() ) {
-      addToStringMap<float>(s_map);
-      addToStringMap<double>(s_map);
-   }
-
-   ROOT::Reflex::Object val = iMember.Invoke(iObj);
-
-   TypeToStringMap::iterator itFound =s_map.find(val.TypeOf().TypeInfo().name());
-   if(itFound == s_map.end()) {
-      //std::cout <<" could not print because type is "<<iObj.TypeOf().TypeInfo().name()<<std::endl;
-      return std::string();
-   }
-
-   return itFound->second(iMember.Name(),val);
-}
-
-static
-double
-doubleValueFor(const ROOT::Reflex::Object& iObj, const ROOT::Reflex::Member& iMember) {
-   static TypeToDoubleMap s_map;
-   if(s_map.empty() ) {
-      addToDoubleMap<float>(s_map);
-      addToDoubleMap<double>(s_map);
-   }
-
-   ROOT::Reflex::Object val = iMember.Invoke(iObj);
-
-   //std::cout << val.TypeOf().TypeInfo().name()<<std::endl;
-   TypeToDoubleMap::iterator itFound =s_map.find(val.TypeOf().TypeInfo().name());
-   if(itFound == s_map.end()) {
-      //std::cout <<" could not print because type is "<<iObj.TypeOf().TypeInfo().name()<<std::endl;
-      return -999.0;
-   }
-
-   return itFound->second(val);
- }
 
 //
 // constructors and destructor
@@ -189,8 +50,7 @@ FWListEventItem::FWListEventItem(FWEventItem* iItem,
                                  FWDetailViewManager* iDV):
 TEveElementList(iItem->name().c_str(),"",kTRUE),
 m_item(iItem),
-m_detailViewManager(iDV),
-m_memberFunction(findDefaultMember(iItem->modelType()))
+m_detailViewManager(iDV)
 {
    m_item->itemChanged_.connect(boost::bind(&FWListEventItem::itemChanged,this,_1));
    m_item->changed_.connect(boost::bind(&FWListEventItem::modelsChanged,this,_1));
@@ -278,16 +138,9 @@ FWListEventItem::itemChanged(const FWEventItem* iItem)
          ROOT::Reflex::Object obj;
          std::string data;
          double doubleData=index;
-         if(m_memberFunction) {
-            //the const_cast is fine since I'm calling a const member function
-            ROOT::Reflex::Type rType = ROOT::Reflex::Type::ByTypeInfo(*(iItem->modelType()->GetTypeInfo()));
-
-            ROOT::Reflex::Object temp(rType,
-                                      const_cast<void*>(eventItem()->modelData(index)));
-            //now convert it to the type expected by the function (since it might want a base class
-            obj= temp.CastObject(m_memberFunction.DeclaringType());
-            data = stringValueFor(obj,m_memberFunction);
-            doubleData = doubleValueFor(obj,m_memberFunction);
+         if(eventItem()->haveInterestingValue()) {
+            doubleData = eventItem()->modelInterestingValue(index);
+            data = eventItem()->modelInterestingValueAsString(index);
          }
          FWListModel* model = new FWListModel(FWModelId(eventItem(),index),
                                               m_detailViewManager,

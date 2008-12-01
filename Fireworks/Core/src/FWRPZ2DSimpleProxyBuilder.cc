@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Nov 26 11:27:21 EST 2008
-// $Id$
+// $Id: FWRPZ2DSimpleProxyBuilder.cc,v 1.1 2008/11/27 00:40:34 chrjones Exp $
 //
 
 // system include files
@@ -149,7 +149,12 @@ FWRPZ2DSimpleProxyBuilder::build(TEveElementList* oAddTo, T iCaller)
             *itId=FWModelId(item(),index);
          }
          const void* modelData = item()->modelData(index);
-         const std::string name = item()->modelName(index);
+         std::string name = item()->modelName(index);
+         std::stringstream s;
+         if(item()->haveInterestingValue()) {
+            s<<name<<", "<<item()->modelInterestingValueAsString(index);
+            name=s.str();
+         }
          std::auto_ptr<TEveCompound> itemHolder(new TEveCompound(name.c_str(),name.c_str()));
          {
             itemHolder->OpenCompound();
