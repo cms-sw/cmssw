@@ -1851,12 +1851,13 @@ DQMStore::useQTestByMatch(const std::string &pattern, const std::string &qtname)
   MEMap::iterator mi = data_.begin();
   MEMap::iterator me = data_.end();
 
-  int cases=0;
+  int cases = 0;
   for ( ; mi != me; ++mi)
-    if (rx->match(mi->first)){
-    ++cases; 
-    mi->second.addQReport(qts.second);
-   }
+    if (rx->match(mi->first))
+    {
+      ++cases;
+      mi->second.addQReport(qts.second);
+    }
 
   //return the number of matched cases
   return cases;
