@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: ElectronDetailView.cc,v 1.17 2008/11/24 19:39:14 amraktad Exp $
+// $Id: ElectronDetailView.cc,v 1.18 2008/11/26 15:34:15 amraktad Exp $
 //
 
 // system include files
@@ -168,9 +168,12 @@ void ElectronDetailView::build_projected (TEveElementList **product,
      if (const reco::GsfElectron *i = &electrons->at(id.index())) {
 	  assert(i->gsfTrack().isNonnull());
 	  assert(i->superCluster().isNonnull());
+	  tList->AddElement(makeLabels(*i));
 	  std::vector<DetId> detids = i->superCluster()->getHitsByDetId();
 	  seed_detids = i->superCluster()->seed()->
 	       getHitsByDetId();
+	  const unsigned int subdetId = 
+	       seed_detids.size() != 0 ? seed_detids.begin()->subdetId() : 0;
 	  //  const int subdetId = 
 	  //   seed_detids.size() != 0 ? seed_detids.begin()->subdetId() : -1;
 #if 0
@@ -189,6 +192,122 @@ void ElectronDetailView::build_projected (TEveElementList **product,
 	  tList->AddElement(calo3d);
 	  tList->AddElement(makeLabels(*i));
 #endif
+	  const double scale = 1;
+	  if (subdetId == EcalBarrel) {
+	       rotation_center[0] = i->superCluster()->position().eta() * scale;
+	       rotation_center[1] = i->superCluster()->position().phi() * scale;
+	       rotation_center[2] = 0;
+	  } else if (subdetId == EcalEndcap) {
+	       rotation_center[0] = i->superCluster()->position().x() * scale;
+	       rotation_center[1] = i->superCluster()->position().y() * scale;
+	       rotation_center[2] = 0;
+	  }
+	  TEvePointSet *scposition = 
+	       new TEvePointSet("sc position", 1);
+	  if (subdetId == EcalBarrel) {
+	       scposition->SetNextPoint(i->caloPosition().eta() * scale,
+					i->caloPosition().phi() * scale,
+					0);
+	  } else if (subdetId == EcalEndcap) {
+	       scposition->SetNextPoint(i->caloPosition().x() * scale,
+					i->caloPosition().y() * scale,
+					0);
+	  }
+	  scposition->SetMarkerStyle(28);
+	  scposition->SetMarkerSize(0.25);
+	  scposition->SetMarkerColor(kBlue);
+	  tList->AddElement(scposition);
+	  TEvePointSet *seedposition = 
+	       new TEvePointSet("seed position", 1);
+	  if (subdetId == EcalBarrel) {
+	       seedposition->SetNextPoint(i->superCluster()->seed()->position().eta() * scale,
+					  i->superCluster()->seed()->position().phi() * scale,
+					  0);
+	  } else if (subdetId == EcalEndcap) {
+	       seedposition->SetNextPoint(i->superCluster()->seed()->position().x() * scale,
+					  i->superCluster()->seed()->position().y() * scale,
+					  0);
+	  }
+	  seedposition->SetMarkerStyle(28);
+	  seedposition->SetMarkerSize(0.25);
+	  seedposition->SetMarkerColor(kRed);
+	  tList->AddElement(seedposition);
+	  TEveLine *trackpositionAtCalo = 
+	       new TEveLine("sc trackpositionAtCalo");
+	  if (subdetId == EcalBarrel) {
+	       trackpositionAtCalo->SetNextPoint(i->TrackPositionAtCalo().eta() * scale,
+						 rotation_center[1] - 20,
+						 0);
+	       trackpositionAtCalo->SetNextPoint(i->TrackPositionAtCalo().eta() * scale,
+						 rotation_center[1] + 20,
+						 0);
+	  } else if (subdetId == EcalEndcap) {
+	       trackpositionAtCalo->SetNextPoint(i->TrackPositionAtCalo().x() * scale,
+						 rotation_center[1] - 20,
+						 0);
+	       trackpositionAtCalo->SetNextPoint(i->TrackPositionAtCalo().x() * scale,
+						 rotation_center[1] + 20,
+						 0);
+	  }
+	  trackpositionAtCalo->SetLineColor(kBlue);
+	  tList->AddElement(trackpositionAtCalo);
+	  trackpositionAtCalo = new TEveLine("sc trackpositionAtCalo");
+	  if (subdetId == EcalBarrel) {
+	       trackpositionAtCalo->SetNextPoint(rotation_center[0] - 20,
+						 i->TrackPositionAtCalo().phi() * scale,
+						 0);
+	       trackpositionAtCalo->SetNextPoint(rotation_center[0] + 20,
+						 i->TrackPositionAtCalo().phi() * scale,
+						 0);
+	  } else if (subdetId == EcalEndcap) {
+	       trackpositionAtCalo->SetNextPoint(rotation_center[0] - 20,
+						 i->TrackPositionAtCalo().y() * scale,
+						 0);
+	       trackpositionAtCalo->SetNextPoint(rotation_center[0] + 20,
+						 i->TrackPositionAtCalo().y() * scale,
+						 0);
+	  }
+	  trackpositionAtCalo->SetLineColor(kBlue);
+	  tList->AddElement(trackpositionAtCalo);
+	  TEveLine *pinposition = 
+	       new TEveLine("pin position", 1);
+	  if (subdetId == EcalBarrel) {
+	       pinposition->SetNextPoint((i->caloPosition().eta() - i->deltaEtaSuperClusterTrackAtVtx()) * scale,
+					 rotation_center[1] - 20,
+					 0);
+	       pinposition->SetNextPoint((i->caloPosition().eta() - i->deltaEtaSuperClusterTrackAtVtx()) * scale,
+					 rotation_center[1] + 20,
+					 0);
+	  } else if (subdetId == EcalEndcap) {
+	       pinposition->SetNextPoint((i->caloPosition().x() - i->deltaEtaSuperClusterTrackAtVtx()) * scale,
+					 rotation_center[1] - 20,
+					 0);
+	       pinposition->SetNextPoint((i->caloPosition().x() - i->deltaEtaSuperClusterTrackAtVtx()) * scale,
+					 rotation_center[1] + 20,
+					 0);
+	  }
+	  pinposition->SetMarkerStyle(28);
+	  pinposition->SetLineColor(kRed);
+	  tList->AddElement(pinposition);
+	  pinposition = new TEveLine("pin position", 1);
+	  if (subdetId == EcalBarrel) {
+	       pinposition->SetNextPoint(rotation_center[0] - 20,
+					 (i->caloPosition().phi() - i->deltaPhiSuperClusterTrackAtVtx()) * scale,
+					 0);
+	       pinposition->SetNextPoint(rotation_center[0] + 20,
+					 (i->caloPosition().phi() - i->deltaPhiSuperClusterTrackAtVtx()) * scale,
+					 0);
+	  } else if (subdetId == EcalEndcap) {
+	       pinposition->SetNextPoint(rotation_center[0] - 20,
+					 (i->caloPosition().y() - i->deltaPhiSuperClusterTrackAtVtx()) * scale,
+					 0);
+	       pinposition->SetNextPoint(rotation_center[0] + 20,
+					 (i->caloPosition().y() - i->deltaPhiSuperClusterTrackAtVtx()) * scale,
+					 0);
+	  }
+	  pinposition->SetMarkerStyle(28);
+	  pinposition->SetLineColor(kRed);
+	  tList->AddElement(pinposition);
 	  // vector for the ECAL crystals
 	  TEveCaloDataVec* data = new TEveCaloDataVec(2);
 	  // one slice for the seed cluster (red) and one for the
@@ -420,6 +539,7 @@ TEveElementList *ElectronDetailView::makeLabels (
      t->SetLighting(kTRUE);
      ret->AddElement(t);
 #endif
+#if 0
      // eta, phi axis
      TEveLine *eta_line = new TEveLine;
      eta_line->SetNextPoint(rotation_center[0] - 15, rotation_center[1] - 40, 0);
@@ -439,5 +559,6 @@ TEveElementList *ElectronDetailView::makeLabels (
      tt->PtrMainTrans()->MoveLF(1, rotation_center[0] - 15);
      tt->PtrMainTrans()->MoveLF(2, rotation_center[1] - 34);
      ret->AddElement(tt);
+#endif
      return ret;
 }
