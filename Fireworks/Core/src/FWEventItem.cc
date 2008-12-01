@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Thu Jan  3 14:59:23 EST 2008
-// $Id: FWEventItem.cc,v 1.27 2008/10/21 19:25:06 chrjones Exp $
+// $Id: FWEventItem.cc,v 1.28 2008/11/06 22:05:25 amraktad Exp $
 //
 
 // system include files
@@ -33,6 +33,18 @@
 //
 // static data member definitions
 //
+static
+const std::vector<std::pair<std::string,std::string> >&
+defaultMemberFunctionNames()
+{
+   static std::vector<std::pair<std::string,std::string> > s_names;
+   if(s_names.empty()){
+      s_names.push_back(std::pair<std::string,std::string>("pt","GeV"));
+      s_names.push_back(std::pair<std::string,std::string>("et","GeV"));
+      s_names.push_back(std::pair<std::string,std::string>("energy","GeV"));
+   }
+   return s_names;
+}
 
 //
 // constructors and destructor
@@ -53,6 +65,8 @@ m_moduleLabel(iDesc.moduleLabel()),
 m_productInstanceLabel(iDesc.productInstanceLabel()),
 m_processName(iDesc.processName()),
 m_event(0),
+m_interestingValueGetter(ROOT::Reflex::Type::ByTypeInfo(*(m_accessor->modelType()->GetTypeInfo())),
+                         defaultMemberFunctionNames()),
 m_filter(iDesc.filterExpression(),""),
 m_printedNoDataError(false)
 {
@@ -475,6 +489,26 @@ FWEventItem::modelName(int iIndex) const
    s<<name().substr(0,lastChar)<<" "<<iIndex;
    return s.str();
 }
+
+bool 
+FWEventItem::haveInterestingValue() const
+{
+   return m_interestingValueGetter.isValid();
+}
+
+double 
+FWEventItem::modelInterestingValue(int iIndex) const
+{
+   getPrimaryData();
+   return m_interestingValueGetter.valueFor(m_accessor->modelData(iIndex));
+}
+std::string 
+FWEventItem::modelInterestingValueAsString(int iIndex) const
+{
+   getPrimaryData();
+   return m_interestingValueGetter.stringValueFor(m_accessor->modelData(iIndex));
+}
+
 
 const std::string&
 FWEventItem::filterExpression() const

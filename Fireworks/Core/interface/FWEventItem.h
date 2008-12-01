@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Jan  3 14:02:21 EST 2008
-// $Id: FWEventItem.h,v 1.27 2008/10/21 19:25:06 chrjones Exp $
+// $Id: FWEventItem.h,v 1.28 2008/11/06 22:05:22 amraktad Exp $
 //
 
 // system include files
@@ -33,6 +33,7 @@
 #include "Fireworks/Core/interface/FWItemChangeSignal.h"
 
 #include "Fireworks/Core/interface/FWModelFilter.h"
+#include "Fireworks/Core/interface/FWItemValueGetter.h"
 
 #include "Fireworks/Core/interface/Context.h"
 
@@ -103,6 +104,11 @@ class FWEventItem
       size_t size() const;
       const void* modelData(int iIndex) const;
       std::string modelName(int iIndex) const;
+   
+      ///one value from the model which is normally used for the popup
+      bool haveInterestingValue() const;
+      double modelInterestingValue(int iIndex) const;
+      std::string modelInterestingValueAsString(int iIndex) const;
 
       bool isCollection() const;
 
@@ -185,6 +191,8 @@ class FWEventItem
       const fwlite::Event* m_event;
       ROOT::Reflex::Type m_wrapperType;
       const DetIdToMatrix* m_detIdToGeo;
+   
+      FWItemValueGetter m_interestingValueGetter;
 
       FWModelFilter m_filter;
       sigc::connection m_shouldFilterConnection;
