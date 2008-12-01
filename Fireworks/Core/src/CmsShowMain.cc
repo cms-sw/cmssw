@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.45 2008/11/18 03:39:51 chrjones Exp $
+// $Id: CmsShowMain.cc,v 1.46 2008/11/28 22:21:46 amraktad Exp $
 //
 
 // system include files
@@ -51,6 +51,7 @@
 #include "Fireworks/Core/interface/FWRhoPhiZViewManager.h"
 #include "Fireworks/Core/interface/FWEveLegoViewManager.h"
 #include "Fireworks/Core/interface/FWGlimpseViewManager.h"
+#include "Fireworks/Core/interface/FW3DViewManager.h"
 #include "Fireworks/Core/interface/FWEventItemsManager.h"
 #include "Fireworks/Core/interface/FWViewManagerManager.h"
 #include "Fireworks/Core/interface/FWGUIManager.h"
@@ -129,6 +130,8 @@ static const char* const kLoopPlaybackOpt = "play";
 static const char* const kLoopPlaybackCommandOpt = "play,p";
 static const char* const kDebugOpt = "debug";
 static const char* const kDebugCommandOpt = "debug,d";
+static const char* const kEveOpt = "eve";
+static const char* const kEveCommandOpt = "eve";
 static const char* const kAdvancedRenderOpt = "shine";
 static const char* const kAdvancedRenderCommandOpt = "shine,s";
 static char const* const kHelpOpt = "help";
@@ -168,7 +171,8 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
       (kNoConfigFileCommandOpt,                           "Don't load any configuration file")
       (kLoopPlaybackCommandOpt, po::value<int>(),         "Start in auto playback mode with given interval between events in seconds")
       (kPortCommandOpt, po::value<unsigned int>(),        "Listen to port for new data files to open")
-      (kDebugCommandOpt,                                  "Show Eve browser to help debug problems")
+      (kEveCommandOpt,                                    "Show Eve browser to help debug problems")
+      (kDebugCommandOpt,                                  "Start the display from a debugger and producer a crash report")
       (kAdvancedRenderCommandOpt,                         "Use advance options to improve rendering quality (anti-alias etc)")
       (kSoftCommandOpt,                                   "Try to force software rendering to avoid problems with bad hardware drivers")
       (kBrightnessCommandOpt, po::value<unsigned int>(),  "Icnrease brightness of objects when used for slides or projectors. [0-5]")
@@ -220,7 +224,7 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
          m_geomFileName =cmspath;
          m_geomFileName.append("/cmsGeom10.root");
       }
-      bool debugMode = vm.count(kDebugOpt);
+      bool eveMode = vm.count(kEveOpt);
 
       //Delay creating guiManager until here so that if we have a 'help' request we don't
       // open any graphics
@@ -330,13 +334,12 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
          m_navigator->loadFile(m_inputFileName);
       }
       */
-      if(debugMode) {
+      gSystem->IgnoreSignal(kSigSegmentationViolation, true);
+      if(eveMode) {
          //setupDebugSupport();
          f=boost::bind(&CmsShowMain::setupDebugSupport,this);
          m_startupTasks->addTask(f);
          //m_guiManager->openEveBrowserForDebugging();
-      }else{
-         gSystem->IgnoreSignal(kSigSegmentationViolation, true);
       }
 
       if(vm.count(kPortCommandOpt)) {
@@ -499,6 +502,10 @@ CmsShowMain::setupViewManagers()
    m_viewManager->add( boost::shared_ptr<FWViewManagerBase>( new FWEveLegoViewManager(m_guiManager.get()) ) );
 
    m_viewManager->add( boost::shared_ptr<FWViewManagerBase>( new FWGlimpseViewManager(m_guiManager.get()) ) );
+   
+   boost::shared_ptr<FWViewManagerBase> plain3DViewManager( new FW3DViewManager(m_guiManager.get()) );
+   plain3DViewManager->setGeom(&m_detIdToGeo);
+   m_viewManager->add( plain3DViewManager );
 }
 
 void
@@ -793,7 +800,7 @@ CmsShowMain::setPlayDelay(CSGAction* action)
 void
 CmsShowMain::setupDebugSupport()
 {
-   m_guiManager->updateStatus("Setting up debug support...");
+   m_guiManager->updateStatus("Setting up Eve debug window...");
    m_guiManager->openEveBrowserForDebugging();
 }
 
