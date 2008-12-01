@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_0_0/pre3/HLT/V8 (CMSSW_3_0_0_pre2_HLT2)
+# /dev/CMSSW_3_0_0/pre3/HLT/V16 (CMSSW_3_0_X_2008-11-29-0200_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_0_0/pre3/HLT/V8')
+  tableName = cms.string('/dev/CMSSW_3_0_0/pre3/HLT/V16')
 )
 
 block_hltL1NonIsoLargeWindowElectronPixelSeeds = cms.PSet(
