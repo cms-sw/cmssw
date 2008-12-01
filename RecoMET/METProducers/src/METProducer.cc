@@ -168,6 +168,7 @@ namespace cms
     //----------------------------------
     else if( METtype == "PFMET" )
       {
+	alg_.run(input, &output, globalThreshold);
 	PFSpecificAlgo pf;
 	std::auto_ptr<PFMETCollection> pfmetcoll;
 	pfmetcoll.reset (new PFMETCollection);
