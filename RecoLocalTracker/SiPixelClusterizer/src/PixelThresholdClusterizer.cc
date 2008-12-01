@@ -22,7 +22,7 @@
 // Our own includes
 #include "RecoLocalTracker/SiPixelClusterizer/interface/PixelThresholdClusterizer.h"
 #include "RecoLocalTracker/SiPixelClusterizer/interface/SiPixelArrayBuffer.h"
-
+#include "CondFormats/SiPixelObjects/interface/SiPixelGainCalibrationOffline.h"
 // Geometry
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
@@ -58,7 +58,7 @@ PixelThresholdClusterizer::PixelThresholdClusterizer
    
    // Get the constants for the miss-calibration studies
    doMissCalibrate=conf_.getUntrackedParameter<bool>("MissCalibrate",true); 
-
+   doSplitClusters = conf.getUntrackedParameter<bool>("SplitClusters",true);
    theBuffer.setSize( theNumOfRows, theNumOfCols );
    //initTiming();
 }
@@ -78,16 +78,19 @@ bool PixelThresholdClusterizer::setup(const PixelGeomDetUnit * pixDet) {
   int nrows = topol.nrows();      // rows in x
   int ncols = topol.ncolumns();   // cols in y
 
-  if( nrows > theNumOfRows || ncols > theNumOfCols ) { // change only when a larger is needed
+  theNumOfRows = nrows;  // Set new sizes
+  theNumOfCols = ncols;
+
+    if( nrows > theBuffer.rows() || ncols > theBuffer.columns() ) { // change only when a larger is needed
     //if( nrows != theNumOfRows || ncols != theNumOfCols ) {
     //cout << " PixelThresholdClusterizer: pixel buffer redefined to " 
     // << nrows << " * " << ncols << endl;      
-    theNumOfRows = nrows;  // Set new sizes
-    theNumOfCols = ncols;
+      //theNumOfRows = nrows;  // Set new sizes
+      //theNumOfCols = ncols;
     // Resize the buffer
     theBuffer.setSize(nrows,ncols);  // Modify
     bufferAlreadySet = true;
-  }
+    }
 
   return true;   
 }
@@ -122,24 +125,25 @@ void PixelThresholdClusterizer::clusterizeDetUnit( const edm::DetSet<PixelDigi> 
   //  in order to make vector<>::push_back() efficient.
   // output.reserve ( theSeeds.size() ); //GPetruc: It is better *not* to reserve, with the new DetSetVector!
     
+
   //  Loop over all seeds.  TO DO: wouldn't using iterators be faster?
+//  edm::LogError("PixelThresholdClusterizer") <<  "Starting clusterizing" << endl;
   for (unsigned int i = 0; i < theSeeds.size(); i++) {
       
     if ( theBuffer(theSeeds[i]) != 0) {  // Is this seed still valid?
-	
       //  Make a cluster around this seed
-      SiPixelCluster cluster = make_cluster( theSeeds[i] );
+      SiPixelCluster cluster = make_cluster( theSeeds[i] , output);
 	
       //  Check if the cluster is above threshold  
       // (TO DO: one is signed, other unsigned, gcc warns...)
-      if ( cluster.charge() >= theClusterThreshold ) {
-	output.push_back( cluster );
+      if ( cluster.charge() >= theClusterThreshold && dead_flag == true) {
+//	cout << "putting in this cluster" << endl;
+        output.push_back( cluster );
       }
     }
   }
   // Erase the seeds.
   theSeeds.clear();
-
   //  Need to clean unused pixels from the buffer array.
   clear_buffer(begin, end);
 
@@ -187,7 +191,7 @@ int PixelThresholdClusterizer::calibrate(int adc, int col, int row) {
   if(doMissCalibrate) {
     // do not perform calibration if pixel is dead!
 
-    if(!theSiPixelGainCalibrationService_->isDead(detid_,col,row)){
+      if(!theSiPixelGainCalibrationService_->isDead(detid_,col,row)){
 
       // Linear approximation of the TANH response
       // Pixel(0,0,0)
@@ -221,8 +225,8 @@ int PixelThresholdClusterizer::calibrate(int adc, int col, int row) {
       //float vcal = ( atanh( (adc-p3)/p2) + p1)/p0;
   
       electrons = int( vcal * theConversionFactor + theOffset); 
-    }
-  } 
+      }
+  }
   else { // No misscalibration in the digitizer
     // Simple (default) linear gain 
     const float gain = 135.; // 1 ADC = 135 electrons
@@ -236,31 +240,72 @@ int PixelThresholdClusterizer::calibrate(int adc, int col, int row) {
 //!  \brief The actual clustering algorithm: group the neighboring pixels around the seed.
 //----------------------------------------------------------------------------
 SiPixelCluster 
-PixelThresholdClusterizer::make_cluster( const SiPixelCluster::PixelPos& pix) 
+PixelThresholdClusterizer::make_cluster( const SiPixelCluster::PixelPos& pix, edmNew::DetSetVector<SiPixelCluster>::FastFiller& output) 
 {
   //TimeMe tm1( *theMakeClustTimer, false);
-
-  // Make the cluster
-  SiPixelCluster cluster( pix, theBuffer( pix.row(), pix.col()) );
+  int seed_adc;
   stack<SiPixelCluster::PixelPos, vector<SiPixelCluster::PixelPos> > pixel_stack;
+  stack<SiPixelCluster::PixelPos, vector<SiPixelCluster::PixelPos> > dead_pixel_stack;
+  if(theSiPixelGainCalibrationService_->isDead(detid_,pix.col(),pix.row())){
+  seed_adc = 0;
+  theBuffer.set_adc(pix, 13);}
+  else{
+  seed_adc = theBuffer(pix.row(), pix.col());
+  theBuffer.set_adc( pix, 0);}
+  SiPixelCluster cluster( pix, seed_adc );
 
-  theBuffer.set_adc( pix, 0);
   pixel_stack.push( pix);
-
+  bool dead_flag = false;
   while ( ! pixel_stack.empty()) {
     SiPixelCluster::PixelPos curpix = pixel_stack.top(); pixel_stack.pop();
-    for ( int r = curpix.row()-1; r <= curpix.row()+1; ++r) {
-      for ( int c = curpix.col()-1; c <= curpix.col()+1; ++c) {
-	  if ( theBuffer(r,c) >= thePixelThreshold) {
-	    SiPixelCluster::PixelPos newpix(r,c);
-	    cluster.add( newpix, theBuffer(r,c));
-	    theBuffer.set_adc( newpix, 0);
-	    pixel_stack.push( newpix);
-	  
+      for ( int r = curpix.row()-1; r <= curpix.row()+1; ++r) {
+	for ( int c = curpix.col()-1; c <= curpix.col()+1; ++c) {
+	  if(r > 0 && c > 0 && (r < (theNumOfRows-1.)) && (c < (theNumOfCols-1.))){
+	    if ( theBuffer(r,c) >= thePixelThreshold) {
+	      SiPixelCluster::PixelPos newpix(r,c);
+	      cluster.add( newpix, theBuffer(r,c));
+	      theBuffer.set_adc( newpix, 0);
+	      pixel_stack.push( newpix);
+	      
+	    }
+	    //	    if(1 == 0){
+	 if(theSiPixelGainCalibrationService_->isDead(detid_,c,r) && theBuffer(r,c) != 13){
+	      SiPixelCluster::PixelPos newpix(r,c);
+	      cluster.add(newpix, theBuffer(r,c));
+	      theBuffer.set_adc(newpix, 0);
+	      dead_pixel_stack.push(newpix);
+	      theBuffer.set_adc(newpix, 13);
+	      dead_flag = true;
+	    } 
+	  }
 	}
       }
-    }
+    
   }
+  if(dead_flag && doSplitClusters){
+    SiPixelCluster first_cluster = cluster;
+    bool have_second_cluster = false;
+//	cout << "here" << endl;
+    while(!dead_pixel_stack.empty()){
+      SiPixelCluster::PixelPos deadpix = dead_pixel_stack.top(); dead_pixel_stack.pop();
+      theBuffer.set_adc(deadpix, 0);
+      SiPixelCluster second_cluster = make_cluster(deadpix, output);
+      if(second_cluster.charge() >= theClusterThreshold && first_cluster.charge() >= theClusterThreshold){
+	output.push_back( second_cluster );
+	have_second_cluster = true;	
+      }
+      const std::vector<SiPixelCluster::Pixel>& branch_pixels = second_cluster.pixels();
+      for(int i = 0; i<branch_pixels.size(); i++){
+	int temp_x = branch_pixels[i].x;
+	int temp_y = branch_pixels[i].y;
+	int temp_adc = branch_pixels[i].adc;
+	SiPixelCluster::PixelPos newpix(temp_x, temp_y);
+	cluster.add(newpix, temp_adc);}
+    }
+    if ( first_cluster.charge() >= theClusterThreshold && have_second_cluster) {
+      output.push_back( first_cluster );
+      }
+    }
   return cluster;
 }
 
