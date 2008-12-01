@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Mar  5 09:13:47 EST 2008
-// $Id: FWDetailViewManager.cc,v 1.14 2008/09/29 18:00:23 amraktad Exp $
+// $Id: FWDetailViewManager.cc,v 1.15 2008/11/06 22:05:25 amraktad Exp $
 //
 
 // system include files
@@ -150,6 +150,7 @@ FWDetailViewManager::openDetailViewFor(const FWModelId &id)
      // run the viewer
      TEveElementList *list = 0;
      viewer->second->setTextView(text_view);
+     viewer->second->setViewer(nv->GetGLViewer());
      viewer->second->build(&list, id);
      gEve->AddElement(list, ns);
      text_view->Update();
