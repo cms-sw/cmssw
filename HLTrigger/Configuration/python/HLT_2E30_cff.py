@@ -1,15 +1,16 @@
-# /dev/CMSSW_3_0_0/pre3/HLT/V15 (CMSSW_3_0_X_2008-11-20-0200_HLT1)
+# /dev/CMSSW_3_0_0/pre3/HLT/V16 (CMSSW_3_0_X_2008-11-29-0200_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_0_0/pre3/HLT/V15')
+  tableName = cms.string('/dev/CMSSW_3_0_0/pre3/HLT/V16')
 )
 
 BTagRecord = cms.ESSource( "EmptyESSource",
   recordName = cms.string( "JetTagComputerRecord" ),
   iovIsRunNotTime = cms.bool( True ),
+  appendToDataLabel = cms.string( "" ),
   firstValid = cms.vuint32( 1 )
 )
 MCJetCorrectorIcone5 = cms.ESSource( "MCJetCorrectionService",
@@ -55,6 +56,7 @@ AnyDirectionAnalyticalPropagator = cms.ESProducer( "AnalyticalPropagatorESProduc
 ParametrizedMagneticFieldProducer = cms.ESProducer( "ParametrizedMagneticFieldProducer",
   label = cms.untracked.string( "parametrizedField" ),
   version = cms.string( "OAE_1103l_071212" ),
+  appendToDataLabel = cms.string( "" ),
   parameters = cms.PSet(  BValue = cms.string( "3_8T" ) )
 )
 CaloTopologyBuilder = cms.ESProducer( "CaloTopologyBuilder",
@@ -9415,6 +9417,20 @@ hltAlCaPi0RegRecHits = cms.EDFilter( "HLTPi0RecHitsFilter",
     seleMinvMinPi0EndCap = cms.double( 0.05 ),
     ptMinForIsolationEndCap = cms.double( 0.5 ),
     selePi0IsoEndCap = cms.double( 1.0 ),
+    doSelForEtaBarrel = cms.bool( False ),
+    selePtGammaEta = cms.double( 1.2 ),
+    selePtEta = cms.double( 4.0 ),
+    seleS4S9GammaEta = cms.double( 0.9 ),
+    seleMinvMaxEta = cms.double( 0.7 ),
+    seleMinvMinEta = cms.double( 0.35 ),
+    ptMinForIsolationEta = cms.double( 1.0 ),
+    seleIsoEta = cms.double( 0.2 ),
+    seleEtaBeltDR = cms.double( 0.3 ),
+    seleEtaBeltDeta = cms.double( 0.1 ),
+    storeIsoClusRecHitEta = cms.bool( True ),
+    removePi0CandidatesForEta = cms.bool( True ),
+    massLowPi0Cand = cms.double( 0.114 ),
+    massHighPi0Cand = cms.double( 0.154 ),
     ParameterLogWeighted = cms.bool( True ),
     ParameterX0 = cms.double( 0.89 ),
     ParameterT0_barl = cms.double( 5.7 ),
