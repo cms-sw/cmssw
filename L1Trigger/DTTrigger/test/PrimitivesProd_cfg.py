@@ -7,7 +7,7 @@ process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cff")
 process.load("Geometry.DTGeometry.dtGeometry_cfi")
 process.DTGeometryESModule.applyAlignment = False
 
-process.load("L1TriggerConfig.DTTPGConfigProducers.L1DTTPGConfig_cff")
+# process.load("L1TriggerConfig.DTTPGConfigProducers.L1DTTPGConfig_cff")
 process.load("L1Trigger.DTTrigger.dtTriggerPrimitiveDigis_cfi")
 
 process.source = cms.Source("PoolSource",

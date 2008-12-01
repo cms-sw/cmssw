@@ -1,5 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
+from L1TriggerConfig.DTTPGConfigProducers.L1DTTPGConfig_cff import *
+
 dtTriggerPrimitiveDigis = cms.EDProducer("DTTrigProd",
     debug = cms.untracked.bool(False),
     tTrigModeConfig = cms.PSet(
