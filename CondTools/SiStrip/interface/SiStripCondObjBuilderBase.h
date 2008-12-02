@@ -11,7 +11,7 @@ class SiStripCondObjBuilderBase {
   
  public:
 
-  SiStripCondObjBuilderBase(const edm::ParameterSet& pset){};
+  SiStripCondObjBuilderBase(const edm::ParameterSet& pset):_pset(pset){};
   virtual ~SiStripCondObjBuilderBase(){};
   
   virtual void initialize(){};
@@ -28,7 +28,7 @@ class SiStripCondObjBuilderBase {
  protected:
   
   T* obj_;
-  
+  edm::ParameterSet _pset;
 };
 
 #endif // CondTools_SiStrip_SiStripCondObjBuilderBase_H
