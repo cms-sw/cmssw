@@ -514,6 +514,8 @@ void OHltTree::Loop( vector<int> * iCount, vector<int> * sPureCount, vector<int>
 
       else if(trignames[it].CompareTo("OpenHLT_Ele15_LW_L1R") == 0) {
         if ( L1_SingleEG10=1 ) { // L1 Seed
+          L1AssHLTBit[it] = true;    
+
           if(OpenHlt1LWElectronPassed(15.,1,9999.,9999.)>=1) {
             triggerBitNoPrescale[it] = true;
             if ((iCountNoPrescale[it]) % map_pathHLTPrescl.find(trignames[it])->second == 0) {
@@ -525,6 +527,8 @@ void OHltTree::Loop( vector<int> * iCount, vector<int> * sPureCount, vector<int>
 
       else if (trignames[it].CompareTo("OpenHLT_LooseIsoEle15_LW_L1R") == 0) {      
         if ( L1_SingleEG12==1 ) { // L1 Seed      
+          L1AssHLTBit[it] = true;    
+
           if(OpenHlt1LWElectronPassed(15.,0,0.12,6.)>=1) {      
             triggerBitNoPrescale[it] = true;      
             if ((iCountNoPrescale[it]) % map_pathHLTPrescl.find(trignames[it])->second == 0) {      
@@ -831,6 +835,8 @@ void OHltTree::Loop( vector<int> * iCount, vector<int> * sPureCount, vector<int>
 
       else if (trignames[it].CompareTo("OpenHLT_L1Photon5") == 0) {    
 	if ( L1_SingleEG5==1 ) {      // L1 Seed                                 
+          L1AssHLTBit[it] = true;    
+
 	  if(true) { // passthrough     
 	    triggerBitNoPrescale[it] = true;     
 	    if ((iCountNoPrescale[it]) % map_pathHLTPrescl.find(trignames[it])->second == 0) {     
