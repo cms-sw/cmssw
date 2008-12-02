@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Nov 19 10:40:21 EST 2008
-// $Id: FWRPZSimpleProxyBuilder.h,v 1.1 2008/11/26 02:15:49 chrjones Exp $
+// $Id: FWRPZSimpleProxyBuilder.h,v 1.2 2008/11/27 00:43:55 chrjones Exp $
 //
 
 // system include files
@@ -26,6 +26,7 @@
 #include "Fireworks/Core/interface/FWRPZDataProxyBuilderBase.h"
 #include "Fireworks/Core/interface/FWRPZDataProxyBuilderBaseFactory.h"
 #include "Fireworks/Core/interface/FWEvePtr.h"
+#include "Fireworks/Core/interface/FWSimpleProxyHelper.h"
 
 // forward declarations
 
@@ -62,8 +63,7 @@ private:
    virtual TEveElementList* getRhoZProduct() const;
    // ---------- member data --------------------------------
    FWEvePtr<TEveElementList> m_containerPtr;
-   const std::type_info* m_itemType;
-   long m_objectOffset;
+   FWSimpleProxyHelper m_helper;
    mutable bool m_needsUpdate;
 };
 

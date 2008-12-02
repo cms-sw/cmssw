@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Nov 26 11:02:04 EST 2008
-// $Id$
+// $Id: FWRPZ2DSimpleProxyBuilder.h,v 1.1 2008/11/27 00:40:30 chrjones Exp $
 //
 
 // system include files
@@ -25,6 +25,7 @@
 #include "Fireworks/Core/interface/FWRPZDataProxyBuilderBase.h"
 #include "Fireworks/Core/interface/FWRPZDataProxyBuilderBaseFactory.h"
 #include "Fireworks/Core/interface/FWEvePtr.h"
+#include "Fireworks/Core/interface/FWSimpleProxyHelper.h"
 
 // forward declarations
 class FWRPSimpleCaller;
@@ -71,8 +72,7 @@ private:
    FWEvePtr<TEveElementList> m_rhoPhiElementsPtr;
    FWEvePtr<TEveElementList> m_rhoZElementsPtr;
    FWEvePtr<TEveElementList> m_compounds;
-   const std::type_info* m_itemType;
-   long m_objectOffset;
+   FWSimpleProxyHelper m_helper;
 
    mutable bool m_rhoPhiNeedsUpdate;
    mutable bool m_rhoZNeedsUpdate;

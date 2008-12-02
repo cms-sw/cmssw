@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Nov 19 12:39:36 EST 2008
-// $Id: FWRPZSimpleProxyBuilder.cc,v 1.2 2008/11/27 00:44:35 chrjones Exp $
+// $Id: FWRPZSimpleProxyBuilder.cc,v 1.3 2008/12/01 01:00:58 chrjones Exp $
 //
 
 // system include files
@@ -40,8 +40,7 @@
 //
 FWRPZSimpleProxyBuilder::FWRPZSimpleProxyBuilder(const std::type_info& iType):
 m_containerPtr(new TEveElementList),
-m_itemType(&iType),
-m_objectOffset(0),
+m_helper(iType),
 m_needsUpdate(true)
 {
 }
@@ -75,15 +74,7 @@ void
 FWRPZSimpleProxyBuilder::itemChangedImp(const FWEventItem* iItem)
 {
    m_needsUpdate=true;
-   if(0!=iItem) {
-      using namespace ROOT::Reflex;
-      Type myType = Type::ByTypeInfo(*m_itemType);
-      Object dummy(Type::ByTypeInfo(*(iItem->modelType()->GetTypeInfo())),
-                           reinterpret_cast<void*>(0xFFFF));
-      Object castTo = dummy.CastObject(myType);
-      assert(0!=castTo.Address());
-      m_objectOffset=static_cast<char*>(dummy.Address())-static_cast<char*>(castTo.Address());
-   }
+   m_helper.itemChanged(iItem);
    m_containerPtr->DestroyElements();
 }
 
@@ -135,19 +126,15 @@ FWRPZSimpleProxyBuilder::build()
             *itId=FWModelId(item(),index);
          }
          const void* modelData = item()->modelData(index);
-         std::string name = item()->modelName(index);
-         std::stringstream s;
-         if(item()->haveInterestingValue()) {
-            s<<name<<", "<<item()->modelInterestingValueAsString(index);
-            name=s.str();
-         }
+         std::string name;
+         m_helper.fillTitle(*item(), index, name);
          std::auto_ptr<TEveCompound> itemHolder(new TEveCompound(name.c_str(),name.c_str()));
          {
             itemHolder->OpenCompound();
             //guarantees that CloseCompound will be called no matter what happens
             boost::shared_ptr<TEveCompound> sentry(itemHolder.get(),
                                                    boost::mem_fn(&TEveCompound::CloseCompound));
-            build(static_cast<const char*>(modelData)+m_objectOffset,index,*itemHolder);
+            build(m_helper.offsetObject(modelData),index,*itemHolder);
          }
          const FWEventItem::ModelInfo& info = item()->modelInfo(index);
          changeElementAndChildren(itemHolder.get(), info);

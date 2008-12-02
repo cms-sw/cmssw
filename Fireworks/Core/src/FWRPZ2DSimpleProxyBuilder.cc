@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Nov 26 11:27:21 EST 2008
-// $Id: FWRPZ2DSimpleProxyBuilder.cc,v 1.1 2008/11/27 00:40:34 chrjones Exp $
+// $Id: FWRPZ2DSimpleProxyBuilder.cc,v 1.2 2008/12/01 01:00:59 chrjones Exp $
 //
 
 // system include files
@@ -44,8 +44,7 @@ FWRPZ2DSimpleProxyBuilder::FWRPZ2DSimpleProxyBuilder(const std::type_info& iType
 m_rhoPhiElementsPtr(new TEveElementList),
 m_rhoZElementsPtr(new TEveElementList),
 m_compounds(new TEveElementList),
-m_itemType(&iType),
-m_objectOffset(0),
+m_helper(iType),
 m_rhoPhiNeedsUpdate(true),
 m_rhoZNeedsUpdate(true)
 {
@@ -83,15 +82,7 @@ FWRPZ2DSimpleProxyBuilder::itemChangedImp(const FWEventItem* iItem)
 {
    m_rhoPhiNeedsUpdate=true;
    m_rhoZNeedsUpdate=true;
-   if(0!=iItem) {
-      using namespace ROOT::Reflex;
-      Type myType = Type::ByTypeInfo(*m_itemType);
-      Object dummy(Type::ByTypeInfo(*(iItem->modelType()->GetTypeInfo())),
-                   reinterpret_cast<void*>(0xFFFF));
-      Object castTo = dummy.CastObject(myType);
-      assert(0!=castTo.Address());
-      m_objectOffset=static_cast<char*>(dummy.Address())-static_cast<char*>(castTo.Address());
-   }
+   m_helper.itemChanged(iItem);
    m_rhoPhiElementsPtr->DestroyElements();
    m_rhoZElementsPtr->DestroyElements();
 }
@@ -149,19 +140,15 @@ FWRPZ2DSimpleProxyBuilder::build(TEveElementList* oAddTo, T iCaller)
             *itId=FWModelId(item(),index);
          }
          const void* modelData = item()->modelData(index);
-         std::string name = item()->modelName(index);
-         std::stringstream s;
-         if(item()->haveInterestingValue()) {
-            s<<name<<", "<<item()->modelInterestingValueAsString(index);
-            name=s.str();
-         }
+         std::string name;
+         m_helper.fillTitle(*item(),index,name);
          std::auto_ptr<TEveCompound> itemHolder(new TEveCompound(name.c_str(),name.c_str()));
          {
             itemHolder->OpenCompound();
             //guarantees that CloseCompound will be called no matter what happens
             boost::shared_ptr<TEveCompound> sentry(itemHolder.get(),
                                                    boost::mem_fn(&TEveCompound::CloseCompound));
-            iCaller.build(this,static_cast<const char*>(modelData)+m_objectOffset,index,*itemHolder);
+            iCaller.build(this,m_helper.offsetObject(modelData),index,*itemHolder);
          }
          const FWEventItem::ModelInfo& info = item()->modelInfo(index);
          //NOTE: TEveCompounds only change the color of child elements which are already the
