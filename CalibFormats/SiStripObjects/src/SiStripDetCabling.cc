@@ -3,9 +3,10 @@
 // Class  :     SiStripDetCabling
 // Original Author:  dkcira
 //         Created:  Wed Mar 22 12:24:33 CET 2006
-// $Id: SiStripDetCabling.cc,v 1.16 2008/11/27 13:25:52 bainbrid Exp $
+// $Id: SiStripDetCabling.cc,v 1.17 2008/11/28 14:17:43 bainbrid Exp $
 #include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 using namespace std;
 
 //---- default constructor / destructor
@@ -90,6 +91,10 @@ void SiStripDetCabling::addDevices( const FedChannelConnection& conn,
 				    std::map< uint32_t, std::vector<FedChannelConnection> >& conns ){
   if ( conn.detId() && conn.detId() != sistrip::invalid32_ &&  // check for valid detid
        conn.apvPairNumber() != sistrip::invalid_ ) {           // check for valid apv pair number
+    if(conn.fedId()==0 || conn.fedId()==sistrip::invalid_ ){
+      edm::LogInfo("") << " SiStripDetCabling::addDevices for connection associated to detid " << conn.detId() << " apvPairNumber " << conn.apvPairNumber() << "the fedId is " << conn.fedId();
+      return;
+    } 
     if ( conn.apvPairNumber() >= conns[conn.detId()].size() )  // check cached vector size is sufficient
       conns[conn.detId()].resize( conn.apvPairNumber()+1 );    // if not, resize
     conns[conn.detId()][conn.apvPairNumber()] = conn;          // add latest connection object
