@@ -10,6 +10,7 @@
 <use name=Geometry/TrackerGeometryBuilder>
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
+<use name=FWCore/MessageLogger>
 <use name=MagneticField/Records>
 <use name=MagneticField/VolumeBasedEngine>
 <use name=PhysicsTools/CandUtils>
@@ -29,6 +30,7 @@
   <use name=DataFormats/VertexReco>
   <use name=FWCore/Framework>
   <use name=FWCore/ParameterSet>
+  <use name=FWCore/MessageLogger>
   <use name=MagneticField/Records>
   <use name=MagneticField/VolumeBasedEngine>
   <use name=PhysicsTools/CandUtils>

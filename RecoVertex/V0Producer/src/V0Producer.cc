@@ -13,7 +13,7 @@
 //
 // Original Author:  Brian Drell
 //         Created:  Fri May 18 22:57:40 CEST 2007
-// $Id: V0Producer.cc,v 1.6 2008/04/28 23:32:42 drell Exp $
+// $Id: V0Producer.cc,v 1.7 2008/10/17 21:03:01 drell Exp $
 //
 //
 
@@ -55,6 +55,7 @@ void V0Producer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
    // Create V0Fitter object which reconstructs the vertices and creates
    //  (and contains) collections of Kshorts, Lambda0s, and Lambda0Bars
+   //std::cout << "In V0Producer??" << std::endl;
    V0Fitter theVees(theParams, iEvent, iSetup);
 
    // Create auto_ptr for each collection to be stored in the Event

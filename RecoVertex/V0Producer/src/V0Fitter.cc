@@ -13,7 +13,7 @@
 //
 // Original Author:  Brian Drell
 //         Created:  Fri May 18 22:57:40 CEST 2007
-// $Id: V0Fitter.cc,v 1.31 2008/10/08 21:40:39 drell Exp $
+// $Id: V0Fitter.cc,v 1.32 2008/10/17 21:03:01 drell Exp $
 //
 //
 
@@ -24,6 +24,7 @@
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
 #include "TrackingTools/PatternTools/interface/ClosestApproachInRPhi.h"
 #include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <typeinfo>
 
@@ -94,10 +95,14 @@ V0Fitter::~V0Fitter() {
 void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   using std::vector;
+  using std::cout;
+  using std::endl;
   using reco::Track;
   using reco::TransientTrack;
   using reco::TrackRef;
   using namespace edm;
+
+  //cout << "In fitAll()" << endl;
 
   // Create std::vectors for Tracks and TrackRefs (required for
   //  passing to the KalmanVertexFitter)
@@ -109,7 +114,7 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   ESHandle<MagneticField> bFieldHandle;
   ESHandle<TrackerGeometry> trackerGeomHandle;
   ESHandle<GlobalTrackingGeometry> globTkGeomHandle;
-
+  //cout << "Check 0" << endl;
 
   // Get the tracks from the event, and get the B-field record
   //  from the EventSetup
@@ -222,20 +227,33 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
       transTracks.push_back(*negTransTkPtr);
 
       // Trajectory states to calculate DCA for the 2 tracks
+      //cout << "Check 1" << endl;
       FreeTrajectoryState posState = posTransTkPtr->impactPointTSCP().theState();
       FreeTrajectoryState negState = negTransTkPtr->impactPointTSCP().theState();
+      //cout << "Check 2" << endl;
 
       // Measure distance between tracks at their closest approach
       ClosestApproachInRPhi cApp;
       cApp.calculate(posState, negState);
+      //cout << cApp.status() << endl;
       float dca = fabs( cApp.distance() );
 
       // Get trajectory states for the tracks at POCA for later cuts
       GlobalPoint cxPt = cApp.crossingPoint();
-      TrajectoryStateClosestToPoint posTSCP = 
-	posTransTkPtr->trajectoryStateClosestToPoint( cxPt );
-      TrajectoryStateClosestToPoint negTSCP =
-	negTransTkPtr->trajectoryStateClosestToPoint( cxPt );
+      //cout << "Check 3" << endl;
+      TrajectoryStateClosestToPoint posTSCP;
+      TrajectoryStateClosestToPoint negTSCP;
+      try {
+	//TrajectoryStateClosestToPoint posTSCP = 
+	posTSCP = posTransTkPtr->trajectoryStateClosestToPoint( cxPt );
+	//TrajectoryStateClosestToPoint negTSCP =
+	negTSCP = negTransTkPtr->trajectoryStateClosestToPoint( cxPt );
+      }
+      catch(...) {
+	cout << "Caught one." << endl;
+	continue;
+      }
+      //cout << "Check 4" << endl;
 
       if (dca < 0. || dca > tkDCACut) continue;
 
