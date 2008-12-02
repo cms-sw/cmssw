@@ -28,8 +28,6 @@ DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(SiStripPedestalsFakeESSource);
 #include "CalibTracker/SiStripESProducers/plugins/fake/SiStripThresholdFakeESSource.h"
 DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(SiStripThresholdFakeESSource);
 
-#include "CalibTracker/SiStripESProducers/plugins/fake/SiStripThresholdFakeOnDB.h"
-DEFINE_ANOTHER_FWK_MODULE(SiStripThresholdFakeOnDB);
 
 #include "CalibTracker/SiStripESProducers/plugins/fake/SiStripBadStripFakeESSource.h"
 DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(SiStripBadStripFakeESSource);
