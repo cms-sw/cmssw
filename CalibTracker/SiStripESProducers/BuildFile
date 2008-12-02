@@ -1,3 +1,4 @@
+<use name=CalibTracker/SiStripCommon>
 <use name=CalibFormats/SiStripObjects>
 <use name=CalibTracker/Records>
 <use name=CondFormats/DataRecord>
