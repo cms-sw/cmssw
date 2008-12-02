@@ -6,8 +6,8 @@
  * *
  *  DQM Test Client
  *
- *  $Date: 2008/11/06 16:03:30 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/11/20 09:15:23 $
+ *  $Revision: 1.3 $
  *  \author  G. Mila - INFN Torino
  *   
  */
@@ -83,9 +83,7 @@ private:
   // wheel summary histograms  
   std::map< int, MonitorElement* > wheelMeanHistos;
   std::map< int, MonitorElement* > wheelSigmaHistos;
-  std::map< int, MonitorElement* > wheelSlopeHistos;
  
-
   // Compute the station from the bin number of mean and sigma histos
   int stationFromBin(int bin) const;
   // Compute the sl from the bin number of mean and sigma histos
