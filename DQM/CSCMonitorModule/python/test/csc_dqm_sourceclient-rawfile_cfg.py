@@ -145,6 +145,6 @@ MessageLogger = cms.Service("MessageLogger",
 # Sequences
 #--------------------------
 
-process.p = cms.Path(process.dqmClient+process.dqmEnv+process.dqmSaver)
+process.p = cms.Path(process.dqmCSCClient+process.dqmEnv+process.dqmSaver)
 
 

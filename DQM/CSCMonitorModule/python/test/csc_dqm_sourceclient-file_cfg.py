@@ -190,7 +190,7 @@ MessageLogger = cms.Service("MessageLogger",
 # Sequences
 #--------------------------
 
-#process.p = cms.Path(process.dqmClient + process.dqmEnv + process.dqmSaver)
-process.p = cms.Path(process.muonCSCDigis * process.csc2DRecHits * process.cscSegments * process.cscMonitor * process.dqmClient + process.dqmEnv + process.dqmSaver)
+#process.p = cms.Path(process.dqmCSCClient + process.dqmEnv + process.dqmSaver)
+process.p = cms.Path(process.muonCSCDigis * process.csc2DRecHits * process.cscSegments * process.cscMonitor * process.dqmCSCClient + process.dqmEnv + process.dqmSaver)
 
 
