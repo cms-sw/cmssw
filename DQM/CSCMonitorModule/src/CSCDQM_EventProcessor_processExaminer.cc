@@ -202,7 +202,7 @@ namespace cscdqm {
 		mof->SetBinContent(i,1, 100. * (1 - unpacked_dav_num / actual_dav_num));
 	      }				   
 	      mof->SetEntries((int)DMBEvents);
-	      mof->getTH1()->SetMaximum(100.0);
+	      mof->SetMaximum(100.0);
 	    }
 	  }	  
 	}
@@ -248,7 +248,7 @@ namespace cscdqm {
 		mof->SetBinContent(i, 1, 100. * (1 - unpacked_dav_num / actual_dav_num));
 	      }				   
 	      mof->SetEntries((int)DMBEvents);
-	      mof->getTH1()->SetMaximum(100.0);
+	      mof->SetMaximum(100.0);
 	    }
 	  }
 	  

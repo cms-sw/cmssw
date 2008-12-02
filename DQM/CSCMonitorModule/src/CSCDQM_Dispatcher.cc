@@ -23,6 +23,7 @@ namespace cscdqm {
   Dispatcher::Dispatcher(Configuration* const p_config) : collection(p_config), processor(p_config), processorFract(p_config) {
     config = p_config;
     config->getHisto = boost::bind(&Dispatcher::getHisto, this, _1, _2);
+    fnUpdate = boost::bind(&EventProcessorMutex::updateFractionAndEfficiencyHistos, &processorFract);
   }
 
   const bool Dispatcher::getHisto(const HistoType& histoT, MonitorObject*& me) {
@@ -32,10 +33,43 @@ namespace cscdqm {
     return ret;
   }
 
-  void Dispatcher::updateFractionAndEfficiencyHistos() {
-    boost::function<void ()> fnUpdate = boost::bind(&EventProcessorMutex::updateFractionAndEfficiencyHistos, &processorFract);
-    boost::thread(boost::ref(fnUpdate));
+  void Dispatcher::updateFractionAndEfficiencyHistosAuto() {
+    if ( config->FRAEFF_AUTO_UPDATE &&
+        (config->getNEventsCSC() > config->FRAEFF_AUTO_UPDATE_START) &&
+        (config->getNEventsCSC() % config->FRAEFF_AUTO_UPDATE_FREQ) == 0) {
+      updateFractionAndEfficiencyHistos();
+    }
   }
 
+  void Dispatcher::updateFractionAndEfficiencyHistos() {
+    if (!processorFract.isLocked()) {
+      processorFract.lock();
+      if (config->FRAEFF_SEPARATE_THREAD) { 
+        threads.create_thread(boost::ref(fnUpdate));
+        threads.join_all();
+      } else {
+        fnUpdate();
+      }
+      processorFract.unlock();
+    }
+  }
+
+#ifdef DQMLOCAL
+
+  void Dispatcher::processEvent(const char* data, const int32_t dataSize, const uint32_t errorStat, const int32_t nodeNumber) {
+    processor.processEvent(data, dataSize, errorStat, nodeNumber);
+    updateFractionAndEfficiencyHistosAuto();
+  }
+
+#endif      
+
+#ifdef DQMGLOBAL
+
+  void Dispatcher::processEvent(const edm::Event& e, const edm::InputTag& inputTag) {
+    processor.processEvent(e, inputTag);
+    updateFractionAndEfficiencyHistosAuto();
+  }
+
+#endif      
 
 }

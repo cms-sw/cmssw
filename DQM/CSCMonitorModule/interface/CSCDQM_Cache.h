@@ -23,7 +23,6 @@
 #include <set>
 
 #include <boost/shared_ptr.hpp>
-#include <boost/thread.hpp>
 
 #include "DQM/CSCMonitorModule/interface/CSCDQM_Logger.h"
 #include "DQM/CSCMonitorModule/interface/CSCDQM_HistoType.h"
@@ -32,7 +31,8 @@
 
 namespace cscdqm {
 
-  typedef std::map<std::string, MonitorObject*> CacheMap;
+  typedef boost::shared_ptr<MonitorObject> MonitorObjectPtr;
+  typedef std::map<std::string, MonitorObjectPtr> CacheMap;
 
   /**
    * @class Cache
@@ -45,7 +45,7 @@ namespace cscdqm {
       CacheMap cache;
 
     public:
-
+      
       const bool get(const HistoType& histo, MonitorObject*& mo);
       void put(const HistoType& histo, MonitorObject* mo);
 

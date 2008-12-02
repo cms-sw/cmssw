@@ -69,7 +69,7 @@ void Summary::Reset() {
  * @param  h2 Histogram to read
  * @return 
  */
-void Summary::ReadReportingChambers(TH2*& h2, const double threshold) {
+void Summary::ReadReportingChambers(const TH2*& h2, const double threshold) {
 
   if(h2->GetXaxis()->GetXmin() <= 1 && h2->GetXaxis()->GetXmax() >= 36 &&
      h2->GetYaxis()->GetXmin() <= 1 && h2->GetYaxis()->GetXmax() >= 18) {
@@ -103,7 +103,7 @@ void Summary::ReadReportingChambers(TH2*& h2, const double threshold) {
  * @param  Sfail Significance threshold for failure report
  * @return 
  */
-void Summary::ReadReportingChambersRef(TH2*& h2, TH2*& refh2, const double cold_coef, const double cold_Sfail, const double hot_coef, const double hot_Sfail) {
+void Summary::ReadReportingChambersRef(const TH2*& h2, const TH2*& refh2, const double cold_coef, const double cold_Sfail, const double hot_coef, const double hot_Sfail) {
 
   if(h2->GetXaxis()->GetXmin() <= 1 && h2->GetXaxis()->GetXmax() >= 36 &&
      h2->GetYaxis()->GetXmin() <= 1 && h2->GetYaxis()->GetXmax() >= 18 &&
@@ -230,7 +230,7 @@ void Summary::ReadReportingChambersRef(TH2*& h2, TH2*& refh2, const double cold_
  * @param  Sfail Significance threshold for failure report
  * @return 
  */
-void Summary::ReadErrorChambers(TH2*& evs, TH2*& err, const HWStatusBit bit, const double eps_max, const double Sfail) {
+void Summary::ReadErrorChambers(const TH2*& evs, const TH2*& err, const HWStatusBit bit, const double eps_max, const double Sfail) {
 
   if(evs->GetXaxis()->GetXmin() <= 1 && evs->GetXaxis()->GetXmax() >= 36 &&
      evs->GetYaxis()->GetXmin() <= 1 && evs->GetYaxis()->GetXmax() >= 18 &&

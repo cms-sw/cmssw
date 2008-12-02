@@ -44,12 +44,16 @@ namespace cscdqm {
       bool BINCHECKER_CRC_CLCT;
       bool BINCHECKER_CRC_CFEB;
       bool BINCHECKER_OUTPUT;
+      bool FRAEFF_AUTO_UPDATE;
+      bool FRAEFF_SEPARATE_THREAD;
 
       std::string BOOKING_XML_FILE;
 
       unsigned int DDU_CHECK_MASK;
       unsigned int DDU_BINCHECK_MASK;
       unsigned int BINCHECK_MASK;
+      unsigned int FRAEFF_AUTO_UPDATE_START;
+      unsigned int FRAEFF_AUTO_UPDATE_FREQ;
 
       double EFF_COLD_THRESHOLD;
       double EFF_COLD_SIGFAIL;
@@ -70,9 +74,13 @@ namespace cscdqm {
         BINCHECKER_CRC_ALCT = false;
         BINCHECKER_CRC_ALCT = false;
         BINCHECKER_OUTPUT   = false;
+        FRAEFF_AUTO_UPDATE  = true;
+        FRAEFF_AUTO_UPDATE_START    = 5;
+        FRAEFF_AUTO_UPDATE_FREQ     = 1;
         DDU_CHECK_MASK    = 0xFFFFFFFF;
         BINCHECK_MASK     = 0xFFFFFFFF;
         DDU_BINCHECK_MASK = 0x02080016;
+        FRAEFF_SEPARATE_THREAD = true;
 
         provider = NULL;
 

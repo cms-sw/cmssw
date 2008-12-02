@@ -20,34 +20,30 @@
 #define CSCDQM_Dispatcher_H
 
 #include <boost/thread.hpp>
-#include <boost/thread/mutex.hpp>
+#include <boost/thread/recursive_mutex.hpp>
 
 #include "DQM/CSCMonitorModule/interface/CSCDQM_Configuration.h"
 #include "DQM/CSCMonitorModule/interface/CSCDQM_EventProcessor.h"
 #include "DQM/CSCMonitorModule/interface/CSCDQM_Collection.h"
 #include "DQM/CSCMonitorModule/interface/CSCDQM_Cache.h"
+#include "DQM/CSCMonitorModule/interface/CSCDQM_Logger.h"
+#include "DQM/CSCMonitorModule/interface/CSCDQM_Lock.h"
 
 namespace cscdqm {
 
-  class EventProcessorMutex : private boost::noncopyable {
+  class EventProcessorMutex : public Lock {
 
     private:
 
-      bool locked;
       EventProcessor processor;
 
     public:
 
-      EventProcessorMutex(Configuration* const p_config) : processor(p_config) {
-        locked = false;
-      }
+      EventProcessorMutex(Configuration* const p_config) : processor(p_config) { }
 
       void updateFractionAndEfficiencyHistos() {
-        if (!locked) {
-          locked = true;
-          processor.updateFractionAndEfficiencyHistos();
-          locked = false;
-        }
+        processor.updateFractionHistos();
+        processor.updateEfficiencyHistos();
       }
 
   };
@@ -61,6 +57,9 @@ namespace cscdqm {
     public:
 
       Dispatcher(Configuration* const p_config);
+      ~Dispatcher() {
+        processorFract.lock();
+      }
 
       void updateFractionAndEfficiencyHistos();
 
@@ -70,37 +69,30 @@ namespace cscdqm {
 
     private:
 
+      void updateFractionAndEfficiencyHistosAuto();
+
       Configuration       *config;
       Collection          collection;
       EventProcessor      processor;
-      EventProcessorMutex processorFract;
       Cache               cache;
 
-// ===================================================================================================
-// Local ONLY stuff 
-// ===================================================================================================
+      EventProcessorMutex processorFract;
+      boost::thread_group threads;
+      boost::function<void ()> fnUpdate;
 
 #ifdef DQMLOCAL
 
     public:
 
-      void processEvent(const char* data, const int32_t dataSize, const uint32_t errorStat, const int32_t nodeNumber) {
-        processor.processEvent(data, dataSize, errorStat, nodeNumber);
-      }
+      void processEvent(const char* data, const int32_t dataSize, const uint32_t errorStat, const int32_t nodeNumber);
 
 #endif      
-
-// ===================================================================================================
-// Global ONLY stuff 
-// ===================================================================================================
 
 #ifdef DQMGLOBAL
 
     public:
 
-      void processEvent(const edm::Event& e, const edm::InputTag& inputTag) {
-        processor.processEvent(e, inputTag);
-      }
+      void processEvent(const edm::Event& e, const edm::InputTag& inputTag);
 
 #endif      
 

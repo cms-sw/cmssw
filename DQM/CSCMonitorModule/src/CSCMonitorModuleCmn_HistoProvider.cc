@@ -23,11 +23,13 @@ const bool CSCMonitorModuleCmn::getHisto(const cscdqm::HistoType& histo, cscdqm:
   if (histo.getHistoName() == cscdqm::h::HISTO_SKIP) { return false; }
 
   // Check if MO is already in the cache. If so - return it and exit
+  /*
   MOCacheMap::const_iterator i = moCache.find(histo.getFullPath());
   if (i != moCache.end()) {
     mo = i->second;
     return true;
   }
+  */
 
   // Take a type and initialize stuff
   const std::type_info& t = typeid(histo);
@@ -167,10 +169,11 @@ const bool CSCMonitorModuleCmn::getHisto(const cscdqm::HistoType& histo, cscdqm:
   }
 
   // Put MonitorElement to cache for the future fast retrieval
-  moCache[histo.getFullPath()] = new CSCMonitorObject(me);
+  //moCache[histo.getFullPath()] = new CSCMonitorObject(me);
 
   // get it from cache and return
-  mo = moCache[histo.getFullPath()];
+  //mo = moCache[histo.getFullPath()];
+  mo = new CSCMonitorObject(me);
 
   return true;
 }

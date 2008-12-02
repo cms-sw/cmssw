@@ -68,7 +68,6 @@ static const std::type_info& DDUHistoT   = typeid(cscdqm::DDUHistoType);
 static const std::type_info& CSCHistoT   = typeid(cscdqm::CSCHistoType);
 static const std::type_info& ParHistoT   = typeid(cscdqm::ParHistoType);
 
-typedef std::map<std::string, CSCMonitorObject*> MOCacheMap;
 typedef std::set<std::string>                    bookedHistoSet;
 typedef std::vector<cscdqm::CSCHistoType>        bookedCSCSet;
 typedef std::bitset<32>                          Bitset32;
@@ -95,7 +94,6 @@ class CSCMonitorModuleCmn: public edm::EDAnalyzer, public cscdqm::MonitorObjectP
     cscdqm::Dispatcher       *dispatcher;
     DQMStore                 *dbe;
     edm::InputTag             inputTag;
-    MOCacheMap                moCache;
     bookedHistoSet            bookedHisto;
     bookedCSCSet              bookedCSCs;
 

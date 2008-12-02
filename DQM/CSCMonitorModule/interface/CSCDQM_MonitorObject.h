@@ -1,7 +1,7 @@
 /*
  * =====================================================================================
  *
- *       Filename:  CSCDQM_MonitorObjectIf.h
+ *       Filename:  CSCDQM_MonitorObject.h
  *
  *    Description:  Monitor Object interface
  *
@@ -16,11 +16,13 @@
  * =====================================================================================
  */
 
-#ifndef CSCDQM_MonitorObjectIf_H
-#define CSCDQM_MonitorObjectIf_H
+#ifndef CSCDQM_MonitorObject_H
+#define CSCDQM_MonitorObject_H
 
-#include <boost/shared_ptr.hpp>
 #include <TH1.h>
+
+#include "DQM/CSCMonitorModule/interface/CSCDQM_Logger.h"
+#include "DQM/CSCMonitorModule/interface/CSCDQM_Lock.h"
 
 namespace cscdqm {
 
@@ -30,7 +32,7 @@ namespace cscdqm {
    * common interface to EventProcessor and Collection objects. Used by
    * HistoProvider interface.
    */
-  class MonitorObject {
+  class MonitorObject : public Lock {
   
     public: 
 
@@ -38,15 +40,22 @@ namespace cscdqm {
       virtual void Fill(float x, float yw) = 0;
       virtual void Fill(float x, float y, float zw) = 0;
       virtual void Fill(float x, float y, float z, float w) = 0;
-      virtual TH1 *getTH1(void) const = 0;
+      virtual const TH1 *getTH1(void) const = 0;
+      virtual TH1 *getTH1Lock(void) = 0; 
       virtual void SetEntries(const double value) = 0;
+      virtual const double GetEntries() = 0;
       virtual void SetBinContent(const int binX, const double value) = 0;
       virtual void SetBinContent(const int binX, const int binY, const double value) = 0;
       virtual double GetBinContent(const int binX) = 0;
       virtual double GetBinContent(const int binX, int binY) = 0;
       virtual void SetAxisRange(const double from, const double to, const std::string& axis) = 0;
       virtual void setAxisTitle(const std::string title, const int axisN) = 0;
-      virtual TObject *getRefRootObject(void) const = 0;
+      virtual const TObject *getRefRootObject(void) const = 0;
+      virtual const int GetMaximumBin() = 0;
+      virtual void SetMaximum(const double d) = 0;
+      virtual void SetNormFactor(const double factor = 1) = 0;
+      virtual const double GetBinError(const int bin) = 0;
+      virtual void SetBinError(const int bin, const double error) = 0;
 
   };
 

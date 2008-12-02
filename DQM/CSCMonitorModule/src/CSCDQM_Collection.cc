@@ -354,7 +354,7 @@ namespace cscdqm {
 
       if(me != NULL) {
 
-        TH1 *th = me->getTH1();
+        TH1 *th = me->getTH1Lock();
 
         if(checkHistoValue(h, "XTitle", s)) {
           if (ondemand) {
@@ -413,7 +413,7 @@ namespace cscdqm {
           }
         }
         if(checkHistoValue(h, "SetMinimum", d1)) th->SetMinimum(d1);
-        if(checkHistoValue(h, "SetMaximum", d1)) th->SetMaximum(d1);
+        if(checkHistoValue(h, "SetMaximum", d1)) me->SetMaximum(d1);
         if(checkHistoValue(h, "SetNdivisionsX", i1)) {
           th->SetNdivisions(i1, "X");
           th->GetXaxis()->CenterLabels(true);
@@ -428,6 +428,8 @@ namespace cscdqm {
         if(checkHistoValue(h, "SetLabelSizeY", d1)) th->SetLabelSize(d1, "Y");
         if(checkHistoValue(h, "SetLabelSizeZ", d1)) th->SetLabelSize(d1, "Z");
         if(checkHistoValue(h, "SetErrorOption", s)) reinterpret_cast<TProfile*>(th)->SetErrorOption(s.c_str());
+
+        me->unlock();
 
       }
 

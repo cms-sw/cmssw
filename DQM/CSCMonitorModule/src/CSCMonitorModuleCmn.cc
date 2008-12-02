@@ -83,10 +83,12 @@ CSCMonitorModuleCmn::CSCMonitorModuleCmn(const edm::ParameterSet& ps) : inputTag
 
 CSCMonitorModuleCmn::~CSCMonitorModuleCmn() {
   delete dispatcher;
+  /*
   while (!moCache.empty()) {
     delete moCache.begin()->second;
     moCache.erase(moCache.begin());
   }
+  */
 }
 
 void CSCMonitorModuleCmn::beginJob(const edm::EventSetup& c) {
@@ -107,11 +109,6 @@ void CSCMonitorModuleCmn::analyze(const edm::Event& e, const edm::EventSetup& c)
     
   dispatcher->processEvent(e, inputTag);
 
-  // Update fractional histograms if appropriate
-  if (config.getNEventsCSC() > 0 && fractUpdateKey.test(2) && (config.getNEvents() % fractUpdateEvF) == 0) {
-    dispatcher->updateFractionAndEfficiencyHistos();
-  }
-    
 }
 
 void CSCMonitorModuleCmn::beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& context) {
