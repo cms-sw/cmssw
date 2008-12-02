@@ -5,7 +5,8 @@
 TkHistoMap::TkHistoMap(std::string path, std::string MapName,float baseline): 
   dqmStore_(edm::Service<DQMStore>().operator->()),
   tkdetmap_(edm::Service<TkDetMap>().operator->()),
-  HistoNumber(23)
+  HistoNumber(23),
+  MapName_(MapName)
 {
   LogTrace("TkHistoMap") <<"TkHistoMap::constructor "; 
   createTkHistoMap(path,MapName, baseline);
@@ -86,6 +87,48 @@ void TkHistoMap::add(uint32_t& detid,float value){
   TkLayerMap::XYbin xybin = tkdetmap_->getXY(detid);
   setBinContent(detid,tkHistoMap_[layer]->getTProfile2D()->GetBinContent(tkHistoMap_[layer]->getTProfile2D()->GetBin(xybin.ix,xybin.iy))+value);
   
+}
+
+#include "TCanvas.h"
+#include "TFile.h"
+void TkHistoMap::saveAsCanvas(std::string filename,std::string options,std::string mode){
+  //  TCanvas C(MapName_,MapName_,200,10,900,700);
+  TCanvas* CTIB=new TCanvas(std::string("Canvas_"+MapName_+"TIB").c_str(),std::string("Canvas_"+MapName_+"TIB").c_str());
+  TCanvas* CTOB=new TCanvas(std::string("Canvas_"+MapName_+"TOB").c_str(),std::string("Canvas_"+MapName_+"TOB").c_str());
+  TCanvas* CTID=new TCanvas(std::string("Canvas_"+MapName_+"TID").c_str(),std::string("Canvas_"+MapName_+"TID").c_str());
+  TCanvas* CTEC=new TCanvas(std::string("Canvas_"+MapName_+"TEC").c_str(),std::string("Canvas_"+MapName_+"TEC").c_str());
+  CTIB->Divide(2,2);
+  CTOB->Divide(2,3);
+  CTID->Divide(1,3);
+  CTEC->Divide(3,3);
+
+  for(int i=1;i<=4;++i){
+    CTIB->cd(i);
+    tkHistoMap_[i]->getTProfile2D()->Draw(options.c_str());
+  }
+
+  for(int i=1;i<=3;++i){
+    CTID->cd(i);
+    tkHistoMap_[4+i]->getTProfile2D()->Draw(options.c_str());
+  }
+
+  for(int i=1;i<=6;++i){
+    CTOB->cd(i);
+    tkHistoMap_[7+i]->getTProfile2D()->Draw(options.c_str());
+  }
+
+  for(int i=1;i<=9;++i){
+    CTEC->cd(i);
+    tkHistoMap_[13+i]->getTProfile2D()->Draw(options.c_str());
+  }
+
+  TFile *f = new TFile(filename.c_str(),mode.c_str());
+  CTIB->Write();
+  CTID->Write();
+  CTOB->Write();
+  CTEC->Write();
+  f->Close();
+  delete f;
 }
 
 

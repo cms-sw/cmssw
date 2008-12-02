@@ -5,7 +5,7 @@
 <use name=FWCore/ServiceRegistry>
 <use name=boost>
 <use name=root>
-
+<use name=rootgraphics>
 <export>
   <lib name=DQMSiStripCommon>
   <use name=CalibTracker/SiStripCommon>

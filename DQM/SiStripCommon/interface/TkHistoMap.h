@@ -25,6 +25,7 @@ class TkHistoMap{
   void add(uint32_t& detid,float value);
 
   void save(std::string filename);
+  void saveAsCanvas(std::string filename,std::string options="", std::string mode="RECREATE");
 
  private:
 
@@ -34,6 +35,7 @@ class TkHistoMap{
   TkDetMap* tkdetmap_;
   tkHistoMapType tkHistoMap_;
   int HistoNumber;
+  std::string MapName_;
 };
 
 #endif

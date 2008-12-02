@@ -97,7 +97,13 @@ void testTkHistoMap::endJob(void)
   ps.Close();   
 
   edm::Service<DQMStore>().operator->()->save("test.root");  
-}
+
+  tkhisto->saveAsCanvas("test_canvas.root","LEGO","RECREATE");
+  tkhistoZ->saveAsCanvas("test_canvas.root","LEGO","UPDATE");
+  tkhistoPhi->saveAsCanvas("test_canvas.root","LEGO","UPDATE");
+  tkhistoR->saveAsCanvas("test_canvas.root","LEGO","UPDATE");
+  tkhistoCheck->saveAsCanvas("test_canvas.root","LEGO","UPDATE");
+ }
 
 
 //
