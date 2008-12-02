@@ -21,6 +21,14 @@ process.dqmInfoJetMET = cms.EDFilter("DQMEventInfo",
                                      )
 
 process.load("DQMOffline.JetMET.dataCertificationJetMET_cfi")
-#process.dataCertificationJetMET.filename = '/uscms/home/chlebana/DQM_V0001_R000063463__BeamHalo__BeamCommissioning08-PromptReco-v1__RECO.root'
+process.dataCertificationJetMET = cms.EDAnalyzer('DataCertificationJetMET',
+                              fileName       = cms.untracked.string("/uscms_data/d1/hatake/DQM-data/DQM_V0001_R000066594__Cosmics__Commissioning08-PromptReco-v2__RECO.root"),
+                              refFileName    = cms.untracked.string("/uscms_data/d1/hatake/DQM-data/DQM_V0001_R000066714__Cosmics__Commissioning08-PromptReco-v2__RECO.root"),
+                              OutputFile     = cms.untracked.bool(False),
+                              OutputFileName = cms.untracked.string("DQMResult.root"),
+                              Verbose        = cms.untracked.int32(0),
+                              TestType       = cms.untracked.int32(0)
+)
+
 
 process.p = cms.Path(process.dqmInfoJetMET*process.dataCertificationJetMET)
