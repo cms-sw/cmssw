@@ -103,8 +103,8 @@ TtSemiLepHypothesis::hypo()
   addFourMomenta.set( lepTop );
   
   // build up the top branch that decays hadronically
-  hadW  .addDaughter(*lightQ_,   TtSemiDaughter::HadQ   );
-  hadW  .addDaughter(*lightQBar_,TtSemiDaughter::HadP   );
+  hadW  .addDaughter(*lightQ_,   TtSemiDaughter::HadP   );
+  hadW  .addDaughter(*lightQBar_,TtSemiDaughter::HadQ   );
   addFourMomenta.set( hadW );
   hadTop.addDaughter( hadW,      TtSemiDaughter::HadW   );
   hadTop.addDaughter(*hadronicB_,TtSemiDaughter::HadB   );
