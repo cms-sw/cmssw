@@ -3,8 +3,8 @@
  *
  *  Build a TrackingRegion around a standalone muon 
  *
- *  $Date: 2008/08/27 17:30:07 $
- *  $Revision: 1.10 $
+ *  $Date: 2008/11/26 11:35:39 $
+ *  $Revision: 1.12 $
  *
  *  \author A. Everett - Purdue University
  *  \author A. Grelli -  Purdue University, Pavia University
@@ -31,6 +31,8 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryStateClosestToBeamLineBuilder.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 using namespace std;
 
 //
@@ -105,7 +107,9 @@ MuonTrackingRegionBuilder::region(const reco::Track& staTrack) const {
   TSCPBuilderNoMaterial tscpBuilder; 
   TrajectoryStateTransform tsTransform;
   FreeTrajectoryState muFTS = tsTransform.initialFreeState(staTrack,&*theService->magneticField());
-   
+
+  LogDebug("MuonTrackingRegionBuilder")<<"from state: "<<muFTS;
+
   // get track direction at vertex
   GlobalVector dirVector(muFTS.momentum());
 
@@ -242,6 +246,17 @@ MuonTrackingRegionBuilder::region(const reco::Track& staTrack) const {
                                                minPt, deltaR,
                                                deltaZ, region_dEta, region_dPhi,
 					       theOnDemand);
+
+  LogDebug("MuonTrackingRegionBuilder")<<"the region parameters are:\n"
+				       <<"\n dirVector: "<<dirVector
+				       <<"\n vertexPos: "<<vertexPos
+				       <<"\n minPt: "<<minPt
+				       <<"\n deltaR:"<<deltaR
+				       <<"\n deltaZ:"<<deltaZ
+				       <<"\n region_dEta:"<<region_dEta
+				       <<"\n region_dPhi:"<<region_dPhi
+				       <<"\n on demand parameter: "<<theOnDemand;
+
   
   return region;
   
