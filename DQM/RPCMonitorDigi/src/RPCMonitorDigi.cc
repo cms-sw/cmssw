@@ -70,8 +70,8 @@ void RPCMonitorDigi::beginJob(EventSetup const&){
  //   SameBxDigisMeEndcapNegative_ = dbe->book1D("SameBXDigis_EndcapNegative", "Digis with same bx", 20, 0.5, 20.5);  
 
   BarrelOccupancy = dbe -> book2D("Occupancy_for_Barrel", "Barrel Occupancy Wheel vs Sector", 12, 0.5, 12.5, 5, -2.5, 2.5);
-  EndcapPositiveOccupancy = dbe -> book2D("Occupancy_for_EndcapPositive", "Endcap Positive Occupancy Disk vs Sector", 6, 0.5, 6.5, 8, -4, 4);
-  EndcapNegativeOccupancy = dbe -> book2D("Occupancy_for_EndcapNegative", "Endcap Negative Occupancy Disk vs Sector", 6, 0.5, 6.5, 8, -4, 4);
+  EndcapPositiveOccupancy = dbe -> book2D("Occupancy_for_EndcapPositive", "Endcap Positive Occupancy Disk vs Sector", 6, 0.5, 6.5, 4, 0.5, 4.5);
+  EndcapNegativeOccupancy = dbe -> book2D("Occupancy_for_EndcapNegative", "Endcap Negative Occupancy Disk vs Sector", 6, 0.5, 6.5, 4, 0.5, 4.5);
  
   stringstream binLabel;
   for (int i = 1; i<13; i++){
@@ -89,16 +89,18 @@ void RPCMonitorDigi::beginJob(EventSetup const&){
       EndcapPositiveOccupancy -> setBinLabel(i, binLabel.str(), 1);
       EndcapNegativeOccupancy -> setBinLabel(i, binLabel.str(), 1);
     }
-      if(i<9){
+      if(i<5){
       binLabel.str("");
-      if (i<5) binLabel<<"Disk"<<(i-1)-4; else  binLabel<<"Disk"<<i-4;
+      binLabel<<"Disk+"<<i ;                                 ;
       EndcapPositiveOccupancy -> setBinLabel(i, binLabel.str(), 2);
+      binLabel.str("");
+      binLabel<<"Disk-"<<i  ;  
       EndcapNegativeOccupancy -> setBinLabel(i, binLabel.str(), 2);
     }
   }
 }
 
-void RPCMonitorDigi::beginRun(const Run& r, const EventSetup& c){
+void RPCMonitorDigi::beginRun(const Run& r, const EventSetup& iSetup){
   LogInfo (nameInLog) <<"Begin Run " ;
   //if mergeRuns_ skip reset
   //if merge remember to safe at job end and not at run end
@@ -138,12 +140,50 @@ void RPCMonitorDigi::beginRun(const Run& r, const EventSetup& c){
 
 
   SameBxDigisMeBarrel_->Reset();
- //  SameBxDigisMeEndcapPositive_->Reset();
-//   SameBxDigisMeEndcapNegative_ ->Reset();
+  //  SameBxDigisMeEndcapPositive_->Reset();
+  //   SameBxDigisMeEndcapNegative_ ->Reset();
   
   BarrelOccupancy ->Reset();
   EndcapPositiveOccupancy ->Reset();
   EndcapNegativeOccupancy->Reset();
+
+  ESHandle<RPCGeometry> rpcGeo;
+  iSetup.get<MuonGeometryRecord>().get(rpcGeo);
+
+  //loop on geometry to book all MEs
+  for (TrackingGeometry::DetContainer::const_iterator it=rpcGeo->dets().begin();it<rpcGeo->dets().end();it++){
+    if(dynamic_cast< RPCChamber* >( *it ) != 0 ){
+      RPCChamber* ch = dynamic_cast< RPCChamber* >( *it ); 
+      std::vector< const RPCRoll*> roles = (ch->rolls());
+      for(std::vector<const RPCRoll*>::const_iterator r = roles.begin();r != roles.end(); ++r){
+	RPCDetId rpcId = (*r)->id();
+	int region=rpcId.region();
+	
+	if (region == -1) continue;
+	//booking all histograms
+	RPCGeomServ rpcsrv(rpcId);
+	std::string nameRoll = rpcsrv.name();
+	//std::cout<<"Booking for "<<nameRoll<<std::endl;
+	meCollection[(uint32_t)rpcId]=bookDetUnitME(rpcId,iSetup );
+ 
+	int ring;
+	
+	if(rpcId.region() == 0) {
+	  ring = rpcId.ring();
+	}else if (rpcId.region() == -1){
+	  ring = rpcId.region()*rpcId.station();
+	}else{
+	  ring = rpcId.station();
+	}
+	
+	//book wheel/disk histos
+	std::pair<int,int> regionRing(region,ring);
+	std::map<std::pair<int,int>, std::map<std::string,MonitorElement*> >::iterator meRingItr = meWheelDisk.find(regionRing);
+	if (meRingItr == meWheelDisk.end() || (meWheelDisk.size()==0))  meWheelDisk[regionRing]=bookRegionRing(region,ring);
+      }
+    }
+  }//end loop on geometry to book all MEs
+
 }
 
 void RPCMonitorDigi::endJob(void)
@@ -199,12 +239,7 @@ void RPCMonitorDigi::analyze(const Event& iEvent,const EventSetup& iSetup ){
     rpcdqm::utils prova;
     int nr = prova.detId2RollNr(detId);
 
-    std::map<uint32_t, std::map<std::string,MonitorElement*> >::iterator meItr = meCollection.find(id);
-  
-    if (meItr == meCollection.end() || (meCollection.size()==0)) {
-      meCollection[id]=bookDetUnitME(detId,iSetup );
-    }
-  
+    //get MEs corresponding to present detId  
     std::map<std::string, MonitorElement*> meMap=meCollection[id];
   
     int region=detId.region();
@@ -224,12 +259,9 @@ void RPCMonitorDigi::analyze(const Event& iEvent,const EventSetup& iSetup ){
       ringType =  "Disk";
       ring = detId.station();
     }
+   
+    //get wheel/disk MEs
     std::pair<int,int> regionRing(region,ring);
-    std::map<std::pair<int,int>, std::map<std::string,MonitorElement*> >::iterator meRingItr = meWheelDisk.find(regionRing);
-    if (meRingItr == meWheelDisk.end() || (meWheelDisk.size()==0)) {
-      meWheelDisk[regionRing]=bookRegionRing(region,ring);
-    }
- 
     map<std::string, MonitorElement*> meRingMap=meWheelDisk[regionRing];
  
     vector<int> strips;
@@ -288,7 +320,7 @@ void RPCMonitorDigi::analyze(const Event& iEvent,const EventSetup& iSetup ){
       else if(detId.region()==1)
    	EndcapPositiveOccupancy -> Fill(detId.sector(), ring);
       else if(detId.region()==-1)
-   	EndcapNegativeOccupancy -> Fill(detId.sector(), ring);
+   	EndcapNegativeOccupancy -> Fill(detId.sector(),( -1 * ring) );
 
       os.str("");
       os<<"Occupancy_"<<ringType<<"_"<<ring<<"_Sector_"<<detId.sector();
