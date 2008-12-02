@@ -14,9 +14,9 @@ hltL1IsoStartUpElectronsRegionalCTFFinalFitWithMaterial = cms.EDFilter("FastTrac
 )
 
 # The sequence
-HLTL1IsoElectronsRegionalRecoTrackerSequence = cms.Sequence(cms.SequencePlaceholder("globalPixelTrackingForElectrons")+
+HLTL1IsoElectronsRegionalRecoTrackerSequence = cms.Sequence(cms.SequencePlaceholder("globalPixelTracking")+
                                                             hltL1IsoElectronsRegionalCTFFinalFitWithMaterial)
 
-HLTL1IsoStartUpElectronsRegionalRecoTrackerSequence = cms.Sequence(cms.SequencePlaceholder("globalPixelTrackingForElectrons")+
+HLTL1IsoStartUpElectronsRegionalRecoTrackerSequence = cms.Sequence(cms.SequencePlaceholder("globalPixelTracking")+
                                                                    hltL1IsoStartUpElectronsRegionalCTFFinalFitWithMaterial)
 
