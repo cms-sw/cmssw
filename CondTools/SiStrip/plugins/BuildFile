@@ -15,7 +15,6 @@
 <use name=CondCore/DBCommon>
 
 <use name=CondFormats/SiStripObjects>
-<use name=CondFormats/PhysicsToolsObjects>
 
 <use name=CalibFormats/SiStripObjects>
 <use name=CalibTracker/SiStripConnectivity>
