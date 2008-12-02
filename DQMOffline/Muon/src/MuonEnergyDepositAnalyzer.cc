@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/11/25 16:39:45 $
- *  $Revision: 1.10 $
+ *  $Date: 2008/11/26 14:26:39 $
+ *  $Revision: 1.11 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -191,7 +191,7 @@ void MuonEnergyDepositAnalyzer::analyze(const edm::Event& iEvent, const edm::Eve
   TrajectoryStateOnSurface TSOS;
   TSOS = TransTrack.impactPointState();
   // section for vertex pointing muon
-  if((abs(TSOS.globalPosition().z())<20) && (abs(TSOS.globalPosition().perp())<10)){
+  if((abs(TSOS.globalPosition().z())<30) && (abs(TSOS.globalPosition().perp())<20)){
     // GLB muon
     if(recoMu.isGlobalMuon()){
       ecalS9PointingMuDepEnergy_Glb->Fill(muEnergy.emS9);
