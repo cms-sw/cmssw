@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Jun  5 20:13:55 EDT 2008
-// $Id: FWGlimpseDataProxyBuilderFactory.h,v 1.1 2008/06/19 06:57:27 dmytro Exp $
+// $Id: FWGlimpseDataProxyBuilderFactory.h,v 1.2 2008/11/06 22:05:23 amraktad Exp $
 //
 
 // system include files
@@ -33,6 +33,6 @@ typedef edmplugin::PluginFactory<FWGlimpseDataProxyBuilder*()> FWGlimpseDataProx
 
 #define REGISTER_FWGLIMPSEDATAPROXYBUILDER(_name_,_type_,_purpose_) \
 DEFINE_PROXYBUILDER_METHODS(_name_,_type_,_purpose_); \
-DEFINE_EDM_PLUGIN(FWGlimpseDataProxyBuilderFactory,_name_,_name_::classTypeName()+"@"+_name_::classPurpose()+"@" #_name_)
+DEFINE_EDM_PLUGIN(FWGlimpseDataProxyBuilderFactory,_name_,_name_::typeOfBuilder()+_name_::classTypeName()+"@"+_name_::classPurpose()+"@" #_name_)
 
 #endif

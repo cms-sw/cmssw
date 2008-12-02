@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 22:01:27 EST 2008
-// $Id: FWGlimpseViewManager.cc,v 1.11 2008/11/11 15:21:45 chrjones Exp $
+// $Id: FWGlimpseViewManager.cc,v 1.12 2008/11/14 16:36:51 chrjones Exp $
 //
 
 // system include files
@@ -38,6 +38,7 @@
 #include "Fireworks/Core/interface/FWGlimpseDataProxyBuilderFactory.h"
 
 #include "Fireworks/Core/interface/FWEDProductRepresentationChecker.h"
+#include "Fireworks/Core/interface/FWSimpleRepresentationChecker.h"
 #include "Fireworks/Core/interface/FWTypeToRepresentations.h"
 
 
@@ -241,6 +242,7 @@ FWTypeToRepresentations
 FWGlimpseViewManager::supportedTypesAndRepresentations() const
 {
    FWTypeToRepresentations returnValue;
+   const std::string kSimple("simple#");
 
    for(TypeToBuilders::const_iterator it = m_typeToBuilders.begin(), itEnd = m_typeToBuilders.end();
        it != itEnd;
@@ -248,11 +250,18 @@ FWGlimpseViewManager::supportedTypesAndRepresentations() const
       for ( std::vector<std::string>::const_iterator builderName = it->second.begin();
 	   builderName != it->second.end(); ++builderName )
       {
-         returnValue.add(boost::shared_ptr<FWRepresentationCheckerBase>( new FWEDProductRepresentationChecker(
-                                                                                                              builderName->substr(0,builderName->find_first_of('@')),
+         if(builderName->substr(0,kSimple.size()) == kSimple) {
+            returnValue.add(boost::shared_ptr<FWRepresentationCheckerBase>( new FWSimpleRepresentationChecker(
+                                                                                                              builderName->substr(kSimple.size(),
+                                                                                                                                  builderName->find_first_of('@')-kSimple.size()),
                                                                                                               it->first)));
+         } else {
+            
+            returnValue.add(boost::shared_ptr<FWRepresentationCheckerBase>( new FWEDProductRepresentationChecker(
+                                                                                                                 builderName->substr(0,builderName->find_first_of('@')),
+                                                                                                                 it->first)));
+         }
       }
-
    }
    return returnValue;
 }
