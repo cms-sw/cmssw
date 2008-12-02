@@ -12,6 +12,11 @@ globalPixelTrackCandidates.SeedProducer = cms.InputTag("globalPixelSeeds","Globa
 
 globalPixelTrackCandidatesForElectrons = FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone()
 globalPixelTrackCandidatesForElectrons.SeedProducer = cms.InputTag("globalPixelSeedsForElectrons","GlobalPixel")
+globalPixelTrackCandidatesForElectrons.TrackProducers = ['globalPixelWithMaterialTracks']
+
+globalPixelTrackCandidatesForPhotons = FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone()
+globalPixelTrackCandidatesForPhotons.SeedProducer = cms.InputTag("globalPixelSeedsForPhotons","GlobalPixel")
+globalPixelTrackCandidatesForPhotons.TrackProducers = ['globalPixelWithMaterialTracks']
 
 # reco::Tracks (possibly with invalid hits)
 import RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi
@@ -30,12 +35,20 @@ globalPixelWithMaterialTracksForElectrons.Fitter = 'KFFittingSmootherWithOutlier
 globalPixelWithMaterialTracksForElectrons.Propagator = 'PropagatorWithMaterial'
 globalPixelWithMaterialTracksForElectrons.TrajectoryInEvent = cms.bool(True)
 
+globalPixelWithMaterialTracksForPhotons = RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi.ctfWithMaterialTracks.clone()
+globalPixelWithMaterialTracksForPhotons.src = 'globalPixelTrackCandidatesForElectrons'
+globalPixelWithMaterialTracksForPhotons.TTRHBuilder = 'WithoutRefit'
+globalPixelWithMaterialTracksForPhotons.Fitter = 'KFFittingSmootherWithOutlierRejection'
+globalPixelWithMaterialTracksForPhotons.Propagator = 'PropagatorWithMaterial'
+globalPixelWithMaterialTracksForPhotons.TrajectoryInEvent = cms.bool(True)
+
 # The sequences
 globalPixelTracking = cms.Sequence(globalPixelSeeds*
                                    globalPixelTrackCandidates*
-                                   globalPixelWithMaterialTracks)
-
-
-globalPixelTrackingForElectrons = cms.Sequence(globalPixelSeedsForElectrons*
-                                               globalPixelTrackCandidatesForElectrons*
-                                               globalPixelWithMaterialTracksForElectrons)
+                                   globalPixelWithMaterialTracks*
+                                   globalPixelSeedsForPhotons*
+                                   globalPixelTrackCandidatesForPhotons*
+                                   globalPixelWithMaterialTracksForPhotons*
+                                   globalPixelSeedsForElectrons*
+                                   globalPixelTrackCandidatesForElectrons*
+                                   globalPixelWithMaterialTracksForElectrons)
