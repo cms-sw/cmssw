@@ -1090,12 +1090,12 @@ if(first)
   for(int i=0; i<nelectrNisoEmul; i++)
   std::cout << " Energy " << electronEmulRank[1][i] << " eta " << electronEmulEta[1][i] << " phi " << electronEmulPhi[1][i] << std::endl ;
 
-  std::cout << "I found Data! Regions: " << nRegionData <<  std::endl ;
-  for(int i=0; i<nRegionData; i++)
+  std::cout << "I found Data! Regions: " << PhiEtaMax <<  std::endl ;
+  for(int i=0; i<(int)PhiEtaMax; i++)
  if(regionDataRank[i] !=0 )  std::cout << " Energy " << regionDataRank[i] << " eta " << regionDataEta[i] << " phi " << regionDataPhi[i] << std::endl ;
 
-  std::cout << "I found Emul! Regions: " << nRegionEmul <<  std::endl ;
-  for(int i=0; i<nRegionEmul; i++)
+  std::cout << "I found Emul! Regions: " << PhiEtaMax <<  std::endl ;
+  for(int i=0; i<(int)PhiEtaMax; i++)
  if(regionEmulRank[i] !=0 )  std::cout << " Energy " << regionEmulRank[i] << " eta " << regionEmulEta[i] << " phi " << regionEmulPhi[i] << std::endl ;
 }
 
@@ -1215,6 +1215,8 @@ if(first)
         }
       }
 
+    }
+
       DivideME1D(rctIsoEmEff1Occ1D_, rctIsoEmEmulOcc1D_, rctIsoEmEff1oneD_);
       DivideME2D(rctIsoEmEff1Occ_, rctIsoEmEmulOcc_, rctIsoEmEff1_) ;
       DivideME1D(rctIsoEmEff2Occ1D_, rctIsoEmEmulOcc1D_, rctIsoEmEff2oneD_);
@@ -1228,7 +1230,6 @@ if(first)
       DivideME2D(rctIsoEmIneffOcc_, rctIsoEmEmulOcc_, rctIsoEmIneff_);
       DivideME1D(rctNisoEmIneffOcc1D_, rctNisoEmEmulOcc1D_, rctNisoEmIneff1D_);
       DivideME2D(rctNisoEmIneffOcc_, rctNisoEmEmulOcc_, rctNisoEmIneff_);
-    }
 
     for(int i = 0; i < nelectrD; i++)
     {
@@ -1279,17 +1280,18 @@ if(first)
       }
     }
 
+  }
+
     // we try new definition of overefficiency:
     DivideME1D(rctIsoEmOvereffOcc1D_, rctIsoEmDataOcc1D_, rctIsoEmOvereff1D_);
     DivideME2D(rctIsoEmOvereffOcc_, rctIsoEmDataOcc_, rctIsoEmOvereff_);
     DivideME1D(rctNisoEmOvereffOcc1D_, rctNisoEmDataOcc1D_, rctNisoEmOvereff1D_);
     DivideME2D(rctNisoEmOvereffOcc_, rctNisoEmDataOcc_, rctNisoEmOvereff_);
-  }
 
 //std::cout << " I am here " << std::endl ;
 
     // calculate region/bit information
-  for(unsigned int i = 0; i < PhiEtaMax; i++)
+  for(unsigned int i = 0; i < (int)PhiEtaMax; i++)
 {
       Bool_t regFound       = kFALSE;
       Bool_t overFlowFound  = kFALSE;
@@ -1354,14 +1356,6 @@ if(first)
 //         }
 //       }
 
-      DivideME1D(rctRegMatchedOcc1D_, rctRegEmulOcc1D_, rctRegEff1D_);
-      DivideME2D(rctRegMatchedOcc2D_, rctRegEmulOcc2D_, rctRegEff2D_);
-      DivideME2D(rctRegDeltaEtOcc2D_, rctRegEmulOcc2D_, rctRegSpEff2D_);
-      DivideME2D(rctBitMatchedOverFlow2D_, rctBitEmulOverFlow2D_, rctBitOverFlowEff2D_);
-      DivideME2D(rctBitMatchedTauVeto2D_, rctBitEmulTauVeto2D_, rctBitTauVetoEff2D_);
-      DivideME2D (rctBitMatchedMip2D_, rctBitEmulMip2D_, rctBitMipEff2D_);
-      DivideME2D (rctBitMatchedQuiet2D_, rctBitEmulQuiet2D_, rctBitQuietEff2D_);
-      DivideME2D (rctBitMatchedHfPlusTau2D_, rctBitEmulHfPlusTau2D_, rctBitHfPlusTauEff2D_);
 
 
       if(regFound == kFALSE && regionEmulRank[i] >= 1 )
@@ -1398,6 +1392,18 @@ if(first)
         rctBitUnmatchedEmulHfPlusTau2D_->Fill (regionEmulEta[i], regionEmulPhi[i], 0.98);
       }
 
+
+}
+
+      DivideME1D(rctRegMatchedOcc1D_, rctRegEmulOcc1D_, rctRegEff1D_);
+      DivideME2D(rctRegMatchedOcc2D_, rctRegEmulOcc2D_, rctRegEff2D_);
+      DivideME2D(rctRegDeltaEtOcc2D_, rctRegEmulOcc2D_, rctRegSpEff2D_);
+      DivideME2D(rctBitMatchedOverFlow2D_, rctBitEmulOverFlow2D_, rctBitOverFlowEff2D_);
+      DivideME2D(rctBitMatchedTauVeto2D_, rctBitEmulTauVeto2D_, rctBitTauVetoEff2D_);
+      DivideME2D (rctBitMatchedMip2D_, rctBitEmulMip2D_, rctBitMipEff2D_);
+      DivideME2D (rctBitMatchedQuiet2D_, rctBitEmulQuiet2D_, rctBitQuietEff2D_);
+      DivideME2D (rctBitMatchedHfPlusTau2D_, rctBitEmulHfPlusTau2D_, rctBitHfPlusTauEff2D_);
+
       DivideME1D (rctRegUnmatchedEmulOcc1D_, rctRegEmulOcc1D_, rctRegIneff1D_);
       DivideME2D (rctRegUnmatchedEmulOcc2D_, rctRegEmulOcc2D_, rctRegIneff2D_);
       DivideME2D (rctBitUnmatchedEmulOverFlow2D_, rctBitEmulOverFlow2D_, rctBitOverFlowIneff2D_);
@@ -1406,12 +1412,10 @@ if(first)
       DivideME2D (rctBitUnmatchedEmulQuiet2D_, rctBitEmulQuiet2D_, rctBitQuietIneff2D_);
       DivideME2D (rctBitUnmatchedEmulHfPlusTau2D_, rctBitEmulHfPlusTau2D_, rctBitHfPlusTauIneff2D_);
 
-}
-
 //std::cout << " I am here 2 " << std::endl ;
 
   // for(int i = 0; i < nRegionData; i++)
-  for (int i = 0; i < PhiEtaMax; i++)
+  for (int i = 0; i < (int)PhiEtaMax; i++)
 {
       Bool_t regFound       = kFALSE;
       Bool_t overFlowFound  = kFALSE;
@@ -1486,6 +1490,8 @@ if(first)
         rctBitUnmatchedDataHfPlusTau2D_->Fill (regionDataEta[i], regionDataPhi[i], 0.98);
       }
 
+}
+
     // we try a new definition of overefficiency:
     DivideME1D(rctRegUnmatchedDataOcc1D_, rctRegDataOcc1D_, rctRegOvereff1D_);
     DivideME2D(rctRegUnmatchedDataOcc2D_, rctRegDataOcc2D_, rctRegOvereff2D_);
@@ -1497,7 +1503,6 @@ if(first)
           rctBitQuietOvereff2D_);
     DivideME2D (rctBitUnmatchedDataHfPlusTau2D_, rctBitDataHfPlusTau2D_,
           rctBitHfPlusTauOvereff2D_);
-}
 
 }
 
