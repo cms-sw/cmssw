@@ -10,7 +10,7 @@
 TtSemiLepJetCombMVAComputer::TtSemiLepJetCombMVAComputer(const edm::ParameterSet& cfg):
   leptons_ (cfg.getParameter<edm::InputTag>("leptons")),
   jets_    (cfg.getParameter<edm::InputTag>("jets")),
-  nJetsMax_(cfg.getParameter<int>("nJetsMax"))
+  maxNJets_(cfg.getParameter<int>("maxNJets"))
 {
   produces< std::vector<int> >();
   produces< std::string      >("Meth");
@@ -64,7 +64,7 @@ TtSemiLepJetCombMVAComputer::produce(edm::Event& evt, const edm::EventSetup& set
   // analyze jet combinations
   std::vector<int> jetIndices;
   for(unsigned int i=0; i<jets->size(); ++i){
-    if(nJetsMax_ >= nPartons && i == (unsigned int) nJetsMax_) break;
+    if(maxNJets_ >= nPartons && i == (unsigned int) maxNJets_) break;
     jetIndices.push_back(i);
   }
   

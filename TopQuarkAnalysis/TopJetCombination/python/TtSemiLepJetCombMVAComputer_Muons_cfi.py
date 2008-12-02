@@ -6,5 +6,5 @@ import FWCore.ParameterSet.Config as cms
 findTtSemiLepJetCombMVA = cms.EDProducer("TtSemiLepJetCombMVAComputer",
     jets     = cms.InputTag("selectedLayer1Jets"),
     leptons  = cms.InputTag("selectedLayer1Muons"),
-    nJetsMax = cms.int32(4)
+    maxNJets = cms.int32(4)
 )

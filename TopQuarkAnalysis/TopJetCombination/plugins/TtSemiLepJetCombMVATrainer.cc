@@ -16,7 +16,7 @@ TtSemiLepJetCombMVATrainer::TtSemiLepJetCombMVATrainer(const edm::ParameterSet& 
   leptons_   (cfg.getParameter<edm::InputTag>("leptons")),
   jets_      (cfg.getParameter<edm::InputTag>("jets")),
   matching_  (cfg.getParameter<edm::InputTag>("matching")),
-  nJetsMax_  (cfg.getParameter<int>("nJetsMax")),
+  maxNJets_  (cfg.getParameter<int>("maxNJets")),
   lepChannel_(cfg.getParameter<int>("lepChannel"))
 {
 }
@@ -65,7 +65,7 @@ TtSemiLepJetCombMVATrainer::analyze(const edm::Event& evt, const edm::EventSetup
   // analyze true and false jet combinations
   std::vector<int> jetIndices;
   for(unsigned int i=0; i<jets->size(); ++i) {
-    if(nJetsMax_ >= nPartons && i == (unsigned int) nJetsMax_) break;
+    if(maxNJets_ >= nPartons && i == (unsigned int) maxNJets_) break;
     jetIndices.push_back(i);
   }
 

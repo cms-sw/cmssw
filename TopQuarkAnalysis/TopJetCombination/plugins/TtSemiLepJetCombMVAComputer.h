@@ -36,7 +36,7 @@ class TtSemiLepJetCombMVAComputer : public edm::EDProducer {
   edm::InputTag leptons_;
   edm::InputTag jets_;
 
-  unsigned int nJetsMax_;
+  unsigned int maxNJets_;
 
   PhysicsTools::MVAComputerCache mvaComputer;
 };
