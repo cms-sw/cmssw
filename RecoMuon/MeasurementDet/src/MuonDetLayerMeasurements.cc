@@ -1,8 +1,8 @@
 /** \class MuonDetLayerMeasurements
  *  The class to access recHits and TrajectoryMeasurements from DetLayer.
  *
- *  $Date: 2008/10/14 17:24:16 $
- *  $Revision: 1.26 $
+ *  $Date: 2008/11/14 04:28:57 $
+ *  $Revision: 1.27 $
  *  \author C. Liu, R. Bellan, N. Amapane
  *
  */
@@ -48,53 +48,65 @@ MuonRecHitContainer MuonDetLayerMeasurements::recHits(const GeomDet* geomDet,
   theEvent = &iEvent;
   MuonRecHitContainer result;
 
-  if (geoId.subdetId()  == MuonSubdetId::DT && enableDTMeasurement) {
-    checkDTRecHits();
+  if (geoId.subdetId()  == MuonSubdetId::DT) {
+    if(enableDTMeasurement) 
+    {
+      checkDTRecHits();
     
-    // Create the ChamberId
-    DTChamberId chamberId(geoId.rawId());
-    // LogTrace("Muon|RecoMuon|MuonDetLayerMeasurements") << "(DT): "<<chamberId<<std::endl;
+      // Create the ChamberId
+      DTChamberId chamberId(geoId.rawId());
+      // LogTrace("Muon|RecoMuon|MuonDetLayerMeasurements") << "(DT): "<<chamberId<<std::endl;
     
-    // Get the DT-Segment which relies on this chamber
-    DTRecSegment4DCollection::range range = theDTRecHits->get(chamberId);
+      // Get the DT-Segment which relies on this chamber
+      DTRecSegment4DCollection::range range = theDTRecHits->get(chamberId);
     
-    // Create the MuonTransientTrackingRechit
-    for (DTRecSegment4DCollection::const_iterator rechit = range.first; rechit!=range.second;++rechit)
-      result.push_back(MuonTransientTrackingRecHit::specificBuild(geomDet,&*rechit));
+      // Create the MuonTransientTrackingRechit
+      for (DTRecSegment4DCollection::const_iterator rechit = range.first; 
+           rechit!=range.second;++rechit)
+        result.push_back(MuonTransientTrackingRecHit::specificBuild(geomDet,&*rechit));
+    }
   }
   
-  else if (geoId.subdetId()  == MuonSubdetId::CSC && enableCSCMeasurement) {
-    checkCSCRecHits();
+  else if (geoId.subdetId()  == MuonSubdetId::CSC) {
+    if(enableCSCMeasurement)
+    {
+      checkCSCRecHits();
 
-    // Create the chamber Id
-    CSCDetId chamberId(geoId.rawId());
-    //    LogTrace("Muon|RecoMuon|MuonDetLayerMeasurements") << "(CSC): "<<chamberId<<std::endl;
+      // Create the chamber Id
+      CSCDetId chamberId(geoId.rawId());
+      //    LogTrace("Muon|RecoMuon|MuonDetLayerMeasurements") << "(CSC): "<<chamberId<<std::endl;
 
-    // Get the CSC-Segment which relies on this chamber
-    CSCSegmentCollection::range range = theCSCRecHits->get(chamberId);
+      // Get the CSC-Segment which relies on this chamber
+      CSCSegmentCollection::range range = theCSCRecHits->get(chamberId);
     
-    // Create the MuonTransientTrackingRecHit
-    for (CSCSegmentCollection::const_iterator rechit = range.first; rechit!=range.second; ++rechit)
-      result.push_back(MuonTransientTrackingRecHit::specificBuild(geomDet,&*rechit)); 
+      // Create the MuonTransientTrackingRecHit
+      for (CSCSegmentCollection::const_iterator rechit = range.first; 
+           rechit!=range.second; ++rechit)
+        result.push_back(MuonTransientTrackingRecHit::specificBuild(geomDet,&*rechit)); 
+    }
   }
   
-  else if (geoId.subdetId()  == MuonSubdetId::RPC && enableRPCMeasurement) {
-    checkRPCRecHits(); 
+  else if (geoId.subdetId()  == MuonSubdetId::RPC) {
+    if(enableRPCMeasurement)
+    {
+      checkRPCRecHits(); 
 
-    // Create the chamber Id
-    RPCDetId chamberId(geoId.rawId());
-    // LogTrace("Muon|RecoMuon|MuonDetLayerMeasurements") << "(RPC): "<<chamberId<<std::endl;
+      // Create the chamber Id
+      RPCDetId chamberId(geoId.rawId());
+      // LogTrace("Muon|RecoMuon|MuonDetLayerMeasurements") << "(RPC): "<<chamberId<<std::endl;
     
-    // Get the RPC-Segment which relies on this chamber
-    RPCRecHitCollection::range range = theRPCRecHits->get(chamberId);
+      // Get the RPC-Segment which relies on this chamber
+      RPCRecHitCollection::range range = theRPCRecHits->get(chamberId);
     
-    // Create the MuonTransientTrackingRecHit
-    for (RPCRecHitCollection::const_iterator rechit = range.first; rechit!=range.second; ++rechit)
-      result.push_back(MuonTransientTrackingRecHit::specificBuild(geomDet,&*rechit));
+      // Create the MuonTransientTrackingRecHit
+      for (RPCRecHitCollection::const_iterator rechit = range.first; 
+           rechit!=range.second; ++rechit)
+        result.push_back(MuonTransientTrackingRecHit::specificBuild(geomDet,&*rechit));
+    }
   }
   else {
     // wrong type
-    throw cms::Exception("MuonDetLayerMeasurements") <<"The DetLayer is not a valid Muon DetLayer. ";
+    throw cms::Exception("MuonDetLayerMeasurements") << "The DetLayer with det " << geoId.det() << " subdet " << geoId.subdetId() << " is not a valid Muon DetLayer. ";
   }
   return result;
 }
