@@ -3,9 +3,9 @@
 /** \class PhotonProducer
  **  
  **
- **  $Id: PhotonProducer.h,v 1.26 2008/10/28 21:35:57 nancy Exp $ 
- **  $Date: 2008/10/28 21:35:57 $ 
- **  $Revision: 1.26 $
+ **  $Id: PhotonProducer.h,v 1.27 2008/11/03 22:17:09 nancy Exp $ 
+ **  $Date: 2008/11/03 22:17:09 $ 
+ **  $Revision: 1.27 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -83,6 +83,7 @@ class PhotonProducer : public edm::EDProducer {
   double hOverEConeSize_;
   double maxHOverE_;
   double minSCEt_;
+  double highEt_;
   double minR9_;
   bool validConversions_;
   std::string pixelSeedProducer_;
