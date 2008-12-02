@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.97 $"
+__version__ = "$Revision: 1.98 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -13,7 +13,7 @@ class Options:
 # the canonical defaults
 defaultOptions = Options()
 defaultOptions.pileup = 'NoPileUp'
-defaultOptions.geometry = 'Ideal'
+defaultOptions.geometry = 'Pilot2'
 defaultOptions.magField = 'Default'
 defaultOptions.conditions = 'FrontierConditions_GlobalTag,STARTUP_V5::All'
 defaultOptions.scenarioOptions=['pp','cosmics','nocoll']
@@ -493,9 +493,13 @@ class ConfigBuilder(object):
 
 
     def prepare_VALIDATION(self, sequence = 'validation'):
-        self.loadAndRemember(self.VALIDATIONDefaultCFF)
-        self.process.validation_step = cms.Path( self.process.validation )
+        if ( len(sequence.split(','))==1 ):
+            self.loadAndRemember(self.VALIDATIONDefaultCFF)
+        else:    
+            self.loadAndRemember(sequence.split(',')[0])
+        self.process.validation_step = cms.Path( getattr(self.process, sequence.split(',')[-1]) )
         self.process.schedule.append(self.process.validation_step)
+        return
 
     def prepare_DQM(self, sequence = 'DQMOffline'):
         # this one needs replacement
@@ -580,7 +584,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.97 $"),
+              (version=cms.untracked.string("$Revision: 1.98 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )

@@ -98,7 +98,7 @@ expertSettings.add_option("--filtername",
                           dest="filtername")
 
 expertSettings.add_option("--geometry",
-                          help="What geometry to use (from Configuration/StandardSequences). Default=Ideal",
+                          help="What geometry to use (from Configuration/StandardSequences). Default=Pilot2",
                           default=defaultOptions.geometry,
                           dest="geometry")
 
@@ -309,6 +309,8 @@ if options.isData and options.isMC:
 # if not specified by user try to guess
 if not options.isData and not options.isMC:
     if 'SIM' in trimmedStep:
+        options.isMC=True
+    if 'DIGI' in trimmedStep:
         options.isMC=True
     if (not (options.eventcontent == None)) and 'SIM' in options.eventcontent:
         options.isMC=True
