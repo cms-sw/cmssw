@@ -32,6 +32,28 @@
     <PartSelector path="//TECModule4StereoActive" />
     <PartSelector path="//TECModule5RphiActive" />
     <PartSelector path="//TECModule6RphiActive" />
+    <PartSelector path="//TIBWaferRphi0" />
+    <PartSelector path="//TIBWaferSter0" />
+    <PartSelector path="//TIBWaferRphi2" />
+    <PartSelector path="//TIDModule0RphiWafer" />
+    <PartSelector path="//TIDModule0StereoWafer" />
+    <PartSelector path="//TIDModule1RphiWafer" />
+    <PartSelector path="//TIDModule1StereoWafer" />
+    <PartSelector path="//TIDModule2RphiWafer" />
+    <PartSelector path="//TOBWaferRphi0" />
+    <PartSelector path="//TOBWaferSter0" />
+    <PartSelector path="//TOBWaferRphi2" />
+    <PartSelector path="//TOBWaferRphi4" />
+    <PartSelector path="//TECModule0RphiWafer" />
+    <PartSelector path="//TECModule0StereoWafer" />
+    <PartSelector path="//TECModule1RphiWafer" />
+    <PartSelector path="//TECModule1StereoWafer" />
+    <PartSelector path="//TECModule2RphiWafer" />
+    <PartSelector path="//TECModule3RphiWafer" />
+    <PartSelector path="//TECModule4RphiWafer" />
+    <PartSelector path="//TECModule4StereoWafer" />
+    <PartSelector path="//TECModule5RphiWafer" />
+    <PartSelector path="//TECModule6RphiWafer" />
     <Parameter name="CMSCutsRegion" value="TrackerSensRegion" eval="false"/>
     <Parameter name="ProdCutsForElectrons" value="0.1*mm"/>
     <Parameter name="ProdCutsForPositrons" value="0.1*mm"/>
