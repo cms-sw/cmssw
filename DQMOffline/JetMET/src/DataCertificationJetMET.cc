@@ -13,10 +13,9 @@
 //
 // Original Author:  "Frank Chlebana"
 //         Created:  Sun Oct  5 13:57:25 CDT 2008
-// $Id: DataCertificationJetMET.cc,v 1.18 2008/11/13 10:07:50 hatake Exp $
+// $Id: DataCertificationJetMET.cc,v 1.19 2008/11/24 14:51:33 chlebana Exp $
 //
 //
-
 
 // system include files
 #include <memory>
@@ -30,8 +29,6 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
-// #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -59,6 +56,12 @@ class DataCertificationJetMET : public edm::EDAnalyzer {
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
 
+      virtual void beginRun(const edm::Run&, const edm::EventSetup&) ;
+      virtual void endRun(const edm::Run&, const edm::EventSetup&) ;
+
+      virtual void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&);
+      virtual void endLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&);
+
       virtual int data_certificate_met(double, double, double, double);
       virtual int data_certificate_metfit(double, double, double, double);
       virtual void fitd(TH1F*, TF1*, TF1*, TF1*, int);
@@ -68,7 +71,6 @@ class DataCertificationJetMET : public edm::EDAnalyzer {
 
    edm::ParameterSet conf_;
    DQMStore * dbe;
-  //DQMStore * rdbe;
    edm::Service<TFileService> fs_;
 
 };
@@ -122,24 +124,79 @@ DataCertificationJetMET::analyze(const edm::Event& iEvent, const edm::EventSetup
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-DataCertificationJetMET::beginJob(const edm::EventSetup&)
+DataCertificationJetMET::beginJob(const edm::EventSetup& c)
 {
 
-  if (DEBUG) std::cout << ">>> BeginJob <<<" << std::endl;
+  if (DEBUG) std::cout << ">>> BeginJob (DataCertificationJetMET) <<<" << std::endl;
 
 }
 
-
-// ------------ method called once each job just before starting event loop  ------------
+// ------------ method called once each job after finishing event loop  ------------
 void 
 DataCertificationJetMET::endJob()
 {
+
+  if (DEBUG) std::cout << ">>> EndJob (DataCertificationJetMET) <<<" << std::endl;
+
+  bool outputFile            = conf_.getUntrackedParameter<bool>("OutputFile");
+  std::string outputFileName = conf_.getUntrackedParameter<std::string>("OutputFileName");
+  if (DEBUG) std::cout << ">>> endJob " << outputFile << std:: endl;
+
+  if(outputFile){
+    //dbe->showDirStructure();
+    dbe->save(outputFileName);
+  }
+
+}
+ 
+// ------------ method called just before starting a new lumi section  ------------
+void 
+DataCertificationJetMET::beginLuminosityBlock(const edm::LuminosityBlock& lumiBlock, const edm::EventSetup& c)
+{
+
+  if (DEBUG) std::cout << ">>> BeginLuminosityBlock (DataCertificationJetMET) <<<" << std::endl;
+  if (DEBUG) std::cout << ">>> lumiBlock = " << lumiBlock.id()                   << std::endl;
+  if (DEBUG) std::cout << ">>> run       = " << lumiBlock.id().run()             << std::endl;
+  if (DEBUG) std::cout << ">>> lumiBlock = " << lumiBlock.id().luminosityBlock() << std::endl;
+
+}
+
+// ------------ method called just after a lumi section ends  ------------
+void 
+DataCertificationJetMET::endLuminosityBlock(const edm::LuminosityBlock& lumiBlock, const edm::EventSetup& c)
+{
+
+  if (DEBUG) std::cout << ">>> EndLuminosityBlock (DataCertificationJetMET) <<<" << std::endl;
+  if (DEBUG) std::cout << ">>> lumiBlock = " << lumiBlock.id()                   << std::endl;
+  if (DEBUG) std::cout << ">>> run       = " << lumiBlock.id().run()             << std::endl;
+  if (DEBUG) std::cout << ">>> lumiBlock = " << lumiBlock.id().luminosityBlock() << std::endl;
+
+}
+
+// ------------ method called just before starting a new run  ------------
+void 
+DataCertificationJetMET::beginRun(const edm::Run& run, const edm::EventSetup& c)
+{
+
+  if (DEBUG) std::cout << ">>> BeginRun (DataCertificationJetMET) <<<" << std::endl;
+  if (DEBUG) std::cout << ">>> run = " << run.id() << std::endl;
+
+}
+
+// ------------ method called right after a run ends ------------
+void 
+DataCertificationJetMET::endRun(const edm::Run& run, const edm::EventSetup& c)
+{
   
-  if (DEBUG) std::cout << ">>> EndJob <<<" << std::endl;
+  if (DEBUG) std::cout << ">>> EndRun (DataCertificationJetMET) <<<" << std::endl;
+  if (DEBUG) std::cout << ">>> run = " << run.id() << std::endl;
 
   int verbose  = 0;
   int testType = 0; 
 
+  // -----------------------------------------
+  // verbose 0: suppress printouts
+  //         1: show printouts
   verbose   = conf_.getUntrackedParameter<int>("Verbose");
   if (DEBUG) std::cout << ">>>DEBUG: verbose         = " <<  verbose   << std::endl;
 
@@ -149,7 +206,6 @@ DataCertificationJetMET::endJob()
   //          2: Chi2 test
   //
   testType  = conf_.getUntrackedParameter<int>("TestType");
-  testType  = 0;
   if (DEBUG) std::cout << ">>>DEBUG: TestType        = " <<  testType  << std::endl;  
 
   std::vector<MonitorElement*> mes;
@@ -170,13 +226,11 @@ DataCertificationJetMET::endJob()
 
   if (InMemory) {
     //----------------------------------------------------------------
-    // Histograms are in memory
+    // Histograms are in memory (for standard full-chain mode)
     //----------------------------------------------------------------
 
     dbe = edm::Service<DQMStore>().operator->();
-    //  if (DEBUG) std::cout << "--- DIR ---" << std::endl;
-    //  dbe->showDirStructure();
-    //  if (DEBUG) std::cout << "--- DIR ---" << std::endl;
+    dbe->showDirStructure();
     
     mes = dbe->getAllContents("");
     if (DEBUG) std::cout << "1 >>> found " <<  mes.size() << " monitoring elements!" << std::endl;
@@ -192,9 +246,18 @@ DataCertificationJetMET::endJob()
     RunDir    = "";
     RefRunDir = "";
 
+    RunNumber = run.id().run();
+
+    // test---
+    //std::string reffilename;
+    //reffilename = conf_.getUntrackedParameter<std::string>("refFileName");
+    //if (DEBUG) std::cout << "Reference FileName = " << reffilename << std::endl;
+    //dbe->open(reffilename);
+    //
+
   } else {
     //----------------------------------------------------------------
-    // Open input files
+    // Open input files (for standalone mode)
     //----------------------------------------------------------------
 
     std::string filename    = conf_.getUntrackedParameter<std::string>("fileName");
@@ -209,8 +272,8 @@ DataCertificationJetMET::endJob()
     // -- Current & Reference Run
     //---------------------------------------------
     dbe = edm::Service<DQMStore>().operator->();
-    //  dbe->open(filename);
-    //  if (testType>=1) dbe->open(reffilename);
+    dbe->open(filename);
+    if (testType>=1) dbe->open(reffilename);
 
     mes = dbe->getAllContents("");
     if (DEBUG) std::cout << "found " <<  mes.size() << " monitoring elements!" << std::endl;
@@ -221,9 +284,6 @@ DataCertificationJetMET::endJob()
 
     subDirVec = dbe->getSubdirs();
 
-    // 
-    //  std::vector<std::string>::const_iterator ic = subDirVec.begin();
-    
     // *** If the same file is read in then we have only one subdirectory
     int ind = 0;
     for (std::vector<std::string>::const_iterator ic = subDirVec.begin();
@@ -301,7 +361,7 @@ DataCertificationJetMET::endJob()
   Jet_Tag_L3[3][2] = "JetMET_Jet_JPT_Forward";
 
   if (DEBUG) std::cout << RunDir << std::endl;
-  dbe->setCurrentFolder("/JetMET/EventInfo/Certification/");    
+  dbe->setCurrentFolder("JetMET/EventInfo/Certification/");    
 
   //
   // Layer 1
@@ -1199,24 +1259,7 @@ DataCertificationJetMET::endJob()
   //dbe->rmdir(RefRunDir); // Delete reference plots from DQMStore
   // --
 
-
-  //  LogTrace(metname)<<"[DataCertificationJetMET] Saving the histos";
-  //  bool outputFile            = conf_.getParameter<bool>("OutputFile");
-  //  std::string outputFileName = conf_.getParameter<std::string>("OutputFileName");
-
-  bool outputFile            = conf_.getUntrackedParameter<bool>("OutputFile");
-  std::string outputFileName = conf_.getUntrackedParameter<std::string>("OutputFileName");
-  if (DEBUG) std::cout << ">>> endJob " << outputFile << std:: endl;
-
-  if(outputFile){
-    //dbe->showDirStructure();
-    dbe->save(outputFileName);
-  }
-
-
 }
-
-
 
 // ------------------------------------------------------------
 int 
