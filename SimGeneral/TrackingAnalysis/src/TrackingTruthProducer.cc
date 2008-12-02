@@ -356,7 +356,7 @@ bool TrackingTruthProducer::isBremsstrahlungVertex(
     }
 
     // Condition to be a Bremsstrahlung Vertex
-    if (nElectrons == 1 && nPhotons >= 1 && nOthers == 0)
+    if (nElectrons == 1 && nPhotons >= 0 && nOthers == 0)
         return true;
 
     return false;
