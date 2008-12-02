@@ -21,6 +21,10 @@ process.source = cms.Source("EmptySource",
     numberEventsInRun  = cms.untracked.uint32(1)
 )
 
+process.maxEvents = cms.untracked.PSet(
+    input = cms.untracked.int32(1)
+)
+
 process.get = cms.EDAnalyzer("DTTtrigPrint")
 
 process.p = cms.Path(process.get)
