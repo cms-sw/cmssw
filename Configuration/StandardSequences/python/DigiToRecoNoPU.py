@@ -14,7 +14,6 @@ def customise(process):
     REDIGIInputEventSkimming.inputCommands.extend(process.SimG4CoreRAW.outputCommands) 
     REDIGIInputEventSkimming.inputCommands.extend(process.GeneratorInterfaceRAW.outputCommands) 
     REDIGIInputEventSkimming.inputCommands.extend(process.IOMCRAW.outputCommands) 
-    REDIGIInputEventSkimming.inputCommands.extend(process.L1TriggerRAW.outputCommands) 
     REDIGIInputEventSkimming.inputCommands.extend(process.HLTriggerRAW.outputCommands) 
     REDIGIInputEventSkimming.inputCommands.extend(HLTCleaning.inputCommands)
     
