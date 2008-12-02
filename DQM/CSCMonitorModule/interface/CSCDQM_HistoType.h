@@ -29,6 +29,10 @@ namespace cscdqm {
 
   /** Type for histogram name constants */
   typedef char* HistoName; 
+
+  /** Type for histogram name constants */
+  typedef unsigned int HistoId; 
+
   namespace h {
     /** Histogram value that implies to skip the histogram */
     const HistoName HISTO_SKIP = "0";

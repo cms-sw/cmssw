@@ -19,7 +19,39 @@
 #ifndef CSCDQM_HistoNames_H
 #define CSCDQM_HistoNames_H 
 
+#include <map>
+#include <boost/preprocessor/tuple/elem.hpp>
+#include <boost/preprocessor/seq/for_each_i.hpp>
+#include <boost/preprocessor/control/if.hpp>
+#include <boost/preprocessor/comparison/less.hpp>
+#include <boost/preprocessor/punctuation/comma_if.hpp>
+#include <boost/preprocessor/arithmetic/inc.hpp>
+
 namespace h {
+
+#define CONFIG_HISTONAMES_SEQ \
+  \
+  \
+  (( CSC_ACTUAL_DMB_CFEB_DAV_FREQUENCY_, "Actual_DMB_CFEB_DAV_Frequency" )) \
+  (( CSC_ACTUAL_DMB_CFEB_DAV_MULTIPLICITY_FREQUENCY_, "Actual_DMB_CFEB_DAV_multiplicity_Frequency" )) \
+  (( CSC_ACTUAL_DMB_CFEB_DAV_MULTIPLICITY_RATE_, "Actual_DMB_CFEB_DAV_multiplicity_Rate" )) \
+  \
+  \
+  /* */
+
+
+#define CONFIG_MACRO_ID(r, data, i, elem) \
+  const HistoId BOOST_PP_TUPLE_ELEM(2, 0, elem) = i;
+
+#define CONFIG_MACRO_NAME(r, data, i, elem) \
+  BOOST_PP_TUPLE_ELEM(2, 1, elem) \
+  BOOST_PP_COMMA_IF(BOOST_PP_LESS(BOOST_PP_INC(i), BOOST_PP_SEQ_SIZE(CONFIG_HISTONAMES_SEQ)))
+
+BOOST_PP_SEQ_FOR_EACH_I(CONFIG_MACRO_ID, _, CONFIG_HISTONAMES_SEQ)
+
+  static const HistoName names[] = {
+    BOOST_PP_SEQ_FOR_EACH_I(CONFIG_MACRO_NAME, _, CONFIG_HISTONAMES_SEQ)
+  };
 
 const HistoName CSC_ACTUAL_DMB_CFEB_DAV_FREQUENCY = "Actual_DMB_CFEB_DAV_Frequency";
 const HistoName CSC_ACTUAL_DMB_CFEB_DAV_MULTIPLICITY_FREQUENCY = "Actual_DMB_CFEB_DAV_multiplicity_Frequency";
