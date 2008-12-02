@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Nov 19 10:40:21 EST 2008
-// $Id: FWRPZSimpleProxyBuilder.h,v 1.2 2008/11/27 00:43:55 chrjones Exp $
+// $Id: FWRPZSimpleProxyBuilder.h,v 1.3 2008/12/02 21:17:46 chrjones Exp $
 //
 
 // system include files
@@ -40,8 +40,7 @@ public:
    
    // ---------- static member functions --------------------
    ///Used by the plugin system to determine how the proxy uses the data from FWEventItem
-   static
-   std::string typeOfBuilder();
+   static std::string typeOfBuilder();
    
    // ---------- member functions ---------------------------
    
