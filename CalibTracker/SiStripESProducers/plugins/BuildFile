@@ -1,39 +1,22 @@
 <library file=fake/*.cc name=CalibTrackerSiStripFakeESProducersPlugins>
-  <use name=CalibFormats/SiStripObjects>
-  <use name=CalibTracker/Records>
   <use name=CalibTracker/SiStripESProducers>
-  <use name=CalibTracker/SiStripCommon>
-  <use name=CondFormats/DataRecord>
-  <use name=CondFormats/SiStripObjects>
-  <use name=FWCore/Framework>
-  <use name=FWCore/MessageLogger>
-  <use name=FWCore/ParameterSet>
-  <use name=CondCore/DBOutputService>
-  <use name=boost>
   <flags EDM_PLUGIN=1>
 </library>
 
 <library file=real/*.cc name=CalibTrackerSiStripRealESProducersPlugins>
-  <use name=CalibFormats/SiStripObjects>
-  <use name=CalibTracker/Records>
-  <use name=CondFormats/DataRecord>
-  <use name=DataFormats/SiStripCommon>
-  <use name=FWCore/Framework>
-  <use name=FWCore/MessageLogger>
-  <use name=FWCore/ParameterSet>
-  <use name=boost>
+  <use name=CalibTracker/SiStripESProducers>
   <flags EDM_PLUGIN=1>
 </library>
 
 <library file="geom/*.cc" name=CalibTrackerSiStripGeomESProducersPlugins>
-  <use name=CalibFormats/SiStripObjects>
-  <use name=CalibTracker/Records>
   <use name=CalibTracker/SiStripESProducers>
-  <use name=FWCore/Framework>
-  <use name=FWCore/MessageLogger>
-  <use name=FWCore/ParameterSet>
   <use name=Geometry/TrackerGeometryBuilder>
-#  <use name=Geometry/CommonDetUnit>
+  <use name=boost>
+  <flags EDM_PLUGIN=1>
+</library>
+
+<library file="DBWriter/*.cc" name=CalibTrackerSiStripESProducersDBWriterPlugins>
+  <use name=CalibTracker/SiStripESProducers>
   <use name=CondCore/DBOutputService>
   <use name=boost>
   <flags EDM_PLUGIN=1>
