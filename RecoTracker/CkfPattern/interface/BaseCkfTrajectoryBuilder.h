@@ -171,6 +171,8 @@ std::string BaseCkfTrajectoryBuilder::dumpCandidates( collection & candidates) c
 	buffer <<"Last [Predicted] state\n x: "<<tsos.globalPosition()<<"\n p: "<<tsos.globalMomentum()<<"\n";
       }
       buffer <<" hit is: "<<(last.recHit()->isValid()?"valid":"invalid")<<"\n";
+      if (last.recHit()->isValid())
+	buffer <<"on detId: "<<last.recHit()->geographicalId().rawId()<<"\n";
     }
     else{
       buffer<<" no measurement. \n";}
