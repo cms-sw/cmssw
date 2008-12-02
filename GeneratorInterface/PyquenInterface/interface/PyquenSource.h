@@ -4,7 +4,7 @@
 /** \class PyquenSource
  *
  * Generates PYTHIA+PYQUEN ==> HepMC events
- * $Id: PyquenSource.h,v 1.6 2007/10/05 15:21:52 loizides Exp $
+ * $Id: PyquenSource.h,v 1.8 2008/12/01 12:40:26 yilmaz Exp $
  *
  * Camelia Mironov                                  
  *   for the Generator Interface. March 2007
@@ -50,6 +50,7 @@ namespace edm
     bool             doquench_;               //! if true perform quenching (default = true)
     bool             doradiativeenloss_;      //! DEFAULT = true
     bool             docollisionalenloss_;    //! DEFAULT = true       
+    bool             doIsospin_;              //! Run n&p with proper ratios; if false, only p+p collisions
     unsigned int     nquarkflavor_;           //! number of active quark flavors in qgp
                                               //! DEFAULT=0; allowed values: 0,1,2,3.
     double           qgpt0_;                  //! initial temperature of QGP

@@ -3,7 +3,7 @@
  * Generates PYQUEN HepMC events
  *
  * Original Author: Camelia Mironov
- * $Id: PyquenSource.cc,v 1.13 2008/04/09 19:02:38 marafino Exp $
+ * $Id: PyquenSource.cc,v 1.15 2008/12/01 12:40:27 yilmaz Exp $
 */
 
 #include <iostream>
@@ -42,6 +42,7 @@ comenergy(pset.getParameter<double>("comEnergy")),
 doquench_(pset.getParameter<bool>("doQuench")),
 doradiativeenloss_(pset.getParameter<bool>("doRadiativeEnLoss")),
 docollisionalenloss_(pset.getParameter<bool>("doCollisionalEnLoss")),
+doIsospin_(pset.getParameter<bool>("doIsospin")),
 nquarkflavor_(pset.getParameter<int>("numQuarkFlavor")),
 qgpt0_(pset.getParameter<double>("qgpInitialTemperature")),
 qgptau0_(pset.getParameter<double>("qgpProperTimeFormation")),
@@ -70,9 +71,6 @@ pythiaPylistVerbosity_(pset.getUntrackedParameter<int>("pythiaPylistVerbosity",0
   //initilize pyquen
   pyquen_init(pset);
 
-  // Call PYTHIA
-  call_pyinit("CMS", "p", "p", comenergy);  
-  
   cout<<endl;
 
   produces<HepMCProduct>();
@@ -146,6 +144,9 @@ bool PyquenSource::produce(Event & e)
   edm::LogInfo("PYQUENinNFlav")     << "##### PYQUEN: No active quark flavor nf = "         << pyqpar.nfu;
   edm::LogInfo("PYQUENinTemp")      << "##### PYQUEN: Initial temperature of QGP, T0 = "    << pyqpar.T0u;
   edm::LogInfo("PYQUENinTau")       << "##### PYQUEN: Proper formation time of QGP, tau0 =" << pyqpar.tau0u;
+
+  // Call PYTHIA
+  call_pyinit("CMS", "p", "p", comenergy);
 
   // Generate PYQUEN event
   // generate single partonic PYTHIA jet event
