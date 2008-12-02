@@ -22,7 +22,7 @@ process.load("Configuration.EventContent.EventContentCosmics_cff")
 process.FEVT = cms.OutputModule("PoolOutputModule",
     process.RECOEventContent,
     dataset = cms.untracked.PSet(dataTier = cms.untracked.string('RECO')),
-    fileName = cms.untracked.string('promptrecoCosmics.root')
+    fileName = cms.untracked.string('promptrecoCosmics_38T.root')
 )
 
 process.FEVT.outputCommands.append('keep CaloTowersSorted_calotoweroptmaker_*_*')
@@ -55,7 +55,7 @@ process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) ) #
 
 # Conditions (Global Tag is used here):
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = "CRAFT_ALL_V4::All"
+process.GlobalTag.globaltag = "CRAFT_30X::All"
 process.prefer("GlobalTag")
 
 # Magnetic fiuld: force mag field to be 3.8 tesla
