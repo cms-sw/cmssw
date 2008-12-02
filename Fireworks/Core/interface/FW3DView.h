@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:37 EST 2008
-// $Id: FW3DView.h,v 1.8 2008/11/06 22:05:23 amraktad Exp $
+// $Id: FW3DView.h,v 1.1 2008/12/01 12:27:36 dmytro Exp $
 //
 
 // system include files
@@ -39,6 +39,8 @@ class TEveElementList;
 class TEveGeoShape;
 class TGLMatrix;
 class FW3DViewManager;
+class DetIdToMatrix;
+  
 class FW3DView : public FWViewBase
 {
 
@@ -58,12 +60,15 @@ class FW3DView : public FWViewBase
 
       // ---------- member functions ---------------------------
       virtual void setFrom(const FWConfiguration&);
-      TEveScene* getScene() { return m_scene; }
+      void makeGeometry( const DetIdToMatrix* geom );
 
    private:
       FW3DView(const FW3DView&); // stop default
 
       const FW3DView& operator=(const FW3DView&); // stop default
+      void showMuonBarrel( );
+      void showMuonEndcap( );
+      void setTransparency( );
 
       // ---------- member data --------------------------------
       TEvePad* m_pad;
@@ -74,6 +79,13 @@ class FW3DView : public FWViewBase
       TGLMatrix* m_cameraMatrix;
       TGLMatrix* m_cameraMatrixBase;
       Double_t*  m_cameraFOV;
+   
+      TEveElement*      m_muonBarrelElements;
+      TEveElement*      m_muonEndcapElements;
+      FWBoolParameter   m_showMuonBarrel;
+      FWBoolParameter   m_showMuonEndcap;
+      
+      FWLongParameter   m_geomTransparency;
 };
 
 

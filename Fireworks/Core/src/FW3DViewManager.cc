@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 22:01:27 EST 2008
-// $Id: FW3DViewManager.cc,v 1.12 2008/11/14 16:36:51 chrjones Exp $
+// $Id: FW3DViewManager.cc,v 1.1 2008/12/01 12:27:37 dmytro Exp $
 //
 
 // system include files
@@ -40,11 +40,6 @@
 #include "Fireworks/Core/interface/FWEDProductRepresentationChecker.h"
 #include "Fireworks/Core/interface/FWTypeToRepresentations.h"
 
-#include "Fireworks/Core/interface/DetIdToMatrix.h"
-#include "DataFormats/MuonDetId/interface/DTChamberId.h"
-#include "DataFormats/MuonDetId/interface/CSCDetId.h"
-#include "TEveGeoNode.h"
-#include "TEveScene.h"
 
 //
 // constants, enums and typedefs
@@ -125,7 +120,7 @@ FW3DViewManager::buildView(TGFrame* iParent)
          (*it)->setHaveAWindow(true);
       }
    }
-   makeGeometry(view->getScene());
+   view->makeGeometry( detIdToGeo() );
    view->beingDestroyed_.connect(boost::bind(&FW3DViewManager::beingDestroyed,this,_1));
    return view.get();
 }
@@ -260,48 +255,3 @@ FW3DViewManager::supportedTypesAndRepresentations() const
    }
    return returnValue;
 }
-
-void FW3DViewManager::makeGeometry( TEveElement* parent )
-{
-   if ( ! detIdToGeo() ) {
-      std::cout << "Warning: cannot get geometry to rendered detector outline. Skipped" << std::endl;
-      return;
-   }
-   
-   // rho-phi view
-   TEveElementList* container = new TEveElementList( "DT" );
-   gEve->AddElement( container, parent );
-   for ( Int_t iWheel = -2; iWheel <= 2; ++iWheel)
-     for (Int_t iStation = 1; iStation <= 4; ++iStation)
-       {
-	  std::ostringstream s;
-	  s << "Station" << iStation;
-	  TEveElementList* cStation  = new TEveElementList( s.str().c_str() );
-	  container->AddElement( cStation );
-	  for (Int_t iSector = 1 ; iSector <= 14; ++iSector)
-	    {
-	       if ( iStation < 4 && iSector > 12 ) continue;
-	       DTChamberId id(iWheel, iStation, iSector);
-	       TEveGeoShape* shape = detIdToGeo()->getShape( id.rawId() );
-	       shape->SetMainTransparency(90);
-	       if ( shape ) cStation->AddElement(shape);
-	    }
-       }
-/*
-   // set background geometry visibility parameters
-
-   TEveElementIter rhoPhiDT(m_rhoPhiGeomProjMgr.get(),"MuonRhoPhi");
-   if ( rhoPhiDT.current() ) {
-      m_rhoPhiGeom.push_back( rhoPhiDT.current() );
-      TEveElementIter iter(rhoPhiDT.current());
-      while ( TEveElement* element = iter.current() ) {
-	 element->SetMainTransparency(50);
-	 element->SetMainColor(Color_t(TColor::GetColor("#3f0000")));
-	 if ( TEvePolygonSetProjected* poly = dynamic_cast<TEvePolygonSetProjected*>(element) )
-	   poly->SetLineColor(Color_t(TColor::GetColor("#7f0000")));
-	 iter.next();
-      }
-   }
-*/
-}
-

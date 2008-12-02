@@ -1,7 +1,7 @@
 #ifndef Fireworks_Core_FW3DViewManager_h
 #define Fireworks_Core_FW3DViewManager_h
 // -*- C++ -*-
-// $Id: FW3DViewManager.h,v 1.6 2008/11/14 16:36:51 chrjones Exp $
+// $Id: FW3DViewManager.h,v 1.1 2008/12/01 12:27:37 dmytro Exp $
 
 // system include files
 #include <string>
@@ -58,8 +58,7 @@ class FW3DViewManager : public FWViewManagerBase
 
       void makeProxyBuilderFor(const FWEventItem* iItem);
       void beingDestroyed(const FWViewBase*);
-      void makeGeometry( TEveElement* parent );
-
+      
       // ---------- member data --------------------------------
       typedef  std::map<std::string,std::vector<std::string> > TypeToBuilders;
       TypeToBuilders m_typeToBuilders;

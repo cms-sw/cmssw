@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FW3DView.cc,v 1.20 2008/11/10 18:07:57 amraktad Exp $
+// $Id: FW3DView.cc,v 1.1 2008/12/01 12:27:37 dmytro Exp $
 //
 
 // system include files
@@ -63,6 +63,13 @@
 #include "Fireworks/Core/interface/FWConfiguration.h"
 #include "Fireworks/Core/interface/BuilderUtils.h"
 
+#include "Fireworks/Core/interface/DetIdToMatrix.h"
+#include "DataFormats/MuonDetId/interface/DTChamberId.h"
+#include "DataFormats/MuonDetId/interface/CSCDetId.h"
+#include "TEveGeoNode.h"
+#include "TEveScene.h"
+#include "Fireworks/Core/interface/TEveElementIter.h"
+#include "TEvePolygonSetProjected.h"
 
 //
 // constants, enums and typedefs
@@ -79,7 +86,12 @@
 FW3DView::FW3DView(TGFrame* iParent, TEveElementList* list):
  m_cameraMatrix(0),
  m_cameraMatrixBase(0),
- m_cameraFOV(0)
+ m_cameraFOV(0),
+ m_muonBarrelElements(0),
+ m_muonEndcapElements(0),
+ m_showMuonBarrel(this, "Show Muon Barrel", true ),
+ m_showMuonEndcap(this, "Show Muon Endcap", true),
+ m_geomTransparency(this,"Detector Transparency", 95l, 0l, 100l)
 {
    m_pad = new TEvePad;
    TGLEmbeddedViewer* ev = new TGLEmbeddedViewer(iParent, m_pad, 0);
@@ -100,6 +112,9 @@ FW3DView::FW3DView(TGFrame* iParent, TEveElementList* list):
    gEve->AddElement(nv, gEve->GetViewers());
    gEve->AddElement(list,ns);
    gEve->AddToListTree(list, kTRUE);
+   m_showMuonBarrel.changed_.connect(boost::bind(&FW3DView::showMuonBarrel,this));
+   m_showMuonEndcap.changed_.connect(boost::bind(&FW3DView::showMuonEndcap,this));
+   m_geomTransparency.changed_.connect(boost::bind(&FW3DView::setTransparency,this));
 }
 
 FW3DView::~FW3DView()
@@ -219,6 +234,146 @@ FW3DView::saveImageTo(const std::string& iName) const
    }
 }
 
+
+void
+FW3DView::showMuonBarrel( )
+{
+   if ( ! m_muonBarrelElements ) return; 
+   if ( m_showMuonBarrel.value() )
+     m_muonBarrelElements->SetRnrState(kTRUE);
+   else
+     m_muonBarrelElements->SetRnrState(kFALSE);
+   gEve->Redraw3D();
+}
+
+void
+FW3DView::showMuonEndcap( )
+{
+   if ( ! m_muonEndcapElements ) return; 
+   if ( m_showMuonEndcap.value() )
+     m_muonEndcapElements->SetRnrState(kTRUE);
+   else
+     m_muonEndcapElements->SetRnrState(kFALSE);
+   gEve->Redraw3D();
+}
+
+void
+FW3DView::setTransparency( )
+{
+   if ( m_muonBarrelElements ) {
+      TEveElementIter iter(m_muonBarrelElements);
+      while ( TEveElement* element = iter.current() ) {
+	 element->SetMainTransparency(m_geomTransparency.value());
+	 /*
+	 element->SetMainColor(Color_t(TColor::GetColor("#3f0000")));
+	 if ( TEvePolygonSetProjected* poly = dynamic_cast<TEvePolygonSetProjected*>(element) )
+	   poly->SetLineColor(Color_t(TColor::GetColor("#7f0000")));
+	  */
+	 iter.next();
+      }
+      gEve->Redraw3D();
+   }
+   if ( m_muonEndcapElements ) {
+      TEveElementIter iter(m_muonEndcapElements);
+      while ( TEveElement* element = iter.current() ) {
+	 element->SetMainTransparency(m_geomTransparency.value());
+	 /*
+	 element->SetMainColor(Color_t(TColor::GetColor("#3f0000")));
+	 if ( TEvePolygonSetProjected* poly = dynamic_cast<TEvePolygonSetProjected*>(element) )
+	   poly->SetLineColor(Color_t(TColor::GetColor("#7f0000")));
+	  */
+	 iter.next();
+      }
+      gEve->Redraw3D();
+   }
+}
+
+
+void FW3DView::makeGeometry( const DetIdToMatrix* geom )
+{
+   if ( ! geom ) {
+      std::cout << "Warning: cannot get geometry to rendered detector outline. Skipped" << std::endl;
+      return;
+   }
+   
+   // barrel
+   m_muonBarrelElements = new TEveElementList( "DT" );
+   gEve->AddElement( m_muonBarrelElements, m_scene );
+   for ( Int_t iWheel = -2; iWheel <= 2; ++iWheel)
+     for (Int_t iStation = 1; iStation <= 4; ++iStation)
+       {
+	  std::ostringstream s;
+	  s << "Station" << iStation;
+	  TEveElementList* cStation  = new TEveElementList( s.str().c_str() );
+	  m_muonBarrelElements->AddElement( cStation );
+	  for (Int_t iSector = 1 ; iSector <= 14; ++iSector)
+	    {
+	       if ( iStation < 4 && iSector > 12 ) continue;
+	       DTChamberId id(iWheel, iStation, iSector);
+	       TEveGeoShape* shape = geom->getShape( id.rawId() );
+	       if ( !shape ) continue;
+	       shape->SetMainTransparency(m_geomTransparency.value());
+	       cStation->AddElement(shape);
+	    }
+       }
+   
+   m_muonEndcapElements = new TEveElementList( "CSC" );
+   gEve->AddElement( m_muonEndcapElements, m_scene );
+   for ( Int_t iEndcap = 1; iEndcap <= 2; ++iEndcap ) {// 1=forward (+Z), 2=backward(-Z)
+      TEveElementList* cEndcap = 0;
+      if (iEndcap == 1)
+	cEndcap = new TEveElementList( "Forward" );
+      else
+	cEndcap = new TEveElementList( "Backward" );
+      m_muonEndcapElements->AddElement( cEndcap );
+      for ( Int_t iStation=1; iStation<=4; ++iStation)
+      {
+	 std::ostringstream s; s << "Station" << iStation;
+	 TEveElementList* cStation  = new TEveElementList( s.str().c_str() );
+	 cEndcap->AddElement( cStation );
+	 for ( Int_t iRing=1; iRing<=4; ++iRing) {
+	    if (iStation > 1 && iRing > 2) continue;
+	    std::ostringstream s; s << "Ring" << iRing;
+	    TEveElementList* cRing  = new TEveElementList( s.str().c_str() );
+	    cStation->AddElement( cRing );
+	    for ( Int_t iChamber=1; iChamber<=72; ++iChamber)
+            {
+	       if (iStation>1 && iChamber>36) continue;
+	       Int_t iLayer = 0; // chamber
+	       // exception is thrown if parameters are not correct and I keep
+	       // forgetting how many chambers we have in each ring.
+	       try {
+		  CSCDetId id(iEndcap, iStation, iRing, iChamber, iLayer);
+		  TEveGeoShape* shape = geom->getShape( id.rawId() );
+		  if ( ! shape ) continue;
+		  shape->SetMainTransparency(m_geomTransparency.value());
+		  cRing->AddElement( shape );
+	       }
+	       catch ( ... ) {}
+	    }
+	 }
+      }
+   }
+
+
+/*
+   // set background geometry visibility parameters
+
+   TEveElementIter rhoPhiDT(m_rhoPhiGeomProjMgr.get(),"MuonRhoPhi");
+   if ( rhoPhiDT.current() ) {
+      m_rhoPhiGeom.push_back( rhoPhiDT.current() );
+      TEveElementIter iter(rhoPhiDT.current());
+      while ( TEveElement* element = iter.current() ) {
+	 element->SetMainTransparency(50);
+	 element->SetMainColor(Color_t(TColor::GetColor("#3f0000")));
+	 if ( TEvePolygonSetProjected* poly = dynamic_cast<TEvePolygonSetProjected*>(element) )
+	   poly->SetLineColor(Color_t(TColor::GetColor("#7f0000")));
+	 iter.next();
+      }
+   }
+*/
+}
+
 //
 // static member functions
 //
@@ -228,4 +383,3 @@ FW3DView::staticTypeName()
    static std::string s_name("3D");
    return s_name;
 }
-
