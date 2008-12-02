@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/11/20 09:13:20 $
- *  $Revision: 1.20 $
+ *  $Date: 2008/11/24 09:14:07 $
+ *  $Revision: 1.21 $
  *  \author G. Cerminara - INFN Torino
  *  revised by G. Mila - INFN Torino
  */
@@ -279,7 +279,7 @@ void DTSegmentAnalysisTask::bookHistos(DTChamberId chamberId) {
   if(detailedAnalysis){
     histos.push_back(theDbe->book1D("h4DChi2"+chamberHistoName,
 				    "4D Segment reduced Chi2",
-				    30, 0, 30));
+				    20, 0, 20));
   }
   histosPerCh[chamberId] = histos;
 }
