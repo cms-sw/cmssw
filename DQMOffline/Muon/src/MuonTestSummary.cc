@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/11/26 14:26:07 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/11/27 11:34:41 $
+ *  $Revision: 1.4 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -101,8 +101,6 @@ void MuonTestSummary::beginJob(const edm::EventSetup& context){
   // summary test report
   dbe->setCurrentFolder("Muons/EventInfo"); 
   summaryReport = dbe->bookFloat("reportSummary");
-  // Initialize to 0
-  summaryReport->Fill(0);
 
   summaryReportMap = dbe->book2D("reportSummaryMap","Muon Report Summary Map",3,1,4,7,1,8);
   summaryReportMap->setAxisTitle("muons",1);
@@ -117,12 +115,6 @@ void MuonTestSummary::beginJob(const edm::EventSetup& context){
   summaryReportMap->setBinLabel(5,"muonId",2);
   summaryReportMap->setBinLabel(6,"enDep",2);
   summaryReportMap->setBinLabel(7,"molteplicity",2);
-  // Initialize to 0
-  for (int x=1; x<=3; x++){
-    for (int y=1; y<=7; y++){
-      summaryReportMap->Fill(x,y,0);
-    }
-  }
 
   dbe->setCurrentFolder("Muons/EventInfo/reportSummaryContents");
   theSummaryContents.push_back(dbe->bookFloat("kinematics_GLB"));
@@ -134,16 +126,10 @@ void MuonTestSummary::beginJob(const edm::EventSetup& context){
   theSummaryContents.push_back(dbe->bookFloat("STA"));
   theSummaryContents.push_back(dbe->bookFloat("energyDeposits"));
   theSummaryContents.push_back(dbe->bookFloat("molteciplicity"));
-  // Initialize to 0
-  for (int i=0; i<int(theSummaryContents.size()); i++){
-    theSummaryContents[i]->Fill(0);
-  }
-
 
 }
 
 void MuonTestSummary::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
-
 
   // fill the kinematics report summary
   doKinematicsTests("GlbMuon_Glb_", 1, 1.0/3.0);
@@ -207,11 +193,11 @@ void MuonTestSummary::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSe
   theSummaryContents[2]->Fill(kinematics_TK);
   double muonId_TK = summaryReportMap->getBinContent(2,5);
   theSummaryContents[3]->Fill(muonId_TK);
-  double GLB = (kinematics_GLB+residuals_GLB)/2.0;
+  double GLB = (kinematics_GLB+residuals_GLB)/4.0;
   theSummaryContents[4]->Fill(GLB);
-  double TK = double(kinematics_TK+muonId_TK)/2.0;
+  double TK = double(kinematics_TK+muonId_TK)/4.0;
   theSummaryContents[5]->Fill(TK);
-  double STA = summaryReportMap->getBinContent(3,1)+summaryReportMap->getBinContent(3,2)+summaryReportMap->getBinContent(3,3);
+  double STA = (summaryReportMap->getBinContent(3,1)+summaryReportMap->getBinContent(3,2)+summaryReportMap->getBinContent(3,3))/3.0;
   theSummaryContents[6]->Fill(STA);
   double energyDeposits = summaryReportMap->getBinContent(1,6)+summaryReportMap->getBinContent(2,6)+summaryReportMap->getBinContent(3,6);
   theSummaryContents[7]->Fill(energyDeposits);
@@ -310,22 +296,34 @@ void MuonTestSummary::doResidualsTests(string type, string parameter, int bin){
       if(gfit){
 	mean = gfit->GetParameter(1); 
 	sigma = gfit->GetParameter(2);
-	LogTrace(metname)<<"mean: "<<mean<<endl;
-	LogTrace(metname)<<"sigma: "<<sigma<<endl;
+	LogTrace(metname)<<"mean: "<<mean<<"for Res_"<<type<<"_"<<parameter<<endl;
+	LogTrace(metname)<<"sigma: "<<sigma<<"for Res_"<<type<<"_"<<parameter<<endl;
       }
     }
     else{
       LogTrace(metname) << "[MuonTestSummary]: Test of  Res_"<<type<<"_"<<parameter<< " not performed because # entries < 20 ";
     }
 
-    if(sigma!=-1 && parameter=="eta" && type=="TkGlb" && sigma<resEtaSpread_tkGlb)
-      residualsSummaryMap->setBinContent(bin, 1, 1.0/6.0);
-    if(sigma!=-1 && parameter=="eta" && (type=="GlbSta" || type=="TkSta") && sigma<resEtaSpread_glbSta)
-      residualsSummaryMap->setBinContent(bin, 1, 1.0/6.0);
-    if(sigma!=-1 && parameter=="phi" && type=="TkGlb" && sigma<resPhiSpread_tkGlb)
-      residualsSummaryMap->setBinContent(bin, 2, 1.0/6.0);     
-    if(sigma!=-1 && parameter=="phi" && (type=="GlbSta" || type=="TkSta") && sigma<resPhiSpread_glbSta)
-      residualsSummaryMap->setBinContent(bin, 2, 1.0/6.0); 
+    if(sigma!=-1 && parameter=="eta" && type=="TkGlb"){
+      if(sigma<resEtaSpread_tkGlb) residualsSummaryMap->setBinContent(bin, 1, 1.0/6.0);
+      else residualsSummaryMap->setBinContent(bin, 1, 0);
+    }
+    if(sigma!=-1 && parameter=="eta" && (type=="GlbSta" || type=="TkSta")) {
+      if(sigma<resEtaSpread_glbSta) residualsSummaryMap->setBinContent(bin, 1, 1.0/6.0);
+      else residualsSummaryMap->setBinContent(bin, 1, 0);
+    }
+    if(sigma!=-1 && parameter=="phi" && type=="TkGlb"){
+      if(sigma<resPhiSpread_tkGlb) residualsSummaryMap->setBinContent(bin, 2, 1.0/6.0);     
+      else residualsSummaryMap->setBinContent(bin, 2, 0);
+    }
+    if(sigma!=-1 && parameter=="phi" && (type=="GlbSta" || type=="TkSta")){ 
+      if(sigma<resPhiSpread_glbSta) residualsSummaryMap->setBinContent(bin, 2, 1.0/6.0); 
+      else residualsSummaryMap->setBinContent(bin, 2, 0); 
+    }
+    if(sigma==-1){
+      if(parameter=="eta") residualsSummaryMap->setBinContent(bin, 1,-1);
+      if( parameter=="phi") residualsSummaryMap->setBinContent(bin, 2,-1);
+    }
   }
 
 }
