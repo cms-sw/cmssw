@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: ElectronsGlimpseProxyBuilder.cc,v 1.8 2008/11/04 20:29:25 amraktad Exp $
+// $Id: ElectronsGlimpseProxyBuilder.cc,v 1.9 2008/11/06 22:05:28 amraktad Exp $
 //
 
 // system include files
@@ -90,5 +90,5 @@ ElectronsGlimpseProxyBuilder::build(const FWEventItem* iItem, TEveElementList** 
    }
 }
 
-REGISTER_FWGLIMPSEDATAPROXYBUILDER(ElectronsGlimpseProxyBuilder,reco::GsfElectronCollection,"Electrons");
+//REGISTER_FWGLIMPSEDATAPROXYBUILDER(ElectronsGlimpseProxyBuilder,reco::GsfElectronCollection,"Electrons");
 
