@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Thu Dec  6 17:49:54 PST 2007
-// $Id: FWGlimpseDataProxyBuilder.cc,v 1.6 2008/11/06 22:05:25 amraktad Exp $
+// $Id: FWGlimpseDataProxyBuilder.cc,v 1.7 2008/11/14 15:32:32 chrjones Exp $
 //
 
 // system include files
@@ -24,6 +24,7 @@
 #include "Fireworks/Core/interface/FWModelId.h"
 
 #include "Fireworks/Core/src/changeElementAndChildren.h"
+#include "Fireworks/Core/interface/setUserDataElementAndChildren.h"
 
 //
 // constants, enums and typedefs
@@ -104,6 +105,7 @@ FWGlimpseDataProxyBuilder::setItem(const FWEventItem* iItem)
 void
 FWGlimpseDataProxyBuilder::itemChanged(const FWEventItem* iItem)
 {
+   itemChangedImp(iItem);
    if(m_haveViews) {
       build();
    } else {
@@ -112,25 +114,18 @@ FWGlimpseDataProxyBuilder::itemChanged(const FWEventItem* iItem)
    m_modelsChanged=false;
 }
 
+void 
+FWGlimpseDataProxyBuilder::itemChangedImp(const FWEventItem*)
+{
+}
+
+
 void
 FWGlimpseDataProxyBuilder::itemBeingDestroyed(const FWEventItem* iItem)
 {
    m_item=0;
    m_elementHolder->RemoveElements();
    m_ids.clear();
-}
-
-static void
-setUserDataElementAndChildren(TEveElement* iElement,
-                         void* iInfo)
-{
-   iElement->SetUserData(iInfo);
-   for(TEveElement::List_i itElement = iElement->BeginChildren(),
-       itEnd = iElement->EndChildren();
-       itElement != itEnd;
-       ++itElement) {
-      setUserDataElementAndChildren(*itElement, iInfo);
-   }
 }
 
 void
@@ -162,7 +157,7 @@ FWGlimpseDataProxyBuilder::build()
            if(largestIndex<=index) {
               *itId=FWModelId(m_item,index);
            }
-           setUserDataElementAndChildren(*it,&(*itId));
+           fireworks::setUserDataElementAndChildren(*it,&(*itId));
         }
      }
   }
@@ -228,3 +223,8 @@ FWGlimpseDataProxyBuilder::modelChanges(const FWModelIds& iIds,
 //
 // static member functions
 //
+std::string 
+FWGlimpseDataProxyBuilder::typeOfBuilder()
+{
+   return std::string();
+}

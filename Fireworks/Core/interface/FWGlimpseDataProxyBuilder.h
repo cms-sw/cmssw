@@ -16,7 +16,7 @@
 //
 // Original Author:
 //         Created:  Sat Jan  5 15:02:03 EST 2008
-// $Id: FWGlimpseDataProxyBuilder.h,v 1.4 2008/11/06 22:05:23 amraktad Exp $
+// $Id: FWGlimpseDataProxyBuilder.h,v 1.5 2008/11/14 15:32:32 chrjones Exp $
 //
 
 // system include files
@@ -45,7 +45,9 @@ class FWGlimpseDataProxyBuilder
       // ---------- const member functions ---------------------
 
       // ---------- static member functions --------------------
-
+      ///Used by the plugin system to determine how the proxy uses the data from FWEventItem
+      static std::string typeOfBuilder();
+   
       // ---------- member functions ---------------------------
       void setItem(const FWEventItem* iItem);
       void setHaveAWindow(bool iFlag);
@@ -79,6 +81,7 @@ class FWGlimpseDataProxyBuilder
       //Override this if you need to special handle selection or other changes
       virtual void modelChanges(const FWModelIds&, TEveElement*);
       virtual void applyChangesToAllModels(TEveElement* iElements);
+      virtual void itemChangedImp(const FWEventItem*);
 
       virtual void itemBeingDestroyed(const FWEventItem*);
 
