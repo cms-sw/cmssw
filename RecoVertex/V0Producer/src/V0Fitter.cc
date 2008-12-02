@@ -13,7 +13,7 @@
 //
 // Original Author:  Brian Drell
 //         Created:  Fri May 18 22:57:40 CEST 2007
-// $Id: V0Fitter.cc,v 1.32 2008/10/17 21:03:01 drell Exp $
+// $Id: V0Fitter.cc,v 1.33 2008/12/02 22:53:40 drell Exp $
 //
 //
 
@@ -238,24 +238,27 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
       //cout << cApp.status() << endl;
       float dca = fabs( cApp.distance() );
 
+      if (dca < 0. || dca > tkDCACut) continue;
+
       // Get trajectory states for the tracks at POCA for later cuts
       GlobalPoint cxPt = cApp.crossingPoint();
+      //cout << "crossingPoint: " << cxPt.x() << ", " << cxPt.y() << ", " << cxPt.z() << endl;
       //cout << "Check 3" << endl;
-      TrajectoryStateClosestToPoint posTSCP;
-      TrajectoryStateClosestToPoint negTSCP;
-      try {
-	//TrajectoryStateClosestToPoint posTSCP = 
-	posTSCP = posTransTkPtr->trajectoryStateClosestToPoint( cxPt );
-	//TrajectoryStateClosestToPoint negTSCP =
-	negTSCP = negTransTkPtr->trajectoryStateClosestToPoint( cxPt );
-      }
-      catch(...) {
-	cout << "Caught one." << endl;
-	continue;
-      }
+      //TrajectoryStateClosestToPoint posTSCP;
+      //TrajectoryStateClosestToPoint negTSCP;
+      //try {
+      TrajectoryStateClosestToPoint posTSCP = 
+	posTransTkPtr->trajectoryStateClosestToPoint( cxPt );
+      TrajectoryStateClosestToPoint negTSCP =
+	negTransTkPtr->trajectoryStateClosestToPoint( cxPt );
+      //}
+      //catch(...) {
+      //cout << "Caught one." << endl;
+      //continue;
+      //}
       //cout << "Check 4" << endl;
 
-      if (dca < 0. || dca > tkDCACut) continue;
+ 
 
       //double posESq = positiveTrackRef->momentum().Mag2() + piMassSquared;
       //double negESq = negativeTrackRef->momentum().Mag2() + piMassSquared;
