@@ -10,7 +10,8 @@ simRctDigis = L1Trigger.RegionalCaloTrigger.rctDigis_cfi.rctDigis.clone()
 import L1Trigger.GlobalCaloTrigger.gctDigis_cfi
 simGctDigis = L1Trigger.GlobalCaloTrigger.gctDigis_cfi.gctDigis.clone()
 # DT Trigger emulator
-import L1Trigger.DTTrigger.dtTriggerPrimitiveDigis_cfi
+from L1Trigger.DTTrigger.dtTriggerPrimitiveDigis_cfi import *
+#import L1Trigger.DTTrigger.dtTriggerPrimitiveDigis_cfi
 simDtTriggerPrimitiveDigis = L1Trigger.DTTrigger.dtTriggerPrimitiveDigis_cfi.dtTriggerPrimitiveDigis.clone()
 # DT Track Finder emulator
 import L1Trigger.DTTrackFinder.dttfDigis_cfi
@@ -25,8 +26,9 @@ simCsctfTrackDigis = L1Trigger.CSCTrackFinder.csctfTrackDigis_cfi.csctfTrackDigi
 import L1Trigger.CSCTrackFinder.csctfDigis_cfi
 simCsctfDigis = L1Trigger.CSCTrackFinder.csctfDigis_cfi.csctfDigis.clone()
 # RPC Trigger emulator
-import L1Trigger.RPCTrigger.rpcTriggerDigis_cfi
-simRpcTriggerDigis = L1Trigger.RPCTrigger.rpcTriggerDigis_cfi.rpcTriggerDigis.clone()
+from L1Trigger.RPCTrigger.rpcTriggerDigis_cff import *
+#import L1Trigger.RPCTrigger.rpcTriggerDigis_cff
+simRpcTriggerDigis = L1Trigger.RPCTrigger.rpcTriggerDigis_cff.rpcTriggerDigis.clone()
 # Global Muon Trigger emulator
 import L1Trigger.GlobalMuonTrigger.gmtDigis_cfi
 simGmtDigis = L1Trigger.GlobalMuonTrigger.gmtDigis_cfi.gmtDigis.clone()

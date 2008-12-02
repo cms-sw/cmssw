@@ -22,7 +22,7 @@ from L1TriggerConfig.L1GtConfigProducers.L1GtConfig_cff import *
 
 # these are never stored in L1 DB
 # they should be moved to CSC/DT/RPC fake conditions
-from L1TriggerConfig.L1CSCTPConfigProducers.L1CSCTriggerPrimitivesConfig_cff import *
-from L1TriggerConfig.DTTPGConfigProducers.L1DTTPGConfig_cff import *
-from L1TriggerConfig.RPCTriggerConfig.RPCConeConfig_cff import *
-from L1TriggerConfig.RPCTriggerConfig.RPCHwConfig_cff import *
+#from L1TriggerConfig.L1CSCTPConfigProducers.L1CSCTriggerPrimitivesConfig_cff import *
+#from L1TriggerConfig.DTTPGConfigProducers.L1DTTPGConfig_cff import *
+#from L1TriggerConfig.RPCTriggerConfig.RPCConeConfig_cff import *
+#from L1TriggerConfig.RPCTriggerConfig.RPCHwConfig_cff import *

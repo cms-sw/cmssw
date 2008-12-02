@@ -9,7 +9,7 @@ from L1Trigger.CSCTriggerPrimitives.cscTriggerPrimitiveDigis_cfi import *
 from L1Trigger.CSCTrackFinder.csctfTrackDigis_cfi import *
 from L1Trigger.CSCTrackFinder.csctfDigis_cfi import *
 # RPC Trigger
-from L1Trigger.RPCTrigger.rpcTriggerDigis_cfi import *
+from L1Trigger.RPCTrigger.rpcTriggerDigis_cff import *
 # Global Muon Trigger
 from L1Trigger.GlobalMuonTrigger.gmtDigis_cfi import *
 L1MuonTriggerPrimitives = cms.Sequence(cscTriggerPrimitiveDigis*dtTriggerPrimitiveDigis)
