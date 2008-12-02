@@ -6,6 +6,9 @@ source = cms.Source("HydjetSource",
                         maxEventsToPrint = cms.untracked.int32(0),
                         pythiaPylistVerbosity = cms.untracked.int32(0),
 
+                        firstEvent = cms.untracked.uint32(1),
+                        firstRun = cms.untracked.uint32(1),
+                    
                         comEnergy = cms.double(5500.0),
                         sigmaInelNN = cms.double(58),
                         aBeamTarget = cms.double(208.0),
@@ -43,7 +46,7 @@ source = cms.Source("HydjetSource",
                     )
 
 configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.4 $'),
+    version = cms.untracked.string('$Revision: 1.5 $'),
     name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/GeneratorInterface/HydjetInterface/python/hydjetSourceDefault_cfi.py,v $'),
     annotation = cms.untracked.string('PYTHIA6-MinBias at 10TeV')
     )
