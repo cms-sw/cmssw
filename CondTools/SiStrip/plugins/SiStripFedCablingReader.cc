@@ -25,29 +25,47 @@ SiStripFedCablingReader::SiStripFedCablingReader( const edm::ParameterSet& pset 
 void SiStripFedCablingReader::beginRun( const edm::Run& run, 
 					const edm::EventSetup& setup ) {
 
-  edm::LogVerbatim("SiStripFedCablingReader") 
-    << "[SiStripFedCablingReader::" << __func__ << "]"
-    << " Retrieving FED cabling...";
+  edm::eventsetup::EventSetupRecordKey FedRecordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType("SiStripFedCablingRcd"));
+  edm::eventsetup::EventSetupRecordKey FecRecordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType("SiStripFecCablingRcd"));
+  edm::eventsetup::EventSetupRecordKey DetRecordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType("SiStripDetCablingRcd"));
+  edm::eventsetup::EventSetupRecordKey RegRecordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType("SiStripRegionCablingRcd"));
+
+  bool FedRcdfound=setup.find(FedRecordKey) != 0?true:false;  
+  bool FecRcdfound=setup.find(FecRecordKey) != 0?true:false;  
+  bool DetRcdfound=setup.find(DetRecordKey) != 0?true:false;  
+  bool RegRcdfound=setup.find(RegRecordKey) != 0?true:false;  
+
   edm::ESHandle<SiStripFedCabling> fed;
-  setup.get<SiStripFedCablingRcd>().get( fed ); 
+  if(FedRcdfound){
+    edm::LogVerbatim("SiStripFedCablingReader") 
+      << "[SiStripFedCablingReader::" << __func__ << "]"
+      << " Retrieving FED cabling...";
+    setup.get<SiStripFedCablingRcd>().get( fed ); 
+  }
 
-  edm::LogVerbatim("SiStripFedCablingReader") 
-    << "[SiStripFedCablingReader::" << __func__ << "]"
-    << " Retrieving FEC cabling...";
   edm::ESHandle<SiStripFecCabling> fec;
-  setup.get<SiStripFecCablingRcd>().get( fec ); 
+  if(FecRcdfound){
+    edm::LogVerbatim("SiStripFedCablingReader") 
+      << "[SiStripFedCablingReader::" << __func__ << "]"
+      << " Retrieving FEC cabling...";
+      setup.get<SiStripFecCablingRcd>().get( fec ); 
+  }
 
-  edm::LogVerbatim("SiStripFedCablingReader") 
-    << "[SiStripFedCablingReader::" << __func__ << "]"
-    << " Retrieving DET cabling...";
   edm::ESHandle<SiStripDetCabling> det;
-  setup.get<SiStripDetCablingRcd>().get( det ); 
+  if(DetRcdfound){
+    edm::LogVerbatim("SiStripFedCablingReader") 
+      << "[SiStripFedCablingReader::" << __func__ << "]"
+      << " Retrieving DET cabling...";
+    setup.get<SiStripDetCablingRcd>().get( det ); 
+  }
 
-  edm::LogVerbatim("SiStripFedCablingReader") 
-    << "[SiStripFedCablingReader::" << __func__ << "]"
-    << " Retrieving REGION cabling...";
   edm::ESHandle<SiStripRegionCabling> region;
-  setup.get<SiStripRegionCablingRcd>().get( region ); 
+  if(RegRcdfound){
+    edm::LogVerbatim("SiStripFedCablingReader") 
+      << "[SiStripFedCablingReader::" << __func__ << "]"
+      << " Retrieving REGION cabling...";
+    setup.get<SiStripRegionCablingRcd>().get( region ); 
+  }
 
   if ( !fed.isValid() ) {
     edm::LogError("SiStripFedCablingReader") 
@@ -59,18 +77,18 @@ void SiStripFedCablingReader::beginRun( const edm::Run& run,
     std::stringstream ss;
     ss << "[SiStripFedCablingReader::" << __func__ << "]"
        << " VERBOSE DEBUG" << std::endl;
-    fed->print( ss );
+    if(FedRcdfound)fed->print( ss );
     ss << std::endl;
-    if ( printFecCabling_ && fec.isValid() ) { fec->print( ss ); }
+    if ( FecRcdfound && printFecCabling_ && fec.isValid() ) { fec->print( ss ); }
     ss << std::endl;
-    if ( printDetCabling_ && det.isValid() ) { det->print( ss ); }
+    if ( DetRcdfound && printDetCabling_ && det.isValid() ) { det->print( ss ); }
     ss << std::endl;
-    if ( printRegionCabling_ && region.isValid() ) { region->print( ss ); }
+    if ( RegRcdfound && printRegionCabling_ && region.isValid() ) { region->print( ss ); }
     ss << std::endl;
     edm::LogVerbatim("SiStripFedCablingReader") << ss.str();
   }
   
-  {
+  if(FedRcdfound){
     std::stringstream ss;
     ss << "[SiStripFedCablingReader::" << __func__ << "]"
        << " TERSE DEBUG" << std::endl;
@@ -79,7 +97,7 @@ void SiStripFedCablingReader::beginRun( const edm::Run& run,
     edm::LogVerbatim("SiStripFedCablingReader") << ss.str();
   }
   
-  {
+  if(FedRcdfound){
     std::stringstream ss;
     ss << "[SiStripFedCablingReader::" << __func__ << "]"
        << " SUMMARY DEBUG" << std::endl;
