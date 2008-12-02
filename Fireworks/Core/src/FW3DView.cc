@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FW3DView.cc,v 1.1 2008/12/01 12:27:37 dmytro Exp $
+// $Id: FW3DView.cc,v 1.2 2008/12/02 09:01:51 dmytro Exp $
 //
 
 // system include files
@@ -91,6 +91,7 @@ FW3DView::FW3DView(TGFrame* iParent, TEveElementList* list):
  m_muonEndcapElements(0),
  m_showMuonBarrel(this, "Show Muon Barrel", true ),
  m_showMuonEndcap(this, "Show Muon Endcap", true),
+ m_showWireFrame(this, "Show Wire Frame", true),
  m_geomTransparency(this,"Detector Transparency", 95l, 0l, 100l)
 {
    m_pad = new TEvePad;
@@ -105,15 +106,19 @@ FW3DView::FW3DView(TGFrame* iParent, TEveElementList* list):
 	dynamic_cast<TGLPerspectiveCamera*>(&(ev->CurrentCamera())) )
      m_cameraFOV = &(camera->fFOV);
 
-   TEveScene* ns = gEve->SpawnNewScene(staticTypeName().c_str());
-   m_scene = ns;
-   nv->AddScene(ns);
+   m_scene = gEve->SpawnNewScene(staticTypeName().c_str());
+   nv->AddScene(m_scene);
+   
+   m_detectorScene = gEve->SpawnNewScene((staticTypeName()+"detector").c_str());
+   nv->AddScene(m_detectorScene);
+   
    m_viewer=nv;
    gEve->AddElement(nv, gEve->GetViewers());
-   gEve->AddElement(list,ns);
+   gEve->AddElement(list,m_scene);
    gEve->AddToListTree(list, kTRUE);
    m_showMuonBarrel.changed_.connect(boost::bind(&FW3DView::showMuonBarrel,this));
    m_showMuonEndcap.changed_.connect(boost::bind(&FW3DView::showMuonEndcap,this));
+   m_showWireFrame.changed_.connect(boost::bind(&FW3DView::showWireFrame,this));
    m_geomTransparency.changed_.connect(boost::bind(&FW3DView::setTransparency,this));
 }
 
@@ -258,6 +263,18 @@ FW3DView::showMuonEndcap( )
 }
 
 void
+FW3DView::showWireFrame( )
+{
+   if ( m_showWireFrame.value() )
+     m_detectorScene->GetGLScene()->SetStyle(TGLRnrCtx::kWireFrame);
+   else
+     m_detectorScene->GetGLScene()->SetStyle(TGLRnrCtx::kFill);
+   m_embeddedViewer->RequestDraw(TGLRnrCtx::kLODHigh);
+   // gEve->GetViewers()->RepaintAllViewers(kFALSE, kFALSE);
+   // gEve->Redraw3D();
+}
+
+void
 FW3DView::setTransparency( )
 {
    if ( m_muonBarrelElements ) {
@@ -298,7 +315,7 @@ void FW3DView::makeGeometry( const DetIdToMatrix* geom )
    
    // barrel
    m_muonBarrelElements = new TEveElementList( "DT" );
-   gEve->AddElement( m_muonBarrelElements, m_scene );
+   gEve->AddElement( m_muonBarrelElements, m_detectorScene );
    for ( Int_t iWheel = -2; iWheel <= 2; ++iWheel)
      for (Int_t iStation = 1; iStation <= 4; ++iStation)
        {
@@ -318,7 +335,7 @@ void FW3DView::makeGeometry( const DetIdToMatrix* geom )
        }
    
    m_muonEndcapElements = new TEveElementList( "CSC" );
-   gEve->AddElement( m_muonEndcapElements, m_scene );
+   gEve->AddElement( m_muonEndcapElements, m_detectorScene );
    for ( Int_t iEndcap = 1; iEndcap <= 2; ++iEndcap ) {// 1=forward (+Z), 2=backward(-Z)
       TEveElementList* cEndcap = 0;
       if (iEndcap == 1)

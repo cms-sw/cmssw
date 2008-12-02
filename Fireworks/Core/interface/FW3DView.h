@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:37 EST 2008
-// $Id: FW3DView.h,v 1.1 2008/12/01 12:27:36 dmytro Exp $
+// $Id: FW3DView.h,v 1.2 2008/12/02 09:01:51 dmytro Exp $
 //
 
 // system include files
@@ -68,6 +68,7 @@ class FW3DView : public FWViewBase
       const FW3DView& operator=(const FW3DView&); // stop default
       void showMuonBarrel( );
       void showMuonEndcap( );
+      void showWireFrame( );
       void setTransparency( );
 
       // ---------- member data --------------------------------
@@ -75,6 +76,7 @@ class FW3DView : public FWViewBase
       TEveViewer* m_viewer;
       TGLEmbeddedViewer* m_embeddedViewer;
       TEveScene* m_scene;
+      TEveScene* m_detectorScene;
 
       TGLMatrix* m_cameraMatrix;
       TGLMatrix* m_cameraMatrixBase;
@@ -84,6 +86,7 @@ class FW3DView : public FWViewBase
       TEveElement*      m_muonEndcapElements;
       FWBoolParameter   m_showMuonBarrel;
       FWBoolParameter   m_showMuonEndcap;
+      FWBoolParameter   m_showWireFrame;
       
       FWLongParameter   m_geomTransparency;
 };
