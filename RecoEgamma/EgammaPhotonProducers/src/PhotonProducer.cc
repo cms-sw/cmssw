@@ -49,6 +49,7 @@ PhotonProducer::PhotonProducer(const edm::ParameterSet& config) :
   hOverEConeSize_   = conf_.getParameter<double>("hOverEConeSize");
   maxHOverE_        = conf_.getParameter<double>("maxHOverE");
   minSCEt_        = conf_.getParameter<double>("minSCEt");
+  highEt_        = conf_.getParameter<double>("highEt");
   minR9_        = conf_.getParameter<double>("minR9");
   likelihoodWeights_= conf_.getParameter<std::string>("MVA_weights_location");
 
@@ -294,11 +295,11 @@ void PhotonProducer::fillPhotonCollection(edm::Event& evt,
     iSC++;
     const reco::SuperCluster* pClus=&(*scRef);
     
-    // preselection
+    // SC energy preselection
     if (scRef->energy()/cosh(scRef->eta()) <= minSCEt_) continue;
     // calculate HoE
     double HoE=theHoverEcalc_(pClus,mhbhe);
-    if (HoE>=maxHOverE_)  continue;
+
     
     // recalculate position of seed BasicCluster taking shower depth for unconverted photon
     math::XYZPoint unconvPos = posCalculator_.Calculate_Location(scRef->seed()->getHitsByDetId(),hits,subDetGeometry,geometryES);
@@ -373,12 +374,19 @@ void PhotonProducer::fillPhotonCollection(edm::Event& evt,
 
     /// Pre-selection loose  isolation cuts
     bool isLooseEM=true;
-    if ( newCandidate.ecalRecHitSumConeDR04()          > preselCutValues[0] )      isLooseEM=false;
-    if ( newCandidate.hcalTowerSumConeDR04()           > preselCutValues[1] )      isLooseEM=false;
-    if ( newCandidate.nTrkSolidConeDR04()          > int(preselCutValues[2]) ) isLooseEM=false;
-    if ( newCandidate.nTrkHollowConeDR04()         > int(preselCutValues[3]) ) isLooseEM=false;
-    if ( newCandidate.isolationTrkSolidConeDR04()  > preselCutValues[4] )      isLooseEM=false;
-    if ( newCandidate.isolationTrkHollowConeDR04() > preselCutValues[5] )      isLooseEM=false;
+    //    std::cout << " Photon Et " <<  newCandidate.pt() << std::endl;
+    if ( newCandidate.pt() < highEt_) { 
+      std::cout << " This photon Et is below " << highEt_ << " so I apply pre-selection ID cuts " << std::endl;
+      if ( newCandidate.hadronicOverEm()                >= maxHOverE_ )              isLooseEM=false;
+      if ( newCandidate.ecalRecHitSumConeDR04()          > preselCutValues[0] )      isLooseEM=false;
+      if ( newCandidate.hcalTowerSumConeDR04()           > preselCutValues[1] )      isLooseEM=false;
+      if ( newCandidate.nTrkSolidConeDR04()              > int(preselCutValues[2]) ) isLooseEM=false;
+      if ( newCandidate.nTrkHollowConeDR04()             > int(preselCutValues[3]) ) isLooseEM=false;
+      if ( newCandidate.isolationTrkSolidConeDR04()      > preselCutValues[4] )      isLooseEM=false;
+      if ( newCandidate.isolationTrkHollowConeDR04()     > preselCutValues[5] )      isLooseEM=false;
+    } 
+
+
     if ( isLooseEM) {
     
     
