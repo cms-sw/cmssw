@@ -195,7 +195,7 @@ CkfTrajectoryBuilder::findCompatibleMeasurements( const TempTrajectory& traj,
 	LogDebug("CkfPattern")<<"to: "<<stateToUse;
       }
     
-    vector<TrajectoryMeasurement> tmp = theLayerMeasurements->measurements((**il),stateAndLayers.first, *theForwardPropagator, *theEstimator);
+    vector<TrajectoryMeasurement> tmp = theLayerMeasurements->measurements((**il),stateToUse, *theForwardPropagator, *theEstimator);
     
     if ( !tmp.empty()) {
       if ( result.empty()) result = tmp;
