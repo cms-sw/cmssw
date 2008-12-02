@@ -639,7 +639,7 @@ void OHltTree::Loop( vector<int> * iCount, vector<int> * sPureCount, vector<int>
       else if (trignames[it].CompareTo("OpenHLT_DiJetAve70") == 0) {   
 	if( L1_SingleJet70==1) {      // L1 Seed   
 	  L1AssHLTBit[it] = true;  
-	  if(OpenHltDiJetAvePassed(50)>=1) {   
+	  if(OpenHltDiJetAvePassed(70)>=1) {   
 	    triggerBitNoPrescale[it] = true;    
 	    if ((iCountNoPrescale[it]) % map_pathHLTPrescl.find(trignames[it])->second == 0) {    
 	      triggerBit[it] = true;  
