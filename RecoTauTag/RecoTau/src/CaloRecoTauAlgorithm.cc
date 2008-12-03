@@ -45,7 +45,7 @@ CaloRecoTauAlgorithm::CaloRecoTauAlgorithm(const ParameterSet& iConfig) : Transi
   myECALIsolConeSizeTFormula=TauTagTools::computeConeSizeTFormula(ECALIsolConeSizeFormula_,"ECAL isolation cone size");
   myMatchingConeSizeTFormula=TauTagTools::computeConeSizeTFormula(MatchingConeSizeFormula_,"Matching cone size");
 
- 
+  mySelectedDetId_.clear();
 }
 void CaloRecoTauAlgorithm::setTransientTrackBuilder(const TransientTrackBuilder* x){TransientTrackBuilder_=x;}
 void CaloRecoTauAlgorithm::setMagneticField(const MagneticField* x){MagneticField_=x;} 
@@ -163,7 +163,7 @@ CaloTau CaloRecoTauAlgorithm::buildCaloTau(Event& iEvent,const EventSetup& iSetu
 
     //getting the EcalRecHits. Just take them all
   vector<pair<math::XYZPoint,float> > thePositionAndEnergyEcalRecHits;
-
+  mySelectedDetId_.clear();
   //  vector<CaloTowerPtr> theCaloTowers=myCaloJet->getCaloConstituents();
   ESHandle<CaloGeometry> theCaloGeometry;
   iSetup.get<CaloGeometryRecord>().get(theCaloGeometry);
@@ -174,31 +174,40 @@ CaloTau CaloRecoTauAlgorithm::buildCaloTau(Event& iEvent,const EventSetup& iSetu
   iEvent.getByLabel(EBRecHitsLabel_,EBRecHits);
   iEvent.getByLabel(EERecHitsLabel_,EERecHits);
   iEvent.getByLabel(ESRecHitsLabel_,ESRecHits);
-
+  double maxDeltaR = 0.8;
+    math::XYZPoint myCaloJetdir((*myCaloJet).px(),(*myCaloJet).py(),(*myCaloJet).pz());
+    
   for(EBRecHitCollection::const_iterator theRecHit = EBRecHits->begin();theRecHit != EBRecHits->end(); theRecHit++){
     theCaloSubdetectorGeometry = theCaloGeometry->getSubdetectorGeometry(DetId::Ecal,EcalBarrel);
     const CaloCellGeometry* theRecHitCell=theCaloSubdetectorGeometry->getGeometry(theRecHit->id());  
     math::XYZPoint theRecHitCell_XYZPoint(theRecHitCell->getPosition().x(),theRecHitCell->getPosition().y(),theRecHitCell->getPosition().z());
-    pair<math::XYZPoint,float> thePositionAndEnergyEcalRecHit(theRecHitCell_XYZPoint,theRecHit->energy());
-    thePositionAndEnergyEcalRecHits.push_back(thePositionAndEnergyEcalRecHit);
+    if(ROOT::Math::VectorUtil::DeltaR(myCaloJetdir,theRecHitCell_XYZPoint) < maxDeltaR){
+      pair<math::XYZPoint,float> thePositionAndEnergyEcalRecHit(theRecHitCell_XYZPoint,theRecHit->energy());
+      thePositionAndEnergyEcalRecHits.push_back(thePositionAndEnergyEcalRecHit);
+      mySelectedDetId_.push_back(theRecHit->id());
+    }
   }
 
 for(EERecHitCollection::const_iterator theRecHit = EERecHits->begin();theRecHit != EERecHits->end(); theRecHit++){
     theCaloSubdetectorGeometry = theCaloGeometry->getSubdetectorGeometry(DetId::Ecal,EcalEndcap);
     const CaloCellGeometry* theRecHitCell=theCaloSubdetectorGeometry->getGeometry(theRecHit->id());  
     math::XYZPoint theRecHitCell_XYZPoint(theRecHitCell->getPosition().x(),theRecHitCell->getPosition().y(),theRecHitCell->getPosition().z());
-    pair<math::XYZPoint,float> thePositionAndEnergyEcalRecHit(theRecHitCell_XYZPoint,theRecHit->energy());
-    thePositionAndEnergyEcalRecHits.push_back(thePositionAndEnergyEcalRecHit);
-  }
-
-for(ESRecHitCollection::const_iterator theRecHit = ESRecHits->begin();theRecHit != ESRecHits->end(); theRecHit++){
+    if(ROOT::Math::VectorUtil::DeltaR(myCaloJetdir,theRecHitCell_XYZPoint) < maxDeltaR){
+      pair<math::XYZPoint,float> thePositionAndEnergyEcalRecHit(theRecHitCell_XYZPoint,theRecHit->energy());
+      thePositionAndEnergyEcalRecHits.push_back(thePositionAndEnergyEcalRecHit);
+      mySelectedDetId_.push_back(theRecHit->id());
+    }
+}
+ for(ESRecHitCollection::const_iterator theRecHit = ESRecHits->begin();theRecHit != ESRecHits->end(); theRecHit++){
   theCaloSubdetectorGeometry = theCaloGeometry->getSubdetectorGeometry(DetId::Ecal,EcalPreshower);
     const CaloCellGeometry* theRecHitCell=theCaloSubdetectorGeometry->getGeometry(theRecHit->id());  
     math::XYZPoint theRecHitCell_XYZPoint(theRecHitCell->getPosition().x(),theRecHitCell->getPosition().y(),theRecHitCell->getPosition().z());
-    pair<math::XYZPoint,float> thePositionAndEnergyEcalRecHit(theRecHitCell_XYZPoint,theRecHit->energy());
-    thePositionAndEnergyEcalRecHits.push_back(thePositionAndEnergyEcalRecHit);
-  }
-
+    if(ROOT::Math::VectorUtil::DeltaR(myCaloJetdir,theRecHitCell_XYZPoint) < maxDeltaR){
+      pair<math::XYZPoint,float> thePositionAndEnergyEcalRecHit(theRecHitCell_XYZPoint,theRecHit->energy());
+      thePositionAndEnergyEcalRecHits.push_back(thePositionAndEnergyEcalRecHit);
+      mySelectedDetId_.push_back(theRecHit->id());
+    }
+ }
 
   /*
   for(vector<CaloTowerPtr>::const_iterator i_Tower=theCaloTowers.begin();i_Tower!=theCaloTowers.end();i_Tower++){

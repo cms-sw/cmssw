@@ -40,6 +40,7 @@ class  CaloRecoTauAlgorithm  {
   void setTransientTrackBuilder(const TransientTrackBuilder*);
   void setMagneticField(const MagneticField*);
   CaloTau buildCaloTau(Event&,const EventSetup&,const CaloTauTagInfoRef&,const Vertex&); 
+  vector<DetId> mySelectedDetId_;
  private:
   vector<CaloTowerDetId> getCaloTowerneighbourDetIds(const CaloSubdetectorGeometry*,CaloTowerDetId);
   const TransientTrackBuilder* TransientTrackBuilder_;

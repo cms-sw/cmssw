@@ -1,4 +1,5 @@
 #include "RecoTauTag/RecoTau/interface/CaloRecoTauProducer.h"
+#include "DataFormats/DetId/interface/DetIdCollection.h"
 
 CaloRecoTauProducer::CaloRecoTauProducer(const ParameterSet& iConfig){
   CaloRecoTauTagInfoProducer_  = iConfig.getParameter<InputTag>("CaloRecoTauTagInfoProducer");
@@ -8,7 +9,8 @@ CaloRecoTauProducer::CaloRecoTauProducer(const ParameterSet& iConfig){
   smearedPVsigmaZ_             = iConfig.getParameter<double>("smearedPVsigmaZ");	
   JetMinPt_                    = iConfig.getParameter<double>("JetPtMin");
   CaloRecoTauAlgo_=new CaloRecoTauAlgorithm(iConfig);
-  produces<CaloTauCollection>();      
+  produces<CaloTauCollection>();
+  produces<DetIdCollection>();
 }
 CaloRecoTauProducer::~CaloRecoTauProducer(){
   delete CaloRecoTauAlgo_;
@@ -17,7 +19,8 @@ CaloRecoTauProducer::~CaloRecoTauProducer(){
 void CaloRecoTauProducer::produce(Event& iEvent,const EventSetup& iSetup){
 
   auto_ptr<CaloTauCollection> resultCaloTau(new CaloTauCollection);
-
+  auto_ptr<DetIdCollection> selectedDetIds(new DetIdCollection);
+ 
   ESHandle<TransientTrackBuilder> myTransientTrackBuilder;
   iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",myTransientTrackBuilder);
   CaloRecoTauAlgo_->setTransientTrackBuilder(myTransientTrackBuilder.product());
@@ -53,6 +56,10 @@ void CaloRecoTauProducer::produce(Event& iEvent,const EventSetup& iSetup){
     }
     ++iinfo;
   }
-  
-  iEvent.put(resultCaloTau);
+  for(unsigned int i =0;i<CaloRecoTauAlgo_->mySelectedDetId_.size();i++)
+    selectedDetIds->push_back(CaloRecoTauAlgo_->mySelectedDetId_[i]);
+
+
+   iEvent.put(resultCaloTau);
+  iEvent.put(selectedDetIds);
 }
