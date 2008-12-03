@@ -12,6 +12,7 @@
 #include "TROOT.h"
 #include <iostream>
 #include <sstream>
+#include "TPRegexp.h"
 DetIdToMatrix::~DetIdToMatrix()
 {
    // ATTN: not sure I own the manager
@@ -134,6 +135,15 @@ std::vector<unsigned int> DetIdToMatrix::getAllIds() const
    std::vector<unsigned int> ids;
    for ( std::map<unsigned int, std::string>::const_iterator itr = idToPath_.begin(); itr != idToPath_.end(); ++itr )
      ids.push_back( itr->first );
+   return ids;
+}
+
+std::vector<unsigned int> DetIdToMatrix::getMatchedIds( const char* regular_expression ) const
+{
+   std::vector<unsigned int> ids;
+   TPRegexp regexp( regular_expression );
+   for ( std::map<unsigned int, std::string>::const_iterator itr = idToPath_.begin(); itr != idToPath_.end(); ++itr )
+     if ( regexp.MatchB(itr->second) ) ids.push_back( itr->first );
    return ids;
 }
 

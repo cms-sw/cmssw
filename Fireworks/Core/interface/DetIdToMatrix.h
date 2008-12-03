@@ -53,6 +53,9 @@ class DetIdToMatrix
 
    // get all known detector ids
    std::vector<unsigned int> getAllIds() const;
+   
+   // get all known detector ids with path matching regular expression
+   std::vector<unsigned int> getMatchedIds( const char* selection ) const;
 
    // extract shapes of all known elements
    TEveElementList* getAllShapes(const char* elementListName = "CMS") const;
