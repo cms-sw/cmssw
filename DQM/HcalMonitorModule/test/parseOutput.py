@@ -14,6 +14,7 @@ To run, set process.hcalMonitor.showTiming = True in your cfg file, then
 import sys
 import os
 import string
+from math import log
 
 def computeAvg(mylist):
     ''' Compute the average value of a list of numbers. '''
@@ -67,6 +68,7 @@ for F in myfile:
 
     # break timer keys into tasks and subtasks
     # (subtasks begin with "Hcal")
+    
     for i in mykeys:
         temp=computeAvg(myTimers[i])
         if i[0:4]=="Hcal":
@@ -76,29 +78,54 @@ for F in myfile:
             myTime[temp]=i
             sum=sum+temp
 
+
     # Print out timing info for overall tasks
     mykeys=myTime.keys()
     mykeys.sort()
     mykeys.reverse()
 
+    maxevts=0
     for i in mykeys:
+        if len(myTimers[myTime[i]])>maxevts:
+            maxevts=len(myTimers[myTime[i]])
+    maxdigits=int(log(maxevts,10)+.00001)
 
-        print "%.5f :"%i,
-        print "  %s"%(myTime[i]),
-        print "\t(%i events)"%len(myTimers[myTime[i]])
+    newdict={}
+    for i in mykeys:
+        newdict[i*len(myTimers[myTime[i]])/maxevts]=i
+
+    evtkeys=newdict.keys()
+    evtkeys.sort()
+    evtkeys.reverse()
+
+    sum=0
+    #for i in mykeys:
+    for j in evtkeys:
+        i=newdict[j]
+        temp="%.5f : "%(i*len(myTimers[myTime[i]])/maxevts)
+        temp=temp+"  %s"%(myTime[i])
+        while (len(temp)<40):
+            temp=temp+" "
+        temp=temp+"   (%5i events -- time/event is %.5f)"%(len(myTimers[myTime[i]]),i)
+        print temp
+        sum=sum+i*len(myTimers[myTime[i]])/maxevts
+        
 
     print
     print "%.5f :  TOTAL TIME"%sum
     print "\n"
 
     # Print out info for individual subtasks
+
+    print "Time taken by each subtask"
+    print "--------------------------------------------"
     mysubkeys=mySubTime.keys()
     mysubkeys.sort()
     mysubkeys.reverse()
     subsum=0
     for i in mysubkeys:
         print "%.5f : \t%s\t%i events"%(i,mySubTime[i],len(myTimers[mySubTime[i]]))
-        subsum+=i
+        subsum+=i*len(myTimers[mySubTime[i]])/maxevts
     print "%.5f : TOTAL SUBPROCESS TIME"%subsum
     print "\n\n"
 
