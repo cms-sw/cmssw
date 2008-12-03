@@ -11,7 +11,7 @@ CaloRecoTauTagInfoProducer::CaloRecoTauTagInfoProducer(const ParameterSet& iConf
   CaloRecoTauTagInfoAlgo_=new CaloRecoTauTagInfoAlgorithm(iConfig);
 
   produces<CaloTauTagInfoCollection>();  
-  produces<DetIdCollection>();
+  //produces<DetIdCollection>();
 }
 CaloRecoTauTagInfoProducer::~CaloRecoTauTagInfoProducer(){
   delete CaloRecoTauTagInfoAlgo_;
@@ -28,22 +28,20 @@ void CaloRecoTauTagInfoProducer::produce(Event& iEvent,const EventSetup& iSetup)
   Vertex thePV;
   thePV=*(vertCollection.begin());
   
-  auto_ptr<DetIdCollection> selectedDetIds(new DetIdCollection);
+  //  auto_ptr<DetIdCollection> selectedDetIds(new DetIdCollection);
   CaloTauTagInfoCollection* extCollection=new CaloTauTagInfoCollection();
 
   for(JetTracksAssociationCollection::const_iterator iAssoc=theCaloJetTracksAssociatorCollection->begin();iAssoc!=theCaloJetTracksAssociatorCollection->end();iAssoc++){
     CaloTauTagInfo myCaloTauTagInfo=CaloRecoTauTagInfoAlgo_->buildCaloTauTagInfo(iEvent,iSetup,(*iAssoc).first.castTo<CaloJetRef>(),(*iAssoc).second,thePV);
     extCollection->push_back(myCaloTauTagInfo);
-    vector<DetId> myDets = CaloRecoTauTagInfoAlgo_->getVectorDetId((*iAssoc).first.castTo<CaloJetRef>());
+    //    vector<DetId> myDets = CaloRecoTauTagInfoAlgo_->getVectorDetId((*iAssoc).first.castTo<CaloJetRef>());
 
       //Saving the selectedDetIds
-    for(unsigned int i=0; i<myDets.size();i++)
-      selectedDetIds->push_back(myDets[i]);
-
-
+    //    for(unsigned int i=0; i<myDets.size();i++)
+    //      selectedDetIds->push_back(myDets[i]);
   }
   
   auto_ptr<CaloTauTagInfoCollection> resultExt(extCollection);  
   iEvent.put(resultExt);  
-  iEvent.put(selectedDetIds);
+  //  iEvent.put(selectedDetIds);
 }
