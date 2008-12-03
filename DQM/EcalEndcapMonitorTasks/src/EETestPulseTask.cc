@@ -1,8 +1,8 @@
 /*
  * \file EETestPulseTask.cc
  *
- * $Date: 2008/12/03 10:28:11 $
- * $Revision: 1.44 $
+ * $Date: 2008/12/03 12:55:50 $
+ * $Revision: 1.45 $
  * \author G. Della Ricca
  *
 */
@@ -380,8 +380,8 @@ void EETestPulseTask::analyze(const Event& e, const EventSetup& c){
       map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find(ism);
       if ( i == dccMap.end() ) continue;
 
-      if ( ! ( dccMap[ism].getRunType() != EcalDCCHeaderBlock::TESTPULSE_MGPA ||
-               dccMap[ism].getRunType() != EcalDCCHeaderBlock::TESTPULSE_GAP ) ) continue;
+      if ( ! ( dccMap[ism].getRunType() == EcalDCCHeaderBlock::TESTPULSE_MGPA ||
+               dccMap[ism].getRunType() == EcalDCCHeaderBlock::TESTPULSE_GAP ) ) continue;
 
       LogDebug("EETestPulseTask") << " det id = " << id;
       LogDebug("EETestPulseTask") << " sm, ix, iy " << ism << " " << ix << " " << iy;

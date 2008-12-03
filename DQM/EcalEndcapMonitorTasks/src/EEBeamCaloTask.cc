@@ -1,8 +1,8 @@
 /*
  * \file EEBeamCaloTask.cc
  *
- * $Date: 2008/12/03 10:28:11 $
- * $Revision: 1.32 $
+ * $Date: 2008/12/03 12:55:49 $
+ * $Revision: 1.33 $
  * \author A. Ghezzi
  *
  */
@@ -419,7 +419,6 @@ void EEBeamCaloTask::endJob(void){
 void EEBeamCaloTask::analyze(const Event& e, const EventSetup& c){
 
   bool enable = false;
-  map<int, EcalDCCHeaderBlock> dccMap;
 
   Handle<EcalRawDataCollection> dcchs;
 
@@ -703,10 +702,6 @@ void EEBeamCaloTask::analyze(const Event& e, const EventSetup& c){
     EBDataFrame dataframe = (*digiItr);
     EBDetId id = dataframe.id();
 
-    //int ism = Numbers::iSM( id );
-    // FIX this if can not work on the 2004 data since they do not fill in the  EcalDCCHeaderBlock
-    //if ( dccMap[ism].getRunType() != EcalDCCHeaderBlock::BEAMH4 ) continue;//FIX ME add the autoscan runtype
-
     int ic = id.ic();
     int ie = (ic-1)/20;
     int ip = (ic-1)%20;
@@ -801,10 +796,6 @@ void EEBeamCaloTask::analyze(const Event& e, const EventSetup& c){
   for ( EcalUncalibratedRecHitCollection::const_iterator hitItr = hits->begin(); hitItr != hits->end(); ++hitItr ) {
 
     EBDetId id = hitItr->id();
-
-    //int ism = Numbers::iSM( id );
-    // FIX this if can not work on the 2004 data since they do not fill in the  EcalDCCHeaderBlock
-    //if ( dccMap[ism].getRunType() != EcalDCCHeaderBlock::BEAMH4 ) continue;//FIX ME add the autoscan runtype
 
     int ic = id.ic();
     int ie = (ic-1)/20;
