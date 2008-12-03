@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2007/08/02 05:35:47 $
- * $Revision: 1.12 $
+ * $Date: 2008/01/22 19:14:10 $
+ * $Revision: 1.13 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  */
@@ -240,7 +240,12 @@ std::ostream& operator<<(std::ostream& os, const DTRecSegment4D& seg) {
   os << "Pos " << seg.localPosition() << 
     " Dir: " << seg.localDirection() <<
     " dim: " << seg.dimension() <<
-    " chi2/ndof: " << seg.chi2() << "/" << seg.degreesOfFreedom() ;
+    " chi2/ndof: " << seg.chi2() << "/" << seg.degreesOfFreedom() << " :";
+  if (seg.hasPhi()) os << seg.phiSegment()->recHits().size();
+  else os << 0;
+  os << ":";
+  if (seg.hasZed()) os << seg.zSegment()->recHits().size();
+  else os << 0;
   return os;
 }
 
