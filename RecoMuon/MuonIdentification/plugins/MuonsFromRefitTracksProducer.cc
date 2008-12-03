@@ -3,7 +3,7 @@
   \brief    Replaces the kinematic information in the input muons with those of the chosen refit tracks.
 
   \author   Jordan Tucker
-  \version  $Id: MuonsFromRefitTracksProducer.cc,v 1.1 2008/11/26 21:37:29 tucker Exp $
+  \version  $Id: MuonsFromRefitTracksProducer.cc,v 1.2 2008/12/01 16:59:57 tucker Exp $
 */
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -104,8 +104,8 @@ Muon* MuonsFromRefitTracksProducer::cloneAndSwitchTrack(const Muon& muon,
   // Muon mass to make a four-vector out of the new track.
   static const double muMass = 0.10566;
 
-  TrackRef tkTrack  = muon.track();
-  TrackRef muTrack  = muon.standAloneMuon();
+  TrackRef tkTrack  = muon.innerTrack();
+  TrackRef muTrack  = muon.outerTrack();
 	  
   // Make up a real Muon from the tracker track.
   Particle::Point vtx(newTrack->vx(), newTrack->vy(), newTrack->vz());
@@ -174,9 +174,21 @@ void MuonsFromRefitTracksProducer::produce(Event& event, const EventSetup& eSetu
 	  cands->push_back(*cloneAndSwitchTrack(*muon, tevTk));
       }
       else if (fromTrackerTrack)
-	cands->push_back(*cloneAndSwitchTrack(*muon, muon->track()));
-      else
-	cands->push_back(*muon);
+	cands->push_back(*cloneAndSwitchTrack(*muon, muon->innerTrack()));
+      else {
+	cands->push_back(*muon->clone());
+
+	// Just cloning does not work in the case of the source being
+	// a pat::Muon with embedded track references -- these do not
+	// get copied. Explicitly set them.
+	Muon& last = cands->at(cands->size()-1);
+	if (muon->globalTrack().isTransient())
+	  last.setGlobalTrack(muon->globalTrack());
+	if (muon->innerTrack().isTransient())
+	  last.setInnerTrack(muon->innerTrack());
+	if (muon->outerTrack().isTransient())
+	  last.setOuterTrack(muon->outerTrack());
+      }
     }
   }
   else
