@@ -1,5 +1,3 @@
-// Last commit: $Id: SiStripRawToDigiModule.h,v 1.5 2008/07/17 11:32:45 bainbrid Exp $
-
 #ifndef EventFilter_SiStripRawToDigi_SiStripRawToDigiModule_H
 #define EventFilter_SiStripRawToDigi_SiStripRawToDigiModule_H
 
@@ -20,8 +18,9 @@ class SiStripFedCabling;
    @brief A plug-in module that takes a FEDRawDataCollection as input
    from the Event and creates EDProducts containing StripDigis.
 */
+
 class SiStripRawToDigiModule : public edm::EDProducer {
-  
+
  public:
   
   SiStripRawToDigiModule( const edm::ParameterSet& );
@@ -45,6 +44,39 @@ class SiStripRawToDigiModule : public edm::EDProducer {
   uint32_t cacheId_;
 
 };
+
+namespace sistrip { class RawToDigiModule; }
+namespace sistrip { class RawToDigiUnpacker; }
+
+namespace sistrip {
+
+class RawToDigiModule : public edm::EDProducer {
+
+ public:
+  
+  RawToDigiModule( const edm::ParameterSet& );
+  ~RawToDigiModule();
+  
+  virtual void beginJob( const edm::EventSetup& );
+  virtual void beginRun( edm::Run&, const edm::EventSetup& );
+  virtual void produce( edm::Event&, const edm::EventSetup& );
+  
+ private: 
+
+  void updateCabling( const edm::EventSetup& );
+  
+  RawToDigiUnpacker* rawToDigi_;
+
+  std::string label_;
+  std::string instance_;
+
+  const SiStripFedCabling* cabling_;
+  
+  uint32_t cacheId_;
+
+};
+  
+}
 
 #endif // EventFilter_SiStripRawToDigi_SiStripRawToDigiModule_H
 
