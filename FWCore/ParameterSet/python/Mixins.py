@@ -373,6 +373,8 @@ class _Labelable(object):
     def setLabel(self,label):
         self.__label = label
     def label_(self):
+        if not hasattr(self, '__label'):
+           raise RuntimeError("module has no label.  Perhaps it wasn't inserted into the process?")
         return self.__label
     def label(self):
         #print "WARNING: _Labelable::label() needs to be changed to label_()"
