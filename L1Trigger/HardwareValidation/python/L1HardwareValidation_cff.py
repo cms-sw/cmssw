@@ -37,7 +37,8 @@ valGctDigis = L1Trigger.GlobalCaloTrigger.gctDigis_cfi.gctDigis.clone()
 
 # DT TPG sequence
 # requires muonDTDigis only
-import L1Trigger.DTTrigger.dtTriggerPrimitiveDigis_cfi
+#import L1Trigger.DTTrigger.dtTriggerPrimitiveDigis_cfi
+from L1Trigger.DTTrigger.dtTriggerPrimitiveDigis_cfi import *
 valDtTriggerPrimitiveDigis = L1Trigger.DTTrigger.dtTriggerPrimitiveDigis_cfi.dtTriggerPrimitiveDigis.clone()
 
 # DT TF sequence
@@ -65,7 +66,8 @@ muonCscMon = L1Trigger.HardwareValidation.MuonCandProducerMon_cfi.muonCandMon.cl
 
 # RPC sequence
 # requires muonRPCDigis only
-import L1Trigger.RPCTrigger.rpcTriggerDigis_cfi
+#import L1Trigger.RPCTrigger.rpcTriggerDigis_cfi
+from L1Trigger.RPCTrigger.rpcTriggerDigis_cff import *
 valRpcTriggerDigis = L1Trigger.RPCTrigger.rpcTriggerDigis_cfi.rpcTriggerDigis.clone()
 
 # GMT sequence
