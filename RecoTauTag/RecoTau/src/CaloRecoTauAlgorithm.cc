@@ -161,9 +161,10 @@ CaloTau CaloRecoTauAlgorithm::buildCaloTau(Event& iEvent,const EventSetup& iSetu
     myCaloTau.setisolationTracksPtSum(myIsolTks_Ptsum);
 
 
-    //getting the EcalRecHits
+    //getting the EcalRecHits. Just take them all
   vector<pair<math::XYZPoint,float> > thePositionAndEnergyEcalRecHits;
-  vector<CaloTowerPtr> theCaloTowers=myCaloJet->getCaloConstituents();
+
+  //  vector<CaloTowerPtr> theCaloTowers=myCaloJet->getCaloConstituents();
   ESHandle<CaloGeometry> theCaloGeometry;
   iSetup.get<CaloGeometryRecord>().get(theCaloGeometry);
   const CaloSubdetectorGeometry* theCaloSubdetectorGeometry;  
@@ -173,6 +174,33 @@ CaloTau CaloRecoTauAlgorithm::buildCaloTau(Event& iEvent,const EventSetup& iSetu
   iEvent.getByLabel(EBRecHitsLabel_,EBRecHits);
   iEvent.getByLabel(EERecHitsLabel_,EERecHits);
   iEvent.getByLabel(ESRecHitsLabel_,ESRecHits);
+
+  for(EBRecHitCollection::const_iterator theRecHit = EBRecHits->begin();theRecHit != EBRecHits->end(); theRecHit++){
+    theCaloSubdetectorGeometry = theCaloGeometry->getSubdetectorGeometry(DetId::Ecal,EcalBarrel);
+    const CaloCellGeometry* theRecHitCell=theCaloSubdetectorGeometry->getGeometry(theRecHit->id());  
+    math::XYZPoint theRecHitCell_XYZPoint(theRecHitCell->getPosition().x(),theRecHitCell->getPosition().y(),theRecHitCell->getPosition().z());
+    pair<math::XYZPoint,float> thePositionAndEnergyEcalRecHit(theRecHitCell_XYZPoint,theRecHit->energy());
+    thePositionAndEnergyEcalRecHits.push_back(thePositionAndEnergyEcalRecHit);
+  }
+
+for(EERecHitCollection::const_iterator theRecHit = EERecHits->begin();theRecHit != EERecHits->end(); theRecHit++){
+    theCaloSubdetectorGeometry = theCaloGeometry->getSubdetectorGeometry(DetId::Ecal,EcalEndcap);
+    const CaloCellGeometry* theRecHitCell=theCaloSubdetectorGeometry->getGeometry(theRecHit->id());  
+    math::XYZPoint theRecHitCell_XYZPoint(theRecHitCell->getPosition().x(),theRecHitCell->getPosition().y(),theRecHitCell->getPosition().z());
+    pair<math::XYZPoint,float> thePositionAndEnergyEcalRecHit(theRecHitCell_XYZPoint,theRecHit->energy());
+    thePositionAndEnergyEcalRecHits.push_back(thePositionAndEnergyEcalRecHit);
+  }
+
+for(ESRecHitCollection::const_iterator theRecHit = ESRecHits->begin();theRecHit != ESRecHits->end(); theRecHit++){
+  theCaloSubdetectorGeometry = theCaloGeometry->getSubdetectorGeometry(DetId::Ecal,EcalPreshower);
+    const CaloCellGeometry* theRecHitCell=theCaloSubdetectorGeometry->getGeometry(theRecHit->id());  
+    math::XYZPoint theRecHitCell_XYZPoint(theRecHitCell->getPosition().x(),theRecHitCell->getPosition().y(),theRecHitCell->getPosition().z());
+    pair<math::XYZPoint,float> thePositionAndEnergyEcalRecHit(theRecHitCell_XYZPoint,theRecHit->energy());
+    thePositionAndEnergyEcalRecHits.push_back(thePositionAndEnergyEcalRecHit);
+  }
+
+
+  /*
   for(vector<CaloTowerPtr>::const_iterator i_Tower=theCaloTowers.begin();i_Tower!=theCaloTowers.end();i_Tower++){
     size_t numRecHits = (**i_Tower).constituentsSize();
     for(size_t j=0;j<numRecHits;j++) {
@@ -202,6 +230,7 @@ CaloTau CaloRecoTauAlgorithm::buildCaloTau(Event& iEvent,const EventSetup& iSetu
 	  ESDetId EcalID = RecHitDetID;
 	  ESRecHitCollection::const_iterator theRecHit=ESRecHits->find(EcalID);	    
 	  const CaloCellGeometry* theRecHitCell=theCaloSubdetectorGeometry->getGeometry(RecHitDetID);
+	
 	  math::XYZPoint theRecHitCell_XYZPoint(theRecHitCell->getPosition().x(),theRecHitCell->getPosition().y(),theRecHitCell->getPosition().z());
 	  pair<math::XYZPoint,float> thePositionAndEnergyEcalRecHit(theRecHitCell_XYZPoint,theRecHit->energy());
 	  thePositionAndEnergyEcalRecHits.push_back(thePositionAndEnergyEcalRecHit);
@@ -209,7 +238,7 @@ CaloTau CaloRecoTauAlgorithm::buildCaloTau(Event& iEvent,const EventSetup& iSetu
       }	
     }
   }
-
+  */
     
     // setting sum of Et of the isolation annulus ECAL RecHits
     float myIsolEcalRecHits_EtSum=0.;
