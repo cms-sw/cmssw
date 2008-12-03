@@ -1,8 +1,8 @@
 /*
  * \file EECosmicTask.cc
  *
- * $Date: 2008/12/03 10:28:11 $
- * $Revision: 1.44 $
+ * $Date: 2008/12/03 12:55:49 $
+ * $Revision: 1.45 $
  * \author G. Della Ricca
  *
 */
@@ -184,7 +184,7 @@ void EECosmicTask::analyze(const Event& e, const EventSetup& c){
 
   bool isData = true;
   bool enable = false;
-  map<int, EcalDCCHeaderBlock> dccMap;
+  int runType[18] = { -1 };
 
   Handle<EcalRawDataCollection> dcchs;
 
@@ -196,10 +196,7 @@ void EECosmicTask::analyze(const Event& e, const EventSetup& c){
 
       int ism = Numbers::iSM( *dcchItr, EcalEndcap );
 
-      map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find( ism );
-      if ( i != dccMap.end() ) continue;
-
-      dccMap[ ism ] = (*dcchItr);
+      runType[ism] = runType[ism];
 
       if ( dcchItr->getRunType() == EcalDCCHeaderBlock::COSMIC ||
            dcchItr->getRunType() == EcalDCCHeaderBlock::MTCC ||
@@ -256,15 +253,14 @@ void EECosmicTask::analyze(const Event& e, const EventSetup& c){
       if ( ism >= 10 && ism <= 18 ) iz = +1;
 
       if ( isData ) {
-      map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find(ism);
-      if ( i == dccMap.end() ) continue;
 
-      if ( ! ( dccMap[ism].getRunType() == EcalDCCHeaderBlock::COSMIC ||
-               dccMap[ism].getRunType() == EcalDCCHeaderBlock::MTCC ||
-               dccMap[ism].getRunType() == EcalDCCHeaderBlock::COSMICS_GLOBAL ||
-               dccMap[ism].getRunType() == EcalDCCHeaderBlock::PHYSICS_GLOBAL ||
-               dccMap[ism].getRunType() == EcalDCCHeaderBlock::COSMICS_LOCAL ||
-               dccMap[ism].getRunType() == EcalDCCHeaderBlock::PHYSICS_LOCAL ) ) continue;
+        if ( ! ( runType[ism] == EcalDCCHeaderBlock::COSMIC ||
+                 runType[ism] == EcalDCCHeaderBlock::MTCC ||
+                 runType[ism] == EcalDCCHeaderBlock::COSMICS_GLOBAL ||
+                 runType[ism] == EcalDCCHeaderBlock::PHYSICS_GLOBAL ||
+                 runType[ism] == EcalDCCHeaderBlock::COSMICS_LOCAL ||
+                 runType[ism] == EcalDCCHeaderBlock::PHYSICS_LOCAL ) ) continue;
+
       }
 
       LogDebug("EECosmicTask") << " det id = " << id;

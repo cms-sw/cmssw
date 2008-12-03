@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalTask.cc
  *
- * $Date: 2008/12/03 10:28:10 $
- * $Revision: 1.86 $
+ * $Date: 2008/12/03 12:55:49 $
+ * $Revision: 1.87 $
  * \author G. Della Ricca
  *
 */
@@ -266,7 +266,7 @@ void EBPedestalTask::endJob(void){
 void EBPedestalTask::analyze(const Event& e, const EventSetup& c){
 
   bool enable = false;
-  map<int, EcalDCCHeaderBlock> dccMap;
+  int runType[36] = { -1 };
 
   Handle<EcalRawDataCollection> dcchs;
 
@@ -278,10 +278,7 @@ void EBPedestalTask::analyze(const Event& e, const EventSetup& c){
 
       int ism = Numbers::iSM( *dcchItr, EcalBarrel );
 
-      map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find( ism );
-      if ( i != dccMap.end() ) continue;
-
-      dccMap[ ism ] = (*dcchItr);
+      runType[ism] = runType[ism];
 
       if ( dcchItr->getRunType() == EcalDCCHeaderBlock::PEDESTAL_STD || 
            dcchItr->getRunType() == EcalDCCHeaderBlock::PEDESTAL_GAP ) enable = true;
@@ -337,11 +334,8 @@ void EBPedestalTask::analyze(const Event& e, const EventSetup& c){
       float xie = ie - 0.5;
       float xip = ip - 0.5;
 
-      map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find(ism);
-      if ( i == dccMap.end() ) continue;
-
-      if ( ! ( dccMap[ism].getRunType() == EcalDCCHeaderBlock::PEDESTAL_STD ||
-               dccMap[ism].getRunType() == EcalDCCHeaderBlock::PEDESTAL_GAP ) ) continue;
+      if ( ! ( runType[ism] == EcalDCCHeaderBlock::PEDESTAL_STD ||
+               runType[ism] == EcalDCCHeaderBlock::PEDESTAL_GAP ) ) continue;
 
       LogDebug("EBPedestalTask") << " det id = " << id;
       LogDebug("EBPedestalTask") << " sm, ieta, iphi " << ism << " " << ie << " " << ip;
@@ -461,11 +455,8 @@ void EBPedestalTask::analyze(const Event& e, const EventSetup& c){
 
       int num = pnItr->id().iPnId();
 
-      map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find(ism);
-      if ( i == dccMap.end() ) continue;
-
-      if ( ! ( dccMap[ism].getRunType() == EcalDCCHeaderBlock::PEDESTAL_STD ||
-               dccMap[ism].getRunType() == EcalDCCHeaderBlock::PEDESTAL_GAP ) ) continue;
+      if ( ! ( runType[ism] == EcalDCCHeaderBlock::PEDESTAL_STD ||
+               runType[ism] == EcalDCCHeaderBlock::PEDESTAL_GAP ) ) continue;
 
       LogDebug("EBPedestalTask") << " det id = " << pnItr->id();
       LogDebug("EBPedestalTask") << " sm, num " << ism << " " << num;

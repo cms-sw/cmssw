@@ -1,8 +1,8 @@
 /*
  * \file EELaserTask.cc
  *
- * $Date: 2008/12/03 10:28:11 $
- * $Revision: 1.51 $
+ * $Date: 2008/12/03 12:55:50 $
+ * $Revision: 1.52 $
  * \author G. Della Ricca
  *
 */
@@ -704,7 +704,9 @@ void EELaserTask::endJob(void){
 void EELaserTask::analyze(const Event& e, const EventSetup& c){
 
   bool enable = false;
-  map<int, EcalDCCHeaderBlock> dccMap;
+  int runType[18] = { -1 };
+  int rtHalf[18] = { -1 };
+  int waveLength[18] = { -1 };
 
   Handle<EcalRawDataCollection> dcchs;
 
@@ -716,10 +718,9 @@ void EELaserTask::analyze(const Event& e, const EventSetup& c){
 
       int ism = Numbers::iSM( *dcchItr, EcalEndcap );
 
-      map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find( ism );
-      if ( i != dccMap.end() ) continue;
-
-      dccMap[ ism ] = (*dcchItr);
+      runType[ism] = runType[ism];
+      rtHalf[ism] = dcchItr->getRtHalf();
+      waveLength[ism] = dcchItr->getEventSettings().wavelength;
 
       if ( dcchItr->getRunType() == EcalDCCHeaderBlock::LASER_STD ||
            dcchItr->getRunType() == EcalDCCHeaderBlock::LASER_GAP ) enable = true;
@@ -755,13 +756,10 @@ void EELaserTask::analyze(const Event& e, const EventSetup& c){
 
       int ism = Numbers::iSM( id );
 
-      map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find(ism);
-      if ( i == dccMap.end() ) continue;
+      if ( ! ( runType[ism] == EcalDCCHeaderBlock::LASER_STD ||
+               runType[ism] == EcalDCCHeaderBlock::LASER_GAP ) ) continue;
 
-      if ( ! ( dccMap[ism].getRunType() == EcalDCCHeaderBlock::LASER_STD ||
-               dccMap[ism].getRunType() == EcalDCCHeaderBlock::LASER_GAP ) ) continue;
-
-      if ( dccMap[ism].getRtHalf() != Numbers::RtHalf(id) ) continue;
+      if ( rtHalf[ism] != Numbers::RtHalf(id) ) continue;
 
       LogDebug("EELaserTask") << " det id = " << id;
       LogDebug("EELaserTask") << " sm, ix, iy " << ism << " " << ix << " " << iy;
@@ -780,23 +778,23 @@ void EELaserTask::analyze(const Event& e, const EventSetup& c){
         if ( sample.gainId() == 2 ) gain = 1./ 6.;
         if ( sample.gainId() == 3 ) gain = 1./ 1.;
 
-        if ( dccMap[ism].getRtHalf() == 0 ) {
+        if ( rtHalf[ism] == 0 ) {
 
-          if ( dccMap[ism].getEventSettings().wavelength == 0 ) meShapeMap = meShapeMapL1A_[ism-1];
-          if ( dccMap[ism].getEventSettings().wavelength == 1 ) meShapeMap = meShapeMapL2A_[ism-1];
-          if ( dccMap[ism].getEventSettings().wavelength == 2 ) meShapeMap = meShapeMapL3A_[ism-1];
-          if ( dccMap[ism].getEventSettings().wavelength == 3 ) meShapeMap = meShapeMapL4A_[ism-1];
+          if ( waveLength[ism] == 0 ) meShapeMap = meShapeMapL1A_[ism-1];
+          if ( waveLength[ism] == 1 ) meShapeMap = meShapeMapL2A_[ism-1];
+          if ( waveLength[ism] == 2 ) meShapeMap = meShapeMapL3A_[ism-1];
+          if ( waveLength[ism] == 3 ) meShapeMap = meShapeMapL4A_[ism-1];
 
-        } else if ( dccMap[ism].getRtHalf() == 1 ) {
+        } else if ( rtHalf[ism] == 1 ) {
 
-          if ( dccMap[ism].getEventSettings().wavelength == 0 ) meShapeMap = meShapeMapL1B_[ism-1];
-          if ( dccMap[ism].getEventSettings().wavelength == 1 ) meShapeMap = meShapeMapL2B_[ism-1];
-          if ( dccMap[ism].getEventSettings().wavelength == 2 ) meShapeMap = meShapeMapL3B_[ism-1];
-          if ( dccMap[ism].getEventSettings().wavelength == 3 ) meShapeMap = meShapeMapL4B_[ism-1];
+          if ( waveLength[ism] == 0 ) meShapeMap = meShapeMapL1B_[ism-1];
+          if ( waveLength[ism] == 1 ) meShapeMap = meShapeMapL2B_[ism-1];
+          if ( waveLength[ism] == 2 ) meShapeMap = meShapeMapL3B_[ism-1];
+          if ( waveLength[ism] == 3 ) meShapeMap = meShapeMapL4B_[ism-1];
 
         } else {
 
-          LogWarning("EELaserTask") << " RtHalf = " << dccMap[ism].getRtHalf();
+          LogWarning("EELaserTask") << " RtHalf = " << rtHalf[ism];
 
         }
 
@@ -838,11 +836,8 @@ void EELaserTask::analyze(const Event& e, const EventSetup& c){
 
       int num = pnItr->id().iPnId();
 
-      map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find(ism);
-      if ( i == dccMap.end() ) continue;
-
-      if ( ! ( dccMap[ism].getRunType() == EcalDCCHeaderBlock::LASER_STD ||
-               dccMap[ism].getRunType() == EcalDCCHeaderBlock::LASER_GAP ) ) continue;
+      if ( ! ( runType[ism] == EcalDCCHeaderBlock::LASER_STD ||
+               runType[ism] == EcalDCCHeaderBlock::LASER_GAP ) ) continue;
 
       LogDebug("EELaserTask") << " det id = " << pnItr->id();
       LogDebug("EELaserTask") << " sm, num " << ism << " " << num;
@@ -856,16 +851,16 @@ void EELaserTask::analyze(const Event& e, const EventSetup& c){
         MonitorElement* mePNPed = 0;
 
         if ( pnItr->sample(i).gainId() == 0 ) {
-          if ( dccMap[ism].getEventSettings().wavelength == 0 ) mePNPed = mePnPedMapG01L1_[ism-1];
-          if ( dccMap[ism].getEventSettings().wavelength == 1 ) mePNPed = mePnPedMapG01L2_[ism-1];
-          if ( dccMap[ism].getEventSettings().wavelength == 2 ) mePNPed = mePnPedMapG01L3_[ism-1];
-          if ( dccMap[ism].getEventSettings().wavelength == 3 ) mePNPed = mePnPedMapG01L4_[ism-1];
+          if ( waveLength[ism] == 0 ) mePNPed = mePnPedMapG01L1_[ism-1];
+          if ( waveLength[ism] == 1 ) mePNPed = mePnPedMapG01L2_[ism-1];
+          if ( waveLength[ism] == 2 ) mePNPed = mePnPedMapG01L3_[ism-1];
+          if ( waveLength[ism] == 3 ) mePNPed = mePnPedMapG01L4_[ism-1];
         }
         if ( pnItr->sample(i).gainId() == 1 ) {
-          if ( dccMap[ism].getEventSettings().wavelength == 0 ) mePNPed = mePnPedMapG16L1_[ism-1];
-          if ( dccMap[ism].getEventSettings().wavelength == 1 ) mePNPed = mePnPedMapG16L2_[ism-1];
-          if ( dccMap[ism].getEventSettings().wavelength == 2 ) mePNPed = mePnPedMapG16L3_[ism-1];
-          if ( dccMap[ism].getEventSettings().wavelength == 3 ) mePNPed = mePnPedMapG16L4_[ism-1];
+          if ( waveLength[ism] == 0 ) mePNPed = mePnPedMapG16L1_[ism-1];
+          if ( waveLength[ism] == 1 ) mePNPed = mePnPedMapG16L2_[ism-1];
+          if ( waveLength[ism] == 2 ) mePNPed = mePnPedMapG16L3_[ism-1];
+          if ( waveLength[ism] == 3 ) mePNPed = mePnPedMapG16L4_[ism-1];
         }
 
         float xval = float(adc);
@@ -895,16 +890,16 @@ void EELaserTask::analyze(const Event& e, const EventSetup& c){
       xvalmax = xvalmax - xvalped;
 
       if ( pnItr->sample(0).gainId() == 0 ) {
-        if ( dccMap[ism].getEventSettings().wavelength == 0 ) mePN = mePnAmplMapG01L1_[ism-1];
-        if ( dccMap[ism].getEventSettings().wavelength == 1 ) mePN = mePnAmplMapG01L2_[ism-1];
-        if ( dccMap[ism].getEventSettings().wavelength == 2 ) mePN = mePnAmplMapG01L3_[ism-1];
-        if ( dccMap[ism].getEventSettings().wavelength == 3 ) mePN = mePnAmplMapG01L4_[ism-1];
+        if ( waveLength[ism] == 0 ) mePN = mePnAmplMapG01L1_[ism-1];
+        if ( waveLength[ism] == 1 ) mePN = mePnAmplMapG01L2_[ism-1];
+        if ( waveLength[ism] == 2 ) mePN = mePnAmplMapG01L3_[ism-1];
+        if ( waveLength[ism] == 3 ) mePN = mePnAmplMapG01L4_[ism-1];
       }
       if ( pnItr->sample(0).gainId() == 1 ) {
-        if ( dccMap[ism].getEventSettings().wavelength == 0 ) mePN = mePnAmplMapG16L1_[ism-1];
-        if ( dccMap[ism].getEventSettings().wavelength == 1 ) mePN = mePnAmplMapG16L2_[ism-1];
-        if ( dccMap[ism].getEventSettings().wavelength == 2 ) mePN = mePnAmplMapG16L3_[ism-1];
-        if ( dccMap[ism].getEventSettings().wavelength == 3 ) mePN = mePnAmplMapG16L4_[ism-1];
+        if ( waveLength[ism] == 0 ) mePN = mePnAmplMapG16L1_[ism-1];
+        if ( waveLength[ism] == 1 ) mePN = mePnAmplMapG16L2_[ism-1];
+        if ( waveLength[ism] == 2 ) mePN = mePnAmplMapG16L3_[ism-1];
+        if ( waveLength[ism] == 3 ) mePN = mePnAmplMapG16L4_[ism-1];
       }
 
       if ( mePN ) mePN->Fill(num - 0.5, xvalmax);
@@ -941,13 +936,10 @@ void EELaserTask::analyze(const Event& e, const EventSetup& c){
       float xix = ix - 0.5;
       float xiy = iy - 0.5;
 
-      map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find(ism);
-      if ( i == dccMap.end() ) continue;
+      if ( ! ( runType[ism] == EcalDCCHeaderBlock::LASER_STD ||
+               runType[ism] == EcalDCCHeaderBlock::LASER_GAP ) ) continue;
 
-      if ( ! ( dccMap[ism].getRunType() == EcalDCCHeaderBlock::LASER_STD ||
-               dccMap[ism].getRunType() == EcalDCCHeaderBlock::LASER_GAP ) ) continue;
-
-      if ( dccMap[ism].getRtHalf() != Numbers::RtHalf(id) ) continue;
+      if ( rtHalf[ism] != Numbers::RtHalf(id) ) continue;
 
       LogDebug("EELaserTask") << " det id = " << id;
       LogDebug("EELaserTask") << " sm, ix, iy " << ism << " " << ix << " " << iy;
@@ -956,47 +948,47 @@ void EELaserTask::analyze(const Event& e, const EventSetup& c){
       MonitorElement* meTimeMap = 0;
       MonitorElement* meAmplPNMap = 0;
 
-      if ( dccMap[ism].getRtHalf() == 0 ) {
+      if ( rtHalf[ism] == 0 ) {
 
-        if ( dccMap[ism].getEventSettings().wavelength == 0 ) {
+        if ( waveLength[ism] == 0 ) {
           meAmplMap = meAmplMapL1A_[ism-1];
           meTimeMap = meTimeMapL1A_[ism-1];
           meAmplPNMap = meAmplPNMapL1A_[ism-1];
         }
-        if ( dccMap[ism].getEventSettings().wavelength == 1 ) {
+        if ( waveLength[ism] == 1 ) {
           meAmplMap = meAmplMapL2A_[ism-1];
           meTimeMap = meTimeMapL2A_[ism-1];
           meAmplPNMap = meAmplPNMapL2A_[ism-1];
         }
-        if ( dccMap[ism].getEventSettings().wavelength == 2 ) {
+        if ( waveLength[ism] == 2 ) {
           meAmplMap = meAmplMapL3A_[ism-1];
           meTimeMap = meTimeMapL3A_[ism-1];
           meAmplPNMap = meAmplPNMapL3A_[ism-1];
         }
-        if ( dccMap[ism].getEventSettings().wavelength == 3 ) {
+        if ( waveLength[ism] == 3 ) {
           meAmplMap = meAmplMapL4A_[ism-1];
           meTimeMap = meTimeMapL4A_[ism-1];
           meAmplPNMap = meAmplPNMapL4A_[ism-1];
         }
 
-      } else if ( dccMap[ism].getRtHalf() == 1 ) { 
+      } else if ( rtHalf[ism] == 1 ) { 
 
-        if ( dccMap[ism].getEventSettings().wavelength == 0 ) {
+        if ( waveLength[ism] == 0 ) {
           meAmplMap = meAmplMapL1B_[ism-1];
           meTimeMap = meTimeMapL1B_[ism-1];
           meAmplPNMap = meAmplPNMapL1B_[ism-1];
         }
-        if ( dccMap[ism].getEventSettings().wavelength == 1 ) {
+        if ( waveLength[ism] == 1 ) {
           meAmplMap = meAmplMapL2B_[ism-1];
           meTimeMap = meTimeMapL2B_[ism-1];
           meAmplPNMap = meAmplPNMapL2B_[ism-1];
         }
-        if ( dccMap[ism].getEventSettings().wavelength == 2 ) {
+        if ( waveLength[ism] == 2 ) {
           meAmplMap = meAmplMapL3B_[ism-1];
           meTimeMap = meTimeMapL3B_[ism-1];
           meAmplPNMap = meAmplPNMapL3B_[ism-1];
         }
-        if ( dccMap[ism].getEventSettings().wavelength == 3 ) {
+        if ( waveLength[ism] == 3 ) {
           meAmplMap = meAmplMapL4B_[ism-1];
           meTimeMap = meTimeMapL4B_[ism-1];
           meAmplPNMap = meAmplPNMapL4B_[ism-1];
@@ -1004,7 +996,7 @@ void EELaserTask::analyze(const Event& e, const EventSetup& c){
 
       } else {
 
-        LogWarning("EELaserTask") << " RtHalf = " << dccMap[ism].getRtHalf();
+        LogWarning("EELaserTask") << " RtHalf = " << rtHalf[ism];
 
       }
 
@@ -1027,17 +1019,17 @@ void EELaserTask::analyze(const Event& e, const EventSetup& c){
 
       float wval = 0.;
 
-      if ( dccMap[ism].getRtHalf() == 0 ) {
+      if ( rtHalf[ism] == 0 ) {
 
         if ( adcA[ism-1] != 0. ) wval = xval / adcA[ism-1];
 
-      } else if ( dccMap[ism].getRtHalf() == 1 ) {
+      } else if ( rtHalf[ism] == 1 ) {
 
         if ( adcB[ism-1] != 0. ) wval = xval / adcB[ism-1];
 
       } else {
 
-        LogWarning("EELaserTask") << " RtHalf = " << dccMap[ism].getRtHalf();
+        LogWarning("EELaserTask") << " RtHalf = " << rtHalf[ism];
 
       }
 
