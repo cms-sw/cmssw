@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseTask.cc
  *
- * $Date: 2008/12/03 13:55:43 $
- * $Revision: 1.104 $
+ * $Date: 2008/12/03 14:44:46 $
+ * $Revision: 1.105 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -325,15 +325,14 @@ void EBTestPulseTask::analyze(const Event& e, const EventSetup& c){
 
       for (int i = 0; i < 10; i++) {
 
-        EcalMGPASample sample = dataframe.sample(i);
-        int adc = sample.adc();
+        int adc = dataframe.sample(i).adc();
         float gain = 1.;
 
         MonitorElement* meShapeMap = 0;
 
-        if ( sample.gainId() == 1 ) gain = 1./12.;
-        if ( sample.gainId() == 2 ) gain = 1./ 6.;
-        if ( sample.gainId() == 3 ) gain = 1./ 1.;
+        if ( dataframe.sample(i).gainId() == 1 ) gain = 1./12.;
+        if ( dataframe.sample(i).gainId() == 2 ) gain = 1./ 6.;
+        if ( dataframe.sample(i).gainId() == 3 ) gain = 1./ 1.;
 
         if ( mgpaGain[ism] == 3 ) meShapeMap = meShapeMapG01_[ism-1];
         if ( mgpaGain[ism] == 2 ) meShapeMap = meShapeMapG06_[ism-1];

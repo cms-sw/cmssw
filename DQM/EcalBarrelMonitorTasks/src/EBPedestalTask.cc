@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalTask.cc
  *
- * $Date: 2008/12/03 13:55:43 $
- * $Revision: 1.88 $
+ * $Date: 2008/12/03 14:44:45 $
+ * $Revision: 1.89 $
  * \author G. Della Ricca
  *
 */
@@ -343,22 +343,21 @@ void EBPedestalTask::analyze(const Event& e, const EventSetup& c){
 
       for (int i = 0; i < 10; i++) {
 
-        EcalMGPASample sample = dataframe.sample(i);
-        int adc = sample.adc();
+        int adc = dataframe.sample(i).adc();
 
         MonitorElement* mePedMap = 0;
 
-        if ( sample.gainId() == 1 ) mePedMap = mePedMapG12_[ism-1];
-        if ( sample.gainId() == 2 ) mePedMap = mePedMapG06_[ism-1];
-        if ( sample.gainId() == 3 ) mePedMap = mePedMapG01_[ism-1];
+        if ( dataframe.sample(i).gainId() == 1 ) mePedMap = mePedMapG12_[ism-1];
+        if ( dataframe.sample(i).gainId() == 2 ) mePedMap = mePedMapG06_[ism-1];
+        if ( dataframe.sample(i).gainId() == 3 ) mePedMap = mePedMapG01_[ism-1];
 
         float xval = float(adc);
 
         if ( mePedMap ) mePedMap->Fill(xie, xip, xval);
 
-        if ( sample.gainId() == 1 ) xmap12[ism-1][ie-1][ip-1] = xmap12[ism-1][ie-1][ip-1] + xval;
-        if ( sample.gainId() == 2 ) xmap06[ism-1][ie-1][ip-1] = xmap06[ism-1][ie-1][ip-1] + xval;
-        if ( sample.gainId() == 3 ) xmap01[ism-1][ie-1][ip-1] = xmap01[ism-1][ie-1][ip-1] + xval;
+        if ( dataframe.sample(i).gainId() == 1 ) xmap12[ism-1][ie-1][ip-1] = xmap12[ism-1][ie-1][ip-1] + xval;
+        if ( dataframe.sample(i).gainId() == 2 ) xmap06[ism-1][ie-1][ip-1] = xmap06[ism-1][ie-1][ip-1] + xval;
+        if ( dataframe.sample(i).gainId() == 3 ) xmap01[ism-1][ie-1][ip-1] = xmap01[ism-1][ie-1][ip-1] + xval;
 
       }
 

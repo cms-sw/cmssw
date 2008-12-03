@@ -1,8 +1,8 @@
 /*
  * \file EEBeamCaloTask.cc
  *
- * $Date: 2008/12/03 13:08:57 $
- * $Revision: 1.34 $
+ * $Date: 2008/12/03 14:44:52 $
+ * $Revision: 1.35 $
  * \author A. Ghezzi
  *
  */
@@ -730,9 +730,8 @@ void EEBeamCaloTask::analyze(const Event& e, const EventSetup& c){
     EBDataFrame dataframe = (*digiItr);
 
     for (int i = 0; i < 10; i++) {
-      EcalMGPASample sample = dataframe.sample(i);
-      int adc = sample.adc();
-      int gainid = sample.gainId();
+      int adc = dataframe.sample(i).adc();
+      int gainid = dataframe.sample(i).gainId();
       //if( (ievt_ == 15400 || ievt_ == 15600 || ievt_ == 15700 ) &&   i_in_array == 4 && i == 4){ gainid =2;}
       //if( (ievt_ == 15400 || ievt_ == 15600 || ievt_ == 15700 ) &&   i_in_array == 6 && i == 6){ gainid =3;}
 

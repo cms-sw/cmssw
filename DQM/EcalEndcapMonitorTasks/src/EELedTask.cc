@@ -1,8 +1,8 @@
 /*
  * \file EELedTask.cc
  *
- * $Date: 2008/12/03 13:55:44 $
- * $Revision: 1.44 $
+ * $Date: 2008/12/03 14:44:53 $
+ * $Revision: 1.45 $
  * \author G. Della Ricca
  *
 */
@@ -480,15 +480,14 @@ void EELedTask::analyze(const Event& e, const EventSetup& c){
 
       for (int i = 0; i < 10; i++) {
 
-        EcalMGPASample sample = dataframe.sample(i);
-        int adc = sample.adc();
+        int adc = dataframe.sample(i).adc();
         float gain = 1.;
 
         MonitorElement* meShapeMap = 0;
 
-        if ( sample.gainId() == 1 ) gain = 1./12.;
-        if ( sample.gainId() == 2 ) gain = 1./ 6.;
-        if ( sample.gainId() == 3 ) gain = 1./ 1.;
+        if ( dataframe.sample(i).gainId() == 1 ) gain = 1./12.;
+        if ( dataframe.sample(i).gainId() == 2 ) gain = 1./ 6.;
+        if ( dataframe.sample(i).gainId() == 3 ) gain = 1./ 1.;
 
         if ( Numbers::RtHalf(id) == 0 ) {
 

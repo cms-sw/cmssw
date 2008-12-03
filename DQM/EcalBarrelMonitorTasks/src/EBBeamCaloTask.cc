@@ -1,8 +1,8 @@
 /*
  * \file EBBeamCaloTask.cc
  *
- * $Date: 2008/12/03 13:08:56 $
- * $Revision: 1.72 $
+ * $Date: 2008/12/03 14:44:43 $
+ * $Revision: 1.73 $
  * \author A. Ghezzi
  *
  */
@@ -731,9 +731,8 @@ void EBBeamCaloTask::analyze(const Event& e, const EventSetup& c){
     EBDataFrame dataframe = (*digiItr);
 
     for (int i = 0; i < 10; i++) {
-      EcalMGPASample sample = dataframe.sample(i);
-      int adc = sample.adc();
-      int gainid = sample.gainId();
+      int adc = dataframe.sample(i).adc();
+      int gainid = dataframe.sample(i).gainId();
       //if( (ievt_ == 15400 || ievt_ == 15600 || ievt_ == 15700 ) &&   i_in_array == 4 && i == 4){ gainid =2;}
       //if( (ievt_ == 15400 || ievt_ == 15600 || ievt_ == 15700 ) &&   i_in_array == 6 && i == 6){ gainid =3;}
 
