@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/10/25 12:01:15 $
- *  $Revision: 1.5 $
+ *  $Date: 2008/10/21 10:52:20 $
+ *  $Revision: 1.6 $
  *  \author S. Bolognesi and G. Cerminara - INFN Torino
  */
 
@@ -147,6 +147,11 @@ DTHitQualityUtils::findMuSimSegment(const map<DTWireId, const PSimHit*>& mapWire
     abort();
   }
 
+  // //Check that outermost and innermost SimHit are not the same
+  // if(outSimHit == inSimHit) {
+  //   cout << "[DTHitQualityUtils]***Warning: outermost and innermost SimHit are the same!" << endl;
+  //   abort();
+  //     }
   return make_pair(inSimHit, outSimHit);
 }
 
@@ -184,7 +189,8 @@ DTHitQualityUtils::findMuSimSegmentDirAndPos(const pair<const PSimHit*, const PS
 //                        Beta  = angle measured by SL RZ
 //     For 2D RecHits: only Alpha makes sense
 pair<double, double> DTHitQualityUtils::findSegmentAlphaAndBeta(const LocalVector& direction) {
-  return make_pair(atan(direction.x()/direction.z()), atan(direction.y()/direction.z()));
+  //return make_pair(atan(direction.x()/direction.z()), atan(direction.y()/direction.z()));
+  return make_pair((direction.x()/direction.z()), (direction.y()/direction.z()));
 }
 
 

@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/10/25 11:58:37 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/10/21 10:52:20 $
+ *  $Revision: 1.2 $
  *  \author S. Bolognesi and G. Cerminara - INFN Torino
  */
 
@@ -53,6 +53,9 @@ DTSegment2DQuality::DTSegment2DQuality(const ParameterSet& pset)  {
   theFile = new TFile(rootFileName.c_str(), "RECREATE");
   theFile->cd();
 
+  if(debug)
+    cout << "[DTSegment2DQuality] Constructor called " << endl;
+
   h2DHitRPhi = new HRes2DHit ("RPhi");
   h2DHitRZ= new HRes2DHit ("RZ");
   h2DHitRZ_W0= new HRes2DHit ("RZ_W0");
@@ -64,6 +67,8 @@ DTSegment2DQuality::DTSegment2DQuality(const ParameterSet& pset)  {
   h2DHitEff_RZ_W0= new HEff2DHit ("RZ_W0");
   h2DHitEff_RZ_W1= new HEff2DHit ("RZ_W1");
   h2DHitEff_RZ_W2= new HEff2DHit ("RZ_W2");
+  if(debug)
+    cout << "[DTSegment2DQuality] hitsos created " << endl;
 }
 
 // Destructor
