@@ -1116,7 +1116,9 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
       else if (qie_work->fiberAndChan() != lastfibchan) {
 	channum= (3* (qie_work->fiber() - 1)) + qie_work->fiberChan();
 	channDIM_x = (channum*3)+1;
-	if (samplecounter != htr.getNDD() ) {
+	//Check the last digi for number of timeslices
+	if ((samplecounter != htr.getNDD()) &&
+	    (samplecounter != 1)             ) {
 	  meChannSumm_DataIntegrityCheck_->Fill(chsummDIM_x,chsummDIM_y+1);
 	  meChann_DataIntegrityCheck_[dccid-700]->Fill(channDIM_x, channDIM_y);
 	  channAOK=false;}
