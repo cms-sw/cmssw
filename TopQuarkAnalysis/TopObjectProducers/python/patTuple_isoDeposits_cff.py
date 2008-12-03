@@ -10,14 +10,14 @@ from RecoEgamma.EgammaIsolationAlgos.eleIsoFromDepsModules_cff import eleIsoFrom
 from RecoEgamma.EgammaIsolationAlgos.gamIsoFromDepsModules_cff import gamIsoFromDepsEcalFromHits
 
 ## change the default vetos
-eleIsoFromDepsEcalFromHits.vetos = cms.vstring('EcalBarrel:0.045' ,
+eleIsoFromDepsEcalFromHits.deposits[0].vetos = cms.vstring('EcalBarrel:0.045' ,
                                                'EcalBarrel:RectangularEtaPhiVeto(-0.02,0.02,-0.5,0.5)',
                                                'EcalBarrel:ThresholdFromTransverse(0.08)',
                                                'EcalEndcaps:ThresholdFromTransverse(0.3)',
                                                'EcalEndcaps:0.070',
                                                'EcalEndcaps:RectangularEtaPhiVeto(-0.02,0.02,-0.5,0.5)'
                                                )
-gamIsoFromDepsEcalFromHits.vetos = cms.vstring('EcalBarrel:0.045',
+gamIsoFromDepsEcalFromHits.deposits[0].vetos = cms.vstring('EcalBarrel:0.045',
                                                'EcalBarrel:RectangularEtaPhiVeto(-0.02,0.02,-0.5,0.5)',
                                                'EcalBarrel:ThresholdFromTransverse(0.08)',
                                                'EcalEndcaps:ThresholdFromTransverse(0.3)',

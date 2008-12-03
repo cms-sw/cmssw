@@ -12,7 +12,6 @@ from PhysicsTools.HepMCCandAlgos.genEventProcID_cfi                import *
 
 ## std sequence for patTuple production
 patTuple = cms.Sequence(genEventProcID +             ## needs HepMCProduct in the event content
-                        isoDepositsFromRecHits *     ## isoDeposits from rec hits
                         patLayer0_patTuple *         ## to be used from PhysicsTools/PatAlgos 
                         patLayer1# *                 ## V04-14-03 onwards                        
 #                       patCaloTaus                  ## skipped as long as common taus are caloTaus
