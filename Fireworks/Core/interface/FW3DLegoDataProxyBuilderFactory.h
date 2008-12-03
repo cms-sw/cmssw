@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Jun  5 20:13:55 EDT 2008
-// $Id: FW3DLegoDataProxyBuilderFactory.h,v 1.1 2008/06/09 19:48:45 chrjones Exp $
+// $Id: FW3DLegoDataProxyBuilderFactory.h,v 1.2 2008/11/06 22:05:22 amraktad Exp $
 //
 
 // system include files
@@ -33,6 +33,6 @@ typedef edmplugin::PluginFactory<FW3DLegoDataProxyBuilder*()> FW3DLegoDataProxyB
 
 #define REGISTER_FW3DLEGODATAPROXYBUILDER(_name_,_type_,_purpose_) \
 DEFINE_PROXYBUILDER_METHODS(_name_,_type_,_purpose_); \
-DEFINE_EDM_PLUGIN(FW3DLegoDataProxyBuilderFactory,_name_,_name_::classTypeName()+"@"+_name_::classPurpose()+"@" #_name_)
+DEFINE_EDM_PLUGIN(FW3DLegoDataProxyBuilderFactory,_name_,_name_::typeOfBuilder()+_name_::classTypeName()+"@"+_name_::classPurpose()+"@" #_name_)
 
 #endif

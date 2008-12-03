@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Thu Dec  6 17:49:54 PST 2007
-// $Id: FW3DLegoDataProxyBuilder.cc,v 1.10 2008/07/15 17:42:11 chrjones Exp $
+// $Id: FW3DLegoDataProxyBuilder.cc,v 1.11 2008/11/06 22:05:24 amraktad Exp $
 //
 
 // system include files
@@ -144,62 +144,6 @@ FW3DLegoDataProxyBuilder::setHaveAWindow(bool iFlag)
    }
 }
 
-/*
-static void
-setUserDataElementAndChildren(TEveElement* iElement,
-                              void* iInfo)
-{
-   iElement->SetUserData(iInfo);
-   for(TEveElement::List_i itElement = iElement->BeginChildren(),
-       itEnd = iElement->EndChildren();
-       itElement != itEnd;
-       ++itElement) {
-      setUserDataElementAndChildren(*itElement, iInfo);
-   }
-}
-
-static
-void
-setUserData(const FWEventItem* iItem,TEveElementList* iElements, std::vector<FWModelId>& iIds) {
-   if(iElements &&  static_cast<int>(iItem->size()) == iElements->NumChildren() ) {
-      int index=0;
-      int largestIndex = iIds.size();
-      if(iIds.size()<iItem->size()) {
-         iIds.resize(iItem->size());
-      }
-      std::vector<FWModelId>::iterator itId = iIds.begin();
-      for(TEveElement::List_i it = iElements->BeginChildren(), itEnd = iElements->EndChildren();
-          it != itEnd;
-          ++it,++itId,++index) {
-         if(largestIndex<=index) {
-            *itId=FWModelId(iItem,index);
-         }
-         setUserDataElementAndChildren(*it,&(*itId));
-      }
-   }
-}
-*/
-/*
-void
-FW3DLegoDataProxyBuilder::build(TObject** iObject)
-{
-   if ( ! m_item ) return;
-   TH2* hist = dynamic_cast<TH2*>(*iObject);
-   if ( ! *iObject || hist ) build(m_item, &hist);
-   if ( hist ) {
-      *iObject = hist;
-      return;
-   }
-
-   TEveElementList* list = dynamic_cast<TEveElementList*>(*iObject);
-   if ( ! *iObject || list ) build(m_item, &list);
-   if ( list ) {
-      *iObject = list;
-      m_elements = list;
-      setUserData(m_item,list,m_ids);
-   }
-}
-*/
 void
 FW3DLegoDataProxyBuilder::modelChanges(const FWModelIds& iIds)
 {
@@ -212,51 +156,9 @@ FW3DLegoDataProxyBuilder::modelChanges(const FWModelIds& iIds)
    }
 }
 
-/*
-static void
-changeElementAndChildren(TEveElement* iElement,
-                         const FWEventItem::ModelInfo& iInfo)
+std::string 
+FW3DLegoDataProxyBuilder::typeOfBuilder()
 {
-   iElement->SetMainColor(iInfo.displayProperties().color());
-   //for now, if selected make the item white
-   if(iInfo.isSelected() xor iElement->GetSelectedLevel()==1) {
-      if(iInfo.isSelected()) {
-         gEve->GetSelection()->AddElement(iElement);
-      } else {
-         gEve->GetSelection()->RemoveElement(iElement);
-      }
-   }
+   return std::string();
+}
 
-   for(TEveElement::List_i itElement = iElement->BeginChildren(),
-       itEnd = iElement->EndChildren();
-       itElement != itEnd;
-       ++itElement) {
-      changeElementAndChildren(*itElement, iInfo);
-   }
-}
-void
-FW3DLegoDataProxyBuilder::modelChanges(const FWModelIds& iIds,
-                                    TEveElement* iElements )
-{
-   //std::cout <<"modelChanged "<<m_item->size()<<" "<<iElements->GetNChildren()<<std::endl;
-   if (! iElements) return;
-   assert(m_item && static_cast<int>(m_item->size()) == iElements->NumChildren() && "can not use default modelChanges implementation");
-   TEveElement::List_i itElement = iElements->BeginChildren();
-   int index = 0;
-   for(FWModelIds::const_iterator it = iIds.begin(), itEnd = iIds.end();
-       it != itEnd;
-       ++it,++itElement,++index) {
-      assert(itElement != iElements->EndChildren());
-      while(index < it->index()) {
-         ++itElement;
-         ++index;
-         assert(itElement != iElements->EndChildren());
-      }
-      const FWEventItem::ModelInfo& info = it->item()->modelInfo(index);
-      changeElementAndChildren(*itElement, info);
-      (*itElement)->SetRnrSelf(info.displayProperties().isVisible());
-      (*itElement)->SetRnrChildren(info.displayProperties().isVisible());
-      (*itElement)->ElementChanged();
-   }
-}
-*/

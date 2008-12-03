@@ -16,7 +16,7 @@
 //
 // Original Author:
 //         Created:  Sat Jan  5 15:02:03 EST 2008
-// $Id: FW3DLegoDataProxyBuilder.h,v 1.9 2008/07/09 20:06:17 chrjones Exp $
+// $Id: FW3DLegoDataProxyBuilder.h,v 1.10 2008/11/06 22:05:22 amraktad Exp $
 //
 
 // system include files
@@ -51,6 +51,8 @@ class FW3DLegoDataProxyBuilder
       // ---------- const member functions ---------------------
 
       // ---------- static member functions --------------------
+      ///Used by the plugin system to determine how the proxy uses the data from FWEventItem
+      static std::string typeOfBuilder();
 
       // ---------- member functions ---------------------------
       void setItem(const FWEventItem* iItem);
