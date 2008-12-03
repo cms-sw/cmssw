@@ -71,6 +71,7 @@ class GsfElectronAlgo {
     // interface to be improved...
     void createElectron
      ( const reco::SuperClusterRef & scRef,
+       const reco::BasicClusterRef & elbcRef, 
        const reco::GsfTrackRef & trackRef,
        const reco::TrackRef & ctfTrackRef, const float shFracInnerHits,
        edm::Handle<EcalRecHitCollection> reducedEBRecHits,
@@ -84,6 +85,9 @@ class GsfElectronAlgo {
 
     // associations
     const reco::SuperClusterRef getTrSuperCluster(const reco::GsfTrackRef & trackRef);
+
+    const reco::BasicClusterRef getEleBasicCluster(const reco::GsfTrackRef &
+     trackRef, const reco::SuperClusterRef & scRef);
 
     // From Puneeth Kalavase : returns the CTF track that has the highest fraction
     // of shared hits in Pixels and the inner strip tracker with the electron Track
@@ -140,6 +144,7 @@ class GsfElectronAlgo {
     TrajectoryStateOnSurface vtxTSOS_;
     TrajectoryStateOnSurface sclTSOS_;
     TrajectoryStateOnSurface seedTSOS_;
+    TrajectoryStateOnSurface eleTSOS_;
 
     HBHERecHitMetaCollection *mhbhe_;
 

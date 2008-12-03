@@ -28,12 +28,15 @@ GsfElectron::GsfElectron
    double HoE,
    float scSigmaEtaEta, float scSigmaIEtaIEta,
    float scE1x5, float scE2x5Max, float scE5x5,
-   const TrackRef ctfTrack, const float shFracInnerHits
+   const TrackRef ctfTrack, const float shFracInnerHits,
+   const BasicClusterRef electronCluster,
+   const GlobalPoint & tselePos, const GlobalVector & tseleMom
  )
  : hadOverEm_(HoE), superCluster_(scl), track_(gsfTrack),
    scSigmaEtaEta_(scSigmaEtaEta), scSigmaIEtaIEta_(scSigmaIEtaIEta),
    scE1x5_(scE1x5), scE2x5Max_(scE2x5Max), scE5x5_(scE5x5),
-   ctfTrack_(ctfTrack), shFracInnerHits_(shFracInnerHits)
+   ctfTrack_(ctfTrack), shFracInnerHits_(shFracInnerHits),
+   electronCluster_(electronCluster)
  {
   setCharge(track_->charge()) ;
   setP4(p4) ;
@@ -53,6 +56,9 @@ GsfElectron::GsfElectron
   trackMomentumOut_=math::XYZVector(tsseedMom.x(),
                                         tsseedMom.y(),
                                         tsseedMom.z());
+  trackMomentumAtEleClus_=math::XYZVector(tseleMom.x(),
+                                        tseleMom.y(),
+                                        tseleMom.z());
   //
   // supercluster - track at impact match parameters
   //
@@ -63,7 +69,6 @@ GsfElectron::GsfElectron
   // 
   // seed cluster - track at calo match quantities
   //
-
   const BasicClusterRef seedClus = superCluster_->seed();
   eSeedClusterOverPout_ = -1;
   if (tsseedMom.mag() > 0.)
@@ -74,6 +79,19 @@ GsfElectron::GsfElectron
   if (fabs(dphi)>pi)
     dphi = dphi < 0? pi2 + dphi : dphi - pi2;
   deltaPhiSeedClusterAtCalo_ = dphi;
+
+  // 
+  // ele cluster - track at calo match quantities
+  //
+  eEleClusterOverPout_ = -1;
+  if (tseleMom.mag() > 0.)
+    eEleClusterOverPout_ = electronCluster->energy()/tseleMom.mag();
+
+  deltaEtaEleClusterAtCalo_ = electronCluster->eta() - tselePos.eta();
+  dphi                       = electronCluster->phi() - tselePos.phi();
+  if (fabs(dphi)>pi)
+    dphi = dphi < 0? pi2 + dphi : dphi - pi2;
+  deltaPhiEleClusterAtCalo_ = dphi;
 
   //
   // other quantities

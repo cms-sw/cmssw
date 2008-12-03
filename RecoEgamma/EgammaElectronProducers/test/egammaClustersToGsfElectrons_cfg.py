@@ -22,10 +22,12 @@ process.source = cms.Source("PoolSource",
     debugVerbosity = cms.untracked.uint32(1),
     debugFlag = cms.untracked.bool(True),
     fileNames = cms.untracked.vstring(
-     '/store/relval/CMSSW_2_1_10/RelValSingleElectronPt10/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/IDEAL_V9_v2/0000/26338BA9-5899-DD11-BD75-000423D985B0.root',
-     '/store/relval/CMSSW_2_1_10/RelValSingleElectronPt10/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/IDEAL_V9_v2/0000/6A430ADA-5999-DD11-994D-001617C3B5D8.root',
-     '/store/relval/CMSSW_2_1_10/RelValSingleElectronPt10/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/IDEAL_V9_v2/0000/F2E24023-5899-DD11-BFBF-000423D94A20.root',
-     '/store/relval/CMSSW_2_1_10/RelValSingleElectronPt10/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/IDEAL_V9_v2/0000/FE4A6F3F-FD99-DD11-9587-000423D98750.root'
+#      '/store/relval/CMSSW_2_2_0/RelValSingleElectronPt35/GEN-SIM-RECO/IDEAL_V9_v1/0000/587EC8EF-B4B9-DD11-AC52-001617C3B65A.root',
+#      '/store/relval/CMSSW_2_2_0/RelValSingleElectronPt35/GEN-SIM-RECO/IDEAL_V9_v1/0000/9E464300-76B9-DD11-B526-000423D98C20.root'
+       '/store/relval/CMSSW_2_2_0/RelValSingleElectronPt35/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_V9_v1/0000/92DA70ED-B4B9-DD11-A9BD-001617C3B6FE.root',
+       '/store/relval/CMSSW_2_2_0/RelValSingleElectronPt35/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_V9_v1/0000/9AF7F8F7-75B9-DD11-B74A-000423D987E0.root',
+       '/store/relval/CMSSW_2_2_0/RelValSingleElectronPt35/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_V9_v1/0000/9E1383F3-75B9-DD11-B5E6-000423D99996.root',
+       '/store/relval/CMSSW_2_2_0/RelValSingleElectronPt35/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_V9_v1/0000/F4D16CF0-75B9-DD11-8EFC-000423D98BE8.root'
     )
 )
 
@@ -42,8 +44,19 @@ process.out = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('electrons.root')
 )
 
-process.p = cms.Path(process.siPixelRecHits*process.siStripMatchedRecHits*process.newSeedFromPairs*process.newSeedFromTriplets*process.newCombinedSeeds*process.pixelMatchGsfElectronSequence)
+process.load("Configuration.StandardSequences.Services_cff")
+process.load("Configuration.StandardSequences.GeometryPilot2_cff")
+process.load("Configuration.StandardSequences.MagneticField_38T_cff")
+process.load("FWCore.MessageService.MessageLogger_cfi")
+process.load("Configuration.StandardSequences.RawToDigi_cff")
+process.load("Configuration.StandardSequences.Reconstruction_cff")
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+process.load("Configuration.EventContent.EventContent_cff")
+
+#process.p = cms.Path(process.siPixelRecHits*process.siStripMatchedRecHits*process.ckftracks*process.particleFlowReco*process.gsfElectronAnalysis)
+process.p = cms.Path(process.RawToDigi*process.reconstruction*process.pixelMatchGsfElectronSequence)
+
 process.outpath = cms.EndPath(process.out)
-process.GlobalTag.globaltag = 'IDEAL_V9::All'
+process.GlobalTag.globaltag = 'IDEAL_30X::All'
 
 

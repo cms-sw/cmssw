@@ -12,7 +12,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Thu july 6 13:22:06 CEST 2006
-// $Id: GsfElectronAlgo.cc,v 1.29 2008/11/30 20:32:56 chamont Exp $
+// $Id: GsfElectronAlgo.cc,v 1.30 2008/12/01 13:03:16 chamont Exp $
 //
 //
 
@@ -240,6 +240,7 @@ void GsfElectronAlgo::process(
     const GsfTrackRef gsfTrackRef = edm::Ref<GsfTrackCollection>(gsfTracksH,i);
     const SuperClusterRef & scRef=getTrSuperCluster(gsfTrackRef);
     const SuperCluster theClus=*scRef;
+    const BasicClusterRef & elbcRef=getEleBasicCluster(gsfTrackRef,scRef);
     std::vector<DetId> vecId=theClus.seed()->getHitsByDetId();
     subdet_ =vecId[0].subdetId();
 
@@ -253,7 +254,7 @@ void GsfElectronAlgo::process(
       const TrackRef ctfTrackRef = ctfpair.first ;
       const float fracShHits = ctfpair.second ;
       // interface to be improved...
-      createElectron(scRef,gsfTrackRef,ctfTrackRef,fracShHits,reducedEBRecHits,reducedEERecHits,outEle) ;
+      createElectron(scRef,elbcRef,gsfTrackRef,ctfTrackRef,fracShHits,reducedEBRecHits,reducedEERecHits,outEle) ;
       LogInfo("")<<"Constructed new electron with energy  "<< scRef->energy();
     }
   } // loop over tracks
@@ -334,6 +335,7 @@ GlobalVector GsfElectronAlgo::computeMode(const TrajectoryStateOnSurface &tsos) 
 // interface to be improved...
 void GsfElectronAlgo::createElectron
  ( const SuperClusterRef & scRef,
+   const BasicClusterRef & elbcRef,
    const GsfTrackRef & trackRef,
    const TrackRef & ctfTrackRef, const float shFracInnerHits,
    edm::Handle<EcalRecHitCollection> reducedEBRecHits,
@@ -345,6 +347,8 @@ void GsfElectronAlgo::createElectron
       GlobalPoint innPos=innTSOS_.globalPosition();
       GlobalVector seedMom=computeMode(seedTSOS_);
       GlobalPoint  seedPos=seedTSOS_.globalPosition();
+      GlobalVector eleMom=computeMode(eleTSOS_);
+      GlobalPoint  elePos=eleTSOS_.globalPosition();
       GlobalVector sclMom=computeMode(sclTSOS_);
 
       GlobalPoint  vtxPos=vtxTSOS_.globalPosition();
@@ -382,7 +386,7 @@ void GsfElectronAlgo::createElectron
       HoECalculator calc(theCaloGeom);
       double HoE=calc(&(*scRef),mhbhe_);
       GsfElectron * ele = new GsfElectron(momentum,scRef,trackRef,sclPos_,sclMom,seedPos,seedMom,innPos,innMom,vtxPos,vtxMom_,outPos,outMom,HoE,
-        scSigmaEtaEta,scSigmaIEtaIEta,scE1x5,scE2x5,scE5x5,ctfTrackRef,shFracInnerHits) ;
+       scSigmaEtaEta,scSigmaIEtaIEta,scE1x5,scE2x5,scE5x5,ctfTrackRef,shFracInnerHits,elbcRef,elePos,eleMom) ;
 
       // and set various properties
       ECALPositionCalculator ecpc;
@@ -410,6 +414,29 @@ const SuperClusterRef GsfElectronAlgo::getTrSuperCluster(const GsfTrackRef & tra
     edm::RefToBase<TrajectorySeed> seed = trackRef->extra()->seedRef();
     ElectronPixelSeedRef elseed=seed.castTo<ElectronPixelSeedRef>();
     return elseed->superCluster();
+}
+
+const BasicClusterRef GsfElectronAlgo::getEleBasicCluster(const GsfTrackRef &t, const SuperClusterRef & scRef) {
+    
+    BasicClusterRef eleRef;
+    TrajectoryStateOnSurface tempTSOS;
+    TrajectoryStateOnSurface outTSOS
+      = mtsTransform_->outerStateOnSurface(*t, *(trackerHandle_.product()), theMagField.product());
+    GlobalPoint posclu(scRef->x(),scRef->y(),scRef->z());
+    float distmin = 1.e30;
+    for (basicCluster_iterator bc=scRef->clustersBegin(); bc!=scRef->clustersEnd(); bc++) {
+      tempTSOS
+        = TransverseImpactPointExtrapolator(*geomPropFw_).extrapolate(outTSOS,GlobalPoint((*bc)->position().x(),(*bc)->position().y(),(*bc)->position().z()));
+      GlobalPoint extrap = tempTSOS.globalPosition();
+      float dist = (posclu - extrap).mag();
+      if (dist<distmin) {
+        distmin = dist;
+	eleRef = (*bc);
+	eleTSOS_ = tempTSOS;
+      }
+    }
+    return eleRef;
+
 }
 
 bool  GsfElectronAlgo::calculateTSOS(const GsfTrack &t,const SuperCluster & theClus, const math::XYZPoint &

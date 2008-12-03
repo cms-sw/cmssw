@@ -7,7 +7,7 @@
  *
  * \author U.Berthon, ClaudeCharlot, LLR
  *
- * \version $Id: GsfElectron.h,v 1.11 2008/10/21 12:57:56 chamont Exp $
+ * \version $Id: GsfElectron.h,v 1.12 2008/12/01 13:03:00 chamont Exp $
  *
  */
 
@@ -26,6 +26,9 @@
 // Ursula Berthon - LLR Ecole polytechnique
 //
 // $Log: GsfElectron.h,v $
+// Revision 1.12  2008/12/01 13:03:00  chamont
+// store ambiguous gsf track into electrons
+//
 // Revision 1.11  2008/10/21 12:57:56  chamont
 // use infinity as a defaut value for new attributes scSigmaEtaEta and scSigmaIEtaIEta, and code cleaning
 //
@@ -96,7 +99,9 @@ class GsfElectron : public RecoCandidate {
 	float scSigmaEtaEta =std::numeric_limits<float>::infinity(),
 	float scSigmaIEtaIEta =std::numeric_limits<float>::infinity(),
 	float scE1x5 =0., float scE2x5Max =0., float scE5x5 =0.,
-        const TrackRef ctfTrack =TrackRef(), const float shFracInnerHits =0.
+        const TrackRef ctfTrack =TrackRef(), const float shFracInnerHits =0.,
+	const BasicClusterRef electronCluster=BasicClusterRef(),
+	const GlobalPoint & tselePos=GlobalPoint(), const GlobalVector & tseleMom=GlobalVector()
 	) ;
 
   virtual ~GsfElectron(){};
@@ -139,21 +144,29 @@ class GsfElectron : public RecoCandidate {
   //! the track momentum extrapolated at the supercluster position
   math::XYZVector trackMomentumAtCalo() const {return trackMomentumAtCalo_;}
   //! the track momentum extrapolated from outermost position at the seed cluster position
-   math::XYZVector trackMomentumOut() const {return trackMomentumOut_;}
+  math::XYZVector trackMomentumOut() const {return trackMomentumOut_;}
+  //! the track momentum extrapolated from outermost position at the ele cluster position
+  math::XYZVector trackMomentumAtEleClus() const {return trackMomentumAtEleClus_;}
   //! the track extrapolated position at min distance to the supercluster position
   math::XYZVector TrackPositionAtCalo() const {return trackPositionAtCalo_;}
   //! the supercluster energy / track momentum at impact point
   float eSuperClusterOverP() const {return eSuperClusterOverP_;}
   //! the seed cluster energy / track momentum at calo from outermost state
   float eSeedClusterOverPout() const {return eSeedClusterOverPout_;}
+  //! the electron cluster energy / track momentum at calo from outermost state
+  float eEleClusterOverPout() const {return eEleClusterOverPout_;}
   //! the supercluster eta - track eta from helix extrapolation from impact point
   float deltaEtaSuperClusterTrackAtVtx() const {return deltaEtaSuperClusterAtVtx_;}
   //! the seed cluster eta - track eta at calo from outermost state
   float deltaEtaSeedClusterTrackAtCalo() const {return deltaEtaSeedClusterAtCalo_;}
+  //! the electron cluster eta - track eta at calo from outermost state
+  float deltaEtaEleClusterTrackAtCalo() const {return deltaEtaEleClusterAtCalo_;}
   //! the supercluster phi - track phi from helix extrapolation from impact point
   float deltaPhiSuperClusterTrackAtVtx() const {return deltaPhiSuperClusterAtVtx_;}
   //! the seed cluster phi - track phi at calo from outermost state
   float deltaPhiSeedClusterTrackAtCalo() const {return deltaPhiSeedClusterAtCalo_;}
+  //! the electron cluster phi - track phi at calo from outermost state
+  float deltaPhiEleClusterTrackAtCalo() const {return deltaPhiEleClusterAtCalo_;}
 
   //! the hadronic over electromagnetic fraction
   float hadronicOverEm() const {return hadOverEm_;}
@@ -216,6 +229,10 @@ class GsfElectron : public RecoCandidate {
   //! accessor to the ambiguous gsf tracks
   GsfTrackRefVector::const_iterator ambiguousGsfTracksEnd() const
    { return ambiguousGsfTracks_.end() ; }
+   
+  //! access to the electron basic cluster
+  BasicClusterRef electronCluster() const { return electronCluster_; }
+   
 
 private:
 
@@ -264,6 +281,14 @@ private:
 
   // ambiguous gsf tracks
   reco::GsfTrackRefVector ambiguousGsfTracks_ ;
+
+  reco::BasicClusterRef electronCluster_;
+
+  math::XYZVector trackMomentumAtEleClus_;
+
+  float eEleClusterOverPout_;
+  float deltaEtaEleClusterAtCalo_;
+  float deltaPhiEleClusterAtCalo_;
 
   /// check overlap with another candidate
   virtual bool overlap( const Candidate & ) const;
