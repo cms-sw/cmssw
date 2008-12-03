@@ -8,6 +8,10 @@ using namespace std;
 HcalDeadCellMonitor::HcalDeadCellMonitor()
 {
   ievt_=0;
+  // Default initialization
+  showTiming   = false;
+  fVerbosity   = 0;
+  deadmon_makeDiagnostics_ = false;
 } //constructor
 
 HcalDeadCellMonitor::~HcalDeadCellMonitor()
@@ -20,15 +24,14 @@ HcalDeadCellMonitor::~HcalDeadCellMonitor()
 void HcalDeadCellMonitor::setup(const edm::ParameterSet& ps,
 				DQMStore* dbe)
 {
+  HcalBaseMonitor::setup(ps,dbe);
   if (showTiming)
     {
       cpu_timer.reset(); cpu_timer.start();
     }
+  baseFolder_ = rootFolder_+"DeadCellMonitor_Hcal";
   if (fVerbosity>0)
     cout <<"<HcalDeadCellMonitor::setup>  Setting up histograms"<<endl;
-
-  HcalBaseMonitor::setup(ps,dbe);
-  baseFolder_ = rootFolder_+"DeadCellMonitor_Hcal";
 
   // Assume subdetectors not present until shown otherwise
   HBpresent_=false;
@@ -587,7 +590,10 @@ void HcalDeadCellMonitor::fillDeadHistosAtEndRun()
   if (deadmon_test_energy_    && ievt_%deadmon_checkNevents_energy_   >0) fillNevents_energy();
   if (deadmon_test_occupancy_ || deadmon_test_pedestal_ || 
       deadmon_test_neighbor_  || deadmon_test_energy_)  
-    fillNevents_problemCells();
+   {
+     fillNevents_problemCells();
+     FillUnphysicalHEHFBins(ProblemDeadCellsByDepth);
+   }
 }
 
 /* --------------------------------------- */
@@ -1389,7 +1395,7 @@ void HcalDeadCellMonitor::fillNevents_occupancy(void)
 	    } // for (int depth=0;depth<4;++depth)
 	} // for (int phi=0;...)
     } // for (int eta=0;...)
-
+  FillUnphysicalHEHFBins(UnoccupiedDeadCellsByDepth);
   if (showTiming)
     {
       cpu_timer.stop();  cout <<"TIMER:: HcalDeadCellMonitor FILLNEVENTS_OCCUPANCY -> "<<cpu_timer.cpuTime()<<endl;
@@ -1488,7 +1494,7 @@ void HcalDeadCellMonitor::fillNevents_pedestal(void)
 	    } // for (int depth=0;depth<4;++depth)
 	} // for (int phi=0;...)
     } // for (int eta=0;...)
-  
+  FillUnphysicalHEHFBins(BelowPedestalDeadCellsByDepth);
   if (showTiming)
     {
       cpu_timer.stop();  cout <<"TIMER:: HcalDeadCellMonitor FILLNEVENTS_BELOWPEDESTAL -> "<<cpu_timer.cpuTime()<<endl;
@@ -1587,7 +1593,8 @@ void HcalDeadCellMonitor::fillNevents_energy(void)
 	    } // for (int depth=0;depth<4;++depth)
 	} // for (int phi=0;...)
     } // for (int eta=0;...)
-
+    FillUnphysicalHEHFBins(UnoccupiedRecHitsByDepth);
+    FillUnphysicalHEHFBins(BelowEnergyThresholdCellsByDepth);
   if (showTiming)
     {
       cpu_timer.stop();  cout <<"TIMER:: HcalDeadCellMonitor FILLNEVENTS_ENERGY -> "<<cpu_timer.cpuTime()<<endl;
@@ -1667,7 +1674,7 @@ void HcalDeadCellMonitor::fillNevents_neighbor(void)
 	    } // for (int depth=0;depth<4;++depth)
 	} // for (int phi=0;...)
     } // for (int eta=0;...)
-
+  FillUnphysicalHEHFBins(BelowNeighborsDeadCellsByDepth);
   if (showTiming)
     {
       cpu_timer.stop();  cout <<"TIMER:: HcalDeadCellMonitor FILLNEVENTS_NEIGHBOR -> "<<cpu_timer.cpuTime()<<endl;

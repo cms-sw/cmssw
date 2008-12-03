@@ -8,6 +8,14 @@ using namespace std;
 HcalHotCellMonitor::HcalHotCellMonitor()
 {
   ievt_=0;
+  // Default initialization
+  hotmon_makeDiagnostics_   = false;
+  hotmon_test_pedestal_     = false;
+  hotmon_test_energy_       = false;
+  hotmon_test_neighbor_     = false;
+  hotmon_test_persistent_   = false;
+  showTiming                = false;
+  fVerbosity                = 0;
 } //constructor
 
 HcalHotCellMonitor::~HcalHotCellMonitor()
@@ -20,16 +28,15 @@ HcalHotCellMonitor::~HcalHotCellMonitor()
 void HcalHotCellMonitor::setup(const edm::ParameterSet& ps,
 				DQMStore* dbe)
 {
+  HcalBaseMonitor::setup(ps,dbe);
   if (showTiming)
     {
       cpu_timer.reset(); cpu_timer.start();
     }
-  
+  baseFolder_ = rootFolder_+"HotCellMonitor_Hcal";
+
   if (fVerbosity>0)
     cout <<"<HcalHotCellMonitor::setup>  Setting up histograms"<<endl;
-
-  HcalBaseMonitor::setup(ps,dbe);
-  baseFolder_ = rootFolder_+"HotCellMonitor_Hcal";
   
   // Hot Cell Monitor - specific cfg variables
 
@@ -1391,7 +1398,8 @@ void HcalHotCellMonitor::fillNevents_persistentenergy(void)
 	    } // for (int depth=0;depth<4;++depth)
 	} // for (int phi=0;...)
     } // for (int eta=0;...)
-  
+  FillUnphysicalHEHFBins(AbovePersistentThresholdCellsByDepth);
+
   if (showTiming)
     {
       cpu_timer.stop();  cout <<"TIMER:: HcalHotCellMonitor FILLNEVENTS_PERSISTENTENERGY -> "<<cpu_timer.cpuTime()<<endl;
@@ -1473,7 +1481,8 @@ void HcalHotCellMonitor::fillNevents_pedestal(void)
 	    } // for (int depth=0;depth<4;++depth)
 	} // for (int phi=0;...)
     } // for (int eta=0;...)
-  
+  FillUnphysicalHEHFBins(AbovePedestalHotCellsByDepth);
+
   if (showTiming)
     {
       cpu_timer.stop();  cout <<"TIMER:: HcalHotCellMonitor FILLNEVENTS_ABOVEPEDESTAL -> "<<cpu_timer.cpuTime()<<endl;
@@ -1550,7 +1559,7 @@ void HcalHotCellMonitor::fillNevents_energy(void)
 	    } // for (int depth=0;depth<4;++depth)
 	} // for (int phi=0;...)
     } // for (int eta=0;...)
-
+  FillUnphysicalHEHFBins(AboveEnergyThresholdCellsByDepth);
   if (showTiming)
     {
       cpu_timer.stop();  cout <<"TIMER:: HcalHotCellMonitor FILLNEVENTS_ENERGY -> "<<cpu_timer.cpuTime()<<endl;
@@ -1619,6 +1628,7 @@ void HcalHotCellMonitor::fillNevents_neighbor(void)
 	    } // for (int depth=0;depth<4;++depth)
 	} // for (int phi=0;...)
     } // for (int eta=0;...)
+  FillUnphysicalHEHFBins(AboveNeighborsHotCellsByDepth);
 
   if (showTiming)
     {
@@ -1690,6 +1700,8 @@ void HcalHotCellMonitor::fillNevents_problemCells(void)
 	  ProblemHotCells->setBinContent(eta+2,phi+2,sumproblemvalue);
 	} // loop on phi=0;phi<72
     } // loop on eta=0; eta<(etaBins_-2)
+  
+  FillUnphysicalHEHFBins(ProblemHotCellsByDepth);
   
   if (showTiming)
     {

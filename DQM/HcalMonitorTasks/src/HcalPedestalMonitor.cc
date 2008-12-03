@@ -731,6 +731,26 @@ void HcalPedestalMonitor::fillPedestalHistos(void)
 	} // for (int phi)
     } // for (int eta)
   
+  // Fill unphysical cells
+  FillUnphysicalHEHFBins(rawADCPedestalMean);
+  FillUnphysicalHEHFBins(rawADCPedestalRMS);
+  FillUnphysicalHEHFBins(rawFCPedestalMean); 
+  FillUnphysicalHEHFBins(rawFCPedestalRMS);  
+  
+  //subtracted pedestals
+  FillUnphysicalHEHFBins(subADCPedestalMean);
+  FillUnphysicalHEHFBins(subADCPedestalRMS); 
+  
+  FillUnphysicalHEHFBins(subFCPedestalMean); 
+  FillUnphysicalHEHFBins(subFCPedestalRMS);  
+  
+  // Overall plots by depth
+  FillUnphysicalHEHFBins(MeanMapByDepth);    
+  FillUnphysicalHEHFBins(RMSMapByDepth);     
+  
+  FillUnphysicalHEHFBins(ProblemPedestalsByDepth); 
+  FillUnphysicalHEHFBins(ProblemPedestals);
+
   if (showTiming)
     {
       cpu_timer.stop();  cout <<"TIMER:: HcalPedestalHistos DIGI FILLPEDESTALHISTOS -> "<<cpu_timer.cpuTime()<<endl;

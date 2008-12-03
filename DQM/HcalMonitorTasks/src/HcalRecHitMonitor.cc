@@ -633,6 +633,12 @@ void HcalRecHitMonitor::fillNevents(void)
 	    } // for (int phi=0;phi<72;++phi)
 	} // for (int eta=0;eta<(etaBins_-2);++eta)
 
+      FillUnphysicalHEHFBins(OccupancyByDepth);
+      FillUnphysicalHEHFBins(OccupancyThreshByDepth);
+      FillUnphysicalHEHFBins(EnergyByDepth);
+      FillUnphysicalHEHFBins(EnergyThreshByDepth);
+      FillUnphysicalHEHFBins(TimeByDepth);
+      FillUnphysicalHEHFBins(TimeThreshByDepth);
     } // if (ievt_>0)
 
   // Fill subdet plots
