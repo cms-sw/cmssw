@@ -74,6 +74,13 @@
 #include "CondFormats/EcalObjects/interface/EcalTPGWeightIdMap.h"
 #include "CondFormats/DataRecord/interface/EcalTPGWeightIdMapRcd.h"
 
+#include "CondFormats/EcalObjects/interface/EcalTPGEcalTPGCrystalStatus.h"
+#include "CondFormats/DataRecord/interface/EcalTPGEcalTPGCrystalStatusRcd.h"
+
+#include "CondFormats/EcalObjects/interface/EcalTPGEcalTPGTowerStatus.h"
+#include "CondFormats/DataRecord/interface/EcalTPGEcalTPGTowerStatusRcd.h"
+
+
 DEFINE_SEAL_MODULE();
 REGISTER_PLUGIN(EcalPedestalsRcd,EcalPedestals);
 REGISTER_PLUGIN(EcalWeightXtalGroupsRcd,EcalWeightXtalGroups);
@@ -99,3 +106,5 @@ REGISTER_PLUGIN(EcalTPGPhysicsConstRcd,EcalTPGPhysicsConst);
 REGISTER_PLUGIN(EcalTPGSlidingWindowRcd,EcalTPGSlidingWindow);
 REGISTER_PLUGIN(EcalTPGWeightGroupRcd,EcalTPGWeightGroup);
 REGISTER_PLUGIN(EcalTPGWeightIdMapRcd,EcalTPGWeightIdMap);
+REGISTER_PLUGIN(EcalTPGCrystalStatusRcd,EcalTPGCrystalStatus);
+REGISTER_PLUGIN(EcalTPGTowerStatusRcd,EcalTPGTowerStatus);
