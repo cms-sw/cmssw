@@ -2,6 +2,8 @@
 #include <utility>
 #include <string>
 
+#include <boost/regex.hpp>
+
 #include "mcdb.hpp"
 
 #include "FWCore/Framework/interface/InputSourceMacros.h"
@@ -51,8 +53,12 @@ static std::pair<std::vector<std::string>, unsigned int>
 		<< "Files: " << std::endl;
 
 	std::vector<std::string> supportedProtocols = 
-			params.getParameter< std::vector<std::string> >(
+		params.getUntrackedParameter< std::vector<std::string> >(
 							"supportedProtocols");
+
+	boost::regex filter(params.getUntrackedParameter<std::string>(
+							"filter", "\\.lhe$"),
+	                    boost::regex_constants::icase);
 
 	unsigned int firstEvent =
 		params.getUntrackedParameter<unsigned int>("seekEvent", 0);
@@ -60,13 +66,8 @@ static std::pair<std::vector<std::string>, unsigned int>
 	std::vector<std::string> fileURLs;
 	for(std::vector<mcdb::File>::iterator file = article.files().begin();
 	    file != article.files().end(); ++file) {
-		int nEvents = file->eventsNumber();
-		if ((int)firstEvent > nEvents) {
-			firstEvent -= nEvents;
-			continue;
-		}
+		std::string fileURL;
 
-		bool found = false;
 		for(std::vector<std::string>::const_iterator prot =
 						supportedProtocols.begin();
 		    prot != supportedProtocols.end(); ++prot) {
@@ -75,20 +76,30 @@ static std::pair<std::vector<std::string>, unsigned int>
 			    path != file->paths().end(); ++path) {
 				if (path->substr(0, prot->length() + 1) ==
 				    *prot + ":") {
-					fileURLs.push_back(*path);
-					found = true;
+					fileURL = *path;
 					break;
 				}
 			}
-			if (found)
+			if (!fileURL.empty())
 				break;
 		}
 
-		if (!found)
+		if (fileURL.empty())
 			throw cms::Exception("Generator|LHEInterface")
 				<< "MCDB did not contain any URLs with"
 				   " supported protocols for at least one"
 				   " file." << std::endl;
+
+		if (!boost::regex_match(fileURL, filter))
+			continue;
+
+		int nEvents = file->eventsNumber();
+		if ((int)firstEvent > nEvents) {
+			firstEvent -= nEvents;
+			continue;
+		}
+
+		fileURLs.push_back(fileURL);
 	}
 
 	return std::make_pair(fileURLs, firstEvent);
