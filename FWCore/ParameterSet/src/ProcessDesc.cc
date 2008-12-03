@@ -3,11 +3,11 @@
    Implementation of calss ProcessDesc
 
    \author Stefano ARGIRO
-   \version $Id: ProcessDesc.cc,v 1.30 2008/06/05 21:39:23 rpw Exp $
+   \version $Id: ProcessDesc.cc,v 1.31 2008/10/31 23:17:59 rpw Exp $
    \date 17 Jun 2005
 */
 
-static const char CVSId[] = "$Id: ProcessDesc.cc,v 1.30 2008/06/05 21:39:23 rpw Exp $";
+static const char CVSId[] = "$Id: ProcessDesc.cc,v 1.31 2008/10/31 23:17:59 rpw Exp $";
 
 
 #include "FWCore/ParameterSet/interface/ProcessDesc.h"
@@ -37,7 +37,7 @@ namespace edm
   : pset_(new ParameterSet),
     services_(new std::vector<ParameterSet>())
   {
-    edm::Exception(errors::Configuration,"Old config strings no longer accepted");
+    throw edm::Exception(errors::Configuration,"Old config strings no longer accepted");
   }
 
   void ProcessDesc::setRegistry() const
