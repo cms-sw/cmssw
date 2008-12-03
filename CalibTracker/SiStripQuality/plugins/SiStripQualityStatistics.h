@@ -17,6 +17,7 @@
 #include "CommonTools/TrackerMap/interface/TrackerMap.h"
 #include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
+#include "DQM/SiStripCommon/interface/TkHistoMap.h" 
 
 #include <sstream>
 
@@ -27,7 +28,8 @@ class SiStripQualityStatistics : public edm::EDAnalyzer {
   ~SiStripQualityStatistics(){};
   
   void analyze( const edm::Event&, const edm::EventSetup& );
-    
+  void endJob();
+ 
  private:
 
   void SetBadComponents(int,int,SiStripQuality::BadComponent&);
@@ -45,8 +47,8 @@ class SiStripQualityStatistics : public edm::EDAnalyzer {
   //     k: 0=BadModule, 1=BadFiber, 2=BadApv, 3=BadStrips
   std::stringstream ssV[4][19];
 
-  TrackerMap * tkMap;
+  TrackerMap * tkMap, *tkMapFullIOVs;
   SiStripDetInfoFileReader* reader;
-
+ TkHistoMap* tkhisto;
 };
 #endif

@@ -13,7 +13,7 @@
 //
 // Original Author:  Domenico GIORDANO
 //         Created:  Wed Oct  3 12:11:10 CEST 2007
-// $Id: SiStripQualityStatistics.cc,v 1.9 2007/11/30 13:40:23 giordano Exp $
+// $Id: SiStripQualityStatistics.cc,v 1.10 2008/07/25 16:31:47 giordano Exp $
 //
 //
 #include "CalibTracker/Records/interface/SiStripQualityRcd.h"
@@ -36,9 +36,26 @@ SiStripQualityStatistics::SiStripQualityStatistics( const edm::ParameterSet& iCo
   dataLabel_(iConfig.getUntrackedParameter<std::string>("dataLabel","")),
   TkMapFileName_(iConfig.getUntrackedParameter<std::string>("TkMapFileName","")),
   fp_(iConfig.getUntrackedParameter<edm::FileInPath>("file",edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat"))),
-  tkMap(0)
+  tkMap(0),tkMapFullIOVs(0)
 {  
   reader = new SiStripDetInfoFileReader(fp_.fullPath());
+  tkMapFullIOVs=new TrackerMap( "BadComponents" );
+  tkhisto   =new TkHistoMap("BadComp","BadComp",-1.); //here the baseline (the value of the empty,not assigned bins) is put to -1 (default is zero)
+
+}
+
+void SiStripQualityStatistics::endJob(){
+
+  std::string filename=TkMapFileName_;
+  if (filename!=""){
+    tkMapFullIOVs->save(false,0,0,filename.c_str());
+    filename.erase(filename.begin()+filename.find("."),filename.end());
+    tkMapFullIOVs->print(false,0,0,filename.c_str());
+  
+    tkhisto->save(filename+".root");
+    tkhisto->saveAsCanvas(filename+"_Canvas.root","E");
+  }
+
 }
 
 void SiStripQualityStatistics::analyze( const edm::Event& e, const edm::EventSetup& iSetup){
@@ -140,6 +157,7 @@ void SiStripQualityStatistics::analyze( const edm::Event& e, const edm::EventSet
   //&&&&&&&&&&&&&&&&&&
   // Single Strip Info
   //&&&&&&&&&&&&&&&&&&
+  float percentage=0;
 
   SiStripQuality::RegistryIterator rbegin = SiStripQuality_->getRegistryVectorBegin();
   SiStripQuality::RegistryIterator rend   = SiStripQuality_->getRegistryVectorEnd();
@@ -165,13 +183,23 @@ void SiStripQualityStatistics::analyze( const edm::Event& e, const edm::EventSet
 
     SiStripQuality::Range sqrange = SiStripQuality::Range( SiStripQuality_->getDataVectorBegin()+rp->ibegin , SiStripQuality_->getDataVectorBegin()+rp->iend );
         
+    percentage=0;
     for(int it=0;it<sqrange.second-sqrange.first;it++){
       unsigned int range=SiStripQuality_->decode( *(sqrange.first+it) ).range;
       NTkBadComponent[3]+=range;
       NBadComponent[subdet][0][3]+=range;
       NBadComponent[subdet][component][3]+=range;
+      percentage+=range;
     }
-  }
+    if(percentage!=0)
+      percentage/=128.*reader->getNumberOfApvsAndStripLength(detid).first;
+    if(percentage>1)
+      edm::LogError("SiStripQualityStatistics") <<  "PROBLEM detid " << detid << " value " << percentage<< std::endl;
+
+    //------- Global Statistics on percentage of bad components along the IOVs ------//
+    tkMapFullIOVs->fill(detid,percentage);
+    tkhisto->fill(detid,percentage);
+}
   
  
   //&&&&&&&&&&&&&&&&&&
