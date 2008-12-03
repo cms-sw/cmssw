@@ -18,7 +18,7 @@ TtSemiLepSignalSelMVATrainer::TtSemiLepSignalSelMVATrainer(const edm::ParameterS
   jets_      (cfg.getParameter<edm::InputTag>("jets")),
   //matching_  (cfg.getParameter<edm::InputTag>("matching")),
   METs_      (cfg.getParameter<edm::InputTag>("METs")),
-  nJetsMax_  (cfg.getParameter<int>("nJetsMax")),
+  maxNJets_  (cfg.getParameter<int>("maxNJets")),
   lepChannel_(cfg.getParameter<int>("lepChannel"))
 {
 }
@@ -64,7 +64,7 @@ TtSemiLepSignalSelMVATrainer::analyze(const edm::Event& evt, const edm::EventSet
 
   if(!(leptons.size()==0)) {
 
-    TtSemiLepSignalSel selection(jets,lepton,MET,nJetsMax_);
+    TtSemiLepSignalSel selection(jets,lepton,MET,maxNJets_);
 
     if(genEvt->isSemiLeptonic() && genEvt->semiLeptonicChannel() == lepChannel_) {
       evaluateTtSemiLepSignalSel(mvaComputer, selection, true, true);
