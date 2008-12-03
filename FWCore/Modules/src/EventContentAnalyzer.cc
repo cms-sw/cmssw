@@ -12,7 +12,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Sep 19 11:47:28 CEST 2005
-// $Id: EventContentAnalyzer.cc,v 1.30 2008/11/25 22:01:46 wdd Exp $
+// $Id: EventContentAnalyzer.cc,v 1.31 2008/11/28 17:44:29 wmtan Exp $
 //
 //
 
@@ -127,13 +127,12 @@ static void printObject(const std::string& iName,
                         const Reflex::Object& iObject,
                         const std::string& iIndent,
                         const std::string& iIndentDelta) {
-   using namespace Reflex;
    std::string printName = iName;
-   Object objectToPrint = iObject;
+   Reflex::Object objectToPrint = iObject;
    std::string indent(iIndent);
    if(iObject.TypeOf().IsPointer()) {
      edm::LogAbsolute("EventContent")<<iIndent<<iName<<kNameValueSep<<formatClassName(iObject.TypeOf().Name())<<std::hex<<iObject.Address()<<std::dec;//<<"\n";
-      Type pointedType = iObject.TypeOf().ToType();
+      Reflex::Type pointedType = iObject.TypeOf().ToType();
       if(Reflex::Type::ByName("void") == pointedType ||
          pointedType.IsPointer() ||
          iObject.Address() == 0) {
@@ -155,7 +154,7 @@ static void printObject(const std::string& iName,
 
    //see if we are dealing with a typedef
    if(objectToPrint.TypeOf().IsTypedef()) {
-     objectToPrint = Object(objectToPrint.TypeOf().ToType(),objectToPrint.Address());
+     objectToPrint = Reflex::Object(objectToPrint.TypeOf().ToType(),objectToPrint.Address());
    } 
    if(printAsBuiltin(printName,objectToPrint,indent)) {
       return;
@@ -187,13 +186,12 @@ static bool printAsContainer(const std::string& iName,
                              const Reflex::Object& iObject,
                              const std::string& iIndent,
                              const std::string& iIndentDelta) {
-   using namespace Reflex;
-   Object sizeObj;
+   Reflex::Object sizeObj;
    try {
       sizeObj = iObject.Invoke("size");
       assert(sizeObj.TypeOf().TypeInfo() == typeid(size_t));
       size_t size = *reinterpret_cast<size_t*>(sizeObj.Address());
-      Member atMember;
+      Reflex::Member atMember;
       try {
          atMember = iObject.TypeOf().MemberByName("at");
       } catch(const std::exception& x) {
@@ -201,12 +199,12 @@ static bool printAsContainer(const std::string& iName,
          return false;
       }
       edm::LogAbsolute("EventContent") <<iIndent<<iName<<kNameValueSep<<"[size="<<size<<"]";//"\n";
-      Object contained;
+      Reflex::Object contained;
       std::string indexIndent=iIndent+iIndentDelta;
       for(size_t index = 0; index != size; ++index) {
          std::ostringstream sizeS;
          sizeS << "["<<index<<"]";
-         contained = atMember.Invoke(iObject, Tools::MakeVector(static_cast<void*>(&index)));
+         contained = atMember.Invoke(iObject, Reflex::Tools::MakeVector(static_cast<void*>(&index)));
          //edm::LogAbsolute("EventContent") <<"invoked 'at'"<<std::endl;
          try {
             printObject(sizeS.str(),contained,indexIndent,iIndentDelta);
