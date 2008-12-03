@@ -1,7 +1,7 @@
 #ifndef Fireworks_Core_FW3DViewManager_h
 #define Fireworks_Core_FW3DViewManager_h
 // -*- C++ -*-
-// $Id: FW3DViewManager.h,v 1.1 2008/12/01 12:27:37 dmytro Exp $
+// $Id: FW3DViewManager.h,v 1.2 2008/12/02 09:01:51 dmytro Exp $
 
 // system include files
 #include <string>
@@ -12,6 +12,7 @@
 // user include files
 #include "Fireworks/Core/interface/FWViewManagerBase.h"
 #include "Fireworks/Core/interface/FWEveValueScaler.h"
+#include "Fireworks/Core/interface/FWEvePtr.h"
 
 // forward declarations
 class TList;
@@ -24,6 +25,7 @@ class FWViewBase;
 class TEveElementList;
 class TEveSelection;
 class FWSelectionManager;
+class TEveCaloDataHist;
 
 class FW3DViewManager : public FWViewManagerBase
 {
@@ -65,7 +67,8 @@ class FW3DViewManager : public FWViewManagerBase
       std::vector<boost::shared_ptr<FW3DDataProxyBuilder> > m_builders;
 
       std::vector<boost::shared_ptr<FW3DView> > m_views;
-      TEveElementList m_elements;
+      FWEvePtr<TEveElementList> m_elements;
+      TEveCaloDataHist* m_caloData;
 
       TEveSelection* m_eveSelection;
       FWSelectionManager* m_selectionManager;

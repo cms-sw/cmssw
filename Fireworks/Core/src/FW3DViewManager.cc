@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 22:01:27 EST 2008
-// $Id: FW3DViewManager.cc,v 1.1 2008/12/01 12:27:37 dmytro Exp $
+// $Id: FW3DViewManager.cc,v 1.2 2008/12/02 09:01:51 dmytro Exp $
 //
 
 // system include files
@@ -54,7 +54,8 @@
 //
 FW3DViewManager::FW3DViewManager(FWGUIManager* iGUIMgr):
 FWViewManagerBase(),
-  m_elements("3D"),
+  m_elements( new TEveElementList("3D")),
+  m_caloData(0),
   m_eveSelection(0),
   m_selectionManager(0)
 {
@@ -109,7 +110,7 @@ FWViewBase*
 FW3DViewManager::buildView(TGFrame* iParent)
 {
    TEveManager::TRedrawDisabler disableRedraw(gEve);
-   boost::shared_ptr<FW3DView> view( new FW3DView(iParent, &m_elements) );
+   boost::shared_ptr<FW3DView> view( new FW3DView(iParent, m_elements.get()) );
    m_views.push_back(view);
    //? pView->resetCamera();
    if(1 == m_views.size()) {
@@ -164,7 +165,8 @@ FW3DViewManager::makeProxyBuilderFor(const FWEventItem* iItem)
 	     boost::shared_ptr<FW3DDataProxyBuilder> pB( builder );
 	     builder->setItem(iItem);
              builder->setHaveAWindow(!m_views.empty());
-             m_elements.AddElement(builder->usedInScene());
+             builder->addToScene(*m_elements,&m_caloData);
+             //m_elements.AddElement(builder->usedInScene());
              m_builders.push_back(pB);
 	  }
        }
