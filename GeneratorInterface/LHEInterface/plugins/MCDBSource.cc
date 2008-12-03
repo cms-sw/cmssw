@@ -57,7 +57,8 @@ static std::pair<std::vector<std::string>, unsigned int>
 							"supportedProtocols");
 
 	boost::regex filter(params.getUntrackedParameter<std::string>(
-							"filter", "\\.lhe$"),
+							"filter", "\\.lhef?$"),
+	                    boost::regex_constants::normal |
 	                    boost::regex_constants::icase);
 
 	unsigned int firstEvent =
@@ -67,7 +68,6 @@ static std::pair<std::vector<std::string>, unsigned int>
 	for(std::vector<mcdb::File>::iterator file = article.files().begin();
 	    file != article.files().end(); ++file) {
 		std::string fileURL;
-
 		for(std::vector<std::string>::const_iterator prot =
 						supportedProtocols.begin();
 		    prot != supportedProtocols.end(); ++prot) {
@@ -90,7 +90,7 @@ static std::pair<std::vector<std::string>, unsigned int>
 				   " supported protocols for at least one"
 				   " file." << std::endl;
 
-		if (!boost::regex_match(fileURL, filter))
+		if (!boost::regex_search(fileURL, filter))
 			continue;
 
 		int nEvents = file->eventsNumber();
