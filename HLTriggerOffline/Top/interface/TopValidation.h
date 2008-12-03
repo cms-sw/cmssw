@@ -30,7 +30,13 @@
 #include "DataFormats/METReco/interface/GenMET.h"
 #include "DataFormats/METReco/interface/GenMETCollection.h" 
 
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+//#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+
+#include <DataFormats/HepMCCandidate/interface/GenParticle.h>
+#include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
+
+
 
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "RecoVertex/PrimaryVertexProducer/interface/PrimaryVertexSorter.h"

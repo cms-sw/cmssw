@@ -13,12 +13,14 @@
 //
 // Original Author:  Patricia LOBELLE PARDO ()
 //         Created:  Tue Sep 23 11:06:32 CEST 2008
-// $Id$
+// $Id: TopValidation.cc,v 1.1 2008/11/20 11:20:36 lobelle Exp $
 //
 //
 
 
 # include "HLTriggerOffline/Top/interface/TopValidation.h"
+
+
 
 
 TopValidation::TopValidation(const edm::ParameterSet& iConfig)
@@ -169,33 +171,31 @@ TopValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   int nelaccept=0;
  
   // Gen Particles Collection
-  edm::Handle<edm::HepMCProduct > EvtHandle ;
-  iEvent.getByLabel( "source", EvtHandle ) ;
+  Handle <GenParticleCollection> genParticles;
+   iEvent.getByLabel("genParticles", genParticles);
   
-   const HepMC::GenEvent* myGenEvent = EvtHandle->GetEvent() ;
-  HepMC::GenEvent::particle_const_iterator p;
-  for (p = myGenEvent->particles_begin(); p != myGenEvent->particles_end(); p++) {
+   for (size_t i=0; i < genParticles->size(); ++i){
+    const Candidate & p = (*genParticles)[i];
+    int id = p.pdgId();
+    int st = p.status();
  
-    int id = (*p)->pdg_id();
-    int st = (*p)->status();
     
     if (abs(id) == 6 && st == 3) ntop++;
    
     if (st==3 && abs(id)==11) {
       ngenel++;
-       if ( (*p)->momentum().perp()>10 && fabs((*p)->momentum().eta())<2.4)   nelaccept++;
+       if ( p.pt()>10 && fabs(p.eta())<2.4)   nelaccept++;
     }
     
     if (st==3 && abs(id)==13) {
       ngenmu++;      
-      if ( (*p)->momentum().perp()>10 && fabs((*p)->momentum().eta())<2.4)    nmuaccept++;     
+      if ( p.pt()>10 && fabs(p.eta())<2.4)    nmuaccept++;     
     }
     
     if (st==3 && abs(id)==15)  ngentau++;
     if (st==3 && ( abs(id)==11 || abs(id)==13 || abs(id)==15)) ngenlep++;
     
   }
-  
   if (ntop == 2) topevent = true; 
   
   nEvents++;
