@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Mar 30 15:48:37 EST 2006
-// $Id: GenericHandle.cc,v 1.10 2008/11/21 23:39:50 wmtan Exp $
+// $Id: GenericHandle.cc,v 1.11 2008/11/28 17:44:29 wmtan Exp $
 //
 
 // system include files
@@ -20,7 +20,6 @@ namespace edm {
 void convert_handle(BasicHandle const& orig,
                     Handle<GenericObject>& result)
 {
-  using namespace Reflex;
   if(orig.failedToGet()) {
     result.setWhyFailed(orig.whyFailed());
     return;
@@ -32,13 +31,13 @@ void convert_handle(BasicHandle const& orig,
   
   //Since a pointer to an EDProduct is not necessarily the same as a pointer to the actual type
   // (compilers are allowed to offset the two) we must get our object via a two step process
-  Object edproductObject(Type::ByTypeInfo(typeid(EDProduct)), const_cast<EDProduct*>(originalWrap));
-  assert(edproductObject != Object());
+  Reflex::Object edproductObject(Reflex::Type::ByTypeInfo(typeid(EDProduct)), const_cast<EDProduct*>(originalWrap));
+  assert(edproductObject != Reflex::Object());
   
-  Object wrap(edproductObject.CastObject(edproductObject.DynamicType()));
-  assert(wrap != Object());
+  Reflex::Object wrap(edproductObject.CastObject(edproductObject.DynamicType()));
+  assert(wrap != Reflex::Object());
   
-  Object product(wrap.Get("obj"));
+  Reflex::Object product(wrap.Get("obj"));
   if(!product){
     throw edm::Exception(edm::errors::LogicError)<<"GenericObject could not find 'obj' member";
   }
@@ -46,7 +45,7 @@ void convert_handle(BasicHandle const& orig,
     //For a 'Reflex::Typedef' the 'ToType' method returns the actual type
     // this is needed since you are now allowed to 'invoke' methods of a 'Typedef'
     // only for a 'real' class
-    product = Object(product.TypeOf().ToType(), product.Address());
+    product = Reflex::Object(product.TypeOf().ToType(), product.Address());
     assert(!product.TypeOf().IsTypedef());
   }
   //NOTE: comparing on type doesn't seem to always work! The problem appears to be if we have a typedef
