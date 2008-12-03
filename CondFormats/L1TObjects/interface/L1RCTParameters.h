@@ -80,10 +80,10 @@ class L1RCTParameters {
   bool noiseVetoHB() const {return noiseVetoHB_;}
   bool noiseVetoHEplus() const {return noiseVetoHEplus_;}
   bool noiseVetoHEminus() const {return noiseVetoHEminus_;}
-  std::vector<double> eGammaECalScaleFactors() const {return eGammaECalScaleFactors_;}
-  std::vector<double> eGammaHCalScaleFactors() const {return eGammaHCalScaleFactors_;}
-  std::vector<double> jetMETECalScaleFactors() const {return jetMETECalScaleFactors_;}
-  std::vector<double> jetMETHCalScaleFactors() const {return jetMETHCalScaleFactors_;}
+  const std::vector<double>& eGammaECalScaleFactors() const {return eGammaECalScaleFactors_;}
+  const std::vector<double>& eGammaHCalScaleFactors() const {return eGammaHCalScaleFactors_;}
+  const std::vector<double>& jetMETECalScaleFactors() const {return jetMETECalScaleFactors_;}
+  const std::vector<double>& jetMETHCalScaleFactors() const {return jetMETHCalScaleFactors_;}
 
   // Helper methods to convert from trigger tower (iphi, ieta) 
   // to RCT (crate, card, tower)
