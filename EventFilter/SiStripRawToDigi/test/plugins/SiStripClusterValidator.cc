@@ -1,4 +1,4 @@
-#include "RecoLocalTracker/SiStripClusterizer/test/plugins/SiStripClusterValidator.h"
+#include "EventFilter/SiStripRawToDigi/test/plugins/SiStripClusterValidator.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Common/interface/Handle.h"
 
