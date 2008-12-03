@@ -4,6 +4,7 @@
 #include "DataFormats/DTRecHit/interface/DTRecSegment2D.h"
 #include "DataFormats/DTRecHit/interface/DTSLRecCluster.h"
 #include "DataFormats/DTRecHit/interface/DTSLRecSegment2D.h"
+#include "DataFormats/DTRecHit/interface/DTSLRecCluster.h"
 #include "DataFormats/DTRecHit/interface/DTRecClusterCollection.h"
 #include "DataFormats/DTRecHit/interface/DTChamberRecSegment2D.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment2DCollection.h"
@@ -25,9 +26,6 @@ namespace{
     DTRecHit1DPair p;
     DTRecHitCollection c;
     edm::Wrapper<DTRecHitCollection> w;
-
-namespace{ 
-  namespace {
     DTRecHit1DPair hhh;
     std::vector<DTRecHit1DPair>  vhhh;
     LocalPoint lpp;
@@ -38,10 +36,7 @@ namespace{
     DTRecClusterCollection dc;
 
     edm::Wrapper<DTRecClusterCollection> dwc;
-  }
-}
-namespace{ 
-  namespace {
+
     DTRecHit1D hh;
     std::vector<DTRecHit1D>  vhh;
     LocalPoint lp;
