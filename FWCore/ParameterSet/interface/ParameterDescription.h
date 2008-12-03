@@ -16,10 +16,11 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Aug  2 15:33:46 EDT 2007
-// $Id: ParameterDescription.h,v 1.3 2008/11/14 19:41:22 wdd Exp $
+// $Id: ParameterDescription.h,v 1.4 2008/11/18 15:10:39 wdd Exp $
 //
 
-#include <boost/shared_ptr.hpp>
+#include "FWCore/Utilities/interface/value_ptr.h"
+
 #include <string>
 #include <vector>
 
@@ -69,54 +70,46 @@ namespace edm {
   public:
     virtual ~ParameterDescription();
 
-    void validate(const ParameterSet& pset) const;
+    virtual void validate(ParameterSet const& pset) const = 0;
 
-    const std::string& label() const { return label_; }
+    std::string const& label() const { return label_; }
     ParameterTypes type() const { return type_; }
     bool isTracked() const { return isTracked_; }
-    bool optional() const { return optional_; }
+    bool isOptional() const { return isOptional_; }
 
-    // Need to define something like this that returns the value in a
-    // string although we probably want to format the string in python
-    // for use in python configurations
-    // void defaultValue(std::string& value) const { defaultValue_(value); }
+    virtual ParameterSetDescription const* parameterSetDescription() const { return 0; }
+    virtual ParameterSetDescription * parameterSetDescription() { return 0; }
 
-    boost::shared_ptr<ParameterSetDescription> parameterSetDescription()
-      { return parameterSetDescription_; }
-
-    boost::shared_ptr<std::vector<ParameterSetDescription> > parameterSetDescriptions()
-      { return parameterSetDescriptions_; }
-
-    void setParameterSetDescription(boost::shared_ptr<ParameterSetDescription> const& value)
-      { parameterSetDescription_ = value; }
-
-    void setParameterSetDescriptions(boost::shared_ptr<std::vector<ParameterSetDescription> > const& value)
-      { parameterSetDescriptions_ = value; }
+    virtual std::vector<ParameterSetDescription> const* parameterSetDescriptions() const { return 0; }
+    virtual std::vector<ParameterSetDescription> * parameterSetDescriptions() { return 0; }
 
     void throwParameterNotDefined() const;
 
+    virtual ParameterDescription* clone() const = 0;
+
   protected:
-    ParameterDescription(const std::string& iLabel,
+    ParameterDescription(std::string const& iLabel,
+                         ParameterTypes iType,
                          bool isTracked,
-                         bool optional,
-                         ParameterTypes iType);
+                         bool isOptional
+                         );
 
+    ParameterDescription(char const* iLabel,
+                         ParameterTypes iType,
+                         bool isTracked,
+                         bool isOptional
+                         );
   private:
-    ParameterDescription(const ParameterDescription&); // stop default
-    const ParameterDescription& operator=(const ParameterDescription&); // stop default
-
-    virtual void validate_(const ParameterSet& pset, bool & exists) const = 0;
-    void validateParameterSetDescription(const ParameterSet& pset) const;
-    void validateParameterSetDescriptions(const ParameterSet& pset) const;
-    // virtual void defaultValue_(std::string& value) const = 0;
-
     std::string label_;
     ParameterTypes type_;
     bool isTracked_;
-    bool optional_;
+    bool isOptional_;
+  };
 
-    boost::shared_ptr<ParameterSetDescription> parameterSetDescription_;
-    boost::shared_ptr<std::vector<ParameterSetDescription> > parameterSetDescriptions_;
+  template <> 
+  struct value_ptr_traits<ParameterDescription>  
+  {
+    static ParameterDescription * clone( ParameterDescription const * p ) { return p->clone(); }
   };
 }
 #endif

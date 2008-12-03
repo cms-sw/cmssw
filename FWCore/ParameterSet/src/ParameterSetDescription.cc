@@ -8,10 +8,15 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Jul 31 15:30:35 EDT 2007
-// $Id: ParameterSetDescription.cc,v 1.5 2008/11/18 15:10:39 wdd Exp $
+// $Id: ParameterSetDescription.cc,v 1.6 2008/11/18 18:50:20 wdd Exp $
 //
 
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/Entry.h"
+#include "FWCore/Utilities/interface/Algorithms.h"
+
+#include "boost/bind.hpp"
 
 namespace edm {
 
@@ -36,86 +41,77 @@ namespace edm {
   }
 
   void
-  ParameterSetDescription::validate(const edm::ParameterSet& pset) const
+  ParameterSetDescription::validate(ParameterSet const& pset) const
   {
     if (unknown_ || anythingAllowed()) return;
 
-    for (parameter_const_iterator pdesc = parameter_begin(),
-                                  pend = parameter_end();
-         pdesc != pend;
-         ++pdesc) {
-      (*pdesc)->validate(pset);
-    }
+    for_all(parameters_,
+            boost::bind(&ParameterSetDescription::validateDescription, _1, boost::cref(pset)));
 
-    std::vector<std::string> psetNames = pset.getParameterNames();
-    for (std::vector<std::string>::const_iterator iter = psetNames.begin(),
-	                                          iEnd = psetNames.end();
-         iter != iEnd;
-         ++iter) {
-      if (*iter == std::string("@module_label") ||
-          *iter == std::string("@module_type")) continue;
+    std::vector<std::string> parameterNames = pset.getParameterNames();
+    for_all(parameterNames,
+            boost::bind(&ParameterSetDescription::validateName, boost::cref(this), _1, boost::cref(pset)));
+  }
 
-      std::string const& parameterName = *iter;
+  void ParameterSetDescription::
+  validateDescription(value_ptr<ParameterDescription> const& description,
+                      ParameterSet const& pset) {
+    description->validate(pset);
+  }
 
-      bool foundMatchingParameter = false;
-      for (parameter_const_iterator pdesc = parameter_begin(),
-                                    pend = parameter_end();
-           pdesc != pend;
-           ++pdesc) {
-        if (parameterName == (*pdesc)->label()) {
-          Entry const* entry = pset.retrieveUnknown(parameterName);
-          if (entry->typeCode() == (*pdesc)->type() &&
-              entry->isTracked() == (*pdesc)->isTracked()) {
-            foundMatchingParameter = true;
-          }
-        }
-      }
-      if (!foundMatchingParameter) {
-        // prepare an error message and throw
-        Entry const* entry = pset.retrieveUnknown(parameterName);
+  void
+  ParameterSetDescription::validateName(std::string const& parameterName,
+                                        ParameterSet const& pset) const {
 
-        std::string tr;
-        if (entry->isTracked()) tr = std::string("as a tracked");
-        else tr = std::string("as an untracked");
+    if (parameterName == std::string("@module_label") ||
+        parameterName == std::string("@module_type")) return;
 
-        ParameterTypes type = static_cast<ParameterTypes>(entry->typeCode());
-        
+    bool foundMatch = false;
 
-        throw edm::Exception(errors::Configuration)
-          << "Illegal parameter found in configuration.  It is named \"" 
-          << parameterName << "\"\n"
-          << "and defined " << tr 
-          << " " << parameterTypeEnumToString(type) << ".\n"
-          << "You could be trying to use a parameter name that is not\n"
-          << "allowed for this module.  Or it could be mispelled, of\n"
-          << "the wrong type, or incorrectly declared tracked or untracked.\n";
+    for_all(parameters_,
+            boost::bind(&ParameterSetDescription::match,
+                        _1,
+                        boost::cref(parameterName),
+                        boost::cref(pset),
+                        boost::ref(foundMatch)));
+
+    if (!foundMatch) throwIllegalParameter(parameterName, pset);
+  }
+
+  void ParameterSetDescription::
+  match(value_ptr<ParameterDescription> const& description,
+        std::string const& parameterName,
+        ParameterSet const& pset,
+        bool & foundMatch) {
+
+    if (parameterName == description->label()) {
+      Entry const* entry = pset.retrieveUnknown(parameterName);
+      if (entry->typeCode() == description->type() &&
+          entry->isTracked() == description->isTracked()) {
+         foundMatch = true;
       }
     }
   }
 
-  template<>
-  boost::shared_ptr<ParameterDescription>
-  ParameterSetDescription::add<ParameterSetDescription>(const std::string& iLabel,
-                                                        ParameterSetDescription const& value,
-                                                        bool isTracked,
-                                                        bool optional) {
-    boost::shared_ptr<ParameterDescription> ptr(new ParameterDescriptionTemplate<ParameterSet>(iLabel, isTracked, optional, ParameterSet()));
-    boost::shared_ptr<ParameterSetDescription> copyOfSet(new ParameterSetDescription(value));
-    ptr->setParameterSetDescription(copyOfSet);
-    parameters_.push_back(ptr);
-    return ptr;
-  }
+  void
+  ParameterSetDescription::throwIllegalParameter(std::string const& parameterName,
+                                                 ParameterSet const& pset) {
+    // prepare an error message and throw
+    Entry const* entry = pset.retrieveUnknown(parameterName);
 
-  template<>
-  boost::shared_ptr<ParameterDescription>
-  ParameterSetDescription::add<std::vector<ParameterSetDescription> >(const std::string& iLabel,
-                                                                      std::vector<ParameterSetDescription> const& value,
-                                                                      bool isTracked,
-                                                                      bool optional) {
-    boost::shared_ptr<ParameterDescription> ptr(new ParameterDescriptionTemplate<std::vector<ParameterSet> >(iLabel, isTracked, optional, std::vector<ParameterSet>()));
-    boost::shared_ptr<std::vector<ParameterSetDescription> > copyOfSet(new std::vector<ParameterSetDescription>(value));
-    ptr->setParameterSetDescriptions(copyOfSet);
-    parameters_.push_back(ptr);
-    return ptr;
+    std::string tr;
+    if (entry->isTracked()) tr = std::string("as a tracked");
+    else tr = std::string("as an untracked");
+
+    ParameterTypes type = static_cast<ParameterTypes>(entry->typeCode());
+
+    throw edm::Exception(errors::Configuration)
+      << "Illegal parameter found in configuration.  It is named \"" 
+      << parameterName << "\"\n"
+      << "and defined " << tr 
+      << " " << parameterTypeEnumToString(type) << ".\n"
+      << "You could be trying to use a parameter name that is not\n"
+      << "allowed for this module.  Or it could be mispelled, of\n"
+      << "the wrong type, or incorrectly declared tracked or untracked.\n";
   }
 }

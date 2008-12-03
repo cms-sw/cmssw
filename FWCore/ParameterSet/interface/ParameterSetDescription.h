@@ -16,23 +16,26 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Jul 31 15:18:40 EDT 2007
-// $Id: ParameterSetDescription.h,v 1.2 2008/11/14 19:41:22 wdd Exp $
+// $Id: ParameterSetDescription.h,v 1.3 2008/11/18 15:10:39 wdd Exp $
 //
 
-#include "FWCore/ParameterSet/interface/ParameterDescriptionTemplate.h"
+#include "FWCore/ParameterSet/interface/ParameterDescription.h"
+#include "FWCore/Utilities/interface/value_ptr.h"
 
-#include <boost/shared_ptr.hpp>
 #include <vector>
-
-#include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
+#include <string>
+#include <memory>
 
 namespace edm {
+
+  class ParameterSet;
+  // template <typename T> class ParameterDescriptionTemplate;
 
   class ParameterSetDescription
   {
 
   public:
-    typedef std::vector<boost::shared_ptr<ParameterDescription> > Parameters;
+    typedef std::vector<edm::value_ptr<ParameterDescription> > Parameters;
     typedef Parameters::const_iterator parameter_const_iterator;
         
     ParameterSetDescription();
@@ -44,29 +47,50 @@ namespace edm {
     // This is set only for parameterizables which have not set their descriptions.
     // This should only be called to allow backwards compatibility.
     void setUnknown();
-      
+
     template<class T>
-    boost::shared_ptr<ParameterDescription> add(const std::string& iLabel, T const& value) {
+    ParameterDescription* add(std::string const& iLabel, T const& value) {
       return add(iLabel, value, true, false);
     }
 
     template<class T>
-    boost::shared_ptr<ParameterDescription> addUntracked(const std::string& iLabel, T const& value) {
+    ParameterDescription* addUntracked(std::string const& iLabel, T const& value) {
       return add(iLabel, value, false, false);
     }
 
     template<class T>
-    boost::shared_ptr<ParameterDescription> addOptional(const std::string& iLabel, T const& value) {
+    ParameterDescription* addOptional(std::string const& iLabel, T const& value) {
       return add(iLabel, value, true, true);
     }
 
     template<class T>
-    boost::shared_ptr<ParameterDescription> addOptionalUntracked(const std::string& iLabel, T const& value) {
+    ParameterDescription* addOptionalUntracked(std::string const& iLabel, T const& value) {
+      return add(iLabel, value, false, true);
+    }
+
+    // Duplicate the 4 functions above with a char const* argument instead of a string
+    template<class T>
+    ParameterDescription* add(char const* iLabel, T const& value) {
+      return add(iLabel, value, true, false);
+    }
+
+    template<class T>
+    ParameterDescription* addUntracked(char const* iLabel, T const& value) {
+      return add(iLabel, value, false, false);
+    }
+
+    template<class T>
+    ParameterDescription* addOptional(char const* iLabel, T const& value) {
+      return add(iLabel, value, true, true);
+    }
+
+    template<class T>
+    ParameterDescription* addOptionalUntracked(char const* iLabel, T const& value) {
       return add(iLabel, value, false, true);
     }
 
     //Throws a cms::Exception if invalid
-    void validate(const edm::ParameterSet& ) const;
+    void validate(ParameterSet const& pset) const;
 
     bool anythingAllowed() const { return anythingAllowed_; }
     bool isUnknown() const { return unknown_; }
@@ -82,28 +106,67 @@ namespace edm {
   private:
 
     template<class T>
-    boost::shared_ptr<ParameterDescription> add(const std::string& iLabel, T const& value, bool isTracked, bool optional) {
-      boost::shared_ptr<ParameterDescription> ptr(new ParameterDescriptionTemplate<T>(iLabel, isTracked, optional, value));
-      parameters_.push_back(ptr);
-      return ptr;
-    }
+    ParameterDescription* add(std::string const& iLabel, T const& value, bool isTracked, bool isOptional);
+
+    template<class T>
+    ParameterDescription* add(char const*        iLabel, T const& value, bool isTracked, bool isOptional);
+
+
+    static void
+    validateDescription(value_ptr<ParameterDescription> const& description,
+                        ParameterSet const& pset);
+
+    void
+    validateName(std::string const& parameterName,
+                 ParameterSet const& pset) const;
+
+    static void
+    match(value_ptr<ParameterDescription> const& description,
+          std::string const& parameterName,
+          ParameterSet const& pset,
+          bool & foundMatch);
+
+    static void
+    throwIllegalParameter(std::string const& parameterName,
+                          ParameterSet const& pset);
 
     bool anythingAllowed_;
     bool unknown_;
     Parameters parameters_;
   };
-
-  template<>
-  boost::shared_ptr<ParameterDescription>
-  ParameterSetDescription::add<ParameterSetDescription>(const std::string& iLabel,
-                                                        ParameterSetDescription const& value,
-                                                        bool isTracked,
-                                                        bool optional);
-  template<>
-  boost::shared_ptr<ParameterDescription>
-  ParameterSetDescription::add<std::vector<ParameterSetDescription> >(const std::string& iLabel,
-                                                                      std::vector<ParameterSetDescription> const& value,
-                                                                      bool isTracked,
-                                                                      bool optional);
 }
+
+#include "FWCore/ParameterSet/interface/ParameterDescriptionTemplate.h"
+
+namespace edm {
+
+  template<class T>
+  ParameterDescription*
+  ParameterSetDescription::
+  add(std::string const& iLabel, T const& value, bool isTracked, bool isOptional) {
+
+    std::auto_ptr<ParameterDescription> ptr(new ParameterDescriptionTemplate<T>(iLabel, isTracked, isOptional, value));
+
+    edm::value_ptr<ParameterDescription> vptr;
+    parameters_.push_back(vptr);
+    parameters_.back() = ptr;
+
+    return parameters_.back().operator->();
+  }
+
+  template<class T>
+  ParameterDescription*
+  ParameterSetDescription::
+  add(char const* iLabel, T const& value, bool isTracked, bool isOptional) {
+
+    std::auto_ptr<ParameterDescription> ptr(new ParameterDescriptionTemplate<T>(iLabel, isTracked, isOptional, value));
+
+    edm::value_ptr<ParameterDescription> vptr;
+    parameters_.push_back(vptr);
+    parameters_.back() = ptr;
+
+    return parameters_.back().operator->();
+  }
+}
+
 #endif

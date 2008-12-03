@@ -1,3 +1,10 @@
+
+// It is unusual to put this include before the header guard,
+// but it guarantees the headers are included in the proper order.
+// ParameterSetDescription.h must be included before 
+// ParameterDescriptionTemplate.h
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+
 #ifndef FWCore_ParameterSet_ParameterDescriptionTemplate_h
 #define FWCore_ParameterSet_ParameterDescriptionTemplate_h
 // -*- C++ -*-
@@ -16,54 +23,129 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Aug  2 15:33:51 EDT 2007
-// $Id: ParameterDescriptionTemplate.h,v 1.2 2008/11/14 19:41:22 wdd Exp $
+// $Id: ParameterDescriptionTemplate.h,v 1.3 2008/11/18 15:10:39 wdd Exp $
 //
 
 #include "FWCore/ParameterSet/interface/ParameterDescription.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-// #include "FWCore/ParameterSet/interface/types.h"
 
 #include <string>
+#include <vector>
 
 namespace edm {
+
+  class ParameterSetDescription;
 
   template<class T>
   class ParameterDescriptionTemplate : public ParameterDescription {
   public:
 
-    ParameterDescriptionTemplate(const std::string& iLabel,
+    ParameterDescriptionTemplate(std::string const& iLabel,
                                  bool isTracked,
-                                 bool optional,
+                                 bool isOptional,
                                  T const& value):
-      
-      ParameterDescription(iLabel, isTracked, optional, ParameterTypeToEnum::toEnum<T>()),
+      ParameterDescription(iLabel, ParameterTypeToEnum::toEnum<T>(), isTracked, isOptional),
       value_(value) {
     }
 
-  private:
-    ParameterDescriptionTemplate(const ParameterDescriptionTemplate&); // stop default
-    const ParameterDescriptionTemplate& operator=(const ParameterDescriptionTemplate&); // stop default
+    ParameterDescriptionTemplate(char const* iLabel,
+                                 bool isTracked,
+                                 bool isOptional,
+                                 T const& value):
+      ParameterDescription(iLabel, ParameterTypeToEnum::toEnum<T>(), isTracked, isOptional),
+      value_(value) {
+    }
 
-    virtual void validate_(const ParameterSet& pset, bool & exists) const {
+    virtual ~ParameterDescriptionTemplate() { }
 
-      exists = pset.existsAs<T>(label(), isTracked());
+    virtual void validate(ParameterSet const& pset) const {
+
+      bool exists = pset.existsAs<T>(label(), isTracked());
 
       // See if pset has a parameter matching this ParameterDescription
       // In the future, the current plan is to have this insert missing
       // parameters into the ParameterSet with the correct default value.
       // Cannot do that until we get a non const ParameterSet passed in.
-      if (!optional() && !exists) throwParameterNotDefined();
+      if (!isOptional() && !exists) throwParameterNotDefined();
     }
 
-    // virtual void defaultValue_(std::string& value) const {
-    //   edm::encode(value, value_);
-    // }
+    virtual ParameterDescription* clone() const {
+      return new ParameterDescriptionTemplate(*this);
+    }
+
+  private:
 
     // This holds the default value of the parameter, except
     // when the parameter is another ParameterSet or vector<ParameterSet>.
-    // In those cases it just holds a default constructed ParameterSet or
-    // empty vector which serves no purpose.
+    // In those cases it holds the nested ParameterSetDescription or
+    // vector<ParameterSetDescription>
     T value_;
+  };
+
+  template<>
+  class ParameterDescriptionTemplate<ParameterSetDescription> : public ParameterDescription {
+
+  public:
+
+    ParameterDescriptionTemplate(std::string const& iLabel,
+                                 bool isTracked,
+                                 bool isOptional,
+                                 ParameterSetDescription const& value);
+
+    ParameterDescriptionTemplate(char const* iLabel,
+                                 bool isTracked,
+                                 bool isOptional,
+                                 ParameterSetDescription const& value);
+
+    virtual ~ParameterDescriptionTemplate();
+
+    virtual void validate(ParameterSet const& pset) const;
+
+    virtual ParameterSetDescription const* parameterSetDescription() const;
+    virtual ParameterSetDescription * parameterSetDescription();
+
+    virtual ParameterDescription* clone() const {
+      return new ParameterDescriptionTemplate(*this);
+    }
+
+  private:
+    ParameterSetDescription psetDesc_;
+  };
+
+  template<>
+  class ParameterDescriptionTemplate<std::vector<ParameterSetDescription> > : public ParameterDescription {
+
+  public:
+
+    ParameterDescriptionTemplate(std::string const& iLabel,
+                                 bool isTracked,
+                                 bool isOptional,
+                                 std::vector<ParameterSetDescription> const& vPsetDesc);
+
+    ParameterDescriptionTemplate(char const* iLabel,
+                                 bool isTracked,
+                                 bool isOptional,
+                                 std::vector<ParameterSetDescription> const& vPsetDesc);
+
+    virtual ~ParameterDescriptionTemplate();
+
+    virtual void validate(ParameterSet const& pset) const;
+
+    virtual std::vector<ParameterSetDescription> const* parameterSetDescriptions() const;
+    virtual std::vector<ParameterSetDescription> * parameterSetDescriptions();
+
+    virtual ParameterDescription* clone() const {
+      return new ParameterDescriptionTemplate(*this);
+    }
+
+  private:
+
+    void
+    validateDescription(ParameterSetDescription const& psetDescription,
+                        ParameterSet const& pset,
+                        int & i) const;
+
+    std::vector<ParameterSetDescription> vPsetDesc_;
   };
 }
 #endif

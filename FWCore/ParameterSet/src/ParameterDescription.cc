@@ -8,14 +8,14 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Aug  2 15:35:43 EDT 2007
-// $Id: ParameterDescription.cc,v 1.3 2008/11/14 19:41:23 wdd Exp $
+// $Id: ParameterDescription.cc,v 1.4 2008/11/18 15:10:39 wdd Exp $
 //
 
 #include "FWCore/ParameterSet/interface/ParameterDescription.h"
-#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
 #include <boost/cstdint.hpp>
+#include <cassert>
 
 #define TYPE_TO_ENUM(type,e_val) template<> ParameterTypes ParameterTypeToEnum::toEnum<type >(){ return e_val; }
 #define TYPE_TO_NAME(type) case k_ ## type: return #type
@@ -82,79 +82,35 @@ namespace edm {
     return "";
   }
 
-  ParameterDescription::ParameterDescription(const std::string& iLabel,
+  ParameterDescription::ParameterDescription(std::string const& iLabel,
+                                             ParameterTypes iType,
                                              bool isTracked,
-                                             bool optional,
-                                             ParameterTypes iType)
-  :label_(iLabel),
-   type_(iType),
-   isTracked_(isTracked),
-   optional_(optional),
-   parameterSetDescription_(),
-   parameterSetDescriptions_()
-  {
-    if (type() == k_PSet) {
-      parameterSetDescription_.reset(new ParameterSetDescription);
-    }
-    else if (type() == k_VPSet) {
-      parameterSetDescriptions_.reset(new std::vector<ParameterSetDescription>);
-    }
-  }
+                                             bool isOptional)
+    :label_(iLabel),
+     type_(iType),
+     isTracked_(isTracked),
+     isOptional_(isOptional)
+  { }
+
+  ParameterDescription::ParameterDescription(char const* iLabel,
+                                             ParameterTypes iType,
+                                             bool isTracked,
+                                             bool isOptional)
+    :label_(iLabel),
+     type_(iType),
+     isTracked_(isTracked),
+     isOptional_(isOptional)
+  { }
 
   ParameterDescription::~ParameterDescription() { }
 
   void
-  ParameterDescription::validate(const ParameterSet& pset) const {
-
-    bool exists;
-    validate_(pset, exists);
-
-    if (exists && type() == k_PSet) {
-      validateParameterSetDescription(pset);
-    }
-    else if (exists && type() == k_VPSet) {
-      validateParameterSetDescriptions(pset);
-    }
-  }
-
-  void
-  ParameterDescription::validateParameterSetDescription(const ParameterSet& pset) const {
-    ParameterSet containedPSet;
-    if (isTracked()) {
-      containedPSet = pset.getParameter<ParameterSet>(label());
-    }
-    else {
-      containedPSet = pset.getUntrackedParameter<ParameterSet>(label());
-    }
-    parameterSetDescription_->validate(containedPSet);
-  }
-
-  void
-  ParameterDescription::validateParameterSetDescriptions(const ParameterSet& pset) const {
-
-    std::vector<ParameterSet> containedPSets;
-    if (isTracked()) {
-      containedPSets = pset.getParameter<std::vector<ParameterSet> >(label());
-    }
-    else {
-      containedPSets = pset.getUntrackedParameter<std::vector<ParameterSet> >(label());
-    }
-    if (containedPSets.size() != parameterSetDescriptions_->size()) {
-      throw edm::Exception(errors::Configuration)
-        << "Unexpected number of ParameterSets in vector of parameter sets named \"" << label() << "\".";
-    }
-    int i = 0;
-    for (std::vector<ParameterSetDescription>::const_iterator iter = parameterSetDescriptions_->begin(),
-	                                                      iEnd = parameterSetDescriptions_->end();
-         iter != iEnd;
-         ++iter, ++i) {
-      iter->validate(containedPSets[i]);
-    }
-  }
-
-  void
   ParameterDescription::throwParameterNotDefined() const {
+    std::string tr("an untracked");
+    if (isTracked()) tr = "a tracked";
+
     throw edm::Exception(errors::Configuration)
-      << "Parameter \"" << label() << "\" not defined.";
+      << "Required parameter \"" << label() << "\" not defined "
+      "as " << tr << " " << parameterTypeEnumToString(type()) << ".";
   }
 }

@@ -96,21 +96,31 @@ namespace edmtest {
       iDesc.setAllowAnything();
 
       iDesc.add<int>("ivalue", 1);
-      iDesc.addOptional<int>("evalue", 7);
+      iDesc.addUntracked<int>("uvalue", 7);
+      iDesc.addOptional<int>("ovalue", 7);
+      iDesc.addOptionalUntracked<int>("ouvalue", 7);
 
       //add a ParameterSet
       edm::ParameterSetDescription bar;
-      bar.add<unsigned int>("nDrinks",5);
+      bar.add<unsigned int>("Drinks",5);
+      bar.addUntracked<unsigned int>("uDrinks",5);
+      bar.addOptional<unsigned int>("oDrinks",5);
+      bar.addOptionalUntracked<unsigned int>("ouDrinks",5);
       iDesc.add("bar",bar);
 
       //add a ParameterSet
       edm::ParameterSetDescription barx;
-      barx.add<unsigned int>("nDrinks",5);
-      iDesc.addOptional("barx",barx);
+      barx.add<unsigned int>("Drinks",5);
+      barx.addUntracked<unsigned int>("uDrinks",5);
+      barx.addOptional<unsigned int>("oDrinks",5);
+      barx.addOptionalUntracked<unsigned int>("ouDrinks",5);
+      std::vector<edm::ParameterSetDescription> bars;
+      bars.push_back(barx);
+      iDesc.add("bars",bars);
 
-      boost::shared_ptr<edm::ParameterDescription> parDescription;
-      parDescription = iDesc.addOptional<edm::ParameterSet>("subpset", edm::ParameterSet());
-      boost::shared_ptr<edm::ParameterSetDescription> subPsetDescription = 
+      edm::ParameterDescription* parDescription;
+      parDescription = iDesc.addOptional<edm::ParameterSetDescription>("subpset", edm::ParameterSetDescription());
+      edm::ParameterSetDescription* subPsetDescription = 
         parDescription->parameterSetDescription();
 
       subPsetDescription->add<int>("xvalue", 11);
