@@ -1,4 +1,4 @@
-# /dev/CMSSW_3_0_0/pre3/HLT/V16 (CMSSW_3_0_X_2008-11-29-0200_HLT1)
+# /dev/CMSSW_3_0_0/pre3/HLT/V20 (CMSSW_3_0_X_2008-12-01-1600_HLT2)
 # Begin replace statements specific to the FastSim HLT
 # For all HLTLevel1GTSeed objects, make the following replacements:
 #   - L1GtReadoutRecordTag changed from hltGtDigis to gtDigis
@@ -28,7 +28,7 @@ import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_0_0/pre3/HLT/V16')
+  tableName = cms.string('/dev/CMSSW_3_0_0/pre3/HLT/V20')
 )
 
 SiStripQualityFakeESSource = cms.ESSource( "SiStripQualityFakeESSource" )
@@ -400,7 +400,19 @@ hltMet = cms.EDProducer( "METProducer",
     METType = cms.string( "CaloMET" ),
     alias = cms.string( "RawCaloMET" ),
     globalThreshold = cms.double( 0.5 ),
-    noHF = cms.bool( False )
+    noHF = cms.bool( False ),
+    HO_PhiResPar = cms.vdouble( 0.02511 ),
+    HF_PhiResPar = cms.vdouble( 0.05022 ),
+    EB_EtResPar = cms.vdouble( 0.2, 0.03, 0.0050 ),
+    EE_PhiResPar = cms.vdouble( 0.02511 ),
+    HE_PhiResPar = cms.vdouble( 0.02511 ),
+    HB_PhiResPar = cms.vdouble( 0.02511 ),
+    EB_PhiResPar = cms.vdouble( 0.00502 ),
+    HB_EtResPar = cms.vdouble( 0.0, 1.22, 0.05 ),
+    HF_EtResPar = cms.vdouble( 0.0, 1.82, 0.09 ),
+    HE_EtResPar = cms.vdouble( 0.0, 1.3, 0.05 ),
+    HO_EtResPar = cms.vdouble( 0.0, 1.3, 0.0050 ),
+    EE_EtResPar = cms.vdouble( 0.2, 0.03, 0.0050 )
 )
 hltHtMet = cms.EDProducer( "METProducer",
     src = cms.InputTag( "hltMCJetCorJetIcone5" ),
@@ -408,7 +420,19 @@ hltHtMet = cms.EDProducer( "METProducer",
     METType = cms.string( "MET" ),
     alias = cms.string( "HTMET" ),
     globalThreshold = cms.double( 5.0 ),
-    noHF = cms.bool( False )
+    noHF = cms.bool( False ),
+    HO_PhiResPar = cms.vdouble( 0.02511 ),
+    HF_PhiResPar = cms.vdouble( 0.05022 ),
+    EB_EtResPar = cms.vdouble( 0.2, 0.03, 0.0050 ),
+    EE_PhiResPar = cms.vdouble( 0.02511 ),
+    HE_PhiResPar = cms.vdouble( 0.02511 ),
+    HB_PhiResPar = cms.vdouble( 0.02511 ),
+    EB_PhiResPar = cms.vdouble( 0.00502 ),
+    HB_EtResPar = cms.vdouble( 0.0, 1.22, 0.05 ),
+    HF_EtResPar = cms.vdouble( 0.0, 1.82, 0.09 ),
+    HE_EtResPar = cms.vdouble( 0.0, 1.3, 0.05 ),
+    HO_EtResPar = cms.vdouble( 0.0, 1.3, 0.0050 ),
+    EE_EtResPar = cms.vdouble( 0.2, 0.03, 0.0050 )
 )
 hlt1jet30 = cms.EDFilter( "HLT1CaloJet",
     inputTag = cms.InputTag( "hltMCJetCorJetIcone5" ),
