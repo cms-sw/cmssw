@@ -39,6 +39,9 @@ hcalMonitor = cms.EDFilter("HcalMonitorModule",
                            # Make expert-level diagnostic plots (enabling this may drastically slow code!)
                            makeDiagnosticPlots = cms.untracked.bool(False),
 
+                           # Specify whether or not to fill the unphysical iphi bins
+                           fillUnphysicalIphi = cms.untracked.bool(True),
+                           
                            # Specify Pedestal Units
                            pedestalsInFC                               = cms.untracked.bool(False),
                            # Specify Digis
