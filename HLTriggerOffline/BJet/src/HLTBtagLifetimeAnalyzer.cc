@@ -343,7 +343,9 @@ void HLTBtagLifetimeAnalyzer::analyze(const edm::Event & event, const edm::Event
       // event did pass this filter, analyze the content
       m_ratePlots.fill(l+1);    // 0 for no filters, 1 for 1st filter, ...
 
-      if (h_jets.isValid()) {
+      if (not h_jets.isValid()) {
+        edm::LogError("HLTBtagAnalyzer") << "Jet handle for " << m_triggerPath << " at " << level.m_title << " with label " << level.m_jets << " not found";
+      } else {
         const edm::View<reco::Jet> & jets = * h_jets;
         for (unsigned int j = 0; j < jets.size(); ++j) {
           const reco::Jet & jet = jets[j];
