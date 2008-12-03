@@ -18,6 +18,7 @@ def customise(process):
     REDIGIInputEventSkimming.inputCommands.extend(HLTCleaning.inputCommands)
     
     process.source.inputCommands = REDIGIInputEventSkimming.inputCommands
+    process.source.dropDescendantsOfDroppedBranches=cms.untracked.bool(False)
     
     if hasattr(process,"RandomNumberGeneratorService"):
         del process.RandomNumberGeneratorService.theSource
