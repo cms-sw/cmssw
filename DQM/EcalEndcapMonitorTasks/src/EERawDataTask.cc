@@ -1,8 +1,8 @@
 /*
  * \file EERawDataTask.cc
  *
- * $Date: 2008/11/04 18:13:35 $
- * $Revision: 1.16 $
+ * $Date: 2008/12/03 10:28:11 $
+ * $Revision: 1.17 $
  * \author E. Di Marco
  *
 */
@@ -369,7 +369,7 @@ void EERawDataTask::analyze(const Event& e, const EventSetup& c){
 
         for ( EcalRawDataCollection::const_iterator dcchItr = dcchs->begin(); dcchItr != dcchs->end(); ++dcchItr ) {
 
-          if ( Numbers::subDet( (*dcchItr) ) != EcalEndcap ) continue;
+          if ( Numbers::subDet( *dcchItr ) != EcalEndcap ) continue;
 
           int ECALDCC_L1A = dcchItr->getLV1();
           int ECALDCC_OrbitNumber = dcchItr->getOrbit();
@@ -447,9 +447,9 @@ void EERawDataTask::analyze(const Event& e, const EventSetup& c){
 
     for ( EcalRawDataCollection::const_iterator dcchItr = dcchs->begin(); dcchItr != dcchs->end(); ++dcchItr ) {
 
-      if ( Numbers::subDet( (*dcchItr) ) != EcalEndcap ) continue;
+      if ( Numbers::subDet( *dcchItr ) != EcalEndcap ) continue;
 
-      int ism = Numbers::iSM( (*dcchItr), EcalEndcap );
+      int ism = Numbers::iSM( *dcchItr, EcalEndcap );
       float xism = ism+0.5;
 
       int ECALDCC_runNumber = dcchItr->getRunNumber();

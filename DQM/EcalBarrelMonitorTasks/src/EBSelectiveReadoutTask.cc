@@ -1,8 +1,8 @@
 /*
  * \file EBSelectiveReadoutTask.cc
  *
- * $Date: 2008/12/01 09:29:26 $
- * $Revision: 1.21 $
+ * $Date: 2008/12/03 10:28:10 $
+ * $Revision: 1.22 $
  * \author P. Gras
  * \author E. Di Marco
  *
@@ -354,7 +354,8 @@ void EBSelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
 
 void EBSelectiveReadoutTask::anaDigi(const EBDataFrame& frame, const EBSrFlagCollection& srFlagColl){
 
-  EBSrFlagCollection::const_iterator srf = srFlagColl.find(readOutUnitOf(frame.id()));
+  EBDetId id = frame.id();
+  EBSrFlagCollection::const_iterator srf = srFlagColl.find(readOutUnitOf(id));
 
   if(srf == srFlagColl.end()){
     // LogWarning("EBSelectiveReadoutTask") << "SR flag not found";
@@ -364,7 +365,7 @@ void EBSelectiveReadoutTask::anaDigi(const EBDataFrame& frame, const EBSrFlagCol
   bool highInterest = ((srf->value() & ~EcalSrFlag::SRF_FORCED_MASK)
                        == EcalSrFlag::SRF_FULL);
 
-  bool barrel = (frame.id().subdetId()==EcalBarrel);
+  bool barrel = (id.subdetId()==EcalBarrel);
 
   if(barrel){
     ++nEb_;
@@ -373,15 +374,15 @@ void EBSelectiveReadoutTask::anaDigi(const EBDataFrame& frame, const EBSrFlagCol
     } else{//low interest
       ++nEbLI_;
     }
-    int iEta0 = iEta2cIndex(static_cast<const EBDetId&>(frame.id()).ieta());
-    int iPhi0 = iPhi2cIndex(static_cast<const EBDetId&>(frame.id()).iphi());
+    int iEta0 = iEta2cIndex(id.ieta());
+    int iPhi0 = iPhi2cIndex(id.iphi());
     if(!ebRuActive_[iEta0/ebTtEdge][iPhi0/ebTtEdge]){
-      ++nRuPerDcc_[dccNum(frame.id())-1];
+      ++nRuPerDcc_[dccNum(id)-1];
       ebRuActive_[iEta0/ebTtEdge][iPhi0/ebTtEdge] = true;
     }
   }
 
-  ++nPerDcc_[dccNum(frame.id())-1];
+  ++nPerDcc_[dccNum(id)-1];
 }
 
 void EBSelectiveReadoutTask::anaDigiInit(){

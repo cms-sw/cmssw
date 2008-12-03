@@ -1,8 +1,8 @@
 /*
  * \file EBOccupancyTask.cc
  *
- * $Date: 2008/12/03 10:28:10 $
- * $Revision: 1.68 $
+ * $Date: 2008/12/03 10:43:35 $
+ * $Revision: 1.69 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -383,9 +383,9 @@ void EBOccupancyTask::analyze(const Event& e, const EventSetup& c){
 
         for ( EcalRawDataCollection::const_iterator dcchItr = dcchs->begin(); dcchItr != dcchs->end(); ++dcchItr ) {
 
-          if ( Numbers::subDet( (*dcchItr) ) != EcalBarrel ) continue;
+          if ( Numbers::subDet( *dcchItr ) != EcalBarrel ) continue;
 
-          if ( Numbers::iSM( (*dcchItr), EcalBarrel ) != ism ) continue;
+          if ( Numbers::iSM( *dcchItr, EcalBarrel ) != ism ) continue;
 
           if ( dcchItr->getRunType() == EcalDCCHeaderBlock::TESTPULSE_MGPA ||
                dcchItr->getRunType() == EcalDCCHeaderBlock::TESTPULSE_GAP ) {

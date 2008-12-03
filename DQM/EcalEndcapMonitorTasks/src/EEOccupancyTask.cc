@@ -1,8 +1,8 @@
 /*
  * \file EEOccupancyTask.cc
  *
- * $Date: 2008/12/03 10:28:11 $
- * $Revision: 1.53 $
+ * $Date: 2008/12/03 10:43:36 $
+ * $Revision: 1.54 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -572,9 +572,9 @@ void EEOccupancyTask::analyze(const Event& e, const EventSetup& c){
 
         for ( EcalRawDataCollection::const_iterator dcchItr = dcchs->begin(); dcchItr != dcchs->end(); ++dcchItr ) {
 
-          if ( Numbers::subDet( (*dcchItr) ) != EcalEndcap ) continue;
+          if ( Numbers::subDet( *dcchItr ) != EcalEndcap ) continue;
 
-          if ( Numbers::iSM( (*dcchItr), EcalEndcap ) != ism ) continue;
+          if ( Numbers::iSM( *dcchItr, EcalEndcap ) != ism ) continue;
 
           if ( dcchItr->getRunType() == EcalDCCHeaderBlock::TESTPULSE_MGPA ||
                dcchItr->getRunType() == EcalDCCHeaderBlock::TESTPULSE_GAP ) {

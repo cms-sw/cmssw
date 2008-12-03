@@ -1,8 +1,8 @@
 /*
  * \file EBRawDataTask.cc
  *
- * $Date: 2008/11/04 18:13:35 $
- * $Revision: 1.16 $
+ * $Date: 2008/12/03 10:28:10 $
+ * $Revision: 1.17 $
  * \author E. Di Marco
  *
 */
@@ -369,7 +369,7 @@ void EBRawDataTask::analyze(const Event& e, const EventSetup& c){
 
         for ( EcalRawDataCollection::const_iterator dcchItr = dcchs->begin(); dcchItr != dcchs->end(); ++dcchItr ) {
 
-          if ( Numbers::subDet( (*dcchItr) ) != EcalBarrel ) continue;
+          if ( Numbers::subDet( *dcchItr ) != EcalBarrel ) continue;
 
           int ECALDCC_L1A = dcchItr->getLV1();
           int ECALDCC_OrbitNumber = dcchItr->getOrbit();
@@ -440,9 +440,9 @@ void EBRawDataTask::analyze(const Event& e, const EventSetup& c){
 
     for ( EcalRawDataCollection::const_iterator dcchItr = dcchs->begin(); dcchItr != dcchs->end(); ++dcchItr ) {
 
-      if ( Numbers::subDet( (*dcchItr) ) != EcalBarrel ) continue;
+      if ( Numbers::subDet( *dcchItr ) != EcalBarrel ) continue;
 
-      int ism = Numbers::iSM( (*dcchItr), EcalBarrel );
+      int ism = Numbers::iSM( *dcchItr, EcalBarrel );
       float xism = ism+0.5;
 
       int ECALDCC_runNumber = dcchItr->getRunNumber();

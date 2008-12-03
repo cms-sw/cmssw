@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseTask.cc
  *
- * $Date: 2008/09/16 09:02:31 $
- * $Revision: 1.100 $
+ * $Date: 2008/12/03 10:28:10 $
+ * $Revision: 1.101 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -273,9 +273,9 @@ void EBTestPulseTask::analyze(const Event& e, const EventSetup& c){
 
     for ( EcalRawDataCollection::const_iterator dcchItr = dcchs->begin(); dcchItr != dcchs->end(); ++dcchItr ) {
 
-      if ( Numbers::subDet( (*dcchItr) ) != EcalBarrel ) continue;
+      if ( Numbers::subDet( *dcchItr ) != EcalBarrel ) continue;
 
-      int ism = Numbers::iSM( (*dcchItr), EcalBarrel );
+      int ism = Numbers::iSM( *dcchItr, EcalBarrel );
 
       map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find( ism );
       if ( i != dccMap.end() ) continue;

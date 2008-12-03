@@ -1,8 +1,8 @@
 /*
  * \file EESelectiveReadoutTask.cc
  *
- * $Date: 2008/12/01 09:29:27 $
- * $Revision: 1.18 $
+ * $Date: 2008/12/03 10:28:11 $
+ * $Revision: 1.19 $
  * \author P. Gras
  * \author E. Di Marco
  *
@@ -521,7 +521,8 @@ void EESelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
 
 void EESelectiveReadoutTask::anaDigi(const EEDataFrame& frame, const EESrFlagCollection& srFlagColl){
 
-  EESrFlagCollection::const_iterator srf = srFlagColl.find(readOutUnitOf(frame.id()));
+  EEDetId id = frame.id();
+  EESrFlagCollection::const_iterator srf = srFlagColl.find(readOutUnitOf(id));
 
   if(srf == srFlagColl.end()){
     // LogWarning("EESelectiveReadoutTask") << "SR flag not found";
@@ -531,10 +532,10 @@ void EESelectiveReadoutTask::anaDigi(const EEDataFrame& frame, const EESrFlagCol
   bool highInterest = ((srf->value() & ~EcalSrFlag::SRF_FORCED_MASK)
                        == EcalSrFlag::SRF_FULL);
 
-  bool endcap = (frame.id().subdetId()==EcalEndcap);
+  bool endcap = (id.subdetId()==EcalEndcap);
 
   if(endcap){
-    int ism = Numbers::iSM( frame.id() );
+    int ism = Numbers::iSM( id );
     if ( ism >= 1 && ism <= 9 ) {
       ++nEe_[0];
       if(highInterest){
@@ -551,17 +552,17 @@ void EESelectiveReadoutTask::anaDigi(const EEDataFrame& frame, const EESrFlagCol
       }
     }
 
-    int iX0 = iXY2cIndex(static_cast<const EEDetId&>(frame.id()).ix());
-    int iY0 = iXY2cIndex(static_cast<const EEDetId&>(frame.id()).iy());
-    int iZ0 = static_cast<const EEDetId&>(frame.id()).zside()>0?1:0;
+    int iX0 = iXY2cIndex(id.ix());
+    int iY0 = iXY2cIndex(id.iy());
+    int iZ0 = id.zside()>0?1:0;
 
     if(!eeRuActive_[iZ0][iX0/scEdge][iY0/scEdge]){
-      ++nRuPerDcc_[dccNum(frame.id())];
+      ++nRuPerDcc_[dccNum(id)];
       eeRuActive_[iZ0][iX0/scEdge][iY0/scEdge] = true;
     }
   }
 
-  ++nPerDcc_[dccNum(frame.id())-1];
+  ++nPerDcc_[dccNum(id)-1];
 }
 
 void EESelectiveReadoutTask::anaDigiInit(){

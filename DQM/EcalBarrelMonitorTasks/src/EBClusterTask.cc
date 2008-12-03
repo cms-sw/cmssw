@@ -1,8 +1,8 @@
 /*
  * \file EBClusterTask.cc
  *
- * $Date: 2008/10/26 16:15:39 $
- * $Revision: 1.66 $
+ * $Date: 2008/12/03 10:28:10 $
+ * $Revision: 1.67 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -396,7 +396,7 @@ void EBClusterTask::analyze(const Event& e, const EventSetup& c){
 
     for ( EcalRawDataCollection::const_iterator dcchItr = dcchs->begin(); dcchItr != dcchs->end(); ++dcchItr ) {
 
-      if ( Numbers::subDet( (*dcchItr) ) != EcalBarrel ) continue;
+      if ( Numbers::subDet( *dcchItr ) != EcalBarrel ) continue;
 
       if ( dcchItr->getRunType() == EcalDCCHeaderBlock::BEAMH4 ||
            dcchItr->getRunType() == EcalDCCHeaderBlock::BEAMH2 ) enable = true;

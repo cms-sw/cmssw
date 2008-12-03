@@ -1,8 +1,8 @@
 /*
  * \file EEStatusFlagsTask.cc
  *
- * $Date: 2008/05/23 14:46:19 $
- * $Revision: 1.16 $
+ * $Date: 2008/12/03 10:28:11 $
+ * $Revision: 1.17 $
  * \author G. Della Ricca
  *
 */
@@ -218,13 +218,13 @@ void EEStatusFlagsTask::analyze(const Event& e, const EventSetup& c){
 
     for ( EcalRawDataCollection::const_iterator dcchItr = dcchs->begin(); dcchItr != dcchs->end(); ++dcchItr ) {
 
-      if ( Numbers::subDet( (*dcchItr) ) != EcalEndcap ) continue;
+      if ( Numbers::subDet( *dcchItr ) != EcalEndcap ) continue;
 
-      int ism = Numbers::iSM( (*dcchItr), EcalEndcap );
+      int ism = Numbers::iSM( *dcchItr, EcalEndcap );
 
       if ( meEvtType_[ism-1] ) meEvtType_[ism-1]->Fill(dcchItr->getRunType()+0.5);
 
-      vector<short> status = dcchItr->getFEStatus();
+      const vector<short> status = dcchItr->getFEStatus();
 
       for ( unsigned int itt=1; itt<=status.size(); itt++ ) {
 
