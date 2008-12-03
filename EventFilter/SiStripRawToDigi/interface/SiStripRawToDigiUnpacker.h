@@ -56,6 +56,7 @@ class SiStripRawToDigiUnpacker {
   /// verbosity
   inline void quiet( bool );
 
+  /// EventSummary update request -> not yet implemented for FEDBuffer class
   inline void useDaqRegister( bool );
   
  private:
@@ -66,7 +67,7 @@ class SiStripRawToDigiUnpacker {
   /// private default constructor
   SiStripRawToDigiUnpacker();
 
-  /// sets the SiStripEventSummary
+  /// sets the SiStripEventSummary -> not yet implemented for FEDBuffer class
   void updateEventSummary( const Fed9U::Fed9UEvent* const, SiStripEventSummary& );
   
   /// order of strips
@@ -188,6 +189,12 @@ namespace sistrip {
 
     /// trigger FED
     void triggerFed( const FEDRawDataCollection&, SiStripEventSummary&, const uint32_t& event );
+
+    /// EventSummary update request
+    inline void useDaqRegister( bool use );
+
+    /// set verbosity 
+    inline void quiet( bool set );
     
   private:
     
