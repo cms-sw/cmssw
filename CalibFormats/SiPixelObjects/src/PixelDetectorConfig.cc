@@ -20,7 +20,8 @@ using namespace pos;
 
 PixelDetectorConfig::PixelDetectorConfig(std::vector< std::vector < std::string> > &tableMat):PixelConfigBase("","",""){
 
-  std::string mthn = "[PixelDetectorConfig::PixelDetectorConfig()]\t\t    " ;
+  std::stringstream s ; s << __LINE__ << "]\t[PixelDetectorConfig::PixelDetectorConfig()]\t    " ;
+  std::string mthn = s.str() ;
   std::vector< std::string > ins = tableMat[0];
   std::map<std::string , int > colM;
   std::vector<std::string > colNames;
@@ -96,20 +97,23 @@ PixelDetectorConfig::PixelDetectorConfig(std::vector< std::vector < std::string>
 PixelDetectorConfig::PixelDetectorConfig(std::string filename):
   PixelConfigBase("","",""){
 
+  std::stringstream s ; s << __LINE__ << "]\t[PixelDetectorConfig::PixelDetectorConfig()]\t\t    " ;
+  std::string mthn = s.str() ;
+
   if (filename[filename.size()-1]=='t'){
 
     std::ifstream in(filename.c_str());
 
     if (!in.good()){
-      std::cout << "[PixelDetectorConfig::PixelDetectorConfig()]\t\t    Could not open: "<<filename<<std::endl;
+      std::cout << mthn << "Could not open: "<<filename<<std::endl;
       assert(0);
     }
     else {
-      std::cout << "[PixelDetectorConfig::PixelDetectorConfig()]\t\t    Opened: "<<filename<<std::endl;
+      std::cout << mthn << "Opened: "<<filename<<std::endl;
     }
         
     if (in.eof()){
-      std::cout << "[PixelDetectorConfig::PixelDetectorConfig()]\t\t    EOF before reading anything!"<<std::endl;
+      std::cout << mthn << "EOF before reading anything!"<<std::endl;
       ::abort();
     }
 
@@ -122,7 +126,7 @@ PixelDetectorConfig::PixelDetectorConfig(std::string filename):
     in >> module;
 
     if (module=="Rocs:") {
-      std::cout << "[PixelDetectorConfig::PixelDetectorConfig()]\t\t    New format of detconfig"<<std::endl;
+      std::cout << mthn << "New format of detconfig"<<std::endl;
       //new format with list of ROCs.
       std::string rocname;
       in >> rocname;
@@ -157,10 +161,9 @@ PixelDetectorConfig::PixelDetectorConfig(std::string filename):
 
     //std::cout << "Read module:"<<module<<std::endl;
 
-    if (in.eof()) std::cout << "[PixelDetectorConfig::PixelDetectorConfig()]\t\t    EOF after reading first module name"
-                            << std::endl;
+    if (in.eof()) std::cout << mthn << "EOF after reading first module name" << std::endl;
 
-    std::cout << "[PixelDetectorConfig::PixelDetectorConfig()]\t\t    Old format of detconfig"<<std::endl;
+    std::cout << mthn << "Old format of detconfig"<<std::endl;
     while (!in.eof()){
 
       //std::cout << "Read module:"<<module<<std::endl;
@@ -326,12 +329,15 @@ bool PixelDetectorConfig::containsModule(const PixelModuleName& moduleToFind) co
 // modified by MR on 11-01-2008 15:06:51
 void PixelDetectorConfig::writeASCII(std::string dir) const {
 
+  std::stringstream s ; s << __LINE__ << "]\t[PixelDetectorConfig::writeASCII()]\t\t    " ;
+  std::string mthn = s.str() ;
+
   if (dir!="") dir+="/";
   std::string filename=dir+"detectconfig.dat";
 
   std::ofstream out(filename.c_str(), std::ios_base::out) ;
   if(!out) {
-    std::cout << "[PixelDetectorConfig::writeASCII()]\t\t    Could not open file " << filename << " for write" << std::endl ;
+    std::cout << mthn << "Could not open file " << filename << " for write" << std::endl ;
     exit(1);
   }
 
@@ -367,7 +373,8 @@ void PixelDetectorConfig::writeXMLHeader(pos::PixelConfigKey key,
                                          std::ofstream *out1stream,
                                          std::ofstream *out2stream)  const
 {
-  std::string mthn = "[PixelDetectorConfig::writeXMLHeader()]\t\t\t    " ;
+  std::stringstream s ; s << __LINE__ << "]\t[PixelDetectorConfig::writeXMLHeader()]\t\t\t    " ;
+  std::string mthn = s.str() ;
   std::stringstream fullPath ;
   fullPath << path << "/Pixel_DetectorConfig_" << PixelTimeFormatter::getmSecTime() << ".xml" ;
   cout << mthn << "Writing to: " << fullPath.str() << endl ;
@@ -410,7 +417,8 @@ void PixelDetectorConfig::writeXML( std::ofstream *outstream,
                                     std::ofstream *out1stream,
                                     std::ofstream *out2stream)  const
 {
-  std::string mthn = "[PixelDetectorConfig::writeXML()]\t\t\t    " ;
+  std::stringstream s ; s << __LINE__ << "]\t[PixelDetectorConfig::writeXML()]\t\t\t    " ;
+  std::string mthn = s.str() ;
   if(rocs_.size() == 0) 
     {
       std::vector<PixelModuleName>::const_iterator imodule=modules_.begin();
@@ -446,7 +454,8 @@ void PixelDetectorConfig::writeXMLTrailer(std::ofstream *outstream,
                                           std::ofstream *out1stream,
                                           std::ofstream *out2stream) const
 {
-  std::string mthn = "[PixelDetectorConfig::writeXMLTrailer()]\t\t\t    " ;
+  std::stringstream s ; s << __LINE__ << "]\t[PixelDetectorConfig::writeXMLTrailer()]\t\t\t    " ;
+  std::string mthn = s.str() ;
   
   *outstream << " "                                                                                          << std::endl ;
   *outstream << " </DATA_SET>"                                                                               << std::endl ;
@@ -455,8 +464,11 @@ void PixelDetectorConfig::writeXMLTrailer(std::ofstream *outstream,
   outstream->close() ;
 }
 //=============================================================================================
-void PixelDetectorConfig::writeXML(pos::PixelConfigKey key, int version, std::string path) const {
-  std::string mthn = "[PixelDetectorConfig::writeXML()]\t\t\t    " ;
+void PixelDetectorConfig::writeXML(pos::PixelConfigKey key, int version, std::string path) const 
+{
+  std::stringstream s ; s << __LINE__ << "]\t[PixelDetectorConfig::writeXML()]\t\t\t    " ;
+  std::string mthn = s.str() ;
+
   std::stringstream fullPath ;
 
   fullPath << path << "/Pixel_DetectorConfig.xml" ;
@@ -527,7 +539,9 @@ void PixelDetectorConfig::writeXML(pos::PixelConfigKey key, int version, std::st
 //=============================================================================================
 void PixelDetectorConfig::addROC(   PixelROCName &theROC)  // Added by Dario (March 3, 2008)
 {
- std::string mthn = "[PixelDetectorConfig::addROC()]\t\t\t\t" ;
+ std::stringstream s ; s << __LINE__ << "]\t[PixelDetectorConfig::addROC()]\t\t\t\t    " ;
+ std::string mthn = s.str() ;
+
  std::map<PixelROCName, PixelROCStatus>::iterator theROCIt = rocs_.find(theROC) ;
  if( theROCIt == rocs_.end() ) // if theROC was not there, add it and turn it on
  {
@@ -544,7 +558,9 @@ void PixelDetectorConfig::addROC(   PixelROCName &theROC)  // Added by Dario (Ma
 //=============================================================================================
 void PixelDetectorConfig::addROC(   PixelROCName &theROC, string statusLabel)  // modified by MR on 14-05-2008 11:29:51
 {
- std::string mthn = "[PixelDetectorConfig::addROC()]\t\t\t\t" ;
+ std::stringstream s ; s << __LINE__ << "]\t[PixelDetectorConfig::addROC()]\t\t\t\t    " ;
+ std::string mthn = s.str() ;
+
  std::map<PixelROCName, PixelROCStatus>::iterator theROCIt = rocs_.find(theROC) ;
  if( theROCIt == rocs_.end() ) // if theROC was not there, add it and turn it on
  {
@@ -562,7 +578,9 @@ void PixelDetectorConfig::addROC(   PixelROCName &theROC, string statusLabel)  /
 //=============================================================================================
 void PixelDetectorConfig::removeROC(PixelROCName &theROC)  // Added by Dario (March 3, 2008)
 {
- std::string mthn = "[PixelDetectorConfig::removeROC()]\t\t\t\t" ;
+ std::stringstream s ; s << __LINE__ << "]\t[PixelDetectorConfig::removeROC()]\t\t\t\t    " ;
+ std::string mthn = s.str() ;
+
  std::map<PixelROCName, PixelROCStatus>::iterator theROCIt = rocs_.find(theROC) ;
  if( theROCIt != rocs_.end() ) // if theROC was there remove it, otherwise ignore
  {
