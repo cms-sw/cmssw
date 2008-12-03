@@ -58,13 +58,13 @@ tpToL3TrackAssociation = cms.EDProducer("TrackAssociatorEDProducer",
     label_tr = cms.InputTag('hltL3Muons')
 )
 
-tpToL3TkTracksTrackAssociation = cms.EDProducer("TrackAssociatorEDProducer",
+tpToL3TkTrackTrackAssociation = cms.EDProducer("TrackAssociatorEDProducer",
     associator = cms.string('TrackAssociatorByHits'),
     label_tp = cms.InputTag('mergedtruth','MergedTrackTruth'),
     label_tr = cms.InputTag('hltL3TkTracksFromL2','')
 )
 
-tpToL3L2TracksTrackAssociation = cms.EDProducer("TrackAssociatorEDProducer",
+tpToL3L2TrackTrackAssociation = cms.EDProducer("TrackAssociatorEDProducer",
     associator = cms.string('TrackAssociatorByHits'),
     label_tp = cms.InputTag('mergedtruth','MergedTrackTruth'),
     label_tr = cms.InputTag('hltL3Muons:L2Seeded')
@@ -133,5 +133,11 @@ tpToL3MuonAssociation.PurityCut_track = 0.75
 muonAssociation_seq = cms.Sequence((tpToTkMuonAssociation+tpToStaMuonAssociation+tpToGlbMuonAssociation)
                                   +(tpToTkmuTrackAssociation+tpToStaTrackAssociation+tpToGlbTrackAssociation))
 
-muonAssociationHLT_seq = cms.Sequence((tpToL2MuonAssociation+tpToL3MuonAssociation+tpToL3TkMuonAssociation)
-                                     +(tpToL2TrackAssociation+tpToL3TrackAssociation))
+muonAssociationHLT_seq = cms.Sequence(
+    (tpToL2MuonAssociation
+     +tpToL3MuonAssociation
+     +tpToL3TkMuonAssociation)
+    +(tpToL2TrackAssociation
+      +tpToL3TrackAssociation
+      +tpToL3TkTrackTrackAssociation)
+    )
