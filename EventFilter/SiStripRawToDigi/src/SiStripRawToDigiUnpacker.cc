@@ -6,14 +6,12 @@
 #include "DataFormats/FEDRawData/src/fed_header.h"
 #include "DataFormats/FEDRawData/src/fed_trailer.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
-//#include "DataFormats/SiStripCommon/interface/SiStripFedKey.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEventSummary.h"
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
 #include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
 #include "EventFilter/SiStripRawToDigi/interface/TFHeaderDescription.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "Utilities/Timing/interface/TimingReport.h"
 #include "Fed9UUtils.hh"
 #include "ICException.hh"
 #include <iostream>
@@ -23,19 +21,13 @@
 
 using namespace sistrip;
 
-// -----------------------------------------------------------------------------
-/** */
-SiStripRawToDigiUnpacker::SiStripRawToDigiUnpacker( int16_t appended_bytes, 
-						    int16_t fed_buffer_dump_freq, 
-						    int16_t fed_event_dump_freq, 
-						    int16_t trigger_fed_id,
-						    bool using_fed_key  ) :
+SiStripRawToDigiUnpacker::SiStripRawToDigiUnpacker( int16_t appended_bytes, int16_t fed_buffer_dump_freq, int16_t fed_event_dump_freq, int16_t trigger_fed_id, bool using_fed_key  ) :
   headerBytes_( appended_bytes ),
   fedBufferDumpFreq_( fed_buffer_dump_freq ),
   fedEventDumpFreq_( fed_event_dump_freq ),
   triggerFedId_( trigger_fed_id ),
   useFedKey_( using_fed_key ),
-  fedEvent_(0),
+  buffer_(0),
   event_(0),
   once_(true),
   first_(true),
@@ -47,7 +39,6 @@ SiStripRawToDigiUnpacker::SiStripRawToDigiUnpacker( int16_t appended_bytes,
       << "[SiStripRawToDigiUnpacker::"<<__func__<<"]"
       <<" Constructing object...";
   }
-  fedEvent_ = new Fed9U::Fed9UEvent();
 }
 
 // -----------------------------------------------------------------------------
@@ -58,18 +49,12 @@ SiStripRawToDigiUnpacker::~SiStripRawToDigiUnpacker() {
       << "[SiStripRawToDigiUnpacker::"<<__func__<<"]"
       << " Destructing object...";
   }
-  if ( fedEvent_ ) { delete fedEvent_; }
 }
 
 // -----------------------------------------------------------------------------
 /** */
-void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
-					    const FEDRawDataCollection& buffers,
-					    SiStripEventSummary& summary,
-					    RawDigis& scope_mode,
-					    RawDigis& virgin_raw,
-					    RawDigis& proc_raw,
-					    Digis& zero_suppr ) {
+void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling, const FEDRawDataCollection& buffers, SiStripEventSummary& summary, RawDigis& scope_mode, RawDigis& virgin_raw, RawDigis& proc_raw, Digis& zero_suppr ) {
+
   // Clear working areas and registries
   cleanupWorkVectors();
   
@@ -102,7 +87,8 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
   std::vector<uint16_t>::const_iterator ifed = cabling.feds().begin();
   for ( ; ifed != cabling.feds().end(); ifed++ ) {
 
-    //if ( *ifed == triggerFedId_ ) { continue; }
+    // ignore trigger FED
+    if ( *ifed == triggerFedId_ ) { continue;  }
     
     // Retrieve FED raw data for given FED 
     const FEDRawData& input = buffers.FEDData( static_cast<int>(*ifed) );
@@ -137,15 +123,11 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
     }
     
     // Handle 32-bit swapped data (and locate start of FED buffer within raw data)
-    FEDRawData output; 
+    FEDRawData output;
     locateStartOfFedBuffer( *ifed, input, output );
-    
-    // Recast data to suit Fed9UEvent
-    Fed9U::u32* data_u32 = reinterpret_cast<Fed9U::u32*>( const_cast<unsigned char*>( output.data() ) );
-    Fed9U::u32  size_u32 = static_cast<Fed9U::u32>( output.size() / 4 ); 
-    
+
     // Check on FEDRawData pointer
-    if ( !data_u32 ) {
+    if ( !output.data() ) {
       if ( edm::isDebugEnabled() ) {
 	edm::LogWarning(mlRawToDigi_)
 	  << "[SiStripRawToDigiUnpacker::" << __func__ << "]"
@@ -155,7 +137,7 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
     }	
     
     // Check on FEDRawData size
-    if ( !size_u32 ) {
+    if ( !output.size() ) {
       if ( edm::isDebugEnabled() ) {
 	edm::LogWarning(mlRawToDigi_)
 	  << "[SiStripRawToDigiUnpacker::" << __func__ << "]"
@@ -163,21 +145,16 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
       }
       continue;
     }
-    
-    // Initialise Fed9UEvent using present FED buffer
-    try {
-      fedEvent_->Init( data_u32, 0, size_u32 ); 
-      //fedEvent_->checkEvent();
-    } catch(...) { 
-      handleException( __func__, "Problem when creating Fed9UEvent" ); 
-      continue;
-    } 
-   
-    // Check if EventSummary ("trigger FED info") needs updating
-    if ( first_fed ) {
-      if ( useDaqRegister_ ) { updateEventSummary( fedEvent_, summary ); }
-      first_fed = false;
+
+    // construct FEDBuffer
+    try {buffer_ = new sistrip::FEDBuffer(output.data(),output.size());}
+    catch (const cms::Exception& e) { 
+      edm::LogWarning("SiStripDigiUnpacker") 
+	<< e.what();
     }
+
+    // Check if EventSummary ("trigger FED info") needs updating
+    if ( first_fed ) first_fed = false;
     
     // Check to see if EventSummary info is set
     if ( edm::isDebugEnabled() ) {
@@ -200,21 +177,18 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
       continue; 
     }
     
-    // Retrive readout mode
-    sistrip::FedReadoutMode mode = sistrip::UNDEFINED_FED_READOUT_MODE;
-    try {
-      mode = fedReadoutMode( static_cast<unsigned int>( fedEvent_->getSpecialTrackerEventType() ) );
-    } catch(...) { handleException( __func__, "Problem extracting readout mode from Fed9UEvent" ); } 
-    
+    /// extract readout mode
+    sistrip::FEDReadoutMode mode = buffer_->readoutMode(); 
+
     // Retrive run type
     sistrip::RunType runType_ = summary.runType();
-    if( runType_ == sistrip::APV_LATENCY || runType_ == sistrip::FINE_DELAY ) { useFedKey_ = false; } //@@ force!
+    if( runType_ == sistrip::APV_LATENCY || runType_ == sistrip::FINE_DELAY ) { useFedKey_ = false; } 
      
     // Dump of FED buffer
     if ( edm::isDebugEnabled() ) {
       if ( fedEventDumpFreq_ && !(event_%fedEventDumpFreq_) ) {
 	std::stringstream ss;
-	fedEvent_->dump( ss );
+	buffer_->dump( ss );
 	edm::LogVerbatim(mlRawToDigi_) << ss.str();
       }
     }
@@ -224,75 +198,75 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
     std::vector<FedChannelConnection>::const_iterator iconn = conns.begin();
     for ( ; iconn != conns.end(); iconn++ ) {
 
-      // Check if FedId is valid
+      /// FED channel
+      uint16_t chan = iconn->fedCh();
+
+      // Check if fed connection is valid
       if ( !iconn->isConnected() ) { continue; }
       
+      // Check FED channel
+      if (!buffer_->channelGood(iconn->fedCh())) continue;
+
       // Check DetId is valid (if to be used as key)
       if ( !useFedKey_ && ( !iconn->detId() || iconn->detId() == sistrip::invalid32_ ) ) { continue; }
 
-      // Retrieve channel using Fed9UAddress 
-      uint16_t channel = iconn->fedCh();
-      uint16_t iunit = channel / 12;
-      uint16_t ichan = channel % 12;
-      uint16_t chan  = 12 * iunit + ichan;
-      try {
-	Fed9U::Fed9UAddress addr;
-	addr.setFedChannel( static_cast<unsigned char>( channel ) );
-	iunit = addr.getFedFeUnit();
-	ichan = addr.getFeUnitChannel();
-	chan  = 12*( addr.getFedFeUnit() ) + addr.getFeUnitChannel();
-      } catch(...) { 
-	handleException( __func__, "Problem using Fed9UAddress" ); 
-      } 
-      
       // Determine whether FED key is inferred from cabling or channel loop
-      uint32_t fed_key = 0;
-      if ( summary.runType() == sistrip::FED_CABLING ) {
-	fed_key = ( ( *ifed & sistrip::invalid_ ) << 16 ) | ( chan & sistrip::invalid_ );
-      } else { 
-	fed_key = ( ( iconn->fedId() & sistrip::invalid_ ) << 16 ) | ( iconn->fedCh() & sistrip::invalid_ );
-      }
-      
+      uint32_t fed_key = ( summary.runType() == sistrip::FED_CABLING ) ? ( ( *ifed & sistrip::invalid_ ) << 16 ) | ( chan & sistrip::invalid_ ) : ( ( iconn->fedId() & sistrip::invalid_ ) << 16 ) | ( iconn->fedCh() & sistrip::invalid_ );
+
       // Determine whether DetId or FED key should be used to index digi containers
-      uint32_t key = ( useFedKey_ || mode == sistrip::FED_SCOPE_MODE ) ? fed_key : iconn->detId();
+      uint32_t key = ( useFedKey_ || mode == sistrip::READOUT_MODE_SCOPE ) ? fed_key : iconn->detId();
       
       // Determine APV std::pair number (needed only when using DetId)
-      uint16_t ipair = ( useFedKey_ || mode == sistrip::FED_SCOPE_MODE ) ? 0 : iconn->apvPairNumber();
+      uint16_t ipair = ( useFedKey_ || mode == sistrip::READOUT_MODE_SCOPE ) ? 0 : iconn->apvPairNumber();
+      
 
-      if ( mode == sistrip::FED_SCOPE_MODE ) {
+      if (mode == sistrip::READOUT_MODE_ZERO_SUPPRESSED ) { 
 	
-	std::vector<uint16_t> samples; 
-	try { 
-   	  samples = fedEvent_->feUnit( iunit ).channel( ichan ).getSamples();
-	} catch(...) { 
-	  std::stringstream sss;
-	  sss << "Problem accessing SCOPE_MODE data for FedId/FeUnit/FeChan: " 
-	      << *ifed << "/" << iunit << "/" << ichan;
-	  handleException( __func__, sss.str() ); 
-	} 
+	Registry regItem(key, 0, zs_work_digis_.size(), 0);
 	
-	if ( !samples.empty() ) { 
-          DetSet_SiStripDig_registry regItem(key, 0, scope_work_digis_.size(), samples.size());
-          for ( uint16_t i = 0, n = samples.size(); i < n; i++ ) {
-            scope_work_digis_.push_back(  SiStripRawDigi( samples[i] ) );
-          }
-          scope_work_registry_.push_back( regItem );
-	}
+	/// create unpacker
+	sistrip::FEDZSChannelUnpacker unpacker = sistrip::FEDZSChannelUnpacker::zeroSuppressedModeUnpacker(buffer_->channel(iconn->fedCh()));
 	
-      } else if ( mode == sistrip::FED_VIRGIN_RAW ) {
+	/// unpack -> add check to make sure strip < nstrips && strip > last strip......
+
+	while (unpacker.hasData()) {zs_work_digis_.push_back(SiStripDigi(unpacker.strip()+ipair*256,unpacker.adc()));unpacker++;}
+	
+        regItem.length = zs_work_digis_.size() - regItem.index;
+        if (regItem.length > 0) {
+	  regItem.first = zs_work_digis_[regItem.index].strip();
+	  zs_work_registry_.push_back(regItem);
+        }
+      } 
+
+      else if (mode == sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE ) { 
+	
+	Registry regItem(key, 0, zs_work_digis_.size(), 0);
+	
+	/// create unpacker
+	sistrip::FEDZSChannelUnpacker unpacker = sistrip::FEDZSChannelUnpacker::zeroSuppressedLiteModeUnpacker(buffer_->channel(iconn->fedCh()));
+	
+	/// unpack -> add check to make sure strip < nstrips && strip > last strip......
+	while (unpacker.hasData()) {zs_work_digis_.push_back(SiStripDigi(unpacker.strip()+ipair*256,unpacker.adc()));unpacker++;}
+	
+        regItem.length = zs_work_digis_.size() - regItem.index;
+        if (regItem.length > 0) {
+	  regItem.first = zs_work_digis_[regItem.index].strip();
+	  zs_work_registry_.push_back(regItem);
+        }
+      } 
+     
+      else if ( mode == sistrip::READOUT_MODE_VIRGIN_RAW ) {
 
 	std::vector<uint16_t> samples; 
-	try {
-   	  samples = fedEvent_->channel( iunit, ichan ).getSamples();
-	} catch(...) { 
-	  std::stringstream sss;
-	  sss << "Problem accessing VIRGIN_RAW data for FED id/ch: " 
-	      << *ifed << "/" << ichan;
-	  handleException( __func__, sss.str() ); 
-	} 
-	
+
+	/// create unpacker
+	sistrip::FEDRawChannelUnpacker unpacker = sistrip::FEDRawChannelUnpacker::virginRawModeUnpacker(buffer_->channel(iconn->fedCh()));
+
+	/// unpack -> add check to make sure strip < nstrips && strip > last strip......
+	while (unpacker.hasData()) {samples.push_back(unpacker.adc());unpacker++;}
+
 	if ( !samples.empty() ) { 
-          DetSet_SiStripDig_registry regItem(key, 256*ipair, virgin_work_digis_.size(), samples.size());
+          Registry regItem(key, 256*ipair, virgin_work_digis_.size(), samples.size());
 	  uint16_t physical;
 	  uint16_t readout; 
           for ( uint16_t i = 0, n = samples.size(); i < n; i++ ) {
@@ -303,83 +277,48 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
 	  }
           virgin_work_registry_.push_back( regItem );
 	}
-
-      } else if ( mode == sistrip::FED_PROC_RAW ) {
-
+      } 
+    
+      else if ( mode == sistrip::READOUT_MODE_PROC_RAW ) {
+	
 	std::vector<uint16_t> samples; 
-	try {
-   	  samples = fedEvent_->channel( iunit, ichan ).getSamples();
-	} catch(...) { 
-	  std::stringstream sss;
-	  sss << "Problem accessing PROC_RAW data for FED id/ch: " 
-	      << *ifed << "/" << ichan;
-	  handleException( __func__, sss.str() ); 
-	} 
-
+	
+	/// create unpacker
+	sistrip::FEDRawChannelUnpacker unpacker = sistrip::FEDRawChannelUnpacker::procRawModeUnpacker(buffer_->channel(iconn->fedCh()));
+	
+	/// unpack -> add check to make sure strip < nstrips && strip > last strip......
+	while (unpacker.hasData()) {samples.push_back(unpacker.adc());unpacker++;}
+	
 	if ( !samples.empty() ) { 
-          DetSet_SiStripDig_registry regItem(key, 256*ipair, proc_work_digis_.size(), samples.size());
+	  Registry regItem(key, 256*ipair, proc_work_digis_.size(), samples.size());
           for ( uint16_t i = 0, n = samples.size(); i < n; i++ ) {
             proc_work_digis_.push_back(  SiStripRawDigi( samples[i] ) );
           }
           proc_work_registry_.push_back( regItem );
 	}
+      } 
 
-      } else if ( ( mode == sistrip::FED_ZERO_SUPPR ) || 
-                  ( mode == sistrip::FED_ZERO_SUPPR_LITE ) ) { 
-
-        DetSet_SiStripDig_registry regItem(key, 0, zs_work_digis_.size(), 0);
-
-        int fed9uIterOffset = (mode == sistrip::FED_ZERO_SUPPR ? 7 : 2); // offset to start decoding from
-	try{ 
-	  bool corrupt = false;
-#ifdef USE_PATCH_TO_CATCH_CORRUPT_FED_DATA
-	  int16_t last_strip = -1;
-	  uint16_t strips = useFedKey_ ? 256 : 256 * iconn->nApvPairs();
-#endif
-	  Fed9U::Fed9UEventIterator fed_iter = const_cast<Fed9U::Fed9UEventChannel&>(fedEvent_->channel( iunit, ichan )).getIterator();
-	  Fed9U::Fed9UEventIterator i = fed_iter + fed9uIterOffset; 
-	  while ( i.size() > 0 && !corrupt ) {
-	    unsigned char first_strip = *i++; // first strip of cluster
-	    unsigned char width = *i++;       // cluster width in strips 
-	    uint16_t istr = 0; 
-	    while ( istr < width && !corrupt ) {
-	      uint16_t strip = ipair*256 + first_strip + istr;
-#ifdef USE_PATCH_TO_CATCH_CORRUPT_FED_DATA
-	      if ( !( strip < strips && strip > last_strip ) ) { // check for corrupt FED data
-		// 		if ( edm::isDebugEnabled() ) {
-		// 		  std::stringstream ss;
-		// 		  ss << "[SiStripRawToDigiUnpacker::" << __func__ << "]"
-		// 		     << " Corrupt FED data found for FED id " << *ifed
-		// 		     << " and channel " << iconn->fedCh()
-		// 		     << "!  present strip: " << strip
-		// 		     << "  last strip: " << last_strip
-		// 		     << "  detector strips: " << strips;
-		// 		  edm::LogWarning(mlRawToDigi_) << ss.str();
-		// 		}
-		corrupt = true; 
-		break;
-	      } 
-	      last_strip = strip;
-#endif
-	      zs_work_digis_.push_back( SiStripDigi( strip, static_cast<uint16_t>(*i) ) );
-	      *i++; // Iterate to next sample
-	      istr++;
-	    }
-	  }
-	} catch(...) { 
-	  std::stringstream sss;
-	  sss << "Problem accessing ZERO_SUPPR data for FED id/ch: " 
-	      << *ifed << "/" << ichan;
-	  handleException( __func__, sss.str() ); 
-	} 
-
-        regItem.length = zs_work_digis_.size() - regItem.index;
-        if (regItem.length > 0) {
-            regItem.first = zs_work_digis_[regItem.index].strip();
-            zs_work_registry_.push_back(regItem);
-        }
-      } else { // Unknown readout mode! => assume scope mode
+      else if ( mode == sistrip::READOUT_MODE_SCOPE ) {
 	
+	std::vector<uint16_t> samples; 
+	
+	/// create unpacker
+	sistrip::FEDRawChannelUnpacker unpacker = sistrip::FEDRawChannelUnpacker::scopeModeUnpacker(buffer_->channel(iconn->fedCh()));
+
+	/// unpack -> add check to make sure strip < nstrips && strip > last strip......
+	while (unpacker.hasData()) {samples.push_back(unpacker.adc());unpacker++;}
+	
+	if ( !samples.empty() ) { 
+          Registry regItem(key, 0, scope_work_digis_.size(), samples.size());
+          for ( uint16_t i = 0, n = samples.size(); i < n; i++ ) {
+            scope_work_digis_.push_back(  SiStripRawDigi( samples[i] ) );
+          }
+          scope_work_registry_.push_back( regItem );
+	}
+      } 
+	
+      else { // Unknown readout mode! => assume scope mode
+
 	if ( edm::isDebugEnabled() ) {
 	  std::stringstream ss;
 	  ss << "[SiStripRawToDigiUnpacker::" << __func__ << "]"
@@ -389,210 +328,228 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
 	}
 	
 	std::vector<uint16_t> samples; 
-	try {
-   	  samples = fedEvent_->feUnit( iunit ).channel( ichan ).getSamples();
-	} catch(...) { 
-	  std::stringstream sss;
-	  sss << "Problem accessing data (UNKNOWN FED READOUT MODE) for FED id/ch: " 
-	      << *ifed << "/" << ichan;
-	  handleException( __func__, sss.str() ); 
-	} 
-
+	
+	/// create unpacker
+	sistrip::FEDRawChannelUnpacker unpacker = sistrip::FEDRawChannelUnpacker::scopeModeUnpacker(buffer_->channel(iconn->fedCh()));
+	
+	/// unpack -> add check to make sure strip < nstrips && strip > last strip......
+	while (unpacker.hasData()) {samples.push_back(unpacker.adc());unpacker++;}
+	
 	if ( !samples.empty() ) { 
-          DetSet_SiStripDig_registry regItem(key, 0, scope_work_digis_.size(), samples.size());
-	  for ( uint16_t i = 0, n= samples.size(); i < n; i++ ) {
+          Registry regItem(key, 0, scope_work_digis_.size(), samples.size());
+          for ( uint16_t i = 0, n = samples.size(); i < n; i++ ) {
             scope_work_digis_.push_back(  SiStripRawDigi( samples[i] ) );
-	  }
+          }
           scope_work_registry_.push_back( regItem );
-
+	  
 	  if ( edm::isDebugEnabled() ) {
 	    std::stringstream ss;
 	    ss << "Extracted " << samples.size() 
-	       << " SCOPE MODE digis (samples[0] = " << samples[0] 
+	       << " SCOPE MODE digis (samples[0] = " 
+	       << samples[0] 
 	       << ") from FED id/ch " 
-	       << iconn->fedId() << "/" << iconn->fedCh();
-	    //LogTrace(mlRawToDigi_) << ss.str();
+	       << iconn->fedId() 
+	       << "/" 
+	       << iconn->fedCh();
+	    LogTrace(mlRawToDigi_) << ss.str();
 	  }
-	} else {
-	  if ( edm::isDebugEnabled() ) {
+	}
+	else if ( edm::isDebugEnabled() ) {
 	    edm::LogWarning(mlRawToDigi_)
 	      << "[SiStripRawToDigiUnpacker::" << __func__ << "]"
 	      << " No SM digis found!"; 
 	  }
-	}
-
-      }
-
+      } 
     } // channel loop
+    if (buffer_) delete buffer_;
   } // fed loop
 
-  if ( ! zs_work_registry_.empty() ) {
-        std::sort( zs_work_registry_.begin(), zs_work_registry_.end() );
-        std::vector< edm::DetSet<SiStripDigi> > sorted_and_merged;
-        sorted_and_merged.reserve(  std::min(zs_work_registry_.size(), size_t(17000)) );
+  // update DetSetVectors
+  update(scope_mode, virgin_raw, proc_raw, zero_suppr);
 
-        bool errorInData = false;
-        std::vector<DetSet_SiStripDig_registry>::iterator it = zs_work_registry_.begin(), it2 = it+1, end = zs_work_registry_.end();
-        while (it < end) {
-            sorted_and_merged.push_back( edm::DetSet<SiStripDigi>(it->detid) );
-            std::vector<SiStripDigi> & digis = sorted_and_merged.back().data;
-            // first count how many digis we have
-            size_t len = it->length;
-            for (it2 = it+1; (it2 != end) && (it2->detid == it->detid); ++it2) { len += it2->length; }
-            // reserve memory 
-            digis.reserve(len);
-            // push them in
-            for (it2 = it+0; (it2 != end) && (it2->detid == it->detid); ++it2) {
-                digis.insert( digis.end(), & zs_work_digis_[it2->index], & zs_work_digis_[it2->index + it2->length] );
-            }
-            it = it2;
-        }
-        // check sorting
-        if (!__gnu_cxx::is_sorted( sorted_and_merged.begin(), sorted_and_merged.end() )) {
-            // this is an error in the code: i DID sort it already!
-            throw cms::Exception("Bug Found") << "Container must be already sorted!\nat " << __FILE__ << ", line " << __LINE__ <<"\n";
-        }
-        std::vector< edm::DetSet<SiStripDigi> >::iterator iii = sorted_and_merged.begin();
-        std::vector< edm::DetSet<SiStripDigi> >::iterator jjj = sorted_and_merged.end(); 
-        for ( ; iii != jjj; ++iii ) { 
-            if ( ! __gnu_cxx::is_sorted( iii->begin(), iii->end() ) ) {
-                // this might be an error in the data, if the raws from one FED are not sorted
-                iii->clear(); errorInData = true;
-            }
-        }
-        if (errorInData) { edm::LogWarning("CorruptData") << "Some modules contained corrupted ZS raw data, and have been skipped in unpacking\n"; }
-        // make output DetSetVector
-        edm::DetSetVector<SiStripDigi> zero_suppr_dsv( sorted_and_merged, true ); 
-        zero_suppr.swap( zero_suppr_dsv );
-  } 
-
-  // Populate final DetSetVector container with VR data 
-  if ( !virgin_work_registry_.empty() ) {
-      std::sort( virgin_work_registry_.begin(), virgin_work_registry_.end() );
-
-      std::vector< edm::DetSet<SiStripRawDigi> > sorted_and_merged;
-      sorted_and_merged.reserve( std::min(virgin_work_registry_.size(), size_t(17000)) );
-
-      bool errorInData = false;
-      std::vector<DetSet_SiStripDig_registry>::iterator it = virgin_work_registry_.begin(), it2, end = virgin_work_registry_.end();
-      while (it < end) {
-          sorted_and_merged.push_back( edm::DetSet<SiStripRawDigi>(it->detid) );
-          std::vector<SiStripRawDigi> & digis = sorted_and_merged.back().data;
-
-          bool isDetOk = true; 
-          // first count how many digis we have
-          int maxFirstStrip = it->first;
-          for (it2 = it+1; (it2 != end) && (it2->detid == it->detid); ++it2) { 
-              if (it2->first <= maxFirstStrip) { isDetOk = false; continue; } // duplicated APV or data corruption. DO NOT 'break' here!
-              maxFirstStrip = it2->first;                           
-          }
-          if (!isDetOk) { errorInData = true; it = it2; continue; } // skip whole det
-          // make room for 256 * (max_apv_pair + 1) Raw Digis
-          digis.resize(maxFirstStrip + 256);
-          // push them in
-          for (it2 = it+0; (it2 != end) && (it2->detid == it->detid); ++it2) {
-              if (it->length != 256)  { isDetOk = false; continue; } // data corruption. DO NOT 'break' here
-              std::copy( & virgin_work_digis_[it2->index], & virgin_work_digis_[it2->index + it2->length], & digis[it2->first] );
-          }
-          if (!isDetOk) { errorInData = true; digis.clear(); it = it2; continue; } // skip whole det
-          it = it2;
-      }
-      if (errorInData) { edm::LogWarning("CorruptData") << "Some modules contained corrupted virgin raw data, and have been skipped in unpacking\n"; }
-      // check sorting
-      if ( !__gnu_cxx::is_sorted( sorted_and_merged.begin(), sorted_and_merged.end()  ) ) {
-          // this is an error in the code: i DID sort it already!
-          throw cms::Exception("Bug Found") << "Container must be already sorted!\nat " << __FILE__ << ", line " << __LINE__ <<"\n";
-      }
-      // make output DetSetVector
-      edm::DetSetVector<SiStripRawDigi> virgin_raw_dsv( sorted_and_merged, true ); 
-      virgin_raw.swap( virgin_raw_dsv );
-  } 
-  
-  // Populate final DetSetVector container with PR data 
-  if ( !proc_work_registry_.empty() ) {
-      std::sort( proc_work_registry_.begin(), proc_work_registry_.end() );
-
-      std::vector< edm::DetSet<SiStripRawDigi> > sorted_and_merged;
-      sorted_and_merged.reserve( std::min(proc_work_registry_.size(), size_t(17000)) );
-
-      bool errorInData = false;
-      std::vector<DetSet_SiStripDig_registry>::iterator it = proc_work_registry_.begin(), it2 = it+1, end = proc_work_registry_.end();
-      while (it < end) {
-          sorted_and_merged.push_back( edm::DetSet<SiStripRawDigi>(it->detid) );
-          std::vector<SiStripRawDigi> & digis = sorted_and_merged.back().data;
-          bool isDetOk = true; 
-          // first count how many digis we have
-          int maxFirstStrip = it->first;
-          for (it2 = it+1; (it2 != end) && (it2->detid == it->detid); ++it2) { 
-              if (it2->first <= maxFirstStrip) { isDetOk = false; continue; } // duplicated APV or data corruption. DO NOT 'break' here!
-              maxFirstStrip = it2->first; 
-          }
-          if (!isDetOk) { errorInData = true; it = it2; continue; } // skip whole det
-          // make room for 256 * (max_apv_pair + 1) Raw Digis
-          digis.resize(maxFirstStrip + 256);
-          // push them in
-          for (it2 = it+0; (it2 != end) && (it2->detid == it->detid); ++it2) {
-              if (it->length != 256)  { isDetOk = false; continue; } // data corruption. DO NOT 'break' here
-              std::copy( & proc_work_digis_[it2->index], & proc_work_digis_[it2->index + it2->length], & digis[it->first] );
-          }
-          if (!isDetOk) { errorInData = true; digis.clear(); it = it2; continue; } // skip whole det
-          it = it2;
-      }
-      if (errorInData) { edm::LogWarning("CorruptData") << "Some modules contained corrupted processed raw data, and have been skipped in unpacking\n"; }
-      // check sorting
-      if ( !__gnu_cxx::is_sorted( sorted_and_merged.begin(), sorted_and_merged.end()  ) ) {
-          // this is an error in the code: i DID sort it already!
-          throw cms::Exception("Bug Found") << "Container must be already sorted!\nat " << __FILE__ << ", line " << __LINE__ <<"\n";
-      }
-      // make output DetSetVector
-      edm::DetSetVector<SiStripRawDigi> proc_raw_dsv( sorted_and_merged, true ); 
-      proc_raw.swap( proc_raw_dsv );
-  } 
-  
-  // Populate final DetSetVector container with SM data 
-  if ( !scope_work_registry_.empty() ) {
-      std::sort( scope_work_registry_.begin(), scope_work_registry_.end() );
-
-      std::vector< edm::DetSet<SiStripRawDigi> > sorted_and_merged;
-      sorted_and_merged.reserve( scope_work_registry_.size() );
-
-      bool errorInData = false;
-      std::vector<DetSet_SiStripDig_registry>::iterator it, end;
-      for (it = scope_work_registry_.begin(), end = scope_work_registry_.end() ; it != end; ++it) {
-          sorted_and_merged.push_back( edm::DetSet<SiStripRawDigi>(it->detid) );
-          std::vector<SiStripRawDigi> & digis = sorted_and_merged.back().data;
-          digis.insert( digis.end(), & scope_work_digis_[it->index], & scope_work_digis_[it->index + it->length] );
-
-          if ( (it +1 != end) && (it->detid == (it+1)->detid) ) {
-              errorInData = true; 
-              // let's skip *all* the detsets for that key, as we don't know which is the correct one!
-              do { ++it; } while ( ( it+1 != end) && (it->detid == (it+1)->detid) );
-              //throw cms::Exception("Duplicate Key") << "Duplicate key " << it->detid << " found in scope mode.\n"; 
-          }
-      }
-      if (errorInData) { edm::LogWarning("CorruptData") << "Some fed keys contained corrupted scope mode data, and have been skipped in unpacking\n"; }
-      // check sorting
-      if ( !__gnu_cxx::is_sorted( sorted_and_merged.begin(), sorted_and_merged.end()  ) ) {
-          // this is an error in the code: i DID sort it already!
-          throw cms::Exception("Bug Found") << "Container must be already sorted!\nat " << __FILE__ << ", line " << __LINE__ <<"\n";
-      }
-      // make output DetSetVector
-      edm::DetSetVector<SiStripRawDigi> scope_mode_dsv( sorted_and_merged, true ); 
-      scope_mode.swap( scope_mode_dsv );
-
-  } 
-
-  // Increment event counter
+  // increment event counter
   event_++;
   
+  // no longer first event!
   if ( first_ ) { first_ = false; }
-
+  
   // final cleanup, just in case
   cleanupWorkVectors();
 }
 
-// -----------------------------------------------------------------------------
-//
+  void SiStripRawToDigiUnpacker::update( RawDigis& scope_mode, RawDigis& virgin_raw, RawDigis& proc_raw, Digis& zero_suppr )
+{
+  if ( ! zs_work_registry_.empty() ) {
+    std::sort( zs_work_registry_.begin(), zs_work_registry_.end() );
+    std::vector< edm::DetSet<SiStripDigi> > sorted_and_merged;
+    sorted_and_merged.reserve(  std::min(zs_work_registry_.size(), size_t(17000)) );
+    
+    bool errorInData = false;
+    std::vector<Registry>::iterator it = zs_work_registry_.begin(), it2 = it+1, end = zs_work_registry_.end();
+    while (it < end) {
+      sorted_and_merged.push_back( edm::DetSet<SiStripDigi>(it->detid) );
+      std::vector<SiStripDigi> & digis = sorted_and_merged.back().data;
+      // first count how many digis we have
+      size_t len = it->length;
+      for (it2 = it+1; (it2 != end) && (it2->detid == it->detid); ++it2) { len += it2->length; }
+      // reserve memory 
+      digis.reserve(len);
+      // push them in
+      for (it2 = it+0; (it2 != end) && (it2->detid == it->detid); ++it2) {
+	digis.insert( digis.end(), & zs_work_digis_[it2->index], & zs_work_digis_[it2->index + it2->length] );
+      }
+      it = it2;
+    }
+    
+    // check sorting
+    if (!__gnu_cxx::is_sorted( sorted_and_merged.begin(), sorted_and_merged.end() )) {
+      // this is an error in the code: i DID sort it already!
+      throw cms::Exception("Bug Found") << "Container must be already sorted!\nat " << __FILE__ << ", line " << __LINE__ <<"\n";
+    }
+    
+    std::vector< edm::DetSet<SiStripDigi> >::iterator iii = sorted_and_merged.begin();
+    std::vector< edm::DetSet<SiStripDigi> >::iterator jjj = sorted_and_merged.end();
+    for ( ; iii != jjj; ++iii ) { 
+      if ( ! __gnu_cxx::is_sorted( iii->begin(), iii->end() ) ) {
+	// this might be an error in the data, if the raws from one FED are not sorted
+	iii->clear(); 
+	errorInData = true;
+      }
+    }	
+    
+    if (errorInData) {edm::LogWarning("CorruptData") << "Some modules contained corrupted ZS raw data, and have been skipped in unpacking\n";}
+    
+    // make output DetSetVector
+    edm::DetSetVector<SiStripDigi> zero_suppr_dsv( sorted_and_merged, true ); 
+    zero_suppr.swap( zero_suppr_dsv );
+  } 
+  
+  // Populate final DetSetVector container with VR data 
+  if ( !virgin_work_registry_.empty() ) {
+    std::sort( virgin_work_registry_.begin(), virgin_work_registry_.end() );
+    
+    std::vector< edm::DetSet<SiStripRawDigi> > sorted_and_merged;
+    sorted_and_merged.reserve( std::min(virgin_work_registry_.size(), size_t(17000)) );
+    
+    bool errorInData = false;
+    std::vector<Registry>::iterator it = virgin_work_registry_.begin(), it2, end = virgin_work_registry_.end();
+    while (it < end) {
+      sorted_and_merged.push_back( edm::DetSet<SiStripRawDigi>(it->detid) );
+      std::vector<SiStripRawDigi> & digis = sorted_and_merged.back().data;
+      
+      bool isDetOk = true; 
+      // first count how many digis we have
+      int maxFirstStrip = it->first;
+      for (it2 = it+1; (it2 != end) && (it2->detid == it->detid); ++it2) { 
+	if (it2->first <= maxFirstStrip) { isDetOk = false; continue; } // duplicated APV or data corruption. DO NOT 'break' here!
+	maxFirstStrip = it2->first;                           
+      }
+      if (!isDetOk) { errorInData = true; it = it2; continue; } // skip whole det
+      
+      // make room for 256 * (max_apv_pair + 1) Raw Digis
+      digis.resize(maxFirstStrip + 256);
+      // push them in
+      for (it2 = it+0; (it2 != end) && (it2->detid == it->detid); ++it2) {
+	if (it->length != 256)  { isDetOk = false; continue; } // data corruption. DO NOT 'break' here
+	std::copy( & virgin_work_digis_[it2->index], & virgin_work_digis_[it2->index + it2->length], & digis[it2->first] );
+      }
+      if (!isDetOk) { errorInData = true; digis.clear(); it = it2; continue; } // skip whole det
+      it = it2;
+    }
+    
+    if (errorInData) { edm::LogWarning("CorruptData") << "Some modules contained corrupted virgin raw data, and have been skipped in unpacking\n"; }
+    
+    // check sorting
+    if ( !__gnu_cxx::is_sorted( sorted_and_merged.begin(), sorted_and_merged.end()  ) ) {
+      // this is an error in the code: i DID sort it already!
+      throw cms::Exception("Bug Found") << "Container must be already sorted!\nat " << __FILE__ << ", line " << __LINE__ <<"\n";
+    }
+    
+    // make output DetSetVector
+    edm::DetSetVector<SiStripRawDigi> virgin_raw_dsv( sorted_and_merged, true ); 
+    virgin_raw.swap( virgin_raw_dsv );
+  }
+  
+  // Populate final DetSetVector container with VR data 
+  if ( !proc_work_registry_.empty() ) {
+    std::sort( proc_work_registry_.begin(), proc_work_registry_.end() );
+    
+    std::vector< edm::DetSet<SiStripRawDigi> > sorted_and_merged;
+    sorted_and_merged.reserve( std::min(proc_work_registry_.size(), size_t(17000)) );
+    
+    bool errorInData = false;
+    std::vector<Registry>::iterator it = proc_work_registry_.begin(), it2, end = proc_work_registry_.end();
+    while (it < end) {
+      sorted_and_merged.push_back( edm::DetSet<SiStripRawDigi>(it->detid) );
+      std::vector<SiStripRawDigi> & digis = sorted_and_merged.back().data;
+      
+      bool isDetOk = true; 
+      // first count how many digis we have
+      int maxFirstStrip = it->first;
+      for (it2 = it+1; (it2 != end) && (it2->detid == it->detid); ++it2) { 
+	if (it2->first <= maxFirstStrip) { isDetOk = false; continue; } // duplicated APV or data corruption. DO NOT 'break' here!
+	maxFirstStrip = it2->first;                           
+      }
+      if (!isDetOk) { errorInData = true; it = it2; continue; } // skip whole det
+      
+      // make room for 256 * (max_apv_pair + 1) Raw Digis
+      digis.resize(maxFirstStrip + 256);
+      // push them in
+      for (it2 = it+0; (it2 != end) && (it2->detid == it->detid); ++it2) {
+	if (it->length != 256)  { isDetOk = false; continue; } // data corruption. DO NOT 'break' here
+	std::copy( & proc_work_digis_[it2->index], & proc_work_digis_[it2->index + it2->length], & digis[it2->first] );
+      }
+      if (!isDetOk) { errorInData = true; digis.clear(); it = it2; continue; } // skip whole det
+      it = it2;
+    }
+    
+    if (errorInData) { edm::LogWarning("CorruptData") << "Some modules contained corrupted proc raw data, and have been skipped in unpacking\n"; }
+    
+    // check sorting
+    if ( !__gnu_cxx::is_sorted( sorted_and_merged.begin(), sorted_and_merged.end()  ) ) {
+      // this is an error in the code: i DID sort it already!
+      throw cms::Exception("Bug Found") << "Container must be already sorted!\nat " << __FILE__ << ", line " << __LINE__ <<"\n";
+    }
+    
+    // make output DetSetVector
+    edm::DetSetVector<SiStripRawDigi> proc_raw_dsv( sorted_and_merged, true ); 
+    proc_raw.swap( proc_raw_dsv );
+  }
+  
+  // Populate final DetSetVector container with SM data 
+  if ( !scope_work_registry_.empty() ) {
+    std::sort( scope_work_registry_.begin(), scope_work_registry_.end() );
+    
+    std::vector< edm::DetSet<SiStripRawDigi> > sorted_and_merged;
+    sorted_and_merged.reserve( scope_work_registry_.size() );
+    
+    bool errorInData = false;
+    std::vector<Registry>::iterator it, end;
+    for (it = scope_work_registry_.begin(), end = scope_work_registry_.end() ; it != end; ++it) {
+      sorted_and_merged.push_back( edm::DetSet<SiStripRawDigi>(it->detid) );
+      std::vector<SiStripRawDigi> & digis = sorted_and_merged.back().data;
+      digis.insert( digis.end(), & scope_work_digis_[it->index], & scope_work_digis_[it->index + it->length] );
+      
+      if ( (it +1 != end) && (it->detid == (it+1)->detid) ) {
+	errorInData = true; 
+	// let's skip *all* the detsets for that key, as we don't know which is the correct one!
+	do { ++it; } while ( ( it+1 != end) && (it->detid == (it+1)->detid) );
+	//throw cms::Exception("Duplicate Key") << "Duplicate key " << it->detid << " found in scope mode.\n"; 
+      }
+    }
+    if (errorInData) { edm::LogWarning("CorruptData") << "Some fed keys contained corrupted scope mode data, and have been skipped in unpacking\n"; }
+    // check sorting
+    if ( !__gnu_cxx::is_sorted( sorted_and_merged.begin(), sorted_and_merged.end()  ) ) {
+      // this is an error in the code: i DID sort it already!
+      throw cms::Exception("Bug Found") << "Container must be already sorted!\nat " << __FILE__ << ", line " << __LINE__ <<"\n";
+    }
+    // make output DetSetVector
+    edm::DetSetVector<SiStripRawDigi> scope_mode_dsv( sorted_and_merged, true ); 
+    scope_mode.swap( scope_mode_dsv );
+    
+  }
+}
+
 void SiStripRawToDigiUnpacker::cleanupWorkVectors() {
   // Clear working areas and registries
   zs_work_registry_.clear();      zs_work_digis_.clear();
@@ -601,11 +558,7 @@ void SiStripRawToDigiUnpacker::cleanupWorkVectors() {
   scope_work_registry_.clear();   scope_work_digis_.clear();
 }
 
-// -----------------------------------------------------------------------------
-//
-void SiStripRawToDigiUnpacker::triggerFed( const FEDRawDataCollection& buffers,
-					   SiStripEventSummary& summary,
-					   const uint32_t& event ) {
+void SiStripRawToDigiUnpacker::triggerFed( const FEDRawDataCollection& buffers, SiStripEventSummary& summary, const uint32_t& event ) {
   
   // Pointer to data (recast as 32-bit words) and number of 32-bit words
   uint32_t* data_u32 = 0;
@@ -721,13 +674,7 @@ void SiStripRawToDigiUnpacker::triggerFed( const FEDRawDataCollection& buffers,
   
 }
 
-//------------------------------------------------------------------------------
-/** 
-    Removes any data appended prior to FED buffer and reorders 32-bit words if swapped.
-*/
-void SiStripRawToDigiUnpacker::locateStartOfFedBuffer( const uint16_t& fed_id,
-						       const FEDRawData& input,
-						       FEDRawData& output ) {
+void SiStripRawToDigiUnpacker::locateStartOfFedBuffer( const uint16_t& fed_id, const FEDRawData& input, FEDRawData& output ) {
   
   // Check size of input buffer
   if ( input.size() < 24 ) { 
@@ -917,10 +864,7 @@ void SiStripRawToDigiUnpacker::locateStartOfFedBuffer( const uint16_t& fed_id,
   
 }
 
-// -----------------------------------------------------------------------------
-//
-void SiStripRawToDigiUnpacker::updateEventSummary( const Fed9U::Fed9UEvent* const fed, 
-						   SiStripEventSummary& summary ) {
+void SiStripRawToDigiUnpacker::updateEventSummary( const Fed9U::Fed9UEvent* const fed, SiStripEventSummary& summary ) {
   
   // Retrieve contents of DAQ registers
   //@@ uint16_t trigger_type = sistrip::invalid_;
@@ -966,14 +910,8 @@ void SiStripRawToDigiUnpacker::updateEventSummary( const Fed9U::Fed9UEvent* cons
   
 }
 
-//------------------------------------------------------------------------------
-/** 
-    Dumps raw data to stdout (NB: payload is byte-swapped,
-    headers/trailer are not).
-*/
-void SiStripRawToDigiUnpacker::dumpRawData( uint16_t fed_id, 
-					    const FEDRawData& buffer,
-					    std::stringstream& ss ) {
+void SiStripRawToDigiUnpacker::dumpRawData( uint16_t fed_id, const FEDRawData& buffer, std::stringstream& ss ) {
+
   ss << "[SiStripRawToDigiUnpacker::" << __func__ << "]"
      << " Dump of buffer for FED id " <<  fed_id << std::endl
      << " Buffer contains " << buffer.size()
@@ -1048,10 +986,8 @@ void SiStripRawToDigiUnpacker::dumpRawData( uint16_t fed_id,
      << " End of FED buffer";
 }
 
-// -----------------------------------------------------------------------------
-// 
-void SiStripRawToDigiUnpacker::handleException( std::string method_name,
-						std::string extra_info ) { // throw (cms::Exception) {
+void SiStripRawToDigiUnpacker::handleException( std::string method_name, std::string extra_info ) { 
+
   method_name = "SiStripRawToDigiUnpacker::" + method_name;
   try {
     throw; // rethrow caught exception to be dealt with below
@@ -1103,5 +1039,396 @@ void SiStripRawToDigiUnpacker::handleException( std::string method_name,
     }
     //throw cms::Exception(mlRawToDigi_) << ss.str();
   }
+}
+
+
+sistrip::RawToDigiUnpacker::RawToDigiUnpacker( int16_t appended_bytes, int16_t fed_buffer_dump_freq, int16_t fed_event_dump_freq, int16_t trigger_fed_id, bool using_fed_key  ) :
+  unpacker_(0) 
+{
+  unpacker_ = new SiStripRawToDigiUnpacker(appended_bytes, fed_buffer_dump_freq, fed_event_dump_freq, trigger_fed_id, using_fed_key);
+}
+
+sistrip::RawToDigiUnpacker::~RawToDigiUnpacker() 
+    {
+      if (unpacker_) delete unpacker_;
+    }
+
+void sistrip::RawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling, const FEDRawDataCollection& buffers, SiStripEventSummary& summary, RawDigis& scope_mode, RawDigis& virgin_raw, RawDigis& proc_raw, Digis& zero_suppr ) {
+
+  // Clear working areas and registries
+  unpacker_->cleanupWorkVectors();
+  
+  // Check if FEDs found in cabling map and event data
+  if ( edm::isDebugEnabled() ) {
+    if ( cabling.feds().empty() ) {
+      edm::LogWarning(mlRawToDigi_)
+	<< "[SiStripRawToDigiUnpacker::" << __func__ << "]"
+	<< " No FEDs found in cabling map!";
+      // Check which FED ids have non-zero size buffers
+      std::pair<int,int> fed_range = FEDNumbering::getSiStripFEDIds();
+      std::vector<uint16_t> feds;
+      for ( uint16_t ifed = static_cast<uint16_t>(fed_range.first);
+	    ifed < static_cast<uint16_t>(fed_range.second); ifed++ ) {
+	if ( ifed != unpacker_->triggerFedId_ && 
+	     buffers.FEDData( static_cast<int>(ifed) ).size() ) {
+	  feds.push_back(ifed);
+	}
+      }
+      LogTrace(mlRawToDigi_)
+	<< "[SiStripRawToDigiUnpacker::" << __func__ << "]"
+	<< " Found " << feds.size() << " FED buffers with non-zero size!";
+    }
+  }
+
+  // Flag for EventSummary update using DAQ register  
+  bool first_fed = true;
+  
+  // Retrieve FED ids from cabling map and iterate through 
+  std::vector<uint16_t>::const_iterator ifed = cabling.feds().begin();
+  for ( ; ifed != cabling.feds().end(); ifed++ ) {
+
+    //if ( *ifed == triggerFedId_ ) { continue; }
+    
+    // Retrieve FED raw data for given FED 
+    const FEDRawData& input = buffers.FEDData( static_cast<int>(*ifed) );
+    
+    // Some debug on FED buffer size
+    if ( edm::isDebugEnabled() ) {
+      if ( unpacker_->first_ && input.data() ) {
+	std::stringstream ss;
+	ss << "[SiStripRawToDigiUnpacker::" << __func__ << "]"
+	   << " Found FED id " 
+	   << std::setw(4) << std::setfill(' ') << *ifed 
+	   << " in FEDRawDataCollection"
+	   << " with non-zero pointer 0x" 
+	   << std::hex
+	   << std::setw(8) << std::setfill('0') 
+	   << reinterpret_cast<uint32_t*>( const_cast<uint8_t*>(input.data()))
+	   << std::dec
+	   << " and size " 
+	   << std::setw(5) << std::setfill(' ') << input.size()
+	   << " chars";
+	LogTrace(mlRawToDigi_) << ss.str();
+      }	
+    }
+    
+    // Dump of FEDRawData to stdout
+    if ( edm::isDebugEnabled() ) {
+      if ( unpacker_->fedBufferDumpFreq_ && !(unpacker_->event_%unpacker_->fedBufferDumpFreq_) ) {
+	std::stringstream ss;
+	unpacker_->dumpRawData( *ifed, input, ss );
+	edm::LogVerbatim(mlRawToDigi_) << ss.str();
+      }
+    }
+    
+    // Handle 32-bit swapped data (and locate start of FED buffer within raw data)
+    FEDRawData output; 
+    unpacker_->locateStartOfFedBuffer( *ifed, input, output );
+    
+    // Recast data to suit Fed9UEvent
+    Fed9U::u32* data_u32 = reinterpret_cast<Fed9U::u32*>( const_cast<unsigned char*>( output.data() ) );
+    Fed9U::u32  size_u32 = static_cast<Fed9U::u32>( output.size() / 4 ); 
+    
+    // Check on FEDRawData pointer
+    if ( !data_u32 ) {
+      if ( edm::isDebugEnabled() ) {
+	edm::LogWarning(mlRawToDigi_)
+	  << "[SiStripRawToDigiUnpacker::" << __func__ << "]"
+	  << " NULL pointer to FEDRawData for FED id " << *ifed;
+      }
+      continue;
+    }	
+    
+    // Check on FEDRawData size
+    if ( !size_u32 ) {
+      if ( edm::isDebugEnabled() ) {
+	edm::LogWarning(mlRawToDigi_)
+	  << "[SiStripRawToDigiUnpacker::" << __func__ << "]"
+	  << " FEDRawData has zero size for FED id " << *ifed;
+      }
+      continue;
+    }
+    
+    // Initialise Fed9UEvent using present FED buffer
+    try {
+      fedEvent_->Init( data_u32, 0, size_u32 ); 
+      //fedEvent_->checkEvent();
+    } catch(...) { 
+      unpacker_->handleException( __func__, "Problem when creating Fed9UEvent" ); 
+      continue;
+    } 
+   
+    // Check if EventSummary ("trigger FED info") needs updating
+    
+    if ( first_fed && unpacker_->useDaqRegister_ ) { unpacker_->updateEventSummary( fedEvent_, summary ); }
+    if ( first_fed ) { first_fed = false; }
+    
+    // Check to see if EventSummary info is set
+    if ( edm::isDebugEnabled() ) {
+      if ( !unpacker_->quiet_ && !summary.isSet() ) {
+	std::stringstream ss;
+	ss << "[SiStripRawToDigiUnpacker::" << __func__ << "]"
+	   << " EventSummary is not set correctly!"
+	   << " Missing information from both \"trigger FED\" and \"DAQ registers\"!";
+	edm::LogWarning(mlRawToDigi_) << ss.str();
+      }
+    }
+    
+    // Check to see if event is to be analyzed according to EventSummary
+    if ( !summary.valid() ) { 
+      if ( edm::isDebugEnabled() ) {
+	LogTrace(mlRawToDigi_)
+	  << "[SiStripRawToDigiUnpacker::" << __func__ << "]"
+	  << " EventSummary is not valid: skipping...";
+      }
+      continue; 
+    }
+    
+    // Retrive readout mode
+    sistrip::FedReadoutMode mode = sistrip::UNDEFINED_FED_READOUT_MODE;
+    try {
+      mode = unpacker_->fedReadoutMode( static_cast<unsigned int>( fedEvent_->getSpecialTrackerEventType() ) );
+    } catch(...) { unpacker_->handleException( __func__, "Problem extracting readout mode from Fed9UEvent" ); } 
+    
+    // Retrive run type
+    sistrip::RunType runType_ = summary.runType();
+    if( runType_ == sistrip::APV_LATENCY || runType_ == sistrip::FINE_DELAY ) { unpacker_->useFedKey_ = false; } //@@ force!
+     
+    // Dump of FED buffer
+    if ( edm::isDebugEnabled() ) {
+      if ( unpacker_->fedEventDumpFreq_ && !(unpacker_->event_%unpacker_->fedEventDumpFreq_) ) {
+	std::stringstream ss;
+	fedEvent_->dump( ss );
+	edm::LogVerbatim(mlRawToDigi_) << ss.str();
+      }
+    }
+    
+    // Iterate through FED channels, extract payload and create Digis
+    const std::vector<FedChannelConnection>& conns = cabling.connections(*ifed);
+    std::vector<FedChannelConnection>::const_iterator iconn = conns.begin();
+    for ( ; iconn != conns.end(); iconn++ ) {
+
+      // Check if FedId is valid
+      if ( !iconn->isConnected() ) { continue; }
+      
+      // Check DetId is valid (if to be used as key)
+      if ( !unpacker_->useFedKey_ && ( !iconn->detId() || iconn->detId() == sistrip::invalid32_ ) ) { continue; }
+
+      // Retrieve channel using Fed9UAddress 
+      uint16_t channel = iconn->fedCh();
+      uint16_t iunit = channel / 12;
+      uint16_t ichan = channel % 12;
+      uint16_t chan  = 12 * iunit + ichan;
+      try {
+	Fed9U::Fed9UAddress addr;
+	addr.setFedChannel( static_cast<unsigned char>( channel ) );
+	iunit = addr.getFedFeUnit();
+	ichan = addr.getFeUnitChannel();
+	chan  = 12*( addr.getFedFeUnit() ) + addr.getFeUnitChannel();
+      } catch(...) { 
+	unpacker_->handleException( __func__, "Problem using Fed9UAddress" ); 
+      } 
+      
+      // Determine whether FED key is inferred from cabling or channel loop
+      uint32_t fed_key = 0;
+      if ( summary.runType() == sistrip::FED_CABLING ) {
+	fed_key = ( ( *ifed & sistrip::invalid_ ) << 16 ) | ( chan & sistrip::invalid_ );
+      } else { 
+	fed_key = ( ( iconn->fedId() & sistrip::invalid_ ) << 16 ) | ( iconn->fedCh() & sistrip::invalid_ );
+      }
+      
+      // Determine whether DetId or FED key should be used to index digi containers
+      uint32_t key = ( unpacker_->useFedKey_ || mode == sistrip::FED_SCOPE_MODE ) ? fed_key : iconn->detId();
+      
+      // Determine APV std::pair number (needed only when using DetId)
+      uint16_t ipair = ( unpacker_->useFedKey_ || mode == sistrip::FED_SCOPE_MODE ) ? 0 : iconn->apvPairNumber();
+
+      if ( mode == sistrip::FED_SCOPE_MODE ) {
+	
+	std::vector<uint16_t> samples; 
+	try { 
+   	  samples = fedEvent_->feUnit( iunit ).channel( ichan ).getSamples();
+	} catch(...) { 
+	  std::stringstream sss;
+	  sss << "Problem accessing SCOPE_MODE data for FedId/FeUnit/FeChan: " 
+	      << *ifed << "/" << iunit << "/" << ichan;
+	  unpacker_->handleException( __func__, sss.str() ); 
+	} 
+	
+	if ( !samples.empty() ) { 
+          SiStripRawToDigiUnpacker::Registry regItem(key, 0, unpacker_->scope_work_digis_.size(), samples.size());
+          for ( uint16_t i = 0, n = samples.size(); i < n; i++ ) {
+            unpacker_->scope_work_digis_.push_back(  SiStripRawDigi( samples[i] ) );
+          }
+          unpacker_->scope_work_registry_.push_back( regItem );
+	}
+      } else if ( mode == sistrip::FED_VIRGIN_RAW ) {
+
+	std::vector<uint16_t> samples; 
+	try {
+   	  samples = fedEvent_->channel( iunit, ichan ).getSamples();
+	} catch(...) { 
+	  std::stringstream sss;
+	  sss << "Problem accessing VIRGIN_RAW data for FED id/ch: " 
+	      << *ifed << "/" << ichan;
+	  unpacker_->handleException( __func__, sss.str() ); 
+	} 
+	
+	if ( !samples.empty() ) { 
+          SiStripRawToDigiUnpacker::Registry regItem(key, 256*ipair, unpacker_->virgin_work_digis_.size(), samples.size());
+	  uint16_t physical;
+	  uint16_t readout; 
+          for ( uint16_t i = 0, n = samples.size(); i < n; i++ ) {
+	    physical = i%128;
+	    unpacker_->readoutOrder( physical, readout );                 // convert index from physical to readout order
+	    (i/128) ? readout=readout*2+1 : readout=readout*2; // un-multiplex data
+            unpacker_->virgin_work_digis_.push_back(  SiStripRawDigi( samples[readout] ) );
+	  }
+          unpacker_->virgin_work_registry_.push_back( regItem );
+	}
+      } else if ( mode == sistrip::FED_PROC_RAW ) {
+
+	std::vector<uint16_t> samples; 
+	try {
+   	  samples = fedEvent_->channel( iunit, ichan ).getSamples();
+	} catch(...) { 
+	  std::stringstream sss;
+	  sss << "Problem accessing PROC_RAW data for FED id/ch: " 
+	      << *ifed << "/" << ichan;
+	  unpacker_->handleException( __func__, sss.str() ); 
+	} 
+
+	if ( !samples.empty() ) { 
+          SiStripRawToDigiUnpacker::Registry regItem(key, 256*ipair, unpacker_->proc_work_digis_.size(), samples.size());
+          for ( uint16_t i = 0, n = samples.size(); i < n; i++ ) {
+            unpacker_->proc_work_digis_.push_back(  SiStripRawDigi( samples[i] ) );
+          }
+          unpacker_->proc_work_registry_.push_back( regItem );
+	}
+
+      } else if ( ( mode == sistrip::FED_ZERO_SUPPR ) || ( mode == sistrip::FED_ZERO_SUPPR_LITE ) ) { 
+
+        SiStripRawToDigiUnpacker::Registry regItem(key, 0, unpacker_->zs_work_digis_.size(), 0);
+
+        int fed9uIterOffset = (mode == sistrip::FED_ZERO_SUPPR ? 7 : 2); // offset to start decoding from
+	try{ 
+	  bool corrupt = false;
+	  // look for corrupted FED data
+          #ifdef USE_PATCH_TO_CATCH_CORRUPT_FED_DATA
+	  int16_t last_strip = -1;
+	  uint16_t strips = useFedKey_ ? 256 : 256 * iconn->nApvPairs();
+          #endif
+	  Fed9U::Fed9UEventIterator fed_iter = const_cast<Fed9U::Fed9UEventChannel&>(fedEvent_->channel( iunit, ichan )).getIterator();
+	  Fed9U::Fed9UEventIterator i = fed_iter + fed9uIterOffset; 
+	  while ( i.size() > 0 && !corrupt ) {
+	    unsigned char first_strip = *i++; // first strip of cluster
+	    unsigned char width = *i++;       // cluster width in strips 
+	    uint16_t istr = 0; 
+	    while ( istr < width && !corrupt ) {
+	      uint16_t strip = ipair*256 + first_strip + istr;
+	      // look for corrupted FED data
+              #ifdef USE_PATCH_TO_CATCH_CORRUPT_FED_DATA
+	      if ( !( strip < strips && strip > last_strip ) ) { // check for corrupt FED data
+		if ( edm::isDebugEnabled() ) {
+		  std::stringstream ss;
+		  edm::LogWarning(mlRawToDigi_)
+		    << "[SiStripRawToDigiUnpacker::" 
+		    << __func__ 
+		    << "]"
+		    << " Corrupt FED data found for FED id " 
+		    << *ifed
+		    << " and channel " 
+		    << iconn->fedCh()
+		    << "!  present strip: " 
+		    << strip
+		    << "  last strip: " 
+		    << last_strip
+		     << "  detector strips: " 
+		    << strips;
+		}
+		corrupt = true; 
+		break;
+	      } 
+	      last_strip = strip;
+              #endif
+	      unpacker_->zs_work_digis_.push_back( SiStripDigi( strip, static_cast<uint16_t>(*i) ) );
+	      *i++; // Iterate to next sample
+	      istr++;
+	    }
+	  }
+	} catch(...) { 
+	  std::stringstream sss;
+	  sss << "Problem accessing ZERO_SUPPR data for FED id/ch: " 
+	      << *ifed << "/" << ichan;
+	  unpacker_->handleException( __func__, sss.str() ); 
+	} 
+
+        regItem.length = unpacker_->zs_work_digis_.size() - regItem.index;
+        if (regItem.length > 0) {
+            regItem.first = unpacker_->zs_work_digis_[regItem.index].strip();
+            unpacker_->zs_work_registry_.push_back(regItem);
+        }
+      } else { // Unknown readout mode! => assume scope mode
+	
+	if ( edm::isDebugEnabled() ) {
+	  std::stringstream ss;
+	  ss << "[SiStripRawToDigiUnpacker::" << __func__ << "]"
+	     << " Unknown FED readout mode (" << mode
+	     << ")! Assuming SCOPE MODE..."; 
+	  edm::LogWarning(mlRawToDigi_) << ss.str();
+	}
+	
+	std::vector<uint16_t> samples; 
+	try {
+   	  samples = fedEvent_->feUnit( iunit ).channel( ichan ).getSamples();
+	} catch(...) { 
+	  std::stringstream sss;
+	  sss << "Problem accessing data (UNKNOWN FED READOUT MODE) for FED id/ch: " 
+	      << *ifed << "/" << ichan;
+	  unpacker_->handleException( __func__, sss.str() ); 
+	} 
+
+	if ( !samples.empty() ) { 
+          SiStripRawToDigiUnpacker::Registry regItem(key, 0, unpacker_->scope_work_digis_.size(), samples.size());
+	  for ( uint16_t i = 0, n= samples.size(); i < n; i++ ) {
+            unpacker_->scope_work_digis_.push_back(  SiStripRawDigi( samples[i] ) );
+	  }
+          unpacker_->scope_work_registry_.push_back( regItem );
+
+	  if ( edm::isDebugEnabled() ) {
+	    std::stringstream ss;
+	    ss << "Extracted " << samples.size() 
+	       << " SCOPE MODE digis (samples[0] = " << samples[0] 
+	       << ") from FED id/ch " 
+	       << iconn->fedId() << "/" << iconn->fedCh();
+	    //LogTrace(mlRawToDigi_) << ss.str();
+	  }
+	} else {
+	  if ( edm::isDebugEnabled() ) {
+	    edm::LogWarning(mlRawToDigi_)
+	      << "[SiStripRawToDigiUnpacker::" << __func__ << "]"
+	      << " No SM digis found!"; 
+	  }
+	}
+      }
+    } // channel loop
+  } // fed loop
+
+  // update DetSetVectors
+  unpacker_->update(scope_mode, virgin_raw, proc_raw, zero_suppr);
+
+  // increment event counter
+  unpacker_->event_++;
+  
+  // no longer first event!
+  if ( unpacker_->first_ ) { unpacker_->first_ = false; }
+  
+  // final cleanup, just in case
+  unpacker_->cleanupWorkVectors();
+}
+
+void sistrip::RawToDigiUnpacker::triggerFed( const FEDRawDataCollection& buffers, SiStripEventSummary& summary, const uint32_t& event ) 
+{
+  unpacker_->triggerFed(buffers,summary,event);
 }
 
