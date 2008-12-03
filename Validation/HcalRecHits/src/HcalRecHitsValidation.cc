@@ -1305,13 +1305,14 @@ void HcalRecHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
 	    ietaMax4 = ieta;
 	  }
 	}
-	// regardless of the depths, just hottest cell
-	HcalCone += en;
-	if(enMax   < en) {
-	  enMax   = en;
-	  ietaMax = ieta;
-	}
-              
+	// regardless of the depths (but excluding HO), just hottest cell
+	if(depth != 4) {
+	  HcalCone += en;
+	  if(enMax   < en) {
+	    enMax   = en;
+	    ietaMax = ieta;
+	  }
+	}   
 
 
       }
