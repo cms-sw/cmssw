@@ -13,6 +13,8 @@ DEFINE_ANOTHER_FWK_MODULE(SiStripRawToClustersRoI);
 #include "EventFilter/SiStripRawToDigi/plugins/SiStripRawToClusters.h"
 DEFINE_ANOTHER_FWK_MODULE(SiStripRawToClusters);
 
-#include "EventFilter/SiStripRawToDigi/plugins/SiStripFEDRawDataAnalyzer.h"
-DEFINE_ANOTHER_FWK_MODULE(SiStripFEDRawDataAnalyzer);
+using namespace sistrip;
+DEFINE_ANOTHER_FWK_MODULE(RawToDigiModule);
+DEFINE_ANOTHER_FWK_MODULE(RawToClusters);
+
 
