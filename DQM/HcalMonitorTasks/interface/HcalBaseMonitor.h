@@ -35,8 +35,8 @@
 using namespace std;
 /** \class HcalBaseMonitor
   *  
-  * $Date: 2008/10/29 23:37:57 $
-  * $Revision: 1.17 $
+  * $Date: 2008/11/02 16:20:41 $
+  * $Revision: 1.18 $
   * \author W. Fisher - FNAL
   */
 class HcalBaseMonitor {
@@ -76,7 +76,8 @@ public:
   void setupDepthHists1D(MonitorElement* &h, std::vector<MonitorElement*> &hh, char* Name, char* Units, int lowbound, int highbound, int Nbins);
   void setupDepthHists1D(std::vector<MonitorElement*> &hh, char* Name, char* Units, int lowbound, int highbound, int Nbins);
   void setMinMaxHists1D(std::vector<MonitorElement*> &hh, double min, double max);
- 
+  void FillUnphysicalHEHFBins(std::vector<MonitorElement*> &hh);
+  void FillUnphysicalHEHFBins(MonitorElement* hh);
 
 protected:
   
@@ -94,7 +95,8 @@ protected:
   edm::CPUTimer cpu_timer; // 
     
   bool makeDiagnostics; // controls whether to make diagnostic plots
-
+  bool fillUnphysical_; // controls whether to fill unphysical iphi bins in eta-phi histograms
+  
   DQMStore* m_dbe;
   vector<string> hotCells_;
   string rootFolder_;
