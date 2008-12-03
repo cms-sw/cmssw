@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Thu Dec  6 17:49:54 PST 2007
-// $Id: FW3DDataProxyBuilder.cc,v 1.7 2008/11/14 15:32:32 chrjones Exp $
+// $Id: FW3DDataProxyBuilder.cc,v 1.1 2008/12/01 12:27:37 dmytro Exp $
 //
 
 // system include files
@@ -83,10 +83,10 @@ FW3DDataProxyBuilder::setHaveAWindow(bool iFlag)
    }
 }
 
-TEveElement*
-FW3DDataProxyBuilder::usedInScene()
+void
+FW3DDataProxyBuilder::addToScene(TEveElement& iSceneElements,TEveCaloDataHist**)
 {
-   return m_elementHolder.get();
+   iSceneElements.AddElement(m_elementHolder.get());
 }
 
 
