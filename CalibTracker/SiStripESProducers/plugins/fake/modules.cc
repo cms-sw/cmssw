@@ -7,26 +7,46 @@ DEFINE_SEAL_MODULE();
 #include "CalibTracker/SiStripESProducers/plugins/fake/SiStripQualityFakeESSource.h"
 DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(SiStripQualityFakeESSource);
 
-#include "CalibTracker/SiStripESProducers/plugins/fake/SiStripQualityConfigurableFakeESSource.h"
-DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(SiStripQualityConfigurableFakeESSource);
-
-#include "CalibTracker/SiStripESProducers/plugins/fake/SiStripGainFakeESSource.h"
-DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(SiStripGainFakeESSource);
-
 #include "CalibTracker/SiStripESProducers/plugins/fake/SiStripFedCablingFakeESSource.h"
 DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(SiStripFedCablingFakeESSource);
 
 #include "CalibTracker/SiStripESProducers/plugins/fake/SiStripHashedDetIdFakeESSource.h"
 DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(SiStripHashedDetIdFakeESSource);
 
-#include "CalibTracker/SiStripESProducers/plugins/fake/SiStripNoiseFakeESSource.h"
+ //------------ NEW Template -------------------
+
+#include "CalibTracker/SiStripESProducers/plugins/fake/SiStripTemplateFakeESSource.h"
+
+#include "CondFormats/DataRecord/interface/SiStripNoisesRcd.h"
+#include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
+#include "CalibTracker/SiStripESProducers/interface/SiStripNoisesGenerator.h"
+typedef SiStripTemplateFakeESSource< SiStripNoises, SiStripNoisesRcd, SiStripNoisesGenerator > SiStripNoiseFakeESSource;
 DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(SiStripNoiseFakeESSource);
 
-#include "CalibTracker/SiStripESProducers/plugins/fake/SiStripPedestalsFakeESSource.h"
+#include "CondFormats/DataRecord/interface/SiStripPedestalsRcd.h"
+#include "CondFormats/SiStripObjects/interface/SiStripPedestals.h"
+#include "CalibTracker/SiStripESProducers/interface/SiStripPedestalsGenerator.h"
+typedef SiStripTemplateFakeESSource< SiStripPedestals, SiStripPedestalsRcd, SiStripPedestalsGenerator > SiStripPedestalsFakeESSource;
 DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(SiStripPedestalsFakeESSource);
 
-#include "CalibTracker/SiStripESProducers/plugins/fake/SiStripThresholdFakeESSource.h"
+#include "CondFormats/DataRecord/interface/SiStripThresholdRcd.h"
+#include "CondFormats/SiStripObjects/interface/SiStripThreshold.h"
+#include "CalibTracker/SiStripESProducers/interface/SiStripThresholdGenerator.h"
+typedef SiStripTemplateFakeESSource< SiStripThreshold, SiStripThresholdRcd, SiStripThresholdGenerator > SiStripThresholdFakeESSource;
 DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(SiStripThresholdFakeESSource);
+
+#include "CondFormats/DataRecord/interface/SiStripApvGainRcd.h"
+#include "CondFormats/SiStripObjects/interface/SiStripApvGain.h"
+#include "CalibTracker/SiStripESProducers/interface/SiStripApvGainGenerator.h"
+typedef SiStripTemplateFakeESSource< SiStripApvGain, SiStripApvGainRcd, SiStripApvGainGenerator > SiStripGainFakeESSource;
+DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(SiStripGainFakeESSource);
+
+#include "CondFormats/DataRecord/interface/SiStripBadStripRcd.h"
+#include "CondFormats/SiStripObjects/interface/SiStripBadStrip.h"
+#include "CalibTracker/SiStripESProducers/interface/SiStripBadStripGenerator.h"
+typedef SiStripTemplateFakeESSource< SiStripBadStrip, SiStripBadStripRcd, SiStripBadStripGenerator > SiStripBadStripConfigurableFakeESSource;
+DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(SiStripBadStripConfigurableFakeESSource);
+
 
 //---------- Bad Strips Empty Fake Source -----------//
 
