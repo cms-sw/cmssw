@@ -38,7 +38,7 @@ public:
 
 private:
   virtual void algoBeginJob(const edm::EventSetup&) ;
-  virtual void algoAnalyze(edm::Event&, const edm::EventSetup&);
+  virtual void algoAnalyze(const edm::Event&, const edm::EventSetup&);
   virtual void algoEndJob();
 
   void         Learn(const SiStripRecHit2D* sistripsimplehit, TrajectoryStateOnSurface trajState);

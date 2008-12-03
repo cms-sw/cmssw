@@ -20,7 +20,8 @@
 #include <memory>
 
 #include "RecoTracker/DeDx/interface/DeDxDiscriminatorLearner.h"
-#include "DataFormats/TrackReco/interface/DeDxData.h"
+
+//#include "DataFormats/TrackReco/interface/DeDxData.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 
@@ -55,9 +56,10 @@ DeDxDiscriminatorLearner::DeDxDiscriminatorLearner(const edm::ParameterSet& iCon
 DeDxDiscriminatorLearner::~DeDxDiscriminatorLearner(){}
 
 // ------------ method called once each job just before starting event loop  ------------
+
 void  DeDxDiscriminatorLearner::algoBeginJob(const edm::EventSetup& iSetup)
 {
-   Charge_Vs_Path = new TH2F ("Charge_Vs_Path"     , "Charge_Vs_Path" , 25, 0.2, 1.4, 10, 0, 5000);
+   Charge_Vs_Path = new TH2F ("Charge_Vs_Path"     , "Charge_Vs_Path" , 24, 0.2, 1.4, 250, 0, 5000);
 
    edm::ESHandle<TrackerGeometry> tkGeom;
    iSetup.get<TrackerDigiGeometryRecord>().get( tkGeom );
@@ -95,11 +97,12 @@ void  DeDxDiscriminatorLearner::algoBeginJob(const edm::EventSetup& iSetup)
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
-void  DeDxDiscriminatorLearner::algoEndJob()
+
+void DeDxDiscriminatorLearner::algoEndJob()
 {
 }
 
-void DeDxDiscriminatorLearner::algoAnalyze(edm::Event& iEvent, const edm::EventSetup& iSetup)
+void DeDxDiscriminatorLearner::algoAnalyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   Handle<TrajTrackAssociationCollection> trajTrackAssociationHandle;
   iEvent.getByLabel(m_trajTrackAssociationTag, trajTrackAssociationHandle);
@@ -107,7 +110,7 @@ void DeDxDiscriminatorLearner::algoAnalyze(edm::Event& iEvent, const edm::EventS
 
   edm::Handle<reco::TrackCollection> trackCollectionHandle;
   iEvent.getByLabel(m_tracksTag,trackCollectionHandle);
- 
+
   unsigned track_index = 0;
   for(TrajTrackAssociationCollection::const_iterator it = TrajToTrackMap.begin(); it!=TrajToTrackMap.end(); ++it, track_index++) {
       const Track      track = *it->val;
@@ -153,10 +156,10 @@ void DeDxDiscriminatorLearner::Learn(const SiStripRecHit2D* sistripsimplehit,Tra
    stModInfo* MOD                         = MODsColl[detId];
 
    // Sanity Checks
-   if( ampls.size()>MaxNrStrips)                                                                      {return;}
-// if( DeDxDiscriminatorTools::IsSaturatingStrip  (ampls))                                            {return;}
-   if( DeDxDiscriminatorTools::IsSpanningOver2APV (firstStrip, ampls.size()))                         {return;}
-   if(!DeDxDiscriminatorTools::IsFarFromBorder    (trajState, m_tracker->idToDetUnit(DetId(detId)) )) {return;}
+   if( ampls.size()>MaxNrStrips)                                                                      { return; }
+// if( DeDxDiscriminatorTools::IsSaturatingStrip  (ampls))                                            { return; }
+   if( DeDxDiscriminatorTools::IsSpanningOver2APV (firstStrip, ampls.size()))                         { return; }
+   if(!DeDxDiscriminatorTools::IsFarFromBorder    (trajState, m_tracker->idToDetUnit(DetId(detId)) )) { return; }
 
    // Fill Histo Path Vs Charge/Path
    double charge = DeDxDiscriminatorTools::charge(ampls);
@@ -175,6 +178,7 @@ PhysicsTools::Calibration::HistogramD2D* DeDxDiscriminatorLearner::getNewObject(
    for(int ix=0; ix<Charge_Vs_Path->GetNbinsX(); ix++){
       for(int iy=0; iy<Charge_Vs_Path->GetNbinsY(); iy++){
          obj->setBinContent(ix, iy, Charge_Vs_Path->GetBinContent(ix,iy) );       
+         printf("%i %i --> %f\n",ix,iy, Charge_Vs_Path->GetBinContent(ix,iy)); 
       }
    }
 

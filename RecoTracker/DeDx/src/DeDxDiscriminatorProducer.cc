@@ -15,7 +15,7 @@
 //         Created:  Thu May 31 14:09:02 CEST 2007
 //    Code Updates:  loic Quertenmont (querten)
 //         Created:  Thu May 10 14:09:02 CEST 2008
-// $Id: DeDxDiscriminatorProducer.cc,v 1.4 2008/11/25 16:44:00 gbruno Exp $
+// $Id: DeDxDiscriminatorProducer.cc,v 1.5 2008/11/27 15:12:46 querten Exp $
 //
 //
 
@@ -36,6 +36,10 @@
 
 
 #include "CondFormats/DataRecord/interface/SiStripDeDxMipRcd.h"
+
+
+#include "TFile.h"
+
 
 
 using namespace reco;
@@ -75,7 +79,14 @@ void  DeDxDiscriminatorProducer::beginJob(const edm::EventSetup& iSetup)
    iSetup.get<SiStripDeDxMipRcd>().get(DeDxMapHandle_);
    DeDxMap_ = *DeDxMapHandle_.product();
 
-   Prob_ChargePath  = new TH2D ("Prob_ChargePath"     , "Prob_ChargePath" , DeDxMap_.numberOfBinsX(), 0.2, 1.4, DeDxMap_.numberOfBinsY() , 0, 5000);
+   double xmin = DeDxMap_.rangeX().min;
+   double xmax = DeDxMap_.rangeX().max;
+   double ymin = DeDxMap_.rangeY().min;
+   double ymax = DeDxMap_.rangeY().max;
+
+
+
+   Prob_ChargePath  = new TH2D ("Prob_ChargePath"     , "Prob_ChargePath" , DeDxMap_.numberOfBinsX(), xmin, xmax, DeDxMap_.numberOfBinsY() , ymin, ymax);
 
    
    for(int i=0;i<Prob_ChargePath->GetXaxis()->GetNbins();i++){
@@ -86,9 +97,26 @@ void  DeDxDiscriminatorProducer::beginJob(const edm::EventSetup& iSetup)
          double tmp = 0;
          for(int k=0;k<=j;k++){ tmp+=DeDxMap_.binContent(i,k);}
 
-         Prob_ChargePath->SetBinContent (i, j, tmp/Ni);
+	 if(Ni>0){
+            Prob_ChargePath->SetBinContent (i, j, tmp/Ni);
+	 }else{
+            Prob_ChargePath->SetBinContent (i, j, 0);
+	 }
+
       }
    }
+
+
+/*
+   for(int i=0;i<Prob_ChargePath->GetXaxis()->GetNbins();i++){
+      for(int j=0;j<Prob_ChargePath->GetYaxis()->GetNbins();j++){
+         double tmp = DeDxMap_.binContent(i,j);
+         Prob_ChargePath->SetBinContent (i, j, tmp);
+	 printf("%i %i --> %f\n",i,j,tmp);
+      }
+   }
+*/
+
 
    edm::ESHandle<TrackerGeometry> tkGeom;
    iSetup.get<TrackerDigiGeometryRecord>().get( tkGeom );
@@ -127,6 +155,12 @@ void  DeDxDiscriminatorProducer::beginJob(const edm::EventSetup& iSetup)
 
 void  DeDxDiscriminatorProducer::endJob()
 {
+/*
+   TFile* file = new TFile("MipsMap.root", "RECREATE");
+   Prob_ChargePath->Write();
+   file->Write();
+   file->Close();
+*/
 }
 
 
@@ -167,12 +201,13 @@ void DeDxDiscriminatorProducer::produce(edm::Event& iEvent, const edm::EventSetu
          const SiStripRecHit2D*        sistripsimplehit  = dynamic_cast<const SiStripRecHit2D*>(hit);
          const SiStripMatchedRecHit2D* sistripmatchedhit = dynamic_cast<const SiStripMatchedRecHit2D*>(hit);
 
+	 double Prob;
          if(sistripsimplehit)
-         {
-	     vect_probs.push_back(GetProbability(sistripsimplehit, trajState));
+         {           
+	     Prob = GetProbability(sistripsimplehit, trajState);	                 if(Prob>=0) vect_probs.push_back(Prob);
          }else if(sistripmatchedhit){
-             vect_probs.push_back(GetProbability(sistripmatchedhit->monoHit()  , trajState));
-             vect_probs.push_back(GetProbability(sistripmatchedhit->stereoHit(), trajState));
+             Prob = GetProbability(sistripmatchedhit->monoHit(), trajState);             if(Prob>=0) vect_probs.push_back(Prob);
+             Prob = GetProbability(sistripmatchedhit->stereoHit(), trajState);           if(Prob>=0) vect_probs.push_back(Prob);
          }else{
          }
       }
@@ -259,7 +294,19 @@ double DeDxDiscriminatorProducer::ComputeDiscriminator(std::vector<double>& vect
       }
       P *= (1.0/size);
       estimator = P;
-      if(estimator>=0.333)printf("BUG\n");
+      if(estimator>=0.333)printf("BUG --> Estimator>0.3333 for SMI --> %f\n",estimator);
+      if(estimator>=0.333){
+	 printf("DETAIL OF PREVIOUS BUG : \nPROBA = ");
+         for(int i=1;i<=size;i++){printf(" %f ",vect_probs[i-1]);}
+         P = 1.0/(12*size);
+         printf("P = %f\n",P);
+         for(int i=1;i<=size;i++){
+            P += pow(vect_probs[i-1] - ((2.0*i-1.0)/(2.0*size)),2);
+            printf("P = %f\n",P);
+         }
+         P *= (1.0/size);
+         printf("P Normalise = %f\n",P);
+      }
    }else{
       std::sort(vect_probs.begin(), vect_probs.end(), std::less<double>() );
       double P = 1.0/(12*size);
@@ -268,7 +315,7 @@ double DeDxDiscriminatorProducer::ComputeDiscriminator(std::vector<double>& vect
       }
       P *= (1.0/size);
       estimator = P;
-      if(estimator>=0.333)printf("BUG\n");
+      if(estimator>=0.333)printf("BUG  --> Estimator>0.3333 for ASMI --> %f\n",estimator);
    }
 
    return estimator;
