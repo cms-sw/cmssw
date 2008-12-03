@@ -233,10 +233,10 @@ DEutils<L1MuRegionalCandCollection>::DEDigi(col_cit itd,  col_cit itm, int aflag
   unsigned int dw = (aflag==4)?0 : itd->getDataWord();
   unsigned int ew = (aflag==3)?0 : itm->getDataWord();
   unsigned int mask = 0xffffffff; //32-bit
-  //RPC: mask bits 25,26,27 (3 lowest bits of bx counter); 
+  //RPC: mask bits 25-29 (including synch bits)
   // emulator doesn't set these bits (permanent masking)
   if(sid==dedefs::RPC)
-  mask &= 0xc1ffffff;
+    mask &= 0xc1ffffff;
   dw &= mask; ew &= mask;
   digi.setData(dw,ew);
   int de = (aflag==4)?0:itd->pt_packed();//ptValue();
@@ -624,10 +624,11 @@ DEutils<L1MuRegionalCandCollection>::de_equal(const cand_type& lhs, const cand_t
   unsigned int dw = lhs.getDataWord();
   unsigned int ew = rhs.getDataWord();
   unsigned int mask = 0xffffffff; //32-bit
-  //RPC: mask bits 25,26,27 (3 lowest bits of bx counter); 
+  //RPC: mask bits 25-29 (including synch bits)
   // emulator doesn't set these bits (permanent masking)
-  if(rhs.type_idx()==dedefs::RPC)
-    mask &= 0xf1ffffff;
+  // 0 DT, 1 bRPC, 2 CSC, 3 fRPC
+  if(rhs.type_idx()==1 || rhs.type_idx()==3)
+    mask &= 0xc1ffffff;
   dw &= mask; ew &= mask;
   val &= (dw==ew);
   //val &= (lhs.getDataWord() == rhs.getDataWord() );
