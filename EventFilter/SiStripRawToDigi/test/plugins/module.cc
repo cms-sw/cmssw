@@ -24,5 +24,8 @@ DEFINE_ANOTHER_FWK_MODULE(SiStripClustersDSVBuilder);
 #include "EventFilter/SiStripRawToDigi/test/plugins/SiStripDigiValidator.h"
 DEFINE_ANOTHER_FWK_MODULE(SiStripDigiValidator);
 
+#include "EventFilter/SiStripRawToDigi/test/plugins/SiStripClusterValidator.h"
+DEFINE_ANOTHER_FWK_MODULE(SiStripClusterValidator);
+
 #include "EventFilter/SiStripRawToDigi/test/plugins/SiStripModuleTimer.h"
 DEFINE_ANOTHER_FWK_MODULE(SiStripModuleTimer);
