@@ -16,7 +16,7 @@
 //
 // Original Author:
 //         Created:  Sat Jan  5 15:02:03 EST 2008
-// $Id: FW3DDataProxyBuilder.h,v 1.5 2008/11/14 15:32:32 chrjones Exp $
+// $Id: FW3DDataProxyBuilder.h,v 1.1 2008/12/01 12:27:36 dmytro Exp $
 //
 
 // system include files
@@ -32,8 +32,7 @@ class FWEventItem;
 class TEveElementList;
 class TEveElement;
 class FWModelId;
-class TEveCalo3D;
-class FWEveValueScaler;
+class TEveCaloDataHist;
 
 class FW3DDataProxyBuilder
 {
@@ -54,7 +53,8 @@ class FW3DDataProxyBuilder
       void modelChanges(const FWModelIds&);
       void itemChanged(const FWEventItem*);
 
-      TEveElement* usedInScene();
+      ///If TEveCaloDataHist is set in this routine then the TEveCalo3D must be added to the scene
+      virtual void addToScene(TEveElement&, TEveCaloDataHist**);
 
    protected:
       const FWEventItem* item() const {
@@ -64,20 +64,22 @@ class FW3DDataProxyBuilder
       std::vector<FWModelId>& ids() {
          return m_ids;
       }
+
+      //Override this if you need to special handle selection or other changes
+      virtual void modelChanges(const FWModelIds&, TEveElement*);
+      virtual void applyChangesToAllModels(TEveElement* iElements);
+   
+      virtual void itemBeingDestroyed(const FWEventItem*);
+
    private:
       virtual void build(const FWEventItem* iItem,
 			 TEveElementList** product) = 0 ;
 
 
-      //Override this if you need to special handle selection or other changes
-      virtual void modelChanges(const FWModelIds&, TEveElement*);
-      virtual void applyChangesToAllModels(TEveElement* iElements);
-
-      virtual void itemBeingDestroyed(const FWEventItem*);
-
+   
       void applyChangesToAllModels();
 
-   FW3DDataProxyBuilder(const FW3DDataProxyBuilder&); // stop default
+      FW3DDataProxyBuilder(const FW3DDataProxyBuilder&); // stop default
 
       const FW3DDataProxyBuilder& operator=(const FW3DDataProxyBuilder&); // stop default
 
