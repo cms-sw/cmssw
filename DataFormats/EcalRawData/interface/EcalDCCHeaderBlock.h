@@ -7,7 +7,7 @@
  *  Container for ECAL specific DCC Header information
  *
  *
- *  $Id: EcalDCCHeaderBlock.h,v 1.19 2008/11/04 17:44:56 nalmeida Exp $
+ *  $Id: EcalDCCHeaderBlock.h,v 1.20 2008/12/03 09:55:46 franzoni Exp $
  */
 
 #include <vector>
@@ -107,7 +107,7 @@ class EcalDCCHeaderBlock
   void setOrbit(const int& orbit){orbitNumber_ = orbit;}
   void setEventSettings(const  EcalDCCEventSettings& EventSettings) { EventSettings_=EventSettings; };
   void setRunType(const short& runType) { runType_=runType; };
-    void setZs(const short& zs) { zs_=zs;};
+  void setZs(const short& zs) { zs_=zs;};
   void setBasicTriggerType(const short& triggerType) { basic_trigger_type_=triggerType; };
   //void setSequence(const short& sequence) { sequence_=sequence; } ;
   void setRtHalf(const short& rtHalf) { rtHalf_=rtHalf; } ;
@@ -153,17 +153,17 @@ class EcalDCCHeaderBlock
   bool getZeroSuppression() const { return zeroSuppression_;}
   bool getTestZeroSuppression() const {return testZeroSuppression_ ;}
   short getSrpStatus() const  { return srpStatus_;}
-  const std::vector<short> getTccStatus() const { return tccStatus_ ;}
-  const std::vector<short> getTriggerTowerFlag() const { return triggerTowerFlag_ ;}
-  const std::vector<short> getFEStatus() const { return feStatus_ ;}
+  const std::vector<short>& getTccStatus() const { return tccStatus_ ;}
+  const std::vector<short>& getTriggerTowerFlag() const { return triggerTowerFlag_ ;}
+  const std::vector<short>& getFEStatus() const { return feStatus_ ;}
   
   
-  const std::vector<short> getFEBxs(){ return feBx_;  }
-  const std::vector<short> getTCCBx(){ return tccBx_; }
+  const std::vector<short>& getFEBxs(){ return feBx_;  }
+  const std::vector<short>& getTCCBx(){ return tccBx_; }
   short              getSRPBx(){ return srpBx_; }
   
-  const std::vector<short> getFELv1(){ return feLv1_;  }
-  const std::vector<short> getTCCLv1(){ return tccLv1_; }
+  const std::vector<short>& getFELv1(){ return feLv1_;  }
+  const std::vector<short>& getTCCLv1(){ return tccLv1_; }
   short              getSRPLv1(){ return srpLv1_; }
   
   
