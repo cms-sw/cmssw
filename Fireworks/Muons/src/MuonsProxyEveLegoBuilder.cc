@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: MuonsProxyEveLegoBuilder.cc,v 1.7 2008/11/06 22:05:30 amraktad Exp $
+// $Id: MuonsProxyEveLegoBuilder.cc,v 1.8 2008/11/10 18:07:58 amraktad Exp $
 //
 
 // system include files
@@ -118,5 +118,5 @@ MuonsProxyEveLegoBuilder::build(const FWEventItem* iItem, TEveElementList** prod
      }
 }
 
-REGISTER_FW3DLEGODATAPROXYBUILDER(MuonsProxyEveLegoBuilder,reco::MuonCollection,"Muons");
+//REGISTER_FW3DLEGODATAPROXYBUILDER(MuonsProxyEveLegoBuilder,reco::MuonCollection,"Muons");
 
