@@ -1,4 +1,3 @@
-// Last commit: $Id: SiStripTrivialDigiSource.cc,v 1.6 2008/03/31 16:51:50 bainbrid Exp $
 
 #include "EventFilter/SiStripRawToDigi/test/plugins/SiStripTrivialDigiSource.h"
 #include "CondFormats/DataRecord/interface/SiStripFedCablingRcd.h"

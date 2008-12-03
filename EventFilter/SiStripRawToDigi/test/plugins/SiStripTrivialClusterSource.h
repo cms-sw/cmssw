@@ -14,7 +14,7 @@
 #include <vector>
 
  /**
-    @file EventFilter/SiStripRawToDigi/test/stubs/SiStripTrivialClusterSource.h
+    @file EventFilter/SiStripRawToDigi/test/plugins/SiStripTrivialClusterSource.h
     @class SiStripTrivialClusterSource
     @brief Creates a DetSetVector of SiStripDigis created using random
     number generators and attaches the collection to the Event. Allows
