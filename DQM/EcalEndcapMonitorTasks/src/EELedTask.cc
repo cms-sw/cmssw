@@ -1,8 +1,8 @@
 /*
  * \file EELedTask.cc
  *
- * $Date: 2008/12/03 12:55:50 $
- * $Revision: 1.43 $
+ * $Date: 2008/12/03 13:55:44 $
+ * $Revision: 1.44 $
  * \author G. Della Ricca
  *
 */
@@ -458,8 +458,7 @@ void EELedTask::analyze(const Event& e, const EventSetup& c){
 
     for ( EEDigiCollection::const_iterator digiItr = digis->begin(); digiItr != digis->end(); ++digiItr ) {
 
-      EEDataFrame dataframe = (*digiItr);
-      EEDetId id = dataframe.id();
+      EEDetId id = digiItr->id();
 
       int ix = id.ix();
       int iy = id.iy();
@@ -476,6 +475,8 @@ void EELedTask::analyze(const Event& e, const EventSetup& c){
       LogDebug("EELedTask") << " sm, ix, iy " << ism << " " << ix << " " << iy;
 
       int ic = Numbers::icEE(ism, ix, iy);
+
+      EEDataFrame dataframe = (*digiItr);
 
       for (int i = 0; i < 10; i++) {
 

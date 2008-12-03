@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalOnlineTask.cc
  *
- * $Date: 2008/04/08 18:11:28 $
- * $Revision: 1.25 $
+ * $Date: 2008/05/11 09:35:13 $
+ * $Revision: 1.26 $
  * \author G. Della Ricca
  *
 */
@@ -149,8 +149,7 @@ void EEPedestalOnlineTask::analyze(const Event& e, const EventSetup& c){
 
     for ( EEDigiCollection::const_iterator digiItr = digis->begin(); digiItr != digis->end(); ++digiItr ) {
 
-      EEDataFrame dataframe = (*digiItr);
-      EEDetId id = dataframe.id();
+      EEDetId id = digiItr->id();
 
       int ix = id.ix();
       int iy = id.iy();
@@ -164,6 +163,8 @@ void EEPedestalOnlineTask::analyze(const Event& e, const EventSetup& c){
 
       LogDebug("EEPedestalOnlineTask") << " det id = " << id;
       LogDebug("EEPedestalOnlineTask") << " sm, ix, iy " << ism << " " << ix << " " << iy;
+
+      EEDataFrame dataframe = (*digiItr);
 
       for (int i = 0; i < 3; i++) {
 

@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalTask.cc
  *
- * $Date: 2008/12/03 12:55:49 $
- * $Revision: 1.87 $
+ * $Date: 2008/12/03 13:55:43 $
+ * $Revision: 1.88 $
  * \author G. Della Ricca
  *
 */
@@ -322,8 +322,7 @@ void EBPedestalTask::analyze(const Event& e, const EventSetup& c){
 
     for ( EBDigiCollection::const_iterator digiItr = digis->begin(); digiItr != digis->end(); ++digiItr ) {
 
-      EBDataFrame dataframe = (*digiItr);
-      EBDetId id = dataframe.id();
+      EBDetId id = digiItr->id();
 
       int ic = id.ic();
       int ie = (ic-1)/20 + 1;
@@ -339,6 +338,8 @@ void EBPedestalTask::analyze(const Event& e, const EventSetup& c){
 
       LogDebug("EBPedestalTask") << " det id = " << id;
       LogDebug("EBPedestalTask") << " sm, ieta, iphi " << ism << " " << ie << " " << ip;
+
+      EBDataFrame dataframe = (*digiItr);
 
       for (int i = 0; i < 10; i++) {
 

@@ -1,8 +1,8 @@
 /*
  * \file EELaserTask.cc
  *
- * $Date: 2008/12/03 12:55:50 $
- * $Revision: 1.52 $
+ * $Date: 2008/12/03 13:55:44 $
+ * $Revision: 1.53 $
  * \author G. Della Ricca
  *
 */
@@ -748,8 +748,7 @@ void EELaserTask::analyze(const Event& e, const EventSetup& c){
 
     for ( EEDigiCollection::const_iterator digiItr = digis->begin(); digiItr != digis->end(); ++digiItr ) {
 
-      EEDataFrame dataframe = (*digiItr);
-      EEDetId id = dataframe.id();
+      EEDetId id = digiItr->id();
 
       int ix = id.ix();
       int iy = id.iy();
@@ -765,6 +764,8 @@ void EELaserTask::analyze(const Event& e, const EventSetup& c){
       LogDebug("EELaserTask") << " sm, ix, iy " << ism << " " << ix << " " << iy;
 
       int ic = Numbers::icEE(ism, ix, iy);
+
+      EEDataFrame dataframe = (*digiItr);
 
       for (int i = 0; i < 10; i++) {
 

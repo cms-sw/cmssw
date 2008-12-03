@@ -1,8 +1,8 @@
 /*
  * \file EEBeamCaloTask.cc
  *
- * $Date: 2008/12/03 12:55:49 $
- * $Revision: 1.33 $
+ * $Date: 2008/12/03 13:08:57 $
+ * $Revision: 1.34 $
  * \author A. Ghezzi
  *
  */
@@ -699,8 +699,7 @@ void EEBeamCaloTask::analyze(const Event& e, const EventSetup& c){
 
   for ( EBDigiCollection::const_iterator digiItr = digis->begin(); digiItr != digis->end(); ++digiItr ) {
 
-    EBDataFrame dataframe = (*digiItr);
-    EBDetId id = dataframe.id();
+    EBDetId id = digiItr->id();
 
     int ic = id.ic();
     int ie = (ic-1)/20;
@@ -727,6 +726,8 @@ void EEBeamCaloTask::analyze(const Event& e, const EventSetup& c){
     //LogDebug("EEBeamCaloTask") << " deta, dphi, i_in_array, i_toBeRead " << deta_c  << " " <<  dphi_c << " " <<i_in_array<<" "<<i_toBeRead;
 
     if( i_in_array < 0 || i_in_array > 8 ){continue;}
+
+    EBDataFrame dataframe = (*digiItr);
 
     for (int i = 0; i < 10; i++) {
       EcalMGPASample sample = dataframe.sample(i);
