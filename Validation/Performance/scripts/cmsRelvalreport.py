@@ -910,5 +910,8 @@ if __name__=="__main__":
                 logger ('\t\t|')
     exit=principal(options)
     logger("Exit code received from principal is: %s"%exit)
+    #Mind you! exit codes in Linux are all 0 if they are even! We can easily make the code 1
+    if exit: #This is different than 0 only if there have been at least one non-zero exit(return) code in the cmsRelvalreport.py
+        exit=1
     sys.exit(exit)
                 

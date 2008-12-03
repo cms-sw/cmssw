@@ -80,7 +80,8 @@ class PerfSuite:
                             ValgrindEvents   = 1          ,
                             cmsScimark       = 10         ,
                             cmsScimarkLarge  = 10         ,  
-                            cmsdriverOptions = cmsRelValCmd.get_cmsDriverOptions(), #Get these options automatically now!
+                            cmsdriverOptions = "--eventcontent FEVTDEBUGHLT", # Decided to avoid using the automatic parsing of cmsDriver_highstats_hlt.txt: cmsRelValCmd.get_cmsDriverOptions(), #Get these options automatically now!
+                            #"Release Integrators" will create another file relative to the performance suite and the operators will fetch from that file the --cmsdriver option... for now just set the eventcontent since that is needed in order for things to run at all now...
                             stepOptions      = ""         ,
                             candleOptions    = ""         ,
                             profilers        = ""         ,
@@ -316,7 +317,7 @@ class PerfSuite:
     # Run a list of commands using system
     # ! We should rewrite this not to use system (most cases it is unnecessary)
     def runCmdSet(self,cmd):
-        exitstat = None
+        exitstat = 0
         if len(cmd) <= 1:
             exitstat = self.runcmd(cmd)
             if self._verbose:
@@ -342,12 +343,18 @@ class PerfSuite:
     # Run a command and return the exit status
     #
     def runcmd(self,command):
-        process  = os.popen(command)
-        cmdout   = process.read()
-        exitstat = process.close()
+        #Substitute popen with subprocess.Popen!
+        process  = subprocess.Popen(command,shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
+        #os.popen(command)
+        exitstat= process.wait()
+        cmdout   = process.stdout.read()
+        #exitstat = process.returncode
         if self._verbose:
             self.logh.write(cmdout)# + "\n") No need of extra \n!
             self.logh.flush()
+        if exitstat == None:
+            print "Something strange is going on! Exit code was None for command %s: check if it really ran!"%command
+            exitstat=0
         return exitstat
     
     def getDate(self):
@@ -500,13 +507,15 @@ class PerfSuite:
         cmd  = self.Commands[cpu][1]
         cmds = ("cd %s"                 % (dir),
                 "%s -i SimulationCandles_%s.txt -t perfreport_tmp -R -P >& %s.log" % (cmd,self.cmssw_version,candle))
-        exitstat = None
+        exitstat = 0
         if not self._debug:
             exitstat = self.runCmdSet(cmds)
             
-        if self._unittest and (not exitstat == None):
+        if self._unittest and (not exitstat == 0):
             self.logh.write("ERROR: CMS Report returned a non-zero exit status \n")
-            sys.exit()
+            sys.exit(exitstat)
+        else:
+            return(exitstat) #To return the exit code of the cmsRelvalreport.py commands to the runPerfSuite function
     
     ##################
     # Test cmsDriver.py (parses the simcandles file, removing duplicate lines, and runs the cmsDriver part)
@@ -569,10 +578,11 @@ class PerfSuite:
                                               cmsdrvopts,
                                               stepopt,
                                               bypass))
+        exitstat=0
         exitstat = self.runCmdSet(cmds)
-        if self._unittest and (not exitstat == None):
+        if self._unittest and (not exitstat == 0):
             self.logh.write("ERROR: CMS Report Input returned a non-zero exit status \n" )
-    
+        return exitstat
     ##############
     # Prepares the profiling directory and runs all the selected profiles (if this is not a unit test)
     #
@@ -588,6 +598,7 @@ class PerfSuite:
         if not profilers == "":
             profiles = profilers        
         #adir={}
+        RelvalreportExitCode=0
         for cpu in cpus:
             pfdir = perfdir
             if len(cpus) > 1:
@@ -611,8 +622,11 @@ class PerfSuite:
                 else:
                     self.runCmsInput(cpu,adir,NumEvents,candle,cmsdriverOptions,stepOptions,profiles,bypasshlt)            
                     if valgrind and candle == "QCD_80_120":
-                        self.valFilterReport(adir)             
-                    self.runCmsReport(cpu,adir,candle)
+                        self.valFilterReport(adir)
+                    ExitCode=self.runCmsReport(cpu,adir,candle)
+                    print "Individual Relvalreport.py ExitCode %s"%ExitCode
+                    RelvalreportExitCode=RelvalreportExitCode+ExitCode
+                    print "Summed Relvalreport.py ExitCode %s"%RelvalreportExitCode
                     #proflogs = []
                     #Change the log testing to look for G4 cerr but also for CMSException
                     #Also look in the main cmsRelvalreport log (not the TimingReport only)
@@ -633,6 +647,8 @@ class PerfSuite:
                     for log in logs:
                         self.logh.write("Found log %s\n" % log)
                         self.displayErrors(log)
+        print "Returned cumulative RelvalreportExitCode is %s"%RelvalreportExitCode
+        return RelvalreportExitCode
     
     ############
     # Runs benchmarking, cpu spinlocks on spare cores and profiles selected candles
@@ -661,6 +677,8 @@ class PerfSuite:
                      runonspare       = True       ,
                      perfsuitedir     = os.getcwd(),
                      logfile          = os.path.join(os.getcwd(),"cmsPerfSuite.log")):
+        #Set up a variable for the FinalExitCode to be used as the sum of exit codes:
+        FinalExitCode=0
         #Print a time stamp at the beginning:
     
         if not logfile == None:
@@ -792,7 +810,8 @@ class PerfSuite:
                 self.logh.write("Launching the TimeSize tests (TimingReport, TimeReport, SimpleMemoryCheck, EdmSize) with %s events each\n" % TimeSizeEvents)
                 self.printDate()
                 self.logh.flush()
-                self.simpleGenReport(cpus,perfsuitedir,TimeSizeEvents,candles,cmsdriverOptions,stepOptions,"TimeSize",profilers,bypasshlt)
+                ReportExit=self.simpleGenReport(cpus,perfsuitedir,TimeSizeEvents,candles,cmsdriverOptions,stepOptions,"TimeSize",profilers,bypasshlt)
+                FinalExitCode=FinalExitCode+ReportExit
     
             #IgProf tests:
             if IgProfEvents > 0:
@@ -803,15 +822,15 @@ class PerfSuite:
                 #By default run IgProf only on QCD_80_120 candle
                 if isAllCandles:
                     IgCandles = [ "QCD_80_120" ]
-                self.simpleGenReport(cpus,perfsuitedir,IgProfEvents,IgCandles,cmsdriverOptions,stepOptions,"IgProf",profilers,bypasshlt)
-
+                ReportExit=self.simpleGenReport(cpus,perfsuitedir,IgProfEvents,IgCandles,cmsdriverOptions,stepOptions,"IgProf",profilers,bypasshlt)
+                FinalExitCode=FinalExitCode+ReportExit
             #Stopping all cmsScimark jobs and analysing automatically the logfiles
             #No need to waste CPU while the load does not affect Valgrind measurements!
             self.logh.write("Stopping all cmsScimark jobs now\n")
             subcmd = "cd %s ; %s" % (perfsuitedir,self.AuxiliaryScripts[2])
             stopcmd = "sh -c \"%s\"" % subcmd
             self.printFlush(stopcmd)
-            os.popen(stopcmd)
+            #os.popen(stopcmd)
             self.printFlush(os.popen4(stopcmd)[1].read())
             
             #Valgrind tests:
@@ -842,8 +861,8 @@ class PerfSuite:
                 valCandles.append("SingleMuMinusPt10")
                 #In the user-defined candles a different behavior: do Valgrind for all specified candles (usually it will only be 1)
                 #usercandles=candleoption.split(",")
-                self.simpleGenReport(cpus,perfsuitedir,ValgrindEvents,valCandles,cmsdriverOptions,stepOptions,"Valgrind",profilers,bypasshlt)
-    
+                ReportExit=self.simpleGenReport(cpus,perfsuitedir,ValgrindEvents,valCandles,cmsdriverOptions,stepOptions,"Valgrind",profilers,bypasshlt)
+                FinalExitCode=FinalExitCode+ReportExit
             if benching and not self._unittest:
                 #Ending the performance suite with the cmsScimark benchmarks again:
                 for cpu in cpus:
@@ -893,13 +912,15 @@ class PerfSuite:
                 self.logh.write("There were no errors detected in any of the log files!\n")
             else:
                 self.logh.write("ERROR: There were %s errors detected in the log files, please revise!\n" % self.ERRORS)
-                sys.exit(1)
+                #print "No exit code test"
+                #sys.exit(1)
         except exceptions.Exception, detail:
             self.logh.write(str(detail) + "\n")
             self.logh.flush()
             if not self.logh.isatty():
                 self.logh.close()
             raise
+        sys.exit(FinalExitCode)
     
 def main(argv=[__name__]): #argv is a list of arguments.
                      #Valid ways to call main with arguments:

@@ -401,7 +401,7 @@ def pythonFragment(step):
         return CustomiseFragment['DIGI']
 
 
-def setInputFile(steps,step,acandle,stepIndex,qcd=False):
+def setInputFile(steps,step,acandle,stepIndex,qcd=False,bypasshlt=False):
     InputFileOption = ""
     if qcd and stepIndex == 0:
         InputFileOption = "--filein file:%s_%s" % ( FileName[acandle],"DIGI" )
@@ -413,7 +413,7 @@ def setInputFile(steps,step,acandle,stepIndex,qcd=False):
     else :
         if 'GEN,SIM' in step:  # there is no input file for GEN,SIM!
             InputFileOption = ''
-        elif   'HLT' in steps[stepIndex - 1]:
+        elif   'HLT' in steps[stepIndex - 1] and bypasshlt:
 
             # Special hand skipping of HLT since it is not stable enough, so it will not prevent
             # RAW2DIGI,RECO from running
@@ -425,15 +425,17 @@ def setInputFile(steps,step,acandle,stepIndex,qcd=False):
 
     return InputFileOption
 
-def writeUnprofiledSteps(simcandles,CustomisePythonFragment,cmsDriverOptions,unprofiledSteps,acandle,NumberOfEvents, stepIndex):
+def writeUnprofiledSteps(simcandles,CustomisePythonFragment,cmsDriverOptions,unprofiledSteps,acandle,NumberOfEvents, stepIndex, bypasshlt):
     # reduce(lambda x,y : x + "," + "y",unprofiledSteps)
     stepsStr = ",".join(unprofiledSteps)
 
     simcandles.write("\n#Run a %s step(s) that has not been selected for profiling but is needed to run the next step to be profiled\n" % (stepsStr))
     OutputFile = "%s_%s.root" % ( FileName[acandle],unprofiledSteps[-1])
     OutputFileOption = "--fileout=%s" % OutputFile
-
-    InputFileOption = setInputFile(AllSteps,unprofiledSteps[0],acandle,stepIndex - 1)
+    #Bug here: should take into account the flag --bypass-hlt instead of assuming hlt should be bypassed
+    #This affects the Step1/Step2 running since Step1 will produce an HLT.root file and Step2 should start from there!
+    #Adding the argument bypasshlt to the calls...
+    InputFileOption = setInputFile(AllSteps,unprofiledSteps[0],acandle,stepIndex - 1,bypasshlt=bypasshlt)
 
     Command = ("%s %s -n %s --step=%s %s %s --customise=%s %s"
                        % (cmsDriver,
@@ -447,14 +449,14 @@ def writeUnprofiledSteps(simcandles,CustomisePythonFragment,cmsDriverOptions,unp
     simcandles.write( "%s @@@ None @@@ None\n\n" % (Command))
     return OutputFile
 
-def writePrerequisteSteps(simcandles,steps,acandle,NumberOfEvents,cmsDriverOptions):
+def writePrerequisteSteps(simcandles,steps,acandle,NumberOfEvents,cmsDriverOptions,bypasshlt):
     fstIdx = -1
     if "-" in steps[0]:
         fstIdx = AllSteps.index(steps[0].split("-")[0])
     else:
         fstIdx = AllSteps.index(steps[0])
     CustomisePythonFragment = pythonFragment("GEN,SIM")
-    OutputFile = writeUnprofiledSteps(simcandles, CustomisePythonFragment, cmsDriverOptions,AllSteps[0:fstIdx],acandle,NumberOfEvents, 0) 
+    OutputFile = writeUnprofiledSteps(simcandles, CustomisePythonFragment, cmsDriverOptions,AllSteps[0:fstIdx],acandle,NumberOfEvents, 0,bypasshlt) 
     return (fstIdx, OutputFile)
 
 def setOutputFileOption(acandle,endstep):
@@ -492,7 +494,7 @@ def writeCommands(simcandles,
         print steps
         if not (steps[0] == AllSteps[0]) and (steps[0].split("-")[0] != "GEN,SIM"):
             #Write the necessary line to run without profiling all the steps before the wanted ones in one shot:
-            (stepIndex, rootFileStr) = writePrerequisteSteps(simcandles,steps,acandle,NumberOfEvents,cmsDriverOptions)
+            (stepIndex, rootFileStr) = writePrerequisteSteps(simcandles,steps,acandle,NumberOfEvents,cmsDriverOptions,bypasshlt)
             
             #Now take care of setting the indeces and input root file name right for the profiling part...
             if fstROOTfile:
@@ -602,7 +604,7 @@ def writeCommands(simcandles,
                         if rawreg.search(step) and bypasshlt:
                             InputFileOption = "--filein file:" + prevPrevOutputFile
                         if previousOutputFile == "":
-                            InputFileOption = setInputFile(steps,stepToWrite,acandle,stepIndex,qcd=qcd)
+                            InputFileOption = setInputFile(steps,stepToWrite,acandle,stepIndex,qcd=qcd,bypasshlt=bypasshlt)
 
                         if qcd:
                             stepToWrite = qcdStep
@@ -629,7 +631,7 @@ def writeCommands(simcandles,
                         InputFileOption = "--filein file:" + prevPrevOutputFile
 
                     if previousOutputFile == "":
-                        InputFileOption = setInputFile(steps,befStep,acandle,stepIndex,qcd)
+                        InputFileOption = setInputFile(steps,befStep,acandle,stepIndex,qcd,bypasshlt)
 
                     if qcd:
                         stepToWrite = qcdStep
@@ -672,7 +674,7 @@ def writeCommands(simcandles,
                 break
 
             if isNextStepForProfile:
-                writeUnprofiledSteps(simcandles,CustomisePythonFragment,cmsDriverOptions,unprofiledSteps,acandle,NumberOfEvents,stepIndex)
+                writeUnprofiledSteps(simcandles,CustomisePythonFragment,cmsDriverOptions,unprofiledSteps,acandle,NumberOfEvents,stepIndex,bypasshlt)
                 unprofiledSteps = []
                 
         #Dangerous index handling when looping over index x!        
