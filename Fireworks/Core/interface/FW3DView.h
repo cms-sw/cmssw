@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:37 EST 2008
-// $Id: FW3DView.h,v 1.2 2008/12/02 09:01:51 dmytro Exp $
+// $Id: FW3DView.h,v 1.3 2008/12/02 17:58:13 dmytro Exp $
 //
 
 // system include files
@@ -68,6 +68,10 @@ class FW3DView : public FWViewBase
       const FW3DView& operator=(const FW3DView&); // stop default
       void showMuonBarrel( );
       void showMuonEndcap( );
+      void showPixelBarrel( );
+      void showPixelEndcap( );
+      void showTrackerBarrel( );
+      void showTrackerEndcap( );
       void showWireFrame( );
       void setTransparency( );
 
@@ -84,8 +88,16 @@ class FW3DView : public FWViewBase
    
       TEveElement*      m_muonBarrelElements;
       TEveElement*      m_muonEndcapElements;
+      TEveElement*      m_pixelBarrelElements;
+      TEveElement*      m_pixelEndcapElements;
+      TEveElement*      m_trackerBarrelElements;
+      TEveElement*      m_trackerEndcapElements;
       FWBoolParameter   m_showMuonBarrel;
       FWBoolParameter   m_showMuonEndcap;
+      FWBoolParameter   m_showPixelBarrel;
+      FWBoolParameter   m_showPixelEndcap;
+      FWBoolParameter   m_showTrackerBarrel;
+      FWBoolParameter   m_showTrackerEndcap;
       FWBoolParameter   m_showWireFrame;
       
       FWLongParameter   m_geomTransparency;

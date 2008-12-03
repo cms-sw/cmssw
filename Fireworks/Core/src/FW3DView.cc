@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FW3DView.cc,v 1.2 2008/12/02 09:01:51 dmytro Exp $
+// $Id: FW3DView.cc,v 1.3 2008/12/02 17:58:13 dmytro Exp $
 //
 
 // system include files
@@ -89,8 +89,16 @@ FW3DView::FW3DView(TGFrame* iParent, TEveElementList* list):
  m_cameraFOV(0),
  m_muonBarrelElements(0),
  m_muonEndcapElements(0),
+ m_pixelBarrelElements(0),
+ m_pixelEndcapElements(0),
+ m_trackerBarrelElements(0),
+ m_trackerEndcapElements(0),
  m_showMuonBarrel(this, "Show Muon Barrel", true ),
  m_showMuonEndcap(this, "Show Muon Endcap", true),
+ m_showPixelBarrel(this, "Show Pixel Barrel", true ),
+ m_showPixelEndcap(this, "Show Pixel Endcap", true),
+ m_showTrackerBarrel(this, "Show Tracker Barrel", true ),
+ m_showTrackerEndcap(this, "Show Tracker Endcap", true),
  m_showWireFrame(this, "Show Wire Frame", true),
  m_geomTransparency(this,"Detector Transparency", 95l, 0l, 100l)
 {
@@ -118,6 +126,10 @@ FW3DView::FW3DView(TGFrame* iParent, TEveElementList* list):
    gEve->AddToListTree(list, kTRUE);
    m_showMuonBarrel.changed_.connect(boost::bind(&FW3DView::showMuonBarrel,this));
    m_showMuonEndcap.changed_.connect(boost::bind(&FW3DView::showMuonEndcap,this));
+   m_showPixelBarrel.changed_.connect(boost::bind(&FW3DView::showPixelBarrel,this));
+   m_showPixelEndcap.changed_.connect(boost::bind(&FW3DView::showPixelEndcap,this));
+   m_showTrackerBarrel.changed_.connect(boost::bind(&FW3DView::showTrackerBarrel,this));
+   m_showTrackerEndcap.changed_.connect(boost::bind(&FW3DView::showTrackerEndcap,this));
    m_showWireFrame.changed_.connect(boost::bind(&FW3DView::showWireFrame,this));
    m_geomTransparency.changed_.connect(boost::bind(&FW3DView::setTransparency,this));
 }
@@ -263,6 +275,50 @@ FW3DView::showMuonEndcap( )
 }
 
 void
+FW3DView::showPixelBarrel( )
+{
+   if ( ! m_pixelBarrelElements ) return; 
+   if ( m_showPixelBarrel.value() )
+     m_pixelBarrelElements->SetRnrState(kTRUE);
+   else
+     m_pixelBarrelElements->SetRnrState(kFALSE);
+   gEve->Redraw3D();
+}
+
+void
+FW3DView::showPixelEndcap( )
+{
+   if ( ! m_pixelEndcapElements ) return; 
+   if ( m_showPixelEndcap.value() )
+     m_pixelEndcapElements->SetRnrState(kTRUE);
+   else
+     m_pixelEndcapElements->SetRnrState(kFALSE);
+   gEve->Redraw3D();
+}
+
+void
+FW3DView::showTrackerBarrel( )
+{
+   if ( ! m_trackerBarrelElements ) return; 
+   if ( m_showTrackerBarrel.value() )
+     m_trackerBarrelElements->SetRnrState(kTRUE);
+   else
+     m_trackerBarrelElements->SetRnrState(kFALSE);
+   gEve->Redraw3D();
+}
+
+void
+FW3DView::showTrackerEndcap( )
+{
+   if ( ! m_trackerEndcapElements ) return; 
+   if ( m_showTrackerEndcap.value() )
+     m_trackerEndcapElements->SetRnrState(kTRUE);
+   else
+     m_trackerEndcapElements->SetRnrState(kFALSE);
+   gEve->Redraw3D();
+}
+
+void
 FW3DView::showWireFrame( )
 {
    if ( m_showWireFrame.value() )
@@ -288,7 +344,6 @@ FW3DView::setTransparency( )
 	  */
 	 iter.next();
       }
-      gEve->Redraw3D();
    }
    if ( m_muonEndcapElements ) {
       TEveElementIter iter(m_muonEndcapElements);
@@ -301,8 +356,36 @@ FW3DView::setTransparency( )
 	  */
 	 iter.next();
       }
-      gEve->Redraw3D();
    }
+   if ( m_pixelBarrelElements ) {
+      TEveElementIter iter(m_pixelBarrelElements);
+      while ( TEveElement* element = iter.current() ) {
+	 element->SetMainTransparency(m_geomTransparency.value());
+	 iter.next();
+      }
+   }
+   if ( m_pixelEndcapElements ) {
+      TEveElementIter iter(m_pixelEndcapElements);
+      while ( TEveElement* element = iter.current() ) {
+	 element->SetMainTransparency(m_geomTransparency.value());
+	 iter.next();
+      }
+   }
+   if ( m_trackerBarrelElements ) {
+      TEveElementIter iter(m_trackerBarrelElements);
+      while ( TEveElement* element = iter.current() ) {
+	 element->SetMainTransparency(m_geomTransparency.value());
+	 iter.next();
+      }
+   }
+   if ( m_trackerEndcapElements ) {
+      TEveElementIter iter(m_trackerEndcapElements);
+      while ( TEveElement* element = iter.current() ) {
+	 element->SetMainTransparency(m_geomTransparency.value());
+	 iter.next();
+      }
+   }
+   gEve->Redraw3D();
 }
 
 
@@ -313,7 +396,7 @@ void FW3DView::makeGeometry( const DetIdToMatrix* geom )
       return;
    }
    
-   // barrel
+   // barrel muon
    m_muonBarrelElements = new TEveElementList( "DT" );
    gEve->AddElement( m_muonBarrelElements, m_detectorScene );
    for ( Int_t iWheel = -2; iWheel <= 2; ++iWheel)
@@ -334,6 +417,7 @@ void FW3DView::makeGeometry( const DetIdToMatrix* geom )
 	    }
        }
    
+   // endcap muon
    m_muonEndcapElements = new TEveElementList( "CSC" );
    gEve->AddElement( m_muonEndcapElements, m_detectorScene );
    for ( Int_t iEndcap = 1; iEndcap <= 2; ++iEndcap ) {// 1=forward (+Z), 2=backward(-Z)
@@ -371,9 +455,73 @@ void FW3DView::makeGeometry( const DetIdToMatrix* geom )
 	 }
       }
    }
+   
+   // pixel barrel
+   m_pixelBarrelElements = new TEveElementList( "PixelBarrel" );
+   gEve->AddElement( m_pixelBarrelElements, m_detectorScene );
+   std::vector<unsigned int> ids = geom->getMatchedIds("PixelBarrel");
+   for ( std::vector<unsigned int>::const_iterator id = ids.begin(); 
+	 id != ids.end(); ++id ) {
+      TEveGeoShape* shape = geom->getShape( *id );
+      if ( ! shape ) continue;
+      shape->SetMainTransparency(m_geomTransparency.value());
+      m_pixelBarrelElements->AddElement( shape );
+   }
 
+   // pixel endcap
+   m_pixelEndcapElements = new TEveElementList( "PixelEndcap" );
+   gEve->AddElement( m_pixelEndcapElements, m_detectorScene );
+   ids = geom->getMatchedIds("PixelForward");
+   for ( std::vector<unsigned int>::const_iterator id = ids.begin(); 
+	 id != ids.end(); ++id ) {
+      TEveGeoShape* shape = geom->getShape( *id );
+      if ( ! shape ) continue;
+      shape->SetMainTransparency(m_geomTransparency.value());
+      m_pixelEndcapElements->AddElement( shape );
+   }
 
-/*
+   // tracker barrel
+   m_trackerBarrelElements = new TEveElementList( "TrackerBarrel" );
+   gEve->AddElement( m_trackerBarrelElements, m_detectorScene );
+   ids = geom->getMatchedIds("tib:TIB");
+   for ( std::vector<unsigned int>::const_iterator id = ids.begin(); 
+	 id != ids.end(); ++id ) {
+      TEveGeoShape* shape = geom->getShape( *id );
+      if ( ! shape ) continue;
+      shape->SetMainTransparency(m_geomTransparency.value());
+      m_trackerBarrelElements->AddElement( shape );
+   }
+   ids = geom->getMatchedIds("tob:TOB");
+   for ( std::vector<unsigned int>::const_iterator id = ids.begin(); 
+	 id != ids.end(); ++id ) {
+      TEveGeoShape* shape = geom->getShape( *id );
+      if ( ! shape ) continue;
+      shape->SetMainTransparency(m_geomTransparency.value());
+      m_trackerBarrelElements->AddElement( shape );
+   }
+
+   // tracker endcap
+   m_trackerEndcapElements = new TEveElementList( "TrackerEndcap" );
+   gEve->AddElement( m_trackerEndcapElements, m_detectorScene );
+   ids = geom->getMatchedIds("tid:TID");
+   for ( std::vector<unsigned int>::const_iterator id = ids.begin(); 
+	 id != ids.end(); ++id ) {
+      TEveGeoShape* shape = geom->getShape( *id );
+      if ( ! shape ) continue;
+      shape->SetMainTransparency(m_geomTransparency.value());
+      m_trackerEndcapElements->AddElement( shape );
+   }
+   ids = geom->getMatchedIds("tec:TEC");
+   for ( std::vector<unsigned int>::const_iterator id = ids.begin(); 
+	 id != ids.end(); ++id ) {
+      TEveGeoShape* shape = geom->getShape( *id );
+      if ( ! shape ) continue;
+      shape->SetMainTransparency(m_geomTransparency.value());
+      m_trackerEndcapElements->AddElement( shape );
+   }
+
+   
+   /*
    // set background geometry visibility parameters
 
    TEveElementIter rhoPhiDT(m_rhoPhiGeomProjMgr.get(),"MuonRhoPhi");
