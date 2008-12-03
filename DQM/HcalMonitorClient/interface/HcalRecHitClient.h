@@ -42,9 +42,6 @@ class HcalRecHitClient : public HcalBaseClient {
   /// Cleanup
   void cleanup(void);
   
-  void getSJ6histos( const char* dir, const char* name, TH2F* h[6]);
-  void getSJ6histos( const char* dir, const char* name, TH1F* h[6]);
-
   /// HtmlOutput
   void htmlOutput(int run, string htmlDir, string htmlName);
   void htmlExpertOutput(int run, string htmlDir, string htmlName);

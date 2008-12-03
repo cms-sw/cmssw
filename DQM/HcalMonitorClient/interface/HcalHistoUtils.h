@@ -267,40 +267,47 @@ std::string getAnyIMG(int runNo,myHist* hist, int size, std::string htmlDir,
   hist->Draw(hist->GetOption());// I think that Draw should automatically use the GetOption() value, but include it here to be sure.
 
   // Draw Grid Lines
-  int vertlinespace=UTILS_VERTLINESPACE;
-  int horizlinespace=UTILS_HORIZLINESPACE;
+  //int vertlinespace=UTILS_VERTLINESPACE;
+  //int horizlinespace=UTILS_HORIZLINESPACE;
   if (histtype=="TH2F")
     {
       TAxis *xaxis = hist->GetXaxis();
       TAxis *yaxis=hist->GetYaxis();
       // Draw vertical lines
       //for (int xx=int(UTILS_ETAMIN);xx<=int(UTILS_ETAMAX);++xx)
-      if (xaxis->GetXmax()<100) // ad hoc method for only drawing grids for eta-phi graphs
+ 
+     if (xaxis->GetXmax()==UTILS_ETAMAX && xaxis->GetXmin()==UTILS_ETAMIN 
+	 && yaxis->GetXmax()==UTILS_PHIMAX && yaxis->GetXmin()==UTILS_PHIMIN) // ad hoc method for only drawing grids for eta-phi graphs; need to be more clever later?
 	{
 	  for (int xx=int(xaxis->GetXmin());
 	       xx<=int(xaxis->GetXmax()); ++xx)
 	    {
-	      if (xx%vertlinespace!=0) continue;
-	      //TLine *vert = new TLine(xx,UTILS_PHIMIN,xx,UTILS_PHIMAX);
-	      TLine *vert = new TLine(xx,yaxis->GetXmin(),xx,yaxis->GetXmax());
+	      if (xx<-42 || xx >= 42) continue;
+	      TLine *vert = new TLine(xx+0.5,0.5,xx+0.5,72.5);
+	      //if (xx%vertlinespace!=0) continue;
+	      //TLine *vert = new TLine(xx,yaxis->GetXmin(),xx,yaxis->GetXmax());
+	      
 	      vert->SetLineStyle(3);
 	      vert->Draw("same");
 	    }
-	}
-      // Draw horizontal lines
-      //for (int yy=-int(UTILS_PHIMIN);yy<=int(UTILS_PHIMAX);++yy)
-      if (yaxis->GetXmax()<100)
-	{
-	  for (int yy=int(yaxis->GetXmin()); yy<=int(yaxis->GetXmax());++yy)
+	  // Draw horizontal lines
+	  for (int yy=int(yaxis->GetXmin()); yy<int(yaxis->GetXmax());++yy)
 	    {
-	      if (yy%horizlinespace!=0) continue;
-	      //TLine *horiz = new TLine(UTILS_ETAMIN,yy,UTILS_ETAMAX,yy);
-	      TLine *horiz = new TLine(xaxis->GetXmin(),yy,xaxis->GetXmax(),yy);
+	      TLine *horiz;
+	      if (yy%4==0)
+		horiz = new TLine(-41.5,yy+0.5,41.5,yy+0.5);
+	      else if (yy%2==0)
+		horiz = new TLine(-39.5,yy+0.5,39.5,yy+0.5);
+	      else
+		horiz = new TLine(-20.5,yy+0.5,20.5,yy+0.5);
+	      //if (yy%horizlinespace!=0) continue;
+	      //TLine *horiz = new TLine(xaxis->GetXmin(),yy,xaxis->GetXmax(),yy);
 	      horiz->SetLineStyle(3);
 	      horiz->Draw("same");
 	    }
-	}
-    }
+	} //if (xaxis->GetXmax()==44)
+    } // if (histtype=="TH2F")
+
   
   // SetLogx, SetLogy don't seem to work.  Why not?
   if (hist->GetMaximum()>0 && hist->GetMinimum()>0)
