@@ -4,8 +4,14 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
+#include "DataFormats/Common/interface/DetSetVector.h"
+#include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
+#include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
+#include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
+#include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
 
 /**
     @file EventFilter/SiStripRawToDigi/test/plugins/SiStripDigiValidator.h
@@ -24,7 +30,11 @@ class SiStripDigiValidator : public edm::EDAnalyzer {
   virtual void beginJob(const edm::EventSetup& setup);
   virtual void endJob();
   virtual void analyze(const edm::Event& event, const edm::EventSetup& setup);
+  void validate(const edm::DetSetVector<SiStripDigi>&, const edm::DetSetVector<SiStripDigi>&);
+  void validate(const edm::DetSetVector<SiStripDigi>&, const edm::DetSetVector<SiStripRawDigi>&);
+
  private:
+
   //Input collections
   edm::InputTag collection1Tag_;
   edm::InputTag collection2Tag_;
@@ -33,12 +43,5 @@ class SiStripDigiValidator : public edm::EDAnalyzer {
   bool errors_;
 
 };
-
-// template method
-template <typename T>
-extern bool Compare( edm::InputTag,
-		     edm::InputTag,
-		     const edm::Event& event,
-		     const edm::EventSetup& setup );
 
 #endif //  EventFilter_SiStripRawToDigi_SiStripDigiValidator_H
