@@ -1,8 +1,8 @@
 /** \class DTRecSegment4DProducer
  *  Builds the segments in the DT chambers.
  *
- *  $Date: 2007/08/16 07:08:25 $
- *  $Revision: 1.9 $
+ *  $Date: 2008/01/29 13:19:54 $
+ *  $Revision: 1.10 $
  * \author Riccardo Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -102,7 +102,11 @@ void DTRecSegment4DProducer::produce(Event& event, const EventSetup& setup){
     
     OwnVector<DTRecSegment4D> segments4D = the4DAlgo->reconstruct();
     
-    if(debug) cout << "Number of reconstructed 4D-segments " << segments4D.size() << endl;
+    if(debug) {
+      cout << "Number of reconstructed 4D-segments " << segments4D.size() << endl;
+      copy(segments4D.begin(), segments4D.end(),
+           ostream_iterator<DTRecSegment4D>(cout, "\n"));
+    }
 
     if (segments4D.size() > 0 )
       // convert the OwnVector into a Collection

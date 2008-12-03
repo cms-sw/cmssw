@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2006/08/29 16:05:06 $
- * $Revision: 1.7 $
+ * $Date: 2007/02/13 13:31:40 $
+ * $Revision: 1.8 $
  * \author : Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  */
@@ -53,46 +53,39 @@ vector<DTSegmentCand*> DTSegmentCleaner::solveConflict(vector<DTSegmentCand*> in
 
   for (vector<DTSegmentCand*>::iterator cand=inputCands.begin();
        cand!=inputCands.end(); ++cand) {
-    for (vector<DTSegmentCand*>::iterator cand2=cand+1;
-         cand2!=inputCands.end(); ++cand2) {
+    for (vector<DTSegmentCand*>::iterator cand2 = cand+1 ; cand2!=inputCands.end() ; ++cand2) {
 
       DTSegmentCand::AssPointCont confHits=(*cand)->conflictingHitPairs(*(*cand2));
-      
+
       if ( segmCleanerMode != 1
-	   && (confHits.size())==((*cand)->nHits()) && (confHits.size())==((*cand2)->nHits())
-	   && (fabs((*cand)->chi2()-(*cand2)->chi2())<0.1))
-	{
-	  if(segmCleanerMode==2)
-	    {	
-	      LocalVector dir1 = (*cand)->direction();
-	      LocalVector dir2 = (*cand2)->direction();
-	      float phi1=(atan((dir1.x())/(dir1.z())));
-	      float phi2=(atan((dir2.x())/(dir2.z())));
-	      
-	      if(fabs(phi1)>fabs(phi2))
-		for (DTSegmentCand::AssPointCont::const_iterator cHit=confHits.begin() ;
-		     cHit!=confHits.end(); ++cHit) {
-		  (*cand)->removeHit(*cHit);
-		}
-	      else
-		for (DTSegmentCand::AssPointCont::const_iterator cHit=confHits.begin() ;
-		     cHit!=confHits.end(); ++cHit) {
-		  (*cand2)->removeHit(*cHit);
-		}
-	    }
-	  else 
-	    LogDebug("Muon|RecoLocalMuon|DTSegmentCleaner")
-	      << "keep both segment candidates "<<*(*cand)<<" and "<<*(*cand2)<<endl;
-	}
+           && (confHits.size())==((*cand)->nHits()) && (confHits.size())==((*cand2)->nHits())
+           && (fabs((*cand)->chi2()-(*cand2)->chi2())<0.1))
+      {
+        if(segmCleanerMode==2)
+        {	
+          LocalVector dir1 = (*cand)->direction();
+          LocalVector dir2 = (*cand2)->direction();
+          float phi1=(atan((dir1.x())/(dir1.z())));
+          float phi2=(atan((dir2.x())/(dir2.z())));
+
+          DTSegmentCand* badCand = (fabs(phi1) > fabs(phi2)) ? (*cand) : (*cand2);
+          for (DTSegmentCand::AssPointCont::const_iterator cHit=confHits.begin() ;
+               cHit!=confHits.end(); ++cHit) {
+            badCand->removeHit(*cHit);
+          }
+        }
+        else 
+          LogDebug("Muon|RecoLocalMuon|DTSegmentCleaner")
+            << "keep both segment candidates "<<*(*cand)<<" and "<<*(*cand2)<<endl;
+      }
       else if (confHits.size()) {
+        DTSegmentCand* badCand = (**cand) < (**cand2) ? (*cand) : (*cand2);
         for (DTSegmentCand::AssPointCont::const_iterator cHit=confHits.begin() ;
              cHit!=confHits.end(); ++cHit) {
-          if ((**cand)<(**cand2)) 
-            (*cand)->removeHit(*cHit);
-          else  
-            (*cand2)->removeHit(*cHit);
+          badCand->removeHit(*cHit);
         }
       }
+      // HERE I should delete the worst segment if is not good enough
     }
   }
 
@@ -130,12 +123,11 @@ DTSegmentCleaner::ghostBuster(vector<DTSegmentCand*> inputCands) const {
       if ((int)nSharedHits >= nSharedHitsMax ||
           (int)((*cand)->nHits()-nSharedHits)<=nUnSharedHitsMin ||
           (int)((*cand2)->nHits()-nSharedHits)<=nUnSharedHitsMin) {
+
         if ((**cand)<(**cand2)) {
-          //cout << (**cand) << " is ghost " << endl;
           ghosts.push_back(*cand);
         }
         else {
-          //cout << (**cand2) << " is ghost " << endl;
           ghosts.push_back(*cand2);
         }
         continue;

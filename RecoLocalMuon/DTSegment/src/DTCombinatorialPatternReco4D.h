@@ -5,8 +5,8 @@
  *
  * Algo for reconstructing 4d segment in DT using a combinatorial approach
  *  
- * $Date: 2007/12/11 09:45:08 $
- * $Revision: 1.7 $
+ * $Date: 2008/03/31 16:23:06 $
+ * $Revision: 1.8 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  *
@@ -64,6 +64,7 @@ class DTCombinatorialPatternReco4D : public DTRecSegment4DBaseAlgo {
 
  private:
   std::vector<DTSegmentCand*> buildPhiSuperSegmentsCandidates(std::vector<DTHitPairForFit*> &pairPhiOwned);
+  DTRecSegment4D* segmentSpecialZed(const DTRecSegment4D* seg);
 
   std::string theAlgoName;
 

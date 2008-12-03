@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2008/03/10 11:28:30 $
- * $Revision: 1.12 $
+ * $Date: 2008/04/04 15:23:01 $
+ * $Revision: 1.13 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  */
@@ -195,7 +195,8 @@ bool DTSegmentCand::AssPointLessZ::operator()(const AssPoint& pt1,
 }
 
 std::ostream& operator<<(std::ostream& out, const DTSegmentCand& seg) {
-  out <<  " chi2/nHits: " << seg.chi2() << "/" << seg.nHits() ;
+  out <<  " pos: " << seg.position() << " dir: " << seg.direction() 
+      << " chi2/nHits: " << seg.chi2() << "/" << seg.DTSegmentCand::nHits() << "/" << seg.nHits();
   return out;
 }
 

@@ -92,8 +92,8 @@ DTSegAnalyzer::DTSegAnalyzer(const ParameterSet& pset) : _ev(0){
   // 1d hits
   new TH1F("hnHitDT","Num 1d hits DT",200,0.,200.);
   new TH1F("hDigiTime","Digi time (ns)",700,-100.,600.);
-  new TH1F("hMeanTimerSL","Mean timer per SL (ns)",100,200.,600.);
-  new TH1F("hDigiTimeSL", "Digi Time (ns) ",100,-100.,600.);
+  // new TH1F("hMeanTimerSL","Mean timer per SL (ns)",100,200.,600.);
+  // new TH1F("hDigiTimeSL", "Digi Time (ns) ",100,-100.,600.);
 
   new TH1F("hPosLeft", "Pos of Left hit (cm) in local frame", 100,-220.,220.);
   new TH1F("hPosRight", "Pos of Right hit (cm) in local frame", 100,-220.,220.);

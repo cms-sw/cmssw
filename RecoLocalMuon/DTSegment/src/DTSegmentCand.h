@@ -7,8 +7,8 @@
  * and store relative information. It must be transformed into a DTSegment
  * for further use.
  *
- * $Date: 2006/11/16 13:19:11 $
- * $Revision: 1.6 $
+ * $Date: 2008/03/10 11:28:30 $
+ * $Revision: 1.7 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  *
@@ -52,69 +52,69 @@ class DTSegmentCand{
                   const DTSuperLayer* sl);
 
 /// Destructor
-    ~DTSegmentCand() ;
+    virtual ~DTSegmentCand() ;
 
 /* Operations */ 
-    bool good() const ;
+    virtual bool good() const ;
 
-    unsigned int nHits() const { return theHits.size(); }
+    virtual unsigned int nHits() const { return theHits.size(); }
 
     /// the chi2 (NOT chi2/NDOF) of the fit
-    double chi2() const {return theChi2; }
+    virtual double chi2() const {return theChi2; }
 
     /// the chi2/NDOF of the fit
-    double chi2ndof() const {return theChi2/(nHits()-2.); }
+    virtual double chi2ndof() const {return theChi2/(nHits()-2.); }
 
     /// equality operator based on position, direction, chi2 and nHits
-    bool operator==(const DTSegmentCand& seg);
+    virtual bool operator==(const DTSegmentCand& seg);
 
     /// less operator based on nHits and chi2
-    bool operator<(const DTSegmentCand& seg);
+    virtual bool operator<(const DTSegmentCand& seg);
 
-    //  /// the super layer on which relies 
-    // const DTSuperLayer* superLayer() const {return theSL;}
-
-    // in SL frame
-    LocalPoint  position() const { return thePosition; }
+    /// the super layer on which relies 
+    const DTSuperLayer* superLayer() const {return theSL;}
 
     // in SL frame
-    LocalVector direction() const { return theDirection;}
+    virtual LocalPoint  position() const { return thePosition; }
+
+    // in SL frame
+    virtual LocalVector direction() const { return theDirection;}
 
     /// the covariance matrix
-    AlgebraicSymMatrix covMatrix() const {return theCovMatrix; }
+    virtual AlgebraicSymMatrix covMatrix() const {return theCovMatrix; }
 
-    unsigned int NDOF() const { return nHits()-2; }
+    virtual unsigned int NDOF() const { return nHits()-2; }
 
     ///set position
-    void setPosition(LocalPoint& pos) { thePosition=pos; }
+    virtual void setPosition(LocalPoint& pos) { thePosition=pos; }
 
     /// set direction
-    void setDirection(LocalVector& dir) { theDirection = dir ; }
+    virtual void setDirection(LocalVector& dir) { theDirection = dir ; }
 
     /// add hits to the hit list.
-    void add(DTHitPairForFit* hit, DTEnums::DTCellSide code) ;
+    virtual void add(DTHitPairForFit* hit, DTEnums::DTCellSide code) ;
 
     /// remove hit from the candidate
-    void removeHit(AssPoint hit) ;
+    virtual void removeHit(AssPoint hit) ;
 
     /// set chi2
-    void setChi2(double& chi2) { theChi2 = chi2 ;}
+    virtual void setChi2(double& chi2) { theChi2 = chi2 ;}
 
     /// number of shared hit pair with other segment candidate
-    int nSharedHitPairs(const DTSegmentCand& seg) const;
+    virtual int nSharedHitPairs(const DTSegmentCand& seg) const;
 
     /** return the hits shared with other segment and with confliction L/R
      * assignment */
-    AssPointCont conflictingHitPairs(const DTSegmentCand& seg) const;
+    virtual AssPointCont conflictingHitPairs(const DTSegmentCand& seg) const;
 
     /// set the cov matrix
-    void setCovMatrix(AlgebraicSymMatrix& cov) { theCovMatrix = cov; }
+    virtual void setCovMatrix(AlgebraicSymMatrix& cov) { theCovMatrix = cov; }
 
     /// number of different layers with hits
-    int nLayers() const ;
+    virtual int nLayers() const ;
     
     /// the used hits
-    AssPointCont hits() const { return theHits;}
+    virtual AssPointCont hits() const { return theHits;}
 
     /// convert this DTSegmentCand into a DTRecSegment2D
     //  DTSLRecSegment2D* convert() const;
@@ -131,8 +131,6 @@ class DTSegmentCand{
           bool operator()(const AssPoint& pt1, 
                           const AssPoint& pt2) const ; 
       };
-  protected:
-
   private:
     const DTSuperLayer* theSL; // the SL
     LocalPoint  thePosition;  // in SL frame
@@ -147,6 +145,7 @@ class DTSegmentCand{
 
     AssPointCont theHits; // the used hits
 
+  protected:
     static double chi2max; // to be tuned!!
     static unsigned int nHitsMin; // to be tuned!!
 };

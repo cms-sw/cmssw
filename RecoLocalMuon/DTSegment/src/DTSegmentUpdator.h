@@ -8,8 +8,13 @@
  * impact angle and position (also along the wire) and perform linear fit on
  * improved hits.
  *
- * $Date: 2008/08/06 16:52:26 $
- * $Revision: 1.9 $
+<<<<<<< DTSegmentUpdator.h
+ * $Date: 2007/12/19 15:54:06 $
+ * $Revision: 1.8 $
+=======
+ * $Date: 2008/10/27 16:34:35 $
+ * $Revision: 1.10 $
+>>>>>>> 1.10
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  *
@@ -25,6 +30,7 @@
 
 /* Collaborating Class Declarations */
 class DTSegmentCand;
+#include "RecoLocalMuon/DTSegment/src/DTSegmentExtendedCand.h"
 class DTRecSegment2D;
 class DTRecSegment4D;
 class DTLinearFit;
@@ -48,6 +54,11 @@ class DTSegmentUpdator{
     /** do the linear fit on the hits of the segment candidate and update it.
      * Returns false if the segment candidate is not good() */
     bool fit(DTSegmentCand* seg);
+
+    /** do the linear fit on the hits of the segment candidate extended with
+     * close clusters and does NOT update it: just nHits and Chi2 is changed.
+     * Returns false if the segment candidate is not good() */
+    bool fit(DTSegmentExtendedCand* seg);
 
     /** ditto for true segment: since the fit is applied on a true segment, by
      * definition the segment is "good", while it's not the case for just
@@ -108,7 +119,7 @@ class DTSegmentUpdator{
                      int step=2);
     bool fitT0_seg(DTSegmentCand* seg);
 
-    void fitT0_seg(DTRecSegment2D* seg,float& t0_cor , double& vminf ,float& cminf);
+    void fitT0_seg(DTRecSegment2D* seg,float& t0_cor );
 
     void fitT0_seg(DTRecSegment4D* seg);
 
@@ -146,8 +157,8 @@ class DTSegmentUpdator{
 
     bool T0_fit_flag;
     bool vdrift_4parfit;
-    double T0_hit_resolution;
     bool T0_seg_debug;
+    float T0_hit_resolution;
 
 };
 #endif // DTSegment_DTSegmentUpdator_h

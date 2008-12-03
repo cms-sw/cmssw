@@ -7,7 +7,7 @@
  */
 
 /* This Class Header */
-#include "RecoLocalMuon/DTSegment/src/DTCombinatorialPatternReco.h"
+#include "RecoLocalMuon/DTSegment/src/DTCombinatorialExtendedPatternReco.h"
 
 /* Collaborating Class Header */
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -23,6 +23,7 @@
 #include "RecoLocalMuon/DTSegment/src/DTSegmentCleaner.h"
 #include "RecoLocalMuon/DTSegment/src/DTHitPairForFit.h"
 #include "RecoLocalMuon/DTSegment/src/DTSegmentCand.h"
+#include "RecoLocalMuon/DTSegment/src/DTSegmentExtendedCand.h"
 
 
 /* C++ Headers */
@@ -33,8 +34,8 @@ using namespace std;
 /* ====================================================================== */
 
 /// Constructor
-DTCombinatorialPatternReco::DTCombinatorialPatternReco(const edm::ParameterSet& pset) : 
-DTRecSegment2DBaseAlgo(pset), theAlgoName("DTCombinatorialPatternReco")
+DTCombinatorialExtendedPatternReco::DTCombinatorialExtendedPatternReco(const edm::ParameterSet& pset) : 
+DTRecSegment2DBaseAlgo(pset), theAlgoName("DTCombinatorialExtendedPatternReco")
 {
   theMaxAllowedHits = pset.getParameter<unsigned int>("MaxAllowedHits"); // 100
   theAlphaMaxTheta = pset.getParameter<double>("AlphaMaxTheta");// 0.1 ;
@@ -47,14 +48,16 @@ DTRecSegment2DBaseAlgo(pset), theAlgoName("DTCombinatorialPatternReco")
 }
 
 /// Destructor
-DTCombinatorialPatternReco::~DTCombinatorialPatternReco() {
+DTCombinatorialExtendedPatternReco::~DTCombinatorialExtendedPatternReco() {
 }
 
 /* Operations */ 
 edm::OwnVector<DTSLRecSegment2D>
-DTCombinatorialPatternReco::reconstruct(const DTSuperLayer* sl,
-                                        const std::vector<DTRecHit1DPair>& pairs){
+DTCombinatorialExtendedPatternReco::reconstruct(const DTSuperLayer* sl,
+                                                const std::vector<DTRecHit1DPair>& pairs){
 
+  if(debug) cout << "DTCombinatorialExtendedPatternReco::reconstruct" << endl;
+  theTriedPattern.clear();
   edm::OwnVector<DTSLRecSegment2D> result;
   vector<DTHitPairForFit*> hitsForFit = initHits(sl, pairs);
 
@@ -70,7 +73,7 @@ DTCombinatorialPatternReco::reconstruct(const DTSuperLayer* sl,
     result.push_back(segment);
 
     if (debug) {
-      cout<<"Reconstructed 2D segments "<< result.back() <<endl;
+      cout<<"Reconstructed 2D extended segments "<< result.back() <<endl;
     }
 
     delete *(cand++); // delete the candidate!
@@ -82,14 +85,18 @@ DTCombinatorialPatternReco::reconstruct(const DTSuperLayer* sl,
   return result;
 }
 
-void DTCombinatorialPatternReco::setES(const edm::EventSetup& setup){
+void DTCombinatorialExtendedPatternReco::setES(const edm::EventSetup& setup){
   // Get the DT Geometry
   setup.get<MuonGeometryRecord>().get(theDTGeometry);
   theUpdator->setES(setup);
 }
 
+void DTCombinatorialExtendedPatternReco::setClusters(vector<DTSLRecCluster> clusters) {
+  theClusters = clusters;
+}
+
 vector<DTHitPairForFit*>
-DTCombinatorialPatternReco::initHits(const DTSuperLayer* sl,
+DTCombinatorialExtendedPatternReco::initHits(const DTSuperLayer* sl,
                                      const std::vector<DTRecHit1DPair>& hits){  
   
   vector<DTHitPairForFit*> result;
@@ -101,17 +108,15 @@ DTCombinatorialPatternReco::initHits(const DTSuperLayer* sl,
 }
 
 vector<DTSegmentCand*>
-DTCombinatorialPatternReco::buildSegments(const DTSuperLayer* sl,
+DTCombinatorialExtendedPatternReco::buildSegments(const DTSuperLayer* sl,
                                           const std::vector<DTHitPairForFit*>& hits){
-  // clear the patterns tried
-  theTriedPattern.clear();
 
   typedef vector<DTHitPairForFit*> hitCont;
   typedef hitCont::const_iterator  hitIter;
   vector<DTSegmentCand*> result;
   
   if(debug) {
-    cout << "buildSegments: " << sl->id() << " nHits " << hits.size() << endl;
+    cout << "DTCombinatorialExtendedPatternReco::buildSegments: " << sl->id() << " nHits " << hits.size() << endl;
     for (vector<DTHitPairForFit*>::const_iterator hit=hits.begin();
          hit!=hits.end(); ++hit) cout << **hit<< endl;
   }
@@ -134,7 +139,6 @@ DTCombinatorialPatternReco::buildSegments(const DTSuperLayer* sl,
        ++firstHit) {
     for (hitCont::const_reverse_iterator lastHit=hits.rbegin(); 
          (*lastHit)!=(*firstHit); ++lastHit) {
-      //if ( (*lastHit)->id().layerId() == (*firstHit)->id().layerId() ) continue; // hits must be in different layers!
       // hits must nor in the same nor in adiacent layers
       if ( fabs((*lastHit)->id().layerId()-(*firstHit)->id().layerId())<=1 ) continue;
       if(debug) {
@@ -178,23 +182,23 @@ DTCombinatorialPatternReco::buildSegments(const DTSuperLayer* sl,
             if(debug) 
               cout << "compatible hits " << assHits.size() << endl;
 
-            // get the best segment with these hits: it's just one! 
-            // (is it correct?)
-            DTSegmentCand* seg = buildBestSegment(assHits, sl);
+            // here return an extended candidate (which _has_ the original
+            // segment)
+            DTSegmentExtendedCand* seg = buildBestSegment(assHits, sl);
 
             if (seg) {
               if(debug) 
                 cout << "segment " << *seg<< endl;
 
               // check if the chi2 and #hits are ok
-              if (!seg->good()) {
+              if (!seg->good()) { // good is reimplmented in extended segment
                 delete seg;
               } else { 
 
-                // remove duplicated segments (I know, would be better to do it before the
-                // fit...)
+                // remove duplicated segments 
                 if (checkDoubleCandidates(result,seg)) {
                   // add to the vector of hypotesis
+                  // still work with extended segments
                   result.push_back(seg);
                   if(debug) 
                     cout << "result is now " << result.size() << endl;
@@ -217,6 +221,7 @@ DTCombinatorialPatternReco::buildSegments(const DTSuperLayer* sl,
   }
 
   // now I have a couple of segment hypotesis, should check for ghost
+  // still with extended candidates
   result = theCleaner->clean(result);
   if (debug) {
     cout << "result no ghost  " << result.size() << endl;
@@ -225,19 +230,21 @@ DTCombinatorialPatternReco::buildSegments(const DTSuperLayer* sl,
       cout << *(*seg) << endl;
   }
 
+  // here, finally, I have to return the set of _original_ segments, not the
+  // extended ones.
   return result;
 }
 
 
-vector<DTCombinatorialPatternReco::AssPoint>
-DTCombinatorialPatternReco::findCompatibleHits(const LocalPoint& posIni,
+vector<DTCombinatorialExtendedPatternReco::AssPoint>
+DTCombinatorialExtendedPatternReco::findCompatibleHits(const LocalPoint& posIni,
                                                const LocalVector& dirIni,
                                                const vector<DTHitPairForFit*>& hits) {
   if (debug) cout << "Pos: " << posIni << " Dir: "<< dirIni << endl;
   vector<AssPoint> result;
 
   // counter to early-avoid double counting in hits pattern
-  TriedPattern tried;
+  vector<int> tried;
   int nCompatibleHits=0;
 
   typedef vector<DTHitPairForFit*> hitCont;
@@ -273,27 +280,19 @@ DTCombinatorialPatternReco::findCompatibleHits(const LocalPoint& posIni,
     }
     result.push_back(AssPoint(*hit, lrcode));
   }
-
+  
 
   // check if too few associated hits or pattern already tried
-  // TODO: two different if for nCompatibleHits < 3 =>printout and find ->
-  // printour
-  vector<TriedPattern>::const_iterator patternFound=find(theTriedPattern.begin(),
-                                                         theTriedPattern.end(),
-                                                         tried);
-  if ( nCompatibleHits < 3 || patternFound == theTriedPattern.end()) {
-    if (debug) {
-      cout << "NOT Already tried " ;
-      copy(tried.begin(), tried.end(), ostream_iterator<int>(std::cout));
-      cout << endl;
-    }
+  if ( nCompatibleHits < 3 || find(theTriedPattern.begin(), theTriedPattern.end(),tried) == theTriedPattern.end()) {
     theTriedPattern.push_back(tried);
   } else {
     if (debug) {
-      cout << "Already tried " ;
-      copy((*patternFound).begin(), (*patternFound).end(), ostream_iterator<int>(std::cout));
+      vector<vector<int> >::const_iterator t=find(theTriedPattern.begin(),
+                                                  theTriedPattern.end(),
+                                                  tried);
+      cout << "Already tried";
+      copy((*t).begin(), (*t).end(), ostream_iterator<int>(std::cout));
       cout << endl;
-
     }
     // empty the result vector
     result.clear();
@@ -301,9 +300,11 @@ DTCombinatorialPatternReco::findCompatibleHits(const LocalPoint& posIni,
   return result;
 }
 
-DTSegmentCand*
-DTCombinatorialPatternReco::buildBestSegment(std::vector<AssPoint>& hits,
-                                             const DTSuperLayer* sl) {
+DTSegmentExtendedCand*
+DTCombinatorialExtendedPatternReco::buildBestSegment(std::vector<AssPoint>& hits,
+                                                     const DTSuperLayer* sl) {
+  if (debug) cout << "DTCombinatorialExtendedPatternReco::buildBestSegment " <<
+    hits.size()  << endl;
   if (hits.size()<3) {
     //cout << "buildBestSegment: hits " << hits.size()<< endl;
     return 0; // a least 3 point
@@ -336,16 +337,19 @@ DTCombinatorialPatternReco::buildBestSegment(std::vector<AssPoint>& hits,
 
   buildPointsCollection(points, pointsNoLR, candidates, sl);
 
-  if(debug)
-    cout << "candidates " << candidates.size() << endl;
+  // here I try to add the external clusters and build a set of "extended
+  // segment candidate
+  vector<DTSegmentExtendedCand*> extendedCands = extendCandidates(candidates,
+                                                                  sl); 
+  if (debug) cout << "extended candidates " << extendedCands.size() << endl;
 
   // so now I have build a given number of segments, I should find the best one,
   // by #hits and chi2.
-  vector<DTSegmentCand*>::const_iterator bestCandIter = candidates.end();
+  vector<DTSegmentExtendedCand*>::const_iterator bestCandIter = extendedCands.end();
   double minChi2=999999.;
   unsigned int maxNumHits=0;
-  for (vector<DTSegmentCand*>::const_iterator iter=candidates.begin();
-       iter!=candidates.end(); ++iter) {
+  for (vector<DTSegmentExtendedCand*>::const_iterator iter=extendedCands.begin();
+       iter!=extendedCands.end(); ++iter) {
     if ((*iter)->nHits()==maxNumHits && (*iter)->chi2()<minChi2) {
       minChi2=(*iter)->chi2();
       bestCandIter=iter;
@@ -357,24 +361,25 @@ DTCombinatorialPatternReco::buildBestSegment(std::vector<AssPoint>& hits,
   }
 
   // delete all candidates but the best one!
-  for (vector<DTSegmentCand*>::iterator iter=candidates.begin();
-       iter!=candidates.end(); ++iter) if (iter!=bestCandIter) delete *iter;
+  for (vector<DTSegmentExtendedCand*>::iterator iter=extendedCands.begin();
+       iter!=extendedCands.end(); ++iter) 
+    if (iter!=bestCandIter) delete (*iter);
 
-       // return the best candate if any
-       if (bestCandIter != candidates.end()) {
-         return (*bestCandIter);
-       }
-       return 0;
+  // return the best candate if any
+  if (bestCandIter != extendedCands.end()) {
+    return (*bestCandIter);
+  }
+  return 0;
 }
 
 void
-DTCombinatorialPatternReco::buildPointsCollection(vector<AssPoint>& points, 
+DTCombinatorialExtendedPatternReco::buildPointsCollection(vector<AssPoint>& points, 
                                                   deque<DTHitPairForFit*>& pointsNoLR, 
                                                   vector<DTSegmentCand*>& candidates,
                                                   const DTSuperLayer* sl) {
 
   if(debug) {
-    cout << "buildPointsCollection " << endl;
+    cout << "DTCombinatorialExtendedPatternReco::buildPointsCollection " << endl;
     cout << "points: " << points.size() << " NOLR: " << pointsNoLR.size()<< endl;
   }
   if (pointsNoLR.size()>0) { // still unassociated points!
@@ -425,10 +430,97 @@ DTCombinatorialPatternReco::buildPointsCollection(vector<AssPoint>& points,
 }
 
 bool
-DTCombinatorialPatternReco::checkDoubleCandidates(vector<DTSegmentCand*>& cands,
+DTCombinatorialExtendedPatternReco::checkDoubleCandidates(vector<DTSegmentCand*>& cands,
                                                   DTSegmentCand* seg) {
   for (vector<DTSegmentCand*>::iterator cand=cands.begin();
        cand!=cands.end(); ++cand) 
     if (*(*cand)==*seg) return false;
+  return true;
+}
+
+vector<DTSegmentExtendedCand*>
+DTCombinatorialExtendedPatternReco::extendCandidates(vector<DTSegmentCand*>& candidates,
+                                                     const DTSuperLayer* sl) {
+  if (debug) cout << "extendCandidates " << candidates.size() << endl;
+  vector<DTSegmentExtendedCand*> result;
+
+  // in case of phi SL just return
+  if (sl->id().superLayer() != 2 ) {
+    for (vector<DTSegmentCand*>:: const_iterator cand=candidates.begin();
+       cand!=candidates.end(); ++cand) {
+      DTSegmentExtendedCand* extendedCand = new DTSegmentExtendedCand(*cand);
+      // and delete the original candidate
+      delete *cand;
+      result.push_back(extendedCand);
+    }
+    return result;
+  }
+
+  // first I have to select the cluster which are compatible with the actual
+  // candidate, namely +/-1 sector/station/wheel 
+  vector<DTSegmentExtendedCand::DTSLRecClusterForFit> clustersWithPos;
+  if (debug) cout << "AllClustersWithPos " << theClusters.size() << endl;
+  if(debug) cout << "SL:   " << sl->id() << endl;
+  for (vector<DTSLRecCluster>::const_iterator clus=theClusters.begin();
+       clus!=theClusters.end(); ++clus) {
+    if(debug) cout << "CLUS: " << (*clus).superLayerId() << endl;
+    if ((*clus).superLayerId().superLayer()==2 && closeSL(sl->id(),(*clus).superLayerId())) {
+      // and then get their pos in the actual SL frame
+      const DTSuperLayer* clusSl =
+        theDTGeometry->superLayer((*clus).superLayerId());
+      LocalPoint pos=sl->toLocal(clusSl->toGlobal((*clus).localPosition()));
+      //LocalError err=sl->toLocal(clusSl->toGlobal((*clus).localPositionError()));
+      LocalError err=(*clus).localPositionError();
+      clustersWithPos.push_back(DTSegmentExtendedCand::DTSLRecClusterForFit(*clus, pos, err) );
+    }
+  }
+  if (debug) cout << "closeClustersWithPos " << clustersWithPos.size() << endl;
+
+  for (vector<DTSegmentCand*>:: const_iterator cand=candidates.begin();
+       cand!=candidates.end(); ++cand) {
+    // create an extended candidate
+    DTSegmentExtendedCand* extendedCand = new DTSegmentExtendedCand(*cand);
+    // and delete the original candidate
+    delete *cand;
+    // do this only for theta SL
+    if (extendedCand->superLayer()->id().superLayer() == 2 ) {
+      // first check compatibility between cand and clusForFit
+      for (vector<DTSegmentExtendedCand::DTSLRecClusterForFit>::const_iterator
+           exClus=clustersWithPos.begin(); exClus!=clustersWithPos.end(); ++exClus) {
+        if (extendedCand->isCompatible(*exClus)) {
+          if (debug) cout << "is compatible " << endl;
+          // add compatible cluster
+          extendedCand->addClus(*exClus);
+        }
+      }
+      // fit the segment
+      if (debug) cout << "extended cands nHits: " << extendedCand->nHits() <<endl;
+      if (theUpdator->fit(extendedCand)) {
+        // add to result
+        result.push_back(extendedCand);
+      } else {
+        cout << "Bad fit" << endl;
+        delete extendedCand;
+      }
+    } else { // Phi SuperLayer
+      result.push_back(extendedCand);
+    }
+  }
+
+  return result;
+}
+
+bool DTCombinatorialExtendedPatternReco::closeSL(const DTSuperLayerId& id1,
+                                                 const DTSuperLayerId& id2) {
+  if (id1==id2) return false;
+  if (abs(id1.wheel()-id2.wheel())>1 ) return false;
+  // take into account also sector 13 and 14
+  int sec1 = ( id1.sector()==13 ) ? 4: id1.sector();
+  sec1=(sec1==14)? 10: sec1;
+  int sec2 = ( id2.sector()==13 ) ? 4: id2.sector();
+  sec2=(sec2==14)? 10: sec2;
+  // take into account also sector 1/12
+  if (abs(sec1-sec2)>1 && abs(sec1-sec2)!=11 ) return false;
+  //if (abs(id1.station()-id2.station())>1 ) return false;
   return true;
 }

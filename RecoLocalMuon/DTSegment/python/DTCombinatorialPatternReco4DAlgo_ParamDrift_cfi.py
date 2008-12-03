@@ -19,6 +19,11 @@ DTCombinatorialPatternReco4DAlgo_ParamDrift = cms.PSet(
         # this is the RecHit1D algo!!
         DTParametrizedDriftAlgo,
         segmCleanerMode = cms.int32(1),
+        T0SegCorrectionDebug = cms.untracked.bool(False),
+        performT0_vdriftSegCorrection = cms.untracked.bool(False),
+        # Parameters for  T0 fit segment in the Updator and
+        performT0SegCorrection = cms.untracked.bool(False),
+        hit_afterT0_resolution = cms.double(0.03),
         # Parameters for the cleaner
         nSharedHitsMax = cms.int32(2),
         debug = cms.untracked.bool(False),
@@ -36,4 +41,5 @@ DTCombinatorialPatternReco4DAlgo_ParamDrift = cms.PSet(
         performT0_vdriftSegCorrection = cms.bool(False)
     )
 )
+
 

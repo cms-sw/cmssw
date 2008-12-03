@@ -1,7 +1,7 @@
-#ifndef DTSegment_DTCombinatorialPatternReco_h
-#define DTSegment_DTCombinatorialPatternReco_h
+#ifndef DTSegment_DTCombinatorialExtendedPatternReco_h
+#define DTSegment_DTCombinatorialExtendedPatternReco_h
 
-/** \class DTCombinatorialPatternReco
+/** \class DTCombinatorialExtendedPatternReco
  *
  * Algo for reconstructing 2d segment in DT using a combinatorial approach
  *  
@@ -25,6 +25,8 @@ class DTSegmentUpdator;
 class DTSegmentCleaner;
 class DTHitPairForFit;
 class DTSegmentCand;
+class DTSegmentExtendedCand;
+#include "DataFormats/DTRecHit/interface/DTSLRecCluster.h"
 
 /* C++ Headers */
 #include <vector>
@@ -36,17 +38,17 @@ class DTSegmentCand;
 
 /* ====================================================================== */
 
-/* Class DTCombinatorialPatternReco Interface */
+/* Class DTCombinatorialExtendedPatternReco Interface */
 
-class DTCombinatorialPatternReco : public DTRecSegment2DBaseAlgo {
+class DTCombinatorialExtendedPatternReco : private DTRecSegment2DBaseAlgo {
 
   public:
 
     /// Constructor
-    DTCombinatorialPatternReco(const edm::ParameterSet& pset) ;
+    DTCombinatorialExtendedPatternReco(const edm::ParameterSet& pset) ;
 
     /// Destructor
-    virtual ~DTCombinatorialPatternReco() ;
+    virtual ~DTCombinatorialExtendedPatternReco() ;
 
     /* Operations */
 
@@ -62,11 +64,12 @@ class DTCombinatorialPatternReco : public DTRecSegment2DBaseAlgo {
     /// objs which request it
     virtual void setES(const edm::EventSetup& setup);
 
+    // pass clusters to algo
+    void setClusters(std::vector<DTSLRecCluster> clusters);
+
   protected:
 
   private:
-    friend class DTCombinatorialPatternReco4D;
-
     typedef std::pair<DTHitPairForFit*, DTEnums::DTCellSide> AssPoint;
 
     // create the DTHitPairForFit from the pairs for easy use
@@ -83,8 +86,8 @@ class DTCombinatorialPatternReco : public DTRecSegment2DBaseAlgo {
                                              const std::vector<DTHitPairForFit*>& hits);
 
     // build segments from hits collection
-    DTSegmentCand* buildBestSegment(std::vector<AssPoint>& assHits,
-                                    const DTSuperLayer* sl) ;
+    DTSegmentExtendedCand* buildBestSegment(std::vector<AssPoint>& assHits,
+                                            const DTSuperLayer* sl) ;
 
     bool checkDoubleCandidates(std::vector<DTSegmentCand*>& segs,
                                DTSegmentCand* seg);
@@ -95,7 +98,14 @@ class DTCombinatorialPatternReco : public DTRecSegment2DBaseAlgo {
                                std::deque<DTHitPairForFit* >& pointsNoLR,
                                std::vector<DTSegmentCand*>& candidates,
                                const DTSuperLayer* sl);
-  private:
+
+    /** extend the candidates with clusters from external SL */
+    std::vector<DTSegmentExtendedCand*> extendCandidates(std::vector<DTSegmentCand*>& candidates,
+                                                          const DTSuperLayer* sl);
+
+    bool closeSL(const DTSuperLayerId& id1, const DTSuperLayerId& id2);
+
+   private:
 
     std::string theAlgoName;
     unsigned int theMaxAllowedHits;
@@ -110,15 +120,7 @@ class DTCombinatorialPatternReco : public DTRecSegment2DBaseAlgo {
 
   private:
 
-
-    typedef std::vector<short unsigned int> TriedPattern;
-    std::vector<TriedPattern> theTriedPattern;
-    struct vectorEqualContent : std::binary_function<TriedPattern, TriedPattern, bool> {
-      bool operator()(const TriedPattern& lhs, const TriedPattern& rhs) const {
-        if (lhs.size()!=rhs.size()) return false;
-        for (unsigned int i = 0; i<lhs.size(); ++i) if (lhs[i]!=rhs[i]) return false;
-        return true;
-      }
-    };
+    std::vector<std::vector<int> > theTriedPattern;
+    std::vector<DTSLRecCluster> theClusters;
 };
-#endif // DTSegment_DTCombinatorialPatternReco_h
+#endif // DTSegment_DTCombinatorialExtendedPatternReco_h

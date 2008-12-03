@@ -5,6 +5,10 @@
 DEFINE_SEAL_MODULE();
 
 // ----------- Modules for 2D-segments reco -----------
+#include "RecoLocalMuon/DTSegment/src/DTClusterer.h"
+DEFINE_ANOTHER_FWK_MODULE(DTClusterer);
+
+
 #include "RecoLocalMuon/DTSegment/src/DTRecSegment2DProducer.h"
 #include "RecoLocalMuon/DTSegment/src/DTRecSegment2DAlgoFactory.h"
 #include "RecoLocalMuon/DTSegment/src/DTCombinatorialPatternReco.h"
@@ -14,6 +18,10 @@ DEFINE_ANOTHER_FWK_MODULE(DTRecSegment2DProducer);
 DEFINE_EDM_PLUGIN (DTRecSegment2DAlgoFactory, DTCombinatorialPatternReco, "DTCombinatorialPatternReco");
 DEFINE_EDM_PLUGIN (DTRecSegment2DAlgoFactory, DTMeantimerPatternReco, "DTMeantimerPatternReco");
 //-------------------------------------------------------------------------------------------------------
+
+// ----------- Modules for 2D-segments extended reco -----------
+#include "RecoLocalMuon/DTSegment/src/DTRecSegment2DExtendedProducer.h"
+DEFINE_ANOTHER_FWK_MODULE(DTRecSegment2DExtendedProducer);
 
 // ----------- Modules for 4D-segments reco -----------
 #include "RecoLocalMuon/DTSegment/src/DTRecSegment4DProducer.h"
