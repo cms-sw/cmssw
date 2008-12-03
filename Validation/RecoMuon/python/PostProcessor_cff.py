@@ -2,7 +2,10 @@ import FWCore.ParameterSet.Config as cms
 
 postProcessorMuonMultiTrack = cms.EDFilter("PostProcessor",
     subDir = cms.untracked.string("RecoMuonV/MultiTrack/*"),
-    efficiency = cms.vstring("",),
+    efficiency = cms.vstring(
+    "effic 'Efficiency vs #eta' num_assoc(simToReco)_eta num_simul_eta",
+    "efficPt 'Efficiency vs p_{T}' num_assoc(simToReco)_pt num_simul_pt",
+    ),
     resolution = cms.vstring("cotThetares_vs_eta '#sigma(cot(#theta)) vs #eta' cotThetares_vs_eta",
                              "cotThetares_vs_pt '#sigma(cot(#theta)) vs p_{T}' cotThetares_vs_pt",
                              "dxypull_vs_eta 'd_{xy} Pull vs #eta' dxypull_vs_eta",
@@ -26,6 +29,25 @@ postProcessorMuonMultiTrack = cms.EDFilter("PostProcessor",
                              "thetapull_vs_phi '#theta Pull vs #phi' thetapull_vs_phi"),
     outputFileName = cms.untracked.string("")
 )
+
+postProcessorMuonMultiTrackComp = cms.EDFilter(
+    "PostProcessor",
+    subDir = cms.untracked.string("RecoMuonV/MultiTrack/"),
+    efficiency = cms.vstring(
+    "Eff_GlbTk_Eta 'Eff_{GLB,TK} vs #eta' globalMuons_tpToGlbAssociation/effic general_tpToTkmuAssociation/effic",
+    "Eff_GlbTk_Pt 'Eff_{GLB,TK} vs p_{T}' globalMuons_tpToGlbAssociation/efficPt general_tpToTkmuAssociation/efficPt",
+    "Eff_GlbSta_Eta 'Eff_{GLB,STA} vs #eta' globalMuons_tpToGlbAssociation/effic standAloneMuons_UpdatedAtVtx_tpToStaAssociation/effic",
+    "Eff_GlbSta_Pt 'Eff_{GLB,STA} vs p_{T}' globalMuons_tpToGlbAssociation/efficPt standAloneMuons_UpdatedAtVtx_tpToStaAssociation/efficPt",
+
+    "Eff_GlbTk_Eta_mabh 'Eff_{GLB,TK} vs #eta' globalMuons_tpToGlbMuonAssociation/effic general_tpToTkMuonAssociation/effic",
+    "Eff_GlbTk_Pt_mabh 'Eff_{GLB,TK} vs p_{T}' globalMuons_tpToGlbMuonAssociation/efficPt general_tpToTkMuonAssociation/efficPt",
+    "Eff_GlbSta_Eta_mabh 'Eff_{GLB,STA} vs #eta' globalMuons_tpToGlbMuonAssociation/effic standAloneMuons_UpdatedAtVtx_tpToStaMuonAssociation/effic",
+    "Eff_GlbSta_Pt_mabh 'Eff_{GLB,STA} vs p_{T}' globalMuons_tpToGlbMuonAssociation/efficPt standAloneMuons_UpdatedAtVtx_tpToStaMuonAssociation/efficPt",
+    ),
+    resolution = cms.vstring(""),
+    outputFileName = cms.untracked.string("")
+    )
+
 
 postProcessorRecoMuon = cms.EDFilter("PostProcessor",
     subDir = cms.untracked.string("RecoMuonV/RecoMuon_*"),
@@ -74,6 +96,8 @@ postProcessorRecoMuon = cms.EDFilter("PostProcessor",
                              "Sta/PullPhi_vs_Eta 'Pull of #phi vs #eta'     Sta/PullPhi_vs_Eta",
                              "Sta/PullPt_vs_Pt   'Pull of p_{T} vs p_{T}'   Sta/PullPt_vs_Pt  ",
                              "Sta/PullPt_vs_Eta  'Pull of p_{T} vs #eta'    Sta/PullPt_vs_Eta ",
+                             "Sta/Station1Prob_Eta 'Probability to have hits in only instation 1 vs #eta' Sta/NTrksEta_St1 Sta/NTrksEta",
+                             "Sta/Station1Prob_Pt 'Probability to have hits in only instation 1 vs p_{T}' Sta/NTrksPt_St1 Sta/NTrksPt",
         
                              "Glb/ErrP_vs_P      '#sigma(p) vs p'           Glb/ErrP_vs_P     ",
                              "Glb/ErrP_vs_Eta    '#sigma(p) vs #eta'        Glb/ErrP_vs_Eta   ",
@@ -86,7 +110,10 @@ postProcessorRecoMuon = cms.EDFilter("PostProcessor",
                              "Glb/PullEta_vs_Eta 'Pull of #eta vs #eta'     Glb/PullEta_vs_Eta",
                              "Glb/PullPhi_vs_Eta 'Pull of #phi vs #eta'     Glb/PullPhi_vs_Eta",
                              "Glb/PullPt_vs_Pt   'Pull of p_{T} vs p_{T}'   Glb/PullPt_vs_Pt  ",
-                             "Glb/PullPt_vs_Eta  'Pull of p_{T} vs #eta'    Glb/PullPt_vs_Eta "),
+                             "Glb/PullPt_vs_Eta  'Pull of p_{T} vs #eta'    Glb/PullPt_vs_Eta ",
+                             "Glb/Station1Prob_Eta 'Probability to have hits in only instation 1 vs #eta' Glb/NTrksEta_St1 Glb/NTrksEta",
+                             "Glb/Station1Prob_Pt 'Probability to have hits in only instation 1 vs p_{T}' Glb/NTrksPt_St1 Glb/NTrksPt",
+                             ),
     outputFileName = cms.untracked.string("")
 )
 
