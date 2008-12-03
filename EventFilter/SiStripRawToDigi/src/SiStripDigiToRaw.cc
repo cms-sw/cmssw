@@ -1,4 +1,4 @@
-// Last commit: $Id: $
+// Last commit: $Id: SiStripDigiToRaw.cc,v 1.30 2008/10/27 18:48:49 bainbrid Exp $
 
 #include "EventFilter/SiStripRawToDigi/interface/SiStripDigiToRaw.h"
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
@@ -57,7 +57,7 @@ void SiStripDigiToRaw::createFedBuffers( edm::Event& event,
 					 auto_ptr<FEDRawDataCollection>& buffers ) {
 
   try {
-    
+
     const uint16_t strips_per_fed = 96 * 256; 
     vector<uint16_t> raw_data; 
     raw_data.reserve(strips_per_fed);
@@ -66,7 +66,7 @@ void SiStripDigiToRaw::createFedBuffers( edm::Event& event,
     vector<uint16_t>::const_iterator ifed;
 
     for ( ifed = fed_ids.begin(); ifed != fed_ids.end(); ifed++ ) {
-    
+
       raw_data.clear(); raw_data.resize( strips_per_fed, 0 );
       
       const std::vector<FedChannelConnection>& conns = cabling->connections(*ifed);
@@ -194,7 +194,6 @@ void SiStripDigiToRaw::createFedBuffers( edm::Event& event,
 		   evf::compute_crc( fedrawdata.data(), fedrawdata.size() ), 0, 0 );
       
     }
-    
   }
   catch ( std::string err ) {
     if ( edm::isDebugEnabled() ) {
