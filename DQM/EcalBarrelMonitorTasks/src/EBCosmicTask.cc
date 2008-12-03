@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicTask.cc
  *
- * $Date: 2008/04/08 15:35:12 $
- * $Revision: 1.104 $
+ * $Date: 2008/05/11 09:35:09 $
+ * $Revision: 1.105 $
  * \author G. Della Ricca
  *
 */
@@ -192,23 +192,21 @@ void EBCosmicTask::analyze(const Event& e, const EventSetup& c){
 
     for ( EcalRawDataCollection::const_iterator dcchItr = dcchs->begin(); dcchItr != dcchs->end(); ++dcchItr ) {
 
-      EcalDCCHeaderBlock dcch = (*dcchItr);
+      if ( Numbers::subDet( (*dcchItr) ) != EcalBarrel ) continue;
 
-      if ( Numbers::subDet( dcch ) != EcalBarrel ) continue;
-
-      int ism = Numbers::iSM( dcch, EcalBarrel );
+      int ism = Numbers::iSM( (*dcchItr), EcalBarrel );
 
       map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find( ism );
       if ( i != dccMap.end() ) continue;
 
-      dccMap[ ism ] = dcch;
+      dccMap[ ism ] = (*dcchItr);
 
-      if ( dcch.getRunType() == EcalDCCHeaderBlock::COSMIC ||
-           dcch.getRunType() == EcalDCCHeaderBlock::MTCC ||
-           dcch.getRunType() == EcalDCCHeaderBlock::COSMICS_GLOBAL ||
-           dcch.getRunType() == EcalDCCHeaderBlock::PHYSICS_GLOBAL ||
-           dcch.getRunType() == EcalDCCHeaderBlock::COSMICS_LOCAL ||
-           dcch.getRunType() == EcalDCCHeaderBlock::PHYSICS_LOCAL ) enable = true;
+      if ( dcchItr->getRunType() == EcalDCCHeaderBlock::COSMIC ||
+           dcchItr->getRunType() == EcalDCCHeaderBlock::MTCC ||
+           dcchItr->getRunType() == EcalDCCHeaderBlock::COSMICS_GLOBAL ||
+           dcchItr->getRunType() == EcalDCCHeaderBlock::PHYSICS_GLOBAL ||
+           dcchItr->getRunType() == EcalDCCHeaderBlock::COSMICS_LOCAL ||
+           dcchItr->getRunType() == EcalDCCHeaderBlock::PHYSICS_LOCAL ) enable = true;
 
     }
 
@@ -240,8 +238,7 @@ void EBCosmicTask::analyze(const Event& e, const EventSetup& c){
 
     for ( EcalRecHitCollection::const_iterator hitItr = hits->begin(); hitItr != hits->end(); ++hitItr ) {
 
-      EcalRecHit hit = (*hitItr);
-      EBDetId id = hit.id();
+      EBDetId id = hitItr->id();
 
       int ic = id.ic();
       int ie = (ic-1)/20 + 1;
@@ -267,7 +264,7 @@ void EBCosmicTask::analyze(const Event& e, const EventSetup& c){
       LogDebug("EBCosmicTask") << " det id = " << id;
       LogDebug("EBCosmicTask") << " sm, ieta, iphi " << ism << " " << ie << " " << ip;
 
-      float xval = hit.energy();
+      float xval = hitItr->energy();
       if ( xval <= 0. ) xval = 0.0;
       
       LogDebug("EBCosmicTask") << " hit energy " << xval;

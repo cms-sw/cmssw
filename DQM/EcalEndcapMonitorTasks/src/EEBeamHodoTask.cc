@@ -1,8 +1,8 @@
 /*
  * \file EEBeamHodoTask.cc
  *
- * $Date: 2008/04/08 18:11:27 $
- * $Revision: 1.24 $
+ * $Date: 2008/05/11 09:35:12 $
+ * $Revision: 1.25 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -367,12 +367,10 @@ void EEBeamHodoTask::analyze(const Event& e, const EventSetup& c){
 
     for ( EcalRawDataCollection::const_iterator dcchItr = dcchs->begin(); dcchItr != dcchs->end(); ++dcchItr ) {
 
-      EcalDCCHeaderBlock dcch = (*dcchItr);
+      if ( Numbers::subDet( (*dcchItr) ) != EcalEndcap ) continue;
 
-      if ( Numbers::subDet( dcch ) != EcalEndcap ) continue;
-
-      if ( dcch.getRunType() == EcalDCCHeaderBlock::BEAMH4
-	   || dcch.getRunType() == EcalDCCHeaderBlock::BEAMH2  ) enable = true;
+      if ( dcchItr->getRunType() == EcalDCCHeaderBlock::BEAMH4 ||
+	   dcchItr->getRunType() == EcalDCCHeaderBlock::BEAMH2  ) enable = true;
     }
 
   } else {

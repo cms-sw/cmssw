@@ -1,8 +1,8 @@
 /*
  * \file EBRawDataTask.cc
  *
- * $Date: 2008/10/26 17:19:24 $
- * $Revision: 1.15 $
+ * $Date: 2008/11/04 18:13:35 $
+ * $Revision: 1.16 $
  * \author E. Di Marco
  *
 */
@@ -369,14 +369,12 @@ void EBRawDataTask::analyze(const Event& e, const EventSetup& c){
 
         for ( EcalRawDataCollection::const_iterator dcchItr = dcchs->begin(); dcchItr != dcchs->end(); ++dcchItr ) {
 
-          EcalDCCHeaderBlock dcch = (*dcchItr);
+          if ( Numbers::subDet( (*dcchItr) ) != EcalBarrel ) continue;
 
-          if ( Numbers::subDet( dcch ) != EcalBarrel ) continue;
-
-          int ECALDCC_L1A = dcch.getLV1();
-          int ECALDCC_OrbitNumber = dcch.getOrbit();
-          int ECALDCC_BunchCrossing = dcch.getBX();
-          int ECALDCC_TriggerType = dcch.getBasicTriggerType();
+          int ECALDCC_L1A = dcchItr->getLV1();
+          int ECALDCC_OrbitNumber = dcchItr->getOrbit();
+          int ECALDCC_BunchCrossing = dcchItr->getBX();
+          int ECALDCC_TriggerType = dcchItr->getBasicTriggerType();
 
           ++ECALDCC_L1A_FreqMap[ECALDCC_L1A];
           ++ECALDCC_OrbitNumber_FreqMap[ECALDCC_OrbitNumber];
@@ -442,18 +440,16 @@ void EBRawDataTask::analyze(const Event& e, const EventSetup& c){
 
     for ( EcalRawDataCollection::const_iterator dcchItr = dcchs->begin(); dcchItr != dcchs->end(); ++dcchItr ) {
 
-      EcalDCCHeaderBlock dcch = (*dcchItr);
+      if ( Numbers::subDet( (*dcchItr) ) != EcalBarrel ) continue;
 
-      if ( Numbers::subDet( dcch ) != EcalBarrel ) continue;
-
-      int ism = Numbers::iSM( dcch, EcalBarrel );
+      int ism = Numbers::iSM( (*dcchItr), EcalBarrel );
       float xism = ism+0.5;
 
-      int ECALDCC_runNumber = dcch.getRunNumber();
-      int ECALDCC_L1A = dcch.getLV1();
-      int ECALDCC_OrbitNumber = dcch.getOrbit();
-      int ECALDCC_BunchCrossing = dcch.getBX();
-      int ECALDCC_TriggerType = dcch.getBasicTriggerType();
+      int ECALDCC_runNumber = dcchItr->getRunNumber();
+      int ECALDCC_L1A = dcchItr->getLV1();
+      int ECALDCC_OrbitNumber = dcchItr->getOrbit();
+      int ECALDCC_BunchCrossing = dcchItr->getBX();
+      int ECALDCC_TriggerType = dcchItr->getBasicTriggerType();
 
       if ( evt_runNumber != ECALDCC_runNumber ) meEBRunNumberErrors_->Fill( xism );
 
@@ -485,7 +481,7 @@ void EBRawDataTask::analyze(const Event& e, const EventSetup& c){
 
       }
 
-      float evtType = dcch.getRunType();
+      float evtType = dcchItr->getRunType();
 
       if ( evtType < 0 || evtType > 22 ) evtType = -1;
 

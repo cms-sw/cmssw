@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalTask.cc
  *
- * $Date: 2008/04/08 15:35:12 $
- * $Revision: 1.84 $
+ * $Date: 2008/05/11 09:35:09 $
+ * $Revision: 1.85 $
  * \author G. Della Ricca
  *
 */
@@ -274,19 +274,17 @@ void EBPedestalTask::analyze(const Event& e, const EventSetup& c){
 
     for ( EcalRawDataCollection::const_iterator dcchItr = dcchs->begin(); dcchItr != dcchs->end(); ++dcchItr ) {
 
-      EcalDCCHeaderBlock dcch = (*dcchItr);
+      if ( Numbers::subDet( (*dcchItr) ) != EcalBarrel ) continue;
 
-      if ( Numbers::subDet( dcch ) != EcalBarrel ) continue;
-
-      int ism = Numbers::iSM( dcch, EcalBarrel );
+      int ism = Numbers::iSM( (*dcchItr), EcalBarrel );
 
       map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find( ism );
       if ( i != dccMap.end() ) continue;
 
-      dccMap[ ism ] = dcch;
+      dccMap[ ism ] = (*dcchItr);
 
-      if ( dcch.getRunType() == EcalDCCHeaderBlock::PEDESTAL_STD || 
-           dcch.getRunType() == EcalDCCHeaderBlock::PEDESTAL_GAP ) enable = true;
+      if ( dcchItr->getRunType() == EcalDCCHeaderBlock::PEDESTAL_STD || 
+           dcchItr->getRunType() == EcalDCCHeaderBlock::PEDESTAL_GAP ) enable = true;
 
     }
 
@@ -457,14 +455,11 @@ void EBPedestalTask::analyze(const Event& e, const EventSetup& c){
 
     for ( EcalPnDiodeDigiCollection::const_iterator pnItr = pns->begin(); pnItr != pns->end(); ++pnItr ) {
 
-      EcalPnDiodeDigi pn = (*pnItr);
-      EcalPnDiodeDetId id = pn.id();
+      if ( Numbers::subDet( pnItr->id() ) != EcalBarrel ) continue;
 
-      if ( Numbers::subDet( id ) != EcalBarrel ) continue;
+      int ism = Numbers::iSM( pnItr->id() );
 
-      int ism = Numbers::iSM( id );
-
-      int num = id.iPnId();
+      int num = pnItr->id().iPnId();
 
       map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find(ism);
       if ( i == dccMap.end() ) continue;
@@ -472,18 +467,17 @@ void EBPedestalTask::analyze(const Event& e, const EventSetup& c){
       if ( ! ( dccMap[ism].getRunType() == EcalDCCHeaderBlock::PEDESTAL_STD ||
                dccMap[ism].getRunType() == EcalDCCHeaderBlock::PEDESTAL_GAP ) ) continue;
 
-      LogDebug("EBPedestalTask") << " det id = " << id;
+      LogDebug("EBPedestalTask") << " det id = " << pnItr->id();
       LogDebug("EBPedestalTask") << " sm, num " << ism << " " << num;
 
       for (int i = 0; i < 50; i++) {
 
-        EcalFEMSample sample = pn.sample(i);
-        int adc = sample.adc();
+        int adc = pnItr->sample(i).adc();
 
         MonitorElement* mePNPed = 0;
 
-        if ( sample.gainId() == 0 ) mePNPed = mePnPedMapG01_[ism-1];
-        if ( sample.gainId() == 1 ) mePNPed = mePnPedMapG16_[ism-1];
+        if ( pnItr->sample(i).gainId() == 0 ) mePNPed = mePnPedMapG01_[ism-1];
+        if ( pnItr->sample(i).gainId() == 1 ) mePNPed = mePnPedMapG16_[ism-1];
 
         float xval = float(adc);
 

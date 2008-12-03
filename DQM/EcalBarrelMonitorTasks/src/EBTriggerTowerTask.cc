@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerTask.cc
  *
- * $Date: 2008/09/05 16:01:11 $
- * $Revision: 1.77 $
+ * $Date: 2008/09/05 18:58:05 $
+ * $Revision: 1.78 $
  * \author C. Bernet
  * \author G. Della Ricca
  * \author E. Di Marco
@@ -325,20 +325,17 @@ EBTriggerTowerTask::processDigis( const Handle<EcalTrigPrimDigiCollection>&
   for ( EcalTrigPrimDigiCollection::const_iterator tpdigiItr = digis->begin();
         tpdigiItr != digis->end(); ++tpdigiItr ) {
 
-    EcalTriggerPrimitiveDigi data = (*tpdigiItr);
-    EcalTrigTowerDetId idt = data.id();
+    if ( Numbers::subDet( tpdigiItr->id() ) != EcalBarrel ) continue;
 
-    if ( Numbers::subDet( idt ) != EcalBarrel ) continue;
+    int ismt = Numbers::iSM( tpdigiItr->id() );
 
-    int ismt = Numbers::iSM( idt );
-
-    int itt = Numbers::iTT( idt );
-    int itcc = Numbers::TCCid(idt);
+    int itt = Numbers::iTT( tpdigiItr->id() );
+    int itcc = Numbers::TCCid( tpdigiItr->id() );
 
     int xitt = 68*(itcc-37)+itt-1;
 
-    int iet = abs(idt.ieta());
-    int ipt = idt.iphi();
+    int iet = abs(tpdigiItr->id().ieta());
+    int ipt = tpdigiItr->id().iphi();
 
     // phi_tower: change the range from global to SM-local
     // phi==0 is in the middle of a SM
@@ -347,17 +344,17 @@ EBTriggerTowerTask::processDigis( const Handle<EcalTrigPrimDigiCollection>&
     ipt = (ipt-1)%4 + 1;
 
     // phi_tower: SM-local phi runs opposite to global in EB+
-    if ( idt.zside() > 0 ) ipt = 5 - ipt;
+    if ( tpdigiItr->id().zside() > 0 ) ipt = 5 - ipt;
 
     float xiet = iet-0.5;
     float xipt = ipt-0.5;
 
-    str<<"det id = "<<idt.rawId()<<" "
-       <<idt<<" sm, tt, ieta, iphi "<<ismt<<" "<<itt<<" "<<iet<<" "<<ipt<<endl;
+    str<<"det id = "<<tpdigiItr->id().rawId()<<" "
+       <<"sm, tt, ieta, iphi "<<ismt<<" "<<itt<<" "<<iet<<" "<<ipt<<endl;
 
     float xval;
 
-    xval = data.compressedEt();
+    xval = tpdigiItr->compressedEt();
     if ( meEtMap ) {
       meEtMap->Fill(xitt, xval);
     }
@@ -365,10 +362,10 @@ EBTriggerTowerTask::processDigis( const Handle<EcalTrigPrimDigiCollection>&
       LogError("EBTriggerTowerTask")<<"histo does not exist "<<endl;
     }
 
-    xval = 0.5 + data.fineGrain();
+    xval = 0.5 + tpdigiItr->fineGrain();
     if ( meVeto[ismt-1] ) meVeto[ismt-1]->Fill(xiet, xipt, xval);
 
-    xval = 0.5 + data.ttFlag();
+    xval = 0.5 + tpdigiItr->ttFlag();
     if ( meFlags[ismt-1] ) meFlags[ismt-1]->Fill(xiet, xipt, xval);
 
     if( compDigis.isValid() ) {
@@ -376,18 +373,18 @@ EBTriggerTowerTask::processDigis( const Handle<EcalTrigPrimDigiCollection>&
       bool goodFlag = true;
       bool goodVeto = true;
 
-      EcalTrigPrimDigiCollection::const_iterator compDigiItr = compDigis->find( idt.rawId() );
+      EcalTrigPrimDigiCollection::const_iterator compDigiItr = compDigis->find( tpdigiItr->id().rawId() );
       if( compDigiItr != compDigis->end() ) {
         str<<"found corresponding digi! "<<*compDigiItr<<endl;
-        if( data.compressedEt() != compDigiItr->compressedEt() ) {
+        if( tpdigiItr->compressedEt() != compDigiItr->compressedEt() ) {
           str<<"but it is different..."<<endl;
           good = false;
         }
-        if( data.ttFlag() != compDigiItr->ttFlag() ) {
+        if( tpdigiItr->ttFlag() != compDigiItr->ttFlag() ) {
           str<<"but flag is different..."<<endl;
           goodFlag = false;
         }
-        if( data.fineGrain() != compDigiItr->fineGrain() ) {
+        if( tpdigiItr->fineGrain() != compDigiItr->fineGrain() ) {
           str<<"but fine grain veto is different..."<<endl;
           goodVeto = false;
         }
@@ -402,11 +399,11 @@ EBTriggerTowerTask::processDigis( const Handle<EcalTrigPrimDigiCollection>&
         if ( meEmulError_[ismt-1] ) meEmulError_[ismt-1]->Fill(xiet, xipt);
       }
       if(!goodFlag) {
-        float zval = data.ttFlag();
+        float zval = tpdigiItr->ttFlag();
         if ( meFlagEmulError_[ismt-1] ) meFlagEmulError_[ismt-1]->Fill(xiet, xipt, zval);
       }
       if(!goodVeto) {
-        float zval = data.fineGrain();
+        float zval = tpdigiItr->fineGrain();
         if ( meVetoEmulError_[ismt-1] ) meVetoEmulError_[ismt-1]->Fill(xiet, xipt, zval);
       }
     }

@@ -1,8 +1,8 @@
 /*
  * \file EBOccupancyTask.cc
  *
- * $Date: 2008/10/31 11:20:32 $
- * $Revision: 1.66 $
+ * $Date: 2008/11/01 19:02:23 $
+ * $Revision: 1.67 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -347,8 +347,7 @@ void EBOccupancyTask::analyze(const Event& e, const EventSetup& c){
 
     for ( EBDigiCollection::const_iterator digiItr = digis->begin(); digiItr != digis->end(); ++digiItr ) {
 
-      EBDataFrame dataframe = (*digiItr);
-      EBDetId id = dataframe.id();
+      EBDetId id = digiItr->id();
 
       int ic = id.ic();
       int ie = (ic-1)/20 + 1;
@@ -384,28 +383,26 @@ void EBOccupancyTask::analyze(const Event& e, const EventSetup& c){
 
         for ( EcalRawDataCollection::const_iterator dcchItr = dcchs->begin(); dcchItr != dcchs->end(); ++dcchItr ) {
 
-          EcalDCCHeaderBlock dcch = (*dcchItr);
+          if ( Numbers::subDet( (*dcchItr) ) != EcalBarrel ) continue;
 
-          if ( Numbers::subDet( dcch ) != EcalBarrel ) continue;
+          if ( Numbers::iSM( (*dcchItr), EcalBarrel ) != ism ) continue;
 
-          if ( Numbers::iSM( dcch, EcalBarrel ) != ism ) continue;
-
-          if ( dcch.getRunType() == EcalDCCHeaderBlock::TESTPULSE_MGPA ||
-               dcch.getRunType() == EcalDCCHeaderBlock::TESTPULSE_GAP ) {
+          if ( (*dcchItr).getRunType() == EcalDCCHeaderBlock::TESTPULSE_MGPA ||
+               (*dcchItr).getRunType() == EcalDCCHeaderBlock::TESTPULSE_GAP ) {
 
             if ( meEBTestPulseDigiOccupancy_ ) meEBTestPulseDigiOccupancy_->Fill( xebphi, xebeta );
 
           }
 
-          if ( dcch.getRunType() == EcalDCCHeaderBlock::LASER_STD ||
-               dcch.getRunType() == EcalDCCHeaderBlock::LASER_GAP ) {
+          if ( (*dcchItr).getRunType() == EcalDCCHeaderBlock::LASER_STD ||
+               (*dcchItr).getRunType() == EcalDCCHeaderBlock::LASER_GAP ) {
 
             if ( meEBLaserDigiOccupancy_ ) meEBLaserDigiOccupancy_->Fill( xebphi, xebeta );
 
           }
 
-          if ( dcch.getRunType() == EcalDCCHeaderBlock::PEDESTAL_STD ||
-               dcch.getRunType() == EcalDCCHeaderBlock::PEDESTAL_GAP ) {
+          if ( (*dcchItr).getRunType() == EcalDCCHeaderBlock::PEDESTAL_STD ||
+               (*dcchItr).getRunType() == EcalDCCHeaderBlock::PEDESTAL_GAP ) {
 
             if ( meEBPedestalDigiOccupancy_ ) meEBPedestalDigiOccupancy_->Fill( xebphi, xebeta );
 
@@ -432,14 +429,11 @@ void EBOccupancyTask::analyze(const Event& e, const EventSetup& c){
 
     for ( EcalPnDiodeDigiCollection::const_iterator pnItr = PNs->begin(); pnItr != PNs->end(); ++pnItr ) {
 
-      EcalPnDiodeDigi pn = (*pnItr);
-      EcalPnDiodeDetId id = pn.id();
+      if ( Numbers::subDet( pnItr->id() ) != EcalBarrel ) continue;
 
-      if ( Numbers::subDet( id ) != EcalBarrel ) continue;
+      int   ism   = Numbers::iSM( pnItr->id() );
 
-      int   ism   = Numbers::iSM( id );
-
-      float PnId  = (*pnItr).id().iPnId();
+      float PnId  = pnItr->id().iPnId();
 
       PnId        = PnId - 0.5;
       float st    = 0.0;
@@ -505,25 +499,22 @@ void EBOccupancyTask::analyze(const Event& e, const EventSetup& c){
 
     for ( EcalTrigPrimDigiCollection::const_iterator tpdigiItr = trigPrimDigis->begin(); tpdigiItr != trigPrimDigis->end(); ++tpdigiItr ) {
 
-      EcalTriggerPrimitiveDigi data = (*tpdigiItr);
-      EcalTrigTowerDetId idt = data.id();
-
-      int ebeta = idt.ieta();
-      int ebphi = idt.iphi();
+      int ebeta = tpdigiItr->id().ieta();
+      int ebphi = tpdigiItr->id().iphi();
 
       // phi_tower: change the range from global to SM-local
       // phi==0 is in the middle of a SM
       ebphi = ebphi + 2;
       if ( ebphi > 72 ) ebphi = ebphi - 72;
 
-      float xebeta = ebeta-0.5*idt.zside();
+      float xebeta = ebeta-0.5*tpdigiItr->id().zside();
       float xebphi = ebphi-0.5;
 
       if ( meEBTrigPrimDigiOccupancy_ ) meEBTrigPrimDigiOccupancy_->Fill( xebphi, xebeta );
       if ( meEBTrigPrimDigiOccupancyProjEta_ ) meEBTrigPrimDigiOccupancyProjEta_->Fill( xebeta );
       if ( meEBTrigPrimDigiOccupancyProjPhi_ ) meEBTrigPrimDigiOccupancyProjPhi_->Fill( xebphi );
 
-      if ( data.compressedEt() > trigPrimEtMin_ ) {
+      if ( tpdigiItr->compressedEt() > trigPrimEtMin_ ) {
 
         if ( meEBTrigPrimDigiOccupancyThr_ ) meEBTrigPrimDigiOccupancyThr_->Fill( xebphi, xebeta );
         if ( meEBTrigPrimDigiOccupancyProjEtaThr_ ) meEBTrigPrimDigiOccupancyProjEtaThr_->Fill( xebeta );

@@ -1,8 +1,8 @@
 /*
  * \file EBBeamCaloTask.cc
  *
- * $Date: 2008/04/08 15:35:11 $
- * $Revision: 1.68 $
+ * $Date: 2008/05/11 09:35:08 $
+ * $Revision: 1.69 $
  * \author A. Ghezzi
  *
  */
@@ -427,12 +427,10 @@ void EBBeamCaloTask::analyze(const Event& e, const EventSetup& c){
 
     for ( EcalRawDataCollection::const_iterator dcchItr = dcchs->begin(); dcchItr != dcchs->end(); ++dcchItr ) {
 
-      EcalDCCHeaderBlock dcch = (*dcchItr);
+      if ( Numbers::subDet( (*dcchItr) ) != EcalBarrel ) continue;
 
-      if ( Numbers::subDet( dcch ) != EcalBarrel ) continue;
-
-      if ( dcch.getRunType() == EcalDCCHeaderBlock::BEAMH4 ||
-           dcch.getRunType() == EcalDCCHeaderBlock::BEAMH2 ) enable = true;
+      if ( dcchItr->getRunType() == EcalDCCHeaderBlock::BEAMH4 ||
+           dcchItr->getRunType() == EcalDCCHeaderBlock::BEAMH2 ) enable = true;
 
     }
 
@@ -803,8 +801,7 @@ void EBBeamCaloTask::analyze(const Event& e, const EventSetup& c){
   float cryInBeamEne =0;
   for ( EcalUncalibratedRecHitCollection::const_iterator hitItr = hits->begin(); hitItr != hits->end(); ++hitItr ) {
 
-    EcalUncalibratedRecHit hit = (*hitItr);
-    EBDetId id = hit.id();
+    EBDetId id = hitItr->id();
 
     //int ism = Numbers::iSM( id );
     // FIX this if can not work on the 2004 data since they do not fill in the  EcalDCCHeaderBlock
@@ -823,7 +820,7 @@ void EBBeamCaloTask::analyze(const Event& e, const EventSetup& c){
     //LogDebug("EBBeamCaloTask") << " rechits sm, ieta, iphi " << ism << " " << ie << " " << ip;
     //LogDebug("EBBeamCaloTask") << " rechits deta, dphi, i_in_array" << deta_c  << " " <<  dphi_c << " " <<i_in_array;
 
-    float R_ene = hit.amplitude();
+    float R_ene = hitItr->amplitude();
     if ( R_ene <= 0. ) R_ene = 0.0;
     if(R_ene > maxEne){
       maxEne=R_ene;

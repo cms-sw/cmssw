@@ -1,8 +1,8 @@
 /*
  * \file EBBeamHodoTask.cc
  *
- * $Date: 2008/04/08 15:35:11 $
- * $Revision: 1.58 $
+ * $Date: 2008/05/11 09:35:09 $
+ * $Revision: 1.59 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -367,12 +367,10 @@ void EBBeamHodoTask::analyze(const Event& e, const EventSetup& c){
 
     for ( EcalRawDataCollection::const_iterator dcchItr = dcchs->begin(); dcchItr != dcchs->end(); ++dcchItr ) {
 
-      EcalDCCHeaderBlock dcch = (*dcchItr);
+      if ( Numbers::subDet( (*dcchItr) ) != EcalBarrel ) continue;
 
-      if ( Numbers::subDet( dcch ) != EcalBarrel ) continue;
-
-      if ( dcch.getRunType() == EcalDCCHeaderBlock::BEAMH4
-	   || dcch.getRunType() == EcalDCCHeaderBlock::BEAMH2  ) enable = true;
+      if ( dcchItr->getRunType() == EcalDCCHeaderBlock::BEAMH4 ||
+	   dcchItr->getRunType() == EcalDCCHeaderBlock::BEAMH2  ) enable = true;
     }
 
   } else {

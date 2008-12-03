@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseTask.cc
  *
- * $Date: 2008/05/11 09:35:09 $
- * $Revision: 1.99 $
+ * $Date: 2008/09/16 09:02:31 $
+ * $Revision: 1.100 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -273,19 +273,17 @@ void EBTestPulseTask::analyze(const Event& e, const EventSetup& c){
 
     for ( EcalRawDataCollection::const_iterator dcchItr = dcchs->begin(); dcchItr != dcchs->end(); ++dcchItr ) {
 
-      EcalDCCHeaderBlock dcch = (*dcchItr);
+      if ( Numbers::subDet( (*dcchItr) ) != EcalBarrel ) continue;
 
-      if ( Numbers::subDet( dcch ) != EcalBarrel ) continue;
-
-      int ism = Numbers::iSM( dcch, EcalBarrel );
+      int ism = Numbers::iSM( (*dcchItr), EcalBarrel );
 
       map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find( ism );
       if ( i != dccMap.end() ) continue;
 
-      dccMap[ ism ] = dcch;
+      dccMap[ ism ] = (*dcchItr);
 
-      if ( dcch.getRunType() == EcalDCCHeaderBlock::TESTPULSE_MGPA ||
-           dcch.getRunType() == EcalDCCHeaderBlock::TESTPULSE_GAP ) enable = true;
+      if ( dcchItr->getRunType() == EcalDCCHeaderBlock::TESTPULSE_MGPA ||
+           dcchItr->getRunType() == EcalDCCHeaderBlock::TESTPULSE_GAP ) enable = true;
 
     }
 
@@ -368,8 +366,7 @@ void EBTestPulseTask::analyze(const Event& e, const EventSetup& c){
 
     for ( EcalUncalibratedRecHitCollection::const_iterator hitItr = hits->begin(); hitItr != hits->end(); ++hitItr ) {
 
-      EcalUncalibratedRecHit hit = (*hitItr);
-      EBDetId id = hit.id();
+      EBDetId id = hitItr->id();
 
       int ic = id.ic();
       int ie = (ic-1)/20 + 1;
@@ -395,7 +392,7 @@ void EBTestPulseTask::analyze(const Event& e, const EventSetup& c){
       if ( dccMap[ism].getMgpaGain() == 2 ) meAmplMap = meAmplMapG06_[ism-1];
       if ( dccMap[ism].getMgpaGain() == 1 ) meAmplMap = meAmplMapG12_[ism-1];
 
-      float xval = hit.amplitude();
+      float xval = hitItr->amplitude();
       if ( xval <= 0. ) xval = 0.0;
 
 //      if ( dccMap[ism].getMgpaGain() == 3 ) xval = xval * 1./12.;
@@ -425,14 +422,11 @@ void EBTestPulseTask::analyze(const Event& e, const EventSetup& c){
 
     for ( EcalPnDiodeDigiCollection::const_iterator pnItr = pns->begin(); pnItr != pns->end(); ++pnItr ) {
 
-      EcalPnDiodeDigi pn = (*pnItr);
-      EcalPnDiodeDetId id = pn.id();
+      if ( Numbers::subDet( pnItr->id() ) != EcalBarrel ) continue;
 
-      if ( Numbers::subDet( id ) != EcalBarrel ) continue;
+      int ism = Numbers::iSM( pnItr->id() );
 
-      int ism = Numbers::iSM( id );
-
-      int num = id.iPnId();
+      int num = pnItr->id().iPnId();
 
       map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find(ism);
       if ( i == dccMap.end() ) continue;
@@ -440,20 +434,19 @@ void EBTestPulseTask::analyze(const Event& e, const EventSetup& c){
       if ( ! ( dccMap[ism].getRunType() != EcalDCCHeaderBlock::TESTPULSE_MGPA ||
                dccMap[ism].getRunType() != EcalDCCHeaderBlock::TESTPULSE_GAP ) ) continue;
 
-      LogDebug("EBTestPulseTask") << " det id = " << id;
+      LogDebug("EBTestPulseTask") << " det id = " << pnItr->id();
       LogDebug("EBTestPulseTask") << " sm, num " << ism << " " << num;
 
       float xvalped = 0.;
 
       for (int i = 0; i < 4; i++) {
 
-        EcalFEMSample sample = pn.sample(i);
-        int adc = sample.adc();
+        int adc = pnItr->sample(i).adc();
 
         MonitorElement* mePNPed = 0;
 
-        if ( sample.gainId() == 0 ) mePNPed = mePnPedMapG01_[ism-1];
-        if ( sample.gainId() == 1 ) mePNPed = mePnPedMapG16_[ism-1];
+        if ( pnItr->sample(i).gainId() == 0 ) mePNPed = mePnPedMapG01_[ism-1];
+        if ( pnItr->sample(i).gainId() == 1 ) mePNPed = mePnPedMapG16_[ism-1];
 
         float xval = float(adc);
 
@@ -471,8 +464,7 @@ void EBTestPulseTask::analyze(const Event& e, const EventSetup& c){
 
       for (int i = 0; i < 50; i++) {
 
-        EcalFEMSample sample = pn.sample(i);
-        int adc = sample.adc();
+        int adc = pnItr->sample(i).adc();
 
         float xval = float(adc);
 
@@ -482,8 +474,8 @@ void EBTestPulseTask::analyze(const Event& e, const EventSetup& c){
 
       xvalmax = xvalmax - xvalped;
 
-      if ( pn.sample(0).gainId() == 0 ) mePN = mePnAmplMapG01_[ism-1];
-      if ( pn.sample(0).gainId() == 1 ) mePN = mePnAmplMapG16_[ism-1];
+      if ( pnItr->sample(0).gainId() == 0 ) mePN = mePnAmplMapG01_[ism-1];
+      if ( pnItr->sample(0).gainId() == 1 ) mePN = mePnAmplMapG16_[ism-1];
 
       if ( mePN ) mePN->Fill(num - 0.5, xvalmax);
 

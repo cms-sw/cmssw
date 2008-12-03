@@ -1,8 +1,8 @@
 /*
  * \file EBSelectiveReadoutTask.cc
  *
- * $Date: 2008/11/03 16:58:50 $
- * $Revision: 1.20 $
+ * $Date: 2008/12/01 09:29:26 $
+ * $Revision: 1.21 $
  * \author P. Gras
  * \author E. Di Marco
  *
@@ -242,16 +242,13 @@ void EBSelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
 
     for ( EBSrFlagCollection::const_iterator it = ebSrFlags->begin(); it != ebSrFlags->end(); ++it ) {
 
-      const EBSrFlag& srf = *it;
-
-      int iet = srf.id().ieta();
-      int ipt = srf.id().iphi();
+      int iet = it->id().ieta();
+      int ipt = it->id().iphi();
 
       float xiet = (iet>0) ? iet-0.5 : iet+0.5 ;
       float xipt = ipt-0.5;
 
-      int flag = srf.value() & ~EcalSrFlag::SRF_FORCED_MASK;
-
+      int flag = it->value() & ~EcalSrFlag::SRF_FORCED_MASK;
 
       if(flag == EcalSrFlag::SRF_FULL){
         EBFullReadoutSRFlagMap_->Fill(xipt,xiet);
@@ -259,7 +256,7 @@ void EBSelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
 	EBFullReadoutSRFlagMap_->Fill(-1,-18);
       }
 
-      if(srf.value() & EcalSrFlag::SRF_FORCED_MASK){
+      if(it->value() & EcalSrFlag::SRF_FORCED_MASK){
         EBReadoutUnitForcedBitMap_->Fill(xipt,xiet);
       } else {
 	EBReadoutUnitForcedBitMap_->Fill(-1,-18);
@@ -274,7 +271,6 @@ void EBSelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
   if( integral01 != 0 ) h01->Scale( 1.0/integral01 );
   integral02 = h02->GetEntries();
   if( integral02 != 0 ) h02->Scale( 1.0/integral02 );
-
 
   TH2F *h03 = UtilsClient::getHisto<TH2F*>( EBLowInterestTriggerTowerFlagMap_ );
   float integral03 = h03->GetEntries();
@@ -291,13 +287,10 @@ void EBSelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
     EcalTrigPrimDigiCollection::const_iterator TPdigi;
     for (TPdigi = TPCollection->begin(); TPdigi != TPCollection->end(); ++TPdigi ) {
 
-      EcalTriggerPrimitiveDigi data = (*TPdigi);
-      EcalTrigTowerDetId idt = data.id();
+      if ( Numbers::subDet( TPdigi->id() ) != EcalBarrel ) continue;
 
-      if ( Numbers::subDet( idt ) != EcalBarrel ) continue;
-
-      int iet = idt.ieta();
-      int ipt = idt.iphi();
+      int iet = TPdigi->id().ieta();
+      int ipt = TPdigi->id().iphi();
 
       float xiet = (iet>0) ? iet-0.5 : iet+0.5 ;
       float xipt = ipt-0.5;
@@ -371,8 +364,7 @@ void EBSelectiveReadoutTask::anaDigi(const EBDataFrame& frame, const EBSrFlagCol
   bool highInterest = ((srf->value() & ~EcalSrFlag::SRF_FORCED_MASK)
                        == EcalSrFlag::SRF_FULL);
 
-  const DetId& xtalId = frame.id();
-  bool barrel = (xtalId.subdetId()==EcalBarrel);
+  bool barrel = (frame.id().subdetId()==EcalBarrel);
 
   if(barrel){
     ++nEb_;
@@ -381,15 +373,15 @@ void EBSelectiveReadoutTask::anaDigi(const EBDataFrame& frame, const EBSrFlagCol
     } else{//low interest
       ++nEbLI_;
     }
-    int iEta0 = iEta2cIndex(static_cast<const EBDetId&>(xtalId).ieta());
-    int iPhi0 = iPhi2cIndex(static_cast<const EBDetId&>(xtalId).iphi());
+    int iEta0 = iEta2cIndex(static_cast<const EBDetId&>(frame.id()).ieta());
+    int iPhi0 = iPhi2cIndex(static_cast<const EBDetId&>(frame.id()).iphi());
     if(!ebRuActive_[iEta0/ebTtEdge][iPhi0/ebTtEdge]){
-      ++nRuPerDcc_[dccNum(xtalId)-1];
+      ++nRuPerDcc_[dccNum(frame.id())-1];
       ebRuActive_[iEta0/ebTtEdge][iPhi0/ebTtEdge] = true;
     }
   }
 
-  ++nPerDcc_[dccNum(xtalId)-1];
+  ++nPerDcc_[dccNum(frame.id())-1];
 }
 
 void EBSelectiveReadoutTask::anaDigiInit(){
