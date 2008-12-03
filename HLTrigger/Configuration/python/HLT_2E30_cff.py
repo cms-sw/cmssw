@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_0_0/pre3/HLT/V18 (CMSSW_3_0_X_2008-11-29-0200_HLT1)
+# /dev/CMSSW_3_0_0/pre3/HLT/V20 (CMSSW_3_0_X_2008-12-01-1600_HLT2)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_0_0/pre3/HLT/V18')
+  tableName = cms.string('/dev/CMSSW_3_0_0/pre3/HLT/V20')
 )
 
 BTagRecord = cms.ESSource( "EmptyESSource",
@@ -219,6 +219,7 @@ MaterialPropagator = cms.ESProducer( "PropagatorWithMaterialESProducer",
   Mass = cms.double( 0.105 ),
   MaxDPhi = cms.double( 1.6 ),
   useRungeKutta = cms.bool( False ),
+  ptMin = cms.double( -1.0 ),
   appendToDataLabel = cms.string( "" )
 )
 MeasurementTracker = cms.ESProducer( "MeasurementTrackerESProducer",
@@ -271,6 +272,7 @@ OppositeMaterialPropagator = cms.ESProducer( "PropagatorWithMaterialESProducer",
   Mass = cms.double( 0.105 ),
   MaxDPhi = cms.double( 1.6 ),
   useRungeKutta = cms.bool( False ),
+  ptMin = cms.double( -1.0 ),
   appendToDataLabel = cms.string( "" )
 )
 PixelCPEGenericESProducer = cms.ESProducer( "PixelCPEGenericESProducer",
@@ -295,6 +297,7 @@ RKTrackerPropagator = cms.ESProducer( "PropagatorWithMaterialESProducer",
   Mass = cms.double( 0.105 ),
   MaxDPhi = cms.double( 1.6 ),
   useRungeKutta = cms.bool( True ),
+  ptMin = cms.double( -1.0 ),
   appendToDataLabel = cms.string( "" )
 )
 RungeKuttaTrackerPropagator = cms.ESProducer( "PropagatorWithMaterialESProducer",
@@ -303,6 +306,7 @@ RungeKuttaTrackerPropagator = cms.ESProducer( "PropagatorWithMaterialESProducer"
   Mass = cms.double( 0.105 ),
   MaxDPhi = cms.double( 1.6 ),
   useRungeKutta = cms.bool( True ),
+  ptMin = cms.double( -1.0 ),
   appendToDataLabel = cms.string( "" )
 )
 SiStripRegionConnectivity = cms.ESProducer( "SiStripRegionConnectivity",
@@ -385,7 +389,8 @@ SteppingHelixPropagatorAlong = cms.ESProducer( "SteppingHelixPropagatorESProduce
   useTuningForL2Speed = cms.bool( False ),
   useEndcapShiftsInZ = cms.bool( False ),
   endcapShiftInZPos = cms.double( 0.0 ),
-  endcapShiftInZNeg = cms.double( 0.0 )
+  endcapShiftInZNeg = cms.double( 0.0 ),
+  appendToDataLabel = cms.string( "" )
 )
 SteppingHelixPropagatorAny = cms.ESProducer( "SteppingHelixPropagatorESProducer",
   ComponentName = cms.string( "SteppingHelixPropagatorAny" ),
@@ -405,7 +410,8 @@ SteppingHelixPropagatorAny = cms.ESProducer( "SteppingHelixPropagatorESProducer"
   useTuningForL2Speed = cms.bool( False ),
   useEndcapShiftsInZ = cms.bool( False ),
   endcapShiftInZPos = cms.double( 0.0 ),
-  endcapShiftInZNeg = cms.double( 0.0 )
+  endcapShiftInZNeg = cms.double( 0.0 ),
+  appendToDataLabel = cms.string( "" )
 )
 SteppingHelixPropagatorOpposite = cms.ESProducer( "SteppingHelixPropagatorESProducer",
   ComponentName = cms.string( "SteppingHelixPropagatorOpposite" ),
@@ -425,7 +431,8 @@ SteppingHelixPropagatorOpposite = cms.ESProducer( "SteppingHelixPropagatorESProd
   useTuningForL2Speed = cms.bool( False ),
   useEndcapShiftsInZ = cms.bool( False ),
   endcapShiftInZPos = cms.double( 0.0 ),
-  endcapShiftInZNeg = cms.double( 0.0 )
+  endcapShiftInZNeg = cms.double( 0.0 ),
+  appendToDataLabel = cms.string( "" )
 )
 TrackerRecoGeometryESProducer = cms.ESProducer( "TrackerRecoGeometryESProducer"
 )
@@ -553,7 +560,8 @@ muonCkfTrajectoryFilter = cms.ESProducer( "TrajectoryFilterESProducer",
   )
 )
 navigationSchoolESProducer = cms.ESProducer( "NavigationSchoolESProducer",
-  ComponentName = cms.string( "SimpleNavigationSchool" )
+  ComponentName = cms.string( "SimpleNavigationSchool" ),
+  appendToDataLabel = cms.string( "" )
 )
 pixellayerpairs = cms.ESProducer( "PixelLayerPairsESProducer",
   appendToDataLabel = cms.string( "" ),
@@ -755,7 +763,8 @@ hltL1sJet30 = cms.EDFilter( "HLTLevel1GTSeed",
 hltPreJet30 = cms.EDFilter( "HLTPrescaler" )
 hltEcalPreshowerDigis = cms.EDProducer( "ESRawToDigi",
     sourceTag = cms.InputTag( "rawDataCollector" ),
-    ESdigiCollection = cms.string( "" )
+    ESdigiCollection = cms.string( "" ),
+    LookupTable = cms.untracked.FileInPath( "EventFilter/ESDigiToRaw/data/ES_lookup_table.dat" )
 )
 hltEcalRegionalRestFEDs = cms.EDProducer( "EcalListOfFEDSProducer",
     debug = cms.untracked.bool( False ),
@@ -899,7 +908,19 @@ hltMet = cms.EDProducer( "METProducer",
     METType = cms.string( "CaloMET" ),
     alias = cms.string( "RawCaloMET" ),
     globalThreshold = cms.double( 0.5 ),
-    noHF = cms.bool( False )
+    noHF = cms.bool( False ),
+    HO_PhiResPar = cms.vdouble( 0.02511 ),
+    HF_PhiResPar = cms.vdouble( 0.05022 ),
+    EB_EtResPar = cms.vdouble( 0.2, 0.03, 0.0050 ),
+    EE_PhiResPar = cms.vdouble( 0.02511 ),
+    HE_PhiResPar = cms.vdouble( 0.02511 ),
+    HB_PhiResPar = cms.vdouble( 0.02511 ),
+    EB_PhiResPar = cms.vdouble( 0.00502 ),
+    HB_EtResPar = cms.vdouble( 0.0, 1.22, 0.05 ),
+    HF_EtResPar = cms.vdouble( 0.0, 1.82, 0.09 ),
+    HE_EtResPar = cms.vdouble( 0.0, 1.3, 0.05 ),
+    HO_EtResPar = cms.vdouble( 0.0, 1.3, 0.0050 ),
+    EE_EtResPar = cms.vdouble( 0.2, 0.03, 0.0050 )
 )
 hltHtMet = cms.EDProducer( "METProducer",
     src = cms.InputTag( "hltMCJetCorJetIcone5" ),
@@ -907,7 +928,19 @@ hltHtMet = cms.EDProducer( "METProducer",
     METType = cms.string( "MET" ),
     alias = cms.string( "HTMET" ),
     globalThreshold = cms.double( 5.0 ),
-    noHF = cms.bool( False )
+    noHF = cms.bool( False ),
+    HO_PhiResPar = cms.vdouble( 0.02511 ),
+    HF_PhiResPar = cms.vdouble( 0.05022 ),
+    EB_EtResPar = cms.vdouble( 0.2, 0.03, 0.0050 ),
+    EE_PhiResPar = cms.vdouble( 0.02511 ),
+    HE_PhiResPar = cms.vdouble( 0.02511 ),
+    HB_PhiResPar = cms.vdouble( 0.02511 ),
+    EB_PhiResPar = cms.vdouble( 0.00502 ),
+    HB_EtResPar = cms.vdouble( 0.0, 1.22, 0.05 ),
+    HF_EtResPar = cms.vdouble( 0.0, 1.82, 0.09 ),
+    HE_EtResPar = cms.vdouble( 0.0, 1.3, 0.05 ),
+    HO_EtResPar = cms.vdouble( 0.0, 1.3, 0.0050 ),
+    EE_EtResPar = cms.vdouble( 0.2, 0.03, 0.0050 )
 )
 hlt1jet30 = cms.EDFilter( "HLT1CaloJet",
     inputTag = cms.InputTag( "hltMCJetCorJetIcone5" ),
