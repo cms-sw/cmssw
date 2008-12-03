@@ -251,10 +251,6 @@ void SiStripCalibLorentzAngle::algoBeginJob(const edm::EventSetup& c){
   
   for(histo=histolist.begin();histo!=histolist.end();++histo){
   
-  /*double p0_guess=conf_.getParameter<double>("p0_guess");
-  double p1_guess=conf_.getParameter<double>("p1_guess");
-  double p2_guess=conf_.getParameter<double>("p2_guess");*/
-  
   FitFunction = 0;
   FitFunction2IT = 0;
   bool Good2ITFit = false;
