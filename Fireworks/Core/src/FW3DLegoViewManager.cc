@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 22:01:27 EST 2008
-// $Id: FW3DLegoViewManager.cc,v 1.21 2008/07/07 00:30:03 chrjones Exp $
+// $Id: FW3DLegoViewManager.cc,v 1.22 2008/11/06 22:05:25 amraktad Exp $
 //
 
 // system include files
@@ -32,6 +32,8 @@
 #include "Fireworks/Core/interface/FW3DLegoDataProxyBuilder.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/FWGUIManager.h"
+
+#include "Fireworks/Core/interface/fw3dlego_xbins.h"
 
 
 //

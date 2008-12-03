@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: CaloJetProxyRhoPhiZ2DBuilder.cc,v 1.21 2008/11/06 22:05:21 amraktad Exp $
+// $Id: CaloJetProxyRhoPhiZ2DBuilder.cc,v 1.22 2008/11/26 16:19:12 chrjones Exp $
 //
 
 // system include files
@@ -29,13 +29,14 @@
 // user include files
 #include "Fireworks/Calo/interface/CaloJetProxyRhoPhiZ2DBuilder.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
-#include "Fireworks/Core/interface/FW3DLegoDataProxyBuilder.h"
 #include "Fireworks/Calo/interface/ECalCaloTowerProxyRhoPhiZ2DBuilder.h"
 #include "Fireworks/Core/interface/BuilderUtils.h"
 
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "Fireworks/Core/interface/FWRhoPhiZView.h"
+
+#include "Fireworks/Core/interface/fw3dlego_xbins.h"
 
 //
 // constants, enums and typedefs

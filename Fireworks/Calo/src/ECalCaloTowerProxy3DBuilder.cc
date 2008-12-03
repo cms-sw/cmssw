@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Id: ECalCaloTowerProxy3DBuilder.cc,v 1.10 2008/11/10 18:07:57 amraktad Exp $
+// $Id: ECalCaloTowerProxy3DBuilder.cc,v 1.11 2008/11/26 16:19:12 chrjones Exp $
 //
 
 // system include files
@@ -19,7 +19,8 @@
 #include "DataFormats/CaloTowers/interface/CaloTowerFwd.h"
 
 #include "Fireworks/Calo/interface/ECalCaloTowerProxy3DBuilder.h"
-#include "Fireworks/Core/interface/FW3DLegoDataProxyBuilder.h"
+
+#include "Fireworks/Core/interface/fw3dlego_xbins.h"
 
 TEveCaloDataHist*ECalCaloTowerProxy3DBuilder::m_data=0;
 

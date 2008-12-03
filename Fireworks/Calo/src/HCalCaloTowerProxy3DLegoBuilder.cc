@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: HCalCaloTowerProxy3DLegoBuilder.cc,v 1.8 2008/07/16 13:51:00 dmytro Exp $
+// $Id: HCalCaloTowerProxy3DLegoBuilder.cc,v 1.9 2008/11/06 22:05:21 amraktad Exp $
 //
 
 // system include files
@@ -20,6 +20,8 @@
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerFwd.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
+
+#include "Fireworks/Core/interface/fw3dlego_xbins.h"
 
 //
 // constants, enums and typedefs

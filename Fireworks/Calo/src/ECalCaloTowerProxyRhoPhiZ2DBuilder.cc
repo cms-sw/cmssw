@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Id: ECalCaloTowerProxyRhoPhiZ2DBuilder.cc,v 1.19 2008/11/10 18:07:57 amraktad Exp $
+// $Id: ECalCaloTowerProxyRhoPhiZ2DBuilder.cc,v 1.20 2008/11/26 16:19:12 chrjones Exp $
 //
 
 // system include files
@@ -18,10 +18,10 @@
 // user include files
 #include "Fireworks/Calo/interface/ECalCaloTowerProxyRhoPhiZ2DBuilder.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
-#include "Fireworks/Core/interface/FW3DLegoDataProxyBuilder.h"
 #include "Fireworks/Core/interface/FWDisplayEvent.h"
 
 #include "Fireworks/Core/interface/FWRhoPhiZView.h"
+#include "Fireworks/Core/interface/fw3dlego_xbins.h"
 
 //
 // constants, enums and typedefs

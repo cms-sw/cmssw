@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 22:01:27 EST 2008
-// $Id: FWEveLegoViewManager.cc,v 1.19 2008/11/14 16:40:14 chrjones Exp $
+// $Id: FWEveLegoViewManager.cc,v 1.20 2008/12/03 01:15:57 chrjones Exp $
 //
 
 // system include files
@@ -49,6 +49,8 @@
 #include "Fireworks/Core/interface/FWEDProductRepresentationChecker.h"
 #include "Fireworks/Core/interface/FWSimpleRepresentationChecker.h"
 #include "Fireworks/Core/interface/FWTypeToRepresentations.h"
+
+#include "Fireworks/Core/interface/fw3dlego_xbins.h"
 
 //
 // constants, enums and typedefs

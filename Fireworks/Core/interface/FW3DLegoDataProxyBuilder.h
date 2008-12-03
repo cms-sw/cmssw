@@ -16,7 +16,7 @@
 //
 // Original Author:
 //         Created:  Sat Jan  5 15:02:03 EST 2008
-// $Id: FW3DLegoDataProxyBuilder.h,v 1.10 2008/11/06 22:05:22 amraktad Exp $
+// $Id: FW3DLegoDataProxyBuilder.h,v 1.11 2008/12/03 01:15:57 chrjones Exp $
 //
 
 // system include files
@@ -35,11 +35,6 @@ class TEveElementList;
 class TEveElement;
 class FWModelId;
 class TEveCaloDataHist;
-
-namespace fw3dlego
-{
-  extern const double xbins[83];
-}
 
 class FW3DLegoDataProxyBuilder
 {
