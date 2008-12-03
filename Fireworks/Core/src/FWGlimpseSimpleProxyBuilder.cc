@@ -8,17 +8,13 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Dec  2 09:46:41 EST 2008
-// $Id$
+// $Id: FWGlimpseSimpleProxyBuilder.cc,v 1.1 2008/12/02 21:11:53 chrjones Exp $
 //
 
 // system include files
 #include <memory>
 #include <boost/shared_ptr.hpp>
 #include <boost/mem_fn.hpp>
-
-#include "Reflex/Object.h"
-#include "Reflex/Type.h"
-#include "TClass.h"
 
 #include "TEveCompound.h"
 
