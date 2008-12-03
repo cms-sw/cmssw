@@ -8,6 +8,7 @@
 #include <ostream>
 #include "DataFormats/SiStripCommon/interface/ConstantsForHardwareSystems.h"
 #include "EventFilter/SiStripRawToDigi/interface/SiStripFEDBufferComponents.h"
+#include <iostream>
 
 namespace sistrip {
 
@@ -185,10 +186,10 @@ namespace sistrip {
     public:
       static FEDZSChannelUnpacker zeroSuppressedModeUnpacker(const FEDChannel& channel);
       static FEDZSChannelUnpacker zeroSuppressedLiteModeUnpacker(const FEDChannel& channel);
-      FEDZSChannelUnpacker() : data_(NULL), valuesLeftInCluster_(0), valuesLeftAfterThisCluster_(0) { }
+      FEDZSChannelUnpacker() : data_(NULL), valuesLeftInCluster_(0), channelPayloadOffset_(0), channelPayloadLength_(0) { }
       uint8_t strip() const { return currentStrip_; }
       uint8_t adc() const { return data_[currentOffset_^7]; }
-      bool hasData() const { return (valuesLeftAfterThisCluster_ || valuesLeftInCluster_); }
+      bool hasData() const { return (currentOffset_<channelPayloadOffset_+channelPayloadLength_) ; }
       FEDZSChannelUnpacker& operator ++ ();
       FEDZSChannelUnpacker& operator ++ (int) { ++(*this); return *this; }
     private:
@@ -201,7 +202,8 @@ namespace sistrip {
       size_t currentOffset_;
       uint8_t currentStrip_;
       uint8_t valuesLeftInCluster_;
-      int16_t valuesLeftAfterThisCluster_;
+      uint16_t channelPayloadOffset_;
+      uint16_t channelPayloadLength_;
     };
 
   class FEDRawChannelUnpacker
@@ -221,7 +223,7 @@ namespace sistrip {
       const uint8_t* data_;
       size_t currentOffset_;
       uint8_t currentStrip_;
-      uint8_t valuesLeft_;
+      uint16_t valuesLeft_;
     };
 
   //
@@ -309,18 +311,17 @@ namespace sistrip {
     currentOffset_(channelPayloadOffset),
     currentStrip_(0),
     valuesLeftInCluster_(0),
-    valuesLeftAfterThisCluster_(channelPayloadLength)
+    channelPayloadOffset_(channelPayloadOffset),
+    channelPayloadLength_(channelPayloadLength)
     {
       readNewClusterInfo();
     }
 
   inline void FEDZSChannelUnpacker::readNewClusterInfo()
     {
-      if (valuesLeftAfterThisCluster_) {
+      if (channelPayloadLength_) {
 	currentStrip_ = data_[(currentOffset_++)^7];
 	valuesLeftInCluster_ = data_[(currentOffset_++)^7]-1;
-	valuesLeftAfterThisCluster_ -= valuesLeftInCluster_+3;
-	if (valuesLeftAfterThisCluster_ < 0) throwBadClusterLength();
       }
     }
 
