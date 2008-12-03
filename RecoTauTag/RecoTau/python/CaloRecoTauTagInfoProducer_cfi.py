@@ -9,10 +9,7 @@ caloRecoTauTagInfoProducer = cms.EDProducer("CaloRecoTauTagInfoProducer",
     tkminPixelHitsn	= cms.int32(2),
     tkminTrackerHitsn = cms.int32(8),	
     tkmaxChi2 = cms.double(100.0),	
-    ESRecHitsSource = cms.InputTag("ecalPreshowerRecHit","EcalRecHitsES"),
     UsePVconstraint = cms.bool(False),
-    # parameters of the considered EcalRecHits
-    EBRecHitsSource = cms.InputTag("ecalRecHit","EcalRecHitsEB"),
     BarrelBasicClustersSource = cms.InputTag("hybridSuperClusters","hybridBarrelBasicClusters"),
     EndcapBasicClustersSource = cms.InputTag("multi5x5BasicClusters","multi5x5EndcapBasicClusters"),
 
@@ -25,7 +22,6 @@ caloRecoTauTagInfoProducer = cms.EDProducer("CaloRecoTauTagInfoProducer",
     # parameters of the considered neutral ECAL BasicClusters
     ECALBasicClustersAroundCaloJet_DRConeSize = cms.double(0.5),
     tkmaxipt = cms.double(0.03),
-    EERecHitsSource = cms.InputTag("ecalRecHit","EcalRecHitsEE"),
     CaloJetTracksAssociatorProducer = cms.string('ic5JetTracksAssociatorAtVertex')
 )
 

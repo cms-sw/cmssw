@@ -2,11 +2,11 @@
 
 CaloTauElementsOperators::CaloTauElementsOperators(CaloTau& theCaloTau) : TauElementsOperators(theCaloTau),CaloTau_(theCaloTau),AreaMetric_recoElements_maxabsEta_(2.5){
   Tracks_=theCaloTau.caloTauTagInfoRef()->Tracks();
-  EcalRecHits_=theCaloTau.caloTauTagInfoRef()->positionAndEnergyECALRecHits();
+  //EcalRecHits_=theCaloTau.caloTauTagInfoRef()->positionAndEnergyECALRecHits();
 }
-  vector<pair<math::XYZPoint,float> > CaloTauElementsOperators::EcalRecHitsInCone(const math::XYZVector& coneAxis,const string coneMetric,const double coneSize,const double EcalRecHit_minEt)const{
+  vector<pair<math::XYZPoint,float> > CaloTauElementsOperators::EcalRecHitsInCone(const math::XYZVector& coneAxis,const string coneMetric,const double coneSize,const double EcalRecHit_minEt,const vector<pair<math::XYZPoint,float> >& myEcalRecHits)const{
   vector<pair<math::XYZPoint,float> > theFilteredEcalRecHits;
-  for (vector<pair<math::XYZPoint,float> >::const_iterator iEcalRecHit=EcalRecHits_.begin();iEcalRecHit!=EcalRecHits_.end();++iEcalRecHit) {
+  for (vector<pair<math::XYZPoint,float> >::const_iterator iEcalRecHit=myEcalRecHits.begin();iEcalRecHit!=myEcalRecHits.end();++iEcalRecHit) {
     if ((*iEcalRecHit).second*fabs(sin((*iEcalRecHit).first.theta()))>EcalRecHit_minEt)theFilteredEcalRecHits.push_back(*iEcalRecHit);
   }  
   vector<pair<math::XYZPoint,float> > theFilteredEcalRecHitsInCone;
@@ -24,9 +24,9 @@ CaloTauElementsOperators::CaloTauElementsOperators(CaloTau& theCaloTau) : TauEle
   }else return vector<pair<math::XYZPoint,float> >(); 
   return theFilteredEcalRecHitsInCone;
 }
-vector<pair<math::XYZPoint,float> > CaloTauElementsOperators::EcalRecHitsInAnnulus(const math::XYZVector& coneAxis,const string innerconeMetric,const double innerconeSize,const string outerconeMetric,const double outerconeSize,const double EcalRecHit_minEt)const{     
+vector<pair<math::XYZPoint,float> > CaloTauElementsOperators::EcalRecHitsInAnnulus(const math::XYZVector& coneAxis,const string innerconeMetric,const double innerconeSize,const string outerconeMetric,const double outerconeSize,const double EcalRecHit_minEt,const vector<pair<math::XYZPoint,float> >& myEcalRecHits)const{     
   vector<pair<math::XYZPoint,float> > theFilteredEcalRecHits;
-  for (vector<pair<math::XYZPoint,float> >::const_iterator iEcalRecHit=EcalRecHits_.begin();iEcalRecHit!=EcalRecHits_.end();++iEcalRecHit) {
+  for (vector<pair<math::XYZPoint,float> >::const_iterator iEcalRecHit=myEcalRecHits.begin();iEcalRecHit!=myEcalRecHits.end();++iEcalRecHit) {
     if ((*iEcalRecHit).second*fabs(sin((*iEcalRecHit).first.theta()))>EcalRecHit_minEt)theFilteredEcalRecHits.push_back(*iEcalRecHit);
   }  
   vector<pair<math::XYZPoint,float> > theFilteredEcalRecHitsInAnnulus;

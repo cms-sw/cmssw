@@ -12,9 +12,6 @@ CaloRecoTauTagInfoAlgorithm::CaloRecoTauTagInfoAlgorithm(const ParameterSet& par
   UsePVconstraint_                    = parameters.getParameter<bool>("UsePVconstraint");
   tkPVmaxDZ_                          = parameters.getParameter<double>("tkPVmaxDZ");
   // parameters of the considered EcalRecHits 
-  EBRecHitsLabel_                     = parameters.getParameter<InputTag>("EBRecHitsSource"); 
-  EERecHitsLabel_                     = parameters.getParameter<InputTag>("EERecHitsSource"); 
-  ESRecHitsLabel_                     = parameters.getParameter<InputTag>("ESRecHitsSource"); 
   BarrelBasicClusters_                = parameters.getParameter<InputTag>("BarrelBasicClustersSource"); 
   EndcapBasicClusters_                = parameters.getParameter<InputTag>("EndcapBasicClustersSource"); 
   // parameters of the considered neutral ECAL BasicClusters
@@ -32,14 +29,14 @@ CaloTauTagInfo CaloRecoTauTagInfoAlgorithm::buildCaloTauTagInfo(Event& theEvent,
   else theFilteredTracks=TauTagTools::filteredTracks(theTracks,tkminPt_,tkminPixelHitsn_,tkminTrackerHitsn_,tkmaxipt_,tkmaxChi2_,thePV);
   resultExtended.setTracks(theFilteredTracks);
   
-  resultExtended.setpositionAndEnergyECALRecHits(getPositionAndEnergyEcalRecHits(theEvent,theEventSetup,theCaloJet));
+  //resultExtended.setpositionAndEnergyECALRecHits(getPositionAndEnergyEcalRecHits(theEvent,theEventSetup,theCaloJet));
 
   vector<BasicClusterRef> theNeutralEcalBasicClusters=getNeutralEcalBasicClusters(theEvent,theEventSetup,theCaloJet,theFilteredTracks,ECALBasicClustersAroundCaloJet_DRConeSize_,ECALBasicClusterminE_,ECALBasicClusterpropagTrack_matchingDRConeSize_);
   resultExtended.setneutralECALBasicClusters(theNeutralEcalBasicClusters);
   
   return resultExtended; 
 }
-
+/*
 vector<pair<math::XYZPoint,float> > CaloRecoTauTagInfoAlgorithm::getPositionAndEnergyEcalRecHits(Event& theEvent,const EventSetup& theEventSetup,const CaloJetRef& theCaloJet){
   vector<pair<math::XYZPoint,float> > thePositionAndEnergyEcalRecHits;
   vector<CaloTowerPtr> theCaloTowers=theCaloJet->getCaloConstituents();
@@ -90,6 +87,7 @@ vector<pair<math::XYZPoint,float> > CaloRecoTauTagInfoAlgorithm::getPositionAndE
   }
   return thePositionAndEnergyEcalRecHits;
 }
+*/
 
 vector<DetId> CaloRecoTauTagInfoAlgorithm::getVectorDetId(const CaloJetRef& theCaloJet){
   vector<CaloTowerPtr> theCaloTowers=theCaloJet->getCaloConstituents();
@@ -106,8 +104,6 @@ vector<DetId> CaloRecoTauTagInfoAlgorithm::getVectorDetId(const CaloJetRef& theC
   }
   return myDetIds;
 }
-
-
 
 
 vector<BasicClusterRef> CaloRecoTauTagInfoAlgorithm::getNeutralEcalBasicClusters(Event& theEvent,const EventSetup& theEventSetup,const CaloJetRef& theCaloJet,const TrackRefVector& theTracks,float theECALBasicClustersAroundCaloJet_DRConeSize,float theECALBasicClusterminE,float theECALBasicClusterpropagTrack_matchingDRConeSize){

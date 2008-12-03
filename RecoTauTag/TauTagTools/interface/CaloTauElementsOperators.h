@@ -24,14 +24,14 @@ class CaloTauElementsOperators : public TauElementsOperators {
   ~CaloTauElementsOperators(){} 
   
   // return all Ecal RecHits in a cone of metric* "coneMetric" and size "coneSize" around a direction "coneAxis" 
-  vector<pair<math::XYZPoint,float> > EcalRecHitsInCone(const math::XYZVector& coneAxis,const string coneMetric,const double coneSize,const double EcalRecHit_minEt)const;
+  vector<pair<math::XYZPoint,float> > EcalRecHitsInCone(const math::XYZVector& coneAxis,const string coneMetric,const double coneSize,const double EcalRecHit_minEt, const vector<pair<math::XYZPoint,float> >& myEcalRecHits)const;
   // return all Ecal RecHits in an annulus defined by inner(metric* "innerconeMetric" and size "innerconeSize") and outer(metric* "outerconeMetric" and size "outerconeSize") cones around a direction "coneAxis" 
-  vector<pair<math::XYZPoint,float> > EcalRecHitsInAnnulus(const math::XYZVector& coneAxis,const string innerconeMetric,const double innerconeSize,const string outerconeMetric,const double outerconeSize,const double EcalRecHit_minEt)const; 
+  vector<pair<math::XYZPoint,float> > EcalRecHitsInAnnulus(const math::XYZVector& coneAxis,const string innerconeMetric,const double innerconeSize,const string outerconeMetric,const double outerconeSize,const double EcalRecHit_minEt, const vector<pair<math::XYZPoint,float> >& myEcalRecHits)const; 
   
   // return all neutral Ecal BasicClusters in a cone of metric* "coneMetric" and size "coneSize" around a direction "coneAxis" 
-  vector<pair<math::XYZPoint,float> > neutralEcalBasicClustersInCone(const math::XYZVector& coneAxis,const string coneMetric,const double coneSize,const double neutralEcalBasicCluster_minEt)const;
+  vector<BasicClusterRef> neutralEcalBasicClustersInCone(const math::XYZVector& coneAxis,const string coneMetric,const double coneSize,const double neutralEcalBasicCluster_minEt)const;
   // return all neutral Ecal BasicClusters in an annulus defined by inner(metric* "innerconeMetric" and size "innerconeSize") and outer(metric* "outerconeMetric" and size "outerconeSize") cones around a direction "coneAxis" 
-  vector<pair<math::XYZPoint,float> > neutralEcalBasicClustersInAnnulus(const math::XYZVector& coneAxis,const string innerconeMetric,const double innerconeSize,const string outerconeMetric,const double outerconeSize,const double neutralEcalBasicCluster_minEt)const; 
+  vector<BasicClusterRef> neutralEcalBasicClustersInAnnulus(const math::XYZVector& coneAxis,const string innerconeMetric,const double innerconeSize,const string outerconeMetric,const double outerconeSize,const double neutralEcalBasicCluster_minEt)const; 
   
   void setAreaMetricrecoElementsmaxabsEta(const double x) {AreaMetric_recoElements_maxabsEta_=x;}   
  private:

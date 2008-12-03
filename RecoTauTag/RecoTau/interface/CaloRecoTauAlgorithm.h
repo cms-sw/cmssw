@@ -13,6 +13,11 @@
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloTopology/interface/CaloTowerTopology.h"
+#include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/EcalDetId/interface/EBDetId.h"
+#include "DataFormats/EcalDetId/interface/EEDetId.h"
+#include "DataFormats/EcalDetId/interface/ESDetId.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
 #include "RecoTauTag/TauTagTools/interface/CaloTauElementsOperators.h"
 #include "RecoTauTag/TauTagTools/interface/TauTagTools.h"
@@ -69,7 +74,7 @@ class  CaloRecoTauAlgorithm  {
 
   TFormula myTrackerSignalConeSizeTFormula,myTrackerIsolConeSizeTFormula, myECALSignalConeSizeTFormula, myECALIsolConeSizeTFormula,myMatchingConeSizeTFormula; 
   
-
+InputTag EBRecHitsLabel_,EERecHitsLabel_,ESRecHitsLabel_; 
 
 };
 #endif 
