@@ -7,6 +7,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
+#include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/Common/interface/RefGetter.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include <memory>
@@ -16,6 +17,8 @@ class SiStripClustersDSVBuilder : public edm::EDProducer {
   
  public:
 
+  typedef edmNew::DetSet<SiStripCluster> DetSetnew;
+  typedef edmNew::DetSetVector<SiStripCluster> DSVnew;
   typedef edm::DetSet<SiStripCluster> DetSet;
   typedef edm::DetSetVector<SiStripCluster> DSV;
   typedef edm::LazyGetter<SiStripCluster> LazyGetter;
@@ -30,9 +33,22 @@ class SiStripClustersDSVBuilder : public edm::EDProducer {
   
  private: 
 
-  /** Input labels */
+  /// clusterize into DSV
+
+  void clusterize(const LazyGetter&, const RefGetter&, DSV&);
+
+  /// clusterize into DSVnew
+
+  void clusterize(const LazyGetter&, const RefGetter&, DSVnew&);
+
+  /// Input labels
+
   edm::InputTag siStripLazyGetter_;
   edm::InputTag siStripRefGetter_;
+
+  /// DSVnew
+
+  bool dsvnew_;
 };
 
 #endif //  EventFilter_SiStripRawToDigi_SiStripClustersDSVBuilder_H
