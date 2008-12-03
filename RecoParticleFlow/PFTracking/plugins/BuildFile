@@ -1,0 +1,4 @@
+<use name=RecoParticleFlow/PFTracking>
+<library file="*.cc" name=RecoParticleFlowPFTrackingPlugins>
+         <flags EDM_PLUGIN=1>
+</library>
