@@ -47,5 +47,39 @@ class SiStripRawToClusters : public edm::EDProducer {
 
 };
 
+namespace sistrip {
+
+  class RawToClusters : public edm::EDProducer {
+    
+  public:
+    
+    typedef edm::LazyGetter<SiStripCluster> LazyGetter;
+    typedef edm::RefGetter<SiStripCluster> RefGetter;
+    typedef RawToClustersLazyUnpacker LazyUnpacker;
+    typedef SiStripRegionCabling::SubDet SubDet;
+    
+    RawToClusters( const edm::ParameterSet& );
+    ~RawToClusters();
+    
+    virtual void beginJob( const edm::EventSetup& );
+    virtual void beginRun( edm::Run&, const edm::EventSetup& );
+    virtual void produce( edm::Event&, const edm::EventSetup& );
+    
+  private: 
+    
+    void updateCabling( const edm::EventSetup& setup );
+    
+    edm::InputTag productLabel_;
+    
+    const SiStripRegionCabling* cabling_;
+    
+    uint32_t cacheId_;
+    
+    SiStripClusterizerFactory* clusterizer_;
+    
+  };
+  
+}
+
 #endif //  EventFilter_SiStripRawToDigi_SiStripRawToClusters_H
 
