@@ -5,7 +5,7 @@
 // 
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: MuonIdProducer.cc,v 1.28 2008/10/07 02:28:33 dmytro Exp $
+// $Id: MuonIdProducer.cc,v 1.29 2008/11/11 10:19:15 ptraczyk Exp $
 //
 //
 
@@ -888,6 +888,10 @@ void MuonIdProducer::fillMuonIsolation(edm::Event& iEvent, const edm::EventSetup
    isoR03.hoEt      = depHo.depositWithin(0.3);
    isoR03.nTracks   = depTrk.depositAndCountWithin(0.3).second;
    isoR03.nJets     = depJet.depositAndCountWithin(0.3).second;
+   isoR03.trackerVetoPt  = depTrk.candEnergy();
+   isoR03.emVetoEt       = depEcal.candEnergy();
+   isoR03.hadVetoEt      = depHcal.candEnergy();
+   isoR03.hoVetoEt       = depHo.candEnergy();
 
    isoR05.sumPt     = depTrk.depositWithin(0.5);
    isoR05.emEt      = depEcal.depositWithin(0.5);
@@ -895,6 +899,11 @@ void MuonIdProducer::fillMuonIsolation(edm::Event& iEvent, const edm::EventSetup
    isoR05.hoEt      = depHo.depositWithin(0.5);
    isoR05.nTracks   = depTrk.depositAndCountWithin(0.5).second;
    isoR05.nJets     = depJet.depositAndCountWithin(0.5).second;
+   isoR05.trackerVetoPt  = depTrk.candEnergy();
+   isoR05.emVetoEt       = depEcal.candEnergy();
+   isoR05.hadVetoEt      = depHcal.candEnergy();
+   isoR05.hoVetoEt       = depHo.candEnergy();
+
 
    aMuon.setIsolation(isoR03, isoR05);
 }
