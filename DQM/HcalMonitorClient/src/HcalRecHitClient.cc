@@ -289,9 +289,6 @@ void HcalRecHitClient::getHistograms()
   TH2F* dummy2D = new TH2F();
   TH1F* dummy1D = new TH1F();
 
-  // Set Problem cell palette (green = 0 = good, red = 1 = bad)
-
-
   // Grab individual histograms
   name<<process_.c_str()<<"RecHitMonitor_Hcal/ ProblemRecHits";
   ProblemRecHits = getAnyHisto(dummy2D, name.str(), process_, dbe_, debug_, cloneME_);
@@ -972,7 +969,6 @@ void HcalRecHitClient::loadHistograms(TFile* infile)
       name.str("");
     } //for (int i=0;i<6;++i)
 
-  // JEFF
   if (rechitclient_makeDiagnostics_)
     {
       name<<process_.c_str()<<"RecHitMonitor_Hcal/diagnostics/hb/HB_energy";
@@ -1080,58 +1076,3 @@ void HcalRecHitClient::loadHistograms(TFile* infile)
 } // void HcalRecHitClient::loadHistograms(...)
 
 
-
-
-// Can't get these to work in base client yet
-
-
-void HcalRecHitClient::getSJ6histos(const char* dir, const char* name, TH2F* h[6])
-{
-  TH2F* dummy=new TH2F();
-  ostringstream hname;
-  hname.str("");
-  hname <<process_.c_str()<<dir<<"HB HF Depth 1 "<<name;
-  h[0]=getAnyHisto(dummy, hname.str(),process_,dbe_,debug_,cloneME_);
-  hname.str("");
-  hname <<process_.c_str()<<dir<<"HB HF Depth 2 "<<name;
-  h[1]=getAnyHisto(dummy, hname.str(),process_,dbe_,debug_,cloneME_);
-  hname.str("");
-  hname <<process_.c_str()<<dir<<"HE Depth 3 "<<name;
-  h[2]=getAnyHisto(dummy, hname.str(),process_,dbe_,debug_,cloneME_);
-  hname.str("");
-  hname <<process_.c_str()<<dir<<"HO ZDC "<<name;
-  h[3]=getAnyHisto(dummy, hname.str(),process_,dbe_,debug_,cloneME_);
-  hname.str("");
-  hname <<process_.c_str()<<dir<<"HE Depth 1 "<<name;
-  h[4]=getAnyHisto(dummy, hname.str(),process_,dbe_,debug_,cloneME_);
-  hname.str("");
-  hname <<process_.c_str()<<dir<<"HE Depth 2 "<<name;
-  h[5]=getAnyHisto(dummy, hname.str(),process_,dbe_,debug_,cloneME_);
-  hname.str("");
-  return;
-} // void HcalRecHitClient::getSJ6histos(2D)
-
-void HcalRecHitClient::getSJ6histos(const char* dir, const char* name, TH1F* h[6])
-{
-  TH1F* dummy=new TH1F();
-  ostringstream hname;
-  hname <<process_.c_str()<<dir<<"HB HF Depth 1 "<<name;
-  h[0]=getAnyHisto(dummy, hname.str(),process_,dbe_,debug_,cloneME_);
-  hname.str("");
-  hname <<process_.c_str()<<dir<<"HB HF Depth 2 "<<name;
-  h[1]=getAnyHisto(dummy, hname.str(),process_,dbe_,debug_,cloneME_);
-  hname.str("");
-  hname <<process_.c_str()<<dir<<"HE Depth 3 "<<name;
-  h[2]=getAnyHisto(dummy, hname.str(),process_,dbe_,debug_,cloneME_);
-  hname.str("");
-  hname <<process_.c_str()<<dir<<"HO ZDC "<<name;
-  h[3]=getAnyHisto(dummy, hname.str(),process_,dbe_,debug_,cloneME_);
-  hname.str("");
-  hname <<process_.c_str()<<dir<<"HE Depth 1 "<<name;
-  h[4]=getAnyHisto(dummy, hname.str(),process_,dbe_,debug_,cloneME_);
-  hname.str("");
-  hname <<process_.c_str()<<dir<<"HE Depth 2 "<<name;
-  h[5]=getAnyHisto(dummy, hname.str(),process_,dbe_,debug_,cloneME_);
-  hname.str("");
-  return;
-} // void HcalRecHitClient::getSJ6histos(1D)
