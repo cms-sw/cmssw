@@ -1,8 +1,8 @@
 /*
  * \file EBOccupancyTask.cc
  *
- * $Date: 2008/11/01 19:02:23 $
- * $Revision: 1.67 $
+ * $Date: 2008/12/03 10:28:10 $
+ * $Revision: 1.68 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -387,22 +387,22 @@ void EBOccupancyTask::analyze(const Event& e, const EventSetup& c){
 
           if ( Numbers::iSM( (*dcchItr), EcalBarrel ) != ism ) continue;
 
-          if ( (*dcchItr).getRunType() == EcalDCCHeaderBlock::TESTPULSE_MGPA ||
-               (*dcchItr).getRunType() == EcalDCCHeaderBlock::TESTPULSE_GAP ) {
+          if ( dcchItr->getRunType() == EcalDCCHeaderBlock::TESTPULSE_MGPA ||
+               dcchItr->getRunType() == EcalDCCHeaderBlock::TESTPULSE_GAP ) {
 
             if ( meEBTestPulseDigiOccupancy_ ) meEBTestPulseDigiOccupancy_->Fill( xebphi, xebeta );
 
           }
 
-          if ( (*dcchItr).getRunType() == EcalDCCHeaderBlock::LASER_STD ||
-               (*dcchItr).getRunType() == EcalDCCHeaderBlock::LASER_GAP ) {
+          if ( dcchItr->getRunType() == EcalDCCHeaderBlock::LASER_STD ||
+               dcchItr->getRunType() == EcalDCCHeaderBlock::LASER_GAP ) {
 
             if ( meEBLaserDigiOccupancy_ ) meEBLaserDigiOccupancy_->Fill( xebphi, xebeta );
 
           }
 
-          if ( (*dcchItr).getRunType() == EcalDCCHeaderBlock::PEDESTAL_STD ||
-               (*dcchItr).getRunType() == EcalDCCHeaderBlock::PEDESTAL_GAP ) {
+          if ( dcchItr->getRunType() == EcalDCCHeaderBlock::PEDESTAL_STD ||
+               dcchItr->getRunType() == EcalDCCHeaderBlock::PEDESTAL_GAP ) {
 
             if ( meEBPedestalDigiOccupancy_ ) meEBPedestalDigiOccupancy_->Fill( xebphi, xebeta );
 

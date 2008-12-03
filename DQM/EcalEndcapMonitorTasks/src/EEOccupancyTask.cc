@@ -1,8 +1,8 @@
 /*
  * \file EEOccupancyTask.cc
  *
- * $Date: 2008/11/01 19:02:23 $
- * $Revision: 1.52 $
+ * $Date: 2008/12/03 10:28:11 $
+ * $Revision: 1.53 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -576,8 +576,8 @@ void EEOccupancyTask::analyze(const Event& e, const EventSetup& c){
 
           if ( Numbers::iSM( (*dcchItr), EcalEndcap ) != ism ) continue;
 
-          if ( (*dcchItr).getRunType() == EcalDCCHeaderBlock::TESTPULSE_MGPA ||
-               (*dcchItr).getRunType() == EcalDCCHeaderBlock::TESTPULSE_GAP ) {
+          if ( dcchItr->getRunType() == EcalDCCHeaderBlock::TESTPULSE_MGPA ||
+               dcchItr->getRunType() == EcalDCCHeaderBlock::TESTPULSE_GAP ) {
 
             if ( ism >=1 && ism <= 9 ) {
               if ( meEETestPulseDigiOccupancy_[0] ) meEETestPulseDigiOccupancy_[0]->Fill( xeex, xeey );
@@ -587,8 +587,8 @@ void EEOccupancyTask::analyze(const Event& e, const EventSetup& c){
 
           }
 
-          if ( (*dcchItr).getRunType() == EcalDCCHeaderBlock::LASER_STD ||
-               (*dcchItr).getRunType() == EcalDCCHeaderBlock::LASER_GAP ) {
+          if ( dcchItr->getRunType() == EcalDCCHeaderBlock::LASER_STD ||
+               dcchItr->getRunType() == EcalDCCHeaderBlock::LASER_GAP ) {
 
             if ( ism >=1 && ism <= 9 ) {
               if ( meEELaserDigiOccupancy_[0] ) meEELaserDigiOccupancy_[0]->Fill( xeex, xeey );
@@ -598,8 +598,8 @@ void EEOccupancyTask::analyze(const Event& e, const EventSetup& c){
 
           }
 
-          if ( (*dcchItr).getRunType() == EcalDCCHeaderBlock::LED_STD ||
-               (*dcchItr).getRunType() == EcalDCCHeaderBlock::LED_GAP ) {
+          if ( dcchItr->getRunType() == EcalDCCHeaderBlock::LED_STD ||
+               dcchItr->getRunType() == EcalDCCHeaderBlock::LED_GAP ) {
 
             if ( ism >=1 && ism <= 9 ) {
               if ( meEELedDigiOccupancy_[0] ) meEELedDigiOccupancy_[0]->Fill( xeex, xeey );
@@ -609,8 +609,8 @@ void EEOccupancyTask::analyze(const Event& e, const EventSetup& c){
 
           }
 
-          if ( (*dcchItr).getRunType() == EcalDCCHeaderBlock::PEDESTAL_STD ||
-               (*dcchItr).getRunType() == EcalDCCHeaderBlock::PEDESTAL_GAP ) {
+          if ( dcchItr->getRunType() == EcalDCCHeaderBlock::PEDESTAL_STD ||
+               dcchItr->getRunType() == EcalDCCHeaderBlock::PEDESTAL_GAP ) {
 
             if ( ism >=1 && ism <= 9 ) {
               if ( meEEPedestalDigiOccupancy_[0] ) meEEPedestalDigiOccupancy_[0]->Fill( xeex, xeey );
