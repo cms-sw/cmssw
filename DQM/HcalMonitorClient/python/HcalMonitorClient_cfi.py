@@ -112,7 +112,7 @@ def setHcalClientValuesFromMonitor(client, origmonitor, debug=False):
     #This way, when you disable the DataFormat Monitor, the DataFormat client is also turned off automatically, etc.
 
     # Set update period of client to checkNevents value of monitor 
-    #client.diagnosticPrescaleEvt                  = monitor.checkNevents # combine checkNevents and diagnosticPrescaleEvt into one?
+    client.diagnosticPrescaleEvt                  = monitor.checkNevents # combine checkNevents and diagnosticPrescaleEvt into one?
     
     # Pedestal Client
     client.PedestalClient                         = monitor.PedestalMonitor
@@ -176,6 +176,7 @@ def setHcalClientValuesFromMonitor(client, origmonitor, debug=False):
         print "HcalMonitorClient values from HcalMonitorModule: "
         print "Debug              = ", client.debug
         print "showTiming         = ", client.showTiming
+        print "PrescaleEvt        = ", client.diagnosticPrescaleEvt
         print "Pedestal Client    = ", client.PedestalClient
         print "Digi Client        = ", client.DigiClient
         print "DeadCell Client    = ", client.DeadCellClient
