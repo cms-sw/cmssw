@@ -37,7 +37,7 @@ class SiStripFedCablingFakeESSource : public SiStripFedCablingESProducer, public
 
   /** Location of ascii file containing FedIds. */
   edm::FileInPath fedIds_;
-  
+  edm::ParameterSet pset_;
 };
 
 #endif // CalibTracker_SiStripESProducers_SiStripFedCablingFakeESSource_H

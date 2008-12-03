@@ -18,7 +18,8 @@ using namespace sistrip;
 SiStripFedCablingFakeESSource::SiStripFedCablingFakeESSource( const edm::ParameterSet& pset )
   : SiStripFedCablingESProducer( pset ),
     detIds_( pset.getParameter<edm::FileInPath>("DetIdsFile") ),
-    fedIds_( pset.getParameter<edm::FileInPath>("FedIdsFile") )
+    fedIds_( pset.getParameter<edm::FileInPath>("FedIdsFile") ),
+    pset_(pset)
 {
   findingRecord<SiStripFedCablingRcd>();
   edm::LogVerbatim("FedCabling") 
@@ -46,19 +47,23 @@ SiStripFedCabling* SiStripFedCablingFakeESSource::make( const SiStripFedCablingR
   SiStripFecCabling* fec_cabling = new SiStripFecCabling();
   
   // Read DetId list from file
-  typedef std::map<uint32_t,SiStripDetInfoFileReader::DetInfo>  Dets;
-  Dets dets = SiStripDetInfoFileReader( detIds_.fullPath() ).getAllData();
+  SiStripDetInfoFileReader Detreader( detIds_.fullPath() );
+  typedef std::vector<uint32_t>  Dets;
+  
+  Dets dets = Detreader.getAllDetIds();
   
   // Read FedId list from file
   typedef std::vector<uint16_t> Feds;
   Feds feds = SiStripFedIdListReader( fedIds_.fullPath() ).fedIds();
   
+  bool populateAllFeds=pset_.getParameter<bool>("PopulateAllFeds");
+
   // Iterator through DetInfo objects and populate FEC cabling object
   uint32_t imodule = 0;
   Dets::const_iterator idet = dets.begin();
   Dets::const_iterator jdet = dets.end();
   for ( ; idet != jdet; ++idet ) {
-    uint16_t npairs = idet->second.nApvs / 2;
+    uint16_t npairs =  Detreader.getNumberOfApvsAndStripLength(*idet).first / 2;
     for ( uint16_t ipair = 0; ipair < npairs; ++ipair ) {
       uint16_t addr = 0;
       if      ( npairs == 2 && ipair == 0 ) { addr = 32; }
@@ -72,20 +77,25 @@ SiStripFedCabling* SiStripFedCablingFakeESSource::make( const SiStripFedCablingR
 	  << " Inconsistent values for nPairs (" << npairs
 	  << ") and ipair (" << ipair << ")!";
       }
+      uint32_t module_key = SiStripFecKey(fecCrate( imodule ), 
+					  fecSlot( imodule ),  
+					  fecRing( imodule ), 
+					  ccuAddr( imodule ), 
+ 					  ccuChan( imodule )).key();
       FedChannelConnection conn( fecCrate( imodule ),
 				 fecSlot( imodule ), 
 				 fecRing( imodule ), 
 				 ccuAddr( imodule ), 
 				 ccuChan( imodule ), 
 				 addr, addr+1, // apv i2c addresses
-                                 imodule+1,    // dcu id
-                                 idet->first,  // det id
+                                 module_key,         // dcu id
+                                 *idet,  // det id
 				 npairs );     // apv pairs
       fec_cabling->addDevices( conn );
     }
     imodule++;
   }
-
+  
   // Assign "dummy" FED ids/chans
   bool insufficient = false;
   Feds::const_iterator ifed = feds.begin();
@@ -95,22 +105,40 @@ SiStripFedCabling* SiStripFedCablingFakeESSource::make( const SiStripFedCablingR
       for ( std::vector<SiStripRing>::const_iterator iring = ifec->rings().begin(); iring != ifec->rings().end(); iring++ ) {
 	for ( std::vector<SiStripCcu>::const_iterator iccu = iring->ccus().begin(); iccu != iring->ccus().end(); iccu++ ) {
 	  for ( std::vector<SiStripModule>::const_iterator imod = iccu->modules().begin(); imod != iccu->modules().end(); imod++ ) {
-	    for ( uint16_t ipair = 0; ipair < imod->nApvPairs(); ipair++ ) {
+	    if(populateAllFeds){
+	      for ( uint16_t ipair = 0; ipair < imod->nApvPairs(); ipair++ ) {
+		
+		if ( ifed == feds.end() ) { fed_ch++; ifed = feds.begin(); }
+		if ( fed_ch == 96 ) {
+		  insufficient = true;
+		  break;
+		}
 	      
-              if ( ifed == feds.end() ) { fed_ch++; ifed = feds.begin(); }
-              if ( fed_ch == 96 ) {
-		insufficient = true;
-                break;
-              }
+		std::pair<uint16_t,uint16_t> addr = imod->activeApvPair( imod->lldChannel(ipair) );
+		SiStripModule::FedChannel fed_channel( (*ifed)/16+1, // 16 FEDs per crate, numbering starts from 1
+						       (*ifed)%16+2, // FED slot starts from 2
+						       *ifed,
+						       fed_ch );
+		const_cast<SiStripModule&>(*imod).fedCh( addr.first, fed_channel );
+		ifed++;
 	      
-              std::pair<uint16_t,uint16_t> addr = imod->activeApvPair( imod->lldChannel(ipair) );
-	      SiStripModule::FedChannel fed_channel( (*ifed)/16+1, // 16 FEDs per crate, numbering starts from 1
-                                                     (*ifed)%16+2, // FED slot starts from 2
-                                                     *ifed,
-                                                     fed_ch );
-              const_cast<SiStripModule&>(*imod).fedCh( addr.first, fed_channel );
-              ifed++;
-	      
+	      }
+	    }else{
+	      // Patch introduced by D.Giordano 2/12/08
+	      //to reproduce the fake cabling used in 2x
+	      //that was designed to fill each fed iteratively
+	      //filling all channels of a fed before going to the next one
+	      if ( 96-fed_ch < imod->nApvPairs() ) { ifed++; fed_ch = 0; } // move to next FED
+	      for ( uint16_t ipair = 0; ipair < imod->nApvPairs(); ipair++ ) {
+		std::pair<uint16_t,uint16_t> addr = imod->activeApvPair( (*imod).lldChannel(ipair) );
+		SiStripModule::FedChannel fed_channel( (*ifed)/16+1, // 16 FEDs per crate, numbering starts from 1
+						       (*ifed)%16+2, // FED slot starts from 2
+						       (*ifed), 
+						       fed_ch );
+		const_cast<SiStripModule&>(*imod).fedCh( addr.first, fed_channel );
+		fed_ch++;
+	      }
+
 	    }
 	  }
 	}
