@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FW3DView.cc,v 1.3 2008/12/02 17:58:13 dmytro Exp $
+// $Id: FW3DView.cc,v 1.4 2008/12/03 02:38:53 dmytro Exp $
 //
 
 // system include files
@@ -124,6 +124,10 @@ FW3DView::FW3DView(TGFrame* iParent, TEveElementList* list):
    gEve->AddElement(nv, gEve->GetViewers());
    gEve->AddElement(list,m_scene);
    gEve->AddToListTree(list, kTRUE);
+
+   //make sure our defaults are honored
+   showWireFrame();
+   
    m_showMuonBarrel.changed_.connect(boost::bind(&FW3DView::showMuonBarrel,this));
    m_showMuonEndcap.changed_.connect(boost::bind(&FW3DView::showMuonEndcap,this));
    m_showPixelBarrel.changed_.connect(boost::bind(&FW3DView::showPixelBarrel,this));
