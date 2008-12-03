@@ -294,7 +294,7 @@ void HcalBeamMonitor::processEvent(const HBHERecHitCollection& hbheHits,
   }
   if (showTiming)
     {
-      cpu_timer.stop(); std::cout << " TIMER::HcalRecHit BEAMMON analyze pre-process-> " << cpu_timer.cpuTime() << std::endl;
+      cpu_timer.stop(); std::cout << " TIMER::HcalBeamMonitor BEAMMON analyze pre-process-> " << cpu_timer.cpuTime() << std::endl;
       cpu_timer.reset(); cpu_timer.start();
     } // if (showTiming)
 
@@ -394,7 +394,7 @@ void HcalBeamMonitor::processEvent(const HBHERecHitCollection& hbheHits,
   
   if (showTiming)
     {
-      cpu_timer.stop(); std::cout << " TIMER::HcalRecHit BEAMMON HBHE-> " << cpu_timer.cpuTime() << std::endl;
+      cpu_timer.stop(); std::cout << " TIMER::HcalBeamMonitor BEAMMON HBHE-> " << cpu_timer.cpuTime() << std::endl;
       cpu_timer.reset(); cpu_timer.start();
     } // if (showTiming)
   
@@ -455,7 +455,7 @@ void HcalBeamMonitor::processEvent(const HBHERecHitCollection& hbheHits,
   
   if (showTiming)
     {
-      cpu_timer.stop(); std::cout << " TIMER::HcalRecHit BEAMMON HO-> " << cpu_timer.cpuTime() << std::endl;
+      cpu_timer.stop(); std::cout << " TIMER::HcalBeamMonitor BEAMMON HO-> " << cpu_timer.cpuTime() << std::endl;
       cpu_timer.reset(); cpu_timer.start();
     } // if (showTiming)
 
@@ -652,7 +652,7 @@ void HcalBeamMonitor::processEvent(const HBHERecHitCollection& hbheHits,
   
   if (showTiming)
     {
-      cpu_timer.stop(); std::cout << " TIMER::HcalRecHit BEAMMON HF-> " << cpu_timer.cpuTime() << std::endl;
+      cpu_timer.stop(); std::cout << " TIMER::HcalBeamMonitor BEAMMON HF-> " << cpu_timer.cpuTime() << std::endl;
     } // if (showTiming)
 
   totalX=HBtotalX+HEtotalX+HOtotalX+HFtotalX;
