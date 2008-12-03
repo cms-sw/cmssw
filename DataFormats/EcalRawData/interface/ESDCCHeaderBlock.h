@@ -109,7 +109,7 @@ class ESDCCHeaderBlock {
   int getOptoBC0() const { return optoBC0_; }
   int getOptoBC1() const { return optoBC1_; }
   int getOptoBC2() const { return optoBC2_; }
-  vector<int> getFEChannelStatus() const { return FEch_; }
+  const vector<int>& getFEChannelStatus() const { return FEch_; }
   int getPacketLength() const { return packetLen_; }
   int getBC() const { return bc_; }
   int getEV() const { return ev_; }
@@ -126,10 +126,10 @@ class ESDCCHeaderBlock {
   int getEventInSpill() const { return evtInSpill_; }
   int getCAMACError() const { return camacErr_; }
   int getVMEError() const { return vmeErr_; }
-  vector<int> getADCChannelStatus() const { return ADCch_status_; }
-  vector<int> getADCChannel() const { return ADCch_; }
-  vector<int> getTDCChannelStatus() const { return TDCch_status_; }
-  vector<int> getTDCChannel() const { return TDCch_; }
+  const vector<int>& getADCChannelStatus() const { return ADCch_status_; }
+  const vector<int>& getADCChannel() const { return ADCch_; }
+  const vector<int>& getTDCChannelStatus() const { return TDCch_status_; }
+  const vector<int>& getTDCChannel() const { return TDCch_; }
   
   private :
     
