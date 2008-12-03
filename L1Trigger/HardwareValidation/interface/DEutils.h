@@ -67,6 +67,8 @@ DEutils<EcalTrigPrimDigiCollection>::DEDigi(col_cit itd,  col_cit itm, int aflag
   unsigned int dwS = (aflag==4)?0:itd->sample(itd->sampleOfInterest()).raw();
   unsigned int ewS = (aflag==3)?0:itm->sample(itm->sampleOfInterest()).raw();
   //dw1 &= 0x01ff; ew1 &= 0x01ff; //9-bit: fg(8),energy(7:0)
+  unsigned int mask = 0x0eff; //fg bit temporary(!) mask
+  dwS &= mask;   ewS &= mask; 
   unsigned int dwI = (aflag==4)?0:itd->id().rawId();
   unsigned int ewI = (aflag==3)?0:itm->id().rawId();
   //dw2 &= 0xfe00ffff; ew2 &= 0xfe00ffff; //32-bit, reset unused (24:16)
@@ -234,7 +236,7 @@ DEutils<L1MuRegionalCandCollection>::DEDigi(col_cit itd,  col_cit itm, int aflag
   //RPC: mask bits 25,26,27 (3 lowest bits of bx counter); 
   // emulator doesn't set these bits (permanent masking)
   if(sid==dedefs::RPC)
-  mask &= 0xf1ffffff;
+  mask &= 0xc1ffffff;
   dw &= mask; ew &= mask;
   digi.setData(dw,ew);
   int de = (aflag==4)?0:itd->pt_packed();//ptValue();
@@ -589,8 +591,8 @@ DEutils<L1MuDTChambPhDigiCollection>::de_equal(const cand_type& lhs, const cand_
   val &= (lhs.whNum() ==rhs.whNum() );
   val &= (lhs.scNum() ==rhs.scNum() );
   val &= (lhs.stNum() ==rhs.stNum() );
-  val &= (lhs.phi()   ==rhs.phi()   );
-  val &= (lhs.phiB()  ==rhs.phiB()  );
+  //val &= (lhs.phi()   ==rhs.phi()   );
+  //val &= (lhs.phiB()  ==rhs.phiB()  );
   val &= (lhs.code()  ==rhs.code()  );
   val &= (lhs.Ts2Tag()==rhs.Ts2Tag());
   //val &= (lhs.BxCnt() ==rhs.BxCnt() ); 
@@ -835,7 +837,11 @@ bool DEutils<T>::is_empty(col_cit it) const {
 template<>
 inline bool DEutils<EcalTrigPrimDigiCollection>::is_empty(col_cit it) const { 
   bool val = false;
-  val |= ((it->sample(it->sampleOfInterest()).raw()&0x0fff)==0);
+  unsigned int raw = it->sample(it->sampleOfInterest()).raw();
+  unsigned int mask = 0x0fff;
+  mask = 0x0eff; //fg bit temporary(!) mask
+  raw &= mask;
+  val |= (raw==0);
   if(val) return val;
   unsigned int ttf = it->ttFlag();
   val |= ((ttf!=0x1) && (ttf!=0x3)); //compare only if ttf is 1 or 3
@@ -873,7 +879,7 @@ inline bool DEutils<L1GctJetCandCollection>::is_empty(col_cit it) const {
 
 template<>
 inline bool DEutils<L1MuDTChambPhDigiCollection>::is_empty(col_cit it) const { 
-  return (it->code() == 7); 
+  return (it->bxNum() != 0 || it->code() == 7); 
   //return (it->qualityCode() == 7); 
   //return  false;
 }
