@@ -24,7 +24,8 @@ hcalClient = cms.EDFilter("HcalMonitorClient",
                           subDetsOn                 = cms.untracked.vstring('HB', 'HE', 'HF', 'HO'),
                           debug                     = cms.untracked.int32(0),
                           showTiming                = cms.untracked.bool(False),
-
+                          fillUnphysicalIphi        = cms.untracked.bool(True),
+                          
                           # Pedestal Client,
                           PedestalClient                       = cms.untracked.bool(True),
                           PedestalClient_nominalPedMeanInADC   = cms.untracked.double(3.),
@@ -112,7 +113,9 @@ def setHcalClientValuesFromMonitor(client, origmonitor, debug=False):
     #This way, when you disable the DataFormat Monitor, the DataFormat client is also turned off automatically, etc.
 
     # Set update period of client to checkNevents value of monitor 
+
     client.diagnosticPrescaleEvt                  = monitor.checkNevents # combine checkNevents and diagnosticPrescaleEvt into one?
+    client.fillUnphysicalIphi                     = monitor.fillUnphysicalIphi 
     
     # Pedestal Client
     client.PedestalClient                         = monitor.PedestalMonitor
