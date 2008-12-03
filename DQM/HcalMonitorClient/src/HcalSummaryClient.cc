@@ -420,13 +420,40 @@ void HcalSummaryClient::analyze(void)
       status_global_/=totalcells;
       status_global_=max(0.,1-status_global_); // convert to good fraction
       // Now loop over cells in reportsummarymap, changing from bad fraction to good
+
+      int eta,phi;
       for (int ieta=1;ieta<=etaBins_;++ieta)
 	{
+	  eta=ieta+int(etaMin_)-1;
 	  for (int iphi=1; iphi<=phiBins_;++iphi)
 	    {
 	      if (reportMap->getBinContent(ieta,iphi)>-1)
 		{
+		  phi=iphi+int(phiMin_)-1;
+		  if (abs(eta)>20 && phi%2!=1)
+		    continue;
+		  if (abs(eta)>39 &&phi%4!=3)
+		    continue;
 		  reportMap->setBinContent(ieta,iphi,max(0.,(double)(1-reportMap->getBinContent(ieta,iphi))));
+
+		  if (fillUnphysical_)
+		    {
+		      // fill even phi cells in region where cells span 10 degrees in phi
+		      // ("True" cell values are phi=1,3,5,7,...) 
+		      if (abs(eta)>20 && abs(eta)<40 && phi%2==1 &&phi<73)
+			{
+			  reportMap->setBinContent(ieta,iphi+1,reportMap->getBinContent(ieta,iphi));
+			}
+		      
+		      // fill all cells in region where cells span 20 degrees in phi
+		      // (actual cell phi values are 3,7,11,...)
+		      if (abs(eta)>39 && phi%4==3 && phi<73)
+			{
+			  reportMap->setBinContent(ieta,iphi+1,reportMap->getBinContent(ieta,iphi));
+			  reportMap->setBinContent(ieta,iphi-1,reportMap->getBinContent(ieta,iphi));
+			  reportMap->setBinContent(ieta,iphi-2,reportMap->getBinContent(ieta,iphi));
+			}
+		    }
 		} //if (bincontent>-1)
 	    } // for (int iphi=1;...)
 	} // for (int ieta=1;...)
@@ -528,6 +555,8 @@ void HcalSummaryClient::analyze_subtask(SubTaskSummaryStatus &s)
 			}
 		      else if (HFpresent_)
 			{
+			  if (phi%2==0) continue; // skip non-physical phi bins
+			  if (abs(eta)>39 && phi%4!=3) continue; // skip non-physical phi bins
 			  HFstatus+=bincontent;
 			}
 		    } // if (bincontent>0)
@@ -568,6 +597,8 @@ void HcalSummaryClient::analyze_subtask(SubTaskSummaryStatus &s)
 			}
 		      else if (HFpresent_)
 			{
+			  if (phi%2==0) continue; // skip non-physical phi bins
+			  if (abs(eta)>39 && phi%4!=3) continue; // skip non-physical phi bins
 			  HFstatus+=bincontent;
 			}
 		    } // if (bincontent>0)
@@ -636,11 +667,13 @@ void HcalSummaryClient::analyze_subtask(SubTaskSummaryStatus &s)
 	    {
 	      for (int iphi=1; iphi<=phibins;++iphi)
 		{
+		  phi=iphi+int(phimin)-1;
+		  if (phi%2==0) continue; // skip non-physical phi bins
+
 		  bincontent=hist->GetBinContent(ieta,iphi);
 		  if (bincontent>0)
 		    {
 		      eta=ieta+int(etamin)-1;
-		      phi=iphi+int(phimin)-1;
 		      reportMap->Fill(eta,phi,bincontent);
 		      HEstatus+=bincontent;
 		    } // if (bincontent>0)
@@ -669,11 +702,12 @@ void HcalSummaryClient::analyze_subtask(SubTaskSummaryStatus &s)
 	    {
 	      for (int iphi=1; iphi<=phibins;++iphi)
 		{
+		  phi=iphi+int(phimin)-1;
+		  if (phi%2==0) continue; // skip non-physical phi bins
 		  bincontent=hist->GetBinContent(ieta,iphi);
 		  if (bincontent>0)
 		    {
 		      eta=ieta+int(etamin)-1;
-		      phi=iphi+int(phimin)-1;
 		      reportMap->Fill(eta,phi,bincontent); 
 		      HEstatus+=bincontent;
 		    } // if (bincontent>0)
@@ -702,6 +736,8 @@ void HcalSummaryClient::analyze_subtask(SubTaskSummaryStatus &s)
 	    {
 	      for (int iphi=1; iphi<=phibins;++iphi)
 		{
+		  phi=iphi+int(phimin)-1;
+		  if (phi%2==0) continue; // skip non-physical phi bins
 		  bincontent=hist->GetBinContent(ieta,iphi);
 		  if (bincontent>0)
 		    {
@@ -833,6 +869,7 @@ void HcalSummaryClient::resetSummaryPlot(int Subdet)
 	      if (validDetId((HcalSubdetector)Subdet,eta,phi,d))
 		hist->SetBinContent(ieta,iphi,0.);
 	    }
+
 	} // for (int iphi=1;iphi<=phibins;++iphi)
     } // for (int ieta=1; ieta<=etabins;++ieta)
   return;

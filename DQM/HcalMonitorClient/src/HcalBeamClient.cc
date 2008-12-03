@@ -474,7 +474,7 @@ void HcalBeamClient::getHistograms()
 
 void HcalBeamClient::analyze(void)
 {
-  jevt_++;
+  ++jevt_;
   if ( jevt_ % 10 == 0 ) 
     {
       if ( debug_>1 ) cout << "<HcalBeamClient::analyze>  Running analyze "<<endl;
@@ -1255,58 +1255,3 @@ void HcalBeamClient::loadHistograms(TFile* infile)
   return;
 
 }
-
-
-// Can't get these to work in base client yet
-
-void HcalBeamClient::getSJ6histos(const char* dir, const char* name, TH2F* h[6])
-{
-  TH2F* dummy=new TH2F();
-  ostringstream hname;
-  hname.str("");
-  hname <<process_.c_str()<<dir<<"HB HF Depth 1 "<<name;
-  h[0]=getAnyHisto(dummy, hname.str(),process_,dbe_,debug_,cloneME_);
-  hname.str("");
-  hname <<process_.c_str()<<dir<<"HB HF Depth 2 "<<name;
-  h[1]=getAnyHisto(dummy, hname.str(),process_,dbe_,debug_,cloneME_);
-  hname.str("");
-  hname <<process_.c_str()<<dir<<"HE Depth 3 "<<name;
-  h[2]=getAnyHisto(dummy, hname.str(),process_,dbe_,debug_,cloneME_);
-  hname.str("");
-  hname <<process_.c_str()<<dir<<"HO ZDC "<<name;
-  h[3]=getAnyHisto(dummy, hname.str(),process_,dbe_,debug_,cloneME_);
-  hname.str("");
-  hname <<process_.c_str()<<dir<<"HE Depth 1 "<<name;
-  h[4]=getAnyHisto(dummy, hname.str(),process_,dbe_,debug_,cloneME_);
-  hname.str("");
-  hname <<process_.c_str()<<dir<<"HE Depth 2 "<<name;
-  h[5]=getAnyHisto(dummy, hname.str(),process_,dbe_,debug_,cloneME_);
-  hname.str("");
-  return;
-} // void HcalBeamClient::getSJ6histos(2D)
-
-
-void HcalBeamClient::getSJ6histos(const char* dir, const char* name, TH1F* h[6])
-{
-  TH1F* dummy=new TH1F();
-  ostringstream hname;
-  hname <<process_.c_str()<<dir<<"HB HF Depth 1 "<<name;
-  h[0]=getAnyHisto(dummy, hname.str(),process_,dbe_,debug_,cloneME_);
-  hname.str("");
-  hname <<process_.c_str()<<dir<<"HB HF Depth 2 "<<name;
-  h[1]=getAnyHisto(dummy, hname.str(),process_,dbe_,debug_,cloneME_);
-  hname.str("");
-  hname <<process_.c_str()<<dir<<"HE Depth 3 "<<name;
-  h[2]=getAnyHisto(dummy, hname.str(),process_,dbe_,debug_,cloneME_);
-  hname.str("");
-  hname <<process_.c_str()<<dir<<"HO ZDC "<<name;
-  h[3]=getAnyHisto(dummy, hname.str(),process_,dbe_,debug_,cloneME_);
-  hname.str("");
-  hname <<process_.c_str()<<dir<<"HE Depth 1 "<<name;
-  h[4]=getAnyHisto(dummy, hname.str(),process_,dbe_,debug_,cloneME_);
-  hname.str("");
-  hname <<process_.c_str()<<dir<<"HE Depth 2 "<<name;
-  h[5]=getAnyHisto(dummy, hname.str(),process_,dbe_,debug_,cloneME_);
-  hname.str("");
-  return;
-} // void HcalBeamClient::getSJ6histos(1D)

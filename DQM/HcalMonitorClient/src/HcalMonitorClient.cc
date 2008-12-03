@@ -188,7 +188,8 @@ void HcalMonitorClient::initialize(const ParameterSet& ps){
 
   // set parameters   
   prescaleEvt_ = ps.getUntrackedParameter<int>("diagnosticPrescaleEvt", -1);
-  if (debug_>0) cout << "===>DQM event prescale = " << prescaleEvt_ << " event(s)"<< endl;
+  //if (debug_>0) 
+    cout << "===>DQM event prescale = " << prescaleEvt_ << " event(s)"<< endl;
 
   prescaleLS_ = ps.getUntrackedParameter<int>("diagnosticPrescaleLS", -1);
   if (debug_>0) cout << "===>DQM lumi section prescale = " << prescaleLS_ << " lumi section(s)"<< endl;
@@ -430,7 +431,8 @@ void HcalMonitorClient::endLuminosityBlock(const LuminosityBlock &l, const Event
 //--------------------------------------------------------
 void HcalMonitorClient::analyze(const Event& e, const edm::EventSetup& eventSetup){
 
-  if (debug_>1) cout <<"Entered HcalMonitorClient::analyze(const Evt...)"<<endl;
+  if (debug_>1) 
+    cout <<"Entered HcalMonitorClient::analyze(const Evt...)"<<endl;
   
   if(resetEvents_>0 && (ievent_%resetEvents_)==0) resetAllME();
   if(resetLS_>0 && (ilumisec_%resetLS_)==0) resetAllME();
@@ -472,7 +474,7 @@ void HcalMonitorClient::analyze(const Event& e, const edm::EventSetup& eventSetu
 
 //--------------------------------------------------------
 void HcalMonitorClient::analyze(){
-  if (debug_>1) 
+  //if (debug_>1) 
     cout <<"Entered HcalMonitorClient::analyze()"<<endl;
 
   //nevt_++; // counter not currently displayed anywhere 
@@ -563,6 +565,13 @@ void HcalMonitorClient::analyze(){
     { 
       cpu_timer.stop(); 
       if (ct_client_) cout <<"TIMER:: CT CLIENT ->"<<cpu_timer.cpuTime()<<endl; 
+      cpu_timer.reset(); cpu_timer.start(); 
+    } 
+  if( beam_client_ )         beam_client_->analyze(); 
+  if (showTiming_) 
+    { 
+      cpu_timer.stop(); 
+      if (beam_client_) cout <<"TIMER:: BEAM CLIENT ->"<<cpu_timer.cpuTime()<<endl; 
       cpu_timer.reset(); cpu_timer.start(); 
     } 
 
