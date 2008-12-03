@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:42:33 EST 2008
-// $Id: ElectronDetailView.h,v 1.4 2008/07/01 05:03:25 jmuelmen Exp $
+// $Id: ElectronDetailView.h,v 1.6 2008/11/19 17:26:14 jmuelmen Exp $
 //
 
 // system include files
@@ -32,6 +32,7 @@
 
 class FWEventItem;
 class TEveElementList;
+class TEveTrans;
 namespace reco {
      class GsfElectron;
 }
@@ -85,6 +86,8 @@ private:
      double x_max;
      double y_min;
      double y_max;
+     static void  rescale (TEveTrans *trans, double x_min, double x_max, 
+			   double y_min, double y_max);
 };
 
 #endif
