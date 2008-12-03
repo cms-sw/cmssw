@@ -129,6 +129,13 @@ namespace {
 }
 }
 
+#include "CondFormats/EcalObjects/interface/EcalTPGTowerStatus.h"
+namespace {
+namespace {   
+  std::map< uint32_t, uint16_t> EcalTPGTowerStatusMap;
+}
+}
+
 #include "CondFormats/EcalObjects/interface/EcalTPGGroups.h"
 namespace {
 namespace {   
@@ -206,3 +213,10 @@ namespace {
 }
 }
 
+#include "CondFormats/EcalObjects/interface/EcalTPGCrystalStatus.h"
+#include "CondFormats/EcalObjects/interface/EcalTPGCrystalStatusCode.h"
+namespace {
+namespace {
+  EcalTPGCrystalStatus tpgCrystalStatus;
+}
+}

@@ -22,6 +22,9 @@
 <class name="EcalChannelStatus"/>
 <class name="EcalChannelStatusCode"/>
 
+<class name="EcalTPGCrystalStatus"/>
+<class name="EcalTPGCrystalStatusCode"/>
+
 <class name="EcalLaserAPDPNRatios"/>
 <class name="EcalLaserAPDPNRatios::EcalLaserTimeStamp"/>
 <class name="std::vector<EcalLaserAPDPNRatios::EcalLaserTimeStamp>"/>
@@ -38,6 +41,7 @@
 <class name="EcalTPGFineGrainStripEE"/>
 <class name="EcalTPGFineGrainStripEE::Item"/>
 <class name="EcalTPGFineGrainTowerEE"/>
+<class name="EcalTPGTowerStatus"/>
 <class name="EcalTPGGroups"/>
 <class name="EcalTPGLinearizationConst"/>
 <class name="EcalTPGLut"/>
