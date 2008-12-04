@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:11 CDT 2008
-// $Id: CSGAction.cc,v 1.15 2008/12/04 11:55:46 amraktad Exp $
+// $Id: CSGAction.cc,v 1.16 2008/12/04 12:37:16 amraktad Exp $
 //
 
 // system include files
@@ -153,7 +153,7 @@ void CSGAction::createDelaySlider(TGCompositeFrame* p, Int_t min, Int_t max, con
    if (m_slider != 0)
       delete m_slider;
    
-   m_slider = new TGHSlider(p, 109, 3, kSlider1 | kScaleNo);
+   m_slider = new TGHSlider(p, 109, 100, kSlider1 | kScaleNo);
    p->AddFrame(m_slider, l);
 
    m_slider->SetRange(min, max);
