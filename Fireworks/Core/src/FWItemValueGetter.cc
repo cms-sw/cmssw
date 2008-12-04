@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sun Nov 30 16:15:43 EST 2008
-// $Id$
+// $Id: FWItemValueGetter.cc,v 1.1 2008/12/01 00:51:22 chrjones Exp $
 //
 
 // system include files
@@ -54,9 +54,9 @@ namespace {
                              const ROOT::Reflex::Object& iObj) {
       std::stringstream s;
       s.setf(std::ios_base::fixed,std::ios_base::floatfield);
-      s.precision(2);
+      s.precision(1);
       T temp = *(reinterpret_cast<T*>(iObj.Address()));
-      s<<iName <<":"<<temp<<" "<<iUnit;
+      s<<iName <<": "<<temp<<" "<<iUnit;
       return s.str();
    }
    
