@@ -1,8 +1,8 @@
 /*
  * \file EETriggerTowerClient.cc
  *
- * $Date: 2008/09/06 08:57:29 $
- * $Revision: 1.79 $
+ * $Date: 2008/09/06 09:52:43 $
+ * $Revision: 1.80 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -68,6 +68,7 @@ EETriggerTowerClient::EETriggerTowerClient(const ParameterSet& ps) {
     l01_[ism-1] = 0;
     m01_[ism-1] = 0;
     n01_[ism-1] = 0;
+    o01_[ism-1] = 0;
 
     meh01_ = 0;
     meh02_ = 0;
@@ -80,6 +81,7 @@ EETriggerTowerClient::EETriggerTowerClient(const ParameterSet& ps) {
     mel01_[ism-1] = 0;
     mem01_[ism-1] = 0;
     men01_[ism-1] = 0;
+    meo01_[ism-1] = 0;
 
 //     for (int j=0; j<34; j++) {
 //
@@ -103,6 +105,7 @@ EETriggerTowerClient::EETriggerTowerClient(const ParameterSet& ps) {
       me_j02_[ism-1][j] = 0;
       me_m01_[ism-1][j] = 0;
     }
+    me_o01_[ism-1] = 0;
 
   }
 
@@ -210,6 +213,11 @@ void EETriggerTowerClient::setup(void) {
       me_m01_[ism-1][j]->setAxisTitle("jx", 1);
       me_m01_[ism-1][j]->setAxisTitle("jy", 2);
     }
+    if ( me_o01_[ism-1] ) dqmStore_->removeElement( me_o01_[ism-1]->getName() );
+    sprintf(histo, "EETTT Trigger Primitives Timing %s", Numbers::sEB(ism).c_str());
+    me_o01_[ism-1] = dqmStore_->book2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
+    me_o01_[ism-1]->setAxisTitle("jx", 1);
+    me_o01_[ism-1]->setAxisTitle("jy", 2);
 
   }
 
@@ -229,6 +237,7 @@ void EETriggerTowerClient::setup(void) {
       if ( me_j02_[ism-1][j] ) me_j02_[ism-1][j]->Reset();
       if ( me_m01_[ism-1][j] ) me_m01_[ism-1][j]->Reset();
     }
+    if ( me_o01_[ism-1] ) me_o01_[ism-1]->Reset();
 
   }
 
@@ -258,6 +267,7 @@ void EETriggerTowerClient::cleanup(void) {
       if ( l01_[ism-1] ) delete l01_[ism-1];
       if ( m01_[ism-1] ) delete m01_[ism-1];
       if ( n01_[ism-1] ) delete n01_[ism-1];
+      if ( o01_[ism-1] ) delete o01_[ism-1];
     }
 
     i01_[ism-1] = 0;
@@ -268,6 +278,7 @@ void EETriggerTowerClient::cleanup(void) {
     l01_[ism-1] = 0;
     m01_[ism-1] = 0;
     n01_[ism-1] = 0;
+    o01_[ism-1] = 0;
 
     meh01_ = 0;
     meh02_ = 0;
@@ -280,6 +291,7 @@ void EETriggerTowerClient::cleanup(void) {
     mel01_[ism-1] = 0;
     mem01_[ism-1] = 0;
     men01_[ism-1] = 0;
+    meo01_[ism-1] = 0;
 
 //     for (int j=0; j<34; j++) {
 //
@@ -324,6 +336,8 @@ void EETriggerTowerClient::cleanup(void) {
       if ( me_m01_[ism-1][j] ) dqmStore_->removeElement( me_m01_[ism-1][j]->getName() );
       me_m01_[ism-1][j] = 0;
     }
+    if ( me_o01_[ism-1] ) dqmStore_->removeElement( me_o01_[ism-1]->getName() );
+    me_o01_[ism-1] = 0;
 
   }
 
@@ -433,6 +447,11 @@ void EETriggerTowerClient::analyze(const char* nameext,
       n01_[ism-1] = UtilsClient::getHisto<TH3F*>( me, cloneME_, n01_[ism-1] );
       men01_[ism-1] = me;
 
+      sprintf(histo, (prefixME_ + "/%s/EETTT EmulMatch %s").c_str(), folder, Numbers::sEE(ism).c_str());
+      me = dqmStore_->get(histo);
+      o01_[ism-1] = UtilsClient::getHisto<TH3F*>( me, cloneME_, o01_[ism-1] );
+      meo01_[ism-1] = me;
+
     }
 
     //     for (int j=0; j<34; j++) {
@@ -461,6 +480,7 @@ void EETriggerTowerClient::analyze(const char* nameext,
       if ( me_j02_[ism-1][j] ) me_j02_[ism-1][j]->Reset();
       if ( me_m01_[ism-1][j] ) me_m01_[ism-1][j]->Reset();
     }
+    if ( me_o01_[ism-1] ) me_o01_[ism-1]->Reset();
 
     for (int ix = 1; ix <= 50; ix++) {
       for (int iy = 1; iy <= 50; iy++) {
@@ -512,6 +532,21 @@ void EETriggerTowerClient::analyze(const char* nameext,
               me_m01_[ism-1][j]->Fill(jx-0.5, jy-0.5, m01_[ism-1]->GetBinContent(ix, iy, j+2));
               me_m01_[ism-1][j]->Fill(jx-0.5, jy-0.5, m01_[ism-1]->GetBinContent(ix, iy, j+3));
             }
+          }
+        }
+        if ( o01_[ism-1] ) {
+          float index=-1;
+          double max=0;
+          for (int j=0; j<6; j++) {
+            double sampleEntries = o01_[ism-1]->GetBinContent(jx, jy, j+1);
+            if(sampleEntries > max) {
+              index=j;
+              max = sampleEntries;
+            }
+          }
+          if ( max > 0 ) {
+            if ( index == 0 ) me_o01_[ism-1]->setBinContent(jx, jy, -1);
+            else me_o01_[ism-1]->setBinContent(jx, jy, index );
           }
         }
 

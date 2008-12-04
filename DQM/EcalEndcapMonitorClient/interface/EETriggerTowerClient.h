@@ -4,8 +4,8 @@
 /*
  * \file EETriggerTowerClient.h
  *
- * $Date: 2008/09/05 13:38:05 $
- * $Revision: 1.28 $
+ * $Date: 2008/09/06 08:01:50 $
+ * $Revision: 1.29 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -107,6 +107,7 @@ MonitorElement* mej02_[18];
 MonitorElement* mel01_[18];
 MonitorElement* mem01_[18];
 MonitorElement* men01_[18];
+MonitorElement* meo01_[18];
 
 TH2F* h01_;
 TH2F* h02_;
@@ -118,6 +119,7 @@ TH3F* j02_[18];
 TH2F* l01_[18];
 TH3F* m01_[18];
 TH3F* n01_[18];
+TH3F* o01_[18];
 
 //MonitorElement* mek01_[18][34];
 //MonitorElement* mek02_[18][34];
@@ -135,6 +137,7 @@ MonitorElement* me_n01_[18][2];
 MonitorElement* me_j01_[18][6];
 MonitorElement* me_j02_[18][6];
 MonitorElement* me_m01_[18][6];
+MonitorElement* me_o01_[18];
 
 };
 

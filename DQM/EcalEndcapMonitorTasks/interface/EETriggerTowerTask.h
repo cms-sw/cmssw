@@ -4,8 +4,8 @@
 /*
  * \file EETriggerTowerTask.h
  *
- * $Date: 2008/05/11 09:35:11 $
- * $Revision: 1.15 $
+ * $Date: 2008/09/05 13:38:06 $
+ * $Revision: 1.16 $
  * \author C. Bernet
  *
 */
@@ -76,7 +76,8 @@ class EETriggerTowerTask : public edm::EDAnalyzer {
   void reserveArray( array1& array );
 
   /// process a collection of digis, either real or emulated
-  void processDigis( const edm::Handle<EcalTrigPrimDigiCollection>& digis, 
+  void processDigis( const edm::Event& e,
+                     const edm::Handle<EcalTrigPrimDigiCollection>& digis, 
 		     MonitorElement* meEtMap,
 		     array1& meVeto,
 		     array1& meFlags,
@@ -115,6 +116,7 @@ class EETriggerTowerTask : public edm::EDAnalyzer {
   /// the error flag is set to true in case of a discrepancy between 
   /// the emulator and the real data
   array1 meEmulError_;
+  array1 meEmulMatch_;
   array1 meVetoEmulError_;
   array1 meFlagEmulError_;
 
@@ -139,6 +141,9 @@ class EETriggerTowerTask : public edm::EDAnalyzer {
   /// to find the input collection of emulated digis
   edm::InputTag emulCollection_;
   
+  /// to find the input collection of crystal digis
+  edm::InputTag EEDigiCollection_;
+
   /// debug output root file. if empty, no output file created.
   std::string outputFile_;
 

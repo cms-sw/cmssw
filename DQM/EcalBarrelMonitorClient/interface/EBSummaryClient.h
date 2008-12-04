@@ -4,8 +4,8 @@
 /*
  * \file EBSummaryClient.h
  *
- * $Date: 2008/06/25 14:16:15 $
- * $Revision: 1.38 $
+ * $Date: 2008/06/25 15:08:17 $
+ * $Revision: 1.39 $
  * \author G. Della Ricca
  *
 */
@@ -120,6 +120,7 @@ MonitorElement* meCosmic_;
 MonitorElement* meTiming_;
 MonitorElement* meTriggerTowerEt_;
 MonitorElement* meTriggerTowerEmulError_;
+MonitorElement* meTriggerTowerTiming_;
 
 MonitorElement* meGlobalSummary_;
 

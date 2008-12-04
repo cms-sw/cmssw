@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2008/09/04 08:51:04 $
- * $Revision: 1.151 $
+ * $Date: 2008/11/10 18:18:04 $
+ * $Revision: 1.152 $
  * \author G. Della Ricca
  *
 */
@@ -104,6 +104,8 @@ EESummaryClient::EESummaryClient(const ParameterSet& ps) {
   meTriggerTowerEt_[1]        = 0;
   meTriggerTowerEmulError_[0] = 0;
   meTriggerTowerEmulError_[1] = 0;
+  meTriggerTowerTiming_[0] = 0;
+  meTriggerTowerTiming_[1] = 0;
 
   // summary errors
   meIntegrityErr_       = 0;
@@ -487,6 +489,18 @@ void EESummaryClient::setup(void) {
   meTriggerTowerEmulError_[1]->setAxisTitle("jx", 1);
   meTriggerTowerEmulError_[1]->setAxisTitle("jy", 2);
 
+  if( meTriggerTowerTiming_[0] ) dqmStore_->removeElement( meTriggerTowerTiming_[0]->getName() );
+  sprintf(histo, "EETTT EE - Trigger Primitives Timing summary");
+  meTriggerTowerTiming_[0] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+  meTriggerTowerTiming_[0]->setAxisTitle("jx", 1);
+  meTriggerTowerTiming_[0]->setAxisTitle("jy", 2);
+
+  if( meTriggerTowerTiming_[1] ) dqmStore_->removeElement( meTriggerTowerTiming_[1]->getName() );
+  sprintf(histo, "EETTT EE + Trigger Primitives Timing summary");
+  meTriggerTowerTiming_[1] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+  meTriggerTowerTiming_[1]->setAxisTitle("jx", 1);
+  meTriggerTowerTiming_[1]->setAxisTitle("jy", 2);
+
   if( meGlobalSummary_[0] ) dqmStore_->removeElement( meGlobalSummary_[0]->getName() );
   sprintf(histo, "EE global summary EE -");
   meGlobalSummary_[0] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
@@ -639,6 +653,12 @@ void EESummaryClient::cleanup(void) {
   if ( meTriggerTowerEmulError_[1] ) dqmStore_->removeElement( meTriggerTowerEmulError_[1]->getName() );
   meTriggerTowerEmulError_[1] = 0;
 
+  if ( meTriggerTowerTiming_[0] ) dqmStore_->removeElement( meTriggerTowerTiming_[0]->getName() );
+  meTriggerTowerTiming_[0] = 0;
+
+  if ( meTriggerTowerTiming_[1] ) dqmStore_->removeElement( meTriggerTowerTiming_[1]->getName() );
+  meTriggerTowerTiming_[1] = 0;
+
   if ( meGlobalSummary_[0] ) dqmStore_->removeElement( meGlobalSummary_[0]->getName() );
   meGlobalSummary_[0] = 0;
 
@@ -716,6 +736,8 @@ void EESummaryClient::analyze(void) {
       meTriggerTowerEt_[1]->setBinContent( ix, iy, 0. );
       meTriggerTowerEmulError_[0]->setBinContent( ix, iy, 6. );
       meTriggerTowerEmulError_[1]->setBinContent( ix, iy, 6. );
+      meTriggerTowerTiming_[0]->setBinContent( ix, iy, -1 );
+      meTriggerTowerTiming_[1]->setBinContent( ix, iy, -1 );
     }
   }
 
@@ -765,6 +787,8 @@ void EESummaryClient::analyze(void) {
   meTriggerTowerEt_[1]->setEntries( 0 );
   meTriggerTowerEmulError_[0]->setEntries( 0 );
   meTriggerTowerEmulError_[1]->setEntries( 0 );
+  meTriggerTowerTiming_[0]->setEntries( 0 );
+  meTriggerTowerTiming_[1]->setEntries( 0 );
 
   meGlobalSummary_[0]->setEntries( 0 );
   meGlobalSummary_[1]->setEntries( 0 );
@@ -1101,6 +1125,20 @@ void EESummaryClient::analyze(void) {
                 if ( xval > 0 ) {
                   meTriggerTowerEt_[1]->setBinContent( jx, jy, xval );
                 }
+              }
+
+            }
+
+            me = eetttc->me_o01_[ism-1];
+
+            if ( me ) {
+
+              float xval = me->getBinContent( ix, iy );
+
+              if ( ism >= 1 && ism <= 9 ) {
+                meTriggerTowerTiming_[0]->setBinContent( 101 - jx, jy, xval );
+              } else {
+                meTriggerTowerTiming_[1]->setBinContent( jx, jy, xval );
               }
 
             }
