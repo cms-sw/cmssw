@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.79 2008/11/14 16:44:03 chrjones Exp $
+// $Id: FWGUIManager.cc,v 1.80 2008/11/28 22:23:13 amraktad Exp $
 //
 
 // system include files
@@ -236,14 +236,15 @@ FWGUIManager::parentForNextView()
       if(! splitParent->GetSecond()) {
          if(splitParent == m_splitFrame) {
             //want to split vertically
-            splitParent->SplitHorizontal();
+            splitParent->SplitVertical();
             //need to do a reasonable sizing
             //TODO CDJ: how do I determine the true size if layout hasn't run yet?
             int width = m_splitFrame->GetWidth();
             int height = m_splitFrame->GetHeight();
-            m_splitFrame->GetFirst()->Resize(width,static_cast<int>(0.8*height));
+	    //  m_splitFrame->GetFirst()->Resize(static_cast<int>(width*0.8),static_cast<int>(0*height));
+            m_splitFrame->GetFirst()->Resize(static_cast<int>(width*0.8), height);
          } else {
-            splitParent->SplitVertical();
+            splitParent->SplitHorizontal();
          }
       }
       splitParent = splitParent->GetSecond();
