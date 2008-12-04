@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:23 CDT 2008
-// $Id: CmsShowMainFrame.cc,v 1.28 2008/12/01 19:27:29 amraktad Exp $
+// $Id: CmsShowMainFrame.cc,v 1.29 2008/12/04 12:39:36 amraktad Exp $
 //
 
 // system include files
@@ -352,7 +352,7 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    csArea->GetFirst()->AddFrame(m_manager->createList(csArea->GetFirst()), new TGLayoutHints(kLHintsLeft | kLHintsExpandX | kLHintsExpandY));
    TGTab *tabFrame = new TGTab(csArea->GetSecond(), csArea->GetSecond()->GetWidth(), csArea->GetSecond()->GetHeight());
 
-   m_manager->createViews(tabFrame);
+   tabFrame->AddTab("Views",m_manager->createViews(tabFrame));
 
    csArea->GetSecond()->AddFrame(tabFrame, new TGLayoutHints(kLHintsLeft | kLHintsExpandX | kLHintsExpandY));
    m_manager->createTextView(tabFrame);
