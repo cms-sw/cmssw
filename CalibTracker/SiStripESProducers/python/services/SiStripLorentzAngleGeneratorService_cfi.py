@@ -2,7 +2,6 @@ import FWCore.ParameterSet.Config as cms
 
 
 SiStripLorentzAngleGenerator = cms.Service("SiStripLorentzAngleGenerator",
-                                           appendToDataLabel = cms.string(''),
                                            TemperatureError = cms.double(10.0),
                                            Temperature = cms.double(297.0),
                                            HoleRHAllParameter = cms.double(0.7),
