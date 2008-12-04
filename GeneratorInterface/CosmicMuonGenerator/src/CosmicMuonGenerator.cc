@@ -248,8 +248,8 @@ void CosmicMuonGenerator::initEvDis(){
   disC->Divide(2,1);
   disC->cd(1);
   gPad->SetTicks(1,1);
-  disXY->SetMinimum(log10(MinE));
-  disXY->SetMaximum(log10(MaxE));
+  disXY->SetMinimum(log10(MinP));
+  disXY->SetMaximum(log10(MaxP));
   disXY->GetXaxis()->SetLabelSize(0.05);
   disXY->GetXaxis()->SetTitleSize(0.05);
   disXY->GetXaxis()->SetTitleOffset(1.0);
@@ -261,8 +261,8 @@ void CosmicMuonGenerator::initEvDis(){
   disC->cd(2);
   gPad->SetGrid(1,1);
   gPad->SetTicks(1,1);
-  disZY->SetMinimum(log10(MinE));
-  disZY->SetMaximum(log10(MaxE));
+  disZY->SetMinimum(log10(MinP));
+  disZY->SetMaximum(log10(MaxP));
   disZY->GetXaxis()->SetLabelSize(0.05);
   disZY->GetXaxis()->SetTitleSize(0.05);
   disZY->GetXaxis()->SetTitleOffset(1.0);
