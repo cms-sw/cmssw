@@ -2,8 +2,8 @@
  *  Class:PostProcessor 
  *
  *
- *  $Date: 2008/11/05 17:28:44 $
- *  $Revision: 1.8 $
+ *  $Date: 2008/11/24 16:14:39 $
+ *  $Revision: 1.10 $
  * 
  *  \author Junghwan Goh - SungKyunKwan University
  */
@@ -41,7 +41,7 @@ void PostProcessor::endJob()
   theDQM = Service<DQMStore>().operator->();
 
   if ( ! theDQM ) {
-    LogInfo("PostProcessor") << "Cannot create DQMStore instance\n";
+    LogError("PostProcessor") << "Cannot create DQMStore instance\n";
     return;
   }
 
@@ -89,7 +89,7 @@ void PostProcessor::endJob()
       }
 
       if ( args.size() != 4 ) {
-        cout << "Wrong input to effCmds\n";
+        LogError("PostProcessor") << "Wrong input to effCmds\n";
         continue;
       }
 
@@ -108,7 +108,7 @@ void PostProcessor::endJob()
       }
 
       if ( args.size() != 3 ) {
-        cout << "Wrong input to resCmds\n";
+        LogError("PostProcessor") << "Wrong input to resCmds\n";
         continue;
       }
 
@@ -125,7 +125,7 @@ void PostProcessor::computeEfficiency(const string& startDir, const string& effi
                                       const string& recoMEName, const string& simMEName)
 {
   if ( ! theDQM->dirExists(startDir) ) {
-    LogError("PostProcessor") << "computeEfficiency() : Cannot find sub-directory " << startDir << endl; 
+    LogWarning("PostProcessor") << "computeEfficiency() : Cannot find sub-directory " << startDir << endl; 
     return;
   }
 
@@ -135,13 +135,13 @@ void PostProcessor::computeEfficiency(const string& startDir, const string& effi
   ME* recoME = theDQM->get(startDir+"/"+recoMEName);
 
   if ( !simME ) {
-    LogError("PostProcessor") << "computeEfficiency() : "
+    LogWarning("PostProcessor") << "computeEfficiency() : "
                               << "No sim-ME '" << simMEName << "' found\n";
     return;
   }
 
   if ( !recoME ) {
-    LogError("PostProcessor") << "computeEfficiency() : " 
+    LogWarning("PostProcessor") << "computeEfficiency() : " 
                               << "No reco-ME '" << recoMEName << "' found\n";
     return;
   }
@@ -149,7 +149,7 @@ void PostProcessor::computeEfficiency(const string& startDir, const string& effi
   TH1F* hSim  = simME ->getTH1F();
   TH1F* hReco = recoME->getTH1F();
   if ( !hSim || !hReco ) {
-    LogError("PostProcessor") << "computeEfficiency() : Cannot create TH1F from ME\n";
+    LogWarning("PostProcessor") << "computeEfficiency() : Cannot create TH1F from ME\n";
     return;
   }
 
@@ -164,7 +164,7 @@ void PostProcessor::computeEfficiency(const string& startDir, const string& effi
   ME* efficME = theDQM->book1D(newEfficMEName, efficMETitle, hSim->GetNbinsX(), hSim->GetXaxis()->GetXmin(), hSim->GetXaxis()->GetXmax()); 
 
   if ( !efficME ) {
-    LogError("PostProcessor") << "computeEfficiency() : Cannot book effic-ME from the DQM\n";
+    LogWarning("PostProcessor") << "computeEfficiency() : Cannot book effic-ME from the DQM\n";
     return;
   }
 
@@ -195,7 +195,7 @@ void PostProcessor::computeResolution(const string& startDir, const string& name
                                       const std::string& srcName)
 {
   if ( ! theDQM->dirExists(startDir) ) {
-    LogError("PostProcessor") << "computeResolution() : Cannot find sub-directory " << startDir << endl;
+    LogWarning("PostProcessor") << "computeResolution() : Cannot find sub-directory " << startDir << endl;
     return;
   }
 
@@ -203,13 +203,13 @@ void PostProcessor::computeResolution(const string& startDir, const string& name
 
   ME* srcME = theDQM->get(startDir+"/"+srcName);
   if ( !srcME ) {
-    LogError("PostProcessor") << "computeResolution() : No source ME '" << srcName << "' found\n";
+    LogWarning("PostProcessor") << "computeResolution() : No source ME '" << srcName << "' found\n";
     return;
   }
 
   TH2F* hSrc = srcME->getTH2F();
   if ( !hSrc ) {
-    LogError("PostProcessor") << "computeResolution() : Cannot create TH2F from source-ME\n";
+    LogWarning("PostProcessor") << "computeResolution() : Cannot create TH2F from source-ME\n";
     return;
   }
 
