@@ -1,8 +1,8 @@
 /*
  * \file EETimingTask.cc
  *
- * $Date: 2008/12/03 12:55:50 $
- * $Revision: 1.37 $
+ * $Date: 2008/12/03 13:55:44 $
+ * $Revision: 1.38 $
  * \author G. Della Ricca
  *
 */
@@ -158,7 +158,7 @@ void EETimingTask::analyze(const Event& e, const EventSetup& c){
 
       int ism = Numbers::iSM( *dcchItr, EcalBarrel );
 
-      runType[ism] = runType[ism];
+      runType[ism-1] = dcchItr->getRunType();
 
       if ( dcchItr->getRunType() == EcalDCCHeaderBlock::COSMIC ||
            dcchItr->getRunType() == EcalDCCHeaderBlock::MTCC ||
@@ -205,12 +205,12 @@ void EETimingTask::analyze(const Event& e, const EventSetup& c){
 
       if ( isData ) {
 
-        if ( ! ( runType[ism] == EcalDCCHeaderBlock::COSMIC ||
-                 runType[ism] == EcalDCCHeaderBlock::MTCC ||
-                 runType[ism] == EcalDCCHeaderBlock::COSMICS_GLOBAL ||
-                 runType[ism] == EcalDCCHeaderBlock::PHYSICS_GLOBAL ||
-                 runType[ism] == EcalDCCHeaderBlock::COSMICS_LOCAL ||
-                 runType[ism] == EcalDCCHeaderBlock::PHYSICS_LOCAL ) ) continue;
+        if ( ! ( runType[ism-1] == EcalDCCHeaderBlock::COSMIC ||
+                 runType[ism-1] == EcalDCCHeaderBlock::MTCC ||
+                 runType[ism-1] == EcalDCCHeaderBlock::COSMICS_GLOBAL ||
+                 runType[ism-1] == EcalDCCHeaderBlock::PHYSICS_GLOBAL ||
+                 runType[ism-1] == EcalDCCHeaderBlock::COSMICS_LOCAL ||
+                 runType[ism-1] == EcalDCCHeaderBlock::PHYSICS_LOCAL ) ) continue;
 
       }
 

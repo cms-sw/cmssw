@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalTask.cc
  *
- * $Date: 2008/12/03 14:44:45 $
- * $Revision: 1.89 $
+ * $Date: 2008/12/03 15:03:16 $
+ * $Revision: 1.90 $
  * \author G. Della Ricca
  *
 */
@@ -278,7 +278,7 @@ void EBPedestalTask::analyze(const Event& e, const EventSetup& c){
 
       int ism = Numbers::iSM( *dcchItr, EcalBarrel );
 
-      runType[ism] = runType[ism];
+      runType[ism-1] = dcchItr->getRunType();
 
       if ( dcchItr->getRunType() == EcalDCCHeaderBlock::PEDESTAL_STD || 
            dcchItr->getRunType() == EcalDCCHeaderBlock::PEDESTAL_GAP ) enable = true;
@@ -333,8 +333,8 @@ void EBPedestalTask::analyze(const Event& e, const EventSetup& c){
       float xie = ie - 0.5;
       float xip = ip - 0.5;
 
-      if ( ! ( runType[ism] == EcalDCCHeaderBlock::PEDESTAL_STD ||
-               runType[ism] == EcalDCCHeaderBlock::PEDESTAL_GAP ) ) continue;
+      if ( ! ( runType[ism-1] == EcalDCCHeaderBlock::PEDESTAL_STD ||
+               runType[ism-1] == EcalDCCHeaderBlock::PEDESTAL_GAP ) ) continue;
 
       LogDebug("EBPedestalTask") << " det id = " << id;
       LogDebug("EBPedestalTask") << " sm, ieta, iphi " << ism << " " << ie << " " << ip;
@@ -455,8 +455,8 @@ void EBPedestalTask::analyze(const Event& e, const EventSetup& c){
 
       int num = pnItr->id().iPnId();
 
-      if ( ! ( runType[ism] == EcalDCCHeaderBlock::PEDESTAL_STD ||
-               runType[ism] == EcalDCCHeaderBlock::PEDESTAL_GAP ) ) continue;
+      if ( ! ( runType[ism-1] == EcalDCCHeaderBlock::PEDESTAL_STD ||
+               runType[ism-1] == EcalDCCHeaderBlock::PEDESTAL_GAP ) ) continue;
 
       LogDebug("EBPedestalTask") << " det id = " << pnItr->id();
       LogDebug("EBPedestalTask") << " sm, num " << ism << " " << num;

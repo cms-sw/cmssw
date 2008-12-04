@@ -1,8 +1,8 @@
 /*
  * \file EELedTask.cc
  *
- * $Date: 2008/12/03 14:44:53 $
- * $Revision: 1.45 $
+ * $Date: 2008/12/03 15:03:17 $
+ * $Revision: 1.46 $
  * \author G. Della Ricca
  *
 */
@@ -428,9 +428,9 @@ void EELedTask::analyze(const Event& e, const EventSetup& c){
 
       int ism = Numbers::iSM( *dcchItr, EcalEndcap );
 
-      runType[ism] = runType[ism];
-      rtHalf[ism] = dcchItr->getRtHalf();
-      waveLength[ism] = dcchItr->getEventSettings().wavelength;
+      runType[ism-1] = dcchItr->getRunType();
+      rtHalf[ism-1] = dcchItr->getRtHalf();
+      waveLength[ism-1] = dcchItr->getEventSettings().wavelength;
 
       if ( dcchItr->getRunType() == EcalDCCHeaderBlock::LED_STD ||
            dcchItr->getRunType() == EcalDCCHeaderBlock::LED_GAP ) enable = true;
@@ -465,11 +465,11 @@ void EELedTask::analyze(const Event& e, const EventSetup& c){
 
       int ism = Numbers::iSM( id );
 
-      if ( ! ( runType[ism] == EcalDCCHeaderBlock::LED_STD ||
-               runType[ism] == EcalDCCHeaderBlock::LED_GAP ) ) continue;
+      if ( ! ( runType[ism-1] == EcalDCCHeaderBlock::LED_STD ||
+               runType[ism-1] == EcalDCCHeaderBlock::LED_GAP ) ) continue;
 
-      if ( runType[ism] == EcalDCCHeaderBlock::LED_GAP &&
-           rtHalf[ism] != Numbers::RtHalf(id) ) continue;
+      if ( runType[ism-1] == EcalDCCHeaderBlock::LED_GAP &&
+           rtHalf[ism-1] != Numbers::RtHalf(id) ) continue;
 
       LogDebug("EELedTask") << " det id = " << id;
       LogDebug("EELedTask") << " sm, ix, iy " << ism << " " << ix << " " << iy;
@@ -491,13 +491,13 @@ void EELedTask::analyze(const Event& e, const EventSetup& c){
 
         if ( Numbers::RtHalf(id) == 0 ) {
 
-          if ( waveLength[ism] == 0 ) meShapeMap = meShapeMapL1A_[ism-1];
-          if ( waveLength[ism] == 1 ) meShapeMap = meShapeMapL2A_[ism-1];
+          if ( waveLength[ism-1] == 0 ) meShapeMap = meShapeMapL1A_[ism-1];
+          if ( waveLength[ism-1] == 1 ) meShapeMap = meShapeMapL2A_[ism-1];
 
         } else if ( Numbers::RtHalf(id) == 1 ) {
 
-          if ( waveLength[ism] == 0 ) meShapeMap = meShapeMapL1B_[ism-1];
-          if ( waveLength[ism] == 1 ) meShapeMap = meShapeMapL2B_[ism-1];
+          if ( waveLength[ism-1] == 0 ) meShapeMap = meShapeMapL1B_[ism-1];
+          if ( waveLength[ism-1] == 1 ) meShapeMap = meShapeMapL2B_[ism-1];
 
         } else {
 
@@ -543,8 +543,8 @@ void EELedTask::analyze(const Event& e, const EventSetup& c){
 
       int num = pnItr->id().iPnId();
 
-      if ( ! ( runType[ism] == EcalDCCHeaderBlock::LED_STD ||
-               runType[ism] == EcalDCCHeaderBlock::LED_GAP ) ) continue;
+      if ( ! ( runType[ism-1] == EcalDCCHeaderBlock::LED_STD ||
+               runType[ism-1] == EcalDCCHeaderBlock::LED_GAP ) ) continue;
 
       LogDebug("EELedTask") << " det id = " << pnItr->id();
       LogDebug("EELedTask") << " sm, num " << ism << " " << num;
@@ -558,12 +558,12 @@ void EELedTask::analyze(const Event& e, const EventSetup& c){
         MonitorElement* mePNPed = 0;
 
         if ( pnItr->sample(i).gainId() == 0 ) {
-          if ( waveLength[ism] == 0 ) mePNPed = mePnPedMapG01L1_[ism-1];
-          if ( waveLength[ism] == 1 ) mePNPed = mePnPedMapG01L2_[ism-1];
+          if ( waveLength[ism-1] == 0 ) mePNPed = mePnPedMapG01L1_[ism-1];
+          if ( waveLength[ism-1] == 1 ) mePNPed = mePnPedMapG01L2_[ism-1];
         }
         if ( pnItr->sample(i).gainId() == 1 ) {
-          if ( waveLength[ism] == 0 ) mePNPed = mePnPedMapG16L1_[ism-1];
-          if ( waveLength[ism] == 1 ) mePNPed = mePnPedMapG16L2_[ism-1];
+          if ( waveLength[ism-1] == 0 ) mePNPed = mePnPedMapG16L1_[ism-1];
+          if ( waveLength[ism-1] == 1 ) mePNPed = mePnPedMapG16L2_[ism-1];
         }
 
         float xval = float(adc);
@@ -593,12 +593,12 @@ void EELedTask::analyze(const Event& e, const EventSetup& c){
       xvalmax = xvalmax - xvalped;
 
       if ( pnItr->sample(0).gainId() == 0 ) {
-        if ( waveLength[ism] == 0 ) mePN = mePnAmplMapG01L1_[ism-1];
-        if ( waveLength[ism] == 1 ) mePN = mePnAmplMapG01L2_[ism-1];
+        if ( waveLength[ism-1] == 0 ) mePN = mePnAmplMapG01L1_[ism-1];
+        if ( waveLength[ism-1] == 1 ) mePN = mePnAmplMapG01L2_[ism-1];
       }
       if ( pnItr->sample(0).gainId() == 1 ) {
-        if ( waveLength[ism] == 0 ) mePN = mePnAmplMapG16L1_[ism-1];
-        if ( waveLength[ism] == 1 ) mePN = mePnAmplMapG16L2_[ism-1];
+        if ( waveLength[ism-1] == 0 ) mePN = mePnAmplMapG16L1_[ism-1];
+        if ( waveLength[ism-1] == 1 ) mePN = mePnAmplMapG16L2_[ism-1];
       }
 
       if ( mePN ) mePN->Fill(num - 0.5, xvalmax);
@@ -635,11 +635,11 @@ void EELedTask::analyze(const Event& e, const EventSetup& c){
       float xix = ix - 0.5;
       float xiy = iy - 0.5;
 
-      if ( ! ( runType[ism] == EcalDCCHeaderBlock::LED_STD ||
-               runType[ism] == EcalDCCHeaderBlock::LED_GAP ) ) continue;
+      if ( ! ( runType[ism-1] == EcalDCCHeaderBlock::LED_STD ||
+               runType[ism-1] == EcalDCCHeaderBlock::LED_GAP ) ) continue;
 
-      if ( runType[ism] == EcalDCCHeaderBlock::LED_GAP &&
-           rtHalf[ism] != Numbers::RtHalf(id) ) continue;
+      if ( runType[ism-1] == EcalDCCHeaderBlock::LED_GAP &&
+           rtHalf[ism-1] != Numbers::RtHalf(id) ) continue;
 
       LogDebug("EELedTask") << " det id = " << id;
       LogDebug("EELedTask") << " sm, ix, iy " << ism << " " << ix << " " << iy;
@@ -650,12 +650,12 @@ void EELedTask::analyze(const Event& e, const EventSetup& c){
 
       if ( Numbers::RtHalf(id) == 0 ) {
 
-        if ( waveLength[ism] == 0 ) {
+        if ( waveLength[ism-1] == 0 ) {
           meAmplMap = meAmplMapL1A_[ism-1];
           meTimeMap = meTimeMapL1A_[ism-1];
           meAmplPNMap = meAmplPNMapL1A_[ism-1];
         }
-        if ( waveLength[ism] == 1 ) {
+        if ( waveLength[ism-1] == 1 ) {
           meAmplMap = meAmplMapL2A_[ism-1];
           meTimeMap = meTimeMapL2A_[ism-1];
           meAmplPNMap = meAmplPNMapL2A_[ism-1];
@@ -663,12 +663,12 @@ void EELedTask::analyze(const Event& e, const EventSetup& c){
 
       } else if ( Numbers::RtHalf(id) == 1 ) { 
 
-        if ( waveLength[ism] == 0 ) {
+        if ( waveLength[ism-1] == 0 ) {
           meAmplMap = meAmplMapL1B_[ism-1];
           meTimeMap = meTimeMapL1B_[ism-1];
           meAmplPNMap = meAmplPNMapL1B_[ism-1];
         }
-        if ( waveLength[ism] == 1 ) {
+        if ( waveLength[ism-1] == 1 ) {
           meAmplMap = meAmplMapL2B_[ism-1];
           meTimeMap = meTimeMapL2B_[ism-1];
           meAmplPNMap = meAmplPNMapL2B_[ism-1];

@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseTask.cc
  *
- * $Date: 2008/12/03 14:44:46 $
- * $Revision: 1.105 $
+ * $Date: 2008/12/03 15:03:16 $
+ * $Revision: 1.106 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -278,8 +278,8 @@ void EBTestPulseTask::analyze(const Event& e, const EventSetup& c){
 
       int ism = Numbers::iSM( *dcchItr, EcalBarrel );
 
-      runType[ism] = runType[ism];
-      mgpaGain[ism] = dcchItr->getMgpaGain();
+      runType[ism-1] = dcchItr->getRunType();
+      mgpaGain[ism-1] = dcchItr->getMgpaGain();
 
       if ( dcchItr->getRunType() == EcalDCCHeaderBlock::TESTPULSE_MGPA ||
            dcchItr->getRunType() == EcalDCCHeaderBlock::TESTPULSE_GAP ) enable = true;
@@ -315,8 +315,8 @@ void EBTestPulseTask::analyze(const Event& e, const EventSetup& c){
 
       int ism = Numbers::iSM( id );
 
-      if ( ! ( runType[ism] == EcalDCCHeaderBlock::TESTPULSE_MGPA ||
-               runType[ism] == EcalDCCHeaderBlock::TESTPULSE_GAP ) ) continue;
+      if ( ! ( runType[ism-1] == EcalDCCHeaderBlock::TESTPULSE_MGPA ||
+               runType[ism-1] == EcalDCCHeaderBlock::TESTPULSE_GAP ) ) continue;
 
       LogDebug("EBTestPulseTask") << " det id = " << id;
       LogDebug("EBTestPulseTask") << " sm, ieta, iphi " << ism << " " << ie << " " << ip;
@@ -334,9 +334,9 @@ void EBTestPulseTask::analyze(const Event& e, const EventSetup& c){
         if ( dataframe.sample(i).gainId() == 2 ) gain = 1./ 6.;
         if ( dataframe.sample(i).gainId() == 3 ) gain = 1./ 1.;
 
-        if ( mgpaGain[ism] == 3 ) meShapeMap = meShapeMapG01_[ism-1];
-        if ( mgpaGain[ism] == 2 ) meShapeMap = meShapeMapG06_[ism-1];
-        if ( mgpaGain[ism] == 1 ) meShapeMap = meShapeMapG12_[ism-1];
+        if ( mgpaGain[ism-1] == 3 ) meShapeMap = meShapeMapG01_[ism-1];
+        if ( mgpaGain[ism-1] == 2 ) meShapeMap = meShapeMapG06_[ism-1];
+        if ( mgpaGain[ism-1] == 1 ) meShapeMap = meShapeMapG12_[ism-1];
 
 //        float xval = float(adc) * gain;
         float xval = float(adc);
@@ -373,24 +373,24 @@ void EBTestPulseTask::analyze(const Event& e, const EventSetup& c){
       float xie = ie - 0.5;
       float xip = ip - 0.5;
 
-      if ( ! ( runType[ism] == EcalDCCHeaderBlock::TESTPULSE_MGPA ||
-               runType[ism] == EcalDCCHeaderBlock::TESTPULSE_GAP ) ) continue;
+      if ( ! ( runType[ism-1] == EcalDCCHeaderBlock::TESTPULSE_MGPA ||
+               runType[ism-1] == EcalDCCHeaderBlock::TESTPULSE_GAP ) ) continue;
 
       LogDebug("EBTestPulseTask") << " det id = " << id;
       LogDebug("EBTestPulseTask") << " sm, ieta, iphi " << ism << " " << ie << " " << ip;
 
       MonitorElement* meAmplMap = 0;
 
-      if ( mgpaGain[ism] == 3 ) meAmplMap = meAmplMapG01_[ism-1];
-      if ( mgpaGain[ism] == 2 ) meAmplMap = meAmplMapG06_[ism-1];
-      if ( mgpaGain[ism] == 1 ) meAmplMap = meAmplMapG12_[ism-1];
+      if ( mgpaGain[ism-1] == 3 ) meAmplMap = meAmplMapG01_[ism-1];
+      if ( mgpaGain[ism-1] == 2 ) meAmplMap = meAmplMapG06_[ism-1];
+      if ( mgpaGain[ism-1] == 1 ) meAmplMap = meAmplMapG12_[ism-1];
 
       float xval = hitItr->amplitude();
       if ( xval <= 0. ) xval = 0.0;
 
-//      if ( mgpaGain[ism] == 3 ) xval = xval * 1./12.;
-//      if ( mgpaGain[ism] == 2 ) xval = xval * 1./ 2.;
-//      if ( mgpaGain[ism] == 1 ) xval = xval * 1./ 1.;
+//      if ( mgpaGain[ism-1] == 3 ) xval = xval * 1./12.;
+//      if ( mgpaGain[ism-1] == 2 ) xval = xval * 1./ 2.;
+//      if ( mgpaGain[ism-1] == 1 ) xval = xval * 1./ 1.;
 
       LogDebug("EBTestPulseTask") << " hit amplitude " << xval;
 
@@ -421,8 +421,8 @@ void EBTestPulseTask::analyze(const Event& e, const EventSetup& c){
 
       int num = pnItr->id().iPnId();
 
-      if ( ! ( runType[ism] == EcalDCCHeaderBlock::TESTPULSE_MGPA ||
-               runType[ism] == EcalDCCHeaderBlock::TESTPULSE_GAP ) ) continue;
+      if ( ! ( runType[ism-1] == EcalDCCHeaderBlock::TESTPULSE_MGPA ||
+               runType[ism-1] == EcalDCCHeaderBlock::TESTPULSE_GAP ) ) continue;
 
       LogDebug("EBTestPulseTask") << " det id = " << pnItr->id();
       LogDebug("EBTestPulseTask") << " sm, num " << ism << " " << num;

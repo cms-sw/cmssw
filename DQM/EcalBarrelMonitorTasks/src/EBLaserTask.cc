@@ -1,8 +1,8 @@
 /*
  * \file EBLaserTask.cc
  *
- * $Date: 2008/12/03 14:44:44 $
- * $Revision: 1.119 $
+ * $Date: 2008/12/03 15:03:16 $
+ * $Revision: 1.120 $
  * \author G. Della Ricca
  *
 */
@@ -718,9 +718,9 @@ void EBLaserTask::analyze(const Event& e, const EventSetup& c){
 
       int ism = Numbers::iSM( *dcchItr, EcalBarrel );
 
-      runType[ism] = runType[ism];
-      rtHalf[ism] = dcchItr->getRtHalf();
-      waveLength[ism] = dcchItr->getEventSettings().wavelength;
+      runType[ism-1] = dcchItr->getRunType();
+      rtHalf[ism-1] = dcchItr->getRtHalf();
+      waveLength[ism-1] = dcchItr->getEventSettings().wavelength;
 
       if ( dcchItr->getRunType() == EcalDCCHeaderBlock::LASER_STD ||
            dcchItr->getRunType() == EcalDCCHeaderBlock::LASER_GAP ) enable = true;
@@ -756,10 +756,10 @@ void EBLaserTask::analyze(const Event& e, const EventSetup& c){
 
       int ism = Numbers::iSM( id );
 
-      if ( ! ( runType[ism] == EcalDCCHeaderBlock::LASER_STD ||
-               runType[ism] == EcalDCCHeaderBlock::LASER_GAP ) ) continue;
+      if ( ! ( runType[ism-1] == EcalDCCHeaderBlock::LASER_STD ||
+               runType[ism-1] == EcalDCCHeaderBlock::LASER_GAP ) ) continue;
 
-      if ( rtHalf[ism] != Numbers::RtHalf(id) ) continue;
+      if ( rtHalf[ism-1] != Numbers::RtHalf(id) ) continue;
 
       LogDebug("EBLaserTask") << " det id = " << id;
       LogDebug("EBLaserTask") << " sm, ieta, iphi " << ism << " " << ie << " " << ip;
@@ -777,23 +777,23 @@ void EBLaserTask::analyze(const Event& e, const EventSetup& c){
         if ( dataframe.sample(i).gainId() == 2 ) gain = 1./ 6.;
         if ( dataframe.sample(i).gainId() == 3 ) gain = 1./ 1.;
 
-        if ( rtHalf[ism] == 0 ) {
+        if ( rtHalf[ism-1] == 0 ) {
 
-          if ( waveLength[ism] == 0 ) meShapeMap = meShapeMapL1A_[ism-1];
-          if ( waveLength[ism] == 1 ) meShapeMap = meShapeMapL2A_[ism-1];
-          if ( waveLength[ism] == 2 ) meShapeMap = meShapeMapL3A_[ism-1];
-          if ( waveLength[ism] == 3 ) meShapeMap = meShapeMapL4A_[ism-1];
+          if ( waveLength[ism-1] == 0 ) meShapeMap = meShapeMapL1A_[ism-1];
+          if ( waveLength[ism-1] == 1 ) meShapeMap = meShapeMapL2A_[ism-1];
+          if ( waveLength[ism-1] == 2 ) meShapeMap = meShapeMapL3A_[ism-1];
+          if ( waveLength[ism-1] == 3 ) meShapeMap = meShapeMapL4A_[ism-1];
 
-        } else if ( rtHalf[ism] == 1 ) {
+        } else if ( rtHalf[ism-1] == 1 ) {
 
-          if ( waveLength[ism] == 0 ) meShapeMap = meShapeMapL1B_[ism-1];
-          if ( waveLength[ism] == 1 ) meShapeMap = meShapeMapL2B_[ism-1];
-          if ( waveLength[ism] == 2 ) meShapeMap = meShapeMapL3B_[ism-1];
-          if ( waveLength[ism] == 3 ) meShapeMap = meShapeMapL4B_[ism-1];
+          if ( waveLength[ism-1] == 0 ) meShapeMap = meShapeMapL1B_[ism-1];
+          if ( waveLength[ism-1] == 1 ) meShapeMap = meShapeMapL2B_[ism-1];
+          if ( waveLength[ism-1] == 2 ) meShapeMap = meShapeMapL3B_[ism-1];
+          if ( waveLength[ism-1] == 3 ) meShapeMap = meShapeMapL4B_[ism-1];
 
         } else {
 
-          LogWarning("EBLaserTask") << " RtHalf = " << rtHalf[ism];
+          LogWarning("EBLaserTask") << " RtHalf = " << rtHalf[ism-1];
 
         }
 
@@ -835,8 +835,8 @@ void EBLaserTask::analyze(const Event& e, const EventSetup& c){
 
       int num = pnItr->id().iPnId();
 
-      if ( ! ( runType[ism] == EcalDCCHeaderBlock::LASER_STD ||
-               runType[ism] == EcalDCCHeaderBlock::LASER_GAP ) ) continue;
+      if ( ! ( runType[ism-1] == EcalDCCHeaderBlock::LASER_STD ||
+               runType[ism-1] == EcalDCCHeaderBlock::LASER_GAP ) ) continue;
 
       LogDebug("EBLaserTask") << " det id = " << pnItr->id();
       LogDebug("EBLaserTask") << " sm, num " << ism << " " << num;
@@ -850,16 +850,16 @@ void EBLaserTask::analyze(const Event& e, const EventSetup& c){
         MonitorElement* mePNPed = 0;
 
         if ( pnItr->sample(i).gainId() == 0 ) {
-          if ( waveLength[ism] == 0 ) mePNPed = mePnPedMapG01L1_[ism-1];
-          if ( waveLength[ism] == 1 ) mePNPed = mePnPedMapG01L2_[ism-1];
-          if ( waveLength[ism] == 2 ) mePNPed = mePnPedMapG01L3_[ism-1];
-          if ( waveLength[ism] == 3 ) mePNPed = mePnPedMapG01L4_[ism-1];
+          if ( waveLength[ism-1] == 0 ) mePNPed = mePnPedMapG01L1_[ism-1];
+          if ( waveLength[ism-1] == 1 ) mePNPed = mePnPedMapG01L2_[ism-1];
+          if ( waveLength[ism-1] == 2 ) mePNPed = mePnPedMapG01L3_[ism-1];
+          if ( waveLength[ism-1] == 3 ) mePNPed = mePnPedMapG01L4_[ism-1];
         }
         if ( pnItr->sample(i).gainId() == 1 ) {
-          if ( waveLength[ism] == 0 ) mePNPed = mePnPedMapG16L1_[ism-1];
-          if ( waveLength[ism] == 1 ) mePNPed = mePnPedMapG16L2_[ism-1];
-          if ( waveLength[ism] == 2 ) mePNPed = mePnPedMapG16L3_[ism-1];
-          if ( waveLength[ism] == 3 ) mePNPed = mePnPedMapG16L4_[ism-1];
+          if ( waveLength[ism-1] == 0 ) mePNPed = mePnPedMapG16L1_[ism-1];
+          if ( waveLength[ism-1] == 1 ) mePNPed = mePnPedMapG16L2_[ism-1];
+          if ( waveLength[ism-1] == 2 ) mePNPed = mePnPedMapG16L3_[ism-1];
+          if ( waveLength[ism-1] == 3 ) mePNPed = mePnPedMapG16L4_[ism-1];
         }
 
         float xval = float(adc);
@@ -889,16 +889,16 @@ void EBLaserTask::analyze(const Event& e, const EventSetup& c){
       xvalmax = xvalmax - xvalped;
 
       if ( pnItr->sample(0).gainId() == 0 ) {
-        if ( waveLength[ism] == 0 ) mePN = mePnAmplMapG01L1_[ism-1];
-        if ( waveLength[ism] == 1 ) mePN = mePnAmplMapG01L2_[ism-1];
-        if ( waveLength[ism] == 2 ) mePN = mePnAmplMapG01L3_[ism-1];
-        if ( waveLength[ism] == 3 ) mePN = mePnAmplMapG01L4_[ism-1];
+        if ( waveLength[ism-1] == 0 ) mePN = mePnAmplMapG01L1_[ism-1];
+        if ( waveLength[ism-1] == 1 ) mePN = mePnAmplMapG01L2_[ism-1];
+        if ( waveLength[ism-1] == 2 ) mePN = mePnAmplMapG01L3_[ism-1];
+        if ( waveLength[ism-1] == 3 ) mePN = mePnAmplMapG01L4_[ism-1];
       }
       if ( pnItr->sample(0).gainId() == 1 ) {
-        if ( waveLength[ism] == 0 ) mePN = mePnAmplMapG16L1_[ism-1];
-        if ( waveLength[ism] == 1 ) mePN = mePnAmplMapG16L2_[ism-1];
-        if ( waveLength[ism] == 2 ) mePN = mePnAmplMapG16L3_[ism-1];
-        if ( waveLength[ism] == 3 ) mePN = mePnAmplMapG16L4_[ism-1];
+        if ( waveLength[ism-1] == 0 ) mePN = mePnAmplMapG16L1_[ism-1];
+        if ( waveLength[ism-1] == 1 ) mePN = mePnAmplMapG16L2_[ism-1];
+        if ( waveLength[ism-1] == 2 ) mePN = mePnAmplMapG16L3_[ism-1];
+        if ( waveLength[ism-1] == 3 ) mePN = mePnAmplMapG16L4_[ism-1];
       }
 
       if ( mePN ) mePN->Fill(num - 0.5, xvalmax);
@@ -934,10 +934,10 @@ void EBLaserTask::analyze(const Event& e, const EventSetup& c){
       float xie = ie - 0.5;
       float xip = ip - 0.5;
 
-      if ( ! ( runType[ism] == EcalDCCHeaderBlock::LASER_STD ||
-               runType[ism] == EcalDCCHeaderBlock::LASER_GAP ) ) continue;
+      if ( ! ( runType[ism-1] == EcalDCCHeaderBlock::LASER_STD ||
+               runType[ism-1] == EcalDCCHeaderBlock::LASER_GAP ) ) continue;
 
-      if ( rtHalf[ism] != Numbers::RtHalf(id) ) continue;
+      if ( rtHalf[ism-1] != Numbers::RtHalf(id) ) continue;
 
       LogDebug("EBLaserTask") << " det id = " << id;
       LogDebug("EBLaserTask") << " sm, ieta, iphi " << ism << " " << ie << " " << ip;
@@ -946,47 +946,47 @@ void EBLaserTask::analyze(const Event& e, const EventSetup& c){
       MonitorElement* meTimeMap = 0;
       MonitorElement* meAmplPNMap = 0;
 
-      if ( rtHalf[ism] == 0 ) {
+      if ( rtHalf[ism-1] == 0 ) {
 
-        if ( waveLength[ism] == 0 ) {
+        if ( waveLength[ism-1] == 0 ) {
           meAmplMap = meAmplMapL1A_[ism-1];
           meTimeMap = meTimeMapL1A_[ism-1];
           meAmplPNMap = meAmplPNMapL1A_[ism-1];
         }
-        if ( waveLength[ism] == 1 ) {
+        if ( waveLength[ism-1] == 1 ) {
           meAmplMap = meAmplMapL2A_[ism-1];
           meTimeMap = meTimeMapL2A_[ism-1];
           meAmplPNMap = meAmplPNMapL2A_[ism-1];
         }
-        if ( waveLength[ism] == 2 ) {
+        if ( waveLength[ism-1] == 2 ) {
           meAmplMap = meAmplMapL3A_[ism-1];
           meTimeMap = meTimeMapL3A_[ism-1];
           meAmplPNMap = meAmplPNMapL3A_[ism-1];
         }
-        if ( waveLength[ism] == 3 ) {
+        if ( waveLength[ism-1] == 3 ) {
           meAmplMap = meAmplMapL4A_[ism-1];
           meTimeMap = meTimeMapL4A_[ism-1];
           meAmplPNMap = meAmplPNMapL4A_[ism-1];
         }
 
-      } else if ( rtHalf[ism] == 1 ) {
+      } else if ( rtHalf[ism-1] == 1 ) {
 
-        if ( waveLength[ism] == 0 ) {
+        if ( waveLength[ism-1] == 0 ) {
           meAmplMap = meAmplMapL1B_[ism-1];
           meTimeMap = meTimeMapL1B_[ism-1];
           meAmplPNMap = meAmplPNMapL1B_[ism-1];
         }
-        if ( waveLength[ism] == 1 ) {
+        if ( waveLength[ism-1] == 1 ) {
           meAmplMap = meAmplMapL2B_[ism-1];
           meTimeMap = meTimeMapL2B_[ism-1];
           meAmplPNMap = meAmplPNMapL2B_[ism-1];
         }
-        if ( waveLength[ism] == 2 ) {
+        if ( waveLength[ism-1] == 2 ) {
           meAmplMap = meAmplMapL3B_[ism-1];
           meTimeMap = meTimeMapL3B_[ism-1];
           meAmplPNMap = meAmplPNMapL3B_[ism-1];
         }
-        if ( waveLength[ism] == 3 ) {
+        if ( waveLength[ism-1] == 3 ) {
           meAmplMap = meAmplMapL4B_[ism-1];
           meTimeMap = meTimeMapL4B_[ism-1];
           meAmplPNMap = meAmplPNMapL4B_[ism-1];
@@ -994,7 +994,7 @@ void EBLaserTask::analyze(const Event& e, const EventSetup& c){
 
       } else {
 
-        LogWarning("EBLaserTask") << " RtHalf = " << rtHalf[ism];
+        LogWarning("EBLaserTask") << " RtHalf = " << rtHalf[ism-1];
 
       }
 
@@ -1017,17 +1017,17 @@ void EBLaserTask::analyze(const Event& e, const EventSetup& c){
 
       float wval = 0.;
 
-      if ( rtHalf[ism] == 0 ) {
+      if ( rtHalf[ism-1] == 0 ) {
 
         if ( adcA[ism-1] != 0. ) wval = xval / adcA[ism-1];
 
-      } else if ( rtHalf[ism] == 1 ) {
+      } else if ( rtHalf[ism-1] == 1 ) {
 
         if ( adcB[ism-1] != 0. ) wval = xval / adcB[ism-1];
 
       } else {
 
-        LogWarning("EBLaserTask") << " RtHalf = " << rtHalf[ism];
+        LogWarning("EBLaserTask") << " RtHalf = " << rtHalf[ism-1];
 
       }
 
