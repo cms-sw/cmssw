@@ -5,9 +5,9 @@
   *  Template used to compute amplitude, pedestal, time jitter, chi2 of a pulse
   *  using a weights method
   *
-  *  $Id: EcalUncalibRecHitRecWeightsAlgo.h,v 1.6 2007/05/08 13:29:21 meridian Exp $
-  *  $Date: 2007/05/08 13:29:21 $
-  *  $Revision: 1.6 $
+  *  $Id: EcalUncalibRecHitRecWeightsAlgo.h,v 1.7 2008/10/17 10:16:55 meridian Exp $
+  *  $Date: 2008/10/17 10:16:55 $
+  *  $Revision: 1.7 $
   *  \author R. Bruneliere - A. Zabi
   */
 
@@ -60,8 +60,11 @@ template<class C> class EcalUncalibRecHitRecWeightsAlgo : public EcalUncalibRecH
     chi2_ = ROOT::Math::Similarity((*(chi2Matrix[iGainSwitch])),frame);
     //When saturated gain flag i
     if (isSaturated)
-      chi2_ = EcalUncalibratedRecHit::kSATURATED;
- 
+      {
+	chi2_ = EcalUncalibratedRecHit::kSATURATED;
+	amplitude_ = double((4095. - pedestals[2]) * gainRatios[2]);
+      }
+
     return EcalUncalibratedRecHit( dataFrame.id(), amplitude_, pedestal_, jitter_, chi2_);
   }
 };
