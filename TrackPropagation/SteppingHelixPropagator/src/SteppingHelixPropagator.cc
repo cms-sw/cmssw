@@ -5,15 +5,15 @@
  *  to MC and (eventually) data. 
  *  Implementation file contents follow.
  *
- *  $Date: 2008/11/25 01:35:53 $
- *  $Revision: 1.58 $
+ *  $Date: 2008/11/25 06:43:27 $
+ *  $Revision: 1.59 $
  *  \author Vyacheslav Krutelyov (slava77)
  */
 
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Fri Mar  3 16:01:24 CST 2006
-// $Id: SteppingHelixPropagator.cc,v 1.58 2008/11/25 01:35:53 slava77 Exp $
+// $Id: SteppingHelixPropagator.cc,v 1.59 2008/11/25 06:43:27 slava77 Exp $
 //
 //
 
@@ -221,6 +221,12 @@ SteppingHelixPropagator::propagate(const SteppingHelixStateInfo& sStart,
   
   propagate(PLANE_DT, pars);
   
+  //(re)set it before leaving: dir =1 (-1) if path increased (decreased) and 0 if it didn't change
+  //need to implement this somewhere else as a separate function
+  double lDir = 0;
+  if (sStart.path() < svBuf_[cIndex_(nPoints_-1)].path()) lDir = 1.;
+  if (sStart.path() > svBuf_[cIndex_(nPoints_-1)].path()) lDir = -1.;
+  svBuf_[cIndex_(nPoints_-1)].dir = lDir;
   return svBuf_[cIndex_(nPoints_-1)];
 }
 
@@ -243,6 +249,12 @@ SteppingHelixPropagator::propagate(const SteppingHelixStateInfo& sStart,
   
   propagate(RADIUS_DT, pars);
   
+  //(re)set it before leaving: dir =1 (-1) if path increased (decreased) and 0 if it didn't change
+  //need to implement this somewhere else as a separate function
+  double lDir = 0;
+  if (sStart.path() < svBuf_[cIndex_(nPoints_-1)].path()) lDir = 1.;
+  if (sStart.path() > svBuf_[cIndex_(nPoints_-1)].path()) lDir = -1.;
+  svBuf_[cIndex_(nPoints_-1)].dir = lDir;
   return svBuf_[cIndex_(nPoints_-1)];
 }
 
