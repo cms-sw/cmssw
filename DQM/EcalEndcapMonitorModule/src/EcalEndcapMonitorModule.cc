@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorModule.cc
  *
- * $Date: 2008/11/04 20:55:24 $
- * $Revision: 1.60 $
+ * $Date: 2008/11/04 22:36:08 $
+ * $Revision: 1.61 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -379,22 +379,20 @@ void EcalEndcapMonitorModule::analyze(const Event& e, const EventSetup& c){
 
     for ( EcalRawDataCollection::const_iterator dcchItr = dcchs->begin(); dcchItr != dcchs->end(); ++dcchItr ) {
 
-      EcalDCCHeaderBlock dcch = (*dcchItr);
-
-      if ( Numbers::subDet( dcch ) != EcalEndcap ) continue;
+      if ( Numbers::subDet( *dcchItr ) != EcalEndcap ) continue;
 
       neec++;
 
-      if ( meEEDCC_ ) meEEDCC_->Fill(Numbers::iSM( dcch, EcalEndcap )+0.5);
+      if ( meEEDCC_ ) meEEDCC_->Fill(Numbers::iSM( *dcchItr, EcalEndcap )+0.5);
 
       if ( ! fixedRunNumber_ ) {
-        runNumber_ = dcch.getRunNumber();
+        runNumber_ = dcchItr->getRunNumber();
       }
 
-      evtNumber_ = dcch.getLV1();
+      evtNumber_ = dcchItr->getLV1();
 
       if ( ! fixedRunType_ ) {
-        runType_ = dcch.getRunType();
+        runType_ = dcchItr->getRunType();
         evtType_ = runType_;
       }
 

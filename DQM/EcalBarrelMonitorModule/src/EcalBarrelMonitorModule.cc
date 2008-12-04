@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  *
- * $Date: 2008/11/04 19:13:42 $
- * $Revision: 1.183 $
+ * $Date: 2008/11/04 22:36:07 $
+ * $Revision: 1.184 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -379,22 +379,20 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
 
     for ( EcalRawDataCollection::const_iterator dcchItr = dcchs->begin(); dcchItr != dcchs->end(); ++dcchItr ) {
 
-      EcalDCCHeaderBlock dcch = (*dcchItr);
-
-      if ( Numbers::subDet( dcch ) != EcalBarrel ) continue;
+      if ( Numbers::subDet( *dcchItr ) != EcalBarrel ) continue;
 
       nebc++;
 
-      if ( meEBDCC_ ) meEBDCC_->Fill(Numbers::iSM( dcch, EcalBarrel )+0.5);
+      if ( meEBDCC_ ) meEBDCC_->Fill(Numbers::iSM( *dcchItr, EcalBarrel )+0.5);
 
       if ( ! fixedRunNumber_ ) {
-        runNumber_ = dcch.getRunNumber();
+        runNumber_ = dcchItr->getRunNumber();
       }
 
-      evtNumber_ = dcch.getLV1();
+      evtNumber_ = dcchItr->getLV1();
 
       if ( ! fixedRunType_ ) {
-        runType_ = dcch.getRunType();
+        runType_ = dcchItr->getRunType();
         evtType_ = runType_;
       }
 
