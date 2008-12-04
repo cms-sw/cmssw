@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: ElectronDetailView.cc,v 1.20 2008/12/03 11:56:05 jmuelmen Exp $
+// $Id: ElectronDetailView.cc,v 1.21 2008/12/04 06:39:09 jmuelmen Exp $
 //
 
 // system include files
@@ -39,7 +39,6 @@
 #include "TH2.h"
 
 // user include files
-#include "Fireworks/Electrons/interface/ElectronsProxy3DBuilder.h"
 #include "Fireworks/Core/interface/ElectronDetailView.h"
 #include "Fireworks/Core/interface/FWModelId.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
@@ -49,6 +48,7 @@
 #include "DataFormats/FWLite/interface/Event.h"
 #include "DataFormats/FWLite/interface/Handle.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterShapeAssociation.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"

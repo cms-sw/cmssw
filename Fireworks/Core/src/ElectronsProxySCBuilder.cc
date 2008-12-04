@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: ElectronsProxySCBuilder.cc,v 1.16 2008/11/06 19:49:23 amraktad Exp $
+// $Id: ElectronsProxySCBuilder.cc,v 1.17 2008/11/06 22:05:24 amraktad Exp $
 //
 
 // system include files
@@ -28,7 +28,6 @@
 #include "TGLViewer.h"
 
 // user include files
-#include "Fireworks/Electrons/interface/ElectronsProxy3DBuilder.h"
 #include "Fireworks/Core/interface/ElectronsProxySCBuilder.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/DetIdToMatrix.h"
@@ -37,6 +36,7 @@
 #include "DataFormats/FWLite/interface/Event.h"
 #include "DataFormats/FWLite/interface/Handle.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterShapeAssociation.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
