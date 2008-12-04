@@ -232,8 +232,7 @@ class dbsAccessor:
         if (mytext==None):
             temp=self.formParsedString()
             if (self.beginRun.get()<=self.endRun.get()):
-                #mytext="find run where %s run between %i-%i"%(temp,self.beginRun.get(),self.endRun.get())
-                mytext="find run where %s run >=%i and run<=%i"%(temp,self.beginRun.get(),self.endRun.get())
+                mytext="find run where %s run between %i-%i"%(temp,self.beginRun.get(),self.endRun.get())
             else:
                 mytext="find run where %s"%temp[:-4]
                 if (self.class_debug): print "MYTEXT = ",mytext

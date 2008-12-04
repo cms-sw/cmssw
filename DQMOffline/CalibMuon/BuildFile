@@ -6,6 +6,7 @@
 <use name=DataFormats/MuonDetId>
 <use name=FWCore/ParameterSet>
 <use name=CondFormats/DTObjects>
+<use name=FWCore/Framework>
 <use name=CondFormats/DataRecord>
 <use name=CondCore/DBOutputService>
 <flags EDM_PLUGIN=1>

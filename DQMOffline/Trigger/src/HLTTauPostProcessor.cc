@@ -7,7 +7,6 @@ HLTTauPostProcessor::HLTTauPostProcessor(const edm::ParameterSet& iConfig):
   L3Folder_(iConfig.getParameter<std::vector< std::string> >("L3Folder")),
   pathValFolder_(iConfig.getParameter<std::vector< std::string> >("HLTPathValidationFolder")),
   pathDQMFolder_(iConfig.getParameter<std::vector<std::string> >("HLTPathDQMFolder"))
-  
 {
   
 }
@@ -31,29 +30,8 @@ void HLTTauPostProcessor::endJob()
     for(size_t i=0;i<pathValFolder_.size();++i)
     if(pathValFolder_[i].size()>0)
       {
-	createEfficiencyHisto(pathValFolder_[i],"L1EffVsEtRef","l1eteff","refEt",dbe);
-	createEfficiencyHisto(pathValFolder_[i],"L1EffVsEtaRef","l1etaeff","refEta",dbe);
-
-	createEfficiencyHisto(pathValFolder_[i],"L2EffVsEtL1","l2eteff","l1eteff",dbe);
-	createEfficiencyHisto(pathValFolder_[i],"L2EffVsEtaL1","l2etaeff","l1etaeff",dbe);
-
-	createEfficiencyHisto(pathValFolder_[i],"L25EffVsEtL1","l25eteff","l1eteff",dbe);
-	createEfficiencyHisto(pathValFolder_[i],"L25EffVsEtaL1","l25etaeff","l1etaeff",dbe);
-
-	createEfficiencyHisto(pathValFolder_[i],"L25EffVsEtL2","l25eteff","l2eteff",dbe);
-	createEfficiencyHisto(pathValFolder_[i],"L25EffVsEtaL2","l25etaeff","l2etaeff",dbe);
-
-	createEfficiencyHisto(pathValFolder_[i],"L3EffVsEtL1","l3eteff","l1eteff",dbe);
-	createEfficiencyHisto(pathValFolder_[i],"L3EffVsEtaL1","l3etaeff","l1etaeff",dbe);
-
-	createEfficiencyHisto(pathValFolder_[i],"L3EffVsEtL25","l3eteff","l25eteff",dbe);
-	createEfficiencyHisto(pathValFolder_[i],"L3EffVsEtaL25","l3etaeff","l25etaeff",dbe);
-
-	calculatePathEfficiencies(pathValFolder_[i],"acceptedEventsMatched",dbe);
-
-
+	calculatePathEfficiencies(pathValFolder_[i],"MatchedTriggers",dbe);
       }
-
 
     //L1 Harvesting
     for(size_t i=0;i<L1Folder_.size();++i)
@@ -140,16 +118,18 @@ void HLTTauPostProcessor::analyze(const edm::Event& iEvent,
 void 
 HLTTauPostProcessor::createEfficiencyHisto(std::string folder,std::string name,std::string hist1,std::string hist2,DQMStore* dbe)
 {
-	MonitorElement * effnum = dbe->get(folder+"/"+hist1);
-	MonitorElement * effdenom = dbe->get(folder+"/"+hist2);
-
-	if(effnum && effdenom)
-	  {
-	    dbe->setCurrentFolder(folder);
-	    MonitorElement* Eff =  dbe->book1D(name,name,effnum->getTH1F()->GetNbinsX(),effnum->getTH1F()->GetXaxis()->GetXmin(),effnum->getTH1F()->GetXaxis()->GetXmax());
-	    Eff->getTH1F()->Divide(effnum->getTH1F(),effdenom->getTH1F(),1.,1.,"B");
-	  }
-
+  if(dbe->dirExists(folder))
+  {
+    MonitorElement * effnum = dbe->get(folder+"/"+hist1);
+    MonitorElement * effdenom = dbe->get(folder+"/"+hist2);
+    
+    if(effnum && effdenom)
+      {
+	dbe->setCurrentFolder(folder);
+	MonitorElement* Eff =  dbe->book1D(name,name,effnum->getTH1F()->GetNbinsX(),effnum->getTH1F()->GetXaxis()->GetXmin(),effnum->getTH1F()->GetXaxis()->GetXmax());
+	Eff->getTH1F()->Divide(effnum->getTH1F(),effdenom->getTH1F(),1.,1.,"B");
+      }
+  }
 }
 
 
@@ -158,79 +138,76 @@ HLTTauPostProcessor::createEfficiencyHisto(std::string folder,std::string name,s
 void
 HLTTauPostProcessor::createIntegratedHisto(std::string folder,std::string histo,std::string nfidh,int bin,DQMStore* dbe)
 {
-  MonitorElement* eff = dbe->get(folder+"/"+histo);
-  MonitorElement* nfid = dbe->get(folder+"/"+nfidh);
+  if(dbe->dirExists(folder))
+  {
 
-  double nGenerated = nfid->getBinContent(bin);
+    MonitorElement* eff = dbe->get(folder+"/"+histo);
+    MonitorElement* nfid = dbe->get(folder+"/"+nfidh);
+  
+    if(eff && nfid)
+      { 
+	double nGenerated = nfid->getBinContent(bin);
 
-  int nbins = eff->getTH1F()->GetNbinsX();
-  double integral = eff->getTH1F()->GetBinContent(nbins+1);  // Initialize to overflow
-  if (nGenerated<=0) {
-    return;
+	int nbins = eff->getTH1F()->GetNbinsX();
+	double integral = eff->getTH1F()->GetBinContent(nbins+1);  // Initialize to overflow
+	if (nGenerated<=0) {
+	  return;
+	}
+	for(int i = nbins; i >= 1; i--)
+	  {
+	    double thisBin = eff->getBinContent(i);
+	    integral += thisBin;
+	    double integralEff;
+	    double integralError;
+	    integralEff = (integral / nGenerated);
+	    eff->setBinContent(i, integralEff);
+	    integralError = (sqrt(integral) / nGenerated);
+	    eff->setBinError(i, integralError);
+	  }
+      }
   }
-  for(int i = nbins; i >= 1; i--)
-    {
-      double thisBin = eff->getBinContent(i);
-      integral += thisBin;
-      double integralEff;
-      double integralError;
-      integralEff = (integral / nGenerated);
-      eff->setBinContent(i, integralEff);
-      integralError = (sqrt(integral) / nGenerated);
-      eff->setBinError(i, integralError);
-    }
 }
 
 void 
-HLTTauPostProcessor::calculatePathEfficiencies(std::string folder,std::string histo,DQMStore*dbe)
+HLTTauPostProcessor::calculatePathEfficiencies(std::string folder,std::string histo,DQMStore* dbe)
 {
- MonitorElement* eff = dbe->get(folder+"/"+histo);
+  if(dbe->dirExists(folder))
+  {
+    dbe->setCurrentFolder(folder);
+    MonitorElement* eff = dbe->get(folder+"/"+histo);
+   
+    if(eff)
+      {
+	//Calculate Efficiencies with ref to truth
+	MonitorElement * effRefTruth = dbe->book1D("PathEffMatchedRef","Efficiency with Matching",eff->getNbinsX()-1,0,eff->getNbinsX()-1);
+	for(int i =2;i<=eff->getNbinsX();++i)
+	  {
+	    effRefTruth->setBinContent(i-1,calcEfficiency(eff->getBinContent(i),eff->getBinContent(1))[0]);
+	    effRefTruth->setBinError(i-1,calcEfficiency(eff->getBinContent(i),eff->getBinContent(1))[1]);
+	    effRefTruth->setBinLabel(i-1,eff->getTH1F()->GetXaxis()->GetBinLabel(i));
 
- //Calculate Efficiencies with ref to truth
- MonitorElement * effRefTruth = dbe->book1D("EffRefTruth","Efficiency with ref to truth",5,0,5);
+	  }
 
- effRefTruth->setBinContent(1,calcEfficiency(eff->getBinContent(1),eff->getBinContent(6))[0]);
- effRefTruth->setBinContent(2,calcEfficiency(eff->getBinContent(2),eff->getBinContent(6))[0]);
- effRefTruth->setBinContent(3,calcEfficiency(eff->getBinContent(3),eff->getBinContent(6))[0]);
- effRefTruth->setBinContent(4,calcEfficiency(eff->getBinContent(4),eff->getBinContent(6))[0]);
- effRefTruth->setBinContent(5,calcEfficiency(eff->getBinContent(5),eff->getBinContent(6))[0]);
 
- effRefTruth->setBinError(1,calcEfficiency(eff->getBinContent(1),eff->getBinContent(6))[1]);
- effRefTruth->setBinError(2,calcEfficiency(eff->getBinContent(2),eff->getBinContent(6))[1]);
- effRefTruth->setBinError(3,calcEfficiency(eff->getBinContent(3),eff->getBinContent(6))[1]);
- effRefTruth->setBinError(4,calcEfficiency(eff->getBinContent(4),eff->getBinContent(6))[1]);
- effRefTruth->setBinError(5,calcEfficiency(eff->getBinContent(5),eff->getBinContent(6))[1]);
+	//Calculate Efficiencies with ref to L1
+	MonitorElement * effRefL1 = dbe->book1D("PathEffMatchedRefL1","Efficiency with Matching Ref to L1",eff->getNbinsX()-2,0,eff->getNbinsX()-2);
+	for(int i =3;i<=eff->getNbinsX();++i)
+	  {
+	    effRefL1->setBinContent(i-2,calcEfficiency(eff->getBinContent(i),eff->getBinContent(2))[0]);
+	    effRefL1->setBinError(i-2,calcEfficiency(eff->getBinContent(i),eff->getBinContent(2))[1]);
+	    effRefL1->setBinLabel(i-2,eff->getTH1F()->GetXaxis()->GetBinLabel(i));
+	  }
 
- //calculate Efficiency with ref to L1
- MonitorElement * effRefL1 = dbe->book1D("EffRefL1","Efficiency with ref to L1",5,0,5);
-
- effRefL1->setBinContent(1,calcEfficiency(eff->getBinContent(1),eff->getBinContent(2))[0]);
- effRefL1->setBinContent(2,calcEfficiency(eff->getBinContent(2),eff->getBinContent(2))[0]);
- effRefL1->setBinContent(3,calcEfficiency(eff->getBinContent(3),eff->getBinContent(2))[0]);
- effRefL1->setBinContent(4,calcEfficiency(eff->getBinContent(4),eff->getBinContent(2))[0]);
- effRefL1->setBinContent(5,calcEfficiency(eff->getBinContent(5),eff->getBinContent(2))[0]);
-
- effRefL1->setBinError(1,calcEfficiency(eff->getBinContent(1),eff->getBinContent(2))[1]);
- effRefL1->setBinError(2,calcEfficiency(eff->getBinContent(2),eff->getBinContent(2))[1]);
- effRefL1->setBinError(3,calcEfficiency(eff->getBinContent(3),eff->getBinContent(2))[1]);
- effRefL1->setBinError(4,calcEfficiency(eff->getBinContent(4),eff->getBinContent(2))[1]);
- effRefL1->setBinError(5,calcEfficiency(eff->getBinContent(5),eff->getBinContent(2))[1]);
-
- //calculate Efficiency with ref to Previous
- MonitorElement * effRefPrevious = dbe->book1D("EffRefPrevious","Efficiency with ref to Previous",5,0,5);
-
- effRefPrevious->setBinContent(1,calcEfficiency(eff->getBinContent(1),eff->getBinContent(2))[0]);
- effRefPrevious->setBinContent(2,calcEfficiency(eff->getBinContent(2),eff->getBinContent(6))[0]);
- effRefPrevious->setBinContent(3,calcEfficiency(eff->getBinContent(3),eff->getBinContent(2))[0]);
- effRefPrevious->setBinContent(4,calcEfficiency(eff->getBinContent(4),eff->getBinContent(3))[0]);
- effRefPrevious->setBinContent(5,calcEfficiency(eff->getBinContent(5),eff->getBinContent(4))[0]);
-
- effRefPrevious->setBinError(1,calcEfficiency(eff->getBinContent(1),eff->getBinContent(2))[1]);
- effRefPrevious->setBinError(2,calcEfficiency(eff->getBinContent(2),eff->getBinContent(6))[1]);
- effRefPrevious->setBinError(3,calcEfficiency(eff->getBinContent(3),eff->getBinContent(2))[1]);
- effRefPrevious->setBinError(4,calcEfficiency(eff->getBinContent(4),eff->getBinContent(3))[1]);
- effRefPrevious->setBinError(5,calcEfficiency(eff->getBinContent(5),eff->getBinContent(4))[1]);
-
+	//Calculate Efficiencies with ref to previous
+	MonitorElement * effRefPrevious = dbe->book1D("PathEffMatchedRefPrevious","Efficiency with Matching Ref To previous",eff->getNbinsX()-1,0,eff->getNbinsX()-1);
+	for(int i = 2;i<=eff->getNbinsX();++i)
+	  {
+	    effRefPrevious->setBinContent(i-1,calcEfficiency(eff->getBinContent(i),eff->getBinContent(i-1))[0]);
+	    effRefPrevious->setBinError(i-1,calcEfficiency(eff->getBinContent(i),eff->getBinContent(i-1))[1]);
+	    effRefPrevious->setBinLabel(i-1,eff->getTH1F()->GetXaxis()->GetBinLabel(i));
+	  }
+      }
+  }
 }
 
 

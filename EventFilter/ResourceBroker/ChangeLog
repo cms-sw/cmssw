@@ -1,29 +1,3 @@
-2008-10-14  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
-
-	* tag V00-11-00
-	* add Kurt's changes
-	* incorporate fuProcessId and fuGuid in message exchange with SM
-	* fuID renamed to rbBufferID
-	* requires EventFilter/Utilities V00-15-00
-	* requires EventFilter/ShmBuffer V00-07-00
-
-2008-10-09  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
-
-	* tag V00-10-04
-	* requires EventFilter/Utilities V00-14-16
-	* add StateMachine::rcmsStateListener() to infospace
-
-2008-10-02  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
-
-	* tag V00-10-03
-	* fix 'nbClient crash upon halting' problem:
-	* add a binary semaphore to FUResourceBroker, plus lock()/unlock()
-	methods
-	* protect actionPeformed() and any occurence of 'delete
-	resourceTable_' with these locks
-	* also, set all values filled in actionPerformed() and
-	monitoring() to 0 if resourceTable_ is NULL
-
 2008-08-12  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
 	* tag V00-10-02

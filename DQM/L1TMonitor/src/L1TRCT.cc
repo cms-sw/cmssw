@@ -1,8 +1,8 @@
 /*
  * \file L1TRCT.cc
  *
- * $Date: 2008/05/07 15:19:07 $
- * $Revision: 1.14 $
+ * $Date: 2008/07/02 11:45:52 $
+ * $Revision: 1.15 $
  * \author P. Wittich
  *
  */
@@ -139,8 +139,8 @@ void L1TRCT::beginJob(const EventSetup & c)
 	dbe->book2D("RctBitQuietEtaPhi", "QUIET OCCUPANCY", ETABINS,
 		    ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
-    rctFineGrainEtaPhi_ =
-	dbe->book2D("RctBitFineGrainEtaPhi", "FINE GRANE OCCUPANCY", ETABINS,
+    rctHfPlusTauEtaPhi_ =
+	dbe->book2D("RctBitHfPlusTauEtaPhi", "HF plus Tau OCCUPANCY", ETABINS,
 		    ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
     // local regions
@@ -250,7 +250,7 @@ void L1TRCT::analyze(const Event & e, const EventSetup & c)
     if(ireg->tauVeto())   rctTauVetoEtaPhi_  ->Fill(ireg->gctEta(), ireg->gctPhi());
     if(ireg->mip())       rctMipEtaPhi_      ->Fill(ireg->gctEta(), ireg->gctPhi());
     if(ireg->quiet())     rctQuietEtaPhi_    ->Fill(ireg->gctEta(), ireg->gctPhi());
-    if(ireg->fineGrain()) rctFineGrainEtaPhi_->Fill(ireg->gctEta(), ireg->gctPhi()); 
+    if(ireg->fineGrain()) rctHfPlusTauEtaPhi_->Fill(ireg->gctEta(), ireg->gctPhi()); 
     
     }
   }

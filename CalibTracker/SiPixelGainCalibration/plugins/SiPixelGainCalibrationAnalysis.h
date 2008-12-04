@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Freya Blekman
 //         Created:  Wed Nov 14 15:02:06 CET 2007
-// $Id: SiPixelGainCalibrationAnalysis.h,v 1.19 2008/08/18 10:49:26 fblekman Exp $
+// $Id: SiPixelGainCalibrationAnalysis.h,v 1.18 2008/08/16 09:59:13 fblekman Exp $
 //
 //
 
@@ -77,7 +77,6 @@ private:
   TGraphErrors *graph_;
 
   std::vector<uint32_t> listofdetids_;
-  bool ignoreMode_;
   // flags
 
   bool reject_badpoints_;

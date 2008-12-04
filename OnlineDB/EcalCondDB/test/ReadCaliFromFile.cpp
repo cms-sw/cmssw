@@ -153,7 +153,7 @@ public:
 
 
     vector<EcalLogicID> ecid_vec;
-    ecid_vec = econn->getEcalLogicIDSetOrdered("EB_crystal_number", 1,36, 1, 1700,EcalLogicID::NULLID,
+    ecid_vec = econn->getEcalLogicIDSetOrdered("EB_crystal_number", slot_num, slot_num, 1, 1700,EcalLogicID::NULLID,
 						   EcalLogicID::NULLID, "EB_T_capsule",12);
 
 

@@ -58,6 +58,12 @@ public:
   virtual void endJob() ;
   
   void fillEventInfo(int);
+  void fillMCParticles(float, float, float, float);
+  void fillTracks(float, float, float, float);
+  void fillInclusiveJet(float, float, float, float);
+  void fillChargedJet(float, float, float, float);
+  void fillTracksJet(float, float, float, float);
+  void fillCaloJet(float, float, float, float);
   void store();
 
 private:
@@ -72,19 +78,15 @@ private:
   InputTag recoCaloJetCollName;
   InputTag tracksCollName;
   InputTag triggerResultsTag;
-  InputTag triggerEventTag;
 
-  Handle< double              > genEventScaleHandle;
   Handle< HepMCProduct        > EvtHandle ;
   Handle< vector<GenParticle> > CandHandleMC ;
   Handle< GenJetCollection    > GenJetsHandle ;
   Handle< GenJetCollection    > ChgGenJetsHandle ;
-  //  Handle< CandidateCollection > CandHandleRECO ;
-  Handle< edm::View<reco::Candidate> > CandHandleRECO ;
+  Handle< CandidateCollection > CandHandleRECO ;
   Handle< BasicJetCollection  > TracksJetsHandle ;
   Handle< CaloJetCollection   > RecoCaloJetsHandle ;
-  Handle< TriggerResults      > triggerResults;
-  Handle< TriggerEvent        > triggerEvent;
+  Handle<TriggerResults> triggerResults;
   //  Handle<TriggerFilterObjectWithRefs> hltFilter; // not used at the moment: can access objects that fired the trigger
   TriggerNames triggerNames;
 
@@ -94,8 +96,22 @@ private:
 
   TTree* AnalysisTree;
 
-  int EventKind;
+  static const int NMCPMAX = 10000;   
+  static const int NTKMAX = 10000;
+  static const int NIJMAX = 10000;
+  static const int NCJMAX = 10000;
+  static const int NTJMAX = 10000;
+  static const int NEHJMAX = 10000;
+
+  int EventKind,NumberMCParticles,NumberTracks,NumberInclusiveJet,NumberChargedJet,NumberTracksJet,NumberCaloJet;
   
+  float MomentumMC[NMCPMAX],TransverseMomentumMC[NMCPMAX],EtaMC[NMCPMAX],PhiMC[NMCPMAX];
+  float MomentumTK[NTKMAX],TransverseMomentumTK[NTKMAX],EtaTK[NTKMAX],PhiTK[NTKMAX];
+  float MomentumIJ[NIJMAX],TransverseMomentumIJ[NIJMAX],EtaIJ[NIJMAX],PhiIJ[NIJMAX];
+  float MomentumCJ[NCJMAX],TransverseMomentumCJ[NCJMAX],EtaCJ[NCJMAX],PhiCJ[NCJMAX];
+  float MomentumTJ[NTJMAX],TransverseMomentumTJ[NTJMAX],EtaTJ[NTJMAX],PhiTJ[NTJMAX];
+  float MomentumEHJ[NEHJMAX],TransverseMomentumEHJ[NEHJMAX],EtaEHJ[NEHJMAX],PhiEHJ[NEHJMAX];
+
   TClonesArray* MonteCarlo;
   TClonesArray* InclusiveJet;
   TClonesArray* ChargedJet;
@@ -103,12 +119,6 @@ private:
   TClonesArray* TracksJet;
   TClonesArray* CalorimeterJet;
   TClonesArray* acceptedTriggers;
-
-  double genEventScale;
-
-
-  vector<int>  pdgidList;
-
 };
 
 #endif

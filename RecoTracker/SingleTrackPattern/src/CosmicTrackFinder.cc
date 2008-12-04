@@ -31,14 +31,7 @@ namespace cms
     conf_(conf)
   {
     geometry=conf_.getUntrackedParameter<std::string>("GeometricStructure","STANDARD");
-    trinevents=conf_.getParameter<bool>("TrajInEvents");
-    produces<reco::TrackCollection>();
-    produces<TrackingRecHitCollection>();
-    produces<reco::TrackExtraCollection>();
-    if (trinevents) {
-      produces<std::vector<Trajectory> >();
-      produces<TrajTrackAssociationCollection>();
-    }
+    produces<TrackCandidateCollection>();
   }
 
 
@@ -84,10 +77,7 @@ namespace cms
     e.getByLabel( stereorecHitsTag, stereorecHits);
 
     // Step B: create empty output collection
-    std::auto_ptr<reco::TrackCollection> output(new reco::TrackCollection);
-    std::auto_ptr<TrackingRecHitCollection> outputRHColl (new TrackingRecHitCollection);
-    std::auto_ptr<reco::TrackExtraCollection> outputTEColl(new reco::TrackExtraCollection);
-    std::auto_ptr<std::vector<Trajectory> > outputTJ(new std::vector<Trajectory> );
+    std::auto_ptr<TrackCandidateCollection> output(new TrackCandidateCollection);
 
     edm::ESHandle<TrackerGeometry> tracker;
     es.get<TrackerDigiGeometryRecord>().get(tracker);
@@ -133,7 +123,6 @@ namespace cms
 
 
 	const Trajectory  theTraj = *(*tmpTraj.begin());
-	if(trinevents) outputTJ->push_back(theTraj);
 	bool seedplus=(theTraj.seed().direction()==alongMomentum);
 	//PropagationDirection seedDir =theTraj.seed().direction();
 
@@ -142,126 +131,57 @@ namespace cms
 	else
 	  LogDebug("CosmicTrackFinder")<<"Reconstruction opposite to momentum";
 
-	Trajectory::RecHitContainer transHits = theTraj.recHits();
-	for(Trajectory::RecHitContainer::const_iterator j=transHits.begin();
-	    j!=transHits.end(); j++){
-	  //RC outputRHColl->push_back( ( (j->hit() )->clone()) );
-	  outputRHColl->push_back( ( ((**j).hit() )->clone()) );
+	/*
+	// === the convention is to save always final tracks with hits sorted *along* momentum	
+	*/
+
+	Trajectory::RecHitContainer thits;
+	//it->recHitsV(thits);
+        theTraj.recHitsV(thits,true);
+	edm::OwnVector<TrackingRecHit> recHits;
+	recHits.reserve(thits.size());
+
+	// reverse hit order
+	for (Trajectory::RecHitContainer::const_iterator hitIt = thits.end()-1;
+	     hitIt >= thits.begin(); hitIt--) {
+	  recHits.push_back( (**hitIt).hit()->clone());
 	}
 
-	edm::OrphanHandle <TrackingRecHitCollection> ohRH  = e.put( outputRHColl );
-
-
 	TSOS firstState;
-	TSOS lastState;
-	unsigned int firstId, lastId;
-	if (seedplus){
-          firstState=theTraj.lastMeasurement().updatedState();
-          lastState=theTraj.firstMeasurement().updatedState();
-	  firstId = theTraj.lastMeasurement().recHit()->geographicalId().rawId();
-	  lastId = theTraj.firstMeasurement().recHit()->geographicalId().rawId();
-        }else{
-          firstState=theTraj.firstMeasurement().updatedState();
-          lastState=theTraj.lastMeasurement().updatedState();
-	  firstId = theTraj.firstMeasurement().recHit()->geographicalId().rawId();
-	  lastId = theTraj.lastMeasurement().recHit()->geographicalId().rawId();
-        }
-	
+	unsigned int firstId;
+
+	firstState=theTraj.lastMeasurement().updatedState();
+	firstId = theTraj.lastMeasurement().recHit()->geographicalId().rawId();
+
 	/*
 	cout << "firstState y, z: " << firstState.globalPosition().y() 
 	     << " , " << firstState.globalPosition().z() <<  endl;
 
-	cout << "lastState y, z: " << lastState.globalPosition().y() 
-	     << " , " << lastState.globalPosition().z() <<  endl;
 	*/
 
-
-	//Track construction
-	int ndof =theTraj.foundHits()-5;
-        if(geometry=="CRACK") ndof++;
-	if (ndof<0) ndof=0;
-
-	TSCPBuilderNoMaterial tscpBuilder;
-	TrajectoryStateClosestToPoint tscp=tscpBuilder(*(firstState.freeState()),
-						       firstState.globalPosition());
-
-	GlobalPoint vv = tscp.theState().position();
-	math::XYZPoint  pos( vv.x(), vv.y(), vv.z() );
-	GlobalVector pp = tscp.theState().momentum();
-	math::XYZVector mom( pp.x(), pp.y(), pp.z() );
-
-
-	reco::Track theTrack(theTraj.chiSquared(),
-			     int(ndof),
-			     pos, mom, tscp.charge(), tscp.theState().curvilinearError());
-      
-
-	//Track Extra
-	GlobalPoint v=firstState.globalPosition();
-	GlobalVector p=firstState.globalMomentum();
-	math::XYZVector first_mom( p.x(), p.y(), p.z() );
-	math::XYZPoint  first_pos( v.x(), v.y(), v.z() );   
-	v=lastState.globalPosition();
-	p=lastState.globalMomentum();
-	math::XYZVector last_mom( p.x(), p.y(), p.z() );
-	math::XYZPoint  last_pos( v.x(), v.y(), v.z() );   
-
-
-	// === the convention is to save always final tracks with hits sorted *along* momentum	
-	PropagationDirection fakeDir = alongMomentum;
-
-	reco::TrackExtra *theTrackExtra = new reco::TrackExtra(last_pos, last_mom, true,
-							       first_pos, first_mom, true,
-							       lastState.curvilinearError(), lastId,
-							       firstState.curvilinearError(), firstId,
-							       fakeDir);
-
-	// === the convention is to save always final tracks with hits sorted *along* momentum	
-	if (seedplus){
-	  for (uint cc=transHits.size();cc>0;cc--){
-	    theTrackExtra->add(TrackingRecHitRef(ohRH,cc-1));
-	  }
-	}
-	else{
-	  for (uint cc=0;cc<transHits.size();cc++){
-	    theTrackExtra->add(TrackingRecHitRef(ohRH,cc));
-	  }
+	// protection againt invalid initial states
+	if (! firstState.isValid()) {
+	  edm::LogWarning("CosmicTrackFinder") << "invalid innerState, will not make TrackCandidate";
+	  edm::OrphanHandle<TrackCandidateCollection> rTrackCand = e.put(output);  
+	  return;
 	}
 
+	if(firstId != recHits.front().geographicalId().rawId()){
+	  edm::LogWarning("CosmicTrackFinder") <<"Mismatch in DetID of first hit: firstID= " <<firstId
+					       << "   DetId= " << recHits.front().geographicalId().rawId();
+	  edm::OrphanHandle<TrackCandidateCollection> rTrackCand = e.put(output);  
+	  return;
+	}
 
-
-	outputTEColl->push_back(*theTrackExtra);
-	edm::OrphanHandle<reco::TrackExtraCollection> ohTE = e.put(outputTEColl);
-
-	reco::TrackExtraRef  theTrackExtraRef(ohTE,0);
-	theTrack.setExtra(theTrackExtraRef);
-	theTrack.setHitPattern((*theTrackExtraRef).recHits());
-
-	output->push_back(theTrack);
-	delete theTrackExtra;
+	PTrajectoryStateOnDet* state = TrajectoryStateTransform().persistentState( firstState, firstId);
+	
+	
+	output->push_back(TrackCandidate(recHits,theTraj.seed(),*state,theTraj.seedRef() ) );
+	
+	delete state;
       }
-      else {
-	e.put( outputRHColl );
-	e.put(outputTEColl);    
-      }
+
     }
-    else {
-      e.put( outputRHColl );
-      e.put(outputTEColl);    
-    }
-    edm::OrphanHandle<reco::TrackCollection> rTracks = e.put(output);  
-    if (trinevents) {
-      edm::OrphanHandle<std::vector<Trajectory> > rTrajs = e.put(outputTJ);
-      // Now Create traj<->tracks association map, we have only one track at 0:
-      std::auto_ptr<TrajTrackAssociationCollection> trajTrackMap( new TrajTrackAssociationCollection() );
-      if (rTracks->size() == 1) {
- 	trajTrackMap->insert(edm::Ref<std::vector<Trajectory> > (rTrajs, 0),
-			     edm::Ref<reco::TrackCollection>    (rTracks, 0));
-      } else if (rTracks->size() != 0) {
-	edm::LogError("WrongSize") <<"@SUB=produce" << "Expected <= 1 track, not " 
-				   << rTracks->size();
-      }
-      e.put( trajTrackMap );
-    }
+    edm::OrphanHandle<TrackCandidateCollection> rTrackCand = e.put(output);  
   }
 }

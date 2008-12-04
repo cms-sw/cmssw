@@ -7,7 +7,7 @@
  *  
  * \author Chris Macklin, Avishek Chatterjee 
  *
- * \version October 2008 (Now with TID Ring 3) 
+ * \version July 2008 
  *
  ************************************************************/
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -111,12 +111,7 @@ public:
 			      std::vector<const SiStripMatchedRecHit2D*>::const_iterator hit2,
 			      double scr,double scz,double pT,double scEta);
 
-	bool altCheckHitsAndTSOS(std::vector<const SiStripMatchedRecHit2D*>::const_iterator hit1,
-				 std::vector<const SiStripRecHit2D*>::const_iterator hit2,
-				 double scr,double scz,double pT,double scEta);
-
 	const SiStripMatchedRecHit2D* matchedHitConverter(ConstRecHitPointer crhp);
-	const SiStripRecHit2D* backupHitConverter(ConstRecHitPointer crhp);
 
 	std::vector<bool> useDetLayer(double scEta);
 	
@@ -137,7 +132,6 @@ public:
 	// member vectors to hold the good hits found between hit selection and combinatorics
 	std::vector<const SiStripMatchedRecHit2D*> layer1Hits_;
 	std::vector<const SiStripMatchedRecHit2D*> layer2Hits_;
-	std::vector<const SiStripRecHit2D*> backupLayer2Hits_;
 	
 	const SiStripRecHitMatcher* theMatcher_;
 

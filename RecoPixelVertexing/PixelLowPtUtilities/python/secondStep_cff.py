@@ -59,13 +59,10 @@ secondMeasurementTracker.stripClusterProducer = 'secondClusters'
 secondCkfTrajectoryBuilder.ComponentName = 'secondCkfTrajectoryBuilder'
 secondCkfTrajectoryBuilder.MeasurementTrackerName = 'secondMeasurementTracker'
 secondCkfTrajectoryBuilder.trajectoryFilterName = 'MinBiasCkfTrajectoryFilter'
-
 secoTrackCandidates.TrajectoryCleaner = 'TrajectoryCleanerBySharedSeeds'
 secoTrackCandidates.SeedProducer = 'secoSeeds'
 secoTrackCandidates.TrajectoryBuilder = 'secondCkfTrajectoryBuilder'
 secoTrackCandidates.RedundantSeedCleaner = 'none'
-secoTrackCandidates.doSeedingRegionRebuilding = False
-
 globalSecoTracks.src = 'secoTrackCandidates'
 globalSecoTracks.clusterRemovalInfo = 'secondClusters'
 globalSecoTracks.TrajectoryInEvent = True

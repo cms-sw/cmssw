@@ -2,17 +2,49 @@
 #define HcalDeadCellClient_H
 
 #include "DQM/HcalMonitorClient/interface/HcalBaseClient.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
-#include "DQM/HcalMonitorClient/interface/HcalClientUtils.h"
-#include "DQM/HcalMonitorClient/interface/HcalHistoUtils.h"
+struct DeadCellHists{
+  int type;
+  TH2F* problemDeadCells;
 
+  //std::vector <TH2F*> problemDeadCells_DEPTH;
+  TH2F* problemDeadCells_DEPTH[4];
+
+  // Dead cell routine #1:  low ADC counts for cell
+  TH2F* deadADC_map;
+  //std::vector<TH2F*> deadADC_map_depth; // individual depth plots
+  TH2F* deadADC_map_depth[4];
+  TH1F* deadADC_eta;
+  TH1F* ADCdist;
+  //std::vector<TH2F*> deadcapADC_map; // plots for individual CAPIDs
+  TH2F* deadcapADC_map[4];
+
+  // Dead cell routine #2:  cell cool compared to neighbors
+  double floor, mindiff;
+  TH2F* NADA_cool_cell_map;
+  // std::vector<TH2F*> NADA_cool_cell_map_depth; // individual depth plots
+
+  // Dead cell routine #3:  cell consistently less than pedestal + N sigma
+  TH2F* coolcell_below_pedestal;
+  TH2F* above_pedestal;
+  
+  //std::vector<TH2F*> coolcell_below_pedestal_depth;
+  //std::vector<TH2F*> above_pedestal_depth;
+  TH2F* coolcell_below_pedestal_depth[4];
+  TH2F* above_pedestal_depth[4];
+
+// extra diagnostic plots - could be removed?  
+  // Should already have these in DigiMonitor, RecHitMonitor
+  TH2F* digiCheck;
+  TH2F* cellCheck;
+  
+};
 
 class HcalDeadCellClient : public HcalBaseClient {
-  
- public:
-  
+
+public:
+
   /// Constructor
   HcalDeadCellClient();
   /// Destructor
@@ -24,7 +56,7 @@ class HcalDeadCellClient : public HcalBaseClient {
   void analyze(void);
   
   /// BeginJob
-  void beginJob(const EventSetup& c);
+  void beginJob(void);
   
   /// EndJob
   void endJob(void);
@@ -41,62 +73,44 @@ class HcalDeadCellClient : public HcalBaseClient {
   /// Cleanup
   void cleanup(void);
   
-  void getSJ6histos( const char* dir, const char* name, TH2F* h[6]);
-  void getSJ6histos( const char* dir, const char* name, TH1F* h[6]);
 
-  /// HtmlOutput
-  void htmlOutput(int run, string htmlDir, string htmlName);
-  void htmlExpertOutput(int run, string htmlDir, string htmlName);
-  void getHistograms();
-  void loadHistograms(TFile* f);
-  
   ///process report
   void report();
   
+  /// WriteDB
+  void htmlOutput(int run, std::string htmlDir, std::string htmlName);
+  void getHistograms();
+  void loadHistograms(TFile* f);
+
   void resetAllME();
   void createTests();
+  void createSubDetTests(DeadCellHists& hist);
 
+  // Clear histograms
+  void clearHists(DeadCellHists& hist);
+  void deleteHists(DeadCellHists& hist);
+
+  void getSubDetHistograms(DeadCellHists& hist);
+  void combineSubDetHistograms(DeadCellHists& hcal, DeadCellHists& hb, DeadCellHists& he, DeadCellHists& ho, DeadCellHists& hf);
+  void resetSubDetHistograms(DeadCellHists& hist);
+  void getSubDetHistogramsFromFile(DeadCellHists& hist, TFile* infile);
+  void htmlSubDetOutput(DeadCellHists& hist, int runNo, 
+			std::string htmlDir, 
+			std::string htmlName);
+  void htmlADCSubDetOutput(DeadCellHists& hist, int runNo, 
+			   std::string htmlDir, 
+			   std::string htmlName);
+  
+  void htmlBelowPedSubDetOutput(DeadCellHists& hist, int runNo, 
+				std::string htmlDir, 
+				std::string htmlName);
 private:
-  
-  vector <std::string> subdets_;
 
-  double minErrorFlag_;  // minimum error rate which causes problem cells to be dumped in client
-  bool deadclient_makeDiagnostics_;
+  ofstream htmlFile;
 
-  bool deadclient_test_occupancy_;
-  bool deadclient_test_pedestal_;
-  bool deadclient_test_neighbor_;
-  bool deadclient_test_energy_;
-
-  int deadclient_checkNevents_;
-  int deadclient_checkNevents_occupancy_;
-  int deadclient_checkNevents_pedestal_;
-  int deadclient_checkNevents_neighbor_;
-  int deadclient_checkNevents_energy_;
-
-  // Histograms
-  TH2F* ProblemDeadCells;
-  TH2F* ProblemDeadCellsByDepth[6];
-  TH2F* UnoccupiedDeadCellsByDepth[6];
-  TH2F* BelowPedestalDeadCellsByDepth[6];
-  TH2F* BelowNeighborsDeadCellsByDepth[6];
-  TH2F* BelowEnergyThresholdCellsByDepth[6];
-
-  // diagnostic histograms
-  TH1F* d_HBnormped;
-  TH1F* d_HEnormped;
-  TH1F* d_HOnormped;
-  TH1F* d_HFnormped;
-  
-  TH1F* d_HBrechitenergy;
-  TH1F* d_HErechitenergy;
-  TH1F* d_HOrechitenergy;
-  TH1F* d_HFrechitenergy;
-  
-  TH2F* d_HBenergyVsNeighbor;
-  TH2F* d_HEenergyVsNeighbor;
-  TH2F* d_HOenergyVsNeighbor;
-  TH2F* d_HFenergyVsNeighbor;
+  DeadCellHists hbhists, hehists, hohists, hfhists, hcalhists;
+  double errorFrac_; // minimum fraction of events that must be bad to cause error
+  int checkNevents_;
 };
 
 #endif

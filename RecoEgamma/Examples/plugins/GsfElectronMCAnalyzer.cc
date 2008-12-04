@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: GsfElectronMCAnalyzer.cc,v 1.5 2008/10/28 21:51:31 charlot Exp $
+// $Id: GsfElectronMCAnalyzer.cc,v 1.3 2008/06/17 10:49:18 ferriff Exp $
 //
 //
 
@@ -29,8 +29,6 @@
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
-#include "DataFormats/EgammaReco/interface/ElectronPixelSeed.h"
-#include "DataFormats/EgammaReco/interface/ElectronPixelSeedFwd.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 
@@ -190,13 +188,6 @@ void GsfElectronMCAnalyzer::beginJob(edm::EventSetup const&iSetup){
   histSclEta_ = new TH1F("h_scl_eta","ele supercluster eta",nbineta,etamin,etamax);
   histSclPhi_ = new TH1F("h_scl_phi","ele supercluster phi",nbinphi,phimin,phimax);
 
-  histSclSigEtaEta_ =  new TH1F("h_scl_sigetaeta","ele supercluster sigma eta eta",100,0.,0.05);
-  histSclSigIEtaIEtabarrel_ =  new TH1F("h_scl_sigietaieta_barrel","ele supercluster sigma ieta ieta, barrel",100,0.,0.05);
-  histSclSigIEtaIEtaendcaps_ =  new TH1F("h_scl_sigietaieta_endcaps","ele supercluster sigma ieta ieta, endcaps",100,0.,0.05);
-  histSclE1x5_ =  new TH1F("h_scl_E1x5","ele supercluster energy in 1x5",nbinp,0., pmax);
-  histSclE2x5max_ =  new TH1F("h_scl_E2x5max","ele supercluster energy in 2x5 max",nbinp,0.,pmax);
-  histSclE5x5_ =  new TH1F("h_scl_E5x5","ele supercluster energy in 5x5",nbinp,0.,pmax);
-
   // matched electron, gsf tracks
   h_ele_foundHits      = new TH1F( "h_ele_foundHits",      "ele track # found hits",      nbinfhits,0.,fhitsmax);
   h_ele_foundHitsVsEta      = new TH2F( "h_ele_foundHitsVsEta",      "ele track # found hits vs eta",  nbineta2D,etamin,etamax,nbinfhits,0.,fhitsmax);
@@ -258,14 +249,6 @@ void GsfElectronMCAnalyzer::beginJob(edm::EventSetup const&iSetup){
   h_ele_HoEVsPhi = new TH2F("h_ele_HoEVsPhi", "ele H/E vs phi", nbinphi2D,phimin,phimax,55,-0.05,0.5) ;
   h_ele_HoEVsE = new TH2F("h_ele_HoEVsE", "ele H/E vs E", nbinp, 0.,300.,55,-0.05,0.5) ;
  
-  h_ele_seed_dphi2_ = new TH1F("h_ele_seedDphi2", "ele seed dphi 2nd layer", 50,-0.003,+0.003) ;
-  h_ele_seed_dphi2VsEta_ = new TH2F("h_ele_seedDphi2VsEta", "ele seed dphi 2nd layer vs eta", nbineta2D,etamin,etamax,50,-0.003,+0.003) ;
-  h_ele_seed_dphi2VsPt_ = new TH2F("h_ele_seedDphi2VsPt", "ele seed dphi 2nd layer vs pt", nbinpt2D,0.,ptmax,50,-0.003,+0.003) ;
-  h_ele_seed_drz2_ = new TH1F("h_ele_seedDrz2", "ele seed dr/dz 2nd layer", 50,-0.03,+0.03) ;
-  h_ele_seed_drz2VsEta_ = new TH2F("h_ele_seedDrz2VsEta", "ele seed dr/dz 2nd layer vs eta", nbineta2D,etamin,etamax,50,-0.03,+0.03) ;
-  h_ele_seed_drz2VsPt_ = new TH2F("h_ele_seedDrz2VsPt", "ele seed dr/dz 2nd layer vs pt", nbinpt2D,0.,ptmax,50,-0.03,+0.03) ;
-  h_ele_seed_subdet2_ = new TH1F("h_ele_seedSubdet2", "ele seed subdet 2nd layer", 10,0.,10.) ;
-
   // classes  
   h_ele_classes = new TH1F( "h_ele_classes", "electron classes",      150,0.0,150.);
   h_ele_eta = new TH1F( "h_ele_eta", "electron eta",  nbineta/2,0.0,etamax);
@@ -520,12 +503,6 @@ GsfElectronMCAnalyzer::endJob(){
   histSclEtaVsPhi_ ->Write();
   histSclEta_->Write();
   histSclPhi_->Write();
-  histSclSigEtaEta_->Write();
-  histSclSigIEtaIEtabarrel_->Write();
-  histSclSigIEtaIEtaendcaps_->Write();
-  histSclE1x5_->Write();
-  histSclE2x5max_->Write();
-  histSclE5x5_->Write();
 
   // matched electron, gsf tracks
   h_ele_foundHits->Write();
@@ -588,19 +565,7 @@ GsfElectronMCAnalyzer::endJob(){
   h_ele_HoEVsPhi->Write();
   h_ele_HoEVsE->Write();
  
-  h_ele_seed_dphi2_->Write();
-  TProfile *p_ele_seed_dphi2VsEta_ = h_ele_seed_dphi2VsEta_->ProfileX();
-  p_ele_seed_dphi2VsEta_->Write();
-  TProfile *p_ele_seed_dphi2VsPt_ = h_ele_seed_dphi2VsPt_->ProfileX();
-  p_ele_seed_dphi2VsPt_->Write();
-  h_ele_seed_drz2_->Write();
-  TProfile *p_ele_seed_drz2VsEta_ = h_ele_seed_drz2VsEta_->ProfileX();
-  p_ele_seed_drz2VsEta_->Write();
-  TProfile *p_ele_seed_drz2VsPt_ = h_ele_seed_drz2VsPt_->ProfileX();
-  p_ele_seed_drz2VsPt_->Write();
-  h_ele_seed_subdet2_->Write(); 
-
- // classes  
+  // classes  
   h_ele_classes->Write();
   h_ele_eta->Write();
   h_ele_eta_golden->Write();
@@ -808,12 +773,6 @@ GsfElectronMCAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
         histSclEta_->Fill(sclRef->eta());
         histSclEtaVsPhi_->Fill(sclRef->phi(),sclRef->eta());
         histSclPhi_->Fill(sclRef->phi());
-        histSclSigEtaEta_->Fill(bestGsfElectron.scSigmaEtaEta());
-        if (bestGsfElectron.classification() < 100) histSclSigIEtaIEtabarrel_->Fill(bestGsfElectron.scSigmaIEtaIEta());
-        if (bestGsfElectron.classification() >= 100) histSclSigIEtaIEtaendcaps_->Fill(bestGsfElectron.scSigmaIEtaIEta());
-        histSclE1x5_->Fill(bestGsfElectron.scE1x5());
-        histSclE2x5max_->Fill(bestGsfElectron.scE2x5Max());
-        histSclE5x5_->Fill(bestGsfElectron.scE5x5());
 
 	// track related distributions
 	h_ele_foundHits     -> Fill( bestGsfElectron.gsfTrack()->numberOfValidHits() );
@@ -846,16 +805,6 @@ GsfElectronMCAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	h_ele_outerPtVsPhi_mode       -> Fill(bestGsfElectron.phi(),  bestGsfElectron.trackMomentumOut().Rho() );
 	h_ele_outerPtVsPt_mode       -> Fill(bestGsfElectron.pt(),  bestGsfElectron.trackMomentumOut().Rho() );
 	
-        edm::RefToBase<TrajectorySeed> seed = bestGsfElectron.gsfTrack()->extra()->seedRef();
-	ElectronPixelSeedRef elseed=seed.castTo<ElectronPixelSeedRef>();
-	h_ele_seed_dphi2_-> Fill(elseed->dPhi2());
-        h_ele_seed_dphi2VsEta_-> Fill(bestGsfElectron.eta(), elseed->dPhi2());
-        h_ele_seed_dphi2VsPt_-> Fill(bestGsfElectron.pt(), elseed->dPhi2()) ;
-        h_ele_seed_drz2_-> Fill(elseed->dRz2());
-        h_ele_seed_drz2VsEta_-> Fill(bestGsfElectron.eta(), elseed->dRz2()); 
-        h_ele_seed_drz2VsPt_-> Fill(bestGsfElectron.pt(), elseed->dRz2()); 
-        h_ele_seed_subdet2_-> Fill(elseed->subDet2()); 
-        
 	// match distributions 
 	h_ele_EoP    -> Fill( bestGsfElectron.eSuperClusterOverP() );
 	h_ele_EoPVsEta    -> Fill(bestGsfElectron.eta(),  bestGsfElectron.eSuperClusterOverP() );

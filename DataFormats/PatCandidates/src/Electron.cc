@@ -1,5 +1,5 @@
 //
-// $Id: Electron.cc,v 1.10 2008/10/07 18:04:58 gpetrucc Exp $
+// $Id: Electron.cc,v 1.12 2008/11/13 15:33:21 salerno Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/Electron.h"
@@ -13,7 +13,12 @@ Electron::Electron() :
     Lepton<ElectronType>(),
     embeddedGsfTrack_(false),
     embeddedSuperCluster_(false),
-    embeddedTrack_(false)
+    embeddedTrack_(false),
+    scSigmaEtaEta_(0),
+    scSigmaIEtaIEta_(0), 
+    scE1x5_(0),
+    scE2x5Max_(0), 
+    scE5x5_(0) 
 {
 }
 
@@ -23,7 +28,12 @@ Electron::Electron(const ElectronType & anElectron) :
     Lepton<ElectronType>(anElectron),
     embeddedGsfTrack_(false),
     embeddedSuperCluster_(false),
-    embeddedTrack_(false)
+    embeddedTrack_(false),
+    scSigmaEtaEta_(0),
+    scSigmaIEtaIEta_(0), 
+    scE1x5_(0),
+    scE2x5Max_(0), 
+    scE5x5_(0) 
 {
 }
 
@@ -33,7 +43,12 @@ Electron::Electron(const edm::RefToBase<ElectronType> & anElectronRef) :
     Lepton<ElectronType>(anElectronRef),
     embeddedGsfTrack_(false),
     embeddedSuperCluster_(false),
-    embeddedTrack_(false)
+    embeddedTrack_(false),
+    scSigmaEtaEta_(0),
+    scSigmaIEtaIEta_(0), 
+    scE1x5_(0),
+    scE2x5Max_(0), 
+    scE5x5_(0) 
 {
 }
 
@@ -42,7 +57,12 @@ Electron::Electron(const edm::Ptr<ElectronType> & anElectronRef) :
     Lepton<ElectronType>(anElectronRef),
     embeddedGsfTrack_(false),
     embeddedSuperCluster_(false),
-    embeddedTrack_(false)
+    embeddedTrack_(false),
+    scSigmaEtaEta_(0),
+    scSigmaIEtaIEta_(0), 
+    scE1x5_(0),
+    scE2x5Max_(0), 
+    scE5x5_(0) 
 {
 }
 
@@ -131,4 +151,15 @@ bool Electron::isElectronIDAvailable(const std::string & name) const {
     }
     return false;
 }
+/// method to store the electron's cluster shape
+void Electron::setClusterShapes (const float& scSigmaEtaEta, const float& scSigmaIEtaIEta, 
+                                 const float& scE1x5, const float& scE2x5Max, const float& scE5x5) 
+  { 
+    scSigmaEtaEta_ = scSigmaEtaEta ; 
+    scSigmaIEtaIEta_ = scSigmaIEtaIEta ;
+    scE1x5_ = scE1x5 ;
+    scE2x5Max_ = scE2x5Max ;
+    scE5x5_ = scE5x5 ;
+  }
+
 

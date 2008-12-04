@@ -7,8 +7,8 @@
  *      within cylinders
  *
  *
- *  $Date: 2008/05/14 22:37:17 $
- *  $Revision: 1.13 $
+ *  $Date: 2008/04/25 14:59:13 $
+ *  $Revision: 1.12 $
  *  \author Chang Liu  -  Purdue University
  */
 
@@ -175,13 +175,9 @@ vector<Trajectory> CosmicMuonSmoother::fit(const TrajectorySeed& seed,
       LogTrace(category_)<<"step-propagating from "<<currTsos.globalPosition() <<" to position: "<<(*ihit)->globalPosition();
       predTsos = theUtilities->stepPropagate(currTsos, (*ihit), *propagatorAlong());
     }
-    if ( !predTsos.isValid() && (abs(theService->magneticField()->inTesla(GlobalPoint(0,0,0)).z()) < 0.01) && (theService->propagator("StraightLinePropagator").isValid() ) ) {
-      LogTrace(category_)<<"straight-line propagating from "<<currTsos.globalPosition() <<" to position: "<<(*ihit)->globalPosition();
-      predTsos = theService->propagator("StraightLinePropagator")->propagate(currTsos, (**ihit).det()->surface());
-    }
-    if (predTsos.isValid())  {
+   if (predTsos.isValid())  {
       LogTrace(category_)<<"predicted pos "<<predTsos.globalPosition()
-                         <<"mom "<<predTsos.globalMomentum();
+                       <<"mom "<<predTsos.globalMomentum();
     } else {
       LogTrace(category_)<<"predicted state invalid";
     }

@@ -13,7 +13,7 @@
 //
 // Original Author:  "Frank Chlebana"
 //         Created:  Sun Oct  5 13:57:25 CDT 2008
-// $Id: DataCertificationJetMET.cc,v 1.12 2008/10/21 05:45:59 hatake Exp $
+// $Id: DataCertificationJetMET.cc,v 1.11 2008/10/15 18:42:01 chlebana Exp $
 //
 //
 
@@ -118,7 +118,7 @@ DataCertificationJetMET::analyze(const edm::Event& iEvent, const edm::EventSetup
 
 
 // ------------------------------------------------------------
-int data_certificate_met(double chi2, double mean, double chi2_tolerance, double mean_tolerance){
+int data_certificate(double chi2, double mean, double chi2_tolerance, double mean_tolerance){
   int value=0;
   if (chi2<chi2_tolerance && fabs(mean)<mean_tolerance) value=1;
   return value;
@@ -847,13 +847,6 @@ DataCertificationJetMET::beginJob(const edm::EventSetup&)
   //--- Print out data certification summary
   //----------------------------------------------------------------
 
-  double chisq_threshold_run     = 500.;
-  double chisq_threshold_lumisec = 20.;
-  double MEx_threshold   = 10.;
-  double MEy_threshold   = 10.;
-  int    minEntry        =5;
-
-  //verbose=true;
   if (verbose) {
   std::cout << std::endl;
   printf("| Variable                       |   Reduced chi^2              | Mean               | Width      |\n");
@@ -871,21 +864,21 @@ DataCertificationJetMET::beginJob(const edm::EventSetup&)
            fitfun[i]->GetParameter(nmean),  fitfun[i]->GetParError(nmean+1),
            fitfun[i]->GetParameter(nmean+1),fitfun[i]->GetParError(nmean+1));
     if (i==0)
-      JetMET_MEx_All[0]=data_certificate_met(fitfun[i]->GetChisquare()/double(fitfun[i]->GetNDF()),
+      JetMET_MEx_All[0]=data_certificate(fitfun[i]->GetChisquare()/double(fitfun[i]->GetNDF()),
                                           fitfun[i]->GetParameter(nmean),
-                                          chisq_threshold_run,MEx_threshold);
+                                          5.,10.);
     if (i==1)
-      JetMET_MEy_All[0]=data_certificate_met(fitfun[i]->GetChisquare()/double(fitfun[i]->GetNDF()),
+      JetMET_MEy_All[0]=data_certificate(fitfun[i]->GetChisquare()/double(fitfun[i]->GetNDF()),
                                           fitfun[i]->GetParameter(nmean),
-                                          chisq_threshold_run,MEy_threshold);
+                                          5.,10.);
     if (i==2)
-      JetMET_MEx_NoHF[0]=data_certificate_met(fitfun[i]->GetChisquare()/double(fitfun[i]->GetNDF()),
+      JetMET_MEx_NoHF[0]=data_certificate(fitfun[i]->GetChisquare()/double(fitfun[i]->GetNDF()),
                                           fitfun[i]->GetParameter(nmean),
-                                          chisq_threshold_run,MEx_threshold);
+                                          5.,10.);
     if (i==3)
-      JetMET_MEy_NoHF[0]=data_certificate_met(fitfun[i]->GetChisquare()/double(fitfun[i]->GetNDF()),
+      JetMET_MEy_NoHF[0]=data_certificate(fitfun[i]->GetChisquare()/double(fitfun[i]->GetNDF()),
                                           fitfun[i]->GetParameter(nmean),
-                                          chisq_threshold_run,MEy_threshold);
+                                          5.,10.);
   }
   //
   // Each lumi section
@@ -901,9 +894,9 @@ DataCertificationJetMET::beginJob(const edm::EventSetup&)
              fitfun_CaloMEx_LS[LS]->GetChisquare()/double(fitfun_CaloMEx_LS[LS]->GetNDF()),
              fitfun_CaloMEx_LS[LS]->GetParameter(nmean),  fitfun_CaloMEx_LS[LS]->GetParError(nmean),
              fitfun_CaloMEx_LS[LS]->GetParameter(nmean+1),fitfun_CaloMEx_LS[LS]->GetParError(nmean+1));
-      JetMET_MEx_All[LS]=data_certificate_met(fitfun_CaloMEx_LS[LS]->GetChisquare()/double(fitfun_CaloMEx_LS[LS]->GetNDF()),
+      JetMET_MEx_All[LS]=data_certificate(fitfun_CaloMEx_LS[LS]->GetChisquare()/double(fitfun_CaloMEx_LS[LS]->GetNDF()),
                                           fitfun_CaloMEx_LS[LS]->GetParameter(nmean),
-                                          chisq_threshold_lumisec,MEx_threshold);
+                                          5.,10.);
     }
     if (CaloMEy_LS[LS]->GetSum()>0.) {
       int nmean=1;
@@ -915,9 +908,9 @@ DataCertificationJetMET::beginJob(const edm::EventSetup&)
              fitfun_CaloMEy_LS[LS]->GetChisquare()/double(fitfun_CaloMEy_LS[LS]->GetNDF()),
              fitfun_CaloMEy_LS[LS]->GetParameter(nmean),  fitfun_CaloMEy_LS[LS]->GetParError(nmean),
              fitfun_CaloMEy_LS[LS]->GetParameter(nmean+1),fitfun_CaloMEy_LS[LS]->GetParError(nmean+1));
-      JetMET_MEy_All[LS]=data_certificate_met(fitfun_CaloMEy_LS[LS]->GetChisquare()/double(fitfun_CaloMEy_LS[LS]->GetNDF()),
+      JetMET_MEy_All[LS]=data_certificate(fitfun_CaloMEy_LS[LS]->GetChisquare()/double(fitfun_CaloMEy_LS[LS]->GetNDF()),
                                           fitfun_CaloMEy_LS[LS]->GetParameter(nmean),
-                                          chisq_threshold_lumisec,MEy_threshold);
+                                          5.,10.);
     }
     if (CaloMExNoHF_LS[LS]->GetSum()>0.) {
       int nmean=1;
@@ -929,9 +922,9 @@ DataCertificationJetMET::beginJob(const edm::EventSetup&)
              fitfun_CaloMExNoHF_LS[LS]->GetChisquare()/double(fitfun_CaloMExNoHF_LS[LS]->GetNDF()),
              fitfun_CaloMExNoHF_LS[LS]->GetParameter(nmean),  fitfun_CaloMExNoHF_LS[LS]->GetParError(nmean),
              fitfun_CaloMExNoHF_LS[LS]->GetParameter(nmean+1),fitfun_CaloMExNoHF_LS[LS]->GetParError(nmean+1));
-      JetMET_MEx_NoHF[LS]=data_certificate_met(fitfun_CaloMExNoHF_LS[LS]->GetChisquare()/double(fitfun_CaloMExNoHF_LS[LS]->GetNDF()),
+      JetMET_MEx_NoHF[LS]=data_certificate(fitfun_CaloMExNoHF_LS[LS]->GetChisquare()/double(fitfun_CaloMExNoHF_LS[LS]->GetNDF()),
                                            fitfun_CaloMExNoHF_LS[LS]->GetParameter(nmean),
-					   chisq_threshold_lumisec,MEx_threshold);
+                                           5.,10.);
     }
     if (CaloMEyNoHF_LS[LS]->GetSum()>0.) {
       int nmean=1;
@@ -943,18 +936,17 @@ DataCertificationJetMET::beginJob(const edm::EventSetup&)
              fitfun_CaloMEyNoHF_LS[LS]->GetChisquare()/double(fitfun_CaloMEyNoHF_LS[LS]->GetNDF()),
              fitfun_CaloMEyNoHF_LS[LS]->GetParameter(nmean),  fitfun_CaloMEyNoHF_LS[LS]->GetParError(nmean),
              fitfun_CaloMEyNoHF_LS[LS]->GetParameter(nmean+1),fitfun_CaloMEyNoHF_LS[LS]->GetParError(nmean+1));
-      JetMET_MEy_NoHF[LS]=data_certificate_met(fitfun_CaloMEyNoHF_LS[LS]->GetChisquare()/double(fitfun_CaloMEyNoHF_LS[LS]->GetNDF()),
+      JetMET_MEy_NoHF[LS]=data_certificate(fitfun_CaloMEyNoHF_LS[LS]->GetChisquare()/double(fitfun_CaloMEyNoHF_LS[LS]->GetNDF()),
                                            fitfun_CaloMEyNoHF_LS[LS]->GetParameter(nmean),
-					   chisq_threshold_lumisec,MEy_threshold);
+                                           5.,10.);
     }
   } // loop over LS
-  //verbose=false;
+
 
   //
   // Data certification format
   std::cout << std::endl;
   printf("   run,       lumi-sec, tag name,                                   output\n");
-  int LS_LAST=-1;
   for (int LS=0; LS<nLSBins; LS++){
     JetMET_MET_All[LS] = JetMET_MEx_All[LS] * JetMET_MEy_All[LS];
     JetMET_MET_NoHF[LS]= JetMET_MEx_NoHF[LS]* JetMET_MEy_NoHF[LS];
@@ -965,35 +957,30 @@ DataCertificationJetMET::beginJob(const edm::EventSetup&)
     mMETDCFL2->Fill(1,LS,JetMET_MET_NoHF[LS]);
     mMETDCFL2->Fill(2,LS,JetMET_MET[LS]);
 
-    if (LS==0){                                                                              // For entire run,
-      printf("%6d %15d %-35s %10d\n",RunNumber,LS,"JetMET_MET",     JetMET_MET[LS]);         // always print out.
-      printf("%6d %15d %-35s %10d\n",RunNumber,LS,"JetMET_MET_All", JetMET_MET_All[LS]);
-      printf("%6d %15d %-35s %10d\n",RunNumber,LS,"JetMET_MET_NoHF",JetMET_MET_NoHF[LS]);
-    } else {
-      if (CaloMEx_LS[LS]->GetSum()>minEntry) {                                                     // Lumi Section with data
-	if (LS_LAST==-1){                                                                          // For first lumi section,
-	  printf("%6d %15d %-35s %10d\n",RunNumber,LS,"JetMET_MET",     JetMET_MET[LS]);     // always print out.
-	  printf("%6d %15d %-35s %10d\n",RunNumber,LS,"JetMET_MET_All", JetMET_MET_All[LS]);
-	  printf("%6d %15d %-35s %10d\n",RunNumber,LS,"JetMET_MET_NoHF",JetMET_MET_NoHF[LS]);
-	}
-// 	else if (JetMET_MET[LS]==JetMET_MET[LS_LAST]) {	                                     // If first lumi section with data,
-// 	  printf("%6d %15d %-35s %10d\n",RunNumber,LS,"JetMET_MET",     JetMET_MET[LS]);     // print out.
-// 	  printf("%6d %15d %-35s %10d\n",RunNumber,LS,"JetMET_MET_All", JetMET_MET_All[LS]);
-// 	printf("%6d %15d %-35s %10d\n",RunNumber,LS,"JetMET_MET_NoHF",JetMET_MET_NoHF[LS]);
-// 	}
-	else {
-	  if ( (JetMET_MET[LS]!=JetMET_MET[LS_LAST]) ||                                      // If changed from the previous lumi section
-	       (JetMET_MET_All[LS]!=JetMET_MET_All[LS_LAST]) ||
-	       (JetMET_MET_NoHF[LS]!=JetMET_MET_NoHF[LS_LAST]) ){
-	    printf("%6d %15d %-35s %10d\n",RunNumber,LS,"JetMET_MET",     JetMET_MET[LS]);
-	    printf("%6d %15d %-35s %10d\n",RunNumber,LS,"JetMET_MET_All", JetMET_MET_All[LS]);
-	    printf("%6d %15d %-35s %10d\n",RunNumber,LS,"JetMET_MET_NoHF",JetMET_MET_NoHF[LS]);
-	  }
-	}
-	LS_LAST=LS;
-      }    
-    }      // LS==0
-  }        // for LS
+    //    std::cout  << ">>> " << LS << " " << JetMET_MET_All[LS] << " " 
+    //	       << JetMET_MET_NoHF[LS] << " " << JetMET_MET[LS] << std::endl;
+
+    if (JetMET_MET[LS]>-1.) {
+      if (LS==0 || LS==1){
+	printf("%6d %15d %-35s %10d\n",RunNumber,LS,"JetMET_MET",     JetMET_MET[LS]);
+	printf("%6d %15d %-35s %10d\n",RunNumber,LS,"JetMET_MET_All", JetMET_MET_All[LS]);
+	printf("%6d %15d %-35s %10d\n",RunNumber,LS,"JetMET_MET_NoHF",JetMET_MET_NoHF[LS]);
+      }
+      else if (JetMET_MET[LS-1]==-1.) {	
+	printf("%6d %15d %-35s %10d\n",RunNumber,LS,"JetMET_MET",     JetMET_MET[LS]);
+	printf("%6d %15d %-35s %10d\n",RunNumber,LS,"JetMET_MET_All", JetMET_MET_All[LS]);
+	printf("%6d %15d %-35s %10d\n",RunNumber,LS,"JetMET_MET_NoHF",JetMET_MET_NoHF[LS]);
+      }
+      else {
+	if (JetMET_MET[LS]!=JetMET_MET[LS-1])
+	printf("%6d %15d %-35s %10d\n",RunNumber,LS,"JetMET_MET",     JetMET_MET[LS]);
+	if (JetMET_MET_All[LS]!=JetMET_MET_All[LS-1])
+	printf("%6d %15d %-35s %10d\n",RunNumber,LS,"JetMET_MET_All", JetMET_MET_All[LS]);
+	if (JetMET_MET_NoHF[LS]!=JetMET_MET_NoHF[LS-1])
+	printf("%6d %15d %-35s %10d\n",RunNumber,LS,"JetMET_MET_NoHF",JetMET_MET_NoHF[LS]);
+      }
+    }
+  }
 
   std::cout << std::endl;
 

@@ -1,5 +1,4 @@
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctEmLeafCard.h"
-#include "FWCore/Utilities/interface/Exception.h"
 #include <vector>
 
 using std::vector;

@@ -2,8 +2,8 @@
 
 /** \class TSGFromPropagation
  *
- *  $Date: 2008/05/29 15:44:03 $
- *  $Revision: 1.29 $
+ *  $Date: 2008/05/21 19:01:01 $
+ *  $Revision: 1.28 $
  *  \author Chang Liu - Purdue University 
  */
 
@@ -82,7 +82,6 @@ void TSGFromPropagation::trackerSeeds(const TrackCand& staMuon, const TrackingRe
      for (std::vector<const DetLayer*>::const_iterator inl = nls.begin();
          inl != nls.end(); inl++, ndesLayer++ ) {
          if ( (*inl == 0) ) break;
-//         if ( (inl != nls.end()-1 ) && ( (*inl)->subDetector() == GeomDetEnumerators::TEC ) && ( (*(inl+1))->subDetector() == GeomDetEnumerators::TOB ) ) continue; 
          alltm = findMeasurements_new(*inl, staState);
          if ( (!alltm.empty()) ) {
             LogTrace(theCategory) << "final compatible layer: "<<ndesLayer;
@@ -193,10 +192,6 @@ void TSGFromPropagation::setEvent(const edm::Event& iEvent) {
      if ( theTkLayerMeasurements ) delete theTkLayerMeasurements;
      theTkLayerMeasurements = new LayerMeasurements(&*theMeasTracker);
   }
-
-  theService->eventSetup().get<TrackerRecoGeometryRecord>().get(theTracker);
-  delete theNavigation;
-  theNavigation = new DirectTrackerNavigation(theTracker);
 
 }
 

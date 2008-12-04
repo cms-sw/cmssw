@@ -189,16 +189,21 @@ dt1DRecHits.dtDigiLabel = 'simMuonDTDigis'
 # Muon reconstruction sequence
 from RecoMuon.TrackingTools.MuonServiceProxy_cff import *
 from RecoMuon.TrackingTools.MuonTrackLoader_cff import *
-from RecoMuon.MuonSeedGenerator.standAloneMuonSeeds_cff import *
-from RecoMuon.StandAloneMuonProducer.standAloneMuons_cff import *
+KFSmootherForMuonTrackLoader.Propagator = 'SmartPropagatorAny'
+from RecoMuon.MuonSeedGenerator.standAloneMuonSeeds_cfi import *
+from RecoMuon.StandAloneMuonProducer.standAloneMuons_cfi import *
 from FastSimulation.Configuration.globalMuons_cff import *
+globalMuons.TrackerCollectionLabel = 'generalTracks'
 globalMuons.GLBTrajBuilderParameters.TrackRecHitBuilder = 'WithoutRefit'
 globalMuons.GLBTrajBuilderParameters.TrackTransformer.TrackerRecHitBuilder = 'WithoutRefit'
 globalMuons.GLBTrajBuilderParameters.TrackerRecHitBuilder = 'WithoutRefit'
+globalMuons.GLBTrajBuilderParameters.TransformerOutPropagator = cms.string('SmartPropagatorAny')
+globalMuons.GLBTrajBuilderParameters.MatcherOutPropagator = cms.string('SmartPropagator')
+
 famosMuonSequence = cms.Sequence(
     muonDigi+
     muonlocalreco+
-    ancientMuonSeed+
+    MuonSeed+
     standAloneMuons+
     globalMuons
 )
@@ -234,13 +239,12 @@ famosMuonIdAndIsolationSequence = cms.Sequence(
 )
 
 # Electron reconstruction
-from FastSimulation.Tracking.GlobalMixedSeedProducer_cff import *
+from FastSimulation.Tracking.globalCombinedSeeds_cfi import *
 from FastSimulation.EgammaElectronAlgos.electronGSPixelSeeds_cfi import *
 from FastSimulation.EgammaElectronAlgos.electronGSGsfTrackCandidates_cff import *
 from RecoEgamma.EgammaElectronProducers.pixelMatchGsfElectrons_cff import *
 from TrackingTools.GsfTracking.GsfElectronFit_cff import *
 import TrackingTools.GsfTracking.GsfElectronFit_cfi
-electronGSPixelSeeds.SeedConfiguration.initialSeeds = cms.InputTag("globalMixedSeeds","GlobalMixed")
 
 pixelMatchGsfFit = TrackingTools.GsfTracking.GsfElectronFit_cfi.GsfGlobalElectronTest.clone()
 pixelMatchGsfFit.src = 'electronGSGsfTrackCandidates'
@@ -253,7 +257,8 @@ pixelMatchGsfElectrons.endcapSuperClusters = cms.InputTag("correctedEndcapSuperC
 from RecoEgamma.ElectronIdentification.electronIdSequence_cff import *
 
 famosElectronSequence = cms.Sequence(
-    globalMixedSeeds+
+    iterativeFirstSeeds+
+    newCombinedSeeds+
     electronGSPixelSeeds+
     electronGSGsfTrackCandidates+
     pixelMatchGsfFit+

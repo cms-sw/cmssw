@@ -22,8 +22,8 @@ void HcalBaseClient::init(const ParameterSet& ps, DQMStore* dbe, string clientNa
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
   
   // verbosity switch
-  debug_ = ps.getUntrackedParameter<int>("debug", 0);
-  if(debug_>0) cout << clientName_ <<" debugging switch is on"<<endl;
+  debug_ = ps.getUntrackedParameter<bool>("debug", false);
+  if(debug_) cout << clientName_ <<" debugging switch is on"<<endl;
   
   // timing switch
   showTiming_ = ps.getUntrackedParameter<bool>("showTiming",false); 
@@ -45,18 +45,6 @@ void HcalBaseClient::init(const ParameterSet& ps, DQMStore* dbe, string clientNa
       else if(subdets[i]=="HO") subDetsOn_[3] = true;
     }
   
-  // Define error palette, ranging from yellow for low to red for high. 
-  for( int i=0; i<20; ++i )
-    {
-      //pcol_error_[19-i] = 901+i;
-      TColor* color = gROOT->GetColor( 901+i );
-      if( ! color ) color = new TColor( 901+i, 0, 0, 0, "" );
-      color->SetRGB( 1.,
-		     1.-.05*i,
-		     0);
-      pcol_error_[i]=901+i;
-    } // for (int i=0;i<20;++i)
-
   return; 
 } // void HcalBaseClient::init(const ParameterSet& ps, DQMStore* dbe, string clientName)
 
@@ -88,7 +76,7 @@ void HcalBaseClient::errorOutput(){
     }
   }
 
-  if (debug_>0) cout << clientName_ << " Error Report: "<< dqmQtests_.size() << " tests, "<<dqmReportMapErr_.size() << " errors, " <<dqmReportMapWarn_.size() << " warnings, "<< dqmReportMapOther_.size() << " others" << endl;
+  cout << clientName_ << " Error Report: "<< dqmQtests_.size() << " tests, "<<dqmReportMapErr_.size() << " errors, " <<dqmReportMapWarn_.size() << " warnings, "<< dqmReportMapOther_.size() << " others" << endl;
 
   return;
 }
@@ -114,54 +102,3 @@ void HcalBaseClient::getTestResults(int& totalTests,
 
   return;
 }
-/*
-void HcalBaseClient::getSJ6histos(char* dir, char* name, TH2F* &h)
-{
-  TH2F* dummy;
-  ostringstream hname;
-  hname <<process_.c_str()<<dir<<"HB HF Depth 1 "<<name;
-  h[0]=getAnyHisto(dummy, hname.str(),process_,dbe_,debug_,cloneME_);
-  hname.str("");
-  hname <<process_.c_str()<<dir<<"HB HF Depth 2 "<<name;
-  h[1]=getAnyHisto(dummy, hname.str(),process_,dbe_,debug_,cloneME_);
-  hname.str("");
-  hname <<process_.c_str()<<dir<<"HE Depth 3 "<<name;
-  h[2]=getAnyHisto(dummy, hname.str(),process_,dbe_,debug_,cloneME_);
-  hname.str("");
-  hname <<process_.c_str()<<dir<<"HO ZDC "<<name;
-  h[3]=getAnyHisto(dummy, hname.str(),process_,dbe_,debug_,cloneME_);
-  hname.str("");
-  hname <<process_.c_str()<<dir<<"HE Depth 1 "<<name;
-  h[4]=getAnyHisto(dummy, hname.str(),process_,dbe_,debug_,cloneME_);
-  hname.str("");
-  hname <<process_.c_str()<<dir<<"HE Depth 2 "<<name;
-  h[5]=getAnyHisto(dummy, hname.str(),process_,dbe_,debug_,cloneME_);
-  hname.str("");
-  return;
-} // void HcalBaseClient::getSJ6histos(2D)
-
-void HcalBaseClient::getSJ6histos(char* dir, char* name, TH1F* &h)
-{
-  TH1F* dummy;
-  ostringstream hname;
-  hname <<process_.c_str()<<dir<<"HB HF Depth 1 "<<name;
-  h[0]=getAnyHisto(dummy, hname.str(),process_,dbe_,debug_,cloneME_);
-  hname.str("");
-  hname <<process_.c_str()<<dir<<"HB HF Depth 2 "<<name;
-  h[1]=getAnyHisto(dummy, hname.str(),process_,dbe_,debug_,cloneME_);
-  hname.str("");
-  hname <<process_.c_str()<<dir<<"HE Depth 3 "<<name;
-  h[2]=getAnyHisto(dummy, hname.str(),process_,dbe_,debug_,cloneME_);
-  hname.str("");
-  hname <<process_.c_str()<<dir<<"HO ZDC "<<name;
-  h[3]=getAnyHisto(dummy, hname.str(),process_,dbe_,debug_,cloneME_);
-  hname.str("");
-  hname <<process_.c_str()<<dir<<"HE Depth 1 "<<name;
-  h[4]=getAnyHisto(dummy, hname.str(),process_,dbe_,debug_,cloneME_);
-  hname.str("");
-  hname <<process_.c_str()<<dir<<"HE Depth 2 "<<name;
-  h[5]=getAnyHisto(dummy, hname.str(),process_,dbe_,debug_,cloneME_);
-  hname.str("");
-  return;
-} // void HcalBaseClient::getSJ6histos(1D)
-*/

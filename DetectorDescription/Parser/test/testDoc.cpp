@@ -13,19 +13,6 @@
 #include <iostream>
 //#include <cstdlib>
 
-// includes for CMSSW main
-#include <boost/shared_ptr.hpp>
-#include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/PluginManager/interface/ProblemTracker.h"
-#include "FWCore/Utilities/interface/Presence.h"
-#include "FWCore/PluginManager/interface/PresenceFactory.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/MakeParameterSets.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-// end includes for CMSSW main
-
 #include "DetectorDescription/Parser/interface/DDLParser.h"
 #include "DetectorDescription/Parser/interface/DDLConfiguration.h"
 #include "DetectorDescription/Core/interface/DDMap.h"
@@ -170,7 +157,7 @@ void DDLTestDoc::clear()
 int DDLTestDoc::readConfig(const std::string& filename)
 {
   DCOUT('P', "DDLConfiguration::ReadConfig(): started");
-  std::cout << "readConfig" << std::endl;
+
   //  configFileName_ = filename;
 
   // Set the parser to use the handler for the configuration file.
@@ -428,171 +415,85 @@ void testAlgorithm() {
 
 int main(int argc, char *argv[])
 {
-  // MEC: 2008-08-04 : I believe the main problem w/ this is not being framework friendly.
-  // so I'm (over) using the "main" of CMSSW
+  cout  << "Initialize DDD (call AlgoInit)" << endl;
 
-  std::string const kProgramName = argv[0];
-  int rc = 0;
+  AlgoInit();
 
-  // Copied from example stand-alone program in Message Logger July 18, 2007
-  try {
+  cout << "Initialize DDL parser (get the first instance)" << endl;
+  DDLParser* myP = DDLParser::instance();
 
-    // A.  Instantiate a plug-in manager first.
-    edm::AssertHandler ah;
+  if (argc < 2) {
+    cout << "DEFAULT test using testConfiguration.xml" << endl;
 
-    // B.  Load the message service plug-in.  Forget this and bad things happen!
-    //     In particular, the job hangs as soon as the output buffer fills up.
-    //     That's because, without the message service, there is no mechanism for
-    //     emptying the buffers.
-    boost::shared_ptr<edm::Presence> theMessageServicePresence;
-    theMessageServicePresence = boost::shared_ptr<edm::Presence>(edm::PresenceFactory::get()->
-								 makePresence("MessageServicePresence").release());
+    DDLTestDoc dp; //DDLConfiguration dp;
 
-    // C.  Manufacture a configuration and establish it.
-    std::string config =
-      "process x = {"
-      "service = MessageLogger {"
-      "untracked vstring destinations = {'infos.mlog','warnings.mlog'}"
-      "untracked PSet infos = {"
-      "untracked string threshold = 'INFO'"
-      "untracked PSet default = {untracked int32 limit = 1000000}"
-      "untracked PSet FwkJob = {untracked int32 limit = 0}"
-      "}"
-      "untracked PSet warnings = {"
-      "untracked string threshold = 'WARNING'"
-      "untracked PSet default = {untracked int32 limit = 1000000}"
-      "}"
-      "untracked vstring fwkJobReports = {'FrameworkJobReport.xml'}"
-      "untracked vstring categories = {'FwkJob'}"
-      "untracked PSet FrameworkJobReport.xml = {"
-      "untracked PSet default = {untracked int32 limit = 0}"
-      "untracked PSet FwkJob = {untracked int32 limit = 10000000}"
-      "}"
-      "}"
-      "service = JobReportService{}"
-      "service = SiteLocalConfigService{}"
-      "}";
+    dp.readConfig("testConfiguration.xml");
+    dp.dumpFileList();
 
+    cout << "About to start parsing..." << endl;
 
-    boost::shared_ptr<std::vector<edm::ParameterSet> > pServiceSets;
-    boost::shared_ptr<edm::ParameterSet>          params_;
-    edm::makeParameterSets(config, params_, pServiceSets);
+    myP->parse(dp);
 
-    // D.  Create the services.
-    edm::ServiceToken tempToken(edm::ServiceRegistry::createSet(*pServiceSets.get()));
-
-    // E.  Make the services available.
-    edm::ServiceRegistry::Operate operate(tempToken);
-
-    // END Copy from example stand-alone program in Message Logger July 18, 2007
-
-    cout  << "Initialize DDD (call AlgoInit)" << endl;
-
-    AlgoInit();
-
-    cout << "Initialize DDL parser (get the first instance)" << endl;
-    DDLParser* myP = DDLParser::instance();
-
-    if (argc < 2) {
-      cout << "DEFAULT test using testConfiguration.xml" << endl;
-
-      DDLTestDoc dp; //DDLConfiguration dp;
-
-      dp.readConfig("testConfiguration.xml");
-      dp.dumpFileList();
-
-      cout << "About to start parsing..." << endl;
-
-      myP->parse(dp);
-
-      cout << "Completed Parser" << endl;
+    cout << "Completed Parser" << endl;
   
-      cout << endl << endl << "Start checking!" << endl << endl;
-      cout << "Call DDCheckMaterials and other DDChecks." << endl;
-      DDCheckMaterials(cout);
+    cout << endl << endl << "Start checking!" << endl << endl;
+    cout << "Call DDCheckMaterials and other DDChecks." << endl;
+    DDCheckMaterials(cout);
 
-      cout << "======== Navigate a little bit  ======" << endl;
-      try {
-	DDCompactView cpv;
-	DDExpandedView ev(cpv);
-	ev.firstChild();
-	ev.nextSibling();
-	cout << ev.geoHistory() << endl;
-	ev.nextSibling();
-	cout << ev.geoHistory() << endl;
-	ev.firstChild();
-	cout << ev.geoHistory() << endl;
-	ev.nextSibling();
-	cout << ev.geoHistory() << endl;
-	ev.nextSibling();
-	cout << ev.geoHistory() << endl;
-	ev.firstChild();
-	cout << ev.geoHistory() << endl;
-	ev.nextSibling();
-	cout << ev.geoHistory() << endl;
-	ev.firstChild();
-	cout << ev.geoHistory() << endl;
-	ev.nextSibling();
-	cout << ev.geoHistory() << endl;
-	ev.firstChild();
-	cout << ev.geoHistory() << endl;
-	ev.nextSibling();
-	cout << ev.geoHistory() << endl;
-      }
-      catch (DDException& e) {
-	cout << e.what() << endl;
-      }
+    cout << "======== Navigate a little bit  ======" << endl;
+    try {
+    DDCompactView cpv;
+    DDExpandedView ev(cpv);
+    ev.firstChild();
+    ev.nextSibling();
+    cout << ev.geoHistory() << endl;
+    ev.nextSibling();
+    cout << ev.geoHistory() << endl;
+    ev.firstChild();
+    cout << ev.geoHistory() << endl;
+    ev.nextSibling();
+    cout << ev.geoHistory() << endl;
+    ev.nextSibling();
+    cout << ev.geoHistory() << endl;
+    ev.firstChild();
+    cout << ev.geoHistory() << endl;
+    ev.nextSibling();
+    cout << ev.geoHistory() << endl;
+    ev.firstChild();
+    cout << ev.geoHistory() << endl;
+    ev.nextSibling();
+    cout << ev.geoHistory() << endl;
+    ev.firstChild();
+    cout << ev.geoHistory() << endl;
+    ev.nextSibling();
+    cout << ev.geoHistory() << endl;
+    }
+    catch (DDException& e) {
+      cout << e.what() << endl;
+    }
 
-      cout << "--------------- Parser testing started --------------" << endl;
-      cout << endl << "Run the XML tests." << endl;
-      testMaterials();
-      testRotations();
-      testSolids();
-      testLogicalParts();
-      testPosParts();
-    } else if (argc < 3) {
+    cout << "--------------- Parser testing started --------------" << endl;
+    cout << endl << "Run the XML tests." << endl;
+    testMaterials();
+    testRotations();
+    testSolids();
+    testLogicalParts();
+    testPosParts();
+  } else if (argc < 3) {
 
-      //just to have something!
-      DDRootDef::instance().set(DDName("LP1", "testNoSections"));
+    //just to have something!
+    DDRootDef::instance().set(DDName("LP1", "testNoSections"));
 
-      string fname = string(argv[1]);
-      DDLTestDoc dp;
-      while (fname != "q") {
-	cout << "about to try to process the file " << fname << endl;
-	dp.push_back(fname);
-	myP->parse(dp);
-	cout << "next file name:" ;
-	cin >> fname;
-	dp.clear();
-      }
+    string fname = string(argv[1]);
+    DDLTestDoc dp;
+    while (fname != "q") {
+      cout << "about to try to process the file " << fname << endl;
+      dp.push_back(fname);
+      myP->parse(dp);
+      cout << "next file name:" ;
+      cin >> fname;
+      dp.clear();
     }
   }
-  catch (DDException& e)
-    {
-      std::cerr << "DDD-PROBLEM:" << std::endl 
-		<< e << std::endl;
-    }  
-  //  Deal with any exceptions that may have been thrown.
-  catch (cms::Exception& e) {
-    std::cout << "cms::Exception caught in "
-	      << kProgramName
-	      << "\n"
-	      << e.explainSelf();
-    rc = 1;
-  }
-  catch (std::exception& e) {
-    std::cout << "Standard library exception caught in "
-	      << kProgramName
-	      << "\n"
-	      << e.what();
-    rc = 1;
-  }
-  catch (...) {
-    std::cout << "Unknown exception caught in "
-	      << kProgramName;
-    rc = 2;
-  }
-
-  return rc;
-
+  return EXIT_SUCCESS;
 }

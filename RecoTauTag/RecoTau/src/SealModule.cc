@@ -4,29 +4,38 @@
 #include "RecoTauTag/RecoTau/interface/PFRecoTauProducer.h"
 #include "RecoTauTag/RecoTau/interface/PFRecoTauDecayModeDeterminator.h"
 #include "RecoTauTag/RecoTau/interface/PFRecoTauDiscriminationByIsolation.h"
+#include "RecoTauTag/RecoTau/interface/PFRecoTauDiscriminationByIsolationUsingLeadingPion.h"
 #include "RecoTauTag/RecoTau/interface/PFRecoTauDiscriminationByLeadingTrackFinding.h"
 #include "RecoTauTag/RecoTau/interface/PFRecoTauDiscriminationByLeadingTrackPtCut.h"
-#include "RecoTauTag/RecoTau/interface/CaloRecoTauDiscriminationByLeadingTrackFinding.h"
-#include "RecoTauTag/RecoTau/interface/CaloRecoTauDiscriminationByLeadingTrackPtCut.h"
+#include "RecoTauTag/RecoTau/interface/PFRecoTauDiscriminationByLeadingPionPtCut.h"
 #include "RecoTauTag/RecoTau/interface/PFRecoTauDiscriminationAgainstElectron.h"
 #include "RecoTauTag/RecoTau/interface/PFRecoTauDiscriminationAgainstMuon.h"
+//#include "RecoTauTag/RecoTau/interface/PFRecoTauDiscriminationByNeutralHadrons.h"
+
 #include "RecoTauTag/RecoTau/interface/CaloRecoTauTagInfoProducer.h"
 #include "RecoTauTag/RecoTau/interface/CaloRecoTauProducer.h"
 #include "RecoTauTag/RecoTau/interface/CaloRecoTauDiscriminationByIsolation.h"
 #include "RecoTauTag/RecoTau/interface/CaloRecoTauDiscriminationAgainstElectron.h"
+#include "RecoTauTag/RecoTau/interface/CaloRecoTauDiscriminationByLeadingTrackFinding.h"
+#include "RecoTauTag/RecoTau/interface/CaloRecoTauDiscriminationByLeadingTrackPtCut.h"
+
 
 DEFINE_SEAL_MODULE();
 DEFINE_ANOTHER_FWK_MODULE(PFRecoTauTagInfoProducer);
 DEFINE_ANOTHER_FWK_MODULE(PFRecoTauProducer);
 DEFINE_ANOTHER_FWK_MODULE(PFRecoTauDecayModeDeterminator);
 DEFINE_ANOTHER_FWK_MODULE(PFRecoTauDiscriminationByIsolation);
+DEFINE_ANOTHER_FWK_MODULE(PFRecoTauDiscriminationByIsolationUsingLeadingPion);
 DEFINE_ANOTHER_FWK_MODULE(PFRecoTauDiscriminationByLeadingTrackFinding);
 DEFINE_ANOTHER_FWK_MODULE(PFRecoTauDiscriminationByLeadingTrackPtCut);
-DEFINE_ANOTHER_FWK_MODULE(CaloRecoTauDiscriminationByLeadingTrackFinding);
-DEFINE_ANOTHER_FWK_MODULE(CaloRecoTauDiscriminationByLeadingTrackPtCut);
+DEFINE_ANOTHER_FWK_MODULE(PFRecoTauDiscriminationByLeadingPionPtCut);
 DEFINE_ANOTHER_FWK_MODULE(PFRecoTauDiscriminationAgainstElectron);
 DEFINE_ANOTHER_FWK_MODULE(PFRecoTauDiscriminationAgainstMuon);
+DEFINE_ANOTHER_FWK_MODULE(CaloRecoTauDiscriminationByLeadingTrackPtCut);
 DEFINE_ANOTHER_FWK_MODULE(CaloRecoTauTagInfoProducer);
 DEFINE_ANOTHER_FWK_MODULE(CaloRecoTauProducer);
 DEFINE_ANOTHER_FWK_MODULE(CaloRecoTauDiscriminationByIsolation);
 DEFINE_ANOTHER_FWK_MODULE(CaloRecoTauDiscriminationAgainstElectron);
+DEFINE_ANOTHER_FWK_MODULE(CaloRecoTauDiscriminationByLeadingTrackFinding);
+
+

@@ -15,7 +15,6 @@
 <use name=Geometry/Records>
 <use name=MagneticField/Records>
 <use name=MagneticField/VolumeBasedEngine>
-<use name=RecoLocalTracker/Records>
 <use name=boost>
 <use name=clhep>
 <use name=gsl>

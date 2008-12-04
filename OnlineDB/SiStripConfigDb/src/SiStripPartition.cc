@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripPartition.cc,v 1.13 2008/07/03 09:29:21 bainbrid Exp $
+// Last commit: $Id: SiStripPartition.cc,v 1.12 2008/07/02 09:03:31 bainbrid Exp $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripPartition.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
@@ -215,7 +215,7 @@ void SiStripPartition::pset( const edm::ParameterSet& pset ) {
   runNumber_         = pset.getUntrackedParameter<unsigned int>( "RunNumber", 0 );
   forceVersions_     = pset.getUntrackedParameter<bool>( "ForceVersions", false );
   forceCurrentState_ = pset.getUntrackedParameter<bool>( "ForceCurrentState", false );
-  
+
   std::vector<uint32_t> tmp1(2,0);
   cabVersion_ = versions( pset.getUntrackedParameter< std::vector<uint32_t> >( "CablingVersion", tmp1 ) );
   fedVersion_ = versions( pset.getUntrackedParameter< std::vector<uint32_t> >( "FedVersion", tmp1 ) );
@@ -276,241 +276,167 @@ void SiStripPartition::update( const SiStripConfigDb* const db ) {
      << "\"...";
   LogTrace(mlConfigDb_) << ss.str();
 
-  // Reset container indicating state versions for commissioning runs 
-  runTableVersion_ = Versions(0,0);
-  
   try {
 
-    // -------------------- Force "current state" --------------------
+    // Reset container indicating state versions for commissioning runs 
+    runTableVersion_ = Versions(0,0);
 
-    if ( forceCurrentState_ ) { 
-      
-      // Retrieve partitions in "current state"
+    // Update versions if using versions from "current state"
+    if ( forceCurrentState_ || forceVersions_ ) { 
+    
+      // Find state for given partition
       tkStateVector states;
 #ifdef USING_NEW_DATABASE_MODEL
       states = df->getCurrentStates(); 
 #else
       states = *( df->getCurrentStates() ); 
 #endif
-      
-      // Find partition in "current state"
       tkStateVector::const_iterator istate = states.begin();
       tkStateVector::const_iterator jstate = states.end();
-      for ( ; istate != jstate; ++istate ) {
-	if ( !(*istate) ) {
-	  edm::LogError(mlConfigDb_)
-	    << "[SiStripPartition::" << __func__ << "]"
-	    << " NULL pointer returned to TkState object!";
-	  continue;
-	}
-	if ( partitionName_ == (*istate)->getPartitionName() ) { break; }
+      while ( istate != jstate ) {
+	if ( *istate && partitionName_ == (*istate)->getPartitionName() ) { break; }
+	istate++;
       }
       
-      // Set description versions if partition was found in "current state"
+      // Set versions if state was found
       if ( istate != states.end() ) {
 	
 #ifdef USING_NEW_DATABASE_MODEL
-	cabVersion_.first = (*istate)->getConnectionVersionMajorId(); 
-	cabVersion_.second = (*istate)->getConnectionVersionMinorId(); 
-#endif
-	
-	fecVersion_.first = (*istate)->getFecVersionMajorId(); 
-	fecVersion_.second = (*istate)->getFecVersionMinorId(); 
-
-	fedVersion_.first = (*istate)->getFedVersionMajorId(); 
-	fedVersion_.second = (*istate)->getFedVersionMinorId(); 
-	
-#ifdef USING_NEW_DATABASE_MODEL
-	dcuVersion_.first = (*istate)->getDcuInfoVersionMajorId(); 
-	dcuVersion_.second = (*istate)->getDcuInfoVersionMinorId(); 
-#endif
-	
-#ifdef USING_NEW_DATABASE_MODEL
-	psuVersion_.first = (*istate)->getDcuPsuMapVersionMajorId();
-	psuVersion_.second = (*istate)->getDcuPsuMapVersionMinorId(); 
-#endif
-	
-#ifdef USING_NEW_DATABASE_MODEL
-
-	// Retrieve global and local versions for "current state"
-	globalAnalysisV_ = (*istate)->getAnalysisVersionMapPointerId(); 
-	HashMapAnalysisVersions local_versions = df->getLocalAnalysisVersions( globalAnalysisV_ );
-	HashMapAnalysisVersions::const_iterator ivers = local_versions.begin();
-	HashMapAnalysisVersions::const_iterator jvers = local_versions.end();
-	for ( ; ivers != jvers; ++ivers ) {
-	  if ( ivers->first == CommissioningAnalysisDescription::T_ANALYSIS_FASTFEDCABLING ) { 
-	    fastCablingV_.first = ivers->second.first;
-	    fastCablingV_.second = ivers->second.second;
-	  } else if ( ivers->first == CommissioningAnalysisDescription::T_ANALYSIS_TIMING ) {
-	    apvTimingV_.first = ivers->second.first;
-	    apvTimingV_.second = ivers->second.second;
-	  } else if ( ivers->first == CommissioningAnalysisDescription::T_ANALYSIS_OPTOSCAN ) {
-	    optoScanV_.first = ivers->second.first;
-	    optoScanV_.second = ivers->second.second;
-	  } else if ( ivers->first == CommissioningAnalysisDescription::T_ANALYSIS_VPSPSCAN ) {
-	    vpspScanV_.first = ivers->second.first;
-	    vpspScanV_.second = ivers->second.second;
-	  } else if ( ivers->first == CommissioningAnalysisDescription::T_ANALYSIS_CALIBRATION ) {
-	    apvCalibV_.first = ivers->second.first;
-	    apvCalibV_.second = ivers->second.second;
-	  } else if ( ivers->first == CommissioningAnalysisDescription::T_ANALYSIS_PEDESTALS ) {
-	    pedestalsV_.first = ivers->second.first;
-	    pedestalsV_.second = ivers->second.second;
-	  } else if ( ivers->first == CommissioningAnalysisDescription::T_ANALYSIS_APVLATENCY ) {
-	    apvLatencyV_.first = ivers->second.first;
-	    apvLatencyV_.second = ivers->second.second;
-	  } else if ( ivers->first == CommissioningAnalysisDescription::T_ANALYSIS_FINEDELAY ) {
-	    fineDelayV_.first = ivers->second.first;
-	    fineDelayV_.second = ivers->second.second;
-	  } else if ( ivers->first == CommissioningAnalysisDescription::T_UNKNOWN ) {
-	    std::stringstream ss;
-	    edm::LogError(mlConfigDb_)
-	      << "[SiStripPartition::" << __func__ << "]"
-	      << " Found UNKNOWN AnalysisType!";
-	    edm::LogWarning(mlConfigDb_) << ss.str();
-	  } else {
-	    std::stringstream ss;
-	    edm::LogError(mlConfigDb_)
-	      << "[SiStripPartition::" << __func__ << "]"
-	      << " Unable to match content to any AnalysisType!";
-	    edm::LogWarning(mlConfigDb_) << ss.str();
-	  }
+	if ( !cabVersion_.first &&
+	     !cabVersion_.second ) { 
+	  cabVersion_.first = (*istate)->getConnectionVersionMajorId(); 
+	  cabVersion_.second = (*istate)->getConnectionVersionMinorId(); 
 	}
-
 #endif
-
-      } else {
-	std::stringstream ss;
-	edm::LogError(mlConfigDb_)
-	  << "[SiStripPartition::" << __func__ << "]"
-	  << " Unable to find partition \"" << partitionName_
-	  << "\" in current state!";
-	edm::LogWarning(mlConfigDb_) << ss.str();
-      }
-
-    } // Check if using "current state"
     
-    // -------------------- Use run table --------------------
-    
-    else if ( runNumber_ ) { 
-      
-      // Retrieve TkRun object for given run
-      TkRun* run = df->getRun( partitionName_, runNumber_ ); 
-      if ( run ) {
-	if ( runNumber_ == run->getRunNumber() ) {
-	  
+	if ( !fecVersion_.first &&
+	     !fecVersion_.second ) { 
+	  fecVersion_.first = (*istate)->getFecVersionMajorId(); 
+	  fecVersion_.second = (*istate)->getFecVersionMinorId(); 
+	}
+	if ( !fedVersion_.first &&
+	     !fedVersion_.second ) { 
+	  fedVersion_.first = (*istate)->getFedVersionMajorId(); 
+	  fedVersion_.second = (*istate)->getFedVersionMinorId(); 
+	}
+	
 #ifdef USING_NEW_DATABASE_MODEL
-	  if ( !( forceVersions_ && ( cabVersion_.first || cabVersion_.second ) ) ) {
-	    cabVersion_.first = run->getConnectionVersionMajorId(); 
-	    cabVersion_.second = run->getConnectionVersionMinorId(); 
-	  }
+	if ( !dcuVersion_.first &&
+	     !dcuVersion_.second ) { 
+	  dcuVersion_.first = (*istate)->getDcuInfoVersionMajorId(); 
+	  dcuVersion_.second = (*istate)->getDcuInfoVersionMinorId(); 
+	}
 #endif
-	  
-	  if ( !( forceVersions_ && ( fecVersion_.first || fecVersion_.second ) ) ) {
-	    fecVersion_.first = run->getFecVersionMajorId(); 
-	    fecVersion_.second = run->getFecVersionMinorId(); 
-	  }
-	  
-	  if ( !( forceVersions_ && ( fedVersion_.first || fedVersion_.second ) ) ) {
-	    fedVersion_.first = run->getFedVersionMajorId(); 
-	    fedVersion_.second = run->getFedVersionMinorId(); 
-	  }
-	  
+	
 #ifdef USING_NEW_DATABASE_MODEL
-	  if ( !( forceVersions_ && ( dcuVersion_.first || dcuVersion_.second ) ) ) {
-	    dcuVersion_.first = run->getDcuInfoVersionMajorId(); 
-	    dcuVersion_.second = run->getDcuInfoVersionMinorId(); 
-	  }
+	if ( !psuVersion_.first &&
+	     !psuVersion_.second ) { 
+	  psuVersion_.first = (*istate)->getDcuPsuMapVersionMajorId();
+	  psuVersion_.second = (*istate)->getDcuPsuMapVersionMinorId(); 
+	}
 #endif
-	  
+	
 #ifdef USING_NEW_DATABASE_MODEL
-	  if ( !( forceVersions_ && ( psuVersion_.first || psuVersion_.second ) ) ) {
-	    psuVersion_.first = run->getDcuPsuMapVersionMajorId();
-	    psuVersion_.second = run->getDcuPsuMapVersionMinorId(); 
-	  }
-#endif
-	  
-	  // Retrieve run type from run table
-	  uint16_t type = run->getModeId( run->getMode() );
-	  if      ( type ==  1 ) { runType_ = sistrip::PHYSICS; }
-	  else if ( type ==  2 ) { runType_ = sistrip::PEDESTALS; }
-	  else if ( type ==  3 ) { runType_ = sistrip::CALIBRATION; }
-	  else if ( type == 33 ) { runType_ = sistrip::CALIBRATION_DECO; }
-	  else if ( type ==  4 ) { runType_ = sistrip::OPTO_SCAN; }
-	  else if ( type ==  5 ) { runType_ = sistrip::APV_TIMING; }
-	  else if ( type ==  6 ) { runType_ = sistrip::APV_LATENCY; }
-	  else if ( type ==  7 ) { runType_ = sistrip::FINE_DELAY_PLL; }
-	  else if ( type ==  8 ) { runType_ = sistrip::FINE_DELAY_TTC; }
-	  else if ( type == 10 ) { runType_ = sistrip::MULTI_MODE; }
-	  else if ( type == 12 ) { runType_ = sistrip::FED_TIMING; }
-	  else if ( type == 13 ) { runType_ = sistrip::FED_CABLING; }
-	  else if ( type == 14 ) { runType_ = sistrip::VPSP_SCAN; }
-	  else if ( type == 15 ) { runType_ = sistrip::DAQ_SCOPE_MODE; }
-	  else if ( type == 16 ) { runType_ = sistrip::QUITE_FAST_CABLING; }
-	  else if ( type == 21 ) { runType_ = sistrip::FAST_CABLING; }
-	  else if ( type ==  0 ) { 
-	    runType_ = sistrip::UNDEFINED_RUN_TYPE;
-	    edm::LogWarning(mlConfigDb_)
-	      << "[SiStripPartition::" << __func__ << "]"
-	      << " NULL value for run type returned!"
-	      << " for partition \"" << partitionName_ << "\"";
-	  } else { 
-	    runType_ = sistrip::UNKNOWN_RUN_TYPE; 
-	    edm::LogWarning(mlConfigDb_)
-	      << "[SiStripPartition::" << __func__ << "]"
-	      << " UNKNOWN run type (" << type<< ") returned!"
-	      << " for partition \"" << partitionName_ << "\"";
-	  }
+	
+	// Retrieve global and local versions 
+	if ( forceCurrentState_ || globalAnalysisV_ ) { // use global version (or current state)
 
-#ifdef USING_NEW_DATABASE_MODEL
-
-	  // Retrieve global version associated with given run (unless forced)
-	  if ( !( forceVersions_ && globalAnalysisV_ ) ) {
-	    globalAnalysisV_ = run->getAnalysisVersionMapPointerId(); 
-	  }
+	  // Set global version
+	  if ( forceCurrentState_ ) { globalAnalysisV_ = (*istate)->getAnalysisVersionMapPointerId(); }
 	  
-	  // Retrieve local versions associated with given run (unless forced)
+	  // Retrieve local versions
 	  HashMapAnalysisVersions local_versions = df->getLocalAnalysisVersions( globalAnalysisV_ );
+	  
+	  // Iterate through map< AnalysisType, pair<Major,Minor> >
 	  HashMapAnalysisVersions::const_iterator ivers = local_versions.begin();
 	  HashMapAnalysisVersions::const_iterator jvers = local_versions.end();
 	  for ( ; ivers != jvers; ++ivers ) {
 	    if ( ivers->first == CommissioningAnalysisDescription::T_ANALYSIS_FASTFEDCABLING ) { 
-	      if ( !( forceVersions_ && ( fastCablingV_.first || fastCablingV_.second ) ) ) {
+	      fastCablingV_.first = ivers->second.first;
+	      fastCablingV_.second = ivers->second.second;
+	    } else if ( ivers->first == CommissioningAnalysisDescription::T_ANALYSIS_TIMING ) {
+	      apvTimingV_.first = ivers->second.first;
+	      apvTimingV_.second = ivers->second.second;
+	    } else if ( ivers->first == CommissioningAnalysisDescription::T_ANALYSIS_OPTOSCAN ) {
+	      optoScanV_.first = ivers->second.first;
+	      optoScanV_.second = ivers->second.second;
+	    } else if ( ivers->first == CommissioningAnalysisDescription::T_ANALYSIS_VPSPSCAN ) {
+	      vpspScanV_.first = ivers->second.first;
+	      vpspScanV_.second = ivers->second.second;
+	    } else if ( ivers->first == CommissioningAnalysisDescription::T_ANALYSIS_CALIBRATION ) {
+	      apvCalibV_.first = ivers->second.first;
+	      apvCalibV_.second = ivers->second.second;
+	    } else if ( ivers->first == CommissioningAnalysisDescription::T_ANALYSIS_PEDESTALS ) {
+	      pedestalsV_.first = ivers->second.first;
+	      pedestalsV_.second = ivers->second.second;
+	    } else if ( ivers->first == CommissioningAnalysisDescription::T_ANALYSIS_APVLATENCY ) {
+	      apvLatencyV_.first = ivers->second.first;
+	      apvLatencyV_.second = ivers->second.second;
+	    } else if ( ivers->first == CommissioningAnalysisDescription::T_ANALYSIS_FINEDELAY ) {
+	      fineDelayV_.first = ivers->second.first;
+	      fineDelayV_.second = ivers->second.second;
+	    } else if ( ivers->first == CommissioningAnalysisDescription::T_UNKNOWN ) {
+	      std::stringstream ss;
+	      edm::LogError(mlConfigDb_)
+		<< "[SiStripPartition::" << __func__ << "]"
+		<< " Found UNKNOWN AnalysisType!";
+	      edm::LogWarning(mlConfigDb_) << ss.str();
+	    } else {
+	      std::stringstream ss;
+	      edm::LogError(mlConfigDb_)
+		<< "[SiStripPartition::" << __func__ << "]"
+		<< " Unable to match content to any AnalysisType!";
+	      edm::LogWarning(mlConfigDb_) << ss.str();
+	    }
+	  }
+      
+	} else if ( !globalAnalysisV_ ) { // use local versions
+	
+	  // Retrieve local versions and set if necessary
+	  globalAnalysisV_ = (*istate)->getAnalysisVersionMapPointerId(); 
+	  HashMapAnalysisVersions local_versions = df->getLocalAnalysisVersions( globalAnalysisV_ );
+	  
+	  // Iterate through map< AnalysisType, pair<Major,Minor> >
+	  HashMapAnalysisVersions::const_iterator ivers = local_versions.begin();
+	  HashMapAnalysisVersions::const_iterator jvers = local_versions.end();
+	  for ( ; ivers != jvers; ++ivers ) {
+	    if ( ivers->first == CommissioningAnalysisDescription::T_ANALYSIS_FASTFEDCABLING ) { 
+	      if ( !fastCablingV_.first && !fastCablingV_.second ) {
 		fastCablingV_.first = ivers->second.first;
 		fastCablingV_.second = ivers->second.second;
 	      }
 	    } else if ( ivers->first == CommissioningAnalysisDescription::T_ANALYSIS_TIMING ) {
-	      if ( !( forceVersions_ && ( apvTimingV_.first || apvTimingV_.second ) ) ) {
+	      if ( !apvTimingV_.first && !apvTimingV_.second ) {
 		apvTimingV_.first = ivers->second.first;
 		apvTimingV_.second = ivers->second.second;
 	      }
 	    } else if ( ivers->first == CommissioningAnalysisDescription::T_ANALYSIS_OPTOSCAN ) {
-	      if ( !( forceVersions_ && ( optoScanV_.first || optoScanV_.second ) ) ) {
+	      if ( !optoScanV_.first && !optoScanV_.second ) {
 		optoScanV_.first = ivers->second.first;
 		optoScanV_.second = ivers->second.second;
 	      }
 	    } else if ( ivers->first == CommissioningAnalysisDescription::T_ANALYSIS_VPSPSCAN ) {
-	      if ( !( forceVersions_ && ( vpspScanV_.first || vpspScanV_.second ) ) ) {
+	      if ( !vpspScanV_.first && !vpspScanV_.second ) {
 		vpspScanV_.first = ivers->second.first;
 		vpspScanV_.second = ivers->second.second;
 	      }
 	    } else if ( ivers->first == CommissioningAnalysisDescription::T_ANALYSIS_CALIBRATION ) {
-	      if ( !( forceVersions_ && ( apvCalibV_.first || apvCalibV_.second ) ) ) {
+	      if ( !apvCalibV_.first && !apvCalibV_.second ) {
 		apvCalibV_.first = ivers->second.first;
 		apvCalibV_.second = ivers->second.second;
 	      }
 	    } else if ( ivers->first == CommissioningAnalysisDescription::T_ANALYSIS_PEDESTALS ) {
-	      if ( !( forceVersions_ && ( pedestalsV_.first || pedestalsV_.second ) ) ) {
+	      if ( !pedestalsV_.first && !pedestalsV_.second ) {
 		pedestalsV_.first = ivers->second.first;
 		pedestalsV_.second = ivers->second.second;
 	      }
 	    } else if ( ivers->first == CommissioningAnalysisDescription::T_ANALYSIS_APVLATENCY ) {
-	      if ( !( forceVersions_ && ( apvLatencyV_.first || apvLatencyV_.second ) ) ) {
+	      if ( !apvLatencyV_.first && !apvLatencyV_.second ) {
 		apvLatencyV_.first = ivers->second.first;
 		apvLatencyV_.second = ivers->second.second;
 	      }
 	    } else if ( ivers->first == CommissioningAnalysisDescription::T_ANALYSIS_FINEDELAY ) {
-	      if ( !( forceVersions_ && ( fineDelayV_.first || fineDelayV_.second ) ) ) {
+	      if ( !fineDelayV_.first && !fineDelayV_.second ) {
 		fineDelayV_.first = ivers->second.first;
 		fineDelayV_.second = ivers->second.second;
 	      }
@@ -528,51 +454,169 @@ void SiStripPartition::update( const SiStripConfigDb* const db ) {
 	      edm::LogWarning(mlConfigDb_) << ss.str();
 	    }
 	  }
-	  
-	  if ( !forceVersions_ ) {
+      
+	}
 
-	    // Check if commissioning run
+#endif
+      
+      } else {
+	std::stringstream ss;
+	edm::LogError(mlConfigDb_)
+	  << "[SiStripPartition::" << __func__ << "]"
+	  << " Unable to find \"current state\" for partition \""
+	  << partitionName_ << "\"";
+      }
+    
+    } else { // ---------- USE RUN NUMBER ----------
+    
+      // Retrieve TkRun object for given run (0 means "latest run")
+      TkRun* run = 0;
+      if ( !runNumber_ ) { run = df->getLastRun( partitionName_ ); }
+      else { run = df->getRun( partitionName_, runNumber_ ); }
+  
+      // Retrieve versioning for given TkRun object 
+      if ( run ) {
+	
+	if ( run->getRunNumber() ) {
+	  
+	  if ( !runNumber_ ) { runNumber_ = run->getRunNumber(); }
+	  
+	  if ( runNumber_ == run->getRunNumber() ) {
+	    
+#ifdef USING_NEW_DATABASE_MODEL
+	    cabVersion_.first = run->getConnectionVersionMajorId(); 
+	    cabVersion_.second = run->getConnectionVersionMinorId(); 
+#endif
+	    
+	    fecVersion_.first = run->getFecVersionMajorId(); 
+	    fecVersion_.second = run->getFecVersionMinorId(); 
+	    
+	    fedVersion_.first = run->getFedVersionMajorId(); 
+	    fedVersion_.second = run->getFedVersionMinorId(); 
+	    
+#ifdef USING_NEW_DATABASE_MODEL
+	    dcuVersion_.first = run->getDcuInfoVersionMajorId(); 
+	    dcuVersion_.second = run->getDcuInfoVersionMinorId(); 
+#endif
+	    
+#ifdef USING_NEW_DATABASE_MODEL
+	    psuVersion_.first = run->getDcuPsuMapVersionMajorId();
+	    psuVersion_.second = run->getDcuPsuMapVersionMinorId(); 
+#endif
+	    
+	    // Check run type
+	    uint16_t type = run->getModeId( run->getMode() );
+	    if      ( type ==  1 ) { runType_ = sistrip::PHYSICS; }
+	    else if ( type ==  2 ) { runType_ = sistrip::PEDESTALS; }
+	    else if ( type ==  3 ) { runType_ = sistrip::CALIBRATION; }
+	    else if ( type == 33 ) { runType_ = sistrip::CALIBRATION_DECO; }
+	    else if ( type ==  4 ) { runType_ = sistrip::OPTO_SCAN; }
+	    else if ( type ==  5 ) { runType_ = sistrip::APV_TIMING; }
+	    else if ( type ==  6 ) { runType_ = sistrip::APV_LATENCY; }
+	    else if ( type ==  7 ) { runType_ = sistrip::FINE_DELAY_PLL; }
+	    else if ( type ==  8 ) { runType_ = sistrip::FINE_DELAY_TTC; }
+	    else if ( type == 10 ) { runType_ = sistrip::MULTI_MODE; }
+	    else if ( type == 12 ) { runType_ = sistrip::FED_TIMING; }
+	    else if ( type == 13 ) { runType_ = sistrip::FED_CABLING; }
+	    else if ( type == 14 ) { runType_ = sistrip::VPSP_SCAN; }
+	    else if ( type == 15 ) { runType_ = sistrip::DAQ_SCOPE_MODE; }
+	    else if ( type == 16 ) { runType_ = sistrip::QUITE_FAST_CABLING; }
+	    else if ( type == 21 ) { runType_ = sistrip::FAST_CABLING; }
+	    else if ( type ==  0 ) { 
+	      runType_ = sistrip::UNDEFINED_RUN_TYPE;
+	      edm::LogWarning(mlConfigDb_)
+		<< "[SiStripPartition::" << __func__ << "]"
+		<< " NULL run type returned!"
+		<< " for partition \"" << partitionName_ << "\"";
+	    } else { 
+	      runType_ = sistrip::UNKNOWN_RUN_TYPE; 
+	      edm::LogWarning(mlConfigDb_)
+		<< "[SiStripPartition::" << __func__ << "]"
+		<< " UNKNOWN run type (" << type<< ") returned!"
+		<< " for partition \"" << partitionName_ << "\"";
+	    }
+
+
+#ifdef USING_NEW_DATABASE_MODEL
+	    
+	    // Retrieve global and local versions from state associated with given run
+	    globalAnalysisV_ = run->getAnalysisVersionMapPointerId(); 
+	    HashMapAnalysisVersions local_versions = df->getLocalAnalysisVersions( globalAnalysisV_ );
+	    HashMapAnalysisVersions::const_iterator ivers = local_versions.begin();
+	    HashMapAnalysisVersions::const_iterator jvers = local_versions.end();
+	    for ( ; ivers != jvers; ++ivers ) {
+	      if ( ivers->first == CommissioningAnalysisDescription::T_ANALYSIS_FASTFEDCABLING ) { 
+		fastCablingV_.first = ivers->second.first;
+		fastCablingV_.second = ivers->second.second;
+	      } else if ( ivers->first == CommissioningAnalysisDescription::T_ANALYSIS_TIMING ) {
+		apvTimingV_.first = ivers->second.first;
+		apvTimingV_.second = ivers->second.second;
+	      } else if ( ivers->first == CommissioningAnalysisDescription::T_ANALYSIS_OPTOSCAN ) {
+		optoScanV_.first = ivers->second.first;
+		optoScanV_.second = ivers->second.second;
+	      } else if ( ivers->first == CommissioningAnalysisDescription::T_ANALYSIS_VPSPSCAN ) {
+		vpspScanV_.first = ivers->second.first;
+		vpspScanV_.second = ivers->second.second;
+	      } else if ( ivers->first == CommissioningAnalysisDescription::T_ANALYSIS_CALIBRATION ) {
+		apvCalibV_.first = ivers->second.first;
+		apvCalibV_.second = ivers->second.second;
+	      } else if ( ivers->first == CommissioningAnalysisDescription::T_ANALYSIS_PEDESTALS ) {
+		pedestalsV_.first = ivers->second.first;
+		pedestalsV_.second = ivers->second.second;
+	      } else if ( ivers->first == CommissioningAnalysisDescription::T_ANALYSIS_APVLATENCY ) {
+		apvLatencyV_.first = ivers->second.first;
+		apvLatencyV_.second = ivers->second.second;
+	      } else if ( ivers->first == CommissioningAnalysisDescription::T_ANALYSIS_FINEDELAY ) {
+		fineDelayV_.first = ivers->second.first;
+		fineDelayV_.second = ivers->second.second;
+	      } else if ( ivers->first == CommissioningAnalysisDescription::T_UNKNOWN ) {
+		std::stringstream ss;
+		edm::LogError(mlConfigDb_)
+		  << "[SiStripPartition::" << __func__ << "]"
+		  << " Found UNKNOWN AnalysisType!";
+		edm::LogWarning(mlConfigDb_) << ss.str();
+	      } else {
+		std::stringstream ss;
+		edm::LogError(mlConfigDb_)
+		  << "[SiStripPartition::" << __func__ << "]"
+		  << " Unable to match content to any AnalysisType!";
+		edm::LogWarning(mlConfigDb_) << ss.str();
+	      }
+	    }
+
+	    // If commissioning run, override version of analysis type with version PRODUCED by run (from history)
 	    if ( runType_ != sistrip::PHYSICS &&
 		 runType_ != sistrip::UNDEFINED_RUN_TYPE &&
 		 runType_ != sistrip::UNKNOWN_RUN_TYPE ) { 
 	      
-	      // Determine analysis type that corresponds to run type retrieved above from run table
-	      CommissioningAnalysisDescription::commissioningType type;
-	      type = CommissioningAnalysisDescription::T_UNKNOWN;
-	      if ( runType_ == sistrip::FAST_CABLING ) { 
-		type = CommissioningAnalysisDescription::T_ANALYSIS_FASTFEDCABLING; 
-	      } else if ( runType_ == sistrip::APV_TIMING ) { 
-		type = CommissioningAnalysisDescription::T_ANALYSIS_TIMING;
-	      } else if ( runType_ == sistrip::OPTO_SCAN ) { 
-		type = CommissioningAnalysisDescription::T_ANALYSIS_OPTOSCAN;
-	      } else if ( runType_ == sistrip::VPSP_SCAN ) { 
-		type = CommissioningAnalysisDescription::T_ANALYSIS_VPSPSCAN;
-	      } else if ( runType_ == sistrip::CALIBRATION ) { 
-		type = CommissioningAnalysisDescription::T_ANALYSIS_CALIBRATION;
-	      } else if ( runType_ == sistrip::PEDESTALS ) { 
-		type = CommissioningAnalysisDescription::T_ANALYSIS_PEDESTALS;
-	      } else if ( runType_ == sistrip::APV_LATENCY ) { 
-		type = CommissioningAnalysisDescription::T_ANALYSIS_APVLATENCY;
-	      } else if ( runType_ == sistrip::FINE_DELAY_TTC ) { 
-		type = CommissioningAnalysisDescription::T_ANALYSIS_FINEDELAY;
-	      } else {
-		type = CommissioningAnalysisDescription::T_UNKNOWN;
-	      }
-  
-	      // Retrieve local versions for given run type (from "history")
+	      // Determine analysis type from run type
+	      CommissioningAnalysisDescription::commissioningType type = CommissioningAnalysisDescription::T_UNKNOWN;
+	      if      ( runType_ == sistrip::FAST_CABLING )   { type = CommissioningAnalysisDescription::T_ANALYSIS_FASTFEDCABLING; }
+	      else if ( runType_ == sistrip::APV_TIMING )     { type = CommissioningAnalysisDescription::T_ANALYSIS_TIMING; }
+	      else if ( runType_ == sistrip::OPTO_SCAN )      { type = CommissioningAnalysisDescription::T_ANALYSIS_OPTOSCAN; }
+	      else if ( runType_ == sistrip::VPSP_SCAN )      { type = CommissioningAnalysisDescription::T_ANALYSIS_VPSPSCAN; }
+	      else if ( runType_ == sistrip::CALIBRATION )    { type = CommissioningAnalysisDescription::T_ANALYSIS_CALIBRATION; }
+	      else if ( runType_ == sistrip::PEDESTALS )      { type = CommissioningAnalysisDescription::T_ANALYSIS_PEDESTALS; }
+	      else if ( runType_ == sistrip::APV_LATENCY )    { type = CommissioningAnalysisDescription::T_ANALYSIS_APVLATENCY; }
+	      else if ( runType_ == sistrip::FINE_DELAY_TTC ) { type = CommissioningAnalysisDescription::T_ANALYSIS_FINEDELAY; }
+
+	      // Retrieve local versions for COMMISSIONING runs from history
 	      HashMapRunVersion local_versions = df->getAnalysisHistory( partitionName_, type );
-	    
-	      // Retrieve local versions for given run from map<RunNumber,vector<pair<Major,Minor>>>
-	      HashMapRunVersion::const_iterator ivers = local_versions.find( runNumber_ ); 
+
+	      // Iterate through map< RunNumber, vector< pair<Major,Minor> > > to find appropriate run
+	      HashMapRunVersion::const_iterator ivers = local_versions.end();
+	      if ( runNumber_ == 0 ) { ivers = --(local_versions.end()); }
+	      else { ivers = local_versions.find( runNumber_ ); } 
+	      
+	      // Set appropriate versions
 	      if ( ivers != local_versions.end() ) {
-	    
-		// For analysis type corresponding to run type, override version retrieved from 
-		// run table with version produced by this commissioning run. (This version is 
-		// from "history" and was not necessarily used as a "calibration" for a physics run.)
 		if ( type == CommissioningAnalysisDescription::T_ANALYSIS_FASTFEDCABLING ) { 
-		  runTableVersion_ = fastCablingV_; 
+		  runTableVersion_ = fastCablingV_;
 		  fastCablingV_.first = ivers->second.back().first;
-		  fastCablingV_.second = ivers->second.back().second; //@@
+		  fastCablingV_.second = ivers->second.back().second;
+
+		  //@@
+
 		} else if ( type == CommissioningAnalysisDescription::T_ANALYSIS_TIMING ) {
 		  runTableVersion_ = apvTimingV_;
 		  apvTimingV_.first = ivers->second.back().first;
@@ -614,178 +658,49 @@ void SiStripPartition::update( const SiStripConfigDb* const db ) {
 		    << " Unable to match content to any AnalysisType!";
 		  edm::LogWarning(mlConfigDb_) << ss.str();
 		}
+	      } else {
+		std::stringstream ss;
+		edm::LogError(mlConfigDb_)
+		  << "[SiStripPartition::" << __func__ << "]"
+		  << " Unable to find run number " << runNumber_
+		  << " in \"history\" hash map ";
+		edm::LogWarning(mlConfigDb_) << ss.str();
+	      }
 
-	      } // Check if local versions found for given run
-	    } // Check if commissioning run
-	  } // Check if forced versions
-
-#endif
-	
-	} else {
-	  std::stringstream ss;
-	  edm::LogError(mlConfigDb_)
-	    << "[SiStripPartition::" << __func__ << "]"
-	    << " Unable to match run number (" << runNumber_
-	    << ") with that returned by TkRun object (" << run->getRunNumber()
-	    << ") for partition \"" << partitionName_ << "\"!";
-	  edm::LogWarning(mlConfigDb_) << ss.str();
-	}
-      } else {
-	std::stringstream ss;
-	edm::LogError(mlConfigDb_)
-	  << "[SiStripPartition::" << __func__ << "]"
-	  << " NULL pointer to TkRun"
-	  << " returned for run number " << runNumber_ 
-	  << " and partition \"" << partitionName_ << "\"!";
-	edm::LogWarning(mlConfigDb_) << ss.str();
-      }
-      
-    } // Check if using run table
-    
-    // -------------------- Use versions explicitly --------------------
-
-    else if ( !runNumber_ ) {
-      
-      // Retrieve partitions in "current state"
-      tkStateVector states;
-#ifdef USING_NEW_DATABASE_MODEL
-      states = df->getCurrentStates(); 
-#else
-      states = *( df->getCurrentStates() ); 
-#endif
-      
-      // Find partition in "current state"
-      tkStateVector::const_iterator istate = states.begin();
-      tkStateVector::const_iterator jstate = states.end();
-      for ( ; istate != jstate; ++istate ) {
-	if ( !(*istate) ) {
-	  edm::LogError(mlConfigDb_)
-	    << "[SiStripPartition::" << __func__ << "]"
-	    << " NULL pointer returned to TkState object!";
-	  continue;
-	}
-	if ( partitionName_ == (*istate)->getPartitionName() ) { break; }
-      }
-      
-      // Set description versions if partition was found in "current state"
-      if ( istate != states.end() ) {
-	
-#ifdef USING_NEW_DATABASE_MODEL
-	if ( !cabVersion_.first &&
-	     !cabVersion_.second ) { 
-	  cabVersion_.first = (*istate)->getConnectionVersionMajorId(); 
-	  cabVersion_.second = (*istate)->getConnectionVersionMinorId(); 
-	}
-#endif
-    
-	if ( !fecVersion_.first &&
-	     !fecVersion_.second ) { 
-	  fecVersion_.first = (*istate)->getFecVersionMajorId(); 
-	  fecVersion_.second = (*istate)->getFecVersionMinorId(); 
-	}
-
-	if ( !fedVersion_.first &&
-	     !fedVersion_.second ) { 
-	  fedVersion_.first = (*istate)->getFedVersionMajorId(); 
-	  fedVersion_.second = (*istate)->getFedVersionMinorId(); 
-	}
-	
-#ifdef USING_NEW_DATABASE_MODEL
-	if ( !dcuVersion_.first &&
-	     !dcuVersion_.second ) { 
-	  dcuVersion_.first = (*istate)->getDcuInfoVersionMajorId(); 
-	  dcuVersion_.second = (*istate)->getDcuInfoVersionMinorId(); 
-	}
-#endif
-	
-#ifdef USING_NEW_DATABASE_MODEL
-	if ( !psuVersion_.first &&
-	     !psuVersion_.second ) { 
-	  psuVersion_.first = (*istate)->getDcuPsuMapVersionMajorId();
-	  psuVersion_.second = (*istate)->getDcuPsuMapVersionMinorId(); 
-	}
-#endif
-	
-#ifdef USING_NEW_DATABASE_MODEL
-	
-	// Retrieve global versions for "current state"
-	if ( !globalAnalysisV_ ) {
-	  globalAnalysisV_ = (*istate)->getAnalysisVersionMapPointerId(); 
-	}
-	
-	// Retrieve local versions for "current state"
-	HashMapAnalysisVersions local_versions = df->getLocalAnalysisVersions( globalAnalysisV_ );
-	HashMapAnalysisVersions::const_iterator ivers = local_versions.begin();
-	HashMapAnalysisVersions::const_iterator jvers = local_versions.end();
-	for ( ; ivers != jvers; ++ivers ) {
-	  if ( ivers->first == CommissioningAnalysisDescription::T_ANALYSIS_FASTFEDCABLING ) { 
-	    if ( globalAnalysisV_ || ( !fastCablingV_.first && !fastCablingV_.second ) ) {
-	      fastCablingV_.first = ivers->second.first;
-	      fastCablingV_.second = ivers->second.second;
 	    }
-	  } else if ( ivers->first == CommissioningAnalysisDescription::T_ANALYSIS_TIMING ) {
-	    if ( globalAnalysisV_ || ( !apvTimingV_.first && !apvTimingV_.second ) ) {
-	      apvTimingV_.first = ivers->second.first;
-	      apvTimingV_.second = ivers->second.second;
-	    }
-	  } else if ( ivers->first == CommissioningAnalysisDescription::T_ANALYSIS_OPTOSCAN ) {
-	    if ( globalAnalysisV_ || ( !optoScanV_.first && !optoScanV_.second ) ) {
-	      optoScanV_.first = ivers->second.first;
-	      optoScanV_.second = ivers->second.second;
-	    }
-	  } else if ( ivers->first == CommissioningAnalysisDescription::T_ANALYSIS_VPSPSCAN ) {
-	    if ( globalAnalysisV_ || ( !vpspScanV_.first && !vpspScanV_.second ) ) {
-	      vpspScanV_.first = ivers->second.first;
-	      vpspScanV_.second = ivers->second.second;
-	    }
-	  } else if ( ivers->first == CommissioningAnalysisDescription::T_ANALYSIS_CALIBRATION ) {
-	    if ( globalAnalysisV_ || ( !apvCalibV_.first && !apvCalibV_.second ) ) {
-	      apvCalibV_.first = ivers->second.first;
-	      apvCalibV_.second = ivers->second.second;
-	    }
-	  } else if ( ivers->first == CommissioningAnalysisDescription::T_ANALYSIS_PEDESTALS ) {
-	    if ( globalAnalysisV_ || ( !pedestalsV_.first && !pedestalsV_.second ) ) {
-	      pedestalsV_.first = ivers->second.first;
-	      pedestalsV_.second = ivers->second.second;
-	    }
-	  } else if ( ivers->first == CommissioningAnalysisDescription::T_ANALYSIS_APVLATENCY ) {
-	    if ( globalAnalysisV_ || ( !apvLatencyV_.first && !apvLatencyV_.second ) ) {
-	      apvLatencyV_.first = ivers->second.first;
-	      apvLatencyV_.second = ivers->second.second;
-	    }
-	  } else if ( ivers->first == CommissioningAnalysisDescription::T_ANALYSIS_FINEDELAY ) {
-	    if ( globalAnalysisV_ || ( !fineDelayV_.first && !fineDelayV_.second ) ) {
-	      fineDelayV_.first = ivers->second.first;
-	      fineDelayV_.second = ivers->second.second;
-	    }
-	  } else if ( ivers->first == CommissioningAnalysisDescription::T_UNKNOWN ) {
-	    std::stringstream ss;
-	    edm::LogError(mlConfigDb_)
-	      << "[SiStripPartition::" << __func__ << "]"
-	      << " Found UNKNOWN AnalysisType!";
-	    edm::LogWarning(mlConfigDb_) << ss.str();
-	  } else {
-	    std::stringstream ss;
-	    edm::LogError(mlConfigDb_)
-	      << "[SiStripPartition::" << __func__ << "]"
-	      << " Unable to match content to any AnalysisType!";
-	    edm::LogWarning(mlConfigDb_) << ss.str();
-	  }
-	}
-
-#endif
 	    
+#endif
+	
+	  } else {
+	    edm::LogError(mlConfigDb_)
+	      << "[SiStripPartition::" << __func__ << "]"
+	      << " Mismatch of run number requested (" 
+	      << runNumber_
+	      << ") and received (" 
+	      << run->getRunNumber() << ")"
+	      << " to/from database for partition \"" 
+	      << partitionName_ << "\"";
+	  }
+
+	} else {
+	  edm::LogError(mlConfigDb_)
+	    << "[SiStripPartition::" << __func__ << "]"
+	    << " NULL run number returned!"
+	    << " for partition \"" << partitionName_ << "\"";
+	}
+      
       } else {
-	std::stringstream ss;
 	edm::LogError(mlConfigDb_)
 	  << "[SiStripPartition::" << __func__ << "]"
-	  << " Unable to find partition \"" << partitionName_
-	  << "\" in current state!";
-	edm::LogWarning(mlConfigDb_) << ss.str();
+	  << " NULL pointer to TkRun object!"
+	  << " Unable to retrieve versions for run number "
+	  << runNumber_
+	  << ". Run number may not be consistent with partition \"" 
+	  << partitionName_ << "\"!"; //@@ only using first here!!!
       }
-      
-    } // Check if using versions explicitly (ie, null run number)
-    
+
+    }
+
   } catch (...) { db->handleException( __func__, "" ); }
   
 }
@@ -799,14 +714,12 @@ void SiStripPartition::print( std::stringstream& ss, bool using_db ) const {
   if ( using_db ) {
     
     ss << "  Run number                 : ";
-    if ( forceCurrentState_ ) { ss << "Forced versions as defined by \"current state\"!"; }
-    else if ( runNumber_ ) { 
-      ss << runNumber_; 
-      if ( forceVersions_ ) { ss << " (Non-zero versions in the cfg override run table contents!)"; }
-    } else if ( !runNumber_ ) { ss << "Forced versions below (null versions in the cfg signifies \"current state\")!"; }
+    if ( forceCurrentState_ )  { ss << "Forced \"current state\"! (equivalent to versions below)"; }
+    else if ( forceVersions_ ) { ss << "Forced versions specified below!"; }
+    else /* use run number */  { ss << runNumber_; }
     
     ss << std::endl;
-    if ( !forceCurrentState_ && runNumber_ ) { 
+    if ( !forceVersions_ ) { 
       ss << "  Run type                   : " << SiStripEnumsAndStrings::runType( runType_ ) << std::endl;
     }
     
@@ -815,7 +728,7 @@ void SiStripPartition::print( std::stringstream& ss, bool using_db ) const {
        << "  FED major/minor vers       : " << fedVersion_.first << "." << fedVersion_.second << std::endl
        << "  DCU-DetId map maj/min vers : " << dcuVersion_.first << "." << dcuVersion_.second << std::endl
        << "  DCU-PSU map maj/min vers   : " << psuVersion_.first << "." << psuVersion_.second << std::endl;
-    
+
     ss << "  Global analysis version    : " << globalAnalysisV_ << std::endl;
 
 
@@ -832,118 +745,82 @@ void SiStripPartition::print( std::stringstream& ss, bool using_db ) const {
       ss << "  APV latency maj/min vers   : " << apvLatencyV_.first << "." << apvLatencyV_.second << std::endl;
       ss << "  Fine delay maj/min vers    : " << fineDelayV_.first << "." << fineDelayV_.second << std::endl;
       
-    } else if ( forceVersions_ ) { 
-      
-      ss << "  FED cabling maj/min vers   : " << fastCablingV_.first << "." << fastCablingV_.second << std::endl;
-      ss << "  APV timing maj/min vers    : " << apvTimingV_.first << "." << apvTimingV_.second << std::endl;
-      ss << "  Opto scan maj/min vers     : " << optoScanV_.first << "." << optoScanV_.second << std::endl;
-      ss << "  VPSP scan maj/min vers     : " << vpspScanV_.first << "." << vpspScanV_.second << std::endl;
-      ss << "  APV calib maj/min vers     : " << apvCalibV_.first << "." << apvCalibV_.second << std::endl;
-      ss << "  Pedestals maj/min vers     : " << pedestalsV_.first << "." << pedestalsV_.second << std::endl;
-      ss << "  APV latency maj/min vers   : " << apvLatencyV_.first << "." << apvLatencyV_.second << std::endl;
-      ss << "  Fine delay maj/min vers    : " << fineDelayV_.first << "." << fineDelayV_.second << std::endl;
-      
     } else {
       
       if ( runType_ != sistrip::FAST_CABLING ) { 
 	ss << "  FED cabling maj/min vers   : " << fastCablingV_.first << "." << fastCablingV_.second << std::endl;
       } else {
 	ss << "  FED cabling maj/min vers   : " << runTableVersion_.first << "." << runTableVersion_.second
-	   << " <= This version, retrieved from the run table, has been overriden by version " 
+	   << " <= This \"state\" version overriden by \"history\" version " 
 	   << fastCablingV_.first << "." << fastCablingV_.second 
-	   << " created from this FED cabling run!" << std::endl;
+	   << " for this FED cabling run!" << std::endl;
       }
 
       if ( runType_ != sistrip::APV_TIMING ) { 
 	ss << "  APV timing maj/min vers    : " << apvTimingV_.first << "." << apvTimingV_.second << std::endl;
       } else {
 	ss << "  APV timing maj/min vers    : " << runTableVersion_.first << "." << runTableVersion_.second
-	   << " <= This version, retrieved from the run table, has been overriden by version " 
+	   << " <= This \"state\" version overriden by \"history\" version " 
 	   << apvTimingV_.first << "." << apvTimingV_.second 
-	   << " created from this APV timing run!" << std::endl;
+	   << " for this APV timing run!" << std::endl;
       }
 
       if ( runType_ != sistrip::OPTO_SCAN ) { 
 	ss << "  Opto scan maj/min vers     : " << optoScanV_.first << "." << optoScanV_.second << std::endl;
       } else {
 	ss << "  Opto scan maj/min vers     : " << runTableVersion_.first << "." << runTableVersion_.second
-	   << " <= This version, retrieved from the run table, has been overriden by version " 
+	   << " <= This \"state\" version overriden by \"history\" version " 
 	   << optoScanV_.first << "." << optoScanV_.second 
-	   << " created from this opto scan run!" << std::endl;
+	   << " for this opto scan run!" << std::endl;
       }
 
       if ( runType_ != sistrip::VPSP_SCAN ) { 
 	ss << "  VPSP scan maj/min vers     : " << vpspScanV_.first << "." << vpspScanV_.second << std::endl;
       } else {
 	ss << "  VPSP scan maj/min vers     : " << runTableVersion_.first << "." << runTableVersion_.second
-	   << " <= This version, retrieved from the run table, has been overriden by version " 
+	   << " <= This \"state\" version overriden by \"history\" version " 
 	   << vpspScanV_.first << "." << vpspScanV_.second 
-	   << " created from this VPSP scan run!" << std::endl;
+	   << " for this VPSP scan run!" << std::endl;
       }
 
       if ( runType_ != sistrip::CALIBRATION ) { 
 	ss << "  APV calib maj/min vers     : " << apvCalibV_.first << "." << apvCalibV_.second << std::endl;
       } else {
 	ss << "  APV calib maj/min vers     : " << runTableVersion_.first << "." << runTableVersion_.second
-	   << " <= This version, retrieved from the run table, has been overriden by version " 
+	   << " <= This \"state\" version overriden by \"history\" version " 
 	   << apvCalibV_.first << "." << apvCalibV_.second 
-	   << " created from this APV calib run!" << std::endl;
+	   << " for this APV calib run!" << std::endl;
       }
 
       if ( runType_ != sistrip::PEDESTALS ) { 
 	ss << "  Pedestals maj/min vers     : " << pedestalsV_.first << "." << pedestalsV_.second << std::endl;
       } else {
 	ss << "  Pedestals maj/min vers     : " << runTableVersion_.first << "." << runTableVersion_.second
-	   << " <= This version, retrieved from the run table, has been overriden by version " 
+	   << " <= This \"state\" version overriden by \"history\" version " 
 	   << pedestalsV_.first << "." << pedestalsV_.second 
-	   << " created from this pedestals run!" << std::endl;
+	   << " for this pedestals run!" << std::endl;
       }
 
       if ( runType_ != sistrip::APV_LATENCY ) { 
 	ss << "  APV latency maj/min vers   : " << apvLatencyV_.first << "." << apvLatencyV_.second << std::endl;
       } else {
 	ss << "  APV latency maj/min vers   : " << runTableVersion_.first << "." << runTableVersion_.second
-	   << " <= This version, retrieved from the run table, has been overriden by version " 
+	   << " <= This \"state\" version overriden by \"history\" version " 
 	   << apvLatencyV_.first << "." << apvLatencyV_.second 
-	   << " created from this APV latency run!" << std::endl;
+	   << " for this APV latency run!" << std::endl;
       }
 
       if ( runType_ != sistrip::FINE_DELAY_TTC ) { 
 	ss << "  Fine delay maj/min vers    : " << fineDelayV_.first << "." << fineDelayV_.second << std::endl;
       } else {
 	ss << "  Fine delay maj/min vers    : " << runTableVersion_.first << "." << runTableVersion_.second
-	   << " <= This version, retrieved from the run table, has been overriden by version " 
+	   << " <= This \"state\" version overriden by \"history\" version " 
 	   << fineDelayV_.first << "." << fineDelayV_.second 
-	   << " created from this fine delay run!" << std::endl;
+	   << " for this fine delay run!" << std::endl;
       }
 
     }
 
-    if ( ( !cabVersion_.first && !cabVersion_.first ) ||
-	 ( !fecVersion_.first && !fecVersion_.first ) ||
-	 ( !fedVersion_.first && !fedVersion_.first ) ||
-	 ( !dcuVersion_.first && !dcuVersion_.first ) ||
-	 ( !psuVersion_.first && !psuVersion_.first ) ||
-	 ( !fastCablingV_.first && !fastCablingV_.first ) ||
-	 ( !apvTimingV_.first && !apvTimingV_.first ) ||
-	 ( !optoScanV_.first && !optoScanV_.first ) ||
-	 ( !vpspScanV_.first && !vpspScanV_.first ) ||
-	 ( !apvCalibV_.first && !apvCalibV_.first ) ||
-	 ( !pedestalsV_.first && !pedestalsV_.first ) ||
-	 ( !apvLatencyV_.first && !apvLatencyV_.first ) ||
-	 ( !fineDelayV_.first && !fineDelayV_.first ) ) {
-      ss << "  WARNING: Some versions are null,"
-	 << " which means no descriptions have been found!" << std::endl 
-	 << "  Possible reasons:" << std::endl;
-      if ( forceCurrentState_ || !runNumber_ ) { 
-	ss << "   partition not in current state" << std::endl;
-	ss << "   descriptions not uploaded for this partition" << std::endl; 
-      } else if ( runNumber_ ) { 
-	ss << "   run number not found in run table" << std::endl; 
-	ss << "   descriptions not uploaded for this partition" << std::endl; 
-      }
-    }
-    
   } else {
     
     ss << "  Input \"module.xml\" file    : " << inputModuleXml_ << std::endl

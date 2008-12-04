@@ -13,24 +13,32 @@
 
 
 
+#include "DDLElementRegistry.h"
 #include "DDLDivision.h"
+#include "DDXMLElement.h"
 #include "DDDividedBox.h"
 #include "DDDividedTubs.h"
 #include "DDDividedTrd.h"
 #include "DDDividedCons.h"
 #include "DDDividedPolycone.h"
 #include "DDDividedPolyhedra.h"
+#include "DDDividedGeometryObject.h"
 
 #include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/Core/interface/DDAxes.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDSolidShapes.h"
+#include "DetectorDescription/Core/interface/DDDivision.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Base/interface/DDdebug.h"
+#include "DetectorDescription/Core/interface/DDMaterial.h"
+#include "DetectorDescription/Base/interface/DDException.h"
 
+#include "CLHEP/Units/SystemOfUnits.h"
 
 #include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
 
+#include <string>
 
 DDLDivision::DDLDivision()
 {

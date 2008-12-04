@@ -1,40 +1,32 @@
-2008-10-24  Constantin Loizides <loizides@mit.edu>
+2008-11-05  Kurt Biery <biery@fnal.gov>
 
-	* tag V04-01-00
-	* Added calculation of adler32 checksums for streamer and
-	  index files, and storage of them in the log files.
-	* These changes depend on the following related tags:
-	  IOPool/Streamer            V05-05-00
+	* tag V03-14-23
+	* Fixed the bug that was causing spurious discard messages to be
+	  sent to the resource broker. (The inappropriate use of I2O message
+	  header information after the message had been released from
+	  memory was causing errors in the target address of the discard
+	  message and its contents.)
 
-2008-10-22  Constantin Loizides <loizides@mit.edu>
+2008-10-16  Kurt Biery <biery@fnal.gov>
 
-	* tag V04-00-02
-	* (CL) Fixed loop over logical disks on SM default web page.
-	* (KB) Modified the writing of DQM histograms to disk - all
-	  top-level folders are now written to the same file (for a
-	  given update), and the directory structure was modified to
-	  match what is used in DQM archives created by event consumers.
+	* tag V03-14-22
+	* Modified the writing of DQM histograms to disk - all top-level
+	  folders are now written to the same file (for a given update),
+	  and the directory structure was modified to match what is
+	  used in DQM archives created by event consumers.
 
-2008-10-14  Kurt Biery <biery@fnal.gov>
+2008-10-16  Harry Cheung <cheung@fnal.gov>
 
-	* tag V04-00-01
-	* Added protection to the actionPerformed() method to prevent
-	  uninitialized members being referenced in the Halted state.
-	  These changes depend on the same related tags as V04-00-00.
+	* tag V03-14-21
+	* Added DQM received data statistics in monitoring and also gives the SM
+	  config information and CVS version.
 
-2008-10-14  Kurt Biery <biery@fnal.gov>
+2008-10-15  Harry Cheung <cheung@fnal.gov>
 
-	* tag V04-00-00
-	* Initial changes to support unique filter unit IDs.  Fixed a couple
-	  of minor bugs in the FragmentCollector uncovered by running the
-	  RunCollector_t unit test.  Updated the RunCollector_t unit test to
-	  get it working again.  These changes depend on the following related tags:
-	  EventFilter/Utilities      V00-15-00
-	  EventFilter/ShmBuffer      V00-07-00
-	  EventFilter/ShmReader      V01-03-00
-	  EventFilter/ResourceBroker V00-11-00
-	  IOPool/Streamer            V05-04-00
-	  EventFilter/Modules        V00-06-00
+	* tag V03-14-20
+	* Added protection to the actionPerformed() method to prevent uninitialized
+	  members being referenced in the Halted state (from Kurt). Also minor bug 
+	  fix for monitoring web page of copy workers listed from Constantin.
 
 2008-10-13  Harry Cheung <cheung@fnal.gov>
 

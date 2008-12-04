@@ -2,11 +2,11 @@ import FWCore.ParameterSet.Config as cms
 
 L1MuTriggerScales = cms.ESProducer("L1MuTriggerScalesProducer",
                                    nbitPackingDTEta = cms.int32(6),
-                                   signedPackingDTEta = cms.bool(False),
+                                   signedPackingDTEta = cms.bool(True),
                                    nbinsDTEta = cms.int32(64),
                                    minDTEta = cms.double(-1.2),
                                    maxDTEta = cms.double(1.2),
-                                   offsetDTEta = cms.int32(0),
+                                   offsetDTEta = cms.int32(32),
                                    nbitPackingCSCEta = cms.int32(6),
                                    nbinsCSCEta = cms.int32(32),
                                    minCSCEta = cms.double(0.9),

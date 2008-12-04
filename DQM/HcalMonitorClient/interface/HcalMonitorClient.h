@@ -124,7 +124,7 @@ public:
   std::string monitorName_;
 
   /// Verbosity switch used for debugging or informational output
-  int debug_ ;
+  bool debug_ ;
   
   // Timing diagnostic switch
   bool showTiming_; // controls whether to show timing diagnostic info 

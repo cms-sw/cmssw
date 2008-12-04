@@ -6,19 +6,11 @@ import FWCore.ParameterSet.Config as cms
 #
 # Form uncorrected Missing ET from Calorimeter Towers and store into event as a CaloMET
 # product
-# Creates new calotowers with optimized Energy thresholds for MET.
-# === Modification: 09/30/08 by R. Remington
-# === Made modifications to accomodate changes to towerMaker (done by A. Oehler)
-
-calotoweroptmaker = cms.EDProducer(
-    "CaloTowersCreator",
+# Creates new calotowers with optimized Energy thresholds for MET. 
+calotoweroptmaker = cms.EDFilter("CaloTowersCreator",
     # Depth, fraction of the respective calorimeter [0,1]
-    MomEBDepth = cms.double(0.3),
-    MomEEDepth = cms.double(0.0),
-    MomHBDepth = cms.double(0.2),
-    MomHEDepth = cms.double(0.4),
-
-  # Energy threshold for EB 5x5 crystal inclusion [GeV]
+    MomEmDepth = cms.double(0.0),
+    # Energy threshold for EB 5x5 crystal inclusion [GeV]
     EBSumThreshold = cms.double(0.2),
     # Weighting factor for HF short-fiber readouts
     HF2Weight = cms.double(1.0),
@@ -46,7 +38,7 @@ calotoweroptmaker = cms.EDProducer(
     # Weighting factor for EE   
     EEWeight = cms.double(1.0),
     # HO on/off flag for tower energy reconstruction
-    UseHO = cms.bool(True),
+    UseHO = cms.bool(False),  # no HO contribution
     HBWeights = cms.untracked.vdouble(1.0, 1.0, 1.0, 1.0, 1.0),
     # Weighting factor for HE 5-degree cells   
     HESWeight = cms.double(1.0),
@@ -75,10 +67,12 @@ calotoweroptmaker = cms.EDProducer(
     hoInput = cms.InputTag("horeco"),
     HESGrid = cms.untracked.vdouble(-1.0, 1.0, 10.0, 100.0, 1000.0),
     #
+    MomTotDepth = cms.double(0.0),
     HESWeights = cms.untracked.vdouble(1.0, 1.0, 1.0, 1.0, 1.0),
     # Energy threshold for 10-degree (phi) HE cel inclusion [GeV]
     HEDThreshold = cms.double(0.5),
     #
+    MomHadDepth = cms.double(0.0),
     # Global energy threshold on tower [GeV]
     EcutTower = cms.double(-1000.0),
     HEDGrid = cms.untracked.vdouble(-1.0, 1.0, 10.0, 100.0, 1000.0),
@@ -91,8 +85,5 @@ calotoweroptmaker = cms.EDProducer(
     EBGrid = cms.untracked.vdouble(-1.0, 1.0, 10.0, 100.0, 1000.0)
 )
 
-
 calotoweroptmakerWithHO = calotoweroptmaker.clone()
 calotoweroptmakerWithHO.UseHO = True
-
-

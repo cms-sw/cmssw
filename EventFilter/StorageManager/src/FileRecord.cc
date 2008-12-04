@@ -1,4 +1,4 @@
-// $Id: FileRecord.cc,v 1.12 2008/08/20 13:20:47 loizides Exp $
+// $Id: FileRecord.cc,v 1.11 2008/08/13 18:51:17 biery Exp $
 
 #include <EventFilter/StorageManager/interface/FileRecord.h>
 #include <EventFilter/StorageManager/interface/Configurator.h>
@@ -91,9 +91,8 @@ void FileRecord::updateDatabase()
       << " --APPNAME CMSSW"
       << " --TYPE streamer"               
       << " --DEBUGCLOSE "   << whyClosed_
-      << " --CHECKSUM "     << hex << adlerstream_
-      << " --CHECKSUMIND "  << hex << adlerindex_
-      << "\n";
+      << " --CHECKSUM 0\n";
+
 
   ofstream of(logFile_.c_str(), ios_base::ate | ios_base::out | ios_base::app );
   of << oss.str().c_str();
@@ -126,9 +125,7 @@ void FileRecord::insertFileInDatabase()
       << " --APPVERSION "  << cmsver_
       << " --APPNAME CMSSW"
       << " --TYPE streamer"               
-      << " --CHECKSUM 0"
-      << " --CHECKSUMIND 0"
-      << "\n";
+      << " --CHECKSUM 0\n";
 
   ofstream of(logFile_.c_str(), ios_base::ate | ios_base::out | ios_base::app );
   of << oss.str().c_str();

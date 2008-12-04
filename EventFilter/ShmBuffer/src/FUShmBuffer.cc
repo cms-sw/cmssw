@@ -529,8 +529,6 @@ void FUShmBuffer::scheduleRawEmptyCellForDiscard(FUShmRawCell* cell)
 
 //______________________________________________________________________________
 bool FUShmBuffer::writeRecoInitMsg(unsigned int   outModId,
-				   unsigned int   fuProcessId,
-				   unsigned int   fuGuid,
 				   unsigned char *data,
 				   unsigned int   dataSize)
 {
@@ -542,7 +540,7 @@ bool FUShmBuffer::writeRecoInitMsg(unsigned int   outModId,
   waitRecoWrite();
   unsigned int   iCell=nextRecoWriteIndex();
   FUShmRecoCell* cell =recoCell(iCell);
-  cell->writeInitMsg(outModId,fuProcessId,fuGuid,data,dataSize);
+  cell->writeInitMsg(outModId,data,dataSize);
   postRecoIndexToRead(iCell);
   if (segmentationMode_) shmdt(cell);
   postRecoRead();
@@ -554,8 +552,6 @@ bool FUShmBuffer::writeRecoInitMsg(unsigned int   outModId,
 bool FUShmBuffer::writeRecoEventData(unsigned int   runNumber,
 				     unsigned int   evtNumber,
 				     unsigned int   outModId,
-				     unsigned int   fuProcessId,
-				     unsigned int   fuGuid,
 				     unsigned char *data,
 				     unsigned int   dataSize)
 {
@@ -572,8 +568,7 @@ bool FUShmBuffer::writeRecoEventData(unsigned int   runNumber,
   //assert(state==evt::PROCESSING||state==evt::RECOWRITING||state==evt::SENT);
   setEvtState(rawCellIndex,evt::RECOWRITING);
   incEvtDiscard(rawCellIndex);
-  cell->writeEventData(rawCellIndex,runNumber,evtNumber,outModId,
-		       fuProcessId,fuGuid,data,dataSize);
+  cell->writeEventData(rawCellIndex,runNumber,evtNumber,outModId,data,dataSize);
   setEvtState(rawCellIndex,evt::RECOWRITTEN);
   postRecoIndexToRead(iCell);
   if (segmentationMode_) shmdt(cell);
@@ -584,26 +579,14 @@ bool FUShmBuffer::writeRecoEventData(unsigned int   runNumber,
 
 //______________________________________________________________________________
 bool FUShmBuffer::writeErrorEventData(unsigned int runNumber,
-				      unsigned int fuProcessId,
 				      unsigned int iRawCell)
 {
   FUShmRawCell *raw=rawCell(iRawCell);
 
-  unsigned int   dataSize=sizeof(uint32_t)*(4+1024)+raw->eventSize();
+  unsigned int   dataSize=sizeof(uint32_t)*(2+1024)+raw->eventSize();
   unsigned char *data    =new unsigned char[dataSize];
   uint32_t      *pos     =(uint32_t*)data;
-  // 06-Oct-2008, KAB - added a version number for the error event format.
-  //
-  // Version 1 had no version number, so the run number appeared in the
-  // first value.  So, a reasonable test for version 1 is whether the
-  // first value is larger than some relatively small cutoff (say 32).
-  // Version 2 added the lumi block number.
-  //
-  *pos++=(uint32_t)2;  // protocol version number
   *pos++=(uint32_t)runNumber;
-  // 06-Oct-2008, KAB - added space for lumi block number, but I don't know
-  // exactly how to get its value just yet...
-  *pos++=(uint32_t)1;   //evf::evtn::getlbn(fedAddr(/* which FED ID? */));
   *pos++=(uint32_t)raw->evtNumber();
   for (unsigned int i=0;i<1024;i++) *pos++ = (uint32_t)raw->fedSize(i);
   memcpy(pos,raw->payloadAddr(),raw->eventSize());
@@ -643,8 +626,7 @@ bool FUShmBuffer::writeErrorEventData(unsigned int runNumber,
   FUShmRecoCell* reco     =recoCell(iRecoCell);
   setEvtState(iRawCell,evt::RECOWRITING);
   setEvtDiscard(iRawCell,1);
-  reco->writeErrorEvent(iRawCell,runNumber,raw->evtNumber(),fuProcessId,
-			data,dataSize);
+  reco->writeErrorEvent(iRawCell,runNumber,raw->evtNumber(),data,dataSize);
   delete [] data;
   setEvtState(iRawCell,evt::RECOWRITTEN);
   postRecoIndexToRead(iRecoCell);
@@ -658,8 +640,6 @@ bool FUShmBuffer::writeErrorEventData(unsigned int runNumber,
 bool FUShmBuffer::writeDqmEventData(unsigned int   runNumber,
 				    unsigned int   evtAtUpdate,
 				    unsigned int   folderId,
-				    unsigned int   fuProcessId,
-				    unsigned int   fuGuid,
 				    unsigned char *data,
 				    unsigned int   dataSize)
 {
@@ -674,7 +654,7 @@ bool FUShmBuffer::writeDqmEventData(unsigned int   runNumber,
   dqm::State_t state=dqmState(iCell);
   assert(state==dqm::EMPTY);
   setDqmState(iCell,dqm::WRITING);
-  cell->writeData(runNumber,evtAtUpdate,folderId,fuProcessId,fuGuid,data,dataSize);
+  cell->writeData(runNumber,evtAtUpdate,folderId,data,dataSize);
   setDqmState(iCell,dqm::WRITTEN);
   postDqmIndexToRead(iCell);
   if (segmentationMode_) shmdt(cell);

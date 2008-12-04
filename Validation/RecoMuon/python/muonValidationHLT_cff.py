@@ -30,3 +30,5 @@ l3MuonTrackV.maxpT = 1100.0
 
 # Muon validation sequence
 muonValidationHLT_seq = cms.Sequence(l2MuonTrackV+l3MuonTrackV)
+
+recoMuonValidationHLT = cms.Sequence(muonSelector_seq*muonAssociation_seq*muonValidationHLT_seq)

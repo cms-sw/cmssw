@@ -1,13 +1,11 @@
 //
-// $Id: PATMETProducer.cc,v 1.6 2008/09/30 21:33:05 srappocc Exp $
+// $Id: PATMETProducer.cc,v 1.7 2008/10/06 13:29:16 gpetrucc Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATMETProducer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "DataFormats/Common/interface/View.h"
-
-#include "PhysicsTools/PatUtils/interface/ObjectResolutionCalc.h"
 
 #include <memory>
 
@@ -25,11 +23,6 @@ PATMETProducer::PATMETProducer(const edm::ParameterSet & iConfig):
   addTrigMatch_   = iConfig.getParameter<bool>         ( "addTrigMatch" );
   trigMatchSrc_   = iConfig.getParameter<std::vector<edm::InputTag> >( "trigPrimMatch" );
   addResolutions_ = iConfig.getParameter<bool>         ("addResolutions");
-  useNNReso_      = iConfig.getParameter<bool>         ("useNNResolutions");
-  metResoFile_    = iConfig.getParameter<std::string>  ("metResoFile");
-  
-  // construct resolution calculator
-  if (addResolutions_) metResoCalc_ = new ObjectResolutionCalc(edm::FileInPath(metResoFile_).fullPath(), useNNReso_);
 
   // Efficiency configurables
   addEfficiencies_ = iConfig.getParameter<bool>("addEfficiencies");
@@ -50,7 +43,6 @@ PATMETProducer::PATMETProducer(const edm::ParameterSet & iConfig):
 
 
 PATMETProducer::~PATMETProducer() {
-  if (addResolutions_) delete metResoCalc_;
 }
 
 
@@ -88,10 +80,6 @@ void PATMETProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
           amet.addTriggerMatch(*trigPrim);
         }
       }
-    }
-    // add MET resolution info if demanded
-    if (addResolutions_) {
-      (*metResoCalc_)(amet);
     }
 
     if (efficiencyLoader_.enabled()) {

@@ -111,7 +111,6 @@ FUResourceBroker::FUResourceBroker(xdaq::ApplicationStub *s)
   , nbSentLast_(0)
   , sumOfSquaresLast_(0)
   , sumOfSizesLast_(0)
-  , lock_(toolbox::BSem::FULL)
 {
   // setup finite state machine (binding relevant callbacks)
   fsm_.initialize<evf::FUResourceBroker>(this);
@@ -290,10 +289,8 @@ bool FUResourceBroker::halting(toolbox::task::WorkLoop* wl)
       UInt_t count = 0;
       while (count<10) {
 	if (resourceTable_->isReadyToShutDown()) {
-	  lock();
 	  delete resourceTable_;
 	  resourceTable_=0;
-	  unlock();
 	  LOG4CPLUS_INFO(log_,count+1<<". try to destroy resource table succeeded!");
 	  break;
 	}
@@ -305,10 +302,8 @@ bool FUResourceBroker::halting(toolbox::task::WorkLoop* wl)
       }
     }
     else {
-      lock();
       delete resourceTable_;
       resourceTable_=0;
-      unlock();
     }
     
     if (0==resourceTable_) {
@@ -417,55 +412,36 @@ void FUResourceBroker::webPageRequest(xgi::Input *in,xgi::Output *out)
 //______________________________________________________________________________
 void FUResourceBroker::actionPerformed(xdata::Event& e)
 {
-  lock();
+  if (0==resourceTable_) return;
+  
+  gui_->monInfoSpace()->lock();
 
-  if (0!=resourceTable_) {
-    
-    gui_->monInfoSpace()->lock();
-    
-    if (e.type()=="urn:xdata-event:ItemGroupRetrieveEvent") {
-      nbClients_          =resourceTable_->nbClients();
-      clientPrcIds_       =resourceTable_->clientPrcIdsAsString();
-      nbAllocatedEvents_  =resourceTable_->nbAllocated();
-      nbPendingRequests_  =resourceTable_->nbPending();
-      nbReceivedEvents_   =resourceTable_->nbCompleted();
-      nbSentEvents_       =resourceTable_->nbSent();
-      nbSentErrorEvents_  =resourceTable_->nbSentError();
-      nbPendingSMDiscards_=resourceTable_->nbPendingSMDiscards();
-      nbDiscardedEvents_  =resourceTable_->nbDiscarded();
-      nbLostEvents_       =resourceTable_->nbLost();
-      nbDataErrors_       =resourceTable_->nbErrors();
-      nbCrcErrors_        =resourceTable_->nbCrcErrors();
-      nbAllocateSent_     =resourceTable_->nbAllocSent();
-    }
-    else if (e.type()=="ItemChangedEvent") {
-      
-      string item=dynamic_cast<xdata::ItemChangedEvent&>(e).itemName();
-      
-      if (item=="doFedIdCheck") FUResource::doFedIdCheck(doFedIdCheck_);
-      if (item=="doCrcCheck")   resourceTable_->setDoCrcCheck(doCrcCheck_);
-      if (item=="doDumpEvents") resourceTable_->setDoDumpEvents(doDumpEvents_);
-    }
-    
-    gui_->monInfoSpace()->unlock();
+  if (e.type()=="urn:xdata-event:ItemGroupRetrieveEvent") {
+    nbClients_          =resourceTable_->nbClients();
+    clientPrcIds_       =resourceTable_->clientPrcIdsAsString();
+    nbAllocatedEvents_  =resourceTable_->nbAllocated();
+    nbPendingRequests_  =resourceTable_->nbPending();
+    nbReceivedEvents_   =resourceTable_->nbCompleted();
+    nbSentEvents_       =resourceTable_->nbSent();
+    nbSentErrorEvents_  =resourceTable_->nbSentError();
+    nbPendingSMDiscards_=resourceTable_->nbPendingSMDiscards();
+    nbDiscardedEvents_  =resourceTable_->nbDiscarded();
+    nbLostEvents_       =resourceTable_->nbLost();
+    nbDataErrors_       =resourceTable_->nbErrors();
+    nbCrcErrors_        =resourceTable_->nbCrcErrors();
+    nbAllocateSent_     =resourceTable_->nbAllocSent();
   }
-  else {
-    nbClients_          =0;
-    clientPrcIds_       ="";
-    nbAllocatedEvents_  =0;
-    nbPendingRequests_  =0;
-    nbReceivedEvents_   =0;
-    nbSentEvents_       =0;
-    nbSentErrorEvents_  =0;
-    nbPendingSMDiscards_=0;
-    nbDiscardedEvents_  =0;
-    nbLostEvents_       =0;
-    nbDataErrors_       =0;
-    nbCrcErrors_        =0;
-    nbAllocateSent_     =0;
+  else if (e.type()=="ItemChangedEvent") {
+    
+    string item=dynamic_cast<xdata::ItemChangedEvent&>(e).itemName();
+    
+    if (item=="doFedIdCheck") FUResource::doFedIdCheck(doFedIdCheck_);
+    if (item=="doCrcCheck")   resourceTable_->setDoCrcCheck(doCrcCheck_);
+    if (item=="doDumpEvents") resourceTable_->setDoDumpEvents(doDumpEvents_);
+    //if (item=="runNumber")    resourceTable_->resetCounters();
   }
   
-  unlock();
+  gui_->monInfoSpace()->unlock();
 }
 
 
@@ -494,18 +470,7 @@ void FUResourceBroker::startMonitoringWorkLoop() throw (evf::Exception)
 //______________________________________________________________________________
 bool FUResourceBroker::monitoring(toolbox::task::WorkLoop* wl)
 {
-  if (0==resourceTable_) {
-    deltaT_.value_           =0.0;
-    deltaN_.value_           =  0;
-    deltaSumOfSquares_.value_=0.0;
-    deltaSumOfSizes_.value_  =  0;
-    throughput_              =0.0;
-    rate_                    =0.0;
-    average_                 =0.0;
-    rms_                     =0.0;
-
-    return false;
-  }
+  if (0==resourceTable_) return false;
   
   struct timeval  monEndTime;
   struct timezone timezone;
@@ -685,7 +650,6 @@ void FUResourceBroker::exportParameters()
   gui_->addStandardParam("timeOutSec",              &timeOutSec_);
   gui_->addStandardParam("processKillerEnabled",    &processKillerEnabled_);
   gui_->addStandardParam("useEvmBoard",             &useEvmBoard_);
-  gui_->addStandardParam("rcmsStateListener",        fsm_.rcmsStateListener());
   gui_->addStandardParam("foundRcmsStateListener",   fsm_.foundRcmsStateListener());
   gui_->addStandardParam("reasonForFailed",         &reasonForFailed_);
   

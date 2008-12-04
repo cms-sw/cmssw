@@ -28,8 +28,6 @@ class ConfigurableVertexFitter : public VertexFitter<5>
 
     CachingVertex<5> vertex ( const std::vector < reco::TransientTrack > & t ) const;
     CachingVertex<5> vertex( const vector<RefCountedVertexTrack> & tracks) const;
-    CachingVertex<5> vertex( const vector<RefCountedVertexTrack> & tracks,
-        const reco::BeamSpot & spot ) const;
     CachingVertex<5> vertex( const vector<reco::TransientTrack> & tracks, 
         const GlobalPoint& linPoint) const;
     CachingVertex<5> vertex( const vector<reco::TransientTrack> & tracks, 

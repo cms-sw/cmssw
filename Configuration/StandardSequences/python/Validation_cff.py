@@ -18,4 +18,6 @@ from Validation.Configuration.globalValidation_cff import *
 
 from HLTriggerOffline.Common.HLTValidation_cff import *
 
-validation = cms.Sequence(mix+globaldigisanalyze*globalhitsanalyze*globalValidation*hltvalidation)
+validation = cms.Sequence(mix+globaldigisanalyze*globalhitsanalyze*globalrechitsanalyze*globalValidation*hltvalidation)
+
+validation_pu = cms.Sequence(globaldigisanalyze+globalhitsanalyze+hltvalidation+trackerHitsValidation+trackerDigisValidation+trackingTruthValid+ecalSimHitsValidationSequence+hcalSimHitStudy+hcalRecHitsValidationSequence+calotowersValidationSequence+validSimHit+muondtdigianalyzer+validationMuonRPCDigis)

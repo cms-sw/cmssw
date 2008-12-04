@@ -87,25 +87,20 @@ public:
       TTree* tree);
 
 private:
-  struct OpenHLTPhoton;
-  struct OpenHLTElectron;
 
   void MakeL1IsolatedPhotons(
-      std::vector<OpenHLTPhoton> & photons,
       const edm::Handle<reco::RecoEcalCandidateCollection>   & recoIsolecalcands,
       const edm::Handle<reco::RecoEcalCandidateIsolationMap> & EcalIsolMap,
       const edm::Handle<reco::RecoEcalCandidateIsolationMap> & HcalIsolMap,
       const edm::Handle<reco::RecoEcalCandidateIsolationMap> & TrackIsolMap);
 
   void MakeL1NonIsolatedPhotons(
-      std::vector<OpenHLTPhoton> & photons,
       const edm::Handle<reco::RecoEcalCandidateCollection>   & recoNonIsolecalcands,
       const edm::Handle<reco::RecoEcalCandidateIsolationMap> & EcalNonIsolMap,
       const edm::Handle<reco::RecoEcalCandidateIsolationMap> & HcalNonIsolMap,
       const edm::Handle<reco::RecoEcalCandidateIsolationMap> & TrackNonIsolMap);
 
   void MakeL1IsolatedElectrons(
-      std::vector<OpenHLTElectron> & electrons,
       const edm::Handle<reco::ElectronCollection>            & electronIsoHandle,
       const edm::Handle<reco::RecoEcalCandidateCollection>   & recoIsolecalcands,
       const edm::Handle<reco::RecoEcalCandidateIsolationMap> & HcalEleIsolMap,
@@ -113,7 +108,20 @@ private:
       const edm::Handle<reco::ElectronIsolationMap>          & TrackEleIsolMap);
 
   void MakeL1NonIsolatedElectrons(
-      std::vector<OpenHLTElectron> & electrons,
+      const edm::Handle<reco::ElectronCollection>            & electronNonIsoHandle,
+      const edm::Handle<reco::RecoEcalCandidateCollection>   & recoNonIsolecalcands,
+      const edm::Handle<reco::RecoEcalCandidateIsolationMap> & HcalEleIsolMap,
+      const edm::Handle<reco::ElectronPixelSeedCollection>   & L1NonIsoPixelSeedsMap,
+      const edm::Handle<reco::ElectronIsolationMap>          & TrackEleIsolMap);
+
+  void MakeL1IsolatedElectronsLargeWindows(
+      const edm::Handle<reco::ElectronCollection>            & electronIsoHandle,
+      const edm::Handle<reco::RecoEcalCandidateCollection>   & recoIsolecalcands,
+      const edm::Handle<reco::RecoEcalCandidateIsolationMap> & HcalEleIsolMap,
+      const edm::Handle<reco::ElectronPixelSeedCollection>   & L1IsoPixelSeedsMap,
+      const edm::Handle<reco::ElectronIsolationMap>          & TrackEleIsolMap);
+
+  void MakeL1NonIsolatedElectronsLargeWindows(
       const edm::Handle<reco::ElectronCollection>            & electronNonIsoHandle,
       const edm::Handle<reco::RecoEcalCandidateCollection>   & recoNonIsolecalcands,
       const edm::Handle<reco::RecoEcalCandidateIsolationMap> & HcalEleIsolMap,
@@ -130,7 +138,8 @@ private:
   int *heleNewSC, *heleNewSCLW;
   int nele, nphoton, nhltgam, nhltele, nhlteleLW;
 
-  struct OpenHLTPhoton {
+  class myHLTPhoton {
+  public:
     float Et;
     float eta;
     float phi;
@@ -141,8 +150,10 @@ private:
 
     float et() const { return Et; } // Function defined as such to be compatible with EtGreater()
   };
+  std::vector<myHLTPhoton> theHLTPhotons;
 
-  struct OpenHLTElectron {
+  class myHLTElectron {
+  public:
     float Et;
     float eta;
     float phi;
@@ -156,6 +167,8 @@ private:
 
     float et() const { return Et; } // Function defined as such to be compatible with EtGreater()
   };
+  std::vector<myHLTElectron> theHLTElectrons;
+  std::vector<myHLTElectron> theHLTElectronsLargeWindows;
 
 };
 

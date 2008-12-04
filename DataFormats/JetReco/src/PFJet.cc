@@ -1,6 +1,6 @@
 // PFJet.cc
 // Fedor Ratnikov UMd
-// $Id: PFJet.cc,v 1.14 2008/07/27 16:22:21 cbern Exp $
+// $Id: PFJet.cc,v 1.13 2008/07/24 17:15:26 cbern Exp $
 #include <sstream>
 #include <typeinfo>
 
@@ -104,13 +104,12 @@ std::string PFJet::print () const {
 
 std::ostream& reco::operator<<(std::ostream& out, const reco::PFJet& jet) {
 
-  if(out) {
-    out<<"PFJet "
-       <<"(pt, eta, phi) = "<<jet.pt()<<","<<jet.eta()<<","<<jet.phi()
-       <<"  (CHEF,NHEF,GEF) = "
-       <<jet.chargedHadronEnergyFraction()<<","
-       <<jet.neutralHadronEnergyFraction()<<","
-       <<jet.neutralEmEnergyFraction();
-  }
+  if(!out ) return out;
+  out<<"PFJet "
+     <<"(pt, eta, phi) = "<<jet.pt()<<","<<jet.eta()<<","<<jet.phi()
+     <<"  (CHEF,NHEF,GEF) = "
+     <<jet.chargedHadronEnergyFraction()<<","
+     <<jet.neutralHadronEnergyFraction()<<","
+     <<jet.neutralEmEnergyFraction();
   return out;
 }

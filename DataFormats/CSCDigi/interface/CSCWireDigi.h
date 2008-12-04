@@ -8,7 +8,6 @@
  */
 
 #include <vector>
-#include <iosfwd>
 
 class CSCWireDigi{
 
@@ -44,6 +43,14 @@ private:
 
 };
 
-std::ostream & operator<<(std::ostream & o, const CSCWireDigi& digi);
+#include<iostream>
 
+inline std::ostream & operator<<(std::ostream & o, const CSCWireDigi& digi) {
+  o << " CSC Wire " << digi.getWireGroup()
+	   << " CSC Wire First Time Bin On " << digi.getTimeBin()
+           << " CSC Time Bins On ";
+  for (unsigned int i = 0; i<digi.getTimeBinsOn().size(); ++i ){
+    o <<" " <<digi.getTimeBinsOn()[i]; }
+  return o;         
+}
 #endif

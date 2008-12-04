@@ -25,14 +25,20 @@ namespace reco {
   public:
     PFTau();
     PFTau(Charge q,const LorentzVector &,const Point & = Point( 0, 0, 0 ) );
-    virtual ~PFTau(){}
+    virtual ~PFTau() {};
     PFTau* clone()const;
     
     const PFTauTagInfoRef& pfTauTagInfoRef()const;
     void setpfTauTagInfoRef(const PFTauTagInfoRef);
     
     const PFCandidateRef& leadPFChargedHadrCand()const; 
+    const PFCandidateRef& leadPFNeutralCand()const; 
+    //Can be either the charged or the neutral one
+    const PFCandidateRef& leadPFCand()const; 
+
     void setleadPFChargedHadrCand(const PFCandidateRef&);
+    void setleadPFNeutralCand(const PFCandidateRef&);
+    void setleadPFCand(const PFCandidateRef&);
     // signed transverse impact parameter significance of the Track constituting the leading charged hadron PFCandidate 
     float leadPFChargedHadrCandsignedSipt()const;
     void setleadPFChargedHadrCandsignedSipt(const float&);
@@ -120,6 +126,7 @@ namespace reco {
     virtual bool overlap(const Candidate&)const;
     PFTauTagInfoRef PFTauTagInfoRef_;
     PFCandidateRef leadPFChargedHadrCand_;
+    PFCandidateRef leadPFNeutralCand_, leadPFCand_;
     float leadPFChargedHadrCandsignedSipt_;
     PFCandidateRefVector selectedSignalPFCands_, selectedSignalPFChargedHadrCands_, selectedSignalPFNeutrHadrCands_, selectedSignalPFGammaCands_;
     PFCandidateRefVector selectedIsolationPFCands_, selectedIsolationPFChargedHadrCands_, selectedIsolationPFNeutrHadrCands_, selectedIsolationPFGammaCands_;

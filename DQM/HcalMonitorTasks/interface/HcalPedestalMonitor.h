@@ -6,56 +6,40 @@
 #include "CondFormats/HcalObjects/interface/HcalPedestalWidth.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
-#include <cmath>
 
 /** \class HcalPedestalMonitor
   *  
-  * $Date: 2008/10/20 12:24:03 $
-  * $Revision: 1.18 $
+  * $Date: 2007/11/15 23:13:46 $
+  * $Revision: 1.13 $
   * \author W. Fisher - FNAL
   */
-
-
 class HcalPedestalMonitor: public HcalBaseMonitor {
 public:
   HcalPedestalMonitor(); 
   ~HcalPedestalMonitor(); 
 
   void setup(const edm::ParameterSet& ps, DQMStore* dbe);
-
   void processEvent(const HBHEDigiCollection& hbhe,
 		    const HODigiCollection& ho,
 		    const HFDigiCollection& hf,
-		    // const ZDCDigiCollection& zdc,
 		    const HcalDbService& cond);
   void done();
   void reset();
-  void fillDBValues(const HcalDbService& cond);
-  void fillPedestalHistos(void); // fills histograms once every (checkNevents_) events
 
-private:
-  void clearME(); // overrides base class function
+private: 
+  void perChanHists(int id, vector<HcalDetId> detID, vector<int> capID, vector<float> peds,
+		    map<HcalDetId, map<int, MonitorElement*> > &toolP, 
+		    map<HcalDetId, map<int, MonitorElement*> > &toolS,
+		    string baseFolder);
 
-  // Configurable parameters
-  //bool doPerChannel_; // enable histograms for each channel (not yet (or ever?) operational)
-  bool doFCpeds_; // pedestal units in fC (if false, assume ADC)
-  // specify time slices over which to calculate pedestals
-  bool startingTimeSlice_;
-  bool endingTimeSlice_;
-  
-  // Specify maximum allowed difference between ADC pedestal and nominal value
-  double nominalPedMeanInADC_;
-  double nominalPedWidthInADC_;
-  double maxPedMeanDiffADC_;
-  double maxPedWidthDiffADC_; // specify maximum width of pedestal (in ADC)
-  unsigned int minEntriesPerPed_; // minimum # of events needed to calculate pedestals
-  // Haven't yet figured out how to implement these reasonably.
-  // I'd like for them to default to whatever the global minErrorFlag_ has been set to,
-  // but user should be able to also set them directly.  Hmm... 
-  double pedmon_minErrorFlag_;
-  int pedmon_checkNevents_;
+  bool doPerChannel_;
+  bool doFCpeds_;
+  map<HcalDetId, map<int,MonitorElement*> >::iterator meo_;
+  vector<HcalDetId> detID_;
+  vector<int> capID_;
+  vector<float> pedVals_;
 
-  // Pedestal ADC/fC conversion stuffx
+  string outputFile_;
   const HcalQIEShape* shape_;
   const HcalQIECoder* channelCoder_;
   HcalCalibrations calibs_;
@@ -63,61 +47,57 @@ private:
   MonitorElement* meEVT_;
   int ievt_;
   
-  // Store means, RMS of pedestals by depth
-  std::vector<MonitorElement*> MeanMapByDepth;
-  std::vector<MonitorElement*> RMSMapByDepth;
+  double etaMax_, etaMin_, phiMax_, phiMin_;
+  int etaBins_, phiBins_;
+  map<HcalDetId,bool> REG;
 
-  // Original pedestal read info from database
-  MonitorElement* ADC_PedestalFromDB;
-  std::vector<MonitorElement*> ADC_PedestalFromDBByDepth;
-  MonitorElement* ADC_WidthFromDB;
-  std::vector<MonitorElement*> ADC_WidthFromDBByDepth;
-  MonitorElement* fC_PedestalFromDB;
-  std::vector<MonitorElement*> fC_PedestalFromDBByDepth;
-  MonitorElement* fC_WidthFromDB;
-  std::vector<MonitorElement*> fC_WidthFromDBByDepth;
+  MonitorElement* MEAN_MAP_L1;
+  MonitorElement*  RMS_MAP_L1;
 
-  // "raw" pedestal plots in ADC
-  std::vector<MonitorElement*> rawADCPedestalMean;
-  std::vector<MonitorElement*> rawADCPedestalRMS;
-  std::vector<MonitorElement*> rawADCPedestalMean_1D;
-  std::vector<MonitorElement*> rawADCPedestalRMS_1D;
+  MonitorElement* MEAN_MAP_L2;
+  MonitorElement*  RMS_MAP_L2;
 
-  // subtracted ADC pedestal plots
-  std::vector<MonitorElement*> subADCPedestalMean;
-  std::vector<MonitorElement*> subADCPedestalRMS;
-  std::vector<MonitorElement*> subADCPedestalMean_1D;
-  std::vector<MonitorElement*> subADCPedestalRMS_1D;
+  MonitorElement* MEAN_MAP_L3;
+  MonitorElement*  RMS_MAP_L3;
 
-  // raw pedestal plots in femtocoulombs
-  std::vector<MonitorElement*> rawFCPedestalMean;
-  std::vector<MonitorElement*> rawFCPedestalRMS;
-  std::vector<MonitorElement*> rawFCPedestalMean_1D;
-  std::vector<MonitorElement*> rawFCPedestalRMS_1D;
+  MonitorElement* MEAN_MAP_L4;
+  MonitorElement*  RMS_MAP_L4;
 
-  // subtracted pedestal plots in femtocoulombs
-  std::vector<MonitorElement*> subFCPedestalMean;
-  std::vector<MonitorElement*> subFCPedestalRMS;
-  std::vector<MonitorElement*> subFCPedestalMean_1D;
-  std::vector<MonitorElement*> subFCPedestalRMS_1D;
+  MonitorElement* MEAN_MAP_CR;
+  MonitorElement*  RMS_MAP_CR;
 
-  // Problem Histograms 
-  MonitorElement* ProblemPedestals;
-  std::vector<MonitorElement*> ProblemPedestalsByDepth;
+  MonitorElement* MEAN_MAP_FIB;
+  MonitorElement*  RMS_MAP_FIB;
 
+  MonitorElement* MEAN_MAP_SP;
+  MonitorElement*  RMS_MAP_SP;
 
-  //Quick pedestal arrays -- these store the values that are used to compute pedestals
-  unsigned int pedcounts[ETABINS][PHIBINS][4];
-  float rawpedsum[ETABINS][PHIBINS][4];
-  float rawpedsum2[ETABINS][PHIBINS][4];
-  float subpedsum[ETABINS][PHIBINS][4];
-  float subpedsum2[ETABINS][PHIBINS][4];
-  float fC_rawpedsum[ETABINS][PHIBINS][4];
-  float fC_rawpedsum2[ETABINS][PHIBINS][4];
-  float fC_subpedsum[ETABINS][PHIBINS][4];
-  float fC_subpedsum2[ETABINS][PHIBINS][4];
+  MonitorElement* PEDESTAL_REFS;
+  MonitorElement* WIDTH_REFS;
 
+  struct{
+    map<HcalDetId,map<int, MonitorElement*> > PEDVALS;
+    map<HcalDetId,map<int, MonitorElement*> > SUBVALS;
+    MonitorElement* ALLPEDS;
+    MonitorElement* PEDRMS;
+    MonitorElement* PEDMEAN;    
 
+    MonitorElement* SUBMEAN;    
+    MonitorElement* NSIGMA;    
+
+    MonitorElement* CAPIDRMS;
+    MonitorElement* CAPIDMEAN;    
+
+    MonitorElement* QIERMS;
+    MonitorElement* QIEMEAN;    
+
+    MonitorElement* ERRGEO;
+    MonitorElement* ERRELEC;    
+
+    MonitorElement* PEDESTAL_REFS;
+    MonitorElement* WIDTH_REFS;
+
+  } hbHists, heHists, hfHists, hoHists;
 
 };
 

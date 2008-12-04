@@ -1,9 +1,3 @@
-2008-10-17  Emilio Meschi  <emilio.meschi@cern.ch>
-	* tag V01-06-13
-	* use timeout for LS in scalers access (cond_timedwait)
-	* enable use of gtpe orbit/bx and ls
-	* requires EventFilter/Utilities V00-14-16-01 or later (see changelog)
-	
 2008-06-03  Emilio Meschi  <emilio.meschi@cern.ch>
 	* tag V01-06-05
 	* fill orbit and bx id from GT EVM block, needs EventFilter/Utilities V00-14-12	

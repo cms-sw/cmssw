@@ -13,7 +13,7 @@
 //
 // Original Author:  Werner Man-Li Sun
 //         Created:  Sun Mar  2 20:09:46 CET 2008
-// $Id: L1CondDBIOVWriter.cc,v 1.4 2008/09/19 19:25:05 wsun Exp $
+// $Id: L1CondDBIOVWriter.cc,v 1.2 2008/03/05 04:21:35 wsun Exp $
 //
 //
 
@@ -48,9 +48,8 @@ L1CondDBIOVWriter::L1CondDBIOVWriter(const edm::ParameterSet& iConfig)
 	       iConfig.getParameter<std::string> ("offlineAuthentication") ),
      m_reader( iConfig.getParameter<std::string> ("offlineDB"),
 	       iConfig.getParameter<std::string> ("offlineAuthentication") ),
-     m_tscKey( iConfig.getParameter<std::string> ("tscKey") ),
-     m_keyTag( iConfig.getParameter<std::string> ("L1TriggerKeyTag") ),
-     m_ignoreTriggerKey( iConfig.getParameter<bool> ("ignoreTriggerKey") )
+     m_keyTag( iConfig.getParameter<std::string> ("L1TriggerKeyTag") )
+
 {
    //now do what ever initialization is needed
    typedef std::vector<edm::ParameterSet> ToSave;
@@ -58,12 +57,11 @@ L1CondDBIOVWriter::L1CondDBIOVWriter(const edm::ParameterSet& iConfig)
    for (ToSave::const_iterator it = toSave.begin (); it != toSave.end (); it++)
    {
       std::string record = it->getParameter<std::string> ("record");
-      std::string type = it->getParameter<std::string> ("type");
       std::string tag = it->getParameter<std::string> ("tag");
 
       // Copy items to the list items list
-      m_recordTypeToTagMap.insert( std::make_pair( record + "@" + type,
-						   tag ) ) ;
+      std::map<std::string, std::string >::iterator rec =
+	 m_recordToTagMap.insert( std::make_pair( record, tag ) ).first ;
    }
 }
 
@@ -91,64 +89,55 @@ L1CondDBIOVWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
    ESHandle< L1TriggerKeyList > keyList ;
    iSetup.get< L1TriggerKeyListRcd >().get( keyList ) ;
 
+   // Get dummy L1TriggerKey -- only has TSC key, not subsystem keys
+   ESHandle< L1TriggerKey > dummyKey ;
+   iSetup.get< L1TriggerKeyRcd >().get( dummyKey ) ;
+
    unsigned long long run = iEvent.id().run() ;
 
-   L1TriggerKey::RecordToKey recordTypeToKeyMap ;
+   // Use TSC key and L1TriggerKeyList to find next run's L1TriggerKey token
+   std::string keyToken = keyList->token( dummyKey->getTSCKey() ) ;
 
-   if( !m_ignoreTriggerKey )
-     {
-       // Use TSC key and L1TriggerKeyList to find next run's L1TriggerKey
-       // token
-       std::string keyToken = keyList->token( m_tscKey ) ;
+   // Update IOV sequence for this token with since-time = new run 
+   m_writer.updateIOV( m_keyTag, keyToken, run ) ;
 
-       // Update IOV sequence for this token with since-time = new run 
-       m_writer.updateIOV( m_keyTag, keyToken, run ) ;
-
-       // Read current L1TriggerKey directly from ORCON using token
-       L1TriggerKey key = m_reader.readKey( keyToken ) ;
-
-       recordTypeToKeyMap = key.recordToKeyMap() ;
-     }
-   else
-     {
-       std::map<std::string, std::string >::const_iterator recordTypeToTagItr =
-	 m_recordTypeToTagMap.begin() ;
-       std::map<std::string, std::string >::const_iterator recordTypeToTagEnd =
-	 m_recordTypeToTagMap.end() ;
-
-       for( ; recordTypeToTagItr != recordTypeToTagEnd ; ++recordTypeToTagItr )
-	 {
-	   recordTypeToKeyMap.insert(
-	     std::make_pair( recordTypeToTagItr->first, m_tscKey ) ) ;
-	 }
-     }
+   // Read current L1TriggerKey directly from ORCON using token
+//    L1TriggerKey key ;
+//    m_reader.readPayload( keyToken, key ) ;
+   L1TriggerKey key = m_reader.readKey( keyToken ) ;
 
    // Loop over record@type in L1TriggerKey
-   L1TriggerKey::RecordToKey::const_iterator itr = recordTypeToKeyMap.begin() ;
-   L1TriggerKey::RecordToKey::const_iterator end = recordTypeToKeyMap.end() ;
+   L1TriggerKey::RecordToKey::const_iterator itr =
+      key.recordToKeyMap().begin() ;
+   L1TriggerKey::RecordToKey::const_iterator end =
+      key.recordToKeyMap().end() ;
 
    for( ; itr != end ; ++itr )
    {
       // Find payload token
       std::string recordType = itr->first ;
-      std::string objectKey = itr->second ;
-      std::string payloadToken = keyList->token( recordType, objectKey ) ;
+      std::string subsystemKey = itr->second ;
+      std::string payloadToken = keyList->token( recordType, subsystemKey ) ;
       if( payloadToken.empty() )
 	{
 	  throw cond::Exception( "L1CondDBIOVWriter: empty payload token" ) ;
 	}
       // assert( !payloadToken.empty() ) ;
 
-      // Find tag for IOV token
-      std::map<std::string, std::string >::const_iterator recordTypeToTagItr =
-	 m_recordTypeToTagMap.find( recordType ) ;
-      if( recordTypeToTagItr == m_recordTypeToTagMap.end() )
-	{
-	  throw cond::Exception( "L1CondDBIOVWriter: no tag for record@type "
-				 + recordType ) ;
-	}
+      // Extract record name from recordType
+      std::string recordName( recordType, 0, recordType.find_first_of("@") ) ;
 
-      m_writer.updateIOV( recordTypeToTagItr->second, payloadToken, run ) ;
+      // Find tag for IOV token
+      std::map<std::string, std::string >::const_iterator recordToTagItr =
+	 m_recordToTagMap.find( recordName ) ;
+      if( recordToTagItr == m_recordToTagMap.end() )
+	{
+	  throw cond::Exception( "L1CondDBIOVWriter: no tag for record "
+				 + recordName ) ;
+	}
+      // assert( recordToTagItr != m_recordToTagMap.end() ) ;
+
+      m_writer.updateIOV( recordToTagItr->second, payloadToken, run ) ;
    }
 }
 

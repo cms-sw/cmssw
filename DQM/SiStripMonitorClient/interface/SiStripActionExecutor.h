@@ -48,6 +48,7 @@ class SiStripActionExecutor {
 		       int& error_me_subdet, unsigned int xbin);
  void fillSubDetStatusFromLayer(DQMStore* dqm_store, std::string& dname, int& tot_me_subdet,
 		       int& error_me_subdet, unsigned int xbin);
+  void fillClusterReport(DQMStore* dqm_store, std::string& dname, int xbin);
  bool goToDir(DQMStore * dqm_store, std::string name);
 
 
@@ -64,6 +65,8 @@ class SiStripActionExecutor {
   MonitorElement * SummaryTIDB;
   MonitorElement * SummaryTECF;
   MonitorElement * SummaryTECB;
+
+  MonitorElement * OnTrackClusterReport;
 
   bool bookedGlobalStatus_;
 };

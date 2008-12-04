@@ -15,7 +15,7 @@
 #include "DataFormats/Common/interface/Wrapper.h"
 
 namespace {
-  namespace {
+  struct dictionary {
 
     reco::PFCandidateRef c_r;
     reco::PFCandidateRefProd c_rp;
@@ -39,5 +39,5 @@ namespace {
     reco::PileUpPFCandidateRefVector puc_rv;
     edm::Wrapper<std::vector<reco::PileUpPFCandidate> > puw1;
     reco::PileUpPFCandidatePtr bla5;     
-  }
+  };
 }

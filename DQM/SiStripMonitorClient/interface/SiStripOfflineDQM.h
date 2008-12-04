@@ -55,14 +55,19 @@ class SiStripOfflineDQM: public edm::EDAnalyzer {
   /// BeginRun
   void beginRun(edm::Run const& run, edm::EventSetup const& eSetup);
 
-  /// Analyze                                                                                                                                               
+  /// Analyze                                                                               
   void analyze(edm::Event const& e, edm::EventSetup const& eSetup);
+
+ /// End Of Luminosity
+                                                                               
+  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup);
 
   /// Endjob
   void endJob();
 
 private:
 
+  void checkTrackerFEDs(edm::Event const& e);
   bool openInputFile();
 
   DQMStore* dqmStore_;
@@ -74,7 +79,8 @@ private:
   std::string inputFileName_;
   std::string outputFileName_;
   int globalStatusFilling_; 
+  bool usedWithEDMtoMEConverter_;
   int nEvents_;
-
+  bool trackerFEDsFound_;
 };
 #endif

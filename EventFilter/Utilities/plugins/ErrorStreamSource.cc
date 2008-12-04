@@ -84,32 +84,16 @@ ErrorStreamSource::~ErrorStreamSource()
 //______________________________________________________________________________
 void ErrorStreamSource::setRunAndEventInfo()
 {
-  uint32_t version(1);
   uint32_t runNumber(0);
-  uint32_t lumiNumber(1);
   uint32_t evtNumber(0);
   bool status;
   status = fin_.read((char*)&runNumber,sizeof(uint32_t));
-  if (runNumber < 32) {
-      version = runNumber;
-      status = fin_.read((char*)&runNumber,sizeof(uint32_t));
-  }
-  if (version >= 2) {
-      status = fin_.read((char*)&lumiNumber,sizeof(uint32_t));
-  }
   status = fin_.read((char*)&evtNumber,sizeof(uint32_t));
   
   if (!status) {
     itFileName_++; if (itFileName_==fileNames().end()) { fin_.close(); return; }
     openFile(*itFileName_);
     status = fin_.read((char*)&runNumber,sizeof(uint32_t));
-    if (runNumber < 32) {
-        version = runNumber;
-        status = fin_.read((char*)&runNumber,sizeof(uint32_t));
-    }
-    if (version >= 2) {
-        status = fin_.read((char*)&lumiNumber,sizeof(uint32_t));
-    }
     status = fin_.read((char*)&evtNumber,sizeof(uint32_t));
     if (!status) { fin_.close(); return; }
   }

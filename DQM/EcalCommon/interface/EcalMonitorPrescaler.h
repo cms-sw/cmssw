@@ -1,11 +1,11 @@
-// $Id: EcalMonitorPrescaler.h,v 1.3 2008/05/28 08:26:31 dellaric Exp $
+// $Id: EcalMonitorPrescaler.h,v 1.2 2008/05/17 14:23:13 dellaric Exp $
 
 /*!
   \file EcalMonitorPrescaler.h
   \brief Ecal specific Prescaler 
   \author G. Della Ricca
-  \version $Revision: 1.3 $
-  \date $Date: 2008/05/28 08:26:31 $
+  \version $Revision: 1.2 $
+  \date $Date: 2008/05/17 14:23:13 $
 */
 
 #ifndef EcalMonitorPrescaler_H
@@ -44,8 +44,6 @@ int laserPrescaleFactor_;
 int ledPrescaleFactor_;
 int pedestalPrescaleFactor_;
 int testpulsePrescaleFactor_;
-
-int pedestaloffsetPrescaleFactor_;
 
 int triggertowerPrescaleFactor_;
 int timingPrescaleFactor_;

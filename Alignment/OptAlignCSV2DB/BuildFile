@@ -5,7 +5,7 @@
 <use name=CondFormats/OptAlignObjects>
 <use name=CondCore/DBCommon>
 <use name=CondCore/DBOutputService>
- <flags EDM_PLUGIN=1>
+<flags SEAL_PLUGIN_NAME="AlignmentOptAlignCSV2DB">
 <export>
    <use name=CondCore/DBCommon>
    <use name=CondCore/DBOutputService>

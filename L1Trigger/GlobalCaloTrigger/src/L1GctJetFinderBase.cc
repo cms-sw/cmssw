@@ -6,7 +6,7 @@
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetSorter.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetEtCalibrationLut.h"
 
-#include "FWCore/Utilities/interface/Exception.h"  
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //DEFINE STATICS
 const unsigned int L1GctJetFinderBase::MAX_JETS_OUT = 6;
@@ -22,6 +22,7 @@ L1GctJetFinderBase::L1GctJetFinderBase(int id):
   L1GctProcessor(),
   m_id(id),
   m_neighbourJetFinders(2),
+  m_idInRange(false),
   m_gotNeighbourPointers(false),
   m_gotJetFinderParams(false),
   m_gotJetEtCalLuts(false),
@@ -40,10 +41,13 @@ L1GctJetFinderBase::L1GctJetFinderBase(int id):
   //Check jetfinder setup
   if(m_id < 0 || m_id >= static_cast<int>(L1CaloRegionDetId::N_PHI))
   {
-    throw cms::Exception("L1GctSetupError")
-    << "L1GctJetFinderBase::L1GctJetFinderBase() : Jet Finder ID " << m_id << " has been incorrectly constructed!\n"
-    << "ID number should be between the range of 0 to " << L1CaloRegionDetId::N_PHI-1 << "\n";
-  } 
+    if (m_verbose) {
+      edm::LogWarning("L1GctSetupError")
+	<< "L1GctJetFinderBase::L1GctJetFinderBase() : Jet Finder ID " << m_id << " has been incorrectly constructed!\n"
+	<< "ID number should be between the range of 0 to " << L1CaloRegionDetId::N_PHI-1 << "\n";
+    } 
+  } else { m_idInRange = true; }
+
 }
 
 L1GctJetFinderBase::~L1GctJetFinderBase()
@@ -53,24 +57,36 @@ L1GctJetFinderBase::~L1GctJetFinderBase()
 /// Set pointers to neighbours
 void L1GctJetFinderBase::setNeighbourJetFinders(std::vector<L1GctJetFinderBase*> neighbours)
 {
+  m_gotNeighbourPointers = true;
   if (neighbours.size()==2) {
     m_neighbourJetFinders = neighbours;
   } else {
-    throw cms::Exception("L1GctSetupError")
-      << "L1GctJetFinderBase::setNeighbourJetFinders() : In Jet Finder ID " << m_id 
-      << " size of input vector should be 2, but is in fact " << neighbours.size() << "\n";
+    m_gotNeighbourPointers = false;
+    if (m_verbose) {
+      edm::LogWarning("L1GctSetupError")
+	  << "L1GctJetFinderBase::setNeighbourJetFinders() : In Jet Finder ID " << m_id 
+	  << " size of input vector should be 2, but is in fact " << neighbours.size() << "\n";
+    }
   }
   if (m_neighbourJetFinders.at(0) == 0) {
-    throw cms::Exception("L1GctSetupError")
-      << "L1GctJetFinderBase::setNeighbourJetFinders() : In Jet Finder ID " << m_id 
-      << " first neighbour pointer is set to zero\n";
+    m_gotNeighbourPointers = false;
+    if (m_verbose) {
+      edm::LogWarning("L1GctSetupError")
+	  << "L1GctJetFinderBase::setNeighbourJetFinders() : In Jet Finder ID " << m_id 
+	  << " first neighbour pointer is set to zero\n";
+    }
   }
   if (m_neighbourJetFinders.at(1) == 0) {
-    throw cms::Exception("L1GctSetupError")
-      << "L1GctJetFinderBase::setNeighbourJetFinders() : In Jet Finder ID " << m_id 
-      << " second neighbour pointer is set to zero\n";
+    m_gotNeighbourPointers = false;
+    if (m_verbose) {
+      edm::LogWarning("L1GctSetupError")
+	  << "L1GctJetFinderBase::setNeighbourJetFinders() : In Jet Finder ID " << m_id 
+	  << " second neighbour pointer is set to zero\n";
+    }
   }
-  m_gotNeighbourPointers = true;
+  if (!m_gotNeighbourPointers && m_verbose) {
+    edm::LogError("L1GctSetupError") << "Jet Finder ID " << m_id << " has incorrect assignment of neighbour pointers";
+  }
 }
 
 /// Set pointer to parameters - needed to complete the setup
@@ -178,7 +194,7 @@ void L1GctJetFinderBase::setInputRegion(const L1CaloRegion& region)
   // Find the column for this region in a global (eta,phi) array
   // Note the column numbers here are not the same as region->gctPhi()
   // because the RCT crates are not numbered from phi=0.
-  unsigned colAbsolute = crate*2 + region.rctPhi();
+  unsigned colAbsolute = (crate+1)*2 + region.rctPhi();
   unsigned colRelative = ((colAbsolute+NPHI) - m_minColThisJf) % NPHI;
   if (colRelative < this->nCols()) {
     // We are in the right range in phi
@@ -262,21 +278,26 @@ void L1GctJetFinderBase::doEnergySums()
 // Calculates total (raw) energy in a phi strip
 L1GctJetFinderBase::etTotalType L1GctJetFinderBase::calcEtStrip(const UShort strip) const
 {
-  if (strip !=0 && strip != 1) {
-    throw cms::Exception("L1GctProcessingError")
-      << "L1GctJetFinderBase::calcEtStrip() has been called with strip number "
-      << strip << "; should be 0 or 1 \n";
-  } 
-  // Add the Et values from regions 13 to 23 for strip 0,
-  //     the Et values from regions 25 to 35 for strip 1.
   unsigned et = 0;
   bool of = false;
-  unsigned offset = COL_OFFSET * (strip+centralCol0());
-  for (UShort i=1; i < COL_OFFSET; ++i) {
-    offset++;
-    et += m_inputRegions.at(offset).et();
-    of |= m_inputRegions.at(offset).overFlow();
+
+  if (strip !=0 && strip != 1) {
+    if (m_verbose) {
+      edm::LogError("L1GctProcessingError")
+	<< "L1GctJetFinderBase::calcEtStrip() has been called with strip number "
+	<< strip << "; should be 0 or 1 \n";
+    } 
+  } else {
+    // Add the Et values from regions 13 to 23 for strip 0,
+    //     the Et values from regions 25 to 35 for strip 1.
+    unsigned offset = COL_OFFSET * (strip+centralCol0());
+    for (UShort i=1; i < COL_OFFSET; ++i) {
+      offset++;
+      et += m_inputRegions.at(offset).et();
+      of |= m_inputRegions.at(offset).overFlow();
+    }
   }
+
   etTotalType temp(et);
   temp.setOverFlow(temp.overFlow() || of);
   return temp;

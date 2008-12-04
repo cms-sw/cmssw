@@ -1,8 +1,0 @@
-<lcgdict>
- <class name="cond::Time_t"/>
- <class name="std::basic_string<char>"/>
- <class name="cond::IOVElement"/>
- <class name="cond::UpdateStamp"/>
- <class name="std::vector<cond::IOVElement>"/>
- <class name="cond::IOVSequence" id="3F16F0A9-79D5-4881-CE0B-C301DD84A7F1" class_version="0"/>
-</lcgdict>   

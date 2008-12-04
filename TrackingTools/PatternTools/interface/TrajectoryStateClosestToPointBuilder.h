@@ -8,7 +8,6 @@
  * This class builds a TrajectoryStateClosestToPoint given an original 
  * TrajectoryStateOnSurface or FreeTrajectoryState. This new state is then 
  * defined at the point of closest approach to the reference point.
- * In case the propagation was not successful, this state can be invalid.
  */
 
 class TrajectoryStateClosestToPointBuilder

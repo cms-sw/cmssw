@@ -16,7 +16,6 @@
 
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/PixelClusterParameterEstimator.h"
 #include "RecoLocalTracker/SiPixelRecHits/interface/EtaCorrection.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitQuality.h"
 
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
@@ -116,23 +115,6 @@ class PixelCPEBase : public PixelClusterParameterEstimator {
   inline float probabilityY()        const { return probabilityY_; }
   inline float qBin()                const { return qBin_ ; }
 
-  //--- Flag to control how SiPixelRecHits compute clusterProbability().
-  //--- Note this is set via the configuration file, and it's simply passed
-  //--- to each TSiPixelRecHit.
-  inline unsigned int clusterProbComputationFlag() const { 
-    return clusterProbComputationFlag_ ; 
-  }
-
-  
-  //-----------------------------------------------------------------------------
-  //! A convenience method to fill a whole SiPixelRecHitQuality word in one shot.
-  //! This way, we can keep the details of what is filled within the pixel
-  //! code and not expose the Transient SiPixelRecHit to it as well.  The name
-  //! of this function is chosen to match the one in SiPixelRecHit.
-  //-----------------------------------------------------------------------------
-  SiPixelRecHitQuality::QualWordType rawQualityWord() const;
-
-
  protected:
   //--- All methods and data members are protected to facilitate (for now)
   //--- access from derived classes.
@@ -172,12 +154,6 @@ class PixelCPEBase : public PixelClusterParameterEstimator {
   mutable float trk_lp_x;
   mutable float trk_lp_y;
 
-  //--- Counters
-  mutable int    nRecHitsTotal_ ;
-  mutable int    nRecHitsUsedEdge_ ;
-
-  // ggiurgiu@jhu.edu (10/18/2008)
-  mutable bool with_track_angle; 
 
   // [Petar, 5/18/07] 
   // Add estimates of cot(alpha) and cot(beta) from the
@@ -195,14 +171,6 @@ class PixelCPEBase : public PixelClusterParameterEstimator {
   mutable float probabilityY_ ; 
   mutable float qBin_ ;
 
-  //--- A flag that could be used to change the behavior of
-  //--- clusterProbability() in TSiPixelRecHit (the *transient* one).  
-  //--- The problem is that the transient hits are made after the CPE runs
-  //--- and they don't get the access to the PSet, so we pass it via the
-  //--- CPE itself...
-  //
-  unsigned int clusterProbComputationFlag_ ;
-
   //---------------------------
 
   // [Petar, 2/23/07]
@@ -214,6 +182,10 @@ class PixelCPEBase : public PixelClusterParameterEstimator {
   mutable double lorentzShiftY_;   // a FULL shift, not 1/2 like theLShiftY!
   mutable double lorentzShiftInCmX_;   // a FULL shift, in cm
   mutable double lorentzShiftInCmY_;   // a FULL shift, in cm
+
+  //--- Counters
+  mutable int    nRecHitsTotal_ ;
+  mutable int    nRecHitsUsedEdge_ ;
 
 
   //--- Global quantities

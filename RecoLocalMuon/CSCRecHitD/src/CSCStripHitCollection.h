@@ -6,6 +6,7 @@
  *
  * The collection of CSCStripHit's. 
  *
+ * \author Dominique Fortin - UCR
  */
 
 #include <RecoLocalMuon/CSCRecHitD/src/CSCStripHit.h>

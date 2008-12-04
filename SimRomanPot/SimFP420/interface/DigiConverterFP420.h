@@ -6,7 +6,7 @@
 class DigiConverterFP420: public DConverterFP420{
  public:
 
-  DigiConverterFP420(float in,int);
+  DigiConverterFP420(float in);
   
   DigitalMapType convert(const signal_map_type&);
     
@@ -18,7 +18,6 @@ class DigiConverterFP420: public DConverterFP420{
   float electronperADC;
   int theMaxADC;
   int adcBits;
-  int verbos;
 };
  
 #endif

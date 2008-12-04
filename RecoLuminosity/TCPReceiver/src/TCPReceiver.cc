@@ -7,19 +7,7 @@
 
 #include "RecoLuminosity/TCPReceiver/interface/TCPReceiver.h"
 #include <iostream>
-
 #include <unistd.h>
-#include <sys/time.h>
-
-// srand rand
-#include <cstdlib>
-
-// tcp
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <arpa/inet.h>
-#include <netinet/in.h>
-#include <netdb.h>
 
 namespace HCAL_HLX{
 
@@ -27,12 +15,10 @@ namespace HCAL_HLX{
 #ifdef DEBUG
     std::cout << "Begin " << __PRETTY_FUNCTION__ << std::endl;
 #endif
-
     acquireMode = 0;
     servPort = 0;
     servIP = "127.0.0.1";
     Connected = false;
-
 #ifdef DEBUG
     std::cout << "End " << __PRETTY_FUNCTION__ << std::endl;
 #endif
@@ -272,7 +258,7 @@ void SetupFDSets(fd_set& ReadFDs, fd_set& WriteFDs,
       Connected = true; 
       errorCode = 1;       // do nothing for random data
     } else {
-      errorCode = 201;     // Invalid acquire mode
+      errorCode = 201;     // Invalid aquire mode
     }
     
 #ifdef DEBUG
@@ -286,19 +272,17 @@ void SetupFDSets(fd_set& ReadFDs, fd_set& WriteFDs,
     std::cout << "Begin " << __PRETTY_FUNCTION__ << std::endl;
 #endif
 
-    int errorCode = 0;
+    int errorCode;
 
     if(Connected){
-      if( acquireMode == 0 ){
-	if(shutdown(tcpSocket,SHUT_RDWR)<0){
-	  perror("Shutdown Error");
-	  errorCode = 601; // Disconnect Failed
-	} else {
-	  
-	  errorCode = 1;  // Successful Disconnect
-	}
+      if(shutdown(tcpSocket,SHUT_RDWR)<0){
+	perror("Shutdown Error");
+	errorCode = 601; // Disconnect Failed
+	Connected = false;
+      } else {
+	Connected = false;
+	errorCode = 1;  // Successful Disconnect
       }
-      Connected = false;
     } else {
       errorCode = 401;  // Not Connected
     }
@@ -323,11 +307,6 @@ void SetupFDSets(fd_set& ReadFDs, fd_set& WriteFDs,
     localSection.hdr.bCMSLive      = true;
     localSection.hdr.sectionNumber = 120;
     
-    timeval tvTemp;
-    gettimeofday(&tvTemp, NULL);
-    localSection.hdr.timestamp = tvTemp.tv_sec;
-    localSection.hdr.timestamp_micros = tvTemp.tv_usec;
-
     localSection.lumiSummary.DeadtimeNormalization = 0.7;
     localSection.lumiSummary.LHCNormalization      = 0.75;
     localSection.lumiSummary.OccNormalization[0]   = 0.8;

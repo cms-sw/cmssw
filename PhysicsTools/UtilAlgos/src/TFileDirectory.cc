@@ -2,6 +2,7 @@
 #include "TROOT.h"
 #include "TFile.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include <ostream>
 using namespace std;
 
 void TFileDirectory::cd() const {

@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/10/02 11:35:50 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/01/18 17:48:39 $
+ *  $Revision: 1.3 $
  *  \author M. Giunta
  */
 
@@ -106,7 +106,7 @@ DTVDriftCalibration::DTVDriftCalibration(const ParameterSet& pset) {
     theGranularity = byPartition;
   } else {
     cout << "[DTVDriftCalibration]###Warning: Check parameter tMaxGranularity: "
-	 << tMaxGranularity << " options not available!" << endl;
+      << tMaxGranularity << " options not available!" << endl;
   }
 
   if(debug)
@@ -124,7 +124,7 @@ DTVDriftCalibration::~DTVDriftCalibration(){
 
 void DTVDriftCalibration::analyze(const Event & event, const EventSetup& eventSetup) {
   cout << endl<<"--- [DTVDriftCalibration] Event analysed #Run: " << event.id().run()
-       << " #Event: " << event.id().event() << endl;
+    << " #Event: " << event.id().event() << endl;
   theFile->cd();
   DTChamberId chosenChamberId;
 
@@ -360,42 +360,41 @@ void DTVDriftCalibration::endJob() {
       theFile->cd();
       cellHists->Write();
       if(findVDriftAndT0) {  // if TRUE: evaluate calibration constants from TMax hists filled in this job  
-	// evaluate v_drift and sigma from the TMax histograms
-	DTWireId wireId = (*wireCell).first;
-	vector<float> newConstants;
-	TString N=(((((TString) "TMax"+(long) wireId.wheel()) +(long) wireId.station())
-		    +(long) wireId.sector())+(long) wireId.superLayer());
-	vector<float> vDriftAndReso = theFitter->evaluateVDriftAndReso(N);
+        // evaluate v_drift and sigma from the TMax histograms
+        DTWireId wireId = (*wireCell).first;
+        vector<float> newConstants;
+        TString N=(((((TString) "TMax"+(long) wireId.wheel()) +(long) wireId.station())
+                    +(long) wireId.sector())+(long) wireId.superLayer());
+        vector<float> vDriftAndReso = theFitter->evaluateVDriftAndReso(N);
 
-	// Don't write the constants for the SL if the vdrift was not computed
-	if(vDriftAndReso.front() == -1)
-	  continue;
-	const DTCalibrationMap::CalibConsts* oldConstants = calibValuesFile.getConsts(wireId);
-	if(oldConstants != 0) {
-	  newConstants.push_back((*oldConstants)[0]);
-	  newConstants.push_back((*oldConstants)[1]);
-	} else {
-	  newConstants.push_back(-1);
-	  newConstants.push_back(-1);
-	}
-	for(int ivd=0; ivd<=5;ivd++) { 
-	  // 0=vdrift, 1=reso, 2=(3deltat0-2deltat0), 3=(2deltat0-1deltat0),
-	  //  4=(1deltat0-0deltat0), 5=deltat0 from hists with max entries,
-	  newConstants.push_back(vDriftAndReso[ivd]); 
-	}
+        // Don't write the constants for the SL if the vdrift was not computed
+        if(vDriftAndReso.front() == -1)
+          continue;
+        const DTCalibrationMap::CalibConsts* oldConstants = calibValuesFile.getConsts(wireId);
+        if(oldConstants != 0) {
+          newConstants.push_back((*oldConstants)[0]);
+          newConstants.push_back((*oldConstants)[1]);
+        } else {
+          newConstants.push_back(-1);
+          newConstants.push_back(-1);
+        }
+        for(int ivd=0; ivd<=5;ivd++) { 
+          // 0=vdrift, 1=reso, 2=(3deltat0-2deltat0), 3=(2deltat0-1deltat0),
+          //  4=(1deltat0-0deltat0), 5=deltat0 from hists with max entries,
+          newConstants.push_back(vDriftAndReso[ivd]); 
+        }
 
-	calibValuesFile.addCell(calibValuesFile.getKey(wireId), newConstants);
+        calibValuesFile.addCell(calibValuesFile.getKey(wireId), newConstants);
 
-        // vdrift is cm/ns , resolution is cm
-	mTime->set((wireId.layerId()).superlayerId(),
-		   vDriftAndReso[0],
-		   vDriftAndReso[1],
-		   DTVelocityUnits::cm_per_ns);
-    	if(debug) {
-	  cout << " SL: " << (wireId.layerId()).superlayerId()
-	       << " vDrift = " << vDriftAndReso[0]
-	       << " reso = " << vDriftAndReso[1] << endl;
-	}
+        mTime->set((wireId.layerId()).superlayerId(),
+                   vDriftAndReso[0],
+                   vDriftAndReso[1],
+                   DTTimeUnits::ns);
+        if(debug) {
+          cout << " SL: " << (wireId.layerId()).superlayerId()
+            << " vDrift = " << vDriftAndReso[0]
+            << " reso = " << vDriftAndReso[1] << endl;
+        }
       }
     }
   }
@@ -497,11 +496,11 @@ void DTVDriftCalibration::cellInfo::add(vector<const TMax*> tMaxes) {
       hSubGroup = (*it)->hSubGroup;
       if(t < 0.) continue;
       switch(cells) {
-      case notInit : cout << "Error: no cell type assigned to TMax" << endl; break;
-      case c123 : tmax123 =t; t0_123 = t0Factor; break;
-      case c124 : tmax124 =t; s124 = sigma; t0_124 = t0Factor; break;
-      case c134 : tmax134 =t; s134 = sigma; t0_134 = t0Factor; break;
-      case c234 : tmax234 =t; t0_234 = t0Factor; break;
+        case notInit : cout << "Error: no cell type assigned to TMax" << endl; break;
+        case c123 : tmax123 =t; t0_123 = t0Factor; break;
+        case c124 : tmax124 =t; s124 = sigma; t0_124 = t0Factor; break;
+        case c134 : tmax134 =t; s134 = sigma; t0_134 = t0Factor; break;
+        case c234 : tmax234 =t; t0_234 = t0Factor; break;
       } 
     }
   }

@@ -31,8 +31,6 @@ namespace evf {
     //
     UInt_t sendInitMessage(UInt_t  fuResourceId,
 			   UInt_t  outModId,
-			   UInt_t  fuProcessId,
-			   UInt_t  fuGuid,
 			   UChar_t*data,
 			   UInt_t  dataSize) throw (evf::Exception);
     
@@ -40,16 +38,12 @@ namespace evf {
 			 UInt_t  runNumber,
 			 UInt_t  evtNumber,
 			 UInt_t  outModId,
-			 UInt_t  fuProcessId,
-			 UInt_t  fuGuid,
 			 UChar_t*data,
 			 UInt_t  dataSize) throw (evf::Exception);
 
     UInt_t sendErrorEvent(UInt_t  fuResourceId,
 			  UInt_t  runNumber,
 			  UInt_t  evtNumber,
-			  UInt_t  fuProcessId,
-			  UInt_t  fuGuid,
 			  UChar_t*data,
 			  UInt_t  dataSize) throw (evf::Exception);
 
@@ -57,8 +51,6 @@ namespace evf {
 			UInt_t  runNumber,
 			UInt_t  evtAtUpdate,
 			UInt_t  folderId,
-			UInt_t  fuProcessId,
-			UInt_t  fuGuid,
 			UChar_t*data,
 			UInt_t  dataSize) throw (evf::Exception);
 

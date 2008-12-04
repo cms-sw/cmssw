@@ -1,8 +1,8 @@
 /** \file RigidBodyAlignmentParameters.cc
  *
- *  Version    : $Revision: 1.13 $
- *  last update: $Date: 2007/10/08 15:56:01 $
- *  by         : $Author: cklae $
+ *  Version    : $Revision: 1.12 $
+ *  last update: $Date: 2007/07/12 12:54:29 $
+ *  by         : $Author: flucke $
  */
 
 #include "FWCore/Utilities/interface/Exception.h"
@@ -11,7 +11,6 @@
 #include "Alignment/CommonAlignment/interface/AlignableDetOrUnitPtr.h"
 #include "Alignment/CommonAlignmentParametrization/interface/FrameToFrameDerivative.h"
 #include "Alignment/CommonAlignmentParametrization/interface/KarimakiAlignmentDerivatives.h"
-#include "Alignment/CommonAlignmentParametrization/interface/AlignmentParametersFactory.h"
 #include "CondFormats/Alignment/interface/Definitions.h"
 
 // This class's header 
@@ -142,37 +141,6 @@ AlgebraicVector RigidBodyAlignmentParameters::rotation(void) const
   return rot;
 }
 
-//__________________________________________________________________________________________________
-void RigidBodyAlignmentParameters::apply()
-{
-  Alignable *alignable = this->alignable();
-  if (!alignable) {
-    throw cms::Exception("BadParameters") 
-      << "RigidBodyAlignmentParameters::apply: parameters without alignable";
-  }
-  
-  // Translation in local frame
-  AlgebraicVector shift = this->translation(); // fixme: should be LocalVector
-
-  // Translation local->global
-  align::LocalVector lv(shift[0], shift[1], shift[2]);
-  alignable->move( alignable->surface().toGlobal(lv) );
-
-  // Rotation in local frame
-  align::EulerAngles angles = this->rotation();
-  // original code:
-  //  alignable->rotateInLocalFrame( align::toMatrix(angles) );
-  // correct for rounding errors:
-  align::RotationType rot = alignable->surface().toGlobal( align::toMatrix(angles) );
-  align::rectify(rot);
-  alignable->rotateInGlobalFrame(rot);
-}
-
-//__________________________________________________________________________________________________
-int RigidBodyAlignmentParameters::type() const
-{
-  return AlignmentParametersFactory::kRigidBody;
-}
 
 //__________________________________________________________________________________________________
 AlgebraicVector RigidBodyAlignmentParameters::globalParameters(void) const

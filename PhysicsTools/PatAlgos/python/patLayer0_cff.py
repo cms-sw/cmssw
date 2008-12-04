@@ -63,3 +63,12 @@ patLayer0 = cms.Sequence(
         patTrigMatch
 )
 
+patLayer0_patTuple_withoutPFTau = cms.Sequence(
+        patLayer0_withoutPFTau_withoutTrigMatch *
+        patTrigMatch_patTuple_withoutBTau
+)
+
+patLayer0_patTuple = cms.Sequence(
+        patLayer0_withoutTrigMatch *
+        patTrigMatch_patTuple
+)
