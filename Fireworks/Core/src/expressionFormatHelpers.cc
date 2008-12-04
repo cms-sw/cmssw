@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Aug 22 12:25:04 EDT 2008
-// $Id: expressionFormatHelpers.cc,v 1.1 2008/08/22 16:54:02 chrjones Exp $
+// $Id: expressionFormatHelpers.cc,v 1.2 2008/11/06 22:05:27 amraktad Exp $
 //
 
 // system include files
@@ -36,7 +36,6 @@ namespace fireworks {
                                          long iNewFormatIndex,
                                          const std::string& iOldFormat)
       {
-         long returnValue = 0;
          if(iNewFormat.substr(0,iNewFormatIndex) ==
             iOldFormat.substr(0,iNewFormatIndex)) {
             return iNewFormatIndex;

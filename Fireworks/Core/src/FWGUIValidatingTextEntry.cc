@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Aug 22 18:13:39 EDT 2008
-// $Id: FWGUIValidatingTextEntry.cc,v 1.4 2008/09/26 18:22:19 amraktad Exp $
+// $Id: FWGUIValidatingTextEntry.cc,v 1.5 2008/11/06 22:05:25 amraktad Exp $
 //
 
 // system include files
@@ -91,8 +91,6 @@ Bool_t
 FWGUIValidatingTextEntry::ProcessMessage(Long_t msg, Long_t parm1, Long_t parm2)
 {
    //STOLEN FROM TGComboBox.cxx
-   TGLBEntry *e;
-
    switch (GET_MSG(msg)) {
       case kC_COMMAND:
          switch (GET_SUBMSG(msg)) {
