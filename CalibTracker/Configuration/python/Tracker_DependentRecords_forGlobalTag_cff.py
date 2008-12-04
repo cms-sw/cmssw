@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 #
 # Fake for condition data that are not in DB
 #
-from CalibTracker.SiStripESProducers.SiStripPedestalsFakeSource_cfi import *
+from CalibTracker.SiStripESProducers.fake.SiStripPedestalsFakeESSource_cfi import *
 #from CalibTracker.SiStripESProducers.SiStripQualityFakeESSource_cfi import *
 #
 # Dependent Records
