@@ -49,6 +49,14 @@
   <class name="std::vector<RPCStripNoises::NoiseItem>"/>
   <class name="std::vector<float>"/>
 
+  <class name="RPCMaskedStrips"/>
+  <class name="RPCMaskedStrips::MaskItem"/>
+  <class name="std::vector<RPCMaskedStrips::MaskItem>"/>
+
+  <class name="RPCDeadStrips"/>
+  <class name="RPCDeadStrips::DeadItem"/>
+  <class name="std::vector<RPCDeadStrips::DeadItem>"/>
+
   <class name="RPCObGas"/>
   <class name="RPCObGas::Item"/>
   <class name="std::vector<RPCObGas::Item>"/>
