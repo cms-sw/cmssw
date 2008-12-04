@@ -1,5 +1,5 @@
 /*
- * $Id: ps_t.cppunit.cc,v 1.12 2007/11/07 05:47:18 wmtan Exp $
+ * $Id: ps_t.cppunit.cc,v 1.13 2008/10/31 23:02:01 rpw Exp $
  */
 
 #include <algorithm>
@@ -30,6 +30,7 @@ class testps: public CppUnit::TestFixture
   CPPUNIT_TEST(idTest);
   CPPUNIT_TEST(mapByIdTest);
   CPPUNIT_TEST(nameAccessTest);
+  CPPUNIT_TEST(testEmbeddedPSet);
   CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -47,7 +48,7 @@ public:
   void idTest();
   void mapByIdTest();
   void nameAccessTest();
-
+  void testEmbeddedPSet();
   // Still more to do...
 private:
 };
@@ -312,16 +313,19 @@ test_for_name()
   edm::sort_all(names);
   CPPUNIT_ASSERT( edm::binary_search_all(names, "x") );
   CPPUNIT_ASSERT( edm::binary_search_all(names, "y") );
-
   names = ps.template getParameterNamesForType<T>();
   CPPUNIT_ASSERT( names.size() == 1 );
   edm::sort_all(names);
   CPPUNIT_ASSERT( edm::binary_search_all(names, "x") );
-
   names = ps.template getParameterNamesForType<T>(false);
   CPPUNIT_ASSERT( names.size() == 1 );
   edm::sort_all(names);
   CPPUNIT_ASSERT( edm::binary_search_all(names, "y") );
+
+  std::string firstString = ps.toString();
+  edm::ParameterSet p2(firstString);
+  // equality tests toStringOfTracked internally
+  CPPUNIT_ASSERT(ps == p2);
 }
 
 void testps::nameAccessTest()
@@ -339,7 +343,6 @@ void testps::nameAccessTest()
 
   test_for_name<std::string>();
   test_for_name<std::vector<std::string> >();
-
   test_for_name<edm::ParameterSet>();
   test_for_name<std::vector<edm::ParameterSet> >();  
 
@@ -356,4 +359,34 @@ void testps::nameAccessTest()
     CPPUNIT_ASSERT( names.empty() ); 
   }
 
+}
+
+void testps::testEmbeddedPSet()
+{
+  edm::ParameterSet ps;
+  edm::ParameterSet psEmbedded, psDeeper;
+  psEmbedded.addUntrackedParameter<std::string>("p1", "wham");
+  psEmbedded.addParameter<std::string>("p2", "bam");
+  psDeeper.addParameter<int>("deepest", 6);
+  edm::InputTag it("label", "instance");
+  std::vector<edm::InputTag> vit;
+  vit.push_back(it);
+  psEmbedded.addParameter<edm::InputTag>("it", it);
+  psEmbedded.addParameter<std::vector<edm::InputTag> >("vit", vit);
+  psEmbedded.addParameter<edm::ParameterSet>("psDeeper", psDeeper);
+  ps.addParameter<edm::ParameterSet>("psEmbedded", psEmbedded);
+  ps.addParameter<double>("topLevel", 1.);
+  ps.addUntrackedParameter<boost::uint64_t>("u64", 64);
+
+  std::string rep = ps.toString();
+  edm::ParameterSet defrosted(rep);
+  edm::ParameterSet trackedPart(ps.toStringOfTracked());
+
+  CPPUNIT_ASSERT(defrosted == ps);
+  CPPUNIT_ASSERT(trackedPart.exists("psEmbedded"));
+  CPPUNIT_ASSERT(trackedPart.getParameter<edm::ParameterSet>("psEmbedded").exists("p2"));
+  CPPUNIT_ASSERT(!trackedPart.getParameter<edm::ParameterSet>("psEmbedded").exists("p1"));
+  CPPUNIT_ASSERT(trackedPart.getParameter<edm::ParameterSet>("psEmbedded").getParameter<edm::ParameterSet>("psDeeper").getParameter<int>("deepest") == 6);
+  CPPUNIT_ASSERT(defrosted.getUntrackedParameter<boost::uint64_t>("u64") == 64);
+  CPPUNIT_ASSERT(!trackedPart.exists("u64"));
 }
