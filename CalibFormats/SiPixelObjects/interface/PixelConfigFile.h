@@ -500,7 +500,7 @@ namespace pos{
       }
     
       std::string dir=base.substr(slashpos+1);
-      timer->stopTimer() ;
+/*       timer->stopTimer() ; */
 //      std::cout << mthn << "Extracted dir:"  << dir  <<std::endl;
 //      std::cout << mthn << "Extracted base:" << base <<std::endl;
 //      std::cout << mthn << "Extracted ext :" << ext  <<std::endl;
@@ -513,8 +513,8 @@ namespace pos{
 	  data= 0; 
 	  return false ;
 	}
-      timer->stopTimer() ;
-      delete timer ;
+/*       timer->stopTimer() ; */
+/*       delete timer ; */
 
       std::ostringstream s1;
       s1 << version;
