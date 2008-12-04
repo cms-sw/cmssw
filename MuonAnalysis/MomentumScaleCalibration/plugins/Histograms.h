@@ -4,8 +4,8 @@
 /** \class Histograms
  *  Collection of histograms for GLB muon analysis
  *
- *  $Date: 2008/11/13 14:34:53 $
- *  $Revision: 1.12 $
+ *  $Date: 2008/11/17 13:10:30 $
+ *  $Revision: 1.13 $
  *  \author S. Bolognesi - INFN Torino / T.Dorigo - INFN Padova
  */
 
@@ -17,6 +17,7 @@
 #include "TH1D.h"
 #include "TH1F.h"
 #include "TH2F.h"
+#include "TH3F.h"
 #include "TFile.h"
 #include "TString.h"
 #include "TProfile.h"
@@ -24,6 +25,7 @@
 #include "TGraphErrors.h"
 #include "TFile.h"
 #include "TSystem.h"
+#include "TCanvas.h"
 
 #include <vector>
 #include <string>
@@ -77,6 +79,10 @@ public:
                      const reco::Particle::LorentzVector & recoP2, const int charge2,
                      // const reco::Particle::LorentzVector & genP2,
                      const double & recoMass, const double & genMass ) {};
+  virtual void Fill( const reco::Particle::LorentzVector & recoP1,
+                     const reco::Particle::LorentzVector & genP1,
+                     const reco::Particle::LorentzVector & recoP2,
+                     const reco::Particle::LorentzVector & genP2 ) {};
   
   virtual void Write() = 0;
   virtual void Clear() = 0;
@@ -248,7 +254,10 @@ class HDelta : public Histograms {
     hEtaSign->Fill(momentum1.eta()-momentum2.eta());
     hPhi->Fill(MuScleFitUtils::deltaPhi(momentum1.phi(),momentum2.phi()));
     hTheta->Fill(momentum1.theta()-momentum2.theta());
-    hCotgTheta->Fill(1/(TMath::Tan(momentum1.theta()))-1/(TMath::Tan(momentum2.theta())));
+    // hCotgTheta->Fill(1/(TMath::Tan(momentum1.theta()))-1/(TMath::Tan(momentum2.theta())));
+    double theta1 = momentum1.theta();
+    double theta2 = momentum2.theta();
+    hCotgTheta->Fill(TMath::Cos(theta1)/TMath::Sin(theta1) - TMath::Cos(theta2)/TMath::Sin(theta2));
     hDeltaR->Fill(sqrt((momentum1.eta()-momentum2.eta())*(momentum1.eta()-momentum2.eta()) +
 		       (MuScleFitUtils::deltaPhi(momentum1.phi(),momentum2.phi()))*
 		       (MuScleFitUtils::deltaPhi(momentum1.phi(),momentum2.phi()))));
@@ -1017,9 +1026,9 @@ public:
     // bin entries to get the rms.
     // bin 0 is the underflow, bin totBins+1 is the overflow.
     unsigned int totBins = diffHisto_->GetNbinsX();
-    cout << "totBins = " << totBins << endl;
+    // cout << "totBins = " << totBins << endl;
     for( unsigned int iBin=1; iBin<=totBins; ++iBin ) {
-      cout << "iBin = " << iBin << ", " << diffHisto_->GetBinError(iBin)*sqrt(diffHisto_->GetBinEntries(iBin)) << endl;
+      // cout << "iBin = " << iBin << ", " << diffHisto_->GetBinError(iBin)*sqrt(diffHisto_->GetBinEntries(iBin)) << endl;
       resoHisto_->SetBinContent( iBin, diffHisto_->GetBinError(iBin)*sqrt(diffHisto_->GetBinEntries(iBin)) );
     }
     if( dir_ != 0 ) dir_->cd();
@@ -1041,6 +1050,244 @@ protected:
   TH1F * resoHisto_;
 };
 
+/**
+ * This class can be used to compute the covariance between two input variables.
+ * The Fill method need the two input variables. </br>
+ * In the end the covariance method computes the covariance as:
+ * cov(x,y) = Sum_i(x_i*y_i)/N - x_mean*y_mean. </br>
+ * Of course passing the same variable for x and y gives the variance of that variable.
+ */
+class Covariance {
+public:
+  Covariance() :
+    productXY_(0),
+    sumX_(0),
+    sumY_(0),
+    N_(0)
+  {}
+  void fill(const double & x, const double & y) {
+    productXY_ += x*y;
+    sumX_ += x;
+    sumY_ += y;
+    ++N_;
+  }
+  double covariance() {
+    if( N_ != 0 ) {
+      double meanX = sumX_/N_;
+      double meanY = sumY_/N_;
+      cout << "meanX*meanY = "<<meanX<<"*"<<meanY<< " = " << meanX*meanY << endl;
+      return (productXY_/N_ - meanX*meanY);
+    }
+    return 0.;
+  }
+  double getN() {return N_;}
+protected:
+  double productXY_;
+  double sumX_;
+  double sumY_;
+  int N_;
+};
+
+/**
+ * This class can be used to compute the covariance of two variables with respect to other two variables
+ * (to see e.g. how does the covariance of ptVSphi vary with respect to (pt,eta).
+ */
+class HCovarianceVSxy {
+public:
+  HCovarianceVSxy( const TString & name, const TString & title,
+                   const int totBinsX, const double & xMin, const double & xMax,
+                   const int totBinsY, const double & yMin, const double & yMax,
+                   TDirectory * dir = 0) :
+    dir_(dir),
+    totBinsX_(totBinsX), totBinsY_(totBinsY),
+    xMin_(xMin), deltaX_(xMax-xMin), yMin_(yMin), deltaY_(yMax-yMin)
+  {
+    histoCovariance_ = new TH2D(name+"Covariance", title+" covariance", totBinsX, xMin, xMax, totBinsY, yMin, yMax);
+
+    covariances_ = new Covariance*[totBinsX];
+    for( int i=0; i<totBinsX; ++i ) {
+      covariances_[i] = new Covariance[totBinsY];
+    }
+  }
+
+  ~HCovarianceVSxy() {
+    for(int i=0; i<totBinsX_; ++i) {
+      delete[] covariances_[i];
+    }
+    delete[] covariances_;
+  }
+  /**
+   * x and y should be the variables VS which we are computing the covariance (pt and eta)
+   * a and b should be the variables OF which we are computing the covariance </br>
+   */
+  void Fill( const double & x, const double & y, const double & a, const double & b ) {
+    // Need to convert the (x,y) values to the array indeces
+    int xIndex = getXindex(x);
+    int yIndex = getYindex(y);
+    // Only fill values if they are in the selected range
+    if ( 0 <= xIndex && xIndex < totBinsX_ && 0 <= yIndex && yIndex < totBinsY_ ) covariances_[xIndex][yIndex].fill(a,b);
+  }
+
+  void Write() {
+    cout << "writing: " << histoCovariance_->GetName() << endl;
+    for( int xBin=0; xBin<totBinsX_; ++xBin ) {
+      for( int yBin=0; yBin<totBinsY_; ++yBin ) {
+        double covariance = covariances_[xBin][yBin].covariance();
+        // Histogram bins start from 1
+        cout << "covariance["<<xBin<<"]["<<yBin<<"] with N = "<<covariances_[xBin][yBin].getN()<<" is: " << covariance << endl;
+        histoCovariance_->SetBinContent(xBin+1, yBin+1, covariance);
+       }
+    }
+    if( dir_ != 0 ) dir_->cd();
+    TCanvas canvas(TString(histoCovariance_->GetName())+"_canvas", TString(histoCovariance_->GetTitle())+" canvas", 1000, 800);
+    canvas.Divide(2);
+    canvas.cd(1);
+    histoCovariance_->Draw("lego");
+    canvas.cd(2);
+    histoCovariance_->Draw("surf5");
+    canvas.Write();
+    histoCovariance_->Write();
+  }
+  void Clear() {
+    histoCovariance_->Clear();
+  }
+protected:
+  int getXindex(const double & x) {
+    return int((x-xMin_)/deltaX_*totBinsX_);
+  }
+  int getYindex(const double & y) {
+    return int((y-yMin_)/deltaY_*totBinsY_);
+  }
+  TDirectory * dir_;
+  TH2D * histoCovariance_;
+  Covariance ** covariances_;
+  int totBinsX_, totBinsY_, totBinsZ_;
+  double xMin_, deltaX_, yMin_, deltaY_;
+};
+
+/**
+ * This class uses the HCovariance histograms to compute the covariances between the two input muons kinematic quantities. </br>
+ * The covariances are computed against pt and eta.
+ */
+class HCovarianceVSParts : public Histograms
+{
+ public:
+  HCovarianceVSParts(TFile * outputFile, const TString & name, const double & ptMax ) : Histograms( outputFile, name ) {
+    int totBinsX = 20;
+    int totBinsY = 20;
+    double etaMin = -3.;
+    double etaMax = 3.;
+    double ptMin = 0.;
+
+    // Variances
+    mapHisto_[name+"Pt"]                    = new HCovarianceVSxy(name+"Pt_", "Pt", totBinsX, ptMin, ptMax, totBinsY, etaMin, etaMax);
+    mapHisto_[name+"CotgTheta"]             = new HCovarianceVSxy(name+"CotgTheta_", "CotgTheta", totBinsX, ptMin, ptMax, totBinsY, etaMin, etaMax);
+    mapHisto_[name+"Phi"]                   = new HCovarianceVSxy(name+"Phi_", "Phi", totBinsX, ptMin, ptMax, totBinsY, etaMin, etaMax);
+    // Covariances
+    mapHisto_[name+"Pt-CotgTheta"]          = new HCovarianceVSxy(name+"Pt_CotgTheta_", "Pt-CotgTheta", totBinsX, ptMin, ptMax, totBinsY, etaMin, etaMax);
+    mapHisto_[name+"Pt-Phi"]                = new HCovarianceVSxy(name+"Pt_Phi_", "Pt-Phi", totBinsX, ptMin, ptMax, totBinsY, etaMin, etaMax);
+    mapHisto_[name+"CotgTheta-Phi"]         = new HCovarianceVSxy(name+"CotgTheta_Phi", "CotgTheta-Phi", totBinsX, ptMin, ptMax, totBinsY, etaMin, etaMax);
+    mapHisto_[name+"Pt1-Pt2"]               = new HCovarianceVSxy(name+"Pt1_Pt2_", "Pt1-Pt2", totBinsX, ptMin, ptMax, totBinsY, etaMin, etaMax);
+    mapHisto_[name+"CotgTheta1-CotgTheta2"] = new HCovarianceVSxy(name+"CotgTheta1_CotgTheta2_", "CotgTheta1-CotgTheta2", totBinsX, ptMin, ptMax, totBinsY, etaMin, etaMax);
+    mapHisto_[name+"Phi1-Phi2"]             = new HCovarianceVSxy(name+"Phi1_Phi2_", "Phi1-Phi2", totBinsX, ptMin, ptMax, totBinsY, etaMin, etaMax);
+    mapHisto_[name+"Pt12-CotgTheta21"]      = new HCovarianceVSxy(name+"Pt12_CotgTheta21_", "Pt12-CotgTheta21", totBinsX, ptMin, ptMax, totBinsY, etaMin, etaMax);
+    mapHisto_[name+"Pt12-Phi21"]            = new HCovarianceVSxy(name+"Pt12_Phi21_", "Pt12-Phi21", totBinsX, ptMin, ptMax, totBinsY, etaMin, etaMax);
+    mapHisto_[name+"CotgTheta12-Phi21"]     = new HCovarianceVSxy(name+"CotgTheta12_Phi21", "CotgTheta12-Phi21", totBinsX, ptMin, ptMax, totBinsY, etaMin, etaMax);
+  }
+  ~HCovarianceVSParts(){
+  }
+  virtual void Fill( const reco::Particle::LorentzVector & recoP1,
+                     const reco::Particle::LorentzVector & genP1,
+                     const reco::Particle::LorentzVector & recoP2,
+                     const reco::Particle::LorentzVector & genP2 ) {
+    double pt1 = recoP1.pt();
+    double eta1 = recoP1.eta();
+    double pt2 = recoP2.pt();
+    double eta2 = recoP2.eta();
+
+    double diffPt1 = (pt1 - genP1.pt())/genP1.pt();
+    double diffPt2 = (pt2 - genP2.pt())/genP2.pt();
+
+    double genTheta1 = genP1.theta();
+    double genTheta2 = genP2.theta();
+    double recoTheta1 = recoP1.theta();
+    double recoTheta2 = recoP2.theta();
+
+    double genCotgTheta1 = TMath::Cos(genTheta1)/(TMath::Sin(genTheta1));
+    double genCotgTheta2 = TMath::Cos(genTheta2)/(TMath::Sin(genTheta2));
+    double recoCotgTheta1 = TMath::Cos(recoTheta1)/(TMath::Sin(recoTheta1));
+    double recoCotgTheta2 = TMath::Cos(recoTheta2)/(TMath::Sin(recoTheta2));
+
+    double diffCotgTheta1 = (recoCotgTheta1 - genCotgTheta1)/genCotgTheta1;
+    double diffCotgTheta2 = (recoCotgTheta2 - genCotgTheta2)/genCotgTheta2;
+
+    double diffPhi1 = (recoP1.phi() - genP1.phi())/genP1.phi();
+    double diffPhi2 = (recoP2.phi() - genP2.phi())/genP2.phi();
+
+//     cout << "pt1 = " << pt1 << endl;
+//     cout << "pt2 = " << pt2 << endl;
+//     cout << "eta1 = " << eta1 << endl;
+//     cout << "eta2 = " << eta2 << endl;
+//     cout << "phi1 = " << phi1 << endl;
+//     cout << "phi2 = " << phi2 << endl;
+//     cout << "theta1 = " << theta1 << endl;
+//     cout << "theta2 = " << theta2 << endl;
+//     cout << "cotgTheta1 = " << cotgTheta1 << endl;
+//     cout << "cothTheta2 = " << cotgTheta2 << endl;
+
+    // Fill the variances
+    mapHisto_[name_+"Pt"]->Fill(pt1, eta1, diffPt1, diffPt1);
+    mapHisto_[name_+"Pt"]->Fill(pt2, eta2, diffPt2, diffPt2);
+    mapHisto_[name_+"CotgTheta"]->Fill(pt1, eta1, diffCotgTheta1, diffCotgTheta1);
+    mapHisto_[name_+"CotgTheta"]->Fill(pt2, eta2, diffCotgTheta2, diffCotgTheta2);
+    mapHisto_[name_+"Phi"]->Fill(pt1, eta1, diffPhi1, diffPhi1);
+    mapHisto_[name_+"Phi"]->Fill(pt2, eta2, diffPhi2, diffPhi2);
+
+    // Fill these histograms with both muons
+    mapHisto_[name_+"Pt-CotgTheta"]->Fill(pt1, eta1, diffPt1, diffCotgTheta1 );
+    mapHisto_[name_+"Pt-CotgTheta"]->Fill(pt2, eta2, diffPt2, diffCotgTheta2 );
+    mapHisto_[name_+"Pt-Phi"]->Fill(pt1, eta1, diffPt1, diffPhi1);
+    mapHisto_[name_+"Pt-Phi"]->Fill(pt2, eta2, diffPt2, diffPhi2);
+    mapHisto_[name_+"CotgTheta-Phi"]->Fill(pt1, eta1, diffCotgTheta1, diffPhi1);
+    mapHisto_[name_+"CotgTheta-Phi"]->Fill(pt2, eta2, diffCotgTheta2, diffPhi2);
+
+    // We fill two (pt, eta) bins for each pair of values. The bin of the
+    // first and of the second muon. This should take account for the
+    // assumed symmetry between the exchange of the first with the second muon.
+    mapHisto_[name_+"Pt1-Pt2"]->Fill(pt1, eta1, diffPt1, diffPt2);
+    mapHisto_[name_+"Pt1-Pt2"]->Fill(pt2, eta2, diffPt1, diffPt2);
+    mapHisto_[name_+"CotgTheta1-CotgTheta2"]->Fill(pt1, eta1, diffCotgTheta1, diffCotgTheta2);
+    mapHisto_[name_+"CotgTheta1-CotgTheta2"]->Fill(pt2, eta2, diffCotgTheta1, diffCotgTheta2);
+    mapHisto_[name_+"Phi1-Phi2"]->Fill(pt1, eta1, diffPhi1, diffPhi2);
+    mapHisto_[name_+"Phi1-Phi2"]->Fill(pt2, eta2, diffPhi1, diffPhi2);
+
+    // Fill the following histograms again for each muon (pt, eta) bin. Same
+    // reason as in the previous case. If the symmetry is true, it does not
+    // make any difference the order by which we fill the pt and cotgTheta combinations.
+    mapHisto_[name_+"Pt12-CotgTheta21"]->Fill(pt1, eta1, diffPt1, diffCotgTheta2);
+    mapHisto_[name_+"Pt12-CotgTheta21"]->Fill(pt2, eta2, diffPt2, diffCotgTheta1);
+    mapHisto_[name_+"Pt12-Phi21"]->Fill(pt1, eta1, diffPt1, diffPhi2);
+    mapHisto_[name_+"Pt12-Phi21"]->Fill(pt2, eta2, diffPt2, diffPhi1);
+    mapHisto_[name_+"CotgTheta12-Phi21"]->Fill(pt1, eta1, diffCotgTheta1, diffPhi2);
+    mapHisto_[name_+"CotgTheta12-Phi21"]->Fill(pt2, eta2, diffCotgTheta2, diffPhi1);
+  }
+  virtual void Write() {
+    histoDir_->cd();
+
+    for (map<TString, HCovarianceVSxy*>::const_iterator histo=mapHisto_.begin(); 
+         histo!=mapHisto_.end(); histo++) {
+      (*histo).second->Write();
+    }
+  }
+  virtual void Clear() {
+    for (map<TString, HCovarianceVSxy*>::const_iterator histo=mapHisto_.begin(); 
+         histo!=mapHisto_.end(); histo++) {
+      (*histo).second->Clear();
+    }
+  }
+ protected:
+  map<TString, HCovarianceVSxy*> mapHisto_;
+};
 
 /**
  * A set of histograms for resolution.</br>
@@ -1051,8 +1298,9 @@ protected:
  * DeltaPhi of the pair</br>
  * pt, eta and phi of the plus and minus muon separately</br>
  */
-class HMassResolutionVSPart : public Histograms{
-public:
+class HMassResolutionVSPart : public Histograms
+{
+ public:
   HMassResolutionVSPart(TFile * outputFile, const TString & name) : Histograms( outputFile, name ) {
     // Kinematical variables
     nameSuffix_[0] = "Plus";
