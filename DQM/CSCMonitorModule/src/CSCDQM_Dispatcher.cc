@@ -71,6 +71,12 @@ namespace cscdqm {
       if (cache.get(histoD, me)) return true;
     }
 
+    // For the first and specific CSCs - book general and specific
+    if (typeid(histoD) == ParHistoDefT) {
+      HistoBookRequest(histoD, config->FOLDER_PAR, -1.0f);
+      if (cache.get(histoD, me)) return true;
+    }
+
     // If not found after booking - mark it as not existent
     cache.put(histoD, NULL);
 

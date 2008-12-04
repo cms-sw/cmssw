@@ -68,21 +68,17 @@ namespace cscdqm {
       highZ = p_highZ; option = p_option;
     }
 
-    HistoBookRequest (const HistoDef& p_hdef, const std::string& p_folder, 
-                      const std::string& p_title, const int p_value) {
+    HistoBookRequest (const HistoDef& p_hdef, const std::string& p_folder, const int p_value) {
       hdef = &p_hdef;
       htype = INT;
       folder = &p_folder;
-      title = &p_title;
       default_int = p_value;
     }
 
-    HistoBookRequest (const HistoDef& p_hdef, const std::string& p_folder, 
-                      const std::string& p_title, const float p_value) {
+    HistoBookRequest (const HistoDef& p_hdef, const std::string& p_folder, const float p_value) {
       hdef = &p_hdef;
       htype = FLOAT;
       folder = &p_folder;
-      title = &p_title;
       default_float = p_value;
     }
 
