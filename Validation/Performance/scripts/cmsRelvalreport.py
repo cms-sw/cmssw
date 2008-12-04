@@ -598,8 +598,8 @@ class Profile:
         
         # no profiler
             
-        if self.profiler=='':
-            pass                    
+        if self.profiler=='' or self.profiler=='None': #Need to catch the None case, since otherwise we get no return code (crash for pre-requisite step running).
+            return 0         #Used to be pass, but we need a return 0 to handle exit code properly!         
                                                                 
 #############################################################################################
 
