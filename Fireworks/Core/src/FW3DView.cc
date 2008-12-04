@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FW3DView.cc,v 1.4 2008/12/03 02:38:53 dmytro Exp $
+// $Id: FW3DView.cc,v 1.5 2008/12/03 21:03:50 chrjones Exp $
 //
 
 // system include files
@@ -95,10 +95,10 @@ FW3DView::FW3DView(TGFrame* iParent, TEveElementList* list):
  m_trackerEndcapElements(0),
  m_showMuonBarrel(this, "Show Muon Barrel", true ),
  m_showMuonEndcap(this, "Show Muon Endcap", true),
- m_showPixelBarrel(this, "Show Pixel Barrel", true ),
- m_showPixelEndcap(this, "Show Pixel Endcap", true),
- m_showTrackerBarrel(this, "Show Tracker Barrel", true ),
- m_showTrackerEndcap(this, "Show Tracker Endcap", true),
+ m_showPixelBarrel(this, "Show Pixel Barrel", false ),
+ m_showPixelEndcap(this, "Show Pixel Endcap", false),
+ m_showTrackerBarrel(this, "Show Tracker Barrel", false ),
+ m_showTrackerEndcap(this, "Show Tracker Endcap", false),
  m_showWireFrame(this, "Show Wire Frame", true),
  m_geomTransparency(this,"Detector Transparency", 95l, 0l, 100l)
 {
@@ -119,7 +119,8 @@ FW3DView::FW3DView(TGFrame* iParent, TEveElementList* list):
    
    m_detectorScene = gEve->SpawnNewScene((staticTypeName()+"detector").c_str());
    nv->AddScene(m_detectorScene);
-   
+   m_detectorScene->GetGLScene()->SetSelectable(kFALSE);
+     
    m_viewer=nv;
    gEve->AddElement(nv, gEve->GetViewers());
    gEve->AddElement(list,m_scene);
@@ -402,6 +403,7 @@ void FW3DView::makeGeometry( const DetIdToMatrix* geom )
    
    // barrel muon
    m_muonBarrelElements = new TEveElementList( "DT" );
+   m_muonBarrelElements->SetRnrState(m_showMuonBarrel.value());
    gEve->AddElement( m_muonBarrelElements, m_detectorScene );
    for ( Int_t iWheel = -2; iWheel <= 2; ++iWheel)
      for (Int_t iStation = 1; iStation <= 4; ++iStation)
@@ -423,6 +425,7 @@ void FW3DView::makeGeometry( const DetIdToMatrix* geom )
    
    // endcap muon
    m_muonEndcapElements = new TEveElementList( "CSC" );
+   m_muonEndcapElements->SetRnrState(m_showMuonEndcap.value());
    gEve->AddElement( m_muonEndcapElements, m_detectorScene );
    for ( Int_t iEndcap = 1; iEndcap <= 2; ++iEndcap ) {// 1=forward (+Z), 2=backward(-Z)
       TEveElementList* cEndcap = 0;
@@ -462,6 +465,7 @@ void FW3DView::makeGeometry( const DetIdToMatrix* geom )
    
    // pixel barrel
    m_pixelBarrelElements = new TEveElementList( "PixelBarrel" );
+   m_pixelBarrelElements->SetRnrState(m_showPixelBarrel.value());
    gEve->AddElement( m_pixelBarrelElements, m_detectorScene );
    std::vector<unsigned int> ids = geom->getMatchedIds("PixelBarrel");
    for ( std::vector<unsigned int>::const_iterator id = ids.begin(); 
@@ -474,6 +478,7 @@ void FW3DView::makeGeometry( const DetIdToMatrix* geom )
 
    // pixel endcap
    m_pixelEndcapElements = new TEveElementList( "PixelEndcap" );
+   m_pixelEndcapElements->SetRnrState(m_showPixelEndcap.value());
    gEve->AddElement( m_pixelEndcapElements, m_detectorScene );
    ids = geom->getMatchedIds("PixelForward");
    for ( std::vector<unsigned int>::const_iterator id = ids.begin(); 
@@ -486,6 +491,7 @@ void FW3DView::makeGeometry( const DetIdToMatrix* geom )
 
    // tracker barrel
    m_trackerBarrelElements = new TEveElementList( "TrackerBarrel" );
+   m_trackerBarrelElements->SetRnrState(m_showTrackerBarrel.value());
    gEve->AddElement( m_trackerBarrelElements, m_detectorScene );
    ids = geom->getMatchedIds("tib:TIB");
    for ( std::vector<unsigned int>::const_iterator id = ids.begin(); 
@@ -506,6 +512,7 @@ void FW3DView::makeGeometry( const DetIdToMatrix* geom )
 
    // tracker endcap
    m_trackerEndcapElements = new TEveElementList( "TrackerEndcap" );
+   m_trackerEndcapElements->SetRnrState(m_showTrackerEndcap.value());
    gEve->AddElement( m_trackerEndcapElements, m_detectorScene );
    ids = geom->getMatchedIds("tid:TID");
    for ( std::vector<unsigned int>::const_iterator id = ids.begin(); 
