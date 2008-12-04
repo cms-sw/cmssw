@@ -8,17 +8,13 @@
 //
 // Original Author:  
 //         Created:  Sun Mar  2 01:46:46 CET 2008
-// $Id: OMDSReader.cc,v 1.5 2008/09/12 04:54:17 wsun Exp $
+// $Id: OMDSReader.cc,v 1.7 2008/10/13 01:45:27 wsun Exp $
 //
 
 // system include files
 
 // user include files
 #include "CondTools/L1Trigger/interface/OMDSReader.h"
-#include "RelationalAccess/ITable.h"
-#include "RelationalAccess/ISchema.h"
-#include "RelationalAccess/ISessionProxy.h"
-#include "RelationalAccess/ICursor.h"
 
 //
 // constants, enums and typedefs
