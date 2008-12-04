@@ -1,8 +1,8 @@
 /*
  * \file EBSelectiveReadoutTask.cc
  *
- * $Date: 2008/12/03 10:28:10 $
- * $Revision: 1.22 $
+ * $Date: 2008/12/03 12:55:49 $
+ * $Revision: 1.23 $
  * \author P. Gras
  * \author E. Di Marco
  *
@@ -334,11 +334,11 @@ void EBSelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
       anaDigi(ebdf, *ebSrFlags);
     }
 
-    //low interesest channels:
+    //low interest channels:
     aLowInterest = nEbLI_*bytesPerCrystal/kByte;
     EBLowInterestPayload_->Fill(aLowInterest);
 
-    //low interesest channels:
+    //low interest channels:
     aHighInterest = nEbHI_*bytesPerCrystal/kByte;
     EBHighInterestPayload_->Fill(aHighInterest);
 

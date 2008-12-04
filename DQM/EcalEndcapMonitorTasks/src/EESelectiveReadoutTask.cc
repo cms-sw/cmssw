@@ -1,8 +1,8 @@
 /*
  * \file EESelectiveReadoutTask.cc
  *
- * $Date: 2008/12/03 10:28:11 $
- * $Revision: 1.19 $
+ * $Date: 2008/12/03 12:55:50 $
+ * $Revision: 1.20 $
  * \author P. Gras
  * \author E. Di Marco
  *
@@ -495,13 +495,13 @@ void EESelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
       anaDigi(eedf, *eeSrFlags);
     }
 
-    //low interesest channels:
+    //low interest channels:
     aLowInterest[0] = nEeLI_[0]*bytesPerCrystal/kByte;
     EELowInterestPayload_[0]->Fill(aLowInterest[0]);
     aLowInterest[1] = nEeLI_[1]*bytesPerCrystal/kByte;
     EELowInterestPayload_[1]->Fill(aLowInterest[1]);
 
-    //low interesest channels:
+    //low interest channels:
     aHighInterest[0] = nEeHI_[0]*bytesPerCrystal/kByte;
     EEHighInterestPayload_[0]->Fill(aHighInterest[0]);
     aHighInterest[1] = nEeHI_[1]*bytesPerCrystal/kByte;
