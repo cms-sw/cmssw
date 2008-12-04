@@ -14,6 +14,10 @@
 #include "CondFormats/DataRecord/interface/RPCEMapRcd.h"
 #include "CondFormats/RPCObjects/interface/RPCStripNoises.h"
 #include "CondFormats/DataRecord/interface/RPCStripNoisesRcd.h"
+#include "CondFormats/RPCObjects/interface/RPCMaskedStrips.h"
+#include "CondFormats/DataRecord/interface/RPCMaskedStripsRcd.h"
+#include "CondFormats/RPCObjects/interface/RPCDeadStrips.h"
+#include "CondFormats/DataRecord/interface/RPCDeadStripsRcd.h"
 #include "CondFormats/RPCObjects/interface/L1RPCHwConfig.h"
 #include "CondFormats/DataRecord/interface/L1RPCHwConfigRcd.h"
 
@@ -34,3 +38,6 @@ REGISTER_PLUGIN(L1RPCHwConfigRcd,L1RPCHwConfig);
 REGISTER_PLUGIN(RPCObGasRcd,RPCObGas);
 REGISTER_PLUGIN(RPCObCondRcd,RPCObCond);
 REGISTER_PLUGIN(RPCObPVSSmapRcd,RPCObPVSSmap);
+REGISTER_PLUGIN(RPCMaskedStripsRcd,RPCMaskedStrips);
+REGISTER_PLUGIN(RPCDeadStripsRcd,RPCDeadStrips);
+
