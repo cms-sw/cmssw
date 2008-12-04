@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Dec  3 11:28:28 EST 2008
-// $Id$
+// $Id: FWCaloTower3DProxyBuilderBase.cc,v 1.1 2008/12/03 21:05:09 chrjones Exp $
 //
 
 // system include files
@@ -158,8 +158,12 @@ void
 FWCaloTower3DProxyBuilderBase::itemBeingDestroyed(const FWEventItem* iItem)
 {
    FW3DDataProxyBuilder::itemBeingDestroyed(iItem);
-   m_hist->Reset();
-   m_caloData->DataChanged();
+   if(0!=m_hist) {
+      m_hist->Reset();
+   }
+   if(0 != m_caloData) {
+      m_caloData->DataChanged();
+   }
 }
 
 //

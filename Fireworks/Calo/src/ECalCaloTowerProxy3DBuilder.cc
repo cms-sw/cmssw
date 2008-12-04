@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Id: ECalCaloTowerProxy3DBuilder.cc,v 1.11 2008/11/26 16:19:12 chrjones Exp $
+// $Id: ECalCaloTowerProxy3DBuilder.cc,v 1.12 2008/12/03 20:55:22 chrjones Exp $
 //
 
 // system include files
@@ -65,7 +65,11 @@ void ECalCaloTowerProxy3DBuilder::build(const FWEventItem* iItem, TEveElementLis
          }
       }
    }
-   if ( ! m_data ) m_data = new TEveCaloDataHist();
+   if ( ! m_data )  {
+      m_data = new TEveCaloDataHist();
+      //make sure it does not go away
+      m_data->IncRefCount();
+   }
    if ( newHist ) {
       m_sliceIndex = m_data->AddHistogram(m_hist);
       m_data->RefSliceInfo(m_sliceIndex).Setup(histName().c_str(), 0., iItem->defaultDisplayProperties().color());
@@ -97,8 +101,8 @@ void
 ECalCaloTowerProxy3DBuilder::itemBeingDestroyedImp(const FWEventItem* iItem)
 {
    FWRPZDataProxyBuilder::itemBeingDestroyedImp(iItem);
-   m_hist->Reset();
-   m_data->DataChanged();
+   if(0!= m_hist) { m_hist->Reset(); }
+   if(0!= m_data) {m_data->DataChanged();}
 }
 
 
