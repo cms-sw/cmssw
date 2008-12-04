@@ -7,7 +7,7 @@
  *  Container for ECAL specific DCC Header information
  *
  *
- *  $Id: EcalDCCHeaderBlock.h,v 1.20 2008/12/03 09:55:46 franzoni Exp $
+ *  $Id: EcalDCCHeaderBlock.h,v 1.21 2008/12/03 14:04:50 franzoni Exp $
  */
 
 #include <vector>
@@ -156,15 +156,14 @@ class EcalDCCHeaderBlock
   const std::vector<short>& getTccStatus() const { return tccStatus_ ;}
   const std::vector<short>& getTriggerTowerFlag() const { return triggerTowerFlag_ ;}
   const std::vector<short>& getFEStatus() const { return feStatus_ ;}
+
+  const std::vector<short>& getFEBxs() const { return feBx_;}
+  const std::vector<short>& getTCCBx() const { return tccBx_;}
+  short              getSRPBx() const { return srpBx_; }
   
-  
-  const std::vector<short>& getFEBxs(){ return feBx_;  }
-  const std::vector<short>& getTCCBx(){ return tccBx_; }
-  short              getSRPBx(){ return srpBx_; }
-  
-  const std::vector<short>& getFELv1(){ return feLv1_;  }
-  const std::vector<short>& getTCCLv1(){ return tccLv1_; }
-  short              getSRPLv1(){ return srpLv1_; }
+  const std::vector<short>& getFELv1() const { return feLv1_;}
+  const std::vector<short>& getTCCLv1()const { return tccLv1_;}
+  short              getSRPLv1() const { return srpLv1_; }
   
   
  private:
