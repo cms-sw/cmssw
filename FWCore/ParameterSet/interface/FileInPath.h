@@ -118,21 +118,6 @@ namespace edm
     /// Reading errors are reflected in the state of the stream.
     void read(std::istream& is);
 
-    /// for boost::serialization
-    template<class Archive>
-    void serialize(Archive & ar, const unsigned int version)
-    {
-      ar & relativePath_;
-      ar & canonicalFilename_;
-      ar & location_;
-      ar & localTop_;
-      ar & releaseTop_;
-      ar & dataTop_;
-      ar & searchPath_;
-    }
-
-
-
   private:
     std::string    relativePath_;
     std::string    canonicalFilename_;
