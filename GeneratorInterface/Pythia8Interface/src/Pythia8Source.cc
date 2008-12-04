@@ -1,6 +1,6 @@
 /*
  *  Mikhail Kirsanov
- *  04/05/07
+ *  04/12/08
  */
 
 #include "GeneratorInterface/Pythia8Interface/interface/Pythia8Source.h"
@@ -42,6 +42,8 @@ Pythia8Source::Pythia8Source( const ParameterSet & pset,
   pythiaPylistVerbosity_ (pset.getUntrackedParameter<int>("pythiaPylistVerbosity",0)),
   pythiaHepMCVerbosity_ (pset.getUntrackedParameter<bool>("pythiaHepMCVerbosity",false)),
   maxEventsToPrint_ (pset.getUntrackedParameter<int>("maxEventsToPrint",1)),
+  extCrossSect(pset.getUntrackedParameter<double>("crossSection", -1.)),
+  extFilterEff(pset.getUntrackedParameter<double>("filterEfficiency", -1.)),
   comenergy(pset.getUntrackedParameter<double>("comEnergy",14000.))
   
 {
@@ -153,8 +155,8 @@ void Pythia8Source::endRun(Run & r) {
  double cs = pythia->info.sigmaGen(); // cross section in mb
  auto_ptr<GenInfoProduct> giprod (new GenInfoProduct());
  giprod->set_cross_section(cs);
-// giprod->set_external_cross_section(extCrossSect);
-// giprod->set_filter_efficiency(extFilterEff);
+ giprod->set_external_cross_section(extCrossSect);
+ giprod->set_filter_efficiency(extFilterEff);
  r.put(giprod);
 
 }
