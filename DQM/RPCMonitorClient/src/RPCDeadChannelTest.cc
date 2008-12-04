@@ -55,9 +55,9 @@ void RPCDeadChannelTest::beginRun(const Run& r, const EventSetup& iSetup){
  for (int i = -4; i<=4;i++ ){
    if (i>-3 && i<3){//wheels
      histoName.str("");
-     histoName<<"DeadChannels_Wheel"<<i;
+     histoName<<"DeadChannels_Roll_vs_Sector_Wheel"<<i;
      histoTitle.str("");
-     histoTitle<<"DeadChannels for Wheel "<<i;
+     histoTitle<<"DeadChannels_Roll_vs_Sector_Wheel "<<i;
      if ( me = dbe_->get(prefixDir_+"/"+globalFolder_ +"/"+ histoName.str()) ) {
        dbe_->removeElement(me->getName());
      }
@@ -69,9 +69,9 @@ void RPCDeadChannelTest::beginRun(const Run& r, const EventSetup& iSetup){
        me->setBinLabel(bin,histoName.str().c_str(),1);
      }
      histoName.str("");
-     histoName<<"ClusterSize_vs_AliveStrips_Wheel"<<i;
+     histoName<<"ClusterSize_AliveStrips_Roll_vs_Sector_Wheel"<<i;
      histoTitle.str("");
-     histoTitle<<"ClusterSize vs AliveStrips Wheel "<<i;
+     histoTitle<<"ClusterSize_AliveStrips_Roll_vs_Sector_Wheel "<<i;
      if ( me = dbe_->get(prefixDir_+"/"+globalFolder_ +"/"+ histoName.str()) ) {
        dbe_->removeElement(me->getName());
      }
@@ -88,9 +88,9 @@ void RPCDeadChannelTest::beginRun(const Run& r, const EventSetup& iSetup){
 
 
    histoName.str("");
-   histoName<<"DeadChannels_Disk"<<i;
+   histoName<<"DeadChannels_Roll_vs_Sector_Disk"<<i;
    histoTitle.str("");
-   histoTitle<<"DeadChannels for Disk "<<i;
+   histoTitle<<"DeadChannels_Roll_vs_Sector_Disk "<<i;
    if ( me = dbe_->get(prefixDir_+"/"+globalFolder_ +"/"+ histoName.str()) ) {
      dbe_->removeElement(me->getName());
    }
@@ -185,16 +185,16 @@ void RPCDeadChannelTest::analyze(const edm::Event& iEvent, const edm::EventSetup
 void RPCDeadChannelTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& iSetup) {
  
   edm::LogVerbatim ("deadChannel") <<"[RPCDeadChannelTest]: End of LS transition, performing the DQM client operation";
-  cout<<__LINE__<<endl;
+
   // counts number of lumiSegs 
   int nLumiSegs = lumiSeg.id().luminosityBlock();
-     cout<<__LINE__<<endl;
+
   //check some statements and prescale Factor
   if(nLumiSegs%prescaleFactor_ == 0) {
-  cout<<__LINE__<<endl;
+
     ESHandle<RPCGeometry> rpcGeo;
     iSetup.get<MuonGeometryRecord>().get(rpcGeo);
-  cout<<__LINE__<<endl;
+
     map<int, map< int ,  pair<float,float> > >  barrelMap, endcapMap;
     stringstream meName;
     //Loop on chambers
@@ -212,84 +212,88 @@ void RPCDeadChannelTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, Even
 	 RPCBookFolderStructure *  folderStr = new RPCBookFolderStructure();
 	 MonitorElement * myMe = dbe_->get(prefixDir_+"/"+ folderStr->folderStructure(detId)+"/Occupancy_"+RPCname.name()); 
 	 if (!myMe)continue;
-	 cout<<__LINE__<<endl;
+
 	 MonitorElement * myGlobalMe;
 	MonitorElement * myGlobalMe2;
- cout<<__LINE__<<endl;
+
 	 const QReport * theOccupancyQReport = myMe->getQReport("DeadChannel_0");  
 	 if(!theOccupancyQReport) continue;
 
 	 vector<dqm::me_util::Channel> badChannels = theOccupancyQReport->getBadChannels();
-	 cout<<__LINE__<<endl;
+
 	 if (detId.region()==0) {
 	   barrelMap[detId.ring()][detId.sector()].first += badChannels.size();
 	   barrelMap[detId.ring()][detId.sector()].second += (*r)->nstrips() ;
 	   meName.str("");
-	   meName<<prefixDir_+"/"+ globalFolder_+"/DeadChannels_Wheel"<<detId.ring();
+	   meName<<prefixDir_+"/"+ globalFolder_+"/DeadChannels_Roll_vs_Sector_Wheel"<<detId.ring();
 	 }else{
 	   endcapMap[detId.region()*detId.station()][detId.sector()].first +=  badChannels.size();
 	   endcapMap[detId.region()*detId.station()][detId.sector()].second+=(*r)->nstrips() ;
 	   meName.str("");
-	   meName<<prefixDir_+"/"+ globalFolder_+"/DeadChannels_Disk"<<detId.region()*detId.station();
+	   meName<<prefixDir_+"/"+ globalFolder_+"/DeadChannels_Roll_vs_Sector_Disk"<<detId.region()*detId.station();
 	 }
 	 myGlobalMe = dbe_->get(meName.str());
 	 if (!myGlobalMe)continue;
 	 rpcdqm::utils prova;
 	 int nr = prova.detId2RollNr(detId);
 	 myGlobalMe->setBinContent(detId.sector(),nr, badChannels.size()*100/(*r)->nstrips() );
-	 cout<<__LINE__<<endl;
-	 string Yaxis=RPCname.name();
-	 if (detId.region()==0){
-	   Yaxis.erase (1,1);
-	   Yaxis.erase(0,3);
-	   Yaxis.replace(Yaxis.find("S"),4,"");
-	   Yaxis.erase(Yaxis.find("_")+2,8);
-	 }else{
-	   Yaxis.erase(0,8);
-	 }
-	 cout<<__LINE__<<endl;
 
-	  myGlobalMe->setBinLabel(nr, Yaxis, 2);
-	 cout<<__LINE__<<endl;
+// 	 string Yaxis=RPCname.name();
+// 	 if (detId.region()==0){
+// 	   Yaxis.erase (1,1);
+// 	   Yaxis.erase(0,3);
+// 	   Yaxis.replace(Yaxis.find("S"),4,"");
+// 	   Yaxis.erase(Yaxis.find("_")+2,8);
+// 	 }else{
+// 	   Yaxis.erase(0,8);
+// 	 }
+
+	 string YLabel = RPCname.shortname();
+	  myGlobalMe->setBinLabel(nr, YLabel, 2);
+
 	 if (detId.region()==0){
-	 cout<<__LINE__<<endl;
 
 	   meName.str("");
-	   meName<<prefixDir_+"/"+ globalFolder_+"/ClusterSize_vs_AliveStrips_Wheel"<<detId.ring();
-	 cout<<__LINE__<<endl;
+	   meName<<prefixDir_+"/"+ globalFolder_+"/ClusterSize_AliveStrips_Roll_vs_Sector_Wheel"<<detId.ring();
+
 	   myGlobalMe = dbe_->get(meName.str());
-	 cout<<__LINE__<<endl;
+
 
 	   meName.str("");
-	   meName<<prefixDir_+"/"+ globalFolder_+"/ClusterSize_meanValue_Wheel_"<<detId.ring();
-	 cout<<__LINE__<<endl;
+	   meName<<prefixDir_+"/"+ globalFolder_+"/ClusterSizeMeanValue_Roll_vs_Sector_Wheel_"<<detId.ring();
+
 	   myGlobalMe2 = dbe_->get(meName.str());
-	 cout<<__LINE__<<endl;
+	   //cout<<meName.str()<<endl;
 
 	 if (!myGlobalMe || !myGlobalMe2) continue;
 
+	 //	 cout<<"FOUND"<<endl;
+
+	 int goodCh =(*r)->nstrips()-badChannels.size();
+
+	 float uj= myGlobalMe2->getBinContent(detId.sector(),nr);
+
 	 if(badChannels.size()<(*r)->nstrips()){
-	   cout<<__LINE__<<endl;
-	     myGlobalMe->setBinContent(detId.sector(),nr, myGlobalMe2->getBinContent(detId.sector(),nr)/((*r)->nstrips()-badChannels.size()) );
-	     cout<<__LINE__<<endl;
+
+	     myGlobalMe->setBinContent(detId.sector(),nr, uj/goodCh );
 
 	  } else 
-	     myGlobalMe->setBinContent(detId.sector(),nr, 100 ); 
-	  cout<<__LINE__<<endl;
+	     myGlobalMe->setBinContent(detId.sector(),nr, 1 ); 
+
 
 	 }
 
-	 myGlobalMe->setBinLabel(nr, Yaxis, 2);
+	 myGlobalMe->setBinLabel(nr, YLabel, 2);
        }//End loop on rolls in given chambers
     }
   }//End loop on chamber
- cout<<__LINE__<<endl;
+
   this->fillDeadChannelHisto(barrelMap, 0);
-   cout<<__LINE__<<endl;
+
   this->fillDeadChannelHisto(endcapMap, 1);
- cout<<__LINE__<<endl;
+
   }
- cout<<__LINE__<<endl;
+
 }
  
 void RPCDeadChannelTest::endRun(const Run& r, const EventSetup& c){}
