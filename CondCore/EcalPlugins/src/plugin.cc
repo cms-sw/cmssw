@@ -77,11 +77,11 @@
 #include "CondFormats/EcalObjects/interface/EcalTPGWeightIdMap.h"
 #include "CondFormats/DataRecord/interface/EcalTPGWeightIdMapRcd.h"
 
-#include "CondFormats/EcalObjects/interface/EcalTPGEcalTPGCrystalStatus.h"
-#include "CondFormats/DataRecord/interface/EcalTPGEcalTPGCrystalStatusRcd.h"
+#include "CondFormats/EcalObjects/interface/EcalTPGCrystalStatus.h"
+#include "CondFormats/DataRecord/interface/EcalTPGCrystalStatusRcd.h"
 
-#include "CondFormats/EcalObjects/interface/EcalTPGEcalTPGTowerStatus.h"
-#include "CondFormats/DataRecord/interface/EcalTPGEcalTPGTowerStatusRcd.h"
+#include "CondFormats/EcalObjects/interface/EcalTPGTowerStatus.h"
+#include "CondFormats/DataRecord/interface/EcalTPGTowerStatusRcd.h"
 
 
 DEFINE_SEAL_MODULE();
