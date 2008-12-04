@@ -5,8 +5,8 @@
  *  Abstract algorithmic class to compute Rec Hit
  *  form a RPC digi
  *
- *  $Date: 2007/03/12 00:48:39 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/10/14 09:20:26 $
+ *  $Revision: 1.3 $
  *  \author M. Maggi -- INFN Bari
  */
 
@@ -18,6 +18,7 @@
 #include "DataFormats/RPCRecHit/interface/RPCRecHit.h"
 #include "DataFormats/Common/interface/OwnVector.h"
 
+#include "RecoLocalMuon/RPCRecHit/src/RPCRollMask.h"
 #include "RecoLocalMuon/RPCRecHit/src/RPCMaskReClusterizer.h"
 
 class RPCCluster;

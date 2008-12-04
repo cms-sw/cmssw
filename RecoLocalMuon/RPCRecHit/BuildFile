@@ -5,6 +5,8 @@
 <use name=DataFormats/RPCRecHit>
 <use name=DataFormats/RPCDigi>
 <use name=DataFormats/Common>
+<use name=CondFormats/RPCObjects>
+<use name=CondFormats/DataRecord>
 <use name=Geometry/RPCGeometry>
 
 <flags EDM_PLUGIN=1>
@@ -18,5 +20,7 @@
  <use name=DataFormats/RPCRecHit>
  <use name=DataFormats/RPCDigi>
  <use name=DataFormats/Common>
+ <use name=CondFormats/RPCObjects>
+ <use name=CondFormats/DataRecord>
  <use name=Geometry/RPCGeometry>
 </export>
