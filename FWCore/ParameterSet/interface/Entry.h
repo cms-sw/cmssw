@@ -35,9 +35,6 @@ namespace edm {
   class Entry 
   {
   public:
-    // serialization wants a default
-        Entry() : rep(), type('?'), tracked('?') {}
-  
     // Bool
     Entry(std::string const& name, bool val, bool is_tracked);
     bool  getBool() const;
@@ -147,19 +144,6 @@ namespace edm {
     char typeCode() const { return type; }
 
     friend std::ostream& operator<<(std::ostream& ost, const Entry & entry);
-
-    /// for boost::serialization
-    template<class Archive>
-    void serialize(Archive & ar, const unsigned int version)
-    {
-      // thePSet will not be saved!  We expect it to be reconstitued
-      // with a null pointer, and looked up if needed
-      ar & name_;
-      ar & rep;
-      ar & tracked_rep;
-      ar & type;
-      ar & tracked;
-    }
 
   private:
     std::string name_;
