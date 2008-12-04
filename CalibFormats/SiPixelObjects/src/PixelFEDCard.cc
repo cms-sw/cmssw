@@ -1400,6 +1400,7 @@ void PixelFEDCard::writeXML( std::ofstream *fedstream,
       *fedstream << "   <NORTHCENTER_CTRL>"         << NCcntrl      	   << "</NORTHCENTER_CTRL>"	    << std::endl ;
       *fedstream << "   <SOUTHCENTER_CTRL>"         << SCcntrl      	   << "</SOUTHCENTER_CTRL>"	    << std::endl ;
       *fedstream << "   <SOUTH_CTRL>"               << Scntrl       	   << "</SOUTH_CTRL>"		    << std::endl ;
+      *fedstream << "   <REG0_TTCRX_FDLA>"          << FineDes1Del  	   << "</REG0_TTCRX_FDLA>"	    << std::endl ;
       *fedstream << "   <REG1_TTCRX_FDLA>"          << FineDes2Del  	   << "</REG1_TTCRX_FDLA>"	    << std::endl ;
       *fedstream << "   <REG2_TTCRX_CDLA>"          << CoarseDel    	   << "</REG2_TTCRX_CDLA>"	    << std::endl ;
       *fedstream << "   <REG3_TTCRX_CLKD2>"         << ClkDes2      	   << "</REG3_TTCRX_CLKD2>"	    << std::endl ;
