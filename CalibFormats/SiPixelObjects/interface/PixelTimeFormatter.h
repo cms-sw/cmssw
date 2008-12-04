@@ -40,17 +40,9 @@ namespace pos{
     {
      if( !USE_TIMER_ ) return ;
      endTime_ = getImSecTime() ;
-     unsigned int seconds  = (unsigned int)endTime_.tv_sec - (unsigned int)startTime_.tv_sec  ;
-     double useconds = (double)(endTime_.tv_usec - startTime_.tv_usec) / 1000000. ;   
-     if( seconds == 0 )
-       {
-         std::cout << "[PixelTimeFormatter::stopTimer()]\t\t\t    Elapsed time: " << useconds << " seconds for " << origin_ << std::endl ;
-       }
-     else 
-       {
-         std::cout << "[PixelTimeFormatter::stopTimer()]\t\t\t    Elapsed time: " <<  seconds << " seconds for " << origin_ << std::endl ;
-       } 
-  
+     double start = startTime_.tv_sec + startTime_.tv_usec/1000000. ;  
+     double stop  = endTime_.tv_sec   + endTime_.tv_usec/1000000. ;  
+     std::cout << "[PixelTimeFormatter::stopTimer()]\t\t\t    Elapsed time: " << stop-start << " seconds for " << origin_ << std::endl ;
     }
 
     //---------------------------------------------------------------------------------

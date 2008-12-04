@@ -132,6 +132,7 @@ PixelFEDCard::PixelFEDCard(vector<vector<string> > &tableMat):PixelConfigBase(" 
   colNames.push_back("NORTHCENTER_CTRL"        );
   colNames.push_back("SOUTHCENTER_CTRL"        );
   colNames.push_back("SOUTH_CTRL"	       );
+  colNames.push_back("REG0_TTCRX_FDLA"         );
   colNames.push_back("REG1_TTCRX_FDLA"         );
   colNames.push_back("REG2_TTCRX_CDLA"         );
   colNames.push_back("REG3_TTCRX_CLKD2"        );
@@ -231,7 +232,8 @@ PixelFEDCard::PixelFEDCard(vector<vector<string> > &tableMat):PixelConfigBase(" 
       CoarseDel    = atoi(tableMat[1][colM["REG2_TTCRX_CDLA"]].c_str()    	) ;
       ClkDes2      = atoi(tableMat[1][colM["REG3_TTCRX_CLKD2"]].c_str()   	) ;
       FineDes2Del  = atoi(tableMat[1][colM["REG1_TTCRX_FDLA"]].c_str()    	) ;
-      										
+      FineDes1Del  = atoi(tableMat[1][colM["REG0_TTCRX_FDLA"]].c_str()    	) ;
+
       Ccntrl       = atoi(tableMat[1][colM["CENTER_CTRL"]].c_str()  	  	) ;
       modeRegister = atoi(tableMat[1][colM["CENTER_MODE"]].c_str()  	  	) ;
 

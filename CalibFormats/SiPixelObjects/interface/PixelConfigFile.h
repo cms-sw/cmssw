@@ -192,14 +192,14 @@ namespace pos{
       std::string filename=directory+"/configurations.txt";
       if(!first)
 	{
-//	  std::cout << "[pos::PixelConfigFile::getConfig()] Reloading configurations.txt"<< std::endl ;
-	  configs.reload(filename) ;
+	  //	  std::cout << "[pos::PixelConfigFile::getConfig()] Reloading configurations.txt"<< std::endl ;
+	  //	  configs.reload(filename) ;
 //	  std::cout << "[pos::PixelConfigFile::getConfig()] Size reloaded: " << configs.size() << std::endl ;
 	}
       if (first) 
 	{
 	  first=0;
-//	  std::cout << "[pos::PixelConfigFile::getConfig()] Reading configurations.txt"<< std::endl ;
+	  //	  std::cout << "[pos::PixelConfigFile::getConfig()] Reading configurations.txt"<< std::endl ;
 	  configs.readfile(filename);
 //	  std::cout << "[pos::PixelConfigFile::getConfig()] Size read: " << configs.size() << std::endl ;
 	}
@@ -478,9 +478,12 @@ namespace pos{
       static bool configurationDataExists(T* &data, std::string path, PixelConfigKey key){
 
       std::string mthn = "[pos::PixelConfigFile::configurationDataExists()]\t    " ;
+/*       pos::PixelTimeFormatter * timer = new pos::PixelTimeFormatter("PixelConfigFile::ConfigurationDataExists") ; */
       unsigned int theKey=key.key();
     
+/*       timer->stopTimer() ; */
       assert(theKey<=getConfig().size());
+/*       timer->stopTimer() ; */
     
       unsigned int last=path.find_last_of("/");
       assert(last!=std::string::npos);
@@ -497,7 +500,7 @@ namespace pos{
       }
     
       std::string dir=base.substr(slashpos+1);
-    
+      timer->stopTimer() ;
 //      std::cout << mthn << "Extracted dir:"  << dir  <<std::endl;
 //      std::cout << mthn << "Extracted base:" << base <<std::endl;
 //      std::cout << mthn << "Extracted ext :" << ext  <<std::endl;
@@ -510,7 +513,9 @@ namespace pos{
 	  data= 0; 
 	  return false ;
 	}
-    
+      timer->stopTimer() ;
+      delete timer ;
+
       std::ostringstream s1;
       s1 << version;
       std::string strversion=s1.str();
@@ -591,7 +596,19 @@ namespace pos{
 	std::cout << mthn << "No match of class type" << std::endl;
 	return false ;
       }
-
+      /*
+      struct stat * tmp = NULL ;
+      if(stat(fileName.c_str(), tmp)==0)
+	{
+	  std::cout << mthn << "Found(stat) " << fileName << std::endl ; 
+	  return true ;
+	}
+      else
+	{
+	  std::cout << mthn << "Not found(stat) " << fileName << std::endl ; 
+	  return false ;
+	}
+      */
       std::ifstream in(fileName.c_str());
       if (!in.good())
       {
@@ -601,6 +618,7 @@ namespace pos{
       in.close() ;
       if( DEBUG_CF_ ) std::cout << mthn << "Found " << fileName << std::endl ; 
       return true ;
+      
     }
     //----- End of method added by Dario (March 10, 2008)
 
