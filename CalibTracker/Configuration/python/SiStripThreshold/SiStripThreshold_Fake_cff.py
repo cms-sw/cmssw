@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-from CalibTracker.SiStripESProducers.SiStripThresholdFakeESSource_cfi import *
+from CalibTracker.SiStripESProducers.fake.SiStripThresholdFakeESSource_cfi import *    
+
 
