@@ -2,23 +2,18 @@
 #define RecoLocalMuon_RPCMaskReClusterizer_h
 
 /** \Class RPCMaskReClusterizer
- *  $Date: 2008/08/12 16:06:39  $
- *  $Revision: 1.0 $
+ *  $Date: 2008/10/14 09:18:20 $
+ *  $Revision: 1.1 $
  *  \author J.C. Sanabria -- UniAndes, Bogota
  */
 
-#include <bitset>
+#include "RPCRollMask.h"
 
 #include "RPCCluster.h"
 #include "RPCClusterizer.h"
 #include "RPCClusterContainer.h"
 
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
-
-
-const int SIZE=96;
-
-typedef std::bitset<SIZE> RollMask;
 
 
 class RPCMaskReClusterizer 
