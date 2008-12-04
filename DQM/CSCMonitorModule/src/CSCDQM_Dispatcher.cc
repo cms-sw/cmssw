@@ -73,8 +73,9 @@ namespace cscdqm {
 
     // For the first and specific CSCs - book general and specific
     if (typeid(histoD) == ParHistoDefT) {
-      HistoBookRequest(histoD, config->FOLDER_PAR, -1.0f);
-      if (cache.get(histoD, me)) return true;
+      me = provider->bookMonitorObject(HistoBookRequest(histoD, config->FOLDER_PAR, -1.0f));
+      cache.put(histoD, me);
+      return true;
     }
 
     // If not found after booking - mark it as not existent
