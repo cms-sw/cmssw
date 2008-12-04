@@ -1,7 +1,7 @@
 #ifndef Fireworks_Core_FW3DViewManager_h
 #define Fireworks_Core_FW3DViewManager_h
 // -*- C++ -*-
-// $Id: FW3DViewManager.h,v 1.2 2008/12/02 09:01:51 dmytro Exp $
+// $Id: FW3DViewManager.h,v 1.3 2008/12/03 21:02:41 chrjones Exp $
 
 // system include files
 #include <string>
@@ -67,6 +67,7 @@ class FW3DViewManager : public FWViewManagerBase
       std::vector<boost::shared_ptr<FW3DDataProxyBuilder> > m_builders;
 
       std::vector<boost::shared_ptr<FW3DView> > m_views;
+      std::vector<boost::shared_ptr<FW3DView> > m_newViews; //used to hack around a problem
       FWEvePtr<TEveElementList> m_elements;
       TEveCaloDataHist* m_caloData;
 

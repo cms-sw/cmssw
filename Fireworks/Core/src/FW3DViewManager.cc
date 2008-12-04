@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 22:01:27 EST 2008
-// $Id: FW3DViewManager.cc,v 1.3 2008/12/03 21:02:41 chrjones Exp $
+// $Id: FW3DViewManager.cc,v 1.4 2008/12/04 15:32:01 dmytro Exp $
 //
 
 // system include files
@@ -113,6 +113,7 @@ FW3DViewManager::buildView(TGFrame* iParent)
    TEveManager::TRedrawDisabler disableRedraw(gEve);
    boost::shared_ptr<FW3DView> view( new FW3DView(iParent, m_elements.get()) );
    m_views.push_back(view);
+   m_newViews.push_back(view);
    //? pView->resetCamera();
    if(1 == m_views.size()) {
       for(std::vector<boost::shared_ptr<FW3DDataProxyBuilder> >::iterator it
@@ -147,6 +148,17 @@ FW3DViewManager::beingDestroyed(const FWViewBase* iView)
          return;
       }
    }
+   
+   for(std::vector<boost::shared_ptr<FW3DView> >::iterator it=
+       m_newViews.begin(), itEnd = m_newViews.end();
+       it != itEnd;
+       ++it) {
+      if(it->get() == iView) {
+         m_views.erase(it);
+         return;
+      }
+   }
+   
 }
 
 void
@@ -188,6 +200,14 @@ FW3DViewManager::modelChangesComing()
 void
 FW3DViewManager::modelChangesDone()
 {
+   //This is a hack around the problem where a 3D view is setup from a configuration file
+   // and the view is always black unless the 'GLViewer' is explicitly 'kicked'
+   for(std::vector<boost::shared_ptr<FW3DView> >::iterator it = m_newViews.begin(), itEnd=m_newViews.end();
+       it != itEnd;
+       ++it) {
+      (*it)->kickScene();
+   }
+   m_newViews.clear();
    gEve->EnableRedraw();
 }
 

@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:37 EST 2008
-// $Id: FW3DView.h,v 1.3 2008/12/02 17:58:13 dmytro Exp $
+// $Id: FW3DView.h,v 1.4 2008/12/03 02:38:53 dmytro Exp $
 //
 
 // system include files
@@ -62,6 +62,8 @@ class FW3DView : public FWViewBase
       virtual void setFrom(const FWConfiguration&);
       void makeGeometry( const DetIdToMatrix* geom );
 
+      //we are seeing a weird bug and this is a workaround
+      void kickScene();
    private:
       FW3DView(const FW3DView&); // stop default
 
