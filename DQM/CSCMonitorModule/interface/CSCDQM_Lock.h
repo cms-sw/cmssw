@@ -26,7 +26,7 @@ namespace cscdqm {
 
   /**
    * @class Lock
-   * @brief Lockable interface 
+   * @brief Lockable interface that blocks thread
    */
   class Lock {
   
@@ -34,23 +34,39 @@ namespace cscdqm {
 
       boost::recursive_mutex lckMutex;
       boost::recursive_mutex::scoped_lock lckLock;
+      bool lockedByOther; 
 
     public: 
 
-      Lock() : lckLock(lckMutex) { unlock(); }
-      virtual ~Lock() { unlock(); }
+      Lock() : lckLock(lckMutex) { 
+        unlock(); 
+        lockedByOther = false;
+      }
 
-      void lock()   { 
-        if (!isLocked()) lckLock.lock(); 
+      virtual ~Lock() { }
+
+      void lock() { 
+        if (!isLocked()) {
+          lckLock.lock(); 
+          lockedByOther = true;
+        }
       }
 
       void unlock() { 
-        if (isLocked()) lckLock.unlock(); 
+        if (isLocked()) {
+          lckLock.unlock(); 
+          lockedByOther = false;
+        }
       }
 
       const bool isLocked() const { 
         return lckLock.locked(); 
       }
+
+      const bool isLockedByOther() const {
+        return lockedByOther;
+      }
+
   };
 
 }

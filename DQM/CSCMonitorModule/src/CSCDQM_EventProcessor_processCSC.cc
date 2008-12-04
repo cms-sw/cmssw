@@ -58,7 +58,7 @@ namespace cscdqm {
     dmbID = dmbHeader->dmbID();
     chamberID = (((crateID) << 4) + dmbID) & 0xFFF;
   
-    std::string cscTag = CSCHistoType::getPath(crateID, dmbID);
+    std::string cscTag = CSCHistoDef::getPath(crateID, dmbID);
   
     unsigned long errors = binChecker.errorsForChamber(chamberID);
     if ((errors & config->BINCHECK_MASK) > 0 ) {
@@ -71,14 +71,14 @@ namespace cscdqm {
       return;
     }
   
-    uint32_t detRawId = provider->getCSCDetId(crateID, dmbID).rawId();
+    uint32_t detRawId = config->fnGetCSCDetId(crateID, dmbID).rawId();
     if (!detRawId) {
       return;
     }
     
     unsigned int cscType = 0;
     unsigned int cscPosition = 0;
-    provider->getCSCFromMap(crateID, dmbID, cscType, cscPosition );
+    getCSCFromMap(crateID, dmbID, cscType, cscPosition );
   
     // if (cscName != "") cscTag+=" ["+cscName+"]";
     // nDMBEvents[cscTag]++;

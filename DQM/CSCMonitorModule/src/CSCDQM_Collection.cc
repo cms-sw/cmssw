@@ -21,7 +21,6 @@ namespace cscdqm {
 
   Collection::Collection(Configuration* const p_config) {
     config = p_config;
-    provider = config->provider;
     load();
   }
 
@@ -257,97 +256,131 @@ namespace cscdqm {
     return labels.size();
   }
   
-  void Collection::book(const std::string& prefix) const {
-    CoHistoMap::const_iterator i = collection.find(prefix);
+  void Collection::bookEMUHistos() const {
+    CoHistoMap::const_iterator i = collection.find("EMU");
     if (i != collection.end()) {
-      book(i->second);
-    }
-  }
-
-  void Collection::book(const CoHisto& hs) const {
-    for (CoHisto::const_iterator i = hs.begin(); i != hs.end(); i++) {
-      CoHistoProps h = i->second;
-      if (h[XML_BOOK_ONDEMAND] == XML_BOOK_ONDEMAND_FALSE) {
-        book(i->second);
+      const CoHisto hs = i->second;
+      for (CoHisto::const_iterator j = hs.begin(); j != hs.end(); j++) {
+        std::string s = "";
+        if (getHistoValue(j->second, XML_BOOK_ONDEMAND, s, XML_BOOK_ONDEMAND_FALSE) == XML_BOOK_ONDEMAND_FALSE) {
+          HistoId hid = 0;
+          if (HistoDef::getHistoIdByName(j->first, hid)) {
+            book(EMUHistoDef(hid), j->second, config->FOLDER_EMU);
+          }
+        }
       }
     }
   }
 
-  void Collection::bookOnDemand(const std::string& prefix, const HistoName& name, const int addId) const {
-    CoHistoMap::const_iterator i = collection.find(prefix);
+  void Collection::bookDDUHistos(const HwId dduId) const {
+    CoHistoMap::const_iterator i = collection.find("DDU");
     if (i != collection.end()) {
-      CoHisto hs  = i->second;
-      CoHisto::const_iterator j = hs.find(name);
-      if (j != hs.end()) {
-        book(j->second, addId);
+      const CoHisto hs = i->second;
+      for (CoHisto::const_iterator j = hs.begin(); j != hs.end(); j++) {
+        std::string s = "";
+        if (getHistoValue(j->second, XML_BOOK_ONDEMAND, s, XML_BOOK_ONDEMAND_FALSE) == XML_BOOK_ONDEMAND_FALSE) {
+          HistoId hid = 0;
+          if (HistoDef::getHistoIdByName(j->first, hid)) {
+            book(DDUHistoDef(hid, dduId), j->second, config->FOLDER_DDU);
+          }
+        }
       }
     }
   }
 
-  void Collection::book(const CoHistoProps& h, const int addId) const {
+  void Collection::bookCSCHistos(const HwId crateId, const HwId dmbId) const {
+    CoHistoMap::const_iterator i = collection.find("CSC");
+    if (i != collection.end()) {
+      const CoHisto hs = i->second;
+      for (CoHisto::const_iterator j = hs.begin(); j != hs.end(); j++) {
+        std::string s = "";
+        if (getHistoValue(j->second, XML_BOOK_ONDEMAND, s, XML_BOOK_ONDEMAND_FALSE) == XML_BOOK_ONDEMAND_FALSE) {
+          HistoId hid = 0;
+          if (HistoDef::getHistoIdByName(j->first, hid)) {
+            book(CSCHistoDef(hid, crateId, dmbId), j->second, config->FOLDER_CSC);
+          }
+        }
+      }
+    }
+  }
+
+  void Collection::bookCSCHistos(const HistoId hid, const HwId crateId, const HwId dmbId, const HwId addId) const {
+    CoHistoMap::const_iterator i = collection.find("CSC");
+    if (i != collection.end()) {
+      CoHisto::const_iterator j = i->second.find(h::names[hid]);
+      if (j != i->second.end()) {
+        book(CSCHistoDef(hid, crateId, dmbId, addId), j->second, config->FOLDER_CSC);
+      }
+    }
+  }
+
+  void Collection::book(const HistoDef& h, const CoHistoProps& p, const std::string& folder) const {
 
       MonitorObject* me = NULL;
-      std::string name, type, title, s;
+      std::string name = h.getName(), type, title, s;
       int i1, i2, i3;
       double d1, d2, d3, d4, d5, d6;
-      bool ondemand = (getHistoValue(h, XML_BOOK_ONDEMAND, s, XML_BOOK_ONDEMAND_FALSE) == XML_BOOK_ONDEMAND_TRUE ? true : false);
+      bool ondemand = (getHistoValue(p, XML_BOOK_ONDEMAND, s, XML_BOOK_ONDEMAND_FALSE) == XML_BOOK_ONDEMAND_TRUE ? true : false);
       
-      if (!checkHistoValue(h, XML_BOOK_HISTO_NAME, name))   { throw Exception("Histogram does not have name!"); }
-      if (!checkHistoValue(h, XML_BOOK_HISTO_TYPE, type))   { throw Exception("Histogram does not have type!"); }
-      if (!checkHistoValue(h, XML_BOOK_HISTO_TITLE, title)) { title = name; }
+      if (!checkHistoValue(p, XML_BOOK_HISTO_TYPE, type))   { throw Exception("Histogram does not have type!"); }
+      if (!checkHistoValue(p, XML_BOOK_HISTO_TITLE, title)) { title = name; }
 
       if (ondemand) {
-        name = Utility::getNameById(name, addId);
-        title = Utility::getNameById(title, addId);
+        title = h.processTitle(title);
       }
 
       if (type == "h1") {
-        me = provider->book1D(name, title,
-          getHistoValue(h, "XBins", i1, 1),
-          getHistoValue(h, "XMin",  d1, 0),
-          getHistoValue(h, "XMax",  d2, 1));
+        me = config->fnBook(
+          HistoBookRequest(h, H1D, folder, title,
+            getHistoValue(p, "XBins", i1, 1),
+            getHistoValue(p, "XMin",  d1, 0),
+            getHistoValue(p, "XMax",  d2, 1)));
       } else
       if(type == "h2") {
-        me = provider->book2D(name, title,
-          getHistoValue(h, "XBins", i1, 1),
-          getHistoValue(h, "XMin",  d1, 0),
-          getHistoValue(h, "XMax",  d2, 1),
-          getHistoValue(h, "YBins", i2, 1),
-          getHistoValue(h, "YMin",  d3, 0),
-          getHistoValue(h, "YMax",  d4, 1));
+        me = config->fnBook(
+          HistoBookRequest(h, H2D, folder, title,
+            getHistoValue(p, "XBins", i1, 1),
+            getHistoValue(p, "XMin",  d1, 0),
+            getHistoValue(p, "XMax",  d2, 1),
+            getHistoValue(p, "YBins", i2, 1),
+            getHistoValue(p, "YMin",  d3, 0),
+            getHistoValue(p, "YMax",  d4, 1)));
       } else
       if(type == "h3") {
-        me = provider->book3D(name, title,
-          getHistoValue(h, "XBins", i1, 1),
-          getHistoValue(h, "XMin",  d1, 0),
-          getHistoValue(h, "XMax",  d2, 1),
-          getHistoValue(h, "YBins", i2, 1),
-          getHistoValue(h, "YMin",  d3, 0),
-          getHistoValue(h, "YMax",  d4, 1),
-          getHistoValue(h, "ZBins", i3, 1),
-          getHistoValue(h, "ZMin",  d5, 0),
-          getHistoValue(h, "ZMax",  d6, 1));
+        me = config->fnBook(
+          HistoBookRequest(h, H3D, folder, title,
+            getHistoValue(p, "XBins", i1, 1),
+            getHistoValue(p, "XMin",  d1, 0),
+            getHistoValue(p, "XMax",  d2, 1),
+            getHistoValue(p, "YBins", i2, 1),
+            getHistoValue(p, "YMin",  d3, 0),
+            getHistoValue(p, "YMax",  d4, 1),
+            getHistoValue(p, "ZBins", i3, 1),
+            getHistoValue(p, "ZMin",  d5, 0),
+            getHistoValue(p, "ZMax",  d6, 1)));
       } else
       if(type == "hp") {
-        me = provider->bookProfile(name, title,
-          getHistoValue(h, "XBins", i1, 1),
-          getHistoValue(h, "XMin",  d1, 0),
-          getHistoValue(h, "XMax",  d2, 1),
-          getHistoValue(h, "YBins", i2, 1),
-          getHistoValue(h, "YMin",  d3, 0),
-          getHistoValue(h, "YMax",  d4, 1));
+        me = config->fnBook(
+          HistoBookRequest(h, PROFILE, folder, title,
+            getHistoValue(p, "XBins", i1, 1),
+            getHistoValue(p, "XMin",  d1, 0),
+            getHistoValue(p, "XMax",  d2, 1),
+            getHistoValue(p, "YBins", i2, 1),
+            getHistoValue(p, "YMin",  d3, 0),
+            getHistoValue(p, "YMax",  d4, 1)));
       } else
       if(type == "hp2") {
-        me = provider->bookProfile2D(name, title,
-          getHistoValue(h, "XBins", i1, 1),
-          getHistoValue(h, "XMin",  d1, 0),
-          getHistoValue(h, "XMax",  d2, 1),
-          getHistoValue(h, "YBins", i2, 1),
-          getHistoValue(h, "YMin",  d3, 0),
-          getHistoValue(h, "YMax",  d4, 1),
-          getHistoValue(h, "ZBins", i3, 1),
-          getHistoValue(h, "ZMin",  d5, 0),
-          getHistoValue(h, "ZMax",  d6, 1));
+        me = config->fnBook(
+          HistoBookRequest(h, PROFILE2D, folder, title,
+            getHistoValue(p, "XBins", i1, 1),
+            getHistoValue(p, "XMin",  d1, 0),
+            getHistoValue(p, "XMax",  d2, 1),
+            getHistoValue(p, "YBins", i2, 1),
+            getHistoValue(p, "YMin",  d3, 0),
+            getHistoValue(p, "YMax",  d4, 1),
+            getHistoValue(p, "ZBins", i3, 1),
+            getHistoValue(p, "ZMin",  d5, 0),
+            getHistoValue(p, "ZMax",  d6, 1)));
       } else { 
         throw Exception("Can not book histogram with type: " + type);
       }
@@ -356,89 +389,89 @@ namespace cscdqm {
 
         TH1 *th = me->getTH1Lock();
 
-        if(checkHistoValue(h, "XTitle", s)) {
+        if(checkHistoValue(p, "XTitle", s)) {
           if (ondemand) {
-            s = Utility::getNameById(s, addId);
+            s = h.processTitle(s);
           }
           me->setAxisTitle(s, 1);
         }
 
-        if(checkHistoValue(h, "YTitle", s)) {
+        if(checkHistoValue(p, "YTitle", s)) {
           if (ondemand) {
-            s = Utility::getNameById(s, addId);
+            s = h.processTitle(s);
           }
           me->setAxisTitle(s, 2);
         }
 
-        if(checkHistoValue(h, "ZTitle", s)) {
+        if(checkHistoValue(p, "ZTitle", s)) {
           if (ondemand) {
-            s = Utility::getNameById(s, addId);
+            s = h.processTitle(s);
           }
           me->setAxisTitle(s, 3);
         }
 
-        if(checkHistoValue(h, "SetOption", s)) th->SetOption(s.c_str());
-        if(checkHistoValue(h, "SetStats", i1)) th->SetStats(i1);
-        th->SetFillColor(getHistoValue(h, "SetFillColor", i1, DEF_HISTO_COLOR));
-        if(checkHistoValue(h, "SetXLabels", s)) {
+        if(checkHistoValue(p, "SetOption", s)) th->SetOption(s.c_str());
+        if(checkHistoValue(p, "SetStats", i1)) th->SetStats(i1);
+        th->SetFillColor(getHistoValue(p, "SetFillColor", i1, DEF_HISTO_COLOR));
+        if(checkHistoValue(p, "SetXLabels", s)) {
           std::map<int, std::string> labels;
           ParseAxisLabels(s, labels);
           for (std::map<int, std::string>::iterator l_itr = labels.begin(); l_itr != labels.end(); ++l_itr) {
             th->GetXaxis()->SetBinLabel(l_itr->first, l_itr->second.c_str());
           }
         }
-        if(checkHistoValue(h, "SetYLabels", s)) {
+        if(checkHistoValue(p, "SetYLabels", s)) {
           std::map<int, std::string> labels;
           ParseAxisLabels(s, labels);
           for (std::map<int, std::string>::iterator l_itr = labels.begin(); l_itr != labels.end(); ++l_itr) {
             th->GetYaxis()->SetBinLabel(l_itr->first, l_itr->second.c_str());
           }
         }
-        if(checkHistoValue(h, "LabelOption", s)) {
+        if(checkHistoValue(p, "LabelOption", s)) {
           std::vector<std::string> v;
           if(2 == Utility::tokenize(s, v, ",")) {
             th->LabelsOption(v[0].c_str(), v[1].c_str());
           }
         }
-        if(checkHistoValue(h, "SetLabelSize", s)) {
+        if(checkHistoValue(p, "SetLabelSize", s)) {
           std::vector<std::string> v;
           if(2 == Utility::tokenize(s, v, ",")) {
             th->SetLabelSize((double) atof(v[0].c_str()), v[1].c_str());
           }
         }
-        if(checkHistoValue(h, "SetTitleOffset", s)) {
+        if(checkHistoValue(p, "SetTitleOffset", s)) {
           std::vector<std::string> v;
           if(2 == Utility::tokenize(s, v, ",")) {
             th->SetTitleOffset((double) atof(v[0].c_str()), v[1].c_str());
           }
         }
-        if(checkHistoValue(h, "SetMinimum", d1)) th->SetMinimum(d1);
-        if(checkHistoValue(h, "SetMaximum", d1)) me->SetMaximum(d1);
-        if(checkHistoValue(h, "SetNdivisionsX", i1)) {
+        if(checkHistoValue(p, "SetMinimum", d1)) th->SetMinimum(d1);
+        if(checkHistoValue(p, "SetMaximum", d1)) me->SetMaximum(d1);
+        if(checkHistoValue(p, "SetNdivisionsX", i1)) {
           th->SetNdivisions(i1, "X");
           th->GetXaxis()->CenterLabels(true);
         }
-        if(checkHistoValue(h, "SetNdivisionsY", i1)) {
+        if(checkHistoValue(p, "SetNdivisionsY", i1)) {
           th->SetNdivisions(i1, "Y");
           th->GetYaxis()->CenterLabels(true);
         }
-        if(checkHistoValue(h, "SetTickLengthX", d1)) th->SetTickLength(d1, "X");
-        if(checkHistoValue(h, "SetTickLengthY", d1)) th->SetTickLength(d1, "Y");
-        if(checkHistoValue(h, "SetLabelSizeX", d1)) th->SetLabelSize(d1, "X");
-        if(checkHistoValue(h, "SetLabelSizeY", d1)) th->SetLabelSize(d1, "Y");
-        if(checkHistoValue(h, "SetLabelSizeZ", d1)) th->SetLabelSize(d1, "Z");
-        if(checkHistoValue(h, "SetErrorOption", s)) reinterpret_cast<TProfile*>(th)->SetErrorOption(s.c_str());
+        if(checkHistoValue(p, "SetTickLengthX", d1)) th->SetTickLength(d1, "X");
+        if(checkHistoValue(p, "SetTickLengthY", d1)) th->SetTickLength(d1, "Y");
+        if(checkHistoValue(p, "SetLabelSizeX", d1)) th->SetLabelSize(d1, "X");
+        if(checkHistoValue(p, "SetLabelSizeY", d1)) th->SetLabelSize(d1, "Y");
+        if(checkHistoValue(p, "SetLabelSizeZ", d1)) th->SetLabelSize(d1, "Z");
+        if(checkHistoValue(p, "SetErrorOption", s)) reinterpret_cast<TProfile*>(th)->SetErrorOption(s.c_str());
 
         me->unlock();
 
       }
 
-      provider->afterBook(me);
+      config->fnPutHisto(h, me);
 
   }
 
-  const bool Collection::isOnDemand(const std::string& prefix, const HistoName& name) const {
-    CoHistoMap::const_iterator i = collection.find(prefix);
+  const bool Collection::isOnDemand(const HistoName& name) const {
+    CoHistoMap::const_iterator i = collection.find("CSC");
     if (i != collection.end()) {
       CoHisto hs  = i->second;
       CoHisto::const_iterator j = hs.find(name);

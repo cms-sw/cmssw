@@ -36,7 +36,6 @@
 #include "DQM/CSCMonitorModule/interface/CSCDQM_Exception.h"
 #include "DQM/CSCMonitorModule/interface/CSCDQM_Logger.h"
 #include "DQM/CSCMonitorModule/interface/CSCDQM_Utility.h"
-#include "DQM/CSCMonitorModule/interface/CSCDQM_MonitorObjectProvider.h"
 #include "DQM/CSCMonitorModule/interface/CSCDQM_Configuration.h"
 
 namespace cscdqm {
@@ -75,15 +74,17 @@ namespace cscdqm {
 
       Collection(Configuration* const p_config);
 
-      void book(const std::string& prefix) const;
-      void book(const CoHisto& hs) const;
-      void book(const CoHistoProps& h, const int addId = 0) const;
-      void bookOnDemand(const std::string& prefix, const HistoName& name, const int addId) const;
+      void bookEMUHistos() const;
+      void bookDDUHistos(const HwId dduId) const;
+      void bookCSCHistos(const HwId crateId, const HwId dmbId) const;
+      void bookCSCHistos(const HistoId hid, const HwId crateId, const HwId dmbId, const HwId addId) const;
 
-      const bool isOnDemand(const std::string& prefix, const HistoName& name) const;
+      const bool isOnDemand(const HistoName& name) const;
 
       void printCollection() const;
 
+    private:
+      
       static const bool checkHistoValue(const CoHistoProps& h, const std::string& name, std::string& value);
       static const bool checkHistoValue(const CoHistoProps& h, const std::string& name, int& value);
       static const bool checkHistoValue(const CoHistoProps& h, const std::string name, double& value);
@@ -92,13 +93,11 @@ namespace cscdqm {
       static int&         getHistoValue(const CoHistoProps& h, const std::string& name, int& value, const int& def_value = 0);
       static double&      getHistoValue(const CoHistoProps& h, const std::string name, double& value, const int def_value = 0.0);
       
-    private:
-      
       void load();
+      void book(const HistoDef& h, const CoHistoProps& h, const std::string& folder) const;
       static const int ParseAxisLabels(const std::string& s, std::map<int, std::string>& labels);
       static void getNodeProperties(DOMNode*& node, CoHistoProps& hp);
       
-      MonitorObjectProvider* provider;
       Configuration*         config;
 
       CoHistoMap             collection;

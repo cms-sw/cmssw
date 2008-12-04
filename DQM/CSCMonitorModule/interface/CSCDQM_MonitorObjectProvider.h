@@ -21,10 +21,81 @@
 
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 
-#include "DQM/CSCMonitorModule/interface/CSCDQM_HistoType.h"
+#include "DQM/CSCMonitorModule/interface/CSCDQM_HistoDef.h"
 #include "DQM/CSCMonitorModule/interface/CSCDQM_MonitorObject.h"
 
 namespace cscdqm {
+
+  typedef enum HistoType { INT, FLOAT, STRING, H1D, H2D, H3D, PROFILE, PROFILE2D };
+
+  typedef struct HistoBookRequest {
+
+    const HistoDef *hdef;
+    HistoType htype;
+    const std::string *folder;
+    const std::string *title;
+
+    int nchX;
+    double lowX;
+    double highX;
+
+    int nchY;
+    double lowY;
+    double highY;
+
+    int nchZ;
+    double lowZ;
+    double highZ;
+
+    int default_int;
+    float default_float;
+    std::string default_string;
+
+    std::string option;
+
+    HistoBookRequest (const HistoDef& p_hdef, const HistoType& p_htype,
+                      const std::string& p_folder, const std::string& p_title,
+                      const int p_nchX = 0, const double p_lowX = 0, const double p_highX = 0,
+                      const int p_nchY = 0, const double p_lowY = 0, const double p_highY = 0,
+                      const int p_nchZ = 0, const double p_lowZ = 0, const double p_highZ = 0,
+                      const std::string& p_option = "s") {
+      hdef = &p_hdef; htype = p_htype;
+      folder = &p_folder; title = &p_title;
+      nchX = p_nchX; lowX = p_lowX;
+      highX = p_highX; nchY = p_nchY;
+      lowY = p_lowY; highY = p_highY;
+      nchZ = p_nchZ; lowZ = p_lowZ;
+      highZ = p_highZ; option = p_option;
+    }
+
+    HistoBookRequest (const HistoDef& p_hdef, const std::string& p_folder, 
+                      const std::string& p_title, const int p_value) {
+      hdef = &p_hdef;
+      htype = INT;
+      folder = &p_folder;
+      title = &p_title;
+      default_int = p_value;
+    }
+
+    HistoBookRequest (const HistoDef& p_hdef, const std::string& p_folder, 
+                      const std::string& p_title, const float p_value) {
+      hdef = &p_hdef;
+      htype = FLOAT;
+      folder = &p_folder;
+      title = &p_title;
+      default_float = p_value;
+    }
+
+    HistoBookRequest (const HistoDef& p_hdef, const std::string& p_folder, 
+                      const std::string& p_title, const std::string& p_value) {
+      hdef = &p_hdef;
+      htype = STRING;
+      folder = &p_folder;
+      title = &p_title;
+      default_string = p_value;
+    }
+
+  };
 
   /**
    * @class MonitorObjectProvider
@@ -35,42 +106,8 @@ namespace cscdqm {
 
     public:
     
-      virtual const bool getHisto(const HistoType& histo, MonitorObject*& mo) = 0;
-
-      virtual void getCSCFromMap(const unsigned int crateId, const unsigned int dmbId, unsigned int& cscType, unsigned int& cscPosition) const = 0;
       virtual const CSCDetId getCSCDetId(const unsigned int crateId, const unsigned int dmbId) const = 0;
-      virtual const bool nextCSC(unsigned int& iter, unsigned int& crateId, unsigned int& dmbId) const = 0;
-
-      virtual MonitorObject *bookInt       (const std::string &name) = 0;
-      virtual MonitorObject *bookInt       (const std::string &name, const int default_value) = 0;
-      virtual MonitorObject *bookFloat     (const std::string &name) = 0;
-      virtual MonitorObject *bookFloat     (const std::string &name, const float default_value) = 0;
-      virtual MonitorObject *bookString    (const std::string &name,
-                                            const std::string &value) = 0; 
-      virtual MonitorObject *book1D        (const std::string &name,
-                                            const std::string &title,
-                                            int nchX, double lowX, double highX) = 0;
-      virtual MonitorObject *book2D        (const std::string &name,
-                                            const std::string &title,
-                                            int nchX, double lowX, double highX,
-                                            int nchY, double lowY, double highY) = 0;
-      virtual MonitorObject *book3D        (const std::string &name,
-                                            const std::string &title,
-                                            int nchX, double lowX, double highX,
-                                            int nchY, double lowY, double highY,
-                                            int nchZ, double lowZ, double highZ) = 0;
-      virtual MonitorObject *bookProfile   (const std::string &name,
-                                            const std::string &title,
-                                            int nchX, double lowX, double highX,
-                                            int nchY, double lowY, double highY,
-                                            const char *option = "s") = 0;
-      virtual MonitorObject *bookProfile2D (const std::string &name,
-                                            const std::string &title,
-                                            int nchX, double lowX, double highX,
-                                            int nchY, double lowY, double highY,
-                                            int nchZ, double lowZ, double highZ,
-                                            const char *option = "s") = 0;
-      virtual void afterBook (MonitorObject*& me) = 0;
+      virtual MonitorObject *bookMonitorObject (const HistoBookRequest& p_req) = 0; 
   };
 
 }

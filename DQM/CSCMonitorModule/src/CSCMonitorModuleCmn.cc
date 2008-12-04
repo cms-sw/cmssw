@@ -18,7 +18,8 @@
 
 #include "DQM/CSCMonitorModule/interface/CSCMonitorModuleCmn.h"
 
-CSCMonitorModuleCmn::CSCMonitorModuleCmn(const edm::ParameterSet& ps) : inputTag(INPUT_TAG_LABEL) {
+CSCMonitorModuleCmn::CSCMonitorModuleCmn(const edm::ParameterSet& ps) : 
+dispatcher(&config, const_cast<CSCMonitorModuleCmn*>(this)), inputTag(INPUT_TAG_LABEL) {
 
   fractUpdateKey = ps.getUntrackedParameter<unsigned int>("FractUpdateKey", 1);
   fractUpdateEvF = ps.getUntrackedParameter<unsigned int>("FractUpdateEventFreq", 1);
@@ -36,17 +37,20 @@ CSCMonitorModuleCmn::CSCMonitorModuleCmn(const edm::ParameterSet& ps) : inputTag
   edm::FileInPath bookFile = ps.getParameter<edm::FileInPath>(PARAM_BOOKING_FILE);
   config.BOOKING_XML_FILE = bookFile.fullPath();
    
-  config.provider = const_cast<CSCMonitorModuleCmn*>(this);
-
-  dispatcher = new cscdqm::Dispatcher(&config);
   dbe = edm::Service<DQMStore>().operator->();
 
-  // Prebook top level histograms
-  dbe->setCurrentFolder(DIR_SUMMARY);
-  dispatcher->getCollection()->book("EMU");
-  bookedHisto.insert("EMU");
+  // Set folders
+  config.FOLDER_EMU = DIR_SUMMARY; 
+  config.FOLDER_DDU = DIR_DDU;
+  config.FOLDER_CSC = DIR_CSC;
+  config.FOLDER_PAR = DIR_SUMMARY_CONTENTS;
+
+  //dbe->setCurrentFolder(DIR_SUMMARY);
+  //dispatcher.getCollection()->book("EMU");
+  //bookedHisto.insert("EMU");
 
   // Booking parameters
+  /*
   dbe->setCurrentFolder(DIR_SUMMARY_CONTENTS);
   bookFloat("CSC_SidePlus_Station01_Ring01", -1.0);
   bookFloat("CSC_SidePlus_Station01_Ring02", -1.0);
@@ -74,21 +78,15 @@ CSCMonitorModuleCmn::CSCMonitorModuleCmn(const edm::ParameterSet& ps) : inputTag
   bookFloat("CSC_SideMinus", -1.0);
 
   dbe->setCurrentFolder(DIR_EVENTINFO);
-  bookFloat(cscdqm::h::PAR_REPORT_SUMMARY, -1.0);
+  bookFloat(cscdqm::h::names[cscdqm::h::PAR_REPORT_SUMMARY], -1.0);
+  */
 
-  //dispatcher->getCollection()->printCollection();
+  //dispatcher.getCollection()->printCollection();
   //throw cscdqm::Exception("End of game");
 
 }
 
 CSCMonitorModuleCmn::~CSCMonitorModuleCmn() {
-  delete dispatcher;
-  /*
-  while (!moCache.empty()) {
-    delete moCache.begin()->second;
-    moCache.erase(moCache.begin());
-  }
-  */
 }
 
 void CSCMonitorModuleCmn::beginJob(const edm::EventSetup& c) {
@@ -107,7 +105,7 @@ void CSCMonitorModuleCmn::analyze(const edm::Event& e, const edm::EventSetup& c)
   c.get<CSCCrateMapRcd>().get(hcrate);
   pcrate = hcrate.product();
     
-  dispatcher->processEvent(e, inputTag);
+  dispatcher.processEvent(e, inputTag);
 
 }
 

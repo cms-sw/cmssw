@@ -19,6 +19,8 @@
 #ifndef CSCDQM_Dispatcher_H
 #define CSCDQM_Dispatcher_H
 
+#include <typeinfo>
+
 #include <boost/thread.hpp>
 #include <boost/thread/recursive_mutex.hpp>
 
@@ -40,13 +42,14 @@ namespace cscdqm {
     public:
 
       EventProcessorMutex(Configuration* const p_config) : processor(p_config) { }
-
-      void updateFractionAndEfficiencyHistos() {
-        processor.updateFractionHistos();
-        processor.updateEfficiencyHistos();
-      }
+      void updateFractionAndEfficiencyHistos();
 
   };
+
+  static const std::type_info& EMUHistoDefT = typeid(cscdqm::EMUHistoDef);
+  static const std::type_info& DDUHistoDefT = typeid(cscdqm::DDUHistoDef);
+  static const std::type_info& CSCHistoDefT = typeid(cscdqm::CSCHistoDef);
+  static const std::type_info& ParHistoDefT = typeid(cscdqm::ParHistoDef);
 
   /**
    * @class Dispatcher
@@ -56,29 +59,33 @@ namespace cscdqm {
 
     public:
 
-      Dispatcher(Configuration* const p_config);
-      ~Dispatcher() {
-        processorFract.lock();
-      }
+      Dispatcher(Configuration* const p_config, MonitorObjectProvider* const p_provider);
+      ~Dispatcher() { threads.join_all(); }
+
+      void init();
 
       void updateFractionAndEfficiencyHistos();
+      const bool nextBookedCSC(unsigned int& n, unsigned int& crateId, unsigned int& dmbId) const;
 
       Collection* getCollection() { return &collection; }
        
-      const bool getHisto(const HistoType& histoT, MonitorObject*& me);
+      const bool getHisto(const HistoDef& histoD, MonitorObject*& me);
 
     private:
 
       void updateFractionAndEfficiencyHistosAuto();
 
-      Configuration       *config;
-      Collection          collection;
-      EventProcessor      processor;
-      Cache               cache;
+      Configuration         *config;
+      MonitorObjectProvider *provider;
+      Collection            collection;
+      EventProcessor        processor;
+      Cache                 cache;
 
       EventProcessorMutex processorFract;
       boost::thread_group threads;
       boost::function<void ()> fnUpdate;
+      std::set<HistoDef> bookedDDUs;
+      std::set<HistoDef> bookedCSCs;
 
 #ifdef DQMLOCAL
 

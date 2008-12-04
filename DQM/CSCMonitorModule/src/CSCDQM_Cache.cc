@@ -20,15 +20,23 @@
 
 namespace cscdqm {
 
-  const bool Cache::get(const HistoType& histo, MonitorObject*& mo) {
-    CacheMap::iterator it = cache.find(histo.getFullPath());
+  const bool Cache::get(const HistoDef& histo, MonitorObject*& mo) {
+    CacheMap::iterator it = cache.find(HistoCacheKey(histo));
+    if (it == cache.end()) return false;
+    mo = it->second.get();
+    LOG_INFO << "histo found " << histo;
+    return true; 
+  }
+
+  const bool Cache::get(const HistoId id, MonitorObject*& mo, const HwId id1, const HwId id2, const HwId id3, const HwId id4) {
+    CacheMap::iterator it = cache.find(HistoCacheKey(id, id1, id2, id3, id4));
     if (it == cache.end()) return false;
     mo = it->second.get();
     return true; 
   }
 
-  void Cache::put(const HistoType& histo, MonitorObject* mo) {
-    cache[histo.getFullPath()] = MonitorObjectPtr(mo);
+  void Cache::put(const HistoDef& histo, MonitorObject* mo) {
+    cache[HistoCacheKey(histo)] = MonitorObjectPtr(mo);
   }
 
 }

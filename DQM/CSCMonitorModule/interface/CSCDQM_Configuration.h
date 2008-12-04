@@ -30,8 +30,6 @@ namespace cscdqm {
 
   class Dispatcher;
 
-  //typedef boost::function< bool(const HistoName&, MonitorObject*&) > getEMUHistoCallBack;
-
   /**
    * @class Configuration
    * @brief Framework configuration
@@ -48,6 +46,10 @@ namespace cscdqm {
       bool FRAEFF_SEPARATE_THREAD;
 
       std::string BOOKING_XML_FILE;
+      std::string FOLDER_EMU;
+      std::string FOLDER_DDU;
+      std::string FOLDER_CSC;
+      std::string FOLDER_PAR;
 
       unsigned int DDU_CHECK_MASK;
       unsigned int DDU_BINCHECK_MASK;
@@ -64,9 +66,11 @@ namespace cscdqm {
       double EFF_NODATA_THRESHOLD;
       double EFF_NODATA_SIGFAIL;
 
-      boost::function< bool (const HistoType& histoT, MonitorObject*&) > getHisto;
-
-      MonitorObjectProvider* provider;
+      boost::function< bool (const HistoDef& histoT, MonitorObject*&) > fnGetHisto;
+      boost::function< void (const HistoDef& histoT, MonitorObject*&) > fnPutHisto;
+      boost::function< MonitorObject* (const HistoBookRequest&) > fnBook;
+      boost::function< CSCDetId (const unsigned int, const unsigned int) > fnGetCSCDetId;
+      boost::function< bool (unsigned int&, unsigned int&, unsigned int&) > fnNextBookedCSC;
 
       Configuration() {
 
@@ -80,9 +84,11 @@ namespace cscdqm {
         DDU_CHECK_MASK    = 0xFFFFFFFF;
         BINCHECK_MASK     = 0xFFFFFFFF;
         DDU_BINCHECK_MASK = 0x02080016;
-        FRAEFF_SEPARATE_THREAD = true;
-
-        provider = NULL;
+        FRAEFF_SEPARATE_THREAD = false;
+        FOLDER_EMU = "";
+        FOLDER_DDU = "";
+        FOLDER_CSC = "";
+        FOLDER_PAR = "";
 
         reset();
 

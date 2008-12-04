@@ -41,11 +41,11 @@ namespace cscdqm {
     calcEMUFractionHisto(h::EMU_CSC_L1A_OUT_OF_SYNC_FRACT, h::EMU_CSC_REPORTING, h::EMU_CSC_L1A_OUT_OF_SYNC);
     calcEMUFractionHisto(h::EMU_DMB_L1A_OUT_OF_SYNC_FRACT, h::EMU_DMB_REPORTING, h::EMU_DMB_L1A_OUT_OF_SYNC);
 
-    unsigned int iter = 0, crateId, dmbId;
+    unsigned int iter = 0, crateId = 0, dmbId = 0;
     MonitorObject *mo = 0, *mof = 0;
-    while (provider->nextCSC(iter, crateId, dmbId)) {
+    while (config->fnNextBookedCSC(iter, crateId, dmbId)) {
 
-      std::string cscTag = CSCHistoType::getPath(crateId, dmbId);
+      std::string cscTag = CSCHistoDef::getPath(crateId, dmbId);
 
       if (getCSCHisto(h::CSC_BINCHECK_DATAFLOW_PROBLEMS_TABLE, crateId, dmbId, mo) && 
           getCSCHisto(h::CSC_BINCHECK_DATAFLOW_PROBLEMS_FREQUENCY, crateId, dmbId, mof)) {
@@ -83,7 +83,7 @@ namespace cscdqm {
  * @return 
  */
 
-  void EventProcessor::calcEMUFractionHisto(const HistoName& result, const HistoName& set, const HistoName& subset) {
+  void EventProcessor::calcEMUFractionHisto(const HistoId& result, const HistoId& set, const HistoId& subset) {
 
     MonitorObject *mo = 0, *mo1 = 0, *mo2 = 0;
 

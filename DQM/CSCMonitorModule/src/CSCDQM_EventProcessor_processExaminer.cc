@@ -76,7 +76,7 @@ namespace cscdqm {
       int crateID = (chamberID >> 4) & 0xFF;
       int dmbSlot = chamberID & 0xF;
       
-      std::string cscTag = CSCHistoType::getPath(crateID, dmbSlot);
+      std::string cscTag = CSCHistoDef::getPath(crateID, dmbSlot);
 
       if (crateID == 255) { continue; }
 
@@ -93,7 +93,7 @@ namespace cscdqm {
 
       unsigned int cscType   = 0;
       unsigned int cscPosition = 0;
-      provider->getCSCFromMap(crateID, dmbSlot, cscType, cscPosition);
+      getCSCFromMap(crateID, dmbSlot, cscType, cscPosition);
       if (cscType && cscPosition && getEMUHisto(h::EMU_CSC_REPORTING, mo)) {
         mo->Fill(cscPosition, cscType);
       }
@@ -266,13 +266,13 @@ namespace cscdqm {
 
       unsigned int crateID = (chamberID >> 4) & 0xFF;
       unsigned int dmbSlot = chamberID & 0xF;
-      std::string cscTag = CSCHistoType::getPath(crateID, dmbSlot);
+      std::string cscTag = CSCHistoDef::getPath(crateID, dmbSlot);
 
       if (crateID == 255) { continue; }
 
       unsigned int cscType   = 0;
       unsigned int cscPosition = 0;
-      provider->getCSCFromMap(crateID, dmbSlot, cscType, cscPosition);
+      getCSCFromMap(crateID, dmbSlot, cscType, cscPosition);
 
       if (getCSCHisto(h::CSC_BINCHECK_DATAFLOW_PROBLEMS_TABLE, crateID, dmbSlot, mo)) {
 	for(int bit = 0; bit < binChecker.nSTATUSES; bit++)
@@ -324,7 +324,7 @@ namespace cscdqm {
       unsigned int crateID = (chamberID >> 4) & 0xFF;
       unsigned int dmbSlot = chamberID & 0xF;
 
-      std::string cscTag = CSCHistoType::getPath(crateID , dmbSlot);
+      std::string cscTag = CSCHistoDef::getPath(crateID , dmbSlot);
 
       if ((crateID ==255) || 
 	  (chamber->second & 0x80)) { continue; } // = Skip chamber detection if DMB header is missing (Error code 6)
@@ -366,7 +366,7 @@ namespace cscdqm {
 
 	unsigned int cscType   = 0;
 	unsigned int cscPosition = 0;
-	provider->getCSCFromMap(crateID, dmbSlot, cscType, cscPosition );
+	getCSCFromMap(crateID, dmbSlot, cscType, cscPosition );
 	if ( cscType && cscPosition && getEMUHisto(h::EMU_CSC_FORMAT_ERRORS, mo)) {
 	  mo->Fill(cscPosition, cscType);
 	}

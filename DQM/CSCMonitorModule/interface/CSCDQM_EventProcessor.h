@@ -38,7 +38,6 @@
 #include "DQM/CSCMonitorModule/interface/CSCDQM_Logger.h"
 #include "DQM/CSCMonitorModule/interface/CSCDQM_Summary.h"
 #include "DQM/CSCMonitorModule/interface/CSCDQM_StripClusterFinder.h"
-#include "DQM/CSCMonitorModule/interface/CSCDQM_MonitorObjectProvider.h"
 #include "DQM/CSCMonitorModule/interface/CSCDQM_Configuration.h"
 #include "DQM/CSCMonitorModule/interface/CSCDQM_Configuration.h"
 
@@ -79,15 +78,17 @@ namespace cscdqm {
       void processDDU(const CSCDDUEventData& data);
       void processCSC(const CSCEventData& data, const int dduID);
 
-      void calcEMUFractionHisto(const HistoName& result, const HistoName& set, const HistoName& subset);
+      void calcEMUFractionHisto(const HistoId& result, const HistoId& set, const HistoId& subset);
 
-      const bool getEMUHisto(const HistoName& histo, MonitorObject*& me);
-      const bool getDDUHisto(const HistoName& histo, const int dduID, MonitorObject*& me);
-      const bool getCSCHisto(const HistoName& histo, const int crateID, const int dmbSlot, MonitorObject*& me);
-      const bool getCSCHisto(const HistoName& histo, const int crateID, const int dmbSlot, const int adId, MonitorObject*& me);
+      const bool getEMUHisto(const HistoId& histo, MonitorObject*& me);
+      const bool getDDUHisto(const HistoId& histo, const HwId dduID, MonitorObject*& me);
+      const bool getCSCHisto(const HistoId& histo, const HwId crateID, const HwId dmbSlot, MonitorObject*& me);
+      const bool getCSCHisto(const HistoId& histo, const HwId crateID, const HwId dmbSlot, const HwId adId, MonitorObject*& me);
+      const bool getParHisto(const HistoId& histo, MonitorObject*& me);
       const bool getParHisto(const std::string& name, MonitorObject*& me);
 
-      MonitorObjectProvider* provider;
+      void getCSCFromMap(const unsigned int crateId, const unsigned int dmbId, unsigned int& cscType, unsigned int& cscPosition) const;
+
       Configuration* config;
       Summary summary;
 

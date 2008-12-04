@@ -109,7 +109,6 @@ namespace cscdqm {
     }
   }
   
-  
   /**
    * @brief  Trim string
    * @param  str string to trim
@@ -134,13 +133,6 @@ namespace cscdqm {
 
   const bool Utility::regexMatch(const std::string& expression, const std::string& message) {
     return regexMatch(TPRegexp(expression), message);
-  }
-
-  const std::string Utility::getNameById(const std::string& name, const int id) {
-    if (regexMatch(REGEXP_ONDEMAND, name)) {
-      return Form(name.c_str(), id);
-    }
-    return name;
   }
 
 #undef get16bits

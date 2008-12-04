@@ -23,7 +23,6 @@
 /// Global stuff
 #include <iostream>
 #include <cstring>
-#include <typeinfo>
 #include <vector>
 #include <map>
 #include <set>
@@ -63,13 +62,6 @@ static const char DIR_SUMMARY_CONTENTS[] = "CSC/EventInfo/reportSummaryContents/
 
 /// Local Types
 
-static const std::type_info& EMUHistoT   = typeid(cscdqm::EMUHistoType);
-static const std::type_info& DDUHistoT   = typeid(cscdqm::DDUHistoType);
-static const std::type_info& CSCHistoT   = typeid(cscdqm::CSCHistoType);
-static const std::type_info& ParHistoT   = typeid(cscdqm::ParHistoType);
-
-typedef std::set<std::string>                    bookedHistoSet;
-typedef std::vector<cscdqm::CSCHistoType>        bookedCSCSet;
 typedef std::bitset<32>                          Bitset32;
 
 
@@ -91,11 +83,9 @@ class CSCMonitorModuleCmn: public edm::EDAnalyzer, public cscdqm::MonitorObjectP
   private:
 
     cscdqm::Configuration     config;
-    cscdqm::Dispatcher       *dispatcher;
+    cscdqm::Dispatcher        dispatcher;
     DQMStore                 *dbe;
     edm::InputTag             inputTag;
-    bookedHistoSet            bookedHisto;
-    bookedCSCSet              bookedCSCs;
 
     /** Pointer to crate mapping from database **/
     const CSCCrateMap* pcrate;
@@ -110,26 +100,10 @@ class CSCMonitorModuleCmn: public edm::EDAnalyzer, public cscdqm::MonitorObjectP
 
   public:
 
-    const bool getHisto(const cscdqm::HistoType& histo, cscdqm::MonitorObject*& mo);
-
-    void getCSCFromMap(const unsigned int crateId, const unsigned int dmbId, unsigned int& cscType, unsigned int& cscPosition) const;
     const CSCDetId getCSCDetId(const unsigned int crateId, const unsigned int dmbId) const { 
       return pcrate->detId(crateId, dmbId, 0, 0); 
     }
-    const bool nextCSC(unsigned int& iter, unsigned int& crateId, unsigned int& dmbId) const;
-
-    cscdqm::MonitorObject* bookInt (const std::string &name);
-    cscdqm::MonitorObject *bookInt (const std::string &name, const int default_value);
-    cscdqm::MonitorObject* bookFloat (const std::string &name);
-    cscdqm::MonitorObject *bookFloat (const std::string &name, const float default_value);
-    cscdqm::MonitorObject* bookString (const std::string &name, const std::string &value);
-    cscdqm::MonitorObject* book1D (const std::string &name, const std::string &title, int nchX, double lowX, double highX);
-    cscdqm::MonitorObject* book2D (const std::string &name, const std::string &title, int nchX, double lowX, double highX, int nchY, double lowY, double highY);
-    cscdqm::MonitorObject* book3D (const std::string &name, const std::string &title, int nchX, double lowX, double highX, int nchY, double lowY, double highY, int nchZ, double lowZ, double highZ);
-    cscdqm::MonitorObject* bookProfile (const std::string &name, const std::string &title, int nchX, double lowX, double highX, int nchY, double lowY, double highY, const char *option = "s");
-    cscdqm::MonitorObject* bookProfile2D (const std::string &name, const std::string &title, int nchX, double lowX, double highX, int nchY, double lowY, double highY, int nchZ, double lowZ, double highZ, const char *option = "s");
-
-    void afterBook (cscdqm::MonitorObject*& me);
+    cscdqm::MonitorObject *bookMonitorObject (const cscdqm::HistoBookRequest& p_req); 
 
   /// 
   // EDAnalyzer Implementation

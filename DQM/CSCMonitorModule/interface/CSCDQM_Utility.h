@@ -30,8 +30,6 @@
 
 namespace cscdqm {
 
-  static const TPRegexp REGEXP_ONDEMAND("^.*%d.*$");
-
   /**
   * @brief  Converting from string to whatever number (failsafe!) 
   * @param  t result number
@@ -53,8 +51,6 @@ namespace cscdqm {
 
     public:
 
-      static const std::string getNameById(const std::string& name, const int id);
-
       static const bool regexMatch(const TPRegexp& re_expression, const std::string& message);
       static const bool regexMatch(const std::string& expression, const std::string& message);
 
@@ -64,6 +60,7 @@ namespace cscdqm {
       static void splitString(std::string str, const std::string delim, std::vector<std::string>& results);
       static void trimString(std::string& str);
       static uint32_t fastHash(const char * data, int len);
+      static uint32_t fastHash(const char * data) { return fastHash(data, strlen(data)); }
 
   };
 

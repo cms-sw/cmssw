@@ -24,41 +24,61 @@ namespace cscdqm {
   EventProcessor::EventProcessor(Configuration* const p_config) {
 
     config = p_config;
-    provider = config->provider;
-
     fFirstEvent = true;
     fCloseL1As = true;
 
   }
 
-  const bool EventProcessor::getEMUHisto(const HistoName& histo, MonitorObject*& me) {
-    EMUHistoType histoT(histo);
-    return config->getHisto(histoT, me);
+  const bool EventProcessor::getEMUHisto(const HistoId& histo, MonitorObject*& me) {
+    EMUHistoDef histoD(histo);
+    if (config->fnGetHisto(histoD, me)) return (me != NULL);
+    return false;
   }
 
 
-  const bool EventProcessor::getDDUHisto(const HistoName& histo, const int dduID, MonitorObject*& me) {
-    DDUHistoType histoT(histo, dduID);
-    return config->getHisto(histoT, me);
+  const bool EventProcessor::getDDUHisto(const HistoId& histo, const HwId dduID, MonitorObject*& me) {
+    DDUHistoDef histoD(histo, dduID);
+    if (config->fnGetHisto(histoD, me)) return (me != NULL);
+    return false;
   }
 
 
-  const bool EventProcessor::getCSCHisto(const HistoName& histo, const int crateID, const int dmbSlot, MonitorObject*& me) {
-    CSCHistoType histoT(histo, crateID, dmbSlot);
-    return config->getHisto(histoT, me);
+  const bool EventProcessor::getCSCHisto(const HistoId& histo, const HwId crateID, const HwId dmbSlot, MonitorObject*& me) {
+    CSCHistoDef histoD(histo, crateID, dmbSlot);
+    if (config->fnGetHisto(histoD, me)) return (me != NULL);
+    return false;
   }
 
 
-  const bool EventProcessor::getCSCHisto(const HistoName& histo, const int crateID, const int dmbSlot, const int adId, MonitorObject*& me) {
-    CSCHistoType histoT(histo, crateID, dmbSlot, adId);
-    return config->getHisto(histoT, me);
+  const bool EventProcessor::getCSCHisto(const HistoId& histo, const HwId crateID, const HwId dmbSlot, const HwId adId, MonitorObject*& me) {
+    CSCHistoDef histoD(histo, crateID, dmbSlot, adId);
+    if (config->fnGetHisto(histoD, me)) return (me != NULL);
+    return false;
+  }
+
+
+  const bool EventProcessor::getParHisto(const HistoId& histo, MonitorObject*& me) {
+    ParHistoDef histoD(histo);
+    if (config->fnGetHisto(histoD, me)) return (me != NULL);
+    return false;
   }
 
 
   const bool EventProcessor::getParHisto(const std::string& name, MonitorObject*& me) {
-    const HistoName histo = const_cast<char*>(name.c_str());
-    ParHistoType histoT(histo);
-    return config->getHisto(histoT, me);
+    const HistoName histo = const_cast<HistoName>(name.c_str());
+    ParHistoDef histoD(histo);
+    if (config->fnGetHisto(histoD, me)) return (me != NULL);
+    return false;
+  }
+
+  void EventProcessor::getCSCFromMap(const unsigned int crateId, const unsigned int dmbId, unsigned int& cscType, unsigned int& cscPosition) const {
+    CSCDetId cid = config->fnGetCSCDetId(crateId, dmbId);
+    cscPosition  = cid.chamber();
+    int iring    = cid.ring();
+    int istation = cid.station();
+    int iendcap  = cid.endcap();
+    std::string tlabel = cscdqm::Utility::getCSCTypeLabel(iendcap, istation, iring);
+    cscType = cscdqm::Utility::getCSCTypeBin(tlabel);
   }
 
 }
