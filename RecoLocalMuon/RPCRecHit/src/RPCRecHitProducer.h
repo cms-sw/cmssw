@@ -4,8 +4,8 @@
 /** \class RPCRecHitProducer
  *  Module for RPCRecHit production. 
  *  
- *  $Date: 2008/01/29 12:53:03 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/10/14 09:12:38 $
+ *  $Revision: 1.3 $
  *  \author M. Maggim -- INFN Bari
  */
 
@@ -22,7 +22,12 @@
 #include "FWCore/ParameterSet/interface/InputTag.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 
-#include "RecoLocalMuon/RPCRecHit/src/RPCMaskReClusterizer.h"
+#include "CondFormats/RPCObjects/interface/RPCMaskedStrips.h"
+#include "CondFormats/DataRecord/interface/RPCMaskedStripsRcd.h"
+#include "CondFormats/RPCObjects/interface/RPCDeadStrips.h"
+#include "CondFormats/DataRecord/interface/RPCDeadStripsRcd.h"
+
+#include "RPCRollMask.h"
 
 
 namespace edm {
@@ -34,12 +39,17 @@ namespace edm {
 class RPCRecHitBaseAlgo;
 
 class RPCRecHitProducer : public edm::EDProducer {
+
 public:
   /// Constructor
-  RPCRecHitProducer(const edm::ParameterSet&);
+  RPCRecHitProducer(const edm::ParameterSet& config);
 
   /// Destructor
   virtual ~RPCRecHitProducer();
+
+  // Method that access the EventSetup for each run
+  virtual void beginRun( edm::Run&, const edm::EventSetup& );
+  virtual void endRun( edm::Run&, const edm::EventSetup& ) {;}
 
   /// The method which produces the rechits
   virtual void produce(edm::Event& event, const edm::EventSetup& setup);
@@ -53,9 +63,19 @@ private:
   RPCRecHitBaseAlgo *theAlgo;
 //   static string theAlgoName;
 
-  std::map<RPCDetId,RollMask> MaskMap;
-  // Map with masks for all the RPC Detectors
+  RPCMaskedStrips* RPCMaskedStripsObj;
+  // Object with mask-strips-vector for all the RPC Detectors
+
+  RPCDeadStrips* RPCDeadStripsObj;
+  // Object with dead-strips-vector for all the RPC Detectors
+
+  std::string maskSource;
+  std::string deadSource;
+
+  std::vector<RPCMaskedStrips::MaskItem> MaskVec;
+  std::vector<RPCDeadStrips::DeadItem> DeadVec;
 
 };
+
 #endif
 

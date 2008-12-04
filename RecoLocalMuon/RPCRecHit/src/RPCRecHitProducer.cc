@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2008/01/29 12:53:03 $
- *  $Revision: 1.7 $
+ *  $Date: 2008/10/14 09:12:38 $
+ *  $Revision: 1.8 $
  *  \author M. Maggi -- INFN Bari
 */
 
@@ -23,6 +23,12 @@
 #include "RecoLocalMuon/RPCRecHit/interface/RPCRecHitBaseAlgo.h"
 #include "RecoLocalMuon/RPCRecHit/interface/RPCRecHitAlgoFactory.h"
 #include "DataFormats/RPCRecHit/interface/RPCRecHitCollection.h"
+
+#include "CondFormats/RPCObjects/interface/RPCMaskedStrips.h"
+#include "CondFormats/DataRecord/interface/RPCMaskedStripsRcd.h"
+#include "CondFormats/RPCObjects/interface/RPCDeadStrips.h"
+#include "CondFormats/DataRecord/interface/RPCDeadStripsRcd.h"
+
 #include <string>
 
 
@@ -31,6 +37,7 @@ using namespace std;
 
 
 RPCRecHitProducer::RPCRecHitProducer(const ParameterSet& config){
+
   // Set verbose output
 
   produces<RPCRecHitCollection>();
@@ -38,42 +45,110 @@ RPCRecHitProducer::RPCRecHitProducer(const ParameterSet& config){
   theRPCDigiLabel = config.getParameter<InputTag>("rpcDigiLabel");
   
   // Get the concrete reconstruction algo from the factory
+
   string theAlgoName = config.getParameter<string>("recAlgo");
   theAlgo = RPCRecHitAlgoFactory::get()->create(theAlgoName,
 						config.getParameter<ParameterSet>("recAlgoConfig"));
 
-  edm::FileInPath fp = config.getParameter<edm::FileInPath>("maskmapfile");
+  // Get masked- and dead-strip information
 
-  std::ifstream inputFile(fp.fullPath().c_str(), std::ios::in);
+  RPCMaskedStripsObj = new RPCMaskedStrips();
 
-  if ( !inputFile ) {
-    std::cerr << "File MaskedStrips.dat could not be opened" << std::endl;
-    exit(1);
-  }
+  RPCDeadStripsObj = new RPCDeadStrips();
 
-  while ( !inputFile.eof() ) {
-    uint32_t rawId;
-    std::string label;
-    int bit;
-    RollMask Mask;
-    inputFile >> label >> rawId;
-    for (int i = 0; i < 96; i++) {
-      inputFile >> bit;
-      if ( bit ) 
-	Mask.set(i);
+  maskSource = config.getParameter<std::string>("maskSource");
+
+  if (maskSource == "File") {
+    edm::FileInPath fp = config.getParameter<edm::FileInPath>("maskvecfile");
+    std::ifstream inputFile(fp.fullPath().c_str(), std::ios::in);
+    if ( !inputFile ) {
+      std::cerr << "Masked Strips File cannot not be opened" << std::endl;
+      exit(1);
     }
-    RPCDetId Det(rawId);
-    this->MaskMap[Det] = Mask;
-
+    std::cout << "Getting Masked Strips Map from File : ";
+    std::cout  << fp.fullPath().c_str() << std::endl;
+    while ( inputFile.good() ) {
+      RPCMaskedStrips::MaskItem Item;
+      inputFile >> Item.rawId >> Item.strip;
+      if ( inputFile.good() ) MaskVec.push_back(Item);
+    }
+    inputFile.close();
+    std::cout << "Masked Strips File read successfully" << std::endl;
   }
 
-  inputFile.close();
+  deadSource = config.getParameter<std::string>("deadSource");
+
+  if (deadSource == "File") {
+    edm::FileInPath fp = config.getParameter<edm::FileInPath>("deadvecfile");
+    std::ifstream inputFile(fp.fullPath().c_str(), std::ios::in);
+    if ( !inputFile ) {
+      std::cerr << "Dead Strips File cannot not be opened" << std::endl;
+      exit(1);
+    }
+    std::cout << "Getting Dead Strips Map from File : ";
+    std::cout  << fp.fullPath().c_str() << std::endl;
+    while ( inputFile.good() ) {
+      RPCDeadStrips::DeadItem Item;
+      inputFile >> Item.rawId >> Item.strip;
+      if ( inputFile.good() ) DeadVec.push_back(Item);
+    }
+    inputFile.close();
+    std::cout << "Dead Strips File read successfully" << std::endl;
+  }
 
 }
 
 
 RPCRecHitProducer::~RPCRecHitProducer(){
+
   delete theAlgo;
+  delete RPCMaskedStripsObj;
+  delete RPCDeadStripsObj;
+
+}
+
+
+
+void RPCRecHitProducer::beginRun( edm::Run& r, const edm::EventSetup& setup){
+
+  // Getting the masked-strip information
+
+  if ( maskSource == "EventSetup" ) {
+    edm::ESHandle<RPCMaskedStrips> readoutMaskedStrips;
+    setup.get<RPCMaskedStripsRcd>().get(readoutMaskedStrips);
+    const RPCMaskedStrips* tmp_obj = readoutMaskedStrips.product();
+    RPCMaskedStripsObj->MaskVec = tmp_obj->MaskVec;
+    delete tmp_obj;
+  }
+  else if ( maskSource == "File" ) {
+    std::vector<RPCMaskedStrips::MaskItem>::iterator posVec;
+    for ( posVec = MaskVec.begin(); posVec != MaskVec.end(); ++posVec ) {
+      RPCMaskedStrips::MaskItem Item; 
+      Item.rawId = (*posVec).rawId;
+      Item.strip = (*posVec).strip;
+      RPCMaskedStripsObj->MaskVec.push_back(Item);
+    }
+  }
+
+  // Getting the dead-strip information
+
+  if ( deadSource == "EventSetup" ) {
+    edm::ESHandle<RPCDeadStrips> readoutDeadStrips;
+    setup.get<RPCDeadStripsRcd>().get(readoutDeadStrips);
+    const RPCDeadStrips* tmp_obj = readoutDeadStrips.product();
+    RPCDeadStripsObj->DeadVec = tmp_obj->DeadVec;
+    delete tmp_obj;
+  }
+  else if ( deadSource == "File" ) {
+    std::vector<RPCDeadStrips::DeadItem>::iterator posVec;
+    for ( posVec = DeadVec.begin(); posVec != DeadVec.end(); ++posVec ) {
+      RPCDeadStrips::DeadItem Item;
+      Item.rawId = (*posVec).rawId;
+      Item.strip = (*posVec).strip;
+      RPCDeadStripsObj->DeadVec.push_back(Item);
+    }
+  }
+
 }
 
 
@@ -81,38 +156,61 @@ RPCRecHitProducer::~RPCRecHitProducer(){
 void RPCRecHitProducer::produce(Event& event, const EventSetup& setup) {
 
   // Get the RPC Geometry
+
   ESHandle<RPCGeometry> rpcGeom;
   setup.get<MuonGeometryRecord>().get(rpcGeom);
 
   // Get the digis from the event
+
   Handle<RPCDigiCollection> digis; 
   event.getByLabel(theRPCDigiLabel,digis);
 
   // Pass the EventSetup to the algo
+
   theAlgo->setES(setup);
 
   // Create the pointer to the collection which will store the rechits
+
   auto_ptr<RPCRecHitCollection> recHitCollection(new RPCRecHitCollection());
 
-
   // Iterate through all digi collections ordered by LayerId   
+
   RPCDigiCollection::DigiRangeIterator rpcdgIt;
   for (rpcdgIt = digis->begin(); rpcdgIt != digis->end();
        ++rpcdgIt){
        
     // The layerId
     const RPCDetId& rpcId = (*rpcdgIt).first;
+
     // Get the GeomDet from the setup
     const RPCRoll* roll = rpcGeom->roll(rpcId);
 
     // Get the iterators over the digis associated with this LayerId
     const RPCDigiCollection::Range& range = (*rpcdgIt).second;
 
-    // Get mask information for the given RPCDet
+
+    // Getting the roll mask, that includes dead strips, for the given RPCDet
+
     RollMask mask;
-    std::map<RPCDetId,RollMask>::iterator pos = this->MaskMap.find(rpcId);
-    mask = pos->second;
-    
+    int rawId = rpcId.rawId();
+    int Size = RPCMaskedStripsObj->MaskVec.size();
+    for (int i = 0; i < Size; i++ ) {
+      if ( RPCMaskedStripsObj->MaskVec[i].rawId == rawId ) {
+	int bit = RPCMaskedStripsObj->MaskVec[i].strip;
+	mask.set(bit-1);
+      }
+    }
+
+    Size = RPCDeadStripsObj->DeadVec.size();
+    for (int i = 0; i < Size; i++ ) {
+      if ( RPCDeadStripsObj->DeadVec[i].rawId == rawId ) {
+	int bit = RPCDeadStripsObj->DeadVec[i].strip;
+	mask.set(bit-1);
+      }
+    }
+
+    // Call the reconstruction algorithm    
+
     OwnVector<RPCRecHit> recHits =
       theAlgo->reconstruct(*roll, rpcId, range, mask);
     
@@ -121,7 +219,6 @@ void RPCRecHitProducer::produce(Event& event, const EventSetup& setup) {
   }
 
   event.put(recHitCollection);
+
 }
-
-
 
