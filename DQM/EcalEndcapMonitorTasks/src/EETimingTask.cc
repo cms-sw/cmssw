@@ -1,8 +1,8 @@
 /*
  * \file EETimingTask.cc
  *
- * $Date: 2008/12/03 13:55:44 $
- * $Revision: 1.38 $
+ * $Date: 2008/12/04 06:22:48 $
+ * $Revision: 1.39 $
  * \author G. Della Ricca
  *
 */
@@ -154,9 +154,9 @@ void EETimingTask::analyze(const Event& e, const EventSetup& c){
 
     for ( EcalRawDataCollection::const_iterator dcchItr = dcchs->begin(); dcchItr != dcchs->end(); ++dcchItr ) {
 
-      if ( Numbers::subDet( *dcchItr ) != EcalBarrel ) continue;
+      if ( Numbers::subDet( *dcchItr ) != EcalEndcap ) continue;
 
-      int ism = Numbers::iSM( *dcchItr, EcalBarrel );
+      int ism = Numbers::iSM( *dcchItr, EcalEndcap );
 
       runType[ism-1] = dcchItr->getRunType();
 
