@@ -13,10 +13,9 @@
 //
 // Original Author:  Evan K. Friis, UC Davis (friis@physics.ucdavis.edu)
 //         Created:  Fri Aug 15 11:22:14 PDT 2008
-// $Id: TauMVADiscriminator.cc,v 1.5 2008/11/07 19:38:36 friis Exp $
+// $Id: TauMVADiscriminator.cc,v 1.6 2008/11/20 22:51:09 friis Exp $
 //
 //
-
 
 // system include files
 #include <memory>
@@ -40,7 +39,7 @@
 #include "RecoTauTag/TauTagTools/interface/DiscriminantList.h"
 #include "RecoTauTag/TauTagTools/interface/PFTauDiscriminantManager.h"
 #include "CondFormats/PhysicsToolsObjects/interface/MVAComputer.h"
-#include "CondFormats/DataRecord/interface/TauTagMVAComputerRcd.h"
+#include "RecoTauTag/TauTagTools/interface/TauMVADBConfiguration.h"
 #include "PhysicsTools/MVAComputer/interface/MVAComputerRecord.h"
 #include "PhysicsTools/MVAComputer/interface/MVAComputer.h"
 
@@ -111,7 +110,7 @@ TauMVADiscriminator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    //get appropriate MVA setup (specified in CFG file)
    ESHandle<PhysicsTools::Calibration::MVAComputerContainer> mvaHandle;
-   iSetup.get<TauTagMVAComputerRcd>().get(mvaHandle);
+   iSetup.get<TauMVAFrameworkDBRcd>().get(mvaHandle);
    PhysicsTools::MVAComputer mvaComputer(&mvaHandle.product()->find(computerName_));
 
    DiscriminantHandleList                    otherDiscriminants;
