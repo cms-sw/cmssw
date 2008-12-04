@@ -13,7 +13,7 @@
 //
 // Original Author:  pts/45
 //         Created:  Tue May 13 12:23:34 CEST 2008
-// $Id: RPCMonitorEfficiency.cc,v 1.12 2008/11/18 22:19:25 carrillo Exp $
+// $Id: RPCMonitorEfficiency.cc,v 1.13 2008/11/28 19:25:40 carrillo Exp $
 //
 //
 
@@ -1102,7 +1102,7 @@ void RPCMonitorEfficiency::analyze(const edm::Event& iEvent, const edm::EventSet
 	    if(prodimages){
 	      histoPRO->GetXaxis()->SetTitle("Strip");
 	      histoPRO->GetYaxis()->SetTitle("Efficiency (%)");
-	      histoPRO->GetYaxis()->SetRangeUser(0.,100.);
+	      histoPRO->GetYaxis()->SetRangeUser(0.,1.);
 	      histoPRO->Draw();
 	      std::string labeltoSave = rpcsrv.name() + "/Profile.png";
 	      Ca0->SaveAs(labeltoSave.c_str());
@@ -1655,7 +1655,7 @@ void RPCMonitorEfficiency::analyze(const edm::Event& iEvent, const edm::EventSet
 	      if(prodimages){//ENDCAP
 		histoPRO->GetXaxis()->SetTitle("Strip");
 		histoPRO->GetYaxis()->SetTitle("Efficiency (%)");
-		histoPRO->GetYaxis()->SetRangeUser(0.,100.);
+		histoPRO->GetYaxis()->SetRangeUser(0.,1.);
 		histoPRO->Draw();
 		std::string labeltoSave = rpcsrv.name() + "/Profile.png";
 		Ca0->SaveAs(labeltoSave.c_str());
