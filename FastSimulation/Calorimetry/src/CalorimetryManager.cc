@@ -339,6 +339,7 @@ void CalorimetryManager::EMShowerSimulation(const FSimTrack& myTrack) {
   
   // Initialize the Grid in ECAL
   int size = gridSize_;
+  if(maxEnergy>100) size=11;
 //  if ( maxEnergy < threshold5x5 ) size = 5;
 //  if ( maxEnergy < threshold3x3 ) size = 3;
 
