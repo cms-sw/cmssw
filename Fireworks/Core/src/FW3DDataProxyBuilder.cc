@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Thu Dec  6 17:49:54 PST 2007
-// $Id: FW3DDataProxyBuilder.cc,v 1.1 2008/12/01 12:27:37 dmytro Exp $
+// $Id: FW3DDataProxyBuilder.cc,v 1.2 2008/12/03 21:00:09 chrjones Exp $
 //
 
 // system include files
@@ -24,6 +24,7 @@
 #include "Fireworks/Core/interface/FWModelId.h"
 
 #include "Fireworks/Core/src/changeElementAndChildren.h"
+#include "Fireworks/Core/interface/setUserDataElementAndChildren.h"
 
 //
 // constants, enums and typedefs
@@ -104,6 +105,7 @@ FW3DDataProxyBuilder::setItem(const FWEventItem* iItem)
 void
 FW3DDataProxyBuilder::itemChanged(const FWEventItem* iItem)
 {
+   itemChangedImp(iItem);
    if(m_haveViews) {
       build();
    } else {
@@ -112,25 +114,16 @@ FW3DDataProxyBuilder::itemChanged(const FWEventItem* iItem)
    m_modelsChanged=false;
 }
 
+void FW3DDataProxyBuilder::itemChangedImp(const FWEventItem*)
+{
+}
+
 void
 FW3DDataProxyBuilder::itemBeingDestroyed(const FWEventItem* iItem)
 {
    m_item=0;
    m_elementHolder->RemoveElements();
    m_ids.clear();
-}
-
-static void
-setUserDataElementAndChildren(TEveElement* iElement,
-                         void* iInfo)
-{
-   iElement->SetUserData(iInfo);
-   for(TEveElement::List_i itElement = iElement->BeginChildren(),
-       itEnd = iElement->EndChildren();
-       itElement != itEnd;
-       ++itElement) {
-      setUserDataElementAndChildren(*itElement, iInfo);
-   }
 }
 
 void
@@ -162,7 +155,7 @@ FW3DDataProxyBuilder::build()
            if(largestIndex<=index) {
               *itId=FWModelId(m_item,index);
            }
-           setUserDataElementAndChildren(*it,&(*itId));
+           fireworks::setUserDataElementAndChildren(*it,&(*itId));
         }
      }
   }
@@ -228,3 +221,7 @@ FW3DDataProxyBuilder::modelChanges(const FWModelIds& iIds,
 //
 // static member functions
 //
+std::string FW3DDataProxyBuilder::typeOfBuilder()
+{
+   return std::string();
+}

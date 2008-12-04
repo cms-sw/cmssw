@@ -16,7 +16,7 @@
 //
 // Original Author:
 //         Created:  Sat Jan  5 15:02:03 EST 2008
-// $Id: FW3DDataProxyBuilder.h,v 1.1 2008/12/01 12:27:36 dmytro Exp $
+// $Id: FW3DDataProxyBuilder.h,v 1.2 2008/12/03 21:01:22 chrjones Exp $
 //
 
 // system include files
@@ -44,7 +44,9 @@ class FW3DDataProxyBuilder
       // ---------- const member functions ---------------------
 
       // ---------- static member functions --------------------
-
+      ///Used by the plugin system to determine how the proxy uses the data from FWEventItem
+      static std::string typeOfBuilder();
+   
       // ---------- member functions ---------------------------
       void setItem(const FWEventItem* iItem);
       void setHaveAWindow(bool iFlag);
@@ -68,6 +70,7 @@ class FW3DDataProxyBuilder
       //Override this if you need to special handle selection or other changes
       virtual void modelChanges(const FWModelIds&, TEveElement*);
       virtual void applyChangesToAllModels(TEveElement* iElements);
+      virtual void itemChangedImp(const FWEventItem*);
    
       virtual void itemBeingDestroyed(const FWEventItem*);
 
