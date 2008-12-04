@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerTask.cc
  *
- * $Date: 2008/12/03 10:28:10 $
- * $Revision: 1.79 $
+ * $Date: 2008/12/04 13:53:05 $
+ * $Revision: 1.80 $
  * \author C. Bernet
  * \author G. Della Ricca
  * \author E. Di Marco
@@ -328,13 +328,11 @@ void EBTriggerTowerTask::analyze(const Event& e, const EventSetup& c){
 }
 
 void
-EBTriggerTowerTask::processDigis( const Event& e, const Handle<EcalTrigPrimDigiCollection>&
-                                  digis,
+EBTriggerTowerTask::processDigis( const Event& e, const Handle<EcalTrigPrimDigiCollection>& digis,
                                   MonitorElement* meEtMap,
                                   array1& meVeto,
                                   array1& meFlags,
-                                  const Handle<EcalTrigPrimDigiCollection>&
-                                  compDigis ) {
+                                  const Handle<EcalTrigPrimDigiCollection>& compDigis ) {
 
   LogDebug("EBTriggerTowerTask")<<"processing "<<meEtMapReal_->getName()<<endl;
 
@@ -365,8 +363,8 @@ EBTriggerTowerTask::processDigis( const Event& e, const Handle<EcalTrigPrimDigiC
   }
 
   ostringstream  str;
-  for ( EcalTrigPrimDigiCollection::const_iterator tpdigiItr = digis->begin();
-        tpdigiItr != digis->end(); ++tpdigiItr ) {
+
+  for ( EcalTrigPrimDigiCollection::const_iterator tpdigiItr = digis->begin(); tpdigiItr != digis->end(); ++tpdigiItr ) {
 
     if ( Numbers::subDet( tpdigiItr->id() ) != EcalBarrel ) continue;
 
@@ -479,3 +477,4 @@ EBTriggerTowerTask::processDigis( const Event& e, const Handle<EcalTrigPrimDigiC
   }
   LogDebug("EBTriggerTowerTask")<<str.str()<<endl;
 }
+

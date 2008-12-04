@@ -1,8 +1,8 @@
 /*
  * \file EETriggerTowerTask.cc
  *
- * $Date: 2008/12/03 10:28:11 $
- * $Revision: 1.43 $
+ * $Date: 2008/12/04 13:53:40 $
+ * $Revision: 1.44 $
  * \author C. Bernet
  * \author G. Della Ricca
  * \author E. Di Marco
@@ -302,7 +302,7 @@ void EETriggerTowerTask::analyze(const Event& e, const EventSetup& c){
       <<" trigger primitive digi collection size: "
       <<neetpd;
 
-    processDigis( e, 
+    processDigis( e,
                   realDigis,
                   meEtMapReal_,
                   meVetoReal_,
@@ -330,20 +330,18 @@ void EETriggerTowerTask::analyze(const Event& e, const EventSetup& c){
 }
 
 void
-EETriggerTowerTask::processDigis( const Event& e, const Handle<EcalTrigPrimDigiCollection>&
-                                  digis,
+EETriggerTowerTask::processDigis( const Event& e, const Handle<EcalTrigPrimDigiCollection>& digis,
                                   MonitorElement* meEtMap,
                                   array1& meVeto,
                                   array1& meFlags,
-                                  const Handle<EcalTrigPrimDigiCollection>&
-                                  compDigis ) {
+                                  const Handle<EcalTrigPrimDigiCollection>& compDigis ) {
 
   LogDebug("EETriggerTowerTask")<<"processing "<<meEtMap->getName()<<endl;
 
   map<int, int> crystalsInTower;
 
   Handle<EEDigiCollection> crystalDigis;
-  
+
   if ( e.getByLabel(EEDigiCollection_, crystalDigis) ) {
 
     for ( EEDigiCollection::const_iterator cDigiItr = crystalDigis->begin(); cDigiItr != crystalDigis->end(); ++cDigiItr ) {
@@ -367,8 +365,8 @@ EETriggerTowerTask::processDigis( const Event& e, const Handle<EcalTrigPrimDigiC
   }
 
   ostringstream  str;
-  for ( EcalTrigPrimDigiCollection::const_iterator tpdigiItr = digis->begin();
-        tpdigiItr != digis->end(); ++tpdigiItr ) {
+
+  for ( EcalTrigPrimDigiCollection::const_iterator tpdigiItr = digis->begin(); tpdigiItr != digis->end(); ++tpdigiItr ) {
 
     if ( Numbers::subDet( tpdigiItr->id() ) != EcalEndcap ) continue;
 
@@ -397,10 +395,12 @@ EETriggerTowerTask::processDigis( const Event& e, const Handle<EcalTrigPrimDigiC
     int tccindex = Numbers::TCCid(tpdigiItr->id());
 
     int xttindex = -1;
-    if ( tccindex <= 36 ) xttindex = 28*tccindex+ttindex-1; // EE-
-    else if ( tccindex >= 73 ) xttindex = 28*(tccindex-36)+ttindex-1; // EE+ (skip EB TCCs)
+    if ( tccindex <= 36 )
+      xttindex = 28*tccindex+ttindex-1; // EE-
+    else if ( tccindex >= 73 )
+      xttindex = 28*(tccindex-36)+ttindex-1; // EE+ (skip EB TCCs)
 
-    // count the number of readout crystals / TT 
+    // count the number of readout crystals / TT
     // do do the match emul-real only if ncry/TT=25
     int nReadoutCrystals=crystalsInTower[itt];
 
@@ -484,3 +484,4 @@ EETriggerTowerTask::processDigis( const Event& e, const Handle<EcalTrigPrimDigiC
   }
   LogDebug("EETriggerTowerTask")<<str.str()<<endl;
 }
+
