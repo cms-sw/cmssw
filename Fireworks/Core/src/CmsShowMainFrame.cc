@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:23 CDT 2008
-// $Id: CmsShowMainFrame.cc,v 1.27 2008/12/01 17:25:19 amraktad Exp $
+// $Id: CmsShowMainFrame.cc,v 1.28 2008/12/01 19:27:29 amraktad Exp $
 //
 
 // system include files
@@ -214,12 +214,13 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    TGCompositeFrame* buttonFrame = new TGHorizontalFrame(controlFrame, 10, 10, 0, backgroundColor);
    TImage *imgBtn  = TImage::Open(coreIcondir+"slider-bg-up.png");
    buttonFrame->SetBackgroundPixmap(imgBtn->GetPixmap());
-   TGLayoutHints* bl = new TGLayoutHints(kLHintsCenterY| kLHintsLeft, 2, 3, 10, 0);
+
+   TGLayoutHints lh(kLHintsCenterY| kLHintsLeft, 2, 3, 10, 0);
    goToFirst->createCustomIconsButton(buttonFrame,
                                       fClient->GetPicture(coreIcondir+"button-gotofirst.png"),
                                       fClient->GetPicture(coreIcondir+"button-gotofirst-over.png"),
                                       fClient->GetPicture(coreIcondir+"button-gotofirst-disabled.png"),
-                                      new TGLayoutHints(kLHintsCenterY| kLHintsLeft, bl->GetPadLeft()+2, bl->GetPadRight(), bl->GetPadTop(), bl->GetPadBottom()));
+                                      new TGLayoutHints(kLHintsCenterY| kLHintsLeft, lh.GetPadLeft()+2, lh.GetPadRight(), lh.GetPadTop(), lh.GetPadBottom()));
 
    playEventsBack->createCustomIconsButton(buttonFrame,
                                            fClient->GetPicture(coreIcondir+"button-backward.png"),
@@ -227,20 +228,20 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
                                            fClient->GetPicture(coreIcondir+"button-backward-disabled.png"),
                                            fClient->GetPicture(coreIcondir+"button-pause.png"),
                                            fClient->GetPicture(coreIcondir+"button-pause-over.png"),
-                                           bl);
+                                           new TGLayoutHints(lh));
 
 
    previousEvent->createCustomIconsButton(buttonFrame,
                                           fClient->GetPicture(coreIcondir+"button-stepback.png"),
                                           fClient->GetPicture(coreIcondir+"button-stepback-over.png"),
                                           fClient->GetPicture(coreIcondir+"button-stepback-disabled.png"),
-                                          bl);
+                                          new TGLayoutHints(lh));
 
    nextEvent->createCustomIconsButton(buttonFrame,
                                       fClient->GetPicture(coreIcondir+"button-stepforward.png"),
                                       fClient->GetPicture(coreIcondir+"button-stepforward-over.png"),
                                       fClient->GetPicture(coreIcondir+"button-stepforward-disabled.png"), 
-                                      bl);
+                                       new TGLayoutHints(lh));
 
 
    playEvents->createCustomIconsButton(buttonFrame,
@@ -249,13 +250,13 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
                                        fClient->GetPicture(coreIcondir+"button-forward-disabled.png"),
                                        fClient->GetPicture(coreIcondir+"button-pause.png"),
                                        fClient->GetPicture(coreIcondir+"button-pause-over.png"),
-                                       bl);
+                                       new TGLayoutHints(lh));
 
    goToLast->createCustomIconsButton(buttonFrame,
                                      fClient->GetPicture(coreIcondir+"button-gotolast.png"),
                                      fClient->GetPicture(coreIcondir+"button-gotolast-over.png"),
                                      fClient->GetPicture(coreIcondir+"button-gotolast-disabled.png"),
-                                     bl);
+                                      new TGLayoutHints(lh));
 
    
   
@@ -350,7 +351,9 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    csArea->VSplit(200);
    csArea->GetFirst()->AddFrame(m_manager->createList(csArea->GetFirst()), new TGLayoutHints(kLHintsLeft | kLHintsExpandX | kLHintsExpandY));
    TGTab *tabFrame = new TGTab(csArea->GetSecond(), csArea->GetSecond()->GetWidth(), csArea->GetSecond()->GetHeight());
-   tabFrame->AddTab("Views", m_manager->createViews(tabFrame));
+
+   m_manager->createViews(tabFrame);
+
    csArea->GetSecond()->AddFrame(tabFrame, new TGLayoutHints(kLHintsLeft | kLHintsExpandX | kLHintsExpandY));
    m_manager->createTextView(tabFrame);
    AddFrame(csArea,new TGLayoutHints(kLHintsTop | kLHintsExpandX | kLHintsExpandY,2,2,0,2));
