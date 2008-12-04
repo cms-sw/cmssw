@@ -33,6 +33,13 @@
 
 #include "FastSimulation/BaseParticlePropagator/interface/BaseParticlePropagator.h"
 #include "FastSimulation/ParticlePropagator/interface/ParticlePropagator.h"
+
+//Propagator withMaterial
+#include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
+//analyticalpropagator
+//#include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
+
+
 //
 
 //for debug only 
@@ -202,6 +209,8 @@ TrajectorySeedProducer::TrajectorySeedProducer(const edm::ParameterSet& conf)
   
 // Virtual destructor needed.
 TrajectorySeedProducer::~TrajectorySeedProducer() {
+  
+  delete thePropagator;
 
   // do nothing
 #ifdef FAMOS_DEBUG
@@ -228,6 +237,8 @@ TrajectorySeedProducer::beginRun(edm::Run & run, const edm::EventSetup & es) {
   theMagField = &(*magField);
   theGeometry = &(*geometry);
   theFieldMap = &(*magFieldMap);
+
+  thePropagator = new PropagatorWithMaterial(alongMomentum,0.105,&(*theMagField)); 
 
   const GlobalPoint g(0.,0.,0.);
 
@@ -545,7 +556,13 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 #endif
       // const GeomDetUnit* initialLayer = theGeometry->idToDetUnit( recHits.front().geographicalId() );
       const GeomDet* initialLayer = theGeometry->idToDet( recHits.front().geographicalId() );
-      const TrajectoryStateOnSurface initialTSOS(initialFTS, initialLayer->surface());      
+
+      //this is wrong because the FTS is defined at vertex, and it need to be properly propagated.
+      //      const TrajectoryStateOnSurface initialTSOS(initialFTS, initialLayer->surface());      
+
+      const TrajectoryStateOnSurface initialTSOS = thePropagator->propagate(initialFTS,initialLayer->surface()) ;
+      if (!initialTSOS.isValid()) continue; 
+
 #ifdef FAMOS_DEBUG
       std::cout << "TrajectorySeedProducer: TSOS global momentum "    << initialTSOS.globalMomentum() << std::endl;
       std::cout << "\t\t\tpT = "                                     << initialTSOS.globalMomentum().perp() << std::endl;
