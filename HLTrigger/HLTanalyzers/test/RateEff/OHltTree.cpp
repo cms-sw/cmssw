@@ -318,9 +318,9 @@ void OHltTree::Loop( vector<int> * iCount, vector<int> * sPureCount, vector<int>
       }     
 
       else if (trignames[it].CompareTo("OpenHLT_Jet30") == 0) {   
-        if( L1_SingleJet15==1) {      // L1 Seed   
+	if( L1_SingleJet15==1) {      // L1 Seed   
           L1AssHLTBit[it] = true;  
-	  if(OpenHlt1JetPassed(30)>=1) {   
+	  if(OpenHlt1JetPassed(15)>=1) {   
 	  //	  if(OpenHlt1CorJetPassed(30)>=1) {
             triggerBitNoPrescale[it] = true;    
             if ((iCountNoPrescale[it]) % map_pathHLTPrescl.find(trignames[it])->second == 0) {    
@@ -331,9 +331,9 @@ void OHltTree::Loop( vector<int> * iCount, vector<int> * sPureCount, vector<int>
       }   
 
       else if (trignames[it].CompareTo("OpenHLT_Jet50") == 0) {    
-        if( L1_SingleJet30==1) {      // L1 Seed    
+	if( L1_SingleJet30==1) {      // L1 Seed    
           L1AssHLTBit[it] = true;   
-	  if(OpenHlt1JetPassed(50)>=1) {    
+	  if(OpenHlt1JetPassed(30)>=1) {    
 	  //	  if(OpenHlt1CorJetPassed(50)>=1) {
             triggerBitNoPrescale[it] = true;     
             if ((iCountNoPrescale[it]) % map_pathHLTPrescl.find(trignames[it])->second == 0) {     
@@ -346,7 +346,7 @@ void OHltTree::Loop( vector<int> * iCount, vector<int> * sPureCount, vector<int>
       else if (trignames[it].CompareTo("OpenHLT_Jet80") == 0) {     
         if( L1_SingleJet50==1) {      // L1 Seed     
           L1AssHLTBit[it] = true;    
-	  if(OpenHlt1JetPassed(80)>=1) {     
+	  if(OpenHlt1JetPassed(50)>=1) {     
 	  //	  if(OpenHlt1CorJetPassed(80)>=1) {
             triggerBitNoPrescale[it] = true;      
             if ((iCountNoPrescale[it]) % map_pathHLTPrescl.find(trignames[it])->second == 0) {      
@@ -492,6 +492,13 @@ void OHltTree::Loop( vector<int> * iCount, vector<int> * sPureCount, vector<int>
             if ((iCountNoPrescale[it]) % map_pathHLTPrescl.find(trignames[it])->second == 0) {     
               triggerBit[it] = true;     
             }     
+	    //	    if(HLT_Photon15_L1R == 0)
+	    //	      {
+	    //		cout << "OpenHLT_Photon15_L1R passed but HLT_Photon15_L1R didn't!!!" << endl;
+	    //		cout << "iCountNoPrescale[it] = " << iCountNoPrescale[it] << endl;
+	    //		cout << "map_pathHLTPrescl.find(trignames[it])->second = " << map_pathHLTPrescl.find(trignames[it])->second << endl;
+	    //		PrintOhltVariables(3,photon);  
+	    //	      }
           }     
         }
       }    
@@ -919,6 +926,19 @@ void OHltTree::Loop( vector<int> * iCount, vector<int> * sPureCount, vector<int>
 	}
       }
 
+      else if (trignames[it].CompareTo("OpenHLT_DoubleIsoTau_Trk3") == 0) { 
+	if ( L1_DoubleTauJet40==1 ) { // L1 Seed 
+	  L1AssHLTBit[it] = true; 
+	  //PrintOhltVariables(3,tau); 
+	  if(OpenHltTauPassed(15.,5.,3.,1,0.,0)>=2) { 
+	    triggerBitNoPrescale[it] = true; 
+	    if ((iCountNoPrescale[it]) % map_pathHLTPrescl.find(trignames[it])->second == 0) { 
+	      triggerBit[it] = true; 
+	    } 
+	  } 
+	} 
+      }
+
       //------------------bonus triggers not in the core menus----------------------------  
       else if (trignames[it].CompareTo("OpenHLT_IsoEle20_LW_L1R") == 0) {      
         if ( L1_SingleIsoEG15==1 ) { // L1 Seed      
@@ -1017,6 +1037,55 @@ void OHltTree::Loop( vector<int> * iCount, vector<int> * sPureCount, vector<int>
           //  PrintOhltVariables(3,electron); 
         } 
       }  
+
+      else if (trignames[it].CompareTo("OpenHLT_LooseIsoTau_MET30_Trk3") == 0) { 
+	if(L1_SingleTauJet80==1) {  // L1 Seed 
+	  L1AssHLTBit[it] = true; 
+	  if(OpenHltTauPassed(15.,5.,3.,0,0.,0)>=1  && recoMetCal>=30.) {
+	    triggerBitNoPrescale[it] = true; 
+	    if ((iCountNoPrescale[it]) % map_pathHLTPrescl.find(trignames[it])->second == 0) { 
+	      triggerBit[it] = true; 
+	    } 
+	  } 
+	} 
+      }
+
+      else if (trignames[it].CompareTo("OpenHLT_LooseIsoTau_MET30_L1MET_Trk3") == 0) { 
+	if(L1_TauJet30_ETM30==1) {  // L1 Seed
+	  L1AssHLTBit[it] = true; 
+	  if(OpenHltTauPassed(15.,5.,3.,0,0.,0)>=1  && recoMetCal>=30.) { 
+	    triggerBitNoPrescale[it] = true; 
+	    if ((iCountNoPrescale[it]) % map_pathHLTPrescl.find(trignames[it])->second == 0) { 
+	      triggerBit[it] = true; 
+	    } 
+	  } 
+	} 
+      } 
+
+      else if (trignames[it].CompareTo("OpenHLT_IsoTau_MET65_Trk20") == 0) { 
+	if(L1_SingleTauJet80==1) {  // L1 Seed 
+	  L1AssHLTBit[it] = true; 
+	  if(OpenHltTauPassed(15.,5.,3.,1,20.,0)>=1  && recoMetCal>=65.) {
+	    triggerBitNoPrescale[it] = true; 
+	    if ((iCountNoPrescale[it]) % map_pathHLTPrescl.find(trignames[it])->second == 0) { 
+	      triggerBit[it] = true; 
+	    } 
+	  } 
+	} 
+      }
+
+      else if (trignames[it].CompareTo("OpenHLT_IsoTau_MET35_Trk15_L1MET") == 0) { 
+	if(L1_TauJet30_ETM30==1) {  // L1 Seed 
+	  L1AssHLTBit[it] = true; 
+	  if(OpenHltTauPassed(15.,5.,3.,1,15.,0)>=1  && recoMetCal>=35.) {
+	    triggerBitNoPrescale[it] = true; 
+	    if ((iCountNoPrescale[it]) % map_pathHLTPrescl.find(trignames[it])->second == 0) { 
+	      triggerBit[it] = true; 
+	    } 
+	  } 
+	} 
+      }
+
 
       /* *** "Lean" triggers end here *** */     
     }
@@ -1260,6 +1329,7 @@ void OHltTree::PrintOhltVariables(int level, int type)
       cout << "ohPhotHiso["<<i<<"] = " << ohPhotHiso[i] << endl;
       cout << "ohPhotTiso["<<i<<"] = " << ohPhotTiso[i] << endl;
       cout << "ohPhotL1iso["<<i<<"] = " << ohPhotL1iso[i] << endl;
+      cout << "ohPhotHiso["<<i<<"]/ohPhotEt["<<i<<"] = " << ohPhotHiso[i]/ohPhotEt[i] << endl;
       cout << "recoPhotE["<<i<<"] = " << recoPhotE[i] << endl;
       cout << "recoPhotEt["<<i<<"] = " << recoPhotEt[i] << endl;
       cout << "recoPhotPt["<<i<<"] = " << recoPhotPt[i] << endl;
@@ -1325,12 +1395,12 @@ int OHltTree::OpenHlt1ElectronPassed(float Et, int L1iso, float Tiso, float Hiso
   // Loop over all oh electrons
   for (int i=0;i<NohEle;i++) {
     if ( ohEleEt[i] > Et) {
-      if ( ohEleHiso[i] < Hiso || ohEleHiso[i]/ohEleEt[i] < 0.05)
-        if (ohEleNewSC[i]==1)
-          if (ohElePixelSeeds[i]>0)
-            if ( ohEleTiso[i] < Tiso && ohEleTiso[i] != -999.)
-              if ( ohEleL1iso[i] >= L1iso )   // L1iso is 0 or 1
-                rc++;      
+	if ( ohEleHiso[i] < Hiso || ohEleHiso[i]/ohEleEt[i] < 0.05)
+	  if (ohEleNewSC[i]==1)
+	    if (ohElePixelSeeds[i]>0)
+	      if ( ohEleTiso[i] < Tiso && ohEleTiso[i] != -999.)
+		if ( ohEleL1iso[i] >= L1iso )   // L1iso is 0 or 1
+		  rc++;      
     }
   }
 
@@ -1343,14 +1413,14 @@ int OHltTree::OpenHlt1LWElectronPassed(float Et, int L1iso, float Tiso, float Hi
   // Loop over all oh LW electrons 
   for (int i=0;i<NohEleLW;i++) { 
     if ( ohEleEtLW[i] > Et) { 
-      if ( ohEleHisoLW[i] < Hiso || ohEleHisoLW[i]/ohEleEtLW[i] < 0.05) 
-        if (ohEleNewSCLW[i]==1) 
-          if (ohElePixelSeedsLW[i]>0) 
-            if ( ohEleTisoLW[i] < Tiso && ohEleTisoLW[i] != -999.) 
-              if ( ohEleL1isoLW[i] >= L1iso )   // L1iso is 0 or 1 
-                rc++;       
+	if ( ohEleHisoLW[i] < Hiso || ohEleHisoLW[i]/ohEleEtLW[i] < 0.05) 
+	  if (ohEleNewSCLW[i]==1) 
+	    if (ohElePixelSeedsLW[i]>0) 
+	      if ( ohEleTisoLW[i] < Tiso && ohEleTisoLW[i] != -999.) 
+		if ( ohEleL1isoLW[i] >= L1iso )   // L1iso is 0 or 1 
+		  rc++;       
     } 
-  } 
+  }
 
   return rc; 
 } 
@@ -1362,17 +1432,17 @@ int  OHltTree::OpenHlt1PhotonPassed(float Et, int L1iso, float Tiso, float Eiso,
   // Loop over all oh photons
   for (int i=0;i<NohPhot;i++) {
     if ( ohPhotEt[i] > Et) { 
-      if ( ohPhotL1iso[i] >= L1iso ) { 
-        if( ohPhotTiso[i]<Tiso ) { 
-          if( ohPhotEiso[i] < Eiso ) { 
-            if( (TMath::Abs(ohPhotEta[i]) < 1.5 && ohPhotHiso[i] < HisoBR )  ||
-              (1.5 < TMath::Abs(ohPhotEta[i]) && TMath::Abs(ohPhotEta[i]) < 2.5 && ohPhotHiso[i] < HisoEC ) || 
-              (ohPhotHiso[i]/ohPhotEt[i] < 0.05) ) {
+	if ( ohPhotL1iso[i] >= L1iso ) { 
+	  if( ohPhotTiso[i]<Tiso ) { 
+	    if( ohPhotEiso[i] < Eiso ) { 
+	      if( (TMath::Abs(ohPhotEta[i]) < 1.5 && ohPhotHiso[i] < HisoBR )  ||
+		  (1.5 < TMath::Abs(ohPhotEta[i]) && TMath::Abs(ohPhotEta[i]) < 2.5 && ohPhotHiso[i] < HisoEC ) || 
+		  (ohPhotHiso[i]/ohPhotEt[i] < 0.05) ) {
                 rc++;
-            }
-          }
-        }
-      }
+	      }
+	    }
+	  }
+	}
     }
   }
   return rc;
