@@ -99,13 +99,6 @@ class LuminosityBlockID
          return doOp<std::greater_equal>(iRHS);
       }
 
-      // for boost::serialization
-      template<class Archive>
-      void serialize(Archive & ar, const unsigned int version)
-      {
-        ar & run_ & luminosityBlock_;
-      }
-
       // ---------- static functions ---------------------------
 
       static LuminosityBlockNumber_t maxLuminosityBlockNumber() {
