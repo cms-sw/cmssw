@@ -32,7 +32,7 @@ Implementation:
 //
 // Original Author:  Devdatta Majumder
 //         Created:  Sun Jan  6 07:34:59 CET 2008
-// $Id$
+// $Id: TriggerValidation.cc,v 1.2 2008/11/17 09:14:00 devdatta Exp $
 //
 //
   
@@ -428,9 +428,6 @@ void
 TriggerValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   using namespace edm;
-  
-//  ESHandle<MagneticField> theMagneticField ;
-//  iSetup.get<IdealMagneticFieldRecord>().get(theMagneticField) ;
   
   maxMu_pT = mu_maxPt_eta = 0. ;
 
