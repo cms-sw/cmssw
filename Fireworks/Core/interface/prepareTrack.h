@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Nov 19 19:14:11 EST 2008
-// $Id$
+// $Id: prepareTrack.h,v 1.1 2008/11/20 01:10:26 chrjones Exp $
 //
 
 // system include files
@@ -27,11 +27,22 @@
 // forward declarations
 namespace reco {
    class Track;
+   class Candidate;
 }
 class TEveElement;
 class TEveTrackPropagator;
 
 namespace fireworks {
+   TEveTrack* prepareSimpleTrack(const reco::Track& track,
+				 TEveTrackPropagator* propagator,
+				 TEveElement* trackList,
+				 Color_t color);
+   
+   TEveTrack* prepareSimpleTrack(const reco::Candidate& track,
+				 TEveTrackPropagator* propagator,
+				 TEveElement* trackList,
+				 Color_t color);
+
    TEveTrack* prepareTrack(const reco::Track& track,
                            TEveTrackPropagator* propagator,
                            TEveElement* trackList,

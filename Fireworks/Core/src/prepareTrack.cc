@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Nov 19 19:14:22 EST 2008
-// $Id$
+// $Id: prepareTrack.cc,v 1.1 2008/11/20 01:10:25 chrjones Exp $
 //
 
 // system include files
@@ -17,6 +17,7 @@
 
 // user include files
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
 
 #include "Fireworks/Core/interface/prepareTrack.h"
 
@@ -27,7 +28,7 @@
 //
 // static data member definitions
 //
-namespace  {
+namespace fireworks {
    TEveTrack*
    prepareSimpleTrack(const reco::Track& track,
                       TEveTrackPropagator* propagator,
@@ -43,9 +44,24 @@ namespace  {
       trk->SetMainColor(color);
       return trk;
    }
-}
+   
+   TEveTrack*
+   prepareSimpleTrack(const reco::Candidate& track,
+                      TEveTrackPropagator* propagator,
+                      TEveElement* trackList,
+                      Color_t color)
+   {
+      TEveRecTrack t;
+      t.fBeta = 1.;
+      t.fP = TEveVector( track.px(), track.py(), track.pz() );
+      t.fV = TEveVector( track.vertex().x(), track.vertex().y(), track.vertex().z() );
+      t.fSign = track.charge();
+      TEveTrack* trk = new TEveTrack(&t,propagator);
+      trk->SetMainColor(color);
+      return trk;
+   }
 
-namespace fireworks {
+
 TEveTrack*
 prepareTrack(const reco::Track& track,
              TEveTrackPropagator* propagator,
