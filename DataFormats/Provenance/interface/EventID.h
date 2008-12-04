@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Aug  8 15:13:14 EDT 2005
-// $Id: EventID.h,v 1.4 2007/06/21 16:52:40 wmtan Exp $
+// $Id: EventID.h,v 1.5 2008/11/21 01:11:59 rpw Exp $
 //
 
 // system include files
@@ -96,13 +96,6 @@ class EventID {
 
       bool operator>(EventID const& iRHS) const {
          return !(*this <= iRHS);
-      }
-
-      /// for boost::serialization
-      template<class Archive>
-      void serialize(Archive & ar, const unsigned int version)
-      {
-        ar & run_ & event_;
       }
 
       // ---------- static functions ---------------------------
