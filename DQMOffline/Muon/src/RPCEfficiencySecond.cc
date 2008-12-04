@@ -34,66 +34,16 @@ camilo.carrilloATcern.ch
 
 #include "TH1F.h"
 
-std::string LocalShortName(RPCDetId _id){
-  std::string buf;
-  if (_id.region()==0){
-    std::stringstream os;
-    os <<"RB"<<_id.station();
-    if (_id.station()<=2){
-      if (_id.layer()==1){
-	os<<"in";
-      }else{
-	os<<"out";
-      }
-    }else{
-      if (_id.sector()== 4 && _id.station()==4){
-	if ( _id.subsector()==1){
-	  os<<"--";
-	}
-	else if ( _id.subsector()==2){
-	    os <<"-+";
-	}
-	else if ( _id.subsector()==3){
-	  os <<"+-";
-	}
-	else if ( _id.subsector()==4){
-	  os <<"++";
-	}
-      }
-      if(_id.station()==3){
-	if (_id.subsector()==1)
-	  os <<"-";
-	else
-	  os <<"+";
-      }
-      if(_id.station()==4 && _id.sector()!=9 && _id.sector()!=11 && _id.sector()!=4){
-	if (_id.subsector()==1)
-	  os <<"-";
-	else
-	  os <<"+";
-      }
-    }
-    if (_id.roll()==1)
-      os<<"_B";
-    else if (_id.roll() == 3)
-      os<<"_F";
-    else if (_id.roll() == 2)
-      os<<"_M";
-    buf += os.str();
-  }
-  return buf; 
-}
-
-int rollY(RPCDetId _id,std::map<int,std::string> rollNames){
+int rollY(std::string shortname,std::map<int,std::string> rollNames){
   int myy=0;
-  for(int i=1;i<=27;i++){
-    if(rollNames[i].compare(LocalShortName(_id))==0){
+  for(int i=1;i<22;i++){
+    if(rollNames[i].compare(shortname)==0){
       myy=i;
       return myy;
     }
   }
   if(myy==0){
-    std::cout<<"Check your map or your DetId for "<<LocalShortName(_id)<<std::endl;
+    std::cout<<"Check your map or your DetId for "<<shortname<<std::endl;
   }
   return myy;
 }
@@ -778,21 +728,20 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
 
 	  //Pigi Histos
 
-	  if(debug) std::cout<<"Pigi "<<camera<<" "<<LocalShortName((*r)->id())<<" "
+	  if(debug) std::cout<<"Pigi "<<camera<<" "<<rpcsrv.shortname()<<" "
 			     <<(*r)->id()<<std::endl;
 	  
 	  if(abs((*r)->id().ring())==2){
-	    std::cout<<rollY((*r)->id(),rollNamesExter)
-		     <<"--"<<LocalShortName((*r)->id())<<std::endl;
-	    if((*r)->id().ring()==2) Wheel2Summary->setBinContent((*r)->id().sector(),rollY((*r)->id(),rollNamesExter),averageeff);
-	    else Wheelm2Summary->setBinContent((*r)->id().sector(),rollY((*r)->id(),rollNamesExter),averageeff);
-					  
+	    std::cout<<rollY(rpcsrv.shortname(),rollNamesExter)
+		     <<"--"<<rpcsrv.shortname()<<std::endl;
+	    if((*r)->id().ring()==2) Wheel2Summary->setBinContent((*r)->id().sector(),rollY(rpcsrv.shortname(),rollNamesExter),averageeff);
+	    else Wheelm2Summary->setBinContent((*r)->id().sector(),rollY(rpcsrv.shortname(),rollNamesExter),averageeff);
 	  }else{
-	    std::cout<<rollY((*r)->id(),rollNamesInter)
-		     <<"--"<<LocalShortName((*r)->id())<<std::endl; 
-	    if((*r)->id().ring()==-1) Wheelm1Summary->setBinContent((*r)->id().sector(),rollY((*r)->id(),rollNamesExter),averageeff);
-	    else if((*r)->id().ring()==0) Wheel0Summary->setBinContent((*r)->id().sector(),rollY((*r)->id(),rollNamesExter),averageeff);
-	    else if((*r)->id().ring()==1) Wheel1Summary->setBinContent((*r)->id().sector(),rollY((*r)->id(),rollNamesExter),averageeff);
+	    std::cout<<rollY(rpcsrv.shortname(),rollNamesInter)
+		     <<"--"<<rpcsrv.shortname()<<std::endl; 
+	    if((*r)->id().ring()==-1) Wheelm1Summary->setBinContent((*r)->id().sector(),rollY(rpcsrv.shortname(),rollNamesExter),averageeff);
+	    else if((*r)->id().ring()==0) Wheel0Summary->setBinContent((*r)->id().sector(),rollY(rpcsrv.shortname(),rollNamesExter),averageeff);
+	    else if((*r)->id().ring()==1) Wheel1Summary->setBinContent((*r)->id().sector(),rollY(rpcsrv.shortname(),rollNamesExter),averageeff);
 	    
  	  }
  	  
