@@ -1,8 +1,8 @@
 //  \class MuScleFit
 //  Analyzer of the StandAlone muon tracks
 //
-//  $Date: 2008/11/13 14:34:53 $
-//  $Revision: 1.13 $
+//  $Date: 2008/11/18 13:21:33 $
+//  $Revision: 1.14 $
 //  \author R. Bellan, C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo, M.De Mattia - INFN Padova
 //
 //  Recent additions: 
@@ -660,9 +660,9 @@ edm::EDLooper::Status MuScleFit::duringLoop (const Event & event, const EventSet
       mapHisto["hResolEtaGenVSMu"]->Fill(recMu2,(-genMu.second.Eta()+recMu2.Eta()),+1);
       mapHisto["hResolPhiGenVSMu"]->Fill(recMu2,(-genMu.second.Phi()+recMu2.Phi()),+1);
       // Fill also the resolution histogramsm using the resolution functions
-      mapHisto["hFunctionResolPt"]->Fill( recMu2, MuScleFitUtils::resolutionFunctionForVec->sigmaPt(recMu2.Pt(), recMu2.Eta(), *parval ), -1 );
-      mapHisto["hFunctionResolCotgTheta"]->Fill( recMu2, MuScleFitUtils::resolutionFunctionForVec->sigmaCotgTh(recMu2.Pt(), recMu2.Eta(), *parval ), -1 );
-      mapHisto["hFunctionResolPhi"]->Fill( recMu2, MuScleFitUtils::resolutionFunctionForVec->sigmaPhi(recMu2.Pt(), recMu2.Eta(), *parval ), -1 );
+      mapHisto["hFunctionResolPt"]->Fill( recMu2, MuScleFitUtils::resolutionFunctionForVec->sigmaPt(recMu2.Pt(), recMu2.Eta(), *parval ), +1 );
+      mapHisto["hFunctionResolCotgTheta"]->Fill( recMu2, MuScleFitUtils::resolutionFunctionForVec->sigmaCotgTh(recMu2.Pt(), recMu2.Eta(), *parval ), +1 );
+      mapHisto["hFunctionResolPhi"]->Fill( recMu2, MuScleFitUtils::resolutionFunctionForVec->sigmaPhi(recMu2.Pt(), recMu2.Eta(), *parval ), +1 );
     }
     pair <reco::Particle::LorentzVector, reco::Particle::LorentzVector> simMu = 
       MuScleFitUtils::findSimMuFromRes(evtMC,simTracks);
@@ -789,7 +789,6 @@ void MuScleFit::fillHistoMap(TFile* outputFile, unsigned int iLoop) {
 
   // Resolutions from resolution functions
   // -------------------------------------
-  cout << "Creating new histograms" << endl;
   mapHisto["hFunctionResolPt"]        = new HFunctionResolution (outputFile, "hFunctionResolPt");
   mapHisto["hFunctionResolCotgTheta"] = new HFunctionResolution (outputFile, "hFunctionResolCotgTheta");
   mapHisto["hFunctionResolPhi"]       = new HFunctionResolution (outputFile, "hFunctionResolPhi");
