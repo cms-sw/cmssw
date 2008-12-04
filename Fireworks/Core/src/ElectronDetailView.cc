@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: ElectronDetailView.cc,v 1.19 2008/12/01 17:09:49 jmuelmen Exp $
+// $Id: ElectronDetailView.cc,v 1.20 2008/12/03 11:56:05 jmuelmen Exp $
 //
 
 // system include files
@@ -319,7 +319,7 @@ void ElectronDetailView::build_projected (TEveElementList **product,
 	  data->RefSliceInfo(1).Setup("other clusters", 0.1, kYellow);
 	  // now fill
 #if 1
-	  fillData(detids, data);
+	  fillData(detids, data, i->superCluster()->seed()->position().phi());
 #else
 	  data->AddTower(0.12, 0.14, 0.45, 0.47);
 	  data->FillSlice(0, 12);
@@ -346,10 +346,10 @@ void ElectronDetailView::build_projected (TEveElementList **product,
 
 	  // tempoary solution until we get pointer to gl viewer
  	  lego->SetProjection(TEveCaloLego::k3D);
-//    	  TEveLegoEventHandler *leh = 
-//   	       new TEveLegoEventHandler("Lego EH", viewer->GetGLWidget(), 
-//   					lego->GetObject(), "fooo");
-//    	  viewer->SetEventHandler(leh);
+//     	  TEveLegoEventHandler *leh = 
+//    	       new TEveLegoEventHandler("Lego EH", viewer->GetGLWidget(), 
+//    					lego->GetObject(), "fooo");
+//     	  viewer->SetEventHandler(leh);
 
 	  lego->SetName("ElectronDetail Lego");
 	  lego->SetMainTransparency(50);
@@ -393,11 +393,6 @@ void ElectronDetailView::build_projected (TEveElementList **product,
 	       }
 	  }
 #endif
-	  double y_max = lego->GetPhiMax();
-	  double y_min = lego->GetPhiMin();
-	  double x_max = lego->GetEtaMax();
-	  double x_min = lego->GetEtaMin();
-// 	  printf("%f %f, %f %f\n", x_min, x_max, y_min, y_max);
 	  for (int i = 0; i < 11; ++i) {
 	       for (int j =0; j < 17; ++j) {
 		    grid->SetNextPoint(0.1 * i * (x_max - x_min) + x_min,
@@ -421,6 +416,15 @@ void ElectronDetailView::build_projected (TEveElementList **product,
 //   				      -0.5 * (y_min + y_max) / (x_max - x_min),
 //   				      0);
 #endif
+
+ 	  printf("crystal range: xmin = %f xmax = %f, ymin = %f ymax = %f\n", 
+		 x_min, x_max, y_min, y_max);
+	  double y_max = lego->GetPhiMax();
+	  double y_min = lego->GetPhiMin();
+	  double x_max = lego->GetEtaMax();
+	  double x_min = lego->GetEtaMin();
+ 	  printf("lego range: xmin = %f xmax = %f, ymin = %f ymax = %f\n"
+		 , x_min, x_max, y_min, y_max);
 
 	  // scale all our lines and points to match the lego
 	  rescale(&scposition->RefMainTrans(), x_min, x_max, y_min, y_max);
@@ -448,7 +452,8 @@ void ElectronDetailView::rescale (TEveTrans *trans, double x_min, double x_max,
 }
 
 void ElectronDetailView::fillData (const std::vector<DetId> &detids,
-				   TEveCaloDataVec *data)
+				   TEveCaloDataVec *data, 
+				   double phi_seed)
 {
      x_min = 999;
      x_max = -999;
@@ -482,9 +487,11 @@ void ElectronDetailView::fillData (const std::vector<DetId> &detids,
 	  const TVector3 v(matrix->GetTranslation()[0], 
 			   matrix->GetTranslation()[1],
 			   matrix->GetTranslation()[2]);
+	  // slice 1 is the non-seed clusters (which will show up in yellow)
 	  int slice = 1;
 	  if (find(seed_detids.begin(), seed_detids.end(), *k) != 
 	      seed_detids.end()) {
+	       // slice 0 is the seed cluster (which will show up in red)
 	       slice = 0;
 	  } 
 	  if (k->subdetId() == EcalBarrel) {
@@ -496,8 +503,13 @@ void ElectronDetailView::fillData (const std::vector<DetId> &detids,
 		    y_min = v.Phi();
 	       if (v.Phi() > y_max)
 		    y_max = v.Phi();
+	       double phi = v.Phi();
+	       if (v.Phi() > phi_seed + M_PI)
+		    phi -= 2 * M_PI;
+	       if (v.Phi() < phi_seed - M_PI)
+		    phi += 2 * M_PI;
 	       data->AddTower(v.Eta() - 0.0174 / 2, v.Eta() + 0.0174 / 2, 
-			      v.Phi() - 0.0174 / 2, v.Phi() + 0.0174 / 2);
+			      phi - 0.0174 / 2, phi + 0.0174 / 2);
 	       data->FillSlice(slice, size);
 	  } else if (k->subdetId() == EcalEndcap) {
 	       if (v.X() < x_min)

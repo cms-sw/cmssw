@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:42:33 EST 2008
-// $Id: ElectronDetailView.h,v 1.6 2008/11/19 17:26:14 jmuelmen Exp $
+// $Id: ElectronDetailView.h,v 1.7 2008/12/03 11:56:05 jmuelmen Exp $
 //
 
 // system include files
@@ -66,7 +66,7 @@ protected:
 //      TEveElementList *getEcalCrystalsEndcap (const class DetIdToMatrix &,
 // 					     double x, double y, int iz,
 // 					     int n_x = 5, int n_y = 5);
-     void fillData (const std::vector<DetId> &, class TEveCaloDataVec *);
+     void fillData (const std::vector<DetId> &, class TEveCaloDataVec *, double);
 
 private:
      ElectronDetailView(const ElectronDetailView&); // stop default
