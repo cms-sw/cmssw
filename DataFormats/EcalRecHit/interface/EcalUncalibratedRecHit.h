@@ -10,7 +10,7 @@ class EcalUncalibratedRecHit {
   
   typedef DetId key_type;
 
-  static const int kSATURATED=-99999;
+  static const double kSATURATED;
   static const float kPRECISION;
 
   EcalUncalibratedRecHit();

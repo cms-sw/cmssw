@@ -2,6 +2,7 @@
 #include <math.h>
 
 const float EcalUncalibratedRecHit::kPRECISION = 1e-06;
+const double EcalUncalibratedRecHit::kSATURATED = -999999.;
 
 EcalUncalibratedRecHit::EcalUncalibratedRecHit() :
      amplitude_(0.), pedestal_(0.), jitter_(0.), chi2_(10000.) { }
