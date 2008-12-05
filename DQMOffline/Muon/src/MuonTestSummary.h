@@ -6,8 +6,8 @@
  * *
  *  DQM Client for global summary
  *
- *  $Date: 2008/11/26 14:26:10 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/11/27 11:37:38 $
+ *  $Revision: 1.4 $
  *  \author  G. Mila - INFN Torino
  *   
  */
@@ -47,14 +47,18 @@ protected:
   /// Analyze
   void analyze(const edm::Event& e, const edm::EventSetup& c){}
 
+  /// Histograms initialisation
+  void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& c);
+
   /// Diagnostic
   void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& c);
 
   /// test operations
-  void doKinematicsTests(std::string muonType, int bin, double weight);
+  void doKinematicsTests(std::string muonType, int bin);
   void doResidualsTests(std::string type, std::string parameter, int bin);
   void doMuonIDTests();
   void doEnergyTests(std::string nameHisto, std::string muonType, int bin);
+  void doMolteplicityTests();
   
 private:
 
@@ -75,12 +79,16 @@ private:
   double resPhiSpread_glbSta;
   double numMatchedExpected;
   double sigmaResSegmTrackExp;
+  double expMolteplicityGlb;
+  double expMolteplicityTk;
+  double expMolteplicitySta;
 
   // the report MEs
   MonitorElement* kinematicsSummaryMap;
   MonitorElement* residualsSummaryMap;
   MonitorElement* muonIdSummaryMap;
   MonitorElement* energySummaryMap;
+  MonitorElement* molteplicitySummaryMap;
   MonitorElement* summaryReport;
   MonitorElement*  summaryReportMap;
   std::vector<MonitorElement*>  theSummaryContents;
