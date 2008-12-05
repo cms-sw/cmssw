@@ -13,5 +13,7 @@ muonTestSummary = cms.EDFilter("MuonTestSummary",
                              resPhiSpread_tkGlb = cms.double(0.001),
                              resPhiSpread_glbSta = cms.double(0.05),
                              numMatchedExpected = cms.double(4.0),
-                             sigmaResSegmTrackExp = cms.double(1.0)
+                             expMolteplicityGlb = cms.double(0.7),
+                             expMolteplicityTk = cms.double(0.05),
+                             expMolteplicitySta = cms.double(0.25)
                              )
