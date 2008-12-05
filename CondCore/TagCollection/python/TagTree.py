@@ -222,7 +222,7 @@ class tagTree(object):
             inputData = coral.AttributeList()
             inputData.extend('oldnodelabel','string')
             inputData.extend('newnodelabel','string')
-            for nodelabelpair in nodenamemap:
+            for nodelabelpair in nodenamemap.items():
                 inputData['oldnodelabel'].setData(nodelabelpair[0])
                 inputData['newnodelabel'].setData(nodelabelpair[1])
                 editor.updateRows( "nodelabel = :newnodelabel", "nodelabel = :oldnodelabel", inputData )
@@ -504,9 +504,9 @@ class tagTree(object):
                 #ideditor.deleteRows('',conditionData)
                 transaction.commit()
             else :
-                me=Node.Node()
-                parentlft=me.lft
-                parentrgt=me.rgt
+                myparent=self.getNodeById(self.getNode(label).nodeid)
+                parentlft=myparent.lft
+                parentrgt=myparent.rgt
                 n=self.nChildren(label)
                 transaction.start(False)
                 tableHandle = self.__session.nominalSchema().tableHandle(self.__tagTreeTableName)
@@ -533,23 +533,21 @@ class tagTree(object):
         assert (label !='ROOT')
         transaction=self.__session.transaction()
         try:
-            me=Node.Node()
-            parentlft=me.lft
-            parentrgt=me.rgt
+            myparent=self.getNodeById(self.getNode(label).nodeid)
+            parentlft=myparent.lft
+            parentrgt=myparent.rgt
             transaction.start(False)
             tableHandle = self.__session.nominalSchema().tableHandle(self.__tagTreeTableName)
             editor = tableHandle.dataEditor()
             condition = 'nodelabel = :nodelabel'
             conditionData = coral.AttributeList()
             conditionData.extend('nodelabel','string')
-            conditionData['nodelabel'].setData(nodelabel)
+            conditionData['nodelabel'].setData(label)
             editor.deleteRows( condition, conditionData )
             self.__closeGap(tableHandle,parentlft,parentrgt,1)
             transaction.commit()
-        except coral.Exception, er:
-            transaction.rollback()
-            raise Exception, str(er)
         except Exception, er:
+            print str(er)
             transaction.rollback()
             raise Exception, str(er)   
     def __openGap(self,tableHandle,parentrgt,n):
