@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Nov 19 16:12:27 EST 2008
-// $Id: FWMuonBuilder.cc,v 1.1 2008/11/20 01:11:05 chrjones Exp $
+// $Id: FWMuonBuilder.cc,v 1.2 2008/11/20 15:30:24 chrjones Exp $
 //
 
 // system include files
@@ -44,7 +44,7 @@ namespace  {
    void addMatchInformation( const reco::Muon* muon,
                             const FWEventItem* iItem,
                             TEveTrack* track,
-                            TEveElementList* parentList,
+                            TEveElement* parentList,
                             bool showEndcap,
                             bool tracksOnly=false)
    {
@@ -251,13 +251,30 @@ FWMuonBuilder::~FWMuonBuilder()
 // member functions
 //
 void 
+FWMuonBuilder::calculateField(const reco::Muon& iData)
+{
+   // if auto field estimation mode, do extra loop over muons.
+   if ( CmsShowMain::isAutoField() ) {
+      if ( fabs( iData.eta() ) > 2.0 || iData.pt() < 3 ||
+          !iData.standAloneMuon().isAvailable()) {
+         return;
+      }
+      double estimate = fw::estimate_field(*(iData.standAloneMuon()));
+      if ( estimate >= 0 ) {
+         CmsShowMain::guessFieldIsOn( estimate > 0.5 );
+      }
+   }
+}
+
+
+void 
 FWMuonBuilder::buildMuon(const FWEventItem* iItem,
                          const reco::Muon* muon,
-                         TEveElementList* tList,
-                         const fw::NamedCounter& counter,
+                         TEveElement* tList,
                          bool showEndcap,
                          bool tracksOnly)
 {
+   calculateField(*muon);
    if(m_magneticField != CmsShowMain::getMagneticField()) {
       m_magneticField = CmsShowMain::getMagneticField();
       m_innerPropagator->SetMagField( -m_magneticField);
@@ -275,19 +292,6 @@ FWMuonBuilder::buildMuon(const FWEventItem* iItem,
    // results etc are used to draw the trajectory. No hits are show, but chambers
    // with hits are visible.
    
-   //in order to keep muonList having the same number of elements as 'muons' we will always
-   // create a list even if it will get no children
-   const unsigned int nBuffer = 1024;
-   char title[nBuffer];
-   snprintf(title, nBuffer,"Muon %d, Pt: %0.1f GeV",counter.index(),muon->pt());
-   TEveCompound* muonList = new TEveCompound(counter.str().c_str(), title);
-   muonList->OpenCompound();
-   //guarantees that CloseCompound will be called no matter what happens
-   boost::shared_ptr<TEveCompound> sentry(muonList,boost::mem_fn(&TEveCompound::CloseCompound));
-   gEve->AddElement( muonList, tList );
-   muonList->SetRnrSelf(     iItem->defaultDisplayProperties().isVisible() );
-   muonList->SetRnrChildren( iItem->defaultDisplayProperties().isVisible() );
-   
    bool useStandAloneFit = ! muon->isMatchesValid() &&
    muon->standAloneMuon().isAvailable() &&
    muon->standAloneMuon()->extra().isAvailable();
@@ -304,7 +308,7 @@ FWMuonBuilder::buildMuon(const FWEventItem* iItem,
       TEveVector location = muonLocation(&*muon, iItem);
       TEveTrack* trk = fireworks::prepareTrack(*(muon->track()),
                                                0,
-                                               muonList,
+                                               tList,
                                                iItem->defaultDisplayProperties().color() );
       // if track points away from us we use its initial point as
       // the origin of the outer track with flipped momentum
@@ -312,7 +316,7 @@ FWMuonBuilder::buildMuon(const FWEventItem* iItem,
       if ( location.fX*trk->GetMomentum().fX + location.fY*trk->GetMomentum().fY < 0 ) {
 	 trk->SetPropagator( m_trackerPropagator.get() );
 	 trk->MakeTrack();
-	 muonList->AddElement( trk );
+	 tList->AddElement( trk );
          
 	 if ( muon->track()->extra().isAvailable() ) {
 	    outerRecTrack.fP = TEveVector( -muon->track()->innerMomentum().x(),
@@ -364,7 +368,7 @@ FWMuonBuilder::buildMuon(const FWEventItem* iItem,
 	 }
 	 trk->SetPropagator( m_innerPropagator.get() );
 	 trk->MakeTrack();
-	 muonList->AddElement( trk );
+	 tList->AddElement( trk );
 	 // get last two points of the innerTrack trajectory
 	 trk->GetPoint( trk->GetLastPoint(),   lastPointVX2, lastPointVY2, lastPointVZ2);
 	 trk->GetPoint( trk->GetLastPoint()-1, lastPointVX1, lastPointVY1, lastPointVZ1);
@@ -388,12 +392,12 @@ FWMuonBuilder::buildMuon(const FWEventItem* iItem,
       //  << " sign " << outerRecTrack.fSign << std::endl;
       //
       // add muon segments
-      addMatchInformation( &(*muon), iItem, outerTrack, muonList, showEndcap );
+      addMatchInformation( &(*muon), iItem, outerTrack, tList, showEndcap );
       // change last pathmark type
       if ( !outerTrack->RefPathMarks().empty())
          outerTrack->RefPathMarks().back().fType = TEvePathMark::kDecay;
       outerTrack->MakeTrack();
-      muonList->AddElement( outerTrack );
+      tList->AddElement( outerTrack );
    }
    
    if ( useStandAloneFit )
@@ -449,7 +453,7 @@ FWMuonBuilder::buildMuon(const FWEventItem* iItem,
       outerTrack->AddPathMark( mark2 );
       
       outerTrack->MakeTrack();
-      muonList->AddElement( outerTrack );
+      tList->AddElement( outerTrack );
    }
 }
 

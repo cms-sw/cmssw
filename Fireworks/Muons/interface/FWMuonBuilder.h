@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Nov 19 16:05:28 EST 2008
-// $Id$
+// $Id: FWMuonBuilder.h,v 1.1 2008/11/20 01:10:55 chrjones Exp $
 //
 
 // system include files
@@ -53,8 +53,7 @@ class FWMuonBuilder
       // ---------- member functions ---------------------------
    void buildMuon(const FWEventItem* iItem,
                   const reco::Muon* muon,
-                  TEveElementList* tList,
-                  const fw::NamedCounter& counter,
+                  TEveElement* tList,
                   bool showEndcap,
                   bool onlyTracks = false);
    
@@ -63,6 +62,8 @@ class FWMuonBuilder
       FWMuonBuilder(const FWMuonBuilder&); // stop default
 
       const FWMuonBuilder& operator=(const FWMuonBuilder&); // stop default
+
+   void calculateField(const reco::Muon& iData);
 
       // ---------- member data --------------------------------
    FWEvePtr<TEveTrackPropagator> m_trackerPropagator;
