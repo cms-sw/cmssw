@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: ElectronDetailView.cc,v 1.21 2008/12/04 06:39:09 jmuelmen Exp $
+// $Id: ElectronDetailView.cc,v 1.22 2008/12/04 21:07:24 chrjones Exp $
 //
 
 // system include files
@@ -93,7 +93,7 @@ void ElectronDetailView::build (TEveElementList **product, const FWModelId &id)
 
 void ElectronDetailView::build_projected (TEveElementList **product, 
 					  const FWModelId &id) 
-{
+{    
      m_item = id.item();
      // printf("calling ElectronDetailView::buildRhoZ\n");
      TEveElementList* tList = *product;
@@ -106,6 +106,14 @@ void ElectronDetailView::build_projected (TEveElementList **product,
 	  return;
 // 	  tList->DestroyElements();
      }
+
+
+
+     viewer->SetCurrentCamera(TGLViewer::kCameraPerspXOY);
+     viewer->SetEventHandler(new TEveLegoEventHandler("Lego", viewer->GetGLWidget(), viewer));
+     viewer->SetGuideState(TGLUtil::kAxesOrigin, kTRUE, kTRUE, 0);
+
+
      // get electrons
 //      resetCenter();
      using reco::GsfElectronCollection;
@@ -346,14 +354,10 @@ void ElectronDetailView::build_projected (TEveElementList **product,
 
 	  // tempoary solution until we get pointer to gl viewer
  	  lego->SetProjection(TEveCaloLego::k3D);
-//     	  TEveLegoEventHandler *leh = 
-//    	       new TEveLegoEventHandler("Lego EH", viewer->GetGLWidget(), 
-//    					lego->GetObject(), "fooo");
-//     	  viewer->SetEventHandler(leh);
 
 	  lego->SetName("ElectronDetail Lego");
 	  lego->SetMainTransparency(50);
-	  tList->AddElement(lego);
+	  gEve->AddElement(lego, tList);
 
 	  // scale and translate  
 	  lego->InitMainTrans();
