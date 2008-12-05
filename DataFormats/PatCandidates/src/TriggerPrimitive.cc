@@ -1,5 +1,5 @@
 //
-// $Id: TriggerPrimitive.cc,v 1.3 2008/06/08 12:23:59 vadler Exp $
+// $Id: TriggerPrimitive.cc,v 1.4 2008/09/29 16:53:05 vadler Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/TriggerPrimitive.h"
@@ -62,5 +62,5 @@ void TriggerPrimitive::setTriggerObjectType( const int aType ) {
 
 /// set trigger object id
 void TriggerPrimitive::setTriggerObjectId( const int id ) {
-  reco::Particle::setPdgId( id );
+  setPdgId( id );
 }

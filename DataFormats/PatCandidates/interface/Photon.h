@@ -1,5 +1,5 @@
 //
-// $Id: Photon.h,v 1.18 2008/11/17 22:41:50 askew Exp $
+// $Id: Photon.h,v 1.19 2008/11/28 19:02:15 lowette Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Photon_h
@@ -16,7 +16,7 @@
    https://hypernews.cern.ch/HyperNews/CMS/get/physTools.html
 
   \author   Steven Lowette, Giovanni Petrucciani, Frederic Ronga
-  \version  $Id: Photon.h,v 1.18 2008/11/17 22:41:50 askew Exp $
+  \version  $Id: Photon.h,v 1.19 2008/11/28 19:02:15 lowette Exp $
 */
 
 #include "DataFormats/PatCandidates/interface/PATObject.h"
@@ -67,7 +67,7 @@ namespace pat {
 
       // ---- methods for access the generated photon ----
       /// return the match to the generated photon
-      const reco::Particle * genPhoton() const { return genParticle(); }
+      const reco::Candidate * genPhoton() const { return genParticle(); }
       /// method to set the generated photon
       void setGenPhoton(const reco::GenParticleRef & gp, bool embed=false) { setGenParticleRef(gp, embed); }
 

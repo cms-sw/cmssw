@@ -10,7 +10,7 @@ namespace pat {
   class MHT : public reco::CompositeRefBaseCandidate {
   public:
     MHT () {}
-    MHT (const Particle::LorentzVector& p4, double ht, double signif) :
+    MHT (const Candidate::LorentzVector& p4, double ht, double signif) :
       CompositeRefBaseCandidate(0,p4), ht_(ht), significance_(signif) {}
     virtual ~MHT () {}
                                                                                                                    
