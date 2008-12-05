@@ -7,7 +7,7 @@
  *
  * \author U.Berthon, ClaudeCharlot, LLR
  *
- * \version $Id: GsfElectron.h,v 1.12 2008/12/01 13:03:00 chamont Exp $
+ * \version $Id: GsfElectron.h,v 1.13 2008/12/03 18:00:32 charlot Exp $
  *
  */
 
@@ -26,6 +26,9 @@
 // Ursula Berthon - LLR Ecole polytechnique
 //
 // $Log: GsfElectron.h,v $
+// Revision 1.13  2008/12/03 18:00:32  charlot
+// add identification of electron cluster and associated matching variables
+//
 // Revision 1.12  2008/12/01 13:03:00  chamont
 // store ambiguous gsf track into electrons
 //
@@ -182,6 +185,10 @@ class GsfElectron : public RecoCandidate {
   //! handle electron supercluster energy scale correction.  Propagates new
   //! energy value to all electron attributes and sets energyScaleCorrected_ to true
   void correctElectronEnergyScale(const float newEnergy);
+
+  //! the brem fraction: (track momentum in - track momentum out) / track momentum in 
+  float fbrem() const {return fbrem_;}
+
   //! determine the class of the electron
   void classifyElectron(const int myclass);
 
@@ -290,6 +297,9 @@ private:
   float deltaEtaEleClusterAtCalo_;
   float deltaPhiEleClusterAtCalo_;
 
+  // brem fraction
+  float fbrem_;
+  
   /// check overlap with another candidate
   virtual bool overlap( const Candidate & ) const;
 

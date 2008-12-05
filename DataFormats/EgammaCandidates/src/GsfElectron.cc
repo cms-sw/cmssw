@@ -64,8 +64,14 @@ GsfElectron::GsfElectron
   //
   superClusterEnergy_=superCluster_->energy();
   eSuperClusterOverP_=-1;
-  if (innMom.mag()!=0) eSuperClusterOverP_= superCluster_->energy()/innMom.mag();
+  if (vtxMom.mag() > 0) eSuperClusterOverP_= superCluster_->energy()/vtxMom.mag();
   
+  deltaEtaSuperClusterAtVtx_ = superCluster_->eta() - tssuperPos.eta();
+  float dphi                       = superCluster_->phi() - tssuperPos.phi();
+  if (fabs(dphi)>pi)
+    dphi = dphi < 0? pi2 + dphi : dphi - pi2;
+  deltaPhiSuperClusterAtVtx_ = dphi;
+
   // 
   // seed cluster - track at calo match quantities
   //
@@ -75,7 +81,7 @@ GsfElectron::GsfElectron
     eSeedClusterOverPout_ = seedClus->energy()/tsseedMom.mag();
 
   deltaEtaSeedClusterAtCalo_ = seedClus->eta() - tsseedPos.eta();
-  float dphi                       = seedClus->phi() - tsseedPos.phi();
+  dphi                       = seedClus->phi() - tsseedPos.phi();
   if (fabs(dphi)>pi)
     dphi = dphi < 0? pi2 + dphi : dphi - pi2;
   deltaPhiSeedClusterAtCalo_ = dphi;
@@ -96,6 +102,9 @@ GsfElectron::GsfElectron
   //
   // other quantities
   //
+  fbrem_ = 1.e30;
+  if (outMom.mag() > 0.) fbrem_ = (innMom.mag() - outMom.mag()) / outMom.mag();
+
   energyScaleCorrected_=false;
   momentumFromEpCombination_=false;
   trackMomentumError_=0;

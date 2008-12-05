@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: GsfElectronFakeAnalyzer.cc,v 1.6 2008/10/29 07:58:28 charlot Exp $
+// $Id: GsfElectronFakeAnalyzer.cc,v 1.7 2008/10/31 22:55:24 charlot Exp $
 //
 //
 
@@ -309,8 +309,9 @@ void GsfElectronFakeAnalyzer::beginJob(edm::EventSetup const&iSetup){
   histSclEoEmatchingObjectShowering1234_endcaps = new TH1F("h_scl_EoEmatchingObject showering1234, endcaps","ele SC over matchingObject energy, showering1234, endcaps",100,0.2,1.2);
 
   // fbrem
-  h_ele_fbremVsEta_mode = new TProfile( "h_ele_fbremvsEtamode","ele, mean pout/pin vs eta, mode",nbineta2D,etamin,etamax,0.,1.);
-  h_ele_fbremVsEta_mean = new TProfile( "h_ele_fbremvsEtamean","ele, mean pout/pin vs eta, mean",nbineta2D,etamin,etamax,0.,1.);
+  h_ele_fbrem = new TH1F( "h_ele_fbrem","fbrem, mode",50,0.,1.);
+  h_ele_fbremVsEta_mode = new TProfile( "h_ele_fbremvsEtamode","mean fbrem vs eta, mode",nbineta2D,etamin,etamax,0.,1.);
+  h_ele_fbremVsEta_mean = new TProfile( "h_ele_fbremvsEtamean","mean fbrem vs eta, mean",nbineta2D,etamin,etamax,0.,1.);
   
   // histos titles
   h_matchingObjectNum              -> GetXaxis()-> SetTitle("# reco jets");
@@ -638,6 +639,7 @@ GsfElectronFakeAnalyzer::endJob(){
   histSclEoEmatchingObjectShowering1234_endcaps->Write();
 
   // fbrem
+  h_ele_fbrem->Write();
   h_ele_fbremVsEta_mode->Write();
   h_ele_fbremVsEta_mean->Write();
   h_ele_etaEff->Write();
@@ -896,8 +898,9 @@ GsfElectronFakeAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
         if (eleClass == 30 || eleClass == 31 || eleClass == 32  || eleClass == 33 || eleClass == 34 ) h_ele_eta_shower ->Fill(fabs(bestGsfElectron.eta()));
 
 	//fbrem 
-	double fbrem_mean =  bestGsfElectron.gsfTrack()->outerMomentum().R()/bestGsfElectron.gsfTrack()->innerMomentum().R();
-	double fbrem_mode =  bestGsfElectron.trackMomentumOut().R()/bestGsfElectron.trackMomentumAtVtx().R();
+	double fbrem_mean =  1. - bestGsfElectron.gsfTrack()->outerMomentum().R()/bestGsfElectron.gsfTrack()->innerMomentum().R();
+	double fbrem_mode =  bestGsfElectron.fbrem();
+	h_ele_fbrem->Fill(fbrem_mode);
 	h_ele_fbremVsEta_mode->Fill(bestGsfElectron.eta(),fbrem_mode);
 	h_ele_fbremVsEta_mean->Fill(bestGsfElectron.eta(),fbrem_mean);
  

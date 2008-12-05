@@ -90,6 +90,7 @@ cat > scaledhistos <<EOF
   h_ele_foundHits 
   h_ele_lostHits 
   h_ele_PinMnPout_mode 
+  h_ele_fbrem
   h_ele_seedDphi2
   h_ele_seedDrz2
   h_ele_seedSubdet2
@@ -151,6 +152,7 @@ cat > scaledhistos <<EOF
   h_ele_chi2 
   h_ele_foundHits 
   h_ele_lostHits 
+  h_ele_fbrem
   h_ele_classes 
   h_ele_charge
   h_ele_mee_all

@@ -12,7 +12,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Thu july 6 13:22:06 CEST 2006
-// $Id: GsfElectronAlgo.cc,v 1.30 2008/12/01 13:03:16 chamont Exp $
+// $Id: GsfElectronAlgo.cc,v 1.31 2008/12/03 18:00:33 charlot Exp $
 //
 //
 
@@ -22,7 +22,6 @@
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronClassification.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronMomentumCorrector.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronEnergyCorrector.h"
-#include "RecoEgamma/EgammaTools/interface/ECALPositionCalculator.h"
 #include "RecoEgamma/EgammaTools/interface/HoECalculator.h"
 
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
@@ -387,17 +386,6 @@ void GsfElectronAlgo::createElectron
       double HoE=calc(&(*scRef),mhbhe_);
       GsfElectron * ele = new GsfElectron(momentum,scRef,trackRef,sclPos_,sclMom,seedPos,seedMom,innPos,innMom,vtxPos,vtxMom_,outPos,outMom,HoE,
        scSigmaEtaEta,scSigmaIEtaIEta,scE1x5,scE2x5,scE5x5,ctfTrackRef,shFracInnerHits,elbcRef,elePos,eleMom) ;
-
-      // and set various properties
-      ECALPositionCalculator ecpc;
-      float trackEta=ecpc.ecalEta(trackRef->innerMomentum(),trackRef->innerPosition());
-      float trackPhi=ecpc.ecalPhi(theMagField.product(),trackRef->innerMomentum(),trackRef->innerPosition(),trackRef->charge());
-
-      ele->setDeltaEtaSuperClusterAtVtx((*scRef).position().eta() - trackEta);
-      float dphi = (*scRef).position().phi() - trackPhi;
-      if (fabs(dphi)>CLHEP::pi)
-	dphi = dphi < 0? CLHEP::twopi + dphi : dphi - CLHEP::twopi;
-      ele->setDeltaPhiSuperClusterAtVtx(dphi);
 
       // set corrections + classification
       ElectronClassification theClassifier;

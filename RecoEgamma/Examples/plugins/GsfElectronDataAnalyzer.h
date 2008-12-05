@@ -9,7 +9,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: GsfElectronDataAnalyzer.h,v 1.2 2008/09/13 08:30:26 charlot Exp $
+// $Id: GsfElectronDataAnalyzer.h,v 1.3 2008/10/28 21:51:31 charlot Exp $
 //
 //
   
@@ -212,6 +212,7 @@ class GsfElectronDataAnalyzer : public edm::EDAnalyzer
   TH2F *h_ele_HoEVsPhi;
   TH2F *h_ele_HoEVsE;
   
+  TH1F *h_ele_fbrem;
   TProfile *h_ele_fbremVsEta_mode;
   TProfile *h_ele_fbremVsEta_mean;
   
