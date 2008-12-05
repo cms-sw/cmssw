@@ -17,7 +17,7 @@ namespace pat {
   class Hemisphere : public reco::CompositePtrCandidate {
   public:
     Hemisphere () {}
-    Hemisphere (const Particle::LorentzVector& p4) :
+    Hemisphere (const Candidate::LorentzVector& p4) :
     CompositePtrCandidate(0,p4) {}
     virtual ~Hemisphere () {}
   };

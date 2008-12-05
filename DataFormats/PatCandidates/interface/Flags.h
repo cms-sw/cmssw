@@ -1,7 +1,7 @@
 #ifndef DataFormats_PatCandidates_interface_Flags_h
 #define DataFormats_PatCandidates_interface_Flags_h
 //
-// $Id: Flags.h,v 1.2 2008/07/22 12:44:19 gpetrucc Exp $
+// $Id: Flags.h,v 1.3 2008/10/19 17:02:01 gpetrucc Exp $
 //
 
 /**
@@ -9,10 +9,10 @@
   \brief    Flags used in PAT, and static translator from flags to strings 
 
   \author   Steven Lowette
-  \version  $Id: Flags.h,v 1.2 2008/07/22 12:44:19 gpetrucc Exp $
+  \version  $Id: Flags.h,v 1.3 2008/10/19 17:02:01 gpetrucc Exp $
 */
 
-#include "DataFormats/Candidate/interface/Particle.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
 #include <string>
 #include <vector>
 #include <boost/cstdint.hpp> 
@@ -28,7 +28,7 @@ namespace pat {
 
         };
         inline static bool test(uint32_t val, uint32_t mask) { return (val & mask) == 0; }
-        inline static bool test(const reco::Particle &p, uint32_t mask) { return test(p.status(), mask); }
+        inline static bool test(const reco::Candidate &c, uint32_t mask) { return test(c.status(), mask); }
 
         static const std::string & bitToString( uint32_t bit );
         static std::string maskToString( uint32_t bit );
