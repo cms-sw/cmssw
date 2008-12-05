@@ -4,8 +4,8 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2008/11/25 10:36:34 $
- * $Revision: 1.95 $
+ * $Date: 2008/11/10 13:41:56 $
+ * $Revision: 1.92 $
  * \author W Fisher
  *
 */
@@ -55,21 +55,24 @@ HcalMonitorModule::HcalMonitorModule(const edm::ParameterSet& ps){
   
   dbe_ = Service<DQMStore>().operator->();
   
-  debug_=ps.getUntrackedParameter<int>("debug", 0);
+  debug_ = ps.getUntrackedParameter<int>("debug", 0);
   
   showTiming_ = ps.getUntrackedParameter<bool>("showTiming", false);
   dump2database_   = ps.getUntrackedParameter<bool>("dump2database",false); // dumps output to database file
 
-  
-  if ( ps.getUntrackedParameter<bool>("DataFormatMonitor", false) ) {
+  // Valgrind complained when the test was simply:  if ( ps.getUntrackedParameter<bool>("DataFormatMonitor", false))
+  // try assigning value to bool first?
+  bool taskOn = ps.getUntrackedParameter<bool>("DataFormatMonitor", false);
+  if (taskOn) {
     if(debug_>0) cout << "HcalMonitorModule: DataFormat monitor flag is on...." << endl;
     dfMon_ = new HcalDataFormatMonitor();
     dfMon_->setup(ps, dbe_);
   }
 
-  if (ps.getUntrackedParameter<bool>("DataIntegrityTask",false))
+  taskOn = ps.getUntrackedParameter<bool>("DataIntegrityTask", false); 
+  if (taskOn ) 
     {
-      if (debug_>0) cout <<"<calMonitorModule: DataIntegrity monitor flag is on...."<<endl;
+      if (debug_>0) cout <<"HcalMonitorModule: DataIntegrity monitor flag is on...."<<endl;
       diTask_ = new HcalDataIntegrityTask();
       diTask_->setup(ps, dbe_);
     }
@@ -411,25 +414,16 @@ void HcalMonitorModule::endJob(void) {
 	  if (mydetids[i].det()!=4) continue; // not hcal
 	  //HcalDetId id(mydetids[i]);
 	  HcalDetId id=mydetids[i];
-
 	  // get original channel status item
 	  const HcalChannelStatus* origstatus=chanquality_->getValues(mydetids[i]);
 	  // make copy of status
 	  HcalChannelStatus* mystatus=new HcalChannelStatus(origstatus->rawId(),origstatus->getValue());
 	  if (myquality_.find(id)!=myquality_.end())
 	    {
-	      // Set bit 1 for cells which aren't present
-	      if ((id.subdet()==HcalBarrel &&!HBpresent_) ||
-		  (id.subdet()==HcalEndcap &&!HEpresent_) ||
-		  (id.subdet()==HcalOuter  &&!HOpresent_) ||
-		  (id.subdet()==HcalForward&&!HFpresent_))
-		{
-		  mystatus->setBit(1);
-		}
-	      // Only perform these checks if bit 0 not set?
+
 	      // check dead cells
 	      if ((myquality_[id]>>5)&0x1)
-		mystatus->setBit(5);
+		  mystatus->setBit(5);
 	      else
 		mystatus->unsetBit(5);
 	      // check hot cells
@@ -437,7 +431,7 @@ void HcalMonitorModule::endJob(void) {
 		mystatus->setBit(6);
 	      else
 		mystatus->unsetBit(6);
-	    } // if (myquality.find_...)
+	    }
 	  newChanQual->addValues(*mystatus);
 	} // for (unsigned int i=0;...)
       // Now dump out to text file
@@ -763,8 +757,8 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
     // But is ZDC is okay, we'll make rec hit plots for that as well.
     if (zdchitOK_)
       {
-	if (debug_>1) cout <<"PROCESSING ZDC!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"<<endl;
-	//rhMon_->processZDC(*zdc_hits);
+	if (debug_) cout <<"PROCESSING ZDC!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"<<endl;
+	rhMon_->processZDC(*zdc_hits);
       }
     }
   if (showTiming_)
