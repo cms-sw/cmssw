@@ -1022,15 +1022,12 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
     // From this Spigot's DCC header, first.
     WholeErrorList=dccHeader->getLRBErrorBits((unsigned int) spigot);
     if ((WholeErrorList>>0)&0x01)  //HammingCode Corrected 
-      meHalfHTR_DataIntegrityCheck_->Fill(halfhtrDIM_x+1,
-					  halfhtrDIM_y+2);
+      ++HalfHTR_DataIntegrityCheck_[halfhtrDIM_x+1][halfhtrDIM_y+2];
     if ((WholeErrorList>>1)&0x01)  //HammingCode Uncorr
-      meHalfHTR_DataIntegrityCheck_->Fill(halfhtrDIM_x+1,
-					  halfhtrDIM_y+1);
+      ++HalfHTR_DataIntegrityCheck_[halfhtrDIM_x+1][halfhtrDIM_y+1];
     CRC_err = ((dccHeader->getSpigotSummary(spigot) >> 10) & 0x00000001);
     if (CRC_err)
-      meHalfHTR_DataIntegrityCheck_->Fill(halfhtrDIM_x+1,
-					  halfhtrDIM_y+0);
+      ++HalfHTR_DataIntegrityCheck_[halfhtrDIM_x+1][halfhtrDIM_y+0];
 
     // Load the given decoder with the pointer and length from this spigot.
     dccHeader->getSpigotData(spigot,htr, raw.size()); 
@@ -1052,19 +1049,19 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
     if ( !  ((HTRwdcount != 8)               ||
 	     (HTRwdcount != 12 + NTP + NDAQ) ||
 	     (HTRwdcount != 20 + NTP + NDAQ)    )) {
-      ///meChannSumm_DataIntegrityCheck_->Fill(chsummDIM_x+1, chsummDIM_y);
+      ++ChannSumm_DataIntegrityCheck_[chsummDIM_x+1][chsummDIM_y];
       chsummAOK=false;
       //incompatible Sizes declared. Skip it.
       continue; }
     bool EE = ((dccHeader->getSpigotErrorBits(spigot) >> 2) & 0x01);
     if (EE) { 
       if (HTRwdcount != 8) {	//incompatible Sizes declared. Skip it.
-	///meChannSumm_DataIntegrityCheck_->Fill(chsummDIM_x, chsummDIM_y);
+	++ChannSumm_DataIntegrityCheck_[chsummDIM_x][chsummDIM_y];
 	chsummAOK=false;}
       continue;}
     else{ //For non-EE,
       if ((HTRwdcount-NDAQ-NTP) != 20) {	//incompatible Sizes declared. Skip it.
-	///meChannSumm_DataIntegrityCheck_->Fill(chsummDIM_x, chsummDIM_y);
+	++ChannSumm_DataIntegrityCheck_[chsummDIM_x][chsummDIM_y];
 	chsummAOK=false; 
 	continue;} }
 
@@ -1072,14 +1069,11 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
 
     //We trust the data now.  Finish with the check against DCCHeader
     if (htr.getOrbitNumber() != (unsigned int) dccOrN)
-      meHalfHTR_DataIntegrityCheck_->Fill(halfhtrDIM_x+0,
-					  halfhtrDIM_y+0);
+      ++HalfHTR_DataIntegrityCheck_[halfhtrDIM_x+0][halfhtrDIM_y+0];
     if (htr.getBunchNumber() != (unsigned int) dccBCN)
-      meHalfHTR_DataIntegrityCheck_->Fill(halfhtrDIM_x+0,
-					  halfhtrDIM_y+1);
+      ++HalfHTR_DataIntegrityCheck_[halfhtrDIM_x+0][halfhtrDIM_y+1];
     if (htr.getL1ANumber() != dccEvtNum)
-      meHalfHTR_DataIntegrityCheck_->Fill(halfhtrDIM_x+0,
-					  halfhtrDIM_y+2);
+      ++HalfHTR_DataIntegrityCheck_[halfhtrDIM_x+0][halfhtrDIM_y+2];
 
     bool htrUnSuppressed=(HTRraw[6]>>15 & 0x0001);
     if (htrUnSuppressed) {
@@ -1130,8 +1124,8 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
 	//Check the last digi for number of timeslices
 	if ((samplecounter != htr.getNDD()) &&
 	    (samplecounter != 1)             ) {
-	  meChannSumm_DataIntegrityCheck_->Fill(chsummDIM_x,chsummDIM_y+1);
-	  meChann_DataIntegrityCheck_[dccid-700]->Fill(channDIM_x, channDIM_y);
+	  ++ChannSumm_DataIntegrityCheck_[chsummDIM_x][chsummDIM_y+1];
+	  ++Chann_DataIntegrityCheck_[dccid-700][channDIM_x][channDIM_y];
 	  channAOK=false;}
 	samplecounter=1;}
       else { //precision samples not the first timeslice
@@ -1140,9 +1134,8 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
 	if (qie_work->capid() != hope){
 	  ++ChannSumm_DataIntegrityCheck_[chsummDIM_x+1][chsummDIM_y+1];
 	  ++Chann_DataIntegrityCheck_[dccid-700][channDIM_x+1][channDIM_y];
-	  ///meChannSumm_DataIntegrityCheck_->Fill(chsummDIM_x+1, chsummDIM_y+1);
-	  ///meChann_DataIntegrityCheck_[dccid-700]->Fill(channDIM_x+1,
-	  ///	       channDIM_y  );
+	  ++ChannSumm_DataIntegrityCheck_[chsummDIM_x+1][chsummDIM_y+1];
+	  ++Chann_DataIntegrityCheck_[dccid-700][channDIM_x+1][channDIM_y];
 	  channAOK=false;}
 	samplecounter++;}
         
@@ -1151,24 +1144,22 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
       // FEE - Front End Error
       if (!(qie_work->dv()) || qie_work->er()) {
 	++DCC_DataIntegrityCheck_[bin][4]; 
-	///meChannSumm_DataIntegrityCheck_->Fill(chsummDIM_x+1, chsummDIM_y+2);
-	///meChann_DataIntegrityCheck_[dccid-700]->Fill(channDIM_x+1,
-	///				     channDIM_y+1);
+	++ChannSumm_DataIntegrityCheck_[chsummDIM_x+1][chsummDIM_y+2];
+	++Chann_DataIntegrityCheck_[dccid-700][channDIM_x+1][channDIM_y+1];
 	channAOK=false;}
     }
 
     //Summarize
     if (!channAOK) chsummAOK=false;
     else 
-      ///meChann_DataIntegrityCheck_[dccid-700]->Fill(channDIM_x,
-      ///				   channDIM_y+1);
+      ++Chann_DataIntegrityCheck_[dccid-700][channDIM_x][channDIM_y+1];
 
     // Prepare for the next round...
     lastcapid=qie_work->capid();
     lastfibchan=qie_work->fiberAndChan();
 
     if (chsummAOK) //better if every event? Here, every half-HTR's event....
-      ///meChannSumm_DataIntegrityCheck_->Fill(chsummDIM_x,chsummDIM_y+2);
+      ++ChannSumm_DataIntegrityCheck_[chsummDIM_x][chsummDIM_y+2];
 
     if ( !(htr.getErrorsWord() >> 8) & 0x00000001) 
       fillzoos(14,dccid);
@@ -1536,4 +1527,20 @@ void HcalDataFormatMonitor::UpdateMEs (void ) {
     for (int y=0; y<RCDIY; y++)
       if (DCC_DataIntegrityCheck_[x][y]) //If it's not zero
 	meDCC_DataIntegrityCheck_->Fill(x, y, DCC_DataIntegrityCheck_[x][y]);
+
+  for (int x=0; x<HHDIX; x++)
+    for (int y=0; y<HHDIY; y++)
+      if (HalfHTR_DataIntegrityCheck_  [x][y])
+	meHalfHTR_DataIntegrityCheck_->Fill(x,y,HalfHTR_DataIntegrityCheck_[x][y]);
+  	 
+  for (int x=0; x<CSDIX; x++)
+    for (int y=0; y<HHDIY; y++)
+      if (ChannSumm_DataIntegrityCheck_[x][y])
+	meChannSumm_DataIntegrityCheck_->Fill(x,y,ChannSumm_DataIntegrityCheck_[x][y]);
+
+  for (int f=0; f<NUMDCCS; f++)
+    for (int x=0; x<CIX; x++)
+      for (int y=0; y<CIY; y++)      
+	if (Chann_DataIntegrityCheck_[f][x][y])
+	  meChann_DataIntegrityCheck_[f]->Fill(x,y,Chann_DataIntegrityCheck_ [f][x][y]);
 }
