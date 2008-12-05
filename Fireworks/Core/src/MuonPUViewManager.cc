@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 22:01:27 EST 2008
-// $Id: MuonPUViewManager.cc,v 1.2 2008/06/09 19:59:52 chrjones Exp $
+// $Id: MuonPUViewManager.cc,v 1.3 2008/11/06 22:05:26 amraktad Exp $
 //
 
 // system include files
@@ -97,9 +97,6 @@ MuonPUViewManager::newEventAvailable()
 
   for (std::vector<MuonPUModelProxy>::iterator proxy =
 	 m_modelProxies.begin(); proxy != m_modelProxies.end(); ++proxy ) {
-    // Account for differences in proxy builders:
-    // ElectronsProxyPUBuilder::build(TEveElementList *product)
-    // MuonsProxy3DBuilder::build(const FWEventItem* iItem, TEveElementList *product)
     proxy->builder->build( &(proxy->product) );
     proxy->builder->getCenter( rotation_center );
   }
