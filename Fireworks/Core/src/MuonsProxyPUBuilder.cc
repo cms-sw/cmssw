@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: MuonsProxyPUBuilder.cc,v 1.6 2008/11/04 11:46:34 amraktad Exp $
+// $Id: MuonsProxyPUBuilder.cc,v 1.7 2008/11/06 22:05:26 amraktad Exp $
 //
 
 // system include files
@@ -29,7 +29,6 @@
 #include "TGLViewer.h"
 
 // user include files
-#include "Fireworks/Muons/interface/MuonsProxy3DBuilder.h"
 #include "Fireworks/Core/interface/MuonsProxyPUBuilder.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/DetIdToMatrix.h"
