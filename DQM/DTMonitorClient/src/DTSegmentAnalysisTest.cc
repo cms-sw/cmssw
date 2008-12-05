@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/11/24 09:25:33 $
- *  $Revision: 1.23 $
+ *  $Date: 2008/11/28 11:11:48 $
+ *  $Revision: 1.24 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -85,7 +85,8 @@ void DTSegmentAnalysisTest::beginLuminosityBlock(LuminosityBlock const& lumiSeg,
 void DTSegmentAnalysisTest::analyze(const edm::Event& e, const edm::EventSetup& context){
  
   nevents++;
-  edm::LogVerbatim ("DTDQM|DTMonitorClient|DTSegmentAnalysisTest") << "[DTSegmentAnalysisTest]: "<<nevents<<" events";
+  if(nevents%1000 == 0)
+    LogVerbatim ("DTDQM|DTMonitorClient|DTSegmentAnalysisTest") << "[DTSegmentAnalysisTest]: "<<nevents<<" events";
 
 }
 
@@ -108,8 +109,7 @@ void DTSegmentAnalysisTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, E
     MonitorElement * segm_histo = dbe->get(getMEName(chID, "h4DSegmNHits"));
     MonitorElement * summary_histo = dbe->get(getMEName(chID, "numberOfSegments"));
    
-    if (segm_histo && summary_histo){
-      edm::LogVerbatim ("DTDQM|DTMonitorClient|DTSegmentAnalysisTest") <<"[DTSegmentAnalysisTest]: I've got the recHits histo and the summary!!";
+    if (segm_histo && summary_histo) {
       
       TH1F * segmHit_histo_root = segm_histo->getTH1F();
       TH2F * segm_histo_root = summary_histo->getTH2F();
@@ -144,6 +144,8 @@ void DTSegmentAnalysisTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, E
 	  summaryHistos[3]->setBinContent(sector, chID.wheel()+3,2);
       }
       
+    } else {
+      LogVerbatim ("DTDQM|DTMonitorClient|DTSegmentAnalysisTest") << "[DTSegmentAnalysisTest]: histos not found!!"; // FIXME
     }
 
     if(detailedAnalysis){ // switch on detailed analysis
@@ -290,8 +292,11 @@ void DTSegmentAnalysisTest::endJob() {
 }
 
 
-void DTSegmentAnalysisTest::endRun(Run const& run, EventSetup const& eSetup) {
+void DTSegmentAnalysisTest::endRun(const Run& run, const EventSetup& eSetup) {
+
+
   if(normalizeHistoPlots) {
+    LogVerbatim ("DTDQM|DTMonitorClient|DTSegmentAnalysisTest") << " Performing time-histo normalization" << endl;
     MonitorElement* hNevtPerLS = dbe->get("DT/EventInfo/NevtPerLS");
     if(hNevtPerLS != 0) {
       for(int wheel = -2; wheel != 3; ++wheel) { // loop over wheels
