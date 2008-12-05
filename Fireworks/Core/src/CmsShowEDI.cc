@@ -8,7 +8,7 @@
 //
 // Original Author:  Joshua Berger
 //         Created:  Mon Jun 23 15:48:11 EDT 2008
-// $Id: CmsShowEDI.cc,v 1.14 2008/09/22 20:15:22 chrjones Exp $
+// $Id: CmsShowEDI.cc,v 1.15 2008/11/06 22:05:24 amraktad Exp $
 //
 
 // system include files
@@ -412,6 +412,8 @@ CmsShowEDI::runSelection() {
    if (m_item != 0){
       try {
          m_selectError->Clear();
+         m_item->selectionManager()->clearSelection();
+
          selector.select(m_item, selection);
       }catch( const FWExpressionException& e) {
          m_selectError->AddLine(e.what().c_str());
