@@ -16,7 +16,7 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Sun Mar  2 01:36:06 CET 2008
-// $Id: OMDSReader.h,v 1.7 2008/10/13 01:45:20 wsun Exp $
+// $Id: OMDSReader.h,v 1.8 2008/12/04 20:43:49 wsun Exp $
 //
 
 // system include files
@@ -262,7 +262,7 @@ namespace l1t
     names.push_back( "dummy" ) ;
 
     coral::AttributeList attList ;
-    attList.extend( "dummy", typeid( std::string ) ) ;
+    attList.extend( "dummy", typeid( T ) ) ;
     attList[ "dummy" ].data< T >() = data ;
 
     std::vector< coral::AttributeList > atts ;
