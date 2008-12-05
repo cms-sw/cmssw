@@ -5,9 +5,12 @@ l1ParamMuons = cms.EDProducer("FastL1MuonProducer",
     MUONS = cms.PSet(
         # The muon simtrack's must be taken from there
         simModule = cms.InputTag("famosSimHits","MuonSimTracks"),
-        MaxEta = cms.double(2.4),
+        dtSimHits = cms.InputTag("MuonSimHits","MuonDTHits"),
+        cscSimHits = cms.InputTag("MuonSimHits","MuonCSCHits"),
+        rpcSimHits = cms.InputTag("MuonSimHits","MuonRPCHits")
         # Simulate  only simtracks in this eta range
-        MinEta = cms.double(-2.4)
+#        MaxEta = cms.double(2.4),
+#        MinEta = cms.double(-2.4)
     )
 )
 
