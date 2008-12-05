@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/11/20 11:27:24 $
- *  $Revision: 1.6 $
+ *  $Date: 2008/12/02 13:29:57 $
+ *  $Revision: 1.7 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -328,11 +328,8 @@ void DTResolutionAnalysisTest::bookHistos(int wh) {
     wheelMeanHistos[3]->setBinLabel(10,"10",1);
     wheelMeanHistos[3]->setBinLabel(11,"11",1);
     wheelMeanHistos[3]->setBinLabel(12,"12",1);
-    wheelMeanHistos[3]->setBinLabel(1,"Wheel-2",2);
-    wheelMeanHistos[3]->setBinLabel(2,"Wheel-1",2);
-    wheelMeanHistos[3]->setBinLabel(3,"Wheel0",2);
-    wheelMeanHistos[3]->setBinLabel(4,"Wheel+1",2);
-    wheelMeanHistos[3]->setBinLabel(5,"Wheel+2",2);
+    wheelMeanHistos[3]->setAxisTitle("Wheel",2);
+
   }
 
   if(wheelSigmaHistos.find(3) == wheelSigmaHistos.end()){
@@ -353,11 +350,7 @@ void DTResolutionAnalysisTest::bookHistos(int wh) {
     wheelSigmaHistos[3]->setBinLabel(12,"12",1);
     wheelSigmaHistos[3]->setBinLabel(13,"13",1);
     wheelSigmaHistos[3]->setBinLabel(14,"14",1);
-    wheelSigmaHistos[3]->setBinLabel(1,"Wheel-2",2);
-    wheelSigmaHistos[3]->setBinLabel(2,"Wheel-1",2);
-    wheelSigmaHistos[3]->setBinLabel(3,"Wheel0",2);
-    wheelSigmaHistos[3]->setBinLabel(4,"Wheel+1",2);
-    wheelSigmaHistos[3]->setBinLabel(5,"Wheel+2",2);
+    wheelSigmaHistos[3]->setAxisTitle("Wheel",2);
   }  
 }
 
