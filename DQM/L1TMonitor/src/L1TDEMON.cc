@@ -73,13 +73,13 @@ L1TDEMON::beginJob(const edm::EventSetup&) {
   //const double amax=tpi+0.5;
   
   //                           ETP,  HTP,  RCT, GCT, DTP, DTF,  CTP, CTF, RPC,LTC, GMT,GLT
-  int    phiNBins[DEnsys] = { 71  , 71  , 18  ,18  ,  12, 255,  160, 255, 255,  0, 255,0};
-  double phiMinim[DEnsys] = {  0.5,  0.5, -0.5,-0.5,-0.5,   0, -0.5,   0,   0,  0,   0,0};
-  double phiMaxim[DEnsys] = { 71.5, 71.5, 17.5,17.5,11.5, 255,159.5, 255, 255,  0, 255,0};
+  int    phiNBins[DEnsys] = { 71  , 71  , 18  ,18  ,  12, 255,  160, 255, 144,  0, 255,0};
+  double phiMinim[DEnsys] = {  0.5,  0.5, -0.5,-0.5,-0.5,   0, -0.5,   0,  -0.5,  0,   0,0};
+  double phiMaxim[DEnsys] = { 71.5, 71.5, 17.5,17.5,11.5, 255,159.5, 255,  143.5,  0, 255,0};
   
-  int    etaNBins[DEnsys] = { 35  , 35  , 22  ,22  ,   5,  20,  120,  20,  20,  0, 20,0};
-  double etaMinim[DEnsys] = {-17.5,-17.5, -0.5,-0.5,-2.5,   0, -0.5,   0,   0,  0,  0,0};
-  double etaMaxim[DEnsys] = { 17.5, 17.5, 21.5,21.5, 2.5,  63,119.5,  63,  63,  0, 63,0};
+  int    etaNBins[DEnsys] = { 35  , 35  , 22  ,22  ,   5,  20,  120,  20,  64,  0, 20,0};
+  double etaMinim[DEnsys] = {-17.5,-17.5, -0.5,-0.5,-2.5,   0, -0.5,   0,   -0.5,  0,  0,0};
+  double etaMaxim[DEnsys] = { 17.5, 17.5, 21.5,21.5, 2.5,  63,119.5,  63,  63.5,  0, 63,0};
   
   int    x3NBins [DEnsys] = {    0,    0,    7,   0,   4,   0,    0,   0,   0,  0,   0,0};
   double x3Minim [DEnsys] = {    0,    0, -0.5,   0, 0.5,   0,    0,   0,   0,  0,   0,0};
