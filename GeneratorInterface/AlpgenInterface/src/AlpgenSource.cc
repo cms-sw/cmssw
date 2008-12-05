@@ -1,5 +1,5 @@
 /*
- *  $Date: 2008/11/14 20:00:00 $
+ *  $Date: 2008/11/14 23:58:01 $
  *  $Revision: 1.17 $
  *  
  *  Filip Moorgat & Hector Naves 
@@ -80,8 +80,8 @@ AlpgenSource::AlpgenSource( const ParameterSet & pset,
 
   //check that N(asked events) <= N(input events)
   if(maxEvents()>Nev_) {
-    edm::LogInfo("TooLittleData") << "ALPGEN warning: Number of events requested > Number of unweighted events.\n"
-				  << "                Execution will stop after processing the last unweighted event";
+    edm::LogInfo("Generator|TooLittleData") << "ALPGEN warning: Number of events requested > Number of unweighted events.\n"
+					    << "                Execution will stop after processing the last unweighted event";
   }
 
   if(maxEvents() != -1 && maxEvents() < Nev_) // stop at N(asked events) if N(asked events)<N(input events)
@@ -247,9 +247,9 @@ bool AlpgenSource::produce(Event & e) {
     // (Will fail next Event with HEPEUP.NUP == 0. Harmless.)
     // B) The event didn't pass. HEPEUP.NUP == 0. This should never happen, and we should abort here.
     if(hepeup.NUP==0) {
-      edm::LogInfo("TooLittleData") << "ALPGEN warning: last unweighted event reached.\n"
-				    << "                (hepeup.NUP == 0)\n"
-				    << "                The event number " << event() << " will not be written to disk.";  
+      edm::LogInfo("Generator|TooLittleData") << "ALPGEN warning: last unweighted event reached.\n"
+					      << "                (hepeup.NUP == 0)\n"
+					      << "                The event number " << event() << " will not be written to disk.";  
       return false;
     }
     

@@ -1,5 +1,5 @@
 /*
- *  $Date: 2008/11/14 20:00:00 $
+ *  $Date: 2008/11/14 23:58:01 $
  *  $Revision: 1.3 $
  *  
  *  Filip Moorgat & Hector Naves 
@@ -9,7 +9,6 @@
  *
  *  Serge SLabospitsky : added Alpgen reading tools 
  */
-
 
 #include "GeneratorInterface/AlpgenInterface/interface/AlpgenProducer.h"
 #include "GeneratorInterface/AlpgenInterface/interface/PYR.h"
@@ -23,11 +22,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
-//#include "CLHEP/Random/JamesRandom.h"
-//#include "CLHEP/Random/RandFlat.h"
 
-//#include <iostream>
-//#include <fstream>
 #include "time.h"
 
 using namespace edm; 
@@ -90,8 +85,8 @@ AlpgenProducer::AlpgenProducer( const ParameterSet & pset) :
 #ifdef NEVER
   //check that N(asked events) <= N(input events)
   if(maxEvents()>Nev_) {
-    cout << "ALPGEN warning: Number of events requested > Number of unweighted events" << endl;
-    cout << "                Execution will be stoped after processing the last unweighted event" << endl;  
+    cout << "ALPGEN warning: Number of events requested > Number of unweighted events." << endl;
+    cout << "                Execution will stop after processing the last unweighted event" << endl;  
   }
 
   if(maxEvents() != -1 && maxEvents() < Nev_) // stop at N(asked events) if N(asked events)<N(input events)
@@ -216,7 +211,7 @@ void AlpgenProducer::produce(Event & e, const EventSetup& es) {
   
   // exit if N(events asked) has been exceeded
   if(e.id().event()> Nev_) {
-    return;
+    throw cms::Exception("Generator") << "Can't produce event because _unw.par file is over."
   } else {
     
     auto_ptr<HepMCProduct> bare_product(new HepMCProduct());  
@@ -259,36 +254,35 @@ void AlpgenProducer::produce(Event & e, const EventSetup& es) {
     // (Will fail next Event with HEPEUP.NUP == 0. Harmless.)
     // B) The event didn't pass. HEPEUP.NUP == 0. This should never happen, and we should abort here.
     if(hepeup.NUP==0) {
-      edm::LogInfo("TooLittleData") << "ALPGEN warning: last unweighted event reached.\n"
-				    << "                (hepeup.NUP == 0)\n"
-				    << "                The event number " << e.id().event() << " will not be written to disk.";  
-      return;
+      edm::LogInfo("Generator|TooLittleData") << "ALPGEN warning: last unweighted event reached.\n"
+					      << "                (hepeup.NUP == 0)\n"
+					      << "                The event number " << e.id().event() << " will not be written to disk.";  
+      throw cms::Exception("Generator") << "Can't produce event because _unw.par file is over."
     }
-
-    call_pyhepc( 1 );
     
+    call_pyhepc( 1 );
     //    HepMC::GenEvent* evt = conv2.getGenEventfromHEPEVT();
     HepMC::GenEvent* evt = conv2.read_next_event();
     
     evt->set_signal_process_id(pypars.msti[0]);
     ++eventsRead_;
     evt->set_event_number(eventsRead_);
-
+    
     int id1 = pyint1.mint[14];
     int id2 = pyint1.mint[15];
     if ( id1 == 21 ) id1 = 0;
-    if ( id2 == 21 ) id2 = 0;
+    if ( id2 == 21 ) id2 = 0; 
     double x1 = pyint1.vint[40];
-    double x2 = pyint1.vint[41];
+    double x2 = pyint1.vint[41];  
     double Q  = pyint1.vint[50];
     double pdf1 = pyint1.vint[38];
     pdf1 /= x1 ;
     double pdf2 = pyint1.vint[39];
     pdf2 /= x2 ;
     evt->set_pdf_info( HepMC::PdfInfo(id1,id2,x1,x2,Q,pdf1,pdf2) ) ;
-
+   
     evt->weights().push_back( pyint1.vint[96] );
-    
+
     //******** Verbosity ********
     
     if(e.id().event() <= maxEventsToPrint_ &&
@@ -306,7 +300,7 @@ void AlpgenProducer::produce(Event & e, const EventSetup& es) {
 	evt->print();
       }
     }
-    
+
     if(evt)  bare_product->addHepMCData(evt );
 
     // Last check to make sure there are no empty events. This DOES NOT

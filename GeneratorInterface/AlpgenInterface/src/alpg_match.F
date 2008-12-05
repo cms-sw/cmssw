@@ -405,8 +405,8 @@ c      CHARACTER XXX*500, PROCESS*500
       WRITE(*,*) ' FIRST EVENT TO READ ', FIREVT
       IF (FIREVT.LT.1) THEN
         WRITE(*,*)'Warning: First event parameter in MY-INPARM.DAT file'
-	WRITE(*,*)'         does not have to less than 1. So it set to 1.'
-	FIREVT=1
+        WRITE(*,*)'         cannot be less than 1. So it was set to 1.'
+        FIREVT=1
       ENDIF
       CALL STRCATH(FILENAME,'-pyt.dat',TMPSTR)
       WRITE(*,*) 'NAME OF TXT FILE CONTAINING GENERATION PARAMETERS', 
@@ -481,7 +481,7 @@ C     HERWIG: HEPEVT EVENT RECORD FOR FINAL STATE STARTS AT 7=6+1
         NPLST=1
 C     PYTHIA: ALL SHOWERS ORIGINATE FROM IHEP=O
         IEND=0
-C     PYTHIA: HEPEVT EVENT RECORD FOR FINAL STATE STARTS AT 7=6+1
+C     PYTHIA: HEPEVT EVENT RECORD FOR FINAL STATE STARTS AT 1=0+1
         IHEPMIN=0
         IDPRUP=661
       ENDIF
