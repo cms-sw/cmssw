@@ -6,7 +6,7 @@
  *
  * \author: Luca Lista, INFN
  *
- * \version $Id: GenParticle.h,v 1.3 2007/11/05 15:43:54 llista Exp $
+ * \version $Id: GenParticle.h,v 1.4 2007/11/30 09:22:06 llista Exp $
  */
 #include "DataFormats/Candidate/interface/CompositeRefCandidateT.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
@@ -23,8 +23,8 @@ namespace reco {
     /// default constructor
     GenParticle() { }
     /// default constructor
-    GenParticle(const Particle & p) : 
-      CompositeRefCandidateT<GenParticleRefVector>(p) { }
+    GenParticle(const LeafCandidate & c) : 
+      CompositeRefCandidateT<GenParticleRefVector>(c) { }
     /// constrocturo from values
     GenParticle(Charge q, const LorentzVector & p4, const Point & vtx, 
 		int pdgId, int status, bool integerCharge);
