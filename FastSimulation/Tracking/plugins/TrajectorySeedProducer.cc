@@ -540,7 +540,7 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es) {
       GlobalTrajectoryParameters initialParams(position,momentum,(int)charge,theMagField);
       //  -> large initial errors
       AlgebraicSymMatrix errorMatrix(5,1);      
-      errorMatrix = errorMatrix * 10;
+      // errorMatrix = errorMatrix * 10;
 #ifdef FAMOS_DEBUG
       std::cout << "TrajectorySeedProducer: SimTrack parameters " << std::endl;
       std::cout << "\t\t pT  = " << (*theSimTracks)[simTrackId].momentum().Pt() << std::endl;
