@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 22:01:27 EST 2008
-// $Id: FWEveLegoViewManager.cc,v 1.20 2008/12/03 01:15:57 chrjones Exp $
+// $Id: FWEveLegoViewManager.cc,v 1.21 2008/12/03 20:57:12 chrjones Exp $
 //
 
 // system include files
@@ -274,6 +274,11 @@ FWEveLegoViewManager::makeProxyBuilderFor(const FWEventItem* iItem)
                 // lego->SetEtaLimits(etaLimLow, etaLimHigh);
                 // lego->SetTitle("caloTower Et distribution");
                 //m_lego->SetData(m_data);
+                m_data->GetEtaBins()->SetTitleFont(120);
+                m_data->GetEtaBins()->SetTitle("h");
+                m_data->GetPhiBins()->SetTitleFont(120);
+                m_data->GetPhiBins()->SetTitle("f");
+
 		// add calorimeter boundaries
 		TEveStraightLineSet* boundaries = new TEveStraightLineSet("boundaries");
 		boundaries->SetPickable(kFALSE);
