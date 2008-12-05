@@ -903,15 +903,7 @@
         <TestName activate="true">EB_RawData_Errors_ContentsYRange</TestName>
 </LINK>
 
-<LINK name="*EcalBarrel/EBRawDataTask/EBRDT L1A errors">
-        <TestName activate="true">EB_RawData_Errors_ContentsYRange</TestName>
-</LINK>
-
 <LINK name="*EcalBarrel/EBRawDataTask/EBRDT orbit number errors">
-        <TestName activate="true">EB_RawData_Errors_ContentsYRange</TestName>
-</LINK>
-
-<LINK name="*EcalBarrel/EBRawDataTask/EBRDT bunch crossing errors">
         <TestName activate="true">EB_RawData_Errors_ContentsYRange</TestName>
 </LINK>
 
@@ -920,6 +912,38 @@
 </LINK>
 
 <LINK name="*EcalBarrel/EBRawDataTask/EBRDT gap errors">
+        <TestName activate="true">EB_RawData_Errors_ContentsYRange</TestName>
+</LINK>
+
+<LINK name="*EcalBarrel/EBRawDataTask/EBRDT L1A DCC errors">
+        <TestName activate="true">EB_RawData_Errors_ContentsYRange</TestName>
+</LINK>
+
+<LINK name="*EcalBarrel/EBRawDataTask/EBRDT bunch crossing DCC errors">
+        <TestName activate="true">EB_RawData_Errors_ContentsYRange</TestName>
+</LINK>
+
+<LINK name="*EcalBarrel/EBRawDataTask/EBRDT L1A FE errors">
+        <TestName activate="true">EB_RawData_Errors_ContentsYRange</TestName>
+</LINK>
+
+<LINK name="*EcalBarrel/EBRawDataTask/EBRDT bunch crossing FE errors">
+        <TestName activate="true">EB_RawData_Errors_ContentsYRange</TestName>
+</LINK>
+
+<LINK name="*EcalBarrel/EBRawDataTask/EBRDT L1A tCC errors">
+        <TestName activate="true">EB_RawData_Errors_ContentsYRange</TestName>
+</LINK>
+
+<LINK name="*EcalBarrel/EBRawDataTask/EBRDT bunch crossing TCC errors">
+        <TestName activate="true">EB_RawData_Errors_ContentsYRange</TestName>
+</LINK>
+
+<LINK name="*EcalBarrel/EBRawDataTask/EBRDT L1A SRP errors">
+        <TestName activate="true">EB_RawData_Errors_ContentsYRange</TestName>
+</LINK>
+
+<LINK name="*EcalBarrel/EBRawDataTask/EBRDT bunch crossing SRP errors">
         <TestName activate="true">EB_RawData_Errors_ContentsYRange</TestName>
 </LINK>
 

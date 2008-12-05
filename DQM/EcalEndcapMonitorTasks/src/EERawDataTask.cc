@@ -1,8 +1,8 @@
 /*
  * \file EERawDataTask.cc
  *
- * $Date: 2008/12/03 12:55:50 $
- * $Revision: 1.18 $
+ * $Date: 2008/12/03 15:46:39 $
+ * $Revision: 1.19 $
  * \author E. Di Marco
  *
 */
@@ -54,11 +54,17 @@ EERawDataTask::EERawDataTask(const ParameterSet& ps) {
   meEEEventTypePostCalibrationBX_ = 0;
   meEECRCErrors_ = 0;
   meEERunNumberErrors_ = 0;
-  meEEL1AErrors_ = 0;
   meEEOrbitNumberErrors_ = 0;
-  meEEBunchCrossingErrors_ = 0;
   meEETriggerTypeErrors_ = 0;
-  meEEGapErrors_ = 0;
+  meEECalibrationEventErrors_ = 0;
+  meEEL1ADCCErrors_ = 0;
+  meEEBunchCrossingDCCErrors_ = 0;
+  meEEL1AFEErrors_ = 0;
+  meEEBunchCrossingFEErrors_ = 0;
+  meEEL1ATCCErrors_ = 0;
+  meEEBunchCrossingTCCErrors_ = 0;
+  meEEL1ASRPErrors_ = 0;
+  meEEBunchCrossingSRPErrors_ = 0;
 
   calibrationBX_ = 3490;
 
@@ -97,11 +103,17 @@ void EERawDataTask::reset(void) {
   if ( meEEEventTypePostCalibrationBX_ ) meEEEventTypePostCalibrationBX_->Reset();
   if ( meEECRCErrors_ ) meEECRCErrors_->Reset();
   if ( meEERunNumberErrors_ ) meEERunNumberErrors_->Reset();
-  if ( meEEL1AErrors_ ) meEEL1AErrors_->Reset();
   if ( meEEOrbitNumberErrors_ ) meEEOrbitNumberErrors_->Reset();
-  if ( meEEBunchCrossingErrors_ ) meEEBunchCrossingErrors_->Reset();
   if ( meEETriggerTypeErrors_ ) meEETriggerTypeErrors_->Reset();
-  if ( meEEGapErrors_ ) meEEGapErrors_->Reset();
+  if ( meEECalibrationEventErrors_ ) meEECalibrationEventErrors_->Reset();
+  if ( meEEL1ADCCErrors_ ) meEEL1ADCCErrors_->Reset();
+  if ( meEEBunchCrossingDCCErrors_ ) meEEBunchCrossingDCCErrors_->Reset();
+  if ( meEEL1AFEErrors_ ) meEEL1AFEErrors_->Reset();
+  if ( meEEBunchCrossingFEErrors_ ) meEEBunchCrossingFEErrors_->Reset();
+  if ( meEEL1ATCCErrors_ ) meEEL1ATCCErrors_->Reset();
+  if ( meEEBunchCrossingTCCErrors_ ) meEEBunchCrossingTCCErrors_->Reset();
+  if ( meEEL1ASRPErrors_ ) meEEL1ASRPErrors_->Reset();
+  if ( meEEBunchCrossingSRPErrors_ ) meEEBunchCrossingSRPErrors_->Reset();
 
 }
 
@@ -207,22 +219,10 @@ void EERawDataTask::setup(void){
       meEERunNumberErrors_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
     }
 
-    sprintf(histo, "EERDT L1A errors");
-    meEEL1AErrors_ = dqmStore_->book1D(histo, histo, 18, 1, 19);
-    for (int i = 0; i < 18; i++) {
-      meEEL1AErrors_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
-    }
-
     sprintf(histo, "EERDT orbit number errors");
     meEEOrbitNumberErrors_ = dqmStore_->book1D(histo, histo, 18, 1, 19);
     for (int i = 0; i < 18; i++) {
       meEEOrbitNumberErrors_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
-    }
-
-    sprintf(histo, "EERDT bunch crossing errors");
-    meEEBunchCrossingErrors_ = dqmStore_->book1D(histo, histo, 18, 1, 19);
-    for (int i = 0; i < 18; i++) {
-      meEEBunchCrossingErrors_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
     }
 
     sprintf(histo, "EERDT trigger type errors");
@@ -231,10 +231,58 @@ void EERawDataTask::setup(void){
       meEETriggerTypeErrors_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
     }
 
-    sprintf(histo, "EERDT gap errors");
-    meEEGapErrors_ = dqmStore_->book1D(histo, histo, 18, 1, 19);
+    sprintf(histo, "EERDT calibration event errors");
+    meEECalibrationEventErrors_ = dqmStore_->book1D(histo, histo, 18, 1, 19);
     for (int i = 0; i < 18; i++) {
-      meEEGapErrors_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
+      meEECalibrationEventErrors_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
+    }
+
+    sprintf(histo, "EERDT L1A DCC errors");
+    meEEL1ADCCErrors_ = dqmStore_->book1D(histo, histo, 18, 1, 19);
+    for (int i = 0; i < 18; i++) {
+      meEEL1ADCCErrors_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
+    }
+
+    sprintf(histo, "EERDT bunch crossing DCC errors");
+    meEEBunchCrossingDCCErrors_ = dqmStore_->book1D(histo, histo, 18, 1, 19);
+    for (int i = 0; i < 18; i++) {
+      meEEBunchCrossingDCCErrors_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
+    }
+
+    sprintf(histo, "EERDT L1A FE errors");
+    meEEL1AFEErrors_ = dqmStore_->book1D(histo, histo, 18, 1, 19);
+    for (int i = 0; i < 18; i++) {
+      meEEL1AFEErrors_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
+    }
+
+    sprintf(histo, "EERDT bunch crossing FE errors");
+    meEEBunchCrossingFEErrors_ = dqmStore_->book1D(histo, histo, 18, 1, 19);
+    for (int i = 0; i < 18; i++) {
+      meEEBunchCrossingFEErrors_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
+    }
+
+    sprintf(histo, "EERDT L1A TCC errors");
+    meEEL1ATCCErrors_ = dqmStore_->book1D(histo, histo, 18, 1, 19);
+    for (int i = 0; i < 18; i++) {
+      meEEL1ATCCErrors_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
+    }
+
+    sprintf(histo, "EERDT bunch crossing TCC errors");
+    meEEBunchCrossingTCCErrors_ = dqmStore_->book1D(histo, histo, 18, 1, 19);
+    for (int i = 0; i < 18; i++) {
+      meEEBunchCrossingTCCErrors_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
+    }
+
+    sprintf(histo, "EERDT L1A SRP errors");
+    meEEL1ASRPErrors_ = dqmStore_->book1D(histo, histo, 18, 1, 19);
+    for (int i = 0; i < 18; i++) {
+      meEEL1ASRPErrors_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
+    }
+
+    sprintf(histo, "EERDT bunch crossing SRP errors");
+    meEEBunchCrossingSRPErrors_ = dqmStore_->book1D(histo, histo, 18, 1, 19);
+    for (int i = 0; i < 18; i++) {
+      meEEBunchCrossingSRPErrors_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
     }
 
   }
@@ -263,20 +311,38 @@ void EERawDataTask::cleanup(void){
     if ( meEERunNumberErrors_ ) dqmStore_->removeElement( meEERunNumberErrors_->getName() );
     meEERunNumberErrors_ = 0;
 
-    if ( meEEL1AErrors_ ) dqmStore_->removeElement( meEEL1AErrors_->getName() );
-    meEEL1AErrors_ = 0;
-
     if ( meEEOrbitNumberErrors_ ) dqmStore_->removeElement( meEEOrbitNumberErrors_->getName() );
     meEEOrbitNumberErrors_ = 0;
-
-    if ( meEEBunchCrossingErrors_ ) dqmStore_->removeElement( meEEBunchCrossingErrors_->getName() );
-    meEEBunchCrossingErrors_ = 0;
 
     if ( meEETriggerTypeErrors_ ) dqmStore_->removeElement( meEETriggerTypeErrors_->getName() );
     meEETriggerTypeErrors_ = 0;
 
-    if ( meEEGapErrors_ ) dqmStore_->removeElement( meEEGapErrors_->getName() );
-    meEEGapErrors_ = 0;
+    if ( meEECalibrationEventErrors_ ) dqmStore_->removeElement( meEECalibrationEventErrors_->getName() );
+    meEECalibrationEventErrors_ = 0;
+
+    if ( meEEL1ADCCErrors_ ) dqmStore_->removeElement( meEEL1ADCCErrors_->getName() );
+    meEEL1ADCCErrors_ = 0;
+
+    if ( meEEBunchCrossingDCCErrors_ ) dqmStore_->removeElement( meEEBunchCrossingDCCErrors_->getName() );
+    meEEBunchCrossingDCCErrors_ = 0;
+
+    if ( meEEL1AFEErrors_ ) dqmStore_->removeElement( meEEL1AFEErrors_->getName() );
+    meEEL1AFEErrors_ = 0;
+
+    if ( meEEBunchCrossingFEErrors_ ) dqmStore_->removeElement( meEEBunchCrossingFEErrors_->getName() );
+    meEEBunchCrossingFEErrors_ = 0;
+
+    if ( meEEL1ATCCErrors_ ) dqmStore_->removeElement( meEEL1ATCCErrors_->getName() );
+    meEEL1ATCCErrors_ = 0;
+
+    if ( meEEBunchCrossingTCCErrors_ ) dqmStore_->removeElement( meEEBunchCrossingTCCErrors_->getName() );
+    meEEBunchCrossingTCCErrors_ = 0;
+
+    if ( meEEL1ASRPErrors_ ) dqmStore_->removeElement( meEEL1ASRPErrors_->getName() );
+    meEEL1ASRPErrors_ = 0;
+
+    if ( meEEBunchCrossingSRPErrors_ ) dqmStore_->removeElement( meEEBunchCrossingSRPErrors_->getName() );
+    meEEBunchCrossingSRPErrors_ = 0;
 
   }
 
@@ -462,21 +528,63 @@ void EERawDataTask::analyze(const Event& e, const EventSetup& c){
 
       if ( gtFedDataSize > 0 ) {
 
-        if ( GT_L1A != ECALDCC_L1A ) meEEL1AErrors_->Fill( xism );
+        if ( GT_L1A != ECALDCC_L1A ) meEEL1ADCCErrors_->Fill( xism );
 
-        if ( GT_BunchCrossing != ECALDCC_BunchCrossing ) meEEBunchCrossingErrors_->Fill( xism );
+        if ( GT_BunchCrossing != ECALDCC_BunchCrossing ) meEEBunchCrossingDCCErrors_->Fill( xism );
 
         if ( GT_TriggerType != ECALDCC_TriggerType ) meEETriggerTypeErrors_->Fill ( xism );
 
       } else {
 
-        if ( ECALDCC_L1A_MostFreqId != ECALDCC_L1A ) meEEL1AErrors_->Fill( xism );
+        if ( ECALDCC_L1A_MostFreqId != ECALDCC_L1A ) meEEL1ADCCErrors_->Fill( xism );
 
-        if ( ECALDCC_BunchCrossing_MostFreqId != ECALDCC_BunchCrossing ) meEEBunchCrossingErrors_->Fill( xism );
+        if ( ECALDCC_BunchCrossing_MostFreqId != ECALDCC_BunchCrossing ) meEEBunchCrossingDCCErrors_->Fill( xism );
 
         if ( ECALDCC_TriggerType_MostFreqId != ECALDCC_TriggerType ) meEETriggerTypeErrors_->Fill ( xism );
 
       }
+
+      if ( GT_OrbitNumber_Present ) {
+
+        if ( GT_OrbitNumber != ECALDCC_OrbitNumber ) meEEOrbitNumberErrors_->Fill ( xism );
+
+      } else {
+
+        if ( ECALDCC_OrbitNumber_MostFreqId != ECALDCC_OrbitNumber ) meEEOrbitNumberErrors_->Fill ( xism );
+
+      }
+
+      // DCC vs. FE,TCC, SRP syncronization
+      const std::vector<short> feBxs = dcchItr->getFEBxs();
+      const std::vector<short> tccBx = dcchItr->getTCCBx();
+      short srpBx = dcchItr->getSRPBx();
+
+      for(int fe=0; fe<(int)feBxs.size(); fe++) {
+        if(feBxs[fe] != ECALDCC_BunchCrossing && feBxs[fe] != -1) meEEBunchCrossingFEErrors_->Fill( xism, 1/(float)feBxs.size());
+      }
+
+      for(int tcc=0; tcc<(int)tccBx.size(); tcc++) {
+        if(tccBx[tcc] != ECALDCC_BunchCrossing && tccBx[tcc] != -1) meEEBunchCrossingTCCErrors_->Fill( xism, 1/(float)tccBx.size());
+      }
+
+      if(srpBx != ECALDCC_BunchCrossing && srpBx != -1) meEEBunchCrossingSRPErrors_->Fill( xism );
+
+      std::vector<short> feLv1 = dcchItr->getFELv1();
+      std::vector<short> tccLv1 = dcchItr->getTCCLv1();
+      short srpLv1 = dcchItr->getSRPLv1();
+
+      // Lv1 in TCC,SRP,FE are limited to 12 bits(LSB), while in the DCC Lv1 has 24 bits
+      int ECALDCC_L1A_12bit = ECALDCC_L1A & 0xfff;
+
+      for(int fe=0; fe<(int)feLv1.size(); fe++) {
+        if(feLv1[fe] != ECALDCC_L1A_12bit - 1 && feLv1[fe] != -1) meEEL1AFEErrors_->Fill( xism, 1/(float)feLv1.size());
+      }
+
+      for(int tcc=0; tcc<(int)tccLv1.size(); tcc++) {
+        if(tccLv1[tcc] != ECALDCC_L1A_12bit && tccLv1[tcc] != -1) meEEL1ATCCErrors_->Fill( xism, 1/(float)tccLv1.size());
+      }
+
+      if(srpLv1 != ECALDCC_L1A_12bit && srpLv1 != -1) meEEL1ASRPErrors_->Fill( xism );
 
       if ( GT_OrbitNumber_Present ) {
 
@@ -503,14 +611,14 @@ void EERawDataTask::analyze(const Event& e, const EventSetup& c){
              evtType != EcalDCCHeaderBlock::PHYSICS_GLOBAL &&
              evtType != EcalDCCHeaderBlock::COSMICS_LOCAL &&
              evtType != EcalDCCHeaderBlock::PHYSICS_LOCAL &&
-             evtType != -1 ) meEEGapErrors_->Fill( xism );
+             evtType != -1 ) meEECalibrationEventErrors_->Fill( xism );
       } else {
         if ( evtType == EcalDCCHeaderBlock::COSMIC ||
              evtType == EcalDCCHeaderBlock::MTCC ||
              evtType == EcalDCCHeaderBlock::COSMICS_GLOBAL ||
              evtType == EcalDCCHeaderBlock::PHYSICS_GLOBAL ||
              evtType == EcalDCCHeaderBlock::COSMICS_LOCAL ||
-             evtType == EcalDCCHeaderBlock::PHYSICS_LOCAL ) meEEGapErrors_->Fill( xism );
+             evtType == EcalDCCHeaderBlock::PHYSICS_LOCAL ) meEECalibrationEventErrors_->Fill( xism );
       }
 
     }

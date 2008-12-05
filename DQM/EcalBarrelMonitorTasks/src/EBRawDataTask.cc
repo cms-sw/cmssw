@@ -1,8 +1,8 @@
 /*
  * \file EBRawDataTask.cc
  *
- * $Date: 2008/12/03 12:55:49 $
- * $Revision: 1.18 $
+ * $Date: 2008/12/03 15:46:39 $
+ * $Revision: 1.19 $
  * \author E. Di Marco
  *
 */
@@ -54,11 +54,17 @@ EBRawDataTask::EBRawDataTask(const ParameterSet& ps) {
   meEBEventTypePostCalibrationBX_ = 0;
   meEBCRCErrors_ = 0;
   meEBRunNumberErrors_ = 0;
-  meEBL1AErrors_ = 0;
   meEBOrbitNumberErrors_ = 0;
-  meEBBunchCrossingErrors_ = 0;
   meEBTriggerTypeErrors_ = 0;
-  meEBGapErrors_ = 0;
+  meEBCalibrationEventErrors_ = 0;
+  meEBL1ADCCErrors_ = 0;
+  meEBBunchCrossingDCCErrors_ = 0;
+  meEBL1AFEErrors_ = 0;
+  meEBBunchCrossingFEErrors_ = 0;
+  meEBL1ATCCErrors_ = 0;
+  meEBBunchCrossingTCCErrors_ = 0;
+  meEBL1ASRPErrors_ = 0;
+  meEBBunchCrossingSRPErrors_ = 0;
 
   calibrationBX_ = 3490;
 
@@ -97,11 +103,17 @@ void EBRawDataTask::reset(void) {
   if ( meEBEventTypePostCalibrationBX_ ) meEBEventTypePostCalibrationBX_->Reset();
   if ( meEBCRCErrors_ ) meEBCRCErrors_->Reset();
   if ( meEBRunNumberErrors_ ) meEBRunNumberErrors_->Reset();
-  if ( meEBL1AErrors_ ) meEBL1AErrors_->Reset();
   if ( meEBOrbitNumberErrors_ ) meEBOrbitNumberErrors_->Reset();
-  if ( meEBBunchCrossingErrors_ ) meEBBunchCrossingErrors_->Reset();
   if ( meEBTriggerTypeErrors_ ) meEBTriggerTypeErrors_->Reset();
-  if ( meEBGapErrors_ ) meEBGapErrors_->Reset();
+  if ( meEBCalibrationEventErrors_ ) meEBCalibrationEventErrors_->Reset();
+  if ( meEBL1ADCCErrors_ ) meEBL1ADCCErrors_->Reset();
+  if ( meEBBunchCrossingDCCErrors_ ) meEBBunchCrossingDCCErrors_->Reset();
+  if ( meEBL1AFEErrors_ ) meEBL1AFEErrors_->Reset();
+  if ( meEBBunchCrossingFEErrors_ ) meEBBunchCrossingFEErrors_->Reset();
+  if ( meEBL1ATCCErrors_ ) meEBL1ATCCErrors_->Reset();
+  if ( meEBBunchCrossingTCCErrors_ ) meEBBunchCrossingTCCErrors_->Reset();
+  if ( meEBL1ASRPErrors_ ) meEBL1ASRPErrors_->Reset();
+  if ( meEBBunchCrossingSRPErrors_ ) meEBBunchCrossingSRPErrors_->Reset();
 
 }
 
@@ -207,22 +219,10 @@ void EBRawDataTask::setup(void){
       meEBRunNumberErrors_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
     }
 
-    sprintf(histo, "EBRDT L1A errors");
-    meEBL1AErrors_ = dqmStore_->book1D(histo, histo, 36, 1, 37);
-    for (int i = 0; i < 36; i++) {
-      meEBL1AErrors_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
-    }
-
     sprintf(histo, "EBRDT orbit number errors");
     meEBOrbitNumberErrors_ = dqmStore_->book1D(histo, histo, 36, 1, 37);
     for (int i = 0; i < 36; i++) {
       meEBOrbitNumberErrors_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
-    }
-
-    sprintf(histo, "EBRDT bunch crossing errors");
-    meEBBunchCrossingErrors_ = dqmStore_->book1D(histo, histo, 36, 1, 37);
-    for (int i = 0; i < 36; i++) {
-      meEBBunchCrossingErrors_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
     }
 
     sprintf(histo, "EBRDT trigger type errors");
@@ -231,10 +231,58 @@ void EBRawDataTask::setup(void){
       meEBTriggerTypeErrors_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
     }
 
-    sprintf(histo, "EBRDT gap errors");
-    meEBGapErrors_ = dqmStore_->book1D(histo, histo, 36, 1, 37);
+    sprintf(histo, "EBRDT calibration event errors");
+    meEBCalibrationEventErrors_ = dqmStore_->book1D(histo, histo, 36, 1, 37);
     for (int i = 0; i < 36; i++) {
-      meEBGapErrors_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
+      meEBCalibrationEventErrors_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
+    }
+
+    sprintf(histo, "EBRDT L1A DCC errors");
+    meEBL1ADCCErrors_ = dqmStore_->book1D(histo, histo, 36, 1, 37);
+    for (int i = 0; i < 36; i++) {
+      meEBL1ADCCErrors_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
+    }
+
+    sprintf(histo, "EBRDT bunch crossing DCC errors");
+    meEBBunchCrossingDCCErrors_ = dqmStore_->book1D(histo, histo, 36, 1, 37);
+    for (int i = 0; i < 36; i++) {
+      meEBBunchCrossingDCCErrors_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
+    }
+
+    sprintf(histo, "EBRDT L1A FE errors");
+    meEBL1AFEErrors_ = dqmStore_->book1D(histo, histo, 36, 1, 37);
+    for (int i = 0; i < 36; i++) {
+      meEBL1AFEErrors_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
+    }
+
+    sprintf(histo, "EBRDT bunch crossing FE errors");
+    meEBBunchCrossingFEErrors_ = dqmStore_->book1D(histo, histo, 36, 1, 37);
+    for (int i = 0; i < 36; i++) {
+      meEBBunchCrossingFEErrors_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
+    }
+
+    sprintf(histo, "EBRDT L1A TCC errors");
+    meEBL1ATCCErrors_ = dqmStore_->book1D(histo, histo, 36, 1, 37);
+    for (int i = 0; i < 36; i++) {
+      meEBL1ATCCErrors_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
+    }
+
+    sprintf(histo, "EBRDT bunch crossing TCC errors");
+    meEBBunchCrossingTCCErrors_ = dqmStore_->book1D(histo, histo, 36, 1, 37);
+    for (int i = 0; i < 36; i++) {
+      meEBBunchCrossingTCCErrors_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
+    }
+
+    sprintf(histo, "EBRDT L1A SRP errors");
+    meEBL1ASRPErrors_ = dqmStore_->book1D(histo, histo, 36, 1, 37);
+    for (int i = 0; i < 36; i++) {
+      meEBL1ASRPErrors_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
+    }
+
+    sprintf(histo, "EBRDT bunch crossing SRP errors");
+    meEBBunchCrossingSRPErrors_ = dqmStore_->book1D(histo, histo, 36, 1, 37);
+    for (int i = 0; i < 36; i++) {
+      meEBBunchCrossingSRPErrors_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
     }
 
   }
@@ -263,20 +311,38 @@ void EBRawDataTask::cleanup(void){
     if ( meEBRunNumberErrors_ ) dqmStore_->removeElement( meEBRunNumberErrors_->getName() );
     meEBRunNumberErrors_ = 0;
 
-    if ( meEBL1AErrors_ ) dqmStore_->removeElement( meEBL1AErrors_->getName() );
-    meEBL1AErrors_ = 0;
-
     if ( meEBOrbitNumberErrors_ ) dqmStore_->removeElement( meEBOrbitNumberErrors_->getName() );
     meEBOrbitNumberErrors_ = 0;
-
-    if ( meEBBunchCrossingErrors_ ) dqmStore_->removeElement( meEBBunchCrossingErrors_->getName() );
-    meEBBunchCrossingErrors_ = 0;
 
     if ( meEBTriggerTypeErrors_ ) dqmStore_->removeElement( meEBTriggerTypeErrors_->getName() );
     meEBTriggerTypeErrors_ = 0;
 
-    if ( meEBGapErrors_ ) dqmStore_->removeElement( meEBGapErrors_->getName() );
-    meEBGapErrors_ = 0;
+    if ( meEBCalibrationEventErrors_ ) dqmStore_->removeElement( meEBCalibrationEventErrors_->getName() );
+    meEBCalibrationEventErrors_ = 0;
+
+    if ( meEBL1ADCCErrors_ ) dqmStore_->removeElement( meEBL1ADCCErrors_->getName() );
+    meEBL1ADCCErrors_ = 0;
+
+    if ( meEBBunchCrossingDCCErrors_ ) dqmStore_->removeElement( meEBBunchCrossingDCCErrors_->getName() );
+    meEBBunchCrossingDCCErrors_ = 0;
+
+    if ( meEBL1AFEErrors_ ) dqmStore_->removeElement( meEBL1AFEErrors_->getName() );
+    meEBL1AFEErrors_ = 0;
+
+    if ( meEBBunchCrossingFEErrors_ ) dqmStore_->removeElement( meEBBunchCrossingFEErrors_->getName() );
+    meEBBunchCrossingFEErrors_ = 0;
+
+    if ( meEBL1ATCCErrors_ ) dqmStore_->removeElement( meEBL1ATCCErrors_->getName() );
+    meEBL1ATCCErrors_ = 0;
+
+    if ( meEBBunchCrossingTCCErrors_ ) dqmStore_->removeElement( meEBBunchCrossingTCCErrors_->getName() );
+    meEBBunchCrossingTCCErrors_ = 0;
+
+    if ( meEBL1ASRPErrors_ ) dqmStore_->removeElement( meEBL1ASRPErrors_->getName() );
+    meEBL1ASRPErrors_ = 0;
+
+    if ( meEBBunchCrossingSRPErrors_ ) dqmStore_->removeElement( meEBBunchCrossingSRPErrors_->getName() );
+    meEBBunchCrossingSRPErrors_ = 0;
 
   }
 
@@ -455,21 +521,59 @@ void EBRawDataTask::analyze(const Event& e, const EventSetup& c){
 
       if ( gtFedDataSize > 0 ) {
 
-        if ( GT_L1A != ECALDCC_L1A ) meEBL1AErrors_->Fill( xism );
+        if ( GT_L1A != ECALDCC_L1A ) meEBL1ADCCErrors_->Fill( xism );
 
-        if ( GT_BunchCrossing != ECALDCC_BunchCrossing ) meEBBunchCrossingErrors_->Fill( xism );
+        if ( GT_BunchCrossing != ECALDCC_BunchCrossing ) meEBBunchCrossingDCCErrors_->Fill( xism );
 
         if ( GT_TriggerType != ECALDCC_TriggerType ) meEBTriggerTypeErrors_->Fill ( xism );
 
       } else {
 
-        if ( ECALDCC_L1A_MostFreqId != ECALDCC_L1A ) meEBL1AErrors_->Fill( xism );
+        if ( ECALDCC_L1A_MostFreqId != ECALDCC_L1A ) meEBL1ADCCErrors_->Fill( xism );
 
-        if ( ECALDCC_BunchCrossing_MostFreqId != ECALDCC_BunchCrossing ) meEBBunchCrossingErrors_->Fill( xism );
+        if ( ECALDCC_BunchCrossing_MostFreqId != ECALDCC_BunchCrossing ) meEBBunchCrossingDCCErrors_->Fill( xism );
 
         if ( ECALDCC_TriggerType_MostFreqId != ECALDCC_TriggerType ) meEBTriggerTypeErrors_->Fill ( xism );
 
       }
+
+      if ( GT_OrbitNumber_Present ) {
+
+        if ( GT_OrbitNumber != ECALDCC_OrbitNumber ) meEBOrbitNumberErrors_->Fill ( xism );
+
+      } else {
+
+        if ( ECALDCC_OrbitNumber_MostFreqId != ECALDCC_OrbitNumber ) meEBOrbitNumberErrors_->Fill ( xism );
+
+      }
+
+      // DCC vs. FE,TCC, SRP syncronization
+      std::vector<short> feBxs = dcchItr->getFEBxs();
+      std::vector<short> tccBx = dcchItr->getTCCBx();
+      short srpBx = dcchItr->getSRPBx();
+
+      for(int fe=0; fe<(int)feBxs.size(); fe++) {
+        if(feBxs[fe] != ECALDCC_BunchCrossing && feBxs[fe] != -1) meEBBunchCrossingFEErrors_->Fill( xism, 1/(float)feBxs.size() );
+      }
+
+      if(tccBx[0] != ECALDCC_BunchCrossing && tccBx[0] != -1) meEBBunchCrossingTCCErrors_->Fill( xism, 1. );
+
+      if(srpBx != ECALDCC_BunchCrossing && srpBx != -1) meEBBunchCrossingSRPErrors_->Fill( xism );
+
+      std::vector<short> feLv1 = dcchItr->getFELv1();
+      std::vector<short> tccLv1 = dcchItr->getTCCLv1();
+      short srpLv1 = dcchItr->getSRPLv1();
+
+      // Lv1 in TCC,SRP,FE are limited to 12 bits(LSB), while in the DCC Lv1 has 24 bits
+      int ECALDCC_L1A_12bit = ECALDCC_L1A & 0xfff;
+
+      for(int fe=0; fe<(int)feLv1.size(); fe++) {
+        if(feLv1[fe] != ECALDCC_L1A_12bit - 1 && feLv1[fe] != -1) meEBL1AFEErrors_->Fill( xism, 1/(float)feLv1.size());
+      }
+
+      if(tccLv1[0] != ECALDCC_L1A_12bit && tccLv1[0] != -1) meEBL1ATCCErrors_->Fill( xism, 1/1. );
+
+      if(srpLv1 != ECALDCC_L1A_12bit && srpLv1 != -1) meEBL1ASRPErrors_->Fill( xism );
 
       if ( GT_OrbitNumber_Present ) {
 
@@ -496,14 +600,14 @@ void EBRawDataTask::analyze(const Event& e, const EventSetup& c){
              evtType != EcalDCCHeaderBlock::PHYSICS_GLOBAL &&
              evtType != EcalDCCHeaderBlock::COSMICS_LOCAL &&
              evtType != EcalDCCHeaderBlock::PHYSICS_LOCAL &&
-             evtType != -1 ) meEBGapErrors_->Fill( xism );
+             evtType != -1 ) meEBCalibrationEventErrors_->Fill( xism );
       } else {
         if ( evtType == EcalDCCHeaderBlock::COSMIC ||
              evtType == EcalDCCHeaderBlock::MTCC ||
              evtType == EcalDCCHeaderBlock::COSMICS_GLOBAL ||
              evtType == EcalDCCHeaderBlock::PHYSICS_GLOBAL ||
              evtType == EcalDCCHeaderBlock::COSMICS_LOCAL ||
-             evtType == EcalDCCHeaderBlock::PHYSICS_LOCAL ) meEBGapErrors_->Fill( xism );
+             evtType == EcalDCCHeaderBlock::PHYSICS_LOCAL ) meEBCalibrationEventErrors_->Fill( xism );
       }
 
     }

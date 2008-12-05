@@ -1113,15 +1113,7 @@
         <TestName activate="true">EE_RawData_Errors_ContentsYRange</TestName>
 </LINK>
 
-<LINK name="*EcalEndcap/EERawDataTask/EERDT L1A errors">
-        <TestName activate="true">EE_RawData_Errors_ContentsYRange</TestName>
-</LINK>
-
 <LINK name="*EcalEndcap/EERawDataTask/EERDT orbit number errors">
-        <TestName activate="true">EE_RawData_Errors_ContentsYRange</TestName>
-</LINK>
-
-<LINK name="*EcalEndcap/EERawDataTask/EERDT bunch crossing errors">
         <TestName activate="true">EE_RawData_Errors_ContentsYRange</TestName>
 </LINK>
 
@@ -1130,6 +1122,38 @@
 </LINK>
 
 <LINK name="*EcalEndcap/EERawDataTask/EERDT gap errors">
+        <TestName activate="true">EE_RawData_Errors_ContentsYRange</TestName>
+</LINK>
+
+<LINK name="*EcalEndcap/EERawDataTask/EERDT L1A DCC errors">
+        <TestName activate="true">EE_RawData_Errors_ContentsYRange</TestName>
+</LINK>
+
+<LINK name="*EcalEndcap/EERawDataTask/EERDT bunch crossing DCC errors">
+        <TestName activate="true">EE_RawData_Errors_ContentsYRange</TestName>
+</LINK>
+
+<LINK name="*EcalEndcap/EERawDataTask/EERDT L1A FE errors">
+        <TestName activate="true">EE_RawData_Errors_ContentsYRange</TestName>
+</LINK>
+
+<LINK name="*EcalEndcap/EERawDataTask/EERDT bunch crossing FE errors">
+        <TestName activate="true">EE_RawData_Errors_ContentsYRange</TestName>
+</LINK>
+
+<LINK name="*EcalEndcap/EERawDataTask/EERDT L1A tCC errors">
+        <TestName activate="true">EE_RawData_Errors_ContentsYRange</TestName>
+</LINK>
+
+<LINK name="*EcalEndcap/EERawDataTask/EERDT bunch crossing TCC errors">
+        <TestName activate="true">EE_RawData_Errors_ContentsYRange</TestName>
+</LINK>
+
+<LINK name="*EcalEndcap/EERawDataTask/EERDT L1A SRP errors">
+        <TestName activate="true">EE_RawData_Errors_ContentsYRange</TestName>
+</LINK>
+
+<LINK name="*EcalEndcap/EERawDataTask/EERDT bunch crossing SRP errors">
         <TestName activate="true">EE_RawData_Errors_ContentsYRange</TestName>
 </LINK>
 

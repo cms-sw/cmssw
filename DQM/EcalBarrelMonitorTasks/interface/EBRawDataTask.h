@@ -4,8 +4,8 @@
 /*
  * \file EBRawDataTask.h
  *
- * $Date: 2008/08/07 10:06:14 $
- * $Revision: 1.3 $
+ * $Date: 2008/10/20 16:52:05 $
+ * $Revision: 1.4 $
  * \author E. Di Marco
  *
 */
@@ -74,11 +74,17 @@ MonitorElement* meEBEventTypePreCalibrationBX_;
 MonitorElement* meEBEventTypeCalibrationBX_;
 MonitorElement* meEBEventTypePostCalibrationBX_;
 MonitorElement* meEBRunNumberErrors_;
-MonitorElement* meEBL1AErrors_;
 MonitorElement* meEBOrbitNumberErrors_;
-MonitorElement* meEBBunchCrossingErrors_;
 MonitorElement* meEBTriggerTypeErrors_;
-MonitorElement* meEBGapErrors_;
+MonitorElement* meEBCalibrationEventErrors_;
+MonitorElement* meEBL1ADCCErrors_;
+MonitorElement* meEBBunchCrossingDCCErrors_;
+MonitorElement* meEBL1AFEErrors_;
+MonitorElement* meEBBunchCrossingFEErrors_;
+MonitorElement* meEBL1ATCCErrors_;
+MonitorElement* meEBBunchCrossingTCCErrors_;
+MonitorElement* meEBL1ASRPErrors_;
+MonitorElement* meEBBunchCrossingSRPErrors_;
 
 bool init_;
 
