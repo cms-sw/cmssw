@@ -1,6 +1,6 @@
 /*
- *  $Date: 2008/11/14 23:58:01 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/12/05 20:37:54 $
+ *  $Revision: 1.4 $
  *  
  *  Filip Moorgat & Hector Naves 
  *  26/10/05
@@ -211,7 +211,7 @@ void AlpgenProducer::produce(Event & e, const EventSetup& es) {
   
   // exit if N(events asked) has been exceeded
   if(e.id().event()> Nev_) {
-    throw cms::Exception("Generator") << "Can't produce event because _unw.par file is over."
+    throw cms::Exception("Generator") << "Can't produce event because _unw.par file is over.";
   } else {
     
     auto_ptr<HepMCProduct> bare_product(new HepMCProduct());  
@@ -257,7 +257,7 @@ void AlpgenProducer::produce(Event & e, const EventSetup& es) {
       edm::LogInfo("Generator|TooLittleData") << "ALPGEN warning: last unweighted event reached.\n"
 					      << "                (hepeup.NUP == 0)\n"
 					      << "                The event number " << e.id().event() << " will not be written to disk.";  
-      throw cms::Exception("Generator") << "Can't produce event because _unw.par file is over."
+      throw cms::Exception("Generator") << "Can't produce event because _unw.par file is over.";
     }
     
     call_pyhepc( 1 );
