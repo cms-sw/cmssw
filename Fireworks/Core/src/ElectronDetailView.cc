@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: ElectronDetailView.cc,v 1.22 2008/12/04 21:07:24 chrjones Exp $
+// $Id: ElectronDetailView.cc,v 1.23 2008/12/05 14:42:30 amraktad Exp $
 //
 
 // system include files
@@ -111,8 +111,6 @@ void ElectronDetailView::build_projected (TEveElementList **product,
 
      viewer->SetCurrentCamera(TGLViewer::kCameraPerspXOY);
      viewer->SetEventHandler(new TEveLegoEventHandler("Lego", viewer->GetGLWidget(), viewer));
-     viewer->SetGuideState(TGLUtil::kAxesOrigin, kTRUE, kTRUE, 0);
-
 
      // get electrons
 //      resetCenter();
@@ -530,6 +528,19 @@ void ElectronDetailView::fillData (const std::vector<DetId> &detids,
 	  }
      }
      data->SetAxisFromBins(1e-2, 1e-2);
+
+     // add offset
+     Double_t etaMin, etaMax;
+     Double_t phiMin, phiMax;
+     data->GetEtaLimits(etaMin, etaMax);
+     data->GetPhiLimits(phiMin, phiMax);
+     Float_t offe = 0.1*(etaMax -etaMin);
+     Float_t offp = 0.1*(etaMax -etaMin);
+     data->AddTower(etaMin -offe, etaMax +offe, phiMin -offp , phiMax +offp);
+
+     // set eta, phi axis title with symbol.ttf font
+     data->GetEtaBins()->SetTitle("X[cm]");
+     data->GetPhiBins()->SetTitle("Y[cm]");
 }
      
 TEveElementList *ElectronDetailView::makeLabels (
