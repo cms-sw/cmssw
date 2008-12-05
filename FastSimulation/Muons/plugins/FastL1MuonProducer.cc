@@ -150,30 +150,34 @@ FastL1MuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     // and keep for the L1 mu the position of first such hit:
     bool hasPSimHits = false;
     GlobalPoint glbPosition;
-    PSimHitContainer::const_iterator simHit;
-    for (simHit=muonDTHits->begin();simHit!=muonDTHits->end(); ++simHit) {
-      if ( (*simHit).trackId() == mySimTrack.trackId() ) {
-	Local3DPoint locPosition = (*simHit).localPosition();
-        glbPosition = dtGeometry->idToDet((*simHit).detUnitId())->surface().toGlobal(locPosition);
+    PSimHitContainer::const_iterator simDTHit=muonDTHits->begin();
+    PSimHitContainer::const_iterator endDTHit=muonDTHits->end();
+    for ( ; simDTHit!=endDTHit; ++simDTHit) {
+      if ( simDTHit->trackId() == mySimTrack.trackId() ) {
+        glbPosition = dtGeometry->idToDet(simDTHit->detUnitId())->surface().toGlobal(simDTHit->localPosition());
         hasPSimHits = true;
         break;
       }
     }
+
     if (! hasPSimHits) {
-      for (simHit=muonCSCHits->begin();simHit!=muonCSCHits->end(); ++simHit) {
-	if ( (*simHit).trackId() == mySimTrack.trackId() ) {
-	  Local3DPoint locPosition = (*simHit).localPosition();
-	  glbPosition = cscGeometry->idToDet((*simHit).detUnitId())->surface().toGlobal(locPosition);
+      PSimHitContainer::const_iterator simCSCHit=muonCSCHits->begin();
+      PSimHitContainer::const_iterator endCSCHit=muonCSCHits->end();
+      for ( ; simCSCHit!=endCSCHit; ++simCSCHit) {
+	if ( simCSCHit->trackId() == mySimTrack.trackId() ) {
+	  glbPosition = cscGeometry->idToDet(simCSCHit->detUnitId())->surface().toGlobal(simCSCHit->localPosition());
 	  hasPSimHits = true;
 	  break;
 	}
       }
     }
+
     if (! hasPSimHits) {
-      for (simHit=muonRPCHits->begin();simHit!=muonRPCHits->end(); ++simHit) {
-	if ( (*simHit).trackId() == mySimTrack.trackId() ) {
-	  Local3DPoint locPosition = (*simHit).localPosition();
-	  glbPosition = rpcGeometry->idToDet((*simHit).detUnitId())->surface().toGlobal(locPosition);
+      PSimHitContainer::const_iterator simRPCHit=muonRPCHits->begin();
+      PSimHitContainer::const_iterator endRPCHit=muonRPCHits->end();
+      for ( ; simRPCHit!=endRPCHit; ++simRPCHit) {
+	if ( simRPCHit->trackId() == mySimTrack.trackId() ) {
+	  glbPosition = rpcGeometry->idToDet(simRPCHit->detUnitId())->surface().toGlobal(simRPCHit->localPosition());
 	  hasPSimHits = true;
 	  break;
 	}
@@ -194,6 +198,7 @@ FastL1MuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       if (eta > 2.4) eta = 2.4-1e-6; else if (eta < -2.4) eta = -2.4+1e-6;
       double phi = glbPosition.phi();
       if ( phi < 0. ) phi = 2* M_PI + phi;
+
       unsigned etaIndex = theMuScales->getGMTEtaScale()->getPacked(eta);
       unsigned phiIndex = theMuScales->getPhiScale()->getPacked(phi);
       unsigned pTIndex = theMuPtScale->getPtScale()->getPacked(pT);
@@ -414,7 +419,7 @@ void FastL1MuonProducer::loadL1Muons(L1MuonCollection & c ,
     regionalMuonDTCSC.setPtValue(aMuon.ptValue());    
     
     rc.setInputCand(DTCSCIndex,regionalMuonDTCSC);
-  
+ 
     // Then RPC (if in RPC acceptance)
     if ( fabs(etaPilePoil) < 2.1 ) { 
       L1MuRegionalCand regionalMuonRPC = 
@@ -430,7 +435,9 @@ void FastL1MuonProducer::loadL1Muons(L1MuonCollection & c ,
       regionalMuonRPC.setPhiValue(aMuon.phiValue());
       regionalMuonRPC.setEtaValue(etaRPCValue);
       regionalMuonRPC.setPtValue(aMuon.ptValue());
+
       rc.setInputCand(RPCIndex,regionalMuonRPC);
+
     }
 
   }
