@@ -30,7 +30,7 @@ MillePedeAlignmentAlgorithm = cms.PSet(
         #    'pedeCommand' 'steerFile'Master.txt 
         # (and - if pedeDump is not empty - extended by: > 'pedeDump')
         # (MillePedeAlignmentAlgorithm.theDir is taken into account...)
-        pedeCommand = cms.untracked.string('/afs/cern.ch/user/f/flucke/cms/pede/versWebEndMay2007/pede'),
+        pedeCommand = cms.untracked.string('pede_1GB'),
 
         parameterSign = cms.untracked.int32(1), ## old pede versions (before May '07) need a sign flip
         pedeDump = cms.untracked.string('pede.dump'),
@@ -55,6 +55,9 @@ MillePedeAlignmentAlgorithm = cms.PSet(
         fileDir = cms.untracked.string('')
     ),
 
+    # Array of PSet's like 'pedeReader' above to be applied before running mille,
+    # i.e. for iterative running of Millepede without going via DB constants
+    # (note: if 'fileDir' empty, the one from 'pedeSteerer' will be used...): 
     pedeReaderInputs = cms.VPSet(),
 
     TrajectoryFactory = cms.PSet(
