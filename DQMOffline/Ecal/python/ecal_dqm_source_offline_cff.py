@@ -111,8 +111,10 @@ ecalEndcapTimingTask.EcalRawDataCollection = 'ecalDigis:'
 ecalEndcapTimingTask.EcalUncalibratedRecHitCollection = 'ecalWeightUncalibRecHit:EcalUncalibRecHitsEE'
 
 ecalBarrelTriggerTowerTask.EcalTrigPrimDigiCollectionReal = 'ecalDigis:EcalTriggerPrimitives'
+ecalBarrelTriggerTowerTask.EBDigiCollection = 'ecalDigis:ebDigis'
 
 ecalEndcapTriggerTowerTask.EcalTrigPrimDigiCollectionReal = 'ecalDigis:EcalTriggerPrimitives'
+ecalEndcapTriggerTowerTask.EEDigiCollection = 'ecalDigis:eeDigis'
 
 # to be used if the TP emulator _is_not_ in the path
 ecalBarrelTriggerTowerTask.EcalTrigPrimDigiCollectionEmul = 'ecalDigis:EcalTriggerPrimitives'
