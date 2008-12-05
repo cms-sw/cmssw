@@ -7,6 +7,6 @@ ecalEndcapTriggerTowerTask = cms.EDAnalyzer("EETriggerTowerTask",
     OutputRootFile = cms.untracked.string(''),
     EcalTrigPrimDigiCollectionReal = cms.InputTag("ecalEBunpacker","EcalTriggerPrimitives"),
     EcalTrigPrimDigiCollectionEmul = cms.InputTag("simEcalTriggerPrimitiveDigis"),
-    EEDigiCollection = cms.InputTag("ecalEEunpacker","eeDigis")
+    EEDigiCollection = cms.InputTag("ecalEBunpacker","eeDigis")
 )
 
