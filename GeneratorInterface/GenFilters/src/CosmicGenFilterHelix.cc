@@ -2,7 +2,7 @@
 //
 // Original Author:  Gero FLUCKE
 //         Created:  Mon Mar  5 16:32:01 CET 2007
-// $Id: CosmicGenFilterHelix.cc,v 1.7 2008/01/22 20:58:35 muzaffar Exp $
+// $Id: CosmicGenFilterHelix.cc,v 1.8 2008/08/15 20:25:06 flucke Exp $
 
 #include "GeneratorInterface/GenFilters/interface/CosmicGenFilterHelix.h"
 
@@ -12,8 +12,7 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
