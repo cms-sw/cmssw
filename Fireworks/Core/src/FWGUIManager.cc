@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.80 2008/11/28 22:23:13 amraktad Exp $
+// $Id: FWGUIManager.cc,v 1.81 2008/12/04 18:37:17 amraktad Exp $
 //
 
 // system include files
@@ -889,9 +889,9 @@ namespace {
          std::stringstream s;
          if(m_isFirst) {
             m_isFirst = false;
-            s<< static_cast<int>(iFrame->GetHeight());
-         }else {
             s<< static_cast<int>(iFrame->GetWidth());
+         }else {
+            s<< static_cast<int>(iFrame->GetHeight());
          }
          m_config->addValue(s.str());
       }
@@ -911,12 +911,12 @@ namespace {
             // top (main) split frame
             width = iFrame->GetWidth();
             std::stringstream s(m_config->value(m_index));
-            s >> height;
+            s >> width;
          } else {
          // bottom left split frame
             height = iFrame->GetHeight();
             std::stringstream s(m_config->value(m_index));
-            s >> width;
+            s >> height;
          }
          iFrame->Resize(width, height);
          ++m_index;
