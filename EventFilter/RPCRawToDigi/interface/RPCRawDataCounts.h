@@ -7,8 +7,6 @@
 
 namespace rpcrawtodigi { class DataRecord; }
 namespace rpcrawtodigi { class ReadoutError; }
-class TH1F;
-class TH2F;
 
 class RPCRawDataCounts {
 public:
@@ -20,19 +18,13 @@ public:
   void operator+= (const RPCRawDataCounts& );
   std::string print() const;
 
-  void fillRecordTypeHisto(int fedId, TH1F* histo) const;
-  void fillReadoutErrorHisto(int fedId, TH1F* histo) const;
-  void fillGoodEventsHisto(TH2F* histo) const;
-  void fillBadEventsHisto(TH2F* histo) const;
-  
-  TH1F * emptyRecordTypeHisto(int fedId) const;
-  TH1F * emptyReadoutErrorHisto(int fedId) const;
-
 private:
 
+  friend class  RPCRawDataCountsHistoMaker;
   std::map< std::pair<int,int>, int> theRecordTypes;
   std::map< std::pair<int,int>, int> theReadoutErrors; 
   std::map< std::pair<int,int>, int> theGoodEvents;
   std::map< std::pair<int,int>, int> theBadEvents;
+
 };
 #endif
