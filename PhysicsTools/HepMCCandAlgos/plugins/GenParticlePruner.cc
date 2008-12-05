@@ -210,7 +210,7 @@ void GenParticlePruner::produce(Event& evt, const EventSetup&) {
   for(vector<size_t>::const_iterator i = indices_.begin(); i != indices_.end(); ++i) {
     size_t index = *i;
     const GenParticle & gen = (*src)[index];
-    const Particle & part = gen;
+    const LeafCandidate & part = gen;
     out->push_back(GenParticle(part));
     GenParticle & newGen = out->back();
     addDaughterRefs(newGen, outRef, gen.daughterRefVector());

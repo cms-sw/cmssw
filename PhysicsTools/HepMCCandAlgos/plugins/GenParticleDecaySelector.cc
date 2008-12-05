@@ -2,7 +2,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id$
+ * \version $Id: GenParticleDecaySelector.cc,v 1.1 2007/12/05 15:12:49 llista Exp $
  *
  */
 
@@ -69,7 +69,7 @@ pair<GenParticleRef, GenParticle*> GenParticleDecaySelector::add(GenParticleColl
   size_t idx = decay.size();
   GenParticleRef r(ref, idx);
   decay.resize(idx+1);
-  const Particle & part = p;
+  const LeafCandidate & part = p;
   GenParticle g(part);
   size_t n = p.numberOfDaughters();
   for(size_t i = 0; i < n; ++i) {
