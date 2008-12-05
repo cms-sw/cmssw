@@ -511,6 +511,10 @@ void HcalRecHitsMaker::Fill(int id, float energy, std::vector<int>& theHits,floa
 {
   if(doMiscalib_) 
     energy*=miscalib_[id];
+
+  if(noiseFromDb_)
+    noise=noisesigma_[id];
+
   // Check if the RecHit exists
   if(hcalRecHits_[id]>0.)
     hcalRecHits_[id]+=energy;
