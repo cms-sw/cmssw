@@ -4,8 +4,8 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2008/11/10 13:41:56 $
- * $Revision: 1.92 $
+ * $Date: 2008/12/05 13:09:04 $
+ * $Revision: 1.97 $
  * \author W Fisher
  *
 */
@@ -420,7 +420,15 @@ void HcalMonitorModule::endJob(void) {
 	  HcalChannelStatus* mystatus=new HcalChannelStatus(origstatus->rawId(),origstatus->getValue());
 	  if (myquality_.find(id)!=myquality_.end())
 	    {
-
+	      // Set bit 1 for cells which aren't present 	 
+	      if ((id.subdet()==HcalBarrel &&!HBpresent_) || 	 
+		  (id.subdet()==HcalEndcap &&!HEpresent_) || 	 
+		  (id.subdet()==HcalOuter  &&!HOpresent_) || 	 
+		  (id.subdet()==HcalForward&&!HFpresent_)) 	 
+		{ 	 
+		  mystatus->setBit(1); 	 
+		} 	 
+	      // Only perform these checks if bit 0 not set?
 	      // check dead cells
 	      if ((myquality_[id]>>5)&0x1)
 		  mystatus->setBit(5);
@@ -431,7 +439,7 @@ void HcalMonitorModule::endJob(void) {
 		mystatus->setBit(6);
 	      else
 		mystatus->unsetBit(6);
-	    }
+	    } // if (myquality.find_...)
 	  newChanQual->addValues(*mystatus);
 	} // for (unsigned int i=0;...)
       // Now dump out to text file
@@ -757,8 +765,8 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
     // But is ZDC is okay, we'll make rec hit plots for that as well.
     if (zdchitOK_)
       {
-	if (debug_) cout <<"PROCESSING ZDC!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"<<endl;
-	rhMon_->processZDC(*zdc_hits);
+	if (debug_>1) cout <<"PROCESSING ZDC!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"<<endl;
+	//rhMon_->processZDC(*zdc_hits);
       }
     }
   if (showTiming_)
