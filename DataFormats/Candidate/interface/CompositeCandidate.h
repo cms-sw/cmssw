@@ -1,6 +1,6 @@
 #ifndef Candidate_CompositeCandidate_h
 #define Candidate_CompositeCandidate_h
-#include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/Candidate/interface/LeafCandidate.h"
 #include <memory>
 /** \class reco::CompositeCandidate
  *
@@ -9,7 +9,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: CompositeCandidate.h,v 1.27 2008/05/15 20:16:37 srappocc Exp $
+ * \version $Id: CompositeCandidate.h,v 1.28 2008/07/22 06:07:44 llista Exp $
  *
  */
 
@@ -20,26 +20,23 @@
 
 namespace reco {
 
-  class CompositeCandidate : public Candidate {
+  class CompositeCandidate : public LeafCandidate {
   public:
     /// collection of daughters
     typedef CandidateCollection daughters;
     typedef std::vector<std::string> role_collection; 
     /// default constructor
-    CompositeCandidate(std::string name="") : Candidate(), name_(name) { }
+    CompositeCandidate(std::string name="") : LeafCandidate(), name_(name) { }
     /// constructor from values
     CompositeCandidate( Charge q, const LorentzVector & p4, const Point & vtx = Point( 0, 0, 0 ),
 			int pdgId = 0, int status = 0, bool integerCharge = true,
 			std::string name="") :
-      Candidate( q, p4, vtx, pdgId, status, integerCharge ), name_(name) { }
+      LeafCandidate( q, p4, vtx, pdgId, status, integerCharge ), name_(name) { }
     /// constructor from values
     CompositeCandidate( Charge q, const PolarLorentzVector & p4, const Point & vtx = Point( 0, 0, 0 ),
 			int pdgId = 0, int status = 0, bool integerCharge = true,
 			std::string name="" ) :
-      Candidate( q, p4, vtx, pdgId, status, integerCharge ), name_(name) { }
-    /// constructor from values
-    explicit CompositeCandidate( const Particle & p, const std::string& name="" ) :
-      Candidate( p ), name_(name) { }
+      LeafCandidate( q, p4, vtx, pdgId, status, integerCharge ), name_(name) { }
     /// constructor from values
     explicit CompositeCandidate( const Candidate & p, const std::string& name="" );
     /// constructor from values

@@ -7,32 +7,32 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: ShallowClonePtrCandidate.h,v 1.1 2008/05/08 15:29:35 srappocc Exp $
+ * \version $Id: ShallowClonePtrCandidate.h,v 1.2 2008/05/08 15:45:59 srappocc Exp $
  *
  */
-#include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/Candidate/interface/LeafCandidate.h"
 #include "DataFormats/Candidate/interface/iterator_imp_specific.h"
 
 namespace reco {
-  class ShallowClonePtrCandidate : public Candidate {
+  class ShallowClonePtrCandidate : public LeafCandidate {
   public:
     /// collection of daughter candidates
     typedef CandidateCollection daughters;
     /// default constructor
-    ShallowClonePtrCandidate() : Candidate() {  }
+    ShallowClonePtrCandidate() : LeafCandidate() {  }
     /// constructor from Particle
     explicit ShallowClonePtrCandidate( const CandidatePtr & masterClone ) : 
-      Candidate( * masterClone ), 
+      LeafCandidate( * masterClone ), 
       masterClone_( masterClone ) { 
     }
     /// constructor from values
     ShallowClonePtrCandidate( const CandidatePtr & masterClone, 
 			   Charge q, const LorentzVector & p4, const Point & vtx = Point( 0, 0, 0 ) ) : 
-      Candidate( q, p4, vtx ), masterClone_( masterClone ) { }
+      LeafCandidate( q, p4, vtx ), masterClone_( masterClone ) { }
     /// constructor from values
     ShallowClonePtrCandidate( const CandidatePtr & masterClone, 
 			   Charge q, const PolarLorentzVector & p4, const Point & vtx = Point( 0, 0, 0 ) ) : 
-      Candidate( q, p4, vtx ), masterClone_( masterClone ) { }
+      LeafCandidate( q, p4, vtx ), masterClone_( masterClone ) { }
     /// destructor
     virtual ~ShallowClonePtrCandidate();
     /// returns a clone of the Candidate object

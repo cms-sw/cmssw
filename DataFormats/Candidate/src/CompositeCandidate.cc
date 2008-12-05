@@ -1,4 +1,4 @@
-// $Id: CompositeCandidate.cc,v 1.12 2008/06/20 09:12:27 llista Exp $
+// $Id: CompositeCandidate.cc,v 1.13 2008/07/22 06:07:44 llista Exp $
 #include "DataFormats/Candidate/interface/CompositeCandidate.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -6,7 +6,7 @@ using namespace reco;
 
 CompositeCandidate::CompositeCandidate(const Candidate & c,
 				       const std::string& name) :
-  Candidate(c), name_(name) {
+  LeafCandidate(c), name_(name) {
   size_t n = c.numberOfDaughters();
   for(size_t i = 0; i != n; ++i) {
       addDaughter(*c.daughter(i));
@@ -16,7 +16,7 @@ CompositeCandidate::CompositeCandidate(const Candidate & c,
 CompositeCandidate::CompositeCandidate(const Candidate & c,
 				       const std::string& name,
 				       role_collection const & roles) :
-  Candidate(c), name_(name), roles_(roles) {
+  LeafCandidate(c), name_(name), roles_(roles) {
   size_t n = c.numberOfDaughters();
   size_t r = roles_.size();
   bool sameSize = (n == r);

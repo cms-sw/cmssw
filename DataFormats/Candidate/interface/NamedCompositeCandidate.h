@@ -9,7 +9,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: NamedCompositeCandidate.h,v 1.3 2008/05/08 15:45:59 srappocc Exp $
+ * \version $Id: NamedCompositeCandidate.h,v 1.4 2008/07/22 06:07:44 llista Exp $
  *
  */
 
@@ -36,11 +36,6 @@ namespace reco {
 			     int pdgId = 0, int status = 0, bool integerCharge = true ) :
       CompositeCandidate( q, p4, vtx, pdgId, status, integerCharge ), 
       name_ (name), roles_(roles) { }
-    /// constructor from values
-    NamedCompositeCandidate( std::string name, 
-			     const role_collection & roles,
-			     const Particle & p ) :
-      CompositeCandidate( p ), name_(name), roles_(roles) { }
     /// constructor from values
     NamedCompositeCandidate( std::string name, 
 			     const role_collection & roles, 

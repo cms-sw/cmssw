@@ -1,6 +1,6 @@
 #ifndef Candidate_CompositeRefCandidate_h
 #define Candidate_CompositeRefCandidate_h
-#include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/Candidate/interface/LeafCandidate.h"
 /** \class reco::CompositeRefCandidate
  *
  * a reco::Candidate composed of daughters. 
@@ -9,7 +9,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: CompositeRefCandidate.h,v 1.22 2007/11/06 15:19:22 llista Exp $
+ * \version $Id: CompositeRefCandidate.h,v 1.23 2007/12/10 12:16:40 llista Exp $
  *
  */
 
@@ -17,24 +17,24 @@
 
 namespace reco {
 
-  class CompositeRefCandidate : public Candidate {
+  class CompositeRefCandidate : public LeafCandidate {
   public:
     /// collection of references to daughters
     typedef CandidateRefVector daughters;
     /// collection of references to daughters
     typedef CandidateRefVector mothers;
     /// default constructor
-    CompositeRefCandidate() : Candidate() { }
+    CompositeRefCandidate() : LeafCandidate() { }
     /// constructor from values
     CompositeRefCandidate( Charge q, const LorentzVector & p4, const Point & vtx = Point( 0, 0, 0 ),
 			   int pdgId = 0, int status = 0, bool integerCharge = true ) :
-      Candidate( q, p4, vtx, pdgId, status, integerCharge ) { }
+      LeafCandidate( q, p4, vtx, pdgId, status, integerCharge ) { }
     /// constructor from values
     CompositeRefCandidate( Charge q, const PolarLorentzVector & p4, const Point & vtx = Point( 0, 0, 0 ),
 			   int pdgId = 0, int status = 0, bool integerCharge = true ) :
-      Candidate( q, p4, vtx, pdgId, status, integerCharge ) { }
-    /// constructor from a particle
-    explicit CompositeRefCandidate( const Particle & p ) : Candidate( p ) { }
+      LeafCandidate( q, p4, vtx, pdgId, status, integerCharge ) { }
+    /// constructor from a candidate
+    explicit CompositeRefCandidate( const Candidate & p ) : LeafCandidate( p ) { }
     /// destructor
     virtual ~CompositeRefCandidate();
     /// returns a clone of the candidate
