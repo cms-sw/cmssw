@@ -1,28 +1,26 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("readelectrons")
-process.load("FWCore.MessageLogger.MessageLogger_cfi")
-
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
 )
-process.source = cms.Source("PoolSource",
+process.source = cms.Source ("PoolSource",
     fileNames = cms.untracked.vstring (
        '/store/relval/CMSSW_2_2_0/RelValSingleElectronPt35/GEN-SIM-RECO/IDEAL_V9_v1/0000/587EC8EF-B4B9-DD11-AC52-001617C3B65A.root',
        '/store/relval/CMSSW_2_2_0/RelValSingleElectronPt35/GEN-SIM-RECO/IDEAL_V9_v1/0000/9E464300-76B9-DD11-B526-000423D98C20.root'
     )
 )
 
-process.mergedSuperClusters = cms.EDFilter("EgammaSuperClusterMerger",
-    src = cms.VInputTag(cms.InputTag("correctedHybridSuperClusters"), cms.InputTag("multi5x5SuperClustersWithPreshower"))
-)
-
-process.gsfElectronAnalysis = cms.EDAnalyzer("GsfElectronDataAnalyzer",
+process.gsfElectronAnalysis = cms.EDAnalyzer("GsfElectronMCAnalyzerElID",
     electronCollection = cms.InputTag("pixelMatchGsfElectrons"),
-    matchingObjectCollection = cms.InputTag("mergedSuperClusters"),
-    outputFile = cms.string('gsfElectronHistos_data.root'),
+    eidValueMapName = cms.string("eidLoose"),
+    #eidValueMapName = cms.string("eidRobustLoose"),
+    #eidValueMapName = cms.string("eidTight"),
+    #eidValueMapName = cms.string("eidRobustTight"),
+    mcTruthCollection = cms.InputTag("source"),
+    outputFile = cms.string('gsfElectronHistos_mc_elID.root'),
     MaxPt = cms.double(100.0),
-    DeltaR = cms.double(0.3),
+    DeltaR = cms.double(0.05),
     MaxAbsEta = cms.double(2.5),
     Etamin = cms.double(-2.5),
     Etamax = cms.double(2.5),
@@ -64,6 +62,6 @@ process.gsfElectronAnalysis = cms.EDAnalyzer("GsfElectronDataAnalyzer",
     Nbineop = cms.int32(50)
 )
 
-process.p = cms.Path(process.mergedSuperClusters*process.gsfElectronAnalysis)
+process.p = cms.Path(process.gsfElectronAnalysis)
 
 

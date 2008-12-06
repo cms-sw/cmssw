@@ -6,20 +6,10 @@ process.maxEvents = cms.untracked.PSet(
 )
 process.source = cms.Source ("PoolSource",
     fileNames = cms.untracked.vstring (
-       '/store/relval/CMSSW_2_1_7/RelValSingleElectronPt10/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/IDEAL_V9_v1/0001/6AC34254-A77D-DD11-A69E-000423D99B3E.root',
-       '/store/relval/CMSSW_2_1_7/RelValSingleElectronPt10/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/IDEAL_V9_v1/0001/CEF2036E-A77D-DD11-8C3E-001617DBD556.root',
-       '/store/relval/CMSSW_2_1_7/RelValSingleElectronPt10/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/IDEAL_V9_v1/0001/DA54377C-A77D-DD11-B415-000423D98C20.root',
-       '/store/relval/CMSSW_2_1_7/RelValSingleElectronPt10/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/IDEAL_V9_v1/0002/F6AD9822-437E-DD11-8D4C-001617DBD332.root'
+       '/store/relval/CMSSW_2_2_0/RelValSingleElectronPt35/GEN-SIM-RECO/IDEAL_V9_v1/0000/587EC8EF-B4B9-DD11-AC52-001617C3B65A.root',
+       '/store/relval/CMSSW_2_2_0/RelValSingleElectronPt35/GEN-SIM-RECO/IDEAL_V9_v1/0000/9E464300-76B9-DD11-B526-000423D98C20.root'
     )
 )
-
-process.PoolSource.fileNames = [
-       '/store/relval/CMSSW_2_1_8/RelValSingleElectronPt35/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/IDEAL_V9_v1/0002/26127B91-5E82-DD11-ACA1-000423D95220.root',
-       '/store/relval/CMSSW_2_1_8/RelValSingleElectronPt35/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/IDEAL_V9_v1/0002/5289417D-5E82-DD11-9911-001617C3B76E.root',
-       '/store/relval/CMSSW_2_1_8/RelValSingleElectronPt35/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/IDEAL_V9_v1/0002/74716D79-5E82-DD11-B6D5-001617DBD224.root',
-       '/store/relval/CMSSW_2_1_8/RelValSingleElectronPt35/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/IDEAL_V9_v1/0002/9C35CE9A-5E82-DD11-BC6A-001617E30D40.root',
-       '/store/relval/CMSSW_2_1_8/RelValSingleElectronPt35/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/IDEAL_V9_v1/0003/AE85EEF7-A682-DD11-8C83-000423D992A4.root'
-       ]
 
 process.gsfElectronAnalysis = cms.EDAnalyzer("GsfElectronMCAnalyzer",
     electronCollection = cms.InputTag("pixelMatchGsfElectrons"),
