@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Sep 30 14:21:45 EDT 2008
-// $Id: Context.h,v 1.1 2008/10/21 19:06:56 chrjones Exp $
+// $Id: Context.h,v 1.2 2008/11/06 22:05:22 amraktad Exp $
 //
 
 // system include files
@@ -26,13 +26,15 @@
 // forward declarations
 class FWModelChangeManager;
 class FWSelectionManager;
+class FWEventItemsManager;
 
 namespace fireworks {
    class Context {
 
    public:
       Context(FWModelChangeManager* iCM,
-              FWSelectionManager* iSM);
+              FWSelectionManager* iSM,
+              FWEventItemsManager* iEM);
       //virtual ~Context();
 
       // ---------- const member functions ---------------------
@@ -43,6 +45,9 @@ namespace fireworks {
          return m_selectionManager;
       }
 
+      const FWEventItemsManager* eventItemsManager() const {
+         return m_eventItemsManager;
+      }
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------
@@ -55,6 +60,7 @@ namespace fireworks {
       // ---------- member data --------------------------------
       FWModelChangeManager* m_changeManager;
       FWSelectionManager* m_selectionManager;
+      FWEventItemsManager* m_eventItemsManager;
    };
 }
 

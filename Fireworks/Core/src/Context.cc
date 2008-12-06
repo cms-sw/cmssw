@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Sep 30 14:57:12 EDT 2008
-// $Id: Context.cc,v 1.1 2008/10/21 19:06:56 chrjones Exp $
+// $Id: Context.cc,v 1.2 2008/11/06 22:05:24 amraktad Exp $
 //
 
 // system include files
@@ -29,9 +29,11 @@ using namespace fireworks;
 // constructors and destructor
 //
 Context::Context(FWModelChangeManager* iCM,
-                 FWSelectionManager* iSM):
+                 FWSelectionManager* iSM,
+FWEventItemsManager* iEM):
 m_changeManager(iCM),
-m_selectionManager(iSM)
+m_selectionManager(iSM),
+m_eventItemsManager(iEM)
 {
 }
 
