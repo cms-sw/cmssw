@@ -14,7 +14,7 @@ in Offline Trigger DQM etc
 #include "FWCore/ParameterSet/interface/InputTag.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 #include "DataFormats/Candidate/interface/Candidate.h"

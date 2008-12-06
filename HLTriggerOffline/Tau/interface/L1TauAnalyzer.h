@@ -13,7 +13,7 @@
 //
 // Original Author:  Chi Nhan Nguyen
 //         Created:  Fri Feb 22 09:20:55 CST 2008
-// $Id: L1TauAnalyzer.h,v 1.8 2008/02/25 01:22:39 chinhan Exp $
+// $Id: L1TauAnalyzer.h,v 1.1 2008/02/25 22:01:05 chinhan Exp $
 //
 //
 
@@ -35,7 +35,7 @@
 #include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/TauReco/interface/PFTauDiscriminatorByIsolation.h"
 
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include <Math/GenVector/VectorUtil.h>
 #include "TLorentzVector.h"
 

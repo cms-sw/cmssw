@@ -19,7 +19,7 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include <vector>
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"

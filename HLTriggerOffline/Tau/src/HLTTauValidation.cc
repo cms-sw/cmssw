@@ -138,6 +138,7 @@ HLTTauValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       if (trigEv.isValid()) 
 	{
 
+
 	  //Loop through the filters
 	  for(size_t i=0;i<filter_.size();++i)
 	    {
@@ -149,7 +150,8 @@ HLTTauValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 		      LVColl taus = getFilterCollection(ID,TauType_[i],*trigEv);
 
 		      //Fired
-		      if(leptons.size()>=nTriggeredLeptons_[i+1]&&taus.size()>=nTriggeredTaus_[i+1])
+		      
+		      if(leptons.size()>=nTriggeredLeptons_[i+1] && taus.size()>=nTriggeredTaus_[i+1])
 			{
 			  accepted_events->Fill(i+0.5);
 			  //Now do the matching only though if we have a good reference event
