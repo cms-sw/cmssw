@@ -10,7 +10,6 @@
 <use name=DataFormats/HLTReco>
 <use name=DataFormats/EgammaReco>
 <use name=DataFormats/TrackReco>
-<use name=DataFormats/HepMCCandidate>
 <use name=DataFormats/TrajectorySeed>
 <use name=DataFormats/L1GlobalTrigger>
 <use name=DataFormats/L1Trigger>
@@ -19,7 +18,6 @@
 <use name=DataFormats/METReco>
 <use name=DataFormats/JetReco>
 <use name=Geometry/CaloEventSetup>
-<use name=SimDataFormats/HepMCProduct>
 <use name=RecoEcal/EgammaCoreTools>
 <use name=HLTrigger/HLTcore>
 <use name=mimetic>
@@ -42,7 +40,6 @@
   <use name=DataFormats/HLTReco>
   <use name=DataFormats/EgammaReco>
   <use name=DataFormats/TrackReco>
-  <use name=DataFormats/HepMCCandidate>
   <use name=DataFormats/TrajectorySeed>
   <use name=DataFormats/L1GlobalTrigger>
   <use name=DataFormats/L1Trigger>
@@ -50,7 +47,6 @@
   <use name=DataFormats/METReco>
   <use name=DataFormats/JetReco>
   <use name=Geometry/CaloEventSetup>
-  <use name=SimDataFormats/HepMCProduct>
   <use name=RecoEcal/EgammaCoreTools>
   <use name=HLTrigger/HLTcore>
   <use name=mimetic>
