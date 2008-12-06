@@ -1,17 +1,17 @@
-#ifndef Pythia8_Source_h
-#define Pythia8_Source_h
+#ifndef Pythia8_Producer_h
+#define Pythia8_Producer_h
 
-/** \class Pythia8Source
+/** \class Pythia8Producer
  *
  * Generates Pythia8 HepMC events
  *
- * Mikhail Kirsanov 2007
+ * Mikhail Kirsanov 04.12.2008
  *
  ***************************************/
 
 #define PYCOMP pycomp_
 
-#include "FWCore/Framework/interface/GeneratedInputSource.h"
+#include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <map>
 #include <string>
@@ -28,15 +28,15 @@ namespace CLHEP
 
 namespace edm
 {
-  class Pythia8Source : public GeneratedInputSource {
+  class Pythia8Producer : public EDProducer {
   public:
 
     /// Constructor
-    Pythia8Source(const ParameterSet &, const InputSourceDescription &);
+    Pythia8Producer(const ParameterSet &);
     /// Destructor
-    virtual ~Pythia8Source();
+    virtual ~Pythia8Producer();
 
-    void endRun( Run& r);
+    void endRun( Run& r, const EventSetup& es);
 
   private:
 
@@ -47,7 +47,7 @@ namespace edm
   
   private:
     
-    virtual bool produce(Event & e);
+    virtual void produce(Event & e, const EventSetup& es);
     void clear();
     
     /// Pythia PYLIST Verbosity flag
@@ -75,6 +75,8 @@ namespace edm
     
     CLHEP::HepRandomEngine* fRandomEngine;
     CLHEP::RandFlat*        fRandomGenerator; 
+
+    int eventNumber_;
 
   };
 } 

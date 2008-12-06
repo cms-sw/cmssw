@@ -6,10 +6,11 @@
 <use name=clhep> 
 <use name=pythia8>
 <use name=pythia6>
+#<use name=GeneratorInterface/CommonInterface>
 
 <flags EDM_PLUGIN=1>
 <export>
- <lib name=GeneratorInterfacePythia8Interface>
+# <lib name=GeneratorInterfacePythia8Interface>
  <use name=boost>
  <use name=FWCore/Framework>
  <use name=SimDataFormats/HepMCProduct>
@@ -18,7 +19,5 @@
  <use name=clhep> 
  <use name=pythia8>
  <use name=pythia6>
+# <use name=GeneratorInterface/CommonInterface>
 </export>
-
- <lib name=g2c></lib>
- <lib name=m></lib>
