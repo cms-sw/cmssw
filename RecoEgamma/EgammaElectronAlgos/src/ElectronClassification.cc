@@ -78,7 +78,7 @@ void ElectronClassification::classify(const GsfElectron &electron) {
   float p2 = 8.97269e+00;
 
   float pin  = electron.trackMomentumAtVtx().R(); 
-  float pout = electron.trackMomentumOut().R(); 
+  float fbrem = electron.fbrem();
      
   float peak = p0 + p1/(pin-p2);
   
@@ -89,12 +89,12 @@ void ElectronClassification::classify(const GsfElectron &electron) {
       (pin - scEnergy)/pin < 0.1 &&
       fabs(electron.caloPosition().phi() -
 	   electron.gsfTrack()->outerMomentum().phi() - peak) < 0.15 &&
-      (pin - pout)/pin < 0.2) {    
+      fbrem < 0.2) {    
     electronClass_ += 0;
   } 
   // big brem
   else if (nbrem == 0 &&
-	   (pin - pout)/pin > 0.5 &&
+	   fbrem > 0.5 &&
 	   fabs(pin - scEnergy)/pin < 0.1) {
     electronClass_ += 10;
   } 
