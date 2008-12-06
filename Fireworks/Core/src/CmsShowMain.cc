@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.51 2008/12/01 22:24:33 amraktad Exp $
+// $Id: CmsShowMain.cc,v 1.52 2008/12/01 22:47:14 amraktad Exp $
 //
 
 // system include files
@@ -154,7 +154,8 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
   m_viewManager( new FWViewManagerManager(m_changeManager.get())),
   m_textView(0),
   m_context(new fireworks::Context(m_changeManager.get(),
-                                   m_selectionManager.get())),
+                                   m_selectionManager.get(),
+                                   m_eiManager.get())),
   m_playTimer(0),
   m_playBackTimer(0),
   m_isPlaying(false),
