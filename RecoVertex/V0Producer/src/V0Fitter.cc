@@ -13,7 +13,7 @@
 //
 // Original Author:  Brian Drell
 //         Created:  Fri May 18 22:57:40 CEST 2007
-// $Id: V0Fitter.cc,v 1.33 2008/12/02 22:53:40 drell Exp $
+// $Id: V0Fitter.cc,v 1.34 2008/12/02 23:44:09 drell Exp $
 //
 //
 
@@ -237,11 +237,13 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
       cApp.calculate(posState, negState);
       //cout << cApp.status() << endl;
       float dca = fabs( cApp.distance() );
+      GlobalPoint cxPt = cApp.crossingPoint();
 
+      if (sqrt( cxPt.x()*cxPt.x() + cxPt.y()*cxPt.y() ) > 120. 
+          || cxPt.z() > 300.) continue;
       if (dca < 0. || dca > tkDCACut) continue;
 
       // Get trajectory states for the tracks at POCA for later cuts
-      GlobalPoint cxPt = cApp.crossingPoint();
       //cout << "crossingPoint: " << cxPt.x() << ", " << cxPt.y() << ", " << cxPt.z() << endl;
       //cout << "Check 3" << endl;
       //TrajectoryStateClosestToPoint posTSCP;
@@ -355,7 +357,7 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
       }
 
       if( doPostFitCuts ) {
-	if( theVtx.chi2() > chi2Cut ||
+	if( theVtx.normalizedChi2() > chi2Cut ||
 	    rVtxMag < rVtxCut ||
 	    rVtxMag / sigmaRvtxMag < vtxSigCut ) {
 	  if(thePositiveRefTrack) delete thePositiveRefTrack;
