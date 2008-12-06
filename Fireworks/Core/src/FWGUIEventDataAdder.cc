@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 13 09:58:53 EDT 2008
-// $Id: FWGUIEventDataAdder.cc,v 1.12 2008/11/06 22:05:25 amraktad Exp $
+// $Id: FWGUIEventDataAdder.cc,v 1.13 2008/11/14 16:42:19 chrjones Exp $
 //
 
 // system include files
@@ -28,6 +28,7 @@
 #include "Fireworks/Core/src/FWGUIEventDataAdder.h"
 #include "Fireworks/Core/interface/FWPhysicsObjectDesc.h"
 #include "Fireworks/Core/interface/FWEventItemsManager.h"
+#include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/src/LightTableWidget.h"
 
 #include "DataFormats/Provenance/interface/BranchDescription.h"
@@ -276,11 +277,26 @@ FWGUIEventDataAdder::addNewItem()
       return;
    }
 
+   int largest = -1;
+   if(m_manager->begin() != m_manager->end()) {
+      largest = (*(m_manager->begin()))->layer();
+   }
+   for(FWEventItemsManager::const_iterator it = m_manager->begin(),
+       itEnd = m_manager->end();
+       it!=itEnd;
+       ++it) {
+      if(largest < (*it)->layer()) {
+         largest = (*it)->layer();
+      }
+   }
+   ++largest;
    FWPhysicsObjectDesc desc(name, theClass, m_purpose->GetText(),
                             FWDisplayProperties(),
                             moduleLabel,
                             m_productInstanceLabel->GetText(),
-                            m_processName->GetText());
+                            m_processName->GetText(),
+                            "",
+                            largest);
    m_manager->add( desc);
    if (m_frame) m_frame->UnmapWindow();
 }
