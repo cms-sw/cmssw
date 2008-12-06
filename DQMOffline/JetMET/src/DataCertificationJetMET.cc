@@ -13,7 +13,7 @@
 //
 // Original Author:  "Frank Chlebana"
 //         Created:  Sun Oct  5 13:57:25 CDT 2008
-// $Id: DataCertificationJetMET.cc,v 1.19 2008/11/24 14:51:33 chlebana Exp $
+// $Id: DataCertificationJetMET.cc,v 1.20 2008/12/02 06:16:27 hatake Exp $
 //
 //
 
@@ -39,7 +39,7 @@
 // Some switches
 #define NJetAlgo 4
 #define NL3Flags 3
-#define DEBUG    1
+#define DEBUG    0
 #define METFIT   0
 
 //
