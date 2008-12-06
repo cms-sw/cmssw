@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Jan  3 14:02:21 EST 2008
-// $Id: FWEventItem.h,v 1.28 2008/11/06 22:05:22 amraktad Exp $
+// $Id: FWEventItem.h,v 1.29 2008/12/01 01:00:13 chrjones Exp $
 //
 
 // system include files
@@ -84,8 +84,13 @@ class FWEventItem
       const void* data(const std::type_info&) const;
       const FWDisplayProperties& defaultDisplayProperties() const;
 
-      unsigned int layer() const;
-
+      /** objects with a larger layer number are drawn on top of objects with a lower number */
+      int layer() const;
+      ///returns true if item is in front of all other items
+      bool isInFront() const;
+      ///returns true if item is behind all other items
+      bool isInBack() const; 
+   
       const std::string& filterExpression() const;
       /**Unique ID for the item. This number starts at 0 and increments by one for each
        new item.*/
@@ -141,6 +146,10 @@ class FWEventItem
       /**Throws an FWExpresionException if there is a problem with the expression */
       void setFilterExpression(const std::string& );
 
+      /**change layering*/
+      void moveToFront();
+      void moveToBack();
+   
       void unselect(int iIndex) const;
       void select(int iIndex) const;
       void toggleSelect(int iIndex) const;
@@ -181,7 +190,7 @@ class FWEventItem
       std::string m_purpose;
       boost::shared_ptr<FWItemAccessorBase> m_accessor;
       FWDisplayProperties m_displayProperties;
-      unsigned int m_layer;
+      int m_layer;
       mutable std::vector<ModelInfo> m_itemInfos;
 
       //This will probably moved to a FWEventItemRetriever class

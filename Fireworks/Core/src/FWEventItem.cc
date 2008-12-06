@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Thu Jan  3 14:59:23 EST 2008
-// $Id: FWEventItem.cc,v 1.28 2008/11/06 22:05:25 amraktad Exp $
+// $Id: FWEventItem.cc,v 1.29 2008/12/01 01:00:13 chrjones Exp $
 //
 
 // system include files
@@ -25,6 +25,7 @@
 #include "Fireworks/Core/interface/FWModelChangeManager.h"
 #include "Fireworks/Core/interface/FWSelectionManager.h"
 #include "Fireworks/Core/interface/FWItemAccessorBase.h"
+#include "Fireworks/Core/interface/FWEventItemsManager.h"
 
 //
 // constants, enums and typedefs
@@ -288,6 +289,58 @@ FWEventItem::setDisplayProperties(int iIndex, const FWDisplayProperties& iProps)
    }
 }
 
+void 
+FWEventItem::moveToFront()
+{
+   assert(0!=m_context->eventItemsManager());
+   int largest = layer();
+   for(FWEventItemsManager::const_iterator it = m_context->eventItemsManager()->begin(),
+       itEnd = m_context->eventItemsManager()->end();
+       it != itEnd;
+       ++it) {
+      if((*it)->layer() > largest) {
+         largest= (*it)->layer();
+      }
+   }
+   
+   if(largest != layer()) {
+      m_layer = largest+1;
+   }
+
+   m_itemInfos.clear();
+   m_accessor->reset();
+   preItemChanged_(this);
+   //want filter to rerun after all changes have been made
+   m_shouldFilterConnection.block(false);
+   changeManager()->changed(this);
+}
+void 
+FWEventItem::moveToBack()
+{
+   assert(0!=m_context->eventItemsManager());
+   int smallest = layer();
+   for(FWEventItemsManager::const_iterator it = m_context->eventItemsManager()->begin(),
+       itEnd = m_context->eventItemsManager()->end();
+       it != itEnd;
+       ++it) {
+      if((*it)->layer() < smallest) {
+         smallest= (*it)->layer();
+      }
+   }
+   
+   if(smallest != layer()) {
+      m_layer = smallest-1;
+   }
+   FWChangeSentry sentry(*(this->changeManager()));
+
+   m_itemInfos.clear();
+   m_accessor->reset();
+   preItemChanged_(this);
+   //want filter to rerun after all changes have been made
+   m_shouldFilterConnection.block(false);
+   changeManager()->changed(this);
+}
+
 //
 // const member functions
 //
@@ -390,10 +443,40 @@ FWEventItem::defaultDisplayProperties() const
   return m_displayProperties;
 }
 
-unsigned int
+int
 FWEventItem::layer() const
 {
    return m_layer;
+}
+
+bool 
+FWEventItem::isInFront() const
+{
+   assert(0!=m_context->eventItemsManager());
+   for(FWEventItemsManager::const_iterator it = m_context->eventItemsManager()->begin(),
+       itEnd = m_context->eventItemsManager()->end();
+       it != itEnd;
+       ++it) {
+      if((*it)->layer() > layer()) {
+         return false;
+      }
+   }
+   return true;
+}
+
+bool 
+FWEventItem::isInBack() const
+{
+   assert(0!=m_context->eventItemsManager());
+   for(FWEventItemsManager::const_iterator it = m_context->eventItemsManager()->begin(),
+       itEnd = m_context->eventItemsManager()->end();
+       it != itEnd;
+       ++it) {
+      if((*it)->layer() < layer()) {
+         return false;
+      }
+   }
+   return true;
 }
 
 
