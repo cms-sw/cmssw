@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Jun 28 09:51:35 PDT 2008
-// $Id: FWRPZDataProxyBuilderBase.cc,v 1.6 2008/11/06 22:05:26 amraktad Exp $
+// $Id: FWRPZDataProxyBuilderBase.cc,v 1.7 2008/11/26 01:55:31 chrjones Exp $
 //
 
 // system include files
@@ -89,6 +89,7 @@ FWRPZDataProxyBuilderBase::itemChanged(const FWEventItem* iItem)
    m_rhoPhiProjs.DestroyElements();
    m_rhoZProjs.DestroyElements();
 
+   m_layer = iItem->layer();
    itemChangedImp(iItem);
 
    std::for_each(m_rpviews->begin(),m_rpviews->end(),
