@@ -16,7 +16,7 @@
 //
 // Original Author:  Joshua Berger
 //         Created:  Mon Jun 23 15:48:42 EDT 2008
-// $Id: CmsShowEDI.h,v 1.4 2008/08/24 00:29:50 chrjones Exp $
+// $Id: CmsShowEDI.h,v 1.5 2008/11/06 22:05:22 amraktad Exp $
 //
 
 // system include files
@@ -64,7 +64,9 @@ class CmsShowEDI : public TGTransientFrame
       void runFilter();
       void runSelection();
       void selectAll();
-
+      void moveToBack();
+      void moveToFront();
+   
    private:
       CmsShowEDI(const CmsShowEDI&); // stop default
 
@@ -74,6 +76,8 @@ class CmsShowEDI : public TGTransientFrame
       FWSelectionManager* m_selectionManager;
       TGLabel* m_objectLabel;
       TGTextButton* m_removeButton;
+      TGTextButton* m_frontButton;
+      TGTextButton* m_backButton;
       FWColorSelect* m_colorSelectWidget;
       TGCheckButton* m_isVisibleButton;
       FWGUIValidatingTextEntry* m_filterExpressionEntry;

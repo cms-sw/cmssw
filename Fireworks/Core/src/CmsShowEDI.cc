@@ -8,7 +8,7 @@
 //
 // Original Author:  Joshua Berger
 //         Created:  Mon Jun 23 15:48:11 EDT 2008
-// $Id: CmsShowEDI.cc,v 1.15 2008/11/06 22:05:24 amraktad Exp $
+// $Id: CmsShowEDI.cc,v 1.16 2008/12/05 21:55:40 chrjones Exp $
 //
 
 // system include files
@@ -115,6 +115,16 @@ m_validator( new FWExpressionValidator)
   m_isVisibleButton->SetState(kButtonDown, kFALSE);
   m_isVisibleButton->SetEnabled(kFALSE);
   graphicsFrame->AddFrame(m_isVisibleButton);
+  TGHorizontal3DLine* separator = new TGHorizontal3DLine(graphicsFrame, 200, 5);
+  graphicsFrame->AddFrame(separator, new TGLayoutHints(kLHintsNormal, 0, 0, 5, 5));
+  TGLabel* orderLabel = new TGLabel(graphicsFrame, "Set Drawing Order");
+   graphicsFrame->AddFrame(orderLabel);
+   m_frontButton = new TGTextButton(graphicsFrame,"Move to Front");
+   m_frontButton->SetEnabled(kFALSE);
+  graphicsFrame->AddFrame(m_frontButton);
+   m_backButton = new TGTextButton(graphicsFrame,"Move to Back");
+  m_backButton->SetEnabled(kFALSE);
+  graphicsFrame->AddFrame(m_backButton);
   ediTabs->AddTab("Graphics", graphicsFrame);
 
   // Filter tab
@@ -226,7 +236,8 @@ m_validator( new FWExpressionValidator)
    m_selectButton->Connect("Clicked()", "CmsShowEDI", this, "runSelection()");
    m_removeButton->Connect("Clicked()", "CmsShowEDI", this, "removeItem()");
    m_selectAllButton->Connect("Clicked()", "CmsShowEDI", this, "selectAll()");
-
+   m_frontButton->Connect("Clicked()","CmsShowEDI",this,"moveToFront()");
+   m_backButton->Connect("Clicked()","CmsShowEDI",this,"moveToBack()");
 
 
    SetWindowName("Collection Controller");
@@ -252,6 +263,9 @@ CmsShowEDI::~CmsShowEDI()
    m_selectButton->Disconnect("Clicked()", this, "runSelection()");
    m_selectAllButton->Disconnect("Clicked()", this, "selectAll()");
    m_removeButton->Disconnect("Clicked()", this, "removeItem()");
+   m_frontButton->Disconnect("Clicked()",this,"moveToFront()");
+   m_backButton->Disconnect("Clicked()",this,"moveToBack()");
+
    //  delete m_objectLabel;
   //  delete m_colorSelectWidget;
   //  delete m_isVisibleButton;
@@ -300,6 +314,8 @@ CmsShowEDI::fillEDIFrame(FWEventItem* iItem) {
         m_selectButton->SetEnabled(kTRUE);
         m_selectAllButton->SetEnabled(kTRUE);
         m_removeButton->SetEnabled(kTRUE);
+        if(!m_item->isInFront()) {m_frontButton->SetEnabled(kTRUE);}
+        if(!m_item->isInBack()) {m_backButton->SetEnabled(kTRUE);}
         m_displayChangedConn = m_item->defaultDisplayPropertiesChanged_.connect(boost::bind(&CmsShowEDI::updateDisplay, this));
         m_modelChangedConn = m_item->changed_.connect(boost::bind(&CmsShowEDI::updateFilter, this));
         //    m_selectionChangedConn = m_selectionManager->selectionChanged_.connect(boost::bind(&CmsShowEDI::updateSelection, this));
@@ -338,6 +354,26 @@ CmsShowEDI::updateDisplay() {
   m_colorSelectWidget->SetColor(gVirtualX->GetPixel(m_item->defaultDisplayProperties().color()),kFALSE);
   m_isVisibleButton->SetState(m_item->defaultDisplayProperties().isVisible() ? kButtonDown : kButtonUp, kFALSE);
 }
+
+void 
+CmsShowEDI::moveToBack()
+{
+   m_item->moveToBack();
+   m_backButton->SetEnabled(kFALSE);
+   if(! m_item->isInFront()) {
+      m_frontButton->SetEnabled(kTRUE);
+   }
+}
+void 
+CmsShowEDI::moveToFront()
+{
+   m_item->moveToFront();
+   m_frontButton->SetEnabled(kFALSE);
+   if(! m_item->isInBack()) {
+      m_backButton->SetEnabled(kTRUE);
+   }
+}
+
 
 void
 CmsShowEDI::updateFilter() {
