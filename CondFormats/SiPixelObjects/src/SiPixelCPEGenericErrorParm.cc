@@ -42,7 +42,7 @@ void SiPixelCPEGenericErrorParm::fillCPEGenericErrorParm(double version, std::st
 	ErrorsBinSize.betaBin_size  =   1;
 	errorsBinSize_.push_back(ErrorsBinSize);
 	//--- Part = 4 Fx
-	ErrorsBinSize.partBin_size  = 400;
+	ErrorsBinSize.partBin_size  = 380;
 	ErrorsBinSize.alphaBin_size =   1;
 	ErrorsBinSize.betaBin_size  =  10;
 	errorsBinSize_.push_back(ErrorsBinSize);

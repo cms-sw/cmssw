@@ -27,7 +27,7 @@ const float SiPixelCPEGenericDBErrorParametrization::fy_b_max[2] = {0.39, 0.39};
 
 //Constants based on subpart 
 const float SiPixelCPEGenericDBErrorParametrization::errors_big_pix[4] = {0.0070, 0.0030, 0.0068, 0.0040};
-const int   SiPixelCPEGenericDBErrorParametrization::size_max[4]       = {5, 2, 1, 1};
+const int   SiPixelCPEGenericDBErrorParametrization::size_max[4]       = {5, 2, 0, 0};
 
 //Garbage is set to hold a place for bx_b, though we don't parametrize it the same way
 const float garbage[1] = {-9999.99};
@@ -38,7 +38,7 @@ const float* SiPixelCPEGenericDBErrorParametrization::b_min[4] = {by_b_min, garb
 const float* SiPixelCPEGenericDBErrorParametrization::b_max[4] = {by_b_max, garbage,  fy_b_max, fx_b_max};
 
 //Bin Sizes
-const int SiPixelCPEGenericDBErrorParametrization::part_bin_size[4]  = { 0, 240, 360, 400};
+const int SiPixelCPEGenericDBErrorParametrization::part_bin_size[4]  = { 0, 240, 360, 380};
 const int SiPixelCPEGenericDBErrorParametrization::size_bin_size[4]  = {40,  40,  40,  40};
 const int SiPixelCPEGenericDBErrorParametrization::alpha_bin_size[4] = {10,   1,  10,   1};
 const int SiPixelCPEGenericDBErrorParametrization::beta_bin_size[4]  = { 1,  10,   1,  10};
@@ -83,7 +83,7 @@ std::pair<float,float> SiPixelCPEGenericDBErrorParametrization::getError(const S
 	else                      errors.first  = db_errors[(int)element.first].sigma;
 	if (bigInY && sizey == 1) errors.second = element.second;
 	else                      errors.second = db_errors[(int)element.second].sigma;
-	
+
 	return errors;
 }
 
@@ -117,7 +117,7 @@ std::pair<float,float> SiPixelCPEGenericDBErrorParametrization::getError(GeomDet
 	else                      errors.first  = db_errors[(int)element.first].sigma;
 	if (bigInY && sizey == 1) errors.second = element.second;
 	else                      errors.second = db_errors[(int)element.second].sigma;
-	
+
 	return errors;
 }
 
