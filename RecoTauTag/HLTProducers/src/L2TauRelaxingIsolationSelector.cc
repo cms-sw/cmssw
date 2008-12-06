@@ -35,19 +35,16 @@ L2TauRelaxingIsolationSelector::produce(edm::Event& iEvent, const edm::EventSetu
    using namespace edm;
    Handle<L2TauInfoAssociation> Imap;
 
-   if(iEvent.getByLabel(associationInput_ ,Imap))
-   {
+   std::auto_ptr<CaloJetCollection> l2IsolCaloJets( new CaloJetCollection );
+   iEvent.getByLabel(associationInput_ ,Imap); 
 
-	 //Create the CaloJet Collection
-	 std::auto_ptr<CaloJetCollection> l2IsolCaloJets( new CaloJetCollection );
-	 l2IsolCaloJets->reserve(Imap->size());
-
+   if(Imap->size()>0)
 	 for(L2TauInfoAssociation::const_iterator p = Imap->begin();p!=Imap->end();++p)
 	   {
 	     //Retrieve The L2TauIsolationInfo Class from the AssociationMap
 	     const L2TauIsolationInfo l2info = p->val;
 	     //Retrieve the Jet
-	     const CaloJet& jet =*(p->key);
+	     const CaloJet jet =*(p->key);
 	     
 	     //If The Cuts are Satisfied
  	   if(jet.et()>et_) 
@@ -59,18 +56,12 @@ L2TauRelaxingIsolationSelector::produce(edm::Event& iEvent, const edm::EventSetu
 		       if(l2info.ECALClusterDRRMS <drRMS_[0]+drRMS_[1]*jet.et()+drRMS_[2]*jet.et()*jet.et())
 			 if(l2info.TowerIsolConeCut<towerIsolEt_[0]+towerIsolEt_[1]*jet.et()+towerIsolEt_[2]*jet.et()*jet.et())
 			     {
-			         //Retrieve the Jet From the AssociationMap
-	   		       l2IsolCaloJets->push_back(*(jet.clone()));
+			       l2IsolCaloJets->push_back(jet);
 			     }
 
 	   }
  
-	        iEvent.put(l2IsolCaloJets, "Isolated");
-
-       }
-
-
-
+        iEvent.put(l2IsolCaloJets, "Isolated");
 }
 
 // ------------ method called once each job just before starting event loop  ------------

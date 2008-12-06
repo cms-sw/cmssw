@@ -53,36 +53,25 @@ L2TauIsolationProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 
 
    Handle<CaloJetCollection> l2CaloJets; //Handle to the input (L2TauCaloJets);
-
-
-
    iEvent.getByLabel(l2CaloJets_ ,l2CaloJets);//get the handle
 
+   //Create the Association
+   std::auto_ptr<L2TauInfoAssociation> l2InfoAssoc( new L2TauInfoAssociation);
 
    //If the JetCrystalsAssociation exists -> RUN The Producer
-   if(&(*l2CaloJets))
+   if(l2CaloJets->size())
      {
-
-
-       //Create the Association
-       std::auto_ptr<L2TauInfoAssociation> l2InfoAssoc( new L2TauInfoAssociation);
-     
-       CaloJetCollection::const_iterator jcStart = l2CaloJets->begin();
-
-
+      CaloJetCollection::const_iterator jcStart = l2CaloJets->begin();
        //Loop on Jets
        for(CaloJetCollection::const_iterator jc = jcStart ;jc!=l2CaloJets->end();++jc)
 	 {
-
 	   L2TauIsolationInfo l2info; //Create Info Object
-
 	   //Run ECALIsolation 
 	   if(ECALIsolation_run_)
 	     {
 	       L2TauECALIsolation ecal_isolation(ECALIsolation_innerCone_,ECALIsolation_outerCone_);
 	       ecal_isolation.run(getECALHits(*jc,iEvent,iSetup),*jc,l2info);
 	     }
-
 
 	   //Run ECALClustering 
 	   if(ECALClustering_run_)
@@ -91,7 +80,6 @@ L2TauIsolationProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 	       ecal_clustering.run(getECALHits(*jc,iEvent,iSetup),*jc,l2info);
 	     }
 
-
 	   //Run CaloTower Isolation
            if(TowerIsolation_run_)
 	     {
@@ -99,27 +87,17 @@ L2TauIsolationProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 	       tower_isolation.run(*jc,l2info);
 
 	     }
-	  
-
-      
 
 	   //Store the info Class
 	   edm::Ref<CaloJetCollection> jcRef(l2CaloJets,jc-jcStart);
 	   l2InfoAssoc->insert(jcRef, l2info);
-
-
-	         
 	 }
 
 
-       //Store The staff in the event
-
-       iEvent.put(l2InfoAssoc, "L2TauIsolationInfoAssociator");
      
      } //end of if(*jetCrystalsObj)
 
-
-
+    iEvent.put(l2InfoAssoc, "L2TauIsolationInfoAssociator");
 }
 
 
