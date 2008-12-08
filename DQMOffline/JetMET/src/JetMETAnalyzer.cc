@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/10/21 13:47:35 $
- *  $Revision: 1.16 $
+ *  $Date: 2008/11/25 21:28:01 $
+ *  $Revision: 1.17 $
  *  \author F. Chlebana - Fermilab
  */
 
@@ -34,6 +34,7 @@ JetMETAnalyzer::JetMETAnalyzer(const edm::ParameterSet& pSet) {
   // Calo Jet Collection Label
   theSCJetCollectionLabel   = parameters.getParameter<edm::InputTag>("SCJetsCollectionLabel");
   theICJetCollectionLabel   = parameters.getParameter<edm::InputTag>("ICJetsCollectionLabel");
+  theJPTJetCollectionLabel   = parameters.getParameter<edm::InputTag>("JPTJetsCollectionLabel");
 
   thePFJetCollectionLabel   = parameters.getParameter<edm::InputTag>("PFJetsCollectionLabel");
 
@@ -43,6 +44,7 @@ JetMETAnalyzer::JetMETAnalyzer(const edm::ParameterSet& pSet) {
   theTriggerResultsLabel    = parameters.getParameter<edm::InputTag>("TriggerResultsLabel");
   
   theJetAnalyzerFlag        = parameters.getUntrackedParameter<bool>("DoJetAnalysis",    true);
+  theJPTJetAnalyzerFlag        = parameters.getUntrackedParameter<bool>("DoJPTJetAnalysis",true);
   thePFJetAnalyzerFlag      = parameters.getUntrackedParameter<bool>("DoPFJetAnalysis",  true);
   theCaloMETAnalyzerFlag    = parameters.getUntrackedParameter<bool>("DoCaloMETAnalysis",true);
 
@@ -52,6 +54,12 @@ JetMETAnalyzer::JetMETAnalyzer(const edm::ParameterSet& pSet) {
     theSCJetAnalyzer->setSource("SISConeJets");
     theICJetAnalyzer  = new JetAnalyzer(parameters.getParameter<ParameterSet>("jetAnalysis"));
     theICJetAnalyzer->setSource("IterativeConeJets");
+  }
+
+  // --- do the analysis on JPT Jets
+  if(theJPTJetAnalyzerFlag) {
+    theJPTJetAnalyzer  = new JetAnalyzer(parameters.getParameter<ParameterSet>("JPTJetAnalysis"));
+    theJPTJetAnalyzer->setSource("JPTJets");
   }
 
   // --- do the analysis on the PFJets
@@ -73,6 +81,7 @@ JetMETAnalyzer::~JetMETAnalyzer() {
     delete theSCJetAnalyzer;
     delete theICJetAnalyzer;
   }
+  if(theJPTJetAnalyzerFlag)  delete theJPTJetAnalyzer;
   if(thePFJetAnalyzerFlag)   delete thePFJetAnalyzer;
   if(theCaloMETAnalyzerFlag) delete theCaloMETAnalyzer;
 }
@@ -90,7 +99,7 @@ void JetMETAnalyzer::beginJob(edm::EventSetup const& iSetup) {
     theSCJetAnalyzer->beginJob(iSetup, dbe);
     theICJetAnalyzer->beginJob(iSetup, dbe);
   }
-
+  if(theJPTJetAnalyzerFlag)   theJPTJetAnalyzer->beginJob(iSetup, dbe);
   if(thePFJetAnalyzerFlag)    thePFJetAnalyzer->beginJob(iSetup, dbe);
   if(theCaloMETAnalyzerFlag)  theCaloMETAnalyzer->beginJob(iSetup, dbe);
 
@@ -187,19 +196,51 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       }
     }
   }
-  
-
+  // **** Get the JPT Jet container
+  iEvent.getByLabel(theJPTJetCollectionLabel, caloJets);
+  //jpt
+  if(caloJets.isValid()){
+    theJPTJetAnalyzer->setJetHiPass(JetHiPass);
+    theJPTJetAnalyzer->setJetLoPass(JetLoPass);
+    for (reco::CaloJetCollection::const_iterator cal = caloJets->begin(); cal!=caloJets->end(); ++cal){
+      if(theJetAnalyzerFlag){
+	LogTrace(metname)<<"[JetMETAnalyzer] Call to the JPT Jet analyzer";
+	if (cal == caloJets->begin()) {	  
+	  theJPTJetAnalyzer->setNJets(caloJets->size());
+	  theJPTJetAnalyzer->setLeadJetFlag(1);
+	} else {
+	  theJPTJetAnalyzer->setLeadJetFlag(0);
+	}
+	theJPTJetAnalyzer->analyze(iEvent, iSetup, *cal);
+      }
+    }
+  }
   // **** Get the PFlow Jet container
   edm::Handle<reco::PFJetCollection> pfJets;
   iEvent.getByLabel(thePFJetCollectionLabel, pfJets);
 
   if(pfJets.isValid()){
+//     for (reco::PFJetCollection::const_iterator cal = pfJets->begin(); cal!=pfJets->end(); ++cal){
+//       if(thePFJetAnalyzerFlag){
+// 	LogTrace(metname)<<"[JetMETAnalyzer] Call to the PFJet analyzer";
+// 	thePFJetAnalyzer->analyze(iEvent, iSetup, *cal);
+//       }
+//     }
+    thePFJetAnalyzer->setJetHiPass(JetHiPass);
+    thePFJetAnalyzer->setJetLoPass(JetLoPass);
     for (reco::PFJetCollection::const_iterator cal = pfJets->begin(); cal!=pfJets->end(); ++cal){
       if(thePFJetAnalyzerFlag){
+	if (cal == pfJets->begin()) {	  
+	  thePFJetAnalyzer->setLeadJetFlag(1);
+	} else {
+	  thePFJetAnalyzer->setLeadJetFlag(0);
+	}
 	LogTrace(metname)<<"[JetMETAnalyzer] Call to the PFJet analyzer";
 	thePFJetAnalyzer->analyze(iEvent, iSetup, *cal);
       }
     }
+  } else {
+    if (DEBUG) LogTrace(metname)<<"[JetMETAnalyzer] pfjets NOT VALID!!";
   }
 
 
