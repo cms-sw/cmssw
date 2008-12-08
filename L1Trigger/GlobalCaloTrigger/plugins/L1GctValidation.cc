@@ -15,8 +15,7 @@
 #include <math.h>
 
 L1GctValidation::L1GctValidation(const edm::ParameterSet& iConfig) :
-  m_energy_tag(iConfig.getUntrackedParameter<edm::InputTag>("inputTag", edm::InputTag("gctDigis"))),
-  m_missHt_tag(iConfig.getUntrackedParameter<edm::InputTag>("missHtTag",edm::InputTag("gctDigis:missingHt")))
+  m_energy_tag(iConfig.getUntrackedParameter<edm::InputTag>("inputTag", edm::InputTag("gctDigis")))
 {
 }
 
@@ -38,7 +37,7 @@ L1GctValidation::~L1GctValidation()
 void
 L1GctValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-   using namespace edm;
+  using namespace edm;
 
   // Get the scales from the event setup
   ESHandle< L1GctJetEtCalibrationFunction > calibFun ;
@@ -56,8 +55,8 @@ L1GctValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   iEvent.getByLabel( m_energy_tag, sumHtColl ) ;
   Handle< L1GctEtMissCollection >  missEtColl ;
   iEvent.getByLabel( m_energy_tag, missEtColl ) ;
-  Handle< L1GctEtMissCollection >  missHtColl ;
-  iEvent.getByLabel( m_missHt_tag, missHtColl ) ;
+  Handle< L1GctHtMissCollection >  missHtColl ;
+  iEvent.getByLabel( m_energy_tag, missHtColl ) ;
 
   // Get the internal jet data from the event (for checking Ht)
   Handle < L1GctInternJetDataCollection > internalJetsColl;
@@ -88,14 +87,16 @@ L1GctValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 
   double htMiss = 0.0;
   double htMAng = 0.0;
-  for (L1GctEtMissCollection::const_iterator jbx=missHtColl->begin(); jbx!=missHtColl->end(); jbx++) {
+  for (L1GctHtMissCollection::const_iterator jbx=missHtColl->begin(); jbx!=missHtColl->end(); jbx++) {
     if (jbx->bx()==0) {
       htMiss = static_cast<double>(jbx->et());
       int phibin = jbx->phi();
       if (phibin>=36) phibin -= 72;
       double htMPhi = static_cast<double>(phibin);
 
-      htMAng = (htMPhi+0.5)*M_PI/36.;
+      // Ht phi is in 10 degree bins but numbered 0, 2, 4, ... etc.
+      // So to find the bin centre we add 1.0 here not 0.5 as elsewhere.
+      htMAng = (htMPhi+1.0)*M_PI/36.;
     }
   }
 
@@ -123,17 +124,21 @@ L1GctValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   theMissEtInGeV->Fill(etMiss*lsbForEt);
   theMissEtAngle->Fill(etMAng);
   theMissEtVector->Fill(etMiss*lsbForEt*cos(etMAng),etMiss*lsbForEt*sin(etMAng));
-  theMissHtInGeV->Fill(htMiss*lsbForHt*8.);
-  theMissHtAngle->Fill(htMAng);
-  theMissHtVector->Fill(htMiss*lsbForHt*cos(htMAng)*8.,htMiss*lsbForHt*sin(htMAng)*8.);
+  if (htMiss<62.5) {
+    theMissHtInGeV->Fill(htMiss*lsbForHt*8.);
+    theMissHtAngle->Fill(htMAng);
+    theMissHtVector->Fill(htMiss*lsbForHt*cos(htMAng)*8.,htMiss*lsbForHt*sin(htMAng)*8.);
+  }
 
   theMissEtVsMissHt->Fill(etMiss*lsbForEt, htMiss*lsbForHt*8);
   theMissEtVsMissHtAngle->Fill(etMAng, htMAng);
 
   theHtVsInternalJetsSum->Fill(etHad*lsbForHt, htFromJets*lsbForHt);
-  theMissHtVsInternalJetsSum->Fill(htMiss*lsbForHt*8, sqrt(hxFromJets*hxFromJets + hyFromJets*hyFromJets)*lsbForHt);
-  theMissHxVsInternalJetsSum->Fill(htMiss*lsbForHt*cos(htMAng)*8, hxFromJets*lsbForHt);
-  theMissHyVsInternalJetsSum->Fill(htMiss*lsbForHt*sin(htMAng)*8, hyFromJets*lsbForHt);
+  if (htMiss<62.5) {
+    theMissHtVsInternalJetsSum->Fill(htMiss*lsbForHt*8, sqrt(hxFromJets*hxFromJets + hyFromJets*hyFromJets)*lsbForHt);
+    theMissHxVsInternalJetsSum->Fill(htMiss*lsbForHt*cos(htMAng)*8, hxFromJets*lsbForHt);
+    theMissHyVsInternalJetsSum->Fill(htMiss*lsbForHt*sin(htMAng)*8, hyFromJets*lsbForHt);
+  }
 
   // Get jet counts from the event
   Handle< L1GctJetCountsCollection > jetCountColl ;

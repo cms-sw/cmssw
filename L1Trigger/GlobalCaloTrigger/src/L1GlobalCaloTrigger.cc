@@ -648,13 +648,13 @@ L1GctEtMissCollection  L1GlobalCaloTrigger::getEtMissCollection() const {
   return result;
 }
 
-L1GctEtMissCollection  L1GlobalCaloTrigger::getHtMissCollection() const {
-  L1GctEtMissCollection result(m_numOfBx);
+L1GctHtMissCollection  L1GlobalCaloTrigger::getHtMissCollection() const {
+  L1GctHtMissCollection result(m_numOfBx);
   int bx = m_bxStart;
   for (int i=0; i<m_numOfBx; i++) {
-    L1GctEtMiss temp(theEnergyFinalStage->getHtMissColl().at(i).value(),
+    L1GctHtMiss temp(theEnergyFinalStage->getHtMissColl().at(i).value(),
                      theEnergyFinalStage->getHtMissPhiColl().at(i).value(),
-                     false,
+                     theEnergyFinalStage->getHtMissColl().at(i).overFlow(),
 		     bx++ );
     result.at(i) = temp;
   }
