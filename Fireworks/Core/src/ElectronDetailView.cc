@@ -8,10 +8,12 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: ElectronDetailView.cc,v 1.23 2008/12/05 14:42:30 amraktad Exp $
+// $Id: ElectronDetailView.cc,v 1.24 2008/12/05 17:03:35 amraktad Exp $
 //
 
 // system include files
+#define private public
+#define protected public
 #include "TClass.h"
 #include "TEveGeoNode.h"
 #include "TEveGeoShapeExtract.h"
@@ -37,6 +39,8 @@
 #include "TGTextView.h"
 #include "TRandom3.h"
 #include "TH2.h"
+#undef private
+#undef protected
 
 // user include files
 #include "Fireworks/Core/interface/ElectronDetailView.h"
@@ -213,14 +217,15 @@ void ElectronDetailView::build_projected (TEveElementList **product,
 	  if (subdetId == EcalBarrel) {
 	       scposition->SetNextPoint(i->caloPosition().eta() * scale,
 					i->caloPosition().phi() * scale,
-					0);
+					1);
 	  } else if (subdetId == EcalEndcap) {
 	       scposition->SetNextPoint(i->caloPosition().x() * scale,
 					i->caloPosition().y() * scale,
-					0);
+					1);
 	  }
-	  scposition->SetMarkerStyle(5);
-	  scposition->SetMarkerSize(0.05);
+	  static int markerstyle = 28;
+	  scposition->SetMarkerStyle(markerstyle);
+// 	  scposition->SetMarkerSize(0.05);
 	  scposition->SetMarkerColor(kBlue);
 	  tList->AddElement(scposition);
 	  TEvePointSet *seedposition = 
@@ -228,17 +233,17 @@ void ElectronDetailView::build_projected (TEveElementList **product,
 	  if (subdetId == EcalBarrel) {
 	       seedposition->SetNextPoint(i->superCluster()->seed()->position().eta() * scale,
 					  i->superCluster()->seed()->position().phi() * scale,
-					  0);
+					  1);
 	       printf("seed cluster position: %f %f\n",
 		      i->superCluster()->seed()->position().eta(),
 		      i->superCluster()->seed()->position().phi());
 	  } else if (subdetId == EcalEndcap) {
 	       seedposition->SetNextPoint(i->superCluster()->seed()->position().x() * scale,
 					  i->superCluster()->seed()->position().y() * scale,
-					  0);
+					  1);
 	  }
-	  seedposition->SetMarkerStyle(28);
-	  seedposition->SetMarkerSize(0.05);
+	  seedposition->SetMarkerStyle(markerstyle);
+// 	  seedposition->SetMarkerSize(0.05);
 	  seedposition->SetMarkerColor(kRed);
 	  tList->AddElement(seedposition);
 	  TEveLine *trackpositionAtCalo = 
@@ -295,9 +300,9 @@ void ElectronDetailView::build_projected (TEveElementList **product,
 					 rotation_center[1] + 0.5,
 					 0);
 	  }
-	  pinposition->SetMarkerStyle(28);
+// 	  pinposition->SetMarkerStyle(markerstyle++);
 	  pinposition->SetLineColor(kRed);
-	  tList->AddElement(pinposition);
+// 	  tList->AddElement(pinposition);
 	  TEveLine *pinposition2 = new TEveLine("pin position", 1);
 	  if (subdetId == EcalBarrel) {
 	       pinposition2->SetNextPoint(rotation_center[0] - 0.5,
@@ -314,9 +319,9 @@ void ElectronDetailView::build_projected (TEveElementList **product,
 					 (i->caloPosition().y() - i->deltaPhiSuperClusterTrackAtVtx()) * scale,
 					 0);
 	  }
-	  pinposition2->SetMarkerStyle(28);
+// 	  pinposition2->SetMarkerStyle(markerstyle++);
 	  pinposition2->SetLineColor(kRed);
-	  tList->AddElement(pinposition2);
+// 	  tList->AddElement(pinposition2);
 	  // vector for the ECAL crystals
 	  TEveCaloDataVec* data = new TEveCaloDataVec(2);
 	  // one slice for the seed cluster (red) and one for the
@@ -343,6 +348,8 @@ void ElectronDetailView::build_projected (TEveElementList **product,
 	  data->SetPhiBins(new TAxis(10, 0.40, 0.50));
 #endif  
 	  data->DataChanged();
+	  data->fMaxValEt *= 4;
+	  data->fMaxValE *= 4;
 	  
 	  // lego
 	  
@@ -351,10 +358,10 @@ void ElectronDetailView::build_projected (TEveElementList **product,
 	  lego->SetPlaneColor(kBlue-5);
 
 	  // tempoary solution until we get pointer to gl viewer
- 	  lego->SetProjection(TEveCaloLego::k3D);
-
+//  	  lego->SetProjection(TEveCaloLego::k3D);
+	  lego->Set2DMode(TEveCaloLego::kValSize);
 	  lego->SetName("ElectronDetail Lego");
-	  lego->SetMainTransparency(50);
+// 	  lego->SetMainTransparency(5);
 	  gEve->AddElement(lego, tList);
 
 	  // scale and translate  
@@ -435,6 +442,9 @@ void ElectronDetailView::build_projected (TEveElementList **product,
 	  rescale(&pinposition2->RefMainTrans(), x_min, x_max, y_min, y_max);
 	  rescale(&trackpositionAtCalo->RefMainTrans(), x_min, x_max, y_min, y_max);
 	  rescale(&trackpositionAtCalo2->RefMainTrans(), x_min, x_max, y_min, y_max);
+	  
+	  tList->AddElement(pinposition);
+	  tList->AddElement(pinposition2);
 
 	  gEve->Redraw3D(kTRUE);
 	  
@@ -529,18 +539,25 @@ void ElectronDetailView::fillData (const std::vector<DetId> &detids,
      }
      data->SetAxisFromBins(1e-2, 1e-2);
 
-     // add offset
-     Double_t etaMin, etaMax;
-     Double_t phiMin, phiMax;
-     data->GetEtaLimits(etaMin, etaMax);
-     data->GetPhiLimits(phiMin, phiMax);
-     Float_t offe = 0.1*(etaMax -etaMin);
-     Float_t offp = 0.1*(etaMax -etaMin);
-     data->AddTower(etaMin -offe, etaMax +offe, phiMin -offp , phiMax +offp);
+//      // add offset
+//      Double_t etaMin, etaMax;
+//      Double_t phiMin, phiMax;
+//      data->GetEtaLimits(etaMin, etaMax);
+//      data->GetPhiLimits(phiMin, phiMax);
+//      Float_t offe = 0.1*(etaMax -etaMin);
+//      Float_t offp = 0.1*(etaMax -etaMin);
+//      data->AddTower(etaMin -offe, etaMax +offe, phiMin -offp , phiMax +offp);
 
      // set eta, phi axis title with symbol.ttf font
-     data->GetEtaBins()->SetTitle("X[cm]");
-     data->GetPhiBins()->SetTitle("Y[cm]");
+     if (detids.size() > 0 && detids.begin()->subdetId() == EcalEndcap) {
+	  data->GetEtaBins()->SetTitle("X[cm]");
+	  data->GetPhiBins()->SetTitle("Y[cm]");
+     } else {
+	  data->GetEtaBins()->SetTitleFont(122);
+	  data->GetEtaBins()->SetTitle("h");
+	  data->GetPhiBins()->SetTitleFont(122);
+	  data->GetPhiBins()->SetTitle("f");
+     }
 }
      
 TEveElementList *ElectronDetailView::makeLabels (

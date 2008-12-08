@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Mar  5 09:13:47 EST 2008
-// $Id: FWDetailViewManager.cc,v 1.16 2008/12/01 17:12:06 jmuelmen Exp $
+// $Id: FWDetailViewManager.cc,v 1.17 2008/12/05 14:42:01 amraktad Exp $
 //
 
 // system include files
@@ -158,10 +158,11 @@ FWDetailViewManager::openDetailViewFor(const FWModelId &id)
      text_view->Update();
      text_view->SetWidth(text_view->ReturnLongestLineWidth()+20);
      text_view->Layout();
+     double rotation_center[3] = { 0, 0, 0 };
    //      nv->GetGLViewer()->SetPerspectiveCamera(TGLViewer::kCameraOrthoXOY, 5, 0, viewer->second->rotation_center, 0.5, 0 );
-   //      nv->GetGLViewer()->SetPerspectiveCamera(TGLViewer::kCameraOrthoXOY, 5, 0, viewer->second->rotation_center, 0.5, 0 );
-   //      nv->GetGLViewer()->CurrentCamera().Reset();
-   // nv->GetGLViewer()->SetPerspectiveCamera(TGLViewer::kCameraPerspXOY, 5, 0, viewer->second->rotation_center, 0.5, 0 );
+     nv->GetGLViewer()->SetPerspectiveCamera(TGLViewer::kCameraOrthoXOY, 1, 0, rotation_center, 0.5, 0 );
+     nv->GetGLViewer()->CurrentCamera().Reset();
+     nv->GetGLViewer()->SetPerspectiveCamera(TGLViewer::kCameraPerspXOY, 1, 0, rotation_center, 0.5, 0 );
    nv->GetGLViewer()->CurrentCamera().Reset();
    nv->GetGLViewer()->UpdateScene();
 
