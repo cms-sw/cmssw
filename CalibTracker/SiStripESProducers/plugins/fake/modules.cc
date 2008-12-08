@@ -49,9 +49,9 @@ DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(SiStripLorentzAngleFakeESSource);
 
 #include "CondFormats/DataRecord/interface/SiStripBadStripRcd.h"
 #include "CondFormats/SiStripObjects/interface/SiStripBadStrip.h"
-#include "CalibTracker/SiStripESProducers/interface/SiStripBadStripGenerator.h"
-typedef SiStripTemplateFakeESSource< SiStripBadStrip, SiStripBadStripRcd, SiStripBadStripGenerator > SiStripBadStripConfigurableFakeESSource;
-DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(SiStripBadStripConfigurableFakeESSource);
+#include "CalibTracker/SiStripESProducers/interface/SiStripBadModuleGenerator.h"
+typedef SiStripTemplateFakeESSource< SiStripBadStrip, SiStripBadModuleRcd, SiStripBadModuleGenerator > SiStripBadModuleConfigurableFakeESSource;
+DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(SiStripBadModuleConfigurableFakeESSource);
 
 
 //---------- Bad Strips Empty Fake Source -----------//
