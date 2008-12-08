@@ -187,7 +187,7 @@ void OHltTree::Loop( vector<int> * iCount, vector<int> * sPureCount, vector<int>
       // Standard paths
       if ( (map_BitOfStandardHLTPath.find(trignames[it])->second==1) ) { 
         // JJH - first check L1 bit 
-        if (map_L1BitOfStandardHLTPath.find(trignames[it])->second==1) { 
+        if (map_L1BitOfStandardHLTPath.find(trignames[it])->second!=0) { 
           triggerBitNoPrescale[it] = true;
           if ((iCountNoPrescale[it]) % map_pathHLTPrescl.find(trignames[it])->second == 0) {
             triggerBit[it] = true; 

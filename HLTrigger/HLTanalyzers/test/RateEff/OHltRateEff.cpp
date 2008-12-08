@@ -409,8 +409,8 @@ int main(int argc, char *argv[]){
       //PPEX_DIR = inputStore + "OpenHLT212/ppex/";
 #endif //USE_SAMPLES_AT_FNAL
       //TString PPEX_DIR="rfio:/castor/cern.ch/user/j/jjhollar/OpenHLT184/ppex/";
-      //TString PPEX_DIR="rfio:/castor/cern.ch/user/j/jjhollar/OpenHLT212/ppex/";
-      TString PPEX_DIR="dcache:/pnfs/cms/WAX/resilient/jjhollar/OpenHLT212/ppex/";
+      TString PPEX_DIR="rfio:/castor/cern.ch/user/j/jjhollar/OpenHLT212/ppex/";
+      //TString PPEX_DIR="dcache:/pnfs/cms/WAX/resilient/jjhollar/OpenHLT212/ppex/";
       ProcFil.clear();
       ProcFil.push_back(PPEX_DIR+"ppex*");
 
@@ -435,8 +435,8 @@ int main(int argc, char *argv[]){
       //PPMUX_DIR = inputStore + "OpenHLT212/ppmux/";
 #endif //USE_SAMPLES_AT_FNAL
       //TString PPMUX_DIR="rfio:/castor/cern.ch/user/j/jjhollar/OpenHLT184/ppmux/";
-      //TString PPMUX_DIR="rfio:/castor/cern.ch/user/j/jjhollar/OpenHLT212/ppmux/";
-      TString PPMUX_DIR="dcache:/pnfs/cms/WAX/resilient/jjhollar/OpenHLT212/ppmux/";
+      TString PPMUX_DIR="rfio:/castor/cern.ch/user/j/jjhollar/OpenHLT212/ppmux/";
+      //TString PPMUX_DIR="dcache:/pnfs/cms/WAX/resilient/jjhollar/OpenHLT212/ppmux/";
       ProcFil.clear();
       ProcFil.push_back(PPMUX_DIR+"ppmux*");
  
@@ -461,8 +461,9 @@ int main(int argc, char *argv[]){
       //MB_DIR = inputStore + "OpenHLT212/minbiasnewnew/";
 #endif //USE_SAMPLES_AT_FNAL
       //    TString MB_DIR="rfio:/castor/cern.ch/user/a/apana/OpenHLT184/MinBias/";
-      //TString MB_DIR="rfio:/castor/cern.ch/user/j/jjhollar/OpenHLT212/minbiasnewnew/";
-      TString MB_DIR="dcache:/pnfs/cms/WAX/resilient/chinhan/datasets/RatesAndPrescales/OpenHLT212/minbias/";
+      TString MB_DIR="rfio:/castor/cern.ch/user/j/jjhollar/OpenHLT212/minbiasnewnew/";
+      //TString MB_DIR="dcache:/pnfs/cms/WAX/resilient/chinhan/datasets/RatesAndPrescales/OpenHLT212/minbias/";
+
       ProcFil.clear();
       ProcFil.push_back(MB_DIR+"minbias*");
 
