@@ -1,7 +1,7 @@
 /**\class PhotonSimpleAnalyzer
  **
- ** $Date: 2008/06/06 16:13:42 $ 
- ** $Revision: 1.16 $
+ ** $Date: 2008/06/24 15:26:55 $
+ ** $Revision: 1.17 $
  ** \author Nancy Marinelli, U. of Notre Dame, US
 */
 
@@ -19,7 +19,7 @@
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
 //
@@ -42,7 +42,7 @@ SimplePhotonAnalyzer::SimplePhotonAnalyzer( const edm::ParameterSet& ps )
   //mcCollection_ = ps.getParameter<std::string>("mcCollection");
   vertexProducer_ = ps.getParameter<std::string>("primaryVertexProducer");
   sample_ = ps.getParameter<int>("sample");
- 
+
 
 }
 
@@ -61,7 +61,7 @@ SimplePhotonAnalyzer::beginJob(edm::EventSetup const&) {
 //========================================================================
 
   edm::Service<TFileService> fs;
- 
+
   float hiE=0;
   float loE=0;
   float hiEt=0;
@@ -112,7 +112,7 @@ SimplePhotonAnalyzer::beginJob(edm::EventSetup const&) {
   h1_scEt_ = fs->make<TH1F>("scEt"," SC Et ",100,loEt,hiEt);
   h1_scE_ = fs->make<TH1F>("scE"," SC Energy ",100,loE,hiE);
   h1_pho_E_ = fs->make<TH1F>("phoE","Photon Energy ",100,loE,hiE);
-  
+
   h1_e5x5_unconvBarrel_ = fs->make<TH1F>("e5x5_unconvBarrelOverEtrue"," Photon rec/true energy if R9>0.93 Barrel ",100,loRes, hiRes);
   h1_e5x5_unconvEndcap_ = fs->make<TH1F>("e5x5_unconvEndcapOverEtrue"," Photon rec/true energy if R9>0.93 Endcap ",100,loRes, hiRes);
   h1_ePho_convBarrel_ = fs->make<TH1F>("ePho_convBarrelOverEtrue"," Photon rec/true energy if R9<=0.93 Barrel ",100,loRes, hiRes);
@@ -152,7 +152,7 @@ SimplePhotonAnalyzer::analyze( const edm::Event& evt, const edm::EventSetup& es 
 
   // Get the  corrected  photon collection (set in the configuration) which also contains infos about conversions
 
-  Handle<reco::PhotonCollection> photonHandle; 
+  Handle<reco::PhotonCollection> photonHandle;
   evt.getByLabel(photonCollectionProducer_, photonCollection_ , photonHandle);
   const reco::PhotonCollection photonCollection = *(photonHandle.product());
 
@@ -171,32 +171,32 @@ SimplePhotonAnalyzer::analyze( const edm::Event& evt, const edm::EventSetup& es 
   Handle< HepMCProduct > hepProd ;
   evt.getByLabel( mcProducer_.c_str(),  hepProd ) ;
   const HepMC::GenEvent * myGenEvent = hepProd->GetEvent();
- 
+
   for ( HepMC::GenEvent::particle_const_iterator p = myGenEvent->particles_begin(); p != myGenEvent->particles_end(); ++p ) {
     if ( !( (*p)->pdg_id() == 22 && (*p)->status()==1 )  )  continue;
-      
+
     // single primary photons or photons from Higgs or RS Graviton
     HepMC::GenParticle* mother = 0;
     if ( (*p)->production_vertex() )  {
-      if ( (*p)->production_vertex()->particles_begin(HepMC::parents) != 
-           (*p)->production_vertex()->particles_end(HepMC::parents))  
+      if ( (*p)->production_vertex()->particles_begin(HepMC::parents) !=
+           (*p)->production_vertex()->particles_end(HepMC::parents))
 	mother = *((*p)->production_vertex()->particles_begin(HepMC::parents));
-    } 
+    }
     if ( ((mother == 0) || ((mother != 0) && (mother->pdg_id() == 25))
-	  || ((mother != 0) && (mother->pdg_id() == 22)))) { 
+	  || ((mother != 0) && (mother->pdg_id() == 22)))) {
 
       float minDelta=10000.;
       std::vector<reco::Photon> localPhotons;
       int index=0;
       int iMatch=-1;
-     
+
       float phiPho=(*p)->momentum().phi();
       float etaPho=(*p)->momentum().eta();
       etaPho = etaTransformation(etaPho, (*p)->production_vertex()->position().z()/10. );
 
 
 
-      // loop over corrected  Photon candidates 
+      // loop over corrected  Photon candidates
       for( reco::PhotonCollection::const_iterator  iPho = photonCollection.begin(); iPho != photonCollection.end(); iPho++) {
 
 	/////  Set event vertex
@@ -214,18 +214,18 @@ SimplePhotonAnalyzer::analyze( const edm::Event& evt, const edm::EventSetup& es 
 	if ( deltaPhi < -pi) deltaPhi += twopi;
 	deltaPhi=pow(deltaPhi,2);
 	deltaEta=pow(deltaEta,2);
-	float delta = sqrt( deltaPhi+deltaEta); 
+	float delta = sqrt( deltaPhi+deltaEta);
 	if ( delta<0.1 && delta < minDelta ) {
 	  minDelta=delta;
 	  iMatch=index;
-         
+
 	}
 	index++;
       } // End loop over uncorrected photons
 
       double wt=0.;
-      if ( iMatch>-1 ) wt=1.; 
-          
+      if ( iMatch>-1 ) wt=1.;
+
       effEta_ ->Fill ( etaPho, wt);
       effPhi_ ->Fill ( phiPho, wt);
 
@@ -244,27 +244,27 @@ SimplePhotonAnalyzer::analyze( const edm::Event& evt, const edm::EventSetup& es 
 
 
         if (  phoIsInBarrel ) {
-	  // Get handle to rec hits ecal barrel  
+	  // Get handle to rec hits ecal barrel
 	  evt.getByLabel(barrelEcalHits_, ecalRecHitHandle);
 	  if (!ecalRecHitHandle.isValid()) {
 	    edm::LogError("PhotonProducer") << "Error! Can't get the product "<<barrelEcalHits_.label();
 	    return;
 	  }
-	  
-	}  else if ( phoIsInEndcap ) {  
 
-	  // Get handle to rec hits ecal encap 
+	}  else if ( phoIsInEndcap ) {
+
+	  // Get handle to rec hits ecal encap
 	  evt.getByLabel(endcapEcalHits_, ecalRecHitHandle);
 	  if (!ecalRecHitHandle.isValid()) {
 	    edm::LogError("PhotonProducer") << "Error! Can't get the product "<<endcapEcalHits_.label();
 	    return;
 	  }
-	  
+
 
 	}
 	const EcalRecHitCollection ecalRecHitCollection = *(ecalRecHitHandle.product());
-	float e5x5= EcalClusterTools::e5x5( *( localPhotons[iMatch].superCluster()->seed()), &ecalRecHitCollection, &(*topology)); 
-	float e3x3=   EcalClusterTools::e3x3(  *(    localPhotons[iMatch].superCluster()->seed()  ), &ecalRecHitCollection, &(*topology)); 
+	float e5x5= EcalClusterTools::e5x5( *( localPhotons[iMatch].superCluster()->seed()), &ecalRecHitCollection, &(*topology));
+	float e3x3=   EcalClusterTools::e3x3(  *(    localPhotons[iMatch].superCluster()->seed()  ), &ecalRecHitCollection, &(*topology));
 	float r9 =e3x3/(  localPhotons[iMatch].superCluster()->rawEnergy()+  localPhotons[iMatch].superCluster()->preshowerEnergy());
 
 
@@ -274,7 +274,7 @@ SimplePhotonAnalyzer::analyze( const edm::Event& evt, const edm::EventSetup& es 
 	h1_scEt_->Fill( localPhotons[iMatch].superCluster()->energy()/cosh(localPhotons[iMatch].superCluster()->position().eta()) );
 	h1_scEta_->Fill( localPhotons[iMatch].superCluster()->position().eta() );
 	h1_scPhi_->Fill( localPhotons[iMatch].superCluster()->position().phi() );
-	
+
 	float trueEta=  (*p)->momentum().eta() ;
 	trueEta = etaTransformation(trueEta, (*p)->production_vertex()->position().z()/10. );
 	h1_deltaEtaSC_ -> Fill(  localPhotons[iMatch].superCluster()->eta()- trueEta  );
@@ -283,7 +283,7 @@ SimplePhotonAnalyzer::analyze( const edm::Event& evt, const edm::EventSetup& es 
 	h1_pho_E_->Fill( localPhotons[iMatch].energy() );
 	h1_pho_Eta_->Fill( localPhotons[iMatch].eta() );
 	h1_pho_Phi_->Fill( localPhotons[iMatch].phi() );
-      
+
 	h1_deltaEta_ -> Fill(  localPhotons[iMatch].eta()- (*p)->momentum().eta()  );
 	h1_deltaPhi_ -> Fill(  localPhotons[iMatch].phi()- (*p)->momentum().phi()  );
 
@@ -296,19 +296,19 @@ SimplePhotonAnalyzer::analyze( const edm::Event& evt, const edm::EventSetup& es 
 	  h1_pho_R9Barrel_->Fill( r9 );
 
 
-	 
-	  if ( r9 > 0.93 ) 
+
+	  if ( r9 > 0.93 )
 	    h1_e5x5_unconvBarrel_ -> Fill (  e5x5/ (*p)->momentum().e() );
 	  else
 	    h1_ePho_convBarrel_ -> Fill (  localPhotons[iMatch].energy()/ (*p)->momentum().e() );
 
-	} else { 
+	} else {
 	  h1_recEoverTrueEEndcap_ -> Fill (localPhotons[iMatch].energy() / (*p)->momentum().e() );
 	  h1_recESCoverTrueEEndcap_ -> Fill (localPhotons[iMatch].energy() / (*p)->momentum().e() );
 	  h1_pho_R9Endcap_->Fill( r9 );
 
 
-	  if ( r9 > 0.93 ) 
+	  if ( r9 > 0.93 )
 	    h1_e5x5_unconvEndcap_ -> Fill ( e5x5/ (*p)->momentum().e() );
           else
 	    h1_ePho_convEndcap_ -> Fill (  localPhotons[iMatch].energy()/ (*p)->momentum().e() );
@@ -316,7 +316,7 @@ SimplePhotonAnalyzer::analyze( const edm::Event& evt, const edm::EventSetup& es 
 	}
 
 
-      }    
+      }
 
 
 
@@ -338,27 +338,27 @@ float SimplePhotonAnalyzer::etaTransformation(  float EtaParticle , float Zverte
   //---Definitions for ECAL
   const float R_ECAL           = 136.5;
   const float Z_Endcap         = 328.0;
-  const float etaBarrelEndcap  = 1.479; 
-   
+  const float etaBarrelEndcap  = 1.479;
+
   //---ETA correction
 
-  float Theta = 0.0  ; 
+  float Theta = 0.0  ;
   float ZEcal = R_ECAL*sinh(EtaParticle)+Zvertex;
 
   if(ZEcal != 0.0) Theta = atan(R_ECAL/ZEcal);
   if(Theta<0.0) Theta = Theta+PI ;
   float ETA = - log(tan(0.5*Theta));
-         
+
   if( fabs(ETA) > etaBarrelEndcap )
     {
       float Zend = Z_Endcap ;
       if(EtaParticle<0.0 )  Zend = -Zend ;
       float Zlen = Zend - Zvertex ;
-      float RR = Zlen/sinh(EtaParticle); 
+      float RR = Zlen/sinh(EtaParticle);
       Theta = atan(RR/Zend);
       if(Theta<0.0) Theta = Theta+PI ;
-      ETA = - log(tan(0.5*Theta));		      
-    } 
+      ETA = - log(tan(0.5*Theta));
+    }
   //---Return the result
   return ETA;
   //---end

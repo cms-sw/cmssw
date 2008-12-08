@@ -3,8 +3,8 @@
 #include "RecoEgamma/Examples/plugins/MCElectronAnalyzer.h"
 #include "RecoEgamma/EgammaMCTools/interface/ElectronMCTruthFinder.h"
 #include "RecoEgamma/EgammaMCTools/interface/ElectronMCTruth.h"
-// 
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+//
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "SimDataFormats/Track/interface/SimTrack.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/Vertex/interface/SimVertex.h"
@@ -27,26 +27,26 @@
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 
-// 
+//
 #include "TFile.h"
 #include "TH1.h"
 #include "TH2.h"
 #include "TTree.h"
 #include "TVector3.h"
 #include "TProfile.h"
-// 
+//
 
- 
+
 
 using namespace std;
 
- 
+
 MCElectronAnalyzer::MCElectronAnalyzer( const edm::ParameterSet& pset )
    : fOutputFileName_( pset.getUntrackedParameter<string>("HistOutFile",std::string("TestConversions.root")) ),
      fOutputFile_(0)
 {
 
-  
+
 }
 
 
@@ -64,13 +64,13 @@ void MCElectronAnalyzer::beginJob( const edm::EventSetup& setup)
 
 
   nEvt_=0;
-  
+
   theElectronMCTruthFinder_ = new ElectronMCTruthFinder();
 
 
   fOutputFile_   = new TFile( fOutputFileName_.c_str(), "RECREATE" ) ;
 
- //// Primary electrons  
+ //// Primary electrons
   h_MCEleE_ = new TH1F("MCEleE","MC ele energy",100,0.,200.);
   h_MCElePhi_ = new TH1F("MCElePhi","MC ele phi",40,-3.14, 3.14);
   h_MCEleEta_ = new TH1F("MCEleEta","MC ele eta",40,-3., 3.);
@@ -79,10 +79,10 @@ void MCElectronAnalyzer::beginJob( const edm::EventSetup& setup)
 
   p_BremVsR_ = new TProfile("BremVsR", " Mean Brem energy vs R ", 48, 0., 120.);
   p_BremVsEta_ = new TProfile("BremVsEta", " Mean Brem energy vs Eta ", 50, -2.5, 2.5);
-  
-  
 
-  
+
+
+
   return ;
 }
 
@@ -96,27 +96,27 @@ float MCElectronAnalyzer::etaTransformation(  float EtaParticle , float Zvertex)
 //---Definitions for ECAL
 	const float R_ECAL           = 136.5;
 	const float Z_Endcap         = 328.0;
-	const float etaBarrelEndcap  = 1.479; 
-   
+	const float etaBarrelEndcap  = 1.479;
+
 //---ETA correction
 
-	float Theta = 0.0  ; 
+	float Theta = 0.0  ;
         float ZEcal = R_ECAL*sinh(EtaParticle)+Zvertex;
 
 	if(ZEcal != 0.0) Theta = atan(R_ECAL/ZEcal);
 	if(Theta<0.0) Theta = Theta+PI ;
 	float ETA = - log(tan(0.5*Theta));
-         
+
 	if( fabs(ETA) > etaBarrelEndcap )
 	  {
 	   float Zend = Z_Endcap ;
 	   if(EtaParticle<0.0 )  Zend = -Zend ;
 	   float Zlen = Zend - Zvertex ;
-	   float RR = Zlen/sinh(EtaParticle); 
+	   float RR = Zlen/sinh(EtaParticle);
 	   Theta = atan(RR/Zend);
 	   if(Theta<0.0) Theta = Theta+PI ;
- 	   ETA = - log(tan(0.5*Theta));		      
-	  } 
+ 	   ETA = - log(tan(0.5*Theta));
+	  }
 //---Return the result
         return ETA;
 //---end
@@ -143,8 +143,8 @@ float MCElectronAnalyzer::phiNormalization(float & phi)
 
 void MCElectronAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& )
 {
-  
-  
+
+
   using namespace edm;
   const float etaPhiDistance=0.01;
   // Fiducial region
@@ -156,35 +156,35 @@ void MCElectronAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& )
   const Float_t mElec= 0.000511;
 
 
-  nEvt_++;  
+  nEvt_++;
   LogInfo("MCElectronAnalyzer") << "MCElectronAnalyzer Analyzing event number: " << e.id() << " Global Counter " << nEvt_ <<"\n";
   //  LogDebug("MCElectronAnalyzer") << "MCElectronAnalyzer Analyzing event number: "  << e.id() << " Global Counter " << nEvt_ <<"\n";
   std::cout << "MCElectronAnalyzer Analyzing event number: "  << e.id() << " Global Counter " << nEvt_ <<"\n";
 
-  //////////////////// Get the MC truth: SimTracks   
+  //////////////////// Get the MC truth: SimTracks
   std::cout  << " MCElectronAnalyzer Looking for MC truth " << "\n";
-  
+
   //get simtrack info
   std::vector<SimTrack> theSimTracks;
   std::vector<SimVertex> theSimVertices;
-  
+
   edm::Handle<SimTrackContainer> SimTk;
   edm::Handle<SimVertexContainer> SimVtx;
   e.getByLabel("g4SimHits",SimTk);
   e.getByLabel("g4SimHits",SimVtx);
-  
+
   theSimTracks.insert(theSimTracks.end(),SimTk->begin(),SimTk->end());
   theSimVertices.insert(theSimVertices.end(),SimVtx->begin(),SimVtx->end());
   std::cout << " MCElectronAnalyzer This Event has " <<  theSimTracks.size() << " sim tracks " << std::endl;
   std::cout << " MCElectronAnalyzer This Event has " <<  theSimVertices.size() << " sim vertices " << std::endl;
   if (  ! theSimTracks.size() ) std::cout << " Event number " << e.id() << " has NO sim tracks " << std::endl;
-  
-  
-  std::vector<ElectronMCTruth> MCElectronctrons=theElectronMCTruthFinder_->find (theSimTracks,  theSimVertices);  
+
+
+  std::vector<ElectronMCTruth> MCElectronctrons=theElectronMCTruthFinder_->find (theSimTracks,  theSimVertices);
   std::cout << " MCElectronAnalyzer MCElectronctrons size " <<  MCElectronctrons.size() << std::endl;
- 
+
   for ( std::vector<ElectronMCTruth>::const_iterator iEl=MCElectronctrons.begin(); iEl !=MCElectronctrons.end(); ++iEl ){
- 
+
     h_MCEleE_->Fill  ( (*iEl).fourMomentum().e() );
     h_MCEleEta_->Fill  ( (*iEl).fourMomentum().pseudoRapidity() );
     h_MCElePhi_->Fill  ( (*iEl).fourMomentum().phi() );
@@ -195,23 +195,23 @@ void MCElectronAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& )
       float etaBrem= (*iEl).bremVertices()[iBrem].eta();
       if ( rBrem < 120 ) {
 	totBrem +=  (*iEl).bremMomentum()[iBrem].e();
-	p_BremVsR_ ->Fill ( rBrem, (*iEl).bremMomentum()[iBrem].e() );   
-	p_BremVsEta_ ->Fill ( etaBrem, (*iEl).bremMomentum()[iBrem].e() );   
+	p_BremVsR_ ->Fill ( rBrem, (*iEl).bremMomentum()[iBrem].e() );
+	p_BremVsEta_ ->Fill ( etaBrem, (*iEl).bremMomentum()[iBrem].e() );
 
       }
     }
-    
-    
+
+
     h_BremFrac_->Fill( totBrem/(*iEl).fourMomentum().e() );
     h_BremEnergy_->Fill (  totBrem  );
-   
-    
-    
- 
+
+
+
+
   }
 
 
-  
+
 
 }
 
@@ -223,13 +223,13 @@ void MCElectronAnalyzer::endJob()
 
 
 
-       
+
    fOutputFile_->Write() ;
    fOutputFile_->Close() ;
-  
+
    edm::LogInfo("MCElectronAnalyzer") << "Analyzed " << nEvt_  << "\n";
    std::cout  << "MCElectronAnalyzer::endJob Analyzed " << nEvt_ << " events " << "\n";
 
    return ;
 }
- 
+

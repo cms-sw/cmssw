@@ -4,8 +4,8 @@
 #include "RecoEgamma/EgammaMCTools/interface/PhotonMCTruthFinder.h"
 #include "RecoEgamma/EgammaMCTools/interface/PhotonMCTruth.h"
 #include "RecoEgamma/EgammaMCTools/interface/ElectronMCTruth.h"
-// 
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+//
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "SimDataFormats/Track/interface/SimTrack.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/Vertex/interface/SimVertex.h"
@@ -30,20 +30,20 @@
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 
-// 
+//
 #include "TFile.h"
 #include "TH1.h"
 #include "TH2.h"
 #include "TTree.h"
 #include "TVector3.h"
 #include "TProfile.h"
-// 
+//
 
- 
+
 
 using namespace std;
 
- 
+
 SimpleConvertedPhotonAnalyzer::SimpleConvertedPhotonAnalyzer( const edm::ParameterSet& pset )
    : fOutputFileName_( pset.getUntrackedParameter<string>("HistOutFile",std::string("TestConversions.root")) ),
      fOutputFile_(0)
@@ -83,8 +83,8 @@ void SimpleConvertedPhotonAnalyzer::beginJob( const edm::EventSetup& setup)
   h_ErecoEMC_  = new TH1F("deltaE","    delta(reco-mc) energy",100,0.,2.);
   h_deltaPhi_ = new TH1F("deltaPhi","  delta(reco-mc) phi",100,-0.1, 0.1);
   h_deltaEta_ = new TH1F("deltaEta","  delta(reco-mc) eta",100,-0.05, 0.05);
-  
-  //// All MC photons  
+
+  //// All MC photons
   h_MCphoE_ = new TH1F("MCphoE","MC photon energy",100,0.,100.);
   h_MCphoPhi_ = new TH1F("MCphoPhi","MC photon phi",40,-3.14, 3.14);
   h_MCphoEta_ = new TH1F("MCphoEta","MC photon eta",40,-3., 3.);
@@ -108,7 +108,7 @@ void SimpleConvertedPhotonAnalyzer::beginJob( const edm::EventSetup& setup)
   h2_tk_nHitsVsR_ = new TH2F("tknHitsVsR","Tracks Hits vs R  ", 12,0.,120.,20,0.5, 20.5);
   h2_tk_inPtVsR_ = new TH2F("tkInPtvsR","Tracks inner Pt vs R  ", 12,0.,120.,100,0., 100.);
 
-  
+
   return ;
 }
 
@@ -122,27 +122,27 @@ float SimpleConvertedPhotonAnalyzer::etaTransformation(  float EtaParticle , flo
 //---Definitions for ECAL
 	const float R_ECAL           = 136.5;
 	const float Z_Endcap         = 328.0;
-	const float etaBarrelEndcap  = 1.479; 
-   
+	const float etaBarrelEndcap  = 1.479;
+
 //---ETA correction
 
-	float Theta = 0.0  ; 
+	float Theta = 0.0  ;
         float ZEcal = R_ECAL*sinh(EtaParticle)+Zvertex;
 
 	if(ZEcal != 0.0) Theta = atan(R_ECAL/ZEcal);
 	if(Theta<0.0) Theta = Theta+PI ;
 	float ETA = - log(tan(0.5*Theta));
-         
+
 	if( fabs(ETA) > etaBarrelEndcap )
 	  {
 	   float Zend = Z_Endcap ;
 	   if(EtaParticle<0.0 )  Zend = -Zend ;
 	   float Zlen = Zend - Zvertex ;
-	   float RR = Zlen/sinh(EtaParticle); 
+	   float RR = Zlen/sinh(EtaParticle);
 	   Theta = atan(RR/Zend);
 	   if(Theta<0.0) Theta = Theta+PI ;
- 	   ETA = - log(tan(0.5*Theta));		      
-	  } 
+ 	   ETA = - log(tan(0.5*Theta));
+	  }
 //---Return the result
         return ETA;
 //---end
@@ -155,8 +155,8 @@ float SimpleConvertedPhotonAnalyzer::etaTransformation(  float EtaParticle , flo
 
 void SimpleConvertedPhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& )
 {
-  
-  
+
+
   using namespace edm;
   const float etaPhiDistance=0.01;
   // Fiducial region
@@ -168,35 +168,35 @@ void SimpleConvertedPhotonAnalyzer::analyze( const edm::Event& e, const edm::Eve
   const Float_t mElec= 0.000511;
 
 
-  nEvt_++;  
+  nEvt_++;
   LogInfo("ConvertedPhotonAnalyzer") << "ConvertedPhotonAnalyzer Analyzing event number: " << e.id() << " Global Counter " << nEvt_ <<"\n";
   //  LogDebug("ConvertedPhotonAnalyzer") << "ConvertedPhotonAnalyzer Analyzing event number: "  << e.id() << " Global Counter " << nEvt_ <<"\n";
   std::cout << "ConvertedPhotonAnalyzer Analyzing event number: "  << e.id() << " Global Counter " << nEvt_ <<"\n";
- 
-  
+
+
   ///// Get the recontructed  conversions
-  Handle<reco::ConversionCollection> convertedPhotonHandle; 
+  Handle<reco::ConversionCollection> convertedPhotonHandle;
   e.getByLabel(convertedPhotonCollectionProducer_, convertedPhotonCollection_ , convertedPhotonHandle);
   const reco::ConversionCollection phoCollection = *(convertedPhotonHandle.product());
   std::cout  << "ConvertedPhotonAnalyzer  Converted photon collection size " << phoCollection.size() << "\n";
 
 
-  //////////////////// Get the MC truth: SimTracks   
+  //////////////////// Get the MC truth: SimTracks
   std::cout  << " ConvertedPhotonAnalyzer Looking for MC truth " << "\n";
-  
+
   //get simtrack info
   std::vector<SimTrack> theSimTracks;
   std::vector<SimVertex> theSimVertices;
-  
+
   edm::Handle<SimTrackContainer> SimTk;
   edm::Handle<SimVertexContainer> SimVtx;
   e.getByLabel("g4SimHits",SimTk);
   e.getByLabel("g4SimHits",SimVtx);
-  
+
   theSimTracks.insert(theSimTracks.end(),SimTk->begin(),SimTk->end());
   theSimVertices.insert(theSimVertices.end(),SimVtx->begin(),SimVtx->end());
-  
-  std::vector<PhotonMCTruth> mcPhotons=thePhotonMCTruthFinder_->find (theSimTracks,  theSimVertices);  
+
+  std::vector<PhotonMCTruth> mcPhotons=thePhotonMCTruthFinder_->find (theSimTracks,  theSimVertices);
   std::cout << " ConvertedPhotonAnalyzer mcPhotons size " <<  mcPhotons.size() << std::endl;
 
 
@@ -209,8 +209,8 @@ void SimpleConvertedPhotonAnalyzer::analyze( const edm::Event& e, const edm::Eve
   for ( std::vector<PhotonMCTruth>::const_iterator mcPho=mcPhotons.begin(); mcPho !=mcPhotons.end(); mcPho++) {
     float mcPhi= (*mcPho).fourMomentum().phi();
     float mcEta= (*mcPho).fourMomentum().pseudoRapidity();
-    mcEta = etaTransformation(mcEta, (*mcPho).primaryVertex().z() ); 
-    
+    mcEta = etaTransformation(mcEta, (*mcPho).primaryVertex().z() );
+
     if ( ! (  fabs(mcEta) <= BARL || ( fabs(mcEta) >= END_LO && fabs(mcEta) <=END_HI ) ) ) {
           continue;
     } // all ecal fiducial region
@@ -219,23 +219,23 @@ void SimpleConvertedPhotonAnalyzer::analyze( const edm::Event& e, const edm::Eve
     std::cout << " ConvertedPhotonAnalyzer MC Photons before matching  " <<  std::endl;
     std::cout << " ConvertedPhotonAnalyzer Photons isAconversion " << (*mcPho).isAConversion() << " mcMatchingPhoton energy " << (*mcPho).fourMomentum().e()  << " conversion vertex R " << (*mcPho).vertex().perp() << " Z " <<  (*mcPho).vertex().z() <<  " x " << (*mcPho).vertex().x() << " y " <<(*mcPho).vertex().y()  << " z " << (*mcPho).vertex().z() <<  std::endl;
     std::cout << " ConvertedPhotonAnalyzer mcEta " << mcEta<< " mcPhi " << mcPhi <<  std::endl;
-    
+
 
     h_MCphoE_->Fill(  (*mcPho).fourMomentum().e());
     h_MCphoEta_->Fill( (*mcPho).fourMomentum().eta());
     h_MCphoPhi_->Fill(  (*mcPho).fourMomentum().phi());
-    
-    
-    
+
+
+
     // keep only visible conversions
     if (  (*mcPho).isAConversion() == 0 ) continue;
 
-    
+
     nMCPho_++;
 
     h_MCConvEta_ ->Fill ( fabs( (*mcPho).fourMomentum().pseudoRapidity()) - 0.001);
-    
-    
+
+
     bool REJECTED;
 
 
@@ -243,68 +243,68 @@ void SimpleConvertedPhotonAnalyzer::analyze( const edm::Event& e, const edm::Eve
     std::cout   << " ConvertedPhotonAnalyzer  Starting loop over photon candidates " << "\n";
     for( reco::ConversionCollection::const_iterator  iPho = phoCollection.begin(); iPho != phoCollection.end(); iPho++) {
       REJECTED=false;
-      
+
       std::cout  << " ConvertedPhotonAnalyzer Reco SC energy " << (*iPho).caloCluster()[0]->energy() <<  "\n";
 
 
-      
+
       float phiClu=(*iPho).caloCluster()[0]->phi();
       float etaClu=(*iPho).caloCluster()[0]->eta();
       float deltaPhi = phiClu-mcPhi;
       float deltaEta = etaClu-mcEta;
-      
-      
+
+
       if ( deltaPhi > Geom::pi()  ) deltaPhi -= Geom::twoPi();
       if ( deltaPhi < -Geom::pi() ) deltaPhi += Geom::twoPi();
       deltaPhi=pow(deltaPhi,2);
       deltaEta=pow(deltaEta,2);
-      float delta =  deltaPhi+deltaEta ; 
+      float delta =  deltaPhi+deltaEta ;
       if (  delta >= etaPhiDistance  )  REJECTED=true;
-      
+
 
       //      if ( ! (  fabs(etaClu) <= BARL || ( fabs(etaClu) >= END_LO && fabs(etaClu) <=END_HI ) ) ) REJECTED=true;
-      
+
       if ( REJECTED ) continue;
       std::cout << " MATCHED " << std::endl;
       nMatched_++;
 
 
       std::cout << " ConvertedPhotonAnalyzer Matching candidate " << std::endl;
-      
+
       std::cout << " ConvertedPhotonAnalyzer Photons isAconversion " << (*mcPho).isAConversion() << " mcMatchingPhoton energy " <<  (*mcPho).fourMomentum().e()  << " ConvertedPhotonAnalyzer conversion vertex R " <<  (*mcPho).vertex().perp() << " Z " <<  (*mcPho).vertex().z() <<  std::endl;
-      
-  
+
+
       h_ErecoEMC_->Fill(   (*iPho).caloCluster()[0]->energy()/(*mcPho).fourMomentum().e());
       h_deltaPhi_-> Fill ( (*iPho).caloCluster()[0]->position().phi()- mcPhi);
       h_deltaEta_-> Fill ( (*iPho).caloCluster()[0]->position().eta()- mcEta);
-      
+
       h_scE_->Fill( (*iPho).caloCluster()[0]->energy() );
       h_scEta_->Fill( (*iPho).caloCluster()[0]->position().eta() );
       h_scPhi_->Fill( (*iPho).caloCluster()[0]->position().phi() );
-      
-      
+
+
       for (unsigned int i=0; i<(*iPho).tracks().size(); i++) {
-	std::cout  << " ConvertedPhotonAnalyzer Reco Track charge " <<  (*iPho).tracks()[i]->charge() << "  Num of RecHits " << (*iPho).tracks()[i]->recHitsSize() << " inner momentum " <<  sqrt (  (*iPho).tracks()[i]->innerMomentum().Mag2() )  <<  "\n"; 
-	
-	
+	std::cout  << " ConvertedPhotonAnalyzer Reco Track charge " <<  (*iPho).tracks()[i]->charge() << "  Num of RecHits " << (*iPho).tracks()[i]->recHitsSize() << " inner momentum " <<  sqrt (  (*iPho).tracks()[i]->innerMomentum().Mag2() )  <<  "\n";
+
+
         h2_tk_nHitsVsR_ -> Fill (  (*mcPho).vertex().perp(), (*iPho).tracks()[i]->recHitsSize()   );
 	h2_tk_inPtVsR_->Fill  (  (*mcPho).vertex().perp(),  sqrt( (*iPho).tracks()[i]->innerMomentum().Mag2() ) );
 
-	
+
       }
-      
-      
 
 
 
 
 
 
-      
+
+
+
     }   /// End loop over Reco  particles
 
   }/// End loop over MC particles
-  
+
 
 }
 
@@ -316,16 +316,16 @@ void SimpleConvertedPhotonAnalyzer::endJob()
 
 
 
-       
+
    fOutputFile_->Write() ;
    fOutputFile_->Close() ;
-  
+
    edm::LogInfo("ConvertedPhotonAnalyzer") << "Analyzed " << nEvt_  << "\n";
    // std::cout  << "::endJob Analyzed " << nEvt_ << " events " << " with total " << nPho_ << " Photons " << "\n";
    std::cout  << "ConvertedPhotonAnalyzer::endJob Analyzed " << nEvt_ << " events " << "\n";
-   
+
    return ;
 }
- 
+
 
 

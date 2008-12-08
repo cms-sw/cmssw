@@ -7,8 +7,8 @@
 #include "RecoEgamma/EgammaMCTools/interface/PhotonMCTruthFinder.h"
 #include "RecoEgamma/EgammaMCTools/interface/PhotonMCTruth.h"
 #include "RecoEgamma/EgammaMCTools/interface/ElectronMCTruth.h"
-// 
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+//
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "SimDataFormats/Track/interface/SimTrack.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/Vertex/interface/SimVertex.h"
@@ -31,20 +31,20 @@
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 
-// 
+//
 #include "TFile.h"
 #include "TH1.h"
 #include "TH2.h"
 #include "TTree.h"
 #include "TVector3.h"
 #include "TProfile.h"
-// 
+//
 
- 
+
 
 using namespace std;
 
- 
+
 MCPhotonAnalyzer::MCPhotonAnalyzer( const edm::ParameterSet& pset ){}
 
 
@@ -62,13 +62,13 @@ void MCPhotonAnalyzer::beginJob( const edm::EventSetup& setup)
 
 
   nEvt_=0;
-  
+
   thePhotonMCTruthFinder_ = new PhotonMCTruthFinder();
 
   edm::Service<TFileService> fs;
 
 
- //// All MC photons  
+ //// All MC photons
   h_MCPhoE_ = fs->make<TH1F>("MCPhoE","MC photon energy",100,0.,100.);
   h_MCPhoPhi_ = fs->make<TH1F>("MCPhoPhi","MC photon phi",40,-3.14, 3.14);
   h_MCPhoEta_ = fs->make<TH1F>("MCPhoEta","MC photon eta",25,0., 2.5);
@@ -108,8 +108,8 @@ void MCPhotonAnalyzer::beginJob( const edm::EventSetup& setup)
   h_MCEleEta_ = fs->make<TH1F>("MCEleEta","MC ele eta",40,-3., 3.);
   h_BremFrac_ = fs->make<TH1F>("bremFrac","brem frac ", 100, 0., 1.);
   h_BremEnergy_ = fs->make<TH1F>("BremE","Brem energy",100,0.,200.);
-  h_EleEvsPhoE_ =  fs->make<TH2F>("eleEvsPhoE","eleEvsPhoE",100,0.,200.,100,0.,200.);  
-  h_bremEvsEleE_ = fs->make<TH2F>("bremEvsEleE","bremEvsEleE",100,0.,200.,100,0.,200.);  
+  h_EleEvsPhoE_ =  fs->make<TH2F>("eleEvsPhoE","eleEvsPhoE",100,0.,200.,100,0.,200.);
+  h_bremEvsEleE_ = fs->make<TH2F>("bremEvsEleE","bremEvsEleE",100,0.,200.,100,0.,200.);
 
   p_BremVsR_ = fs->make<TProfile>("BremVsR", " Mean Brem Energy vs R ", 48, 0., 120.);
   p_BremVsEta_ = fs->make<TProfile>("BremVsEta", " Mean Brem Energy vs Eta ", 50, -2.5, 2.5);
@@ -117,8 +117,8 @@ void MCPhotonAnalyzer::beginJob( const edm::EventSetup& setup)
   p_BremVsConvR_ = fs->make<TProfile>("BremVsConvR", " Mean Brem Fraction vs conversion R ", 48, 0., 120.);
   p_BremVsConvEta_ = fs->make<TProfile>("BremVsConvEta", " Mean Brem Fraction vs converion Eta ", 50, -2.5, 2.5);
 
-  h_bremFracVsConvR_ = fs->make<TH2F>("bremFracVsConvR","brem Fraction vs conversion R",60,0.,120.,100,0.,1.);  
-  
+  h_bremFracVsConvR_ = fs->make<TH2F>("bremFracVsConvR","brem Fraction vs conversion R",60,0.,120.,100,0.,1.);
+
   return ;
 }
 
@@ -132,27 +132,27 @@ float MCPhotonAnalyzer::etaTransformation(  float EtaParticle , float Zvertex)  
 //---Definitions for ECAL
 	const float R_ECAL           = 136.5;
 	const float Z_Endcap         = 328.0;
-	const float etaBarrelEndcap  = 1.479; 
-   
+	const float etaBarrelEndcap  = 1.479;
+
 //---ETA correction
 
-	float Theta = 0.0  ; 
+	float Theta = 0.0  ;
         float ZEcal = R_ECAL*sinh(EtaParticle)+Zvertex;
 
 	if(ZEcal != 0.0) Theta = atan(R_ECAL/ZEcal);
 	if(Theta<0.0) Theta = Theta+PI ;
 	float ETA = - log(tan(0.5*Theta));
-         
+
 	if( fabs(ETA) > etaBarrelEndcap )
 	  {
 	   float Zend = Z_Endcap ;
 	   if(EtaParticle<0.0 )  Zend = -Zend ;
 	   float Zlen = Zend - Zvertex ;
-	   float RR = Zlen/sinh(EtaParticle); 
+	   float RR = Zlen/sinh(EtaParticle);
 	   Theta = atan(RR/Zend);
 	   if(Theta<0.0) Theta = Theta+PI ;
- 	   ETA = - log(tan(0.5*Theta));		      
-	  } 
+ 	   ETA = - log(tan(0.5*Theta));
+	  }
 //---Return the result
         return ETA;
 //---end
@@ -179,8 +179,8 @@ float MCPhotonAnalyzer::phiNormalization(float & phi)
 
 void MCPhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& )
 {
-  
-  
+
+
   using namespace edm;
   const float etaPhiDistance=0.01;
   // Fiducial region
@@ -192,37 +192,37 @@ void MCPhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& )
   const Float_t mElec= 0.000511;
 
 
-  nEvt_++;  
+  nEvt_++;
   LogInfo("mcEleAnalyzer") << "MCPhotonAnalyzer Analyzing event number: " << e.id() << " Global Counter " << nEvt_ <<"\n";
   //  LogDebug("MCPhotonAnalyzer") << "MCPhotonAnalyzer Analyzing event number: "  << e.id() << " Global Counter " << nEvt_ <<"\n";
   std::cout << "MCPhotonAnalyzer Analyzing event number: "  << e.id() << " Global Counter " << nEvt_ <<"\n";
 
 
 
-  //////////////////// Get the MC truth: SimTracks   
+  //////////////////// Get the MC truth: SimTracks
   std::cout  << " MCPhotonAnalyzer Looking for MC truth " << "\n";
-  
+
   //get simtrack info
   std::vector<SimTrack> theSimTracks;
   std::vector<SimVertex> theSimVertices;
-  
+
   edm::Handle<SimTrackContainer> SimTk;
   edm::Handle<SimVertexContainer> SimVtx;
   e.getByLabel("g4SimHits",SimTk);
   e.getByLabel("g4SimHits",SimVtx);
-  
+
   theSimTracks.insert(theSimTracks.end(),SimTk->begin(),SimTk->end());
   theSimVertices.insert(theSimVertices.end(),SimVtx->begin(),SimVtx->end());
   std::cout << " MCPhotonAnalyzer This Event has " <<  theSimTracks.size() << " sim tracks " << std::endl;
   std::cout << " MCPhotonAnalyzer This Event has " <<  theSimVertices.size() << " sim vertices " << std::endl;
   if (  ! theSimTracks.size() ) std::cout << " Event number " << e.id() << " has NO sim tracks " << std::endl;
-  
-  
-  std::vector<PhotonMCTruth> mcPhotons=thePhotonMCTruthFinder_->find (theSimTracks,  theSimVertices);  
-  std::cout << " MCPhotonAnalyzer mcPhotons size " <<  mcPhotons.size() << std::endl;
- 
 
- 
+
+  std::vector<PhotonMCTruth> mcPhotons=thePhotonMCTruthFinder_->find (theSimTracks,  theSimVertices);
+  std::cout << " MCPhotonAnalyzer mcPhotons size " <<  mcPhotons.size() << std::endl;
+
+
+
   for ( std::vector<PhotonMCTruth>::const_iterator iPho=mcPhotons.begin(); iPho !=mcPhotons.end(); ++iPho ){
 
     if ( (*iPho).fourMomentum().e() < 35 ) continue;
@@ -237,28 +237,28 @@ void MCPhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& )
     h_MCPhoPhi_->Fill  ( (*iPho).fourMomentum().phi() );
 
     /*
-    if ( fabs((*iPho).fourMomentum().pseudoRapidity() ) <= 0.25 &&  fabs((*iPho).fourMomentum().pseudoRapidity() ) >=0.15  ) 
+    if ( fabs((*iPho).fourMomentum().pseudoRapidity() ) <= 0.25 &&  fabs((*iPho).fourMomentum().pseudoRapidity() ) >=0.15  )
       h_MCPhoEta1_->Fill  ( (*iPho).fourMomentum().pseudoRapidity() );
-    if ( fabs((*iPho).fourMomentum().pseudoRapidity() ) <= 0.95  &&  fabs((*iPho).fourMomentum().pseudoRapidity() ) >=0.85  ) 
+    if ( fabs((*iPho).fourMomentum().pseudoRapidity() ) <= 0.95  &&  fabs((*iPho).fourMomentum().pseudoRapidity() ) >=0.85  )
       h_MCPhoEta2_->Fill  ( (*iPho).fourMomentum().pseudoRapidity() );
-    if ( fabs((*iPho).fourMomentum().pseudoRapidity() ) <= 1.65  &&  fabs((*iPho).fourMomentum().pseudoRapidity() ) >=1.55  ) 
+    if ( fabs((*iPho).fourMomentum().pseudoRapidity() ) <= 1.65  &&  fabs((*iPho).fourMomentum().pseudoRapidity() ) >=1.55  )
       h_MCPhoEta3_->Fill  ( (*iPho).fourMomentum().pseudoRapidity() );
-    if ( fabs((*iPho).fourMomentum().pseudoRapidity() ) <= 2.05  &&  fabs((*iPho).fourMomentum().pseudoRapidity() ) >=1.95  ) 
+    if ( fabs((*iPho).fourMomentum().pseudoRapidity() ) <= 2.05  &&  fabs((*iPho).fourMomentum().pseudoRapidity() ) >=1.95  )
       h_MCPhoEta4_->Fill  ( (*iPho).fourMomentum().pseudoRapidity() );
     */
 
 
-    if ( fabs(correta ) <= 0.3 &&  fabs(correta ) >0.2  ) 
+    if ( fabs(correta ) <= 0.3 &&  fabs(correta ) >0.2  )
       h_MCPhoEta1_->Fill  ( correta );
-    if ( fabs(correta ) <= 1.00  &&  fabs( correta ) >0.9  ) 
+    if ( fabs(correta ) <= 1.00  &&  fabs( correta ) >0.9  )
       h_MCPhoEta2_->Fill  ( correta );
-    if ( fabs( correta ) <= 1.6 &&  fabs(correta ) >1.5  ) 
+    if ( fabs( correta ) <= 1.6 &&  fabs(correta ) >1.5  )
       h_MCPhoEta3_->Fill  ( correta );
-    if ( fabs(correta ) <= 2.  &&  fabs(correta ) >1.9  ) 
+    if ( fabs(correta ) <= 2.  &&  fabs(correta ) >1.9  )
       h_MCPhoEta4_->Fill  ( correta );
-    
-    
-    
+
+
+
     //    if ( (*iPho).isAConversion()  && (*iPho).vertex().perp()< 10 ) {
         if ( (*iPho).isAConversion() ) {
 
@@ -271,31 +271,31 @@ void MCPhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& )
       h_MCConvPhoPhi_->Fill  ( (*iPho).fourMomentum().phi() );
       h_MCConvPhoR_->Fill  ( (*iPho).vertex().perp() );
 
-      /*      
-      if ( fabs((*iPho).fourMomentum().pseudoRapidity() ) <= 0.25 &&  fabs((*iPho).fourMomentum().pseudoRapidity() ) >=0.15  )       
+      /*
+      if ( fabs((*iPho).fourMomentum().pseudoRapidity() ) <= 0.25 &&  fabs((*iPho).fourMomentum().pseudoRapidity() ) >=0.15  )
 	h_MCConvPhoREta1_->Fill  ( (*iPho).vertex().perp() );
-      if ( fabs((*iPho).fourMomentum().pseudoRapidity() ) <= 0.95  &&  fabs((*iPho).fourMomentum().pseudoRapidity() ) >=0.85  ) 
+      if ( fabs((*iPho).fourMomentum().pseudoRapidity() ) <= 0.95  &&  fabs((*iPho).fourMomentum().pseudoRapidity() ) >=0.85  )
 	h_MCConvPhoREta2_->Fill  ( (*iPho).vertex().perp() );
-      if ( fabs((*iPho).fourMomentum().pseudoRapidity() ) <= 1.65  &&  fabs((*iPho).fourMomentum().pseudoRapidity() ) >=1.55  )  
+      if ( fabs((*iPho).fourMomentum().pseudoRapidity() ) <= 1.65  &&  fabs((*iPho).fourMomentum().pseudoRapidity() ) >=1.55  )
 	h_MCConvPhoREta3_->Fill  ( (*iPho).vertex().perp() );
-      if ( fabs((*iPho).fourMomentum().pseudoRapidity() ) <= 2.05  &&  fabs((*iPho).fourMomentum().pseudoRapidity() ) >=1.95  )  
+      if ( fabs((*iPho).fourMomentum().pseudoRapidity() ) <= 2.05  &&  fabs((*iPho).fourMomentum().pseudoRapidity() ) >=1.95  )
 	h_MCConvPhoREta4_->Fill  ( (*iPho).vertex().perp() );
-      */      
+      */
 
 
-      if ( fabs(correta ) <= 0.3 &&  fabs(correta ) >0.2  ) 
+      if ( fabs(correta ) <= 0.3 &&  fabs(correta ) >0.2  )
 	h_MCConvPhoREta1_->Fill  ( (*iPho).vertex().perp() );
-      if ( fabs(correta ) <= 1.  &&  fabs( correta ) >0.9  ) 
+      if ( fabs(correta ) <= 1.  &&  fabs( correta ) >0.9  )
 	h_MCConvPhoREta2_->Fill  ( (*iPho).vertex().perp() );
-      if ( fabs( correta ) <= 1.6  &&  fabs(correta ) >1.5  ) 
+      if ( fabs( correta ) <= 1.6  &&  fabs(correta ) >1.5  )
 	h_MCConvPhoREta3_->Fill  ( (*iPho).vertex().perp() );
-      if ( fabs(correta ) <= 2  &&  fabs(correta ) >1.9  ) 
+      if ( fabs(correta ) <= 2  &&  fabs(correta ) >1.9  )
 	h_MCConvPhoREta4_->Fill  ( (*iPho).vertex().perp() );
-      
 
 
 
-        
+
+
     } // end conversions
 
 
@@ -305,7 +305,7 @@ void MCPhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& )
   }   /// Loop over all MC photons in the event
 
 
-  
+
 
 }
 
@@ -316,12 +316,12 @@ void MCPhotonAnalyzer::endJob()
 {
 
 
-  int s1=0; 
-  int s2=0; 
-  int s3=0; 
+  int s1=0;
+  int s2=0;
+  int s3=0;
   int s4=0;
-  int e1=0; 
-  int e2=0; 
+  int e1=0;
+  int e2=0;
   int e3=0;
   int e4=0;
 
@@ -347,14 +347,14 @@ void MCPhotonAnalyzer::endJob()
 
 
 
-  
+
 }
 
 
-  
+
    edm::LogInfo("MCPhotonAnalyzer") << "Analyzed " << nEvt_  << "\n";
    std::cout  << "MCPhotonAnalyzer::endJob Analyzed " << nEvt_ << " events " << "\n";
 
    return ;
 }
- 
+

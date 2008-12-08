@@ -7,7 +7,7 @@
 <use name=FWCore/Framework>
 <use name=FWCore/PluginManager>
 <use name=FWCore/ParameterSet>
-<use name=SimDataFormats/HepMCProduct>
+<use name=SimDataFormat/GeneratorProducts>
 <use name=MagneticField/Engine>
 <use name=MagneticField/Records>
 <use name=RecoEgamma/EgammaElectronProducers>
@@ -29,12 +29,12 @@
    <use name=FWCore/Framework>
    <use name=FWCore/PluginManager>
    <use name=FWCore/ParameterSet>
-   <use name=SimDataFormats/HepMCProduct>
+   <use name=SimDataFormat/GeneratorProducts>
    <use name=MagneticField/Engine>
    <use name=MagneticField/Records>
    <use name=RecoEgamma/EgammaElectronProducers>
    <use name=RecoEgamma/EgammaMCTools>
-<use name=RecoEcal/EgammaCoreTools>
+   <use name=RecoEcal/EgammaCoreTools>
    <use name=PhysicsTools/UtilAlgos>
    <use name=FWCore/ServiceRegistry>
    <use name=hepmc> 
