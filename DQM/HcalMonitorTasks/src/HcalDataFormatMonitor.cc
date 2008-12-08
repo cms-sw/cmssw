@@ -108,6 +108,7 @@ void HcalDataFormatMonitor::setup(const edm::ParameterSet& ps,
   }
 
   prtlvl_ = ps.getUntrackedParameter<int>("dfPrtLvl");
+  dfmon_checkNevents = ps.getUntrackedParameter<int>("DataFormatMonitor_checkNevents",checkNevents_);
 
   if ( m_dbe ) {
     char* type;
@@ -713,7 +714,7 @@ void HcalDataFormatMonitor::processEvent(const FEDRawDataCollection& rawraw,
     int dccid=dccHeader->getSourceId();
     meFEDerrorMap_->Fill(dccid);}
 
-  if (0== (ievt_ % 5)) UpdateMEs();
+  if (0== (ievt_ % dfmon_checkNevents)) UpdateMEs();
   return;
 } //void HcalDataFormatMonitor::processEvent()
 

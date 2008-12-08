@@ -32,8 +32,8 @@
 
 /** \class Hcaldataformatmonitor
  *
- * $Date: 2008/10/15 17:31:11 $
- * $Revision: 1.37 $
+ * $Date: 2008/12/05 16:25:15 $
+ * $Revision: 1.38 $
  * \author W. Fisher - FNAL
  */
 class HcalDataFormatMonitor: public HcalBaseMonitor {
@@ -92,6 +92,7 @@ class HcalDataFormatMonitor: public HcalBaseMonitor {
   //int cratenum_;
 
   int prtlvl_;
+  int dfmon_checkNevents;
 
  private:  //Monitoring elements
    
