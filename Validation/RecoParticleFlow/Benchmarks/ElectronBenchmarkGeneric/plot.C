@@ -1,7 +1,9 @@
 {
 
-// here analyze your histograms, to compare PF and calo MET. 
+// here analyze your histograms.
 // this is the example of ../JetBenchmarkGeneric
+// should the efficiency be computed here, or in 
+// the GenericBenchmark class?   
 
 gROOT->LoadMacro("../Tools/NicePlot.C");
 InitNicePlot();

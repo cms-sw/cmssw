@@ -16,10 +16,10 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
 )
 
-process.load("Validation.RecoParticleFlow.metBenchmarkGeneric_cff")
+process.load("Validation.RecoParticleFlow.electronBenchmarkGeneric_cff")
 
 process.p =cms.Path(
-    process.metBenchmarkGeneric
+    process.electronBenchmarkGeneric
     )
 
 
