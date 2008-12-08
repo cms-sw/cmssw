@@ -13,7 +13,7 @@
 //
 // Original Author:  "Frank Chlebana"
 //         Created:  Sun Oct  5 13:57:25 CDT 2008
-// $Id: DataCertificationJetMET.cc,v 1.21 2008/12/06 16:18:51 hatake Exp $
+// $Id: DataCertificationJetMET.cc,v 1.22 2008/12/08 04:31:45 hatake Exp $
 //
 //
 
@@ -39,7 +39,6 @@
 // Some switches
 #define NJetAlgo 4
 #define NL3Flags 3
-#define DEBUG    0
 #define METFIT   0
 
 //
@@ -72,6 +71,9 @@ class DataCertificationJetMET : public edm::EDAnalyzer {
    edm::ParameterSet conf_;
    DQMStore * dbe;
    edm::Service<TFileService> fs_;
+
+   int verbose;
+
 
 };
 
@@ -127,7 +129,12 @@ void
 DataCertificationJetMET::beginJob(const edm::EventSetup& c)
 {
 
-  if (DEBUG) std::cout << ">>> BeginJob (DataCertificationJetMET) <<<" << std::endl;
+  // -----------------------------------------
+  // verbose 0: suppress printouts
+  //         1: show printouts
+  verbose   = conf_.getUntrackedParameter<int>("Verbose");
+
+  if (verbose) std::cout << ">>> BeginJob (DataCertificationJetMET) <<<" << std::endl;
 
 }
 
@@ -136,11 +143,11 @@ void
 DataCertificationJetMET::endJob()
 {
 
-  if (DEBUG) std::cout << ">>> EndJob (DataCertificationJetMET) <<<" << std::endl;
+  if (verbose) std::cout << ">>> EndJob (DataCertificationJetMET) <<<" << std::endl;
 
   bool outputFile            = conf_.getUntrackedParameter<bool>("OutputFile");
   std::string outputFileName = conf_.getUntrackedParameter<std::string>("OutputFileName");
-  if (DEBUG) std::cout << ">>> endJob " << outputFile << std:: endl;
+  if (verbose) std::cout << ">>> endJob " << outputFile << std:: endl;
 
   if(outputFile){
     //dbe->showDirStructure();
@@ -154,10 +161,10 @@ void
 DataCertificationJetMET::beginLuminosityBlock(const edm::LuminosityBlock& lumiBlock, const edm::EventSetup& c)
 {
 
-  if (DEBUG) std::cout << ">>> BeginLuminosityBlock (DataCertificationJetMET) <<<" << std::endl;
-  if (DEBUG) std::cout << ">>> lumiBlock = " << lumiBlock.id()                   << std::endl;
-  if (DEBUG) std::cout << ">>> run       = " << lumiBlock.id().run()             << std::endl;
-  if (DEBUG) std::cout << ">>> lumiBlock = " << lumiBlock.id().luminosityBlock() << std::endl;
+  if (verbose) std::cout << ">>> BeginLuminosityBlock (DataCertificationJetMET) <<<" << std::endl;
+  if (verbose) std::cout << ">>> lumiBlock = " << lumiBlock.id()                   << std::endl;
+  if (verbose) std::cout << ">>> run       = " << lumiBlock.id().run()             << std::endl;
+  if (verbose) std::cout << ">>> lumiBlock = " << lumiBlock.id().luminosityBlock() << std::endl;
 
 }
 
@@ -166,10 +173,10 @@ void
 DataCertificationJetMET::endLuminosityBlock(const edm::LuminosityBlock& lumiBlock, const edm::EventSetup& c)
 {
 
-  if (DEBUG) std::cout << ">>> EndLuminosityBlock (DataCertificationJetMET) <<<" << std::endl;
-  if (DEBUG) std::cout << ">>> lumiBlock = " << lumiBlock.id()                   << std::endl;
-  if (DEBUG) std::cout << ">>> run       = " << lumiBlock.id().run()             << std::endl;
-  if (DEBUG) std::cout << ">>> lumiBlock = " << lumiBlock.id().luminosityBlock() << std::endl;
+  if (verbose) std::cout << ">>> EndLuminosityBlock (DataCertificationJetMET) <<<" << std::endl;
+  if (verbose) std::cout << ">>> lumiBlock = " << lumiBlock.id()                   << std::endl;
+  if (verbose) std::cout << ">>> run       = " << lumiBlock.id().run()             << std::endl;
+  if (verbose) std::cout << ">>> lumiBlock = " << lumiBlock.id().luminosityBlock() << std::endl;
 
 }
 
@@ -178,8 +185,8 @@ void
 DataCertificationJetMET::beginRun(const edm::Run& run, const edm::EventSetup& c)
 {
 
-  if (DEBUG) std::cout << ">>> BeginRun (DataCertificationJetMET) <<<" << std::endl;
-  if (DEBUG) std::cout << ">>> run = " << run.id() << std::endl;
+  if (verbose) std::cout << ">>> BeginRun (DataCertificationJetMET) <<<" << std::endl;
+  if (verbose) std::cout << ">>> run = " << run.id() << std::endl;
 
 }
 
@@ -188,25 +195,17 @@ void
 DataCertificationJetMET::endRun(const edm::Run& run, const edm::EventSetup& c)
 {
   
-  if (DEBUG) std::cout << ">>> EndRun (DataCertificationJetMET) <<<" << std::endl;
-  if (DEBUG) std::cout << ">>> run = " << run.id() << std::endl;
-
-  int verbose  = 0;
-  int testType = 0; 
-
-  // -----------------------------------------
-  // verbose 0: suppress printouts
-  //         1: show printouts
-  verbose   = conf_.getUntrackedParameter<int>("Verbose");
-  if (DEBUG) std::cout << ">>>DEBUG: verbose         = " <<  verbose   << std::endl;
+  if (verbose) std::cout << ">>> EndRun (DataCertificationJetMET) <<<" << std::endl;
+  if (verbose) std::cout << ">>> run = " << run.id() << std::endl;
 
   // -----------------------------------------
   // testType 0: no comparison with histograms
   //          1: KS test
   //          2: Chi2 test
   //
+  int testType = 0; 
   testType  = conf_.getUntrackedParameter<int>("TestType");
-  if (DEBUG) std::cout << ">>>DEBUG: TestType        = " <<  testType  << std::endl;  
+  if (verbose) std::cout << ">>> TestType        = " <<  testType  << std::endl;  
 
   std::vector<MonitorElement*> mes;
   std::vector<std::string> subDirVec;
@@ -218,11 +217,11 @@ DataCertificationJetMET::endRun(const edm::Run& run, const edm::EventSetup& c)
   int         RefRunNumber;
     
   std::string filename    = conf_.getUntrackedParameter<std::string>("fileName");
-  if (DEBUG) std::cout << ">>>DEBUG: FileName        = " << filename    << std::endl;
+  if (verbose) std::cout << ">>> FileName        = " << filename    << std::endl;
   bool InMemory = true;
 
   if (filename != "") InMemory = false;
-  if (DEBUG) std::cout << "InMemory           = " << InMemory    << std::endl;
+  if (verbose) std::cout << "InMemory           = " << InMemory    << std::endl;
 
   if (InMemory) {
     //----------------------------------------------------------------
@@ -233,14 +232,14 @@ DataCertificationJetMET::endRun(const edm::Run& run, const edm::EventSetup& c)
     dbe->showDirStructure();
     
     mes = dbe->getAllContents("");
-    if (DEBUG) std::cout << "1 >>> found " <<  mes.size() << " monitoring elements!" << std::endl;
+    if (verbose) std::cout << "1 >>> found " <<  mes.size() << " monitoring elements!" << std::endl;
 
     dbe->setCurrentFolder("JetMET");
     subDirVec = dbe->getSubdirs();
 
     for (std::vector<std::string>::const_iterator ic = subDirVec.begin();
 	 ic != subDirVec.end(); ic++) {    
-      if (DEBUG) std::cout << "-AAA- Dir = >>" << ic->c_str() << "<<" << std::endl;
+      if (verbose) std::cout << "-AAA- Dir = >>" << ic->c_str() << "<<" << std::endl;
     }
 
     RunDir    = "";
@@ -251,7 +250,7 @@ DataCertificationJetMET::endRun(const edm::Run& run, const edm::EventSetup& c)
     // test---
     //std::string reffilename;
     //reffilename = conf_.getUntrackedParameter<std::string>("refFileName");
-    //if (DEBUG) std::cout << "Reference FileName = " << reffilename << std::endl;
+    //if (verbose) std::cout << "Reference FileName = " << reffilename << std::endl;
     //dbe->open(reffilename);
     //
 
@@ -261,12 +260,12 @@ DataCertificationJetMET::endRun(const edm::Run& run, const edm::EventSetup& c)
     //----------------------------------------------------------------
 
     std::string filename    = conf_.getUntrackedParameter<std::string>("fileName");
-    if (DEBUG) std::cout << "FileName           = " << filename    << std::endl;
+    if (verbose) std::cout << "FileName           = " << filename    << std::endl;
 
     std::string reffilename;
     if (testType>=1){
       reffilename = conf_.getUntrackedParameter<std::string>("refFileName");
-      if (DEBUG) std::cout << "Reference FileName = " << reffilename << std::endl;
+      if (verbose) std::cout << "Reference FileName = " << reffilename << std::endl;
     }
 
     // -- Current & Reference Run
@@ -276,11 +275,11 @@ DataCertificationJetMET::endRun(const edm::Run& run, const edm::EventSetup& c)
     if (testType>=1) dbe->open(reffilename);
 
     mes = dbe->getAllContents("");
-    if (DEBUG) std::cout << "found " <<  mes.size() << " monitoring elements!" << std::endl;
+    if (verbose) std::cout << "found " <<  mes.size() << " monitoring elements!" << std::endl;
     
     dbe->setCurrentFolder("/");
     std::string currDir = dbe->pwd();
-    if (DEBUG) std::cout << "--- Current Directory " << currDir << std::endl;
+    if (verbose) std::cout << "--- Current Directory " << currDir << std::endl;
 
     subDirVec = dbe->getSubdirs();
 
@@ -298,7 +297,7 @@ DataCertificationJetMET::endRun(const edm::Run& run, const edm::EventSetup& c)
 	RunDir = *ic;
 	RunNum = *ic;
       }
-      if (DEBUG) std::cout << "-XXX- Dir = >>" << ic->c_str() << "<<" << std::endl;
+      if (verbose) std::cout << "-XXX- Dir = >>" << ic->c_str() << "<<" << std::endl;
       ind++;
     }
 
@@ -307,11 +306,11 @@ DataCertificationJetMET::endRun(const edm::Run& run, const edm::EventSetup& c)
     //
     if (RunDir == "JetMET") {
       RunDir = "";
-      if (DEBUG) std::cout << "-XXX- RunDir = >>" << RunDir.c_str() << "<<" << std::endl;
+      if (verbose) std::cout << "-XXX- RunDir = >>" << RunDir.c_str() << "<<" << std::endl;
     }
     RunNum.erase(0,4);
     RunNumber = atoi(RunNum.c_str());
-    if (DEBUG) std::cout << "--- >>" << RunNumber << "<<" << std::endl;
+    if (verbose) std::cout << "--- >>" << RunNumber << "<<" << std::endl;
 
     //
     // Reference
@@ -320,11 +319,11 @@ DataCertificationJetMET::endRun(const edm::Run& run, const edm::EventSetup& c)
       
       if (RefRunDir == "JetMET") {
 	RefRunDir = "";
-	if (DEBUG) std::cout << "-XXX- RefRunDir = >>" << RefRunDir.c_str() << "<<" << std::endl;
+	if (verbose) std::cout << "-XXX- RefRunDir = >>" << RefRunDir.c_str() << "<<" << std::endl;
       }
       RefRunNum.erase(0,4);
       RefRunNumber = atoi(RefRunNum.c_str());
-      if (DEBUG) std::cout << "--- >>" << RefRunNumber << "<<" << std::endl;
+      if (verbose) std::cout << "--- >>" << RefRunNumber << "<<" << std::endl;
       
     }
     //  ic++;
@@ -360,7 +359,7 @@ DataCertificationJetMET::endRun(const edm::Run& run, const edm::EventSetup& c)
   Jet_Tag_L3[3][1] = "JetMET_Jet_JPT_EndCap";
   Jet_Tag_L3[3][2] = "JetMET_Jet_JPT_Forward";
 
-  if (DEBUG) std::cout << RunDir << std::endl;
+  if (verbose) std::cout << RunDir << std::endl;
   dbe->setCurrentFolder("JetMET/EventInfo/Certification/");    
 
   //
@@ -767,7 +766,7 @@ DataCertificationJetMET::endRun(const edm::Run& run, const edm::EventSetup& c)
   mJetDCFL1->Fill(double(Jet_DCF_L1));
 
   // JET Data Certification Results
-  if (DEBUG) {
+  if (verbose) {
     std::cout << std::endl;
     //
     //--- Layer 1
@@ -1226,7 +1225,7 @@ DataCertificationJetMET::endRun(const edm::Run& run, const edm::EventSetup& c)
   //
   // Final MET data certification algorithm
   //----------------------------------------
-  if (DEBUG) {
+  if (verbose) {
   std::cout << std::endl;
   printf("   run,       lumi-sec, tag name,                                   output\n");
   int LS_LAST=-1;
