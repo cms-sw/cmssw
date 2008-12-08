@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.99 $"
+__version__ = "$Revision: 1.100 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -17,6 +17,7 @@ defaultOptions.geometry = 'Ideal'
 defaultOptions.magField = 'Default'
 defaultOptions.conditions = 'FrontierConditions_GlobalTag,STARTUP_V5::All'
 defaultOptions.scenarioOptions=['pp','cosmics','nocoll']
+defaultOptions.harvesting= 'AtRunEnd'
 
 # the pile up map
 pileupMap = {'LowLumiPileUp': 7.1,
@@ -187,6 +188,9 @@ class ConfigBuilder(object):
         # what steps are provided by this class?
         stepList = [methodName.lstrip("prepare_") for methodName in ConfigBuilder.__dict__ if methodName.startswith('prepare_')]
 
+        ### Benedikt can we add here a check that assure that we are going to generate a correct config file?
+        ### i.e. the harvesting do not have to include other step......
+                
         # look which steps are requested and invoke the corresponding method
         for step in self._options.step.split(","):
 	    print step	
@@ -203,7 +207,6 @@ class ConfigBuilder(object):
 
             else:
                 raise ValueError("Step definition "+step+" invalid")
-
 
     def addConditions(self):
         """Add conditions to the process"""
@@ -280,6 +283,7 @@ class ConfigBuilder(object):
 	self.POSTRECODefaultCFF="Configuration/StandardSequences/PostRecoGenerator_cff"
 	self.VALIDATIONDefaultCFF="Configuration/StandardSequences/Validation_cff"
 	self.DQMOFFLINEDefaultCFF="DQMOffline/Configuration/DQMOffline_cff"
+	self.HARVESTINGDefaultCFF="Configuration/StandardSequences/Harvesting_cff"
 	self.ENDJOBDefaultCFF="Configuration/StandardSequences/EndOfProcess_cff"
 
 	self.ALCADefaultSeq=None
@@ -289,6 +293,7 @@ class ConfigBuilder(object):
 	self.DIGI2RAWDefaultSeq=None
 	self.HLTDefaultSeq=None
 	self.L1DefaultSeq=None
+        self.HARVESTINGDefaultSeq=None
 	self.RAW2DIGIDefaultSeq='RawToDigi'
 	self.RECODefaultSeq='reconstruction'
 	self.POSTRECODefaultSeq=None
@@ -309,6 +314,8 @@ class ConfigBuilder(object):
         # if its MC then change the raw2digi
 	if self._options.isMC==True:
 		self.RAW2DIGIDefaultCFF="Configuration/StandardSequences/RawToDigi_cff"
+                self.DQMOFFLINEDefaultCFF="DQMOffline/Configuration/DQMOfflineMC_cff"
+                
 
         # now for #%#$#! different scenarios
 
@@ -321,6 +328,9 @@ class ConfigBuilder(object):
 	    self.RECODefaultCFF="Configuration/StandardSequences/ReconstructionCosmics_cff"	
     	    self.EVTCONTDefaultCFF="Configuration/EventContent/EventContentCosmics_cff"
   	    self.DQMOFFLINEDefaultCFF="DQMOffline/Configuration/DQMOfflineCosmics_cff"
+            if self._options.isMC==True:
+                self.DQMOFFLINEDefaultCFF="DQMOffline/Configuration/DQMOfflineCosmicsMC_cff"
+  	    self.HARVESTINGDefaultCFF="Configuration/StandardSequences/HarvestingCosmics_cff"
    	    self.RECODefaultSeq='reconstructionCosmics'
 	    self.DQMDefaultSeq='DQMOfflineCosmics'
 	    self.eventcontent='FEVT'
@@ -377,6 +387,7 @@ class ConfigBuilder(object):
             alcaConfig = self.loadAndRemember(sequence.split(',')[0])
             sequence = sequence.split(',')[1]				
         # decide which ALCA paths to use
+        print type(alcaConfig)
         alcaList = sequence.split("+")
         for name in alcaConfig.__dict__:
             alcastream = getattr(alcaConfig,name)
@@ -511,6 +522,37 @@ class ConfigBuilder(object):
         self.process.dqmoffline_step = cms.Path( getattr(self.process, sequence.split(',')[-1]) )
         self.process.schedule.append(self.process.dqmoffline_step)
 
+    def prepare_HARVESTING(self, sequence = None):
+        """ Enrich the process with harvesting step """
+        self.EDMtoMECFF='Configuration/StandardSequences/EDMtoME'+self._options.harvesting+'_cff'
+        self.loadAndRemember(self.EDMtoMECFF)
+        self.process.edmtome_step = cms.Path(self.process.EDMtoME)
+        self.process.schedule.append(self.process.edmtome_step)     
+
+        if ( len(sequence.split(','))==1 ):
+            harvestingConfig = self.loadAndRemember(self.HARVESTINGDefaultCFF)
+        else:
+            harvestingConfig = self.loadAndRemember(sequence.split(',')[0])
+            sequence = sequence.split(',')[1]				
+        # decide which HARVESTING paths to use
+        harvestingList = sequence.split("+")
+        for name in harvestingConfig.__dict__:
+            harvestingstream = getattr(harvestingConfig,name)
+            if name in harvestingList and isinstance(harvestingstream,cms.Path):
+               self.process.schedule.append(harvestingstream)
+               harvestingList.remove(name)
+        # This if statment must disappears once some config happens in the alca harvesting step
+        if 'alcaHarvesting' in harvestingList:
+            harvestingList.remove('alcaHarvesting')
+                    
+        if len(harvestingList) != 0:
+            print "The following harvesting could not be found : ", harvestingList
+            raise
+
+        self.process.dqmsave_step = cms.Path(self.process.DQMSaver)
+        self.process.schedule.append(self.process.dqmsave_step)     
+
+
     def prepare_ENDJOB(self, sequence = 'endOfProcess'):
         # this one needs replacement
 
@@ -584,7 +626,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.99 $"),
+              (version=cms.untracked.string("$Revision: 1.100 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )
@@ -599,7 +641,8 @@ class ConfigBuilder(object):
         self.addSource()
         self.addStandardSequences()
         self.addConditions()
-        self.addOutput()
+        if not 'HARVESTING' in self._options.step:
+            self.addOutput()
         self.addCommon()
 
         self.pythonCfgCode =  "# Auto generated configuration file\n"

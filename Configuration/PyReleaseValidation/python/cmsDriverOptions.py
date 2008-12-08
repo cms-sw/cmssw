@@ -25,7 +25,7 @@ parser.add_option_group(expertSettings)
 
 parser.add_option("-s", "--step",
                    help="The desired step. The possible values are: "+\
-                        "GEN,SIM,DIGI,DIGI2RAW,HLT,RAW2DIGI,RECO,POSTRECO,DQM,ALCA,VALIDATION or ALL.",
+                        "GEN,SIM,DIGI,L1,DIGI2RAW,HLT,RAW2DIGI,RECO,POSTRECO,DQM,ALCA,VALIDATION,HARVESTING or ALL.",
                    default="ALL",
                    dest="step")
 
@@ -64,7 +64,6 @@ parser.add_option("--data",
                   action="store_true",
                   default=False,
                   dest="isData")
-
 
 # expert settings
 expertSettings.add_option("--beamspot",
@@ -171,6 +170,10 @@ expertSettings.add_option("--scenario",
                           default='pp',
                           dest="scenario")
 
+expertSettings.add_option("--harvesting",
+                          help="What harvesting to use (from Configuration/StandardSequences). Default=AtRunEnd",
+                          default=defaultOptions.harvesting,
+                          dest="harvesting")
 
 parser.add_option("--no_exec",
                   help="Do not exec cmsRun. Just prepare the python config file.",
@@ -204,7 +207,8 @@ prec_step = {"ALL":"",
              "ALCA":"RECO",
              "ANA":"RECO",
              "DIGI2RAW":"DIGI",
-             "RAW2DIGI":"DIGI2RAW"}
+             "RAW2DIGI":"DIGI2RAW",
+             "HARVESTING":"RECO"}
 
 trimmedEvtType=options.evt_type.split('/')[-1]
 
@@ -238,7 +242,7 @@ if options.pileup != "NoPileUp":
 
 
 # if no output file name given, set it to default
-if options.fileout=="":
+if options.fileout=="" and not first_step in ("HARVESTING"):
     options.fileout = standardFileName+".root"
 
 
@@ -287,15 +291,28 @@ elif options.step=='DATA_CHAIN':
 options.step = options.step.replace("SIM_CHAIN","GEN,SIM,DIGI,L1,DIGI2RAW")
 
 # add on the end of job sequence...
-# if not fastsim...
-if not "FASTSIM" in options.step: 
-  options.step=options.step+',ENDJOB'
-print options.step
+# if not fastsim or harvesting...
 
+addEndJob = True
+if "FASTSIM" in options.step or "HARVESTING" in options.step: 
+    addEndJob = False
+if addEndJob:    
+    options.step=options.step+',ENDJOB'
+print options.step
+    
 # the process name is just the last step in the list of steps
 options.name = trimmedStep.split(',')[-1]
 if options.name in ('POSTRECO,ALCA,DQM') and 'RECO' in trimmedStep:
     options.name = 'RECO'
+    
+# check to be sure that people run the harvesting as a separte step
+isHarvesting = False
+isOther = False
+
+s_list=options.step.split(',')
+if "HARVESTING" in options.step and len(s_list) > 1:
+    print "The Harvesting step must be run alone"
+    sys.exit(1)
 
 # if we're dealing with HLT, the process name has to be 'HLT' only
 if 'HLT' in trimmedStep:
