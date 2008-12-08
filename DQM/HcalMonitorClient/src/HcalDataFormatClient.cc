@@ -19,7 +19,6 @@ void HcalDataFormatClient::init(const ParameterSet& ps, DQMStore* dbe, string cl
   DCC_Evt_Fmt_ = NULL;
   CDF_Violation_ = NULL;
   DCC_Spigot_Err_ = NULL;
-  DCC_Status_Flags_ = NULL;
   badDigis_ = NULL;
   unmappedDigis_ = NULL;
   unmappedTPDs_ = NULL;
@@ -111,7 +110,6 @@ void HcalDataFormatClient::cleanup(void) {
     if ( DCC_Evt_Fmt_) delete DCC_Evt_Fmt_;
     if ( DCC_Spigot_Err_) delete DCC_Spigot_Err_;
     if ( CDF_Violation_) delete CDF_Violation_;
-    if ( DCC_Status_Flags_) delete DCC_Status_Flags_;
 
     if ( badDigis_) delete badDigis_;
     if ( unmappedDigis_) delete unmappedDigis_;
@@ -163,7 +161,6 @@ void HcalDataFormatClient::cleanup(void) {
   DCC_Evt_Fmt_ = NULL;
   CDF_Violation_ = NULL;
   DCC_Spigot_Err_ = NULL;
-  DCC_Status_Flags_ = NULL;
   badDigis_ = NULL;
   unmappedDigis_ = NULL;
   unmappedTPDs_ = NULL;
@@ -241,10 +238,7 @@ void HcalDataFormatClient::getHistograms(){
   sprintf(name,"DataFormatMonitor/DCC Plots/DCC Nonzero Spigot Conditions");
   DCC_Spigot_Err_ = getHisto2(name, process_, dbe_, debug_,cloneME_);
 
-  sprintf(name,"DataFormatMonitor/DCC Plots/DCC Status Flags (Nonzero Error Counters)");
-  DCC_Status_Flags_ = getHisto2(name, process_, dbe_, debug_,cloneME_);
-
-  sprintf(name,"DataFormatMonitor/DCC Plots/Spigot Format Errors");
+    sprintf(name,"DataFormatMonitor/DCC Plots/Spigot Format Errors");
   spigotErrs_ = getHisto(name, process_, dbe_, debug_,cloneME_);
 
   sprintf(name,"DataFormatMonitor/ZZ HCal-Wide Expert Plots/Num Bad Quality Digis -DV bit-Err bit-Cap Rotation");
@@ -660,7 +654,6 @@ void HcalDataFormatClient::htmlOutput(int runNo, string htmlDir, string htmlName
   htmlFile << "</tr>" << endl;
 
   htmlFile << "<tr align=\"left\">" << endl;
-  histoHTML2(runNo,DCC_Status_Flags_,"HCAL FED ID"," ", 92, htmlFile,htmlDir);
   histoHTML (runNo,Num_Frags_by_FED_,"FED ID" ," ",100, htmlFile,htmlDir);
   htmlFile << "</tr>" << endl;
 
