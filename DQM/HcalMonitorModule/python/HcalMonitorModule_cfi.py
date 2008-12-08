@@ -247,8 +247,9 @@ hcalMonitor = cms.EDFilter("HcalMonitorModule",
                            BeamMonitor_makeDiagnosticPlots                = cms.untracked.bool(False),
 
                            # DATA FORMAT MONITOR
-                           DataFormatMonitor = cms.untracked.bool(True),
-                           dfPrtLvl = cms.untracked.int32(0), # this seems similar to the debug int we have; deprecate this?
+                           DataFormatMonitor                              = cms.untracked.bool(True),
+                           DataFormatMonitor_checkNevents                 = cms.untracked.int32(500),
+                           dfPrtLvl                                       = cms.untracked.int32(0), # this seems similar to the debug int we have; deprecate this?
 
                            # DATA INTEGRITY TASK
                            DataIntegrityTask = cms.untracked.bool(False),
