@@ -22,15 +22,13 @@ process.source = cms.Source("PoolSource",
     debugVerbosity = cms.untracked.uint32(1),
     debugFlag = cms.untracked.bool(True),
     fileNames = cms.untracked.vstring(
-     '/store/relval/CMSSW_2_1_10/RelValSingleElectronPt10/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/IDEAL_V9_v2/0000/26338BA9-5899-DD11-BD75-000423D985B0.root',
-     '/store/relval/CMSSW_2_1_10/RelValSingleElectronPt10/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/IDEAL_V9_v2/0000/6A430ADA-5999-DD11-994D-001617C3B5D8.root',
-     '/store/relval/CMSSW_2_1_10/RelValSingleElectronPt10/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/IDEAL_V9_v2/0000/F2E24023-5899-DD11-BFBF-000423D94A20.root',
-     '/store/relval/CMSSW_2_1_10/RelValSingleElectronPt10/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/IDEAL_V9_v2/0000/FE4A6F3F-FD99-DD11-9587-000423D98750.root'
+       '/store/relval/CMSSW_3_0_0_pre2/RelValSingleElectronPt35/GEN-SIM-RECO/IDEAL_V9_v2/0001/081F51BD-6FB2-DD11-91C4-000423D94700.root',
+       '/store/relval/CMSSW_3_0_0_pre2/RelValSingleElectronPt35/GEN-SIM-RECO/IDEAL_V9_v2/0001/E2426349-1DB4-DD11-B4F7-001617DC1F70.root'
     )
 )
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(10)
+    input = cms.untracked.int32(-1)
 )
 
 process.out = cms.OutputModule("PoolOutputModule",
@@ -45,7 +43,8 @@ process.out = cms.OutputModule("PoolOutputModule",
 process.Timing = cms.Service("Timing")
 
 process.p = cms.Path(process.siPixelRecHits*process.siStripMatchedRecHits*process.newSeedFromPairs*process.newSeedFromTriplets*process.newCombinedSeeds*process.ecalClusters*process.pixelMatchGsfElectronSequence)
+
 process.outpath = cms.EndPath(process.out)
-process.GlobalTag.globaltag = 'IDEAL_V9::All'
+process.GlobalTag.globaltag = 'IDEAL_30X::All'
 
 
