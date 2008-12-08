@@ -8,7 +8,7 @@
 <use name=FastSimulation/Utilities>
 <use name=SimDataFormats/Track>
 <use name=SimDataFormats/Vertex>
-<use name=SimDataFormats/HepMCProduct>
+<use name=SimDataFormats/GeneratorProducts>
 <use name=SimGeneral/HepPDTRecord>
 <use name=hepmc>
 <export>

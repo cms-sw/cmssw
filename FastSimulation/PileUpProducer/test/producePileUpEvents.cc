@@ -8,7 +8,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 

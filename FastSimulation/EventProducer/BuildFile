@@ -23,7 +23,7 @@
 <use name=MagneticField/Records>
 <use name=RecoTracker/Record>
 <use name=SimDataFormats/CaloHit>
-<use name=SimDataFormats/HepMCProduct>
+<use name=SimDataFormats/GeneratorProducts>
 <use name=SimDataFormats/TrackingHit>
 <use name=SimGeneral/HepPDTRecord>
 <use name=hepmc>
