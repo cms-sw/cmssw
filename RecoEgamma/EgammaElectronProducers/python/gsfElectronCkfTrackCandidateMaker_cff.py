@@ -24,12 +24,14 @@ from RecoEgamma.EgammaElectronProducers.fwdGsfElectronPropagator_cff import *
 from TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff import *
 import TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi
 TrajectoryFilterForPixelMatchGsfElectrons = TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi.trajectoryFilterESProducer.clone()
-egammaCkfTrackCandidates.SeedProducer = 'electronPixelSeeds'
+
+egammaCkfTrackCandidates.src = cms.InputTag('electronPixelSeeds')
 egammaCkfTrackCandidates.TrajectoryBuilder = 'TrajectoryBuilderForPixelMatchGsfElectrons'
-egammaCkfTrackCandidates.SeedLabel = ''
+egammaCkfTrackCandidates.SeedLabel = cms.InputTag('')
 egammaCkfTrackCandidates.TrajectoryCleaner = 'TrajectoryCleanerBySharedHits'
 egammaCkfTrackCandidates.NavigationSchool = 'SimpleNavigationSchool'
 egammaCkfTrackCandidates.RedundantSeedCleaner = 'CachingSeedCleanerBySharedInput'
+
 TrajectoryBuilderForPixelMatchGsfElectrons.ComponentName = 'TrajectoryBuilderForPixelMatchGsfElectrons'
 TrajectoryBuilderForPixelMatchGsfElectrons.trajectoryFilterName = 'TrajectoryFilterForPixelMatchGsfElectrons'
 TrajectoryBuilderForPixelMatchGsfElectrons.maxCand = 3
@@ -42,9 +44,11 @@ TrajectoryBuilderForPixelMatchGsfElectrons.lostHitPenalty = 30.
 TrajectoryBuilderForPixelMatchGsfElectrons.alwaysUseInvalidHits = True
 TrajectoryBuilderForPixelMatchGsfElectrons.TTRHBuilder = 'WithTrackAngle'
 TrajectoryBuilderForPixelMatchGsfElectrons.updator = 'KFUpdator'
+
 gsfElectronChi2.ComponentName = 'gsfElectronChi2'
 gsfElectronChi2.MaxChi2 = 100000.
 gsfElectronChi2.nSigma = 3.
+
 TrajectoryFilterForPixelMatchGsfElectrons.ComponentName = 'TrajectoryFilterForPixelMatchGsfElectrons'
 TrajectoryFilterForPixelMatchGsfElectrons.filterPset = cms.PSet(
     chargeSignificance = cms.double(-1.0),
