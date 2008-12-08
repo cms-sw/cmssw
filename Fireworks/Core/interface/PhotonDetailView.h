@@ -4,7 +4,7 @@
 //
 // Package:     Calo
 // Class  :     PhotonDetailView
-// 
+//
 /**\class PhotonDetailView PhotonDetailView.h Fireworks/Calo/interface/PhotonDetailView.h
 
  Description: <one line class summary>
@@ -14,9 +14,9 @@
 
 */
 //
-// Original Author:  
+// Original Author:
 //         Created:  Sun Jan  6 23:42:33 EST 2008
-// $Id: PhotonDetailView.h,v 1.6 2008/11/19 17:26:14 jmuelmen Exp $
+// $Id: PhotonDetailView.h,v 1.5 2008/11/06 22:05:22 amraktad Exp $
 //
 
 // system include files
@@ -26,7 +26,6 @@
 // user include files
 #include "TEveBoxSet.h"
 #include "Fireworks/Core/interface/FWDetailView.h"
-#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
 // forward declarations
 
@@ -37,11 +36,11 @@ namespace reco {
 }
 
 class PhotonDetailView : public FWDetailView {
-     
+
 public:
      PhotonDetailView();
      virtual ~PhotonDetailView();
-     
+
      virtual void build (TEveElementList **product, const FWModelId &id);
 
 protected:
@@ -55,36 +54,29 @@ protected:
 	vars[2] = rotation_center[2];
      }
      TEveElementList *makeLabels (const reco::Photon &);
-//      TEveElementList *getEcalCrystalsBarrel (const class DetIdToMatrix &,
-// 					     const std::vector<class DetId> &);
-//      TEveElementList *getEcalCrystalsBarrel (const class DetIdToMatrix &,
-// 					     double eta, double phi,
-// 					     int n_eta = 5, int n_phi = 10);
-//      TEveElementList *getEcalCrystalsEndcap (const class DetIdToMatrix &,
-// 					     const std::vector<class DetId> &);
-//      TEveElementList *getEcalCrystalsEndcap (const class DetIdToMatrix &,
-// 					     double x, double y, int iz,
-// 					     int n_x = 5, int n_y = 5);
-     void fillData (const std::vector<DetId> &, class TEveCaloDataVec *);
+     TEveElementList *getEcalCrystalsBarrel (const class DetIdToMatrix &,
+					     const std::vector<class DetId> &);
+     TEveElementList *getEcalCrystalsBarrel (const class DetIdToMatrix &,
+					     double eta, double phi,
+					     int n_eta = 5, int n_phi = 10);
+     TEveElementList *getEcalCrystalsEndcap (const class DetIdToMatrix &,
+					     const std::vector<class DetId> &);
+     TEveElementList *getEcalCrystalsEndcap (const class DetIdToMatrix &,
+					     double x, double y, int iz,
+					     int n_x = 5, int n_y = 5);
 
 private:
      PhotonDetailView(const PhotonDetailView&); // stop default
      const PhotonDetailView& operator=(const PhotonDetailView&); // stop default
-     
+
      // ---------- member data --------------------------------
      const FWEventItem* m_item;
-     void resetCenter() { 
+     void resetCenter() {
 	rotation_center[0] = 0;
 	rotation_center[1] = 0;
 	rotation_center[2] = 0;
      }
-     const EcalRecHitCollection *barrel_hits;
-     const EcalRecHitCollection *endcap_hits;
-     std::vector<DetId> seed_detids;
-     double x_min;
-     double x_max;
-     double y_min;
-     double y_max;
+
 };
 
 #endif
