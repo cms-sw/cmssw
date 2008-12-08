@@ -57,7 +57,7 @@ process.load("Configuration.StandardSequences.MagneticField_cff")
 # Conditions: fake or frontier
 # process.load("Configuration.StandardSequences.FakeConditions_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = 'IDEAL_V9::All'
+#process.GlobalTag.globaltag = 'IDEAL_V9::All'
 
 process.load("Configuration.StandardSequences.L1Emulator_cff")
 # Choose a menu/prescale/mask from one of the choices
@@ -98,4 +98,3 @@ process.schedule = cms.Schedule(
     process.DoHLTTau, 
     process.DoHLTBTag,
     process.analyzeThis )
-
