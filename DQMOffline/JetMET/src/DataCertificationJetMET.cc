@@ -13,7 +13,7 @@
 //
 // Original Author:  "Frank Chlebana"
 //         Created:  Sun Oct  5 13:57:25 CDT 2008
-// $Id: DataCertificationJetMET.cc,v 1.20 2008/12/02 06:16:27 hatake Exp $
+// $Id: DataCertificationJetMET.cc,v 1.21 2008/12/06 16:18:51 hatake Exp $
 //
 //
 
@@ -1039,9 +1039,13 @@ DataCertificationJetMET::endRun(const edm::Run& run, const edm::EventSetup& c)
   double chisq_threshold_lumisec = 20.;
   double MEx_threshold   = 10.;
   double MEy_threshold   = 10.;
+  double MExNoHF_threshold   = 100.;
+  double MEyNoHF_threshold   = 100.;
   double MExRMS_threshold   = 10.;
   double MEyRMS_threshold   = 10.;
-  int    minEntry        = 5;
+  double MExNoHFRMS_threshold   = 500.;
+  double MEyNoHFRMS_threshold   = 500.;
+  int    minEntry        = 5; // min entry for each lumi section
 
   if (verbose) {
     std::cout << std::endl;
@@ -1075,11 +1079,11 @@ DataCertificationJetMET::endRun(const edm::Run& run, const edm::EventSetup& c)
       if (i==2)
 	JetMET_MEx_NoHF[0]=data_certificate_metfit(fitfun[i]->GetChisquare()/double(fitfun[i]->GetNDF()),
 						fitfun[i]->GetParameter(nmean),
-						chisq_threshold_run,MEx_threshold);
+						chisq_threshold_run,MExNoHF_threshold);
       if (i==3)
 	JetMET_MEy_NoHF[0]=data_certificate_metfit(fitfun[i]->GetChisquare()/double(fitfun[i]->GetNDF()),
 						fitfun[i]->GetParameter(nmean),
-						chisq_threshold_run,MEy_threshold);
+						chisq_threshold_run,MEyNoHF_threshold);
     } else { //----------- no MET fits ----------
       if (verbose)
 	printf("| %-30s | %8.3f | %8.3f |\n",hMExy[i]->GetName(),hMExy[i]->GetMean(),hMExy[i]->GetRMS());
@@ -1091,10 +1095,10 @@ DataCertificationJetMET::endRun(const edm::Run& run, const edm::EventSetup& c)
 					       MEy_threshold,MEyRMS_threshold);
       if (i==2)
 	JetMET_MEx_NoHF[0]=data_certificate_met(hMExy[i]->GetMean(),hMExy[i]->GetRMS(),
-						MEx_threshold,MExRMS_threshold);
+						MExNoHF_threshold,MExNoHFRMS_threshold);
       if (i==3)
 	JetMET_MEy_NoHF[0]=data_certificate_met(hMExy[i]->GetMean(),hMExy[i]->GetRMS(),
-						MEy_threshold,MEyRMS_threshold);      
+						MEyNoHF_threshold,MEyNoHFRMS_threshold);      
     }
   }
 
@@ -1166,12 +1170,12 @@ DataCertificationJetMET::endRun(const edm::Run& run, const edm::EventSetup& c)
 		 fitfun_CaloMExNoHF_LS[LS]->GetParameter(nmean+1),fitfun_CaloMExNoHF_LS[LS]->GetParError(nmean+1));
 	JetMET_MEx_NoHF[LS]=data_certificate_metfit(fitfun_CaloMExNoHF_LS[LS]->GetChisquare()/double(fitfun_CaloMExNoHF_LS[LS]->GetNDF()),
 						    fitfun_CaloMExNoHF_LS[LS]->GetParameter(nmean),
-						    chisq_threshold_lumisec,MEx_threshold);
+						    chisq_threshold_lumisec,MExNoHF_threshold);
       } else { //----------- no MET fits ----------
 	if (verbose)
 	printf("| %-30s | %8.3f | %8.3f |\n",CaloMExNoHF_LS[LS]->GetName(),CaloMExNoHF_LS[LS]->GetMean(),CaloMExNoHF_LS[LS]->GetRMS());
 	JetMET_MEx_NoHF[LS]=data_certificate_met(CaloMExNoHF_LS[LS]->GetMean(),CaloMExNoHF_LS[LS]->GetRMS(),
-						 MEx_threshold,MExRMS_threshold);
+						 MExNoHF_threshold,MExNoHFRMS_threshold);
       }
       
     }
@@ -1191,12 +1195,12 @@ DataCertificationJetMET::endRun(const edm::Run& run, const edm::EventSetup& c)
 		 fitfun_CaloMEyNoHF_LS[LS]->GetParameter(nmean+1),fitfun_CaloMEyNoHF_LS[LS]->GetParError(nmean+1));
 	JetMET_MEy_NoHF[LS]=data_certificate_metfit(fitfun_CaloMEyNoHF_LS[LS]->GetChisquare()/double(fitfun_CaloMEyNoHF_LS[LS]->GetNDF()),
 						    fitfun_CaloMEyNoHF_LS[LS]->GetParameter(nmean),
-						    chisq_threshold_lumisec,MEy_threshold);
+						    chisq_threshold_lumisec,MEyNoHF_threshold);
       }  else { //----------- no MET fits ----------
 	if (verbose)
 	printf("| %-30s | %8.3f | %8.3f |\n",CaloMEyNoHF_LS[LS]->GetName(),CaloMEyNoHF_LS[LS]->GetMean(),CaloMEyNoHF_LS[LS]->GetRMS());
 	JetMET_MEy_NoHF[LS]=data_certificate_met(CaloMEyNoHF_LS[LS]->GetMean(),CaloMEyNoHF_LS[LS]->GetRMS(),
-						 MEy_threshold,MEyRMS_threshold);
+						 MEyNoHF_threshold,MEyNoHFRMS_threshold);
       }      
 
     }
