@@ -77,6 +77,9 @@ CurvilinearTrajectoryError SeedFromConsecutiveHitsCreator::
 
   AlgebraicSymMatrix C(5,1);
 
+// FIXME: minC00. Prevent apriori uncertainty in 1/P from being too small, 
+// to avoid instabilities.
+// N.B. This parameter needs optimising ...
   float sin2th = sqr(sinTheta);
   float minC00 = 1.0;
   C[0][0] = std::max(sin2th/sqr(ptMin), minC00);
