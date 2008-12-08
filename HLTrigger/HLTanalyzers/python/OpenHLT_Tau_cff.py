@@ -3,27 +3,18 @@ import FWCore.ParameterSet.Config as cms
 # import the whole HLT menu
 from HLTrigger.Configuration.HLT_2E30_cff import *
 
-hltTauPrescaler = cms.EDFilter("HLTPrescaler",
-    makeFilterObject = cms.bool(True),
-    eventOffset = cms.uint32(0),
-    prescaleFactor = cms.uint32(1)
-)
-
-hltTauL1SeedFilter = cms.EDFilter("HLTLevel1GTSeed",
-    L1SeedsLogicalExpression = cms.string('L1_SingleJet30'),
-    L1GtReadoutRecordTag = cms.InputTag("hltGtDigis"),
-    L1GtObjectMapTag = cms.InputTag("hltL1GtObjectMap"),
-    L1CollectionsTag = cms.InputTag("hltL1extraParticles"),
-    L1MuonCollectionTag = cms.InputTag("hltL1extraParticles"),
-    L1TechTriggerSeeding = cms.bool(False)
-)
-
-hltL2TauJets = cms.EDFilter("L2TauJetsMerger",
-    L1ParticlesJet = cms.InputTag("hltL1extraParticles","Central"),
-    JetSrc = cms.VInputTag(cms.InputTag("hltIcone5Tau1"), cms.InputTag("hltIcone5Tau2"), cms.InputTag("hltIcone5Tau3"), cms.InputTag("hltIcone5Tau4"), cms.InputTag("hltIcone5Cen1"),cms.InputTag("hltIcone5Cen2"), cms.InputTag("hltIcone5Cen3"), cms.InputTag("hltIcone5Cen4")),
-    EtMin = cms.double(5.0),
-    L1ParticlesTau = cms.InputTag("hltL1extraParticles","Tau"),
-    L1TauTrigger = cms.InputTag("hltTauL1SeedFilter")
+hltL2TauJets = cms.EDProducer("L2TauJetsMerger",
+    JetSrc = cms.VInputTag(
+      cms.InputTag("hltIcone5Tau1"), 
+      cms.InputTag("hltIcone5Tau2"), 
+      cms.InputTag("hltIcone5Tau3"), 
+      cms.InputTag("hltIcone5Tau4"), 
+      cms.InputTag("hltIcone5Cen1"),
+      cms.InputTag("hltIcone5Cen2"), 
+      cms.InputTag("hltIcone5Cen3"), 
+      cms.InputTag("hltIcone5Cen4")
+    ),
+    EtMin = cms.double(5.0)
 )
 
 hltL2TauIsolationProducer = cms.EDProducer("L2TauIsolationProducer",
@@ -306,5 +297,33 @@ TauOpenHLT = cms.EDProducer("HLTTauProducer",
     IsolationCone = cms.double(0.5)
 )
 
-OpenHLTDoCaloSequence = cms.Sequence(hltEcalPreshowerDigis+hltEcalRegionalRestFEDs+hltEcalRegionalRestDigis+hltEcalRegionalRestWeightUncalibRecHit+hltEcalRegionalRestRecHitTmp+hltEcalRecHitAll+hltEcalPreshowerRecHit+HLTDoLocalHcalSequence+hltTowerMakerForAll+hltCaloTowers)
-OpenHLTCaloTausCreatorSequence = cms.Sequence(OpenHLTDoCaloSequence+hltCaloTowersTau1+hltIcone5Tau1+hltCaloTowersTau2+hltIcone5Tau2+hltCaloTowersTau3+hltIcone5Tau3+hltCaloTowersTau4+hltIcone5Tau4+hltCaloTowersCen1+hltIcone5Cen1+hltCaloTowersCen2+hltIcone5Cen2+hltCaloTowersCen3+hltIcone5Cen3+hltCaloTowersCen4+hltIcone5Cen4)
+OpenHLTDoCaloSequence = cms.Sequence(
+    hltEcalPreshowerDigis +
+    hltEcalRegionalRestFEDs +
+    hltEcalRegionalRestDigis +
+    hltEcalRegionalRestWeightUncalibRecHit +
+    hltEcalRegionalRestRecHitTmp +
+    hltEcalRecHitAll +
+    hltEcalPreshowerRecHit +
+    HLTDoLocalHcalSequence +
+    hltTowerMakerForAll +
+    hltCaloTowers )
+
+OpenHLTCaloTausCreatorSequence = cms.Sequence(
+    OpenHLTDoCaloSequence +
+    hltCaloTowersTau1 +
+    hltIcone5Tau1 +
+    hltCaloTowersTau2 +
+    hltIcone5Tau2 +
+    hltCaloTowersTau3 +
+    hltIcone5Tau3 +
+    hltCaloTowersTau4 +
+    hltIcone5Tau4 +
+    hltCaloTowersCen1 +
+    hltIcone5Cen1 +
+    hltCaloTowersCen2 +
+    hltIcone5Cen2 +
+    hltCaloTowersCen3 +
+    hltIcone5Cen3 +
+    hltCaloTowersCen4 +
+    hltIcone5Cen4 )
