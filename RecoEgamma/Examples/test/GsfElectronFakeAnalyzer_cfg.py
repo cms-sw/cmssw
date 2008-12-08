@@ -1,28 +1,27 @@
+
+import sys
+sys.path.append('.')
+import dbs_discovery
+
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("readelectrons")
-process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
 )
-process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring (
-     '/store/relval/CMSSW_2_1_8/RelValQCD_Pt_80_120/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/STARTUP_V7_v1/0003/06C16DFA-9182-DD11-A4CC-000423D6CA6E.root',
-     '/store/relval/CMSSW_2_1_8/RelValQCD_Pt_80_120/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/STARTUP_V7_v1/0003/0A0241FB-9182-DD11-98E1-001617E30D40.root',
-     '/store/relval/CMSSW_2_1_8/RelValQCD_Pt_80_120/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/STARTUP_V7_v1/0003/12B41BA7-9282-DD11-9E7F-000423D94E70.root',
-     '/store/relval/CMSSW_2_1_8/RelValQCD_Pt_80_120/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/STARTUP_V7_v1/0003/14AD9BA0-9182-DD11-82D3-000423D987E0.root',
-     '/store/relval/CMSSW_2_1_8/RelValQCD_Pt_80_120/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/STARTUP_V7_v1/0003/1A5FD19D-9282-DD11-B0BB-000423D9970C.root',
-     '/store/relval/CMSSW_2_1_8/RelValQCD_Pt_80_120/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/STARTUP_V7_v1/0003/1CA9C760-9282-DD11-99C2-001617DC1F70.root',
-     '/store/relval/CMSSW_2_1_8/RelValQCD_Pt_80_120/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/STARTUP_V7_v1/0003/20EC90FB-9182-DD11-9F89-000423D98BE8.root',
-     '/store/relval/CMSSW_2_1_8/RelValQCD_Pt_80_120/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/STARTUP_V7_v1/0003/246807C8-9282-DD11-B3DF-000423D98844.root',
-     '/store/relval/CMSSW_2_1_8/RelValQCD_Pt_80_120/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/STARTUP_V7_v1/0003/2C0E27A0-9282-DD11-9002-000423D98DB4.root'
+
+process.source = cms.Source ("PoolSource",
+    fileNames = cms.untracked.vstring(),
+		secondaryFileNames = cms.untracked.vstring()
 )
+
+process.source.fileNames.extend(dbs_discovery.search())
 
 process.gsfElectronFakeAnalysis = cms.EDAnalyzer("GsfElectronFakeAnalyzer",
     electronCollection = cms.InputTag("pixelMatchGsfElectrons"),
     matchingObjectCollection = cms.InputTag("iterativeCone5CaloJets"),
-    outputFile = cms.string('gsfElectronHistos_fake.root'),
+    outputFile = cms.string('gsfElectronHistos.root'),
     MaxPt = cms.double(100.0),
     DeltaR = cms.double(0.3),
     MaxAbsEta = cms.double(2.5),

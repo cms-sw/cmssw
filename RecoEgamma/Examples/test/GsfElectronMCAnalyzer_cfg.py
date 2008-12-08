@@ -1,15 +1,22 @@
+
+import sys
+sys.path.append('.')
+import dbs_discovery
+
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("readelectrons")
+
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
 )
+
 process.source = cms.Source ("PoolSource",
-    fileNames = cms.untracked.vstring (
-       '/store/relval/CMSSW_2_2_0/RelValSingleElectronPt35/GEN-SIM-RECO/IDEAL_V9_v1/0000/587EC8EF-B4B9-DD11-AC52-001617C3B65A.root',
-       '/store/relval/CMSSW_2_2_0/RelValSingleElectronPt35/GEN-SIM-RECO/IDEAL_V9_v1/0000/9E464300-76B9-DD11-B526-000423D98C20.root'
-    )
+    fileNames = cms.untracked.vstring(),
+		secondaryFileNames = cms.untracked.vstring()
 )
+
+process.source.fileNames.extend(dbs_discovery.search())
 
 process.gsfElectronAnalysis = cms.EDAnalyzer("GsfElectronMCAnalyzer",
     electronCollection = cms.InputTag("pixelMatchGsfElectrons"),
