@@ -7,10 +7,10 @@
 #include "RecoTracker/TkTrackingRegions/interface/OrderedHitsGenerator.h"
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegion.h"
 #include "RecoTracker/TkSeedingLayers/interface/SeedComparitor.h"
+#include "RecoTracker/TkSeedGenerator/interface/SeedCreator.h"
+
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include "RecoTracker/TkSeedGenerator/interface/SeedFromConsecutiveHits.h"
 
 #include <vector>
 
@@ -20,18 +20,15 @@
 template <class T> T sqr( T t) {return t*t;}
 
 SeedGeneratorFromRegionHits::SeedGeneratorFromRegionHits(
-  OrderedHitsGenerator *ohg, const edm::ParameterSet & cfg,
-  SeedComparitor * asc)
-  : theHitsGenerator(ohg), theConfig(cfg), theComparitor(asc), 
-    thePropagatorLabel(cfg.existsAs<std::string>("propagator") ? cfg.getParameter<std::string>("propagator") : "PropagatorWithMaterial"),
-    theUseFastHelix(cfg.existsAs<bool>("UseFastHelix") ? cfg.getParameter<bool>("UseFastHelix") : true),
-    theBOFFMomentum(cfg.existsAs<double>("SeedMomentumForBOFF") ? cfg.getParameter<double>("SeedMomentumForBOFF") : -1.0)
+    OrderedHitsGenerator *ohg, SeedComparitor* asc, SeedCreator* asp)
+    : theHitsGenerator(ohg), theComparitor(asc), theSeedCreator(asp)
 { }
 
 SeedGeneratorFromRegionHits::~SeedGeneratorFromRegionHits()
 {
   delete theHitsGenerator;
   delete theComparitor;
+  delete theSeedCreator;
 }
 
 void SeedGeneratorFromRegionHits::run(TrajectorySeedCollection & seedCollection, 
@@ -40,19 +37,11 @@ void SeedGeneratorFromRegionHits::run(TrajectorySeedCollection & seedCollection,
 
   const OrderedSeedingHits & hitss = theHitsGenerator->run(region, ev, es);
 
-
-  GlobalError vtxerr( sqr(region.originRBound()), 0, sqr(region.originRBound()),
-                                               0, 0, sqr(region.originZBound()));
-
   unsigned int nHitss =  hitss.size();
   for (unsigned int iHits = 0; iHits < nHitss; ++iHits) { 
     const SeedingHitSet & hits =  hitss[iHits];
     if (!theComparitor || theComparitor->compatible( hits, es) ) {
-      SeedFromConsecutiveHits seedfromhits( hits, region.origin(), vtxerr, es, 
-                                            region.ptMin(), thePropagatorLabel, theUseFastHelix, theBOFFMomentum);
-      if(seedfromhits.isValid()) {
-        seedCollection.push_back( seedfromhits.TrajSeed() );
-      }
+      theSeedCreator->trajectorySeed(seedCollection, hits, region, es);
     }
   }
 }

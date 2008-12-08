@@ -1,6 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 from RecoTracker.TkTrackingRegions.GlobalTrackingRegion_cfi import *
+from RecoTracker.TkSeedGenerator.SeedFromConsecutiveHitsCreator_cfi import *
+
 globalPixelSeeds = cms.EDProducer("SeedGeneratorFromRegionHitsEDProducer",
     #include "RecoTracker/PixelStubs/data/SeedComparitorWithPixelStubs.cfi"
     OrderedHitsFactoryPSet = cms.PSet(
@@ -14,8 +16,7 @@ globalPixelSeeds = cms.EDProducer("SeedGeneratorFromRegionHitsEDProducer",
         RegionPSetBlock,
         ComponentName = cms.string('GlobalRegionProducer')
     ),
-    SeedMomentumForBOFF = cms.double(5.0), 
-    TTRHBuilder = cms.string('WithTrackAngle')
+    SeedCreatorPSet = cms.PSet(SeedFromConsecutiveHitsCreator)
 )
 
 

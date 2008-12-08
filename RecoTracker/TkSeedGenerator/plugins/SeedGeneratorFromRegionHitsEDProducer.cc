@@ -15,6 +15,9 @@
 #include "RecoTracker/TkSeedingLayers/interface/SeedComparitorFactory.h"
 #include "RecoTracker/TkSeedingLayers/interface/SeedComparitor.h"
 
+#include "RecoTracker/TkSeedGenerator/interface/SeedCreatorFactory.h"
+#include "RecoTracker/TkSeedGenerator/interface/SeedCreator.h"
+
 #include "RecoTracker/TkSeedGenerator/interface/SeedGeneratorFromRegionHits.h"
 
 
@@ -42,7 +45,7 @@ void SeedGeneratorFromRegionHitsEDProducer::beginJob(const edm::EventSetup& es)
       theConfig.getParameter<edm::ParameterSet>("OrderedHitsFactoryPSet");
   std::string hitsfactoryName = hitsfactoryPSet.getParameter<std::string>("ComponentName");
   OrderedHitsGenerator*  hitsGenerator = 
-        OrderedHitsGeneratorFactory::get()->create( hitsfactoryName, hitsfactoryPSet);
+      OrderedHitsGeneratorFactory::get()->create( hitsfactoryName, hitsfactoryPSet);
 
   edm::ParameterSet comparitorPSet =
       theConfig.getParameter<edm::ParameterSet>("SeedComparitorPSet");
@@ -50,7 +53,12 @@ void SeedGeneratorFromRegionHitsEDProducer::beginJob(const edm::EventSetup& es)
   SeedComparitor * aComparitor = (comparitorName == "none") ? 
       0 :  SeedComparitorFactory::get()->create( comparitorName, comparitorPSet);   
 
-  theGenerator = new SeedGeneratorFromRegionHits(hitsGenerator, theConfig, aComparitor); // config is passed temporary!!!!
+  edm::ParameterSet creatorPSet =
+      theConfig.getParameter<edm::ParameterSet>("SeedCreatorPSet");
+  std::string creatorName = creatorPSet.getParameter<std::string>("ComponentName");
+  SeedCreator * aCreator = SeedCreatorFactory::get()->create( creatorName, creatorPSet);
+
+  theGenerator = new SeedGeneratorFromRegionHits(hitsGenerator, aComparitor, aCreator); 
   
 }
 
@@ -64,7 +72,6 @@ void SeedGeneratorFromRegionHitsEDProducer::produce(edm::Event& ev, const edm::E
 
   for (IR ir=regions.begin(), irEnd=regions.end(); ir < irEnd; ++ir) {
     const TrackingRegion & region = **ir;
-//    std::cout << region.name() << std::endl;
 
     // make job
     theGenerator->run(*result, region, ev,es);

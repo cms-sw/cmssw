@@ -1,6 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 from RecoTracker.TkTrackingRegions.GlobalTrackingRegion_cfi import *
+from RecoTracker.TkSeedGenerator.SeedFromConsecutiveHitsCreator_cfi import *
+
 globalTobTecSeeds = cms.EDProducer("SeedGeneratorFromRegionHitsEDProducer",
     OrderedHitsFactoryPSet = cms.PSet(
         ComponentName = cms.string('StandardHitPairGenerator'),
@@ -13,12 +15,7 @@ globalTobTecSeeds = cms.EDProducer("SeedGeneratorFromRegionHitsEDProducer",
         RegionPSetBlock,
         ComponentName = cms.string('GlobalRegionProducer')
     ),
-    propagator = cms.string('PropagatorWithMaterial'),
-# The fast-helix fit works well, except for large impact parameter pixel pair seeding.
-    UseFastHelix = cms.bool(True),
-# Following parameter not relevant for UseFastHelix = False.                                   
-    SeedMomentumForBOFF = cms.double(5.0), 
-    TTRHBuilder = cms.string('WithTrackAngle')
+    SeedCreatorPSet = cms.PSet(SeedFromConsecutiveHitsCreator)
 )
 
 
