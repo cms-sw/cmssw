@@ -37,9 +37,9 @@ TrackerDigiGeometryESModule.applyAlignment = True
 
 ##add quality info
 #NB in case of usage of GlobalTag, these Fakes will be substituded by the records in the GT (having the esprefer)
-from CalibTracker.SiStripESProducers.SiStripBadModuleFakeESSource_cfi import *
-from CalibTracker.SiStripESProducers.SiStripBadFiberFakeESSource_cfi import *
-from CalibTracker.SiStripESProducers.SiStripBadChannelFakeESSource_cfi import *
+from CalibTracker.SiStripESProducers.fake.SiStripBadModuleFakeESSource_cfi import *
+from CalibTracker.SiStripESProducers.fake.SiStripBadFiberFakeESSource_cfi import *
+from CalibTracker.SiStripESProducers.fake.SiStripBadChannelFakeESSource_cfi import *
 
 from CalibTracker.SiStripESProducers.SiStripQualityESProducer_cfi import *
 siStripQualityESProducer.ListOfRecordToMerge = cms.VPSet(
