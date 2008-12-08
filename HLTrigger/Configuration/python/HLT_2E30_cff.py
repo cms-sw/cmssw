@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_0_0/pre3/HLT/V20 (CMSSW_3_0_X_2008-12-01-1600_HLT2)
+# /dev/CMSSW_3_0_0/pre3/HLT/V21 (CMSSW_3_0_X_2008-12-01-1600_HLT2)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_0_0/pre3/HLT/V20')
+  tableName = cms.string('/dev/CMSSW_3_0_0/pre3/HLT/V21')
 )
 
 BTagRecord = cms.ESSource( "EmptyESSource",
@@ -5794,7 +5794,7 @@ hltPixelTracks = cms.EDProducer( "PixelTrackProducer",
     ),
     FilterPSet = cms.PSet( 
       ComponentName = cms.string( "PixelTrackFilterByKinematics" ),
-      ptMin = cms.double( 0.0 ),
+      ptMin = cms.double( 0.1 ),
       tipMax = cms.double( 1.0 ),
       chi2 = cms.double( 1000.0 ),
       nSigmaInvPtTolerance = cms.double( 0.0 ),
@@ -9144,7 +9144,7 @@ hltPixelTracksForMinBias = cms.EDProducer( "PixelTrackProducer",
     ),
     FilterPSet = cms.PSet( 
       ComponentName = cms.string( "PixelTrackFilterByKinematics" ),
-      ptMin = cms.double( 0.0 ),
+      ptMin = cms.double( 0.1 ),
       tipMax = cms.double( 1.0 ),
       chi2 = cms.double( 1000.0 ),
       nSigmaInvPtTolerance = cms.double( 0.0 ),
