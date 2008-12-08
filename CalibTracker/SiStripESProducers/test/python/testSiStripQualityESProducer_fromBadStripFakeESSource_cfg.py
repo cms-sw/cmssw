@@ -32,7 +32,7 @@ process.load("CalibTracker.SiStripESProducers.SiStripQualityESProducer_cfi")
 process.siStripQualityESProducer.ListOfRecordToMerge = cms.VPSet(
      cms.PSet( record = cms.string("SiStripBadChannelRcd"), tag    = cms.string("") ),
      cms.PSet( record = cms.string("SiStripBadFiberRcd"),   tag    = cms.string("") ),
-     cms.PSet( record = cms.string("SiStripBadModuleRcd"),  tag    = cms.string("") ),
+     cms.PSet( record = cms.string("SiStripBadModuleRcd"),  tag    = cms.string("") )
      )
 
 process.reader = cms.EDAnalyzer("SiStripQualityStatistics",
