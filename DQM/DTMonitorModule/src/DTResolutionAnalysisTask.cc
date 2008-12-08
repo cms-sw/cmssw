@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/11/06 16:02:01 $
- *  $Revision: 1.14 $
+ *  $Date: 2008/11/20 09:12:53 $
+ *  $Revision: 1.15 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -127,8 +127,8 @@ void DTResolutionAnalysisTask::analyze(const edm::Event& event, const edm::Event
     // Get the range for the corresponding ChamerId
     DTRecSegment4DCollection::range  range = all4DSegments->get(*chamberId);
     int nsegm = distance(range.first, range.second);
-    edm::LogVerbatim ("DTDQM|DTMonitorModule|DTResolutionAnalysisTask") << "   Chamber: " << *chamberId << " has " << nsegm
-									<< " 4D segments" << endl;
+    //edm::LogVerbatim ("DTDQM|DTMonitorModule|DTResolutionAnalysisTask") << "   Chamber: " << *chamberId << " has " << nsegm
+    //<< " 4D segments" << endl;
     // Get the chamber
     const DTChamber* chamber = dtGeom->chamber(*chamberId);
 
@@ -136,7 +136,7 @@ void DTResolutionAnalysisTask::analyze(const edm::Event& event, const edm::Event
     for (DTRecSegment4DCollection::const_iterator segment4D = range.first;
 	 segment4D!=range.second;
 	 ++segment4D) {
-      edm::LogVerbatim ("DTDQM|DTMonitorModule|DTResolutionAnalysisTask") << "   == RecSegment dimension: " << (*segment4D).dimension() << endl;
+      //edm::LogVerbatim ("DTDQM|DTMonitorModule|DTResolutionAnalysisTask") << "   == RecSegment dimension: " << (*segment4D).dimension() << endl;
       
       // If Statio != 4 skip RecHits with dimension != 4
       // For the Station 4 consider 2D RecHits
@@ -163,21 +163,21 @@ void DTResolutionAnalysisTask::analyze(const edm::Event& event, const edm::Event
 	vector<DTRecHit1D> phiRecHits = phiSeg->specificRecHits();
 
 	if(phiRecHits.size() != 8) {
-	  edm::LogVerbatim ("DTDQM|DTMonitorModule|DTResolutionAnalysisTask") << "[DTResolutionAnalysisTask] Phi segments has: " << phiRecHits.size()
-		 << " hits" << endl; // FIXME: info output
+	  //edm::LogVerbatim ("DTDQM|DTMonitorModule|DTResolutionAnalysisTask") << "[DTResolutionAnalysisTask] Phi segments has: " << phiRecHits.size()
+	  //<< " hits" << endl; // FIXME: info output
 	  continue;
 	}
 	copy(phiRecHits.begin(), phiRecHits.end(), back_inserter(recHits1D_S3));
       } else {
-	edm::LogVerbatim ("DTDQM|DTMonitorModule|DTResolutionAnalysisTask") << "[DTResolutionAnalysisTask] 4D segment has not phi component!" << endl;
+	//edm::LogVerbatim ("DTDQM|DTMonitorModule|DTResolutionAnalysisTask") << "[DTResolutionAnalysisTask] 4D segment has not phi component!" << endl;
       }
 
       if((*segment4D).hasZed()) {
 	const DTSLRecSegment2D* zSeg = (*segment4D).zSegment();
 	vector<DTRecHit1D> zRecHits = zSeg->specificRecHits();
 	if(zRecHits.size() != 4) {
-	  edm::LogVerbatim ("DTDQM|DTMonitorModule|DTResolutionAnalysisTask") << "[DTResolutionAnalysisTask] Theta segments has: " << zRecHits.size()
-		 << " hits, skipping" << endl; // FIXME: info output
+	  //edm::LogVerbatim ("DTDQM|DTMonitorModule|DTResolutionAnalysisTask") << "[DTResolutionAnalysisTask] Theta segments has: " << zRecHits.size()
+	  //<< " hits, skipping" << endl; // FIXME: info output
  	  continue;
 	}
 	copy(zRecHits.begin(), zRecHits.end(), back_inserter(recHits1D_S3));
@@ -226,9 +226,9 @@ void DTResolutionAnalysisTask::analyze(const edm::Event& event, const edm::Event
 	// FIXME: Fill the histos
 	fillHistos(wireId.superlayerId(), distSegmToWire, residual);
 	
-	edm::LogVerbatim ("DTDQM|DTMonitorModule|DTResolutionAnalysisTask") << "     Dist. segment extrapolation - wire (cm): " << distSegmToWire << endl;
-	edm::LogVerbatim ("DTDQM|DTMonitorModule|DTResolutionAnalysisTask") << "     Dist. RecHit - wire (cm): " << distRecHitToWire << endl;
-	edm::LogVerbatim ("DTDQM|DTMonitorModule|DTResolutionAnalysisTask") << "     Residual (cm): " << residual << endl;
+	//	edm::LogVerbatim ("DTDQM|DTMonitorModule|DTResolutionAnalysisTask") << "     Dist. segment extrapolation - wire (cm): " << distSegmToWire << endl;
+	//edm::LogVerbatim ("DTDQM|DTMonitorModule|DTResolutionAnalysisTask") << "     Dist. RecHit - wire (cm): " << distRecHitToWire << endl;
+	//edm::LogVerbatim ("DTDQM|DTMonitorModule|DTResolutionAnalysisTask") << "     Residual (cm): " << residual << endl;
 	
 			  
       }// End of loop over 1D RecHit inside 4D segment
