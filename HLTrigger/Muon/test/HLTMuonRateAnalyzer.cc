@@ -14,7 +14,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/Common/interface/Handle.h"
 
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"

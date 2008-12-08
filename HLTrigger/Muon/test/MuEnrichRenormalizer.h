@@ -2,7 +2,7 @@
 #define MuEnrichRenormalizer_H
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "TProfile.h"
 
 // forward declarations

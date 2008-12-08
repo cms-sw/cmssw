@@ -13,7 +13,7 @@
 //
 // Original Author:  Muriel VANDER DONCKT *:0
 //         Created:  Fri Apr 27 17:05:15 CEST 2007
-// $Id: MuEnrichType1Filter.cc,v 1.1 2007/05/14 14:33:42 muriel Exp $
+// $Id: MuEnrichType1Filter.cc,v 1.2 2007/05/16 15:27:14 muriel Exp $
 //
 //
 
@@ -28,7 +28,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
  
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "HLTrigger/Muon/test/MuEnrichType1Filter.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 

@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2007/12/04 16:41:34 $
- *  $Revision: 1.46 $
+ *  $Date: 2007/12/18 08:36:48 $
+ *  $Revision: 1.47 $
  *
  *  \author Martin Grunewald
  *
@@ -36,7 +36,7 @@
 #include "DataFormats/METReco/interface/GenMET.h"
 #include "DataFormats/METReco/interface/GenMETCollection.h"
 
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
