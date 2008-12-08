@@ -50,7 +50,21 @@ DEFINE_ANOTHER_FWK_MODULE(SiStripThresholdDummyDBWriter);
 
 #include "CondFormats/SiStripObjects/interface/SiStripBadStrip.h"
 #include "CondFormats/DataRecord/interface/SiStripBadStripRcd.h"
-struct QRcdName{ static const char* name(){return "SiStripQuality";}};
-typedef DummyCondDBWriter<SiStripBadStrip,SiStripBadStripRcd,QRcdName> SiStripBadStripDummyDBWriter;
+struct BadStripRcdName{ static const char* name(){return "SiStripBadStrip";}};
+typedef DummyCondDBWriter<SiStripBadStrip,SiStripBadStripRcd,BadStripRcdName> SiStripBadStripDummyDBWriter;
 DEFINE_ANOTHER_FWK_MODULE(SiStripBadStripDummyDBWriter);
 
+#include "CondFormats/SiStripObjects/interface/SiStripBadStrip.h"
+#include "CondFormats/DataRecord/interface/SiStripBadModuleRcd.h"
+typedef DummyCondDBWriter<SiStripBadStrip,SiStripBadModuleRcd,BadStripRcdName> SiStripBadModuleDummyDBWriter;
+DEFINE_ANOTHER_FWK_MODULE(SiStripBadModuleDummyDBWriter);
+
+#include "CondFormats/SiStripObjects/interface/SiStripBadStrip.h"
+#include "CondFormats/DataRecord/interface/SiStripBadFiberRcd.h"
+typedef DummyCondDBWriter<SiStripBadStrip,SiStripBadFiberRcd,BadStripRcdName> SiStripBadFiberDummyDBWriter;
+DEFINE_ANOTHER_FWK_MODULE(SiStripBadFiberDummyDBWriter);
+
+#include "CondFormats/SiStripObjects/interface/SiStripBadStrip.h"
+#include "CondFormats/DataRecord/interface/SiStripBadChannelRcd.h"
+typedef DummyCondDBWriter<SiStripBadStrip,SiStripBadChannelRcd,BadStripRcdName> SiStripBadChannelDummyDBWriter;
+DEFINE_ANOTHER_FWK_MODULE(SiStripBadChannelDummyDBWriter);
