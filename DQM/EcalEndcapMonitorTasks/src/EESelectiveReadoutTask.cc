@@ -1,8 +1,8 @@
 /*
  * \file EESelectiveReadoutTask.cc
  *
- * $Date: 2008/12/03 12:55:50 $
- * $Revision: 1.20 $
+ * $Date: 2008/12/04 15:19:28 $
+ * $Revision: 1.21 $
  * \author P. Gras
  * \author E. Di Marco
  *
@@ -525,7 +525,7 @@ void EESelectiveReadoutTask::anaDigi(const EEDataFrame& frame, const EESrFlagCol
   EESrFlagCollection::const_iterator srf = srFlagColl.find(readOutUnitOf(id));
 
   if(srf == srFlagColl.end()){
-    // LogWarning("EESelectiveReadoutTask") << "SR flag not found";
+//    LogWarning("EESelectiveReadoutTask") << "SR flag not found";
     return;
   }
 
@@ -603,8 +603,7 @@ unsigned EESelectiveReadoutTask::dccNum(const DetId& xtalId) const{
     if ( zside < 0 ) iDet = 0;
     else iDet = 2;
   } else {
-    throw cms::Exception("EESelectiveReadoutTask")
-      <<"Not ECAL endcap.";
+    throw cms::Exception("EESelectiveReadoutTask") << "Not ECAL endcap.";
   }
   int iDcc0 = dccIndex(iDet,j,k);
   assert(iDcc0>=0 && iDcc0<nECALDcc);
@@ -619,8 +618,9 @@ double EESelectiveReadoutTask::getEeEventSize(double nReadXtals) const {
     if(iDcc0 == firstEbDcc0) iDcc0 += nEBDcc;
       ruHeaderPayload += nRuPerDcc_[iDcc0]*8.;
   }
-  return getDccOverhead(EE)*nEEDcc + nReadXtals*bytesPerCrystal
-    + ruHeaderPayload;
+  return getDccOverhead(EE)*nEEDcc +
+         nReadXtals*bytesPerCrystal +
+         ruHeaderPayload;
 }
 
 int EESelectiveReadoutTask::dccPhiIndexOfRU(int i, int j) const {

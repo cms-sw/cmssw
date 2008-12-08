@@ -1,8 +1,8 @@
 /*
  * \file EBSelectiveReadoutTask.cc
  *
- * $Date: 2008/12/03 12:55:49 $
- * $Revision: 1.23 $
+ * $Date: 2008/12/04 15:19:28 $
+ * $Revision: 1.24 $
  * \author P. Gras
  * \author E. Di Marco
  *
@@ -358,7 +358,7 @@ void EBSelectiveReadoutTask::anaDigi(const EBDataFrame& frame, const EBSrFlagCol
   EBSrFlagCollection::const_iterator srf = srFlagColl.find(readOutUnitOf(id));
 
   if(srf == srFlagColl.end()){
-    // LogWarning("EBSelectiveReadoutTask") << "SR flag not found";
+//    LogWarning("EBSelectiveReadoutTask") << "SR flag not found";
     return;
   }
 
@@ -412,8 +412,7 @@ unsigned EBSelectiveReadoutTask::dccNum(const DetId& xtalId) const{
     j = iEta2cIndex(ebDetId.ieta());
     k = iPhi2cIndex(ebDetId.iphi());
   } else {
-    throw cms::Exception("EBSelectiveReadoutTask")
-      <<"Not ECAL barrel.";
+    throw cms::Exception("EBSelectiveReadoutTask") << "Not ECAL barrel.";
   }
   int iDcc0 = dccIndex(j,k);
   assert(iDcc0>=0 && iDcc0<nECALDcc);
@@ -427,8 +426,9 @@ double EBSelectiveReadoutTask::getEbEventSize(double nReadXtals) const{
   for (int iDcc0 = firstEbDcc0; iDcc0 < firstEbDcc0 + nEBDcc; ++iDcc0 ) {
     ruHeaderPayload += nRuPerDcc_[iDcc0]*8.;
   }
-  return getDccOverhead(EB)*nEBDcc + nReadXtals*bytesPerCrystal
-    + ruHeaderPayload;
+  return getDccOverhead(EB)*nEBDcc +
+         nReadXtals*bytesPerCrystal +
+         ruHeaderPayload;
 }
 
 int EBSelectiveReadoutTask::dccPhiIndexOfRU(int i, int j) const {
