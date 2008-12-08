@@ -37,7 +37,7 @@
 <use name=L1Trigger/RegionalCaloTrigger>
 <use name=MagneticField/Engine>
 <use name=MagneticField/Records>
-<use name=SimDataFormats/HepMCProduct>
+<use name=SimDataFormats/GeneratorProducts>
 <use name=TrackingTools/TrajectoryState>
 <use name=rootcore>
 <flags EDM_PLUGIN=1>

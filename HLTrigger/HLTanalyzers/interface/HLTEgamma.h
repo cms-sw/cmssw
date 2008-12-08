@@ -40,7 +40,7 @@
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/EgammaCandidates/interface/ElectronIsolationAssociation.h"
 

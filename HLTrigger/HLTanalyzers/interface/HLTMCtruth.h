@@ -11,7 +11,7 @@
 #include "TChain.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 
 #include "DataFormats/METReco/interface/CaloMETCollection.h"
