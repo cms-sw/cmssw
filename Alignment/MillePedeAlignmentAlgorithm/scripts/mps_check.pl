@@ -1,8 +1,8 @@
-#!/usr/local/bin/perl
+#!/usr/bin/env perl
 #     R. Mankel, DESY Hamburg     09-Jul-2007
 #     A. Parenti, DESY Hamburg    24-Apr-2008
-#     $Revision: 1.12 $
-#     $Date: 2008/10/28 18:37:05 $
+#     $Revision: 1.13 $
+#     $Date: 2008/11/26 17:23:44 $
 #
 #  Check output from jobs that have FETCH status
 #  
@@ -42,6 +42,7 @@ for ($i=0; $i<@JOBID; ++$i) {
   $emptyDatOnFarm = 0;
   $cmdNotFound = 0;
 
+  $pedeLogErrStr = "";
   $remark = "";
 
   if (@JOBSTATUS[$i] eq "FETCH") {
@@ -157,8 +158,8 @@ for ($i=0; $i<@JOBID; ++$i) {
         open INFILE,"$eazeLog";
       # scan records in input file
         while ($line = <INFILE>) {
-	  if (($line =~ m/step no descending/) eq 1) { $pedeLogErr = 1;}
-	  if (($line =~ m/Constraint equation discrepancies:/) eq 1) { $pedeLogErr = 1;}
+	  if (($line =~ m/step no descending/) eq 1) {$pedeLogErr = 1; $pedeLogErrStr .= $line;}
+	  if (($line =~ m/Constraint equation discrepancies:/) eq 1) {$pedeLogErr = 1; $pedeLogErrStr .= $line;}
         }
         close INFILE;
         if ($logZipped eq "true") {
@@ -247,7 +248,8 @@ for ($i=0; $i<@JOBID; ++$i) {
 	$okStatus = "FAIL";
     }
     if ($pedeLogErr eq 1) {
-	print "@JOBDIR[$i] @JOBID[$i] Problems in running Pede\n";
+	print "@JOBDIR[$i] @JOBID[$i] Problems in running Pede:\n";
+	print $pedeLogErrStr;
 	$remark = "pede error";
 	$okStatus = "FAIL";
     }
