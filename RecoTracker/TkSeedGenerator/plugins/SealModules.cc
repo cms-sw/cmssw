@@ -11,9 +11,9 @@ DEFINE_ANOTHER_FWK_MODULE(SeedCombiner);
 
 #include "RecoTracker/TkSeedGenerator/interface/SeedCreatorFactory.h"
 #include "RecoTracker/TkSeedGenerator/interface/SeedFromConsecutiveHitsCreator.h"
-#include "RecoTracker/TkSeedGenerator/interface/SeedFromConsecutiveHitsStrightLineCreator.h"
+#include "RecoTracker/TkSeedGenerator/interface/SeedFromConsecutiveHitsStraightLineCreator.h"
 
 
 DEFINE_EDM_PLUGIN(SeedCreatorFactory, SeedFromConsecutiveHitsCreator, "SeedFromConsecutiveHitsCreator");
-DEFINE_EDM_PLUGIN(SeedCreatorFactory, SeedFromConsecutiveHitsStrightLineCreator, "SeedFromConsecutiveHitsStrightLineCreator");
+DEFINE_EDM_PLUGIN(SeedCreatorFactory, SeedFromConsecutiveHitsStraightLineCreator, "SeedFromConsecutiveHitsStraightLineCreator");
 

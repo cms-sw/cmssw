@@ -1,4 +1,4 @@
-#include "RecoTracker/TkSeedGenerator/interface/SeedFromConsecutiveHitsStrightLineCreator.h"
+#include "RecoTracker/TkSeedGenerator/interface/SeedFromConsecutiveHitsStraightLineCreator.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
@@ -8,7 +8,7 @@
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegion.h"
 
 
-GlobalTrajectoryParameters SeedFromConsecutiveHitsStrightLineCreator::initialKinematic(
+GlobalTrajectoryParameters SeedFromConsecutiveHitsStraightLineCreator::initialKinematic(
       const SeedingHitSet::Hits & hits,
       const TrackingRegion & region,
       const edm::EventSetup& es) const

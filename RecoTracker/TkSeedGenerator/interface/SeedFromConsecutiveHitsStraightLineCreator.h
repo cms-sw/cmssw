@@ -1,17 +1,17 @@
-#ifndef RecoTracker_TkSeedGenerator_SeedFromConsecutiveHitsStrightLineCreator_H
-#define RecoTracker_TkSeedGenerator_SeedFromConsecutiveHitsStrightLineCreator_H
+#ifndef RecoTracker_TkSeedGenerator_SeedFromConsecutiveHitsStraightLineCreator_H
+#define RecoTracker_TkSeedGenerator_SeedFromConsecutiveHitsStraightLineCreator_H
 
 #include "RecoTracker/TkSeedGenerator/interface/SeedFromConsecutiveHitsCreator.h"
 #include "RecoTracker/TkSeedingLayers/interface/SeedingHitSet.h"
 class FreeTrajectoryState;
 
-class SeedFromConsecutiveHitsStrightLineCreator : public SeedFromConsecutiveHitsCreator {
+class SeedFromConsecutiveHitsStraightLineCreator : public SeedFromConsecutiveHitsCreator {
 public:
 
-  SeedFromConsecutiveHitsStrightLineCreator( const edm::ParameterSet & cfg):
+  SeedFromConsecutiveHitsStraightLineCreator( const edm::ParameterSet & cfg):
     SeedFromConsecutiveHitsCreator(cfg) { }
 
-  virtual ~SeedFromConsecutiveHitsStrightLineCreator(){}
+  virtual ~SeedFromConsecutiveHitsStraightLineCreator(){}
 
 protected:
 

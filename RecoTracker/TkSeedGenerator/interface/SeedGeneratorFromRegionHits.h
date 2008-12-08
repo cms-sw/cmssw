@@ -21,6 +21,13 @@ public:
       SeedCreator * aSeedCreator = 0
     );
 
+  //ctor, OBSOLETE, FOR BACKWAR COMP. ONLY 
+  SeedGeneratorFromRegionHits(
+    OrderedHitsGenerator * aGenerator,
+    const edm::ParameterSet & cfg,
+    SeedComparitor * aComparitor = 0);
+
+
   //dtor
   ~SeedGeneratorFromRegionHits();
 
