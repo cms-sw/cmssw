@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.52 2008/12/01 22:47:14 amraktad Exp $
+// $Id: CmsShowMain.cc,v 1.53 2008/12/06 02:37:35 chrjones Exp $
 //
 
 // system include files
@@ -376,6 +376,8 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
 CmsShowMain::~CmsShowMain()
 {
   delete m_navigator;
+  delete m_playTimer;
+  delete m_playBackTimer;
 }
 
 //
