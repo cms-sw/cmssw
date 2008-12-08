@@ -3,10 +3,12 @@
  <use name=FWCore/Framework>
  <use name=CondFormats/L1TObjects>
  <use name=CondFormats/DataRecord>
+ <use name=CondTools/L1Trigger>
 </export>
 
 <use name=FWCore/Framework>
 <use name=CondFormats/L1TObjects>
 <use name=CondFormats/DataRecord>
+<use name=CondTools/L1Trigger>	
 
 <flags EDM_PLUGIN=1>
