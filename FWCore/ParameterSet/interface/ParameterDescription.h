@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Aug  2 15:33:46 EDT 2007
-// $Id: ParameterDescription.h,v 1.4 2008/11/18 15:10:39 wdd Exp $
+// $Id: ParameterDescription.h,v 1.5 2008/12/03 21:10:13 wdd Exp $
 //
 
 #include "FWCore/Utilities/interface/value_ptr.h"
@@ -44,7 +44,6 @@ namespace edm {
     k_double = 'D',
     k_vdouble = 'd',
     k_bool = 'B',
-    k_vbool = 'b',
     k_string = 'S',
     k_vstring = 's',
     k_EventID = 'E',

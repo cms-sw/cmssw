@@ -23,7 +23,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Aug  2 15:33:51 EDT 2007
-// $Id: ParameterDescriptionTemplate.h,v 1.3 2008/11/18 15:10:39 wdd Exp $
+// $Id: ParameterDescriptionTemplate.h,v 1.4 2008/12/03 21:10:13 wdd Exp $
 //
 
 #include "FWCore/ParameterSet/interface/ParameterDescription.h"
@@ -44,6 +44,10 @@ namespace edm {
                                  bool isTracked,
                                  bool isOptional,
                                  T const& value):
+      // WARNING: the toEnum function is intentionally undefined if the template
+      // parameter is ParameterSet or vector<ParameterSet>.  ParameterSetDescription
+      // or vector<ParameterSetDescription> should be used instead.  This template
+      // parameter is usually passed through from an add*<T> function of ParameterSetDescription.
       ParameterDescription(iLabel, ParameterTypeToEnum::toEnum<T>(), isTracked, isOptional),
       value_(value) {
     }
@@ -52,6 +56,10 @@ namespace edm {
                                  bool isTracked,
                                  bool isOptional,
                                  T const& value):
+      // WARNING: the toEnum function is intentionally undefined if the template
+      // parameter is ParameterSet or vector<ParameterSet>.  ParameterSetDescription
+      // or vector<ParameterSetDescription> should be used instead.  This template
+      // parameter is usually passed through from an add*<T> function of ParameterSetDescription.
       ParameterDescription(iLabel, ParameterTypeToEnum::toEnum<T>(), isTracked, isOptional),
       value_(value) {
     }
@@ -142,7 +150,7 @@ namespace edm {
 
     void
     validateDescription(ParameterSetDescription const& psetDescription,
-                        ParameterSet const& pset,
+                        std::vector<ParameterSet> const& psets,
                         int & i) const;
 
     std::vector<ParameterSetDescription> vPsetDesc_;

@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Jul 31 15:18:40 EDT 2007
-// $Id: ParameterSetDescription.h,v 1.3 2008/11/18 15:10:39 wdd Exp $
+// $Id: ParameterSetDescription.h,v 1.4 2008/12/03 21:10:13 wdd Exp $
 //
 
 #include "FWCore/ParameterSet/interface/ParameterDescription.h"
@@ -101,6 +101,12 @@ namespace edm {
 
     parameter_const_iterator parameter_end() const {
       return parameters_.end();
+    }
+
+    // Better performance if space is reserved for the number of
+    // top level parameters before any are added.
+    void reserve(Parameters::size_type n) {
+      parameters_.reserve(n);
     }
 
   private:

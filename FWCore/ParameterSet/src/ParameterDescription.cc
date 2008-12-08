@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Aug  2 15:35:43 EDT 2007
-// $Id: ParameterDescription.cc,v 1.4 2008/11/18 15:10:39 wdd Exp $
+// $Id: ParameterDescription.cc,v 1.5 2008/12/03 21:10:14 wdd Exp $
 //
 
 #include "FWCore/ParameterSet/interface/ParameterDescription.h"
@@ -38,7 +38,6 @@ namespace edm {
   TYPE_TO_ENUM(double,k_double)
   TYPE_TO_ENUM(std::vector<double>,k_vdouble)
   TYPE_TO_ENUM(bool,k_bool)
-  TYPE_TO_ENUM(std::vector<bool>,k_vbool)
   TYPE_TO_ENUM(std::string,k_string)
   TYPE_TO_ENUM(std::vector<std::string>,k_vstring)
   TYPE_TO_ENUM(edm::EventID,k_EventID)
@@ -48,8 +47,11 @@ namespace edm {
   TYPE_TO_ENUM(edm::InputTag,k_InputTag)
   TYPE_TO_ENUM(std::vector<edm::InputTag>,k_VInputTag)
   TYPE_TO_ENUM(edm::FileInPath,k_FileInPath)
-  TYPE_TO_ENUM(edm::ParameterSet,k_PSet)
-  TYPE_TO_ENUM(std::vector<edm::ParameterSet>,k_VPSet)
+  // These are intentionally not implemented to prevent one
+  // from calling add<ParameterSet>.  One should call
+  // add<ParameterSetDescription> instead.
+  // TYPE_TO_ENUM(edm::ParameterSet,k_PSet)
+  // TYPE_TO_ENUM(std::vector<edm::ParameterSet>,k_VPSet)
 
   std::string parameterTypeEnumToString(ParameterTypes iType) {
     switch(iType) {
@@ -64,7 +66,6 @@ namespace edm {
       TYPE_TO_NAME(double);
       TYPE_TO_NAME(vdouble);
       TYPE_TO_NAME(bool);
-      TYPE_TO_NAME(vbool);
       TYPE_TO_NAME(string);
       TYPE_TO_NAME(vstring);
       TYPE_TO_NAME(EventID);

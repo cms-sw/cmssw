@@ -108,7 +108,7 @@ namespace edm {
               boost::bind(&ParameterDescriptionTemplate<std::vector<ParameterSetDescription> >::validateDescription,
                           boost::cref(this),
                           _1,
-                          boost::cref(containedPSets[i]),
+                          boost::cref(containedPSets),
                           boost::ref(i)));
     }
   }
@@ -116,9 +116,9 @@ namespace edm {
   void
   ParameterDescriptionTemplate<std::vector<ParameterSetDescription> >::
   validateDescription(ParameterSetDescription const& psetDescription,
-                      ParameterSet const& pset,
+                      std::vector<ParameterSet> const& psets,
                       int & i) const {
-    psetDescription.validate(pset);
+    psetDescription.validate(psets[i]);
     ++i;
   }
 
