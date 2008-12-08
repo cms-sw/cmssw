@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FW3DView.cc,v 1.6 2008/12/04 15:32:01 dmytro Exp $
+// $Id: FW3DView.cc,v 1.7 2008/12/04 20:06:54 chrjones Exp $
 //
 
 // system include files
@@ -193,14 +193,6 @@ FW3DView::setFrom(const FWConfiguration& iFrom)
 	s>>*m_cameraFOV;
      }
    m_viewer->GetGLViewer()->RequestDraw();
-}
-
-
-//we are seeing a weird bug and this is a workaround
-void 
-FW3DView::kickScene()
-{
-   m_viewer->GetGLViewer()->UpdateScene();
 }
 
 //
