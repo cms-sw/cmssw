@@ -11,7 +11,7 @@ process.source = cms.Source("PoolSource",
 process.pfCandidateAnalyzer = cms.EDAnalyzer("PFCandidateAnalyzer",
     PFCandidates = cms.InputTag("particleFlow"),
     verbose = cms.untracked.bool(True),
-    printBlocks = cms.untracked.bool(True)
+    printBlocks = cms.untracked.bool(False)
 )
 
 process.p = cms.Path(process.pfCandidateAnalyzer)
