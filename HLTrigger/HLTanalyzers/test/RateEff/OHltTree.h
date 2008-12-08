@@ -2742,7 +2742,7 @@ void OHltTree::SetMapL1BitOfStandardHLTPath() {
   //map_L1BitOfStandardHLTPath["HLT_TrackerCosmics"] = L1_Dummy;
   map_L1BitOfStandardHLTPath["AlCa_IsoTrack"] = L1_SingleJet30 + L1_SingleJet50 + L1_SingleJet70 + L1_SingleJet100 + L1_SingleTauJet30 + L1_SingleTauJet40 + L1_SingleTauJet60 + L1_SingleTauJet80;
   map_L1BitOfStandardHLTPath["AlCa_EcalPhiSym"] = L1_ZeroBias + L1_SingleJetCountsHFTow + L1_DoubleJetCountsHFTow + L1_SingleEG2 + L1_DoubleEG1 + L1_SingleJetCountsHFRing0Sum3 + L1_DoubleJetCountsHFRing0Sum3 + L1_SingleJetCountsHFRing0Sum6 + L1_DoubleJetCountsHFRing0Sum6;
-  map_L1BitOfStandardHLTPath["AlCa_EcalPi0"] = L1_SingleIsoEG5 + L1_SingleIsoEG8 + L1_SingleIsoEG10 + L1_SingleIsoEG12 + L1_SingleIsoEG15 + L1_SingleIsoEG20 + L1_SingleIsoEG25 + L1_SingleEG5 + L1_SingleEG8 + L1_SingleEG10 + L1_SingleEG12 + L1_SingleEG15 + L1_SingleEG20 + L1_SingleEG25;
+  map_L1BitOfStandardHLTPath["AlCa_EcalPi0"] = L1_SingleIsoEG5 + L1_SingleIsoEG8 + L1_SingleIsoEG10 + L1_SingleIsoEG12 + L1_SingleIsoEG15 + L1_SingleIsoEG20 + L1_SingleIsoEG25 + L1_SingleEG5 + L1_SingleEG8 + L1_SingleEG10 + L1_SingleEG12 + L1_SingleEG15 + L1_SingleEG20 + L1_SingleEG25 + L1_SingleEG2 + L1_DoubleEG1 + L1_DoubleEG5  + L1_DoubleEG10 + L1_DoubleEG15 + L1_SingleJet30 + L1_SingleJet50 + L1_SingleJet70 + L1_SingleJet100 + L1_SingleJet150 + L1_SingleJet200 + L1_ZeroBias;
 
   /*20X
   map_L1BitOfStandardHLTPath["HLT2jet"] = L1_SingleJet150 + L1_DoubleJet70;
