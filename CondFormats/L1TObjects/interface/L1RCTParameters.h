@@ -51,10 +51,10 @@ class L1RCTParameters {
 		  const std::vector<double>& eGammaHCalScaleFactors,
 		  const std::vector<double>& jetMETECalScaleFactors,
 		  const std::vector<double>& jetMETHCalScaleFactors,
-		  const std::vector<double>& ecal_calib_Lindsey,
-		  const std::vector<double>& hcal_calib_Lindsey,
-		  const std::vector<double>& hcal_high_calib_Lindsey,
-		  const std::vector<double>& cross_terms_Lindsey,
+		  const std::vector<double>& ecal_calib,
+		  const std::vector<double>& hcal_calib,
+		  const std::vector<double>& hcal_high_calib,
+		  const std::vector<double>& cross_terms,
 		  const std::vector<double>& lowHoverE_smear,
 		  const std::vector<double>& highHoverE_smear
 		  );
@@ -184,8 +184,8 @@ class L1RCTParameters {
 
   bool noiseVetoHEminus_;
 
-  // Use Lindsey's Corrections ?
-  bool useCorrectionsLindsey;
+  // Use Cubic Fitting Corrections ?
+  bool useCorrections_;
 
   // eGamma object ET is computed using the trigger tower ET defined as
   // ecal * eGammaECalScaleFactors[iEta] + hcal * eGammaHCalScaleFactors[iEta]
@@ -204,20 +204,20 @@ class L1RCTParameters {
 
   // Applies Lindsey's calibration to HCAL and ECAL (ECAL must corrected by eGamma scale factors)
   // Provides corrected Et sum.
-  float correctedTPGSum_Lindsey(const float& ecal, const float& hcal, const unsigned& index) const;
+  float correctedTPGSum(const float& ecal, const float& hcal, const unsigned& index) const;
 
   // Lindsey's Calibration Coefficients
   // Basically a higher order approximation of the energy response of the calorimeters.
   // Powers in ecal and hcal Et are defined below.
-  std::vector<std::vector<double> > ecal_calib_Lindsey_;  // [0] = ecal^3, [1] = ecal^2, [2] = ecal
-  std::vector<std::vector<double> > hcal_calib_Lindsey_;  // [0] = hcal^3, [1] = hcal^2, [2] = hcal
-  std::vector<std::vector<double> > hcal_high_calib_Lindsey_; // same as above but used to capture Et dependence for large Et
-  std::vector<std::vector<double> > cross_terms_Lindsey_; // [0] = ecal^2*hcal, [1] = hcal^2*ecal, [2] = ecal*hcal
+  std::vector<std::vector<double> > ecal_calib_;  // [0] = ecal^3, [1] = ecal^2, [2] = ecal
+  std::vector<std::vector<double> > hcal_calib_;  // [0] = hcal^3, [1] = hcal^2, [2] = hcal
+  std::vector<std::vector<double> > hcal_high_calib_; // same as above but used to capture Et dependence for large Et
+  std::vector<std::vector<double> > cross_terms_; // [0] = ecal^2*hcal, [1] = hcal^2*ecal, [2] = ecal*hcal
                                                           // [3] = ecal^3*hcal, [1] = hcal^3*ecal, [2] = ecal^2*hcal^2
   // These two sets of correction factors help to center the corrected 
   // Et distributions for different values of H/E.
-  std::vector<double> HoverE_smear_low_Lindsey_;
-  std::vector<double> HoverE_smear_high_Lindsey_;
+  std::vector<double> HoverE_smear_low_;
+  std::vector<double> HoverE_smear_high_;
   
 
 };

@@ -1,7 +1,7 @@
 /**
  * Author: Sridhara Dasu
  * Created: 04 July 2007
- * $Id: L1RCTParameters.cc,v 1.20 2008/10/09 10:42:26 jleonard Exp $
+ * $Id: L1RCTParameters.cc,v 1.21 2008/11/07 20:06:00 lgray Exp $
  **/
 
 #include <iostream>
@@ -28,15 +28,15 @@ L1RCTParameters::L1RCTParameters(double eGammaLSB,
 				 bool noiseVetoHB,
 				 bool noiseVetoHEplus,
 				 bool noiseVetoHEminus,
-				 bool useLindsey,
+				 bool useCorrections,
 				 const std::vector<double>& eGammaECalScaleFactors,
 				 const std::vector<double>& eGammaHCalScaleFactors,
 				 const std::vector<double>& jetMETECalScaleFactors,
 				 const std::vector<double>& jetMETHCalScaleFactors,
-				 const std::vector<double>& ecal_calib_Lindsey,
-				 const std::vector<double>& hcal_calib_Lindsey,
-				 const std::vector<double>& hcal_high_calib_Lindsey,
-				 const std::vector<double>& cross_terms_Lindsey,
+				 const std::vector<double>& ecal_calib,
+				 const std::vector<double>& hcal_calib,
+				 const std::vector<double>& hcal_high_calib,
+				 const std::vector<double>& cross_terms,
 				 const std::vector<double>& lowHoverE_smear,
 				 const std::vector<double>& highHoverE_smear
 				 ) :
@@ -56,27 +56,27 @@ L1RCTParameters::L1RCTParameters(double eGammaLSB,
   noiseVetoHB_(noiseVetoHB),
   noiseVetoHEplus_(noiseVetoHEplus),
   noiseVetoHEminus_(noiseVetoHEminus),
-  useCorrectionsLindsey(useLindsey),
+  useCorrections_(useCorrections),
   eGammaECalScaleFactors_(eGammaECalScaleFactors),
   eGammaHCalScaleFactors_(eGammaHCalScaleFactors),
   jetMETECalScaleFactors_(jetMETECalScaleFactors),
   jetMETHCalScaleFactors_(jetMETHCalScaleFactors),
-  HoverE_smear_low_Lindsey_(lowHoverE_smear),
-  HoverE_smear_high_Lindsey_(highHoverE_smear)
+  HoverE_smear_low_(lowHoverE_smear),
+  HoverE_smear_high_(highHoverE_smear)
 {
-  ecal_calib_Lindsey_.resize(28);
-  hcal_calib_Lindsey_.resize(28);
-  hcal_high_calib_Lindsey_.resize(28);
-  cross_terms_Lindsey_.resize(28);
+  ecal_calib_.resize(28);
+  hcal_calib_.resize(28);
+  hcal_high_calib_.resize(28);
+  cross_terms_.resize(28);
 
-  for(unsigned i = 0; i < ecal_calib_Lindsey.size(); ++i)
-    ecal_calib_Lindsey_[i/3].push_back(ecal_calib_Lindsey[i]);
-  for(unsigned i = 0; i < hcal_calib_Lindsey.size(); ++i)
-    hcal_calib_Lindsey_[i/3].push_back(hcal_calib_Lindsey[i]);
-  for(unsigned i = 0; i < hcal_high_calib_Lindsey.size(); ++i)
-    hcal_high_calib_Lindsey_[i/3].push_back(hcal_high_calib_Lindsey[i]);
-  for(unsigned i = 0; i < cross_terms_Lindsey.size(); ++i)
-    cross_terms_Lindsey_[i/6].push_back(cross_terms_Lindsey[i]);
+  for(unsigned i = 0; i < ecal_calib.size(); ++i)
+    ecal_calib_[i/3].push_back(ecal_calib[i]);
+  for(unsigned i = 0; i < hcal_calib.size(); ++i)
+    hcal_calib_[i/3].push_back(hcal_calib[i]);
+  for(unsigned i = 0; i < hcal_high_calib.size(); ++i)
+    hcal_high_calib_[i/3].push_back(hcal_high_calib[i]);
+  for(unsigned i = 0; i < cross_terms.size(); ++i)
+    cross_terms_[i/6].push_back(cross_terms[i]);
 }
 
 // maps rct iphi, ieta of tower to crate
@@ -202,11 +202,15 @@ float L1RCTParameters::JetMETTPGSum(const float& ecal, const float& hcal, const 
   float hcal_c = hcal*jetMETHCalScaleFactors_.at(iAbsEta-1);
   float result = ecal_c + hcal_c;
 
-  if(useCorrectionsLindsey)
+  if(useCorrections_)
     {
-      // In my corrections I expect eGamma corrected ecal readings.
-      ecal_c *= eGammaECalScaleFactors_.at(iAbsEta-1)/jetMETECalScaleFactors_.at(iAbsEta-1);
-      result = correctedTPGSum_Lindsey(ecal_c,hcal,iAbsEta-1); // I apply my own HCAL correction.
+      if(jetMETHCalScaleFactors_.at(iAbsEta-1) != 0)
+	hcal_c = hcal;
+
+      if(jetMETECalScaleFactors_.at(iAbsEta-1) != 0)
+	ecal_c = ecal*eGammaECalScaleFactors_.at(iAbsEta-1); // Use eGamma Corrections
+
+      result = correctedTPGSum(ecal_c,hcal_c,iAbsEta-1);
     }
 
   return result;
@@ -218,63 +222,64 @@ float L1RCTParameters::EGammaTPGSum(const float& ecal, const float& hcal, const 
   float hcal_c = hcal*eGammaHCalScaleFactors_.at(iAbsEta-1);
   float result = ecal_c + hcal_c;
 
-  if(useCorrectionsLindsey)
+  if(useCorrections_)
     {
-      result = correctedTPGSum_Lindsey(ecal_c,hcal,iAbsEta-1); // I apply my own HCAL correction.
+      if(eGammaHCalScaleFactors_.at(iAbsEta-1) != 0)
+	hcal_c = hcal;
+      
+      result = correctedTPGSum(ecal_c,hcal_c,iAbsEta-1);
     }
 
   return result;
 }
 
-// index = iAbsEta - 1... make sure you call the function like so: "correctedTPGSum_Lindsey(ecal,hcal, iAbsEta - 1)"
-float L1RCTParameters::correctedTPGSum_Lindsey(const float& ecal, const float& hcal, const unsigned& index) const
+// index = iAbsEta - 1... make sure you call the function like so: "correctedTPGSum(ecal,hcal, iAbsEta - 1)"
+float L1RCTParameters::correctedTPGSum(const float& ecal, const float& hcal, const unsigned& index) const
 {
   if(index >= 28 && ecal > 120 && hcal > 120) return (ecal + hcal); // return plain sum if outside of calibration range or index is too high
 
   // let's make sure we're asking for items that are there.
-  if(ecal_calib_Lindsey_.at(index).size() != 3 || hcal_calib_Lindsey_.at(index).size() != 3 ||
-     hcal_high_calib_Lindsey_.at(index).size() != 3 || cross_terms_Lindsey_.at(index).size() != 6 ||
-     HoverE_smear_high_Lindsey_.size() <= index || HoverE_smear_low_Lindsey_.size() <= index)
+  if(ecal_calib_.at(index).size() != 3 || hcal_calib_.at(index).size() != 3 ||
+     hcal_high_calib_.at(index).size() != 3 || cross_terms_.at(index).size() != 6 ||
+     HoverE_smear_high_.size() <= index || HoverE_smear_low_.size() <= index)
     return (ecal+hcal);
 
   double e = ecal, h = hcal;
   double ec = 0.0, hc = 0.0, c = 0.0;
   
-  ec = (ecal_calib_Lindsey_.at(index).at(0)*std::pow(e,3.) +
-	ecal_calib_Lindsey_.at(index).at(1)*std::pow(e,2.) +
-	ecal_calib_Lindsey_.at(index).at(2)*e);
+  ec = (ecal_calib_.at(index).at(0)*std::pow(e,3.) +
+	ecal_calib_.at(index).at(1)*std::pow(e,2.) +
+	ecal_calib_.at(index).at(2)*e);
   
   if(e + h < 23)
     {
-      hc = (hcal_calib_Lindsey_.at(index).at(0)*std::pow(h,3.) + 
-	    hcal_calib_Lindsey_.at(index).at(1)*std::pow(h,2.) + 
-	    hcal_calib_Lindsey_.at(index).at(2)*h);
+      hc = (hcal_calib_.at(index).at(0)*std::pow(h,3.) + 
+	    hcal_calib_.at(index).at(1)*std::pow(h,2.) + 
+	    hcal_calib_.at(index).at(2)*h);
       
-      c = (cross_terms_Lindsey_.at(index).at(0)*std::pow(e, 2.)*h +
-	   cross_terms_Lindsey_.at(index).at(1)*std::pow(h, 2.)*e +
-	   cross_terms_Lindsey_.at(index).at(2)*e*h +
-	   cross_terms_Lindsey_.at(index).at(3)*std::pow(e, 3.)*h +
-	   cross_terms_Lindsey_.at(index).at(4)*std::pow(h, 3.)*e +
-	   cross_terms_Lindsey_.at(index).at(5)*std::pow(h, 2.)*std::pow(e, 2.));
+      c = (cross_terms_.at(index).at(0)*std::pow(e, 2.)*h +
+	   cross_terms_.at(index).at(1)*std::pow(h, 2.)*e +
+	   cross_terms_.at(index).at(2)*e*h +
+	   cross_terms_.at(index).at(3)*std::pow(e, 3.)*h +
+	   cross_terms_.at(index).at(4)*std::pow(h, 3.)*e +
+	   cross_terms_.at(index).at(5)*std::pow(h, 2.)*std::pow(e, 2.));
     }
   else
     {
-      hc = (hcal_high_calib_Lindsey_.at(index).at(0)*std::pow(h,3.) + 
-	    hcal_high_calib_Lindsey_.at(index).at(1)*std::pow(h,2.) + 
-	    hcal_high_calib_Lindsey_.at(index).at(2)*h);
+      hc = (hcal_high_calib_.at(index).at(0)*std::pow(h,3.) + 
+	    hcal_high_calib_.at(index).at(1)*std::pow(h,2.) + 
+	    hcal_high_calib_.at(index).at(2)*h);
     }
-  
-  if(e == 0.0) e += 0.000000001;
-  
+    
   if(h/(e+h) >= 0.05)
     {
-      ec *= HoverE_smear_high_Lindsey_.at(index);
-      hc *= HoverE_smear_high_Lindsey_.at(index);
-      c *= HoverE_smear_high_Lindsey_.at(index);
+      ec *= HoverE_smear_high_.at(index);
+      hc *= HoverE_smear_high_.at(index);
+      c *= HoverE_smear_high_.at(index);
     }
   else
     {
-      ec *= HoverE_smear_low_Lindsey_.at(index);
+      ec *= HoverE_smear_low_.at(index);
     }
   return ec + hc + c;
 }
