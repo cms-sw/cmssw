@@ -10,6 +10,8 @@
 <use name=Geometry/DTGeometry>
 <use name=DataFormats/DTRecHit>
 <use name=HLTrigger/HLTcore>
+<use name=RecoMuon/MeasurementDet>
+<use name=RecoMuon/TrackingTools>
 <use name=boost>
 <use name=rootgraphics>
 
