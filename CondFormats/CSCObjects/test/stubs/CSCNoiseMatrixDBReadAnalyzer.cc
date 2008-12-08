@@ -52,8 +52,12 @@ namespace edmtest
       DBNoiseMatrixFile<<counter<<"  "<<it->elem33<<"  "<<it->elem34<<"  "<<it->elem44<<
       "  "<<it->elem35<<"  "<<it->elem45<<"  "<<it->elem55<<"  "<<it->elem46<<"  "<<it->elem56<<
       "  "<<it->elem66<<"  "<<it->elem57<<"  "<<it->elem67<<"  "<<it->elem77<<std::endl;
+      if(it->elem33<0){DBNoiseMatrixFile<<" 33(1) negative"<<std::endl;}
+      if(it->elem44<0){DBNoiseMatrixFile<<" 44(3) negative"<<std::endl;}
+      if(it->elem55<0){DBNoiseMatrixFile<<" 55(6) negative"<<std::endl;}
+      if(it->elem66<0){DBNoiseMatrixFile<<" 66(9) negative"<<std::endl;}
+      if(it->elem77<0){DBNoiseMatrixFile<<" 77(12) negative"<<std::endl;}
     }
   }
   DEFINE_FWK_MODULE(CSCNoiseMatrixDBReadAnalyzer);
 }
-
