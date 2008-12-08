@@ -36,6 +36,8 @@ namespace edmtest
   void
   CSCPedestalDBReadAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& context)
   {
+    const float epsilon = 1.E-09; // some 'small' value to test for non-positive values.
+
     using namespace edm::eventsetup;
     std::ofstream DBPedestalFile("dbpeds.dat",std::ios::out);
     int counter=0;
@@ -51,6 +53,7 @@ namespace edmtest
     for( it=myped->pedestals.begin();it!=myped->pedestals.end(); ++it ){    
       counter++;
       DBPedestalFile<<counter<<"  "<<it->ped<<"  "<<it->rms<<std::endl;
+      if ( it->rms <= epsilon ) DBPedestalFile << " ERROR? pedestal width <= " << epsilon << std::endl;
     }
   }
   DEFINE_FWK_MODULE(CSCPedestalDBReadAnalyzer);
