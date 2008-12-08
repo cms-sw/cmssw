@@ -1,4 +1,4 @@
-#include "CalibTracker/SiStripESProducers/interface/SiStripBadStripGenerator.h"
+#include "CalibTracker/SiStripESProducers/interface/SiStripBadModuleGenerator.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <boost/cstdint.hpp>
 #include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
@@ -13,19 +13,19 @@
 #include "DataFormats/SiStripDetId/interface/TOBDetId.h"
 #include "DataFormats/SiStripDetId/interface/TECDetId.h"
 
-SiStripBadStripGenerator::SiStripBadStripGenerator(const edm::ParameterSet& iConfig,const edm::ActivityRegistry& aReg):
+SiStripBadModuleGenerator::SiStripBadModuleGenerator(const edm::ParameterSet& iConfig,const edm::ActivityRegistry& aReg):
   SiStripCondObjBuilderBase<SiStripBadStrip>::SiStripCondObjBuilderBase(iConfig)
 {
-  edm::LogInfo("SiStripBadStripGenerator") <<  "[SiStripBadStripGenerator::SiStripBadStripGenerator]";
+  edm::LogInfo("SiStripBadModuleGenerator") <<  "[SiStripBadModuleGenerator::SiStripBadModuleGenerator]";
 }
 
 
-SiStripBadStripGenerator::~SiStripBadStripGenerator() { 
-  edm::LogInfo("SiStripBadStripGenerator") <<  "[SiStripBadStripGenerator::~SiStripBadStripGenerator]";
+SiStripBadModuleGenerator::~SiStripBadModuleGenerator() { 
+  edm::LogInfo("SiStripBadModuleGenerator") <<  "[SiStripBadModuleGenerator::~SiStripBadModuleGenerator]";
 }
 
 
-void SiStripBadStripGenerator::createObject(){
+void SiStripBadModuleGenerator::createObject(){
     
   SiStripQuality* obj  = new SiStripQuality();
 
@@ -84,7 +84,7 @@ void SiStripBadStripGenerator::createObject(){
 }
 
 
-void SiStripBadStripGenerator::selectDetectors(const std::vector<uint32_t>& DetIds, std::vector<uint32_t>& list){
+void SiStripBadModuleGenerator::selectDetectors(const std::vector<uint32_t>& DetIds, std::vector<uint32_t>& list){
 
   SiStripSubStructure siStripSubStructure;
   std::stringstream ss;
@@ -155,11 +155,11 @@ void SiStripBadStripGenerator::selectDetectors(const std::vector<uint32_t>& DetI
     }
   }
   if (printdebug_)
-    edm::LogInfo("SiStripBadStripGenerator") << ss.str();
+    edm::LogInfo("SiStripBadModuleGenerator") << ss.str();
 }
 
 
-bool SiStripBadStripGenerator::isTIBDetector(const uint32_t & therawid,
+bool SiStripBadModuleGenerator::isTIBDetector(const uint32_t & therawid,
 							   uint32_t requested_layer,
 							   uint32_t requested_bkw_frw,
 							   uint32_t requested_int_ext,
@@ -186,7 +186,7 @@ bool SiStripBadStripGenerator::isTIBDetector(const uint32_t & therawid,
   return 0;
 }
 
-bool SiStripBadStripGenerator::isTOBDetector(const uint32_t & therawid,
+bool SiStripBadModuleGenerator::isTOBDetector(const uint32_t & therawid,
 							   uint32_t requested_layer,
 							   uint32_t requested_bkw_frw,
 							   uint32_t requested_rod,
@@ -211,7 +211,7 @@ bool SiStripBadStripGenerator::isTOBDetector(const uint32_t & therawid,
 }
 
 
-bool SiStripBadStripGenerator::isTIDDetector(const uint32_t & therawid,
+bool SiStripBadModuleGenerator::isTIDDetector(const uint32_t & therawid,
 							   uint32_t requested_side,
 							   uint32_t requested_wheel,
 							   uint32_t requested_ring,
@@ -236,7 +236,7 @@ bool SiStripBadStripGenerator::isTIDDetector(const uint32_t & therawid,
 }
   
 
-bool SiStripBadStripGenerator::isTECDetector(const uint32_t & therawid,
+bool SiStripBadModuleGenerator::isTECDetector(const uint32_t & therawid,
 							   uint32_t requested_side,
 							   uint32_t requested_wheel,
 							   uint32_t requested_petal_bkw_frw,

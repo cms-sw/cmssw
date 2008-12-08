@@ -1,5 +1,5 @@
-#ifndef CalibTracker_SiStripESProducers_SiStripBadStripGenerator_H
-#define CalibTracker_SiStripESProducers_SiStripBadStripGenerator_H
+#ifndef CalibTracker_SiStripESProducers_SiStripBadModuleGenerator_H
+#define CalibTracker_SiStripESProducers_SiStripBadModuleGenerator_H
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -7,11 +7,11 @@
 #include "CondFormats/SiStripObjects/interface/SiStripBadStrip.h"
 #include <string>
 
-class SiStripBadStripGenerator : public SiStripCondObjBuilderBase<SiStripBadStrip> {
+class SiStripBadModuleGenerator : public SiStripCondObjBuilderBase<SiStripBadStrip> {
  public:
 
-  explicit SiStripBadStripGenerator(const edm::ParameterSet&,const edm::ActivityRegistry&);
-  ~SiStripBadStripGenerator();
+  explicit SiStripBadModuleGenerator(const edm::ParameterSet&,const edm::ActivityRegistry&);
+  ~SiStripBadModuleGenerator();
   
   void getObj(SiStripBadStrip* & obj){createObject(); obj=obj_;}
 
