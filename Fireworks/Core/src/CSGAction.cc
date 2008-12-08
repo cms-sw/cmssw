@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:11 CDT 2008
-// $Id: CSGAction.cc,v 1.16 2008/12/04 12:37:16 amraktad Exp $
+// $Id: CSGAction.cc,v 1.17 2008/12/04 19:07:57 amraktad Exp $
 //
 
 // system include files
@@ -55,6 +55,7 @@ CSGAction::CSGAction(CmsShowMainFrame *frame, const char *name) {
    m_modcode = 0;
    m_textEntry = 0;
    m_numberEntry = 0;
+   m_slider = 0;
 }
 // CSGAction::CSGAction(const CSGAction& rhs)
 // {
