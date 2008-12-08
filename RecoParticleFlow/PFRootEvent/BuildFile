@@ -13,7 +13,7 @@
 <use name=RecoParticleFlow/Benchmark>
 <use name=RecoParticleFlow/PFClusterTools>
 <use name=DataFormats/TrackReco>
-<use name=SimDataFormats/HepMCProduct>
+<use name=SimDataFormats/GeneratorProducts>
 <use name=DataFormats/JetReco>
 <use name=RecoJets/JetAlgorithms>
 <use name=root>

@@ -1,7 +1,7 @@
 #ifndef RecoParticleFlow_PFRootEvent_PFRootEventManager_h
 #define RecoParticleFlow_PFRootEvent_PFRootEventManager_h
 
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 #include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecHitFwd.h"
