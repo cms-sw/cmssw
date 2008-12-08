@@ -140,8 +140,13 @@ private:
   RotationType  theRot;
 
   void cache() {
-    thePhi = thePos.barePhi();
-    theEta = thePos.eta();
+
+    if ((thePos.x() == 0.) && (thePos.y() == 0.)) {
+      thePhi = theEta = 0.; // avoid FPE
+    } else {
+      thePhi = thePos.barePhi();
+      theEta = thePos.eta();
+    }
   }
   
   T thePhi;
