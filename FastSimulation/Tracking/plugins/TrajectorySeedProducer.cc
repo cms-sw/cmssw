@@ -462,10 +462,17 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 #ifdef FAMOS_DEBUG
 	  std::cout << "Are the two hits compatible with the PV? " << compatible << std::endl;
 #endif
+
+	  // Check if the pair is on the requested dets
+	  if ( numberOfHits[ialgo] == 2 ) compatible = compatible && theSeedHits[0].makesAPairWith(theSeedHits[1]);
+
+	  // Reject non suited pairs
 	  if ( !compatible ) continue;
+
 #ifdef FAMOS_DEBUG
 	  std::cout << "Pair kept! " << std::endl;
 #endif
+
 	  // Leave here if only two hits are required.
 	  if ( numberOfHits[ialgo] == 2 ) break; 
 	  
@@ -489,6 +496,10 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 
 	    // Check if on the same layer as previous hit
 	    compatible = !(theSeedHits2.isOnTheSameLayer(theSeedHits1));
+
+	    // Check if the triplet is on the requested det combination
+	    compatible = compatible && theSeedHits[0].makesATripletWith(theSeedHits[1],theSeedHits[2]);
+
 #ifdef FAMOS_DEBUG
 	    if ( compatible ) 
 	      std::cout << "Apparently the third hit is on the requested detector! " << std::endl;

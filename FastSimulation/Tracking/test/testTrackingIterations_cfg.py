@@ -30,10 +30,10 @@ process.source = cms.Source(
         #'file:SinglePion_FastFull_6.root',
         #'file:SinglePion_FastFull_7.root'
         #'file:fevt_SinglePion_E0_1.root'
-        'file:fevt_SinglePion_E1_1.root'
+        #'file:fevt_SinglePion_E1_1.root'
         #'file:fevt_SinglePion_E2_1.root'
-        #'file:fevt_SinglePion_E3_1.root',
-        #'file:fevt_SinglePion_E3_2.root'
+        'file:fevt_SinglePion_E3_1.root',
+        'file:fevt_SinglePion_E3_2.root'
         #'file:fevt_SinglePion_E4_1.root',
         #'file:fevt_SinglePion_E4_2.root'
         #'file:fevt_SinglePion_E5_1.root',
@@ -48,7 +48,8 @@ process.source = cms.Source(
         #'file:fevt_SinglePion_E7_2.root',
         #'file:fevt_SinglePion_E7_3.root',
         #'file:fevt_SinglePion_E7_4.root'
-    )
+    ),
+    noEventSort=cms.untracked.bool(True)
 )
 
 process.testTK = cms.EDFilter(
@@ -85,6 +86,7 @@ process.VolumeBasedMagneticFieldESProducer.useParametrizedTrackerField = True
 # No SimHits
 process.famosSimHits.SimulateCalorimetry = False
 process.famosSimHits.SimulateTracking = True
+process.famosSimHits.TrackerSimHits.pTmin = 0.2
 
 # Path to run what is needed
 process.p = cms.Path(
@@ -104,7 +106,7 @@ process.MessageLogger.destinations = ['test.txt']
 # Should be commented out in the analysis step
 process.o1 = cms.OutputModule(
     "PoolOutputModule",
-    fileName = cms.untracked.string('SinglePion_FastFull_1.root'),
+    fileName = cms.untracked.string('SinglePion_FastFull_3.root'),
     outputCommands = cms.untracked.vstring(
        "keep *",
        "drop *_mix_*_*"

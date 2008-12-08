@@ -51,6 +51,8 @@ private:
   std::vector<MonitorElement*> h0;
   MonitorElement* genTracksvsEtaP;
   std::vector<MonitorElement*> firstTracksvsEtaP;
+  std::vector<MonitorElement*> first1TracksvsEtaP;
+  std::vector<MonitorElement*> first2TracksvsEtaP;
   std::vector<MonitorElement*> secondTracksvsEtaP;
   std::vector<MonitorElement*> thirdTracksvsEtaP;
 
@@ -64,6 +66,8 @@ testTrackingIterations::testTrackingIterations(const edm::ParameterSet& p) :
   mySimEvent(2, static_cast<FSimEvent*>(0)),
   h0(2,static_cast<MonitorElement*>(0)),
   firstTracksvsEtaP(2,static_cast<MonitorElement*>(0)),
+  first1TracksvsEtaP(2,static_cast<MonitorElement*>(0)),
+  first2TracksvsEtaP(2,static_cast<MonitorElement*>(0)),
   secondTracksvsEtaP(2,static_cast<MonitorElement*>(0)),
   thirdTracksvsEtaP(2,static_cast<MonitorElement*>(0)),
   totalNEvt(0)
@@ -99,6 +103,10 @@ testTrackingIterations::testTrackingIterations(const edm::ParameterSet& p) :
   genTracksvsEtaP = dbe->book2D("genEtaP","Generated eta vs p",28,-2.8,2.8,100,0,10.);
   firstTracksvsEtaP[0] = dbe->book2D("eff1Full","Efficiency 1st Full",28,-2.8,2.8,100,0,10.);
   firstTracksvsEtaP[1] = dbe->book2D("eff1Fast","Efficiency 1st Fast",28,-2.8,2.8,100,0,10.);
+  first1TracksvsEtaP[0] = dbe->book2D("eff1Full1","Efficiency 1st Full 1",28,-2.8,2.8,100,0,10.);
+  first1TracksvsEtaP[1] = dbe->book2D("eff1Fast1","Efficiency 1st Fast 1",28,-2.8,2.8,100,0,10.);
+  first2TracksvsEtaP[0] = dbe->book2D("eff1Full2","Efficiency 1st Full 2",28,-2.8,2.8,100,0,10.);
+  first2TracksvsEtaP[1] = dbe->book2D("eff1Fast2","Efficiency 1st Fast 2",28,-2.8,2.8,100,0,10.);
   secondTracksvsEtaP[0] = dbe->book2D("eff2Full","Efficiency 2nd Full",28,-2.8,2.8,100,0,10.);
   secondTracksvsEtaP[1] = dbe->book2D("eff2Fast","Efficiency 2nd Fast",28,-2.8,2.8,100,0,10.);
   thirdTracksvsEtaP[0] = dbe->book2D("eff3Full","Efficiency 3rd Full",28,-2.8,2.8,100,0,10.);
@@ -153,10 +161,13 @@ testTrackingIterations::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
   mySimEvent[1]->fill( *fastSimTracks, *fastSimVertices );
 
   if ( !mySimEvent[1]->nVertices() ) return;
+  if ( !mySimEvent[1]->nTracks() ) return;
   const FSimTrack& thePion = mySimEvent[1]->track(0);
   
   double etaGen = thePion.momentum().Eta();
   double pGen = std::sqrt(thePion.momentum().Vect().Perp2());
+  if ( pGen < 0.2 ) return;
+
   h0[0]->Fill(pGen);
   h0[1]->Fill(etaGen);
   genTracksvsEtaP->Fill(etaGen,pGen,1.);
@@ -173,10 +184,20 @@ testTrackingIterations::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
     tkColl.push_back(tkRef1.product());
     tkColl.push_back(tkRef2.product());
     tkColl.push_back(tkRef3.product());
-    firstTracksvsEtaP[ievt]->Fill(etaGen,pGen,tkColl[0]->size());
-    secondTracksvsEtaP[ievt]->Fill(etaGen,pGen,tkColl[1]->size());
-    thirdTracksvsEtaP[ievt]->Fill(etaGen,pGen,tkColl[2]->size());
+    if ( tkColl[0]->size() == 1 ) firstTracksvsEtaP[ievt]->Fill(etaGen,pGen,tkColl[0]->size());
+    if ( tkColl[1]->size() == 1 ) secondTracksvsEtaP[ievt]->Fill(etaGen,pGen,tkColl[1]->size());
+    if ( tkColl[2]->size() == 1 ) thirdTracksvsEtaP[ievt]->Fill(etaGen,pGen,tkColl[2]->size());
 
+    // Split 1st collection in two (triplets, then pairs)
+    reco::TrackCollection::const_iterator itk = tkColl[0]->begin();
+    if ( tkColl[0]->size()==1 ) {
+      const TrajectorySeed* seed = itk->seedRef().get();
+      double NumberofhitsSeed = seed->recHits().second-seed->recHits().first;
+      if ( NumberofhitsSeed == 3 ) 
+	first1TracksvsEtaP[ievt]->Fill(etaGen,pGen,1.);
+      else
+	first2TracksvsEtaP[ievt]->Fill(etaGen,pGen,1.);
+    }
   }
 
 }
