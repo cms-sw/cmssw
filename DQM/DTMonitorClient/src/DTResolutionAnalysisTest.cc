@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/12/02 13:29:57 $
- *  $Revision: 1.7 $
+ *  $Date: 2008/12/05 10:13:32 $
+ *  $Revision: 1.8 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -252,14 +252,15 @@ void DTResolutionAnalysisTest::endLuminosityBlock(LuminosityBlock const& lumiSeg
 
 
 
-void DTResolutionAnalysisTest::bookHistos(int wh) {
-  
-  dbe->setCurrentFolder("DT/02-Segments");
+void DTResolutionAnalysisTest::bookHistos(int wh) { 
 
   stringstream wheel; wheel <<wh;
-  
-  string histoName =  "MeanSummaryRes_testFailed_W" + wheel.str();
-  wheelMeanHistos[wh] = dbe->book2D(histoName.c_str(),"SuperLayers with a wrong residuals mean",12,1,13,11,1,12);
+
+  dbe->setCurrentFolder("DT/02-Segments/00-MeanRes");
+  string histoName =  "MeanSummaryRes_W" + wheel.str();
+  stringstream meanRange; meanRange << (permittedMeanRange*10000);
+  string histoTitle = "# of SL with |mean of res.| > " + meanRange.str() + "#mum (Wheel " + wheel.str() + ")";
+  wheelMeanHistos[wh] = dbe->book2D(histoName.c_str(),histoTitle.c_str(),12,1,13,11,1,12);
   wheelMeanHistos[wh]->setAxisTitle("Sector",1);
   wheelMeanHistos[wh]->setBinLabel(1,"1",1);
   wheelMeanHistos[wh]->setBinLabel(2,"2",1);
@@ -285,8 +286,32 @@ void DTResolutionAnalysisTest::bookHistos(int wh) {
   wheelMeanHistos[wh]->setBinLabel(10,"MB4_SL1",2);
   wheelMeanHistos[wh]->setBinLabel(11,"MB4_SL3",2); 
   
-  histoName =  "SigmaSummaryRes_testFailed_W" + wheel.str();
-  wheelSigmaHistos[wh] = dbe->book2D(histoName.c_str(),"SuperLayers with a wrong residuals sigma",12,1,13,11,1,12);
+  if(wheelMeanHistos.find(3) == wheelMeanHistos.end()){
+    string histoName =  "MeanSummaryRes";
+    histoTitle = "# of SL with |mean of res.| > " + meanRange.str() + "#mum";
+    wheelMeanHistos[3] = dbe->book2D(histoName.c_str(),histoTitle.c_str(),12,1,13,5,-2,3);
+    wheelMeanHistos[3]->setAxisTitle("Sector",1);
+    wheelMeanHistos[3]->setBinLabel(1,"1",1);
+    wheelMeanHistos[3]->setBinLabel(2,"2",1);
+    wheelMeanHistos[3]->setBinLabel(3,"3",1);
+    wheelMeanHistos[3]->setBinLabel(4,"4",1);
+    wheelMeanHistos[3]->setBinLabel(5,"5",1);
+    wheelMeanHistos[3]->setBinLabel(6,"6",1);
+    wheelMeanHistos[3]->setBinLabel(7,"7",1);
+    wheelMeanHistos[3]->setBinLabel(8,"8",1);
+    wheelMeanHistos[3]->setBinLabel(9,"9",1);
+    wheelMeanHistos[3]->setBinLabel(10,"10",1);
+    wheelMeanHistos[3]->setBinLabel(11,"11",1);
+    wheelMeanHistos[3]->setBinLabel(12,"12",1);
+    wheelMeanHistos[3]->setAxisTitle("Wheel",2);
+  }
+
+
+  dbe->setCurrentFolder("DT/02-Segments/01-SigmaRes");
+  histoName =  "SigmaSummaryRes_W" + wheel.str();
+  stringstream sigmaRange; sigmaRange << (permittedSigmaRange*10000);
+  histoTitle = "# of SL with #sigma res. > " + sigmaRange.str() + "#mum (Wheel " + wheel.str() + ")";
+  wheelSigmaHistos[wh] = dbe->book2D(histoName.c_str(),histoTitle.c_str(),12,1,13,11,1,12);
   wheelSigmaHistos[wh]->setAxisTitle("Sector",1);
   wheelSigmaHistos[wh]->setBinLabel(1,"1",1);
   wheelSigmaHistos[wh]->setBinLabel(2,"2",1);
@@ -311,30 +336,11 @@ void DTResolutionAnalysisTest::bookHistos(int wh) {
   wheelSigmaHistos[wh]->setBinLabel(9,"MB3_SL3",2);
   wheelSigmaHistos[wh]->setBinLabel(10,"MB4_SL1",2);
   wheelSigmaHistos[wh]->setBinLabel(11,"MB4_SL3",2);
-  
-  if(wheelMeanHistos.find(3) == wheelMeanHistos.end()){
-    string histoName =  "MeanSummaryRes_testFailed";
-    wheelMeanHistos[3] = dbe->book2D(histoName.c_str(),"# of SLs with a wrong residuals mean",12,1,13,5,-2,3);
-    wheelMeanHistos[3]->setAxisTitle("Sector",1);
-    wheelMeanHistos[3]->setBinLabel(1,"1",1);
-    wheelMeanHistos[3]->setBinLabel(2,"2",1);
-    wheelMeanHistos[3]->setBinLabel(3,"3",1);
-    wheelMeanHistos[3]->setBinLabel(4,"4",1);
-    wheelMeanHistos[3]->setBinLabel(5,"5",1);
-    wheelMeanHistos[3]->setBinLabel(6,"6",1);
-    wheelMeanHistos[3]->setBinLabel(7,"7",1);
-    wheelMeanHistos[3]->setBinLabel(8,"8",1);
-    wheelMeanHistos[3]->setBinLabel(9,"9",1);
-    wheelMeanHistos[3]->setBinLabel(10,"10",1);
-    wheelMeanHistos[3]->setBinLabel(11,"11",1);
-    wheelMeanHistos[3]->setBinLabel(12,"12",1);
-    wheelMeanHistos[3]->setAxisTitle("Wheel",2);
-
-  }
 
   if(wheelSigmaHistos.find(3) == wheelSigmaHistos.end()){
-    string histoName =  "SigmaSummaryRes_testFailed";
-    wheelSigmaHistos[3] = dbe->book2D(histoName.c_str(),"# of SLs with a wrong residuals sigma",14,1,15,5,-2,3);
+    string histoName =  "SigmaSummaryRes";
+    histoTitle = "# of SL with #sigma res. > " + sigmaRange.str() + "#mum";
+    wheelSigmaHistos[3] = dbe->book2D(histoName.c_str(),histoTitle.c_str(),14,1,15,5,-2,3);
     wheelSigmaHistos[3]->setAxisTitle("Sector",1);
     wheelSigmaHistos[3]->setBinLabel(1,"1",1);
     wheelSigmaHistos[3]->setBinLabel(2,"2",1);
