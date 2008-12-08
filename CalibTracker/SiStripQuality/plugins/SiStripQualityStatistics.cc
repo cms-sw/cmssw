@@ -13,7 +13,7 @@
 //
 // Original Author:  Domenico GIORDANO
 //         Created:  Wed Oct  3 12:11:10 CEST 2007
-// $Id: SiStripQualityStatistics.cc,v 1.10 2008/07/25 16:31:47 giordano Exp $
+// $Id: SiStripQualityStatistics.cc,v 1.11 2008/12/03 12:05:52 giordano Exp $
 //
 //
 #include "CalibTracker/Records/interface/SiStripQualityRcd.h"
@@ -39,9 +39,12 @@ SiStripQualityStatistics::SiStripQualityStatistics( const edm::ParameterSet& iCo
   tkMap(0),tkMapFullIOVs(0)
 {  
   reader = new SiStripDetInfoFileReader(fp_.fullPath());
-  tkMapFullIOVs=new TrackerMap( "BadComponents" );
-  tkhisto   =new TkHistoMap("BadComp","BadComp",-1.); //here the baseline (the value of the empty,not assigned bins) is put to -1 (default is zero)
 
+  tkMapFullIOVs=new TrackerMap( "BadComponents" );
+  tkhisto=0;
+  if (TkMapFileName_!=""){
+    tkhisto   =new TkHistoMap("BadComp","BadComp",-1.); //here the baseline (the value of the empty,not assigned bins) is put to -1 (default is zero)
+  }
 }
 
 void SiStripQualityStatistics::endJob(){
@@ -198,8 +201,9 @@ void SiStripQualityStatistics::analyze( const edm::Event& e, const edm::EventSet
 
     //------- Global Statistics on percentage of bad components along the IOVs ------//
     tkMapFullIOVs->fill(detid,percentage);
-    tkhisto->fill(detid,percentage);
-}
+    if(tkhisto!=NULL)
+      tkhisto->fill(detid,percentage);
+  }
   
  
   //&&&&&&&&&&&&&&&&&&
