@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from CalibTracker.SiStripESProducers.SiStripFedCablingFakeESSource_cfi import *
+from CalibTracker.SiStripESProducers.fake.SiStripFedCablingFakeESSource_cfi import *
 sistripconn = cms.ESProducer("SiStripConnectivity")
 
 
