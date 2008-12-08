@@ -26,19 +26,19 @@ mergedtruth = cms.EDProducer("TrackingTruthProducer",
     ),        
     volumeZ = cms.double(3000.0),
     select = cms.PSet(
-        lipTP = cms.double(30.0),
+        lipTP = cms.double(1000),
         chargedOnlyTP = cms.bool(True),
         pdgIdTP = cms.vint32(),
         signalOnlyTP = cms.bool(True),
-        minRapidityTP = cms.double(-2.4),
-        minHitTP = cms.int32(0),
-        ptMinTP = cms.double(0.9),
-        maxRapidityTP = cms.double(2.4),
-        tipTP = cms.double(3.5)
+        minRapidityTP = cms.double(-2.6),
+        minHitTP = cms.int32(3),
+        ptMinTP = cms.double(0.2),
+        maxRapidityTP = cms.double(2.6),
+        tipTP = cms.double(1000)
     )
 )
 
-trackingParticleSelectionForEfficiency = cms.Sequence(mergedtruth)
+trackingParticleSelection = cms.Sequence(mergedtruth)
 
 # Uncomment in case of running 3 producer approach
 
