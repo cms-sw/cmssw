@@ -171,7 +171,7 @@ EmDQM::beginJob(const edm::EventSetup&)
   if ( theHLTCollectionHumanNames.size() == numOfHLTCollectionLabels && useHumanReadableHistTitles ) {
     HltHistTitle = theHLTCollectionHumanNames;
   } else {
-    for (int i =0; i < numOfHLTCollectionLabels; i++) {
+    for (unsigned int i =0; i < numOfHLTCollectionLabels; i++) {
       HltHistTitle.push_back(theHLTCollectionLabels[i].label());
     }
   }
