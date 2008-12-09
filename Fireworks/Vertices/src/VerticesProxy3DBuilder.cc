@@ -41,7 +41,7 @@ void VerticesProxy3DBuilder::build(const FWEventItem* item, TEveElementList** pr
   }
 
   // actual 3D shape
-  TGeoSphere * sphere = new TGeoSphere(0.0, 1.0);
+  // TGeoSphere * sphere = new TGeoSphere(0.0, 1.0);
 
   for (unsigned int i = 0; i < vertices->size(); ++i) {
     const reco::Vertex & vertex = (*vertices)[i];
@@ -65,7 +65,7 @@ void VerticesProxy3DBuilder::build(const FWEventItem* item, TEveElementList** pr
      pointSet->SetNextPoint( vertex.x(), vertex.y(), vertex.z() );
      vList->AddElement(pointSet);
 
-
+     /*
     // this is just an approximation - the full 3D covariance matrix could be used to show the correct correlations
     TGeoScale dimension(
         (vertex.xError() ? vertex.xError() : 0.0015) * scaleError,      // use a default error of 15 um
@@ -80,6 +80,7 @@ void VerticesProxy3DBuilder::build(const FWEventItem* item, TEveElementList** pr
     shape->SetMainColor(item->defaultDisplayProperties().color());
     shape->SetPickable(kTRUE);
     vList->AddElement(shape);
+      */
    }
 }
 
