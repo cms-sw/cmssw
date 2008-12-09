@@ -16,7 +16,7 @@
  * =====================================================================================
  */
 
-#include "DQM/CSCMonitorClient/interface/CSCDaqInfo.h"
+#include "DQM/CSCMonitorModule/interface/CSCDaqInfo.h"
 
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "CondFormats/RunInfo/interface/RunInfo.h"
