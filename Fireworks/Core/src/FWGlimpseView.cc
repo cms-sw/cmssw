@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWGlimpseView.cc,v 1.20 2008/11/10 18:07:57 amraktad Exp $
+// $Id: FWGlimpseView.cc,v 1.21 2008/12/01 12:25:13 dmytro Exp $
 //
 
 // system include files
@@ -239,7 +239,7 @@ FWGlimpseView::setFrom(const FWConfiguration& iFrom)
       std::ostringstream os;
       os << i;
       const FWConfiguration* value = iFrom.valueForKey( matrixName + os.str() + "Glimpse" );
-      assert( value );
+      if (! value ) continue;
       std::istringstream s(value->value());
       s>>((*m_cameraMatrix)[i]);
    }
@@ -251,7 +251,7 @@ FWGlimpseView::setFrom(const FWConfiguration& iFrom)
       std::ostringstream os;
       os << i;
       const FWConfiguration* value = iFrom.valueForKey( matrixName + os.str() + "Glimpse" );
-      assert( value );
+      if (! value ) continue;
       std::istringstream s(value->value());
       s>>((*m_cameraMatrixBase)[i]);
    }
@@ -259,9 +259,10 @@ FWGlimpseView::setFrom(const FWConfiguration& iFrom)
      {
 	assert ( m_cameraFOV );
 	const FWConfiguration* value = iFrom.valueForKey( "Glimpse FOV" );
-	assert( value );
-	std::istringstream s(value->value());
-	s>>*m_cameraFOV;
+	if ( value ) {
+	  std::istringstream s(value->value());
+	  s>>*m_cameraFOV;
+	}
      }
    m_viewer->GetGLViewer()->RequestDraw();
 }
