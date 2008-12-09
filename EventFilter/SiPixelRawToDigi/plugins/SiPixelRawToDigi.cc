@@ -103,12 +103,14 @@ void SiPixelRawToDigi::produce( edm::Event& ev,
   std::auto_ptr< edm::DetSetVector<SiPixelRawDataError> > errorcollection( new edm::DetSetVector<SiPixelRawDataError> );
   static int ndigis = 0;
   static int nwords = 0;
+  static uint32_t dummydetid = 0xffffffff;
 
   PixelDataFormatter formatter(cabling_);
   formatter.setErrorStatus(includeErrors, checkOrder);
 
   if (theTimer) theTimer->start();
   bool errorsInEvent = false;
+  PixelDataFormatter::DetErrors nodeterrors;
 
   typedef std::vector<unsigned int>::const_iterator IF;
   for (IF aFed = fedList.begin(); aFed != fedList.end(); ++aFed) {
@@ -129,18 +131,27 @@ void SiPixelRawToDigi::produce( edm::Event& ev,
       uint32_t detid = it->first;
       edm::DetSet<PixelDigi>& detSet = collection->find_or_insert(detid);
       detSet.data = it->second;
-    } 
+    }
 
     //pack errors into collection
     if(includeErrors) {
       typedef PixelDataFormatter::Errors::iterator IE;
       for (IE is = errors.begin(); is != errors.end(); is++) {
 	uint32_t errordetid = is->first;
-	edm::DetSet<SiPixelRawDataError>& errorDetSet = errorcollection->find_or_insert(errordetid);
-	errorDetSet.data = is->second;
+	if (errordetid==dummydetid) {           // errors given dummy detId must be sorted by Fed
+	  nodeterrors.insert( nodeterrors.end(), errors[errordetid].begin(), errors[errordetid].end() );
+	} else {
+	  edm::DetSet<SiPixelRawDataError>& errorDetSet = errorcollection->find_or_insert(errordetid);
+	  errorDetSet.data = is->second;
+	}
       }
-    } 
-  } 
+    }
+  }
+
+  if(includeErrors) {
+    edm::DetSet<SiPixelRawDataError>& errorDetSet = errorcollection->find_or_insert(dummydetid);
+    errorDetSet.data = nodeterrors;
+  }
   if (errorsInEvent) LogDebug("SiPixelRawToDigi") << "Error words were stored in this event";
 
   if (theTimer) {
