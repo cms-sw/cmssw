@@ -16,8 +16,8 @@
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/L1Trigger/interface/L1EmParticle.h"
 #include "DataFormats/L1Trigger/interface/L1EmParticleFwd.h"
-//#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
-#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+//#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Common/interface/AssociationMap.h"
 
@@ -64,6 +64,7 @@ EmDQM::EmDQM(const edm::ParameterSet& pset)
   plotPtMax  = pset.getUntrackedParameter<double>("PtMax",1000.);
   plotEtaMax = pset.getUntrackedParameter<double>("EtaMax", 2.7);
   plotBins   = pset.getUntrackedParameter<unsigned int>("Nbins",40);
+  useHumanReadableHistTitles = pset.getUntrackedParameter<bool>("useHumanReadableHistTitles", false);
 
   //preselction cuts 
   gencutCollection_= pset.getParameter<edm::InputTag>("cutcollection");
@@ -76,11 +77,15 @@ EmDQM::EmDQM(const edm::ParameterSet& pset)
   std::vector<edm::ParameterSet> filters = 
        pset.getParameter<std::vector<edm::ParameterSet> >("filters");
 
+  int i = 0;
   for(std::vector<edm::ParameterSet>::iterator filterconf = filters.begin() ; filterconf != filters.end() ; filterconf++)
   {
 
     theHLTCollectionLabels.push_back(filterconf->getParameter<edm::InputTag>("HLTCollectionLabels"));
     theHLTOutputTypes.push_back(filterconf->getParameter<unsigned int>("theHLTOutputTypes"));
+    // Grab the human-readable name, if it is not specified, use the Collection Label
+    theHLTCollectionHumanNames.push_back(filterconf->getUntrackedParameter<std::string>("HLTCollectionHumanName",theHLTCollectionLabels[i].label()));
+
     std::vector<double> bounds = filterconf->getParameter<std::vector<double> >("PlotBounds");
     // If the size of plot "bounds" vector != 2, abort
     assert(bounds.size() == 2);
@@ -88,11 +93,12 @@ EmDQM::EmDQM(const edm::ParameterSet& pset)
     isoNames.push_back(filterconf->getParameter<std::vector<edm::InputTag> >("IsoCollections"));
     // If the size of the isoNames vector is not greater than zero, abort
     assert(isoNames.back().size()>0);
-    if (isoNames.back().at(0).label()=="none")
+    if (isoNames.back().at(0).label()=="none") {
       plotiso.push_back(false);
-    else
+    } else {
       plotiso.push_back(true);
-
+    }
+    i++;
   } // END of loop over parameter sets
 
   // Record number of HLTCollectionLabels
@@ -155,45 +161,56 @@ EmDQM::beginJob(const edm::EventSetup&)
   histTitle= "#eta of "+ pdgIdString +"s " ;
   etagen = dbe->book1D(histName.c_str(),histTitle.c_str(),plotBins,-plotEtaMax,plotEtaMax);
  
+
   ////////////////////////////////////////////////////////////
   //  Set up histograms of HLT objects                      //
   ////////////////////////////////////////////////////////////
+
+  // Determine what strings to use for histogram titles
+  std::vector<std::string> HltHistTitle;
+  if ( theHLTCollectionHumanNames.size() == numOfHLTCollectionLabels && useHumanReadableHistTitles ) {
+    HltHistTitle = theHLTCollectionHumanNames;
+  } else {
+    for (int i =0; i < numOfHLTCollectionLabels; i++) {
+      HltHistTitle.push_back(theHLTCollectionLabels[i].label());
+    }
+  }
  
   for(unsigned int i = 0; i< numOfHLTCollectionLabels ; i++){
     // Et distribution of HLT objects passing filter i
     histName = theHLTCollectionLabels[i].label()+"et all";
-    histTitle = theHLTCollectionLabels[i].label()+" Et (ALL)";
+    histTitle = HltHistTitle[i]+" Et (ALL)";
     tmphisto =  dbe->book1D(histName.c_str(),histTitle.c_str(),plotBins,plotPtMin,plotPtMax);
     ethist.push_back(tmphisto);
     
     // Eta distribution of HLT objects passing filter i
     histName = theHLTCollectionLabels[i].label()+"eta all";
-    histTitle = theHLTCollectionLabels[i].label()+" #eta (ALL)";
+    histTitle = HltHistTitle[i]+" #eta (ALL)";
     tmphisto =  dbe->book1D(histName.c_str(),histTitle.c_str(),plotBins,-plotEtaMax,plotEtaMax);
     etahist.push_back(tmphisto);          
 
     // Et distribution of gen object matching HLT object passing filter i
     histName = theHLTCollectionLabels[i].label()+"et MC matched";
-    histTitle = theHLTCollectionLabels[i].label()+" Et (MC matched)";
+    histTitle = HltHistTitle[i]+" Et (MC matched)";
     tmphisto =  dbe->book1D(histName.c_str(),histTitle.c_str(),plotBins,plotPtMin,plotPtMax);
     ethistmatch.push_back(tmphisto);
     
     // Eta distribution of gen object matching HLT object passing filter i
     histName = theHLTCollectionLabels[i].label()+"eta MC matched";
-    histTitle = theHLTCollectionLabels[i].label()+" #eta (MC matched)";
+    histTitle = HltHistTitle[i]+" #eta (MC matched)";
     tmphisto =  dbe->book1D(histName.c_str(),histTitle.c_str(),plotBins,-plotEtaMax,plotEtaMax);
     etahistmatch.push_back(tmphisto);
 
 
     // Et distribution of HLT object that is closest delta-R match to sorted gen particle(s)
     histName  = theHLTCollectionLabels[i].label()+"et";
-    histTitle = theHLTCollectionLabels[i].label()+" Et";
+    histTitle = HltHistTitle[i]+" Et";
     tmphisto  = dbe->book1D(histName.c_str(),histTitle.c_str(),plotBins,plotPtMin,plotPtMax);
     histEtOfHltObjMatchToGen.push_back(tmphisto);
 
     // eta distribution of HLT object that is closest delta-R match to sorted gen particle(s)
     histName  = theHLTCollectionLabels[i].label()+"eta";
-    histTitle = theHLTCollectionLabels[i].label()+" eta";
+    histTitle = HltHistTitle[i]+" eta";
     tmphisto  = dbe->book1D(histName.c_str(),histTitle.c_str(),plotBins,-plotEtaMax,plotEtaMax);
     histEtaOfHltObjMatchToGen.push_back(tmphisto);
 
@@ -208,25 +225,25 @@ EmDQM::beginJob(const edm::EventSetup&)
     } else {
       // 2D plot: Isolation values vs eta for all objects
       histName  = theHLTCollectionLabels[i].label()+"eta isolation all";
-      histTitle = theHLTCollectionLabels[i].label()+" isolation vs #eta (all)";
+      histTitle = HltHistTitle[i]+" isolation vs #eta (all)";
       tmpiso    = dbe->book2D(histName.c_str(),histTitle.c_str(),plotBins,-plotEtaMax,plotEtaMax,plotBins,plotBounds[i].first,plotBounds[i].second);
       etahistiso.push_back(tmpiso);
 
       // 2D plot: Isolation values vs et for all objects
       histName  = theHLTCollectionLabels[i].label()+"et isolation all";
-      histTitle = theHLTCollectionLabels[i].label()+" isolation vs Et (all)";
+      histTitle = HltHistTitle[i]+" isolation vs Et (all)";
       tmpiso    = dbe->book2D(histName.c_str(),histTitle.c_str(),plotBins,plotPtMin,plotPtMax,plotBins,plotBounds[i].first,plotBounds[i].second);
       ethistiso.push_back(tmpiso);
 
       // 2D plot: Isolation values vs eta for matched objects
       histName  = theHLTCollectionLabels[i].label()+"eta isolation MC matched";
-      histTitle = theHLTCollectionLabels[i].label()+" isolation vs #eta (mc matched)";
+      histTitle = HltHistTitle[i]+" isolation vs #eta (mc matched)";
       tmpiso    = dbe->book2D(histName.c_str(),histTitle.c_str(),plotBins,-plotEtaMax,plotEtaMax,plotBins,plotBounds[i].first,plotBounds[i].second);
       etahistisomatch.push_back(tmpiso);
 
       // 2D plot: Isolation values vs et for matched objects
       histName  = theHLTCollectionLabels[i].label()+"et isolation MC matched";
-      histTitle = theHLTCollectionLabels[i].label()+" isolation vs Et (mc matched)";
+      histTitle = HltHistTitle[i]+" isolation vs Et (mc matched)";
       tmpiso    = dbe->book2D(histName.c_str(),histTitle.c_str(),plotBins,plotPtMin,plotPtMax,plotBins,plotBounds[i].first,plotBounds[i].second);
       ethistisomatch.push_back(tmpiso);
 
@@ -234,14 +251,14 @@ EmDQM::beginJob(const edm::EventSetup&)
       // 2D plot: Isolation values vs eta for HLT object that 
       // is closest delta-R match to sorted gen particle(s)
       histName  = theHLTCollectionLabels[i].label()+"eta isolation";
-      histTitle = theHLTCollectionLabels[i].label()+" isolation vs #eta";
+      histTitle = HltHistTitle[i]+" isolation vs #eta";
       tmpiso    = dbe->book2D(histName.c_str(),histTitle.c_str(),plotBins,-plotEtaMax,plotEtaMax,plotBins,plotBounds[i].first,plotBounds[i].second);
       histEtaIsoOfHltObjMatchToGen.push_back(tmpiso);
 
       // 2D plot: Isolation values vs et for HLT object that 
       // is closest delta-R match to sorted gen particle(s)
       histName  = theHLTCollectionLabels[i].label()+"et isolation";
-      histTitle = theHLTCollectionLabels[i].label()+" isolation vs Et";
+      histTitle = HltHistTitle[i]+" isolation vs Et";
       tmpiso    = dbe->book2D(histName.c_str(),histTitle.c_str(),plotBins,plotPtMin,plotPtMax,plotBins,plotBounds[i].first,plotBounds[i].second);
       histEtIsoOfHltObjMatchToGen.push_back(tmpiso);
     } // END of HLT histograms

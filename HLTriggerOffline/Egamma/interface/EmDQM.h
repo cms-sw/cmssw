@@ -37,6 +37,8 @@ private:
   // Input from cfg file
   std::vector<edm::InputTag> theHLTCollectionLabels;  
   unsigned int numOfHLTCollectionLabels;  // Will be size of above vector
+  bool useHumanReadableHistTitles;
+  std::vector<std::string> theHLTCollectionHumanNames; // Human-readable names for the collections
   edm::InputTag theL1Seed;
   std::vector<int> theHLTOutputTypes;
   std::vector<bool> plotiso;
