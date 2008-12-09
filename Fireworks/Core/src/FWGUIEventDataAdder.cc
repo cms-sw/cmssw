@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 13 09:58:53 EDT 2008
-// $Id: FWGUIEventDataAdder.cc,v 1.13 2008/11/14 16:42:19 chrjones Exp $
+// $Id: FWGUIEventDataAdder.cc,v 1.14 2008/12/06 02:39:40 chrjones Exp $
 //
 
 // system include files
@@ -462,6 +462,7 @@ FWGUIEventDataAdder::fillData(const TFile* iFile)
          }
       }
       m_tableManager->dataChanged();
+      m_tableManager->Sort(0,true);
       m_tableWidget->Reinit();
    }
 }
