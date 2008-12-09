@@ -28,7 +28,14 @@ RecoEgammaFEVT = cms.PSet(
         'keep *_photons_*_*', 
         'keep *_ckfOutInTracksFromConversions_*_*', 
         'keep *_ckfInOutTracksFromConversions_*_*',
-        'keep *_PhotonIDProd_*_*'
+        'keep *_PhotonIDProd_*_*',
+        'keep *_electronEcalRecHitIsolationLcone_*_*',                                   
+        'keep *_electronEcalRecHitIsolationScone_*_*',
+        'keep *_electronHcalTowerIsolationLcone_*_*',
+        'keep *_electronHcalTowerIsolationScone_*_*',
+        'keep *_electronTrackIsolationLcone_*_*',
+        'keep *_electronTrackIsolationScone_*_*'
+
  )                                                                 
             
 )
@@ -53,7 +60,13 @@ RecoEgammaRECO = cms.PSet(
         'keep recoTrackExtras_ckfInOutTracksFromConversions_*_*', 
         'keep TrackingRecHitsOwned_ckfOutInTracksFromConversions_*_*', 
         'keep TrackingRecHitsOwned_ckfInOutTracksFromConversions_*_*',
-        'keep *_PhotonIDProd_*_*'
+        'keep *_PhotonIDProd_*_*',
+        'keep *_electronEcalRecHitIsolationLcone_*_*',
+        'keep *_electronEcalRecHitIsolationScone_*_*',
+        'keep *_electronHcalTowerIsolationLcone_*_*',
+        'keep *_electronHcalTowerIsolationScone_*_*',
+        'keep *_electronTrackIsolationLcone_*_*',
+        'keep *_electronTrackIsolationScone_*_*'
                                            
  )                                                                 
 
@@ -71,7 +84,15 @@ RecoEgammaAOD = cms.PSet(
         'keep recoConversions_conversions_*_*', 
         'keep recoTracks_ckfOutInTracksFromConversions_*_*', 
         'keep recoTracks_ckfInOutTracksFromConversions_*_*',
-        'keep *_PhotonIDProd_*_*'
+        'keep *_PhotonIDProd_*_*',
+        'keep *_electronEcalRecHitIsolationLcone_*_*',
+        'keep *_electronEcalRecHitIsolationScone_*_*',
+        'keep *_electronHcalTowerIsolationLcone_*_*',
+        'keep *_electronHcalTowerIsolationScone_*_*',
+        'keep *_electronTrackIsolationLcone_*_*',
+        'keep *_electronTrackIsolationScone_*_*'
+
+                                           
   )                                                                 
                                   
 )
