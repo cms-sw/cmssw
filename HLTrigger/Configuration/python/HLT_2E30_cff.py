@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_0_0/pre3/HLT/V24 (CMSSW_3_0_X_2008-12-01-1600_HLT2)
+# /dev/CMSSW_3_0_0/pre3/HLT/V25 (CMSSW_3_0_X_2008-12-01-1600_HLT2)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_0_0/pre3/HLT/V24')
+  tableName = cms.string('/dev/CMSSW_3_0_0/pre3/HLT/V25')
 )
 
 BTagRecord = cms.ESSource( "EmptyESSource",
@@ -7542,7 +7542,7 @@ hltL2TauIsolationProducer = cms.EDProducer( "L2TauIsolationProducer",
     )
 )
 hltL2TauIsolationSelector = cms.EDProducer( "L2TauIsolationSelector",
-    L2InfoAssociation = cms.InputTag( 'hltL2TauIsolationProducer','L2TauIsolationInfoAssociator' ),
+    L2InfoAssociation = cms.InputTag( "hltL2TauIsolationProducer" ),
     ECALIsolEt = cms.double( 5.0 ),
     TowerIsolEt = cms.double( 1000.0 ),
     ClusterEtaRMS = cms.double( 1000.0 ),
@@ -8214,7 +8214,7 @@ hltFilterL2EcalIsolationElectronTauNoL25 = cms.EDFilter( "HLT1Tau",
 )
 hltPreIsoEle12IsoTauTrk3NoL2 = cms.EDFilter( "HLTPrescaler" )
 hltL2TauIsolationSelectorNoCut = cms.EDProducer( "L2TauIsolationSelector",
-    L2InfoAssociation = cms.InputTag( 'hltL2TauIsolationProducer','L2TauIsolationInfoAssociator' ),
+    L2InfoAssociation = cms.InputTag( "hltL2TauIsolationProducer" ),
     ECALIsolEt = cms.double( 1000.0 ),
     TowerIsolEt = cms.double( 1000.0 ),
     ClusterEtaRMS = cms.double( 1000.0 ),
