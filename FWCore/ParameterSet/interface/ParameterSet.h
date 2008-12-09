@@ -2,7 +2,7 @@
 #define FWCore_ParameterSet_ParameterSet_h
 
 // ----------------------------------------------------------------------
-// $Id: ParameterSet.h,v 1.47 2008/11/18 16:07:48 wmtan Exp $
+// $Id: ParameterSet.h,v 1.48 2008/11/19 06:48:43 wmtan Exp $
 //
 // Declaration for ParameterSet(parameter set) and related types
 // ----------------------------------------------------------------------
@@ -182,6 +182,9 @@ namespace edm {
     std::string dump() const;
 
     friend std::ostream & operator<<(std::ostream & os, ParameterSet const& pset);
+
+    /// needs to be called before saving or serializing
+    void fillID() const;
 
 private:
     typedef std::map<std::string, Entry> table;

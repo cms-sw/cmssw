@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------
-// $Id: ParameterSet.cc,v 1.38 2008/11/18 02:04:26 wmtan Exp $
+// $Id: ParameterSet.cc,v 1.39 2008/11/19 06:48:43 wmtan Exp $
 //
 // definition of ParameterSet's function members
 // ----------------------------------------------------------------------
@@ -57,6 +57,10 @@ namespace edm {
   }
 
   ParameterSet::~ParameterSet() {}
+
+  void ParameterSet::fillID() const
+  {
+  }
 
   // ----------------------------------------------------------------------
   // identification
