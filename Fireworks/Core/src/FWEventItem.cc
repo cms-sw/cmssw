@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Thu Jan  3 14:59:23 EST 2008
-// $Id: FWEventItem.cc,v 1.29 2008/12/01 01:00:13 chrjones Exp $
+// $Id: FWEventItem.cc,v 1.30 2008/12/06 02:38:15 chrjones Exp $
 //
 
 // system include files
@@ -298,7 +298,7 @@ FWEventItem::moveToFront()
        itEnd = m_context->eventItemsManager()->end();
        it != itEnd;
        ++it) {
-      if((*it)->layer() > largest) {
+      if( (*it) && (*it)->layer() > largest) {
          largest= (*it)->layer();
       }
    }
@@ -323,7 +323,7 @@ FWEventItem::moveToBack()
        itEnd = m_context->eventItemsManager()->end();
        it != itEnd;
        ++it) {
-      if((*it)->layer() < smallest) {
+      if( (*it) && (*it)->layer() < smallest) {
          smallest= (*it)->layer();
       }
    }
@@ -457,7 +457,7 @@ FWEventItem::isInFront() const
        itEnd = m_context->eventItemsManager()->end();
        it != itEnd;
        ++it) {
-      if((*it)->layer() > layer()) {
+      if((*it) && (*it)->layer() > layer()) {
          return false;
       }
    }
@@ -472,7 +472,7 @@ FWEventItem::isInBack() const
        itEnd = m_context->eventItemsManager()->end();
        it != itEnd;
        ++it) {
-      if((*it)->layer() < layer()) {
+      if((*it) && (*it)->layer() < layer()) {
          return false;
       }
    }
