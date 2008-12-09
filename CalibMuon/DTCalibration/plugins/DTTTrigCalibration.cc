@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/01/18 17:48:39 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/06/06 17:09:52 $
+ *  $Revision: 1.4 $
  *  \author G. Cerminara - INFN Torino
  */
 #include "CalibMuon/DTCalibration/plugins/DTTTrigCalibration.h"
@@ -78,6 +78,9 @@ DTTTrigCalibration::DTTTrigCalibration(const edm::ParameterSet& pset) {
   }
 
   checkNoisyChannels = pset.getUntrackedParameter<bool>("checkNoisyChannels","false");
+
+  // the kfactor to be uploaded in the ttrig DB
+  kFactor =  pset.getUntrackedParameter<double>("kFactor",-0.7);
 
   if(debug) 
     cout << "[DTTTrigCalibration]Constructor called!" << endl;
@@ -247,6 +250,7 @@ void DTTTrigCalibration::endJob() {
 	tTrig->set((*slHisto).first,
 		   meanAndSigma.first,
 		   meanAndSigma.second,
+                   kFactor,
 		   DTTimeUnits::ns);
     
 	if(debug) {

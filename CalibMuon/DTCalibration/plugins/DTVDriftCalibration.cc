@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/10/02 11:35:50 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/10/03 08:34:49 $
+ *  $Revision: 1.5 $
  *  \author M. Giunta
  */
 
@@ -374,7 +374,9 @@ void DTVDriftCalibration::endJob() {
 	if(oldConstants != 0) {
 	  newConstants.push_back((*oldConstants)[0]);
 	  newConstants.push_back((*oldConstants)[1]);
+	  newConstants.push_back((*oldConstants)[2]);
 	} else {
+	  newConstants.push_back(-1);
 	  newConstants.push_back(-1);
 	  newConstants.push_back(-1);
 	}

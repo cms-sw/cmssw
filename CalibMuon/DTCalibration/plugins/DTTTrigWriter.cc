@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/01/18 17:48:39 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/06/06 17:09:52 $
+ *  $Revision: 1.3 $
  *  \author S. Bolognesi
  */
 
@@ -53,6 +53,9 @@ DTTTrigWriter::DTTTrigWriter(const ParameterSet& pset) {
   double sigmaFit = pset.getUntrackedParameter<double>("sigmaTTrigFit",10.);
   theFitter->setFitSigma(sigmaFit);
 
+  // the kfactor to be uploaded in the ttrig DB
+  kFactor = pset.getUntrackedParameter<double>("kFactor",-0.7);
+
   // Create the object to be written to DB
   tTrig = new DTTtrig();
   
@@ -99,6 +102,7 @@ void DTTTrigWriter::analyze(const Event & event, const EventSetup& eventSetup) {
       tTrig->set(slId,
 		 meanAndSigma.first,
 		 meanAndSigma.second,
+                 kFactor,
 		 DTTimeUnits::ns);
       if(debug) {
 	cout << " SL: " << slId

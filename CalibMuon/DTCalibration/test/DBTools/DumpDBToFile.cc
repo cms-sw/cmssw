@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/02/19 15:18:28 $
- *  $Revision: 1.8 $
+ *  $Date: 2008/10/03 08:53:22 $
+ *  $Revision: 1.10 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -120,9 +120,11 @@ void DumpDBToFile::endJob() {
 			(*ttrig).first.slId, 0, 0);
         float tmea;
         float trms;
+        float kFactor;
+
         DetId detId(wireId.rawId());
 	// ttrig and rms are ns
-        tTrigMap->get(detId, tmea, trms, DTTimeUnits::ns);
+        tTrigMap->get(detId, tmea, trms, kFactor, DTTimeUnits::ns);
 	cout << "Wh: " << (*ttrig).first.wheelId
 	     << " St: " << (*ttrig).first.stationId
 	     << " Sc: " << (*ttrig).first.sectorId
@@ -132,6 +134,7 @@ void DumpDBToFile::endJob() {
 	vector<float> consts;
 	consts.push_back(tmea);
 	consts.push_back(trms);
+	consts.push_back(kFactor);
 	consts.push_back(-1);
 	consts.push_back(-1);
 

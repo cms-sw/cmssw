@@ -4,7 +4,7 @@
 /** \class DTFakeTTrigESProducer
  *  ESProducer to store in the EventSetup fake ttrig value read from cfg  
  *
- *  $Date: 2007/06/07 07:55:43 $
+ *  $Date: 2007/07/11 12:20:59 $
  *  $Revision: 1.1 $
  *  \author S. Bolognesi - INFN Torino
  */
@@ -37,6 +37,7 @@ private:
   
   double tMean;
   double sigma;
+  double kFact;
 };
 
 #endif

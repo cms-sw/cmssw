@@ -1,8 +1,8 @@
  /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/03/12 18:20:53 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/03/13 13:52:57 $
+ *  $Revision: 1.2 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -95,7 +95,7 @@ void FakeTTrig::endJob() {
 
     DTSuperLayerId slId = (*sl)->id();
     double fakeTTrig = pedestral + timeOfFly + timeOfWirePropagation + gaussianSmearing;
-    tTrigMap->set(slId, fakeTTrig, 0, DTTimeUnits::ns);
+    tTrigMap->set(slId, fakeTTrig, 0,0.0, DTTimeUnits::ns);
 
   }
 

@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/01/18 17:46:34 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/10/03 08:53:22 $
+ *  $Revision: 1.4 $
  *  \author S. Bolognesi - INFN Torino
  */
 
@@ -74,14 +74,14 @@ void ProduceFakeDB::endJob() {
     //Read the fake values from the cfg files
     double ttrig = ps.getUntrackedParameter<double>("ttrig", 496);
     double sigmaTtrig = ps.getUntrackedParameter<double>("sigmaTtrig", 0);
-
+    double kFactor = ps.getUntrackedParameter<double>("kFactor", 0);
     // Create the object to be written to DB
     DTTtrig* tTrigMap = new DTTtrig();
 
     //Loop on superlayers
     for (vector<DTSuperLayer*>::const_iterator sl = dtSupLylist.begin();
 	 sl != dtSupLylist.end(); sl++) {
-      tTrigMap->set((*sl)->id(), ttrig, sigmaTtrig, DTTimeUnits::ns);
+      tTrigMap->set((*sl)->id(), ttrig, sigmaTtrig, kFactor, DTTimeUnits::ns);
     }
 
     // Write the object in the DB

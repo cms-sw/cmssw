@@ -73,9 +73,11 @@ void DTTTrigCorrection::endJob() {
        sl != dtSupLylist.end(); sl++) {
     float ttrigMean = 0;
     float ttrigSigma = 0;
+    float kFactor = 0;
     tTrigMap->get((*sl)->id(),
 		  ttrigMean,
 		  ttrigSigma,
+                  kFactor,
 		  DTTimeUnits::ns);
     if( ttrigMean < ttrigMax && ttrigMean > ttrigMin ) {
       average += ttrigMean;
@@ -94,9 +96,11 @@ void DTTTrigCorrection::endJob() {
        sl != dtSupLylist.end(); sl++) {
     float ttrigMean = 0;
     float ttrigSigma = 0;
+    float kFactor = 0;
     tTrigMap->get((*sl)->id(),
 		  ttrigMean,
 		  ttrigSigma,
+                  kFactor,
 		  DTTimeUnits::ns);
     if( ttrigMean < ttrigMax && ttrigMean > ttrigMin ) {
       average2 += (ttrigMean-average)*(ttrigMean-average);
@@ -116,15 +120,19 @@ void DTTTrigCorrection::endJob() {
     //Compute new ttrig
     double newTTrigMean =  0;
     double newTTrigSigma =  0;
+    double newKFactor = 0;
     float tempttrigMean = 0;
     float tempttrigSigma = 0;
     float ttrigMean = 0;
     float ttrigSigma = 0;
+    float kFactor = 0;
     tTrigMap->get((*sl)->id(),
 		  ttrigMean,
 		  ttrigSigma,
+                  kFactor,
 		  DTTimeUnits::ns);
     int chamber = (*sl)->id().chamberId().station();
+    newKFactor = kFactor;
 
     //check if ttrigMean is similar to the mean
     if (abs(ttrigMean - average) < rmsLimit*rms ){
@@ -140,6 +148,7 @@ void DTTTrigCorrection::endJob() {
 	  tTrigMap->get(slId,
 			tempttrigMean,
 			tempttrigSigma,
+                        kFactor,
 			DTTimeUnits::ns);
 	  if (abs(tempttrigMean - average) < rmsLimit*rms) {
 	    newTTrigMean = tempttrigMean;
@@ -156,6 +165,7 @@ void DTTTrigCorrection::endJob() {
 	    tTrigMap->get(slId,
 			  tempttrigMean,
 			  tempttrigSigma,
+                          kFactor,
 			  DTTimeUnits::ns);
 	    if (abs(tempttrigMean - average) < rmsLimit*rms) {
 	      newTTrigMean = tempttrigMean;
@@ -175,6 +185,7 @@ void DTTTrigCorrection::endJob() {
 	  tTrigMap->get(slId,
 			tempttrigMean,
 			tempttrigSigma,
+                        kFactor,
 			DTTimeUnits::ns);
 	  if (abs(tempttrigMean - average) < rmsLimit*rms) {
 	    newTTrigMean = tempttrigMean;
@@ -186,6 +197,7 @@ void DTTTrigCorrection::endJob() {
 	    tTrigMap->get(slId,
 			  tempttrigMean,
 			  tempttrigSigma,
+                          kFactor,
 			  DTTimeUnits::ns);
 	    if (abs(tempttrigMean - average) < rmsLimit*rms) {
 	      newTTrigMean = tempttrigMean;
@@ -207,6 +219,7 @@ void DTTTrigCorrection::endJob() {
 	  tTrigMap->get(slId,
 			tempttrigMean,
 			tempttrigSigma,
+                        kFactor,
 			DTTimeUnits::ns);
 	  if (abs(tempttrigMean - average) < rmsLimit*rms) {
 	    newTTrigMean = tempttrigMean;
@@ -223,6 +236,7 @@ void DTTTrigCorrection::endJob() {
 	    tTrigMap->get(slId,
 			  tempttrigMean,
 			  tempttrigSigma,
+                          kFactor,
 			  DTTimeUnits::ns);
 	    if (abs(tempttrigMean - average) < rmsLimit*rms) {
 	      newTTrigMean = tempttrigMean;
@@ -247,7 +261,7 @@ void DTTTrigCorrection::endJob() {
     }
 
     //Store new ttrig in the new map
-    tTrigNewMap->set((*sl)->id(), newTTrigMean, newTTrigSigma, DTTimeUnits::ns);
+    tTrigNewMap->set((*sl)->id(), newTTrigMean, newTTrigSigma,newKFactor, DTTimeUnits::ns);
     if(debug){
       cout<<"New tTrig: " << (*sl)->id()
     	  << " from "<< ttrigMean <<" to "<< newTTrigMean <<endl;

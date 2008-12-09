@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/10/03 08:34:49 $
- *  $Revision: 1.5 $
+ *  $Date: 2008/10/08 10:17:18 $
+ *  $Revision: 1.6 $
  *  \author M. Giunta
  */
 
@@ -109,7 +109,9 @@ void DTVDriftWriter::analyze(const Event & event, const EventSetup& eventSetup) 
       if(oldConstants != 0) {
 	newConstants.push_back((*oldConstants)[0]);
 	newConstants.push_back((*oldConstants)[1]);
+	newConstants.push_back((*oldConstants)[2]);
       } else {
+	newConstants.push_back(-1);
 	newConstants.push_back(-1);
 	newConstants.push_back(-1);
       }
@@ -173,7 +175,7 @@ void DTVDriftWriter::endJob() {
   if(debug) 
     cout << "[DTVDriftWriter]Writing vdrift object to DB!" << endl;
 
-  // Write the ttrig object to DB
+  // Write the MeanTimer object to DB
   string record = "DTMtimeRcd";
   DTCalibDBUtils::writeToDB<DTMtime>(record, theMTime);
 }

@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/11/09 17:55:34 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/01/18 17:46:34 $
+ *  $Revision: 1.2 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -75,9 +75,11 @@ void ShiftTTrigDB::endJob() {
        sl != dtSupLylist.end(); sl++) {
     float ttrigMean = 0;
     float ttrigSigma = 0;
+    float kFactor = 0;
     tTrigMap->get((*sl)->id(),
 		  ttrigMean,
 		  ttrigSigma,
+                  kFactor,
 		  DTTimeUnits::ns);
     bool ttrigShifted = false;
     //Loop on the chambers with ttrig to be shifted
@@ -95,7 +97,7 @@ void ShiftTTrigDB::endJob() {
 	    //Compute new ttrig
 	    double newTTrigMean =  ttrigMean + mapShiftsByChamber[(*ch)]; 
 	    //Store new ttrig in the new map
-	    tTrigNewMap->set((*sl)->id(), newTTrigMean, ttrigSigma, DTTimeUnits::ns);
+	    tTrigNewMap->set((*sl)->id(), newTTrigMean, ttrigSigma, kFactor, DTTimeUnits::ns);
 	    ttrigShifted = true;
 	    if(debug){
 	      cout<<"Shifting SL: " << (*sl)->id()
@@ -107,7 +109,7 @@ void ShiftTTrigDB::endJob() {
     }//End loop on chambers to be shifted
     if(!ttrigShifted){
       //Store old ttrig in the new map
-      tTrigNewMap->set((*sl)->id(), ttrigMean, ttrigSigma, DTTimeUnits::ns);
+      tTrigNewMap->set((*sl)->id(), ttrigMean, ttrigSigma, kFactor, DTTimeUnits::ns);
       if(debug){
 	cout<<"Copying  SL: " << (*sl)->id()
 	    << " ttrig "<< ttrigMean <<endl;

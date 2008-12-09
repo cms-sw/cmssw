@@ -6,8 +6,8 @@
  *  for t_trig computation, fits the rising edge and write results to DB.
  *  The time boxes are written to file.
  *
- *  $Date: 2007/07/02 11:13:03 $
- *  $Revision: 1.10 $
+ *  $Date: 2007/07/11 12:21:00 $
+ *  $Revision: 1.1 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -86,6 +86,9 @@ private:
   bool checkNoisyChannels;
    //card to switch on/off the DB writing
   bool findTMeanAndSigma; 
+  // the kfactor to be uploaded in the ttrig DB
+  double kFactor;
+
   // The fitter
   DTTimeBoxFitter *theFitter;
   // The module for t0 subtraction

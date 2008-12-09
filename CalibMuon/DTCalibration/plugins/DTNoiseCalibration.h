@@ -4,8 +4,8 @@
 /*
  * \file DTNoiseCalibration.h
  *
- * $Date: 2008/02/04 15:48:02 $
- * $Revision: 1.3 $
+ * $Date: 2008/08/19 13:33:23 $
+ * $Revision: 1.4 $
  * \author G. Mila - INFN Torino
  *
 */
@@ -69,6 +69,7 @@ private:
   /// tTrig from the DB
   float tTrig;
   float tTrigRMS;
+  float kFactor;
 
   edm::ParameterSet parameters;
 

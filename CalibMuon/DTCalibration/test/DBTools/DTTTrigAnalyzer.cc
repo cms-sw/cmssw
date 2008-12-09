@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/01/22 19:00:30 $
- *  $Revision: 1.6 $
+ *  $Date: 2008/10/03 08:53:22 $
+ *  $Revision: 1.7 $
  *  \author S. Bolognesi - INFN Torino
  */
 
@@ -52,9 +52,11 @@ void DTTTrigAnalyzer::endJob() {
 		    (*ttrig).first.slId, 0, 0);
     float tmean;
     float sigma;
+    float kFactor;
+
     DetId detId( wireId.rawId() );
     // ttrig and rms are ns
-    tTrigMap->get(detId, tmean, sigma, DTTimeUnits::ns);
+    tTrigMap->get(detId, tmean, sigma, kFactor, DTTimeUnits::ns);
     float ttcor = tmean + kfactor * sigma; 
     cout << "Wire: " <<  wireId <<endl
 	 << " Ttrig (ns): " << ttcor<<endl

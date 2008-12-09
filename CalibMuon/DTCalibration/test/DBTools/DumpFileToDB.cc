@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/03/07 11:31:03 $
- *  $Revision: 1.10 $
+ *  $Date: 2008/10/03 08:53:22 $
+ *  $Revision: 1.11 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -80,10 +80,13 @@ void DumpFileToDB::endJob() {
 	++keyAndCalibs) {
       cout << "key: " << (*keyAndCalibs).first
 	   << " ttrig_mean (ns): " << theCalibFile->tTrig((*keyAndCalibs).first)
-	   << " ttrig_sigma(ns): " << theCalibFile->sigma_tTrig((*keyAndCalibs).first) << endl;
+	   << " ttrig_sigma(ns): " << theCalibFile->sigma_tTrig((*keyAndCalibs).first)
+	   << " kFactor: " << theCalibFile->kFactor((*keyAndCalibs).first) << endl;
+      
       tTrig->set((*keyAndCalibs).first.superlayerId(),
 		 theCalibFile->tTrig((*keyAndCalibs).first), 
 		 theCalibFile->sigma_tTrig((*keyAndCalibs).first),
+                 theCalibFile->kFactor((*keyAndCalibs).first),
 		 DTTimeUnits::ns);
     }
 

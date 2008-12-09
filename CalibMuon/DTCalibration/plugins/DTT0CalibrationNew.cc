@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/09/01 13:29:31 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/10/03 08:34:49 $
+ *  $Revision: 1.3 $
  *  \author S. Bolognesi - INFN Torino
  *  06/08/2008 Mofified by Antonio.Vilela.Pereira@cern.ch
  */
@@ -140,8 +140,8 @@ void DTT0CalibrationNew::analyze(const edm::Event & event, const edm::EventSetup
     //  cout << "Layer " << layerId<<" with "<<distance(digiRange.first, digiRange.second)<<" digi"<<endl;
     //}
 
-    float tTrig,tTrigRMS;
-    tTrigMap->get(layerId.superlayerId(), tTrig, tTrigRMS, DTTimeUnits::counts );
+    float tTrig,tTrigRMS, kFactor;
+    tTrigMap->get(layerId.superlayerId(), tTrig, tTrigRMS, kFactor, DTTimeUnits::counts );
     if(debug&&(nevents <= 1)){
 	cout << "  Superlayer: " << layerId.superlayerId() << endl 
 	     << "            tTrig,tTrigRMS= " << tTrig << ", " << tTrigRMS << endl;
@@ -284,8 +284,8 @@ void DTT0CalibrationNew::analyze(const edm::Event & event, const edm::EventSetup
       sort(peakMeans.begin(),peakMeans.end());
 				
       //Find best peak -- preliminary criteria: find peak closest to center of time box	
-      float tTrig,tTrigRMS;
-      tTrigMap->get((*lHisto).first.superlayerId(), tTrig, tTrigRMS, DTTimeUnits::counts );
+      float tTrig,tTrigRMS, kFactor;
+      tTrigMap->get((*lHisto).first.superlayerId(), tTrig, tTrigRMS, kFactor, DTTimeUnits::counts );
 
       float timeBoxCenter = (2*tTrig + (float)timeBoxWidth)/2.;	
       float hMin = (*lHisto).second->GetXaxis()->GetXmin();
