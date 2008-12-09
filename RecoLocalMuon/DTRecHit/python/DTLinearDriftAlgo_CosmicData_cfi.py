@@ -21,8 +21,6 @@ DTLinearDriftAlgo_CosmicData = cms.PSet(
             # Switch on/off the TOF correction for particles
             doTOFCorrection = cms.bool(False),
             tofCorrType = cms.int32(0),
-            # The ttrig from the time box fit is defined as mean + kFactor * sigma
-            kFactor = cms.double(-1.3),
             wirePropCorrType = cms.int32(0),
             # Switch on/off the correction for the signal propagation along the wire
             doWirePropCorrection = cms.bool(False),

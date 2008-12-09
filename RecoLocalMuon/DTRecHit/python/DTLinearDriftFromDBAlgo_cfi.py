@@ -13,8 +13,6 @@ DTLinearDriftFromDBAlgo = cms.PSet(
             # Switch on/off the TOF correction for particles
             doTOFCorrection = cms.bool(True),
             tofCorrType = cms.int32(1),
-            # The ttrig from the time box fit is defined as mean + kFactor * sigma
-            kFactor = cms.double(-1.0),
             wirePropCorrType = cms.int32(1),
             # Switch on/off the correction for the signal propagation along the wire
             doWirePropCorrection = cms.bool(True),
