@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.100 $"
+__version__ = "$Revision: 1.101 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -83,8 +83,11 @@ class ConfigBuilder(object):
         pass        
         
     def addCommon(self):
-        self.process.options = cms.untracked.PSet( Rethrow = cms.untracked.vstring('ProductNotFound') )
-
+        if 'HARVESTING' in self._options.step:
+            self.process.options = cms.untracked.PSet( Rethrow = cms.untracked.vstring('ProductNotFound'),fileMode = cms.untracked.string('FULLMERGE'))
+        else:    
+            self.process.options = cms.untracked.PSet( Rethrow = cms.untracked.vstring('ProductNotFound'))
+            
     def addMaxEvents(self):
         """Here we decide how many evts will be processed"""
         self.process.maxEvents=cms.untracked.PSet(input=cms.untracked.int32(int(self._options.number)))
@@ -92,7 +95,10 @@ class ConfigBuilder(object):
     def addSource(self):
         """Here the source is built. Priority: file, generator"""
         if self._options.filein:
-            self.process.source=cms.Source("PoolSource", fileNames = cms.untracked.vstring(self._options.filein))
+           if 'HARVESTING' in self._options.step:
+               self.process.source=cms.Source("PoolSource", fileNames = cms.untracked.vstring(self._options.filein),processingMode = cms.untracked.string("RunsAndLumis"))
+           else:
+               self.process.source=cms.Source("PoolSource", fileNames = cms.untracked.vstring(self._options.filein))
         elif hasattr(self._options,'evt_type'):
             evt_type = self._options.evt_type.rstrip(".py").replace(".","_")
             if "/" in evt_type:
@@ -626,7 +632,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.100 $"),
+              (version=cms.untracked.string("$Revision: 1.101 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )
