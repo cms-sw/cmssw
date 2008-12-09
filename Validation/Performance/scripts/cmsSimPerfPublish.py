@@ -482,7 +482,9 @@ def getStageRepDirs(options,args):
     localExists = os.path.exists("%s/%s" % (CMSSW_WORK,CMSSW_VERSION))
     
     if remote:
-        TMP_DIR=tmp.mkdtemp(prefix="/tmp/%s" % PROG_NAME)
+        #Cannot use this since the /tmp is limited to 2GB on lxbuild machines!
+        #TMP_DIR=tmp.mkdtemp(prefix="/tmp/%s" % PROG_NAME)
+        TMP_DIR=tmp.mkdtemp(prefix="/build/%s" % PROG_NAME)
         StagingArea = TMP_DIR
     #Local but dir already exists
     elif defaultlocal and localExists:
