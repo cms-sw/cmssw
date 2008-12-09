@@ -8,13 +8,15 @@
 //
 // Original Author:  
 //         Created:  Sun Mar  2 01:46:46 CET 2008
-// $Id: OMDSReader.cc,v 1.7 2008/10/13 01:45:27 wsun Exp $
+// $Id: OMDSReader.cc,v 1.8 2008/12/04 20:43:49 wsun Exp $
 //
 
 // system include files
 
 // user include files
 #include "CondTools/L1Trigger/interface/OMDSReader.h"
+#include "RelationalAccess/ITableDescription.h"
+#include "RelationalAccess/IColumn.h"
 
 //
 // constants, enums and typedefs
@@ -143,6 +145,30 @@ OMDSReader::~OMDSReader()
     columnNames.push_back( columnName ) ;
     return basicQuery( columnNames, schemaName, tableName,
 			conditionLHS, conditionRHS, conditionRHSName ) ;
+  }
+
+  std::vector< std::string >
+  OMDSReader::columnNames(
+    const std::string& schemaName,
+    const std::string& tableName ) const
+  {
+    coral::ISchema& schema = schemaName.empty() ?
+      m_coralTransaction->nominalSchema() :
+      m_coralTransaction->coralSessionProxy().schema( schemaName ) ;
+
+    coral::ITable& table = schema.tableHandle( tableName ) ;
+    const coral::ITableDescription& tableDesc = table.description() ;
+
+    std::vector< std::string > names ;
+    int nCols = tableDesc.numberOfColumns() ;
+
+    for( int i = 0 ; i < nCols ; ++i )
+      {
+	const coral::IColumn& column = tableDesc.columnDescription( i ) ;
+	names.push_back( column.name() ) ;
+      }
+
+    return names ;
   }
 
 //

@@ -16,7 +16,7 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Sun Mar  2 01:36:06 CET 2008
-// $Id: OMDSReader.h,v 1.8 2008/12/04 20:43:49 wsun Exp $
+// $Id: OMDSReader.h,v 1.9 2008/12/05 19:20:22 wsun Exp $
 //
 
 // system include files
@@ -133,6 +133,34 @@ namespace l1t
       // For any data type of condition RHS.  Input dummyVariable is used
       // to determine type.
       template< class T >
+	const QueryResults basicQueryGenericKey(
+	  const std::vector< std::string >& columnNames,
+	  const std::string& schemaName, // for nominal schema, use ""
+	  const std::string& tableName,
+	  const std::string& conditionLHS = "",
+	  const QueryResults conditionRHS = QueryResults(),
+	                                            // must have only one row
+	  const std::string& conditionRHSName = ""
+	                    // if empty, conditionRHS must have only one column
+	  ) const ;
+
+      // For any data type of condition RHS.  Input dummyVariable is used
+      // to determine type.
+      template< class T >
+	const QueryResults basicQueryGenericKey(
+	  const std::string& columnName,
+	  const std::string& schemaName, // for nominal schema, use ""
+	  const std::string& tableName,
+	  const std::string& conditionLHS = "",
+	  const QueryResults conditionRHS = QueryResults(),
+	                                           // must have only one row
+	  const std::string& conditionRHSName = ""
+	                 // if empty, conditionRHS must have only one column
+	  ) const ;
+
+      // For any data type of condition RHS.  Input dummyVariable is used
+      // to determine type.
+      template< class T >
 	const QueryResults basicQuery(
 	  const std::vector< std::string >& columnNames,
 	  const std::string& schemaName, // for nominal schema, use ""
@@ -162,6 +190,10 @@ namespace l1t
       template< class T >
 	const QueryResults singleAttribute( const T& data ) const ;
 
+      std::vector< std::string > columnNames(
+	const std::string& schemaName, // for nominal schema, use ""
+	const std::string& tableName ) const ;
+
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------
@@ -174,6 +206,84 @@ namespace l1t
       // ---------- member data --------------------------------
       cond::CoralTransaction* m_coralTransaction ;
 };
+
+  template< class T > const OMDSReader::QueryResults
+  OMDSReader::basicQueryGenericKey(
+    const std::vector< std::string >& columnNames,
+    const std::string& schemaName,
+    const std::string& tableName,
+    const std::string& conditionLHS,
+    const QueryResults conditionRHS,
+    const std::string& conditionRHSName ) const
+  {
+    coral::ISchema& schema = schemaName.empty() ?
+      m_coralTransaction->nominalSchema() :
+      m_coralTransaction->coralSessionProxy().schema( schemaName ) ;
+
+    coral::ITable& table = schema.tableHandle( tableName ) ;
+
+    // Pointer is deleted automatically at end of function.
+    boost::shared_ptr< coral::IQuery > query( table.newQuery() ) ;
+
+    // Construct query
+    std::vector< std::string >::const_iterator it = columnNames.begin() ;
+    std::vector< std::string >::const_iterator end = columnNames.end() ;
+    for( ; it != end ; ++it )
+      {
+	query->addToOutputList( *it ) ;
+      }
+
+    // Only apply condition if RHS has one row.
+    if( !conditionLHS.empty() && conditionRHS.numberRows() == 1 )
+      {
+	if( !conditionRHSName.empty() )
+	  {
+	    // Use type of dummyVariable to determine type of condition RHS
+	    coral::AttributeList attList ;
+	    attList.extend( conditionRHSName, typeid( T ) ) ;
+	    T tmp ;
+	    conditionRHS.fillVariable( conditionRHSName, tmp ) ;
+	    attList[ conditionRHSName ].data< T >() = tmp ;
+
+	    query->setCondition( conditionLHS + " = :" + conditionRHSName,
+				 attList ) ;
+	  }
+	else if( conditionRHS.columnNames().size() == 1 )
+	  // check for only one column
+	  {
+	    query->setCondition( conditionLHS + " = :" +
+				   conditionRHS.columnNames().front(),
+				 conditionRHS.attributeLists().front() ) ;
+	  }
+      }
+
+    coral::ICursor& cursor = query->execute() ;
+
+    // Copy AttributeLists for external use because the cursor is deleted
+    // when the query goes out of scope.
+    std::vector< coral::AttributeList > atts ;
+    while( cursor.next() )
+      {
+	atts.push_back( cursor.currentRow() ) ;
+      } ;
+
+    return QueryResults( columnNames, atts ) ;
+  }
+
+  template< class T> const OMDSReader::QueryResults
+  OMDSReader::basicQueryGenericKey(
+    const std::string& columnName,
+    const std::string& schemaName,
+    const std::string& tableName,
+    const std::string& conditionLHS,
+    const QueryResults conditionRHS,
+    const std::string& conditionRHSName ) const
+  {
+    std::vector< std::string > columnNames ;
+    columnNames.push_back( columnName ) ;
+    return basicQueryGenericKey( columnNames, schemaName, tableName,
+				 conditionLHS, conditionRHS, conditionRHSName);
+  }
 
   template< class T > const OMDSReader::QueryResults
   OMDSReader::basicQuery(
