@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:25 EST 2008
-// $Id: FWRhoPhiZView.cc,v 1.29 2008/11/10 18:07:57 amraktad Exp $
+// $Id: FWRhoPhiZView.cc,v 1.30 2008/11/14 15:35:20 chrjones Exp $
 //
 
 #define private public
@@ -339,6 +339,12 @@ FWRhoPhiZView::updateCalo(TEveElement* iParent, bool dataChanged)
 	   calo2d->SetEta(-eta_range,eta_range);
 	   calo2d->ElementChanged();
 	   m_caloScale = calo2d->GetValToHeight();
+	   if ( m_axes ) {
+	      if ( m_showProjectionAxes.value() )
+		m_axes->SetRnrState(kTRUE);
+	      else
+		m_axes->SetRnrState(kFALSE);
+	   }
 	}
 	child.next();
      }
