@@ -5,8 +5,8 @@ from Validation.TrackerDigis.trackerDigisValidation_cff import *
 from Validation.TrackerRecHits.trackerRecHitsValidation_cff import *
 from Validation.TrackingMCTruth.trackingTruthValidation_cfi import *
 from Validation.RecoTrack.SiTrackingRecHitsValid_cff import *
-#from Validation.RecoTrack.TrackValidation_cff import *
-#multiTrackValidator.UseAssociators = True
+from Validation.RecoTrack.TrackValidation_cff import *
+multiTrackValidator.UseAssociators = True
 from Validation.EcalHits.ecalSimHitsValidationSequence_cff import *
 from Validation.EcalDigis.ecalDigisValidationSequence_cff import *
 from Validation.EcalRecHits.ecalRecHitsValidationSequence_cff import *
@@ -20,6 +20,8 @@ from Validation.MuonCSCDigis.cscDigiValidation_cfi import *
 from Validation.MuonRPCDigis.validationMuonRPCDigis_cfi import *
 from Validation.RecoMuon.muonValidation_cff import *
 
-#globalValidation = cms.Sequence(trackerHitsValidation+trackerDigisValidation+trackerRecHitsValidation+trackingTruthValid+trackingRecHitsValid+ecalSimHitsValidationSequence+ecalDigisValidationSequence+ecalRecHitsValidationSequence+hcalSimHitStudy+hcalDigisValidationSequence+hcalRecHitsValidationSequence+calotowersValidationSequence+validSimHit+muondtdigianalyzer+cscDigiValidation+validationMuonRPCDigis+recoMuonValidation)
-globalValidation = cms.Sequence(trackerHitsValidation+trackerDigisValidation+trackerRecHitsValidation+trackingTruthValid+trackingRecHitsValid+ecalSimHitsValidationSequence+ecalDigisValidationSequence+ecalRecHitsValidationSequence+hcalSimHitStudy+hcalRecHitsValidationSequence+calotowersValidationSequence+validSimHit+muondtdigianalyzer+cscDigiValidation+validationMuonRPCDigis+recoMuonValidation)
+globalValidation = cms.Sequence(trackerHitsValidation+trackerDigisValidation+trackerRecHitsValidation+trackingTruthValid+trackingRecHitsValid+tracksValidation
+                                ecalSimHitsValidationSequence+ecalDigisValidationSequence+ecalRecHitsValidationSequence+
+                                hcalSimHitStudy+hcalRecHitsValidationSequence+calotowersValidationSequence+
+                                validSimHit+muondtdigianalyzer+cscDigiValidation+validationMuonRPCDigis+recoMuonValidation)
 
