@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/02/21 11:15:17 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/07/11 12:20:50 $
+ *  $Revision: 1.1 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -23,7 +23,7 @@ using namespace std;
 using namespace edm;
 
 DTCalibrationMap::DTCalibrationMap(const ParameterSet& pset) {
-  nFields =  pset.getUntrackedParameter<int>("nFields", 4);
+  nFields =  pset.getUntrackedParameter<int>("nFields", 5);
   calibConstFileName = pset.getUntrackedParameter<string>("calibConstFileName", "dummy.txt");
   calibConstGranularity = pset.getUntrackedParameter<string>("calibConstGranularity","bySL");
 
@@ -62,18 +62,25 @@ float DTCalibrationMap::sigma_tTrig(DTWireId wireId) const {
  return getField(wireId, 1);
 }
 
+
+
+// Return the kfactor for a particular wire
+float DTCalibrationMap::kFactor(DTWireId wireId) const {
+  return getField(wireId, 2);
+}
+
  
 
 // Return the mean drift velocity for a particular wire (cm/ns)
 float DTCalibrationMap::meanVDrift(DTWireId wireId) const {
- return getField(wireId, 2);
+ return getField(wireId, 3);
 }
 
 
 
 // Return the sigma of the mean drift velocity for a particular wire (cm/ns)
 float DTCalibrationMap::sigma_meanVDrift(DTWireId wireId) const {
- return getField(wireId, 3);
+ return getField(wireId, 4);
 }
 
 

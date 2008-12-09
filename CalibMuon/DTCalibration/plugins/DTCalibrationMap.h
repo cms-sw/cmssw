@@ -6,9 +6,9 @@
  *  This is mainly provided for backward compatibility with the ORCA MuBarDigiParameters file.
  *  Can be used to save an arbitrary number of constants with the
  *  needed granularity and to retrieve them back using the wireId.
- *  The first 4 fields for each key are allocated to ttri, sigma_ttrig, vdrift and sigma_vdrift.
+ *  The first 5 fields for each key are allocated to ttri, sigma_ttrig, kfactor, vdrift and sigma_vdrift.
  *
- *  $Date: 2006/07/03 15:06:12 $
+ *  $Date: 2007/07/11 12:20:59 $
  *  $Revision: 1.1 $
  *  \author G. Cerminara - INFN Torino
  */
@@ -41,6 +41,9 @@ public:
 
   /// Return the sigma of the t_trig (ns) for a particular wire
   float sigma_tTrig(DTWireId wireId) const;
+
+  /// Return the kfactor for a particular wire
+  float kFactor(DTWireId wireId) const;
 
   /// Return the mean drift velocity for a particular wire (cm/ns)
   float meanVDrift(DTWireId wireId) const;
