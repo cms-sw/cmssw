@@ -25,8 +25,8 @@
  *       NOTE: particles are assumed as coming from the IP.
  *
  *
- *  $Date: 2007/02/19 11:45:21 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/06/07 08:41:20 $
+ *  $Revision: 1.2 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -81,8 +81,6 @@ public:
   static bool debug;
   // The velocity of signal propagation along the wire (cm/ns)
   double theVPropWire;
-   // The ttrig is defined as mean + kFactor * sigma
-  double kFactor;
   // Switch on/off the T0 correction from pulses
   bool doT0Correction;
   // Switch on/off the TOF correction for particles from IP

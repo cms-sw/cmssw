@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/11/09 11:51:51 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/10/03 09:13:59 $
+ *  $Revision: 1.5 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -28,8 +28,6 @@ using namespace edm;
 
 DTTTrigSyncFromDB::DTTTrigSyncFromDB(const ParameterSet& config){
   debug = config.getUntrackedParameter<bool>("debug");
-  // The ttrig is defined as mean + kFactor * sigma
-  kFactor = config.getParameter<double>("kFactor");
   // The velocity of signal propagation along the wire (cm/ns)
   theVPropWire = config.getParameter<double>("vPropWire");
   // Switch on/off the T0 correction from pulses
@@ -182,12 +180,15 @@ double DTTTrigSyncFromDB::offset(const DTWireId& wireId) {
 
   // Read the ttrig for this wire
   float ttrigMean = 0;
-  float ttrigSigma = 0;//FIXME: should use this!
+  float ttrigSigma = 0;
+  float kFactor = 0;
+  // FIXME: should check the return value of the DTTtrigRcd::get(..) method
   tTrigMap->get(wireId.superlayerId(),
 	        ttrigMean,
 	        ttrigSigma,
+		kFactor,
 	        DTTimeUnits::ns);
- 
+  
    return t0 + ttrigMean + kFactor * ttrigSigma;
 }
 
