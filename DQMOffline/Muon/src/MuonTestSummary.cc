@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/12/02 11:22:46 $
- *  $Revision: 1.5 $
+ *  $Date: 2008/12/05 15:42:42 $
+ *  $Revision: 1.6 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -512,24 +512,24 @@ void MuonTestSummary::doEnergyTests(string histname, string muonType, int binNum
     TF1 *fit = langaufit(energyHisto_root,fitRange,startValues,parlimitslo,parlimitshi,fitPar,fitParErr,&chisqr,&ndf);
     if(fit){
       langaupro(fitPar,hPeak,hFWHM);
-      LogTrace(metname)<<"hPeak from langau fit: "<<hPeak<<"for: "<<histname+muonType<<endl;
-      LogTrace(metname)<<"hFWHM from langau fit: "<<hFWHM<<"for: "<<histname+muonType<<endl;
+      LogTrace(metname)<<"hPeak from langau fit: "<<hPeak<<" for: "<<histname+muonType<<endl;
+      LogTrace(metname)<<"hFWHM from langau fit: "<<hFWHM<<" for: "<<histname+muonType<<endl;
     }
    }
 
-  if(histname=="ecalS9PointingMuDepEnergy_" && hPeak>0.2 && hPeak<0.3)
+  if(histname=="ecalS9PointingMuDepositedEnergy_" && hPeak>0.2 && hPeak<0.3)
     energySummaryMap->setBinContent(binNumber,1, 1);
-  if(histname=="ecalS9PointingMuDepEnergy_" && !(hPeak>0.2 && hPeak<0.3))
+  if(histname=="ecalS9PointingMuDepositedEnergy_" && !(hPeak>0.2 && hPeak<0.3))
     energySummaryMap->setBinContent(binNumber,1, 0);
     
-  if(histname=="hadS9PointingMuDepEnergy_" && hPeak>2 && hPeak<3.5)
+  if(histname=="hadS9PointingMuDepositedEnergy_" && hPeak>2 && hPeak<3.5)
     energySummaryMap->setBinContent(binNumber,2, 1);
-  if(histname=="hadS9PointingMuDepEnergy_" && !(hPeak>2 && hPeak<3.5))
+  if(histname=="hadS9PointingMuDepositedEnergy_" && !(hPeak>2 && hPeak<3.5))
     energySummaryMap->setBinContent(binNumber,2, 0);
 
-  if(histname=="hoS9PointingMuDepEnergy_" && hPeak>2 && hPeak<3.5)
+  if(histname=="hoS9PointingMuDepositedEnergy_" && hPeak>2 && hPeak<3.5)
     energySummaryMap->setBinContent(binNumber,3, 1);
-  if(histname=="hoS9PointingMuDepEnergy_" && !(hPeak>2 && hPeak<3.5))
+  if(histname=="hoS9PointingMuDepositedEnergy_" && !(hPeak>2 && hPeak<3.5))
     energySummaryMap->setBinContent(binNumber,3, 0);
 
 }
