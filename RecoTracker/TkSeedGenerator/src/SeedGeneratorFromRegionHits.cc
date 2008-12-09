@@ -9,6 +9,7 @@
 #include "RecoTracker/TkSeedingLayers/interface/SeedComparitor.h"
 #include "RecoTracker/TkSeedGenerator/interface/SeedCreator.h"
 #include "RecoTracker/TkSeedGenerator/interface/SeedFromConsecutiveHitsCreator.h"
+#include "RecoTracker/TkSeedGenerator/interface/SeedFromConsecutiveHits.h"
 
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -45,7 +46,6 @@ SeedGeneratorFromRegionHits::~SeedGeneratorFromRegionHits()
 void SeedGeneratorFromRegionHits::run(TrajectorySeedCollection & seedCollection, 
     const TrackingRegion & region, const edm::Event& ev, const edm::EventSetup& es)
 {
-
   const OrderedSeedingHits & hitss = theHitsGenerator->run(region, ev, es);
 
   unsigned int nHitss =  hitss.size();

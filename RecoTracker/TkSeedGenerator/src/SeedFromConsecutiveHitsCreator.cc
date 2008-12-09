@@ -30,6 +30,7 @@ const TrajectorySeed * SeedFromConsecutiveHitsCreator::trajectorySeed(
 
   GlobalTrajectoryParameters kine = initialKinematic(hits, region, es);
   float sinTheta = sin(kine.momentum().theta());
+
   CurvilinearTrajectoryError error = initialError(region,  sinTheta);
   FreeTrajectoryState fts(kine, error);
 
@@ -74,6 +75,7 @@ CurvilinearTrajectoryError SeedFromConsecutiveHitsCreator::
                    0, 0, sqr(region.originZBound()));
 
   float ptMin = region.ptMin();
+
 
   AlgebraicSymMatrix C(5,1);
 
