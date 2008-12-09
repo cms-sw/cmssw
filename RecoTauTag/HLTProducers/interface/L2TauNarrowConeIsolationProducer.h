@@ -50,10 +50,10 @@ using namespace reco;
 using namespace edm;
 
 
-class L2TauIsolationProducer : public edm::EDProducer {
+class L2TauNarrowConeIsolationProducer : public edm::EDProducer {
    public:
-      explicit L2TauIsolationProducer(const edm::ParameterSet&);
-      ~L2TauIsolationProducer();
+      explicit L2TauNarrowConeIsolationProducer(const edm::ParameterSet&);
+      ~L2TauNarrowConeIsolationProducer();
 
    private:
       virtual void beginJob(const edm::EventSetup&) ;
@@ -61,19 +61,21 @@ class L2TauIsolationProducer : public edm::EDProducer {
       virtual void endJob() ;
 
 
-      //Retrieve Calo Hits 
-      math::PtEtaPhiELorentzVectorCollection getECALHits(const CaloJet&,const edm::Event&,const edm::EventSetup& iSetup); 
-      math::PtEtaPhiELorentzVectorCollection getHCALHits(const CaloJet&);
-
+      //retrieve towers and crystals around the jet
+      math::PtEtaPhiELorentzVectorCollection getECALHits(const CaloJet&,const edm::Event&,const edm::EventSetup& iSetup);
+      math::PtEtaPhiELorentzVectorCollection getHCALHits(const CaloJet&,const edm::Event&);  
+     
       edm::InputTag l2CaloJets_;//label for the readout Collection
       edm::InputTag EBRecHits_;//Label for ECAL Barrel Hits
       edm::InputTag EERecHits_;//Label for ECAL EndCAP Hits
+      edm::InputTag CaloTowers_;//Label for ECAL EndCAP Hits
 
+      double associationRadius_; //Association Distance  for a tower/crystal
 
       //Thresholding
-      double crystalThreshold_;
+      double crystalThresholdE_;
+      double crystalThresholdB_;
       double towerThreshold_;
-
 
       //Sub Algorithm Configuration Variables
 
@@ -93,10 +95,15 @@ class L2TauIsolationProducer : public edm::EDProducer {
       bool ECALClustering_run_;
       double ECALClustering_clusterRadius_;
 
-      
+        struct CrystalPtComparator
+      	{
+      	  bool operator()( const math::PtEtaPhiELorentzVector v1, const math::PtEtaPhiELorentzVector v2) const
+      	    {
+      	      return v1.pt() > v2.pt(); 
+      	    }
+       	};
 
-      
-
+	CrystalPtComparator comparePt;
 
 };
 

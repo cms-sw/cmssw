@@ -16,25 +16,24 @@ L2TauIsolationProducer::L2TauIsolationProducer(const edm::ParameterSet& iConfig)
     
   ECALIsolation_innerCone_ =  ECALIsolParams.getParameter<double>( "innerCone" );
   ECALIsolation_outerCone_ =  ECALIsolParams.getParameter<double>( "outerCone" );
-  ECALIsolation_run_    =  ECALIsolParams.getParameter<bool>( "runAlgorithm" );
+  ECALIsolation_run_       =  ECALIsolParams.getParameter<bool>( "runAlgorithm" );
   
 
   //ECAL Clustering
   edm::ParameterSet ECALClusterParams = iConfig.getParameter<edm::ParameterSet>("ECALClustering") ;
-  ECALClustering_run_    =  ECALClusterParams.getParameter<bool>( "runAlgorithm" );
-  ECALClustering_clusterRadius_ =  ECALClusterParams.getParameter<double>( "clusterRadius" );
+  ECALClustering_run_                 =  ECALClusterParams.getParameter<bool>( "runAlgorithm" );
+  ECALClustering_clusterRadius_       =  ECALClusterParams.getParameter<double>( "clusterRadius" );
     
   //Tower Isolation
 
   edm::ParameterSet TowerIsolParams = iConfig.getParameter<edm::ParameterSet>("TowerIsolation") ;
-      
-  TowerIsolation_innerCone_ =  TowerIsolParams.getParameter<double>( "innerCone" );
-  TowerIsolation_outerCone_ =  TowerIsolParams.getParameter<double>( "outerCone" );
-  TowerIsolation_run_ =  TowerIsolParams.getParameter<bool>( "runAlgorithm" );
+  TowerIsolation_innerCone_         =  TowerIsolParams.getParameter<double>( "innerCone" );
+  TowerIsolation_outerCone_         =  TowerIsolParams.getParameter<double>( "outerCone" );
+  TowerIsolation_run_               =  TowerIsolParams.getParameter<bool>( "runAlgorithm" );
  
 
   //Add the products
-  produces<L2TauInfoAssociation>( "L2TauIsolationInfoAssociator" );
+  produces<L2TauInfoAssociation>();
 
 }
 
@@ -59,7 +58,7 @@ L2TauIsolationProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
    std::auto_ptr<L2TauInfoAssociation> l2InfoAssoc( new L2TauInfoAssociation);
 
    //If the JetCrystalsAssociation exists -> RUN The Producer
-   if(l2CaloJets->size())
+   if(l2CaloJets->size()>0)
      {
       CaloJetCollection::const_iterator jcStart = l2CaloJets->begin();
        //Loop on Jets
@@ -83,8 +82,8 @@ L2TauIsolationProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 	   //Run CaloTower Isolation
            if(TowerIsolation_run_)
 	     {
-	       L2TauTowerIsolation tower_isolation(towerThreshold_,TowerIsolation_innerCone_,TowerIsolation_outerCone_);
-	       tower_isolation.run(*jc,l2info);
+	       L2TauTowerIsolation tower_isolation(TowerIsolation_innerCone_,TowerIsolation_outerCone_);
+	       tower_isolation.run(*jc,getHCALHits(*jc),l2info);
 
 	     }
 
@@ -97,7 +96,7 @@ L2TauIsolationProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
      
      } //end of if(*jetCrystalsObj)
 
-    iEvent.put(l2InfoAssoc, "L2TauIsolationInfoAssociator");
+    iEvent.put(l2InfoAssoc);
 }
 
 
@@ -110,6 +109,27 @@ L2TauIsolationProducer::beginJob(const edm::EventSetup&)
 void 
 L2TauIsolationProducer::endJob() {
 }
+
+
+
+math::PtEtaPhiELorentzVectorCollection 
+L2TauIsolationProducer::getHCALHits(const CaloJet& jet)
+{
+
+
+  std::vector<CaloTowerPtr> towers = jet.getCaloConstituents();
+
+  math::PtEtaPhiELorentzVectorCollection towers2;
+
+  for(size_t i=0;i<towers.size();++i)
+    if(towers[i]->energy()>towerThreshold_)
+      towers2.push_back(math::PtEtaPhiELorentzVector(towers[i]->et(),towers[i]->eta(),towers[i]->phi(),towers[i]->energy()));
+
+  return towers2;
+}
+
+
+
 
 
 math::PtEtaPhiELorentzVectorCollection 

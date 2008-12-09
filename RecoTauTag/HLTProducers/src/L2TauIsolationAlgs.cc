@@ -221,17 +221,17 @@ L2TauTowerIsolation::L2TauTowerIsolation()
 {
    m_innerCone=0.20;
    m_outerCone=0.50;
-   m_towerEtThreshold=0.5;
+
 
 
 
 }
 
-L2TauTowerIsolation::L2TauTowerIsolation(double threshold,double inner_cone,double outer_cone)
+L2TauTowerIsolation::L2TauTowerIsolation(double inner_cone,double outer_cone)
 {
    m_innerCone=inner_cone;
    m_outerCone=outer_cone;
-   m_towerEtThreshold=threshold;
+
   
 
 
@@ -246,11 +246,11 @@ L2TauTowerIsolation::~L2TauTowerIsolation()
 
 
 void 
-L2TauTowerIsolation::run(const CaloJet& jet, L2TauIsolationInfo& l2info)
+L2TauTowerIsolation::run(const CaloJet& jet,const math::PtEtaPhiELorentzVectorCollection& towers,L2TauIsolationInfo& l2info)
 {
   //Calculate Isolation Energy
-  double etIsol = isolatedEt(jet);
-  double seedEt = seedTowerEt(jet);
+  double etIsol = isolatedEt(jet,towers);
+  double seedEt = seedTowerEt(towers);
   
   //Fill Trigger Info Class
   l2info.TowerIsolConeCut = etIsol; 
@@ -262,13 +262,12 @@ L2TauTowerIsolation::run(const CaloJet& jet, L2TauIsolationInfo& l2info)
 
 
 double 
-L2TauTowerIsolation::seedTowerEt(const CaloJet& jet) const
+L2TauTowerIsolation::seedTowerEt(const math::PtEtaPhiELorentzVectorCollection& towers) const
 {
   //get the sorted calotower collection
-  std::vector<CaloTowerPtr> towers = jet.getCaloConstituents();
  
   if(towers.size()>0)
-    return (**(towers.begin())).et();
+    return (towers[0].pt());
   else
     return 0;
 
@@ -277,28 +276,22 @@ L2TauTowerIsolation::seedTowerEt(const CaloJet& jet) const
 
 
 double 
-L2TauTowerIsolation::isolatedEt(const CaloJet& jet) const
+L2TauTowerIsolation::isolatedEt(const CaloJet& jet,const math::PtEtaPhiELorentzVectorCollection& towers ) const
 {
-  //get the CaloTowers from the jet
-  std::vector<CaloTowerPtr> towers = jet.getCaloConstituents();
   
   double eRMin= 0.;
   double eRMax =0.;
   
-  for(std::vector<CaloTowerPtr>::iterator u = towers.begin();u!=towers.end();++u)
-       if((**u).et()>m_towerEtThreshold)
+  for(math::PtEtaPhiELorentzVectorCollection::const_iterator u = towers.begin();u!=towers.end();++u)
 	{
-	  double delta = ROOT::Math::VectorUtil::DeltaR(jet.p4().Vect(), (**u).momentum());
+	  double delta = ROOT::Math::VectorUtil::DeltaR(jet.p4(), *u);
 	  if(delta<m_outerCone)
-	    eRMax+= (**u).et();
+	    eRMax+=u->pt();
 	  if(delta<m_innerCone)
-	    eRMin+= (**u).et();
-
+	    eRMin+= u->pt();
 	}
     
   double etIsol = eRMax - eRMin;
-  
   return etIsol;
-
 }
 
