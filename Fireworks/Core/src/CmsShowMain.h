@@ -16,7 +16,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:34:30 PST 2007
-// $Id: CmsShowMain.h,v 1.9 2008/11/06 22:05:24 amraktad Exp $
+// $Id: CmsShowMain.h,v 1.10 2008/11/28 22:21:46 amraktad Exp $
 //
 
 // system include files
@@ -81,6 +81,7 @@ public:
   static void   setMagneticField(double var);
   static int    getFieldEstimates() { return m_numberOfFieldEstimates; }
   static void   guessFieldIsOn( bool guess );
+  static void   resetFieldEstimate();
   static double getCaloScale() { return m_caloScale; }
   static void   setCaloScale(double var) { m_caloScale = var; }
   static void setBrightness(unsigned int value);

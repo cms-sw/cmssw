@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.53 2008/12/06 02:37:35 chrjones Exp $
+// $Id: CmsShowMain.cc,v 1.54 2008/12/08 18:21:57 chrjones Exp $
 //
 
 // system include files
@@ -117,6 +117,12 @@ void CmsShowMain::guessFieldIsOn(bool isOn)
 {
    if ( isOn ) ++m_numberOfFieldIsOnEstimates;
    ++m_numberOfFieldEstimates;
+}
+
+void CmsShowMain::resetFieldEstimate()
+{
+   m_numberOfFieldIsOnEstimates = 0;
+   m_numberOfFieldEstimates = 0;
 }
 
 //

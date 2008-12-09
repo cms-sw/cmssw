@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Tue Jun 10 14:56:46 EDT 2008
-// $Id: CmsShowNavigator.cc,v 1.17 2008/11/06 22:05:24 amraktad Exp $
+// $Id: CmsShowNavigator.cc,v 1.18 2008/11/10 15:31:24 chrjones Exp $
 //
 
 // hacks
@@ -84,6 +84,7 @@ CmsShowNavigator::~CmsShowNavigator()
 void
 CmsShowNavigator::loadFile(const std::string& fileName)
 {
+   CmsShowMain::resetFieldEstimate();
    gErrorIgnoreLevel = 3000; // suppress warnings about missing dictionaries
    TFile *newFile = TFile::Open(fileName.c_str());
    if (newFile == 0) {
