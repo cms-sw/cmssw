@@ -23,6 +23,7 @@ XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
         'Geometry/HcalCommonData/data/hcalforwardfibre.xml', 
         'Geometry/HcalCommonData/data/hcalsens.xml', 
         'Geometry/HcalSimData/data/CaloUtil.xml', 
+        'Geometry/HcalSimData/data/CaloProdCuts.xml',
         'Geometry/HcalSimData/data/HcalProdCuts.xml', 
         'Geometry/CMSCommonData/data/FieldParameters.xml'),
     rootNodeName = cms.string('cms:OCMS')
