@@ -1,9 +1,11 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("GEOM")
-process.load("Geometry.HcalCommonData.testGeometryPMTXML_cfi")
+process.load("Geometry.HcalCommonData.hcalforwardshower_cfi")
 
 process.MessageLogger = cms.Service("MessageLogger",
+    destinations = cms.untracked.vstring('cout'),
+    categories = cms.untracked.vstring('HCalGeom','SimG4CoreGeometry'),
     debugModules = cms.untracked.vstring('*'),
     cout = cms.untracked.PSet(
         threshold = cms.untracked.string('DEBUG'),
@@ -13,12 +15,13 @@ process.MessageLogger = cms.Service("MessageLogger",
         DEBUG = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         ),
+        SimG4CoreGeometry = cms.untracked.PSet(
+            limit = cms.untracked.int32(-1)
+        ),
         HCalGeom = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
+            limit = cms.untracked.int32(-1)
         )
-    ),
-    categories = cms.untracked.vstring('HCalGeom'),
-    destinations = cms.untracked.vstring('cout')
+    )
 )
 
 process.VisConfigurationService = cms.Service("VisConfigurationService",

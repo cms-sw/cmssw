@@ -4,7 +4,7 @@ XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
     geomXMLFiles = cms.vstring('Geometry/CMSCommonData/data/materials.xml', 
         'Geometry/HcalCommonData/data/hcalforwardmaterial.xml', 
         'Geometry/HcalCommonData/data/hcalforwardshower.xml'),
-    rootNodeName = cms.string('hcalforwardshower:World')
+    rootNodeName = cms.string('hcalforwardshower:HFWorld')
 )
 
 
