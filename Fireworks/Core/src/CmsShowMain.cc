@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.54 2008/12/08 18:21:57 chrjones Exp $
+// $Id: CmsShowMain.cc,v 1.55 2008/12/09 05:53:26 dmytro Exp $
 //
 
 // system include files
@@ -381,6 +381,9 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
 
 CmsShowMain::~CmsShowMain()
 {
+   //avoids a seg fault from eve which happens if eve is terminated after the GUI is gone
+   m_selectionManager->clearSelection();
+   
   delete m_navigator;
   delete m_playTimer;
   delete m_playBackTimer;
