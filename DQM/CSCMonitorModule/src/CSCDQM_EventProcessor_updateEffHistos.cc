@@ -36,49 +36,49 @@ namespace cscdqm {
        
       if (tobj) {
         const TH2* ref = dynamic_cast<const TH2*>(tobj);
-        summary.ReadReportingChambersRef(rep, ref, config->EFF_COLD_THRESHOLD, config->EFF_COLD_SIGFAIL, config->EFF_HOT_THRESHOLD, config->EFF_HOT_SIGFAIL);
+        summary.ReadReportingChambersRef(rep, ref, config->getEFF_COLD_THRESHOLD(), config->getEFF_COLD_SIGFAIL(), config->getEFF_HOT_THRESHOLD(), config->getEFF_HOT_SIGFAIL());
       } else {
         summary.ReadReportingChambers(rep, 1.0);
       }
 
       if (getEMUHisto(h::EMU_CSC_FORMAT_ERRORS, me1)) {
         const TH2* err = dynamic_cast<const TH2*>(me1->getTH1());
-        summary.ReadErrorChambers(rep, err, FORMAT_ERR, config->EFF_ERR_THRESHOLD, config->EFF_ERR_SIGFAIL);
+        summary.ReadErrorChambers(rep, err, FORMAT_ERR, config->getEFF_ERR_THRESHOLD(), config->getEFF_ERR_SIGFAIL());
       }
 
       if (getEMUHisto(h::EMU_CSC_L1A_OUT_OF_SYNC, me1)) {
         const TH2* err = dynamic_cast<const TH2*>(me1->getTH1());
-        summary.ReadErrorChambers(rep, err, L1SYNC_ERR, config->EFF_ERR_THRESHOLD, config->EFF_ERR_SIGFAIL);
+        summary.ReadErrorChambers(rep, err, L1SYNC_ERR, config->getEFF_ERR_THRESHOLD(), config->getEFF_ERR_SIGFAIL());
       }
 
       if (getEMUHisto(h::EMU_CSC_DMB_INPUT_FIFO_FULL, me1)) {
         const TH2* err = dynamic_cast<const TH2*>(me1->getTH1());
-        summary.ReadErrorChambers(rep, err, FIFOFULL_ERR, config->EFF_ERR_THRESHOLD, config->EFF_ERR_SIGFAIL);
+        summary.ReadErrorChambers(rep, err, FIFOFULL_ERR, config->getEFF_ERR_THRESHOLD(), config->getEFF_ERR_SIGFAIL());
       }
 
       if (getEMUHisto(h::EMU_CSC_DMB_INPUT_TIMEOUT, me1)) {
         const TH2* err = dynamic_cast<const TH2*>(me1->getTH1());
-        summary.ReadErrorChambers(rep, err, INPUTTO_ERR, config->EFF_ERR_THRESHOLD, config->EFF_ERR_SIGFAIL);
+        summary.ReadErrorChambers(rep, err, INPUTTO_ERR, config->getEFF_ERR_THRESHOLD(), config->getEFF_ERR_SIGFAIL());
       }
 
       if (getEMUHisto(h::EMU_CSC_WO_ALCT, me1)) {
         const TH2* err = dynamic_cast<const TH2*>(me1->getTH1());
-        summary.ReadErrorChambers(rep, err, NODATA_ALCT, config->EFF_NODATA_THRESHOLD, config->EFF_NODATA_SIGFAIL);
+        summary.ReadErrorChambers(rep, err, NODATA_ALCT, config->getEFF_NODATA_THRESHOLD(), config->getEFF_NODATA_SIGFAIL());
       }
 
       if (getEMUHisto(h::EMU_CSC_WO_CLCT, me1)) {
         const TH2* err = dynamic_cast<const TH2*>(me1->getTH1());
-        summary.ReadErrorChambers(rep, err, NODATA_CLCT, config->EFF_NODATA_THRESHOLD, config->EFF_NODATA_SIGFAIL);
+        summary.ReadErrorChambers(rep, err, NODATA_CLCT, config->getEFF_NODATA_THRESHOLD(), config->getEFF_NODATA_SIGFAIL());
       }
 
       if (getEMUHisto(h::EMU_CSC_WO_CFEB, me1)) {
         const TH2* err = dynamic_cast<const TH2*>(me1->getTH1());
-        summary.ReadErrorChambers(rep, err, NODATA_CFEB, config->EFF_NODATA_THRESHOLD, config->EFF_NODATA_SIGFAIL);
+        summary.ReadErrorChambers(rep, err, NODATA_CFEB, config->getEFF_NODATA_THRESHOLD(), config->getEFF_NODATA_SIGFAIL());
       }
 
       if (getEMUHisto(h::EMU_CSC_FORMAT_WARNINGS, me1)) {
         const TH2* err = dynamic_cast<const TH2*>(me1->getTH1());
-        summary.ReadErrorChambers(rep, err, CFEB_BWORDS, config->EFF_NODATA_THRESHOLD, config->EFF_NODATA_SIGFAIL);
+        summary.ReadErrorChambers(rep, err, CFEB_BWORDS, config->getEFF_NODATA_THRESHOLD(), config->getEFF_NODATA_SIGFAIL());
       }
 
     }

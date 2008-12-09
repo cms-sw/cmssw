@@ -32,7 +32,7 @@ namespace cscdqm {
    */
   void Collection::load() {
 
-    LOG_INFO << "Booking histograms from " << config->BOOKING_XML_FILE;
+    LOG_INFO << "Booking histograms from " << config->getBOOKING_XML_FILE();
 
     try {
 
@@ -45,10 +45,10 @@ namespace cscdqm {
       parser->setDoSchema(true);
       parser->setExitOnFirstFatalError(true);
       parser->setValidationConstraintFatal(true);
-      BookingFileErrorHandler eh;
+      XMLFileErrorHandler eh;
       parser->setErrorHandler(&eh);
 
-      parser->parse(config->BOOKING_XML_FILE.c_str());
+      parser->parse(config->getBOOKING_XML_FILE().c_str());
       DOMDocument *doc = parser->getDocument();
       DOMNode *docNode = (DOMNode*) doc->getDocumentElement();
 
@@ -265,7 +265,7 @@ namespace cscdqm {
         if (getHistoValue(j->second, XML_BOOK_ONDEMAND, s, XML_BOOK_ONDEMAND_FALSE) == XML_BOOK_ONDEMAND_FALSE) {
           HistoId hid = 0;
           if (HistoDef::getHistoIdByName(j->first, hid)) {
-            book(EMUHistoDef(hid), j->second, config->FOLDER_EMU);
+            book(EMUHistoDef(hid), j->second, config->getFOLDER_EMU());
           }
         }
       }
@@ -281,7 +281,7 @@ namespace cscdqm {
         if (getHistoValue(j->second, XML_BOOK_ONDEMAND, s, XML_BOOK_ONDEMAND_FALSE) == XML_BOOK_ONDEMAND_FALSE) {
           HistoId hid = 0;
           if (HistoDef::getHistoIdByName(j->first, hid)) {
-            book(DDUHistoDef(hid, dduId), j->second, config->FOLDER_DDU);
+            book(DDUHistoDef(hid, dduId), j->second, config->getFOLDER_DDU());
           }
         }
       }
@@ -297,7 +297,7 @@ namespace cscdqm {
         if (getHistoValue(j->second, XML_BOOK_ONDEMAND, s, XML_BOOK_ONDEMAND_FALSE) == XML_BOOK_ONDEMAND_FALSE) {
           HistoId hid = 0;
           if (HistoDef::getHistoIdByName(j->first, hid)) {
-            book(CSCHistoDef(hid, crateId, dmbId), j->second, config->FOLDER_CSC);
+            book(CSCHistoDef(hid, crateId, dmbId), j->second, config->getFOLDER_CSC());
           }
         }
       }
@@ -309,7 +309,7 @@ namespace cscdqm {
     if (i != collection.end()) {
       CoHisto::const_iterator j = i->second.find(h::names[hid]);
       if (j != i->second.end()) {
-        book(CSCHistoDef(hid, crateId, dmbId, addId), j->second, config->FOLDER_CSC);
+        book(CSCHistoDef(hid, crateId, dmbId, addId), j->second, config->getFOLDER_CSC());
       }
     }
   }

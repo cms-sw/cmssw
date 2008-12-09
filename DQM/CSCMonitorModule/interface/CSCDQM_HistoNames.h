@@ -268,5 +268,9 @@ namespace h {
 
 }
 
+#undef CONFIG_HISTONAMES_SEQ
+#undef CONFIG_MACRO_ID
+#undef CONFIG_MACRO_NAME
+
 #endif
 

@@ -50,20 +50,8 @@
 #include "DQM/CSCMonitorModule/interface/CSCMonitorObject.h"
 
 /// Local Constants
-static const char PARAM_BOOKING_FILE[]   = "BookingFile";
-
 static const char INPUT_TAG_LABEL[]      = "source";
-
-static const char DIR_SUMMARY[]          = "CSC/Summary/";
-static const char DIR_DDU[]              = "CSC/DDU/";
-static const char DIR_CSC[]              = "CSC/Chamber/";
 static const char DIR_EVENTINFO[]        = "CSC/EventInfo/";
-static const char DIR_SUMMARY_CONTENTS[] = "CSC/EventInfo/reportSummaryContents/";
-
-/// Local Types
-
-typedef std::bitset<32>                          Bitset32;
-
 
 /**
  * @class CSCMonitorModuleCmn
@@ -90,10 +78,6 @@ class CSCMonitorModuleCmn: public edm::EDAnalyzer, public cscdqm::MonitorObjectP
     /** Pointer to crate mapping from database **/
     const CSCCrateMap* pcrate;
 
-    /** Fractional histograms update stuff */
-    Bitset32        fractUpdateKey;
-    uint32_t        fractUpdateEvF;
-    
   ///
   // MonitorObjectProvider Implementation
   ///

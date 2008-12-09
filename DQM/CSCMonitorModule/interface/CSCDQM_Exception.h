@@ -22,7 +22,14 @@
 #include <string>
 #include <exception>
 
+#include <xercesc/sax/ErrorHandler.hpp>
+#include <xercesc/sax/SAXParseException.hpp>
+
+#include "DQM/CSCMonitorModule/interface/CSCDQM_Logger.h"
+
 namespace cscdqm {
+
+  using namespace XERCES_CPP_NAMESPACE;
 
   /**
    * @class Exception
@@ -45,6 +52,35 @@ namespace cscdqm {
       virtual const char* what() const throw() {
         return message.c_str();
       }
+
+  };
+
+  /**
+   * @class XMLFileErrorHandler
+   * @brief Takes care of errors and warnings while parsing XML files
+   * file in XML format.
+   */
+  class XMLFileErrorHandler : public ErrorHandler {
+
+    public:
+
+      void warning(const SAXParseException& exc) {
+        char* message = XMLString::transcode(exc.getMessage());
+        LOG_WARN << "File: " << message << ". line: " << exc.getLineNumber() << " col: " << exc.getColumnNumber();
+        XMLString::release(&message);
+      }
+
+      void error(const SAXParseException& exc) {
+        this->fatalError(exc);
+      }
+
+      void fatalError(const SAXParseException& exc) {
+        char* message = XMLString::transcode(exc.getMessage());
+        LOG_ERROR << "File: " << message << ". line: " << exc.getLineNumber() << " col: " << exc.getColumnNumber();
+        throw Exception(message);
+      }
+
+      void resetErrors () { }
 
   };
 

@@ -50,8 +50,8 @@ void CSCDaqInfo::beginLuminosityBlock(const LuminosityBlock& lumiBlock, const Ev
     int FedCount=0;
 
     //loop on all active feds
-    for(unsigned int fedItr=0;fedItr<FedsInIds.size(); ++fedItr) {
-      int fedID=FedsInIds[fedItr];
+    for(unsigned int fedItr = 0; fedItr < FedsInIds.size(); ++fedItr) {
+      int fedID = FedsInIds[fedItr];
       //make sure fed id is in allowed range  
       cout << fedID << endl;   
       if (fedID >= FEDRange.first && fedID <= FEDRange.second) ++FedCount;
@@ -83,3 +83,4 @@ void CSCDaqInfo::beginJob(const edm::EventSetup& iSetup){
 void CSCDaqInfo::endJob() {}
 
 void CSCDaqInfo::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){}
+

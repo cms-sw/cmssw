@@ -21,65 +21,10 @@
 CSCMonitorModuleCmn::CSCMonitorModuleCmn(const edm::ParameterSet& ps) : 
 dispatcher(&config, const_cast<CSCMonitorModuleCmn*>(this)), inputTag(INPUT_TAG_LABEL) {
 
-  fractUpdateKey = ps.getUntrackedParameter<unsigned int>("FractUpdateKey", 1);
-  fractUpdateEvF = ps.getUntrackedParameter<unsigned int>("FractUpdateEventFreq", 1);
-
-  edm::ParameterSet psEffPar = ps.getUntrackedParameter<edm::ParameterSet>("effParameters");
-  config.EFF_COLD_SIGFAIL = psEffPar.getUntrackedParameter<double>("sigfail_cold"  , 5.0);
-  config.EFF_COLD_THRESHOLD = psEffPar.getUntrackedParameter<double>("threshold_cold", 0.1);
-  config.EFF_ERR_SIGFAIL = psEffPar.getUntrackedParameter<double>("sigfail_err", 5.0);
-  config.EFF_NODATA_THRESHOLD = psEffPar.getUntrackedParameter<double>("threshold_err", 0.1);
-  config.EFF_HOT_SIGFAIL = psEffPar.getUntrackedParameter<double>("sigfail_hot"   , 2.0);
-  config.EFF_HOT_THRESHOLD = psEffPar.getUntrackedParameter<double>("threshold_hot" , 0.1);
-  config.EFF_NODATA_SIGFAIL = psEffPar.getUntrackedParameter<double>("sigfail_nodata", 5.0);
-  config.EFF_NODATA_THRESHOLD = psEffPar.getUntrackedParameter<double>("threshold_nodata", 1.0);
-
-  edm::FileInPath bookFile = ps.getParameter<edm::FileInPath>(PARAM_BOOKING_FILE);
-  config.BOOKING_XML_FILE = bookFile.fullPath();
+  edm::ParameterSet params = ps.getUntrackedParameter<edm::ParameterSet>("EventProcessor");
+  config.load(params);
    
   dbe = edm::Service<DQMStore>().operator->();
-
-  // Set folders
-  config.FOLDER_EMU = DIR_SUMMARY; 
-  config.FOLDER_DDU = DIR_DDU;
-  config.FOLDER_CSC = DIR_CSC;
-  config.FOLDER_PAR = DIR_SUMMARY_CONTENTS;
-
-  //dbe->setCurrentFolder(DIR_SUMMARY);
-  //dispatcher.getCollection()->book("EMU");
-  //bookedHisto.insert("EMU");
-
-  // Booking parameters
-  /*
-  dbe->setCurrentFolder(DIR_SUMMARY_CONTENTS);
-  bookFloat("CSC_SidePlus_Station01_Ring01", -1.0);
-  bookFloat("CSC_SidePlus_Station01_Ring02", -1.0);
-  bookFloat("CSC_SidePlus_Station01_Ring03", -1.0);
-  bookFloat("CSC_SidePlus_Station01", -1.0);
-  bookFloat("CSC_SidePlus_Station02_Ring01", -1.0);
-  bookFloat("CSC_SidePlus_Station02_Ring02", -1.0);
-  bookFloat("CSC_SidePlus_Station02", -1.0);
-  bookFloat("CSC_SidePlus_Station03_Ring01", -1.0);
-  bookFloat("CSC_SidePlus_Station03_Ring02", -1.0);
-  bookFloat("CSC_SidePlus_Station03", -1.0);
-  bookFloat("CSC_SidePlus_Station04", -1.0);
-  bookFloat("CSC_SidePlus", -1.0);
-  bookFloat("CSC_SideMinus_Station01_Ring01", -1.0);
-  bookFloat("CSC_SideMinus_Station01_Ring02", -1.0);
-  bookFloat("CSC_SideMinus_Station01_Ring03", -1.0);
-  bookFloat("CSC_SideMinus_Station01", -1.0);
-  bookFloat("CSC_SideMinus_Station02_Ring01", -1.0);
-  bookFloat("CSC_SideMinus_Station02_Ring02", -1.0);
-  bookFloat("CSC_SideMinus_Station02", -1.0);
-  bookFloat("CSC_SideMinus_Station03_Ring01", -1.0);
-  bookFloat("CSC_SideMinus_Station03_Ring02", -1.0);
-  bookFloat("CSC_SideMinus_Station03", -1.0);
-  bookFloat("CSC_SideMinus_Station04", -1.0);
-  bookFloat("CSC_SideMinus", -1.0);
-
-  dbe->setCurrentFolder(DIR_EVENTINFO);
-  bookFloat(cscdqm::h::names[cscdqm::h::PAR_REPORT_SUMMARY], -1.0);
-  */
 
   //dispatcher.getCollection()->printCollection();
   //throw cscdqm::Exception("End of game");

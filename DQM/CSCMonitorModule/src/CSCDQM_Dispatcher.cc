@@ -73,7 +73,7 @@ namespace cscdqm {
 
     // For the first and specific CSCs - book general and specific
     if (typeid(histoD) == ParHistoDefT) {
-      me = provider->bookMonitorObject(HistoBookRequest(histoD, config->FOLDER_PAR, -1.0f));
+      me = provider->bookMonitorObject(HistoBookRequest(histoD, config->getFOLDER_PAR(), -1.0f));
       cache.put(histoD, me);
       return true;
     }
@@ -85,16 +85,16 @@ namespace cscdqm {
   }
 
   void Dispatcher::updateFractionAndEfficiencyHistosAuto() {
-    if ( config->FRAEFF_AUTO_UPDATE &&
-        (config->getNEventsCSC() > config->FRAEFF_AUTO_UPDATE_START) &&
-        (config->getNEventsCSC() % config->FRAEFF_AUTO_UPDATE_FREQ) == 0) {
+    if ( config->getFRAEFF_AUTO_UPDATE() &&
+        (config->getNEventsCSC() > config->getFRAEFF_AUTO_UPDATE_START()) &&
+        (config->getNEventsCSC() % config->getFRAEFF_AUTO_UPDATE_FREQ()) == 0) {
       updateFractionAndEfficiencyHistos();
     }
   }
 
   void Dispatcher::updateFractionAndEfficiencyHistos() {
     if (!processorFract.isLockedByOther()) {
-      if (config->FRAEFF_SEPARATE_THREAD) { 
+      if (config->getFRAEFF_SEPARATE_THREAD()) { 
         threads.create_thread(boost::ref(fnUpdate));
       } else {
         fnUpdate();

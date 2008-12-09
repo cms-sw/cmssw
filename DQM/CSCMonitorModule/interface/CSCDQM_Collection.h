@@ -28,8 +28,6 @@
 #include <xercesc/parsers/XercesDOMParser.hpp>
 #include <xercesc/dom/DOMNodeList.hpp>
 #include <xercesc/dom/DOMElement.hpp>
-#include <xercesc/sax/ErrorHandler.hpp>
-#include <xercesc/sax/SAXParseException.hpp>
 
 #include <boost/shared_ptr.hpp>
 
@@ -101,35 +99,6 @@ namespace cscdqm {
       Configuration*         config;
 
       CoHistoMap             collection;
-
-  };
-
-  /**
-   * @class BookingFileErrorHandler
-   * @brief Takes care of errors and warnings while parsing Histogram booking
-   * file in XML format.
-   */
-  class BookingFileErrorHandler : public ErrorHandler {
-
-    public:
-
-      void warning(const SAXParseException& exc) {
-        char* message = XMLString::transcode(exc.getMessage());
-        LOG_WARN << "Booking File: " << message << ". line: " << exc.getLineNumber() << " col: " << exc.getColumnNumber();
-        XMLString::release(&message);
-      }
-
-      void error(const SAXParseException& exc) {
-        this->fatalError(exc);
-      }
-
-      void fatalError(const SAXParseException& exc) {
-        char* message = XMLString::transcode(exc.getMessage());
-        LOG_ERROR << "Booking File: " << message << ". line: " << exc.getLineNumber() << " col: " << exc.getColumnNumber();
-        throw Exception(message);
-      }
-
-      void resetErrors () { }
 
   };
 

@@ -22,7 +22,7 @@ namespace cscdqm {
 
   void EventProcessor::processExaminer(const uint16_t *data, const uint32_t dataSize, bool& eventDenied) {
     
-    binChecker.setMask(config->BINCHECK_MASK);
+    binChecker.setMask(config->getBINCHECK_MASK());
     
     if (binChecker.check(data, dataSize) < 0 ){
       //   No ddu trailer found - force checker to summarize errors by adding artificial trailer
@@ -60,7 +60,7 @@ namespace cscdqm {
 
     }
   	
-    if ((binErrorStatus & config->DDU_BINCHECK_MASK) > 0) {
+    if ((binErrorStatus & config->getDDU_BINCHECK_MASK()) > 0) {
       eventDenied = true;
     }
 
@@ -334,7 +334,7 @@ namespace cscdqm {
 	continue;
       }
  
-      if ((chamber->second & config->BINCHECK_MASK) != 0) {
+      if ((chamber->second & config->getBINCHECK_MASK()) != 0) {
 	// nDMBEvents[cscTag]++;	
 	CSCCounters& trigCnts = cscCntrs[cscTag];
 	trigCnts["BAD"]++; 

@@ -72,7 +72,10 @@ namespace cscdqm {
     // get a handle to the FED data collection
     // actualy the FED_EVENT_LABEL part of the event
     edm::Handle<FEDRawDataCollection> rawdata;
-    e.getByLabel(inputTag, rawdata);
+    if (!e.getByLabel(inputTag, rawdata)) {
+      LOG_WARN << "No product: " << inputTag << " in FEDRawDataCollection";
+      return;
+    }
 
     // run through the DCC's 
     for (int id = FEDNumbering::getCSCFEDIds().first; id <= FEDNumbering::getCSCFEDIds().second; ++id) {
