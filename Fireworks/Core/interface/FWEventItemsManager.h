@@ -16,7 +16,7 @@
 //
 // Original Author:
 //         Created:  Thu Jan  3 13:27:29 EST 2008
-// $Id: FWEventItemsManager.h,v 1.11 2008/10/21 19:22:16 chrjones Exp $
+// $Id: FWEventItemsManager.h,v 1.12 2008/11/06 22:05:22 amraktad Exp $
 //
 
 // system include files
@@ -56,6 +56,7 @@ class FWEventItemsManager : public FWConfigurable
       void setFrom(const FWConfiguration&);
 
       // ---------- const member functions ---------------------
+      ///NOTE: iterator is allowed to return a null object for items that have been removed
       const_iterator begin() const;
       const_iterator end() const;
      // const std::vector<FWEventItem*> &items () const { return m_items; }
