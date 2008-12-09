@@ -23,6 +23,7 @@ TtSemiLepHypGeom::buildHypo(edm::Event& evt,
     return;
   }
 
+  match.clear();
   for(unsigned int i=0; i<4; ++i)
     match.push_back(-1);
   
