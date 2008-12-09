@@ -1412,7 +1412,7 @@ void SiPixelActionExecutor::setupQTests(DQMStore * bei) {
     qtHandler_ = new QTestHandle();
   }
   if(!qtHandler_->configureTests(edm::FileInPath(localPath).fullPath(),bei)){
-    qtHandler_->attachTests(bei);
+    qtHandler_->attachTests(bei,false);
     bei->cd();
   }else{
     cout << " Problem setting up quality tests "<<endl;

@@ -1,12 +1,14 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("SIPIXELDQM")
-process.load("Geometry.TrackerSimData.trackerSimGeometryXML_cfi")
-process.load("Geometry.TrackerGeometryBuilder.trackerGeometry_cfi")
-process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
-#process.load("Configuration.StandardSequences.Geometry_cff")
-process.load("Configuration.StandardSequences.MagneticField_cff")
+#process.load("Geometry.TrackerSimData.trackerSimGeometryXML_cfi")
+#process.load("Geometry.TrackerGeometryBuilder.trackerGeometry_cfi")
+#process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
+process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 #process.load("Configuration.GlobalRuns.ForceZeroTeslaField_cff")
+
+process.load("CondCore.DBCommon.CondDBSetup_cfi")
 
 ##process.load("Configuration.StandardSequences.Reconstruction_cff")
 
@@ -104,8 +106,8 @@ process.load("DQMServices.Components.DQMEnvironment_cfi")
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 #process.GlobalTag.connect ="sqlite_file:/afs/cern.ch/user/m/malgeri/public/globtag/CRZT210_V1.db"
-process.GlobalTag.connect = "frontier://FrontierProd/CMS_COND_21X_GLOBALTAG"
-process.GlobalTag.globaltag = "CRAFT_V2P::All"
+#process.GlobalTag.connect = "frontier://FrontierProd/CMS_COND_21X_GLOBALTAG"
+process.GlobalTag.globaltag = "CRAFT_30X::All"
 process.es_prefer_GlobalTag = cms.ESPrefer('PoolDBESSource','GlobalTag')
 
 process.source = cms.Source("PoolSource",
@@ -144,7 +146,9 @@ process.source = cms.Source("PoolSource",
         #'/store/data/Commissioning08/Cosmics/RAW/v1/000/065/935/261D55FE-6899-DD11-99F6-000423D9989E.root',
         #'/store/data/Commissioning08/Cosmics/RAW/v1/000/065/935/3C29146C-6A99-DD11-BE42-000423D999CA.root'
 	
-        '/store/data/Commissioning08/Cosmics/RAW/v1/000/066/668/ECBAB6B1-519C-DD11-BBB5-000423D94E70.root'
+        #'/store/data/Commissioning08/Cosmics/RAW/v1/000/066/668/ECBAB6B1-519C-DD11-BBB5-000423D94E70.root'
+        
+	'/store/data/Commissioning08/Cosmics/RAW/v1/000/067/838/006945C8-40A5-DD11-BD7E-001617DBD556.root'
 	
 	)
 )
@@ -178,10 +182,13 @@ process.sipixelEDAClient = cms.EDFilter("SiPixelEDAClient",
     Tier0Flag = cms.untracked.bool(True)
 )
 
+process.sipixelDaqInfo = cms.EDFilter("SiPixelDaqInfo")
+
 process.qTester = cms.EDFilter("QualityTester",
     qtList = cms.untracked.FileInPath('DQM/SiPixelMonitorClient/test/sipixel_qualitytest_config.xml'),
     QualityTestPrescaler = cms.untracked.int32(1),
-    getQualityTestsFromFile = cms.untracked.bool(True)
+    getQualityTestsFromFile = cms.untracked.bool(True),
+    verboseQT = cms.untracked.bool(False)
 )
 
 process.ModuleWebRegistry = cms.Service("ModuleWebRegistry")
@@ -198,6 +205,7 @@ process.CLUmonitor = cms.Sequence(process.SiPixelClusterSource)
 process.HITmonitor = cms.Sequence(process.SiPixelRecHitSource)
 process.DQMmodules = cms.Sequence(process.qTester*process.dqmEnv*process.dqmSaver)
 process.p = cms.Path(process.Reco*process.dqmEnv*process.RAWmonitor*process.DIGImonitor*process.sipixelEDAClient*process.dqmSaver)
+#process.p = cms.Path(process.Reco*process.dqmEnv*process.RAWmonitor*process.DIGImonitor*process.sipixelEDAClient*sipixelDaqInfo*process.dqmSaver)
 #process.p = cms.Path(process.Reco*process.DQMmodules*process.RAWmonitor*process.DIGImonitor*process.CLUmonitor*process.HITmonitor*process.sipixelEDAClient)
 #process.p = cms.Path(process.DQMmodules*process.DIGImonitor*process.sipixelEDAClient)
 process.DQM.collectorHost = ''
