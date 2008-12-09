@@ -70,7 +70,6 @@ namespace edm {
 	     int forcedRunOffset,
 	     std::vector<EventID> const& whichEventsToProcess,
              bool noEventSort,
-             bool dropMetaData,
 	     GroupSelectorRules const& groupSelectorRules,
              bool dropMergeable,
              boost::shared_ptr<edm::DuplicateChecker> duplicateChecker,
@@ -167,7 +166,6 @@ namespace edm {
     std::vector<EventID>::const_iterator eventListIter_;
     bool noEventSort_;
     bool fastClonable_;
-    bool dropMetaData_;
     GroupSelector groupSelector_;
     JobReport::Token reportToken_;
     EventAuxiliary eventAux_;

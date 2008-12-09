@@ -246,8 +246,6 @@ namespace edm {
     std::vector<std::string> defaultStrings(1U, std::string("keep *"));
     iDesc.addOptionalUntracked<std::vector<std::string> >("inputCommands", defaultStrings);
 
-    iDesc.addOptionalUntracked<bool>("dropMetaData", false);
-
     std::string defaultString("permissive");
     iDesc.addOptionalUntracked<std::string>("fileMatchMode", defaultString);
 
