@@ -232,8 +232,6 @@ PixelCPETemplateReco::localPosition(const SiPixelCluster& cluster, const GeomDet
   // ******************************************************************
   // Do it! Use cotalpha_ and cotbeta_ calculated in PixelCPEBase
 
-  cout << "-------------------------------------- Call PixelTempReco2D !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! " << endl;
-
   ierr =
     PixelTempReco2D( ID, fpix, cotalpha_, cotbeta_,
 		     clust_array_2d, ydouble, xdouble,
