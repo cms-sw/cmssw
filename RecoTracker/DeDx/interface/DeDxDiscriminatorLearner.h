@@ -18,8 +18,7 @@
 
 #include "RecoTracker/DeDx/interface/DeDxDiscriminatorTools.h"
 
-
-
+#include "TFile.h"
 #include "TH2F.h"
 #include <ext/hash_map>
 
@@ -64,6 +63,9 @@ private:
   unsigned int MaxNrStrips;
   unsigned int MinTrackHits;
   double       MaxTrackChiOverNdf;
+
+  string       algoMode;
+  string       HistoFile;
 
   TH2F*        Charge_Vs_Path;
 

@@ -29,7 +29,6 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
-
 using namespace reco;
 using namespace std;
 using namespace edm;
@@ -48,8 +47,11 @@ DeDxDiscriminatorLearner::DeDxDiscriminatorLearner(const edm::ParameterSet& iCon
    MaxTrackMomentum    = iConfig.getUntrackedParameter<double>  ("maxTrackMomentum"   ,  99999.0); 
    MinTrackEta         = iConfig.getUntrackedParameter<double>  ("minTrackEta"        , -5.0);
    MaxTrackEta         = iConfig.getUntrackedParameter<double>  ("maxTrackEta"        ,  5.0);
-   MaxNrStrips         = iConfig.getUntrackedParameter<unsigned>("maxNrStrips"        ,  2);
-   MinTrackHits        = iConfig.getUntrackedParameter<unsigned>("MinTrackHits"       ,  8);
+   MaxNrStrips         = iConfig.getUntrackedParameter<unsigned>("maxNrStrips"        ,  255);
+   MinTrackHits        = iConfig.getUntrackedParameter<unsigned>("MinTrackHits"       ,  4);
+
+   algoMode            = iConfig.getUntrackedParameter<string>  ("AlgoMode"           ,  "SingleJob");
+   HistoFile           = iConfig.getUntrackedParameter<string>  ("HistoFile"        ,  "out.root");
 }
 
 
@@ -100,6 +102,16 @@ void  DeDxDiscriminatorLearner::algoBeginJob(const edm::EventSetup& iSetup)
 
 void DeDxDiscriminatorLearner::algoEndJob()
 {
+   if( strcmp(algoMode.c_str(),"MultiJob")==0){
+	TFile* Output = new TFile(HistoFile.c_str(), "RECREATE");
+      	Charge_Vs_Path->Write();
+	Output->Write();
+	Output->Close();
+   }else if( strcmp(algoMode.c_str(),"WriteOnDB")==0){
+        TFile* Input = new TFile(HistoFile.c_str() );
+	Charge_Vs_Path = (TH2F*)(Input->FindObjectAny("Charge_Vs_Path"))->Clone();  
+	Input->Close();
+   }
 }
 
 void DeDxDiscriminatorLearner::algoAnalyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
@@ -170,6 +182,8 @@ void DeDxDiscriminatorLearner::Learn(const SiStripRecHit2D* sistripsimplehit,Tra
 
 PhysicsTools::Calibration::HistogramD2D* DeDxDiscriminatorLearner::getNewObject()
 {
+   if( strcmp(algoMode.c_str(),"MultiJob")==0)return NULL;
+
    PhysicsTools::Calibration::HistogramD2D* obj;
    obj = new PhysicsTools::Calibration::HistogramD2D(
                 Charge_Vs_Path->GetNbinsX(), Charge_Vs_Path->GetXaxis()->GetXmin(),  Charge_Vs_Path->GetXaxis()->GetXmax(),
@@ -178,7 +192,7 @@ PhysicsTools::Calibration::HistogramD2D* DeDxDiscriminatorLearner::getNewObject(
    for(int ix=0; ix<Charge_Vs_Path->GetNbinsX(); ix++){
       for(int iy=0; iy<Charge_Vs_Path->GetNbinsY(); iy++){
          obj->setBinContent(ix, iy, Charge_Vs_Path->GetBinContent(ix,iy) );       
-         printf("%i %i --> %f\n",ix,iy, Charge_Vs_Path->GetBinContent(ix,iy)); 
+//         if(Charge_Vs_Path->GetBinContent(ix,iy)!=0)printf("%i %i --> %f\n",ix,iy, Charge_Vs_Path->GetBinContent(ix,iy)); 
       }
    }
 

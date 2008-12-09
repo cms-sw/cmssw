@@ -49,6 +49,9 @@ private:
   double MeVperADCPixel;
   double MeVperADCStrip;
 
+  unsigned int MaxNrStrips;
+  unsigned int MinTrackHits;
+
   const TrackerGeometry* m_tracker;
   std::map<DetId,double> m_normalizationMap;
   std::map<DetId,double> m_distanceMap;
