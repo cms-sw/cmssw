@@ -4,8 +4,7 @@ from DQMOffline.Configuration.DQMOffline_cff import *
 
 siStripFEDCheck.RawDataTag = 'rawDataCollector'
 SiPixelHLTSource.RawInput = 'rawDataCollector'
-dqmClient.InputObjects = 'rawDataCollector'
-#dqmCSCClient.InputObjects = 'rawDataCollector'
+dqmCSCClient.InputObjects = 'rawDataCollector'
 cscDQMEvF.InputObjects = 'rawDataCollector'
 ecalBarrelHltTask.FEDRawDataCollection = 'rawDataCollector'
 ecalBarrelSelectiveReadoutTask.FEDRawDataCollection = 'rawDataCollector'
