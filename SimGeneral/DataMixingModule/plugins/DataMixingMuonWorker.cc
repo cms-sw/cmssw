@@ -367,10 +367,10 @@ namespace edm
 
 
     // put the collection of recunstructed hits in the event   
-    LogDebug("DataMixingMuonWorker") << "total # DT Merged Digis: " << DTDigiMerge->size() ;
-    LogDebug("DataMixingMuonWorker") << "total # RPC Merged Digis: " << RPCDigiMerge->size() ;
-    LogDebug("DataMixingMuonWorker") << "total # CSCStrip Merged Digis: " << CSCStripDigiMerge->size() ;
-    LogDebug("DataMixingMuonWorker") << "total # CSCWire Merged Digis: " << CSCWireDigiMerge->size() ;
+    //    LogDebug("DataMixingMuonWorker") << "total # DT Merged Digis: " << DTDigiMerge->size() ;
+    //    LogDebug("DataMixingMuonWorker") << "total # RPC Merged Digis: " << RPCDigiMerge->size() ;
+    //    LogDebug("DataMixingMuonWorker") << "total # CSCStrip Merged Digis: " << CSCStripDigiMerge->size() ;
+    //    LogDebug("DataMixingMuonWorker") << "total # CSCWire Merged Digis: " << CSCWireDigiMerge->size() ;
 
     e.put( DTDigiMerge, DTDigiCollectionDM_ );
     e.put( RPCDigiMerge, RPCDigiCollectionDM_ );
