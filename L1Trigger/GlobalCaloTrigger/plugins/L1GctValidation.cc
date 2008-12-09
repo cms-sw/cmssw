@@ -108,7 +108,8 @@ L1GctValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
       double jetEt = static_cast<double>(jet->et());
       int phibin = jet->regionId().iphi();
       if (phibin>=9) phibin -= 18;
-      double jetAng = (static_cast<double>(phibin)+0.5)*M_PI/9.;
+      // The phi bin centres are at 0, 20, 40, ... degrees
+      double jetAng = (static_cast<double>(phibin))*M_PI/9.;
       htFromJets += jetEt;
       hxFromJets += jetEt*cos(jetAng);
       hyFromJets += jetEt*sin(jetAng);
@@ -136,6 +137,7 @@ L1GctValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   theHtVsInternalJetsSum->Fill(etHad*lsbForHt, htFromJets*lsbForHt);
   if (htMiss<62.5) {
     theMissHtVsInternalJetsSum->Fill(htMiss*lsbForHt*8, sqrt(hxFromJets*hxFromJets + hyFromJets*hyFromJets)*lsbForHt);
+    theMissHtPhiVsInternalJetsSum->Fill(htMAng, atan2(-hyFromJets, -hxFromJets));
     theMissHxVsInternalJetsSum->Fill(htMiss*lsbForHt*cos(htMAng)*8, hxFromJets*lsbForHt);
     theMissHyVsInternalJetsSum->Fill(htMiss*lsbForHt*sin(htMAng)*8, hyFromJets*lsbForHt);
   }
@@ -216,10 +218,12 @@ L1GctValidation::beginJob(const edm::EventSetup&)
   theMissEtVsMissHtAngle = dir0.make<TH2F>("MissEtVsMissHtAngle", "Angle correlation Missing Et vs Missing Ht",
 					   72, -M_PI, M_PI, 72, -M_PI, M_PI);
 
-  theHtVsInternalJetsSum     = dir0.make<TH2F>("HtVsInternalJetsSum", "Ht vs scalar sum of jet Et values (in GCT units)",
+  theHtVsInternalJetsSum     = dir0.make<TH2F>("HtVsInternalJetsSum", "Ht vs scalar sum of jet Et values (in GeV)",
 					       128, 0., 2048., 128, 0., 2048.);
   theMissHtVsInternalJetsSum = dir0.make<TH2F>("MissHtVsInternalJetsSum", "Missing Ht vs vector sum of jet Et values (in GeV)",
 					       128, 0., 512., 128, 0., 512.);
+  theMissHtPhiVsInternalJetsSum = dir0.make<TH2F>("MissHtPhiVsInternalJetsSum", "Angle correlation Missing Ht vs vector sum of jet Et values",
+					       72, -M_PI, M_PI, 72, -M_PI, M_PI);
   theMissHxVsInternalJetsSum = dir0.make<TH2F>("MissHxVsInternalJetsSum", "Missing Ht x component vs sum of jet Et values (in GeV)",
 					       128, -256., 256., 128, -256., 256.);
   theMissHyVsInternalJetsSum = dir0.make<TH2F>("MissHyVsInternalJetsSum", "Missing Ht y component vs sum of jet Et values (in GeV)",

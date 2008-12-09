@@ -33,11 +33,12 @@ void printGctValidationHistos()
 
   c1->Clear();
 
-  c1->Divide(2,2);
+  c1->Divide(3,2);
   c1->cd(1); Plot(f,"l1GctValidation/L1GctEtSums/HtVsInternalJetsSum","Total Ht", "Scalar sum of jet Et"); c1->Update();
   c1->cd(2); Plot(f,"l1GctValidation/L1GctEtSums/MissHtVsInternalJetsSum","Missing Ht", "Vector sum of jet Et"); c1->Update();
-  c1->cd(3); Plot(f,"l1GctValidation/L1GctEtSums/MissHxVsInternalJetsSum","x component of missing Ht", "Sum of jet Ex"); c1->Update();
-  c1->cd(4); Plot(f,"l1GctValidation/L1GctEtSums/MissHyVsInternalJetsSum","y component of missing Ht", "Sum of jet Ey"); c1->Update();
+  c1->cd(3); Plot(f,"l1GctValidation/L1GctEtSums/MissHtPhiVsInternalJetsSum","Missing Ht", "Vector sum of jet Et"); c1->Update();
+  c1->cd(4); Plot(f,"l1GctValidation/L1GctEtSums/MissHxVsInternalJetsSum","x component of missing Ht", "Sum of jet Ex"); c1->Update();
+  c1->cd(5); Plot(f,"l1GctValidation/L1GctEtSums/MissHyVsInternalJetsSum","y component of missing Ht", "Sum of jet Ey"); c1->Update();
 
   c1->Clear();
 
