@@ -10,7 +10,7 @@ using namespace reco;
 
 class Tower {
     public:
-    CastorTowerCollection runTowerProduction (const CastorCellCollection inputcells, const double eta);
+    CastorTowerCollection runTowerProduction (const CastorCellCollection inputcells, const double eta, const double towercut);
 };
 
 #endif /* TOWER_H */

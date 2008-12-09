@@ -13,7 +13,7 @@
 //
 // Original Author:  Hans Van Haevermaet
 //         Created:  Sat May 24 12:00:56 CET 2008
-// $Id: Tower.cc,v 1.1.2.2 2008/09/05 14:16:32 hvanhaev Exp $
+// $Id: Tower.cc,v 1.2 2008/11/24 22:43:47 hvanhaev Exp $
 //
 //
 
@@ -37,7 +37,7 @@ typedef ROOT::Math::RhoZPhiPoint CellPoint;
 typedef ROOT::Math::RhoEtaPhiPoint TowerPoint;
 
 // main public function being executed, is called to give results      
-CastorTowerCollection Tower::runTowerProduction (const CastorCellCollection inputcells, const double eta) {
+CastorTowerCollection Tower::runTowerProduction (const CastorCellCollection inputcells, const double eta, const double towercut) {
   
   // get and check input size
   int nCells = inputcells.size();
@@ -83,7 +83,7 @@ CastorTowerCollection Tower::runTowerProduction (const CastorCellCollection inpu
   
   // make towers of the arrays
   for (int k=0;k<16;k++) {
-  	if (castortowerarray[0][k] > 0.) {
+  	if (castortowerarray[0][k] > towercut) {
   	TowerPoint temptowerposition(1.0,eta,castortowerarray[3][k]);
 	Point towerposition(temptowerposition);
 	double emtotRatio;

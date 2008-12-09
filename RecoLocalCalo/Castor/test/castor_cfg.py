@@ -1,3 +1,4 @@
+
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("CastorProducts")
@@ -17,7 +18,8 @@ process.fromRecHits = cms.EDFilter("Castor",
     Egamma_maxWidth = cms.untracked.double(0.2),
     KtRecombination = cms.untracked.uint32(2),
     Egamma_minRatio = cms.untracked.double(0.5),
-    KtrParameter = cms.untracked.double(1.0)
+    KtrParameter = cms.untracked.double(1.0),
+    towercut = cms.untracked.double(0.)
 )
 
 process.MyOutputModule = cms.OutputModule("PoolOutputModule",

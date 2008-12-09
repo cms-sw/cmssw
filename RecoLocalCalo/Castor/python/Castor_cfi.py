@@ -6,4 +6,5 @@ CastorFullReco = cms.EDProducer('Castor',
 	KtrParameter = cms.untracked.double(1.),
 	Egamma_minRatio = cms.untracked.double(0.5),
 	Egamma_maxWidth = cms.untracked.double(0.2),
-	Egamma_maxDepth = cms.untracked.double(14488) )
+	Egamma_maxDepth = cms.untracked.double(14488),
+        towercut = cms.untracked.double(0.) )

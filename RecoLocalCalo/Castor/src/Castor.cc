@@ -14,7 +14,7 @@
 //
 // Original Author:  Hans Van Haevermaet
 //         Created:  Wed Jul  9 14:00:40 CEST 2008
-// $Id: Castor.cc,v 1.1.2.2 2008/09/05 14:16:13 hvanhaev Exp $
+// $Id: Castor.cc,v 1.2 2008/11/24 13:22:18 hvanhaev Exp $
 //
 //
 
@@ -87,6 +87,7 @@ class Castor : public edm::EDProducer {
       double minRatio_;
       double maxWidth_;
       double maxDepth_;
+      double towercut_;
 };
 
 //
@@ -107,7 +108,8 @@ Castor::Castor(const edm::ParameterSet& iConfig) :
 	rParameter_(iConfig.getUntrackedParameter<double>("KtrParameter",1.)),
 	minRatio_(iConfig.getUntrackedParameter<double>("Egamma_minRatio",0.5)),
 	maxWidth_(iConfig.getUntrackedParameter<double>("Egamma_maxWidth",0.2)),
-	maxDepth_(iConfig.getUntrackedParameter<double>("Egamma_maxDepth",14488))
+	maxDepth_(iConfig.getUntrackedParameter<double>("Egamma_maxDepth",14488)),
+	towercut_(iConfig.getUntrackedParameter<double>("towercut",0.))
 {
    //register your products
    if (FullReco_ == true) {
@@ -202,12 +204,14 @@ Castor::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	// store cell
 	CellPoint tempcellposition(1.0,zCell,phiCell);
 	Point cellposition(tempcellposition);
-	CastorCell newCell(rh.energy(),cellposition);
-	CastorCells->push_back(newCell);
-	if (zCell < 0.) {
-		negCells.push_back(newCell);
-	} else {
-		posCells.push_back(newCell);
+	if (rh.energy() > 0.) {
+		CastorCell newCell(rh.energy(),cellposition);
+		CastorCells->push_back(newCell);
+		if (zCell < 0.) {
+			negCells.push_back(newCell);
+		} else {
+			posCells.push_back(newCell);
+		}
 	}
 	
    }
@@ -221,13 +225,13 @@ Castor::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    // Call tower class
    Tower toweralgo;
    if (posCells.size() != 0) {
-   	posTowers = toweralgo.runTowerProduction(posCells,5.9);
+   	posTowers = toweralgo.runTowerProduction(posCells,5.9,towercut_);
 	for (size_t i=0;i<posTowers.size();i++) {
 		CastorTowers->push_back(posTowers[i]);
 	}
    }
    if (negCells.size() != 0) {
-   	negTowers = toweralgo.runTowerProduction(negCells,-5.9);
+   	negTowers = toweralgo.runTowerProduction(negCells,-5.9,towercut_);
 	for (size_t i=0;i<negTowers.size();i++) {
 		CastorTowers->push_back(negTowers[i]);
 	}
