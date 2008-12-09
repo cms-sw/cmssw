@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FW3DView.cc,v 1.7 2008/12/04 20:06:54 chrjones Exp $
+// $Id: FW3DView.cc,v 1.8 2008/12/08 18:43:28 chrjones Exp $
 //
 
 // system include files
@@ -70,6 +70,7 @@
 #include "TEveScene.h"
 #include "Fireworks/Core/interface/TEveElementIter.h"
 #include "TEvePolygonSetProjected.h"
+#include "PhysicsTools/Utilities/interface/deltaR.h"
 
 //
 // constants, enums and typedefs
@@ -379,6 +380,22 @@ FW3DView::setTransparency( )
    if ( m_trackerBarrelElements ) {
       TEveElementIter iter(m_trackerBarrelElements);
       while ( TEveElement* element = iter.current() ) {
+	 /*
+	 if ( TEveTrans* matrix = element->PtrMainTrans() ) {
+	  // if ( TEveGeoShape* shape = dynamic_cast<TEveGeoShape*>(element) ) {
+	  // TVector3 shapeCenter( shape->GetShape()->GetTransform()->GetTranslation()[0],
+	  // shape->GetShape()->GetTransform()->GetTranslation()[1],
+	  // shape->GetShape()->GetTransform()->GetTranslation()[2] );
+	  TVector3 shapeCenter( matrix->GetBaseVec(4)[0],
+	                        matrix->GetBaseVec(4)[1],
+	                        matrix->GetBaseVec(4)[2] );
+	    double delta = reco::deltaR( 0.5, 3.14, shapeCenter.Eta(), shapeCenter.Phi() );
+	    if ( delta < 0.1 )
+	      element->SetMainTransparency(0);
+	    else
+	      element->SetMainTransparency(m_geomTransparency.value());
+	 } else 
+	 */
 	 element->SetMainTransparency(m_geomTransparency.value());
 	 iter.next();
       }
