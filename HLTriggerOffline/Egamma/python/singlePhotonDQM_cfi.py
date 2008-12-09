@@ -50,6 +50,7 @@ singlePhotonDQM = cms.EDFilter("EmDQM",
     genEtAcc = cms.double(10.0),
     reqNum = cms.uint32(1),
     PtMax = cms.untracked.double(200.0),
+    useHumanReadableHistTitles = cms.untracked.bool(False),
 
     # Filters from collections listed above
     filters = cms.VPSet(
@@ -60,7 +61,8 @@ singlePhotonDQM = cms.EDFilter("EmDQM",
             PlotBounds = cms.vdouble(0.0, 0.0),
             HLTCollectionLabels = cms.InputTag("hltL1sRelaxedSingleEgammaEt8","","HLT"),
             IsoCollections = cms.VInputTag(cms.InputTag("none")),
-            theHLTOutputTypes = cms.uint32(83)
+            theHLTOutputTypes = cms.uint32(83),
+            HLTCollectionHumanName = cms.untracked.string("Level 1")
         ),
         ##########################################################
         #  L1 Object Matching Filter                             #
@@ -69,7 +71,8 @@ singlePhotonDQM = cms.EDFilter("EmDQM",
             PlotBounds = cms.vdouble(0.0, 0.0),
             HLTCollectionLabels = cms.InputTag("hltL1NonIsoSinglePhotonEt10L1MatchFilterRegional","","HLT"),
             IsoCollections = cms.VInputTag(cms.InputTag("none")),
-            theHLTOutputTypes = cms.uint32(100)
+            theHLTOutputTypes = cms.uint32(100),
+            HLTCollectionHumanName = cms.untracked.string("L1 Match Filter")
         ),
         ##########################################################
         #  Et Filter                                             #
@@ -78,7 +81,8 @@ singlePhotonDQM = cms.EDFilter("EmDQM",
             PlotBounds = cms.vdouble(0.0, 0.0),
             HLTCollectionLabels = cms.InputTag("hltL1NonIsoSinglePhotonEt10EtFilter","","HLT"),
             IsoCollections = cms.VInputTag(cms.InputTag("none")),
-            theHLTOutputTypes = cms.uint32(100)
+            theHLTOutputTypes = cms.uint32(100),
+            HLTCollectionHumanName = cms.untracked.string("Et Filter")
         ),
         ##########################################################
         #   ECAL Isolation Filter                                #
@@ -87,7 +91,8 @@ singlePhotonDQM = cms.EDFilter("EmDQM",
             PlotBounds = cms.vdouble(0.0, 10.0),
             HLTCollectionLabels = cms.InputTag("hltL1NonIsoSinglePhotonEt10EcalIsolFilter","","HLT"),
             IsoCollections = cms.VInputTag(cms.InputTag("hltL1IsolatedPhotonEcalIsol","","HLT"), cms.InputTag("hltL1NonIsolatedPhotonEcalIsol","","HLT")),
-            theHLTOutputTypes = cms.uint32(100)
+            theHLTOutputTypes = cms.uint32(100),
+            HLTCollectionHumanName = cms.untracked.string("Ecal Iso Filter")
         ),
         ##########################################################
         #  HCAL Isolation Filter                                 #
@@ -96,7 +101,8 @@ singlePhotonDQM = cms.EDFilter("EmDQM",
             PlotBounds = cms.vdouble(0.0, 10.0),
             HLTCollectionLabels = cms.InputTag("hltL1NonIsoSinglePhotonEt10HcalIsolFilter","","HLT"),
             IsoCollections = cms.VInputTag(cms.InputTag("hltL1IsolatedPhotonHcalIsol","","HLT"), cms.InputTag("hltL1NonIsolatedPhotonHcalIsol","","HLT")),
-            theHLTOutputTypes = cms.uint32(100)
+            theHLTOutputTypes = cms.uint32(100),
+            HLTCollectionHumanName = cms.untracked.string("Hcal Iso Filter")
         ),
         ##########################################################
         #  Track Isolation Filter                                #
@@ -105,7 +111,8 @@ singlePhotonDQM = cms.EDFilter("EmDQM",
             PlotBounds = cms.vdouble(0.0, 10.0),
             HLTCollectionLabels = cms.InputTag("hltL1NonIsoSinglePhotonEt10TrackIsolFilter","","HLT"),
             IsoCollections = cms.VInputTag(cms.InputTag("hltL1IsoPhotonTrackIsol","","HLT"), cms.InputTag("hltL1NonIsoPhotonTrackIsol","","HLT")),
-            theHLTOutputTypes = cms.uint32(91)
+            theHLTOutputTypes = cms.uint32(91),
+            HLTCollectionHumanName = cms.untracked.string("Track Iso Filter")
         )
     )
 )
