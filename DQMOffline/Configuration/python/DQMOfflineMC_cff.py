@@ -3,11 +3,14 @@ import FWCore.ParameterSet.Config as cms
 from DQMOffline.Configuration.DQMOffline_cff import *
 
 siStripFEDCheck.RawDataTag = 'rawDataCollector'
+SiPixelHLTSource.RawInput = 'rawDataCollector'
 dqmClient.InputObjects = 'rawDataCollector'
 #dqmCSCClient.InputObjects = 'rawDataCollector'
 cscDQMEvF.InputObjects = 'rawDataCollector'
 ecalBarrelHltTask.FEDRawDataCollection = 'rawDataCollector'
+ecalBarrelSelectiveReadoutTask.FEDRawDataCollection = 'rawDataCollector'
 ecalEndcapHltTask.FEDRawDataCollection = 'rawDataCollector'
+ecalEndcapSelectiveReadoutTask.FEDRawDataCollection = 'rawDataCollector'
 dtDataIntegrityUnpacker.inputLabel = cms.untracked.InputTag('rawDataCollector')
 
 # this is a TEMPORARY HUGLY hack until the L1TGMT gets fixed
