@@ -242,8 +242,17 @@ computeAnglesFromDetPosition(const SiPixelCluster & cl,
   float gv_dot_gvz = gv.x()*gvz.x() + gv.y()*gvz.y() + gv.z()*gvz.z();
 
   // calculate angles
-  alpha_ = atan2( gv_dot_gvz, gv_dot_gvx );
-  beta_  = atan2( gv_dot_gvz, gv_dot_gvy );
+  //alpha_ = atan2( gv_dot_gvz, gv_dot_gvx );
+  //beta_  = atan2( gv_dot_gvz, gv_dot_gvy );
+
+  // Use Danek's definition to be consistent with the error parameterizatio 
+
+  alpha_ = acos(gv_dot_gvx/sqrt(gv_dot_gvx*gv_dot_gvx+gv_dot_gvz*gv_dot_gvz));
+  if ( isFlipped() )                    // &&& check for FPIX !!!
+    alpha_ = PI - alpha_ ;
+
+  beta_ = acos(gv_dot_gvy/sqrt(gv_dot_gvy*gv_dot_gvy+gv_dot_gvz*gv_dot_gvz));
+
 
   // calculate cotalpha and cotbeta
   //   cotalpha_ = 1.0/tan(alpha_);
