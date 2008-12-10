@@ -8,8 +8,12 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:23 CDT 2008
-// $Id: CmsShowMainFrame.cc,v 1.28 2008/12/01 19:27:29 amraktad Exp $
+// $Id: CmsShowMainFrame.cc,v 1.31 2008/12/04 17:55:00 amraktad Exp $
 //
+// hacks
+#define private public
+#include "DataFormats/FWLite/interface/Event.h"
+#undef private
 
 // system include files
 #include <sigc++/sigc++.h>
@@ -37,7 +41,6 @@
 #include <TSystem.h>
 #include <TImage.h>
 // user include files
-#include "DataFormats/FWLite/interface/Event.h"
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "Fireworks/Core/interface/CSGAction.h"
 #include "Fireworks/Core/interface/CSGContinuousAction.h"
@@ -319,12 +322,22 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    fullbar->AddFrame(texts, new TGLayoutHints(kLHintsNormal| kLHintsCenterY, 20, 5, 5, 5));
 
    /**************************************************************************/
+   TGVerticalFrame *texts2 = new TGVerticalFrame(fullbar, fullbar->GetWidth()-texts->GetWidth(), 44, kFixedSize, backgroundColor);
+
    // time
-   m_timeText = new TGLabel(fullbar, "Time to set ...");
+   m_timeText = new TGLabel(texts2, "...");
    m_timeText->SetTextJustify(kTextLeft);
    m_timeText->SetTextColor(0xffffff);
    m_timeText->SetBackgroundColor(backgroundColor);
-   fullbar->AddFrame( m_timeText, new TGLayoutHints(kLHintsExpandY | kLHintsExpandX| kLHintsCenterY, 10, 10, 0, 0));
+   texts2->AddFrame(m_timeText, new TGLayoutHints(kLHintsNormal | kLHintsExpandX| kLHintsCenterY, 0,0,0,1));
+   // Lumi
+   m_lumiBlock = new TGLabel(texts2, "Lumi block id: ");
+   m_lumiBlock->SetTextJustify(kTextLeft);
+   m_lumiBlock->SetTextColor(0xffffff);
+   m_lumiBlock->SetBackgroundColor(backgroundColor);
+   texts2->AddFrame(m_lumiBlock, new TGLayoutHints(kLHintsNormal | kLHintsExpandX| kLHintsCenterY, 0,0,0,1));
+   
+   fullbar->AddFrame(texts2, new TGLayoutHints(kLHintsNormal| kLHintsCenterY, 4, 5, 5, 5));
 
    /**************************************************************************/
    //  logo
@@ -441,6 +454,9 @@ void CmsShowMainFrame::loadEvent(const fwlite::Event& event) {
   m_runEntry->getNumberEntry()->SetIntNumber(event.id().run());
   m_eventEntry->getNumberEntry()->SetIntNumber(event.id().event());
   m_timeText->SetText( fw::getTimeGMT( event ).c_str() );
+  char title[128];
+  snprintf(title,128,"Lumi block id: %d", event.aux_.luminosityBlock());
+  m_lumiBlock->SetText( title );
   // loadEvent gets called before the special cases [at beginning, at end, etc]
   // so we can enable all our event controls here
   m_nextEvent->enable();

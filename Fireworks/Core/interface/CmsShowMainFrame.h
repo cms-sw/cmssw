@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 18:11:16 CDT 2008
-// $Id: CmsShowMainFrame.h,v 1.14 2008/11/28 22:26:05 amraktad Exp $
+// $Id: CmsShowMainFrame.h,v 1.15 2008/12/01 15:51:05 amraktad Exp $
 //
 
 // system include files
@@ -96,6 +96,7 @@ private:
    CSGAction *m_runEntry;
    CSGAction *m_eventEntry;
    CSGAction *m_delaySlider;
+   TGLabel* m_lumiBlock;
    TGLabel* m_timeText;
    CSGAction *m_nextEvent;
    CSGAction *m_previousEvent;
