@@ -31,7 +31,7 @@
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 #include "G4StateManager.hh"
 #include "G4ApplicationState.hh"
@@ -46,9 +46,8 @@
 #include "SimG4Core/Notification/interface/CurrentG4Track.h"
 
 #include <iostream>
-#include <memory>
 #include <strstream>
-#include <fstream>
+#include <memory>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
