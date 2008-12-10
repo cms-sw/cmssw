@@ -111,7 +111,7 @@ g4SimHits = cms.EDProducer("OscarProducer",
         SavePrimaryDecayProductsAndConversionsInMuon = cms.untracked.bool(False),
         TrackNeutrino = cms.bool(False),
         KillHeavy = cms.bool(False),
-        MaxTrackTime = cms.double(1000.)
+        MaxTrackTime = cms.double(500.)
     ),
     TrackingAction = cms.PSet(
         DetailedTiming = cms.untracked.bool(False)
@@ -145,9 +145,9 @@ g4SimHits = cms.EDProducer("OscarProducer",
         CorrectTOFBeam = cms.untracked.bool(False),
         UseMap    = cms.untracked.bool(True),
         EminTrack = cms.double(1.0),
-        TmaxHit   = cms.double(1000.0),
+        TmaxHit   = cms.double(500.0),
 	HCNames   = cms.vstring('EcalHitsEB','EcalHitsEE','EcalHitsES','HcalHits'),
-        EminHits  = cms.vdouble(0.0,0.0,0.0,0.0)
+        EminHits  = cms.vdouble(0.015,0.010,0.0,0.0)
     ),
     ECalSD = cms.PSet(
         TestBeam = cms.untracked.bool(False),
