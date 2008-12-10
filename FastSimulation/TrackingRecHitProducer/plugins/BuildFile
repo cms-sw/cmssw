@@ -1,0 +1,6 @@
+<use name=FastSimulation/TrackingRecHitProducer>
+	
+<library file="*.cc" name="FastSimulationTrackingRecHitProducerPlugins">
+   <flags EDM_PLUGIN=1>
+</library>
+	
