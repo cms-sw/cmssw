@@ -46,7 +46,7 @@
  * 
  * \author Thomas Speer, Luca Lista, Pascal Vanlaer, Juan Alcaraz
  *
- * \version $Id: TrackBase.h,v 1.70 2008/10/12 01:38:06 mangano Exp $
+ * \version $Id: TrackBase.h,v 1.71 2008/11/14 17:51:44 tomalini Exp $
  *
  */
 
@@ -80,9 +80,11 @@ namespace reco {
     /// track algorithm
     enum TrackAlgorithm { undefAlgorithm=0, ctf=1, rs=2, cosmics=3, beamhalo=4, 
 			  iter1=5, iter2=6, iter3=7, iter4=8, iter5=9, iter6=10, iter7=11, iter8=12, iter9=13,iter10=14,
-			  conversion=15, nuclInter=16,standAloneMuon=17,globalMuon=18,cosmicStandAloneMuon=19,cosmicGlobalMuon=20,
-                          iter1LargeD0=21,iter2LargeD0=22,iter3LargeD0=23,iter4LargeD0=24,iter5LargeD0=25,
-			  algoSize=26 };
+			  outInEcalSeededConv=15, inOutEcalSeededConv=16, 
+			  nuclInter=17,
+			  standAloneMuon=18,globalMuon=19,cosmicStandAloneMuon=20,cosmicGlobalMuon=21,
+                          iter1LargeD0=22,iter2LargeD0=23,iter3LargeD0=24,iter4LargeD0=25,iter5LargeD0=26,
+			  algoSize=27 };
     static const std::string algoNames[];
 
     /// track quality
@@ -291,12 +293,18 @@ namespace reco {
       case iter8: return "iter8";
       case iter9: return "iter9";
       case iter10: return "iter10";
-      case conversion: return "conversion";
+      case outInEcalSeededConv: return "outInEcalSeededConv";
+      case inOutEcalSeededConv: return "inOutEcalSeededConv";
       case nuclInter: return "nuclInter";
       case standAloneMuon: return "standAloneMuon";
       case globalMuon: return "globalMuon";
       case cosmicStandAloneMuon: return "cosmicStandAloneMuon";
       case cosmicGlobalMuon: return "cosmicGlobalMuon";
+      case iter1LargeD0: return "iter1LargeD0";
+      case iter2LargeD0: return "iter2LargeD0";
+      case iter3LargeD0: return "iter3LargeD0";
+      case iter4LargeD0: return "iter4LargeD0";
+      case iter5LargeD0: return "iter5LargeD0";
       }
     return "undefAlgorithm";
   }
