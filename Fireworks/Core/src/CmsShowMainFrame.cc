@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:23 CDT 2008
-// $Id: CmsShowMainFrame.cc,v 1.31 2008/12/04 17:55:00 amraktad Exp $
+// $Id: CmsShowMainFrame.cc,v 1.32 2008/12/10 13:56:14 dmytro Exp $
 //
 // hacks
 #define private public
@@ -322,22 +322,23 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    fullbar->AddFrame(texts, new TGLayoutHints(kLHintsNormal| kLHintsCenterY, 20, 5, 5, 5));
 
    /**************************************************************************/
-   TGVerticalFrame *texts2 = new TGVerticalFrame(fullbar, fullbar->GetWidth()-texts->GetWidth(), 44, kFixedSize, backgroundColor);
+   TGVerticalFrame *texts2 = new TGVerticalFrame(fullbar, 150, 44, kFixedSize, backgroundColor);
+
+   // Lumi
+   m_lumiBlock = new TGLabel(texts2, "Lumi block id: ");
+   m_lumiBlock->SetTextJustify(kTextLeft);
+   m_lumiBlock->SetTextColor(0xffffff);
+   m_lumiBlock->SetBackgroundColor(backgroundColor);
+   texts2->AddFrame(m_lumiBlock, new TGLayoutHints(kLHintsNormal | kLHintsExpandX| kLHintsBottom, 0,0,3,1));
 
    // time
    m_timeText = new TGLabel(texts2, "...");
    m_timeText->SetTextJustify(kTextLeft);
    m_timeText->SetTextColor(0xffffff);
    m_timeText->SetBackgroundColor(backgroundColor);
-   texts2->AddFrame(m_timeText, new TGLayoutHints(kLHintsNormal | kLHintsExpandX| kLHintsCenterY, 0,0,0,1));
-   // Lumi
-   m_lumiBlock = new TGLabel(texts2, "Lumi block id: ");
-   m_lumiBlock->SetTextJustify(kTextLeft);
-   m_lumiBlock->SetTextColor(0xffffff);
-   m_lumiBlock->SetBackgroundColor(backgroundColor);
-   texts2->AddFrame(m_lumiBlock, new TGLayoutHints(kLHintsNormal | kLHintsExpandX| kLHintsCenterY, 0,0,0,1));
+   texts2->AddFrame(m_timeText, new TGLayoutHints(kLHintsNormal | kLHintsExpandX| kLHintsBottom, 0,0,0,1));
    
-   fullbar->AddFrame(texts2, new TGLayoutHints(kLHintsNormal| kLHintsCenterY, 4, 5, 5, 5));
+   fullbar->AddFrame(texts2, new TGLayoutHints(kLHintsNormal| kLHintsCenterY, 6, 5, 5, 5));
 
    /**************************************************************************/
    //  logo
