@@ -13,7 +13,7 @@ public:
   HPDNoiseGenerator(const edm::ParameterSet & pset, const HcalSimParameterMap * parameterMap);
   virtual ~HPDNoiseGenerator() {}
 
-  void getNoiseSignals(std::vector<CaloSamples> & result);
+  void fillNoiseSignals();
 
 private:
   void fC2pe(CaloSamples & samples) const;

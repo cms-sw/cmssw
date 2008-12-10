@@ -8,7 +8,7 @@ HPDNoiseGenerator::HPDNoiseGenerator(const edm::ParameterSet & pset, const HcalS
 }
 
 
-void HPDNoiseGenerator::getNoiseSignals(std::vector<CaloSamples> & result)
+void HPDNoiseGenerator::fillNoiseSignals()
 {
   std::vector<std::pair <HcalDetId, const float* > > noise = theLibraryReader.getNoisyHcalDetIds();
   for(std::vector<std::pair <HcalDetId, const float* > >::const_iterator noiseItr = noise.begin();
@@ -21,7 +21,7 @@ void HPDNoiseGenerator::getNoiseSignals(std::vector<CaloSamples> & result)
     }
     // result should come back in units of photoelectrons
     fC2pe(newSamples);
-    result.push_back(newSamples);
+    theNoiseSignals.push_back(newSamples);
   }
 }
 
