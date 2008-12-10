@@ -259,7 +259,7 @@ EcalObjectAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& context)
    context.get< EcalMappingElectronicsRcd >().get(ecalmapping);
    const EcalMappingElectronics* Mapping = ecalmapping.product();
    const std::vector<EcalMappingElement>& ee = Mapping -> endcapItems();
-   for(int iMap=0;iMap < ee.size();iMap++)
+   for(size_t iMap=0;iMap < ee.size();iMap++)
      {
        std::cout << "EcalMappingElectronics: " <<  ee[iMap].electronicsid << " " << ee[iMap].triggerid << std::endl;
      }
