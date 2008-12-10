@@ -1,5 +1,5 @@
 //
-// $Id: EcalTrivialObjectAnalyzer.cc,v 1.16 2008/02/18 10:39:23 ferriff Exp $
+// $Id: EcalTrivialObjectAnalyzer.cc,v 1.17 2008/02/19 11:33:52 ferriff Exp $
 // Created: 2 Mar 2006
 //          Shahram Rahatlou, University of Rome & INFN
 //
@@ -47,6 +47,11 @@
  
 #include "CondFormats/EcalObjects/interface/EcalLaserAPDPNRatios.h"
 #include "CondFormats/DataRecord/interface/EcalLaserAPDPNRatiosRcd.h"
+
+#include "CondFormats/EcalObjects/interface/EcalClusterLocalContCorrParameters.h"
+#include "CondFormats/DataRecord/interface/EcalClusterLocalContCorrParametersRcd.h"
+#include "CondFormats/EcalObjects/interface/EcalClusterCrackCorrParameters.h"
+#include "CondFormats/DataRecord/interface/EcalClusterCrackCorrParametersRcd.h"
 
 #include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
 #include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
@@ -164,6 +169,8 @@ void EcalTrivialObjectAnalyzer::analyze(const edm::Event& e, const edm::EventSet
                << std::endl;
     }
 
+
+
    // fetch TB weights
    std::cout <<"Fetching EcalTBWeights from DB " << std::endl;
    edm::ESHandle<EcalTBWeights> pWgts;
@@ -171,8 +178,6 @@ void EcalTrivialObjectAnalyzer::analyze(const edm::Event& e, const edm::EventSet
    const EcalTBWeights* wgts = pWgts.product();
    std::cout << "EcalTBWeightMap.size(): " << std::setprecision(3) << wgts->getMap().size() << std::endl;
 
-
-   
 
    // look up the correct weights for this  xtal
    //EcalXtalGroupId gid( (*git) );
@@ -212,6 +217,25 @@ void EcalTrivialObjectAnalyzer::analyze(const edm::Event& e, const edm::EventSet
    } else {
      std::cout << "No weights found for EcalGroupId: " << gid.id() << " and  EcalTDCId: " << tdcid << std::endl;
   }
+
+   // cluster functions/corrections
+   edm::ESHandle<EcalClusterLocalContCorrParameters> pLocalCont;
+   context.get<EcalClusterLocalContCorrParametersRcd>().get(pLocalCont);
+   const EcalClusterLocalContCorrParameters* paramLocalCont = pLocalCont.product();
+   std::cout << "LocalContCorrParameters:";
+   for ( EcalClusterLocalContCorrParameters::const_iterator it = paramLocalCont->begin(); it != paramLocalCont->end(); ++it ) {
+           std::cout << " " << *it;
+   }
+   std::cout << "\n";
+   edm::ESHandle<EcalClusterCrackCorrParameters> pCrack;
+   context.get<EcalClusterCrackCorrParametersRcd>().get(pCrack);
+   const EcalClusterCrackCorrParameters* paramCrack = pCrack.product();
+   std::cout << "CrackCorrParameters:";
+   for ( EcalClusterCrackCorrParameters::const_iterator it = paramCrack->begin(); it != paramCrack->end(); ++it ) {
+           std::cout << " " << *it;
+   }
+   std::cout << "\n";
+
 
    // laser correction
    

@@ -1,5 +1,5 @@
 //
-// $Id: EcalTrivialConditionRetriever.h,v 1.16 2008/02/19 11:33:51 ferriff Exp $
+// $Id: EcalTrivialConditionRetriever.h,v 1.17 2008/03/06 14:25:36 meridian Exp $
 // Created: 2 Mar 2006
 //          Shahram Rahatlou, University of Rome & INFN
 //
@@ -50,6 +50,11 @@
 #include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
 #include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
 
+#include "CondFormats/EcalObjects/interface/EcalClusterLocalContCorrParameters.h"
+#include "CondFormats/EcalObjects/interface/EcalClusterCrackCorrParameters.h"
+#include "CondFormats/DataRecord/interface/EcalClusterLocalContCorrParametersRcd.h"
+#include "CondFormats/DataRecord/interface/EcalClusterCrackCorrParametersRcd.h"
+
 #include "CondFormats/EcalObjects/interface/EcalMappingElectronics.h"
 #include "CondFormats/DataRecord/interface/EcalMappingElectronicsRcd.h"
 
@@ -84,6 +89,9 @@ public:
   virtual std::auto_ptr<EcalLaserAPDPNRatiosRef> produceEcalLaserAPDPNRatiosRef( const EcalLaserAPDPNRatiosRefRcd& );
   virtual std::auto_ptr<EcalLaserAPDPNRatios> produceEcalLaserAPDPNRatios( const EcalLaserAPDPNRatiosRcd& );
 
+  virtual std::auto_ptr<EcalClusterLocalContCorrParameters> produceEcalClusterLocalContCorrParameters( const EcalClusterLocalContCorrParametersRcd& );
+  virtual std::auto_ptr<EcalClusterCrackCorrParameters> produceEcalClusterCrackCorrParameters( const EcalClusterCrackCorrParametersRcd& );
+
   virtual std::auto_ptr<EcalChannelStatus> produceEcalChannelStatus( const EcalChannelStatusRcd& );
   virtual std::auto_ptr<EcalChannelStatus> getChannelStatusFromConfiguration( const EcalChannelStatusRcd& );
 
@@ -110,6 +118,10 @@ private:
                                   // Gaussian used to generate intercalib constants for
                                   // each channel. no smearing if sigma=0.0 (default)
   double intercalibErrorMean_;  // mean of intercalib constant error
+
+  // cluster corrections
+  std::vector<double> localContCorrParameters_;
+  std::vector<double> crackCorrParameters_;
 
   // laser
   double laserAlphaMean_;  
@@ -173,6 +185,8 @@ private:
   bool producedEcalADCToGeVConstant_;
   bool producedEcalLaserCorrection_;
   bool producedEcalChannelStatus_;
+  bool producedEcalClusterLocalContCorrParameters_;
+  bool producedEcalClusterCrackCorrParameters_;
   bool producedEcalMappingElectronics_;
 
   int    verbose_; // verbosity

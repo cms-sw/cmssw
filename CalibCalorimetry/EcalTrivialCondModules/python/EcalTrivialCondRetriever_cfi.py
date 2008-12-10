@@ -18,14 +18,18 @@ EcalTrivialConditionRetriever = cms.ESSource("EcalTrivialConditionRetriever",
     # by default set all inter calib const to 1.0 if no file provided
     intercalibConstantsFile = cms.untracked.string(''),
     producedEcalWeights = cms.untracked.bool(True),
-    adcToGeVEBConstant = cms.untracked.double(0.035),
     EEpedRMSX12 = cms.untracked.double(2.87),
     producedEcalIntercalibConstants = cms.untracked.bool(True),
     producedEcalIntercalibErrors = cms.untracked.bool(True),
     producedEcalLaserCorrection = cms.untracked.bool(True),
     producedEcalGainRatios = cms.untracked.bool(True),
+    laserAPDPNRefMean = cms.untracked.double(1.0),
+    producedEcalADCToGeVConstant = cms.untracked.bool(True),
+    adcToGeVEBConstant = cms.untracked.double(0.035),
     adcToGeVEEConstant = cms.untracked.double(0.06),
-    producedEcalADCToGeVConstant = cms.untracked.bool(True)
+    # cluster functions/corrections -- by default no parameters are passed
+    producedEcalClusterLocalContCorrParameters = cms.untracked.bool(True),
+    localContCorrParameters = cms.untracked.vdouble( ),
+    producedEcalClusterCrackCorrParameters = cms.untracked.bool(True),
+    crackCorrParameters = cms.untracked.vdouble( )
 )
-
-

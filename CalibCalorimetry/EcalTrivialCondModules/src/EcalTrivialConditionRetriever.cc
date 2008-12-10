@@ -1,5 +1,5 @@
 //
-// $Id: EcalTrivialConditionRetriever.cc,v 1.31 2008/05/05 07:09:29 ferriff Exp $
+// $Id: EcalTrivialConditionRetriever.cc,v 1.32 2008/08/01 10:07:49 meridian Exp $
 // Created: 2 Mar 2006
 //          Shahram Rahatlou, University of Rome & INFN
 //
@@ -42,6 +42,9 @@ EcalTrivialConditionRetriever::EcalTrivialConditionRetriever( const edm::Paramet
 
   laserAPDPNMean_ = ps.getUntrackedParameter<double>("laserAPDPNMean",1.0);
   laserAPDPNSigma_ = ps.getUntrackedParameter<double>("laserAPDPNSigma",0.0);
+
+  localContCorrParameters_ = ps.getUntrackedParameter< std::vector<double> >("localContCorrParameters", std::vector<double>(0) );
+  crackCorrParameters_ = ps.getUntrackedParameter< std::vector<double> >("crackCorrParameters", std::vector<double>(0) );
 
   EBpedMeanX12_ = ps.getUntrackedParameter<double>("EBpedMeanX12", 200.);
   EBpedRMSX12_  = ps.getUntrackedParameter<double>("EBpedRMSX12",  1.10);
@@ -165,6 +168,18 @@ EcalTrivialConditionRetriever::EcalTrivialConditionRetriever( const edm::Paramet
         setWhatProduced (this, &EcalTrivialConditionRetriever::produceEcalIntercalibErrors ) ;
     }
     findingRecord<EcalIntercalibErrorsRcd> () ;
+  }
+
+  // cluster corrections
+  producedEcalClusterLocalContCorrParameters_ = ps.getUntrackedParameter<bool>("producedEcalClusterLocalContCorrParameters", true);
+  producedEcalClusterCrackCorrParameters_ = ps.getUntrackedParameter<bool>("producedEcalClusterCrackCorrParameters", true);
+  if ( producedEcalClusterLocalContCorrParameters_ ) {
+          setWhatProduced( this, &EcalTrivialConditionRetriever::produceEcalClusterLocalContCorrParameters );
+          findingRecord<EcalClusterLocalContCorrParametersRcd>();
+  }
+  if ( producedEcalClusterCrackCorrParameters_ ) {
+          setWhatProduced( this, &EcalTrivialConditionRetriever::produceEcalClusterCrackCorrParameters );
+          findingRecord<EcalClusterCrackCorrParametersRcd>();
   }
 
   // laser correction
@@ -516,6 +531,27 @@ EcalTrivialConditionRetriever::produceEcalTBWeights( const EcalTBWeightsRcd& )
   } 
   //   }
   return tbwgt;
+}
+
+
+// cluster functions/corrections
+std::auto_ptr<EcalClusterLocalContCorrParameters>
+EcalTrivialConditionRetriever::produceEcalClusterLocalContCorrParameters( const EcalClusterLocalContCorrParametersRcd &)
+{
+        std::auto_ptr<EcalClusterLocalContCorrParameters> ipar = std::auto_ptr<EcalClusterLocalContCorrParameters>( new EcalClusterLocalContCorrParameters() );
+        for (size_t i = 0; i < localContCorrParameters_.size(); ++i ) {
+                ipar->push_back( localContCorrParameters_[i] );
+        }
+        return ipar;
+}
+std::auto_ptr<EcalClusterCrackCorrParameters>
+EcalTrivialConditionRetriever::produceEcalClusterCrackCorrParameters( const EcalClusterCrackCorrParametersRcd &)
+{
+        std::auto_ptr<EcalClusterCrackCorrParameters> ipar = std::auto_ptr<EcalClusterCrackCorrParameters>( new EcalClusterCrackCorrParameters() );
+        for (size_t i = 0; i < crackCorrParameters_.size(); ++i ) {
+                ipar->push_back( crackCorrParameters_[i] );
+        }
+        return ipar;
 }
 
 
