@@ -17,7 +17,6 @@
 <use name=oracle>
 
 <use name=clhep>
-#<use name=xdaq>
 
 <use name=DataFormats/FEDRawData> 
 
@@ -40,7 +39,6 @@
    <use name=CondCore/DBOutputService>
    <use name=oracle>
    <use name=clhep>
-#   <use name=xdaq>
 
 
 </export>
