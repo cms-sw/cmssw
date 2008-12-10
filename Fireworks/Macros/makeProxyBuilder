@@ -1,0 +1,66 @@
+#!/usr/bin/env perl
+# Author: D.Kovalskyi
+use strict;
+use warnings;
+
+my $dir = "src/Fireworks";
+
+my @proxy_types = (
+    ["Projected 2D view (rho-phi and rho-z projections)",
+	"FWRPZProxyBuilder.template",
+	"RPZProxyBuilder"],
+    ["Lego - eta-phi view on the calorimeter surface",
+	"FWLegoProxyBuilder.template",
+	"LegoProxyBuilder"],
+    ["Plain 3D view", 
+	"FW3DProxyBuilder.template",
+	"3DProxyBuilder"],
+    ["Glimpse - special 3D view where size of objects is energy",
+	"FWGlimpseProxyBuilder.template",
+	"GlimpseProxyBuilder"]
+);
+
+print "Available views:\n";
+foreach my $i(1..@proxy_types){
+    printf("  %2s) %s\n",$i,$proxy_types[$i-1]->[0]);
+}
+print "Select type: ";
+my $selection = <STDIN>;
+$selection =~ s/\n//;
+die "Incorrect input. Abort\n" if ($selection !~/^\d+$/ || $selection > scalar @proxy_types);
+
+print "\nA data proxy builder maps a data collection of the form std::vector<T>\n",
+  "to a collection of TEveElements - ROOT graphical primitives.\n",
+  "What is the data type(T) type you want to read: "; 
+my $type = <STDIN>;
+$type =~ s/\n//;
+
+print "\nProxy builders for various views with the same input data types are grouped\n",
+  "by their \"purpose\". For example reco::Track collections can be \"Tracks\",\n", 
+  "\"GlobalMuons\", \"rsTracks\" etc. If you choose one of the existing names like\n",
+  "\"Muons\" or \"Electrons\", output of your new proxy builder will be associated to\n",
+  "to all other products created by other proxies for this \"purpose\".\n";
+print "What is the \"purpose\" of the new proxy builder? ";
+my $purpose = <STDIN>;
+$purpose =~ s/\n//;
+
+my $name = "FW$purpose".$proxy_types[$selection-1]->[2];
+
+my $template = "src/Fireworks/Macros/$proxy_types[$selection-1]->[1]";
+my $output = "src/Fireworks/User/plugins/$name.cc";
+open (IN, $template)|| die "Cannot open file $template\n$!\n";
+system("mkdir -p src/Fireworks/User/plugins");
+open (OUT, "> $output")|| die "Cannot write to file $output\n$!\n";
+while ( my $line = <IN> ){
+    $line =~ s/_TYPE_/$type/g;
+    $line =~ s/_NAME_/$name/g;
+    $line =~ s/_PURPOSE_/$purpose/g;
+    print OUT $line;
+}
+close OUT;
+close IN;
+print "\nFile $output is created.\n", 
+  "Please add necessary include files to read the data type you selected\n",
+  "and provide code that builds graphical representation of your data.\n", 
+  "When you done, compile your code by typing \"make\"\n";
+exit
