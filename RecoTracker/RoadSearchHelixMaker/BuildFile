@@ -20,8 +20,8 @@
 <use name=MagneticField/Records>
 <use name=TrackingTools/PatternTools>
 <use name=clhep>
-<flags EDM_PLUGIN=1>
 <export>
+  <lib name=RecoTrackerRoadSearchHelixMaker>
   <use name=DataFormats/Common>
   <use name=DataFormats/DetId>
   <use name=DataFormats/TrackCandidate>
@@ -30,6 +30,5 @@
   <use name=FWCore/ParameterSet>
   <use name=MagneticField/Engine>
   <use name=clhep>
-  <lib name=RecoTrackerRoadSearchHelixMaker>
 </export>
 
