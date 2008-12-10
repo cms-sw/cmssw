@@ -30,7 +30,7 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
 
 process.uploader = cms.EDAnalyzer("SiPixelCPEGenericErrorParmUploader",
                                   fileName = cms.FileInPath('RecoLocalTracker/SiPixelRecHits/data/residuals.dat'),
-                                  version=cms.double(1.0)
+                                  version=cms.double(1.3)
 )
 
 process.myprint = cms.OutputModule("AsciiOutputModule")

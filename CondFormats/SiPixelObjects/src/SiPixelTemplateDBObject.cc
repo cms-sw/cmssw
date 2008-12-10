@@ -75,11 +75,13 @@ SiPixelTemplateDBObject::fillDB(const vstring& atitles){
 
 std::ostream& operator<<(std::ostream& s, const SiPixelTemplateDBObject& dbobject){
 	int index = 0;
-	bool new_templ = false;
-	int txsize, tysize;
+	int txsize = 13, tysize = 21;
 	int entries[4] = {0};
 	for(int m=0; m < dbobject.numOfTempl_; ++m) 
 	{
+		std::cout << "\n\n*********************************************************************************************" << std::endl;
+		std::cout << "***************                  Reading Template ID " << dbobject.sVector_[index+20] << "\t(" << m+1 << "/" << dbobject.numOfTempl_ <<")                 ***************" << std::endl;
+		std::cout << "*********************************************************************************************\n\n" << std::endl;
 		SiPixelTemplateDBObject::char2float temp;
 		for (int n=0; n < 20; ++n) {
 			temp.f = dbobject.sVector_[index];
@@ -87,35 +89,29 @@ std::ostream& operator<<(std::ostream& s, const SiPixelTemplateDBObject& dbobjec
 			++index;
 		}
 		
-		if(dbobject.sVector_[index] == 10 || dbobject.sVector_[index] == 12) new_templ = true;
-		
-		entries[0] = dbobject.sVector_[index+1];
-		entries[1] = dbobject.sVector_[index+2]*dbobject.sVector_[index+3];
-		entries[2] = dbobject.sVector_[index+4];
-		entries[3] = dbobject.sVector_[index+5]*dbobject.sVector_[index+6]; 
+		entries[0] = (int)dbobject.sVector_[index+1];
+		entries[1] = (int)(dbobject.sVector_[index+2]*dbobject.sVector_[index+3]);
+		entries[2] = (int)dbobject.sVector_[index+4];
+		entries[3] = (int)(dbobject.sVector_[index+5]*dbobject.sVector_[index+6]); 
 
 		s         << dbobject.sVector_[index]    << "\t" << dbobject.sVector_[index+1]  << "\t" << dbobject.sVector_[index+2]
 			<< "\t" << dbobject.sVector_[index+3]  << "\t" << dbobject.sVector_[index+4]  << "\t" << dbobject.sVector_[index+5]
 			<< "\t" << dbobject.sVector_[index+6]  << "\t" << dbobject.sVector_[index+7]  << "\t" << dbobject.sVector_[index+8]
-			<< "\t" << dbobject.sVector_[index+9]  << "\t" << dbobject.sVector_[index+10] << "\t" << dbobject.sVector_[index+11];
-		if(new_templ) {s << "\t" << dbobject.sVector_[index+12] << "\t" << dbobject.sVector_[index+13] << std::endl; index += 14;}
-		else {s << "\t" << dbobject.sVector_[index+12] << std::endl; index += 13;}
+			<< "\t" << dbobject.sVector_[index+9]  << "\t" << dbobject.sVector_[index+10] << "\t" << dbobject.sVector_[index+11]
+		  << "\t" << dbobject.sVector_[index+12] << "\t" << dbobject.sVector_[index+13] << std::endl;
+		index += 14;
 	
-		if(new_templ) {txsize = 13; tysize = 21;}
-		else {txsize = 7; tysize = 21;}
 		for(int entry_it=0;entry_it<4;++entry_it) {
 			for(int i=0;i < entries[entry_it];++i)
 			{
 				s         << dbobject.sVector_[index]    << "\t" << dbobject.sVector_[index+1]  << "\t" << dbobject.sVector_[index+2]
 					<< "\t" << dbobject.sVector_[index+3]  << "\n" << dbobject.sVector_[index+4]  << "\t" << dbobject.sVector_[index+5]
 					<< "\t" << dbobject.sVector_[index+6]  << "\t" << dbobject.sVector_[index+7]  << "\t" << dbobject.sVector_[index+8]
-					<< "\t" << dbobject.sVector_[index+9]  << "\t" << dbobject.sVector_[index+10];
-				if(new_templ) {s << "\t" << dbobject.sVector_[index+11]; index += 12;}
-				else {index += 11;}
-				s << "\n" << dbobject.sVector_[index]   << "\t" << dbobject.sVector_[index+1] << "\t" << dbobject.sVector_[index+2]
-					<< "\t" << dbobject.sVector_[index+3] << "\t" << dbobject.sVector_[index+4] << "\t" << dbobject.sVector_[index+5]
-					<< "\t" << dbobject.sVector_[index+6] << std::endl;
-				index+=7;
+					<< "\t" << dbobject.sVector_[index+9]  << "\t" << dbobject.sVector_[index+10] << "\t" << dbobject.sVector_[index+11]
+				  << "\n" << dbobject.sVector_[index+12] << "\t" << dbobject.sVector_[index+13] << "\t" << dbobject.sVector_[index+14]
+					<< "\t" << dbobject.sVector_[index+15] << "\t" << dbobject.sVector_[index+16] << "\t" << dbobject.sVector_[index+17]
+					<< "\t" << dbobject.sVector_[index+18] << std::endl;
+				index+=19;
 				for(int j=0;j<2;++j)
 				{
 					for(int k=0;k<5;++k)
