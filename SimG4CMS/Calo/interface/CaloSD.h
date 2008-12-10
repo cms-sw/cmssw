@@ -91,7 +91,7 @@ protected:
 private:
 
   void                 storeHit(CaloG4Hit*);
-  std::pair<bool,bool> saveHit(CaloG4Hit*);
+  bool                 saveHit(CaloG4Hit*);
   void                 summarize();
 
 protected:
@@ -134,13 +134,15 @@ private:
   CaloG4HitCollection*   theHC; 
   std::map<CaloHitID,CaloG4Hit*>  hitMap;
 
-  std::vector<CaloG4Hit*>         hitvec;
   std::map<int,TrackWithHistory*> tkMap;
-  int                    primAncestor;
-  int                    cleanIndex;
-  std::vector<CaloG4Hit*>         reusehit;
-  std::vector<std::vector<CaloG4Hit*>::iterator> itervec;
-  void                   cleanHitCollection();
+
+  int                                            primAncestor;
+  int                                            cleanIndex;
+  std::vector<CaloG4Hit*>                        reusehit;
+  std::vector<CaloG4Hit*>                        hitvec;
+  std::vector<unsigned int>                      selIndex;
+  int                                            totalHits;
+  void                                           cleanHitCollection();
 
 };
 
