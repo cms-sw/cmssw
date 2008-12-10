@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:23 CDT 2008
-// $Id: CmsShowMainFrame.cc,v 1.32 2008/12/10 13:56:14 dmytro Exp $
+// $Id: CmsShowMainFrame.cc,v 1.33 2008/12/10 15:15:59 amraktad Exp $
 //
 // hacks
 #define private public
@@ -282,11 +282,11 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    label->SetTextJustify(kTextCenterX);
    label->SetTextColor(0xb3b3b3);
    label->SetBackgroundColor(backgroundColor);
-   delayFrame->AddFrame(label, new TGLayoutHints(kLHintsTop | kLHintsCenterX, 0, 0, 35, 0));
+   delayFrame->AddFrame(label, new TGLayoutHints(kLHintsTop | kLHintsCenterX, 0, 0, 22, 0));
 
    TGHorizontalFrame *labFixed = new TGHorizontalFrame(delayFrame, 70, 20, kFixedSize, backgroundColor);
    m_delaySlider->createLabel(labFixed, "0.0s", 0xffffff, backgroundColor,  new TGLayoutHints(kLHintsTop | kLHintsCenterX |kLHintsExpandX , 0, 0, 0, 0));
-   delayFrame->AddFrame(labFixed, new TGLayoutHints(kLHintsLeft  | kLHintsBottom, 0, 4, 0, 0));
+   delayFrame->AddFrame(labFixed, new TGLayoutHints(kLHintsLeft, 0, 4, 0, 0));
 
 
    fullbar->AddFrame(delayFrame, new TGLayoutHints(kLHintsTop | kFixedSize, 0, 0, 0, 0));
