@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------
-// $Id: ParameterSet.cc,v 1.39 2008/11/19 06:48:43 wmtan Exp $
+// $Id: ParameterSet.cc,v 1.40 2008/12/09 16:35:57 wmtan Exp $
 //
 // definition of ParameterSet's function members
 // ----------------------------------------------------------------------
@@ -69,6 +69,10 @@ namespace edm {
   {
     if (!id_.isValid()) validate();
     return id_;
+  }
+
+  void ParameterSet::setID(const ParameterSetID & id)
+  {
   }
 
   // ----------------------------------------------------------------------
