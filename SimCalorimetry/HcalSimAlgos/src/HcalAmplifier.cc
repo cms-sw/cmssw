@@ -41,7 +41,8 @@ void HcalAmplifier::amplify(CaloSamples & frame) const {
   //  HcalCalibrationWidths calibWidths;
   //  theDbService->makeHcalCalibrationWidth(hcalGenDetId, &calibWidths);
 
-  const HcalCalibrationWidths& calibWidths = theDbService->getHcalCalibrationWidths(hcalGenDetId);
+  HcalCalibrationWidths calibWidths;
+  theDbService->makeHcalCalibrationWidth(hcalGenDetId, &calibWidths);
   const HcalCalibrations& calibs = theDbService->getHcalCalibrations(hcalGenDetId);
 
   /*
