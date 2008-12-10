@@ -1775,7 +1775,7 @@ void TagProbeEDMAnalysis::TPEffMCTruth()
    var1biaseffhist.Write();
 
    outRootFile_->cd();
-   hname = "truth_eff_bias"+var2NameUp_;
+   hname = "truth_eff_bias_"+var2NameUp_;
    htitle = "Efficiency vs "+var2NameUp_;
    TH1F var2biaseffhist(hname.c_str(),htitle.c_str(),var2Bins_.size()-1,&var2Bins_[0]);
    var2biaseffhist.Sumw2();
