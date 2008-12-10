@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/12/05 10:13:32 $
- *  $Revision: 1.8 $
+ *  $Date: 2008/12/08 13:50:28 $
+ *  $Revision: 1.9 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -175,7 +175,7 @@ void DTResolutionAnalysisTest::endLuminosityBlock(LuminosityBlock const& lumiSeg
 	int BinNumber = entry+slID.superLayer();
 	if(BinNumber == 12) BinNumber=11;
 	if((slID.sector()==13 || slID.sector()==14)  && slID.superLayer()==1) BinNumber=12;
-	if((slID.sector()==13 || slID.sector()==14) && slID.superLayer()==2) BinNumber=13;
+	if((slID.sector()==13 || slID.sector()==14) && slID.superLayer()==3) BinNumber=13;
 
 	// Fill the summary histos
 	if(slID.sector()<13){
@@ -413,12 +413,12 @@ void DTResolutionAnalysisTest::bookHistos(int wh, int sect) {
   (SigmaHistos[make_pair(wh,sect)])->setBinLabel(10,"MB4_SL1",1);
   (SigmaHistos[make_pair(wh,sect)])->setBinLabel(11,"MB4_SL3",1);
   if(sect==4){
-    (SigmaHistos[make_pair(wh,sect)])->setBinLabel(12,"MB4S4_SL1",1);
-    (SigmaHistos[make_pair(wh,sect)])->setBinLabel(13,"MB4S4_SL3",1);
+    (SigmaHistos[make_pair(wh,sect)])->setBinLabel(12,"MB4S13_SL1",1);
+    (SigmaHistos[make_pair(wh,sect)])->setBinLabel(13,"MB4S13_SL3",1);
   }
   if(sect==10){
-    (SigmaHistos[make_pair(wh,sect)])->setBinLabel(12,"MB4S10_SL1",1);
-    (SigmaHistos[make_pair(wh,sect)])->setBinLabel(13,"MB4S10_SL3",1);
+    (SigmaHistos[make_pair(wh,sect)])->setBinLabel(12,"MB4S14_SL1",1);
+    (SigmaHistos[make_pair(wh,sect)])->setBinLabel(13,"MB4S14_SL3",1);
   }
 
 

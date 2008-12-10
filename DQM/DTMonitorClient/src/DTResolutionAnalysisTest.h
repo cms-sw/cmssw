@@ -6,8 +6,8 @@
  * *
  *  DQM Test Client
  *
- *  $Date: 2008/11/20 09:15:23 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/12/02 13:29:11 $
+ *  $Revision: 1.4 $
  *  \author  G. Mila - INFN Torino
  *   
  */
@@ -37,8 +37,6 @@ public:
   
   /// Destructor
   virtual ~DTResolutionAnalysisTest();
-
-protected:
 
   /// BeginJob
   void beginJob(const edm::EventSetup& c);
