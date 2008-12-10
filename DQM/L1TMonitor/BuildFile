@@ -3,7 +3,6 @@
 <use name=FWCore/ParameterSet>
 <use name=DQMServices/Core>
 <use name=DQMServices/Components>
-<use name=DQMServices/WebComponents>
 <use name=DQMServices/ClientConfig>
 <use name=DataFormats/L1Trigger>
 <use name=DataFormats/LTCDigi>
@@ -29,8 +28,6 @@
 <use name=CondFormats/DataRecord>
 <use name=CondFormats/L1TObjects>
 <use name=L1Trigger/CSCTrackFinder>
-<use name=mimetic>
-<use name=xdaq>
 <use name=root>
 <use name=boost>
 <flags EDM_PLUGIN=1>
@@ -41,7 +38,6 @@
   <use name=FWCore/PluginManager>
   <use name=DQMServices/Core>
   <use name=DQMServices/Components>
-  <use name=DQMServices/WebComponents>
   <use name=DQMServices/ClientConfig>
   <use name=DataFormats/L1Trigger>
   <use name=DataFormats/LTCDigi>
@@ -66,8 +62,6 @@
   <use name=CondFormats/DataRecord>
   <use name=CondFormats/L1TObjects>
   <use name=L1Trigger/CSCTrackFinder>
-  <use name=mimetic>
-  <use name=xdaq>
   <use name=root>
   <use name=boost>
 </export>
