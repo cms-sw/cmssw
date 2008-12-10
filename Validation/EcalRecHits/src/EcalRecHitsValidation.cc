@@ -1,7 +1,7 @@
 /*
  * \file EcalRecHitsValidation.cc
  *
- * $Date: 2008/11/04 18:32:39 $
+ * $Date: 2008/11/06 13:45:50 $
  * \author C. Rovelli
  *
 */
@@ -12,6 +12,7 @@
 #include <DataFormats/EcalDetId/interface/ESDetId.h>
 #include "CalibCalorimetry/EcalTrivialCondModules/interface/EcalTrivialConditionRetriever.h"
 #include "DQMServices/Core/interface/DQMStore.h"
+#include <string>
 
 using namespace cms;
 using namespace edm;
@@ -88,64 +89,64 @@ EcalRecHitsValidation::EcalRecHitsValidation(const ParameterSet& ps){
   meEERecHitLog10Energy5x5Contr_ = 0;
   
   // ---------------------- 
-  Char_t histo[20];
+  std::string histo;
    
   if ( dbe_ ) {
     dbe_->setCurrentFolder("EcalRecHitsV/EcalRecHitsTask");
     
-    sprintf (histo, "EcalRecHitsTask Gun Momentum" );    
-    meGunEnergy_ = dbe_->book1D(histo, histo, 100, 0., 1000.);
+    histo = "EcalRecHitsTask Gun Momentum";
+    meGunEnergy_ = dbe_->book1D(histo.c_str(), histo.c_str(), 100, 0., 1000.);
   
-    sprintf (histo, "EcalRecHitsTask Gun Eta" );      
-    meGunEta_ = dbe_->book1D(histo, histo, 700, -3.5, 3.5);
+    histo = "EcalRecHitsTask Gun Eta";      
+    meGunEta_ = dbe_->book1D(histo.c_str(), histo.c_str(), 700, -3.5, 3.5);
      
-    sprintf (histo, "EcalRecHitsTask Gun Phi" );  
-    meGunPhi_ = dbe_->book1D(histo, histo, 360, 0., 360.);    
+    histo = "EcalRecHitsTask Gun Phi";  
+    meGunPhi_ = dbe_->book1D(histo.c_str(), histo.c_str(), 360, 0., 360.);    
     
-    sprintf (histo, "EcalRecHitsTask Barrel RecSimHit Ratio");  
-    meEBRecHitSimHitRatio_ = dbe_->book1D(histo, histo, 80, 0., 2.);   
+    histo = "EcalRecHitsTask Barrel RecSimHit Ratio";  
+    meEBRecHitSimHitRatio_ = dbe_->book1D(histo.c_str(), histo.c_str(), 80, 0., 2.);   
 
-    sprintf (histo, "EcalRecHitsTask Endcap RecSimHit Ratio"); 
-    meEERecHitSimHitRatio_ = dbe_->book1D(histo, histo, 80, 0., 2.);
+    histo = "EcalRecHitsTask Endcap RecSimHit Ratio"; 
+    meEERecHitSimHitRatio_ = dbe_->book1D(histo.c_str(), histo.c_str(), 80, 0., 2.);
 
-    sprintf (histo, "EcalRecHitsTask Preshower RecSimHit Ratio"); 
-    meESRecHitSimHitRatio_ = dbe_->book1D(histo, histo, 80, 0., 2.);
+    histo = "EcalRecHitsTask Preshower RecSimHit Ratio"; 
+    meESRecHitSimHitRatio_ = dbe_->book1D(histo.c_str(), histo.c_str(), 80, 0., 2.);
 
-    sprintf (histo, "EcalRecHitsTask Barrel RecSimHit Ratio gt 3p5 GeV");  
-    meEBRecHitSimHitRatioGt35_ = dbe_->book1D(histo, histo, 80, 0.9, 1.1);   
+    histo = "EcalRecHitsTask Barrel RecSimHit Ratio gt 3p5 GeV";  
+    meEBRecHitSimHitRatioGt35_ = dbe_->book1D(histo.c_str(), histo.c_str(), 80, 0.9, 1.1);   
 
-    sprintf (histo, "EcalRecHitsTask Endcap RecSimHit Ratio gt 3p5 GeV"); 
-    meEERecHitSimHitRatioGt35_ = dbe_->book1D(histo, histo, 80, 0.9, 1.1);
+    histo = "EcalRecHitsTask Endcap RecSimHit Ratio gt 3p5 GeV"; 
+    meEERecHitSimHitRatioGt35_ = dbe_->book1D(histo.c_str(), histo.c_str(), 80, 0.9, 1.1);
 
-    sprintf (histo, "EcalRecHitsTask Barrel Unc RecSimHit Ratio");  
-    meEBUnRecHitSimHitRatio_ = dbe_->book1D(histo, histo, 80, 0., 2.);   
+    histo = "EcalRecHitsTask Barrel Unc RecSimHit Ratio";  
+    meEBUnRecHitSimHitRatio_ = dbe_->book1D(histo.c_str(), histo.c_str(), 80, 0., 2.);   
 
-    sprintf (histo, "EcalRecHitsTask Endcap Unc RecSimHit Ratio"); 
-    meEEUnRecHitSimHitRatio_ = dbe_->book1D(histo, histo, 80, 0., 2.);
+    histo = "EcalRecHitsTask Endcap Unc RecSimHit Ratio"; 
+    meEEUnRecHitSimHitRatio_ = dbe_->book1D(histo.c_str(), histo.c_str(), 80, 0., 2.);
 
-    sprintf (histo, "EcalRecHitsTask Barrel Unc RecSimHit Ratio gt 3p5 GeV");  
-    meEBUnRecHitSimHitRatioGt35_ = dbe_->book1D(histo, histo, 80, 0.9, 1.1);   
+    histo = "EcalRecHitsTask Barrel Unc RecSimHit Ratio gt 3p5 GeV";  
+    meEBUnRecHitSimHitRatioGt35_ = dbe_->book1D(histo.c_str(), histo.c_str(), 80, 0.9, 1.1);   
 
-    sprintf (histo, "EcalRecHitsTask Endcap Unc RecSimHit Ratio gt 3p5 GeV"); 
-    meEEUnRecHitSimHitRatioGt35_ = dbe_->book1D(histo, histo, 80, 0.9, 1.1);
+    histo = "EcalRecHitsTask Endcap Unc RecSimHit Ratio gt 3p5 GeV"; 
+    meEEUnRecHitSimHitRatioGt35_ = dbe_->book1D(histo.c_str(), histo.c_str(), 80, 0.9, 1.1);
 
-    sprintf (histo, "EcalRecHitsTask Barrel Rec E5x5");
-    meEBe5x5_ = dbe_->book1D(histo, histo, 4000, 0., 400.);
+    histo = "EcalRecHitsTask Barrel Rec E5x5";
+    meEBe5x5_ = dbe_->book1D(histo.c_str(), histo.c_str(), 4000, 0., 400.);
 
-    sprintf (histo, "EcalRecHitsTask Barrel Rec E5x5 over Sim E5x5");
-    meEBe5x5OverSimHits_ = dbe_->book1D(histo, histo, 80, 0.9, 1.1);
+    histo = "EcalRecHitsTask Barrel Rec E5x5 over Sim E5x5";
+    meEBe5x5OverSimHits_ = dbe_->book1D(histo.c_str(), histo.c_str(), 80, 0.9, 1.1);
 
-    sprintf (histo, "EcalRecHitsTask Barrel Rec E5x5 over gun energy");
-    meEBe5x5OverGun_ = dbe_->book1D(histo, histo, 80, 0.9, 1.1);
+    histo = "EcalRecHitsTask Barrel Rec E5x5 over gun energy";
+    meEBe5x5OverGun_ = dbe_->book1D(histo.c_str(), histo.c_str(), 80, 0.9, 1.1);
 
-    sprintf (histo, "EcalRecHitsTask Endcap Rec E5x5");
-    meEEe5x5_ = dbe_->book1D(histo, histo, 4000, 0., 400.);
+    histo = "EcalRecHitsTask Endcap Rec E5x5";
+    meEEe5x5_ = dbe_->book1D(histo.c_str(), histo.c_str(), 4000, 0., 400.);
 
-    sprintf (histo, "EcalRecHitsTask Endcap Rec E5x5 over Sim E5x5");
-    meEEe5x5OverSimHits_ = dbe_->book1D(histo, histo, 80, 0.9, 1.1);
+    histo = "EcalRecHitsTask Endcap Rec E5x5 over Sim E5x5";
+    meEEe5x5OverSimHits_ = dbe_->book1D(histo.c_str(), histo.c_str(), 80, 0.9, 1.1);
 
-    sprintf (histo, "EcalRecHitsTask Endcap Rec E5x5 over gun energy");
-    meEEe5x5OverGun_ = dbe_->book1D(histo, histo, 80, 0.9, 1.1);
+    histo = "EcalRecHitsTask Endcap Rec E5x5 over gun energy";
+    meEEe5x5OverGun_ = dbe_->book1D(histo.c_str(), histo.c_str(), 80, 0.9, 1.1);
 
     meEBRecHitLog10Energy_ = dbe_->book1D( "EcalRecHitsTask Barrel Log10 Energy", "EcalRecHitsTask Barrel Log10 Energy", 90, -5., 4. ); 
     meEERecHitLog10Energy_ = dbe_->book1D( "EcalRecHitsTask Endcap Log10 Energy", "EcalRecHitsTask Endcap Log10 Energy", 90, -5., 4. ); 
