@@ -3,10 +3,10 @@
 /** \class EcalRecalibRecHitProducer
  *   produce ECAL rechits from uncalibrated rechits
  *
- *  $Id: EcalRecalibRecHitProducer.h,v 1.1 2008/03/03 17:37:26 ferriff Exp $
- *  $Date: 2008/03/03 17:37:26 $
+ *  $Id: EcalRecalibRecHitProducer.h,v 1.1 2008/12/10 01:52:41 ferriff Exp $
+ *  $Date: 2008/12/10 01:52:41 $
  *  $Revision: 1.1 $
- *  \author Shahram Rahatlou, University of Rome & INFN, March 2006
+ *  \author Federico Ferri, University of Milano Bicocca and INFN
  *
  **/
 
