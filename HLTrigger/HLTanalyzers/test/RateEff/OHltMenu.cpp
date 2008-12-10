@@ -80,5 +80,8 @@ void OHltMenu::AddL1(TString trig, int l1prescale)
   levelones.push_back(trig);
   int tmpL1prescale = 1;
   if(l1prescale>0) tmpL1prescale = l1prescale;
-    levelonePrescale[trig] = tmpL1prescale; 
+  levelonePrescale[trig] = tmpL1prescale; 
+
+  // Initialize a counter for all passing L1 events
+  unprescaledl1counter[trig] = 0;
 }

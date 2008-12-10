@@ -225,7 +225,8 @@ int main(int argc, char *argv[]){
   vector<TString> trignames = menu->GetHlts(); 
   int Ntrig = (int) trignames.size();
   map<TString,int> map_TrigPrescls = menu->GetTotalPrescaleMap(); 
-  map<TString,TString> map_L1Prescls = menu->GetL1PrescaleMap(); 
+  map<TString,TString> map_L1Prescls = menu->GetL1PrescaleMap();
+  map<TString,int> map_CountL1Unprescaled = menu->GetL1UnprescaledCounter();  
   map<TString,int> map_HLTPrescls = menu->GetHltPrescaleMap(); 
   map<TString,TString> map_HltDesc = menu->GetHltDescriptionMap(); 
   map<TString,double> map_EventSize = menu->GetEventsizeMap();
@@ -630,6 +631,7 @@ int main(int argc, char *argv[]){
         ,trignames
         ,map_AllL1Prescls
         ,map_HLTPrescls
+        ,map_CountL1Unprescaled                
         ,map_MultEle,map_MultPho,map_MultMu
         ,map_MultJets,map_MultMET
         , hltDatasets[ip] //SAK -- needs this to update inside the event loop
@@ -658,6 +660,7 @@ int main(int argc, char *argv[]){
         ,trignames
         ,map_AllL1Prescls 
         ,map_HLTPrescls 
+	,map_CountL1Unprescaled                
         ,map_MultEle,map_MultPho,map_MultMu
         ,map_MultJets,map_MultMET
         , hltDatasets[ip] //SAK -- needs this to update inside the event loop

@@ -30,6 +30,7 @@ class OHltMenu {
   std::map<TString,int> 	hltmulmet;	
   std::vector<TString>          levelones;
   std::map<TString,int>         levelonePrescale;
+  std::map<TString,int>         unprescaledl1counter;
 
   OHltMenu();
   virtual ~OHltMenu() { };
@@ -41,6 +42,7 @@ class OHltMenu {
   inline std::map<TString,TString>		GetL1PrescaleMap() {return l1Prescale;}
   inline std::map<TString,int>		      	GetHltPrescaleMap() {return hltPrescale;}
   inline std::map<TString,int>		      	GetTotalPrescaleMap() {return totalPrescale;}
+  inline std::map<TString,int>                  GetL1UnprescaledCounter() {return unprescaledl1counter;}
   inline std::map<TString,double>               GetEventsizeMap() {return eventSize;}
   inline std::map<TString,int>                  GetMultEleMap() {return hltmulele;}
   inline std::map<TString,int>                  GetMultPhoMap() {return hltmulpho;}

@@ -16,9 +16,9 @@ using namespace std;
 void OHltTree::Loop( vector<int> * iCount, vector<int> * sPureCount, vector<int> * pureCount
                     ,vector< vector<int> > * overlapCount
                     ,vector<TString> trignames
-                    //		    ,map<TString,int> map_pathHLTPrescl
                     ,map<TString,int> map_L1Prescl
                     ,map<TString,int> map_pathHLTPrescl
+		    ,map<TString,int> map_L1NoPrescaleCount
                     ,map<TString,int> map_MultEle,map<TString,int> map_MultPho,map<TString,int> map_MultMu
                     ,map<TString,int> map_MultJets, map<TString,int> map_MultMET
                     , SampleDiagnostics& primaryDatasetsDiagnostics  //SAK
@@ -49,10 +49,9 @@ void OHltTree::Loop( vector<int> * iCount, vector<int> * sPureCount, vector<int>
     iCountNoPrescale.push_back(0);
   }
 
-  //for (int it = 0; it < NL1trig; it++) {
-  for (int it = 0; it < 128; it++) {
-    iCountL1NoPrescale.push_back(0);
-  }
+  // Initialize the counter for unprescaled L1 passes, using the 
+  // list of L1's added to the menu
+  map_iCountL1NoPrescale = map_L1NoPrescaleCount;
 
   Long64_t nbytes = 0, nb = 0;
 
