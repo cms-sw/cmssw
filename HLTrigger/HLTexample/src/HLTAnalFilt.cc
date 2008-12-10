@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2008/01/09 23:07:09 $
- *  $Revision: 1.26 $
+ *  $Date: 2008/10/11 13:13:58 $
+ *  $Revision: 1.27 $
  *
  *  \author Martin Grunewald
  *
@@ -72,7 +72,7 @@ HLTAnalFilt::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
      const unsigned int n(ref->electronIds().size());
      for (unsigned int i=0; i!=n; i++) {
        // some Xchecks
-       Particle particle=*(ref->electronRefs().at(i));
+       LeafCandidate particle=*(ref->electronRefs().at(i));
        LogTrace("") << i << " E: "
                     << particle.energy() << " " 
                     << ref->electronRefs().at(i)->energy();
