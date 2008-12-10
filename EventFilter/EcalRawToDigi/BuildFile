@@ -16,6 +16,7 @@
 <use name=Geometry/EcalMapping>
 <use name=Geometry/Records>
 <use name=RecoLocalCalo/EcalRecAlgos>
+<use name=RecoLocalCalo/EcalRecProducers>
 <use name=rootrflx>
 
 <export>
@@ -38,5 +39,5 @@
 <use name=Geometry/EcalMapping>
 <use name=Geometry/Records>
 <use name=RecoLocalCalo/EcalRecAlgos>
-
+<use name=RecoLocalCalo/EcalRecProducers>
 </export>

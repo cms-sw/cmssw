@@ -73,7 +73,7 @@ class EcalUnpackerWorker {
 
   mutable edm::ESHandle<EcalRegionCabling> cabling;
 
-  EcalUncalibRecHitWorkerBaseClass * UnCalibWorker_;
+  EcalUncalibRecHitWorkerBaseClass * UncalibWorker_;
   EcalRecHitWorkerBaseClass * CalibWorker_;
 
  public:
@@ -93,7 +93,7 @@ class EcalUnpackerWorker {
 
 	//get the uncalibrated rechit
 	/*R*/ LogDebug("EcalRawToRecHit|Worker")<<"ready to make Uncalib rechit."<<watcher.lap();
-	if (!UnCalibWorker_->run(*evt, itdg, *uncalibRecHits)) continue;
+	if (!UncalibWorker_->run(*evt, itdg, *uncalibRecHits)) continue;
 	EcalUncalibratedRecHit & EURH=uncalibRecHits->back();
 
 	/*R*/ LogDebug("EcalRawToRecHit|Worker")<<"creating a rechit."<<watcher.lap();

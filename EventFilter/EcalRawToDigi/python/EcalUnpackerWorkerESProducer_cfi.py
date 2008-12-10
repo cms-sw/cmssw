@@ -36,6 +36,13 @@ EcalUnpackerWorkerESProducer = cms.ESProducer("EcalUnpackerWorkerESProducer",
     ElectronicsMapper = cms.PSet(
         numbXtalTSamples = cms.uint32(10),
         numbTriggerTSamples = cms.uint32(1)
+    ),
+    UncalibRHAlgo = cms.PSet(
+         Type = cms.string('EcalUncalibRecHitWorkerWeights')
+    ),
+    CalibRHAlgo = cms.PSet(
+         Type = cms.string('EcalRecHitWorkerSimple'),
+         ChannelStatusToBeExcluded = cms.vint32()
     )
 )
 

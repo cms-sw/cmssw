@@ -12,7 +12,8 @@
 #include "CondFormats/DataRecord/interface/EcalADCToGeVConstantRcd.h"
 #include "CalibCalorimetry/EcalLaserCorrection/interface/EcalLaserDbRecord.h"
 
-
+#include "RecoLocalCalo/EcalRecProducers/interface/EcalUncalibRecHitWorkerFactory.h"
+#include "RecoLocalCalo/EcalRecProducers/interface/EcalRecHitWorkerFactory.h"
 
 EcalUnpackerWorker::EcalUnpackerWorker(const edm::ParameterSet & conf){
   ///DCCDataUnpacker
@@ -71,13 +72,22 @@ EcalUnpackerWorker::EcalUnpackerWorker(const edm::ParameterSet & conf){
   unpacker_->setInvalidMemGainsCollection(& productInvalidMemGains);
 
   DCCDataUnpacker::silentMode_ = conf.getUntrackedParameter<bool> ("silentMode",true);
+
+  edm::ParameterSet UncalibPSet = conf.getParameter<edm::ParameterSet>("UncalibRHAlgo");
+  std::string UncaliComponentName = UncalibPSet.getParameter<std::string>("Type");
+  UncalibWorker_ = EcalUncalibRecHitWorkerFactory::get()->create(UncaliComponentName, UncalibPSet);
+
+  edm::ParameterSet CalibPSet = conf.getParameter<edm::ParameterSet>("CalibRHAlgo");
+  std::string CaliComponentName = CalibPSet.getParameter<std::string>("Type");
+  CalibWorker_ = EcalRecHitWorkerFactory::get()->create(CaliComponentName, CalibPSet);
+
 }
 
 EcalUnpackerWorker::~EcalUnpackerWorker(){
 }
 
 void EcalUnpackerWorker::set(const edm::EventSetup & es) const {
-  UnCalibWorker_->set(es);
+  UncalibWorker_->set(es);
   CalibWorker_->set(es);
   es.get<EcalRegionCablingRecord>().get(cabling);
 }
