@@ -12,13 +12,16 @@ paths=dummy()
 
 samples.names = ['Wenu',
                  'Zee',
-                 'GammaJet']
+                 'GammaJet',
+                 'DiGamma']
 samples.pdgid = [ 11,
                   11,
+                  22,
                   22]
 samples.num   = [1,
                  2,
-                 1]
+                 1,
+                 2]
 
 #which triggers for which sample
 
@@ -33,12 +36,13 @@ paths.Zee = paths.Wenu + ['doubleElectronRelaxedDQM',
                           'doubleElectronDQM',
                           'doubleEle5SWL1RDQM']
 
-paths.GammaJet = ['veryHighEtDQM',
-                  'highEtDQM',
-                  'singlePhotonRelaxedDQM',
-                  'singlePhotonDQM',
-                  'doublePhotonRelaxedDQM',
-                  'doublePhotonDQM']
+paths.GammaJet = ['singlePhotonRelaxedDQM',
+                  'singlePhotonDQM']
+
+paths.DiGamma  = paths.GammaJet + ['veryHighEtDQM',
+                                   'highEtDQM',
+                                   'doublePhotonRelaxedDQM',
+                                   'doublePhotonDQM']
 
 
 ##########################################################
