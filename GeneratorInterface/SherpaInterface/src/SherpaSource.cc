@@ -1,5 +1,5 @@
 /*
- *  $Revision: 1.2 $
+ *  $Revision: 1.4 $
  *  
  *  Martin Niegel 
  *  niegel@cern.ch
@@ -84,9 +84,10 @@ SherpaSource::SherpaSource( const ParameterSet & pset,
 
 
 SherpaSource::~SherpaSource(){
+  cout << "SherpaSource: summarizing the run " << endl;
+  Generator.SummarizeRun();
   cout << "SherpaSource: event generation done. " << endl;
   clear(); 
-
 }
 
 void SherpaSource::clear() {
