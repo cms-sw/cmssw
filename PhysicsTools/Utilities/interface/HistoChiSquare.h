@@ -1,7 +1,9 @@
 #ifndef PhysicsTools_Utilities_HistoChiSquare_h
 #define PhysicsTools_Utilities_HistoChiSquare_h
+#include "PhysicsTools/Utilities/interface/RootMinuitResultPrinter.h"
 #include <vector>
 #include "TH1.h"
+#include "TMath.h"
 
 namespace fit {
   template<typename T>
@@ -54,6 +56,16 @@ namespace fit {
     double xMin_, xMax_, deltaX_;
     std::vector<double> cont_;
     std::vector<double> err_;
+  };
+
+  template<typename T>
+  struct RootMinuitResultPrinter<HistoChiSquare<T> > {
+    static void print(double amin, double numberOfFreeParameters, const HistoChiSquare<T> & f) {
+      double ndof = f.degreesOfFreedom() - numberOfFreeParameters;
+	std::cout << "chi-squared/n.d.o.f. = " << amin << "/" << ndof << " = " << amin/ndof 
+		  << "; prob: " << TMath::Prob(amin, ndof)
+		  << std::endl;
+    }
   };
 }
 

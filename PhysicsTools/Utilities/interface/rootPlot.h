@@ -2,6 +2,7 @@
 #define PhysicsTools_Utilities_rootPlot_h
 #include "PhysicsTools/Utilities/interface/rootTf1.h"
 #include "TF1.h"
+#include "TH1.h"
 #include "TCanvas.h"
 #include "PhysicsTools/Utilities/interface/Parameter.h"
 

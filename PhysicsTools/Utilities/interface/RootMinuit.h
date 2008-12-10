@@ -5,18 +5,18 @@
  */
 #include "PhysicsTools/Utilities/interface/Parameter.h"
 #include "PhysicsTools/Utilities/interface/ParameterMap.h"
+#include "PhysicsTools/Utilities/interface/RootMinuitResultPrinter.h"
+#include "PhysicsTools/Utilities/interface/RootMinuitFuncEvaluator.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "TMinuit.h"
-#include "TMath.h"
 #include "Math/SMatrix.h"
 #include <boost/shared_ptr.hpp>
-#include <iostream>
 #include <vector>
 #include <string>
 #include <memory>
 
 namespace fit {
-  
+
   template<class Function>
   class RootMinuit {
   public:
@@ -173,11 +173,7 @@ namespace fit {
       }
     }
     void printFitResults(std::ostream& cout = std::cout) {
-      double amin = minValue();
-      int ndof = f_.degreesOfFreedom() - numberOfFreeParameters();
-	cout << "chi-squared/n.d.o.f. = " << amin << "/" << ndof << " = " << amin/ndof 
-	   << "; prob: " << TMath::Prob(amin, ndof)
-	   << std::endl;
+      RootMinuitResultPrinter<Function>::print(minValue(), numberOfFreeParameters(), f_);
       printParameters(cout);
     }
   private:
@@ -194,7 +190,7 @@ namespace fit {
       size_t size = fPars_->size();
       for(size_t i = 0; i < size; ++i) 
 	*((*fPars_)[i]) = par[i];
-      f = f_();
+      f = RootMinuitFuncEvaluator<Function>::evaluate(f_);
     }
     size_t parameterIndex(const std::string &name) const {
       typename std::map<std::string, size_t>::const_iterator p = parIndices_.find(name);

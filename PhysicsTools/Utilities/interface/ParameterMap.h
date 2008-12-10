@@ -2,6 +2,7 @@
 #define PhysicsTools_Utilities_ParameterMap_h
 #include <map>
 #include <string>
+#include <vector>
 
 namespace fit {
   struct parameter_t {

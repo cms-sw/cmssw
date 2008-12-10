@@ -1,9 +1,8 @@
 #ifndef PhysicsTools_Utilities_MultiHistoChiSquare_h
 #define PhysicsTools_Utilities_MultiHistoChiSquare_h
-
+#include "PhysicsTools/Utilities/interface/RootMinuitResultPrinter.h"
 #include "PhysicsTools/Utilities/interface/HistoChiSquare.h"
 #include "TH1.h"
-#include <iostream>
 
 namespace fit {
   namespace helper {
@@ -38,7 +37,6 @@ namespace fit {
      static size_t count = 0;
      ++count;
      if(count % 10 == 0)
-     std::cout << ">>> " << count << ") chi2 = " << chi2 << std::endl;
      return chi2;
 
    }
@@ -103,7 +101,6 @@ namespace fit {
      double chi2 = chi1_() + chi2_() + chi3_() + chi4_() + chi5_();
      static size_t count = 0;
      ++count;
-     if(count % 10 == 0) std::cout << ">>> total chi-2: " << chi2 << std::endl;
      return chi2;
    }
    void setHistos(TH1 *histo1, TH1 *histo2, TH1 *histo3, TH1 * histo4, TH1 * histo5) { 
@@ -159,7 +156,6 @@ namespace fit {
      double chi2 = chi1_() + chi2_() + chi3_() + chi4_();
      static size_t count = 0;
      ++count;
-     if(count % 10 == 0) std::cout << ">>> total chi-2: " << chi2 << std::endl;
      return chi2;
    }
    void setHistos(TH1 *histo1, TH1 *histo2, TH1 *histo3, TH1 * histo4) { 
@@ -285,6 +281,17 @@ namespace fit {
     }
    private:
     HistoChiSquare<T1> chi1_;
+  };
+
+ template<typename T1, typename T2, typename T3, 
+          typename T4, typename T5, typename T6>
+  struct RootMinuitResultPrinter<MultiHistoChiSquare<T1, T2, T3, T4, T5, T6> > {
+    static void print(double amin, double numberOfFreeParameters, const MultiHistoChiSquare<T1, T2, T3, T4, T5, T6> & f) {
+      int ndof = f.degreesOfFreedom() - numberOfFreeParameters;
+	std::cout << "chi-squared/n.d.o.f. = " << amin << "/" << ndof << " = " << amin/ndof 
+		  << "; prob: " << TMath::Prob(amin, ndof)
+		  << std::endl;
+    }
   };
 }
 
