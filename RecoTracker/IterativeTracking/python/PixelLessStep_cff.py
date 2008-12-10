@@ -1,9 +1,14 @@
 import FWCore.ParameterSet.Config as cms
 
 #HIT REMOVAL
+thfilter = cms.EDFilter("QualityFilter",
+    TrackQuality = cms.string('highPurity'),
+    recTracks = cms.InputTag("thStep")
+)
+
 fourthClusters = cms.EDFilter("TrackClusterRemover",
     oldClusterRemovalInfo = cms.InputTag("thClusters"),
-    trajectories = cms.InputTag("thStep"),
+    trajectories = cms.InputTag("thfilter"),
     pixelClusters = cms.InputTag("thClusters"),
     Common = cms.PSet(
         maxChi2 = cms.double(30.0)
@@ -145,7 +150,7 @@ pixellessStep.dz_par1 = ( 1.0, 4.0 )
 pixellessStep.d0_par2 = ( 1.0, 4.0 )
 pixellessStep.dz_par2 = ( 1.0, 4.0 )
 
-fourthStep = cms.Sequence(fourthClusters*
+fourthStep = cms.Sequence(thfilter*fourthClusters*
                           fourthPixelRecHits*fourthStripRecHits*
                           fourthPLSeeds*
                           fourthTrackCandidates*
