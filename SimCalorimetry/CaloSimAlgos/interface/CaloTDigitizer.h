@@ -107,6 +107,7 @@ public:
   {
     std::vector<CaloSamples> noiseSignals;
     // noise signals need to be in units of photoelectrons.  Fractional is OK
+    theNoiseSignalGenerator->fillEvent();
     theNoiseSignalGenerator->getNoiseSignals(noiseSignals);
     for(std::vector<CaloSamples>::const_iterator signalItr = noiseSignals.begin(),
         signalEnd = noiseSignals.end(); signalItr != signalEnd; ++signalItr)
