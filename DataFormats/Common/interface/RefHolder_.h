@@ -51,12 +51,12 @@ namespace edm {
 
     template <class REF>
     RefHolder<REF>::RefHolder() : 
-      ref_()
+      RefHolderBase(), ref_()
     { }
   
     template <class REF>
     RefHolder<REF>::RefHolder(RefHolder const& rhs) :
-      ref_( rhs.ref_ )
+      RefHolderBase(rhs), ref_( rhs.ref_ )
     { }
 
     template <class REF>
@@ -66,7 +66,7 @@ namespace edm {
 
     template <class REF>
     RefHolder<REF>::RefHolder(REF const& ref) : 
-      ref_(ref) 
+      RefHolderBase(), ref_(ref) 
     { }
 
     template <class REF>

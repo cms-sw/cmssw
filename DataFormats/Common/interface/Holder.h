@@ -53,19 +53,19 @@ namespace edm {
 
     template <class T, class REF>
     inline
-    Holder<T,REF>::Holder() : 
+    Holder<T,REF>::Holder() : BaseHolder<T>(),
       ref_()
     {  }
 
     template <class T, class REF>
     inline
-    Holder<T,REF>::Holder(Holder const& other) :
+    Holder<T,REF>::Holder(Holder const& other) : BaseHolder<T>(other),
       ref_(other.ref_)
     { }
 
     template <class T, class REF>
     inline
-    Holder<T,REF>::Holder(REF const& r) :
+    Holder<T,REF>::Holder(REF const& r) : BaseHolder<T>(),
       ref_(r)
     { }
 

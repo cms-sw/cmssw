@@ -95,19 +95,19 @@ namespace edm {
     };
 
     template <typename T>
-    IndirectVectorHolder<T>::IndirectVectorHolder() : helper_( 0 ) { }
+    IndirectVectorHolder<T>::IndirectVectorHolder() : BaseVectorHolder<T>(), helper_( 0 ) { }
 
     template <typename T>
     IndirectVectorHolder<T>::IndirectVectorHolder(boost::shared_ptr<RefVectorHolderBase> p) :
-      helper_(p->clone()) { }
+      BaseVectorHolder<T>(), helper_(p->clone()) { }
 
     template <typename T>
     IndirectVectorHolder<T>::IndirectVectorHolder(RefVectorHolderBase * p) :
-      helper_(p) { }
+      BaseVectorHolder<T>(), helper_(p) { }
 
     template <typename T>
     IndirectVectorHolder<T>::IndirectVectorHolder( const IndirectVectorHolder & other ) :
-      helper_( other.helper_->clone() ) { }
+      BaseVectorHolder<T>(), helper_( other.helper_->clone() ) { }
 
     template <typename T>
     IndirectVectorHolder<T>::~IndirectVectorHolder() { 

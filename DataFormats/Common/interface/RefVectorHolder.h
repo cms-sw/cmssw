@@ -12,8 +12,8 @@ namespace edm {
     template<typename REFV>
     class RefVectorHolder : public RefVectorHolderBase  {
     public:
-      RefVectorHolder() { }
-      RefVectorHolder( const REFV & refs ) : refs_( refs ) { }
+      RefVectorHolder() : RefVectorHolderBase() { }
+      RefVectorHolder(const REFV & refs) : RefVectorHolderBase(), refs_(refs) { }
       virtual ~RefVectorHolder() { }
       void swap(RefVectorHolder& other);
       RefVectorHolder& operator=(RefVectorHolder const& rhs);

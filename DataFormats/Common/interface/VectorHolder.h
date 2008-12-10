@@ -18,9 +18,9 @@ namespace edm {
       typedef typename base_type::const_iterator const_iterator;
       typedef REFV                               ref_vector_type;
 
-      VectorHolder() {}
-      explicit VectorHolder(const ref_vector_type& iRefVector) : refVector_(iRefVector) {}
-      explicit VectorHolder(const ProductID& id) : refVector_(id) {}
+      VectorHolder() : base_type() {}
+      explicit VectorHolder(const ref_vector_type& iRefVector) : base_type(), refVector_(iRefVector) {}
+      explicit VectorHolder(const ProductID& id) : base_type(), refVector_(id) {}
       virtual ~VectorHolder() {}
       virtual base_type* clone() const { return new VectorHolder(*this); }
       virtual base_type* cloneEmpty() const { return new VectorHolder(refVector_.id()); }

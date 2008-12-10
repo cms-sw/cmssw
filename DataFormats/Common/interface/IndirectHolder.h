@@ -25,7 +25,7 @@ namespace edm {
       // It may be better to use auto_ptr<RefHolderBase> in
       // this constructor, so that the cloning can be avoided. I'm not
       // sure if use of auto_ptr here causes any troubles elsewhere.
-      IndirectHolder() : helper_( 0 ) { }
+      IndirectHolder() : BaseHolder<T>(), helper_( 0 ) { }
       IndirectHolder(boost::shared_ptr<RefHolderBase> p);
       IndirectHolder(IndirectHolder const& other);
       IndirectHolder& operator= (IndirectHolder const& rhs);
@@ -63,13 +63,13 @@ namespace edm {
     template <typename T>
     inline
     IndirectHolder<T>::IndirectHolder(boost::shared_ptr<RefHolderBase> p) :
-      helper_(p->clone()) 
+      BaseHolder<T>(), helper_(p->clone()) 
     { }
 
     template <typename T>
     inline
     IndirectHolder<T>::IndirectHolder(IndirectHolder const& other) : 
-      helper_(other.helper_->clone()) 
+      BaseHolder<T>(other), helper_(other.helper_->clone()) 
     { }
 
     template <typename T>
