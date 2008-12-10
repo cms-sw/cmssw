@@ -60,11 +60,11 @@ namespace fit {
 
   template<typename T>
   struct RootMinuitResultPrinter<HistoChiSquare<T> > {
-    static void print(double amin, double numberOfFreeParameters, const HistoChiSquare<T> & f) {
-      double ndof = f.degreesOfFreedom() - numberOfFreeParameters;
-	std::cout << "chi-squared/n.d.o.f. = " << amin << "/" << ndof << " = " << amin/ndof 
-		  << "; prob: " << TMath::Prob(amin, ndof)
-		  << std::endl;
+    static void print(double amin, unsigned int numberOfFreeParameters, const HistoChiSquare<T> & f) {
+      unsigned int ndof = f.degreesOfFreedom() - numberOfFreeParameters;
+      std::cout << "chi-squared/n.d.o.f. = " << amin << "/" << ndof << " = " << amin/ndof 
+		<< "; prob: " << TMath::Prob(amin, ndof)
+		<< std::endl;
     }
   };
 }

@@ -286,11 +286,12 @@ namespace fit {
  template<typename T1, typename T2, typename T3, 
           typename T4, typename T5, typename T6>
   struct RootMinuitResultPrinter<MultiHistoChiSquare<T1, T2, T3, T4, T5, T6> > {
-    static void print(double amin, double numberOfFreeParameters, const MultiHistoChiSquare<T1, T2, T3, T4, T5, T6> & f) {
-      int ndof = f.degreesOfFreedom() - numberOfFreeParameters;
-	std::cout << "chi-squared/n.d.o.f. = " << amin << "/" << ndof << " = " << amin/ndof 
-		  << "; prob: " << TMath::Prob(amin, ndof)
-		  << std::endl;
+    static void print(double amin, unsigned int numberOfFreeParameters, 
+		      const MultiHistoChiSquare<T1, T2, T3, T4, T5, T6> & f) {
+      unsigned int ndof = f.degreesOfFreedom() - numberOfFreeParameters;
+      std::cout << "chi-squared/n.d.o.f. = " << amin << "/" << ndof << " = " << amin/ndof 
+		<< "; prob: " << TMath::Prob(amin, ndof)
+		<< std::endl;
     }
   };
 }

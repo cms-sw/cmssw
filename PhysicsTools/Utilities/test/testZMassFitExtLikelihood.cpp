@@ -20,8 +20,8 @@ int main() {
   gROOT->SetStyle("Plain");
   typedef funct::BreitWigner PDF;
   typedef std::vector<double> Sample;
-  typedef fit::Likelihood<Sample, PDF> Likelihood;
-  typedef funct::Product<funct::Parameter, PDF>::type PlotFunction;
+  typedef funct::Product<funct::Parameter, PDF>::type FitFunction;
+  typedef fit::Likelihood<Sample, FitFunction, funct::Parameter> Likelihood;
   try {
     fit::RootMinuitCommands<Likelihood> commands("PhysicsTools/Utilities/test/testZMassFitLikelihood.txt");
     
@@ -35,7 +35,7 @@ int main() {
     funct::BreitWigner bw(mass, gamma);
     
     PDF pdf = bw;
-    PlotFunction f = yield * pdf;
+    FitFunction f = yield * pdf;
     TF1 startFun = root::tf1("startFun", f, 0, 200, yield, mass, gamma);
     TH1D histo("histo", "Z mass (GeV/c)", 200, 0, 200);
     Sample sample;
@@ -55,21 +55,22 @@ int main() {
     histo.Draw("e");
     startFun.Draw("same");
     
-    Likelihood like(sample, pdf);
+    Likelihood like(sample, f, yield);
     fit::RootMinuit<Likelihood> minuit(like, true);
+    commands.add(minuit, yield);
     commands.add(minuit, mass);
     commands.add(minuit, gamma);
     commands.run(minuit);
-    ROOT::Math::SMatrix<double, 2, 2, ROOT::Math::MatRepSym<double, 2> > err;
+    ROOT::Math::SMatrix<double, 3, 3, ROOT::Math::MatRepSym<double, 3> > err;
     minuit.getErrorMatrix(err);
     std::cout << "error matrix:" << std::endl;
-    for(size_t i = 0; i < 2; ++i) {
-      for(size_t j = 0; j < 2; ++j) {
+    for(size_t i = 0; i < 3; ++i) {
+      for(size_t j = 0; j < 3; ++j) {
 	std::cout << err(i, j) << "\t";
       }
       std::cout << std::endl;
     } 
-    root::plot<PlotFunction>("breitWignerHistoFunFit.eps", histo, f, 80, 120, yield, mass, gamma);
+    root::plot<FitFunction>("breitWignerHistoFunFit.eps", histo, f, 80, 120, yield, mass, gamma);
   } catch(std::exception & err){
     std::cerr << "Exception caught:\n" << err.what() << std::endl;
     return 1;
