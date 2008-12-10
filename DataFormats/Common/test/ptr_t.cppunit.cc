@@ -23,7 +23,6 @@
 #include <typeinfo>
 
 using namespace edm;
-using namespace std;
 using namespace test_with_reflex;
 
 class testPtr: public CppUnit::TestFixture {
@@ -283,7 +282,6 @@ void testPtr::comparisonTest() {
 
 
 namespace {
-  using namespace Reflex;
    struct TestGetter : public edm::EDProductGetter {
       EDProduct const* hold_;
       EDProduct const* getIt(ProductID const&) const {

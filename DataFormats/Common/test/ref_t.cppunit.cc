@@ -16,7 +16,6 @@
 #include "DataFormats/Common/interface/RefToBaseProd.h"
 #include <iostream>
 using namespace edm;
-using namespace std;
 
 class testRef: public CppUnit::TestFixture {
    CPPUNIT_TEST_SUITE(testRef);
@@ -234,30 +233,30 @@ void testRef::getTest() {
    refProd0b.refCore().setProductPtr(0);
    CPPUNIT_ASSERT(1 == (*refProd0b)[1].value_);
 
-   cerr << ">>> RefToBaseProd from RefProd" << endl;
+   std::cerr << ">>> RefToBaseProd from RefProd" << std::endl;
    RefToBaseProd<IntValue> refToBaseProd0(refProd0);
-   cerr << ">>> RefToBaseProd from Ref" << endl;
+   std::cerr << ">>> RefToBaseProd from Ref" << std::endl;
    RefToBaseProd<IntValue> refToBaseProd1(ref0);
-   cerr << ">>> RefToBaseProd from Handle" << endl;
+   std::cerr << ">>> RefToBaseProd from Handle" << std::endl;
    RefToBaseProd<IntValue> refToBaseProd2(handle);
-   cerr << ">>> checking View from RefToBaseProd" << endl;
+   std::cerr << ">>> checking View from RefToBaseProd" << std::endl;
    const View<IntValue> & vw = * refToBaseProd0;
-   cerr << ">>> checking View not empty" << endl;
+   std::cerr << ">>> checking View not empty" << std::endl;
    CPPUNIT_ASSERT( ! vw.empty() );
-   cerr << ">>> checking View size" << endl;
+   std::cerr << ">>> checking View size" << std::endl;
    CPPUNIT_ASSERT( vw.size() == 2 );
-   cerr << ">>> checking View element #0" << endl;
+   std::cerr << ">>> checking View element #0" << std::endl;
    CPPUNIT_ASSERT( vw[0].value_ == ref0->value_ );
-   cerr << ">>> checking View element #1" << endl;
+   std::cerr << ">>> checking View element #1" << std::endl;
    CPPUNIT_ASSERT( vw[1].value_ == ref1->value_ );
-   cerr << ">>> RefToBaseProd from View" << endl;
+   std::cerr << ">>> RefToBaseProd from View" << std::endl;
    RefToBaseProd<IntValue> refToBaseProd3(vw);
-   cerr << ">>> checking ref. not empty" << endl;
+   std::cerr << ">>> checking ref. not empty" << std::endl;
    CPPUNIT_ASSERT( ! refToBaseProd3->empty() );
-   cerr << ">>> checking ref. size" << endl;
+   std::cerr << ">>> checking ref. size" << std::endl;
    CPPUNIT_ASSERT( refToBaseProd3->size() == 2 );
-   cerr << ">>> checking ref. element #0" << endl;
+   std::cerr << ">>> checking ref. element #0" << std::endl;
    CPPUNIT_ASSERT( (*refToBaseProd3)[0].value_ == ref0->value_ );
-   cerr << ">>> checking ref. element #1" << endl;
+   std::cerr << ">>> checking ref. element #1" << std::endl;
    CPPUNIT_ASSERT( (*refToBaseProd3)[1].value_ == ref1->value_ );
 }
