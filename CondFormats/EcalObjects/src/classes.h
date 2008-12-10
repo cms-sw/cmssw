@@ -187,6 +187,20 @@ namespace {
  EcalMappingElectronics ecalMap;
 }
 
+#include "CondFormats/EcalObjects/interface/EcalClusterLocalContCorrParameters.h"
+namespace {
+  namespace {
+    EcalClusterLocalContCorrParameters clusterLocalContCorrParams;
+  }
+}
+
+#include "CondFormats/EcalObjects/interface/EcalClusterCrackCorrParameters.h"
+namespace {
+  namespace {
+    EcalClusterCrackCorrParameters clusterCrackCorrParams;
+  }
+}
+
 //UB
 #include "CondFormats/EcalObjects/interface/EcalTPGFineGrainEBGroup.h"
 namespace {
