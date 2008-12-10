@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2008/10/17 09:57:43 $
- *  $Revision: 1.9 $
+ *  $Date: 2008/11/05 14:03:10 $
+ *  $Revision: 1.10 $
  *
  *  \author Martin Grunewald
  *
@@ -14,23 +14,14 @@
 #include <iostream>
 #include <iomanip>
 #include <boost/foreach.hpp>
-#include <boost/regex.hpp>
-#include <boost/algorithm/string.hpp>
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/RegexMatch.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "HLTrigger/HLTfilters/interface/HLTHighLevel.h"
-
-// static functions (partly taken from EventSelector) - see below
-bool is_glob(const std::string & pattern);
-  
-std::string glob2reg(const std::string & pattern);
-
-std::vector< std::vector<std::string>::const_iterator > 
-matching_triggers(const std::vector<std::string> & triggers, const std::string & pattern);
 
 //
 // constructors and destructor
@@ -79,9 +70,9 @@ void HLTHighLevel::init(const edm::TriggerResults & result)
    } else {
      // otherwise, expand wildcards in trigger names...
      BOOST_FOREACH(const std::string & pattern, HLTPatterns_) {
-       if (is_glob(pattern)) {
+       if (edm::is_glob(pattern)) {
          // found a glob pattern, expand it
-         std::vector< std::vector<std::string>::const_iterator > matches = matching_triggers(triggerNames_.triggerNames(), glob2reg(pattern));
+         std::vector< std::vector<std::string>::const_iterator > matches = edm::regexMatch(triggerNames_.triggerNames(), pattern);
          if (matches.empty()) {
            // pattern does not match any trigger paths
            LogDebug("") << "requested pattern does not match any HLT paths: " << pattern;
@@ -191,32 +182,4 @@ HLTHighLevel::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    LogDebug("") << "Accept = " << std::boolalpha << accept;
 
    return accept;
-}
-
-// ----------------------------------------------------------------------------
-// static functions copied from EventSelector
-
-bool is_glob(const std::string & pattern)
-{
-  return (pattern.find_first_of("*?") != pattern.npos);
-}
-
-std::string glob2reg(const std::string & pattern) 
-{
-  std::string regexp = pattern;
-  boost::replace_all(regexp, "*", ".*");
-  boost::replace_all(regexp, "?", ".");
-  return regexp;
-}
-
-std::vector< std::vector<std::string>::const_iterator > 
-matching_triggers(const std::vector<std::string> & triggers, const std::string & pattern) 
-{
-  std::vector< std::vector<std::string>::const_iterator > matches;
-  boost::regex regexp( glob2reg(pattern) );
-  for (std::vector<std::string>::const_iterator i = triggers.begin(); i != triggers.end(); ++i)
-    if (boost::regex_match((*i), regexp)) 
-      matches.push_back(i);
-
-  return matches;
 }
