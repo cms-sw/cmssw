@@ -29,8 +29,6 @@
 
 namespace cscdqm {
 
-  using namespace XERCES_CPP_NAMESPACE;
-
   /**
    * @class Exception
    * @brief Application level Exception that is used to cut-off application
@@ -60,22 +58,22 @@ namespace cscdqm {
    * @brief Takes care of errors and warnings while parsing XML files
    * file in XML format.
    */
-  class XMLFileErrorHandler : public ErrorHandler {
+  class XMLFileErrorHandler : public XERCES_CPP_NAMESPACE::ErrorHandler {
 
     public:
 
-      void warning(const SAXParseException& exc) {
-        char* message = XMLString::transcode(exc.getMessage());
+      void warning(const XERCES_CPP_NAMESPACE::SAXParseException& exc) {
+        char* message = XERCES_CPP_NAMESPACE::XMLString::transcode(exc.getMessage());
         LOG_WARN << "File: " << message << ". line: " << exc.getLineNumber() << " col: " << exc.getColumnNumber();
-        XMLString::release(&message);
+        XERCES_CPP_NAMESPACE::XMLString::release(&message);
       }
 
-      void error(const SAXParseException& exc) {
+      void error(const XERCES_CPP_NAMESPACE::SAXParseException& exc) {
         this->fatalError(exc);
       }
 
-      void fatalError(const SAXParseException& exc) {
-        char* message = XMLString::transcode(exc.getMessage());
+      void fatalError(const XERCES_CPP_NAMESPACE::SAXParseException& exc) {
+        char* message = XERCES_CPP_NAMESPACE::XMLString::transcode(exc.getMessage());
         LOG_ERROR << "File: " << message << ". line: " << exc.getLineNumber() << " col: " << exc.getColumnNumber();
         throw Exception(message);
       }

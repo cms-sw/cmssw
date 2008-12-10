@@ -21,19 +21,10 @@
 
 #include <iostream>
 
-#ifdef DQMGLOBAL
-
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
+
 #define LOG_DEBUG       ((!edm::MessageDrop::instance()->debugEnabled) ? \
                         cscdqm::LogDebugger() : cscdqm::LogDebugger(true))
-
-#endif
-
-#ifdef DQMLOCAL
-
-#define LOG_DEBUG       cscdqm::LogDebugger()
-
-#endif
 
 #define LOG_ERROR       cscdqm::LogError()
 #define LOG_WARN        cscdqm::LogWarn()
@@ -47,8 +38,6 @@ namespace cscdqm {
    * @brief Base Logger Object (empty)
    */
   class Logger { };
-
-//#ifdef DQMGLOBAL
 
   /**
    * @class LogInfo
@@ -77,6 +66,8 @@ namespace cscdqm {
     public: LogError() : edm::LogError("") { }
   };
 
+#ifdef DQMGLOBAL
+
   /**
    * @class LogDebugger
    * @brief Debug Level logger. Use LOG_DEBUG macros instead, i.e. LOG_DEBUG <<
@@ -88,7 +79,22 @@ namespace cscdqm {
       LogDebugger(const bool& b) : edm::LogDebug_("", __FILE__, __LINE__) { }
   };
 
-//#endif
+#endif
+
+#ifdef DQMLOCAL
+
+  /**
+   * @class LogDebugger
+   * @brief Debug Level logger. Use LOG_DEBUG macros instead, i.e. LOG_DEBUG <<
+   * "x = " << x;
+   */
+  class LogDebugger : public edm::LogDebug, public Logger {
+    public: 
+      LogDebugger() : edm::LogDebug("") { }
+      LogDebugger(const bool& b) : edm::LogDebug("") { }
+  };
+
+#endif
 
   /**
    * @class LogCout
