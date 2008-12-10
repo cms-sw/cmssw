@@ -70,46 +70,16 @@ EcalUnpackerWorker::EcalUnpackerWorker(const edm::ParameterSet & conf){
   unpacker_->setInvalidMemChIdsCollection(& productInvalidMemChIds);
   unpacker_->setInvalidMemGainsCollection(& productInvalidMemGains);
 
-  /// EcalUncalibRecHitRecWeightsAlgo
-  uncalibMaker_barrel_ = new EcalUncalibRecHitRecWeightsAlgo<EBDataFrame>();
-  uncalibMaker_endcap_ = new EcalUncalibRecHitRecWeightsAlgo<EEDataFrame>();
-    
-  /// EcalRecHitAbsAlgo
-  rechitMaker_ = new EcalRecHitSimpleAlgo();
-  
-  v_chstatus_ = conf.getParameter<std::vector<int> >("ChannelStatusToBeExcluded");
-
   DCCDataUnpacker::silentMode_ = conf.getUntrackedParameter<bool> ("silentMode",true);
 }
 
 EcalUnpackerWorker::~EcalUnpackerWorker(){
-  //free all the memory
-  //wil matter if worker is re-created by eventsetup
-  /*
-  delete uncalibMaker_barrel;
-  delete uncalibMaker_endcap;
-  delete rechitMaker_;
-  delete myMap_;
-  delete unpacker_;
-  */
 }
 
-void EcalUnpackerWorker::setHandles(const EcalUnpackerWorkerRecord & iRecord){
-  
-  iRecord.getRecord<EcalPedestalsRcd>().get(peds);
-  iRecord.getRecord<EcalGainRatiosRcd>().get(gains);
-  iRecord.getRecord<EcalWeightXtalGroupsRcd>().get(grps);
-  iRecord.getRecord<EcalTBWeightsRcd>().get(wgts);
-
-  iRecord.getRecord<EcalIntercalibConstantsRcd>().get(ical);
-  iRecord.getRecord<EcalADCToGeVConstantRcd>().get(agc);
-  iRecord.getRecord<EcalChannelStatusRcd>().get(chStatus);
-  iRecord.getRecord<EcalLaserDbRecord>().get(laser);
-
-  iRecord.getRecord<EcalRegionCablingRecord>().get(cabling);
-
-  //the mapping is set as long as the mapping is valid.
-  myMap_->setEcalElectronicsMapping(cabling->mapping());
+void EcalUnpackerWorker::set(const edm::EventSetup & es) const {
+  UnCalibWorker_->set(es);
+  CalibWorker_->set(es);
+  es.get<EcalRegionCablingRecord>().get(cabling);
 }
 
 void EcalUnpackerWorker::write(edm::Event & e) const{

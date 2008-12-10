@@ -46,8 +46,8 @@ EcalRawToRecHitFacility::produce(edm::Event& iEvent, const edm::EventSetup& iSet
   iSetup.get<EcalUnpackerWorkerRecord>().get(workerName_, worker);
   LogDebug("EcalRawToRecHit|Facility")<<"worker retrieved."
 				      << watcher.lap();
-
   //need to set the event because the worker will be accessing data from the event
+  worker->set(iSetup);
   worker->update(iEvent);
   LogDebug("EcalRawToRecHit|Facility")<<"worker updated."
 				      << watcher.lap();

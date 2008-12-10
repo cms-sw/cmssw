@@ -10,19 +10,12 @@
 #include "EventFilter/EcalRawToDigiDev/interface/EcalElectronicsMapper.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
-#include "DataFormats/EcalDetId/interface/EcalDetIdCollections.h"
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalUncalibRecHitRecWeightsAlgo.h"
-#include "CondFormats/EcalObjects/interface/EcalPedestals.h"
-#include "CondFormats/EcalObjects/interface/EcalGainRatios.h"
-#include "CondFormats/EcalObjects/interface/EcalWeightXtalGroups.h"
-#include "CondFormats/EcalObjects/interface/EcalTBWeights.h"
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalRecHitAbsAlgo.h"
-#include "CondFormats/EcalObjects/interface/EcalIntercalibConstants.h"
-#include "CondFormats/EcalObjects/interface/EcalADCToGeVConstant.h"
-#include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
-#include "CalibCalorimetry/EcalLaserCorrection/interface/EcalLaserDbService.h"
+
 #include "EventFilter/EcalRawToDigi/interface/EcalUnpackerWorkerRecord.h"
 #include "EventFilter/EcalRawToDigi/interface/EcalRegionCabling.h"
+
+#include "RecoLocalCalo/EcalRecProducers/interface/EcalUncalibRecHitWorkerBaseClass.h"
+#include "RecoLocalCalo/EcalRecProducers/interface/EcalRecHitWorkerBaseClass.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -47,6 +40,7 @@ class EcalUnpackerWorker {
   void write(edm::Event &e) const;
 
   void setHandles(const EcalUnpackerWorkerRecord & iRecord);
+  void set(const edm::EventSetup & es) const;
   
  private:
 
@@ -77,23 +71,10 @@ class EcalUnpackerWorker {
   mutable std::auto_ptr<EcalElectronicsIdCollection> productInvalidMemChIds;
   mutable std::auto_ptr<EcalElectronicsIdCollection> productInvalidMemGains;
 
-  edm::ESHandle<EcalRegionCabling> cabling;  
+  mutable edm::ESHandle<EcalRegionCabling> cabling;
 
-  EcalUncalibRecHitRecWeightsAlgo<EBDataFrame> * uncalibMaker_barrel_;
-  EcalUncalibRecHitRecWeightsAlgo<EEDataFrame> * uncalibMaker_endcap_;
-
-  edm::ESHandle<EcalPedestals> peds;
-  edm::ESHandle<EcalGainRatios>  gains;
-  edm::ESHandle<EcalWeightXtalGroups>  grps;
-  edm::ESHandle<EcalTBWeights> wgts;
-
-  EcalRecHitAbsAlgo * rechitMaker_;
-
-  edm::ESHandle<EcalIntercalibConstants> ical;
-  edm::ESHandle<EcalADCToGeVConstant> agc;
-  edm::ESHandle<EcalChannelStatus> chStatus;
-  std::vector<int> v_chstatus_;
-  edm::ESHandle<EcalLaserDbService> laser;
+  EcalUncalibRecHitWorkerBaseClass * UnCalibWorker_;
+  EcalRecHitWorkerBaseClass * CalibWorker_;
 
  public:
 
@@ -106,145 +87,18 @@ class EcalUnpackerWorker {
 
     EcalDigiCollection::const_iterator itdg = beginDigi;
     /*R*/ LogDebug("EcalRawToRecHit|Worker")<<"iterator check." ;
-    EcalTBWeights::EcalTBWeightMap const & wgtsMap = wgts->getMap();
-    /*R*/ LogDebug("EcalRawToRecHit|Worker")<<"weight map check."<<watcher.lap();
-
-
-    
-    //for the uncalibrated rechits
-    const EcalPedestals::Item* aped = 0;
-    const EcalMGPAGainRatio* aGain = 0;
-    const EcalXtalGroupId * gid = 0;
-    double pedVec[3];
-    double gainRatios[3];
-    // use a fake TDC iD for now until it become available in raw data
-    EcalTBWeights::EcalTDCId tdcid(1);
-    const EcalWeightSet::EcalWeightMatrix* weights[2];
-    const EcalWeightSet::EcalChi2WeightMatrix* chi2mat[2];
-
-    //for the calibrated rechits.
-    const EcalIntercalibConstantMap& icalMap=ical->getMap();  
-    if (DID::subdet()==EcalEndcap){ 
-      rechitMaker_->setADCToGeVConstant(float(agc->getEEValue())); 
-      /*R*/ LogDebug("EcalRawToRecHit|Worker")<<"ADCtoGeV constant set in EE: "<<agc->getEEValue() 
-					      <<watcher.lap(); 
-    } 
-    else{ 
-      rechitMaker_->setADCToGeVConstant(float(agc->getEBValue())); 
-      /*R*/ LogDebug("EcalRawToRecHit|Worker")<<"ADCtoGeV constant set in EB: "<<agc->getEBValue() 
-					      <<watcher.lap(); 
-    } 
 
     for(; itdg != endDigi; ++itdg) 
       {
-	/*R*/ LogDebug("EcalRawToRecHit|Worker")<<"starting dealing with one digi." 
-						<<watcher.lap();
-	DID detid(itdg->id());
-
-	//check if the channel is masked
-	EcalChannelStatusMap::const_iterator chit = chStatus->find(itdg->id());
-	EcalChannelStatusCode chStatusCode = 1;
-	if ( chit != chStatus->end() ) {
-	  chStatusCode = *chit;
-	} else {
-	  edm::LogError("EcalRawToRecHit|Worker") << "No channel status found for xtal " << detid << "! something wrong with EcalChannelStatus in your DB? ";
-	  continue;
-	}
-	if ( v_chstatus_.size() > 0) {
-	  std::vector<int>::const_iterator res = std::find( v_chstatus_.begin(), v_chstatus_.end(), chStatusCode.getStatusCode() );
-	  if ( res != v_chstatus_.end() ) {
-	    continue;
-	  }
-	}
-	
 
 	//get the uncalibrated rechit
-	EcalUncalibratedRecHit EURH;
-	{
-	  unsigned int hashedIndex = detid.hashedIndex();
-	  // ### pedestal and gain first and groupid
-	  if (DID::subdet()==EcalEndcap){
-	    /*R*/ LogDebug("EcalRawToRecHit|Worker")<<"EndCap id, getting pedestals, gains and group id.\n"
-						    <<"detid: "<<detid<<"\n has hashed index: "<<hashedIndex
-						    <<watcher.lap();
-	    aped=&peds->endcap(hashedIndex);
-	    aGain=&gains->endcap(hashedIndex);
-	    gid=&grps->endcap(hashedIndex);}
-	  else {
-	    /*R*/ LogDebug("EcalRawToRecHit|Worker")<<"Barrel id, getting pedestals, gains and group id.\n"
-						    <<"detid: "<<detid<<"\n has hashed index: "<<hashedIndex
-						    <<watcher.lap();
-	    aped=&peds->barrel(hashedIndex);
-	    aGain=&gains->barrel(hashedIndex);
-	    gid=&grps->barrel(hashedIndex);}
-	  
-	  pedVec[0]=aped->mean_x12;pedVec[1]=aped->mean_x6;pedVec[2]=aped->mean_x1;
-	  gainRatios[0]=1.;gainRatios[1]=aGain->gain12Over6();gainRatios[2]=aGain->gain6Over1()*aGain->gain12Over6();
-	  /*R*/ LogDebug("EcalRawToRecHit|Worker")<<"peds and gains loaded.";
-	  
-	
-	  // now lookup the correct weights in the map
-	  EcalTBWeights::EcalTBWeightMap::const_iterator wit;
-	  wit = wgtsMap.find( std::make_pair(*gid,tdcid) );
-	  if( wit == wgtsMap.end() ) {
-	    edm::LogError("EcalUncalibRecHitError") << "No weights found for EcalGroupId: " << gid->id() << " and  EcalTDCId: " << tdcid
-						    << "\n  skipping digi with id: " << detid
-						    <<watcher.lap();
-	    /*R*/ LogDebug("EcalUncalibRecHitError") << "No weights found for EcalGroupId: " << gid->id() << " and  EcalTDCId: " << tdcid
-						     << "\n  skipping digi with id: " << detid
-						     <<watcher.lap();
-	    continue;
-	  }
-	  const EcalWeightSet& wset = wit->second; // this is the EcalWeightSet
-	  
-	  const EcalWeightSet::EcalWeightMatrix& mat1 = wset.getWeightsBeforeGainSwitch();
-	  const EcalWeightSet::EcalWeightMatrix& mat2 = wset.getWeightsAfterGainSwitch();
-	  const EcalWeightSet::EcalChi2WeightMatrix& mat3 = wset.getChi2WeightsBeforeGainSwitch();
-	  const EcalWeightSet::EcalChi2WeightMatrix& mat4 = wset.getChi2WeightsAfterGainSwitch();
-	  
-	  weights[0]=&mat1;
-	  weights[1]=&mat2;
-	  
-	  chi2mat[0]=&mat3;
-	  chi2mat[1]=&mat4;
-	  /*R*/ LogDebug("EcalRawToRecHit|Worker")<<"weights loaded."
-						  <<"creating an unaclibrated rechit."
-						  <<watcher.lap();
-	if (DID::subdet()==EcalEndcap)
-	  EURH = uncalibMaker_endcap_->makeRecHit(*itdg, pedVec, gainRatios, weights, chi2mat);
-	else
-	  EURH = uncalibMaker_barrel_->makeRecHit(*itdg, pedVec, gainRatios, weights, chi2mat);
-	uncalibRecHits->push_back(EURH);
-	/*R*/ LogDebug("EcalRawToRecHit|Worker")<<"created."
-						<<watcher.lap();
-	}//uncalib rechits
-    
-	//######### get the rechit #########
-	{
-	  // first intercalibration constants
-	  EcalIntercalibConstantMap::const_iterator icalit=icalMap.find(detid);
-	  EcalIntercalibConstant icalconst = 1;
-	  if( icalit!=icalMap.end() ){
-	    icalconst = (*icalit);
-	  } else {
-	    edm::LogError("EcalRecHitError") << "No intercalib const found for xtal " << detid<< "! something wrong with EcalIntercalibConstants in your DB? ";
-	    LogDebug("EcalRecHitError") << "No intercalib const found for xtal " << detid<< "! something wrong with EcalIntercalibConstants in your DB? ";
-	  }
-	  /*R*/ LogDebug("EcalRawToRecHit|Worker")<<"intercalibration constant loaded."
-						  <<watcher.lap();
+	/*R*/ LogDebug("EcalRawToRecHit|Worker")<<"ready to make Uncalib rechit."<<watcher.lap();
+	if (!UnCalibWorker_->run(*evt, itdg, *uncalibRecHits)) continue;
+	EcalUncalibratedRecHit & EURH=uncalibRecHits->back();
 
-	  // get laser coefficient
-	  float lasercalib = laser->getLaserCorrection( detid, evt->time());
-	  /*R*/ LogDebug("EcalRawToRecHit|Worker")<<"laser correction diode."
-						  <<watcher.lap();
-      
-	  // make the rechit and put in the output collection
-	  /*R*/ LogDebug("EcalRawToRecHit|Worker")<<"creating a rechit."
-						  <<watcher.lap();
-	  calibRechits->push_back(EcalRecHit( rechitMaker_->makeRecHit(EURH, icalconst * lasercalib) ));
-	  /*R*/ LogDebug("EcalRawToRecHit|Worker")<<"created."
-						  <<watcher.lap();
-	}//get the rechit
+	/*R*/ LogDebug("EcalRawToRecHit|Worker")<<"creating a rechit."<<watcher.lap();
+	if (!CalibWorker_->run(*evt, EURH, *calibRechits)) continue;
+	/*R*/ LogDebug("EcalRawToRecHit|Worker")<<"created."<<watcher.lap();
 
       }//loop over digis
   }
