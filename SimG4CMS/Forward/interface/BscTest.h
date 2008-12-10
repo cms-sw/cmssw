@@ -14,7 +14,6 @@
 
 // necessary objects:
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 
 //
 //
