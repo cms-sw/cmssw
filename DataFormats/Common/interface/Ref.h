@@ -5,8 +5,6 @@
   
 Ref: A template for a interproduct reference to a member of a product.
 
-$Id: Ref.h,v 1.37 2008/03/31 21:12:11 wmtan Exp $
-
 ----------------------------------------------------------------------*/
 /**
   \b Summary
@@ -291,7 +289,7 @@ namespace edm {
   private:
     // Compile time check that the argument is a C* or C const*
     // or derived from it.
-    void checkTypeAtCompileTime(C const* ptr) {}
+    void checkTypeAtCompileTime(C const*) {}
 
     RefBase<key_type> ref_;
   };
