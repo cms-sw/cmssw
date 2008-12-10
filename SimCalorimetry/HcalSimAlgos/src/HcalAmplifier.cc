@@ -1,5 +1,7 @@
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalAmplifier.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalSimParameters.h"
+#include "SimCalorimetry/CaloSimAlgos/interface/CaloVSimParameterMap.h"
+#include "SimCalorimetry/CaloSimAlgos/interface/CaloVNoiseSignalGenerator.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 #include "CondFormats/HcalObjects/interface/HcalPedestal.h"
 #include "CondFormats/HcalObjects/interface/HcalGain.h"
@@ -18,6 +20,7 @@ HcalAmplifier::HcalAmplifier(const CaloVSimParameterMap * parameters, bool addNo
   theDbService(0), 
   theRandGaussQ(0),
   theParameterMap(parameters),
+  theNoiseSignalGenerator(0),
   theStartingCapId(0), 
   addNoise_(addNoise)
 {
@@ -49,20 +52,25 @@ void HcalAmplifier::amplify(CaloSamples & frame) const {
   }
   */
 
-  double gauss [32]; //big enough
-  double noise [32]; //big enough
+  double noise [32] = {0.}; //big enough
   double fCperPE = parameters.photoelectronsToAnalog(frame.id());
 
-  for (int i = 0; i < frame.size(); i++) gauss[i] = theRandGaussQ->fire(0., 1.);
-
-  makeNoise(calibWidths, frame.size(), gauss, noise);
+  // add noise if the noise signal generator didn't already
+  bool doNoise = addNoise_ && (theNoiseSignalGenerator==0 || !theNoiseSignalGenerator->contains(frame.id()));
+ 
+  if(doNoise)
+  {
+    double gauss [32]; //big enough
+    for (int i = 0; i < frame.size(); i++) gauss[i] = theRandGaussQ->fire(0., 1.);
+    makeNoise(calibWidths, frame.size(), gauss, noise);
+  }
 
   for(int tbin = 0; tbin < frame.size(); ++tbin) {
     int capId = (theStartingCapId + tbin)%4;
 
     double pedestal = calibs.pedestal(capId);
 
-    if(addNoise_) {
+    if(doNoise) {
       pedestal += noise [tbin];
     }
     frame[tbin] *= fCperPE;
