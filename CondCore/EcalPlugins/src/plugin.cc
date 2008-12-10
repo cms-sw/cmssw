@@ -41,6 +41,12 @@
 // #include "CondFormats/EcalObjects/interface/EcalLaserAPDPNRatiosRef.h"
 #include "CondFormats/DataRecord/interface/EcalLaserAPDPNRatiosRefRcd.h"
 
+#include "CondFormats/EcalObjects/interface/EcalFunctionParameters.h"
+#include "CondFormats/EcalObjects/interface/EcalClusterCrackCorrParameters.h"
+#include "CondFormats/DataRecord/interface/EcalClusterCrackCorrParametersRcd.h"
+#include "CondFormats/EcalObjects/interface/EcalClusterLocalContCorrParameters.h"
+#include "CondFormats/DataRecord/interface/EcalClusterLocalContCorrParametersRcd.h"
+
 #include "CondFormats/EcalObjects/interface/EcalTPGPedestals.h"
 #include "CondFormats/DataRecord/interface/EcalTPGPedestalsRcd.h"
 
@@ -96,6 +102,10 @@ REGISTER_PLUGIN(EcalLaserAlphasRcd,EcalFloatCondObjectContainer);
 REGISTER_PLUGIN(EcalLaserAPDPNRatiosRcd,EcalLaserAPDPNRatios);
 REGISTER_PLUGIN(EcalLaserAPDPNRatiosRefRcd,EcalFloatCondObjectContainer);
 REGISTER_PLUGIN(EcalChannelStatusRcd,EcalChannelStatus);
+
+REGISTER_PLUGIN(EcalClusterCrackCorrParametersRcd,EcalFunctionParameters);
+REGISTER_PLUGIN(EcalClusterLocalContCorrParametersRcd,EcalFunctionParameters);
+
 REGISTER_PLUGIN(EcalMappingElectronicsRcd,EcalMappingElectronics);
 
 REGISTER_PLUGIN(EcalTPGPedestalsRcd,EcalTPGPedestals);
