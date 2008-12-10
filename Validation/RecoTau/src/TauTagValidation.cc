@@ -15,7 +15,7 @@
 //
 // Original Author:  Ricardo Vasquez Sierra
 //         Created:  October 8, 2008
-// $Id: TauTagValidation.cc,v 1.1 2008/10/17 10:08:30 vasquez Exp $
+// $Id: TauTagValidation.cc,v 1.2 2008/10/24 19:39:00 vasquez Exp $
 //
 //
 // user include files
@@ -94,7 +94,7 @@ void TauTagValidation::beginJob(const edm::EventSetup& iConfig)
 
     MonitorElement * ptTemp,* etaTemp,* phiTemp, *energyTemp;
     
-    dbeTau->setCurrentFolder("RecoTauV/RefCollection_" + TauProducer_);
+    dbeTau->setCurrentFolder("RecoTauV/" + TauProducer_ + "_"+ refCollection_.label() );
 
     // What kind of Taus do we originally have!
     
@@ -110,7 +110,7 @@ void TauTagValidation::beginJob(const edm::EventSetup& iConfig)
 
     // Number of Tau Candidates matched to MC Taus    
 
-    dbeTau->setCurrentFolder("RecoTauV/"+TauProducer_ + "Matched_" + TauProducer_);
+    dbeTau->setCurrentFolder("RecoTauV/"+ TauProducer_ + "_Matched");
 
     ptTemp    =  dbeTau->book1D(TauProducer_ +"Matched_vs_ptTauVisible", TauProducer_ +"Matched_vs_ptTauVisible", 75, 0., 150.);
     etaTemp   =  dbeTau->book1D(TauProducer_ +"Matched_vs_etaTauVisible", TauProducer_ +"Matched_vs_etaTauVisible", 60, -3.0, 3.0 );
@@ -126,14 +126,13 @@ void TauTagValidation::beginJob(const edm::EventSetup& iConfig)
       {
 	string DiscriminatorLabel = it->getParameter<string>("discriminator");
 
-	dbeTau->setCurrentFolder("RecoTauV/" + DiscriminatorLabel + "_" + TauProducer_);
+	dbeTau->setCurrentFolder("RecoTauV/" + TauProducer_ + "_" +  DiscriminatorLabel );
 	
 	ptTemp    =  dbeTau->book1D(DiscriminatorLabel + "_vs_ptTauVisible", DiscriminatorLabel +"_vs_ptTauVisible", 75, 0., 150.);
 	etaTemp   =  dbeTau->book1D(DiscriminatorLabel + "_vs_etaTauVisible", DiscriminatorLabel + "_vs_etaTauVisible", 60, -3.0, 3.0 );
 	phiTemp   =  dbeTau->book1D(DiscriminatorLabel + "_vs_phiTauVisible", DiscriminatorLabel + "_vs_phiTauVisible", 36, -180., 180.);
 	energyTemp =  dbeTau->book1D(DiscriminatorLabel + "_vs_energyTauVisible", DiscriminatorLabel + "_vs_energyTauVisible", 45, 0., 450.0);
-	
-	
+		
 	ptTauVisibleMap.insert( std::make_pair(DiscriminatorLabel,ptTemp));
 	etaTauVisibleMap.insert( std::make_pair(DiscriminatorLabel,etaTemp));
 	phiTauVisibleMap.insert( std::make_pair(DiscriminatorLabel,phiTemp));
