@@ -100,7 +100,7 @@ TagProbeEDMAnalysis::TagProbeEDMAnalysis(const edm::ParameterSet& iConfig)
    // If want to use reconstructed or detector values (instead of MC generated values) 
    // of var1 and var2 when doing MC truth efficiencies (i.e., when "calcEffsTruth==true").
    useRecoVarsForTruthMatchedCands_ = 
-     iConfig.getUntrackedParameter< bool >("useRecoVarsForTruthMatchedCands",false);
+     iConfig.getUntrackedParameter< bool >("useRecoVarsForTruthMatchedCands",true);
 
 
    // Check that the names of the variables are okay ...
@@ -199,6 +199,13 @@ TagProbeEDMAnalysis::TagProbeEDMAnalysis(const edm::ParameterSet& iConfig)
    dBGF.push_back(0.0);
    dBGF.push_back(1.0);
    zBifurGaussFrac_  = ZLineShape_.getUntrackedParameter< vector<double> >("ZBifurGaussFrac",dBGF);
+
+   floatFailZMean_ = ZLineShape_.getUntrackedParameter< bool >("FloatFailZMean",false);
+   floatFailZWidth_ = ZLineShape_.getUntrackedParameter< bool >("FloatFailZWidth",false);
+   floatFailZSigma_ = ZLineShape_.getUntrackedParameter< bool >("FloatFailZSigma",false);
+   floatFailZWidthL_ = ZLineShape_.getUntrackedParameter< bool >("FloatFailZWidthL",false);
+   floatFailZWidthR_ = ZLineShape_.getUntrackedParameter< bool >("FloatFailZWidthR",false);
+   floatFailZBifurGaussFrac_ = ZLineShape_.getUntrackedParameter< bool >("FloatFailZBifurGaussFrac",false);
 
    // 2. CBLineShape
    fitCBLineShape_ = false;
@@ -359,6 +366,24 @@ TagProbeEDMAnalysis::TagProbeEDMAnalysis(const edm::ParameterSet& iConfig)
 			    var1Bins_.size()-1,&var1Bins_[0],
 			    var2Bins_.size()-1,&var2Bins_[0]);
 
+   // MC Truth Tag-Probe Biased Histograms
+   var1BiasPass_ = new TH1F("hvar1biaspass","Var1 Pass",
+                             var1Bins_.size()-1,&var1Bins_[0]);
+   var1BiasAll_  = new TH1F("hvar1biasall","Var1 All",
+		             var1Bins_.size()-1,&var1Bins_[0]);
+   
+   var2BiasPass_ = new TH1F("hvar2biaspass","Var2 Pass",
+			     var2Bins_.size()-1,&var2Bins_[0]);
+   var2BiasAll_  = new TH1F("hvar2biasall","Var2 All",
+			     var2Bins_.size()-1,&var2Bins_[0]);
+   
+   var1var2BiasPass_ = new TH2F("hvar1var2biaspass","Var1:Var2 Pass",
+			         var1Bins_.size()-1,&var1Bins_[0],
+			         var2Bins_.size()-1,&var2Bins_[0]);
+   var1var2BiasAll_  = new TH2F("hvar1var2biasall","Var1:Var2 All",
+			         var1Bins_.size()-1,&var1Bins_[0],
+			         var2Bins_.size()-1,&var2Bins_[0]);
+
 }
 
 
@@ -373,6 +398,11 @@ TagProbeEDMAnalysis::~TagProbeEDMAnalysis()
    if( var1All_   ) delete var1All_;
    if( var2Pass_ ) delete var2Pass_;
    if( var2All_  ) delete var2All_;
+
+   if( var1BiasPass_  ) delete var1BiasPass_;
+   if( var1BiasAll_   ) delete var1BiasAll_;
+   if( var2BiasPass_ ) delete var2BiasPass_;
+   if( var2BiasAll_  ) delete var2BiasAll_;
   
    if(outRootFile_) 
    {
@@ -449,10 +479,9 @@ TagProbeEDMAnalysis::analyze(const edm::Event& iEvent,
 	  Var2_ = (double)(*tp_probe_var2)[i];	 
 	  fitTree_->Fill();
 	}
-      }
-
-      
+      }      
    }
+
 
    // Fill the MC truth information if required
    if( calcEffsTruth_ || mode_ == "Write" )
@@ -488,8 +517,6 @@ TagProbeEDMAnalysis::analyze(const edm::Event& iEvent,
          if(Verbose_) cout << "No Cndgmid in Tree!" << endl; 
       }
 
-
-
       std::string truthVar1 = var1Name_.c_str();
       std::string truthVar2 = var2Name_.c_str();
 
@@ -497,7 +524,11 @@ TagProbeEDMAnalysis::analyze(const edm::Event& iEvent,
 	truthVar1.insert(0, "Cnd");
 	truthVar2.insert(0, "Cnd");
       }
-
+      else
+      {
+	truthVar1.insert(0, "Cndr");
+	truthVar2.insert(0, "Cndr");
+      }
 
       Handle< vector<float> > cnd_var1;
       if ( !iEvent.getByLabel("TPEdm",truthVar1.c_str(),cnd_var1) ) {
@@ -509,36 +540,101 @@ TagProbeEDMAnalysis::analyze(const edm::Event& iEvent,
          if(Verbose_) cout << "No Cnd"+var2Name_+" in Tree!" << endl; 
       }
 
+      Handle< vector<float> > cnd_rpx;
+      if ( !iEvent.getByLabel("TPEdm","Cndrpx",cnd_rpx) ) {
+         if(Verbose_) cout << "No Cndrpx in Tree!" << endl; 
+      }
+
+      Handle< vector<float> > cnd_rpy;
+      if ( !iEvent.getByLabel("TPEdm","Cndrpy",cnd_rpy) ) {
+         if(Verbose_) cout << "No Cndrpy in Tree!" << endl; 
+      }
+
+      Handle< vector<float> > cnd_rpz;
+      if ( !iEvent.getByLabel("TPEdm","Cndrpz",cnd_rpz) ) {
+         if(Verbose_) cout << "No Cndrpz in Tree!" << endl; 
+      }
+
+      Handle< vector<float> > cnd_re;
+      if ( !iEvent.getByLabel("TPEdm","Cndre",cnd_re) ) {
+         if(Verbose_) cout << "No Cndre in Tree!" << endl; 
+      }
+
       if( cnd_type.isValid() )
       {
+	 int nTag = 0;
+	 int nMatch = 0;
+	 float px = 0;
+	 float py = 0;
+	 float pz = 0;
+	 float e = 0;
 	 int nCnd = (int)cnd_type->size();
 	 for( int i=0; i<nCnd; ++i )
 	 {
 	    if( (*cnd_type)[i] != tagProbeType_ ) continue;
-	    
 	    if( truthParentId_ != 0 && 
-	     !( fabs((*cnd_gmid)[i]) == truthParentId_ || fabs((*cnd_moid)[i]) == truthParentId_ ) ) continue;
-	    
-	    bool inVar1Range = false;
-	    if( (*cnd_var1)[i] > var1Bins_[0] &&
-		(*cnd_var1)[i] < var1Bins_[var1Bins_.size()-1] )
-	       inVar1Range = true;
-	    bool inVar2Range = false;
-	    if( (*cnd_var2)[i] > var2Bins_[0] &&
-		(*cnd_var2)[i] < var2Bins_[var2Bins_.size()-1] )
-	       inVar2Range = true;
+	    !( fabs((*cnd_gmid)[i]) == truthParentId_ || fabs((*cnd_moid)[i]) == truthParentId_ ) ) continue;
 
-	    if( (*cnd_aprobe)[i] == 1 && (*cnd_pprobe)[i] == 1 )
+	    if( (*cnd_tag)[i] == 1 ) ++nTag;
+	    if( (*cnd_tag)[i] == 1 || (*cnd_aprobe)[i] == 1 ) ++nMatch;
+	    px += (*cnd_rpx)[i];
+	    py += (*cnd_rpy)[i];
+	    pz += (*cnd_rpz)[i];
+	    e += (*cnd_re)[i];
+	    
+	 }
+	 if( nTag >= 1 && nMatch == 2 )
+	 {
+	    float invMass = sqrt(e*e - px*px - py*py - pz*pz);
+	    if( invMass > massLow_ && invMass < massHigh_ )
 	    {
-	       if( inVar2Range ) var1Pass_->Fill((*cnd_var1)[i]);
-	       if( inVar1Range ) var2Pass_->Fill((*cnd_var2)[i]);
-	       var1var2Pass_->Fill((*cnd_var1)[i],(*cnd_var2)[i]);
-	    }
-	    if( (*cnd_aprobe)[i] == 1 )
-	    {
-	       if( inVar2Range ) var1All_->Fill((*cnd_var1)[i]);
-	       if( inVar1Range ) var2All_->Fill((*cnd_var2)[i]);
-	       var1var2All_->Fill((*cnd_var1)[i],(*cnd_var2)[i]);
+	       for( int i=0; i<nCnd; ++i )
+	       {
+		  if( (*cnd_type)[i] != tagProbeType_ ) continue;
+	    
+		  if( truthParentId_ != 0 && 
+		  !( fabs((*cnd_gmid)[i]) == truthParentId_ || fabs((*cnd_moid)[i]) == truthParentId_ ) ) continue;
+	    
+		  // If there is only one tag, only count the probe
+		  bool FillBiasHists = true;
+		  if( nTag==1 && (*cnd_tag)[i]==1 ) FillBiasHists = false;
+
+		  bool inVar1Range = false;
+		  if( (*cnd_var1)[i] > var1Bins_[0] &&
+		  (*cnd_var1)[i] < var1Bins_[var1Bins_.size()-1] )
+		     inVar1Range = true;
+		  bool inVar2Range = false;
+		  if( (*cnd_var2)[i] > var2Bins_[0] &&
+		  (*cnd_var2)[i] < var2Bins_[var2Bins_.size()-1] )
+		     inVar2Range = true;
+
+		  if( (*cnd_aprobe)[i] == 1 && (*cnd_pprobe)[i] == 1 )
+		  {
+		     if( inVar2Range ) var1Pass_->Fill((*cnd_var1)[i]);
+		     if( inVar1Range ) var2Pass_->Fill((*cnd_var2)[i]);
+		     var1var2Pass_->Fill((*cnd_var1)[i],(*cnd_var2)[i]);
+
+		     if( FillBiasHists )
+		     {
+			if( inVar2Range ) var1BiasPass_->Fill((*cnd_var1)[i]);
+			if( inVar1Range ) var2BiasPass_->Fill((*cnd_var2)[i]);
+			var1var2BiasPass_->Fill((*cnd_var1)[i],(*cnd_var2)[i]);
+		     }
+		  }
+		  if( (*cnd_aprobe)[i] == 1 )
+		  {
+		     if( inVar2Range ) var1All_->Fill((*cnd_var1)[i]);
+		     if( inVar1Range ) var2All_->Fill((*cnd_var2)[i]);
+		     var1var2All_->Fill((*cnd_var1)[i],(*cnd_var2)[i]);
+
+		     if( FillBiasHists )
+		     {
+			if( inVar2Range ) var1BiasAll_->Fill((*cnd_var1)[i]);
+			if( inVar1Range ) var2BiasAll_->Fill((*cnd_var2)[i]);
+			var1var2BiasAll_->Fill((*cnd_var1)[i],(*cnd_var2)[i]);
+		     }
+		  }
+	       }
 	    }
 	 }
       }
@@ -1162,6 +1258,8 @@ void TagProbeEDMAnalysis::makeSignalPdf( )
 
       signalShapePdf_ = new RooAddPdf("signalShapePdf", "signalShapePdf",
       *rooCBPdf_,*rooCBPdf_,*rooCBDummyFrac_);
+
+      signalShapeFailPdf_  = signalShapePdf_;
    }
    else if( !GaussLineShape_.empty() )
    {
@@ -1191,6 +1289,8 @@ void TagProbeEDMAnalysis::makeSignalPdf( )
 
       signalShapePdf_ = new RooAddPdf("signalShapePdf", "signalShapePdf",
       *rooGaussPdf_,*rooGaussPdf_,*rooGaussDummyFrac_);
+
+      signalShapeFailPdf_  = signalShapePdf_;
    }
    else
    {
@@ -1249,6 +1349,67 @@ void TagProbeEDMAnalysis::makeSignalPdf( )
       // The total signal PDF
       signalShapePdf_ = new RooAddPdf("signalShapePdf", "signalShapePdf",
       *rooZVoigtPdf_,*rooZBifurGaussPdf_,*rooZBifurGaussFrac_);
+
+      // Fail pdf ...
+      // Signal PDF variables
+      if( !floatFailZMean_ )   rooFailZMean_ = rooZMean_;
+      else                     rooFailZMean_   = new RooRealVar("zFailMean","zMean",zMean_[0]);
+      if( !floatFailZWidth_ )  rooFailZWidth_ = rooZWidth_;
+      else                     rooFailZWidth_  = new RooRealVar("zFailWidth","zWidth",zWidth_[0]);
+      if( !floatFailZSigma_ )  rooFailZSigma_ = rooZSigma_;
+      else                     rooFailZSigma_  = new RooRealVar("zFailSigma","zSigma",zSigma_[0]);
+      if( !floatFailZWidthL_ ) rooFailZWidthL_ = rooZWidthL_;
+      else                     rooFailZWidthL_ = new RooRealVar("zFailWidthL","zWidthL",zWidthL_[0]);
+      if( !floatFailZWidthR_ ) rooFailZWidthR_ = rooZWidthR_;
+      else                     rooFailZWidthR_ = new RooRealVar("zFailWidthR","zWidthR",zWidthR_[0]);
+
+      // If the user has set a range, make the variable float
+      if( floatFailZMean_ && zMean_.size() == 3 )
+      {
+	 rooFailZMean_->setRange(zMean_[1],zMean_[2]);
+	 rooFailZMean_->setConstant(false);
+      }
+      if( floatFailZWidth_ && zWidth_.size() == 3 )
+      {
+	 rooFailZWidth_->setRange(zWidth_[1],zWidth_[2]);
+	 rooFailZWidth_->setConstant(false);
+      }
+      if( floatFailZSigma_ && zSigma_.size() == 3 )
+      {
+	 rooFailZSigma_->setRange(zSigma_[1],zSigma_[2]);
+	 rooFailZSigma_->setConstant(false);
+      }
+      if( floatFailZWidthL_ && zWidthL_.size() == 3 )
+      {
+	 rooFailZWidthL_->setRange(zWidthL_[1],zWidthL_[2]);
+	 rooFailZWidthL_->setConstant(false);
+      }
+      if( floatFailZWidthR_ && zWidthR_.size() == 3 )
+      {
+	 rooFailZWidthR_->setRange(zWidthR_[1],zWidthR_[2]);
+	 rooFailZWidthR_->setConstant(false);
+      }
+      // Voigtian
+      rooFailZVoigtPdf_ = new RooVoigtian("zFailVoigtPdf", "zVoigtPdf", 
+      *rooMass_, *rooFailZMean_, *rooFailZWidth_, *rooFailZSigma_);
+
+      // Bifurcated Gaussian
+      rooFailZBifurGaussPdf_ = new RooBifurGauss("zFailBifurGaussPdf", "zBifurGaussPdf", 
+      *rooMass_, *rooFailZMean_, *rooFailZWidthL_, *rooFailZWidthR_);
+      
+      // Bifurcated Gaussian fraction
+      if( !floatFailZBifurGaussFrac_ ) rooFailZBifurGaussFrac_ = rooZBifurGaussFrac_;
+      else                             rooFailZBifurGaussFrac_ = new RooRealVar("zFailBifurGaussFrac","zBifurGaussFrac",zBifurGaussFrac_[0]);
+      if( floatFailZBifurGaussFrac_ && zBifurGaussFrac_.size() == 3 )
+      {
+	 rooFailZBifurGaussFrac_->setRange(zBifurGaussFrac_[1],zBifurGaussFrac_[2]);
+	 rooFailZBifurGaussFrac_->setConstant(false);
+      } 
+
+      // The total fail signal PDF
+      signalShapeFailPdf_ = new RooAddPdf("signalShapeFailPdf", "signalShapePdf",
+      *rooFailZVoigtPdf_,*rooFailZBifurGaussPdf_,*rooFailZBifurGaussFrac_);
+
    }
 
    return;
@@ -1390,7 +1551,7 @@ void TagProbeEDMAnalysis::doFit( std::string &bvar1, std::vector< double > bins1
 
    RooArgList componentspass(*signalShapePdf_,*bkgShapePdf_);
    RooArgList yieldspass(numSigPass, numBkgPass);
-   RooArgList componentsfail(*signalShapePdf_,*bkgShapePdf_);
+   RooArgList componentsfail(*signalShapeFailPdf_,*bkgShapePdf_);
    RooArgList yieldsfail(numSigFail, numBkgFail);	  
 
    RooAddPdf sumpass("sumpass","fixed extended sum pdf",componentspass,yieldspass);
@@ -1606,6 +1767,21 @@ void TagProbeEDMAnalysis::TPEffMCTruth()
    var2effhist.Divide(var2Pass_,var2All_,1.0,1.0,"B");
    var2effhist.Write();
 
+   hname = "truth_eff_bias_"+var1NameUp_;
+   htitle = "Efficiency vs "+var1NameUp_;
+   TH1F var1biaseffhist(hname.c_str(),htitle.c_str(),var1Bins_.size()-1,&var1Bins_[0]);
+   var1biaseffhist.Sumw2();
+   var1biaseffhist.Divide(var1BiasPass_,var1BiasAll_,1.0,1.0,"B");
+   var1biaseffhist.Write();
+
+   outRootFile_->cd();
+   hname = "truth_eff_bias"+var2NameUp_;
+   htitle = "Efficiency vs "+var2NameUp_;
+   TH1F var2biaseffhist(hname.c_str(),htitle.c_str(),var2Bins_.size()-1,&var2Bins_[0]);
+   var2biaseffhist.Sumw2();
+   var2biaseffhist.Divide(var2BiasPass_,var2BiasAll_,1.0,1.0,"B");
+   var2biaseffhist.Write();
+
    return;
 }
 // ******************************************************** //
@@ -1630,6 +1806,14 @@ void TagProbeEDMAnalysis::TPEffMCTruth2D()
    var1var2effhist.Sumw2();
    var1var2effhist.Divide(var1var2Pass_,var1var2All_,1.0,1.0,"B");
    var1var2effhist.Write();
+
+   hname = "truth_eff_bias_"+var1NameUp_+"_"+var2NameUp_;
+   htitle = "Efficiency: "+var1NameUp_+" vs "+var2NameUp_;
+   TH2F var1var2biaseffhist(hname.c_str(),htitle.c_str(),var1Bins_.size()-1,&var1Bins_[0],
+		            var2Bins_.size()-1,&var2Bins_[0]);
+   var1var2biaseffhist.Sumw2();
+   var1var2biaseffhist.Divide(var1var2BiasPass_,var1var2BiasAll_,1.0,1.0,"B");
+   var1var2biaseffhist.Write();
 
    return;
 }
@@ -1712,23 +1896,25 @@ TagProbeEDMAnalysis::endJob()
       outRootFile_->cd();
 
       cout << "Fit tree has " << fitTree_->GetEntries() << " entries." << endl;
-      //fitTree_->SetDirectory(outRootFile_);
       fitTree_->Write();
 
-      //var1Pass_->SetDirectory(outRootFile_);
       var1Pass_->Write();
-      //var1All_->SetDirectory(outRootFile_);
       var1All_->Write();  
       
-      //var2Pass_->SetDirectory(outRootFile_);
       var2Pass_->Write();
-      //var2All_->SetDirectory(outRootFile_);
       var2All_->Write();  
       
-      //var1var2Pass_->SetDirectory(outRootFile_);
       var1var2Pass_->Write();
-      //var1var2All_->SetDirectory(outRootFile_);
       var1var2All_->Write();
+
+      var1BiasPass_->Write();
+      var1BiasAll_->Write();  
+      
+      var2BiasPass_->Write();
+      var2BiasAll_->Write();  
+      
+      var1var2BiasPass_->Write();
+      var1var2BiasAll_->Write();
 
       outRootFile_->Close();
       cout << "Closed ROOT file and returning!" << endl;
@@ -1788,6 +1974,16 @@ TagProbeEDMAnalysis::endJob()
 	 
 	 var1var2Pass_->Add( (TH2F*)inputFile.Get("hvar1var2pass") );
 	 var1var2All_->Add( (TH2F*)inputFile.Get("hvar1var2all") );
+
+	 var1BiasPass_->Add( (TH1F*)inputFile.Get("hvar1biaspass") );
+	 var1BiasAll_->Add( (TH1F*)inputFile.Get("hvar1biasall") );  
+
+	 var2BiasPass_->Add( (TH1F*)inputFile.Get("hvar2biaspass") );
+	 var2BiasAll_->Add( (TH1F*)inputFile.Get("hvar2biasall") );  
+	 
+	 var1var2BiasPass_->Add( (TH2F*)inputFile.Get("hvar1var2biaspass") );
+	 var1var2BiasAll_->Add( (TH2F*)inputFile.Get("hvar1var2biasall") );
+
       }
       
       // Now call for and calculate the efficiencies as normal

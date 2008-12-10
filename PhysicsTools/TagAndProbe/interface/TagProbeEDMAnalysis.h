@@ -4,7 +4,7 @@
 //
 // Original Author: Nadia Adam (Princeton University) 
 //         Created:  Fri May 16 16:48:24 CEST 2008
-// $Id: TagProbeEDMAnalysis.h,v 1.6 2008/10/17 16:03:19 neadam Exp $
+// $Id: TagProbeEDMAnalysis.h,v 1.7 2008/10/22 20:45:51 neadam Exp $
 //
 //
 // Kalanand Mishra: July 1, 2008 
@@ -158,6 +158,7 @@ class TagProbeEDMAnalysis : public edm::EDAnalyzer
       // The signal & background Pdf & Fit variable
       RooRealVar *rooMass_;
       RooAddPdf  *signalShapePdf_;
+      RooAddPdf  *signalShapeFailPdf_;
       RooAddPdf  *bkgShapePdf_;
       
       // 1. Z line shape
@@ -180,6 +181,23 @@ class TagProbeEDMAnalysis : public edm::EDAnalyzer
 
       RooVoigtian   *rooZVoigtPdf_;
       RooBifurGauss *rooZBifurGaussPdf_;
+
+      // In case we need the failing probes to float separately
+      bool        floatFailZMean_;
+      bool        floatFailZWidth_;
+      bool        floatFailZSigma_;
+      bool        floatFailZWidthL_;
+      bool        floatFailZWidthR_;
+      bool        floatFailZBifurGaussFrac_;
+      RooRealVar *rooFailZMean_;
+      RooRealVar *rooFailZWidth_;
+      RooRealVar *rooFailZSigma_;
+      RooRealVar *rooFailZWidthL_;
+      RooRealVar *rooFailZWidthR_;
+      RooRealVar *rooFailZBifurGaussFrac_;
+
+      RooVoigtian   *rooFailZVoigtPdf_;
+      RooBifurGauss *rooFailZBifurGaussPdf_;
 
       // 2. Crystal Ball Line Shape
       bool fitCBLineShape_;
@@ -247,6 +265,17 @@ class TagProbeEDMAnalysis : public edm::EDAnalyzer
 	    if( rooZBifurGaussFrac_ != NULL ) delete rooZBifurGaussFrac_;
 	    if( rooZVoigtPdf_ != NULL )       delete rooZVoigtPdf_;
 	    if( rooZBifurGaussPdf_ != NULL )  delete rooZBifurGaussPdf_;
+
+	    if( floatFailZMean_ && rooFailZMean_ != NULL )   delete rooFailZMean_;
+	    if( floatFailZWidth_ && rooFailZWidth_ != NULL ) delete rooFailZWidth_;
+	    if( floatFailZSigma_ && rooFailZSigma_ != NULL ) delete rooFailZSigma_;
+	    if( floatFailZWidthL_ && rooFailZWidthL_ != NULL ) delete rooFailZWidthL_;
+	    if( floatFailZWidthR_ && rooFailZWidthR_ != NULL ) delete rooFailZWidthR_;
+	    if( floatFailZBifurGaussFrac_ && rooFailZBifurGaussFrac_ != NULL ) delete rooFailZBifurGaussFrac_;
+	    if( rooFailZVoigtPdf_ != NULL )       delete rooFailZVoigtPdf_;
+	    if( rooFailZBifurGaussPdf_ != NULL )  delete rooFailZBifurGaussPdf_;
+
+	    if( signalShapeFailPdf_ != NULL )     delete signalShapeFailPdf_;
 	 }
 
 	 if( fitCBLineShape_ )
@@ -301,6 +330,7 @@ class TagProbeEDMAnalysis : public edm::EDAnalyzer
       double Var2_;
       double Weight_;
 
+      // True MC Truth
       TH1F *var1Pass_;
       TH1F *var1All_;
       
@@ -309,6 +339,16 @@ class TagProbeEDMAnalysis : public edm::EDAnalyzer
 
       TH2F *var1var2Pass_;
       TH2F *var1var2All_;
+
+      // Tag-Probe biased MC Truth
+      TH1F *var1BiasPass_;
+      TH1F *var1BiasAll_;
+      
+      TH1F *var2BiasPass_;
+      TH1F *var2BiasAll_;
+
+      TH2F *var1var2BiasPass_;
+      TH2F *var1var2BiasAll_;
 
       TH1F* Histograms_;
 
