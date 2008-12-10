@@ -1,0 +1,4 @@
+<use name=RecoEcal/EgammaCoreTools>
+<library file="*.cc" name=RecoEcalEcalClusterFunctions>
+<flags EDM_PLUGIN=1>
+</library>
