@@ -5,6 +5,8 @@
 #include "SimG4CMS/Calo/interface/CaloG4Hit.h"
 #include <iostream>
 
+G4Allocator<CaloG4Hit> CaloG4HitAllocator;
+
 CaloG4Hit::CaloG4Hit(){
 
   setEntry(0.,0.,0.);

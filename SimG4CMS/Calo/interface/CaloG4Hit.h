@@ -28,6 +28,8 @@
 #include "DataFormats/Math/interface/Point3D.h"
 #include <iostream>
 
+#include "G4Allocator.hh"
+
 class CaloG4Hit : public G4VHit {
   
 public:
@@ -37,7 +39,9 @@ public:
   CaloG4Hit(const CaloG4Hit &right);
   const CaloG4Hit& operator=(const CaloG4Hit &right);
   bool operator==(const CaloG4Hit &){return false;}
-  
+  inline void * operator new(size_t);
+  inline void   operator delete(void * CaloG4Hit);
+
   void         Draw(){}
   void         Print();
   
@@ -113,6 +117,18 @@ public:
 	    a->getTimeSliceID() == b->getTimeSliceID());
   }
 };
+
+extern G4Allocator<CaloG4Hit> CaloG4HitAllocator;
+
+inline void * CaloG4Hit::operator new(size_t)
+{
+  void * aHit;
+  aHit = (void *) CaloG4HitAllocator.MallocSingle();
+  return aHit;
+}
+
+inline void CaloG4Hit::operator delete(void * aHit)
+{  CaloG4HitAllocator.FreeSingle((CaloG4Hit*) aHit); }
 
 std::ostream& operator<<(std::ostream&, const CaloG4Hit&);
 
