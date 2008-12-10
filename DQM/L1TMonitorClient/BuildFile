@@ -3,10 +3,7 @@
 <use name=FWCore/ParameterSet>
 <use name=DQMServices/Core>
 <use name=DQMServices/Components>
-<use name=DQMServices/WebComponents>
 <use name=DQMServices/ClientConfig>
-<use name=mimetic>
-<use name=xdaq>
 <use name=boost>
 <use name=root>
 <flags EDM_PLUGIN=1>
@@ -17,10 +14,7 @@
  <use name=FWCore/PluginManager>
  <use name=DQMServices/Core>
  <use name=DQMServices/Components>
- <use name=DQMServices/WebComponents>
  <use name=DQMServices/ClientConfig> 
- <use name=mimetic>
- <use name=xdaq>
  <use name=boost>
  <use name=root>
 </export>
