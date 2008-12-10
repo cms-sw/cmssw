@@ -3,7 +3,7 @@
 /*
  * \file EcalTBMCInfoProducer.h
  *
- * $Id: EcalTBMCInfoProducer.h,v 1.5 2007/05/10 20:01:33 crovelli Exp $
+ * $Id: EcalTBMCInfoProducer.h,v 1.6 2007/11/21 15:39:15 fabiocos Exp $
  *
 */
 
@@ -18,7 +18,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "SimDataFormats/EcalTestBeam/interface/PEcalTBInfo.h"
 #include "Geometry/EcalTestBeam/interface/EcalTBCrystalMap.h"
 
