@@ -13,7 +13,7 @@
 //
 // Original Author:  Tommaso Boccali
 //         Created:  Tue Jul 26 08:47:57 CEST 2005
-// $Id: SimHitTrackerAnalyzer.cc,v 1.13 2007/10/04 23:16:03 yarba Exp $
+// $Id: SimHitTrackerAnalyzer.cc,v 1.14 2007/10/09 12:21:38 fabiocos Exp $
 //
 //
 
@@ -30,8 +30,6 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
@@ -40,7 +38,7 @@
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 #include "SimDataFormats/Track/interface/SimTrack.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
