@@ -109,8 +109,13 @@ void FastsimHitNtuplizer::beginJob(const edm::EventSetup& es)
 void FastsimHitNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es)
 {
   edm::Handle<SiTrackerGSRecHit2DCollection> theGSRecHits;
-  std::string hitProducer = conf_.getParameter<std::string>("HitProducer");
+  //std::string hitProducer = conf_.getParameter<std::string>("HitProducer");
+  //e.getByLabel(hitProducer, theGSRecHits);
+  //e.getByLabel("siTrackerGaussianSmearingRecHits", "TrackerGSRecHits", theGSRecHits);
+  edm::InputTag hitProducer;
+  hitProducer = conf_.getParameter<edm::InputTag>("HitProducer");
   e.getByLabel(hitProducer, theGSRecHits);
+
   
   //std::cout << " Step A: Full GS RecHits found " << theGSRecHits->size() << std::endl;
   if(theGSRecHits->size() == 0) return;
