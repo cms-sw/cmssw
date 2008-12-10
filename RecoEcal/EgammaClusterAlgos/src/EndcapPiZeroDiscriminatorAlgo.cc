@@ -3,6 +3,7 @@
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include <fstream>
 #include <iostream>
@@ -64,6 +65,12 @@ vector<float> EndcapPiZeroDiscriminatorAlgo::findPreshVector(ESDetId strip,  Rec
 {
   vector<float> vout_stripE;
 
+  // skip if rechits_map contains no hits
+  if ( rechits_map->size() == 0 ) {
+          edm::LogWarning("EndcapPiZeroDiscriminatorAlgo") << "RecHitsMap has size 0.";
+          return vout_stripE;
+  }
+
   vout_stripE.clear();
 
   vector<ESDetId> road_2d;
@@ -94,6 +101,8 @@ vector<float> EndcapPiZeroDiscriminatorAlgo::findPreshVector(ESDetId strip,  Rec
 
   // Find the energy of each strip
   RecHitsMap::iterator final_strip =  rechits_map->end();
+  // very dangerous, added a protection on the rechits_map->size()
+  // at the beginning of the method
   final_strip--;
   ESDetId last_stripID = final_strip->first;
 
