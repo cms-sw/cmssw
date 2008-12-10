@@ -13,7 +13,7 @@
 //
 // Original Author:  Anthony Moeller
 //         Created:  Wed Aug 27 10:18:19 CDT 2008
-// $Id: HFPMTHitAnalyzer.cc,v 1.1 2008/10/29 18:58:10 sunanda Exp $
+// $Id: HFPMTHitAnalyzer.cc,v 1.2 2008/11/07 16:20:23 sunanda Exp $
 //
 //
 
@@ -35,7 +35,7 @@
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 
 //propagation
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 //other stuff
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
