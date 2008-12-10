@@ -8,4 +8,12 @@ ecalWeightUncalibRecHit = cms.EDProducer("EcalWeightUncalibRecHitProducer",
     EBhitCollection = cms.string('EcalUncalibRecHitsEB')
 )
 
+#ecalWeightUncalibRecHit = cms.EDProducer("EcalUncalibRecHitProducer",
+#                                         algo = cms.string('EcalUncalibRecHitRecWeightsAlgoWrapper'),
+#                                         EBdigiCollection = cms.InputTag("ecalDigis","ebDigis"),
+#                                         EEhitCollection = cms.string('EcalUncalibRecHitsEE'),
+#                                         EEdigiCollection = cms.InputTag("ecalDigis","eeDigis"),
+#                                         EBhitCollection = cms.string('EcalUncalibRecHitsEB')
+#                                         )
+
 
