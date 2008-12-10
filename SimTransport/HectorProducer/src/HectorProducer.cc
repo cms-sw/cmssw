@@ -12,7 +12,7 @@
 #include "SimTransport/HectorProducer/interface/Hector.h"
 
 // SimDataFormats headers
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 #include <iostream>
 #include <memory>
