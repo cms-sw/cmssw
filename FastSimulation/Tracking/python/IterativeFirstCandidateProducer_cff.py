@@ -7,8 +7,8 @@ iterativeFirstTrackCandidatesWithPairs = FastSimulation.Tracking.TrackCandidateP
 iterativeFirstTrackCandidates = cms.Sequence(iterativeFirstTrackCandidatesWithTriplets+iterativeFirstTrackCandidatesWithPairs)
 iterativeFirstTrackCandidatesWithTriplets.SeedProducer = cms.InputTag("iterativeFirstSeeds","FirstPixelTriplets")
 iterativeFirstTrackCandidatesWithTriplets.TrackProducers = ['globalPixelWithMaterialTracks']
-iterativeFirstTrackCandidatesWithTriplets.MinNumberOfCrossedLayers = 5
+iterativeFirstTrackCandidatesWithTriplets.MinNumberOfCrossedLayers = 3
 iterativeFirstTrackCandidatesWithPairs.SeedProducer = cms.InputTag("iterativeFirstSeeds","FirstMixedPairs")
 iterativeFirstTrackCandidatesWithPairs.TrackProducers = ['globalPixelWithMaterialTracks']
-iterativeFirstTrackCandidatesWithPairs.MinNumberOfCrossedLayers = 5
+iterativeFirstTrackCandidatesWithPairs.MinNumberOfCrossedLayers = 3
 

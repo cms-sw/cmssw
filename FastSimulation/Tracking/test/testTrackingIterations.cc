@@ -6,6 +6,18 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
+#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
+#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
+#include "DataFormats/SiStripDetId/interface/TIBDetId.h" 
+#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
+#include "DataFormats/SiStripDetId/interface/TOBDetId.h" 
+#include "DataFormats/SiStripDetId/interface/TECDetId.h" 
+
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -18,6 +30,7 @@
 #include "FastSimulation/Event/interface/FSimTrack.h"
 #include "FastSimulation/Event/interface/FSimVertex.h"
 #include "FastSimulation/Particle/interface/ParticleTable.h"
+#include "FastSimulation/Tracking/interface/TrackerRecHit.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
@@ -55,10 +68,24 @@ private:
   std::vector<MonitorElement*> first2TracksvsEtaP;
   std::vector<MonitorElement*> secondTracksvsEtaP;
   std::vector<MonitorElement*> thirdTracksvsEtaP;
+  std::vector<MonitorElement*> firstHitsvsP;
+  std::vector<MonitorElement*> secondHitsvsP;
+  std::vector<MonitorElement*> thirdHitsvsP;
+  std::vector<MonitorElement*> firstHitsvsEta;
+  std::vector<MonitorElement*> secondHitsvsEta;
+  std::vector<MonitorElement*> thirdHitsvsEta;
+  std::vector<MonitorElement*> firstLayersvsP;
+  std::vector<MonitorElement*> secondLayersvsP;
+  std::vector<MonitorElement*> thirdLayersvsP;
+  std::vector<MonitorElement*> firstLayersvsEta;
+  std::vector<MonitorElement*> secondLayersvsEta;
+  std::vector<MonitorElement*> thirdLayersvsEta;
 
   std::string outputFileName;
 
   int totalNEvt;
+
+  const TrackerGeometry*  theGeometry;
 
 };
 
@@ -70,6 +97,18 @@ testTrackingIterations::testTrackingIterations(const edm::ParameterSet& p) :
   first2TracksvsEtaP(2,static_cast<MonitorElement*>(0)),
   secondTracksvsEtaP(2,static_cast<MonitorElement*>(0)),
   thirdTracksvsEtaP(2,static_cast<MonitorElement*>(0)),
+  firstHitsvsP(2,static_cast<MonitorElement*>(0)),
+  secondHitsvsP(2,static_cast<MonitorElement*>(0)),
+  thirdHitsvsP(2,static_cast<MonitorElement*>(0)),
+  firstHitsvsEta(2,static_cast<MonitorElement*>(0)),
+  secondHitsvsEta(2,static_cast<MonitorElement*>(0)),
+  thirdHitsvsEta(2,static_cast<MonitorElement*>(0)),
+  firstLayersvsP(2,static_cast<MonitorElement*>(0)),
+  secondLayersvsP(2,static_cast<MonitorElement*>(0)),
+  thirdLayersvsP(2,static_cast<MonitorElement*>(0)),
+  firstLayersvsEta(2,static_cast<MonitorElement*>(0)),
+  secondLayersvsEta(2,static_cast<MonitorElement*>(0)),
+  thirdLayersvsEta(2,static_cast<MonitorElement*>(0)),
   totalNEvt(0)
 {
   
@@ -111,6 +150,30 @@ testTrackingIterations::testTrackingIterations(const edm::ParameterSet& p) :
   secondTracksvsEtaP[1] = dbe->book2D("eff2Fast","Efficiency 2nd Fast",28,-2.8,2.8,100,0,10.);
   thirdTracksvsEtaP[0] = dbe->book2D("eff3Full","Efficiency 3rd Full",28,-2.8,2.8,100,0,10.);
   thirdTracksvsEtaP[1] = dbe->book2D("eff3Fast","Efficiency 3rd Fast",28,-2.8,2.8,100,0,10.);
+  firstHitsvsP[0] = dbe->book2D("Hits1PFull","Hits vs P 1st Full",100,0.,10.,30,0,30.);
+  firstHitsvsP[1] = dbe->book2D("Hits1PFast","Hits vs P 1st Fast",100,0.,10.,30,0,30.);
+  secondHitsvsP[0] = dbe->book2D("Hits2PFull","Hits vs P 2nd Full",100,0.,10.,30,0,30.);
+  secondHitsvsP[1] = dbe->book2D("Hits2PFast","Hits vs P 2nd Fast",100,0.,10.,30,0,30.);
+  thirdHitsvsP[0] = dbe->book2D("Hits3PFull","Hits vs P 3rd Full",100,0.,10.,30,0,30.);
+  thirdHitsvsP[1] = dbe->book2D("Hits3PFast","Hits vs P 3rd Fast",100,0.,10.,30,0,30.);
+  firstHitsvsEta[0] = dbe->book2D("Hits1EtaFull","Hits vs Eta 1st Full",28,-2.8,2.8,30,0,30.);
+  firstHitsvsEta[1] = dbe->book2D("Hits1EtaFast","Hits vs Eta 1st Fast",28,-2.8,2.8,30,0,30.);
+  secondHitsvsEta[0] = dbe->book2D("Hits2EtaFull","Hits vs Eta 2nd Full",28,-2.8,2.8,30,0,30.);
+  secondHitsvsEta[1] = dbe->book2D("Hits2EtaFast","Hits vs Eta 2nd Fast",28,-2.8,2.8,30,0,30.);
+  thirdHitsvsEta[0] = dbe->book2D("Hits3EtaFull","Hits vs Eta 3rd Full",28,-2.8,2.8,30,0,30.);
+  thirdHitsvsEta[1] = dbe->book2D("Hits3EtaFast","Hits vs Eta 3rd Fast",28,-2.8,2.8,30,0,30.);
+  firstLayersvsP[0] = dbe->book2D("Layers1PFull","Layers vs P 1st Full",100,0.,10.,30,0,30.);
+  firstLayersvsP[1] = dbe->book2D("Layers1PFast","Layers vs P 1st Fast",100,0.,10.,30,0,30.);
+  secondLayersvsP[0] = dbe->book2D("Layers2PFull","Layers vs P 2nd Full",100,0.,10.,30,0,30.);
+  secondLayersvsP[1] = dbe->book2D("Layers2PFast","Layers vs P 2nd Fast",100,0.,10.,30,0,30.);
+  thirdLayersvsP[0] = dbe->book2D("Layers3PFull","Layers vs P 3rd Full",100,0.,10.,30,0,30.);
+  thirdLayersvsP[1] = dbe->book2D("Layers3PFast","Layers vs P 3rd Fast",100,0.,10.,30,0,30.);
+  firstLayersvsEta[0] = dbe->book2D("Layers1EtaFull","Layers vs Eta 1st Full",28,-2.8,2.8,30,0,30.);
+  firstLayersvsEta[1] = dbe->book2D("Layers1EtaFast","Layers vs Eta 1st Fast",28,-2.8,2.8,30,0,30.);
+  secondLayersvsEta[0] = dbe->book2D("Layers2EtaFull","Layers vs Eta 2nd Full",28,-2.8,2.8,30,0,30.);
+  secondLayersvsEta[1] = dbe->book2D("Layers2EtaFast","Layers vs Eta 2nd Fast",28,-2.8,2.8,30,0,30.);
+  thirdLayersvsEta[0] = dbe->book2D("Layers3EtaFull","Layers vs Eta 3rd Full",28,-2.8,2.8,30,0,30.);
+  thirdLayersvsEta[1] = dbe->book2D("Layers3EtaFast","Layers vs Eta 3rd Fast",28,-2.8,2.8,30,0,30.);
 								
 }
 
@@ -129,6 +192,10 @@ void testTrackingIterations::beginJob(const edm::EventSetup & es)
   if ( !ParticleTable::instance() ) ParticleTable::instance(&(*pdt));
   mySimEvent[0]->initializePdt(&(*pdt));
   mySimEvent[1]->initializePdt(&(*pdt));
+
+  edm::ESHandle<TrackerGeometry>        geometry;
+  es.get<TrackerDigiGeometryRecord>().get(geometry);
+  theGeometry = &(*geometry);
 
 }
 
@@ -172,6 +239,10 @@ testTrackingIterations::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
   h0[1]->Fill(etaGen);
   genTracksvsEtaP->Fill(etaGen,pGen,1.);
 
+  std::vector<bool> firstSeed(2,static_cast<bool>(false));
+  std::vector<bool> secondSeed(2,static_cast<bool>(false));
+  std::vector<TrajectorySeed::range> theRecHitRange(2);
+
   for ( unsigned ievt=0; ievt<2; ++ievt ) {
 
     edm::Handle<reco::TrackCollection> tkRef1;
@@ -184,21 +255,107 @@ testTrackingIterations::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
     tkColl.push_back(tkRef1.product());
     tkColl.push_back(tkRef2.product());
     tkColl.push_back(tkRef3.product());
-    if ( tkColl[0]->size() == 1 ) firstTracksvsEtaP[ievt]->Fill(etaGen,pGen,tkColl[0]->size());
-    if ( tkColl[1]->size() == 1 ) secondTracksvsEtaP[ievt]->Fill(etaGen,pGen,tkColl[1]->size());
-    if ( tkColl[2]->size() == 1 ) thirdTracksvsEtaP[ievt]->Fill(etaGen,pGen,tkColl[2]->size());
+    // if ( tkColl[0]+tkColl[1]+tkColl[2] != 1 ) continue;
+    if ( tkColl[0]->size() == 1 ) { 
+      firstTracksvsEtaP[ievt]->Fill(etaGen,pGen,tkColl[0]->size());
+      reco::TrackCollection::const_iterator itk = tkColl[0]->begin();
+      firstHitsvsEta[ievt]->Fill(etaGen,itk->found(),1.);
+      firstHitsvsP[ievt]->Fill(pGen,itk->found(),1.);
+      firstLayersvsEta[ievt]->Fill(etaGen,itk->hitPattern().trackerLayersWithMeasurement(),1.);
+      firstLayersvsP[ievt]->Fill(pGen,itk->hitPattern().trackerLayersWithMeasurement(),1.);
+    }
+    if ( tkColl[1]->size() == 1 ) { 
+      secondTracksvsEtaP[ievt]->Fill(etaGen,pGen,tkColl[1]->size());
+      reco::TrackCollection::const_iterator itk = tkColl[1]->begin();
+      secondHitsvsEta[ievt]->Fill(etaGen,itk->found(),1.);    
+      secondHitsvsP[ievt]->Fill(pGen,itk->found(),1.);
+      secondLayersvsEta[ievt]->Fill(etaGen,itk->hitPattern().trackerLayersWithMeasurement(),1.);    
+      secondLayersvsP[ievt]->Fill(pGen,itk->hitPattern().trackerLayersWithMeasurement(),1.);
+    }
+    if ( tkColl[2]->size() == 1 ) { 
+      thirdTracksvsEtaP[ievt]->Fill(etaGen,pGen,tkColl[2]->size());
+      reco::TrackCollection::const_iterator itk = tkColl[2]->begin();
+      thirdHitsvsEta[ievt]->Fill(etaGen,itk->found(),1.);
+      thirdHitsvsP[ievt]->Fill(pGen,itk->found(),1.);
+      thirdLayersvsEta[ievt]->Fill(etaGen,itk->hitPattern().trackerLayersWithMeasurement(),1.);
+      thirdLayersvsP[ievt]->Fill(pGen,itk->hitPattern().trackerLayersWithMeasurement(),1.);
+    }
 
     // Split 1st collection in two (triplets, then pairs)
-    reco::TrackCollection::const_iterator itk = tkColl[0]->begin();
-    if ( tkColl[0]->size()==1 ) {
+    if ( tkColl[0]->size()>=1 ) {
+      reco::TrackCollection::const_iterator itk = tkColl[0]->begin();
       const TrajectorySeed* seed = itk->seedRef().get();
-      double NumberofhitsSeed = seed->recHits().second-seed->recHits().first;
-      if ( NumberofhitsSeed == 3 ) 
+      // double pNumberofhitsSeed = seed->recHits().second-seed->recHits().first;
+      double NumberofhitsSeed = seed->nHits();
+      if ( NumberofhitsSeed == 3 ) { 
 	first1TracksvsEtaP[ievt]->Fill(etaGen,pGen,1.);
-      else
+	firstSeed[ievt] = true;
+	theRecHitRange[ievt] = seed->recHits();
+      } else { 
 	first2TracksvsEtaP[ievt]->Fill(etaGen,pGen,1.);
+	secondSeed[ievt] = true;
+      }
+    }
+
+  }
+
+  /*
+  if ( firstSeed[0] != firstSeed[1] && secondSeed[0] != secondSeed[1] ) { 
+    std::cout << "First  Seed found in full / fast ? " << firstSeed[0] << " " << firstSeed[1] << std::endl
+	      << "Second Seed found in full / fast ? " << secondSeed[0] << " " << secondSeed[1] << std::endl
+	      << "eta/p = " << etaGen << ", " << pGen << std::endl;
+    TrajectorySeed::const_iterator firstHit, lastHit;
+    if ( firstSeed[0] ) { 
+      firstHit = theRecHitRange[0].first;
+      lastHit = theRecHitRange[0].second;
+    } else {
+      firstHit = theRecHitRange[1].first;
+      lastHit = theRecHitRange[1].second;
+    }
+
+    unsigned hit = 0;
+    const GeomDet* theGeomDet;
+    unsigned int theSubDetId; 
+    unsigned int theLayerNumber;
+    unsigned int theRingNumber;
+    bool forward;
+    for ( ; firstHit != lastHit; ++firstHit ) { 
+      const DetId& theDetId = firstHit->geographicalId();
+      theGeomDet = theGeometry->idToDet(theDetId);
+      theSubDetId = theDetId.subdetId(); 
+      if ( theSubDetId == StripSubdetector::TIB) { 
+	TIBDetId tibid(theDetId.rawId()); 
+	theLayerNumber = tibid.layer();
+	forward = false;
+      } else if ( theSubDetId ==  StripSubdetector::TOB ) { 
+	TOBDetId tobid(theDetId.rawId()); 
+	theLayerNumber = tobid.layer();
+	forward = false;
+      } else if ( theSubDetId ==  StripSubdetector::TID) { 
+	TIDDetId tidid(theDetId.rawId());
+	theLayerNumber = tidid.wheel();
+	theRingNumber = tidid.ring();
+	forward = true;
+      } else if ( theSubDetId ==  StripSubdetector::TEC ) { 
+	TECDetId tecid(theDetId.rawId()); 
+	theLayerNumber = tecid.wheel(); 
+	theRingNumber = tecid.ring();
+	forward = true;
+      } else if ( theSubDetId ==  PixelSubdetector::PixelBarrel ) { 
+	PXBDetId pxbid(theDetId.rawId()); 
+	theLayerNumber = pxbid.layer(); 
+	forward = false;
+      } else if ( theSubDetId ==  PixelSubdetector::PixelEndcap ) { 
+	PXFDetId pxfid(theDetId.rawId()); 
+	theLayerNumber = pxfid.disk();  
+	forward = true;
+      }
+
+
+      std::cout << "Hit " << hit++ << " Subdet " << theSubDetId << ", Layer " << theLayerNumber << std::endl; 
     }
   }
+  */
 
 }
 

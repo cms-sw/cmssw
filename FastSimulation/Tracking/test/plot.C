@@ -90,7 +90,7 @@ void Efficiency(unsigned int iter) {
     fast->Divide(gen);
     full->Divide(gen);
     c->cd(imom);
-    PlotGraphs(fast,full);
+    PlotGraphs(full,fast);
   }  
   
   TH1F* fast;
@@ -135,14 +135,217 @@ void Efficiency(unsigned int iter) {
   fast->Divide(gen);
   full->Divide(gen);
   c->cd(11);
-  PlotGraphs(fast,full);
+  PlotGraphs(full,fast);
 
   genp = (TH1F*) gDirectory->Get("genEtaP_py");
   fastp->Divide(genp);
   fullp->Divide(genp);
   c->cd(12);
-  PlotGraphs(fastp,fullp);
+  PlotGraphs(fullp,fastp);
 
+}
+
+void Hits(unsigned int iter) {
+  
+  gROOT->Reset();
+  TFile *f = new TFile("testTrackingIterations.root");
+  if(f->IsZombie() ) return;
+  f->cd("DQMData"); 
+
+  std::vector<const char *> titleFull;
+  std::vector<const char *> titleFast;
+  titleFull.push_back("HitsFull_p_0_2");
+  titleFull.push_back("HitsFull_p_2_4");
+  titleFull.push_back("HitsFull_p_4_6");
+  titleFull.push_back("HitsFull_p_6_8");
+  titleFull.push_back("HitsFull_p_8_10");
+  titleFull.push_back("HitsFull_Eta_0.0_0.5");
+  titleFull.push_back("HitsFull_Eta_0.5_1.0");
+  titleFull.push_back("HitsFull_Eta_1.0_1.5");
+  titleFull.push_back("HitsFull_Eta_1.5_2.0");
+  titleFull.push_back("HitsFull_Eta_2.0_2.8");
+  titleFast.push_back("HitsFast_p_0_2");
+  titleFast.push_back("HitsFast_p_2_4");
+  titleFast.push_back("HitsFast_p_4_6");
+  titleFast.push_back("HitsFast_p_6_8");
+  titleFast.push_back("HitsFast_p_8_10");
+  titleFast.push_back("HitsFast_Eta_0.0_0.6");
+  titleFast.push_back("HitsFast_Eta_0.6_1.2");
+  titleFast.push_back("HitsFast_Eta_1.2_1.8");
+  titleFast.push_back("HitsFast_Eta_1.8_2.4");
+  titleFast.push_back("HitsFast_Eta_2.4_3.0");
+
+  TCanvas *c = new TCanvas("c","",1000, 600);
+  c->Divide(3,4);
+  TH2F* hitsFullP;
+  TH2F* hitsFastP;
+  TH2F* hitsFullEta;
+  TH2F* hitsFastEta;
+  if ( iter == 1 ) { 
+    hitsFullP = (TH2F*) gDirectory->Get("Hits1PFull");
+    hitsFastP = (TH2F*) gDirectory->Get("Hits1PFast");
+    hitsFullEta = (TH2F*) gDirectory->Get("Hits1EtaFull");
+    hitsFastEta = (TH2F*) gDirectory->Get("Hits1EtaFast");
+  } else if ( iter == 2 ) { 
+    hitsFullP = (TH2F*) gDirectory->Get("Hits2PFull");
+    hitsFastP = (TH2F*) gDirectory->Get("Hits2PFast");
+    hitsFullEta = (TH2F*) gDirectory->Get("Hits2EtaFull");
+    hitsFastEta = (TH2F*) gDirectory->Get("Hits2EtaFast");
+  } else if ( iter == 3 ) { 
+    hitsFullP = (TH2F*) gDirectory->Get("Hits3PFull");
+    hitsFastP = (TH2F*) gDirectory->Get("Hits3PFast");
+    hitsFullEta = (TH2F*) gDirectory->Get("Hits3EtaFull");
+    hitsFastEta = (TH2F*) gDirectory->Get("Hits3EtaFast");
+  }
+  for (unsigned imom=1;imom<6;++imom) {  
+    hitsFullP->ProjectionY(titleFull[imom-1],20*(imom-1)+1,20*imom+1);
+    hitsFastP->ProjectionY(titleFast[imom-1],20*(imom-1)+1,20*imom+1);
+    hitsFullEta->ProjectionY(titleFull[10-imom],3*(imom-1),max((unsigned int)28,30-3*(imom-1)));
+    hitsFastEta->ProjectionY(titleFast[10-imom],3*(imom-1),max((unsigned int)28,30-3*(imom-1)));
+    hitsFullEta->ProjectionY("cacaFull",3*imom,30-3*imom);
+    hitsFastEta->ProjectionY("cacaFast",3*imom,30-3*imom);
+    TH1F* fastP = (TH1F*) gDirectory->Get(titleFast[imom-1]);
+    TH1F* fullP = (TH1F*) gDirectory->Get(titleFull[imom-1]);
+    TH1F* fastEta = (TH1F*) gDirectory->Get(titleFast[10-imom]);
+    TH1F* fullEta = (TH1F*) gDirectory->Get(titleFull[10-imom]);
+    TH1F* fastEta2 = (TH1F*) gDirectory->Get("cacaFast");
+    TH1F* fullEta2 = (TH1F*) gDirectory->Get("cacaFull");
+    fastEta->Add(fastEta2,-1);
+    fullEta->Add(fullEta2,-1);
+    
+    c->cd(imom);
+    PlotGraphs(fullP,fastP);
+    c->cd(12-imom);
+    PlotGraphs(fullEta,fastEta);
+  }  
+  
+  /*
+  TH1F* fast;
+  TH1F* full;
+  TH1F* gen;
+  TH1F* fastp;
+  TH1F* fullp;
+  TH1F* genp;
+  genPlot->ProjectionX();
+  effFull->ProjectionX();
+  effFast->ProjectionX();
+  genPlot->ProjectionY();
+  effFull->ProjectionY();
+  effFast->ProjectionY();
+  if ( iter == 1 ) { 
+    fast = (TH1F*) gDirectory->Get("eff1Fast_px");
+    full = (TH1F*) gDirectory->Get("eff1Full_px");
+    fastp = (TH1F*) gDirectory->Get("eff1Fast_py");
+    fullp = (TH1F*) gDirectory->Get("eff1Full_py");
+  } else if ( iter == 2 ) { 
+    fast = (TH1F*) gDirectory->Get("eff2Fast_px");
+    full = (TH1F*) gDirectory->Get("eff2Full_px");
+    fastp = (TH1F*) gDirectory->Get("eff2Fast_py");
+    fullp = (TH1F*) gDirectory->Get("eff2Full_py");
+  } else if ( iter == 3 ) { 
+    fast = (TH1F*) gDirectory->Get("eff3Fast_px");
+    full = (TH1F*) gDirectory->Get("eff3Full_px");
+    fastp = (TH1F*) gDirectory->Get("eff3Fast_py");
+    fullp = (TH1F*) gDirectory->Get("eff3Full_py");
+  } else if ( iter == 11 ) { 
+    fast = (TH1F*) gDirectory->Get("eff1Fast1_px");
+    full = (TH1F*) gDirectory->Get("eff1Full1_px");
+    fastp = (TH1F*) gDirectory->Get("eff1Fast1_py");
+    fullp = (TH1F*) gDirectory->Get("eff1Full1_py");
+  } else if ( iter == 12 ) { 
+    fast = (TH1F*) gDirectory->Get("eff1Fast2_px");
+    full = (TH1F*) gDirectory->Get("eff1Full2_px");
+    fastp = (TH1F*) gDirectory->Get("eff1Fast2_py");
+    fullp = (TH1F*) gDirectory->Get("eff1Full2_py");
+  }
+  gen = (TH1F*) gDirectory->Get("genEtaP_px");
+  fast->Divide(gen);
+  full->Divide(gen);
+  c->cd(11);
+  PlotGraphs(fullt,fast);
+
+  genp = (TH1F*) gDirectory->Get("genEtaP_py");
+  fastp->Divide(genp);
+  fullp->Divide(genp);
+  c->cd(12);
+  PlotGraphs(fullp,fastp);
+  */
+}
+
+void Layers(unsigned int iter) {
+  
+  gROOT->Reset();
+  TFile *f = new TFile("testTrackingIterations.root");
+  if(f->IsZombie() ) return;
+  f->cd("DQMData"); 
+
+  std::vector<const char *> titleFull;
+  std::vector<const char *> titleFast;
+  titleFull.push_back("LayersFull_p_0_2");
+  titleFull.push_back("LayersFull_p_2_4");
+  titleFull.push_back("LayersFull_p_4_6");
+  titleFull.push_back("LayersFull_p_6_8");
+  titleFull.push_back("LayersFull_p_8_10");
+  titleFull.push_back("LayersFull_Eta_0.0_0.5");
+  titleFull.push_back("LayersFull_Eta_0.5_1.0");
+  titleFull.push_back("LayersFull_Eta_1.0_1.5");
+  titleFull.push_back("LayersFull_Eta_1.5_2.0");
+  titleFull.push_back("LayersFull_Eta_2.0_2.8");
+  titleFast.push_back("LayersFast_p_0_2");
+  titleFast.push_back("LayersFast_p_2_4");
+  titleFast.push_back("LayersFast_p_4_6");
+  titleFast.push_back("LayersFast_p_6_8");
+  titleFast.push_back("LayersFast_p_8_10");
+  titleFast.push_back("LayersFast_Eta_0.0_0.6");
+  titleFast.push_back("LayersFast_Eta_0.6_1.2");
+  titleFast.push_back("LayersFast_Eta_1.2_1.8");
+  titleFast.push_back("LayersFast_Eta_1.8_2.4");
+  titleFast.push_back("LayersFast_Eta_2.4_3.0");
+
+  TCanvas *c = new TCanvas("c","",1000, 600);
+  c->Divide(3,4);
+  TH2F* layersFullP;
+  TH2F* layersFastP;
+  TH2F* layersFullEta;
+  TH2F* layersFastEta;
+  if ( iter == 1 ) { 
+    layersFullP = (TH2F*) gDirectory->Get("Layers1PFull");
+    layersFastP = (TH2F*) gDirectory->Get("Layers1PFast");
+    layersFullEta = (TH2F*) gDirectory->Get("Layers1EtaFull");
+    layersFastEta = (TH2F*) gDirectory->Get("Layers1EtaFast");
+  } else if ( iter == 2 ) { 
+    layersFullP = (TH2F*) gDirectory->Get("Layers2PFull");
+    layersFastP = (TH2F*) gDirectory->Get("Layers2PFast");
+    layersFullEta = (TH2F*) gDirectory->Get("Layers2EtaFull");
+    layersFastEta = (TH2F*) gDirectory->Get("Layers2EtaFast");
+  } else if ( iter == 3 ) { 
+    layersFullP = (TH2F*) gDirectory->Get("Layers3PFull");
+    layersFastP = (TH2F*) gDirectory->Get("Layers3PFast");
+    layersFullEta = (TH2F*) gDirectory->Get("Layers3EtaFull");
+    layersFastEta = (TH2F*) gDirectory->Get("Layers3EtaFast");
+  }
+  for (unsigned imom=1;imom<6;++imom) {  
+    layersFullP->ProjectionY(titleFull[imom-1],20*(imom-1)+1,20*imom+1);
+    layersFastP->ProjectionY(titleFast[imom-1],20*(imom-1)+1,20*imom+1);
+    layersFullEta->ProjectionY(titleFull[10-imom],3*(imom-1),max((unsigned int)28,30-3*(imom-1)));
+    layersFastEta->ProjectionY(titleFast[10-imom],3*(imom-1),max((unsigned int)28,30-3*(imom-1)));
+    layersFullEta->ProjectionY("cacaFull",3*imom,30-3*imom);
+    layersFastEta->ProjectionY("cacaFast",3*imom,30-3*imom);
+    TH1F* fastP = (TH1F*) gDirectory->Get(titleFast[imom-1]);
+    TH1F* fullP = (TH1F*) gDirectory->Get(titleFull[imom-1]);
+    TH1F* fastEta = (TH1F*) gDirectory->Get(titleFast[10-imom]);
+    TH1F* fullEta = (TH1F*) gDirectory->Get(titleFull[10-imom]);
+    TH1F* fastEta2 = (TH1F*) gDirectory->Get("cacaFast");
+    TH1F* fullEta2 = (TH1F*) gDirectory->Get("cacaFull");
+    fastEta->Add(fastEta2,-1);
+    fullEta->Add(fullEta2,-1);
+    
+    c->cd(imom);
+    PlotGraphs(fullP,fastP);
+    c->cd(12-imom);
+    PlotGraphs(fullEta,fastEta);
+  }  
+  
 }
 
 void totalEfficiency(unsigned int iter) {
@@ -223,7 +426,7 @@ void totalEfficiency(unsigned int iter) {
   if ( iter > 12 ) full1->Add(full3);
   full1->Divide(gen);
   c->cd(1);
-  PlotGraphs(fast1,full1);
+  PlotGraphs(full1,fast1);
 
   if ( iter == 2 ) fastp1 = fastp2;
   if ( iter == 3 ) fastp1 = fastp3;
@@ -236,6 +439,6 @@ void totalEfficiency(unsigned int iter) {
   if ( iter > 12 ) fullp1->Add(fullp3);
   fullp1->Divide(genp);
   c->cd(2);
-  PlotGraphs(fastp1,fullp1);
+  PlotGraphs(fullp1,fastp1);
 
 }
