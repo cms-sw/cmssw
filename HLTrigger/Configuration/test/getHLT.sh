@@ -4,27 +4,31 @@ cmsenv
 
 rehash
 
-setenv HLTtable /dev/CMSSW_3_0_0/pre3/HLT
+setenv HLTmaster /dev/CMSSW_3_0_0/pre3
+setenv HLTversion V25
+
+echo "ConfDB path of master: $HLTmaster/HLT/$HLTversion"
 
 if ($1 == CVS) then
 
 # for things in CMSSW CVS - so needs to be run by hand
 # incl. mv, cvs commit & tag
 
-  ./getHLT.py $HLTtable      2E30 GEN-HLT
-# ./getHLT.py $HLTtable/8E29 8E29 GEN-HLT
-# ./getHLT.py $HLTtable/1E31 1E31 GEN-HLT
+  ./getHLT.py $HLTmaster/HLT/$HLTversion  2E30 GEN-HLT
+  ./getHLT.py $HLTmaster/8E29_$HLTversion 8E29 GEN-HLT
+  ./getHLT.py $HLTmaster/1E31_$HLTversion 1E31 GEN-HLT
 
-# /bin/mv -f HLT_?E??_cff.py ../python
+  /bin/mv -f HLT_?E??_cff.py ../python
 
 else
 
 # for things NOT in CMSSW CVS:
 
-  ./getHLT.py $HLTtable      2E30
-# ./getHLT.py $HLTtable/8E29 8E29
-# ./getHLT.py $HLTtable/1E31 1E31
+  ./getHLT.py $HLTmaster/HLT/$HLTversion  2E30
+  ./getHLT.py $HLTmaster/8E29_$HLTversion 8E29
+  ./getHLT.py $HLTmaster/1E31_$HLTversion 1E31
 
 endif
 
-unsetenv HLTtable
+unsetenv HLTmaster
+unsetenv HLTversion
