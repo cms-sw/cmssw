@@ -3,12 +3,12 @@ import FWCore.ParameterSet.Config as cms
 
 loadTau = cms.EDAnalyzer("DQMFileLoader",
   test = cms.PSet(
-    inputFileNames = cms.vstring('/afs/cern.ch/user/v/vasquez/scratch0/CMSSW_2_2_1/src/Validation/RecoTau/test/CMSSW_2_2_1_HadronicTauOneAndThreeProng_ALL_NewDiscriminators.root'),
+    inputFileNames = cms.vstring('/afs/cern.ch/user/v/vasquez/scratch0/CMSSW_2_2_1/src/Validation/RecoTau/test/FastSim_CMSSW_2_2_1_HadronicTauOneAndThreeProng_ALL_Florian.root'),
     scaleFactor = cms.double(1.),
     dqmDirectory_store = cms.string('test')
   ),
   reference = cms.PSet(
-    inputFileNames = cms.vstring('/afs/cern.ch/user/v/vasquez/scratch0/validation/CMSSW_2_2_0/src/Validation/RecoTau/test/CMSSW_2_2_0_HadronicTauOneAndThreeProng_ALL_NewDiscriminators.root'),
+    inputFileNames = cms.vstring('/afs/cern.ch/user/v/vasquez/scratch0/CMSSW_2_2_1/src/Validation/RecoTau/test/CMSSW_2_2_1_HadronicTauOneAndThreeProng_ALL_NewDiscriminators.root'),
     scaleFactor = cms.double(1.),
     dqmDirectory_store = cms.string('reference')
   )
@@ -18,12 +18,12 @@ plotPFTauEfficiencies = cms.EDAnalyzer("DQMHistPlotter",
   processes = cms.PSet(
     test = cms.PSet(
       dqmDirectory = cms.string('test'),
-      legendEntry = cms.string('CMSSW_2_2_1'),
+      legendEntry = cms.string('CMSSW_2_2_1 FastSim by Florian'),
       type = cms.string('smMC') # Data/smMC/bsmMC/smSumMC
     ),
     reference = cms.PSet(
       dqmDirectory = cms.string('reference'),
-      legendEntry = cms.string('CMSSW_2_2_0'),
+      legendEntry = cms.string('CMSSW_2_2_1 Full'),
       type = cms.string('smMC') # Data/smMC/bsmMC/smSumMC
     )
   ),
@@ -324,7 +324,7 @@ plotPFTauEfficiencies = cms.EDAnalyzer("DQMHistPlotter",
   canvasSizeX = cms.int32(640),
   canvasSizeY = cms.int32(640),                         
 
-  outputFilePath = cms.string('./pfRecoTauProducer/HadronicTauOneAndThreeProng/'),
+  outputFilePath = cms.string('./fastSimpfRecoTauProducerFlorian/HadronicTauOneAndThreeProng/'),
 #  outputFileName = cms.string('FIRSTTEST.ps'),
   indOutputFileName = cms.string('#PLOT#.png')    
 )                    
@@ -333,12 +333,12 @@ plotPFTauHighEfficiencyEfficiencies = cms.EDAnalyzer("DQMHistPlotter",
   processes = cms.PSet(
     test = cms.PSet(
       dqmDirectory = cms.string('test'),
-      legendEntry = cms.string('CMSSW_2_2_1'),
+      legendEntry = cms.string('CMSSW_2_2_1 FastSim by Florian'),
       type = cms.string('smMC') # Data/smMC/bsmMC/smSumMC
     ),
     reference = cms.PSet(
       dqmDirectory = cms.string('reference'),
-      legendEntry = cms.string('CMSSW_2_2_0'),
+      legendEntry = cms.string('CMSSW_2_2_1 Full'),
       type = cms.string('smMC') # Data/smMC/bsmMC/smSumMC
     )
   ),
@@ -639,7 +639,7 @@ plotPFTauHighEfficiencyEfficiencies = cms.EDAnalyzer("DQMHistPlotter",
   canvasSizeX = cms.int32(640),
   canvasSizeY = cms.int32(640),                         
 
-  outputFilePath = cms.string('./pfRecoTauProducerHighEfficiency/HadronicTauOneAndThreeProng/'),
+  outputFilePath = cms.string('./fastSimpfRecoTauProducerHighEfficiencyFlorian/HadronicTauOneAndThreeProng/'),
 #  outputFileName = cms.string('FIRSTTEST.ps'),
   indOutputFileName = cms.string('#PLOT#.png')    
 )      
@@ -651,12 +651,12 @@ plotCaloTauEfficiencies = cms.EDAnalyzer("DQMHistPlotter",
   processes = cms.PSet(
     test = cms.PSet(
       dqmDirectory = cms.string('test'),
-      legendEntry = cms.string('CMSSW_2_2_1'),
+      legendEntry = cms.string('CMSSW_2_2_1 FastSim by Florian'),
       type = cms.string('smMC') # Data/smMC/bsmMC/smSumMC
     ),
     reference = cms.PSet(
       dqmDirectory = cms.string('reference'),
-      legendEntry = cms.string('CMSSW_2_2_0'),
+      legendEntry = cms.string('CMSSW_2_2_1 Full'),
       type = cms.string('smMC') # Data/smMC/bsmMC/smSumMC
     )
   ),
@@ -911,7 +911,7 @@ plotCaloTauEfficiencies = cms.EDAnalyzer("DQMHistPlotter",
   canvasSizeX = cms.int32(640),
   canvasSizeY = cms.int32(640),                         
 
-  outputFilePath = cms.string('./caloRecoTauProducer/HadronicTauOneAndThreeProng/'),
+  outputFilePath = cms.string('./fastSimcaloRecoTauProducerFlorian/HadronicTauOneAndThreeProng/'),
 #  outputFileName = cms.string('FIRSTTEST.ps'),
   indOutputFileName = cms.string('#PLOT#.png')    
 )                    
