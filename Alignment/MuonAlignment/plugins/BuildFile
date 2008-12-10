@@ -1,7 +1,4 @@
-<use name=Alignment/CommonAlignment>
 <use name=Alignment/MuonAlignment>
-<use name=Geometry/CSCGeometry>
-<use name=Geometry/CSCGeometryBuilder>
 
 <library name=MisalignedMuonESProducer file=MisalignedMuonESProducer.cc>
   <flags EDM_PLUGIN=1>
@@ -16,8 +13,8 @@
 </library>
 
 <library name=MuonGeometryArrange file=MuonGeometryArrange.cc>
+  <use name=Alignment/CommonAlignment>
   <use name=CLHEP>
-  <use name=root>
   <use name=rootcore>
   <use name=rootgraphics>
   <use name=FWCore/Framework>
@@ -26,5 +23,4 @@
   <use name=CondFormats/Alignment>
   <use name=DataFormats/MuonDetId>
   <flags EDM_PLUGIN=1>
-  <Flags CXXFLAGS="-O0 -g -DDEBUG">
 </library>
