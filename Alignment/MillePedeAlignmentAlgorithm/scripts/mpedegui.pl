@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/bin/env perl
 
 ##################
 # 
@@ -70,7 +70,9 @@ my (
     my $retryID_variable;
     my $retrymerge_variable;
     my $retryforce_variable;
+
 # Variables for mps_save
+    my $pathsave_variable;
 
 # Standard outputs
     my $mpssetup_output;
@@ -572,8 +574,42 @@ $ZWIDGETS{'status_button'} = $MW->Button(
 ### THIS IS THE MPS_SAVE SECTION ###
 $row_offset=19;
 
+# Widget savedir_label isa Label
+$ZWIDGETS{'savedir_label'} = $MW->Label(
+   -text => 'Save to Directory:',
+  )->grid(
+   -row        => $row_offset,
+   -column     => 0,
+   -sticky     => 'ew',
+  );
+
+# Widget pathsave_entry isa Entry
+$ZWIDGETS{'pathsave_entry'} = $MW->Entry(   
+	-textvariable => \$pathsave_variable,
+        -background => 'white',
+	)
+   ->grid(
+   -row    => $row_offset+1,
+   -column => 0,
+   -columnspan => 2,
+   -sticky => 'ew',
+  );
+
+# Widget save_button isa Button
+$ZWIDGETS{'save_button'} = $MW->Button(
+   -text => 'Run mps_save',
+   -command => \&mpssave_cmd,
+   -background => 'cyan',
+  )->grid(
+   -row        => $row_offset+1,
+   -column     => 2,
+   -columnspan => 2,
+   -sticky     => 'ew',
+  );
+
+
 ### THIS IS THE OUTPUT SECTION ###
-$row_offset=20;
+$row_offset=21;
 
 # Widget output_label isa Label
 $ZWIDGETS{'output_label'} = $MW->Label(
@@ -603,7 +639,7 @@ $ZWIDGETS{'ROText1'} = $MW->Scrolled('ROText',
 
 
 ### QUIT SECTION ###
-$row_offset=22;
+$row_offset=23;
 
 # Widget quit_button isa Button
 $ZWIDGETS{'quit_button'} = $MW->Button(
@@ -729,6 +765,15 @@ sub setup_cmd {
   $ZWIDGETS{'ROText1'}->see('end');
 }
 
+sub mpssave_cmd {
+  my $save_cmd = "";
+  
+  $save_cmd = sprintf "mps_save.pl %s",$pathsave_variable;
+  $mpssave_output=`$save_cmd 2>&1`;
+
+  $ZWIDGETS{'ROText1'}->insert('end',"$mpssave_output \n");
+  $ZWIDGETS{'ROText1'}->see('end');
+}
 
 sub mpsstat_cmd {
   my $status_cmd = "";
