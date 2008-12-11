@@ -17,8 +17,11 @@ public:
 			     const TrackerGeometry*  trackerGeom,
 			     const GeometricSearchTracker* geometricSearchTracker,
     			     const SiStripQuality *stripQuality,
-                             int   qualityFlags,
-                             int   qualityDebugFlags,
+                             int   stripQualityFlags,
+                             int   stripQualityDebugFlags,
+                             const SiPixelQuality *pixelQuality,
+                             int   pixelQualityFlags,
+                             int   pixelQualityDebugFlags,
 			     const SiStripRegionCabling * stripRegionCabling,
 			     bool  isRegional=false);
   /// destructor

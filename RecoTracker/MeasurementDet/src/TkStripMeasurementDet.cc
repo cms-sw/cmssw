@@ -19,6 +19,7 @@ TkStripMeasurementDet::TkStripMeasurementDet( const GeomDet* gdet,
     MeasurementDet (gdet),
     theCPE(cpe),
     empty(true),
+    activeThisEvent_(true), activeThisPeriod_(true),
     isRegional(regional)
   {
     theStripGDU = dynamic_cast<const StripGeomDetUnit*>(gdet);
@@ -41,7 +42,7 @@ fastMeasurements( const TrajectoryStateOnSurface& stateOnThisDet,
 { 
   std::vector<TrajectoryMeasurement> result;
 
-  if (active_ == false) {
+  if (isActive() == false) {
     result.push_back( TrajectoryMeasurement( stateOnThisDet, 
     		InvalidTransientRecHit::build(&geomDet(), TrackingRecHit::inactive), 
 		0.F));
@@ -191,7 +192,7 @@ TkStripMeasurementDet::recHits( const TrajectoryStateOnSurface& ts) const
 {
   RecHitContainer result;
   if (empty == true) return result;
-  if (active_ == false) return result; // GIO
+  if (isActive() == false) return result; // GIO
 
   if(!isRegional){//old implemetation with DetSet
     for ( new_const_iterator ci = detSet_.begin(); ci != detSet_.end(); ++ ci ) {

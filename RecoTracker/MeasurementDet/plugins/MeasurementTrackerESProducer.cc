@@ -20,6 +20,7 @@
 
 #include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
 #include "CalibTracker/Records/interface/SiStripQualityRcd.h"
+#include "CondFormats/DataRecord/interface/SiPixelQualityRcd.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
 
 #include "CalibFormats/SiStripObjects/interface/SiStripRegionCabling.h"
@@ -49,43 +50,53 @@ MeasurementTrackerESProducer::produce(const CkfComponentsRecord& iRecord)
 
   bool onDemand = pset_.getParameter<bool>("OnDemand");
 
-  /* vvvv LEGACY, WILL BE REMOVED vvvv */
-  //const SiStripNoises *ptr_stripNoises = 0;
-  //edm::ESHandle<SiStripNoises>	stripNoises;
-  //if (pset_.getParameter<bool>("UseStripNoiseDB")) {
-  //   iRecord.getRecord<SiStripNoisesRcd>().get(stripNoises);
-  //   ptr_stripNoises = stripNoises.product();	
-  //}
-  /* ^^^^ LEGACY, WILL BE REMOVED ^^^^ */
+  // ========= SiPixelQuality related tasks =============
+  const SiPixelQuality *ptr_pixelQuality = 0;
+  int   pixelQualityFlags = 0;
+  int   pixelQualityDebugFlags = 0;
+  edm::ESHandle<SiPixelQuality>	pixelQuality;
 
+  if (pset_.getParameter<bool>("UsePixelModuleQualityDB")) {
+    pixelQualityFlags += MeasurementTracker::BadModules;
+    if (pset_.getUntrackedParameter<bool>("DebugPixelModuleQualityDB")) {
+        pixelQualityDebugFlags += MeasurementTracker::BadModules;
+    }
+  }
+
+  if (pixelQualityFlags != 0) {
+    iRecord.getRecord<SiPixelQualityRcd>().get(pixelQuality);
+    ptr_pixelQuality = pixelQuality.product();
+  }
+  
+  // ========= SiStripQuality related tasks =============
   const SiStripQuality *ptr_stripQuality = 0;
-  int   qualityFlags = 0;
-  int   qualityDebugFlags = 0;
+  int   stripQualityFlags = 0;
+  int   stripQualityDebugFlags = 0;
   edm::ESHandle<SiStripQuality>	stripQuality;
 
   if (pset_.getParameter<bool>("UseStripModuleQualityDB")) {
-    qualityFlags += MeasurementTracker::BadModules;
+    stripQualityFlags += MeasurementTracker::BadModules;
     if (pset_.getUntrackedParameter<bool>("DebugStripModuleQualityDB")) {
-        qualityDebugFlags += MeasurementTracker::BadModules;
+        stripQualityDebugFlags += MeasurementTracker::BadModules;
     }
   }
   if (pset_.getParameter<bool>("UseStripAPVFiberQualityDB")) {
-    qualityFlags += MeasurementTracker::BadAPVFibers;
+    stripQualityFlags += MeasurementTracker::BadAPVFibers;
     if (pset_.getUntrackedParameter<bool>("DebugStripAPVFiberQualityDB")) {
-        qualityDebugFlags += MeasurementTracker::BadAPVFibers;
+        stripQualityDebugFlags += MeasurementTracker::BadAPVFibers;
     }
     if (pset_.existsAs<bool>("MaskBadAPVFibers") && pset_.getParameter<bool>("MaskBadAPVFibers")) {
-        qualityFlags += MeasurementTracker::MaskBad128StripBlocks;
+        stripQualityFlags += MeasurementTracker::MaskBad128StripBlocks;
     }
   }
   if (pset_.getParameter<bool>("UseStripStripQualityDB")) {
-    qualityFlags += MeasurementTracker::BadStrips;
+    stripQualityFlags += MeasurementTracker::BadStrips;
     if (pset_.getUntrackedParameter<bool>("DebugStripStripQualityDB")) {
-        qualityDebugFlags += MeasurementTracker::BadStrips;
+        stripQualityDebugFlags += MeasurementTracker::BadStrips;
     }
   }
 
-  if (qualityFlags != 0) {
+  if (stripQualityFlags != 0) {
     iRecord.getRecord<SiStripQualityRcd>().get(stripQuality);
     ptr_stripQuality = stripQuality.product();
   }
@@ -111,9 +122,11 @@ MeasurementTrackerESProducer::produce(const CkfComponentsRecord& iRecord)
 										      trackerGeom.product(),
 										      geometricSearchTracker.product(),
 										      ptr_stripQuality,
-                                                                                      qualityFlags,
-                                                                                      qualityDebugFlags,
-										      //ptr_stripNoises,
+                                                                                      stripQualityFlags,
+                                                                                      stripQualityDebugFlags,
+										      ptr_pixelQuality,
+                                                                                      pixelQualityFlags,
+                                                                                      pixelQualityDebugFlags,
 										      regional) ); 
   }
   else{
@@ -129,10 +142,12 @@ MeasurementTrackerESProducer::produce(const CkfComponentsRecord& iRecord)
 												 hitMatcher.product(),
 												 trackerGeom.product(),
 												 geometricSearchTracker.product(),
-												 ptr_stripQuality,
-                                                                                                 qualityFlags,
-                                                                                                 qualityDebugFlags,
-												 //ptr_stripNoises,
+                                                                                                 ptr_stripQuality,
+                                                                                                 stripQualityFlags,
+                                                                                                 stripQualityDebugFlags,
+                                                                                                 ptr_pixelQuality,
+                                                                                                 pixelQualityFlags,
+                                                                                                 pixelQualityDebugFlags,
 												 ptr_stripRegionCabling,
 												 regional) );
     

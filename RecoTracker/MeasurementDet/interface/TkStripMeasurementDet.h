@@ -57,10 +57,11 @@ public:
     regionalHandle_ = h;
     id_ = id;
     empty = false;
+    activeThisEvent_ = true;
     isRegional = true;
   }
   
-  void setEmpty(){empty = true;}
+  void setEmpty(){empty = true; activeThisEvent_ = true; }
   
   virtual RecHitContainer recHits( const TrajectoryStateOnSurface&) const;
 
@@ -83,10 +84,14 @@ public:
   const detset& theSet() {return detSet_;}
   int  size() {return endCluster - beginCluster ; }
 
-  /** \brief Turn on/off the module for reconstruction (using info from DB, usually) */
-  void setActive(bool active) { active_ = active; if (!active) empty = true; }
-  /** \brief Is this module active in reconstruction? */
-  bool isActive() const { return active_; }
+  /** \brief Turn on/off the module for reconstruction, for the full run or lumi (using info from DB, usually).
+             This also resets the 'setActiveThisEvent' to true */
+  void setActive(bool active) { activeThisPeriod_ = active; activeThisEvent_ = true; if (!active) empty = true; }
+  /** \brief Turn on/off the module for reconstruction for one events.
+             This per-event flag is cleared by any call to 'update' or 'setEmpty'  */
+  void setActiveThisEvent(bool active) { activeThisEvent_ = active;  if (!active) empty = true; }
+  /** \brief Is this module active in reconstruction? It must be both 'setActiveThisEvent' and 'setActive'. */
+  bool isActive() const { return activeThisEvent_ && activeThisPeriod_; }
 
   /** \brief does this module have at least one bad strip, APV or channel? */
   bool hasAllGoodChannels() const { return !hasAny128StripBad_ && badStripBlocks_.empty(); }
@@ -115,7 +120,7 @@ private:
   unsigned int id_;
   bool empty;
 
-  bool active_;
+  bool activeThisEvent_,activeThisPeriod_;
   bool bad128Strip_[6];
   bool hasAny128StripBad_, maskBad128StripBlocks_;
   std::vector<BadStripBlock> badStripBlocks_;  

@@ -20,6 +20,8 @@
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
 
+#include "CondFormats/SiPixelObjects/interface/SiPixelQuality.h"
+
 #include <map>
 #include <vector>
 
@@ -44,9 +46,12 @@ public:
 		     const SiStripRecHitMatcher*  hitMatcher,
 		     const TrackerGeometry*  trackerGeom,
 		     const GeometricSearchTracker* geometricSearchTracker,
-                     const SiStripQuality *quality,
-                     int   qualityFlags,
-                     int   qualityDebugFlags,
+                     const SiStripQuality *stripQuality,
+                     int   stripQualityFlags,
+                     int   stripQualityDebugFlags,
+                     const SiPixelQuality *pixelQuality,
+                     int   pixelQualityFlags,
+                     int   pixelQualityDebugFlags,
 		     bool  isRegional=false);
 
   virtual ~MeasurementTracker();
@@ -86,6 +91,7 @@ public:
   const TrackerGeometry*                theTrackerGeom;
   const GeometricSearchTracker*         theGeometricSearchTracker;
   const SiStripQuality*                 theStripQuality;
+  const SiPixelQuality*                 thePixelQuality;
 
   bool isRegional_;
 
@@ -103,6 +109,8 @@ public:
   void addStripDets( const TrackingGeometry::DetContainer& dets) const;
 
   void initializeStripStatus (const SiStripQuality *stripQuality, int qualityFlags, int qualityDebugFlags) const;
+
+  void initializePixelStatus (const SiPixelQuality *stripQuality, int qualityFlags, int qualityDebugFlags) const;
 };
 
 #endif

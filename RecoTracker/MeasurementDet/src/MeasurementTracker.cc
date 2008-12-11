@@ -50,9 +50,12 @@ MeasurementTracker::MeasurementTracker(const edm::ParameterSet&              con
 				       const SiStripRecHitMatcher*  hitMatcher,
 				       const TrackerGeometry*  trackerGeom,
 				       const GeometricSearchTracker* geometricSearchTracker,
-				       const SiStripQuality *stripQuality,
-                                       int qualityFlags, 
-                                       int qualityDebugFlags,
+                                       const SiStripQuality *stripQuality,
+                                       int   stripQualityFlags,
+                                       int   stripQualityDebugFlags,
+                                       const SiPixelQuality *pixelQuality,
+                                       int   pixelQualityFlags,
+                                       int   pixelQualityDebugFlags,
 				       bool isRegional) :
   pset_(conf),
   name_(conf.getParameter<std::string>("ComponentName")),
@@ -61,7 +64,8 @@ MeasurementTracker::MeasurementTracker(const edm::ParameterSet&              con
   ,isRegional_(isRegional)
 {
   this->initialize();
-  this->initializeStripStatus(stripQuality, qualityFlags, qualityDebugFlags);
+  this->initializeStripStatus(stripQuality, stripQualityFlags, stripQualityDebugFlags);
+  this->initializePixelStatus(pixelQuality, pixelQualityFlags, pixelQualityDebugFlags);
 }
 
 MeasurementTracker::~MeasurementTracker()
@@ -208,7 +212,7 @@ void MeasurementTracker::updatePixels( const edm::Event& event) const
     for (std::vector<TkPixelMeasurementDet*>::const_iterator i=thePixelDets.begin();
 	 i!=thePixelDets.end(); i++) {
       if (switchOffPixelsIfEmpty) {
-        (**i).setActive(false);
+        (**i).setActiveThisEvent(false);
       }else{
 	(**i).setEmpty();
       }
@@ -221,13 +225,12 @@ void MeasurementTracker::updatePixels( const edm::Event& event) const
     if (switchOffPixelsIfEmpty && pixelCollection->empty()) {
         for (std::vector<TkPixelMeasurementDet*>::const_iterator i=thePixelDets.begin();
              i!=thePixelDets.end(); i++) {
-              (**i).setActive(false);
+              (**i).setActiveThisEvent(false);
         }
     } else { 
     for (std::vector<TkPixelMeasurementDet*>::const_iterator i=thePixelDets.begin();
 	 i!=thePixelDets.end(); i++) {
 
-      (**i).setActive(true);
       // foreach det get cluster range
       unsigned int id = (**i).geomDet().geographicalId().rawId();
       edmNew::DetSetVector<SiPixelCluster>::const_iterator it = pixelCollection->find( id );
@@ -437,6 +440,36 @@ void MeasurementTracker::initializeStripStatus(const SiStripQuality *quality, in
 	 i!=theStripDets.end(); i++) {
       (*i)->setActive(true);          // module ON
       (*i)->set128StripStatus(true);  // all APVs and fibers ON
+    }
+  }
+}
+
+void MeasurementTracker::initializePixelStatus(const SiPixelQuality *quality, int qualityFlags, int qualityDebugFlags) const {
+  if ((quality != 0) && (qualityFlags != 0))  {
+    edm::LogInfo("MeasurementTracker") << "qualityFlags = " << qualityFlags;
+    unsigned int on = 0, tot = 0; 
+    for (std::vector<TkPixelMeasurementDet*>::const_iterator i=thePixelDets.begin();
+	 i!=thePixelDets.end(); i++) {
+      uint32_t detid = ((**i).geomDet().geographicalId()).rawId();
+      if (qualityFlags & BadModules) {
+          bool isOn = quality->IsModuleUsable(detid);
+          (*i)->setActive(isOn);
+          tot++; on += (unsigned int) isOn;
+          if (qualityDebugFlags & BadModules) {
+	    edm::LogInfo("MeasurementTracker")<< "MeasurementTracker::initializePixelStatus : detid " << detid << " is " << (isOn ?  "on" : "off");
+          }
+       } else {
+          (*i)->setActive(true);
+       }
+    }
+    if (qualityDebugFlags & BadModules) {
+        edm::LogInfo("MeasurementTracker PixelModuleStatus") << 
+            " Total modules: " << tot << ", active " << on <<", inactive " << (tot - on);
+    }
+  } else {
+    for (std::vector<TkPixelMeasurementDet*>::const_iterator i=thePixelDets.begin();
+	 i!=thePixelDets.end(); i++) {
+      (*i)->setActive(true);          // module ON
     }
   }
 }

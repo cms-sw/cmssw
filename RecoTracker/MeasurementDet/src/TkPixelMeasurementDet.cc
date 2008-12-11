@@ -13,7 +13,7 @@ TkPixelMeasurementDet::TkPixelMeasurementDet( const GeomDet* gdet,
     MeasurementDet (gdet),
     theCPE(cpe),
     empty(true),
-    active_(true)
+    activeThisEvent_(true), activeThisPeriod_(true)
   {
     thePixelGDU = dynamic_cast<const PixelGeomDetUnit*>(gdet);
     if (thePixelGDU == 0) {
@@ -29,7 +29,7 @@ TkPixelMeasurementDet::fastMeasurements( const TrajectoryStateOnSurface& stateOn
 {
   std::vector<TrajectoryMeasurement> result;
 
-  if (active_ == false) {
+  if (isActive() == false) {
     result.push_back( TrajectoryMeasurement( stateOnThisDet, 
     		InvalidTransientRecHit::build(&geomDet(), TrackingRecHit::inactive), 
 		0.F));
@@ -74,7 +74,7 @@ TkPixelMeasurementDet::recHits( const TrajectoryStateOnSurface& ts ) const
 {
   RecHitContainer result;
   if (empty == true ) return result;
-  if (active_ == false) return result; 
+  if (isActive() == false) return result; 
   for ( const_iterator ci = detSet_.begin(); ci != detSet_.end(); ++ ci ) {
     SiPixelClusterRef cluster = edmNew::makeRefTo( handle_, ci ); 
     result.push_back( buildRecHit( cluster, ts.localParameters() ) );
