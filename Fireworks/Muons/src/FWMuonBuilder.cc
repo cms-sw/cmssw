@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Nov 19 16:12:27 EST 2008
-// $Id: FWMuonBuilder.cc,v 1.2 2008/11/20 15:30:24 chrjones Exp $
+// $Id: FWMuonBuilder.cc,v 1.3 2008/12/05 01:50:35 chrjones Exp $
 //
 
 // system include files
@@ -292,9 +292,8 @@ FWMuonBuilder::buildMuon(const FWEventItem* iItem,
    // results etc are used to draw the trajectory. No hits are show, but chambers
    // with hits are visible.
    
-   bool useStandAloneFit = ! muon->isMatchesValid() &&
-   muon->standAloneMuon().isAvailable() &&
-   muon->standAloneMuon()->extra().isAvailable();
+   bool useStandAloneFit = ! ( muon->isMatchesValid() && (muon->isTrackerMuon()||muon->isGlobalMuon()) ) &&
+     muon->standAloneMuon().isAvailable() && muon->standAloneMuon()->extra().isAvailable();
    
    if ( ! useStandAloneFit && buggyMuon( &*muon, iItem->getGeom() ) )
       useStandAloneFit = true;
