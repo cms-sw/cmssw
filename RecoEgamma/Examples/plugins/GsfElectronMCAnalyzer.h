@@ -9,7 +9,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: GsfElectronMCAnalyzer.h,v 1.3 2008/10/28 21:51:31 charlot Exp $
+// $Id: GsfElectronMCAnalyzer.h,v 1.4 2008/12/05 17:01:14 charlot Exp $
 //
 //
   
@@ -124,6 +124,10 @@ class GsfElectronMCAnalyzer : public edm::EDAnalyzer
   TH2F *h_ctf_foundHitsVsEta;
   TH2F *h_ctf_lostHitsVsEta;
 
+  TH1F *h_ele_ambiguousTracks;
+  TH2F *h_ele_ambiguousTracksVsEta;
+  TH2F *h_ele_ambiguousTracksVsPhi;
+  TH2F *h_ele_ambiguousTracksVsPt;
   TH1F *h_ele_foundHits;
   TH2F *h_ele_foundHitsVsEta;
   TH2F *h_ele_foundHitsVsPhi;
@@ -172,10 +176,18 @@ class GsfElectronMCAnalyzer : public edm::EDAnalyzer
   TH2F *h_ele_EoPVsEta;
   TH2F *h_ele_EoPVsPhi;
   TH2F *h_ele_EoPVsE;
+  TH1F *h_ele_EseedOP;
+  TH2F *h_ele_EseedOPVsEta;
+  TH2F *h_ele_EseedOPVsPhi;
+  TH2F *h_ele_EseedOPVsE;
   TH1F *h_ele_EoPout;
   TH2F *h_ele_EoPoutVsEta;
   TH2F *h_ele_EoPoutVsPhi;
   TH2F *h_ele_EoPoutVsE;
+  TH1F *h_ele_EeleOPout;
+  TH2F *h_ele_EeleOPoutVsEta;
+  TH2F *h_ele_EeleOPoutVsPhi;
+  TH2F *h_ele_EeleOPoutVsE;
   
   TH1F *h_ele_dEtaSc_propVtx;
   TH2F *h_ele_dEtaScVsEta_propVtx;
@@ -193,6 +205,14 @@ class GsfElectronMCAnalyzer : public edm::EDAnalyzer
   TH2F *h_ele_dPhiClVsEta_propOut;
   TH2F *h_ele_dPhiClVsPhi_propOut;
   TH2F *h_ele_dPhiClVsPt_propOut;
+  TH1F *h_ele_dEtaEleCl_propOut;
+  TH2F *h_ele_dEtaEleClVsEta_propOut;
+  TH2F *h_ele_dEtaEleClVsPhi_propOut;
+  TH2F *h_ele_dEtaEleClVsPt_propOut;
+  TH1F *h_ele_dPhiEleCl_propOut;
+  TH2F *h_ele_dPhiEleClVsEta_propOut;
+  TH2F *h_ele_dPhiEleClVsPhi_propOut;
+  TH2F *h_ele_dPhiEleClVsPt_propOut;
   
   TH1F *h_ele_seed_dphi2_;
   TH2F *h_ele_seed_dphi2VsEta_;

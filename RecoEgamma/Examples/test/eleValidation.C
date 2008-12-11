@@ -280,10 +280,14 @@
   // match
   TH1F *h_ele_EoP   = (TH1F*)hist.Get("h_ele_EoP"); 
   TH1F *h_ele_EoPout   = (TH1F*)hist.Get("h_ele_EoPout"); 
+  TH1F *h_ele_EseedOP   = (TH1F*)hist.Get("h_ele_EseedOP"); 
+  TH1F *h_ele_EeleOPout   = (TH1F*)hist.Get("h_ele_EeleOPout"); 
   TH1F *h_ele_dEtaCl_propOut   = (TH1F*)hist.Get("h_ele_dEtaCl_propOut"); 
   TH1F *h_ele_dEtaSc_propVtx   = (TH1F*)hist.Get("h_ele_dEtaSc_propVtx"); 
   TH1F *h_ele_dPhiCl_propOut   = (TH1F*)hist.Get("h_ele_dPhiCl_propOut"); 
   TH1F *h_ele_dPhiSc_propVtx   = (TH1F*)hist.Get("h_ele_dPhiSc_propVtx"); 
+  TH1F *h_ele_dEtaEleCl_propOut   = (TH1F*)hist.Get("h_ele_dEtaEleCl_propOut"); 
+  TH1F *h_ele_dPhiEleCl_propOut   = (TH1F*)hist.Get("h_ele_dPhiEleCl_propOut"); 
   TH1F *h_ele_HoE   = (TH1F*)hist.Get("h_ele_HoE"); 
   
   TCanvas *c_EoP = new TCanvas("EoP","EoP");
@@ -306,6 +310,26 @@
     gPad->Print(str);
   }
    
+  TCanvas *c_EeleOPout = new TCanvas("EeleOPout","EeleOPout");
+  c_EeleOPout->cd();
+  h_ele_EeleOPout->Draw(); 
+  h_ele_EeleOPout->GetXaxis()->SetTitle("E_{ele}/p_{pout}");  
+  h_ele_EeleoPout->GetYaxis()->SetTitle("Events");  
+  if (out) {
+    sprintf(str,"%s/EeleOPout.%s",outDir,suffix);
+    gPad->Print(str);
+  }
+   
+  TCanvas *c_EseedOP = new TCanvas("EseedOP","EseedOP");
+  c_EseedOP->cd();
+  h_ele_EseedOP->Draw(); 
+  h_ele_EseedoP->GetXaxis()->SetTitle("E_{seed}/p");  
+  h_ele_EseedOP->GetYaxis()->SetTitle("Events");  
+  if (out) {
+    sprintf(str,"%s/EseedOP.%s",outDir,suffix);
+    gPad->Print(str);
+  }
+  
   TCanvas *c_dEtaCl_propOut = new TCanvas("dEtaCl_propOut","dEtaCl_propOut");
   c_dEtaCl_propOut->cd();
   h_ele_dEtaCl_propOut->Draw(); 
@@ -313,6 +337,16 @@
   h_ele_dEtaCl_propOut->GetYaxis()->SetTitle("Events");  
   if (out) {
     sprintf(str,"%s/dEtaCl_propOut.%s",outDir,suffix);
+    gPad->Print(str);
+  }
+   
+  TCanvas *c_dEtaEleCl_propOut = new TCanvas("dEtaEleCl_propOut","dEtaEleCl_propOut");
+  c_dEtaEleCl_propOut->cd();
+  h_ele_dEtaEleCl_propOut->Draw(); 
+  h_ele_dEtaEleCl_propOut->GetXaxis()->SetTitle("#eta_{ele}-#eta_{tk, extrp. from out}");  
+  h_ele_dEtaEleCl_propOut->GetYaxis()->SetTitle("Events");  
+  if (out) {
+    sprintf(str,"%s/dEtaEleCl_propOut.%s",outDir,suffix);
     gPad->Print(str);
   }
    
@@ -333,6 +367,16 @@
   h_ele_dPhiCl_propOut->GetYaxis()->SetTitle("Events");  
   if (out) {
     sprintf(str,"%s/dPhiCl_propOut.%s",outDir,suffix);
+    gPad->Print(str);
+  }
+   
+  TCanvas *c_dPhiEleCl_propOut = new TCanvas("dPhiEleCl_propOut","dPhiEleCl_propOut");
+  c_dPhiEleCl_propOut->cd();
+  h_ele_dPhiEleCl_propOut->Draw(); 
+  h_ele_dPhiEleCl_propOut->GetXaxis()->SetTitle("#phi_{ele}-#phi_{tk, extrp. from out}");  
+  h_ele_dPhiEleCl_propOut->GetYaxis()->SetTitle("Events");  
+  if (out) {
+    sprintf(str,"%s/dPhiEleCl_propOut.%s",outDir,suffix);
     gPad->Print(str);
   }
    
@@ -361,6 +405,7 @@
   TH1F *h_ele_chi2   = (TH1F*)hist.Get("h_ele_chi2"); 
   TH1F *h_ele_foundHits   = (TH1F*)hist.Get("h_ele_foundHits"); 
   TH1F *h_ele_lostHits   = (TH1F*)hist.Get("h_ele_lostHits"); 
+  TH1F *h_ele_ambiguousTracks   = (TH1F*)hist.Get("h_ele_ambiguousTracks"); 
   
   TCanvas *c_chi2 = new TCanvas("chi2","chi2");
   c_chi2->cd();
@@ -391,6 +436,16 @@
     sprintf(str,"%s/lostHits.%s",outDir,suffix);
     gPad->Print(str);
   }
+  TCanvas *c_ambiguousTracks = new TCanvas("ambiguousTracks","ambiguousTracks");
+  c_ambiguousTracks->cd();
+  h_ele_ambiguousTracks->Draw(); 
+  h_ele_ambiguousTracks->GetXaxis()->SetTitle("# ambiguous tracks");  
+  h_ele_ambiguousTracks->GetYaxis()->SetTitle("Events");  
+  if (out) {
+    sprintf(str,"%s/ambiguousTracks.%s",outDir,suffix);
+    gPad->Print(str);
+  }
+   
   if (pause) c_lostHits->WaitPrimitive();  
      
   // classes
