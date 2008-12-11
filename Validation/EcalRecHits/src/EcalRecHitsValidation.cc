@@ -1,7 +1,7 @@
 /*
  * \file EcalRecHitsValidation.cc
  *
- * $Date: 2008/11/06 13:45:50 $
+ * $Date: 2008/12/10 10:46:58 $
  * \author C. Rovelli
  *
 */
@@ -281,8 +281,9 @@ void EcalRecHitsValidation::analyze(const Event& e, const EventSetup& c){
     
     MapType ebSimMap;
     MapType ebRecMap;
-    std::vector<double> ebcontr(80, 0. );
-    std::vector<double> ebcontr25(80, 0. );
+    const int ebcSize = 90;
+    double ebcontr[ebcSize];
+    double ebcontr25[ebcSize];
     double ebtotal = 0.;
 
     for (MixCollection<PCaloHit>::MixItr hitItr = barrelHits->begin (); hitItr != barrelHits->end (); ++hitItr)  {   
@@ -311,7 +312,7 @@ void EcalRecHitsValidation::analyze(const Event& e, const EventSetup& c){
       ebtotal += myRecHit->energy();
       if( myRecHit->energy() > 0 ) meEBRecHitLog10Energy_->Fill( log10( myRecHit->energy() ) );
       int log10i = int( ( log10( myRecHit->energy() ) + 5. ) * 10. );
-      if( log10i >=0 and log10i < 90 ) ebcontr[ log10i ] += myRecHit->energy();
+      if( log10i >=0 and log10i < ebcSize ) ebcontr[ log10i ] += myRecHit->energy();
     
       // comparison Rec/Sim hit
       if ( ebSimMap[EBid.rawId()] != 0. ) {
@@ -343,7 +344,7 @@ void EcalRecHitsValidation::analyze(const Event& e, const EventSetup& c){
       e5x5rec += ebRecMap[crystalMatrix[i]];
       e5x5sim += ebSimMap[crystalMatrix[i]];
       int log10i25 = int( ( log10( ebRecMap[crystalMatrix[i]] ) + 5. ) * 10. );
-      if( log10i25 >=0 && log10i25 < 90 ) ebcontr25[ log10i25 ] += ebRecMap[crystalMatrix[i]];
+      if( log10i25 >=0 && log10i25 < ebcSize ) ebcontr25[ log10i25 ] += ebRecMap[crystalMatrix[i]];
     }
     
     meEBe5x5_->Fill(e5x5rec);
@@ -352,13 +353,13 @@ void EcalRecHitsValidation::analyze(const Event& e, const EventSetup& c){
     
 
     if( meEBRecHitLog10EnergyContr_  && ebtotal != 0 ) {
-      for( int i=0; i<90; i++ ) {
+      for( int i=0; i<ebcSize; i++ ) {
 	meEBRecHitLog10EnergyContr_->Fill( -5.+(float(i)+0.5)/10., ebcontr[i]/ebtotal );
       }
     }
     
     if( meEBRecHitLog10Energy5x5Contr_  && e5x5rec != 0 ) {
-      for( int i=0; i<90; i++ ) {
+      for( int i=0; i<ebcSize; i++ ) {
 	meEBRecHitLog10Energy5x5Contr_->Fill( -5.+(float(i)+0.5)/10., ebcontr25[i]/e5x5rec );
       }
     }
@@ -377,8 +378,9 @@ void EcalRecHitsValidation::analyze(const Event& e, const EventSetup& c){
   
     MapType eeSimMap;
     MapType eeRecMap;
-    std::vector<double> eecontr(80, 0. );
-    std::vector<double> eecontr25(80, 0. );
+    const int eecSize = 90;
+    double eecontr[eecSize];
+    double eecontr25[eecSize];
     double eetotal = 0.;
  
     for (MixCollection<PCaloHit>::MixItr hitItr = endcapHits->begin(); hitItr != endcapHits->end(); ++hitItr) {   
@@ -408,7 +410,7 @@ void EcalRecHitsValidation::analyze(const Event& e, const EventSetup& c){
       if( myRecHit->energy() > 0 ) meEERecHitLog10Energy_->Fill( log10( myRecHit->energy() ) );
 
       int log10i = int( ( log10( myRecHit->energy() ) + 5. ) * 10. );
-      if( log10i >=0 and log10i < 90 ) eecontr[ log10i ] += myRecHit->energy();
+      if( log10i >=0 and log10i < eecSize ) eecontr[ log10i ] += myRecHit->energy();
 
       // comparison Rec/Sim hit
       if ( eeSimMap[EEid.rawId()] != 0. ) {
@@ -440,7 +442,7 @@ void EcalRecHitsValidation::analyze(const Event& e, const EventSetup& c){
       e5x5rec += eeRecMap[crystalMatrix[i]];
       e5x5sim += eeSimMap[crystalMatrix[i]];
       int log10i25 = int( ( log10( eeRecMap[crystalMatrix[i]] ) + 5. ) * 10. );
-      if( log10i25 >=0 && log10i25 < 90 ) eecontr25[ log10i25 ] += eeRecMap[crystalMatrix[i]];
+      if( log10i25 >=0 && log10i25 < eecSize ) eecontr25[ log10i25 ] += eeRecMap[crystalMatrix[i]];
     }
     
     meEEe5x5_->Fill(e5x5rec);
@@ -449,13 +451,13 @@ void EcalRecHitsValidation::analyze(const Event& e, const EventSetup& c){
     
 
     if( meEERecHitLog10EnergyContr_  && eetotal != 0 ) {
-      for( int i=0; i<90; i++ ) {
+      for( int i=0; i<eecSize; i++ ) {
 	meEERecHitLog10EnergyContr_->Fill( -5.+(float(i)+0.5)/10., eecontr[i]/eetotal );
       }
     }
     
     if( meEERecHitLog10Energy5x5Contr_  && e5x5rec != 0 ) {
-      for( int i=0; i<90; i++ ) {
+      for( int i=0; i<eecSize; i++ ) {
 	meEERecHitLog10Energy5x5Contr_->Fill( -5.+(float(i)+0.5)/10., eecontr25[i]/e5x5rec );
       }
     }
@@ -474,7 +476,8 @@ void EcalRecHitsValidation::analyze(const Event& e, const EventSetup& c){
       preshowerHits (new MixCollection<PCaloHit>(crossingFrame.product ()));
 
     MapType esSimMap;
-    std::vector<double> escontr(90, 0. );
+    const int escSize = 90;
+    double escontr[escSize];
     double estotal = 0.;
 
   
@@ -501,7 +504,7 @@ void EcalRecHitsValidation::analyze(const Event& e, const EventSetup& c){
 	if( recHit->energy() > 0 ) meESRecHitLog10Energy_->Fill( log10( recHit->energy() ) );
 
 	int log10i = int( ( log10( recHit->energy() ) + 5. ) * 10. );
-	if( log10i >=0 and log10i < 90 ) escontr[ log10i ] += recHit->energy();
+	if( log10i >=0 and log10i < escSize ) escontr[ log10i ] += recHit->energy();
 
 	if (meESRecHitSimHitRatio_) { 
 	  meESRecHitSimHitRatio_ ->Fill(recHit->energy()/esSimMap[ESid.rawId()]); 
@@ -512,7 +515,7 @@ void EcalRecHitsValidation::analyze(const Event& e, const EventSetup& c){
     }  // loop over the RechitCollection
 
     if( meESRecHitLog10EnergyContr_  && estotal != 0 ) {
-      for( int i=0; i<90; i++ ) {
+      for( int i=0; i<escSize; i++ ) {
 	meESRecHitLog10EnergyContr_->Fill( -5.+(float(i)+0.5)/10., escontr[i]/estotal );
       }
     }
