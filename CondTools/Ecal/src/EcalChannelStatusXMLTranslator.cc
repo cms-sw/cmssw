@@ -111,7 +111,7 @@ int  EcalChannelStatusXMLTranslator::readXML(const std::string& filename,
     xuti::writeHeader(root,header);
 
     for(int cellid = EBDetId::MIN_HASH;
-	cellid < EBDetId::SIZE_HASH;
+	cellid < EBDetId::kSizeForDenseIndexing;
 	++cellid)
       {
 
@@ -132,8 +132,8 @@ int  EcalChannelStatusXMLTranslator::readXML(const std::string& filename,
 
 
    
-    for(int cellid = EEDetId::MIN_HASH;
-	cellid < EEDetId::SIZE_HASH;
+    for(int cellid = 0;
+	cellid < EEDetId::kSizeForDenseIndexing;
 	++cellid)
       {
 	  

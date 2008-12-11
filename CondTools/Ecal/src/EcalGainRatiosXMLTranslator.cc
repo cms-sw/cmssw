@@ -114,7 +114,7 @@ int  EcalGainRatiosXMLTranslator::readXML(const std::string& filename,
     xuti::writeHeader(root,header);
     if (!record.barrelItems().size()) return -1;
     for(int cellid = EBDetId::MIN_HASH;
-	cellid < EBDetId::SIZE_HASH;
+	cellid < EBDetId::kSizeForDenseIndexing;
 	++cellid)
       {
 	 
@@ -133,8 +133,8 @@ int  EcalGainRatiosXMLTranslator::readXML(const std::string& filename,
       }
 
     if (!record.endcapItems().size()) return -1;
-    for(int cellid = EEDetId::MIN_HASH;
-	cellid < EEDetId::SIZE_HASH;
+    for(int cellid = 0;
+	cellid < EEDetId::kSizeForDenseIndexing;
 	++cellid)
       {
 	if(!EEDetId::validHashIndex(cellid)) continue;
