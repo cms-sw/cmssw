@@ -17,6 +17,7 @@
 
 #include "boost/shared_ptr.hpp"
 
+#include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -47,10 +48,9 @@ namespace edm {
       bool poisson() const {return input_ ? input_->poisson() : 0.0 ;}
 
       virtual void createnewEDProduct() {std::cout << "BMixingModule::createnewEDProduct must be overwritten!" << std::endl;}
-      //      void merge(const int bcr, const EventPrincipalVector& vec,unsigned int worker, const edm::EventSetup& c,const unsigned int source);
       void merge(const int bcr, const EventPrincipalVector& vec,unsigned int worker, const edm::EventSetup& c);
       virtual void addSignals(const edm::Event &e,const edm::EventSetup& c) {;}
-      virtual void addPileups(const int bcr, edm::Event*, unsigned int eventId,unsigned int worker, const edm::EventSetup& c) {;}
+      virtual void addPileups(const int bcr, EventPrincipal *ep, unsigned int eventId,unsigned int worker, const edm::EventSetup& c) {;}
       virtual void setBcrOffset () {std::cout << "BMixingModule::setBcrOffset must be overwritten!" << std::endl;} //FIXME: LogWarning
       virtual void setSourceOffset (const unsigned int s) {std::cout << "BMixingModule::setSourceOffset must be overwritten!" << std::endl;}
       virtual void put(edm::Event &e,const edm::EventSetup& c) {;}
