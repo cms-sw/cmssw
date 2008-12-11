@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/10/03 09:13:59 $
- *  $Revision: 1.5 $
+ *  $Date: 2008/12/09 18:51:54 $
+ *  $Revision: 1.6 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -183,13 +183,17 @@ double DTTTrigSyncFromDB::offset(const DTWireId& wireId) {
   float ttrigSigma = 0;
   float kFactor = 0;
   // FIXME: should check the return value of the DTTtrigRcd::get(..) method
-  tTrigMap->get(wireId.superlayerId(),
-	        ttrigMean,
-	        ttrigSigma,
-		kFactor,
-	        DTTimeUnits::ns);
+  if(tTrigMap->get(wireId.superlayerId(),
+		   ttrigMean,
+		   ttrigSigma,
+		   kFactor,
+		   DTTimeUnits::ns) != 0) {
+    cout << "[DTTTrigSyncFromDB]*Error: ttrig not found for SL: " << wireId.superlayerId() << endl;
+//     FIXME: LogError.....
+  }
   
-   return t0 + ttrigMean + kFactor * ttrigSigma;
+  return t0 + ttrigMean + kFactor * ttrigSigma;
+
 }
 
 
