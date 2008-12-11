@@ -1,11 +1,9 @@
-import FWCore.ParameterSet.Config as cms
+import HLTrigger.HLTfilters.hltHighLevel_cfi
 
-isoHLT = cms.EDFilter("HLTHighLevel",
-    HLTPaths = cms.vstring('CandHLTHcalIsolatedTrackNoEcalIsol'),
-    byName = cms.bool(True),
+isoHLT = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone(
+    HLTPaths = ['CandHLTHcalIsolatedTrackNoEcalIsol'],
     andOr = cms.bool(True),
-    throw = cms.untracked.bool(False), #dont throw except on unknown path name 
-    TriggerResultsTag = cms.InputTag("TriggerResults","","HLT")
+    throw = False #dont throw except on unknown path name 
 )
 
 

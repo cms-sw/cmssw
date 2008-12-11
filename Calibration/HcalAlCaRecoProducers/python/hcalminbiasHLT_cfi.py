@@ -1,11 +1,9 @@
 import FWCore.ParameterSet.Config as cms
+import HLTrigger.HLTfilters.hltHighLevel_cfi
 
-hcalminbiasHLT = cms.EDFilter("HLTHighLevel",
-    HLTPaths = cms.vstring('AlCa_HcalPhiSym'),
-    byName = cms.bool(True),
-    andOr = cms.bool(True),
-    throw = cms.untracked.bool(False), #dont throw except on unknown path name 
-    TriggerResultsTag = cms.InputTag("TriggerResults","","HLT")
+hcalminbiasHLT =  HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone(
+    HLTPaths = ['AlCa_HcalPhiSym'],
+    throw = False #dont throw except on unknown path name 
 )
 
 
