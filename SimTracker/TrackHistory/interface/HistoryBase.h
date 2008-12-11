@@ -75,7 +75,7 @@ public:
     }
 
     //! Return the initial tracking vertex from the history.
-    const TrackingVertexRef & simParticle() const
+    const TrackingVertexRef & simVertex() const
     {
         return simVertexTrail_[0];
     }
