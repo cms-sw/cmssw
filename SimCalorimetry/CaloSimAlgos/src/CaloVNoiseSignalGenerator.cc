@@ -11,10 +11,14 @@ CaloVNoiseSignalGenerator::CaloVNoiseSignalGenerator()
 
 void CaloVNoiseSignalGenerator::fillEvent()
 {
-  theNoiseSignals.clear();
   theDetIds.clear();
   fillNoiseSignals();
   fillDetIds();
+}
+
+void CaloVNoiseSignalGenerator::setNoiseSignals(const std::vector<CaloSamples> & noiseSignals)
+{
+  theNoiseSignals = noiseSignals;
 }
 
 
@@ -34,5 +38,6 @@ void CaloVNoiseSignalGenerator::fillDetIds()
   }
   edm::sort_all(theDetIds);
 }
+
 
 

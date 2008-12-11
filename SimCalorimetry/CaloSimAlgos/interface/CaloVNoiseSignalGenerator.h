@@ -17,8 +17,14 @@ public:
 
   bool contains(const DetId & detId) const;
 
+  /// if you want to externally fill signals for the event, call this
+  /// before fillEvent gets called.
+  void setNoiseSignals(const std::vector<CaloSamples> & noiseSignals);
+
 protected:
-  virtual void fillNoiseSignals() = 0;
+  /// if you want to fill signals on demand, override this
+  /// subclass is responsible for clearing theNoiseSignals before adding
+  virtual void fillNoiseSignals() {}
   std::vector<CaloSamples> theNoiseSignals;
 
 private:
