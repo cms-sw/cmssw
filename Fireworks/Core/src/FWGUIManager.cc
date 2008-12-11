@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.81 2008/12/04 18:37:17 amraktad Exp $
+// $Id: FWGUIManager.cc,v 1.82 2008/12/05 17:32:34 amraktad Exp $
 //
 
 // system include files
@@ -648,7 +648,7 @@ FWGUIManager::createEDIFrame() {
 
 void
 FWGUIManager::updateEDI(FWEventItem* iItem) {
-   if(0==m_ediFrame) {createEDIFrame(); }
+   createEDIFrame();
    m_ediFrame->fillEDIFrame(iItem);
 }
 
@@ -672,7 +672,7 @@ FWGUIManager::createModelPopup() {
 
 void
 FWGUIManager::updateModel(FWEventItem* iItem) {
-  if (m_modelPopup == 0) createModelPopup();
+   createModelPopup();
   //  m_modelPopup->fillModelPopup(iItem);
 }
 
@@ -797,7 +797,7 @@ FWGUIManager::itemClicked(TGListTreeItem *item, Int_t btn,  UInt_t mask, Int_t x
    TEveElement* el = static_cast<TEveElement*>(item->GetUserData());
    FWListItemBase* lib = dynamic_cast<FWListItemBase*>(el);
    //assert(0!=lib);
-   if(1==btn) {
+   if(3==btn) {
       if(lib && lib->doSelection(mask&kKeyControlMask) ) {
          gEve->GetSelection()->UserPickedElement(el,mask&kKeyControlMask);
 
