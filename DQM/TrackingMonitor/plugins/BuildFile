@@ -1,0 +1,6 @@
+<use name=DQM/TrackingMonitor>
+<use name=FWCore/Framework>
+
+<library file=*.cc name=TrackingMonitorPlugins>
+	<flags EDM_PLUGIN=1>
+</library>
