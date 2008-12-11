@@ -5,7 +5,7 @@ process = cms.Process("LHE")
 
 process.source = cms.Source("MCDBSource",
 	articleID = cms.uint32(120),
-	supportedProtocols = cms.vstring('rfio')
+	supportedProtocols = cms.untracked.vstring('rfio')
 	#filter = cms.untracked.string('\\.lhe$')
 )
 

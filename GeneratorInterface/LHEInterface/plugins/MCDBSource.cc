@@ -53,7 +53,7 @@ static std::pair<std::vector<std::string>, unsigned int>
 		<< "Files: " << std::endl;
 
 	std::vector<std::string> supportedProtocols = 
-		params.getParameter< std::vector<std::string> >(
+		params.getUntrackedParameter< std::vector<std::string> >(
 							"supportedProtocols");
 
 	boost::regex filter(params.getUntrackedParameter<std::string>(
