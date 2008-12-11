@@ -9,7 +9,6 @@ SiPixelLorentzAngleHLTFilter = cms.EDFilter("HLTHighLevel",
         'HLT2MuonSameSign'),
     byName = cms.bool(True),
     andOr = cms.bool(True),
-    throw = cms.untracked.bool(False), #dont throw except on unknown path names
     TriggerResultsTag = cms.InputTag("TriggerResults")
 )
 

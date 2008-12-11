@@ -7,7 +7,6 @@
 <use name=CondFormats/DataRecord>
 <use name=Geometry/RPCGeometry>
 <use name=L1Trigger/RPCTrigger>
-<use name=CondTools/L1Trigger>
 
 <flags EDM_PLUGIN=1>
 <export>

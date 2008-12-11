@@ -7,9 +7,6 @@
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/StripClusterParameterEstimator.h"
 #include<memory>
 
-#include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
 class TSiStripMatchedRecHit : public GenericTransientTrackingRecHit{
 public:
 
@@ -47,57 +44,7 @@ private:
 			 const SiStripRecHitMatcher *matcher,
 			 const StripClusterParameterEstimator* cpe,
 			 float weight, float annealing) : 
-    GenericTransientTrackingRecHit(geom, *rh, weight, annealing), theMatcher(matcher),theCPE(cpe) {
-    const SiStripMatchedRecHit2D *orig = static_cast<const SiStripMatchedRecHit2D *> ( rh);
-    if (orig && !orig->hasPositionAndError()){
-    const GeomDet *det = this->det();
-    const GluedGeomDet *gdet = static_cast<const GluedGeomDet *> (det);
-    LocalVector tkDir = det->surface().toLocal( det->position()-GlobalPoint(0,0,0));
-
-    const SiStripMatchedRecHit2D* better=0;
-
-    if(!orig->monoHit()->cluster().isNull()){
-      const SiStripCluster& monoclust   = *orig->monoHit()->cluster();  
-      const SiStripCluster& stereoclust = *orig->stereoHit()->cluster();
-      
-      StripClusterParameterEstimator::LocalValues lvMono = 
-	theCPE->localParameters( monoclust, *gdet->monoDet());
-      StripClusterParameterEstimator::LocalValues lvStereo = 
-	theCPE->localParameters( stereoclust, *gdet->stereoDet());
-      
-      SiStripRecHit2D monoHit = SiStripRecHit2D( lvMono.first, lvMono.second,
-						 gdet->monoDet()->geographicalId(),
-						 orig->monoHit()->cluster());
-      
-      SiStripRecHit2D stereoHit = SiStripRecHit2D( lvStereo.first, lvStereo.second,
-						   gdet->stereoDet()->geographicalId(),
-						   orig->stereoHit()->cluster());
-      better =  theMatcher->match(&monoHit,&stereoHit,gdet,tkDir);
-      }else{
-      const SiStripCluster& monoclust   = *orig->monoHit()->cluster_regional();  
-      const SiStripCluster& stereoclust = *orig->stereoHit()->cluster_regional();
-      StripClusterParameterEstimator::LocalValues lvMono = 
-	theCPE->localParameters( monoclust, *gdet->monoDet());
-      StripClusterParameterEstimator::LocalValues lvStereo = 
-	theCPE->localParameters( stereoclust, *gdet->stereoDet());
-      
-      SiStripRecHit2D monoHit = SiStripRecHit2D( lvMono.first, lvMono.second,
-						 gdet->monoDet()->geographicalId(),
-						 orig->monoHit()->cluster_regional());
-      
-      SiStripRecHit2D stereoHit = SiStripRecHit2D( lvStereo.first, lvStereo.second,
-						   gdet->stereoDet()->geographicalId(),
-						   orig->stereoHit()->cluster_regional());
-      better =  theMatcher->match(&monoHit,&stereoHit,gdet,tkDir);
-
-    }
-    if (!better) {
-      edm::LogWarning("TSiStripMatchedRecHit")<<"could not get a matching rechit.";
-    }else{
-      trackingRecHit_ = better->clone();
-    }
-    }
-  }
+     GenericTransientTrackingRecHit(geom, *rh, weight, annealing), theMatcher(matcher),theCPE(cpe) {}
 
   TSiStripMatchedRecHit (const GeomDet * geom, std::auto_ptr<TrackingRecHit> rh,
 			 const SiStripRecHitMatcher *matcher,

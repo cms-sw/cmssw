@@ -1,8 +1,8 @@
 /*
  * \file EBRawDataTask.cc
  *
- * $Date: 2008/10/23 07:49:56 $
- * $Revision: 1.14 $
+ * $Date: 2008/10/23 07:19:17 $
+ * $Revision: 1.13 $
  * \author E. Di Marco
  *
 */
@@ -333,7 +333,8 @@ void EBRawDataTask::analyze(const Event& e, const EventSetup& c){
     e.getByLabel(GTEvmSource_, GTEvmReadoutRecord);
 
     if (!GTEvmReadoutRecord.isValid()) {
-      edm::LogWarning("EBRawDataTask") << GTEvmSource_ << " not available";
+      edm::LogWarning("EBRawDataTask") << "L1GlobalTriggerEvmReadoutRecord with label "
+                                       << GTEvmSource_.label() << " not available";
     } else {
 
       L1GtfeWord gtfeEvmWord = GTEvmReadoutRecord->gtfeWord();

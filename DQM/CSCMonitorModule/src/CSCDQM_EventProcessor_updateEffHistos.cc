@@ -88,8 +88,8 @@ namespace cscdqm {
 
     if (getEMUHisto(EMU_CSC_STATS_OCCUPANCY, me)){
       TH2* tmp = dynamic_cast<TH2*>(me->getTH1());
-      summary.WriteChamberState(tmp, 0x4, 4, true, false);
-      summary.WriteChamberState(tmp, 0x8, 1, false, false);
+      summary.WriteChamberState(tmp, 0x4, 2, true, false);
+      summary.WriteChamberState(tmp, 0x8, 4, false, false);
     }
 
     if (getEMUHisto(EMU_CSC_STATS_FORMAT_ERR, me)){

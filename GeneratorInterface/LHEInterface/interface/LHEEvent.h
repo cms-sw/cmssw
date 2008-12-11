@@ -28,6 +28,12 @@ class LHEEvent {
 	         std::istream &in);
 	LHEEvent(const boost::shared_ptr<LHERunInfo> &runInfo,
 	         const HEPEUP &hepeup);
+	LHEEvent(const boost::shared_ptr<LHERunInfo> &runInfo,
+	         const HEPEUP &hepeup,
+	         const LHEEventProduct::PDF *pdf,
+	         const std::vector<std::string> &comments);
+	LHEEvent(const boost::shared_ptr<LHERunInfo> &runInfo,
+	         const LHEEventProduct &product);
 	~LHEEvent();
 
 	typedef LHEEventProduct::PDF PDF;
@@ -45,7 +51,8 @@ class LHEEvent {
 	static void removeParticle(lhef::HEPEUP &hepeup, int index);
 	void removeResonances(const std::vector<int> &ids);
 
-	void count(LHERunInfo::CountMode count, double matchWeight = 1.0);
+	void count(LHERunInfo::CountMode count,
+	           double weight = 1.0, double matchWeight = 1.0);
 
 	void fillPdfInfo(HepMC::PdfInfo *info) const;
 	void fillEventInfo(HepMC::GenEvent *hepmc) const;

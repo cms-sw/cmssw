@@ -6,6 +6,9 @@ process.MessageLogger.cout.placeholder = cms.untracked.bool(False)
 process.MessageLogger.cout.threshold = cms.untracked.string('DEBUG')
 process.MessageLogger.debugModules = cms.untracked.vstring('*')
 
+# Generate dummy L1TriggerKey but not L1TriggerKeyList
+process.load("CondTools.L1Trigger.L1TriggerKeyDummy_cff")
+
 # Get L1TriggerKeyList from DB
 process.load("CondCore.DBCommon.CondDBCommon_cfi")
 
@@ -17,9 +20,9 @@ process.maxEvents = cms.untracked.PSet(
 )
 process.source = cms.Source("EmptyIOVSource",
     timetype = cms.string('runnumber'),
-    firstValue = cms.uint64(1000),
-    lastValue = cms.uint64(1000),
-    interval = cms.uint64(1)
+    firstRun = cms.untracked.uint32(1),
+    lastRun = cms.untracked.uint32(1),
+    interval = cms.uint32(1)
 )
 
 process.orcon = cms.ESSource("PoolDBESSource",

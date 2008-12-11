@@ -59,3 +59,30 @@ patAODPhotonIsolation = cms.Sequence(gamIsoDepositAOD * patAODPhotonIsolations)
 # sequence to run after PAT cleaners
 patLayer0PhotonIsolation = cms.Sequence(layer0PhotonIsolations)
 
+
+
+from RecoEgamma.EgammaIsolationAlgos.gamIsoFromDepsModules_cff import gamIsoFromDepsEcalFromHits
+def usePhotonRecHitIsolation(process,layers=(0,1,)):
+    if (layers.__contains__(0)):
+        print "Switching to ECAL RecHit isolation for Photons in PAT Layer 0"
+
+        # Replace the existing input tag with the one from RecHits (keeping the same order)
+        index = patAODPhotonIsolationLabels.index(cms.InputTag("gamIsoDepositEcalFromClusts"))
+        patAODPhotonIsolationLabels.pop(index)
+        patAODPhotonIsolationLabels.insert(index,cms.InputTag("gamIsoDepositEcalFromHits"))
+
+        # Assign the new labels
+        process.patAODPhotonIsolations.associations = patAODPhotonIsolationLabels
+        process.layer0PhotonIsolations.associations = patAODPhotonIsolationLabels
+
+        # Get all this back in the layer-0 photons
+        process.allLayer0Photons.isolation.ecal.src = cms.InputTag("patAODPhotonIsolations","gamIsoDepositEcalFromHits")
+
+    if (layers.__contains__(1)):
+        print "Switching to ECAL RecHit isolation for Photons in PAT Layer 1"
+        process.allLayer1Photons.isolation.ecal.src = cms.InputTag("layer0PhotonIsolations","gamIsoDepositEcalFromHits")
+        process.allLayer1Photons.isoDeposits.ecal   = cms.InputTag("layer0PhotonIsolations","gamIsoDepositEcalFromHits")
+        # Use the recommended RecHit isolation cuts from E/gamma
+        process.allLayer1Photons.isolation.ecal.vetos  = gamIsoFromDepsEcalFromHits.deposits[0].vetos
+        process.allLayer1Photons.isolation.ecal.deltaR = gamIsoFromDepsEcalFromHits.deposits[0].deltaR
+

@@ -1,8 +1,8 @@
 /** \class StandAloneMuonFilter
  *  The inward-outward fitter (starts from seed state).
  *
- *  $Date: 2008/04/23 16:56:34 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/03/14 16:23:20 $
+ *  $Revision: 1.41 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 #include "RecoMuon/StandAloneTrackFinder/interface/StandAloneMuonFilter.h"
@@ -277,14 +277,6 @@ StandAloneMuonFilter::findBestMeasurements(const DetLayer* layer,
     
     std::vector<TrajectoryMeasurementGroup> measurementGroups =
       theMeasurementExtractor->groupedMeasurements(layer, tsos, *propagator(), *estimator());
-
-    if(theFitDirection == outsideIn){
-      LogTrace(metname) << "Reversing the order of groupedMeasurements as the direction of the fit is outside-in";
-      reverse(measurementGroups.begin(),measurementGroups.end());
-      // this should be fixed either in RecoMuon/MeasurementDet/MuonDetLayerMeasurements or
-      // RecoMuon/DetLayers/MuRingForwardDoubleLayer
-    }
-
 
     for(std::vector<TrajectoryMeasurementGroup>::const_iterator tmGroupItr = measurementGroups.begin();
         tmGroupItr != measurementGroups.end(); ++tmGroupItr){

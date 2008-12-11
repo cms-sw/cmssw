@@ -24,5 +24,6 @@
  <use name=TrackingTools/PatternTools>
  <use name=TrackingTools/TrajectoryParametrization>
  <use name=TrackingTools/TrajectoryState>
+ <use name=TrackingTools/MaterialEffects>
  <flags EDM_PLUGIN=1>
 </library>

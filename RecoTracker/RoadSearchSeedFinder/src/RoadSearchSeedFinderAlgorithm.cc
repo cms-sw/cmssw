@@ -11,9 +11,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
-// $Author: noeding $
-// $Date: 2008/03/18 22:19:38 $
-// $Revision: 1.30 $
+// $Author: arizzi $
+// $Date: 2008/06/19 15:01:04 $
+// $Revision: 1.31 $
 //
 
 #include <vector>
@@ -117,6 +117,7 @@ RoadSearchSeedFinderAlgorithm::RoadSearchSeedFinderAlgorithm(const edm::Paramete
 
   roadsLabel_ = conf.getParameter<std::string>("RoadsLabel");
 
+  maxNumberOfSeeds_ = conf.getParameter<int32_t>("MaxNumberOfSeeds");
 }
 
 RoadSearchSeedFinderAlgorithm::~RoadSearchSeedFinderAlgorithm() {
@@ -295,6 +296,12 @@ void RoadSearchSeedFinderAlgorithm::run(const SiStripRecHit2DCollection* rphiRec
 	seed.addHit(*hit);
       }
       output.push_back(seed);
+    }
+
+    if ((maxNumberOfSeeds_ > 0) && (output.size() > size_t(maxNumberOfSeeds_))) {
+      edm::LogWarning("RoadSearchSeedFinder") << "Found too many seeds, bailing out.\n";
+      output.clear(); 
+      break;
     }
   }
     

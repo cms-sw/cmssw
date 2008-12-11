@@ -9,10 +9,10 @@ process.maxEvents = cms.untracked.PSet(
         input = cms.untracked.int32(1)
         )
 process.source = cms.Source("EmptyIOVSource",
-                                lastValue = cms.uint64(1),
+                                lastRun = cms.untracked.uint32(1),
                                 timetype = cms.string('runnumber'),
-                                firstValue = cms.uint64(1),
-                                interval = cms.uint64(1)
+                                firstRun = cms.untracked.uint32(1),
+                                interval = cms.uint32(1)
                             )
 
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",

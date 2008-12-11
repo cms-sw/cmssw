@@ -150,8 +150,6 @@ bool FUResourceTable::sendData(toolbox::task::WorkLoop* /* wl */)
       if (cell->type()==0) {
 	UInt_t   cellIndex       = cell->index();
 	UInt_t   cellOutModId    = cell->outModId();
-	UInt_t   cellFUProcId    = cell->fuProcessId();
-	UInt_t   cellFUGuid      = cell->fuGuid();
 	UChar_t* cellPayloadAddr = cell->payloadAddr();
 	UInt_t   cellEventSize   = cell->eventSize();
 	shmBuffer_->finishReadingRecoCell(cell);
@@ -160,8 +158,7 @@ bool FUResourceTable::sendData(toolbox::task::WorkLoop* /* wl */)
 	nbPendingSMDiscards_++;
 	unlock();
 
-	sendInitMessage(cellIndex,cellOutModId,cellFUProcId,cellFUGuid,
-			cellPayloadAddr,cellEventSize);
+	sendInitMessage(cellIndex,cellOutModId,cellPayloadAddr,cellEventSize);
       }
       else if (cell->type()==1) {
 	UInt_t   cellIndex       = cell->index();
@@ -169,8 +166,6 @@ bool FUResourceTable::sendData(toolbox::task::WorkLoop* /* wl */)
 	UInt_t   cellRunNumber   = cell->runNumber();
 	UInt_t   cellEvtNumber   = cell->evtNumber();
 	UInt_t   cellOutModId    = cell->outModId();
-	UInt_t   cellFUProcId    = cell->fuProcessId();
-	UInt_t   cellFUGuid      = cell->fuGuid();
 	UChar_t *cellPayloadAddr = cell->payloadAddr();
 	UInt_t   cellEventSize   = cell->eventSize();
 	shmBuffer_->finishReadingRecoCell(cell);	
@@ -182,15 +177,13 @@ bool FUResourceTable::sendData(toolbox::task::WorkLoop* /* wl */)
 	unlock();
 
 	sendDataEvent(cellIndex,cellRunNumber,cellEvtNumber,cellOutModId,
-		      cellFUProcId,cellFUGuid,cellPayloadAddr,cellEventSize);
+		      cellPayloadAddr,cellEventSize);
       }
       else if (cell->type()==2) {
 	UInt_t   cellIndex       = cell->index();
 	UInt_t   cellRawIndex    = cell->rawCellIndex();
 	UInt_t   cellRunNumber   = cell->runNumber();
 	UInt_t   cellEvtNumber   = cell->evtNumber();
-	UInt_t   cellFUProcId    = cell->fuProcessId();
-	UInt_t   cellFUGuid      = cell->fuGuid();
 	UChar_t *cellPayloadAddr = cell->payloadAddr();
 	UInt_t   cellEventSize   = cell->eventSize();
 	shmBuffer_->finishReadingRecoCell(cell);	
@@ -202,7 +195,7 @@ bool FUResourceTable::sendData(toolbox::task::WorkLoop* /* wl */)
 	unlock();
 	
 	sendErrorEvent(cellIndex,cellRunNumber,cellEvtNumber,
-		       cellFUProcId,cellFUGuid,cellPayloadAddr,cellEventSize);
+		       cellPayloadAddr,cellEventSize);
       }
       else {
 	string errmsg="Unknown RecoCell type (neither DATA nor INIT).";
@@ -262,14 +255,12 @@ bool FUResourceTable::sendDqm(toolbox::task::WorkLoop* /* wl */)
       UInt_t   cellRunNumber   = cell->runNumber();
       UInt_t   cellEvtAtUpdate = cell->evtAtUpdate();
       UInt_t   cellFolderId    = cell->folderId();
-      UInt_t   cellFUProcId    = cell->fuProcessId();
-      UInt_t   cellFUGuid      = cell->fuGuid();
       UChar_t *cellPayloadAddr = cell->payloadAddr();
       UInt_t   cellEventSize   = cell->eventSize();
       shmBuffer_->finishReadingDqmCell(cell);      
 
       sendDqmEvent(cellIndex,cellRunNumber,cellEvtAtUpdate,cellFolderId,
-		   cellFUProcId,cellFUGuid,cellPayloadAddr,cellEventSize);
+		   cellPayloadAddr,cellEventSize);
     }
     catch (xcept::Exception& e) {
       LOG4CPLUS_FATAL(log_,"Failed to send DQM DATA to StorageManager: "
@@ -462,7 +453,7 @@ bool FUResourceTable::discardDataEvent(MemRef_t* bufRef)
   
   I2O_FU_DATA_DISCARD_MESSAGE_FRAME *msg;
   msg=(I2O_FU_DATA_DISCARD_MESSAGE_FRAME*)bufRef->getDataLocation();
-  UInt_t recoIndex=msg->rbBufferID;
+  UInt_t recoIndex=msg->fuID;
   shmBuffer_->discardRecoCell(recoIndex);
   bufRef->release();
   return true;
@@ -479,7 +470,7 @@ bool FUResourceTable::discardDqmEvent(MemRef_t* bufRef)
   
   I2O_FU_DQM_DISCARD_MESSAGE_FRAME *msg;
   msg=(I2O_FU_DQM_DISCARD_MESSAGE_FRAME*)bufRef->getDataLocation();
-  UInt_t dqmIndex=msg->rbBufferID;
+  UInt_t dqmIndex=msg->fuID;
   shmBuffer_->discardDqmCell(dqmIndex);
   bufRef->release();
   return true;
@@ -506,7 +497,7 @@ void FUResourceTable::handleCrashedEP(UInt_t runNumber,pid_t pid)
   for (UInt_t i=0;i<pids.size();i++) { if (pid==pids[i]) { iRawCell=i; break; } }
   
   if (iRawCell<pids.size())
-    shmBuffer_->writeErrorEventData(runNumber,pid,iRawCell);
+    shmBuffer_->writeErrorEventData(runNumber,iRawCell);
   
   shmBuffer_->removeClientPrcId(pid);
 }
@@ -727,8 +718,6 @@ void FUResourceTable::sendDiscard(UInt_t buResourceId)
 //______________________________________________________________________________
 void FUResourceTable::sendInitMessage(UInt_t   fuResourceId,
 				      UInt_t   outModId,
-				      UInt_t   fuProcessId,
-				      UInt_t   fuGuid,
 				      UChar_t *data,
 				      UInt_t   dataSize)
 {
@@ -736,8 +725,7 @@ void FUResourceTable::sendInitMessage(UInt_t   fuResourceId,
     LOG4CPLUS_ERROR(log_,"No StorageManager, DROP INIT MESSAGE!");
   }
   else {
-    UInt_t   nbBytes    =sm_->sendInitMessage(fuResourceId,outModId,fuProcessId,
-					      fuGuid,data,dataSize);
+    UInt_t   nbBytes    =sm_->sendInitMessage(fuResourceId,outModId,data,dataSize);
     sumOfSquares_+=(uint64_t)nbBytes*(uint64_t)nbBytes;
     sumOfSizes_  +=nbBytes;
   }
@@ -749,8 +737,6 @@ void FUResourceTable::sendDataEvent(UInt_t   fuResourceId,
 				    UInt_t   runNumber,
 				    UInt_t   evtNumber,
 				    UInt_t   outModId,
-				    UInt_t   fuProcessId,
-				    UInt_t   fuGuid,
 				    UChar_t *data,
 				    UInt_t   dataSize)
 {
@@ -758,8 +744,8 @@ void FUResourceTable::sendDataEvent(UInt_t   fuResourceId,
     LOG4CPLUS_ERROR(log_,"No StorageManager, DROP DATA EVENT!");
   }
   else {
-    UInt_t   nbBytes    =sm_->sendDataEvent(fuResourceId,runNumber,evtNumber,
-					    outModId,fuProcessId,fuGuid,
+    UInt_t   nbBytes    =sm_->sendDataEvent(fuResourceId,
+					    runNumber,evtNumber,outModId,
 					    data,dataSize);
     sumOfSquares_+=(uint64_t)nbBytes*(uint64_t)nbBytes;
     sumOfSizes_  +=nbBytes;
@@ -772,8 +758,6 @@ void FUResourceTable::sendDataEvent(UInt_t   fuResourceId,
 void FUResourceTable::sendErrorEvent(UInt_t   fuResourceId,
 				     UInt_t   runNumber,
 				     UInt_t   evtNumber,
-				     UInt_t   fuProcessId,
-				     UInt_t   fuGuid,
 				     UChar_t *data,
 				     UInt_t   dataSize)
 {
@@ -781,8 +765,8 @@ void FUResourceTable::sendErrorEvent(UInt_t   fuResourceId,
     LOG4CPLUS_ERROR(log_,"No StorageManager, DROP ERROR EVENT!");
   }
   else {
-    UInt_t nbBytes=sm_->sendErrorEvent(fuResourceId,runNumber,evtNumber,
-				       fuProcessId,fuGuid,data,dataSize);
+    UInt_t nbBytes=sm_->sendErrorEvent(fuResourceId,
+				       runNumber,evtNumber,data,dataSize);
     sumOfSquares_+=(uint64_t)nbBytes*(uint64_t)nbBytes;
     sumOfSizes_  +=nbBytes;
   }
@@ -794,8 +778,6 @@ void FUResourceTable::sendDqmEvent(UInt_t   fuDqmId,
 				   UInt_t   runNumber,
 				   UInt_t   evtAtUpdate,
 				   UInt_t   folderId,
-				   UInt_t   fuProcessId,
-				   UInt_t   fuGuid,
 				   UChar_t* data,
 				   UInt_t   dataSize)
 {
@@ -803,8 +785,7 @@ void FUResourceTable::sendDqmEvent(UInt_t   fuDqmId,
     LOG4CPLUS_WARN(log_,"No StorageManager, DROP DQM EVENT.");
   }
   else {
-    sm_->sendDqmEvent(fuDqmId,runNumber,evtAtUpdate,folderId,
-		      fuProcessId,fuGuid,data,dataSize);
+    sm_->sendDqmEvent(fuDqmId,runNumber,evtAtUpdate,folderId,data,dataSize);
     nbSentDqm_++;
   }
 }

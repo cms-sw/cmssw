@@ -14,7 +14,7 @@
 //
 // Original Author:  Samvel Khalatyan (ksamdev at gmail dot com)
 //         Created:  Wed Oct  5 16:42:34 CET 2006
-// $Id: SiStripOfflineDQM.cc,v 1.19 2008/08/29 10:08:51 dutta Exp $
+// $Id: SiStripOfflineDQM.cc,v 1.20 2008/09/27 18:20:58 dutta Exp $
 //
 //
 
@@ -26,14 +26,19 @@
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "DataFormats/FEDRawData/interface/FEDNumbering.h"
+
 #include "DQMServices/Core/interface/DQMStore.h"
 
 #include "DQM/SiStripCommon/interface/SiStripFolderOrganizer.h"
-#include "DQM/SiStripMonitorClient/interface/SiStripWebInterface.h"
 #include "DQM/SiStripMonitorClient/interface/SiStripActionExecutor.h"
-#include "DQM/SiStripMonitorClient/interface/SiStripUtility.h"
 
 #include "DQM/SiStripMonitorClient/interface/SiStripOfflineDQM.h"
+
+//Run Info
+#include "CondFormats/DataRecord/interface/RunSummaryRcd.h"
+#include "CondFormats/RunInfo/interface/RunSummary.h"
+#include "CondFormats/RunInfo/interface/RunInfo.h"
 
 #include <iostream>
 #include <iomanip>
@@ -59,10 +64,11 @@ SiStripOfflineDQM::SiStripOfflineDQM(edm::ParameterSet const& pSet) {
   // get back-end interface
   dqmStore_ = edm::Service<DQMStore>().operator->();
 
-  createSummary_       = pSet.getUntrackedParameter<bool>("CreateSummary",true);
-  inputFileName_       = pSet.getUntrackedParameter<std::string>("InputFileName","");
-  outputFileName_      = pSet.getUntrackedParameter<std::string>("OutputFileName","");
-  globalStatusFilling_ = pSet.getUntrackedParameter<int>("GlobalStatusFilling", 1);
+  usedWithEDMtoMEConverter_= pSet.getUntrackedParameter<bool>("UsedWithEDMtoMEConverter",false); 
+  createSummary_           = pSet.getUntrackedParameter<bool>("CreateSummary",true);
+  inputFileName_           = pSet.getUntrackedParameter<std::string>("InputFileName","");
+  outputFileName_          = pSet.getUntrackedParameter<std::string>("OutputFileName","");
+  globalStatusFilling_     = pSet.getUntrackedParameter<int>("GlobalStatusFilling", 1);
 
   nEvents_  = 0;
 }
@@ -105,13 +111,35 @@ void SiStripOfflineDQM::beginJob( const edm::EventSetup &eSetup) {
 * @param eSetup
 *  Event Setup object with Geometry, Magnetic Field, etc.
 */
-//
-// -- Begin Run
-//
 void SiStripOfflineDQM::beginRun(edm::Run const& run, edm::EventSetup const& eSetup) {
   edm::LogInfo ("SiStripOfflineDQM") <<"SiStripOfflineDQM:: Begining of Run";
 
-  if (!openInputFile()) createSummary_ = false;
+  int nFEDs = 0;
+  edm::eventsetup::EventSetupRecordKey recordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType("RunInfoRcd"));
+  if( eSetup.find( recordKey ) != 0) {
+
+    edm::ESHandle<RunInfo> sumFED;
+    eSetup.get<RunInfoRcd>().get(sumFED);    
+    if ( sumFED.isValid() ) {
+
+      const FEDNumbering numbering;
+      const int siStripFedIdMin = numbering.getSiStripFEDIds().first;
+      const int siStripFedIdMax = numbering.getSiStripFEDIds().second; 
+      
+
+      std::vector<int> FedsInIds= sumFED->m_fed_in;   
+      for(unsigned int it = 0; it < FedsInIds.size(); ++it) {
+	int fedID = FedsInIds[it];     
+	
+	if(fedID>=siStripFedIdMin &&  fedID<=siStripFedIdMax)  ++nFEDs;
+      }
+    }
+  }
+  if (nFEDs > 0) trackerFEDsFound_ = true;
+  
+  if (!usedWithEDMtoMEConverter_) {
+    if (!openInputFile()) createSummary_ = false;
+  }
 }
 /** 
  * @brief
@@ -120,11 +148,29 @@ void SiStripOfflineDQM::beginRun(edm::Run const& run, edm::EventSetup const& eSe
  *
  * @param Event                             
  *   Event  
- *                                                                                                                                                      
- * @param eSetup                                                                                                                                                      *  Event Setup object with Geometry, Magnetic Field, etc.    
+ *                                                      
+ * @param eSetup                                                                                        *  Event Setup object with Geometry, Magnetic Field, etc.    
  */
 void SiStripOfflineDQM::analyze(edm::Event const& e, edm::EventSetup const& eSetup){
   nEvents_++;  
+}
+/** 
+ * @brief 
+ * 
+ * End Lumi
+ *
+*/
+void SiStripOfflineDQM::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup) {
+
+  edm::LogInfo( "SiStripOfflineDQM") << "SiStripOfflineDQM::endLuminosityBlock";
+  // create Summary Plots
+  if (createSummary_)  actionExecutor_->createSummaryOffline(dqmStore_);
+
+  // Fill Global Status
+  if (globalStatusFilling_ > 0 && trackerFEDsFound_) {
+    if (globalStatusFilling_ == 1) actionExecutor_->fillGlobalStatusFromModule(dqmStore_);
+    if (globalStatusFilling_ == 2) actionExecutor_->fillGlobalStatusFromLayer(dqmStore_);
+  }
 }
 /** 
 * @brief 
@@ -133,18 +179,13 @@ void SiStripOfflineDQM::analyze(edm::Event const& e, edm::EventSetup const& eSet
 *
 */
 void SiStripOfflineDQM::endJob() {
-  edm::LogInfo( "SiStripOfflineDQM") << "SiStripOfflineDQM::EndJob";
-  // create Summary Plots
-  if (createSummary_)       actionExecutor_->createSummaryOffline(dqmStore_);
 
-  // Fill Global Status
-  if (globalStatusFilling_ == 1) actionExecutor_->fillGlobalStatusFromModule(dqmStore_);
-  if (globalStatusFilling_ == 2) actionExecutor_->fillGlobalStatusFromLayer(dqmStore_);
-
+  edm::LogInfo( "SiStripOfflineDQM") << "SiStripOfflineDQM::endJob";
   // Save Output file
-  //  std::string outputFileName = inputFileName_.replace(inputFileName_.find("-standAlone"), 11, "");
-  dqmStore_->cd();
-  dqmStore_->save(outputFileName_, "","","");
+  if (!usedWithEDMtoMEConverter_) { 
+    dqmStore_->cd();
+    dqmStore_->save(outputFileName_, "","","");
+  }
 }
 /** 
 * @brief 

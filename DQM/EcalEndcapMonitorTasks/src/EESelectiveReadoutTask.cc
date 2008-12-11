@@ -1,8 +1,8 @@
 /*
  * \file EESelectiveReadoutTask.cc
  *
- * $Date: 2008/10/10 16:14:14 $
- * $Revision: 1.15 $
+ * $Date: 2008/09/26 16:12:09 $
+ * $Revision: 1.14 $
  * \author P. Gras
  * \author E. Di Marco
  *
@@ -20,9 +20,8 @@
 
 #include "DQMServices/Core/interface/DQMStore.h"
 
-#include "DataFormats/EcalDetId/interface/EEDetId.h"
-#include "DataFormats/EcalDetId/interface/EcalTrigTowerDetId.h"
 #include "DataFormats/EcalDetId/interface/EcalScDetId.h"
+#include "DataFormats/EcalDetId/interface/EcalTrigTowerDetId.h"
 
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
@@ -358,6 +357,7 @@ void EESelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
 	if( integral[iside] != 0 ) h01[iside]->Scale( 1.0/integral[iside] );
       }
 
+
       TH2F *h02[2];
       for(int iside=0;iside<2;iside++) {
         h02[iside] = UtilsClient::getHisto<TH2F*>( EEReadoutUnitForcedBitMap_[iside] );
@@ -481,9 +481,8 @@ void EESelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
     LogWarning("EESelectiveReadoutTask") << EcalTrigPrimDigiCollection_ << " not available";
   }
 
-  if (!eeSrFlags.isValid()) return;
-
   // Data Volume
+
   double aLowInterest[2];
   double aHighInterest[2];
   double aAnyInterest[2];
@@ -531,6 +530,10 @@ void EESelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
 
 void EESelectiveReadoutTask::anaDigi(const EEDataFrame& frame, const EESrFlagCollection& srFlagColl){
 
+
+  EEDetId id = frame.id();
+  int ism = Numbers::iSM( id );
+
   EESrFlagCollection::const_iterator srf = srFlagColl.find(readOutUnitOf(frame.id()));
 
   if(srf == srFlagColl.end()){
@@ -538,14 +541,14 @@ void EESelectiveReadoutTask::anaDigi(const EEDataFrame& frame, const EESrFlagCol
     return;
   }
 
+  const DetId& xtalId = frame.id();
+
   bool highInterest = ((srf->value() & ~EcalSrFlag::SRF_FORCED_MASK)
                        == EcalSrFlag::SRF_FULL);
 
-  const DetId& xtalId = frame.id();
   bool endcap = (xtalId.subdetId()==EcalEndcap);
 
   if(endcap){
-    int ism = Numbers::iSM( frame.id() );
     if ( ism >= 1 && ism <= 9 ) {
       ++nEe_[0];
       if(highInterest){
@@ -616,6 +619,7 @@ unsigned EESelectiveReadoutTask::dccNum(const DetId& xtalId) const{
     throw cms::Exception("EESelectiveReadoutTask")
       <<"Not ECAL endcap.";
   }
+
   int iDcc0 = dccIndex(iDet,j,k);
   assert(iDcc0>=0 && iDcc0<nECALDcc);
   return iDcc0+1;

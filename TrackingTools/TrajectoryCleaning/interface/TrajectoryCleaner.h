@@ -2,7 +2,6 @@
 #define TrajectoryCleaning_TrajectoryCleaner_h
 
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 /** The component of track reconstruction that resolves ambiguities 
  *  between mutually exclusive trajectories.
@@ -20,7 +19,6 @@ class TrajectoryCleaner {
   typedef TrajectoryPointerContainer::iterator TrajectoryPointerIterator;
 
   TrajectoryCleaner(){};
-  TrajectoryCleaner(edm::ParameterSet & iConfig){};
   virtual ~TrajectoryCleaner(){};
 
   virtual void clean( TrajectoryContainer&) const;

@@ -77,27 +77,6 @@ namespace GenParticlesHelper {
     }
   }
 
-
-  bool hasAncestor( const reco::GenParticle* particle,
-		    int pdgId, int status )  {
-    
- 
-    if( particle->pdgId() == pdgId && 
-	particle->status() == status )
-      return true;
-
-    const GenParticleRefVector& mothers = particle->motherRefVector();
-    
-    for( IGR im = mothers.begin(); im!=mothers.end(); ++im) {
-      const GenParticle& part = **im;
-      if( hasAncestor( &part, pdgId, status) )
-	return true;
-    } 
-
-    return false;
-  }
-
-
   std::ostream& operator<<( std::ostream& out, 
 			    const reco::GenParticleRef& genRef ) {
     

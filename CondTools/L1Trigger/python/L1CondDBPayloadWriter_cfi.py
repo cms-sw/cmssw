@@ -5,8 +5,7 @@ L1CondDBPayloadWriter = cms.EDFilter("L1CondDBPayloadWriter",
     L1TriggerKeyListTag = cms.string('L1TriggerKeyList_IDEAL'),
     offlineAuthentication = cms.string(''),
     writeL1TriggerKey = cms.bool(True),
-    writeConfigData = cms.bool(True),
-    overwriteKeys = cms.bool(False)
+    writeConfigData = cms.bool(True)
 )
 
 

@@ -15,13 +15,11 @@ from RecoTracker.SpecialSeedGenerators.CombinatorialSeedGeneratorForCosmicsP5_cf
 from RecoTracker.SpecialSeedGenerators.SimpleCosmicBONSeeder_cfi import *
 from RecoTracker.TkSeedGenerator.GlobalCombinedSeeds_cff import *
 combinedP5SeedsForCTF = RecoTracker.TkSeedGenerator.GlobalCombinedSeeds_cfi.globalCombinedSeeds.clone()
-combinedP5SeedsForCTF.seedCollections = cms.VInputTag(
-    cms.InputTag('combinatorialcosmicseedfinderP5'),
-    cms.InputTag('simpleCosmicBONSeeds'),
-)
+combinedP5SeedsForCTF.PairCollection = 'combinatorialcosmicseedfinderP5'
+combinedP5SeedsForCTF.TripletCollection = 'simpleCosmicBONSeeds'
 
 from RecoTracker.CkfPattern.CkfTrackCandidatesP5_cff import *
-ckfTrackCandidatesP5.src = cms.InputTag('combinedP5SeedsForCTF')
+ckfTrackCandidatesP5.SeedProducer = 'combinedP5SeedsForCTF'
 
 from RecoTracker.TrackProducer.CTFFinalFitWithMaterialP5_cff import *
 # ROACH SEARCH
@@ -36,7 +34,7 @@ ctftracksP5 = cms.Sequence(combinatorialcosmicseedfinderP5*simpleCosmicBONSeeds*
                            ctfWithMaterialTracksP5)
 
 rstracksP5 = cms.Sequence(roadSearchSeedsP5*roadSearchCloudsP5*rsTrackCandidatesP5*rsWithMaterialTracksP5)
-cosmictracksP5 = cms.Sequence(cosmicseedfinderP5*cosmictrackfinderP5)
+cosmictracksP5 = cms.Sequence(cosmicseedfinderP5*cosmicCandidateFinderP5*cosmictrackfinderP5)
 #sequence tracksP5 = {cosmictracksP5, ctftracksP5, rstracksP5, trackinfoP5}
 tracksP5 = cms.Sequence(cosmictracksP5*ctftracksP5*rstracksP5)
 # explicitely switch on hit splitting

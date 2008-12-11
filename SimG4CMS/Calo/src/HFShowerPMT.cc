@@ -10,19 +10,16 @@
 
 #include "FWCore/Utilities/interface/Exception.h"
 
-#include "G4NavigationHistory.hh"
 #include "G4VPhysicalVolume.hh"
 #include "G4Step.hh"
 #include "G4Track.hh"
 #include "CLHEP/Units/PhysicalConstants.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 
-//#define DebugLog
-
 HFShowerPMT::HFShowerPMT(std::string & name, const DDCompactView & cpv,
-			 edm::ParameterSet const & p) : cherenkov(0) {
+			 edm::ParameterSet const & p) {
 
-  edm::ParameterSet m_HF  = p.getParameter<edm::ParameterSet>("HFShowerPMT");
+  edm::ParameterSet m_HF  = p.getParameter<edm::ParameterSet>("HFShower");
   pePerGeV                = m_HF.getParameter<double>("PEPerGeVPMT");
   
   G4String attribute = "ReadOutName";
@@ -94,12 +91,9 @@ HFShowerPMT::HFShowerPMT(std::string & name, const DDCompactView & cpv,
 				<< value;
   }
 
-  cherenkov = new HFCherenkov(m_HF);
 }
 
-HFShowerPMT::~HFShowerPMT() {
-  if (cherenkov) delete cherenkov;
-}
+HFShowerPMT::~HFShowerPMT() {}
 
 double HFShowerPMT::getHits(G4Step * aStep) {
 
@@ -118,33 +112,12 @@ double HFShowerPMT::getHits(G4Step * aStep) {
     indexF = pmtFib2[pmtNo-1];
   }
 
-#ifdef DebugLog
   LogDebug("HFShower") << "HFShowerPMT: Box " << boxNo << " PMT "
 		       << pmtNo << " Mapped Indices " << indexR << ", "
 		       << indexF << " Edeposit " << edep/MeV << " MeV; PE "
 		       << edep*pePerGeV/GeV;
-#endif
-
-  double photons = 0;
-  if (indexR >= 0 && indexF > 0) {
-    G4Track *aTrack = aStep->GetTrack();
-    G4ParticleDefinition *particleDef = aTrack->GetDefinition();
-    double stepl = aStep->GetStepLength();
-    double beta  = preStepPoint->GetBeta();
-    G4ThreeVector pDir = aTrack->GetDynamicParticle()->GetMomentumDirection();
-    G4ThreeVector localMom = preStepPoint->GetTouchable()->GetHistory()->
-      GetTopTransform().TransformAxis(pDir);
-    photons = cherenkov->computeNPEinPMT(particleDef, beta, localMom.x(),
-					 localMom.y(), localMom.z(), stepl);
-#ifdef DebugLog
-  LogDebug("HFShower") << "HFShowerPMT::getHits: for particle " 
-		       << particleDef->GetParticleName() << " Step " << stepl
-		       << " Beta " << beta << " Direction " << pDir
-		       << " Local " << localMom << " p.e. " << photons;
-#endif 
-
-  }
-  return photons;
+  if (indexR >= 0 && indexF > 0) return edep*pePerGeV/GeV;
+  else                           return 0;
 }
  
 double HFShowerPMT::getRadius() {
@@ -152,34 +125,27 @@ double HFShowerPMT::getRadius() {
   double r = 0.;
   if (indexR >= 0 && indexR+1 < (int)(rTable.size()))
     r = 0.5*(rTable[indexR]+rTable[indexR+1]);
-#ifdef DebugLog
   else
     LogDebug("HFShower") << "HFShowerPMT::getRadius: R " << indexR
 			 << " F " << indexF;
-#endif
   if (indexF == 2)  r =-r;
-#ifdef DebugLog
-  LogDebug("HFShower") << "HFShowerPMT: Radius (" << indexR << "/" << indexF 
+  LogDebug("HFShower") << "HFShower: Radius (" << indexR << "/" << indexF 
 		       << ") " << r;
-#endif
   return r;
 }
 
 std::vector<double> HFShowerPMT::getDDDArray(const std::string & str, 
 					     const DDsvalues_type & sv) {
 
-#ifdef DebugLog
   LogDebug("HFShower") << "HFShowerPMT:getDDDArray called for " << str;
-#endif
+
   DDValue value(str);
   if (DDfetch(&sv,value)) {
-#ifdef DebugLog
     LogDebug("HFShower") << value;
-#endif
     const std::vector<double> & fvec = value.doubles();
     int nval = fvec.size();
     if (nval < 2) {
-      edm::LogError("HFShower") << "HFShowerPMT: # of " << str 
+      edm::LogError("HFShower") << "HFShowerPMT : # of " << str 
 				<< " bins " << nval << " < 2 ==> illegal";
       throw cms::Exception("Unknown", "HFShowerPMT")
 	<< "nval < 2 for array " << str << "\n";
@@ -187,7 +153,7 @@ std::vector<double> HFShowerPMT::getDDDArray(const std::string & str,
 
     return fvec;
   } else {
-    edm::LogError("HFShower") << "HFShowerPMT: cannot get array " << str;
+    edm::LogError("HFShower") << "HFShowerPMT : cannot get array " << str;
     throw cms::Exception("Unknown", "HFShowerPMT") 
       << "cannot get array " << str << "\n";
   }

@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/07/15 15:57:23 $
- *  $Revision: 1.14 $
+ *  $Date: 2008/01/28 12:38:06 $
+ *  $Revision: 1.13 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -98,20 +98,6 @@ int DTMtime::get( int   wheelId,
                   int stationId,
                   int  sectorId,
                   int      slId,
-                  float&  mTime,
-                  float&  mTrms,
-                  DTVelocityUnits::type unit ) const {
-  return get( wheelId, stationId, sectorId,
-                 slId,         0,        0,
-                mTime, mTrms, unit );
-
-}
-
-
-int DTMtime::get( int   wheelId,
-                  int stationId,
-                  int  sectorId,
-                  int      slId,
                   int   layerId,
                   int    cellId,
                   float&  mTime,
@@ -155,31 +141,6 @@ int DTMtime::get( int   wheelId,
 }
 
 
-int DTMtime::get( int   wheelId,
-                  int stationId,
-                  int  sectorId,
-                  int      slId,
-                  int   layerId,
-                  int    cellId,
-                  float&  mTime,
-                  float&  mTrms,
-                  DTVelocityUnits::type unit ) const {
-  int status = get( wheelId, stationId, sectorId,
-                       slId,   layerId,   cellId,
-                      mTime, mTrms, DTTimeUnits::counts );
-  if ( unit == DTVelocityUnits::cm_per_count ) {
-    mTime  = 2.1 / mTime;
-    mTrms *= mTime;
-  }
-  if ( unit == DTVelocityUnits::cm_per_ns ) {
-    mTime  = 2.1 / mTime;
-    mTrms *= mTime;
-    mTime /= nsPerCount;
-  }
-  return status;
-}
-
-
 int DTMtime::get( const DTSuperLayerId& id,
                   float&  mTime,
                   float&  mTrms,
@@ -192,37 +153,10 @@ int DTMtime::get( const DTSuperLayerId& id,
 }
 
 
-int DTMtime::get( const DTSuperLayerId& id,
-                  float&  mTime,
-                  float&  mTrms,
-                  DTVelocityUnits::type unit ) const {
-  return get( id.wheel(),
-              id.station(),
-              id.sector(),
-              id.superLayer(), 0, 0,
-              mTime, mTrms, unit );
-}
-
-
 int DTMtime::get( const DetId& id,
                   float&  mTime,
                   float&  mTrms,
                   DTTimeUnits::type unit ) const {
-  DTWireId wireId( id.rawId() );
-  return get( wireId.wheel(),
-              wireId.station(),
-              wireId.sector(),
-              wireId.superLayer(),
-              wireId.layer(),
-              wireId.wire(),
-              mTime, mTrms, unit );
-}
-
-
-int DTMtime::get( const DetId& id,
-                  float&  mTime,
-                  float&  mTrms,
-                  DTVelocityUnits::type unit ) const {
   DTWireId wireId( id.rawId() );
   return get( wireId.wheel(),
               wireId.station(),
@@ -264,19 +198,6 @@ int DTMtime::set( int   wheelId,
                   float   mTime,
                   float   mTrms,
                   DTTimeUnits::type unit ) {
-  return set( wheelId, stationId, sectorId,
-                 slId,         0,        0,
-                mTime, mTrms, unit );
-}
-
-
-int DTMtime::set( int   wheelId,
-                  int stationId,
-                  int  sectorId,
-                  int      slId,
-                  float   mTime,
-                  float   mTrms,
-                  DTVelocityUnits::type unit ) {
   return set( wheelId, stationId, sectorId,
                  slId,         0,        0,
                 mTime, mTrms, unit );
@@ -345,31 +266,6 @@ int DTMtime::set( int   wheelId,
 }
 
 
-int DTMtime::set( int   wheelId,
-                  int stationId,
-                  int  sectorId,
-                  int      slId,
-                  int   layerId,
-                  int    cellId,
-                  float   mTime,
-                  float   mTrms,
-                  DTVelocityUnits::type unit ) {
-  if ( unit == DTVelocityUnits::cm_per_count ) {
-    mTrms /= mTime;
-    mTime  = 2.1 / mTime;
-  }
-  if ( unit == DTVelocityUnits::cm_per_ns ) {
-    mTime *= nsPerCount;
-    mTrms /= mTime;
-    mTime  = 2.1 / mTime;
-  }
-  return set( wheelId, stationId, sectorId,
-                 slId,   layerId,   cellId,
-                mTime, mTrms, DTTimeUnits::counts );
-
-}
-
-
 int DTMtime::set( const DTSuperLayerId& id,
                   float   mTime,
                   float   mTrms,
@@ -382,37 +278,10 @@ int DTMtime::set( const DTSuperLayerId& id,
 }
 
 
-int DTMtime::set( const DTSuperLayerId& id,
-                  float   mTime,
-                  float   mTrms,
-                  DTVelocityUnits::type unit ) {
-  return set( id.wheel(),
-              id.station(),
-              id.sector(),
-              id.superLayer(), 0, 0,
-              mTime, mTrms, unit );
-}
-
-
 int DTMtime::set( const DetId& id,
                   float   mTime,
                   float   mTrms,
                   DTTimeUnits::type unit ) {
-  DTWireId wireId( id.rawId() );
-  return set( wireId.wheel(),
-              wireId.station(),
-              wireId.sector(),
-              wireId.superLayer(),
-              wireId.layer(),
-              wireId.wire(),
-              mTime, mTrms, unit );
-}
-
-
-int DTMtime::set( const DetId& id,
-                  float   mTime,
-                  float   mTrms,
-                  DTVelocityUnits::type unit ) {
   DTWireId wireId( id.rawId() );
   return set( wireId.wheel(),
               wireId.station(),

@@ -8,10 +8,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DetectorDescription/Core/interface/DDsvalues.h"
-#include "SimG4CMS/Calo/interface/HFShowerLibrary.h"
 #include "SimG4CMS/Calo/interface/HFFibre.h"
 
-#include "G4ParticleTable.hh"
 #include "G4ThreeVector.hh"
 
 class DDCompactView;
@@ -27,30 +25,29 @@ public:
   HFShowerParam(std::string & name, const DDCompactView & cpv, 
 		edm::ParameterSet const & p);
   virtual ~HFShowerParam();
-
-public:    
-
-  struct Hit {
-    Hit() {}
-    G4ThreeVector       position;
-    int                 depth;
-    double              time;
-    double              edep;
-  };
-
-  void                  initRun(G4ParticleTable *);
-  std::vector<Hit>      getHits(G4Step * aStep);
+  std::vector<double>   getHits(G4Step * aStep);
+  G4ThreeVector         getPosHit(int i);
+  int                   getDepth(int i);
+  double                getTSlice(int i);
   
 private:    
 
   std::vector<double>   getDDDArray(const std::string&, const DDsvalues_type&);
 
-  HFShowerLibrary*      showerLibrary;
+  struct Hit {
+    Hit() {}
+    G4ThreeVector     position;
+    int               depth;
+    double            time;
+  };
+
+private:    
+
   HFFibre*              fibre;
   double                pePerGeV;
   bool                  trackEM;
-  G4int                 emPDG, epPDG, gammaPDG;
   std::vector<double>   gpar;
+  std::vector<Hit>      hits;
 };
 
 #endif // HFShowerParam_h

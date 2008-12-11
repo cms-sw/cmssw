@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 #
-# $Id: submitDQMOfflineCAF.py,v 1.20.2.4 2008/10/29 20:30:20 vadler Exp $
+# $Id: submitDQMOfflineCAF.py,v 1.21 2008/10/29 20:37:00 vadler Exp $
 #
 
 ## CMSSW/DQM/SiStripMonitorClient/scripts/submitDQMOfflineCAF.py
@@ -87,7 +87,7 @@ STR_textUsage            = """ CMSSW/DQM/SiStripMonitorClient/scripts/submitDQMO
          CRAB server to use;
          available: None (default)
                     caf  (works, but slow)
-                    bari (CRAB version >= 2.3.2,
+                    bari (CRAB version >= 2.4.1,
                           s. https://twiki.cern.ch/twiki/bin/view/CMS/CrabServer#Server_available_for_users)
                     
          NOTE: CRAB server submission is disabled at the moment.
@@ -102,7 +102,7 @@ STR_textUsage            = """ CMSSW/DQM/SiStripMonitorClient/scripts/submitDQMO
          
      -g, --global-tag GLOBAL_TAG
          global tag to be used;
-         default: CRAFT_V3P::All
+         default: CRAFT_V4P::All
          
      -M, --magnetic-field FIELD
          specification of field to be used;
@@ -140,7 +140,7 @@ LSTR_server       = [STR_none,'caf','bari']
 STR_server        = LSTR_server[0]
 STR_email         = 'volker.adler@cern.ch'
 INT_jobs          = 10
-STR_globalTag     = 'CRAFT_V3P::All'
+STR_globalTag     = 'CRAFT_V4P::All'
 STR_magField      = '38T'
 BOOL_magFieldAuto = False
 BOOL_filter       = False

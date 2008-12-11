@@ -46,6 +46,7 @@ HcalRecHitsMaker::HcalRecHitsMaker(edm::ParameterSet const & p1,edm::ParameterSe
   thresholdHO_ = RecHitsParameters.getParameter<double>("ThresholdHO");
   thresholdHF_ = RecHitsParameters.getParameter<double>("ThresholdHF");
   doSaturation_ = RecHitsParameters.getParameter<bool>("EnableSaturation");
+  noiseFromDb_ = RecHitsParameters.getParameter<bool>("NoiseFromDb");
   
   refactor_ = RecHitsParameters.getParameter<double> ("Refactor");
   refactor_mean_ = RecHitsParameters.getParameter<double> ("Refactor_mean");
@@ -58,6 +59,7 @@ HcalRecHitsMaker::HcalRecHitsMaker(edm::ParameterSet const & p1,edm::ParameterSe
   peds_.resize(10000);
   gains_.resize(10000);
   sat_.resize(10000);
+  noisesigma_.resize(10000);
   hbhi_.reserve(2600);
   hehi_.reserve(2600);
   hohi_.reserve(2200);
@@ -73,6 +75,8 @@ HcalRecHitsMaker::HcalRecHitsMaker(edm::ParameterSet const & p1,edm::ParameterSe
   if(noiseHB_>0.) {
     hcalHotFractionHB_ = 0.5-0.5*myErf(thresholdHB_/noiseHB_/sqrt(2.));
     myGaussianTailGeneratorHB_ = new GaussianTail(random_,noiseHB_,thresholdHB_);
+    if(hcalHotFractionHB_ < 0.3 && noiseFromDb_)
+      edm::LogWarning("CaloRecHitsProducer") << " WARNING : HCAL Noise simulation, you chose to compute the noise sigma from the database, but the energy threshold is too high, change the value TresholdHB " << std::endl;
   } else {
     hcalHotFractionHB_ =0.;
   }
@@ -80,6 +84,8 @@ HcalRecHitsMaker::HcalRecHitsMaker(edm::ParameterSet const & p1,edm::ParameterSe
   if(noiseHO_>0.) {
     hcalHotFractionHO_ = 0.5-0.5*myErf(thresholdHO_/noiseHO_/sqrt(2.));
     myGaussianTailGeneratorHO_ = new GaussianTail(random_,noiseHO_,thresholdHO_);
+    if(hcalHotFractionHO_ < 0.3 && noiseFromDb_)
+      edm::LogWarning("CaloRecHitsProducer") << " WARNING : HCAL Noise simulation, you chose to compute the noise sigma from the database, but the energy threshold is too high, change the value TresholdHO " << std::endl;
   } else {
     hcalHotFractionHO_ =0.;
   }
@@ -87,6 +93,8 @@ HcalRecHitsMaker::HcalRecHitsMaker(edm::ParameterSet const & p1,edm::ParameterSe
   if(noiseHE_>0.) {
     hcalHotFractionHE_ = 0.5-0.5*myErf(thresholdHE_/noiseHE_/sqrt(2.));
     myGaussianTailGeneratorHE_ = new GaussianTail(random_,noiseHE_,thresholdHE_);
+    if(hcalHotFractionHE_ < 0.3 && noiseFromDb_)
+      edm::LogWarning("CaloRecHitsProducer") << " WARNING : HCAL Noise simulation, you chose to compute the noise sigma from the database, but the energy threshold is too high, change the value TresholdHE " << std::endl;
   } else {
     hcalHotFractionHE_ =0.;
   }
@@ -94,6 +102,8 @@ HcalRecHitsMaker::HcalRecHitsMaker(edm::ParameterSet const & p1,edm::ParameterSe
   if(noiseHF_>0.) {
     hcalHotFractionHF_ = 0.5-0.5*myErf(thresholdHF_/noiseHF_/sqrt(2.));
     myGaussianTailGeneratorHF_ = new GaussianTail(random_,noiseHF_,thresholdHF_);
+    if(hcalHotFractionHF_ < 0.3 && noiseFromDb_)
+      edm::LogWarning("CaloRecHitsProducer") <<  " WARNING : HCAL Noise simulation, you chose to compute the noise sigma from the database, but the energy threshold is too high, change the value TresholdHF " << std::endl;
   } else {
     hcalHotFractionHF_ =0.;
   }
@@ -156,12 +166,10 @@ void HcalRecHitsMaker::init(const edm::EventSetup &es,bool doDigis,bool doMiscal
 
 
 // Will be needed for the DB-based miscalibration
-  std::cout << " Getting HcalDb service " ;
   edm::ESHandle<HcalDbService> conditions;
   es.get<HcalDbRecord>().get(conditions);
   const HcalDbService * theDbService=conditions.product();
   //  myHcalSimParameterMap_->setDbService(theDbService);
-  std::cout << " - done " << std::endl;
   // Open the histogram for the fC to ADC conversion
   gROOT->cd();
   edm::FileInPath myDataFile("FastSimulation/CaloRecHitsProducer/data/adcvsfc.root");
@@ -216,8 +224,11 @@ void HcalRecHitsMaker::init(const edm::EventSetup &es,bool doDigis,bool doMiscal
       float mgain=0.;
       for(unsigned ig=0;ig<4;++ig)
 	mgain+=theDbService->getGain(theDetIds_[hbhi_[ic]])->getValue(ig);
+      noisesigma_[hbhi_[ic]]=noiseInfCfromDB(theDbService,theDetIds_[hbhi_[ic]])*mgain*0.25;
+      //      std::cout << " NOISEHB " << theDetIds_[hbhi_[ic]].ieta() << " " << noisesigma_[hbhi_[ic]] << "  "<< std::endl;
       mgain*=2500.;// 10000 (ADC scale) / 4. (to compute the mean)
       sat_[hbhi_[ic]]=(doSaturation_)?mgain:99999.;
+
       peds_[hbhi_[ic]]=theDbService->getPedestal(theDetIds_[hbhi_[ic]])->getValue(0);
       int ieta=theDetIds_[hbhi_[ic]].ieta();
       gain*=TPGFactor_[(ieta>0)?ieta+43:-ieta];
@@ -231,6 +242,9 @@ void HcalRecHitsMaker::init(const edm::EventSetup &es,bool doDigis,bool doMiscal
       float mgain=0.;
       for(unsigned ig=0;ig<4;++ig)
 	mgain+=theDbService->getGain(theDetIds_[hehi_[ic]])->getValue(ig);
+      noisesigma_[hehi_[ic]]=noiseInfCfromDB(theDbService,theDetIds_[hehi_[ic]])*mgain*0.25;
+
+      //      std::cout << " NOISEHE " << theDetIds_[hehi_[ic]].ieta() << " " << noisesigma_[hehi_[ic]] << "  "<< std::endl;
       mgain*=2500.;
       sat_[hehi_[ic]]=(doSaturation_)?mgain:99999.;
       
@@ -250,6 +264,9 @@ void HcalRecHitsMaker::init(const edm::EventSetup &es,bool doDigis,bool doMiscal
       float mgain=0.;
       for(unsigned ig=0;ig<4;++ig)
 	mgain+=theDbService->getGain(theDetIds_[hohi_[ic]])->getValue(ig);
+      noisesigma_[hohi_[ic]]=noiseInfCfromDB(theDbService,theDetIds_[hohi_[ic]])*mgain*0.25;
+      //      std::cout << " NOISEHO " << theDetIds_[hohi_[ic]].ieta() << " " << noisesigma_[hohi_[ic]] << "  "<< std::endl;
+
       mgain*=2500.;
       sat_[hohi_[ic]]=(doSaturation_)?mgain:99999.;
       int ieta=HcalDetId(hohi_[ic]).ieta();
@@ -265,6 +282,10 @@ void HcalRecHitsMaker::init(const edm::EventSetup &es,bool doDigis,bool doMiscal
       float mgain=0.;
       for(unsigned ig=0;ig<4;++ig)
 	mgain+=theDbService->getGain(theDetIds_[hfhi_[ic]])->getValue(ig);
+      // additional 1/2 factor for the HF (Salavat)
+      noisesigma_[hfhi_[ic]]=noiseInfCfromDB(theDbService,theDetIds_[hfhi_[ic]])*mgain*0.25;
+      //      std::cout << " NOISEHF " << theDetIds_[hfhi_[ic]].ieta() << " " << noisesigma_[hfhi_[ic]] << "  "<< std::endl;
+
       mgain*=2500.;
       sat_[hfhi_[ic]]=(doSaturation_)?mgain:99999.;
       int ieta=theDetIds_[hfhi_[ic]].ieta();
@@ -312,6 +333,7 @@ void HcalRecHitsMaker::loadPCaloHits(const edm::Event & iEvent)
 	  break;
 	case HcalOuter: 
 	  {
+	    //	    std::cout << detid << " " << it->energy() << std::endl;
 	    noise_ = noiseHO_; 
 	    Fill(hashedindex,it->energy(),firedCellsHO_,noise_);
 	  }
@@ -386,7 +408,7 @@ void HcalRecHitsMaker::loadHcalRecHits(edm::Event &iEvent,HBHERecHitCollection& 
       // poor man saturation
       if(energy>sat_[cellhashedindex]) 
 	{
-	  std::cout << " Op saturation " << energy << " " << sat_[cellhashedindex] << " HE " << std::endl;
+	  //	  std::cout << " Op saturation " << energy << " " << sat_[cellhashedindex] << " HE " << std::endl;
 	  energy=sat_[cellhashedindex];
 	}
 
@@ -410,6 +432,7 @@ void HcalRecHitsMaker::loadHcalRecHits(edm::Event &iEvent,HBHERecHitCollection& 
   nhits=firedCellsHO_.size();
   for(unsigned ihit=0;ihit<nhits;++ihit)
     {
+
       unsigned cellhashedindex=firedCellsHO_[ihit];
       // Check if it is above the threshold
       if(hcalRecHits_[cellhashedindex]<thresholdHO_) continue; 
@@ -419,6 +442,7 @@ void HcalRecHitsMaker::loadHcalRecHits(edm::Event &iEvent,HBHERecHitCollection& 
       if(energy>sat_[cellhashedindex]) energy=sat_[cellhashedindex];
 
       const HcalDetId&  detid=theDetIds_[cellhashedindex];
+
       hoHits.push_back(HORecHit(detid,energy,0));
     }
   
@@ -487,6 +511,10 @@ void HcalRecHitsMaker::Fill(int id, float energy, std::vector<int>& theHits,floa
 {
   if(doMiscalib_) 
     energy*=miscalib_[id];
+
+  if(noiseFromDb_)
+    noise=noisesigma_[id];
+
   // Check if the RecHit exists
   if(hcalRecHits_[id]>0.)
     hcalRecHits_[id]+=energy;
@@ -586,6 +614,9 @@ unsigned HcalRecHitsMaker::noisifySubdet(std::vector<float>& theMap, std::vector
 	  cellhashedindex = thecells[ncell];
 	  if(hcalRecHits_[cellhashedindex]==0.) // new cell
 	    {
+	      // if noise from db activated
+	      if(noiseFromDb_) sigma=noisesigma_[cellhashedindex];
+
 	      double noise =random_->gaussShoot(0.,sigma);
 	      if(noise>threshold)
 		{
@@ -625,4 +656,46 @@ int HcalRecHitsMaker::fCtoAdc(double fc) const
   if(fc<0.) return 0;
   if(fc>9985.) return 127;
   return fctoadc_[(unsigned)floor(fc)];
+}
+
+double HcalRecHitsMaker::noiseInfCfromDB(const HcalDbService * conditions,const HcalDetId & detId)
+{
+  // method from Salavat
+  // fetch pedestal widths (noise sigmas for all 4 CapID)
+  const HcalPedestalWidth* pedWidth =
+    conditions-> getPedestalWidth(detId); 
+  double ssqq_1 = pedWidth->getSigma(0,0);
+  double ssqq_2 = pedWidth->getSigma(1,1);
+  double ssqq_3 = pedWidth->getSigma(2,2);
+  double ssqq_4 = pedWidth->getSigma(3,3);
+
+  // correction factors (hb,he,ho,hf)
+  static float corrfac[4]={1.25,1.20,1.40,0.67};
+
+  int sub   = detId.subdet();
+  
+  // effective RecHits (for this particular detId) noise calculation :
+  
+  double sig_sq_mean =  0.25 * ( ssqq_1 + ssqq_2 + ssqq_3 + ssqq_4);
+  
+  // f - external parameter (currently set to 0.5 in the FullSim) !!!
+  double f=0.5;
+
+  double term  = sqrt (1. + sqrt(1. - 2.*f*f));
+  double alpha = sqrt (0.5) * term;
+  double beta  = sqrt (0.5) * f / term;
+
+  double RMS1   = sqrt(sig_sq_mean) * sqrt (2.*beta*beta + alpha*alpha) ;
+  double RMS4   = sqrt(sig_sq_mean) * sqrt (2.*beta*beta + 2.*(alpha-beta)*(alpha-beta) + 2.*(alpha-2.*beta)*(alpha-2.*beta)) ;
+
+  double noise_rms_fC;
+  if(sub == 4)  noise_rms_fC = RMS1;
+  else          noise_rms_fC = RMS4;
+
+  noise_rms_fC *= corrfac[sub-1];
+
+  // to convert from above fC to GeV - multiply by gain (GeV/fC)        
+  //  const HcalGain*  gain = conditions->getGain(detId); 
+  //  double noise_rms_GeV = noise_rms_fC * gain->getValue(0); // Noise RMS (GeV) for detId channel
+  return noise_rms_fC;
 }

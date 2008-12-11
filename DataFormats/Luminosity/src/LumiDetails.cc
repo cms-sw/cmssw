@@ -1,21 +1,11 @@
 
-// $Id: LumiDetails.cc,v 1.3 2008/02/06 20:57:26 wdd Exp $
+// $Id: LumiDetails.cc,v 1.2 2007/07/24 16:00:17 valerieh Exp $
 
 #include "DataFormats/Luminosity/interface/LumiDetails.h"
 
 #include <iomanip>
 
 using namespace std;
-
-bool
-LumiDetails::isProductEqual(LumiDetails const& next) {
-  return (lumietsum_ == next.lumietsum_ &&
-          lumietsumerr_ == next.lumietsumerr_ &&
-          lumietsumqual_ == next.lumietsumqual_ &&
-          lumiocc_ == next.lumiocc_ &&
-          lumioccerr_ == next.lumioccerr_ &&
-          lumioccqual_ == next.lumioccqual_);
-}
 
 std::ostream& operator<<(std::ostream& s, const LumiDetails& lumiDetails) {
 

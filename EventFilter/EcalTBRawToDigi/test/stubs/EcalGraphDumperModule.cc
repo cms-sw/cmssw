@@ -3,8 +3,8 @@
  * module dumping TGraph with 10 data frames
  *   
  * 
- * $Date: 2007/10/20 10:58:02 $
- * $Revision: 1.6 $
+ * $Date: 2007/08/17 13:58:24 $
+ * $Revision: 1.5 $
  * \author N. Amapane - S. Argiro'
  * \author G. Franzoni
  *
@@ -14,7 +14,9 @@
 #include <FWCore/Framework/interface/Event.h>
 #include <FWCore/Framework/interface/MakerMacros.h>
 #include <DataFormats/EcalDigi/interface/EcalDigiCollections.h>
+#include <DataFormats/EcalDetId/interface/EcalDetIdCollections.h>
 
+#include <DataFormats/EcalDigi/interface/EcalTriggerPrimitiveDigi.h>
 #include <DataFormats/EcalDigi/interface/EcalTriggerPrimitiveSample.h>
 
 #include <iostream>

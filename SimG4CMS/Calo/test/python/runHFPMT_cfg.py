@@ -13,40 +13,33 @@ process.load("Configuration.EventContent.EventContent_cff")
 
 process.load("SimG4Core.Application.g4SimHits_cfi")
 
-process.load("SimG4CMS.Calo.HFPMTHitAnalyzer_cfi")
-
 process.MessageLogger = cms.Service("MessageLogger",
     debugModules = cms.untracked.vstring('*'),
     cout = cms.untracked.PSet(
-        threshold = cms.untracked.string('INFO'),
         INFO = cms.untracked.PSet(
             limit = cms.untracked.int32(-1)
-        ),
-        DEBUG = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
         ),
         CaloSim = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         ),
-        EcalSim = cms.untracked.PSet(
+        DEBUG = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
-        ),
-        G4cerr = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
-        ),
-        G4cout = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
-        ),
-        HcalSim = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
         ),
         HFShower = cms.untracked.PSet(
             limit = cms.untracked.int32(-1)
+        ),
+        threshold = cms.untracked.string('INFO'),
+        HcalSim = cms.untracked.PSet(
+            limit = cms.untracked.int32(-1)
+        ),
+        EcalSim = cms.untracked.PSet(
+            limit = cms.untracked.int32(0)
         )
     ),
     categories = cms.untracked.vstring('CaloSim', 
-        'EcalSim', 'G4Cerr', 'G4cout',
-        'HcalSim', 'HFShower'),
+        'EcalSim', 
+        'HcalSim', 
+        'HFShower'),
     destinations = cms.untracked.vstring('cout')
 )
 
@@ -65,12 +58,12 @@ process.maxEvents = cms.untracked.PSet(
 )
 process.source = cms.Source("FlatRandomEGunSource",
     PGunParameters = cms.untracked.PSet(
-        PartID = cms.untracked.vint32(11),
-        MinEta = cms.untracked.double(3.25),
-        MaxEta = cms.untracked.double(3.30),
-        MinPhi = cms.untracked.double(-3.1415926),
+        PartID = cms.untracked.vint32(13),
+        MaxEta = cms.untracked.double(3.3),
         MaxPhi = cms.untracked.double(3.1415926),
+        MinEta = cms.untracked.double(2.95),
         MinE = cms.untracked.double(99.99),
+        MinPhi = cms.untracked.double(-3.1415926),
         MaxE = cms.untracked.double(100.01)
     ),
     Verbosity = cms.untracked.int32(0),
@@ -83,18 +76,13 @@ process.o1 = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('simevent.root')
 )
 
-process.TFileService = cms.Service("TFileService",
-    fileName = cms.string('HFPMT.root')
-)
-
-process.p1 = cms.Path(process.VtxSmeared*process.g4SimHits*process.hfPMTHitAnalyzer)
+process.p1 = cms.Path(process.VtxSmeared*process.g4SimHits)
 process.outpath = cms.EndPath(process.o1)
 process.g4SimHits.Physics.type = 'SimG4Core/Physics/QGSP'
 process.g4SimHits.Physics.DefaultCutValue = 0.1
 process.g4SimHits.HCalSD.UseShowerLibrary = False
-process.g4SimHits.HCalSD.UseParametrize   = True
-process.g4SimHits.HCalSD.UsePMTHits       = True
-process.g4SimHits.HFShower.UseShowerLibrary = True
+process.g4SimHits.HCalSD.UseParametrize = True
+process.g4SimHits.HCalSD.UsePMTHits = True
 process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
     CheckForHighEtPhotons = cms.untracked.bool(False),
     TrackMin = cms.untracked.int32(0),

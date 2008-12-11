@@ -40,6 +40,7 @@ eleIsoDepositHcalFromTowers = cms.EDProducer("CandIsoDepositProducer",
 )
 
 # define module labels for old (tk-based isodeposit) POG isolation
+# WARNING: these labels are used in the functions below.
 patAODElectronIsolationLabels = cms.VInputTag(
         cms.InputTag("eleIsoDepositTk"),
       #  cms.InputTag("eleIsoDepositEcalFromHits"),
@@ -101,24 +102,32 @@ def useElectronAODIsolation(process,layers=(0,1,)):
         process.allLayer1Electrons.isoDeposits.ecal   = cms.InputTag("layer0ElectronIsolations","eleIsoDepositEcalFromClusts")
         process.allLayer1Electrons.isoDeposits.hcal   = cms.InputTag("layer0ElectronIsolations","eleIsoDepositHcalFromTowers")
 
+from RecoEgamma.EgammaIsolationAlgos.eleIsoFromDepsModules_cff import eleIsoFromDepsEcalFromHits
 def useElectronRecHitIsolation(process,layers=(0,1,)):
     if (layers.__contains__(0)):
-        print "Switching to RecHit isolation for Electrons in PAT Layer 0"
-        patAODElectronIsolationLabels = cms.VInputTag(
-            cms.InputTag("eleIsoDepositTk"),
-            cms.InputTag("eleIsoDepositEcalFromHits"),
-            cms.InputTag("eleIsoDepositHcalFromHits"),
-        )
+        print "Switching to ECAL RecHit isolation for Electrons in PAT Layer 0"
+
+        # Replace the existing input tag with the one from RecHits (keeping the same order)
+        index = patAODElectronIsolationLabels.index(cms.InputTag("eleIsoDepositEcalFromClusts"))
+        patAODElectronIsolationLabels.pop(index)
+        patAODElectronIsolationLabels.insert(index,cms.InputTag("eleIsoDepositEcalFromHits"))
+
+        # Assign the new labels
         process.patAODElectronIsolations.associations = patAODElectronIsolationLabels
         process.layer0ElectronIsolations.associations = patAODElectronIsolationLabels
-        #This does not work yet :-(
-        # process.patAODElectronIsolation = cms.Sequence( patAODElectronIsolations )
+
+        # Redefine the path: we don't need cluster mergers anymore
+        process.patAODElectronIsolation = cms.Sequence( patAODElectronIsolations )
+
+        # Get all this back in the layer-0 electrons
         process.allLayer0Electrons.isolation.ecal.src = cms.InputTag("patAODElectronIsolations","eleIsoDepositEcalFromHits")
-        process.allLayer0Electrons.isolation.hcal.src = cms.InputTag("patAODElectronIsolations","eleIsoDepositHcalFromHits")
+
     if (layers.__contains__(1)):
-        print "Switching to RecHit isolation for Electrons in PAT Layer 1"
+        print "Switching to ECAL RecHit isolation for Electrons in PAT Layer 1"
         process.allLayer1Electrons.isolation.ecal.src = cms.InputTag("layer0ElectronIsolations","eleIsoDepositEcalFromHits")
-        process.allLayer1Electrons.isolation.hcal.src = cms.InputTag("layer0ElectronIsolations","eleIsoDepositHcalFromHits")
         process.allLayer1Electrons.isoDeposits.ecal   = cms.InputTag("layer0ElectronIsolations","eleIsoDepositEcalFromHits")
-        process.allLayer1Electrons.isoDeposits.hcal   = cms.InputTag("layer0ElectronIsolations","eleIsoDepositHcalFromHits")
+        # Use the recommended RecHit isolation cuts from E/gamma
+        process.allLayer1Electrons.isolation.ecal.vetos  = eleIsoFromDepsEcalFromHits.deposits[0].vetos
+        process.allLayer1Electrons.isolation.ecal.deltaR = eleIsoFromDepsEcalFromHits.deposits[0].deltaR
+
 

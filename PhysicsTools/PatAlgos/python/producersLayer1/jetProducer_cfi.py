@@ -32,10 +32,7 @@ allLayer1Jets = cms.EDProducer("PATJetProducer",
     jetCorrFactorsSource = cms.InputTag("layer0JetCorrFactors"), ## source of the valuemap containing the jet correction factors
 
     # resolution configurables
-    addResolutions = cms.bool(True),
-    caliJetResoFile  = cms.string('PhysicsTools/PatUtils/data/Resolutions_lJets_MCJetCorJetIcone5.root'),
-    caliBJetResoFile = cms.string('PhysicsTools/PatUtils/data/Resolutions_bJets_MCJetCorJetIcone5.root'),
-    useNNResolutions = cms.bool(False), ## use the neural network approach?
+    addResolutions = cms.bool(False),
 
     # -- BTagging information ---
     addBTagInfo = cms.bool(True), # master switch
@@ -46,7 +43,7 @@ allLayer1Jets = cms.EDProducer("PATJetProducer",
     # clone tag infos in the pat::Jet
     # watch out: these take lots of space!
     # usually the discriminators from the default algos suffice
-    addTagInfoRefs = cms.bool(False),
+    addTagInfoRefs = cms.bool(True),
     tagInfoModule  = cms.InputTag("layer0TagInfos"),
     tagInfoNames   = cms.vstring('secondaryVertexTagInfos','softElectronTagInfos','softMuonTagInfos','impactParameterTagInfos'),
 

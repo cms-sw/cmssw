@@ -36,7 +36,8 @@ class HLTMuonGenericRate {
 public:
 
   /// Constructor
-  HLTMuonGenericRate(const edm::ParameterSet& pset, int triggerIndex);
+  HLTMuonGenericRate( const edm::ParameterSet& pset, std::string triggerName,
+		      std::vector<std::string> moduleNames );
 
   // Operations
   void            begin  ( );
@@ -64,17 +65,16 @@ private:
   // Data members
 
   bool    m_makeNtuple;
-  float   theNtupleParameters[50]; 
+  float   theNtuplePars[100]; 
   TNtuple *theNtuple;
   TFile   *theFile;
 
   // Input from cfg file
 
   std::string              theHltProcessName;
+  std::string              theTriggerName;
   std::string              theL1CollectionLabel;
   std::vector<std::string> theHltCollectionLabels;
-  double                   theL1ReferenceThreshold;
-  double                   theHltReferenceThreshold;
   unsigned int             theNumberOfObjects;
 
   bool         m_useMuonFromGenerator;

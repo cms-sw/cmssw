@@ -19,10 +19,13 @@
 
 #include "SimDataFormats/GeneratorProducts/interface/LHERunInfoProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
+
 #include "GeneratorInterface/LHEInterface/interface/LHERunInfo.h"
 #include "GeneratorInterface/LHEInterface/interface/LHEEvent.h"
 #include "GeneratorInterface/LHEInterface/interface/Hadronisation.h"
 #include "GeneratorInterface/LHEInterface/interface/JetMatching.h"
+#include "GeneratorInterface/LHEInterface/interface/JetMatchingMLM.h"
+#include "GeneratorInterface/LHEInterface/interface/BranchingRatios.h"
 
 using namespace lhef;
 
@@ -42,6 +45,8 @@ class LHEProducer : public edm::EDFilter {
 	double matching(const HepMC::GenEvent *event, bool shower) const;
 
 	bool showeredEvent(const boost::shared_ptr<HepMC::GenEvent> &event);
+	void onInit();
+	void onBeforeHadronisation();
 
 	unsigned int			eventsToPrint;
 	std::vector<int>		removeResonances;
@@ -50,18 +55,21 @@ class LHEProducer : public edm::EDFilter {
 
 	double				extCrossSect;
 	double				extFilterEff;
+	bool				matchSummary;
 
 	boost::shared_ptr<LHEEvent>	partonLevel;
 	boost::shared_ptr<LHERunInfo>	runInfo;
 	unsigned int			index;
 	bool				matchingDone;
 	double				weight;
+	BranchingRatios			branchingRatios;
 };
 
 LHEProducer::LHEProducer(const edm::ParameterSet &params) :
 	eventsToPrint(params.getUntrackedParameter<unsigned int>("eventsToPrint", 0)),
 	extCrossSect(params.getUntrackedParameter<double>("crossSection", -1.0)),
-	extFilterEff(params.getUntrackedParameter<double>("filterEfficiency", -1.0))
+	extFilterEff(params.getUntrackedParameter<double>("filterEfficiency", -1.0)),
+	matchSummary(false)
 {
 	hadronisation = Hadronisation::create(
 		params.getParameter<edm::ParameterSet>("hadronisation"));
@@ -71,11 +79,15 @@ LHEProducer::LHEProducer(const edm::ParameterSet &params) :
 			params.getParameter<std::vector<int> >(
 							"removeResonances");
 
+	std::set<std::string> matchingCapabilities;
 	if (params.exists("jetMatching")) {
 		edm::ParameterSet jetParams =
 			params.getUntrackedParameter<edm::ParameterSet>(
 								"jetMatching");
 		jetMatching = JetMatching::create(jetParams);
+
+		matchingCapabilities = jetMatching->capabilities();
+		hadronisation->matchingCapabilities(matchingCapabilities);
 	}
 
 	produces<edm::HepMCProduct>();
@@ -87,10 +99,24 @@ LHEProducer::LHEProducer(const edm::ParameterSet &params) :
 			hadronisation->onShoweredEvent().connect(
 				sigc::mem_fun(*this,
 				              &LHEProducer::showeredEvent));
+		hadronisation->onInit().connect(
+				sigc::mem_fun(*this, &LHEProducer::onInit));
+		hadronisation->onBeforeHadronisation().connect(
+			sigc::mem_fun(*this,
+			              &LHEProducer::onBeforeHadronisation));
 
-		produces< std::vector<double> >("matchDeltaR");
-		produces< std::vector<double> >("matchDeltaPRel");
+		matchSummary = matchingCapabilities.count("matchSummary");
+		if (matchSummary) {
+			produces< std::vector<double> >("matchDeltaR");
+			produces< std::vector<double> >("matchDeltaPRel");
+		}
 	}
+
+	// force total branching ratio for QCD/QED to 1
+	for(int i = 0; i < 6; i++)
+		branchingRatios.set(i);
+	for(int i = 9; i < 23; i++)
+		branchingRatios.set(i);
 }
 
 LHEProducer::~LHEProducer()
@@ -105,6 +131,7 @@ void LHEProducer::beginJob(const edm::EventSetup &es)
 void LHEProducer::endJob()
 {
 	hadronisation.reset();
+	jetMatching.reset();
 }
 
 bool LHEProducer::beginRun(edm::Run &run, const edm::EventSetup &es)
@@ -112,7 +139,7 @@ bool LHEProducer::beginRun(edm::Run &run, const edm::EventSetup &es)
 	edm::Handle<LHERunInfoProduct> product;
 	run.getByLabel("source", product);
 
-	runInfo.reset(new LHERunInfo(product->heprup()));
+	runInfo.reset(new LHERunInfo(*product));
 	index = 0;
 
 	return true;
@@ -120,9 +147,13 @@ bool LHEProducer::beginRun(edm::Run &run, const edm::EventSetup &es)
 
 bool LHEProducer::endRun(edm::Run &run, const edm::EventSetup &es)
 {
+	hadronisation->statistics();
+
 	LHERunInfo::XSec crossSection;
-	if (runInfo)
+	if (runInfo) {
 		crossSection = runInfo->xsec();
+		runInfo->statistics();
+	}
 
 	std::auto_ptr<edm::GenInfoProduct> genInfoProd(new edm::GenInfoProduct);
 
@@ -144,7 +175,7 @@ bool LHEProducer::filter(edm::Event &event, const edm::EventSetup &es)
 	edm::Handle<LHEEventProduct> product;
 	event.getByLabel("source", product);
 
-	partonLevel.reset(new LHEEvent(runInfo, product->hepeup()));
+	partonLevel.reset(new LHEEvent(runInfo, *product));
 	if (!removeResonances.empty())
 		partonLevel->removeResonances(removeResonances);
 
@@ -155,6 +186,9 @@ bool LHEProducer::filter(edm::Event &event, const edm::EventSetup &es)
 
 	hadronisation->setEvent(partonLevel);
 
+	double br = branchingRatios.getFactor(hadronisation.get(),
+	                                      partonLevel);
+
 	matchingDone = false;
 	weight = 1.0;
 	std::auto_ptr<HepMC::GenEvent> hadronLevel(hadronisation->hadronize());
@@ -162,11 +196,12 @@ bool LHEProducer::filter(edm::Event &event, const edm::EventSetup &es)
 	if (!hadronLevel.get()) {
 		if (matchingDone) {
 			if (weight == 0.0)
-				partonLevel->count(LHERunInfo::kSelected);
+				partonLevel->count(LHERunInfo::kSelected, br);
 			else
-				partonLevel->count(LHERunInfo::kKilled, weight);
+				partonLevel->count(LHERunInfo::kKilled,
+				                   br, weight);
 		} else
-			partonLevel->count(LHERunInfo::kTried);
+			partonLevel->count(LHERunInfo::kTried, br);
 	}
 
 	if (!matchingDone && jetMatching.get() && hadronLevel.get())
@@ -188,7 +223,7 @@ bool LHEProducer::filter(edm::Event &event, const edm::EventSetup &es)
 		return false;
 	}
 
-	partonLevel->count(LHERunInfo::kAccepted, weight);
+	partonLevel->count(LHERunInfo::kAccepted, br, weight);
 
 	hadronLevel->set_event_number(++index);
 
@@ -200,7 +235,7 @@ bool LHEProducer::filter(edm::Event &event, const edm::EventSetup &es)
 	result->addHepMCData(hadronLevel.release());
 	event.put(result);
 
-	if (jetMatching.get()) {
+	if (jetMatching.get() && matchSummary) {
 		std::auto_ptr< std::vector<double> > matchDeltaR(
 						new std::vector<double>);
 		std::auto_ptr< std::vector<double> > matchDeltaPRel(
@@ -242,4 +277,16 @@ bool LHEProducer::showeredEvent(const boost::shared_ptr<HepMC::GenEvent> &event)
 	return weight == 0.0;
 }
 
+void LHEProducer::onInit()
+{
+	jetMatching->init(runInfo);
+}
+
+void LHEProducer::onBeforeHadronisation()
+{
+	jetMatching->beforeHadronisation(partonLevel);
+}
+
 DEFINE_ANOTHER_FWK_MODULE(LHEProducer);
+
+DEFINE_LHE_JETMATCHING_PLUGIN(JetMatchingMLM);

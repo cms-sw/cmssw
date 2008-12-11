@@ -2,14 +2,13 @@
  *
  * Digi for Correlated LCT trigger primitives.
  *
- * $Date: 2007/09/24 10:14:48 $
- * $Revision: 1.11 $
+ * $Date: 2007/07/23 12:08:20 $
+ * $Revision: 1.10 $
  *
  * \author L.Gray, UF
  */
 
-#include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigi.h"
-#include <iostream>
+#include <DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigi.h>
 
 /// Constructors
 CSCCorrelatedLCTDigi::CSCCorrelatedLCTDigi(const int itrknmb, const int ivalid,
@@ -78,21 +77,3 @@ void CSCCorrelatedLCTDigi::print() const {
     std::cout << "Not a valid correlated LCT." << std::endl;
   }
 }
-
-std::ostream & operator<<(std::ostream & o,
-                                 const CSCCorrelatedLCTDigi& digi) {
-  return o << "CSC LCT #"   << digi.getTrknmb()
-           << ": Valid = "  << digi.isValid()
-           << " Quality = " << digi.getQuality()
-           << " MPC Link = " << digi.getMPCLink() << "\n"
-           <<"  cathode info: Strip = "    << digi.getStrip()
-           <<" ("           << ((digi.getStripType() == 0) ? 'D' : 'H') << ")"
-           << " Bend = "    << ((digi.getBend() == 0) ? 'L' : 'R')
-           << " Pattern = " << digi.getCLCTPattern() << "\n"
-           <<"    anode info: Key wire = " << digi.getKeyWG()
-           << " BX = "      << digi.getBX()
-           << " bx0= "      << digi.getBX0()
-           << " syncErr = " << digi.getSyncErr()
-           << " cscID= "    << digi.getCSCID() << "\n";
-}
-

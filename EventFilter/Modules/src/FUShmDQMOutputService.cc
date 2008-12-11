@@ -18,7 +18,7 @@
  * - DQMServices/NodeROOT/src/SenderBase.cc
  * - DQMServices/NodeROOT/src/ReceiverBase.cc
  *
- * $Id: FUShmDQMOutputService.cc,v 1.9 2008/05/30 20:17:39 biery Exp $
+ * $Id: FUShmDQMOutputService.cc,v 1.8 2008/05/28 13:56:12 hcheung Exp $
  */
 
 #include "EventFilter/Modules/interface/FUShmDQMOutputService.h"
@@ -27,7 +27,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "FWCore/Utilities/src/Guid.h"
 #include "TClass.h"
 #include "zlib.h"
 
@@ -39,13 +38,6 @@ using namespace std;
  * 3 => deserialization test.
  */
 #define DSS_DEBUG 0
-
-/**
- * Initialize the static variables for the filter unit indentifiers.
- */
-bool FUShmDQMOutputService::fuIdsInitialized_ = false;
-uint32 FUShmDQMOutputService::fuProcId_ = 0;
-uint32 FUShmDQMOutputService::fuGuidValue_ = 0;
 
 /**
  * FUShmDQMOutputService constructor.
@@ -114,22 +106,6 @@ FUShmDQMOutputService::FUShmDQMOutputService(const edm::ParameterSet &pset,
   // we will count lumi section numbers from this time
   timeInSecSinceUTC_ = static_cast<double>(now.tv_sec) + (static_cast<double>(now.tv_usec)/1000000.0);
 
-  if (! fuIdsInitialized_) {
-    fuIdsInitialized_ = true;
-
-    edm::Guid guidObj(true);
-    std::string guidString = guidObj.toString();
-    //std::cout << "DQMOutput GUID string = " << guidString << std::endl;
-
-    uLong crc = crc32(0L, Z_NULL, 0);
-    Bytef* buf = (Bytef*)guidString.data();
-    crc = crc32(crc, buf, guidString.length());
-    fuGuidValue_ = crc;
-
-    fuProcId_ = getpid();
-    //std::cout << "DQMOutput GUID value = 0x" << std::hex << fuGuidValue_ << std::dec
-    //          << " for PID = " << fuProcId_ << std::endl;
-  }
 }
 
 /**
@@ -276,10 +252,6 @@ void FUShmDQMOutputService::postEventProcessing(const edm::Event &event,
     if (useCompression_) {
       dqmMsgBuilder.setCompressionFlag(serializeWorker_.currentEventSize());
     }
-
-    // write the filter unit UUID and PID into the message
-    dqmMsgBuilder.setFUProcessId(fuProcId_);
-    dqmMsgBuilder.setFUGuid(fuGuidValue_);
 
     // send the message
     writeShmDQMData(dqmMsgBuilder);
@@ -433,8 +405,8 @@ void FUShmDQMOutputService::writeShmDQMData(DQMEventMsgBuilder const& dqmMsgBuil
     edm::LogError("FUDQMShmOutputService") 
       << " Error writing to shared memory as shm is not available";
   } else {
-    bool ret = shmBuffer_->writeDqmEventData(runid, eventid, (unsigned int)crc,
-                                             fuProcId_, fuGuidValue_, buffer, size);
+    bool ret = shmBuffer_->writeDqmEventData(runid, eventid,
+               (unsigned int)crc, buffer, size);
     if(!ret) edm::LogError("FUShmDQMOutputService") << " Error with writing data to ShmBuffer";
   }
 

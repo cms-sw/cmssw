@@ -188,7 +188,8 @@ namespace cond {
   RDBMS::~RDBMS() {}
 
   RDBMS::RDBMS(std::string const & authPath) : session(new DBSession) {
-    session->configuration().setAuthenticationPath(authPath);
+    std::string authenv(std::string("CORAL_AUTH_PATH=")+authPath);
+    ::putenv(const_cast<char*>(authenv.c_str()));
     session->configuration().setAuthenticationMethod( cond::XML );
     session->configuration().setMessageLevel( cond::Error );
     session->open();

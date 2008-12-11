@@ -1,11 +1,12 @@
 import FWCore.ParameterSet.Config as cms
-                                        
+
 common_beam_direction_parameters = cms.PSet(
-    MinEta = cms.untracked.double(1.09179),
-    MaxEta = cms.untracked.double(1.09179),
-    MinPhi = cms.untracked.double(-0.0405577 ),
-    MaxPhi = cms.untracked.double(-0.0405577 ),
-    BeamMeanX = cms.untracked.double(0.0),
     BeamMeanY = cms.untracked.double(0.0),
-    BeamPosition = cms.untracked.double(-26733.5)
+    BeamMeanX = cms.untracked.double(0.0),
+    MaxEta = cms.untracked.double(1.09177),
+    MaxPhi = cms.untracked.double(-0.0405188),
+    MinEta = cms.untracked.double(1.09177),
+    BeamPosition = cms.untracked.double(-26733.5),
+    MinPhi = cms.untracked.double(-0.0405188)
 )
+

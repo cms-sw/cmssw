@@ -108,7 +108,7 @@ reco::IsoDeposit EgammaHcalExtractor::deposit(const edm::Event & iEvent,
         ecalRecHits = std::auto_ptr<CaloRecHitMetaCollectionV>(new EcalRecHitMetaCollection(*endcapEcalRecHitsH));
     }
 
-    EgammaRecHitIsolation candIso(extRadius,innRadius,etaStrip,minEtRecHit,minEtRecHit,pG,&(*ecalRecHits),DetId::Ecal);
+    EgammaRecHitIsolation candIso(extRadius,innRadius,etaStrip,minEtRecHit,pG,&(*ecalRecHits),DetId::Ecal);
     if ( sc->energy()*sinTheta < minCandEt_ || candIso.getEtSum(&emObject) > isolEtCut ) {
         deposit.addDeposit( Direction(caloPosition.eta(), caloPosition.phi()+0.15), 10000 );
         deposit.addDeposit( Direction(caloPosition.eta(), caloPosition.phi()+0.25), 100000 );

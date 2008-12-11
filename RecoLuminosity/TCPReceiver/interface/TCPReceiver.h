@@ -9,12 +9,21 @@
 
 #include <string>
 
+// srand rand
+#include <ctime>
+#include <cstdlib>
+
+// tcp
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <arpa/inet.h>
+#include <netinet/in.h>
+#include <netdb.h>
+
 // Lumi
 #include "RecoLuminosity/TCPReceiver/interface/ICTypeDefs.hh"
 #include "RecoLuminosity/TCPReceiver/interface/LumiStructures.hh"
 #include "RecoLuminosity/TCPReceiver/interface/TimeStamp.h"
-
-#include <netinet/in.h> // struct sockaddr_in
 
 /* 
    Error Codes
@@ -61,6 +70,6 @@ namespace HCAL_HLX{
     int tcpSocket;
     struct sockaddr_in servAddr;
   };
-}
 
+}
 #endif

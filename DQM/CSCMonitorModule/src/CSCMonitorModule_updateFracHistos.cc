@@ -91,6 +91,9 @@ void CSCMonitorModule::updateFracHistos() {
   if (MEEMU("DMB_input_timeout_Fract", me1) && MEEMU("DMB_Reporting", me2) && MEEMU("DMB_input_timeout", me3)) 
     me1->getTH1()->Divide(me3->getTH1(), me2->getTH1());
 
+  if (MEEMU("CSC_L1A_out_of_sync_Fract", me1) && MEEMU("CSC_Reporting", me2) && MEEMU("CSC_L1A_out_of_sync", me3)) 
+    me1->getTH1()->Divide(me3->getTH1(), me2->getTH1());
+
 #ifdef CMSSW21
 
   if (MEEMU("DMB_Format_Warnings_Fract", me1) && MEEMU("DMB_Reporting", me2) && MEEMU("DMB_Format_Warnings", me3))
@@ -199,8 +202,8 @@ void CSCMonitorModule::updateFracHistos() {
 
   if (MEEMU("CSC_STATS_occupancy", me1)){
     TH2* tmp = dynamic_cast<TH2*>(me1->getTH1());
-    summary.WriteChamberState(tmp, 0x4, 4, true, false);
-    summary.WriteChamberState(tmp, 0x8, 1, false, false);
+    summary.WriteChamberState(tmp, 0x4, 2, true, false);
+    summary.WriteChamberState(tmp, 0x8, 4, false, false);
   }
 
   if (MEEMU("CSC_STATS_format_err", me1)){

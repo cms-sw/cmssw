@@ -48,6 +48,7 @@
   <class name="RPCPattern::TQuality"/>
   <class name="std::vector<RPCPattern::TQuality>"/>
   <class name="std::vector<RPCPattern>"/>
+  <class name="EcalTPParameters"/>
   <class name="L1TriggerKey"/>
   <class name="std::map<std::string, std::string>"/>
   <class name="std::map<std::string, std::string>::value_type"/>

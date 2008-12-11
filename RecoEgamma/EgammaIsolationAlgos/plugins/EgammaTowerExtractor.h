@@ -31,26 +31,15 @@
 
 namespace egammaisolation {
 
-  class EgammaTowerExtractor  : public reco::isodeposit::IsoDepositExtractor {
-
-      public:
-         enum HcalDepth{AllDepths=-1,Undefined=0,Depth1=1,Depth2=2};
-
-
+   class EgammaTowerExtractor  : public reco::isodeposit::IsoDepositExtractor {
       public:
          EgammaTowerExtractor ( const edm::ParameterSet& par ) :
             extRadius2_(par.getParameter<double>("extRadius")),
             intRadius_(par.getParameter<double>("intRadius")),
             etLow_(par.getParameter<double>("etMin")),
-            caloTowerTag_(par.getParameter<edm::InputTag>("caloTowers")),
-	    depth_(par.getParameter<int>("hcalDepth"))
+            caloTowerTag_(par.getParameter<edm::InputTag>("caloTowers")) 
          { 
             extRadius2_ *= extRadius2_;
-	    //lets just check we have a valid depth
-	    //should we throw an exception or just warn and then fail gracefully later?
-	    if(depth_!=AllDepths && depth_!=Depth1 && depth_!=Depth2){
-	      throw cms::Exception("Configuration Error") << "hcalDepth passed to EgammaTowerExtractor is invalid "<<std::endl;
-	    }
          }
 
          virtual ~EgammaTowerExtractor() ;
@@ -69,10 +58,8 @@ namespace egammaisolation {
          double extRadius2_ ;
          double intRadius_ ;
          double etLow_ ;
-         
 
          edm::InputTag caloTowerTag_;
-         int depth_;
          //const CaloTowerCollection *towercollection_ ;
    };
 }

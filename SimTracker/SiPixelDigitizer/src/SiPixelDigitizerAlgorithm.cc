@@ -27,7 +27,9 @@
 // Disable Pixel modules which are declared dead in the configuration python file
 // 
 // October 2008: V Cuplov
-// Accessing/Reading the Lorentz angle from the DataBase instead the cfg file.
+// Accessing/Reading the Lorentz angle from the DataBase instead the cfg file. 
+// Implementation done and tested on a test.db
+// Do not use this option for now. The PixelQuality Objects are not in the official DB yet.
 
 
 #include <vector>
@@ -53,12 +55,11 @@
  
 //Begin: Accessing Lorentz Angle from the DB:
 #include "CalibTracker/SiPixelLorentzAngle/test/SiPixelLorentzAngleReader.h"
-//#include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 //End: Accessing Lorentz Angle from the DB:
 
 //Begin: Accessing Dead pixel modules from the DB:
-#include "CondTools/SiPixel/test/SiPixelBadModuleReader.h"
-#include "DataFormats/DetId/interface/DetId.h"
+//#include "CondTools/SiPixel/test/SiPixelBadModuleReader.h"
+//#include "DataFormats/DetId/interface/DetId.h"
 
 using namespace std;
 using namespace edm;
@@ -81,10 +82,10 @@ void SiPixelDigitizerAlgorithm::fillDeadModules(const edm::EventSetup& es){
   if(!use_deadmodule_DB_){
     DeadModules = conf_.getParameter<Parameters>("DeadModules"); // get the dead module from cfg file
   }
-  else{  // Get Dead pixel modules from the Record: 
-         // An ESHandle was defined in the header file   edm::ESHandle<SiPixelQuality> SiPixelBadModule_;
-    es.get<SiPixelQualityRcd>().get(SiPixelBadModule_);
-  }
+  //  else{  // Get Dead pixel modules from the Record: 
+  // An ESHandle was defined in the header file   edm::ESHandle<SiPixelQuality> SiPixelBadModule_;
+  //    es.get<SiPixelQualityRcd>().get(SiPixelBadModule_);
+  //  }
 }
 
 void SiPixelDigitizerAlgorithm::fillLorentzAngle(const edm::EventSetup& es){
@@ -477,10 +478,10 @@ vector<PixelDigi> SiPixelDigitizerAlgorithm::digitize(PixelGeomDetUnit *det){
     } // end for 
 
       // Remove pixel dead modules:
-    if(use_module_killing_ && use_deadmodule_DB_) {
-      module_killing_DB();
-    }
-    else if(use_module_killing_ && !use_deadmodule_DB_){
+    //    if(use_module_killing_ && use_deadmodule_DB_) {
+    //      module_killing_DB();
+    //    }
+    if(use_module_killing_ && !use_deadmodule_DB_){
       module_killing_conf();
     }
   
@@ -1353,7 +1354,7 @@ LocalVector SiPixelDigitizerAlgorithm::DriftDirection(){
 	else {
 	  alpha2 = 0.0;
 	} 
-	std::cout << "detID is: " << it->first << "The LA per tesla is: " << it->second << std::endl;
+	//std::cout << "detID is: " << it->first << "The LA per tesla is: " << it->second << std::endl;
 	dir_x = -( it->second * Bfield.y() + alpha2 * Bfield.z()* Bfield.x() );
 	dir_y = +( it->second * Bfield.x() - alpha2 * Bfield.z()* Bfield.y() );
 	dir_z = -(1 + alpha2 * Bfield.z()*Bfield.z() );
@@ -1444,6 +1445,7 @@ void SiPixelDigitizerAlgorithm::module_killing_conf(void){
 
 
 //****************************************************************************************************
+  /*
 void SiPixelDigitizerAlgorithm::module_killing_DB(void){
   if(!use_module_killing_)
     return;
@@ -1491,4 +1493,4 @@ void SiPixelDigitizerAlgorithm::module_killing_DB(void){
   } // end pixel loop 
 } // end module_killing_DB
 
- 
+  */

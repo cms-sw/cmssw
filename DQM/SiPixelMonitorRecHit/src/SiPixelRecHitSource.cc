@@ -14,7 +14,7 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  
-// $Id: SiPixelRecHitSource.cc,v 1.12 2008/08/08 14:26:36 merkelp Exp $
+// $Id: SiPixelRecHitSource.cc,v 1.9 2008/06/26 08:36:23 merkelp Exp $
 //
 //
 // Adapted by:  Keith Rose
@@ -96,6 +96,12 @@ void SiPixelRecHitSource::beginJob(const edm::EventSetup& iSetup){
 
 void SiPixelRecHitSource::endJob(void){
 
+  std::map<uint32_t,SiPixelRecHitModule*>::iterator struct_iter;
+  for (struct_iter = thePixelStructure.begin() ; struct_iter != thePixelStructure.end() ; struct_iter++) {
+    uint32_t TheID = (*struct_iter).first;
+    int total = rechit_count[TheID];
+    (*struct_iter).second->nfill(total, modOn, ladOn, layOn, phiOn, bladeOn, diskOn, ringOn);
+  }
 
   if(saveFile){
     LogInfo ("PixelDQM") << " SiPixelRecHitSource::endJob - Saving Root File " << std::endl;
@@ -129,12 +135,12 @@ void SiPixelRecHitSource::analyze(const edm::Event& iEvent, const edm::EventSetu
       // if( pixelrechitRangeIteratorBegin == pixelrechitRangeIteratorEnd) {cout << "oops" << endl;}
       float rechit_x = 0;
       float rechit_y = 0;
-      float rechit_count = 0;
+
   for ( ; pixeliter != pixelrechitRangeIteratorEnd; pixeliter++) 
 	{
 	  
 
-	  rechit_count++;
+	  rechit_count[TheID]++;
 	  //cout << TheID << endl;
 	  SiPixelRecHit::ClusterRef const& clust = pixeliter->cluster();
 	  int sizeX = (*clust).sizeX();
@@ -153,7 +159,6 @@ void SiPixelRecHitSource::analyze(const edm::Event& iEvent, const edm::EventSetu
 	  //cout << "ii" << endl;
 	
 	}
-	    (*struct_iter).second->nfill(rechit_count, modOn, ladOn, layOn, phiOn, bladeOn, diskOn, ringOn);
     
   }
 

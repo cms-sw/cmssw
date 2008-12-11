@@ -45,6 +45,7 @@ public :
   Bool_t OnList(vector<TAbsFitParticle*>* List, TAbsFitParticle* particle);
   Double_t CalcMass(vector<TAbsFitParticle*>* List, Bool_t IniVal);
 
+  virtual TString getInfoString();
   virtual void print(); 
 
 protected :

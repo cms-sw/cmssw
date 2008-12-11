@@ -9,14 +9,13 @@
 //
 // Fit constraint: energy and momentum conservation
 //
-//
-
 
 using namespace std;
 
 #include "PhysicsTools/KinFitter/interface/TFitConstraintEp.h"
-
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
+#include <iomanip>
 #include "TClass.h"
 
 ClassImp(TFitConstraintEp)
@@ -149,14 +148,28 @@ Double_t TFitConstraintEp::getCurrentValue() {
   return CurrentValue;
 }
 
+TString TFitConstraintEp::getInfoString() {
+  // Collect information to be used for printout
+
+  stringstream info;
+  info << scientific << setprecision(6);
+
+  info << "__________________________" << endl
+       << endl;
+  info << "OBJ: " << IsA()->GetName() << "\t" << GetName() << "\t" << GetTitle() << endl;
+
+  info << "initial value: " << getInitValue() << endl;
+  info << "current value: " << getCurrentValue() << endl;
+  info << "component: " << _component << endl;
+  info << "constraint: " << _constraint << endl;
+
+  return info.str();
+
+}
+
 void TFitConstraintEp::print() {
+  // Print constraint contents
 
-  cout << "__________________________" << endl << endl;
-  cout <<"OBJ: " << IsA()->GetName() << "\t" << GetName() << "\t" << GetTitle() << endl;
-
-  cout << "initial value: " << getInitValue() << endl;
-  cout << "current value: " << getCurrentValue() << endl;
-  cout << "component: " << _component << endl;
-  cout << "constraint: " << _constraint << endl;
+  edm::LogVerbatim("KinFitter") << this->getInfoString();
 
 }

@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/10/21 12:07:47 $
- *  $Revision: 1.7 $
+ *  $Date: 2008/10/24 16:17:18 $
+ *  $Revision: 1.8 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -44,45 +44,55 @@ void MuonEnergyDepositAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore 
   emNoMin = parameters.getParameter<double>("emSizeMin");
   emNoMax = parameters.getParameter<double>("emSizeMax");
   std::string histname = "ecalDepositedEnergyBarrel_";
-  ecalDepEnergyBarrel = dbe->book1D(histname+AlgoName, histname+AlgoName, emNoBin, emNoMin, emNoMax);
+  ecalDepEnergyBarrel = dbe->book1D(histname+AlgoName, "Energy deposited in the ECAL barrel cells", emNoBin, emNoMin, emNoMax);
+  ecalDepEnergyBarrel->setAxisTitle("GeV");
   histname = "ecalDepositedEnergyEndcap_";
-  ecalDepEnergyEndcap = dbe->book1D(histname+AlgoName, histname+AlgoName, emNoBin, emNoMin, emNoMax);
+  ecalDepEnergyEndcap = dbe->book1D(histname+AlgoName, "Energy deposited in the ECAL endcap cells", emNoBin, emNoMin, emNoMax);
+  ecalDepEnergyEndcap->setAxisTitle("GeV");
 
   emS9NoBin = parameters.getParameter<int>("emS9SizeBin");
   emS9NoMin = parameters.getParameter<double>("emS9SizeMin");
   emS9NoMax = parameters.getParameter<double>("emS9SizeMax");
   histname = "ecalS9DepositedEnergyBarrel_";
-  ecalS9DepEnergyBarrel = dbe->book1D(histname+AlgoName, histname+AlgoName, emS9NoBin, emS9NoMin, emS9NoMax);
+  ecalS9DepEnergyBarrel = dbe->book1D(histname+AlgoName, "Energy deposited in the ECAL barrel 3*3 towers", emS9NoBin, emS9NoMin, emS9NoMax);
+  ecalS9DepEnergyBarrel->setAxisTitle("GeV");
   histname = "ecalS9DepositedEnergyEndcap_";
-  ecalS9DepEnergyEndcap = dbe->book1D(histname+AlgoName, histname+AlgoName, emS9NoBin, emS9NoMin, emS9NoMax);
+  ecalS9DepEnergyEndcap = dbe->book1D(histname+AlgoName, "Energy deposited in the ECAL endcap 3*3 towers", emS9NoBin, emS9NoMin, emS9NoMax);
+  ecalS9DepEnergyEndcap->setAxisTitle("GeV");
   
   hadNoBin = parameters.getParameter<int>("hadSizeBin");
   hadNoMin = parameters.getParameter<double>("hadSizeMin");
   hadNoMax = parameters.getParameter<double>("hadSizeMax");
   histname = "hadDepositedEnergyBarrel_";
-  hcalDepEnergyBarrel = dbe->book1D(histname+AlgoName, histname+AlgoName, hadNoBin, hadNoMin, hadNoMax);
+  hcalDepEnergyBarrel = dbe->book1D(histname+AlgoName, "Energy deposited in the HCAL barrel cells", hadNoBin, hadNoMin, hadNoMax);
+  hcalDepEnergyBarrel->setAxisTitle("GeV");
   histname = "hadDepositedEnergyEndcap_";
-  hcalDepEnergyEndcap = dbe->book1D(histname+AlgoName, histname+AlgoName, hadNoBin, hadNoMin, hadNoMax);
+  hcalDepEnergyEndcap = dbe->book1D(histname+AlgoName, "Energy deposited in the HCAL endcap cells", hadNoBin, hadNoMin, hadNoMax);
+  hcalDepEnergyEndcap->setAxisTitle("GeV");
 
   hadS9NoBin = parameters.getParameter<int>("hadS9SizeBin");
   hadS9NoMin = parameters.getParameter<double>("hadS9SizeMin");
   hadS9NoMax = parameters.getParameter<double>("hadS9SizeMax");
   histname = "hadS9DepositedEnergyBarrel_";
-  hcalS9DepEnergyBarrel = dbe->book1D(histname+AlgoName, histname+AlgoName, hadS9NoBin, hadS9NoMin, hadS9NoMax);
+  hcalS9DepEnergyBarrel = dbe->book1D(histname+AlgoName, "Energy deposited in the HCAL barrel 3*3 towers", hadS9NoBin, hadS9NoMin, hadS9NoMax);
+  hcalS9DepEnergyBarrel->setAxisTitle("GeV");
   histname = "hadS9DepositedEnergyEndcap_";
-  hcalS9DepEnergyEndcap = dbe->book1D(histname+AlgoName, histname+AlgoName, hadS9NoBin, hadS9NoMin, hadS9NoMax);
+  hcalS9DepEnergyEndcap = dbe->book1D(histname+AlgoName, "Energy deposited in the HCAL endcap 3*3 towers", hadS9NoBin, hadS9NoMin, hadS9NoMax);
+  hcalS9DepEnergyEndcap->setAxisTitle("GeV");
 
   hoNoBin = parameters.getParameter<int>("hoSizeBin");
   hoNoMin = parameters.getParameter<double>("hoSizeMin");
   hoNoMax = parameters.getParameter<double>("hoSizeMax");
   histname = "hoDepositedEnergy_";
-  hoDepEnergy = dbe->book1D(histname+AlgoName, histname+AlgoName, hoNoBin, hoNoMin, hoNoMax);
+  hoDepEnergy = dbe->book1D(histname+AlgoName, "Energy deposited in the HO cells", hoNoBin, hoNoMin, hoNoMax);
+  hoDepEnergy->setAxisTitle("GeV");
 
   hoS9NoBin = parameters.getParameter<int>("hoS9SizeBin");
   hoS9NoMin = parameters.getParameter<double>("hoS9SizeMin");
   hoS9NoMax = parameters.getParameter<double>("hoS9SizeMax");
   histname = "hoS9DepositedEnergy_";
-  hoS9DepEnergy = dbe->book1D(histname+AlgoName, histname+AlgoName, hoS9NoBin, hoS9NoMin, hoS9NoMax);
+  hoS9DepEnergy = dbe->book1D(histname+AlgoName, "Energy deposited in the HO 3*3 towers", hoS9NoBin, hoS9NoMin, hoS9NoMax);
+  hoS9DepEnergy->setAxisTitle("GeV");
 
 }
 

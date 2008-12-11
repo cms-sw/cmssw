@@ -36,18 +36,18 @@ process.preScaler = cms.EDFilter("Prescaler",
     prescaleFactor = cms.int32(1)
 )
 
-process.dqmInfoEB = cms.EDAnalyzer("DQMEventInfo",
+process.dqmInfoEB = cms.EDFilter("DQMEventInfo",
     subSystemFolder = cms.untracked.string('EcalBarrel')
 )
 
-process.dqmQTestEB = cms.EDAnalyzer("QualityTester",
+process.dqmQTestEB = cms.EDFilter("QualityTester",
     reportThreshold = cms.untracked.string('red'),
     prescaleFactor = cms.untracked.int32(1),
     qtList = cms.untracked.FileInPath('DQM/EcalBarrelMonitorModule/test/data/EcalBarrelQualityTests.xml'),
     getQualityTestsFromFile = cms.untracked.bool(True)
 )
 
-process.dqmSaver = cms.EDAnalyzer("DQMFileSaver",
+process.dqmSaver = cms.EDFilter("DQMFileSaver",
     dirName = cms.untracked.string('.'),
     convention = cms.untracked.string('Online')
 )

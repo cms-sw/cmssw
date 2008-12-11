@@ -1,13 +1,3 @@
-2008-10-14  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
-
-	* tag V00-07-00
-	* add Kurt's changes
-	* add fuProcessId and fuGuid to reco and dqm cell records
-	* incorporate both fields in FUShmBuffer
-	* add lumi block number (as a placeholder for now) to FUShmBuffer
-	* add version number for error event data format
-	
-
 2008-06-13  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
 	* tag V00-06-06

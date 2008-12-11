@@ -58,8 +58,6 @@ class HIPUserVariablesIORoot : public AlignmentIORootBase,
   int Nhit,Nparj,Npare;
   double Jtvj[nparmax*(nparmax+1)/2];
   double Jtve[nparmax];
-  double AlignableChi2;
-  unsigned int AlignableNdof;
 
   bool newopen;
   typedef  std::map< std::pair<int,int> , int > treemaptype;

@@ -11,7 +11,7 @@
  *         David Dagenhart
  *
  * \version   1st Version June 7 2007>
- * $Id: LumiDetails.h,v 1.4 2008/02/06 20:56:43 wdd Exp $
+ * $Id: LumiDetails.h,v 1.3 2007/07/24 21:48:35 wdd Exp $
  *
  ************************************************************/
  
@@ -66,8 +66,6 @@ class LumiDetails {
        
     //get array of lumi values errors per BX based on Occupancy method
     const std::vector<int>&  lumiOccQual() const {return lumioccqual_;}
-
-    bool isProductEqual(LumiDetails const& next);
 
   private :
 

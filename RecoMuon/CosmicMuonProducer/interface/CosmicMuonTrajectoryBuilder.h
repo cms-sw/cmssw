@@ -2,8 +2,8 @@
 #define CosmicMuonTrajectoryBuilder_H
 /** \file CosmicMuonTrajectoryBuilder
  *
- *  $Date: 2008/09/21 19:45:24 $
- *  $Revision: 1.21 $
+ *  $Date: 2008/05/19 15:14:57 $
+ *  $Revision: 1.17 $
  *  \author Chang Liu  -  Purdue University
  */
 
@@ -21,9 +21,6 @@
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
 #include "RecoMuon/CosmicMuonProducer/interface/CosmicMuonSmoother.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DataFormats/DTRecHit/interface/DTRecHitCollection.h"
-#include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
-#include "DataFormats/CSCRecHit/interface/CSCRecHit2DCollection.h"
 
 namespace edm {class Event; class EventSetup;}
 
@@ -31,7 +28,6 @@ class Trajectory;
 class TrajectoryMeasurement;
 class CosmicMuonUtilities;
 class DirectMuonNavigation;
-class MuonBestMeasurementFinder;
 
 typedef MuonTransientTrackingRecHit::MuonRecHitContainer MuonRecHitContainer;
 typedef TransientTrackingRecHit::ConstRecHitPointer ConstRecHitPointer;
@@ -72,13 +68,6 @@ public:
 
   DirectMuonNavigation* navigation() const {return theNavigation;}
 
-  MuonBestMeasurementFinder* bestMeasurementFinder() const {return theBestMeasurementFinder;}
-
-  double t0(const DTRecSegment4D* deseg) const;
-
-  PropagationDirection checkDirectionByT0(const DTRecSegment4D*, const DTRecSegment4D*) const;
-
-
 private:
 
   MuonTransientTrackingRecHit::MuonRecHitContainer unusedHits(const DetLayer*, const TrajectoryMeasurement&) const;
@@ -91,25 +80,22 @@ private:
 
   void selectHits(MuonTransientTrackingRecHit::MuonRecHitContainer&) const;
 
-  /// reverse a trajectory without refit (out the measurements order changed)
+  /// reverse a trajectory without refit
   void reverseTrajectory(Trajectory&) const;
 
-  /// flip a trajectory with refit (the momentum direction is opposite)
-  void flipTrajectory(Trajectory&) const;
+  void reverseTrajectoryDirection(Trajectory&) const;
 
-  /// reverse the propagation direction of a trajectory
-  void reverseTrajectoryPropagationDirection(Trajectory&) const;
+  double computeNDOF(const Trajectory&) const;
 
   /// check if the trajectory iterates the same hit more than once
   bool selfDuplicate(const Trajectory&) const;
 
-  /// check the direction of trajectory by checking eta spread
+  /// check the direction of trajectory by refitting from both ends
   void estimateDirection(Trajectory&) const;
 
-  /// check the direction of trajectory by checking the timing 
-  void getDirectionByTime(Trajectory&) const;
+  void updateTrajectory(Trajectory&, const MuonTransientTrackingRecHit::MuonRecHitContainer&);
 
-  std::vector<TrajectoryMeasurement> findBestMeasurements(const DetLayer*, const TrajectoryStateOnSurface&, const Propagator*, const MeasurementEstimator*);
+  std::vector<TrajectoryMeasurement> findBestMeasurements(const DetLayer*, const TrajectoryStateOnSurface&, const MeasurementEstimator*);
 
   void incrementChamberCounters(const DetLayer *layer, int& dtChambers, int& cscChambers, int& rpcChambers, int& totalChambers);
 
@@ -123,20 +109,11 @@ private:
   const MuonServiceProxy* theService;
   CosmicMuonSmoother* theSmoother;
 
-  MuonBestMeasurementFinder* theBestMeasurementFinder;
-
   std::string thePropagatorName;
-
   bool theTraversingMuonFlag;
 
-  std::string category_;
   int theNTraversing;
   int theNSuccess;
-
-  unsigned long long theCacheId_DG;
-  edm::Handle<CSCRecHit2DCollection> cschits_;
-  edm::Handle<DTRecHitCollection> dthits_;
-
   
 };
 #endif

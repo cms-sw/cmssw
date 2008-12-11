@@ -19,9 +19,6 @@
 <use name=JetMETCorrections/MCJet>
 #<flags SEAL_PLUGIN_NAME="RecoJetsJetAnalyzers">
 
-<use name=PhysicsTools/UtilAlgos>
-<use name=FWCore/ServiceRegistry> # GF: Not sure whether really needed...
-
 <export>
    <lib name=RecoJetsJetAnalyzers>
    <use name=root>

@@ -1,8 +1,8 @@
 /**
  *  Class: GlobalCosmicMuonTrajectoryBuilder
  *
- *  $Date: 2008/05/15 17:38:24 $
- *  $Revision: 1.11 $
+ *  $Date: 2008/05/14 22:37:31 $
+ *  $Revision: 1.10 $
  *  \author Chang Liu  -  Purdue University <Chang.Liu@cern.ch>
  *
  **/
@@ -57,17 +57,17 @@ GlobalCosmicMuonTrajectoryBuilder::~GlobalCosmicMuonTrajectoryBuilder() {
 void GlobalCosmicMuonTrajectoryBuilder::setEvent(const edm::Event& event) {
   event.getByLabel(theTkTrackLabel,theTrackerTracks);
 
-//  edm::Handle<std::vector<Trajectory> > handleTrackerTrajs;
-//  if ( event.getByLabel(theTkTrackLabel,handleTrackerTrajs) && handleTrackerTrajs.isValid() ) {
-//      tkTrajsAvailable = true;
-//      allTrackerTrajs = &*handleTrackerTrajs;   
-//      LogInfo("GlobalCosmicMuonTrajectoryBuilder") 
-//	<< "Tk Trajectories Found! " << endl;
-//  } else {
-//      LogInfo("GlobalCosmicMuonTrajectoryBuilder") 
-//	<< "No Tk Trajectories Found! " << endl;
-//      tkTrajsAvailable = false;
-//  }
+  edm::Handle<std::vector<Trajectory> > handleTrackerTrajs;
+  if ( event.getByLabel(theTkTrackLabel,handleTrackerTrajs) && handleTrackerTrajs.isValid() ) {
+      tkTrajsAvailable = true;
+      allTrackerTrajs = &*handleTrackerTrajs;   
+      LogInfo("GlobalCosmicMuonTrajectoryBuilder") 
+	<< "Tk Trajectories Found! " << endl;
+  } else {
+      LogInfo("GlobalCosmicMuonTrajectoryBuilder") 
+	<< "No Tk Trajectories Found! " << endl;
+      tkTrajsAvailable = false;
+  }
 
    theService->eventSetup().get<TransientRecHitRecord>().get(theTrackerRecHitBuilderName,theTrackerRecHitBuilder);
     theService->eventSetup().get<TransientRecHitRecord>().get(theMuonRecHitBuilderName,theMuonRecHitBuilder);
@@ -108,13 +108,13 @@ MuonCandidate::CandidateContainer GlobalCosmicMuonTrajectoryBuilder::trajectorie
 
   LogTrace(metname)<<"mu RecHits: "<<muRecHits.size();
 
-  ConstRecHitContainer tkRecHits = getTransientRecHits(*tkTrack);
+  ConstRecHitContainer tkRecHits;
 
-//  if ( !tkTrajsAvailable ) {
-//     tkRecHits = getTransientRecHits(*tkTrack);
-//  } else {
-//     tkRecHits = allTrackerTrajs->front().recHits();
-//  }
+  if ( !tkTrajsAvailable ) {
+     tkRecHits = getTransientRecHits(*tkTrack);
+  } else {
+     tkRecHits = allTrackerTrajs->front().recHits();
+  }
 
   ConstRecHitContainer hits; //= tkRecHits;
   LogTrace(metname)<<"tk RecHits: "<<tkRecHits.size();
@@ -199,14 +199,6 @@ std::pair<bool,double> GlobalCosmicMuonTrajectoryBuilder::match(const reco::Trac
 void GlobalCosmicMuonTrajectoryBuilder::sortHits(ConstRecHitContainer& hits, ConstRecHitContainer& muonHits, ConstRecHitContainer& tkHits) {
 
    std::string metname = "Muon|RecoMuon|CosmicMuon|GlobalCosmicMuonTrajectoryBuilder";
-   if ( tkHits.empty() ) {
-      LogTrace(metname) << "No valid tracker hits";
-      return;
-   }
-   if ( muonHits.empty() ) {
-      LogTrace(metname) << "No valid muon hits";
-      return;
-   }
 
    ConstRecHitContainer::const_iterator frontTkHit = tkHits.begin();
    ConstRecHitContainer::const_iterator backTkHit  = tkHits.end() - 1;
@@ -227,6 +219,7 @@ void GlobalCosmicMuonTrajectoryBuilder::sortHits(ConstRecHitContainer& hits, Con
       return;
    }
 
+  LogTrace(metname) << "No valid muon hits";
   GlobalPoint frontTkPos = (*frontTkHit)->globalPosition();
   GlobalPoint backTkPos = (*backTkHit)->globalPosition();
 
@@ -286,7 +279,7 @@ GlobalCosmicMuonTrajectoryBuilder::getTransientRecHits(const reco::Track& track)
   for (trackingRecHit_iterator hit = track.recHitsBegin(); hit != track.recHitsEnd(); ++hit)
     if((*hit)->isValid())
       if ( (*hit)->geographicalId().det() == DetId::Tracker )
-        result.push_back(theTrackerRecHitBuilder->build(&**hit));
+	result.push_back(theTrackerRecHitBuilder->build(&**hit));
       else if ( (*hit)->geographicalId().det() == DetId::Muon ){
 	result.push_back(theMuonRecHitBuilder->build(&**hit));
       }

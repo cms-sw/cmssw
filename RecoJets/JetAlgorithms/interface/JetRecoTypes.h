@@ -3,7 +3,7 @@
 
 // Types used in Jet Reconstruction
 // F.Ratnikov, UMd
-// $Id: JetRecoTypes.h,v 1.6 2008/09/10 12:08:41 oehler Exp $
+// $Id: JetRecoTypes.h,v 1.4 2007/08/20 17:53:32 fedor Exp $
 
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 class ProtoJet;
@@ -28,37 +28,7 @@ namespace JetReco {
     unsigned mIndex;
   };
   
-  //CorrectedIntexedCandidate for use with corrected CaloTower to Vertex
-  class CorrectedIndexedCandidate {
-    public:
-    typedef reco::Candidate value_type;
-    CorrectedIndexedCandidate () 
-      : mCandidate (0), oCandidate(0), mIndex(0) {}
-    CorrectedIndexedCandidate (const value_type *cCandidate,const value_type* fCandidate, unsigned fIndex)  
-      : mCandidate (cCandidate), oCandidate(fCandidate), mIndex (fIndex) {}
-    CorrectedIndexedCandidate (const value_type* fCandidate, unsigned fIndex)  
-      : mCandidate (fCandidate), mIndex (fIndex) {}
-    inline unsigned index () const {return mIndex;}
-    inline const value_type& operator*() const {return *mCandidate;}
-    inline const value_type* operator->() const {return mCandidate;}
-    inline const bool operator==(const CorrectedIndexedCandidate& other) const {return mCandidate == other.mCandidate;}
-    inline const bool operator!=(const CorrectedIndexedCandidate& other) const {return !operator==(other);}
-    inline const value_type* get() const {return mCandidate;}
-    inline const value_type* getOriginal() const {return oCandidate;}
-    inline void setBase(const value_type* a){mCandidate=a;}
-    inline void setOriginal(const value_type* a){oCandidate=a;}
-    inline void setIndex(unsigned nIndex){mIndex=nIndex;}
-    inline bool operator! () const {return !mCandidate;}
-  private:
-    const value_type* mCandidate; //version used in algorithms
-    const value_type* oCandidate; //original, use for constituents
-    unsigned mIndex;
-  };
-
-
-
-    typedef CorrectedIndexedCandidate InputItem;
-  //typedef IndexedCandidate InputItem;
+  typedef IndexedCandidate InputItem;
   typedef std::vector<InputItem> InputCollection;
   typedef std::vector <ProtoJet> OutputCollection;
   typedef reco::CandidateBaseRefVector JetConstituents;

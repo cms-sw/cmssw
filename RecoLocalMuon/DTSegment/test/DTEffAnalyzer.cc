@@ -52,6 +52,9 @@ DTEffAnalyzer::DTEffAnalyzer(const ParameterSet& pset) {
   debug = pset.getUntrackedParameter<bool>("debug");
   theRootFileName = pset.getUntrackedParameter<string>("rootFileName");
 
+  // the name of the digis collection
+  theDTLocalTriggerLabel = pset.getParameter<string>("DTLocalTriggerLabel");
+
   // the name of the 1D rec hits collection
   theRecHits1DLabel = pset.getParameter<string>("recHits1DLabel");
 
@@ -61,10 +64,17 @@ DTEffAnalyzer::DTEffAnalyzer(const ParameterSet& pset) {
   // the name of the 4D rec hits collection
   theRecHits4DLabel = pset.getParameter<string>("recHits4DLabel");
 
+  // if MC
+  mc = pset.getParameter<bool>("isMC");
+
   theMinHitsSegment = static_cast<unsigned int>(pset.getParameter<int>("minHitsSegment"));
   theMinChi2NormSegment = pset.getParameter<double>("minChi2NormSegment");
   theMinCloseDist = pset.getParameter<double>("minCloseDist");
 
+  // trigger selection
+  LCT_RPC = pset.getParameter<bool>("LCT_RPC");
+  LCT_DT = pset.getParameter<bool>("LCT_DT");
+  LCT_CSC = pset.getParameter<bool>("LCT_CSC");
 }
 
 void DTEffAnalyzer::beginJob(const EventSetup& eventSetup) {
@@ -74,21 +84,29 @@ void DTEffAnalyzer::beginJob(const EventSetup& eventSetup) {
 
   // Create the root file
   theFile = new TFile(theRootFileName.c_str(), "RECREATE");
-  bool dirStat=TH1::AddDirectoryStatus();
-  TH1::AddDirectory(kTRUE);
 
   // trigger Histos
   new TH1F("hTrigBits","All trigger bits",10,0.,10.);
 
   for (int w=-2; w<=2; ++w) {
+    //if (!mc && w<1) continue; // only wheel +1 and +2
     stringstream nameWheel;
     nameWheel << "_Wh"<< w ;
     //cout << "Wheel " << nameWheel.str() << endl;
     for (int sec=1; sec<=14; ++sec) { // section 1 to 14
+//      if (!mc && !(sec==10 || sec ==11 || sec ==14)) continue; // only 10,11 and 14
       stringstream nameSector;
       nameSector << nameWheel.str() << "_Sec" << sec;
       //cout << "Sec " << nameSector.str() << endl;
       for (int st=1; st<=4; ++st) { // station 1 to 4
+        // if (mc ||
+        //     ((w==1 && (sec == 10 || 
+        //                (st == 4 && sec == 14))) 
+        //      ||
+        //      (w==2 && (sec == 10 || 
+        //                sec == 11 || 
+        //                (st == 4 && sec == 14))))
+        //    ) {
 
           stringstream nameChamber;
           nameChamber << nameSector.str() << "_St" << st;
@@ -108,12 +126,12 @@ void DTEffAnalyzer::beginJob(const EventSetup& eventSetup) {
           createTH2F("hEffGoodCloseSegVsPosNum",
                      "Eff vs local position (good aand close segs) ", nameChamber.str(),
                      25,-250.,250., 25,-250.,250.);
+        // }
       }
     }
   }
   // cout << "List of created histograms " << endl;
   // theFile->ls();
-  TH1::AddDirectory(dirStat);
 }
 
 /* Destructor */ 
@@ -129,11 +147,46 @@ void DTEffAnalyzer::analyze(const Event & event,
   if (debug) cout << endl<<"--- [DTEffAnalyzer] Event analysed #Run: " <<
     event.id().run() << " #Event: " << event.id().event() << endl;
 
-  effSegments(event, eventSetup);
+  // Trigger analysis
+  if (debug) cout << "Is MC " << mc << endl;
+
+  if (!mc) {
+    Handle<LTCDigiCollection> ltcdigis;
+    event.getByType(ltcdigis);
+
+    for (std::vector<LTCDigi>::const_iterator ltc= ltcdigis->begin(); ltc!=
+         ltcdigis->end(); ++ltc) {
+      //if (debug) cout << (*ltc) << endl;
+      for (int i = 0; i < 6; i++) 
+        if ((*ltc).HasTriggered(i)) {
+          LCT.set(i);
+          histo("hTrigBits")->Fill(i);
+        }
+    }
+  } else {
+    for (int i = 0; i < 6; i++) 
+      LCT.set(i);
+  }
+
+  if (selectEvent()) {
+    effSegments(event, eventSetup);
+  }
+}
+
+bool DTEffAnalyzer::selectEvent() const {
+  bool trigger=false;
+  if (LCT_DT) trigger = trigger || getLCT(DT);
+  if (LCT_RPC) trigger = trigger || (getLCT(RPC_W1) || getLCT(RPC_W2));
+  if (LCT_CSC) trigger = trigger || getLCT(CSC);
+  if (debug) cout << "LCT " << trigger << endl;
+  return trigger;
 }
 
 void DTEffAnalyzer::effSegments(const Event & event,
                                 const EventSetup& eventSetup){
+  // // // Get the DT Geometry
+  // // ESHandle<DTGeometry> dtGeom;
+  // eventSetup.get<MuonGeometryRecord>().get(dtGeom);
 
   // Get the 4D rechit collection from the event -------------------
   // Handle<DTRecSegment4DCollection> segs;
@@ -144,6 +197,16 @@ void DTEffAnalyzer::effSegments(const Event & event,
          seg!=segs->end() ; ++seg ) 
       cout << *seg << endl;
   }
+
+  // // Get the 2D rechit collection from the event -------------------
+  // edm::Handle<DTRecSegment2DCollection> segs2d;
+  // event.getByLabel(theRecHits2DLabel, segs2d);
+  // if (debug) cout << "2d " << segs2d->size() << endl;
+
+  // // Get the 1D rechits from the event --------------
+  // Handle<DTRecHitCollection> dtRecHits; 
+  // event.getByLabel(theRecHits1DLabel, dtRecHits);
+  // if (debug) cout << "1d " << dtRecHits->size() << endl;
 
   // Get events with 3 segments in different station and look what happen on
   // the other station. Note, must take into account geometrical acceptance
@@ -160,6 +223,29 @@ void DTEffAnalyzer::effSegments(const Event & event,
 
     }
   }
+  // // Wheel +1  sector 10
+  // int wheel = +1;
+  // int sector = 10;
+  // evaluateEff(DTChamberId(wheel, 1, sector),2,3 ); // get efficiency for MB1 using MB2 and MB3
+  // evaluateEff(DTChamberId(wheel, 2, sector),1,3 ); // get efficiency for MB2 using MB1 and MB3
+  // //evaluateEff(DTChamberId(wheel, 3, sector),2,4 ); // get efficiency for MB3 using MB2 and MB4
+  // evaluateEff(DTChamberId(wheel, 3, sector),1,2 ); // get efficiency for MB3 using MB2 and MB4
+  // evaluateEff(DTChamberId(wheel, 4, sector),2,3 ); // get efficiency for MB4 using MB2 and MB3
+
+  // wheel = +2;
+  // sector = 10;
+  // evaluateEff(DTChamberId(wheel, 1, sector),2,3 ); // get efficiency for MB1 using MB2 and MB3
+  // evaluateEff(DTChamberId(wheel, 2, sector),1,3 ); // get efficiency for MB2 using MB1 and MB3
+  // //evaluateEff(DTChamberId(wheel, 3, sector),2,4 ); // get efficiency for MB3 using MB2 and MB4
+  // evaluateEff(DTChamberId(wheel, 3, sector),1,2 ); // get efficiency for MB3 using MB2 and MB4
+  // evaluateEff(DTChamberId(wheel, 4, sector),2,3 ); // get efficiency for MB4 using MB2 and MB3
+
+  // wheel = +2;
+  // sector = 11;
+  // evaluateEff(DTChamberId(wheel, 1, sector),2,3 ); // get efficiency for MB1 using MB2 and MB3
+  // evaluateEff(DTChamberId(wheel, 2, sector),1,3 ); // get efficiency for MB2 using MB1 and MB3
+  // evaluateEff(DTChamberId(wheel, 3, sector),2,4 ); // get efficiency for MB3 using MB2 and MB4
+  // evaluateEff(DTChamberId(wheel, 4, sector),2,3 ); // get efficiency for MB4 using MB2 and MB3
 }
 
 void DTEffAnalyzer::evaluateEff(const DTChamberId& MidId, int bottom, int top) const {
@@ -423,6 +509,10 @@ void DTEffAnalyzer::createTH2F(const std::string& name,
   hName << name << suffix;
   hTitle << title << suffix;
   new TH2F(hName.str().c_str(), hTitle.str().c_str(), nBinX,binXMin,binXMax, nBinY,binYMin,binYMax);
+}
+
+bool DTEffAnalyzer::getLCT(LCTType t) const {
+  return LCT.test(t);
 }
 
 DEFINE_FWK_MODULE(DTEffAnalyzer);

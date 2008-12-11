@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-ecalEndcapPedestalOnlineTask = cms.EDAnalyzer("EEPedestalOnlineTask",
+ecalEndcapPedestalOnlineTask = cms.EDFilter("EEPedestalOnlineTask",
     prefixME = cms.untracked.string('EcalEndcap'),
     enableCleanup = cms.untracked.bool(False),
     mergeRuns = cms.untracked.bool(False),    

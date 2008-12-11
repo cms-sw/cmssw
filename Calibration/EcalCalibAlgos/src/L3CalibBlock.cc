@@ -1,8 +1,8 @@
 /**
-    $Date: 2008/02/25 17:53:28 $
-    $Revision: 1.2 $
-    $Id: L3CalibBlock.cc,v 1.2 2008/02/25 17:53:28 malberti Exp $ 
-    \author $Author: malberti $
+    $Date: 2008/01/23 11:04:55 $
+    $Revision: 1.1.2.1 $
+    $Id: L3CalibBlock.cc,v 1.1.2.1 2008/01/23 11:04:55 govoni Exp $ 
+    \author $Author: govoni $
 */
 
 #include "Calibration/EcalCalibAlgos/interface/L3CalibBlock.h"
@@ -63,11 +63,11 @@ L3CalibBlock::Fill (std::map<int,double>::const_iterator MapBegin,
 // ------------------------------------------------------------
 
 
-int
+void
 L3CalibBlock::solve (int usingBlockSolver, double min, double max)
 {
   m_coefficients = m_L3AlgoUniv->getSolution () ;
-  return 0 ;
+  return ;
 }
 
 

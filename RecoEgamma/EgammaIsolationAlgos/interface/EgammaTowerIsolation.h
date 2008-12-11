@@ -23,13 +23,10 @@
 class EgammaTowerIsolation {
  public:
   
-  enum HcalDepth{AllDepths=-1,Undefined=0,Depth1=1,Depth2=2};
-
   //constructors
   EgammaTowerIsolation (double extRadius,
 		double intRadius,
 		double etLow,
-		signed int depth,
 		const CaloTowerCollection* ) ;
  
    //destructor 
@@ -44,7 +41,6 @@ class EgammaTowerIsolation {
   double extRadius_ ;
   double intRadius_ ;
   double etLow_ ;
-  signed int depth_;
 
   const CaloTowerCollection *towercollection_ ;
   

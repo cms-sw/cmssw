@@ -47,10 +47,8 @@ class FP420TrackMain
  int sn0_;
  // Number of planes:
  int pn0_;
- // Number of semsors:
- int rn0_;
  // Number of planes types:
- int xytype_;
+ int zn0_;
 
 	bool UseHalfPitchShiftInX_;
 	bool UseHalfPitchShiftInY_;
@@ -79,9 +77,6 @@ class FP420TrackMain
 	double chiCutY_;
 
 	double zinibeg_;
-
-	double XsensorSize_;
-	double YsensorSize_;
 
 };
 

@@ -6,8 +6,8 @@
  *
  * Implementation:
  *
- * $Date: 2008/01/14 11:49:36 $
- * $Revision: 1.14 $
+ * $Date: 2006/10/24 09:41:06 $
+ * $Revision: 1.13 $
  * Original Author:  Chang Liu
  *        Created:  Tue Jun 13 02:46:17 CEST 2006
 **/
@@ -35,8 +35,6 @@
 #include "RecoMuon/TrackingTools/interface/MuonTrackLoader.h"
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 
-#include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
-
 using namespace edm;
 
 //
@@ -63,7 +61,6 @@ CosmicMuonProducer::CosmicMuonProducer(const ParameterSet& iConfig)
   produces<TrackingRecHitCollection>();
   produces<reco::TrackExtraCollection>();
   produces<std::vector<Trajectory> >();
-  produces<TrajTrackAssociationCollection>();
 
 }
 

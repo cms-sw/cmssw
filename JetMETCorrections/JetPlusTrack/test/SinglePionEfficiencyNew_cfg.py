@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 import copy
-from RecoTracker.TrackProducer.RefitterWithMaterial_cfi import *
+# from RecoTracker.TrackProducer.RefitterWithMaterial_cfi import *
 
 process = cms.Process("RECO3")
 
@@ -28,8 +28,24 @@ process.load("TrackingTools.TrackAssociator.default_cfi")
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
 # track refitting to have local hit position which is not stored on disk (from Giuseppe Cerati)
-process.RefitTracks = copy.deepcopy(TrackRefitter)
-process.RefitTracks.src = cms.InputTag("generalTracks")
+# process.RefitTracks = copy.deepcopy(TrackRefitter)
+# process.RefitTracks.src = cms.InputTag("generalTracks")
+
+process.load("RecoLocalTracker.SiPixelRecHits.PixelCPEGeneric_cfi")
+process.load("RecoLocalTracker.SiPixelRecHits.SiPixelRecHits_cfi")
+process.load("RecoPixelVertexing.PixelTrackFitting.PixelTracks_cff")
+
+process.load("RecoTracker.TrackProducer.RefitterWithMaterial_cff")
+process.TrackRefitter.TrajectoryInEvent = True
+
+#add highPurity quality bit
+process.load("RecoTracker.FinalTrackSelectors.selectHighPurity_cfi")
+process.selectHighPurity.src = cms.InputTag('TrackRefitter')
+process.selectHighPurity.copyExtras = True
+process.selectHighPurity.copyTrajectories = True
+#set this to false to have all tracks (highQuality or not but with quality added). true makes the
+#collection contain only highQuality tracks
+process.selectHighPurity.keepAllTracks = True
 
 # switch OFF ECAL SR
 from SimCalorimetry.EcalSimProducers.ecaldigi_cfi import *
@@ -77,7 +93,7 @@ horeco.digiLabel = cms.InputTag("simHcalDigis")
 #
 # test QCD file from 210 RelVal is on /castor/cern.ch/user/a/anikiten/jpt210qcdfile/
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(2)
+    input = cms.untracked.int32(1000)
 )
 
 process.source = cms.Source("PoolSource",
@@ -89,9 +105,10 @@ process.source = cms.Source("PoolSource",
 
 process.dump = cms.EDFilter("EventContentAnalyzer")
 
+#    tracks = cms.string('RefitTracks'), 
 process.myanalysis = cms.EDFilter("SinglePionEfficiencyNew",
     HistOutFile = cms.untracked.string('SinglePionEfficiencyNew.root'),
-    tracks = cms.string('RefitTracks'), 
+    tracks = cms.string('selectHighPurity'), 
     pxltracks = cms.string('pixelTracks'),
     pxlhits = cms.string('siPixelRecHits'),
     calotowers = cms.string('caloTowers'),
@@ -137,8 +154,9 @@ process.dump = cms.EDFilter("EventContentAnalyzer")
 # process.p1 = cms.Path(process.mix*process.simHcalUnsuppressedDigis*process.simHcalDigis*process.hbhereco*process.hfreco*process.horeco*process.dump)
 
 # ECAL SR, HCAL ZS  OFF
-process.p1 = cms.Path(process.mix*process.RefitTracks*process.siPixelRecHits*process.pixelTracks*process.simEcalUnsuppressedDigis*process.simEcalDigis*process.ecalWeightUncalibRecHit*process.ecalRecHit*process.simHcalUnsuppressedDigis*process.simHcalDigis*process.hbhereco*process.myanalysis)
 
-# standard
-# process.p1 = cms.Path(process.mix*process.RefitTracks*process.siPixelRecHits*process.pixelTracks*process.myanalysis)
+#process.p1 = cms.Path(process.TrackRefitter*process.siPixelRecHits*process.pixelTracks*process.selectHighPurity*process.dump)
+
+process.p1 = cms.Path(process.mix*process.TrackRefitter*process.siPixelRecHits*process.pixelTracks*process.selectHighPurity*process.simEcalUnsuppressedDigis*process.simEcalDigis*process.ecalWeightUncalibRecHit*process.ecalRecHit*process.simHcalUnsuppressedDigis*process.simHcalDigis*process.hbhereco*process.myanalysis)
+
 
