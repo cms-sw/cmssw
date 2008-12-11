@@ -122,6 +122,7 @@ process.g4SimHits.CaloSD = cms.PSet(
     EminTrack      = cms.double(1.0),
     TmaxHit        = cms.double(1000.0),
     EminHits       = cms.vdouble(0.0),
+    TmaxHits       = cms.vdouble(1000.0),
     HCNames        = cms.vstring('HcalHits'),
     SuppressHeavy  = cms.bool(False),
     CheckHits      = cms.untracked.int32(25),
