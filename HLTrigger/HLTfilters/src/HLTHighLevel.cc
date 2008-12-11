@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2008/11/05 14:03:10 $
- *  $Revision: 1.10 $
+ *  $Date: 2008/12/10 20:58:08 $
+ *  $Revision: 1.11 $
  *
  *  \author Martin Grunewald
  *
@@ -17,9 +17,15 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/RegexMatch.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+// needed for trigger bits from EventSetup as in ALCARECO paths
+#include "CondFormats/HLTObjects/interface/AlCaRecoTriggerBits.h"
+#include "CondFormats/DataRecord/interface/AlCaRecoTriggerBitsRcd.h"
+
 
 #include "HLTrigger/HLTfilters/interface/HLTHighLevel.h"
 
@@ -30,17 +36,32 @@ HLTHighLevel::HLTHighLevel(const edm::ParameterSet& iConfig) :
   inputTag_     (iConfig.getParameter<edm::InputTag> ("TriggerResultsTag")),
   triggerNames_ (),
   andOr_        (iConfig.getParameter<bool> ("andOr")),
-  throw_        (iConfig.getUntrackedParameter<bool> ("throw", true)),
+  throw_        (iConfig.getParameter<bool> ("throw")),
+  eventSetupPathsKey_(iConfig.getParameter<std::string>("eventSetupPathsKey")),
+  watchAlCaRecoTriggerBitsRcd_(0),
   HLTPatterns_  (iConfig.getParameter<std::vector<std::string> >("HLTPaths")),
   HLTPathsByName_(),
   HLTPathsByIndex_()
 {
   // names and slot numbers are computed during the event loop, 
   // as they need to access the TriggerNames object via the TriggerResults
+
+  if (eventSetupPathsKey_.size()) {
+    // If paths come from eventsetup, we must watch for IOV changes.
+    if (!HLTPatterns_.empty()) {
+      // We do not want double trigger path setting, so throw!
+      throw cms::Exception("Configuration")
+	<< " HLTHighLevel [instance: " << *moduleLabel() << " - path: " << *pathName()
+	<< "]\nconfigured with " << HLTPatterns_.size() << " HLTPaths and\n"
+	<< " eventSetupPathsKey " << eventSetupPathsKey_ << ", choose either of them.";
+    }
+    watchAlCaRecoTriggerBitsRcd_ = new edm::ESWatcher<AlCaRecoTriggerBitsRcd>;
+  }
 }
 
 HLTHighLevel::~HLTHighLevel()
 {
+  delete watchAlCaRecoTriggerBitsRcd_; // safe on null pointer...
 }
 
 //
@@ -49,14 +70,20 @@ HLTHighLevel::~HLTHighLevel()
 
 // Initialize the internal trigger path representation (names and indices) from the 
 // patterns specified in the configuration.
-// This needs to be called once at startup and whenever the trigger table has changed
-void HLTHighLevel::init(const edm::TriggerResults & result)
+// This needs to be called once at startup, whenever the trigger table has changed
+// or in case of paths from eventsetup and IOV changed
+void HLTHighLevel::init(const edm::TriggerResults & result, const edm::EventSetup& iSetup)
 {
    unsigned int n;
    
    // clean up old data
    HLTPathsByName_.clear();
    HLTPathsByIndex_.clear();
+
+   // Overwrite paths from EventSetup via AlCaRecoTriggerBitsRcd if configured:
+   if (eventSetupPathsKey_.size()) {
+     HLTPatterns_ = this->pathsFromSetup(eventSetupPathsKey_, iSetup);
+   }
 
    if (HLTPatterns_.empty()) {
      // for empty input vector, default to all HLT trigger paths
@@ -115,6 +142,28 @@ void HLTHighLevel::init(const edm::TriggerResults & result)
 
 }
 
+// ------------ getting paths from EventSetup  ------------
+std::vector<std::string>
+HLTHighLevel::pathsFromSetup(const std::string &key, const edm::EventSetup &iSetup) const
+{
+  // Get map of strings to concatenated list of names of HLT paths from EventSetup:
+  edm::ESHandle<AlCaRecoTriggerBits> triggerBits;
+  iSetup.get<AlCaRecoTriggerBitsRcd>().get(triggerBits);
+  typedef std::map<std::string, std::string> TriggerMap;
+  const TriggerMap &triggerMap = triggerBits->m_alcarecoToTrig;
+
+  TriggerMap::const_iterator listIter = triggerMap.find(key);
+  if (listIter == triggerMap.end()) {
+    throw cms::Exception("Configuration")
+      << " HLTHighLevel [instance: " << *moduleLabel() << " - path: " << *pathName()
+      << "]: No triggerList with key " << key << " in AlCaRecoTriggerBitsRcd";
+  }
+
+  // We must avoid a map<string,vector<string> > in DB for performance reason,
+  // so the paths are mapped into one string that we have to decompose:
+  return triggerBits->decompose(listIter->second);
+}
+
 // ------------ method called to produce the data  ------------
 bool
 HLTHighLevel::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
@@ -135,10 +184,14 @@ HLTHighLevel::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    // init the TriggerNames with the TriggerResults
    bool config_changed = triggerNames_.init(*trh);
 
-   // if this is the first event or the HLT table has changed (re)run th initialization stuff
-   if (config_changed)
-     init(*trh);  
-
+   // (re)run the initialization stuff if 
+   // - this is the first event 
+   // - or the HLT table has changed 
+   // - or selected trigger bits come from AlCaRecoTriggerBitsRcd and these changed
+   if (config_changed || (watchAlCaRecoTriggerBitsRcd_
+			  && watchAlCaRecoTriggerBitsRcd_->check(iSetup))) {
+     this->init(*trh, iSetup);  
+   }
    unsigned int n     = HLTPathsByName_.size();
    unsigned int nbad  = 0;
    unsigned int fired = 0;
