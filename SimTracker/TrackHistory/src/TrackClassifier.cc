@@ -468,7 +468,7 @@ void TrackClassifier::vertexInformation()
     )
     {
         // Look for those with production vertex
-        reco::Particle::Point p = (*iparticle)->vertex();
+        TrackingParticle::Point p = (*iparticle)->vertex();
 
         double distance2   = pow(p.x() - genpv.x, 2) + pow(p.y() - genpv.y, 2) + pow(p.z() - genpv.z, 2);
         double difference2 = pow(p.x() - oldX, 2)    + pow(p.y() - oldY, 2)    + pow(p.z() - oldZ, 2);

@@ -18,8 +18,6 @@
 
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
-
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 
 #include "SimTracker/TrackHistory/interface/TrackCategories.h"
