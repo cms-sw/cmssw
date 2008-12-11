@@ -29,7 +29,7 @@ EcalUnpackerWorkerESProducer = cms.ESProducer("EcalUnpackerWorkerESProducer",
             641, 642, 643, 644, 645, 
             646, 647, 648, 649, 650, 
             651, 652, 653, 654),
-        DCCMapFile = cms.string('EventFilter/EcalRawToDigiDev/data/DCCMap.txt'),
+        DCCMapFile = cms.string('EventFilter/EcalRawToDigi/data/DCCMap.txt'),
         feIdCheck = cms.bool(True),
         memUnpacking = cms.bool(False)
     ),

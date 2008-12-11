@@ -20,3 +20,5 @@ DEFINE_ANOTHER_FWK_EVENTSETUP_MODULE(EcalRegionCablingESProducer);
 #include "EventFilter/EcalRawToDigi/plugins/EcalUnpackerWorkerESProducer.h"
 DEFINE_ANOTHER_FWK_EVENTSETUP_MODULE(EcalUnpackerWorkerESProducer);
 
+#include "EventFilter/EcalRawToDigi/plugins/EcalRawToDigi.h"
+DEFINE_FWK_MODULE(EcalRawToDigi);

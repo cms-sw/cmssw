@@ -6,8 +6,8 @@
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "EventFilter/EcalRawToDigiDev/interface/DCCDataUnpacker.h"
-#include "EventFilter/EcalRawToDigiDev/interface/EcalElectronicsMapper.h"
+#include "EventFilter/EcalRawToDigi/interface/DCCDataUnpacker.h"
+#include "EventFilter/EcalRawToDigi/interface/EcalElectronicsMapper.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
 
