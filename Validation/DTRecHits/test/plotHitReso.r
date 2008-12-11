@@ -89,7 +89,7 @@ void plotHitReso(){
 void plotWWWHitReso(int dimSwitch, TString nameDir) {
   // Load needed macros and files
   gROOT->LoadMacro("macros.C");     // Load service macros
-  gROOT->LoadMacro("../src/Histograms.h"); // Load definition of histograms
+  gROOT->LoadMacro("../plugins/Histograms.h"); // Load definition of histograms
 
   // Get the style
   TStyle * style = getStyle();
