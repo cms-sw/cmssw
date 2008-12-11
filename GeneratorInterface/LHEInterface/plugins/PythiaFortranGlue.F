@@ -9,7 +9,6 @@
 
       SUBROUTINE FIOCLS(UNIT)
       INTEGER UNIT
-      CHARACTER*(*) EVFILE
 
       CLOSE(UNIT)
 
