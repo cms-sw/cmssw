@@ -12,6 +12,8 @@
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "CondFormats/EcalObjects/interface/EcalPedestals.h"
 #include "CondFormats/DataRecord/interface/EcalPedestalsRcd.h"
+#include "CondFormats/EcalObjects/interface/EcalIntercalibConstants.h"
+#include "CondFormats/DataRecord/interface/EcalIntercalibConstantsRcd.h"
 
 EcalDigiProducer::EcalDigiProducer(const edm::ParameterSet& params) 
   :  theGeometry(0)
@@ -264,6 +266,13 @@ void  EcalDigiProducer::checkCalibrations(const edm::EventSetup & eventSetup)
   const EcalPedestals* thePedestals=dbPed.product();
   
   theCoder->setPedestals( thePedestals );
+
+  // Ecal Intercalibration Constants
+  edm::ESHandle<EcalIntercalibConstants> pIcal;
+  eventSetup.get<EcalIntercalibConstantsRcd>().get(pIcal);
+  const EcalIntercalibConstants *ical = pIcal.product();
+  
+  theCoder->setIntercalibConstants( ical );
 
   // ADC -> GeV Scale
   edm::ESHandle<EcalADCToGeVConstant> pAgc;

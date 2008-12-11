@@ -2,8 +2,6 @@
 #include "DataFormats/EcalDigi/interface/EcalMGPASample.h"
 #include "DataFormats/EcalDigi/interface/EBDataFrame.h"
 #include "DataFormats/EcalDigi/interface/EEDataFrame.h"
-#include "CondFormats/EcalObjects/interface/EcalPedestals.h"
-#include "CondFormats/EcalObjects/interface/EcalGainRatios.h"
 #include "CLHEP/Random/RandGaussQ.h"
 #include <iostream>
 
@@ -33,6 +31,9 @@ void  EcalCoder::setGainRatios(const EcalGainRatios * gainRatios) {
   theGainRatios = gainRatios; 
 }
 
+void EcalCoder::setIntercalibConstants(const EcalIntercalibConstants * ical) {
+  theIntercalibConstants = ical;
+} 
 
 double EcalCoder::fullScaleEnergy(const DetId & detId) const 
 {
@@ -81,6 +82,9 @@ void EcalCoder::encode(const CaloSamples& caloSamples, EcalDataFrame& df) const
   double threeSigmaADCNoise[NGAINS+1];
   int    maxADC[NGAINS+1];
 
+  double icalconst = 1. ;
+  findIntercalibConstant(detId, icalconst);
+
   for(int igain = 0; igain <= NGAINS; ++igain) {
 
     // fill in the pedestal and width
@@ -116,14 +120,14 @@ void EcalCoder::encode(const CaloSamples& caloSamples, EcalDataFrame& df) const
        ++igain;
 
        double ped = pedestals[igain];
-       double signal = ped + caloSamples[i] / LSB[igain];
+       double signal = ped + caloSamples[i] / LSB[igain] / icalconst;
 
        // see if it's close enough to the boundary that we have to throw noise
        if(addNoise_ && (signal <= maxADC[igain]+threeSigmaADCNoise[igain]) ) {
          // width is the actual final noise, subtract the additional one from the trivial quantization
          double trueRMS = std::sqrt(widths[igain]*widths[igain]-1./12.);
          ped = ped + trueRMS*noiseframe[i];
-         signal = ped + caloSamples[i] / LSB[igain];
+         signal = ped + caloSamples[i] / LSB[igain] / icalconst;
        }
        int tmpadc = (signal-(int)signal <= 0.5 ? (int)signal : (int)signal + 1);
        // LogDebug("EcalCoder") << "DetId " << detId.rawId() << " gain " << igain << " caloSample " 
@@ -174,8 +178,10 @@ double EcalCoder::decode(const EcalMGPASample & sample, const DetId & id) const
   double pedestal = 0.;
   double width = 0.;
   findPedestal(id, gainNumber, pedestal, width);
+  double icalconst = 1. ;
+  findIntercalibConstant(id, icalconst);
   // we shift by LSB/2 to be centered
-  return LSB * (sample.adc() + 0.5 - pedestal) ;
+  return icalconst * LSB * (sample.adc() + 0.5 - pedestal) ;
 }
 
 
@@ -263,3 +269,17 @@ void EcalCoder::findGains(const DetId & detId, double Gains[]) const
   
 }
 
+void EcalCoder::findIntercalibConstant(const DetId & detId, double & icalconst) const
+{
+  EcalIntercalibConstant thisconst = 1.;
+  // find intercalib constant for this xtal
+  const EcalIntercalibConstantMap &icalMap = theIntercalibConstants->getMap();
+  EcalIntercalibConstantMap::const_iterator icalit = icalMap.find(detId);
+  if( icalit!=icalMap.end() ){
+    thisconst = (*icalit);
+    if ( icalconst == 0. ) { thisconst = 1.; }
+  } else {
+    edm::LogError("EcalCoder") << "No intercalib const found for xtal " << detId.rawId() << "! something wrong with EcalIntercalibConstants in your DB? ";
+  }
+  icalconst = thisconst;
+}
