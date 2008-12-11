@@ -7,7 +7,7 @@
  *
  * \author U.Berthon, ClaudeCharlot, LLR
  *
- * \version $Id: GsfElectron.h,v 1.13 2008/12/03 18:00:32 charlot Exp $
+ * \version $Id: GsfElectron.h,v 1.14 2008/12/05 17:01:13 charlot Exp $
  *
  */
 
@@ -26,6 +26,9 @@
 // Ursula Berthon - LLR Ecole polytechnique
 //
 // $Log: GsfElectron.h,v $
+// Revision 1.14  2008/12/05 17:01:13  charlot
+// cleaning in extrapolations for matching variables; added fbrem as GsfElectron data member; update of analyzers accordingly
+//
 // Revision 1.13  2008/12/03 18:00:32  charlot
 // add identification of electron cluster and associated matching variables
 //
@@ -88,7 +91,7 @@ class GsfElectron : public RecoCandidate {
 
   GsfElectron() ;
 
-  //! one must give almost all attributes values when creating an electron
+  //! gsf electron constructor
   GsfElectron(
 	const LorentzVector & p4,
 	const SuperClusterRef scl,
@@ -98,7 +101,7 @@ class GsfElectron : public RecoCandidate {
 	const GlobalPoint & innPos, const GlobalVector & innMom,
 	const GlobalPoint & vtxPos, const GlobalVector & vtxMom,
 	const GlobalPoint & outPos, const GlobalVector & outMom,
-	double HoE,
+	double hadOverEm,
 	float scSigmaEtaEta =std::numeric_limits<float>::infinity(),
 	float scSigmaIEtaIEta =std::numeric_limits<float>::infinity(),
 	float scE1x5 =0., float scE2x5Max =0., float scE5x5 =0.,
@@ -109,9 +112,6 @@ class GsfElectron : public RecoCandidate {
 
   virtual ~GsfElectron(){};
 
-  //Public methods
-
-  // particle behaviour
    /** The electron classification.
       barrel  :   0: golden,  10: bigbrem,  20: narrow, 30-34: showering,
                 (30: showering nbrem=0, 31: showering nbrem=1, 32: showering nbrem=2 ,33: showering nbrem=3, 34: showering nbrem>=4)
@@ -136,14 +136,16 @@ class GsfElectron : public RecoCandidate {
    { ambiguousGsfTracks_.push_back(t) ; }
 
   // supercluster and electron track related quantities
-  //! the super cluster energy corrected by EnergyScaleFactor
+  /** the supercluster energy after electron level eta corrections. It differs from the supercluster energy
+      only when isEnergyScaleCorrected() returns true.
+  */
   float caloEnergy() const {return superClusterEnergy_;}
   //! the super cluster position
   math::XYZPoint caloPosition() const {return superCluster()->position();}
   //! the track momentum at vertex
   math::XYZVector trackMomentumAtVtx() const {return trackMomentumAtVtx_;}
   //! the track impact point state position
-  math::XYZVector TrackPositionAtVtx() const {return trackPositionAtVtx_;}
+  math::XYZPoint TrackPositionAtVtx() const {return trackPositionAtVtx_;}
   //! the track momentum extrapolated at the supercluster position
   math::XYZVector trackMomentumAtCalo() const {return trackMomentumAtCalo_;}
   //! the track momentum extrapolated from outermost position at the seed cluster position
@@ -151,9 +153,11 @@ class GsfElectron : public RecoCandidate {
   //! the track momentum extrapolated from outermost position at the ele cluster position
   math::XYZVector trackMomentumAtEleClus() const {return trackMomentumAtEleClus_;}
   //! the track extrapolated position at min distance to the supercluster position
-  math::XYZVector TrackPositionAtCalo() const {return trackPositionAtCalo_;}
+  math::XYZPoint TrackPositionAtCalo() const {return trackPositionAtCalo_;}
   //! the supercluster energy / track momentum at impact point
   float eSuperClusterOverP() const {return eSuperClusterOverP_;}
+  //! the seed cluster energy / track momentum at impact point
+  float eSeedClusterOverPin() const {return eSeedClusterOverP_;}
   //! the seed cluster energy / track momentum at calo from outermost state
   float eSeedClusterOverPout() const {return eSeedClusterOverPout_;}
   //! the electron cluster energy / track momentum at calo from outermost state
@@ -248,9 +252,9 @@ private:
   //  float ecalPhi(float PtParticle, float EtaParticle, float PhiParticle, int ChargeParticle, float Rstart);
 
   math::XYZVector trackMomentumAtVtx_;
-  math::XYZVector trackPositionAtVtx_;
+  math::XYZPoint trackPositionAtVtx_;
   math::XYZVector trackMomentumAtCalo_;
-  math::XYZVector trackPositionAtCalo_;
+  math::XYZPoint trackPositionAtCalo_;
   math::XYZVector trackMomentumOut_;
 
   float energyError_;
@@ -299,6 +303,9 @@ private:
 
   // brem fraction
   float fbrem_;
+  
+  // e seed cluster / pin
+  float eSeedClusterOverP_;
   
   /// check overlap with another candidate
   virtual bool overlap( const Candidate & ) const;

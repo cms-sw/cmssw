@@ -25,14 +25,14 @@ GsfElectron::GsfElectron
    const GlobalPoint & innPos, const GlobalVector & innMom,
    const GlobalPoint & vtxPos, const GlobalVector & vtxMom,
    const GlobalPoint & outPos, const GlobalVector & outMom,
-   double HoE,
+   double hadOverEm,
    float scSigmaEtaEta, float scSigmaIEtaIEta,
    float scE1x5, float scE2x5Max, float scE5x5,
    const TrackRef ctfTrack, const float shFracInnerHits,
    const BasicClusterRef electronCluster,
    const GlobalPoint & tselePos, const GlobalVector & tseleMom
  )
- : hadOverEm_(HoE), superCluster_(scl), track_(gsfTrack),
+ : hadOverEm_(hadOverEm), superCluster_(scl), track_(gsfTrack),
    scSigmaEtaEta_(scSigmaEtaEta), scSigmaIEtaIEta_(scSigmaIEtaIEta),
    scE1x5_(scE1x5), scE2x5Max_(scE2x5Max), scE5x5_(scE5x5),
    ctfTrack_(ctfTrack), shFracInnerHits_(shFracInnerHits),
@@ -43,8 +43,8 @@ GsfElectron::GsfElectron
   setVertex(Point(vtxPos)) ;
   setPdgId( -11 * charge()) ;
 
-  trackPositionAtVtx_=math::XYZVector(vtxPos.x(),vtxPos.y(),vtxPos.z());
-  trackPositionAtCalo_=math::XYZVector(tssuperPos.x(),
+  trackPositionAtVtx_=math::XYZPoint(vtxPos.x(),vtxPos.y(),vtxPos.z());
+  trackPositionAtCalo_=math::XYZPoint(tssuperPos.x(),
                                        tssuperPos.y(),
                                        tssuperPos.z());
   trackMomentumAtCalo_=math::XYZVector(tssuperMom.x(),
@@ -98,6 +98,10 @@ GsfElectron::GsfElectron
   if (fabs(dphi)>pi)
     dphi = dphi < 0? pi2 + dphi : dphi - pi2;
   deltaPhiEleClusterAtCalo_ = dphi;
+
+  eSeedClusterOverP_ = -1;
+  if (vtxMom.mag() > 0) 
+    eSeedClusterOverP_= seedClus->energy()/vtxMom.mag();
 
   //
   // other quantities
