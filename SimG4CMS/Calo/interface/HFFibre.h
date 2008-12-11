@@ -27,7 +27,7 @@ public:
 
   double              attLength(double lambda);
   double              tShift(G4ThreeVector point, int depth, 
-			     bool fromEndAbs=false);
+			     int fromEndAbs=0);
 
 protected:
 

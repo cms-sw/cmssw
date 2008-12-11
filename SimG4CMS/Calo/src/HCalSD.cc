@@ -101,7 +101,7 @@ HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
     if (useParam) showerParam = new HFShowerParam(name, cpv, p);
     else {
       if (useShowerLibrary) showerLibrary = new HFShowerLibrary(name, cpv, p);
-      hfshower  = new HFShower(name, cpv, p);
+      hfshower  = new HFShower(name, cpv, p, 0);
     }
 
     // HF volume names

@@ -10,12 +10,12 @@
 #include "SimG4CMS/Calo/interface/HFCherenkov.h"
 #include "SimG4CMS/Calo/interface/HFFibre.h"
 
+#include "G4ThreeVector.hh"
 #include "G4String.hh"
 
 class DDCompactView;    
 class G4Step;
 
-#include <map>
 #include <vector>
  
 class HFShower {
@@ -23,7 +23,7 @@ class HFShower {
 public:    
 
   HFShower(std::string & name, const DDCompactView & cpv, 
-	   edm::ParameterSet const & p);
+	   edm::ParameterSet const & p, int chk=0);
   virtual ~HFShower();
 
 public:
@@ -31,22 +31,26 @@ public:
   struct Hit {
     Hit() {}
     double                   time;
-    double                   wavelength; 
+    double                   wavelength;
+    double                   momentum;
+    G4ThreeVector            position;
   };
 
   std::vector<Hit>           getHits(G4Step * aStep);
 
 private:    
 
-  double                     fibreLength(G4String);
+  std::vector<double>        getDDDArray(const std::string&, 
+					 const DDsvalues_type&,  int&);
 
 private:    
 
   HFCherenkov*               cherenkov;
   HFFibre*                   fibre;
 
+  int                        chkFibre;
   double                     probMax;
-  std::map<G4String,double>  fibreDz2;
+  std::vector<double>        gpar;
 
 };
 

@@ -126,13 +126,13 @@ std::vector<HFShowerParam::Hit> HFShowerParam::getHits(G4Step * aStep) {
       } else {
 	edep         *= pePerGeV;
 	double tSlice = (aStep->GetPostStepPoint()->GetGlobalTime());
-	double time = fibre->tShift(hitPoint,1,false); // remaining part
+	double time = fibre->tShift(localPoint,1,0); // remaining part
 	hit.depth   = 1;
 	hit.time    = tSlice+time;
 	hit.edep    = edep;
 	hits.push_back(hit);
 	if (zz >= gpar[0]) {
-	  time      = fibre->tShift(hitPoint,2,false);
+	  time      = fibre->tShift(hitPoint,2,0);
 	  hit.depth = 2;
 	  hit.time  = tSlice+time;
 	  hits.push_back(hit);

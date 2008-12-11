@@ -52,47 +52,48 @@ public:
 	 SensitiveDetectorCatalog & clg, 
 	 edm::ParameterSet const & p, const SimTrackManager*);
   virtual ~CaloSD();
-  virtual bool   ProcessHits(G4Step * step,G4TouchableHistory * tHistory);
-  virtual bool   ProcessHits(G4GFlashSpot*aSpot,G4TouchableHistory*);
-  virtual double getEnergyDeposit(G4Step* step); 
+  virtual bool     ProcessHits(G4Step * step,G4TouchableHistory * tHistory);
+  virtual bool     ProcessHits(G4GFlashSpot*aSpot,G4TouchableHistory*);
+  virtual double   getEnergyDeposit(G4Step* step); 
   virtual uint32_t setDetUnitId(G4Step* step)=0;
   
-  virtual void   Initialize(G4HCofThisEvent * HCE);
-  virtual void   EndOfEvent(G4HCofThisEvent * eventHC);
-  virtual void   clear();
-  virtual void   DrawAll();
-  virtual void   PrintAll();
+  virtual void     Initialize(G4HCofThisEvent * HCE);
+  virtual void     EndOfEvent(G4HCofThisEvent * eventHC);
+  virtual void     clear();
+  virtual void     DrawAll();
+  virtual void     PrintAll();
 
-  void           fillHits(edm::PCaloHitContainer&,std::string n);
+  void             fillHits(edm::PCaloHitContainer&,std::string n);
 
 protected:
 
-  virtual G4bool getStepInfo(G4Step* aStep);
-  G4ThreeVector  setToLocal(G4ThreeVector, const G4VTouchable*);
-  G4bool         hitExists();
-  G4bool         checkHit();
-  CaloG4Hit*     createNewHit();
-  void           updateHit(CaloG4Hit*);
-  void           resetForNewPrimary(G4ThreeVector, double);
-  double         getAttenuation(G4Step* aStep, double birk1, double birk2,
-				double birk3);
+  virtual G4bool   getStepInfo(G4Step* aStep);
+  G4ThreeVector    setToLocal(G4ThreeVector, const G4VTouchable*);
+  G4bool           hitExists();
+  G4bool           checkHit();
+  CaloG4Hit*       createNewHit();
+  void             updateHit(CaloG4Hit*);
+  void             resetForNewPrimary(G4ThreeVector, double);
+  double           getAttenuation(G4Step* aStep, double birk1, double birk2,
+				  double birk3);
 
-  virtual void   update(const BeginOfRun *);
-  virtual void   update(const BeginOfEvent *);
-  virtual void   update(const BeginOfTrack * trk);
-  virtual void   update(const EndOfTrack * trk);
-  virtual void   update(const ::EndOfEvent *);
-  virtual void   clearHits();
-  virtual void   initRun();
-  virtual bool   filterHit(CaloG4Hit*, double);
+  virtual void     update(const BeginOfRun *);
+  virtual void     update(const BeginOfEvent *);
+  virtual void     update(const BeginOfTrack * trk);
+  virtual void     update(const EndOfTrack * trk);
+  virtual void     update(const ::EndOfEvent *);
+  virtual void     clearHits();
+  virtual void     initRun();
+  virtual bool     filterHit(CaloG4Hit*, double);
 
   virtual uint16_t getDepth(G4Step*);   
 
 private:
 
-  void                 storeHit(CaloG4Hit*);
-  bool                 saveHit(CaloG4Hit*);
-  void                 summarize();
+  void             storeHit(CaloG4Hit*);
+  bool             saveHit(CaloG4Hit*);
+  void             summarize();
+  void             cleanHitCollection();
 
 protected:
   
@@ -101,48 +102,47 @@ protected:
   // One shower is made of several hits which differ by the
   // unit ID (crystal/fibre/scintillator) and the Time slice ID.
 
-  G4ThreeVector          entrancePoint;
-  G4ThreeVector          entranceLocal;
-  G4ThreeVector          posGlobal;
-  float                  incidentEnergy;
-  int                    primIDSaved; //   ID of the last saved primary
+  G4ThreeVector                   entrancePoint;
+  G4ThreeVector                   entranceLocal;
+  G4ThreeVector                   posGlobal;
+  float                           incidentEnergy;
+  int                             primIDSaved; //  ID of the last saved primary
 
-  CaloHitID              currentID, previousID; 
-  G4Track*               theTrack;
+  CaloHitID                       currentID, previousID; 
+  G4Track*                        theTrack;
 
-  G4StepPoint*           preStepPoint; 
-  float                  edepositEM, edepositHAD;
+  G4StepPoint*                    preStepPoint; 
+  float                           edepositEM, edepositHAD;
 
-  double                 energyCut, tmaxHit, eminHit;
-  int                    checkHits;
-  bool                   useMap;
+  double                          energyCut, tmaxHit, eminHit;
+  int                             checkHits;
+  bool                            useMap;
 
-  const SimTrackManager* m_trackManager;
-  CaloG4Hit*             currentHit;
-//  TimerProxy           theHitTimer;
+  const SimTrackManager*          m_trackManager;
+  CaloG4Hit*                      currentHit;
+//  TimerProxy                    theHitTimer;
 
-  bool                   corrTOFBeam, suppressHeavy;
-  double                 correctT;
-  double                 kmaxIon, kmaxNeutron, kmaxProton;
+  bool                            corrTOFBeam, suppressHeavy;
+  double                          correctT;
+  double                          kmaxIon, kmaxNeutron, kmaxProton;
 
-  G4int                  emPDG, epPDG, gammaPDG;
+  G4int                           emPDG, epPDG, gammaPDG;
 
 private:
 
-  CaloSlaveSD*           slave;
-  int                    hcID;
-  CaloG4HitCollection*   theHC; 
+  CaloSlaveSD*                    slave;
+  int                             hcID;
+  CaloG4HitCollection*            theHC; 
   std::map<CaloHitID,CaloG4Hit*>  hitMap;
 
   std::map<int,TrackWithHistory*> tkMap;
 
-  int                                            primAncestor;
-  int                                            cleanIndex;
-  std::vector<CaloG4Hit*>                        reusehit;
-  std::vector<CaloG4Hit*>                        hitvec;
-  std::vector<unsigned int>                      selIndex;
-  int                                            totalHits;
-  void                                           cleanHitCollection();
+  int                             primAncestor;
+  int                             cleanIndex;
+  std::vector<CaloG4Hit*>         reusehit;
+  std::vector<CaloG4Hit*>         hitvec;
+  std::vector<unsigned int>       selIndex;
+  int                             totalHits;
 
 };
 

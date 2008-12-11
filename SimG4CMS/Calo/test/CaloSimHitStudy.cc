@@ -27,10 +27,10 @@ CaloSimHitStudy::CaloSimHitStudy(const edm::ParameterSet& ps) {
   tkLowLab[0] = "TrackerHitsTIBLowTof";
   tkLowLab[0] = "TrackerHitsTIDLowTof";
   tkLowLab[0] = "TrackerHitsTOBLowTof";
-  edm::LogInfo("HcalSim") << "Module Label: " << g4Label << "   Hits: "
-			  << hitLab[0] << ", " << hitLab[1] << ", " 
-			  << hitLab[2] << ", "<< hitLab[3] 
-			  << "   MaxEnergy: " << maxEnergy_;
+  edm::LogInfo("HitStudy") << "Module Label: " << g4Label << "   Hits: "
+			   << hitLab[0] << ", " << hitLab[1] << ", " 
+			   << hitLab[2] << ", "<< hitLab[3] 
+			   << "   MaxEnergy: " << maxEnergy_;
 
   edm::Service<TFileService> tfile;
  

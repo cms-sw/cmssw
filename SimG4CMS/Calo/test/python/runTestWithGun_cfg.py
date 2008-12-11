@@ -108,12 +108,13 @@ process.g4SimHits.Physics.type = 'SimG4Core/Physics/QGSP'
 process.g4SimHits.G4Commands = ['/tracking/verbose 1']
 process.g4SimHits.StackingAction = cms.PSet(
     process.common_heavy_suppression,
+    TrackNeutrino = cms.bool(False),
+    KillHeavy     = cms.bool(False),
+    MaxTrackTime  = cms.double(1000.),
     SaveFirstLevelSecondary = cms.untracked.bool(True),
     SavePrimaryDecayProductsAndConversionsInTracker = cms.untracked.bool(True),
     SavePrimaryDecayProductsAndConversionsInCalo = cms.untracked.bool(True),
-    SavePrimaryDecayProductsAndConversionsInMuon = cms.untracked.bool(True),
-    TrackNeutrino = cms.bool(False),
-    KillHeavy = cms.bool(False)
+    SavePrimaryDecayProductsAndConversionsInMuon = cms.untracked.bool(True)
 )
 process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
     HcalQie = cms.PSet(

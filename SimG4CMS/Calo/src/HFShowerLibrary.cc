@@ -12,6 +12,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include "G4VPhysicalVolume.hh"
+#include "G4NavigationHistory.hh"
 #include "G4Step.hh"
 #include "G4Track.hh"
 #include "Randomize.hh"
@@ -210,7 +211,6 @@ std::vector<HFShowerLibrary::Hit> HFShowerLibrary::getHits(G4Step * aStep,
   double pin    = preStepPoint->GetTotalEnergy();
   double pz     = momDir.z(); 
   double zint   = hitPoint.z(); 
-  double zoff   = std::abs(zint) - gpar[4];
 
   // if particle moves from interaction point or "backwards (halo)
   int backward = 0;
@@ -222,6 +222,9 @@ std::vector<HFShowerLibrary::Hit> HFShowerLibrary::getHits(G4Step * aStep,
   double stheta = sin(momDir.theta());
 
 #ifdef DebugLog
+  G4ThreeVector localPos = preStepPoint->GetTouchable()->GetHistory()->GetTopTransform().TransformPoint(hitPoint);
+  double zoff   = localPos.z() + 0.5*gpar[1];
+  if (zoff < 0) zoff = 0;
   LogDebug("HFShower") << "HFShowerLibrary: getHits " << partType
 		       << " of energy " << pin/GeV << " GeV"
 		       << "  dir.orts " << momDir.x() << ", " << momDir.y() 
@@ -251,7 +254,7 @@ std::vector<HFShowerLibrary::Hit> HFShowerLibrary::getHits(G4Step * aStep,
 #ifdef DebugLog
     LogDebug("HFShower") << "HFShowerLibrary: Hit " << i << " " << pe[i];
 #endif
-    double zv = zoff + std::abs(pe[i].z()); // abs local z  
+    double zv = std::abs(pe[i].z()); // abs local z  
     if (zv <= gpar[1] && pe[i].lambda() > 0 &&
 	(pe[i].z() >= 0 || zv > gpar[0])) {
       int depth = 1;
@@ -272,9 +275,10 @@ std::vector<HFShowerLibrary::Hit> HFShowerLibrary::getHits(G4Step * aStep,
       double yy = pex*ctheta*sphi + pey*cphi + zv*stheta*sphi;
       double zz = -pex*stheta + zv*ctheta;
 
-      G4ThreeVector pos = hitPoint + G4ThreeVector(xx,yy,zz);
+      G4ThreeVector pos  = hitPoint + G4ThreeVector(xx,yy,zz);
+      G4ThreeVector lpos = preStepPoint->GetTouchable()->GetHistory()->GetTopTransform().TransformPoint(pos);
 
-      if (backward == 0) zv = gpar[1] - zv;     // remaining distance to PMT !
+      zv = 0.5*gpar[1] - lpos.z();     // remaining distance to PMT !
 
       double r  = pos.perp();
       double p  = fibre->attLength(pe[i].lambda());
@@ -287,12 +291,11 @@ std::vector<HFShowerLibrary::Hit> HFShowerLibrary::getHits(G4Step * aStep,
       double dfir  = r * sin(dfi);
 #ifdef DebugLog
       LogDebug("HFShower") << "HFShowerLibrary: Position shift " << xx 
-			   << ", " << yy 
-			   << ", "  << zz << ": " << pos << " R " << r 
-			   << " Phi " << fi << " Section " << isect 
-			   << " R*Dfi " << dfir;
+			   << ", " << yy << ", "  << zz << ": " << pos 
+			   << " R " << r << " Phi " << fi << " Section " 
+			   << isect << " R*Dfi " << dfir << " Dist " << zv;
 #endif
-      zz           = ((pos.z()) >= 0 ? (pos.z()) : -(pos.z()));
+      zz           = std::abs(pos.z());
       double r1    = G4UniformRand();
       double r2    = G4UniformRand();
       double r3    = -9999.;
@@ -318,7 +321,7 @@ std::vector<HFShowerLibrary::Hit> HFShowerLibrary::getHits(G4Step * aStep,
 	  zz >= gpar[4] && zz <= gpar[4]+gpar[1] && r3 <= backProb ){
 	oneHit.position = pos;
 	oneHit.depth    = depth;
-	oneHit.time     = (tSlice+(pe[i].t())+(fibre->tShift(pos,depth,true)));
+	oneHit.time     = (tSlice+(pe[i].t())+(fibre->tShift(lpos,depth,1)));
 	hit.push_back(oneHit);
 #ifdef DebugLog
 	LogDebug("HFShower") << "HFShowerLibrary: Final Hit " << nHit 

@@ -75,7 +75,13 @@ process.TFileService = cms.Service("TFileService",
     fileName = cms.string('ttbar_QGSP_EMV.root')
 )
 
+process.o1 = cms.OutputModule("PoolOutputModule",
+    process.FEVTSIMEventContent,
+    fileName = cms.untracked.string('simevent_ttbar_QGSP_EMV.root')
+)
+
 process.p1 = cms.Path(process.VtxSmeared*process.g4SimHits*process.caloSimHitStudy*process.rndmStore)
+process.outpath = cms.EndPath(process.o1)
 process.PythiaSource.pythiaHepMCVerbosity = False
 process.PythiaSource.pythiaPylistVerbosity = 0
 process.g4SimHits.Physics.type = 'SimG4Core/Physics/QGSP_EMV'

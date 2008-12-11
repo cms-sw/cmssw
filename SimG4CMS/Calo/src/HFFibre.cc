@@ -128,27 +128,31 @@ double HFFibre::attLength(double lambda) {
   return att;
 }
 
-double HFFibre::tShift(G4ThreeVector point, int depth, bool fromEndAbs) {
+double HFFibre::tShift(G4ThreeVector point, int depth, int fromEndAbs) {
 
+  double zFibre = 0;
   double hR     = sqrt((point.x())*(point.x())+(point.y())*(point.y()));
   int    ieta   = 0;
-  for (int i = nBinR-1; i > 0; i--)
-    if (hR < radius[i]) ieta = nBinR - i - 1;
   double length = 250*cm;
-  if (depth == 2) {
-    if ((int)(shortFL.size()) > ieta) length = shortFL[ieta];
+  if (fromEndAbs < 0) {
+    zFibre      = 0.5*gpar[1] - point.z();
   } else {
-    if ((int)(longFL.size())  > ieta) length = longFL[ieta];
+    for (int i = nBinR-1; i > 0; i--)
+      if (hR < radius[i]) ieta = nBinR - i - 1;
+    if (depth == 2) {
+      if ((int)(shortFL.size()) > ieta) length = shortFL[ieta];
+    } else {
+      if ((int)(longFL.size())  > ieta) length = longFL[ieta];
+    }
+    zFibre = length;
+    if (fromEndAbs > 0) {
+      zFibre   -= gpar[1];
+    } else {
+      double zz = 0.5*gpar[1] + point.z();
+      zFibre   -= zz;
+    }
+    if (depth == 2) zFibre += gpar[0];
   }
-  double zFibre = length;
-  if (fromEndAbs) 
-    zFibre     -= gpar[1];
-  else {
-    double zint = point.z(); 
-    double zz   = std::abs(zint) - gpar[4];
-    zFibre     -= zz;
-  }
-  if (depth == 2) zFibre += gpar[0];
   double time   = zFibre/cFibre;
 #ifdef DebugLog
   LogDebug("HFShower") << "HFFibre::tShift for point " << point

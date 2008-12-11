@@ -1,24 +1,3 @@
-// -*- C++ -*-
-//
-// Package:    HFPMTHitAnalyzer
-// Class:      HFPMTHitAnalyzer
-// 
-/**\class HFPMTHitAnalyzer HFPMTHitAnalyzer.cc Analyzers/HFPMTHitAnalyzer/src/HFPMTHitAnalyzer.cc
-
- Description: <one line class summary>
-
- Implementation:
-     <Notes on implementation>
-*/
-//
-// Original Author:  Anthony Moeller
-//         Created:  Wed Aug 27 10:18:19 CDT 2008
-// $Id: HFPMTHitAnalyzer.cc,v 1.2 2008/11/07 16:20:23 sunanda Exp $
-//
-//
-
-
-// user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 

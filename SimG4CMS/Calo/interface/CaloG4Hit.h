@@ -24,11 +24,11 @@
 
 #include "SimG4CMS/Calo/interface/CaloHitID.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "G4VHit.hh"
 #include "DataFormats/Math/interface/Point3D.h"
 #include <iostream>
 
 #include "G4Allocator.hh"
+#include "G4VHit.hh"
 
 class CaloG4Hit : public G4VHit {
   
@@ -120,15 +120,15 @@ public:
 
 extern G4Allocator<CaloG4Hit> CaloG4HitAllocator;
 
-inline void * CaloG4Hit::operator new(size_t)
-{
+inline void * CaloG4Hit::operator new(size_t) {
   void * aHit;
   aHit = (void *) CaloG4HitAllocator.MallocSingle();
   return aHit;
 }
 
-inline void CaloG4Hit::operator delete(void * aHit)
-{  CaloG4HitAllocator.FreeSingle((CaloG4Hit*) aHit); }
+inline void CaloG4Hit::operator delete(void * aHit) {  
+  CaloG4HitAllocator.FreeSingle((CaloG4Hit*) aHit); 
+}
 
 std::ostream& operator<<(std::ostream&, const CaloG4Hit&);
 

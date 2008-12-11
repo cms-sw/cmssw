@@ -20,7 +20,9 @@
 //#define DebugLog
 
 HFShower::HFShower(std::string & name, const DDCompactView & cpv, 
-		   edm::ParameterSet const & p) : cherenkov(0), fibre(0) {
+		   edm::ParameterSet const & p, int chk) : cherenkov(0),
+							   fibre(0),
+							   chkFibre(chk) {
 
   edm::ParameterSet m_HF = p.getParameter<edm::ParameterSet>("HFShower");
   //static SimpleConfigurable<double> cf1(0.5, "HFShower:CFibre");
@@ -28,33 +30,33 @@ HFShower::HFShower(std::string & name, const DDCompactView & cpv,
   probMax          = m_HF.getParameter<double>("ProbMax");
 
   edm::LogInfo("HFShower") << "HFShower:: Maximum probability cut off " 
-			   << probMax;
+			   << probMax << " Check flag " << chkFibre;
 
-  G4String attribute = "Volume";
-  G4String value     = "HFFibre";
+  
+  G4String attribute = "ReadOutName";
+  G4String value     = name;
   DDSpecificsFilter filter;
   DDValue           ddv(attribute,value,0);
   filter.setCriteria(ddv,DDSpecificsFilter::equals);
   DDFilteredView fv(cpv);
   fv.addFilter(filter);
- 
   bool dodet = fv.firstChild();
-  std::vector<G4String> tmp;
-  while (dodet) {
-    const DDSolid & sol  = fv.logicalPart().solid();
-    const std::vector<double> & paras = sol.parameters();
-    G4String name = DDSplit(sol.name()).first;
-    bool ok = true;
-    for (unsigned int i=0; i<tmp.size(); i++)
-      if (name == tmp[i]) ok = false;
-    if (ok) { 
-      tmp.push_back(name);
-      fibreDz2.insert(std::pair<G4String,double>(name,paras[0]));
-      edm::LogInfo("HFShower") << "HFShower::initMap (for " << value 
-			       << "): Solid " << name << " Shape " 
-			       << sol.shape() << " Parameter 0 = " << paras[0];
-    }
-    dodet = fv.next();
+  if (dodet) {
+    DDsvalues_type sv(fv.mergedSpecifics());
+
+    //Special Geometry parameters
+    int ngpar = 7;
+    gpar      = getDDDArray("gparHF",sv,ngpar);
+    edm::LogInfo("HFShower") << "HFShower: " << ngpar << " gpar (cm)";
+    for (int ig=0; ig<ngpar; ig++)
+      edm::LogInfo("HFShower") << "HFShower: gpar[" << ig << "] = "
+			       << gpar[ig]/cm << " cm";
+  } else {
+    edm::LogError("HFShower") << "HFShower: cannot get filtered "
+			      << " view for " << attribute << " matching "
+			      << name;
+    throw cms::Exception("Unknown", "HFShower")
+      << "cannot match " << attribute << " to " << name <<"\n";
   }
 
   cherenkov = new HFCherenkov(m_HF);
@@ -104,27 +106,29 @@ std::vector<HFShower::Hit> HFShower::getHits(G4Step * aStep) {
     GetTopTransform().TransformPoint(globalPos);
   G4ThreeVector     localMom     = preStepPoint->GetTouchable()->GetHistory()->
     GetTopTransform().TransformAxis(momentumDir);
-  int               depth    = 
+  int               depth        = 
     (preStepPoint->GetTouchable()->GetReplicaNumber(0))%10;
+  G4ThreeVector     translation  = preStepPoint->GetTouchable()->GetVolume(1)->GetObjectTranslation();
 
   double u        = localMom.x();
   double v        = localMom.y();
   double w        = localMom.z();
   double zCoor    = localPos.z();
-  double zFibre   = (fibreLength(name)-zCoor);
+  double zFibre   = (0.5*gpar[1]-zCoor-translation.z());
   double tSlice   = (aStep->GetPostStepPoint()->GetGlobalTime());
-  double time     = fibre->tShift(globalPos, depth, false);
+  double time     = fibre->tShift(localPos, depth, chkFibre);
 
 #ifdef DebugLog
   LogDebug("HFShower") << "HFShower::getHits: in " << name << " Z " << zCoor 
-		       << " " << fibreLength(name) << " " << zFibre << " Time "
-		       << tSlice  << " " << time 
+		       << "(" << globalPos.z() << ") " << zFibre << " Trans "
+		       << translation << " Time " << tSlice  << " " << time 
 		       << "\n                  Direction " << momentumDir 
 		       << " Local " << localMom;
 #endif 
   int npe = cherenkov->computeNPE(particleDef, pBeta, u, v, w, stepl, zFibre, 
 				  dose, npeDose);
   std::vector<double> wavelength = cherenkov->getWL();
+  std::vector<double> momz       = cherenkov->getMom();
   
   for (int i = 0; i<npe; ++i) {
     double p   = fibre->attLength(wavelength[i]);
@@ -136,9 +140,11 @@ std::vector<HFShower::Hit> HFShower::getHits(G4Step * aStep) {
 			 << probMax << " Survive: " 
 			 << (r1 <= exp(-p*zFibre) && r2 <= probMax);
 #endif
-    if (r1 <= exp(-p*zFibre) && r2 <= probMax) {
+    if (chkFibre < 0 || (r1 <= exp(-p*zFibre) && r2 <= probMax)) {
       hit.time = tSlice+time;
       hit.wavelength = wavelength[i];
+      hit.momentum   = momz[i];
+      hit.position   = globalPos;
       hits.push_back(hit);
       nHit++;
     }
@@ -148,16 +154,52 @@ std::vector<HFShower::Hit> HFShower::getHits(G4Step * aStep) {
   LogDebug("HFShower") << "HFShower::getHits: Number of Hits " << nHit;
   for (int i=0; i<nHit; i++)
     LogDebug("HFShower") << "HFShower::Hit " << i << " WaveLength " 
-			 << hits[i].wavelength << " Time " << hits[i].time;
+			 << hits[i].wavelength << " Time " << hits[i].time
+			 << " Momentum " << hits[i].momentum << " Position "
+			 << hits[i].position;
 #endif
   return hits;
 
 } 
 
-double HFShower::fibreLength(G4String name) {
+std::vector<double> HFShower::getDDDArray(const std::string & str, 
+					  const DDsvalues_type & sv, 
+					  int & nmin) {
 
-  double length = 825.;
-  std::map<G4String,double>::const_iterator it = fibreDz2.find(name);
-  if (it != fibreDz2.end()) length = it->second;
-  return length;
+#ifdef DebugLog
+  LogDebug("HFShower") << "HFShower:getDDDArray called for " << str 
+		       << " with nMin " << nmin;
+#endif
+  DDValue value(str);
+  if (DDfetch(&sv,value)) {
+#ifdef DebugLog
+    LogDebug("HFShower") << value;
+#endif
+    const std::vector<double> & fvec = value.doubles();
+    int nval = fvec.size();
+    if (nmin > 0) {
+      if (nval < nmin) {
+	edm::LogError("HFShower") << "HFShower : # of " << str 
+				  << " bins " << nval << " < " << nmin 
+				  << " ==> illegal";
+	throw cms::Exception("Unknown", "HFShower")
+	  << "nval < nmin for array " << str << "\n";
+      }
+    } else {
+      if (nval < 2) {
+	edm::LogError("HFShower") << "HFShower : # of " << str 
+				  << " bins " << nval << " < 2 ==> illegal"
+				  << " (nmin=" << nmin << ")";
+	throw cms::Exception("Unknown", "HFShower")
+	  << "nval < 2 for array " << str << "\n";
+      }
+    }
+    nmin = nval;
+
+    return fvec;
+  } else {
+    edm::LogError("HFShower") << "HFShower : cannot get array " << str;
+    throw cms::Exception("Unknown", "HFShower") 
+      << "cannot get array " << str << "\n";
+  }
 }

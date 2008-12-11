@@ -68,13 +68,19 @@ process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService
 process.rndmStore = cms.EDProducer("RandomEngineStateProducer")
 
 process.TFileService = cms.Service("TFileService",
-    fileName = cms.string('minbias_QGSP_BERT_EMV1.root')
+    fileName = cms.string('minbias_QGSP_EMV.root')
+)
+
+process.o1 = cms.OutputModule("PoolOutputModule",
+    process.FEVTSIMEventContent,
+    fileName = cms.untracked.string('simevent_minbias_QGSP_EMV.root')
 )
 
 process.p1 = cms.Path(process.VtxSmeared*process.g4SimHits*process.caloSimHitStudy*process.rndmStore)
+process.outpath = cms.EndPath(process.o1)
 process.PythiaSource.pythiaHepMCVerbosity = False
 process.PythiaSource.pythiaPylistVerbosity = 0
-process.g4SimHits.Physics.type = 'SimG4Core/Physics/QGSP_BERT_EMV'
+process.g4SimHits.Physics.type = 'SimG4Core/Physics/QGSP_EMV'
 process.g4SimHits.StackingAction.TrackNeutrino = False
 process.g4SimHits.Generator.MinPhiCut = -5.5
 process.g4SimHits.Generator.MaxPhiCut = 5.5

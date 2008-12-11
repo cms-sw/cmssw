@@ -35,6 +35,7 @@ CaloSD::CaloSD(G4String name, const DDCompactView & cpv,
   energyCut    = m_CaloSD.getParameter<double>("EminTrack")*GeV;
   tmaxHit      = m_CaloSD.getParameter<double>("TmaxHit")*ns;
   std::vector<double> eminHits = m_CaloSD.getParameter<std::vector<double> >("EminHits");
+  std::vector<double> tmaxHits = m_CaloSD.getParameter<std::vector<double> >("TmaxHits");
   std::vector<std::string> hcn = m_CaloSD.getParameter<std::vector<std::string> >("HCNames");
   suppressHeavy= m_CaloSD.getParameter<bool>("SuppressHeavy");
   kmaxIon      = m_CaloSD.getParameter<double>("IonThreshold")*MeV;
@@ -52,6 +53,7 @@ CaloSD::CaloSD(G4String name, const DDCompactView & cpv,
   for (unsigned int k=0; k<hcn.size(); k++) {
     if (name == (G4String)(hcn[k])) {
       if (k < eminHits.size()) eminHit = eminHits[k]*MeV;
+      tmaxHit = tmaxHits[k]*ns;
       break;
     }
   }
