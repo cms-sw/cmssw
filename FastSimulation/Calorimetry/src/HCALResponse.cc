@@ -386,13 +386,17 @@ HCALResponse::HCALResponse(const edm::ParameterSet& pset,
   for(int i = 0; i<maxHDe;  i++) {
     eGridHD[i] = _eGridHD[i];
     for(int j = 0; j<maxHDeta; j++) {
-      meanHD[i][j]        =  _meanHD[i][j]  / eGridHD[i];
+ 
+      double factor = 1.;
+      if( j < 14) factor = 0.94;     
+ 
+      meanHD[i][j]        =  factor * _meanHD[i][j]  / eGridHD[i];
       sigmaHD[i][j]       =  _sigmaHD[i][j] / eGridHD[i];
 
-      meanHD_mip[i][j]    =  _meanHD_mip[i][j]  / eGridHD[i];
+      meanHD_mip[i][j]    =  factor * _meanHD_mip[i][j]  / eGridHD[i];
       sigmaHD_mip[i][j]   =  _sigmaHD_mip[i][j] / eGridHD[i];
 
-      meanHD_nomip[i][j]  =  _meanHD_nomip[i][j]  / eGridHD[i];
+      meanHD_nomip[i][j]  =  factor * _meanHD_nomip[i][j]  / eGridHD[i];
       sigmaHD_nomip[i][j] =  _sigmaHD_nomip[i][j] / eGridHD[i];
 
     }
