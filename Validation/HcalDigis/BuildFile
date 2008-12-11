@@ -5,7 +5,7 @@
 <use name=CalibFormats/HcalObjects>
 <use name=DQMServices/Core>
 <use name=root>
-<use name=SimDataFormats/HepMCProduct>
+<use name=SimDataFormats/GeneratorProducts>
 <use name=clhep>
 <use name=hepmc>
 <flags EDM_PLUGIN=1>
@@ -18,7 +18,7 @@
     <use name=CalibFormats/HcalObjects>
     <use name=DQMServices/Core>
     <use name=root>	 
-    <use name=SimDataFormats/HepMCProduct>
+    <use name=SimDataFormats/GeneratorProducts>
     <use name=clhep>
     <use name=hepmc>	
 </export>

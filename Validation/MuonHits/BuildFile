@@ -3,7 +3,7 @@
 <use name=FWCore/MessageLogger>
 <use name=DQMServices/Core>
 <use name=SimDataFormats/ValidationFormats>
-<use name=SimDataFormats/HepMCProduct>
+<use name=SimDataFormats/GeneratorProducts>
 <use name=DataFormats/DetId>
 <use name=Geometry/CommonDetUnit>
 <use name=Geometry/TrackerGeometryBuilder>
@@ -24,7 +24,7 @@
  <use name=FWCore/MessageLogger>
  <use name=DQMServices/Core>
  <use name=SimDataFormats/ValidationFormats>
- <use name=SimDataFormats/HepMCProduct>
+ <use name=SimDataFormats/GeneratorProducts>
  <use name=DataFormats/DetId>
  <use name=Geometry/CommonDetUnit>
  <use name=DataFormats/MuonDetId>
