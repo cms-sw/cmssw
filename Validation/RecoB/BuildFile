@@ -1,13 +1,13 @@
 <use name=root>
+<use name=rootcore>
 <use name=DataFormats/BTauReco>
 <use name=DQMServices/Core>
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
 <use name=FWCore/Utilities>
-<flags EDM_PLUGIN=1>
-
 <export>
    <lib name=ValidationRecoB>
+<use name=rootcore>
    <use name=root>
    <use name=DataFormats/BTauReco>
    <use name=DQMServices/Core>

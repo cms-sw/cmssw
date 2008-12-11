@@ -13,38 +13,46 @@ from DQMOffline.RecoB.bTagSimpleSVAnalysis_cff import *
 from DQMOffline.RecoB.bTagSoftLeptonAnalysis_cff import *
 from DQMOffline.RecoB.bTagCommon_cff import *
 bTagValidation = cms.EDFilter("BTagPerformanceAnalyzerMC",
-    bTagCommonBlock,
-    finalizeOnly = cms.bool(False),
-    finalizePlots = cms.bool(True),
-    tagConfig = cms.VPSet(cms.PSet(
-        bTagTrackIPAnalysisBlock,
-        type = cms.string('TrackIP'),
-        label = cms.InputTag("impactParameterTagInfos")
+                              bTagCommonBlock,
+                              finalizeOnly = cms.bool(False),
+                              jetCorrection = cms.string(''),
+                              recJetMatching = cms.PSet(
+    refJetCorrection = cms.string(''),
+    recJetCorrection = cms.string(''),
+    maxChi2 = cms.double(50),
+    # Corrected calo jets
+    sigmaDeltaR = cms.double(0.1),
+    sigmaDeltaE = cms.double(0.15)),
+                              finalizePlots = cms.bool(True),
+                              tagConfig = cms.VPSet(cms.PSet(
+    bTagTrackIPAnalysisBlock,
+    type = cms.string('TrackIP'),
+    label = cms.InputTag("impactParameterTagInfos")
     ), 
-        cms.PSet(
-            bTagCombinedSVAnalysisBlock,
-            ipTagInfos = cms.InputTag("impactParameterTagInfos"),
-            type = cms.string('GenericMVA'),
-            svTagInfos = cms.InputTag("secondaryVertexTagInfos"),
-            label = cms.InputTag("combinedSecondaryVertex")
-        ), 
-        cms.PSet(
-            bTagTrackCountingAnalysisBlock,
-            label = cms.InputTag("trackCountingHighEffBJetTags")
-        ), 
-        cms.PSet(
-            bTagTrackCountingAnalysisBlock,
-            label = cms.InputTag("trackCountingHighPurBJetTags")
-        ), 
-        cms.PSet(
-            bTagProbabilityAnalysisBlock,
-            label = cms.InputTag("jetProbabilityBJetTags")
-        ), 
-        cms.PSet(
-            bTagBProbabilityAnalysisBlock,
-            label = cms.InputTag("jetBProbabilityBJetTags")
-        ), 
-        cms.PSet(
+                                                    cms.PSet(
+    bTagCombinedSVAnalysisBlock,
+    ipTagInfos = cms.InputTag("impactParameterTagInfos"),
+    type = cms.string('GenericMVA'),
+    svTagInfos = cms.InputTag("secondaryVertexTagInfos"),
+    label = cms.InputTag("combinedSecondaryVertex")
+    ), 
+                                                    cms.PSet(
+    bTagTrackCountingAnalysisBlock,
+    label = cms.InputTag("trackCountingHighEffBJetTags")
+    ), 
+                                                    cms.PSet(
+    bTagTrackCountingAnalysisBlock,
+    label = cms.InputTag("trackCountingHighPurBJetTags")
+    ), 
+                                                    cms.PSet(
+    bTagProbabilityAnalysisBlock,
+    label = cms.InputTag("jetProbabilityBJetTags")
+    ), 
+                                                    cms.PSet(
+    bTagBProbabilityAnalysisBlock,
+    label = cms.InputTag("jetBProbabilityBJetTags")
+    ), 
+                                                    cms.PSet(
             bTagGenericAnalysisBlock,
             label = cms.InputTag("impactParameterMVABJetTags")
         ), 

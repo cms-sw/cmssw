@@ -17,11 +17,17 @@
 #include "DQMOffline/RecoB/interface/JetTagPlotter.h"
 #include "DQMOffline/RecoB/interface/BaseTagInfoPlotter.h"
 #include "DQMOffline/RecoB/interface/Tools.h"
-#include "RecoBTag/MCTools/interface/JetFlavourIdentifier.h"
-#include "RecoBTag/MCTools/interface/JetFlavour.h"
+//#include "RecoBTag/MCTools/interface/JetFlavourIdentifier.h"
+//#include "RecoBTag/MCTools/interface/JetFlavour.h"
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
 #include "SimDataFormats/JetMatching/interface/JetFlavourMatching.h"
+#include "SimDataFormats/JetMatching/interface/JetFlavour.h"
+
+#include "DQMOffline/RecoB/interface/CorrectJet.h"
+#include "DQMOffline/RecoB/interface/MatchJet.h"
+
+
 
 #include <string>
 #include <vector>
@@ -58,9 +64,13 @@ class BTagPerformanceAnalyzerMC : public edm::EDAnalyzer {
   void init(const edm::ParameterSet& iConfig);
   void bookHistos(const edm::ParameterSet& pSet);
   EtaPtBin getEtaPtBin(int iEta, int iPt);
-  typedef std::map<edm::RefToBase<reco::Jet>, unsigned int, JetRefCompare> FlavourMap;
-  BTagMCTools::JetFlavour getJetFlavour(
-	edm::RefToBase<reco::Jet> caloRef, bool fastMC, FlavourMap flavours);
+    typedef std::pair<reco::Jet, reco::JetFlavour> JetWithFlavour;
+typedef std::map<edm::RefToBase<reco::Jet>, unsigned int, JetRefCompare> FlavourMap;
+  //  reco::JetFlavour getJetFlavour(
+  //	edm::RefToBase<reco::Jet> caloRef, FlavourMap flavours);
+  bool getJetWithFlavour(edm::RefToBase<reco::Jet> caloRef, 
+                         FlavourMap flavours, JetWithFlavour &jetWithFlavour,
+                         const edm::EventSetup & es);
 
   vector<std::string> tiDataFormatType;
   bool partonKinematics;
@@ -74,7 +84,6 @@ class BTagPerformanceAnalyzerMC : public edm::EDAnalyzer {
   bool update, allHisto;
   bool finalize;
   bool finalizeOnly;
-  bool fastMC;
   edm::InputTag jetMCSrc;
 
   vector< vector<JetTagPlotter*> > binJetTagPlotters;
@@ -83,11 +92,18 @@ class BTagPerformanceAnalyzerMC : public edm::EDAnalyzer {
   vector< vector<edm::InputTag> > tagInfoInputTags;
   // Contains plots for each bin of rapidity and pt.
   vector< vector<BTagDifferentialPlot*> > differentialPlots;
-  JetFlavourIdentifier jfi;
+  //  JetFlavourIdentifier jfi;
   vector<edm::ParameterSet> moduleConfig;
   map<BaseTagInfoPlotter*, size_t> binTagInfoPlottersToModuleConfig;
 
   bool mcPlots_;
+
+  CorrectJet jetCorrector;
+  MatchJet jetMatcher;
+
+  bool eventInitialized;
+
+
 
 };
 

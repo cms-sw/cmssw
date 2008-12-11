@@ -1,7 +1,7 @@
 <use name=root>
 <use name=DQMOffline/RecoB>
 <use name=DQMServices/Core>
+<use name=Validation/RecoB>
 <library file="BTagPerformanceAnalyzerMC.cc" name=ValidationRecoBPlugins>
       <flags EDM_PLUGIN=1>
-<use name=RecoBTag/MCTools>
 </library>

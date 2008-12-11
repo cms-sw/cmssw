@@ -2,18 +2,25 @@
 #include <string>
 using namespace std;
 
-int colorList[] = {1,2,3,4,5,6,7,8,9,10}; 
-int markerStyleList[] = {21,21,23,23,22,22,23,23,21,21};  
+int colorList[] = {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20}; 
+int markerStyleList[] = {21,21,23,23,22,22,23,23,24,24,24,24,25,25,25,25,26,26,26,26};  
 
 TObject * getHistogram(TFile * f, string algo,string histoName, string range = "GLOBAL")
 {
-string prefix = "DQMData/POG/Btag/JetTag";
+string prefix = "DQMData/POG_V0001/Btag/JetTag";
 string d = prefix+"_"+algo+"_"+range;
  cout <<" DIR "<<d<<endl;
 TDirectory * dir  =(TDirectory *) f->Get(d.c_str());
 return dir->Get((histoName+"_"+algo+"_"+range).c_str());
 }
 
+TObject * getHistogram2(TFile * f, string algo,string histoName, string range = "GLOBAL")
+{
+string prefix = "JetTag";
+string d = prefix+"_"+algo+"_"+range;
+TDirectory * dir  =(TDirectory *) f->Get(d.c_str());
+return dir->Get((histoName+"_"+algo+"_"+range).c_str());
+}
 
 void setStyle(int i, TH1F *obj)
 {
@@ -27,6 +34,7 @@ void drawAll()
 {
   //  TFile *_file0 = TFile::Open("jetTagAnalysisBoris_standard.root");
   TFile *_file1 = TFile::Open("POG_CMSSW_2_1_0_pre4.root");
+  TFile *_file2 = TFile::Open("jetTagAnalysis.root");
   
   vector<TFile *> files;
   vector<string> algos;
@@ -51,8 +59,6 @@ void drawAll()
  files.push_back(_file1);
  files.push_back(_file1);
  files.push_back(_file1);
- files.push_back(_file1);
- files.push_back(_file1);
 
 
   TLegend * leg = new TLegend(0.4,0.4,0.6,0.6);
@@ -64,11 +70,22 @@ void drawAll()
    {
       cout << algos[i] << endl;
       //TH1F * h = (TH1F *) getHistogram(files[i],algos[i],"FlavEffVsBEff_DUS_discr","ETA_0-1.4");
-     TH1F * h = (TH1F *) getHistogram(files[i],algos[i],"FlavEffVsBEff_DUS_discr","GLOBAL");
+     TH1F * h = (TH1F *) getHistogram(_file1,algos[i],"FlavEffVsBEff_DUS_discr","GLOBAL");
      //TH1F * h = (TH1F *) getHistogram(files[i],algos[i],"FlavEffVsBEff_DUS_discr","ETA_1.4-2.4");
      cout << h << endl;
      if(i==0) h->Draw(); else h->Draw("same"); 
      setStyle(i,h);
+     leg->AddEntry(h,algos[i].c_str(),"p");
+   }
+  for(int i = 0 ; i < algos.size() ; i++)
+   {
+      cout << algos[i] << endl;
+      //TH1F * h = (TH1F *) getHistogram(files[i],algos[i],"FlavEffVsBEff_DUS_discr","ETA_0-1.4");
+     TH1F * h = (TH1F *) getHistogram2(_file2,algos[i],"FlavEffVsBEff_DUS_discr","GLOBAL");
+     //TH1F * h = (TH1F *) getHistogram(files[i],algos[i],"FlavEffVsBEff_DUS_discr","ETA_1.4-2.4");
+     cout << h << endl;
+     h->Draw("same"); 
+     setStyle(i+10,h);
      leg->AddEntry(h,algos[i].c_str(),"p");
    }
   leg->Draw("same");
