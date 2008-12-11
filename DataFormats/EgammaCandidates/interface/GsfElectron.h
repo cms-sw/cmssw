@@ -7,7 +7,7 @@
  *
  * \author U.Berthon, ClaudeCharlot, LLR
  *
- * \version $Id: GsfElectron.h,v 1.14 2008/12/05 17:01:13 charlot Exp $
+ * \version $Id: GsfElectron.h,v 1.15 2008/12/11 17:44:30 charlot Exp $
  *
  */
 
@@ -26,6 +26,9 @@
 // Ursula Berthon - LLR Ecole polytechnique
 //
 // $Log: GsfElectron.h,v $
+// Revision 1.15  2008/12/11 17:44:30  charlot
+// added ESeedClusterOverP and access method
+//
 // Revision 1.14  2008/12/05 17:01:13  charlot
 // cleaning in extrapolations for matching variables; added fbrem as GsfElectron data member; update of analyzers accordingly
 //
@@ -142,40 +145,40 @@ class GsfElectron : public RecoCandidate {
   float caloEnergy() const {return superClusterEnergy_;}
   //! the super cluster position
   math::XYZPoint caloPosition() const {return superCluster()->position();}
-  //! the track momentum at vertex
+  //! the track momentum at the PCA to the beam spot
   math::XYZVector trackMomentumAtVtx() const {return trackMomentumAtVtx_;}
-  //! the track impact point state position
+  //! the track PCA to the beam spot
   math::XYZPoint TrackPositionAtVtx() const {return trackPositionAtVtx_;}
-  //! the track momentum extrapolated at the supercluster position
+  //! the track momentum extrapolated at the supercluster position from the innermost track state
   math::XYZVector trackMomentumAtCalo() const {return trackMomentumAtCalo_;}
-  //! the track momentum extrapolated from outermost position at the seed cluster position
+  //! the track momentum extrapolated at the seed cluster position from the outermost track state 
   math::XYZVector trackMomentumOut() const {return trackMomentumOut_;}
-  //! the track momentum extrapolated from outermost position at the ele cluster position
+  //! the track momentum extrapolated at the ele cluster position from the outermost track state
   math::XYZVector trackMomentumAtEleClus() const {return trackMomentumAtEleClus_;}
-  //! the track extrapolated position at min distance to the supercluster position
+  //! the track PCA to the supercluster position
   math::XYZPoint TrackPositionAtCalo() const {return trackPositionAtCalo_;}
-  //! the supercluster energy / track momentum at impact point
+  //! the supercluster energy / track momentum at the PCA to the beam spot
   float eSuperClusterOverP() const {return eSuperClusterOverP_;}
-  //! the seed cluster energy / track momentum at impact point
-  float eSeedClusterOverPin() const {return eSeedClusterOverP_;}
-  //! the seed cluster energy / track momentum at calo from outermost state
+  //! the seed cluster energy / track momentum at the PCA to the beam spot
+  float eSeedClusterOverP() const {return eSeedClusterOverP_;}
+  //! the seed cluster energy / track momentum at calo extrapolated from the outermost track state
   float eSeedClusterOverPout() const {return eSeedClusterOverPout_;}
-  //! the electron cluster energy / track momentum at calo from outermost state
+  //! the electron cluster energy / track momentum at calo extrapolated from the outermost track state
   float eEleClusterOverPout() const {return eEleClusterOverPout_;}
-  //! the supercluster eta - track eta from helix extrapolation from impact point
+  //! the supercluster eta - track eta position at calo extrapolated from innermost track state
   float deltaEtaSuperClusterTrackAtVtx() const {return deltaEtaSuperClusterAtVtx_;}
-  //! the seed cluster eta - track eta at calo from outermost state
+  //! the seed cluster eta - track eta position at calo extrapolated from the outermost track state
   float deltaEtaSeedClusterTrackAtCalo() const {return deltaEtaSeedClusterAtCalo_;}
-  //! the electron cluster eta - track eta at calo from outermost state
+  //! the electron cluster eta - track eta position at calo extrapolated from the outermost state
   float deltaEtaEleClusterTrackAtCalo() const {return deltaEtaEleClusterAtCalo_;}
-  //! the supercluster phi - track phi from helix extrapolation from impact point
+  //! the supercluster phi - track phi position at calo extrapolated from the innermost track state
   float deltaPhiSuperClusterTrackAtVtx() const {return deltaPhiSuperClusterAtVtx_;}
-  //! the seed cluster phi - track phi at calo from outermost state
+  //! the seed cluster phi - track phi position at calo extrapolated from the outermost track state
   float deltaPhiSeedClusterTrackAtCalo() const {return deltaPhiSeedClusterAtCalo_;}
-  //! the electron cluster phi - track phi at calo from outermost state
+  //! the electron cluster phi - track phi position at calo extrapolated from the outermost track state
   float deltaPhiEleClusterTrackAtCalo() const {return deltaPhiEleClusterAtCalo_;}
 
-  //! the hadronic over electromagnetic fraction
+  //! the hadronic over electromagnetic energy fraction
   float hadronicOverEm() const {return hadOverEm_;}
 
   // corrections
@@ -201,7 +204,7 @@ class GsfElectron : public RecoCandidate {
   //! the error on the supercluster track momentum
   float trackMomentumError() const {return trackMomentumError_;}
 
-  //! get associated superCluster Pointer
+  //! get associated supercluster pointer
   SuperClusterRef superCluster() const { return superCluster_; }
 
   //! get associated GsfTrack pointer
@@ -211,7 +214,7 @@ class GsfElectron : public RecoCandidate {
   //! measure the fraction of common hits between the GSF and CTF tracks
   float shFracInnerHits() const { return shFracInnerHits_ ; }
 
-  //! number of related brem clusters
+  //! number of basic clusters inside the supercluster
   int numberOfClusters() const {return superCluster_->clustersSize();}
 
   //! array of pointers to the related brem clusters
@@ -220,15 +223,15 @@ class GsfElectron : public RecoCandidate {
 
   bool isElectron() const;
 
-  //! a characteristic from the associated super-cluster
+  //! supercluster shape variable
   float scSigmaEtaEta() const { return scSigmaEtaEta_ ; }
-  //! a characteristic from the associated super-cluster
+  //! supercluster shape variable
   float scSigmaIEtaIEta() const { return scSigmaIEtaIEta_ ; }
-  //! a characteristic from the associated super-cluster
+  //! supercluster shape variable
   float scE1x5() const { return scE1x5_ ; }
-  //! a characteristic from the associated super-cluster
+  //! supercluster shape variable
   float scE2x5Max() const { return scE2x5Max_ ; }
-  //! a characteristic from the associated super-cluster
+  //! supercluster shape variable
   float scE5x5() const { return scE5x5_ ; }
 
   //! accessor to the ambiguous gsf tracks
@@ -246,10 +249,6 @@ class GsfElectron : public RecoCandidate {
    
 
 private:
-
-  // temporary
-  //  float ecalEta(float EtaParticle , float Zvertex, float plane_Radius);
-  //  float ecalPhi(float PtParticle, float EtaParticle, float PhiParticle, int ChargeParticle, float Rstart);
 
   math::XYZVector trackMomentumAtVtx_;
   math::XYZPoint trackPositionAtVtx_;
