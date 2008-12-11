@@ -4,7 +4,6 @@
 <use name=FWCore/ServiceRegistry>
 <use name=DQMServices/Core>
 <use name=DQMServices/Components>
-<use name=DQMServices/WebComponents>
 <use name=DQMServices/ClientConfig>
 <use name=DataFormats/EgammaCandidates>
 <use name=DataFormats/RecoCandidate>
