@@ -10,6 +10,7 @@ HPDNoiseGenerator::HPDNoiseGenerator(const edm::ParameterSet & pset, const HcalS
 
 void HPDNoiseGenerator::fillNoiseSignals()
 {
+  theNoiseSignals.clear();
   std::vector<std::pair <HcalDetId, const float* > > noise = theLibraryReader.getNoisyHcalDetIds();
   for(std::vector<std::pair <HcalDetId, const float* > >::const_iterator noiseItr = noise.begin();
       noiseItr != noise.end(); ++noiseItr)
