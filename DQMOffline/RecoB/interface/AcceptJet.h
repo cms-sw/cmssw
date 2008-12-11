@@ -2,7 +2,6 @@
 #define AcceptJet_H
 
 #include "DataFormats/JetReco/interface/Jet.h"
-// #include "RecoBTag/MCTools/interface/JetFlavour.h"
 
 /** \class AcceptJet
  *

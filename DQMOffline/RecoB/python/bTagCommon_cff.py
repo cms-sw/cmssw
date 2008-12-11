@@ -11,7 +11,8 @@ bTagCommonBlock = cms.PSet(
     produceEps = cms.bool(False),
     etaMax = cms.double(2.4),
     # use pre-computed jet flavour identification
-    fastMC = cms.bool(False),
+    # new default is to use genparticles - and it is the only option
+#    fastMC = cms.bool(True),
     # Parameters which are common to all tagger algorithms
     # To add to an already existing set of plots new data, set update to true, and
     # inputfile to the file containing the existing histograms.

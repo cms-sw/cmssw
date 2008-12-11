@@ -10,8 +10,10 @@
 <use name=rootcore>
 <use name=DQMServices/Core>
 <use name=root>
+<use name=JetMETCorrections/Objects>
 <use name=boost>
 <export>
+<use name=JetMETCorrections/Objects>
   <use name=DataFormats/BTauReco>
   <use name=DataFormats/Common>
   <use name=DataFormats/JetReco>
@@ -19,7 +21,6 @@
   <use name=FWCore/Framework>
   <use name=FWCore/ParameterSet>
   <use name=RecoBTau/JetTagComputer>
-  <use name=RecoBTag/MCTools>
   <use name=rootcore>
   <use name=boost>
   <lib name=DQMOfflineRecoB>

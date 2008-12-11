@@ -177,6 +177,27 @@ void JetTagPlotter::psPlot(const TString & name)
   canvas.Print(name + cName + ".ps]");
 }
 
+
+void JetTagPlotter::analyzeTag(const reco::Jet & jet,
+			       float discriminator, int jetFlavour)  
+{
+
+  if (mcPlots_ == true) {
+  dJetFlav->fill(jetFlavour, jetFlavour);
+//   dJetPartonMomentum->fill(jetFlav, jetFlavour.underlyingParton4Vec().P() );
+//   dJetPartonPt->fill(jetFlav, jetFlavour.underlyingParton4Vec().Pt() );
+//   dJetPartonPseudoRapidity->fill(jetFlav, jetFlavour.underlyingParton4Vec().Eta() );
+  }
+  //  dJetMultiplicity->fill(jetFlavourour, jetTag.tracks().size()); //fixme
+  dDiscriminator->fill(jetFlavour, discriminator );
+  dJetRecMomentum->fill(jetFlavour, jet.p() );
+  dJetRecPt->fill(jetFlavour, jet.pt() );
+  dJetRecPseudoRapidity->fill(jetFlavour, jet.eta() );
+  dJetRecPhi->fill(jetFlavour, jet.phi());
+  
+}
+
+
 void JetTagPlotter::analyzeTag(const reco::JetTag & jetTag,
 	const int & jetFlavour)
 {
@@ -195,6 +216,7 @@ void JetTagPlotter::analyzeTag(const reco::JetTag & jetTag,
   dJetRecPhi->fill(jetFlavour, jetTag.first->phi());
   
 }
+
 
 
 

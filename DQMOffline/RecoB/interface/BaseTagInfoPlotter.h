@@ -7,7 +7,6 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/BTauReco/interface/BaseTagInfo.h"
 #include "DQMOffline/RecoB/interface/BaseBTagPlotter.h"
-// #include "RecoBTag/MCTools/interface/JetFlavour.h"
 
 class BaseTagInfoPlotter : public BaseBTagPlotter {
 
