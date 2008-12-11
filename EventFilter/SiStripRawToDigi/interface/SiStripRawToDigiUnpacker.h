@@ -68,7 +68,7 @@ class SiStripRawToDigiUnpacker {
   SiStripRawToDigiUnpacker();
 
   /// sets the SiStripEventSummary -> not yet implemented for FEDBuffer class
-  void updateEventSummary( const Fed9U::Fed9UEvent* const, SiStripEventSummary& );
+  void updateEventSummary( const sistrip::FEDBuffer&, SiStripEventSummary& );
   
   /// order of strips
   inline void readoutOrder( uint16_t& physical_order, uint16_t& readout_order );
@@ -187,14 +187,11 @@ namespace sistrip {
     /// creates digis
     void createDigis( const SiStripFedCabling&, const FEDRawDataCollection&, SiStripEventSummary&, RawDigis& scope_mode, RawDigis& virgin_raw, RawDigis& proc_raw, Digis& zero_suppr );
 
-    /// trigger FED
-    void triggerFed( const FEDRawDataCollection&, SiStripEventSummary&, const uint32_t& event );
+    /// sets the SiStripEventSummary -> not yet implemented for FEDBuffer class
+    void updateEventSummary( const Fed9U::Fed9UEvent* const, SiStripEventSummary& );
 
-    /// EventSummary update request
-    inline void useDaqRegister( bool use );
-
-    /// set verbosity 
-    inline void quiet( bool set );
+    /// retrieve unpacker
+    inline SiStripRawToDigiUnpacker* unpacker();
     
   private:
     
@@ -204,9 +201,7 @@ namespace sistrip {
   
 }
 
-void sistrip::RawToDigiUnpacker::useDaqRegister( bool use ) { unpacker_->useDaqRegister( use ); }
-
-void sistrip::RawToDigiUnpacker::quiet( bool set ) { unpacker_->quiet( set ); }
+inline SiStripRawToDigiUnpacker* sistrip::RawToDigiUnpacker::unpacker() { return unpacker_; }
 
 #endif // EventFilter_SiStripRawToDigi_SiStripRawToDigiUnpacker_H
 
