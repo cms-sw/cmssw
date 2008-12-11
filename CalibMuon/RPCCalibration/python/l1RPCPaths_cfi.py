@@ -1,11 +1,8 @@
-import FWCore.ParameterSet.Config as cms
+import HLTrigger.HLTfilters.hltHighLevel_cfi
 
-l1RPCHLTFilter = cms.EDFilter("HLTHighLevel",
-    HLTPaths = cms.vstring('HLT_L1Mu'),
-    byName = cms.bool(True),
-    andOr = cms.bool(True),
-    throw = cms.untracked.bool(False), #dont throw except on unknown path names
-    TriggerResultsTag = cms.InputTag("TriggerResults")
+l1RPCHLTFilter = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone(
+    HLTPaths = ['HLT_L1Mu'],
+    throw = False #dont throw except on unknown path names
 )
 
 
