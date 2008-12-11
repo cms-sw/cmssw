@@ -17,6 +17,14 @@ template <class T> class ClusterParameterEstimator {
    } 
 
   virtual ~ClusterParameterEstimator(){}
+
+  //methods needed by FastSim
+  virtual void enterLocalParameters(unsigned int id, std::pair<int,int>
+				    &row_col, LocalValues pos_err_info) const{}
+  virtual void enterLocalParameters(uint32_t id, uint16_t firstStrip,
+				    LocalValues pos_err_info) const{}
+  virtual void clearParameters() const {}
+
   
 };
 
