@@ -8,7 +8,6 @@
 <library name="GeneratorInterfaceLHEProducer" file="LHEProducer.cc LHEFilter.cc">
 	<use name="FWCore/Framework"/>
 	<use name="SimDataFormats/GeneratorProducts"/>
-	<use name="SimDataFormats/HepMCProduct"/>
 	<flags EDM_PLUGIN="1"/>
 </library>
 <library name="GeneratorInterfaceLHEIO" file="LHESource.cc MCDBSource.cc LHEWriter.cc">
@@ -21,7 +20,7 @@
 <library name="GeneratorInterfaceLHEAnalyzer" file="LHEAnalyzer.cc">
 	<use name="FWCore/Framework"/>
 	<use name="DataFormats/StdDictionaries"/>
-	<use name="SimDataFormats/HepMCProduct"/>
+	<use name="SimDataFormats/GeneratorProducts"/>
 	<use name="PhysicsTools/UtilAlgos"/>
 	<flags EDM_PLUGIN="1"/>
 </library>
