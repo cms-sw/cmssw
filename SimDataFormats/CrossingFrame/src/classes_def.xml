@@ -8,12 +8,12 @@
   <class name="std::vector<const SimTrack *> "/>
   <class name="std::vector<const SimVertex *> "/>
   <class name="std::vector<const edm::HepMCProduct *> "/>
-  <class name="CrossingFramePlaybackInfo "/>
-  <class name="edm::Wrapper<CrossingFramePlaybackInfo> "/>
   <class name="CrossingFrame<PSimHit>" persistent="false"/>
+  <class name="CrossingFramePlaybackInfo "/>
   <class name="CrossingFrame<PCaloHit> " persistent="false"/>
   <class name="CrossingFrame<SimTrack> " persistent="false"/>
   <class name="CrossingFrame<SimVertex> " persistent="false"/>
   <class name="CrossingFrame<edm::HepMCProduct> " persistent="false"/>
+  <class name="edm::Wrapper<CrossingFramePlaybackInfo> "/>
 </lcgdict>
 

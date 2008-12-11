@@ -1,16 +1,7 @@
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
 #include "SimDataFormats/EncodedEventId/interface/EncodedEventId.h"
-//#include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/Math/interface/Vector3D.h"
 
-#include "SimDataFormats/Track/interface/SimTrack.h"
-#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
-#include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
-#include "SimDataFormats/Track/interface/SimTrackContainer.h"
-#include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
-
-//using namespace std;
 using namespace edm;
 
 template <> const int  CrossingFrame<PSimHit>::limHighLowTof = 36;
@@ -54,7 +45,7 @@ void CrossingFrame<PSimHit>::addPileups(const int bcr, std::vector<PSimHit> *sim
     if (!checkTof || accept) {
       (*simhits)[i].setEventId(id);
       // For simhits a container may be used twice (high+low)
-      // and the acceptance depends onb ToF
+      // and the acceptance depends on ToF
       // Therefore we transform only at the end.
       pileups_.push_back(&((*simhits)[i]));
       count++;
@@ -75,30 +66,10 @@ void CrossingFrame<PCaloHit>::addPileups(const int bcr, std::vector<PCaloHit> *c
 }
 
 template <> 
-void CrossingFrame<edm::HepMCProduct>::addPileups(const int bcr, std::vector<edm::HepMCProduct> *mcps, unsigned int evtNr, int vertexoffset,bool checkTof,bool high) { 
-  LogWarning("CrossingFrame")<<"addPileups should never be called for a HepMCProduct!!";
-}
-
-template <> 
 void  CrossingFrame<PSimHit>::setTof() {
-  // only for simhits: containers may be used twice, and result depends on ToF
+  // does something only for simhits: containers may be used twice, and result depends on ToF
   // that is why we have to do the ToF transformation right at the end
   for (unsigned int i=0;i<pileups_.size();++i) {
     const_cast<PSimHit *>(pileups_[i])->setTof(pileups_[i]->timeOfFlight() + getBunchCrossing(i)*bunchSpace_);
   } 
 } 
-//ATTENTION:======================================================================================
-// THIS UGLY IMPLEMENTATION WAS DONE TO OVERCOME A TEMPLATE PROBLEM THAT REMAINS TO BE UNDERSTOOD
-// AS SOON AS THERE IS A DEFAULT IMPLEMENTATION FOR setTof THIS DEFAULT WAS TAKEN IN ALL CASES
-//================================================================================================
-template <> 
-void  CrossingFrame<PCaloHit>::setTof() {}
-
-template <> 
-void  CrossingFrame<SimTrack>::setTof() {}
-
-template <> 
-void  CrossingFrame<SimVertex>::setTof() {}
-
-template <> 
-void  CrossingFrame<edm::HepMCProduct>::setTof() {}

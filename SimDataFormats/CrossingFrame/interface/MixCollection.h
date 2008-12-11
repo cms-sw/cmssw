@@ -50,9 +50,7 @@ class MixCollection {
 
     /** constructors */
     MixItr():first_(true), internalCtr_(0) {;}
-    //    MixItr(typename std::vector<T>::const_iterator it) : pMixItr_(it),nrDets_(0),first_(true),internalCtr_(0) {;}
-    //FIXME: bwds compatible??
-         MixItr(typename std::vector<const T *>::const_iterator it) : pMixItr_(it),nrDets_(0),first_(true),internalCtr_(0) {;}
+    MixItr(typename std::vector<const T *>::const_iterator it) : pMixItr_(it),nrDets_(0),first_(true),internalCtr_(0) {;}
        MixItr(MixCollection *shc, int nrDets) :     
        mixCol_(shc),nrDets_(nrDets),first_(true),iSignal_(0),iPileup_(0),internalCtr_(0) {;}
 
@@ -63,7 +61,6 @@ class MixCollection {
     /**operators*/
     // default version valid for HepMCProduct
     const T* operator->() const { return *(pMixItr_.operator->()); }
-    //    FIXME: to be implemented
     const T& operator*() const {return *(pMixItr_.operator*()); }
     MixItr operator++ () {return next();}
     MixItr operator++ (int) {return next();}
@@ -82,7 +79,6 @@ class MixCollection {
     int getPileupEventNr() const {return (getTrigger() ? 0 : myCF_->getPileupEventNr(internalCtr_));}
 
   private:
-    //public??         MixItr(typename std::vector<const T *>::const_iterator it) : pMixItr_(it),nrDets_(0),first_(true),internalCtr_(0) {;}
 
     typename std::vector<const T *>::const_iterator pMixItr_;
     typename std::vector<const T *>::const_iterator pMixItrEnd_;
@@ -264,9 +260,7 @@ typename MixCollection<T>::MixItr MixCollection<T>::begin() {
 
 template <class T>
 typename  MixCollection<T>::MixItr MixCollection<T >::end() {
-  //  typename std::vector<T>::const_iterator first;
   typename std::vector<const T *>::const_iterator first;
- //  typename std::vector<T>::const_iterator last;
   typename std::vector<const T*>::const_iterator last;
   crossingFrames_[nrDets_-1]->getPileups(first, last);
   return last;

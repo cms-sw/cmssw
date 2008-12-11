@@ -12,8 +12,9 @@
 
 namespace {
   struct dictionary {
- 	CrossingFramePlaybackInfo dummy0;
  	CrossingFrame<PSimHit> dummy1;
+
+ 	CrossingFramePlaybackInfo dummy0;
  	CrossingFrame<PCaloHit> dummy2;
  	CrossingFrame<SimTrack> dummy3;
  	CrossingFrame<SimVertex> dummy4;
