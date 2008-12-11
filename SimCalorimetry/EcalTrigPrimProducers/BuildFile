@@ -12,7 +12,6 @@
 <use name=CondFormats/L1TObjects>
 <use name=CalibCalorimetry/EcalTPGTools>
 <use name=CondFormats/DataRecord>
-<use name=SimDataFormats/HepMCProduct>
 <export>
 <use name=hepmc>
 <use name=root>
@@ -27,5 +26,4 @@
 <use name=CondFormats/L1TObjects>
 <use name=CalibCalorimetry/EcalTPGTools>
 <use name=CondFormats/DataRecord>
-<use name=SimDataFormats/HepMCProduct>
 </export>
