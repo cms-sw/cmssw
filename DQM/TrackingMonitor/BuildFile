@@ -9,7 +9,6 @@
 <use name=TrackingTools/TransientTrackingRecHit> 
 <use name=TrackingTools/TransientTrack> 
 <use name=TrackingTools/TrackFitters>
-<flags EDM_PLUGIN=1>
 <export>
    <lib name=DQMTrackingMonitor>
    <use name=FWCore/Framework>
