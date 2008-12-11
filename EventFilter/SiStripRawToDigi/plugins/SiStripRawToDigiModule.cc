@@ -177,7 +177,7 @@ sistrip::RawToDigiModule::RawToDigiModule( const edm::ParameterSet& pset ) :
   bool using_fed_key  = pset.getUntrackedParameter<bool>("UseFedKey",false);
   bool quiet = pset.getUntrackedParameter<bool>("Quiet",true);
   rawToDigi_ = new sistrip::RawToDigiUnpacker( appended_bytes, fed_buffer_dump_freq, fed_event_dump_freq, trigger_fed_id, using_fed_key );
-  rawToDigi_->quiet(quiet);
+  rawToDigi_->unpacker()->quiet(quiet);
   
   produces< SiStripEventSummary >();
   produces< edm::DetSetVector<SiStripRawDigi> >("ScopeMode");
@@ -222,7 +222,7 @@ void sistrip::RawToDigiModule::produce( edm::Event& event, const edm::EventSetup
 
   // Populate SiStripEventSummary object with "trigger FED" info
   std::auto_ptr<SiStripEventSummary> summary( new SiStripEventSummary() );
-  rawToDigi_->triggerFed( *buffers, *summary, event.id().event() ); 
+  rawToDigi_->unpacker()->triggerFed( *buffers, *summary, event.id().event() ); 
 
   // Create containers for digis
   edm::DetSetVector<SiStripRawDigi>* sm = new edm::DetSetVector<SiStripRawDigi>();
