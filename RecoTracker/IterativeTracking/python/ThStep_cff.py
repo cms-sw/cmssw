@@ -11,28 +11,26 @@ thStripRecHits.ClusterProducer = 'thClusters'
 # Propagator taking into account momentum uncertainty in multiple
 # scattering calculation.
 
-#import TrackingTools.MaterialEffects.MaterialPropagator_cfi
-#MaterialPropagatorPtMin06 = TrackingTools.MaterialEffects.MaterialPropagator_cfi.MaterialPropagator.clone()
-#MaterialPropagatorPtMin06.ComponentName = 'PropagatorWithMaterialPtMin06'
-#MaterialPropagatorPtMin06.ptMin = 0.6
+import TrackingTools.MaterialEffects.MaterialPropagator_cfi
+MaterialPropagatorPtMin03 = TrackingTools.MaterialEffects.MaterialPropagator_cfi.MaterialPropagator.clone()
+MaterialPropagatorPtMin03.ComponentName = 'PropagatorWithMaterialPtMin03'
+MaterialPropagatorPtMin03.ptMin = 0.3
 
-#import TrackingTools.MaterialEffects.OppositeMaterialPropagator_cfi
-#OppositeMaterialPropagatorPtMin06 = TrackingTools.MaterialEffects.OppositeMaterialPropagator_cfi.OppositeMaterialPropagator.clone()
-#OppositeMaterialPropagatorPtMin06.ComponentName = 'PropagatorWithMaterialOppositePtMin06'
-#OppositeMaterialPropagatorPtMin06.ptMin = 0.6
+import TrackingTools.MaterialEffects.OppositeMaterialPropagator_cfi
+OppositeMaterialPropagatorPtMin03 = TrackingTools.MaterialEffects.OppositeMaterialPropagator_cfi.OppositeMaterialPropagator.clone()
+OppositeMaterialPropagatorPtMin03.ComponentName = 'PropagatorWithMaterialOppositePtMin03'
+OppositeMaterialPropagatorPtMin03.ptMin = 0.3
 
 import RecoTracker.TkSeedGenerator.GlobalMixedSeeds_cfi
 #SEEDS
 thPLSeeds = RecoTracker.TkSeedGenerator.GlobalMixedSeeds_cfi.globalMixedSeeds.clone()
 import RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cfi
 thPLSeeds.OrderedHitsFactoryPSet.SeedingLayers = 'ThLayerPairs'
-thPLSeeds.RegionFactoryPSet.RegionPSet.ptMin = 0.6
+thPLSeeds.RegionFactoryPSet.RegionPSet.ptMin = 0.3
 thPLSeeds.RegionFactoryPSet.RegionPSet.originHalfLength = 7.0
-thPLSeeds.RegionFactoryPSet.RegionPSet.originRadius = 0.7
-#thPLSeeds.propagator = cms.string('PropagatorWithMaterialPtMin06')
-# The fast-helix fit doesn't work well for large d0 pixel pair seeding.
-#thPLSeeds.UseFastHelix = False
-
+thPLSeeds.RegionFactoryPSet.RegionPSet.originRadius = 1.2
+thPLSeeds.propagator = cms.string('PropagatorWithMaterialPtMin03')
+thPLSeeds.UseFastHelix = False
 
 #TRAJECTORY MEASUREMENT
 thMeasurementTracker = RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cfi.MeasurementTracker.clone()
@@ -55,8 +53,8 @@ import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
 thCkfTrajectoryBuilder.ComponentName = 'thCkfTrajectoryBuilder'
 thCkfTrajectoryBuilder.MeasurementTrackerName = 'thMeasurementTracker'
 thCkfTrajectoryBuilder.trajectoryFilterName = 'thCkfTrajectoryFilter'
-#thCkfTrajectoryBuilder.propagatorAlong = cms.string('PropagatorWithMaterialPtMin06')
-#thCkfTrajectoryBuilder.propagatorOpposite = cms.string('PropagatorWithMaterialOppositePtMin06')
+thCkfTrajectoryBuilder.propagatorAlong = cms.string('PropagatorWithMaterialPtMin03')
+thCkfTrajectoryBuilder.propagatorOpposite = cms.string('PropagatorWithMaterialOppositePtMin03')
 
 
 #TRACK CANDIDATES
@@ -75,13 +73,12 @@ thWithMaterialTracks.src = 'thTrackCandidates'
 thWithMaterialTracks.clusterRemovalInfo = 'thClusters'
 
 
-
-#HIT REMOVAL
 secfilter = cms.EDFilter("QualityFilter",
     TrackQuality = cms.string('highPurity'),
     recTracks = cms.InputTag("secStep")
 )
 
+#HIT REMOVAL
 thClusters = cms.EDFilter("TrackClusterRemover",
     oldClusterRemovalInfo = cms.InputTag("secClusters"),
     trajectories = cms.InputTag("secfilter"),
@@ -221,7 +218,8 @@ thStep = RecoTracker.FinalTrackSelectors.ctfrsTrackListMerger_cfi.ctfrsTrackList
 thStep.TrackProducer1 = 'thStepVtx'
 thStep.TrackProducer2 = 'thStepTrk'
 
-thirdStep = cms.Sequence(secfilter*thClusters*
+thirdStep = cms.Sequence(secfilter*
+                         thClusters*
                          thPixelRecHits*thStripRecHits*
                          thPLSeeds*
                          thTrackCandidates*
