@@ -7,109 +7,117 @@ process.source = cms.Source('PoolSource',
     fileNames = cms.untracked.vstring('file:trigger.root')
 )
 
+import HLTrigger.HLTfilters.hltHighLevel_cfi as hlt
 # accept if 'path_1' succeeds
-process.filter_1 = cms.EDFilter('HLTHighLevel',
-    TriggerResultsTag = cms.InputTag('TriggerResults', '', 'HLT'),
-    HLTPaths = cms.vstring('path_1'),
-    andOr = cms.bool(True),
-    throw = cms.untracked.bool(False)
-)
+process.filter_1 = hlt.hltHighLevel.clone(
+    HLTPaths = [ 'path_1'],
+    throw = False
+    )
 
 # accept if 'path_2' succeeds
-process.filter_2 = cms.EDFilter('HLTHighLevel',
-    TriggerResultsTag = cms.InputTag('TriggerResults', '', 'HLT'),
-    HLTPaths = cms.vstring('path_2'),
-    andOr = cms.bool(True),
-    throw = cms.untracked.bool(False)
-)
+process.filter_2 = hlt.hltHighLevel.clone(
+    HLTPaths = ['path_2'],
+    throw = False
+    )
 
 # accept if 'path_3' succeeds
-process.filter_3 = cms.EDFilter('HLTHighLevel',
-    TriggerResultsTag = cms.InputTag('TriggerResults', '', 'HLT'),
-    HLTPaths = cms.vstring('path_3'),
-    andOr = cms.bool(True),
-    throw = cms.untracked.bool(False)
-)
+process.filter_3 = hlt.hltHighLevel.clone(
+    HLTPaths = ['path_3'],
+    throw = False
+    )
 
 # accept if any path succeeds (implicit)
-process.filter_any_implicit = cms.EDFilter('HLTHighLevel',
-    TriggerResultsTag = cms.InputTag('TriggerResults', '', 'HLT'),
-    HLTPaths = cms.vstring(),
-    andOr = cms.bool(True),
-    throw = cms.untracked.bool(False)
-)
+process.filter_any_implicit = hlt.hltHighLevel.clone(
+    # HLTPaths = [], # empty is default
+    throw = False
+    )
 
 # accept if any path succeeds (explicit)
-process.filter_any_explicit = cms.EDFilter('HLTHighLevel',
-    TriggerResultsTag = cms.InputTag('TriggerResults', '', 'HLT'),
-    HLTPaths = cms.vstring('path_1', 'path_2', 'path_3'),
-    andOr = cms.bool(True),
-    throw = cms.untracked.bool(False)
-)
+process.filter_any_explicit = hlt.hltHighLevel.clone(
+    HLTPaths = ['path_1', 'path_2', 'path_3'],
+    throw = False
+    )
 
 # accept if any path succeeds (wildcard, '*')
-process.filter_any_star = cms.EDFilter('HLTHighLevel',
-    TriggerResultsTag = cms.InputTag('TriggerResults', '', 'HLT'),
-    HLTPaths = cms.vstring('p*'),
-    andOr = cms.bool(True),
-    throw = cms.untracked.bool(False)
-)
+process.filter_any_star = hlt.hltHighLevel.clone(
+    HLTPaths = ['p*'],
+    throw = False
+    )
 
 # accept if any path succeeds (wildcard, '?')
-process.filter_any_question = cms.EDFilter('HLTHighLevel',
-    TriggerResultsTag = cms.InputTag('TriggerResults', '', 'HLT'),
-    HLTPaths = cms.vstring('path_?'),
-    andOr = cms.bool(True),
-    throw = cms.untracked.bool(False)
-)
+process.filter_any_question = hlt.hltHighLevel.clone(
+    HLTPaths = ['path_?'],
+    throw = False
+    )
 
 # accept if all path succeed (implicit)
-process.filter_all_implicit = cms.EDFilter('HLTHighLevel',
-    TriggerResultsTag = cms.InputTag('TriggerResults', '', 'HLT'),
-    HLTPaths = cms.vstring(),
-    andOr = cms.bool(False),
-    throw = cms.untracked.bool(False)
+process.filter_all_implicit = hlt.hltHighLevel.clone(
+    #HLTPaths = [], # empty is default
+    andOr = False,
+    throw = False
 )
 
 # accept if all path succeed (explicit)
-process.filter_all_explicit = cms.EDFilter('HLTHighLevel',
-    TriggerResultsTag = cms.InputTag('TriggerResults', '', 'HLT'),
-    HLTPaths = cms.vstring('path_1', 'path_2', 'path_3'),
-    andOr = cms.bool(False),
-    throw = cms.untracked.bool(False)
+process.filter_all_explicit = hlt.hltHighLevel.clone(
+    HLTPaths = ['path_1', 'path_2', 'path_3'],
+    andOr = False,
+    throw = False
 )
 
 # accept if all path succeed (wildcard, '*')
-process.filter_all_star = cms.EDFilter('HLTHighLevel',
-    TriggerResultsTag = cms.InputTag('TriggerResults', '', 'HLT'),
-    HLTPaths = cms.vstring('p*'),
-    andOr = cms.bool(False),
-    throw = cms.untracked.bool(False)
+process.filter_all_star = hlt.hltHighLevel.clone(
+    HLTPaths = ['p*'],
+    andOr = False,
+    throw = False
 )
 
 # accept if all path succeed (wildcard, '?')
-process.filter_all_question = cms.EDFilter('HLTHighLevel',
-    TriggerResultsTag = cms.InputTag('TriggerResults', '', 'HLT'),
-    HLTPaths = cms.vstring('path_?'),
-    andOr = cms.bool(False),
-    throw = cms.untracked.bool(False)
+process.filter_all_question = hlt.hltHighLevel.clone(
+    HLTPaths = ['path_?'],
+    andOr = False,
+    throw = False
 )
 
 # wrong L1 name (explicit)
-process.filter_wrong_name = cms.EDFilter('HLTHighLevel',
-    TriggerResultsTag = cms.InputTag('TriggerResults', '', 'HLT'),
-    HLTPaths = cms.vstring('path_wrong'),
-    andOr = cms.bool(True),
-    throw = cms.untracked.bool(False)
+process.filter_wrong_name = hlt.hltHighLevel.clone(
+    HLTPaths = ['path_wrong'],
+    throw = False
 )
 
 # wrong L1 name (wildcard)
-process.filter_wrong_pattern = cms.EDFilter('HLTHighLevel',
-    TriggerResultsTag = cms.InputTag('TriggerResults', '', 'HLT'),
-    HLTPaths = cms.vstring('*_wrong'),
-    andOr = cms.bool(True),
-    throw = cms.untracked.bool(False)
+process.filter_wrong_pattern = hlt.hltHighLevel.clone(
+    HLTPaths = ['*_wrong'],
+    throw = False
 )
+
+## start testing AlCaRecoTriggerBits ##############################
+##
+## This works after having run a modified version of
+## cmsRun src/CondTools/HLT/test/AlCaRecoTriggerBitsRcdWrite_cfg.py
+## Simply remove overwriting of
+## process.AlCaRecoTriggerBitsRcdWrite.triggerLists ...
+##
+## AlCaRecoTriggerBits
+#process.filter_AlCaRecoTriggerBits = hlt.hltHighLevel.clone(
+#    eventSetupPathsKey = 'test13', #'TkAlMinBias',
+#    throw = False # True
+#)
+#
+## DB input
+#import CondCore.DBCommon.CondDBSetup_cfi
+#process.dbInput = cms.ESSource(
+#    "PoolDBESSource",
+#    CondCore.DBCommon.CondDBSetup_cfi.CondDBSetup,
+#    connect = cms.string('sqlite_file:AlCaRecoTriggerBits.db'),
+#    toGet = cms.VPSet(cms.PSet(
+#        record = cms.string('AlCaRecoTriggerBitsRcd'),
+#        tag = cms.string('TestTag') # choose tag you want
+#        )
+#                      )
+#    )
+#process.end_AlCaRecoTriggerBits = cms.Path( process.filter_AlCaRecoTriggerBits )
+##
+## end testing AlCaRecoTriggerBits ################################
 
 process.end_1 = cms.Path( process.filter_1 )
 process.end_2 = cms.Path( process.filter_2 )
@@ -129,7 +137,7 @@ process.end_all_filter   = cms.Path( process.filter_1 + process.filter_2 + proce
 
 process.end_wrong_name    = cms.Path( process.filter_wrong_name )
 process.end_wrong_pattern = cms.Path( process.filter_wrong_pattern )
-  
+
 # define and EndPath to analyze all other path results
 process.hltTrigReport = cms.EDAnalyzer( 'HLTrigReport',
     HLTriggerResults = cms.InputTag( 'TriggerResults','','TEST' )
