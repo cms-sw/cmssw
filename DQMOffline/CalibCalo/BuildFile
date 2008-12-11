@@ -1,6 +1,5 @@
 <use name=DQMServices/Components>
 <use name=DQMServices/Core>
-<use name=DQMServices/WebComponents>
 <use name=Geometry/Records>
 <use name=Geometry/CaloGeometry>
 <use name=DataFormats/Common>
@@ -22,11 +21,11 @@
 <use name=HLTrigger/HLTcore>
 <use name=RecoEcal/EgammaCoreTools>
 <use name=Utilities/Timing>
+<use name=rootphysics>
 
 <export>
   <use name=DQMServices/Components>
   <use name=DQMServices/Core>
-  <use name=DQMServices/WebComponents>
   <use name=FWCore/Framework>
   <use name=Geometry/Records>
   <use name=Geometry/CaloEventSetup>
@@ -53,6 +52,7 @@
 <use name=HLTrigger/HLTcore>
 <use name=RecoEcal/EgammaCoreTools>
 <use name=Utilities/Timing>
+<use name=rootphysics>
   <lib name=DQMOfflineCalibCalo>
 </export>
 
