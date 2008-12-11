@@ -6,7 +6,7 @@
  * A simulated Vertex with links to TrackingParticles
  * for analysis of track and vertex reconstruction
  *
- * \version $Id: TrackingVertex.h,v 1.24 2008/11/21 15:28:44 bazterra Exp $
+ * \version $Id: TrackingVertex.h,v 1.25 2008/11/26 17:46:46 bazterra Exp $
  *
  */
 
@@ -15,7 +15,7 @@
 #include "DataFormats/Math/interface/Point3D.h"
 
 #include "SimDataFormats/EncodedEventId/interface/EncodedEventId.h"
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"

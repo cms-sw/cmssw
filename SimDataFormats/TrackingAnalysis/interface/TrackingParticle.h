@@ -8,7 +8,7 @@
 #include <map>
 
 #include "SimDataFormats/EncodedEventId/interface/EncodedEventId.h"
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "SimDataFormats/TrackingAnalysis/interface/ParticleBase.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingVertex.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
