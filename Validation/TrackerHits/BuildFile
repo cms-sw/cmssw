@@ -2,7 +2,7 @@
 <use name=FWCore/ParameterSet>
 <use name=FWCore/MessageLogger>
 <use name=SimDataFormats/ValidationFormats>
-<use name=SimDataFormats/HepMCProduct>
+<use name=SimDataFormats/GeneratorProducts>
 <use name=DataFormats/DetId>
 <use name=Geometry/CommonDetUnit>
 <use name=DQMServices/Core>
@@ -19,7 +19,7 @@
  <use name=SimG4CMS/Tracker>
  <use name=root>
  <use name=SimDataFormats/ValidationFormats>
- <use name=SimDataFormats/HepMCProduct>
+ <use name=SimDataFormats/GeneratorProducts>
  <use name=DataFormats/DetId>
  <use name=Geometry/CommonDetUnit>
  <use name=DQMServices/Core>
