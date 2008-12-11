@@ -19,6 +19,14 @@ namespace edm {
   {
   }
 
+  InputTag::InputTag(char const* label, char const* instance, char const* processName)
+  : label_(label),
+    instance_(instance),
+    process_(processName)
+  {
+  }
+
+
   InputTag::InputTag(std::string const& s) 
   : label_(""),
     instance_(""),
@@ -36,6 +44,7 @@ namespace edm {
     if(nwords > 2) process_=tokens[2];
   }
 
+  InputTag::~InputTag() {}
 
   bool InputTag::operator==(InputTag const& tag) const {
     return (label_ == tag.label_)  
@@ -66,8 +75,4 @@ namespace edm {
     return ost;
   }
 }
-
-
-
-
 

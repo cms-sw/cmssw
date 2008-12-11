@@ -9,12 +9,14 @@ namespace edm {
   class InputTag {
   public:
     InputTag();
-    InputTag(const std::string & label, const std::string & instance, const std::string & processName = "");
+    InputTag(std::string const& label, std::string const& instance, std::string const& processName = "");
+    InputTag(char const*label, char const* instance, char const* processName="");
     /// the input string is of the form:
     /// label
     /// label:instance
     /// label:instance:process
     InputTag(std::string const& s);
+    ~InputTag();
     std::string encode() const;
 
     std::string const& label() const {return label_;} 
