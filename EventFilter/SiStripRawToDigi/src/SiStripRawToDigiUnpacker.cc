@@ -76,7 +76,9 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling, co
       }
       LogTrace(mlRawToDigi_)
 	<< "[SiStripRawToDigiUnpacker::" << __func__ << "]"
-	<< " Found " << feds.size() << " FED buffers with non-zero size!";
+	<< " Found " 
+	<< feds.size() 
+	<< " FED buffers with non-zero size!";
     }
   }
 
@@ -131,7 +133,8 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling, co
       if ( edm::isDebugEnabled() ) {
 	edm::LogWarning(mlRawToDigi_)
 	  << "[SiStripRawToDigiUnpacker::" << __func__ << "]"
-	  << " NULL pointer to FEDRawData for FED id " << *ifed;
+	  << " NULL pointer to FEDRawData for FED id " 
+	  << *ifed;
       }
       continue;
     }	
@@ -141,7 +144,8 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling, co
       if ( edm::isDebugEnabled() ) {
 	edm::LogWarning(mlRawToDigi_)
 	  << "[SiStripRawToDigiUnpacker::" << __func__ << "]"
-	  << " FEDRawData has zero size for FED id " << *ifed;
+	  << " FEDRawData has zero size for FED id " 
+	  << *ifed;
       }
       continue;
     }
@@ -149,12 +153,13 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling, co
     // construct FEDBuffer
     try {buffer_ = new sistrip::FEDBuffer(output.data(),output.size());}
     catch (const cms::Exception& e) { 
-      edm::LogWarning("SiStripDigiUnpacker") 
-	<< e.what();
+      if ( edm::isDebugEnabled() ) {
+	edm::LogWarning("SiStripDigiUnpacker") << e.what();
+      }
     }
 
     // Check if EventSummary ("trigger FED info") needs updating
-    if ( first_fed ) first_fed = false;
+    if ( first_fed && useDaqRegister_ ) { updateEventSummary( *buffer_, summary ); first_fed = false; }
     
     // Check to see if EventSummary info is set
     if ( edm::isDebugEnabled() ) {
@@ -859,25 +864,24 @@ void SiStripRawToDigiUnpacker::locateStartOfFedBuffer( const uint16_t& fed_id, c
 	 << " has size " << output.size();
       edm::LogWarning(mlRawToDigi_) << ss.str();
     }
-
-  } 
-  
+  }   
 }
 
-void SiStripRawToDigiUnpacker::updateEventSummary( const Fed9U::Fed9UEvent* const fed, SiStripEventSummary& summary ) {
+void SiStripRawToDigiUnpacker::updateEventSummary( const sistrip::FEDBuffer& fed, SiStripEventSummary& summary ) {
   
   // Retrieve contents of DAQ registers
-  //@@ uint16_t trigger_type = sistrip::invalid_;
-  uint16_t readout_mode = sistrip::invalid_;
+
+  sistrip::FEDDAQEventType readout_mode = fed.daqEventType(); 
   uint32_t daq1 = sistrip::invalid32_;
   uint32_t daq2 = sistrip::invalid32_;
-  
-  if ( fed ) {
-    //@@ trigger_type = static_cast<uint16_t>( fed->?????() ); 
-    readout_mode = static_cast<uint16_t>( fed->getEventType() ); 
-    daq1 = static_cast<uint32_t>( fed->getDaqRegister() ); 
-    daq2 = static_cast<uint32_t>( fed->getDaqRegisterTwo() ); 
+
+  if (fed.headerType() == sistrip::HEADER_TYPE_FULL_DEBUG) {
+    const sistrip::FEDFullDebugHeader* header = 0;
+    header = dynamic_cast<const sistrip::FEDFullDebugHeader*>(fed.feHeader());
+    daq1 = static_cast<uint32_t>( header->daqRegister() ); 
+    daq2 = static_cast<uint32_t>( header->daqRegister2() ); 
   }
+
   
   // If FED DAQ registers contain info, update (and possibly overwrite) EventSummary 
   if ( daq1 != 0 && daq1 != sistrip::invalid32_ ) {
@@ -1160,7 +1164,7 @@ void sistrip::RawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling, 
    
     // Check if EventSummary ("trigger FED info") needs updating
     
-    if ( first_fed && unpacker_->useDaqRegister_ ) { unpacker_->updateEventSummary( fedEvent_, summary ); }
+    if ( first_fed && unpacker_->useDaqRegister_ ) { updateEventSummary( fedEvent_, summary ); }
     if ( first_fed ) { first_fed = false; }
     
     // Check to see if EventSummary info is set
@@ -1427,8 +1431,48 @@ void sistrip::RawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling, 
   unpacker_->cleanupWorkVectors();
 }
 
-void sistrip::RawToDigiUnpacker::triggerFed( const FEDRawDataCollection& buffers, SiStripEventSummary& summary, const uint32_t& event ) 
-{
-  unpacker_->triggerFed(buffers,summary,event);
+void sistrip::RawToDigiUnpacker::updateEventSummary( const Fed9U::Fed9UEvent* const fed, SiStripEventSummary& summary ) {
+  
+  // Retrieve contents of DAQ registers
+  //@@ uint16_t trigger_type = sistrip::invalid_;
+  uint16_t readout_mode = sistrip::invalid_;
+  uint32_t daq1 = sistrip::invalid32_;
+  uint32_t daq2 = sistrip::invalid32_;
+  
+  if ( fed ) {
+    //@@ trigger_type = static_cast<uint16_t>( fed->?????() ); 
+    readout_mode = static_cast<uint16_t>( fed->getEventType() ); 
+    daq1 = static_cast<uint32_t>( fed->getDaqRegister() ); 
+    daq2 = static_cast<uint32_t>( fed->getDaqRegisterTwo() ); 
+  }
+  
+  // If FED DAQ registers contain info, update (and possibly overwrite) EventSummary 
+  if ( daq1 != 0 && daq1 != sistrip::invalid32_ ) {
+    
+    summary.triggerFed( unpacker()->triggerFedId_ );
+    summary.fedReadoutMode( readout_mode );
+    summary.commissioningInfo( daq1, daq2 );
+    
+    if ( summary.isSet() && unpacker()->once_ ) {
+      if ( edm::isDebugEnabled() ) {
+	std::stringstream ss;
+	ss << "[SiStripRawToDigiUnpacker::" << __func__ << "]"
+	   << " EventSummary built from FED DAQ registers:"
+	   << std::endl << summary;
+	LogTrace(mlRawToDigi_) << ss.str();
+      }
+      unpacker()->once_ = false;
+    }
+  }
+  //@@ below needed to set run type in PHYSICS 
+//   } else if ( trigger_type == ??? ) { 
+//     summary.runType( sistrip::PHYSICS );
+//     std::stringstream ss;
+//     ss << "[SiStripRawToDigiUnpacker::" << __func__ << "]"
+//        << " EventSummary built from 'Event Type' field in DAQ header:"
+//        << std::endl << summary;
+//     LogTrace(mlRawToDigi_) << ss.str();
+//     once_ = false;
+//   }
+  
 }
-
