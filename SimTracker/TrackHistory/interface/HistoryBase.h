@@ -114,8 +114,11 @@ private:
     //! Trace all the simulated information for a given reference to a TrackingVertex.
     bool traceSimHistory (TrackingVertexRef const &, int);
 
-    //! Trace all the simulated information for a given reference to a GenParticle.
+    //! Trace all the simulated information for a given pointer to a GenParticle.
     void traceGenHistory (HepMC::GenParticle const *);
+
+    //! Trace all the simulated information for a given pointer to a GenVertex.
+    void traceGenHistory (HepMC::GenVertex const *);
 
     //! Reset trail functions.
     void resetTrails()

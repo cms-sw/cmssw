@@ -4,7 +4,7 @@
 
 TrackHistory::TrackHistory (
     const edm::ParameterSet & config
-)
+) : HistoryBase()
 {
     // Name of the track collection
     trackProducer_ = config.getUntrackedParameter<edm::InputTag> ( "trackProducer" );

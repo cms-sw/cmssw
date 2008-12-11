@@ -4,55 +4,61 @@
 #include "SimTracker/TrackHistory/interface/HistoryBase.h"
 
 
-void HistoryBase::traceGenHistory(HepMC::GenParticle const * gpp)
+void HistoryBase::traceGenHistory(HepMC::GenParticle const * genParticle)
 {
     // Third stop criteria: status abs(depth_) particles after the hadronization.
     // The after hadronization is done by detecting the pdg_id pythia code from 88 to 99
-    if ( gpp->status() <= abs(depth_) && (gpp->pdg_id() < 88 || gpp->pdg_id() > 99) )
+    if ( genParticle->status() <= abs(depth_) && (genParticle->pdg_id() < 88 || genParticle->pdg_id() > 99) )
     {
-        genParticleTrail_.push_back(gpp);
-        // Get the producer vertex.
-        HepMC::GenVertex * vertex = gpp->production_vertex();
-        // Verify if has a vertex associated
-        if ( vertex )
-        {
-            genVertexTrail_.push_back(vertex);
-            if ( vertex->particles_in_size()  ) // Verify if the vertex has incoming particles
-                traceGenHistory( *(vertex->particles_in_const_begin()) );
-        }
+        genParticleTrail_.push_back(genParticle);
+        // Get the producer vertex and trace it history
+        traceGenHistory( genParticle->production_vertex() ); 
     }
 }
 
 
-bool HistoryBase::traceSimHistory(TrackingParticleRef const & tpr, int depth)
+void HistoryBase::traceGenHistory(HepMC::GenVertex const * genVertex)
+{
+    // Verify if has a vertex associated
+    if (genVertex)
+    {
+        genVertexTrail_.push_back(genVertex);
+        // Verify if the vertex has incoming particles
+        if ( genVertex->particles_in_size() )
+            traceGenHistory( *(genVertex->particles_in_const_begin()) );
+    }
+}
+
+
+bool HistoryBase::traceSimHistory(TrackingParticleRef const & trackingParticle, int depth)
 {
     // first stop condition: if the required depth is reached
     if ( depth == depth_ && depth_ >= 0 ) return true;
 
     // sencond stop condition: if a gen particle is associated to the TP
-    if ( !tpr->genParticle().empty() )
+    if ( !trackingParticle->genParticle().empty() )
     {
-        LogDebug("TrackHistory") << "Particle " << tpr->pdgId() << " has a GenParicle image." << std::endl;
-        traceGenHistory(&(**(tpr->genParticle_begin())));
+        LogDebug("TrackHistory") << "Particle " << trackingParticle->pdgId() << " has a GenParicle image." << std::endl;
+        traceGenHistory(&(**(trackingParticle->genParticle_begin())));
         return true;
     }
 
-    LogDebug("TrackHistory") << "No GenParticle image for " << tpr->pdgId() << std::endl;
+    LogDebug("TrackHistory") << "No GenParticle image for " << trackingParticle->pdgId() << std::endl;
 
     // get a reference to the TP's parent vertex and trace it history
-    return traceSimHistory( tpr->parentVertex(), depth );
+    return traceSimHistory( trackingParticle->parentVertex(), depth );
 }
 
 
-bool HistoryBase::traceSimHistory(TrackingVertexRef const & parentVertex, int depth)
+bool HistoryBase::traceSimHistory(TrackingVertexRef const & trackingVertex, int depth)
 {
     // verify if the parent vertex exists
-    if ( parentVertex.isNonnull() )
+    if ( trackingVertex.isNonnull() )
     {
         // save the vertex in the trail
-        simVertexTrail_.push_back(parentVertex);
+        simVertexTrail_.push_back(trackingVertex);
 
-        if ( !parentVertex->sourceTracks().empty() )
+        if ( !trackingVertex->sourceTracks().empty() )
         {
             LogDebug("TrackHistory") << "Moving on to the parent particle." << std::endl;
 
@@ -60,9 +66,9 @@ bool HistoryBase::traceSimHistory(TrackingVertexRef const & parentVertex, int de
             bool flag = false;
             TrackingVertex::tp_iterator itd, its;
 
-            for (its = parentVertex->sourceTracks_begin(); its != parentVertex->sourceTracks_end(); its++)
+            for (its = trackingVertex->sourceTracks_begin(); its != trackingVertex->sourceTracks_end(); its++)
             {
-                for (itd = parentVertex->daughterTracks_begin(); itd != parentVertex->daughterTracks_end(); itd++)
+                for (itd = trackingVertex->daughterTracks_begin(); itd != trackingVertex->daughterTracks_end(); itd++)
                     if (itd != its)
                     {
                         flag = true;
@@ -88,6 +94,12 @@ bool HistoryBase::traceSimHistory(TrackingVertexRef const & parentVertex, int de
             // save particle in the trail
             simParticleTrail_.push_back(*its);
             return traceSimHistory (*its, --depth);
+        }
+        else if ( !trackingVertex->genVertices().empty() )
+        {
+            LogDebug("TrackHistory") << "Vertex has a GenVertex image." << std::endl;
+            traceGenHistory(&(**(trackingVertex->genVertices_begin())));
+            return true;
         }
         else
         {
