@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/01/28 12:38:07 $
- *  $Revision: 1.14 $
+ *  $Date: 2008/12/09 17:10:49 $
+ *  $Revision: 1.15.2.2 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -57,7 +57,8 @@ DTTtrigId::DTTtrigId() :
 
 DTTtrigData::DTTtrigData() :
   tTrig( 0.0 ),
-  tTrms( 0.0 ) {
+  tTrms( 0.0 ),
+  kFact( 0.0 ) {
 }
 
 
@@ -86,10 +87,11 @@ int DTTtrig::get( int   wheelId,
                   int      slId,
                   float&  tTrig,
                   float&  tTrms,
+                  float&  kFact,
                   DTTimeUnits::type unit ) const {
   return get( wheelId, stationId, sectorId,
                  slId,         0,        0,
-                tTrig, tTrms, unit );
+                tTrig, tTrms, kFact, unit );
 
 }
 
@@ -102,10 +104,12 @@ int DTTtrig::get( int   wheelId,
                   int    cellId,
                   float&  tTrig,
                   float&  tTrms,
+                  float&  kFact,
                   DTTimeUnits::type unit ) const {
 
   tTrig =
-  tTrms = 0.0;
+  tTrms =
+  kFact = 0.0;
 
   std::string mName = mapName();
   DTBufferTree<int,int>* dBuf =
@@ -130,6 +134,7 @@ int DTTtrig::get( int   wheelId,
     const DTTtrigData& data( dataList[ientry].second );
     tTrig = data.tTrig;
     tTrms = data.tTrms;
+    kFact = data.kFact;
     if ( unit == DTTimeUnits::ns ) {
       tTrig *= nsPerCount;
       tTrms *= nsPerCount;
@@ -144,18 +149,20 @@ int DTTtrig::get( int   wheelId,
 int DTTtrig::get( const DTSuperLayerId& id,
                   float&  tTrig,
                   float&  tTrms,
+                  float&  kFact,
                   DTTimeUnits::type unit ) const {
   return get( id.wheel(),
               id.station(),
               id.sector(),
               id.superLayer(), 0, 0,
-              tTrig, tTrms, unit );
+              tTrig, tTrms, kFact, unit );
 }
 
 
 int DTTtrig::get( const DetId& id,
                   float&  tTrig,
                   float&  tTrms,
+                  float&  kFact,
                   DTTimeUnits::type unit ) const {
   DTWireId wireId( id.rawId() );
   return get( wireId.wheel(),
@@ -164,7 +171,62 @@ int DTTtrig::get( const DetId& id,
               wireId.superLayer(),
               wireId.layer(),
               wireId.wire(),
-              tTrig, tTrms, unit );
+              tTrig, tTrms, kFact, unit );
+}
+
+
+int DTTtrig::get( int   wheelId,
+                  int stationId,
+                  int  sectorId,
+                  int      slId,
+                  float&  tTrig,
+                  DTTimeUnits::type unit ) const {
+  return get( wheelId, stationId, sectorId, 
+                 slId,         0,        0, tTrig, unit );
+}
+
+
+int DTTtrig::get( int   wheelId,
+                  int stationId,
+                  int  sectorId,
+                  int      slId,
+                  int   layerId,
+                  int    cellId,
+                  float&  tTrig,
+                  DTTimeUnits::type unit ) const {
+  float tMean;
+  float tTrms;
+  float kFact;
+  int status = get( wheelId, stationId, sectorId,
+                       slId,   layerId,   cellId, 
+                      tMean,     tTrms,    kFact, unit );
+  tTrig = tMean + ( kFact * tTrms );
+  return status;
+}
+
+
+int DTTtrig::get( const DTSuperLayerId& id,
+                  float&  tTrig,
+                  DTTimeUnits::type unit ) const {
+  return get( id.wheel(),
+              id.station(),
+              id.sector(),
+              id.superLayer(), 0, 0,
+              tTrig, unit );
+}
+
+
+int DTTtrig::get( const DetId& id,
+                  float&  tTrig,
+                  DTTimeUnits::type unit ) const {
+  DTWireId wireId( id.rawId() );
+  return get( wireId.wheel(),
+              wireId.station(),
+              wireId.sector(),
+              wireId.superLayer(),
+              wireId.layer(),
+              wireId.wire(),
+              tTrig, unit );
 }
 
 
@@ -197,10 +259,11 @@ int DTTtrig::set( int   wheelId,
                   int      slId,
                   float   tTrig,
                   float   tTrms,
+                  float   kFact,
                   DTTimeUnits::type unit ) {
   return set( wheelId, stationId, sectorId,
                  slId,         0,        0,
-                tTrig, tTrms, unit );
+                tTrig, tTrms, kFact, unit );
 
 }
 
@@ -213,6 +276,7 @@ int DTTtrig::set( int   wheelId,
                   int    cellId,
                   float   tTrig,
                   float   tTrms,
+                  float   kFact,
                   DTTimeUnits::type unit ) {
 
   if ( unit == DTTimeUnits::ns ) {
@@ -243,6 +307,7 @@ int DTTtrig::set( int   wheelId,
     DTTtrigData& data( dataList[ientry].second );
     data.tTrig = tTrig;
     data.tTrms = tTrms;
+    data.kFact = kFact;
     return -1;
   }
   else {
@@ -256,6 +321,7 @@ int DTTtrig::set( int   wheelId,
     DTTtrigData data;
     data.tTrig = tTrig;
     data.tTrms = tTrms;
+    data.kFact = kFact;
     ientry = dataList.size();
     dataList.push_back( std::pair<DTTtrigId,DTTtrigData>( key, data ) );
     dBuf->insert( chanKey.begin(), chanKey.end(), ientry );
@@ -270,18 +336,20 @@ int DTTtrig::set( int   wheelId,
 int DTTtrig::set( const DTSuperLayerId& id,
                   float   tTrig,
                   float   tTrms,
+                  float   kFact,
                   DTTimeUnits::type unit ) {
   return set( id.wheel(),
               id.station(),
               id.sector(),
               id.superLayer(), 0, 0,
-              tTrig, tTrms, unit );
+              tTrig, tTrms, kFact, unit );
 }
 
 
 int DTTtrig::set( const DetId& id,
                   float   tTrig,
                   float   tTrms,
+                  float   kFact,
                   DTTimeUnits::type unit ) {
   DTWireId wireId( id.rawId() );
   return set( wireId.wheel(),
@@ -290,7 +358,7 @@ int DTTtrig::set( const DetId& id,
               wireId.superLayer(),
               wireId.layer(),
               wireId.wire(),
-              tTrig, tTrms, unit );
+              tTrig, tTrms, kFact, unit );
 }
 
 

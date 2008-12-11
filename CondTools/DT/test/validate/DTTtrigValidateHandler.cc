@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/03/25 16:19:57 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/11/19 14:25:08 $
+ *  $Revision: 1.2.2.1 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -72,8 +72,10 @@ void DTTtrigValidateHandler::addNewObject( int runNumber ) {
   int qua;
   float tTrig;
   float tTrms;
+  float kFact;
   float cktrig;
   float ckrms;
+  float ckfact;
 
   whe = 3;
   while ( --whe >= -2 ) {
@@ -89,14 +91,16 @@ void DTTtrigValidateHandler::addNewObject( int runNumber ) {
               tTrig = random() * 10.0 / 0x0fffffff;
               tTrms = random() *  2.0 / 0x7fffffff;
               tTrig += 4000.0;
+              kFact = -0.7;
               status = tT->set( whe, sta, sec, qua,
-                                tTrig, tTrms, DTTimeUnits::counts );
+                                tTrig, tTrms, kFact, DTTimeUnits::counts );
               outFile << whe << " "
                       << sta << " "
                       << sec << " "
                       << qua << " "
                       << tTrig << " "
-                      << tTrms << std::endl;
+                      << tTrms << " "
+                      << kFact << std::endl;
               if ( status ) logFile << "ERROR while setting sl Ttrig "
                                     << whe << " "
                                     << sta << " "
@@ -104,7 +108,7 @@ void DTTtrigValidateHandler::addNewObject( int runNumber ) {
                                     << qua << " , status = "
                                     << status << std::endl;
               status = tT->get( whe, sta, sec, qua,
-                                cktrig, ckrms, DTTimeUnits::counts );
+                                cktrig, ckrms, ckfact, DTTimeUnits::counts );
               if ( status ) logFile << "ERROR while checking sl Ttrig "
                                     << whe << " "
                                     << sta << " "
@@ -112,14 +116,19 @@ void DTTtrigValidateHandler::addNewObject( int runNumber ) {
                                     << qua << " , status = "
                                     << status << std::endl;
               if ( ( cktrig != tTrig ) ||
-                   ( ckrms  != tTrms ) )
+                   ( ckrms  != tTrms ) ||
+                   ( ckfact != kFact ) )
                    logFile << "MISMATCH WHEN WRITING sl Ttrig "
                            << whe << " "
                            << sta << " "
                            << sec << " "
                            << qua << " : "
-                           << tTrig  << " " << tTrms << " -> "
-                           << cktrig << " " << ckrms << std::endl;
+                           << tTrig  << " "
+                           << tTrms  << " "
+                           << kFact  << " -> "
+                           << cktrig << " "
+                           << ckrms  << " "
+                           << ckfact << std::endl;
 //            }
 //          }
         }

@@ -6,8 +6,8 @@
  *       Class to hold drift tubes TTrigs
  *             ( SL by SL time offsets )
  *
- *  $Date: 2007/12/07 15:00:46 $
- *  $Revision: 1.6 $
+ *  $Date: 2008/12/09 17:10:54 $
+ *  $Revision: 1.7.2.2 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -60,6 +60,7 @@ class DTTtrigData {
 
   float tTrig;
   float tTrms;
+  float kFact;
 
 };
 
@@ -80,42 +81,13 @@ class DTTtrig {
   /** Operations
    */
   /// get content
-  int slTtrig( int   wheelId,
-               int stationId,
-               int  sectorId,
-               int      slId,
-               float&  tTrig,
-               float&  tTrms,
-               DTTimeUnits::type unit ) const
-      { return get( wheelId, stationId, sectorId, slId, 0, 0,
-                    tTrig, tTrms, unit ); };
-  int slTtrig( int   wheelId,
-               int stationId,
-               int  sectorId,
-               int      slId,
-               int   layerId,
-               int    cellId,
-               float&  tTrig,
-               float&  tTrms,
-               DTTimeUnits::type unit ) const
-      { return get( wheelId, stationId, sectorId, slId, layerId, cellId,
-                    tTrig, tTrms, unit ); };
-  int slTtrig( const DTSuperLayerId& id,
-               float&  tTrig,
-               float&  tTrms,
-               DTTimeUnits::type unit ) const
-      { return get( id, tTrig, tTrms, unit ); };
-  int slTtrig( const DetId& id,
-               float&  tTrig,
-               float&  tTrms,
-               DTTimeUnits::type unit ) const
-      { return get( id, tTrig, tTrms, unit ); };
   int get( int   wheelId,
            int stationId,
            int  sectorId,
            int      slId,
            float&  tTrig,
            float&  tTrms,
+           float&  kFact,
            DTTimeUnits::type unit ) const;
   int get( int   wheelId,
            int stationId,
@@ -125,14 +97,37 @@ class DTTtrig {
            int    cellId,
            float&  tTrig,
            float&  tTrms,
+           float&  kFact,
            DTTimeUnits::type unit ) const;
   int get( const DTSuperLayerId& id,
            float&  tTrig,
            float&  tTrms,
+           float&  kFact,
            DTTimeUnits::type unit ) const;
   int get( const DetId& id,
            float&  tTrig,
            float&  tTrms,
+           float&  kFact,
+           DTTimeUnits::type unit ) const;
+  int get( int   wheelId,
+           int stationId,
+           int  sectorId,
+           int      slId,
+           float&  tTrig,
+           DTTimeUnits::type unit ) const;
+  int get( int   wheelId,
+           int stationId,
+           int  sectorId,
+           int      slId,
+           int   layerId,
+           int    cellId,
+           float&  tTrig,
+           DTTimeUnits::type unit ) const;
+  int get( const DTSuperLayerId& id,
+           float&  tTrig,
+           DTTimeUnits::type unit ) const;
+  int get( const DetId& id,
+           float&  tTrig,
            DTTimeUnits::type unit ) const;
   float unit() const;
 
@@ -144,42 +139,13 @@ class DTTtrig {
   /// reset content
   void clear();
 
-  int setSLTtrig( int   wheelId,
-                  int stationId,
-                  int  sectorId,
-                  int      slId,
-                  float   tTrig,
-                  float   tTrms,
-                  DTTimeUnits::type unit )
-      { return set( wheelId, stationId, sectorId, slId, 0, 0,
-                    tTrig, tTrms, unit ); };
-  int setSLTtrig( int   wheelId,
-                  int stationId,
-                  int  sectorId,
-                  int      slId,
-                  int   layerId,
-                  int    cellId,
-                  float   tTrig,
-                  float   tTrms,
-                  DTTimeUnits::type unit )
-      { return set( wheelId, stationId, sectorId, slId, layerId, cellId,
-                    tTrig, tTrms, unit ); };
-  int setSLTtrig( const DTSuperLayerId& id,
-                  float   tTrig,
-                  float   tTrms,
-                  DTTimeUnits::type unit )
-      { return set( id, tTrig, tTrms, unit ); };
-  int setSLTtrig( const DetId& id,
-                  float   tTrig,
-                  float   tTrms,
-                  DTTimeUnits::type unit )
-      { return set( id, tTrig, tTrms, unit ); };
   int set( int   wheelId,
            int stationId,
            int  sectorId,
            int      slId,
            float   tTrig,
            float   tTrms,
+           float   kFact,
            DTTimeUnits::type unit );
   int set( int   wheelId,
            int stationId,
@@ -189,14 +155,17 @@ class DTTtrig {
            int    cellId,
            float   tTrig,
            float   tTrms,
+           float   kFact,
            DTTimeUnits::type unit );
   int set( const DTSuperLayerId& id,
            float   tTrig,
            float   tTrms,
+           float   kFact,
            DTTimeUnits::type unit );
   int set( const DetId& id,
            float   tTrig,
            float   tTrms,
+           float   kFact,
            DTTimeUnits::type unit );
   void setUnit( float unit );
 

@@ -18,6 +18,7 @@
          <Object name="second" >
            <Primitive column="TTRIG_MEAN" name="tTrig" />
            <Primitive column="TTRIG_RMS"  name="tTrms" />
+           <Primitive column="TTRIG_KFAC" name="kFact" />
          </Object >
        </Object >
      </Container >

@@ -57,8 +57,10 @@ void DTTtrigValidateDBRead::analyze(const edm::Event& e,
   int qua;
   float tTrig;
   float tTrms;
+  float kFact;
   float cktrig;
   float ckrms;
+  float ckfact;
   DTTtrig::const_iterator iter = tT->begin();
   DTTtrig::const_iterator iend = tT->end();
   while ( iter != iend ) {
@@ -68,7 +70,7 @@ void DTTtrigValidateDBRead::analyze(const edm::Event& e,
                       tTId.stationId,
                       tTId.sectorId,
                       tTId.slId,
-                      tTrig, tTrms, DTTimeUnits::counts );
+                      tTrig, tTrms, kFact, DTTimeUnits::counts );
     if ( status ) logFile << "ERROR while getting sl Ttrig "
                           << tTId.wheelId   << " "
                           << tTId.stationId << " "
@@ -76,14 +78,19 @@ void DTTtrigValidateDBRead::analyze(const edm::Event& e,
                           << tTId.slId      << " , status = "
                           << status << std::endl;
     if ( ( tTData.tTrig != tTrig ) ||
-         ( tTData.tTrms != tTrms ) )
+         ( tTData.tTrms != tTrms ) ||
+         ( tTData.kFact != kFact ) )
          logFile << "MISMATCH WHEN READING sl Ttrig "
                  << tTId.wheelId   << " "
                  << tTId.stationId << " "
                  << tTId.sectorId  << " "
                  << tTId.slId      << " : "
-                 << tTData.tTrig << " " << tTData.tTrms << " -> "
-                 <<        tTrig << " " <<        tTrms << std::endl;
+                 << tTData.tTrig << " "
+                 << tTData.tTrms << " "
+                 << tTData.kFact << " -> "
+                 <<        tTrig << " "
+                 <<        tTrms << " "
+                 <<        kFact << std::endl;
     iter++;
   }
 
@@ -92,21 +99,27 @@ void DTTtrigValidateDBRead::analyze(const edm::Event& e,
                   >> sec
                   >> qua
                   >> cktrig
-                  >> ckrms ) {
+                  >> ckrms 
+                  >> ckfact ) {
     status = tT->get( whe,
                       sta,
                       sec,
                       qua,
-                      tTrig, tTrms, DTTimeUnits::counts );
+                      tTrig, tTrms, kFact, DTTimeUnits::counts );
     if ( ( fabs( cktrig - tTrig ) > 0.1    ) ||
-         ( fabs( ckrms  - tTrms ) > 0.0001 ) )
+         ( fabs( ckrms  - tTrms ) > 0.0001 ) ||
+         ( fabs( ckfact - kFact ) > 0.0001 ) )
          logFile << "MISMATCH IN WRITING AND READING sl Ttrig "
                  << whe << " "
                  << sta << " "
                  << sec << " "
                  << qua << " : "
-                 << cktrig << " " << ckrms << " -> "
-                 << tTrig  << " " << tTrms << std::endl;
+                 << cktrig << " "
+                 << ckrms  << " "
+                 << ckfact << " -> "
+                 << tTrig  << " "
+                 << tTrms  << " "
+                 << kFact  << std::endl;
   }
 
 }

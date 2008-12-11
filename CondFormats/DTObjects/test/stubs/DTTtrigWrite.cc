@@ -61,13 +61,15 @@ namespace edmtest {
     int qua;
     float tri;
     float rms;
+    float fac;
     while ( ifile >> whe
                   >> sta
                   >> sec
                   >> qua
                   >> tri
-                  >> rms ) {
-      status = tTrig->set( whe, sta, sec, qua, tri, rms,
+                  >> rms
+                  >> fac ) {
+      status = tTrig->set( whe, sta, sec, qua, tri, rms, fac,
                            DTTimeUnits::counts );
       std::cout << whe << " "
                 << sta << " "
@@ -104,24 +106,29 @@ namespace edmtest {
     int qua;
     float tri;
     float rms;
+    float fac;
     float cktri;
     float ckrms;
+    float ckfac;
     while ( ifile >> whe
                   >> sta
                   >> sec
                   >> qua
                   >> tri
-                  >> rms ) {
-      status = tTrig->get( whe, sta, sec, qua, cktri, ckrms,
+                  >> rms
+                  >> fac ) {
+      status = tTrig->get( whe, sta, sec, qua, cktri, ckrms, ckfac, 
                            DTTimeUnits::counts );
       std::cout << whe << " "
                 << sta << " "
                 << sec << " "
                 << qua << " "
                 << tri << " "
-                << rms << "  -> "
+                << rms << " "
+                << fac << "  -> "
                 << cktri << " "
-                << ckrms << "  -> ";
+                << ckrms << " "
+                << ckfac << "  -> ";
       std::cout << "get status: " << status << std::endl;
     }
     return;

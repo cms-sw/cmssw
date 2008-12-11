@@ -45,13 +45,22 @@ namespace edmtest {
       const DTTtrigData& trigData = iter->second;
       float trigTime;
       float trigTrms;
+      float trigKfac;
+      float trigComp;
       tTrig->get( trigId.wheelId,
                   trigId.stationId,
                   trigId.sectorId,
                   trigId.slId,
                   trigId.layerId,
                   trigId.cellId,
-                  trigTime, trigTrms, DTTimeUnits::counts );
+                  trigTime, trigTrms, trigKfac, DTTimeUnits::counts );
+      tTrig->get( trigId.wheelId,
+                  trigId.stationId,
+                  trigId.sectorId,
+                  trigId.slId,
+                  trigId.layerId,
+                  trigId.cellId,
+                  trigComp, DTTimeUnits::counts );
       std::cout << trigId.wheelId   << " "
                 << trigId.stationId << " "
                 << trigId.sectorId  << " "
@@ -59,9 +68,12 @@ namespace edmtest {
                 << trigId.layerId   << " "
                 << trigId.cellId    << " -> "
                 << trigData.tTrig    << " "
-                << trigData.tTrms    << " -> "
+                << trigData.tTrms    << " "
+                << trigData.kFact    << " -> "
                 << trigTime          << " "
-                << trigTrms          << std::endl;
+                << trigTrms          << " "
+                << trigKfac          << " -> "
+                << trigComp          << std::endl;
       iter++;
     }
   }

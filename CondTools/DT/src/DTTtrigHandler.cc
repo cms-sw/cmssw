@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/02/15 18:14:49 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/11/19 14:25:07 $
+ *  $Revision: 1.4.2.1 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -91,20 +91,23 @@ void DTTtrigHandler::getNewObjects() {
   int qua;
   float tri;
   float rms;
+  float fac;
   while ( ifile >> whe
                 >> sta
                 >> sec
                 >> qua
                 >> tri
-                >> rms ) {
-    status = tTrig->set( whe, sta, sec, qua, tri, rms,
+                >> rms
+                >> fac ) {
+    status = tTrig->set( whe, sta, sec, qua, tri, rms, fac,
                          DTTimeUnits::counts );
     std::cout << whe << " "
               << sta << " "
               << sec << " "
               << qua << " "
               << tri << " "
-              << rms << "  -> ";                
+              << rms << " "
+              << fac << "  -> ";                
     std::cout << "insert status: " << status << std::endl;
   }
 
