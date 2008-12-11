@@ -3,18 +3,17 @@
 # zeeHLT.cff #########
 
 import FWCore.ParameterSet.Config as cms
+import HLTrigger.HLTfilters.hltHighLevel_cfi
+
 
 report = cms.EDFilter("HLTrigReport",
     HLTriggerResults = cms.InputTag("TriggerResults")
 )
 
-zeeHLT = cms.EDFilter("HLTHighLevel",
-    HLTPaths = cms.vstring('HLT_IsoEle15_L1I', 
-        'HLT_DoubleIsoEle10_L1I'),
-    byName = cms.bool(True),
-    andOr = cms.bool(True),
-    throw = cms.untracked.bool(False), #dont throw except on unknown path name
-    TriggerResultsTag = cms.InputTag("TriggerResults")
+
+zeeHLT =  HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone(
+    HLTPaths = ['HLT_IsoEle15_L1I', 'HLT_DoubleIsoEle10_L1I'],
+    throw = False
 )
 
 

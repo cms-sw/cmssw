@@ -6,16 +6,18 @@
 #
 # Passes events that are coming from the online phi-symmetry stream 
 # 
-# Id: $Id: alcastreamEcalPhiSym_cff.py,v 1.3 2008/06/14 10:33:43 elmer Exp $
+# Id: $Id: alcastreamEcalPhiSym_cff.py,v 1.4 2008/10/30 16:44:38 argiro Exp $
 #
 
 import FWCore.ParameterSet.Config as cms
+import HLTrigger.HLTfilters.hltHighLevel_cfi
 
-ecalphiSymHLT = cms.EDFilter("HLTHighLevel",
-    HLTPaths = cms.vstring('AlCa_EcalPhiSym'),
-    andOr = cms.bool(True),
-    throw = cms.untracked.bool(False), #dont throw except on unknown path name 
-    TriggerResultsTag = cms.InputTag("TriggerResults","","HLT")
-)
+ecalphiSymHLT = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone(
+  HLTPaths = ['AlCa_EcalPhiSym'],
+  throw = False,
+  andOr = True
+  )
+
+
 
 
