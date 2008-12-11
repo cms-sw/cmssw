@@ -17,6 +17,12 @@
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"
+#include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 
 #include "TF2.h"
 
@@ -45,6 +51,10 @@ const unsigned int DEBINS = 127;
 const float DEMIN = -63.5;
 const float DEMAX = 63.5;
 
+const unsigned int ELBINS = 64;
+const float ELMIN = -.5;
+const float ELMAX = 63.5;
+
 const unsigned int PhiEtaMax = 396;
 const unsigned int CHNLBINS = 396;
 const float CHNLMIN = -0.5;
@@ -57,9 +67,12 @@ L1TdeRCT::L1TdeRCT(const ParameterSet & ps) :
    rctSourceEmul_( ps.getParameter< InputTag >("rctSourceEmul") ),
    rctSourceData_( ps.getParameter< InputTag >("rctSourceData") ),
    ecalTPGData_( ps.getParameter< InputTag >("ecalTPGData") ),
-   hcalTPGData_( ps.getParameter< InputTag >("hcalTPGData") )
-
+   hcalTPGData_( ps.getParameter< InputTag >("hcalTPGData") ),
+   gtDigisLabel_( ps.getParameter< InputTag >("gtDigisLabel") ),
+   gtEGAlgoName_ ( ps.getParameter< std::string >("gtEGAlgoName") ), 
+   doubleThreshold_ ( ps.getParameter< int >("doubleThreshold") ) 
 {
+
 
 
   singlechannelhistos_ = ps.getUntrackedParameter < bool > ("singlechannelhistos", false);
@@ -128,6 +141,9 @@ void L1TdeRCT::beginJob(const EventSetup & c)
 
     dbe->setCurrentFolder(histFolder_);
 
+    triggerAlgoNumbers_ =
+      dbe->book1D("gtTriggerAlgoNumbers", "gtTriggerAlgoNumbers", 128, -0.5, 127.5);
+
     rctInputTPGEcalOcc_ =
   dbe->book2D("rctInputTPGEcalOcc", "rctInputTPGEcalOcc", TPGETABINS, TPGETAMIN,
         TPGETAMAX, TPGPHIBINS, TPGPHIMIN, TPGPHIMAX);
@@ -138,6 +154,21 @@ void L1TdeRCT::beginJob(const EventSetup & c)
 
     rctInputTPGHcalSample_ =
   dbe->book1D("rctInputTPGHcalSample", "rctInputTPGHcalSample", 10, -0.5, 9.5) ;
+       
+    dbe->setCurrentFolder(histFolder_+"EffCurves/NisoEm/");
+
+    trigEffThresh_ = 
+      dbe->book2D("trigEffThresh", "Rank occupancy >= 2x trig thresh",
+		  ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
+    
+    dbe->setCurrentFolder(histFolder_+"EffCurves/NisoEm/ServiceData");
+
+    trigEffThreshOcc_ = 
+      dbe->book2D("trigEffThreshOcc", "Rank occupancy >= 2x trig thresh",
+		  ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
+    trigEffTriggThreshOcc_ =
+      dbe->book2D("trigEffTriggThreshOcc", "Rank occupancy >= 2x trig thresh, triggered",
+		  ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
     dbe->setCurrentFolder(histFolder_+"IsoEm");
 
@@ -553,11 +584,12 @@ void L1TdeRCT::beginJob(const EventSetup & c)
       dbe->book2D("rctBitUnmatchedDataHfPlusTau2D", "2D HfPlusTau bit for unmatched hardware hits",
       ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
+ 
 // for single channels
 
     if(singlechannelhistos_)
    {
-    for(int m=0; m<9; m++)
+    for(int m=0; m<12; m++)
     {
     if(m==0) dbe->setCurrentFolder(histFolder_+"IsoEm/ServiceData/Eff1SnglChnls");
     if(m==1) dbe->setCurrentFolder(histFolder_+"NisoEm/ServiceData/Eff1SnglChnls");
@@ -568,6 +600,9 @@ void L1TdeRCT::beginJob(const EventSetup & c)
     if(m==6) dbe->setCurrentFolder(histFolder_+"IsoEm/ServiceData/OvereffSnglChnls");
     if(m==7) dbe->setCurrentFolder(histFolder_+"NisoEm/ServiceData/OvereffSnglChnls");
     if(m==8) dbe->setCurrentFolder(histFolder_+"RegionData/ServiceData/OvereffSnglChnls");
+    if(m==9) dbe->setCurrentFolder(histFolder_+"EffCurves/NisoEm/ServiceData/SingleChannels");
+    if(m==10) dbe->setCurrentFolder(histFolder_+"EffCurves/NisoEm/ServiceData/SingleChannels");
+    if(m==11) dbe->setCurrentFolder(histFolder_+"EffCurves/NisoEm/ServiceData/SingleChannels");
 
     for(int i=0; i<ETAMAX; i++)
     {
@@ -584,6 +619,9 @@ void L1TdeRCT::beginJob(const EventSetup & c)
      if(m==6) strcpy(name,"EdataChnl") ;
      if(m==7) strcpy(name,"EdataChnl") ;
      if(m==8) strcpy(name,"EdataChnl") ;
+     if(m==9) strcpy(name,"EemulChnlEff") ;
+     if(m==10) strcpy(name,"EemulChnlTrig") ;
+     if(m==11) strcpy(name,"EemulChnl") ;
 
      if(i<10 && j<10) sprintf(channel,"_0%d0%d",i,j);
      else if(i<10) sprintf(channel,"_0%d%d",i,j);
@@ -611,6 +649,12 @@ void L1TdeRCT::beginJob(const EventSetup & c)
   dbe->book1D(name, name, DEBINS, DEMIN, DEMAX);
      if(m==8) rctRegOvereffChannel_[chnl] =
   dbe->book1D(name, name, DEBINS, DEMIN, DEMAX);
+     if(m==9) trigEff_[chnl] =
+	 dbe->book1D(name, name, ELBINS, ELMIN, ELMAX);
+     if(m==10) trigEffOcc_[chnl] =
+	 dbe->book1D(name, name, ELBINS, ELMIN, ELMAX);
+     if(m==11) trigEffTriggOcc_[chnl] =
+	 dbe->book1D(name, name, ELBINS, ELMIN, ELMAX);
      }
     }
     }
@@ -620,6 +664,9 @@ void L1TdeRCT::beginJob(const EventSetup & c)
 
 
   }
+  notrigCount=0;
+  trigCount=0;
+
 }
 
 
@@ -632,16 +679,88 @@ void L1TdeRCT::endJob(void)
   if (outputFile_.size() != 0 && dbe)
     dbe->save(outputFile_);
 
+  std::cout << "trig count is " << trigCount << std::endl;
+  std::cout << "no trig count is " << notrigCount << std::endl;
+
+
   return;
 }
 
 void L1TdeRCT::analyze(const Event & e, const EventSetup & c)
 {
-//    std::cout << "I am here!" << std::endl ;
   nev_++;
   if (verbose_) {
     std::cout << "L1TdeRCT: analyze...." << std::endl;
   }
+  
+  // for GT decision word
+//  edm::ESHandle<L1GtTriggerMenu> menuRcd;
+  edm::Handle< L1GlobalTriggerReadoutRecord > gtRecord;
+
+  // get GT trigger menu, maps algorithms to the bits read out
+//  c.get<L1GtTriggerMenuRcd>().get(menuRcd) ;
+//  const L1GtTriggerMenu* menu = menuRcd.product();
+
+  // get GT decision word
+  //e.getByLabel( edm::InputTag("gtDigis"), gtRecord);
+  e.getByLabel( gtDigisLabel_ , gtRecord );
+  const DecisionWord dWord = gtRecord->decisionWord();  // this will get the decision word *before* masking disabled bits
+ int effEGThresholdBitNumber = 999;
+  if (gtEGAlgoName_ == "L1_SingleEG1")
+    {
+      effEGThresholdBitNumber = 46;
+    }
+  if (gtEGAlgoName_ == "L1_SingleEG5_00001")
+    {
+      effEGThresholdBitNumber = 47;
+    }
+  if (gtEGAlgoName_ == "L1_SingleEG8_00001")
+    {
+      effEGThresholdBitNumber = 48;
+    }
+  if (gtEGAlgoName_ == "L1_SingleEG10_00001")
+    {
+      effEGThresholdBitNumber = 49;
+  }
+  if (gtEGAlgoName_ == "L1_SingleEG12_00001")
+    {
+      effEGThresholdBitNumber = 50;
+    }
+  if (gtEGAlgoName_ == "L1_SingleEG15_00001")
+    {
+      effEGThresholdBitNumber = 51;
+    }
+  if (gtEGAlgoName_ == "L1_SingleEG20_00001")
+    {
+      effEGThresholdBitNumber = 52;
+    }
+
+  int algoBitNumber = 0;
+  bool triggered = false;
+  bool independent_triggered = false;
+  DecisionWord::const_iterator algoItr;
+  for (algoItr = dWord.begin(); algoItr != dWord.end(); algoItr++)
+    {
+      if (*algoItr)
+        {
+          triggerAlgoNumbers_->Fill(algoBitNumber);
+          if (algoBitNumber == effEGThresholdBitNumber)
+            {
+              triggered = true;// Fill triggered events (numerator) here!
+            }
+          if (algoBitNumber <= 45 || algoBitNumber >= 53)
+            {
+              independent_triggered = true;// use the muon path only !
+            }
+        }
+      algoBitNumber++;
+    }
+
+
+  if(triggered)
+    trigCount++;
+  else
+    notrigCount++;
 
   // get TPGs
   edm::Handle<EcalTrigPrimDigiCollection> ecalTpData;
@@ -1116,12 +1235,36 @@ if(first)
       nelectrE=nelectrNisoEmul;
       nelectrD=nelectrNisoData;
     }
-
+    
     for(int i = 0; i < nelectrE; i++)
-    {
-      Bool_t found = kFALSE;
+      {
+	//bool triggered = l1SingleEG2; //false; //HACK until true trigger implimented
+	double trigThresh = doubleThreshold_;  //ditto
+	  if(singlechannelhistos_) {
+	    int chnl=PHIBINS*electronEmulEta[k][i]+electronEmulPhi[k][i];
+	    if(k==1 && independent_triggered) { //non-iso
+	      //std::cout << "eta " << electronEmulEta[k][i] << " phi " << electronEmulPhi[k][i] << " with rank " <<  electronEmulRank[k][i] << std::endl;
+	      trigEffOcc_[chnl]->Fill(electronEmulRank[k][i]);
+	    }
+	    if(triggered)
+	      trigEffTriggOcc_[chnl]->Fill(electronEmulRank[k][i]);
+	  }
+	  //find number of objects with rank above 2x trigger threshold
+	  //and number after requiring a trigger too
+	  if(electronEmulRank[k][i]>=trigThresh){
+	    if(k==1 && independent_triggered) { //non-iso
+	      trigEffThreshOcc_->Fill(electronEmulEta[k][i], electronEmulPhi[k][i]);
+	      trigEffTriggThreshOcc_->Fill(electronEmulEta[k][i], electronEmulPhi[k][i], 0.01);
+	    }
+	    if(triggered)
+	      trigEffTriggThreshOcc_->Fill(electronEmulEta[k][i], electronEmulPhi[k][i], 0.980001);
+	  }
+      
 
-      for(int j = 0; j < nelectrD; j++)
+
+	Bool_t found = kFALSE;
+
+	for(int j = 0; j < nelectrD; j++)
       {
         if(electronEmulEta[k][i]==electronDataEta[k][j] &&
            electronEmulPhi[k][i]==electronDataPhi[k][j])
@@ -1217,20 +1360,29 @@ if(first)
 
     }
 
-      DivideME1D(rctIsoEmEff1Occ1D_, rctIsoEmEmulOcc1D_, rctIsoEmEff1oneD_);
-      DivideME2D(rctIsoEmEff1Occ_, rctIsoEmEmulOcc_, rctIsoEmEff1_) ;
-      DivideME1D(rctIsoEmEff2Occ1D_, rctIsoEmEmulOcc1D_, rctIsoEmEff2oneD_);
-      DivideME2D(rctIsoEmEff2Occ_, rctIsoEmEmulOcc_, rctIsoEmEff2_) ;
-      DivideME1D(rctNisoEmEff1Occ1D_, rctNisoEmEmulOcc1D_, rctNisoEmEff1oneD_);
-      DivideME2D(rctNisoEmEff1Occ_, rctNisoEmEmulOcc_, rctNisoEmEff1_);
-      DivideME1D(rctNisoEmEff2Occ1D_, rctNisoEmEmulOcc1D_, rctNisoEmEff2oneD_);
-      DivideME2D(rctNisoEmEff2Occ_, rctNisoEmEmulOcc_, rctNisoEmEff2_);
-
-      DivideME1D(rctIsoEmIneffOcc1D_, rctIsoEmEmulOcc1D_, rctIsoEmIneff1D_);
-      DivideME2D(rctIsoEmIneffOcc_, rctIsoEmEmulOcc_, rctIsoEmIneff_);
-      DivideME1D(rctNisoEmIneffOcc1D_, rctNisoEmEmulOcc1D_, rctNisoEmIneff1D_);
-      DivideME2D(rctNisoEmIneffOcc_, rctNisoEmEmulOcc_, rctNisoEmIneff_);
-
+    DivideME1D(rctIsoEmEff1Occ1D_, rctIsoEmEmulOcc1D_, rctIsoEmEff1oneD_);
+    DivideME2D(rctIsoEmEff1Occ_, rctIsoEmEmulOcc_, rctIsoEmEff1_) ;
+    DivideME1D(rctIsoEmEff2Occ1D_, rctIsoEmEmulOcc1D_, rctIsoEmEff2oneD_);
+    DivideME2D(rctIsoEmEff2Occ_, rctIsoEmEmulOcc_, rctIsoEmEff2_) ;
+    DivideME1D(rctNisoEmEff1Occ1D_, rctNisoEmEmulOcc1D_, rctNisoEmEff1oneD_);
+    DivideME2D(rctNisoEmEff1Occ_, rctNisoEmEmulOcc_, rctNisoEmEff1_);
+    DivideME1D(rctNisoEmEff2Occ1D_, rctNisoEmEmulOcc1D_, rctNisoEmEff2oneD_);
+    DivideME2D(rctNisoEmEff2Occ_, rctNisoEmEmulOcc_, rctNisoEmEff2_);
+    
+    DivideME1D(rctIsoEmIneffOcc1D_, rctIsoEmEmulOcc1D_, rctIsoEmIneff1D_);
+    DivideME2D(rctIsoEmIneffOcc_, rctIsoEmEmulOcc_, rctIsoEmIneff_);
+    DivideME1D(rctNisoEmIneffOcc1D_, rctNisoEmEmulOcc1D_, rctNisoEmIneff1D_);
+    DivideME2D(rctNisoEmIneffOcc_, rctNisoEmEmulOcc_, rctNisoEmIneff_);
+    
+    DivideME2D(trigEffTriggThreshOcc_, trigEffThreshOcc_, trigEffThresh_);
+    if(singlechannelhistos_) {
+      for(int i = 0; i < nelectrE; i++)
+	{
+	  int chnl=PHIBINS*electronEmulEta[k][i]+electronEmulPhi[k][i];
+	  DivideME1D(trigEffTriggOcc_[chnl], trigEffOcc_[chnl], trigEff_[chnl]); 
+	}
+    }
+    
     for(int i = 0; i < nelectrD; i++)
     {
       Bool_t found = kFALSE;
@@ -1288,7 +1440,6 @@ if(first)
     DivideME1D(rctNisoEmOvereffOcc1D_, rctNisoEmDataOcc1D_, rctNisoEmOvereff1D_);
     DivideME2D(rctNisoEmOvereffOcc_, rctNisoEmDataOcc_, rctNisoEmOvereff_);
 
-//std::cout << " I am here " << std::endl ;
 
     // calculate region/bit information
   for(unsigned int i = 0; i < (int)PhiEtaMax; i++)
@@ -1412,7 +1563,6 @@ if(first)
       DivideME2D (rctBitUnmatchedEmulQuiet2D_, rctBitEmulQuiet2D_, rctBitQuietIneff2D_);
       DivideME2D (rctBitUnmatchedEmulHfPlusTau2D_, rctBitEmulHfPlusTau2D_, rctBitHfPlusTauIneff2D_);
 
-//std::cout << " I am here 2 " << std::endl ;
 
   // for(int i = 0; i < nRegionData; i++)
   for (int i = 0; i < (int)PhiEtaMax; i++)

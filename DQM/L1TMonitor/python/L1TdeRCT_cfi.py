@@ -7,9 +7,13 @@ l1tderct = cms.EDFilter("L1TdeRCT",
     verbose = cms.untracked.bool(False),
     DQMStore = cms.untracked.bool(True),
     singlechannelhistos = cms.untracked.bool(False),
-    ecalTPGData = cms.InputTag("ecalDigis","EcalTriggerPrimitives"),
+    ecalTPGData = cms.InputTag("ecalEBunpacker","EcalTriggerPrimitives"),
     rctSourceEmul = cms.InputTag("valRctDigis"),
     disableROOToutput = cms.untracked.bool(True),
-    hcalTPGData = cms.InputTag("hcalDigis")
+    hcalTPGData = cms.InputTag("hcalDigis"),
+    gtDigisLabel = cms.InputTag("gtDigis"),
+    gtEGAlgoName = cms.string("L1_SingleEG1"),
+    doubleThreshold = cms.int32(3),
+
 )
 

@@ -7,11 +7,14 @@
  *
  * Version 0.0. A.Savin 2008/04/26
  *
- * $Date: 2008/09/22 16:48:32 $
- * $Revision: 1.7 $
+ * $Date: 2008/11/07 15:54:03 $
+ * $Revision: 1.8 $
  * \author P. Wittich
- * $Id: L1TdeRCT.h,v 1.7 2008/09/22 16:48:32 asavin Exp $
+ * $Id: L1TdeRCT.h,v 1.8 2008/11/07 15:54:03 weinberg Exp $
  * $Log: L1TdeRCT.h,v $
+ * Revision 1.8  2008/11/07 15:54:03  weinberg
+ * Changed fine grain bit to HF plus tau bit
+ *
  * Revision 1.7  2008/09/22 16:48:32  asavin
  * reg1D overeff added
  *
@@ -104,6 +107,9 @@ void endJob(void);
 private:
   // ----------member data ---------------------------
   DQMStore * dbe;
+
+  // begin GT decision information
+  MonitorElement *triggerAlgoNumbers_;
 
   // begin region information
   MonitorElement *rctRegDataOcc1D_;
@@ -236,6 +242,14 @@ private:
   MonitorElement* rctRegIneffChannel_[396];
   MonitorElement* rctRegOvereffChannel_[396];
   
+  //efficiency
+  MonitorElement* trigEffThresh_;
+  MonitorElement* trigEffThreshOcc_;
+  MonitorElement* trigEffTriggThreshOcc_;
+  MonitorElement* trigEff_[396];
+  MonitorElement* trigEffOcc_[396];
+  MonitorElement* trigEffTriggOcc_[396];
+
   // end region channel information
 
   int nev_; // Number of events processed
@@ -250,7 +264,12 @@ private:
   edm::InputTag rctSourceData_;
   edm::InputTag ecalTPGData_;
   edm::InputTag hcalTPGData_;
+  edm::InputTag gtDigisLabel_;
+  std::string gtEGAlgoName_; // name of algo to determine EG trigger threshold
+  int doubleThreshold_; // value of ET at which to make 2-D eff plot
 
+
+  int trigCount,notrigCount;
 
 protected:
 
