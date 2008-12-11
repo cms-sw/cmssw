@@ -12,12 +12,13 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include <FWCore/Framework/interface/ESHandle.h>
+#include "FWCore/Framework/interface/ESHandle.h"
 
 #include <string>
 
 class DTTtrig;
 class DTGeometry;
+class DTTTrigBaseCorrection;
 
 class DTTTrigCorrection : public edm::EDAnalyzer {
 public:
@@ -32,17 +33,15 @@ public:
   virtual void beginJob(const edm::EventSetup& setup);
   virtual void beginRun( const edm::Run& run, const edm::EventSetup& setup );
   virtual void analyze(const edm::Event& event, const edm::EventSetup& setup){}
-
   virtual void endJob();
 
 protected:
 
 private:
-  const DTTtrig *tTrigMap;
-  edm::ESHandle<DTGeometry> muonGeom;
+  const DTTtrig* tTrigMap_;
+  edm::ESHandle<DTGeometry> muonGeom_;
 
-  bool debug;
-  double ttrigMin,ttrigMax,rmsLimit; 
+  DTTTrigBaseCorrection* correctionAlgo_;
 };
 #endif
 

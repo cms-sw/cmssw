@@ -5,21 +5,27 @@
  *  $Date: 2008/08/13 12:42:09 $
  *  $Revision: 1.3 $
  *  \author S. Maselli - INFN Torino
+ *          A. Vilela Pereira
  */
 
 #include "CalibMuon/DTCalibration/plugins/DTTTrigCorrection.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "Geometry/DTGeometry/interface/DTSuperLayer.h"
 
 #include "CondFormats/DTObjects/interface/DTTtrig.h"
 #include "CondFormats/DataRecord/interface/DTTtrigRcd.h"
+
 #include "CalibMuon/DTCalibration/interface/DTCalibDBUtils.h"
+
+#include "CalibMuon/DTCalibration/interface/DTTTrigCorrectionFactory.h"
+#include "CalibMuon/DTCalibration/interface/DTTTrigBaseCorrection.h"
 
 #include <iostream>
 #include <fstream>
@@ -28,254 +34,68 @@ using namespace edm;
 using namespace std;
 
 DTTTrigCorrection::DTTTrigCorrection(const ParameterSet& pset) {
- 
-  debug = pset.getUntrackedParameter<bool>("debug",false);
-  ttrigMin = pset.getUntrackedParameter<double>("ttrigMin",0);
-  ttrigMax = pset.getUntrackedParameter<double>("ttrigMax",5000);
-  rmsLimit = pset.getUntrackedParameter<double>("rmsLimit",5.);
+  LogVerbatim("Calibration") << "[DTTTrigCorrection] Constructor called" << endl;
+
+  // Get the concrete algo from the factory
+  string theAlgoName = pset.getParameter<string>("correctionAlgo");
+  correctionAlgo_ = DTTTrigCorrectionFactory::get()->create(theAlgoName,pset.getParameter<ParameterSet>("correctionAlgoConfig"));
 }
 
-DTTTrigCorrection::~DTTTrigCorrection(){}
-
+DTTTrigCorrection::~DTTTrigCorrection(){
+  LogVerbatim("Calibration") << "[DTTTrigCorrection] Destructor called" << endl;
+  delete correctionAlgo_;
+}
 
 void DTTTrigCorrection::beginJob(const EventSetup& setup) {
-  //  ESHandle<DTTtrig> tTrig;
-  //setup.get<DTTtrigRcd>().get(tTrig);
-  //tTrigMap = &*tTrig;
-  //cout << "[DTTTrigCorrection]: TTrig version: " << tTrig->version() << endl;
-
-  setup.get<MuonGeometryRecord>().get(muonGeom);
+  // Get geometry from Event Setup
+  setup.get<MuonGeometryRecord>().get(muonGeom_);
 }
+
 void DTTTrigCorrection::beginRun( const edm::Run& run, const edm::EventSetup& setup ) {
+  // Get tTrig record from DB
   ESHandle<DTTtrig> tTrig;
   setup.get<DTTtrigRcd>().get(tTrig);
-  tTrigMap = &*tTrig;
-  cout << "[DTTTrigCorrection]: TTrig version: " << tTrig->version() << endl;
-  //setup.get<MuonGeometryRecord>().get(muonGeom);
+  tTrigMap_ = &*tTrig;
+  LogVerbatim("Calibration") << "[DTTTrigCorrection]: TTrig version: " << tTrig->version() << endl;
+
+  // Pass EventSetup to correction Algo
+  correctionAlgo_->setES(setup);
 }
 
 void DTTTrigCorrection::endJob() {
   // Create the object to be written to DB
   DTTtrig* tTrigNewMap = new DTTtrig();  
   //Get the superlayers list
-  vector<DTSuperLayer*> dtSupLylist = muonGeom->superLayers();
+  vector<DTSuperLayer*> dtSupLylist = muonGeom_->superLayers();
 
-  //Loop on all superlayers to compute the mean 
-  double average = 0.;
-  double average2 = 0.;
-  double rms = 0.;
-  double averageSigma = 0.;
-  double average2Sigma = 0.;
-  double rmsSigma = 0.;
-  double counter = 0.;
- 
-  for (vector<DTSuperLayer*>::const_iterator sl = dtSupLylist.begin();
-       sl != dtSupLylist.end(); sl++) {
-    float ttrigMean = 0;
-    float ttrigSigma = 0;
-    float kFactor = 0;
-    tTrigMap->get((*sl)->id(),
-		  ttrigMean,
-		  ttrigSigma,
-                  kFactor,
-		  DTTimeUnits::ns);
-    if( ttrigMean < ttrigMax && ttrigMean > ttrigMin ) {
-      average += ttrigMean;
-      averageSigma += ttrigSigma;
-      if(ttrigMean > 0)
-	counter +=  1.;
-    }
-  }//End of loop on superlayers 
+  for(vector<DTSuperLayer*>::const_iterator sl = muonGeom_->superLayers().begin();
+                                            sl != muonGeom_->superLayers().end(); ++sl) {
+    // Get old value from DB
+    float tTrigMean,tTrigSigma,kFactor;
+    tTrigMap_->get((*sl)->id(),tTrigMean,tTrigSigma,kFactor,DTTimeUnits::ns);
 
-  average =  average/ counter;
-  averageSigma = averageSigma/counter;
-
-  //  cout << " average counter "<< average << " "<< counter <<endl;
-
-  for (vector<DTSuperLayer*>::const_iterator sl = dtSupLylist.begin();
-       sl != dtSupLylist.end(); sl++) {
-    float ttrigMean = 0;
-    float ttrigSigma = 0;
-    float kFactor = 0;
-    tTrigMap->get((*sl)->id(),
-		  ttrigMean,
-		  ttrigSigma,
-                  kFactor,
-		  DTTimeUnits::ns);
-    if( ttrigMean < ttrigMax && ttrigMean > ttrigMin ) {
-      average2 += (ttrigMean-average)*(ttrigMean-average);
-      average2Sigma += (ttrigSigma-averageSigma)*(ttrigSigma-averageSigma);
-    }
-  }//End of loop on superlayers 
-
-     rms = average2 /(counter-1);
-     rmsSigma = average2Sigma /(counter-1);
-     rms = sqrt(rms);
-     rmsSigma = sqrt(rmsSigma);
-  cout << "average averageSigma counter rms "<< average <<" " << averageSigma << " " << counter << " " << rms  <<endl;
-
-
-  for (vector<DTSuperLayer*>::const_iterator sl = dtSupLylist.begin();
-       sl != dtSupLylist.end(); sl++) {
     //Compute new ttrig
-    double newTTrigMean =  0;
-    double newTTrigSigma =  0;
-    double newKFactor = 0;
-    float tempttrigMean = 0;
-    float tempttrigSigma = 0;
-    float ttrigMean = 0;
-    float ttrigSigma = 0;
-    float kFactor = 0;
-    tTrigMap->get((*sl)->id(),
-		  ttrigMean,
-		  ttrigSigma,
-                  kFactor,
-		  DTTimeUnits::ns);
-    int chamber = (*sl)->id().chamberId().station();
-    newKFactor = kFactor;
+    try{
+      DTTTrigData tTrigCorr = correctionAlgo_->correction((*sl)->id());
+      float tTrigMeanNew = tTrigCorr.mean;
+      float tTrigSigmaNew = tTrigCorr.sigma; 
+      float kFactorNew = tTrigCorr.kFactor;
+      tTrigNewMap->set((*sl)->id(),tTrigMeanNew,tTrigSigmaNew,kFactorNew,DTTimeUnits::ns);
 
-    //check if ttrigMean is similar to the mean
-    if (abs(ttrigMean - average) < rmsLimit*rms ){
-      newTTrigMean = ttrigMean;
-      newTTrigSigma = ttrigSigma;
-    } else {
-      // do not consider if ttrig == 0
-      if(ttrigMean > 0) {
-	//cout << "ttrig chamber " << ttrigMean <<" "<<chamber<<endl;
-	if(((*sl)->id().superlayer()) == 1){
-	  //cout << " superlayer " << ((*sl)->id().superlayer()) <<endl; 
-	  DTSuperLayerId slId((*sl)->id().chamberId(),3);
-	  tTrigMap->get(slId,
-			tempttrigMean,
-			tempttrigSigma,
-                        kFactor,
-			DTTimeUnits::ns);
-	  if (abs(tempttrigMean - average) < rmsLimit*rms) {
-	    newTTrigMean = tempttrigMean;
-	    newTTrigSigma = tempttrigSigma;
-	    cout <<"Chamber "<< chamber << " sl " << ((*sl)->id().superlayer()) << "has ttrig "<< ttrigMean  
-		 << " -> takes value of sl 3 " <<  newTTrigMean <<endl;
-	  } else if(chamber == 4){
-	    cout << "No correction possible within same chamber (sl1) "  <<endl; 
-	    newTTrigMean = average;
-	    newTTrigSigma = averageSigma;
-	    cout<<"####### Bad SL: " << (*sl)->id() << " from "<< ttrigMean <<" to "<< newTTrigMean <<endl;
-	  } else if(chamber != 4){	  
-	    DTSuperLayerId slId((*sl)->id().chamberId(),2);
-	    tTrigMap->get(slId,
-			  tempttrigMean,
-			  tempttrigSigma,
-                          kFactor,
-			  DTTimeUnits::ns);
-	    if (abs(tempttrigMean - average) < rmsLimit*rms) {
-	      newTTrigMean = tempttrigMean;
-	      newTTrigSigma = tempttrigSigma;
-	      cout <<"Chamber "<< chamber << " sl " << ((*sl)->id().superlayer()) << "has ttrig "<< ttrigMean  
-		   <<" -> takes value of sl 2 " <<  newTTrigMean <<endl;
-	    } else {
-	      cout << "No correction possible within same chamber (sl1) "  <<endl;
-	      newTTrigMean = average;
-	      newTTrigSigma = averageSigma;
-	      cout<<"####### Bad SL: " << (*sl)->id() << " from "<< ttrigMean <<" to "<< newTTrigMean <<endl;
-	    }
-	  }
-	} else if (((*sl)->id().superlayer()) == 2) {
-	  //cout << " superlayer " << ((*sl)->id().superlayer()) <<endl; 
-	  DTSuperLayerId slId((*sl)->id().chamberId(),1);
-	  tTrigMap->get(slId,
-			tempttrigMean,
-			tempttrigSigma,
-                        kFactor,
-			DTTimeUnits::ns);
-	  if (abs(tempttrigMean - average) < rmsLimit*rms) {
-	    newTTrigMean = tempttrigMean;
-	    newTTrigSigma = tempttrigSigma;
-	    cout <<"Chamber "<< chamber << " sl " << ((*sl)->id().superlayer()) << "has ttrig "<< ttrigMean  
-		 << " -> takes value of sl 1 " <<  newTTrigMean <<endl;
-	  } else {
-	    DTSuperLayerId slId((*sl)->id().chamberId(),3);
-	    tTrigMap->get(slId,
-			  tempttrigMean,
-			  tempttrigSigma,
-                          kFactor,
-			  DTTimeUnits::ns);
-	    if (abs(tempttrigMean - average) < rmsLimit*rms) {
-	      newTTrigMean = tempttrigMean;
-	      newTTrigSigma = tempttrigSigma;
-	      cout <<"Chamber "<< chamber << " sl " << ((*sl)->id().superlayer()) << "has ttrig "<< ttrigMean  
-		   << "-> takes value of sl 3 " <<  newTTrigMean <<endl;
-	      } else {
-	      cout << "No correction possible within same chamber (sl2)  "  <<endl;
-	      newTTrigMean = average;
-	      newTTrigSigma = averageSigma;
-	      cout<<"####### Bad SL: " << (*sl)->id() << " from "<< ttrigMean <<" to "<< newTTrigMean <<endl;
-	    }
-	  } 
-	  
-	  
-	} else if (((*sl)->id().superlayer()) == 3) {
-	  //cout << " superlayer " << ((*sl)->id().superlayer()) <<endl; 
-	  DTSuperLayerId slId((*sl)->id().chamberId(),1);
-	  tTrigMap->get(slId,
-			tempttrigMean,
-			tempttrigSigma,
-                        kFactor,
-			DTTimeUnits::ns);
-	  if (abs(tempttrigMean - average) < rmsLimit*rms) {
-	    newTTrigMean = tempttrigMean;
-	    newTTrigSigma = tempttrigSigma;
-	    cout <<"Chamber "<< chamber << " sl " << ((*sl)->id().superlayer()) << "has ttrig "<< ttrigMean  
-		 << " -> takes value of sl 1 " <<  newTTrigMean <<endl;
-	  } else if(chamber == 4) {
-	    cout << "No correction possible within same chamber (sl3)"  <<endl;
-	    newTTrigMean = average;
-	    newTTrigSigma = averageSigma;
-	    cout<<"####### Bad SL: " << (*sl)->id() << " from "<< ttrigMean <<" to "<< newTTrigMean <<endl;
-	  } else if(chamber != 4){
-	    DTSuperLayerId slId((*sl)->id().chamberId(),2);
-	    tTrigMap->get(slId,
-			  tempttrigMean,
-			  tempttrigSigma,
-                          kFactor,
-			  DTTimeUnits::ns);
-	    if (abs(tempttrigMean - average) < rmsLimit*rms) {
-	      newTTrigMean = tempttrigMean;
-	      newTTrigSigma = tempttrigSigma;
-	      cout <<"Chamber "<< chamber << " sl " << ((*sl)->id().superlayer()) << "has ttrig "<< ttrigMean  
-		   << " -> takes value of sl 2 " <<  newTTrigMean <<endl;
-	    } else {
-	      cout << "No correction possible within same chamber (sl3) "  <<endl;
-	      newTTrigMean = average;
-	      newTTrigSigma = averageSigma;
-	      cout<<"####### Bad SL: " << (*sl)->id() << " from "<< ttrigMean <<" to "<< newTTrigMean <<endl;
-	    }
-	  } 
-	  
-	}
-      } else {
-	//	cout << "SL not present " << ttrigMean << " " <<((*sl)->id().superlayer()) <<endl;
-	newTTrigMean = average;
-	newTTrigSigma = averageSigma;
-	cout<<"####### NotPresent SL: " << (*sl)->id() << " from "<< ttrigMean <<" to "<< newTTrigMean <<endl;
-      }
-    }
-
-    //Store new ttrig in the new map
-    tTrigNewMap->set((*sl)->id(), newTTrigMean, newTTrigSigma,newKFactor, DTTimeUnits::ns);
-    if(debug){
-      cout<<"New tTrig: " << (*sl)->id()
-    	  << " from "<< ttrigMean <<" to "<< newTTrigMean <<endl;
-      cout<<"New tTrigSigma: " << (*sl)->id()
-    	  << " from "<<ttrigSigma  <<" to "<< newTTrigSigma <<endl;
-
+      LogVerbatim("Calibration") << "New tTrig for : " << (*sl)->id()
+				 << " mean from " << tTrigMean << " to " << tTrigMeanNew
+				 << " sigma from " << tTrigSigma << " to " << tTrigSigmaNew
+				 << " kFactor from " << kFactor << " to " << kFactorNew << endl;
+    } catch(cms::Exception& e){
+      LogError("Calibration") << e.explainSelf();
+      continue;
     }
   }//End of loop on superlayers 
 
-  
   //Write object to DB
-  cout << "[DTTTrigCorrection]: Writing ttrig object to DB!" << endl;
+  LogVerbatim("Calibration") << "[DTTTrigCorrection]: Writing ttrig object to DB!" << endl;
   string record = "DTTtrigRcd";
-   DTCalibDBUtils::writeToDB<DTTtrig>(record, tTrigNewMap);
+  DTCalibDBUtils::writeToDB<DTTtrig>(record, tTrigNewMap);
 } 
 
 
