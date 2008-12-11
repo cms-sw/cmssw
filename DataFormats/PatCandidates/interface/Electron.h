@@ -1,5 +1,5 @@
 //
-// $Id: Electron.h,v 1.19 2008/11/25 08:57:59 fronga Exp $
+// $Id: Electron.h,v 1.20 2008/11/28 19:02:15 lowette Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Electron_h
@@ -16,7 +16,7 @@
    https://hypernews.cern.ch/HyperNews/CMS/get/physTools.html
 
   \author   Steven Lowette, Giovanni Petrucciani, Frederic Ronga
-  \version  $Id: Electron.h,v 1.19 2008/11/25 08:57:59 fronga Exp $
+  \version  $Id: Electron.h,v 1.20 2008/11/28 19:02:15 lowette Exp $
 */
 
 
@@ -78,38 +78,14 @@ namespace pat {
       /// For cut-based IDs, the value is 1.0 for good, 0.0 for bad.
       /// Note: an exception is thrown if the specified ID is not available
       float electronID(const std::string & name) const;
-      /// deprecated !!!
-      float leptonID(const std::string & name) const {
-        // avoid messagelogger in dataformats
-        std::cout << "The pat::Electron::leptonID() method is deprecated. Please use the electronID() one instead" << std::endl;
-        return electronID(name);
-      }
       /// Returns true if a specific ID is available in this pat::Electron
       bool isElectronIDAvailable(const std::string & name) const;
-      /// deprecated !!!
-      bool isLeptonIDAvailable(const std::string & name) const {
-        // avoid messagelogger in dataformats
-        std::cout << "The pat::Electron::isLeptonIDAvailable() method is deprecated. Please use the isElectronIDAvailable() one instead" << std::endl;
-        return isElectronIDAvailable(name);
-      }
       /// Returns all the electron IDs in the form of <name,value> pairs
       /// The 'default' ID is the first in the list
       const std::vector<IdPair> &  electronIDs() const { return electronIDs_; }
-      /// deprecated !!!
-      const std::vector<IdPair> &  leptonIDs() const {
-        // avoid messagelogger in dataformats
-        std::cout << "The pat::Electron::leptonIDs() method is deprecated. Please use the electronIDs() one instead" << std::endl;
-        return electronIDs();
-      }
       /// Store multiple electron ID values, discarding existing ones
       /// The first one in the list becomes the 'default' electron id 
       void setElectronIDs(const std::vector<IdPair> & ids) { electronIDs_ = ids; }
-      /// deprecated !!!
-      void setLeptonIDs(const std::vector<IdPair> & ids) {
-        // avoid messagelogger in dataformats
-        std::cout << "The pat::Electron::setLeptonIDs() method is deprecated. Please use the setElectronIDs() one instead" << std::endl;
-        setElectronIDs(ids);
-      }
       /// Store the cluster shape variables associated to the electron
       void setClusterShapes ( const float& , const float& , const float& , const float& , const float& ) ;
       const float scSigmaEtaEta()   const { return  scSigmaEtaEta_ ; }
