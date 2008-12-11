@@ -2,8 +2,8 @@
  *  Class:PostProcessor 
  *
  *
- *  $Date: 2008/11/24 16:14:39 $
- *  $Revision: 1.10 $
+ *  $Date: 2008/12/04 09:16:28 $
+ *  $Revision: 1.11 $
  * 
  *  \author Junghwan Goh - SungKyunKwan University
  */
@@ -30,6 +30,8 @@ PostProcessor::PostProcessor(const ParameterSet& pset)
 
   effCmds_ = pset.getParameter<vstring>("efficiency");
   resCmds_ = pset.getParameter<vstring>("resolution");
+
+  resLimitedFit_ = pset.getUntrackedParameter<bool>("resolutionLimitedFit",false);
 
   outputFileName_ = pset.getUntrackedParameter<string>("outputFileName", "");
   subDir_ = pset.getUntrackedParameter<string>("subDir");
@@ -231,11 +233,59 @@ void PostProcessor::computeResolution(const string& startDir, const string& name
   ME* sigmaME = theDQM->book1D(newPrefix+"_Sigma", titlePrefix+" Sigma", nBin, xMin, xMax);
 //  ME* chi2ME  = theDQM->book1D(namePrefix+"_Chi2" , titlePrefix+" #Chi^{2}", nBin, xMin, xMax); // N/A
 
-  FitSlicesYTool fitTool(srcME);
-  fitTool.getFittedMeanWithError(meanME);
-  fitTool.getFittedSigmaWithError(sigmaME);
-//  fitTool.getFittedChisqWithError(chi2ME); // N/A
+  if (! resLimitedFit_ ) {
+    FitSlicesYTool fitTool(srcME);
+    fitTool.getFittedMeanWithError(meanME);
+    fitTool.getFittedSigmaWithError(sigmaME);
+    ////  fitTool.getFittedChisqWithError(chi2ME); // N/A
+  } else {
+    limitedFit(srcME,meanME,sigmaME);
+  }
+}
 
+void PostProcessor::limitedFit(MonitorElement * srcME, MonitorElement * meanME, MonitorElement * sigmaME)
+{
+  TH2F * histo = srcME->getTH2F();
+
+  static int i = 0;
+  i++;
+
+  // Fit slices projected along Y from bins in X 
+  double cont_min = 100;    //Minimum number of entries
+  Int_t binx =  histo->GetXaxis()->GetNbins();
+
+  for (int i = 1; i <= binx ; i++) {
+    TString iString(i);
+    TH1 *histoY =  histo->ProjectionY(" ", i, i);
+    double cont = histoY->GetEntries();
+
+    if (cont >= cont_min) {
+      float minfit = histoY->GetMean() - histoY->GetRMS();
+      float maxfit = histoY->GetMean() + histoY->GetRMS();
+      
+      TF1 *fitFcn = new TF1(TString("g")+histo->GetName()+iString,"gaus",minfit,maxfit);
+      double x1,x2;
+      fitFcn->GetRange(x1,x2);
+
+      histoY->Fit(fitFcn,"QR0","",x1,x2);
+
+//      histoY->Fit(fitFcn->GetName(),"RME");
+      double *par = fitFcn->GetParameters();
+      double *err = fitFcn->GetParErrors();
+
+      meanME->setBinContent(i,par[1]);
+      meanME->setBinError(i,err[1]);
+
+      sigmaME->setBinContent(i,par[2]);
+      sigmaME->setBinError(i,err[2]);
+      if(fitFcn) delete fitFcn;
+      if(histoY) delete histoY;
+    }
+    else {
+      if(histoY) delete histoY;
+      continue;
+    }
+  }
 }
 
 /* vim:set ts=2 sts=2 sw=2 expandtab: */

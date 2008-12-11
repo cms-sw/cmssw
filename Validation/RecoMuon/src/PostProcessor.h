@@ -6,8 +6,8 @@
  *
  *  DQM histogram post processor
  *
- *  $Date: 2008/11/05 17:28:44 $
- *  $Revision: 1.5 $
+ *  $Date: 2008/11/24 14:10:08 $
+ *  $Revision: 1.6 $
  *
  *  \author Junghwan Goh - SungKyunKwan University
  */
@@ -21,6 +21,7 @@
 #include <boost/tokenizer.hpp>
 
 class DQMStore;
+class MonitorElement;
 
 typedef boost::escaped_list_separator<char> elsc;
 
@@ -40,6 +41,8 @@ class PostProcessor : public edm::EDAnalyzer
                          const std::string& fitMEPrefix, const std::string& fitMETItlePrefix, 
                          const std::string& srcMEName);
 
+  void limitedFit(MonitorElement * srcME, MonitorElement * meanME, MonitorElement * sigmaME);
+
  private:
   unsigned int verbose_;
 
@@ -47,6 +50,7 @@ class PostProcessor : public edm::EDAnalyzer
   std::string subDir_;
   std::string outputFileName_;
   std::vector<std::string> effCmds_, resCmds_;
+  bool resLimitedFit_;
 };
 
 #endif

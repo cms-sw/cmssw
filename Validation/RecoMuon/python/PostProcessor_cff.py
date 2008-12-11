@@ -5,7 +5,9 @@ postProcessorMuonMultiTrack = cms.EDFilter("PostProcessor",
     efficiency = cms.vstring(
     "effic 'Efficiency vs #eta' num_assoc(simToReco)_eta num_simul_eta",
     "efficPt 'Efficiency vs p_{T}' num_assoc(simToReco)_pT num_simul_pT",
+    "effic_vs_hit 'Efficiency vs n Hits' num_assoc(simToReco)_hit num_simul_hit",
     ),
+    resolutionLimitedFit = cms.untracked.bool(False),
     resolution = cms.vstring("cotThetares_vs_eta '#sigma(cot(#theta)) vs #eta' cotThetares_vs_eta",
                              "cotThetares_vs_pt '#sigma(cot(#theta)) vs p_{T}' cotThetares_vs_pt",
                              "dxypull_vs_eta 'd_{xy} Pull vs #eta' dxypull_vs_eta",
@@ -36,13 +38,17 @@ postProcessorMuonMultiTrackComp = cms.EDFilter(
     efficiency = cms.vstring(
     "Eff_GlbTk_Eta 'Eff_{GLB,TK} vs #eta' globalMuons_tpToGlbAssociation/effic general_tpToTkmuAssociation/effic",
     "Eff_GlbTk_Pt 'Eff_{GLB,TK} vs p_{T}' globalMuons_tpToGlbAssociation/efficPt general_tpToTkmuAssociation/efficPt",
+    "Eff_GlbTk_Hit 'Eff_{GLB,TK} vs n Hits' globalMuons_tpToGlbAssociation/effic_vs_hit general_tpToTkmuAssociation/effic_vs_hit",
     "Eff_GlbSta_Eta 'Eff_{GLB,STA} vs #eta' globalMuons_tpToGlbAssociation/effic standAloneMuons_UpdatedAtVtx_tpToStaAssociation/effic",
     "Eff_GlbSta_Pt 'Eff_{GLB,STA} vs p_{T}' globalMuons_tpToGlbAssociation/efficPt standAloneMuons_UpdatedAtVtx_tpToStaAssociation/efficPt",
+    "Eff_GlbSta_Hit 'Eff_{GLB,STA} vs n Hits' globalMuons_tpToGlbAssociation/effic_vs_hit standAloneMuons_UpdatedAtVtx_tpToStaAssociation/effic_vs_hit",
 
     "Eff_GlbTk_Eta_mabh 'Eff_{GLB,TK} vs #eta' globalMuons_tpToGlbMuonAssociation/effic general_tpToTkMuonAssociation/effic",
     "Eff_GlbTk_Pt_mabh 'Eff_{GLB,TK} vs p_{T}' globalMuons_tpToGlbMuonAssociation/efficPt general_tpToTkMuonAssociation/efficPt",
+    "Eff_GlbTk_Hit_mabh 'Eff_{GLB,TK} vs n Hits' globalMuons_tpToGlbMuonAssociation/effic_vs_hit general_tpToTkMuonAssociation/effic_vs_hit",
     "Eff_GlbSta_Eta_mabh 'Eff_{GLB,STA} vs #eta' globalMuons_tpToGlbMuonAssociation/effic standAloneMuons_UpdatedAtVtx_tpToStaMuonAssociation/effic",
     "Eff_GlbSta_Pt_mabh 'Eff_{GLB,STA} vs p_{T}' globalMuons_tpToGlbMuonAssociation/efficPt standAloneMuons_UpdatedAtVtx_tpToStaMuonAssociation/efficPt",
+    "Eff_GlbSta_Hit_mabh 'Eff_{GLB,STA} vs n Hits' globalMuons_tpToGlbMuonAssociation/effic_vs_hit standAloneMuons_UpdatedAtVtx_tpToStaMuonAssociation/effic_vs_hit",
     ),
     resolution = cms.vstring(""),
     outputFileName = cms.untracked.string("")
