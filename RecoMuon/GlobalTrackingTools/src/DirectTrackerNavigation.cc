@@ -2,8 +2,8 @@
  *  Class: DirectTrackerNavigation
  *
  *
- *  $Date: 2008/02/26 18:32:33 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/03/19 21:43:46 $
+ *  $Revision: 1.3 $
  *
  *  \author Chang Liu  -  Purdue University
  */
@@ -33,7 +33,7 @@ using namespace std;
 //
 DirectTrackerNavigation::DirectTrackerNavigation(const edm::ESHandle<GeometricSearchTracker>& tkLayout, 
                                                  bool outOnly) : 
- theGeometricSearchTracker(tkLayout), theOutLayerOnlyFlag(outOnly), theEpsilon(-0.09) {
+ theGeometricSearchTracker(tkLayout), theOutLayerOnlyFlag(outOnly), theEpsilon(-0.01) {
 
 }
 
