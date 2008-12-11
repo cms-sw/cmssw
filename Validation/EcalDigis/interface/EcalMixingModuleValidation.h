@@ -4,8 +4,8 @@
 /*
  * \file EcalMixingModuleValidation.h
  *
- * $Date: 2008/02/29 20:48:25 $
- * $Revision: 1.6 $
+ * $Date: 2008/05/05 10:45:21 $
+ * $Revision: 1.7 $
  * \author F. Cossutti
  *
 */
@@ -24,7 +24,7 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "SimDataFormats/EncodedEventId/interface/EncodedEventId.h"
 #include "SimDataFormats/Track/interface/SimTrack.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"

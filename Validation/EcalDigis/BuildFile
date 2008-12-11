@@ -24,7 +24,7 @@
 <use name=SimDataFormats/CaloHit>
 <use name=SimDataFormats/CrossingFrame>
 <use name=SimDataFormats/EncodedEventId>
-<use name=SimDataFormats/HepMCProduct>
+<use name=SimDataFormats/GeneratorProducts>
 <use name=SimDataFormats/Track>
 <use name=SimDataFormats/Vertex>
 <flags EDM_PLUGIN=1>

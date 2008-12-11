@@ -6,7 +6,7 @@
 <use name=SimDataFormats/CaloHit>
 <use name=SimDataFormats/Track>
 <use name=SimDataFormats/Vertex>
-<use name=SimDataFormats/HepMCProduct>
+<use name=SimDataFormats/GeneratorProducts>
 <use name=DataFormats/EcalDetId>
 <use name=FWCore/Framework>
 <use name=DQMServices/Core>
@@ -24,7 +24,7 @@
    <use name=SimDataFormats/CaloHit>      
    <use name=SimDataFormats/Track>        
    <use name=SimDataFormats/Vertex>       
-   <use name=SimDataFormats/HepMCProduct> 
+   <use name=SimDataFormats/GeneratorProducts> 
    <use name=DataFormats/EcalDetId>       
    <use name=FWCore/Framework>            
    <use name=DQMServices/Core>        

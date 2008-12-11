@@ -8,7 +8,7 @@
  <use name=SimG4Core/Notification>
  <use name=SimG4Core/Watcher>
  <use name=SimG4CMS/Calo>
- <use name=SimDataFormats/HepMCProduct>
+ <use name=SimDataFormats/GeneratorProducts>
  <use name=SimDataFormats/ValidationFormats>
  <use name=DQMServices/Core>
 </export>
@@ -21,7 +21,7 @@
 <use name=SimG4Core/Notification>
 <use name=SimG4Core/Watcher>
 <use name=SimG4CMS/Calo>
-<use name=SimDataFormats/HepMCProduct>
+<use name=SimDataFormats/GeneratorProducts>
 <use name=SimDataFormats/ValidationFormats>
 <use name=DQMServices/Core>
 <use name=rootmath>

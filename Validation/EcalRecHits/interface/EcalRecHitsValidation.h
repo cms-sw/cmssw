@@ -4,7 +4,7 @@
 /*
  * \file EcalRecHitsValidation.h
  *
- * $Date: 2008/05/05 10:55:34 $
+ * $Date: 2008/10/30 12:04:03 $
  * \author C. Rovelli
  *
 */
@@ -22,7 +22,7 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 

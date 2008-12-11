@@ -1,7 +1,7 @@
 /*
  * \file EcalRecHitsValidation.cc
  *
- * $Date: 2008/12/10 10:46:58 $
+ * $Date: 2008/12/11 08:49:15 $
  * \author C. Rovelli
  *
 */
@@ -282,8 +282,9 @@ void EcalRecHitsValidation::analyze(const Event& e, const EventSetup& c){
     MapType ebSimMap;
     MapType ebRecMap;
     const int ebcSize = 90;
-    double ebcontr[ebcSize];
+    double ebcontr[ebcSize]; 
     double ebcontr25[ebcSize];
+    for( int i=0; i<ebcSize; i++ ) { ebcontr[i] = 0.0; ebcontr25[i] = 0.0; } 
     double ebtotal = 0.;
 
     for (MixCollection<PCaloHit>::MixItr hitItr = barrelHits->begin (); hitItr != barrelHits->end (); ++hitItr)  {   
@@ -381,6 +382,7 @@ void EcalRecHitsValidation::analyze(const Event& e, const EventSetup& c){
     const int eecSize = 90;
     double eecontr[eecSize];
     double eecontr25[eecSize];
+    for( int i=0; i<eecSize; i++ ) { eecontr[i] = 0.0; eecontr25[i] = 0.0; } 
     double eetotal = 0.;
  
     for (MixCollection<PCaloHit>::MixItr hitItr = endcapHits->begin(); hitItr != endcapHits->end(); ++hitItr) {   
@@ -478,6 +480,7 @@ void EcalRecHitsValidation::analyze(const Event& e, const EventSetup& c){
     MapType esSimMap;
     const int escSize = 90;
     double escontr[escSize];
+    for( int i=0; i<escSize; i++ ) { escontr[i] = 0.0; }
     double estotal = 0.;
 
   
