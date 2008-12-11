@@ -5,8 +5,8 @@
  *  
  *  Class to fill dqm monitor elements from existing EDM file
  *
- *  $Date: 2008/02/27 18:42:25 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/03/13 21:17:07 $
+ *  $Revision: 1.5 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -52,7 +52,7 @@
 //#include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 
 // data in edm::event
-//#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+//#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 //#include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 //#include "SimDataFormats/Track/interface/SimTrackContainer.h"
 //#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"

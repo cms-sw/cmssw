@@ -3,7 +3,7 @@
 <use name=FWCore/MessageLogger>
 <use name=Geometry/CaloEventSetup>
 <use name=SimDataFormats/ValidationFormats>
-<use name=SimDataFormats/HepMCProduct>
+<use name=SimDataFormats/GeneratorProducts>
 <use name=DataFormats/DetId>
 <use name=DataFormats/Common>
 <use name=Geometry/CommonDetUnit>
@@ -27,7 +27,7 @@
  <use name=FWCore/MessageLogger>
  <use name=Geometry/CaloEventSetup>
  <use name=SimDataFormats/ValidationFormats>
- <use name=SimDataFormats/HepMCProduct>
+ <use name=SimDataFormats/GeneratorProducts>
  <use name=DataFormats/DetId>
  <use name=DataFormats/Common>
  <use name=Geometry/CommonDetUnit>
