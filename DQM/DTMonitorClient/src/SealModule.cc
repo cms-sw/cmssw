@@ -13,6 +13,9 @@ DEFINE_ANOTHER_FWK_MODULE(DTEfficiencyTest);
 #include <DQM/DTMonitorClient/src/DTChamberEfficiencyTest.h>
 DEFINE_ANOTHER_FWK_MODULE(DTChamberEfficiencyTest);
 
+#include <DQM/DTMonitorClient/src/DTChamberEfficiencyClient.h>
+DEFINE_ANOTHER_FWK_MODULE(DTChamberEfficiencyClient);
+
 #include <DQM/DTMonitorClient/src/DTDataIntegrityTest.h>
 DEFINE_ANOTHER_FWK_MODULE(DTDataIntegrityTest);
 

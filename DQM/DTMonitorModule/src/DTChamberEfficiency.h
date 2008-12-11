@@ -105,7 +105,9 @@ class DTChamberEfficiency : public edm::EDAnalyzer
   edm::ESHandle<MagneticField> magfield;
   edm::ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
 
-  std::map<DTChamberId, std::vector<MonitorElement*> > histosPerW;
+  //std::map<DTChamberId, std::vector<MonitorElement*> > histosPerW;
+
+  std::vector<std::vector<MonitorElement*> > histosPerW;
 
  protected:
 

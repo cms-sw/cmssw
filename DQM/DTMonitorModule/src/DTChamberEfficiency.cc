@@ -118,25 +118,25 @@ void DTChamberEfficiency::bookHistos()
 	      << "DTChamberEfficiency: booking histos";
 
   // Create the monitor elements
-  vector<MonitorElement *> histos;
+  theDbe->setCurrentFolder("DT/05-ChamberEff/Task");
 
   for(int wheel=-2;wheel<=2;wheel++){
-  
+
+    vector<MonitorElement *> histos;
+
     stringstream wheel_str; wheel_str << wheel;	
 
-    theDbe->setCurrentFolder("DT/05-ChamberEff/Task");
-
     histos.push_back(theDbe->book2D("hCountSectVsChamb_All_W"+ wheel_str.str(),
-				    "Countings for wheel " + wheel_str.str(),14,0.5,14.5,4,0.5,4.5));
+				    "Countings for wheel " + wheel_str.str(),14,1.,15.,4,1.,5.));
 
     histos.push_back(theDbe->book2D("hCountSectVsChamb_Qual_W"+ wheel_str.str(),
-				    "Countings for wheel " + wheel_str.str(),14,0.5,14.5,4,0.5,4.5));
+				    "Countings for wheel " + wheel_str.str(),14,1.,15.,4,1.,5.));
 
 
     histos.push_back(theDbe->book2D("hExtrapSectVsChamb_W"+ wheel_str.str(),
-				    "Extrapolations for wheel " + wheel_str.str(),14,0.5,14.5,4,0.5,4.5));
+				    "Extrapolations for wheel " + wheel_str.str(),14,1.,15.,4,1.,5.));
 
-    histosPerW[wheel+2] = histos;
+    histosPerW.push_back(histos);
   }
 
   return;
@@ -206,7 +206,7 @@ void DTChamberEfficiency::analyze(const Event & event,
 
 	if (detMeasurements_initial.size() != 0) histos[0]->Fill(DTid.sector(),DTid.station(),1.);
  	if (detMeasurements.size() != 0) histos[1]->Fill(DTid.sector(),DTid.station(),1.);
-       histos[2]->Fill(DTid.sector(),DTid.station(),1.);
+	histos[2]->Fill(DTid.sector(),DTid.station(),1.);
       }
 
     }
@@ -248,7 +248,10 @@ MeasurementContainer DTChamberEfficiency::segQualityCut(const MeasurementContain
       nhit_seg += (int)(*recList_Itr)->transientHits().size();
     }
 
-    if(nhit_seg >= 12) result.push_back(*mescont_Itr);
+    DTChamberId tmpId = (DTChamberId)mescont_Itr->recHit()->hit()->geographicalId();
+
+    if(tmpId.station() < 4 && nhit_seg >= 12) result.push_back(*mescont_Itr);
+    if(tmpId.station() == 4 && nhit_seg >= 8) result.push_back(*mescont_Itr);
   }
 
   return result;
