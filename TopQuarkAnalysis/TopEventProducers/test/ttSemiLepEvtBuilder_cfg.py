@@ -11,12 +11,12 @@ process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cerr.threshold = 'INFO'
 process.MessageLogger.categories.append('TtSemiLeptonicEvent')
 process.MessageLogger.categories.append('TtSemiLepKinFitter')
-process.MessageLogger.categories.append('KinFitter')
+#process.MessageLogger.categories.append('KinFitter')
 process.MessageLogger.cerr.INFO = cms.untracked.PSet(
     default             = cms.untracked.PSet( limit = cms.untracked.int32( 0) ),
     TtSemiLeptonicEvent = cms.untracked.PSet( limit = cms.untracked.int32(-1) ),
-    TtSemiLepKinFitter  = cms.untracked.PSet( limit = cms.untracked.int32(-1) ),
-    KinFitter           = cms.untracked.PSet( limit = cms.untracked.int32(-1) )
+    TtSemiLepKinFitter  = cms.untracked.PSet( limit = cms.untracked.int32(-1) )
+#    KinFitter           = cms.untracked.PSet( limit = cms.untracked.int32(-1) )
 )
 
 #-------------------------------------------------
@@ -73,9 +73,20 @@ process.load("TopQuarkAnalysis.TopObjectProducers.tqafLayer1_cff")
 ## std sequence to produce the ttGenEvt
 process.load("TopQuarkAnalysis.TopEventProducers.sequences.ttGenEvent_cff")
 
-## std sequence to produce the ttSemiEvent
+## std sequence to produce the ttSemiLepEvent
 process.load("TopQuarkAnalysis.TopEventProducers.sequences.ttSemiLepEvtBuilder_cff")
 process.ttSemiLepEvent.verbosity = cms.int32(1)
+
+## change maximum number of jets taken into account per event (default: 4)
+#process.ttSemiLepHypGeom              .maxNJets = cms.int32(5)
+#process.ttSemiLepHypMaxSumPtWMass     .maxNJets = cms.int32(5)
+#process.ttSemiLepHypWMassMaxSumPt     .maxNJets = cms.int32(5)
+#process.ttSemiLepJetPartonMatch       .maxNJets = cms.int32(5)
+#process.findTtSemiLepJetCombMVA       .maxNJets = cms.int32(5)
+#process.kinFitTtSemiLepEventHypothesis.maxNJets = cms.int32(5)
+## change maximum number of jet combinations taken into account per event (default: 1)
+#process.findTtSemiLepJetCombMVA       .maxNComb = cms.int32(-1)
+#process.kinFitTtSemiLepEventHypothesis.maxNComb = cms.int32(-1)
 
 ## necessary fixes to run 2.2.X on 2.1.X data
 ## comment this when running on samples produced

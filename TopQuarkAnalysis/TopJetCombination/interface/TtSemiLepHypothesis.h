@@ -52,16 +52,19 @@ class TtSemiLepHypothesis : public edm::EDProducer {
 			 const edm::Handle<edm::View<reco::RecoCandidate> >& lepton, 
 			 const edm::Handle<std::vector<pat::MET> >& neutrino, 
 			 const edm::Handle<std::vector<pat::Jet> >& jets, 
-			 std::vector<int>& jetPartonAssociation) = 0;
+			 std::vector<int>& jetPartonAssociation,
+			 const unsigned int iComb) = 0;
 
  protected:
 
   bool getMatch_;
+  bool getMatchVec_;
 
   edm::InputTag jets_;
   edm::InputTag leps_;
   edm::InputTag mets_;
-  edm::InputTag match_;  
+  edm::InputTag match_;
+  edm::InputTag matchVec_;
 
   int key_;
 

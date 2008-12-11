@@ -3,23 +3,31 @@
 
 TtSemiLepHypWMassMaxSumPt::TtSemiLepHypWMassMaxSumPt(const edm::ParameterSet& cfg):
   TtSemiLepHypothesis( cfg ),  
-  maxNJets_(cfg.getParameter<unsigned>("maxNJets")),
-  wMass_   (cfg.getParameter<double>  ("wMass"   ))
-{ }
+  maxNJets_(cfg.getParameter<int>   ("maxNJets")),
+  wMass_   (cfg.getParameter<double>("wMass"   ))
+{
+  if(maxNJets_<4 && maxNJets_!=-1)
+    throw cms::Exception("WrongConfig") 
+      << "Parameter maxNJets can not be set to " << maxNJets_ << ". \n"
+      << "It has to be larger than 4 or can be set to -1 to take all jets.";
+}
 
 TtSemiLepHypWMassMaxSumPt::~TtSemiLepHypWMassMaxSumPt() { }
 
 void
 TtSemiLepHypWMassMaxSumPt::buildHypo(edm::Event& evt,
-					 const edm::Handle<edm::View<reco::RecoCandidate> >& leps,
-					 const edm::Handle<std::vector<pat::MET> >& mets, 
-					 const edm::Handle<std::vector<pat::Jet> >& jets, 
-					 std::vector<int>& match)
+				     const edm::Handle<edm::View<reco::RecoCandidate> >& leps,
+				     const edm::Handle<std::vector<pat::MET> >& mets, 
+				     const edm::Handle<std::vector<pat::Jet> >& jets, 
+				     std::vector<int>& match, const unsigned int iComb)
 {
-  if(leps->empty() || mets->empty() || jets->size()<maxNJets_ || maxNJets_<4){
+  if(leps->empty() || mets->empty() || jets->size()<4){
     // create empty hypothesis
     return;
   }
+
+  unsigned maxNJets = maxNJets_;
+  if(maxNJets_ == -1) maxNJets = jets->size();
 
   match.clear();
   for(unsigned int i=0; i<4; ++i)
@@ -31,8 +39,8 @@ TtSemiLepHypWMassMaxSumPt::buildHypo(edm::Event& evt,
   // -----------------------------------------------------
   double wDist =-1.;
   std::vector<unsigned> closestToWMassIndices;
-  for(unsigned idx=0; idx<maxNJets_; ++idx){  
-    for(unsigned jdx=(idx+1); jdx<maxNJets_; ++jdx){
+  for(unsigned idx=0; idx<maxNJets; ++idx){  
+    for(unsigned jdx=(idx+1); jdx<maxNJets; ++jdx){
       reco::Particle::LorentzVector sum = 
 	(*jets)[idx].p4()+
 	(*jets)[jdx].p4();
@@ -51,7 +59,7 @@ TtSemiLepHypWMassMaxSumPt::buildHypo(edm::Event& evt,
   // -----------------------------------------------------
   double maxPt=-1.;
   unsigned hadB=0;
-  for(unsigned idx=0; idx<maxNJets_; ++idx){
+  for(unsigned idx=0; idx<maxNJets; ++idx){
     // make sure it's not used up already from the hadronic W
     if( idx!=closestToWMassIndices[0] && idx!=closestToWMassIndices[1] ){
       reco::Particle::LorentzVector sum = 
@@ -72,7 +80,7 @@ TtSemiLepHypWMassMaxSumPt::buildHypo(edm::Event& evt,
   // -----------------------------------------------------
   maxPt=-1.;
   unsigned lepB=0;
-  for(unsigned idx=0; idx<maxNJets_; ++idx){
+  for(unsigned idx=0; idx<maxNJets; ++idx){
     // make sure it's not used up already from the hadronic decay chain
     if( idx!=closestToWMassIndices[0] && idx!=closestToWMassIndices[1] && idx!=hadB) {
       reco::Particle::LorentzVector sum = 

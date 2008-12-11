@@ -10,11 +10,12 @@
 TtSemiLepJetCombMVAComputer::TtSemiLepJetCombMVAComputer(const edm::ParameterSet& cfg):
   leptons_ (cfg.getParameter<edm::InputTag>("leptons")),
   jets_    (cfg.getParameter<edm::InputTag>("jets")),
-  maxNJets_(cfg.getParameter<int>("maxNJets"))
+  maxNJets_(cfg.getParameter<int>("maxNJets")),
+  maxNComb_(cfg.getParameter<int>("maxNComb"))
 {
-  produces< std::vector<int> >();
-  produces< std::string      >("Meth");
-  produces< double           >("Disc");
+  produces< std::vector<std::vector<int> > >();
+  produces< std::vector<double>            >("Discriminators");
+  produces< TString                        >("Method");
 }
 
 TtSemiLepJetCombMVAComputer::~TtSemiLepJetCombMVAComputer()
@@ -24,9 +25,9 @@ TtSemiLepJetCombMVAComputer::~TtSemiLepJetCombMVAComputer()
 void
 TtSemiLepJetCombMVAComputer::produce(edm::Event& evt, const edm::EventSetup& setup)
 {
-  std::auto_ptr< std::vector<int> > pOutCombi(new std::vector<int>);
-  std::auto_ptr< std::string >      pOutMeth (new std::string);
-  std::auto_ptr< double >           pOutDisc (new double);
+  std::auto_ptr< std::vector<std::vector<int> > >pOut    (new std::vector<std::vector<int> >);
+  std::auto_ptr< std::vector<double>            >pOutDisc(new std::vector<double>);
+  std::auto_ptr< TString                        >pOutMeth(new TString);
 
   mvaComputer.update<TtSemiLepJetCombMVARcd>(setup, "ttSemiLepJetCombMVA");
 
@@ -37,7 +38,7 @@ TtSemiLepJetCombMVAComputer::produce(edm::Event& evt, const edm::EventSetup& set
   std::vector<PhysicsTools::Calibration::VarProcessor*> processors
     = (calibContainer->find("ttSemiLepJetCombMVA")).getProcessors();
   *pOutMeth = ( processors[ processors.size()-1 ] )->getInstanceName();
-  evt.put(pOutMeth, "Meth");
+  evt.put(pOutMeth, "Method");
 
   // get lepton and jets
   edm::Handle< edm::View<reco::RecoCandidate> > leptons; 
@@ -51,11 +52,13 @@ TtSemiLepJetCombMVAComputer::produce(edm::Event& evt, const edm::EventSetup& set
   // skip events with no appropriate lepton candidate in
   // or less jets than partons
   if( leptons->empty() || jets->size() < nPartons ) {
+    std::vector<int> invalidCombi;
     for(unsigned int i = 0; i < nPartons; ++i) 
-      pOutCombi->push_back( -1 );
-    evt.put(pOutCombi);
-    *pOutDisc = 0.;
-    evt.put(pOutDisc, "Disc");
+      invalidCombi.push_back( -1 );
+    pOut->push_back( invalidCombi );
+    evt.put(pOut);
+    pOutDisc->push_back( 0. );
+    evt.put(pOutDisc, "Discriminators");
     return;
   }
 
@@ -64,16 +67,16 @@ TtSemiLepJetCombMVAComputer::produce(edm::Event& evt, const edm::EventSetup& set
   // analyze jet combinations
   std::vector<int> jetIndices;
   for(unsigned int i=0; i<jets->size(); ++i){
-    if(maxNJets_ >= nPartons && i == (unsigned int) maxNJets_) break;
+    if(maxNJets_ >= (int) nPartons && maxNJets_ == (int) i) break;
     jetIndices.push_back(i);
   }
   
   std::vector<int> combi;
   for(unsigned int i=0; i<nPartons; ++i) 
     combi.push_back(i);
-  
-  double discrimMax =.0;
-  std::vector<int> combiMax;
+
+  typedef std::pair<double, std::vector<int> > discCombPair;
+  std::list<discCombPair> discCombList;
 
   do{
     for(int cnt = 0; cnt < TMath::Factorial( combi.size() ); ++cnt){
@@ -85,10 +88,8 @@ TtSemiLepJetCombMVAComputer::produce(edm::Event& evt, const edm::EventSetup& set
 
 	// get discriminator here
 	double discrim = evaluateTtSemiLepJetComb(mvaComputer, jetComb);
-	if(discrim > discrimMax) {
-	  discrimMax = discrim;
-	  combiMax = combi;
-	}
+
+	discCombList.push_back( std::make_pair(discrim, combi) );
 
       }
       next_permutation( combi.begin() , combi.end() );
@@ -96,13 +97,21 @@ TtSemiLepJetCombMVAComputer::produce(edm::Event& evt, const edm::EventSetup& set
   }
   while(stdcomb::next_combination( jetIndices.begin(), jetIndices.end(), combi.begin(), combi.end() ));
 
-  // write result into the event
-  for(unsigned int i = 0; i < combiMax.size(); ++i) 
-    pOutCombi->push_back( combiMax[i] );
-  evt.put(pOutCombi);
+  // sort results w.r.t. discriminator values
+  discCombList.sort();
 
-  *pOutDisc = discrimMax;
-  evt.put(pOutDisc, "Disc");
+  // write result into the event
+  // (starting with the JetComb having the highest discriminator value -> reverse iterator)
+  unsigned int iDiscComb = 0;
+  typedef std::list<discCombPair>::reverse_iterator discCombIterator;
+  for(discCombIterator discCombPair = discCombList.rbegin(); discCombPair != discCombList.rend(); ++discCombPair) {
+    if(maxNComb_ >= 1 && iDiscComb == (unsigned int) maxNComb_) break;
+    pOut    ->push_back( discCombPair->second );
+    pOutDisc->push_back( discCombPair->first  );
+    iDiscComb++;
+  }
+  evt.put(pOut);
+  evt.put(pOutDisc, "Discriminators");
 }
 
 void 

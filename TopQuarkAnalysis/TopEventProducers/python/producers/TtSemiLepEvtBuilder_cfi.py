@@ -40,7 +40,7 @@ ttSemiLepEvent = cms.EDProducer("TtSemiLepEvtBuilder",
 
     ## add extra information on mvaDisc
     mvaDisc = cms.PSet(
-        meth = cms.InputTag("findTtSemiLepJetCombMVA","Meth"),
-        disc = cms.InputTag("findTtSemiLepJetCombMVA","Disc")
+        meth = cms.InputTag("findTtSemiLepJetCombMVA","Method"),
+        disc = cms.InputTag("findTtSemiLepJetCombMVA","Discriminators")
     )
 )

@@ -4,11 +4,19 @@
 
 //empty constructor
 TtSemiLeptonicEvent::TtSemiLeptonicEvent():
-  decay_(kNone), 
-  fitChi2_(-1.), 
-  genMatchSumPt_(-1.), 
-  genMatchSumDR_(-1.)
+  decay_(kNone)
 {
+}
+
+// find corresponding jet matches in two hypotheses
+int
+TtSemiLeptonicEvent::correspondingJetMatch(const HypoKey& key1, const unsigned& cmb1, const HypoKey& key2) const
+{
+  for(unsigned cmb2 = 0; cmb2 < this->numberOfAvailableCombs(key2); ++cmb2) {
+    if( this->jetMatch(key1, cmb1) ==  this->jetMatch(key2, cmb2) )
+      return cmb2;
+  }
+  return -1; // if no corresponding jet match was found
 }
 
 // print info via MessageLogger
@@ -45,7 +53,7 @@ TtSemiLeptonicEvent::print()
   // use stringstream to collect information from the hypotheses for the MessageLogger
   std::stringstream hypStream;
   
-  typedef std::map<HypoKey, reco::CompositeCandidate>::const_iterator EventHypo;
+  typedef std::map<HypoKey, std::vector<HypoCombPair> >::const_iterator EventHypo;
   for(EventHypo hyp = evtHyp_.begin(); hyp != evtHyp_.end(); ++hyp) {
     HypoKey hypKey = (*hyp).first;
     // header for each hypothesis
@@ -60,6 +68,11 @@ TtSemiLeptonicEvent::print()
     default                                  : hypStream << " Unknown";
     }
     hypStream << "-Hypothesis: \n";
+    if( this->numberOfAvailableCombs(hypKey) > 1 ) {
+      hypStream << " * Number of available jet combinations: "
+		<< this->numberOfAvailableCombs(hypKey) << " \n"
+		<< " The following was found to be the best one: \n";
+    }
     // check if hypothesis is valid
     if( !this->isHypoValid( hypKey ) )
       hypStream << " * Not valid! \n";

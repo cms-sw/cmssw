@@ -1,6 +1,8 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "TopQuarkAnalysis/TopEventProducers/interface/TtSemiLepEvtBuilder.h"
 
+#include "TString.h"
+
 TtSemiLepEvtBuilder::TtSemiLepEvtBuilder(const edm::ParameterSet& cfg) :
   verbosity_(cfg.getParameter<int>("verbosity")),
   hyps_     (cfg.getParameter<std::vector<std::string> >("hyps")),
@@ -49,52 +51,53 @@ TtSemiLepEvtBuilder::produce(edm::Event& evt, const edm::EventSetup& setup)
 
   typedef std::vector<std::string>::const_iterator EventHypo;
   for(EventHypo h=hyps_.begin(); h!=hyps_.end(); ++h){
-    // set eventHypos
-    edm::Handle<reco::CompositeCandidate> hyp; 
-    evt.getByLabel(*h, hyp);
-
     edm::Handle<int> key; 
     evt.getByLabel(*h, "Key", key);
 
-    event.addEventHypo((TtSemiLeptonicEvent::HypoKey&)*key, *hyp);
+    edm::Handle<std::vector<TtSemiLeptonicEvent::HypoCombPair> > hypMatchVec; 
+    evt.getByLabel(*h, hypMatchVec);
 
-    // set jetMatch extras
-    edm::Handle<std::vector<int> > match;
-    evt.getByLabel(*h, "Match", match);
-
-    event.addJetMatch((TtSemiLeptonicEvent::HypoKey&)*key, *match);
+    typedef std::vector<TtSemiLeptonicEvent::HypoCombPair>::const_iterator HypMatch;
+    for(HypMatch hm=hypMatchVec->begin(); hm != hypMatchVec->end(); ++hm){
+      event.addEventHypo((TtSemiLeptonicEvent::HypoKey&)*key, *hm);
+    }
   }
 
   // set kinFit extras
   if( event.isHypoAvailable(TtSemiLeptonicEvent::kKinFit) ) {
-    edm::Handle<double> fitChi2;
+    edm::Handle<std::vector<double> > fitChi2;
     evt.getByLabel(fitChi2_, fitChi2);
-    event.setFitChi2(*fitChi2);
+    event.setFitChi2( *fitChi2 );
     
-    edm::Handle<double> fitProb;
+    edm::Handle<std::vector<double> > fitProb;
     evt.getByLabel(fitProb_, fitProb);
-    event.setFitProb(*fitProb);
+    event.setFitProb( *fitProb );
   }
 
   // set genMatch extras
   if( event.isHypoAvailable(TtSemiLeptonicEvent::kGenMatch) ) {
     edm::Handle<double> sumPt;
     evt.getByLabel(sumPt_, sumPt);
-    event.setGenMatchSumPt(*sumPt);
+    std::vector<double> sumPtVec;
+    sumPtVec.push_back( *sumPt );
+    event.setGenMatchSumPt( sumPtVec );
 
     edm::Handle<double> sumDR;
     evt.getByLabel(sumDR_, sumDR);
-    event.setGenMatchSumDR(*sumDR);  
+    std::vector<double> sumDRVec;
+    sumDRVec.push_back( *sumDR );
+    event.setGenMatchSumDR( sumDRVec );
   }
 
   // set mvaDisc extras
   if( event.isHypoAvailable(TtSemiLeptonicEvent::kMVADisc) ) {
-    edm::Handle<std::string> meth;
+    edm::Handle<TString> meth;
     evt.getByLabel(meth_, meth);
+    event.setMvaMethod( (std::string) *meth );
 
-    edm::Handle<double> disc;
+    edm::Handle<std::vector<double> > disc;
     evt.getByLabel(disc_, disc);
-    event.setMvaDiscAndMethod((std::string&)*meth, *disc);
+    event.setMvaDiscriminators( *disc );
   }
 
   // print summary via MessageLogger for each event
