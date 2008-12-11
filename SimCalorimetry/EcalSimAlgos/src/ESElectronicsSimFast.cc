@@ -141,10 +141,10 @@ ESElectronicsSimFast::fastEncode(const CaloSamples& timeframe, CLHEP::RandGenera
   double width = (hSup - hInf)/hBin;  
 
   double thisRnd  = histoDistribution->fire();  
-  int thisRndCell = (hBin3)*(thisRnd)/width;  
-  bin[2] = (thisRndCell/hBin2);                              // sample2 - bin [0,N-1]
-  bin[1] = ((thisRndCell - hBin2*bin[2])/hBin);              // sample1
-  bin[0] = (thisRndCell - hBin*(bin[1] + hBin*bin[2]));      // sample0
+  int thisRndCell = (int)((hBin3)*(thisRnd)/width);  
+  bin[2] = (int)(thisRndCell/hBin2);                              // sample2 - bin [0,N-1]
+  bin[1] = (int)((thisRndCell - hBin2*bin[2])/hBin);              // sample1
+  bin[0] = (int)(thisRndCell - hBin*(bin[1] + hBin*bin[2]));      // sample0
 
   int adc[3];
   double noi[3];
