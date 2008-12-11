@@ -205,7 +205,7 @@ namespace edm
   }
 
   void MixingModule::doPileUp(edm::Event &e, const edm::EventSetup& setup)
-  {//     we first loop over workers
+  { //     we first loop over workers
     // in order not to keep all CrossingFrames in memory simultaneously
     //
 
@@ -217,7 +217,6 @@ namespace edm
 	for (unsigned int isource=0;isource<maxNbSources_;++isource) {
 	  workers_[ii]->setSourceOffset(isource);
 	  if (doit_[isource])   {
-	    //	    merge(bunchCrossing, (pileup_[isource])[bunchCrossing-minBunch_],ii,setup,isource);
 	    merge(bunchCrossing, (pileup_[isource])[bunchCrossing-minBunch_],ii,setup);
 	  }	
 	}
@@ -231,12 +230,11 @@ namespace edm
      }
  }
 
-  void MixingModule::addPileups(const int bcr, Event *e, unsigned int eventNr,unsigned int worker, const edm::EventSetup& setup) {    // fill in pileup part of CrossingFrame
+  void MixingModule::addPileups(const int bcr, EventPrincipal *ep, unsigned int eventNr,unsigned int worker, const edm::EventSetup& setup) {    // fill in pileup part of CrossingFrame
 
-  
-    LogDebug("MixingModule") <<"\n===============> adding objects from event  "<<e->id()<<" for bunchcrossing "<<bcr;
+    LogDebug("MixingModule") <<"\n===============> adding objects from event  "<<ep->id()<<" for bunchcrossing "<<bcr;
 
-    workers_[worker]->addPileups(bcr,e,eventNr,vertexoffset);
+    workers_[worker]->addPileups(bcr,ep,eventNr,vertexoffset);
   }
   void MixingModule::setEventStartInfo(const unsigned int s) {
     playbackInfo_->setEventStartInfo(eventIDs_,fileSeqNrs_,nrEvents_,s); 
@@ -259,7 +257,6 @@ namespace edm
 	playbackInfo_H->getEventStartInfo(eventIDs_,fileSeqNrs_,nrEvents_,s);
       }else{
 	LogWarning("MixingModule")<<"\n\nAttention: No CrossingFramePlaybackInfo on the input file, but playback option set!!!!!!!\nAttention: Job is executed without playback, please change the input file if you really want playback!!!!!!!";
-	//FIXME: defaults
       }
     }
   }
