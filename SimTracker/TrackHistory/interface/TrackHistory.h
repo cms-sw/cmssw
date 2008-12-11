@@ -48,19 +48,6 @@ public:
     */
     bool evaluate (reco::TrackBaseRef);
 
-    //! Return the initial tracking particle from the history.
-    const TrackingParticleRef & simParticle() const
-    {
-        return simParticleTrail_[0];
-    }
-
-    //! Returns a pointer to most primitive status 1 or 2 particle.
-    const HepMC::GenParticle * genParticle() const
-    {
-        if ( genParticleTrail_.empty() ) return 0;
-        return genParticleTrail_[genParticleTrail_.size()-1];
-    }
-
 private:
 
     bool newEvent_;
