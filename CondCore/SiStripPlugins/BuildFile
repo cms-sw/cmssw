@@ -2,7 +2,6 @@
 <use name=FWCore/PluginManager>
 <use name=CondCore/PluginSystem>
 <use name=CondFormats/SiStripObjects>
-<use name=CondFormats/PhysicsToolsObjects>
 <use name=CondFormats/DataRecord>
 
 <flags EDM_PLUGIN=1>
@@ -12,6 +11,5 @@
    <use name=FWCore/PluginManager>
    <use name=CondCore/PluginSystem>
    <use name=CondFormats/SiStripObjects>
-   <use name=CondFormats/PhysicsToolsObjects>
    <use name=CondFormats/DataRecord>
 </export>
