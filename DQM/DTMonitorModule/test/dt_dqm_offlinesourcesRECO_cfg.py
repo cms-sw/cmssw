@@ -70,7 +70,7 @@ process.MessageLogger = cms.Service("MessageLogger",
                                     debugModules = cms.untracked.vstring('*'),
                                     destinations = cms.untracked.vstring('cout'),
                                     categories = cms.untracked.vstring('DTTimeEvolutionHisto'), 
-                                    cout = cms.untracked.PSet(threshold = cms.untracked.string('DEBUG'),
+                                    cout = cms.untracked.PSet(threshold = cms.untracked.string('WARNING'),
                                                               noLineBreaks = cms.untracked.bool(False),
                                                               DEBUG = cms.untracked.PSet(
                                                                       limit = cms.untracked.int32(0)),
@@ -94,7 +94,7 @@ process.MessageLogger = cms.Service("MessageLogger",
 
 process.DTDQMOfflineCosmics = cms.Sequence(process.dtSources)
 
-
+del process.dtDataIntegrityUnpacker
 
 #Paths
 process.allPath = cms.Path(process.DTDQMOfflineCosmics *
