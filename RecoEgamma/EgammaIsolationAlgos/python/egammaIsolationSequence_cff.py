@@ -11,8 +11,12 @@ from RecoEgamma.EgammaIsolationAlgos.electronTrackIsolationScone_cfi import *
 egammaIsolationSequence = cms.Sequence(
     electronEcalRecHitIsolationLcone + 
     electronEcalRecHitIsolationScone + 
-    electronHcalTowerIsolationLcone + 
-    electronHcalTowerIsolationScone + 
+    electronHcalTowerIsolationLcone +
+    electronHcalDepth1TowerIsolationLcone +
+    electronHcalDepth2TowerIsolationLcone +
+    electronHcalTowerIsolationScone +
+    electronHcalDepth1TowerIsolationScone +
+    electronHcalDepth2TowerIsolationScone +
     electronTrackIsolationLcone + 
     electronTrackIsolationScone
 )

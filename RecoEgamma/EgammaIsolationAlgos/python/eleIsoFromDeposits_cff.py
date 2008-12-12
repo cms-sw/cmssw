@@ -5,6 +5,8 @@ from RecoEgamma.EgammaIsolationAlgos.eleIsoFromDepsModules_cff import *
 eleIsoFromDeposits = cms.Sequence( 
     eleIsoFromDepsTk * 
     eleIsoFromDepsEcalFromHits * 
-    eleIsoFromDepsHcalFromTowers
+    eleIsoFromDepsHcalFromTowers *
+    eleIsoFromDepsHcalDepth1FromTowers *
+    eleIsoFromDepsHcalDepth2FromTowers
 )
 
