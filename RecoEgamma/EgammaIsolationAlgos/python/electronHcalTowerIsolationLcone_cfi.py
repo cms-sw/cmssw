@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 electronHcalTowerIsolationLcone = cms.EDProducer("EgammaTowerIsolationProducer",
     absolut = cms.bool(True),
-    intRadius = cms.double(0.0),
+    intRadius = cms.double(0.15),  #to be orthogonal with H/E Egamma ID cut
     extRadius = cms.double(0.4),
     towerProducer = cms.InputTag("towerMaker"),
     etMin = cms.double(0.0),

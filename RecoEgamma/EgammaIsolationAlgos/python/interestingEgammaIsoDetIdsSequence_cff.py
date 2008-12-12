@@ -40,4 +40,9 @@ interestingGamIsoDetIdEE.energyCut = 0.150
 interestingGamIsoDetIdEE.outerRadius = 0.6
 interestingGamIsoDetIdEE.innerRadius = 0.0
 
-interestingEgammaIsoDetIds = cms.Sequence(interestingEleIsoDetIdEB*interestingEleIsoDetIdEE*interestingGamIsoDetIdEB*interestingGamIsoDetIdEE)
+interestingEgammaIsoDetIds = cms.Sequence(
+    interestingEleIsoDetIdEB *
+    interestingEleIsoDetIdEE * 
+    interestingGamIsoDetIdEB * 
+    interestingGamIsoDetIdEE
+)

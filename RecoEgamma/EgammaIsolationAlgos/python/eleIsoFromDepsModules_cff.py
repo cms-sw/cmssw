@@ -11,31 +11,6 @@ eleIsoFromDepsTk = cms.EDFilter("CandIsolatorFromDeposits",
     ))
 )
 
-eleIsoFromDepsEcalSCVetoFromClusts = cms.EDFilter("CandIsolatorFromDeposits",
-    deposits = cms.VPSet(cms.PSet(
-        mode = cms.string('sum'),
-        src = cms.InputTag("eleIsoDepositEcalSCVetoFromClusts"),
-        weight = cms.string('1'),
-        deltaR = cms.double(0.4),
-        vetos = cms.vstring(),
-        skipDefaultVeto = cms.bool(True)
-    ))
-)
-
-eleIsoFromDepsEcalFromClusts = cms.EDFilter("CandIsolatorFromDeposits",
-    deposits = cms.VPSet(cms.PSet(
-        mode = cms.string('sum'),
-        src = cms.InputTag("eleIsoDepositEcalFromClusts"),
-        weight = cms.string('1'),
-        deltaR = cms.double(0.4),
-        vetos = cms.vstring('EcalBarrel:0.045', 
-                            'EcalBarrel:RectangularEtaPhiVeto(-0.01,0.01,-0.5,0.5)', 
-                            'EcalEndcaps:0.070', 
-                            'EcalEndcaps:RectangularEtaPhiVeto(-0.02,0.02,-0.5,0.5)'),
-        skipDefaultVeto = cms.bool(True)
-    ))
-)
-
 eleIsoFromDepsEcalFromHits = cms.EDFilter("CandIsolatorFromDeposits",
     deposits = cms.VPSet(cms.PSet(
         mode = cms.string('sum'),
@@ -58,7 +33,7 @@ eleIsoFromDepsHcalFromHits = cms.EDFilter("CandIsolatorFromDeposits",
         src = cms.InputTag("eleIsoDepositHcalFromHits"),
         weight = cms.string('1'),
         deltaR = cms.double(0.4),
-        vetos = cms.vstring('0.0'),
+        vetos = cms.vstring('0.15'),
         skipDefaultVeto = cms.bool(True)
     ))
 )
@@ -68,7 +43,7 @@ eleIsoFromDepsHcalFromTowers = cms.EDFilter("CandIsolatorFromDeposits",
         src = cms.InputTag("eleIsoDepositHcalFromTowers"),
         deltaR = cms.double(0.4),
         weight = cms.string('1'),
-        vetos = cms.vstring('0.0'),
+        vetos = cms.vstring('0.15'),
         skipDefaultVeto = cms.bool(True),
         mode = cms.string('sum')
     ))

@@ -11,31 +11,6 @@ gamIsoFromDepsTk = cms.EDFilter("CandIsolatorFromDeposits",
     ))
 )
 
-gamIsoFromDepsEcalSCVetoFromClusts = cms.EDFilter("CandIsolatorFromDeposits",
-    deposits = cms.VPSet(cms.PSet(
-        mode = cms.string('sum'),
-        src = cms.InputTag("gamIsoDepositEcalSCVetoFromClusts"),
-        weight = cms.string('1'),
-        deltaR = cms.double(0.4),
-        vetos = cms.vstring(),
-        skipDefaultVeto = cms.bool(True)
-    ))
-)
-
-gamIsoFromDepsEcalFromClusts = cms.EDFilter("CandIsolatorFromDeposits",
-    deposits = cms.VPSet(cms.PSet(
-        mode = cms.string('sum'),
-        src = cms.InputTag("gamIsoDepositEcalFromClusts"),
-        weight = cms.string('1'),
-        deltaR = cms.double(0.4),
-        vetos = cms.vstring('EcalBarrel:0.045', 
-                            'EcalBarrel:RectangularEtaPhiVeto(-0.01,0.01,-0.5,0.5)', 
-                            'EcalEndcaps:0.070', 
-                            'EcalEndcaps:RectangularEtaPhiVeto(-0.02,0.02,-0.5,0.5)'),
-        skipDefaultVeto = cms.bool(True)
-    ))
-)
-
 gamIsoFromDepsEcalFromHits = cms.EDFilter("CandIsolatorFromDeposits",
     deposits = cms.VPSet(cms.PSet(
         mode = cms.string('sum'),
@@ -44,10 +19,10 @@ gamIsoFromDepsEcalFromHits = cms.EDFilter("CandIsolatorFromDeposits",
         deltaR = cms.double(0.4),
         vetos = cms.vstring('EcalBarrel:0.045', 
                             'EcalBarrel:RectangularEtaPhiVeto(-0.02,0.02,-0.5,0.5)', 
-                            'EcalBarrel:Threshold(0.080)', 
+                            'EcalBarrel:ThresholdFromTransverse(0.080)', 
                             'EcalEndcaps:0.070', 
                             'EcalEndcaps:RectangularEtaPhiVeto(-0.02,0.02,-0.5,0.5)', 
-                            'EcalEndcaps:Threshold(0.30)'),
+                            'EcalEndcaps:ThresholdFromTransverse(0.30)'),
         skipDefaultVeto = cms.bool(True)
     ))
 )
@@ -58,7 +33,7 @@ gamIsoFromDepsHcalFromHits = cms.EDFilter("CandIsolatorFromDeposits",
         src = cms.InputTag("gamIsoDepositHcalFromHits"),
         weight = cms.string('1'),
         deltaR = cms.double(0.4),
-        vetos = cms.vstring('0.0'),
+        vetos = cms.vstring('0.15'),
         skipDefaultVeto = cms.bool(True)
     ))
 )
@@ -68,7 +43,7 @@ gamIsoFromDepsHcalFromTowers = cms.EDFilter("CandIsolatorFromDeposits",
         src = cms.InputTag("gamIsoDepositHcalFromTowers"),
         deltaR = cms.double(0.4),
         weight = cms.string('1'),
-        vetos = cms.vstring('0.00'),
+        vetos = cms.vstring('0.15'),
         skipDefaultVeto = cms.bool(True),
         mode = cms.string('sum')
     ))

@@ -6,5 +6,9 @@ from RecoEgamma.EgammaIsolationAlgos.eleIsoDepositTk_cff import *
 from RecoEgamma.EgammaIsolationAlgos.eleIsoDepositEcalFromHits_cff import *
 from RecoEgamma.EgammaIsolationAlgos.eleIsoDepositHcalFromTowers_cff import *
 
-eleIsoDeposits = cms.Sequence(eleIsoDepositTk+eleIsoDepositEcalFromHits+eleIsoDepositHcalFromTowers)
+eleIsoDeposits = cms.Sequence(
+    eleIsoDepositTk +
+    eleIsoDepositEcalFromHits + 
+    eleIsoDepositHcalFromTowers
+)
 

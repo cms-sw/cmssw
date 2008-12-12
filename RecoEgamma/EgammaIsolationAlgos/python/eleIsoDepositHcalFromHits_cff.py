@@ -2,6 +2,9 @@ import FWCore.ParameterSet.Config as cms
 
 from RecoEgamma.EgammaIsolationAlgos.eleHcalExtractorBlocks_cff import *
 
+#This module is defined for the user who would like to study HCAL
+#isolation with RecHits.
+#Currently, EGamma POG is recommending HCAL Isolation with Towers
 eleIsoDepositHcalFromHits = cms.EDProducer("CandIsoDepositProducer",
     src = cms.InputTag("pixelMatchGsfElectrons"),
     trackType = cms.string('candidate'),
