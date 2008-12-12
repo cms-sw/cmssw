@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Dec  3 11:28:28 EST 2008
-// $Id: FWCaloTower3DProxyBuilderBase.cc,v 1.2 2008/12/04 23:37:11 chrjones Exp $
+// $Id: FWCaloTower3DProxyBuilderBase.cc,v 1.3 2008/12/09 05:51:14 dmytro Exp $
 //
 
 // system include files
@@ -100,8 +100,13 @@ FWCaloTower3DProxyBuilderBase::build(const FWEventItem* iItem,
 {
    m_towers=0;
    iItem->get(m_towers);
-   if(0==m_towers) return;
-
+   if(0==m_towers) {
+      if(0!=m_hist) {
+         m_hist->Reset();
+         m_caloData->DataChanged();
+      }
+      return;
+   }
    if(0==m_hist) {
       Bool_t status = TH1::AddDirectoryStatus();
       TH1::AddDirectory(kFALSE); //Keeps histogram from going into memory
