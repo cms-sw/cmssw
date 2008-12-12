@@ -49,4 +49,26 @@ gamIsoFromDepsHcalFromTowers = cms.EDFilter("CandIsolatorFromDeposits",
     ))
 )
 
+gamIsoFromDepsHcalDepth1FromTowers = cms.EDFilter("CandIsolatorFromDeposits",
+    deposits = cms.VPSet(cms.PSet(
+        src = cms.InputTag("gamIsoDepositHcalDepth1FromTowers"),
+        deltaR = cms.double(0.4),
+        weight = cms.string('1'),
+        vetos = cms.vstring('0.15'),
+        skipDefaultVeto = cms.bool(True),
+        mode = cms.string('sum')
+    ))
+)
+
+gamIsoFromDepsHcalDepth2FromTowers = cms.EDFilter("CandIsolatorFromDeposits",
+    deposits = cms.VPSet(cms.PSet(
+        src = cms.InputTag("gamIsoDepositHcalDepth2FromTowers"),
+        deltaR = cms.double(0.4),
+        weight = cms.string('1'),
+        vetos = cms.vstring('0.15'),
+        skipDefaultVeto = cms.bool(True),
+        mode = cms.string('sum')
+    ))
+)
+
 

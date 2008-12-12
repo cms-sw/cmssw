@@ -17,6 +17,8 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
+#include "DataFormats/EgammaReco/interface/SuperCluster.h"
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 
 
 
@@ -38,6 +40,9 @@ class EgammaTowerIsolation {
 
   int getNumberTracks(const reco::Candidate*) const ;
   double getTowerEtSum (const reco::Candidate*) const ;
+  double getTowerESum (const reco::Candidate*) const ;
+  double getTowerEtSum(const reco::SuperCluster*) const;
+  double getTowerESum(const reco::SuperCluster*) const;
 
  private:
 

@@ -19,8 +19,6 @@
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
-#include "DataFormats/EgammaReco/interface/SuperCluster.h"
-#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -35,7 +33,7 @@ EgammaTowerIsolation::EgammaTowerIsolation (double extRadius,
   intRadius_(intRadius),
   etLow_(etLow),
   depth_(depth),
-  towercollection_(towercollection)  
+  towercollection_(towercollection)
 {
 }
 
@@ -45,17 +43,18 @@ EgammaTowerIsolation::~EgammaTowerIsolation ()
 
 
 
-// unified acces to isolations
+
 double EgammaTowerIsolation::getTowerEtSum(const reco::Candidate* photon) const  
 {
+  return getTowerEtSum( photon->get<reco::SuperClusterRef>().get() );
+}
+
+double EgammaTowerIsolation::getTowerEtSum(const reco::SuperCluster* sc) const  
+{
+  math::XYZPoint theCaloPosition = sc->position();
+  double candEta=sc->eta();
+  double candPhi=sc->phi();
   double ptSum =0.;
-
-
-  //Take the SC position
-  reco::SuperClusterRef sc = photon->get<reco::SuperClusterRef>();
-  math::XYZPoint theCaloPosition = sc.get()->position();
-  double candEta=sc.get()->eta();
-  double candPhi=sc.get()->phi();
 
   //loop over tracks
   for(CaloTowerCollection::const_iterator trItr = towercollection_->begin(); trItr != towercollection_->end(); ++trItr){
@@ -92,5 +91,55 @@ double EgammaTowerIsolation::getTowerEtSum(const reco::Candidate* photon) const
   }//end loop over tracks
 
   return ptSum;
+}
+
+
+double EgammaTowerIsolation::getTowerESum(const reco::Candidate* photon) const  
+{
+  return getTowerESum( photon->get<reco::SuperClusterRef>().get() );
+}
+
+double EgammaTowerIsolation::getTowerESum(const reco::SuperCluster* sc) const  
+{
+  math::XYZPoint theCaloPosition = sc->position();
+  double candEta=sc->eta();
+  double candPhi=sc->phi();
+  double eSum =0.;
+
+  //loop over tracks
+  for(CaloTowerCollection::const_iterator trItr = towercollection_->begin(); trItr != towercollection_->end(); ++trItr){
+    
+    double this_e=0;
+    switch(depth_){
+    case AllDepths: this_e = trItr->hadEnergy();break;
+    case Depth1: this_e = trItr->ietaAbs()<18 || trItr->ietaAbs()>29 ? trItr->hadEnergy() : trItr->hadEnergyHeInnerLayer();break;
+    case Depth2: this_e = trItr->hadEnergyHeOuterLayer();break;
+    default: throw cms::Exception("Configuration Error") << "EgammaTowerIsolation: Depth " << depth_ << " not known. "; break;
+    }
+
+    if ( this_e*sin(trItr->p4().theta()) < etLow_ ) 
+      continue ;  
+    
+    double towerEta=trItr->eta();
+    double towerPhi=trItr->phi();
+    double twoPi= 2*M_PI;
+    if(towerPhi<0) towerPhi+=twoPi;
+    if(candPhi<0) candPhi+=twoPi;
+    double deltaPhi=fabs(towerPhi-candPhi);
+    if(deltaPhi>twoPi) deltaPhi-=twoPi;
+    if(deltaPhi>M_PI) deltaPhi=twoPi-deltaPhi;
+    double deltaEta = towerEta - candEta;
+
+      
+    double dr = deltaEta*deltaEta + deltaPhi*deltaPhi;
+    if( dr < extRadius_*extRadius_ &&
+        dr >= intRadius_*intRadius_ )
+      {
+	eSum += this_e;
+      }
+    
+  }//end loop over tracks
+
+  return eSum;
 }
 
