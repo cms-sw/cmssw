@@ -290,7 +290,7 @@ void HcaluLUTTPGCoder::update(const char* filename) {
   std::string HCAL[3] = {"HB", "HE", "HF"};  
   std::ifstream userfile;
   userfile.open(filename);
-  std::cout << filename << std::endl;
+  //std::cout << filename << std::endl;
   if( userfile ) {
     int nluts = 0;
 	std::string s;
@@ -299,7 +299,7 @@ void HcaluLUTTPGCoder::update(const char* filename) {
 	std::vector<int> loidep,hiidep;
 	std::vector<int> idet;
     getline(userfile,s);
-	std::cout << "Reading LUT's for: " << s << std::endl;
+	//std::cout << "Reading LUT's for: " << s << std::endl;
     getline(userfile,s);
 //
 	unsigned int index = s.find("H",0);	
@@ -308,62 +308,62 @@ void HcaluLUTTPGCoder::update(const char* filename) {
 		if (det == "HB") idet.push_back(0); // HB
 		else if (det == "HE") idet.push_back(1); //HE
 		else if (det == "HF") idet.push_back(2); // HF
-		else std::cout << "Wrong LUT detector description in " << s << std::endl;
-		std::cout << det.data() << " ";
+		//else std::cout << "Wrong LUT detector description in " << s << std::endl;
+		//std::cout << det.data() << " ";
 		nluts++;
 		index +=2;
 		index = s.find("H",index);
 	}
-	if (nluts != 0) std::cout << std::endl;
-	std::cout << "Found " << nluts << " LUTs" << std::endl;
+	//if (nluts != 0) std::cout << std::endl;
+	//std::cout << "Found " << nluts << " LUTs" << std::endl;
 
     inputluts_.resize(nluts);
     for (int i=0; i<nluts; i++) {
       inputluts_[i].resize(INPUT_LUT_SIZE); 
     }
     
-	std::cout << "EtaMin = ";
+	//std::cout << "EtaMin = ";
     for (int i=0; i<nluts; i++) {
       userfile >> tool;
       loieta.push_back(tool);
-	  std::cout << tool << " ";
+	  //std::cout << tool << " ";
     }
-	std::cout << std::endl << "EtaMax = ";
+	//std::cout << std::endl << "EtaMax = ";
     for (int i=0; i<nluts; i++) {
       userfile >> tool;
       hiieta.push_back(tool);
-	  std::cout << tool << " ";
+	  //std::cout << tool << " ";
     }
-	std::cout << std::endl << "PhiMin = ";
+	//std::cout << std::endl << "PhiMin = ";
     for (int i=0; i<nluts; i++) {
       userfile >> tool;
       loiphi.push_back(tool);
-	  std::cout << tool << " ";
+	  //std::cout << tool << " ";
     }
-	std::cout << std::endl << "PhiMax = ";
+	//std::cout << std::endl << "PhiMax = ";
     for (int i=0; i<nluts; i++) {
       userfile >> tool;
       hiiphi.push_back(tool);
-	  std::cout << tool << " ";
+	  //std::cout << tool << " ";
     }
-	std::cout << std::endl << "DepMin = ";
+	//std::cout << std::endl << "DepMin = ";
     for (int i=0; i<nluts; i++) {
       userfile >> tool;
       loidep.push_back(tool);
-	  std::cout << tool << " ";
+	  //std::cout << tool << " ";
     }
-	std::cout << std::endl << "DepMax = ";
+	//std::cout << std::endl << "DepMax = ";
     for (int i=0; i<nluts; i++) {
       userfile >> tool;
       hiidep.push_back(tool);
-	  std::cout << tool << " ";
+	  //std::cout << tool << " ";
     }    
-	std::cout << std::endl;
+	//std::cout << std::endl;
 	
     for (int j=0; j<INPUT_LUT_SIZE; j++) { 
       for(int i = 0; i <nluts; i++) {
 		userfile >> inputluts_[i][j];
-		if (userfile.eof()) std::cout << "Error: LUT file is truncated or has a wrong format: " << i << "," << j << std::endl;
+		//if (userfile.eof()) std::cout << "Error: LUT file is truncated or has a wrong format: " << i << "," << j << std::endl;
 	  }
     }
     userfile.close();
@@ -390,9 +390,9 @@ void HcaluLUTTPGCoder::update(const char* filename) {
        			}
 			}
        }
-	   std::cout << nini << " LUT's have been initialized for " << HCAL[idet[i]] << ": eta = [" << loieta[i] << "," << hiieta[i] << "]; iphi = [" << loiphi[i] << "," << hiiphi[i] << "]; depth = [" << loidep[i] << "," << hiidep[i] << "]" << std::endl;
+	   //std::cout << nini << " LUT's have been initialized for " << HCAL[idet[i]] << ": eta = [" << loieta[i] << "," << hiieta[i] << "]; iphi = [" << loiphi[i] << "," << hiiphi[i] << "]; depth = [" << loidep[i] << "," << hiidep[i] << "]" << std::endl;
     }
-    std::cout << "Total of " << ntot << " have been initialized" << std::endl;
+    //std::cout << "Total of " << ntot << " have been initialized" << std::endl;
   } 
 }
 
@@ -439,7 +439,7 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
        for (int ieta=-29; ieta <= 29; ieta++) {
 	 HcalDetId cell(HcalEndcap,ieta,iphi,depth);
 	 if (theTopo.valid(cell)) {  
-	   if (abs(ieta) < 18) divide = 1.*nominal_gain;
+	   if (abs(ieta) < 21) divide = 1.*nominal_gain;
 	   else if (abs(ieta) < 27) divide = 2.*nominal_gain;
 	   else divide = 5.*nominal_gain;
 	   id = GetLUTID(HcalEndcap,ieta,iphi,depth);
