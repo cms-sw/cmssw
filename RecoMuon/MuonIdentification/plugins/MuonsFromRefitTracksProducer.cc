@@ -3,7 +3,7 @@
   \brief    Replaces the kinematic information in the input muons with those of the chosen refit tracks.
 
   \author   Jordan Tucker
-  \version  $Id: MuonsFromRefitTracksProducer.cc,v 1.2 2008/12/01 16:59:57 tucker Exp $
+  \version  $Id: MuonsFromRefitTracksProducer.cc,v 1.3 2008/12/03 15:30:23 tucker Exp $
 */
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -22,6 +22,37 @@
 using namespace std;
 using namespace edm;
 using namespace reco;
+
+TrackRef tevOptimizedTMR(const Muon& muon, const TrackToTrackMap& gmrMap, const TrackToTrackMap& fmsMap) {
+  const TrackRef& combinedTrack = muon.globalTrack();
+  const TrackRef& trackerTrack  = muon.innerTrack();
+
+  TrackToTrackMap::const_iterator fmsTrack = fmsMap.find(combinedTrack);
+
+  double probTK  = 0;
+  double probFMS = 0;
+
+  if (trackerTrack.isAvailable() && trackerTrack->numberOfValidHits())
+    probTK = muon::trackProbability(trackerTrack);
+  if (fmsTrack != fmsMap.end() && fmsTrack->val->numberOfValidHits())
+    probFMS = muon::trackProbability(fmsTrack->val);
+
+  bool TKok  = probTK > 0;
+  bool FMSok = probFMS > 0;
+
+  if (TKok && FMSok) {
+    if (probFMS - probTK > 30)
+      return trackerTrack;
+    else
+      return fmsTrack->val;
+  }
+  else if (FMSok)
+    return fmsTrack->val;
+  else if (TKok)
+    return trackerTrack;
+  else
+    return combinedTrack;
+}
 
 class MuonsFromRefitTracksProducer : public EDProducer {
 public:
@@ -61,9 +92,14 @@ private:
   string tevMuonTracks;
 
   // Whether to make a cocktail muon instead of using just the one
-  // type in tevMuonTracks.
+  // type in tevMuonTracks, where "cocktail" means use the result of
+  // Piotr's tevOptimized().
   bool fromCocktail;
-  
+
+  // Whether to use the TMR version of the cocktail function, defined
+  // above. If true, overrides fromCocktail.
+  bool fromTMR;
+
   // If we're not making cocktail muons, trackMap is the map that maps
   // global tracks to the desired TeV refit (e.g. from globalMuons to
   // tevMuons:picky).
@@ -79,14 +115,15 @@ MuonsFromRefitTracksProducer::MuonsFromRefitTracksProducer(const ParameterSet& c
   : src(cfg.getParameter<InputTag>("src")),
     fromTrackerTrack(cfg.getUntrackedParameter<bool>("fromTrackerTrack", false)),
     tevMuonTracks(cfg.getUntrackedParameter<string>("tevMuonTracks", "none")),
-    fromCocktail(cfg.getUntrackedParameter<bool>("fromCocktail", false))
+    fromCocktail(cfg.getUntrackedParameter<bool>("fromCocktail", false)),
+    fromTMR(cfg.getUntrackedParameter<bool>("fromTMR", false))
 {
   fromTeVRefit = tevMuonTracks != "none";
   produces<MuonCollection>();
 }
 
 bool MuonsFromRefitTracksProducer::storeMatchMaps(const Event& event) {
-  if (fromCocktail) {
+  if (fromCocktail || fromTMR) {
     event.getByLabel(tevMuonTracks, "default",  trackMapDefault);
     event.getByLabel(tevMuonTracks, "firstHit", trackMapFirstHit);
     event.getByLabel(tevMuonTracks, "picky",    trackMapPicky);
@@ -157,7 +194,9 @@ void MuonsFromRefitTracksProducer::produce(Event& event, const EventSetup& eSetu
 	// If making a cocktail muon, use tevOptimized() to get the track
 	// desired. Otherwise, get the refit track from the desired track
 	// map.
-	if (fromCocktail)
+	if (fromTMR)
+	  tevTk = tevOptimizedTMR(*muon, *trackMapDefault, *trackMapFirstHit);
+	else if (fromCocktail)
 	  tevTk = muon::tevOptimized(*muon, *trackMapDefault, *trackMapFirstHit,
 				     *trackMapPicky);
 	else {

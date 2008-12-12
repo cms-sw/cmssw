@@ -10,5 +10,6 @@ import FWCore.ParameterSet.Config as cms
 refitMuons = cms.EDProducer('MuonsFromRefitTracksProducer',
     src           = cms.InputTag('muons'),
     tevMuonTracks = cms.untracked.string('tevMuons'),
-    fromCocktail  = cms.untracked.bool(True)
+    fromCocktail  = cms.untracked.bool(True),
+    fromTMR       = cms.untracked.bool(False)
 )
