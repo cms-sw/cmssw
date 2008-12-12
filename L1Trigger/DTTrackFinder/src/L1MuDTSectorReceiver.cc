@@ -5,8 +5,8 @@
 //   Description: Sector Receiver 
 //
 //
-//   $Date: 2008/11/28 10:30:51 $
-//   $Revision: 1.14 $
+//   $Date: 2008/11/28 10:40:39 $
+//   $Revision: 1.15 $
 //
 //   Author :
 //   N. Neumeister            CERN EP
@@ -36,7 +36,6 @@
 #include "L1Trigger/DTTrackFinder/src/L1MuDTDataBuffer.h"
 #include "L1Trigger/DTTrackFinder/src/L1MuDTTrackSegLoc.h"
 #include "L1Trigger/DTTrackFinder/src/L1MuDTTrackSegPhi.h"
-#include "L1Trigger/CSCCommonTrigger/interface/CSCConstants.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhDigi.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h"
 #include "DataFormats/L1CSCTrackFinder/interface/TrackStub.h"
@@ -222,12 +221,12 @@ void L1MuDTSectorReceiver::receiveCSCData(int bx, const edm::Event& e, const edm
   
   if ( (L1MuDTTFConfig::getCSCTrSInputTag()).label() == "none" ) return;
 
-  if ( bx < CSCConstants::MIN_BUNCH || bx > CSCConstants::MAX_BUNCH ) return;
+  if ( bx < -6 || bx > 6 ) return;
 
   edm::Handle<CSCTriggerContainer<csctf::TrackStub> > csctrig;
   e.getByLabel(L1MuDTTFConfig::getCSCTrSInputTag(),csctrig);
 
-  const int bxCSC = CSCConstants::TIME_OFFSET;
+  const int bxCSC = 6;
   
   vector<csctf::TrackStub> csc_list;
   vector<csctf::TrackStub>::const_iterator csc_iter;  
