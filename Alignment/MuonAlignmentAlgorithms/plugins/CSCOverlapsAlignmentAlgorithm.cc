@@ -13,7 +13,7 @@
 //
 // Original Author:  Jim Pivarski,,,
 //         Created:  Tue Oct  7 14:56:49 CDT 2008
-// $Id$
+// $Id: CSCOverlapsAlignmentAlgorithm.cc,v 1.1 2008/12/12 10:54:10 pivarski Exp $
 //
 //
 
@@ -190,16 +190,11 @@ CSCOverlapsAlignmentAlgorithm::CSCOverlapsAlignmentAlgorithm(const edm::Paramete
        } // station
      } // endcap
    }
-
-   std::cout << "constructor of CSCOverlapsAlignmentAlgorithm" << std::endl;
 }
 
 CSCOverlapsAlignmentAlgorithm::~CSCOverlapsAlignmentAlgorithm() {}
 
 void CSCOverlapsAlignmentAlgorithm::initialize(const edm::EventSetup& iSetup, AlignableTracker* alignableTracker, AlignableMuon* alignableMuon, AlignmentParameterStore* alignmentParameterStore) {
-   std::cout << "initialize of CSCOverlapsAlignmentAlgorithm" << std::endl;
-
-
    m_alignmentParameterStore = alignmentParameterStore;
    m_alignables = m_alignmentParameterStore->alignables();
    m_quickMap.clear();

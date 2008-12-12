@@ -13,7 +13,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Wed Dec 12 13:31:55 CST 2007
-// $Id: CSCOverlapsTrackPreparation.cc,v 1.5 2008/09/04 03:46:29 pivarski Exp $
+// $Id: CSCOverlapsTrackPreparation.cc,v 1.1 2008/12/12 10:54:10 pivarski Exp $
 //
 //
 
@@ -91,8 +91,6 @@ CSCOverlapsTrackPreparation::CSCOverlapsTrackPreparation(const edm::ParameterSet
 {
    produces<std::vector<Trajectory> >();
    produces<TrajTrackAssociationCollection>();
-
-   std::cout << "constructor of CSCOverlapsTrackPreparation" << std::endl;
 }
 
 
