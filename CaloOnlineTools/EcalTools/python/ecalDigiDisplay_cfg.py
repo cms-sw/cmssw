@@ -2,15 +2,16 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("TESTDUMPER")
 process.load("EventFilter.EcalRawToDigiDev.EcalUnpackerMapping_cfi")
-
 process.load("EventFilter.EcalRawToDigiDev.EcalUnpackerData_cfi")
+
+process.load("Geometry.EcalMapping.EcalMapping_cfi")
+process.load("Geometry.EcalMapping.EcalMappingRecord_cfi")
 
 process.load("CaloOnlineTools.EcalTools.ecalDigiDisplay_cfi")
 
 process.source = cms.Source("PoolSource",
     debugFlag = cms.untracked.bool(True),
     skipEvents = cms.untracked.uint32(0),
-    #untracked vstring fileNames = { 'file:/data/kkaadze/work/DQM/dataFiles/P5_Co.00028065.A.0.0.root'
     fileNames = cms.untracked.vstring('file:.........')
 )
 

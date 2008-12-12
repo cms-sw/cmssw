@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-bxOrbitNumberGrapher = cms.EDAnalyzer("EcalBxOrbitNumberGrapher",
+ecalBxOrbitNumberGrapher = cms.EDAnalyzer("EcalBxOrbitNumberGrapher",
 
     EBRecHitCollection = cms.InputTag("ecalRecHit","EcalRecHitsEB"),
     EERecHitCollection = cms.InputTag("ecalRecHit","EcalRecHitsEE"),

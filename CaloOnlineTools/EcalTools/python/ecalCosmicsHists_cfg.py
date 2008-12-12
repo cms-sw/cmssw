@@ -21,10 +21,9 @@ process.EcalTrivialConditionRetriever.producedEcalADCToGeVConstant = False
 #process.EcalTrivialConditionRetriever.adcToGeVEEConstant = 0.060
 process.EcalTrivialConditionRetriever.producedEcalLaserCorrection = False
 #process.EcalTrivialConditionRetriever.producedEcalChannelStatus = False
-process.EcalTrivialConditionRetriever.producedEcalChannelStatus = cms.untracked.bool(True)
-process.EcalTrivialConditionRetriever.channelStatusFile = 'CaloOnlineTools/EcalTools/data/listCRUZET4.v5.hashed.txt'
-
-process.es_prefer_EcalTrivialConditionRetriever = cms.ESPrefer("EcalTrivialConditionRetriever")
+process.EcalTrivialConditionRetriever.producedEcalChannelStatus = cms.untracked.bool(False)
+#process.EcalTrivialConditionRetriever.channelStatusFile = 'CaloOnlineTools/EcalTools/data/listCRUZET4.v5.hashed.txt'
+#process.es_prefer_EcalTrivialConditionRetriever = cms.ESPrefer("EcalTrivialConditionRetriever")
 
 process.load("CalibCalorimetry.EcalLaserCorrection.ecalLaserCorrectionService_cfi")
 
@@ -39,7 +38,6 @@ process.siStripPedestalFrontier.BlobStreamerName = 'TBufferBlobStreamingService'
 process.es_prefer_SiStripFake = cms.ESPrefer("PoolDBESSource","siStripPedestalFrontier")
 
 process.load("EventFilter.EcalRawToDigiDev.EcalUnpackerMapping_cfi")
-
 process.load("EventFilter.EcalRawToDigiDev.EcalUnpackerData_cfi")
 
 import RecoLocalCalo.EcalRecProducers.ecalFixedAlphaBetaFitUncalibRecHit_cfi
@@ -84,7 +82,7 @@ process.load("HLTrigger.special.TriggerTypeFilter_cfi")
 process.source = cms.Source("PoolSource",
     skipEvents = cms.untracked.uint32(0),
     fileNames = (cms.untracked.vstring(
-         '/store/data/CRUZET3/Cosmics/RAW/v4/000/050/908/04D61810-DD54-DD11-8FB1-001617DBD230.root'        
+        '/store/data/Commissioning08/BeamHalo/RAW/StuffAlmostToP5_v1/000/061/642/94D3CADF-A47D-DD11-BF3E-000423D94E1C.root'
 ))
 )
 

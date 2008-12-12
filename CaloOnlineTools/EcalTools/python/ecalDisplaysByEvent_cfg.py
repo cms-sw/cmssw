@@ -46,16 +46,14 @@ process.EcalTrivialConditionRetriever.producedEcalIntercalibErrors = False
 process.EcalTrivialConditionRetriever.producedEcalGainRatios = False
 process.EcalTrivialConditionRetriever.producedEcalADCToGeVConstant = False
 process.EcalTrivialConditionRetriever.producedEcalLaserCorrection = False
-process.EcalTrivialConditionRetriever.producedChannelStatus = False
-process.EcalTrivialConditionRetriever.producedChannelStatus = True
-process.EcalTrivialConditionRetriever.channelStatusFile = 'CaloOnlineTools/EcalTools/data/listCRUZET4.v2.hashed.txt'
-es_prefer_EcalChannelStatus = cms.ESPrefer("EcalTrivialConditionRetriever","EcalChannelStatus")
+process.EcalTrivialConditionRetriever.producedChannelStatus = cms.untracked.bool(False)
+#es_prefer_EcalChannelStatus = cms.ESPrefer("EcalTrivialConditionRetriever","EcalChannelStatus")
 
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.GlobalRuns.ForceZeroTeslaField_cff")
 
-#process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_noesprefer_cff")
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+#process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_noesprefer_cff")
 process.GlobalTag.globaltag = 'CRUZET4_V5P::All'
 
 process.dumpEv = cms.EDAnalyzer("EventContentAnalyzer")

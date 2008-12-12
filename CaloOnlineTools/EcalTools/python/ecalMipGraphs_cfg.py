@@ -51,7 +51,7 @@ process.MessageLogger = cms.Service("MessageLogger",
 
 process.TFileService = cms.Service("TFileService",
   fileName = cms.string('ecalMipGraphs-57771.graph.root'),
-  closeFileFast = cms.bool(True)
+  closeFileFast = cms.untracked.bool(True)
 )
 
 process.p = cms.Path(process.triggerTypeFilter*process.ecalEBunpacker*process.ecalUncalibHit*process.ecalRecHit*process.ecalMipGraphs)
@@ -70,10 +70,9 @@ process.EcalTrivialConditionRetriever.producedEcalIntercalibErrors = False
 process.EcalTrivialConditionRetriever.producedEcalGainRatios = False
 process.EcalTrivialConditionRetriever.producedEcalADCToGeVConstant = False
 process.EcalTrivialConditionRetriever.producedEcalLaserCorrection = False
-process.EcalTrivialConditionRetriever.producedChannelStatus = False
-process.EcalTrivialConditionRetriever.producedChannelStatus = True
-process.EcalTrivialConditionRetriever.channelStatusFile = 'CaloOnlineTools/EcalTools/data/listCRUZET4.v2.hashed.txt'
-es_prefer_EcalChannelStatus = cms.ESPrefer("EcalTrivialConditionRetriever","EcalChannelStatus")
+process.EcalTrivialConditionRetriever.producedChannelStatus = cms.untracked.bool(False)
+#process.EcalTrivialConditionRetriever.channelStatusFile = 'CaloOnlineTools/EcalTools/data/listCRUZET4.v2.hashed.txt'
+#es_prefer_EcalChannelStatus = cms.ESPrefer("EcalTrivialConditionRetriever","EcalChannelStatus")
 #process.ecalUncalibHit.EBdigiCollection = 'ecalEBunpacker:ebDigis'
 #process.ecalUncalibHit.EEdigiCollection = 'ecalEBunpacker:eeDigis'
 #process.ecalRecHit.ChannelStatusToBeExcluded = [1]

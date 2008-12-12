@@ -2,7 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 ecalURecHitHists = cms.EDFilter("EcalURecHitHists",
     EBDigiCollection = cms.InputTag("ecalEBunpacker","ebDigis"),
-    EcalUncalibratedRecHitCollection = cms.InputTag("ecalUncalibHit","EcalUncalibRecHitsEB"),
+    EBUncalibratedRecHitCollection = cms.InputTag("ecalUncalibHit","EcalUncalibRecHitsEB"),
+    EEUncalibratedRecHitCollection = cms.InputTag("ecalUncalibHit","EcalUncalibRecHitsEE"),
     # use hash index to mask channels
     # add a simple description of hashIndex (hhahhahhh...)
     maskedChannels = cms.untracked.vint32(),
