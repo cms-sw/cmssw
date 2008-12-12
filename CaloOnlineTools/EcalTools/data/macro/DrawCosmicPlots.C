@@ -1,7 +1,16 @@
 //
 // Macro to produce ECAL cosmic plots
 //
-void DrawCosmicPlots(Char_t* infile = 0, Int_t runNum=0, Bool_t printPics = kTRUE, Char_t* fileType = "png", Char_t* dirName = ".")
+
+int Wait() {
+     cout << " Continue [<RET>|q]?  "; 
+     char x;
+     x = getchar();
+     if ((x == 'q') || (x == 'Q')) return 1;
+     return 0;
+}
+
+void DrawCosmicPlots(Char_t* infile = 0, Int_t runNum=0, Bool_t printPics = kTRUE, Char_t* fileType = "png", Char_t* dirName = ".", Bool_t doWait=kFALSE)
 {
 
   gROOT->SetStyle("Plain");
@@ -24,13 +33,15 @@ void DrawCosmicPlots(Char_t* infile = 0, Int_t runNum=0, Bool_t printPics = kTRU
     runNumber = runNum;
   }
 
-  char name[100];  
+  char name[500];  
 
   const int nHists1=25;
   const int nHists2=17;
   const int nHists3=3+15;
-  const int nHists = nHists1+nHists2+nHists3;
-  cout << nHists1 << " " << nHists2 << " " << nHists3 << " " << nHists << endl;;
+  const int nHists4=8+12+8+1+6;
+  const int nHists = nHists1+nHists2+nHists3+nHists4;
+  //  const int nHists = 9;
+  cout << nHists1 << " " << nHists2 << " " << nHists3 << " " << nHists4 << " " << nHists << endl;;
 
   TCanvas* c[nHists];
   char cname[100]; 
@@ -40,32 +51,26 @@ void DrawCosmicPlots(Char_t* infile = 0, Int_t runNum=0, Bool_t printPics = kTRU
     int x = (i%3)*600;     //int x = (i%3)*600;
     int y = (i/3)*100;     //int y = (i/3)*200;
     c[i] =  new TCanvas(cname,cname,x,y,600,400);
-    //    cout << i << " : " << x << " , " << y << endl;
-  }
-
-  for (int i=nHists1; i<nHists2; i++) {
-    sprintf(cname,"c%i",i);
-    int x = ((i-nHists1)%3)*600;     //int x = (i%3)*600;
-    int y = ((i-nHists1)/3)*100;     //int y = (i/3)*200;
-    c[i] =  new TCanvas(cname,cname,x,y,600,400);
-    //    cout << i << " : " << x << " , " << y << endl;
+    cout << "Hists1 " << i << " : " << x << " , " << y << endl;
   }
 
 
-  for (int i=nHists2; i<nHists; i++) {
-    sprintf(cname,"c%i",i);
-    int x = ((i-nHists2)%3)*600;     //int x = (i%3)*600;
-    int y = ((i-nHists2)/3)*100;     //int y = (i/3)*200;
-    c[i] =  new TCanvas(cname,cname,x,y,600,400);
-    //    cout << i << " : " << x << " , " << y << endl;
-  }
+//   TCanvas* c[nHists];
+//   char cname[100]; 
 
+//   for (int i=0; i<nHists; i++) {
+//     sprintf(cname,"c%i",i);
+//     int x = (i%3)*600;     //int x = (i%3)*600;
+//     int y = (i/3)*300;     //int y = (i/3)*200;
+//     c[i] =  new TCanvas(cname,cname,x,y,600,400);
+//     cout << "Hists1 " << i << " : " << x << " , " << y << endl;
+//   }
 
   char runChar[50];
   sprintf(runChar,", run %i",runNumber);
 
   c[0]->cd();
-  gStyle->SetOptStat(1110);
+  gStyle->SetOptStat(111110);
   SeedEnergyAllFEDs->Draw();
   char mytitle[100]; sprintf(mytitle,"%s",SeedEnergyAllFEDs->GetTitle()); 
   strcat(mytitle,runChar); SeedEnergyAllFEDs->SetTitle(mytitle);
@@ -120,8 +125,8 @@ void DrawCosmicPlots(Char_t* infile = 0, Int_t runNum=0, Bool_t printPics = kTRU
   OccupancyAllEvents->Draw("colz");
   char mytitle[100]; sprintf(mytitle,"%s",OccupancyAllEvents->GetTitle()); 
   strcat(mytitle,runChar); OccupancyAllEvents->SetTitle(mytitle);
-    OccupancyAllEvents->SetMinimum(1);  
-    //        OccupancyAllEvents->SetMaximum(100);  
+  OccupancyAllEvents->SetMinimum(1);  
+  //        OccupancyAllEvents->SetMaximum(100);  
   OccupancyAllEvents->GetXaxis()->SetNdivisions(-18);
   OccupancyAllEvents->GetYaxis()->SetNdivisions(2);
   c[6]->SetLogy(0);
@@ -159,7 +164,7 @@ void DrawCosmicPlots(Char_t* infile = 0, Int_t runNum=0, Bool_t printPics = kTRU
 
 
   c[9]->cd();
-  gStyle->SetOptStat(1110);
+  gStyle->SetOptStat(111110);
   timeForAllFeds->Draw();
   char mytitle[100]; sprintf(mytitle,"%s",timeForAllFeds->GetTitle()); 
   strcat(mytitle,runChar); timeForAllFeds->SetTitle(mytitle);
@@ -306,6 +311,18 @@ void DrawCosmicPlots(Char_t* infile = 0, Int_t runNum=0, Bool_t printPics = kTRU
   c[24]->SetLogy(1);
   if (printPics) { sprintf(name,"%s/cosmicsAnalysis_energyHigh_AllClusters_%i.%s",dirName,runNumber,fileType); c[24]->Print(name); }
 
+  if (doWait) {
+    if (Wait()) return;
+  }
+
+  for (int i=nHists1; i<nHists1+nHists2; i++) {
+    sprintf(cname,"c%i",i);
+    int x = ((i-nHists1)%3)*600;     //int x = (i%3)*600;
+    int y = ((i-nHists1)/3)*100;     //int y = (i/3)*200;
+    c[i] =  new TCanvas(cname,cname,x,y,600,400);
+    cout << "Hists2 " <<i << " : " << x << " , " << y << endl;
+  }
+
 
   // triggered
 
@@ -322,6 +339,7 @@ void DrawCosmicPlots(Char_t* infile = 0, Int_t runNum=0, Bool_t printPics = kTRU
   c[25]->SetLogy(0);
   c[25]->SetLogz(0);
   if (printPics) { sprintf(name,"%s/cosmicsAnalysis_triggerHist_%i.%s",dirName,runNumber,fileType); c[25]->Print(name); }
+
 
   c[26]->cd();
   triggerExclusiveHist->GetXaxis()->SetBinLabel(1,"ECAL");
@@ -369,7 +387,7 @@ void DrawCosmicPlots(Char_t* infile = 0, Int_t runNum=0, Bool_t printPics = kTRU
   if (printPics) { sprintf(name,"%s/cosmicsAnalysis_OccupancyAllEvents_ECAL_%i.%s",dirName,runNumber,fileType); c[28]->Print(name); }
 
   c[29]->cd();
-  gStyle->SetOptStat(1110);
+  gStyle->SetOptStat(111110);
   timeForAllFeds_ECAL->Draw();
   char mytitle[100]; sprintf(mytitle,"%s",timeForAllFeds_ECAL->GetTitle()); 
   strcat(mytitle,runChar); timeForAllFeds_ECAL->SetTitle(mytitle);
@@ -409,7 +427,7 @@ void DrawCosmicPlots(Char_t* infile = 0, Int_t runNum=0, Bool_t printPics = kTRU
   if (printPics) { sprintf(name,"%s/cosmicsAnalysis_OccupancyAllEvents_HCAL_%i.%s",dirName,runNumber,fileType); c[31]->Print(name); }
 
   c[32]->cd();
-  gStyle->SetOptStat(1110);
+  gStyle->SetOptStat(111110);
   timeForAllFeds_HCAL->Draw();
   char mytitle[100]; sprintf(mytitle,"%s",timeForAllFeds_HCAL->GetTitle()); 
   strcat(mytitle,runChar); timeForAllFeds_HCAL->SetTitle(mytitle);
@@ -449,7 +467,7 @@ void DrawCosmicPlots(Char_t* infile = 0, Int_t runNum=0, Bool_t printPics = kTRU
   if (printPics) { sprintf(name,"%s/cosmicsAnalysis_OccupancyAllEvents_DT_%i.%s",dirName,runNumber,fileType); c[34]->Print(name); }
 
   c[35]->cd();
-  gStyle->SetOptStat(1110);
+  gStyle->SetOptStat(111110);
   timeForAllFeds_DT->Draw();
   char mytitle[100]; sprintf(mytitle,"%s",timeForAllFeds_DT->GetTitle()); 
   strcat(mytitle,runChar); timeForAllFeds_DT->SetTitle(mytitle);
@@ -489,7 +507,7 @@ void DrawCosmicPlots(Char_t* infile = 0, Int_t runNum=0, Bool_t printPics = kTRU
   if (printPics) { sprintf(name,"%s/cosmicsAnalysis_OccupancyAllEvents_RPC_%i.%s",dirName,runNumber,fileType); c[37]->Print(name); }
 
   c[38]->cd();
-  gStyle->SetOptStat(1110);
+  gStyle->SetOptStat(111110);
   timeForAllFeds_RPC->Draw();
   char mytitle[100]; sprintf(mytitle,"%s",timeForAllFeds_RPC->GetTitle()); 
   strcat(mytitle,runChar); timeForAllFeds_RPC->SetTitle(mytitle);
@@ -530,7 +548,7 @@ void DrawCosmicPlots(Char_t* infile = 0, Int_t runNum=0, Bool_t printPics = kTRU
   if (printPics) { sprintf(name,"%s/cosmicsAnalysis_OccupancyAllEvents_CSC_%i.%s",dirName,runNumber,fileType); c[40]->Print(name); }
 
   c[41]->cd();
-  gStyle->SetOptStat(1110);
+  gStyle->SetOptStat(111110);
   timeForAllFeds_CSC->Draw();
   char mytitle[100]; sprintf(mytitle,"%s",timeForAllFeds_CSC->GetTitle()); 
   strcat(mytitle,runChar); timeForAllFeds_CSC->SetTitle(mytitle);
@@ -539,6 +557,17 @@ void DrawCosmicPlots(Char_t* infile = 0, Int_t runNum=0, Bool_t printPics = kTRU
   if (printPics) { sprintf(name,"%s/cosmicsAnalysis_timeForAllFeds_CSC_%i.%s",dirName,runNumber,fileType); c[41]->Print(name); }
   
 
+  if (doWait) {
+    if (Wait()) return;
+  }
+
+  for (int i=nHists1+nHists2; i<nHists1+nHists2+nHists3; i++) {
+    sprintf(cname,"c%i",i);
+    int x = ((i-(nHists1+nHists2))%3)*600;     //int x = (i%3)*600;
+    int y = ((i-(nHists1+nHists2))/3)*100;     //int y = (i/3)*200;
+    c[i] =  new TCanvas(cname,cname,x,y,600,400);
+    cout << "Hists3 " <<i << " : " << x << " , " << y << endl;
+  }
 
   // ECAL triggered
   c[42]->cd();
@@ -695,7 +724,7 @@ void DrawCosmicPlots(Char_t* infile = 0, Int_t runNum=0, Bool_t printPics = kTRU
   if (printPics) { sprintf(name,"%s/cosmicsAnalysis_OccupancyAllEvents_ExclusiveCSC_%i.%s",dirName,runNumber,fileType); c[51]->Print(name); }
 
   c[52]->cd();
-  gStyle->SetOptStat(1110);
+  gStyle->SetOptStat(111110);
   timeLMAllFEDs->Draw("colz");
   char mytitle[100]; sprintf(mytitle,"%s",timeLMAllFEDs->GetTitle()); 
   strcat(mytitle,runChar); timeLMAllFEDs->SetTitle(mytitle);
@@ -705,7 +734,7 @@ void DrawCosmicPlots(Char_t* infile = 0, Int_t runNum=0, Bool_t printPics = kTRU
 
   // ECAL
   c[53]->cd();
-  gStyle->SetOptStat(1110);
+  gStyle->SetOptStat(111110);
   timeLMAllFEDs_ECAL->Draw("colz");
   char mytitle[100]; sprintf(mytitle,"%s",timeLMAllFEDs_ECAL->GetTitle()); 
   strcat(mytitle,runChar); timeLMAllFEDs_ECAL->SetTitle(mytitle);
@@ -715,7 +744,7 @@ void DrawCosmicPlots(Char_t* infile = 0, Int_t runNum=0, Bool_t printPics = kTRU
 
   // HCAL
   c[54]->cd();
-  gStyle->SetOptStat(1110);
+  gStyle->SetOptStat(111110);
   timeLMAllFEDs_HCAL->Draw("colz");
   char mytitle[100]; sprintf(mytitle,"%s",timeLMAllFEDs_HCAL->GetTitle()); 
   strcat(mytitle,runChar); timeLMAllFEDs_HCAL->SetTitle(mytitle);
@@ -725,7 +754,7 @@ void DrawCosmicPlots(Char_t* infile = 0, Int_t runNum=0, Bool_t printPics = kTRU
 
   // DT
   c[55]->cd();
-  gStyle->SetOptStat(1110);
+  gStyle->SetOptStat(111110);
   timeLMAllFEDs_DT->Draw("colz");
   char mytitle[100]; sprintf(mytitle,"%s",timeLMAllFEDs_DT->GetTitle()); 
   strcat(mytitle,runChar); timeLMAllFEDs_DT->SetTitle(mytitle);
@@ -735,7 +764,7 @@ void DrawCosmicPlots(Char_t* infile = 0, Int_t runNum=0, Bool_t printPics = kTRU
 
   // RPC
   c[56]->cd();
-  gStyle->SetOptStat(1110);
+  gStyle->SetOptStat(111110);
   timeLMAllFEDs_RPC->Draw("colz");
   char mytitle[100]; sprintf(mytitle,"%s",timeLMAllFEDs_RPC->GetTitle()); 
   strcat(mytitle,runChar); timeLMAllFEDs_RPC->SetTitle(mytitle);
@@ -746,7 +775,7 @@ void DrawCosmicPlots(Char_t* infile = 0, Int_t runNum=0, Bool_t printPics = kTRU
 
   // CSC
   c[57]->cd();
-  gStyle->SetOptStat(1110);
+  gStyle->SetOptStat(111110);
   timeLMAllFEDs_CSC->Draw("colz");
   char mytitle[100]; sprintf(mytitle,"%s",timeLMAllFEDs_CSC->GetTitle()); 
   strcat(mytitle,runChar); timeLMAllFEDs_CSC->SetTitle(mytitle);
@@ -786,6 +815,412 @@ void DrawCosmicPlots(Char_t* infile = 0, Int_t runNum=0, Bool_t printPics = kTRU
   if (printPics) { sprintf(name,"%s/cosmicsAnalysis_OccupancyHighEnergyEventsCoarse_%i.%s",dirName,runNumber,fileType); c[59]->Print(name); }
 
 
+  if (doWait) {
+    if (Wait()) return;
+  }
+
+  for (int i=nHists1+nHists2+nHists3; i<nHists; i++) {
+    sprintf(cname,"c%i",i);
+    int x = ((i-(nHists1+nHists2+nHists3))%3)*600;     //int x = (i%3)*600;
+    int y = ((i-(nHists1+nHists2+nHists3))/3)*100;     //int y = (i/3)*200;
+    c[i] =  new TCanvas(cname,cname,x,y,600,400);
+    cout <<"Hists4 " << i << " : " << x << " , " << y << endl;
+  }
+
+
+  c[60]->cd();  
+  NumActiveXtalsInClusterAllHist->Draw();
+  char mytitle[100]; sprintf(mytitle,"%s",  NumActiveXtalsInClusterAllHist->GetTitle()); 
+  strcat(mytitle,runChar); NumActiveXtalsInClusterAllHist->SetTitle(mytitle);
+  c[60]->SetLogy(0);
+  if (printPics) { sprintf(name,"%s/cosmicsAnalysis_NumActiveXtalsInClusterAllHist_%i.%s",dirName,runNumber,fileType); c[60]->Print(name); }
+
+  c[61]->cd();  
+  numberofBCinSC->Draw();
+  char mytitle[100]; sprintf(mytitle,"%s",  numberofBCinSC->GetTitle()); 
+  strcat(mytitle,runChar); numberofBCinSC->SetTitle(mytitle);
+  c[61]->SetLogy(1);
+  if (printPics) { sprintf(name,"%s/cosmicsAnalysis_numberofBCinSC_%i.%s",dirName,runNumber,fileType); c[61]->Print(name); }
+
+  c[62]->cd();  
+  //  numberofBCinSCphi->Draw("colz");
+  numberofBCinSCphi->ProfileX()->Draw();
+  char mytitle[100]; sprintf(mytitle,"%s",  numberofBCinSCphi->GetTitle()); 
+  strcat(mytitle,runChar); numberofBCinSCphi->SetTitle(mytitle);
+  c[62]->SetLogy(0);
+  if (printPics) { sprintf(name,"%s/cosmicsAnalysis_numberofBCinSCphi_%i.%s",dirName,runNumber,fileType); c[62]->Print(name); }
+
+
+  c[63]->cd();
+  gStyle->SetOptStat(10);
+  BCTrueOccupancyAllEventsCoarse->Draw("colz");
+  char mytitle[100]; sprintf(mytitle,"%s",BCTrueOccupancyAllEventsCoarse->GetTitle()); 
+  strcat(mytitle,runChar); BCTrueOccupancyAllEventsCoarse->SetTitle(mytitle);
+  BCTrueOccupancyAllEventsCoarse->SetMinimum(1);
+  BCTrueOccupancyAllEventsCoarse->GetXaxis()->SetNdivisions(-18);
+  BCTrueOccupancyAllEventsCoarse->GetYaxis()->SetNdivisions(2);
+  c[63]->SetLogy(0);
+  c[63]->SetLogz(1);
+  //  c[63]->SetGridx(1);
+  //  c[63]->SetGridy(1);
+  if (printPics) { sprintf(name,"%s/cosmicsAnalysis_BCTrueOccupancyAllEventsCoarse_%i.%s",dirName,runNumber,fileType); c[63]->Print(name); }
+  
+  c[64]->cd();
+  BCTrueOccupancyAllEvents->Draw("colz");
+  char mytitle[100]; sprintf(mytitle,"%s",BCTrueOccupancyAllEvents->GetTitle()); 
+  strcat(mytitle,runChar); BCTrueOccupancyAllEvents->SetTitle(mytitle);
+  BCTrueOccupancyAllEvents->SetMinimum(1);  
+  BCTrueOccupancyAllEvents->GetXaxis()->SetNdivisions(-18);
+  BCTrueOccupancyAllEvents->GetYaxis()->SetNdivisions(2);
+  c[64]->SetLogy(0);
+  c[64]->SetLogz(1);
+  //  c[64]->SetGridx(1);
+  //  c[64]->SetGridy(1);
+  if (printPics) { sprintf(name,"%s/cosmicsAnalysis_BCTrueOccupancyAllEvents_%i.%s",dirName,runNumber,fileType); c[64]->Print(name); }
+
+  c[65]->cd();
+  gStyle->SetOptStat(111110);
+  //  NumXtalsVsEnergy->GetYaxis()->SetRange(0,30);
+  //NumXtalsVsEnergy->SetMinimum(1);
+  //  NumXtalsVsEnergy->Draw("colz");
+  NumXtalsVsEnergy->ProfileX()->Draw();
+  char mytitle[100]; sprintf(mytitle,"%s",NumXtalsVsEnergy->GetTitle()); 
+  strcat(mytitle,runChar); NumXtalsVsEnergy->SetTitle(mytitle);
+  c[65]->SetLogy(0);
+  c[65]->SetLogz(0);
+  if (printPics) { sprintf(name,"%s/cosmicsAnalysis_NumXtalsVsEnergy_%i.%s",dirName,runNumber,fileType); c[65]->Print(name); }
+
+
+  c[66]->cd();
+  //  NumXtalsVsHighEnergy->GetYaxis()->SetRange(0,30);
+  //  NumXtalsVsHighEnergy->SetMinimum(1);
+  //  NumXtalsVsHighEnergy->Draw("colz");
+  NumXtalsVsHighEnergy->ProfileX()->Draw();
+  char mytitle[100]; sprintf(mytitle,"%s",NumXtalsVsHighEnergy->GetTitle()); 
+  strcat(mytitle,runChar); NumXtalsVsHighEnergy->SetTitle(mytitle);
+  c[66]->SetLogy(0);
+  c[66]->SetLogz(0);
+  if (printPics) { sprintf(name,"%s/cosmicsAnalysis_NumXtalsVsHighEnergy_%i.%s",dirName,runNumber,fileType); c[66]->Print(name); }
+
+  c[67]->cd();
+  gStyle->SetOptStat(111110);
+  timeForAllFeds_EcalMuon->Draw();
+  char mytitle[100]; sprintf(mytitle,"%s",timeForAllFeds_EcalMuon->GetTitle()); 
+  strcat(mytitle,runChar); timeForAllFeds_EcalMuon->SetTitle(mytitle);
+  c[67]->SetLogy(0);
+  c[67]->SetLogz(0);
+  if (printPics) { sprintf(name,"%s/cosmicsAnalysis_timeForAllFeds_EcalMuon_%i.%s",dirName,runNumber,fileType); c[67]->Print(name); }
+
+
+  c[68]->cd();
+  gStyle->SetOptStat(111110);
+  numberofCosmicsWTrackPerEvent->Draw();
+  char mytitle[100]; sprintf(mytitle,"%s",numberofCosmicsWTrackPerEvent->GetTitle()); 
+  strcat(mytitle,runChar); numberofCosmicsWTrackPerEvent->SetTitle(mytitle);
+  c[68]->SetLogy(0);
+  c[68]->SetLogz(0);
+  if (printPics) { sprintf(name,"%s/cosmicsAnalysis_numberofCosmicsWTrackPerEvent_%i.%s",dirName,runNumber,fileType); c[68]->Print(name); }
+
+  c[69]->cd();
+  gStyle->SetOptStat(111110);
+  numberofCosmicsTopBottomPerEvent->Draw();
+  char mytitle[100]; sprintf(mytitle,"%s",numberofCosmicsTopBottomPerEvent->GetTitle()); 
+  strcat(mytitle,runChar); numberofCosmicsTopBottomPerEvent->SetTitle(mytitle);
+  c[69]->SetLogy(0);
+  c[69]->SetLogz(0);
+  if (printPics) { sprintf(name,"%s/cosmicsAnalysis_numberofCosmicsTopBottomPerEvent_%i.%s",dirName,runNumber,fileType); c[69]->Print(name); }
+
+
+  c[70]->cd();
+  gStyle->SetOptStat(111110);
+  numberofCrossedEcalCosmicsPerEvent->Draw();
+  char mytitle[100]; sprintf(mytitle,"%s",numberofCrossedEcalCosmicsPerEvent->GetTitle()); 
+  strcat(mytitle,runChar); numberofCrossedEcalCosmicsPerEvent->SetTitle(mytitle);
+  c[70]->SetLogy(0);
+  c[70]->SetLogz(0);
+  if (printPics) { sprintf(name,"%s/cosmicsAnalysis_numberofCrossedEcalCosmicsPerEvent_%i.%s",dirName,runNumber,fileType); c[70]->Print(name); }
+
+
+  c[71]->cd();
+  gStyle->SetOptStat(111110);
+  deltaRHist->Draw();
+  char mytitle[100]; sprintf(mytitle,"%s",deltaRHist->GetTitle()); 
+  strcat(mytitle,runChar); deltaRHist->SetTitle(mytitle);
+  c[71]->SetLogy(0);
+  c[71]->SetLogz(0);
+  if (printPics) { sprintf(name,"%s/cosmicsAnalysis_deltaRHist_%i.%s",dirName,runNumber,fileType); c[71]->Print(name); }
+
+
+  c[72]->cd();
+  gStyle->SetOptStat(111110);
+  deltaIEtaHist->Draw();
+  char mytitle[100]; sprintf(mytitle,"%s",deltaIEtaHist->GetTitle()); 
+  strcat(mytitle,runChar); deltaIEtaHist->SetTitle(mytitle);
+  c[72]->SetLogy(0);
+  c[72]->SetLogz(0);
+  if (printPics) { sprintf(name,"%s/cosmicsAnalysis_deltaIEtaHist_%i.%s",dirName,runNumber,fileType); c[72]->Print(name); }
+
+  c[73]->cd();
+  gStyle->SetOptStat(111110);
+  deltaIPhiHist->Draw();
+  char mytitle[100]; sprintf(mytitle,"%s",deltaIPhiHist->GetTitle()); 
+  strcat(mytitle,runChar); deltaIPhiHist->SetTitle(mytitle);
+  c[73]->SetLogy(0);
+  c[73]->SetLogz(0);
+  if (printPics) { sprintf(name,"%s/cosmicsAnalysis_deltaIPhiHist_%i.%s",dirName,runNumber,fileType); c[73]->Print(name); }
+
+  c[74]->cd();
+  gStyle->SetOptStat(111110);
+  ratioAssocClusters->Draw();
+  char mytitle[100]; sprintf(mytitle,"%s",ratioAssocClusters->GetTitle()); 
+  strcat(mytitle,runChar); ratioAssocClusters->SetTitle(mytitle);
+  c[74]->SetLogy(0);
+  c[74]->SetLogz(0);
+  if (printPics) { sprintf(name,"%s/cosmicsAnalysis_ratioAssocClusters_%i.%s",dirName,runNumber,fileType); c[74]->Print(name); }
+
+
+  c[75]->cd();
+  gStyle->SetOptStat(111110);
+  ratioAssocTracks->Draw();
+  char mytitle[100]; sprintf(mytitle,"%s",ratioAssocTracks->GetTitle()); 
+  strcat(mytitle,runChar); ratioAssocTracks->SetTitle(mytitle);
+  c[75]->SetLogy(0);
+  c[75]->SetLogz(0);
+  if (printPics) { sprintf(name,"%s/cosmicsAnalysis_ratioAssocTracks_%i.%s",dirName,runNumber,fileType); c[75]->Print(name); }
+
+
+  c[76]->cd();
+  gStyle->SetOptStat(111110);
+  deltaEtaDeltaPhi->Draw();
+  char mytitle[100]; sprintf(mytitle,"%s",deltaEtaDeltaPhi->GetTitle()); 
+  strcat(mytitle,runChar); deltaEtaDeltaPhi->SetTitle(mytitle);
+  c[76]->SetLogy(0);
+  c[76]->SetLogz(0);
+  if (printPics) { sprintf(name,"%s/cosmicsAnalysis_deltaEtaDeltaPhi_%i.%s",dirName,runNumber,fileType); c[76]->Print(name); }
+
+
+  c[77]->cd();
+  gStyle->SetOptStat(111110);
+  seedTrackPhi->Draw();
+  char mytitle[100]; sprintf(mytitle,"%s",seedTrackPhi->GetTitle()); 
+  strcat(mytitle,runChar); seedTrackPhi->SetTitle(mytitle);
+  c[77]->SetLogy(0);
+  c[77]->SetLogz(0);
+  if (printPics) { sprintf(name,"%s/cosmicsAnalysis_seedTrackPhi_%i.%s",dirName,runNumber,fileType); c[77]->Print(name); }
+
+
+  c[78]->cd();
+  gStyle->SetOptStat(111110);
+  seedTrackEta->Draw();
+  char mytitle[100]; sprintf(mytitle,"%s",seedTrackEta->GetTitle()); 
+  strcat(mytitle,runChar); seedTrackEta->SetTitle(mytitle);
+  c[78]->SetLogy(0);
+  c[78]->SetLogz(0);
+  if (printPics) { sprintf(name,"%s/cosmicsAnalysis_seedTrackEta_%i.%s",dirName,runNumber,fileType); c[78]->Print(name); }
+
+
+  c[79]->cd();
+  gStyle->SetOptStat(10);
+  trackAssoc_muonsEcal->Draw("colz");
+  char mytitle[100]; sprintf(mytitle,"%s",trackAssoc_muonsEcal->GetTitle()); 
+  strcat(mytitle,runChar); trackAssoc_muonsEcal->SetTitle(mytitle);
+  c[79]->SetLogy(0);
+  c[79]->SetLogz(0);
+  if (printPics) { sprintf(name,"%s/cosmicsAnalysis_trackAssoc_muonsEcal_%i.%s",dirName,runNumber,fileType); c[79]->Print(name); }
+
+  c[80]->cd();  
+  energyHigh_HighEnergyClusters->Draw();
+  char mytitle[100]; sprintf(mytitle,"%s",energyHigh_HighEnergyClusters->GetTitle()); 
+  strcat(mytitle,runChar); energyHigh_HighEnergyClusters->SetTitle(mytitle);
+  c[80]->SetLogy(1);
+  if (printPics) { sprintf(name,"%s/cosmicsAnalysis_energyHigh_HighEnergyClusters_%i.%s",dirName,runNumber,fileType); c[80]->Print(name); }
+
+  c[81]->cd();  
+  energy_SingleXtalClusters->Draw();
+  char mytitle[100]; sprintf(mytitle,"%s",energy_SingleXtalClusters->GetTitle()); 
+  strcat(mytitle,runChar); energy_SingleXtalClusters->SetTitle(mytitle);
+  c[81]->SetLogy(1);
+  if (printPics) { sprintf(name,"%s/cosmicsAnalysis_energy_SingleXtalClusters_%i.%s",dirName,runNumber,fileType); c[81]->Print(name); }
+
+  c[82]->cd();
+  gStyle->SetOptStat(10);
+  OccupancySingleXtal->Draw("colz");
+  char mytitle[100]; sprintf(mytitle,"%s",OccupancySingleXtal->GetTitle()); 
+  strcat(mytitle,runChar); OccupancySingleXtal->SetTitle(mytitle);
+  OccupancySingleXtal->SetMinimum(1);  
+  OccupancySingleXtal->GetXaxis()->SetNdivisions(-18);
+  OccupancySingleXtal->GetYaxis()->SetNdivisions(2);
+  c[82]->SetLogy(0);
+  c[82]->SetLogz(0);
+  c[82]->SetGridx(1);
+  c[82]->SetGridy(1);
+  if (printPics) { sprintf(name,"%s/cosmicsAnalysis_OccupancySingleXtal_%i.%s",dirName,runNumber,fileType); c[82]->Print(name); }
+
+  f->cd("EventTiming");
+
+  c[83]->cd();
+  FrequencyAllEventsInTime->Draw();
+  char mytitle[100]; sprintf(mytitle,"%s",FrequencyAllEventsInTime->GetTitle()); 
+  strcat(mytitle,runChar); FrequencyAllEventsInTime->SetTitle(mytitle);
+  c[83]->SetLogy(0);
+  c[83]->SetLogz(0);
+  if (printPics) { sprintf(name,"%s/cosmicsAnalysis_FrequencyAllEventsInTime_%i.%s",dirName,runNumber,fileType); c[83]->Print(name); }
+
+  c[84]->cd();
+  FrequencyAllEventsInTimeVsPhi->Draw();
+  char mytitle[100]; sprintf(mytitle,"%s",FrequencyAllEventsInTimeVsPhi->GetTitle()); 
+  strcat(mytitle,runChar); FrequencyAllEventsInTimeVsPhi->SetTitle(mytitle);
+  c[84]->SetLogy(0);
+  c[84]->SetLogz(0);
+  if (printPics) { sprintf(name,"%s/cosmicsAnalysis_FrequencyAllEventsInTimeVsPhi_%i.%s",dirName,runNumber,fileType); c[84]->Print(name); }
+
+  c[85]->cd();
+  FrequencyAllEventsInTimeVsTTPhi->Draw();
+  char mytitle[100]; sprintf(mytitle,"%s",FrequencyAllEventsInTimeVsTTPhi->GetTitle()); 
+  strcat(mytitle,runChar); FrequencyAllEventsInTimeVsTTPhi->SetTitle(mytitle);
+  c[85]->SetLogy(0);
+  c[85]->SetLogz(0);
+  if (printPics) { sprintf(name,"%s/cosmicsAnalysis_FrequencyAllEventsInTimeVsTTPhi_%i.%s",dirName,runNumber,fileType); c[85]->Print(name); }
+
+  c[86]->cd();
+  FrequencyAllEventsInTimeVsEta->Draw();
+  char mytitle[100]; sprintf(mytitle,"%s",FrequencyAllEventsInTimeVsEta->GetTitle()); 
+  strcat(mytitle,runChar); FrequencyAllEventsInTimeVsEta->SetTitle(mytitle);
+  c[86]->SetLogy(0);
+  c[86]->SetLogz(0);
+  if (printPics) { sprintf(name,"%s/cosmicsAnalysis_FrequencyAllEventsInTimeVsEta_%i.%s",dirName,runNumber,fileType); c[86]->Print(name); }
+
+  c[87]->cd();
+  FrequencyAllEventsInTimeVsTTEta->Draw();
+  char mytitle[100]; sprintf(mytitle,"%s",FrequencyAllEventsInTimeVsTTEta->GetTitle()); 
+  strcat(mytitle,runChar); FrequencyAllEventsInTimeVsTTEta->SetTitle(mytitle);
+  c[87]->SetLogy(0);
+  c[87]->SetLogz(0);
+  if (printPics) { sprintf(name,"%s/cosmicsAnalysis_FrequencyAllEventsInTimeVsTTEta_%i.%s",dirName,runNumber,fileType); c[87]->Print(name); }
+
+  f->cd();
+
+
+  // BX plots
+  c[88]->cd();
+  dccBXErrorByFED->GetXaxis()->SetTitle("FED Number");
+  dccBXErrorByFED->Draw();
+  char mytitle[100]; sprintf(mytitle,"%s",dccBXErrorByFED->GetTitle()); 
+  strcat(mytitle,runChar); dccBXErrorByFED->SetTitle(mytitle);
+  c[88]->SetLogy(0);
+  //c[88]->SetLogz(0);
+  if (printPics) { sprintf(name,"%s/cosmicsAnalysis_dccBXErrorByFED_%i.%s",dirName,runNumber,fileType); c[88]->Print(name); }
+
+  c[89]->cd();
+  dccOrbitErrorByFED->GetXaxis()->SetTitle("FED Number");
+  dccOrbitErrorByFED->Draw();
+  char mytitle[100]; sprintf(mytitle,"%s",dccOrbitErrorByFED->GetTitle()); 
+  strcat(mytitle,runChar); dccOrbitErrorByFED->SetTitle(mytitle);
+  c[89]->SetLogy(0);
+  //c[89]->SetLogz(0);
+  if (printPics) { sprintf(name,"%s/cosmicsAnalysis_dccOrbitErrorByFED_%i.%s",dirName,runNumber,fileType); c[89]->Print(name); }
+  
+  c[90]->cd();
+  dccRuntypeErrorByFED->GetXaxis()->SetTitle("FED Number");
+  dccRuntypeErrorByFED->Draw();
+  char mytitle[100]; sprintf(mytitle,"%s",dccRuntypeErrorByFED->GetTitle()); 
+  strcat(mytitle,runChar); dccRuntypeErrorByFED->SetTitle(mytitle);
+  c[90]->SetLogy(0);
+  //c[90]->SetLogz(0);
+  if (printPics) { sprintf(name,"%s/cosmicsAnalysis_dccRuntypeErrorByFED_%i.%s",dirName,runNumber,fileType); c[90]->Print(name); }
+
+  
+  c[91]->cd();
+  gStyle->SetOptStat(10);
+  dccEventVsBx->GetYaxis()->SetBinLabel(1,"COSMIC");
+  dccEventVsBx->GetYaxis()->SetBinLabel(2,"BEAMH4");
+  dccEventVsBx->GetYaxis()->SetBinLabel(3,"BEAMH2");
+  dccEventVsBx->GetYaxis()->SetBinLabel(4,"MTCC");
+  dccEventVsBx->GetYaxis()->SetBinLabel(5,"LASER_STD");
+  dccEventVsBx->GetYaxis()->SetBinLabel(6,"LASER_POWER_SCAN");
+  dccEventVsBx->GetYaxis()->SetBinLabel(7,"LASER_DELAY_SCAN");
+  dccEventVsBx->GetYaxis()->SetBinLabel(8,"TESTPULSE_SCAN_MEM");
+  dccEventVsBx->GetYaxis()->SetBinLabel(9,"TESTPULSE_MGPA");
+  dccEventVsBx->GetYaxis()->SetBinLabel(10,"PEDESTAL_STD");
+  dccEventVsBx->GetYaxis()->SetBinLabel(11,"PEDESTAL_OFFSET_SCAN");
+  dccEventVsBx->GetYaxis()->SetBinLabel(12,"PEDESTAL_25NS_SCAN");
+  dccEventVsBx->GetYaxis()->SetBinLabel(13,"LED_STD");
+  dccEventVsBx->GetYaxis()->SetBinLabel(14,"PHYSICS_GLOBAL");
+  dccEventVsBx->GetYaxis()->SetBinLabel(15,"COSMICS_GLOBAL");
+  dccEventVsBx->GetYaxis()->SetBinLabel(16,"HALO_GLOBAL");
+  dccEventVsBx->GetYaxis()->SetBinLabel(17,"LASER_GAP");
+  dccEventVsBx->GetYaxis()->SetBinLabel(18,"TESTPULSE_GAP");
+  dccEventVsBx->GetYaxis()->SetBinLabel(19,"PEDESTAL_GAP");
+  dccEventVsBx->GetYaxis()->SetBinLabel(20,"LED_GAP");
+  dccEventVsBx->GetYaxis()->SetBinLabel(21,"PHYSICS_LOCAL");
+  dccEventVsBx->GetYaxis()->SetBinLabel(22,"COSMICS_LOCAL");
+  dccEventVsBx->GetYaxis()->SetBinLabel(23,"HALO_LOCAL");
+  dccEventVsBx->GetYaxis()->SetBinLabel(24,"CALIB_LOCAL");
+  dccEventVsBx->Draw("colz");
+  char mytitle[100]; sprintf(mytitle,"%s",dccEventVsBx->GetTitle()); 
+  strcat(mytitle,runChar); dccEventVsBx->SetTitle(mytitle);
+  //c[91]->SetLogy(0);
+  c[91]->SetLogz(1);
+  c[91]->SetCanvasSize(1200,500);
+  if (printPics) { sprintf(name,"%s/cosmicsAnalysis_dccEventVsBx_%i.%s",dirName,runNumber,fileType); c[91]->Print(name); }
+
+  c[92]->cd();
+  gStyle->SetOptStat(10);
+  dccErrorVsBX->GetYaxis()->SetBinLabel(1,"BX");
+  dccErrorVsBX->GetYaxis()->SetBinLabel(2,"Orbit");
+  dccErrorVsBX->GetYaxis()->SetBinLabel(3,"Runtype");
+  dccErrorVsBX->Draw("colz");
+  char mytitle[100]; sprintf(mytitle,"%s",dccErrorVsBX->GetTitle()); 
+  strcat(mytitle,runChar); dccErrorVsBX->SetTitle(mytitle);
+  //c[92]->SetLogy(0);
+  c[92]->SetLogz(1);
+  c[92]->SetCanvasSize(1200,500);
+  if (printPics) { sprintf(name,"%s/cosmicsAnalysis_dccErrorVsBx_%i.%s",dirName,runNumber,fileType); c[92]->Print(name); }
+
+  c[93]->cd();
+  dccRuntype->GetXaxis()->SetBinLabel(1,"COSMIC");
+  dccRuntype->GetXaxis()->SetBinLabel(2,"BEAMH4");
+  dccRuntype->GetXaxis()->SetBinLabel(3,"BEAMH2");
+  dccRuntype->GetXaxis()->SetBinLabel(4,"MTCC");
+  dccRuntype->GetXaxis()->SetBinLabel(5,"LASER_STD");
+  dccRuntype->GetXaxis()->SetBinLabel(6,"LASER_POWER_SCAN");
+  dccRuntype->GetXaxis()->SetBinLabel(7,"LASER_DELAY_SCAN");
+  dccRuntype->GetXaxis()->SetBinLabel(8,"TESTPULSE_SCAN_MEM");
+  dccRuntype->GetXaxis()->SetBinLabel(9,"TESTPULSE_MGPA");
+  dccRuntype->GetXaxis()->SetBinLabel(10,"PEDESTAL_STD");
+  dccRuntype->GetXaxis()->SetBinLabel(11,"PEDESTAL_OFFSET_SCAN");
+  dccRuntype->GetXaxis()->SetBinLabel(12,"PEDESTAL_25NS_SCAN");
+  dccRuntype->GetXaxis()->SetBinLabel(13,"LED_STD");
+  dccRuntype->GetXaxis()->SetBinLabel(14,"PHYSICS_GLOBAL");
+  dccRuntype->GetXaxis()->SetBinLabel(15,"COSMICS_GLOBAL");
+  dccRuntype->GetXaxis()->SetBinLabel(16,"HALO_GLOBAL");
+  dccRuntype->GetXaxis()->SetBinLabel(17,"LASER_GAP");
+  dccRuntype->GetXaxis()->SetBinLabel(18,"TESTPULSE_GAP");
+  dccRuntype->GetXaxis()->SetBinLabel(19,"PEDESTAL_GAP");
+  dccRuntype->GetXaxis()->SetBinLabel(20,"LED_GAP");
+  dccRuntype->GetXaxis()->SetBinLabel(21,"PHYSICS_LOCAL");
+  dccRuntype->GetXaxis()->SetBinLabel(22,"COSMICS_LOCAL");
+  dccRuntype->GetXaxis()->SetBinLabel(23,"HALO_LOCAL");
+  dccRuntype->GetXaxis()->SetBinLabel(24,"CALIB_LOCAL");
+  dccRuntype->Draw();
+  char mytitle[100]; sprintf(mytitle,"%s",dccRuntype->GetTitle()); 
+  strcat(mytitle,runChar); dccRuntype->SetTitle(mytitle);
+  c[93]->SetLogy(1);
+  //c[93]->SetLogz(0);
+  if (printPics) { sprintf(name,"%s/cosmicsAnalysis_dccRuntype_%i.%s",dirName,runNumber,fileType); c[93]->Print(name); }
+
+  
+  c[20]->cd();
+  numberofCosmicsPerEvent_EB->Draw();
+  char mytitle[100]; sprintf(mytitle,"%s",numberofCosmicsPerEvent_EB->GetTitle()); 
+  strcat(mytitle,runChar); numberofCosmicsPerEvent_EB->SetTitle(mytitle);
+  c[20]->SetLogy(0);
+  c[20]->SetLogz(0);
+  if (printPics) { sprintf(name,"%s/cosmicsAnalysis_numberofCosmicsPerEventEB_%i.%s",dirName,runNumber,fileType); c[20]->Print(name); }
+
+  if (doWait) {
+    if (Wait()) return;
+  }
 
   // fancy timing plots
   //
@@ -1326,6 +1761,288 @@ void DrawCosmicPlots(Char_t* infile = 0, Int_t runNum=0, Bool_t printPics = kTRU
   if (printPics) { sprintf(name,"%s/cosmicsAnalysis_timeTTAllFEDs_CSC_%i.%s",dirName,runNumber,fileType); cTiming_TT_CSC->Print(name); }
 
 
+  // SM by SM timing histos
+
+  gStyle->SetOptStat(1110);
+
+  TCanvas* cTiming_EBM = new TCanvas("cTiming_EBM","timing SM EB-",1500,600);
+  cTiming_EBM->Divide(6,3);
+
+  cTiming_EBM->cd(1);  
+  TH1F* hT = (TH1F*)f->Get("EB-01/TimeFED610");  if ( hT ) { hT->Draw();}
+  cTiming_EBM->cd(2);  
+  TH1F* hT = (TH1F*)f->Get("EB-02/TimeFED611");  if ( hT ) { hT->Draw();}
+  cTiming_EBM->cd(3);  
+  TH1F* hT = (TH1F*)f->Get("EB-03/TimeFED612");  if ( hT ) { hT->Draw();}
+  cTiming_EBM->cd(4);  
+  TH1F* hT = (TH1F*)f->Get("EB-04/TimeFED613");  if ( hT ) { hT->Draw();}
+  cTiming_EBM->cd(5);  
+  TH1F* hT = (TH1F*)f->Get("EB-05/TimeFED614");  if ( hT ) { hT->Draw();}
+  cTiming_EBM->cd(6);  
+  TH1F* hT = (TH1F*)f->Get("EB-06/TimeFED615");  if ( hT ) { hT->Draw();}
+  cTiming_EBM->cd(7);  
+  TH1F* hT = (TH1F*)f->Get("EB-07/TimeFED616");  if ( hT ) { hT->Draw();}
+  cTiming_EBM->cd(8);  
+  TH1F* hT = (TH1F*)f->Get("EB-08/TimeFED617");  if ( hT ) { hT->Draw();}
+  cTiming_EBM->cd(9); 
+  TH1F* hT = (TH1F*)f->Get("EB-09/TimeFED618");  if ( hT ) { hT->Draw();}
+  cTiming_EBM->cd(10);  
+  TH1F* hT = (TH1F*)f->Get("EB-10/TimeFED619");  if ( hT ) { hT->Draw();}
+  cTiming_EBM->cd(11);  
+  TH1F* hT = (TH1F*)f->Get("EB-11/TimeFED620");  if ( hT ) { hT->Draw();}
+  cTiming_EBM->cd(12);  
+  TH1F* hT = (TH1F*)f->Get("EB-12/TimeFED621");  if ( hT ) { hT->Draw();}
+  cTiming_EBM->cd(13);  
+  TH1F* hT = (TH1F*)f->Get("EB-13/TimeFED622");  if ( hT ) { hT->Draw();}
+  cTiming_EBM->cd(14);  
+  TH1F* hT = (TH1F*)f->Get("EB-14/TimeFED623");  if ( hT ) { hT->Draw();}
+  cTiming_EBM->cd(15);  
+  TH1F* hT = (TH1F*)f->Get("EB-15/TimeFED624");  if ( hT ) { hT->Draw();}
+  cTiming_EBM->cd(16);  
+  TH1F* hT = (TH1F*)f->Get("EB-16/TimeFED625");  if ( hT ) { hT->Draw();}
+  cTiming_EBM->cd(17);  
+  TH1F* hT = (TH1F*)f->Get("EB-17/TimeFED626");  if ( hT ) { hT->Draw();}
+  cTiming_EBM->cd(18);  
+  TH1F* hT = (TH1F*)f->Get("EB-18/TimeFED627");  if ( hT ) { hT->Draw();}
+
+  
+  if (printPics) { sprintf(name,"%s/cosmicsAnalysis_timeEBMFEDbyFED_%i.%s",dirName,runNumber,fileType); cTiming_EBM->Print(name); }
+  cout << name << endl;
+
+
+  TCanvas* cTiming_EBP = new TCanvas("cTiming_EBP","timing SM EB+",1500,600);
+  cTiming_EBP->Divide(6,3);
+
+  cTiming_EBP->cd(1);  
+  TH1F* hT = (TH1F*)f->Get("EB+01/TimeFED628");  if ( hT ) { hT->Draw();}
+  cTiming_EBP->cd(2);  
+  TH1F* hT = (TH1F*)f->Get("EB+02/TimeFED629");  if ( hT ) { hT->Draw();}
+  cTiming_EBP->cd(3);  
+  TH1F* hT = (TH1F*)f->Get("EB+03/TimeFED630");  if ( hT ) { hT->Draw();}
+  cTiming_EBP->cd(4);  
+  TH1F* hT = (TH1F*)f->Get("EB+04/TimeFED631");  if ( hT ) { hT->Draw();}
+  cTiming_EBP->cd(5);  
+  TH1F* hT = (TH1F*)f->Get("EB+05/TimeFED632");  if ( hT ) { hT->Draw();}
+  cTiming_EBP->cd(6);  
+  TH1F* hT = (TH1F*)f->Get("EB+06/TimeFED633");  if ( hT ) { hT->Draw();}
+  cTiming_EBP->cd(7);  
+  TH1F* hT = (TH1F*)f->Get("EB+07/TimeFED634");  if ( hT ) { hT->Draw();}
+  cTiming_EBP->cd(8);  
+  TH1F* hT = (TH1F*)f->Get("EB+08/TimeFED635");  if ( hT ) { hT->Draw();}
+  cTiming_EBP->cd(9); 
+  TH1F* hT = (TH1F*)f->Get("EB+09/TimeFED636");  if ( hT ) { hT->Draw();}
+  cTiming_EBP->cd(10);  
+  TH1F* hT = (TH1F*)f->Get("EB+10/TimeFED637");  if ( hT ) { hT->Draw();}
+  cTiming_EBP->cd(11);  
+  TH1F* hT = (TH1F*)f->Get("EB+11/TimeFED638");  if ( hT ) { hT->Draw();}
+  cTiming_EBP->cd(12);  
+  TH1F* hT = (TH1F*)f->Get("EB+12/TimeFED639");  if ( hT ) { hT->Draw();}
+  cTiming_EBP->cd(13);  
+  TH1F* hT = (TH1F*)f->Get("EB+13/TimeFED640");  if ( hT ) { hT->Draw();}
+  cTiming_EBP->cd(14);  
+  TH1F* hT = (TH1F*)f->Get("EB+14/TimeFED641");  if ( hT ) { hT->Draw();}
+  cTiming_EBP->cd(15);  
+  TH1F* hT = (TH1F*)f->Get("EB+15/TimeFED642");  if ( hT ) { hT->Draw();}
+  cTiming_EBP->cd(16);  
+  TH1F* hT = (TH1F*)f->Get("EB+16/TimeFED643");  if ( hT ) { hT->Draw();}
+  cTiming_EBP->cd(17);  
+  TH1F* hT = (TH1F*)f->Get("EB+17/TimeFED644");  if ( hT ) { hT->Draw();}
+  cTiming_EBP->cd(18);  
+  TH1F* hT = (TH1F*)f->Get("EB+18/TimeFED645");  if ( hT ) { hT->Draw();}
+  
+  if (printPics) { sprintf(name,"%s/cosmicsAnalysis_timeEBPFEDbyFED_%i.%s",dirName,runNumber,fileType); cTiming_EBP->Print(name); }  
+
+
+int EBFEDID[36] = {
+627, //"EB-18"
+626, //"EB-17"
+625, //"EB-16"
+624, //"EB-15"
+623, //"EB-14"
+622, //"EB-13"
+621, //"EB-12"
+620, //"EB-11"
+619, //"EB-10"
+618, //"EB-09"
+617, //"EB-08"
+616, //"EB-07"
+615, //"EB-06"
+614, //"EB-05"
+613, //"EB-04"
+612, //"EB-03"
+611, //"EB-02"
+610, //"EB-01"
+628, //"EB+01"
+629, //"EB+02"
+630, //"EB+03"
+631, //"EB+04"
+632, //"EB+05"
+633, //"EB+06"
+634, //"EB+07"
+635, //"EB+08"
+636, //"EB+09"
+637, //"EB+10"
+638, //"EB+11"
+639, //"EB+12"
+640, //"EB+13"
+641, //"EB+14"
+642, //"EB+15"
+643, //"EB+16"
+644, //"EB+17"
+645, //"EB+18"
+};
+
+int EEFEDID[18] = {
+603, //"EE-09"
+602, //"EE-08"
+601, //"EE-07"
+609, //"EE-06"
+608, //"EE-05"
+607, //"EE-04"
+606, //"EE-03"
+605, //"EE-02"
+604, //"EE-01"
+649, //"EE+01"
+650, //"EE+02"
+651, //"EE+03"
+652, //"EE+04"
+653, //"EE+05"
+654, //"EE+06"
+646, //"EE+07"
+647, //"EE+08"
+648, //"EE+09"
+};
+
+  //Average Amplitudes & DCC comparisons
+  const int mnHistsEB=36;
+  TCanvas* dccCanvasEB[mnHistsEB];
+  char apname[100];
+  for (int i=0; i<mnHistsEB; i++) {
+    sprintf(apname,"can%i",i);
+    int x = (i%3)*600;     
+    int y = (i/3)*100;     
+    dccCanvasEB[i] =  new TCanvas(apname,apname,x,y,600,400);
+    cout << "Hists " << i << " : " << x << " , " << y << endl;
+  }
+  
+  int iEBFED = 0;
+  for (int iEB=-18; iEB <19; iEB++) {
+
+    if (iEB==0) iEB++;
+    char SMstr[100];    
+    if (iEB < 0) {
+      if (abs(iEB)<10) {
+	sprintf(SMstr,"-0%d",abs(iEB));
+      } else {
+	sprintf(SMstr,"%d",iEB);
+      }
+    } else {
+      if (abs(iEB)<10) {
+	sprintf(SMstr,"+0%d",iEB);
+      } else {
+	sprintf(SMstr,"+%d",iEB);
+      }
+    }
+
+    sprintf(SMstr,"EB%s",SMstr);
+
+    //    cout << SMstr << " " << iEBFED << " " << EBFEDID[iEBFED] << endl;
+    char fname[100];
+    sprintf(fname,"%s/DCCRuntypeVsBxFED_%i",SMstr,EBFEDID[iEBFED]);
+    TH1F *dccHist  =  (TH1F*) f->Get(fname) ; 
+    //    cout << fname << " " << dccHist << endl;
+
+    if (dccHist){
+      dccCanvasEB[iEBFED]->cd();
+
+      dccHist->GetYaxis()->SetBinLabel(1,"BX");
+      dccHist->GetYaxis()->SetBinLabel(2,"Orbit");
+      dccHist->GetYaxis()->SetBinLabel(3,"Runtype");
+      dccHist->Draw("colz");
+      char mytitle[100]; sprintf(mytitle,"%s",dccHist->GetTitle()); 
+      strcat(mytitle,runChar); dccErrorVsBX->SetTitle(mytitle);
+
+      dccCanvasEB[iEBFED]->SetLogz(1);
+      dccCanvasEB[iEBFED]->SetCanvasSize(1200,500);
+      
+      //      cout << dirName << " " << SMstr << " " << runNumber << " " << fileType << endl;
+      sprintf(name,"%s/cosmicsAnalysis_DCCRuntypeVsBxFED_%s_%i.%s", dirName,SMstr,runNumber,fileType);
+      if (printPics) { sprintf(name,"%s/cosmicsAnalysis_DCCRuntypeVsBxFED_%s_%i.%s", dirName,SMstr,runNumber,fileType); dccCanvasEB[iEBFED]->Print(name); }
+    }     
+    //    cout << fname << " " <<  name << endl;
+
+    iEBFED++;
+
+  }
+
+
+  const int mnHistsEE=18;
+  TCanvas* dccCanvasEE[mnHistsEE];
+  char apname[100];
+  for (int i=0; i<mnHistsEE; i++) {
+    sprintf(apname,"can%i",i);
+    int x = (i%3)*600;     
+    int y = (i/3)*100;     
+    dccCanvasEE[i] =  new TCanvas(apname,apname,x,y,600,400);
+    cout << "Hists " << i << " : " << x << " , " << y << endl;
+  }
+
+  int iEEFED = 0;
+  for (int iEE=-9; iEE <10; iEE++) {
+
+    if (iEE==0) iEE++;
+    char SMstr[100];    
+    if (iEE < 0) {
+      if (abs(iEE)<10) {
+	sprintf(SMstr,"-0%d",abs(iEE));
+      } else {
+	sprintf(SMstr,"%d",iEE);
+      }
+    } else {
+      if (abs(iEE)<10) {
+	sprintf(SMstr,"+0%d",iEE);
+      } else {
+	sprintf(SMstr,"+%d",iEE);
+      }
+    }
+
+    sprintf(SMstr,"EE%s",SMstr);
+    cout << SMstr << " " << iEEFED << " " << EEFEDID[iEEFED] << endl;
+
+    char fname[100];
+    sprintf(fname,"%s/DCCRuntypeVsBxFED_%i",SMstr,EEFEDID[iEEFED]);
+    TH1F *dccHist  =  (TH1F*) f->Get(fname) ; 
+    cout << fname << " " << dccHist << endl;
+
+    if (dccHist){
+      cout << "found histo in EE" << endl;
+      dccCanvasEE[iEEFED]->cd();
+
+      dccHist->GetYaxis()->SetBinLabel(1,"BX");
+      dccHist->GetYaxis()->SetBinLabel(2,"Orbit");
+      dccHist->GetYaxis()->SetBinLabel(3,"Runtype");
+      dccHist->Draw("colz");
+      char mytitle[100]; sprintf(mytitle,"%s",dccHist->GetTitle()); 
+      strcat(mytitle,runChar); dccErrorVsBX->SetTitle(mytitle);
+
+      dccCanvasEE[iEEFED]->SetLogz(1);
+      dccCanvasEE[iEEFED]->SetCanvasSize(1200,500);
+      
+      cout << dirName << " " << SMstr << " " << runNumber << " " << fileType << endl;
+      sprintf(name,"%s/cosmicsAnalysis_DCCRuntypeVsBxFED_%s_%i.%s", dirName,SMstr,runNumber,fileType);
+      if (printPics) { sprintf(name,"%s/cosmicsAnalysis_DCCRuntypeVsBxFED_%s_%i.%s", dirName,SMstr,runNumber,fileType); dccCanvasEE[iEEFED]->Print(name); }
+    }     
+    //    cout << fname << " " <<  name << endl;
+
+    iEEFED++;
+
+  }
+
+
+
   return;
 
 }
+
+
+
