@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jul  4 10:23:00 EDT 2008
-// $Id: FW3DEveJet.cc,v 1.1 2008/12/04 15:23:35 dmytro Exp $
+// $Id: FW3DEveJet.cc,v 1.2 2008/12/09 05:47:20 dmytro Exp $
 //
 
 // system include files
@@ -66,8 +66,8 @@ m_color(0)
 	haveData = false;
 	break;
      }
-   double eta_size = 0.5;
-   double phi_size = 0.5;
+   double eta_size = 0.2;
+   double phi_size = 0.2;
    if ( haveData ){
       eta_size = sqrt(iData.etaetaMoment());
       phi_size = sqrt(iData.phiphiMoment());

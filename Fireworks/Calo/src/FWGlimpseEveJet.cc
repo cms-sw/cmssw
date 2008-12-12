@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jul  4 10:23:00 EDT 2008
-// $Id: FWGlimpseEveJet.cc,v 1.3 2008/09/26 07:40:12 dmytro Exp $
+// $Id: FWGlimpseEveJet.cc,v 1.4 2008/11/06 22:05:21 amraktad Exp $
 //
 
 // system include files
@@ -88,8 +88,8 @@ FWGlimpseEveJet::setScale(float iScale)
 	haveData = false;
 	break;
      }
-   double eta_size = 0.5;
-   double phi_size = 0.5;
+   double eta_size = 0.2;
+   double phi_size = 0.2;
    if ( haveData ){
       eta_size = sqrt(m_jet->etaetaMoment());
       phi_size = sqrt(m_jet->phiphiMoment());
