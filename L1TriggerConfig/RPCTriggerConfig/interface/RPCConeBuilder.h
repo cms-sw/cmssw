@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Mon Feb 25 12:06:44 CET 2008
-// $Id$
+// $Id: RPCConeBuilder.h,v 1.1 2008/03/03 14:30:09 fruboes Exp $
 //
 #include <memory>
 #include "boost/shared_ptr.hpp"
@@ -44,13 +44,13 @@ class RPCConeBuilder : public edm::ESProducer {
 
       ReturnType produce(const L1RPCConeBuilderRcd&);
       //ReturnType produce(const L1RPCConfigRcd&);
-
       void geometryCallback( const MuonGeometryRecord &);
       
    private:
      
       void buildCones(const edm::ESHandle<RPCGeometry> & rpcGeom);
       void buildConnections();
+      
       std::pair<int, int> areConnected(RPCStripsRing::TIdToRindMap::iterator ref,
                         RPCStripsRing::TIdToRindMap::iterator other); /// Returns logplane number for this connection, if not connected returns -1. In second lpSize
       

@@ -16,7 +16,7 @@
 //
 // Original Author:  Tomasz Fruboes
 //         Created:  Tue Feb 26 15:13:17 CET 2008
-// $Id$
+// $Id: RPCStripsRing.h,v 1.1 2008/03/03 14:30:10 fruboes Exp $
 //
 
 #include <map>
@@ -81,7 +81,9 @@ class RPCStripsRing : public std::map<float, TStrip >
       bool isReferenceRing(){return m_isReferenceRing;};
       int getTowerForRefRing();
       
+      void compressConnections();
       L1RPCConeBuilder::TConMap & getConnectionsMap() { return m_connectionsMap;};
+      L1RPCConeBuilder::TCompressedConMap & getCompressedConnectionsMap() { return m_compressedConnectionMap;};
       
   private:
     
@@ -95,6 +97,7 @@ class RPCStripsRing : public std::map<float, TStrip >
       bool m_didFiltering;    
       
       static L1RPCConeBuilder::TConMap m_connectionsMap;  
+      static L1RPCConeBuilder::TCompressedConMap m_compressedConnectionMap;
 };
 
 

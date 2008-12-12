@@ -13,7 +13,7 @@
 //
 // Original Author:  Tomasz Maciej Frueboes
 //         Created:  Fri Feb 22 13:57:06 CET 2008
-// $Id: RPCConeBuilder.cc,v 1.1 2008/03/03 14:30:11 fruboes Exp $
+// $Id: RPCConeBuilder.cc,v 1.2 2008/03/14 13:44:12 fruboes Exp $
 //
 //
 
@@ -62,12 +62,23 @@ RPCConeBuilder::RPCConeBuilder(const edm::ParameterSet& iConfig) :
       
    }
    
+   //  hw planes numbered from 0 to 5
+   // rolls from 0 to 17 (etaPartition)
+   //
+   //  rollConnLP_[roll]_[hwPlane-1]
+   //  rollConnLP_5_3 = cms.vint32(6, 0, 0),
+   //     ----- roll 5, hwPlane 4 (3+1) is logplane 6 (OK)
+   //
+   //  rollConnT_[roll]_[hwPlane-1]
+   //  rollConnT_5_3 = cms.vint32(4, -1, -1),
+   //     ----- roll 5, hwPlane 4 (3+1) contirubtes to tower 4 (OK)
    for (int roll = m_rollBeg; roll <= m_rollEnd; ++roll){
       L1RPCConeBuilder::THWplaneToTower newHwPlToTower;
       L1RPCConeBuilder::THWplaneToLP newHWplaneToLP;
       for (int hwpl = m_hwPlaneBeg; hwpl <= m_hwPlaneEnd; ++hwpl){
          std::stringstream name;
          name << "rollConnLP_" << roll << "_" << hwpl;
+         
          L1RPCConeBuilder::TTowerList newListLP = 
                iConfig.getParameter<std::vector<int> >(name.str().c_str());
          newHWplaneToLP.push_back(newListLP);
@@ -75,6 +86,7 @@ RPCConeBuilder::RPCConeBuilder(const edm::ParameterSet& iConfig) :
          
          std::stringstream name1;
          name1 << "rollConnT_" << roll << "_" << hwpl;
+         
          L1RPCConeBuilder::TLPList newListT = 
                iConfig.getParameter<std::vector<int> >(name1.str().c_str());
          newHwPlToTower.push_back(newListT);
@@ -114,12 +126,14 @@ RPCConeBuilder::produce(const L1RPCConeBuilderRcd& iRecord)
    iRecord.getRecord<MuonGeometryRecord>().get(rpcGeom);   
    
    buildCones(rpcGeom);
-   
+
+   // Compress all connections
+   m_ringsMap.begin()->second.compressConnections();
    // getConnectionsMap() returns reference to static class member, so we are getting all connections
-   
-   //std::cout << " conMap has: " << m_ringsMap.begin()->second.getConnectionsMap().size() << " rings" << std::endl;
+   //
+   // It would be better to work directly on pL1RPCConeBuilder (private) members
    pL1RPCConeBuilder->setConeConnectionMap(m_ringsMap.begin()->second.getConnectionsMap());
-      
+   pL1RPCConeBuilder->setCompressedConeConnectionMap(m_ringsMap.begin()->second.getCompressedConnectionsMap());
    m_ringsMap.clear(); // free mem
       
    return pL1RPCConeBuilder;

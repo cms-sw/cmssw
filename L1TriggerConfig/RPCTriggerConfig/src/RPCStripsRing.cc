@@ -8,7 +8,7 @@
 //
 // Original Author:  Tomasz Fruboes
 //         Created:  Tue Feb 26 15:13:10 CET 2008
-// $Id: RPCStripsRing.cc,v 1.1 2008/03/03 14:30:14 fruboes Exp $
+// $Id: RPCStripsRing.cc,v 1.2 2008/03/14 13:44:12 fruboes Exp $
 //
 
 // system include files
@@ -19,8 +19,10 @@
 #include "Geometry/RPCGeometry/interface/RPCGeomServ.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 L1RPCConeBuilder::TConMap RPCStripsRing::m_connectionsMap = L1RPCConeBuilder::TConMap();
+L1RPCConeBuilder::TCompressedConMap RPCStripsRing::m_compressedConnectionMap = L1RPCConeBuilder::TCompressedConMap();
 
 RPCStripsRing::RPCStripsRing() :
     m_hwPlane(-1),
@@ -119,7 +121,8 @@ int RPCStripsRing::getRingId(const RPCRoll * roll) {
 }
 
 
-
+//  hwPlane is  station number for endcaps
+//  for barrell numbering goes 1 5 2 6 3 4 (first number means plane closest to the beam)
 int RPCStripsRing::calculateHwPlane(const RPCRoll * roll){
 
   int hwPlane = -1;  
@@ -173,13 +176,9 @@ void RPCStripsRing::filterOverlapingChambers(){
   typedef std::map<uint32_t,int> TDetId2StripNo;
   TDetId2StripNo det2stripNo;
   
-  
-  //std::cout << "--------------------- " << getRingId() << std::endl;
-  
-  
   // Note: we begin in middle of first chamber (ch1), we have to handle that
-  int ch1BegStrips = 0;
-  int ch1EndStrips = 0;
+  int ch1BegStrips = 0; // no of strips on the begining of the map (first=last chamber of map)
+  int ch1EndStrips = 0; // no of strips on the end of the map (first=last chamber of map)
   
   // How many strips has each chamber?
   RPCStripsRing::iterator it = this->begin();
@@ -187,10 +186,9 @@ void RPCStripsRing::filterOverlapingChambers(){
   for (; it!=this->end(); ++it){
     
     if ( det2stripNo.find(it->second.m_detRawId) == det2stripNo.end()){
-      det2stripNo[it->second.m_detRawId]=1;
-      //std::cout << it->second.m_detRawId << std::endl;
+      det2stripNo[it->second.m_detRawId]=1;      // Add new chamber to a map, set strip cnt to 1
     } else {
-      ++det2stripNo[it->second.m_detRawId];
+      ++det2stripNo[it->second.m_detRawId];     // Increase strip count of a chamber
     }
     
     if (det2stripNo.size() == 1 && ch1Det == it->second.m_detRawId) {
@@ -333,15 +331,19 @@ void RPCStripsRing::createRefConnections(TOtherConnStructVec & otherRings, int l
    while ( (++starEndIt)->first < offset ); 
          
    RPCStripsRing::iterator it = starEndIt;
-   --starEndIt;
+   //--starEndIt;
    
    float angle = 0;
    int curPACno = -1;
    int curStripNo = 0;
    int curBegStripNo=0;
    
-   while(it!=starEndIt) { // iterate over strips
+  bool firstIter = true;
+
+   while(it!=starEndIt || firstIter ) { // iterate over strips
  
+
+     firstIter = false;
       // New PAC  
      if(curStripNo%logplaneSize==0){ 
          ++curPACno; 
@@ -486,6 +488,159 @@ int RPCStripsRing::getTowerForRefRing(){
   return ret;
 
 }
+/*
+      struct TStripCon{
+        signed char m_tower;
+        unsigned char m_PAC;
+        unsigned char m_logplane;
+        unsigned char m_logstrip;
+      };
+      typedef std::vector<TStripCon> TStripConVec;
+      typedef std::map<unsigned char, TStripConVec> TStrip2ConVec;
+      typedef std::map<uint32_t, TStrip2ConVec> TConMap;
+
+      // compressed connections
+      struct TCompressedCon{
+        signed char m_tower;
+        unsigned char m_PAC;
+        signed char m_offset;
+        signed char m_mul;
+      };
+      typedef std::vector<TCompressedCon> TCompressedConVec;
+      typedef std::map<uint32_t, TCompressedConVec> TCompressedConMap;
+
+*/
 
 
+void RPCStripsRing::compressConnections(){
+
+  L1RPCConeBuilder::TConMap::iterator itChamber = m_connectionsMap.begin();
+  L1RPCConeBuilder::TConMap uncompressedConsLeft;
+  
+  int compressedCons = 0, uncompressedConsBefore = 0, uncompressedConsAfter = 0;
+  
+//   int offsetMin =0, offsetMax =0;
+  
+  for( ;itChamber!=m_connectionsMap.end(); ++itChamber ){
+    
+    uint32_t detId = itChamber->first;
+    
+    for (L1RPCConeBuilder::TStrip2ConVec::iterator itStrip = itChamber->second.begin();
+         itStrip!=itChamber->second.end();
+         ++itStrip)
+    {
+      
+      // Iterate over strip Connections
+      for(L1RPCConeBuilder::TStripConVec::iterator itConn = itStrip->second.begin();
+          itConn!=itStrip->second.end(); 
+          ++itConn)
+      {
+        // Check if this connection isn't allready present in the compressed map 
+        ++uncompressedConsBefore;
+        bool alreadyDone=false; 
+        if (m_compressedConnectionMap.find(detId)!=m_compressedConnectionMap.end()){
+          
+          // iterate over the vec, check element by element
+          for(L1RPCConeBuilder::TCompressedConVec::iterator itCompConn=m_compressedConnectionMap[detId].begin();
+              itCompConn!=m_compressedConnectionMap[detId].end();
+              ++itCompConn)
+          {
+            if (itCompConn->m_tower ==  itConn->m_tower
+                && itCompConn->m_PAC ==  itConn->m_PAC
+                && itCompConn->m_logplane ==  itConn->m_logplane) // connection allready compressed 
+            {
+              alreadyDone=true;
+              
+              int logStrip = itCompConn->m_mul*itStrip->first+itCompConn->m_offset;
+              if (logStrip != itConn->m_logstrip){
+                //copy the problematic connection to the "safe" map
+                uncompressedConsLeft[detId][itStrip->first].push_back(*itConn);
+                ++uncompressedConsAfter;
+                edm::LogWarning("RPCTriggerConfig") << " Compression failed for det " << detId 
+                  << " strip " << (int)itStrip->first
+                  << " . Got " << (int)logStrip
+                  << " expected " << (int)itConn->m_logstrip
+                  << std::endl;
+              } else {
+                itCompConn->addStrip(itStrip->first);
+              }
+              
+            }
+          } // compressed connection iteration end
+        }  
+        //if (detId==637569977) std::cout << " Buld cons for strip " << (int)itStrip->first << std::endl;
+        
+        
+        if (!alreadyDone){
+            // find another strip contributing to the same PAC,tower,logplane
+          L1RPCConeBuilder::TStrip2ConVec::iterator itStripOther = itStrip;  
+          ++itStripOther;
+          bool otherStripFound = false;
+          signed char mul = 1;
+          for (;itStripOther!=itChamber->second.end() && !otherStripFound;
+               ++itStripOther)
+          {
+            for(L1RPCConeBuilder::TStripConVec::iterator itConnOther = itStripOther->second.begin();
+                itConnOther!=itStripOther->second.end(); 
+                ++itConnOther)
+            {
+              if (itConnOther->m_tower ==  itConn->m_tower
+                  && itConnOther->m_PAC ==  itConn->m_PAC
+                  && itConnOther->m_logplane ==  itConn->m_logplane) // connection to same PAC,logplane
+              {
+                otherStripFound = true;
+                if ( (itStripOther->first-itStrip->first)*(itConnOther->m_logstrip-itConn->m_logstrip) < 0 ){
+                  mul = -1;                
+                } 
+                break;
+              }
+            } // otherConnections iter ends
+          } // otherStrip iter ends
+          
+          /*
+          if (itConn->m_tower==3 && itConn->m_PAC==73 && itConn->m_logplane==4 && detId==637569977){
+            std::cout << " Buld cons for strip " << (int)itStrip->first;
+            if (otherStripFound)
+              std::cout << " other strip " << itStrip->first;
+            else 
+              std::cout << " no other strip ";
+            
+            std::cout << std::endl;
+            
+        }*/
+          
+          L1RPCConeBuilder::TCompressedCon nCompConn;
+          nCompConn.m_tower = itConn->m_tower;
+          nCompConn.m_PAC   = itConn->m_PAC;
+          nCompConn.m_logplane   = itConn->m_logplane;
+          nCompConn.m_mul  = mul;
+          nCompConn.m_offset  = itConn->m_logstrip - mul*(signed short)(itStrip->first);
+          nCompConn.addStrip(itStrip->first);
+          
+          if (otherStripFound){
+            
+          }  else { 
+            
+            //  uncompressedConsLeft[detId][itStrip->first].push_back(*itConn);
+            //  ++uncompressedConsAfter;
+          }
+          m_compressedConnectionMap[detId].push_back(nCompConn);
+          ++compressedCons;
+
+
+        } // if(!allreadyDone)
+      }// iterate on connections
+    }// iterate on strips
+  } // iterate on chambers
+   
+  // 159 -87
+  //std::cout << offsetMax << " TT " << offsetMin << std::endl;
+  
+  edm::LogInfo("RPCTriggerConfig") 
+      << " Compressed: " << compressedCons<< " " << sizeof(L1RPCConeBuilder::TCompressedCon)
+      << " Uncompressed before: " << uncompressedConsBefore<< " " << sizeof(L1RPCConeBuilder::TStripCon)
+      << " Uncompressed after: " << uncompressedConsAfter << " " << sizeof(L1RPCConeBuilder::TStripCon);
+  m_connectionsMap = uncompressedConsLeft;
+
+}
 
