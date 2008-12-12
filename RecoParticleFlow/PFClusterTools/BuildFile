@@ -5,7 +5,6 @@
 <use name=root>
 <use name=rootcore>
 <use name=rootrflx>
-<use name=rootinteractive>
 <use name=PhysicsTools/UtilAlgos>
 <use name=DataFormats/ParticleFlowCandidate>
 <export>
