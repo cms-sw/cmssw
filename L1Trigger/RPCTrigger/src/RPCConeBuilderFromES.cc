@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon Mar  3 13:34:20 CET 2008
-// $Id: RPCConeBuilderFromES.cc,v 1.3 2008/04/10 13:38:08 fruboes Exp $
+// $Id: RPCConeBuilderFromES.cc,v 1.4 2008/08/29 08:28:12 fruboes Exp $
 //
 
 // system include files
@@ -46,6 +46,7 @@ L1RpcLogConesVec RPCConeBuilderFromES::getConesFromES(edm::Handle<RPCDigiCollect
                                                       edm::ESHandle<L1RPCHwConfig> hwConfig, int bx)
 {
   std::vector<RPCLogHit> logHits;
+  std::vector<RPCLogHit> logHitsFromUncomp;
   
   // Build cones from digis
   // first build loghits
@@ -56,45 +57,118 @@ L1RpcLogConesVec RPCConeBuilderFromES::getConesFromES(edm::Handle<RPCDigiCollect
   {
     const RPCDetId& id = (*detUnitIt).first;
 
-    int rawId = id.rawId();
+    uint32_t rawId = id.rawId();
 
     const RPCDigiCollection::Range& range = (*detUnitIt).second;
 
+    std::pair<L1RPCConeBuilder::TCompressedConVec::const_iterator, L1RPCConeBuilder::TCompressedConVec::const_iterator> 
+          compressedConnPair = coneBuilder->getCompConVec(rawId);
+
+    // iterate over strips
     for (RPCDigiCollection::const_iterator digiIt = range.first;
          digiIt!=range.second;
          ++digiIt)
     {
- 
       
-      //std::cout << "bx = " << digiIt->bx() << " " << hwConfig->getFirstBX() << " "  << hwConfig->getLastBX() <<std::endl;
       if ( digiIt->bx() < hwConfig->getFirstBX() + bx || digiIt->bx() > hwConfig->getLastBX() +bx  ){
-      //  std::cout << "   -->skip" << std::endl;
-        //std::cout << "Skip" << std::endl;
         continue;
       }
-      //std::cout << "   -->OK" << std::endl;
       
-
+      //std::cout << digiIt->bx() << " D " << rawId << " " << id << " S " <<  digiIt->strip() << std::endl;
+      // for uncompressed connections
       std::pair<L1RPCConeBuilder::TStripConVec::const_iterator, L1RPCConeBuilder::TStripConVec::const_iterator> 
           itPair = coneBuilder->getConVec(rawId,digiIt->strip());
-      
-      L1RPCConeBuilder::TStripConVec::const_iterator it = itPair.first;
-      for (; it!=itPair.second;++it){
 
+      L1RPCConeBuilder::TStripConVec::const_iterator it = itPair.first;
+      // Iterate over uncompressed connections, convert digis to logHits 
+      for (; it!=itPair.second;++it){
+         //std::cout << " Not empty!" << std::endl;
          if ( hwConfig->isActive(it->m_tower, it->m_PAC)  )
-             logHits.push_back( RPCLogHit(it->m_tower, it->m_PAC, it->m_logplane, it->m_logstrip) );
+             logHitsFromUncomp.push_back( RPCLogHit(it->m_tower, it->m_PAC, it->m_logplane, it->m_logstrip) );
       }
+
+      /*
+      bool printOut = false;
+      if (digiIt->strip() == 62 || digiIt->strip() == 63 ){
+        std::cout << "Strip " << digiIt->strip() << std::endl;
+        printOut = true;
+      }
+      */
       
-    }
+      L1RPCConeBuilder::TCompressedConVec::const_iterator itComp = compressedConnPair.first;
+      for (; itComp!=compressedConnPair.second; ++itComp){
+         if ( hwConfig->isActive(itComp->m_tower, itComp->m_PAC)){
+           int logstrip = itComp->getLogStrip(digiIt->strip(),coneBuilder->getLPSizes());
+           if (logstrip!=-1){
+               logHits.push_back( RPCLogHit(itComp->m_tower, itComp->m_PAC, itComp->m_logplane, logstrip ) );
+           }
+           /*
+           if (printOut){
+             std::cout << "T " << (int)itComp->m_tower << " P " 
+                 << (int)itComp->m_PAC << " LP " 
+                 << (int)itComp->m_logplane << " LS " 
+                 << (int)logstrip << std::endl;
+         }*/
+           
+         }
+      }
+
+    } // strip iteration ends
     
     
   }
   
+
+  // check if we dont have any preferable uncompressed loghits
+  std::vector<RPCLogHit>::iterator itLHitUncomp = logHitsFromUncomp.begin();
+  std::vector<RPCLogHit>::iterator itLHitComp;
+
+  // overwrite uncompressed with those coming from compressed
+  for(;itLHitUncomp != logHitsFromUncomp.end(); ++itLHitUncomp) {
+    for (itLHitComp = logHits.begin();  itLHitComp != logHits.end(); ++itLHitComp){
+
+      if ( itLHitComp->getTower() == itLHitUncomp->getTower() 
+           && itLHitComp->getLogSector() == itLHitUncomp->getLogSector()   
+           && itLHitComp->getLogSegment() == itLHitUncomp->getLogSegment()   
+           && itLHitComp->getlogPlaneNumber() == itLHitUncomp->getlogPlaneNumber()  )
+      {
+//         std::cout<< "Overwrite " << std::endl;
+        //std::cout.flush();
+          *itLHitUncomp = *itLHitComp;
+      } 
+
+    }
+  }
+
+  // copy missing from compressed to uncompressed  
+  for(;itLHitUncomp != logHitsFromUncomp.end(); ++itLHitUncomp) {
+    bool present = false;
+    for (unsigned int i=0;  i < logHits.size(); ++i)  
+    {
+
+      if ( logHits[i].getTower() == itLHitUncomp->getTower()
+           && logHits[i].getLogSector() == itLHitUncomp->getLogSector()
+           && logHits[i].getLogSegment() == itLHitUncomp->getLogSegment()
+           && logHits[i].getlogPlaneNumber() == itLHitUncomp->getlogPlaneNumber()  )
+      {
+         present = true;
+      }
+    }
+    if (!present)
+    {
+//       std::cout<< "Copy " << std::endl;
+      //std::cout.flush();
+
+      logHits.push_back(*itLHitUncomp);
+    }
+  }
+
   // build cones
   L1RpcLogConesVec ActiveCones;
 
   std::vector<RPCLogHit>::iterator p_lhit;
-  for (p_lhit = logHits.begin(); p_lhit != logHits.end(); p_lhit++){
+  for (p_lhit = logHits.begin(); p_lhit != logHits.end(); ++p_lhit){
+
     bool hitTaken = false;
     L1RpcLogConesVec::iterator p_cone;
     for (p_cone = ActiveCones.begin(); p_cone != ActiveCones.end(); p_cone++){
@@ -110,6 +184,27 @@ L1RpcLogConesVec RPCConeBuilderFromES::getConesFromES(edm::Handle<RPCDigiCollect
     }
   }// for loghits
 
+  /*
+  for (int tower = -16; tower<17;++tower)
+  {
+    for (int sector = 0; sector<12;++sector)
+    {
+      for (int segment = 0; segment<12;++segment)
+      {
+        for (L1RpcLogConesVec::iterator it =  ActiveCones.begin(); it!=ActiveCones.end(); ++it)
+        {
+          if (it->getTower()==tower 
+              && it->getLogSector()==sector
+              && it->getLogSegment()==segment)
+          {
+           std::cout << it->toString() << std::endl;
+          }
+        }
+      }
+    }
+  }
+  */
+  
   return ActiveCones;
   
 }
