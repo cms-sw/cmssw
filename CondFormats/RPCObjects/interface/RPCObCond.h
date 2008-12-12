@@ -2,20 +2,56 @@
 #define RPCObCond_h
 #include <vector>
 
-class RPCObCond {
+class RPCObImon {
     public:
-      struct Item {
+      struct I_Item {
         int dpid;
         float value;
         int day;
         int time;
       };
-    RPCObCond(){}
-    virtual ~RPCObCond(){}
-    std::vector<Item> ObImon_rpc;
-    std::vector<Item> ObVmon_rpc;
-    std::vector<Item> ObStatus_rpc;
-    std::vector<Item> ObTemp_rpc;
+    RPCObImon(){}
+    virtual ~RPCObImon(){}
+    std::vector<I_Item> ObImon_rpc;
+   };
+
+class RPCObVmon {
+    public:
+      struct V_Item {
+        int dpid;
+        float value;
+        int day;
+        int time;
+      };
+    RPCObVmon(){}
+    virtual ~RPCObVmon(){}
+    std::vector<V_Item> ObVmon_rpc;
+   };
+
+class RPCObStatus {
+    public:
+      struct S_Item {
+        int dpid;
+        float value;
+        int day;
+        int time;
+      };
+    RPCObStatus(){}
+    virtual ~RPCObStatus(){}
+    std::vector<S_Item> ObStatus_rpc;
+   };
+
+class RPCObTemp {
+    public:
+      struct T_Item {
+        int dpid;
+        float value;
+        int day;
+        int time;
+      };
+    RPCObTemp(){}
+    virtual ~RPCObTemp(){}
+    std::vector<T_Item> ObTemp_rpc;
    };
 
 #endif
