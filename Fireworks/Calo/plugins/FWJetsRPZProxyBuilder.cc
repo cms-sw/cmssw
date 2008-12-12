@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Id: FWRPZProxyBuilder.template,v 1.1 2008/12/10 13:58:53 dmytro Exp $
+// $Id: FWJetsRPZProxyBuilder.cc,v 1.1 2008/12/12 06:06:02 dmytro Exp $
 //
 
 // include files
@@ -22,7 +22,7 @@
 
 // user include files
 #include "Fireworks/Core/interface/FWEventItem.h"
-#include "Fireworks/Calo/interface/ECalCaloTowerProxyRhoPhiZ2DBuilder.h"
+#include "Fireworks/Calo/interface/thetaBins.h"
 #include "Fireworks/Core/interface/BuilderUtils.h"
 
 #include "DataFormats/JetReco/interface/CaloJet.h"
@@ -111,7 +111,7 @@ FWJetsRPZProxyBuilder::buildJetRhoZ(const FWEventItem* iItem,
    //      eta bins are accounted there.
    static const int  nBins = sizeof(fw3dlego::xbins)/sizeof(*fw3dlego::xbins);
    assert (  nBins == 82+1 );
-   static const std::vector<std::pair<double,double> > thetaBins = ECalCaloTowerProxyRhoPhiZ2DBuilder::getThetaBins();
+   static const std::vector<std::pair<double,double> > thetaBins = fireworks::thetaBins();
 
    const double z_ecal = 306; // ECAL endcap inner surface
    const double r_ecal = 126;
