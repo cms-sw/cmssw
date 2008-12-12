@@ -13,7 +13,7 @@
 //
 // Original Author:  Seth COOPER
 //         Created:  Th Nov 22 5:46:22 CEST 2007
-// $Id: EcalCosmicsHists.h,v 1.12 2008/06/02 15:56:56 torimoto Exp $
+// $Id: EcalCosmicsHists.h,v 1.16 2008/10/17 13:23:03 scooper Exp $
 //
 //
 
@@ -61,6 +61,7 @@
 #include "TrackingTools/TrackAssociator/interface/TrackAssociatorParameters.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
+#include "DataFormats/EcalDetId/interface/EEDetId.h"
 // ***
 
 //
@@ -79,22 +80,32 @@ class EcalCosmicsHists : public edm::EDAnalyzer {
       virtual void endJob() ;
       std::string intToString(int num);
       void initHists(int);
+      std::vector<bool> determineTriggers(const edm::Event&, const edm::EventSetup& eventSetup);
 
   // ----------member data ---------------------------
   
-  edm::InputTag ecalRecHitCollection_;
+  edm::InputTag ecalRecHitCollectionEB_;
+  edm::InputTag ecalRecHitCollectionEE_;
   edm::InputTag barrelClusterCollection_;
   edm::InputTag endcapClusterCollection_;
   edm::InputTag l1GTReadoutRecTag_;
-  
+  edm::InputTag l1GMTReadoutRecTag_;
   
   int runNum_;
   double histRangeMax_, histRangeMin_;
-  double minTimingAmp_;
+  double minTimingAmpEB_;
+  double minTimingAmpEE_;
+  double minRecHitAmpEB_;
+  double minRecHitAmpEE_;
+  double minHighEnergy_;
   
   double *ttEtaBins;
   double *modEtaBins;
   std::string fileName_;
+  bool runInFileName_;
+
+  double startTime_, runTimeLength_;
+  int numTimingBins_; 
   
   std::map<int,TH1F*> FEDsAndHists_;
   std::map<int,TH1F*> FEDsAndE2Hists_;
@@ -112,19 +123,34 @@ class EcalCosmicsHists : public edm::EDAnalyzer {
   std::map<int,TH2F*> FEDsAndTimingVsPhiHists_;  
   std::map<int,TH2F*> FEDsAndTimingVsEtaHists_;  
   std::map<int,TH2F*> FEDsAndTimingVsModuleHists_;  
+  std::map<int,TH2F*> FEDsAndDCCRuntypeVsBxHists_;
 
   TH1F* allFedsHist_;
   TH1F* allFedsE2Hist_;
   TH1F* allFedsenergyHist_;
   TH1F* allFedsenergyHighHist_;
+  TH1F* allFedsenergyOnlyHighHist_;
   TH1F* allFedsTimingHist_;
   TH1F* allFedsFrequencyHist_;
   TH1F* allFedsiPhiProfileHist_;
   TH1F* allFedsiEtaProfileHist_;
   TH1F* allFedsNumXtalsInClusterHist_;
+  TH1F* NumXtalsInClusterHist_;
   TH1F* numberofCosmicsHist_;
   TH1F* numberofCosmicsWTrackHist_;
   TH1F* numberofGoodEvtFreq_;
+
+  TH1F* numberofCosmicsHistEB_;
+
+  //TH1F* numberofSCCosmicsHist_;//SC Num cosmics
+  TH1F* numberofBCinSC_;//SC Num cosmics
+  TH2F* numberofBCinSCphi_;//SC
+
+  TH2F* TrueBCOccupancy_;
+  TH2F* TrueBCOccupancyCoarse_;
+
+  TH2F* numxtalsVsEnergy_;
+  TH2F* numxtalsVsHighEnergy_;
 
   TH2F* allFedsE2vsE1Hist_;
   TH2F* allFedsenergyvsE1Hist_;
@@ -132,6 +158,10 @@ class EcalCosmicsHists : public edm::EDAnalyzer {
   TH2F* TrueOccupancy_; //New file to do eta-phi occupancy
   TH2F* allOccupancyCoarse_; //New file to do eta-phi occupancy
   TH2F* TrueOccupancyCoarse_; //New file to do eta-phi occupancy
+
+  // single xtal clusters
+  TH2F* allOccupancySingleXtal_;
+  TH1F* energySingleXtalHist_;
 
   TH2F* allFedsTimingVsFreqHist_;
   TH2F* allFedsTimingVsAmpHist_;
@@ -214,6 +244,14 @@ class EcalCosmicsHists : public edm::EDAnalyzer {
   TH2F* seedTrackPhiHist_;
   TH2F* seedTrackEtaHist_;
 
+  // DCC Event type (runtype) vs. bx
+  TH2F* dccEventVsBxHist_;
+  TH1F* dccBXErrorByFEDHist_;
+  TH1F* dccOrbitErrorByFEDHist_;
+  TH1F* dccRuntypeErrorByFEDHist_;
+  TH1F* dccRuntypeHist_;
+  TH2F* dccErrorVsBxHist_;
+  
   // track association
   TH2F* trackAssoc_muonsEcal_;
   TrackDetectorAssociator trackAssociator_;
@@ -224,14 +262,195 @@ class EcalCosmicsHists : public edm::EDAnalyzer {
   TH1F* numberofCosmicsTopBottomHist_;
   int cosmicCounterTopBottom_;
 
+  // hcal energy
+  TH1F * hcalEnergy_HBHE_;
+  TH1F * hcalEnergy_HF_;
+  TH1F * hcalEnergy_HO_;
+  TH2F * hcalHEHBecalEB_;
+
+  // high energy analysis (inherited from serena)
+  TH1F* HighEnergy_NumXtal;
+  TH2F* HighEnergy_NumXtalFedId;
+  TH2F* HighEnergy_NumXtaliphi;
+  TH3F* HighEnergy_energy3D;
+  TH2F* HighEnergy_energyNumXtal;
+
+  TH1F* HighEnergy_numClusHighEn;
+  TH1F* HighEnergy_ratioClusters;
+
+  TH1F* HighEnergy_bestSeed;
+  TH2F* HighEnergy_bestSeedOccupancy;
+
+  TH2F* HighEnergy_2GeV_occuCoarse;
+  TH3F* HighEnergy_2GeV_occu3D;
+  TH2F* HighEnergy_100GeV_occuCoarse;
+  TH3F* HighEnergy_100GeV_occu3D;
+
+  TH1F* HighEnergy_numRecoTrackBarrel;
+  TH1F* HighEnergy_TracksAngle;
+  TH1F* HighEnergy_TracksAngleTopBottom;
+  TH3F* HighEnergy_0tracks_occu3D;
+  TH3F* HighEnergy_1tracks_occu3D;
+  TH3F* HighEnergy_2tracks_occu3D;
+
+  TH3F* HighEnergy_0tracks_occu3DXtal;
+  TH3F* HighEnergy_1tracks_occu3DXtal;
+  TH3F* HighEnergy_2tracks_occu3DXtal;
+  
+  //for timestamp information
+  TH1F* allFedsFreqTimeHist_;
+  TH2F* allFedsFreqTimeVsPhiHist_;
+  TH2F* allFedsFreqTimeVsPhiTTHist_;
+  TH2F* allFedsFreqTimeVsEtaHist_;
+  TH2F* allFedsFreqTimeVsEtaTTHist_;
+  
+  // Plots for EE
+  TH2F* EEP_AllOccupancyCoarse_;
+  TH2F* EEP_AllOccupancy_;
+  TH1F* EEP_FedsenergyHist_;
+  TH1F* EEP_FedsenergyHighHist_;
+  TH1F* EEP_FedsenergyOnlyHighHist_;
+  TH1F* EEP_FedsE2Hist_;
+  TH2F* EEP_FedsE2vsE1Hist_;
+  TH2F* EEP_FedsenergyvsE1Hist_;
+  TH1F* EEP_FedsSeedEnergyHist_;
+
+  TH1F* EEP_FedsNumXtalsInClusterHist_;
+  TH1F* EEP_NumXtalsInClusterHist_;
+  TH2F* EEP_numxtalsVsEnergy_;
+  TH2F* EEP_numxtalsVsHighEnergy_;
+  TH1F* EEP_numberofBCinSC_;
+
+  TH1F* EEP_numberofCosmicsHist_;
+
+  TH2F* EEP_OccupancySingleXtal_;
+  TH1F* EEP_energySingleXtalHist_;
+
+  TH1F* EEP_FedsTimingHist_;        
+  TH2F* EEP_FedsTimingVsAmpHist_;
+  TH3F* EEP_FedsTimingTTHist_;
+
+  TH2F* EEP_OccupancyECAL_; 
+  TH2F* EEP_OccupancyCoarseECAL_; 
+  TH2F* EEP_OccupancyExclusiveECAL_; 
+  TH2F* EEP_OccupancyCoarseExclusiveECAL_; 
+  TH1F* EEP_FedsTimingHistECAL_;
+  TH3F* EEP_FedsTimingTTHistECAL_;
+
+  TH2F* EEP_OccupancyDT_; 
+  TH2F* EEP_OccupancyCoarseDT_; 
+  TH2F* EEP_OccupancyExclusiveDT_; 
+  TH2F* EEP_OccupancyCoarseExclusiveDT_; 
+  TH1F* EEP_FedsTimingHistDT_;
+  TH3F* EEP_FedsTimingTTHistDT_;
+
+  TH2F* EEP_OccupancyRPC_; 
+  TH2F* EEP_OccupancyCoarseRPC_; 
+  TH2F* EEP_OccupancyExclusiveRPC_; 
+  TH2F* EEP_OccupancyCoarseExclusiveRPC_; 
+  TH1F* EEP_FedsTimingHistRPC_;
+  TH3F* EEP_FedsTimingTTHistRPC_;
+
+  TH2F* EEP_OccupancyCSC_; 
+  TH2F* EEP_OccupancyCoarseCSC_; 
+  TH2F* EEP_OccupancyExclusiveCSC_; 
+  TH2F* EEP_OccupancyCoarseExclusiveCSC_; 
+  TH1F* EEP_FedsTimingHistCSC_;
+  TH3F* EEP_FedsTimingTTHistCSC_;
+
+  TH2F* EEP_OccupancyHCAL_; 
+  TH2F* EEP_OccupancyCoarseHCAL_; 
+  TH2F* EEP_OccupancyExclusiveHCAL_; 
+  TH2F* EEP_OccupancyCoarseExclusiveHCAL_; 
+  TH1F* EEP_FedsTimingHistHCAL_;
+  TH3F* EEP_FedsTimingTTHistHCAL_;
+
+  TH1F* EEP_triggerHist_;
+  TH1F* EEP_triggerExclusiveHist_;
+
+  TH2F* EEP_OccupancyHighEnergy_; 
+  TH2F* EEP_OccupancyHighEnergyCoarse_; 
+
+  // EE-
+  TH2F* EEM_AllOccupancyCoarse_;
+  TH2F* EEM_AllOccupancy_;
+  TH1F* EEM_FedsenergyHist_;
+  TH1F* EEM_FedsenergyHighHist_;
+  TH1F* EEM_FedsenergyOnlyHighHist_;
+  TH1F* EEM_FedsE2Hist_;
+  TH2F* EEM_FedsE2vsE1Hist_;
+  TH2F* EEM_FedsenergyvsE1Hist_;
+  TH1F* EEM_FedsSeedEnergyHist_;
+
+  TH1F* EEM_FedsNumXtalsInClusterHist_;
+  TH1F* EEM_NumXtalsInClusterHist_;
+  TH2F* EEM_numxtalsVsEnergy_;
+  TH2F* EEM_numxtalsVsHighEnergy_;
+  TH1F* EEM_numberofBCinSC_;
+
+  TH1F* EEM_numberofCosmicsHist_;
+
+  TH2F* EEM_OccupancySingleXtal_;
+  TH1F* EEM_energySingleXtalHist_;
+
+  TH1F* EEM_FedsTimingHist_;        
+  TH2F* EEM_FedsTimingVsAmpHist_;
+  TH3F* EEM_FedsTimingTTHist_;
+
+  TH2F* EEM_OccupancyECAL_; 
+  TH2F* EEM_OccupancyCoarseECAL_; 
+  TH2F* EEM_OccupancyExclusiveECAL_; 
+  TH2F* EEM_OccupancyCoarseExclusiveECAL_; 
+  TH1F* EEM_FedsTimingHistECAL_;
+  TH3F* EEM_FedsTimingTTHistECAL_;
+
+  TH2F* EEM_OccupancyDT_; 
+  TH2F* EEM_OccupancyCoarseDT_; 
+  TH2F* EEM_OccupancyExclusiveDT_; 
+  TH2F* EEM_OccupancyCoarseExclusiveDT_; 
+  TH1F* EEM_FedsTimingHistDT_;
+  TH3F* EEM_FedsTimingTTHistDT_;
+
+  TH2F* EEM_OccupancyRPC_; 
+  TH2F* EEM_OccupancyCoarseRPC_; 
+  TH2F* EEM_OccupancyExclusiveRPC_; 
+  TH2F* EEM_OccupancyCoarseExclusiveRPC_; 
+  TH1F* EEM_FedsTimingHistRPC_;
+  TH3F* EEM_FedsTimingTTHistRPC_;
+
+  TH2F* EEM_OccupancyCSC_; 
+  TH2F* EEM_OccupancyCoarseCSC_; 
+  TH2F* EEM_OccupancyExclusiveCSC_; 
+  TH2F* EEM_OccupancyCoarseExclusiveCSC_; 
+  TH1F* EEM_FedsTimingHistCSC_;
+  TH3F* EEM_FedsTimingTTHistCSC_;
+
+  TH2F* EEM_OccupancyHCAL_; 
+  TH2F* EEM_OccupancyCoarseHCAL_; 
+  TH2F* EEM_OccupancyExclusiveHCAL_; 
+  TH2F* EEM_OccupancyCoarseExclusiveHCAL_; 
+  TH1F* EEM_FedsTimingHistHCAL_;
+  TH3F* EEM_FedsTimingTTHistHCAL_;
+  
+  TH1F* EEM_triggerHist_;
+  TH1F* EEM_triggerExclusiveHist_;
+
+  TH2F* EEM_OccupancyHighEnergy_; 
+  TH2F* EEM_OccupancyHighEnergyCoarse_; 
+
   EcalFedMap* fedMap_;
 
   TFile* file;
   
   int naiveEvtNum_; 
   int cosmicCounter_;
+  int cosmicCounterEB_;
+  int cosmicCounterEEP_;
+  int cosmicCounterEEM_;
 
   std::vector<int> l1Accepts_;
   std::vector<std::string> l1Names_;
+
+  const EcalElectronicsMapping* ecalElectronicsMap_;
 
 };
