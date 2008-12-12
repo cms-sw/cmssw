@@ -39,7 +39,10 @@ class TopDecaySubset : public edm::EDProducer {
   reco::Particle::LorentzVector getP4(const reco::GenParticle::const_iterator, 
 				      const reco::GenParticle::const_iterator, int);
  protected:
-  void fillTree(int& index, const reco::GenParticle&, reco::GenParticleCollection&);
+
+  void fillTree(int& index, const reco::GenParticle::const_iterator, reco::GenParticleCollection&);
+  void print(reco::GenParticleCollection&, int);
+
  private:
   edm::InputTag src_;  
   std::map<int,std::vector<int> > refs_; //management of daughter
