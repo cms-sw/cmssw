@@ -49,21 +49,26 @@
   <class name="std::vector<RPCStripNoises::NoiseItem>"/>
   <class name="std::vector<float>"/>
 
-  <class name="RPCMaskedStrips"/>
-  <class name="RPCMaskedStrips::MaskItem"/>
-  <class name="std::vector<RPCMaskedStrips::MaskItem>"/>
-
-  <class name="RPCDeadStrips"/>
-  <class name="RPCDeadStrips::DeadItem"/>
-  <class name="std::vector<RPCDeadStrips::DeadItem>"/>
-
   <class name="RPCObGas"/>
   <class name="RPCObGas::Item"/>
   <class name="std::vector<RPCObGas::Item>"/>
 
-  <class name="RPCObCond"/>
-  <class name="RPCObCond::Item"/>
-  <class name="std::vector<RPCObCond::Item>"/>
+  <class name="RPCObImon"/>
+  <class name="RPCObImon::I_Item"/>
+  <class name="std::vector<RPCObImon::I_Item>"/>
+
+  <class name="RPCObVmon"/>
+  <class name="RPCObVmon::V_Item"/>
+  <class name="std::vector<RPCObVmon::V_Item>"/>
+
+  <class name="RPCObStatus"/>
+  <class name="RPCObStatus::S_Item"/>
+  <class name="std::vector<RPCObStatus::S_Item>"/>
+
+  <class name="RPCObTemp"/>
+  <class name="RPCObTemp::T_Item"/>
+  <class name="std::vector<RPCObTemp::T_Item>"/>
+
 
   <class name="RPCObPVSSmap"/>
   <class name="RPCObPVSSmap::Item"/>

@@ -21,6 +21,12 @@
 
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 
-class RPCObCondRcd : public edm::eventsetup::EventSetupRecordImplementation<RPCObCondRcd> {};
+class RPCObImonRcd : public edm::eventsetup::EventSetupRecordImplementation<RPCObImonRcd> {};
+
+class RPCObVmonRcd : public edm::eventsetup::EventSetupRecordImplementation<RPCObVmonRcd> {};
+
+class RPCObStatusRcd : public edm::eventsetup::EventSetupRecordImplementation<RPCObStatusRcd> {};
+
+class RPCObTempRcd : public edm::eventsetup::EventSetupRecordImplementation<RPCObTempRcd> {};
 
 #endif
