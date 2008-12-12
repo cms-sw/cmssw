@@ -13,11 +13,13 @@
 //
 // Original Author:  Seth COOPER
 //         Created:  Th Nov 22 5:46:22 CEST 2007
-// $Id: EcalMipGraphs.cc,v 1.5 2008/05/06 18:38:08 scooper Exp $
+// $Id: EcalMipGraphs.cc,v 1.10 2008/09/11 09:53:07 scooper Exp $
 //
 //
 
 #include "CaloOnlineTools/EcalTools/plugins/EcalMipGraphs.h"
+#include "RecoCaloTools/Navigation/interface/CaloNavigator.h"
+#include "TCanvas.h"
 
 using namespace edm;
 using namespace std;
@@ -29,6 +31,8 @@ using namespace std;
 //
 // static data member definitions
 //
+float EcalMipGraphs::gainRatio[3] = { 1., 2. , 12. }; 
+edm::Service<TFileService> EcalMipGraphs::fileService;
 
 //
 // constructors and destructor
@@ -41,15 +45,15 @@ EcalMipGraphs::EcalMipGraphs(const edm::ParameterSet& iConfig) :
   headerProducer_ (iConfig.getParameter<edm::InputTag> ("headerProducer")),
   runNum_(-1),
   side_ (iConfig.getUntrackedParameter<int>("side", 3)),
-  givenSeedCry_ (iConfig.getUntrackedParameter<int>("seedCry",0)),
   threshold_ (iConfig.getUntrackedParameter<double>("amplitudeThreshold", 12.0)),
-  fileName_ (iConfig.getUntrackedParameter<std::string>("fileName", std::string("ecalMipGraphs")))
+  minTimingAmp_ (iConfig.getUntrackedParameter<double>("minimumTimingAmplitude", 0.100))
 {
   vector<int> listDefaults;
   listDefaults.push_back(-1);
   
   maskedChannels_ = iConfig.getUntrackedParameter<vector<int> >("maskedChannels", listDefaults);
   maskedFEDs_ = iConfig.getUntrackedParameter<vector<int> >("maskedFEDs", listDefaults);
+  seedCrys_ = iConfig.getUntrackedParameter<vector<int> >("seedCrys",vector<int>());
 
   vector<string> defaultMaskedEBs;
   defaultMaskedEBs.push_back("none");
@@ -59,7 +63,7 @@ EcalMipGraphs::EcalMipGraphs(const edm::ParameterSet& iConfig) :
 
   string title1 = "Jitter for all FEDs";
   string name1 = "JitterAllFEDs";
-  allFedsTimingHist_ = new TH1F(name1.c_str(),title1.c_str(),14,-7,7);
+  allFedsTimingHist_ = fileService->make<TH1F>(name1.c_str(),title1.c_str(),150,-7,7);
   
   // load up the maskedFED list with the proper FEDids
   if(maskedFEDs_[0]==-1)
@@ -75,9 +79,10 @@ EcalMipGraphs::EcalMipGraphs(const edm::ParameterSet& iConfig) :
     }
   }
   
-  for (int i=0; i<10; i++)        abscissa[i] = i;
+  for (int i=0; i<10; i++)        
+    abscissa[i] = i;
+  
   naiveEvtNum_ = 0;
-  graphCount = 0;
 
 }
 
@@ -100,7 +105,6 @@ EcalMipGraphs::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   // (one header for each supermodule)
   edm::Handle<EcalRawDataCollection> DCCHeaders;
   iEvent.getByLabel(headerProducer_, DCCHeaders);
-  map<int,EcalDCCHeaderBlock> FEDsAndDCCHeaders_;
 
   for (EcalRawDataCollection::const_iterator headerItr= DCCHeaders->begin();
 		  headerItr != DCCHeaders->end (); 
@@ -115,10 +119,9 @@ EcalMipGraphs::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   if(runNum_==-1)
   {
     runNum_ = iEvent.id().run();
-    fileName_+=intToString(runNum_);
-    fileName_+=".graph.root";
-    file_ = TFile::Open(fileName_.c_str(),"RECREATE");
-    eventsAndSeedCrys_ = new TNtuple("eventsSeedCrys","Events and Seed Crys Mapping","LV1A:ic:fed");
+    canvasNames_ = fileService->make<TTree>("canvasNames","Names of written canvases");
+    names = new std::vector<string>();
+    canvasNames_->Branch("names","vector<string>",&names);
   }
 
   //We only want the 3x3's for this event...
@@ -130,226 +133,200 @@ EcalMipGraphs::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   iSetup.get<CaloTopologyRecord>().get(caloTopo);
   iEvent.getByLabel(EBRecHitCollection_, EBhits);
   iEvent.getByLabel(EERecHitCollection_, EEhits);
-  LogDebug("EcalMipGraphs") << "event " << ievt << " EBhits collection size " << EBhits->size();
-  LogDebug("EcalMipGraphs") << "event " << ievt << " EEhits collection size " << EEhits->size();
-
-  selectEBHits(EBhits, ievt, caloTopo);
-  selectEEHits(EEhits, ievt, caloTopo);
-  
   // Now, retrieve the crystal digi from the event
-  edm::Handle<EBDigiCollection> EBdigisHandle;
   iEvent.getByLabel(EBDigis_, EBdigisHandle);
-  edm::Handle<EEDigiCollection> EEdigisHandle;
   iEvent.getByLabel(EEDigis_, EEdigisHandle);
+  //debug
+  //LogWarning("EcalMipGraphs") << "event " << ievt << " EBhits collection size " << EBhits->size();
+  //LogWarning("EcalMipGraphs") << "event " << ievt << " EEhits collection size " << EEhits->size();
+
+  selectHits(EBhits, ievt, caloTopo);
+  selectHits(EEhits, ievt, caloTopo);
   
-  selectEBDigis(EBdigisHandle, ievt, FEDsAndDCCHeaders_);
-  selectEEDigis(EEdigisHandle, ievt, FEDsAndDCCHeaders_);
-  
-  if(graphs.size()==0)
-    return;
-  
-  writeGraphs();
 }
 
-void EcalMipGraphs::selectEBDigis(edm::Handle<EBDigiCollection> EBdigisHandle, int ievt,
-    map<int,EcalDCCHeaderBlock> FEDsAndDCCHeaders_)
+
+TGraph* EcalMipGraphs::selectDigi(DetId thisDet, int ievt)
 {
-  for(std::set<EBDetId>::const_iterator chnlItr = listEBChannels.begin(); chnlItr!= listEBChannels.end(); ++chnlItr)
+  int emptyY[10];
+  for (int i=0; i<10; i++)
+    emptyY[i] = 0;
+  TGraph* emptyGraph = fileService->make<TGraph>(10, abscissa, emptyY);
+  emptyGraph->SetTitle("NOT ECAL");
+  
+  //If the DetId is not from Ecal, return
+  if(thisDet.det() != DetId::Ecal)
+    return emptyGraph;
+  
+  emptyGraph->SetTitle("NO DIGIS");
+  //find digi we need  -- can't get find() to work; need DataFrame(DetId det) to work? 
+  EcalElectronicsId elecId = ecalElectronicsMap_->getElectronicsId(thisDet);
+  int FEDid = 600+elecId.dccId();
+  bool isBarrel = true;
+  if(FEDid < 610 || FEDid > 645)
+    isBarrel = false;
+  int cryIndex = isBarrel ? ((EBDetId)thisDet).hashedIndex() : getEEIndex(elecId);
+  int ic = isBarrel ? ((EBDetId)thisDet).ic() : cryIndex;
+
+  string sliceName = fedMap_->getSliceFromFed(FEDid);
+  EcalDataFrame df;
+  if(isBarrel)
   {
-      //find digi we need  -- can't get find() to work; need DataFrame(DetId det) to work? 
-      //TODO: use find(), launching it twice over EB and EE collections
-    EcalElectronicsId elecId = ecalElectronicsMap_->getElectronicsId(*chnlItr);
-    int FEDid = 600+elecId.dccId();
-    int hashedIndex = chnlItr->hashedIndex();
-    int ic = chnlItr->ic();
-    string sliceName = fedMap_->getSliceFromFed(FEDid);
-    EcalDigiCollection::const_iterator digiItr = EBdigisHandle->begin();
-    while(digiItr != EBdigisHandle->end() && ((*digiItr).id()!=*chnlItr))
+    EBDigiCollection::const_iterator digiItr = EBdigisHandle->begin();
+    while(digiItr != EBdigisHandle->end() && ((*digiItr).id() != (EBDetId)thisDet))
     {
       ++digiItr;
     }
     if(digiItr==EBdigisHandle->end())
     {
-      LogWarning("EcalMipGraphs") << "Cannot find digi for ic:" << ic
-        << " FED:" << FEDid << " evt:" << naiveEvtNum_;
-      continue;
+      //LogWarning("EcalMipGraphs") << "Cannot find digi for ic:" << ic
+      //  << " FED:" << FEDid << " evt:" << naiveEvtNum_;
+      return emptyGraph;
     }
-  
-    //EBDataFrame df = (*digis)[hashedIndex];
-    //cout << "the detId is: " << (*chnlItr).rawId() << endl;
-    //cout << "the detId found: " << df.id().rawId() << endl;
-    
-    int gainId = FEDsAndDCCHeaders_[FEDid].getMgpaGain();
-    int gainHuman;
-    if      (gainId ==1) gainHuman =12;
-    else if (gainId ==2) gainHuman =6;
-    else if (gainId ==3) gainHuman =1;
-    else                 gainHuman =-1; 
-
-    EBDataFrame df(*digiItr);
-    double pedestal = 200;
-
-    if(df.sample(0).gainId()!=1 || df.sample(1).gainId()!=1) continue; //goes to the next digi
-    else {
-      ordinate[0] = df.sample(0).adc();
-      ordinate[1] = df.sample(1).adc();
-      pedestal = (double)(ordinate[0]+ordinate[1])/(double)2;
-    } 
-    
-    //debug
-    //cout << "DCCGainId:" << dccGainId << " sample0 gain:" << sample0GainId << endl; 
-    
-    for (int i=0; (unsigned int)i< digiItr->size(); ++i ) {
-      double gain = 12.; //gainHuman=1, so must x12
-      if(df.sample(i).gainId()==1)
-      {
-        //edm::LogWarning("EcalMipGraphs") << "gain12 detected in ic:" << ic;
-        gain = 1.; //gainHuman=12, so no factor needed
-      }
-      else if(df.sample(i).gainId()==2)
-      {
-        //edm::LogWarning("EcalMipGraphs") << "gain6 detected in ic:" << ic;
-        gain = 2.; // gainHuman=6, so must x2.
-      }
-      //else if(df.sample(i).gainId()==3)
-	//edm::LogWarning("EcalMipGraphs") << "gain1 detected in ic:" << ic;
-        
-      ordinate[i] = (int)(pedestal+(df.sample(i).adc()-pedestal)*gain);
-    }
-
-    TGraph oneGraph(10, abscissa,ordinate);
-    string name = "Graph_ev" + intToString(naiveEvtNum_) + "_ic" + intToString(ic)
-      + "_FED" + intToString(FEDid);
-    string gainString = (gainId==1) ? "Free" : intToString(gainHuman);
-    string title = "Event" + intToString(naiveEvtNum_) + "_lv1a" + intToString(ievt) +
-      "_ic" + intToString(ic) + "_" + sliceName + "_gain" + gainString;
-    
-    float energy = 0;
-    map<int,float>::const_iterator itr;
-    itr = crysAndAmplitudesMap_.find(hashedIndex);
-    if(itr!=crysAndAmplitudesMap_.end())
-    {
-      //edm::LogWarning("EcalMipGraphs")<< "itr->second(ampli)="<< itr->second;
-      energy = (float) itr->second;
-    }
-    //else
-    //edm::LogWarning("EcalMipGraphs") << "cry " << ic << "not found in ampMap";
-    
-    title+="_Energy"+floatToString(round(energy*1000));
-
-    oneGraph.SetTitle(title.c_str());
-    oneGraph.SetName(name.c_str());
-    graphs.push_back(oneGraph);
-    graphCount++;
+    else
+      df = *digiItr;
   }
-}
-
-void EcalMipGraphs::selectEEDigis(edm::Handle<EEDigiCollection> EEdigisHandle, int ievt,
-    map<int,EcalDCCHeaderBlock> FEDsAndDCCHeaders_)
-{
-  for(std::set<EEDetId>::const_iterator chnlItr = listEEChannels.begin(); chnlItr!= listEEChannels.end(); ++chnlItr)
+  else
   {
-      //find digi we need  -- can't get find() to work; need DataFrame(DetId det) to work? 
-      //TODO: use find(), launching it twice over EB and EE collections
-    EcalElectronicsId elecId = ecalElectronicsMap_->getElectronicsId(*chnlItr);
-    int FEDid = 600+elecId.dccId();
-    int hashedIndex = chnlItr->hashedIndex();
-    int ic = 10000*FEDid+100*elecId.towerId()+5*(elecId.stripId()-1)+elecId.xtalId();
-    string sliceName = fedMap_->getSliceFromFed(FEDid);
-    EcalDigiCollection::const_iterator digiItr = EEdigisHandle->begin();
-    while(digiItr != EEdigisHandle->end() && ((*digiItr).id()!=*chnlItr))
+    EEDigiCollection::const_iterator digiItr = EEdigisHandle->begin();
+    while(digiItr != EEdigisHandle->end() && ((*digiItr).id() != (EEDetId)thisDet))
     {
       ++digiItr;
     }
     if(digiItr==EEdigisHandle->end())
     {
-      LogWarning("EcalMipGraphs") << "Cannot find digi for ic:" << ic
-        << " FED:" << FEDid << " evt:" << naiveEvtNum_;
-      continue;
+      //LogWarning("EcalMipGraphs") << "Cannot find digi for ic:" << ic
+      //  << " FED:" << FEDid << " evt:" << naiveEvtNum_;
+      return emptyGraph;
     }
-    
-    //EBDataFrame df = (*digis)[hashedIndex];
-    //cout << "the detId is: " << (*chnlItr).rawId() << endl;
-    //cout << "the detId found: " << df.id().rawId() << endl;
-    
-    int gainId = FEDsAndDCCHeaders_[FEDid].getMgpaGain();
-    int gainHuman;
-    if      (gainId ==1) gainHuman =12;
-    else if (gainId ==2) gainHuman =6;
-    else if (gainId ==3) gainHuman =1;
-    else                 gainHuman =-1; 
-
-    int sample0GainId = EBDataFrame(*digiItr).sample(0).gainId();
-    for (int i=0; (unsigned int)i< (*digiItr).size() ; ++i ) {
-      EBDataFrame df(*digiItr); 
-      ordinate[i] = df.sample(i).adc(); // accounf for possible gain !=12?
-      if(df.sample(i).gainId()!=sample0GainId)
-        LogWarning("EcalMipGraphs") << "Gain switch detected in evt:" <<
-          naiveEvtNum_ << " sample:" << i << " ic:" << ic << " FED:" << FEDid;
-    }
-
-    TGraph oneGraph(10, abscissa,ordinate);
-    string name = "Graph_ev" + intToString(naiveEvtNum_) + "_ic" + intToString(ic)
-      + "_FED" + intToString(FEDid);
-    string gainString = (gainId==1) ? "Free" : intToString(gainHuman);
-    string title = "Event" + intToString(naiveEvtNum_) + "_lv1a" + intToString(ievt) +
-      "_ic" + intToString(ic) + "_" + sliceName + "_gain" + gainString;
-    map<int,float>::const_iterator itr;
-    itr = crysAndAmplitudesMap_.find(hashedIndex);
-    if(itr!=crysAndAmplitudesMap_.end())
-      title+="_Amp"+intToString((int)itr->second);
-    
-    oneGraph.SetTitle(title.c_str());
-    oneGraph.SetName(name.c_str());
-    graphs.push_back(oneGraph);
-    graphCount++;
+    else df = *digiItr;
   }
+
+  int gainId = FEDsAndDCCHeaders_[FEDid].getMgpaGain();
+  int gainHuman;
+  if      (gainId ==1) gainHuman =12;
+  else if (gainId ==2) gainHuman =6;
+  else if (gainId ==3) gainHuman =1;
+  else                 gainHuman =-1; 
+
+  double pedestal = 200;
+
+  emptyGraph->SetTitle("FIRST TWO SAMPLES NOT GAIN12");
+  if(df.sample(0).gainId()!=1 || df.sample(1).gainId()!=1) return emptyGraph; //goes to the next digi
+  else {
+    ordinate[0] = df.sample(0).adc();
+    ordinate[1] = df.sample(1).adc();
+    pedestal = (double)(ordinate[0]+ordinate[1])/(double)2;
+  } 
+
+
+  for (int i=0; i < df.size(); ++i ) {
+    if (df.sample(i).gainId() != 0)
+      ordinate[i] = (int)(pedestal+(df.sample(i).adc()-pedestal)*gainRatio[df.sample(i).gainId()-1]);
+    else
+      ordinate[i] = 49152; //Saturation of gain1 
+  }
+
+  TGraph* oneGraph = fileService->make<TGraph>(10, abscissa, ordinate);
+  string name = "Graph_ev" + intToString(naiveEvtNum_) + "_ic" + intToString(ic)
+    + "_FED" + intToString(FEDid);
+  string gainString = (gainId==1) ? "Free" : intToString(gainHuman);
+  string title = "Event" + intToString(naiveEvtNum_) + "_lv1a" + intToString(ievt) +
+    "_ic" + intToString(ic) + "_" + sliceName + "_gain" + gainString;
+    
+  float energy = 0;
+  map<int,float>::const_iterator itr;
+  itr = crysAndAmplitudesMap_.find(cryIndex);
+  if(itr!=crysAndAmplitudesMap_.end())
+  {
+    //edm::LogWarning("EcalMipGraphs")<< "itr->second(ampli)="<< itr->second;
+    energy = (float) itr->second;
+  }
+  //else
+  //edm::LogWarning("EcalMipGraphs") << "cry " << ic << "not found in ampMap";
+
+  title+="_Energy"+floatToString(round(energy*1000));
+
+  oneGraph->SetTitle(title.c_str());
+  oneGraph->SetName(name.c_str());
+  oneGraph->GetXaxis()->SetTitle("sample");
+  oneGraph->GetYaxis()->SetTitle("ADC");
+  return oneGraph;
 }
 
-void EcalMipGraphs::selectEBHits(Handle<EcalRecHitCollection> EBhits,
+void EcalMipGraphs::selectHits(Handle<EcalRecHitCollection> hits,
     int ievt, ESHandle<CaloTopology> caloTopo)
 {
-  for (EcalRecHitCollection::const_iterator hitItr = EBhits->begin(); hitItr != EBhits->end(); ++hitItr)
+  for (EcalRecHitCollection::const_iterator hitItr = hits->begin(); hitItr != hits->end(); ++hitItr)
   {
     EcalRecHit hit = (*hitItr);
-    EBDetId det = hit.id();
+    DetId det = hit.id();
     EcalElectronicsId elecId = ecalElectronicsMap_->getElectronicsId(det);
-    int hashedIndex = det.hashedIndex();
-    int ic = det.ic();
     int FEDid = 600+elecId.dccId();
+    bool isBarrel = true;
+    if(FEDid < 610 || FEDid > 645)
+      isBarrel = false;
+    int cryIndex = isBarrel ? ((EBDetId)det).hashedIndex() : ((EEDetId)det).hashedIndex();
+    int ic = isBarrel ? ((EBDetId)det).ic() : getEEIndex(elecId);
+    
     float ampli = hit.energy();
-    float jitter = hit.time();
 
     vector<int>::iterator result;
     result = find(maskedFEDs_.begin(), maskedFEDs_.end(), FEDid);
     if(result != maskedFEDs_.end())
     {
-      LogWarning("EcalMipGraphs") << "skipping uncalRecHit for FED " << FEDid << " ; amplitude " << ampli;
+      //LogWarning("EcalMipGraphs") << "skipping uncalRecHit for FED " << FEDid << " ; amplitude " << ampli;
       continue;
     }      
-    result = find(maskedChannels_.begin(), maskedChannels_.end(), hashedIndex);
+    result = find(maskedChannels_.begin(), maskedChannels_.end(), cryIndex);
     if  (result != maskedChannels_.end())
     {
-      LogWarning("EcalMipGraphs") << "skipping uncalRecHit for channel: " << ic << " in fed: " << FEDid << " with amplitude " << ampli ;
+      //LogWarning("EcalMipGraphs") << "skipping uncalRecHit for channel: " << cryIndex << " in fed: " << FEDid << " with amplitude " << ampli ;
       continue;
     } 
+    bool cryIsInList = false;
+    result = find(seedCrys_.begin(), seedCrys_.end(), cryIndex);
+    if  (result != seedCrys_.end())
+      cryIsInList = true;
 
-    if(ampli > threshold_ && !givenSeedCry_)
+    // Either we must have a user-requested cry (in which case there is no amplitude selection)
+    // Or we pick all crys that pass the amplitude cut (in which case there is no fixed crystal selection)
+    if(cryIsInList || (seedCrys_.empty() && ampli > threshold_))
     {
-      // only produce output if no seed cry is given by user and amplitude makes cut
-      LogWarning("EcalMipGraphs") << "channel: " << ic <<  " in fed: " << FEDid <<  "  ampli: " << ampli << " jitter " << jitter
-        << " Event: " << ievt;
-    }
-    
-    if(hashedIndex == givenSeedCry_ || (!givenSeedCry_ && ampli > threshold_))
-    {
-      eventsAndSeedCrys_->Fill(naiveEvtNum_, ic, FEDid);
-      crysAndAmplitudesMap_[hashedIndex] = ampli;
-      vector<DetId> neighbors = caloTopo->getWindow(det,side_,side_);
-      for(vector<DetId>::const_iterator itr = neighbors.begin(); itr != neighbors.end(); ++itr)
+      // We have a winner!
+      crysAndAmplitudesMap_[cryIndex] = ampli;
+      string name = "Event" + intToString(naiveEvtNum_) + "_ic" + intToString(ic)
+        + "_FED" + intToString(FEDid);
+      string title = "Digis";
+      string seed = "ic" + intToString(ic) + "_FED" + intToString(FEDid);
+      int freq=1;
+      pair<map<string,int>::iterator,bool> pair = seedFrequencyMap_.insert(make_pair<string,int>(seed,freq));
+      if(!pair.second)
       {
-        listEBChannels.insert(*itr);
+        ++(pair.first->second);
       }
+      
+      TCanvas can(name.c_str(),title.c_str(),200,50,900,900);
+      can.Divide(side_,side_);
+      TGraph* myGraph;
+      int canvasNum = 1;
+
+      CaloNavigator<DetId> cursor = CaloNavigator<DetId>(det,caloTopo->getSubdetectorTopology(det));
+      //Now put each graph in one by one
+      for(int j=side_/2; j>=-side_/2; --j)
+      {
+        for(int i=-side_/2; i<=side_/2; ++i)
+        {
+          cursor.home();
+          cursor.offsetBy(i,j);
+          can.cd(canvasNum);
+          myGraph = selectDigi(*cursor,ievt);
+          myGraph->Draw("A*");
+          canvasNum++;
+        }
+      }
+      can.Write();
+      names->push_back(name);
     }
     
     TH1F* timingHist = FEDsAndTimingHists_[FEDid];
@@ -358,89 +335,19 @@ void EcalMipGraphs::selectEBHits(Handle<EcalRecHitCollection> EBhits,
       initHists(FEDid);
       timingHist = FEDsAndTimingHists_[FEDid];
     }
-    timingHist->Fill(hit.time());
-    allFedsTimingHist_->Fill(hit.time());
+    if(ampli > minTimingAmp_)
+    {
+      timingHist->Fill(hit.time());
+      allFedsTimingHist_->Fill(hit.time());
+    }
   }
 }
 
-void EcalMipGraphs::selectEEHits(Handle<EcalRecHitCollection> EEhits,
-    int ievt, ESHandle<CaloTopology> caloTopo)
+int EcalMipGraphs::getEEIndex(EcalElectronicsId elecId)
 {
-  for (EcalRecHitCollection::const_iterator hitItr = EEhits->begin(); hitItr != EEhits->end(); ++hitItr)
-  {
-    EcalRecHit hit = (*hitItr);
-    EEDetId det = hit.id();
-    EcalElectronicsId elecId = ecalElectronicsMap_->getElectronicsId(det);
-    int hashedIndex = det.hashedIndex();
-    int FEDid = 600+elecId.dccId();
-    int ic = 10000*FEDid+100*elecId.towerId()+5*(elecId.stripId()-1)+elecId.xtalId();
-    float ampli = hit.energy();
-    float jitter = hit.time();
-
-    vector<int>::iterator result;
-    result = find(maskedFEDs_.begin(), maskedFEDs_.end(), FEDid);
-    if(result != maskedFEDs_.end())
-    {
-      LogWarning("EcalMipGraphs") << "skipping uncalRecHit for FED " << FEDid << " ; amplitude " << ampli;
-      continue;
-    }      
-    result = find(maskedChannels_.begin(), maskedChannels_.end(), hashedIndex);
-    if  (result != maskedChannels_.end())
-    {
-      LogWarning("EcalMipGraphs") << "skipping uncalRecHit for channel: " << ic << " in fed: " << FEDid << " with amplitude " << ampli ;
-      continue;
-    } 
-
-    if(ampli > threshold_ && !givenSeedCry_)
-    {
-      // only produce output if no seed cry is given by user and amplitude makes cut
-      LogWarning("EcalMipGraphs") << "channel: " << ic <<  " in fed: " << FEDid <<  "  ampli: " << ampli << " jitter " << jitter
-        << " Event: " << ievt;
-    }
-    
-    if(hashedIndex == givenSeedCry_ || (!givenSeedCry_ && ampli > threshold_))
-    {
-      eventsAndSeedCrys_->Fill(naiveEvtNum_, ic, FEDid);
-      crysAndAmplitudesMap_[hashedIndex] = ampli;
-      vector<DetId> neighbors = caloTopo->getWindow(det,side_,side_);
-      for(vector<DetId>::const_iterator itr = neighbors.begin(); itr != neighbors.end(); ++itr)
-      {
-        listEEChannels.insert(*itr);
-      }
-    }
-    
-    TH1F* timingHist = FEDsAndTimingHists_[FEDid];
-    if(timingHist==0)
-    {
-      initHists(FEDid);
-      timingHist = FEDsAndTimingHists_[FEDid];
-    }
-    
-    timingHist->Fill(hit.time());
-    allFedsTimingHist_->Fill(hit.time());
-  }
-  
+  int FEDid = 600+elecId.dccId();
+  return 10000*FEDid+100*elecId.towerId()+5*(elecId.stripId()-1)+elecId.xtalId();
 }
-
-void EcalMipGraphs::writeGraphs()
-{
-  int graphCount = 0;
-  file_->cd();
-  std::vector<TGraph>::iterator gr_it;
-  for (gr_it = graphs.begin(); gr_it !=  graphs.end(); gr_it++ )
-  {
-    graphCount++;
-    if(graphCount % 100 == 0)
-      LogInfo("EcalMipGraphs") << "Writing out graph " << graphCount << " of "
-        << graphs.size(); 
-
-    (*gr_it).Write(); 
-  }
-  
-  graphs.clear();
-}
-  
-
 
 // insert the hist map into the map keyed by FED number
 void EcalMipGraphs::initHists(int FED)
@@ -451,9 +358,8 @@ void EcalMipGraphs::initHists(int FED)
   title1.append(fedMap_->getSliceFromFed(FED));
   string name1 = "JitterFED";
   name1.append(intToString(FED));
-  TH1F* timingHist = new TH1F(name1.c_str(),title1.c_str(),14,-7,7);
+  TH1F* timingHist = fileService->make<TH1F>(name1.c_str(),title1.c_str(),150,-7,7);
   FEDsAndTimingHists_[FED] = timingHist;
-  FEDsAndTimingHists_[FED]->SetDirectory(0);
 }
 
 // ------------ method called once each job just before starting event loop  ------------
@@ -469,21 +375,22 @@ EcalMipGraphs::beginJob(const edm::EventSetup& c)
 void 
 EcalMipGraphs::endJob()
 {
-  writeGraphs();
-  eventsAndSeedCrys_->Write();
-  for(map<int,TH1F*>::const_iterator itr = FEDsAndTimingHists_.begin();
-      itr != FEDsAndTimingHists_.end(); ++itr)
+  canvasNames_->Fill();
+
+  string frequencies = "";
+  for(std::map<std::string,int>::const_iterator itr = seedFrequencyMap_.begin();
+      itr != seedFrequencyMap_.end(); ++itr)
   {
-    TH1F* hist = itr->second;
-    if(hist!=0)
-      hist->Write();
-    else
+    if(itr->second > 1)
     {
-      cerr << "EcalMipGraphs: Error: This shouldn't happen!" << endl;
+      frequencies+=itr->first;
+      frequencies+=" Frequency: ";
+      frequencies+=intToString(itr->second);
+      frequencies+="\n";
     }
   }
-  allFedsTimingHist_->Write();
-  file_->Close();
+  LogWarning("EcalMipGraphs") << "Found seeds with frequency > 1: " << "\n\n" << frequencies;
+  
   std::string channels;
   for(std::vector<int>::const_iterator itr = maskedChannels_.begin();
       itr != maskedChannels_.end(); ++itr)
@@ -492,7 +399,16 @@ EcalMipGraphs::endJob()
     channels+=",";
   }
   
-  LogWarning("EcalMipGraphs") << "Masked channels are: " << channels << " and that is all!";
+  std::string feds;
+  for(std::vector<int>::const_iterator itr = maskedFEDs_.begin();
+      itr != maskedFEDs_.end(); ++itr)
+  {
+    feds+=intToString(*itr);
+    feds+=",";
+  }
+
+  LogWarning("EcalMipGraphs") << "Masked channels are: " << channels;
+  LogWarning("EcalMipGraphs") << "Masked FEDs are: " << feds << " and that is all!";
 }
 
 

@@ -13,7 +13,7 @@
 //
 // Original Author:  Seth COOPER
 //         Created:  Th Nov 22 5:46:22 CEST 2007
-// $Id: EcalMipGraphs.h,v 1.5 2008/05/06 18:38:08 scooper Exp $
+// $Id: EcalMipGraphs.h,v 1.7 2008/08/28 00:30:35 scooper Exp $
 //
 //
 
@@ -32,6 +32,8 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
 #include "Geometry/EcalMapping/interface/EcalMappingRcd.h"
 
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
@@ -50,7 +52,7 @@
 #include "TFile.h"
 #include "TH1F.h"
 #include "TGraph.h"
-#include "TNtuple.h"
+#include "TTree.h"
 
 
 //
@@ -71,15 +73,10 @@ class EcalMipGraphs : public edm::EDAnalyzer {
       std::string floatToString(float num);
       void writeGraphs();
       void initHists(int);
-      void selectEBHits(edm::Handle<EcalRecHitCollection> EBhits,
+      void selectHits(edm::Handle<EcalRecHitCollection> hits,
           int ievt, edm::ESHandle<CaloTopology> caloTopo);
-      void selectEEHits(edm::Handle<EcalRecHitCollection> EEhits,
-          int ievt, edm::ESHandle<CaloTopology> caloTopo);
-      void selectEBDigis(edm::Handle<EBDigiCollection> EBdigisHandle, int ievt,
-          std::map<int,EcalDCCHeaderBlock> FEDsAndDCCHeaders_);
-      void selectEEDigis(edm::Handle<EEDigiCollection> EEdigisHandle, int ievt,
-          std::map<int,EcalDCCHeaderBlock> FEDsAndDCCHeaders_);
-      
+      TGraph* selectDigi(DetId det, int ievt);
+      int getEEIndex(EcalElectronicsId elecId);
 
     // ----------member data ---------------------------
 
@@ -89,32 +86,39 @@ class EcalMipGraphs : public edm::EDAnalyzer {
   edm::InputTag EEDigis_;
   edm::InputTag headerProducer_;
 
+  edm::Handle<EBDigiCollection> EBdigisHandle;
+  edm::Handle<EEDigiCollection> EEdigisHandle;
+
   int runNum_;
   int side_;
-  int givenSeedCry_;
   double threshold_;
-  std::string fileName_;
+  double minTimingAmp_;
 
   std::set<EBDetId> listEBChannels;
   std::set<EEDetId> listEEChannels;
     
   int abscissa[10];
   int ordinate[10];
-  
-  std::vector<TGraph> graphs;
+
+  static float gainRatio[3];
+  static edm::Service<TFileService> fileService;
+
+  std::vector<std::string>* names;
   std::vector<int> maskedChannels_;
   std::vector<int> maskedFEDs_;
+  std::vector<int> seedCrys_;
   std::vector<std::string> maskedEBs_;
   std::map<int,TH1F*> FEDsAndTimingHists_;
   std::map<int,float> crysAndAmplitudesMap_;
+  std::map<int,EcalDCCHeaderBlock> FEDsAndDCCHeaders_;
+  std::map<std::string,int> seedFrequencyMap_;
   
   TH1F* allFedsTimingHist_;
   
   TFile* file_;
-  TNtuple* eventsAndSeedCrys_;
+  TTree* canvasNames_;
   EcalFedMap* fedMap_;
   const EcalElectronicsMapping* ecalElectronicsMap_;
  
   int naiveEvtNum_; 
-  int graphCount;
 };
