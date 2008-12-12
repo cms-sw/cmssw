@@ -28,30 +28,22 @@ class CSCTFConstants
 
   enum MPC_stubs { maxStubs = 3 };
 
-  /**
-   * We assume that the digis which bx times differ from the current bx by
-   * more than six will not contribute to the LCT rates at the current bx,
-   * and ignore them.
-   */
-
-  enum Bx_Window { MIN_BUNCH = -6, MAX_BUNCH = 6, TOT_BUNCH = MAX_BUNCH - MIN_BUNCH + 1, TIME_OFFSET = -MIN_BUNCH };
-
   // Eta
   const static double minEta;
   const static double maxEta;
 
   const static double RAD_PER_DEGREE; // where to get PI from?
-  
+
   /// The center of the first "perfect" sector in phi.
   const static double SECTOR1_CENT_DEG;
   const static double SECTOR1_CENT_RAD;
-  
-  /** 
+
+  /**
    * Sector size is 62 degrees.  Nowadays (in ORCA6) the largest size
    * of ideal sectors is 61.37 degrees (it is more than 60 because of
    * overlaps between sectors), but we leave some more space to handle
    * movements of the disks of about 8 mm.
-   */  
+   */
   const static double SECTOR_DEG;
   const static double SECTOR_RAD; // radians
   // needs BX info and some special station 1 info

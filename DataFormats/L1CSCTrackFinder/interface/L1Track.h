@@ -80,6 +80,24 @@ namespace csc{
 
       void Print() const;
 
+	  // Accessors for some technical information:
+	  unsigned deltaPhi12(void) const { return  m_ptAddress&0xFF;     }
+	  unsigned deltaPhi23(void) const { return (m_ptAddress>>8)&0xF;  }
+	  unsigned mode      (void) const { return (m_ptAddress>>12)&0xF; }
+	  bool     sign      (void) const { return (m_ptAddress>>20)&0x1; }
+	  bool     synch_err (void) const { return  m_se;  }
+	  bool     bx0       (void) const { return  m_bx0; }
+	  bool     bc0       (void) const { return  m_bc0; }
+	  unsigned me1Tbin   (void) const { return  m_me1Tbin; }
+	  unsigned me2Tbin   (void) const { return  m_me2Tbin; }
+	  unsigned me3Tbin   (void) const { return  m_me3Tbin; }
+	  unsigned me4Tbin   (void) const { return  m_me4Tbin; }
+	  unsigned mb1Tbin   (void) const { return  m_mbTbin;  }
+	  void     setBits   (unsigned se, unsigned bx0, unsigned bc0) { m_se=se; m_bx0=bx0; m_bc0=bc0; }
+	  void     setTbins  (unsigned me1, unsigned me2, unsigned me3, unsigned me4, unsigned mb) { m_me1Tbin=me1; m_me2Tbin=me2; m_me3Tbin=me3; m_me4Tbin=me4; m_mbTbin=mb; }
+	  void setStationIds(const unsigned& me1, const unsigned& me2,
+			 const unsigned& me3, const unsigned& me4,
+			 const unsigned& mb1);
     private:
 
       std::string m_name;
@@ -95,9 +113,9 @@ namespace csc{
       bool m_empty;
       bool m_winner;
 
-      void setStationIds(const unsigned& me1, const unsigned& me2,
-			 const unsigned& me3, const unsigned& me4,
-			 const unsigned& mb1);
+	  // Technical information:
+	  bool m_se, m_bx0, m_bc0;
+	  unsigned m_me1Tbin, m_me2Tbin, m_me3Tbin, m_me4Tbin, m_mbTbin;
      };
 }
 
