@@ -2,11 +2,11 @@
 #define POPCON_RPC_DATA_SRC_H
 
 /*
- * \class RpcData
+ * \class RPCImonSH
  *  Core of RPC PopCon Appication
  *
  *  $Date: 2008/08/28 10:29:08 $
- *  $Revision: 1.2 $
+ *  $Revision: 1.5 $
  *  \author D. Pagano - Dip. Fis. Nucl. e Teo. & INFN Pavia
  */
 
