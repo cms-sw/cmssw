@@ -42,6 +42,8 @@ echo "      -files|--files_file   files_file      File with list of Runs"
 echo "      -mcry|--mask_cry      mask_cry        list of channels (use hashedIndex) to mask; default is no masking"
 echo "      -hmin|--hist_min      hist_min        min URecHit histogram range value (default is -10)"
 echo "      -hmax|--hist_max      hist_max        max URecHit histogram range value (default is 200)"
+echo "      -st|--start_time      start_time      Starting Time of event (seconds since Jan 1 1970) \`man date +\%s\` "
+echo "      -rl|--run_length      run_length      Length of run in hours "
 echo ""
 echo "To specify multiple fed_id's/ieb_id's/cry's to mask use a comma-separated list in between double quotes, e.g., \"1,2,3\" "
 exit
@@ -61,6 +63,9 @@ mcry=-1
 
 hist_min=0.0
 hist_max=1.8
+
+run_length=-1
+start_time=-1
 
 first_event=1
 last_event=9999
@@ -110,6 +115,13 @@ manyfiles="0"
                 files_file=$2
                 ;;
 
+      -st|--start_time)
+                start_time=$2
+                ;;
+
+      -rl|--run_length)
+                run_length=$2
+                ;;
 
     esac
     shift       # Verifica la serie successiva di parametri.
@@ -134,7 +146,8 @@ echo "crys to mask:                                 ${mcry} (-1 => no masking)"
 echo "hist min bin:                                 $hist_min"
 
 echo "hist max bin:                                 $hist_max"
-
+echo "start time:                                   $start_time (-1 => default)"
+echo "run length:                                   $run_length (-1 => 3 hours)"
 
 echo ""
 echo ""
@@ -167,6 +180,22 @@ if [[ $manyfiles == "1" ]]; then
     }"
 fi
 
+
+if [[ $start_time > 0.0 ]];then
+    startstring="  
+    replace ecalCosmicsHists.TimeStampStart = $start_time  
+    "
+else  startstring=""
+fi
+
+
+if [[ $run_length > 0.0 ]];then
+    runstring="
+    replace ecalCosmicsHists.TimeStampLength = $run_length
+    "
+else  runstring=""
+fi
+
 cat > "$cfg_path$data_file".graph.$$.cfg <<EOF
 
 
@@ -184,36 +213,36 @@ process TESTGRAPHDUMPER = {
 
     $input_module
 
-es_source src1 = EcalTrivialConditionRetriever{
-     untracked vdouble amplWeights = { -0.333, -0.333, -0.333,
-                                        0.000,  0.000,  1.000,
-                                        0.000,  0.000,  0.000,  0.000 }
-     untracked vdouble pedWeights  = {  0.333,  0.333,  0.333,
-                                        0.000,  0.000,  0.000,
-                                        0.000,  0.000,  0.000,  0.000 }
-     untracked vdouble jittWeights = {  0.040,  0.040,  0.040,
-                                        0.000,  1.320, -0.050,
-                                       -0.500, -0.500, -0.400,  0.000 }
-     untracked double adcToGeVEBConstant = 0.009
+#es_source src1 = EcalTrivialConditionRetriever{
+ #    untracked vdouble amplWeights = { -0.333, -0.333, -0.333,
+  #                                      0.000,  0.000,  1.000,
+   #                                     0.000,  0.000,  0.000,  0.000 }
+    # untracked vdouble pedWeights  = {  0.333,  0.333,  0.333,
+     #                                   0.000,  0.000,  0.000,
+ #                                       0.000,  0.000,  0.000,  0.000 }
+  #   untracked vdouble jittWeights = {  0.040,  0.040,  0.040,
+   #                                     0.000,  1.320, -0.050,
+    #                                   -0.500, -0.500, -0.400,  0.000 }
+     #untracked double adcToGeVEBConstant = 0.009
 
-     untracked string  channelStatusFile = "CaloOnlineTools/EcalTools/data/listCRUZET.v1.hashed.trivial.txt_gio"
+   #  untracked string  channelStatusFile = "CaloOnlineTools/EcalTools/data/listCRUZET.v1.hashed.trivial.txt_gio"
 #     untracked string  channelStatusFile = ""
-} 
-#include "Configuration/StandardSequences/data/FrontierConditions_GlobalTag.cff"
-#replace GlobalTag.globaltag = "CRUZET_V2::All"
+#} 
+include "Configuration/StandardSequences/data/FrontierConditions_GlobalTag.cff"
+replace GlobalTag.globaltag = "CRUZET_V3::All"
 
-#include "CalibCalorimetry/EcalTrivialCondModules/data/EcalTrivialCondRetriever.cfi"
-#replace EcalTrivialConditionRetriever.producedEcalWeights = false
-#replace EcalTrivialConditionRetriever.producedEcalPedestals = false
-#replace EcalTrivialConditionRetriever.producedEcalIntercalibConstants = false
-#replace EcalTrivialConditionRetriever.producedEcalIntercalibErrors = false
-#replace EcalTrivialConditionRetriever.producedEcalGainRatios = false
-#replace EcalTrivialConditionRetriever.producedEcalADCToGeVConstant = false
-#replace EcalTrivialConditionRetriever.producedEcalLaserCorrection = false
+include "CalibCalorimetry/EcalTrivialCondModules/data/EcalTrivialCondRetriever.cfi"
+replace EcalTrivialConditionRetriever.producedEcalWeights = false
+replace EcalTrivialConditionRetriever.producedEcalPedestals = false
+replace EcalTrivialConditionRetriever.producedEcalIntercalibConstants = false
+replace EcalTrivialConditionRetriever.producedEcalIntercalibErrors = false
+replace EcalTrivialConditionRetriever.producedEcalGainRatios = false
+replace EcalTrivialConditionRetriever.producedEcalADCToGeVConstant = false
+replace EcalTrivialConditionRetriever.producedEcalLaserCorrection = false
 #Put this to true to read channel status from file 
-#replace EcalTrivialConditionRetriever.producedChannelStatus = true
-#replace EcalTrivialConditionRetriever.channelStatusFile ="CalibCalorimetry/EcalTrivialCondModules/data/listCRUZET.v1.hashed.trivial.txt_gio"
-#es_prefer = EcalTrivialConditionRetriever{}
+replace EcalTrivialConditionRetriever.producedChannelStatus = true
+replace EcalTrivialConditionRetriever.channelStatusFile ="CalibCalorimetry/EcalTrivialCondModules/data/listCRUZET.v1.hashed.trivial.txt_gio"
+es_prefer = EcalTrivialConditionRetriever{}
 
 include "CalibCalorimetry/EcalLaserCorrection/data/ecalLaserCorrectionService.cfi"
 
@@ -242,16 +271,34 @@ module ecalUncalibHit = ecalFixedAlphaBetaFitUncalibRecHit from "RecoLocalCalo/E
       replace ecalCosmicsHists.histogramMaxRange = $hist_max
       replace ecalCosmicsHists.histogramMinRange = $hist_min
       replace ecalCosmicsHists.fileName =  '$data_file.$$.graph'
+      $startstring
+      $runstring
 
     include "L1TriggerConfig/L1ScalesProducers/data/L1MuTriggerScalesConfig.cff"
-    include "L1TriggerConfig/L1ScalesProducers/data/L1MuGMTScalesConfig.cff"
-    include "L1TriggerConfig/GctConfigProducers/data/L1GctConfig.cff"
-    include "L1TriggerConfig/L1GtConfigProducers/data/L1GtConfig.cff"
-    include "L1TriggerConfig/GMTConfigProducers/data/L1MuGMTParametersConfig.cff"
+   # include "L1TriggerConfig/L1ScalesProducers/data/L1MuGMTScalesConfig.cff"
+   # include "L1TriggerConfig/GctConfigProducers/data/L1GctConfig.cff"
+   # include "L1TriggerConfig/L1GtConfigProducers/data/L1GtConfig.cff"
+   # include "L1TriggerConfig/GMTConfigProducers/data/L1MuGMTParametersConfig.cff"
 
     #module gctDigis = l1GctHwDigis from "EventFilter/GctRawToDigi/data/l1GctHwDigis.cfi"
     module gtDigis = l1GtUnpack from "EventFilter/L1GlobalTriggerRawToDigi/data/l1GtUnpack.cfi"
     replace gtDigis.DaqGtInputTag = source
+	
+	#
+## Required for TrackAssociator
+##
+include "MagneticField/Engine/data/volumeBasedMagneticField.cfi"
+include "Geometry/CMSCommonData/data/cmsIdealGeometryXML.cfi"
+include "Geometry/CaloEventSetup/data/CaloGeometry.cfi"
+include "Geometry/CommonDetUnit/data/globalTrackingGeometry.cfi"
+include "Geometry/MuonNumbering/data/muonNumberingInitialization.cfi"  
+include "TrackingTools/TrackAssociator/data/DetIdAssociatorESProducer.cff"
+# add the SteppingHelixPropagator to the EventSetup
+include "TrackPropagation/SteppingHelixPropagator/data/SteppingHelixPropagatorAny.cfi"
+include "TrackPropagation/SteppingHelixPropagator/data/SteppingHelixPropagatorAlong.cfi"
+include "TrackPropagation/SteppingHelixPropagator/data/SteppingHelixPropagatorOpposite.cfi"
+### Magnetic field: force mag field to be 0.0 tesla
+include "Configuration/GlobalRuns/data/ForceZeroTeslaField.cff"
 
     path p = {ecalEBunpacker, ecalUncalibHit, ecalRecHit, cosmicClusteringSequence, gtDigis, ecalCosmicsHists}
 
