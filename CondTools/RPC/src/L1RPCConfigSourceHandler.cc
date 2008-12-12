@@ -35,7 +35,7 @@ void popcon::L1RPCConfigSourceHandler::getNewObjects()
 //            << tagInfo().lastPayloadToken << std::endl;
 
 // first check what is already there in offline DB
-	const L1RPCConfig* patterns_prev;
+	const L1RPCConfig* patterns_prev = 0; //just to avoid warnings
 
         if(m_validate==1) {
           std::cout<<" Validation was requested, so will check present contents"<<std::endl;
