@@ -16,8 +16,6 @@
 #include <string>
 #include <TFile.h>
 #include <TTree.h>
-#include <TH2.h>
-
 
 class CaloSubdetectorGeometry ;
 
@@ -26,15 +24,13 @@ class CaloSubdetectorGeometry ;
 class towerEner {   
  public:
   float eRec_ ;
-  float data_[10] ;
   int tpgEmul_[5] ;
   int tpgADC_; 
-  int iphi_, ieta_, iSM_, ttf_, fg_ ;
+  int iphi_, ieta_, nbXtal_ ;
   towerEner()
     : eRec_(0), tpgADC_(0),  
-      iphi_(-999), ieta_(-999), iSM_(0), ttf_(-999), fg_(-999)
+      iphi_(-999), ieta_(-999), nbXtal_(0)
   { 
-    for (int i=0 ; i<10 ; i ++) data_[i] = 0. ; 
     for (int i=0 ; i<5 ; i ++) tpgEmul_[i] = 0 ; 
   }
 };
@@ -48,43 +44,49 @@ public:
   virtual void beginJob(const edm::EventSetup&) ;
   
 private:
-  void fillShape(EBDataFrame & df) ;
-  void fillShape(towerEner & t) ;
-  void fillOccupancyPlots(towerEner & t) ;
-  void fillEnergyPlots(towerEner & t) ;
-  void fillTPMatchPlots(towerEner & t) ;
+  struct EcalTPGVariables
+  {
+    // event variables
+    uint runNb ;
+    uint evtNb ;
+    uint bxNb ;
+    uint orbitNb ;
+    uint nbOfActiveTriggers ;
+    int activeTriggers[128] ;
+
+    // tower variables
+    uint nbOfTowers ; //max 4032 EB+EE
+    int ieta[4032] ;
+    int iphi[4032] ;
+    int nbOfXtals[4032] ;
+    int rawTPData[4032] ;
+    int rawTPEmul1[4032] ;
+    int rawTPEmul2[4032] ;
+    int rawTPEmul3[4032] ;
+    int rawTPEmul4[4032] ;
+    int rawTPEmul5[4032] ;
+    float eRec[4032] ;
+  } ;
 
 private:
-  TFile *histfile_;
-  TTree *tree_ ;
-  TH2F * shape_[36] ;
-  TH2F * shapeMax_ ;
-  TH2F * occupancyTP_ ;
-  TH2F * occupancyTPEmul_ ;
-  TH2F * occupancyTPEmulMax_ ;
-  TH2F * crystalVsTP_ ;
-  TH2F * crystalVsEmulTP_ ;
-  TH2F * crystalVsEmulTPMax_ ;
-  TH2F * TPVsEmulTP_ ;
-  TH1F * TP_ ;  
-  TH1F * TPEmul_ ;
-  TH1F * TPEmulMax_ ;
-  TH1F * TPMatchEmul_ ;
-  TH1F * TPEmulMaxIndex_ ;
+  TFile * file_;
+  TTree * tree_ ;
+  EcalTPGVariables treeVariables_ ;
 
-  std::string label_;
-  std::string producer_;
-  std::string digi_label_;
-  std::string digi_producerEB_, digi_producerEE_ ;
-  std::string emul_label_;
-  std::string emul_producer_;
+  edm::InputTag tpCollection_ ;
+  edm::InputTag tpEmulatorCollection_ ;
+  edm::InputTag digiCollectionEB_ ;
+  edm::InputTag digiCollectionEE_ ;
+  std::string gtRecordCollectionTag_ ;
+
   bool allowTP_ ;
   bool useEE_ ;
-  int adcCut_, shapeCut_, occupancyCut_ ;
-  int tpgRef_ ;
+  bool print_ ;
 
   const CaloSubdetectorGeometry * theEndcapGeometry_ ;
   const CaloSubdetectorGeometry * theBarrelGeometry_ ;
   edm::ESHandle<EcalTrigTowerConstituentsMap> eTTmap_;
+
+
 };
 
