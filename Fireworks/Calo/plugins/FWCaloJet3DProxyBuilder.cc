@@ -8,12 +8,11 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Dec  2 14:17:03 EST 2008
-// $Id: FWCaloJet3DProxyBuilder.cc,v 1.1 2008/12/02 21:11:52 chrjones Exp $
+// $Id: FWCaloJet3DProxyBuilder.cc,v 1.1 2008/12/04 15:26:01 dmytro Exp $
 //
 
 // system include files
-#include "DataFormats/JetReco/interface/CaloJetCollection.h"
-#include "DataFormats/JetReco/interface/CaloJet.h"
+#include "DataFormats/JetReco/interface/Jet.h"
 
 // user include files
 #include "Fireworks/Core/interface/FW3DSimpleProxyBuilderTemplate.h"
@@ -24,7 +23,7 @@
 #include "Fireworks/Calo/interface/FW3DEveJet.h"
 
 
-class FWCaloJet3DProxyBuilder: public FW3DSimpleProxyBuilderTemplate<reco::CaloJet> {
+class FWCaloJet3DProxyBuilder: public FW3DSimpleProxyBuilderTemplate<reco::Jet> {
       
 public:
    FWCaloJet3DProxyBuilder();
@@ -42,7 +41,7 @@ private:
    
    const FWCaloJet3DProxyBuilder& operator=(const FWCaloJet3DProxyBuilder&); // stop default
    
-   virtual void build(const reco::CaloJet& iData, unsigned int iIndex,TEveElement& oItemHolder) const;
+   virtual void build(const reco::Jet& iData, unsigned int iIndex,TEveElement& oItemHolder) const;
    
    // ---------- member data --------------------------------
 };
@@ -69,7 +68,7 @@ FWCaloJet3DProxyBuilder::FWCaloJet3DProxyBuilder()
 // member functions
 //
 void 
-FWCaloJet3DProxyBuilder::build(const reco::CaloJet& iData, unsigned int iIndex,TEveElement& oItemHolder) const
+FWCaloJet3DProxyBuilder::build(const reco::Jet& iData, unsigned int iIndex,TEveElement& oItemHolder) const
 {
    FW3DEveJet* cone = new FW3DEveJet(iData,"jet","jet");
    cone->SetPickable(kTRUE);
@@ -89,4 +88,4 @@ FWCaloJet3DProxyBuilder::build(const reco::CaloJet& iData, unsigned int iIndex,T
 // static member functions
 //
 
-REGISTER_FW3DDATAPROXYBUILDER(FWCaloJet3DProxyBuilder,reco::CaloJetCollection,"Jets");
+REGISTER_FW3DDATAPROXYBUILDER(FWCaloJet3DProxyBuilder,reco::Jet,"Jets");
