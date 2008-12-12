@@ -47,7 +47,7 @@ class SiStripOfflineDQM: public edm::EDAnalyzer {
   /// Destructor
   virtual ~SiStripOfflineDQM();
 
- protected:
+ private:
 
   /// BeginJob
   void beginJob(edm::EventSetup const& eSetup);
