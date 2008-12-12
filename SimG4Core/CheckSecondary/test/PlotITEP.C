@@ -20,17 +20,20 @@
 #include "TStyle.h"
 #include "TGraph.h"
 
-const int models=5, nEnergy0=8, nEnergy1=7, nEnergy2=10, nEnergy3=8;
+//const int models=5, nEnergy0=8, nEnergy1=7, nEnergy2=10, nEnergy3=8;
 //const int models=2, nEnergy0=8, nEnergy1=7, nEnergy2=10, nEnergy3=8;
 //const int models=6, nEnergy0=8, nEnergy1=7, nEnergy2=10, nEnergy3=8;
-//const int models=4, nEnergy0=8, nEnergy1=7, nEnergy2=10, nEnergy3=8;
+const int models=4, nEnergy0=8, nEnergy1=7, nEnergy2=10, nEnergy3=8;
 //const int models=5, nEnergy0=8, nEnergy1=7, nEnergy2=10, nEnergy3=8;
-std::string Models[6]      = {"LEP", "FTF", "Bertini", "QGSP", "QGSC", "RPG"};
-std::string ModelFiles[6]  = {"LEP", "FTF", "Bertini", "QGSP", "QGSC", "RPG"};
-std::string ModelNames[6]  = {"LEP", "FTF", "Bertini", "QGSP", "QGSC", "RPG"};
+//std::string Models[6]      = {"LEP", "FTF", "Bertini", "QGSP", "QGSC", "RPG"};
+//std::string ModelFiles[6]  = {"LEP", "FTF", "Bertini", "QGSP", "QGSC", "RPG"};
+//std::string ModelNames[6]  = {"LEP", "FTF", "Bertini", "QGSP", "QGSC", "RPG"};
 //std::string Models[5]      = {"LEP", "FTF", "Bertini", "Binary", "QGSC"};
 //std::string ModelFiles[5]  = {"LEP", "FTF", "Bertini", "Binary", "QGSC"};
 //std::string ModelNames[5]  = {"LEP", "FTF", "Bertini", "Binary", "QGSC"};
+std::string Models[4]      = {"Bertini1", "Bertini2", "Bertini3", "Bertini4"};
+std::string ModelFiles[4]  = {"Bertini1", "Bertini2", "Bertini3", "Bertini4"};
+std::string ModelNames[4]  = {"Bertini (9.2.b01)", "Bertini (9.1.ref08)", "Bertini (+ Coulomb)", "Bertini (+Quasi Elastic)"};
 //std::string Models[2]      = {"Bertini", "Bertini"};
 //std::string ModelFiles[2]  = {"OldBertini", "NewBertini"};
 //std::string ModelNames[2]  = {"Bertini (Old)", "Bertini (New)"};
@@ -163,7 +166,7 @@ void plotData(char element[2], char ene[6], char angle[6],
 
 void plotKEx(char ene[6], char angle[6], int first=0, int logy=0, int save=0, 
 	     char beam[8]="proton", char particle[8]="proton", double ymin=-1.,
-	     int leg1=1, int leg2=1, char dir[8]="root", char mark=' ') {
+	     int leg1=1, int leg2=1, char dir[20]="root", char mark=' ') {
 
   setStyle();
   TCanvas *myc = new TCanvas("myc","",800,600); myc->Divide(2,2);
@@ -196,7 +199,7 @@ void plotKEx(char ene[6], char angle[6], int first=0, int logy=0, int save=0,
 
 void plotKEn(char ene[6], int first=0, int logy=0, int save=0, 
 	     char beam[8]="proton", double ymin=-1., int leg1=1, int leg2=1,
-	     char dir[8]="root", char mark=' ') {
+	     char dir[20]="root", char mark=' ') {
 
   setStyle();  
   TCanvas *myc = new TCanvas("myc","",800,600); myc->Divide(2,2);
@@ -226,7 +229,7 @@ void plotKEn(char ene[6], int first=0, int logy=0, int save=0,
 
 void plotKEp(char element[2], char ene[6], int first=0, int logy=0, int save=0,
 	     char beam[8]="proton", double ymin=-1., int leg1=1, int leg2=1, 
-	     char dir[8]="root", char mark=' ') {
+	     char dir[20]="root", char mark=' ') {
 
   setStyle();  
   TCanvas *myc = new TCanvas("myc","",800,600); myc->Divide(2,2);
@@ -256,7 +259,7 @@ void plotKEp(char element[2], char ene[6], int first=0, int logy=0, int save=0,
 
 void plotKE4(char element[2], char ene[6], int first=0, int logy=0, int save=0,
 	     char beam[8]="proton", char particle[8]="proton", double ymin=-1.,
-	     int leg1=1, int leg2=1, char dir[8]="root", char mark=' ') {
+	     int leg1=1, int leg2=1, char dir[20]="root", char mark=' ') {
 
   setStyle();  
   TCanvas *myc = new TCanvas("myc","",800,600); myc->Divide(2,2);
@@ -273,7 +276,7 @@ void plotKE4(char element[2], char ene[6], int first=0, int logy=0, int save=0,
   plotKE(element, ene, "119.0", first, logy,beam,particle,ymin,leg2,dir,markf);
   myc->cd(4); if (logy != 0) gPad->SetLogy(1); gPad->SetLeftMargin(0.15);
   if (mark == 'y') sprintf(markf, "(d)");
-  plotKE(element, ene, "159.6", first, logy,beam,particle,ymin,leg2,dir,markd);
+  plotKE(element, ene, "159.6", first, logy,beam,particle,ymin,leg2,dir,markf);
 
   char fname[40];
   if (save != 0) {
@@ -287,7 +290,7 @@ void plotKE4(char element[2], char ene[6], int first=0, int logy=0, int save=0,
 void plotKE1(char element[2], char ene[6], char angle[6], int first=0, 
 	     int logy=0, int save=0 , char beam[8]="proton", 
 	     char particle[8]="proton", double ymin=-1., int legend=1, 
-	     char dir[8]="root", char markf[4]=" ") {
+	     char dir[20]="root", char markf[4]=" ") {
 
   setStyle();
   TCanvas *myc = new TCanvas("myc","",800,600); myc->SetLeftMargin(0.15);
@@ -308,10 +311,10 @@ void plotKE1(char element[2], char ene[6], char angle[6], int first=0,
 
 void plotKE(char element[2], char ene[6], char angle[6], int first=0, 
 	    int logy=0, char beam[8]="proton", char particle[8]="proton", 
-	    double ymin=-1., int legend=1, char dir[8]="root", 
+	    double ymin=-1., int legend=1, char dir[20]="root", 
 	    char markf[4]=" ") {
 
-  char fname[60], list[20], hname[40], titlx[50];
+  char fname[60], list[40], hname[40], titlx[50];
   TH1F *hi[6];
   int i=0, icol=1;
   sprintf (titlx, "Kinetic Energy of %s (GeV)", particle);
@@ -383,7 +386,7 @@ void plotKE(char element[2], char ene[6], char angle[6], int first=0,
 
   TLegend *leg1;
   if (legend < 0) {
-    leg1 = new TLegend(0.55,0.70,0.90,0.90);
+    leg1 = new TLegend(0.60,0.55,0.90,0.90);
   } else {
     if (markf == " ") leg1 = new TLegend(0.42,0.55,0.90,0.90);
     else              leg1 = new TLegend(0.38,0.70,0.90,0.90);
@@ -414,7 +417,7 @@ void plotKE(char element[2], char ene[6], char angle[6], int first=0,
 
 void plotCT4(char element[2], char ene[6], int first=0, int scan=1, int logy=0,
 	     int save=0, char beam[8]="proton", char particle[8]="proton", 
-	     int leg1=1, int leg2=1, char dir[8]="root") {
+	     int leg1=1, int leg2=1, char dir[20]="root") {
 
   setStyle();
   TCanvas *myc = new TCanvas("myc","",800,600); myc->Divide(2,2);
@@ -439,7 +442,7 @@ void plotCT4(char element[2], char ene[6], int first=0, int scan=1, int logy=0,
  
 void plotCT1(char element[2], char ene[6], double ke, int first=0, int scan=1,
 	     int logy=0, int save=0, char beam[8]="proton", 
-	     char particle[8]="proton", int legend=1, char dir[8]="root") {
+	     char particle[8]="proton", int legend=1, char dir[20]="root") {
 
   setStyle();
   TCanvas *myc = new TCanvas("myc","",800,600); myc->SetLeftMargin(0.15);
@@ -456,7 +459,7 @@ void plotCT1(char element[2], char ene[6], double ke, int first=0, int scan=1,
 
 void plotCT(char element[2], char ene[6], double ke, int first=0, int scan=1,
 	    int logy=0, char beam[8]="proton", char particle[8]="proton", 
-	    int legend=1, char dir[8]="root") {
+	    int legend=1, char dir[20]="root") {
 
   static double pi  = 3.1415926;
   static double deg = pi/180.; 
@@ -465,7 +468,7 @@ void plotCT(char element[2], char ene[6], double ke, int first=0, int scan=1,
   int    nn = (int)(angles.size());
   if (debug) std::cout << " gives " << nn << " angles\n";
 
-  char fname[40], list[20], hname[40];
+  char fname[40], list[40], hname[40];
   TH1F *hi[6];
   int i=0, icol=1;
   double  ymx0=1, ymi0=100., xlow=-1.0, xhigh=1.0;
@@ -563,7 +566,7 @@ void plotCT(char element[2], char ene[6], double ke, int first=0, int scan=1,
 
 void plotBE4(char element[2], int logy=0, int scan=1, int save=0, 
 	     char beam[8]="proton", char particle[8]="proton", 
-	     char dir[8]="root") {
+	     char dir[20]="root") {
 
   setStyle();
   TCanvas *myc = new TCanvas("myc","",800,600); myc->Divide(2,2);
@@ -587,7 +590,7 @@ void plotBE4(char element[2], int logy=0, int scan=1, int save=0,
 
 void plotBE1(char element[2], char angle[6], double ke, int logy=0, int scan=1,
 	     int save=0, char beam[8]="proton", char particle[8]="proton", 
-	     char dir[8]="root") {
+	     char dir[20]="root") {
 
   setStyle();
   TCanvas *myc = new TCanvas("myc","",800,600); myc->SetLeftMargin(0.15);
@@ -608,7 +611,7 @@ void plotBE1(char element[2], char angle[6], double ke, int logy=0, int scan=1,
 
 void plotBE(char element[2], char angle[6], double ke, int logy=0, int scan=1,
 	    char beam[8]="proton", char particle[8]="proton", 
-	    char dir[8]="root") {
+	    char dir[20]="root") {
 
   double ene[15];
   int    nene=0;
@@ -633,7 +636,7 @@ void plotBE(char element[2], char angle[6], double ke, int logy=0, int scan=1,
   }
 
   TGraph *gr[4];
-  char fname[40], list[20], hname[40];
+  char fname[40], list[40], hname[40];
   int j=0, icol=1, ityp=20;
   double  ymx0=1, ymi0=10000., xmi=5.0, xmx=10.0;
   if (scan > 1) { 
@@ -752,7 +755,7 @@ void plotBE(char element[2], char angle[6], double ke, int logy=0, int scan=1,
  
 void plotMT4(char ene[6], int first=0, int logy=0, int save=0,
 	     char particle[8]="piplus", double ymin=-1, int leg1=1, int leg2=1,
-	     char beam[8]="proton", char dir[8]="root", char mark=' ') {
+	     char beam[8]="proton", char dir[20]="root", char mark=' ') {
 
   setStyle();
   TCanvas *myc = new TCanvas("myc","",800,600); myc->Divide(2,2);
@@ -781,7 +784,7 @@ void plotMT4(char ene[6], int first=0, int logy=0, int save=0,
  
 void plotMT4(char element[2], char ene[6], int first=0, int logy=0, int save=0,
 	     char particle[8]="piplus", double ymin=-1, int leg1=1, int leg2=1,
-	     char beam[8]="proton", char dir[8]="root", char mark=' ') {
+	     char beam[8]="proton", char dir[20]="root", char mark=' ') {
 
   setStyle();
   TCanvas *myc = new TCanvas("myc","",800,600); myc->Divide(2,2);
@@ -810,7 +813,7 @@ void plotMT4(char element[2], char ene[6], int first=0, int logy=0, int save=0,
  
 void plotMT1(char element[2], char ene[6], char rapid[6], int first=0, 
 	     int logy=0, int save=0, char particle[8]="piplus", double ymin=-1,
-	     int legend=1, char beam[8]="proton", char dir[8]="root",
+	     int legend=1, char beam[8]="proton", char dir[20]="root",
 	     char markf[4]=" ") {
 
   setStyle();
@@ -828,10 +831,10 @@ void plotMT1(char element[2], char ene[6], char rapid[6], int first=0,
 
 void plotMT(char element[2], char ene[6], char rapid[6], int first=0, 
 	    int logy=0, char particle[8]="piplus", double ymin=-1, 
-	    int legend=0, char beam[8]="proton", char dir[8]="root",
+	    int legend=0, char beam[8]="proton", char dir[20]="root",
 	    char markf[4]=" ") {
 
-  char fname[60], list[20], hname[40], titlx[50], sym[6];
+  char fname[60], list[40], hname[40], titlx[50], sym[6];
   TH1F *hi[6];
   int i=0, icol=1;
   if      (particle=="piminus") sprintf(sym, "#pi^{-}");

@@ -25,7 +25,7 @@ void plotMomentum(char target[6], char list[20], char ene[6], char part[4],
   TFile *fout = TFile::Open(ofile);
   fout->cd();
 
-  char name[60], title[160], ctype[20], ytitle[20], cname[160];
+  char name[160], title[160], ctype[20], ytitle[20], cname[160];
   TH1F *hiParticle[5][20];
   for (unsigned int ii=0; ii<=(types.size()); ii++) {
     if      (ii == 0) sprintf (ctype, "All Particles");
@@ -196,7 +196,8 @@ void plotParticles(char target[6], char list[20], char ene[6], char part[4],
 
 
 void plotMultiplicity(char target[6], char list[20], char part[4], int ymax=25,
-		      char dir[12]="histo", char g4ver[20]="G4.9.1.p01") {
+		      char dir[12]="histo", char g4ver[20]="G4.9.1.p01", 
+		      bool flag=true) {
 
   setStyle();
   gStyle->SetOptTitle(0);
@@ -220,6 +221,12 @@ void plotMultiplicity(char target[6], char list[20], char part[4], int ymax=25,
   std::map<string, double> means_3  =getMean(target,list,part,"3.0",  "Multi",dir);
   std::map<string, double> means_2  =getMean(target,list,part,"2.0",  "Multi",dir);
   std::map<string, double> means_1  =getMean(target,list,part,"1.0",  "Multi",dir);
+  if (flag) {
+    std::map<string, double> means_10 =getMean(target,list,part,"10.0", "Multi",dir);
+    std::map<string, double> means_8  =getMean(target,list,part,"8.0",  "Multi",dir);
+    std::map<string, double> means_6  =getMean(target,list,part,"6.0",  "Multi",dir);
+    std::map<string, double> means_4  =getMean(target,list,part,"4.0",  "Multi",dir);
+  }
 
   char ctype[20];
   std::vector<std::string> types   = types();
@@ -228,7 +235,7 @@ void plotMultiplicity(char target[6], char list[20], char part[4], int ymax=25,
 
   TGraph *gr[20];
   TLegend *leg = new TLegend(0.45, 0.53, 0.90, 0.90);
-  char hdr[40];
+  char hdr[160];
   sprintf(hdr, "%s+%s (%s-%s)", sym, target, g4ver, list);
   leg->SetHeader(hdr);  leg->SetFillColor(10); leg->SetMargin(0.45);
   leg->SetTextSize(.027);
@@ -242,25 +249,36 @@ void plotMultiplicity(char target[6], char list[20], char part[4], int ymax=25,
     // std::cout<<"ii "<<ii<<"  ctype "<<ctype<<std::endl;
 
     string a(ctype);
-    double vx[14], vy[14];
-    vx[0]  = 300.0;  vy[0]  = means_300[a];
-    vx[1]  = 200.0;  vy[1]  = means_200[a];
-    vx[2]  = 150.0;  vy[2]  = means_150[a];
-    vx[3]  = 100.0;  vy[3]  = means_100[a];
-    vx[4]  = 50.0;   vy[4]  = means_50[a];
-    vx[5]  = 30.0;   vy[5]  = means_30[a];
-    vx[6]  = 20.0;   vy[6]  = means_20[a];
-    vx[7]  = 15.0;   vy[7]  = means_15[a];
-    vx[8]  = 9.0;    vy[8]  = means_9[a];
-    vx[9]  = 7.0;    vy[9]  = means_7[a];
-    vx[10] = 5.0;    vy[10] = means_5[a];
-    vx[11] = 3.0;    vy[11] = means_3[a];
-    vx[12] = 2.0;    vy[12] = means_2[a];
-    vx[13] = 1.0;    vy[13] = means_1[a];
+    double vx[18], vy[18];
+    int np=0;
+    vx[np] = 300.0;  vy[np] = means_300[a]; np++;
+    vx[np] = 200.0;  vy[np] = means_200[a]; np++;
+    vx[np] = 150.0;  vy[np] = means_150[a]; np++;
+    vx[np] = 100.0;  vy[np] = means_100[a]; np++;
+    vx[np] = 50.0;   vy[np] = means_50[a];  np++;
+    vx[np] = 30.0;   vy[np] = means_30[a];  np++;
+    vx[np] = 20.0;   vy[np] = means_20[a];  np++;
+    vx[np] = 15.0;   vy[np] = means_15[a];  np++;
+    if (flag) { vx[np] = 10.0;   vy[np] = means_10[a];  np++;}
+    vx[np] = 9.0;    vy[np] = means_9[a];   np++;
+    if (flag) { vx[np] = 8.0;    vy[np] = means_8[a];   np++;}
+    vx[np] = 7.0;    vy[np] = means_7[a];   np++;
+    if (flag) { vx[np] = 6.0;    vy[np] = means_6[a];   np++;}
+    vx[np] = 5.0;    vy[np] = means_5[a];   np++;
+    if (flag && part != "pro") { vx[np] = 4.0;    vy[np] = means_4[a];   np++;}
+    vx[np] = 3.0;    vy[np] = means_3[a];   np++;
+    vx[np] = 2.0;    vy[np] = means_2[a];   np++;
+    vx[np] = 1.0;    vy[np] = means_1[a];   np++;
+
+    if (ii > 20 ) {
+      std::cout << ctype;
+      for (int ix=0; ix<np; ix++) std::cout << " " << vx[ix] << " " << vy[ix];
+      std::cout << "\n";
+    }
 
     gPad->SetLogx(1);
     gPad->SetGridx(1); gPad->SetGridy(1);
-    gr[ii] = new TGraph(14, vx,vy);
+    gr[ii] = new TGraph(np, vx,vy);
     sprintf(name, "Multiplicity of secondaries %s-%s (%s %s)", sym, target, g4ver, list);
     gr[ii]->SetTitle(name);
     gr[ii]->GetXaxis()->SetTitle("Beam Momentum (GeV)");
@@ -304,7 +322,7 @@ void plotMultiplicity(char target[6], char list[20], char ene[6], char part[4],
   TFile *fout = TFile::Open(ofile);
   fout->cd();
 
-  char name[60], title[160], ctype[20], ytitle[20], cname[160];
+  char name[160], title[160], ctype[20], ytitle[20], cname[160];
   TH1I *hiMulti[20];
   for (unsigned int ii=0; ii<=(typeOld.size()); ii++) {
     if      (ii == 0) sprintf (ctype, "All Particles");
@@ -334,7 +352,7 @@ void plotMultiplicity(char target[6], char list[20], char ene[6], char part[4],
     hiMulti[ii]->Draw();
 
     TLegend *leg = new TLegend(0.35, 0.80, 0.8, 0.87);
-    char hdr[120];
+    char hdr[160];
     sprintf(hdr, "%s+%s at %s GeV (%s-%s)", sym, target, ene, g4ver, list);
     leg->SetHeader(hdr);  leg->SetFillColor(10); leg->SetMargin(0.45);
     leg->SetTextSize(.036); leg->Draw("same");
@@ -342,12 +360,13 @@ void plotMultiplicity(char target[6], char list[20], char ene[6], char part[4],
 }
 
 void plotTotalKE(char target[6], char list[20], char part[4], 
-		 char dir[12]="histo", char g4ver[20]="G4.9.1.p01") {
+		 char dir[12]="histo", char g4ver[20]="G4.9.1.p01",
+		 bool flag=true) {
 
   setStyle();
   gStyle->SetOptTitle(0);
 
-  char name[500];
+  char name[1024];
   char sym[10];
   if      (part=="pim") sprintf(sym, "#pi^{-}");
   else if (part=="pip") sprintf(sym, "#pi^{+}");
@@ -367,6 +386,12 @@ void plotTotalKE(char target[6], char list[20], char part[4],
   std::map<string, double> means_3  =getMean(target,list,part,"3.0",  "TotalKE",dir);
   std::map<string, double> means_2  =getMean(target,list,part,"2.0",  "TotalKE",dir);
   std::map<string, double> means_1  =getMean(target,list,part,"1.0",  "TotalKE",dir);
+  if (flag) {
+    std::map<string, double> means_10 =getMean(target,list,part,"10.0", "TotalKE",dir);
+    std::map<string, double> means_8  =getMean(target,list,part,"8.0",  "TotalKE",dir);
+    std::map<string, double> means_6  =getMean(target,list,part,"6.0",  "TotalKE",dir);
+    std::map<string, double> means_4  =getMean(target,list,part,"4.0",  "TotalKE",dir);
+  }
 
   char ctype[20];
   std::vector<std::string> types   = types();
@@ -375,7 +400,7 @@ void plotTotalKE(char target[6], char list[20], char part[4],
 
   TGraph *gr[20];
   TLegend *leg = new TLegend(0.55, 0.45, 0.9, 0.80);
-  char hdr[40];
+  char hdr[160];
   sprintf(hdr, "%s+%s (%s-%s)", sym, target, g4ver, list);
   leg->SetHeader(hdr);
   leg->SetFillColor(10);
@@ -390,28 +415,33 @@ void plotTotalKE(char target[6], char list[20], char part[4],
 
     string a(ctype);
     //    std::cout<<a<<" "<< means_300[a]<<std::endl;
-    double vx[14], vy[14];
-    vx[0]  = 300.0;  vy[0]  = means_300[a];
-    vx[1]  = 200.0;  vy[1]  = means_200[a];
-    vx[2]  = 150.0;  vy[2]  = means_150[a];
-    vx[3]  = 100.0;  vy[3]  = means_100[a];
-    vx[4]  = 50.0;   vy[4]  = means_50[a];
-    vx[5]  = 30.0;   vy[5]  = means_30[a];
-    vx[6]  = 20.0;   vy[6]  = means_20[a];
-    vx[7]  = 15.0;   vy[7]  = means_15[a];
-    vx[8]  = 9.0;    vy[8]  = means_9[a];
-    vx[9]  = 7.0;    vy[9]  = means_7[a];
-    vx[10] = 5.0;    vy[10] = means_5[a];
-    vx[11] = 3.0;    vy[11] = means_3[a];
-    vx[12] = 2.0;    vy[12] = means_2[a];
-    vx[13] = 1.0;    vy[13] = means_1[a];
+    double vx[18], vy[18];
+    int np=0;
+    vx[np] = 300.0;  vy[np] = means_300[a]; np++;
+    vx[np] = 200.0;  vy[np] = means_200[a]; np++;
+    vx[np] = 150.0;  vy[np] = means_150[a]; np++;
+    vx[np] = 100.0;  vy[np] = means_100[a]; np++;
+    vx[np] = 50.0;   vy[np] = means_50[a];  np++;
+    vx[np] = 30.0;   vy[np] = means_30[a];  np++;
+    vx[np] = 20.0;   vy[np] = means_20[a];  np++;
+    vx[np] = 15.0;   vy[np] = means_15[a];  np++;
+    if (flag) { vx[np] = 10.0;   vy[np] = means_10[a];  np++;}
+    vx[np] = 9.0;    vy[np] = means_9[a];   np++;
+    if (flag) { vx[np] = 8.0;    vy[np] = means_8[a];   np++;}
+    vx[np] = 7.0;    vy[np] = means_7[a];   np++;
+    if (flag) { vx[np] = 6.0;    vy[np] = means_6[a];   np++;}
+    vx[np] = 5.0;    vy[np] = means_5[a];   np++;
+    if (flag && part != "pro") { vx[np] = 4.0;    vy[np] = means_4[a];   np++;}
+    vx[np] = 3.0;    vy[np] = means_3[a];   np++;
+    vx[np] = 2.0;    vy[np] = means_2[a];   np++;
+    vx[np] = 1.0;    vy[np] = means_1[a];   np++;
 
-    for (int i=0; i<14; i++) vy[i] = vy[i]/vx[i];
+    for (int i=0; i<np; i++) vy[i] = vy[i]/vx[i];
 
     gPad->SetLogx(1);
     gPad->SetGridx(1);
     gPad->SetGridy(1);
-    gr[ii] = new TGraph(14, vx,vy);
+    gr[ii] = new TGraph(np, vx,vy);
     sprintf(name, "KE carried by secondaries in %s-%s (%s)", sym, target, list);
     gr[ii]->SetTitle(name);
     gr[ii]->GetXaxis()->SetTitle("Beam Momentum (GeV)");
@@ -440,7 +470,7 @@ void plotKE(char target[6], char list[20], char ene[6], char part[4],
   gStyle->SetOptTitle(0);
   gStyle->SetOptLogy(1);
 
-  char name[500];
+  char name[1024];
   char sym[10];
   if      (part=="pim") sprintf(sym, "#pi^{-}");
   else if (part=="pip") sprintf(sym, "#pi^{+}");
@@ -458,7 +488,7 @@ void plotKE(char target[6], char list[20], char ene[6], char part[4],
   TFile *fout = TFile::Open(ofile);
   fout->cd();
 
-  char name[60], title[160], ctype[20], ytitle[20], cname[160], pre[10];
+  char name[160], title[160], ctype[20], ytitle[20], cname[160], pre[10];
   TH1F *hiKE[20];
   if (typ == 0) sprintf (pre, "KE2");
   else          sprintf (pre, "TotalKE");
@@ -492,7 +522,7 @@ void plotKE(char target[6], char list[20], char ene[6], char part[4],
     hiKE[ii]->Draw();
 
     TLegend *leg = new TLegend(0.35, 0.80, 0.8, 0.87);
-    char hdr[120];
+    char hdr[160];
     sprintf(hdr, "%s+%s at %s GeV (%s-%s)", sym, target, ene, g4ver, list);
     leg->SetHeader(hdr);  leg->SetFillColor(10); leg->SetMargin(0.45);
     leg->SetTextSize(.036); leg->Draw("same");
@@ -502,7 +532,7 @@ void plotKE(char target[6], char list[20], char ene[6], char part[4],
   if (typ == 0) sprintf (cname, "Kinetic Energy (GeV)");
   else          sprintf (cname, "Total Kinetic Energy (GeV)");
   hiKE[6]->GetXaxis()->SetTitle(cname);
-  char hdr[120];
+  char hdr[160];
   sprintf(hdr, "%s+%s at %s GeV (%s-%s)", sym, target, ene, g4ver, list);
   leg1->SetHeader(hdr);  leg1->SetFillColor(10); leg1->SetMargin(0.45);
   sprintf(cname, "c_%s%s_%s_%sGeV_%s(Pion)", target,list,part,ene,pre);
@@ -568,7 +598,7 @@ std::map<string, double> getMean(char target[6], char list[20], char part[5],
 
     sprintf (name, "%s%s%s%sGeV(%s)", ctyp0, target, list, ene, ctype);
     hi[ii] = (TH1I*)fout->FindObjectAny(name);
-    //    std::cout << "Histo " << ii << " Name " << name << " " << hi[ii] << "\n";
+    //    std::cout << "Histo " << ii << " Name " << name << " " << hi[ii] << " " << hi[ii]->GetMean() << "\n";
     
     string a(ctype);
     means[a] = hi[ii]->GetMean();

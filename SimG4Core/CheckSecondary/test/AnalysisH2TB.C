@@ -520,6 +520,7 @@ double rhoL(char element[6]) {
   double tmp=0;
   if      (element == "Brass") tmp = 8.50 * 0.40;
   else if (element == "PbWO4") tmp = 8.28 * 0.30;
+  else if (element == "Fe")    tmp = 7.87 * 0.30;
   else if (element == "H")     tmp = 0.0708 * 12.0;
   else if (element == "D")     tmp = 0.162  * 6.0;
   return tmp;
@@ -530,6 +531,7 @@ double atomicWt(char element[6]) {
   double tmp=0;
   if      (element == "Brass") tmp = 64.228;
   else if (element == "PbWO4") tmp = 455.036;
+  else if (element == "Fe")    tmp = 55.85;
   else if (element == "H")     tmp = 1.0079;
   else if (element == "D")     tmp = 2.01;
   return tmp;
