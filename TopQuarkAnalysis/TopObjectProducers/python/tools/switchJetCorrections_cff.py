@@ -10,8 +10,8 @@ import FWCore.ParameterSet.Config as cms
 #
 #----------------------------------------------------------------------------------------
 
-## define proper jet correction service
-from JetMETCorrections.Configuration.GFCorrections_StepEfracParameterization_cff import *
+## define proper jet correction service here
+## from JetMETCorrections.Configuration.GFCorrections_StepEfracParameterization_cff import *
 
 ## do proper replacements
 ## add the label of the JetCorrectionService here
