@@ -18,6 +18,7 @@ class SiStripClusterValidator : public edm::EDAnalyzer {
   virtual void beginJob(const edm::EventSetup& setup);
   virtual void endJob();
   virtual void analyze(const edm::Event& event, const edm::EventSetup& setup);
+  void validate(const edm::DetSetVector<SiStripCluster>&, const edm::DetSetVector<SiStripCluster>&);
   void validate(const edmNew::DetSetVector<SiStripCluster>&, const edmNew::DetSetVector<SiStripCluster>&);
 
  private:
@@ -25,10 +26,12 @@ class SiStripClusterValidator : public edm::EDAnalyzer {
   /// Input collections
   edm::InputTag collection1Tag_;
   edm::InputTag collection2Tag_;
+  bool dsvnew_;
   /// used to remember if there have been errors for message in endJob
   bool errors_;
 };
 
 std::ostream& operator<<(std::ostream&, const edmNew::DetSetVector<SiStripCluster>&);
+std::ostream& operator<<(std::ostream&, const edm::DetSetVector<SiStripCluster>&);
 
 #endif /// RecoLocalTracker_SiStripClusterizer_SiStripClusterValidator_H
