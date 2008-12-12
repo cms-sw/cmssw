@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/12/08 13:50:28 $
- *  $Revision: 1.9 $
+ *  $Date: 2008/12/10 10:28:23 $
+ *  $Revision: 1.10 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -103,7 +103,6 @@ void DTResolutionAnalysisTest::beginLuminosityBlock(LuminosityBlock const& lumiS
 void DTResolutionAnalysisTest::analyze(const edm::Event& e, const edm::EventSetup& context){
 
   nevents++;
-  edm::LogVerbatim ("DTDQM|DTMonitorClient|DTResolutionAnalysisTest") << "[DTResolutionAnalysisTest]: "<<nevents<<" events";
 
 }
 
@@ -123,8 +122,6 @@ void DTResolutionAnalysisTest::endLuminosityBlock(LuminosityBlock const& lumiSeg
    vector<DTChamber*>::const_iterator ch_it = muonGeom->chambers().begin();
   vector<DTChamber*>::const_iterator ch_end = muonGeom->chambers().end();
 
-  edm::LogVerbatim ("DTDQM|DTMonitorClient|DTResolutionAnalysisTest") << "[DTResolutionTest]: Residual Distribution tests results";
-  
   for (; ch_it != ch_end; ++ch_it) {
 
     DTChamberId chID = (*ch_it)->id();
@@ -157,8 +154,8 @@ void DTResolutionAnalysisTest::endLuminosityBlock(LuminosityBlock const& lumiSeg
 	  try {
 	    histo_root->Fit(gfit);
 	  } catch (...) {
-	    edm::LogError ("DTDQM|DTMonitorModule|DTResolutionAnalysisTask")<< "[DTResolutionAnalysisTask]: Exception when fitting..."
-									    << "SuperLayer : " << slID;
+	    edm::LogWarning ("DTDQM|DTMonitorModule|DTResolutionAnalysisTask")
+	      << "[DTResolutionAnalysisTask]: Exception when fitting SL : " << slID;
 	    continue;
 	  }
 	  if(gfit){
@@ -208,11 +205,11 @@ void DTResolutionAnalysisTest::endLuminosityBlock(LuminosityBlock const& lumiSeg
 	// Mean test
 	double mean = MeanHistos.find(make_pair(wheel,sector))->second->getBinContent(bin);
 	if(mean<(-permittedMeanRange) || mean>permittedMeanRange){
-	  edm::LogError("DTDQM|DTMonitorClient|DTResolutionAnalysisTest") << "Bad mean channel: wh: " << wheel
-									  << " st: " << stationFromBin(bin)
-									  << " sect: " <<sector
-									  << " sl: " << slFromBin(bin)
-									  << " mean (cm): " << mean;
+// 	  edm::LogError("DTDQM|DTMonitorClient|DTResolutionAnalysisTest") << "Bad mean channel: wh: " << wheel
+// 									  << " st: " << stationFromBin(bin)
+// 									  << " sect: " <<sector
+// 									  << " sl: " << slFromBin(bin)
+// 									  << " mean (cm): " << mean;
 	  // fill the wheel summary histos
 	  if(bin<12){
 	    wheelMeanHistos[wheel]->Fill(sector,bin);
@@ -227,11 +224,11 @@ void DTResolutionAnalysisTest::endLuminosityBlock(LuminosityBlock const& lumiSeg
 	// Sigma test
 	double sigma = SigmaHistos.find(make_pair(wheel,sector))->second->getBinContent(bin);
 	if(sigma>permittedSigmaRange){
-	  edm::LogError("DTDQM|DTMonitorClient|DTResolutionAnalysisTest") << "Bad sigma: wh: " << wheel
-									  << " st: " << stationFromBin(bin)
-									  << " sect: " <<sector
-									  << " sl: " << slFromBin(bin)
-									  << " sigma (cm): " << sigma;
+// 	  edm::LogError("DTDQM|DTMonitorClient|DTResolutionAnalysisTest") << "Bad sigma: wh: " << wheel
+// 									  << " st: " << stationFromBin(bin)
+// 									  << " sect: " <<sector
+// 									  << " sl: " << slFromBin(bin)
+// 									  << " sigma (cm): " << sigma;
 	  // fill the wheel summary histos
 	  if(bin<12){
 	    wheelSigmaHistos[wheel]->Fill(sector,bin);
