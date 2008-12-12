@@ -1,8 +1,8 @@
  /* 
  *  See header file for a description of this class.
  *
- *  $Date: 2008/11/25 15:00:14 $
- *  $Revision: 1.9 $
+ *  $Date: 2008/12/12 17:52:57 $
+ *  $Revision: 1.10 $
  *  \author D. Pagano - Dip. Fis. Nucl. e Teo. & INFN Pavia
  */
 
@@ -46,11 +46,7 @@ RPCFw::run()
 
 
 //----------------------------- I M O N ------------------------------------------------------------------------
-<<<<<<< RPCFw.cc
 std::vector<RPCObImon::I_Item> RPCFw::createIMON(int from)
-=======
-std::vector<RPCObCond::Item> RPCFw::createIMON(int from)
->>>>>>> 1.9
 {
   thr = UTtoT(from);
   std::cout <<">> Processing since: "<<thr.day()<<"/"<<thr.month()<<"/"<<thr.year()<<" "<<thr.hour()<<":"<<thr.minute()<<"."<<thr.second()<< std::endl;
@@ -75,13 +71,8 @@ std::vector<RPCObCond::Item> RPCFw::createIMON(int from)
   conditionData[0].data<coral::TimeStamp>() = thr;
   coral::ICursor& cursorI = queryI->execute();
 
-<<<<<<< RPCFw.cc
   RPCObImon::I_Item Itemp;
   std::vector<RPCObImon::I_Item> imonarray;
-=======
-  RPCObCond::Item Itemp;
-  std::vector<RPCObCond::Item> imonarray;
->>>>>>> 1.9
   while ( cursorI.next() ) {
     const coral::AttributeList& row = cursorI.currentRow();
     float idoub = row["DPID"].data<float>();
@@ -111,11 +102,7 @@ std::vector<RPCObCond::Item> RPCFw::createIMON(int from)
 
 
 //------------------------------------------------------- V M O N ---------------------------------------------------
-<<<<<<< RPCFw.cc
 std::vector<RPCObVmon::V_Item> RPCFw::createVMON(int from)
-=======
-std::vector<RPCObCond::Item> RPCFw::createVMON(int from)
->>>>>>> 1.9
 {
   thr = UTtoT(from);
   std::cout <<">> Processing since: "<<thr.day()<<"/"<<thr.month()<<"/"<<thr.year()<<" "<<thr.hour()<<":"<<thr.minute()<<"."<<thr.second()<< std::endl;
@@ -140,13 +127,8 @@ std::vector<RPCObCond::Item> RPCFw::createVMON(int from)
   conditionData[0].data<coral::TimeStamp>() = thr;
   coral::ICursor& cursorV = queryV->execute();
 
-<<<<<<< RPCFw.cc
   RPCObVmon::V_Item Vtemp;
   std::vector<RPCObVmon::V_Item> vmonarray;
-=======
-  RPCObCond::Item Vtemp;
-  std::vector<RPCObCond::Item> vmonarray;
->>>>>>> 1.9
   while ( cursorV.next() ) {
     const coral::AttributeList& row = cursorV.currentRow();
     float idoub = row["DPID"].data<float>();
@@ -173,11 +155,7 @@ std::vector<RPCObCond::Item> RPCFw::createVMON(int from)
 
 
 //------------------------------ S T A T U S ---------------------------------------------------------------------
-<<<<<<< RPCFw.cc
 std::vector<RPCObStatus::S_Item> RPCFw::createSTATUS(int from)
-=======
-std::vector<RPCObCond::Item> RPCFw::createSTATUS(int from)
->>>>>>> 1.9
 {
   thr = UTtoT(from);
   std::cout <<">> Processing since: "<<thr.day()<<"/"<<thr.month()<<"/"<<thr.year()<<" "<<thr.hour()<<":"<<thr.minute()<<"."<<thr.second()<< std::endl;
@@ -202,13 +180,8 @@ std::vector<RPCObCond::Item> RPCFw::createSTATUS(int from)
   conditionData[0].data<coral::TimeStamp>() = thr;
   coral::ICursor& cursorS = queryS->execute();
 
-<<<<<<< RPCFw.cc
   RPCObStatus::S_Item Stemp;
   std::vector<RPCObStatus::S_Item> statusarray;
-=======
-  RPCObCond::Item Stemp;
-  std::vector<RPCObCond::Item> statusarray;
->>>>>>> 1.9
   while ( cursorS.next() ) {
     const coral::AttributeList& row = cursorS.currentRow();
     float idoub = row["DPID"].data<float>();
@@ -299,11 +272,7 @@ std::vector<RPCObGas::Item> RPCFw::createGAS(int from)
 
 
 //------------------------------ T E M P E R A T U R E ---------------------------------------------------------------------
-<<<<<<< RPCFw.cc
 std::vector<RPCObTemp::T_Item> RPCFw::createT(int from)
-=======
-std::vector<RPCObCond::Item> RPCFw::createT(int from)
->>>>>>> 1.9
 {
   thr = UTtoT(from);
   std::cout <<">> Processing since: "<<thr.day()<<"/"<<thr.month()<<"/"<<thr.year()<<" "<<thr.hour()<<":"<<thr.minute()<<"."<<thr.second()<< std::endl;
@@ -328,13 +297,8 @@ std::vector<RPCObCond::Item> RPCFw::createT(int from)
   conditionData[0].data<coral::TimeStamp>() = thr;
   coral::ICursor& cursorS = queryS->execute();
 
-<<<<<<< RPCFw.cc
   RPCObTemp::T_Item Ttemp;
   std::vector<RPCObTemp::T_Item> temparray;
-=======
-  RPCObCond::Item Ttemp;
-  std::vector<RPCObCond::Item> temparray;
->>>>>>> 1.9
   while ( cursorS.next() ) {
     const coral::AttributeList& row = cursorS.currentRow();
     float idoub = row["DPID"].data<float>();
