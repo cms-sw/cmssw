@@ -22,8 +22,8 @@
 
 #include "G4hIonisation.hh"
 #include "G4ionIonisation.hh"
-//#include "G4hBremsstrahlung.hh"
-//#include "G4hPairProduction.hh"
+#include "G4hBremsstrahlung.hh"
+#include "G4hPairProduction.hh"
 
 #include "G4Gamma.hh"
 #include "G4Electron.hh"
@@ -196,7 +196,7 @@ void CMSEmStandardPhysics71::ConstructProcess() {
 
       pmanager->AddProcess(new G4hMultipleScattering, -1, 1, 1);
       pmanager->AddProcess(new G4hIonisation,         -1, 2, 2);
-      /*
+
       if (particleName == "pi+" ||
 	  particleName == "kaon+" ||
 	  particleName == "kaon-" ||
@@ -205,7 +205,7 @@ void CMSEmStandardPhysics71::ConstructProcess() {
 	pmanager->AddProcess(new G4hBremsstrahlung(), -1, 3, 3);
 	pmanager->AddProcess(new G4hPairProduction(), -1, 4, 4);
       }
-      */
+
     }
   }
   G4EmProcessOptions opt;
