@@ -23,8 +23,7 @@
 
 import sys, os, re, operator
 import optparse as opt
-from cmsPerfCommons import Candles, MIN_REQ_TS_EVENTS, CandDesc, FileName, KeywordToCfi, CandFname
-
+from cmsPerfCommons import Candles, MIN_REQ_TS_EVENTS, CandDesc, FileName, KeywordToCfi, CustomiseFragment, CandFname
 ################
 # Global variables
 #
@@ -33,9 +32,9 @@ THIS_PROG_NAME = os.path.basename(sys.argv[0])
 cmsDriver = 'cmsDriver.py'                    #cmsDriver.py path
 hypreg = re.compile('-')
 debug = False
-DEF_STEPS = ('GEN,SIM', 'DIGI')
+DEF_STEPS = ['GEN,SIM', 'DIGI']
 AllSteps  = ["GEN,SIM", "DIGI", "L1", "DIGI2RAW", "HLT", "RAW2DIGI","RECO"]
-AfterPileUpSteps = AllSteps[2:]
+AfterPileUpSteps=[]
 
 # Global variables used by writeCommandsToReport and dependents
 
@@ -106,7 +105,7 @@ def getSteps(userSteps):
         elif greg.search(astep):
             astep = greg.sub(r"GEN,SIM", astep)
             
-        # print astep
+        print astep
         # Finally collect all the steps into the @Steps array:
 
         steps.append(astep)
@@ -210,6 +209,7 @@ def optionparse():
     parser.add_option_group(devel)
 
     (options, args) = parser.parse_args()
+    
 
     _noprof = options.noprof
     debug = options.debug
@@ -260,7 +260,7 @@ def expandHyphens(step):
 def setupProgramParameters(options,args):
     steps = []
     cmsDriverOptions = ""
-
+    global AfterPileUpSteps
     NumberOfEvents = int(args[0])  # first arg
     WhichCandles   = str(args[1])  # second arg
     ProfileCode = ""
@@ -276,6 +276,39 @@ def setupProgramParameters(options,args):
 
         userSteps = options.userSteps
         steps = getSteps(userSteps)
+        #Set the steps to be run after DIGI-PILEUP:
+        #FIXME: This is not very robust composite steps could mess up things...
+        #but for now let's assume PILE UP is not run in all complicated cases...
+        if 'DIGI' in steps:
+            AfterPileUpSteps = steps[steps.index('DIGI')+1:] #The DIGI step needs to be included to actually do the pileup!
+        else:
+            #The following should work for the case L1-RECO and RAW2DIGI-RECO...
+            if steps[0] in AllSteps:
+                if AllSteps.index(steps[0]) == AllSteps.index('DIGI')+1 : #i.e. if steps[0] is L1...
+                    AfterPileUpSteps.append(AllSteps[AllSteps.index(steps[0])])
+                else:
+                    for StepIndex in range(AllSteps.index('DIGI')+1, AllSteps.index(steps[0])+1):
+                        AfterPileUpSteps.append(AllSteps[StepIndex])
+            elif expandHyphens(steps[0])[0] in AllSteps:
+                
+                #Add the following cases:
+                #1-Step1 : --step GEN-HLT ->Run the DIGI-PU and then all steps from L1 to HLT.
+                #2-Step2: --RAW2DIGI-RECO (keep in mind it could change so make this configurable in cmsPErfCommons.py ->run DIGI-PU and then  
+                #3-GEN-SIM,DIGI
+                #4-Userdefined in cmsPerfCommons.py
+                #Other way we need to handle the hyphens even in here... and open everythin up...
+                if AllSteps.index(expandHyphens(steps[0])[0]) == AllSteps.index('DIGI')+1 : #i.e. if steps[0] is L1...
+                    AfterPileUpSteps.append(AllSteps[AllSteps.index(expandHyphens(steps[0])[0])])
+                else:
+                    for StepIndex in range(AllSteps.index('DIGI')+1, AllSteps.index(expandHyphens(steps[0])[0])+1):
+                        if AllSteps[StepIndex]=='RAW2DIGI':#Dirty hardcoded stuff to handle RAW2DIGI-RECO as one step (should we just hardcode this in the steps?Any negative onsequences?
+                            AfterPileUpSteps.append('RAW2DIGI-RECO')
+                        else:
+                            AfterPileUpSteps.append(AllSteps[StepIndex])
+                if expandHyphens(steps[0])[1] in AllSteps and not expandHyphens(steps[0])[1]=='RECO': #Dirty hardcoded stuff to handle RAW2DIGI-RECO as one step (should we just hardcode this in the steps?Any negative onsequences?
+                    AfterPileUpSteps.append(AllSteps[AllSteps.index(expandHyphens(steps[0])[1])])
+            AfterPileUpSteps.extend(steps[1:])
+            print "After pileup steps: %s"%AfterPileUpSteps
 
     if WhichCandles.lower() == 'allcandles':
         Candle = Candles
@@ -384,31 +417,33 @@ def determineNewProfile(step,Profile,SavedProfile):
 
     return (Profile, SavedProfile)
 
-def pythonFragment(step):
-    # Convenient dictionary to map the correct Simulation Python fragment:
+def pythonFragment(step,cmsdriverOptions):
+    # Convenient dictionary to map the correct customise Python fragment for cmsDriver.py:
+    #It is now living in cmsPerfCommons.py!
 
-    CustomiseFragment = {
-         'GEN,SIM': 'Validation/Performance/TimeMemoryG4Info.py',
-         'DIGI': 'Validation/Performance/TimeMemoryInfo.py'}
-
-    if CustomiseFragment.has_key(step):
-        return CustomiseFragment[step]
+ #   CustomiseFragment = {
+ #        'GEN,SIM': 'Validation/Performance/TimeMemoryG4Info.py',
+ #        'DIGI': 'Validation/Performance/TimeMemoryInfo.py',
+ #        'DIGI-PILEUP':'Validation/Performance/MixingModule.py'}
+    
+    if "--pileup" in cmsdriverOptions:
+        return CustomiseFragment['DIGI-PILEUP']
+    elif CustomiseFragment.has_key(step):
+        return CustomiseFragment[step] 
     else:
-
-        # Temporary hack to have potentially added steps use the default TimeMemoryInfo.py fragment
-        # This should change once each group customises its customise python fragments.
-
+        #This is a safe default in any case,
+        #the maintenance of the customise python fragments goes into cmsPerfCommons.py
         return CustomiseFragment['DIGI']
 
 
-def setInputFile(steps,step,acandle,stepIndex,qcd=False,bypasshlt=False):
+def setInputFile(steps,step,acandle,stepIndex,pileup=False,bypasshlt=False):
     InputFileOption = ""
-    if qcd and stepIndex == 0:
+    if pileup and stepIndex == 0:
         InputFileOption = "--filein file:%s_%s" % ( FileName[acandle],"DIGI" )
     else:
         InputFileOption = "--filein file:%s_%s" % ( FileName[acandle],steps[stepIndex - 1] )
         
-    if qcd:
+    if pileup:
         pass
     else :
         if 'GEN,SIM' in step:  # there is no input file for GEN,SIM!
@@ -430,6 +465,8 @@ def writeUnprofiledSteps(simcandles,CustomisePythonFragment,cmsDriverOptions,unp
     stepsStr = ",".join(unprofiledSteps)
 
     simcandles.write("\n#Run a %s step(s) that has not been selected for profiling but is needed to run the next step to be profiled\n" % (stepsStr))
+    #print "unprofiledSteps is %s"%unprofiledSteps
+    #print "22acandle is %s"%acandle
     OutputFile = "%s_%s.root" % ( FileName[acandle],unprofiledSteps[-1])
     OutputFileOption = "--fileout=%s" % OutputFile
     #Bug here: should take into account the flag --bypass-hlt instead of assuming hlt should be bypassed
@@ -455,7 +492,9 @@ def writePrerequisteSteps(simcandles,steps,acandle,NumberOfEvents,cmsDriverOptio
         fstIdx = AllSteps.index(steps[0].split("-")[0])
     else:
         fstIdx = AllSteps.index(steps[0])
-    CustomisePythonFragment = pythonFragment("GEN,SIM")
+    CustomisePythonFragment = pythonFragment("GEN,SIM",cmsDriverOptions)
+    #print "fstIdx is %s"%fstIdx
+    #print "11acandle is %s"%acandle
     OutputFile = writeUnprofiledSteps(simcandles, CustomisePythonFragment, cmsDriverOptions,AllSteps[0:fstIdx],acandle,NumberOfEvents, 0,bypasshlt) 
     return (fstIdx, OutputFile)
 
@@ -470,7 +509,7 @@ def writeCommands(simcandles,
                   cmsDriverOptions,
                   bypasshlt,                  
                   stepIndex = 0,
-                  qcd = False):
+                  pileup = False):
 
     OutputStep = ""
 
@@ -482,48 +521,41 @@ def writeCommands(simcandles,
     fstROOTfile = True
     fstROOTfileStr = ""
 
-    if qcd : #I think qcd is a flag for PILEUP... not QCD... should maybe rename
-        #Hack to replace the last two steps from being RAW2DIGI_PILEUP,RECO_PILEUP to become RAW2DIGI-RECO_PILEUP (should do this in the AfterPileUpSteps!) 
-        steps.pop()
-        steps.pop()
-        steps.append(AllSteps[-2] + "-" + AllSteps[-1] + "_PILE-UP") #<--Fix this with PILEUP, or use the right list in AfterPileUpSteps
-        stopIndex = len(steps)
-        userSteps = steps
-    else:
-        #Handling the case of the first user step not being the first step (GEN,SIM):
-        print steps
-        if not (steps[0] == AllSteps[0]) and (steps[0].split("-")[0] != "GEN,SIM"):
-            #Write the necessary line to run without profiling all the steps before the wanted ones in one shot:
-            (stepIndex, rootFileStr) = writePrerequisteSteps(simcandles,steps,acandle,NumberOfEvents,cmsDriverOptions,bypasshlt)
-            
-            #Now take care of setting the indeces and input root file name right for the profiling part...
-            if fstROOTfile:
-                fstROOTfileStr = rootFileStr
-                fstROOTfile = False
-            start = -1
-            if "-" in steps[0]:
-                start = AllSteps.index(steps[0].split("-")[0])
-            else:
-                start = AllSteps.index(steps[0])
-            lst = - 1
-            if "-" in steps[-1]:
-                lst   = AllSteps.index(steps[-1].split("-")[1])
-            else:
-                lst   = AllSteps.index(steps[-1])
-            runSteps = AllSteps[start:lst]
-            numOfSteps = (lst - start) + 1
-            stopIndex = start + numOfSteps
+    #Handling the case of the first user step not being the first step (GEN,SIM):
+    print steps
+    if not (steps[0] == AllSteps[0]) and (steps[0].split("-")[0] != "GEN,SIM"):
+        #Write the necessary line to run without profiling all the steps before the wanted ones in one shot:
+        #print "00acandle is %s"%acandle
+        (stepIndex, rootFileStr) = writePrerequisteSteps(simcandles,steps,acandle,NumberOfEvents,cmsDriverOptions,bypasshlt)
+        
+        #Now take care of setting the indeces and input root file name right for the profiling part...
+        if fstROOTfile:
+            fstROOTfileStr = rootFileStr
+            fstROOTfile = False
+        start = -1
+        if "-" in steps[0]:
+            start = AllSteps.index(steps[0].split("-")[0])
+        else:
+            start = AllSteps.index(steps[0])
+        lst = - 1
+        if "-" in steps[-1]:
+            lst   = AllSteps.index(steps[-1].split("-")[1]) #here we are assuming that - is always between two steps no GEN-SIM-DIGI, this is GEN-DIGI
+        else:
+            lst   = AllSteps.index(steps[-1])
+        runSteps = AllSteps[start:lst]
+        numOfSteps = (lst - start) + 1
+        stopIndex = start + numOfSteps
         #Handling the case in which the first user step is the same as the first step (GEN,SIM)
         #elif  not (steps[0] == AllSteps[0]) and (steps[0].split("-")[0] == "GEN"):
+    else:
+        #Handling the case of the last step being a composite one:
+        if "-" in steps[-1]:
+            #Set the stop index at the last step of the composite step (WHY???) 
+            stopIndex = AllSteps.index(steps[-1].split("-")[1]) + 1
         else:
-            #Handling the case of the last step being a composite one:
-            if "-" in steps[-1]:
-                #Set the stop index at the last step of the composite step (WHY???) 
-                stopIndex = AllSteps.index(steps[-1].split("-")[1]) + 1
-            else:
-                stopIndex = AllSteps.index(steps[-1]) + 1
-                
-        steps = AllSteps
+            stopIndex = AllSteps.index(steps[-1]) + 1
+            
+    steps = AllSteps
             
     unprofiledSteps = []
     rawreg = re.compile("^RAW2DIGI")
@@ -532,11 +564,8 @@ def writeCommands(simcandles,
 
     prevPrevOutputFile = ""
     previousOutputFile = ""
-    if qcd:
-        previousOutputFile = "%s_DIGI_PILEUP.root" % CandFname[acandle]
-    for x in range(start,stopIndex,1):
-        #print "Here's x: %s\n"%x
 
+    for x in range(start,stopIndex,1):
         if stepIndex >= stopIndex:
             break
         step = steps[stepIndex]
@@ -544,25 +573,9 @@ def writeCommands(simcandles,
         befStep     = step
         aftStep     = step
         # We need this in case we are running one-shot profiling or for DIGI-PILEUP
-        stepToWrite = step
-        qcdStep = ""
-        if qcd: #This if is used to put in qcdStep the proper cmsDriver.py step name (getting rid of the trailing PILEUP)
-            #It seems though not to treat properly the RAW2DIGI-RECO_PILE-UP (for some reason James used PILE-UP instead of PILEUP there: bug+complicated bug fix with the if?)
-
-            pureg = re.compile("(.*)_PILEUP")
-            found = pureg.search(step)
-            #print "STEP %s\n"%(step)
-            if found:
-                match = found.groups()[0]
-                qcdStep = pureg.sub(match,step)
-                #print "QCDSTEP %s\n"%(qcdStep)
-            else:
-                if "RAW2DIGI" in step:
-                    qcdStep = "RAW2DIGI,RECO"   
-                
+        stepToWrite = step 
         
-        #(Profile , SavedProfile) = determineNewProfile(step,Profile,SavedProfile)
-        CustomisePythonFragment = pythonFragment(step)
+        CustomisePythonFragment = pythonFragment(step,cmsDriverOptions)
         oneShotProf = False
         hypsteps = []
 
@@ -580,9 +593,12 @@ def writeCommands(simcandles,
 
             writeStepHead(simcandles,acandle,stepToWrite)
 
-            outfile = stepToWrite
-            if qcd:
-                outfile = qcdStep + "_PILEUP"
+            #Set the output file name for Pile up and for regular case:
+            if '--pileup' in cmsDriverOptions:
+                outfile = stepToWrite + "_PILEUP"
+            else:
+                outfile = stepToWrite
+                
             OutputFile = setOutputFileOption(acandle,outfile)
             if fstROOTfile:
                 fstROOTfileStr = OutputFile
@@ -590,9 +606,12 @@ def writeCommands(simcandles,
             OutputFileOption = "--fileout=" + OutputFile
 
             for prof in Profile:
+                #First prepare the cmsDriver.py command
+                
+                #Special case of EventEdmSize profiling 
                 if 'EdmSize' in prof:
                     EdmFile = "%s_%s.root" % (FileName[acandle],outfile) #stepToWrite) #Bug in the filename for EdmSize for PileUp corrected.
-                    
+                    #EventEdmSize needs a pre-requisite step that just produces the root file if one decided to run with only EdmSize profiling!
                     if prof == Profile[0] and not os.path.exists("./" + EdmFile):
                         # insert command to generate required state ( need to run one more step
                         # so that EDM can actually check the size of the root file
@@ -604,10 +623,7 @@ def writeCommands(simcandles,
                         if rawreg.search(step) and bypasshlt:
                             InputFileOption = "--filein file:" + prevPrevOutputFile
                         if previousOutputFile == "":
-                            InputFileOption = setInputFile(steps,stepToWrite,acandle,stepIndex,qcd=qcd,bypasshlt=bypasshlt)
-
-                        if qcd:
-                            stepToWrite = qcdStep
+                            InputFileOption = setInputFile(steps,stepToWrite,acandle,stepIndex,pileup=pileup,bypasshlt=bypasshlt)
                         Command = ("%s %s -n %s --step=%s %s %s --customise=%s %s"
                                            % (cmsDriver,
                                               KeywordToCfi[acandle],
@@ -618,24 +634,32 @@ def writeCommands(simcandles,
                                               CustomisePythonFragment,
                                               cmsDriverOptions) )
                         simcandles.write( "%s @@@ None @@@ None\n" % (Command))
-                        # if ("GEN,SIM" in step): #Hack since we use SIM and not GEN,SIM extension (to facilitate DIGI)
 
                     Command = EdmFile
+                #all other profiles:
                 else:
-
-                    # Adding a fileout option too to avoid dependence on future convention changes in cmsDriver.py:
-                    # Use --filein (have to for L1, DIGI2RAW, HLT) to add robustness
-
                     InputFileOption = "--filein file:" + previousOutputFile
                     if rawreg.search(step) and bypasshlt:
                         InputFileOption = "--filein file:" + prevPrevOutputFile
 
                     if previousOutputFile == "":
-                        InputFileOption = setInputFile(steps,befStep,acandle,stepIndex,qcd,bypasshlt)
+                        InputFileOption = setInputFile(steps,befStep,acandle,stepIndex,pileup,bypasshlt)
 
-                    if qcd:
-                        stepToWrite = qcdStep
-                    Command = ("%s %s -n %s --step=%s %s %s --customise=%s %s" % (
+                    #if '--pileup' in cmsDriverOptions:
+                    #    stepToWrite = pileupStep
+                    if '--pileup' in cmsDriverOptions and ( stepToWrite=='GEN,SIM' or stepToWrite=='SIM'):
+                        Command = ("%s %s -n %s --step=%s %s %s --customise=%s %s" % (
+                               cmsDriver,
+                               KeywordToCfi[acandle],
+                               NumberOfEvents,
+                               stepToWrite,
+                               InputFileOption,
+                               OutputFileOption,
+                               CustomiseFragment['GEN,SIM'],#Done by hand to avoid silly use of MixinModule.py for pre-digi individual steps
+                               cmsDriverOptions[:cmsDriverOptions.index('--pileup')]
+                           ))
+                    else:
+                        Command = ("%s %s -n %s --step=%s %s %s --customise=%s %s" % (
                                cmsDriver,
                                KeywordToCfi[acandle],
                                NumberOfEvents,
@@ -645,16 +669,17 @@ def writeCommands(simcandles,
                                CustomisePythonFragment,
                                cmsDriverOptions
                            ))
-
+                #Now the cmsDriver command is ready in Command, we just edit the rest of the line and write it to the file!
                 if _noprof:
                     simcandles.write("%s @@@ None @@@ None\n" % Command)
                 else:
-                    if qcd:
-                        stepToWrite = qcdStep+"_PILEUP"
+                    stepLabel=stepToWrite
+                    if '--pileup' in cmsDriverOptions and not "_PILEUP" in stepToWrite:
+                        stepLabel = stepToWrite+"_PILEUP"
                     simcandles.write("%s @@@ %s @@@ %s_%s_%s\n" % (Command,
                                                                    Profiler[prof],
                                                                    FileName[acandle],
-                                                                   stepToWrite,
+                                                                   stepLabel,
                                                                    prof))
 
                 if debug:
@@ -684,18 +709,19 @@ def writeCommands(simcandles,
             stepIndex +=1
     return fstROOTfileStr
 
-def prepareQcdCommand(rootinput,thecandle,NumberOfEvents,cmsDriverOptions):
+def preparePileUpCommand(rootinput,thecandle,NumberOfEvents,cmsDriverOptions):
 
     InputFileOption  = "--filein file:%s" % (rootinput)
     OutputFileOption = "--fileout=%s_DIGI_PILEUP.root"  % (FileName[thecandle] )
 
     return (
-        "%s %s -n %s --step=DIGI %s %s --pileup=LowLumiPileUp --customise=Validation/Performance/MixingModule.py %s" %
+        "%s %s -n %s --step=DIGI %s %s --pileup=%s --customise=Validation/Performance/MixingModule.py %s" %
         (cmsDriver,
          KeywordToCfi[thecandle],
          NumberOfEvents,
          InputFileOption,
          OutputFileOption,
+         cmsDriverPileUp,
          cmsDriverOptions))
 
 def writeCommandsToReport(simcandles,Candle,Profile,debug,NumberOfEvents,cmsDriverOptions,steps,bypasshlt):
@@ -704,11 +730,14 @@ def writeCommandsToReport(simcandles,Candle,Profile,debug,NumberOfEvents,cmsDriv
 
     # This option will not be used for now since the event content names keep changing, it can be
     # edited by hand pre-release by pre-release if wanted (Still moved all to FEVTDEBUGHLT for now, except RECO, left alone).
-
-    EventContent = {'GEN,SIM': 'FEVTDEBUGHLT', 'DIGI': 'FEVTDEBUGHLT'}
+    #
+    #EventContent = {'GEN,SIM': 'FEVTDEBUGHLT', 'DIGI': 'FEVTDEBUGHLT'}
 
     digiPUrootIN = ""
-    qcdStr = Candles[6]    
+    #Using RunDigiPileUp dictionary in cmsPerfCommons.py to not have DIGI PILEUP hardcoded, but configurable
+    #in the file above.
+    #qcdStr = Candles[6]
+    DigiPileUpWillRun = False
     for acandle in Candle:
         print '*Candle ' + acandle
         
@@ -725,33 +754,35 @@ def writeCommandsToReport(simcandles,Candle,Profile,debug,NumberOfEvents,cmsDriv
                                    cmsDriverOptions,
                                    bypasshlt)
         
+        ##FIXME with the new way to run PU!
         #Here starts the special treatment in case of pileup (should change variable names from qcd-related to pileup as it logically is):
-        if qcdStr == acandle:
-            digiPUrootIN = fstoutfile
-            
+        #if acandle in DigiPileUpCandles:
+        #    digiPUrootIN = fstoutfile
+        #    DigiPileUpWillRun = True
 
     # Add the extra "step" DIGI with PILE UP only for QCD_80_120:
     # After digi pileup steps:
     # Freeze this for now since we will only run by default the GEN-SIM,DIGI and DIGI pileup steps
 
-    if qcdStr in Candle and MIN_REQ_TS_EVENTS <= NumberOfEvents:
-        thecandle = getFstOccur(qcdStr, Candle)
+    #In case pile up is requested, check that the NumberOfEvents is more than the minimum number necessary for the MixingModule not to get stuck forever: 
+        if DigiPileUpWillRun and MIN_REQ_TS_EVENTS <= NumberOfEvents: 
+            #This piece of code seems unnecessary!
+            #thecandle = getFstOccur(qcdStr, Candle)
 
-        # First run the DIGI with PILEUP (using the MixingModule.py)
-        # Hardcode stuff for this special step
+            # First run the DIGI with PILEUP (using the MixingModule.py)
+            # Hardcode stuff for this special step
 
-        writeStepHead(simcandles,thecandle,"DIGI PILE-UP")
-        
-        for prof in Profile:
-            if 'EdmSize' in prof:
-                Command = "%s_DIGI_PILEUP.root " % (FileName[thecandle])
-            else:
-                Command = prepareQcdCommand(digiPUrootIN,thecandle,NumberOfEvents,cmsDriverOptions)
-
-            if _noprof:
-                simcandles.write("%s @@@ None @@@ None \n" % Command)
-            else:
-                simcandles.write('%s @@@ %s @@@ %s_DIGI_PILEUP_%s\n' % (Command, Profiler[prof], FileName[thecandle], prof))
+            writeStepHead(simcandles,acandle,"DIGI PILE-UP")
+            #print "Here's Profile list:%s"%Profile
+            for prof in Profile:
+                if 'EdmSize' in prof:
+                    Command = "%s_DIGI_PILEUP.root " % (FileName[acandle])
+                else:
+                    Command = preparePileUpCommand(digiPUrootIN,acandle,NumberOfEvents,cmsDriverOptions)
+                if _noprof:
+                    simcandles.write("%s @@@ None @@@ None \n" % Command)
+                else:
+                    simcandles.write('%s @@@ %s @@@ %s_DIGI_PILEUP_%s\n' % (Command, Profiler[prof], FileName[acandle], prof))
 
             # Very messy solution for now:
             # Setting the stepIndex variable to 2, i.e. RECO step
@@ -761,18 +792,19 @@ def writeCommandsToReport(simcandles,Candle,Profile,debug,NumberOfEvents,cmsDriv
         #FileIn['RECO'] = '--filein file:'
 
         #We should consider a special function to handle the pileup case instead of making the writeCommands function quite hard to read...
-        writeCommands(simcandles,
-                      Profile,
-                      acandle,
-                      map(lambda x: x + "_PILEUP",AfterPileUpSteps),
-                      NumberOfEvents,
-                      cmsDriverOptions,
-                      bypasshlt,
-                      0, # start at step index 2, RECO Step
-                      True) #this is the flag that says do PILEUP!
         
-    elif NumberOfEvents < MIN_REQ_TS_EVENTS:
-        print " WARNING: QCD PileUp steps will not be run because the number of events is less than %s" % MIN_REQ_TS_EVENTS
+            writeCommands(simcandles,
+                          Profile,
+                          acandle,
+                          map(lambda x: x + "_PILEUP",AfterPileUpSteps),
+                          NumberOfEvents,
+                          cmsDriverOptions,
+                          bypasshlt,
+                          0, # start at step index 2, RECO Step
+                          True) #this is the flag that says do PILEUP!
+        
+        elif NumberOfEvents < MIN_REQ_TS_EVENTS:
+            print " WARNING: PileUp steps will not be run because the number of events is less than %s" % MIN_REQ_TS_EVENTS
         
 
 def main(argv=sys.argv):

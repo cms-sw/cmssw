@@ -1,13 +1,11 @@
 #G.Benelli
 #This fragment is used to add the SimpleMemoryCheck
 #and Timing services output to the log of the simulation
-#performance candles.
+#performance candles and add pile-up events at the DIGI level using the MixingModule.
 #It is meant to be used with the cmsDriver.py option
 #--customise in the following fashion:
 #E.g.
-#./cmsDriver.py HZZLLLL -e 190 -n 50 --step=GEN --customise=Simulation.py >& HZZLLLL_190_GEN.log&
-#or
-#./cmsDriver.py MINBIAS -n 50 --step=GEN --customise=Simulation.py >& MINBIAS_GEN.log&
+#./cmsDriver.py MinBias.cfi -n 50 --step=GEN,SIM,DIGI --pileup LowLumiPileUp --customise=Validation/Performance/MixingModule.py >& MINBIAS_GEN,SIM,DIGI_PILEUP.log&
 
 import FWCore.ParameterSet.Config as cms
 def customise(process):
@@ -28,6 +26,6 @@ def customise(process):
             
     #Overwriting the fileNames to be used by the MixingModule
     #when invoking cmsDriver.py with the --PU option
-    process.mix.input.fileNames = cms.untracked.vstring('file:../MinBias_TimeSize/MINBIAS__GEN,SIM.root')
+    process.mix.input.fileNames = cms.untracked.vstring('file:../INPUT_PILEUP_EVENTS.root')
 
     return(process)
