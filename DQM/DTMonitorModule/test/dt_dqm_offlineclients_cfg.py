@@ -6,13 +6,14 @@ process.load("DQMServices.Components.EDMtoMEConverter_cff")
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 #process.GlobalTag.connect = "frontier://PromptProd/CMS_COND_21X_GLOBALTAG"
-process.GlobalTag.globaltag = "CRAFT_V4P::All"
+process.GlobalTag.globaltag = "CRAFT_ALL_V4::All"
 process.prefer("GlobalTag")
 
 process.load("Configuration.StandardSequences.Geometry_cff")
 
 #process.load("DQMOffline.Configuration.DQMOfflineCosmics_SecondStep_cff")
 process.load("DQM.DTMonitorClient.dtDQMOfflineClients_cff")
+process.load("DQM.DTMonitorClient.dtDQMOfflineCertification_cff")
 #process.load("DQMOffline.Configuration.DQMOfflineCosmics_Certification_cff")
 
 process.maxEvents = cms.untracked.PSet(
@@ -43,7 +44,7 @@ process.EDMtoMEConverter.convertOnEndRun = False
 
 process.p1 = cms.Path(process.EDMtoMEConverter*
                       process.dtClients*
- #                     process.DQMOfflineCosmics_Certification*
+                      process.dtCertification*
                       process.dqmSaver)
 
 
@@ -52,7 +53,7 @@ process.MessageLogger = cms.Service("MessageLogger",
                                     debugModules = cms.untracked.vstring('*'),
                                     destinations = cms.untracked.vstring('cout'),
                                     categories = cms.untracked.vstring('DTTimeEvolutionHisto'), 
-                                    cout = cms.untracked.PSet(threshold = cms.untracked.string('DEBUG'),
+                                    cout = cms.untracked.PSet(threshold = cms.untracked.string('WARNING'),
                                                               noLineBreaks = cms.untracked.bool(False),
                                                               DEBUG = cms.untracked.PSet(
                                                                       limit = cms.untracked.int32(0)),
