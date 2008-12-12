@@ -49,7 +49,6 @@ RPCEfficiency::RPCEfficiency(const edm::ParameterSet& iConfig){
   incldtMB4=iConfig.getUntrackedParameter<bool>("incldtMB4",true);
   inclcsc=iConfig.getUntrackedParameter<bool>("inclcsc",true);
   debug=iConfig.getUntrackedParameter<bool>("debug",false);
-  inves=iConfig.getUntrackedParameter<bool>("inves");
  
   rangestrips = iConfig.getUntrackedParameter<double>("rangestrips",1.);
   rangestripsRB4=iConfig.getUntrackedParameter<double>("rangestripsRB4",4.);
@@ -110,55 +109,6 @@ RPCEfficiency::RPCEfficiency(const edm::ParameterSet& iConfig){
   statistics->setBinLabel(16+17,"Events with 15 CSC segments",1);
   
   if(debug) std::cout<<"booking Global histograms Change statistics"<<std::endl;
-
-  folder = "Muons/MuonSegEff/Residuals/Investigation";
-  dbe->setCurrentFolder(folder);
-
-  //Paper TH1Fs
-
-  DistBorderClu1La1 = dbe->book1D("DistBorderClu1La1","Distance to the Border of the Strip Layer 1 Cluster Size 1",50,-2.,3.);
-  DistBorderClu1La2 = dbe->book1D("DistBorderClu1La2","Distance to the Border of the Strip Layer 2 Cluster Size 1",50,-2.,3.);
-  DistBorderClu1La3 = dbe->book1D("DistBorderClu1La3","Distance to the Border of the Strip Layer 3 Cluster Size 1",50,-2.,3.);
-  DistBorderClu1La4 = dbe->book1D("DistBorderClu1La4","Distance to the Border of the Strip Layer 4 Cluster Size 1",50,-2.,3.);
-  DistBorderClu1La5 = dbe->book1D("DistBorderClu1La5","Distance to the Border of the Strip Layer 5 Cluster Size 1",50,-2.,3.);
-  DistBorderClu1La6 = dbe->book1D("DistBorderClu1La6","Distance to the Border of the Strip Layer 6 Cluster Size 1",50,-2.,3.);
-
-  DistBorderClu2La1 = dbe->book1D("DistBorderClu2La1","Distance to the Border of the Strip Layer 1 Cluster Size 2",50,-2.,3.);
-  DistBorderClu2La2 = dbe->book1D("DistBorderClu2La2","Distance to the Border of the Strip Layer 2 Cluster Size 2",50,-2.,3.);
-  DistBorderClu2La3 = dbe->book1D("DistBorderClu2La3","Distance to the Border of the Strip Layer 3 Cluster Size 2",50,-2.,3.);
-  DistBorderClu2La4 = dbe->book1D("DistBorderClu2La4","Distance to the Border of the Strip Layer 4 Cluster Size 2",50,-2.,3.);
-  DistBorderClu2La5 = dbe->book1D("DistBorderClu2La5","Distance to the Border of the Strip Layer 5 Cluster Size 2",50,-2.,3.);
-  DistBorderClu2La6 = dbe->book1D("DistBorderClu2La6","Distance to the Border of the Strip Layer 6 Cluster Size 2",50,-2.,3.);
-
-  DistBorderClu3La1 = dbe->book1D("DistBorderClu3La1","Distance to the Border of the Strip Layer 1 Cluster Size 3",50,-2.,3.);
-  DistBorderClu3La2 = dbe->book1D("DistBorderClu3La2","Distance to the Border of the Strip Layer 2 Cluster Size 3",50,-2.,3.);
-  DistBorderClu3La3 = dbe->book1D("DistBorderClu3La3","Distance to the Border of the Strip Layer 3 Cluster Size 3",50,-2.,3.);
-  DistBorderClu3La4 = dbe->book1D("DistBorderClu3La4","Distance to the Border of the Strip Layer 4 Cluster Size 3",50,-2.,3.);
-  DistBorderClu3La5 = dbe->book1D("DistBorderClu3La5","Distance to the Border of the Strip Layer 5 Cluster Size 3",50,-2.,3.);
-  DistBorderClu3La6 = dbe->book1D("DistBorderClu3La6","Distance to the Border of the Strip Layer 6 Cluster Size 3",50,-2.,3.);
-  
-  //Ang Dependence
-  float pi = 3.14159265;
-  AngClu1La1 = dbe->book1D("AngClu1La1","Angle of incident Muon Layer 1 Cluster Size 1",50,0.,pi);
-  AngClu1La2 = dbe->book1D("AngClu1La2","Angle of incident Muon Layer 2 Cluster Size 1",50,0.,pi);
-  AngClu1La3 = dbe->book1D("AngClu1La3","Angle of incident Muon Layer 3 Cluster Size 1",50,0.,pi);
-  AngClu1La4 = dbe->book1D("AngClu1La4","Angle of incident Muon Layer 4 Cluster Size 1",50,0.,pi);
-  AngClu1La5 = dbe->book1D("AngClu1La5","Angle of incident Muon Layer 5 Cluster Size 1",50,0.,pi);
-  AngClu1La6 = dbe->book1D("AngClu1La6","Angle of incident Muon Layer 6 Cluster Size 1",50,0.,pi);
-  
-  AngClu2La1 = dbe->book1D("AngClu2La1","Angle of incident Muon Layer 1 Cluster Size 2",50,0.,pi);
-  AngClu2La2 = dbe->book1D("AngClu2La2","Angle of incident Muon Layer 2 Cluster Size 2",50,0.,pi);
-  AngClu2La3 = dbe->book1D("AngClu2La3","Angle of incident Muon Layer 3 Cluster Size 2",50,0.,pi);
-  AngClu2La4 = dbe->book1D("AngClu2La4","Angle of incident Muon Layer 4 Cluster Size 2",50,0.,pi);
-  AngClu2La5 = dbe->book1D("AngClu2La5","Angle of incident Muon Layer 5 Cluster Size 2",50,0.,pi);
-  AngClu2La6 = dbe->book1D("AngClu2La6","Angle of incident Muon Layer 6 Cluster Size 2",50,0.,pi);
-  
-  AngClu3La1 = dbe->book1D("AngClu3La1","Angle of incident Muon Layer 1 Cluster Size 3",50,0.,pi);
-  AngClu3La2 = dbe->book1D("AngClu3La2","Angle of incident Muon Layer 2 Cluster Size 3",50,0.,pi);
-  AngClu3La3 = dbe->book1D("AngClu3La3","Angle of incident Muon Layer 3 Cluster Size 3",50,0.,pi);
-  AngClu3La4 = dbe->book1D("AngClu3La4","Angle of incident Muon Layer 4 Cluster Size 3",50,0.,pi);
-  AngClu3La5 = dbe->book1D("AngClu3La5","Angle of incident Muon Layer 5 Cluster Size 3",50,0.,pi);
-  AngClu3La6 = dbe->book1D("AngClu3La6","Angle of incident Muon Layer 6 Cluster Size 3",50,0.,pi);
 
   folder = "Muons/MuonSegEff/Residuals/Barrel";
   dbe->setCurrentFolder(folder);
@@ -234,8 +184,8 @@ void RPCEfficiency::beginRun(const edm::Run& run, const edm::EventSetup& iSetup)
 	//booking all histograms
 	RPCGeomServ rpcsrv(rpcId);
 	std::string nameRoll = rpcsrv.name();
-	//std::cout<<"Booking for "<<nameRoll<<std::endl;
-	meCollection[nameRoll] = bookDetUnitSeg(rpcId,(*r)->nstrips());
+	if(debug) std::cout<<"Booking for "<<rpcId.rawId()<<std::endl;
+	meCollection[rpcId.rawId()] = bookDetUnitSeg(rpcId,(*r)->nstrips());
 	
 	if(region==0&&(incldt||incldtMB4)){
 	  //std::cout<<"--Filling the dtstore"<<rpcId<<std::endl;
@@ -276,87 +226,7 @@ void RPCEfficiency::beginRun(const edm::Run& run, const edm::EventSetup& iSetup)
       }
     }
   }
-
-  //Now filling in order to extrapolate to other wheels.
-  /*
-  for (TrackingGeometry::DetContainer::const_iterator it=rpcGeo->dets().begin();it<rpcGeo->dets().end();it++){
-    if( dynamic_cast< RPCChamber* >( *it ) != 0 ){
-
-      RPCChamber* ch = dynamic_cast< RPCChamber* >( *it ); 
-      std::vector< const RPCRoll*> roles = (ch->rolls());
-      for(std::vector<const RPCRoll*>::const_iterator r = roles.begin();r != roles.end(); ++r){
-	RPCDetId rpcId = (*r)->id();
-	
-	int region=rpcId.region();
-	
-	if(region==0&&(incldt||incldtMB4)&&rpcId.ring()!=0&&rpcId.station()!=4){
-	  //std::cout<<"--Filling the dtstore for statistics"<<rpcId<<std::endl;
-	  
-	  int sidewheel = 0;
-	  
-	  if(rpcId.ring()==-2){
-	    sidewheel=-1;
-	  }
-	  else if(rpcId.ring()==-1){
-	    sidewheel=0;
-	  }
-	  else if(rpcId.ring()==1){
-	    sidewheel=0;
-	  }
-	  else if(rpcId.ring()==2){
-	    sidewheel=1;
-	  }
-	  int wheel= sidewheel;
-	  int sector=rpcId.sector();
-	  int station=rpcId.station();
-	  DTStationIndex ind(region,wheel,sector,station);
-	  std::set<RPCDetId> myrolls;
-	  if (rollstoreDT.find(ind)!=rollstoreDT.end()) myrolls=rollstoreDT[ind];
-	  myrolls.insert(rpcId);
-	  rollstoreDT[ind]=myrolls;
-	}
-	if(region!=0 && inclcsc && (rpcId.ring()==2 || rpcId.ring()==3)){
-	  int region=rpcId.region();
-          int station=rpcId.station();
-          int ring=rpcId.ring();
-	  int sidering = 0;
-	  if(ring==2)sidering =3;
-	  else if(ring==3) sidering =2;
-	  
-          int cscring=sidering;
-          int cscstation=station;
-	  RPCGeomServ rpcsrv(rpcId);
-	  int rpcsegment = mySegment(rpcId);
-	  
-	  if((station==2||station==3)&&ring==3) cscring = 2; //CSC Ring 2 covers rpc ring 2 & 3
-          	  
-	  int cscchamber = rpcsegment+1;
-	  if(cscchamber==37)cscchamber=1;
-	  CSCStationIndex ind(region,cscstation,cscring,cscchamber);
-          std::set<RPCDetId> myrolls;
-	  if (rollstoreCSC.find(ind)!=rollstoreCSC.end())myrolls=rollstoreCSC[ind];          
-          myrolls.insert(rpcId);
-          rollstoreCSC[ind]=myrolls;
-	  
-	  cscchamber = rpcsegment-1;
-	  if(cscchamber==0)cscchamber=36;
-	  CSCStationIndex indDos(region,cscstation,cscring,cscchamber);
-          std::set<RPCDetId> myrollsDos;
-	  if (rollstoreCSC.find(indDos)!=rollstoreCSC.end())myrollsDos=rollstoreCSC[indDos];          
-          myrollsDos.insert(rpcId);
-          rollstoreCSC[indDos]=myrolls;
-	  
-
-        }
-      }
-    }
-  }
-  */
-  //booking global histograms
-
- 
 }//beginRun
-
 
 RPCEfficiency::~RPCEfficiency()
 {
@@ -369,48 +239,10 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   statistics->Fill(1);
   using namespace edm;
   
-  char layerLabel[128];
   char meIdRPC [128];
   char meIdDT [128];
   char meIdCSC [128];
 
-  //-------------Filling Other Histograms for correlations -----------
-  
-  if(debug) std::cout <<"Digi Getting the RPC Digis"<<std::endl;
-  edm::Handle<RPCDigiCollection> rpcDigis;
-  iEvent.getByLabel(muonRPCDigis, rpcDigis);
-  char detUnitLabel[128];
-  for (TrackingGeometry::DetContainer::const_iterator it=rpcGeo->dets().begin();it<rpcGeo->dets().end();it++){
-    if(dynamic_cast< RPCChamber* >( *it ) != 0 ){
-      RPCChamber* ch = dynamic_cast< RPCChamber* >( *it ); 
-      std::vector< const RPCRoll*> roles = (ch->rolls());
-      for(std::vector<const RPCRoll*>::const_iterator r = roles.begin();r != roles.end(); ++r){
-	RPCDetId rpcId = (*r)->id();
-	RPCGeomServ rpcsrv(rpcId);
-	std::string nameRoll = rpcsrv.name();
-	std::map<std::string, MonitorElement*> meMap=meCollection[nameRoll];
-	sprintf(detUnitLabel ,"%s",nameRoll.c_str());
-
-	sprintf(layerLabel ,"%s",nameRoll.c_str());
-	RPCDigiCollection::Range rpcRangeDigi=rpcDigis->get(rpcId);
-	for (RPCDigiCollection::const_iterator digiIt = rpcRangeDigi.first;digiIt!=rpcRangeDigi.second;++digiIt){
-	  int stripDetected=digiIt->strip();
-	  sprintf(meIdRPC,"BXDistribution_%s",detUnitLabel);
-	  meMap[meIdRPC]->Fill(digiIt->bx());
-	  if(rpcId.region()==0){
-	    sprintf(meIdRPC,"RealDetectedOccupancyFromDT_%s",detUnitLabel);
-	  }else {
-	    sprintf(meIdRPC,"RealDetectedOccupancyFromCSC_%s",detUnitLabel);
-	  }
-	  meMap[meIdRPC]->Fill(stripDetected); //have a look to this!
-	  
-	}
-      }
-    }
-  }
-  
-  //------------------------------------------------------------------------------------
-  
   if(debug) std::cout <<"\t Getting the RPC RecHits"<<std::endl;
   Handle<RPCRecHitCollection> rpcHits;
   iEvent.getByType(rpcHits);
@@ -553,13 +385,10 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 		  
 		  if(debug) std::cout<<"DT  \t \t \t \t Candidate (from DT Segment) STRIP---> "<<stripPredicted<< std::endl;		  
 		  //---- HISTOGRAM STRIP PREDICTED FROM DT ----
-		  char detUnitLabel[128];
-		  sprintf(detUnitLabel ,"%s",nameRoll.c_str());
-		  sprintf(layerLabel ,"%s",nameRoll.c_str());
 		    
-		  std::map<std::string, MonitorElement*> meMap=meCollection[nameRoll];
+		  std::map<std::string, MonitorElement*> meMap=meCollection[rpcId.rawId()];
 		    
-		  sprintf(meIdDT,"ExpectedOccupancyFromDT_%s",detUnitLabel);
+		  sprintf(meIdDT,"ExpectedOccupancyFromDT_%d",rollId.rawId());
 		  if(debug) std::cout<<"DT \t \t \t \t Filling Expected for "<<meIdDT<<" with "<<stripPredicted<<std::endl;
 		  if(fabs(stripPredicted-rollasociated->nstrips())<1.) if(debug) std::cout<<"DT \t \t \t \t Extrapolating near last strip, Event"<<iEvent.id()<<" stripPredicted="<<stripPredicted<<" Number of strips="<<rollasociated->nstrips()<<std::endl;
 		  if(fabs(stripPredicted)<1.) if(debug) std::cout<<"DT \t \t \t \t Extrapolating near first strip, Event"<<iEvent.id()<<" stripPredicted="<<stripPredicted<<" Number of strips="<<rollasociated->nstrips()<<std::endl;
@@ -579,6 +408,10 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 		  
 		  for (recHit = recHitCollection.first; recHit != recHitCollection.second ; recHit++) {
 		    countRecHits++;
+
+		    sprintf(meIdRPC,"BXDistribution_%d",rollasociated->id().rawId());
+		    meMap[meIdRPC]->Fill(recHit->BunchX());
+		    
 		    LocalPoint recHitPos=recHit->localPosition();
 		    float res=PointExtrapolatedRPCFrame.x()- recHitPos.x();	    
 		    if(debug) std::cout<<"DT  \t \t \t \t \t Found Rec Hit at "<<res<<"cm of the prediction."<<std::endl;
@@ -607,19 +440,16 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 		    if(debug) std::cout<<"DT  \t \t \t \t \t At least one RecHit inside the range, Predicted="<<stripPredicted<<" minres="<<minres<<"cm range="<<rangestrips<<"strips stripw="<<stripw<<"cm"<<std::endl;
 		    if(debug) std::cout<<"DT  \t \t \t \t \t Norm of Cosine Directors="<<dx*dx+dy*dy+dz*dz<<"~1?"<<std::endl;
 		    
-		    //-----RESIDUALS----------
-		    if(inves){
-		      float cosal = dx/sqrt(dx*dx+dz*dz);
-		      if(debug) std::cout<<"DT \t \t \t \t \t Angle="<<acos(cosal)*180/3.1415926<<" degree"<<std::endl;
-		      if(debug) std::cout<<"DT \t \t \t \t \t Filling the Residuals Histogram for globals with "<<minres<<"And the angular incidence with Cos Alpha="<<cosal<<std::endl;
-		      if(rollId.station()==1&&rollId.layer()==1)     { if(cluSize==1*dupli) {hGlobalResClu1La1->Fill(minres); AngClu1La1->Fill(acos(cosal)); DistBorderClu1La1->Fill(minres/stripw+0.5);}if(cluSize==2*dupli){ hGlobalResClu2La1->Fill(minres);  AngClu2La1->Fill(acos(cosal));DistBorderClu2La1->Fill(minres/stripw+0.5);} if(cluSize==3*dupli){ hGlobalResClu3La1->Fill(minres);  AngClu3La1->Fill(acos(cosal));} DistBorderClu3La1->Fill(minres/stripw+0.5);}
-		      else if(rollId.station()==1&&rollId.layer()==2){ if(cluSize==1*dupli) {hGlobalResClu1La2->Fill(minres); AngClu1La2->Fill(acos(cosal)); DistBorderClu1La2->Fill(minres/stripw+0.5);}if(cluSize==2*dupli){ hGlobalResClu2La2->Fill(minres);  AngClu2La2->Fill(acos(cosal));DistBorderClu2La2->Fill(minres/stripw+0.5);} if(cluSize==3*dupli){ hGlobalResClu3La2->Fill(minres);  AngClu3La2->Fill(acos(cosal));} DistBorderClu3La2->Fill(minres/stripw+0.5);}
-		      else if(rollId.station()==2&&rollId.layer()==1){ if(cluSize==1*dupli) {hGlobalResClu1La3->Fill(minres); AngClu1La3->Fill(acos(cosal)); DistBorderClu1La3->Fill(minres/stripw+0.5);}if(cluSize==2*dupli){ hGlobalResClu2La3->Fill(minres);  AngClu2La3->Fill(acos(cosal));DistBorderClu2La3->Fill(minres/stripw+0.5);} if(cluSize==3*dupli){ hGlobalResClu3La3->Fill(minres);  AngClu3La3->Fill(acos(cosal));} DistBorderClu3La3->Fill(minres/stripw+0.5);}
-		      else if(rollId.station()==2&&rollId.layer()==2){ if(cluSize==1*dupli) {hGlobalResClu1La4->Fill(minres); AngClu1La4->Fill(acos(cosal)); DistBorderClu1La4->Fill(minres/stripw+0.5);}if(cluSize==2*dupli){ hGlobalResClu2La4->Fill(minres);  AngClu2La4->Fill(acos(cosal));DistBorderClu2La4->Fill(minres/stripw+0.5);} if(cluSize==3*dupli){ hGlobalResClu3La4->Fill(minres);  AngClu3La4->Fill(acos(cosal));} DistBorderClu3La4->Fill(minres/stripw+0.5);}
-		      else if(rollId.station()==3)                   { if(cluSize==1*dupli) {hGlobalResClu1La5->Fill(minres); AngClu1La5->Fill(acos(cosal)); DistBorderClu1La5->Fill(minres/stripw+0.5);}if(cluSize==2*dupli){ hGlobalResClu2La5->Fill(minres);  AngClu2La5->Fill(acos(cosal));DistBorderClu2La5->Fill(minres/stripw+0.5);} if(cluSize==3*dupli){ hGlobalResClu3La5->Fill(minres);  AngClu3La5->Fill(acos(cosal));} DistBorderClu3La5->Fill(minres/stripw+0.5);}
-		      //------------------------
-		    }
-		    sprintf(meIdRPC,"RPCDataOccupancyFromDT_%s",detUnitLabel);
+		    float cosal = dx/sqrt(dx*dx+dz*dz);
+		    if(debug) std::cout<<"DT \t \t \t \t \t Angle="<<acos(cosal)*180/3.1415926<<" degree"<<std::endl;
+		    if(debug) std::cout<<"DT \t \t \t \t \t Filling the Residuals Histogram for globals with "<<minres<<"And the angular incidence with Cos Alpha="<<cosal<<std::endl;
+		    if(rollId.station()==1&&rollId.layer()==1)     { if(cluSize==1*dupli) {hGlobalResClu1La1->Fill(minres);}if(cluSize==2*dupli){ hGlobalResClu2La1->Fill(minres);} else if(cluSize==3*dupli){ hGlobalResClu3La1->Fill(minres);}}
+		    else if(rollId.station()==1&&rollId.layer()==2){ if(cluSize==1*dupli) {hGlobalResClu1La2->Fill(minres);}if(cluSize==2*dupli){ hGlobalResClu2La2->Fill(minres);} else if(cluSize==3*dupli){ hGlobalResClu3La2->Fill(minres);}}
+		    else if(rollId.station()==2&&rollId.layer()==1){ if(cluSize==1*dupli) {hGlobalResClu1La3->Fill(minres);}if(cluSize==2*dupli){ hGlobalResClu2La3->Fill(minres);} else if(cluSize==3*dupli){ hGlobalResClu3La3->Fill(minres);}}
+		    else if(rollId.station()==2&&rollId.layer()==2){ if(cluSize==1*dupli) {hGlobalResClu1La4->Fill(minres);}if(cluSize==2*dupli){ hGlobalResClu2La4->Fill(minres);} else if(cluSize==3*dupli){ hGlobalResClu3La4->Fill(minres);}}
+		    else if(rollId.station()==3)                   { if(cluSize==1*dupli) {hGlobalResClu1La5->Fill(minres);}if(cluSize==2*dupli){ hGlobalResClu2La5->Fill(minres);} else if(cluSize==3*dupli){ hGlobalResClu3La5->Fill(minres);}}
+		    		    
+		    sprintf(meIdRPC,"RPCDataOccupancyFromDT_%d",rollId.rawId());
 		    if(debug) std::cout<<"DT \t \t \t \t \t COINCIDENCE!!! Event="<<iEvent.id()<<" Filling RPC Data Occupancy for "<<meIdRPC<<" with "<<stripPredicted<<std::endl; 
 		    meMap[meIdRPC]->Fill(stripPredicted);
 		  }
@@ -637,7 +467,7 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 				   <<iEvent.id().run()	
 				   <<std::endl;
 		  }
-		}else {
+		}else{
 		  if(debug) std::cout<<"DT \t \t \t \t No the prediction is outside of this roll"<<std::endl;
 		}//Condition for the right match
 	      }else{
@@ -740,7 +570,7 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 		  }
 		  
 		  std::set<RPCDetId> rollsForThisDT = rollstoreDT[DTStationIndex(0,dtWheel,dtSector,4)]; //It should be always 4
-	      
+		  
 		  assert(rollsForThisDT.size()>=1);
      	      
 		  for (std::set<RPCDetId>::iterator iteraRoll=rollsForThisDT.begin();iteraRoll != rollsForThisDT.end(); iteraRoll++){
@@ -814,14 +644,11 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 		  
 			if(debug) std::cout<<"MB4 \t \t \t \t Candidate (from DT Segment) STRIP---> "<<stripPredicted<< std::endl;
 			//--------- HISTOGRAM STRIP PREDICTED FROM DT  MB4 -------------------
-			char detUnitLabel[128];
-			sprintf(detUnitLabel ,"%s",nameRoll.c_str());
-			sprintf(layerLabel ,"%s",nameRoll.c_str());
 			
-			std::map<std::string, MonitorElement*> meMap=meCollection[nameRoll];
+			std::map<std::string, MonitorElement*> meMap=meCollection[rollId.rawId()];
 			
 			if(debug) std::cout<<"MB4 \t \t \t \t \t Filling Expected"<<std::endl;
-			sprintf(meIdDT,"ExpectedOccupancyFromDT_%s",detUnitLabel);
+			sprintf(meIdDT,"ExpectedOccupancyFromDT_%d",rollId.rawId());
 			meMap[meIdDT]->Fill(stripPredicted);
 			//-------------------------------------------------
 			
@@ -865,19 +692,15 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 			  if(debug) std::cout<<"MB4  \t \t \t \t \t At least one RecHit inside the range, Predicted="<<stripPredicted<<" minres="<<minres<<"cm range="<<rangestrips<<"strips stripw="<<stripw<<"cm"<<std::endl;
 			  if(debug) std::cout<<"MB4  \t \t \t \t \t Norm of Cosine Directors="<<dx3*dx3+dy3*dy3+dz3*dz3<<"~1?"<<std::endl;
 		   
-			  //-----RESIDUALS----------
-			  if(inves){
-			    float cosal = dx/sqrt(dx*dx+dz*dz);
-			    if(debug) std::cout<<"MB4 \t \t \t \t \t Angle="<<acos(cosal)*180/3.1415926<<" degree"<<std::endl;
-			    if(debug) std::cout<<"MB4 \t \t \t \t \t Filling the Residuals Histogram for globals with "<<minres<<"And the angular incidence with Cos Theta="<<-1*dz<<std::endl;
-			    assert(rollId.station()==4);
-			    if(cluSize==1*dupli){ hGlobalResClu1La6->Fill(minres); if(minres<0.005*stripw) AngClu1La6->Fill(acos(cosal)); if(fabs(minres)<stripw*0.5) DistBorderClu1La6->Fill(minres/stripw+0.5);}
-			    else if(cluSize==2*dupli){ hGlobalResClu2La6->Fill(minres); if(minres<0.005*stripw) AngClu2La6->Fill(acos(cosal));}
-			    else if(cluSize==3*dupli){ hGlobalResClu3La6->Fill(minres); if(minres<0.005*stripw) AngClu3La6->Fill(acos(cosal));}
-			  }
-			  //--------------------------------
+			  float cosal = dx/sqrt(dx*dx+dz*dz);
+			  if(debug) std::cout<<"MB4 \t \t \t \t \t Angle="<<acos(cosal)*180/3.1415926<<" degree"<<std::endl;
+			  if(debug) std::cout<<"MB4 \t \t \t \t \t Filling the Residuals Histogram for globals with "<<minres<<"And the angular incidence with Cos Theta="<<-1*dz<<std::endl;
+			  assert(rollId.station()==4);
+			  if(cluSize==1*dupli){ hGlobalResClu1La6->Fill(minres);}
+			  else if(cluSize==2*dupli){ hGlobalResClu2La6->Fill(minres);}
+			  else if(cluSize==3*dupli){ hGlobalResClu3La6->Fill(minres);}
 			  
-			  sprintf(meIdRPC,"RPCDataOccupancyFromDT_%s",detUnitLabel);
+			  sprintf(meIdRPC,"RPCDataOccupancyFromDT_%d",rollId.rawId());
 			  if(debug) std::cout<<"MB4 \t \t \t \t \t \t COINCIDENCE!!! Event="<<iEvent.id()<<"Filling RPC Data Occupancy for "<<meIdRPC<<" with "<<stripPredicted<<std::endl; 
 			  meMap[meIdRPC]->Fill(stripPredicted);
 			}
@@ -944,7 +767,6 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
       }    
       
       statistics->Fill(allCSCSegments->size()+18);
-      
       
       if(debug) std::cout<<"CSC \t loop over all the CSCSegments "<<std::endl;
       for (segment = allCSCSegments->begin();segment!=allCSCSegments->end(); ++segment){
@@ -1143,14 +965,10 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 		    if(debug) std::cout<<"CSC  \t \t \t \t \t Candidate"<<rollId<<" "<<"(from CSC Segment) STRIP---> "<<stripPredicted<< std::endl;
 		    //--------- HISTOGRAM STRIP PREDICTED FROM CSC  -------------------
 		    
-		    char detUnitLabel[128];
-		    sprintf(detUnitLabel ,"%s",nameRoll.c_str());
-		    sprintf(layerLabel ,"%s",nameRoll.c_str());
-		    
-		    std::map<std::string, MonitorElement*> meMap=meCollection[nameRoll];
+		    std::map<std::string, MonitorElement*> meMap=meCollection[rpcId.rawId()];
 		    
 		    if(debug) std::cout<<"CSC \t \t \t \t Filling Expected"<<std::endl;
-		    sprintf(meIdCSC,"ExpectedOccupancyFromCSC_%s",detUnitLabel);
+		    sprintf(meIdCSC,"ExpectedOccupancyFromCSC_%d",rollId.rawId());
 		    meMap[meIdCSC]->Fill(stripPredicted);
 		    //--------------------------------------------------------------------
 	    		
@@ -1166,6 +984,10 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 		    RPCRecHitCollection::const_iterator recHit;
 
 		    for (recHit = recHitCollection.first; recHit != recHitCollection.second ; recHit++) {
+		      
+		      sprintf(meIdRPC,"BXDistribution_%d",rollasociated->id().rawId());
+		      meMap[meIdRPC]->Fill(recHit->BunchX());
+		      
 		      countRecHits++;
 		      LocalPoint recHitPos=recHit->localPosition();
 		      float res=PointExtrapolatedRPCFrame.x()- recHitPos.x();
@@ -1195,20 +1017,17 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 		      if(debug) std::cout<<"CSC  \t \t \t \t \t At least one RecHit inside the range, Predicted="<<stripPredicted<<" minres="<<minres<<"cm range="<<rangestrips<<"strips stripw="<<stripw<<"cm"<<std::endl;
 		      if(debug) std::cout<<"CSC  \t \t \t \t \t Norm of Cosine Directors="<<dx*dx+dy*dy+dz*dz<<"~1?"<<std::endl;
 
-		      //----RESIDUALS----
-		      if(inves){
-			float cosal = dx/sqrt(dx*dx+dz*dz);
-			if(debug) std::cout<<"CSC \t \t \t \t \t Angle="<<acos(cosal)*180/3.1415926<<" degree"<<std::endl;
-			if(debug) std::cout<<"CSC \t \t \t \t \t Filling the Residuals Histogram for globals with "<<minres<<"And the angular incidence with Cos Theta="<<-1*dz<<std::endl;
-			if(rollId.ring()==2&&rollId.roll()==1){if(cluSize==1*dupli) hGlobalResClu1R2A->Fill(minres); if(cluSize==2*dupli) hGlobalResClu2R2A->Fill(minres); if(cluSize==3*dupli) hGlobalResClu3R2A->Fill(minres);}
-			if(rollId.ring()==2&&rollId.roll()==2){if(cluSize==1*dupli) hGlobalResClu1R2B->Fill(minres); if(cluSize==2*dupli) hGlobalResClu2R2B->Fill(minres); if(cluSize==3*dupli) hGlobalResClu3R2B->Fill(minres);}
-			if(rollId.ring()==2&&rollId.roll()==3){if(cluSize==1*dupli) hGlobalResClu1R2C->Fill(minres); if(cluSize==2*dupli) hGlobalResClu2R2C->Fill(minres); if(cluSize==3*dupli) hGlobalResClu3R2C->Fill(minres);}
-			if(rollId.ring()==3&&rollId.roll()==1){if(cluSize==1*dupli) hGlobalResClu1R3A->Fill(minres); if(cluSize==2*dupli) hGlobalResClu2R3A->Fill(minres); if(cluSize==3*dupli) hGlobalResClu3R3A->Fill(minres);}
-			if(rollId.ring()==3&&rollId.roll()==2){if(cluSize==1*dupli) hGlobalResClu1R3B->Fill(minres); if(cluSize==2*dupli) hGlobalResClu2R3B->Fill(minres); if(cluSize==3*dupli) hGlobalResClu3R3B->Fill(minres);}
-			if(rollId.ring()==3&&rollId.roll()==3){if(cluSize==1*dupli) hGlobalResClu1R3C->Fill(minres); if(cluSize==2*dupli) hGlobalResClu2R3C->Fill(minres); if(cluSize==3*dupli) hGlobalResClu3R3C->Fill(minres);}
-		      }
-		      //------------------------
-		      sprintf(meIdRPC,"RPCDataOccupancyFromCSC_%s",detUnitLabel);
+		      float cosal = dx/sqrt(dx*dx+dz*dz);
+		      if(debug) std::cout<<"CSC \t \t \t \t \t Angle="<<acos(cosal)*180/3.1415926<<" degree"<<std::endl;
+		      if(debug) std::cout<<"CSC \t \t \t \t \t Filling the Residuals Histogram for globals with "<<minres<<"And the angular incidence with Cos Theta="<<-1*dz<<std::endl;
+		      if(rollId.ring()==2&&rollId.roll()==1){if(cluSize==1*dupli) hGlobalResClu1R2A->Fill(minres); if(cluSize==2*dupli) hGlobalResClu2R2A->Fill(minres); if(cluSize==3*dupli) hGlobalResClu3R2A->Fill(minres);}
+		      if(rollId.ring()==2&&rollId.roll()==2){if(cluSize==1*dupli) hGlobalResClu1R2B->Fill(minres); if(cluSize==2*dupli) hGlobalResClu2R2B->Fill(minres); if(cluSize==3*dupli) hGlobalResClu3R2B->Fill(minres);}
+		      if(rollId.ring()==2&&rollId.roll()==3){if(cluSize==1*dupli) hGlobalResClu1R2C->Fill(minres); if(cluSize==2*dupli) hGlobalResClu2R2C->Fill(minres); if(cluSize==3*dupli) hGlobalResClu3R2C->Fill(minres);}
+		      if(rollId.ring()==3&&rollId.roll()==1){if(cluSize==1*dupli) hGlobalResClu1R3A->Fill(minres); if(cluSize==2*dupli) hGlobalResClu2R3A->Fill(minres); if(cluSize==3*dupli) hGlobalResClu3R3A->Fill(minres);}
+		      if(rollId.ring()==3&&rollId.roll()==2){if(cluSize==1*dupli) hGlobalResClu1R3B->Fill(minres); if(cluSize==2*dupli) hGlobalResClu2R3B->Fill(minres); if(cluSize==3*dupli) hGlobalResClu3R3B->Fill(minres);}
+		      if(rollId.ring()==3&&rollId.roll()==3){if(cluSize==1*dupli) hGlobalResClu1R3C->Fill(minres); if(cluSize==2*dupli) hGlobalResClu2R3C->Fill(minres); if(cluSize==3*dupli) hGlobalResClu3R3C->Fill(minres);}
+
+		      sprintf(meIdRPC,"RPCDataOccupancyFromCSC_%d",rollId.rawId());
 		      if(debug) std::cout <<"CSC \t \t \t \t \t \t COINCEDENCE!!! Event="<<iEvent.id()<<"Filling RPC Data Occupancy for "<<meIdRPC<<" with "<<stripPredicted<<std::endl;
 		      meMap[meIdRPC]->Fill(stripPredicted);
 		    }
@@ -1248,6 +1067,7 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   }
 }
 
+
 void RPCEfficiency::endRun(const edm::Run& r, const edm::EventSetup& iSetup){
   if (EffSaveRootFile){
     dbe->save(EffRootFileName);
@@ -1255,7 +1075,6 @@ void RPCEfficiency::endRun(const edm::Run& r, const edm::EventSetup& iSetup){
 }
 
 
-void RPCEfficiency::endJob()
-{
+void RPCEfficiency::endJob(){
   dbe =0;
 }

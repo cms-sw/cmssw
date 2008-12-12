@@ -43,7 +43,7 @@ int rollY(std::string shortname,std::map<int,std::string> rollNames){
     }
   }
   if(myy==0){
-    std::cout<<"Check your map or your DetId for "<<shortname<<std::endl;
+    std::cout<<"Problem with "<<shortname<<std::endl;
   }
   return myy;
 }
@@ -284,15 +284,15 @@ void RPCEfficiencySecond::beginJob(const edm::EventSetup&){
   dbe->setCurrentFolder("Muons/RPCEfficiency/");
   std::string os;
   os="Efficiency_Roll_vs_Sector_Wheel_-2";                                      
-  Wheelm2Summary = dbe->book2D(os, os, 12, 0.5,12.5, 28, 0.5, 28.5);
+  Wheelm2Summary = dbe->book2D(os, os, 12, 0.5,12.5, 21, 0.5, 21.5);
   os="Efficiency_Roll_vs_Sector_Wheel_-1";                                      
-  Wheelm1Summary = dbe->book2D(os, os, 12, 0.5,12.5, 28, 0.5, 28.5);
+  Wheelm1Summary = dbe->book2D(os, os, 12, 0.5,12.5, 21, 0.5, 21.5);
   os="Efficiency_Roll_vs_Sector_Wheel_0";                                      
-  Wheel0Summary = dbe->book2D(os, os, 12, 0.5,12.5, 28, 0.5, 28.5);
+  Wheel0Summary = dbe->book2D(os, os, 12, 0.5,12.5, 21, 0.5, 21.5);
   os="Efficiency_Roll_vs_Sector_Wheel_+1";                                      
-  Wheel1Summary = dbe->book2D(os, os, 12, 0.5,12.5, 28, 0.5, 28.5);
+  Wheel1Summary = dbe->book2D(os, os, 12, 0.5,12.5, 21, 0.5, 21.5);
   os="Efficiency_Roll_vs_Sector_Wheel_+2";                                      
-  Wheel2Summary = dbe->book2D(os, os, 12, 0.5,12.5, 28, 0.5, 28.5);
+  Wheel2Summary = dbe->book2D(os, os, 12, 0.5,12.5, 21, 0.5, 21.5);
 }
 
 void RPCEfficiencySecond::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){ }
@@ -310,7 +310,7 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
   statistics = dbe->get(label);
   if(!statistics){
     std::cout<<"Statistics Doesn't exist Not access to a monitor element"<<std::endl;
-    edm::LogWarning("Missing rpcSource") << " Statistics Doesn't exist.";
+    edm::LogWarning("Missing rpcSource in the sequence") << " Statistics Doesn't exist.";
     return;
   }
   if(debug) std::cout<<"Cloning statistcs"<<std::endl;
@@ -467,47 +467,49 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
   }
   
   std::map<int,std::string> rollNamesInter;
-  
-  rollNamesInter[1]="RB1in_B";
-  rollNamesInter[2]="RB1in_F";
-  rollNamesInter[3]="RB1out_B";
-  rollNamesInter[4]="RB1out_F";
-  rollNamesInter[5]="RB2in_B";
-  rollNamesInter[6]="RB2in_M";
-  rollNamesInter[7]="RB2in_F";
-  rollNamesInter[8]="RB2out_B";
-  rollNamesInter[9]="RB2out_F";
-  rollNamesInter[10]="RB3-_B";
-  rollNamesInter[11]="RB3-_F";
-  rollNamesInter[12]="RB3+_B";
-  rollNamesInter[13]="RB3+_F";
-  rollNamesInter[14]="RB4_B";
-  rollNamesInter[15]="RB4_F";
-  rollNamesInter[16]="RB4-_B";
-  rollNamesInter[17]="RB4-_F";
-  rollNamesInter[18]="RB4+_B";
-  rollNamesInter[19]="RB4+_F";
-  rollNamesInter[20]="RB4--_B";
-  rollNamesInter[21]="RB4--_F";
-  rollNamesInter[22]="RB4-+_B";
-  rollNamesInter[23]="RB4-+_F";
-  rollNamesInter[24]="RB4+-_B";
-  rollNamesInter[25]="RB4+-_F";
-  rollNamesInter[26]="RB4++_B";
-  rollNamesInter[27]="RB4++_F";
+
+  rollNamesInter[1]="RB1in B";
+  rollNamesInter[2]="RB1in F";
+  rollNamesInter[3]="RB1out B";
+  rollNamesInter[4]="RB1out F";
+  rollNamesInter[5]="RB2in B";
+  rollNamesInter[6]="RB2in M";
+  rollNamesInter[7]="RB2in F";
+  rollNamesInter[8]="RB2out B";
+  rollNamesInter[9]="RB2out F";
+  rollNamesInter[10]="RB3- B";
+  rollNamesInter[11]="RB3- F";
+  rollNamesInter[12]="RB3+ B";
+  rollNamesInter[13]="RB3+ F";
+  rollNamesInter[14]="RB4,-,-- B";
+  rollNamesInter[15]="RB4,-,-- F";
+  rollNamesInter[16]="RB4+,++ B";
+  rollNamesInter[17]="RB4+,++ F";
+  rollNamesInter[18]="RB4-+ B";
+  rollNamesInter[19]="RB4-+ F";
+  rollNamesInter[20]="RB4+- B";
+  rollNamesInter[21]="RB4+- F";
 
   std::map<int,std::string> rollNamesExter;
   
-  for(int i=1;i<=28;i++){
+  std::cout<<"Inter"<<std::endl;
+
+  for(int i=1;i<22;i++){
     rollNamesExter[i]=rollNamesInter[i];
     std::cout<<rollNamesInter[i]<<std::endl;
   }
-  
-  rollNamesExter[6]="RB2in_F";
-  rollNamesExter[7]="RB2out_B";
-  rollNamesExter[8]="RB2out_M";
 
-  for(int i=1;i<=28;i++){
+  rollNamesExter[6]="RB2in F";
+  rollNamesExter[7]="RB2out B";
+  rollNamesExter[8]="RB2out M";
+
+  std::cout<<"Now Extern"<<std::endl;
+  
+  for(int i=1;i<22;i++){
+    std::cout<<rollNamesExter[i]<<std::endl;
+  }
+
+  for(int i=1;i<22;i++){
     binLabel.str("");
     binLabel<<"Sec "<<i;
     Wheelm1Summary->setBinLabel(i,rollNamesInter[i],2);
@@ -515,7 +517,7 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
     Wheel1Summary->setBinLabel(i,rollNamesInter[i],2); 
   }
 
-  for(int i=1;i<=28;i++){
+  for(int i=1;i<22;i++){
     Wheelm2Summary->setBinLabel(i,rollNamesExter[i],2);
     Wheel2Summary->setBinLabel(i,rollNamesExter[i],2);
   }
@@ -549,7 +551,7 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
 	RPCGeomServ rpcsrv(rpcId);
 	std::string nameRoll = rpcsrv.name();
 	if(debug) std::cout<<"Booking for "<<nameRoll<<std::endl;
-	meCollection[nameRoll] = bookDetUnitSeg(rpcId,(*r)->nstrips());
+	meCollection[rpcId.rawId()] = bookDetUnitSeg(rpcId,(*r)->nstrips());
       }
     }
   }
@@ -565,7 +567,7 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
 	RPCGeomServ rpcsrv(rpcId);
 	int sector = rpcId.sector();	
 	std::string nameRoll = rpcsrv.name();
-	std::map<std::string, MonitorElement*> meMap=meCollection[nameRoll];
+	std::map<std::string, MonitorElement*> meMap=meCollection[rpcId.rawId()];
 	if(debug){
 	  std::map<std::string, MonitorElement*>::const_iterator it;
 	  for (it = meMap.begin(); it != meMap.end(); ++it){
@@ -573,7 +575,7 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
 	  }
 	}
 	
-	if(meCollection.find(nameRoll)==meCollection.end()){
+	if(meCollection.find(rpcId.rawId())==meCollection.end()){
 	  std::cout<<"WARNING!!! Empty collection map"<<std::endl;
 	}
 
@@ -603,20 +605,19 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
 	}
   	
 	if(rpcId.region()==0){
-	  std::string detUnitLabel, meIdRPC,  meIdDT,  bxDistroId, meIdRealRPC;
-	  std::string      meIdPRO, meIdRPC2, meIdDT2, bxDistroId2,meIdRealRPC2;
+	  std::stringstream detUnitLabel, meIdRPC,  meIdDT,  bxDistroId;
+	  std::string      meIdPRO, meIdRPC2, meIdDT2, bxDistroId2;
 	  
 	  RPCBookFolderStructure *  folderStr = new RPCBookFolderStructure();
 	  
-	  if(debug) std::cout<<"Setting the folder "<<std::endl;
+	  std::string folder = "Muons/MuonSegEff";
 
+	  if(debug) std::cout<<"Setting the folder "<<folder<<std::endl;
 
-	  std::string folder = "Muons/MuonSegEff/" +  folderStr->folderStructure(rpcId);
-	  meIdRPC = folder +"/RPCDataOccupancyFromDT_" + rpcsrv.name();	
-	  meIdDT  = folder +"/ExpectedOccupancyFromDT_"+ rpcsrv.name();
-	  bxDistroId =folder+"/BXDistribution_"+ rpcsrv.name();
-	  meIdRealRPC =folder+"/RealDetectedOccupancyFromDT_"+ rpcsrv.name();
-  	  
+	  meIdRPC<<folder<<"/RPCDataOccupancyFromDT_"<<rpcId.rawId();
+	  meIdDT<<folder<<"/ExpectedOccupancyFromDT_"<<rpcId.rawId();
+	  bxDistroId<<folder<<"/BXDistribution_"<<rpcId.rawId();
+      
 	  std::string folder2 = "Muons/RPCEfficiency/RollByRoll/" +  folderStr->folderStructure(rpcId); 
 
 	  delete folderStr;
@@ -624,16 +625,14 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
 	  meIdRPC2 = "RPCDataOccupancyFromDT_" + rpcsrv.name();	
 	  meIdDT2 =  "ExpectedOccupancyFromDT_"+ rpcsrv.name();
 	  bxDistroId2 = "BXDistribution_"+ rpcsrv.name();
-	  meIdRealRPC2 = "RealDetectedOccupancyFromDT_"+ rpcsrv.name();
+	  
 	  meIdPRO = "Profile_"+ rpcsrv.name();
 	  
-	  histoRPC= dbe->get(meIdRPC);
-	  histoDT= dbe->get(meIdDT);
+	  histoRPC= dbe->get(meIdRPC.str());
+	  histoDT= dbe->get(meIdDT.str());
 	  histoPRO=dbe->get(meIdPRO);
-	  BXDistribution = dbe->get(bxDistroId);
-	  histoRealRPC = dbe->get(meIdRealRPC);
+	  BXDistribution = dbe->get(bxDistroId.str());
 
-	  int NumberMasked=0;
 	  int NumberWithOutPrediction=0;
 	  double p = 0.;
 	  double o = 0.;
@@ -649,46 +648,39 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
 	  float averageerr = 0.;
 	  int NumberStripsPointed = 0;
 	  
-	  if(debug) std::cout<<"Cloning BX"<<std::endl;
+	  if(debug) std::cout<<"Cloning BX"<<std::endl; //problema con sector 9 y sector 11
+	  std::cout<<bxDistroId2<<std::endl;
 	  for(int i=1;i<=11;i++){
+	    if(debug) std::cout<<i<<"-"<<BXDistribution->getBinContent(i)<<std::endl;
 	    meMap[bxDistroId2]->setBinContent(i,BXDistribution->getBinContent(i));
 	  }
 	  
-	  if(histoRPC && histoDT && BXDistribution && histoRealRPC){
+	  if(histoRPC && histoDT && BXDistribution){
 	    if(debug) std::cout <<rpcsrv.name()<<std::endl;
 	    
 	    for(int i=1;i<=int((*r)->nstrips());++i){
-	      
 	      if(debug) std::cout<<"Cloning histoDT "<<meIdDT2<<std::endl;
 	      meMap[meIdDT2]->setBinContent(i,histoDT->getBinContent(i));
 	      if(debug) std::cout<<"Cloning histoRPC:"<<meIdRPC2<<std::endl;
 	      meMap[meIdRPC2]->setBinContent(i,histoRPC->getBinContent(i));
-	      if(debug) std::cout<<"Cloning Real RPC "<<meIdRealRPC2<<std::endl;
-	      meMap[meIdRealRPC2]->setBinContent(i,histoRealRPC->getBinContent(i));//clon
 	      
 	      if(meMap.find(meIdPRO)==meMap.end()){
 		std::cout<<"Empty Map"<<std::endl;
 	      }
 
-	      if(histoRealRPC->getBinContent(i)!=0){//loop on the strips
-		if(histoDT->getBinContent(i)!=0){
-		  if(debug) std::cout<<"Inside the If"<<std::endl;
-		  buffef = float(histoRPC->getBinContent(i))/float(histoDT->getBinContent(i));
-		  if(debug) std::cout<<"Setting profile "<<meIdPRO<<std::endl;
-		  meMap[meIdPRO]->setBinContent(i,buffef); 
-		  buffer = sqrt(buffef*(1.-buffef)/float(histoDT->getBinContent(i)));
-		  meMap[meIdPRO]->setBinError(i,buffer);
-		  sumbuffef=sumbuffef+buffef;
-		  sumbuffer = sumbuffer + buffer*buffer;
-		  NumberStripsPointed++;
-		  if(debug) std::cout<<"After the If"<<std::endl;
-		}else{
-		  NumberWithOutPrediction++;
-		}
+	      if(histoDT->getBinContent(i)!=0){
+		if(debug) std::cout<<"Inside the If"<<std::endl;
+		buffef = float(histoRPC->getBinContent(i))/float(histoDT->getBinContent(i));
+		meMap[meIdPRO]->setBinContent(i,buffef); 
+		buffer = sqrt(buffef*(1.-buffef)/float(histoDT->getBinContent(i)));
+		meMap[meIdPRO]->setBinError(i,buffer);
+		sumbuffef=sumbuffef+buffef;
+		sumbuffer = sumbuffer + buffer*buffer;
+		NumberStripsPointed++;
 	      }else{
-		NumberMasked++;
+		NumberWithOutPrediction++;
 	      }
-	      if(debug) std::cout<<"\t Strip="<<i<<" RealRPC="<<histoRealRPC->getBinContent(i)<<" RPC="<<histoRPC->getBinContent(i)<<" DT="<<histoDT->getBinContent(i)<<" buffef="<<buffef<<" buffer="<<buffer<<" sumbuffef="<<sumbuffef<<" sumbuffer="<<sumbuffer<<" NumberStripsPointed="<<NumberStripsPointed<<" NumberWithOutPrediction"<<NumberWithOutPrediction<<" Number Masked="<<NumberMasked<<std::endl;
+	      if(debug) std::cout<<"\t Strip="<<i<<" RPC="<<histoRPC->getBinContent(i)<<" DT="<<histoDT->getBinContent(i)<<" buffef="<<buffef<<" buffer="<<buffer<<" sumbuffef="<<sumbuffef<<" sumbuffer="<<sumbuffer<<" NumberStripsPointed="<<NumberStripsPointed<<" NumberWithOutPrediction"<<NumberWithOutPrediction<<std::endl;
 	    }
 	    
 	    p=histoDT->getTH1F()->Integral();
@@ -716,7 +708,6 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
 	    
 	  std::string camera = rpcsrv.name();
 	    
-	  float maskedratio = (float(NumberMasked)/float((*r)->nstrips()))*100.;
 	  float nopredictionsratio = (float(NumberWithOutPrediction)/float((*r)->nstrips()))*100.;
 
 	  /*std::cout<<"p="<<p<<" o="<<o<<std::endl;
@@ -726,26 +717,32 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
 	  std::cout<<"nopredictionsratio="<<nopredictionsratio<<std::endl;
 	  */
 
-	  //Pigi Histos
+	  //Label in Pigis Histos
 
 	  if(debug) std::cout<<"Pigi "<<camera<<" "<<rpcsrv.shortname()<<" "
 			     <<(*r)->id()<<std::endl;
 	  
 	  if(abs((*r)->id().ring())==2){
 	    std::cout<<rollY(rpcsrv.shortname(),rollNamesExter)
-		     <<"--"<<rpcsrv.shortname()<<std::endl;
+		     <<"--"<<rpcsrv.shortname()
+		     <<" "<<rpcsrv.name()
+		     <<" averageEff"<<averageeff<<std::endl;
 	    if((*r)->id().ring()==2) Wheel2Summary->setBinContent((*r)->id().sector(),rollY(rpcsrv.shortname(),rollNamesExter),averageeff);
 	    else Wheelm2Summary->setBinContent((*r)->id().sector(),rollY(rpcsrv.shortname(),rollNamesExter),averageeff);
 	  }else{
 	    std::cout<<rollY(rpcsrv.shortname(),rollNamesInter)
-		     <<"--"<<rpcsrv.shortname()<<std::endl; 
-	    if((*r)->id().ring()==-1) Wheelm1Summary->setBinContent((*r)->id().sector(),rollY(rpcsrv.shortname(),rollNamesExter),averageeff);
-	    else if((*r)->id().ring()==0) Wheel0Summary->setBinContent((*r)->id().sector(),rollY(rpcsrv.shortname(),rollNamesExter),averageeff);
-	    else if((*r)->id().ring()==1) Wheel1Summary->setBinContent((*r)->id().sector(),rollY(rpcsrv.shortname(),rollNamesExter),averageeff);
+		     <<"--"<<rpcsrv.shortname()
+		     <<" "<<rpcsrv.name()
+		     <<" averageEff"<<averageeff<<std::endl;
 	    
- 	  }
+	    if((*r)->id().ring()==-1) Wheelm1Summary->setBinContent((*r)->id().sector(),rollY(rpcsrv.shortname(),rollNamesInter),averageeff);
+	    else if((*r)->id().ring()==0) Wheel0Summary->setBinContent((*r)->id().sector(),rollY(rpcsrv.shortname(),rollNamesInter),averageeff);
+	    else if((*r)->id().ring()==1) Wheel1Summary->setBinContent((*r)->id().sector(),rollY(rpcsrv.shortname(),rollNamesInter),averageeff);
+	  }
  	  
 	  //Near Side
+
+	  float maskedratio =0;
 
 	  if((sector==1||sector==2||sector==3||sector==10||sector==11||sector==12)){
 	    if(Ring==-2){
@@ -958,31 +955,31 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
 	  }
 	}else{//EndCap
 
-	  std::string detUnitLabel, meIdRPC,meIdCSC, bxDistroId, meIdRealRPC  ;
-	  std::string      meIdPRO, meIdRPC2, meIdCSC2, bxDistroId2,meIdRealRPC2;
+	  std::stringstream detUnitLabel, meIdRPC,meIdCSC, bxDistroId;
+	  std::string      meIdPRO, meIdRPC2, meIdCSC2, bxDistroId2;
 	  
-	  RPCBookFolderStructure *  folderStr = new RPCBookFolderStructure(); //Anna
-	  std::string folder = "Muons/MuonSegEff/" +  folderStr->folderStructure(rpcId);
+	  RPCBookFolderStructure *  folderStr = new RPCBookFolderStructure();
+
+	  std::string folder = "Muons/MuonSegEff";
+	  
+	  meIdRPC<<folder<<"/RPCDataOccupancyFromCSC_"<<rpcId.rawId();
+	  meIdCSC<<folder<<"/ExpectedOccupancyFromCSC_"<<rpcId.rawId();
+	  bxDistroId<<folder<<"/BXDistribution_"<<rpcId.rawId();
+		
+	  std::string folder2 = "Muons/RPCEfficiency/RollByRoll/" +  folderStr->folderStructure(rpcId); 
 	  
 	  delete folderStr;
-		
-	  meIdRPC = folder +"/RPCDataOccupancyFromCSC_"+ rpcsrv.name();	
-	  meIdCSC =folder+"/ExpectedOccupancyFromCSC_"+ rpcsrv.name();
-	  bxDistroId =folder+"/BXDistribution_"+ rpcsrv.name();
-	  meIdRealRPC =folder+"/RealDetectedOccupancyFromCSC_"+ rpcsrv.name();
-	  
+
 	  meIdRPC2 = "RPCDataOccupancyFromCSC_" + rpcsrv.name();	
 	  meIdCSC2 =  "ExpectedOccupancyFromCSC_"+ rpcsrv.name();
 	  bxDistroId2 = "BXDistribution_"+ rpcsrv.name();
-	  meIdRealRPC2 = "RealDetectedOccupancyFromCSC_"+ rpcsrv.name();
+
 	  meIdPRO = "Profile_"+ rpcsrv.name();
 
-	  histoRPC= dbe->get(meIdRPC);
-	  histoCSC= dbe->get(meIdCSC);
-	  BXDistribution = dbe->get(bxDistroId);
-	  histoRealRPC = dbe->get(meIdRealRPC);
+	  histoRPC= dbe->get(meIdRPC.str());
+	  histoCSC= dbe->get(meIdCSC.str());
+	  BXDistribution = dbe->get(bxDistroId.str());
 	  		  
-	  int NumberMasked=0;
 	  int NumberWithOutPrediction=0;
 	  double p = 0;
 	  double o = 0;
@@ -996,31 +993,42 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
 	  float sumbuffer = 0;
 	  float averageeff = 0;
 	  float averageerr = 0;
-
 	  int NumberStripsPointed = 0;
 
-	  if(histoRPC && histoCSC && BXDistribution && histoRealRPC){
+	  if(debug) std::cout<<"Cloning BX"<<std::endl;
+	  std::cout<<bxDistroId2<<std::endl;
+	  for(int i=1;i<=11;i++){
+	    if(debug) std::cout<<i<<"-"<<BXDistribution->getBinContent(i)<<std::endl;
+	    meMap[bxDistroId2]->setBinContent(i,BXDistribution->getBinContent(i));
+	  }
+
+	  if(histoRPC && histoCSC && BXDistribution){
 	    if(debug) std::cout <<rpcsrv.name()<<std::endl;
 	    
 	    for(int i=1;i<=int((*r)->nstrips());++i){
-	      if(histoRealRPC->getBinContent(i)!=0){
-		if(histoCSC->getBinContent(i)!=0){
-		  if(debug) std::cout<<"Inside the If"<<std::endl;
-		  buffef = float(histoRPC->getBinContent(i))/float(histoCSC->getBinContent(i));
-		  meMap[meIdPRO]->setBinContent(i,buffef); 
-		  buffer = sqrt(buffef*(1.-buffef)/float(histoCSC->getBinContent(i)));
-		  meMap[meIdPRO]->setBinError(i,buffer);
-		  sumbuffef=sumbuffef+buffef;
-		  sumbuffer = sumbuffer + buffer*buffer;
-		  NumberStripsPointed++;
-		}else{
-		  NumberWithOutPrediction++;
-		}
-		
-	      }else{
-		NumberMasked++;
+	      if(debug) std::cout<<"Cloning histoCSC "<<meIdCSC2<<std::endl;
+	      meMap[meIdCSC2]->setBinContent(i,histoCSC->getBinContent(i));
+	      if(debug) std::cout<<"Cloning histoRPC:"<<meIdRPC2<<std::endl;
+	      meMap[meIdRPC2]->setBinContent(i,histoRPC->getBinContent(i));
+	      
+	      if(meMap.find(meIdPRO)==meMap.end()){
+		std::cout<<"Empty Map"<<std::endl;
 	      }
-	      if(debug) std::cout<<"\t Strip="<<i<<" RealRPC="<<histoRealRPC->getBinContent(i)<<" RPC="<<histoRPC->getBinContent(i)<<" CSC="<<histoCSC->getBinContent(i)<<" buffef="<<buffef<<" buffer="<<buffer<<" sumbuffef="<<sumbuffef<<" sumbuffer="<<sumbuffer<<" NumberStripsPointed="<<NumberStripsPointed<<" NumberWithOutPrediction"<<NumberWithOutPrediction<<" Number Masked="<<NumberMasked<<std::endl;
+
+	      if(histoCSC->getBinContent(i)!=0){
+		if(debug) std::cout<<"Inside the If"<<std::endl;
+		buffef = float(histoRPC->getBinContent(i))/float(histoCSC->getBinContent(i));
+		meMap[meIdPRO]->setBinContent(i,buffef); 
+		buffer = sqrt(buffef*(1.-buffef)/float(histoCSC->getBinContent(i)));
+		meMap[meIdPRO]->setBinError(i,buffer);
+		sumbuffef=sumbuffef+buffef;
+		sumbuffer = sumbuffer + buffer*buffer;
+		NumberStripsPointed++;
+	      }else{
+		NumberWithOutPrediction++;
+	      }
+	      
+	      if(debug) std::cout<<"\t Strip="<<i<<" RPC="<<histoRPC->getBinContent(i)<<" CSC="<<histoCSC->getBinContent(i)<<" buffef="<<buffef<<" buffer="<<buffer<<" sumbuffef="<<sumbuffef<<" sumbuffer="<<sumbuffer<<" NumberStripsPointed="<<NumberStripsPointed<<" NumberWithOutPrediction"<<NumberWithOutPrediction<<std::endl;
 	    }
 	    p=histoCSC->getTH1F()->Integral();
 	    o=histoRPC->getTH1F()->Integral();
@@ -1046,7 +1054,6 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
 	    
 	  std::string camera = rpcsrv.name();
 	    
-	  float maskedratio = (float(NumberMasked)/float((*r)->nstrips()))*100.;
 	  float nopredictionsratio = (float(NumberWithOutPrediction)/float((*r)->nstrips()))*100.;
 	  
 	  /*std::cout<<"p="<<p<<" o="<<o<<std::endl;
@@ -1056,6 +1063,8 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
 	  std::cout<<"nopredictionsratio="<<nopredictionsratio<<std::endl;
 	  */
  	  //Near Side
+
+	  float maskedratio =0;
 
 	  if(sector==1||sector==2||sector==6){
 

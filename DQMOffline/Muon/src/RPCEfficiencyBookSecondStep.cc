@@ -18,6 +18,8 @@ std::map<std::string, MonitorElement*> RPCEfficiencySecond::bookDetUnitSeg(RPCDe
   RPCBookFolderStructure *  folderStr = new RPCBookFolderStructure(); //Anna
   std::string folder = "Muons/RPCEfficiency/RollByRoll/" +  folderStr->folderStructure(detId);
 
+  delete folderStr;
+
   dbe->setCurrentFolder(folder);
 
   RPCGeomServ RPCname(detId);
@@ -41,11 +43,6 @@ std::map<std::string, MonitorElement*> RPCEfficiencySecond::bookDetUnitSeg(RPCDe
     meMap[meId] = dbe->book1D(meId, meTitle, nstrips, 0.5, nstrips+0.5);
     //std::cout<<"Booking "<<meId<<std::endl;
  
-    sprintf(meId,"RealDetectedOccupancyFromDT_%s",detUnitLabel);
-    sprintf(meTitle,"RealDetectedOccupancyFromDT_for_%s",layerLabel);
-    meMap[meId] = dbe->book1D(meId, meTitle, nstrips, 0.5, nstrips+0.5);
-    //std::cout<<"Booking "<<folder<<meId<<std::endl;
-
     sprintf(meId,"RPCDataOccupancyFromDT_%s",detUnitLabel);
     sprintf(meTitle,"RPCDataOccupancyFromDT_for_%s",layerLabel);
     meMap[meId] = dbe->book1D(meId, meTitle, nstrips, 0.5, nstrips+0.5);
@@ -67,11 +64,6 @@ std::map<std::string, MonitorElement*> RPCEfficiencySecond::bookDetUnitSeg(RPCDe
     sprintf(meTitle,"ExpectedOccupancyFromCSC_for_%s",layerLabel);
     meMap[meId] = dbe->book1D(meId, meTitle, nstrips, 0.5, nstrips+0.5);
        
-    //std::cout<<"Booking "<<meId<<std::endl;
-    sprintf(meId,"RealDetectedOccupancyFromCSC_%s",detUnitLabel);
-    sprintf(meTitle,"RealDetectedOccupancyFromCSC_for_%s",layerLabel);
-    meMap[meId] = dbe->book1D(meId, meTitle, nstrips, 0.5, nstrips+0.5);
-    
     //std::cout<<"Booking "<<meId<<std::endl;
     sprintf(meId,"RPCDataOccupancyFromCSC_%s",detUnitLabel);
     sprintf(meTitle,"RPCDataOccupancyFromCSC_for_%s",layerLabel);
