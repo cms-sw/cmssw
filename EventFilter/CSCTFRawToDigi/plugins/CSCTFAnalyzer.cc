@@ -11,7 +11,8 @@
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
 #include "DataFormats/L1CSCTrackFinder/interface/L1CSCTrackCollection.h"
 #include "DataFormats/L1CSCTrackFinder/interface/L1CSCStatusDigiCollection.h"
-#include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h"
+#include "DataFormats/L1CSCTrackFinder/interface/CSCTriggerContainer.h"
+#include "DataFormats/L1CSCTrackFinder/interface/TrackStub.h"
 
 CSCTFAnalyzer::CSCTFAnalyzer(const edm::ParameterSet &conf):edm::EDAnalyzer(){
 	mbProducer    = conf.getUntrackedParameter<edm::InputTag>("mbProducer",edm::InputTag("csctfunpacker"));
@@ -47,14 +48,16 @@ void CSCTFAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c){
 	}
 
 	if( mbProducer.label() != "null" ){
-		edm::Handle<L1MuDTChambPhContainer> dtStubs;
+		edm::Handle<CSCTriggerContainer<csctf::TrackStub> > dtStubs;
 		e.getByLabel(mbProducer.label(),mbProducer.instance(),dtStubs);
-		if( dtStubs.isValid() )
-			for(std::vector<L1MuDTChambPhDigi>::const_iterator stub=dtStubs->getContainer()->begin(); stub!=dtStubs->getContainer()->end(); stub++){
-				edm::LogInfo("CSCTFAnalyzer")<<"   DT data: tbin="<<stub->bxNum()<<" wheel="<<stub->whNum()<<" sector="<<stub->scNum()<<" station="<<stub->stNum()
-					<<" phi="<<stub->phi()<<" phiBend="<<stub->phiB()<<" quality="<<stub->code()<<" bits: 0x"<<std::hex<<stub->Ts2Tag()<<std::dec<<" mb_bxn="<<stub->BxCnt();
+		if( dtStubs.isValid() ){
+			std::vector<csctf::TrackStub> vstubs = dtStubs->get();
+			for(std::vector<csctf::TrackStub>::const_iterator stub=vstubs.begin(); stub!=vstubs.end(); stub++){
+				edm::LogInfo("CSCTFAnalyzer")<<"   DT data: tbin="<<stub->BX()<<" sector="<<stub->sector()<<" station="<<stub->station()
+					<<" phi="<<stub->phiPacked()<<" phiBend="<<stub->getBend()<<" quality="<<stub->getQuality()<<" mb_bxn="<<stub->cscid();
 			}
-		else edm::LogInfo("CSCTFAnalyzer")<<"  No valid L1MuDTChambPhContainer products found";
+		}
+		else edm::LogInfo("CSCTFAnalyzer")<<"  No valid CSCTriggerContainer<csctf::TrackStub> products found";
 	}
 
 	if( lctProducer.label() != "null" ){

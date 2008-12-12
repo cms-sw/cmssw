@@ -16,7 +16,7 @@ process.source = cms.Source("PoolSource",
 )
 
 process.csctfanalyzer = cms.EDAnalyzer("CSCTFAnalyzer",
-         mbProducer     = cms.untracked.InputTag("csctfunpacker:"),
+         mbProducer     = cms.untracked.InputTag("csctfunpacker:DT"),
          lctProducer    = cms.untracked.InputTag("csctfunpacker:"),
          trackProducer  = cms.untracked.InputTag("csctfunpacker:"),
          statusProducer = cms.untracked.InputTag("csctfunpacker:")

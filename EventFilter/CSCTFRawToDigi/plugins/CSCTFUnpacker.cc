@@ -14,16 +14,17 @@
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigi.h"
 #include "DataFormats/L1CSCTrackFinder/interface/L1Track.h"
 #include "DataFormats/L1CSCTrackFinder/interface/L1CSCSPStatusDigi.h"
-#include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhDigi.h"
+#include "DataFormats/L1CSCTrackFinder/interface/TrackStub.h"
 
 //Digi collections
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
 #include "DataFormats/L1CSCTrackFinder/interface/L1CSCTrackCollection.h"
 #include "DataFormats/L1CSCTrackFinder/interface/L1CSCStatusDigiCollection.h"
-#include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h"
+#include "DataFormats/L1CSCTrackFinder/interface/CSCTriggerContainer.h"
 
 //Unique key
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
+#include "DataFormats/MuonDetId/interface/DTChamberId.h"
 
 //Don't know what
 #include <EventFilter/CSCTFRawToDigi/interface/CSCTFMonitorInterface.h>
@@ -80,9 +81,7 @@ CSCTFUnpacker::CSCTFUnpacker(const edm::ParameterSet& pset):edm::EDProducer(),ma
 	produces<CSCCorrelatedLCTDigiCollection>();
 	produces<L1CSCTrackCollection>();
 	produces<L1CSCStatusDigiCollection>();
-	produces<L1MuDTChambPhContainer>();
-
-	LogDebug("CSCTFUnpacker|ctor") << "... and finished";
+	produces<CSCTriggerContainer<csctf::TrackStub> >("DT");
 }
 
 CSCTFUnpacker::~CSCTFUnpacker(){
@@ -94,11 +93,11 @@ void CSCTFUnpacker::produce(edm::Event& e, const edm::EventSetup& c){
 	edm::Handle<FEDRawDataCollection> rawdata;
 	e.getByLabel(producer.label(),producer.instance(),rawdata);
 
-	// create the collection of CSC wire and strip digis as well as of DT stubs, we receive from DTTF
-	std::auto_ptr<L1MuDTChambPhContainer>         dtProduct(new L1MuDTChambPhContainer);
+	// create the collection of CSC wire and strip digis as well as of DT stubs, which we receive from DTTF
 	std::auto_ptr<CSCCorrelatedLCTDigiCollection> LCTProduct(new CSCCorrelatedLCTDigiCollection);
 	std::auto_ptr<L1CSCTrackCollection>           trackProduct(new L1CSCTrackCollection);
 	std::auto_ptr<L1CSCStatusDigiCollection>      statusProduct(new L1CSCStatusDigiCollection);
+	std::auto_ptr<CSCTriggerContainer<csctf::TrackStub> > dtProduct(new CSCTriggerContainer<csctf::TrackStub>);
 
 	for(int fedid=FEDNumbering::getCSCTFFEDIds().first; fedid<=FEDNumbering::getCSCTFFEDIds().second; fedid++){
 		const FEDRawData& fedData = rawdata->FEDData(fedid);
@@ -171,9 +170,6 @@ void CSCTFUnpacker::produce(edm::Event& e, const edm::EventSetup& c){
 										(lct[0].tbin()+(central_lct_bx-central_sp_bx)),
 										lct[0].link(), lct[0].BXN(), 0, cscid )
 									);
-
-// LogDebug("CSCUnpacker|produce") << "Unpacked digi: "<< aFB.frontDigiData(FPGA,MPClink);
-
 							} catch(cms::Exception &e) {
 								edm::LogInfo("CSCTFUnpacker|produce") << e.what() << "Not adding digi to collection in event "
 								      <<sp->header().L1A()<<" (endcap="<<endcap<<",station="<<station<<",sector="<<sector<<",subsector="<<subsector<<",cscid="<<cscid<<",spSlot="<<sp->header().slot()<<")";
@@ -192,16 +188,10 @@ void CSCTFUnpacker::produce(edm::Event& e, const edm::EventSetup& c){
 							endcap = (sp->header().endcap()?1:2);
 							sector =  sp->header().sector();
 						}
-						unsigned bits = iter->bxn();
-						bits |= iter->bc0()<<2;
-						bits |= iter->flag()<<3;
-						bits |= iter->cal()<<4;
-						bits |= iter->af()<<5;
-						bits |= iter->vq()<<6;
-						bits |= iter->timingError()<<7;
-						bits |= iter->id()<<8;
-						L1MuDTChambPhDigi stub(tbin,(endcap==1?2:-2),sector,1,iter->phi(),iter->phi_bend(),iter->quality(),bits,iter->BXN());
-						dtProduct->getContainer()->push_back(stub);
+						DTChamberId id((endcap==1?2:-2),1, 2*sector+iter->id() ); // Fix me: TrackStubs have problem with DT sector numbering!!!
+						CSCCorrelatedLCTDigi base(0,iter->vq(),iter->quality(),iter->cal(),iter->flag(),iter->bc0(),iter->phi_bend(),tbin+(central_lct_bx-central_sp_bx),iter->id(),iter->bxn(),iter->timingError(),iter->BXN());
+						csctf::TrackStub dtStub(base,id,iter->phi(),0);
+						dtProduct->push_back(dtStub);
 					}
 
 					std::vector<CSCSP_SPblock> tracks = sp->record(tbin).tracks();
@@ -275,7 +265,7 @@ void CSCTFUnpacker::produce(edm::Event& e, const edm::EventSetup& c){
 		statusProduct->first  = unpacking_status;
 
 	} //end of fed cycle
-	e.put(dtProduct);
+	e.put(dtProduct,"DT");
 	e.put(LCTProduct); // put processed lcts into the event.
 	e.put(trackProduct);
 	e.put(statusProduct);
