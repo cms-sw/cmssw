@@ -5,8 +5,8 @@
  * \class RPCFw
  *  Reads data from OMDS and creates conditioning objects
  *
- *  $Date: 2008/12/12 17:46:45 $
- *  $Revision: 1.5 $
+ *  $Date: 2008/08/28 10:23:53 $
+ *  $Revision: 1.3 $
  *  \author D. Pagano - Dip. Fis. Nucl. e Teo. & INFN Pavia
  */
 
@@ -49,6 +49,7 @@ public:
   std::vector<RPCObTemp::T_Item> createT(int from);
   std::vector<RPCObPVSSmap::Item> createIDMAP();
 
+  
 private:
   std::string m_connectionString;
   std::string m_userName;
