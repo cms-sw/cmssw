@@ -14,11 +14,13 @@
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigi.h"
 #include "DataFormats/L1CSCTrackFinder/interface/L1Track.h"
 #include "DataFormats/L1CSCTrackFinder/interface/L1CSCSPStatusDigi.h"
+#include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhDigi.h"
 
 //Digi collections
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
 #include "DataFormats/L1CSCTrackFinder/interface/L1CSCTrackCollection.h"
 #include "DataFormats/L1CSCTrackFinder/interface/L1CSCStatusDigiCollection.h"
+#include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h"
 
 //Unique key
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
@@ -78,6 +80,7 @@ CSCTFUnpacker::CSCTFUnpacker(const edm::ParameterSet& pset):edm::EDProducer(),ma
 	produces<CSCCorrelatedLCTDigiCollection>();
 	produces<L1CSCTrackCollection>();
 	produces<L1CSCStatusDigiCollection>();
+	produces<L1MuDTChambPhContainer>();
 
 	LogDebug("CSCTFUnpacker|ctor") << "... and finished";
 }
@@ -91,7 +94,8 @@ void CSCTFUnpacker::produce(edm::Event& e, const edm::EventSetup& c){
 	edm::Handle<FEDRawDataCollection> rawdata;
 	e.getByLabel(producer.label(),producer.instance(),rawdata);
 
-	// create the collection of CSC wire and strip Digis
+	// create the collection of CSC wire and strip digis as well as of DT stubs, we receive from DTTF
+	std::auto_ptr<L1MuDTChambPhContainer>         dtProduct(new L1MuDTChambPhContainer);
 	std::auto_ptr<CSCCorrelatedLCTDigiCollection> LCTProduct(new CSCCorrelatedLCTDigiCollection);
 	std::auto_ptr<L1CSCTrackCollection>           trackProduct(new L1CSCTrackCollection);
 	std::auto_ptr<L1CSCStatusDigiCollection>      statusProduct(new L1CSCStatusDigiCollection);
@@ -177,6 +181,29 @@ void CSCTFUnpacker::produce(edm::Event& e, const edm::EventSetup& c){
 
 						}
 
+					std::vector<CSCSP_MBblock> mbStubs = sp->record(tbin).mbStubs();
+					for(std::vector<CSCSP_MBblock>::const_iterator iter=mbStubs.begin(); iter!=mbStubs.end(); iter++){
+						int endcap, sector;
+						if( slot2sector[sp->header().slot()] ){
+							endcap = slot2sector[sp->header().slot()]/7 + 1;
+							sector = slot2sector[sp->header().slot()];
+							if( sector>6 ) sector -= 6;
+						} else {
+							endcap = (sp->header().endcap()?1:2);
+							sector =  sp->header().sector();
+						}
+						unsigned bits = iter->bxn();
+						bits |= iter->bc0()<<2;
+						bits |= iter->flag()<<3;
+						bits |= iter->cal()<<4;
+						bits |= iter->af()<<5;
+						bits |= iter->vq()<<6;
+						bits |= iter->timingError()<<7;
+						bits |= iter->id()<<8;
+						L1MuDTChambPhDigi stub(tbin,(endcap==1?2:-2),sector,1,iter->phi(),iter->phi_bend(),iter->quality(),bits,iter->BXN());
+						dtProduct->getContainer()->push_back(stub);
+					}
+
 					std::vector<CSCSP_SPblock> tracks = sp->record(tbin).tracks();
 					unsigned int trkNumber=0;
 					for(std::vector<CSCSP_SPblock>::const_iterator iter=tracks.begin(); iter!=tracks.end(); iter++,trkNumber++){
@@ -194,8 +221,11 @@ void CSCTFUnpacker::produce(edm::Event& e, const edm::EventSetup& c){
 						track.first.m_ptAddress = iter->ptLUTaddress();
 						track.first.m_fr        = iter->f_r();
 						track.first.m_ptAddress|=(iter->f_r() << 21);
+
 						track.first.setStationIds(iter->ME1_id(),iter->ME2_id(),iter->ME3_id(),iter->ME4_id(),iter->MB_id());
+						track.first.setTbins(iter->ME1_tbin(), iter->ME2_tbin(), iter->ME3_tbin(), iter->ME4_tbin(), iter->MB_tbin() );
 						track.first.setBx(iter->tbin()-central_sp_bx);
+						track.first.setBits(iter->syncErr(), iter->bx0(), iter->bc0());
 
 						track.first.setPhiPacked(iter->phi());
 						track.first.setEtaPacked(iter->eta());
@@ -211,7 +241,7 @@ void CSCTFUnpacker::produce(edm::Event& e, const edm::EventSetup& c){
 						}
 						track.first.setFineHaloPacked(iter->halo());
 
-//						track.first.m_winner = iter->MS_id()&(1<<trkNumber);
+						track.first.m_winner = iter->MS_id()&(1<<trkNumber);
 
 						std::vector<CSCSP_MEblock> lcts = iter->LCTs();
 
@@ -245,6 +275,7 @@ void CSCTFUnpacker::produce(edm::Event& e, const edm::EventSetup& c){
 		statusProduct->first  = unpacking_status;
 
 	} //end of fed cycle
+	e.put(dtProduct);
 	e.put(LCTProduct); // put processed lcts into the event.
 	e.put(trackProduct);
 	e.put(statusProduct);

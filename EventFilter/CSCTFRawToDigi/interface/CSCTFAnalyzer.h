@@ -10,7 +10,7 @@
 
 class CSCTFAnalyzer : public edm::EDAnalyzer {
 private:
-	edm::InputTag lctProducer, trackProducer, statusProducer;
+	edm::InputTag mbProducer, lctProducer, trackProducer, statusProducer;
 
 public:
 	void analyze(const edm::Event& e, const edm::EventSetup& c);
