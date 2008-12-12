@@ -1,7 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
 from DQM.DTMonitorModule.dtChamberEfficiency_cfi import *
-from DQM.DTMonitorModule.dtChamberEfficiencyTask_cfi import *
 from DQM.DTMonitorModule.dtSegmentTask_cfi import *
 dtSegmentAnalysisMonitor.detailedAnalysis = True
 dtSegmentAnalysisMonitor.slideTimeBins = False
