@@ -8,7 +8,7 @@
 //
 // Original Author:  Tomasz Frueboes
 //         Created:  Fri Feb 22 12:26:49 CET 2008
-// $Id: L1RPCConeBuilder.cc,v 1.2 2008/03/14 12:38:20 fruboes Exp $
+// $Id: L1RPCConeBuilder.cc,v 1.3 2008/06/05 14:45:48 mmaggi Exp $
 //
 
 #include "CondFormats/RPCObjects/interface/L1RPCConeBuilder.h"
@@ -51,9 +51,17 @@ std::pair<L1RPCConeBuilder::TStripConVec::const_iterator, L1RPCConeBuilder::TStr
   return std::make_pair(itBeg,itEnd);
 }
 
-/*std::pair<TStripConVec::const_iterator, TStripConVec::const_iterator> 
-    L1RPCConeBuilder::getConVec(uint32_t det, unsigned char strip) const {
-  return std::make_pair(m_coneConnectionMap[det][strip].begin(),m_coneConnectionMap[det][strip].end());    
-    
-}*/
+std::pair<L1RPCConeBuilder::TCompressedConVec::const_iterator, L1RPCConeBuilder::TCompressedConVec::const_iterator> 
+    L1RPCConeBuilder::getCompConVec(uint32_t det) const 
+{
+  L1RPCConeBuilder::TCompressedConVec::const_iterator itBeg = L1RPCConeBuilder::TCompressedConVec().end();
+  L1RPCConeBuilder::TCompressedConVec::const_iterator itEnd = itBeg;
+  
+  if(m_compressedConeConnectionMap.find(det)!=m_compressedConeConnectionMap.end()){
+    itBeg =  m_compressedConeConnectionMap.find(det)->second.begin();
+    itEnd =  m_compressedConeConnectionMap.find(det)->second.end();
+  }
+  
+  return std::make_pair(itBeg,itEnd);
+}
 
