@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 13 09:58:53 EDT 2008
-// $Id: FWGUIEventDataAdder.cc,v 1.14 2008/12/06 02:39:40 chrjones Exp $
+// $Id: FWGUIEventDataAdder.cc,v 1.15 2008/12/09 05:56:18 dmytro Exp $
 //
 
 // system include files
@@ -279,13 +279,14 @@ FWGUIEventDataAdder::addNewItem()
 
    int largest = -1;
    if(m_manager->begin() != m_manager->end()) {
-      largest = (*(m_manager->begin()))->layer();
+      if ( *(m_manager->begin()) )
+	largest = (*(m_manager->begin()))->layer();
    }
    for(FWEventItemsManager::const_iterator it = m_manager->begin(),
        itEnd = m_manager->end();
        it!=itEnd;
        ++it) {
-      if(largest < (*it)->layer()) {
+      if((*it) && largest < (*it)->layer()) {
          largest = (*it)->layer();
       }
    }
