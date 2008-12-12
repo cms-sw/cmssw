@@ -4,9 +4,33 @@
 # two input root files produced using the EDAnalyzers in RecoEgamma/Examples.
 
 #============= Configuration =================
-# You can change the default values below,
-# tuned for the Oval tests suite, with any
-# value you would prefer.
+# This script behavior is tuned by few unix variables and command-line
+# arguments. You can use Oval as execution manager, whose configuration is
+# within OvalFile. Oval will set the relevant variables for you.
+# If you prefer to set the variablse and run this script directly,
+# here they are :
+#
+# $1 : eventual first command-line argument, immediatly duplicated into VAL_ENV,
+#   is the name of the current context, used to build some default value
+#   for other variables.
+# $2 : eventual second command-line argument, immediatly duplicated into VAL_OUTPUT_FILE,
+#   is the default default base name of the files containing the histograms ; it is
+#   also used to build some default value for other variables.
+#
+# VAL_NEW_FILE : complete path of the file containing the new histograms.
+# VAL_REF_FILE : complete path of the file containing the old histograms to compare with.
+# 
+# VAL_ANALYZER : name of the analyzer used to do the histograms ; it is used to know
+#   which histograms must be searched for. The value must be one of GsfElectronMCAnalyzer,
+#   GsfElectronDataAnalyzer,  GsfElectronFakeAnalyzer or SimplePhotonAnalyzer.
+#
+# VAL_NEW_RELEASE : chosen name for the new release to validate ; used in web pages
+#   and used to build the path where the web pages will be stored.
+# VAL_REF_RELEASE : chosen name of the old release to compare with ; used in web pages
+#   and used to build the path where the web pages will be stored.
+# DBS_SAMPLE : short chosen name for the current dataset ; used in web pages
+#   and used to build the path where the web pages will be stored.
+#=========================================================================================
 
 setenv VAL_ENV $1
 setenv VAL_OUTPUT_FILE $2
@@ -27,15 +51,11 @@ if ( ${VAL_REF_FILE} == "" ) then
   endif
 endif
  
-#Release versions to be compared (affects output directory name and html description only)
+#setenv VAL_ANALYZER GsfElectronMCAnalyzer
+
 #setenv VAL_NEW_RELEASE 220pre1IDEAL
 #setenv VAL_REF_RELEASE 219IDEAL
 
-#VAL_ANALYZER must be one of GsfElectronMCAnalyzer, GsfElectronFakeAnalyzer,
-#SimplePhotonAnalyzer or SimpleConvertedPhotonAnalyzer
-#setenv VAL_ANALYZER GsfElectronMCAnalyzer
-
-#Name of DBS_SAMPLE (affects output directory name and html description only)
 #setenv DBS_SAMPLE RelValQCD_Pt_80_120
 
 
@@ -69,6 +89,7 @@ endif
 cp -f $CURRENTDIR/newvalidation.C .
 
 #============== Prepare the list of histograms ==================
+# The second argument is 1 if the histogram is scaled, 0 otherwise
 
 if ( $VAL_ANALYZER == GsfElectronMCAnalyzer ) then
 
@@ -89,9 +110,13 @@ h_ele_vertexY 1
 h_ele_vertexZ 1
 h_ele_EoP 1
 h_ele_EoPout 1
+h_ele_EeleOPout 1
+h_ele_EseedOP 1
 h_ele_dEtaCl_propOut 1
-h_ele_dEtaSc_propVtx 1
+h_ele_dEtaCl_propOut 1
+h_ele_dEtaEleSc_propVtx 1
 h_ele_dPhiCl_propOut 1
+h_ele_dPhiEleCl_propOut 1
 h_ele_dPhiSc_propVtx 1
 h_ele_HoE 1
 h_ele_chi2 1
@@ -119,9 +144,11 @@ h_ele_PhiMnPhiTrueVsEta_pfx 	0
 h_ele_vertexPtVsEta_pfx 	0
 h_ele_EoPVsEta_pfx 	0
 h_ele_EoPoutVsEta_pfx 	0
+h_ele_EeleOPoutVsEta_pfx 	0
 h_ele_HoEVsEta_pfx 	0
 h_ele_chi2VsEta_pfx 	0
 h_ele_foundHitsVsEta_pfx 	0
+h_ele_ambiguousTracksVsEta_pfx 0
 h_ele_fbremvsEtamean	0
 h_ele_fbremvsEtamode	0
 h_ele_eta_bbremFrac 	0
@@ -142,14 +169,19 @@ h_ele_vertexY 	1
 h_ele_vertexZ 	1
 h_ele_EoP 	1
 h_ele_EoPout 	1
+h_ele_EeleOPout 1
+h_ele_EseedOP 1
 h_ele_dEtaCl_propOut 	1
+h_ele_dEtaEleCl_propOut 	1
 h_ele_dEtaSc_propVtx 	1
 h_ele_dPhiCl_propOut 	1
+h_ele_dPhiEleCl_propOut 	1
 h_ele_dPhiSc_propVtx 	1
 h_ele_HoE 	1
 h_ele_chi2 	1
 h_ele_foundHits 	1
 h_ele_lostHits 	1
+h_ele_ambiguousTracks 1
 h_ele_classes 	1
 h_ele_charge	1
 h_ele_mee_all	1
@@ -167,9 +199,11 @@ h_ele_ptEff_all 	0
 h_ele_vertexPtVsEta_pfx  	0
 h_ele_EoPVsEta_pfx  	0
 h_ele_EoPoutVsEta_pfx  	0
+h_ele_EeleOPoutVsEta_pfx 0
 h_ele_HoEVsEta_pfx  	0
 h_ele_chi2VsEta_pfx  	0
 h_ele_foundHitsVsEta_pfx  	0
+h_ele_ambiguousTracksVsEta_pfx 0
 h_ele_fbremvsEtamean 	0
 h_ele_fbremvsEtamode 	0
 h_ele_eta_bbremFrac  	0
