@@ -53,3 +53,6 @@ DEFINE_ANOTHER_FWK_MODULE(EERawDataTask);
 
 #include <DQM/EcalEndcapMonitorTasks/interface/EEHltTask.h>
 DEFINE_ANOTHER_FWK_MODULE(EEHltTask);
+
+#include <DQM/EcalEndcapMonitorTasks/interface/EEDaqInfoTask.h>
+DEFINE_ANOTHER_FWK_MODULE(EEDaqInfoTask);

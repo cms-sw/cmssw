@@ -14,6 +14,8 @@
 <use name=FWCore/ServiceRegistry>
 <use name=TBDataFormats/EcalTBObjects>
 <use name=RecoEcal/EgammaCoreTools>
+<use name=CondFormats/RunInfo>
+<use name=CondFormats/DataRecord>
 <use name=rootphysics>
 <export>
   <use name=DQM/EcalCommon>
@@ -32,6 +34,8 @@
   <use name=FWCore/ServiceRegistry>
   <use name=TBDataFormats/EcalTBObjects>
   <use name=RecoEcal/EgammaCoreTools>
+  <use name=CondFormats/RunInfo>
+  <use name=CondFormats/DataRecord>
   <use name=rootphysics>
   <lib name=DQMEcalEndcapMonitorTasks>
 </export>

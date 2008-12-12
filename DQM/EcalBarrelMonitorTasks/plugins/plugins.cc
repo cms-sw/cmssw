@@ -50,3 +50,6 @@ DEFINE_ANOTHER_FWK_MODULE(EBRawDataTask);
 
 #include <DQM/EcalBarrelMonitorTasks/interface/EBHltTask.h>
 DEFINE_ANOTHER_FWK_MODULE(EBHltTask);
+
+#include <DQM/EcalBarrelMonitorTasks/interface/EBDaqInfoTask.h>
+DEFINE_ANOTHER_FWK_MODULE(EBDaqInfoTask);
