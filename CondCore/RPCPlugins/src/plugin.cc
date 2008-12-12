@@ -21,7 +21,6 @@
 #include "CondFormats/RPCObjects/interface/L1RPCHwConfig.h"
 #include "CondFormats/DataRecord/interface/L1RPCHwConfigRcd.h"
 
-<<<<<<< plugin.cc
 
 #include "CondFormats/DataRecord/interface/RPCObGasRcd.h"
 #include "CondFormats/RPCObjects/interface/RPCObGas.h"
@@ -32,23 +31,11 @@
 #include "CondFormats/RPCObjects/interface/RPCObPVSSmap.h"
 
 
-=======
-#include "CondFormats/DataRecord/interface/RPCObGasRcd.h"
-#include "CondFormats/RPCObjects/interface/RPCObGas.h"
-#include "CondFormats/DataRecord/interface/RPCObCondRcd.h"
-#include "CondFormats/RPCObjects/interface/RPCObCond.h"
-
-#include "CondFormats/DataRecord/interface/RPCObPVSSmapRcd.h"
-#include "CondFormats/RPCObjects/interface/RPCObPVSSmap.h"
-
-
->>>>>>> 1.16
 DEFINE_SEAL_MODULE();
 REGISTER_PLUGIN(RPCReadOutMappingRcd,RPCReadOutMapping);
 REGISTER_PLUGIN(RPCEMapRcd,RPCEMap);
 REGISTER_PLUGIN(RPCStripNoisesRcd,RPCStripNoises);
 REGISTER_PLUGIN(L1RPCHwConfigRcd,L1RPCHwConfig);
-<<<<<<< plugin.cc
 REGISTER_PLUGIN(RPCObGasRcd,RPCObGas);
 REGISTER_PLUGIN(RPCObImonRcd,RPCObImon);
 REGISTER_PLUGIN(RPCObVmonRcd,RPCObVmon);
@@ -56,11 +43,3 @@ REGISTER_PLUGIN(RPCObStatusRcd,RPCObStatus);
 REGISTER_PLUGIN(RPCObTempRcd,RPCObTemp);
 REGISTER_PLUGIN(RPCObPVSSmapRcd,RPCObPVSSmap);
 
-=======
-REGISTER_PLUGIN(RPCObGasRcd,RPCObGas);
-REGISTER_PLUGIN(RPCObCondRcd,RPCObCond);
-REGISTER_PLUGIN(RPCObPVSSmapRcd,RPCObPVSSmap);
-REGISTER_PLUGIN(RPCMaskedStripsRcd,RPCMaskedStrips);
-REGISTER_PLUGIN(RPCDeadStripsRcd,RPCDeadStrips);
-
->>>>>>> 1.16
