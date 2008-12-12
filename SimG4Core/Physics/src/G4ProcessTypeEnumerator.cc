@@ -1,6 +1,6 @@
 #include "SimG4Core/Physics/interface/G4ProcessTypeEnumerator.h"
 #include "SimG4Core/Physics/interface/ProcessTypeEnumerator.h"
-
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "G4VProcess.hh"
 
 #include <iostream>
@@ -52,7 +52,7 @@ G4ProcessTypeEnumerator::G4ProcessTypeEnumerator(){
   mapProcesses["hInelastic"] = "Hadronic";
   mapProcesses["dInelastic"] = "Hadronic";
   mapProcesses["tInelastic"] = "Hadronic";
-  mapProcesses["alphaInelastic"] = "Hadronic";
+  mapProcesses["nCapture"] = "Hadronic";
 
   // ionizations
   mapProcesses["eIoni"] = "EIoni";
@@ -128,6 +128,7 @@ G4ProcessTypeEnumerator::G4ProcessTypeEnumerator(){
   map2Process["dInelastic"] = 37;
   map2Process["tInelastic"] = 38;
   map2Process["alphaInelastic"] = 39;
+  map2Process["nCapture"] = 40;
   // Decay
   map2Process["Decay"] = 50;
   // EM
@@ -170,17 +171,16 @@ unsigned int G4ProcessTypeEnumerator::processId(const G4VProcess* process){
     //
     std::string temp = "Primary";
 #ifdef MYDEB
-    std::cout <<" G4ProcessTypeEnumerator : Primary process, returning "<<
-      theProcessTypeEnumerator->processId(temp)<<std::endl;
+    LogDebug("Physics") <<"G4ProcessTypeEnumerator : Primary process, returning "
+			<< theProcessTypeEnumerator->processId(temp);
 #endif
     return theProcessTypeEnumerator->processId(temp);
-  }else{
+  } else {
     std::string temp = process->GetProcessName();
 #ifdef MYDEB
-    std::cout <<" G4ProcessTypeEnumerator : G4Process "<<temp<<" mapped to "<<
-      processCMSName(temp)<<
-      "; returning "<<
-      theProcessTypeEnumerator->processId(processCMSName(temp))<<std::endl;
+    LogDebug("Physics") <<"G4ProcessTypeEnumerator : G4Process "<<temp
+			<<" mapped to "<< processCMSName(temp)<<"; returning "
+			<<theProcessTypeEnumerator->processId(processCMSName(temp));
 #endif
     return theProcessTypeEnumerator->processId(processCMSName(temp));
   }
@@ -198,7 +198,7 @@ int G4ProcessTypeEnumerator::processIdLong(const G4VProcess* process) {
 std::string G4ProcessTypeEnumerator::processCMSName(std::string in){
   if (mapProcesses[in] == ""){
     //    throw MantisException("G4ProcessTypeEnumerator: unknown G4 process "+in);
-    std::cout <<" NOT FOUND G4ProcessTypeEnumerator: "<<in<<std::endl;
+    LogDebug("Physics")<<" NOT FOUND G4ProcessTypeEnumerator: "<<in;
     return "Unknown";
   }
   return mapProcesses[in];
