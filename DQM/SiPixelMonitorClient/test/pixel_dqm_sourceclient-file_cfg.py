@@ -46,27 +46,27 @@ process.SiPixelRawDataErrorSource.saveFile = False
 process.SiPixelRawDataErrorSource.isPIB = False
 process.SiPixelRawDataErrorSource.slowDown = False
 process.SiPixelRawDataErrorSource.reducedSet = False
-process.SiPixelRawDataErrorSource.modOn = False
-process.SiPixelRawDataErrorSource.ladOn = True
-process.SiPixelRawDataErrorSource.layOn = True
-process.SiPixelRawDataErrorSource.phiOn = True
-process.SiPixelRawDataErrorSource.bladeOn = True
-process.SiPixelRawDataErrorSource.diskOn = True
-process.SiPixelRawDataErrorSource.ringOn = True
+process.SiPixelRawDataErrorSource.modOn = True
+process.SiPixelRawDataErrorSource.ladOn = False
+process.SiPixelRawDataErrorSource.layOn = False
+process.SiPixelRawDataErrorSource.phiOn = False
+process.SiPixelRawDataErrorSource.bladeOn = False
+process.SiPixelRawDataErrorSource.diskOn = False
+process.SiPixelRawDataErrorSource.ringOn = False
 
 process.load("DQM.SiPixelMonitorDigi.SiPixelMonitorDigi_cfi")
 process.SiPixelDigiSource.saveFile = False
 process.SiPixelDigiSource.isPIB = False
 process.SiPixelDigiSource.slowDown = False
-process.SiPixelDigiSource.modOn = False
-process.SiPixelDigiSource.twoDimOn = False
-process.SiPixelDigiSource.hiRes = False
-process.SiPixelDigiSource.ladOn = True
-process.SiPixelDigiSource.layOn = True
-process.SiPixelDigiSource.phiOn = True
-process.SiPixelDigiSource.bladeOn = True
-process.SiPixelDigiSource.diskOn = True
-process.SiPixelDigiSource.ringOn = True
+process.SiPixelDigiSource.modOn = True
+process.SiPixelDigiSource.twoDimOn = True
+process.SiPixelDigiSource.hiRes = True
+process.SiPixelDigiSource.ladOn = False
+process.SiPixelDigiSource.layOn = False
+process.SiPixelDigiSource.phiOn = False
+process.SiPixelDigiSource.bladeOn = False
+process.SiPixelDigiSource.diskOn = False
+process.SiPixelDigiSource.ringOn = False
 
 process.load("DQM.SiPixelMonitorCluster.SiPixelMonitorCluster_cfi")
 process.SiPixelClusterSource.saveFile = False
@@ -178,18 +178,18 @@ process.sipixelEDAClient = cms.EDFilter("SiPixelEDAClient",
     HighResolutionOccupancy = cms.untracked.bool(True),
     NoiseRateCutValue = cms.untracked.double(-1), #negative value means test is not run; default cut value is 0.001
     NEventsForNoiseCalculation = cms.untracked.int32(1000),
-    UseOfflineXMLFile = cms.untracked.bool(True),
-    Tier0Flag = cms.untracked.bool(True)
+    UseOfflineXMLFile = cms.untracked.bool(False),
+    Tier0Flag = cms.untracked.bool(False)
 )
 
 process.sipixelDaqInfo = cms.EDFilter("SiPixelDaqInfo")
 
-process.qTester = cms.EDFilter("QualityTester",
-    qtList = cms.untracked.FileInPath('DQM/SiPixelMonitorClient/test/sipixel_qualitytest_config.xml'),
-    QualityTestPrescaler = cms.untracked.int32(1),
-    getQualityTestsFromFile = cms.untracked.bool(True),
-    verboseQT = cms.untracked.bool(False)
-)
+#process.qTester = cms.EDFilter("QualityTester",
+#    qtList = cms.untracked.FileInPath('DQM/SiPixelMonitorClient/test/sipixel_qualitytest_config.xml'),
+#    QualityTestPrescaler = cms.untracked.int32(1),
+#    getQualityTestsFromFile = cms.untracked.bool(True),
+#    verboseQT = cms.untracked.bool(False)
+#)
 
 process.ModuleWebRegistry = cms.Service("ModuleWebRegistry")
 
@@ -203,8 +203,8 @@ process.RAWmonitor = cms.Sequence(process.SiPixelRawDataErrorSource)
 process.DIGImonitor = cms.Sequence(process.SiPixelDigiSource)
 process.CLUmonitor = cms.Sequence(process.SiPixelClusterSource)
 process.HITmonitor = cms.Sequence(process.SiPixelRecHitSource)
-process.DQMmodules = cms.Sequence(process.qTester*process.dqmEnv*process.dqmSaver)
-process.p = cms.Path(process.Reco*process.dqmEnv*process.RAWmonitor*process.DIGImonitor*process.sipixelEDAClient*process.dqmSaver)
+#process.DQMmodules = cms.Sequence(process.qTester*process.dqmEnv*process.dqmSaver)
+process.p = cms.Path(process.Reco*process.dqmEnv*process.RAWmonitor*process.DIGImonitor*process.CLUmonitor*process.sipixelEDAClient*process.dqmSaver)
 #process.p = cms.Path(process.Reco*process.dqmEnv*process.RAWmonitor*process.DIGImonitor*process.sipixelEDAClient*sipixelDaqInfo*process.dqmSaver)
 #process.p = cms.Path(process.Reco*process.DQMmodules*process.RAWmonitor*process.DIGImonitor*process.CLUmonitor*process.HITmonitor*process.sipixelEDAClient)
 #process.p = cms.Path(process.DQMmodules*process.DIGImonitor*process.sipixelEDAClient)
