@@ -21,7 +21,7 @@ typedef math::XYZPoint Point;
                        double tauMinEt,double tauEtaMax,bool useSeedTrack,double seedTrackPt,bool useTrackIsolation,double trackIsolationMinPt,
                        bool useECALIsolation,double gammaIsolationMinPt,bool useProngStructure,vector<CaloMET>* corrMET) {
 
-    std::cerr << "TauMETAlgo::run -> Test.. " << std::endl;
+    //    std::cerr << "TauMETAlgo::run -> Test.. " << std::endl;
 
     double DeltaPx = 0.0;
     double DeltaPy = 0.0;
