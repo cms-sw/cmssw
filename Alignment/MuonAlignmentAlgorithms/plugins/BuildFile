@@ -36,3 +36,26 @@
   <use name=TrackingTools/TrajectoryState>
   <flags EDM_PLUGIN=1>
 </library>
+
+
+<library name="MuonMillepedeAlgorithm" file="MuonMillepedeAlgorithm.cc">
+#<use name=FWCore/MessageLogger>
+<use name=FWCore/Utilities>
+<use name=TrackingTools/TrackRefitter>
+<use name=Geometry/CSCGeometryBuilder>
+<use name=Geometry/DTGeometryBuilder>
+<use name=PhysicsTools/UtilAlgos>
+<use name=TrackingTools/TransientTrack>
+<use name=RecoMuon/TransientTrackingRecHit>
+<flags EDM_PLUGIN=1></library>
+
+
+<library name="MuonMillepedeTrackRefitter" file="MuonMillepedeTrackRefitter.cc">
+<use name=TrackingTools/TrackRefitter>
+<use name=Geometry/CSCGeometryBuilder>
+<use name=Geometry/DTGeometryBuilder>
+<use name=PhysicsTools/UtilAlgos>
+<use name=TrackingTools/TransientTrack>
+<use name=RecoMuon/TransientTrackingRecHit>
+<flags EDM_PLUGIN=1></library>
+
