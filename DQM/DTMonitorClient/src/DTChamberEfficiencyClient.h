@@ -6,8 +6,8 @@
  * *
  *  DQM Test Client
  *
- *  $Date: 2008/12/05 09:41:15 $
- *  $Revision: 1.7 $
+ *  $Date: 2008/12/08 11:39:40 $
+ *  $Revision: 1.1 $
  *  \author  M. Pelliccioni - INFN Torino
  *   
  */
@@ -70,7 +70,7 @@ private:
 
   edm::ESHandle<DTGeometry> muonGeom;
 
-  std::map< int, MonitorElement* > summaryHistos[2];
+  std::map<int, std::map< int, MonitorElement* > > summaryHistos;
 
 };
 
