@@ -9,19 +9,7 @@
 <use name="FWCore/Services">
 <use name="FWCore/Utilities">
 <use name="sigcpp">
-<use name="root">
+<use name="rootcore">
 <export>
-  <use name="DQMServices/Core">
-  <use name="DataFormats/Common">
-  <use name="DataFormats/HLTReco">
-  <use name="DataFormats/Provenance">
-  <use name="FWCore/Framework">
-  <use name="FWCore/MessageLogger">
-  <use name="FWCore/ParameterSet">
-  <use name="FWCore/ServiceRegistry">
-  <use name="FWCore/Services">
-  <use name="FWCore/Utilities">
-  <use name="sigcpp">
-  <use name="root">
   <lib name="DQMHLTEvF">
 </export>
