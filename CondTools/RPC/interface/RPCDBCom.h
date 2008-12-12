@@ -2,7 +2,8 @@
 #define RPCDBCOM_H
 
 #include <string>
-#include "CoralBase/MessageStream.h"
+#include "SealKernel/Context.h"
+#include "SealKernel/IMessageService.h"
 
 namespace coral {
   class IConnection;
@@ -15,7 +16,7 @@ public:
   RPCDBCom();
   virtual ~RPCDBCom();
   virtual void run() = 0;
-  void setVerbosityLevel( coral::MsgLevel level );
+  void setVerbosityLevel( seal::Msg::Level level );
 
 protected:
   coral::ISession* connect( const std::string& connectionString,
@@ -23,6 +24,7 @@ protected:
                             const std::string& password );
 
 private:
+  seal::Handle<seal::Context> m_context;
   coral::IConnection*         m_connection;
 };
 

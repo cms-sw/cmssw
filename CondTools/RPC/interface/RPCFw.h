@@ -6,7 +6,7 @@
  *  Reads data from OMDS and creates conditioning objects
  *
  *  $Date: 2008/08/28 10:23:53 $
- *  $Revision: 1.3 $
+ *  $Revision: 1.10 $
  *  \author D. Pagano - Dip. Fis. Nucl. e Teo. & INFN Pavia
  */
 
