@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/11/24 09:14:07 $
- *  $Revision: 1.21 $
+ *  $Date: 2008/12/02 13:26:42 $
+ *  $Revision: 1.22 $
  *  \author G. Cerminara - INFN Torino
  *  revised by G. Mila - INFN Torino
  */
@@ -310,8 +310,6 @@ void DTSegmentAnalysisTask::fillHistos(DTChamberId chamberId,
 
 void DTSegmentAnalysisTask::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& eSetup) {
 
-  cout << "[DTSegmentAnalysisTask] End LS: " << lumiSeg.luminosityBlock()
-       << " ==================================================================" << endl;
   hNevtPerLS->updateTimeSlot(lumiSeg.luminosityBlock(), nEventsInLS);
  // book sector time-evolution histos
   for(int wheel = -2; wheel != 3; ++wheel) {
