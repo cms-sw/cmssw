@@ -63,6 +63,7 @@ enum L1GtObject
     ETM,
     ETT,
     HTT,
+    HTM,
     JetCounts,
     HfBitCounts,
     HfRingEtSums,
