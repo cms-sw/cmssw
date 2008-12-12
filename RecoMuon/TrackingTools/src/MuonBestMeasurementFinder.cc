@@ -7,8 +7,8 @@
  *  The evaluation is made (in hard-code way) with the granularity = 1. Where
  *  the granularity is the one defined in the MuonTrajectoyUpdatorClass.
  *
- *  $Date: 2007/04/27 14:55:16 $
- *  $Revision: 1.13 $
+ *  $Date: 2007/12/19 15:46:40 $
+ *  $Revision: 1.14 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  *  \author S. Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  */
@@ -101,35 +101,38 @@ pair<double,int> MuonBestMeasurementFinder::lookAtSubRecHits(TrajectoryMeasureme
   double thisChi2 = 0.;
 
   TransientTrackingRecHit::ConstRecHitPointer muonRecHit = measurement->recHit();
-
+  TrajectoryStateOnSurface predState = measurement->predictedState();                          // temporarily introduced by DT
+  std::pair<bool, double> sing_chi2 = estimator()->estimate( predState, *(muonRecHit.get()));  // temporarily introduced by DT
+  npts = 1;                                                                                    // temporarily introduced by DT
+  std::pair<double, int> result = pair<double, int>(sing_chi2.second, npts);                   // temporarily introduced by DT
   
-  // ask for the 2D-segments/2D-rechit
-  TransientTrackingRecHit::ConstRecHitContainer rhits_list = muonRecHit->transientHits();
+//   // ask for the 2D-segments/2D-rechit                                                      // temporarily excluded by DT
+//   TransientTrackingRecHit::ConstRecHitContainer rhits_list = muonRecHit->transientHits();
   
-  LogTrace(metname)<<"Number of rechits in the measurement rechit: "<<rhits_list.size()<<endl;
+//   LogTrace(metname)<<"Number of rechits in the measurement rechit: "<<rhits_list.size()<<endl;
   
-  // loop over them
-  for (TransientTrackingRecHit::ConstRecHitContainer::const_iterator rhit = rhits_list.begin(); 
-       rhit!= rhits_list.end(); ++rhit)
-    if ((*rhit)->isValid() ) {
-      LogTrace(metname)<<"Rechit dimension: "<<(*rhit)->dimension()<<endl;
-      npts+=(*rhit)->dimension();
+//   // loop over them
+//   for (TransientTrackingRecHit::ConstRecHitContainer::const_iterator rhit = rhits_list.begin();
+//        rhit!= rhits_list.end(); ++rhit)
+//     if ((*rhit)->isValid() ) {
+//       LogTrace(metname)<<"Rechit dimension: "<<(*rhit)->dimension()<<endl;
+//       npts+=(*rhit)->dimension();
       
-      TrajectoryStateOnSurface predState;
+//       TrajectoryStateOnSurface predState;
       
-      if (!( (*rhit)->geographicalId() == muonRecHit->geographicalId() ) ){
-	predState = propagator->propagate(*measurement->predictedState().freeState(),
-					  (*rhit)->det()->surface()); 
-      }
-      else predState = measurement->predictedState();  
+//       if (!( (*rhit)->geographicalId() == muonRecHit->geographicalId() ) ){
+// 	predState = propagator->propagate(*measurement->predictedState().freeState(),
+// 					  (*rhit)->det()->surface()); 
+//       }
+//       else predState = measurement->predictedState();  
       
-      if ( predState.isValid() ) { 
-	std::pair<bool,double> sing_chi2 = estimator()->estimate( predState, *((*rhit).get()));
-	thisChi2 += sing_chi2.second ;
-	LogTrace(metname) << " single incremental chi2: " << sing_chi2.second;
-      }
-    }
+//       if ( predState.isValid() ) { 
+// 	std::pair<bool,double> sing_chi2 = estimator()->estimate( predState, *((*rhit).get()));
+// 	thisChi2 += sing_chi2.second ;
+// 	LogTrace(metname) << " single incremental chi2: " << sing_chi2.second;
+//       }
+//     }
   
-  pair<double,int> result = pair<double,int>(thisChi2,npts);
+//   pair<double,int> result = pair<double,int>(thisChi2,npts);
   return result;
 }
