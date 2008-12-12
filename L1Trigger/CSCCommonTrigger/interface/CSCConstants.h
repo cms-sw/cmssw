@@ -24,14 +24,6 @@ class CSCConstants
 
   enum MPC_stubs { maxStubs = 3 };
 
-  /**
-   * We assume that the digis which bx times differ from the current bx by
-   * more than six will not contribute to the LCT rates at the current bx,
-   * and ignore them.
-   */
-
-  enum Bx_Window { MIN_BUNCH = -6, MAX_BUNCH = 6, TOT_BUNCH = MAX_BUNCH - MIN_BUNCH + 1, TIME_OFFSET = -MIN_BUNCH };
-
 };
 
 #endif
