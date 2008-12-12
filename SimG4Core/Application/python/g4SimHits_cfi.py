@@ -52,32 +52,31 @@ g4SimHits = cms.EDProducer("OscarProducer",
         delta = cms.double(1.0)
     ),
     Physics = cms.PSet(
-        FlagCHIPS = cms.untracked.bool(False),
-        G4BremsstrahlungThreshold = cms.double(0.5), ## cut in GeV
-
-        DefaultCutValue = cms.double(1.0), ## cuts in cm
-
-        FlagHP = cms.untracked.bool(False),
-        CutsPerRegion = cms.bool(True),
-        Verbosity = cms.untracked.int32(0),
-        FlagBERT = cms.untracked.bool(False),
-        # 2 will do as 1 + will dump Geant4 table of cuts
-        EMPhysics = cms.untracked.bool(True),
-        FlagGlauber = cms.untracked.bool(False),
-        GFlash = cms.PSet(
-            GflashHistogram = cms.bool(False),
-            GflashEMShowerModel = cms.bool(False),
-            GflashHadronPhysics = cms.string('QGSP_BERT_EMV'),
-            GflashHadronShowerModel = cms.bool(False)
-        ),
-        FlagFTF = cms.untracked.bool(False),
-        HadPhysics = cms.untracked.bool(True),
         # NOTE : if you want EM Physics only,
         #        please select "SimG4Core/Physics/DummyPhysics" for type
         #        and turn ON DummyEMPhysics
         #
         type = cms.string('SimG4Core/Physics/QGSP_BERT_EMV'),
-        DummyEMPhysics = cms.bool(False)
+        DummyEMPhysics = cms.bool(False),
+        CutsPerRegion = cms.bool(True),
+        DefaultCutValue = cms.double(1.0), ## cuts in cm
+        G4BremsstrahlungThreshold = cms.double(0.5), ## cut in GeV
+        Verbosity = cms.untracked.int32(0),
+        # 1 will print cuts as they get set from DD
+        # 2 will do as 1 + will dump Geant4 table of cuts
+        EMPhysics   = cms.untracked.bool(True),
+        HadPhysics  = cms.untracked.bool(True),
+        FlagBERT    = cms.untracked.bool(False),
+        FlagCHIPS   = cms.untracked.bool(False),
+        FlagFTF     = cms.untracked.bool(False),
+        FlagGlauber = cms.untracked.bool(False),
+        FlagHP      = cms.untracked.bool(False),
+        GFlash = cms.PSet(
+            GflashHistogram = cms.bool(False),
+            GflashEMShowerModel = cms.bool(False),
+            GflashHadronPhysics = cms.string('QGSP_BERT_EMV'),
+            GflashHadronShowerModel = cms.bool(False)
+        )
     ),
     Generator = cms.PSet(
         HectorEtaCut,
@@ -105,22 +104,28 @@ g4SimHits = cms.EDProducer("OscarProducer",
     ),
     StackingAction = cms.PSet(
         common_heavy_suppression,
+        TrackNeutrino = cms.bool(False),
+        KillHeavy = cms.bool(False),
+        MaxTrackTime = cms.double(1000.),
         SaveFirstLevelSecondary = cms.untracked.bool(False),
         SavePrimaryDecayProductsAndConversionsInTracker = cms.untracked.bool(True),
         SavePrimaryDecayProductsAndConversionsInCalo = cms.untracked.bool(False),
-        SavePrimaryDecayProductsAndConversionsInMuon = cms.untracked.bool(False),
-        TrackNeutrino = cms.bool(False),
-        KillHeavy = cms.bool(False),
-        MaxTrackTime = cms.double(500.)
+        SavePrimaryDecayProductsAndConversionsInMuon = cms.untracked.bool(False)
     ),
     TrackingAction = cms.PSet(
         DetailedTiming = cms.untracked.bool(False)
     ),
     SteppingAction = cms.PSet(
-        CriticalDensity = cms.double(1e-15),
-        Verbosity = cms.untracked.int32(0),
+        KillBeamPipe            = cms.bool(True),
         CriticalEnergyForVacuum = cms.double(2.0),
-        KillBeamPipe = cms.bool(True)
+        CriticalDensity         = cms.double(1e-15),
+        ToFMax                  = cms.double(10000.0),
+        ToFMaxNames             = cms.vstring(),
+        ToFMaxs                 = cms.vdouble(),
+        EkinNames               = cms.vstring(),
+        EkinThresholds          = cms.vdouble(),
+        EkinParticles           = cms.vstring(),
+        Verbosity = cms.untracked.int32(0)
     ),
     TrackerSD = cms.PSet(
         ZeroEnergyLoss = cms.bool(False),
@@ -138,53 +143,54 @@ g4SimHits = cms.EDProducer("OscarProducer",
     CaloSD = cms.PSet(
         common_heavy_suppression,
         SuppressHeavy = cms.bool(False),
+        UseMap    = cms.untracked.bool(False),
+        EminTrack = cms.double(1.0),
+        TmaxHit   = cms.double(1000.0),
+	HCNames   = cms.vstring('EcalHitsEB','EcalHitsEE','EcalHitsES','HcalHits'),
+        EminHits  = cms.vdouble(0.015,0.010,0.0,0.0),
+        TmaxHits  = cms.vdouble(500.0,500.0,500.0,500.0),
         DetailedTiming = cms.untracked.bool(False),
         Verbosity = cms.untracked.int32(0),
         CheckHits = cms.untracked.int32(25),
         BeamPosition = cms.untracked.double(0.0),
-        CorrectTOFBeam = cms.untracked.bool(False),
-        UseMap    = cms.untracked.bool(False),
-        EminTrack = cms.double(1.0),
-        TmaxHit   = cms.double(500.0),
-	HCNames   = cms.vstring('EcalHitsEB','EcalHitsEE','EcalHitsES','HcalHits'),
-        EminHits  = cms.vdouble(0.015,0.010,0.0,0.0)
+        CorrectTOFBeam = cms.untracked.bool(False)
     ),
     ECalSD = cms.PSet(
-        TestBeam = cms.untracked.bool(False),
+        UseBirkLaw = cms.bool(True),
         BirkL3Parametrization = cms.bool(True),
+        BirkSlope = cms.double(0.253694),
         BirkCut = cms.double(0.1),
         BirkC1 = cms.double(0.03333),
         BirkC3 = cms.double(1.0),
         BirkC2 = cms.double(0.0),
         SlopeLightYield = cms.double(0.02),
-        UseBirkLaw = cms.bool(True),
-        BirkSlope = cms.double(0.253694)
+        TestBeam = cms.untracked.bool(False)
     ),
     HCalSD = cms.PSet(
-        BetaThreshold = cms.double(0.7),
-        TestNumberingScheme = cms.bool(False),
-        UsePMTHits = cms.bool(False),
-        UseParametrize = cms.bool(False),
-        ForTBH2 = cms.untracked.bool(False),
-        WtFile = cms.untracked.string('None'),
-        UseHF = cms.untracked.bool(True),
-        UseLayerWt = cms.untracked.bool(False),
+        UseBirkLaw = cms.bool(True),
+        BirkC3 = cms.double(1.75),
+        BirkC2 = cms.double(0.142),
+        BirkC1 = cms.double(0.0052),
         UseShowerLibrary = cms.bool(True),
+        UseParametrize   = cms.bool(False),
+        UsePMTHits       = cms.bool(False),
+        TestNumberingScheme = cms.bool(False),
         EminHitHB = cms.double(0.0),
         EminHitHE = cms.double(0.0),
         EminHitHO = cms.double(0.0),
         EminHitHF = cms.double(0.0),
-        BirkC3 = cms.double(1.75),
-        BirkC2 = cms.double(0.142),
-        BirkC1 = cms.double(0.0052),
-        UseBirkLaw = cms.bool(True)
+        BetaThreshold = cms.double(0.7),
+        UseHF = cms.untracked.bool(True),
+        ForTBH2 = cms.untracked.bool(False),
+        UseLayerWt = cms.untracked.bool(False),
+        WtFile = cms.untracked.string('None')
     ),
     CaloTrkProcessing = cms.PSet(
         TestBeam = cms.bool(False),
         EminTrack = cms.double(0.01)
     ),
     HFShower = cms.PSet(
-        ProbMax         = cms.double(0.7268),
+        ProbMax         = cms.double(1.0),
         CFibre          = cms.double(0.5),
         PEPerGeV        = cms.double(0.25),
         TrackEM         = cms.bool(False),
@@ -232,7 +238,7 @@ g4SimHits = cms.EDProducer("OscarProducer",
         ZdcHitEnergyCut = cms.double(0.)
     ),
     ZdcShowerLibrary = cms.PSet(
-        Verbosity = cms.untracked.int32(0) 
+        Verbosity = cms.untracked.int32(0)
     ),
     FP420SD = cms.PSet(
         Verbosity = cms.untracked.int32(2)
@@ -257,6 +263,9 @@ g4SimHits = cms.EDProducer("OscarProducer",
         BirkC1 = cms.double(0.013),
         BirkC3 = cms.double(1.75),
         BirkC2 = cms.double(0.0568)
+    ),
+    HFShowerProducer  = cms.PSet(
+        Verbosity = cms.untracked.int32(0)
     )
 )
 

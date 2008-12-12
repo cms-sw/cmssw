@@ -4,14 +4,19 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "SimG4Core/Notification/interface/SimActivityRegistry.h"
 
+#include "G4LogicalVolume.hh"
+#include "G4Region.hh"
 #include "G4UserSteppingAction.hh"
 #include "G4VPhysicalVolume.hh"
+
+#include <string>
+#include <vector>
 
 class EventAction;
 class G4VTouchable;
 
-class SteppingAction: public G4UserSteppingAction
-{
+class SteppingAction: public G4UserSteppingAction {
+
 public:
   SteppingAction(EventAction * ea,const edm::ParameterSet & ps);
   ~SteppingAction();
@@ -21,16 +26,25 @@ public:
 private:
   void catchLowEnergyInVacuumHere(const G4Step * aStep);
   void catchLowEnergyInVacuumNext(const G4Step * aStep);
+  bool catchLongLived            (const G4Step * aStep);
+  bool killLowEnergy             (const G4Step * aStep);
   bool initPointer();
   bool isThisVolume(const G4VTouchable* touch, G4VPhysicalVolume* pv);
+  void killTrack                 (const G4Step * aStep);
 private:
-  EventAction * eventAction_;
-  bool   killBeamPipe;
-  double theCriticalEnergyForVacuum;
-  double theCriticalDensity;
-  int    verbose;
-  bool   initialized;
-  G4VPhysicalVolume *tracker, *calo;
+  EventAction                   *eventAction_;
+  bool                          initialized;
+  G4VPhysicalVolume             *tracker, *calo;
+  bool                          killBeamPipe;
+  double                        theCriticalEnergyForVacuum;
+  double                        theCriticalDensity;
+  double                        tofMax;
+  std::vector<double>           tofMaxs, ekinMins;
+  std::vector<std::string>      tofMaxNames, ekinNames, ekinParticles;
+  std::vector<G4Region*>        tofRegions;
+  std::vector<G4LogicalVolume*> ekinVolumes;
+  std::vector<int>              ekinPDG;
+  int                           verbose;
 };
 
 #endif

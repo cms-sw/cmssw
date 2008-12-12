@@ -88,6 +88,9 @@ OscarProducer::OscarProducer(edm::ParameterSet const & p)
     produces<edm::PCaloHitContainer>("EcalTBH4BeamHits");
     produces<edm::PCaloHitContainer>("HcalTB06BeamHits");
     produces<edm::PCaloHitContainer>("ZDCHITS"); 
+    produces<edm::PCaloHitContainer>("ChamberHits"); 
+    produces<edm::PCaloHitContainer>("FibreHits"); 
+    produces<edm::PCaloHitContainer>("WedgeHits"); 
     
     //m_runManager = RunManager::init(p);
     m_runManager = new RunManager(p);
