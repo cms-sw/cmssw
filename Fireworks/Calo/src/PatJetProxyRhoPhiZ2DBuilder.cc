@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: PatJetProxyRhoPhiZ2DBuilder.cc,v 1.3 2008/11/06 22:05:21 amraktad Exp $
+// $Id: PatJetProxyRhoPhiZ2DBuilder.cc,v 1.4 2008/11/26 16:19:12 chrjones Exp $
 //
 
 // system include files
@@ -31,7 +31,6 @@
 #include "Fireworks/Calo/interface/PatJetProxyRhoPhiZ2DBuilder.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/FW3DLegoDataProxyBuilder.h"
-#include "Fireworks/Calo/interface/ECalCaloTowerProxyRhoPhiZ2DBuilder.h"
 #include "Fireworks/Core/interface/BuilderUtils.h"
 
 #include "DataFormats/PatCandidates/interface/Jet.h"
