@@ -7,6 +7,8 @@ popcon::L1RPCHwConfigSourceHandler::L1RPCHwConfigSourceHandler(const edm::Parame
   m_name(ps.getUntrackedParameter<std::string>("name","L1RPCHwConfigSourceHandler")),
   m_dummy(ps.getUntrackedParameter<int>("WriteDummy",0)),
   m_validate(ps.getUntrackedParameter<int>("Validate",0)),
+  m_firstBX(ps.getUntrackedParameter<int>("FirstBX",0)),
+  m_lastBX(ps.getUntrackedParameter<int>("LastBX",0)),
   m_connect(ps.getUntrackedParameter<std::string>("OnlineConn","")),
   m_authpath(ps.getUntrackedParameter<std::string>("OnlineAuthPath",".")),
   m_host(ps.getUntrackedParameter<std::string>("OnlineDBHost","oracms.cern.ch")),
@@ -51,6 +53,8 @@ void popcon::L1RPCHwConfigSourceHandler::getNewObjects()
 
 // now construct new object from online DB
   disabledDevs =  new L1RPCHwConfig();
+  disabledDevs->setFirstBX(m_firstBX);
+  disabledDevs->setLastBX(m_lastBX);
       if (m_dummy==0) {
         if (m_connect=="") {
           ConnectOnlineDB(m_host,m_sid,m_user,m_pass,m_port);
@@ -337,6 +341,10 @@ int popcon::L1RPCHwConfigSourceHandler::Compare2Configs(Ref set1, L1RPCHwConfig*
 
   if (set1->size() != set2->size()) {
     std::cout<<" Number of disabled devices changed "<<std::endl;
+    return 1;
+  }
+  if ( set1->getFirstBX() != set2->getFirstBX() || set1->getLastBX() != set2->getLastBX() ) {
+    std::cout<<" BX range changed "<<std::endl;
     return 1;
   }
   for (int tower=-16; tower<17; tower++) {

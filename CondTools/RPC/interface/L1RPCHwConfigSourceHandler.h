@@ -62,6 +62,8 @@ namespace popcon
     std::string m_name;
     int m_dummy;
     int m_validate;
+    int m_firstBX;
+    int m_lastBX;
     std::string m_connect;
     std::string m_authpath;
     std::string m_host;

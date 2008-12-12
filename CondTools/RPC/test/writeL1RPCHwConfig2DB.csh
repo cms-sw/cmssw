@@ -89,6 +89,8 @@ process Write2DB = {
     PSet Source = {
       untracked int32 WriteDummy = 0
       untracked int32 Validate = 1
+      untracked int32 FirstBX = 0
+      untracked int32 LastBX = 0
       untracked string OnlineConn = "oracle://CMS_OMDS_LB/CMS_RPC_CONF"
       untracked string OnlineAuthPath = "."
     }
