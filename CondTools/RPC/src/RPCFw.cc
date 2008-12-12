@@ -1,8 +1,8 @@
  /* 
  *  See header file for a description of this class.
  *
- *  $Date: 2008/12/12 17:52:57 $
- *  $Revision: 1.10 $
+ *  $Date: 2008/08/28 10:32:32 $
+ *  $Revision: 1.7 $
  *  \author D. Pagano - Dip. Fis. Nucl. e Teo. & INFN Pavia
  */
 
@@ -18,6 +18,7 @@
 #include "CoralBase/AttributeList.h"
 #include "CoralBase/Attribute.h"
 #include "CoralBase/AttributeSpecification.h"
+#include "SealBase/TimeInfo.h"
 #include <iostream>
 #include <stdexcept>
 #include <vector>
