@@ -12,8 +12,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2008/10/21 20:26:57 $
- *  $Revision: 1.27 $
+ *  $Date: 2008/10/31 18:26:22 $
+ *  $Revision: 1.28 $
  *
  *  \author N. Neumeister        Purdue University
  *  \author C. Liu               Purdue University
@@ -305,10 +305,7 @@ GlobalTrajectoryBuilderBase::build(const TrackCand& staCand,
 	  
     // loop over tracker trajectories and refit them
     for ( CandidateContainer::const_iterator it = tkTrajs.begin(); it != tkTrajs.end(); it++ ) {
-      vector<Trajectory> tmp = refitTrajectory(*((*it)->trackerTrajectory()));
-      for (vector<Trajectory>::iterator nit = tmp.begin(); nit != tmp.end(); ++nit) {
-        refittedResult.push_back(new MuonCandidate(new Trajectory(*nit),(*it)->muonTrack(),(*it)->trackerTrack(), new Trajectory(*nit)));
-      }
+      refittedResult.push_back(new MuonCandidate(new Trajectory(*(*it)->trackerTrajectory()),(*it)->muonTrack(),(*it)->trackerTrack(), new Trajectory(*(*it)->trackerTrajectory())));
     }
   }
 
@@ -864,45 +861,6 @@ GlobalTrajectoryBuilderBase::checkRecHitsOrdering(const TransientTrackingRecHit:
     LogError(theCategory) << "Impossible to determine the rechits order" << endl;
     return undetermined;
   }
-}
-
-
-//
-// refit a trajectory
-//
-vector<Trajectory> 
-GlobalTrajectoryBuilderBase::refitTrajectory(const Trajectory& tkTraj) const {
-
-  // this is the only way to get a TrajectorySeed with settable propagation direction
-  PTrajectoryStateOnDet garbage1;
-  edm::OwnVector<TrackingRecHit> garbage2;
-
-  ConstRecHitContainer trackerRecHits = tkTraj.recHits();
-  
-  RefitDirection recHitDir = checkRecHitsOrdering(trackerRecHits);
-  // force the rechits to be ordered from outside-in
-  if ( recHitDir == inToOut ) reverse(trackerRecHits.begin(),trackerRecHits.end());
-
-  // force the refit direction to be opposite to momentum due to the rechit ordering  
-  PropagationDirection refitDir = oppositeToMomentum;
-  
-  TrajectorySeed seed(garbage1,garbage2,refitDir);
-  
-  // take the outermost state as the initial state for refitting
-  TrajectoryMeasurement outerTM = (tkTraj.direction() == alongMomentum) ? tkTraj.lastMeasurement() : tkTraj.firstMeasurement();
-  TrajectoryStateOnSurface outerTsos = outerTM.updatedState();
-  outerTsos.rescaleError(100.);
-  
-  vector<Trajectory> refitted1 = theKFFitter->fit(seed,trackerRecHits,outerTsos);
-
-  if ( !refitted1.empty() ) {
-    for (vector<Trajectory>::iterator nit = refitted1.begin(); nit != refitted1.end(); ++nit) {
-      (*nit).setSeedRef(tkTraj.seedRef());
-    }
-  }
-  
-  return refitted1;
-
 }
 
 

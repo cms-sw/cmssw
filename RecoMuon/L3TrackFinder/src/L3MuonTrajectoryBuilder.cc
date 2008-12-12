@@ -12,8 +12,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2008/09/05 08:47:20 $
- *  $Revision: 1.11 $
+ *  $Date: 2008/10/23 19:00:53 $
+ *  $Revision: 1.12 $
  *
  *  Authors :
  *  N. Neumeister            Purdue University
@@ -146,14 +146,8 @@ MuonCandidate::CandidateContainer L3MuonTrajectoryBuilder::trajectories(const Tr
   CandidateContainer tkTrajs;
   for (vector<TrackCand>::const_iterator tkt = trackerTracks.begin(); tkt != trackerTracks.end(); tkt++) {
     if ((*tkt).first != 0 && (*tkt).first->isValid()) {
-      std::vector<Trajectory> refittedTk;
-      Trajectory refittedTkTraj = *(*tkt).first;
-      refittedTk = refitTrajectory(*(*tkt).first);
-      if(refittedTk.size() == 1) refittedTkTraj = refittedTk.front();
- 
-      LogDebug(category)<< "seedRef " << refittedTkTraj.seedRef().isNonnull();
 
-      MuonCandidate* muonCand = new MuonCandidate( 0 ,staCand.second,(*tkt).second, new Trajectory(refittedTkTraj));
+      MuonCandidate* muonCand = new MuonCandidate( 0 ,staCand.second,(*tkt).second, new Trajectory(*(*tkt).first));
       tkTrajs.push_back(muonCand);
       LogTrace(category) << "tpush";
 
