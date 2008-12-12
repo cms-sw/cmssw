@@ -1,0 +1,38 @@
+<use name=FWCore/Framework>
+<use name=FWCore/MessageLogger>
+<use name=FWCore/ParameterSet>
+<use name=Alignment/CommonAlignment>
+<use name=Alignment/CommonAlignmentAlgorithm>
+<use name=Alignment/MuonAlignment>
+<use name=DataFormats/MuonDetId>
+<use name=Alignment/MuonAlignmentAlgorithms>
+
+<library name=CSCOverlapsAlignmentAlgorithm file=CSCOverlapsAlignmentAlgorithm.cc>
+  <use name=DataFormats/GeometrySurface>
+  <use name=DataFormats/TrackReco>
+  <use name=FWCore/ServiceRegistry>
+  <use name=Geometry/CSCGeometry>
+  <use name=Geometry/Records>
+  <use name=PhysicsTools/UtilAlgos>
+  <use name=TrackingTools/PatternTools>
+  <use name=TrackingTools/TrackFitters>
+  <use name=clhep>
+  <use name=root>
+  <flags EDM_PLUGIN=1>
+</library>
+
+<library name=CSCOverlapsTrackPreparation file=CSCOverlapsTrackPreparation.cc>
+  <use name=CondFormats/Alignment>
+  <use name=DataFormats/GeometrySurface>
+  <use name=DataFormats/TrackingRecHit>
+  <use name=DataFormats/TrackReco>
+  <use name=Geometry/CommonDetUnit>
+  <use name=Geometry/CSCGeometry>
+  <use name=Geometry/Records>
+  <use name=MagneticField/Engine>
+  <use name=MagneticField/Records>
+  <use name=RecoMuon/TransientTrackingRecHit>
+  <use name=TrackingTools/PatternTools>
+  <use name=TrackingTools/TrajectoryState>
+  <flags EDM_PLUGIN=1>
+</library>
