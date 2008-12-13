@@ -136,7 +136,7 @@ void PixelThresholdClusterizer::clusterizeDetUnit( const edm::DetSet<PixelDigi> 
 	
       //  Check if the cluster is above threshold  
       // (TO DO: one is signed, other unsigned, gcc warns...)
-      if ( cluster.charge() >= theClusterThreshold && dead_flag == true) {
+      if ( cluster.charge() >= theClusterThreshold) {
 //	cout << "putting in this cluster" << endl;
         output.push_back( cluster );
       }
@@ -266,10 +266,10 @@ PixelThresholdClusterizer::make_cluster( const SiPixelCluster::PixelPos& pix, ed
 	      cluster.add( newpix, theBuffer(r,c));
 	      theBuffer.set_adc( newpix, 0);
 	      pixel_stack.push( newpix);
-	      
 	    }
 	    //	    if(1 == 0){
-	 if(theSiPixelGainCalibrationService_->isDead(detid_,c,r) && theBuffer(r,c) != 13){
+	 if(theSiPixelGainCalibrationService_->isDead(detid_,c,r) && theBuffer(r,c) != 13 && doSplitClusters){
+//	   cout << "Dead cluster here" << endl;
 	      SiPixelCluster::PixelPos newpix(r,c);
 	      cluster.add(newpix, theBuffer(r,c));
 	      theBuffer.set_adc(newpix, 0);
@@ -285,7 +285,7 @@ PixelThresholdClusterizer::make_cluster( const SiPixelCluster::PixelPos& pix, ed
   if(dead_flag && doSplitClusters){
     SiPixelCluster first_cluster = cluster;
     bool have_second_cluster = false;
-//	cout << "here" << endl;
+  //  cout << "here" << endl;
     while(!dead_pixel_stack.empty()){
       SiPixelCluster::PixelPos deadpix = dead_pixel_stack.top(); dead_pixel_stack.pop();
       theBuffer.set_adc(deadpix, 0);
@@ -304,8 +304,8 @@ PixelThresholdClusterizer::make_cluster( const SiPixelCluster::PixelPos& pix, ed
     }
     if ( first_cluster.charge() >= theClusterThreshold && have_second_cluster) {
       output.push_back( first_cluster );
-      }
     }
+  }
   return cluster;
 }
 
