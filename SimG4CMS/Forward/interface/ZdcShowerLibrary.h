@@ -54,8 +54,6 @@ public:
 
 private:
 
-  int                         ienergyBin,ithetaBin,iphiBin, isideBin, isectionBin, ichannelBin,ixBin ,iyBin, izBin, iPIDBin;
-  int                         maxBitsEnergy, maxBitsTheta, maxBitsPhi, maxBitsSide, maxBitsSection, maxBitsChannel, maxBitsX, maxBitsY, maxBitsZ, maxBitsPID;
   bool                        verbose;
   int                         emPDG, epPDG, gammaPDG;
   int                         pi0PDG, etaPDG, nuePDG, numuPDG, nutauPDG;
