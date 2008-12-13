@@ -27,6 +27,7 @@
 <use name=RecoCaloTools/MetaCollections>
 <use name=RecoEgamma/EgammaTools>
 <use name=RecoEcal/EgammaCoreTools>
+<use name=RecoEgamma/EgammaIsolationAlgos>
 <export>
    <lib name=RecoEgammaEgammaElectronAlgos>
    <use name=FWCore/Framework>
@@ -55,5 +56,6 @@
    <use name=RecoCaloTools/Selectors>
    <use name=RecoCaloTools/MetaCollections>
    <use name=RecoEgamma/EgammaTools>
+   <use name=RecoEgamma/EgammaIsolationAlgos>
    <use name=RecoEcal/EgammaCoreTools>
 </export>

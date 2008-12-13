@@ -7,7 +7,7 @@
  *
  * \author U.Berthon, ClaudeCharlot, LLR
  *
- * \version $Id: GsfElectron.h,v 1.15 2008/12/11 17:44:30 charlot Exp $
+ * \version $Id: GsfElectron.h,v 1.16 2008/12/11 18:13:51 charlot Exp $
  *
  */
 
@@ -26,6 +26,9 @@
 // Ursula Berthon - LLR Ecole polytechnique
 //
 // $Log: GsfElectron.h,v $
+// Revision 1.16  2008/12/11 18:13:51  charlot
+// updated doxygen comments
+//
 // Revision 1.15  2008/12/11 17:44:30  charlot
 // added ESeedClusterOverP and access method
 //
@@ -104,7 +107,7 @@ class GsfElectron : public RecoCandidate {
 	const GlobalPoint & innPos, const GlobalVector & innMom,
 	const GlobalPoint & vtxPos, const GlobalVector & vtxMom,
 	const GlobalPoint & outPos, const GlobalVector & outMom,
-	double hadOverEm,
+	double hadOverEm1, double hadOverEm2,
 	float scSigmaEtaEta =std::numeric_limits<float>::infinity(),
 	float scSigmaIEtaIEta =std::numeric_limits<float>::infinity(),
 	float scE1x5 =0., float scE2x5Max =0., float scE5x5 =0.,
@@ -178,8 +181,12 @@ class GsfElectron : public RecoCandidate {
   //! the electron cluster phi - track phi position at calo extrapolated from the outermost track state
   float deltaPhiEleClusterTrackAtCalo() const {return deltaPhiEleClusterAtCalo_;}
 
-  //! the hadronic over electromagnetic energy fraction
-  float hadronicOverEm() const {return hadOverEm_;}
+  //! the hadronic over electromagnetic energy fraction using all hcal depth
+  float hadronicOverEm() const {return hadOverEm1_ + hadOverEm2_;}
+  //! the hadronic over electromagnetic energy fraction using first hcal depth
+  float hadronicOverEm1() const {return hadOverEm1_;}
+  //! the hadronic over electromagnetic energy fraction using second hcal depth
+  float hadronicOverEm2() const {return hadOverEm2_;}
 
   // corrections
   //! tell if class dependant escale correction have been applied
@@ -270,7 +277,8 @@ private:
   float deltaPhiSuperClusterAtVtx_;
   float deltaPhiSeedClusterAtCalo_;
 
-  float hadOverEm_;
+  // had. over em enrgy using first hcal depth
+  float hadOverEm1_;
 
   reco::SuperClusterRef superCluster_;
   reco::GsfTrackRef track_;
@@ -305,6 +313,9 @@ private:
   
   // e seed cluster / pin
   float eSeedClusterOverP_;
+  
+  // hadronic over em energy using 2nd hcal depth
+  float hadOverEm2_;
   
   /// check overlap with another candidate
   virtual bool overlap( const Candidate & ) const;

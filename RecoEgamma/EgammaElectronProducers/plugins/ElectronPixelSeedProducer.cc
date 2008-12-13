@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ElectronPixelSeedProducer.cc,v 1.24 2008/05/20 15:37:50 heltsley Exp $
+// $Id: ElectronPixelSeedProducer.cc,v 1.25 2008/08/27 14:36:43 charlot Exp $
 //
 //
 
@@ -25,14 +25,12 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
-#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
-
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronPixelSeedGenerator.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/SeedFilter.h"
 
 #include "DataFormats/EgammaReco/interface/ElectronPixelSeed.h"
 #include "DataFormats/EgammaReco/interface/ElectronPixelSeedFwd.h"
+#include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 
 #include "ElectronPixelSeedProducer.h"
 
@@ -45,7 +43,10 @@ ElectronPixelSeedProducer::ElectronPixelSeedProducer(const edm::ParameterSet& iC
   edm::ParameterSet pset = iConfig.getParameter<edm::ParameterSet>("SeedConfiguration");
   initialSeeds_=pset.getParameter<edm::InputTag>("initialSeeds");
   SCEtCut_=pset.getParameter<double>("SCEtCut");
-  maxHOverE_=pset.getParameter<double>("maxHOverE");
+  maxHOverEDepth1_=pset.getParameter<double>("maxHOverEDepth1");
+  maxHOverEDepth2_=pset.getParameter<double>("maxHOverEDepth2");
+  hOverEConeSize_=pset.getParameter<double>("hOverEConeSize");
+  hOverEPtMin_=pset.getParameter<double>("hOverEPtMin");
   fromTrackerSeeds_=pset.getParameter<bool>("fromTrackerSeeds");
   prefilteredSeeds_=pset.getParameter<bool>("preFilteredSeeds");
 
@@ -56,7 +57,7 @@ ElectronPixelSeedProducer::ElectronPixelSeedProducer(const edm::ParameterSet& iC
   //  get collections from config'
   superClusters_[0]=iConfig.getParameter<edm::InputTag>("barrelSuperClusters");
   superClusters_[1]=iConfig.getParameter<edm::InputTag>("endcapSuperClusters");
-  hcalRecHits_ = pset.getParameter<edm::InputTag>("hcalRecHits");
+  hcalTowers_ = pset.getParameter<edm::InputTag>("hcalTowers");
 
   //register your products
   produces<ElectronPixelSeedCollection>();
@@ -79,20 +80,14 @@ void ElectronPixelSeedProducer::produce(edm::Event& e, const edm::EventSetup& iS
 {
   LogDebug("ElectronPixelSeedProducer");
   LogDebug("ElectronPixelSeedProducer")  <<"[ElectronPixelSeedProducer::produce] entering " ;
-  // get calo geometry 
-  if (cacheID_!=iSetup.get<CaloGeometryRecord>().cacheIdentifier()) {
-              iSetup.get<CaloGeometryRecord>().get(theCaloGeom);
-	      cacheID_=iSetup.get<CaloGeometryRecord>().cacheIdentifier();
-  }
 
   matcher_->setupES(iSetup);  
 
-  // get Hcal Rechit collection
-  edm::Handle<HBHERecHitCollection> hbhe;
-  HBHERecHitMetaCollection *mhbhe=0;
-  bool got =    e.getByLabel(hcalRecHits_,hbhe);  
-  if (got) mhbhe=  new HBHERecHitMetaCollection(*hbhe);
-
+  // get Hcal towers collection
+  edm::Handle<CaloTowerCollection> towersHandle;
+  e.getByLabel(hcalTowers_, towersHandle);
+  const CaloTowerCollection* towers = towersHandle.product();
+  
   // get initial TrajectorySeeds if necessary
   if (fromTrackerSeeds_) {
     if (!prefilteredSeeds_) {
@@ -104,19 +99,20 @@ void ElectronPixelSeedProducer::produce(edm::Event& e, const edm::EventSetup& iS
   }else
     theInitialSeedColl=0;// not needed in this case
  
-
-
   ElectronPixelSeedCollection *seeds= new ElectronPixelSeedCollection;
-std::auto_ptr<ElectronPixelSeedCollection> pSeeds;
+  std::auto_ptr<ElectronPixelSeedCollection> pSeeds;
+
+  // HCAL iso deposits
+  towerIso1_  = new EgammaTowerIsolation(hOverEConeSize_,0.,hOverEPtMin_,1,towers) ;  
+  towerIso2_  = new EgammaTowerIsolation(hOverEConeSize_,0.,hOverEPtMin_,2,towers) ;  
 
   // loop over barrel + endcap
-  calc_=HoECalculator(theCaloGeom);
   for (unsigned int i=0; i<2; i++) {  
    // invoke algorithm
     edm::Handle<SuperClusterCollection> clusters;
     if (e.getByLabel(superClusters_[i],clusters))   {
 	SuperClusterRefVector clusterRefs;
-	filterClusters(clusters,mhbhe,clusterRefs);
+	filterClusters(clusters,towers,clusterRefs);
 	if ((fromTrackerSeeds_) && (prefilteredSeeds_)) filterSeeds(e,iSetup,clusterRefs);
         matcher_->run(e,iSetup,clusterRefs,theInitialSeedColl,*seeds);
 
@@ -130,25 +126,27 @@ std::auto_ptr<ElectronPixelSeedCollection> pSeeds;
 	" and cluster energy " << (*is).superCluster()->energy() << " PID "<<(*is).superCluster().id();
   }
   e.put(pSeeds);
-  delete mhbhe;
+  delete towers;
   if (fromTrackerSeeds_ && prefilteredSeeds_) delete theInitialSeedColl;
  }
 
-void ElectronPixelSeedProducer::filterClusters(const edm::Handle<reco::SuperClusterCollection> &superClusters,HBHERecHitMetaCollection*mhbhe, SuperClusterRefVector &sclRefs) {
+void ElectronPixelSeedProducer::filterClusters(const edm::Handle<reco::SuperClusterCollection> &superClusters, 
+ const CaloTowerCollection *towers, SuperClusterRefVector &sclRefs) {
 
-  // filter the superclusters
-  // - with EtCut
-  // - with HoE
+  // filter the superclusters with Et cut and HCAL towers content behind SC position
   for (unsigned int i=0;i<superClusters->size();++i) {
     const SuperCluster &scl=(*superClusters)[i];
 
     if (scl.energy()/cosh(scl.eta())>SCEtCut_) {
 
-      double HoE=calc_(&scl,mhbhe);
-      if (HoE <= maxHOverE_) {
+      double HoE1=towerIso1_->getTowerESum(&scl)/scl.energy();
+      double HoE2=towerIso2_->getTowerESum(&scl)/scl.energy();
+      if ( HoE1 <= maxHOverEDepth1_ && HoE2 <= maxHOverEDepth2_ ) {
 	sclRefs.push_back(edm::Ref<reco::SuperClusterCollection> (superClusters,i));
       }
+ 
     }
+
   }
   LogDebug("ElectronPixelSeedProducer")  <<"Filtered out "<<sclRefs.size() <<" superclusters from "<<superClusters->size() ;
 }

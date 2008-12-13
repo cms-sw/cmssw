@@ -25,14 +25,14 @@ GsfElectron::GsfElectron
    const GlobalPoint & innPos, const GlobalVector & innMom,
    const GlobalPoint & vtxPos, const GlobalVector & vtxMom,
    const GlobalPoint & outPos, const GlobalVector & outMom,
-   double hadOverEm,
+   double hadOverEm1,double hadOverEm2,
    float scSigmaEtaEta, float scSigmaIEtaIEta,
    float scE1x5, float scE2x5Max, float scE5x5,
    const TrackRef ctfTrack, const float shFracInnerHits,
    const BasicClusterRef electronCluster,
    const GlobalPoint & tselePos, const GlobalVector & tseleMom
  )
- : hadOverEm_(hadOverEm), superCluster_(scl), track_(gsfTrack),
+ : hadOverEm1_(hadOverEm1), hadOverEm2_(hadOverEm2), superCluster_(scl), track_(gsfTrack),
    scSigmaEtaEta_(scSigmaEtaEta), scSigmaIEtaIEta_(scSigmaIEtaIEta),
    scE1x5_(scE1x5), scE2x5Max_(scE2x5Max), scE5x5_(scE5x5),
    ctfTrack_(ctfTrack), shFracInnerHits_(shFracInnerHits),
@@ -120,7 +120,8 @@ void GsfElectron::correctElectronEnergyScale(const float newEnergy) {
   math::XYZTLorentzVectorD momentum=p4();
   momentum*=newEnergy/momentum.e();
   setP4(momentum);
-  hadOverEm_ *=superClusterEnergy_/newEnergy; 
+  hadOverEm1_ *=superClusterEnergy_/newEnergy; 
+  hadOverEm2_ *=superClusterEnergy_/newEnergy; 
   eSuperClusterOverP_*=newEnergy/superClusterEnergy_;
   superClusterEnergy_=newEnergy;
  

@@ -24,7 +24,6 @@
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
-#include "RecoCaloTools/MetaCollections/interface/CaloRecHitMetaCollections.h"
 
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
@@ -40,11 +39,12 @@ class GsfElectronAlgo {
   public:
 
     GsfElectronAlgo(
-  		const edm::ParameterSet & conf,
+      const edm::ParameterSet & conf,
       double maxEOverPBarrel, double maxEOverPEndcaps,
       double minEOverPBarrel, double minEOverPEndcaps,
       double maxDeltaEta, double maxDeltaPhi,
-		  bool applyEtaCorrection, bool applyAmbResolution
+      bool applyEtaCorrection, bool applyAmbResolution,
+      double hOverEConeSize, double hOverEPtMin
 		) ;
     ~GsfElectronAlgo() ;
 
@@ -121,7 +121,7 @@ class GsfElectronAlgo {
     edm::InputTag endcapSuperClusters_;
     edm::InputTag tracks_;
     edm::InputTag ctfTracks_;
-    edm::InputTag hcalRecHits_;
+    edm::InputTag hcalTowers_;
     edm::InputTag reducedBarrelRecHitCollection_ ;
     edm::InputTag reducedEndcapRecHitCollection_ ;
 
@@ -146,7 +146,9 @@ class GsfElectronAlgo {
     TrajectoryStateOnSurface seedTSOS_;
     TrajectoryStateOnSurface eleTSOS_;
 
-    HBHERecHitMetaCollection *mhbhe_;
+    const CaloTowerCollection* towers_;
+    double hOverEConeSize_;
+    double hOverEPtMin_;
 
     unsigned long long cacheIDGeom_;
     unsigned long long cacheIDTopo_;

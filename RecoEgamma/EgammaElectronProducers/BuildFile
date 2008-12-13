@@ -16,7 +16,7 @@
 <use name=RecoEgamma/EgammaElectronAlgos>
 <use name=RecoTracker/CkfPattern>
 <use name=RecoTracker/TrackProducer>
-<use name=RecoEgamma/EgammaTools>
+<use name=RecoEgamma/EgammaIsolationAlgos>
 <export>
    <use name=FWCore/Framework>
    <use name=FWCore/ParameterSet>
@@ -35,5 +35,5 @@
    <use name = hepmc> 
    <use name=clhep>
    <use name=root>
-   <use name=RecoEgamma/EgammaTools>
+   <use name=RecoEgamma/EgammaIsolationAlgos>
 </export>

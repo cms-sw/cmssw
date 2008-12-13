@@ -11,9 +11,12 @@ electronPixelSeedConfiguration = cms.PSet(
 
     # SC filtering
     SCEtCut = cms.double(4.0),
-    hcalRecHits = cms.InputTag("hbhereco"),
-    maxHOverE = cms.double(0.1),
-
+    hcalTowers = cms.InputTag("towerMaker"),
+    maxHOverEDepth1 = cms.double(0.1),
+    maxHOverEDepth2 = cms.double(0.1),
+    hOverEConeSize = cms.double(0.15),
+    hOverEPtMin = cms.double(0.),
+    
     # r/z windows
     z2MinB = cms.double(-0.09),
     z2MaxB = cms.double(0.09),

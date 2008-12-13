@@ -12,7 +12,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Thu july 6 13:22:06 CEST 2006
-// $Id: GsfElectronAlgo.cc,v 1.31 2008/12/03 18:00:33 charlot Exp $
+// $Id: GsfElectronAlgo.cc,v 1.32 2008/12/05 17:01:14 charlot Exp $
 //
 //
 
@@ -22,7 +22,7 @@
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronClassification.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronMomentumCorrector.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronEnergyCorrector.h"
-#include "RecoEgamma/EgammaTools/interface/HoECalculator.h"
+#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaTowerIsolation.h"
 
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/ElectronPixelSeed.h"
@@ -31,10 +31,8 @@
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
-#include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
-#include "DataFormats/HcalDetId/interface/HcalDetId.h"
-#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
+#include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
@@ -56,7 +54,6 @@
 #include "TrackingTools/GsfTools/interface/MultiGaussianState1D.h"
 #include "TrackingTools/GsfTools/interface/GaussianSumUtilities1D.h"
 
-#include "RecoCaloTools/Selectors/interface/CaloConeSelector.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
 
 #include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
@@ -89,11 +86,13 @@ GsfElectronAlgo::GsfElectronAlgo
    double maxEOverPBarrel, double maxEOverPEndcaps,
    double minEOverPBarrel, double minEOverPEndcaps,
    double maxDeltaEta, double maxDeltaPhi,
-   bool applyEtaCorrection, bool applyAmbResolution )
+   bool applyEtaCorrection, bool applyAmbResolution, 
+   double hOverEConeSize, double hOverEPtMin )
  : maxEOverPBarrel_(maxEOverPBarrel), maxEOverPEndcaps_(maxEOverPEndcaps),
    minEOverPBarrel_(minEOverPBarrel), minEOverPEndcaps_(minEOverPEndcaps),
    maxDeltaEta_(maxDeltaEta), maxDeltaPhi_(maxDeltaPhi),
    applyEtaCorrection_(applyEtaCorrection), applyAmbResolution_(applyAmbResolution),
+   hOverEConeSize_(hOverEConeSize), hOverEPtMin_(hOverEPtMin),
    cacheIDGeom_(0),cacheIDTopo_(0),cacheIDTDGeom_(0),cacheIDMagField_(0)
  {
   // this is the new version allowing to configurate the algo
@@ -106,7 +105,7 @@ GsfElectronAlgo::GsfElectronAlgo
   ParameterSet tise_params = conf.getParameter<ParameterSet>("TransientInitialStateEstimatorParameters") ;
 
   // get input collections
-  hcalRecHits_ = conf.getParameter<edm::InputTag>("hcalRecHits");
+  hcalTowers_ = conf.getParameter<edm::InputTag>("hcalTowers");
   tracks_ = conf.getParameter<edm::InputTag>("tracks");
   ctfTracks_ = conf.getParameter<edm::InputTag>("ctfTracks");
   reducedBarrelRecHitCollection_ = conf.getParameter<edm::InputTag>("reducedBarrelRecHitCollection") ;
@@ -162,11 +161,10 @@ void  GsfElectronAlgo::run(Event& e, GsfElectronCollection & outEle) {
   e.getByLabel( reducedEndcapRecHitCollection_, pEERecHits ) ;
 
 
-  // for HoE calculation
-  edm::Handle<HBHERecHitCollection> hbhe;
-  mhbhe_=0;
-  bool got = e.getByLabel(hcalRecHits_,hbhe);
-  if (got) mhbhe_=  new HBHERecHitMetaCollection(*hbhe);
+  // get Hcal towers collection for HoE calculation
+  edm::Handle<CaloTowerCollection> towersHandle;
+  e.getByLabel(hcalTowers_, towersHandle);
+  const CaloTowerCollection* towers_ = towersHandle.product();
 
   // get the beamspot from the Event:
   edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
@@ -218,7 +216,7 @@ void  GsfElectronAlgo::run(Event& e, GsfElectronCollection & outEle) {
      { outEle.push_back(**it) ; }
    }
 
-  delete mhbhe_;
+  delete towers_;
   return;
 }
 
@@ -381,11 +379,17 @@ void GsfElectronAlgo::createElectron
 								 vtxMom_.y()*scale,
 								 vtxMom_.z()*scale,
 								 (*scRef).energy());
-      // should be coming from supercluster!
-      HoECalculator calc(theCaloGeom);
-      double HoE=calc(&(*scRef),mhbhe_);
-      GsfElectron * ele = new GsfElectron(momentum,scRef,trackRef,sclPos_,sclMom,seedPos,seedMom,innPos,innMom,vtxPos,vtxMom_,outPos,outMom,HoE,
-       scSigmaEtaEta,scSigmaIEtaIEta,scE1x5,scE2x5,scE5x5,ctfTrackRef,shFracInnerHits,elbcRef,elePos,eleMom) ;
+      //CC@@
+      //HoECalculator calc(theCaloGeom);
+      //double HoE=calc(&(*scRef),mhbhe_);
+      EgammaTowerIsolation towerIso1(hOverEConeSize_,0.,hOverEPtMin_,1,towers_) ;  
+      EgammaTowerIsolation towerIso2(hOverEConeSize_,0.,hOverEPtMin_,2,towers_) ;  
+      //CC@@
+      double HoE1=towerIso1.getTowerESum(&(*scRef))/scRef->energy();
+      double HoE2=towerIso2.getTowerESum(&(*scRef))/scRef->energy();
+      GsfElectron * ele = new
+       GsfElectron(momentum,scRef,trackRef,sclPos_,sclMom,seedPos,seedMom,innPos,innMom,vtxPos,vtxMom_,outPos,outMom,HoE1,
+       HoE2,scSigmaEtaEta,scSigmaIEtaIEta,scE1x5,scE2x5,scE5x5,ctfTrackRef,shFracInnerHits,elbcRef,elePos,eleMom) ;
 
       // set corrections + classification
       ElectronClassification theClassifier;
