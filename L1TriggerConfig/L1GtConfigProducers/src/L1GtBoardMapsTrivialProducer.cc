@@ -74,6 +74,9 @@ std::vector<L1GtObject> chInputObjects(
         else if ((*itObj) == "HTT") {
             obj = HTT;
         }
+        else if ((*itObj) == "HTM") {
+            obj = HTM;
+        }
         else if ((*itObj) == "JetCounts") {
             obj = JetCounts;
         }
@@ -85,6 +88,9 @@ std::vector<L1GtObject> chInputObjects(
         }
         else if ((*itObj) == "TechTrig") {
             obj = TechTrig;
+        }
+        else if ((*itObj) == "BPTX") {
+            obj = BPTX;
         }
         else {
             throw cms::Exception("Configuration")

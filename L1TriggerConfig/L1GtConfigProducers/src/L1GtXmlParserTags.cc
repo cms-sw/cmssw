@@ -9,8 +9,8 @@
  *
  * \author: Vasile Mihai Ghete - HEPHY Vienna
  *
- * $Date: 2008/07/21 19:37:41 $
- * $Revision: 1.5 $
+ * $Date: 2008/09/08 17:34:32 $
+ * $Revision: 1.6 $
  *
  */
 
@@ -56,6 +56,7 @@ const std::string L1GtXmlParserTags::m_xmlConditionAttrConditionCastor("CondCast
 const std::string L1GtXmlParserTags::m_xmlConditionAttrConditionHfBitCounts("CondHfBitCounts");
 const std::string L1GtXmlParserTags::m_xmlConditionAttrConditionHfRingEtSums("CondHfRingEtSums");
 const std::string L1GtXmlParserTags::m_xmlConditionAttrConditionCorrelation("CondCorrelation");
+const std::string L1GtXmlParserTags::m_xmlConditionAttrConditionBptx("CondBptx");
 
 const std::string L1GtXmlParserTags::m_xmlConditionAttrObjectMu("muon");
 const std::string L1GtXmlParserTags::m_xmlConditionAttrObjectNoIsoEG("eg");
@@ -66,10 +67,12 @@ const std::string L1GtXmlParserTags::m_xmlConditionAttrObjectTauJet("tau");
 const std::string L1GtXmlParserTags::m_xmlConditionAttrObjectETM("etm");
 const std::string L1GtXmlParserTags::m_xmlConditionAttrObjectETT("ett");
 const std::string L1GtXmlParserTags::m_xmlConditionAttrObjectHTT("htt");
+const std::string L1GtXmlParserTags::m_xmlConditionAttrObjectHTM("htm");
 const std::string L1GtXmlParserTags::m_xmlConditionAttrObjectJetCounts("jet_cnts");
 const std::string L1GtXmlParserTags::m_xmlConditionAttrObjectHfBitCounts("HfBitCounts");
 const std::string L1GtXmlParserTags::m_xmlConditionAttrObjectHfRingEtSums("HfRingEtSums");
 const std::string L1GtXmlParserTags::m_xmlConditionAttrObjectCastor("Castor");
+const std::string L1GtXmlParserTags::m_xmlConditionAttrObjectBptx("Bptx");
 
 const std::string L1GtXmlParserTags::m_xmlConditionAttrType1s("1_s");
 const std::string L1GtXmlParserTags::m_xmlConditionAttrType2s("2_s");
@@ -78,6 +81,7 @@ const std::string L1GtXmlParserTags::m_xmlConditionAttrType2cor("2_cor");
 const std::string L1GtXmlParserTags::m_xmlConditionAttrType3s("3");
 const std::string L1GtXmlParserTags::m_xmlConditionAttrType4s("4");
 const std::string L1GtXmlParserTags::m_xmlConditionAttrTypeCastor("TypeCastor");
+const std::string L1GtXmlParserTags::m_xmlConditionAttrTypeBptx("TypeBptx");
 
 const std::string L1GtXmlParserTags::m_xmlAttrMode("mode");
 const std::string L1GtXmlParserTags::m_xmlAttrModeBit("bit");

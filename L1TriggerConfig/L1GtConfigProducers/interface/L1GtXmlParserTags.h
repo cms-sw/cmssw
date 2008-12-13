@@ -12,8 +12,8 @@
  *
  * \author: Vasile Mihai Ghete - HEPHY Vienna
  *
- * $Date: 2008/07/21 19:37:41 $
- * $Revision: 1.5 $
+ * $Date: 2008/09/08 17:34:32 $
+ * $Revision: 1.6 $
  *
  */
 
@@ -57,6 +57,7 @@ protected:
     static const std::string m_xmlConditionAttrConditionHfBitCounts;
     static const std::string m_xmlConditionAttrConditionHfRingEtSums;
     static const std::string m_xmlConditionAttrConditionCorrelation;
+    static const std::string m_xmlConditionAttrConditionBptx;
 
     static const std::string m_xmlConditionAttrObjectMu;
     static const std::string m_xmlConditionAttrObjectNoIsoEG;
@@ -67,10 +68,12 @@ protected:
     static const std::string m_xmlConditionAttrObjectETM;
     static const std::string m_xmlConditionAttrObjectETT;
     static const std::string m_xmlConditionAttrObjectHTT;
+    static const std::string m_xmlConditionAttrObjectHTM;
     static const std::string m_xmlConditionAttrObjectJetCounts;
     static const std::string m_xmlConditionAttrObjectCastor;
     static const std::string m_xmlConditionAttrObjectHfBitCounts;
     static const std::string m_xmlConditionAttrObjectHfRingEtSums;
+    static const std::string m_xmlConditionAttrObjectBptx;
 
     static const std::string m_xmlConditionAttrType1s;
     static const std::string m_xmlConditionAttrType2s;
@@ -79,6 +82,7 @@ protected:
     static const std::string m_xmlConditionAttrType3s;
     static const std::string m_xmlConditionAttrType4s;
     static const std::string m_xmlConditionAttrTypeCastor;
+    static const std::string m_xmlConditionAttrTypeBptx;
 
 
     static const std::string m_xmlAttrMode;

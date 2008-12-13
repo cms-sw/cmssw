@@ -153,6 +153,12 @@ void L1GtTriggerMenuXmlParser::setVecHfRingEtSumsTemplate(
     m_vecHfRingEtSumsTemplate = vecHfRingEtSumsTempl;
 }
 
+void L1GtTriggerMenuXmlParser::setVecBptxTemplate(
+        const std::vector<std::vector<L1GtBptxTemplate> >& vecBptxTempl) {
+
+    m_vecBptxTemplate = vecBptxTempl;
+}
+
 void L1GtTriggerMenuXmlParser::setVecCorrelationTemplate(
         const std::vector<std::vector<L1GtCorrelationTemplate> >& vecCorrelationTempl) {
 
@@ -212,6 +218,7 @@ void L1GtTriggerMenuXmlParser::parseXmlFile(const std::string& defXmlFile,
     m_vecCastorTemplate.resize(m_numberConditionChips);
     m_vecHfBitCountsTemplate.resize(m_numberConditionChips);
     m_vecHfRingEtSumsTemplate.resize(m_numberConditionChips);
+    m_vecBptxTemplate.resize(m_numberConditionChips);
 
     m_vecCorrelationTemplate.resize(m_numberConditionChips);
     m_corMuonTemplate.resize(m_numberConditionChips);
@@ -246,7 +253,7 @@ void L1GtTriggerMenuXmlParser::parseXmlFile(const std::string& defXmlFile,
  *
  * @param xmlFile Filename of the XML-File
  *
- * @return A reference to a XercesDOMParser object if suceeded. 0 if an error occured.
+ * @return A reference to a XercesDOMParser object if succeeded. 0 if an error occurred.
  *
  */
 
@@ -398,7 +405,7 @@ XERCES_CPP_NAMESPACE::DOMNode* L1GtTriggerMenuXmlParser::findXMLChild(
  * @param node The node to get the attribute from
  * @param name The name of the attribut to get
  *
- * @return The value of the attribute or empty string if an error occured.
+ * @return The value of the attribute or empty string if an error occurred.
  */
 
 std::string L1GtTriggerMenuXmlParser::getXMLAttribute(const XERCES_CPP_NAMESPACE::DOMNode* node,
@@ -470,7 +477,7 @@ std::string L1GtTriggerMenuXmlParser::getXMLTextValue(XERCES_CPP_NAMESPACE::DOMN
  * @param dstL The target for the lower 64 bit.
  * @param dstH The target for the upper 64 bit.
  *
- * @return true if conversion suceeded, false if an error occured.
+ * @return true if conversion succeeded, false if an error occurred.
  */
 
 bool L1GtTriggerMenuXmlParser::hexString2UInt128(const std::string& hexString,
@@ -587,7 +594,7 @@ bool L1GtTriggerMenuXmlParser::getXMLHexTextValue128(XERCES_CPP_NAMESPACE::DOMNo
  * @param node The xml node to get the value from.
  * @param dst The destination the value is written to.
  *
- * @return true if suceeded, false if an error occured
+ * @return true if succeeded, false if an error occurred
  *
  */
 
@@ -741,7 +748,7 @@ bool L1GtTriggerMenuXmlParser::countConditionChildMaxBits(XERCES_CPP_NAMESPACE::
  * @param num The number of values needed.
  * @param dst A pointer to a vector of boost::uint64_t where the results are written.
  *
- * @return true if suceeded. false if an error occured or not enough values found.
+ * @return true if succeeded. false if an error occurred or not enough values found.
  */
 
 bool L1GtTriggerMenuXmlParser::getConditionChildValues(XERCES_CPP_NAMESPACE::DOMNode* node,
@@ -895,7 +902,7 @@ boost::uint64_t L1GtTriggerMenuXmlParser::mirror(const boost::uint64_t oldLUT,
  *
  * @param parser The parser to use for parsing the file.
  *
- * @return true if succeeded, false if an error occured.
+ * @return true if succeeded, false if an error occurred.
  *
  */
 
@@ -1217,7 +1224,7 @@ int L1GtTriggerMenuXmlParser::getNumFromType(const std::string &type) {
  *
  * @param node The xml node.
  *
- * @return The value of the bit or -1 if an error occured.
+ * @return The value of the bit or -1 if an error occurred.
  */
 
 int L1GtTriggerMenuXmlParser::getBitFromNode(XERCES_CPP_NAMESPACE::DOMNode* node) {
@@ -1299,7 +1306,7 @@ int L1GtTriggerMenuXmlParser::getGEqFlag(XERCES_CPP_NAMESPACE::DOMNode* node,
  * @param isoEnDst A pointer to the vector of the "enable isolation" bits.
  * @param isoReqDst A pointer to the vector of the "request isolation" bits.
  *
- * @return "true" if suceeded, "false" if an error occured.
+ * @return "true" if succeeded, "false" if an error occurred.
  */
 
 bool L1GtTriggerMenuXmlParser::getMuonMipIsoBits(XERCES_CPP_NAMESPACE::DOMNode* node,
@@ -1395,7 +1402,7 @@ bool L1GtTriggerMenuXmlParser::getMuonMipIsoBits(XERCES_CPP_NAMESPACE::DOMNode* 
  * @param name The name of the condition.
  * @param chipNr The number of the chip this condition is located.
  *
- * @return "true" if suceeded, "false" if an error occured.
+ * @return "true" if succeeded, "false" if an error occurred.
  *
  */
 
@@ -1676,7 +1683,7 @@ bool L1GtTriggerMenuXmlParser::parseMuon(XERCES_CPP_NAMESPACE::DOMNode* node,
  * @param name The name of the condition.
  * @param chipNr The number of the chip this condition is located.
  *
- * @return "true" if suceeded, "false" if an error occured.
+ * @return "true" if succeeded, "false" if an error occurred.
  *
  */
 
@@ -1888,7 +1895,7 @@ bool L1GtTriggerMenuXmlParser::parseCalo(XERCES_CPP_NAMESPACE::DOMNode* node,
  * @param name The name of the condition.
  * @param chipNr The number of the chip this condition is located.
  *
- * @return "true" if suceeded, "false" if an error occured.
+ * @return "true" if succeeded, "false" if an error occurred.
  *
  */
 
@@ -1923,6 +1930,12 @@ bool L1GtTriggerMenuXmlParser::parseEnergySum(
 
         energySumObjType = HTT;
         cType = TypeHTT;
+
+    }
+    else if ((particle == m_xmlConditionAttrObjectHTM) && (type == m_xmlConditionAttrObjectHTM)) {
+
+        energySumObjType = HTM;
+        cType = TypeHTM;
 
     }
     else {
@@ -2080,7 +2093,7 @@ bool L1GtTriggerMenuXmlParser::parseEnergySum(
  * @param name The name of the condition.
  * @param chipNr The number of the chip this condition is located.
  *
- * @return "true" if suceeded, "false" if an error occured.
+ * @return "true" if succeeded, "false" if an error occurred.
  *
  */
 
@@ -2254,7 +2267,7 @@ bool L1GtTriggerMenuXmlParser::parseJetCounts(XERCES_CPP_NAMESPACE::DOMNode* nod
  * @param name The name of the condition.
  * @param chipNr The number of the chip this condition is located.
  *
- * @return "true" if suceeded, "false" if an error occured.
+ * @return "true" if succeeded, "false" if an error occurred.
  *
  */
 
@@ -2587,6 +2600,74 @@ bool L1GtTriggerMenuXmlParser::parseHfRingEtSums(XERCES_CPP_NAMESPACE::DOMNode* 
 }
 
 /**
+ * parseBptx Parse a BPTX condition and
+ * insert an entry to the conditions map
+ *
+ * @param node The corresponding node.
+ * @param name The name of the condition.
+ * @param chipNr The number of the chip this condition is located.
+ *
+ * @return "true" if succeeded, "false" if an error occurred.
+ *
+ */
+
+bool L1GtTriggerMenuXmlParser::parseBptx(XERCES_CPP_NAMESPACE::DOMNode* node,
+    const std::string& name, unsigned int chipNr) {
+
+    XERCES_CPP_NAMESPACE_USE
+
+    // get condition, particle name and type name
+    std::string condition = getXMLAttribute(node, m_xmlConditionAttrCondition);
+    std::string particle = getXMLAttribute(node, m_xmlConditionAttrObject);
+    std::string type = getXMLAttribute(node, m_xmlConditionAttrType);
+
+    if (particle != m_xmlConditionAttrObjectBptx) {
+        edm::LogError("L1GtTriggerMenuXmlParser")
+            << "\nError: wrong particle for Bptx condition ("
+            << particle << ")" << std::endl;
+        return false;
+    }
+
+    // object type and condition type
+    // object type - irrelevant for BPTX conditions
+    L1GtConditionType cType = TypeBptx;
+
+    // no objects for BPTX conditions
+
+    // set the boolean value for the ge_eq mode - irrelevant for BPTX conditions
+    bool gEq = false;
+
+    // now create a new BPTX condition
+
+    L1GtBptxTemplate bptxCond(name);
+
+    bptxCond.setCondType(cType);
+    bptxCond.setCondGEq(gEq);
+    bptxCond.setCondChipNr(chipNr);
+
+    LogTrace("L1GtTriggerMenuXmlParser") << bptxCond << "\n" << std::endl;
+
+    // insert condition into the map
+    if ( !insertConditionIntoMap(bptxCond, chipNr)) {
+
+        edm::LogError("L1GtTriggerMenuXmlParser")
+            << "    Error: duplicate condition (" << name
+            << ")" << std::endl;
+
+        return false;
+    } else {
+
+        (m_vecBptxTemplate[chipNr]).push_back(bptxCond);
+
+    }
+
+
+    //
+    return true;
+}
+
+
+/**
  * parseCorrelation Parse a correlation condition and
  * insert an entry to the conditions map
  *
@@ -2594,7 +2675,7 @@ bool L1GtTriggerMenuXmlParser::parseHfRingEtSums(XERCES_CPP_NAMESPACE::DOMNode* 
  * @param name The name of the condition.
  * @param chipNr The number of the chip this condition is located.
  *
- * @return "true" if suceeded, "false" if an error occured.
+ * @return "true" if succeeded, "false" if an error occurred.
  *
  */
 
@@ -2768,6 +2849,9 @@ bool L1GtTriggerMenuXmlParser::parseCorrelation(
             else if (particle == m_xmlConditionAttrObjectHTT) {
                 objType[iSubCond] = HTT;
             }
+            else if (particle == m_xmlConditionAttrObjectHTM) {
+                objType[iSubCond] = HTM;
+            }
             else {
                 edm::LogError("L1GtTriggerMenuXmlParser")
                         << "Wrong object type " << particle
@@ -2922,7 +3006,7 @@ bool L1GtTriggerMenuXmlParser::parseCorrelation(
  * @param name The name of the condition.
  * @param chipNr The number of the chip the condition is located on.
  *
- * @return "true" on success, "false" if an error occured.
+ * @return "true" on success, "false" if an error occurred.
  *
  */
 
@@ -2971,6 +3055,9 @@ bool L1GtTriggerMenuXmlParser::workCondition(XERCES_CPP_NAMESPACE::DOMNode* node
     else if (condition == m_xmlConditionAttrConditionHfRingEtSums) {
         return parseHfRingEtSums(node, name, chipNr);
     }
+    else if (condition == m_xmlConditionAttrConditionBptx) {
+        return parseBptx(node, name, chipNr);
+    }
     else if (condition == m_xmlConditionAttrConditionCorrelation) {
         return parseCorrelation(node, name, chipNr);
     }
@@ -2992,7 +3079,7 @@ bool L1GtTriggerMenuXmlParser::workCondition(XERCES_CPP_NAMESPACE::DOMNode* node
  *
  * @param parser The parser to parse the XML file with.
  *
- * @return "true" if succeeded. "false" if an error occured.
+ * @return "true" if succeeded. "false" if an error occurred.
  *
  */
 
@@ -3082,7 +3169,7 @@ bool L1GtTriggerMenuXmlParser::parseConditions(XERCES_CPP_NAMESPACE::XercesDOMPa
  * @param name The name of the algorithm.
  * @param chipNr The number of the chip the conditions for that algorithm are located on.
  *
- * @return "true" on success, "false" if an error occured.
+ * @return "true" on success, "false" if an error occurred.
  *
  */
 
@@ -3187,7 +3274,7 @@ bool L1GtTriggerMenuXmlParser::workAlgorithm(XERCES_CPP_NAMESPACE::DOMNode* node
  *
  * @param parser A reference to the XercesDOMParser to use.
  *
- * @return "true" if succeeded, "false" if an error occured.
+ * @return "true" if succeeded, "false" if an error occurred.
  *
  */
 
@@ -3268,7 +3355,7 @@ bool L1GtTriggerMenuXmlParser::parseAlgorithms(XERCES_CPP_NAMESPACE::XercesDOMPa
  * @param node The corresponding node to the technical trigger.
  * @param name The name of the technical trigger.
  *
- * @return "true" on success, "false" if an error occured.
+ * @return "true" on success, "false" if an error occurred.
  *
  */
 
@@ -3356,7 +3443,7 @@ bool L1GtTriggerMenuXmlParser::workTechTrigger(XERCES_CPP_NAMESPACE::DOMNode* no
  *
  * @param parser A reference to the XercesDOMParser to use.
  *
- * @return "true" if succeeded, "false" if an error occured.
+ * @return "true" if succeeded, "false" if an error occurred.
  *
  */
 
@@ -3412,7 +3499,7 @@ bool L1GtTriggerMenuXmlParser::parseTechTriggers(XERCES_CPP_NAMESPACE::XercesDOM
  *
  * @param parser The parser to use for parsing the XML-File
  *
- * @return "true" if succeeded, "false" if an error occured.
+ * @return "true" if succeeded, "false" if an error occurred.
  */
 
 bool L1GtTriggerMenuXmlParser::workXML(XERCES_CPP_NAMESPACE::XercesDOMParser* parser) {

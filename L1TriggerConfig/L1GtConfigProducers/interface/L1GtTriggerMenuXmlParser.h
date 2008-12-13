@@ -43,6 +43,7 @@
 #include "CondFormats/L1TObjects/interface/L1GtHfBitCountsTemplate.h"
 #include "CondFormats/L1TObjects/interface/L1GtHfRingEtSumsTemplate.h"
 #include "CondFormats/L1TObjects/interface/L1GtCorrelationTemplate.h"
+#include "CondFormats/L1TObjects/interface/L1GtBptxTemplate.h"
 
 // forward declarations
 class L1GtCondition;
@@ -182,6 +183,16 @@ public:
 
     void setVecHfRingEtSumsTemplate(
             const std::vector<std::vector<L1GtHfRingEtSumsTemplate> >&);
+
+    //
+    inline const std::vector<std::vector<L1GtBptxTemplate> >&
+        vecBptxTemplate() const {
+
+        return m_vecBptxTemplate;
+    }
+
+    void setVecBptxTemplate(
+            const std::vector<std::vector<L1GtBptxTemplate> >&);
 
     //
     inline const std::vector<std::vector<L1GtCorrelationTemplate> >& vecCorrelationTemplate() const {
@@ -360,6 +371,10 @@ private:
     bool parseHfRingEtSums(XERCES_CPP_NAMESPACE::DOMNode* node,
             const std::string& name, unsigned int chipNr = 0);
 
+    /// parse a Bptx condition
+    bool parseBptx(XERCES_CPP_NAMESPACE::DOMNode* node,
+            const std::string& name, unsigned int chipNr = 0);
+
     /// parse a correlation condition
     bool parseCorrelation(XERCES_CPP_NAMESPACE::DOMNode* node,
             const std::string& name, unsigned int chipNr = 0);
@@ -433,6 +448,7 @@ private:
     std::vector<std::vector<L1GtCastorTemplate> > m_vecCastorTemplate;
     std::vector<std::vector<L1GtHfBitCountsTemplate> > m_vecHfBitCountsTemplate;
     std::vector<std::vector<L1GtHfRingEtSumsTemplate> > m_vecHfRingEtSumsTemplate;
+    std::vector<std::vector<L1GtBptxTemplate> > m_vecBptxTemplate;
 
     std::vector<std::vector<L1GtCorrelationTemplate> > m_vecCorrelationTemplate;
     std::vector<std::vector<L1GtMuonTemplate> > m_corMuonTemplate;

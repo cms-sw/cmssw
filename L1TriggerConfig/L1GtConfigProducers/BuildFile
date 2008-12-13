@@ -4,6 +4,7 @@
 <use name=FWCore/ParameterSet>
 <use name=CondFormats/L1TObjects>
 <use name=CondFormats/DataRecord>
+<use name=CondTools/L1Trigger>
 <use name=xerces-c>
 <export>
    <lib name=L1TriggerConfigL1GtConfigProducers>
@@ -12,5 +13,6 @@
    <use name=FWCore/ParameterSet>
    <use name=CondFormats/L1TObjects>
    <use name=CondFormats/DataRecord>
+   <use name=CondTools/L1Trigger>
    <use name=xerces-c>
 </export>
