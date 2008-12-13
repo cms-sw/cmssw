@@ -8,6 +8,7 @@ using namespace std;
 using namespace reco;
 
 TopDecaySubset::TopDecaySubset(const edm::ParameterSet& cfg):
+  pdg_ ( cfg.getParameter<unsigned int >( "pdgId" ) ),
   src_ ( cfg.getParameter<edm::InputTag>( "src" ) )
 {
   produces<reco::GenParticleCollection>();
@@ -26,16 +27,15 @@ TopDecaySubset::produce(edm::Event& evt, const edm::EventSetup& setup)
   const reco::GenParticleRefProd ref = evt.getRefBeforePut<reco::GenParticleCollection>(); 
   std::auto_ptr<reco::GenParticleCollection> sel( new reco::GenParticleCollection );
 
-  //clear existing refs
+  // clear existing refs
   refs_.clear();  
-  //fill output collection
+  // fill output collection
   fillOutput( *src, *sel );
-  //fill references
+  // fill references
   fillRefs( ref, *sel );
-
-  //uncomment for debugging
-  //print( *sel, 15 );
-
+  // print full decay chain print_ times
+  print(*sel, pdg_);
+  // fan out to event
   evt.put( sel );
 }
 
@@ -194,15 +194,12 @@ void TopDecaySubset::fillTree(int& idx, const GenParticle::const_iterator part, 
   }
 }
 
-void TopDecaySubset::print(reco::GenParticleCollection& sel, int pdg=0)
+void TopDecaySubset::print(reco::GenParticleCollection& sel, int pdgId=0)
 {
   GenParticleCollection::iterator q=sel.begin();
   for(int idx=0; q!=sel.end(); ++q, ++idx){
-    if(pdg==0 || abs(sel[idx].pdgId())==pdg){
-      std::cout << "\nParticle Listing:" << std::endl;
-      std::cout << "\nParticle-idx      Particle-pdgId()       Indices of Daughters" << std::endl;
-      std::cout <<   "=============================================================" << std::endl;
- 
+    if( (pdgId==0 && sel[idx].pdgId()==6) || abs(sel[idx].pdgId())==pdgId){
+      std::string linestr;
       GenParticleCollection::iterator p=sel.begin();
       for(int idx=0; p!=sel.end(); ++p, ++idx){
 	map<int, vector<int> >::const_iterator daughters=refs_.find( idx );
@@ -213,20 +210,24 @@ void TopDecaySubset::print(reco::GenParticleCollection& sel, int pdg=0)
 	    //convert pdgId into c string w/o too much trouble
 	    char buffer[5];
 	    sprintf( buffer, "%i", sel[*daughter].pdgId() ); 
-	    daugstr+= buffer;
+	    daugstr += buffer;
 	    if(daughter+1 != daughters->second.end()){
-	      daugstr+= ", ";
+	      daugstr += ",";
 	    }
-	  } 
+	  }
+	  daugstr += "\n"; 
 	}
 	else{
-	  daugstr+= ("-  ");
+	  daugstr += ("-\n");
 	}
-	std::cout << ::std::setw(  8 ) << ::std::right << idx 
-		  << ::std::setw( 19 ) << ::std::right << sel[idx].pdgId() 
-		  << ::std::setw( 26 ) << ::std::right << daugstr 
-		  << std::endl;
+	char buffer[100];
+	sprintf(buffer, "%8i%19i%26s", idx, sel[idx].pdgId(), daugstr.c_str());
+	linestr += buffer;
       }
+      edm::LogVerbatim( "decayChain" ) 
+	<< "\nParticle-idx      Particle-pdgId()         pdgId of Daughters"
+	<< "\n============================================================="
+	<< "\n" << linestr;
     }
   }
 }
