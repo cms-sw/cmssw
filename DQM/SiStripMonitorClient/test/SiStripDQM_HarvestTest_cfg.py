@@ -13,7 +13,7 @@ process.GlobalTag.globaltag = "CRAFT_ALL_V3::All"
 process.prefer("GlobalTag")
 
 process.load("DQM.SiStripMonitorClient.SiStripClientConfig_Tier0_cff")
-
+process.siStripDaqInfo = cms.EDFilter("SiStripDaqInfo")
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
@@ -43,4 +43,4 @@ process.DQMStore.collateHistograms = False
 process.EDMtoMEConverter.convertOnEndLumi = True
 process.EDMtoMEConverter.convertOnEndRun = False
 
-process.p1 = cms.Path(process.EDMtoMEConverter*process.SiStripOfflineDQMClient*process.dqmSaver)
+process.p1 = cms.Path(process.EDMtoMEConverter*process.SiStripOfflineDQMClient*process.siStripDaqInfo*process.dqmSaver)
