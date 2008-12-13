@@ -6,7 +6,7 @@
 #include "TopQuarkAnalysis/Examples/plugins/TopJetAnalyzer.h"
 #include "TopQuarkAnalysis/Examples/interface/TtSemiEvtKit.h"
 
-#include "FWCore/Framework/inxterface/MakerMacros.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(TopGenEventAnalyzer);
 DEFINE_FWK_MODULE(HypothesisAnalyzer);
 DEFINE_FWK_MODULE(TopMuonAnalyzer);

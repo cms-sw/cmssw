@@ -8,8 +8,10 @@ process = cms.Process("TEST")
 
 ## configure message logger
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
-process.MessageLogger.cerr.threshold = cms.untracked.string('INFO')
-process.MessageLogger.categories = cms.untracked.vstring('TEST')
+process.MessageLogger.categories = cms.untracked.vstring('decayChain')
+process.MessageLogger.cerr = cms.untracked.PSet(threshold = cms.untracked.string('INFO'),
+                                                decayChain = cms.untracked.PSet(limit = cms.untracked.int32(10))
+                                                )
 
 #-------------------------------------------------
 # process configuration
@@ -37,13 +39,15 @@ process.source = cms.Source("PoolSource",
    #'file:/afs/desy.de/user/r/rwolf/cms13/samples/21X/4A0ADB7D-1086-DD11-BD16-000423D98E6C.root',
    #'file:/afs/desy.de/user/r/rwolf/cms13/samples/21X/4E31E969-1886-DD11-8398-000423D9989E.root',
    #'file:/afs/desy.de/user/r/rwolf/cms13/samples/21X/4EEEA6AE-0886-DD11-90F9-000423D94990.root'
-    )
+   ),
+   #skipEvents = cms.untracked.uint32(300)
 )
 
 ## define maximal number of events to loop over
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(100)
 )
+
 
 ## configure process options
 process.options = cms.untracked.PSet(

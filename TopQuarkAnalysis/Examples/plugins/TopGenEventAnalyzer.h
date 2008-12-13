@@ -26,19 +26,16 @@ class TopGenEventAnalyzer : public edm::EDAnalyzer {
            	
   edm::InputTag inputGenEvent_;
 
-
-  TH1F *semilep;
-  TH1F *fulllep;
-  TH1F *fullhad;
-  TH1F *Num_Leptons;
-  TH1F *Summe;
-  TH1F *number_of_Daughters;
-  TH1F *Daughters;
-  TH1F *pdg;
-  TH1F *leptype;
-  TH1F *Mothers;
-  TH1F *Daughters_of_Tau;
-  TH1F *Mothers_of_Mu;
+  TH1F *nLep_;
+  TH1F *topPt_;
+  TH1F *topEta_;
+  TH1F *topPhi_;
+  TH1F *topBarPt_;
+  TH1F *topBarEta_;
+  TH1F *topBarPhi_;
+  TH1F *ttbarPt_;
+  TH1F *ttbarEta_;
+  TH1F *ttbarPhi_;
 };  
 
 #endif  
