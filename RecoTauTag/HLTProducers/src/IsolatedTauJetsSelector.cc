@@ -40,7 +40,7 @@ void IsolatedTauJetsSelector::produce(edm::Event& iEvent, const edm::EventSetup&
       if(useInHLTOpen) {
 	const CaloJet* pippo = dynamic_cast<const CaloJet*>((i->jet().get()));
 	CaloJet* mioPippo = const_cast<CaloJet*>(pippo);
-	mioPippo->Particle::setPdgId(15);
+	mioPippo->setPdgId(15);
 	if(mioPippo)
 	  jetCollectionTmp->push_back(*mioPippo);
 	//	extendedCollection->push_back(*(i)); //to  be used later
@@ -53,7 +53,7 @@ void IsolatedTauJetsSelector::produce(edm::Event& iEvent, const edm::EventSetup&
 	  float discriminator = i->discriminator();	  
 	  const CaloJet* pippo = dynamic_cast<const CaloJet*>((i->jet().get()));
 	  CaloJet* mioPippo = const_cast<CaloJet*>(pippo);
-	  mioPippo->Particle::setPdgId(15);
+	  mioPippo->setPdgId(15);
 	  if(useIsolationDiscriminator && (discriminator > 0) ) {
 	    if(mioPippo)
 	      jetCollectionTmp->push_back(*mioPippo);
