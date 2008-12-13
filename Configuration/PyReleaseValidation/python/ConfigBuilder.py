@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.101 $"
+__version__ = "$Revision: 1.102 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -224,10 +224,11 @@ class ConfigBuilder(object):
                 self.loadAndRemember('FastSimulation/Configuration/CommonInputs_cff')
                 # Apply ECAL and HCAL miscalibration
                 self.additionalCommands.append('\n# Choose between hcalmiscalib_startup.xml , hcalmiscalib_1pb.xml , hcalmiscalib_10pb.xml (startup is the default)')
-                self.additionalCommands.append('process.caloRecHits.RecHitsFactory.HCAL.fileNameHcal = "hcalmiscalib_startup.xml"')
+                #self.additionalCommands.append('process.caloRecHits.RecHitsFactory.HCAL.fileNameHcal = "hcalmiscalib_startup.xml"')
                 if "IDEAL" in conditionsSP:
                     self.additionalCommands.append("process.caloRecHits.RecHitsFactory.doMiscalib = False")
                 # Apply Tracker misalignment
+                self.additionalCommands.append("process.caloRecHits.RecHitsFactory.doMiscalib = True")
                 self.additionalCommands.append("process.famosSimHits.ApplyAlignment = True")
                 self.additionalCommands.append("process.misalignedTrackerGeometry.applyAlignment = True")
                                        
@@ -632,7 +633,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.101 $"),
+              (version=cms.untracked.string("$Revision: 1.102 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )
