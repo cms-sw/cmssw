@@ -28,8 +28,8 @@ class TtDecayChannelSelector {
 
   void parseDecayInput(Decay&, Decay&) const;
   void parseTauDecayInput(Decay&) const;
-  unsigned int countChargedParticles(const reco::GenParticle& part) const;
-  bool checkTauDecay(const reco::GenParticle&) const;
+  unsigned int countChargedParticles(const reco::Candidate& part) const;
+  bool checkTauDecay(const reco::Candidate&) const;
 
  private:
   bool  invert_;  //inversion flag
