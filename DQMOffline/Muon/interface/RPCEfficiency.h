@@ -2,8 +2,8 @@
  *
  * Class for RPC Monitoring using RPCDigi and DT and CSC Segments.
  *
- *  $Date: 2008/09/26 07:09:30 $
- *  $Revision: 1.9 $
+ *  $Date: 2008/10/09 07:47:48 $
+ *  $Revision: 1.10 $
  *
  * \author Camilo Carrillo (Uniandes)
  *
@@ -230,7 +230,7 @@ class RPCEfficiency : public edm::EDAnalyzer {
       std::string rejected;
       std::string rollseff;
       
-      std::map<std::string, std::map<std::string, MonitorElement*> >  meCollection;
+      std::map<int, std::map<std::string, MonitorElement*> >  meCollection;
       
       bool EffSaveRootFile;
       std::string EffRootFileName;
