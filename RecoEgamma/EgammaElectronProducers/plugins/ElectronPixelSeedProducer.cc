@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ElectronPixelSeedProducer.cc,v 1.25 2008/08/27 14:36:43 charlot Exp $
+// $Id: ElectronPixelSeedProducer.cc,v 1.26 2008/12/13 08:44:55 charlot Exp $
 //
 //
 
@@ -126,7 +126,6 @@ void ElectronPixelSeedProducer::produce(edm::Event& e, const edm::EventSetup& iS
 	" and cluster energy " << (*is).superCluster()->energy() << " PID "<<(*is).superCluster().id();
   }
   e.put(pSeeds);
-  delete towers;
   if (fromTrackerSeeds_ && prefilteredSeeds_) delete theInitialSeedColl;
  }
 
