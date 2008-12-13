@@ -29,27 +29,25 @@ isolationSumsCalculator = cms.PSet(
     isolationtrackThresholdA = cms.double(0.0),
     TrackConeOuterRadiusA = cms.double(0.4),
     TrackConeInnerRadiusA = cms.double(0.04),
+    isolationtrackThresholdB = cms.double(0.0),
+    TrackConeOuterRadiusB = cms.double(0.3),
+    TrackConeInnerRadiusB = cms.double(0.04),
     #Ecal rechits 
     EcalRecHitInnerRadiusA = cms.double(0.06),
     EcalRecHitOuterRadiusA = cms.double(0.4),
     EcalRecHitEtaSliceA = cms.double(0.04),
     EcalRecThreshEA = cms.double(0.0),
     EcalRecThreshEtA = cms.double(0.0),
-    #Hcal towers
-    HcalTowerInnerRadiusA = cms.double(0.1),
-    HcalTowerOuterRadiusA = cms.double(0.4),
-    HcalTowerThreshEA = cms.double(0.0),
-    isolationtrackThresholdB = cms.double(0.0),
-    TrackConeOuterRadiusB = cms.double(0.3),
-    TrackConeInnerRadiusB = cms.double(0.04),
-    #Ecal rechits 
     EcalRecHitInnerRadiusB = cms.double(0.06),
     EcalRecHitOuterRadiusB = cms.double(0.3),
     EcalRecHitEtaSliceB = cms.double(0.04),
     EcalRecThreshEB = cms.double(0.0),
     EcalRecThreshEtB = cms.double(0.0),
     #Hcal towers
-    HcalTowerInnerRadiusB = cms.double(0.1),
+    HcalTowerInnerRadiusA = cms.double(0.15),
+    HcalTowerOuterRadiusA = cms.double(0.4),
+    HcalTowerThreshEA = cms.double(0.0),
+    HcalTowerInnerRadiusB = cms.double(0.15),
     HcalTowerOuterRadiusB = cms.double(0.3),
     HcalTowerThreshEB = cms.double(0.0)
 
