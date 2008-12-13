@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.102 $"
+__version__ = "$Revision: 1.103 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -222,9 +222,6 @@ class ConfigBuilder(object):
             # fake or real conditions?
             if len(conditionsSP)>1:
                 self.loadAndRemember('FastSimulation/Configuration/CommonInputs_cff')
-                # Apply ECAL and HCAL miscalibration
-                self.additionalCommands.append('\n# Choose between hcalmiscalib_startup.xml , hcalmiscalib_1pb.xml , hcalmiscalib_10pb.xml (startup is the default)')
-                #self.additionalCommands.append('process.caloRecHits.RecHitsFactory.HCAL.fileNameHcal = "hcalmiscalib_startup.xml"')
                 if "IDEAL" in conditionsSP:
                     self.additionalCommands.append("process.caloRecHits.RecHitsFactory.doMiscalib = False")
                 # Apply Tracker misalignment
@@ -633,7 +630,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.102 $"),
+              (version=cms.untracked.string("$Revision: 1.103 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )
@@ -695,16 +692,11 @@ class ConfigBuilder(object):
         for command in self.additionalCommands:
             self.pythonCfgCode += command + "\n"
 
-        # special treatment for a production filter sequence 
+        # special treatment for a production filter sequence 1/2
         if self.productionFilterSequence:
             # dump all additional definitions from the input definition file
             for name in self.additionalObjects:
                 self.pythonCfgCode += dumpPython(self.process,name)
-            # prepend the productionFilterSequence to all paths defined
-            for path in self.process.paths:
-                getattr(self.process,path)._seq = getattr(self.process,self.productionFilterSequence)*getattr(self.process,path)._seq
-            # as HLT paths get modified as well, they have to be re-printed
-            self.blacklist_paths = []
                 
         # dump all paths
         self.pythonCfgCode += "\n# Path and EndPath definitions\n"
@@ -720,6 +712,14 @@ class ConfigBuilder(object):
         pathNames = ['process.'+p.label_() for p in self.process.schedule]
         result ='process.schedule = cms.Schedule('+','.join(pathNames)+')\n'
         self.pythonCfgCode += result
+
+        # special treatment in case of production filter sequence 2/2
+	if self.productionFilterSequence:
+		modifierCode = """
+# special treatment in case of production filter sequence  
+for path in process.paths: \n    getattr(process,path)._seq = process."""+self.productionFilterSequence+"""*getattr(process,path)._seq
+"""
+        self.pythonCfgCode += modifierCode		 
 
         # dump customise fragment
         if self._options.customisation_file:
