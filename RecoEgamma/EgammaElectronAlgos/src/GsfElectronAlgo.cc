@@ -12,7 +12,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Thu july 6 13:22:06 CEST 2006
-// $Id: GsfElectronAlgo.cc,v 1.32 2008/12/05 17:01:14 charlot Exp $
+// $Id: GsfElectronAlgo.cc,v 1.33 2008/12/13 08:44:55 charlot Exp $
 //
 //
 
@@ -92,7 +92,7 @@ GsfElectronAlgo::GsfElectronAlgo
    minEOverPBarrel_(minEOverPBarrel), minEOverPEndcaps_(minEOverPEndcaps),
    maxDeltaEta_(maxDeltaEta), maxDeltaPhi_(maxDeltaPhi),
    applyEtaCorrection_(applyEtaCorrection), applyAmbResolution_(applyAmbResolution),
-   hOverEConeSize_(hOverEConeSize), hOverEPtMin_(hOverEPtMin),
+   towers_(0), hOverEConeSize_(hOverEConeSize), hOverEPtMin_(hOverEPtMin),
    cacheIDGeom_(0),cacheIDTopo_(0),cacheIDTDGeom_(0),cacheIDMagField_(0)
  {
   // this is the new version allowing to configurate the algo
@@ -100,7 +100,7 @@ GsfElectronAlgo::GsfElectronAlgo
   mtsTransform_ = new MultiTrajectoryStateTransform ;
   geomPropBw_ = 0 ;
   geomPropFw_ = 0 ;
-
+  
   // get nested parameter set for the TransientInitialStateEstimator
   ParameterSet tise_params = conf.getParameter<ParameterSet>("TransientInitialStateEstimatorParameters") ;
 
@@ -161,10 +161,10 @@ void  GsfElectronAlgo::run(Event& e, GsfElectronCollection & outEle) {
   e.getByLabel( reducedEndcapRecHitCollection_, pEERecHits ) ;
 
 
-  // get Hcal towers collection for HoE calculation
+  // get Hcal towers collection and instantiate isolators for HoE calculation
   edm::Handle<CaloTowerCollection> towersHandle;
   e.getByLabel(hcalTowers_, towersHandle);
-  const CaloTowerCollection* towers_ = towersHandle.product();
+  towers_ = towersHandle.product();
 
   // get the beamspot from the Event:
   edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
@@ -215,8 +215,7 @@ void  GsfElectronAlgo::run(Event& e, GsfElectronCollection & outEle) {
     for ( GsfElectronPtrCollection::const_iterator it = tempEle.begin() ; it != tempEle.end() ; it++ )
      { outEle.push_back(**it) ; }
    }
-
-  delete towers_;
+  
   return;
 }
 
@@ -373,20 +372,19 @@ void GsfElectronAlgo::createElectron
       float scE2x5 = EcalClusterTools::e2x5Max(seedCluster,reducedRecHits,topology)  ;
       float scE5x5 = EcalClusterTools::e5x5(seedCluster,reducedRecHits,topology) ;
 
-      //create electron
+      // momentum
       double scale = (*scRef).energy()/vtxMom_.mag();
       math::XYZTLorentzVectorD momentum= math::XYZTLorentzVector(vtxMom_.x()*scale,
 								 vtxMom_.y()*scale,
 								 vtxMom_.z()*scale,
 								 (*scRef).energy());
-      //CC@@
-      //HoECalculator calc(theCaloGeom);
-      //double HoE=calc(&(*scRef),mhbhe_);
+
       EgammaTowerIsolation towerIso1(hOverEConeSize_,0.,hOverEPtMin_,1,towers_) ;  
       EgammaTowerIsolation towerIso2(hOverEConeSize_,0.,hOverEPtMin_,2,towers_) ;  
-      //CC@@
       double HoE1=towerIso1.getTowerESum(&(*scRef))/scRef->energy();
       double HoE2=towerIso2.getTowerESum(&(*scRef))/scRef->energy();
+
+      // now create electron
       GsfElectron * ele = new
        GsfElectron(momentum,scRef,trackRef,sclPos_,sclMom,seedPos,seedMom,innPos,innMom,vtxPos,vtxMom_,outPos,outMom,HoE1,
        HoE2,scSigmaEtaEta,scSigmaIEtaIEta,scE1x5,scE2x5,scE5x5,ctfTrackRef,shFracInnerHits,elbcRef,elePos,eleMom) ;
