@@ -6,29 +6,31 @@
 #               can be used standalone or called from other scripts,
 #  uses:        install_hepmc2.sh
 #               install_lhapdf.sh
-#               SHERPA patches [see below]
+#               SHERPA patches/fixes [see below]
 #
 #  author:      Markus Merschmeyer, RWTH Aachen
-#  date:        2008/10/09
-#  version:     2.2
+#  date:        2008/12/09
+#  version:     2.4
 #
 
 print_help() {
     echo "" && \
-    echo "install_sherpa version 2.1" && echo && \
+    echo "install_sherpa version 2.4" && echo && \
     echo "options: -v  version    define SHERPA version ( "${SHERPAVER}" )" && \
-    echo "         -d  path       define SHERPA installation directory" && \
+    echo "         -d  path       define (SHERPA) installation directory" && \
     echo "                         -> ( "${IDIR}" )" && \
     echo "         -f             require flags for 32-bit compilation ( "${FLAGS}" )" && \
     echo "         -F             apply inofficial fixes (LHAPDF,...)  ( "${FIXES}" )" && \
     echo "                         from this path ( "${FDIR}" )" && \
-    echo "         -m  version    request HepMC2 installation ( "${HEPMC}", "${HVER}" )" && \
-    echo "         -l  version    request LHAPDF installation ( "${LHAPDF}", "${LVER}" )" && \
-    echo "         -L             link (softlink) LHAPDF sets ( "${LINKPDF}" )" && \
-    echo "                         hardcopy if not set" && \
     echo "         -p  path       apply official SHERPA patches ( "${PATCHES}" )" && \
     echo "                         from this path ( "${PDIR}" )" && \
-    echo "         -M             enable multithreading [V >= 1.1.0] ( "${MULTITHR}" )" && \
+    echo "         -m  version    request HepMC2 installation ( "${HEPMC}", "${HVER}" )" && \
+    echo "         -M  options    special HepMC2 options ( "${OPTHEPMC}" )" && \
+    echo "         -l  version    request LHAPDF installation ( "${LHAPDF}", "${LVER}" )" && \
+    echo "         -L  options    special LHAPDF options ( "${OPTLHAPDF}" )" && \
+    echo "         -P             link (softlink) LHAPDF sets ( "${LINKPDF}" )" && \
+    echo "                         or do a hardcopy if not set" && \
+    echo "         -T             enable multithreading [V >= 1.1.0] ( "${MULTITHR}" )" && \
     echo "         -W  location   (web)location of SHERPA tarball ( "${SHERPAWEBLOCATION}" )" && \
     echo "         -S  filename   file name of SHERPA tarball ( "${SHERPAFILE}" )" && \
     echo "         -C  level      cleaning level of SHERPA installation ("${LVLCLEAN}" )" && \
@@ -51,10 +53,12 @@ SHERPAVER="1.1.2"          # SHERPA version to be installed
 SHCFLAGS=" "               # SHERPA compiler flags
 SHMFLAGS=" -t"             # SHERPA 'make' flags
 HEPMC="FALSE"              # install HepMC2
-HVER="2.03.09"             # HepMC2 version  to be installed
+HVER="2.04.00"             # HepMC2 version  to be installed
+OPTHEPMC=""                # special HepMC2 installation options
 LHAPDF="FALSE"             # install LHAPDF
+OPTLHAPDF=""               # special LHAPDF installation options
 LINKPDF="FALSE"            # link (softlink) LHAPDF sets
-LVER="5.3.1"               # LHAPDF version  to be installed
+LVER="5.6.0"               # LHAPDF version  to be installed
 FLAGS="FALSE"              # apply SHERPA compiler/'make' flags
 FIXES="FALSE"              # apply inofficial fixes
 FDIR="./"                  # path containing fixes
@@ -69,7 +73,7 @@ FLGINSTL="FALSE"           # installation flag
 
 
 # get & evaluate options
-while getopts :v:d:m:l:p:F:W:S:C:fLMDIh OPT
+while getopts :v:d:m:l:p:F:W:S:C:M:L:fPTDIh OPT
 do
   case $OPT in
   v) SHERPAVER=$OPTARG ;;
@@ -77,10 +81,12 @@ do
   f) FLAGS=TRUE ;;
   F) FIXES=TRUE && FDIR=$OPTARG ;;
   m) HEPMC=TRUE && HVER=$OPTARG ;;
+  M) OPTHEPMC=$OPTARG ;;
   l) LHAPDF=TRUE && LVER=$OPTARG ;;
-  L) LINKPDF=TRUE ;;
+  L) OPTLHAPDF=$OPTARG ;;
+  P) LINKPDF=TRUE ;;
   p) PATCHES=TRUE && PDIR=$OPTARG ;;
-  M) MULTITHR=TRUE ;;
+  T) MULTITHR=TRUE ;;
   W) SHERPAWEBLOCATION=$OPTARG ;;
   S) SHERPAFILE=$OPTARG ;;
   C) LVLCLEAN=$OPTARG ;;
@@ -150,7 +156,9 @@ echo "  -> cleaning level: '"${LVLCLEAN}"'"
 echo "  -> debugging mode: '"${FLGDEBUG}"'"
 echo "  -> use conf/make/make: '"${FLGINSTL}"'"
 echo "  -> HepMC2: '"${HEPMC}"', version '"${HVER}"'"
+echo "  ->   options: "${OPTHEPMC}
 echo "  -> LHAPDF: '"${LHAPDF}"', version '"${LVER}"'"
+echo "  ->   options: "${OPTLHAPDF}
 echo "  -> link PDFsets: '"${LINKPDF}"'"
 
 
@@ -169,15 +177,18 @@ fi
 
 # set path to local SHERPA installation
 export SHERPADIR=${IDIR}"/SHERPA-MC-"${SHERPAVER}
+export SHERPAIDIR=${IDIR}"/SHERPA_"${SHERPAVER}
 
 
 # check HepMC2 installation (if required)
 if [ "$HEPMC" = "TRUE" ]; then
+  OPTHEPMC=${OPTHEPMC}" -v "${HVER}" -d "${IDIR}
   if [ ! "$HEPMC2DIR" = "" ]; then
     echo " -> HepMC2 directory is: "${HEPMC2DIR}
     if [ ! -e ${HEPMC2DIR} ]; then
       echo " -> ... and does not exist: installing HepMC2..."
-      ${MSI}/${shhmifile} -v ${HVER} -d ${IDIR} ${IFLG} ${FLOC}
+      echo " -> ... with options: "${OPTHEPMC}
+      ${MSI}/${shhmifile} ${IFLG} ${FLOC} ${OPTHEPMC}
     else
       echo " -> ... and exists: Installation cancelled!"
     fi
@@ -186,7 +197,7 @@ if [ "$HEPMC" = "TRUE" ]; then
     export HEPMC2IDIR=${IDIR}"/HEPMC_"${HVER}
     echo " -> no HepMC2 directory specified, trying installation"
     echo "     into "${HEPMC2IDIR}
-    ${MSI}/${shhmifile} -v ${HVER} -d ${IDIR} ${IFLG} ${FLOC}
+    ${MSI}/${shhmifile} ${IFLG} ${FLOC} ${OPTHEPMC}
   fi
 ###FIXME
   if [ "${SHERPAVER}" = "1.0.11" ]; then
@@ -205,11 +216,13 @@ fi
 PATCHLHAPDF=FALSE
 FIXLHAPDF=FALSE
 if [ "$LHAPDF" = "TRUE" ]; then
+  OPTLHAPDF=${OPTLHAPDF}" -v "${LVER}" -d "${IDIR}
   if [ ! "$LHAPDFDIR" = "" ]; then
     echo " -> LHAPDF directory is: "${LHAPDFDIR}
     if [ ! -e ${LHAPDFDIR} ]; then
       echo " -> ... and does not exist: installing LHAPDF..."
-      ${MSI}/${shlhifile} -v ${LVER} -d ${IDIR} ${IFLG} ${FLOC}
+      echo " -> ... with options: "${OPTLHAPDF}
+      ${MSI}/${shlhifile} ${IFLG} ${FLOC} ${OPTLHAPDF}
     else
       echo " -> ... and exists: Installation cancelled!"
     fi
@@ -218,7 +231,7 @@ if [ "$LHAPDF" = "TRUE" ]; then
     export LHAPDFIDIR=${IDIR}"/LHAPDF_"${LVER}
     echo " -> no LHAPDF directory specified, trying installation"
     echo "     into "${LHAPDFIDIR}
-    ${MSI}/${shlhifile} -v ${LVER} -d ${IDIR} ${IFLG} ${FLOC}
+    ${MSI}/${shlhifile} ${IFLG} ${FLOC} ${OPTLHAPDF}
   fi
 ###FIXME
   if [ "${SHERPAVER}" = "1.0.11" ]; then
@@ -239,8 +252,16 @@ fi
 # download and extract SHERPA
 cd ${IDIR}
 if [ ! -d ${SHERPADIR} ]; then
-  echo " -> downloading SHERPA "${SHERPAVER}" from "${SHERPAWEBLOCATION}/${SHERPAFILE}
-  wget ${SHERPAWEBLOCATION}/${SHERPAFILE}
+  if [ `echo ${SHERPAWEBLOCATION} | grep -c "http:"` -gt 0 ]; then
+    echo " -> downloading SHERPA "${SHERPAVER}" from "${SHERPAWEBLOCATION}/${SHERPAFILE}
+    wget ${SHERPAWEBLOCATION}/${SHERPAFILE}
+  elif [ `echo ${SHERPAWEBLOCATION} | grep -c "srm:"` -gt 0 ]; then
+    echo " -> srm-copying SHERPA "${SHERPAVER}" from "${SHERPAWEBLOCATION}/${SHERPAFILE}
+    srmcp ${SHERPAWEBLOCATION}/${SHERPAFILE} file:////${SHERPAFILE}
+  else
+    echo " -> copying SHERPA "${SHERPAVER}" from "${SHERPAWEBLOCATION}/${SHERPAFILE}
+    cp ${SHERPAWEBLOCATION}/${SHERPAFILE} ./
+  fi
   tar -xzf ${SHERPAFILE}
   rm ${SHERPAFILE}
 else
@@ -349,22 +370,46 @@ if [ "$FLGINSTL" = "TRUE" ]; then
     automake
     autoconf
   fi
-  echo " -> configuring SHERPA with flags: --prefix="${SHERPADIR}" "${SHCFLAGS}
-  echo "./configure --prefix="${SHERPADIR}" "${SHCFLAGS} > ../sherpa_configr.cmd
-  ./configure --prefix=${SHERPADIR} ${SHCFLAGS} > ../sherpa_install.log 2>&1
+#  echo " -> configuring SHERPA with flags: --prefix="${SHERPADIR}" "${SHCFLAGS}
+#  echo "./configure --prefix="${SHERPADIR}" "${SHCFLAGS} > ../sherpa_configr.cmd
+#  ./configure --prefix=${SHERPADIR} ${SHCFLAGS} > ../sherpa_install.log 2>&1
+  echo " -> configuring SHERPA with flags: --prefix="${SHERPAIDIR}" "${SHCFLAGS}
+  echo "./configure --prefix="${SHERPAIDIR}" "${SHCFLAGS} > ../sherpa_configr.cmd
+  ./configure --prefix=${SHERPAIDIR} ${SHCFLAGS} > ../sherpa_install.log 2>&1
   echo "-> making SHERPA with flags: "${CONFFLG}
   echo "make "${CONFFLG} >> ../sherpa_configr.cmd
   make ${CONFFLG} >> ../sherpa_install.log 2>&1
   echo "-> making install SHERPA with flags: "${CONFFLG}
   echo "make install "${CONFFLG} >> ../sherpa_configr.cmd
   make install ${CONFFLG} >> ../sherpa_install.log 2>&1
+  cd ${HDIR}
+  rm -rf ${SHERPADIR}
 else
   echo " -> installing SHERPA with flags: "${SHMFLAGS}
   echo "./TOOLS/makeinstall "${SHMFLAGS} > ../sherpa_install.cmd
   ./TOOLS/makeinstall ${SHMFLAGS}
+  if [ ${LVLCLEAN} -gt 0 ]; then 
+    echo " -> cleaning up SHERPA installation, level: "${LVLCLEAN}" ..."
+    if [ ${LVLCLEAN} -ge 1 ]; then  # normal cleanup (objects)
+      ./TOOLS/makeinstall --clean-up
+    fi
+    if [ ${LVLCLEAN} -ge 2 ]; then  # clean also sourcecode
+      find ./ -type f -name 'Makefile*' -exec rm -rf {} \;
+      find ./ -type d -name '.deps'     -exec rm -rf {} \;
+      rm -rf autom4te.cache
+      rm stamp-h1 missing ltmain.sh libtool install-sh depcomp config* aclocal.m4 acinclude.m4
+      rm -rf AHADIC++ AMEGIC++ AMISIC++ ANALYSIS APACIC++ ATOOLS BEAM
+      rm -rf EXTRA_XS HADRONS++ HELICITIES MODEL PDF PHASIC++ PHOTONS++ TOOLS
+      rm AUTHORS COPYING README
+      rm ChangeLog INSTALL NEWS
+    fi
+  fi
+  cd ${HDIR}
 fi
+export SHERPADIR=${SHERPAIDIR}
 
-if [ ! -e ./bin/Sherpa ]; then
+
+if [ ! -e ${SHERPADIR}/bin/Sherpa ]; then
   echo " <E> -------------------------------------------------------"
   echo " <E> -------------------------------------------------------"
   echo " <E> installation of SHERPA failed, dumping log file..."
@@ -377,30 +422,10 @@ else
   if [ -e sherpa_install.log ]; then mv sherpa_install.log ../; fi
 fi
 
-if [ ${LVLCLEAN} -gt 0 ]; then 
-  echo " -> cleaning up SHERPA installation, level: "${LVLCLEAN}" ..."
-  if [ ${LVLCLEAN} -ge 1 ]; then  # normal cleanup (objects)
-    ./TOOLS/makeinstall --clean-up
-  fi
-  if [ ${LVLCLEAN} -ge 2 ]; then  # clean also sourcecode
-#    rm -rf .deps     */.deps     */*/.deps     */*/*/.deps
-#    rm -rf Makefile* */Makefile* */*/Makefile* */*/*/Makefile*
-    find ./ -type f -name 'Makefile*' -exec rm -rf {} \;
-    find ./ -type d -name '.deps'     -exec rm -rf {} \;
-#    find ./ -type f -name '*.C'       -exec rm -rf {} \;
-#    find ./ -type f -name '*.H'       -exec rm -rf {} \;
-    rm -rf autom4te.cache
-    rm stamp-h1 missing ltmain.sh libtool install-sh depcomp config* aclocal.m4 acinclude.m4
-    rm -rf AHADIC++ AMEGIC++ AMISIC++ ANALYSIS APACIC++ ATOOLS BEAM
-    rm -rf EXTRA_XS HADRONS++ HELICITIES MODEL PDF PHASIC++ PHOTONS++ TOOLS
-    rm AUTHORS COPYING README
-    rm ChangeLog INSTALL NEWS
-  fi
-fi
 
-shdir=`ls | grep "SHERPA"`
-echo " <I> SHERPA directory is: "${shdir}
-cp ./bin/Sherpa ./${shdir}/Run/
+#shdir=`ls | grep "SHERPA"`
+#echo " <I> SHERPA directory is: "${shdir}
+#cp ./bin/Sherpa ./${shdir}/Run/
 cd ${HDIR}
 
 
@@ -415,7 +440,7 @@ if [ "$FLAGS" = "TRUE" ]; then
     sed -e "s/-j2 \"CXXFLAGS=-O2\"/-j2 ${MKEFLG}/" < ${SHERPADIR}/share/SHERPA-MC/makelibs.tmp > ${SHERPADIR}/share/SHERPA-MC/makelibs
     rm ${SHERPADIR}/share/SHERPA-MC/makelibs.tmp
     chmod 755 ${SHERPADIR}/share/SHERPA-MC/makelibs
-    cp ${SHERPADIR}/share/SHERPA-MC/makelibs ${SHERPADIR}/${shdir}/Run/makelibs
+#    cp ${SHERPADIR}/share/SHERPA-MC/makelibs ${SHERPADIR}/${shdir}/Run/makelibs
 ### FIXME
 fi
 
@@ -441,3 +466,24 @@ if [ "$LHAPDF" = "TRUE" ]; then
     cp -r ${pdfdir} ${SHERPADIR}/share/SHERPA-MC/
   fi
 fi
+
+
+# summarize installation
+echo " <I> Summary of the SHERPA installation:"
+if [ "$HEPMC" = "TRUE" ]; then
+echo " <I> HepMC2 version "${HEPMC2VER}" installed in "${HEPMC2DIR}
+fi
+if [ "$LHAPDF" = "TRUE" ]; then
+echo " <I> LHAPDF version "${LHAPDFVER}" installed in "${LHAPDFDIR}
+echo " <I>  -> before using SHERPA please define"
+echo " <I>  -> export LHAPATH="${LHAPDFDIR}"/share/lhapdf/PDFsets"
+fi
+echo " <I> SHERPA version "${SHERPAVER}" installed in "${SHERPADIR}
+
+
+
+
+
+
+
+

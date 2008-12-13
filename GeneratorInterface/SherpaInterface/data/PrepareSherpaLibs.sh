@@ -6,8 +6,8 @@
 #  uses:        SHERPA datacards, libs and cross sections
 #
 #  author:      Markus Merschmeyer, RWTH Aachen
-#  date:        2008/11/28
-#  version:     2.5
+#  date:        2008/12/12
+#  version:     2.6
 #
 
 
@@ -18,17 +18,17 @@
 
 function print_help() {
     echo "" && \
-    echo "PrepareSherpaLibs version 2.5" && echo && \
+    echo "PrepareSherpaLibs version 2.6" && echo && \
     echo "options: -i  path       path to SHERPA datacard, library & cross section files" && \
     echo "                         can also be in WWW (http://...) or SE (srm://...)" && \
     echo "                         -> ( "${datadir}" )" && \
     echo "         -p  process    SHERPA dataset/process name ( "${dataset}" )" && \
-    echo "         -o  options    library/cross section options [LIBS,LBCR] ( "${dataopt}" )" && \
-    echo "                         [ 'LIBS' : use libraries only               ]" && \
-    echo "                         [ 'LBCR' : use libraries and cross sections ]" && \
-    echo "         -d  path       path to CMSSW directory" && \
-    echo "                         -> ( "${CMSSWDIR}" )" && \
-    echo "         -m  mode       CMSSW running mode ['LOCAL','CRAB','cmsGen'] ( "${imode}" )" && \
+    echo "         -m  mode       CMSSW running mode ( "${imode}" )" && \
+    echo "                         [ 'LOCAL'  : local running of CMSSW         ]" && \
+    echo "                         [ 'CRAB'   : prepare crab files in addition ]" && \
+    echo "                         [ 'VAL'    : for validation puposes         ]" && \
+    echo "                         [ 'PROD'   : for production validation      ]" && \
+    echo "         -c  condition  running conditions ( "${MYCONDITIONS}" )" && \
     echo "         -a  path       user analysis path inside CMSSW ( "${MYANADIR}" )" && \
     echo "         -D  filename   (optional) name of data card file     ( "${cfdc}" )" && \
     echo "         -L  filename   (optional) name of library file       ( "${cflb}" )" && \
@@ -36,6 +36,64 @@ function print_help() {
     echo "         -P  SRM path   (CRAB) SE path for final results" && \
     echo "                         -> ( "${MYSRMPATH}" )" && \
     echo "         -h             display this help and exit" && echo
+}
+
+
+
+
+# function to build a python script for cmsDriver
+function build_python_cfi_NEW() {
+
+  shpacfifile=$1  # config file name
+
+  if [ -e ${shpacfifile} ]; then rm ${shpacfifile}; fi
+  touch ${shpacfifile}
+
+  echo "import FWCore.ParameterSet.Config as cms"             >> ${shpacfifile}
+  echo ""                                                     >> ${shpacfifile}
+  echo "source=cms.Source(\"SherpaSource\","                  >> ${shpacfifile}
+  echo "  firstRun  = cms.untracked.uint32(1),"               >> ${shpacfifile}
+  echo "  libDir    = cms.untracked.string('"${MYLIBDIR}"')," >> ${shpacfifile}
+  echo "  resultDir = cms.untracked.string('Result'),"        >> ${shpacfifile}
+
+  echo "  SherpaParameters = cms.PSet(parameterSets = cms.vstring(" >> ${shpacfifile}
+  fcnt=0
+  for file in `ls *.dat`; do
+    let fcnt=${fcnt}+1
+  done
+  for file in `ls *.dat`; do
+    let fcnt=${fcnt}-1
+    pstnam=`echo ${file} | cut -f1 -d"."`
+    if [ ${fcnt} -gt 0 ]; then
+  echo "                             \""${pstnam}"\","    >> ${shpacfifile}
+    else
+  echo "                             \""${pstnam}"\"),"   >> ${shpacfifile}
+    fi
+  done
+  for file in `ls *.dat`; do
+    pstnam=`echo ${file} | cut -f1 -d"."`
+  echo "                              "${pstnam}" = cms.vstring(" >> ${shpacfifile}
+
+    sed '/^$/d' < ${file} > ${file}.tmp        # remove empty lines
+    lastline=`tail -n 1 ${file}.tmp` 
+    datacard=`echo ${file}.tmp | sed s/.dat.tmp//`
+    cat  ${file}.tmp | sed s/"'"//g | sed 's/$/XXX/' | sed s/XXX/"\","/ | sed s/^/"\""/ >> ${shpacfifile}
+  echo "                                                  )," >> ${shpacfifile}
+    rm ${file}.tmp
+  done
+  echo "                             )"                       >> ${shpacfifile}
+  echo ")"                                                    >> ${shpacfifile}
+
+  cat > sherpa_custom.py << EOF
+import FWCore.ParameterSet.Config as cms
+
+def customise(process):
+
+	process.genParticles.abortOnUnknownPDGCode = False
+
+	return(process)
+EOF
+
 }
 
 
@@ -47,37 +105,43 @@ function build_python_cfi() {
   if [ -e ${shpacfifile} ]; then rm ${shpacfifile}; fi
   touch ${shpacfifile}
 
-cat >> ${shpacfifile} << EOF
+  echo "import FWCore.ParameterSet.Config as cms"             >> ${shpacfifile}
+  echo ""                                                     >> ${shpacfifile}
+  echo "source=cms.Source(\"SherpaSource\","                  >> ${shpacfifile}
+  echo "  firstRun  = cms.untracked.uint32(1),"               >> ${shpacfifile}
+  echo "  libDir    = cms.untracked.string('"${MYLIBDIR}"')," >> ${shpacfifile}
+  echo "  resultDir = cms.untracked.string('Result')"         >> ${shpacfifile}
+  echo ")"                                                    >> ${shpacfifile}
+
+  cat > sherpa_custom.py << EOF
 import FWCore.ParameterSet.Config as cms
 
-source=cms.Source("SherpaSource",
-  firstRun  = cms.untracked.uint32(1),
-  libDir    = cms.untracked.string('SherpaRun'),
-  resultDir = cms.untracked.string('Result')
-)
+def customise(process):
+
+	process.genParticles.abortOnUnknownPDGCode = False
+
+	return(process)
 EOF
+
 }
 
 
 # function to build a python script for cmsRun
 function build_python_cfg() {
 
-  shpacfgfile=$1  # include file name
+  shpacfgfile=$1  # config file name
   shpaoutfile=$2  # output root file name
+  shpacfifile=$3  # include file name (for source)
+  shpacfifile=`echo ${shpacfifile} | sed -e 's/\.py//'`
+  shpacfipath=$4  # include file path (for source)
 
   if [ -e ${shpacfgfile} ]; then rm ${shpacfgfile}; fi
   touch ${shpacfgfile}
 
-cat >> ${shpacfgfile} << EOF
-import FWCore.ParameterSet.Config as cms
-
-process = cms.Process("runSherpa")
-process.source=cms.Source("SherpaSource",
-  firstRun  = cms.untracked.uint32(1),
-  libDir    = cms.untracked.string('SherpaRun'),
-  resultDir = cms.untracked.string('Result')
-)
-EOF
+  echo "import FWCore.ParameterSet.Config as cms"                                             >> ${shpacfgfile}
+  echo ""                                                                                     >> ${shpacfgfile}
+  echo "process = cms.Process(\"runSherpa\")"                                                 >> ${shpacfgfile}
+  echo "process.load('${shpacfipath}/${shpacfifile}')"                                        >> ${shpacfgfile}
   echo "process.RandomNumberGeneratorService = cms.Service(\"RandomNumberGeneratorService\"," >> ${shpacfgfile}
   echo "    sourceSeed = cms.untracked.uint32(98765)"                                         >> ${shpacfgfile}
   echo ")"                                                                                    >> ${shpacfgfile}
@@ -88,6 +152,8 @@ EOF
   echo "    fileName = cms.untracked.string('"${shpaoutfile}"')"                              >> ${shpacfgfile}
   echo ")"                                                                                    >> ${shpacfgfile}
   echo "process.outpath = cms.EndPath(process.sherpa_out)"                                    >> ${shpacfgfile}
+#  echo ""                                                                                     >> ${shpacfgfile}
+#  echo "process.genParticles.abortOnUnknownPDGCode = False"                                   >> ${shpacfgfile}
 }
 
 
@@ -175,10 +241,6 @@ function build_crab_cfg() {
     iretdata=0
     icpydata=1
   fi
-### quick fix
-#  iretdata=0
-#  icpydata=0
-###
 
 # disentangle storage path
   CRABSE=`echo ${crabsrmpth} | cut -f2 -d":" | cut -f3 -d"/"`
@@ -218,16 +280,13 @@ datasetpath=none
 EOF
   echo "pset = "${crabpset}                   >> ${crabcfgfile}
   echo "total_number_of_events = "${crabnevt} >> ${crabcfgfile}
-#  echo "events_per_job = 1000"                >> ${crabcfgfile}
-  echo "events_per_job = 10"                >> ${crabcfgfile}
+  echo "events_per_job = 1000"                >> ${crabcfgfile}
   echo "#number_of_jobs = 5"                  >> ${crabcfgfile}
   echo "output_file = "${craboutf}            >> ${crabcfgfile}
   echo ""                                     >> ${crabcfgfile}
   echo "[USER]"                               >> ${crabcfgfile}
   echo "script_exe = "${crabshfile}           >> ${crabcfgfile}
-#  echo "return_data = 1"                      >> ${crabcfgfile}
   echo "return_data = "${iretdata}            >> ${crabcfgfile}
-#  echo "copy_data = 0"                        >> ${crabcfgfile}
   echo "copy_data = "${icpydata}              >> ${crabcfgfile}
   echo "storage_element = "${CRABSE}          >> ${crabcfgfile}
   echo "storage_path = "${CRABSP}             >> ${crabcfgfile}
@@ -266,61 +325,41 @@ function build_crab_sh() {
   if [ -e ${crabshfile} ]; then rm ${crabshfile}; fi
   touch ${crabshfile}; chmod u+x ${crabshfile}
 
-  echo "#!/bin/bash"                                                                               >> ${crabshfile}
-  echo "# setup"                                                                                   >> ${crabshfile}
-  echo "HDIR=\$PWD"                                                                                >> ${crabshfile}
-  echo "SHERPATWIKI="${SHERPATWIKI}                                                                >> ${crabshfile}
-  echo "PROCESS_LOC="${PROCESS_LOC}                                                                >> ${crabshfile}
-  echo "PROCESS_ID="${PROCESS_ID}                                                                  >> ${crabshfile}
-  echo "SUBDIR="${SUBDIR}                                                                          >> ${crabshfile}
-  echo ""                                                                                          >> ${crabshfile}
-  echo "# setup (fix) CMSSW + SHERPA"                                                              >> ${crabshfile}
-  echo "export MYSHERPAPATH=\`scramv1 tool info sherpa | grep SHERPA_BASE | cut -f2 -d\"=\"\`"     >> ${crabshfile}
-  echo "export SHERPA_SHARE_PATH=\$MYSHERPAPATH/share/SHERPA-MC"                                   >> ${crabshfile}
-  echo "export SHERPA_INCLUDE_PATH=\$MYSHERPAPATH/include/SHERPA-MC"                               >> ${crabshfile}
-  echo ""                                                                                          >> ${crabshfile}
-  echo "# setup SHERPA library and cross sections"                                                 >> ${crabshfile}
-  echo "wget \${SHERPATWIKI}/PrepareSherpaLibs.sh"                                                 >> ${crabshfile}
-  echo "chmod u+x PrepareSherpaLibs.sh"                                                            >> ${crabshfile}
-  echo "./PrepareSherpaLibs.sh -i \${PROCESS_LOC} -p \${PROCESS_ID} -d \$CMSSW_BASE -a \${SUBDIR}" >> ${crabshfile}
-  echo "mv \$CMSSW_BASE/src/\${SUBDIR}/test/SherpaRun ."                                           >> ${crabshfile}
-  echo ""                                                                                          >> ${crabshfile}
-  echo "# run CMSSW"                                                                               >> ${crabshfile}
-  echo "eval \`scramv1 ru -sh\`"                                                                   >> ${crabshfile}
-  echo "cmsRun -p pset.py"                                                                         >> ${crabshfile}
-## 
-## copy files manually & fix file permissions here
-## 
-  echo "pwd"                                                                                       >> ${crabshfile}
-  echo "ls -l"                                                                                     >> ${crabshfile}
-  echo ""                                                                                          >> ${crabshfile}
-  echo "cmsRun -p "${crabpst2}                                                                     >> ${crabshfile}
-  echo "pwd"                                                                                       >> ${crabshfile}
-  echo "ls -l"                                                                                     >> ${crabshfile}
-  echo ""                                                                                          >> ${crabshfile}
-  echo ""                                                                                          >> ${crabshfile}
-  echo "cd \$CMSSW_BASE"                                                                           >> ${crabshfile}
-  echo "TIME=\`date +%y%m%d_%H%M%S_%N\`"                                                           >> ${crabshfile}
-  echo "for FILEIN in \`ls *.root\`; do"                                                           >> ${crabshfile}
-  echo "  cnt=0"                                                                                   >> ${crabshfile}
-  echo "  TEST=\$FILEIN"                                                                           >> ${crabshfile}
-  echo "  while [ ! \"\$TEST\" = \"\" ]; do"                                                       >> ${crabshfile}
-  echo "    let cnt=\$cnt+1"                                                                       >> ${crabshfile}
-  echo "    TEST=\`echo \$FILEIN | cut -f \$cnt-99 -d\"_\"\`"                                      >> ${crabshfile}
-  echo "  done"                                                                                    >> ${crabshfile}
-  echo "  let cnt=\$cnt-1"                                                                         >> ${crabshfile}
-  echo "  TEST=\`echo \$FILEIN | cut -f \$cnt -d\"_\"\`"                                           >> ${crabshfile}
-  echo "  TST1=\`echo \$TEST | cut -f1 -d\".\"\`"                                                  >> ${crabshfile}
-  echo "  TST2=\`echo \$TEST | cut -f2 -d\".\"\`"                                                  >> ${crabshfile}
-  echo "  FILEOUT=\"sherpa_\"\$PROCESS_ID\"_\"\$TST1\"_\"\$TIME\".\"\$TST2"                        >> ${crabshfile}
-  echo "  srmcp file:///\$FILEIN "${crabsrmpth}"/\$FILEOUT"                                        >> ${crabshfile}
-  echo "  srm-set-permissions -type=ADD -other=W -group=W "${crabsrmpth}"/\$FILEOUT"               >> ${crabshfile}
-  echo "  rm \$FILEIN"                                                                             >> ${crabshfile}
-  echo "done"                                                                                      >> ${crabshfile}
-  echo "cd -"                                                                                      >> ${crabshfile}
-##
-##
-##
+  echo "#!/bin/bash"                                                                     >> ${crabshfile}
+  echo "HDIR=\$PWD"                                                                      >> ${crabshfile}
+  echo "SHERPATWIKI="${SHERPATWIKI}                                                      >> ${crabshfile}
+  echo "PROCESS_LOC="${PROCESS_LOC}                                                      >> ${crabshfile}
+  echo "PROCESS_ID="${PROCESS_ID}                                                        >> ${crabshfile}
+  echo "SUBDIR="${SUBDIR}                                                                >> ${crabshfile}
+  echo ""                                                                                >> ${crabshfile}
+  echo "wget \${SHERPATWIKI}/PrepareSherpaLibs.sh"                                       >> ${crabshfile}
+  echo "chmod u+x PrepareSherpaLibs.sh"                                                  >> ${crabshfile}
+  echo "./PrepareSherpaLibs.sh -i \${PROCESS_LOC} -p \${PROCESS_ID}"                     >> ${crabshfile}
+  echo ""                                                                                >> ${crabshfile}
+  echo "eval \`scramv1 ru -sh\`"                                                         >> ${crabshfile}
+  echo "cmsRun -p pset.py"                                                               >> ${crabshfile}
+  echo ""                                                                                >> ${crabshfile}
+  echo "cmsRun -p "${crabpst2}                                                           >> ${crabshfile}
+  echo ""                                                                                >> ${crabshfile}
+  echo "cd \$CMSSW_BASE"                                                                 >> ${crabshfile}
+  echo "TIME=\`date +%y%m%d_%H%M%S_%N\`"                                                 >> ${crabshfile}
+  echo "for FILEIN in \`ls *.root\`; do"                                                 >> ${crabshfile}
+  echo "  cnt=0"                                                                         >> ${crabshfile}
+  echo "  TEST=\$FILEIN"                                                                 >> ${crabshfile}
+  echo "  while [ ! \"\$TEST\" = \"\" ]; do"                                             >> ${crabshfile}
+  echo "    let cnt=\$cnt+1"                                                             >> ${crabshfile}
+  echo "    TEST=\`echo \$FILEIN | cut -f \$cnt-99 -d\"_\"\`"                            >> ${crabshfile}
+  echo "  done"                                                                          >> ${crabshfile}
+  echo "  let cnt=\$cnt-1"                                                               >> ${crabshfile}
+  echo "  TEST=\`echo \$FILEIN | cut -f \$cnt -d\"_\"\`"                                 >> ${crabshfile}
+  echo "  TST1=\`echo \$TEST | cut -f1 -d\".\"\`"                                        >> ${crabshfile}
+  echo "  TST2=\`echo \$TEST | cut -f2 -d\".\"\`"                                        >> ${crabshfile}
+  echo "  FILEOUT=\"sherpa_\"\$PROCESS_ID\"_\"\$TST1\"_\"\$TIME\".\"\$TST2"              >> ${crabshfile}
+  echo "  srmcp file:///\$FILEIN "${crabsrmpth}"/\$FILEOUT"                              >> ${crabshfile}
+  echo "  srm-set-permissions -type=ADD -other=W -group=W "${crabsrmpth}"/\$FILEOUT"     >> ${crabshfile}
+  echo "  rm \$FILEIN"                                                                   >> ${crabshfile}
+  echo "done"                                                                            >> ${crabshfile}
+  echo "cd -"                                                                            >> ${crabshfile}
 }
 
 
@@ -349,26 +388,33 @@ done
 # dummy setup (if all options are missing)
 datadir=${HDIR}                                      # path to SHERPA datacards (libraries)
 dataset=${cproc}                                     # SHERPA dataset/process name
-dataopt="LBCR"                                       # library/cross section option
-CMSSWDIR=${HDIR}/CMSSW_X_Y_Z                         # CMSSW directory
+if [ -e ${CMSSW_BASE} ]; then
+  CMSSWDIR=${CMSSW_BASE}                             # CMSSW directory
+else
+  if [ ! "${imode}" = "PROD" ];then
+    echo " <E> \$CMSSW_BASE "${CMSSW_BASE}" does not exist"
+    echo " <E> stopping..."
+    exit 1
+  fi
+fi
 imode="LOCAL"                                        # CMSSW running mode
-MYANADIR="GeneratorInterface/SherpaInterface"        # user analysis directory inside CMSSW
+MYANADIR="A/B"                                       # user analysis directory inside CMSSW
 #                                                    # -> CMSSW_X_Y_Z/src/${MYANADIR}/
 cfdc=""                                              # custom data card file name
 cflb=""                                              # custom library file name
 cfcr=""                                              # custom cross section file name
-MYSRMPATH="./"                                         # SRM path for storage of results
-#MYSRMPATH="srm://grid-srm.physik.rwth-aachen.de:8443//srm/managerv1\?SFN=/pnfs/physik.rwth-aachen.de/dcms/merschm"
+MYSRMPATH="./"                                       # SRM path for storage of results
+MYLIBDIR="SherpaRun"                                 # name of directory for process-dep. Sherpa files
+MYCONDITIONS="IDEAL_V9"
 
 # get & evaluate options
-while getopts :i:p:o:d:m:a:D:L:C:P:h OPT
+while getopts :i:p:d:m:c:a:D:L:C:P:h OPT
 do
   case $OPT in
   i) datadir=$OPTARG ;;
   p) dataset=$OPTARG ;;
-  o) dataopt=$OPTARG ;;
-  d) CMSSWDIR=$OPTARG ;;
   m) imode=$OPTARG ;;
+  c) MYCONDITIONS=$OPTARG ;;
   a) MYANADIR=$OPTARG ;;
   D) cfdc=$OPTARG ;;
   L) cflb=$OPTARG ;;
@@ -397,58 +443,56 @@ if [ "$xpth" = "" ] || [ "$xpth" = "." ] || [ "$xpth" = ".." ] || [ "$xpth" = "~
   cd ${datadir} && datadir=`pwd`;  cd ${HDIR}
   echo " <I>    to: "${datadir}
 fi
-cd ${CMSSWDIR} && CMSSWDIR=`pwd`; cd ${HDIR}
-if [ ! -e ${CMSSWDIR} ]; then                                 # check for CMSSW directory
-  echo " <E> CMSSW directory does not exist: "${CMSSWDIR}
-  echo " <E> ...stopping..."
-  exit 1
-fi
-
-# set up various (path) names
-MYCMSSWTEST=${CMSSWDIR}/src/${MYANADIR}/test                  # local path to 'test' directory of SHERPA interface in CMSSW
-MYCMSSWSHPA=${MYCMSSWTEST}/SherpaRun                          # local paths for SHERPA process related stuff (.dat,libs,cross s.)
 
 # print current options/parameters
 echo "  -> data card directory '"${datadir}"'"
 echo "  -> dataset name '"${dataset}"'"
-echo "  -> library & cross section otions '"${dataopt}"'"
-echo "  -> CMSSW directory '"${CMSSWDIR}"'"
 echo "  -> operation mode: '"${imode}"'"
+echo "  -> running conditions: '"${MYCONDITIONS}"'"
 echo "  -> CMSSW user analysis path: '"${MYANADIR}"'"
 
+
 # set up 
-if [ ! -e ${CMSSWDIR}/src/${MYANADIR}/test ]; then            # create user analysis path
-  echo " <W> CMSSW user analysis path "${MYANADIR}/test" does not exist,..."
-  echo " <W> ...creating"
-  mkdir -p ${CMSSWDIR}/src/${MYANADIR}/test
+if [ "${imode}" = "VAL" ] || [ "${imode}" = "CRAB" ]; then
+  MYCMSSWTEST=${HDIR}
+  MYCMSSWPYTH=${HDIR}
+  MYCMSSWSHPA=${HDIR}/${MYLIBDIR}
+  MYANADIR2="Configuration/GenProduction"
+  if [ ! -e ${CMSSWDIR}/src/${MYANADIR2} ]; then
+    echo " <E> validation path "${MYANADIR2}" does not exist,"
+    echo " <E> stopping... (please check it out)"
+    exit 1
+  fi
+elif [ "${imode}" = "PROD" ]; then
+  MYCMSSWTEST=${HDIR}
+  MYCMSSWPYTH=${HDIR}
+  MYCMSSWSHPA=${HDIR}/${MYLIBDIR}
 else
-  rm -f ${CMSSWDIR}/python/${MYANADIR}/*.py*                  # ...clean up
-fi
-if [ ! -e ${CMSSWDIR}/src/${MYANADIR}/python ]; then          # create 'python' subdirectory
-  mkdir -p ${CMSSWDIR}/src/${MYANADIR}/python
-else
-  rm -f ${CMSSWDIR}/src/${MYANADIR}/python/*.py*              # ...clean up
+  MYCMSSWTEST=${CMSSWDIR}/src/${MYANADIR}/test
+  MYCMSSWPYTH=${CMSSWDIR}/src/${MYANADIR}/python
+  MYCMSSWSHPA=${CMSSWDIR}/src/${MYANADIR}/test/${MYLIBDIR}
+  if [ ! -e ${MYCMSSWTEST} ]; then                            # create user analysis path
+    mkdir -p ${MYCMSSWTEST}
+  else
+    rm -f ${CMSSWDIR}/python/${MYANADIR}/*.py*                # ...clean up
+  fi
+  if [ ! -e ${MYCMSSWPYTH} ]; then                            # create 'python' subdirectory
+    mkdir -p ${MYCMSSWPYTH}
+  else
+    rm -f ${MYCMSSWPYTH}/*.py*                                # ...clean up
+  fi
 fi
 
-if [ "${cfdc}" = "" ]; then
-  cardfile=sherpa_${dataset}_crdE.tgz                         # set SHERPA data file names
-else
-  cardfile=${cfdc}
-fi
-if [ "${cflb}" = "" ]; then
-  libsfile=sherpa_${dataset}_libs.tgz
-else
-  libsfile=${cflb}
-fi
-if [ "${cfcr}" = "" ]; then
-  crssfile=sherpa_${dataset}_crss.tgz
-else
-  crssfile=${cfcr}
-fi
 
-###
-### SHERPA part
-###
+# set SHERPA data file names
+cardfile=sherpa_${dataset}_crdE.tgz
+libsfile=sherpa_${dataset}_libs.tgz
+crssfile=sherpa_${dataset}_crss.tgz
+if [ ! "${cfdc}" = "" ]; then cardfile=${cfdc}; fi
+if [ ! "${cflb}" = "" ]; then libsfile=${cflb}; fi
+if [ ! "${cfcr}" = "" ]; then crssfile=${cfcr}; fi
+
+
 
 if [ ! "${imode}" = "CRAB" ]; then
 
@@ -463,42 +507,95 @@ if [ ! "${imode}" = "CRAB" ]; then
 # get & unpack dataset files, generate .cff and .cfi files
   cd ${MYCMSSWSHPA}
   file_copy ${datadir} ${cardfile} ${PWD}
+  file_copy ${datadir} ${libsfile} ${PWD}
+  file_copy ${datadir} ${crssfile} ${PWD}
   if [ -e ${cardfile} ]; then
     tar -xzf ${cardfile} && rm ${cardfile}
   else
-    exit 0
+    echo " <E> file not found: "${cardfile}
+    exit 1
   fi
-  file_copy ${datadir} ${libsfile} ${PWD}
   if [ -e ${libsfile} ]; then
     tar -xzf ${libsfile} && rm ${libsfile}
   else
-    exit 0
+    echo " <E> file not found: "${libsfile}
+    exit 1
   fi
-  if [ "${dataopt}" = "LBCR" ]; then
-    file_copy ${datadir} ${crssfile} ${PWD}
-    if [ -e ${crssfile} ]; then
-      tar -xzf ${crssfile} && rm ${crssfile}
-    else
-      exit 0
-    fi
+  if [ -e ${crssfile} ]; then
+    tar -xzf ${crssfile} && rm ${crssfile}
+  else
+    echo " <E> file not found: "${crssfile}
+    exit 1
   fi
   cd -
 
 fi
 
-# generate & compile pyhton script
 
-cd ${MYCMSSWTEST}
-shpacfifile="sherpa_cfi.py"
-shpacfgfile="sherpa_cfg.py"
-shpaoutfile="sherpa_out.root"
-build_python_cfi ${shpacfifile}
-mv ${shpacfifile} ../python/
-build_python_cfg ${shpacfgfile} ${shpaoutfile}
-cd ..
-scramv1 b
-cd -
-cd ${HDIR}
+# generate & compile pyhton script
+if [ "${imode}" = "LOCAL" ] || [ "${imode}" = "CRAB" ]; then
+  cd ${MYCMSSWTEST}
+  shpacfifile="sherpa_cfi.py"
+  shpacfgfile="sherpa_cfg.py"
+  shpaoutfile="sherpa_out.root"
+  build_python_cfi ${shpacfifile}
+  mv ${shpacfifile}   ${MYCMSSWPYTH}
+  mv sherpa_custom.py ${MYCMSSWPYTH}
+  build_python_cfg ${shpacfgfile} ${shpaoutfile} ${shpacfifile} ${MYANADIR}
+  cd ..
+  scramv1 b
+  cd -
+  cd ${HDIR}
+fi
+
+if [ "${imode}" = "PROD" ]; then
+  cd ${MYCMSSWSHPA}
+  shpacfffile="sherpa_"${dataset}"_cff.py"
+  build_python_cfi ${shpacfffile}
+#  build_python_cfi_NEW ${shpacfffile}
+#  rm *.dat
+  mv ${shpacfffile}   ${HDIR}
+  mv sherpa_custom.py ${HDIR}
+  cd ${HDIR}
+  tar -czf sherpa_${dataset}_MASTER.tgz ${shpacfffile} sherpa_custom.py ${MYLIBDIR}
+#  rm -rf ${shpacfffile} sherpa_custom.py ${MYLIBDIR}
+fi
+
+if [ "${imode}" = "VAL" ]; then
+  cd ${MYCMSSWSHPA}
+  shpacfffile="sherpa_"${dataset}"_cff.py"
+  build_python_cfi ${shpacfffile}
+#  build_python_cfi_NEW ${shpacfffile}
+  mv ${shpacfffile}   ${CMSSWDIR}/src/${MYANADIR2}/python/
+  mv sherpa_custom.py ${CMSSWDIR}/src/${MYANADIR2}/python/
+  cd ${HDIR}
+  scramv1 b
+
+  cmd1="cmsDriver.py ${MYANADIR2}/python/${shpacfffile} \
+                     -s GEN --eventcontent RAWSIM --datatier GEN \
+                     --conditions FrontierConditions_GlobalTag,${MYCONDITIONS}::All \
+                     -n 1000 --no_exec \
+                     --customise ${MYANADIR2}/sherpa_custom.py"
+  echo " VAL command 1: "${cmd1}
+  ${cmd1}
+
+  cmd2="cmsDriver.py ${MYANADIR2}/python/${shpacfffile} \
+                     -s GEN,SIM,DIGI,L1,DIGI2RAW,HLT --eventcontent RAWSIM --datatier GEN-SIM-RAW \
+                     --conditions FrontierConditions_GlobalTag,${MYCONDITIONS}::All \
+                     -n 10 --no_exec \
+                     --customise ${MYANADIR2}/sherpa_custom.py"
+  echo " VAL command 2: "${cmd2}
+  ${cmd2}
+
+  cmd3="cmsDriver.py ${MYANADIR2}/python/${shpacfffile} \
+                     -s GEN,FASTSIM --eventcontent AODSIM --datatier GEN-SIM-DIGI-RECO \
+                     --conditions FrontierConditions_GlobalTag,${MYCONDITIONS}::All \
+                     -n 1000 --pileup=NoPileUp --beamspot=Early10TeVCollision --no_exec \
+                     --customise ${MYANADIR2}/sherpa_custom.py"
+  echo " VAL command 3: "${cmd3}
+  ${cmd3}
+
+fi
 
 if [ "${imode}" = "CRAB" ]; then
 
@@ -522,14 +619,12 @@ if [ "${imode}" = "CRAB" ]; then
   cmsdrvoutfil1="sherpa_cmsdrv_RAW.root"
   CMD="cmsDriver.py ${MYANADIR}/python/${shpacfifile} -s ${cmsdrvanaseq1} \
                 --eventcontent ${cmsdrvevtcnt1} --fileout ${cmsdrvoutfil1} \
-                --conditions FrontierConditions_GlobalTag,IDEAL_V9_900::All \
-                -n 10 --magField 3.8T --python_filename ${cmsdrvpyfile1} \
-                --no_exec --dump_python"
+                --conditions FrontierConditions_GlobalTag,${MYCONDITIONS}::All \
+                -n ${nevts} --python_filename ${cmsdrvpyfile1} --no_exec \
+                --customise ${MYANADIR}/sherpa_custom.py"
   echo "command: "${CMD}
   ${CMD}
-# fix "abort on unknown PDG code" issue
-  sed -e 's/PDGCode = cms.untracked.bool(True)/PDGCode = cms.untracked.bool(False)/' < ${cmsdrvpyfile1} > ${cmsdrvpyfile1}.tmp
-  mv ${cmsdrvpyfile1}.tmp ${cmsdrvpyfile1}
+
 # build RECO analysis script
   cmsdrvpyfile2="sherpa_cmsdrv_RECO.py"
   cmsdrvanaseq2="RAW2DIGI,RECO"
@@ -537,16 +632,15 @@ if [ "${imode}" = "CRAB" ]; then
   cmsdrvoutfil2="sherpa_cmsdrv_RECO.root"
   CMD="cmsDriver.py reco -s ${cmsdrvanaseq2} --filein file:${cmsdrvoutfil1} \
                 --eventcontent ${cmsdrvevtcnt2} --fileout ${cmsdrvoutfil2} \
-                --conditions FrontierConditions_GlobalTag,IDEAL_V9_900::All \
-                -n -1 --magField 3.8T --python_filename ${cmsdrvpyfile2} \
-                --no_exec"
+                --conditions FrontierConditions_GlobalTag,${MYCONDITIONS}::All \
+                -n -1 --python_filename ${cmsdrvpyfile2} --no_exec"
   echo "command: "${CMD}
   ${CMD}
+
 # build crab scripts
   crabcfgfile="crab_cmsdrv.cfg"
   crabshfile="crab_cmsdrv.sh"
   SHERPATWIKI="https://twiki.cern.ch/twiki/pub/CMS/SherpaInterface"
-##  build_crab_cfg ${crabcfgfile} ${cmsdrvpyfile1} ${nevts} ${cmsdrvoutfil1} ${crabshfile} ${MYSRMPATH} ${cmsdrvpyfile2}
   build_crab_cfg ${crabcfgfile} ${cmsdrvpyfile1} ${nevts} ${cmsdrvoutfil2} ${crabshfile} ${MYSRMPATH} ${cmsdrvpyfile2}
   build_crab_sh ${crabshfile} ${SHERPATWIKI} ${datadir} ${dataset} ${MYANADIR} ${MYSRMPATH} ${cmsdrvpyfile2}
 ### NEW FEATURE, BE CAREFUL

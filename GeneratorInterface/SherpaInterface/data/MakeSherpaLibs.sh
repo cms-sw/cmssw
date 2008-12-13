@@ -19,9 +19,8 @@
 print_help() {
     echo "" && \
     echo "MakeSherpaLibs version 2.4" && echo && \
-    echo "options: -d  path       path to your SHERPA installation OR" && \
-    echo "                         path to your CMSSW installation (if you want" && \
-    echo "                         to use the SHERPA package of that release)"
+    echo "options: -d  path       path to your SHERPA installation OR '\$CMSSW_BASE'" && \
+    echo "                         (if you want to use the SHERPA package of that release)" && \
     echo "                         -> ( "${shr}" )" && \
     echo "         -i  path       path to SHERPA datacard (and library, see -o) files" && \
     echo "                         -> ( "${inc}" )" && \
@@ -148,7 +147,7 @@ scrloc=`which scramv1 &> tmp.tmp; cat tmp.tmp | cut -f1 -d"/"; rm tmp.tmp`
 if [ "${scrloc}" = "" ]; then
   shr=`scramv1 tool info sherpa | grep "SHERPA_BASE" | cut -f2 -d"="`
 fi
-pth="LHC"                          # name of SHERPA data card directory
+pth="TMP"                          # name of SHERPA data card directory
 prc="XXX"                          # SHERPA process name
 lbo="LBCR"                         # library/cross section option
 inc=${HDIR}                        # path to SHERPA datacards (libraries)
@@ -214,15 +213,15 @@ if [ `echo ${mmtmp} | grep -c "CMSSW_"` -gt 0 ]; then
     echo " <E>  3. there exists a SHERPA package in your CMSSW ?"
     exit 0
   fi
-  export SHERPA_SHARE_PATH=${newshr}/share/SHERPA-MC
-  export SHERPA_INCLUDE_PATH=${newshr}/include/SHERPA-MC
-  export SHERPA_LIBRARY_PATH=${newshr}/lib/SHERPA-MC
+  if [ "${SHERPA_SHARE_PATH=$}"   = "" ]; then export SHERPA_SHARE_PATH=${newshr}/share/SHERPA-MC;     fi
+  if [ "${SHERPA_INCLUDE_PATH=$}" = "" ]; then export SHERPA_INCLUDE_PATH=${newshr}/include/SHERPA-MC; fi
+  if [ "${SHERPA_LIBRARY_PATH=$}" = "" ]; then export SHERPA_LIBRARY_PATH=${newshr}/lib/SHERPA-MC;     fi
   cd ${HDIR}
   shr=${newshr}
   USE_CMSSW_SHERPA="TRUE"
 else
-#  USE_CMSSW_SHERPA="FALSE"
-  USE_CMSSW_SHERPA="TRUE"
+  USE_CMSSW_SHERPA="FALSE"
+###  USE_CMSSW_SHERPA="TRUE"
 fi
 
 # find 'Run' directory

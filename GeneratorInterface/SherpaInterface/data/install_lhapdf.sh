@@ -5,18 +5,19 @@
 #               can be used standalone or called from other scripts
 #
 #  author:      Markus Merschmeyer, RWTH Aachen
-#  date:        2008/09/19
-#  version:     2.1
+#  date:        2008/12/08
+#  version:     2.2
 #
 
 print_help() {
     echo "" && \
-    echo "install_lhapdf version 2.1" && echo && \
+    echo "install_lhapdf version 2.2" && echo && \
     echo "options: -v  version    define LHAPDF version ( "${LHAPDFVER}" )" && \
     echo "         -d  path       define LHAPDF installation directory" && \
     echo "                         -> ( "${IDIR}" )" && \
     echo "         -f             require flags for 32-bit compilation ( "${FLAGS}" )" && \
     echo "         -n             use 'nopdf' version ( "${NOPDF}" )" && \
+    echo "         -l             user '--enable-low-memory' option ( "${LOWMEM}")" && \
     echo "         -W  location   (web)location of LHAPDF tarball ( "${LHAPDFWEBLOCATION}" )" && \
     echo "         -S  filename   file name of LHAPDF tarball ( "${LHAPDFFILE}" )" && \
     echo "         -C  level      cleaning level of SHERPA installation ("${LVLCLEAN}" )" && \
@@ -32,9 +33,10 @@ HDIR=`pwd`
 
 # dummy setup (if all options are missing)
 IDIR="/tmp"                # installation directory
-LHAPDFVER="5.3.1"          # LHAPDF version to be installed
+LHAPDFVER="5.6.0"          # LHAPDF version to be installed
 FLAGS="FALSE"              # apply compiler/'make' flags
 NOPDF="FALSE"              # install 'nopdf' version
+LOWMEM="FALSE"             # use 'low-memory' option
 LHAPDFWEBLOCATION=""       # (web)location of LHAPDF tarball
 LHAPDFFILE=""              # file name of LHAPDF tarball
 LVLCLEAN=0                 # cleaning level (0-2)
@@ -42,13 +44,14 @@ FLGDEBUG="FALSE"           # debug flag for compilation
 
 
 # get & evaluate options
-while getopts :v:d:W:S:C:fnDh OPT
+while getopts :v:d:W:S:C:fnlDh OPT
 do
   case $OPT in
   v) LHAPDFVER=$OPTARG ;;
   d) IDIR=$OPTARG ;;
   f) FLAGS=TRUE ;;
   n) NOPDF=TRUE ;;
+  l) LOWMEM=TRUE ;;
   W) LHAPDFWEBLOCATION=$OPTARG ;;
   S) LHAPDFFILE=$OPTARG ;;
   C) LVLCLEAN=$OPTARG ;;
@@ -134,13 +137,17 @@ echo "LDFLAGS  (new):  "$LDFLAGS
 cd ${IDIR}
 #if [ ! -d ${LHAPDFDIR} ]; then
 if [ ! -d ${LHAPDFIDIR} ]; then
+  COPTS=""
+  if [ "${LOWMEM}" = "TRUE" ]; then
+    COPTS="--enable-low-memory"
+  fi
   echo " -> downloading LHAPDF "${LHAPDFVER}" from "${LHAPDFWEBLOCATION}/${LHAPDFFILE}
   wget ${LHAPDFWEBLOCATION}/${LHAPDFFILE}
   tar -xzf ${LHAPDFFILE}
   rm ${LHAPDFFILE}
   cd ${LHAPDFDIR}
-  echo " -> configuring LHAPDF"
-  ./configure --prefix=${LHAPDFIDIR}
+  echo " -> configuring LHAPDF with options: "${COPTS}
+  ./configure --prefix=${LHAPDFIDIR} ${COPTS}
   echo " -> making LHAPDF"
   make
   echo " -> installing LHAPDF"

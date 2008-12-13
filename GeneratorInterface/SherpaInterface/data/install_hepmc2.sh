@@ -31,7 +31,7 @@ HDIR=`pwd`
 
 # dummy setup (if all options are missing)
 IDIR="/tmp"                # installation directory
-HEPMC2VER="2.01.10"        # HepMC2 version  to be installed
+HEPMC2VER="2.04.00"        # HepMC2 version  to be installed
 FLAGS="FALSE"              # apply compiler/'make' flags
 HEPMC2WEBLOCATION=""       # (web)location of HEPMC2 tarball
 HEPMC2FILE=""              # file name of HEPMC2 tarball
