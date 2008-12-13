@@ -106,9 +106,10 @@ void ZdcSD::getFromLibrary (G4Step* aStep) {
 
   if (etrack >= zdcHitEnergyCut){
     // create hits only if above threshold
-    std::cout<<"----------------New track------------------------------"<<std::endl;
+    /** std::cout<<"----------------New track------------------------------"<<std::endl;
     std::cout<<"Incident EnergyTrack: "<<etrack<<std::endl;
     std::cout<<"Zdc Cut Energy for Hits: "<<zdcHitEnergyCut<<std::endl;
+    **/
     hits = showerLibrary->getHits(aStep, ok);
     
     LogDebug("ForwardSim") << "ZdcSD::getFromLibrary " <<hits.size() <<" hits for "
@@ -140,16 +141,17 @@ void ZdcSD::getFromLibrary (G4Step* aStep) {
     currentHit->setHadr(eHAD);
     currentHit->setIncidentEnergy(etrack);
     currentHit->setEntryLocal(hitEntry.x(),hitEntry.y(),hitEntry.z());
-
+    /**
     std::cout<<"Final Hit number:"<<i<<"-->"
 	     <<"New HitID: "<<currentHit->getUnitID()
 	     <<" New EM Energy: "<<currentHit->getEM()
 	     <<" New HAD Energy: "<<currentHit->getHadr()
 	     <<" New HitEntryPoint: "<<currentHit->getEntryLocal()
 	     <<" New IncidentEnergy: "<<currentHit->getIncidentEnergy()
-	     <<" New HitPosition: "<<hitPoint<<std::endl;  
+	     <<" New HitPosition: "<<hitPoint<<std::endl;
+    **/  
   }
-  if (etrack >= zdcHitEnergyCut)std::cout<<"--------------------------------------"<<std::endl;
+  //if (etrack >= zdcHitEnergyCut)std::cout<<"--------------------------------------"<<std::endl;
      
 
   //Now kill the current track
