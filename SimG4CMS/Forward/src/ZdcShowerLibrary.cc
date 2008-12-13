@@ -19,55 +19,6 @@ ZdcShowerLibrary::ZdcShowerLibrary(std::string & name, const DDCompactView & cpv
 				 edm::ParameterSet const & p) {
   edm::ParameterSet m_HS   = p.getParameter<edm::ParameterSet>("ZdcShowerLibrary");
   verbose                  = m_HS.getUntrackedParameter<int>("Verbosity",0);
-
-  ienergyBin  = 50000; // 20 GeV bins 50,000 -- 100 GeV 10,000 -- 500 GeV 2,000, -- 5000 GeV 200  
-  ithetaBin   = 64;    // 3 degree theta binning                                                  
-  iphiBin     = 64;    // 3 degree phi binning                                                    
-  isideBin    = 1;     // side                                                                    
-  isectionBin = 1;     // section                                                                 
-  ichannelBin = 1;     // channel                                                                 
-  ixBin       =  10;   // x 1 cm bin                                                              
-  iyBin       =  10;   // y 1 cm bin                                                              
-  izBin       =  40;   // z 4 cm bin                                                              
-  iPIDBin     =  1;    // 1 bin part ID                                                           
-
-  
-  LogDebug("ZdcShower") <<"(##) Binning Information: "
-                        <<" energy: "<<ienergyBin
-                        <<" theta: "<<ithetaBin
-                        <<" phi: "<<iphiBin
-                        <<" side: "<<isideBin
-                        <<" section: "<<isectionBin
-                        <<" channel: "<<ichannelBin
-                        <<" X: "<<ixBin
-                        <<" Y: "<<iyBin
-                        <<" Z: "<<izBin
-                        <<" PID: "<<iPIDBin;
-  
-
-  maxBitsEnergy  = 512; // energy            
-  maxBitsTheta   = 64;  // theta             
-  maxBitsPhi     = 64;  // phi               
-  maxBitsSide    = 2;   // detector side     
-  maxBitsSection = 4;   // detector section  
-  maxBitsChannel = 8;   // detector channel  
-  maxBitsX       = 16;  // X                 
-  maxBitsY       = 16;  // Y                 
-  maxBitsZ       = 32;  // Z                 
-  maxBitsPID     = 64;  // pid              
-
-  LogDebug("ZdcShower") <<"(##) MaxBits Information: "
-                        <<" energy: "<<maxBitsEnergy 
-                        <<" theta: "<<maxBitsTheta
-                        <<" phi: "<< maxBitsPhi
-                        <<" side: "<< maxBitsSide
-                        <<" section: "<<maxBitsSection
-                        <<" channel: "<<maxBitsChannel
-                        <<" X: "<<maxBitsX
-                        <<" Y: "<<maxBitsY
-                        <<" Z: "<<maxBitsZ
-                        <<" PID: "<<maxBitsPID;
- 
 }
 
 ZdcShowerLibrary::~ZdcShowerLibrary() {
@@ -128,14 +79,15 @@ std::vector<ZdcShowerLibrary::Hit> ZdcShowerLibrary::getHits(G4Step * aStep, boo
   int channel = 0;
   double xx,yy,zz;
   double xxlocal, yylocal, zzlocal;
-  
+
   ZdcShowerLibrary::Hit oneHit;
   side = (hitPoint.z() > 0.) ?  true : false;  
   
-  int npe = 9; // number of channels o fibers where the energy will be deposited
+  int npe = 9; // number of channels or fibers where the energy will be deposited
   float xWidthEM = fabs(theXChannelBoundaries[0] - theXChannelBoundaries[1]);
   float zWidthEM = fabs(theZSectionBoundaries[0] - theZSectionBoundaries[1]); 
   float zWidthHAD = fabs(theZHadChannelBoundaries[0] -theZHadChannelBoundaries[1]); 
+
 
   for (int i = 0; i < npe; i++) {
     if(i < 5){
@@ -173,7 +125,7 @@ std::vector<ZdcShowerLibrary::Hit> ZdcShowerLibrary::getHits(G4Step * aStep, boo
 
     // Note: coodinates of hit are relative to center of detector (X0,Y0,Z0)
     hitPoint.setX(hitPoint.x()-X0);
-    hitPoint.setY(hitPoint.y()-Z0);
+    hitPoint.setY(hitPoint.y()-Y0);
     double setZ= (hitPoint.z() > 0.) ? hitPoint.z()- Z0 : fabs(hitPoint.z()) - Z0;
     hitPoint.setZ(setZ);
 
@@ -216,56 +168,69 @@ int ZdcShowerLibrary::getEnergyFromLibrary(G4ThreeVector hitPoint, G4ThreeVector
                         <<" en: " <<energy
                         <<" section: "<<section
                         <<" side: "<<side
+			<<" channel: "<< channel
                         <<" partID: "<<parCode;
+		
 
-  int iphi   = int(59.2956*momDir.phi()/float(iphiBin));
-  int itheta = int(59.2956*momDir.theta()/float(ithetaBin));
-  int ixin = int(hitPoint.x()/float(ixBin)); 
-  int iyin = int(hitPoint.y()/float(iyBin)); 
-  int izin = int(hitPoint.z()/float(izBin)); 
-  int ienergy = int(energy/float(ienergyBin));
-  int isection = int(section);
+  energy =energy/1000.00;
+  /** std::cout<<"GetEnergy variables: *---> "
+	   <<" phi: "<<59.2956*momDir.phi()
+	   <<" theta: "<<59.2956*momDir.theta()
+	   <<" xin : "<<hitPoint.x()
+	   <<" yin : "<<hitPoint.y()
+	   <<" zin : "<<hitPoint.z()
+	   <<" en: " <<energy
+	   <<" section: "<<section
+	   <<" side: "<<side
+	   <<" channel: "<< channel
+	   <<" partID: "<<parCode<<std::endl;
+  **/
+  //float phi   = 59.2956*momDir.phi();
+  //float theta = 59.2956*momDir.theta();
+  float xin = hitPoint.x(); 
+  float yin = hitPoint.y();
+  //float zin = hitPoint.z();
+  //int isection = int(section);
   int iside = (side)? 1 : 2;     
   int iparCode  = encodePartID(parCode);
 
-  LogDebug("ZdcShower") <<"Binned variables: #---> "
-                        <<" iphi: "<<iphi
-                        <<" itheta: "<<itheta
-                        <<" ixin : "<<ixin
-                        <<" iyin : "<<iyin
-                        <<" izin : "<<izin
-                        <<" ien: " <<ienergy
-                        <<" isection: "<<isection
-                        <<" iside: "<<iside
-                        <<" iparcode "<<iparCode;
-  
   double eav, esig, edis = 0.;
-
-  if (/*int*/ iparCode==0){            // Jeff's fits here
-    eav = ((((((-0.0002*ixin-2*10e-13)*ixin+0.0022)*ixin+10e-11)*ixin-0.0217)*ixin-3*10e-10)*ixin+1)*
-      (((0.0001*iyin + 0.0056)*iyin + 0.0508)*iyin + 1)*44*pow(ienergy,0.99);       // EM
-    esig = (eav*eav)*((((((0.0005*ixin - 10e-12)*ixin - 0.0052)*ixin + 5*10e-11)*ixin + 0.032)*ixin - 
-                        2*10e-10)*ixin + 1)*(((0.0006*iyin + 0.0071)*iyin - 0.031)*iyin + 1)*26*pow(ienergy,0.54);  // EM
-    edis = 1.0;                    // this is for EM Gaussian Distributions
+  if (iparCode==0){      
+    eav = ((((((-0.0002*xin-2.e-13)*xin+0.0022)*xin+1.e-11)*xin-0.0217)*xin-3.e-10)*xin+1.0028)*
+      (((0.0001*yin + 0.0056)*yin + 0.0508)*yin + 1)*44.*pow(energy,0.99);       // EM
+    esig = ((((((0.0005*xin - 1.e-12)*xin - 0.0052)*xin + 5.e-11)*xin + 0.032)*xin - 
+	     2.e-10)*xin + 1)*(((0.0006*yin + 0.0071)*yin - 0.031)*yin + 1)*26.*pow(energy,0.54);  // EM
+    edis = 1.0;
   }else{                     
-    eav = ((((((-0.0002*ixin-2*10e-13)*ixin+0.0022)*ixin+10e-11)*ixin-0.0217)*ixin-3*10e-10)*ixin+1)*
-      (((0.0001*iyin + 0.0056)*iyin + 0.0508)*iyin + 1)*2.3*pow(ienergy,1.12);      // Hadronic
-    esig = (eav*eav)*((((((0.0005*ixin - 10e-12)*ixin - 0.0052)*ixin + 5*10e-11)*ixin + 0.032)*ixin - 
-                        2*10e-10)*ixin + 1)*(((0.0006*iyin + 0.0071)*iyin - 0.031)*iyin + 1)*1.2*pow(ienergy,0.93); // Hadronic
-    edis = 3.0;                    // this is for hadronic Landau Distributions 
+    eav = ((((((-0.0002*xin-2.e-13)*xin+0.0022)*xin+1.e-11)*xin-0.0217)*xin-3.e-10)*xin+1.0028)*
+      (((0.0001*yin + 0.0056)*yin + 0.0508)*yin + 1.)*2.3*pow(energy,1.12);      // Hadronic
+    esig = ((((((0.0005*xin - 1.e-12)*xin - 0.0052)*xin + 5.e-11)*xin + 0.032)*xin - 
+	     2.e-10)*xin + 1)*(((0.0006*yin + 0.0071)*yin - 0.031)*yin + 1)*1.2*pow(energy,0.93);
+    edis = 3.0;
   }
-  
-  nphotons = photonFluctuation(eav,esig,edis);
 
-  LogDebug("ZdcShower") <<" ########photons---->"<<nphotons;
-  return nphotons;
+  float fact = 0;
+  if(section == 2){    
+    if(channel == 1)fact = 0.40;
+    if(channel == 2)fact = 0.28;
+    if(channel == 3)fact = 0.24;
+    if(channel == 4)fact = 0.08;
+  }
+  if(section == 1){
+    if(channel < 5 )
+      if(((theXChannelBoundaries[channel-1])< (xin + X0)) && ((xin + X0)<= theXChannelBoundaries[channel]))fact= 1.;
+    if(channel ==5 )
+      if(theXChannelBoundaries[channel-1]< xin + X0)fact = 1.0;
+    }
+  nphotons = fact*photonFluctuation(eav, esig, edis);
+  return nphotons; 
 }
 
 int ZdcShowerLibrary::photonFluctuation(double eav, double esig,double edis){
   int nphot=0;
   double efluct = 0.;
   if(edis == 1.0)efluct = CLHEP::RandGaussQ::shoot(eav,esig);
-  if(edis == 3.0)efluct = eav+esig*CLHEP::RandLandau::shoot(); // to be verified!!!!!!!!!!
+  if(edis == 3.0)efluct = eav+esig*CLHEP::RandLandau::shoot();
   nphot = int(efluct);
   return nphot;
 }
