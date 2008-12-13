@@ -145,7 +145,7 @@ RPCGeomServ::shortname()
       }else{
 	if (_id->sector()== 4 && _id->station()==4){
 	  if ( _id->subsector()==1){
-	    os<<"--";
+	    os<<",-,--";
 	  }
 	  else if ( _id->subsector()==2){
 	    os <<"-+";
@@ -154,7 +154,7 @@ RPCGeomServ::shortname()
 	    os <<"+-";
 	  }
 	  else if ( _id->subsector()==4){
-	    os <<"++";
+	    os <<"+,++";
 	  }
 	}
 	if(_id->station()==3){
@@ -162,24 +162,24 @@ RPCGeomServ::shortname()
 	    os <<"-";
 	  else
 	    os <<"+";
-	}else if(_id->station()==4 && _id->sector()!=9 && _id->sector()!=11 && _id->sector()!=4){
+	}else if(_id->station()==4 && _id->sector()!=4){
 	  if (_id->subsector()==1)
-	    os <<"-";
+	    os <<",-,--";
 	  else
-	    os <<"+";
+	    os <<"+,++";
 	}
       }
       if (_id->roll()==1)
-	os<<"_B";
+	os<<" B";
       else if (_id->roll() == 3)
-	os<<"_F";
+	os<<" F";
       else if (_id->roll() == 2)
-	os<<"_M";
+	os<<" M";
       buf += os.str();
     }
     else {
       std::stringstream os;
-      os <<"Ri"<<_id->ring()<<"_Su"<<_id->subsector();
+      os <<"Ri"<<_id->ring()<<" Su"<<_id->subsector();
       buf += os.str();
     }
     _sn=buf;
