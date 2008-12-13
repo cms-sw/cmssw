@@ -376,7 +376,7 @@ void PhotonProducer::fillPhotonCollection(edm::Event& evt,
     bool isLooseEM=true;
     //    std::cout << " Photon Et " <<  newCandidate.pt() << std::endl;
     if ( newCandidate.pt() < highEt_) { 
-      std::cout << " This photon Et is below " << highEt_ << " so I apply pre-selection ID cuts " << std::endl;
+      //std::cout << " This photon Et is below " << highEt_ << " so I apply pre-selection ID cuts " << std::endl;
       if ( newCandidate.hadronicOverEm()                >= maxHOverE_ )              isLooseEM=false;
       if ( newCandidate.ecalRecHitSumConeDR04()          > preselCutValues[0] )      isLooseEM=false;
       if ( newCandidate.hcalTowerSumConeDR04()           > preselCutValues[1] )      isLooseEM=false;
