@@ -17,7 +17,9 @@
 #include "CondFormats/DataRecord/interface/SiPixelFedCablingMapRcd.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCabling.h"
-
+#include "CondFormats/SiPixelObjects/interface/PixelROC.h"
+#include "CondFormats/SiPixelObjects/interface/LocalPixel.h"
+#include "Geometry/TrackerTopology/interface/RectangularPixelTopology.h"
 
 class SiPixelQuality {
 
@@ -100,8 +102,8 @@ class SiPixelQuality {
   //...
   const std::vector<disabledModuleType> getBadComponentList() const  //returns list of disabled modules/ROCs
     { return theDisabledModules; }
-  
-  const std::vector< std::pair <uint8_t, uint8_t> > getBadRocPositions(const uint32_t & detid) const; 
+  const std::vector< LocalPoint > getBadRocPositions(const uint32_t & detid,  const edm::EventSetup& es, const SiPixelFedCabling* map ) const; 
+    //  const std::vector< std::pair <uint8_t, uint8_t> > getBadRocPositions(const uint32_t & detid,  const edm::EventSetup& es, const SiPixelFedCabling* map ) const; 
 
 
 

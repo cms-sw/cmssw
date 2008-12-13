@@ -6,14 +6,20 @@
 // Apr 2008
 
 #include "CondFormats/SiPixelObjects/interface/SiPixelQuality.h"
-//#include "CalibTracker/SiPixelTools/interface/SiPixelFrameReverter.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelFrameReverter.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelFrameConverter.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
 #include "CondFormats/DataRecord/interface/SiPixelFedCablingMapRcd.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingTree.h"
+#include "CondFormats/SiPixelObjects/interface/PixelROC.h"
+#include "CondFormats/SiPixelObjects/interface/LocalPixel.h"
+#include "Geometry/TrackerTopology/interface/RectangularPixelTopology.h"
+#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
 
 #include <algorithm>
@@ -114,9 +120,46 @@ short SiPixelQuality::getBadRocs(const uint32_t& detid) const{
   return 0;
 }
 
-const std::vector< std::pair <uint8_t, uint8_t> > SiPixelQuality::getBadRocPositions(const uint32_t & detid) const{
-  std::vector< std::pair <uint8_t, uint8_t> > badrocpositions (0);
+const std::vector<LocalPoint> SiPixelQuality::getBadRocPositions(const uint32_t & detid, const edm::EventSetup& es, const SiPixelFedCabling* map) const{
+//const std::vector< std::pair <uint8_t, uint8_t> > SiPixelQuality::getBadRocPositions(const uint32_t & detid, const edm::EventSetup& es, const SiPixelFedCabling* map) const{
+//   SiPixelFrameReverter reverter(es,map);
+//   int fedid = reverter.findFedId(detid);
+//   SiPixelFrameConverter converter(map, fedid);
+  std::vector<LocalPoint> badrocpositions (0);
+//  std::vector< std::pair <uint8_t, uint8_t> > badrocpositions (0);
   std::pair<uint8_t, uint8_t> coord(1,1);
+   for(short i = 0; i < 16; i++){
+     if (IsRocBad(detid, i) == true){
+    std::vector<CablingPathToDetUnit> path = map->pathToDetUnit(detid);
+    typedef  std::vector<CablingPathToDetUnit>::const_iterator IT;
+       for  (IT it = path.begin(); it != path.end(); ++it) {
+          const PixelROC * myroc = map->findItem(*it);
+          if( myroc->idInDetUnit() == i) {
+              LocalPixel::RocRowCol  local = { 39, 25};   //corresponding to center of ROC row, col
+              GlobalPixel global = myroc->toGlobal( LocalPixel(local) );
+              edm::ESHandle<TrackerGeometry> geom;
+              es.get<TrackerDigiGeometryRecord>().get( geom );
+              const TrackerGeometry& theTracker(*geom);
+              const PixelGeomDetUnit * theGeomDet = dynamic_cast<const PixelGeomDetUnit*> (theTracker.idToDet(detid) );
+              RectangularPixelTopology const * topology = dynamic_cast<const RectangularPixelTopology*>(&(theGeomDet->specificTopology()));
+              MeasurementPoint thepoint(global.row, global.col);
+              LocalPoint localpoint = topology->localPosition(thepoint);
+	      badrocpositions.push_back(localpoint);
+         break;
+	  }
+       }
+
+//    const PixelROC * myroc = new PixelROC( detid, i, 3); //PixelROC( (uint32_t) detId, (int)rocnumberindetunit, (int) rocnumberinlink);  
+//       ElectronicIndex Eidx = {0, 0, 0, 0};     //{ int link; int rocnumberinlnk; int dcol; int pxid; }
+//       DetectorIndex Didx = {0, 0, 0};  //  { uint32_t rawId; int row; int col; }; row and col in module frame
+//       converter.toDetector(Eidx, Didx);
+//       std::cout<<Didx.row<<std::endl;
+//       //  coord = (Didx.row, Didx.col);
+
+
+
+     }
+   }
   //  badrocpositions.push_back(coord);
   return badrocpositions;
 }
