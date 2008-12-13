@@ -35,10 +35,6 @@ RecoEgammaFEVT = cms.PSet(
         'keep *_electronHcalTowerIsolationScone_*_*',
         'keep *_electronTrackIsolationLcone_*_*',
         'keep *_electronTrackIsolationScone_*_*'
-#        'keep *_interestingEleIsoDetIdEB_*_*',
-#        'keep *_interestingEleIsoDetIdEE_*_*',
-#        'keep *_interestingGamIsoDetIdEB_*_*',
-#        'keep *_interestingGamIsoDetIdEE_*_*'
 
  )                                                                 
             
@@ -70,12 +66,7 @@ RecoEgammaRECO = cms.PSet(
         'keep *_electronHcalTowerIsolationLcone_*_*',
         'keep *_electronHcalTowerIsolationScone_*_*',
         'keep *_electronTrackIsolationLcone_*_*',
-        'keep *_electronTrackIsolationScone_*_*',
-        'keep *_interestingEleIsoDetIdEB_*_*',
-        'keep *_interestingEleIsoDetIdEE_*_*',
-        'keep *_interestingGamIsoDetIdEB_*_*',
-        'keep *_interestingGamIsoDetIdEE_*_*'
-
+        'keep *_electronTrackIsolationScone_*_*'
                                            
  )                                                                 
 
@@ -99,12 +90,8 @@ RecoEgammaAOD = cms.PSet(
         'keep *_electronHcalTowerIsolationLcone_*_*',
         'keep *_electronHcalTowerIsolationScone_*_*',
         'keep *_electronTrackIsolationLcone_*_*',
-        'keep *_electronTrackIsolationScone_*_*',
-        'keep *_interestingEleIsoDetIdEB_*_*',
-        'keep *_interestingEleIsoDetIdEE_*_*',
-        'keep *_interestingGamIsoDetIdEB_*_*',
-        'keep *_interestingGamIsoDetIdEE_*_*'
-                                           
+        'keep *_electronTrackIsolationScone_*_*'
+                                                                                      
   )                                                                 
                                   
 )
