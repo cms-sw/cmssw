@@ -3,15 +3,15 @@
 
 /**
  * \class L1GtCondition
- * 
- * 
- * Description: base class for L1 Global Trigger object templates (condition).  
+ *
+ *
+ * Description: base class for L1 Global Trigger object templates (condition).
  *
  * Implementation:
  *    <TODO: enter implementation details>
- *   
+ *
  * \author: Vasile Mihai Ghete - HEPHY Vienna
- * 
+ *
  * $Date$
  * $Revision$
  *
@@ -132,6 +132,9 @@ public:
 
     /// print condition
     virtual void print(std::ostream& myCout) const;
+
+    /// output stream operator
+    friend std::ostream& operator<<(std::ostream&, const L1GtCondition&);
 
 protected:
 

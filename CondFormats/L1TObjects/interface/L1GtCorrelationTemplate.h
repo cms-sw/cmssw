@@ -3,16 +3,16 @@
 
 /**
  * \class L1GtCorrelationTemplate
- * 
- * 
- * Description: L1 Global Trigger correlation template.  
+ *
+ *
+ * Description: L1 Global Trigger correlation template.
  * Includes spatial correlation for two objects of different type.
- * 
+ *
  * Implementation:
  *    <TODO: enter implementation details>
- *   
+ *
  * \author: Vasile Mihai Ghete - HEPHY Vienna
- * 
+ *
  * $Date$
  * $Revision$
  *
@@ -46,7 +46,7 @@ public:
     ///   from condition name
     L1GtCorrelationTemplate(const std::string& );
 
-    ///   from condition name, the category of first sub-condition, the category of the 
+    ///   from condition name, the category of first sub-condition, the category of the
     ///   second sub-condition, the index of first sub-condition in the cor* vector,
     ///   the index of second sub-condition in the cor* vector
     L1GtCorrelationTemplate(const std::string&,
@@ -87,7 +87,7 @@ public:
 
     void setCond0Category(const L1GtConditionCategory&);
     void setCond1Category(const L1GtConditionCategory&);
-    
+
     /// get / set the index of the two sub-conditions in the cor* vector from menu
     inline const int cond0Index() const {
         return m_cond0Index;
@@ -99,7 +99,7 @@ public:
 
     void setCond0Index(const int&);
     void setCond1Index(const int&);
-    
+
     /// get / set correlation parameters
 
     inline const CorrelationParameter* correlationParameter() const
@@ -112,6 +112,10 @@ public:
 
     /// print the condition
     virtual void print(std::ostream& myCout) const;
+
+    /// output stream operator
+    friend std::ostream& operator<<(std::ostream&, const L1GtCorrelationTemplate&);
+
 
 private:
 

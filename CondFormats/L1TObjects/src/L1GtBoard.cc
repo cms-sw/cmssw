@@ -475,6 +475,11 @@ void L1GtBoard::print(std::ostream& myCout) const
                 }
 
                     break;
+                case HTM: {
+                    myCout << " HTM ";
+                }
+
+                    break;
                 case JetCounts: {
                     myCout << " JetCounts ";
                 }

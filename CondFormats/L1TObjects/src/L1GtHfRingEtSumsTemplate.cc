@@ -119,7 +119,6 @@ void L1GtHfRingEtSumsTemplate::print(std::ostream& myCout) const
 
     // reset to decimal output
     myCout << std::dec << std::endl;
-    myCout << "\n  ...end L1GtHfRingEtSumsTemplate print." << std::endl;
 }
 
 // output stream operator

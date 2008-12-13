@@ -73,7 +73,8 @@ const int L1GtCondition::nrObjects() const
     switch (m_condType) {
 
         case TypeNull:
-        case TypeCastor: {
+        case TypeCastor:
+        case TypeBptx: {
                 return 0;
             }
 
@@ -103,6 +104,7 @@ const int L1GtCondition::nrObjects() const
         case TypeETT:
         case TypeETM:
         case TypeHTT:
+        case TypeHTM:
         case TypeJetCounts:
         case TypeHfBitCounts:
         case TypeHfRingEtSums: {
@@ -197,6 +199,11 @@ void L1GtCondition::print(std::ostream& myCout) const
             }
 
             break;
+        case CondBptx: {
+                myCout << "  Condition category: " << "Bptx"  << std::endl;
+            }
+
+            break;
         default: {
                 myCout << "  Condition category: " << m_condCategory
                 << "  - no such category defined. Check L1GtConditionCategory enum."
@@ -260,6 +267,11 @@ void L1GtCondition::print(std::ostream& myCout) const
             }
 
             break;
+        case TypeHTM: {
+                myCout << "  Condition type:     " << "TypeHTM"  << std::endl;
+            }
+
+            break;
         case TypeJetCounts: {
                 myCout << "  Condition type:     " << "TypeJetCounts"  << std::endl;
             }
@@ -277,6 +289,11 @@ void L1GtCondition::print(std::ostream& myCout) const
             break;
         case TypeHfRingEtSums: {
                 myCout << "  Condition type:     " << "TypeHfRingEtSums"  << std::endl;
+            }
+
+            break;
+        case TypeBptx: {
+                myCout << "  Condition type:     " << "TypeBptx"  << std::endl;
             }
 
             break;
@@ -339,6 +356,11 @@ void L1GtCondition::print(std::ostream& myCout) const
                 }
 
                 break;
+            case HTM: {
+                    myCout << " HTM ";
+                }
+
+                break;
             case JetCounts: {
                     myCout << " JetCounts ";
                 }
@@ -351,6 +373,11 @@ void L1GtCondition::print(std::ostream& myCout) const
                 break;
             case HfRingEtSums: {
                     myCout << " HfRingEtSums ";
+                }
+
+                break;
+            case BPTX: {
+                    myCout << " BPTX ";
                 }
 
                 break;
@@ -374,3 +401,12 @@ void L1GtCondition::print(std::ostream& myCout) const
     myCout << std::endl;
 
 }
+
+// output stream operator
+std::ostream& operator<<(std::ostream& os, const L1GtCondition& result)
+{
+    result.print(os);
+    return os;
+
+}
+

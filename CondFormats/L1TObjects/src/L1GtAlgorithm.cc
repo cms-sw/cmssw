@@ -1,14 +1,14 @@
 /**
  * \class L1GtAlgorithm
- * 
- * 
- * Description: L1 GT algorithm.  
+ *
+ *
+ * Description: L1 GT algorithm.
  *
  * Implementation:
  *    <TODO: enter implementation details>
- *   
+ *
  * \author: Vasile Mihai Ghete - HEPHY Vienna
- * 
+ *
  * $Date$
  * $Revision$
  *
@@ -18,6 +18,8 @@
 #include "CondFormats/L1TObjects/interface/L1GtAlgorithm.h"
 
 // system include files
+#include <iostream>
+#include <iomanip>
 
 // user include files
 
@@ -35,9 +37,8 @@ L1GtAlgorithm::L1GtAlgorithm()
 }
 
 //   name only
-L1GtAlgorithm::L1GtAlgorithm(const std::string& algoNameValue)
-{
-    m_algoName = algoNameValue;
+L1GtAlgorithm::L1GtAlgorithm(const std::string& algoNameValue) :
+    m_algoName(algoNameValue) {
 
     // default values for private members not set
     // the other private members are C++ initialized
@@ -47,14 +48,11 @@ L1GtAlgorithm::L1GtAlgorithm(const std::string& algoNameValue)
 }
 
 //   name and logical expression
-L1GtAlgorithm::L1GtAlgorithm(const std::string& algoNameValue,
-                             const std::string& algoLogicalExpressionValue)
-{
-    m_algoName = algoNameValue;
-      
-    m_algoLogicalExpression = algoLogicalExpressionValue;
+L1GtAlgorithm::L1GtAlgorithm(
+        const std::string& algoNameValue, const std::string& algoLogicalExpressionValue) :
+    m_algoName(algoNameValue), m_algoLogicalExpression(algoLogicalExpressionValue) {
 
-    L1GtLogicParser logicParser(m_algoLogicalExpression);        
+    L1GtLogicParser logicParser(m_algoLogicalExpression);
     m_algoRpnVector = logicParser.rpnVector();
 
     // default values for private members not set
@@ -63,19 +61,16 @@ L1GtAlgorithm::L1GtAlgorithm(const std::string& algoNameValue,
 }
 
 //   name, logical expression and bit number
-L1GtAlgorithm::L1GtAlgorithm(const std::string& algoNameValue,
-                             const std::string& algoLogicalExpressionValue,
-                             const int algoBitNumberValue)
+L1GtAlgorithm::L1GtAlgorithm(
+        const std::string& algoNameValue, const std::string& algoLogicalExpressionValue,
+        const int algoBitNumberValue) :
+    m_algoName(algoNameValue), m_algoLogicalExpression(algoLogicalExpressionValue),
+            m_algoBitNumber(algoBitNumberValue)
+
 {
-    m_algoName = algoNameValue;
-
-    m_algoLogicalExpression = algoLogicalExpressionValue;
-
-    m_algoBitNumber = algoBitNumberValue;
-
-    L1GtLogicParser logicParser(m_algoLogicalExpression);        
+    L1GtLogicParser logicParser(m_algoLogicalExpression);
     m_algoRpnVector = logicParser.rpnVector();
-    
+
     // default values for private members not set
     m_algoChipNumber = -1;
 
@@ -164,4 +159,12 @@ void L1GtAlgorithm::print(std::ostream& myCout) const {
     }
 
     myCout << std::endl;
+}
+
+// output stream operator
+std::ostream& operator<<(std::ostream& os, const L1GtAlgorithm& result)
+{
+    result.print(os);
+    return os;
+
 }

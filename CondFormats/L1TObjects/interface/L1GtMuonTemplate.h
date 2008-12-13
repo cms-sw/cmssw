@@ -3,15 +3,15 @@
 
 /**
  * \class L1GtMuonTemplate
- * 
- * 
- * Description: L1 Global Trigger muon template.  
+ *
+ *
+ * Description: L1 Global Trigger muon template.
  *
  * Implementation:
  *    <TODO: enter implementation details>
- *   
+ *
  * \author: Vasile Mihai Ghete - HEPHY Vienna
- * 
+ *
  * $Date$
  * $Revision$
  *
@@ -103,6 +103,10 @@ public:
 
     /// print the condition
     virtual void print(std::ostream& myCout) const;
+
+    /// output stream operator
+    friend std::ostream& operator<<(std::ostream&, const L1GtMuonTemplate&);
+
 
 private:
 

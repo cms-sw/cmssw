@@ -1,15 +1,15 @@
 /**
  * \class L1GtCorrelationTemplate
- * 
- * 
- * Description: L1 Global Trigger correlation template.  
+ *
+ *
+ * Description: L1 Global Trigger correlation template.
  * Includes spatial correlation for two objects of different type.
  *
  * Implementation:
  *    <TODO: enter implementation details>
- *   
+ *
  * \author: Vasile Mihai Ghete - HEPHY Vienna
- * 
+ *
  * $Date$
  * $Revision$
  *
@@ -78,15 +78,15 @@ L1GtCorrelationTemplate::L1GtCorrelationTemplate(const std::string& cName)
 
 }
 
-//   from condition name, the category of first sub-condition, the category of the 
+//   from condition name, the category of first sub-condition, the category of the
 //   second sub-condition, the index of first sub-condition in the cor* vector,
 //   the index of second sub-condition in the cor* vector
 L1GtCorrelationTemplate::L1GtCorrelationTemplate(const std::string& cName,
         const L1GtConditionCategory& cond0Cat,
-        const L1GtConditionCategory& cond1Cat, 
+        const L1GtConditionCategory& cond1Cat,
         const int cond0Index,
         const int cond1index) :
-    L1GtCondition(cName), 
+    L1GtCondition(cName),
             m_cond0Category(cond0Cat),
             m_cond1Category(cond1Cat),
             m_cond0Index(cond0Index),
@@ -95,8 +95,8 @@ L1GtCorrelationTemplate::L1GtCorrelationTemplate(const std::string& cName,
 {
 
     m_condCategory = CondCorrelation;
-    m_condType = Type2cor; 
-    m_condChipNr = -1; 
+    m_condType = Type2cor;
+    m_condChipNr = -1;
 
     // there are in fact two objects
     int nObjects = nrObjects();
@@ -130,13 +130,13 @@ L1GtCorrelationTemplate& L1GtCorrelationTemplate::operator= (const L1GtCorrelati
 // set the category of the two sub-conditions
 void L1GtCorrelationTemplate::setCond0Category(
         const L1GtConditionCategory& condCateg) {
-    
+
     m_cond0Category = condCateg;
 }
 
 void L1GtCorrelationTemplate::setCond1Category(
         const L1GtConditionCategory& condCateg) {
-    
+
     m_cond1Category = condCateg;
 }
 
@@ -184,7 +184,6 @@ void L1GtCorrelationTemplate::print(std::ostream& myCout) const
 
     // reset to decimal output
     myCout << std::dec << std::endl;
-    myCout << "\n  ...end L1GtCorrelationTemplate print." << std::endl;
 }
 
 void L1GtCorrelationTemplate::copy(const L1GtCorrelationTemplate& cp)
@@ -203,6 +202,14 @@ void L1GtCorrelationTemplate::copy(const L1GtCorrelationTemplate& cp)
     m_cond1Index = cp.cond1Index();
 
     m_correlationParameter = *(cp.correlationParameter());
+
+}
+
+// output stream operator
+std::ostream& operator<<(std::ostream& os, const L1GtCorrelationTemplate& result)
+{
+    result.print(os);
+    return os;
 
 }
 

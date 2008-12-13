@@ -1,14 +1,14 @@
 /**
  * \class L1GtCaloTemplate
- * 
- * 
- * Description: L1 Global Trigger calo template.  
+ *
+ *
+ * Description: L1 Global Trigger calo template.
  *
  * Implementation:
  *    <TODO: enter implementation details>
- *   
+ *
  * \author: Vasile Mihai Ghete - HEPHY Vienna
- * 
+ *
  * $Date$
  * $Revision$
  *
@@ -129,7 +129,6 @@ void L1GtCaloTemplate::print(std::ostream& myCout) const
 
     // reset to decimal output
     myCout << std::dec << std::endl;
-    myCout << "\n  ...end L1GtCaloTemplate print." << std::endl;
 }
 
 void L1GtCaloTemplate::copy(const L1GtCaloTemplate& cp)
@@ -144,6 +143,14 @@ void L1GtCaloTemplate::copy(const L1GtCaloTemplate& cp)
 
     m_objectParameter = *(cp.objectParameter());
     m_correlationParameter = *(cp.correlationParameter());
+
+}
+
+// output stream operator
+std::ostream& operator<<(std::ostream& os, const L1GtCaloTemplate& result)
+{
+    result.print(os);
+    return os;
 
 }
 

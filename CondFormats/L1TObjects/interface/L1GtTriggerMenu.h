@@ -22,7 +22,7 @@
 #include <vector>
 #include <map>
 
-#include <ostream>
+#include <iosfwd>
 
 // user include files
 #include "CondFormats/L1TObjects/interface/L1GtTriggerMenuFwd.h"
@@ -35,6 +35,7 @@
 #include "CondFormats/L1TObjects/interface/L1GtHfBitCountsTemplate.h"
 #include "CondFormats/L1TObjects/interface/L1GtHfRingEtSumsTemplate.h"
 #include "CondFormats/L1TObjects/interface/L1GtCorrelationTemplate.h"
+#include "CondFormats/L1TObjects/interface/L1GtBptxTemplate.h"
 
 // forward declarations
 class L1GtCondition;
@@ -57,6 +58,7 @@ public:
             const std::vector<std::vector<L1GtCastorTemplate> >&,
             const std::vector<std::vector<L1GtHfBitCountsTemplate> >&,
             const std::vector<std::vector<L1GtHfRingEtSumsTemplate> >&,
+            const std::vector<std::vector<L1GtBptxTemplate> >&,
             const std::vector<std::vector<L1GtCorrelationTemplate> >&,
             const std::vector<std::vector<L1GtMuonTemplate> >&,
             const std::vector<std::vector<L1GtCaloTemplate> >&,
@@ -82,12 +84,33 @@ public:
     void setGtConditionMap(const std::vector<ConditionMap>&);
     void buildGtConditionMap();
 
-    /// get / set the trigger menu name
+    /// get / set the trigger menu names
+    inline const std::string& gtTriggerMenuInterface() const {
+        return m_triggerMenuInterface;
+    }
+
+    void setGtTriggerMenuInterface(const std::string&);
+
+    //
     inline const std::string& gtTriggerMenuName() const {
         return m_triggerMenuName;
     }
 
     void setGtTriggerMenuName(const std::string&);
+
+    //
+    inline const std::string& gtTriggerMenuImplementation() const {
+        return m_triggerMenuImplementation;
+    }
+
+    void setGtTriggerMenuImplementation(const std::string&);
+
+    /// menu associated scale key
+    inline const std::string& gtScaleDbKey() const {
+        return m_scaleDbKey;
+    }
+
+    void setGtScaleDbKey(const std::string&);
 
     /// get / set the vectors containing the conditions
     inline const std::vector<std::vector<L1GtMuonTemplate> >& vecMuonTemplate() const {
@@ -154,6 +177,16 @@ public:
             const std::vector<std::vector<L1GtHfRingEtSumsTemplate> >&);
 
     //
+    inline const std::vector<std::vector<L1GtBptxTemplate> >&
+        vecBptxTemplate() const {
+
+        return m_vecBptxTemplate;
+    }
+
+    void setVecBptxTemplate(
+            const std::vector<std::vector<L1GtBptxTemplate> >&);
+
+    //
     //
     inline const std::vector<std::vector<L1GtCorrelationTemplate> >&
         vecCorrelationTemplate() const {
@@ -190,12 +223,19 @@ public:
             const std::vector<std::vector<L1GtEnergySumTemplate> >&);
 
 
-    /// get / set the algorithm map
+    /// get / set the algorithm map (by name)
     inline const AlgorithmMap& gtAlgorithmMap() const {
         return m_algorithmMap;
     }
 
     void setGtAlgorithmMap(const AlgorithmMap&);
+
+    /// get / set the algorithm map (by alias)
+    inline const AlgorithmMap& gtAlgorithmAliasMap() const {
+        return m_algorithmAliasMap;
+    }
+
+    void setGtAlgorithmAliasMap(const AlgorithmMap&);
 
     /// get / set the technical trigger map
     inline const AlgorithmMap& gtTechnicalTriggerMap() const {
@@ -222,8 +262,13 @@ private:
 
 private:
 
-    /// menu name
+    /// menu names
+    std::string m_triggerMenuInterface;
     std::string m_triggerMenuName;
+    std::string m_triggerMenuImplementation;
+
+    /// menu associated scale key
+    std::string m_scaleDbKey;
 
     /// vectors containing the conditions
     /// explicit, due to persistency...
@@ -234,14 +279,18 @@ private:
     std::vector<std::vector<L1GtCastorTemplate> > m_vecCastorTemplate;
     std::vector<std::vector<L1GtHfBitCountsTemplate> > m_vecHfBitCountsTemplate;
     std::vector<std::vector<L1GtHfRingEtSumsTemplate> > m_vecHfRingEtSumsTemplate;
+    std::vector<std::vector<L1GtBptxTemplate> > m_vecBptxTemplate;
 
     std::vector<std::vector<L1GtCorrelationTemplate> > m_vecCorrelationTemplate;
     std::vector<std::vector<L1GtMuonTemplate> > m_corMuonTemplate;
     std::vector<std::vector<L1GtCaloTemplate> > m_corCaloTemplate;
     std::vector<std::vector<L1GtEnergySumTemplate> > m_corEnergySumTemplate;
 
-    /// map containing the physics algorithms
+    /// map containing the physics algorithms (by name)
     AlgorithmMap m_algorithmMap;
+
+    /// map containing the physics algorithms (by alias)
+    AlgorithmMap m_algorithmAliasMap;
 
     /// map containing the technical triggers
     AlgorithmMap m_technicalTriggerMap;

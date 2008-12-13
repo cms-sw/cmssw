@@ -3,19 +3,19 @@
 
 /**
  * \class L1GtCastorTemplate
- * 
- * 
- * Description: L1 Global Trigger CASTOR template.  
+ *
+ *
+ * Description: L1 Global Trigger CASTOR template.
  *
  * Implementation:
  *    Instantiated L1GtCondition. CASTOR conditions sends a logical result only.
- *    No changes are possible at the L1 GT level. CASTOR conditions can be used 
- *    in physics algorithms in combination with muon, calorimeter, energy sum 
+ *    No changes are possible at the L1 GT level. CASTOR conditions can be used
+ *    in physics algorithms in combination with muon, calorimeter, energy sum
  *    and jet-counts conditions.
- *    It has zero objects. 
- *   
+ *    It has zero objects.
+ *
  * \author: Vasile Mihai Ghete - HEPHY Vienna
- * 
+ *
  * $Date$
  * $Revision$
  *
@@ -60,6 +60,9 @@ public:
 
     /// print the condition
     virtual void print(std::ostream& myCout) const;
+
+    /// output stream operator
+    friend std::ostream& operator<<(std::ostream&, const L1GtCastorTemplate&);
 
 private:
 

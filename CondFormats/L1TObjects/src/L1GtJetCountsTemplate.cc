@@ -1,14 +1,14 @@
 /**
  * \class L1GtJetCountsTemplate
- * 
- * 
- * Description: L1 Global Trigger "jet counts" template.  
+ *
+ *
+ * Description: L1 Global Trigger "jet counts" template.
  *
  * Implementation:
  *    <TODO: enter implementation details>
- *   
+ *
  * \author: Vasile Mihai Ghete - HEPHY Vienna
- * 
+ *
  * $Date$
  * $Revision$
  *
@@ -121,7 +121,6 @@ void L1GtJetCountsTemplate::print(std::ostream& myCout) const
 
     // reset to decimal output
     myCout << std::dec << std::endl;
-    myCout << "\n  ...end L1GtJetCountsTemplate print." << std::endl;
 }
 
 void L1GtJetCountsTemplate::copy(const L1GtJetCountsTemplate& cp)
@@ -135,6 +134,14 @@ void L1GtJetCountsTemplate::copy(const L1GtJetCountsTemplate& cp)
     m_condChipNr   = cp.condChipNr();
 
     m_objectParameter = *(cp.objectParameter());
+
+}
+
+// output stream operator
+std::ostream& operator<<(std::ostream& os, const L1GtJetCountsTemplate& result)
+{
+    result.print(os);
+    return os;
 
 }
 

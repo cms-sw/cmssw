@@ -3,15 +3,15 @@
 
 /**
  * \class L1GtAlgorithm
- * 
- * 
- * Description: L1 GT algorithm.  
+ *
+ *
+ * Description: L1 GT algorithm.
  *
  * Implementation:
  *    <TODO: enter implementation details>
- *   
+ *
  * \author: Vasile Mihai Ghete - HEPHY Vienna
- * 
+ *
  * $Date$
  * $Revision$
  *
@@ -19,7 +19,7 @@
 
 // system include files
 #include <vector>
-#include <iostream>
+#include <iosfwd>
 
 // user include files
 #include "DataFormats/L1GlobalTrigger/interface/L1GtLogicParser.h"
@@ -59,6 +59,17 @@ public:
     inline void setAlgoName(const std::string& algoNameValue)
     {
         m_algoName = algoNameValue;
+    }
+
+    /// get / set algorithm alias
+    inline const std::string algoAlias() const
+    {
+        return m_algoAlias;
+    }
+
+    inline void setAlgoAlias(const std::string& algoAliasValue)
+    {
+        m_algoAlias = algoAliasValue;
     }
 
     /// get / set the logical expression for the algorithm
@@ -115,12 +126,19 @@ public:
     /// print condition
     virtual void print(std::ostream& myCout) const;
 
+    /// output stream operator
+    friend std::ostream& operator<<(std::ostream&, const L1GtAlgorithm&);
+
+
 private:
 
     /// algorithm name
     std::string m_algoName;
 
-    /// algorithm logical expresssion
+    /// algorithm alias
+    std::string m_algoAlias;
+
+    /// algorithm logical expression
     std::string m_algoLogicalExpression;
 
     /// algorithm RPN vector
@@ -130,8 +148,8 @@ private:
     /// the result for the algorithm is found at m_algoBitNumber position in
     /// the decision word vector<bool>
     int m_algoBitNumber;
-    
-    /// chip number (redundant with bit number) 
+
+    /// chip number (redundant with bit number)
     int m_algoChipNumber;
 
 };

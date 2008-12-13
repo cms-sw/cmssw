@@ -3,15 +3,15 @@
 
 /**
  * \class L1GtJetCountsTemplate
- * 
- * 
- * Description: L1 Global Trigger "jet counts" template.  
+ *
+ *
+ * Description: L1 Global Trigger "jet counts" template.
  *
  * Implementation:
  *    <TODO: enter implementation details>
- *   
+ *
  * \author: Vasile Mihai Ghete - HEPHY Vienna
- * 
+ *
  * $Date$
  * $Revision$
  *
@@ -80,6 +80,9 @@ public:
 
     /// print the condition
     virtual void print(std::ostream& myCout) const;
+
+    /// output stream operator
+    friend std::ostream& operator<<(std::ostream&, const L1GtJetCountsTemplate&);
 
 private:
 

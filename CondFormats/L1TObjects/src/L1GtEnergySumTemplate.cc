@@ -1,14 +1,14 @@
 /**
  * \class L1GtEnergySumTemplate
- * 
- * 
- * Description: L1 Global Trigger energy-sum template.  
+ *
+ *
+ * Description: L1 Global Trigger energy-sum template.
  *
  * Implementation:
  *    <TODO: enter implementation details>
- *   
+ *
  * \author: Vasile Mihai Ghete - HEPHY Vienna
- * 
+ *
  * $Date$
  * $Revision$
  *
@@ -123,7 +123,6 @@ void L1GtEnergySumTemplate::print(std::ostream& myCout) const
 
     // reset to decimal output
     myCout << std::dec << std::endl;
-    myCout << "\n  ...end L1GtEnergySumTemplate print." << std::endl;
 }
 
 void L1GtEnergySumTemplate::copy(const L1GtEnergySumTemplate& cp)
@@ -140,5 +139,12 @@ void L1GtEnergySumTemplate::copy(const L1GtEnergySumTemplate& cp)
 
 }
 
+// output stream operator
+std::ostream& operator<<(std::ostream& os, const L1GtEnergySumTemplate& result)
+{
+    result.print(os);
+    return os;
+
+}
 
 

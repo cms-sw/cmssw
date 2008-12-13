@@ -3,15 +3,15 @@
 
 /**
  * \class L1GtCaloTemplate
- * 
- * 
- * Description: L1 Global Trigger calo template.  
+ *
+ *
+ * Description: L1 Global Trigger calo template.
  *
  * Implementation:
  *    <TODO: enter implementation details>
- *   
+ *
  * \author: Vasile Mihai Ghete - HEPHY Vienna
- * 
+ *
  * $Date$
  * $Revision$
  *
@@ -94,6 +94,9 @@ public:
 
     /// print the condition
     virtual void print(std::ostream& myCout) const;
+
+    /// output stream operator
+    friend std::ostream& operator<<(std::ostream&, const L1GtCaloTemplate&);
 
 protected:
 
