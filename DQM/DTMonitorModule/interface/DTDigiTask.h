@@ -4,8 +4,8 @@
 /*
  * \file DTDigiTask.h
  *
- * $Date: 2008/10/31 05:46:50 $
- * $Revision: 1.25 $
+ * $Date: 2008/11/24 09:12:11 $
+ * $Revision: 1.26 $
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -87,6 +87,7 @@ private:
   /// tTrig from the DB
   float tTrig;
   float tTrigRMS;
+  float kFactor;
 
   //check for sync noise
   //  bool newChamber;

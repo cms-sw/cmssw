@@ -5,8 +5,8 @@
 /*
  * \file DTAlbertoBenvenutiTask.h
  *
- * $Date: 2007/08/24 08:56:46 $
- * $Revision: 1.1 $
+ * $Date: 2008/07/24 12:56:37 $
+ * $Revision: 1.2 $
  * \author G. Mila - INFN Torino
  *
 */
@@ -74,6 +74,7 @@ private:
   /// tTrig from the DB
   float tTrig;
   float tTrigRMS;
+  float kFactor;
 
   edm::Handle<LTCDigiCollection> ltcdigis;
 

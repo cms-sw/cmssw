@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/05/06 14:02:08 $
- *  $Revision: 1.12 $
+ *  $Date: 2008/10/03 09:32:02 $
+ *  $Revision: 1.13 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -144,8 +144,8 @@ void DTDeadChannelTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, Event
 	vector<const DTLayer*>::const_iterator l_end = (*sl_it)->layers().end();
 	    
         // ttrig and rms are counts
-	float tTrig, tTrigRMS;
-	tTrigMap->get(slID, tTrig, tTrigRMS, DTTimeUnits::counts);
+	float tTrig, tTrigRMS, kFactor;
+	tTrigMap->get(slID, tTrig, tTrigRMS, kFactor, DTTimeUnits::counts);
       
 	// Loop over the layers
 	for(; l_it != l_end; ++l_it) {

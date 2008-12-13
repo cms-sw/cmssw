@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/07/25 14:14:14 $
- *  $Revision: 1.11 $
+ *  $Date: 2008/10/03 09:45:02 $
+ *  $Revision: 1.12 $
  *  \authors G. Mila , G. Cerminara - INFN Torino
  */
 
@@ -276,8 +276,8 @@ void DTNoiseTask::beginRun(const Run& run, const EventSetup& setup) {
       DTSuperLayerId slId = (*sl_it)->id();
       if(doTimeBoxHistos)
 	bookHistos(slId);
-      float tTrig, tTrigRMS;
-      tTrigMap->get(slId, tTrig, tTrigRMS,DTTimeUnits::ns);
+      float tTrig, tTrigRMS, kFactor;
+      tTrigMap->get(slId, tTrig, tTrigRMS,kFactor,DTTimeUnits::ns);
       // tTrig mapping per station
       // check that the ttrig is the lowest of the 3 SLs
       if(tTrigStMap.find(chId)==tTrigStMap.end() || 

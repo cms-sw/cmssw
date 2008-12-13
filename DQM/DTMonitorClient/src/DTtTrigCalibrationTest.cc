@@ -1,8 +1,8 @@
 /*
  * \file DTtTrigCalibrationTest.cc
  * 
- * $Date: 2008/05/06 14:02:08 $
- * $Revision: 1.17 $
+ * $Date: 2008/10/03 09:32:02 $
+ * $Revision: 1.18 $
  * \author M. Zanetti - CERN
  * Modified by G. Mila - INFN Torino
  *
@@ -121,7 +121,7 @@ void DTtTrigCalibrationTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, 
   edm::LogVerbatim ("tTrigCalibration") <<"[DTtTrigCalibrationTest]: "<<nLumiSegs<<" updates";
 
   context.get<DTTtrigRcd>().get(tTrigMap);
-  float tTrig, tTrigRMS;
+  float tTrig, tTrigRMS,kFactor;
 
   map <pair<int,int>, int> cmsHistos;
   cmsHistos.clear();
@@ -152,7 +152,7 @@ void DTtTrigCalibrationTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, 
 	pair<double, double> meanAndSigma = theFitter->fitTimeBox(tb_histo_root);
 	    
         // ttrig and rms are counts
-	tTrigMap->get(slID, tTrig, tTrigRMS, DTTimeUnits::counts );
+	tTrigMap->get(slID, tTrig, tTrigRMS, kFactor, DTTimeUnits::counts );
 
 	if (histos.find((*ch_it)->id().rawId()) == histos.end()) bookHistos((*ch_it)->id());
 	histos.find((*ch_it)->id().rawId())->second->setBinContent(slID.superLayer(), meanAndSigma.first-tTrig);

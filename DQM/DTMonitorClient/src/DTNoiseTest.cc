@@ -1,7 +1,7 @@
 /*
  * 
- * $Date: 2008/05/06 14:02:08 $
- * $Revision: 1.18 $
+ * $Date: 2008/10/03 09:32:02 $
+ * $Revision: 1.19 $
  * \authors:
  *  A. Gresele - INFN Trento
  *  G. Mila - INFN Torino
@@ -114,7 +114,7 @@ void DTNoiseTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup 
   context.get<DTStatusFlagRcd>().get(statusMap);
   
   context.get<DTTtrigRcd>().get(tTrigMap);
-  float tTrig, tTrigRMS;
+  float tTrig, tTrigRMS, kFactor;
 
   string histoTag;
   // loop over chambers
@@ -144,7 +144,7 @@ void DTNoiseTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup 
 	const DTSuperLayerId & slID = (*sl_it)->id();
 	    
         // ttrig and rms are counts
-	tTrigMap->get(slID, tTrig, tTrigRMS, DTTimeUnits::counts);
+	tTrigMap->get(slID, tTrig, tTrigRMS, kFactor, DTTimeUnits::counts);
 	if (tTrig==0) tTrig=1;
 	const double ns_s = 1e9*(32/25);
 	normalization = ns_s/float(tTrig*nevents);

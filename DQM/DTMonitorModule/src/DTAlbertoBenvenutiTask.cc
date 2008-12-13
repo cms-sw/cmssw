@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/07/24 12:56:37 $
- *  $Revision: 1.5 $
+ *  $Date: 2008/10/03 09:45:02 $
+ *  $Revision: 1.6 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -202,7 +202,7 @@ void DTAlbertoBenvenutiTask::bookHistos(const DTWireId dtWire) {
 
 	    if ( parameters.getUntrackedParameter<bool>("readDB", false) ) 
               // ttrig and rms are TDC counts
-	      tTrigMap->get(dtWire.layerId().superlayerId(), tTrig, tTrigRMS,
+	      tTrigMap->get(dtWire.layerId().superlayerId(), tTrig, tTrigRMS, kFactor,
                             DTTimeUnits::counts); 
 	    else tTrig = parameters.getParameter<int>("defaultTtrig");
   
