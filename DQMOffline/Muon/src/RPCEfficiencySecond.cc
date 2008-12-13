@@ -29,14 +29,16 @@ camilo.carrilloATcern.ch
 #include<string>
 #include<fstream>
 #include<iostream>
+#include <vector>
 #include "DQMOffline/Muon/interface/RPCEfficiencySecond.h"
 #include <DQMOffline/Muon/interface/RPCBookFolderStructure.h>
 
 #include "TH1F.h"
 
-int rollY(std::string shortname,std::map<int,std::string> rollNames){
+int rollY(std::string shortname,std::vector<std::string> rollNames){
   int myy=0;
   for(int i=1;i<22;i++){
+    //std::cout<<"In map="<<rollNames[i]<<" shortname="<<shortname<<std::endl;
     if(rollNames[i].compare(shortname)==0){
       myy=i;
       return myy;
@@ -429,7 +431,7 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
   label = folder + "GlobalResidualsClu3R2A"; hGlobalResClu3R2A = dbe->get(label);
 
 
-  if(debug) std::cout<<"Goinf for!"<<std::endl;
+  if(debug) std::cout<<"Going for!"<<std::endl;
   for(int i=1;i<=101;i++){
     hGlobal2ResClu1R3C->setBinContent(i,hGlobalResClu1R3C->getBinContent(i));
     hGlobal2ResClu1R3B->setBinContent(i,hGlobalResClu1R3B->getBinContent(i));
@@ -465,8 +467,9 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
     Wheel1Summary->setBinLabel(i,binLabel.str(),1);
     Wheel2Summary->setBinLabel(i,binLabel.str(),1);
   }
-  
-  std::map<int,std::string> rollNamesInter;
+  binLabel.str("");
+
+  std::vector<std::string> rollNamesInter (22);
 
   rollNamesInter[1]="RB1in B";
   rollNamesInter[2]="RB1in F";
@@ -490,28 +493,21 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
   rollNamesInter[20]="RB4+- B";
   rollNamesInter[21]="RB4+- F";
 
-  std::map<int,std::string> rollNamesExter;
+  std::vector<std::string> rollNamesExter (22);
   
-  std::cout<<"Inter"<<std::endl;
-
   for(int i=1;i<22;i++){
     rollNamesExter[i]=rollNamesInter[i];
-    std::cout<<rollNamesInter[i]<<std::endl;
   }
 
   rollNamesExter[6]="RB2in F";
   rollNamesExter[7]="RB2out B";
   rollNamesExter[8]="RB2out M";
 
-  std::cout<<"Now Extern"<<std::endl;
-  
-  for(int i=1;i<22;i++){
-    std::cout<<rollNamesExter[i]<<std::endl;
-  }
+  //for(int i=1;i<22;i++){
+  //  std::cout<<rollNamesExter[i]<<std::endl;
+  // }
 
   for(int i=1;i<22;i++){
-    binLabel.str("");
-    binLabel<<"Sec "<<i;
     Wheelm1Summary->setBinLabel(i,rollNamesInter[i],2);
     Wheel0Summary->setBinLabel(i,rollNamesInter[i],2);
     Wheel1Summary->setBinLabel(i,rollNamesInter[i],2); 
@@ -576,7 +572,7 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
 	}
 	
 	if(meCollection.find(rpcId.rawId())==meCollection.end()){
-	  std::cout<<"WARNING!!! Empty collection map"<<std::endl;
+	  std::cout<<"WARNING!!! Empty RecHit collection map"<<std::endl;
 	}
 
 	if(debug){
@@ -605,7 +601,7 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
 	}
   	
 	if(rpcId.region()==0){
-	  std::stringstream detUnitLabel, meIdRPC,  meIdDT,  bxDistroId;
+	  std::stringstream meIdRPC,  meIdDT,  bxDistroId;
 	  std::string      meIdPRO, meIdRPC2, meIdDT2, bxDistroId2;
 	  
 	  RPCBookFolderStructure *  folderStr = new RPCBookFolderStructure();
@@ -649,7 +645,7 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
 	  int NumberStripsPointed = 0;
 	  
 	  if(debug) std::cout<<"Cloning BX"<<std::endl; //problema con sector 9 y sector 11
-	  std::cout<<bxDistroId2<<std::endl;
+
 	  for(int i=1;i<=11;i++){
 	    if(debug) std::cout<<i<<"-"<<BXDistribution->getBinContent(i)<<std::endl;
 	    meMap[bxDistroId2]->setBinContent(i,BXDistribution->getBinContent(i));
@@ -723,17 +719,17 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
 			     <<(*r)->id()<<std::endl;
 	  
 	  if(abs((*r)->id().ring())==2){
-	    std::cout<<rollY(rpcsrv.shortname(),rollNamesExter)
-		     <<"--"<<rpcsrv.shortname()
-		     <<" "<<rpcsrv.name()
-		     <<" averageEff"<<averageeff<<std::endl;
+	    if(debug) std::cout<<rollY(rpcsrv.shortname(),rollNamesExter)
+			       <<"--"<<rpcsrv.shortname()
+			       <<" "<<rpcsrv.name()
+			       <<" averageEff"<<averageeff<<std::endl;
 	    if((*r)->id().ring()==2) Wheel2Summary->setBinContent((*r)->id().sector(),rollY(rpcsrv.shortname(),rollNamesExter),averageeff);
 	    else Wheelm2Summary->setBinContent((*r)->id().sector(),rollY(rpcsrv.shortname(),rollNamesExter),averageeff);
 	  }else{
-	    std::cout<<rollY(rpcsrv.shortname(),rollNamesInter)
-		     <<"--"<<rpcsrv.shortname()
-		     <<" "<<rpcsrv.name()
-		     <<" averageEff"<<averageeff<<std::endl;
+	    if(debug) std::cout<<rollY(rpcsrv.shortname(),rollNamesInter)
+			       <<"--"<<rpcsrv.shortname()
+			       <<" "<<rpcsrv.name()
+			       <<" averageEff"<<averageeff<<std::endl;
 	    
 	    if((*r)->id().ring()==-1) Wheelm1Summary->setBinContent((*r)->id().sector(),rollY(rpcsrv.shortname(),rollNamesInter),averageeff);
 	    else if((*r)->id().ring()==0) Wheel0Summary->setBinContent((*r)->id().sector(),rollY(rpcsrv.shortname(),rollNamesInter),averageeff);
@@ -955,7 +951,7 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
 	  }
 	}else{//EndCap
 
-	  std::stringstream detUnitLabel, meIdRPC,meIdCSC, bxDistroId;
+	  std::stringstream meIdRPC,meIdCSC, bxDistroId;
 	  std::string      meIdPRO, meIdRPC2, meIdCSC2, bxDistroId2;
 	  
 	  RPCBookFolderStructure *  folderStr = new RPCBookFolderStructure();
@@ -996,7 +992,7 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
 	  int NumberStripsPointed = 0;
 
 	  if(debug) std::cout<<"Cloning BX"<<std::endl;
-	  std::cout<<bxDistroId2<<std::endl;
+
 	  for(int i=1;i<=11;i++){
 	    if(debug) std::cout<<i<<"-"<<BXDistribution->getBinContent(i)<<std::endl;
 	    meMap[bxDistroId2]->setBinContent(i,BXDistribution->getBinContent(i));
@@ -1576,8 +1572,6 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
     NoPredictionD3far->setAxisTitle("%",2);
   }
   
-  if(debug) std::cout<<"Saving RootFile"<<std::endl;
-
   EffGlobDm3->setAxisTitle("%",2);
   EffGlobDm2->setAxisTitle("%",2);
   EffGlobDm1->setAxisTitle("%",2);
@@ -1650,8 +1644,7 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
   
   if(debug) std::cout<<"Saving RootFile"<<std::endl;
   if(SaveFile)dbe->save(NameFile);
-  //dbe->showDirStructure();
-  std::cout<<"RPCEFFICIENCY SECOND DONE"<<std::endl;
+  if(debug) std::cout<<"RPCEFFICIENCY SECOND DONE"<<std::endl;
   
 }
 
