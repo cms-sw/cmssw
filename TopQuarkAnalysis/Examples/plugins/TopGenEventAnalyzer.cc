@@ -42,9 +42,9 @@ TopGenEventAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setup
 
   //fill ttbar kinematics
   reco::Particle::LorentzVector p4 = genEvent->top()->p4()+genEvent->topBar()->p4();
-  topPt_ ->Fill(p4.pt ());
-  topEta_->Fill(p4.eta());
-  topPhi_->Fill(p4.phi());
+  ttbarPt_ ->Fill(p4.pt() );
+  ttbarEta_->Fill(p4.eta());
+  ttbarPhi_->Fill(p4.phi());
 }
 
 void TopGenEventAnalyzer::beginJob(const edm::EventSetup&)
