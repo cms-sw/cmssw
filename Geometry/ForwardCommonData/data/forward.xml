@@ -9,6 +9,8 @@
  <Constant name="CastorL1"     value="1.6165*m"/>
  <Constant name="CastorL2"     value="1.334*m"/>
  <Constant name="CastorZ1"     value="[cms:ForwdDetsZ1]-[CastorL1]"/>
+ <Constant name="PLTdZ"        value="([cms:TrackLumiZ2]-[cms:TrackLumiZ1])/2"/>
+ <Constant name="PLTZ"         value="([cms:TrackLumiZ2]+[cms:TrackLumiZ1])/2"/>
 </ConstantsSection>
 
 <SolidSection label="forward.xml">
@@ -32,6 +34,8 @@
   <ZSection z="[CastorL2]"  rMin="[cms:ForwdBeamR4]" rMax="[cms:ForwdDetsR1]"/>
   <ZSection z="[CastorL1]"  rMin="[cms:ForwdDetsR1]" rMax="[cms:ForwdDetsR1]"/>
  </Polycone> 
+ <Tubs name="PLT"           rMin="[cms:TrackBeamR1]" rMax="[cms:TrackLumiR1]"
+       dz="[PLTdZ]"         startPhi="0*deg"         deltaPhi="360*deg"/>
 </SolidSection>
 
 <LogicalPartSection label="forward.xml">
@@ -49,6 +53,10 @@
  </LogicalPart>
  <LogicalPart name="CastorB" category="unspecified">
   <rSolid name="Castor"/>
+  <rMaterial name="materials:Air"/>
+ </LogicalPart>
+ <LogicalPart name="PLT" category="unspecified">
+  <rSolid name="PLT"/>
   <rMaterial name="materials:Air"/>
  </LogicalPart>
 </LogicalPartSection>
@@ -85,6 +93,18 @@
    <rChild name="forward:CastorB"/>
   <rRotation name="rotations:180D"/>
   <Translation x="0*fm" y="0*fm" z="-[CastorZ1]"/>
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="cms:CMSE"/>
+   <rChild name="forward:PLT"/>
+  <rRotation name="rotations:000D"/>
+  <Translation x="0*fm" y="0*fm" z="[PLTZ]" />
+ </PosPart>
+ <PosPart copyNumber="2">
+   <rParent name="cms:CMSE"/>
+   <rChild name="forward:PLT"/>
+  <rRotation name="rotations:180D"/>
+  <Translation x="0*fm" y="0*fm" z="-[PLTZ]" />
  </PosPart>
 </PosPartSection>
 
