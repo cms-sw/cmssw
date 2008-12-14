@@ -30,8 +30,10 @@ class TopDecaySubset : public edm::EDProducer {
   ~TopDecaySubset();
   
   virtual void produce(edm::Event&, const edm::EventSetup&);
-  /// fill output vector with full decay chain
-  void fillOutput(const reco::GenParticleCollection&, reco::GenParticleCollection&);
+  /// fill output vector with full decay chain (for pythia like generator listing)
+  void fillPythiaOutput(const reco::GenParticleCollection&, reco::GenParticleCollection&);
+  /// fill output vector with full decay chain (for madgraph like generator listing)
+  void fillMadgraphOutput(const reco::GenParticleCollection&, reco::GenParticleCollection&);
   /// fill references for output vector
   void fillRefs(const reco::GenParticleRefProd&, reco::GenParticleCollection&);
   /// calculate lorentz vector from input with additional mass constraint
@@ -43,14 +45,17 @@ class TopDecaySubset : public edm::EDProducer {
  protected:
   /// fill vector recursively for all further decay particles of a tau
   void fillTree(int& index, const reco::GenParticle::const_iterator, reco::GenParticleCollection&);
-  /// print the whole decay chain if particle with pdgId is contained in the chain
+  /// print the whole decay chain if particle with pdgId is contained in the top decay chain
   void print(reco::GenParticleCollection&, int pdgId);
+  /// print the whole listing if particle with pdgId is contained in the top decay chain
+  void printSource(const reco::GenParticleCollection&, int pdgId);
 
  private:
 
   unsigned int pdg_;                     // pdgId for special selection
                                          // for printout
   edm::InputTag src_;  
+  unsigned int genType_;                 // switch for generator listing
   std::map<int,std::vector<int> > refs_; // management of daughter
                                          // indices for fillRefs
 };
