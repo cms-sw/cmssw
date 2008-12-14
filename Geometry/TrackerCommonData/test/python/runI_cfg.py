@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("GEOM")
-process.load("Geometry.TrackerCommonData.test.testGeometryXML_cfi")
+process.load("Geometry.TrackerCommonData.testGeometryXML_cfi")
 
 process.VisConfigurationService = cms.Service("VisConfigurationService",
     Views = cms.untracked.vstring('3D Window'),
