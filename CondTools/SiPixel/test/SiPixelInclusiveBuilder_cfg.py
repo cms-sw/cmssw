@@ -28,7 +28,7 @@ process.maxEvents = cms.untracked.PSet(
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
     DBParameters = cms.PSet(
-        authenticationPath = cms.untracked.string('/afs/cern.ch/cms/DB/conddb'),
+        authenticationPath = cms.untracked.string('.'),
         connectionRetrialPeriod = cms.untracked.int32(10),
         idleConnectionCleanupPeriod = cms.untracked.int32(10),
         messageLevel = cms.untracked.int32(3),
@@ -39,7 +39,7 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
         enableReadOnlySessionOnUpdateConnection = cms.untracked.bool(False)
     ),
     timetype = cms.untracked.string('runnumber'),
-    connect = cms.string('oracle://cms_orcoff_int2r/CMS_COND_PIXEL'),
+    connect = cms.string('sqlite_file:test.db'),
     toPut = cms.VPSet(cms.PSet(
         record = cms.string('SiPixelFedCablingMapRcd'),
         tag = cms.string('SiPixelFedCablingMap_v14')
@@ -68,7 +68,12 @@ process.MapWriter = cms.EDFilter("SiPixelFedCablingMapWriter",
 )
 
 process.SiPixelLorentzAngle = cms.EDFilter("SiPixelLorentzAngleDB",
-    magneticField = cms.double(3.8)
+    magneticField = cms.double(3.8),
+    bPixLorentzAnglePerTesla = cms.double(0.106),
+    fPixLorentzAnglePerTesla = cms.double(0.091),
+    #in case lorentz angle values for bpix should be read from file -> not implemented yet
+    useFile = cms.bool(False),
+    fileName = cms.string('lorentzFit.txt')	
 )
 
 process.SiPixelCondObjOfflineBuilder = cms.EDFilter("SiPixelCondObjOfflineBuilder",
