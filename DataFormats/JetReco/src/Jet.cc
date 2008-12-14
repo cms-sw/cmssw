@@ -1,6 +1,6 @@
 // Jet.cc
 // Fedor Ratnikov, UMd
-// $Id: Jet.cc,v 1.22 2008/05/12 19:04:27 fedor Exp $
+// $Id: Jet.cc,v 1.23 2008/10/14 12:26:58 oehler Exp $
 
 #include <sstream>
 #include <cmath>
@@ -326,7 +326,7 @@ float Jet::detectorEta (float fZVertex, float fPhysicsEta) {
   return refPoint.etaReference (0.);
 }
 
-Particle::LorentzVector Jet::physicsP4 (const Particle::Point &newVertex, const Particle &inParticle,const Particle::Point &oldVertex) {
+Candidate::LorentzVector Jet::physicsP4 (const Candidate::Point &newVertex, const Candidate &inParticle,const Candidate::Point &oldVertex) {
   CaloPoint3D<Point> caloPoint(oldVertex,inParticle.momentum()); // Jet position in Calo.
   Vector physicsDir = caloPoint.caloPoint() - newVertex;
   double p = inParticle.momentum().r();
@@ -335,7 +335,7 @@ Particle::LorentzVector Jet::physicsP4 (const Particle::Point &newVertex, const 
   return returnVector;
 }
 
-Particle::LorentzVector Jet::detectorP4 (const Particle::Point &vertex, const Particle &inParticle) {
+Candidate::LorentzVector Jet::detectorP4 (const Candidate::Point &vertex, const Candidate &inParticle) {
   CaloPoint3D<Point> caloPoint(vertex,inParticle.momentum()); // Jet position in Calo.
   static const Point np(0,0,0);
   Vector detectorDir = caloPoint.caloPoint() - np;

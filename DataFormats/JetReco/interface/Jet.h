@@ -12,7 +12,7 @@
  *
  * \version   Original: April 22, 2005 by Fernando Varela Rodriguez.
  * \version   May 23, 2006 by F.R.
- * \version   $Id: Jet.h,v 1.27 2008/05/12 19:04:26 fedor Exp $
+ * \version   $Id: Jet.h,v 1.28 2008/10/14 12:26:58 oehler Exp $
  ************************************************************/
 #include <string>
 #include "DataFormats/Candidate/interface/CompositePtrCandidate.h"
@@ -71,9 +71,9 @@ namespace reco {
     /// static function to convert physics eta to detector eta
     static float detectorEta (float fZVertex, float fPhysicsEta);
 
-    static Particle::LorentzVector physicsP4 (const Particle::Point &newVertex, const Particle &inParticle,const Particle::Point &oldVertex=Particle::Point(0,0,0));
+    static Candidate::LorentzVector physicsP4 (const Candidate::Point &newVertex, const Candidate &inParticle,const Candidate::Point &oldVertex=Candidate::Point(0,0,0));
 
-    static Particle::LorentzVector detectorP4 (const Particle::Point &vertex, const Particle &inParticle);
+    static Candidate::LorentzVector detectorP4 (const Candidate::Point &vertex, const Candidate &inParticle);
 
     /// list of constituents
     virtual Constituents getJetConstituents () const;
