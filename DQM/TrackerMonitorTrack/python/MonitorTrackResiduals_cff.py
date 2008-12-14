@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 #TrackRefitter With Material
-from RecoTracker.TrackProducer.RefitterWithMaterial_cff import *
+from RecoTracker.TrackProducer.TrackRefitters_cff import *
 TrackRefitter.TrajectoryInEvent = True
 # usually without refit: # TransientTrackingRecHitBuilder: no refit of hits...
 #TrackRefitter.TTRHBuilder = 'WithoutRefit'
