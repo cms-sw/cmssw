@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-ecalEndcapMonitorClient = cms.EDAnalyzer("EcalEndcapMonitorClient",
+ecalEndcapMonitorClient = cms.EDFilter("EcalEndcapMonitorClient",
     inputFile = cms.untracked.string(''),
     dbName = cms.untracked.string(''),
     dbHostName = cms.untracked.string(''),

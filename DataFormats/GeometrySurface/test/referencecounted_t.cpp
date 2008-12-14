@@ -27,7 +27,7 @@ namespace testreferencecounted {
    
    static unsigned int s_construct = 0;
 
-   struct RefTest : public ReferenceCountedPoolAllocated {
+   struct RefTest : public ReferenceCounted {
 	 RefTest() { s_construct = 1; }
 	 ~RefTest() { s_construct = 0; }
    };

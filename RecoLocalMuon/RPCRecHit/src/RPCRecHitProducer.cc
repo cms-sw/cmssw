@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2008/01/29 12:53:03 $
- *  $Revision: 1.7 $
+ *  $Date: 2007/08/16 07:08:23 $
+ *  $Revision: 1.6 $
  *  \author M. Maggi -- INFN Bari
 */
 
@@ -30,6 +30,8 @@ using namespace edm;
 using namespace std;
 
 
+
+
 RPCRecHitProducer::RPCRecHitProducer(const ParameterSet& config){
   // Set verbose output
 
@@ -41,36 +43,7 @@ RPCRecHitProducer::RPCRecHitProducer(const ParameterSet& config){
   string theAlgoName = config.getParameter<string>("recAlgo");
   theAlgo = RPCRecHitAlgoFactory::get()->create(theAlgoName,
 						config.getParameter<ParameterSet>("recAlgoConfig"));
-
-  edm::FileInPath fp = config.getParameter<edm::FileInPath>("maskmapfile");
-
-  std::ifstream inputFile(fp.fullPath().c_str(), std::ios::in);
-
-  if ( !inputFile ) {
-    std::cerr << "File MaskedStrips.dat could not be opened" << std::endl;
-    exit(1);
-  }
-
-  while ( !inputFile.eof() ) {
-    uint32_t rawId;
-    std::string label;
-    int bit;
-    RollMask Mask;
-    inputFile >> label >> rawId;
-    for (int i = 0; i < 96; i++) {
-      inputFile >> bit;
-      if ( bit ) 
-	Mask.set(i);
-    }
-    RPCDetId Det(rawId);
-    this->MaskMap[Det] = Mask;
-
-  }
-
-  inputFile.close();
-
 }
-
 
 RPCRecHitProducer::~RPCRecHitProducer(){
   delete theAlgo;
@@ -79,7 +52,6 @@ RPCRecHitProducer::~RPCRecHitProducer(){
 
 
 void RPCRecHitProducer::produce(Event& event, const EventSetup& setup) {
-
   // Get the RPC Geometry
   ESHandle<RPCGeometry> rpcGeom;
   setup.get<MuonGeometryRecord>().get(rpcGeom);
@@ -107,14 +79,9 @@ void RPCRecHitProducer::produce(Event& event, const EventSetup& setup) {
 
     // Get the iterators over the digis associated with this LayerId
     const RPCDigiCollection::Range& range = (*rpcdgIt).second;
-
-    // Get mask information for the given RPCDet
-    RollMask mask;
-    std::map<RPCDetId,RollMask>::iterator pos = this->MaskMap.find(rpcId);
-    mask = pos->second;
     
     OwnVector<RPCRecHit> recHits =
-      theAlgo->reconstruct(*roll, rpcId, range, mask);
+      theAlgo->reconstruct(*roll, rpcId, range);
     
     if(recHits.size() > 0) //FIXME: is it really needed?
       recHitCollection->put(rpcId, recHits.begin(), recHits.end());

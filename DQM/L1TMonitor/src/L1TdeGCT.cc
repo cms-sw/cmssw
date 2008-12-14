@@ -384,9 +384,12 @@ void
   }
   for(int i=0; i<nGctColl_; i++) {
     if(!hasCol[i]) continue;
-    nWithCol[i]++;
-    if(nagree[i]<hasCol[i])
-      colCount[i]++;
+    ///event based rate
+    //nWithCol[i]++;
+    //if(nagree[i]<hasCol[i]) colCount[i]++;
+    ///object based rate
+    nWithCol[i]+=hasCol[i];//#of objects
+    colCount[i]+=nagree[i];//#of agreements
   }
   for(int i=0; i<nGctColl_; i++) {
     int ibin = i+1;

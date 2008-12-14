@@ -17,6 +17,14 @@ process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring('file:/afs/cern.ch/user/g/ghete/scratch0/CmsswTestFiles/testGt_PackUnpackAnalyzer_source.root')
 )
 
+# /RelValQCD_Pt_80_120/CMSSW_2_1_10_IDEAL_V9_v2/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO
+#process.PoolSource.fileNames = [
+#       '/store/relval/CMSSW_2_1_10/RelValQCD_Pt_80_120/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/IDEAL_V9_v2/0000/046AC296-EC99-DD11-9691-000423D6A6F4.root',
+#       '/store/relval/CMSSW_2_1_10/RelValQCD_Pt_80_120/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/IDEAL_V9_v2/0000/08CF0B41-E599-DD11-B957-000423D98AF0.root',
+#       '/store/relval/CMSSW_2_1_10/RelValQCD_Pt_80_120/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/IDEAL_V9_v2/0000/10469277-E099-DD11-9F4C-000423D9890C.root',
+#       '/store/relval/CMSSW_2_1_10/RelValQCD_Pt_80_120/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/IDEAL_V9_v2/0000/1C633A33-EA99-DD11-906A-001617DC1F70.root',
+#]
+
 # configuration
 
 # L1 EventSetup
@@ -31,7 +39,7 @@ process.load("EventFilter.L1GlobalTriggerRawToDigi.l1GtPack_cfi")
 process.l1GtPack.DaqGtInputTag = 'gtDigis'
     
 # input tag for GMT readout collection: 
-process.l1GtPack.MuGmtInputTag = 'hltGtDigis'
+process.l1GtPack.MuGmtInputTag = 'gtDigis'
 
 # mask for active boards (actually 16 bits)
 #      if bit is zero, the corresponding board will not be packed
@@ -95,10 +103,10 @@ process.gtPackedUnpack.DaqGtInputTag = 'l1GtPack'
 process.load("L1Trigger.GlobalTriggerAnalyzer.l1GtPackUnpackAnalyzer_cfi")
 
 # input tag for the initial GT DAQ record: must match the pack label
-#process.l1GtPackUnpackAnalyzer.InitialDaqGtInputTag = 'gtDigis'
+process.l1GtPackUnpackAnalyzer.InitialDaqGtInputTag = 'gtDigis'
 
 # input tag for the initial GMT readout collection: must match the pack label 
-process.l1GtPackUnpackAnalyzer.InitialMuGmtInputTag = 'hltGtDigis'
+process.l1GtPackUnpackAnalyzer.InitialMuGmtInputTag = 'gtDigis'
 
 # input tag for the final GT DAQ and GMT records:  must match the unpack label 
 #     GT unpacker:  gtPackedUnpack (cloned unpacker from L1GtPackUnpackAnalyzer.cfg)

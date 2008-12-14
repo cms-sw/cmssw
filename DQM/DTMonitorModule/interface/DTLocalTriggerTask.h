@@ -4,8 +4,8 @@
 /*
  * \file DTLocalTriggerTask.h
  *
- * $Date: 2008/05/22 10:48:35 $
- * $Revision: 1.17 $
+ * $Date: 2008/06/10 14:59:22 $
+ * $Revision: 1.18 $
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -59,6 +59,9 @@ class DTLocalTriggerTask: public edm::EDAnalyzer{
   
   /// Book the histograms
   void bookHistos(const DTChamberId& dtCh, std::string folder, std::string histoTag );
+
+  /// Book the histograms
+  void bookCMSHistos(std::string histoTag);
   
   /// Calculate phi range for histograms
   std::pair<float,float> phiRange(const DTChamberId& id);
@@ -87,12 +90,6 @@ class DTLocalTriggerTask: public edm::EDAnalyzer{
   /// Run analysis on ROS data
   void runDDUvsDCCAnalysis(std::string& trigsrc);
 
-  /// Load DTTF map correction
-  void loadDTTFMap();
-
-  /// Correct DTTF mapping
-  void correctMapping(int& wh, int& sector);
-  
   /// Analyze
   void analyze(const edm::Event& e, const edm::EventSetup& c);
 
@@ -104,13 +101,20 @@ class DTLocalTriggerTask: public edm::EDAnalyzer{
   
   /// Get the L1A source
   void triggerSource(const edm::Event& e);
+
+  /// Get the Top folder (different between Physics and TP)
+  std::string& topFolder() { return baseFolder; }
   
  private:
   
-  bool debug;
   bool useDCC, useDDU, useSEG;
   std::string trigsrc;
   int nevents;
+  bool tpMode;
+  std::string baseFolder;
+  bool doDCCTheta;
+  bool detailedAnalysis;
+  
  
   int phcode_best[6][5][13];
   int dduphcode_best[6][5][13];

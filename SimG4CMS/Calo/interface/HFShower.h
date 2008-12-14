@@ -25,20 +25,13 @@ public:
   HFShower(std::string & name, const DDCompactView & cpv, 
 	   edm::ParameterSet const & p);
   virtual ~HFShower();
-
-public:
-
-  struct Hit {
-    Hit() {}
-    double                   time;
-    double                   wavelength; 
-  };
-
-  std::vector<Hit>           getHits(G4Step * aStep);
+  int                        getHits(G4Step * aStep);
+  double                     getTSlice(int i);
 
 private:    
 
   double                     fibreLength(G4String);
+  void                       clearHits();
 
 private:    
 
@@ -47,6 +40,10 @@ private:
 
   double                     probMax;
   std::map<G4String,double>  fibreDz2;
+
+  int                        nHit;
+  std::vector<double>        wlHit;
+  std::vector<double>        timHit;
 
 };
 

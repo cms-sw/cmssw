@@ -4,8 +4,8 @@
 /* Class to find test-pulse dead channels from a t0 databases:
  * wires without t0 value are tp-dead.
  
- *  $Date: 2008/02/19 15:15:00 $
- *  $Revision: 1.1 $
+ *  $Date: $
+ *  $Revision: $
  *  \author S. Bolognesi
  */
 
@@ -35,13 +35,13 @@ public:
   // Operations
 
   ///Read t0 map from event
-  virtual void beginRun(const edm::Run&, const edm::EventSetup& setup);
+  void beginJob(const edm::EventSetup& setup);
 
   /// Compute the ttrig by fiting the TB rising edge
-  virtual void analyze(const edm::Event & event, const edm::EventSetup& eventSetup);
+  void analyze(const edm::Event & event, const edm::EventSetup& eventSetup);
 
   /// Write ttrig in the DB
-  virtual void endJob();
+  void endJob();
 
  
 protected:

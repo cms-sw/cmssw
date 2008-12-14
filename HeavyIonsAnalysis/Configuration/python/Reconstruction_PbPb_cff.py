@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 # from HeavyIonsAnalysis.Configuration.HighPtTracking_PbPb_cff import *
 # from HeavyIonsAnalysis.Configuration.LowPtTracking_PbPb_cff import *
 
-from HeavyIonsAnalysis.Configuration.HeavyIonTracking_cff import *
+from HeavyIonsAnalysis.Configuration.Tracking_PbPb_cff import *
 
 from RecoLocalCalo.EcalRecProducers.ecalWeightUncalibRecHit_cfi import *
 from RecoLocalCalo.EcalRecProducers.ecalRecHit_cfi import *

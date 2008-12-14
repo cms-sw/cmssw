@@ -16,7 +16,7 @@ BATCH_DIR=$(pwd)
 echo "Running at $(date) \n        on $HOST \n        in directory $BATCH_DIR."
 
 # set up the CMS environment (choose your release and working area):
-cd $HOME/cms/CMSSW/CMSSW_2_1_10
+cd $HOME/scratch0/CMSSW_2_1_0
 echo Setting up $(pwd) as CMSSW environment. 
 eval `scramv1 runtime -sh`
 rehash

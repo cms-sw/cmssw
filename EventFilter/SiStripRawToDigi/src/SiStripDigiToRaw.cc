@@ -1,4 +1,4 @@
-// Last commit: $Id: $
+// Last commit: $Id: SiStripDigiToRaw.cc,v 1.29 2008/07/04 14:07:49 bainbrid Exp $
 
 #include "EventFilter/SiStripRawToDigi/interface/SiStripDigiToRaw.h"
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"

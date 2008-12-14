@@ -1,25 +1,11 @@
 
-// $Id: LumiSummary.cc,v 1.2 2008/02/06 20:57:26 wdd Exp $
+// $Id: LumiSummary.cc,v 1.1 2007/07/13 20:13:03 wdd Exp $
 
 #include "DataFormats/Luminosity/interface/LumiSummary.h"
 
 #include <iomanip>
 
 using namespace std;
-
-bool
-LumiSummary::isProductEqual(LumiSummary const& next) {
-  return (avginsdellumi_ == next.avginsdellumi_ &&
-          avginsdellumierr_ == next.avginsdellumierr_ &&
-          lumisecqual_ == next.lumisecqual_ &&
-          deadfrac_ == next.deadfrac_ &&
-          lsnumber_ == next.lsnumber_ &&
-          l1ratecounter_ == next.l1ratecounter_ &&
-          l1scaler_ == next.l1scaler_ &&
-          hltratecounter_ == next.hltratecounter_ &&
-          hltscaler_ == next.hltscaler_ &&
-          hltinput_ == next.hltinput_);
-}
 
 std::ostream& operator<<(std::ostream& s, const LumiSummary& lumiSummary) {
 

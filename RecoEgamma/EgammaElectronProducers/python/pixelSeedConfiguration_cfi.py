@@ -1,42 +1,38 @@
 import FWCore.ParameterSet.Config as cms
 
 electronPixelSeedConfiguration = cms.PSet(
-
-    # steering
-    fromTrackerSeeds = cms.bool(True),
-    initialSeeds = cms.InputTag("newCombinedSeeds"),
-    preFilteredSeeds = cms.bool(False),
-    dynamicPhiRoad = cms.bool(True),
     searchInTIDTEC = cms.bool(True), ##  possibility to inhibit extended forward coverage
 
-    # SC filtering
-    SCEtCut = cms.double(4.0),
-    hcalRecHits = cms.InputTag("hbhereco"),
-    maxHOverE = cms.double(0.1),
-
-    # r/z windows
-    z2MinB = cms.double(-0.09),
-    z2MaxB = cms.double(0.09),
-    r2MinF = cms.double(-0.15),
-    r2MaxF = cms.double(0.15),
-    rMinI = cms.double(-0.2), ## intermediate region SC in EB and 2nd hits in PXF
-    rMaxI = cms.double(0.2), ## intermediate region SC in EB and 2nd hits in PXF
-
-    # phi windows (dynamic)
-    LowPtThreshold = cms.double(5.0),
     HighPtThreshold = cms.double(35.0),
-    SizeWindowENeg = cms.double(0.675),
+    r2MinF = cms.double(-0.15),
     DeltaPhi1Low = cms.double(0.23),
     DeltaPhi1High = cms.double(0.08),
-    DeltaPhi2 = cms.double(0.004),
-
-    # phi windows (non dynamic, overwritten in case dynamic is selected)
+    # non dynamic (overwritten in case of dynamicPhiRoad)
     ePhiMin1 = cms.double(-0.125),
-    ePhiMax1 = cms.double(0.075),
-    pPhiMin1 = cms.double(-0.075),
-    pPhiMax1 = cms.double(0.125),
+    # general
     PhiMin2 = cms.double(-0.002),
+    # dynamicPhiRoad
+    LowPtThreshold = cms.double(5.0),
+    maxHOverE = cms.double(0.1),
+    dynamicPhiRoad = cms.bool(True),
+    ePhiMax1 = cms.double(0.075),
+    DeltaPhi2 = cms.double(0.004),
+    SizeWindowENeg = cms.double(0.675),
+    rMaxI = cms.double(0.2), ## intermediate region SC in EB and 2nd hits in PXF
+
     PhiMax2 = cms.double(0.002),
-    
+    preFilteredSeeds = cms.bool(False),
+    r2MaxF = cms.double(0.15),
+    pPhiMin1 = cms.double(-0.075),
+    initialSeeds = cms.InputTag("newCombinedSeeds"),
+    pPhiMax1 = cms.double(0.125),
+    SCEtCut = cms.double(4.0),
+    z2MaxB = cms.double(0.09),
+    fromTrackerSeeds = cms.bool(True),
+    # for filtering
+    hcalRecHits = cms.InputTag("hbhereco"),
+    z2MinB = cms.double(-0.09),
+    rMinI = cms.double(-0.2) ## intermediate region SC in EB and 2nd hits in PXF
+
 )
 

@@ -25,6 +25,7 @@ void MethodSetter::operator()(const char * begin, const char * end) const {
   string::size_type endOfExpr = name.find_last_of(' ');
   if(endOfExpr != string::npos)
     name.erase(endOfExpr, name.size());
+  //std::cout << "\nPushing '" << name << "', #args = " << args.size() << ", begin=[" << begin << "]" << std::endl; 
   push(name, args,begin);
 }
 
@@ -42,12 +43,14 @@ void MethodSetter::push(const string & name, const vector<AnyMethodArgument> & a
         
      }
      typeStack_.push_back(retType);
-   // check for edm::Ref, edm::RefToBase, edm::Ptr
+     // check for edm::Ref, edm::RefToBase, edm::Ptr
      if(mem.second) {
+        //std::cout << "Mem.second, so book " << mem.first.Name() << " without fixups." << std::endl;
         methStack_.push_back(MethodInvoker(mem.first));
         push(name, args,begin); // we have not found the method, so we have not fixupped the arguments
       } else {
-         methStack_.push_back(MethodInvoker(mem.first, fixups));
+        //std::cout << "Not mem.second, so book " << mem.first.Name() << " with #args = " << fixups.size() << std::endl;
+        methStack_.push_back(MethodInvoker(mem.first, fixups));
       }
   } else {
      if(error != reco::parser::kNameDoesNotExist) {

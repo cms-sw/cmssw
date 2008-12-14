@@ -28,18 +28,24 @@ void HcalTrigPrimMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
   etaMax_ = ps.getUntrackedParameter<double>("MaxEta", 41.5);
   etaMin_ = ps.getUntrackedParameter<double>("MinEta", -41.5);
   etaBins_ = (int)(etaMax_ - etaMin_);
+  if (fVerbosity) cout << "TrigPrim eta min/max set to " << etaMin_ << "/" << etaMax_ << endl;
   
   phiMax_ = ps.getUntrackedParameter<double>("MaxPhi", 73);
   phiMin_ = ps.getUntrackedParameter<double>("MinPhi", 0);
   phiBins_ = (int)(phiMax_ - phiMin_);
+  if (fVerbosity) cout << "TrigPrim phi min/max set to " << phiMin_ << "/" << phiMax_ << endl;
   
   occThresh_ = ps.getUntrackedParameter<double>("TPOccThresh", 1.0);
+  if (fVerbosity) cout << "TrigPrim occupancy threshold set to " << occThresh_ << endl;
 
   TPThresh_ = ps.getUntrackedParameter<double>("TPThreshold", 1.0);
+  if (fVerbosity) cout << "TrigPrim threshold set to " << TPThresh_ << endl;
 
   TPdigi_ = ps.getUntrackedParameter<int>("TPdigiTS", 1);
+  if (fVerbosity) cout << "TP digi set to " << TPdigi_ << endl;
 
   ADCdigi_ = ps.getUntrackedParameter<int>("ADCdigiTS", 3);
+  if (fVerbosity) cout << "ADC digi set to " << ADCdigi_ << endl;
 
   checkNevents_=ps.getUntrackedParameter<int>("checkNevents",1000);
 
@@ -103,13 +109,6 @@ void HcalTrigPrimMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
 
 //Electronics Plots
     m_dbe->setCurrentFolder(baseFolder_+"/Electronics Plots");
-    type = "HBHE Sliding Pair Sum Maxes";
-    me_HBHE_ZS_SlidingSum = m_dbe->book1D(type,type,128,0,128);
-    type = "HF Sliding Pair Sum Maxes";
-    me_HF_ZS_SlidingSum   = m_dbe->book1D(type,type,128,0,128);
-    type = "HO Sliding Pair Sum Maxes";
-    me_HO_ZS_SlidingSum   = m_dbe->book1D(type,type,128,0,128);
-
     type = "TP vs Digi";
     TPvsDigi_       = m_dbe->book2D(type,type,128,0,128,200,0,200);
     TPvsDigi_->setAxisTitle("lin ADC digi",1);
@@ -159,7 +158,7 @@ void HcalTrigPrimMonitor::processEvent(const HBHERecHitCollection& hbHits,
   
 
   if(!m_dbe) { 
-    cout <<"HcalTrigPrimMonitor::processEvent   DQMStore not instantiated!!!"<<endl;  
+    if (fVerbosity) cout <<"HcalTrigPrimMonitor::processEvent   DQMStore not instantiated!!!"<<endl;  
     return; 
   }
 
@@ -258,50 +257,19 @@ void HcalTrigPrimMonitor::processEvent(const HBHERecHitCollection& hbHits,
   } // try
   catch (...) 
     {    
-      cout<<"HcalTrigPrimMonitor:  no tp digis"<<endl;;
+      if (fVerbosity) cout<<"HcalTrigPrimMonitor:  no tp digis"<<endl;;
     }
+
   try{
     for(HBHEDigiCollection::const_iterator j=hbhedigi.begin(); j!=hbhedigi.end(); ++j){
        HBHEDataFrame digi = (const HBHEDataFrame)(*j);
-       for(int i=0; i<digi.size(); ++i) {
-	 data[i]=digi.sample(i).adc();
-	 if (i==0) maxsum = data[i];
-	 else if ((data[i] + data[i-1] ) > maxsum) 
-	   maxsum = data[i] + data[i-1];
-       }
+       for(int i=0; i<digi.size(); ++i) data[i]=digi.sample(i).adc();
        set_adc(digi.id().ieta(),digi.id().iphi(),digi.id().depth(),data);
-       me_HBHE_ZS_SlidingSum->Fill(maxsum);
     } // for (HBHEDigiCollection...)
   } // try 
-  catch (...) {    }  
-  try{
-    for(HFDigiCollection::const_iterator j=hfdigi.begin(); j!=hfdigi.end(); ++j){
-       HFDataFrame digi = (const HFDataFrame)(*j);
-       for(int i=0; i<digi.size(); ++i) {
-	 data[i]=digi.sample(i).adc();
-	 if (i==0) maxsum = data[i];
-	 else if ((data[i] + data[i-1] ) > maxsum) 
-	   maxsum = data[i] + data[i-1];
-       }
-       //set_adc(digi.id().ieta(),digi.id().iphi(),digi.id().depth(),data);
-       me_HF_ZS_SlidingSum->Fill(maxsum);
-    } // for (HFDigiCollection...)
-  } // try 
-  catch (...) {   }  
-  try{
-    for(HODigiCollection::const_iterator j=hodigi.begin(); j!=hodigi.end(); ++j){
-       HODataFrame digi = (const HODataFrame)(*j);
-       for(int i=0; i<digi.size(); ++i) {
-	 data[i]=digi.sample(i).adc();
-	 if (i==0) maxsum = data[i];
-	 else if ((data[i] + data[i-1] ) > maxsum) 
-	   maxsum = data[i] + data[i-1];
-       }
-       //set_adc(digi.id().ieta(),digi.id().iphi(),digi.id().depth(),data);
-       me_HO_ZS_SlidingSum->Fill(maxsum);
-    } // for (HODigiCollection...)
-  } // try 
-  catch (...) {      }
+  catch (...) {    
+    if (fVerbosity) cout <<"HcalTrigPrimMonitor:  no hcal digis"<<endl;
+  }
 
   // Correlation plots...
   int eta,phi;

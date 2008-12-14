@@ -1,13 +1,3 @@
-2008-10-14  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
-
-	* tag V00-15-00
-	* add Kurt's changes regarding the communication with the storage
-	manager
-	* fuID renamed to rbBufferID
-	* added fuProcId and fuGUID
-	* add format version number and lumiNumber (placeholder for now)
-	to the error stream data format (and thus source)
-
 2008-10-09  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
 	* tag V00-14-16

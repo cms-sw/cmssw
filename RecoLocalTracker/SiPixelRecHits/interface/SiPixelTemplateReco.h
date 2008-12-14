@@ -1,5 +1,5 @@
 //
-//  SiPixelTemplateReco.cc (Version 4.00)
+//  SiPixelTemplateReco.cc (Version 5.01)
 //
 //  Add goodness-of-fit to algorithm, include single pixel clusters in chi2 calculation
 //  Try "decapitation" of large single pixels
@@ -18,6 +18,10 @@
 //  Return error if no pixels in cluster
 //  Replace 4 cout's with LogError's
 //  Add LogDebug I/O to report various common errors
+//  Incorporate "cluster repair" to handle dead pixels
+//  Take truncation size from new pixmax information
+//  Change to allow template sizes to be changed at compile time
+//  Move interpolation range error to LogDebug
 //
 //  Created by Morris Swartz on 10/27/06.
 //  Copyright 2006 __TheJohnsHopkinsUniversity__. All rights reserved.
@@ -29,6 +33,19 @@
 #else
 #include "SiPixelTemplate.h"
 #endif
+
+#define TYSIZE 21
+#define BYSIZE TYSIZE+4
+#define BHY 12 // = BYSIZE/2
+#define BYM1 TYSIZE+3
+#define BYM2 TYSIZE+2
+#define BYM3 TYSIZE+1
+#define TXSIZE 13
+#define BXSIZE TXSIZE+4
+#define BHX 8 // = BXSIZE/2
+#define BXM1 TXSIZE+3
+#define BXM2 TXSIZE+2
+#define BXM3 TXSIZE+1
 
 #include <vector>
 #include "boost/multi_array.hpp"
@@ -42,7 +59,7 @@ namespace SiPixelTemplateReco
 	int PixelTempReco2D(int id, bool fpix, float cotalpha, float cotbeta, array_2d cluster, 
 				std::vector<bool> ydouble, std::vector<bool> xdouble, 
 				SiPixelTemplate& templ, 
-				float& yrec, float& sigmay, float& proby, float& xrec, float& sigmax, float& probx, int& qbin, int speed, float& dlengthy, float& dlengthx);
+				float& yrec, float& sigmay, float& proby, float& xrec, float& sigmax, float& probx, int& qbin, int speed, bool deadpix, std::vector<std::pair<int, int> > zeropix);
 
 	int PixelTempReco2D(int id, bool fpix, float cotalpha, float cotbeta, array_2d cluster, 
 				std::vector<bool> ydouble, std::vector<bool> xdouble, 

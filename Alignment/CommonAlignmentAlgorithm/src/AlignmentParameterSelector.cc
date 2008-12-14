@@ -1,8 +1,8 @@
 /** \file AlignmentParameterSelector.cc
  *  \author Gero Flucke, Nov. 2006
  *
- *  $Date: 2008/04/25 21:23:14 $
- *  $Revision: 1.16 $
+ *  $Date: 2008/02/15 09:50:23 $
+ *  $Revision: 1.15 $
  *  (last update by $Author: pivarski $)
  */
 
@@ -15,7 +15,6 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Utilities/interface/Exception.h"
 
 //________________________________________________________________________________
 AlignmentParameterSelector::AlignmentParameterSelector(AlignableTracker *aliTracker, AlignableMuon* aliMuon) :

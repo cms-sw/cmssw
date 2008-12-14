@@ -1,8 +1,8 @@
 /**
  *  A selector for muon tracks
  *
- *  $Date: 2008/08/13 16:33:25 $
- *  $Revision: 1.20 $
+ *  $Date: 2008/08/13 12:55:27 $
+ *  $Revision: 1.19 $
  *  \author R.Bellan - INFN Torino
  */
 #include "RecoMuon/TrackingTools/interface/MuonTrajectoryCleaner.h"
@@ -36,7 +36,6 @@ void MuonTrajectoryCleaner::clean(TrajectoryContainer& trajC){
   
   for ( iter = trajC.begin(); iter != trajC.end(); iter++ ) {
     if ( !mask[i] ) { i++; continue; }
-    if ( !(*iter)->isValid() || (*iter)->empty() ) {mask[i] = false; i++; continue; }
     const Trajectory::DataContainer& meas1 = (*iter)->measurements();
     j = i+1;
     bool skipnext=false;

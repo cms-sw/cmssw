@@ -1,12 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
-from RecoEgamma.PhotonIdentification.cutBasedID_cfi import *
 #
 # producer for photons
-# $Id: photons_cfi.py,v 1.15 2008/07/18 10:18:59 nancy Exp $
+# $Id: photons_cfi.py,v 1.9 2008/06/18 11:00:13 nancy Exp $
 #
 photons = cms.EDProducer("PhotonProducer",
-    cutBasedIDPSet = cms.PSet(CutBasedIDAlgo),
     scHybridBarrelProducer = cms.InputTag("correctedHybridSuperClusters"),
     minR9 = cms.double(0.93),
     usePrimaryVertex = cms.bool(True),

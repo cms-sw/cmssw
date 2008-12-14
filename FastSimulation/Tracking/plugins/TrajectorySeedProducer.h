@@ -16,6 +16,7 @@ class TrackerGeometry;
 class TrajectoryStateOnSurface;
 class PTrajectoryStateOnDet;
 class ParticlePropagator; 
+class PropagatorWithMaterial;
 
 namespace edm { 
   class ParameterSet;
@@ -55,6 +56,7 @@ class TrajectorySeedProducer : public edm::EDProducer
   const MagneticField*  theMagField;
   const MagneticFieldMap*  theFieldMap;
   const TrackerGeometry*  theGeometry;
+  PropagatorWithMaterial* thePropagator;
 
   std::vector<double> pTMin;
   std::vector<double> maxD0;

@@ -1,25 +1,25 @@
 import FWCore.ParameterSet.Config as cms
 
+
 SingleTauPathVal = cms.EDFilter("HLTTauValidation",
     triggerEventObject    = cms.untracked.InputTag("hltTriggerSummaryRAW","","HLT"),
     refTauCollection      = cms.untracked.InputTag("TauMCProducer","HadronicTauOneAndThreeProng"),
     refLeptonCollection   = cms.untracked.InputTag("NOTHING"),
     DQMFolder             = cms.untracked.string('HLT/HLTTAU/SingleTau/Path'),
-    L1SeedFilter          = cms.untracked.InputTag("hltL1sSingleTau","","HLT"),
-    L2EcalIsolFilter      = cms.untracked.InputTag("hltFilterSingleTauEcalIsolation","","HLT"),
-    L25PixelIsolFilter    = cms.untracked.InputTag("hltFilterL25SingleTau","","HLT"),
-    L3SiliconIsolFilter   = cms.untracked.InputTag("hltFilterL3SingleTau","","HLT"),
-    MuonFilter            = cms.untracked.InputTag("DUMMY"),
-    ElectronFilter        = cms.untracked.InputTag("DUMMY"),
-    NTriggeredTaus        = cms.untracked.uint32(1),
-    NTriggeredLeptons     = cms.untracked.uint32(0),
-    DoReferenceAnalysis   = cms.untracked.bool(True),
-    OutputFileName        = cms.untracked.string(''),
-    LogFileName           = cms.untracked.string(''),
-    MatchDeltaRL1         = cms.untracked.double(0.5),
-    MatchDeltaRHLT        = cms.untracked.double(0.3)
+    MatchDeltaR           = cms.untracked.vdouble(0.5,0.0,0.3,0.3,0.3),    #One per filter
+    Filter                = cms.untracked.VInputTag(
+                                     cms.InputTag("hltL1sSingleTau","","HLT"),
+                                     cms.InputTag("hlt1METSingleTau","","HLT"),
+                                     cms.InputTag("hltFilterSingleTauEcalIsolation","","HLT"),
+                                     cms.InputTag("hltFilterL25SingleTau","","HLT"),
+                                     cms.InputTag("hltFilterL3SingleTau","","HLT")
+                                     ),
+    NTriggeredTaus        = cms.untracked.vuint32(1,1,0,1,1,1), #The first one is for the ref events
+    NTriggeredLeptons     = cms.untracked.vuint32(0,0,0,0,0,0), #the first one is for the ref events
+    TauType               = cms.untracked.vint32(86,0,94,94,94),
+    LeptonType            = cms.untracked.vint32(0,0,0,0,0),                            
+    DoReferenceAnalysis   = cms.untracked.bool(True)
 )
-
 
 SingleTauL2Val = cms.EDFilter("HLTTauCaloDQMOfflineSource",
     DQMFolder              = cms.string('HLT/HLTTAU/SingleTau/L2'),

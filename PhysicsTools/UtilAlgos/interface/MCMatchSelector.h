@@ -31,7 +31,7 @@ namespace reco {
 	if ( ids_.find(abs(mc.pdgId()))==ids_.end() )  return false;
       }
       if ( status_.empty() )  return true;
-      return status_.find(mc.status())!=status_.end();
+      return status_.find(abs(mc.status()))!=status_.end();
     }
   private:
     bool checkCharge_;

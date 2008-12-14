@@ -149,19 +149,17 @@ RctInputTextToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  // transform rct iphi coords into global coords
 	  iPhi = ((72 + 18 - iPhi) % 72);
 	  if (iPhi == 0) {iPhi = 72;}
-	  unsigned absIeta = abs(iEta);
-	  int zSide = (iEta/absIeta);
+	  int zSide = (iEta/abs(iEta));
 	  
-	  /*std::cout << "iEta " << iEta << "\tabsiEta " << absIeta 
+	  /*std::cout << "iEta " << iEta << "\tabsiEta " << abs(iEta) 
 	    << "\tiPhi " << iPhi << "\tzSide " 
 	    << zSide << std::endl;
 	  */
 	  
 	  // args to detid are zside, type of tower, absieta, iphi
 	  // absieta and iphi must be between 1 and 127 inclusive
-
 	  EcalTriggerPrimitiveDigi 
-	    ecalDigi(EcalTrigTowerDetId(zSide, EcalTriggerTower, absIeta,
+	    ecalDigi(EcalTrigTowerDetId(zSide, EcalTriggerTower, abs(iEta),
 					iPhi));
 	  ecalDigi.setSize(nEcalSamples);
 	  
@@ -197,9 +195,7 @@ RctInputTextToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 		{
 		  hfIEta = hfIEta*(-1);
 		}
-	      // iphi shift not implemented, but not necessary here --
-	      // everything's filled with zeros so it's symmetric anyhow
-	      int hfIPhi = (i%9)*8 + (j/4)*4 + 1;
+	      int hfIPhi = (i%9 + j/4)*4 + 1;
 	      
 	      HcalTriggerPrimitiveDigi
 		hfDigi(HcalTrigTowerDetId(hfIEta, hfIPhi));

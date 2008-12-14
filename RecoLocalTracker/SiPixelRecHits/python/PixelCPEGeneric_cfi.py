@@ -11,14 +11,7 @@ PixelCPEGenericESProducer = cms.ESProducer("PixelCPEGenericESProducer",
     TanLorentzAnglePerTesla = cms.double(0.106),
     Alpha2Order = cms.bool(True),
     eff_charge_cut_highY = cms.untracked.double(1.0),
-    PixelErrorParametrization = cms.string('NOTcmsim'),
-
-    # ggiurgiu@jhu.edu
-    inflate_errors = cms.untracked.bool(False),
-    inflate_all_errors_no_trk_angle = cms.untracked.bool(False),
-
-    # petar, for clusterProbability() from TTRHs
-    ClusterProbComputationFlag = cms.int32(0)         
+    PixelErrorParametrization = cms.string('NOTcmsim')
 )
 
 

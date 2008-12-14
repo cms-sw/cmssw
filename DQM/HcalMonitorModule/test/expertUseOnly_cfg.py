@@ -17,8 +17,7 @@ process.maxEvents = cms.untracked.PSet(
 
 # Use this when running over .root file
 process.source = cms.Source("PoolSource",
-                            #fileNames = cms.untracked.vstring('/store/data/CRUZET3/Cosmics/RAW/v1/000/051/199/EA1F908F-AD4E-DD11-8235-000423D6A6F4.root')
-                            fileNames= cms.untracked.vstring('/store/data/Commissioning08/Cosmics/RAW/v1/000/064/103/2A983512-E18F-DD11-BE84-001617E30CA4.root')
+                            fileNames = cms.untracked.vstring('/store/data/CRUZET3/Cosmics/RAW/v1/000/051/199/EA1F908F-AD4E-DD11-8235-000423D6A6F4.root')
                             )
 
 
@@ -100,8 +99,8 @@ process.load("RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_zdc_cfi")
 # hcalMonitor configurable values -----------------------
 process.hcalMonitor.debug = False
 process.hcalMonitor.DigiOccThresh = -999999999 ##Temporary measure while DigiOcc is reworked.
-#process.hcalMonitor.PedestalsPerChannel = False
-#process.hcalMonitor.PedestalsInFC = True
+process.hcalMonitor.PedestalsPerChannel = False
+process.hcalMonitor.PedestalsInFC = True
 
 # Turn on/off individual hcalMonitor modules ------------
 # Expert-level info :  Turn off everything except ExpertMonitor

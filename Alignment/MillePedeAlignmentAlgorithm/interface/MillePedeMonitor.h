@@ -7,8 +7,8 @@
 ///
 ///  \author    : Gero Flucke
 ///  date       : October 2006
-///  $Revision: 1.10 $
-///  $Date: 2008/03/27 17:49:16 $
+///  $Revision: 1.9 $
+///  $Date: 2008/03/25 16:15:57 $
 ///  (last update by $Author: flucke $)
 
 #include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
@@ -59,8 +59,6 @@ class MillePedeMonitor
 		     float residuum, float sigma, bool isY);
   void fillFrameToFrame(const AlignableDetOrUnitPtr &aliDet, const Alignable *ali);
 
-  void fillCorrelations2D(float corr, const TransientTrackingRecHit::ConstRecHitPointer &hit);
-
  private:
   bool init(TDirectory *directory);
   bool equidistLogBins(double* bins, int nBins, double first, double last) const;
@@ -95,7 +93,6 @@ class MillePedeMonitor
   std::vector<TH1*> myResidHitHists1DX;
   std::vector<TH1*> myResidHitHists1DY;
   std::vector<TH2*> myFrame2FrameHists2D;
-  std::vector<TH1*> myCorrHists; // correlations
 
 };
 

@@ -39,7 +39,7 @@ process.load( "Configuration.StandardSequences.Geometry_cff" )
 # Calibration 
 process.load( "Configuration.StandardSequences.FrontierConditions_GlobalTag_cff" )
 process.GlobalTag.connect   = 'frontier://PromptProd/CMS_COND_21X_GLOBALTAG'
-process.GlobalTag.globaltag = 'CRAFT_V3P::All'
+process.GlobalTag.globaltag = 'CRAFT_V4P::All'
 process.es_prefer_GlobalTag = cms.ESPrefer( 'PoolDBESSource', 'GlobalTag' )
 
 ### SiStrip DQM ###

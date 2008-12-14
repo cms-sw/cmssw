@@ -223,7 +223,7 @@ void HcalLaserClient::getHistograms() {
     else if( i==2 ) type = "HF";
     else if( i==3 ) type = "HO";
 
-    sprintf( name, "LaserMonitor/%s/%s Ped Subtracted Pulse Shape", type.c_str(), type.c_str() );
+    sprintf( name, "LaserMonitor/%s/%s Average Pulse Shape", type.c_str(), type.c_str() );
     avg_shape_[i] = getHisto( name, process_, dbe_, debug_, cloneME_ );
     sprintf( name, "LaserMonitor/%s/%s Average Pulse Time", type.c_str(), type.c_str() );
     avg_time_[i] = getHisto( name, process_, dbe_, debug_, cloneME_ );
@@ -367,7 +367,7 @@ void HcalLaserClient::resetAllME() {
 
     sprintf( name, "%sHcal/LaserMonitor/%s/%s Ped Subtracted Pulse Shape", process_.c_str(), type.c_str(), type.c_str() );
     resetME( name, dbe_ );
-    sprintf( name, "%sHcal/LaserMonitor/%s/%s Ped Subtracted Pulse Shape", process_.c_str(), type.c_str(), type.c_str() );
+    sprintf( name, "%sHcal/LaserMonitor/%s/%s Average Pulse Shape", process_.c_str(), type.c_str(), type.c_str() );
     resetME( name, dbe_ );
     sprintf( name, "%sHcal/LaserMonitor/%s/%s Laser Shape RMS Values", process_.c_str(), type.c_str(), type.c_str() );
     resetME( name, dbe_ );
@@ -623,7 +623,7 @@ void HcalLaserClient::loadHistograms( TFile* infile ) {
     else if( i == 2 ) type = "HF"; 
     else if( i == 3 ) type = "HO";
 
-    sprintf( name, "DQMData/Hcal/LaserMonitor/%s/%s Ped Subtracted Pulse Shape", type.c_str(), type.c_str() );      
+    sprintf( name, "DQMData/Hcal/LaserMonitor/%s/%s Average Pulse Shape", type.c_str(), type.c_str() );      
     avg_shape_[i] = (TH1F*)infile->Get(name);
     sprintf( name, "DQMData/Hcal/LaserMonitor/%s/%s Average Pulse Time", type.c_str(), type.c_str() );      
     avg_time_[i] = (TH1F*)infile->Get(name);

@@ -1,6 +1,6 @@
 execute command:
 
-cmsRun runEDDigi_cfg.py
+cmsRun runEDDigi.cfg
 
 test1event.root will be produced 
 

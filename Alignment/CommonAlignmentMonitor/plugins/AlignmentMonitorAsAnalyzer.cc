@@ -13,7 +13,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Sat Apr 26 12:36:13 CDT 2008
-// $Id: AlignmentMonitorAsAnalyzer.cc,v 1.1 2008/04/27 01:57:40 pivarski Exp $
+// $Id$
 //
 //
 
@@ -138,7 +138,7 @@ AlignmentMonitorAsAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSe
 
    // Run the monitors
    for (std::vector<AlignmentMonitorBase*>::const_iterator monitor = m_monitors.begin();  monitor != m_monitors.end();  ++monitor) {
-      (*monitor)->duringLoop(iEvent, iSetup, trajTracks);
+      (*monitor)->duringLoop(iSetup, trajTracks);
    }
 
    // Keep this for endOfLoop (why does endOfLoop want iSetup???)

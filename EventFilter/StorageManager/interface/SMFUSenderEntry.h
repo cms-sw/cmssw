@@ -53,7 +53,7 @@ struct SMFUSenderEntry  // used to store each FU sender
                  const unsigned int numFramesToAllocate,
                  const std::string outModName,
                  const uint32 outModId,
-                 const uint32 rbBufferID,
+                 const uint32 fuID,
                  toolbox::mem::Reference *ref);
   private:
   
@@ -62,7 +62,7 @@ struct SMFUSenderEntry  // used to store each FU sender
   unsigned int  hltLocalId_;
   unsigned int  hltInstance_;
   unsigned int  hltTid_;
-  const uint32  rbBufferID_;
+  const uint32  fuID_;
   SMFUSenderRegCollection registryCollection_;
   unsigned int  connectStatus_;   // FU+HLT connection status
   double        lastLatency_;     // Latency of last frame in microseconds
@@ -112,7 +112,7 @@ struct SMFUSenderEntry  // used to store each FU sender
   unsigned int gethltLocalId() const {return hltLocalId_;}
   unsigned int gethltInstance() const {return hltInstance_;}
   unsigned int gethltTid() const {return hltTid_;}
-  uint32       getrbBufferID() const {return rbBufferID_;}
+  uint32       getfuID() const {return fuID_;}
   unsigned int getnumOutMod() const {return registryCollection_.outModName_.size();}
   SMFUSenderRegCollection getRegistryCollection() const {return registryCollection_;}
   SMFUSenderDatCollection getDatCollection() const {return datCollection_;}
@@ -149,7 +149,7 @@ struct SMFUSenderEntry  // used to store each FU sender
                              const unsigned int hltLocalId,
                              const unsigned int hltInstance, 
                              const unsigned int hltTid,
-                             const uint32 rbBufferID,
+                             const uint32 fuID,
                              const std::string outModName);
   bool matchFirst(const char* hltURL, const char* hltClassName, 
                              const unsigned int hltLocalId,

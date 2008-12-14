@@ -10,9 +10,6 @@ class EcalUncalibratedRecHit {
   
   typedef DetId key_type;
 
-  static const int kSATURATED=-99999;
-  static const float kPRECISION;
-
   EcalUncalibratedRecHit();
   EcalUncalibratedRecHit(const DetId& detId, const double& ampl, const double& ped,
                           const double& jit, const double& chi2);
@@ -23,8 +20,7 @@ class EcalUncalibratedRecHit {
   double jitter() const { return jitter_; }
   double chi2() const { return chi2_; }
   DetId  id() const { return id_; }
-  bool isSaturated() const;
-
+  
  private:
   double amplitude_;   //< Reconstructed amplitude
   double pedestal_;    //< Reconstructed pedestal

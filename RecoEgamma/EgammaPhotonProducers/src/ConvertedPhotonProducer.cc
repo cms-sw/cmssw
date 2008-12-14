@@ -39,7 +39,7 @@
 //
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "TrackingTools/TransientTrack/interface/TrackTransientTrack.h"
-#include "TrackingTools/PatternTools/interface/TwoTrackMinimumDistance.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
 
 ConvertedPhotonProducer::ConvertedPhotonProducer(const edm::ParameterSet& config) : 
@@ -130,13 +130,6 @@ void  ConvertedPhotonProducer::beginRun (edm::Run& r, edm::EventSetup const & th
      // instantiate the algorithm for finding the position of the track extrapolation at the Ecal front face
     theEcalImpactPositionFinder_ = new   ConversionTrackEcalImpactPoint ( &(*theMF_) );
   }  
-
-
-
-  // Transform Track into TransientTrack (needed by the Vertex fitter)
-  theEventSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",theTransientTrackBuilder_);
-
-
 
 }
 
@@ -249,12 +242,15 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
   }
  
   
+  // Transform Track into TransientTrack (needed by the Vertex fitter)
+  edm::ESHandle<TransientTrackBuilder> theTransientTrackBuilder;
+  theEventSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",theTransientTrackBuilder);
 
 
   if (  validTrackInputs ) {
     //do the conversion:
-    std::vector<reco::TransientTrack> t_outInTrk = ( *theTransientTrackBuilder_ ).build(outInTrkHandle );
-    std::vector<reco::TransientTrack> t_inOutTrk = ( *theTransientTrackBuilder_ ).build(inOutTrkHandle );
+    std::vector<reco::TransientTrack> t_outInTrk = ( *theTransientTrackBuilder ).build(outInTrkHandle );
+    std::vector<reco::TransientTrack> t_inOutTrk = ( *theTransientTrackBuilder ).build(inOutTrkHandle );
     
     
     ///// Find the +/- pairs
@@ -295,10 +291,6 @@ void ConvertedPhotonProducer::buildCollections (  const edm::Handle<edm::View<re
     reco::CaloClusterPtr aClus= scHandle->ptrAt(i);
 
     std::vector<edm::Ref<reco::TrackCollection> > trackPairRef;
-    std::vector<math::XYZVector> trackPin;
-    std::vector<math::XYZVector> trackPout;
-    float minAppDist=-99;
-
     LogDebug("ConvertedPhotonProducer") << "ConvertedPhotonProducer SC energy " << aClus->energy() << " eta " <<  aClus->eta() << " phi " <<  aClus->phi() << "\n";
 
     
@@ -326,7 +318,6 @@ void ConvertedPhotonProducer::buildCollections (  const edm::Handle<edm::View<re
 	nFound++;
 	
 
-        minAppDist=-99;
 	const string metname = "ConvertedPhotons|ConvertedPhotonProducer";
 	if ( (iPair->first).size()  > 1 ) {
 	  try{
@@ -341,11 +332,7 @@ void ConvertedPhotonProducer::buildCollections (  const edm::Handle<edm::View<re
 				     << e.explainSelf();
 	    
 	  }
-	 
-	  TwoTrackMinimumDistance md;
-	  md.calculate  (  (iPair->first)[0].initialFreeState(),  (iPair->first)[1].initialFreeState() );
-          minAppDist = md.distance(); 
- 
+	  
 	}
 	
 
@@ -365,9 +352,7 @@ void ConvertedPhotonProducer::buildCollections (  const edm::Handle<edm::View<re
 
 	//// loop over tracks in the pair  for creating a reference
 	trackPairRef.clear();
-        trackPin.clear();
-	trackPout.clear();
-      
+
 	
 	for ( std::vector<reco::TransientTrack>::const_iterator iTk=(iPair->first).begin(); iTk!= (iPair->first).end(); ++iTk) {
 	  LogDebug("ConvertedPhotonProducer")  << "  ConvertedPhotonProducer Transient Tracks in the pair  charge " << iTk->charge() << " Num of RecHits " << iTk->recHitsSize() << " inner momentum " << iTk->track().innerMomentum() << "\n";  
@@ -377,11 +362,11 @@ void ConvertedPhotonProducer::buildCollections (  const edm::Handle<edm::View<re
 	  
 	  LogDebug("ConvertedPhotonProducer")  << " ConvertedPhotonProducer Ref to Rec Tracks in the pair  charge " << myTkRef->charge() << " Num of RecHits " << myTkRef->recHitsSize() << " inner momentum " << myTkRef->innerMomentum() << "\n";  
 	  
-          trackPin.push_back(  myTkRef->innerMomentum());
-	  trackPout.push_back(  myTkRef->outerMomentum());
+	  
 	  trackPairRef.push_back(myTkRef);
 	  
 	}
+	
 	
 	
 	LogDebug("ConvertedPhotonProducer")  << " ConvertedPhotonProducer SC energy " <<  aClus->energy() << "\n";
@@ -394,9 +379,8 @@ void ConvertedPhotonProducer::buildCollections (  const edm::Handle<edm::View<re
 	}
 	LogDebug("ConvertedPhotonProducer") << " ConvertedPhotonProducer trackPairRef  " << trackPairRef.size() <<  "\n";
 
-
 	
-	reco::Conversion  newCandidate(scPtrVec,  trackPairRef,  trkPositionAtEcal, theConversionVertex, matchingBC,  minAppDist, trackPin, trackPout );
+	reco::Conversion  newCandidate(scPtrVec,  trackPairRef, trkPositionAtEcal, theConversionVertex, matchingBC);
 	outputConvPhotonCollection.push_back(newCandidate);
 	
 	
@@ -409,7 +393,6 @@ void ConvertedPhotonProducer::buildCollections (  const edm::Handle<edm::View<re
     }
      
 
-    /*
     if (  allPairs.size() ==0 || nFound ==0) {
       LogDebug("ConvertedPhotonProducer") << " ConvertedPhotonProducer GOLDEN PHOTON ?? Zero Tracks " <<  "\n";  
       LogDebug("ConvertedPhotonProducer")  << " ConvertedPhotonProducer SC energy " <<  aClus->energy() << "\n";
@@ -436,7 +419,7 @@ void ConvertedPhotonProducer::buildCollections (  const edm::Handle<edm::View<re
       LogDebug("ConvertedPhotonProducer") << " ConvertedPhotonProducer Put the ConvertedPhotonCollection a candidate in the Barrel " << "\n";
       
     }
-    */
+
     
   
 

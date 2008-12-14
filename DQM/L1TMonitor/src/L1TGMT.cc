@@ -1,8 +1,8 @@
 /*
  * \file L1TGMT.cc
  *
- * $Date: 2008/06/11 16:40:29 $
- * $Revision: 1.23 $
+ * $Date: 2008/06/10 22:04:01 $
+ * $Revision: 1.21 $
  * \author J. Berryhill, I. Mikulec
  *
  */
@@ -122,7 +122,10 @@ void L1TGMT::beginJob(const EventSetup& c)
     // DTTF eta scale
     {
       int i=0;
-      for(int j=0; j<=63; j++,i++) {
+      for(int j=32; j<=63; j++,i++) {
+        etascale[DTTF][i] = scales->getRegionalEtaScale(DTTF)->getLowEdge(j);
+      }
+      for(int j=0; j<=31; j++,i++) {
         etascale[DTTF][i] = scales->getRegionalEtaScale(DTTF)->getLowEdge(j);
       }
       etascale[DTTF][64] = scales->getRegionalEtaScale(DTTF)->getScaleMax();

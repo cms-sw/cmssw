@@ -127,14 +127,14 @@ void OptAlignDataConverter::endJob()
 	if( m_fieldMap.fieldType(idx) != typeid(float) ) throw cond::Exception("unexpected type");
 	if( boost::any_cast<double>(*it) != -9.999E9 ){
 	  if( theLastExtraEntryName == "None" ) throw cond::Exception("unexpected type: setting a value != -9.999E9 for a parameter that is 'None' ");
+	  theLastExtraEntry->value_ = boost::any_cast<double>(*it);
 	}
-	theLastExtraEntry->value_ = boost::any_cast<double>(*it);
       } else if( fieldName.substr(0,5) == "param" && ( fieldName.substr(fieldName.length()-5,5) == "sigma" || fieldName.substr(fieldName.length()-5,5) == "error") ) {
 	if( m_fieldMap.fieldType(idx) != typeid(float) ) throw cond::Exception("unexpected type");
 	if( boost::any_cast<double>(*it) != -9.999E9 ){
 	  if( theLastExtraEntryName == "None" ) throw cond::Exception("unexpected type: setting an error != -9.999E9 for a parameter that is 'None' ");
+	  theLastExtraEntry->error_ = boost::any_cast<double>(*it);
 	}
-	theLastExtraEntry->error_ = boost::any_cast<double>(*it);
       } // end loop to one oaInfo
     } 
 
@@ -159,7 +159,7 @@ void OptAlignDataConverter::endJob()
 						     "OpticalAlignmentsRcd");
       else
         mydbservice->appendSinceTime<OpticalAlignments>( myobj,
-							 mydbservice->currentTime(),
+							 mydbservice->endOfTime(),
 							 "OpticalAlignmentsRcd");
     }catch(const cond::Exception& er){
       std::cout<<er.what()<<std::endl;
@@ -169,6 +169,5 @@ void OptAlignDataConverter::endJob()
       std::cout<<"Funny error"<<std::endl;
     }
   }
-  std::cout << "@@@@ OPTICALALIGNMENTS WRITTEN TO DB: " << myobj->opticalAlignments_.size() << std::endl;
-
+  std::cout << "@@@@ OPTICALALIGNMENTS WRITTEN TO DB " << *myobj << std::endl;
 }

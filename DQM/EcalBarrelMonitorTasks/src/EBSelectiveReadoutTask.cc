@@ -1,8 +1,8 @@
 /*
  * \file EBSelectiveReadoutTask.cc
  *
- * $Date: 2008/10/10 16:14:14 $
- * $Revision: 1.17 $
+ * $Date: 2008/09/26 16:12:09 $
+ * $Revision: 1.16 $
  * \author P. Gras
  * \author E. Di Marco
  *
@@ -255,6 +255,7 @@ void EBSelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
 
       if( integral != 0 ) h01->Scale( 1.0/h01->GetEntries() );
 
+
       TH2F *h02 = UtilsClient::getHisto<TH2F*>( EBReadoutUnitForcedBitMap_ );
       integral = h02->GetEntries();
       if( integral != 0 ) h02->Scale( integral );
@@ -319,8 +320,6 @@ void EBSelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
   } else {
     LogWarning("EBSelectiveReadoutTask") << EcalTrigPrimDigiCollection_ << " not available";
   }
-
-  if (!ebSrFlags.isValid()) return;
 
   // Data Volume
   double aLowInterest=0;
@@ -416,7 +415,7 @@ unsigned EBSelectiveReadoutTask::dccNum(const DetId& xtalId) const{
     k = iPhi2cIndex(ebDetId.iphi());
   } else {
     throw cms::Exception("EBSelectiveReadoutTask")
-      <<"Not ECAL barrel.";
+      <<"Not recognized subdetector. Probably a bug.";
   }
   int iDcc0 = dccIndex(j,k);
   assert(iDcc0>=0 && iDcc0<nECALDcc);
@@ -430,6 +429,7 @@ double EBSelectiveReadoutTask::getEbEventSize(double nReadXtals) const{
   for (int iDcc0 = firstEbDcc0; iDcc0 < firstEbDcc0 + nEBDcc; ++iDcc0 ) {
     ruHeaderPayload += nRuPerDcc_[iDcc0]*8.;
   }
+
   return getDccOverhead(EB)*nEBDcc + nReadXtals*bytesPerCrystal
     + ruHeaderPayload;
 }

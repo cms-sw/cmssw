@@ -19,9 +19,13 @@
 #include "DetectorDescription/Base/interface/DDException.h"
 
 // Xerces C++ dependencies
+#include <xercesc/sax2/Attributes.hpp>
 #include <xercesc/sax/SAXParseException.hpp>
 #include <xercesc/sax/SAXException.hpp>
 
+#include <iostream>
+#include <vector>
+#include <string>
 
 // CMSSW Framework Dependency
 #include "FWCore/MessageLogger/interface/MessageLogger.h"

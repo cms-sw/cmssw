@@ -5,13 +5,12 @@
  *
  *  Digi for CSC ALCT info available in DDU
  *  
- *  $Date: 2007/08/17 20:18:47 $
- *  $Revision: 1.5 $
+ *  $Date: 2007/07/23 12:08:19 $
+ *  $Revision: 1.4 $
  *
  */
 
 #include <vector>
-#include <iosfwd>
 
 class CSCALCTStatusDigi{
 
@@ -35,6 +34,13 @@ private:
   uint16_t trailer_[4];
 };
 
-std::ostream & operator<<(std::ostream & o, const CSCALCTStatusDigi& digi);
+#include<iostream>
+/// needed by COBRA
+inline std::ostream & operator<<(std::ostream & o, const CSCALCTStatusDigi& digi) {
+  o << " "; 
+  o <<"\n";
+ 
+  return o;
+}
 
 #endif

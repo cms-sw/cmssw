@@ -1,10 +1,6 @@
 #ifndef DQM_HCALMONITORTASKS_HCALBASEMONITOR_H
 #define DQM_HCALMONITORTASKS_HCALBASEMONITOR_H
 
-// Define number of eta, phi bins for histogram objects
-#define ETABINS 87
-#define PHIBINS 72
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
@@ -24,9 +20,6 @@
 #include "CondFormats/HcalObjects/interface/HcalElectronicsMap.h"
 #include "FWCore/Utilities/interface/CPUTimer.h"
 
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
-
 #include <iostream>
 
 // Temporary fix:  Add this into base class until I figure why multiple inclusions are a problem -- Jeff, 23 May 2008
@@ -35,8 +28,8 @@
 using namespace std;
 /** \class HcalBaseMonitor
   *  
-  * $Date: 2008/10/23 10:02:43 $
-  * $Revision: 1.16 $
+  * $Date: 2008/06/04 01:18:40 $
+  * $Revision: 1.11 $
   * \author W. Fisher - FNAL
   */
 class HcalBaseMonitor {
@@ -55,42 +48,13 @@ public:
   bool getDiagnostics() const { return makeDiagnostics;}
 
   bool vetoCell(HcalDetId id);
-  bool validDetId(HcalSubdetector subdet, int tower_ieta, int tower_iphi, int depth); // determine whether ID is valid (disable at some point)
-  
-  // Set up vectors of Monitors for individual depths
-  // 2-D histograms with eta-phi binning assumed
-  void setupDepthHists2D(MonitorElement* &h, std::vector<MonitorElement*> &hh, char* Name, char* Units);
-  void setupDepthHists2D(std::vector<MonitorElement*> &hh, char* Name, char* Units);
-  // Generic 2-D histograms
-  void setupDepthHists2D(MonitorElement* &h, std::vector<MonitorElement*> &hh, char* Name, char* Units,
-			 int nbinsx, int lowboundx, int highboundx,
-			 int nbinsy, int lowboundy, int highboundy);
-  
-  void setupDepthHists2D(std::vector<MonitorElement*> &hh, char* Name, char* Units,
-			 int nbinsx, int lowboundx, int highboundx,
-			 int nbinsy, int lowboundy, int highboundy);
-
-  // 1-D histograms
-  void setupDepthHists1D(MonitorElement* &h, std::vector<MonitorElement*> &hh, char* Name, char* Units, int lowbound, int highbound, int Nbins);
-  void setupDepthHists1D(std::vector<MonitorElement*> &hh, char* Name, char* Units, int lowbound, int highbound, int Nbins);
-
-
 
 protected:
   
   int fVerbosity;
   bool showTiming; // controls whether to show timing diagnostic info
-  bool dump2database; // controls whether output written to file for database (will eventually write db directly)
-  int checkNevents_; // controls when histograms should be updated
-
-  double etaMax_, etaMin_;
-  double phiMax_, phiMin_;
-  int etaBins_, phiBins_;
-  double minErrorFlag_;
-  bool checkHB_, checkHE_, checkHO_, checkHF_;
-
   edm::CPUTimer cpu_timer; // 
-    
+
   bool makeDiagnostics; // controls whether to make diagnostic plots
 
   DQMStore* m_dbe;

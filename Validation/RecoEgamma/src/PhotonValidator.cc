@@ -72,8 +72,8 @@
  **  
  **
  **  $Id: PhotonValidator
- **  $Date: 2008/09/30 18:37:58 $ 
- **  $Revision: 1.12 $
+ **  $Date: 2008/09/26 22:38:10 $ 
+ **  $Revision: 1.11 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -417,9 +417,6 @@ void PhotonValidator::beginJob( const edm::EventSetup& setup)
     h_scEta_[0] =   dbe_->book1D("scEta"," SC Eta ",etaBin,etaMin, etaMax);
     h_scPhi_[0] =   dbe_->book1D("scPhi"," SC Phi ",phiBin,phiMin,phiMax);
 
-    h_scEtaWidth_[0] =   dbe_->book1D("scEtaWidth"," SC Eta Width ",100,0., 0.1);
-    h_scPhiWidth_[0] =   dbe_->book1D("scPhiWidth"," SC Phi Width ",100,0., 1.);
-
 
     histname = "scE";
     h_scE_[0][0] = dbe_->book1D(histname+"All"," SC Energy: All Ecal  ",eBin,eMin, eMax);
@@ -550,9 +547,9 @@ void PhotonValidator::beginJob( const edm::EventSetup& setup)
     h_EoverPTracks_[1][2] = dbe_->book1D(histname+"Endcap"," photons conversion E/p: Endcap Ecal ",100, 0., 5.);
 
     histname="PoverEtracks";
-    h_PoverETracks_[1][0] = dbe_->book1D(histname+"All"," photons conversion p/E: all Ecal ",100, 0., 2.5);
-    h_PoverETracks_[1][1] = dbe_->book1D(histname+"Barrel"," photons conversion p/E: Barrel Ecal",100, 0., 2.5);
-    h_PoverETracks_[1][2] = dbe_->book1D(histname+"Endcap"," photons conversion p/E: Endcap Ecal ",100, 0., 2.5);
+    h_PoverETracks_[1][0] = dbe_->book1D(histname+"All"," photons conversion p/E: all Ecal ",100, 0., 5.);
+    h_PoverETracks_[1][1] = dbe_->book1D(histname+"Barrel"," photons conversion p/E: Barrel Ecal",100, 0., 5.);
+    h_PoverETracks_[1][2] = dbe_->book1D(histname+"Endcap"," photons conversion p/E: Endcap Ecal ",100, 0., 5.);
 
 
 
@@ -761,13 +758,14 @@ void PhotonValidator::beginJob( const edm::EventSetup& setup)
     hBCEnergyOverTrackPout_[0] = dbe_->book1D(histname+"All","Matrching BC E/P_out: all Ecal ",100, 0., 5.);
     hBCEnergyOverTrackPout_[1] = dbe_->book1D(histname+"Barrel","Matrching BC E/P_out: Barrel ",100, 0., 5.);
     hBCEnergyOverTrackPout_[2] = dbe_->book1D(histname+"Endcap","Matrching BC E/P_out: Endcap ",100, 0., 5.);
-    
+
+
 
 
   }
 
   
-
+  return ;
 }
 
 
@@ -868,8 +866,6 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
   RtoSCollPtrs.push_back(&OIRecoToSim);
   RtoSCollPtrs.push_back(&IORecoToSim);
   //
-
-
 
   nSimPho_=0;
   nSimConv_[0]=0;
@@ -1115,8 +1111,6 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 
     h_scEta_[type]->Fill( matchingPho.superCluster()->eta() );
     h_scPhi_[type]->Fill( matchingPho.superCluster()->phi() );
-    h_scEtaWidth_[type]->Fill( matchingPho.superCluster()->etaWidth() );
-    h_scPhiWidth_[type]->Fill( matchingPho.superCluster()->phiWidth() );
     h_scE_[type][0]->Fill( matchingPho.superCluster()->energy() );
     h_scEt_[type][0]->Fill( matchingPho.superCluster()->energy()/cosh( matchingPho.superCluster()->eta()) );
     h_r9_[type][0]->Fill( r9 );

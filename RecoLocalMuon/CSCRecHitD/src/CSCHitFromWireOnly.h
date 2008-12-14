@@ -14,9 +14,9 @@
  * Only the DetId and wiregroup # are stored in a CSCWireHit collection
  *
  * \author Dominique Fortin - UCR
- * \author Stoyan Stoynev - Northwestern
  *
  */
+//---- Possible changes from Stoyan Stoynev - NU
 
 #include <RecoLocalMuon/CSCRecHitD/src/CSCWireHit.h>
 

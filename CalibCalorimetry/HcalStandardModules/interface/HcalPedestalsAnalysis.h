@@ -21,6 +21,7 @@
 #include "CondFormats/HcalObjects/interface/HcalQIECoder.h"
 #include "CondFormats/HcalObjects/interface/HcalQIEData.h"
 #include "CondFormats/HcalObjects/interface/HcalQIEShape.h"
+#include "CondFormats/HcalObjects/src/HcalQIEShape.cc"
 #include "CondFormats/HcalObjects/interface/HcalElectronicsMap.h"
 #include "CondFormats/HcalObjects/interface/AllObjects.h"
 
@@ -92,6 +93,7 @@ class HcalPedestalsAnalysis : public edm::EDAnalyzer
    std::string widthsfCfilename;
    std::string XMLfilename;
    std::string XMLtag;
+   std::string ZSfilename;
 
    TH1F *HBMeans;
    TH1F *HBWidths;
@@ -104,10 +106,6 @@ class HcalPedestalsAnalysis : public edm::EDAnalyzer
 
    TFile *theFile;
    bool firsttime;
-   HcalPedestals* rawPedsItem;
-   HcalPedestalWidths* rawWidthsItem;
-   HcalPedestals* rawPedsItemfc;
-   HcalPedestalWidths* rawWidthsItemfc;
 };
 #endif
 

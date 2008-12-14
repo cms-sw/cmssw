@@ -1,8 +1,8 @@
 /*
  * \file EBClusterTask.cc
  *
- * $Date: 2008/10/25 10:22:05 $
- * $Revision: 1.65 $
+ * $Date: 2008/08/05 14:05:48 $
+ * $Revision: 1.63 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -107,68 +107,6 @@ void EBClusterTask::beginJob(const EventSetup& c){
   }
 
   Numbers::initGeometry(c, false);
-
-}
-
-void EBClusterTask::beginRun(const Run& r, const EventSetup& c) {
-
-  if ( ! mergeRuns_ ) this->reset();
-
-}
-
-void EBClusterTask::endRun(const Run& r, const EventSetup& c) {
-
-}
-
-void EBClusterTask::reset(void) {
-
-  if ( meBCEne_ ) meBCEne_->Reset();
-
-  if ( meBCNum_ ) meBCNum_->Reset();
-
-  if ( meBCSiz_ ) meBCSiz_->Reset();
-
-  if ( meBCEneMap_ ) meBCEneMap_->Reset();
-
-  if ( meBCNumMap_ ) meBCNumMap_->Reset();
-
-  if ( meBCETMap_ ) meBCETMap_->Reset();
-
-  if ( meBCSizMap_ ) meBCSizMap_->Reset();
-
-  if ( meBCEneMapProjEta_ ) meBCEneMapProjEta_->Reset();
-
-  if ( meBCEneMapProjPhi_ ) meBCEneMapProjPhi_->Reset();
-
-  if ( meBCNumMapProjEta_ ) meBCNumMapProjEta_->Reset();
-
-  if ( meBCNumMapProjPhi_ ) meBCNumMapProjPhi_->Reset();
-
-  if ( meBCETMapProjEta_ ) meBCETMapProjEta_->Reset();
-
-  if ( meBCETMapProjPhi_ ) meBCETMapProjPhi_->Reset();
-
-  if ( meBCSizMapProjEta_ ) meBCSizMapProjEta_->Reset();
-
-  if ( meBCSizMapProjPhi_ ) meBCSizMapProjPhi_->Reset();
-
-  if ( meSCEne_ ) meSCEne_->Reset();
-
-  if ( meSCNum_ ) meSCNum_->Reset();
-
-  if ( meSCSiz_ ) meSCSiz_->Reset();
-
-  if ( mes1s9_ ) mes1s9_->Reset();
-
-  if ( mes9s25_ ) mes9s25_->Reset();
-
-  if ( meInvMassPi0_ ) meInvMassPi0_->Reset();
-
-  if ( meInvMassJPsi_ ) meInvMassJPsi_->Reset();
-
-  if ( meInvMassZ0_ ) meInvMassZ0_->Reset();
-
-  if ( meInvMassHigh_ ) meInvMassHigh_->Reset();
 
 }
 
@@ -386,6 +324,68 @@ void EBClusterTask::endJob(void){
 
 }
 
+void EBClusterTask::beginRun(const Run& r, const EventSetup& c) {
+
+  if ( ! mergeRuns_ ) this->reset();
+
+}
+
+void EBClusterTask::endRun(const Run& r, const EventSetup& c) {
+
+}
+
+void EBClusterTask::reset(void) {
+
+  if ( meBCEne_ ) meBCEne_->Reset();
+
+  if ( meBCNum_ ) meBCNum_->Reset();
+
+  if ( meBCSiz_ ) meBCSiz_->Reset();
+
+  if ( meBCEneMap_ ) meBCEneMap_->Reset();
+
+  if ( meBCNumMap_ ) meBCNumMap_->Reset();
+
+  if ( meBCETMap_ ) meBCETMap_->Reset();
+
+  if ( meBCSizMap_ ) meBCSizMap_->Reset();
+
+  if ( meBCEneMapProjEta_ ) meBCEneMapProjEta_->Reset();
+
+  if ( meBCEneMapProjPhi_ ) meBCEneMapProjPhi_->Reset();
+
+  if ( meBCNumMapProjEta_ ) meBCNumMapProjEta_->Reset();
+
+  if ( meBCNumMapProjPhi_ ) meBCNumMapProjPhi_->Reset();
+
+  if ( meBCETMapProjEta_ ) meBCETMapProjEta_->Reset();
+
+  if ( meBCETMapProjPhi_ ) meBCETMapProjPhi_->Reset();
+
+  if ( meBCSizMapProjEta_ ) meBCSizMapProjEta_->Reset();
+
+  if ( meBCSizMapProjPhi_ ) meBCSizMapProjPhi_->Reset();
+
+  if ( meSCEne_ ) meSCEne_->Reset();
+
+  if ( meSCNum_ ) meSCNum_->Reset();
+
+  if ( meSCSiz_ ) meSCSiz_->Reset();
+
+  if ( mes1s9_ ) mes1s9_->Reset();
+
+  if ( mes9s25_ ) mes9s25_->Reset();
+
+  if ( meInvMassPi0_ ) meInvMassPi0_->Reset();
+
+  if ( meInvMassJPsi_ ) meInvMassJPsi_->Reset();
+
+  if ( meInvMassZ0_ ) meInvMassZ0_->Reset();
+
+  if ( meInvMassHigh_ ) meInvMassHigh_->Reset();
+
+}
+
 void EBClusterTask::analyze(const Event& e, const EventSetup& c){
 
   bool enable = false;
@@ -399,9 +399,6 @@ void EBClusterTask::analyze(const Event& e, const EventSetup& c){
       EcalDCCHeaderBlock dcch = (*dcchItr);
 
       if ( Numbers::subDet( dcch ) != EcalBarrel ) continue;
-
-      if ( dcch.getRunType() == EcalDCCHeaderBlock::BEAMH4 ||
-           dcch.getRunType() == EcalDCCHeaderBlock::BEAMH2 ) enable = true;
 
       if ( dcch.getRunType() == EcalDCCHeaderBlock::COSMIC ||
            dcch.getRunType() == EcalDCCHeaderBlock::MTCC ||

@@ -21,12 +21,13 @@
 namespace PhysicsTools {
 
 MVATrainerFileSave::MVATrainerFileSave(const edm::ParameterSet &params) :
+	trained(params.getUntrackedParameter<bool>("trained", true)),
 	saved(false)
 {
 	std::vector<std::string> names = params.getParameterNames();
 	for(std::vector<std::string>::const_iterator iter = names.begin();
 	    iter != names.end(); iter++) {
-		if (iter->c_str()[0] == '@')
+		if (iter->c_str()[0] == '@' || *iter == "trained")
 			continue;
 
 		toPut[*iter] = params.getParameter<std::string>(*iter);

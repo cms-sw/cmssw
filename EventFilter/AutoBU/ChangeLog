@@ -1,11 +1,3 @@
-2008-10-02  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
-
-	* tag V00-06-19
-	* all changes refer to scripts/initialize
-	* remove EP parameter 'collReconnSec'
-	* set RB cell sizes to 2/4/1 MB, queue depth to 16
-	* set RB monSleepTime to 5 seconds
-
 2008-06-13  Philipp Schieferdecker  <philipp.schieferdecker@cern.ch>
 
 	* tag V00-06-17

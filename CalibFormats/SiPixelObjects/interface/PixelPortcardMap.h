@@ -57,21 +57,10 @@ namespace pos{
     std::set< std::string > portcards();
 
     virtual void writeASCII(std::string dir) const;
-    void 	 writeXML(        pos::PixelConfigKey key, int version, std::string path) const {;}
-    virtual void writeXMLHeader(  pos::PixelConfigKey key, 
-				  int version, 
-				  std::string path, 
-				  std::ofstream *out,
-				  std::ofstream *out1 = NULL,
-				  std::ofstream *out2 = NULL
-				  ) const ;
-    virtual void writeXML(        std::ofstream *out,			                                    
-			   	  std::ofstream *out1 = NULL ,
-			   	  std::ofstream *out2 = NULL ) const ;
-    virtual void writeXMLTrailer( std::ofstream *out, 
-				  std::ofstream *out1 = NULL,
-				  std::ofstream *out2 = NULL
-				  ) const ;
+    void 	 writeXML(      pos::PixelConfigKey key, int version, std::string path)                     const {;}
+    virtual void writeXMLHeader(pos::PixelConfigKey key, int version, std::string path, std::ofstream *out) const {;}
+    virtual void writeXML(                                                              std::ofstream *out) const {;}
+    virtual void writeXMLTrailer(                                                       std::ofstream *out) const {;}
 
   private:
     //                               portcardname, AOH #

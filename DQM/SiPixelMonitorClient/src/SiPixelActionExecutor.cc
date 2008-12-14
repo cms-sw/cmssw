@@ -154,26 +154,34 @@ void SiPixelActionExecutor::createSummary(DQMStore* bei) {
 //cout<<"entering SiPixelActionExecutor::createSummary..."<<endl;
   string barrel_structure_name;
   vector<string> barrel_me_names;
-
+  string localPath;
+  if(offlineXMLfile_) localPath = string("DQM/SiPixelMonitorClient/test/sipixel_tier0_config.xml");
+  else localPath = string("DQM/SiPixelMonitorClient/test/sipixel_monitorelement_config.xml");
+  if (configParser_ == 0) {
+    configParser_ = new SiPixelConfigParser();
+    configParser_->getDocument(edm::FileInPath(localPath).fullPath());
+  }
   if (!configParser_->getMENamesForBarrelSummary(barrel_structure_name, barrel_me_names)){
     cout << "SiPixelActionExecutor::createSummary: Failed to read Barrel Summary configuration parameters!! ";
     return;
   }
   configParser_->getSourceType(source_type_); 
-  //cout<<"Found source_type_="<<source_type_<<endl;
-  bei->cd();
+  bei->setCurrentFolder("Pixel/");
+  //bei->cd();
   fillBarrelSummary(bei, barrel_structure_name, barrel_me_names);
-  bei->cd();
+  bei->setCurrentFolder("Pixel/");
+  //bei->cd();
   string endcap_structure_name;
   vector<string> endcap_me_names;
   if (!configParser_->getMENamesForEndcapSummary(endcap_structure_name, endcap_me_names)){
     edm::LogInfo("SiPixelActionExecutor")  << "Failed to read Endcap Summary configuration parameters!! " << "\n" ;
     return;
   }
-  bei->cd();
+  bei->setCurrentFolder("Pixel/");
+  //bei->cd();
   fillEndcapSummary(bei, endcap_structure_name, endcap_me_names);
-  
-  bei->cd();
+  bei->setCurrentFolder("Pixel/");
+  //bei->cd();
   if(source_type_==0||source_type_==5 || source_type_ == 20){//do this only if RawData source is present
     string federror_structure_name;
     vector<string> federror_me_names;
@@ -181,9 +189,11 @@ void SiPixelActionExecutor::createSummary(DQMStore* bei) {
       cout << "SiPixelActionExecutor::createSummary: Failed to read FED Error Summary configuration parameters!! ";
       return;
     }
-    bei->cd();
+    bei->setCurrentFolder("Pixel/");
+    //bei->cd();
     fillFEDErrorSummary(bei, federror_structure_name, federror_me_names);
-    bei->cd();
+    bei->setCurrentFolder("Pixel/");
+    //bei->cd();
   }
   //createLayout(bei);
   //string fname = "test.xml";
@@ -1480,8 +1490,8 @@ void SiPixelActionExecutor::checkQTestResults(DQMStore * bei) {
     nval=int(); contents=vector<string>();
   }
   LogDebug("SiPixelActionExecutor::checkQTestResults") <<"messageCounter: "<<messageCounter<<" , message_limit: "<<message_limit_<<endl;
-  if (messageCounter>=message_limit_)
-    edm::LogWarning("SiPixelActionExecutor::checkQTestResults") << "WARNING: too many QTest failures! Giving up after "<<message_limit_<<" messages."<<endl;
+//  if (messageCounter>=message_limit_)
+//    edm::LogWarning("SiPixelActionExecutor::checkQTestResults") << "WARNING: too many QTest failures! Giving up after "<<message_limit_<<" messages."<<endl;
   contentVec=vector<string>(); currDir=string(); messageCounter=int();
   //cout<<"...leaving SiPixelActionExecutor::checkQTestResults!"<<endl;
 }

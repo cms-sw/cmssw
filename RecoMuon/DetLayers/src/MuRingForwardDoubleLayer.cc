@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2007/12/19 09:48:37 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/07/10 22:51:46 $
+ *  $Revision: 1.2 $
  *  \author Rick Wilkinson
  */
 
@@ -96,9 +96,6 @@ MuRingForwardDoubleLayer::compatible(const TrajectoryStateOnSurface& startingSta
 
   bool insideOut = isInsideOut(startingState);
   const MuRingForwardLayer & closerLayer = (insideOut) ? theFrontLayer : theBackLayer;
-  LogTrace("Muon|RecoMuon|RecoMuonDetLayers|MuRingForwardDoubleLayer") 
-    << "MuRingForwardDoubleLayer::compatible is assuming inside-out direction: "<< insideOut;
-
 
   //std::pair<bool, TrajectoryStateOnSurface> result 
   //  = closerLayer.compatible(startingState, prop, est);
@@ -174,14 +171,19 @@ MuRingForwardDoubleLayer::groupedCompatibleDets( const TrajectoryStateOnSurface&
   const std::string metname = "Muon|RecoMuon|RecoMuonDetLayers|MuRingForwardDoubleLayer";
   vector<GeometricSearchDet::DetWithState> detWithStates1, detWithStates2;
   
-  LogTrace(metname) << "groupedCompatibleDets are currently given always in inside-out order";
-  // this should be fixed either in RecoMuon/MeasurementDet/MuonDetLayerMeasurements or
-  // RecoMuon/DetLayers/MuRingForwardDoubleLayer
-  // and removed the reverse operation in StandAloneMuonFilter::findBestMeasurements
-
-  detWithStates1 = theFrontLayer.compatibleDets(startingState, prop, est);
-  detWithStates2 = theBackLayer.compatibleDets(startingState, prop, est);    
-  
+  if(isInsideOut(startingState))
+  {
+    LogTrace(metname) << "Front - Back" <<std::endl;
+    detWithStates1 = theFrontLayer.compatibleDets(startingState, prop, est);
+    detWithStates2 = theBackLayer.compatibleDets(startingState, prop, est);    
+  }
+  else 
+  {
+    LogTrace(metname) << "Back - Front" <<std::endl;
+    detWithStates1 = theBackLayer.compatibleDets(startingState, prop, est);
+    detWithStates2 = theFrontLayer.compatibleDets(startingState, prop, est);
+  }
+ 
   vector<DetGroup> result;
   if(!detWithStates1.empty()) result.push_back( DetGroup(detWithStates1) );
   if(!detWithStates2.empty()) result.push_back( DetGroup(detWithStates2) );

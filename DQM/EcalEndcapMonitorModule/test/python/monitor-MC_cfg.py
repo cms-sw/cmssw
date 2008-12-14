@@ -36,11 +36,11 @@ process.preScaler = cms.EDFilter("Prescaler",
     prescaleFactor = cms.int32(1)
 )
 
-process.dqmInfoEE = cms.EDAnalyzer("DQMEventInfo",
+process.dqmInfoEE = cms.EDFilter("DQMEventInfo",
     subSystemFolder = cms.untracked.string('EcalEndcap')
 )
 
-process.dqmSaver = cms.EDAnalyzer("DQMFileSaver",
+process.dqmSaver = cms.EDFilter("DQMFileSaver",
     dirName = cms.untracked.string('.'),
     convention = cms.untracked.string('Online')
 )

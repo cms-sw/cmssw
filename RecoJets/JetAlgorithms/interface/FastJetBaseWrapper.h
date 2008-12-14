@@ -20,7 +20,6 @@ class FastJetBaseWrapper {
  private:
   fastjet::GhostedAreaSpec* mActiveArea;
   double mJetPtMin;
-  FastJetBaseWrapper(){}  //disallow usage without config.
 }; 
 
 #endif

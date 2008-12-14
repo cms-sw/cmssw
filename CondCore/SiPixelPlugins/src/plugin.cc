@@ -16,8 +16,8 @@
 #include "CondFormats/DataRecord/interface/SiPixelCalibConfigurationRcd.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelPerformanceSummary.h"
 #include "CondFormats/DataRecord/interface/SiPixelPerformanceSummaryRcd.h"
-#include "CondFormats/SiPixelObjects/interface/SiPixelQuality.h"
-#include "CondFormats/DataRecord/interface/SiPixelQualityRcd.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelDisabledModules.h"
+#include "CondFormats/DataRecord/interface/SiPixelDisabledModulesRcd.h"
 
 
 DEFINE_SEAL_MODULE();
@@ -30,4 +30,5 @@ REGISTER_PLUGIN(SiPixelLorentzAngleRcd,SiPixelLorentzAngle);
 REGISTER_PLUGIN(SiPixelCPEParmErrorsRcd,SiPixelCPEParmErrors);
 REGISTER_PLUGIN(SiPixelCalibConfigurationRcd,SiPixelCalibConfiguration);
 REGISTER_PLUGIN(SiPixelPerformanceSummaryRcd,SiPixelPerformanceSummary);
-REGISTER_PLUGIN(SiPixelQualityRcd,SiPixelQuality);
+REGISTER_PLUGIN(SiPixelDisabledModulesRcd,SiPixelDisabledModules);
+

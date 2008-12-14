@@ -5,8 +5,8 @@
 //   Description: Extrapolator
 //
 //
-//   $Date: 2008/10/01 14:14:24 $
-//   $Revision: 1.8 $
+//   $Date: 2008/05/09 15:01:59 $
+//   $Revision: 1.4 $
 //
 //   Author :
 //   N. Neumeister            CERN EP
@@ -93,7 +93,7 @@ void L1MuDTEUX::run(const edm::EventSetup& c) {
   if ( L1MuDTTFConfig::Debug(4) ) cout << "target : " << *m_target << endl;
 
   if ( m_start == 0 || m_target == 0 ) { 
-    if ( L1MuDTTFConfig::Debug(4) ) cout << "Error: EUX has no data loaded" << endl;
+    cout << "Error: EUX has no data loaded" << endl;
     return;
   }
 

@@ -2,8 +2,8 @@
 
 /** \file DirectMuonNavigation
  *
- *  $Date: 2008/05/20 16:25:23 $
- *  $Revision: 1.13 $
+ *  $Date: 2008/05/19 15:23:25 $
+ *  $Revision: 1.12 $
  *  \author Chang Liu  -  Purdue University
  */
 
@@ -243,15 +243,6 @@ bool DirectMuonNavigation::checkCompatible(const FreeTrajectoryState& fts,const 
 
 bool DirectMuonNavigation::outward(const FreeTrajectoryState& fts) const {
  
-//  return (fts.position().basicVector().dot(fts.momentum().basicVector())>0);
-
-  float x0 = fts.position().x();
-  float y0 = fts.position().y();
-
-  float xm = fts.momentum().x();
-  float ym = fts.momentum().y();
-
-  return ((x0 * xm + y0 * ym ) > 0);
-
+  return (fts.position().basicVector().dot(fts.momentum().basicVector())>0);
 
 }

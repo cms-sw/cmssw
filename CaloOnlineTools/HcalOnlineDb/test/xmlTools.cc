@@ -4,6 +4,7 @@
 #include <string.h>
 #include <fstream>
 #include <boost/program_options.hpp>
+#include <sys/time.h>
 
 //#include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
@@ -26,7 +27,6 @@
 #include "CaloOnlineTools/HcalOnlineDb/interface/HcalQIEManager.h"
 #include "CaloOnlineTools/HcalOnlineDb/interface/HcalLutManager.h"
 #include "CaloOnlineTools/HcalOnlineDb/interface/RooGKCounter.h"
-#include "CaloOnlineTools/HcalOnlineDb/interface/HcalTriggerKey.h"
 
 #include "xgi/Utils.h"
 #include "toolbox/string.h"
@@ -52,6 +52,7 @@ int testocci( void );
 int testDB( string _tag, string _filename );
 int lmaptest( string _param );
 int hardware( void );
+int qie_adc( void );
 int test_db_access( void );
 std::vector <std::string> splitString (const std::string& fLine);
 int createZSLoader2( string & tag, string & comment, string & zs2HB, string & zs2HE, string & zs2HO, string & zs2HF );
@@ -64,43 +65,18 @@ int main( int argc, char **argv )
   //
   //===> command line options parser using boost  
   //
-  int crate, sub_version;
-  std::string db_accessor, version_name;
+  int crate;
   po::options_description general("General options");
   general.add_options()
     ("help", "produce help message")
-    ("test-string", po::value<string>(), "print test string")
+    ("test", po::value<string>(), "print test string")
     ("test-lmap", po::value<string>(), "test logical map functionality")
-    ("test-emap", po::value<string>(), "test electronic map functionality")
-    ("test-qie", po::value<string>(), "test QIE procedure elements")
     ("test-lut-manager", po::value<string>(), "test LUT functionality")
-    ("test-lut-xml-access", "test and benchmark LUT reading from local XML file")
-    ("test-lut-checksum", "test LUT MD5 checksum calculation")
     ("tag-name", po::value<string>(), "tag name")
-    ("prefix-name", po::value<string>(), "prefix for file names and such")
-    ("comment-line", po::value<string>(), "comment for a database entry")
-    ("version-name", po::value<string>(&version_name)->default_value("V00-01-01"), "version name")
-    ("sub-version", po::value<int>(&sub_version)->default_value( 1 ), "sub-version number")
-    ("file-list", po::value<string>(), "list of files for further processing")
     ("crate", po::value<int>(&crate)->default_value( -1 ), "crate number")
-    ("lut-type", po::value<int>(&crate)->default_value( 1 ), "LUT type: 1 - linearization, 2 - compression")
-    ("create-lin-lut-xml", "create XML file(s) input LUTs from ASCII master")
-    ("create-lut-xml", "create XML file(s) with LUTs from ASCII master")
-    ("create-lut-xml-from-coder", "create XML file(s) with LUTs from TPG coder")
-    ("create-lut-xml-lin-ascii-comp-coder", "create XML file(s) with linearizer LUTs from ASCII master and compression LUTs from coder")
-    ("create-lut-loader", "create XML database loader for LUTs, and zip everything ready for uploading to the DB")
-    ("create-trigger-key", "create a trigger key entry")
-    ("get-lut-xml-from-oracle", "Get LUTs from Oracle database")
-    ("database-accessor", po::value<string>(&db_accessor)->default_value("occi://CMS_HCL_PRTTYPE_HCAL_READER@anyhost/int2r?PASSWORD=HCAL_Reader_88,LHWM_VERSION=22"), "Database accessor string")
-    ("lin-lut-master-file", po::value<string>(), "Linearizer LUT ASCII master file name")
-    ("comp-lut-master-file", po::value<string>(), "Compression LUT ASCII master file name")
+    ("create-lut-xml", "create XML file(s) with LUTs, arg=crate number, default arg=-1 stands for all crates")
+    ("lut-master-file", po::value<string>(), "LUT ASCII master file name")
     ("do-not-split-by-crate", "output LUTs as a single XML instead of making a separate file for each crate")
-    ("input-file", po::value<string>(), "Input file name")
-    ("output-file", po::value<string>(), "Outputput file name")
-    ("old-qie-file", po::value<string>(), "Old QIE table ASCII file")
-    ("qie", "Generate new QIE table file")
-    ("hf-qie", "Retrieve HF QIE ADC caps offsets and slopes")
-    ("test-new-developer", "Test area for a new developer")
     ;
 
   try{
@@ -114,13 +90,9 @@ int main( int argc, char **argv )
       return 1;
     }
     
-    if (vm.count("test-string")) {
+    if (vm.count("test")) {
       cout << "Test: "
-	   << vm["test-string"].as<string>() << ".\n";
-      XMLDOMBlock a("HCAL_TRIG_PRIM_LOOKUP_TABLE.dataset.template");
-      a+=a;
-      a.write("stdout");
-      return 0;
+	   << vm["test"].as<string>() << ".\n";
     }
 
     if (vm.count("test-lmap")) {
@@ -141,27 +113,6 @@ int main( int argc, char **argv )
       return 0;
     }
     
-    if (vm.count("test-emap")) {
-      cout << "Testing emap stuff..." << "\n";
-      string _accessor = vm["test-emap"].as<string>();
-      cout << "Electronic map accessor string: " << _accessor << "\n";
-      //EMap_test test;
-      //test . test_read_map( _accessor );
-      //
-      HcalLutManager _m;
-      _m . test_emap();
-      return 0;
-    }
-    
-    if (vm.count("test-qie")) {
-      cout << "Testing QIE stuff..." << "\n";
-      string _accessor = vm["test-qie"].as<string>();
-      cout << "File with the query: " << _accessor << "\n";
-      HcalQIEManager manager;
-      manager . getTableFromDb( _accessor, "asdf" );
-      return 0;
-    }
-    
     if (vm.count("test-lut-manager")) {
       cout << "Testing LUT manager stuff..." << "\n";
       string _accessor = vm["test-lut-manager"].as<string>();
@@ -170,222 +121,26 @@ int main( int argc, char **argv )
       return 0;
     }
     
-    if (vm.count("test-lut-xml-access")) {
-      cout << "Testing reading LUTs from local XML file..." << "\n";
-      string in_ = vm["input-file"].as<string>();
-      cout << "LUT XML file: " << in_ << "\n";
-      string tag_ = vm["tag-name"].as<string>();
-      cout << "Tag: " << tag_ << "\n";
-      HcalLutManager manager;
-      manager . test_xml_access( tag_, in_ );
-      return 0;
-    }
-    
-    if (vm.count("test-lut-checksum")) {
-      cout << "Testing evaluation of LUT MD5 checksums..." << "\n";
-      string in_ = vm["input-file"].as<string>();
-      cout << "LUT XML file: " << in_ << "\n";
-      string tag_ = vm["tag-name"].as<string>();
-      cout << "Tag: " << tag_ << "\n";
-      HcalLutManager manager;
-      manager . test_xml_access( tag_, in_ );
-      return 0;
-    }
-    
-    if (vm.count("qie")) {
-      cout << "Generating new QIE table..." << "\n";
-      cout << "Input file (from DB)... ";
-      string _in = vm["input-file"].as<string>();
-      cout << _in << endl;
-      cout << "Output file... ";
-      string _out = vm["output-file"].as<string>();
-      cout << _out << endl;
-      cout << "Old QIE table file (to fill missing channels)... ";
-      string _old = vm["old-qie-file"].as<string>();
-      cout << _old << endl;
-      HcalQIEManager manager;
-      manager . generateQieTable( _in, _old, _out );
-      return 0;
-    }
-    
-    if (vm.count("hf-qie")) {
-      cout << "Retrieving HCAL HF QIE ADC data..." << "\n";
-      cout << "Input file (from DB)... ";
-      string _in = vm["input-file"].as<string>();
-      cout << _in << endl;
-      cout << "Output file... ";
-      string _out = vm["output-file"].as<string>();
-      cout << _out << endl;
-      HcalQIEManager manager;
-      manager . getHfQieTable( _in, _out );
-      return 0;
-    }
-    
-    if (vm.count("create-lin-lut-xml")) {
-      while(1){
-	cout << "Creating XML with LUTs for all channels..." << "\n";
-	int _cr = vm["crate"].as<int>();
-	string lin_master_file, comp_master_file;
-	if (!vm.count("lin-lut-master-file")){
-	  cout << "Linearizer LUT master file name is not specified..." << endl;
-	  lin_master_file = "";
-	}
-	else{
-	  lin_master_file = vm["lin-lut-master-file"].as<string>();
-	}
-	if (!vm.count("tag-name")){
-	  cout << "tag name is not specified...exiting" << endl;
-	  break;
-	}
-	string _tag = vm["tag-name"].as<string>();
-	HcalLutManager manager;
-	manager . createLinLutXmlFiles( _tag, lin_master_file, !vm.count("do-not-split-by-crate") );
-	break;
-      }
-      return 0;
-    }
-
     if (vm.count("create-lut-xml")) {
       while(1){
 	cout << "Creating XML with LUTs for all channels..." << "\n";
 	int _cr = vm["crate"].as<int>();
-	string lin_master_file, comp_master_file;
-	if (!vm.count("lin-lut-master-file")){
-	  cout << "Linearizer LUT master file name is not specified..." << endl;
-	  lin_master_file = "";
+	if (!vm.count("lut-master-file")){
+	  cout << "LUT master file name is not specified...exiting" << endl;
+	  break;
 	}
-	else{
-	  lin_master_file = vm["lin-lut-master-file"].as<string>();
-	}
-	if (!vm.count("comp-lut-master-file")){
-	  cout << "Compression LUT master file name is not specified..." << endl;
-	  comp_master_file = "";
-	}
-	else{
-	  comp_master_file = vm["comp-lut-master-file"].as<string>();
-	}
+	string _master_file = vm["lut-master-file"].as<string>();
 	if (!vm.count("tag-name")){
 	  cout << "tag name is not specified...exiting" << endl;
 	  break;
 	}
 	string _tag = vm["tag-name"].as<string>();
 	HcalLutManager manager;
-	if (comp_master_file.find("nofile")==string::npos){
-	  manager . createAllLutXmlFiles( _tag, lin_master_file, comp_master_file, !vm.count("do-not-split-by-crate") );
-	}
-	else{
-	  manager . createLinLutXmlFiles( _tag, lin_master_file, !vm.count("do-not-split-by-crate") );
-	}
+	manager . getLutXmlFromAsciiMaster( _master_file, _tag, _cr, !vm.count("do-not-split-by-crate") );
 	break;
       }
       return 0;
     }
-
-    if (vm.count("create-lut-xml-from-coder")) {
-      cout << "Creating XML with LUTs for all channels from TPG coder..." << "\n";
-      if (!vm.count("tag-name")){
-	cout << "tag name is not specified...exiting" << endl;
-	exit(-1);
-      }
-      string _tag = vm["tag-name"].as<string>();
-      HcalLutManager manager;
-      manager . createCompLutXmlFilesFromCoder( _tag, !vm.count("do-not-split-by-crate") );
-      return 0;
-    }
-    
-
-
-    if (vm.count("create-lut-xml-lin-ascii-comp-coder")) {
-      while(1){
-	cout << "Creating XML with LUTs for all channels..." << "\n";
-	int _cr = vm["crate"].as<int>();
-	string lin_master_file, comp_master_file;
-	if (!vm.count("lin-lut-master-file")){
-	  cout << "Linearizer LUT master file name is not specified..." << endl;
-	  lin_master_file = "";
-	}
-	else{
-	  lin_master_file = vm["lin-lut-master-file"].as<string>();
-	}
-	if (!vm.count("tag-name")){
-	  cout << "tag name is not specified...exiting" << endl;
-	  break;
-	}
-	string _tag = vm["tag-name"].as<string>();
-	HcalLutManager manager;
-	manager . createAllLutXmlFilesLinAsciiCompCoder( _tag, lin_master_file, !vm.count("do-not-split-by-crate") );
-	break;
-      }
-      return 0;
-    }
-
-
-
-    if (vm.count("create-trigger-key")) {
-      cout << "Creating trigger key XML..." << "\n";
-      /*
-      if (!vm.count("tag-name")){
-	cout << "tag name is not specified...exiting" << endl;
-	exit(-1);
-      }
-      string _tag = vm["tag-name"].as<string>();
-      */
-      HcalTriggerKey _key;
-      _key.compose_key_dialogue();
-      _key.write("HCAL_trigger_key.xml");
-      //_key.add_data("aaa","bbb","ccc");
-      //_key.add_data("aaa","bbb","ccc");
-      //_key.add_data("aaa","bbb","ccc");
-      return 0;
-    }
-    
-    if (vm.count("get-lut-xml-from-oracle")) {
-      cout << "Getting LUTs from Oracle database..." << "\n";
-      if (!vm.count("tag-name")){
-	cout << "tag name is not specified...exiting" << endl;
-	exit(-1);
-      }
-      string _tag = vm["tag-name"].as<string>();
-      string _accessor = vm["database-accessor"].as<string>();
-      HcalLutManager manager;
-      //manager . get_brickSet_from_oracle( _tag );
-      cout << "Accessing the database as " << _accessor << endl;
-      cout << "Tag name: " << _tag << endl;
-      manager . get_xml_files_from_db( _tag, _accessor, !vm.count("do-not-split-by-crate") );
-      return 0;
-    }
-
-
-    if (vm.count("create-lut-loader")){
-      cout << "===> Processing LUT XML files, creating the database loader..." << "\n";
-      cout << "prefix: ";
-      string _prefix = vm["prefix-name"].as<string>();
-      cout << _prefix << endl;
-      cout << "TAG_NAME: ";
-      string _tag = vm["tag-name"].as<string>();
-      cout << _tag << endl;
-      cout << "COMMENT: " << endl;
-      string _comment = vm["comment-line"].as<string>();
-      cout << _comment << endl;
-      cout << "VERSION: ";
-      string _version = vm["version-name"].as<string>();
-      cout << _version << endl;
-      cout << "SUBVERSION: ";
-      int _subversion = vm["sub-version"].as<int>();
-      cout << _subversion << endl;
-      string _file_list = vm["file-list"].as<string>();
-      HcalLutManager manager;
-      manager . create_lut_loader( _file_list, _prefix, _tag, _comment, _version, _subversion );
-      return 0;
-    }
-
-
-    if (vm.count("test-new-developer")) {
-      cout << "Wazzup, dude?! What would you like to do?.." << "\n";
-      return 0;
-    }
-    
-    
     
   } catch(boost::program_options::unknown_option) {
     cout << "No command line options known to boost... continuing to getopt parser..." << endl;
@@ -405,6 +160,7 @@ int main( int argc, char **argv )
   bool testdb_b = false;
   bool lmaptest_b = false;
   bool hardware_b = false;
+  bool qie_b = false;
   bool test_db_access_b = false;
   bool zs2_b = false;
   bool zs2HB_b = false;
@@ -444,9 +200,10 @@ int main( int argc, char **argv )
       {"rbx", 1, 0, 60},
       {"luts2", 0, 0, 70},
       {"testocci", 0, 0, 1000},
-      //{"testdb", 1, 0, 1010},
+      {"testdb", 1, 0, 1010},
       {"lmaptest", 1, 0, 2000},
       {"hardware", 0, 0, 1050},
+      {"qie", 0, 0, 1060},
       {"test-db-access", 0, 0, 1070},
       {"zs2", 0, 0, 1080},
       {"zs2HB", 1, 0, 1090},
@@ -598,20 +355,20 @@ int main( int argc, char **argv )
       testocci();
       break;
       
-      //case 1010: // testdb
-      //if ( optarg )
-      //{
-      //  char _buf[1024];
-      //  sprintf( _buf, "%s", optarg );
-      //  //cout << "filename: " << _buf << endl;
-      //  filename .append( _buf );
-      //  testdb_b = true;
-      //}
-      //else
-      //{
-      //  cout << "No XML file name specified! " << endl;
-      //}
-      //break;
+    case 1010: // testdb
+      if ( optarg )
+	{
+	  char _buf[1024];
+	  sprintf( _buf, "%s", optarg );
+	  //cout << "filename: " << _buf << endl;
+	  filename .append( _buf );
+	  testdb_b = true;
+	}
+      else
+	{
+	  cout << "No XML file name specified! " << endl;
+	}
+      break;
 
     case 2000: // lmaptest
       if ( optarg )
@@ -629,6 +386,10 @@ int main( int argc, char **argv )
 
     case 1050: // HCAL hardware map
       hardware_b=true;
+      break;
+      
+    case 1060: // qie
+      qie_b=true;
       break;
       
     case 1070: // oracle access example to lmap and stuff for Dmitry
@@ -711,8 +472,7 @@ int main( int argc, char **argv )
     printf ("\n");
   }
 
-  // FIXME: deprecated - remove
-  /*
+  // decide what to depending on the params
   if ( luts )
     {
       cout << "path: " << path << endl;
@@ -720,9 +480,7 @@ int main( int argc, char **argv )
       cout << "TAG_NAME: " << tag << endl;
       createLUTLoader( prefix, tag );
     }
-  */
-  //else
-  if ( rbx )
+  else if ( rbx )
     {
       cout << "type: " << rbx_type << endl;
       cout << "TAG_NAME: " << tag << endl;
@@ -737,10 +495,10 @@ int main( int argc, char **argv )
 	cout << "Tag name not specified... exiting" << endl;
       }
     }
-  //else if ( testdb_b && tag_b )
-  //{
-  //  testDB( tag, filename );      
-  //}
+  else if ( testdb_b && tag_b )
+    {
+      testDB( tag, filename );      
+    }
 
   else if ( lmaptest_b )
     {
@@ -749,6 +507,10 @@ int main( int argc, char **argv )
   else if ( hardware_b )
     {
       hardware();      
+    }
+  else if ( qie_b )
+    {
+      qie_adc();      
     }
   else if ( test_db_access_b )
     {
@@ -1008,8 +770,8 @@ int createLUTLoader( string _prefix, string tag_name )
   XMLLUTLoader::checksumsDBConfig CSconf;
 
   baseConf . tag_name = tag_name;
-  //baseConf . comment_description = tag_name;
-  baseConf . comment_description = "Version 2 (HO bug fixed, now input and output LUTs for HO should be in.) Input: pedestal compensation by 3 for HB, HE, HF, and HO, nominal linearization, output: |ieta|<=14 thr=7 (equal or more), |ieta|=15 thr=9, |ieta|=16 thr=10, |ieta|>=17 & |ieta|<=28 thr=9, |ieta|>=29 thr=5, checksums correct.";
+  //baseConf . comment_description = _prefix + ": LUTs for GREN 26Nov2007";
+  baseConf . comment_description = tag_name;
   baseConf . iov_begin = "1";
   baseConf . iov_end = "-1";
 
@@ -1029,16 +791,12 @@ int createLUTLoader( string _prefix, string tag_name )
   crate_number . push_back(0);
   crate_number . push_back(1);
   crate_number . push_back(2);
-  crate_number . push_back(3);
   crate_number . push_back(4);
   crate_number . push_back(5);
-  crate_number . push_back(6);
-  crate_number . push_back(7);
   crate_number . push_back(9);
   crate_number . push_back(10);
   crate_number . push_back(11);
   crate_number . push_back(12);
-  crate_number . push_back(13);
   crate_number . push_back(14);
   crate_number . push_back(15);
   crate_number . push_back(17);
@@ -1046,16 +804,12 @@ int createLUTLoader( string _prefix, string tag_name )
   file_name . push_back( "./" + _prefix + "_0.xml.dat" );
   file_name . push_back( "./" + _prefix + "_1.xml.dat" );
   file_name . push_back( "./" + _prefix + "_2.xml.dat" );
-  file_name . push_back( "./" + _prefix + "_3.xml.dat" );
   file_name . push_back( "./" + _prefix + "_4.xml.dat" );
   file_name . push_back( "./" + _prefix + "_5.xml.dat" );
-  file_name . push_back( "./" + _prefix + "_6.xml.dat" );
-  file_name . push_back( "./" + _prefix + "_7.xml.dat" );
   file_name . push_back( "./" + _prefix + "_9.xml.dat" );
   file_name . push_back( "./" + _prefix + "_10.xml.dat" );
   file_name . push_back( "./" + _prefix + "_11.xml.dat" );
   file_name . push_back( "./" + _prefix + "_12.xml.dat" );
-  file_name . push_back( "./" + _prefix + "_13.xml.dat" );
   file_name . push_back( "./" + _prefix + "_14.xml.dat" );
   file_name . push_back( "./" + _prefix + "_15.xml.dat" );
   file_name . push_back( "./" + _prefix + "_17.xml.dat" );
@@ -1426,8 +1180,73 @@ int test_db_access( void )
   return 0;
 }
 
+int testDB( string _tag, string _filename )
+{
+
+  HCALConfigDB * db = new HCALConfigDB();
+  db -> connect( _filename, "occi://CMS_HCL_PRTTYPE_HCAL_READER@anyhost/int2r?PASSWORD=HCAL_Reader_88,LHWM_VERSION=22" );
+
+  //vector<unsigned int> _lut = db -> getOnlineLUTFromXML( "emap_hcal_emulator_test_luts", 17, 2, 1, 1, 0, 1 );
+  //vector<unsigned int> _lut = db -> getOnlineLUTFromXML( "GREN_170_realped", 17, 2, 1, 1, 0, 1 );
+
+  struct timeval _t;
+  gettimeofday( &_t, NULL );
+  cout << "before getting a LUT: " << _t . tv_sec << "." << _t . tv_usec << endl;
+  vector<unsigned int> _lut = db -> getOnlineLUT( _tag, 17, 2, 1, 1, 0, 1 );
+  gettimeofday( &_t, NULL );
+  cout << "after getting a LUT: " << _t . tv_sec << "." << _t . tv_usec << endl;
+  _lut = db -> getOnlineLUT( _tag, 15, 2, 1, 1, 0, 1 );
+  gettimeofday( &_t, NULL );
+  cout << "after getting a LUT: " << _t . tv_sec << "." << _t . tv_usec << endl;
+  _lut = db -> getOnlineLUT( _tag, 17, 2, 1, 1, 0, 1 );
+  gettimeofday( &_t, NULL );
+  cout << "after getting a LUT: " << _t . tv_sec << "." << _t . tv_usec << endl;
+  _lut = db -> getOnlineLUT( _tag, 9, 2, 1, 1, 0, 1 );
+  gettimeofday( &_t, NULL );
+  cout << "after getting a LUT: " << _t . tv_sec << "." << _t . tv_usec << endl;
+  _lut = db -> getOnlineLUT( _tag, 0, 2, 1, 1, 0, 1 );
+  gettimeofday( &_t, NULL );
+  cout << "after getting a LUT: " << _t . tv_sec << "." << _t . tv_usec << endl;
+
+  /*
+  HcalDetId _hcaldetid( HcalBarrel, -11, 12, 1 );
+
+  struct timeval _t;
+  gettimeofday( &_t, NULL );
+  cout << "before getting a LUT: " << _t . tv_sec << "." << _t . tv_usec << endl;
+
+  vector<unsigned int> _lut = db -> getOnlineLUTFromXML( _tag, _hcaldetid . rawId() );
+
+  gettimeofday( &_t, NULL );
+  cout << "after getting a LUT: " << _t . tv_sec << "." << _t . tv_usec << endl;
+
+  HcalDetId _hcaldetid2( HcalBarrel, -11, 13, 1 );
+  _lut = db -> getOnlineLUTFromXML( _tag, _hcaldetid2 . rawId() );
+
+  gettimeofday( &_t, NULL );
+  cout << "after getting a LUT: " << _t . tv_sec << "." << _t . tv_usec << endl;
+
+  _lut = db -> getOnlineLUTFromXML( _tag, _hcaldetid . rawId() );
+
+  gettimeofday( &_t, NULL );
+  cout << "after getting a LUT: " << _t . tv_sec << "." << _t . tv_usec << endl;
+
+  */
 
 
+  cout << "LUT length = " << _lut . size() << endl;
+  for ( vector<unsigned int>::const_iterator i = _lut . end() - 1; i != _lut . begin()-1; i-- )
+    {
+      cout << (i-_lut.begin()) << "     " << _lut[(i-_lut.begin())] << endl;
+      break;
+    }
+
+
+  db -> disconnect();
+  
+
+  return 0;
+}
 
 int lmaptest( string _param ){
   cout << "lmaptest() is running, param = " << _param << endl;
@@ -1446,9 +1265,6 @@ int lmaptest( string _param ){
   dbr->PrintEMAPfromLMAP(EMAPfile, curLMAP);
   return 0;
 }
-
-
-
 int hardware( void )
 {
   HcalHardwareXml _hw;
@@ -1480,6 +1296,46 @@ int hardware( void )
   return 0;
 }
 
+int qie_adc( void )
+{
+  HcalQIEManager _manager;
+
+  map<HcalChannelId,HcalQIECaps> & _old = _manager . getQIETableFromFile( "qie_normalmode_v3.txt" );
+  map<HcalChannelId,HcalQIECaps> & _new = _manager . getQIETableFromFile( "qie_adc_table_after.txt" );
+
+  int goodChannels = 0;
+  int badChannels = 0;
+  cout << "old size: " << _old.size() << endl;
+  cout << "new size: " << _new.size() << endl;
+  for (map<HcalChannelId,HcalQIECaps>::const_iterator line=_old.begin(); line!=_old.end(); line++ ){
+    HcalQIECaps * the_caps;
+    HcalChannelId theId = line -> first;
+    if (_new.find(theId)==_new.end()){
+      badChannels++;
+      the_caps = &_old[theId];
+    }
+    else{
+      goodChannels++;
+      the_caps = &_new[theId];
+    }
+    char buffer[1024];
+    int eta = theId.eta;
+    int phi = theId.phi;
+    int depth = theId.depth;
+    sprintf(buffer, "%15d %15d %15d %15s", eta, phi, depth, theId.subdetector.c_str());
+    cout << buffer;
+
+    for (int j = 0; j != 32; j++){
+      double _x = the_caps->caps[j];
+      sprintf(buffer, " %8.5f", _x);
+      cout << buffer;      
+    }
+    cout << endl;
+  }
+
+  cout<< goodChannels<< "   " << badChannels << "   " << goodChannels+badChannels << endl;
+  return 0;
+}
 
 // courtesy of Fedor Ratnikov
 std::vector <std::string> splitString (const std::string& fLine) {

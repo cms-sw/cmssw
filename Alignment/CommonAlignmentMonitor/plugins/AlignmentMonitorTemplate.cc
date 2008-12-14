@@ -8,7 +8,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Thu Mar 29 13:59:56 CDT 2007
-// $Id: AlignmentMonitorTemplate.cc,v 1.4 2008/04/26 03:35:20 pivarski Exp $
+// $Id: AlignmentMonitorTemplate.cc,v 1.3 2008/04/26 01:45:39 pivarski Exp $
 //
 
 // system include files
@@ -31,7 +31,7 @@ class AlignmentMonitorTemplate: public AlignmentMonitorBase {
       ~AlignmentMonitorTemplate() {};
 
       void book();
-      void event(const edm::Event &iEvent, const edm::EventSetup &iSetup, const ConstTrajTrackPairCollection& iTrajTracks);
+      void event(const edm::EventSetup &iSetup, const ConstTrajTrackPairCollection& iTrajTracks);
       void afterAlignment(const edm::EventSetup &iSetup);
 
    private:
@@ -79,7 +79,7 @@ void AlignmentMonitorTemplate::book() {
    // https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideAlignmentAlgorithms#Monitoring    for configuring it
 }
 
-void AlignmentMonitorTemplate::event(const edm::Event &iEvent, const edm::EventSetup &iSetup, const ConstTrajTrackPairCollection& tracks) {
+void AlignmentMonitorTemplate::event(const edm::EventSetup &iSetup, const ConstTrajTrackPairCollection& tracks) {
    m_hist->Fill(iteration());  // get the number of events per iteration
    m_ihist->Fill(0.5);         // get the number of events in this iteration in the central bin
 

@@ -6,8 +6,8 @@
  *   starting from internal seeds (L2 muon track segments).
  *
  *
- *   $Date: 2008/10/06 13:42:28 $
- *   $Revision: 1.30 $
+ *   $Date: 2007/12/17 17:23:07 $
+ *   $Revision: 1.28 $
  *
  *   \author  R.Bellan - INFN TO
  */
@@ -22,8 +22,6 @@
 
 // TrackFinder and Specific STA Trajectory Builder
 #include "RecoMuon/StandAloneTrackFinder/interface/StandAloneTrajectoryBuilder.h"
-#include "RecoMuon/TrackingTools/interface/DirectMuonTrajectoryBuilder.h"
-
 #include "RecoMuon/TrackingTools/interface/MuonTrackFinder.h"
 #include "RecoMuon/TrackingTools/interface/MuonTrackLoader.h"
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
@@ -63,19 +61,8 @@ StandAloneMuonProducer::StandAloneMuonProducer(const ParameterSet& parameterSet)
   theService = new MuonServiceProxy(serviceParameters);
 
   // instantiate the concrete trajectory builder in the Track Finder
-  string typeOfBuilder = parameterSet.getParameter<string>("MuonTrajectoryBuilder");
-  if(typeOfBuilder == "StandAloneMuonTrajectoryBuilder")
-    theTrackFinder = new MuonTrackFinder(new StandAloneMuonTrajectoryBuilder(trajectoryBuilderParameters,theService),
-					 new MuonTrackLoader(trackLoaderParameters,theService));
-  else if(typeOfBuilder == "DirectMuonTrajectoryBuilder")
-    theTrackFinder = new MuonTrackFinder(new DirectMuonTrajectoryBuilder(trajectoryBuilderParameters,theService),
-					 new MuonTrackLoader(trackLoaderParameters,theService));
-  else{
-    LogWarning("Muon|RecoMuon|StandAloneMuonProducer") << "No Trajectory builder associated with "<<typeOfBuilder
-						       << ". Falling down to the default (StandAloneMuonTrajectoryBuilder)";
-    theTrackFinder = new MuonTrackFinder(new StandAloneMuonTrajectoryBuilder(trajectoryBuilderParameters,theService),
-					 new MuonTrackLoader(trackLoaderParameters,theService));
-  }
+  theTrackFinder = new MuonTrackFinder(new StandAloneMuonTrajectoryBuilder(trajectoryBuilderParameters,theService),
+				       new MuonTrackLoader(trackLoaderParameters,theService));
 
   setAlias(parameterSet.getParameter<std::string>("@module_label"));
   

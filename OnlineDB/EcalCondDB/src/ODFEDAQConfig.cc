@@ -24,12 +24,6 @@ void ODFEDAQConfig::clear(){
    m_del=0;
    m_wei=0;
    m_ped=0;
-
-   m_bxt=0;
-   m_btt=0;
-   m_tbtt=0;
-   m_tbxt=0;
-
    m_version=0;
    m_com="";
 }
@@ -72,8 +66,9 @@ void ODFEDAQConfig::prepareWrite()
   try {
     m_writeStmt = m_conn->createStatement();
     m_writeStmt->setSQL("INSERT INTO FE_DAQ_CONFIG ( config_id, tag, version, ped_id, " 
-			" del_id, wei_id,bxt_id, btt_id, tr_bxt_id, tr_btt_id, user_comment ) "
-			"VALUES ( :1, :2, :3, :4, :5, :6, :7 ,:8, :9, :10, :11 )" );
+			" del_id, wei_id, user_comment ) "
+			"VALUES (  "
+			" :1, :2, :3, :4, :5, :6, :7 )" );
 
     m_writeStmt->setInt(1, next_id);
     m_ID=next_id;
@@ -96,12 +91,6 @@ void ODFEDAQConfig::setParameters(std::map<string,string> my_keys_map){
     if(ci->first==  "PED_ID") setPedestalId(atoi(ci->second.c_str()) );
     if(ci->first==  "DEL_ID") setDelayId(atoi(ci->second.c_str()));
     if(ci->first==  "WEI_ID") setWeightId(atoi(ci->second.c_str()));
-
-    if(ci->first==  "BXT_ID") setBadXtId(atoi(ci->second.c_str()));
-    if(ci->first==  "BTT_ID") setBadTTId(atoi(ci->second.c_str()));
-    if(ci->first==  "TRIG_BXT_ID") setTriggerBadXtId(atoi(ci->second.c_str()));
-    if(ci->first==  "TRIG_BTT_ID") setTriggerBadTTId(atoi(ci->second.c_str()));
-
     if(ci->first==  "COMMENT" || ci->first==  "USER_COMMENT") setComment(ci->second);
     
   }
@@ -122,11 +111,7 @@ void ODFEDAQConfig::writeDB()
     m_writeStmt->setInt(4, this->getPedestalId());
     m_writeStmt->setInt(5, this->getDelayId());
     m_writeStmt->setInt(6, this->getWeightId());
-    m_writeStmt->setInt(7, this->getBadXtId());
-    m_writeStmt->setInt(8, this->getBadTTId());
-    m_writeStmt->setInt(9, this->getTriggerBadXtId());
-    m_writeStmt->setInt(10,this->getTriggerBadTTId());
-    m_writeStmt->setString(11, this->getComment());
+    m_writeStmt->setString(7, this->getComment());
 
     m_writeStmt->executeUpdate();
 
@@ -172,11 +157,7 @@ void ODFEDAQConfig::fetchData(ODFEDAQConfig * result)
     result->setPedestalId(       rset->getInt(4) );
     result->setDelayId(        rset->getInt(5) );
     result->setWeightId(         rset->getInt(6) );
-    result->setBadXtId(         rset->getInt(7) );
-    result->setBadTTId(         rset->getInt(8) );
-    result->setTriggerBadXtId(   rset->getInt(9) );
-    result->setTriggerBadTTId(  rset->getInt(10) );
-    result->setComment(      rset->getString(11) );
+    result->setComment(      rset->getString(7) );
 
   } catch (SQLException &e) {
     throw(runtime_error("ODFEDAQConfig::fetchData():  "+e.getMessage()));

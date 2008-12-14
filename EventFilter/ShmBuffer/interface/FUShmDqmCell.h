@@ -23,8 +23,6 @@ namespace evf {
     unsigned int   runNumber()   const { return runNumber_; }
     unsigned int   evtAtUpdate() const { return evtAtUpdate_; }
     unsigned int   folderId()    const { return folderId_; }
-    unsigned int   fuProcessId() const { return fuProcessId_; }
-    unsigned int   fuGuid()      const { return fuGuid_; }
 
     unsigned int   payloadSize() const { return payloadSize_; }
     unsigned char* payloadAddr() const;
@@ -33,8 +31,6 @@ namespace evf {
     void           writeData(unsigned int   runNumber,
 			     unsigned int   evtAtUpdate,
 			     unsigned int   folderId,
-			     unsigned int   fuProcessId,
-			     unsigned int   fuGuid,
 			     unsigned char *data,
 			     unsigned int   dataSize);
     
@@ -55,8 +51,6 @@ namespace evf {
     unsigned int runNumber_;
     unsigned int evtAtUpdate_;
     unsigned int folderId_;
-    unsigned int fuProcessId_;
-    unsigned int fuGuid_;
     unsigned int payloadSize_;
     unsigned int payloadOffset_;
     unsigned int eventSize_;

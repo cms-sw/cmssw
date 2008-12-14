@@ -1,4 +1,4 @@
-// $Id: FragmentCollector.cc,v 1.42 2008/10/08 19:49:51 biery Exp $
+// $Id: FragmentCollector.cc,v 1.41 2008/09/04 17:49:07 biery Exp $
 
 #include "EventFilter/StorageManager/interface/FragmentCollector.h"
 #include "EventFilter/StorageManager/interface/ProgressMarker.h"
@@ -52,7 +52,6 @@ namespace stor
     buffer_deleter_(d),
     prods_(0),
     info_(&h), 
-    disks_(0),
     writer_(new edm::ServiceManager(config_str)),
     dqmServiceManager_(new stor::DQMServiceManager())
   {
@@ -68,7 +67,6 @@ namespace stor
     buffer_deleter_(d),
     prods_(0),
     info_(info.get()), 
-    disks_(0),
     writer_(new edm::ServiceManager(config_str)),
     dqmServiceManager_(new stor::DQMServiceManager())
   {
@@ -99,13 +97,8 @@ namespace stor
 
   void FragmentCollector::start()
   {
-    // 14-Oct-2008, KAB - avoid race condition by starting writers first
-    // (otherwise INIT message could be received and processed before
-    // the writers are started (and whatever initialization is done in the
-    // writers when INIT messages are processed could be wiped out by 
-    // the start command)
-    writer_->start();
     me_.reset(new boost::thread(boost::bind(FragmentCollector::run,this)));
+    writer_->start();
   }
 
   void FragmentCollector::join()
