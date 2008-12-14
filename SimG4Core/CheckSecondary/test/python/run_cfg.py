@@ -66,15 +66,20 @@ process.op = cms.OutputModule("PoolOutputModule",
 
 process.p1 = cms.Path(process.VtxSmeared*process.g4SimHits)
 process.outpath = cms.EndPath(process.op)
+process.common_maximum_timex = cms.PSet(
+    MaxTrackTime  = cms.double(1000.0),
+    MaxTimeNames  = cms.vstring(),
+    MaxTrackTimes = cms.vdouble()
+)
 process.VtxSmeared.SigmaX = 0.00001
 process.VtxSmeared.SigmaY = 0.00001
 process.VtxSmeared.SigmaZ = 0.00001
 process.g4SimHits.UseMagneticField = False
 process.g4SimHits.Physics.type = 'SimG4Core/Physics/QGSP_EMV'
 process.g4SimHits.StackingAction = cms.PSet(
+    process.common_maximum_timex,
     TrackNeutrino    = cms.bool(False),
     KillHeavy        = cms.bool(True),
-    MaxTrackTime     = cms.double(1000.),
     NeutronThreshold = cms.double(100.0),
     ProtonThreshold  = cms.double(100.0),
     IonThreshold     = cms.double(100.0),
@@ -82,6 +87,16 @@ process.g4SimHits.StackingAction = cms.PSet(
     SavePrimaryDecayProductsAndConversionsInTracker = cms.untracked.bool(True),
     SavePrimaryDecayProductsAndConversionsInCalo = cms.untracked.bool(False),
     SavePrimaryDecayProductsAndConversionsInMuon = cms.untracked.bool(False)
+)
+process.g4SimHits.SteppingAction = cms.PSet(
+    process.common_maximum_timex,
+    KillBeamPipe            = cms.bool(True),
+    CriticalEnergyForVacuum = cms.double(2.0),
+    CriticalDensity         = cms.double(1e-15),
+    EkinNames               = cms.vstring(),
+    EkinThresholds          = cms.vdouble(),
+    EkinParticles           = cms.vstring(),
+    Verbosity = cms.untracked.int32(0)
 )
 process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
     StoreSecondary = cms.PSet(
