@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.104 $"
+__version__ = "$Revision: 1.105 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -58,7 +58,8 @@ class ConfigBuilder(object):
             self.process = cms.Process(self._options.name)
         else:
             self.process = process 		
-        self.process.schedule = cms.Schedule()        
+        self.schedule = list()
+	
         # we are doing three things here:
         # creating a process to catch errors
         # building the code to re-create the process
@@ -141,7 +142,7 @@ class ConfigBuilder(object):
 	if not self._options.step.split(',')[0].split(':')[0] == 'ALCA':
             self.process.output = output
             self.process.out_step = cms.EndPath(self.process.output)
-            self.process.schedule.append(self.process.out_step)
+            self.schedule.append(self.process.out_step)
 
             # ATTENTION: major tweaking to avoid inlining of event content
             # should we do that?
@@ -247,7 +248,7 @@ class ConfigBuilder(object):
         """Include the customise code """
 
         # let python search for that package and do syntax checking at the same time
-        packageName = self._options.customisation_file.replace(".py","")
+        packageName = self._options.customisation_file.replace(".py","").replace(".","/")
         package = __import__(packageName)
 
         # now ask the package for its definition and pick .py instead of .pyc
@@ -261,7 +262,7 @@ class ConfigBuilder(object):
         
         final_snippet += '\n\n# End of customisation function definition'
 
-        return final_snippet + "\n\nprocess = customise(process)"
+        return final_snippet + "\n\nprocess = customise(process)\n"
 
     #----------------------------------------------------------------------------
     # here the methods to define the python includes for each step or
@@ -283,7 +284,7 @@ class ConfigBuilder(object):
 	self.DIGI2RAWDefaultCFF="Configuration/StandardSequences/DigiToRaw_cff"
 	self.L1EMDefaultCFF='Configuration/StandardSequences/SimL1Emulator_cff'
 	self.L1MENUDefaultCFF="Configuration/StandardSequences/L1TriggerDefaultMenu_cff"
-	self.HLTDefaultCFF="HLTrigger/Configuration/HLT_2E30_cff"
+	self.HLTDefaultCFF="Configuration/StandardSequences/HLTtable_cff"
 	self.RAW2DIGIDefaultCFF="Configuration/StandardSequences/RawToDigi_Data_cff"
 	self.RECODefaultCFF="Configuration/StandardSequences/Reconstruction_cff"
 	self.POSTRECODefaultCFF="Configuration/StandardSequences/PostRecoGenerator_cff"
@@ -404,7 +405,7 @@ class ConfigBuilder(object):
             # DQM needs a special handling
             elif name == 'pathALCARECODQM' and 'DQM' in alcaList:
 		    path = getattr(alcaConfig,name)
-		    self.process.schedule.append(path)
+		    self.schedule.append(path)
                     alcaList.remove('DQM')
         if len(alcaList) != 0:
             print "The following alcas could not be found", alcaList
@@ -430,7 +431,7 @@ class ConfigBuilder(object):
             raise
           self.process.generation_step = cms.Path( self.process.pgen )
 
-        self.process.schedule.append(self.process.generation_step)
+        self.schedule.append(self.process.generation_step)
 
         # is there a production filter sequence given?
         if sequence:
@@ -447,20 +448,20 @@ class ConfigBuilder(object):
 	    self.additionalCommands.append("process.g4SimHits.UseMagneticField = cms.bool(False)")
 				
         self.process.simulation_step = cms.Path( self.process.psim )
-        self.process.schedule.append(self.process.simulation_step)
+        self.schedule.append(self.process.simulation_step)
         return     
 
     def prepare_DIGI(self, sequence = None):
         """ Enrich the schedule with the digitisation step"""
         self.loadAndRemember(self.DIGIDefaultCFF)
         self.process.digitisation_step = cms.Path(self.process.pdigi)    
-        self.process.schedule.append(self.process.digitisation_step)
+        self.schedule.append(self.process.digitisation_step)
         return
 
     def prepare_DIGI2RAW(self, sequence = None):
         self.loadAndRemember(self.DIGI2RAWDefaultCFF)
         self.process.digi2raw_step = cms.Path( self.process.DigiToRaw )
-        self.process.schedule.append(self.process.digi2raw_step)
+        self.schedule.append(self.process.digi2raw_step)
         return
 
     def prepare_L1(self, sequence = None):
@@ -468,13 +469,15 @@ class ConfigBuilder(object):
         self.loadAndRemember(self.L1EMDefaultCFF) 
         self.loadAndRemember(self.L1MENUDefaultCFF)
         self.process.L1simulation_step = cms.Path(self.process.SimL1Emulator)
-        self.process.schedule.append(self.process.L1simulation_step)
+        self.schedule.append(self.process.L1simulation_step)
 
     def prepare_HLT(self, sequence = None):
         """ Enrich the schedule with the HLT simulation step"""
-        self.loadAndRemember(self.HLTDefaultCFF)
-
-        self.process.schedule.extend(self.process.HLTSchedule)
+	if not sequence:
+            self.loadAndRemember(self.HLTDefaultCFF)
+        else:
+	    self.loadAndRemember("HLTrigger/Configuration/HLT_"+sequence+"_cff")  	
+        self.schedule.append(self.process.HLTSchedule)
         [self.blacklist_paths.append(path) for path in self.process.HLTSchedule if isinstance(path,(cms.Path,cms.EndPath))]
   
     def prepare_RAW2DIGI(self, sequence = "RawToDigi"):
@@ -483,7 +486,7 @@ class ConfigBuilder(object):
         else:    
             self.loadAndRemember(sequence.split(',')[0])
         self.process.raw2digi_step = cms.Path( getattr(self.process, sequence.split(',')[-1]) )
-        self.process.schedule.append(self.process.raw2digi_step)
+        self.schedule.append(self.process.raw2digi_step)
         return
 
     def prepare_RECO(self, sequence = "reconstruction"):
@@ -493,14 +496,14 @@ class ConfigBuilder(object):
         else:    
             self.loadAndRemember(sequence.split(',')[0])
         self.process.reconstruction_step = cms.Path( getattr(self.process, sequence.split(',')[-1]) )
-        self.process.schedule.append(self.process.reconstruction_step)
+        self.schedule.append(self.process.reconstruction_step)
         return
 
     def prepare_POSTRECO(self, sequence = None):
         """ Enrich the schedule with the postreco step """
         self.loadAndRemember(self.POSTRECODefaultCFF)
         self.process.postreco_step = cms.Path( self.process.postreco_generator )
-        self.process.schedule.append(self.process.postreco_step)
+        self.schedule.append(self.process.postreco_step)
         return                         
 
 
@@ -515,7 +518,7 @@ class ConfigBuilder(object):
         else:    
             self.loadAndRemember(sequence.split(',')[0])
         self.process.validation_step = cms.Path( getattr(self.process, sequence.split(',')[-1]) )
-        self.process.schedule.append(self.process.validation_step)
+        self.schedule.append(self.process.validation_step)
         return
 
     def prepare_DQM(self, sequence = 'DQMOffline'):
@@ -526,14 +529,14 @@ class ConfigBuilder(object):
         else:    
             self.loadAndRemember(sequence.split(',')[0])
         self.process.dqmoffline_step = cms.Path( getattr(self.process, sequence.split(',')[-1]) )
-        self.process.schedule.append(self.process.dqmoffline_step)
+        self.schedule.append(self.process.dqmoffline_step)
 
     def prepare_HARVESTING(self, sequence = None):
         """ Enrich the process with harvesting step """
         self.EDMtoMECFF='Configuration/StandardSequences/EDMtoME'+self._options.harvesting+'_cff'
         self.loadAndRemember(self.EDMtoMECFF)
         self.process.edmtome_step = cms.Path(self.process.EDMtoME)
-        self.process.schedule.append(self.process.edmtome_step)     
+        self.schedule.append(self.process.edmtome_step)     
 
         if ( len(sequence.split(','))==1 ):
             harvestingConfig = self.loadAndRemember(self.HARVESTINGDefaultCFF)
@@ -556,7 +559,7 @@ class ConfigBuilder(object):
             raise
 
         self.process.dqmsave_step = cms.Path(self.process.DQMSaver)
-        self.process.schedule.append(self.process.dqmsave_step)     
+        self.schedule.append(self.process.dqmsave_step)     
 
 
     def prepare_ENDJOB(self, sequence = 'endOfProcess'):
@@ -567,7 +570,7 @@ class ConfigBuilder(object):
         else:    
             self.loadAndRemember(sequence.split(',')[0])
         self.process.endjob_step = cms.Path( getattr(self.process, sequence.split(',')[-1]) )
-        self.process.schedule.append(self.process.endjob_step)
+        self.schedule.append(self.process.endjob_step)
 
     def prepare_FASTSIM(self, sequence = "all"):
         """Enrich the schedule with fastsim"""
@@ -601,12 +604,12 @@ class ConfigBuilder(object):
 
             # if we don't want to filter after HLT but simulate everything regardless of what HLT tells, we have to add reconstruction explicitly
             if sequence == 'all':
-                self.process.schedule.extend(self.process.HLTSchedule)
+                self.schedule.append(self.process.HLTSchedule)
                 self.process.reconstruction = cms.Path(self.process.reconstructionWithFamos)
-                self.process.schedule.append(self.process.reconstruction)
+                self.schedule.append(self.process.reconstruction)
         elif sequence == 'famosWithEverything': 
             self.process.fastsim_step = cms.Path( getattr(self.process, "famosWithEverything") )
-            self.process.schedule.append(self.process.fastsim_step)
+            self.schedule.append(self.process.fastsim_step)
 
             # now the additional commands we need to make the config work
             self.additionalCommands.append("process.VolumeBasedMagneticFieldESProducer.useParametrizedTrackerField = True")
@@ -632,7 +635,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.104 $"),
+              (version=cms.untracked.string("$Revision: 1.105 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )
@@ -711,8 +714,20 @@ class ConfigBuilder(object):
 
         # dump the schedule
         self.pythonCfgCode += "\n# Schedule definition\n"
-        pathNames = ['process.'+p.label_() for p in self.process.schedule]
-        result ='process.schedule = cms.Schedule('+','.join(pathNames)+')\n'
+        result = "process.schedule = cms.Schedule("
+
+	if hasattr(self.process,"HLTSchedule"):
+   	    beforeHLT = self.schedule[:self.schedule.index(self.process.HLTSchedule)] 
+	    afterHLT = self.schedule[self.schedule.index(self.process.HLTSchedule)+1:]
+            pathNames = ['process.'+p.label_() for p in beforeHLT]
+	    result += ','.join(pathNames)+')\n'
+	    result += 'process.schedule.extend(process.HLTSchedule)\n'
+	    pathNames = ['process.'+p.label_() for p in afterHLT]
+	    result += 'process.schedule.extend(['+','.join(pathNames)+'])'
+        else:
+	    pathNames = ['process.'+p.label_() for p in self.schedule]
+            result ='process.schedule = cms.Schedule('+','.join(pathNames)+')\n'
+
         self.pythonCfgCode += result
 
         # special treatment in case of production filter sequence 2/2
@@ -721,7 +736,7 @@ class ConfigBuilder(object):
 # special treatment in case of production filter sequence  
 for path in process.paths: \n    getattr(process,path)._seq = process."""+self.productionFilterSequence+"""*getattr(process,path)._seq
 """
-        self.pythonCfgCode += modifierCode		 
+                self.pythonCfgCode += modifierCode		 
 
         # dump customise fragment
         if self._options.customisation_file:
