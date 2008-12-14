@@ -1,3 +1,4 @@
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "AnalysisDataFormats/TopObjects/interface/TtGenEvent.h"
 #include "TopQuarkAnalysis/Examples/plugins/TopGenEventAnalyzer.h"
 #include "AnalysisDataFormats/TopObjects/interface/TtSemiLeptonicEvent.h"
@@ -40,9 +41,10 @@ TopGenEventAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setup
   topBarPhi_->Fill(genEvent->topBar()->phi());
 
   //fill ttbar kinematics
-  topPt_ ->Fill((genEvent->top()->p4()+genEvent->topBar()->p4()).pt ());
-  topEta_->Fill((genEvent->top()->p4()+genEvent->topBar()->p4()).eta());
-  topPhi_->Fill((genEvent->top()->p4()+genEvent->topBar()->p4()).phi());
+  reco::Particle::LorentzVector p4 = genEvent->top()->p4()+genEvent->topBar()->p4();
+  topPt_ ->Fill(p4.pt ());
+  topEta_->Fill(p4.eta());
+  topPhi_->Fill(p4.phi());
 }
 
 void TopGenEventAnalyzer::beginJob(const edm::EventSetup&)
