@@ -2,7 +2,6 @@
 <DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
 
 
-
 <SolidSection label="totemt2.xml">
 
  <Tubs name="TotemT2gem" rMin="29*mm" rMax="15.1*cm" dz="21.0595*cm" startPhi="0*deg" deltaPhi="360*deg"/>
