@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("PROD")
 process.load("SimGeneral.HepPDTESSource.pdt_cfi")
 
-process.load("Validation.CheckOverlap.forwardGeometry_cfi")
+process.load("Validation.CheckOverlap.testGeometry_cfi")
 
 process.load("SimG4Core.Application.g4SimHits_cfi")
 
