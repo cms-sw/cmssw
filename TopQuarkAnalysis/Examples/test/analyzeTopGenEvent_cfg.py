@@ -64,9 +64,6 @@ process.GlobalTag.globaltag = cms.string('STARTUP_V7::All')
 # Magnetic field now needs to be in the high-level py
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
-
-
-
 #-------------------------------------------------
 # tqaf configuration; if the TQAF Layer 1 is
 # already in place yuo can comment the following
@@ -81,6 +78,11 @@ process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("TopQuarkAnalysis.TopEventProducers.sequences.ttGenEvent_cff")
 process.p1 = cms.Path(process.makeGenEvt)
 
+## change generatorListing to madgraph
+from TopQuarkAnalysis.TopEventProducers.producers.TopDecaySubset_cfi import decaySubset
+decaySubset.genType=1
+
+
 #-------------------------------------------------
 # analyze genEvent
 #-------------------------------------------------
@@ -91,6 +93,5 @@ process.analyzeTopGenEvent = analyzeTopGenEvent
 process.TFileService = cms.Service("TFileService",fileName = cms.string('analyzegenevent.root')
 )
 
-## end path   
+## analysis path   
 process.p2 = cms.Path(process.analyzeTopGenEvent)
-
