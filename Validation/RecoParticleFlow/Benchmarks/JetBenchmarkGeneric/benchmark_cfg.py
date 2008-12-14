@@ -7,11 +7,36 @@ process = cms.Process("TEST")
 process.load("DQMServices.Core.DQM_cfg")
 
 
-process.source = cms.Source("PoolSource",
-fileNames = cms.untracked.vstring(
-'file:==AOD=='
-)
-)
+process.source = cms.Source (
+    "PoolSource",    
+    fileNames = cms.untracked.vstring(
+    # Fast
+#       'rfio:/castor/cern.ch/user/p/pjanot/CMSSW222/aod_QCDForPF_Fast_0.root',
+#       'rfio:/castor/cern.ch/user/p/pjanot/CMSSW222/aod_QCDForPF_Fast_1.root',
+#       'rfio:/castor/cern.ch/user/p/pjanot/CMSSW222/aod_QCDForPF_Fast_2.root',
+#       'rfio:/castor/cern.ch/user/p/pjanot/CMSSW222/aod_QCDForPF_Fast_3.root',
+#       'rfio:/castor/cern.ch/user/p/pjanot/CMSSW222/aod_QCDForPF_Fast_4.root',
+#       'rfio:/castor/cern.ch/user/p/pjanot/CMSSW222/aod_QCDForPF_Fast_5.root',
+#       'rfio:/castor/cern.ch/user/p/pjanot/CMSSW222/aod_QCDForPF_Fast_6.root',
+#       'rfio:/castor/cern.ch/user/p/pjanot/CMSSW222/aod_QCDForPF_Fast_7.root',
+#       'rfio:/castor/cern.ch/user/p/pjanot/CMSSW222/aod_QCDForPF_Fast_8.root',
+#       'rfio:/castor/cern.ch/user/p/pjanot/CMSSW222/aod_QCDForPF_Fast_9.root',
+#       'rfio:/castor/cern.ch/user/p/pjanot/CMSSW222/aod_QCDForPF_Fast_10.root'
+    # Full
+       'rfio:/castor/cern.ch/user/p/pjanot/CMSSW222/aod_QCDForPF_Full_000.root',
+       'rfio:/castor/cern.ch/user/p/pjanot/CMSSW222/aod_QCDForPF_Full_001.root',
+       'rfio:/castor/cern.ch/user/p/pjanot/CMSSW222/aod_QCDForPF_Full_002.root',
+       'rfio:/castor/cern.ch/user/p/pjanot/CMSSW222/aod_QCDForPF_Full_003.root',
+       'rfio:/castor/cern.ch/user/p/pjanot/CMSSW222/aod_QCDForPF_Full_004.root',
+       'rfio:/castor/cern.ch/user/p/pjanot/CMSSW222/aod_QCDForPF_Full_005.root',
+       'rfio:/castor/cern.ch/user/p/pjanot/CMSSW222/aod_QCDForPF_Full_006.root',
+       'rfio:/castor/cern.ch/user/p/pjanot/CMSSW222/aod_QCDForPF_Full_007.root',
+       'rfio:/castor/cern.ch/user/p/pjanot/CMSSW222/aod_QCDForPF_Full_008.root',
+       'rfio:/castor/cern.ch/user/p/pjanot/CMSSW222/aod_QCDForPF_Full_009.root'
+       ),
+       secondaryFileNames = cms.untracked.vstring()
+    )
+
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
 )
@@ -34,8 +59,8 @@ process.genParticlesForJets.excludeResonances = False
 
 process.p =cms.Path(
     process.genJetParticles+
-    process.recoGenJets+
-    process.iterativeCone5PFJets+
+    process.iterativeCone5GenJets+
+    #process.iterativeCone5PFJets+
     process.pfJetBenchmark
     )
 
