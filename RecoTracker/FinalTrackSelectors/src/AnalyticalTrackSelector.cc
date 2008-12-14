@@ -19,14 +19,22 @@ AnalyticalTrackSelector::AnalyticalTrackSelector( const edm::ParameterSet & cfg 
     vtxNumber_( cfg.getParameter<int32_t>("vtxNumber") ),
     vtxTracks_( cfg.getParameter<uint32_t>("vtxTracks") ),
     vtxChi2Prob_( cfg.getParameter<double>("vtxChi2Prob") ),
+	//  parameters for adapted optimal cuts on chi2 and primary vertex compatibility
     res_par_(cfg.getParameter< std::vector<double> >("res_par") ),
     chi2n_par_( cfg.getParameter<double>("chi2n_par") ),
     d0_par1_(cfg.getParameter< std::vector<double> >("d0_par1")),
     dz_par1_(cfg.getParameter< std::vector<double> >("dz_par1")),
     d0_par2_(cfg.getParameter< std::vector<double> >("d0_par2")),
     dz_par2_(cfg.getParameter< std::vector<double> >("dz_par2")),
-    min_layers_(cfg.getParameter<uint32_t>("minNumberLayers") )
-
+	// Boolean indicating if adapted primary vertex compatibility cuts are to be applied.
+    applyAdaptedPVCuts_(cfg.getParameter<bool>("applyAdaptedPVCuts")),
+    // Impact parameter absolute cuts.
+    max_d0_(cfg.getParameter<double>("max_d0")),
+    max_z0_(cfg.getParameter<double>("max_z0")),
+    // Cuts on numbers of layers with hits/3D hits/lost hits.
+    min_layers_(cfg.getParameter<uint32_t>("minNumberLayers") ),
+    min_3Dlayers_(cfg.getParameter<uint32_t>("minNumber3DLayers") ),
+    max_lostLayers_(cfg.getParameter<uint32_t>("maxNumberLostLayers") )
 {
     if (cfg.exists("qualityBit")) {
         std::string qualityStr = cfg.getParameter<std::string>("qualityBit");
@@ -77,11 +85,13 @@ void AnalyticalTrackSelector::produce( edm::Event& evt, const edm::EventSetup& e
 	reco::BeamSpot vertexBeamSpot;
 	vertexBeamSpot = *hBsp;
 	
+	// Select good primary vertices for use in subsequent track selection
     edm::Handle<reco::VertexCollection> hVtx;
     evt.getByLabel(vertices_, hVtx);
     std::vector<Point> points;
     selectVertices(*hVtx, points);
 
+    // Get tracks 
     evt.getByLabel( src_, hSrcTrack );
 
 	selTracks_ = auto_ptr<TrackCollection>(new TrackCollection());
@@ -94,9 +104,12 @@ void AnalyticalTrackSelector::produce( edm::Event& evt, const edm::EventSetup& e
 	}
 
     if (copyTrajectories_) trackRefs_.resize(hSrcTrack->size());
+
+    // Loop over tracks
     size_t current = 0;
     for (TrackCollection::const_iterator it = hSrcTrack->begin(), ed = hSrcTrack->end(); it != ed; ++it, ++current) {
         const Track & trk = * it;
+	// Check if this track passes cuts
         bool ok = select(vertexBeamSpot, trk, points);
         if (!ok) {
             if (copyTrajectories_) trackRefs_[current] = reco::TrackRef();
@@ -161,35 +174,62 @@ void AnalyticalTrackSelector::produce( edm::Event& evt, const edm::EventSetup& e
 
 
 bool AnalyticalTrackSelector::select(const reco::BeamSpot &vertexBeamSpot, const reco::Track &tk, const std::vector<Point> &points) {
-   using namespace std; 
-   uint32_t nlayers = tk.hitPattern().trackerLayersWithMeasurement();
-   // cut on the minimum number of crossed layers
-   if (nlayers<min_layers_) return false;
+  // Decide if the given track passes selection cuts.
 
+   using namespace std; 
+
+   // Cuts on numbers of layers with hits/3D hits/lost hits.
+   uint32_t nlayers     = tk.hitPattern().trackerLayersWithMeasurement();
+   uint32_t nlayers3D   = tk.hitPattern().pixelLayersWithMeasurement() +
+                          tk.hitPattern().numberOfValidStripLayersWithMonoAndStereo();
+   uint32_t nlayersLost = tk.hitPattern().trackerLayersWithoutMeasurement();
+   if (nlayers < min_layers_) return false;
+   if (nlayers3D < min_3Dlayers_) return false;
+   if (nlayersLost > max_lostLayers_) return false;
+
+   // Get track parameters
    double pt = tk.pt(),eta = tk.eta(), chi2n =  tk.normalizedChi2();
-   double d0 = -tk.dxy(vertexBeamSpot.position()), d0E =  tk.d0Error(),dz = tk.dz(), dzE =  tk.dzError();
-   // nominal d0 resolution for the track pt
+   double d0 = -tk.dxy(vertexBeamSpot.position()), d0E =  tk.d0Error(), dz = tk.dz(), dzE =  tk.dzError();
+
+   // Absolute cuts on all tracks impact parameters with respect to beam-spot.
+   if (abs(d0) > max_d0_) return false;
+   if (abs(dz) > max_z0_) return false;
+
+   // optimized cuts adapted to the track nlayers, pt, eta:
+   // cut on chiquare/ndof 
+   if (chi2n > chi2n_par_*nlayers) return false;
+
+
+   // parametrized d0 resolution for the track pt
    double nomd0E = sqrt(res_par_[0]*res_par_[0]+(res_par_[1]/max(pt,1e-9))*(res_par_[1]/max(pt,1e-9)));
-   // nominal z0 resolution for the track pt and eta
+   // parametrized z0 resolution for the track pt and eta
    double nomdzE = nomd0E*(std::cosh(eta));
-   //cut on chiquare/ndof && on d0 compatibility with beam line
-   if (chi2n <= chi2n_par_*nlayers &&
-	   abs(d0) < pow(d0_par1_[0]*nlayers,d0_par1_[1])*nomd0E &&
-	   abs(d0) < pow(d0_par2_[0]*nlayers,d0_par2_[1])*d0E ) {
-	 //no vertex, wide z cuts
-	 if (points.empty()) { 
-	   if ( abs(dz) < (vertexBeamSpot.sigmaZ()*3) ) return true;  
-	 }
-	 // z compatibility with a vertex
-	 for (std::vector<Point>::const_iterator point = points.begin(), end = points.end(); point != end; ++point) {
-	   if (
-		   abs(dz-(point->z())) < pow(dz_par1_[0]*nlayers,dz_par1_[1])*nomdzE &&
-		   abs(dz-(point->z())) < pow(dz_par2_[0]*nlayers,dz_par2_[1])*dzE ) return true;
-	 }
+
+   if (applyAdaptedPVCuts_) {
+
+     // d0 compatibility with beam line
+     if (abs(d0) > pow(d0_par1_[0]*nlayers,d0_par1_[1])*nomd0E ||
+         abs(d0) > pow(d0_par2_[0]*nlayers,d0_par2_[1])*d0E) return false;
+
+     // z0 compatibility with one of the primary vertices
+	 // or z0 within three sigma of the beam spot z, if no good vertex is found
+     if (points.empty()) { 
+       if ( abs(dz) < (vertexBeamSpot.sigmaZ()*3) ) return true;  
+     }
+     for (std::vector<Point>::const_iterator point = points.begin(), end = points.end(); point != end; ++point) {
+       if (abs(dz-(point->z())) < pow(dz_par1_[0]*nlayers,dz_par1_[1])*nomdzE &&
+  	   abs(dz-(point->z())) < pow(dz_par2_[0]*nlayers,dz_par2_[1])*dzE ) return true;
+     }
+     return false;
+
+   } else {
+
+     return true;
+
    }
-   return false;
 }
 void AnalyticalTrackSelector::selectVertices(const reco::VertexCollection &vtxs, std::vector<Point> &points) {
+  // Select good primary vertices
     using namespace reco;
     int32_t toTake = vtxNumber_; 
     for (VertexCollection::const_iterator it = vtxs.begin(), ed = vtxs.end(); it != ed; ++it) {
