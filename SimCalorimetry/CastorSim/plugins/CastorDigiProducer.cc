@@ -7,7 +7,7 @@
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloShapeIntegrator.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "CalibFormats/CastorObjects/interface/CastorDbService.h"
 #include "CalibFormats/CastorObjects/interface/CastorDbRecord.h"
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
@@ -91,7 +91,8 @@ theCastorHits.clear();
 
   // Step A: Get Inputs
 edm::Handle<CrossingFrame<PCaloHit> > castorcf;
-e.getByLabel("mix", "CastorHits", castorcf);
+//e.getByLabel("mix", "CastorHits", castorcf);
+e.getByLabel("mix", "CastorFI", castorcf);
 
   // test access to SimHits for HcalHits and ZDC hits
 std::auto_ptr<MixCollection<PCaloHit> > colcastor(new MixCollection<PCaloHit>(castorcf.product()));
@@ -140,12 +141,12 @@ theCastorHits.push_back(castorHit);
 void CastorDigiProducer::checkGeometry(const edm::EventSetup & eventSetup) {
   // TODO find a way to avoid doing this every event
 edm::ESHandle<CaloGeometry> geometry;
-eventSetup.get<CaloGeometryRecord>().get(geometry);
+eventSetup.get<IdealGeometryRecord>().get(geometry);
 theCastorResponse->setGeometry(&*geometry);
 
-const vector<DetId>& castorCells = geometry->getValidDetIds(DetId::Calo, HcalCastorDetId::SubdetectorId);
+vector<DetId> castorCells = geometry->getValidDetIds(DetId::Calo, HcalCastorDetId::SubdetectorId);
 
-std::cout<<"HcalDigiProducer::CheckGeometry number of cells: "<<castorCells.size()<<std::endl;
+std::cout<<"CastorDigiProducer::CheckGeometry number of cells: "<<castorCells.size()<<std::endl;
 theCastorDigitizer->setDetIds(castorCells);
 }
 
