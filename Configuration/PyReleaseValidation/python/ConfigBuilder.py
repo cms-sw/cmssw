@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.103 $"
+__version__ = "$Revision: 1.104 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -222,12 +222,14 @@ class ConfigBuilder(object):
             # fake or real conditions?
             if len(conditionsSP)>1:
                 self.loadAndRemember('FastSimulation/Configuration/CommonInputs_cff')
-                if "IDEAL" in conditionsSP:
-                    self.additionalCommands.append("process.caloRecHits.RecHitsFactory.doMiscalib = False")
+
+		if "STARTUP" in conditionsSP[1]:
+                    self.additionalCommands.append("# Apply ECAL/HCAL miscalibration")
+		    self.additionalCommands.append("process.caloRecHits.RecHitsFactory.doMiscalib = True")
                 # Apply Tracker misalignment
-                self.additionalCommands.append("process.caloRecHits.RecHitsFactory.doMiscalib = True")
+                self.additionalCommands.append("# Apply Tracker misalignment")
                 self.additionalCommands.append("process.famosSimHits.ApplyAlignment = True")
-                self.additionalCommands.append("process.misalignedTrackerGeometry.applyAlignment = True")
+		self.additionalCommands.append("process.misalignedTrackerGeometry.applyAlignment = True\n")
                                        
             else:
                 self.loadAndRemember('FastSimulation/Configuration/CommonInputsFake_cff')
@@ -630,7 +632,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.103 $"),
+              (version=cms.untracked.string("$Revision: 1.104 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )
