@@ -16,32 +16,21 @@ process.load("Configuration.EventContent.EventContent_cff")
 process.load("SimG4Core.Application.g4SimHits_cfi")
 
 process.MessageLogger = cms.Service("MessageLogger",
+    destinations = cms.untracked.vstring('cout'),
+    categories = cms.untracked.vstring('Physics', 
+        'SimG4CoreApplication', 
+        'G4cout', 
+        'G4cerr'),
     debugModules = cms.untracked.vstring('*'),
     cout = cms.untracked.PSet(
         INFO = cms.untracked.PSet(
             limit = cms.untracked.int32(-1)
-        ),
-        EcalGeom = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        MagneticField = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        CaloSim = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
         ),
         DEBUG = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         ),
         G4cerr = cms.untracked.PSet(
             limit = cms.untracked.int32(-1)
-        ),
-        HCalGeom = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        threshold = cms.untracked.string('DEBUG'),
-        HFShower = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
         ),
         G4cout = cms.untracked.PSet(
             limit = cms.untracked.int32(-1)
@@ -52,21 +41,10 @@ process.MessageLogger = cms.Service("MessageLogger",
         HcalSim = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         ),
-        EcalSim = cms.untracked.PSet(
+        Physics = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         )
-    ),
-    categories = cms.untracked.vstring('CaloSim', 
-        'EcalGeom', 
-        'EcalSim', 
-        'HCalGeom', 
-        'HcalSim', 
-        'HFShower', 
-        'SimG4CoreApplication', 
-        'G4cout', 
-        'G4cerr', 
-        'MagneticField'),
-    destinations = cms.untracked.vstring('cout')
+    )
 )
 
 process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
@@ -104,20 +82,20 @@ process.Timing = cms.Service("Timing")
 
 process.Tracer = cms.Service("Tracer")
 
-process.common_maximum_timex = cms.PSet(
-    MaxTrackTime  = cms.double(1000.0),
-    MaxTimeNames  = cms.vstring(),
-    MaxTrackTimes = cms.vdouble()
-)
 process.p1 = cms.Path(process.VtxSmeared*process.g4SimHits)
 process.outpath = cms.EndPath(process.o1)
+process.common_maximum_timex = cms.PSet(
+    MaxTrackTime  = cms.double(1000.0),
+    MaxTimeNames  = cms.vstring('TrackerDeadRegion', 'CaloRegions'),
+    MaxTrackTimes = cms.vdouble(250.0,500.0)
+)
 process.g4SimHits.Physics.type = 'SimG4Core/Physics/QGSP'
 process.g4SimHits.G4Commands = ['/tracking/verbose 1']
 process.g4SimHits.StackingAction = cms.PSet(
     process.common_heavy_suppression,
     process.common_maximum_timex,
     TrackNeutrino = cms.bool(False),
-    KillHeavy = cms.bool(False),
+    KillHeavy     = cms.bool(False),
     SaveFirstLevelSecondary = cms.untracked.bool(True),
     SavePrimaryDecayProductsAndConversionsInTracker = cms.untracked.bool(True),
     SavePrimaryDecayProductsAndConversionsInCalo = cms.untracked.bool(True),
@@ -128,9 +106,9 @@ process.g4SimHits.SteppingAction = cms.PSet(
     KillBeamPipe            = cms.bool(True),
     CriticalEnergyForVacuum = cms.double(2.0),
     CriticalDensity         = cms.double(1e-15),
-    EkinNames               = cms.vstring(),
-    EkinThresholds          = cms.vdouble(),
-    EkinParticles           = cms.vstring(),
+    EkinNames               = cms.vstring('FixedShield01','FixedShield02','FixedShield03','FixedShield04','FixedShield05','FixedShield06','FixedShield07','FixedShield08','FixedShield09','FixedShield10'),
+    EkinThresholds          = cms.vdouble(0.1,0.1,10.0,10.0),
+    EkinParticles           = cms.vstring('e+','e-','pi+','pi-'),
     Verbosity = cms.untracked.int32(0)
 )
 process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
