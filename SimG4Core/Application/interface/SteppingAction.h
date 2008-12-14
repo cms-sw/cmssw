@@ -38,10 +38,10 @@ private:
   bool                          killBeamPipe;
   double                        theCriticalEnergyForVacuum;
   double                        theCriticalDensity;
-  double                        tofMax;
-  std::vector<double>           tofMaxs, ekinMins;
-  std::vector<std::string>      tofMaxNames, ekinNames, ekinParticles;
-  std::vector<G4Region*>        tofRegions;
+  double                        maxTrackTime;
+  std::vector<double>           maxTrackTimes, ekinMins;
+  std::vector<std::string>      maxTimeNames, ekinNames, ekinParticles;
+  std::vector<G4Region*>        maxTimeRegions;
   std::vector<G4LogicalVolume*> ekinVolumes;
   std::vector<int>              ekinPDG;
   int                           verbose;

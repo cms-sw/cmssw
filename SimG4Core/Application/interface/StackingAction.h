@@ -4,8 +4,12 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "G4UserStackingAction.hh"
+#include "G4Region.hh"
 #include "G4Track.hh"
 #include "G4VPhysicalVolume.hh"
+
+#include <string>
+#include <vector>
 
 class StackingAction : public G4UserStackingAction {
 
@@ -20,12 +24,17 @@ private:
   bool   isThisVolume(const G4VTouchable*, G4VPhysicalVolume* ) const;
   int    isItPrimaryDecayProductOrConversion(const G4Track*, const G4Track &) const;
   int    isItFromPrimary(const G4Track &, int) const;
+  bool   isItLongLived(const G4Track*) const;
 private:
-  G4VPhysicalVolume *tracker, *calo, *muon;
-  bool   savePDandCinTracker, savePDandCinCalo, savePDandCinMuon;
-  bool   killHeavy, trackNeutrino, saveFirstSecondary;
-  double kmaxIon, kmaxNeutron, kmaxProton;
-  double maxTrackTime;
+  G4VPhysicalVolume        *tracker, *calo, *muon;
+  bool                     savePDandCinTracker, savePDandCinCalo;
+  bool                     savePDandCinMuon, saveFirstSecondary;
+  bool                     killHeavy, trackNeutrino;
+  double                   kmaxIon, kmaxNeutron, kmaxProton;
+  double                   maxTrackTime;
+  std::vector<double>      maxTrackTimes;
+  std::vector<std::string> maxTimeNames;
+  std::vector<G4Region*>   maxTimeRegions;
 };
 
 #endif

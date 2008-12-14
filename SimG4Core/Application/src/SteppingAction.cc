@@ -16,9 +16,9 @@ SteppingAction::SteppingAction(EventAction* e,const edm::ParameterSet & p)
   killBeamPipe = (p.getParameter<bool>("KillBeamPipe"));
   theCriticalEnergyForVacuum = (p.getParameter<double>("CriticalEnergyForVacuum")*MeV);
   theCriticalDensity = (p.getParameter<double>("CriticalDensity")*g/cm3);
-  tofMax        = (p.getParameter<double>("ToFMax")*ns);
-  tofMaxs       = (p.getParameter<std::vector<double> >("ToFMaxs"));
-  tofMaxNames   = (p.getParameter<std::vector<std::string> >("ToFMaxNames"));
+  maxTrackTime  = (p.getParameter<double>("MaxTrackTime")*ns);
+  maxTrackTimes = (p.getParameter<std::vector<double> >("MaxTrackTimes"));
+  maxTimeNames  = (p.getParameter<std::vector<std::string> >("MaxTimeNames"));
   ekinMins      = (p.getParameter<std::vector<double> >("EkinThresholds"));
   ekinNames     = (p.getParameter<std::vector<std::string> >("EkinNames"));
   ekinParticles = (p.getParameter<std::vector<std::string> >("EkinParticles"));
@@ -29,12 +29,13 @@ SteppingAction::SteppingAction(EventAction* e,const edm::ParameterSet & p)
 				       << theCriticalDensity << " g/cc;"
 				       << " CriticalEnergyForVacuum = "
 				       << theCriticalEnergyForVacuum << " Mev;"
-				       << " ToFMax = " << tofMax << " ns";
-  for (unsigned int i=0; i<tofMaxs.size(); i++) {
-    tofMaxs[i] *= ns;
-    edm::LogInfo("SimG4CoreApplication") << "SteppingAction:: ToFMax for "
-					 << tofMaxNames[i] << " is " 
-					 << tofMaxs[i];
+				       << " MaxTrackTime = " << maxTrackTime 
+				       << " ns";
+  for (unsigned int i=0; i<maxTrackTimes.size(); i++) {
+    maxTrackTimes[i] *= ns;
+    edm::LogInfo("SimG4CoreApplication") << "SteppingAction::MaxTrackTime for "
+					 << maxTimeNames[i] << " is " 
+					 << maxTrackTimes[i];
   }
   edm::LogInfo("SimG4CoreApplication") << "SteppingAction::Kill following "
 				       << ekinParticles.size() 
@@ -133,12 +134,12 @@ bool SteppingAction::catchLongLived(const G4Step * aStep) {
 
   bool flag   = true;
   double time = (aStep->GetPostStepPoint()->GetGlobalTime())/nanosecond;
-  double tofM = tofMax;
-  if (tofRegions.size() > 0) {
+  double tofM = maxTrackTime;
+  if (maxTimeRegions.size() > 0) {
     G4Region* reg = aStep->GetPreStepPoint()->GetPhysicalVolume()->GetLogicalVolume()->GetRegion();
-    for (unsigned int i=0; i<tofRegions.size(); i++) {
-      if (reg == tofRegions[i]) {
-	tofM = tofMaxs[i];
+    for (unsigned int i=0; i<maxTimeRegions.size(); i++) {
+      if (reg == maxTimeRegions[i]) {
+	tofM = maxTrackTimes[i];
 	break;
       }
     }
@@ -202,6 +203,7 @@ bool SteppingAction::initPointer() {
   } else {
     flag = false;
   }
+
   const G4LogicalVolumeStore * lvs = G4LogicalVolumeStore::GetInstance();
   unsigned int num = ekinNames.size();
   if (num > 0) {
@@ -223,6 +225,7 @@ bool SteppingAction::initPointer() {
 					   <<" with pointer " <<ekinVolumes[i];
     }
   }
+
   G4ParticleTable * theParticleTable = G4ParticleTable::GetParticleTable();
   G4String particleName;
   for (unsigned int i=0; i<ekinParticles.size(); i++) {
@@ -232,17 +235,18 @@ bool SteppingAction::initPointer() {
 					 << " with code " << ekinPDG[i]
 					 << " and KE cut off " << ekinMins[i];
   }
+
   const G4RegionStore * rs = G4RegionStore::GetInstance();
-  num = tofMaxNames.size();
+  num = maxTimeNames.size();
   if (num > 0) {
     std::vector<double> tofs;
     if (rs) {
       std::vector<G4Region*>::const_iterator rcite;
       for (rcite = rs->begin(); rcite != rs->end(); rcite++) {
 	for (unsigned int i=0; i<num; i++) {
-	  if ((*rcite)->GetName() == (G4String)(tofMaxNames[i])) {
-	    tofRegions.push_back(*rcite);
-	    tofs.push_back(tofMaxs[i]);
+	  if ((*rcite)->GetName() == (G4String)(maxTimeNames[i])) {
+	    maxTimeRegions.push_back(*rcite);
+	    tofs.push_back(maxTrackTimes[i]);
 	    break;
 	  }
 	}
@@ -251,12 +255,12 @@ bool SteppingAction::initPointer() {
     }
     if (tofs.size() != num) flag = false;
     for (unsigned int i=0; i<tofs.size(); i++) {
-      tofMaxs[i] = tofs[i];
+      maxTrackTimes[i] = tofs[i];
       G4String name = "Unknown";
-      if (tofRegions[i]) name = tofRegions[i]->GetName();
-      edm::LogInfo("SimG4CoreApplication") << tofRegions[i]->GetName()
-					   << " with pointer " << tofRegions[i]
-					   << " KE cut off " << tofMaxs[i];
+      if (maxTimeRegions[i]) name = maxTimeRegions[i]->GetName();
+      edm::LogInfo("SimG4CoreApplication") << name << " with pointer " 
+					   << maxTimeRegions[i]<<" KE cut off "
+					   << maxTrackTimes[i];
     }
   }
   if (!flag) edm::LogInfo("SimG4CoreApplication") << "SteppingAction fails to"

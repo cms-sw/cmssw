@@ -8,6 +8,7 @@
 
 #include "G4VProcess.hh"
 #include "G4PhysicalVolumeStore.hh"
+#include "G4RegionStore.hh"
  
 StackingAction::StackingAction(const edm::ParameterSet & p): tracker(0),
 							     calo(0), muon(0) {
@@ -16,7 +17,9 @@ StackingAction::StackingAction(const edm::ParameterSet & p): tracker(0),
   kmaxIon        = p.getParameter<double>("IonThreshold")*MeV;
   kmaxProton     = p.getParameter<double>("ProtonThreshold")*MeV;
   kmaxNeutron    = p.getParameter<double>("NeutronThreshold")*MeV;
-  maxTrackTime        = p.getParameter<double>("MaxTrackTime")*ns;
+  maxTrackTime   = p.getParameter<double>("MaxTrackTime")*ns;
+  maxTrackTimes  = p.getParameter<std::vector<double> >("MaxTrackTimes");
+  maxTimeNames   = p.getParameter<std::vector<std::string> >("MaxTimeNames");
   savePDandCinTracker = p.getUntrackedParameter<bool>("SavePrimaryDecayProductsAndConversionsInTracker",false);
   savePDandCinCalo    = p.getUntrackedParameter<bool>("SavePrimaryDecayProductsAndConversionsInCalo",false);
   savePDandCinMuon    = p.getUntrackedParameter<bool>("SavePrimaryDecayProductsAndConversionsInMuon",false);
@@ -38,6 +41,12 @@ StackingAction::StackingAction(const edm::ParameterSet & p): tracker(0),
 				       << "               kill tracks with "
 				       << "time larger than " << maxTrackTime
 				       << " ns";
+  for (unsigned int i=0; i<maxTrackTimes.size(); i++) {
+    maxTrackTimes[i] *= ns;
+    edm::LogInfo("SimG4CoreApplication") << "SteppingAction::MaxTrackTime for "
+					 << maxTimeNames[i] << " is " 
+					 << maxTrackTimes[i];
+  }
   initPointer();
 }
 
@@ -75,8 +84,7 @@ G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track * aTra
       if (pdg == 12 || pdg == 14 || pdg == 16 || pdg == 18) 
 	classification = fKill;
     }
-    if (maxTrackTime>0. && aTrack->GetGlobalTime()>maxTrackTime) 
-      classification = fKill;
+    if (isItLongLived(aTrack)) classification = fKill;
     LogDebug("SimG4CoreApplication") << "StackingAction:Classify Track "
 				     << aTrack->GetTrackID() << " Parent " 
 				     << aTrack->GetParentID() << " Type "
@@ -120,6 +128,34 @@ void StackingAction::initPointer() {
     if (muon)    edm::LogInfo("SimG4CoreApplication") << "Muon vol name "
 						      << muon->GetName();
   }
+
+  const G4RegionStore * rs = G4RegionStore::GetInstance();
+  unsigned int num = maxTimeNames.size();
+  if (num > 0) {
+    std::vector<double> tofs;
+    if (rs) {
+      std::vector<G4Region*>::const_iterator rcite;
+      for (rcite = rs->begin(); rcite != rs->end(); rcite++) {
+	for (unsigned int i=0; i<num; i++) {
+	  if ((*rcite)->GetName() == (G4String)(maxTimeNames[i])) {
+	    maxTimeRegions.push_back(*rcite);
+	    tofs.push_back(maxTrackTimes[i]);
+	    break;
+	  }
+	}
+	if (tofs.size() == num) break;
+      }
+    }
+    for (unsigned int i=0; i<tofs.size(); i++) {
+      maxTrackTimes[i] = tofs[i];
+      G4String name = "Unknown";
+      if (maxTimeRegions[i]) name = maxTimeRegions[i]->GetName();
+      edm::LogInfo("SimG4CoreApplication") << name << " with pointer " 
+					   << maxTimeRegions[i]<<" KE cut off "
+					   << maxTrackTimes[i];
+    }
+  }
+
 }
 
 bool StackingAction::isThisVolume(const G4VTouchable* touch, 
@@ -158,5 +194,23 @@ int StackingAction::isItFromPrimary(const G4Track & mother, int flagIn) const {
     const TrackInformation & motherInfo(extractor(mother));
     if (motherInfo.isPrimary()) flag = 3;
   }
+  return flag;
+}
+
+bool StackingAction::isItLongLived(const G4Track * aTrack) const {
+
+  bool   flag = false;
+  double time = (aTrack->GetGlobalTime())/nanosecond;
+  double tofM = maxTrackTime;
+  if (maxTimeRegions.size() > 0) {
+    G4Region* reg = aTrack->GetTouchable()->GetVolume(0)->GetLogicalVolume()->GetRegion();
+    for (unsigned int i=0; i<maxTimeRegions.size(); i++) {
+      if (reg == maxTimeRegions[i]) {
+	tofM = maxTrackTimes[i];
+	break;
+      }
+    }
+  }
+  if (time > tofM) flag = true;
   return flag;
 }

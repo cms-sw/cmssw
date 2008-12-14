@@ -8,6 +8,12 @@ common_heavy_suppression = cms.PSet(
     IonThreshold = cms.double(30.0)
 )
 
+common_maximum_time = cms.PSet(
+    MaxTrackTime  = cms.double(500.0),
+    MaxTimeNames  = cms.vstring(),
+    MaxTrackTimes = cms.vdouble()
+)
+
 g4SimHits = cms.EDProducer("OscarProducer",
     NonBeamEvent = cms.bool(False),
     G4EventManagerVerbosity = cms.untracked.int32(0),
@@ -104,9 +110,9 @@ g4SimHits = cms.EDProducer("OscarProducer",
     ),
     StackingAction = cms.PSet(
         common_heavy_suppression,
+        common_maximum_time,
         TrackNeutrino = cms.bool(False),
-        KillHeavy = cms.bool(False),
-        MaxTrackTime = cms.double(1000.),
+        KillHeavy     = cms.bool(False),
         SaveFirstLevelSecondary = cms.untracked.bool(False),
         SavePrimaryDecayProductsAndConversionsInTracker = cms.untracked.bool(True),
         SavePrimaryDecayProductsAndConversionsInCalo = cms.untracked.bool(False),
@@ -116,12 +122,10 @@ g4SimHits = cms.EDProducer("OscarProducer",
         DetailedTiming = cms.untracked.bool(False)
     ),
     SteppingAction = cms.PSet(
+        common_maximum_time,
         KillBeamPipe            = cms.bool(True),
         CriticalEnergyForVacuum = cms.double(2.0),
         CriticalDensity         = cms.double(1e-15),
-        ToFMax                  = cms.double(10000.0),
-        ToFMaxNames             = cms.vstring(),
-        ToFMaxs                 = cms.vdouble(),
         EkinNames               = cms.vstring(),
         EkinThresholds          = cms.vdouble(),
         EkinParticles           = cms.vstring(),
@@ -263,9 +267,6 @@ g4SimHits = cms.EDProducer("OscarProducer",
         BirkC1 = cms.double(0.013),
         BirkC3 = cms.double(1.75),
         BirkC2 = cms.double(0.0568)
-    ),
-    HFShowerProducer  = cms.PSet(
-        Verbosity = cms.untracked.int32(0)
     )
 )
 
