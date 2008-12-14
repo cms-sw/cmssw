@@ -3,9 +3,9 @@
  <PoolDatabase >
   <PoolContainer name="L1RCTParametersRcd" >
    <Class table="L1RCTPARAMETERS" id_columns="ID" name="L1RCTParameters" mapping_version="L1RCTParameters_basic" >
-     <Blob column="L1RCTPARAMETERS_HO_1_BLOB" name="HoverE_smear_high_Lindsey_" />
-     <Blob column="L1RCTPARAMETERS_HO_2_BLOB" name="HoverE_smear_low_Lindsey_" />
-     <Blob column="L1RCTPARAMETERS_CR_1_BLOB" name="cross_terms_Lindsey_" />
+     <Blob column="L1RCTPARAMETERS_HO_1_BLOB" name="HoverE_smear_high_" />
+     <Blob column="L1RCTPARAMETERS_HO_2_BLOB" name="HoverE_smear_low_" />
+     <Blob column="L1RCTPARAMETERS_CR_1_BLOB" name="cross_terms_" />
      <Primitive column="EACTIVITYCUT" name="eActivityCut_" />
      <Blob column="L1RCTPARAMETERS_EG_1_BLOB" name="eGammaECalScaleFactors_" />
      <Blob column="L1RCTPARAMETERS_EG_2_BLOB" name="eGammaHCalScaleFactors_" />
@@ -14,13 +14,13 @@
      <Primitive column="EMAXFORHOECUT" name="eMaxForHoECut_" />
      <Primitive column="EMINFORFGCUT" name="eMinForFGCut_" />
      <Primitive column="EMINFORHOECUT" name="eMinForHoECut_" />
-     <Blob column="L1RCTPARAMETERS_EC_1_BLOB" name="ecal_calib_Lindsey_" />
+     <Blob column="L1RCTPARAMETERS_EC_1_BLOB" name="ecal_calib_" />
      <Primitive column="EICISOLATIONTHRESHOLD" name="eicIsolationThreshold_" />
      <Primitive column="HACTIVITYCUT" name="hActivityCut_" />
      <Primitive column="HMINFORHOECUT" name="hMinForHoECut_" />
      <Primitive column="HOECUT" name="hOeCut_" />
-     <Blob column="L1RCTPARAMETERS_HC_1_BLOB" name="hcal_calib_Lindsey_" />
-     <Blob column="L1RCTPARAMETERS_HC_3_BLOB" name="hcal_high_calib_Lindsey_" />
+     <Blob column="L1RCTPARAMETERS_HC_1_BLOB" name="hcal_calib_" />
+     <Blob column="L1RCTPARAMETERS_HC_3_BLOB" name="hcal_high_calib_" />
      <Blob column="L1RCTPARAMETERS_JE_1_BLOB" name="jetMETECalScaleFactors_" />
      <Blob column="L1RCTPARAMETERS_JE_2_BLOB" name="jetMETHCalScaleFactors_" />
      <Primitive column="JETMETLSB" name="jetMETLSB_" />
@@ -29,7 +29,7 @@
      <Primitive column="NOISEVETOHB" name="noiseVetoHB_" />
      <Primitive column="NOISEVETOHEMINUS" name="noiseVetoHEminus_" />
      <Primitive column="NOISEVETOHEPLUS" name="noiseVetoHEplus_" />
-     <Primitive column="USECORRECTIONSLINDSEY" name="useCorrectionsLindsey" />
+     <Primitive column="USECORRECTIONSLINDSEY" name="useCorrections_" />
    </Class >
   </PoolContainer >
  </PoolDatabase >
