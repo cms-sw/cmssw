@@ -124,6 +124,7 @@ famosParticleFlowSequence = cms.Sequence(
 from RecoJets.Configuration.RecoJets_cff import *
 from RecoJets.Configuration.RecoPFJets_cff import *
 from RecoMET.Configuration.RecoMET_cff import *
+from RecoMET.Configuration.RecoPFMET_cff import *
 calotoweroptmaker.hbheInput = 'caloRecHits'
 calotoweroptmaker.hoInput = 'caloRecHits'
 calotoweroptmaker.hfInput = 'caloRecHits'
@@ -146,7 +147,8 @@ caloJetMet = cms.Sequence(
 )
 
 PFJetMet = cms.Sequence(
-    recoPFJets
+    recoPFJets+
+    recoPFMET
 )
 
 # Gen Jets
