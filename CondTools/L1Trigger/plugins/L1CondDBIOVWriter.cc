@@ -13,7 +13,7 @@
 //
 // Original Author:  Werner Man-Li Sun
 //         Created:  Sun Mar  2 20:09:46 CET 2008
-// $Id: L1CondDBIOVWriter.cc,v 1.6 2008/11/13 02:13:42 wsun Exp $
+// $Id: L1CondDBIOVWriter.cc,v 1.7 2008/11/28 04:13:14 wsun Exp $
 //
 //
 
@@ -156,10 +156,10 @@ L1CondDBIOVWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 	   // Do nothing if object key is null.
 	   std::string recordType = itr->first ;
 	   std::string objectKey = itr->second ;
-	   if( objectKey.empty() )
+	   if( objectKey == L1TriggerKey::kNullKey )
 	     {
 	       edm::LogVerbatim( "L1-O2O" )
-		 << "L1CondDBIOVWriter: empty object key for "
+		 << "L1CondDBIOVWriter: null object key for "
 		 << recordType << "; skipping this record." ;
 	     }
 	   else

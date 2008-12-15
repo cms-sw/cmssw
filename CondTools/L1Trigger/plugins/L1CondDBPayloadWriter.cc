@@ -13,7 +13,7 @@
 //
 // Original Author:  Werner Man-Li Sun
 //         Created:  Sun Mar  2 07:05:15 CET 2008
-// $Id: L1CondDBPayloadWriter.cc,v 1.8 2008/10/13 02:01:18 wsun Exp $
+// $Id: L1CondDBPayloadWriter.cc,v 1.9 2008/11/13 02:13:11 wsun Exp $
 //
 //
 
@@ -141,10 +141,10 @@ L1CondDBPayloadWriter::analyze(const edm::Event& iEvent,
 	  for( ; it != end ; ++it )
 	    {
 	      // Do nothing if object key is null.
-	      if( it->second.empty() )
+	      if( it->second == L1TriggerKey::kNullKey )
 		{
 		  edm::LogVerbatim( "L1-O2O" )
-		    << "L1CondDBPayloadWriter: empty object key for "
+		    << "L1CondDBPayloadWriter: null object key for "
 		    << it->first << "; skipping this record." ;
 		}
 	      else
