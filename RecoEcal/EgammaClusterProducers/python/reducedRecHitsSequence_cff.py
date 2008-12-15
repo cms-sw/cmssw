@@ -18,15 +18,30 @@ interestingEcalDetIdEE = cms.EDProducer("InterestingDetIdCollectionProducer",
 
 reducedEcalRecHitsEB = cms.EDProducer("ReducedRecHitCollectionProducer",
     recHitsLabel = cms.InputTag("ecalRecHit","EcalRecHitsEB"),
-    interestingDetIdCollections = cms.VInputTag(cms.InputTag("interestingEcalDetIdEB")),
+    interestingDetIdCollections = cms.VInputTag(
+            # ecal
+            cms.InputTag("interestingEcalDetIdEB"),
+            # egamma
+            cms.InputTag("interestingEleIsoDetIdEB"),
+            cms.InputTag("interestingGamIsoDetIdEB"),
+            # tau
+            cms.InputTag("caloRecoTauProducer")
+            ),
     reducedHitsCollection = cms.string('')
 )
 
 reducedEcalRecHitsEE = cms.EDProducer("ReducedRecHitCollectionProducer",
     recHitsLabel = cms.InputTag("ecalRecHit","EcalRecHitsEE"),
-    interestingDetIdCollections = cms.VInputTag(cms.InputTag("interestingEcalDetIdEE")),
+    interestingDetIdCollections = cms.VInputTag(
+            # ecal
+            cms.InputTag("interestingEcalDetIdEE"),
+            # egamma
+            cms.InputTag("interestingEleIsoDetIdEE"),
+            cms.InputTag("interestingGamIsoDetIdEE"),
+            # tau
+            cms.InputTag("caloRecoTauProducer")
+            ),
     reducedHitsCollection = cms.string('')
 )
 
 reducedRecHitsSequence = cms.Sequence(interestingEcalDetIdEB*interestingEcalDetIdEE*reducedEcalRecHitsEB*reducedEcalRecHitsEE)
-
