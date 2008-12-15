@@ -1,14 +1,19 @@
 ROOTLIBS   = $(shell root-config --libs)
 ROOTCFLAGS = $(shell root-config --cflags)
 
-CXX        = gcc
+CFGLIBS   = -L$(shell pwd)/libconfig-1.3/.libs
+CFGCFLAGS = -I$(shell pwd)/libconfig-1.3
+
+CXX        = g++
 CXXFLAGS   = $(ROOTCFLAGS) -Wall -g
-#CXXFLAGS  += -DUSE_SAMPLES_AT_FNAL
 LD         = gcc
 LDFLAGS    = -Wall -g
-LIBS       = $(ROOTLIBS) -lEG
+LIBS       = $(ROOTLIBS) -lEG $(CFGLIBS) -lconfig++
 
-OHltRateEff: OHltRateEff.cpp OHltTree.h OHltTree.cpp OHltMenu.h OHltMenu.cpp HLTDatasets.cpp HLTDatasets.h
-	$(CXX) $(CXXFLAGS) $(LIBS) OHltMenu.cpp OHltTree.cpp OHltRateEff.cpp HLTDatasets.cpp -o OHltRateEff
+OHltRateEff: OHltRateEff.cpp OHltConfig.cpp OHltConfig.h OHltMenu.cpp OHltMenu.h \
+	 OHltRateCounter.cpp OHltRateCounter.h OHltRatePrinter.cpp OHltRatePrinter.h \
+	 OHltTree.cpp OHltTreeOpen.cpp OHltTree.h
+	$(CXX) $(CXXFLAGS) $(CFGCFLAGS) $(LIBS) OHltConfig.cpp  OHltMenu.cpp OHltRateEff.cpp \
+	 OHltRateCounter.cpp OHltRatePrinter.cpp OHltTree.cpp OHltTreeOpen.cpp -o OHltRateEff
 
-all: OHltRates
+all: OHltRateEff

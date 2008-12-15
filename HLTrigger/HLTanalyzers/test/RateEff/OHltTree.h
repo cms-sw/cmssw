@@ -8,17 +8,18 @@
 #ifndef OHltTree_h
 #define OHltTree_h
 
-#include "TH1.h"
 #include <TROOT.h>
 #include <TChain.h>
 #include <TFile.h>
+#include <TRandom3.h>
 
 #include <vector>
-#include <map>
 #include <string>
+#include <map>
 
-#include "HLTDatasets.h"  //SAK
-
+#include "OHltConfig.h"
+#include "OHltMenu.h"
+#include "OHltRateCounter.h"
 
 class OHltTree {
 public :
@@ -240,154 +241,23 @@ public :
   Int_t           L1HfTowerCountNegativeEta;
   Int_t           Run;
   Int_t           Event;
-  /*
-  //20X HLT names
-  Int_t           HLT1jet;
-  Int_t           HLT2jet;
-  Int_t           HLT3jet;
-  Int_t           HLT4jet;
-  Int_t           HLT1MET;
-  Int_t           HLT2jetAco;
-  Int_t           HLT1jet1METAco;
-  Int_t           HLT1jet1MET;
-  Int_t           HLT2jet1MET;
-  Int_t           HLT3jet1MET;
-  Int_t           HLT4jet1MET;
-  Int_t           HLT1MET1HT;
-  Int_t           CandHLT1SumET;
-  Int_t           HLT1jetPE1;
-  Int_t           HLT1jetPE3;
-  Int_t           HLT1jetPE5;
-  Int_t           HLT1jetPE7;
-  Int_t           HLT1METPre1;
-  Int_t           HLT1METPre2;
-  Int_t           HLT1METPre3;
-  Int_t           HLT2jetAve30;
-  Int_t           HLT2jetAve60;
-  Int_t           HLT2jetAve110;
-  Int_t           HLT2jetAve150;
-  Int_t           HLT2jetAve200;
-  Int_t           HLT2jetvbfMET;
-  Int_t           HLTS2jet1METNV;
-  Int_t           HLTS2jet1METAco;
-  Int_t           HLTSjet1MET1Aco;
-  Int_t           HLTSjet2MET1Aco;
-  Int_t           HLTS2jetMET1Aco;
-  Int_t           HLTJetMETRapidityGap;
-  Int_t           HLT1Electron;
-  Int_t           HLT1ElectronRelaxed;
-  Int_t           HLT2Electron;
-  Int_t           HLT2ElectronRelaxed;
-  Int_t           HLT1Photon;
-  Int_t           HLT1PhotonRelaxed;
-  Int_t           HLT2Photon;
-  Int_t           HLT2PhotonRelaxed;
-  Int_t           HLT1EMHighEt;
-  Int_t           HLT1EMVeryHighEt;
-  Int_t           HLT2ElectronZCounter;
-  Int_t           HLT2ElectronExclusive;
-  Int_t           HLT2PhotonExclusive;
-  Int_t           HLT1PhotonL1Isolated;
-  Int_t           CandHLT1ElectronStartup;
-  Int_t           CandHLT1ElectronRelaxedStartup;
-  Int_t           CandHLT2ElectronStartup;
-  Int_t           CandHLT2ElectronRelaxedStartup;
-  Int_t           HLT1MuonIso;
-  Int_t           HLT1MuonNonIso;
-  Int_t           HLT2MuonIso;
-  Int_t           HLT2MuonNonIso;
-  Int_t           HLT2MuonJPsi;
-  Int_t           HLT2MuonUpsilon;
-  Int_t           HLT2MuonZ;
-  Int_t           HLTNMuonNonIso;
-  Int_t           HLT2MuonSameSign;
-  Int_t           HLT1MuonPrescalePt3;
-  Int_t           HLT1MuonPrescalePt5;
-  Int_t           HLT1MuonPrescalePt7x7;
-  Int_t           HLT1MuonPrescalePt7x10;
-  Int_t           HLT1MuonLevel1;
-  Int_t           CandHLT1MuonPrescaleVtx2cm;
-  Int_t           CandHLT1MuonPrescaleVtx2mm;
-  Int_t           CandHLT2MuonPrescaleVtx2cm;
-  Int_t           CandHLT2MuonPrescaleVtx2mm;
-  Int_t           HLTB1Jet;
-  Int_t           HLTB2Jet;
-  Int_t           HLTB3Jet;
-  Int_t           HLTB4Jet;
-  Int_t           HLTBHT;
-  Int_t           HLTB1JetMu;
-  Int_t           HLTB2JetMu;
-  Int_t           HLTB3JetMu;
-  Int_t           HLTB4JetMu;
-  Int_t           HLTBHTMu;
-  Int_t           HLTBJPsiMuMu;
-  Int_t           HLT1Tau;
-  Int_t           HLT1Tau1MET;
-  Int_t           HLT2TauPixel;
-  Int_t           HLTXElectronBJet;
-  Int_t           HLTXMuonBJet;
-  Int_t           HLTXMuonBJetSoftMuon;
-  Int_t           HLTXElectron1Jet;
-  Int_t           HLTXElectron2Jet;
-  Int_t           HLTXElectron3Jet;
-  Int_t           HLTXElectron4Jet;
-  Int_t           HLTXMuonJets;
-  Int_t           CandHLTXMuonNoL2IsoJets;
-  Int_t           CandHLTXMuonNoIsoJets;
-  Int_t           HLTXElectronMuon;
-  Int_t           HLTXElectronMuonRelaxed;
-  Int_t           HLTXElectronTau;
-  Int_t           CandHLTXElectronTauPixel;
-  Int_t           HLTXMuonTau;
-  Int_t           CandHLTEcalPi0;
-  Int_t           CandHLTEcalPhiSym;
-  Int_t           CandHLTHcalPhiSym;
-  Int_t           HLTHcalIsolatedTrack;
-  Int_t           CandHLTHcalIsolatedTrackNoEcalIsol;
-  Int_t           HLTMinBiasPixel;
-  Int_t           CandHLTMinBiasForAlignment;
-  Int_t           HLTMinBias;
-  Int_t           HLTZeroBias;
-  Int_t           HLTriggerType;
-  Int_t           TriggerFinalPath;   
-  */
   //L1's
   Int_t           L1_DoubleEG10;
-  //   Int_t           L1_DoubleEG10_ETM20;
-  //   Int_t           L1_DoubleEG10_HTT200;
-  //   Int_t           L1_DoubleEG10_Mu3;
   Int_t           L1_DoubleEG15;
   Int_t           L1_DoubleEG5;
   Int_t           L1_DoubleIsoEG10;
-  //   Int_t           L1_DoubleIsoEG5_ETM20;
-  //   Int_t           L1_DoubleIsoEG5_HTT200;
-  //   Int_t           L1_DoubleIsoEG5_Mu3;
   Int_t           L1_DoubleIsoEG8;
   Int_t           L1_DoubleJet100;
-  //   Int_t           L1_DoubleJet50_ETM20;
-  //   Int_t           L1_DoubleJet50_HTT200;
   Int_t           L1_DoubleJet70;
   Int_t           L1_DoubleMu3;
-  //   Int_t           L1_DoubleMu3_EG10;
-  //   Int_t           L1_DoubleMu3_ETM20;
-  //   Int_t           L1_DoubleMu3_HTT200;
-  //   Int_t           L1_DoubleMu3_IsoEG5;
   Int_t           L1_DoubleTauJet20;
   Int_t           L1_DoubleTauJet30;
   Int_t           L1_DoubleTauJet35;
   Int_t           L1_DoubleTauJet40;
-  //   Int_t           L1_DoubleTauJet40_ETM20;
-  //   Int_t           L1_DoubleTauJet40_HTT200;
-  //   Int_t           L1_EG10_Jet15;
-  //   Int_t           L1_EG12_ETM30;
-  //   Int_t           L1_EG12_HTT200;
-  //   Int_t           L1_EG12_Jet70;
-  //   Int_t           L1_EG12_TauJet40;
   Int_t           L1_ETM10;
   Int_t           L1_ETM15;
   Int_t           L1_ETM20;
   Int_t           L1_ETM40;
-  //   Int_t           L1_ETM45;
   Int_t           L1_ETM50;
   Int_t           L1_ETM60;
   Int_t           L1_ETT60;
@@ -395,14 +265,11 @@ public :
   Int_t           L1_ExclusiveDoubleJet60;
   Int_t           L1_ExclusiveJet25_Gap_Jet25;
   Int_t           L1_HTT100;
-  //   Int_t           L1_HTT100_ETM30;
   Int_t           L1_HTT200;
   Int_t           L1_HTT250;
   Int_t           L1_HTT300;
   Int_t           L1_HTT400;
   Int_t           L1_HTT500;
-  //   Int_t           L1_IsoEG10_EG10;
-  //   Int_t           L1_IsoEG10_HTT200;
   Int_t           L1_IsoEG10_Jet15;
   Int_t           L1_IsoEG10_Jet15_ForJet10;
   Int_t           L1_IsoEG10_Jet20;
@@ -410,22 +277,15 @@ public :
   Int_t           L1_IsoEG10_Jet70;
   Int_t           L1_IsoEG10_TauJet20;
   Int_t           L1_IsoEG10_TauJet30;
-  //   Int_t           L1_Jet70_ETM40;
-  //   Int_t           L1_Jet70_HTT200;
-  //   Int_t           L1_Jet70_TauJet40;
   Int_t           L1_MinBias_HTT10;
   Int_t           L1_Mu3_EG12;
-  //   Int_t           L1_Mu3_ETM30;
-  //   Int_t           L1_Mu3_HTT200;
   Int_t           L1_Mu3_IsoEG5;
   Int_t           L1_Mu3_Jet15;
-  //   Int_t           L1_Mu3_Jet70;
   Int_t           L1_Mu5_IsoEG10;
   Int_t           L1_Mu5_Jet15;
   Int_t           L1_Mu5_Jet20;
   Int_t           L1_Mu5_TauJet20;
   Int_t           L1_Mu5_TauJet30;
-  //   Int_t           L1_QuadJet40;
   Int_t           L1_SingleEG10;
   Int_t           L1_SingleEG12;
   Int_t           L1_SingleEG15;
@@ -443,7 +303,6 @@ public :
   Int_t           L1_SingleJet100;
   Int_t           L1_SingleJet15;
   Int_t           L1_SingleJet150;
-  //   Int_t           L1_SingleJet20;
   Int_t           L1_SingleJet200;
   Int_t           L1_SingleJet30;
   Int_t           L1_SingleJet50;
@@ -462,15 +321,10 @@ public :
   Int_t           L1_SingleTauJet40;
   Int_t           L1_SingleTauJet60;
   Int_t           L1_SingleTauJet80;
-  //   Int_t           L1_TauJet20_ETM20;
   Int_t           L1_TauJet30_ETM30;
   Int_t           L1_TauJet30_ETM40;
-  //   Int_t           L1_TauJet40_HTT200;
-  //   Int_t           L1_TripleEG10;
-  //   Int_t           L1_TripleIsoEG5;
   Int_t           L1_TripleJet50;
   Int_t           L1_TripleMu3;
-  //   Int_t           L1_TripleTauJet40;
   Int_t           L1_VBF_DoubleTauHad;
   Int_t           L1_VBF_ETM50;
   Int_t           L1_VBF_ETM50_veto;
@@ -481,47 +335,6 @@ public :
   Int_t           L1_VBF_QuadJet;
   Int_t           L1_ZeroBias;
 
-  Int_t           L1_Dummy;
-
-  //20X only
-  /*
-  Int_t	   L1_DoubleEG10_ETM20
-  Int_t	   L1_DoubleEG10_HTT200
-  Int_t	   L1_DoubleEG10_Mu3
-  Int_t	   L1_DoubleIsoEG5_ETM20
-  Int_t	   L1_DoubleIsoEG5_HTT200
-  Int_t	   L1_DoubleIsoEG5_Mu3
-  Int_t	   L1_DoubleJet50_HTT200
-  Int_t	   L1_DoubleMu3_EG10
-  Int_t	   L1_DoubleMu3_ETM20
-  Int_t	   L1_DoubleMu3_HTT200
-  Int_t	   L1_DoubleMu3_IsoEG5
-  Int_t	   L1_DoubleTauJet40_ETM20
-  Int_t	   L1_DoubleTauJet40_HTT200
-  Int_t	   L1_EG10_Jet15
-  Int_t	   L1_EG12_ETM30
-  Int_t	   L1_EG12_HTT200
-  Int_t	   L1_EG12_Jet70
-  Int_t	   L1_EG12_TauJet40
-  Int_t	   L1_ETM45
-  Int_t	   L1_HTT100_ETM30
-  Int_t	   L1_IsoEG10_EG10
-  Int_t	   L1_IsoEG10_HTT200
-  Int_t	   L1_Jet70_ETM40
-  Int_t	   L1_Jet70_HTT200
-  Int_t	   L1_Jet70_TauJet40
-  Int_t	   L1_Mu3_ETM30
-  Int_t	   L1_Mu3_HTT200
-  Int_t	   L1_Mu3_Jet70
-  Int_t	   L1_QuadJet40
-  Int_t	   L1_SingleJet20
-  Int_t	   L1_TauJet20_ETM20
-  Int_t	   L1_TauJet40_HTT200
-  Int_t	   L1_TripleEG10
-  Int_t	   L1_TripleIsoEG5
-  Int_t	   L1_TripleTauJet40
-  */
-  //21X HLT names
   Int_t           HLT_L1Jet15;
   Int_t           HLT_Jet30;
   Int_t           HLT_Jet50;
@@ -693,6 +506,7 @@ public :
   Int_t	L1_DoubleJetCountsHFRing0Sum3;
   Int_t	L1_SingleJetCountsHFRing0Sum6;
   Int_t	L1_DoubleJetCountsHFRing0Sum6;
+
 
   // List of branches
   TBranch        *b_NrecoJetCal;   //!
@@ -1019,41 +833,21 @@ public :
   TBranch        *b_TriggerFinalPath;   //!
   //L1's
   TBranch        *b_L1_DoubleEG10;   //!
-  //   TBranch        *b_L1_DoubleEG10_ETM20;   //!
-  //   TBranch        *b_L1_DoubleEG10_HTT200;   //!
-  //   TBranch        *b_L1_DoubleEG10_Mu3;   //!
   TBranch        *b_L1_DoubleEG15;   //!
   TBranch        *b_L1_DoubleEG5;   //!
   TBranch        *b_L1_DoubleIsoEG10;   //!
-  //   TBranch        *b_L1_DoubleIsoEG5_ETM20;   //!
-  //   TBranch        *b_L1_DoubleIsoEG5_HTT200;   //!
-  //   TBranch        *b_L1_DoubleIsoEG5_Mu3;   //!
   TBranch        *b_L1_DoubleIsoEG8;   //!
   TBranch        *b_L1_DoubleJet100;   //!
-  //   TBranch        *b_L1_DoubleJet50_ETM20;   //!
-  //   TBranch        *b_L1_DoubleJet50_HTT200;   //!
   TBranch        *b_L1_DoubleJet70;   //!
   TBranch        *b_L1_DoubleMu3;   //!
-  //   TBranch        *b_L1_DoubleMu3_EG10;   //!
-  //   TBranch        *b_L1_DoubleMu3_ETM20;   //!
-  //   TBranch        *b_L1_DoubleMu3_HTT200;   //!
-  //   TBranch        *b_L1_DoubleMu3_IsoEG5;   //!
   TBranch        *b_L1_DoubleTauJet20;   //!
   TBranch        *b_L1_DoubleTauJet30;   //!
   TBranch        *b_L1_DoubleTauJet35;   //!
   TBranch        *b_L1_DoubleTauJet40;   //!
-  //   TBranch        *b_L1_DoubleTauJet40_ETM20;   //!
-  //   TBranch        *b_L1_DoubleTauJet40_HTT200;   //!
-  //   TBranch        *b_L1_EG10_Jet15;   //!
-  //   TBranch        *b_L1_EG12_ETM30;   //!
-  //   TBranch        *b_L1_EG12_HTT200;   //!
-  //   TBranch        *b_L1_EG12_Jet70;   //!
-  //   TBranch        *b_L1_EG12_TauJet40;   //!
   TBranch        *b_L1_ETM10;   //!
   TBranch        *b_L1_ETM15;   //!
   TBranch        *b_L1_ETM20;   //!
   TBranch        *b_L1_ETM40;   //!
-  //   TBranch        *b_L1_ETM45;   //!
   TBranch        *b_L1_ETM50;   //!
   TBranch        *b_L1_ETM60;   //!
   TBranch        *b_L1_ETT60;   //!
@@ -1061,14 +855,11 @@ public :
   TBranch        *b_L1_ExclusiveDoubleJet60;   //!
   TBranch        *b_L1_ExclusiveJet25_Gap_Jet25;   //!
   TBranch        *b_L1_HTT100;   //!
-  //   TBranch        *b_L1_HTT100_ETM30;   //!
   TBranch        *b_L1_HTT200;   //!
   TBranch        *b_L1_HTT250;   //!
   TBranch        *b_L1_HTT300;   //!
   TBranch        *b_L1_HTT400;   //!
   TBranch        *b_L1_HTT500;   //!
-  //   TBranch        *b_L1_IsoEG10_EG10;   //!
-  //   TBranch        *b_L1_IsoEG10_HTT200;   //!
   TBranch        *b_L1_IsoEG10_Jet15;   //!
   TBranch        *b_L1_IsoEG10_Jet15_ForJet10;   //!
   TBranch        *b_L1_IsoEG10_Jet20;   //!
@@ -1076,22 +867,15 @@ public :
   TBranch        *b_L1_IsoEG10_Jet70;   //!
   TBranch        *b_L1_IsoEG10_TauJet20;   //!
   TBranch        *b_L1_IsoEG10_TauJet30;   //!
-  //   TBranch        *b_L1_Jet70_ETM40;   //!
-  //   TBranch        *b_L1_Jet70_HTT200;   //!
-  //   TBranch        *b_L1_Jet70_TauJet40;   //!
   TBranch        *b_L1_MinBias_HTT10;   //!
   TBranch        *b_L1_Mu3_EG12;   //!
-  //   TBranch        *b_L1_Mu3_ETM30;   //!
-  //   TBranch        *b_L1_Mu3_HTT200;   //!
   TBranch        *b_L1_Mu3_IsoEG5;   //!
   TBranch        *b_L1_Mu3_Jet15;   //!
-  //   TBranch        *b_L1_Mu3_Jet70;   //!
   TBranch        *b_L1_Mu5_IsoEG10;   //!
   TBranch        *b_L1_Mu5_Jet15;   //!
   TBranch        *b_L1_Mu5_Jet20;   //!
   TBranch        *b_L1_Mu5_TauJet20;   //!
   TBranch        *b_L1_Mu5_TauJet30;   //!
-  //   TBranch        *b_L1_QuadJet40;   //!
   TBranch        *b_L1_SingleEG10;   //!
   TBranch        *b_L1_SingleEG12;   //!
   TBranch        *b_L1_SingleEG15;   //!
@@ -1109,7 +893,6 @@ public :
   TBranch        *b_L1_SingleJet100;   //!
   TBranch        *b_L1_SingleJet15;   //!
   TBranch        *b_L1_SingleJet150;   //!
-  //   TBranch        *b_L1_SingleJet20;   //!
   TBranch        *b_L1_SingleJet200;   //!
   TBranch        *b_L1_SingleJet30;   //!
   TBranch        *b_L1_SingleJet50;   //!
@@ -1128,15 +911,10 @@ public :
   TBranch        *b_L1_SingleTauJet40;   //!
   TBranch        *b_L1_SingleTauJet60;   //!
   TBranch        *b_L1_SingleTauJet80;   //!
-  //   TBranch        *b_L1_TauJet20_ETM20;   //!
   TBranch        *b_L1_TauJet30_ETM30;   //!
   TBranch        *b_L1_TauJet30_ETM40;   //!
-  //   TBranch        *b_L1_TauJet40_HTT200;   //!
-  //   TBranch        *b_L1_TripleEG10;   //!
-  //   TBranch        *b_L1_TripleIsoEG5;   //!
   TBranch        *b_L1_TripleJet50;   //!
   TBranch        *b_L1_TripleMu3;   //!
-  //   TBranch        *b_L1_TripleTauJet40;   //!
   TBranch        *b_L1_VBF_DoubleTauHad;   //!
   TBranch        *b_L1_VBF_ETM50;   //!
   TBranch        *b_L1_VBF_ETM50_veto;   //!
@@ -1147,44 +925,6 @@ public :
   TBranch        *b_L1_VBF_QuadJet;   //!
   TBranch        *b_L1_ZeroBias;   //!
   //L1's only 20X
-  /*
-  TBranch        *b_L1_DoubleEG10_ETM20;   //!
-  TBranch        *b_L1_DoubleEG10_HTT200;   //!
-  TBranch        *b_L1_DoubleEG10_Mu3;   //!
-  TBranch        *b_L1_DoubleIsoEG5_ETM20;   //!
-  TBranch        *b_L1_DoubleIsoEG5_HTT200;   //!
-  TBranch        *b_L1_DoubleIsoEG5_Mu3;   //!
-  TBranch        *b_L1_DoubleJet50_ETM20;   //!
-  TBranch        *b_L1_DoubleJet50_HTT200;   //
-  TBranch        *b_L1_DoubleMu3_EG10;   //!
-  TBranch        *b_L1_DoubleMu3_ETM20;   //!
-  TBranch        *b_L1_DoubleMu3_HTT200;   //!
-  TBranch        *b_L1_DoubleMu3_IsoEG5;   //!
-  TBranch        *b_L1_DoubleTauJet40_ETM20;   //!
-  TBranch        *b_L1_DoubleTauJet40_HTT200;   //!
-  TBranch        *b_L1_EG10_Jet15;   //!
-  TBranch        *b_L1_EG12_ETM30;   //!
-  TBranch        *b_L1_EG12_HTT200;   //!
-  TBranch        *b_L1_EG12_Jet70;   //!
-  TBranch        *b_L1_EG12_TauJet40;   //!
-  TBranch        *b_L1_ETM45;   //!
-  TBranch        *b_L1_HTT100_ETM30;   //!
-  TBranch        *b_L1_IsoEG10_EG10;   //!
-  TBranch        *b_L1_IsoEG10_HTT200;   //!
-  TBranch        *b_L1_Jet70_ETM40;   //!
-  TBranch        *b_L1_Jet70_HTT200;   //!
-  TBranch        *b_L1_Jet70_TauJet40;   //!
-  TBranch        *b_L1_Mu3_ETM30;   //!
-  TBranch        *b_L1_Mu3_HTT200;   //!
-  TBranch        *b_L1_Mu3_Jet70;   //!
-  TBranch        *b_L1_QuadJet40;   //!
-  TBranch        *b_L1_SingleJet20;   //!
-  TBranch        *b_L1_TauJet20_ETM20;   //!
-  TBranch        *b_L1_TauJet40_HTT200;   //!
-  TBranch        *b_L1_TripleEG10;   //!
-  TBranch        *b_L1_TripleIsoEG5;   //!
-  TBranch        *b_L1_TripleTauJet40;   //!
-  */
   // 21X HLT names
   TBranch        *b_HLT_L1Jet15;   //!
   TBranch        *b_HLT_Jet30;   //!
@@ -1393,66 +1133,21 @@ public :
 
 
 
-  OHltTree(TTree *tree=0,int ntrig=0,int nl1trig=0);
+  OHltTree(TTree *tree=0, OHltMenu *menu=0);
   virtual ~OHltTree();
-  virtual Int_t    Cut(Long64_t entry);
   virtual Int_t    GetEntry(Long64_t entry);
   virtual Long64_t LoadTree(Long64_t entry);
   virtual void     Init(TTree *tree);
-  virtual void	    SetMapBitOfStandardHLTPath();
-  virtual void	    SetMapL1BitOfStandardHLTPath();
-  virtual void     ApplyL1Prescales(std::map<TString,int> map_Level1Prescl, int eventnum, int deterministic);
+  virtual void	   SetMapBitOfStandardHLTPath();
+  virtual void	   SetMapL1BitOfStandardHLTPath();
+  virtual void	   SetMapL1SeedsOfStandardHLTPath(OHltMenu *menu);
   virtual Bool_t   Notify();
-  virtual void     Show(Long64_t entry = -1);
-  void Loop(std::vector<int> *, std::vector<int> *, std::vector<int> * 
-    ,std::vector< std::vector<int> > * overlapCount
-    ,std::vector<TString> trignames
-    ,std::map<TString,int> map_L1Prescls 
-    ,std::map<TString,int> map_HLTPrescls 
-    ,std::map<TString,int> map_L1NoPrescaleCount 
-    ,std::map<TString,int> map_MultEle,std::map<TString,int> map_MultPho,std::map<TString,int> map_MultMu
-    ,std::map<TString,int> map_MultJets,std::map<TString,int> map_MultMET
+  
+  void ApplyL1Prescales(OHltMenu *menu);
+  void Loop(OHltRateCounter *rc,OHltConfig *cfg,OHltMenu *menu,int pID);
+  void SetL1MuonQuality();
 
-    , SampleDiagnostics&  primaryDatasetsDiagnostics  //SAK
-
-    ,int n=-1
-    ,bool doMuonCut=false,bool doElecCut=false
-    , double muonPt=-999., double muonDr=-999.
-    ,int NObjectsToUse=0, int MaxMult=0, int ip=0, int RateOnly=1
-    /*	     
-    ,std::vector <TH1F*> Num_pt=new TH1F("eso", "eso", 100, 0, 100)
-    ,std::vector <TH1F*> Num_eta=new TH1F("eso", "eso", 100, -5, 5)
-    ,std::vector <TH1F*> Num_phi=new TH1F("eso", "eso", 100, -5, 5)
-    ,std::vector <TH1F*> Den_pt=new TH1F("eso", "eso", 100, 0, 100)
-    ,std::vector <TH1F*> Den_eta=new TH1F("eso", "eso", 100, -5, 5)
-    ,std::vector <TH1F*> Den_phi=new TH1F("eso", "eso", 100, -5, 5)
-    ,std::vector <TH1F*> DenwrtL1_pt=new TH1F("eso", "eso", 100, 0, 100)
-    ,std::vector <TH1F*> DenwrtL1_eta=new TH1F("eso", "eso", 100, -5, 5)
-    ,std::vector <TH1F*> DenwrtL1_phi=new TH1F("eso", "eso", 100, -5, 5)
-    ,std::vector <TH1F*> Num_pt=new TH1F("eso", "eso", 100, 0, 100)
-    */
-    ,std::vector <TH1F*> &Num_pt=new TH1F("eso", "eso", 100, 0, 100)
-    ,std::vector <TH1F*> &Num_eta=new TH1F("eso", "eso", 100, -5, 5)
-    ,std::vector <TH1F*> &Num_phi=new TH1F("eso", "eso", 100, -5, 5)
-    ,std::vector <TH1F*> &Den_pt=new TH1F("eso", "eso", 100, 0, 100)
-    ,std::vector <TH1F*> &Den_eta=new TH1F("eso", "eso", 100, -5, 5)
-    ,std::vector <TH1F*> &Den_phi=new TH1F("eso", "eso", 100, -5, 5)
-    ,std::vector <TH1F*> &DenwrtL1_pt=new TH1F("eso", "eso", 100, 0, 100)
-    ,std::vector <TH1F*> &DenwrtL1_eta=new TH1F("eso", "eso", 100, -5, 5)
-    ,std::vector <TH1F*> &DenwrtL1_phi=new TH1F("eso", "eso", 100, -5, 5)
-    /*	     
-    ,std::vector <TH1F*> &Num_pt
-    ,std::vector <TH1F*> &Num_eta
-    ,std::vector <TH1F*> &Num_phi
-    ,std::vector <TH1F*> &Den_pt
-    ,std::vector <TH1F*> &Den_eta
-    ,std::vector <TH1F*> &Den_phi
-    ,std::vector <TH1F*> &DenwrtL1_pt
-    ,std::vector <TH1F*> &DenwrtL1_eta
-    ,std::vector <TH1F*> &DenwrtL1_phi
-    */
-    );
-
+  void CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it);
   void PrintOhltVariables(int level, int type);
   int OpenHltTauPassed(float Et,float Eiso, float L25Tpt, int L25Tiso,float L3Tpt, int L3Tiso);
   int OpenHlt1ElectronPassed(float Et,int L1iso,float Tiso,float Hiso);
@@ -1468,63 +1163,61 @@ public :
   int OpenHltQuadJetPassed(double pt);
   int OpenHltJRMuonPassed(double ptl1,double ptl2,double ptl3,double dr,int iso,double ptl3hi);
 
+  std::map<TString, std::vector<TString> >
+    GetL1SeedsOfHLTPathMap() { return map_L1SeedsOfStandardHLTPath; }; // mapping to all seeds
+
+
 private:
-  int Ntrig;
-  int NL1trig;
+
+  int nTrig;
+  int nL1Trig;
   std::vector<int> triggerBit;
-  std::vector<int> triggerBitNoPrescale;
-  std::vector<int> L1AssHLTBit;
   std::vector<int> previousBitsFired;
   std::vector<int> allOtherBitsFired;
   std::vector<int> BitOfStandardHLTPath;
   std::map<TString,int> map_BitOfStandardHLTPath;
-  std::vector<int> L1BitOfStandardHLTPath;
   std::map<TString,int> map_L1BitOfStandardHLTPath;
-  std::map<TString,int> map_iCountL1NoPrescale;
 
-  enum e_objType {
-    muon,
-    electron,
-    tau,
-    photon,
-    jet
-  };
+  std::map<TString, std::vector<TString> > map_L1SeedsOfStandardHLTPath; // mapping to all seeds
+
+  TRandom3 random; // for random prescale method
+  inline int GetIntRandom() { return (int)(9999999.*random.Rndm()); }
+
+  enum e_objType {muon,electron,tau,photon,jet};
 
 };
 
-#endif
-
 #ifdef OHltTree_cxx
-OHltTree::OHltTree(TTree *tree, int ntrig, int nl1trig)
+OHltTree::OHltTree(TTree *tree, OHltMenu *menu)
 {
-  // if parameter tree is not specified (or zero), connect the file
-  // used to generate this class and read the Tree.
+  cout<<"Initialising OHltTree."<<endl;
   if (tree == 0) {
-    TFile *f = (TFile*)gROOT->GetListOfFiles()->FindObject("TEST.root");
-    if (!f) {
-      f = new TFile("TEST.root");
-    }
-    tree = (TTree*)gDirectory->Get("HltTree");
-
+    cerr<<"Error initialising tree!"<<endl;
+    return;
+  }
+  if (menu == 0) {
+    cerr<<"Error: no menu!"<<endl;
+    return;
   }
   Init(tree);
-  Ntrig = ntrig;
-  NL1trig = nl1trig;
-  triggerBit.reserve(Ntrig);
-  triggerBitNoPrescale.reserve(Ntrig);
-  L1AssHLTBit.reserve(Ntrig);
-  previousBitsFired.reserve(Ntrig);
-  allOtherBitsFired.reserve(Ntrig);
-  BitOfStandardHLTPath.reserve(Ntrig);
-  L1BitOfStandardHLTPath.reserve(Ntrig);
+  
+  nTrig = menu->GetTriggerSize();
+  nL1Trig = menu->GetL1TriggerSize();
 
-  for (int it = 0; it < Ntrig; it++){
+  triggerBit.reserve(nTrig);
+  previousBitsFired.reserve(nTrig);
+  allOtherBitsFired.reserve(nTrig);
+  BitOfStandardHLTPath.reserve(nTrig);
+  
+  for (int it = 0; it < nTrig; it++){
     triggerBit.push_back(false);
-    triggerBitNoPrescale.push_back(false);
-    L1AssHLTBit.push_back(false);
     previousBitsFired.push_back(false);
     allOtherBitsFired.push_back(false);
-  }
+  }  
+
+  SetMapL1SeedsOfStandardHLTPath(menu);
+
+  cout<<"Succeeded initialising OHltTree. nEntries: "<<fChain->GetEntries()<<endl;
 }
 
 OHltTree::~OHltTree()
@@ -1539,6 +1232,7 @@ Int_t OHltTree::GetEntry(Long64_t entry)
   if (!fChain) return 0;
   return fChain->GetEntry(entry);
 }
+
 Long64_t OHltTree::LoadTree(Long64_t entry)
 {
   // Set the environment to read one entry
@@ -1785,153 +1479,24 @@ void OHltTree::Init(TTree *tree)
   fChain->SetBranchAddress("Run", &Run, &b_Run);
   fChain->SetBranchAddress("Event", &Event, &b_Event);
   //20X
-  /*
-  fChain->SetBranchAddress("HLT1jet", &HLT1jet, &b_HLT1jet);
-  fChain->SetBranchAddress("HLT2jet", &HLT2jet, &b_HLT2jet);
-  fChain->SetBranchAddress("HLT3jet", &HLT3jet, &b_HLT3jet);
-  fChain->SetBranchAddress("HLT4jet", &HLT4jet, &b_HLT4jet);
-  fChain->SetBranchAddress("HLT1MET", &HLT1MET, &b_HLT1MET);
-  fChain->SetBranchAddress("HLT2jetAco", &HLT2jetAco, &b_HLT2jetAco);
-  fChain->SetBranchAddress("HLT1jet1METAco", &HLT1jet1METAco, &b_HLT1jet1METAco);
-  fChain->SetBranchAddress("HLT1jet1MET", &HLT1jet1MET, &b_HLT1jet1MET);
-  fChain->SetBranchAddress("HLT2jet1MET", &HLT2jet1MET, &b_HLT2jet1MET);
-  fChain->SetBranchAddress("HLT3jet1MET", &HLT3jet1MET, &b_HLT3jet1MET);
-  fChain->SetBranchAddress("HLT4jet1MET", &HLT4jet1MET, &b_HLT4jet1MET);
-  fChain->SetBranchAddress("HLT1MET1HT", &HLT1MET1HT, &b_HLT1MET1HT);
-  fChain->SetBranchAddress("CandHLT1SumET", &CandHLT1SumET, &b_CandHLT1SumET);
-  fChain->SetBranchAddress("HLT1jetPE1", &HLT1jetPE1, &b_HLT1jetPE1);
-  fChain->SetBranchAddress("HLT1jetPE3", &HLT1jetPE3, &b_HLT1jetPE3);
-  fChain->SetBranchAddress("HLT1jetPE5", &HLT1jetPE5, &b_HLT1jetPE5);
-  fChain->SetBranchAddress("HLT1jetPE7", &HLT1jetPE7, &b_HLT1jetPE7);
-  fChain->SetBranchAddress("HLT1METPre1", &HLT1METPre1, &b_HLT1METPre1);
-  fChain->SetBranchAddress("HLT1METPre2", &HLT1METPre2, &b_HLT1METPre2);
-  fChain->SetBranchAddress("HLT1METPre3", &HLT1METPre3, &b_HLT1METPre3);
-  fChain->SetBranchAddress("HLT2jetAve30", &HLT2jetAve30, &b_HLT2jetAve30);
-  fChain->SetBranchAddress("HLT2jetAve60", &HLT2jetAve60, &b_HLT2jetAve60);
-  fChain->SetBranchAddress("HLT2jetAve110", &HLT2jetAve110, &b_HLT2jetAve110);
-  fChain->SetBranchAddress("HLT2jetAve150", &HLT2jetAve150, &b_HLT2jetAve150);
-  fChain->SetBranchAddress("HLT2jetAve200", &HLT2jetAve200, &b_HLT2jetAve200);
-  fChain->SetBranchAddress("HLT2jetvbfMET", &HLT2jetvbfMET, &b_HLT2jetvbfMET);
-  fChain->SetBranchAddress("HLTS2jet1METNV", &HLTS2jet1METNV, &b_HLTS2jet1METNV);
-  fChain->SetBranchAddress("HLTS2jet1METAco", &HLTS2jet1METAco, &b_HLTS2jet1METAco);
-  fChain->SetBranchAddress("HLTSjet1MET1Aco", &HLTSjet1MET1Aco, &b_HLTSjet1MET1Aco);
-  fChain->SetBranchAddress("HLTSjet2MET1Aco", &HLTSjet2MET1Aco, &b_HLTSjet2MET1Aco);
-  fChain->SetBranchAddress("HLTS2jetMET1Aco", &HLTS2jetMET1Aco, &b_HLTS2jetMET1Aco);
-  fChain->SetBranchAddress("HLTJetMETRapidityGap", &HLTJetMETRapidityGap, &b_HLTJetMETRapidityGap);
-  fChain->SetBranchAddress("HLT1Electron", &HLT1Electron, &b_HLT1Electron);
-  fChain->SetBranchAddress("HLT1ElectronRelaxed", &HLT1ElectronRelaxed, &b_HLT1ElectronRelaxed);
-  fChain->SetBranchAddress("HLT2Electron", &HLT2Electron, &b_HLT2Electron);
-  fChain->SetBranchAddress("HLT2ElectronRelaxed", &HLT2ElectronRelaxed, &b_HLT2ElectronRelaxed);
-  fChain->SetBranchAddress("HLT1Photon", &HLT1Photon, &b_HLT1Photon);
-  fChain->SetBranchAddress("HLT1PhotonRelaxed", &HLT1PhotonRelaxed, &b_HLT1PhotonRelaxed);
-  fChain->SetBranchAddress("HLT2Photon", &HLT2Photon, &b_HLT2Photon);
-  fChain->SetBranchAddress("HLT2PhotonRelaxed", &HLT2PhotonRelaxed, &b_HLT2PhotonRelaxed);
-  fChain->SetBranchAddress("HLT1EMHighEt", &HLT1EMHighEt, &b_HLT1EMHighEt);
-  fChain->SetBranchAddress("HLT1EMVeryHighEt", &HLT1EMVeryHighEt, &b_HLT1EMVeryHighEt);
-  fChain->SetBranchAddress("HLT2ElectronZCounter", &HLT2ElectronZCounter, &b_HLT2ElectronZCounter);
-  fChain->SetBranchAddress("HLT2ElectronExclusive", &HLT2ElectronExclusive, &b_HLT2ElectronExclusive);
-  fChain->SetBranchAddress("HLT2PhotonExclusive", &HLT2PhotonExclusive, &b_HLT2PhotonExclusive);
-  fChain->SetBranchAddress("HLT1PhotonL1Isolated", &HLT1PhotonL1Isolated, &b_HLT1PhotonL1Isolated);
-  fChain->SetBranchAddress("CandHLT1ElectronStartup", &CandHLT1ElectronStartup, &b_CandHLT1ElectronStartup);
-  fChain->SetBranchAddress("CandHLT1ElectronRelaxedStartup", &CandHLT1ElectronRelaxedStartup, &b_CandHLT1ElectronRelaxedStartup);
-  fChain->SetBranchAddress("CandHLT2ElectronStartup", &CandHLT2ElectronStartup, &b_CandHLT2ElectronStartup);
-  fChain->SetBranchAddress("CandHLT2ElectronRelaxedStartup", &CandHLT2ElectronRelaxedStartup, &b_CandHLT2ElectronRelaxedStartup);
-  fChain->SetBranchAddress("HLT1MuonIso", &HLT1MuonIso, &b_HLT1MuonIso);
-  fChain->SetBranchAddress("HLT1MuonNonIso", &HLT1MuonNonIso, &b_HLT1MuonNonIso);
-  fChain->SetBranchAddress("HLT2MuonIso", &HLT2MuonIso, &b_HLT2MuonIso);
-  fChain->SetBranchAddress("HLT2MuonNonIso", &HLT2MuonNonIso, &b_HLT2MuonNonIso);
-  fChain->SetBranchAddress("HLT2MuonJPsi", &HLT2MuonJPsi, &b_HLT2MuonJPsi);
-  fChain->SetBranchAddress("HLT2MuonUpsilon", &HLT2MuonUpsilon, &b_HLT2MuonUpsilon);
-  fChain->SetBranchAddress("HLT2MuonZ", &HLT2MuonZ, &b_HLT2MuonZ);
-  fChain->SetBranchAddress("HLTNMuonNonIso", &HLTNMuonNonIso, &b_HLTNMuonNonIso);
-  fChain->SetBranchAddress("HLT2MuonSameSign", &HLT2MuonSameSign, &b_HLT2MuonSameSign);
-  fChain->SetBranchAddress("HLT1MuonPrescalePt3", &HLT1MuonPrescalePt3, &b_HLT1MuonPrescalePt3);
-  fChain->SetBranchAddress("HLT1MuonPrescalePt5", &HLT1MuonPrescalePt5, &b_HLT1MuonPrescalePt5);
-  fChain->SetBranchAddress("HLT1MuonPrescalePt7x7", &HLT1MuonPrescalePt7x7, &b_HLT1MuonPrescalePt7x7);
-  fChain->SetBranchAddress("HLT1MuonPrescalePt7x10", &HLT1MuonPrescalePt7x10, &b_HLT1MuonPrescalePt7x10);
-  fChain->SetBranchAddress("HLT1MuonLevel1", &HLT1MuonLevel1, &b_HLT1MuonLevel1);
-  fChain->SetBranchAddress("CandHLT1MuonPrescaleVtx2cm", &CandHLT1MuonPrescaleVtx2cm, &b_CandHLT1MuonPrescaleVtx2cm);
-  fChain->SetBranchAddress("CandHLT1MuonPrescaleVtx2mm", &CandHLT1MuonPrescaleVtx2mm, &b_CandHLT1MuonPrescaleVtx2mm);
-  fChain->SetBranchAddress("CandHLT2MuonPrescaleVtx2cm", &CandHLT2MuonPrescaleVtx2cm, &b_CandHLT2MuonPrescaleVtx2cm);
-  fChain->SetBranchAddress("CandHLT2MuonPrescaleVtx2mm", &CandHLT2MuonPrescaleVtx2mm, &b_CandHLT2MuonPrescaleVtx2mm);
-  fChain->SetBranchAddress("HLTB1Jet", &HLTB1Jet, &b_HLTB1Jet);
-  fChain->SetBranchAddress("HLTB2Jet", &HLTB2Jet, &b_HLTB2Jet);
-  fChain->SetBranchAddress("HLTB3Jet", &HLTB3Jet, &b_HLTB3Jet);
-  fChain->SetBranchAddress("HLTB4Jet", &HLTB4Jet, &b_HLTB4Jet);
-  fChain->SetBranchAddress("HLTBHT", &HLTBHT, &b_HLTBHT);
-  fChain->SetBranchAddress("HLTB1JetMu", &HLTB1JetMu, &b_HLTB1JetMu);
-  fChain->SetBranchAddress("HLTB2JetMu", &HLTB2JetMu, &b_HLTB2JetMu);
-  fChain->SetBranchAddress("HLTB3JetMu", &HLTB3JetMu, &b_HLTB3JetMu);
-  fChain->SetBranchAddress("HLTB4JetMu", &HLTB4JetMu, &b_HLTB4JetMu);
-  fChain->SetBranchAddress("HLTBHTMu", &HLTBHTMu, &b_HLTBHTMu);
-  fChain->SetBranchAddress("HLTBJPsiMuMu", &HLTBJPsiMuMu, &b_HLTBJPsiMuMu);
-  fChain->SetBranchAddress("HLT1Tau", &HLT1Tau, &b_HLT1Tau);
-  fChain->SetBranchAddress("HLT1Tau1MET", &HLT1Tau1MET, &b_HLT1Tau1MET);
-  fChain->SetBranchAddress("HLT2TauPixel", &HLT2TauPixel, &b_HLT2TauPixel);
-  fChain->SetBranchAddress("HLTXElectronBJet", &HLTXElectronBJet, &b_HLTXElectronBJet);
-  fChain->SetBranchAddress("HLTXMuonBJet", &HLTXMuonBJet, &b_HLTXMuonBJet);
-  fChain->SetBranchAddress("HLTXMuonBJetSoftMuon", &HLTXMuonBJetSoftMuon, &b_HLTXMuonBJetSoftMuon);
-  fChain->SetBranchAddress("HLTXElectron1Jet", &HLTXElectron1Jet, &b_HLTXElectron1Jet);
-  fChain->SetBranchAddress("HLTXElectron2Jet", &HLTXElectron2Jet, &b_HLTXElectron2Jet);
-  fChain->SetBranchAddress("HLTXElectron3Jet", &HLTXElectron3Jet, &b_HLTXElectron3Jet);
-  fChain->SetBranchAddress("HLTXElectron4Jet", &HLTXElectron4Jet, &b_HLTXElectron4Jet);
-  fChain->SetBranchAddress("HLTXMuonJets", &HLTXMuonJets, &b_HLTXMuonJets);
-  fChain->SetBranchAddress("CandHLTXMuonNoL2IsoJets", &CandHLTXMuonNoL2IsoJets, &b_CandHLTXMuonNoL2IsoJets);
-  fChain->SetBranchAddress("CandHLTXMuonNoIsoJets", &CandHLTXMuonNoIsoJets, &b_CandHLTXMuonNoIsoJets);
-  fChain->SetBranchAddress("HLTXElectronMuon", &HLTXElectronMuon, &b_HLTXElectronMuon);
-  fChain->SetBranchAddress("HLTXElectronMuonRelaxed", &HLTXElectronMuonRelaxed, &b_HLTXElectronMuonRelaxed);
-  fChain->SetBranchAddress("HLTXElectronTau", &HLTXElectronTau, &b_HLTXElectronTau);
-  fChain->SetBranchAddress("CandHLTXElectronTauPixel", &CandHLTXElectronTauPixel, &b_CandHLTXElectronTauPixel);
-  fChain->SetBranchAddress("HLTXMuonTau", &HLTXMuonTau, &b_HLTXMuonTau);
-  fChain->SetBranchAddress("CandHLTEcalPi0", &CandHLTEcalPi0, &b_CandHLTEcalPi0);
-  fChain->SetBranchAddress("CandHLTEcalPhiSym", &CandHLTEcalPhiSym, &b_CandHLTEcalPhiSym);
-  fChain->SetBranchAddress("CandHLTHcalPhiSym", &CandHLTHcalPhiSym, &b_CandHLTHcalPhiSym);
-  fChain->SetBranchAddress("HLTHcalIsolatedTrack", &HLTHcalIsolatedTrack, &b_HLTHcalIsolatedTrack);
-  fChain->SetBranchAddress("CandHLTHcalIsolatedTrackNoEcalIsol", &CandHLTHcalIsolatedTrackNoEcalIsol, &b_CandHLTHcalIsolatedTrackNoEcalIsol);
-  fChain->SetBranchAddress("HLTMinBiasPixel", &HLTMinBiasPixel, &b_HLTMinBiasPixel);
-  fChain->SetBranchAddress("CandHLTMinBiasForAlignment", &CandHLTMinBiasForAlignment, &b_CandHLTMinBiasForAlignment);
-  fChain->SetBranchAddress("HLTMinBias", &HLTMinBias, &b_HLTMinBias);
-  fChain->SetBranchAddress("HLTZeroBias", &HLTZeroBias, &b_HLTZeroBias);
-  fChain->SetBranchAddress("HLTriggerType", &HLTriggerType, &b_HLTriggerType);
-  fChain->SetBranchAddress("TriggerFinalPath", &TriggerFinalPath, &b_TriggerFinalPath);
-  */
+
   //L1's
   fChain->SetBranchAddress("L1_DoubleEG10", &L1_DoubleEG10, &b_L1_DoubleEG10);
-  //   fChain->SetBranchAddress("L1_DoubleEG10_ETM20", &L1_DoubleEG10_ETM20, &b_L1_DoubleEG10_ETM20);
-  //   fChain->SetBranchAddress("L1_DoubleEG10_HTT200", &L1_DoubleEG10_HTT200, &b_L1_DoubleEG10_HTT200);
-  //   fChain->SetBranchAddress("L1_DoubleEG10_Mu3", &L1_DoubleEG10_Mu3, &b_L1_DoubleEG10_Mu3);
   fChain->SetBranchAddress("L1_DoubleEG15", &L1_DoubleEG15, &b_L1_DoubleEG15);
   fChain->SetBranchAddress("L1_DoubleEG5", &L1_DoubleEG5, &b_L1_DoubleEG5);
   fChain->SetBranchAddress("L1_DoubleIsoEG10", &L1_DoubleIsoEG10, &b_L1_DoubleIsoEG10);
-  //   fChain->SetBranchAddress("L1_DoubleIsoEG5_ETM20", &L1_DoubleIsoEG5_ETM20, &b_L1_DoubleIsoEG5_ETM20);
-  //   fChain->SetBranchAddress("L1_DoubleIsoEG5_HTT200", &L1_DoubleIsoEG5_HTT200, &b_L1_DoubleIsoEG5_HTT200);
-  //   fChain->SetBranchAddress("L1_DoubleIsoEG5_Mu3", &L1_DoubleIsoEG5_Mu3, &b_L1_DoubleIsoEG5_Mu3);
   fChain->SetBranchAddress("L1_DoubleIsoEG8", &L1_DoubleIsoEG8, &b_L1_DoubleIsoEG8);
   fChain->SetBranchAddress("L1_DoubleJet100", &L1_DoubleJet100, &b_L1_DoubleJet100);
-  //   fChain->SetBranchAddress("L1_DoubleJet50_ETM20", &L1_DoubleJet50_ETM20, &b_L1_DoubleJet50_ETM20);
-  //   fChain->SetBranchAddress("L1_DoubleJet50_HTT200", &L1_DoubleJet50_HTT200, &b_L1_DoubleJet50_HTT200);
   fChain->SetBranchAddress("L1_DoubleJet70", &L1_DoubleJet70, &b_L1_DoubleJet70);
   fChain->SetBranchAddress("L1_DoubleMu3", &L1_DoubleMu3, &b_L1_DoubleMu3);
-  //   fChain->SetBranchAddress("L1_DoubleMu3_EG10", &L1_DoubleMu3_EG10, &b_L1_DoubleMu3_EG10);
-  //   fChain->SetBranchAddress("L1_DoubleMu3_ETM20", &L1_DoubleMu3_ETM20, &b_L1_DoubleMu3_ETM20);
-  //   fChain->SetBranchAddress("L1_DoubleMu3_HTT200", &L1_DoubleMu3_HTT200, &b_L1_DoubleMu3_HTT200);
-  //   fChain->SetBranchAddress("L1_DoubleMu3_IsoEG5", &L1_DoubleMu3_IsoEG5, &b_L1_DoubleMu3_IsoEG5);
   fChain->SetBranchAddress("L1_DoubleTauJet20", &L1_DoubleTauJet20, &b_L1_DoubleTauJet20);
   fChain->SetBranchAddress("L1_DoubleTauJet30", &L1_DoubleTauJet30, &b_L1_DoubleTauJet30);
   fChain->SetBranchAddress("L1_DoubleTauJet35", &L1_DoubleTauJet35, &b_L1_DoubleTauJet35);
   fChain->SetBranchAddress("L1_DoubleTauJet40", &L1_DoubleTauJet40, &b_L1_DoubleTauJet40);
-  //   fChain->SetBranchAddress("L1_DoubleTauJet40_ETM20", &L1_DoubleTauJet40_ETM20, &b_L1_DoubleTauJet40_ETM20);
-  //   fChain->SetBranchAddress("L1_DoubleTauJet40_HTT200", &L1_DoubleTauJet40_HTT200, &b_L1_DoubleTauJet40_HTT200);
-  //   fChain->SetBranchAddress("L1_EG10_Jet15", &L1_EG10_Jet15, &b_L1_EG10_Jet15);
-  //   fChain->SetBranchAddress("L1_EG12_ETM30", &L1_EG12_ETM30, &b_L1_EG12_ETM30);
-  //   fChain->SetBranchAddress("L1_EG12_HTT200", &L1_EG12_HTT200, &b_L1_EG12_HTT200);
-  //   fChain->SetBranchAddress("L1_EG12_Jet70", &L1_EG12_Jet70, &b_L1_EG12_Jet70);
-  //   fChain->SetBranchAddress("L1_EG12_TauJet40", &L1_EG12_TauJet40, &b_L1_EG12_TauJet40);
   fChain->SetBranchAddress("L1_ETM10", &L1_ETM10, &b_L1_ETM10);
   fChain->SetBranchAddress("L1_ETM15", &L1_ETM15, &b_L1_ETM15);
   fChain->SetBranchAddress("L1_ETM20", &L1_ETM20, &b_L1_ETM20);
   fChain->SetBranchAddress("L1_ETM40", &L1_ETM40, &b_L1_ETM40);
-  //   fChain->SetBranchAddress("L1_ETM45", &L1_ETM45, &b_L1_ETM45);
   fChain->SetBranchAddress("L1_ETM50", &L1_ETM50, &b_L1_ETM50);
   fChain->SetBranchAddress("L1_ETM60", &L1_ETM60, &b_L1_ETM60);
   fChain->SetBranchAddress("L1_ETT60", &L1_ETT60, &b_L1_ETT60);
@@ -1939,14 +1504,11 @@ void OHltTree::Init(TTree *tree)
   fChain->SetBranchAddress("L1_ExclusiveDoubleJet60", &L1_ExclusiveDoubleJet60, &b_L1_ExclusiveDoubleJet60);
   fChain->SetBranchAddress("L1_ExclusiveJet25_Gap_Jet25", &L1_ExclusiveJet25_Gap_Jet25, &b_L1_ExclusiveJet25_Gap_Jet25);
   fChain->SetBranchAddress("L1_HTT100", &L1_HTT100, &b_L1_HTT100);
-  //   fChain->SetBranchAddress("L1_HTT100_ETM30", &L1_HTT100_ETM30, &b_L1_HTT100_ETM30);
   fChain->SetBranchAddress("L1_HTT200", &L1_HTT200, &b_L1_HTT200);
   fChain->SetBranchAddress("L1_HTT250", &L1_HTT250, &b_L1_HTT250);
   fChain->SetBranchAddress("L1_HTT300", &L1_HTT300, &b_L1_HTT300);
   fChain->SetBranchAddress("L1_HTT400", &L1_HTT400, &b_L1_HTT400);
   fChain->SetBranchAddress("L1_HTT500", &L1_HTT500, &b_L1_HTT500);
-  //   fChain->SetBranchAddress("L1_IsoEG10_EG10", &L1_IsoEG10_EG10, &b_L1_IsoEG10_EG10);
-  //   fChain->SetBranchAddress("L1_IsoEG10_HTT200", &L1_IsoEG10_HTT200, &b_L1_IsoEG10_HTT200);
   fChain->SetBranchAddress("L1_IsoEG10_Jet15", &L1_IsoEG10_Jet15, &b_L1_IsoEG10_Jet15);
   fChain->SetBranchAddress("L1_IsoEG10_Jet15_ForJet10", &L1_IsoEG10_Jet15_ForJet10, &b_L1_IsoEG10_Jet15_ForJet10);
   fChain->SetBranchAddress("L1_IsoEG10_Jet20", &L1_IsoEG10_Jet20, &b_L1_IsoEG10_Jet20);
@@ -1954,22 +1516,15 @@ void OHltTree::Init(TTree *tree)
   fChain->SetBranchAddress("L1_IsoEG10_Jet70", &L1_IsoEG10_Jet70, &b_L1_IsoEG10_Jet70);
   fChain->SetBranchAddress("L1_IsoEG10_TauJet20", &L1_IsoEG10_TauJet20, &b_L1_IsoEG10_TauJet20);
   fChain->SetBranchAddress("L1_IsoEG10_TauJet30", &L1_IsoEG10_TauJet30, &b_L1_IsoEG10_TauJet30);
-  //   fChain->SetBranchAddress("L1_Jet70_ETM40", &L1_Jet70_ETM40, &b_L1_Jet70_ETM40);
-  //   fChain->SetBranchAddress("L1_Jet70_HTT200", &L1_Jet70_HTT200, &b_L1_Jet70_HTT200);
-  //   fChain->SetBranchAddress("L1_Jet70_TauJet40", &L1_Jet70_TauJet40, &b_L1_Jet70_TauJet40);
   fChain->SetBranchAddress("L1_MinBias_HTT10", &L1_MinBias_HTT10, &b_L1_MinBias_HTT10);
   fChain->SetBranchAddress("L1_Mu3_EG12", &L1_Mu3_EG12, &b_L1_Mu3_EG12);
-  //   fChain->SetBranchAddress("L1_Mu3_ETM30", &L1_Mu3_ETM30, &b_L1_Mu3_ETM30);
-  //   fChain->SetBranchAddress("L1_Mu3_HTT200", &L1_Mu3_HTT200, &b_L1_Mu3_HTT200);
   fChain->SetBranchAddress("L1_Mu3_IsoEG5", &L1_Mu3_IsoEG5, &b_L1_Mu3_IsoEG5);
   fChain->SetBranchAddress("L1_Mu3_Jet15", &L1_Mu3_Jet15, &b_L1_Mu3_Jet15);
-  //   fChain->SetBranchAddress("L1_Mu3_Jet70", &L1_Mu3_Jet70, &b_L1_Mu3_Jet70);
   fChain->SetBranchAddress("L1_Mu5_IsoEG10", &L1_Mu5_IsoEG10, &b_L1_Mu5_IsoEG10);
   fChain->SetBranchAddress("L1_Mu5_Jet15", &L1_Mu5_Jet15, &b_L1_Mu5_Jet15);
   fChain->SetBranchAddress("L1_Mu5_Jet20", &L1_Mu5_Jet20, &b_L1_Mu5_Jet20);
   fChain->SetBranchAddress("L1_Mu5_TauJet20", &L1_Mu5_TauJet20, &b_L1_Mu5_TauJet20);
   fChain->SetBranchAddress("L1_Mu5_TauJet30", &L1_Mu5_TauJet30, &b_L1_Mu5_TauJet30);
-  //   fChain->SetBranchAddress("L1_QuadJet40", &L1_QuadJet40, &b_L1_QuadJet40);
   fChain->SetBranchAddress("L1_SingleEG10", &L1_SingleEG10, &b_L1_SingleEG10);
   fChain->SetBranchAddress("L1_SingleEG12", &L1_SingleEG12, &b_L1_SingleEG12);
   fChain->SetBranchAddress("L1_SingleEG15", &L1_SingleEG15, &b_L1_SingleEG15);
@@ -1987,7 +1542,6 @@ void OHltTree::Init(TTree *tree)
   fChain->SetBranchAddress("L1_SingleJet100", &L1_SingleJet100, &b_L1_SingleJet100);
   fChain->SetBranchAddress("L1_SingleJet15", &L1_SingleJet15, &b_L1_SingleJet15);
   fChain->SetBranchAddress("L1_SingleJet150", &L1_SingleJet150, &b_L1_SingleJet150);
-  //   fChain->SetBranchAddress("L1_SingleJet20", &L1_SingleJet20, &b_L1_SingleJet20);
   fChain->SetBranchAddress("L1_SingleJet200", &L1_SingleJet200, &b_L1_SingleJet200);
   fChain->SetBranchAddress("L1_SingleJet30", &L1_SingleJet30, &b_L1_SingleJet30);
   fChain->SetBranchAddress("L1_SingleJet50", &L1_SingleJet50, &b_L1_SingleJet50);
@@ -2006,15 +1560,10 @@ void OHltTree::Init(TTree *tree)
   fChain->SetBranchAddress("L1_SingleTauJet40", &L1_SingleTauJet40, &b_L1_SingleTauJet40);
   fChain->SetBranchAddress("L1_SingleTauJet60", &L1_SingleTauJet60, &b_L1_SingleTauJet60);
   fChain->SetBranchAddress("L1_SingleTauJet80", &L1_SingleTauJet80, &b_L1_SingleTauJet80);
-  //   fChain->SetBranchAddress("L1_TauJet20_ETM20", &L1_TauJet20_ETM20, &b_L1_TauJet20_ETM20);
   fChain->SetBranchAddress("L1_TauJet30_ETM30", &L1_TauJet30_ETM30, &b_L1_TauJet30_ETM30);
   fChain->SetBranchAddress("L1_TauJet30_ETM40", &L1_TauJet30_ETM40, &b_L1_TauJet30_ETM40);
-  //   fChain->SetBranchAddress("L1_TauJet40_HTT200", &L1_TauJet40_HTT200, &b_L1_TauJet40_HTT200);
-  //   fChain->SetBranchAddress("L1_TripleEG10", &L1_TripleEG10, &b_L1_TripleEG10);
-  //   fChain->SetBranchAddress("L1_TripleIsoEG5", &L1_TripleIsoEG5, &b_L1_TripleIsoEG5);
   fChain->SetBranchAddress("L1_TripleJet50", &L1_TripleJet50, &b_L1_TripleJet50);
   fChain->SetBranchAddress("L1_TripleMu3", &L1_TripleMu3, &b_L1_TripleMu3);
-  //   fChain->SetBranchAddress("L1_TripleTauJet40", &L1_TripleTauJet40, &b_L1_TripleTauJet40);
   fChain->SetBranchAddress("L1_VBF_DoubleTauHad", &L1_VBF_DoubleTauHad, &b_L1_VBF_DoubleTauHad);
   fChain->SetBranchAddress("L1_VBF_ETM50", &L1_VBF_ETM50, &b_L1_VBF_ETM50);
   fChain->SetBranchAddress("L1_VBF_ETM50_veto", &L1_VBF_ETM50_veto, &b_L1_VBF_ETM50_veto);
@@ -2025,44 +1574,6 @@ void OHltTree::Init(TTree *tree)
   fChain->SetBranchAddress("L1_VBF_QuadJet", &L1_VBF_QuadJet, &b_L1_VBF_QuadJet);
   fChain->SetBranchAddress("L1_ZeroBias", &L1_ZeroBias, &b_L1_ZeroBias);
   //L1's 20X only
-  /*
-  fChain->SetBranchAddress("L1_DoubleEG10_ETM20", &L1_DoubleEG10_ETM20, &b_L1_DoubleEG10_ETM20);
-  fChain->SetBranchAddress("L1_DoubleEG10_HTT200", &L1_DoubleEG10_HTT200, &b_L1_DoubleEG10_HTT200);
-  fChain->SetBranchAddress("L1_DoubleEG10_Mu3", &L1_DoubleEG10_Mu3, &b_L1_DoubleEG10_Mu3);
-  fChain->SetBranchAddress("L1_DoubleIsoEG5_ETM20", &L1_DoubleIsoEG5_ETM20, &b_L1_DoubleIsoEG5_ETM20);
-  fChain->SetBranchAddress("L1_DoubleIsoEG5_HTT200", &L1_DoubleIsoEG5_HTT200, &b_L1_DoubleIsoEG5_HTT200);
-  fChain->SetBranchAddress("L1_DoubleIsoEG5_Mu3", &L1_DoubleIsoEG5_Mu3, &b_L1_DoubleIsoEG5_Mu3);
-  fChain->SetBranchAddress("L1_DoubleJet50_ETM20", &L1_DoubleJet50_ETM20, &b_L1_DoubleJet50_ETM20);
-  fChain->SetBranchAddress("L1_DoubleJet50_HTT200", &L1_DoubleJet50_HTT200, &b_L1_DoubleJet50_HTT200);
-  fChain->SetBranchAddress("L1_DoubleMu3_EG10", &L1_DoubleMu3_EG10, &b_L1_DoubleMu3_EG10);
-  fChain->SetBranchAddress("L1_DoubleMu3_ETM20", &L1_DoubleMu3_ETM20, &b_L1_DoubleMu3_ETM20);
-  fChain->SetBranchAddress("L1_DoubleMu3_HTT200", &L1_DoubleMu3_HTT200, &b_L1_DoubleMu3_HTT200);
-  fChain->SetBranchAddress("L1_DoubleMu3_IsoEG5", &L1_DoubleMu3_IsoEG5, &b_L1_DoubleMu3_IsoEG5);
-  fChain->SetBranchAddress("L1_DoubleTauJet40_ETM20", &L1_DoubleTauJet40_ETM20, &b_L1_DoubleTauJet40_ETM20);
-  fChain->SetBranchAddress("L1_DoubleTauJet40_HTT200", &L1_DoubleTauJet40_HTT200, &b_L1_DoubleTauJet40_HTT200);
-  fChain->SetBranchAddress("L1_EG10_Jet15", &L1_EG10_Jet15, &b_L1_EG10_Jet15);
-  fChain->SetBranchAddress("L1_EG12_ETM30", &L1_EG12_ETM30, &b_L1_EG12_ETM30);
-  fChain->SetBranchAddress("L1_EG12_HTT200", &L1_EG12_HTT200, &b_L1_EG12_HTT200);
-  fChain->SetBranchAddress("L1_EG12_Jet70", &L1_EG12_Jet70, &b_L1_EG12_Jet70);
-  fChain->SetBranchAddress("L1_EG12_TauJet40", &L1_EG12_TauJet40, &b_L1_EG12_TauJet40);
-  fChain->SetBranchAddress("L1_ETM45", &L1_ETM45, &b_L1_ETM45);
-  fChain->SetBranchAddress("L1_HTT100_ETM30", &L1_HTT100_ETM30, &b_L1_HTT100_ETM30);
-  fChain->SetBranchAddress("L1_IsoEG10_EG10", &L1_IsoEG10_EG10, &b_L1_IsoEG10_EG10);
-  fChain->SetBranchAddress("L1_IsoEG10_HTT200", &L1_IsoEG10_HTT200, &b_L1_IsoEG10_HTT200);
-  fChain->SetBranchAddress("L1_Jet70_ETM40", &L1_Jet70_ETM40, &b_L1_Jet70_ETM40);
-  fChain->SetBranchAddress("L1_Jet70_HTT200", &L1_Jet70_HTT200, &b_L1_Jet70_HTT200);
-  fChain->SetBranchAddress("L1_Jet70_TauJet40", &L1_Jet70_TauJet40, &b_L1_Jet70_TauJet40);
-  fChain->SetBranchAddress("L1_Mu3_ETM30", &L1_Mu3_ETM30, &b_L1_Mu3_ETM30);
-  fChain->SetBranchAddress("L1_Mu3_HTT200", &L1_Mu3_HTT200, &b_L1_Mu3_HTT200);
-  fChain->SetBranchAddress("L1_Mu3_Jet70", &L1_Mu3_Jet70, &b_L1_Mu3_Jet70);
-  fChain->SetBranchAddress("L1_QuadJet40", &L1_QuadJet40, &b_L1_QuadJet40);
-  fChain->SetBranchAddress("L1_SingleJet20", &L1_SingleJet20, &b_L1_SingleJet20);
-  fChain->SetBranchAddress("L1_TauJet20_ETM20", &L1_TauJet20_ETM20, &b_L1_TauJet20_ETM20);
-  fChain->SetBranchAddress("L1_TauJet40_HTT200", &L1_TauJet40_HTT200, &b_L1_TauJet40_HTT200);
-  fChain->SetBranchAddress("L1_TripleEG10", &L1_TripleEG10, &b_L1_TripleEG10);
-  fChain->SetBranchAddress("L1_TripleIsoEG5", &L1_TripleIsoEG5, &b_L1_TripleIsoEG5);
-  fChain->SetBranchAddress("L1_TripleTauJet40", &L1_TripleTauJet40, &b_L1_TripleTauJet40);
-  */
   // 21X HLT names
   fChain->SetBranchAddress("HLT_L1Jet15", &HLT_L1Jet15, &b_HLT_L1Jet15);
   fChain->SetBranchAddress("HLT_Jet30", &HLT_Jet30, &b_HLT_Jet30);
@@ -2239,7 +1750,6 @@ void OHltTree::Init(TTree *tree)
 }
 
 void OHltTree::SetMapBitOfStandardHLTPath() {
-  // 21X HLT names
   map_BitOfStandardHLTPath["HLT_L1Jet15"] = HLT_L1Jet15;
   map_BitOfStandardHLTPath["HLT_Jet30"] = HLT_Jet30;
   map_BitOfStandardHLTPath["HLT_Jet50"] = HLT_Jet50;
@@ -2394,115 +1904,6 @@ void OHltTree::SetMapBitOfStandardHLTPath() {
   map_BitOfStandardHLTPath["AlCa_EcalPhiSym"] = AlCa_EcalPhiSym;
   map_BitOfStandardHLTPath["AlCa_EcalPi0"] = AlCa_EcalPi0;
 
-  /*20X names
-  map_BitOfStandardHLTPath["HLT1jet"] = HLT1jet;
-  map_BitOfStandardHLTPath["HLT2jet"] = HLT2jet;
-  map_BitOfStandardHLTPath["HLT3jet"] = HLT3jet;
-  map_BitOfStandardHLTPath["HLT4jet"] = HLT4jet;
-  map_BitOfStandardHLTPath["HLT1MET"] = HLT1MET;
-  map_BitOfStandardHLTPath["HLT2jetAco"] = HLT2jetAco;
-  map_BitOfStandardHLTPath["HLT1jet1METAco"] = HLT1jet1METAco;
-  map_BitOfStandardHLTPath["HLT1jet1MET"] = HLT1jet1MET;
-  map_BitOfStandardHLTPath["HLT2jet1MET"] = HLT2jet1MET;
-  map_BitOfStandardHLTPath["HLT3jet1MET"] = HLT3jet1MET;
-  map_BitOfStandardHLTPath["HLT4jet1MET"] = HLT4jet1MET;
-  map_BitOfStandardHLTPath["HLT1MET1HT"] = HLT1MET1HT;
-  map_BitOfStandardHLTPath["CandHLT1SumET"] = CandHLT1SumET;
-  map_BitOfStandardHLTPath["HLT1jetPE1"] = HLT1jetPE1;
-  map_BitOfStandardHLTPath["HLT1jetPE3"] = HLT1jetPE3;
-  map_BitOfStandardHLTPath["HLT1jetPE5"] = HLT1jetPE5;
-  map_BitOfStandardHLTPath["HLT1jetPE7"] = HLT1jetPE7;
-  map_BitOfStandardHLTPath["HLT1METPre1"] = HLT1METPre1;
-  map_BitOfStandardHLTPath["HLT1METPre2"] = HLT1METPre2;
-  map_BitOfStandardHLTPath["HLT1METPre3"] = HLT1METPre3;
-  map_BitOfStandardHLTPath["HLT2jetAve30"] = HLT2jetAve30;
-  map_BitOfStandardHLTPath["HLT2jetAve60"] = HLT2jetAve60;
-  map_BitOfStandardHLTPath["HLT2jetAve110"] = HLT2jetAve110;
-  map_BitOfStandardHLTPath["HLT2jetAve150"] = HLT2jetAve150;
-  map_BitOfStandardHLTPath["HLT2jetAve200"] = HLT2jetAve200;
-  map_BitOfStandardHLTPath["HLT2jetvbfMET"] = HLT2jetvbfMET;
-  map_BitOfStandardHLTPath["HLTS2jet1METNV"] = HLTS2jet1METNV;
-  map_BitOfStandardHLTPath["HLTS2jet1METAco"] = HLTS2jet1METAco;
-  map_BitOfStandardHLTPath["HLTSjet1MET1Aco"] = HLTSjet1MET1Aco;
-  map_BitOfStandardHLTPath["HLTSjet2MET1Aco"] = HLTSjet2MET1Aco;
-  map_BitOfStandardHLTPath["HLTS2jetMET1Aco"] = HLTS2jetMET1Aco;
-  map_BitOfStandardHLTPath["HLTJetMETRapidityGap"] = HLTJetMETRapidityGap;
-  map_BitOfStandardHLTPath["HLT1Electron"] = HLT1Electron;
-  map_BitOfStandardHLTPath["HLT1ElectronRelaxed"] = HLT1ElectronRelaxed;
-  map_BitOfStandardHLTPath["HLT2Electron"] = HLT2Electron;
-  map_BitOfStandardHLTPath["HLT2ElectronRelaxed"] = HLT2ElectronRelaxed;
-  map_BitOfStandardHLTPath["HLT1Photon"] = HLT1Photon;
-  map_BitOfStandardHLTPath["HLT1PhotonRelaxed"] = HLT1PhotonRelaxed;
-  map_BitOfStandardHLTPath["HLT2Photon"] = HLT2Photon;
-  map_BitOfStandardHLTPath["HLT2PhotonRelaxed"] = HLT2PhotonRelaxed;
-  map_BitOfStandardHLTPath["HLT1EMHighEt"] = HLT1EMHighEt;
-  map_BitOfStandardHLTPath["HLT1EMVeryHighEt"] = HLT1EMVeryHighEt;
-  map_BitOfStandardHLTPath["HLT2ElectronZCounter"] = HLT2ElectronZCounter;
-  map_BitOfStandardHLTPath["HLT2ElectronExclusive"] = HLT2ElectronExclusive;
-  map_BitOfStandardHLTPath["HLT2PhotonExclusive"] = HLT2PhotonExclusive;
-  map_BitOfStandardHLTPath["HLT1PhotonL1Isolated"] = HLT1PhotonL1Isolated;
-  map_BitOfStandardHLTPath["CandHLT1ElectronStartup"] = CandHLT1ElectronStartup;
-  map_BitOfStandardHLTPath["CandHLT1ElectronRelaxedStartup"] = CandHLT1ElectronRelaxedStartup;
-  map_BitOfStandardHLTPath["CandHLT2ElectronStartup"] = CandHLT2ElectronStartup;
-  map_BitOfStandardHLTPath["CandHLT2ElectronRelaxedStartup"] = CandHLT2ElectronRelaxedStartup;
-  map_BitOfStandardHLTPath["HLT1MuonIso"] = HLT1MuonIso;
-  map_BitOfStandardHLTPath["HLT1MuonNonIso"] = HLT1MuonNonIso;
-  map_BitOfStandardHLTPath["HLT2MuonIso"] = HLT2MuonIso;
-  map_BitOfStandardHLTPath["HLT2MuonNonIso"] = HLT2MuonNonIso;
-  map_BitOfStandardHLTPath["HLT2MuonJPsi"] = HLT2MuonJPsi;
-  map_BitOfStandardHLTPath["HLT2MuonUpsilon"] = HLT2MuonUpsilon;
-  map_BitOfStandardHLTPath["HLT2MuonZ"] = HLT2MuonZ;
-  map_BitOfStandardHLTPath["HLTNMuonNonIso"] = HLTNMuonNonIso;
-  map_BitOfStandardHLTPath["HLT2MuonSameSign"] = HLT2MuonSameSign;
-  map_BitOfStandardHLTPath["HLT1MuonPrescalePt3"] = HLT1MuonPrescalePt3;
-  map_BitOfStandardHLTPath["HLT1MuonPrescalePt5"] = HLT1MuonPrescalePt5;
-  map_BitOfStandardHLTPath["HLT1MuonPrescalePt7x7"] = HLT1MuonPrescalePt7x7;
-  map_BitOfStandardHLTPath["HLT1MuonPrescalePt7x10"] = HLT1MuonPrescalePt7x10;
-  map_BitOfStandardHLTPath["HLT1MuonLevel1"] = HLT1MuonLevel1;
-  map_BitOfStandardHLTPath["CandHLT1MuonPrescaleVtx2cm"] = CandHLT1MuonPrescaleVtx2cm;
-  map_BitOfStandardHLTPath["CandHLT1MuonPrescaleVtx2mm"] = CandHLT1MuonPrescaleVtx2mm;
-  map_BitOfStandardHLTPath["CandHLT2MuonPrescaleVtx2cm"] = CandHLT2MuonPrescaleVtx2cm;
-  map_BitOfStandardHLTPath["CandHLT2MuonPrescaleVtx2mm"] = CandHLT2MuonPrescaleVtx2mm;
-  map_BitOfStandardHLTPath["HLTB1Jet"] = HLTB1Jet;
-  map_BitOfStandardHLTPath["HLTB2Jet"] = HLTB2Jet;
-  map_BitOfStandardHLTPath["HLTB3Jet"] = HLTB3Jet;
-  map_BitOfStandardHLTPath["HLTB4Jet"] = HLTB4Jet;
-  map_BitOfStandardHLTPath["HLTBHT"] = HLTBHT;
-  map_BitOfStandardHLTPath["HLTB1JetMu"] = HLTB1JetMu;
-  map_BitOfStandardHLTPath["HLTB2JetMu"] = HLTB2JetMu;
-  map_BitOfStandardHLTPath["HLTB3JetMu"] = HLTB3JetMu;
-  map_BitOfStandardHLTPath["HLTB4JetMu"] = HLTB4JetMu;
-  map_BitOfStandardHLTPath["HLTBHTMu"] = HLTBHTMu;
-  map_BitOfStandardHLTPath["HLTBJPsiMuMu"] = HLTBJPsiMuMu;
-  map_BitOfStandardHLTPath["HLT1Tau"] = HLT1Tau;
-  map_BitOfStandardHLTPath["HLT1Tau1MET"] = HLT1Tau1MET;
-  map_BitOfStandardHLTPath["HLT2TauPixel"] = HLT2TauPixel;
-  map_BitOfStandardHLTPath["HLTXElectronBJet"] = HLTXElectronBJet;
-  map_BitOfStandardHLTPath["HLTXMuonBJet"] = HLTXMuonBJet;
-  map_BitOfStandardHLTPath["HLTXMuonBJetSoftMuon"] = HLTXMuonBJetSoftMuon;
-  map_BitOfStandardHLTPath["HLTXElectron1Jet"] = HLTXElectron1Jet;
-  map_BitOfStandardHLTPath["HLTXElectron2Jet"] = HLTXElectron2Jet;
-  map_BitOfStandardHLTPath["HLTXElectron3Jet"] = HLTXElectron3Jet;
-  map_BitOfStandardHLTPath["HLTXElectron4Jet"] = HLTXElectron4Jet;
-  map_BitOfStandardHLTPath["HLTXMuonJets"] = HLTXMuonJets;
-  map_BitOfStandardHLTPath["CandHLTXMuonNoL2IsoJets"] = CandHLTXMuonNoL2IsoJets;
-  map_BitOfStandardHLTPath["CandHLTXMuonNoIsoJets"] = CandHLTXMuonNoIsoJets;
-  map_BitOfStandardHLTPath["HLTXElectronMuon"] = HLTXElectronMuon;
-  map_BitOfStandardHLTPath["HLTXElectronMuonRelaxed"] = HLTXElectronMuonRelaxed;
-  map_BitOfStandardHLTPath["HLTXElectronTau"] = HLTXElectronTau;
-  map_BitOfStandardHLTPath["CandHLTXElectronTauPixel"] = CandHLTXElectronTauPixel;
-  map_BitOfStandardHLTPath["HLTXMuonTau"] = HLTXMuonTau;
-  map_BitOfStandardHLTPath["CandHLTEcalPi0"] = CandHLTEcalPi0;
-  map_BitOfStandardHLTPath["CandHLTEcalPhiSym"] = CandHLTEcalPhiSym;
-  map_BitOfStandardHLTPath["CandHLTHcalPhiSym"] = CandHLTHcalPhiSym;
-  map_BitOfStandardHLTPath["HLTHcalIsolatedTrack"] = HLTHcalIsolatedTrack;
-  map_BitOfStandardHLTPath["CandHLTHcalIsolatedTrackNoEcalIsol"] = CandHLTHcalIsolatedTrackNoEcalIsol;
-  map_BitOfStandardHLTPath["HLTMinBiasPixel"] = HLTMinBiasPixel;
-  map_BitOfStandardHLTPath["CandHLTMinBiasForAlignment"] = CandHLTMinBiasForAlignment;
-  map_BitOfStandardHLTPath["HLTMinBias"] = HLTMinBias;
-  map_BitOfStandardHLTPath["HLTZeroBias"] = HLTZeroBias;
-  */
-
   // For measuring L1 rates, also add L1 bits to the map!
   map_BitOfStandardHLTPath["L1_SingleMuOpen"] = L1_SingleMuOpen; 
   map_BitOfStandardHLTPath["L1_SingleMu3"] = L1_SingleMu3; 
@@ -2585,1085 +1986,35 @@ void OHltTree::SetMapBitOfStandardHLTPath() {
   map_BitOfStandardHLTPath["L1_SingleJetCountsHFRing0Sum6"] = L1_SingleJetCountsHFRing0Sum6;    
 }
 
-void OHltTree::SetMapL1BitOfStandardHLTPath() {
-  //21X
-  map_L1BitOfStandardHLTPath["HLT_L1Jet15"] = L1_SingleJet15;
-  map_L1BitOfStandardHLTPath["HLT_Jet30"] = L1_SingleJet15;
-  map_L1BitOfStandardHLTPath["HLT_Jet50"] = L1_SingleJet30;
-  map_L1BitOfStandardHLTPath["HLT_Jet80"] = L1_SingleJet50;
-  map_L1BitOfStandardHLTPath["HLT_Jet110"] = L1_SingleJet70;
-  map_L1BitOfStandardHLTPath["HLT_Jet180"] = L1_SingleJet70;
-  map_L1BitOfStandardHLTPath["HLT_Jet250"] = L1_SingleJet70;
-  map_L1BitOfStandardHLTPath["HLT_FwdJet20"] = L1_IsoEG10_Jet15_ForJet10;
-  map_L1BitOfStandardHLTPath["HLT_DoubleJet150"] = L1_SingleJet150 + L1_DoubleJet70;
-  map_L1BitOfStandardHLTPath["HLT_DoubleJet125_Aco"] = L1_SingleJet150 + L1_DoubleJet70;
-  map_L1BitOfStandardHLTPath["HLT_DoubleFwdJet50"] = L1_SingleJet30;
-  map_L1BitOfStandardHLTPath["HLT_DiJetAve15"] = L1_SingleJet15;
-  map_L1BitOfStandardHLTPath["HLT_DiJetAve30"] = L1_SingleJet30;
-  map_L1BitOfStandardHLTPath["HLT_DiJetAve50"] = L1_SingleJet50;
-  map_L1BitOfStandardHLTPath["HLT_DiJetAve70"] = L1_SingleJet70;
-  map_L1BitOfStandardHLTPath["HLT_DiJetAve130"] = L1_SingleJet70;
-  map_L1BitOfStandardHLTPath["HLT_DiJetAve220"] = L1_SingleJet70;
-  map_L1BitOfStandardHLTPath["HLT_TripleJet85"] = L1_SingleJet150 + L1_DoubleJet70 + L1_TripleJet50;
-  map_L1BitOfStandardHLTPath["HLT_QuadJet30"] = L1_QuadJet15;
-  map_L1BitOfStandardHLTPath["HLT_QuadJet60"] = L1_SingleJet150 + L1_DoubleJet70 + L1_TripleJet50 + L1_QuadJet30;
-  map_L1BitOfStandardHLTPath["HLT_SumET120"] = L1_ETT60;
-  map_L1BitOfStandardHLTPath["HLT_L1MET20"] = L1_ETM20;
-  map_L1BitOfStandardHLTPath["HLT_MET25"] = L1_ETM20;
-  map_L1BitOfStandardHLTPath["HLT_MET35"] = L1_ETM30;
-  map_L1BitOfStandardHLTPath["HLT_MET50"] = L1_ETM40;
-  map_L1BitOfStandardHLTPath["HLT_MET65"] = L1_ETM50;
-  map_L1BitOfStandardHLTPath["HLT_MET75"] = L1_ETM50;
-  map_L1BitOfStandardHLTPath["HLT_MET35_HT350"] = L1_HTT300;
-  map_L1BitOfStandardHLTPath["HLT_Jet180_MET60"] = L1_SingleJet150;
-  map_L1BitOfStandardHLTPath["HLT_Jet60_MET70_Aco"] = L1_SingleJet150;
-  map_L1BitOfStandardHLTPath["HLT_Jet100_MET60_Aco"] = L1_SingleJet150;
-  map_L1BitOfStandardHLTPath["HLT_DoubleJet125_MET60"] = L1_SingleJet150;
-  map_L1BitOfStandardHLTPath["HLT_DoubleFwdJet40_MET60"] = L1_ETM40;
-  map_L1BitOfStandardHLTPath["HLT_DoubleJet60_MET60_Aco"] = L1_SingleJet150;
-  map_L1BitOfStandardHLTPath["HLT_DoubleJet50_MET70_Aco"] = L1_SingleJet150;
-  map_L1BitOfStandardHLTPath["HLT_DoubleJet40_MET70_Aco"] = L1_SingleJet150;
-  map_L1BitOfStandardHLTPath["HLT_TripleJet60_MET60"] = L1_SingleJet150;
-  map_L1BitOfStandardHLTPath["HLT_QuadJet35_MET60"] = L1_SingleJet150;
-  map_L1BitOfStandardHLTPath["HLT_IsoEle15_L1I"] = L1_SingleIsoEG12;
-  map_L1BitOfStandardHLTPath["HLT_IsoEle18_L1R"] = L1_SingleEG15;
-  map_L1BitOfStandardHLTPath["HLT_IsoEle15_LW_L1I"] = L1_SingleIsoEG12;
-  map_L1BitOfStandardHLTPath["HLT_LooseIsoEle15_LW_L1R"] = L1_SingleEG12;
-  map_L1BitOfStandardHLTPath["HLT_Ele10_SW_L1R"] = L1_SingleEG8;
-  map_L1BitOfStandardHLTPath["HLT_Ele15_SW_L1R"] = L1_SingleEG12;
-  map_L1BitOfStandardHLTPath["HLT_Ele15_LW_L1R"] = L1_SingleEG10;
-  map_L1BitOfStandardHLTPath["HLT_EM80"] = L1_SingleEG15;
-  map_L1BitOfStandardHLTPath["HLT_EM200"] = L1_SingleEG15;
-  map_L1BitOfStandardHLTPath["HLT_DoubleIsoEle10_L1I"] = L1_DoubleIsoEG8;
-  map_L1BitOfStandardHLTPath["HLT_DoubleIsoEle12_L1R"] = L1_DoubleEG10;
-  map_L1BitOfStandardHLTPath["HLT_DoubleIsoEle10_LW_L1I"] = L1_DoubleIsoEG8;
-  map_L1BitOfStandardHLTPath["HLT_DoubleIsoEle12_LW_L1R"] = L1_DoubleEG10;
-  map_L1BitOfStandardHLTPath["HLT_DoubleEle5_SW_L1R"] = L1_DoubleEG5;
-  map_L1BitOfStandardHLTPath["HLT_DoubleEle10_LW_OnlyPixelM_L1R"] = L1_DoubleEG5;
-  map_L1BitOfStandardHLTPath["HLT_DoubleEle10_Z"] = L1_DoubleIsoEG8;
-  map_L1BitOfStandardHLTPath["HLT_DoubleEle6_Exclusive"] = L1_ExclusiveDoubleIsoEG6;
-  map_L1BitOfStandardHLTPath["HLT_IsoPhoton30_L1I"] = L1_SingleIsoEG12;
-  map_L1BitOfStandardHLTPath["HLT_IsoPhoton10_L1R"] = L1_SingleEG8;
-  map_L1BitOfStandardHLTPath["HLT_IsoPhoton15_L1R"] = L1_SingleEG12;
-  map_L1BitOfStandardHLTPath["HLT_IsoPhoton20_L1R"] = L1_SingleEG15;
-  map_L1BitOfStandardHLTPath["HLT_IsoPhoton25_L1R"] = L1_SingleEG15;
-  map_L1BitOfStandardHLTPath["HLT_IsoPhoton40_L1R"] = L1_SingleEG15;
-  map_L1BitOfStandardHLTPath["HLT_Photon15_L1R"] = L1_SingleEG10;
-  map_L1BitOfStandardHLTPath["HLT_Photon25_L1R"] = L1_SingleEG15;
-  map_L1BitOfStandardHLTPath["HLT_DoubleIsoPhoton20_L1I"] = L1_DoubleIsoEG8;
-  map_L1BitOfStandardHLTPath["HLT_DoubleIsoPhoton20_L1R"] = L1_DoubleEG10;
-  map_L1BitOfStandardHLTPath["HLT_DoublePhoton10_Exclusive"] = L1_ExclusiveDoubleIsoEG6;
-  map_L1BitOfStandardHLTPath["HLT_L1Mu"] = L1_SingleMu7 + L1_DoubleMu3;
-  map_L1BitOfStandardHLTPath["HLT_L1MuOpen"] = L1_SingleMuOpen + L1_SingleMu3 + L1_SingleMu5;
-  map_L1BitOfStandardHLTPath["HLT_L2Mu9"] = L1_SingleMu7;
-  map_L1BitOfStandardHLTPath["HLT_IsoMu9"] = L1_SingleMu7;
-  map_L1BitOfStandardHLTPath["HLT_IsoMu11"] = L1_SingleMu7;
-  map_L1BitOfStandardHLTPath["HLT_IsoMu13"] = L1_SingleMu10;
-  map_L1BitOfStandardHLTPath["HLT_IsoMu15"] = L1_SingleMu10;
-  map_L1BitOfStandardHLTPath["HLT_NoTrackerIsoMu15"] = L1_SingleMu7;
-  map_L1BitOfStandardHLTPath["HLT_Mu3"] = L1_SingleMu3;
-  map_L1BitOfStandardHLTPath["HLT_Mu5"] = L1_SingleMu5;
-  map_L1BitOfStandardHLTPath["HLT_Mu7"] = L1_SingleMu7;
-  map_L1BitOfStandardHLTPath["HLT_Mu9"] = L1_SingleMu7;
-  map_L1BitOfStandardHLTPath["HLT_Mu11"] = L1_SingleMu7;
-  map_L1BitOfStandardHLTPath["HLT_Mu13"] = L1_SingleMu10;
-  map_L1BitOfStandardHLTPath["HLT_Mu15"] = L1_SingleMu10;
-  map_L1BitOfStandardHLTPath["HLT_Mu15_L1Mu7"] = L1_SingleMu7;
-  map_L1BitOfStandardHLTPath["HLT_Mu15_Vtx2cm"] = L1_SingleMu7;
-  map_L1BitOfStandardHLTPath["HLT_Mu15_Vtx2mm"] = L1_SingleMu7;
-  map_L1BitOfStandardHLTPath["HLT_DoubleIsoMu3"] = L1_DoubleMu3;
-  map_L1BitOfStandardHLTPath["HLT_DoubleMu3"] = L1_DoubleMu3;
-  map_L1BitOfStandardHLTPath["HLT_DoubleMu3_Vtx2cm"] = L1_DoubleMu3;
-  map_L1BitOfStandardHLTPath["HLT_DoubleMu3_Vtx2mm"] = L1_DoubleMu3;
-  map_L1BitOfStandardHLTPath["HLT_DoubleMu3_JPsi"] = L1_DoubleMu3;
-  map_L1BitOfStandardHLTPath["HLT_DoubleMu3_Upsilon"] = L1_DoubleMu3;
-  map_L1BitOfStandardHLTPath["HLT_DoubleMu7_Z"] = L1_DoubleMu3;
-  map_L1BitOfStandardHLTPath["HLT_DoubleMu3_SameSign"] = L1_DoubleMu3;
-  map_L1BitOfStandardHLTPath["HLT_DoubleMu3_Psi2S"] = L1_DoubleMu3;
-  map_L1BitOfStandardHLTPath["HLT_BTagIP_Jet180"] = L1_SingleJet150 + L1_DoubleJet100 + L1_TripleJet50 + L1_QuadJet30 + L1_HTT300;
-  map_L1BitOfStandardHLTPath["HLT_BTagIP_Jet120_Relaxed"] = L1_SingleJet100 + L1_DoubleJet70 + L1_TripleJet50 + L1_QuadJet30 + L1_HTT300;
-  map_L1BitOfStandardHLTPath["HLT_BTagIP_DoubleJet120"] = L1_SingleJet150 + L1_DoubleJet100 + L1_TripleJet50 + L1_QuadJet30 + L1_HTT300;
-  map_L1BitOfStandardHLTPath["HLT_BTagIP_DoubleJet60_Relaxed"] = L1_SingleJet100 + L1_DoubleJet70 + L1_TripleJet50 + L1_QuadJet30 + L1_HTT300;
-  map_L1BitOfStandardHLTPath["HLT_BTagIP_TripleJet70"] = L1_SingleJet150 + L1_DoubleJet100 + L1_TripleJet50 + L1_QuadJet30 + L1_HTT300;
-  map_L1BitOfStandardHLTPath["HLT_BTagIP_TripleJet40_Relaxed"] = L1_SingleJet100 + L1_DoubleJet70 + L1_TripleJet50 + L1_QuadJet30 + L1_HTT300;
-  map_L1BitOfStandardHLTPath["HLT_BTagIP_QuadJet40"] = L1_SingleJet150 + L1_DoubleJet100 + L1_TripleJet50 + L1_QuadJet30 + L1_HTT300;
-  map_L1BitOfStandardHLTPath["HLT_BTagIP_QuadJet30_Relaxed"] = L1_SingleJet100 + L1_DoubleJet70 + L1_TripleJet50 + L1_QuadJet30 + L1_HTT300;
-  map_L1BitOfStandardHLTPath["HLT_BTagIP_HT470"] = L1_SingleJet150 + L1_DoubleJet100 + L1_TripleJet50 + L1_QuadJet30 + L1_HTT300;
-  map_L1BitOfStandardHLTPath["HLT_BTagIP_HT320_Relaxed"] = L1_SingleJet100 + L1_DoubleJet70 + L1_TripleJet50 + L1_QuadJet30 + L1_HTT300;
-  map_L1BitOfStandardHLTPath["HLT_BTagMu_DoubleJet120"] = L1_Mu5_Jet15;
-  map_L1BitOfStandardHLTPath["HLT_BTagMu_DoubleJet60_Relaxed"] = L1_Mu5_Jet15;
-  map_L1BitOfStandardHLTPath["HLT_BTagMu_TripleJet70"] = L1_Mu5_Jet15;
-  map_L1BitOfStandardHLTPath["HLT_BTagMu_TripleJet40_Relaxed"] = L1_Mu5_Jet15;
-  map_L1BitOfStandardHLTPath["HLT_BTagMu_QuadJet40"] = L1_Mu5_Jet15;
-  map_L1BitOfStandardHLTPath["HLT_BTagMu_QuadJet30_Relaxed"] = L1_Mu5_Jet15;
-  map_L1BitOfStandardHLTPath["HLT_BTagMu_HT370"] = L1_HTT300;
-  map_L1BitOfStandardHLTPath["HLT_BTagMu_HT250_Relaxed"] = L1_HTT200;
-  map_L1BitOfStandardHLTPath["HLT_DoubleMu3_BJPsi"] = L1_DoubleMu3;
-  map_L1BitOfStandardHLTPath["HLT_DoubleMu4_BJPsi"] = L1_DoubleMu3;
-  map_L1BitOfStandardHLTPath["HLT_TripleMu3_TauTo3Mu"] = L1_DoubleMu3;
-  map_L1BitOfStandardHLTPath["HLT_IsoTau_MET65_Trk20"] = L1_SingleTauJet80;
-  map_L1BitOfStandardHLTPath["HLT_IsoTau_MET35_Trk15_L1MET"] = L1_TauJet30_ETM30;
-  map_L1BitOfStandardHLTPath["HLT_LooseIsoTau_MET30"] = L1_SingleTauJet80;
-  map_L1BitOfStandardHLTPath["HLT_LooseIsoTau_MET30_L1MET"] = L1_TauJet30_ETM30;
-  map_L1BitOfStandardHLTPath["HLT_DoubleIsoTau_Trk3"] = L1_DoubleTauJet40;
-  map_L1BitOfStandardHLTPath["HLT_DoubleLooseIsoTau"] = L1_DoubleTauJet20;
-  map_L1BitOfStandardHLTPath["HLT_IsoEle8_IsoMu7"] = L1_Mu3_IsoEG5;
-  map_L1BitOfStandardHLTPath["HLT_IsoEle10_Mu10_L1R"] = L1_Mu3_EG12;
-  map_L1BitOfStandardHLTPath["HLT_IsoEle12_IsoTau_Trk3"] = L1_IsoEG10_TauJet20;
-  map_L1BitOfStandardHLTPath["HLT_IsoEle10_BTagIP_Jet35"] = L1_IsoEG10_Jet20;
-  map_L1BitOfStandardHLTPath["HLT_IsoEle12_Jet40"] = L1_IsoEG10_Jet30;
-  map_L1BitOfStandardHLTPath["HLT_IsoEle12_DoubleJet80"] = L1_IsoEG10_Jet30;
-  map_L1BitOfStandardHLTPath["HLT_IsoElec5_TripleJet30"] = L1_EG5_TripleJet15;
-  map_L1BitOfStandardHLTPath["HLT_IsoEle12_TripleJet60"] = L1_IsoEG10_Jet30;
-  map_L1BitOfStandardHLTPath["HLT_IsoEle12_QuadJet35"] = L1_IsoEG10_Jet30;
-  map_L1BitOfStandardHLTPath["HLT_IsoMu14_IsoTau_Trk3"] = L1_Mu5_TauJet20;
-  map_L1BitOfStandardHLTPath["HLT_IsoMu7_BTagIP_Jet35"] = L1_Mu5_Jet15;
-  map_L1BitOfStandardHLTPath["HLT_IsoMu7_BTagMu_Jet20"] = L1_Mu5_Jet15;
-  map_L1BitOfStandardHLTPath["HLT_IsoMu7_Jet40"] = L1_Mu5_Jet15;
-  map_L1BitOfStandardHLTPath["HLT_NoL2IsoMu8_Jet40"] = L1_Mu5_Jet15;
-  map_L1BitOfStandardHLTPath["HLT_Mu14_Jet50"] = L1_Mu5_Jet15;
-  map_L1BitOfStandardHLTPath["HLT_Mu5_TripleJet30"] = L1_Mu3_TripleJet15;
-  map_L1BitOfStandardHLTPath["HLT_BTagMu_Jet20_Calib"] = L1_Mu5_Jet15;
-  map_L1BitOfStandardHLTPath["HLT_ZeroBias"] = L1_ZeroBias;
-  map_L1BitOfStandardHLTPath["HLT_MinBias"] = L1_MinBias_HTT10;
-  map_L1BitOfStandardHLTPath["HLT_MinBiasHcal"] = L1_SingleJetCountsHFTow + L1_DoubleJetCountsHFTow + L1_SingleJetCountsHFRing0Sum3 + L1_DoubleJetCountsHFRing0Sum3 + L1_SingleJetCountsHFRing0Sum6 + L1_DoubleJetCountsHFRing0Sum6;
-  map_L1BitOfStandardHLTPath["HLT_MinBiasEcal"] = L1_SingleEG2 + L1_DoubleEG1;
-  map_L1BitOfStandardHLTPath["HLT_MinBiasPixel"] = L1_ZeroBias;
-  map_L1BitOfStandardHLTPath["HLT_MinBiasPixel_Trk5"] = L1_ZeroBias;
-  //map_L1BitOfStandardHLTPath["HLT_BackwardBSC"] = 38 + 39;
-  //map_L1BitOfStandardHLTPath["HLT_ForwardBSC"] = 36 + 37;
-  //map_L1BitOfStandardHLTPath["HLT_BackwardBSC"] = L1_Dummy;
-  //map_L1BitOfStandardHLTPath["HLT_ForwardBSC"] = L1_Dummy;
-  map_L1BitOfStandardHLTPath["HLT_CSCBeamHalo"] = L1_SingleMuBeamHalo;
-  map_L1BitOfStandardHLTPath["HLT_CSCBeamHaloOverlapRing1"] = L1_SingleMuBeamHalo;
-  map_L1BitOfStandardHLTPath["HLT_CSCBeamHaloOverlapRing2"] = L1_SingleMuBeamHalo;
-  map_L1BitOfStandardHLTPath["HLT_CSCBeamHaloRing2or3"] = L1_SingleMuBeamHalo;
-  //map_L1BitOfStandardHLTPath["HLT_TrackerCosmics"] = 24 + 25 + 26 + 27 + 28;
-  //map_L1BitOfStandardHLTPath["HLT_TrackerCosmics"] = L1_Dummy;
-  map_L1BitOfStandardHLTPath["AlCa_IsoTrack"] = L1_SingleJet30 + L1_SingleJet50 + L1_SingleJet70 + L1_SingleJet100 + L1_SingleTauJet30 + L1_SingleTauJet40 + L1_SingleTauJet60 + L1_SingleTauJet80;
-  map_L1BitOfStandardHLTPath["AlCa_EcalPhiSym"] = L1_ZeroBias + L1_SingleJetCountsHFTow + L1_DoubleJetCountsHFTow + L1_SingleEG2 + L1_DoubleEG1 + L1_SingleJetCountsHFRing0Sum3 + L1_DoubleJetCountsHFRing0Sum3 + L1_SingleJetCountsHFRing0Sum6 + L1_DoubleJetCountsHFRing0Sum6;
-  map_L1BitOfStandardHLTPath["AlCa_EcalPi0"] = L1_SingleIsoEG5 + L1_SingleIsoEG8 + L1_SingleIsoEG10 + L1_SingleIsoEG12 + L1_SingleIsoEG15 + L1_SingleIsoEG20 + L1_SingleIsoEG25 + L1_SingleEG5 + L1_SingleEG8 + L1_SingleEG10 + L1_SingleEG12 + L1_SingleEG15 + L1_SingleEG20 + L1_SingleEG25 + L1_SingleEG2 + L1_DoubleEG1 + L1_DoubleEG5  + L1_DoubleEG10 + L1_DoubleEG15 + L1_SingleJet30 + L1_SingleJet50 + L1_SingleJet70 + L1_SingleJet100 + L1_SingleJet150 + L1_SingleJet200 + L1_ZeroBias;
-
-  /*20X
-  map_L1BitOfStandardHLTPath["HLT2jet"] = L1_SingleJet150 + L1_DoubleJet70;
-  map_L1BitOfStandardHLTPath["HLT3jet"] = L1_SingleJet150 + L1_DoubleJet70 + L1_TripleJet50;
-  map_L1BitOfStandardHLTPath["HLT4jet"] = L1_SingleJet150 + L1_DoubleJet70 + L1_TripleJet50 + L1_QuadJet30;
-  map_L1BitOfStandardHLTPath["HLT2jetAco"] = L1_SingleJet150 + L1_DoubleJet70;
-  map_L1BitOfStandardHLTPath["HLT1jet1METAco"] = L1_SingleJet150;
-  map_L1BitOfStandardHLTPath["HLT1jet1MET"] = L1_SingleJet150;
-  map_L1BitOfStandardHLTPath["HLT2jet1MET"] = L1_SingleJet150;
-  map_L1BitOfStandardHLTPath["HLT3jet1MET"] = L1_SingleJet150;
-  map_L1BitOfStandardHLTPath["HLT4jet1MET"] = L1_SingleJet150;
-  map_L1BitOfStandardHLTPath["HLT1MET1HT"] = L1_HTT300;
-  map_L1BitOfStandardHLTPath["HLT2jetvbfMET"] = L1_ETM40;
-  map_L1BitOfStandardHLTPath["HLTS2jet1METNV"] = L1_SingleJet150;
-  map_L1BitOfStandardHLTPath["HLTS2jet1METAco"] = L1_SingleJet150;
-  map_L1BitOfStandardHLTPath["HLTSjet1MET1Aco"] = L1_SingleJet150;
-  map_L1BitOfStandardHLTPath["HLTSjet2MET1Aco"] = L1_SingleJet150;
-  map_L1BitOfStandardHLTPath["HLTS2jetMET1Aco"] = L1_SingleJet150;
-  map_L1BitOfStandardHLTPath["HLTJetMETRapidityGap"] = L1_IsoEG10_Jet15_ForJet10;
-  map_L1BitOfStandardHLTPath["HLT1Electron"] = L1_SingleIsoEG12;
-  map_L1BitOfStandardHLTPath["HLT1ElectronRelaxed"] = L1_SingleEG15;
-  map_L1BitOfStandardHLTPath["HLT2Electron"] = L1_DoubleIsoEG8;
-  map_L1BitOfStandardHLTPath["HLT2ElectronRelaxed"] = L1_DoubleEG10;
-  map_L1BitOfStandardHLTPath["HLT1Photon"] = L1_SingleIsoEG12;
-  map_L1BitOfStandardHLTPath["HLT1PhotonRelaxed"] = L1_SingleEG15;
-  map_L1BitOfStandardHLTPath["HLT2Photon"] = L1_DoubleIsoEG8;
-  map_L1BitOfStandardHLTPath["HLT2PhotonRelaxed"] = L1_DoubleEG10;
-  map_L1BitOfStandardHLTPath["HLT1EMHighEt"] = L1_SingleEG15;
-  map_L1BitOfStandardHLTPath["HLT1EMVeryHighEt"] = L1_SingleEG15;
-  map_L1BitOfStandardHLTPath["HLT2ElectronZCounter"] = L1_DoubleIsoEG8;
-  map_L1BitOfStandardHLTPath["HLT2ElectronExclusive"] = L1_ExclusiveDoubleIsoEG6;
-  map_L1BitOfStandardHLTPath["HLT2PhotonExclusive"] = L1_ExclusiveDoubleIsoEG6;
-  map_L1BitOfStandardHLTPath["HLT1PhotonL1Isolated"] = L1_SingleIsoEG10;
-  map_L1BitOfStandardHLTPath["CandHLT1ElectronStartup"] = L1_SingleIsoEG12;
-  map_L1BitOfStandardHLTPath["CandHLT1ElectronRelaxedStartup"] = L1_SingleEG15;
-  map_L1BitOfStandardHLTPath["CandHLT2ElectronStartup"] = L1_DoubleIsoEG8;
-  map_L1BitOfStandardHLTPath["CandHLT2ElectronRelaxedStartup"] = L1_DoubleEG10;
-  map_L1BitOfStandardHLTPath["HLT1MuonIso"] = L1_SingleMu7;
-  map_L1BitOfStandardHLTPath["HLT1MuonNonIso"] = L1_SingleMu7;
-  map_L1BitOfStandardHLTPath["HLT2MuonIso"] = L1_DoubleMu3;
-  map_L1BitOfStandardHLTPath["HLT2MuonNonIso"] = L1_DoubleMu3;
-  map_L1BitOfStandardHLTPath["HLT2MuonJPsi"] = L1_DoubleMu3;
-  map_L1BitOfStandardHLTPath["HLT2MuonUpsilon"] = L1_DoubleMu3;
-  map_L1BitOfStandardHLTPath["HLT2MuonZ"] = L1_DoubleMu3;
-  map_L1BitOfStandardHLTPath["HLTNMuonNonIso"] = L1_TripleMu3;
-  map_L1BitOfStandardHLTPath["HLT2MuonSameSign"] = L1_DoubleMu3;
-  map_L1BitOfStandardHLTPath["HLT1MuonPrescalePt3"] = L1_SingleMu3;
-  map_L1BitOfStandardHLTPath["HLT1MuonPrescalePt5"] = L1_SingleMu5;
-  map_L1BitOfStandardHLTPath["HLT1MuonPrescalePt7x7"] = L1_SingleMu7;
-  map_L1BitOfStandardHLTPath["HLT1MuonPrescalePt7x10"] = L1_SingleMu7;
-  //  map_L1BitOfStandardHLTPath["HLT1MuonLevel1"] = L1_SingleMu7 + L1_DoubleMu3;
-  map_L1BitOfStandardHLTPath["HLT1MuonLevel1"] = L1_SingleMu3 + L1_SingleMu5+L1_SingleMu7 + L1_DoubleMu3;
-  map_L1BitOfStandardHLTPath["CandHLT1MuonPrescaleVtx2cm"] = L1_SingleMu7;
-  map_L1BitOfStandardHLTPath["CandHLT1MuonPrescaleVtx2mm"] = L1_SingleMu7;
-  map_L1BitOfStandardHLTPath["CandHLT2MuonPrescaleVtx2cm"] = L1_DoubleMu3;
-  map_L1BitOfStandardHLTPath["CandHLT2MuonPrescaleVtx2mm"] = L1_DoubleMu3;
-  map_L1BitOfStandardHLTPath["HLTB1Jet"] = L1_SingleJet150 + L1_DoubleJet100 + L1_TripleJet50 + L1_QuadJet30 + L1_HTT300;
-  map_L1BitOfStandardHLTPath["HLTB2Jet"] = L1_SingleJet150 + L1_DoubleJet100 + L1_TripleJet50 + L1_QuadJet30 + L1_HTT300;
-  map_L1BitOfStandardHLTPath["HLTB3Jet"] = L1_SingleJet150 + L1_DoubleJet100 + L1_TripleJet50 + L1_QuadJet30 + L1_HTT300;
-  map_L1BitOfStandardHLTPath["HLTB4Jet"] = L1_SingleJet150 + L1_DoubleJet100 + L1_TripleJet50 + L1_QuadJet30 + L1_HTT300;
-  map_L1BitOfStandardHLTPath["HLTBHT"] = L1_SingleJet150 + L1_DoubleJet100 + L1_TripleJet50 + L1_QuadJet30 + L1_HTT300;
-  map_L1BitOfStandardHLTPath["HLTB1JetMu"] = L1_Mu5_Jet15;
-  map_L1BitOfStandardHLTPath["HLTB2JetMu"] = L1_Mu5_Jet15;
-  map_L1BitOfStandardHLTPath["HLTB3JetMu"] = L1_Mu5_Jet15;
-  map_L1BitOfStandardHLTPath["HLTB4JetMu"] = L1_Mu5_Jet15;
-  map_L1BitOfStandardHLTPath["HLTBHTMu"] = L1_HTT300;
-  map_L1BitOfStandardHLTPath["HLTBJPsiMuMu"] = L1_DoubleMu3;
-  map_L1BitOfStandardHLTPath["HLTTauTo3Mu"] = L1_DoubleMu3;
-  map_L1BitOfStandardHLTPath["HLTXElectronBJet"] = L1_IsoEG10_Jet20;
-  map_L1BitOfStandardHLTPath["HLTXMuonBJet"] = L1_Mu5_Jet15;
-  map_L1BitOfStandardHLTPath["HLTXMuonBJetSoftMuon"] = L1_Mu5_Jet15;
-  map_L1BitOfStandardHLTPath["HLTXElectron1Jet"] = L1_IsoEG10_Jet30;
-  map_L1BitOfStandardHLTPath["HLTXElectron2Jet"] = L1_IsoEG10_Jet30;
-  map_L1BitOfStandardHLTPath["HLTXElectron3Jet"] = L1_IsoEG10_Jet30;
-  map_L1BitOfStandardHLTPath["HLTXElectron4Jet"] = L1_IsoEG10_Jet30;
-  map_L1BitOfStandardHLTPath["HLTXMuonJets"] = L1_Mu5_Jet15;
-  map_L1BitOfStandardHLTPath["CandHLTXMuonNoL2IsoJets"] = L1_Mu5_Jet15;
-  map_L1BitOfStandardHLTPath["CandHLTXMuonNoIsoJets"] = L1_Mu5_Jet15;
-  map_L1BitOfStandardHLTPath["HLTXElectronMuon"] = L1_Mu3_IsoEG5;
-  map_L1BitOfStandardHLTPath["HLTXElectronMuonRelaxed"] = L1_Mu3_EG12;
-  map_L1BitOfStandardHLTPath["CandHLTCSCBeamHalo"] = L1_SingleMuBeamHalo;
-  map_L1BitOfStandardHLTPath["CandHLTCSCBeamHaloOverlapRing1"] = L1_SingleMuBeamHalo;
-  map_L1BitOfStandardHLTPath["CandHLTCSCBeamHaloOverlapRing2"] = L1_SingleMuBeamHalo;
-  map_L1BitOfStandardHLTPath["CandHLTCSCBeamHaloRing2or3"] = L1_SingleMuBeamHalo;
-  map_L1BitOfStandardHLTPath["HLTMinBiasPixel"] = L1_ZeroBias;
-  map_L1BitOfStandardHLTPath["CandHLTMinBiasForAlignment"] = L1_ZeroBias;
-  map_L1BitOfStandardHLTPath["HLTMinBias"] = L1_MinBias_HTT10;
-  map_L1BitOfStandardHLTPath["HLTZeroBias"] = L1_ZeroBias;
-  map_L1BitOfStandardHLTPath["HLTXElectronTau"] = L1_IsoEG10_TauJet20;
-  map_L1BitOfStandardHLTPath["HLTXMuonTau"] = L1_Mu5_TauJet20;
-  map_L1BitOfStandardHLTPath["HLT1Tau1MET"] = L1_TauJet30_ETM30;
-  map_L1BitOfStandardHLTPath["HLT1Tau"] = L1_SingleTauJet80;
-  map_L1BitOfStandardHLTPath["HLT1Electron10_L1R_NI"] = L1_SingleEG8;
-  map_L1BitOfStandardHLTPath["HLT1Electron8_L1R_NI"] = L1_SingleEG5;
-  map_L1BitOfStandardHLTPath["HLT2Electron5_L1R_NI"] = L1_DoubleEG5;
-  map_L1BitOfStandardHLTPath["HLT1Photon10_L1R"] = L1_SingleEG8;
-  map_L1BitOfStandardHLTPath["AlCaIsoTrack"] = L1_SingleJet30 + L1_SingleJet50 + L1_SingleJet70 + L1_SingleJet100 + L1_SingleTauJet30 + L1_SingleTauJet40 + L1_SingleTauJet60 + L1_SingleTauJet80;
-  map_L1BitOfStandardHLTPath["AlCaEcalPhiSym"] = L1_ZeroBias + L1_SingleJetCountsHFTow + L1_DoubleJetCountsHFTow + L1_SingleEG2 + L1_DoubleEG1 + L1_SingleJetCountsHFRing0Sum3 + L1_DoubleJetCountsHFRing0Sum3 + L1_SingleJetCountsHFRing0Sum6 + L1_DoubleJetCountsHFRing0Sum6;
-  map_L1BitOfStandardHLTPath["AlCaEcalPi0"] = L1_SingleJet15 + L1_SingleJet30 + L1_SingleJet50 + L1_SingleJet70 + L1_SingleJet100 + L1_SingleJet150 + L1_SingleJet200 + L1_DoubleJet70 + L1_DoubleJet100;
-  map_L1BitOfStandardHLTPath["HLT1MuonLevel2"] = L1_SingleMu7;
-  map_L1BitOfStandardHLTPath["HLTBJPsiMuMuRelaxed"] = L1_DoubleMu3;
-  map_L1BitOfStandardHLTPath["HLT2PhotonEt10_L1R_NI"] = L1_DoubleEG5;
-  map_L1BitOfStandardHLTPath["HLT2PhotonEt8_L1R_NI"] = L1_DoubleEG5;
-  map_L1BitOfStandardHLTPath["HLT1ElectronLWEt12_L1R_NI"] = L1_SingleEG8;
-  map_L1BitOfStandardHLTPath["HLT1ElectronLWEt15_L1R_NI"] = L1_SingleEG10;
-  map_L1BitOfStandardHLTPath["HLT1PhotonEt20_L1R_LI"] = L1_SingleEG15;
-  map_L1BitOfStandardHLTPath["HLT1PhotonEt15_L1R_NI"] = L1_SingleEG10;
-  map_L1BitOfStandardHLTPath["HLT1PhotonEt25_L1R_NI"] = L1_SingleEG15;
-  map_L1BitOfStandardHLTPath["HLT1ElectronEt18_L1R_NI"] = L1_SingleEG15;
-  map_L1BitOfStandardHLTPath["HLT1ElectronEt15_L1R_NI"] = L1_SingleEG12;
-  map_L1BitOfStandardHLTPath["HLT1ElectronEt12_L1R_HI"] = L1_SingleEG8;
-  map_L1BitOfStandardHLTPath["HLT1ElectronLWEt18_L1R_LI"] = L1_SingleEG15;
-  map_L1BitOfStandardHLTPath["HLT1ElectronLWEt15_L1R_LI"] = L1_SingleEG12;
-  map_L1BitOfStandardHLTPath["HLT1PhotonEt40_L1R_NI"] = L1_SingleEG15;
-  map_L1BitOfStandardHLTPath["HLT1PhotonEt30_L1R_NI"] = L1_SingleEG15;
-  map_L1BitOfStandardHLTPath["HLT1PhotonEt45_L1R_LI"] = L1_SingleEG15;
-  map_L1BitOfStandardHLTPath["HLT1PhotonEt30_L1R_LI"] = L1_SingleEG15;
-  map_L1BitOfStandardHLTPath["HLT1PhotonEt25_L1R_HI"] = L1_SingleEG15;
-  map_L1BitOfStandardHLTPath["HLT1PhotonEt20_L1R_HI"] = L1_SingleEG15;
-  map_L1BitOfStandardHLTPath["HLT1PhotonEt15_L1R_HI"] = L1_SingleEG12;
-  map_L1BitOfStandardHLTPath["HLT2ElectronLWonlyPMEt8_L1R_NI"] = L1_DoubleEG5;
-  map_L1BitOfStandardHLTPath["HLT2ElectronLWonlyPMEt10_L1R_NI"] = L1_DoubleEG5;
-  map_L1BitOfStandardHLTPath["HLT2ElectronLWonlyPMEt12_L1R_NI"] = L1_DoubleEG10;
-  map_L1BitOfStandardHLTPath["HLT2PhotonEt20_L1R_NI"] = L1_DoubleEG10;
-  map_L1BitOfStandardHLTPath["HLTMinBiasHcal"] = L1_SingleJetCountsHFTow + L1_DoubleJetCountsHFTow + L1_SingleJetCountsHFRing0Sum3 + L1_DoubleJetCountsHFRing0Sum3 + L1_SingleJetCountsHFRing0Sum6 + L1_DoubleJetCountsHFRing0Sum6;
-  map_L1BitOfStandardHLTPath["HLTMinBiasEcal"] = L1_SingleEG2 + L1_DoubleEG1;
-  map_L1BitOfStandardHLTPath["HLT1ElectronEt15_L1R_LI"] = L1_SingleEG12;
-  map_L1BitOfStandardHLTPath["HLT1PhotonEt40_L1R_LI"] = L1_SingleEG15;
-  map_L1BitOfStandardHLTPath["HLT2PhotonEt20_L1R_LI"] = L1_DoubleEG10;
-  map_L1BitOfStandardHLTPath["HLT4jet30"] = L1_QuadJet15;
-  map_L1BitOfStandardHLTPath["HLT1TauRelaxed"] = L1_SingleTauJet80;
-  map_L1BitOfStandardHLTPath["HLT1Tau1METRelaxed"] = L1_TauJet30_ETM30;
-  map_L1BitOfStandardHLTPath["HLT2TauPixelRelaxed"] = L1_DoubleTauJet20;
-  map_L1BitOfStandardHLTPath["HLT2TauPixel"] = L1_DoubleTauJet40;
-  map_L1BitOfStandardHLTPath["HLT1Level1jet15"] = L1_SingleJet15;
-  map_L1BitOfStandardHLTPath["HLT1jet30"] = L1_SingleJet15;
-  map_L1BitOfStandardHLTPath["HLT1jet50"] = L1_SingleJet30;
-  map_L1BitOfStandardHLTPath["HLT1jet80"] = L1_SingleJet50;
-  map_L1BitOfStandardHLTPath["HLT1jet110"] = L1_SingleJet70;
-  map_L1BitOfStandardHLTPath["HLT1jet250"] = L1_SingleJet70;
-  map_L1BitOfStandardHLTPath["HLT1SumET"] = L1_ETT60;
-  map_L1BitOfStandardHLTPath["HLT1jet180"] = L1_SingleJet70;
-  map_L1BitOfStandardHLTPath["HLT1Level1MET20"] = L1_ETM20;
-  map_L1BitOfStandardHLTPath["HLT1MET25"] = L1_ETM20;
-  map_L1BitOfStandardHLTPath["HLT1MET35"] = L1_ETM30;
-  map_L1BitOfStandardHLTPath["HLT1MET50"] = L1_ETM40;
-  map_L1BitOfStandardHLTPath["HLT1MET65"] = L1_ETM50;
-  map_L1BitOfStandardHLTPath["HLT1MET75"] = L1_ETM50;
-  map_L1BitOfStandardHLTPath["HLT2jetAve15"] = L1_SingleJet15;
-  map_L1BitOfStandardHLTPath["HLT2jetAve30"] = L1_SingleJet30;
-  map_L1BitOfStandardHLTPath["HLT2jetAve50"] = L1_SingleJet50;
-  map_L1BitOfStandardHLTPath["HLT2jetAve70"] = L1_SingleJet70;
-  map_L1BitOfStandardHLTPath["HLT2jetAve130"] = L1_SingleJet70;
-  map_L1BitOfStandardHLTPath["HLT2jetAve220"] = L1_SingleJet70;
-  map_L1BitOfStandardHLTPath["HLTB1Jet120"] = L1_SingleJet100 + L1_DoubleJet70 + L1_TripleJet50 + L1_QuadJet30 + L1_HTT300;
-  map_L1BitOfStandardHLTPath["HLTB1Jet160"] = L1_SingleJet150 + L1_DoubleJet100 + L1_TripleJet50 + L1_QuadJet30 + L1_HTT300;
-  map_L1BitOfStandardHLTPath["HLTB2Jet100"] = L1_SingleJet150 + L1_DoubleJet100 + L1_TripleJet50 + L1_QuadJet30 + L1_HTT300;
-  map_L1BitOfStandardHLTPath["HLTB2Jet60"] = L1_SingleJet100 + L1_DoubleJet70 + L1_TripleJet50 + L1_QuadJet30 + L1_HTT300;
-  map_L1BitOfStandardHLTPath["HLTB2JetMu100"] = L1_Mu5_Jet15;
-  map_L1BitOfStandardHLTPath["HLTB2JetMu60"] = L1_Mu5_Jet15;
-  map_L1BitOfStandardHLTPath["HLTB3Jet40"] = L1_SingleJet100 + L1_DoubleJet70 + L1_TripleJet50 + L1_QuadJet30 + L1_HTT300;
-  map_L1BitOfStandardHLTPath["HLTB3Jet60"] = L1_SingleJet150 + L1_DoubleJet100 + L1_TripleJet50 + L1_QuadJet30 + L1_HTT300;
-  map_L1BitOfStandardHLTPath["HLTB3JetMu40"] = L1_Mu5_Jet15;
-  map_L1BitOfStandardHLTPath["HLTB3JetMu60"] = L1_Mu5_Jet15;
-  map_L1BitOfStandardHLTPath["HLTB4Jet30"] = L1_SingleJet100 + L1_DoubleJet70 + L1_TripleJet50 + L1_QuadJet30 + L1_HTT300;
-  map_L1BitOfStandardHLTPath["HLTB4Jet35"] = L1_SingleJet150 + L1_DoubleJet100 + L1_TripleJet50 + L1_QuadJet30 + L1_HTT300;
-  map_L1BitOfStandardHLTPath["HLTB4JetMu30"] = L1_Mu5_Jet15;
-  map_L1BitOfStandardHLTPath["HLTB4JetMu35"] = L1_Mu5_Jet15;
-  map_L1BitOfStandardHLTPath["HLTBHT320"] = L1_SingleJet100 + L1_DoubleJet70 + L1_TripleJet50 + L1_QuadJet30 + L1_HTT300;
-  map_L1BitOfStandardHLTPath["HLTBHT420"] = L1_SingleJet150 + L1_DoubleJet100 + L1_TripleJet50 + L1_QuadJet30 + L1_HTT300;
-  map_L1BitOfStandardHLTPath["HLTBHTMu250"] = L1_HTT200;
-  map_L1BitOfStandardHLTPath["HLTBHTMu330"] = L1_HTT300;
-  map_L1BitOfStandardHLTPath["HLTXElectron3Jet30"] = L1_EG5_TripleJet15;
-  map_L1BitOfStandardHLTPath["HLTXMuonNoIso3Jets30"] = L1_Mu3_TripleJet15;
-  map_L1BitOfStandardHLTPath["HLT1MuonL1Open"] = L1_SingleMuOpen + L1_SingleMu3 + L1_SingleMu5;
-  map_L1BitOfStandardHLTPath["HLT1MuonNonIso9"] = L1_SingleMu7;
-  map_L1BitOfStandardHLTPath["HLT1MuonNonIso11"] = L1_SingleMu7;
-  map_L1BitOfStandardHLTPath["HLT1MuonNonIso13"] = L1_SingleMu10;
-  map_L1BitOfStandardHLTPath["HLT1MuonNonIso15"] = L1_SingleMu10;
-  map_L1BitOfStandardHLTPath["HLT1MuonIso9"] = L1_SingleMu7;
-  map_L1BitOfStandardHLTPath["HLT1MuonIso13"] = L1_SingleMu10;
-  map_L1BitOfStandardHLTPath["HLT1MuonIso15"] = L1_SingleMu10;
-
-  */
-
-  // For measuring L1 rates, also add L1 bits to the map!
-  map_L1BitOfStandardHLTPath["L1_SingleMuOpen"] = L1_SingleMuOpen; 
-  map_L1BitOfStandardHLTPath["L1_SingleMu3"] = L1_SingleMu3; 
-  map_L1BitOfStandardHLTPath["L1_SingleMu5"] = L1_SingleMu5;             
-  map_L1BitOfStandardHLTPath["L1_SingleMu7"] = L1_SingleMu7;             
-  map_L1BitOfStandardHLTPath["L1_SingleMu10"] = L1_SingleMu10;            
-  map_L1BitOfStandardHLTPath["L1_SingleMuBeamHalo"] = L1_SingleMuBeamHalo; 
-  map_L1BitOfStandardHLTPath["L1_DoubleMu3"] = L1_DoubleMu3;             
-  map_L1BitOfStandardHLTPath["L1_TripleMu3"] = L1_TripleMu3;             
-
-  map_L1BitOfStandardHLTPath["L1_SingleIsoEG5"] = L1_SingleIsoEG5;       
-  map_L1BitOfStandardHLTPath["L1_SingleIsoEG8"] = L1_SingleIsoEG8;       
-  map_L1BitOfStandardHLTPath["L1_SingleIsoEG10"] = L1_SingleIsoEG10;       
-  map_L1BitOfStandardHLTPath["L1_SingleIsoEG12"] = L1_SingleIsoEG12;       
-  map_L1BitOfStandardHLTPath["L1_SingleIsoEG15"] = L1_SingleIsoEG15;       
-  map_L1BitOfStandardHLTPath["L1_SingleIsoEG25"] = L1_SingleIsoEG25;       
-  map_L1BitOfStandardHLTPath["L1_SingleIsoEG20"] = L1_SingleIsoEG20;       
-  map_L1BitOfStandardHLTPath["L1_DoubleIsoEG8"] = L1_DoubleIsoEG8;         
-
-  map_L1BitOfStandardHLTPath["L1_SingleEG2"] = L1_SingleEG2;            
-  map_L1BitOfStandardHLTPath["L1_SingleEG5"] = L1_SingleEG5;             
-  map_L1BitOfStandardHLTPath["L1_SingleEG8"] = L1_SingleEG8;             
-  map_L1BitOfStandardHLTPath["L1_SingleEG10"] = L1_SingleEG10;            
-  map_L1BitOfStandardHLTPath["L1_SingleEG12"] = L1_SingleEG12;           
-  map_L1BitOfStandardHLTPath["L1_SingleEG15"] = L1_SingleEG15;          
-  map_L1BitOfStandardHLTPath["L1_SingleEG20"] = L1_SingleEG20;          
-  map_L1BitOfStandardHLTPath["L1_SingleEG25"] = L1_SingleEG25;          
-  map_L1BitOfStandardHLTPath["L1_DoubleEG1"] = L1_DoubleEG1;            
-  map_L1BitOfStandardHLTPath["L1_DoubleEG5"] = L1_DoubleEG5;             
-  map_L1BitOfStandardHLTPath["L1_DoubleEG10"] = L1_DoubleEG10;            
-
-  map_L1BitOfStandardHLTPath["L1_SingleJet15"] = L1_SingleJet15;  
-  map_L1BitOfStandardHLTPath["L1_SingleJet30"] = L1_SingleJet30; 
-  map_L1BitOfStandardHLTPath["L1_SingleJet50"] = L1_SingleJet50;  
-  map_L1BitOfStandardHLTPath["L1_SingleJet70"] = L1_SingleJet70;  
-  map_L1BitOfStandardHLTPath["L1_SingleJet100"] = L1_SingleJet100; 
-  map_L1BitOfStandardHLTPath["L1_SingleJet150"] = L1_SingleJet150; 
-  map_L1BitOfStandardHLTPath["L1_SingleJet200"] = L1_SingleJet200; 
-  map_L1BitOfStandardHLTPath["L1_DoubleJet70"] = L1_DoubleJet70;   
-  map_L1BitOfStandardHLTPath["L1_DoubleJet100"] = L1_DoubleJet100; 
-  map_L1BitOfStandardHLTPath["L1_TripleJet50"] = L1_TripleJet50;   
-  map_L1BitOfStandardHLTPath["L1_QuadJet15"] = L1_QuadJet15;  
-  map_L1BitOfStandardHLTPath["L1_QuadJet30"] = L1_QuadJet30;   
-  map_L1BitOfStandardHLTPath["L1_HTT200"] = L1_HTT200;         
-  map_L1BitOfStandardHLTPath["L1_HTT300"] = L1_HTT300;         
-
-  map_L1BitOfStandardHLTPath["L1_ETM20"] = L1_ETM20;
-  map_L1BitOfStandardHLTPath["L1_ETM30"] = L1_ETM30;   
-  map_L1BitOfStandardHLTPath["L1_ETM40"] = L1_ETM40;   
-  map_L1BitOfStandardHLTPath["L1_ETM50"] = L1_ETM50;   
-
-  map_L1BitOfStandardHLTPath["L1_ETT60"] = L1_ETT60;  
-
-  map_L1BitOfStandardHLTPath["L1_SingleTauJet30"] = L1_SingleTauJet30;                
-  map_L1BitOfStandardHLTPath["L1_SingleTauJet40"] = L1_SingleTauJet40;  
-  map_L1BitOfStandardHLTPath["L1_SingleTauJet60"] = L1_SingleTauJet60;    
-  map_L1BitOfStandardHLTPath["L1_SingleTauJet80"] = L1_SingleTauJet80;    
-  map_L1BitOfStandardHLTPath["L1_DoubleTauJet20"] = L1_DoubleTauJet20;    
-  map_L1BitOfStandardHLTPath["L1_DoubleTauJet40"] = L1_DoubleTauJet40;    
-
-  map_L1BitOfStandardHLTPath["L1_IsoEG10_Jet15_ForJet10"] = L1_IsoEG10_Jet15_ForJet10;  
-  map_L1BitOfStandardHLTPath["L1_ExclusiveDoubleIsoEG6"] = L1_ExclusiveDoubleIsoEG6;    
-  map_L1BitOfStandardHLTPath["L1_Mu5_Jet15"] = L1_Mu5_Jet15;     
-  map_L1BitOfStandardHLTPath["L1_IsoEG10_Jet20"] = L1_IsoEG10_Jet20;  
-  map_L1BitOfStandardHLTPath["L1_IsoEG10_Jet30"] = L1_IsoEG10_Jet30;  
-  map_L1BitOfStandardHLTPath["L1_Mu3_IsoEG5"] = L1_Mu3_IsoEG5;   
-  map_L1BitOfStandardHLTPath["L1_Mu3_EG12"] = L1_Mu3_EG12;     
-  map_L1BitOfStandardHLTPath["L1_IsoEG10_TauJet20"] = L1_IsoEG10_TauJet20;  
-  map_L1BitOfStandardHLTPath["L1_Mu5_TauJet20"] = L1_Mu5_TauJet20;  
-  map_L1BitOfStandardHLTPath["L1_TauJet30_ETM30"] = L1_TauJet30_ETM30;  
-  map_L1BitOfStandardHLTPath["L1_EG5_TripleJet15"] = L1_EG5_TripleJet15; 
-  map_L1BitOfStandardHLTPath["L1_Mu3_TripleJet15"] = L1_Mu3_TripleJet15; 
-
-  map_L1BitOfStandardHLTPath["L1_ZeroBias"] = L1_ZeroBias;
-  map_L1BitOfStandardHLTPath["L1_MinBias_HTT10"] = L1_MinBias_HTT10;
-  map_L1BitOfStandardHLTPath["L1_SingleJetCountsHFTow"] = L1_SingleJetCountsHFTow; 
-  map_L1BitOfStandardHLTPath["L1_DoubleJetCountsHFTow"] = L1_DoubleJetCountsHFTow; 
-  map_L1BitOfStandardHLTPath["L1_SingleJetCountsHFRing0Sum3"] = L1_SingleJetCountsHFRing0Sum3;  
-  map_L1BitOfStandardHLTPath["L1_DoubleJetCountsHFRing0Sum3"] = L1_DoubleJetCountsHFRing0Sum3;   
-  map_L1BitOfStandardHLTPath["L1_SingleJetCountsHFRing0Sum6"] = L1_SingleJetCountsHFRing0Sum6;    
+void OHltTree::SetMapL1SeedsOfStandardHLTPath(OHltMenu *menu) {
+  map_L1SeedsOfStandardHLTPath = menu->GetL1SeedsOfHLTPathMap();
 }
 
-void OHltTree::ApplyL1Prescales(std::map<TString,int> map_Level1Prescl, int eventnum, int deterministic)
-{
-  fChain->GetEntry(eventnum); 
-
-  int it = 0;
-
-  if(L1_DoubleEG10 == 1) {
-    map_iCountL1NoPrescale["L1_DoubleEG10"]++; 
-    
-    if((deterministic == 1) && ((map_iCountL1NoPrescale.find("L1_DoubleEG10")->second) % map_Level1Prescl.find("L1_DoubleEG10")->second != 0))
-      L1_DoubleEG10 = 0;
-  } it++;    
-  if(L1_DoubleEG15 == 1) { 
-    map_iCountL1NoPrescale["L1_DoubleEG15"]++;  
-    
-    if((deterministic == 1) && ((map_iCountL1NoPrescale.find("L1_DoubleEG15")->second) % map_Level1Prescl.find("L1_DoubleEG15")->second != 0)) 
-      L1_DoubleEG15 = 0; 
-  } it++;
-  if(L1_DoubleEG5 == 1) { 
-    map_iCountL1NoPrescale["L1_DoubleEG5"]++;  
-
-    if((deterministic == 1) && ((map_iCountL1NoPrescale.find("L1_DoubleEG5")->second) % map_Level1Prescl.find("L1_DoubleEG5")->second != 0)) 
-      L1_DoubleEG5 = 0; 
-  } it++;
-  if(L1_DoubleIsoEG10 == 1) { 
-    map_iCountL1NoPrescale["L1_DoubleIsoEG10"]++;  
-
-    if((deterministic == 1) && ((map_iCountL1NoPrescale.find("L1_DoubleIsoEG10")->second) % map_Level1Prescl.find("L1_DoubleIsoEG10")->second != 0)) 
-      L1_DoubleIsoEG10 = 0; 
-  } it++;
-  if(L1_DoubleIsoEG8 == 1) { 
-    map_iCountL1NoPrescale["L1_DoubleIsoEG8"]++;  
-
-    if((deterministic == 1) && ((map_iCountL1NoPrescale.find("L1_DoubleIsoEG8")->second) % map_Level1Prescl.find("L1_DoubleIsoEG8")->second != 0)) 
-      L1_DoubleIsoEG8 = 0; 
-  } it++;
-  if(L1_DoubleJet100 == 1) { 
-    map_iCountL1NoPrescale["L1_DoubleJet100"]++;  
-
-    if((deterministic == 1) && ((map_iCountL1NoPrescale.find("L1_DoubleJet100")->second) % map_Level1Prescl.find("L1_DoubleJet100")->second != 0)) 
-      L1_DoubleJet100 = 0; 
-  } it++;
-  if(L1_DoubleJet70 == 1) { 
-    map_iCountL1NoPrescale["L1_DoubleJet70"]++;  
-
-    if((deterministic == 1) && ((map_iCountL1NoPrescale.find("L1_DoubleJet70")->second) % map_Level1Prescl.find("L1_DoubleJet70")->second != 0)) 
-      L1_DoubleJet70 = 0; 
-  } it++;
-  if(L1_DoubleMu3 == 1) { 
-    map_iCountL1NoPrescale["L1_DoubleMu3"]++;  
-
-    if((deterministic == 1) && ((map_iCountL1NoPrescale.find("L1_DoubleMu3")->second) % map_Level1Prescl.find("L1_DoubleMu3")->second != 0)) 
-      L1_DoubleMu3 = 0; 
-  } it++;
-  if(L1_DoubleTauJet20 == 1) { 
-    map_iCountL1NoPrescale["L1_DoubleTauJet20"]++;  
-
-    if((deterministic == 1) && ((map_iCountL1NoPrescale.find("L1_DoubleTauJet20")->second) % map_Level1Prescl.find("L1_DoubleTauJet20")->second != 0)) 
-      L1_DoubleTauJet20 = 0; 
-  } it++;
-  if(L1_DoubleTauJet30 == 1) { 
-    map_iCountL1NoPrescale["L1_DoubleTauJet30"]++;  
-
-    if((deterministic == 1) && ((map_iCountL1NoPrescale.find("L1_DoubleTauJet30")->second) % map_Level1Prescl.find("L1_DoubleTauJet30")->second != 0)) 
-      L1_DoubleTauJet30 = 0; 
-  } it++;
-  if(L1_DoubleTauJet35 == 1) { 
-    map_iCountL1NoPrescale["L1_DoubleTauJet35"]++;  
-
-    if((deterministic == 1) && ((map_iCountL1NoPrescale.find("L1_DoubleTauJet35")->second) % map_Level1Prescl.find("L1_DoubleTauJet35")->second != 0)) 
-      L1_DoubleTauJet35 = 0; 
-  } it++;
-  if(L1_DoubleTauJet40 == 1) { 
-    map_iCountL1NoPrescale["L1_DoubleTauJet40"]++;  
-
-    if((deterministic == 1) && ((map_iCountL1NoPrescale.find("L1_DoubleTauJet40")->second) % map_Level1Prescl.find("L1_DoubleTauJet40")->second != 0)) 
-      L1_DoubleTauJet40 = 0; 
-  } it++;
-  if(L1_ETM10 == 1) { 
-    map_iCountL1NoPrescale["L1_ETM10"]++;  
-
-    if((deterministic == 1) && ((map_iCountL1NoPrescale.find("L1_ETM10")->second) % map_Level1Prescl.find("L1_ETM10")->second != 0)) 
-      L1_ETM10 = 0; 
-  } it++;
-  if(L1_ETM15 == 1) { 
-    map_iCountL1NoPrescale["L1_ETM15"]++;  
-
-    if((deterministic == 1) && ((map_iCountL1NoPrescale.find("L1_ETM15")->second) % map_Level1Prescl.find("L1_ETM15")->second != 0)) 
-      L1_ETM15 = 0; 
-  } it++;
-  if(L1_ETM20 == 1) { 
-    map_iCountL1NoPrescale["L1_ETM20"]++;  
-
-    if((deterministic == 1) && ((map_iCountL1NoPrescale.find("L1_ETM20")->second) % map_Level1Prescl.find("L1_ETM20")->second != 0)) 
-      L1_ETM20 = 0; 
-  } it++;
-  if(L1_ETM30 == 1) { 
-    map_iCountL1NoPrescale["L1_ETM30"]++;  
-
-    if((deterministic == 1) && ((map_iCountL1NoPrescale.find("L1_ETM30")->second) % map_Level1Prescl.find("L1_ETM30")->second != 0)) 
-      L1_ETM30 = 0; 
-  } it++;
-  if(L1_ETM40 == 1) { 
-    map_iCountL1NoPrescale["L1_ETM40"]++;  
-
-    if((deterministic == 1) && ((map_iCountL1NoPrescale.find("L1_ETM40")->second) % map_Level1Prescl.find("L1_ETM40")->second != 0)) 
-      L1_ETM40 = 0; 
-  } it++;
-  if(L1_ETM50 == 1) { 
-    map_iCountL1NoPrescale["L1_ETM50"]++;  
-
-    if((deterministic == 1) && ((map_iCountL1NoPrescale.find("L1_ETM50")->second) % map_Level1Prescl.find("L1_ETM50")->second != 0)) 
-      L1_ETM50 = 0; 
-  } it++;
-  if(L1_ETM60 == 1) { 
-    map_iCountL1NoPrescale["L1_ETM60"]++;  
-
-    if((deterministic == 1) && ((map_iCountL1NoPrescale.find("L1_ETM60")->second) % map_Level1Prescl.find("L1_ETM60")->second != 0)) 
-      L1_ETM60 = 0; 
-  } it++;
-  if(L1_ETT60 == 1) { 
-    map_iCountL1NoPrescale["L1_ETT60"]++;  
-
-    if((deterministic == 1) && ((map_iCountL1NoPrescale.find("L1_ETT60")->second) % map_Level1Prescl.find("L1_ETT60")->second != 0)) 
-      L1_ETT60 = 0; 
-  } it++;
-  if(L1_ExclusiveDoubleIsoEG6 == 1) {
-    map_iCountL1NoPrescale["L1_ExclusiveDoubleIsoEG6"]++;   
-
-    if((deterministic == 1) && ((map_iCountL1NoPrescale.find("L1_ExclusiveDoubleIsoEG6")->second) % map_Level1Prescl.find("L1_ExclusiveDoubleIsoEG6")->second != 0)) 
-      L1_ExclusiveDoubleIsoEG6 = 0; 
-  } it++;
-  if(L1_ExclusiveDoubleJet60 == 1) {
-    map_iCountL1NoPrescale["L1_ExclusiveDoubleJet60"]++;   
-
-    if((deterministic == 1) && ((map_iCountL1NoPrescale.find("L1_ExclusiveDoubleJet60")->second) % map_Level1Prescl.find("L1_ExclusiveDoubleJet60")->second != 0)) 
-      L1_ExclusiveDoubleJet60 = 0; 
-  } it++;
-  if(L1_ExclusiveJet25_Gap_Jet25 == 1) { 
-    map_iCountL1NoPrescale["L1_ExclusiveJet25_Gap_Jet25"]++;  
-
-    if((deterministic == 1) && ((map_iCountL1NoPrescale.find("L1_ExclusiveJet25_Gap_Jet25")->second) % map_Level1Prescl.find("L1_ExclusiveJet25_Gap_Jet25")->second != 0)) 
-      L1_ExclusiveJet25_Gap_Jet25 = 0; 
-  } it++;
-  if(L1_HTT100 == 1) { 
-    map_iCountL1NoPrescale["L1_HTT100"]++;  
-
-    if((deterministic == 1) && ((map_iCountL1NoPrescale.find("L1_HTT100")->second) % map_Level1Prescl.find("L1_HTT100")->second != 0)) 
-      L1_HTT100 = 0; 
-  } it++;
-  if(L1_HTT200 == 1) { 
-    map_iCountL1NoPrescale["L1_HTT200"]++;  
-
-    if((deterministic == 1) && ((map_iCountL1NoPrescale.find("L1_HTT200")->second) % map_Level1Prescl.find("L1_HTT200")->second != 0)) 
-      L1_HTT200 = 0; 
-  } it++;
-  if(L1_HTT250 == 1) { 
-    map_iCountL1NoPrescale["L1_HTT250"]++;  
-
-    if((deterministic == 1) && ((map_iCountL1NoPrescale.find("L1_HTT250")->second) % map_Level1Prescl.find("L1_HTT250")->second != 0)) 
-      L1_HTT250 = 0; 
-  } it++;
-  if(L1_HTT300 == 1) { 
-    map_iCountL1NoPrescale["L1_HTT300"]++;  
-
-    if((deterministic == 1) && ((map_iCountL1NoPrescale.find("L1_HTT300")->second) % map_Level1Prescl.find("L1_HTT300")->second != 0)) 
-      L1_HTT300 = 0; 
-  } it++;
-  if(L1_HTT400 == 1) { 
-    map_iCountL1NoPrescale["L1_HTT400"]++;  
-
-    if((deterministic == 1) && ((map_iCountL1NoPrescale.find("L1_HTT400")->second) % map_Level1Prescl.find("L1_HTT400")->second != 0)) 
-      L1_HTT400 = 0; 
-  } it++;
-  if(L1_HTT500 == 1) { 
-    map_iCountL1NoPrescale["L1_HTT500"]++;  
-
-    if((deterministic == 1) && ((map_iCountL1NoPrescale.find("L1_HTT500")->second) % map_Level1Prescl.find("L1_HTT500")->second != 0)) 
-      L1_HTT500 = 0; 
-  } it++;
-  if(L1_IsoEG10_Jet15 == 1) { 
-    map_iCountL1NoPrescale["L1_IsoEG10_Jet15"]++;  
-
-    if((deterministic == 1) && ((map_iCountL1NoPrescale.find("L1_IsoEG10_Jet15")->second) % map_Level1Prescl.find("L1_IsoEG10_Jet15")->second != 0)) 
-      L1_IsoEG10_Jet15 = 0; 
-  } it++;
-  if(L1_IsoEG10_Jet15_ForJet10 == 1) { 
-    map_iCountL1NoPrescale["L1_IsoEG10_Jet15_ForJet10"]++;  
-
-    if((deterministic == 1) && ((map_iCountL1NoPrescale.find("L1_IsoEG10_Jet15_ForJet10")->second) % map_Level1Prescl.find("L1_IsoEG10_Jet15_ForJet10")->second != 0)) 
-      L1_IsoEG10_Jet15_ForJet10 = 0; 
-  } it++;
-  if(L1_IsoEG10_Jet20 == 1) { 
-    map_iCountL1NoPrescale["L1_IsoEG10_Jet20"]++;  
-
-    if((deterministic == 1) && ((map_iCountL1NoPrescale.find("L1_IsoEG10_Jet20")->second) % map_Level1Prescl.find("L1_IsoEG10_Jet20")->second != 0)) 
-      L1_IsoEG10_Jet20 = 0; 
-  } it++;
-  if(L1_IsoEG10_Jet30 == 1) { 
-    map_iCountL1NoPrescale["L1_IsoEG10_Jet30"]++;  
-
-    if((deterministic == 1) && ((map_iCountL1NoPrescale.find("L1_IsoEG10_Jet30")->second) % map_Level1Prescl.find("L1_IsoEG10_Jet30")->second != 0)) 
-      L1_IsoEG10_Jet30 = 0; 
-  } it++;
-  if(L1_IsoEG10_Jet70 == 1) { 
-    map_iCountL1NoPrescale["L1_IsoEG10_Jet70"]++;  
-
-    if((deterministic == 1) && ((map_iCountL1NoPrescale.find("L1_IsoEG10_Jet70")->second) % map_Level1Prescl.find("L1_IsoEG10_Jet70")->second != 0)) 
-      L1_IsoEG10_Jet70 = 0; 
-  } it++;
-  if(L1_IsoEG10_TauJet20 == 1) {
-    map_iCountL1NoPrescale["L1_IsoEG10_TauJet20"]++;   
-
-    if((deterministic == 1) && ((map_iCountL1NoPrescale.find("L1_IsoEG10_TauJet20")->second) % map_Level1Prescl.find("L1_IsoEG10_TauJet20")->second != 0)) 
-      L1_IsoEG10_TauJet20 = 0; 
-  } it++;
-  if(L1_IsoEG10_TauJet30 == 1) {
-    map_iCountL1NoPrescale["L1_IsoEG10_TauJet30"]++;   
-
-    if((deterministic == 1) && ((map_iCountL1NoPrescale.find("L1_IsoEG10_TauJet30")->second) % map_Level1Prescl.find("L1_IsoEG10_TauJet30")->second != 0)) 
-      L1_IsoEG10_TauJet30 = 0; 
-  } it++;
-  if(L1_MinBias_HTT10 == 1) { 
-    map_iCountL1NoPrescale["L1_MinBias_HTT10"]++;  
-
-    if((deterministic == 1) && ((map_iCountL1NoPrescale.find("L1_MinBias_HTT10")->second) % map_Level1Prescl.find("L1_MinBias_HTT10")->second != 0)) 
-      L1_MinBias_HTT10 = 0; 
-  } it++;
-  if(L1_Mu3_EG12 == 1) { 
-    map_iCountL1NoPrescale["L1_Mu3_EG12"]++;  
-
-    if((deterministic == 1) && ((map_iCountL1NoPrescale.find("L1_Mu3_EG12")->second) % map_Level1Prescl.find("L1_Mu3_EG12")->second != 0)) 
-      L1_Mu3_EG12 = 0; 
-  } it++;
-  if(L1_Mu3_IsoEG5 == 1) { 
-    map_iCountL1NoPrescale["L1_Mu3_IsoEG5"]++;  
-
-    if((deterministic == 1) && ((map_iCountL1NoPrescale.find("L1_Mu3_IsoEG5")->second) % map_Level1Prescl.find("L1_Mu3_IsoEG5")->second != 0)) 
-      L1_Mu3_IsoEG5 = 0; 
-  } it++;
-  if(L1_Mu3_Jet15 == 1) { 
-    map_iCountL1NoPrescale["L1_Mu3_Jet15"]++;  
-
-    if((deterministic == 1) && ((map_iCountL1NoPrescale.find("L1_Mu3_Jet15")->second) % map_Level1Prescl.find("L1_Mu3_Jet15")->second != 0)) 
-      L1_Mu3_Jet15 = 0; 
-  } it++;
-  if(L1_Mu5_IsoEG10 == 1) { 
-    map_iCountL1NoPrescale["L1_Mu5_IsoEG10"]++;  
-
-    if((deterministic == 1) && ((map_iCountL1NoPrescale.find("L1_Mu5_IsoEG10")->second) % map_Level1Prescl.find("L1_Mu5_IsoEG10")->second != 0)) 
-      L1_Mu5_IsoEG10 = 0; 
-  } it++;
-  if(L1_Mu5_Jet15 == 1) { 
-    map_iCountL1NoPrescale["L1_Mu5_Jet15"]++;  
-
-    if((deterministic == 1) && ((map_iCountL1NoPrescale.find("L1_Mu5_Jet15")->second) % map_Level1Prescl.find("L1_Mu5_Jet15")->second != 0)) 
-      L1_Mu5_Jet15 = 0; 
-  } it++;
-  if(L1_Mu5_Jet20 == 1) { 
-    map_iCountL1NoPrescale["L1_Mu5_Jet20"]++;  
-
-    if((deterministic == 1) && ((map_iCountL1NoPrescale.find("L1_Mu5_Jet20")->second) % map_Level1Prescl.find("L1_Mu5_Jet20")->second != 0)) 
-      L1_Mu5_Jet20 = 0; 
-  } it++;
-  if(L1_Mu5_TauJet20 == 1) { 
-    map_iCountL1NoPrescale["L1_Mu5_TauJet20"]++;  
-
-    if((deterministic == 1) && ((map_iCountL1NoPrescale.find("L1_Mu5_TauJet20")->second) % map_Level1Prescl.find("L1_Mu5_TauJet20")->second != 0)) 
-      L1_Mu5_TauJet20 = 0; 
-  } it++;
-  if(L1_Mu5_TauJet30 == 1) { 
-    map_iCountL1NoPrescale["L1_Mu5_TauJet30"]++;  
-
-    if((deterministic == 1) && ((map_iCountL1NoPrescale.find("L1_Mu5_TauJet30")->second) % map_Level1Prescl.find("L1_Mu5_TauJet30")->second != 0)) 
-      L1_Mu5_TauJet30 = 0; 
-  } it++;
-  if(L1_SingleEG10 == 1) { 
-    map_iCountL1NoPrescale["L1_SingleEG10"]++;  
-
-    if((deterministic == 1) && ((map_iCountL1NoPrescale.find("L1_SingleEG10")->second) % map_Level1Prescl.find("L1_SingleEG10")->second != 0)) 
-      L1_SingleEG10 = 0; 
-  } it++;
-  if(L1_SingleEG12 == 1) { 
-    map_iCountL1NoPrescale["L1_SingleEG12"]++;  
-
-    if((deterministic == 1) && ((map_iCountL1NoPrescale.find("L1_SingleEG12")->second) % map_Level1Prescl.find("L1_SingleEG12")->second != 0)) 
-      L1_SingleEG12 = 0; 
-  } it++;
-  if(L1_SingleEG15 == 1) { 
-    map_iCountL1NoPrescale["L1_SingleEG15"]++;  
-
-    if((deterministic == 1) && ((map_iCountL1NoPrescale.find("L1_SingleEG15")->second) % map_Level1Prescl.find("L1_SingleEG15")->second != 0)) 
-      L1_SingleEG15 = 0; 
-  } it++;
-  if(L1_SingleEG20 == 1) { 
-    map_iCountL1NoPrescale["L1_SingleEG20"]++;  
-
-    if((deterministic == 1) && ((map_iCountL1NoPrescale.find("L1_SingleEG20")->second) % map_Level1Prescl.find("L1_SingleEG20")->second != 0)) 
-      L1_SingleEG20 = 0; 
-  } it++;
-  if(L1_SingleEG25 == 1) { 
-    map_iCountL1NoPrescale["L1_SingleEG25"]++;  
-
-    if((deterministic == 1) && ((map_iCountL1NoPrescale.find("L1_SingleEG25")->second) % map_Level1Prescl.find("L1_SingleEG25")->second != 0)) 
-      L1_SingleEG25 = 0; 
-  } it++;
-  if(L1_SingleEG5 == 1) { 
-    map_iCountL1NoPrescale["L1_SingleEG5"]++;  
-
-    if((deterministic == 1) && ((map_iCountL1NoPrescale.find("L1_SingleEG5")->second) % map_Level1Prescl.find("L1_SingleEG5")->second != 0)) 
-      L1_SingleEG5 = 0; 
-  } it++;
-  if(L1_SingleEG8 == 1) { 
-    map_iCountL1NoPrescale["L1_SingleEG8"]++;  
-
-    if((deterministic == 1) && ((map_iCountL1NoPrescale.find("L1_SingleEG8")->second) % map_Level1Prescl.find("L1_SingleEG8")->second != 0)) 
-      L1_SingleEG8 = 0; 
-  } it++;
-  if(L1_SingleIsoEG10 == 1) { 
-    map_iCountL1NoPrescale["L1_SingleIsoEG10"]++;  
-
-    if((deterministic == 1) && ((map_iCountL1NoPrescale.find("L1_SingleIsoEG10")->second) % map_Level1Prescl.find("L1_SingleIsoEG10")->second != 0)) 
-      L1_SingleIsoEG10 = 0; 
-  } it++;
-  if(L1_SingleIsoEG12 == 1) { 
-    map_iCountL1NoPrescale["L1_SingleIsoEG12"]++;  
-
-    if((deterministic == 1) && ((map_iCountL1NoPrescale.find("L1_SingleIsoEG12")->second) % map_Level1Prescl.find("L1_SingleIsoEG12")->second != 0)) 
-      L1_SingleIsoEG12 = 0; 
-  } it++;
-  if(L1_SingleIsoEG15 == 1) { 
-    map_iCountL1NoPrescale["L1_SingleIsoEG15"]++;  
-
-    if((deterministic == 1) && ((map_iCountL1NoPrescale.find("L1_SingleIsoEG15")->second) % map_Level1Prescl.find("L1_SingleIsoEG15")->second != 0)) 
-      L1_SingleIsoEG15 = 0; 
-  } it++;
-  if(L1_SingleIsoEG20 == 1) { 
-    map_iCountL1NoPrescale["L1_SingleIsoEG20"]++;  
-
-    if((deterministic == 1) && ((map_iCountL1NoPrescale.find("L1_SingleIsoEG20")->second) % map_Level1Prescl.find("L1_SingleIsoEG20")->second != 0)) 
-      L1_SingleIsoEG20 = 0; 
-  } it++;
-  if(L1_SingleIsoEG25 == 1) { 
-    map_iCountL1NoPrescale["L1_SingleIsoEG25"]++;  
-
-    if((deterministic == 1) && ((map_iCountL1NoPrescale.find("L1_SingleIsoEG25")->second) % map_Level1Prescl.find("L1_SingleIsoEG25")->second != 0)) 
-      L1_SingleIsoEG25 = 0; 
-  } it++;
-  if(L1_SingleIsoEG5 == 1) { 
-    map_iCountL1NoPrescale["L1_SingleIsoEG5"]++;  
-
-    if((deterministic == 1) && ((map_iCountL1NoPrescale.find("L1_SingleIsoEG5")->second) % map_Level1Prescl.find("L1_SingleIsoEG5")->second != 0)) 
-      L1_SingleIsoEG5 = 0; 
-  } it++;
-  if(L1_SingleIsoEG8 == 1) { 
-    map_iCountL1NoPrescale["L1_SingleIsoEG8"]++;  
-
-    if((deterministic == 1) && ((map_iCountL1NoPrescale.find("L1_SingleIsoEG8")->second) % map_Level1Prescl.find("L1_SingleIsoEG8")->second != 0)) 
-      L1_SingleIsoEG8 = 0; 
-  } it++;
-  if(L1_SingleJet100 == 1) { 
-    map_iCountL1NoPrescale["L1_SingleJet100"]++;  
-
-    if((deterministic == 1) && ((map_iCountL1NoPrescale.find("L1_SingleJet100")->second) % map_Level1Prescl.find("L1_SingleJet100")->second != 0)) 
-      L1_SingleJet100 = 0; 
-  } it++;
-  if(L1_SingleJet15 == 1) { 
-    map_iCountL1NoPrescale["L1_SingleJet15"]++;  
-
-    if((deterministic == 1) && ((map_iCountL1NoPrescale.find("L1_SingleJet15")->second) % map_Level1Prescl.find("L1_SingleJet15")->second != 0)) 
-      L1_SingleJet15 = 0; 
-  } it++;
-  if(L1_SingleJet150 == 1) { 
-    map_iCountL1NoPrescale["L1_SingleJet150"]++;  
-
-    if((deterministic == 1) && ((map_iCountL1NoPrescale.find("L1_SingleJet150")->second) % map_Level1Prescl.find("L1_SingleJet150")->second != 0)) 
-      L1_SingleJet150 = 0; 
-  } it++;
-  if(L1_SingleJet200 == 1) { 
-    map_iCountL1NoPrescale["L1_SingleJet200"]++;  
-
-    if((deterministic == 1) && ((map_iCountL1NoPrescale.find("L1_SingleJet200")->second) % map_Level1Prescl.find("L1_SingleJet200")->second != 0)) 
-      L1_SingleJet200 = 0; 
-  } it++;
-  if(L1_SingleJet30 == 1) { 
-    map_iCountL1NoPrescale["L1_SingleJet30"]++;  
-
-    if((deterministic == 1) && ((map_iCountL1NoPrescale.find("L1_SingleJet30")->second) % map_Level1Prescl.find("L1_SingleJet30")->second != 0)) 
-      L1_SingleJet30 = 0; 
-  } it++;
-  if(L1_SingleJet50 == 1) { 
-    map_iCountL1NoPrescale["L1_SingleJet50"]++;  
-
-    if((deterministic == 1) && ((map_iCountL1NoPrescale.find("L1_SingleJet50")->second) % map_Level1Prescl.find("L1_SingleJet50")->second != 0)) 
-      L1_SingleJet50 = 0; 
-  } it++;
-  if(L1_SingleJet70 == 1) { 
-    map_iCountL1NoPrescale["L1_SingleJet70"]++;  
-
-    if((deterministic == 1) && ((map_iCountL1NoPrescale.find("L1_SingleJet70")->second) % map_Level1Prescl.find("L1_SingleJet70")->second != 0)) 
-      L1_SingleJet70 = 0; 
-  } it++;
-  if(L1_SingleMu10 == 1) { 
-    map_iCountL1NoPrescale["L1_SingleMu10"]++;  
-
-    if((deterministic == 1) && ((map_iCountL1NoPrescale.find("L1_SingleMu10")->second) % map_Level1Prescl.find("L1_SingleMu10")->second != 0)) 
-      L1_SingleMu10 = 0; 
-  } it++;
-  if(L1_SingleMu14 == 1) { 
-    map_iCountL1NoPrescale["L1_SingleMu14"]++;  
-
-    if((deterministic == 1) && ((map_iCountL1NoPrescale.find("L1_SingleMu14")->second) % map_Level1Prescl.find("L1_SingleMu14")->second != 0)) 
-      L1_SingleMu14 = 0; 
-  } it++;
-  if(L1_SingleMu20 == 1) { 
-    map_iCountL1NoPrescale["L1_SingleMu20"]++;  
-
-    if((deterministic == 1) && ((map_iCountL1NoPrescale.find("L1_SingleMu20")->second) % map_Level1Prescl.find("L1_SingleMu20")->second != 0)) 
-      L1_SingleMu20 = 0; 
-  } it++;
-  if(L1_SingleMu25 == 1) { 
-    map_iCountL1NoPrescale["L1_SingleMu25"]++;  
-
-    if((deterministic == 1) && ((map_iCountL1NoPrescale.find("L1_SingleMu25")->second) % map_Level1Prescl.find("L1_SingleMu25")->second != 0)) 
-      L1_SingleMu25 = 0; 
-  } it++;    
-  if(L1_SingleMu3 == 1) { 
-    map_iCountL1NoPrescale["L1_SingleMu3"]++;  
-
-    if((deterministic == 1) && ((map_iCountL1NoPrescale.find("L1_SingleMu3")->second) % map_Level1Prescl.find("L1_SingleMu3")->second != 0)) 
-      L1_SingleMu3 = 0; 
-  } it++;
-  if(L1_SingleMu5 == 1) { 
-    map_iCountL1NoPrescale["L1_SingleMu5"]++;  
-
-    if((deterministic == 1) && ((map_iCountL1NoPrescale.find("L1_SingleMu5")->second) % map_Level1Prescl.find("L1_SingleMu5")->second != 0)) 
-      L1_SingleMu5 = 0; 
-  } it++;
-  if(L1_SingleMu7 == 1) { 
-    map_iCountL1NoPrescale["L1_SingleMu7"]++;  
-
-    if((deterministic == 1) && ((map_iCountL1NoPrescale.find("L1_SingleMu7")->second) % map_Level1Prescl.find("L1_SingleMu7")->second != 0)) 
-      L1_SingleMu7 = 0; 
-  } it++;
-  if(L1_SingleTauJet10 == 1) { 
-    map_iCountL1NoPrescale["L1_SingleTauJet10"]++;  
-
-    if((deterministic == 1) && ((map_iCountL1NoPrescale.find("L1_SingleTauJet10")->second) % map_Level1Prescl.find("L1_SingleTauJet10")->second != 0)) 
-      L1_SingleTauJet10 = 0; 
-  } it++;
-  if(L1_SingleTauJet100 == 1) { 
-    map_iCountL1NoPrescale["L1_SingleTauJet100"]++;  
-
-    if((deterministic == 1) && ((map_iCountL1NoPrescale.find("L1_SingleTauJet100")->second) % map_Level1Prescl.find("L1_SingleTauJet100")->second != 0)) 
-      L1_SingleTauJet100 = 0; 
-  } it++;
-  if(L1_SingleTauJet20 == 1) { 
-    map_iCountL1NoPrescale["L1_SingleTauJet20"]++;  
-
-    if((deterministic == 1) && ((map_iCountL1NoPrescale.find("L1_SingleTauJet20")->second) % map_Level1Prescl.find("L1_SingleTauJet20")->second != 0)) 
-      L1_SingleTauJet20 = 0; 
-  } it++;
-  if(L1_SingleTauJet30 == 1) { 
-    map_iCountL1NoPrescale["L1_SingleTauJet30"]++;  
-
-    if((deterministic == 1) && ((map_iCountL1NoPrescale.find("L1_SingleTauJet30")->second) % map_Level1Prescl.find("L1_SingleTauJet30")->second != 0)) 
-      L1_SingleTauJet30 = 0; 
-  } it++;
-  if(L1_SingleTauJet40 == 1) { 
-    map_iCountL1NoPrescale["L1_SingleTauJet40"]++;  
-
-    if((deterministic == 1) && ((map_iCountL1NoPrescale.find("L1_SingleTauJet40")->second) % map_Level1Prescl.find("L1_SingleTauJet40")->second != 0)) 
-      L1_SingleTauJet40 = 0; 
-  } it++;
-  if(L1_SingleTauJet60 == 1) { 
-    map_iCountL1NoPrescale["L1_SingleTauJet60"]++;  
-
-    if((deterministic == 1) && ((map_iCountL1NoPrescale.find("L1_SingleTauJet60")->second) % map_Level1Prescl.find("L1_SingleTauJet60")->second != 0)) 
-      L1_SingleTauJet60 = 0; 
-  } it++;
-  if(L1_SingleTauJet80 == 1) { 
-    map_iCountL1NoPrescale["L1_SingleTauJet80"]++;  
-
-    if((deterministic == 1) && ((map_iCountL1NoPrescale.find("L1_SingleTauJet80")->second) % map_Level1Prescl.find("L1_SingleTauJet80")->second != 0)) 
-      L1_SingleTauJet80 = 0; 
-  } it++;
-  if(L1_TauJet30_ETM30 == 1) { 
-    map_iCountL1NoPrescale["L1_TauJet30_ETM30"]++;  
-
-    if((deterministic == 1) && ((map_iCountL1NoPrescale.find("L1_TauJet30_ETM30")->second) % map_Level1Prescl.find("L1_TauJet30_ETM30")->second != 0)) 
-      L1_TauJet30_ETM30 = 0; 
-  } it++;
-  if(L1_TauJet30_ETM40 == 1) { 
-    map_iCountL1NoPrescale["L1_TauJet30_ETM40"]++;  
-
-    if((deterministic == 1) && ((map_iCountL1NoPrescale.find("L1_TauJet30_ETM40")->second) % map_Level1Prescl.find("L1_TauJet30_ETM40")->second != 0)) 
-      L1_TauJet30_ETM40 = 0; 
-  } it++;
-  if(L1_TripleJet50 == 1) { 
-    map_iCountL1NoPrescale["L1_TripleJet50"]++;  
-
-    if((deterministic == 1) && ((map_iCountL1NoPrescale.find("L1_TripleJet50")->second) % map_Level1Prescl.find("L1_TripleJet50")->second != 0)) 
-      L1_TripleJet50 = 0; 
-  } it++;
-  if(L1_TripleMu3 == 1) { 
-    map_iCountL1NoPrescale["L1_TripleMu3"]++;  
-
-    if((deterministic == 1) && ((map_iCountL1NoPrescale.find("L1_TripleMu3")->second) % map_Level1Prescl.find("L1_TripleMu3")->second != 0)) 
-      L1_TripleMu3 = 0; 
-  } it++;
-  if(L1_VBF_DoubleTauHad == 1) { 
-    map_iCountL1NoPrescale["L1_VBF_DoubleTauHad"]++;  
-
-    if((deterministic == 1) && ((map_iCountL1NoPrescale.find("L1_VBF_DoubleTauHad")->second) % map_Level1Prescl.find("L1_VBF_DoubleTauHad")->second != 0)) 
-      L1_VBF_DoubleTauHad = 0; 
-  } it++;
-  if(L1_VBF_ETM50 == 1) { 
-    map_iCountL1NoPrescale["L1_VBF_ETM50"]++;  
-
-    if((deterministic == 1) && ((map_iCountL1NoPrescale.find("L1_VBF_ETM50")->second) % map_Level1Prescl.find("L1_VBF_ETM50")->second != 0)) 
-      L1_VBF_ETM50 = 0; 
-  } it++;
-  if(L1_VBF_ETM50_veto == 1) { 
-    map_iCountL1NoPrescale["L1_VBF_ETM50_veto"]++;  
-
-    if((deterministic == 1) && ((map_iCountL1NoPrescale.find("L1_VBF_ETM50_veto")->second) % map_Level1Prescl.find("L1_VBF_ETM50_veto")->second != 0)) 
-      L1_VBF_ETM50_veto = 0; 
-  } it++;    
-  if(L1_VBF_IsoEG10_Tau_TauHad == 1) { 
-    map_iCountL1NoPrescale["L1_VBF_IsoEG10_Tau_TauHad"]++;  
-
-    if((deterministic == 1) && ((map_iCountL1NoPrescale.find("L1_VBF_IsoEG10_Tau_TauHad")->second) % map_Level1Prescl.find("L1_VBF_IsoEG10_Tau_TauHad")->second != 0)) 
-      L1_VBF_IsoEG10_Tau_TauHad = 0; 
-  } it++;
-  if(L1_VBF_IsoEG15 == 1) { 
-    map_iCountL1NoPrescale["L1_VBF_IsoEG15"]++;  
-
-    if((deterministic == 1) && ((map_iCountL1NoPrescale.find("L1_VBF_IsoEG15")->second) % map_Level1Prescl.find("L1_VBF_IsoEG15")->second != 0)) 
-      L1_VBF_IsoEG15 = 0; 
-  } it++;
-  if(L1_VBF_Mu10 == 1) { 
-    map_iCountL1NoPrescale["L1_VBF_Mu10"]++;  
-
-    if((deterministic == 1) && ((map_iCountL1NoPrescale.find("L1_VBF_Mu10")->second) % map_Level1Prescl.find("L1_VBF_Mu10")->second != 0)) 
-      L1_VBF_Mu10 = 0; 
-  } it++;
-  if(L1_VBF_Mu7_Tau_TauHad == 1) { 
-    map_iCountL1NoPrescale["L1_VBF_Mu7_Tau_TauHad"]++;  
-
-    if((deterministic == 1) && ((map_iCountL1NoPrescale.find("L1_VBF_Mu7_Tau_TauHad")->second) % map_Level1Prescl.find("L1_VBF_Mu7_Tau_TauHad")->second != 0)) 
-      L1_VBF_Mu7_Tau_TauHad = 0; 
-  } it++;
-  if(L1_VBF_QuadJet == 1) { 
-    map_iCountL1NoPrescale["L1_VBF_QuadJet"]++;  
-
-    if((deterministic == 1) && ((map_iCountL1NoPrescale.find("L1_VBF_QuadJet")->second) % map_Level1Prescl.find("L1_VBF_QuadJet")->second != 0)) 
-      L1_VBF_QuadJet = 0; 
-  } it++;
-  if(L1_SingleMuOpen == 1) {  
-    map_iCountL1NoPrescale["L1_SingleMuOpen"]++;   
-
-    if((deterministic == 1) && ((map_iCountL1NoPrescale.find("L1_SingleMuOpen")->second) % map_Level1Prescl.find("L1_SingleMuOpen")->second != 0))  
-      L1_SingleMuOpen = 0;
-  } it++; 
-  if(L1_SingleMuBeamHalo == 1) {  
-    map_iCountL1NoPrescale["L1_SingleMuBeamHalo"]++;   
-
-    if((deterministic == 1) && ((map_iCountL1NoPrescale.find("L1_SingleMuBeamHalo")->second) % map_Level1Prescl.find("L1_SingleMuBeamHalo")->second != 0))  
-      L1_SingleMuBeamHalo = 0;
-  } it++; 
-  if(L1_SingleEG2 == 1) {  
-    map_iCountL1NoPrescale["L1_SingleEG2"]++;   
-
-    if((deterministic == 1) && ((map_iCountL1NoPrescale.find("L1_SingleEG2")->second) % map_Level1Prescl.find("L1_SingleEG2")->second != 0))  
-      L1_SingleEG2 = 0;
-  } it++; 
-  if(L1_DoubleEG1 == 1) {  
-    map_iCountL1NoPrescale["L1_DoubleEG1"]++;   
-
-    if((deterministic == 1) && ((map_iCountL1NoPrescale.find("L1_DoubleEG1")->second) % map_Level1Prescl.find("L1_DoubleEG1")->second != 0))  
-      L1_DoubleEG1 = 0;
-  } it++; 
-  if(L1_QuadJet15 == 1) {  
-    map_iCountL1NoPrescale["L1_QuadJet15"]++;   
-
-    if((deterministic == 1) && ((map_iCountL1NoPrescale.find("L1_QuadJet15")->second) % map_Level1Prescl.find("L1_QuadJet15")->second != 0))  
-      L1_QuadJet15 = 0;
-  } it++; 
-  if(L1_QuadJet30 == 1) {  
-    map_iCountL1NoPrescale["L1_QuadJet30"]++;   
-
-    if((deterministic == 1) && ((map_iCountL1NoPrescale.find("L1_QuadJet30")->second) % map_Level1Prescl.find("L1_QuadJet30")->second != 0))  
-      L1_QuadJet30 = 0;
-  } it++; 
-  if(L1_ETM30 == 1) {  
-    map_iCountL1NoPrescale["L1_ETM30"]++;   
-
-    if((deterministic == 1) && ((map_iCountL1NoPrescale.find("L1_ETM30")->second) % map_Level1Prescl.find("L1_ETM30")->second != 0))  
-      L1_ETM30 = 0;
-  } it++; 
-  if(L1_EG5_TripleJet15 == 1) {  
-    map_iCountL1NoPrescale["L1_EG5_TripleJet15"]++;   
-
-    if((deterministic == 1) && ((map_iCountL1NoPrescale.find("L1_EG5_TripleJet15")->second) % map_Level1Prescl.find("L1_EG5_TripleJet15")->second != 0))  
-      L1_EG5_TripleJet15 = 0;
-  } it++; 
-  if(L1_Mu3_TripleJet15 == 1) {  
-    map_iCountL1NoPrescale["L1_Mu3_TripleJet15"]++;   
-
-    if((deterministic == 1) && ((map_iCountL1NoPrescale.find("L1_Mu3_TripleJet15")->second) % map_Level1Prescl.find("L1_Mu3_TripleJet15")->second != 0))  
-      L1_Mu3_TripleJet15 = 0;
-  } it++; 
-  if(L1_SingleJetCountsHFTow == 1) {  
-    map_iCountL1NoPrescale["L1_SingleJetCountsHFTow"]++;   
-
-    if((deterministic == 1) && ((map_iCountL1NoPrescale.find("L1_SingleJetCountsHFTow")->second) % map_Level1Prescl.find("L1_SingleJetCountsHFTow")->second != 0))  
-      L1_SingleJetCountsHFTow = 0;
-  } it++; 
-  if(L1_DoubleJetCountsHFTow == 1) {  
-    map_iCountL1NoPrescale["L1_DoubleJetCountsHFTow"]++;   
-
-    if((deterministic == 1) && ((map_iCountL1NoPrescale.find("L1_DoubleJetCountsHFTow")->second) % map_Level1Prescl.find("L1_DoubleJetCountsHFTow")->second != 0))  
-      L1_DoubleJetCountsHFTow = 0;
-  } it++; 
-  if(L1_SingleJetCountsHFRing0Sum3 == 1) {  
-    map_iCountL1NoPrescale["L1_SingleJetCountsHFRing0Sum3"]++;   
-
-    if((deterministic == 1) && ((map_iCountL1NoPrescale.find("L1_SingleJetCountsHFRing0Sum3")->second) % map_Level1Prescl.find("L1_SingleJetCountsHFRing0Sum3")->second != 0))  
-      L1_SingleJetCountsHFRing0Sum3 = 0;
-  } it++; 
-  if(L1_DoubleJetCountsHFRing0Sum3 == 1) {  
-    map_iCountL1NoPrescale["L1_DoubleJetCountsHFRing0Sum3"]++;   
-
-    if((deterministic == 1) && ((map_iCountL1NoPrescale.find("L1_DoubleJetCountsHFRing0Sum3")->second) % map_Level1Prescl.find("L1_DoubleJetCountsHFRing0Sum3")->second != 0))  
-      L1_DoubleJetCountsHFRing0Sum3 = 0;
-  } it++; 
-  if(L1_SingleJetCountsHFRing0Sum6 == 1) {  
-    map_iCountL1NoPrescale["L1_SingleJetCountsHFRing0Sum6"]++;   
-
-    if((deterministic == 1) && ((map_iCountL1NoPrescale.find("L1_SingleJetCountsHFRing0Sum6")->second) % map_Level1Prescl.find("L1_SingleJetCountsHFRing0Sum6")->second != 0))  
-      L1_SingleJetCountsHFRing0Sum6 = 0;
-  } it++; 
-  if(L1_DoubleJetCountsHFRing0Sum6 == 1) {  
-    map_iCountL1NoPrescale["L1_DoubleJetCountsHFRing0Sum6"]++;   
-
-    if((deterministic == 1) && ((map_iCountL1NoPrescale.find("L1_DoubleJetCountsHFRing0Sum6")->second) % map_Level1Prescl.find("L1_DoubleJetCountsHFRing0Sum6")->second != 0))  
-      L1_DoubleJetCountsHFRing0Sum6 = 0;  
-  } it++; 
-  if(L1_ZeroBias == 1) { 
-    map_iCountL1NoPrescale["L1_ZeroBias"]++;  
-
-    if((deterministic == 1) && ((map_iCountL1NoPrescale.find("L1_ZeroBias")->second) % map_Level1Prescl.find("L1_ZeroBias")->second != 0)) 
-      L1_ZeroBias = 0; 
+void OHltTree::SetMapL1BitOfStandardHLTPath() {
+  typedef vector<TString> myvec;
+  typedef pair< TString, vector<TString> > mypair;
+  typedef map< TString, vector<TString> >  mymap;
+  
+  for(mymap::const_iterator it = map_L1SeedsOfStandardHLTPath.begin();
+      it != map_L1SeedsOfStandardHLTPath.end(); ++it) {
+    map_L1BitOfStandardHLTPath[it->first] = 0;
+    for (unsigned int j=0;j<it->second.size();j++) {
+      //cout<<(it->second)[j]<<endl;
+      map_L1BitOfStandardHLTPath[it->first] += map_BitOfStandardHLTPath.find((it->second)[j])->second;
+    }
   }
+}
+
+void OHltTree::ApplyL1Prescales(OHltMenu *menu)
+{
+  for (unsigned int i=0;i<menu->GetL1TriggerSize();i++) {
+    if (map_BitOfStandardHLTPath.find(menu->GetL1TriggerName(i))->second == 1) {
+      if (GetIntRandom() % menu->GetL1Prescale(i) != 0) {
+	map_BitOfStandardHLTPath[menu->GetL1TriggerName(i)] = 0;	
+      }
+    }
+  }
+  
 }
 
 Bool_t OHltTree::Notify()
@@ -3676,19 +2027,6 @@ Bool_t OHltTree::Notify()
 
   return kTRUE;
 }
-
-void OHltTree::Show(Long64_t entry)
-{
-  // Print contents of entry.
-  // If entry is not specified, print current entry
-  if (!fChain) return;
-  fChain->Show(entry);
-}
-Int_t OHltTree::Cut(Long64_t entry)
-{
-  // This function may be called from Loop.
-  // returns  1 if entry is accepted.
-  // returns -1 otherwise.
-  return 1;
-}
 #endif // #ifdef OHltTree_cxx
+
+#endif // #ifdef OHltTree_h

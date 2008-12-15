@@ -1,69 +1,64 @@
 //////////////////////////////////////////////////////////
-// Class to hold Open HLT Menu
-// in form of maps b/w path names and L1Bits, Thresholds, 
-// Descriptions, Prescales.
-// Author:  Vladimir Rekovic (UMN)   Date: Mar, 2008
+// L1/HLT Menu Class
 //////////////////////////////////////////////////////////
 
 #ifndef OHltMenu_h
 #define OHltMenu_h
 
+#include <iostream>
 #include <vector>
 #include <map>
 #include <TROOT.h>
 
 class OHltMenu {
  public:
+  OHltMenu() {SetMapL1SeedsOfStandardHLTPath();}
+  OHltMenu(bool isL1) { isL1Menu = isL1; }
+  virtual ~OHltMenu() {};
 
-  std::vector<TString> 		hlts;
-  std::map<TString,TString> 	hltL1Bit;
-  std::map<TString,TString> 	hltThreshold;
-  std::map<TString,TString> 	hltDescription;
-  std::map<TString,TString> 	l1Prescale;	
-  std::map<TString,int> 	hltPrescale;	
-  std::map<TString,int> 	totalPrescale;	
-  std::map<TString,double>      eventSize;
-  std::map<TString,int> 	hltmulele;	
-  std::map<TString,int> 	hltmulpho;	
-  std::map<TString,int> 	hltmulmu;	
-  std::map<TString,int> 	hltmuljets;	
-  std::map<TString,int> 	hltmulmet;	
-  std::vector<TString>          levelones;
-  std::map<TString,int>         levelonePrescale;
-  std::map<TString,int>         unprescaledl1counter;
+  inline bool 		                DoL1preLoop()  {return doL1preloop;}
+  inline bool 		                IsL1Menu()  {return isL1Menu;}
+  inline bool 		                IsHltMenu()  {return !isL1Menu;}
 
-  OHltMenu();
-  virtual ~OHltMenu() { };
+  inline unsigned int 		        GetTriggerSize()  {return names.size();}
+  inline std::vector<TString> 		GetTriggerNames() {return names;}
+  inline TString  		        GetTriggerName(int i) {return names[i];}
+  inline std::map<TString,int> 		GetPrescaleMap()  {return prescales;}
+  inline int 		                GetPrescale(int i)  {return prescales[names[i]];}
+  inline int 		                GetPrescale(TString s)  {return prescales[s];}
+  inline std::map<TString,float>        GetEventsizeMap() {return eventSizes;}
+  inline float                          GetEventsize(int i) {return eventSizes[names[i]];}
 
-  inline std::vector<TString> 			GetHlts() {return hlts;}
-  inline std::map<TString,TString> 		GetHltL1BitMap() {return hltL1Bit;}
-  inline std::map<TString,TString> 		GetHltThresholdMap() {return hltThreshold;}
-  inline std::map<TString,TString> 		GetHltDescriptionMap() {return hltDescription;}
-  inline std::map<TString,TString>		GetL1PrescaleMap() {return l1Prescale;}
-  inline std::map<TString,int>		      	GetHltPrescaleMap() {return hltPrescale;}
-  inline std::map<TString,int>		      	GetTotalPrescaleMap() {return totalPrescale;}
-  inline std::map<TString,int>                  GetL1UnprescaledCounter() {return unprescaledl1counter;}
-  inline std::map<TString,double>               GetEventsizeMap() {return eventSize;}
-  inline std::map<TString,int>                  GetMultEleMap() {return hltmulele;}
-  inline std::map<TString,int>                  GetMultPhoMap() {return hltmulpho;}
-  inline std::map<TString,int>                  GetMultMuMap() {return hltmulmu;}
-  inline std::map<TString,int>                  GetMultJetsMap() {return hltmuljets;}
-  inline std::map<TString,int>                  GetMultMETMap() {return hltmulmet;}
-  inline std::vector<TString>                   GetAllL1s() {return levelones;} 
-  inline std::map<TString,int>                  GetAllL1PrescaleMap() {return levelonePrescale;}
+  void SetMapL1SeedsOfStandardHLTPath();
+  std::map<TString, std::vector<TString> >
+    GetL1SeedsOfHLTPathMap() { return map_L1SeedsOfStandardHLTPath; }; // mapping to all seeds
 
-  void AddHlt(TString trig, TString l1Bit, int prescale, TString threshold, TString desc);
-  void AddHlt(TString trig, TString l1Bit, int l1prescale, int hltprescale, TString threshold, TString desc);
-  void AddHlt(TString trig, TString l1Bit, int l1prescale, int hltprescale, TString threshold, TString desc, double eventsize, int multele, int multpho, int multmu, int multjet, int multmet);
-  void AddHlt(TString trig, TString l1Bit, TString l1prescale, int hltprescale, TString threshold, TString desc, double eventsize, int multele, int multpho, int multmu, int multjets, int multmet); 
-  void AddL1(TString trig, int l1prescale);
+  void AddTrigger(TString trigname, int prescale, float eventSize);
+  void SetIsL1Menu(bool isL1) {isL1Menu=isL1;};
+  void SetDoL1preloop(bool doL1prel) {doL1preloop=doL1prel;};
+  void print();
+
+  // For L1 prescale preloop to be used in HLT mode only
+  void AddL1forPreLoop(TString trigname, int prescale); 
+  inline unsigned int 		        GetL1TriggerSize()  {return L1names.size();}
+  inline std::vector<TString> 		GetL1Names() {return L1names;}
+  inline TString  		        GetL1TriggerName(int i) {return L1names[i];}
+  inline std::map<TString,int> 		GetL1PrescaleMap() {return L1prescales;}
+  inline int                		GetL1Prescale(int i) {return L1prescales[L1names[i]];}
+  inline int                		GetL1Prescale(TString s) {return L1prescales[s];}
+
+ private:
+  bool isL1Menu;  // if false: is HLTMenu
+  bool doL1preloop;  // if false: is HLTMenu
+  std::vector<TString> 		names;
+  std::map<TString,float>       eventSizes;
+  std::map<TString,int> 	prescales;	
+
+  // For L1 prescale preloop to be used in HLT mode only
+  std::vector<TString> 		L1names;
+  std::map<TString,int> 	L1prescales;	
+
+  std::map<TString, std::vector<TString> > map_L1SeedsOfStandardHLTPath; // mapping to all seeds
+
 };
 #endif
-
-#ifdef OHltMenu_cxx
-OHltMenu::OHltMenu() {
-
-}
-
-#endif
-
