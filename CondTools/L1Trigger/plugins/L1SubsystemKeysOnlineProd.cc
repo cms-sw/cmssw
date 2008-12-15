@@ -13,7 +13,7 @@
 //
 // Original Author:  Werner Man-Li Sun
 //         Created:  Thu Aug 21 20:00:59 CEST 2008
-// $Id: L1SubsystemKeysOnlineProd.cc,v 1.2 2008/09/30 20:32:36 wsun Exp $
+// $Id: L1SubsystemKeysOnlineProd.cc,v 1.3 2008/10/13 01:46:36 wsun Exp $
 //
 //
 
@@ -157,9 +157,10 @@ L1SubsystemKeysOnlineProd::produce(const L1TriggerKeyRcd& iRecord)
        pL1TriggerKey->setSubsystemKey( L1TriggerKey::kGT, gtKey ) ;
        edm::LogVerbatim( "L1-O2O" ) << "GT_KEY " << gtKey ;
 
-//        std::string tsp0Key = row[ "TSP0_KEY" ].data< std::string >() ;
-//        pL1TriggerKey->setSubsystemKey( L1TriggerKey::kTSP0, tsp0Key ) ;
-//        edm::LogVerbatim( "L1-O2O" ) << "TSP0_KEY " << tsp0Key ;
+       //       std::string tsp0Key = row[ "TSP0_KEY" ].data< std::string >() ;
+       std::string tsp0Key ;
+       pL1TriggerKey->setSubsystemKey( L1TriggerKey::kTSP0, tsp0Key ) ;
+       edm::LogVerbatim( "L1-O2O" ) << "TSP0_KEY " << tsp0Key ;
    }
    else
    {
