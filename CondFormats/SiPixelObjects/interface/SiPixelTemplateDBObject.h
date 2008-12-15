@@ -12,7 +12,7 @@
 
 class SiPixelTemplateDBObject {
 public:
-	SiPixelTemplateDBObject():index_(0),maxIndex_(0),numOfTempl_(1),isInvalid_(false),sVector_(0) {
+	SiPixelTemplateDBObject():index_(0),maxIndex_(0),numOfTempl_(1),version_(-99.9),isInvalid_(false),sVector_(0) {
 		sVector_.reserve(1000000);
 	}
 	virtual ~SiPixelTemplateDBObject(){}
@@ -49,12 +49,14 @@ public:
 		}
 
 	//- Functions to monitor integrity of dbobject
+	void setVersion(float version) {version_ = version;}
 	void setInvalid() {isInvalid_ = true;}
 	bool fail() {return isInvalid_;}
 	
 	//- Accessor functions
 	int index() {return index_;}
 	int numOfTempl() {return numOfTempl_;}
+	float version() const  {return version_;}
 	std::vector<float> sVector() {return sVector_;}
 
 	//- Able to set the index for template header 
@@ -97,6 +99,7 @@ private:
   int index_;
 	int maxIndex_;
 	int numOfTempl_;
+	float version_;
 	bool isInvalid_;
 	std::vector<float> sVector_;
 	std::map<unsigned int,short> templ_ID;

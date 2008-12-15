@@ -666,7 +666,7 @@ bool SiPixelTemplate::pushfile(const SiPixelTemplateDBObject& dbobject)
 	// Add template stored in external dbobject to theTemplateStore
     
 	// Local variables 
-	int i, j, k, l;
+	int i, j, k, l, m;
 	const char *tempfile;
 	char title[80];
 	char c;
@@ -679,7 +679,7 @@ bool SiPixelTemplate::pushfile(const SiPixelTemplateDBObject& dbobject)
 	SiPixelTemplateStore theCurrentTemp;
 
 	// Fill the template storage for each template calibration stored in the db
-	for(int m=0; m<db.numOfTempl(); ++m)
+	for(m=0; m<db.numOfTempl(); ++m)
 	{
 			
 // Read-in a header string first and print it    

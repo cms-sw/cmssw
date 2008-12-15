@@ -12,12 +12,13 @@ SiPixelTemplateDBObject::fillDB(const vstring& atitles){
 	
 	// Local variables 
 	const char *tempfile;
-
+	int m;
+	
 	// Set the number of templates to be passed to the dbobject
 	numOfTempl_ = atitles.size();
-
+	
 	//  open the template file(s) 
-	for(int m=0; m<numOfTempl_; ++m){
+	for(m=0; m<numOfTempl_; ++m){
 
 		std::ostringstream tout;
 		tout << "RecoLocalTracker/SiPixelRecHits/data/template_summary_zp" 
@@ -36,7 +37,7 @@ SiPixelTemplateDBObject::fillDB(const vstring& atitles){
 		char title_char[80], c;
 		char2float temp;
 		float tempstore;
-		int iter = 0;
+		int iter,j;
 
 		// Templates contain a header char - we must be clever about storing this
 		for (iter = 0; (c=in_file.get()) != '\n'; ++iter) {
@@ -45,7 +46,7 @@ SiPixelTemplateDBObject::fillDB(const vstring& atitles){
 		if(iter > 78) {iter=78;}
 		title_char[iter+1] ='\n';
 
-		for(int j=0; j<80; j+=4) {
+		for(j=0; j<80; j+=4) {
 			temp.c[0] = title_char[j];
 			temp.c[1] = title_char[j+1];
 			temp.c[2] = title_char[j+2];
@@ -74,16 +75,25 @@ SiPixelTemplateDBObject::fillDB(const vstring& atitles){
 }
 
 std::ostream& operator<<(std::ostream& s, const SiPixelTemplateDBObject& dbobject){
+	//!-index to keep track of where we are in the object
 	int index = 0;
+	//!-these are modifiable parameters for the extended templates
 	int txsize = 13, tysize = 21;
+	//!-entries takes the number of entries in By,Bx,Fy,Fx from the object
 	int entries[4] = {0};
-	for(int m=0; m < dbobject.numOfTempl_; ++m) 
+	//!-local indicies for loops
+	int i,j,k,l,m,n,entry_it;
+	
+
+	std::cout << "DBobject version: " << dbobject.version() << std::endl;
+
+	for(m=0; m < dbobject.numOfTempl_; ++m) 
 	{
 		std::cout << "\n\n*********************************************************************************************" << std::endl;
 		std::cout << "***************                  Reading Template ID " << dbobject.sVector_[index+20] << "\t(" << m+1 << "/" << dbobject.numOfTempl_ <<")                 ***************" << std::endl;
 		std::cout << "*********************************************************************************************\n\n" << std::endl;
 		SiPixelTemplateDBObject::char2float temp;
-		for (int n=0; n < 20; ++n) {
+		for (n=0; n < 20; ++n) {
 			temp.f = dbobject.sVector_[index];
 			s << temp.c[0] << temp.c[1] << temp.c[2] << temp.c[3];
 			++index;
@@ -101,8 +111,8 @@ std::ostream& operator<<(std::ostream& s, const SiPixelTemplateDBObject& dbobjec
 		  << "\t" << dbobject.sVector_[index+12] << "\t" << dbobject.sVector_[index+13] << std::endl;
 		index += 14;
 	
-		for(int entry_it=0;entry_it<4;++entry_it) {
-			for(int i=0;i < entries[entry_it];++i)
+		for(entry_it=0;entry_it<4;++entry_it) {
+			for(i=0;i < entries[entry_it];++i)
 			{
 				s         << dbobject.sVector_[index]    << "\t" << dbobject.sVector_[index+1]  << "\t" << dbobject.sVector_[index+2]
 					<< "\t" << dbobject.sVector_[index+3]  << "\n" << dbobject.sVector_[index+4]  << "\t" << dbobject.sVector_[index+5]
@@ -112,83 +122,83 @@ std::ostream& operator<<(std::ostream& s, const SiPixelTemplateDBObject& dbobjec
 					<< "\t" << dbobject.sVector_[index+15] << "\t" << dbobject.sVector_[index+16] << "\t" << dbobject.sVector_[index+17]
 					<< "\t" << dbobject.sVector_[index+18] << std::endl;
 				index+=19;
-				for(int j=0;j<2;++j)
+				for(j=0;j<2;++j)
 				{
-					for(int k=0;k<5;++k)
+					for(k=0;k<5;++k)
 					{
 						s << dbobject.sVector_[index] << "\t";
 						++index;
 					}
 					s << std::endl;
 				}
-				for(int j=0;j<9;++j)
+				for(j=0;j<9;++j)
 				{
-					for(int k=0;k<tysize;++k)
+					for(k=0;k<tysize;++k)
 					{
 						s << dbobject.sVector_[index] << "\t";
 						++index;
 					}
 					s << std::endl;
 				}
-				for(int j=0;j<2;++j)
+				for(j=0;j<2;++j)
 				{
-					for(int k=0;k<5;++k)
+					for(k=0;k<5;++k)
 					{
 						s << dbobject.sVector_[index] << "\t";
 						++index;
 					}
 					s << std::endl;
 				}
-				for(int j=0;j<9;++j)
+				for(j=0;j<9;++j)
 				{
-					for(int k=0;k<txsize;++k)
+					for(k=0;k<txsize;++k)
 					{
 						s << dbobject.sVector_[index] << "\t";
 						++index;
 					}
 					s << std::endl;
 				}
-				for(int j=0;j<4;++j)
+				for(j=0;j<4;++j)
 				{
-					for(int k=0;k<4;++k)
+					for(k=0;k<4;++k)
 					{
 						s << dbobject.sVector_[index] << "\t";
 						++index;
 					}
 					s << std::endl;
 				}
-				for(int j=0;j<4;++j)
+				for(j=0;j<4;++j)
 				{
-					for(int k=0;k<6;++k)
+					for(k=0;k<6;++k)
 					{
 						s << dbobject.sVector_[index] << "\t";
 						++index;
 					}
 					s << std::endl;
 				}
-				for(int j=0;j<4;++j)
+				for(j=0;j<4;++j)
 				{
-					for(int k=0;k<4;++k)
+					for(k=0;k<4;++k)
 					{
 						s << dbobject.sVector_[index] << "\t";
 						++index;
 					}
 					s << std::endl;
 				}
-				for(int j=0;j<4;++j)
+				for(j=0;j<4;++j)
 				{
-					for(int k=0;k<6;++k)
+					for(k=0;k<6;++k)
 					{
 						s << dbobject.sVector_[index] << "\t";
 						++index;
 					}
 					s << std::endl;
 				}
-				for(int j=0;j<4;++j)
+				for(j=0;j<4;++j)
 				{
-					for(int k=0;k<2;++k)
+					for(k=0;k<2;++k)
 					{
-						for(int l=0;l<2;++l)
+						for(l=0;l<2;++l)
 						{
 							s << dbobject.sVector_[index] << "\t";
 							++index;
@@ -196,25 +206,25 @@ std::ostream& operator<<(std::ostream& s, const SiPixelTemplateDBObject& dbobjec
 					}
 					s << std::endl;
 				}
-				for(int j=0;j<4;++j)
+				for(j=0;j<4;++j)
 				{
-					for(int k=0;k<4;++k)
+					for(k=0;k<4;++k)
 					{
 						s << dbobject.sVector_[index] << "\t";
 						++index;
 					}
 					s << std::endl;
 				}
-				for(int j=0;j<4;++j)
+				for(j=0;j<4;++j)
 				{
-					for(int k=0;k<4;++k)
+					for(k=0;k<4;++k)
 					{
 						s << dbobject.sVector_[index] << "\t";
 						++index;
 					}
 					s << std::endl;
 				}
-				for(int j=0;j<20;++j)
+				for(j=0;j<20;++j)
 				{
 					s << dbobject.sVector_[index] << "\t";
 					++index;
