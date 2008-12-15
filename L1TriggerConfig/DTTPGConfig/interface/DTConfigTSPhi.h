@@ -47,23 +47,14 @@ class DTConfigTSPhi : public DTConfig {
   //! Constant: maximum number of TSS in input to a single TSMD
   static const int NTSSTSMD = 3;
 
-  //! Constant: default TS mask parameter;
-  static const int default_tsmsk = 312;
-
-  //! Constant: default Ghost Suppression Option (1/2) parameter;
-  static const int default_gs = 1;
-
-  //! Constant: default handling of 2nd track parameter;
-  static const int default_hsp = 1;  
-
-  //! Constant: default tsmword parameter;
-  static const int default_tsmword = 255;
-  
   //! Constructor
   DTConfigTSPhi(const edm:: ParameterSet& ps);
 
   //! Constructor
   DTConfigTSPhi() {};
+
+  //! Constructor 
+  DTConfigTSPhi(bool debug, unsigned short int tss_buffer[7][31], int ntss, unsigned short int tsm_buffer[9]);
 
   //! Destructor
   ~DTConfigTSPhi();
@@ -150,13 +141,92 @@ class DTConfigTSPhi : public DTConfig {
   //! Return the max nb. of TSSs in input to a single TSMD (called ONLY in back-up mode)
   int TSSinTSMD(int stat, int sect);
 
+  // Set Methods
+  //! Set debug flag
+  inline void setDebug(bool debug) { m_debug=debug; }
+
+  //! Order of quality bits in TSS for sort1/2
+  void  setTssMasking(unsigned short int tssmsk, int i);
+ 
+  //! Enable Htrig checking in TSS for sort1/2
+  inline void  setTssHtrigEna(bool tsshte, int i) { m_tsshte[i-1] = tsshte; }
+
+  //! Enable Htrig checking in TSS for carry
+  inline void  setTssHtrigEnaCarry(bool tsshte) { m_tsshte[2] = tsshte; }
+  
+  //! Enable Inner SL checking in TSS for sort1/2
+  inline void  setTssInOutEna(bool tssnoe, int i) { m_tssnoe[i-1] = tssnoe; }
+  
+  //! Enable Inner SL checking in TSS for carry
+  inline void  setTssInOutEnaCarry(bool tssnoe) { m_tssnoe[2] = tssnoe; }
+  
+  //! Enable Correlation checking in TSS for sort1/2
+  inline void  setTssCorrEna(bool tsscce, int i) { m_tsscce[i-1] = tsscce; }
+  
+  //! Enable Correlation checking in TSS for
+  inline void  setTssCorrEnaCarry(bool tsscce) { m_tsscce[2] = tsscce; }
+  
+  //! Order of quality bits in TSM for sort1/2
+  void setTsmMasking(unsigned short int tsmmsk, int i);
+  
+  //! Enable Htrig checking in TSM for sort1/2
+  inline void setTsmHtrigEna(bool tsmhte, int i) { m_tsmhte[i-1] = tsmhte; }
+  
+  //! Enable Htrig checking in TSM for carry
+  inline void setTsmHtrigEnaCarry(bool tsmhte) { m_tsmhte[2] = tsmhte; }
+  
+  //! Enable Inner SL checking in TSM for sort1/2
+  inline void setTsmInOutEna(bool tsmnoe, int i) { m_tsmnoe[i-1] = tsmnoe; }
+  
+  //! Enable Inner SL checking in TSM for carry
+  inline void setTsmInOutEnaCarry(bool tsmnoe) { m_tsmnoe[2] = tsmnoe; }
+  
+  //! Enable Correlation checking in TSM  for sort1/2
+  inline void setTsmCorrEna(bool tsmcce, int i) { m_tsmcce[i-1] = tsmcce; }
+    
+  //! Enable Correlation checking in TSM  for carry
+  inline void setTsmCorrEnaCarry(bool tsmcce) { m_tsmcce[2] = tsmcce; }
+    
+  //! Ghost 1 suppression option in TSS
+  inline void setTssGhost1Flag(unsigned short tssgs1) { m_tssgs1 = tssgs1; }
+  
+  //! Ghost 2 suppression option in TSS
+  inline void setTssGhost2Flag(unsigned short tssgs2) { m_tssgs2 = tssgs2; }
+
+  //! Ghost 1 suppression option in TSM
+  inline void setTsmGhost1Flag(unsigned short tsmgs1) { m_tsmgs1 = tsmgs1; }
+  
+  //! Ghost 2 suppression option in TSM
+  inline void setTsmGhost2Flag(unsigned short tsmgs2) { m_tsmgs2 = tsmgs2; }
+  
+  //! Correlated ghost 1 suppression option in TSS
+  inline void setTssGhost1Corr(bool tsscgs1) { m_tsscgs1 = tsscgs1; }
+  
+  //! Correlated ghost 2 suppression option in TSS
+  inline void setTssGhost2Corr(bool tsscgs2) { m_tsscgs2 = tsscgs2; }
+
+  //! Correlated ghost 1 suppression option in TSM
+  inline void setTsmGhost1Corr(bool tsmcgs1) { m_tsmcgs1 = tsmcgs1; }
+  
+  //! Correlated ghost 2 suppression option in TSM
+  inline void setTsmGhost2Corr(bool tsmcgs2) { m_tsmcgs2 = tsmcgs2; }
+
+  //! Handling of second track (carry) in case of pile-up, in TSM 
+  inline void setTsmCarryFlag(unsigned short tsmhsp) { m_tsmhsp = tsmhsp; }
+
+  //! Enabled TRACOs in TS
+  inline void setUsedTraco(int i, int val) { m_tstren.set(i,val); }
+
+  //! TSM status
+  inline void setTsmStatus(int i, int val) { m_tsmword.set(i,val); };
+
   //! Print the setup
   void print() const ;
 
   private:
 
   //! Check mask correctness
-  bool checkMask(int);
+  bool checkMask(unsigned short);
 
   //! Load pset values into class variables
   void setDefaults(const edm:: ParameterSet& ps);

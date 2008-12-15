@@ -61,6 +61,9 @@ class DTConfigTrigUnit : public DTConfig {
  /*  //! Return pointer to parameter set */
 /*   const edm::ParameterSet* getParameterSet() { return m_ps; } */
 
+  //! Set debug flag
+  inline void setDebug(bool debug) { m_debug=debug; }
+
   private:
 
   //! Load pset values into class variables

@@ -23,10 +23,21 @@
 //-------------------------------
 // Collaborating Class Headers --
 //-------------------------------
+#include "FWCore/Utilities/interface/Exception.h"
 
 //----------------
 // Constructors --
 //----------------
+DTConfigSectColl::DTConfigSectColl() { 
+
+  m_debug = 0;
+  for (int i=1; i<4; i++)
+    setSCCarryFlag(0,i);
+  for (int i=1; i<5; i++)
+    setCoarseSync(0,i);
+
+}
+
 DTConfigSectColl::DTConfigSectColl(const edm::ParameterSet& ps) { 
 
   setDefaults(ps);
@@ -42,6 +53,29 @@ DTConfigSectColl::~DTConfigSectColl() {}
 //--------------
 // Operations --
 //--------------
+
+void
+DTConfigSectColl::setSCCarryFlag(bool scecf,int istat) {
+
+  if (istat<1 || istat>4){
+      throw cms::Exception("DTTPG") << "DTConfigSectColl::setSCCarryFlag: station number out of range: istat=" << istat << std::endl;
+    } 
+  m_scecf[istat-1] = scecf;
+
+}  
+
+void
+DTConfigSectColl::setCoarseSync(int sccsp, int istat) {
+
+  if (istat<1 || istat>5){
+    throw cms::Exception("DTTPG") << "DTConfigSectColl::setCoarseSync: station number out of range: istat=" << istat << std::endl;
+  }
+  if (sccsp<0 || sccsp>7){
+    throw cms::Exception("DTTPG") << "DTConfigSectColl::setCoarseSync: wrong SCCSP"<< istat << "  value!" << std::endl;
+  }
+  m_sccsp[istat-1] = sccsp;
+
+}
 
 void
 DTConfigSectColl::setDefaults(const edm::ParameterSet& ps) {
@@ -63,43 +97,24 @@ DTConfigSectColl::setDefaults(const edm::ParameterSet& ps) {
 
   // Progammable Coars Sync parameter in Sector Collector for MB1 (possible values [0-7])
   int mycsp = ps.getParameter<int>("SCCSP1");
-  if (mycsp<0 || mycsp>7){
-    std::cout << "DTConfigSectColl::setDefaults: wrong SCCSP1 value! Using Default" << std::endl;
-    mycsp = default_csp;
-  }
-  m_sccsp[0] = mycsp;
+  setCoarseSync(mycsp,1);
 
   // Progammable Coars Sync parameter in Sector Collector for MB2 (possible values [0-7])
   mycsp = ps.getParameter<int>("SCCSP2");
-  if (mycsp<0 || mycsp>7){
-    std::cout << "DTConfigSectColl::setDefaults: wrong SCCSP2 value! Using Default" << std::endl;
-    mycsp = default_csp;
-  }
-  m_sccsp[1] = mycsp;
-
+  setCoarseSync(mycsp,2);
+  
   // Progammable Coars Sync parameter in Sector Collector for MB3 (possible values [0-7])
   mycsp = ps.getParameter<int>("SCCSP3");
-  if (mycsp<0 || mycsp>7){
-    std::cout << "DTConfigSectColl::setDefaults: wrong SCCSP3 value! Using Default" << std::endl;
-    mycsp = default_csp;
-  }
-  m_sccsp[2] = mycsp;
+  setCoarseSync(mycsp,3);
 
   // Progammable Coars Sync parameter in Sector Collector for firts MB4 station (possible values [0-7])
   mycsp = ps.getParameter<int>("SCCSP4");
-  if (mycsp<0 || mycsp>7){
-    std::cout << "DTConfigSectColl::setDefaults: wrong SCCSP4 value! Using Default" << std::endl;
-    mycsp = default_csp;
-  }
-  m_sccsp[3] = mycsp;
+  setCoarseSync(mycsp,4);
 
   // Progammable Coars Sync parameter in Sector Collector for second MB4 station (sectors 4 & 10) (possible values [0-7])
   mycsp = ps.getParameter<int>("SCCSP5");
-  if (mycsp<0 || mycsp>7){
-    std::cout << "DTConfigSectColl::setDefaults: wrong SCCSP5 value! Using Default" << std::endl;
-    mycsp = default_csp;
-  }
-  m_sccsp[4] = mycsp;
+  setCoarseSync(mycsp,5);
+
 }
 
 void 

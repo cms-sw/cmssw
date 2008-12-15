@@ -17,12 +17,20 @@
 // Author:      Sara Vanini
 // Created:     Mar  30 16:49:43 CEST 2007
 // $Id: 
+//		SV September 2008: create dependent record from DTCCBConfigRcd
 //
+
 #include "boost/mpl/vector.hpp"
 //#include "Geometry/Records/interface/MuonGeometryRecord.h"
-#include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
+//#include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
+#include "FWCore/Framework/interface/DependentRecordImplementation.h"
+#include "CondFormats/DataRecord/interface/DTCCBConfigRcd.h"
+
 
 //class DTConfigManagerRcd : public edm::eventsetup::DependentRecordImplementation<DTConfigManagerRcd, boost::mpl::vector<MuonGeometryRecord> > {};
-class DTConfigManagerRcd : public edm::eventsetup::EventSetupRecordImplementation<DTConfigManagerRcd> {};
+//class DTConfigManagerRcd : public edm::eventsetup::EventSetupRecordImplementation<DTConfigManagerRcd> {};
+
+class DTConfigManagerRcd : public
+edm::eventsetup::DependentRecordImplementation<DTConfigManagerRcd,boost::mpl::vector<DTCCBConfigRcd> > {};
 
 #endif

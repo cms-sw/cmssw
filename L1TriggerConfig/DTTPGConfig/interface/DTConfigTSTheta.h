@@ -46,7 +46,7 @@ class DTConfigTSTheta : public DTConfig {
   DTConfigTSTheta(const edm::ParameterSet& ps);
 
   //! Constructor  
-  DTConfigTSTheta() {};
+  DTConfigTSTheta();
 
   //! Destructor
   ~DTConfigTSTheta();
@@ -56,6 +56,9 @@ class DTConfigTSTheta : public DTConfig {
 
   //! Print the setup
   void print() const ;
+
+  //! Set debug flag
+  inline void setDebug(bool debug) { m_debug=debug; }
 
   private:
 

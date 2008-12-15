@@ -54,7 +54,9 @@ class DTConfigTraco : public DTConfig {
   //! Constructor
   DTConfigTraco() {};
 
-  
+  //! Constructor from string
+  DTConfigTraco(unsigned short int * buffer);
+
   //! Destructor 
   ~DTConfigTraco();
 
@@ -148,6 +150,94 @@ class DTConfigTraco : public DTConfig {
   //! Flag for Low validation parameter
   inline int LVALIDIFH() const { return m_lvalidifh;}
 
+  //! Set single parameter functions 
+  //! Set debug flag
+  inline void setDebug(int debug) { m_debug=debug; }
+
+  //! Set KRAD traco parameter
+  inline void setKRAD(int KRAD) { m_krad=KRAD;}
+
+  //! Set BTIC traco parameter: must be equal to Btis ST parameter
+  inline void setBTIC(int BTIC) { m_btic=BTIC;}
+
+  //! Set DD traco parameter: this is fixed
+  inline void setDD(int DD) { m_dd=DD;}
+
+  //! Set Recycling of TRACO cand. in inner/outer SL : REUSEI/REUSEO
+  inline void setTcReuse(int i, int TcReuse ) {
+    if(i==0)
+      m_reusei=TcReuse;
+    else
+      m_reuseo=TcReuse;
+  }
+
+  //! Set Single HTRIG enabling on first/second tracks F(S)HTMSK
+  inline void setSingleHflag(int i, int singleHflag) {
+    if(i==0)
+      m_fhtmsk=singleHflag;
+    else
+      m_shtmsk=singleHflag;
+  }
+
+  //! Set Single LTRIG enabling on first/second tracks: F(S)LTMSK
+  inline void setSingleLflag(int i, int singleLflag) {
+    if(i==0)
+      m_fltmsk=singleLflag;
+    else
+      m_sltmsk=singleLflag;
+  } 
+
+  //! Set Preference to inner on first/second tracks: F(S)SLMSK
+  inline void setPrefInner(int i, int prefInner) {
+    if(i==0)
+      m_fslmsk=prefInner;
+    else
+      m_sslmsk=prefInner;
+  }
+
+  //! Set Preference to HTRIG on first/second tracks: F(S)HTPRF
+  inline void setPrefHtrig(int i, int prefHtrig) {
+    if(i==0)
+      m_fhtprf=prefHtrig;
+    else
+      m_shtprf=prefHtrig;
+  }
+
+  //! Set Ascend. order for K sorting first/second tracks: F(S)HISM
+  inline void setSortKascend(int i, int sortKascend) {
+    if(i==0)
+      m_fhism=sortKascend;
+    else
+      m_shism=sortKascend;
+  }
+
+
+  //! Set K tollerance for correlation in TRACO: F(S)PRGCOMP
+  inline void setTcKToll(int i, int TcKToll) {
+    if(i==0)
+      m_fprgcomp=TcKToll;
+    else
+      m_sprgcomp=TcKToll;
+  }
+
+  //! Set Suppr. of LTRIG in 4 BX before HTRIG: LTS
+  inline void setTcBxLts(int TcBxLts) { m_lts=TcBxLts; }
+
+  //! Set Single LTRIG accept enabling on first/second tracks LTF
+  inline void setSingleLenab(int i, int singleLenab) { m_ltf=singleLenab; }
+
+  //! Set Connected bti in traco: bti mask
+  inline void setUsedBti(int bti, int mask) { m_trgenb.set(bti-1,mask); }
+
+  //! Set IBTIOFF traco parameter
+  inline void setIBTIOFF(int IBTIOFF) { m_ibtioff=IBTIOFF; }
+
+  //! Set Bending angle cut for all stations and triggers : KPRGCOM
+  inline void setBendingAngleCut(int BendingAngleCut) { m_kprgcom=BendingAngleCut; }
+
+  //! Set Flag for Low validation parameter
+  inline void setLVALIDIFH(int LVALIDIFH ) { m_lvalidifh=LVALIDIFH;}
+
   //! Print the setup
   void print() const ;
 
@@ -158,30 +248,30 @@ class DTConfigTraco : public DTConfig {
 private:
   //  const edm::ParameterSet* m_ps;
 
-  unsigned short int m_debug;
-  unsigned short int m_krad;
-  unsigned short int m_btic;
-  unsigned short int m_dd;
-  unsigned short int m_reusei;
-  unsigned short int m_reuseo;
-  unsigned short int m_fhtmsk;
-  unsigned short int m_shtmsk;
-  unsigned short int m_fltmsk;
-  unsigned short int m_sltmsk;
-  unsigned short int m_fslmsk;
-  unsigned short int m_sslmsk;
-  unsigned short int m_fhtprf;
-  unsigned short int m_shtprf;
-  unsigned short int m_fhism;
-  unsigned short int m_shism;
-  unsigned short int m_fprgcomp;
-  unsigned short int m_sprgcomp;
-  unsigned short int m_lts;
-  unsigned short int m_ltf;
+  int8_t m_debug;
+  int8_t m_krad;
+  int8_t m_btic;
+  int8_t m_dd;
+  int8_t m_reusei;
+  int8_t m_reuseo;
+  int8_t m_fhtmsk;
+  int8_t m_shtmsk;
+  int8_t m_fltmsk;
+  int8_t m_sltmsk;
+  int8_t m_fslmsk;
+  int8_t m_sslmsk;
+  int8_t m_fhtprf;
+  int8_t m_shtprf;
+  int8_t m_fhism;
+  int8_t m_shism;
+  int8_t m_fprgcomp;
+  int8_t m_sprgcomp;
+  int8_t m_lts;
+  int8_t m_ltf;
   BitArray<16> m_trgenb;
-  unsigned short int m_ibtioff;
-  unsigned short int m_kprgcom;
-  unsigned short int m_lvalidifh;
+  int8_t m_ibtioff;
+  int16_t m_kprgcom;
+  int8_t m_lvalidifh;
 
 };
 

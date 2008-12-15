@@ -34,6 +34,10 @@ DTConfigTSTheta::DTConfigTSTheta(const edm::ParameterSet& ps) {
 
 }
 
+DTConfigTSTheta::DTConfigTSTheta() : m_debug(false) {
+
+}
+
 //--------------
 // Destructor --
 //--------------

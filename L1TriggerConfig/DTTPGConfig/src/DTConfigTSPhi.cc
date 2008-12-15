@@ -20,7 +20,6 @@
 // C++ Headers --
 //---------------
 #include <iostream>
-#include <sstream>
 
 //-------------------------------
 // Collaborating Class Headers --
@@ -33,7 +32,176 @@ DTConfigTSPhi::DTConfigTSPhi(const edm::ParameterSet& ps) {
 
   setDefaults(ps);
   if (debug()) print();
+}
 
+DTConfigTSPhi::DTConfigTSPhi(bool debugTS, unsigned short int tss_buffer[7][31], int ntss, unsigned short int tsm_buffer[9]) { 
+
+  m_debug = debugTS;
+
+  bool tstren[24];
+  bool tsscgs2, tsscgs1, tsscce1, tsshte1, tssnoe1, carrytss; 
+  bool tsscce2, tsshte2, tssnoe2, tssccec, tsshtec, tssnoec;
+  unsigned short  tssgs1, tssgs2, tssmsk1, tssmsk2;
+
+  tsscgs2 = tsscgs1 = tsscce1 = tsshte1 = tssnoe1 = carrytss = 0;
+  tsscce2 = tsshte2 = tssnoe2 = tssccec = tsshtec = tssnoec  = 0;
+  tssgs1 = tssgs2 = tssmsk1 = tssmsk2 = 0;
+
+  memset(tstren,true,24*sizeof(bool));
+
+  // TSS unpacking
+  for (int itss=0; itss<ntss; itss++) {     
+    unsigned short int memory_tss[27];
+
+    for(int ts=0;ts<27;ts++){
+      memory_tss[ts] = tss_buffer[itss][ts+4];
+      //std::cout << std::hex << memory_tss[ts] << " ";
+    }
+      
+    tstren[itss*4]   = !(memory_tss[1]&0x08);
+    tstren[itss*4+1] = !(memory_tss[1]&0x80);
+    tstren[itss*4+2] = !(memory_tss[2]&0x08);
+    tstren[itss*4+3] = !(memory_tss[2]&0x80);
+
+    if(!itss) {
+      tsscgs2 = !(memory_tss[0]&0x08);
+      tssgs2  = memory_tss[0]&0x04 ? 0 : 1;
+      tsscgs1 = !(memory_tss[0]&0x02);
+      tssgs1  = memory_tss[0]&0x01 ? 0 : 1;
+      tsscce1 = !(memory_tss[4]&0x04); 
+      tsshte1 = !(memory_tss[4]&0x02); 
+      tssnoe1 = !(memory_tss[4]&0x01);
+      tsscce2 = !(memory_tss[3]&0x40); 
+      tsshte2 = !(memory_tss[3]&0x20); 
+      tssnoe2 = !(memory_tss[3]&0x10); 
+      tssccec = !(memory_tss[3]&0x04); 
+      tsshtec = !(memory_tss[3]&0x02); 
+      tssnoec = !(memory_tss[3]&0x01);
+      carrytss= !(memory_tss[4]&0x40);
+      tssmsk1  = memory_tss[4]&0x10 ? 132 : 312;
+      tssmsk2  = memory_tss[4]&0x20 ? 132 : 312;
+    }
+  }
+
+  // TSM unpacking
+  unsigned short int memory_tsms[2], memory_tsmdu[2], memory_tsmdd[2];
+
+  for(int ts=0;ts<2;ts++){
+    memory_tsms[ts]  = tsm_buffer[ts+3];
+    memory_tsmdu[ts] = tsm_buffer[ts+5];
+    memory_tsmdd[ts] = tsm_buffer[ts+7];
+    //std::cout << std::hex << memory_tsms[ts] << " " << memory_tsmdu[ts] << " " << memory_tsmdd[ts] << " " << std::endl;
+  }
+
+  bool tsmcgs1 = true;
+  unsigned short  tsmgs1  = memory_tsms[1]&0x02 ? 0 : 1;
+  bool tsmcgs2 = true;
+  unsigned short  tsmgs2  = 1;
+  bool tsmcce1 = true; 
+  bool tsmhte1 = true;  
+  bool tsmnoe1 = true; 
+  bool tsmcce2 = true; 
+  bool tsmhte2 = true; 
+  bool tsmnoe2 = true;
+  bool tsmccec = true; 
+  bool tsmhtec = true; 
+  bool tsmnoec = true;
+  bool carrytsms = !(memory_tsms[1]&0x01);
+  unsigned short tsmmsk1  = memory_tsms[1]&0x08 ? 321 : 312;
+  unsigned short tsmmsk2  = tsmmsk1;
+  bool tsmword[8];
+  tsmword[0] = !((memory_tsmdu[0]&0x80)&&(memory_tsmdd[0]&0x80)); 
+  tsmword[1] = !(memory_tsms[0]&0x01); 
+  tsmword[2] = !(memory_tsms[0]&0x02);
+  tsmword[3] = !(memory_tsms[0]&0x04);
+  tsmword[4] = !(memory_tsms[0]&0x08); 
+  tsmword[5] = !(memory_tsms[0]&0x10);
+  tsmword[6] = !(memory_tsms[0]&0x20); 
+  tsmword[7] = !(memory_tsms[0]&0x40); 
+  bool carrytsmd = !((memory_tsmdu[0]&0x10)&&(memory_tsmdd[0]&0x10));
+    
+  unsigned short tsmhsp = carrytss && carrytsms && carrytsmd;
+
+  if (debug()) {
+    std::cout << "TSS :" << std::dec << std::endl << "tstren= " ;
+    for (int i=0; i<24 ;i++) std::cout << tstren[i] << " ";
+    std::cout << " tsscgs1="  << tsscgs1
+	      << " tssgs1="   << tssgs1
+	      << " tsscgs2="  << tsscgs2
+	      << " tssgs2="   << tssgs2
+	      << " tsscce1="  << tsscce1
+	      << " tsshte1="  << tsshte1
+	      << " tssnoe1="  << tssnoe1
+	      << " tsscce2="  << tsscce2
+	      << " tsshte2="  << tsshte2
+	      << " tssnoe2="  << tssnoe2
+	      << " tssccec="  << tssccec
+	      << " tsshtec="  << tsshtec
+	      << " tssnoec="  << tssnoec
+	      << " carrytss=" << carrytss
+	      << " tssmsk1="  << tssmsk1
+	      << " tssmsk2="  << tssmsk2 << std::endl;
+
+    std::cout << "TSM : "<< std::endl
+	      << "tsmcgs1="  << tsmcgs1
+	      << " tsmgs1="   << tsmgs1
+	      << " tsmcgs2="  << tsmcgs2
+	      << " tsmgs2="   << tsmgs2
+	      << " tsmcce1="  << tsmcce1
+	      << " tsmhte1="  << tsmhte1
+	      << " tsmnoe1="  << tsmnoe1
+	      << " tsmcce2="  << tsmcce2
+	      << " tsmhte2="  << tsmhte2
+	      << " tsmnoe2="  << tsmnoe2
+	      << " tsmccec="  << tsmccec
+	      << " tsmhtec="  << tsmhtec
+	      << " tsmnoec="  << tsmnoec
+	      << " tsmhsp=" << tsmhsp
+	      << " carrytsms=" << carrytsms
+	      << " carrytsmd=" << carrytsmd
+	      << " tsmword="; 
+    for (int i=0;i<8;i++) std::cout << tsmword[i] << " ";
+    std::cout << " tsmmsk1="  << tsmmsk1
+	      << " tsmmsk2="  << tsmmsk2 << std::endl;
+  }
+
+  setTssMasking(tssmsk1,1);
+  setTssMasking(tssmsk2,2);
+  setTssHtrigEna(tsshte1,1);
+  setTssHtrigEna(tsshte2,2);
+  setTssHtrigEnaCarry(tsshtec);
+  setTssInOutEna(tssnoe1,1);
+  setTssInOutEna(tssnoe2,2);
+  setTssInOutEnaCarry(tssnoec);
+  setTssCorrEna(tsscce1,1);
+  setTssCorrEna(tsscce2,2);
+  setTssCorrEnaCarry(tssccec);
+  setTssGhost1Flag(tssgs1);
+  setTssGhost2Flag(tssgs2);
+  setTssGhost1Corr(tsscgs1);
+  setTssGhost2Corr(tsscgs2);
+
+  setTsmMasking(tsmmsk1,1);
+  setTsmMasking(tsmmsk2,2);
+  setTsmHtrigEna(tsmhte1,1);
+  setTsmHtrigEna(tsmhte2,2);
+  setTsmHtrigEnaCarry(tsmhtec);
+  setTsmInOutEna(tsmnoe1,1);
+  setTsmInOutEna(tsmnoe2,2);
+  setTsmInOutEnaCarry(tsmnoec);
+  setTsmCorrEna(tsmcce1,1);
+  setTsmCorrEna(tsmcce2,2);
+  setTsmCorrEnaCarry(tsmccec);
+  setTsmGhost1Flag(tsmgs1);
+  setTsmGhost2Flag(tsmgs2);
+  setTsmGhost1Corr(tsmcgs1);
+  setTsmGhost2Corr(tsmcgs2);
+  setTsmCarryFlag(tsmhsp);
+
+  for (int i=0;i<24;i++) setUsedTraco(i,tstren[i]);
+  for (int i=0;i<8;i++) setTsmStatus(i,tsmword[i]);
+  
+    
 }
 
 //--------------
@@ -56,8 +224,7 @@ DTConfigTSPhi::setDefaults(const edm::ParameterSet& ps) {
   if (checkMask(mymsk)) 
     m_tssmsk[0] = mymsk;
   else {
-    std::cout << "DTConfigTSPhi::setDefaults : TSSMSK1 not in correct form! Default Used" << std::endl;
-    m_tssmsk[0] = default_tsmsk;
+    throw cms::Exception("DTTPG") << "DTConfigTSPhi::setDefaults : TSSMSK1 not in correct form: " << mymsk << std::endl;
   }
   
   // Order of quaity bits in TSS for sort2
@@ -65,8 +232,7 @@ DTConfigTSPhi::setDefaults(const edm::ParameterSet& ps) {
   if (checkMask(mymsk)) 
     m_tssmsk[1] = mymsk;
   else {
-    std::cout << "DTConfigTSPhi::setDefaults : TSSMSK2 not in correct form! Default Used" << std::endl;
-    m_tssmsk[1] = default_tsmsk;
+    throw cms::Exception("DTTPG") << "DTConfigTSPhi::setDefaults : TSSMSK2 not in correct form: " << mymsk << std::endl;
   }
   
   // Htrig checking in TSS for sort1
@@ -101,8 +267,7 @@ DTConfigTSPhi::setDefaults(const edm::ParameterSet& ps) {
   if (mygs>=0 && mygs<3)
     m_tssgs1 = mygs;
   else {
-    std::cout << "DTConfigTSPhi::setDefaults : TSSGS1 value is not correct! Default Used" << std::endl;
-    m_tssgs1 = default_gs;
+    throw cms::Exception("DTTPG") << "DTConfigTSPhi::setDefaults : TSSGS1 value is not correct: " << mygs << std::endl;
   }
   
   // Ghost 2 supperssion option in TSS
@@ -110,8 +275,7 @@ DTConfigTSPhi::setDefaults(const edm::ParameterSet& ps) {
   if (mygs>=0 && mygs<5)
     m_tssgs2 = mygs;
   else {
-    std::cout << "DTConfigTSPhi::setDefaults : TSSGS2 value is not correct! Default Used" << std::endl;
-    m_tssgs2 = default_gs;
+    throw cms::Exception("DTTPG") << "DTConfigTSPhi::setDefaults : TSSGS2 value is not correct: " << mygs << std::endl;
   }
 
   // Correlated ghost 1 supperssion option in TSS
@@ -125,8 +289,7 @@ DTConfigTSPhi::setDefaults(const edm::ParameterSet& ps) {
   if (checkMask(mymsk)) 
     m_tsmmsk[0] = mymsk;
   else {
-    std::cout << "DTConfigTSPhi::setDefaults : TSMMSK1 not in correct form! Default Used" << std::endl;
-    m_tsmmsk[0] = default_tsmsk;
+    throw cms::Exception("DTTPG") << "DTConfigTSPhi::setDefaults : TSMMSK1 not in correct form: " << mymsk << std::endl;
   }
 
   // Order of quaity bits in TSM for sort2
@@ -134,8 +297,7 @@ DTConfigTSPhi::setDefaults(const edm::ParameterSet& ps) {
   if (checkMask(mymsk)) 
     m_tsmmsk[1] = mymsk;
   else {
-    std::cout << "DTConfigTSPhi::setDefaults : TSMMSK2 not in correct form! Default Used" << std::endl;
-    m_tsmmsk[1] = default_tsmsk;
+    throw cms::Exception("DTTPG") << "DTConfigTSPhi::setDefaults : TSMMSK2 not in correct form: " << mymsk << std::endl;
   }
   
   // Htrig checking in TSM for sort1
@@ -170,8 +332,7 @@ DTConfigTSPhi::setDefaults(const edm::ParameterSet& ps) {
   if (mygs>=0 && mygs<3)
     m_tsmgs1 = mygs;
   else {
-    std::cout << "DTConfigTSPhi::setDefaults : TSMGS1 value is not correct! Default Used" << std::endl;
-    m_tsmgs1 = default_gs;
+    throw cms::Exception("DTTPG") << "DTConfigTSPhi::setDefaults : TSMGS1 value is not correct: " << mygs << std::endl;
   }
 
   // Ghost 2 supperssion option in TSM
@@ -179,8 +340,7 @@ DTConfigTSPhi::setDefaults(const edm::ParameterSet& ps) {
   if (mygs>=0 && mygs<5)
     m_tsmgs2 = mygs;
   else {
-    std::cout << "DTConfigTSPhi::setDefaults : TSMGS2 value is not correct! Default Used" << std::endl;
-    m_tsmgs2 = default_gs;
+    throw cms::Exception("DTTPG") << "DTConfigTSPhi::setDefaults : TSMGS2 value is not correct: " << mygs << std::endl;
   }
 
   // Correlated ghost 1 supperssion option in TSM
@@ -194,16 +354,14 @@ DTConfigTSPhi::setDefaults(const edm::ParameterSet& ps) {
   if (myhsp>=0 && myhsp<3)
     m_tsmhsp = myhsp;
   else {
-    std::cout << "DTConfigTSPhi::setDefaults : TSMHSP value is not correct! Default Used" << std::endl;
-    m_tsmhsp = default_hsp;
+    throw cms::Exception("DTTPG") << "DTConfigTSPhi::setDefaults : TSMHSP value is not correct: " << myhsp << std::endl;
   }
 
   // Handling TSMS masking parameters
   m_tsmword.one();
   int word = ps.getParameter<int>("TSMWORD");
   if (word<0 || word>255){
-    std::cout << "DTConfigTSPhi::setDefaults : TSMWORD value is not correct! Default Used" << std::endl;
-    word = default_tsmword;
+    throw cms::Exception("DTTPG") << "DTConfigTSPhi::setDefaults : TSMWORD value is not correct: " << word << std::endl;
   }
   for (int i=0;i<7;i++){
     short int bit = word%2;
@@ -287,8 +445,26 @@ DTConfigTSPhi::print() const {
 
 }
 
+void 
+DTConfigTSPhi::setTssMasking(unsigned short tssmsk, int i) {
+  if (checkMask(tssmsk)) 
+    m_tssmsk[i-1] = tssmsk;
+  else {
+    throw cms::Exception("DTTPG") << "DTConfigTSPhi::setDefaults : TSMMSK2 not in correct form: " << tssmsk << std::endl;
+  }
+}
+
+void 
+DTConfigTSPhi::setTsmMasking(unsigned short tsmmsk, int i) {
+  if (checkMask(tsmmsk)) 
+    m_tsmmsk[i-1] = tsmmsk;
+  else {
+    throw cms::Exception("DTTPG") << "DTConfigTSPhi::setDefaults : TSMMSK2 not in correct form: " << tsmmsk << std::endl;
+  }
+}
+  
 bool
-DTConfigTSPhi::checkMask(int msk){
+DTConfigTSPhi::checkMask(unsigned short msk){
   
   bool hasone = false;
   bool hastwo = false;

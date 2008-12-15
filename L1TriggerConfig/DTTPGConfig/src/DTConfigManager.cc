@@ -180,6 +180,21 @@ DTConfigTrigUnit* DTConfigManager::getDTConfigTrigUnit(DTChamberId chambid) cons
 
 }
 
+DTConfigLUTs* DTConfigManager::getDTConfigLUTs(DTChamberId chambid) const {
+  
+   LUTMap::const_iterator lutiter = my_lutmap.find(chambid);
+   if (lutiter == my_lutmap.end()){
+     std::cout << "DTCOnfigManager::getConfigLUTs : Chamber (" << chambid.wheel()
+ 	      << "," << chambid.sector()
+ 	      << "," << chambid.station() 
+ 	      << ") not found, return 0" << std::endl;
+     return 0;
+   }
+
+   return const_cast<DTConfigLUTs*>(&(*lutiter).second);
+
+}
+
 DTConfigSectColl* DTConfigManager::getDTConfigSectColl(DTSectCollId scid) const {
   
   SectCollMap::const_iterator sciter = my_sectcollmap.find(scid);

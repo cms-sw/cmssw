@@ -8,6 +8,7 @@
  *   \author  C. Battilana
  *   april 07 : SV DTConfigTrigUnit added
  *   april 07 : CB Removed DTGeometry dependecies
+ *   september 08 : SV LUTs added
  *
  */
 //
@@ -29,6 +30,7 @@
 #include "L1TriggerConfig/DTTPGConfig/interface/DTConfigTSPhi.h"
 #include "L1TriggerConfig/DTTPGConfig/interface/DTConfigTrigUnit.h" 
 #include "L1TriggerConfig/DTTPGConfig/interface/DTConfigSectColl.h"
+#include "L1TriggerConfig/DTTPGConfig/interface/DTConfigLUTs.h"
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
 #include "DataFormats/MuonDetId/interface/DTBtiId.h"
 #include "DataFormats/MuonDetId/interface/DTTracoId.h"
@@ -47,14 +49,15 @@ class DTConfigManager {
 
  public:
   
-  typedef std::map<DTBtiId,DTConfigBti>            innerBtiMap;
-  typedef std::map<DTTracoId,DTConfigTraco>        innerTracoMap;
-  typedef std::map<DTChamberId,innerBtiMap>        BtiMap;
-  typedef std::map<DTChamberId,innerTracoMap>      TracoMap;
-  typedef std::map<DTChamberId,DTConfigTSTheta>    TSThetaMap;
-  typedef std::map<DTChamberId,DTConfigTSPhi>      TSPhiMap;
-  typedef std::map<DTChamberId,DTConfigTrigUnit>   TrigUnitMap;
-  typedef std::map<DTSectCollId,DTConfigSectColl>  SectCollMap;
+  typedef std::map<DTBtiId,DTConfigBti>            		innerBtiMap;
+  typedef std::map<DTTracoId,DTConfigTraco>        	   innerTracoMap;
+  typedef std::map<DTChamberId,innerBtiMap>        	   BtiMap;
+  typedef std::map<DTChamberId,innerTracoMap>           TracoMap;
+  typedef std::map<DTChamberId,DTConfigTSTheta>        TSThetaMap;
+  typedef std::map<DTChamberId,DTConfigTSPhi>           TSPhiMap;
+  typedef std::map<DTChamberId,DTConfigTrigUnit>         TrigUnitMap;
+  typedef std::map<DTChamberId,DTConfigLUTs>   		 LUTMap;
+  typedef std::map<DTSectCollId,DTConfigSectColl>  	  SectCollMap;
 
  public:
   
@@ -83,7 +86,10 @@ class DTConfigManager {
   DTConfigTSPhi* getDTConfigTSPhi(DTChamberId) const;
 
   //! Get desired Trigger Unit configuration 
-  DTConfigTrigUnit* getDTConfigTrigUnit(DTChamberId) const; 
+  DTConfigTrigUnit* getDTConfigTrigUnit(DTChamberId) const;
+  
+   //! Get desired LUT configuration 
+  DTConfigLUTs* getDTConfigLUTs(DTChamberId) const;
 
   //! Get desired SectorCollector configuration
   DTConfigSectColl* getDTConfigSectColl(DTSectCollId) const;
@@ -100,8 +106,11 @@ class DTConfigManager {
   //! Set DTConfigTSPhi for desired chip
   inline void setDTConfigTSPhi(DTChamberId chambid,DTConfigTSPhi conf) { my_tsphimap[chambid] = conf; };
 
-  //! Set DTConfigTrigUnit for desired chip
+  //! Set DTConfigTrigUnit for desired chamber
   void setDTConfigTrigUnit(DTChamberId chambid,DTConfigTrigUnit conf) { my_trigunitmap[chambid] = conf; };
+
+  //! Set DTConfigLUTs for desired chamber
+  void setDTConfigLUTs(DTChamberId chambid,DTConfigLUTs conf) { my_lutmap[chambid] = conf; };
 
   //! Set DTConfigSectColl for desired chip
   void setDTConfigSectColl(DTSectCollId sectcollid ,DTConfigSectColl conf){ my_sectcollmap[sectcollid] = conf; };
@@ -124,6 +133,7 @@ class DTConfigManager {
   TSThetaMap   my_tsthetamap;
   TSPhiMap     my_tsphimap;
   TrigUnitMap  my_trigunitmap; 
+  LUTMap       my_lutmap;
   SectCollMap  my_sectcollmap;
   
   int my_bxoffset;

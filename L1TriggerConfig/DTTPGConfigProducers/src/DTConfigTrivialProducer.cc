@@ -3,7 +3,6 @@
 #include "DataFormats/MuonDetId/interface/DTSuperLayerId.h"
 #include "DataFormats/MuonDetId/interface/DTLayerId.h"
 #include <ostream>
-#include <sstream>
 
 using std::cout;
 using std::endl;

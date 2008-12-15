@@ -1,13 +1,39 @@
+<use name=CondCore/DBCommon>
+<use name=CondCore/DBOutputService>
+<use name=CondCore/IOVService>
+<use name=CondCore/MetaDataService>
+<use name=CondCore/PopCon>
+<use name=CondFormats/DTObjects>
+<use name=CondFormats/DataRecord>
+<use name=CondTools/DT>
+<use name=CoralBase>
+<use name=DataFormats/Provenance>
+<use name=FWCore/Catalog>
 <use name=FWCore/Framework>
-<use name=FWCore/PluginManager>
 <use name=FWCore/ParameterSet>
+<use name=FWCore/ServiceRegistry>
+<use name=FWCore/PluginManager>
+<use name=RelationalAccess>
+<use name=rootrflx>
+
 <use name=L1TriggerConfig/DTTPGConfig>
+
 <flags EDM_PLUGIN=1>
 
 <export>
-   <lib name=L1TriggerConfigDTTPGConfigProducers>
-   <use name=FWCore/Framework>
-   <use name=FWCore/PluginManager>
-   <use name=FWCore/ParameterSet>
-   <use name=L1TriggerConfig/DTTPGConfig>
+  <lib name=L1TriggerConfigDTTPGConfigProducers>
+   
+  <use name=CondCore/PopCon>
+  <use name=CondCore/DBCommon>
+  <use name=CondCore/MetaDataService>
+  <use name=CondCore/DBOutputService>
+  <use name=CondFormats/DTObjects>
+  <use name=CondCore/IOVService>
+  <use name=FWCore/ServiceRegistry>
+ <use name=CondTools/DT>
+
+  <use name=FWCore/Framework>
+  <use name=FWCore/PluginManager>
+  <use name=FWCore/ParameterSet>
+  <use name=L1TriggerConfig/DTTPGConfig>
 </export>
