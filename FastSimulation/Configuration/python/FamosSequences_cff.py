@@ -201,12 +201,24 @@ globalMuons.GLBTrajBuilderParameters.TrackerRecHitBuilder = 'WithoutRefit'
 globalMuons.GLBTrajBuilderParameters.TransformerOutPropagator = cms.string('SmartPropagatorAny')
 globalMuons.GLBTrajBuilderParameters.MatcherOutPropagator = cms.string('SmartPropagator')
 
+from RecoMuon.GlobalMuonProducer.tevMuons_cfi import *
+GlobalMuonRefitter.TrackerRecHitBuilder = 'WithoutRefit'
+GlobalMuonRefitter.Propagator = 'SmartPropagatorAny'
+GlobalTrajectoryBuilderCommon.TrackerRecHitBuilder = 'WithoutRefit'
+tevMuons.RefitterParameters.TrackerRecHitBuilder = 'WithoutRefit'
+tevMuons.RefitterParameters.Propagator =  'SmartPropagatorAny'
+KFSmootherForRefitInsideOut.Propagator = 'SmartPropagatorAny'
+KFSmootherForRefitOutsideIn.Propagator = 'SmartPropagator'
+KFFitterForRefitInsideOut.Propagator = 'SmartPropagatorAny'
+KFFitterForRefitOutsideIn.Propagator = 'SmartPropagatorAny'
+
 famosMuonSequence = cms.Sequence(
     muonDigi+
     muonlocalreco+
     ancientMuonSeed+
     standAloneMuons+
-    globalMuons
+    globalMuons+
+    tevMuons
 )
 
 #Muon identification sequence
