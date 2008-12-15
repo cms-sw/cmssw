@@ -328,7 +328,7 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	    }
 	  }
 	} // END for (unsigned int f=0; f<pTintervals[w].size()-1; f++){
-	int tmp = std::min((int)(tp->trackerPSimHit_end()-tp->trackPSimHit_begin()),int(maxHit-1));
+	int tmp = std::min((int)(tp->trackPSimHit().end()-tp->trackPSimHit().begin()),int(maxHit-1));
 	totSIM_hit[w][tmp]++;
 	if (rt.size()!=0) totASS_hit[w][tmp]++;
       }
