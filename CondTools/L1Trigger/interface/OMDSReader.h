@@ -16,7 +16,7 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Sun Mar  2 01:36:06 CET 2008
-// $Id: OMDSReader.h,v 1.9 2008/12/05 19:20:22 wsun Exp $
+// $Id: OMDSReader.h,v 1.10 2008/12/09 17:07:42 wsun Exp $
 //
 
 // system include files
@@ -130,8 +130,9 @@ namespace l1t
 	                 // if empty, conditionRHS must have only one column
 	) const ;
 
-      // For any data type of condition RHS.  Input dummyVariable is used
-      // to determine type.
+      // For any data type of condition RHS.
+      // Example usage, for an int key:
+      //   results = omdsReader.basicQueryGenericKey<int>(...) ;
       template< class T >
 	const QueryResults basicQueryGenericKey(
 	  const std::vector< std::string >& columnNames,
@@ -144,8 +145,9 @@ namespace l1t
 	                    // if empty, conditionRHS must have only one column
 	  ) const ;
 
-      // For any data type of condition RHS.  Input dummyVariable is used
-      // to determine type.
+      // For any data type of condition RHS.
+      // Example usage, for an int key:
+      //   results = omdsReader.basicQueryGenericKey<int>(...) ;
       template< class T >
 	const QueryResults basicQueryGenericKey(
 	  const std::string& columnName,
@@ -156,35 +158,6 @@ namespace l1t
 	                                           // must have only one row
 	  const std::string& conditionRHSName = ""
 	                 // if empty, conditionRHS must have only one column
-	  ) const ;
-
-      // For any data type of condition RHS.  Input dummyVariable is used
-      // to determine type.
-      template< class T >
-	const QueryResults basicQuery(
-	  const std::vector< std::string >& columnNames,
-	  const std::string& schemaName, // for nominal schema, use ""
-	  const std::string& tableName,
-	  const std::string& conditionLHS,
-	  const QueryResults conditionRHS, // must have only one row
-	  const std::string& conditionRHSName,
-	                    // if empty, conditionRHS must have only one column
-	  T& dummyVariable  // determines C++ type of condition RHS data
-	  ) const ;
-
-      // For any data type of condition RHS.  Input dummyVariable is used
-      // to determine type.
-      template< class T >
-	const QueryResults basicQuery(
-	  const std::string& columnName,
-	  const std::string& schemaName, // for nominal schema, use ""
-	  const std::string& tableName,
-	  const std::string& conditionLHS,
-	  const QueryResults conditionRHS,
-	                                           // must have only one row
-	  const std::string& conditionRHSName,
-	                 // if empty, conditionRHS must have only one column
-	  T& dummyVariable // determines C++ type of condition RHS data
 	  ) const ;
 
       template< class T >
@@ -270,7 +243,7 @@ namespace l1t
     return QueryResults( columnNames, atts ) ;
   }
 
-  template< class T> const OMDSReader::QueryResults
+  template< class T > const OMDSReader::QueryResults
   OMDSReader::basicQueryGenericKey(
     const std::string& columnName,
     const std::string& schemaName,
@@ -281,88 +254,8 @@ namespace l1t
   {
     std::vector< std::string > columnNames ;
     columnNames.push_back( columnName ) ;
-    return basicQueryGenericKey( columnNames, schemaName, tableName,
+    return basicQueryGenericKey< T >( columnNames, schemaName, tableName,
 				 conditionLHS, conditionRHS, conditionRHSName);
-  }
-
-  template< class T > const OMDSReader::QueryResults
-  OMDSReader::basicQuery(
-    const std::vector< std::string >& columnNames,
-    const std::string& schemaName,
-    const std::string& tableName,
-    const std::string& conditionLHS,
-    const QueryResults conditionRHS,
-    const std::string& conditionRHSName,
-    T& dummyVariable ) const
-  {
-    coral::ISchema& schema = schemaName.empty() ?
-      m_coralTransaction->nominalSchema() :
-      m_coralTransaction->coralSessionProxy().schema( schemaName ) ;
-
-    coral::ITable& table = schema.tableHandle( tableName ) ;
-
-    // Pointer is deleted automatically at end of function.
-    boost::shared_ptr< coral::IQuery > query( table.newQuery() ) ;
-
-    // Construct query
-    std::vector< std::string >::const_iterator it = columnNames.begin() ;
-    std::vector< std::string >::const_iterator end = columnNames.end() ;
-    for( ; it != end ; ++it )
-      {
-	query->addToOutputList( *it ) ;
-      }
-
-    // Only apply condition if RHS has one row.
-    if( !conditionLHS.empty() && conditionRHS.numberRows() == 1 )
-      {
-	if( !conditionRHSName.empty() )
-	  {
-	    // Use type of dummyVariable to determine type of condition RHS
-	    coral::AttributeList attList ;
-	    attList.extend( conditionRHSName, typeid( T ) ) ;
-	    conditionRHS.fillVariable( conditionRHSName, dummyVariable ) ;
-	    attList[ conditionRHSName ].data< T >() = dummyVariable ;
-
-	    query->setCondition( conditionLHS + " = :" + conditionRHSName,
-				 attList ) ;
-	  }
-	else if( conditionRHS.columnNames().size() == 1 )
-	  // check for only one column
-	  {
-	    query->setCondition( conditionLHS + " = :" +
-				   conditionRHS.columnNames().front(),
-				 conditionRHS.attributeLists().front() ) ;
-	  }
-      }
-
-    coral::ICursor& cursor = query->execute() ;
-
-    // Copy AttributeLists for external use because the cursor is deleted
-    // when the query goes out of scope.
-    std::vector< coral::AttributeList > atts ;
-    while( cursor.next() )
-      {
-	atts.push_back( cursor.currentRow() ) ;
-      } ;
-
-    return QueryResults( columnNames, atts ) ;
-  }
-
-  template< class T> const OMDSReader::QueryResults
-  OMDSReader::basicQuery(
-    const std::string& columnName,
-    const std::string& schemaName,
-    const std::string& tableName,
-    const std::string& conditionLHS,
-    const QueryResults conditionRHS,
-    const std::string& conditionRHSName,
-    T& dummyVariable ) const
-  {
-    std::vector< std::string > columnNames ;
-    columnNames.push_back( columnName ) ;
-    return basicQuery( columnNames, schemaName, tableName,
-		       conditionLHS, conditionRHS, conditionRHSName,
-		       dummyVariable ) ;
   }
 
   template< class T > const OMDSReader::QueryResults
