@@ -283,12 +283,37 @@ famosPhotonSequence = cms.Sequence(
     photonIDSequence
 )
 
-# Add isolation information for electrons and photons
-#from RecoEgamma.EgammaIsolationAlgos.egammaCalExtractorBlocks_cff import *
-#EgammaIsoEcalFromHitsExtractorBlock.barrelRecHits = 'caloRecHits:EcalRecHitsEB'
-#EgammaIsoEcalFromHitsExtractorBlock.endcapRecHits = 'caloRecHits:EcalRecHitsEE'
-#EgammaIsoHcalFromHitsExtractorBlock.hcalRecHits = 'caloRecHits'
-#from RecoEgamma.EgammaIsolationAlgos.egammaIsolationSequence_cff import *
+# Add pre-calculated isolation sums for electrons (NB for photons they are stored in the Photon. All is done in the
+# sequence above
+from RecoEgamma.EgammaIsolationAlgos.egammaIsolationSequence_cff import *
+electronEcalRecHitIsolationLcone.ecalBarrelRecHitProducer =  cms.InputTag("caloRecHits")
+electronEcalRecHitIsolationLcone.ecalBarrelRecHitCollection =  cms.InputTag("EcalRecHitsEB")
+
+electronEcalRecHitIsolationLcone.ecalEndcapRecHitProducer =  cms.InputTag("caloRecHits")
+electronEcalRecHitIsolationLcone.ecalEndcapRecHitCollection =  cms.InputTag("EcalRecHitsEE")
+
+electronEcalRecHitIsolationScone.ecalBarrelRecHitProducer =  cms.InputTag("caloRecHits")
+electronEcalRecHitIsolationScone.ecalBarrelRecHitCollection =  cms.InputTag("EcalRecHitsEB")
+
+electronEcalRecHitIsolationScone.ecalEndcapRecHitProducer =  cms.InputTag("caloRecHits")
+electronEcalRecHitIsolationScone.ecalEndcapRecHitCollection =  cms.InputTag("EcalRecHitsEE")
+
+
+#Add egamma ecal interesting rec hits
+from RecoEgamma.EgammaIsolationAlgos.interestingEleIsoDetIdModule_cff import *
+interestingEleIsoDetId.recHitsLabel = cms.InputTag("caloRecHits","EcalRecHitsEB")
+from RecoEgamma.EgammaIsolationAlgos.interestingGamIsoDetIdModule_cff import *
+interestingGamIsoDetId.recHitsLabel = cms.InputTag("caloRecHits","EcalRecHitsEB")
+
+from RecoEgamma.EgammaIsolationAlgos.interestingEgammaIsoDetIdsSequence_cff import *
+#import  RecoEgamma.EgammaIsolationAlgos.interestingEgammaIsoDetIdsSequence_cff
+interestingEleIsoDetIdEB.recHitsLabel = cms.InputTag("caloRecHits","EcalRecHitsEB")
+interestingEleIsoDetIdEE.recHitsLabel = cms.InputTag("caloRecHits","EcalRecHitsEE")
+interestingGamIsoDetIdEB.recHitsLabel = cms.InputTag("caloRecHits","EcalRecHitsEB")
+interestingGamIsoDetIdEE.recHitsLabel = cms.InputTag("caloRecHits","EcalRecHitsEB")
+
+
+
 
 # B tagging
 from RecoJets.JetAssociationProducers.ic5JetTracksAssociatorAtVertex_cfi import *
@@ -433,7 +458,9 @@ famosWithElectrons = cms.Sequence(
     famosWithTracks+
     caloRecHits+
     ecalClusters+ 
-    famosElectronSequence
+    famosElectronSequence+
+    interestingEgammaIsoDetIds+
+    egammaIsolationSequence
 )
 
 famosWithPhotons = cms.Sequence(
@@ -441,7 +468,9 @@ famosWithPhotons = cms.Sequence(
     vertexreco+
     caloRecHits+
     ecalClusters+
-    famosPhotonSequence
+    famosPhotonSequence+
+    interestingEgammaIsoDetIds+
+    egammaIsolationSequence
 )
 
 famosWithElectronsAndPhotons = cms.Sequence(
@@ -450,7 +479,9 @@ famosWithElectronsAndPhotons = cms.Sequence(
     caloRecHits+
     ecalClusters+
     famosElectronSequence+
-    famosPhotonSequence
+    famosPhotonSequence+
+    interestingEgammaIsoDetIds+
+    egammaIsolationSequence
 )
 
 famosWithBTagging = cms.Sequence(
@@ -492,6 +523,8 @@ reconstructionWithFamos = cms.Sequence(
     ecalClusters+
     famosElectronSequence+
     famosPhotonSequence+
+    egammaIsolationSequence+
+    interestingEgammaIsoDetIds+
     famosMuonSequence+
     famosMuonIdAndIsolationSequence+
     famosParticleFlowSequence+
