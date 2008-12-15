@@ -10,9 +10,10 @@ process.source = cms.Source("EmptySource")
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
     )
-#process.SimpleMemoryCheck = cms.Service("SimpleMemoryCheck",
-#                                        ignoreTotal = cms.untracked.int32(0)
-#                                        )
+
+#Uncomment these two lines to get from the global tag
+#process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
+#process.GlobalTag.globaltag = 'IDEAL_30X::All'
 
 process.PoolDBESSource = cms.ESSource("PoolDBESSource",
                                       process.CondDBSetup,

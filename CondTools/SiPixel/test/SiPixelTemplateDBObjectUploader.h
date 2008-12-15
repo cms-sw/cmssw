@@ -23,6 +23,7 @@ class SiPixelTemplateDBObjectUploader : public edm::EDAnalyzer {
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
      	vstring theFileNums ;
+			float theVersion;
 
 };
 

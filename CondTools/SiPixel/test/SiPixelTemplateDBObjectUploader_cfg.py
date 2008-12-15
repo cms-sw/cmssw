@@ -29,7 +29,8 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
                                           )
 
 process.uploader = cms.EDAnalyzer("SiPixelTemplateDBObjectUploader",
-                                fileNums = cms.vstring("0001","0004","0010","0012")
+                                fileNums = cms.vstring("0001","0004","0010","0012"),
+                                  Version = cms.double("1.1")
 )
 
 process.myprint = cms.OutputModule("AsciiOutputModule")

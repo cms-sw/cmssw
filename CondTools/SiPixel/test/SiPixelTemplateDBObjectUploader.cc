@@ -6,7 +6,8 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 SiPixelTemplateDBObjectUploader::SiPixelTemplateDBObjectUploader(const edm::ParameterSet& iConfig):
-	theFileNums( iConfig.getParameter<vstring>("fileNums") )
+	theFileNums( iConfig.getParameter<vstring>("fileNums") ),
+	theVersion( iConfig.getParameter<double>("Version") )
 {
 }
 
@@ -31,7 +32,8 @@ SiPixelTemplateDBObjectUploader::endJob()
 	//--- Make the POOL-ORA object to store the database object
 	SiPixelTemplateDBObject* obj = new SiPixelTemplateDBObject;
   obj->fillDB(theFileNums);
-
+	obj->setVersion(theVersion);
+	
 	// Uncomment to output the contents of the db object at the end of the job
 	//std::cout << *obj << std::endl;
 
