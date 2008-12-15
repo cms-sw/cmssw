@@ -70,7 +70,8 @@ private:
 
   edm::ESHandle<DTGeometry> muonGeom;
 
-  std::map<int, std::map< int, MonitorElement* > > summaryHistos;
+  //an histogram of efficiency for each wheel, for each quality scenario
+  MonitorElement* summaryHistos[5][2];
 
 };
 

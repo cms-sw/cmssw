@@ -32,6 +32,8 @@ DTChamberEfficiencyClient::DTChamberEfficiencyClient(const ParameterSet& pSet)
   LogVerbatim ("DTDQM|DTMonitorClient|DTChamberEfficiencyClient")
     << "DTChamberEfficiencyClient: Constructor called";
 
+  dbe = Service<DQMStore>().operator->();
+
   prescaleFactor = pSet.getUntrackedParameter<int>("diagnosticPrescale", 1);
 }
 
@@ -45,9 +47,6 @@ void DTChamberEfficiencyClient::beginJob(const EventSetup& context)
 {
   LogVerbatim ("DTDQM|DTMonitorClient|DTChamberEfficiencyClient")
     << "DTChamberEfficiencyClient: BeginJob";
-
-  dbe = Service<DQMStore>().operator->();
-
 
   nevents = 0;
 
@@ -107,13 +106,13 @@ void DTChamberEfficiencyClient::endLuminosityBlock(LuminosityBlock const& lumiSe
     TH2F* hCountQual = MECountQual->getTH2F();
     TH2F* hExtrap = MEExtrap->getTH2F();
 
-    int nBinX = summaryHistos[wheel][0]->getNbinsX();
-    int nBinY = summaryHistos[wheel][0]->getNbinsY();
+    int nBinX = summaryHistos[wheel+2][0]->getNbinsX();
+    int nBinY = summaryHistos[wheel+2][0]->getNbinsY();
 
     for(int j=1;j<=nBinX;j++){
       for(int k=1;k<=nBinY;k++){
-	summaryHistos[wheel][0]->setBinContent(j,k,0.);
-	summaryHistos[wheel][1]->setBinContent(j,k,0.);
+	summaryHistos[wheel+2][0]->setBinContent(j,k,0.);
+	summaryHistos[wheel+2][1]->setBinContent(j,k,0.);
 
 	const float numerAll = hCountAll->GetBinContent(j,k);
 	const float numerQual = hCountQual->GetBinContent(j,k);
@@ -126,11 +125,11 @@ void DTChamberEfficiencyClient::endLuminosityBlock(LuminosityBlock const& lumiSe
 	  const float effQual= numerQual/denom;
 	  const float eff_error_Qual = sqrt((effQual+effQual*effQual)/denom);
 
-	  summaryHistos[wheel][0]->setBinContent(j,k,effAll);
-	  summaryHistos[wheel][0]->setBinError(j,k,eff_error_All);
+	  summaryHistos[wheel+2][0]->setBinContent(j,k,effAll);
+	  summaryHistos[wheel+2][0]->setBinError(j,k,eff_error_All);
 
-	  summaryHistos[wheel][1]->setBinContent(j,k,effQual);
-	  summaryHistos[wheel][1]->setBinError(j,k,eff_error_Qual);
+	  summaryHistos[wheel+2][1]->setBinContent(j,k,effQual);
+	  summaryHistos[wheel+2][1]->setBinError(j,k,eff_error_Qual);
 	}
       }
     }
@@ -151,23 +150,29 @@ void DTChamberEfficiencyClient::bookHistos()
   for(int wh=-2; wh<=2; wh++){
     stringstream wheel; wheel << wh;
     string histoNameAll =  "EfficiencyMap_All_W" + wheel.str();
-    string histoTitleAll =  "Efficiency map for wheel for all segments" + wheel.str();
+    string histoTitleAll =  "Efficiency map for all segments for wheel " + wheel.str();
 
     string histoNameQual =  "EfficiencyMap_Qual_W" + wheel.str();
-    string histoTitleQual =  "Efficiency map for wheel for quality segments" + wheel.str();
+    string histoTitleQual =  "Efficiency map for quality segments for wheel " + wheel.str();
 
 
     dbe->setCurrentFolder("DT/05-ChamberEff");
 
-    summaryHistos[wh][0] = dbe->book2D(histoNameAll.c_str(),histoTitleAll.c_str(),14,1,15,4,1,5);
-    summaryHistos[wh][0]->setAxisTitle("Sector",1);
-    summaryHistos[wh][0]->setAxisTitle("Station",2);
+    summaryHistos[wh+2][0] = dbe->book2D(histoNameAll.c_str(),histoTitleAll.c_str(),14,1.,15.,4,1.,5.);
+    summaryHistos[wh+2][0]->setAxisTitle("Sector",1);
+    summaryHistos[wh+2][0]->setBinLabel(1,"MB1",2);
+    summaryHistos[wh+2][0]->setBinLabel(2,"MB2",2);
+    summaryHistos[wh+2][0]->setBinLabel(3,"MB3",2);
+    summaryHistos[wh+2][0]->setBinLabel(4,"MB4",2);
+
     dbe->setCurrentFolder("DT/05-ChamberEff/HighQual");
 
-    summaryHistos[wh][1] = dbe->book2D(histoNameQual.c_str(),histoTitleQual.c_str(),14,1,15,4,1,5);
-    summaryHistos[wh][1]->setAxisTitle("Sector",1);
-    summaryHistos[wh][1]->setAxisTitle("Station",2);
-
+    summaryHistos[wh+2][1] = dbe->book2D(histoNameQual.c_str(),histoTitleQual.c_str(),14,1.,15.,4,1.,5.);
+    summaryHistos[wh+2][1]->setAxisTitle("Sector",1);
+    summaryHistos[wh+2][1]->setBinLabel(1,"MB1",2);
+    summaryHistos[wh+2][1]->setBinLabel(2,"MB2",2);
+    summaryHistos[wh+2][1]->setBinLabel(3,"MB3",2);
+    summaryHistos[wh+2][1]->setBinLabel(4,"MB4",2);
   }
 
   return;
