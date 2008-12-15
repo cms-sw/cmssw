@@ -7,7 +7,7 @@
  *
  * \author U.Berthon, ClaudeCharlot, LLR
  *
- * \version $Id: GsfElectron.h,v 1.16 2008/12/11 18:13:51 charlot Exp $
+ * \version $Id: GsfElectron.h,v 1.17 2008/12/13 08:44:53 charlot Exp $
  *
  */
 
@@ -26,6 +26,9 @@
 // Ursula Berthon - LLR Ecole polytechnique
 //
 // $Log: GsfElectron.h,v $
+// Revision 1.17  2008/12/13 08:44:53  charlot
+// using isolation scheme for H/E
+//
 // Revision 1.16  2008/12/11 18:13:51  charlot
 // updated doxygen comments
 //
@@ -279,6 +282,9 @@ private:
 
   // had. over em enrgy using first hcal depth
   float hadOverEm1_;
+  // hadronic over em energy using 2nd hcal depth
+  float hadOverEm2_;
+
 
   reco::SuperClusterRef superCluster_;
   reco::GsfTrackRef track_;
@@ -314,8 +320,6 @@ private:
   // e seed cluster / pin
   float eSeedClusterOverP_;
   
-  // hadronic over em energy using 2nd hcal depth
-  float hadOverEm2_;
   
   /// check overlap with another candidate
   virtual bool overlap( const Candidate & ) const;
