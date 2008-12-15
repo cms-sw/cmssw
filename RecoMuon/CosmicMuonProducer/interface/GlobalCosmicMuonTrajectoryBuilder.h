@@ -4,8 +4,8 @@
 /** \file GlobalCosmicMuonTrajectoryBuilder
  *  class to build combined trajectory from cosmic tracks in tk and mu
  *
- *  $Date: 2008/11/03 18:23:49 $
- *  $Revision: 1.10 $
+ *  $Date: 2008/11/05 01:53:01 $
+ *  $Revision: 1.11 $
  *  \author Chang Liu  -  Purdue University
  */
 
@@ -89,6 +89,8 @@ private:
   bool tkTrajsAvailable;
 
   const std::vector<Trajectory>* allTrackerTrajs;
+
+  std::string category_;
   
 };
 #endif
