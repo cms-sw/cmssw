@@ -33,8 +33,12 @@
 
     //EcalRecHit isolation
     float isolationEcalRecHit;
-    //HcalRecHit isolation
+    //HcalTower isolation
     float isolationHcalTower;
+    //HcalDepth1Tower isolation
+    float isolationHcalDepth1Tower;
+    //HcalDepth2Tower isolation
+    float isolationHcalDepth2Tower;
     //Sum of track pT in a cone of dR
     float isolationSolidTrkCone;
     //Sum of track pT in a hollow cone of outer radius, inner radius
@@ -48,6 +52,8 @@
 
 	 isolationEcalRecHit(0),
 	 isolationHcalTower(0),
+	 isolationHcalDepth1Tower(0),
+	 isolationHcalDepth2Tower(0),
 	 isolationSolidTrkCone(0),
 	 isolationHollowTrkCone(0),
          nTrkSolidCone(0),
