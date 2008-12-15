@@ -1,8 +1,8 @@
 /*
  * \file L1TCSCTF.cc
  *
- * $Date: 2008/09/09 17:17:36 $
- * $Revision: 1.23 $
+ * $Date: 2008/11/14 18:44:52 $
+ * $Revision: 1.25 $
  * \author J. Berryhill
  *
  */
@@ -382,9 +382,9 @@ void L1TCSCTF::analyze(const Event& e, const EventSetup& c)
 				}
            
 		   		// SR LUT gives packed eta and phi values -> normilize them to 1 by scale them to 'max' and shift by 'min'
-           		float etaP = gblEta.global_eta/127*1.5 + 0.9;
-				float phiP =  (gblPhi.global_phi);// + ( sector )*4096 + station*4096*12) * 1./(4*4096*12);
-				std::cout << "LCT Eta & Phi Coordinates: " << etaP << ", " << phiP << "." << std::endl;
+           		//float etaP = gblEta.global_eta/127*1.5 + 0.9;
+				//float phiP =  (gblPhi.global_phi);// + ( sector )*4096 + station*4096*12) * 1./(4*4096*12);
+				//std::cout << "LCT Eta & Phi Coordinates: " << etaP << ", " << phiP << "." << std::endl;
 				//csctfoccupancies->Fill( gblEta.global_eta/127. * 1.5 + 0.9, (gblPhi.global_phi + ( sector + (endcap?0:6) )*4096 + station*4096*12) * 1./(4*4096*12) );
         	}//lct != range1.scond
      	}//csc!=corrlcts.product()->end()
@@ -416,7 +416,7 @@ void L1TCSCTF::analyze(const Event& e, const EventSetup& c)
 			csctfoccupancies->Fill( etaReal, phiReal);
 			csctfTrackPhi->Fill(trk->first.phi_packed());
 			csctfTrackEta->Fill( trk->first.eta_packed() );
-			std::cout << "Eta, phi, trigger mode, sector: " << etaReal << ", " << phiReal << ", " << trigMode << ", " << trk->first.sector() <<  "." << std::endl;
+			//std::cout << "Eta, phi, trigger mode, sector: " << etaReal << ", " << phiReal << ", " << trigMode << ", " << trk->first.sector() <<  "." << std::endl;
 			
 			csctfTrackQ->Fill( trigMode );
 			
