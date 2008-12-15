@@ -1,8 +1,8 @@
 /*
  * \file L1TFED.cc
  *
- * $Date: 2008/10/06 13:16:44 $
- * $Revision: 1.8 $
+ * $Date: 2008/10/06 14:33:22 $
+ * $Revision: 1.9 $
  * \author J. Berryhill
  *
  */
@@ -79,7 +79,7 @@ void L1TFED::beginJob(const EventSetup& c)
     fedfatal = dbe->book1D("FEDFatal", "Fed ID non present ", l1feds_.size(), 0., l1feds_.size());	  
     fednonfatal = dbe->book1D("FEDNonFatal", "Fed corrupted data ", l1feds_.size(), 0.,l1feds_.size() );
     hfedprof = dbe->bookProfile("fedprofile","FED Size by ID", l1feds_.size(), 0., l1feds_.size(),0,0.,5000.);
-    for(int i=0;i<l1feds_.size();i++){
+    for(unsigned int i=0;i<l1feds_.size();i++){
        ostringstream sfed;
        sfed << l1feds_[i];
        fedentries->setBinLabel(i+1,"FED "+ sfed.str());
@@ -122,7 +122,7 @@ void L1TFED::analyze(const Event& e, const EventSetup& c)
 
      if(verbose_) cout << "fedlist size = " << l1feds_.size() << endl;
 
-     for (int i = 0; i<l1feds_.size(); i++){
+     for (unsigned int i = 0; i<l1feds_.size(); i++){
         int fedId = l1feds_[i];
         if(verbose_) cout << "fedId = " << fedId << endl;
        
