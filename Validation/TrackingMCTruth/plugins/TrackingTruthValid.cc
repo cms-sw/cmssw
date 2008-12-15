@@ -119,9 +119,10 @@ void TrackingTruthValid::analyze(const edm::Event& event, const edm::EventSetup&
     meTPPt->Fill(sqrt(t->momentum().perp2()));
     meTPEta->Fill(t->momentum().eta());
     meTPPhi->Fill(t->momentum().Phi());
-    meTPAllHits->Fill(t->trackerPSimHit().size());
+    std::vector<PSimHit> trackerPSimHit( t->trackPSimHit(DetId::Tracker) );
+    meTPAllHits->Fill(trackerPSimHit.size());
     //get the process of the first hit
-    if(t -> trackerPSimHit().size() !=0) meTPProc->Fill( t -> trackerPSimHit().front().processType());
+    if(t -> trackerPSimHit.size() !=0) meTPProc->Fill( t -> trackerPSimHit.front().processType());
     meTPMatchedHits->Fill(t->matchedHit());
     meTPVtxX->Fill(sqrt(t->vertex().x()));
     meTPVtxY->Fill(sqrt(t->vertex().y()));
