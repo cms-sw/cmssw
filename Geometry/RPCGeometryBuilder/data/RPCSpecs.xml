@@ -22,46 +22,291 @@ xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Sche
 -->
 
     <SpecPar name="nStrips90" eval="true">
-      <PartSelector path="//MB1RPC.*Gas.*"/>
-      <PartSelector path="//MB1RPC_I.*/MB.*RPC.*Gas.*"/>
-      <PartSelector path="//MB1ChimRPC_I.*/MB.*RPC.*Gas.*"/>
-      <PartSelector path="//MBWheel_0.*/MB2.*/MB23RPC_I.*/MB.*RPC.*Gas.*"/>
-      <PartSelector path="//MBWheel_1.*/MB2.*/MB23RPC_I.*/MB.*RPC.*Gas.*"/>
-      <PartSelector path="//MBWheel_2.*/MB2.*/MB22RPC_I.*/MB.*RPC.*Gas.*"/>
-      <PartSelector path="//MB2ChimRPC_I.*/MB.*RPC.*Gas.*"/>
+<PartSelector path="//MB/MBWheel_0/MB1P0/MB1RPC_IP/MB1RPC_IGasLeft"/>
+<PartSelector path="//MB/MBWheel_0/MB1P0/MB1RPC_IP/MB1RPC_IGasRight"/>
+
+<PartSelector path="//MB/MBWheel_0/MB1N0P/MB1RPC_IP/MB1RPC_IGasLeft"/>
+<PartSelector path="//MB/MBWheel_0/MB1N0P/MB1RPC_IP/MB1RPC_IGasRight"/>
+
+<PartSelector path="//MB/MBWheel_0/MB2N32P/MB23RPC_IN/MB23RPC_IGasLeft"/>
+<PartSelector path="//MB/MBWheel_0/MB2N32P/MB23RPC_IN/MB23RPC_IGasMiddle"/>
+<PartSelector path="//MB/MBWheel_0/MB2N32P/MB23RPC_IN/MB23RPC_IGasRight"/>
+
+<PartSelector path="//MB/MBWheel_0/MB2P32P/MB23RPC_IP/MB23RPC_IGasLeft"/>
+<PartSelector path="//MB/MBWheel_0/MB2P32P/MB23RPC_IP/MB23RPC_IGasMiddle"/>
+<PartSelector path="//MB/MBWheel_0/MB2P32P/MB23RPC_IP/MB23RPC_IGasRight"/>
+
+<PartSelector path="//MB/MBWheel_1N/MB1N/MB1RPC_IN/MB1RPC_IGasLeft"/>
+<PartSelector path="//MB/MBWheel_1N/MB1N/MB1RPC_IN/MB1RPC_IGasRight"/>
+
+<PartSelector path="//MB/MBWheel_1N/MB1ChimN/MB1ChimRPC_IN/MB1ChimRPC_IGasLeft"/>
+<PartSelector path="//MB/MBWheel_1N/MB1ChimN/MB1ChimRPC_IN/MB1ChimRPC_IGasRight"/>
+
+<PartSelector path="//MB/MBWheel_1N/MB1N/MB1RPC_IN/MB1RPC_IGasLeft"/>
+<PartSelector path="//MB/MBWheel_1N/MB1N/MB1RPC_IN/MB1RPC_IGasRight"/>
+
+<PartSelector path="//MB/MBWheel_1N/MB2N32N/MB23RPC_IN/MB23RPC_IGasLeft"/>
+<PartSelector path="//MB/MBWheel_1N/MB2N32N/MB23RPC_IN/MB23RPC_IGasMiddle"/>
+<PartSelector path="//MB/MBWheel_1N/MB2N32N/MB23RPC_IN/MB23RPC_IGasRight"/>
+
+<PartSelector path="//MB/MBWheel_1N/MB2N32N/MB23RPC_IN/MB23RPC_IGasLeft"/>
+<PartSelector path="//MB/MBWheel_1N/MB2N32N/MB23RPC_IN/MB23RPC_IGasMiddle"/>
+<PartSelector path="//MB/MBWheel_1N/MB2N32N/MB23RPC_IN/MB23RPC_IGasRight"/>
+
+<PartSelector path="//MB/MBWheel_1N/MB2ChimN/MB2ChimRPC_IN/MB2ChimRPC_IGasLeft"/>
+<PartSelector path="//MB/MBWheel_1N/MB2ChimN/MB2ChimRPC_IN/MB2ChimRPC_IGasMiddle"/>
+<PartSelector path="//MB/MBWheel_1N/MB2ChimN/MB2ChimRPC_IN/MB2ChimRPC_IGasRight"/>
+
+<PartSelector path="//MB/MBWheel_1P/MB1P/MB1RPC_IP/MB1RPC_IGasLeft"/>
+<PartSelector path="//MB/MBWheel_1P/MB1P/MB1RPC_IP/MB1RPC_IGasRight"/>
+
+<PartSelector path="//MB/MBWheel_1P/MB1ChimP/MB1ChimRPC_IP/MB1ChimRPC_IGasLeft"/>
+<PartSelector path="//MB/MBWheel_1P/MB1ChimP/MB1ChimRPC_IP/MB1ChimRPC_IGasRight"/>
+
+<PartSelector path="//MB/MBWheel_1P/MB1P/MB1RPC_IP/MB1RPC_IGasLeft"/>
+<PartSelector path="//MB/MBWheel_1P/MB1P/MB1RPC_IP/MB1RPC_IGasRight"/>
+
+<PartSelector path="//MB/MBWheel_1P/MB2P32P/MB23RPC_IP/MB23RPC_IGasLeft"/>
+<PartSelector path="//MB/MBWheel_1P/MB2P32P/MB23RPC_IP/MB23RPC_IGasMiddle"/>
+<PartSelector path="//MB/MBWheel_1P/MB2P32P/MB23RPC_IP/MB23RPC_IGasRight"/>
+
+<PartSelector path="//MB/MBWheel_1P/MB2ChimP/MB2ChimRPC_IP/MB2ChimRPC_IGasLeft"/>
+<PartSelector path="//MB/MBWheel_1P/MB2ChimP/MB2ChimRPC_IP/MB2ChimRPC_IGasMiddle"/>
+<PartSelector path="//MB/MBWheel_1P/MB2ChimP/MB2ChimRPC_IP/MB2ChimRPC_IGasRight"/>
+
+<PartSelector path="//MB/MBWheel_1P/MB2P32P/MB23RPC_IP/MB23RPC_IGasLeft"/>
+<PartSelector path="//MB/MBWheel_1P/MB2P32P/MB23RPC_IP/MB23RPC_IGasMiddle"/>
+<PartSelector path="//MB/MBWheel_1P/MB2P32P/MB23RPC_IP/MB23RPC_IGasRight"/>
+
+<PartSelector path="//MB/MBWheel_2N/MB1N/MB1RPC_IN/MB1RPC_IGasLeft"/>
+<PartSelector path="//MB/MBWheel_2N/MB1N/MB1RPC_IN/MB1RPC_IGasRight"/>
+
+<PartSelector path="//MB/MBWheel_2N/MB2N23N/MB22RPC_IN/MB22RPC_IGasLeft"/>
+<PartSelector path="//MB/MBWheel_2N/MB2N23N/MB22RPC_IN/MB22RPC_IGasRight"/>
+
+<PartSelector path="//MB/MBWheel_2P/MB1P/MB1RPC_IP/MB1RPC_IGasLeft"/>
+<PartSelector path="//MB/MBWheel_2P/MB1P/MB1RPC_IP/MB1RPC_IGasRight"/>
+
+<PartSelector path="//MB/MBWheel_2P/MB2P23P/MB22RPC_IP/MB22RPC_IGasLeft"/>
+<PartSelector path="//MB/MBWheel_2P/MB2P23P/MB22RPC_IP/MB22RPC_IGasRight"/>
       <Parameter name="nStrips" value="90"/>
     </SpecPar>
 
     <SpecPar name="nStrips84" eval="true">
-      <PartSelector path="//MB1RPC_O.*/MB.*RPC.*Gas.*"/>
-      <PartSelector path="//MB1ChimRPC_O.*/MB.*RPC.*Gas.*"/>
-      <PartSelector path="//MBWheel_0.*/MB2.*/MB22RPC_O.*/MB.*RPC.*Gas.*"/>
-      <PartSelector path="//MBWheel_1.*/MB2.*/MB22RPC_O.*/MB.*RPC.*Gas.*"/>
-      <PartSelector path="//MBWheel_2.*/MB2.*/MB23RPC_O.*/MB.*RPC.*Gas.*"/>
-      <PartSelector path="//MB2ChimRPC_O.*/MB.*RPC.*Gas.*"/>
+<PartSelector path="//MB/MBWheel_0/MB1N0P/MB1RPC_OP/MB1RPC_OGasLeft"/>
+<PartSelector path="//MB/MBWheel_0/MB1N0P/MB1RPC_OP/MB1RPC_OGasRight"/>
+
+<PartSelector path="//MB/MBWheel_0/MB1P0/MB1RPC_OP/MB1RPC_OGasLeft"/>
+<PartSelector path="//MB/MBWheel_0/MB1P0/MB1RPC_OP/MB1RPC_OGasRight"/>
+
+<PartSelector path="//MB/MBWheel_0/MB2N32P/MB22RPC_ON/MB22RPC_OGasLeft"/>
+<PartSelector path="//MB/MBWheel_0/MB2N32P/MB22RPC_ON/MB22RPC_OGasRight"/>
+
+<PartSelector path="//MB/MBWheel_0/MB2P32P/MB22RPC_OP/MB22RPC_OGasLeft"/>
+<PartSelector path="//MB/MBWheel_0/MB2P32P/MB22RPC_OP/MB22RPC_OGasRight"/>
+
+<PartSelector path="//MB/MBWheel_1P/MB1P/MB1RPC_OP/MB1RPC_OGasLeft"/>
+<PartSelector path="//MB/MBWheel_1P/MB1P/MB1RPC_OP/MB1RPC_OGasRight"/>
+<PartSelector path="//MB/MBWheel_1P/MB1ChimP/MB1ChimRPC_OP/MB1ChimRPC_OGasLeft"/>
+<PartSelector path="//MB/MBWheel_1P/MB1ChimP/MB1ChimRPC_OP/MB1ChimRPC_OGasRight"/>
+
+<PartSelector path="//MB/MBWheel_1N/MB1N/MB1RPC_ON/MB1RPC_OGasLeft"/>
+<PartSelector path="//MB/MBWheel_1N/MB1N/MB1RPC_ON/MB1RPC_OGasRight"/>
+<PartSelector path="//MB/MBWheel_1N/MB1ChimN/MB1ChimRPC_ON/MB1ChimRPC_OGasLeft"/>
+<PartSelector path="//MB/MBWheel_1N/MB1ChimN/MB1ChimRPC_ON/MB1ChimRPC_OGasRight"/>
+
+<PartSelector path="//MB/MBWheel_1P/MB2P32P/MB22RPC_OP/MB22RPC_OGasLeft"/>
+<PartSelector path="//MB/MBWheel_1P/MB2P32P/MB22RPC_OP/MB22RPC_OGasRight"/>
+<PartSelector path="//MB/MBWheel_1P/MB2ChimP/MB2ChimRPC_OP/MB2ChimRPC_OGasLeft"/>
+<PartSelector path="//MB/MBWheel_1P/MB2ChimP/MB2ChimRPC_OP/MB2ChimRPC_OGasRight"/>
+
+<PartSelector path="//MB/MBWheel_1N/MB2N32N/MB22RPC_ON/MB22RPC_OGasLeft"/>
+<PartSelector path="//MB/MBWheel_1N/MB2N32N/MB22RPC_ON/MB22RPC_OGasRight"/>
+<PartSelector path="//MB/MBWheel_1N/MB2ChimN/MB2ChimRPC_ON/MB2ChimRPC_OGasLeft"/>
+<PartSelector path="//MB/MBWheel_1N/MB2ChimN/MB2ChimRPC_ON/MB2ChimRPC_OGasRight"/>
+
+<PartSelector path="//MB/MBWheel_2P/MB1P/MB1RPC_OP/MB1RPC_OGasLeft"/>
+<PartSelector path="//MB/MBWheel_2P/MB1P/MB1RPC_OP/MB1RPC_OGasRight"/>
+
+<PartSelector path="//MB/MBWheel_2N/MB1N/MB1RPC_ON/MB1RPC_OGasLeft"/>
+<PartSelector path="//MB/MBWheel_2N/MB1N/MB1RPC_ON/MB1RPC_OGasRight"/>
+
+<PartSelector path="//MB/MBWheel_2P/MB2P23P/MB23RPC_OP/MB23RPC_OGasLeft"/>
+<PartSelector path="//MB/MBWheel_2P/MB2P23P/MB23RPC_OP/MB23RPC_OGasMiddle"/>
+<PartSelector path="//MB/MBWheel_2P/MB2P23P/MB23RPC_OP/MB23RPC_OGasRight"/>
+
+<PartSelector path="//MB/MBWheel_2N/MB2N23N/MB23RPC_ON/MB23RPC_OGasLeft"/>
+<PartSelector path="//MB/MBWheel_2N/MB2N23N/MB23RPC_ON/MB23RPC_OGasMiddle"/>
+<PartSelector path="//MB/MBWheel_2N/MB2N23N/MB23RPC_ON/MB23RPC_OGasRight"/>
       <Parameter name="nStrips" value="84"/>
     </SpecPar>
 
 
     <SpecPar name="nStrips42" eval="true">
+<PartSelector path="//MB/MBWheel_2N/MB3N/MB3RPC_N/MB3RPC_GasLeft"/>
+<PartSelector path="//MB/MBWheel_2N/MB3N/MB3RPC_N/MB3RPC_GasRight"/>
+
+<PartSelector path="//MB/MBWheel_1N/MB3N/MB3RPC_N/MB3RPC_GasLeft"/>
+<PartSelector path="//MB/MBWheel_1N/MB3N/MB3RPC_N/MB3RPC_GasRight"/>
+
+<PartSelector path="//MB/MBWheel_1N/MB3ChimN/MB3ChimRPC_N/MB3ChimRPC_GasLeft"/>
+<PartSelector path="//MB/MBWheel_1N/MB3ChimN/MB3ChimRPC_N/MB3ChimRPC_GasRight"/>
+
+<PartSelector path="//MB/MBWheel_1N/MB3N/MB3RPC_N/MB3RPC_GasLeft"/>
+<PartSelector path="//MB/MBWheel_1N/MB3N/MB3RPC_N/MB3RPC_GasRight"/>
+
+<PartSelector path="//MB/MBWheel_0/MB3N/MB3RPC_N/MB3RPC_GasLeft"/>
+<PartSelector path="//MB/MBWheel_0/MB3N/MB3RPC_N/MB3RPC_GasRight"/>
+
+<PartSelector path="//MB/MBWheel_0/MB3P/MB3RPC_P/MB3RPC_GasLeft"/>
+<PartSelector path="//MB/MBWheel_0/MB3P/MB3RPC_P/MB3RPC_GasRight"/>
+
+<PartSelector path="//MB/MBWheel_1P/MB3P/MB3RPC_P/MB3RPC_GasLeft"/>
+<PartSelector path="//MB/MBWheel_1P/MB3P/MB3RPC_P/MB3RPC_GasRight"/>
+
+<PartSelector path="//MB/MBWheel_1P/MB3ChimP/MB3ChimRPC_P/MB3ChimRPC_GasLeft"/>
+<PartSelector path="//MB/MBWheel_1P/MB3ChimP/MB3ChimRPC_P/MB3ChimRPC_GasRight"/>
+
+<PartSelector path="//MB/MBWheel_2P/MB3P/MB3RPC_P/MB3RPC_GasLeft"/>
+<PartSelector path="//MB/MBWheel_2P/MB3P/MB3RPC_P/MB3RPC_GasRight"/>
       <Parameter name="nStrips" value="42"/>
-      <PartSelector path="//MB3.*/MB.*RPC.*Gas.*"/>
-      <PartSelector path="//MB3ChimRPC.*/MB.*RPC.*Gas.*"/>
     </SpecPar>
 
     <SpecPar name="nStrips48" eval="true">
+<PartSelector path="//MB/MBWheel_2N/MB4BigLeftN/MB4RPC_N/MB4RPC_GasLeft"/>
+<PartSelector path="//MB/MBWheel_2N/MB4BigLeftN/MB4RPC_N/MB4RPC_GasRight"/>
+
+<PartSelector path="//MB/MBWheel_2N/MB4BigRightN/MB4RPC_N/MB4RPC_GasLeft"/>
+<PartSelector path="//MB/MBWheel_2N/MB4BigRightN/MB4RPC_N/MB4RPC_GasRight"/>
+
+<PartSelector path="//MB/MBWheel_2N/MB4FeetN/MB4FeetRPC_N/MB4FeetRPC_GasLeft"/>
+<PartSelector path="//MB/MBWheel_2N/MB4FeetN/MB4FeetRPC_N/MB4FeetRPC_GasRight"/>
+
+<PartSelector path="//MB/MBWheel_2N/MB4SmallRightN/MB4SmallRPC_NS8/MB4SmallRPC_BiggerGasLeft"/>
+<PartSelector path="//MB/MBWheel_2N/MB4SmallRightN/MB4SmallRPC_NS8/MB4SmallRPC_BiggerGasRight"/>
+
+<PartSelector path="//MB/MBWheel_2N/MB4SmallLeftN/MB4SmallRPC_NS12/MB4SmallRPC_BiggerGasLeft"/>
+<PartSelector path="//MB/MBWheel_2N/MB4SmallLeftN/MB4SmallRPC_NS12/MB4SmallRPC_BiggerGasRight"/>
+
+<PartSelector path="//MB/MBWheel_1N/MB4BigLeftN/MB4RPC_N/MB4RPC_GasLeft"/>
+<PartSelector path="//MB/MBWheel_1N/MB4BigLeftN/MB4RPC_N/MB4RPC_GasRight"/>
+
+<PartSelector path="//MB/MBWheel_1N/MB4BigChimN/MB4BigChimRPC_N/MB4BigChimRPC_GasLeft"/>
+<PartSelector path="//MB/MBWheel_1N/MB4BigChimN/MB4BigChimRPC_N/MB4BigChimRPC_GasRight"/>
+
+<PartSelector path="//MB/MBWheel_1N/MB4BigRightN/MB4RPC_N/MB4RPC_GasLeft"/>
+<PartSelector path="//MB/MBWheel_1N/MB4BigRightN/MB4RPC_N/MB4RPC_GasRight"/>
+
+<PartSelector path="//MB/MBWheel_1N/MB4SmallRightN/MB4SmallRPC_NS8/MB4SmallRPC_BiggerGasLeft"/>
+<PartSelector path="//MB/MBWheel_1N/MB4SmallRightN/MB4SmallRPC_NS8/MB4SmallRPC_BiggerGasRight"/>
+
+<PartSelector path="//MB/MBWheel_1N/MB4FeetN/MB4FeetRPC_N/MB4FeetRPC_GasLeft"/>
+<PartSelector path="//MB/MBWheel_1N/MB4FeetN/MB4FeetRPC_N/MB4FeetRPC_GasRight"/>
+
+<PartSelector path="//MB/MBWheel_1N/MB4SmallLeftN/MB4SmallRPC_NS12/MB4SmallRPC_BiggerGasLeft"/>
+<PartSelector path="//MB/MBWheel_1N/MB4SmallLeftN/MB4SmallRPC_NS12/MB4SmallRPC_BiggerGasRight"/>
+
+<PartSelector path="//MB/MBWheel_0/MB4BigLeftN/MB4RPC_N/MB4RPC_GasLeft"/>
+<PartSelector path="//MB/MBWheel_0/MB4BigLeftN/MB4RPC_N/MB4RPC_GasRight"/>
+
+<PartSelector path="//MB/MBWheel_0/MB4BigRightP/MB4RPC_P/MB4RPC_GasLeft"/>
+<PartSelector path="//MB/MBWheel_0/MB4BigRightP/MB4RPC_P/MB4RPC_GasRight"/>
+
+<PartSelector path="//MB/MBWheel_0/MB4BigRightN/MB4RPC_N/MB4RPC_GasLeft"/>
+<PartSelector path="//MB/MBWheel_0/MB4BigRightN/MB4RPC_N/MB4RPC_GasRight"/>
+
+<PartSelector path="//MB/MBWheel_0/MB4BigLeftP/MB4RPC_P/MB4RPC_GasLeft"/>
+<PartSelector path="//MB/MBWheel_0/MB4BigLeftP/MB4RPC_P/MB4RPC_GasRight"/>
+
+<PartSelector path="//MB/MBWheel_0/MB4SmallRightN/MB4SmallRPC_NS8/MB4SmallRPC_BiggerGasLeft"/>
+<PartSelector path="//MB/MBWheel_0/MB4SmallRightN/MB4SmallRPC_NS8/MB4SmallRPC_BiggerGasRight"/>
+
+<PartSelector path="//MB/MBWheel_0/MB4FeetN/MB4FeetRPC_N/MB4FeetRPC_GasLeft"/>
+<PartSelector path="//MB/MBWheel_0/MB4FeetN/MB4FeetRPC_N/MB4FeetRPC_GasRight"/>
+
+<PartSelector path="//MB/MBWheel_0/MB4FeetP/MB4FeetRPC_P/MB4FeetRPC_GasLeft"/>
+<PartSelector path="//MB/MBWheel_0/MB4FeetP/MB4FeetRPC_P/MB4FeetRPC_GasRight"/>
+
+<PartSelector path="//MB/MBWheel_0/MB4SmallLeftN/MB4SmallRPC_NS12/MB4SmallRPC_BiggerGasLeft"/>
+<PartSelector path="//MB/MBWheel_0/MB4SmallLeftN/MB4SmallRPC_NS12/MB4SmallRPC_BiggerGasRight"/>
+
+<PartSelector path="//MB/MBWheel_1P/MB4BigRightP/MB4RPC_P/MB4RPC_GasLeft"/>
+<PartSelector path="//MB/MBWheel_1P/MB4BigRightP/MB4RPC_P/MB4RPC_GasRight"/>
+
+<PartSelector path="//MB/MBWheel_1P/MB4BigLeftP/MB4RPC_P/MB4RPC_GasLeft"/>
+<PartSelector path="//MB/MBWheel_1P/MB4BigLeftP/MB4RPC_P/MB4RPC_GasRight"/>
+
+<PartSelector path="//MB/MBWheel_1P/MB4SmallLeftP/MB4SmallRPC_PS8/MB4SmallRPC_BiggerGasLeft"/>
+<PartSelector path="//MB/MBWheel_1P/MB4SmallLeftP/MB4SmallRPC_PS8/MB4SmallRPC_BiggerGasRight"/>
+
+<PartSelector path="//MB/MBWheel_1P/MB4FeetP/MB4FeetRPC_P/MB4FeetRPC_GasLeft"/>
+<PartSelector path="//MB/MBWheel_1P/MB4FeetP/MB4FeetRPC_P/MB4FeetRPC_GasRight"/>
+
+<PartSelector path="//MB/MBWheel_1P/MB4SmallRightP/MB4SmallRPC_PS12/MB4SmallRPC_BiggerGasLeft"/>
+<PartSelector path="//MB/MBWheel_1P/MB4SmallRightP/MB4SmallRPC_PS12/MB4SmallRPC_BiggerGasRight"/>
+
+<PartSelector path="//MB/MBWheel_2P/MB4BigRightP/MB4RPC_P/MB4RPC_GasLeft"/>
+<PartSelector path="//MB/MBWheel_2P/MB4BigRightP/MB4RPC_P/MB4RPC_GasRight"/>
+
+<PartSelector path="//MB/MBWheel_2P/MB4BigLeftP/MB4RPC_P/MB4RPC_GasLeft"/>
+<PartSelector path="//MB/MBWheel_2P/MB4BigLeftP/MB4RPC_P/MB4RPC_GasRight"/>
+
+<PartSelector path="//MB/MBWheel_2P/MB4SmallLeftP/MB4SmallRPC_PS8/MB4SmallRPC_BiggerGasLeft"/>
+<PartSelector path="//MB/MBWheel_2P/MB4SmallLeftP/MB4SmallRPC_PS8/MB4SmallRPC_BiggerGasRight"/>
+
+<PartSelector path="//MB/MBWheel_2P/MB4FeetP/MB4FeetRPC_P/MB4FeetRPC_GasLeft"/>
+<PartSelector path="//MB/MBWheel_2P/MB4FeetP/MB4FeetRPC_P/MB4FeetRPC_GasRight"/>
+
+<PartSelector path="//MB/MBWheel_2P/MB4SmallRightP/MB4SmallRPC_PS12/MB4SmallRPC_BiggerGasLeft"/>
+<PartSelector path="//MB/MBWheel_2P/MB4SmallRightP/MB4SmallRPC_PS12/MB4SmallRPC_BiggerGasRight"/>
       <Parameter name="nStrips" value="48"/>
-       <PartSelector path="//MB4Big.*/MB4RPC.*/MB.*RPC.*Gas.*"/>
-       <PartSelector path="//MB4BigChimRPC.*/MB.*RPC.*Gas.*"/>
-       <PartSelector path="//MB4Small.*/MB4RPC.*/MB.*RPC.*Gas.*"/>
-       <PartSelector path="//MB4FeetRPC.*/MB.*RPC.*Gas.*"/>
-       <PartSelector path="//MB4Small.*/MB4SmallRPC.*/MB4SmallRPC_BiggerGas.*"/>
     </SpecPar>
 
     <SpecPar name="nStrips36" eval="true">
-       <PartSelector path="//MB4TopRPC.*/MB.*RPC.*Gas.*"/>
-       <PartSelector path="//MB4TopChimRPC.*/MB.*RPC.*Gas.*"/>
-       <PartSelector path="//MB4Small.*/MB4SmallRPC.*/MB4SmallRPC_SmallerGas.*"/>
+<PartSelector path="//MB/MBWheel_2N/MB4TopN/MB4TopRPC_N/MB4TopRPC_GasLeft"/>
+<PartSelector path="//MB/MBWheel_2N/MB4TopN/MB4TopRPC_N/MB4TopRPC_GasRight"/>
+
+<PartSelector path="//MB/MBWheel_2N/MB4SmallRightN/MB4SmallRPC_NS8/MB4SmallRPC_SmallerGasLeft"/>
+<PartSelector path="//MB/MBWheel_2N/MB4SmallRightN/MB4SmallRPC_NS8/MB4SmallRPC_SmallerGasRight"/>
+
+<PartSelector path="//MB/MBWheel_2N/MB4SmallLeftN/MB4SmallRPC_NS12/MB4SmallRPC_SmallerGasLeft"/>
+<PartSelector path="//MB/MBWheel_2N/MB4SmallLeftN/MB4SmallRPC_NS12/MB4SmallRPC_SmallerGasRight"/>
+
+<PartSelector path="//MB/MBWheel_1N/MB4TopN/MB4TopRPC_N/MB4TopRPC_GasLeft"/>
+<PartSelector path="//MB/MBWheel_1N/MB4TopN/MB4TopRPC_N/MB4TopRPC_GasRight"/>
+
+<PartSelector path="//MB/MBWheel_1N/MB4SmallRightN/MB4SmallRPC_NS8/MB4SmallRPC_SmallerGasLeft"/>
+<PartSelector path="//MB/MBWheel_1N/MB4SmallRightN/MB4SmallRPC_NS8/MB4SmallRPC_SmallerGasRight"/>
+
+<PartSelector path="//MB/MBWheel_1N/MB4SmallLeftN/MB4SmallRPC_NS12/MB4SmallRPC_SmallerGasLeft"/>
+<PartSelector path="//MB/MBWheel_1N/MB4SmallLeftN/MB4SmallRPC_NS12/MB4SmallRPC_SmallerGasRight"/>
+
+<PartSelector path="//MB/MBWheel_0/MB4TopN/MB4TopRPC_N/MB4TopRPC_GasLeft"/>
+<PartSelector path="//MB/MBWheel_0/MB4TopN/MB4TopRPC_N/MB4TopRPC_GasRight"/>
+
+<PartSelector path="//MB/MBWheel_0/MB4SmallRightN/MB4SmallRPC_NS8/MB4SmallRPC_SmallerGasLeft"/>
+<PartSelector path="//MB/MBWheel_0/MB4SmallRightN/MB4SmallRPC_NS8/MB4SmallRPC_SmallerGasRight"/>
+
+<PartSelector path="//MB/MBWheel_0/MB4SmallLeftN/MB4SmallRPC_NS12/MB4SmallRPC_SmallerGasLeft"/>
+<PartSelector path="//MB/MBWheel_0/MB4SmallLeftN/MB4SmallRPC_NS12/MB4SmallRPC_SmallerGasRight"/>
+
+<PartSelector path="//MB/MBWheel_1P/MB4TopChimP/MB4TopChimRPC_P/MB4TopChimRPC_GasLeft"/>
+<PartSelector path="//MB/MBWheel_1P/MB4TopChimP/MB4TopChimRPC_P/MB4TopChimRPC_GasRight"/>
+
+<PartSelector path="//MB/MBWheel_1P/MB4SmallLeftP/MB4SmallRPC_PS8/MB4SmallRPC_SmallerGasLeft"/>
+<PartSelector path="//MB/MBWheel_1P/MB4SmallLeftP/MB4SmallRPC_PS8/MB4SmallRPC_SmallerGasRight"/>
+
+<PartSelector path="//MB/MBWheel_1P/MB4SmallRightP/MB4SmallRPC_PS12/MB4SmallRPC_SmallerGasLeft"/>
+<PartSelector path="//MB/MBWheel_1P/MB4SmallRightP/MB4SmallRPC_PS12/MB4SmallRPC_SmallerGasRight"/>
+
+<PartSelector path="//MB/MBWheel_2P/MB4TopP/MB4TopRPC_P/MB4TopRPC_GasLeft"/>
+<PartSelector path="//MB/MBWheel_2P/MB4TopP/MB4TopRPC_P/MB4TopRPC_GasRight"/>
+
+<PartSelector path="//MB/MBWheel_2P/MB4SmallLeftP/MB4SmallRPC_PS8/MB4SmallRPC_SmallerGasLeft"/>
+<PartSelector path="//MB/MBWheel_2P/MB4SmallLeftP/MB4SmallRPC_PS8/MB4SmallRPC_SmallerGasRight"/>
+
+<PartSelector path="//MB/MBWheel_2P/MB4SmallRightP/MB4SmallRPC_PS12/MB4SmallRPC_SmallerGasLeft"/>
+<PartSelector path="//MB/MBWheel_2P/MB4SmallRightP/MB4SmallRPC_PS12/MB4SmallRPC_SmallerGasRight"/>
       <Parameter name="nStrips" value="36"/>
     </SpecPar>
 
