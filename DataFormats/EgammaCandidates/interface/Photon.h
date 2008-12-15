@@ -6,7 +6,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Photon.h,v 1.22 2008/10/28 18:50:05 nancy Exp $
+ * \version $Id: Photon.h,v 1.23 2008/11/03 21:22:52 nancy Exp $
  *
  */
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
@@ -22,7 +22,7 @@ namespace reco {
     /// constructor from values
     Photon( const LorentzVector & p4, Point caloPos, 
 	    const SuperClusterRef scl, 
-            float HoE,
+            float HoE1, float HoE2,
 	    bool hasPixelSeed=false, const Point & vtx = Point( 0, 0, 0 ) );
     /// destructor
     virtual ~Photon();
@@ -57,30 +57,38 @@ namespace reco {
       { maxEnergyXtal_=a, e1x5_=b; e2x5_=c; e3x3_=d; e5x5_=e; covEtaEta_=f; covIetaIeta_=g;}
     /// set relevant isolation variables
     void setIsolationVariablesConeDR04 ( const float a, 
-				 const float b, 
-				 const float c, 
-				 const float d, 
-				 const int e, 
-				 const int f  ) { 
+					 const float b, 
+					 const float c, 
+					 const float d, 
+					 const float e, 
+					 const float f, 
+					 const int g, 
+					 const int h  ) { 
       isolationEcalRecHitSumConeDR04_=a; 
       isolationHcalTowerSumConeDR04_=b;
-      isolationTrkSolidConeDR04_=c;
-      isolationTrkHollowConeDR04_=d;
-      nTrkSolidConeDR04_=e;
-      nTrkHollowConeDR04_=f;
+      isolationHcalDepth1TowerSumConeDR04_=c;
+      isolationHcalDepth2TowerSumConeDR04_=d;
+      isolationTrkSolidConeDR04_=e;
+      isolationTrkHollowConeDR04_=f;
+      nTrkSolidConeDR04_=g;
+      nTrkHollowConeDR04_=h;
     }
     void setIsolationVariablesConeDR03 ( const float a, 
-				       const float b, 
-				       const float c, 
-				       const float d, 
-				       const int e, 
-				       const int f  ) { 
+					 const float b, 
+					 const float c, 
+					 const float d, 
+					 const float e, 
+					 const float f, 
+					 const int g, 
+					 const int h  ) { 
       isolationEcalRecHitSumConeDR03_=a; 
       isolationHcalTowerSumConeDR03_ =b;
-      isolationTrkSolidConeDR03_ =c;
-      isolationTrkHollowConeDR03_=d;
-      nTrkSolidConeDR03_ =e;
-      nTrkHollowConeDR03_=f;
+      isolationHcalDepth1TowerSumConeDR03_ =c;
+      isolationHcalDepth2TowerSumConeDR03_ =d;
+      isolationTrkSolidConeDR03_ =e;
+      isolationTrkHollowConeDR03_=f;
+      nTrkSolidConeDR03_ =g;
+      nTrkHollowConeDR03_=h;
     }
 
 
@@ -90,8 +98,12 @@ namespace reco {
     ////////////  Retrieve quantities
     /// position in ECAL: this is th SC position if r9<0.93. If r8>0.93 is position of seed BasicCluster taking shower depth for unconverted photon
     math::XYZPoint caloPosition() const {return caloPosition_;}
-    /// the hadronic over electromagnetic fraction
-    float hadronicOverEm() const {return hadOverEm_;}
+    /// the total hadronic over electromagnetic fraction
+    float hadronicOverEm() const {return  hadDepth1OverEm_ + hadDepth2OverEm_ ;}
+    /// the  hadronic release in depth1 over electromagnetic fraction
+    float hadronicDepth1OverEm() const {return  hadDepth1OverEm_  ;}
+    /// the  hadronic release in depth2 over electromagnetic fraction
+    float hadronicDepth2OverEm() const {return  hadDepth2OverEm_  ;}
     /// Whether or not the SuperCluster has a matched GsfElectron pixel seed 
     bool hasPixelSeed() const { return pixelSeed_; }
     /// Bool flagging photons with a vector of refereces to conversions with size >0
@@ -124,6 +136,10 @@ namespace reco {
     float ecalRecHitSumConeDR04()      const{return isolationEcalRecHitSumConeDR04_;}
     /// Hcal isolation sum
     float hcalTowerSumConeDR04()      const{return isolationHcalTowerSumConeDR04_;}
+    /// Hcal-Depth1 isolation sum
+    float hcalDepth1TowerSumConeDR04()      const{return isolationHcalDepth1TowerSumConeDR04_;}
+    /// Hcal-Depth2 isolation sum
+    float hcalDepth2TowerSumConeDR04()      const{return isolationHcalDepth2TowerSumConeDR04_;}
     //  Track pT sum c
     float isolationTrkSolidConeDR04()    const{return  isolationTrkSolidConeDR04_;}
     //As above, excluding the core at the center of the cone
@@ -137,6 +153,10 @@ namespace reco {
     float ecalRecHitSumConeDR03()      const{return isolationEcalRecHitSumConeDR03_;}
     /// Hcal isolation sum
     float hcalRecHitSumConeDR03()      const{return isolationHcalTowerSumConeDR03_;}
+    /// Hcal-Depth1 isolation sum
+    float hcalDepth1TowerSumConeDR03()      const{return isolationHcalDepth1TowerSumConeDR03_;}
+    /// Hcal-Depth2 isolation sum
+    float hcalDepth2TowerSumConeDR03()      const{return isolationHcalDepth2TowerSumConeDR03_;}
     //  Track pT sum c
     float isolationTrkSolidConeDR03()    const{return  isolationTrkSolidConeDR03_;}
     //As above, excluding the core at the center of the cone
@@ -157,6 +177,8 @@ namespace reco {
     std::vector<reco::ConversionRef>  conversions_;
 
     float hadOverEm_;
+    float hadDepth1OverEm_;
+    float hadDepth2OverEm_;
     bool pixelSeed_;
     bool isEB_;
     bool isEE_;
@@ -174,6 +196,8 @@ namespace reco {
     /// Isolation variables in cone dR=0.4
     float  isolationEcalRecHitSumConeDR04_;
     float  isolationHcalTowerSumConeDR04_;
+    float  isolationHcalDepth1TowerSumConeDR04_;
+    float  isolationHcalDepth2TowerSumConeDR04_;
     float  isolationTrkSolidConeDR04_;
     float  isolationTrkHollowConeDR04_;
     int  nTrkSolidConeDR04_;
@@ -181,6 +205,8 @@ namespace reco {
     /// Isolation variables in cone dR=0.3
     float  isolationEcalRecHitSumConeDR03_;
     float  isolationHcalTowerSumConeDR03_;
+    float  isolationHcalDepth1TowerSumConeDR03_;
+    float  isolationHcalDepth2TowerSumConeDR03_;
     float  isolationTrkSolidConeDR03_;
     float  isolationTrkHollowConeDR03_;
     int  nTrkSolidConeDR03_;
