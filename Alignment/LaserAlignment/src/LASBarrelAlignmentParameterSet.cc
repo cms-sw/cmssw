@@ -23,7 +23,6 @@ void LASBarrelAlignmentParameterSet::Init( void ) {
 
   // could use a single vector<vector<vector<pair<> > > >
   // but better split it in 6 parts
-
   for( int i = 0; i < 2; ++i ) { // twice; once for each endface
     tecPlusParameters.push_back ( std::vector<std::pair<double,double> >( 3 ) );
     tecMinusParameters.push_back( std::vector<std::pair<double,double> >( 3 ) );
@@ -31,6 +30,11 @@ void LASBarrelAlignmentParameterSet::Init( void ) {
     tibMinusParameters.push_back( std::vector<std::pair<double,double> >( 3 ) );
     tobPlusParameters.push_back ( std::vector<std::pair<double,double> >( 3 ) );
     tobMinusParameters.push_back( std::vector<std::pair<double,double> >( 3 ) );
+  }
+
+  // the beam parameters (8 beams * 2 pars) are stored in one single container
+  for( int i = 0; i < 8; ++i ) {
+    beamParameters.push_back( std::vector<std::pair<double,double> >( 2 ) );
   }
 
 }
@@ -76,6 +80,27 @@ std::pair<double,double>& LASBarrelAlignmentParameterSet::GetParameter( int aSub
 
 
 
+///
+/// return a single beam parameter (pair<> for value, error).
+/// we have eight beams with two parameters each (phi1, phi2)
+///
+std::pair<double,double>& LASBarrelAlignmentParameterSet::GetBeamParameter( int aBeam, int aParameter ) {
+  
+  if( aBeam < 0 || aBeam > 7 ) {
+    throw cms::Exception( "Laser Alignment" ) << " [LASBarrelAlignmentParameterSet::GetBeamParameter] ERROR ** Illegal beam index: " << aBeam << "." << std::endl;
+  }
+
+  if( aParameter < 0 || aParameter > 1 ) {
+    throw cms::Exception( "Laser Alignment" ) << " [LASBarrelAlignmentParameterSet::GetBeamParameter] ERROR ** Illegal beam parameter index: " << aParameter << "." << std::endl;
+  }
+
+  return beamParameters.at( aBeam ).at( aParameter );
+
+}
+
+
+
+
 
 ///
 ///
@@ -101,6 +126,23 @@ void LASBarrelAlignmentParameterSet::Dump( void ) {
     std::cout <<subdetNames[subdet];
     for( int par = 0; par < 3; ++par ) std::cout << std::right << std::setw( 12 ) << std::setprecision( 6 ) << std::fixed << GetParameter( subdet, 0, par ).second;
     for( int par = 0; par < 3; ++par ) std::cout << std::right << std::setw( 12 ) << std::setprecision( 6 ) << std::fixed << GetParameter( subdet, 1, par ).second;
+    std::cout << std::endl;
+  }
+
+  std::cout << std::endl;
+  std::cout << " Beam parameters: " << std::endl;
+  std::cout << " ----------------" << std::endl;
+  std::cout << " Values:     PHI1        PHI2" << std::endl;
+  for( int beam = 0; beam < 8; ++beam ) {
+    std::cout << " beam " << beam;
+    for( int par = 0; par < 2; ++par ) std::cout << std::right << std::setw( 12 ) << std::setprecision( 6 ) << std::fixed << GetBeamParameter( beam, par ).first;
+    std::cout << std::endl;
+  }
+
+  std::cout << " Errors:     PHI1        PHI2" << std::endl;
+  for( int beam = 0; beam < 8; ++beam ) {
+    std::cout << " beam " << beam;
+    for( int par = 0; par < 2; ++par ) std::cout << std::right << std::setw( 12 ) << std::setprecision( 6 ) << std::fixed << GetBeamParameter( beam, par ).second;
     std::cout << std::endl;
   }
 

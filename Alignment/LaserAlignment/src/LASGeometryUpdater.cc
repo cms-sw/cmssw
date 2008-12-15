@@ -142,7 +142,7 @@ void LASGeometryUpdater::TrackerUpdate( LASEndcapAlignmentParameterSet& endcapPa
 
     // average y displacement = (dy1+dy2)/2
     const align::GlobalVector dyLocal( 0., ( barrelParameters.GetParameter( halfBarrel, 0, 2 ).first + barrelParameters.GetParameter( halfBarrel, 1, 2 ).first ) / fromMmToCm / 2., 0. );
-    std::cout << "HALFBARREL: " << halfBarrel << " y offset is: " << dxLocal.y() << " mm" << std::endl; /////////////////////////////////
+    std::cout << "HALFBARREL: " << halfBarrel << " y offset is: " << dyLocal.y() << " mm" << std::endl; /////////////////////////////////
     theHalfBarrels.at( halfBarrel )->move( -1. * dyLocal );
 
     // rotation around x axis = (dy2-dy1)/L

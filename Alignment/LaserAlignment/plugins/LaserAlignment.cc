@@ -1,8 +1,8 @@
 /** \file LaserAlignment.cc
  *  LAS reconstruction module
  *
- *  $Date: 2008/07/17 14:28:13 $
- *  $Revision: 1.27 $
+ *  $Date: 2008/11/28 12:38:31 $
+ *  $Revision: 1.28 $
  *  \author Maarten Thomas
  *  \author Jan Olzem
  */
@@ -610,6 +610,7 @@ void LaserAlignment::endJob() {
       measuredCoordinates.SetTIBTOBEntry( det, beam, pos, nominalCoordinates.GetTIBTOBEntry( det, beam, pos ) );
       
       if( isGoodFit ) { // convert strip position to global phi and replace the nominal phi value/error
+	if( det == 2 ) std::cout << "PPPPPPPPPPPP: " << ConvertAngle( theStripDet->surface().toGlobal( theStripDet->specificTopology().localPosition( 255.5 ) ).barePhi() ) << std::endl; /////////////////////////////////
 	measuredCoordinates.GetTIBTOBEntry( det, beam, pos ).SetPhi( ConvertAngle( theStripDet->surface().toGlobal( theStripDet->specificTopology().localPosition( peakFinderResults.first ) ).barePhi() ) );
 	measuredCoordinates.GetTIBTOBEntry( det, beam, pos ).SetPhiError( 0.00028 ); // PRELIMINARY ESTIMATE
       }
@@ -671,6 +672,11 @@ void LaserAlignment::endJob() {
     // now reconstruct the geometry and update the db object
     LASGeometryUpdater geometryUpdater( nominalCoordinates );
 
+
+//     // run the alignment tube algorithm (analytical) /////////////////////////////////// this block must be removed from here (s. below)
+//     LASAlignmentTubeAlgorithm alignmentTubeAlgorithm;
+//     LASBarrelAlignmentParameterSet alignmentTubeParameters = alignmentTubeAlgorithm.CalculateParameters( measuredCoordinates, nominalCoordinates );
+
     // run the endcap algorithm
     LASEndcapAlgorithm endcapAlgorithm;
     LASEndcapAlignmentParameterSet endcapParameters = endcapAlgorithm.CalculateParameters( measuredCoordinates, nominalCoordinates );
@@ -678,7 +684,7 @@ void LaserAlignment::endJob() {
 
     // do a pre-alignment of the endcaps (TEC2TEC only)
     // so that the alignment tube algorithms finds orderly disks
-    geometryUpdater.EndcapUpdate( endcapParameters, measuredCoordinates, *theAlignableTracker );
+    //    geometryUpdater.EndcapUpdate( endcapParameters, measuredCoordinates, *theAlignableTracker );
 
     // run the alignment tube algorithm (analytical)
     LASAlignmentTubeAlgorithm alignmentTubeAlgorithm;

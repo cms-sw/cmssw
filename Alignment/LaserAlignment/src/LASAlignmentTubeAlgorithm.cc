@@ -22,7 +22,7 @@ LASBarrelAlignmentParameterSet LASAlignmentTubeAlgorithm::CalculateParameters( L
 
   // for debugging only
   //######################################################################################
-  //  ReadMisalignmentFromFile( "misalign-var.txt", measuredCoordinates, nominalCoordinates );
+  ReadMisalignmentFromFile( "misalign-var.txt", measuredCoordinates, nominalCoordinates );
   //######################################################################################
 
 
@@ -36,7 +36,10 @@ LASBarrelAlignmentParameterSet LASAlignmentTubeAlgorithm::CalculateParameters( L
   std::vector<double> beamPhiPositions( 8, 0. );
   for( beam = 0; beam < 8; ++beam ) beamPhiPositions.at( beam ) = phiPositions[beam];
 
-  // the radii of the alignment tube beams for each halfbarrel
+  // the radii of the alignment tube beams for each halfbarrel.
+  // the halfbarrels 1-6 are (see TkLasATModel TWiki): TEC+, TEC-, TIB+, TIB-. TOB+, TOB-
+  // in TIB/TOB modules these radii differ from the beam radius..
+  // ..due to the radial offsets (after the semitransparent mirrors)
   const double radii[6] = { 564., 564., 514., 514., 600., 600. };
   std::vector<double> beamRadii( 6, 0. );
   for( int aHalfbarrel = 0; aHalfbarrel < 6; ++aHalfbarrel ) beamRadii.at( aHalfbarrel ) =  radii[aHalfbarrel];
@@ -104,10 +107,6 @@ LASBarrelAlignmentParameterSet LASAlignmentTubeAlgorithm::CalculateParameters( L
   double sumOverZTPrimeSquared = 0.;
   double sumOverZTPrimePrimeSquared = 0.;
   double sumOverZTPrimeZTPrimePrime = 0.;
-
-
-
-
 
 
 

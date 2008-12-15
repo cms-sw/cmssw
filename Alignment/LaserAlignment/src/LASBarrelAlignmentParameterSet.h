@@ -26,6 +26,7 @@ class LASBarrelAlignmentParameterSet {
  public:
   LASBarrelAlignmentParameterSet();
   std::pair<double,double>& GetParameter( int aSubdetector, int aDisk, int aParameter );
+  std::pair<double,double>& GetBeamParameter( int aBeam, int aParameter );
   void Dump( void );
 
  private:
@@ -37,6 +38,8 @@ class LASBarrelAlignmentParameterSet {
   std::vector<std::vector<std::pair<double,double> > > tibMinusParameters;
   std::vector<std::vector<std::pair<double,double> > > tobPlusParameters;
   std::vector<std::vector<std::pair<double,double> > > tobMinusParameters;
+
+  std::vector<std::vector<std::pair<double,double> > > beamParameters;
 
 };
 
