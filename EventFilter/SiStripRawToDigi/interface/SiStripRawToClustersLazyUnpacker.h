@@ -11,6 +11,7 @@
 #include "EventFilter/SiStripRawToDigi/interface/SiStripRawToDigiUnpacker.h"
 #include "EventFilter/SiStripRawToDigi/interface/SiStripFEDBuffer.h"
 #include <vector>
+#include <list>
 
 class SiStripRawToClustersLazyUnpacker : public edm::LazyUnpacker<SiStripCluster> {
 
@@ -48,6 +49,10 @@ class SiStripRawToClustersLazyUnpacker : public edm::LazyUnpacker<SiStripCluster
 
   /// FED mode
   sistrip::FEDReadoutMode mode_;
+
+  /// Cache of buffers pointed to by FED9UEvent
+  std::list<FEDRawData> fedRawData_;
+
 };
 
 #include "Fed9UUtils.hh"
@@ -84,6 +89,10 @@ class RawToClustersLazyUnpacker : public edm::LazyUnpacker<SiStripCluster> {
 
   /// raw-to-digi
   SiStripRawToDigiUnpacker rawToDigi_;
+
+  /// Cache of buffers pointed to by FED9UEvent
+  std::list<FEDRawData> fedRawData_;
+
 };
 
 }
