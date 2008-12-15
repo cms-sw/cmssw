@@ -1,6 +1,8 @@
 #ifndef MuonAlignmentAlgorithms_SegmentToTrackAssociator_H
 #define MuonAlignmentAlgorithms_SegmentToTrackAssociator_H
 
+#include <vector>
+
 //standard include
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -20,13 +22,10 @@
 
 namespace edm {class ParameterSet; class Event; class EventSetup;}
 
-typedef std::vector< std::vector<int> > intDVector;
-
-
 class SegmentToTrackAssociator
 {
-  
 public:
+  typedef std::vector< std::vector<int> > intDVector;
   
   //constructor
   SegmentToTrackAssociator ( const edm::ParameterSet& );
