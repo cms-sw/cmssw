@@ -3,8 +3,8 @@ import os.path
 
 # search path for dependencies
 import sys
-sys.path.append(os.path.abspath(os.path.dirname(sys.argv[0]))+"/Main")
-sys.path.append(os.path.abspath(os.path.dirname(sys.argv[0]))+"/ConfigBrowser")
+sys.path.append("python/Main")
+sys.path.append("python/ConfigBrowser")
 
 from ConfigBrowserPlugin import *
 from MainWindow import *
@@ -12,9 +12,9 @@ from MainWindow import *
 from qt import *
 
 class ConfigBrowserWindow(MainWindow):
-    """ MainWindow of EdmBrowser """
+    """ MainWindow of ConfigBrowser """
     def __init__(self, parent=None, name=None, fl=0):
-        """ constructor creates views """
+        """ Mainwindow loads ConfigBrowser plugin """
         MainWindow.__init__(self,parent,name,fl)
         self.setCaption("Config Browser")
         self.version="Version of 12.12.2008"
