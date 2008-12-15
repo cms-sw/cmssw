@@ -5,7 +5,7 @@
 
 
 CastorHitAnalyzer::CastorHitAnalyzer(edm::ParameterSet const& conf) 
-  : hitReadoutName_("CASTORHITS"),
+  : hitReadoutName_("CastorHits"),
   simParameterMap_(),
   castorFilter_(),
   castorAnalyzer_("CASTOR", 1., &simParameterMap_, &castorFilter_)
@@ -31,7 +31,7 @@ namespace CastorHitAnalyzerImpl {
 
 void CastorHitAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& c) {
 edm::Handle<CrossingFrame<PCaloHit> > castorcf;
-e.getByLabel("mix", "CastorHits",castorcf);
+e.getByLabel("mix", "CastorFI",castorcf);
   
   // access to SimHits
 std::auto_ptr<MixCollection<PCaloHit> > hits(new MixCollection<PCaloHit>(castorcf.product()));

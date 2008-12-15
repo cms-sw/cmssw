@@ -5,7 +5,7 @@
 
 
 CastorDigiAnalyzer::CastorDigiAnalyzer(edm::ParameterSet const& conf) 
-: hitReadoutName_("CASTORHits"),
+: hitReadoutName_("CastorHits"),
   simParameterMap_(),
   castorHitAnalyzer_("CASTORDigi", 1., &simParameterMap_, &castorFilter_),
   castorDigiStatistics_("CASTORDigi", 3, 10., 6., 0.1, 0.5, castorHitAnalyzer_)
@@ -32,7 +32,7 @@ namespace CastorDigiAnalyzerImpl {
 void CastorDigiAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& c) {
   //  edm::Handle<edm::PCaloHitContainer> hits;
 edm::Handle<CrossingFrame<PCaloHit> > castorcf;
-e.getByLabel("g4SimHits","CASTORHits", castorcf);
+e.getByLabel("mix","CastorFI", castorcf);
 
 //access to SimHits
 std::auto_ptr<MixCollection<PCaloHit> > hits(new MixCollection<PCaloHit>(castorcf.product()));
