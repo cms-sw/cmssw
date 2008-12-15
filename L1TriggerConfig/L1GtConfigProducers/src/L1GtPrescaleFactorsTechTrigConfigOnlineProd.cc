@@ -1,8 +1,8 @@
 /**
- * \class L1GtPrescaleFactorsAlgoTrigConfigOnlineProd
+ * \class L1GtPrescaleFactorsTechTrigConfigOnlineProd
  *
  *
- * Description: online producer for L1GtPrescaleFactorsAlgoTrigRcd.
+ * Description: online producer for L1GtPrescaleFactorsTechTrigRcd.
  *
  * Implementation:
  *    <TODO: enter implementation details>
@@ -15,7 +15,7 @@
  */
 
 // this class header
-#include "L1TriggerConfig/L1GtConfigProducers/interface/L1GtPrescaleFactorsAlgoTrigConfigOnlineProd.h"
+#include "L1TriggerConfig/L1GtConfigProducers/interface/L1GtPrescaleFactorsTechTrigConfigOnlineProd.h"
 
 // system include files
 #include <vector>
@@ -26,16 +26,16 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 // constructor
-L1GtPrescaleFactorsAlgoTrigConfigOnlineProd::L1GtPrescaleFactorsAlgoTrigConfigOnlineProd(
+L1GtPrescaleFactorsTechTrigConfigOnlineProd::L1GtPrescaleFactorsTechTrigConfigOnlineProd(
         const edm::ParameterSet& parSet) :
-    L1ConfigOnlineProdBase<L1GtPrescaleFactorsAlgoTrigRcd, L1GtPrescaleFactors> (parSet) {
+    L1ConfigOnlineProdBase<L1GtPrescaleFactorsTechTrigRcd, L1GtPrescaleFactors> (parSet) {
 
     // empty
 
 }
 
 // destructor
-L1GtPrescaleFactorsAlgoTrigConfigOnlineProd::~L1GtPrescaleFactorsAlgoTrigConfigOnlineProd() {
+L1GtPrescaleFactorsTechTrigConfigOnlineProd::~L1GtPrescaleFactorsTechTrigConfigOnlineProd() {
 
     // empty
 
@@ -43,38 +43,38 @@ L1GtPrescaleFactorsAlgoTrigConfigOnlineProd::~L1GtPrescaleFactorsAlgoTrigConfigO
 
 // public methods
 
-boost::shared_ptr<L1GtPrescaleFactors> L1GtPrescaleFactorsAlgoTrigConfigOnlineProd::newObject(
+boost::shared_ptr<L1GtPrescaleFactors> L1GtPrescaleFactorsTechTrigConfigOnlineProd::newObject(
         const std::string& objectKey) {
 
     // shared pointer for L1GtPrescaleFactors
     boost::shared_ptr<L1GtPrescaleFactors> pL1GtPrescaleFactors = boost::shared_ptr<
             L1GtPrescaleFactors>(new L1GtPrescaleFactors());
 
-    // l1GtPrescaleFactorsAlgoTrig: key PRESCALE_FACTORS_ALGO_FK in GT_FDL_PRESCALE_FACTORS_ALGO table
+    // l1GtPrescaleFactorsTechTrig: key PRESCALE_FACTORS_TT_FK in GT_FDL_PRESCALE_FACTORS_TT table
 
     const std::string gtSchema = "CMS_GT";
 
     // SQL query:
     //
-    // select * from CMS_GT.GT_FDL_PRESCALE_FACTORS_ALGO
-    //        WHERE GT_FDL_PRESCALE_FACTORS_ALGO.ID = objectKey
+    // select * from CMS_GT.GT_FDL_PRESCALE_FACTORS_TT
+    //        WHERE GT_FDL_PRESCALE_FACTORS_TT.ID = objectKey
     const std::vector<std::string>& columns = m_omdsReader.columnNames(
-            gtSchema, "GT_FDL_PRESCALE_FACTORS_ALGO");
+            gtSchema, "GT_FDL_PRESCALE_FACTORS_TT");
 
     if (edm::isDebugEnabled()) {
         for (std::vector<std::string>::const_iterator iter = columns.begin(); iter != columns.end(); iter++) {
-            LogTrace("L1GtPrescaleFactorsAlgoTrigConfigOnlineProd") << ( *iter ) << std::endl;
+            LogTrace("L1GtPrescaleFactorsTechTrigConfigOnlineProd") << ( *iter ) << std::endl;
 
         }
     }
 
     l1t::OMDSReader::QueryResults results = m_omdsReader.basicQuery(
-            columns, gtSchema, "GT_FDL_PRESCALE_FACTORS_ALGO", "GT_FDL_PRESCALE_FACTORS_ALGO.ID",
+            columns, gtSchema, "GT_FDL_PRESCALE_FACTORS_TT", "GT_FDL_PRESCALE_FACTORS_TT.ID",
             m_omdsReader.singleAttribute(objectKey));
 
     // check if query was successful
     if (results.queryFailed()) {
-        edm::LogError("L1-O2O") << "Problem with L1GtPrescaleFactorsAlgoTrigRcd key:" << objectKey;
+        edm::LogError("L1-O2O") << "Problem with L1GtPrescaleFactorsTechTrigRcd key:" << objectKey;
         return pL1GtPrescaleFactors;
     }
 
@@ -99,12 +99,12 @@ boost::shared_ptr<L1GtPrescaleFactors> L1GtPrescaleFactorsAlgoTrigConfigOnlinePr
     if (edm::isDebugEnabled()) {
         std::ostringstream myCoutStream;
         pL1GtPrescaleFactors->print(myCoutStream);
-        LogTrace("L1GtPrescaleFactorsAlgoTrigConfigOnlineProd")
-                << "\nThe following L1GtPrescaleFactorsAlgoTrigRcd record was read from OMDS: \n"
+        LogTrace("L1GtPrescaleFactorsTechTrigConfigOnlineProd")
+                << "\nThe following L1GtPrescaleFactorsTechTrigRcd record was read from OMDS: \n"
                 << myCoutStream.str() << "\n" << std::endl;
     }
 
     return pL1GtPrescaleFactors;
 }
 
-DEFINE_FWK_EVENTSETUP_MODULE( L1GtPrescaleFactorsAlgoTrigConfigOnlineProd);
+DEFINE_FWK_EVENTSETUP_MODULE( L1GtPrescaleFactorsTechTrigConfigOnlineProd);

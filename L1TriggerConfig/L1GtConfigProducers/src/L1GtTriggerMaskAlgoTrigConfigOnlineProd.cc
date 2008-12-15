@@ -55,15 +55,18 @@ boost::shared_ptr<L1GtTriggerMask> L1GtTriggerMaskAlgoTrigConfigOnlineProd::newO
 
     const std::string gtSchema = "CMS_GT";
 
-    // FIXME QUERY
-
     // SQL query:
-    //
     // select * from CMS_GT.GT_PARTITION_FINOR_ALGO WHERE GT_PARTITION_FINOR_ALGO.ID = objectKey
 
-    std::vector<std::string> columns;
-    columns.push_back("FINOR_ALGO_000");
-    columns.push_back("FINOR_ALGO_001");
+    const std::vector<std::string>& columns = m_omdsReader.columnNames(
+            gtSchema, "GT_PARTITION_FINOR_ALGO");
+
+    if (edm::isDebugEnabled()) {
+        for (std::vector<std::string>::const_iterator iter = columns.begin(); iter != columns.end(); iter++) {
+            LogTrace("L1GtTriggerMaskAlgoTrigConfigOnlineProd") << ( *iter ) << std::endl;
+
+        }
+    }
 
     l1t::OMDSReader::QueryResults results = m_omdsReader.basicQuery(
             columns, gtSchema, "GT_PARTITION_FINOR_ALGO", "GT_PARTITION_FINOR_ALGO.ID",
@@ -76,18 +79,15 @@ boost::shared_ptr<L1GtTriggerMask> L1GtTriggerMaskAlgoTrigConfigOnlineProd::newO
     }
 
     // mask for other partitions than m_partitionNumber set to 1 (algorithm masked)
-    // FIXME correct mask00XP!!
-    bool mask000 = false;
-    results.fillVariable("FINOR_ALGO_000", mask000);
-    unsigned int mask000P = 0xFF & (static_cast<unsigned int>(mask000) << m_partitionNumber);
+    int maskSize = columns.size() - 1; // table ID is also in columns
+    std::vector<bool> trigMaskBool(maskSize, false);
+    std::vector<unsigned int> trigMask(maskSize, 0);
 
-    bool mask001 = false;
-    results.fillVariable("FINOR_ALGO_001", mask001);
-    unsigned int mask001P = 0xFF & (static_cast<unsigned int>(mask000) << m_partitionNumber);
-
-    std::vector<unsigned int> trigMask;
-    trigMask.push_back(mask000P);
-    trigMask.push_back(mask001P);
+    for (int i = 0; i < maskSize; i++) {
+        bool tMask = trigMaskBool[i];
+        results.fillVariable(columns[i + 1], tMask);
+        trigMask[i] = 0xFF & (~( static_cast<unsigned int> (tMask) << m_partitionNumber ));
+    }
 
     // fill the record
     pL1GtTriggerMask->setGtTriggerMask(trigMask);

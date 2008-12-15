@@ -1,4 +1,4 @@
-# cfg file to test the online producer of L1GtPrescaleFactorsAlgoTrigRcd
+# cfg file to test the online producer of L1GtPrescaleFactorsTechTrigRcd
 
 import FWCore.ParameterSet.Config as cms
 
@@ -23,11 +23,11 @@ process.load("CondTools.L1Trigger.L1TriggerKeyListDummy_cff")
 process.load("L1TriggerConfig.L1GtConfigProducers.L1GtRsObjectKeysOnline_cff")
 #process.l1GtRsObjectKeysOnline.PartitionNumber = cms.int32(0)
 
-process.load("L1TriggerConfig.L1GtConfigProducers.l1GtPrescaleFactorsAlgoTrigOnline_cfi")
+process.load("L1TriggerConfig.L1GtConfigProducers.l1GtPrescaleFactorsTechTrigOnline_cfi")
 
 process.getter = cms.EDAnalyzer("EventSetupRecordDataGetter",
    toGet = cms.VPSet(cms.PSet(
-   record = cms.string('L1GtPrescaleFactorsAlgoTrigRcd'),
+   record = cms.string('L1GtPrescaleFactorsTechTrigRcd'),
    data = cms.vstring('L1GtPrescaleFactors')
    )),
    verbose = cms.untracked.bool(True)

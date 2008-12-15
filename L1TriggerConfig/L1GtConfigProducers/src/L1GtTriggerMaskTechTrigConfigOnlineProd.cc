@@ -54,15 +54,19 @@ boost::shared_ptr<L1GtTriggerMask> L1GtTriggerMaskTechTrigConfigOnlineProd::newO
 
     const std::string gtSchema = "CMS_GT";
 
-    // FIXME QUERY
-
     // SQL query:
     //
     // select * from CMS_GT.GT_PARTITION_FINOR_TT WHERE GT_PARTITION_FINOR_TT.ID = objectKey
 
-    std::vector<std::string> columns;
-    columns.push_back("FINOR_TT_000");
-    columns.push_back("FINOR_TT_001");
+    const std::vector<std::string>& columns = m_omdsReader.columnNames(
+            gtSchema, "GT_PARTITION_FINOR_TT");
+
+    if (edm::isDebugEnabled()) {
+        for (std::vector<std::string>::const_iterator iter = columns.begin(); iter != columns.end(); iter++) {
+            LogTrace("L1GtTriggerMaskTechTrigConfigOnlineProd") << ( *iter ) << std::endl;
+
+        }
+    }
 
     l1t::OMDSReader::QueryResults results = m_omdsReader.basicQuery(
             columns, gtSchema, "GT_PARTITION_FINOR_TT", "GT_PARTITION_FINOR_TT.ID",
@@ -74,18 +78,19 @@ boost::shared_ptr<L1GtTriggerMask> L1GtTriggerMaskTechTrigConfigOnlineProd::newO
         return pL1GtTriggerMask;
     }
 
-    bool mask_000 = 0;
-    results.fillVariable("FINOR_TT_000", mask_000);
+    // mask for other partitions than m_partitionNumber set to 1 (algorithm masked)
+    int maskSize = columns.size() - 1; // table ID is also in columns
+    std::vector<bool> trigMaskBool(maskSize, false);
+    std::vector<unsigned int> trigMask(maskSize, 0);
 
-    bool mask_001 = 0;
-    results.fillVariable("FINOR_TT_001", mask_001);
+    for (int i = 0; i < maskSize; i++) {
+        bool tMask = trigMaskBool[i];
+        results.fillVariable(columns[i + 1], tMask);
+        trigMask[i] = 0xFF & (~( static_cast<unsigned int> (tMask) << m_partitionNumber ));
+    }
 
     // fill the record
-    //
-    //    // total Bx's in the event
-    //    int totalBxInEventVal = boost::lexical_cast<int>(totalBxInEventStr);
-    //    pL1GtTriggerMask->setGtTotalBxInEvent(totalBxInEventVal);
-    //
+    pL1GtTriggerMask->setGtTriggerMask(trigMask);
 
     if (edm::isDebugEnabled()) {
         std::ostringstream myCoutStream;
