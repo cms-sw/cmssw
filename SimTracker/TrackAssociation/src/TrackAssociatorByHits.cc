@@ -110,6 +110,7 @@ TrackAssociatorByHits::associateRecoToSim(edm::RefToBaseVector<reco::Track>& tC,
 
       int tpindex =0;
       for (TrackingParticleCollection::iterator t = tPC.begin(); t != tPC.end(); ++t, ++tpindex) {
+        int nsimhit = t->trackPSimHit(DetId::Tracker).size(); 
 	//int nsimhit = t->trackerPSimHit_end()-t->trackerPSimHit_begin();
 	//LogTrace("TrackAssociator") << "TP number " << tpindex << " pdgId=" << t->pdgId() << " with number of PSimHits: "  << nsimhit;
 	idcachev.clear();
@@ -186,6 +187,8 @@ TrackAssociatorByHits::associateSimToReco(edm::RefToBaseVector<reco::Track>& tC,
       int tpindex =0;
       for (TrackingParticleCollection::iterator t = tPC.begin(); t != tPC.end(); ++t, ++tpindex) {
 	idcachev.clear();
+        std::vector<PSimHit> trackerPSimHit( t->trackPSimHit(DetId::Tracker) );
+        int nsimhit = trackerPSimHit.size();
 	//int nsimhit = t->trackerPSimHit().size();
 	float totsimhit = 0; 
 	std::vector<PSimHit> tphits;
@@ -204,7 +207,7 @@ TrackAssociatorByHits::associateSimToReco(edm::RefToBaseVector<reco::Track>& tC,
 
 	  //count the TP simhit
 	  //LogTrace("TrackAssociator") << "recounting of tp hits";
-	  for(std::vector<PSimHit>::const_iterator TPhit = t->trackerPSimHit_begin(); TPhit != t->trackerPSimHit_end(); TPhit++){
+	  for(std::vector<PSimHit>::const_iterator TPhit = t->trackerPSimHit.begin(); TPhit != t->trackerPSimHit.end(); TPhit++){
 	    DetId dId = DetId(TPhit->detUnitId());
 	  
 	    unsigned int subdetId = static_cast<unsigned int>(dId.subdetId());
@@ -426,7 +429,7 @@ TrackAssociatorByHits::associateSimToReco(edm::Handle<edm::View<TrajectorySeed> 
       int tpindex =0;
       for (TrackingParticleCollection::iterator t = tPC.begin(); t != tPC.end(); ++t, ++tpindex) {
 	idcachev.clear();
-	int nsimhit = t->trackerPSimHit().size();
+        int nsimhit = t->trackPSimHit(DetId::Tracker).size(); 
 	LogTrace("TrackAssociator") << "TP number " << tpindex << " pdgId=" << t->pdgId() << " with number of PSimHits: "  << nsimhit;
 	nshared = getShared(matchedIds, idcachev, t);
 	

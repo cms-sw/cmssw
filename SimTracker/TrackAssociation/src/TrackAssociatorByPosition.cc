@@ -18,8 +18,10 @@ TrajectoryStateOnSurface TrackAssociatorByPosition::getState(const TrackingParti
   double dLim=thePositionMinimumDistance;
 
   //    look for the further most hit beyond a certain limit
-  LogDebug("TrackAssociatorByPosition")<<(int)(simtrack->trackerPSimHit_end()-simtrack->trackerPSimHit_begin())<<" PSimHits.";
-  for (std::vector<PSimHit> ::const_iterator psit=simtrack->trackerPSimHit_begin();psit!=simtrack->trackerPSimHit_end();++psit){
+  std::vector<PSimHit> trackerPSimHit( simtrack->trackPSimHit(DetId::Tracker) );
+  LogDebug("TrackAssociatorByPosition")<<trackerPSimHit.size()<<" PSimHits.";
+
+  for (std::vector<PSimHit> ::const_iterator psit=trackerPSimHit.begin();psit!=trackerPSimHit.end();++psit){    
     //get the detid
     DetId dd(psit->detUnitId());
     LogDebug("TrackAssociatorByPosition")<<psit-simtrack->trackerPSimHit_begin()
