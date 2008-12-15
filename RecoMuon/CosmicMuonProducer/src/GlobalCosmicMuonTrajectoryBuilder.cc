@@ -1,8 +1,8 @@
 /**
  *  Class: GlobalCosmicMuonTrajectoryBuilder
  *
- *  $Date: 2008/10/31 15:26:41 $
- *  $Revision: 1.13 $
+ *  $Date: 2008/11/05 01:52:48 $
+ *  $Revision: 1.14 $
  *  \author Chang Liu  -  Purdue University <Chang.Liu@cern.ch>
  *
  **/
@@ -40,7 +40,8 @@ GlobalCosmicMuonTrajectoryBuilder::GlobalCosmicMuonTrajectoryBuilder(const edm::
   theTrackerRecHitBuilderName = par.getParameter<string>("TrackerRecHitBuilder");
   theMuonRecHitBuilderName = par.getParameter<string>("MuonRecHitBuilder");
   thePropagatorName = par.getParameter<string>("Propagator");
-  
+  category_ = "Muon|RecoMuon|CosmicMuon|GlobalCosmicMuonTrajectoryBuilder";
+
 }
 
 //
@@ -81,18 +82,17 @@ void GlobalCosmicMuonTrajectoryBuilder::setEvent(const edm::Event& event) {
 //
 MuonCandidate::CandidateContainer GlobalCosmicMuonTrajectoryBuilder::trajectories(const TrackCand& muCand) {
 
-  const std::string metname = "Muon|RecoMuon|CosmicMuon|GlobalCosmicMuonTrajectoryBuilder";
   MuonCandidate::CandidateContainer result;
 
   if (!theTrackerTracks.isValid()) {
-    LogTrace(metname)<< "Tracker Track collection is invalid!!!";
+    LogTrace(category_)<< "Tracker Track collection is invalid!!!";
     return result;
   }
 
-  LogTrace(metname) <<"Found "<<theTrackerTracks->size()<<" tracker Tracks";
+  LogTrace(category_) <<"Found "<<theTrackerTracks->size()<<" tracker Tracks";
   if (theTrackerTracks->empty()) return result;
 
-  LogTrace(metname) <<"It has "<<theTrackerTracks->front().found()<<" tk rhs";
+  LogTrace(category_) <<"It has "<<theTrackerTracks->front().found()<<" tk rhs";
 
   reco::TrackRef muTrack = muCand.second;
 
@@ -102,15 +102,15 @@ MuonCandidate::CandidateContainer GlobalCosmicMuonTrajectoryBuilder::trajectorie
     reco::TrackRef tkTrack(theTrackerTracks,i);
     TrackCand tkCand = TrackCand(0,tkTrack);
     tkTrackCands.push_back(tkCand);
-    LogTrace(metname) << "chisq is " << theTrackMatcher->match(muCand,tkCand,0,0);
-    LogTrace(metname) << "d is " << theTrackMatcher->match(muCand,tkCand,1,0);
-    LogTrace(metname) << "r_pos is " << theTrackMatcher->match(muCand,tkCand,2,0);
+    LogTrace(category_) << "chisq is " << theTrackMatcher->match(muCand,tkCand,0,0);
+    LogTrace(category_) << "d is " << theTrackMatcher->match(muCand,tkCand,1,0);
+    LogTrace(category_) << "r_pos is " << theTrackMatcher->match(muCand,tkCand,2,0);
   }
 
   // match muCand to tkTrackCands
   vector<TrackCand> matched_trackerTracks = theTrackMatcher->match(muCand,tkTrackCands);
 
-  LogTrace(metname) <<"TrackMatcher found " << matched_trackerTracks.size() << "tracker tracks matched";
+  LogTrace(category_) <<"TrackMatcher found " << matched_trackerTracks.size() << "tracker tracks matched";
   
   if ( matched_trackerTracks.empty()) return result;
   reco::TrackRef tkTrack;
@@ -125,13 +125,13 @@ MuonCandidate::CandidateContainer GlobalCosmicMuonTrajectoryBuilder::trajectorie
     double max_quality = 1e6;
     for( vector<TrackCand>::const_iterator iter = matched_trackerTracks.begin(); iter != matched_trackerTracks.end(); iter++) {
       quality = theTrackMatcher->match(muCand,*iter, 1, 0);
-      LogTrace(metname) <<" quality of tracker track is " << quality;
+      LogTrace(category_) <<" quality of tracker track is " << quality;
       if( quality < max_quality ) {
         max_quality=quality;
         tkTrack = iter->second;
       }
     }
-      LogTrace(metname) <<" Picked tracker track with quality " << max_quality;
+      LogTrace(category_) <<" Picked tracker track with quality " << max_quality;
   }  
   if ( tkTrack.isNull() ) return result;
 
@@ -143,7 +143,7 @@ MuonCandidate::CandidateContainer GlobalCosmicMuonTrajectoryBuilder::trajectorie
      muRecHits = muCand.first->recHits();
   }
 
-  LogTrace(metname)<<"mu RecHits: "<<muRecHits.size();
+  LogTrace(category_)<<"mu RecHits: "<<muRecHits.size();
 
   ConstRecHitContainer tkRecHits = getTransientRecHits(*tkTrack);
 
@@ -154,16 +154,16 @@ MuonCandidate::CandidateContainer GlobalCosmicMuonTrajectoryBuilder::trajectorie
 //  }
 
   ConstRecHitContainer hits; //= tkRecHits;
-  LogTrace(metname)<<"tk RecHits: "<<tkRecHits.size();
+  LogTrace(category_)<<"tk RecHits: "<<tkRecHits.size();
 
 //  hits.insert(hits.end(), muRecHits.begin(), muRecHits.end());
 //  stable_sort(hits.begin(), hits.end(), DecreasingGlobalY());
 
   sortHits(hits, muRecHits, tkRecHits);
 
-  LogTrace(metname) << "Used RecHits after sort: "<<hits.size();
-  LogTrace(metname)<<utilities()->print(hits);
-  LogTrace(metname) << "== End of Used RecHits == ";
+  LogTrace(category_)<< "Used RecHits after sort: "<<hits.size()<<endl;;
+  LogTrace(category_) <<utilities()->print(hits)<<endl;
+  LogTrace(category_) << "== End of Used RecHits == "<<endl;
 
   TrajectoryStateTransform tsTrans;
 
@@ -183,7 +183,7 @@ MuonCandidate::CandidateContainer GlobalCosmicMuonTrajectoryBuilder::trajectorie
 
   if (!firstState.isValid()) return result;
   
-  LogTrace(metname) <<"firstTSOS pos: "<<firstState.globalPosition()<<"mom: "<<firstState.globalMomentum();
+  LogTrace(category_) <<"firstTSOS pos: "<<firstState.globalPosition()<<"mom: "<<firstState.globalMomentum();
 
   // begin refitting
 
@@ -193,41 +193,40 @@ MuonCandidate::CandidateContainer GlobalCosmicMuonTrajectoryBuilder::trajectorie
   if ( refitted.empty() ) refitted = theSmoother->fit(seed,hits,firstState); //FIXME
 
   if (refitted.empty()) {
-     LogTrace(metname)<<"refit fail";
+     LogTrace(category_)<<"refit fail";
      return result;
   }
 
   Trajectory* myTraj = new Trajectory(refitted.front());
 
-  std::vector<TrajectoryMeasurement> mytms = myTraj->measurements(); 
-  LogTrace(metname)<<"measurements in final trajectory "<<mytms.size();
-  LogTrace(metname) <<"Orignally there are "<<tkTrack->found()<<" tk rhs and "<<muTrack->found()<<" mu rhs.";
+  const std::vector<TrajectoryMeasurement>& mytms = myTraj->measurements(); 
+  LogTrace(category_)<<"measurements in final trajectory "<<mytms.size();
+  LogTrace(category_) <<"Orignally there are "<<tkTrack->found()<<" tk rhs and "<<muTrack->found()<<" mu rhs.";
 
   if ( mytms.size() <= tkTrack->found() ) {
-     LogTrace(metname)<<"insufficient measurements. skip... ";
+     LogTrace(category_)<<"insufficient measurements. skip... ";
      return result;
   }
 
   MuonCandidate* myCand = new MuonCandidate(myTraj,muTrack,tkTrack);
   result.push_back(myCand);
-  LogTrace(metname)<<"final global cosmic muon: ";
+  LogTrace(category_)<<"final global cosmic muon: ";
   for (std::vector<TrajectoryMeasurement>::const_iterator itm = mytms.begin();
        itm != mytms.end(); ++itm ) {
-       LogTrace(metname)<<"updated pos "<<itm->updatedState().globalPosition()
+       LogTrace(category_)<<"updated pos "<<itm->updatedState().globalPosition()
                        <<"mom "<<itm->updatedState().globalMomentum();
-       }
+   }
   return result;
 }
 
 void GlobalCosmicMuonTrajectoryBuilder::sortHits(ConstRecHitContainer& hits, ConstRecHitContainer& muonHits, ConstRecHitContainer& tkHits) {
 
-   std::string metname = "Muon|RecoMuon|CosmicMuon|GlobalCosmicMuonTrajectoryBuilder";
    if ( tkHits.empty() ) {
-      LogTrace(metname) << "No valid tracker hits";
+      LogTrace(category_) << "No valid tracker hits";
       return;
    }
    if ( muonHits.empty() ) {
-      LogTrace(metname) << "No valid muon hits";
+      LogTrace(category_) << "No valid muon hits";
       return;
    }
 
@@ -242,25 +241,36 @@ void GlobalCosmicMuonTrajectoryBuilder::sortHits(ConstRecHitContainer& hits, Con
    while ( !(*backMuHit)->isValid() && backMuHit != frontMuHit)  {backMuHit--;}
 
    if ( frontTkHit == backTkHit ) {
-      LogTrace(metname) << "No valid tracker hits";
+      LogTrace(category_) << "No valid tracker hits";
       return;
    }
    if ( frontMuHit == backMuHit ) {
-      LogTrace(metname) << "No valid muon hits";
+      LogTrace(category_) << "No valid muon hits";
       return;
    }
 
   GlobalPoint frontTkPos = (*frontTkHit)->globalPosition();
   GlobalPoint backTkPos = (*backTkHit)->globalPosition();
 
+  GlobalPoint frontMuPos = (*frontMuHit)->globalPosition();
+  GlobalPoint backMuPos = (*backMuHit)->globalPosition();
+
   //sort hits going from higher to lower positions
   if ( frontTkPos.y() < backTkPos.y() )  {//check if tk hits order same direction
     reverse(tkHits.begin(), tkHits.end());
   }
 
-  if ( (*frontMuHit)->globalPosition().y() < (*backMuHit)->globalPosition().y() )  {//check if tk hits order same direction
+  if ( frontMuPos.y() < backMuPos.y() )  {
     reverse(muonHits.begin(), muonHits.end());
   }
+
+  LogTrace(category_)<< "tkHits after sort: "<<tkHits.size()<<endl;;
+  LogTrace(category_) <<utilities()->print(tkHits)<<endl;
+  LogTrace(category_) << "== End of tkHits == "<<endl;
+
+  LogTrace(category_)<< "muonHits after sort: "<<muonHits.size()<<endl;;
+  LogTrace(category_) <<utilities()->print(muonHits)<<endl;
+  LogTrace(category_)<< "== End of muonHits == "<<endl;
 
   //separate muon hits into 2 different hemisphere
   ConstRecHitContainer::iterator middlepoint = muonHits.begin();
@@ -271,9 +281,9 @@ void GlobalCosmicMuonTrajectoryBuilder::sortHits(ConstRecHitContainer& hits, Con
     GlobalPoint ipos = (*ihit)->globalPosition();
     GlobalPoint nextpos = (*(ihit+1))->globalPosition();
     GlobalPoint middle((ipos.x()+nextpos.x())/2, (ipos.y()+nextpos.y())/2, (ipos.z()+nextpos.z())/2);
-    LogTrace(metname)<<"ipos "<<ipos<<"nextpos"<<nextpos<<" middle "<<middle;
+    LogTrace(category_)<<"ipos "<<ipos<<"nextpos"<<nextpos<<" middle "<<middle<<endl;
     if ( (middle.perp() < ipos.perp()) && (middle.perp() < nextpos.perp() ) ) {
-      LogTrace(metname)<<"found middlepoint";
+      LogTrace(category_)<<"found middlepoint"<<endl;
       middlepoint = ihit;
       insertInMiddle = true;
       break;
@@ -283,17 +293,20 @@ void GlobalCosmicMuonTrajectoryBuilder::sortHits(ConstRecHitContainer& hits, Con
   //insert track hits in correct order
   if ( insertInMiddle ) { //if tk hits should be sandwich
     GlobalPoint jointpointpos = (*middlepoint)->globalPosition();
-    LogTrace(metname)<<"jointpoint "<<jointpointpos;
+    LogTrace(category_)<<"jointpoint "<<jointpointpos<<endl;
     if ((frontTkPos - jointpointpos).mag() > (backTkPos - jointpointpos).mag() ) {//check if tk hits order same direction
       reverse(tkHits.begin(), tkHits.end());
     }
     muonHits.insert(middlepoint+1, tkHits.begin(), tkHits.end());
     hits = muonHits; 
   } else { // append at one end
-    if ( (frontTkPos - backTkPos).y() < 0 ) { //insert at the end
+    if ( frontTkPos.y() < frontMuPos.y() ) { //insert at the end
+      LogTrace(category_)<<"insert at the end "<<frontTkPos << frontMuPos <<endl;
+
       hits = muonHits; 
       hits.insert(hits.end(), tkHits.begin(), tkHits.end());
     } else { //insert at the beginning
+      LogTrace(category_)<<"insert at the beginning "<<frontTkPos << frontMuPos <<endl;
       hits = tkHits;
       hits.insert(hits.end(), muonHits.begin(), muonHits.end());
     }
@@ -305,7 +318,6 @@ TransientTrackingRecHit::ConstRecHitContainer
 GlobalCosmicMuonTrajectoryBuilder::getTransientRecHits(const reco::Track& track) const {
 
   TransientTrackingRecHit::ConstRecHitContainer result;
-  std::string metname = "Muon|RecoMuon|CosmicMuon|GlobalCosmicMuonTrajectoryBuilder";
 
   TrajectoryStateTransform tsTrans;
 
@@ -316,7 +328,7 @@ GlobalCosmicMuonTrajectoryBuilder::getTransientRecHits(const reco::Track& track)
       if ( recoid.det() == DetId::Tracker ) {
         TransientTrackingRecHit::RecHitPointer ttrhit = theTrackerRecHitBuilder->build(&**hit);
         TrajectoryStateOnSurface predTsos =  theService->propagator(thePropagatorName)->propagate(currTsos, theService->trackingGeometry()->idToDet(recoid)->surface());
-        LogTrace(metname)<<"predtsos "<<predTsos.isValid();
+        LogTrace(category_)<<"predtsos "<<predTsos.isValid();
         if ( predTsos.isValid() ) currTsos = predTsos;
         TransientTrackingRecHit::RecHitPointer preciseHit = ttrhit->clone(predTsos);
         result.push_back(preciseHit);
