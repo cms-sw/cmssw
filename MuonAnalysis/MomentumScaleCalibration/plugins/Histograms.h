@@ -4,8 +4,8 @@
 /** \class Histograms
  *  Collection of histograms for GLB muon analysis
  *
- *  $Date: 2008/11/17 13:10:30 $
- *  $Revision: 1.13 $
+ *  $Date: 2008/12/04 16:19:51 $
+ *  $Revision: 1.14 $
  *  \author S. Bolognesi - INFN Torino / T.Dorigo - INFN Padova
  */
 
@@ -83,7 +83,9 @@ public:
                      const reco::Particle::LorentzVector & genP1,
                      const reco::Particle::LorentzVector & recoP2,
                      const reco::Particle::LorentzVector & genP2 ) {};
-  
+
+  virtual double Get( const reco::Particle::LorentzVector & recoP1, const TString & covarianceName ) { return 0.; };
+
   virtual void Write() = 0;
   virtual void Clear() = 0;
 
@@ -723,9 +725,10 @@ class HResolutionVSPart : public Histograms{
 
     // Kinematical variables
     hReso           = new TH1F (name+"_Reso", "resolution", 4000, -1, 1);
+    hResoVSPtEta    = new TH2F (name+"_ResoVSPtEta", "resolution VS pt and #eta", 200, 0, 200, 60, -3, 3);
     hResoVSPt       = new TH2F (name+"_ResoVSPt", "resolution VS pt", 200, 0, 200, 4000, -1, 1);
     //hResoVSPt_prof  = new TProfile (name+"_ResoVSPt_prof", "resolution VS pt", 100, 0, 200, -1, 1);
-    hResoVSEta      = new TH2F (name+"_ResoVSEta", "resolution VS eta", 30, -3, 3, 4000, yMinEta, yMaxEta);
+    hResoVSEta      = new TH2F (name+"_ResoVSEta", "resolution VS eta", 60, -3, 3, 4000, yMinEta, yMaxEta);
     hResoVSTheta    = new TH2F (name+"_ResoVSTheta", "resolution VS theta", 30, 0, TMath::Pi(), 4000, -1, 1);
     //hResoVSEta_prof = new TProfile (name+"_ResoVSEta_prof", "resolution VS eta", 10, -2.5, 2.5, -1, 1);
     hResoVSPhiPlus  = new TH2F (name+"_ResoVSPhiPlus", "resolution VS phi mu+", 14, -3.2, 3.2, 4000, -1, 1);
@@ -733,13 +736,14 @@ class HResolutionVSPart : public Histograms{
     //hResoVSPhi_prof = new TProfile (name+"_ResoVSPhi_prof", "resolution VS phi", 14, -3.2, 3.2, -1, 1);
     hAbsReso        = new TH1F (name+"_AbsReso", "resolution", 100, 0, 1);
     hAbsResoVSPt    = new TH2F (name+"_AbsResoVSPt", "Abs resolution VS pt", 200, 0, 500, 100, 0, 1);
-    hAbsResoVSEta   = new TH2F (name+"_AbsResoVSEta", "Abs resolution VS eta", 30, -3, 3, 100, 0, 1);
+    hAbsResoVSEta   = new TH2F (name+"_AbsResoVSEta", "Abs resolution VS eta", 60, -3, 3, 100, 0, 1);
     hAbsResoVSPhi   = new TH2F (name+"_AbsResoVSPhi", "Abs resolution VS phi", 14, -3.2, 3.2, 100, 0, 1);
   }
   
   HResolutionVSPart(const TString & name, TFile* file){
     name_=name;
     hReso           = (TH1F *) file->Get(name+"_Reso");
+    hResoVSPtEta    = (TH2F *) file->Get(name+"_ResoVSPtEta");
     hResoVSPt       = (TH2F *) file->Get(name+"_ResoVSPt");
     //hResoVSPt_prof  = (TProfile *) file->Get(name+"_ResoVSPt_prof");
     hResoVSEta      = (TH2F *) file->Get(name+"_ResoVSEta");
@@ -758,9 +762,12 @@ class HResolutionVSPart : public Histograms{
   }
 
   virtual void Fill(const reco::Particle::LorentzVector & p4, const double & resValue, const int charge) { 
-    hReso->Fill(resValue); 
-    hResoVSPt->Fill(p4.Pt(),resValue); 
-    hResoVSEta->Fill(p4.Eta(),resValue); 
+    double pt = p4.Pt();
+    double eta = p4.Eta();
+    hReso->Fill(resValue);
+    hResoVSPtEta->Fill(pt, eta,resValue); 
+    hResoVSPt->Fill(pt,resValue); 
+    hResoVSEta->Fill(eta,resValue);
     hResoVSTheta->Fill(p4.Theta(),resValue); 
     if(charge>0)
       hResoVSPhiPlus->Fill(p4.Phi(),resValue); 
@@ -770,8 +777,8 @@ class HResolutionVSPart : public Histograms{
     //hResoVSEta_prof->Fill(p4.Eta(),resValue); 
     //hResoVSPhi_prof->Fill(p4.Phi(),resValue); 
     hAbsReso->Fill(fabs(resValue)); 
-    hAbsResoVSPt->Fill(p4.Pt(),fabs(resValue)); 
-    hAbsResoVSEta->Fill(p4.Eta(),fabs(resValue)); 
+    hAbsResoVSPt->Fill(pt,fabs(resValue)); 
+    hAbsResoVSEta->Fill(eta,fabs(resValue)); 
     hAbsResoVSPhi->Fill(p4.Phi(),fabs(resValue));     
   }
 
@@ -779,6 +786,7 @@ class HResolutionVSPart : public Histograms{
     if(histoDir_ != 0) histoDir_->cd();
 
     hReso->Write();
+    hResoVSPtEta->Write();
     hResoVSPt->Write();
     //hResoVSPt_prof->Write();
     hResoVSEta->Write();
@@ -814,15 +822,16 @@ class HResolutionVSPart : public Histograms{
   }
   
   virtual void Clear() {
-    hReso->Clear();    
-    hResoVSPt->Clear();    
-    //hResoVSPt_prof->Clear();    
-    hResoVSEta->Clear();    
-    hResoVSTheta->Clear();    
-    //hResoVSEta_prof->Clear();    
-    hResoVSPhiPlus->Clear();    
-    hResoVSPhiMinus->Clear();    
-    //hResoVSPhi_prof->Clear();    
+    hReso->Clear();
+    hResoVSPtEta->Clear();
+    hResoVSPt->Clear();
+    //hResoVSPt_prof->Clear();
+    hResoVSEta->Clear();
+    hResoVSTheta->Clear();
+    //hResoVSEta_prof->Clear();
+    hResoVSPhiPlus->Clear();
+    hResoVSPhiMinus->Clear();
+    //hResoVSPhi_prof->Clear();
     hAbsReso->Clear();
     hAbsResoVSPt->Clear();
     hAbsResoVSEta->Clear();
@@ -831,6 +840,7 @@ class HResolutionVSPart : public Histograms{
   
  public:
   TH1F* hReso;
+  TH2F* hResoVSPtEta;
   TH2F* hResoVSPt;
   //TProfile* hResoVSPt_prof;
   TH2F* hResoVSEta;
@@ -929,11 +939,31 @@ class HLikelihoodVSPart : public Histograms{
  */
 class HFunctionResolution : public Histograms {
  public:
-  HFunctionResolution(TFile * outputFile, const TString & name) : Histograms(outputFile, name) {
+  HFunctionResolution(TFile * outputFile, const TString & name, const double ptMax = 200) : Histograms(outputFile, name) {
     name_ = name;
+    totBinsX_ = 100;
+    totBinsY_ = 60;
+    xMin_ = 0.;
+    yMin_ = -3.2;
+    double xMax = ptMax;
+    double yMax = 3.2;
+    deltaX_ = xMax - xMin_;
+    deltaY_ = yMax - yMin_;
     hReso                = new TH1F( name+"_Reso", "resolution", 1000, 0, 1 );
-    hResoVSPt_prof       = new TProfile( name+"_ResoVSPt_prof", "resolution VS pt", 200, 0, 200, 0, 1);
-    hResoVSEta_prof      = new TProfile( name+"_ResoVSEta_prof", "resolution VS eta", 30, -3.2, 3.2, 0, 1);
+    hResoVSPtEta         = new TH2F( name+"_ResoVSPtEta", "resolution vs pt and #eta", totBinsX_, xMin_, xMax, totBinsY_, yMin_, yMax );
+    // Create and initialize the resolution arrays
+    resoVsPtEta_ = new double*[totBinsX_];
+    resoCount_ = new int*[totBinsX_];
+    for( int i=0; i<totBinsX_; ++i ) {
+      resoVsPtEta_[i] = new double[totBinsY_];
+      resoCount_[i] = new int[totBinsY_];
+      for( int j=0; j<totBinsY_; ++j ) {
+        resoVsPtEta_[i][j] = 0;
+        resoCount_[i][j] = 0;
+      }
+    }
+    hResoVSPt_prof       = new TProfile( name+"_ResoVSPt_prof", "resolution VS pt", totBinsX_, xMin_, xMax, yMin_, yMax);
+    hResoVSEta_prof      = new TProfile( name+"_ResoVSEta_prof", "resolution VS eta", totBinsY_, yMin_, yMax, 0, 1);
     //hResoVSTheta_prof    = new TProfile( name+"_ResoVSTheta_prof", "resolution VS theta", 30, 0, TMath::Pi(), 0, 1);
     hResoVSPhiPlus_prof  = new TProfile( name+"_ResoVSPhiPlus_prof", "resolution VS phi mu+", 14, -3.2, 3.2, 0, 1);
     hResoVSPhiMinus_prof = new TProfile( name+"_ResoVSPhiMinus_prof", "resolution VS phi mu-", 14, -3.2, 3.2, 0, 1);
@@ -941,21 +971,45 @@ class HFunctionResolution : public Histograms {
   }
   ~HFunctionResolution() {}
   virtual void Fill(const reco::Particle::LorentzVector & p4, const double & resValue, const int charge) { 
+    // cout << "Filling "<<hReso->GetName()<<" with resValue = " << resValue << endl;
     hReso->Fill(resValue);
-    hResoVSPt_prof->Fill(p4.Pt(),resValue);
-    hResoVSEta_prof->Fill(p4.Eta(),resValue);
-    //hResoVSTheta_prof->Fill(p4.Theta(),resValue);
-    if(charge>0)
-      hResoVSPhiPlus_prof->Fill(p4.Phi(),resValue);
-    else if(charge<0)
-      hResoVSPhiMinus_prof->Fill(p4.Phi(),resValue);
-    hResoVSPhi_prof->Fill(p4.Phi(),resValue);
+
+    // Fill the arrays with the resolution value and count
+    int xIndex = getXindex(p4.Pt());
+    int yIndex = getYindex(p4.Eta());
+    if ( 0 <= xIndex && xIndex < totBinsX_ && 0 <= yIndex && yIndex < totBinsY_ ) {
+      resoVsPtEta_[xIndex][yIndex] += resValue;
+      resoCount_[xIndex][yIndex] += 1;
+
+      // hResoVSPtEta->Fill(p4.Pt(), p4.Eta(), resValue);
+      hResoVSPt_prof->Fill(p4.Pt(),resValue);
+      hResoVSEta_prof->Fill(p4.Eta(),resValue);
+      //hResoVSTheta_prof->Fill(p4.Theta(),resValue);
+      if(charge>0)
+        hResoVSPhiPlus_prof->Fill(p4.Phi(),resValue);
+      else if(charge<0)
+        hResoVSPhiMinus_prof->Fill(p4.Phi(),resValue);
+      hResoVSPhi_prof->Fill(p4.Phi(),resValue);
+    }
   }
 
   virtual void Write() {
     if(histoDir_ != 0) histoDir_->cd();
 
     hReso->Write();
+
+    for( int i=0; i<totBinsX_; ++i ) {
+      for( int j=0; j<totBinsY_; ++j ) {
+        int N = resoCount_[i][j];
+        // Fill with the mean value
+        if( N != 0 ) hResoVSPtEta->SetBinContent( i+1, j+1, resoVsPtEta_[i][j]/N );
+        else hResoVSPtEta->SetBinContent( i+1, j+1, 0 );
+      }
+    }
+
+    hResoVSPtEta->Write();
+
+
     hResoVSPt_prof->Write();
     hResoVSEta_prof->Write();
     //hResoVSTheta_prof->Write();
@@ -963,11 +1017,21 @@ class HFunctionResolution : public Histograms {
     hResoVSPhiPlus_prof->Write();
     hResoVSPhi_prof->Write();
 
+    TCanvas canvas(TString(hResoVSPtEta->GetName())+"_canvas", TString(hResoVSPtEta->GetTitle())+" canvas", 1000, 800);
+    canvas.Divide(2);
+    canvas.cd(1);
+    hResoVSPtEta->Draw("lego");
+    canvas.cd(2);
+    hResoVSPtEta->Draw("surf5");
+    canvas.Write();
+    hResoVSPtEta->Write();
+
     outputFile_->cd();
   }
   
   virtual void Clear() {
     hReso->Clear();
+    hResoVSPtEta->Clear();
     hResoVSPt_prof->Clear();
     hResoVSEta_prof->Clear();
     //hResoVSTheta_prof->Clear();
@@ -977,13 +1041,69 @@ class HFunctionResolution : public Histograms {
   }
 
  protected:
+  int getXindex(const double & x) const {
+    return int((x-xMin_)/deltaX_*totBinsX_);
+  }
+  int getYindex(const double & y) const {
+    return int((y-yMin_)/deltaY_*totBinsY_);
+  }
   TH1F* hReso;
+  TH2F* hResoVSPtEta;
+  double ** resoVsPtEta_;
+  int ** resoCount_;
   TProfile* hResoVSPt_prof;
   TProfile* hResoVSEta_prof;
   //TProfile* hResoVSTheta_prof;
   TProfile* hResoVSPhiMinus_prof;
   TProfile* hResoVSPhiPlus_prof;
   TProfile* hResoVSPhi_prof;
+  int totBinsX_, totBinsY_;
+  double xMin_, yMin_;
+  double deltaX_, deltaY_;
+};
+
+class HFunctionResolutionVarianceCheck : public HFunctionResolution
+{
+public:
+  HFunctionResolutionVarianceCheck(TFile * outputFile, const TString & name, const double ptMax = 200) :
+    HFunctionResolution(outputFile, name, ptMax)
+  {
+    histoVarianceCheck_ = new TH1D**[totBinsX_];
+    for( int i=0; i<totBinsX_; ++i ) {
+      histoVarianceCheck_[i] = new TH1D*[totBinsY_];
+      for( int j=0; j<totBinsY_; ++j ) {
+        stringstream namei;
+        stringstream namej;
+        namei << i;
+        namej << j;
+        histoVarianceCheck_[i][j] = new TH1D(name+"_"+namei.str()+"_"+namej.str(), name, 100, 0., 1.);
+      }
+    }
+  }
+  ~HFunctionResolutionVarianceCheck() {
+  }
+  virtual void Fill(const reco::Particle::LorentzVector & p4, const double & resValue, const int charge) { 
+    // Need to convert the (x,y) values to the array indeces
+    int xIndex = getXindex(p4.Pt());
+    int yIndex = getYindex(p4.Eta());
+    // Only fill values if they are in the selected range
+    if ( 0 <= xIndex && xIndex < totBinsX_ && 0 <= yIndex && yIndex < totBinsY_ ) {
+      histoVarianceCheck_[xIndex][yIndex]->Fill(resValue);
+    }
+    // Call also the fill of the base class
+    HFunctionResolution::Fill( p4, resValue, charge );
+  }
+  void Write() {
+    if(histoDir_ != 0) histoDir_->cd();
+    for( int xBin=0; xBin<totBinsX_; ++xBin ) {
+      for( int yBin=0; yBin<totBinsY_; ++yBin ) {
+        histoVarianceCheck_[xBin][yBin]->Write();
+      }
+    }
+    HFunctionResolution::Write();
+  }
+protected:
+  TH1D *** histoVarianceCheck_;
 };
 
 /**
@@ -1097,10 +1217,13 @@ public:
   HCovarianceVSxy( const TString & name, const TString & title,
                    const int totBinsX, const double & xMin, const double & xMax,
                    const int totBinsY, const double & yMin, const double & yMax,
-                   TDirectory * dir = 0) :
+                   TDirectory * dir = 0, bool varianceCheck = false ) :
+    name_(name),
     dir_(dir),
     totBinsX_(totBinsX), totBinsY_(totBinsY),
-    xMin_(xMin), deltaX_(xMax-xMin), yMin_(yMin), deltaY_(yMax-yMin)
+    xMin_(xMin), deltaX_(xMax-xMin), yMin_(yMin), deltaY_(yMax-yMin),
+    readMode_(false),
+    varianceCheck_(varianceCheck)
   {
     histoCovariance_ = new TH2D(name+"Covariance", title+" covariance", totBinsX, xMin, xMax, totBinsY, yMin, yMax);
 
@@ -1108,6 +1231,44 @@ public:
     for( int i=0; i<totBinsX; ++i ) {
       covariances_[i] = new Covariance[totBinsY];
     }
+    if( varianceCheck_ ) {
+      histoVarianceCheck_ = new TH1D**[totBinsX_];
+      for( int i=0; i<totBinsX_; ++i ) {
+        histoVarianceCheck_[i] = new TH1D*[totBinsY_];
+        for( int j=0; j<totBinsY_; ++j ) {
+          stringstream namei;
+          stringstream namej;
+          namei << i;
+          namej << j;
+          histoVarianceCheck_[i][j] = new TH1D(name+"_"+namei.str()+"_"+namej.str(), name, 10000, -1, 1);
+        }
+      }
+    }
+  }
+  /// Contructor to read histograms from file
+  HCovarianceVSxy( TFile * inputFile, const TString & name, const TString & dirName ) :
+    readMode_(true)
+  {
+    dir_ = (TDirectory*)(inputFile->Get(dirName.Data()));
+    if( dir_ == 0 ) {
+      cout << "Error: directory not found" << endl;
+      exit(0);
+    }
+    histoCovariance_ = (TH2D*)(dir_->Get(name));
+    totBinsX_ = histoCovariance_->GetNbinsX();
+    xMin_ = histoCovariance_->GetXaxis()->GetBinLowEdge(1);
+    deltaX_ = histoCovariance_->GetXaxis()->GetBinUpEdge(totBinsX_) - xMin_;
+    totBinsY_ = histoCovariance_->GetNbinsY();
+    yMin_ = histoCovariance_->GetYaxis()->GetBinLowEdge(1);
+    deltaY_ = histoCovariance_->GetYaxis()->GetBinUpEdge(totBinsY_) - yMin_;
+
+//     cout << "For histogram: " << histoCovariance_->GetName() << endl;
+//     cout << "totBinsX_ = " << totBinsX_ << endl;
+//     cout << "xMin_ = " << xMin_ << endl;
+//     cout << "deltaX_ = " << deltaX_ << endl;
+//     cout << "totBinsY_ = " << totBinsY_ << endl;
+//     cout << "yMin_ = " << yMin_ << endl;
+//     cout << "deltaY_ = " << deltaY_ << endl;
   }
 
   ~HCovarianceVSxy() {
@@ -1125,44 +1286,81 @@ public:
     int xIndex = getXindex(x);
     int yIndex = getYindex(y);
     // Only fill values if they are in the selected range
-    if ( 0 <= xIndex && xIndex < totBinsX_ && 0 <= yIndex && yIndex < totBinsY_ ) covariances_[xIndex][yIndex].fill(a,b);
+    if ( 0 <= xIndex && xIndex < totBinsX_ && 0 <= yIndex && yIndex < totBinsY_ ) {
+      if( TString(histoCovariance_->GetName()).Contains("CovarianceCotgTheta_Covariance") )
+        cout << "(x,y) = (" << xIndex << ", " << yIndex << "), (a,b) = (" << a << ", " << b << ")" << endl;
+      covariances_[xIndex][yIndex].fill(a,b);
+      // Should be used with the variance, in which case a==b
+      if( varianceCheck_ ) histoVarianceCheck_[xIndex][yIndex]->Fill(a);
+    }
+  }
+  double Get( const double & x, const double & y ) const {
+    // Need to convert the (x,y) values to the array indeces
+    int xIndex = getXindex(x);
+    int yIndex = getYindex(y);
+    // If the values exceed the limits of the histogram, return the border values
+    if ( xIndex < 0 ) xIndex = 0;
+    if ( xIndex >= totBinsX_ ) xIndex = totBinsX_-1;
+    if ( yIndex < 0 ) yIndex = 0;
+    if ( yIndex >= totBinsY_ ) yIndex = totBinsY_-1;
+    return histoCovariance_->GetBinContent(xIndex+1, yIndex+1);
   }
 
   void Write() {
-    cout << "writing: " << histoCovariance_->GetName() << endl;
-    for( int xBin=0; xBin<totBinsX_; ++xBin ) {
-      for( int yBin=0; yBin<totBinsY_; ++yBin ) {
-        double covariance = covariances_[xBin][yBin].covariance();
-        // Histogram bins start from 1
-        cout << "covariance["<<xBin<<"]["<<yBin<<"] with N = "<<covariances_[xBin][yBin].getN()<<" is: " << covariance << endl;
-        histoCovariance_->SetBinContent(xBin+1, yBin+1, covariance);
-       }
+    if( !readMode_ ) {
+      cout << "writing: " << histoCovariance_->GetName() << endl;
+      for( int xBin=0; xBin<totBinsX_; ++xBin ) {
+        for( int yBin=0; yBin<totBinsY_; ++yBin ) {
+          double covariance = covariances_[xBin][yBin].covariance();
+          // Histogram bins start from 1
+          cout << "covariance["<<xBin<<"]["<<yBin<<"] with N = "<<covariances_[xBin][yBin].getN()<<" is: " << covariance << endl;
+          histoCovariance_->SetBinContent(xBin+1, yBin+1, covariance);
+        }
+      }
+      if( dir_ != 0 ) dir_->cd();
+      TCanvas canvas(TString(histoCovariance_->GetName())+"_canvas", TString(histoCovariance_->GetTitle())+" canvas", 1000, 800);
+      canvas.Divide(2);
+      canvas.cd(1);
+      histoCovariance_->Draw("lego");
+      canvas.cd(2);
+      histoCovariance_->Draw("surf5");
+      canvas.Write();
+      histoCovariance_->Write();
+
+      TDirectory * binsDir = 0;
+      if( varianceCheck_ ) {
+        if ( dir_ != 0 ) {
+          dir_->cd();
+          if( binsDir == 0 ) binsDir = dir_->mkdir(name_+"Bins");
+          binsDir->cd();
+        }
+        for( int xBin=0; xBin<totBinsX_; ++xBin ) {
+          for( int yBin=0; yBin<totBinsY_; ++yBin ) {
+            histoVarianceCheck_[xBin][yBin]->Write();
+          }
+        }
+      }
     }
-    if( dir_ != 0 ) dir_->cd();
-    TCanvas canvas(TString(histoCovariance_->GetName())+"_canvas", TString(histoCovariance_->GetTitle())+" canvas", 1000, 800);
-    canvas.Divide(2);
-    canvas.cd(1);
-    histoCovariance_->Draw("lego");
-    canvas.cd(2);
-    histoCovariance_->Draw("surf5");
-    canvas.Write();
-    histoCovariance_->Write();
   }
   void Clear() {
     histoCovariance_->Clear();
   }
 protected:
-  int getXindex(const double & x) {
+  int getXindex(const double & x) const {
     return int((x-xMin_)/deltaX_*totBinsX_);
   }
-  int getYindex(const double & y) {
+  int getYindex(const double & y) const {
     return int((y-yMin_)/deltaY_*totBinsY_);
   }
+  TString name_;
   TDirectory * dir_;
   TH2D * histoCovariance_;
   Covariance ** covariances_;
   int totBinsX_, totBinsY_, totBinsZ_;
   double xMin_, deltaX_, yMin_, deltaY_;
+  bool readMode_;
+  bool varianceCheck_;
+  TH1D *** histoVarianceCheck_;
 };
 
 /**
@@ -1173,33 +1371,65 @@ class HCovarianceVSParts : public Histograms
 {
  public:
   HCovarianceVSParts(TFile * outputFile, const TString & name, const double & ptMax ) : Histograms( outputFile, name ) {
-    int totBinsX = 20;
-    int totBinsY = 20;
+    int totBinsX = 40;
+    int totBinsY = 40;
     double etaMin = -3.;
     double etaMax = 3.;
     double ptMin = 0.;
 
+    readMode_ = false;
+
     // Variances
-    mapHisto_[name+"Pt"]                    = new HCovarianceVSxy(name+"Pt_", "Pt", totBinsX, ptMin, ptMax, totBinsY, etaMin, etaMax);
-    mapHisto_[name+"CotgTheta"]             = new HCovarianceVSxy(name+"CotgTheta_", "CotgTheta", totBinsX, ptMin, ptMax, totBinsY, etaMin, etaMax);
-    mapHisto_[name+"Phi"]                   = new HCovarianceVSxy(name+"Phi_", "Phi", totBinsX, ptMin, ptMax, totBinsY, etaMin, etaMax);
+    mapHisto_[name+"Pt"]                    = new HCovarianceVSxy(name+"Pt_", "Pt", totBinsX, ptMin, ptMax, totBinsY, etaMin, etaMax, histoDir_, true);
+    mapHisto_[name+"CotgTheta"]             = new HCovarianceVSxy(name+"CotgTheta_", "CotgTheta", totBinsX, ptMin, ptMax, totBinsY, etaMin, etaMax, histoDir_, true);
+    mapHisto_[name+"Phi"]                   = new HCovarianceVSxy(name+"Phi_", "Phi", totBinsX, ptMin, ptMax, totBinsY, etaMin, etaMax, histoDir_, true);
     // Covariances
-    mapHisto_[name+"Pt-CotgTheta"]          = new HCovarianceVSxy(name+"Pt_CotgTheta_", "Pt-CotgTheta", totBinsX, ptMin, ptMax, totBinsY, etaMin, etaMax);
-    mapHisto_[name+"Pt-Phi"]                = new HCovarianceVSxy(name+"Pt_Phi_", "Pt-Phi", totBinsX, ptMin, ptMax, totBinsY, etaMin, etaMax);
-    mapHisto_[name+"CotgTheta-Phi"]         = new HCovarianceVSxy(name+"CotgTheta_Phi", "CotgTheta-Phi", totBinsX, ptMin, ptMax, totBinsY, etaMin, etaMax);
-    mapHisto_[name+"Pt1-Pt2"]               = new HCovarianceVSxy(name+"Pt1_Pt2_", "Pt1-Pt2", totBinsX, ptMin, ptMax, totBinsY, etaMin, etaMax);
-    mapHisto_[name+"CotgTheta1-CotgTheta2"] = new HCovarianceVSxy(name+"CotgTheta1_CotgTheta2_", "CotgTheta1-CotgTheta2", totBinsX, ptMin, ptMax, totBinsY, etaMin, etaMax);
-    mapHisto_[name+"Phi1-Phi2"]             = new HCovarianceVSxy(name+"Phi1_Phi2_", "Phi1-Phi2", totBinsX, ptMin, ptMax, totBinsY, etaMin, etaMax);
-    mapHisto_[name+"Pt12-CotgTheta21"]      = new HCovarianceVSxy(name+"Pt12_CotgTheta21_", "Pt12-CotgTheta21", totBinsX, ptMin, ptMax, totBinsY, etaMin, etaMax);
-    mapHisto_[name+"Pt12-Phi21"]            = new HCovarianceVSxy(name+"Pt12_Phi21_", "Pt12-Phi21", totBinsX, ptMin, ptMax, totBinsY, etaMin, etaMax);
-    mapHisto_[name+"CotgTheta12-Phi21"]     = new HCovarianceVSxy(name+"CotgTheta12_Phi21", "CotgTheta12-Phi21", totBinsX, ptMin, ptMax, totBinsY, etaMin, etaMax);
+    mapHisto_[name+"Pt-CotgTheta"]          = new HCovarianceVSxy(name+"Pt_CotgTheta_", "Pt-CotgTheta", totBinsX, ptMin, ptMax, totBinsY, etaMin, etaMax, histoDir_);
+    mapHisto_[name+"Pt-Phi"]                = new HCovarianceVSxy(name+"Pt_Phi_", "Pt-Phi", totBinsX, ptMin, ptMax, totBinsY, etaMin, etaMax, histoDir_);
+    mapHisto_[name+"CotgTheta-Phi"]         = new HCovarianceVSxy(name+"CotgTheta_Phi_", "CotgTheta-Phi", totBinsX, ptMin, ptMax, totBinsY, etaMin, etaMax, histoDir_);
+    mapHisto_[name+"Pt1-Pt2"]               = new HCovarianceVSxy(name+"Pt1_Pt2_", "Pt1-Pt2", totBinsX, ptMin, ptMax, totBinsY, etaMin, etaMax, histoDir_);
+    mapHisto_[name+"CotgTheta1-CotgTheta2"] = new HCovarianceVSxy(name+"CotgTheta1_CotgTheta2_", "CotgTheta1-CotgTheta2", totBinsX, ptMin, ptMax, totBinsY, etaMin, etaMax, histoDir_);
+    mapHisto_[name+"Phi1-Phi2"]             = new HCovarianceVSxy(name+"Phi1_Phi2_", "Phi1-Phi2", totBinsX, ptMin, ptMax, totBinsY, etaMin, etaMax, histoDir_);
+    mapHisto_[name+"Pt12-CotgTheta21"]      = new HCovarianceVSxy(name+"Pt12_CotgTheta21_", "Pt12-CotgTheta21", totBinsX, ptMin, ptMax, totBinsY, etaMin, etaMax, histoDir_);
+    mapHisto_[name+"Pt12-Phi21"]            = new HCovarianceVSxy(name+"Pt12_Phi21_", "Pt12-Phi21", totBinsX, ptMin, ptMax, totBinsY, etaMin, etaMax, histoDir_);
+    mapHisto_[name+"CotgTheta12-Phi21"]     = new HCovarianceVSxy(name+"CotgTheta12_Phi21_", "CotgTheta12-Phi21", totBinsX, ptMin, ptMax, totBinsY, etaMin, etaMax, histoDir_);
   }
+
+  /// Constructor reading the histograms from file
+  HCovarianceVSParts( const TString & inputFileName, const TString & name )
+  {
+    name_ = name;
+    TFile * inputFile = new TFile(inputFileName, "READ");
+    readMode_ = true;
+
+    // Variances
+    mapHisto_[name_+"Pt"]                    = new HCovarianceVSxy(inputFile, name_+"Pt_"+name_, name_);
+    mapHisto_[name_+"CotgTheta"]             = new HCovarianceVSxy(inputFile, name_+"CotgTheta_"+name_, name_);
+    mapHisto_[name_+"Phi"]                   = new HCovarianceVSxy(inputFile, name_+"Phi_"+name_, name_);
+    // Covariances
+    mapHisto_[name_+"Pt-CotgTheta"]          = new HCovarianceVSxy(inputFile, name_+"Pt_CotgTheta_"+name_, name_);
+    mapHisto_[name_+"Pt-Phi"]                = new HCovarianceVSxy(inputFile, name_+"Pt_Phi_"+name_, name_);
+    mapHisto_[name_+"CotgTheta-Phi"]         = new HCovarianceVSxy(inputFile, name_+"CotgTheta_Phi_"+name_, name_);
+    mapHisto_[name_+"Pt1-Pt2"]               = new HCovarianceVSxy(inputFile, name_+"Pt1_Pt2_"+name_, name_);
+    mapHisto_[name_+"CotgTheta1-CotgTheta2"] = new HCovarianceVSxy(inputFile, name_+"CotgTheta1_CotgTheta2_"+name_, name_);
+    mapHisto_[name_+"Phi1-Phi2"]             = new HCovarianceVSxy(inputFile, name_+"Phi1_Phi2_"+name_, name_);
+    mapHisto_[name_+"Pt12-CotgTheta21"]      = new HCovarianceVSxy(inputFile, name_+"Pt12_CotgTheta21_"+name_, name_);
+    mapHisto_[name_+"Pt12-Phi21"]            = new HCovarianceVSxy(inputFile, name_+"Pt12_Phi21_"+name_, name_);
+    mapHisto_[name_+"CotgTheta12-Phi21"]     = new HCovarianceVSxy(inputFile, name_+"CotgTheta12_Phi21_"+name_, name_);
+  }
+
   ~HCovarianceVSParts(){
   }
+
+  virtual double Get( const reco::Particle::LorentzVector & recoP1, const TString & covarianceName ) {
+    return mapHisto_[name_+covarianceName]->Get(recoP1.pt(), recoP1.eta());
+  }
+
   virtual void Fill( const reco::Particle::LorentzVector & recoP1,
                      const reco::Particle::LorentzVector & genP1,
                      const reco::Particle::LorentzVector & recoP2,
                      const reco::Particle::LorentzVector & genP2 ) {
+
     double pt1 = recoP1.pt();
     double eta1 = recoP1.eta();
     double pt2 = recoP2.pt();
@@ -1218,11 +1448,15 @@ class HCovarianceVSParts : public Histograms
     double recoCotgTheta1 = TMath::Cos(recoTheta1)/(TMath::Sin(recoTheta1));
     double recoCotgTheta2 = TMath::Cos(recoTheta2)/(TMath::Sin(recoTheta2));
 
-    double diffCotgTheta1 = (recoCotgTheta1 - genCotgTheta1)/genCotgTheta1;
-    double diffCotgTheta2 = (recoCotgTheta2 - genCotgTheta2)/genCotgTheta2;
+    // double diffCotgTheta1 = (recoCotgTheta1 - genCotgTheta1)/genCotgTheta1;
+    // double diffCotgTheta2 = (recoCotgTheta2 - genCotgTheta2)/genCotgTheta2;
+    double diffCotgTheta1 = recoCotgTheta1 - genCotgTheta1;
+    double diffCotgTheta2 = recoCotgTheta2 - genCotgTheta2;
 
-    double diffPhi1 = (recoP1.phi() - genP1.phi())/genP1.phi();
-    double diffPhi2 = (recoP2.phi() - genP2.phi())/genP2.phi();
+    // double diffPhi1 = (recoP1.phi() - genP1.phi())/genP1.phi();
+    // double diffPhi2 = (recoP2.phi() - genP2.phi())/genP2.phi();
+    double diffPhi1 = MuScleFitUtils::deltaPhiNoFabs(recoP1.phi(), genP1.phi());
+    double diffPhi2 = MuScleFitUtils::deltaPhiNoFabs(recoP2.phi(), genP2.phi());
 
 //     cout << "pt1 = " << pt1 << endl;
 //     cout << "pt2 = " << pt2 << endl;
@@ -1272,11 +1506,13 @@ class HCovarianceVSParts : public Histograms
     mapHisto_[name_+"CotgTheta12-Phi21"]->Fill(pt2, eta2, diffCotgTheta2, diffPhi1);
   }
   virtual void Write() {
-    histoDir_->cd();
+    if( !readMode_ ) {
+      histoDir_->cd();
 
-    for (map<TString, HCovarianceVSxy*>::const_iterator histo=mapHisto_.begin(); 
-         histo!=mapHisto_.end(); histo++) {
-      (*histo).second->Write();
+      for (map<TString, HCovarianceVSxy*>::const_iterator histo=mapHisto_.begin(); 
+           histo!=mapHisto_.end(); histo++) {
+        (*histo).second->Write();
+      }
     }
   }
   virtual void Clear() {
@@ -1287,6 +1523,7 @@ class HCovarianceVSParts : public Histograms
   }
  protected:
   map<TString, HCovarianceVSxy*> mapHisto_;
+  bool readMode_;
 };
 
 /**

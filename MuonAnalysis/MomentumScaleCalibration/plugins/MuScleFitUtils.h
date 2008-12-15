@@ -5,8 +5,8 @@
  *  
  *  Provide basic functionalities useful for MuScleFit
  *
- *  $Date: 2008/11/10 08:39:18 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/11/18 13:21:23 $
+ *  $Revision: 1.5 $
  *  \author S. Bolognesi - INFN Torino / T. Dorigo - INFN Padova
  */
 
@@ -93,6 +93,13 @@ public:
     while(deltaPhi >= TMath::Pi()) deltaPhi -= 2*TMath::Pi();
     while(deltaPhi < -TMath::Pi()) deltaPhi += 2*TMath::Pi();
     return fabs(deltaPhi);
+  }
+  /// Without fabs at the end, used to have a symmetric distribution for the resolution fits and variance computations
+  static double deltaPhiNoFabs(double phi1, double phi2) {
+    double deltaPhi = phi1 - phi2;
+    while(deltaPhi >= TMath::Pi()) deltaPhi -= 2*TMath::Pi();
+    while(deltaPhi < -TMath::Pi()) deltaPhi += 2*TMath::Pi();
+    return deltaPhi;
   }
   static double deltaR(const double & eta1, const double & eta2, const double & phi1, const double & phi2) {
     return sqrt( pow( eta1-eta2, 2 ) + pow( deltaPhi(phi1, phi2), 2 ) );

@@ -671,16 +671,19 @@ class resolutionFunctionType8 : public resolutionFunctionBase<T> {
     TString thisParName[] = { "Pt res. sc.", "Pt res. Pt sc.", "Pt res. Eta sc.",
                               "Cth res. sc.", "Cth res. 1/Pt sc.", "Cth res. Eta sc.", "Cth res. Eta^2 sc.",
                               "Phi res. sc.", "Phi res. 1/Pt sc.", "Phi res. Eta sc.", "Phi res. Eta^2 sc." };
-    double thisMini[] = {  -0.009, 0.00005, 0.8,
+    double thisMini[] = {  -0.01, 0.000001, 0.5,
                            -0.0004, 0.003, 0.000002, 0.0004,
                            0.0001, 0.001, -0.0000007, 0.00008 };
+//     double thisMini[] = {  -0.006, 0.00005, 0.8,
+//                            -0.0004, 0.003, 0.000002, 0.0004,
+//                            0.0001, 0.001, -0.0000007, 0.00008 };
     if( muonType == 1 ) {
       double thisMaxi[] = { 1., 1., 1.,
                             1., 1., 1., 0.1,
                             1., 1., 1., 1. };
       this->setPar( Start, Step, Mini, Maxi, ind, parname, parResol, parResolOrder, thisStep, thisMini, thisMaxi, thisParName );
     } else {
-      double thisMaxi[] = { -0.005, 0.0003, 1.2,
+      double thisMaxi[] = { 0.0, 0.0004, 1.2,
                             -0.0002, 0.005, 0.000004, 0.0007,
                             0.0003, 0.003, -0.0000011, 0.00012 };
       this->setPar( Start, Step, Mini, Maxi, ind, parname, parResol, parResolOrder, thisStep, thisMini, thisMaxi, thisParName );
@@ -693,20 +696,34 @@ protected:
    */
   double etaByPoints(const double & inEta) {
     Double_t eta = fabs(inEta);
-    if( 0. <= eta && eta <= 0.2 )      return 0.0120913;
-    else if( 0.2 < eta && eta <= 0.4 ) return 0.0122204;
-    else if( 0.4 < eta && eta <= 0.6 ) return 0.0136937;
-    else if( 0.6 < eta && eta <= 0.8 ) return 0.0142069;
-    else if( 0.8 < eta && eta <= 1.0 ) return 0.0177526;
-    else if( 1.0 < eta && eta <= 1.2 ) return 0.0243587;
-    else if( 1.2 < eta && eta <= 1.4 ) return 0.019994;
-    else if( 1.4 < eta && eta <= 1.6 ) return 0.0185132;
-    else if( 1.6 < eta && eta <= 1.8 ) return 0.0177141;
-    else if( 1.8 < eta && eta <= 2.0 ) return 0.0211577;
-    else if( 2.0 < eta && eta <= 2.2 ) return 0.0255051;
-    else if( 2.2 < eta && eta <= 2.4 ) return 0.0338104;
+//     if( 0. <= eta && eta <= 0.2 )      return 0.0120913;
+//     else if( 0.2 < eta && eta <= 0.4 ) return 0.0122204;
+//     else if( 0.4 < eta && eta <= 0.6 ) return 0.0136937;
+//     else if( 0.6 < eta && eta <= 0.8 ) return 0.0142069;
+//     else if( 0.8 < eta && eta <= 1.0 ) return 0.0177526;
+//     else if( 1.0 < eta && eta <= 1.2 ) return 0.0243587;
+//     else if( 1.2 < eta && eta <= 1.4 ) return 0.019994;
+//     else if( 1.4 < eta && eta <= 1.6 ) return 0.0185132;
+//     else if( 1.6 < eta && eta <= 1.8 ) return 0.0177141;
+//     else if( 1.8 < eta && eta <= 2.0 ) return 0.0211577;
+//     else if( 2.0 < eta && eta <= 2.2 ) return 0.0255051;
+//     else if( 2.2 < eta && eta <= 2.4 ) return 0.0338104;
+//     // ATTENTION: This point has a big error and it is very displaced from the rest of the distribution.
+//     else if( 2.4 < eta && eta <= 2.6 ) return 0.31;
+    if( 0. <= eta && eta <= 0.2 ) return 0.00942984;
+    else if( 0.2 < eta && eta <= 0.4 ) return 0.0104489;
+    else if( 0.4 < eta && eta <= 0.6 ) return 0.0110521;
+    else if( 0.6 < eta && eta <= 0.8 ) return 0.0117338;
+    else if( 0.8 < eta && eta <= 1.0 ) return 0.0138142;
+    else if( 1.0 < eta && eta <= 1.2 ) return 0.0165826;
+    else if( 1.2 < eta && eta <= 1.4 ) return 0.0183663;
+    else if( 1.4 < eta && eta <= 1.6 ) return 0.0169904;
+    else if( 1.6 < eta && eta <= 1.8 ) return 0.0173289;
+    else if( 1.8 < eta && eta <= 2.0 ) return 0.0205821;
+    else if( 2.0 < eta && eta <= 2.2 ) return 0.0250032;
+    else if( 2.2 < eta && eta <= 2.4 ) return 0.0339477;
     // ATTENTION: This point has a big error and it is very displaced from the rest of the distribution.
-    else if( 2.4 < eta && eta <= 2.6 ) return 0.31;
+    else if( 2.4 < eta && eta <= 2.6 ) return 0.445473;
     return ( 0. );
   }
 };

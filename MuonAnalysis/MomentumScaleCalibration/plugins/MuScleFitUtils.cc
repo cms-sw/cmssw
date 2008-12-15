@@ -1,7 +1,7 @@
 /** See header file for a class description 
  *
- *  $Date: 2008/11/19 18:12:25 $
- *  $Revision: 1.15 $
+ *  $Date: 2008/11/21 16:50:03 $
+ *  $Revision: 1.16 $
  *  \author S. Bolognesi - INFN Torino / T. Dorigo, M.De Mattia - INFN Padova
  */
 // Some notes:
@@ -612,10 +612,12 @@ double MuScleFitUtils::massResolution (const lorentzVector& mu1,
   double phi1   = mu1.Phi();
   double eta1   = mu1.Eta();
   double theta1 = 2*atan(exp(-eta1));
+  // double cotgTheta1 = cos(theta1)/sin(theta1);
   double pt2    = mu2.Pt();
   double phi2   = mu2.Phi();
   double eta2   = mu2.Eta();
   double theta2 = 2*atan(exp(-eta2));
+  // double cotgTheta2 = cos(theta2)/sin(theta2);
 
   // double mass_check = sqrt(2*mMu2+2*sqrt(pow(pt1/sin(theta1),2)+mMu2)*sqrt(pow(pt2/sin(theta2),2)+mMu2)-
   //			   2*pt1*pt2*(cos(phi1-phi2)+1/(tan(theta1)*tan(theta2))));
@@ -653,7 +655,6 @@ double MuScleFitUtils::massResolution (const lorentzVector& mu1,
   double mass_res = sqrt(pow(dmdpt1*sigma_pt1*pt1,2)+pow(dmdpt2*sigma_pt2*pt2,2)+
  			 pow(dmdphi1*sigma_phi1,2)+pow(dmdphi2*sigma_phi2,2)+
  			 pow(dmdcotgth1*sigma_cotgth1,2)+pow(dmdcotgth2*sigma_cotgth2,2));
-
 
   if (debug>19) { 
     cout << "  Pt1=" << pt1 << " phi1=" << phi1 << " cotgth1=" << cos(theta1)/sin(theta1) << " - Pt2=" << pt2 

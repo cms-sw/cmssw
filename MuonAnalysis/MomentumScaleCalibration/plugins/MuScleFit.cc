@@ -1,8 +1,8 @@
 //  \class MuScleFit
 //  Analyzer of the StandAlone muon tracks
 //
-//  $Date: 2008/11/18 13:21:33 $
-//  $Revision: 1.14 $
+//  $Date: 2008/12/04 16:21:10 $
+//  $Revision: 1.15 $
 //  \author R. Bellan, C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo, M.De Mattia - INFN Padova
 //
 //  Recent additions: 
@@ -636,7 +636,8 @@ edm::EDLooper::Status MuScleFit::duringLoop (const Event & event, const EventSet
       mapHisto["hResolCotgThetaGenVSMu"]->Fill(recMu1,(-cos(genMu.first.Theta())/sin(genMu.first.Theta())
                                                        +cos(recMu1.Theta())/sin(recMu1.Theta())),-1);
       mapHisto["hResolEtaGenVSMu"]->Fill(recMu1,(-genMu.first.Eta()+recMu1.Eta()),-1);
-      mapHisto["hResolPhiGenVSMu"]->Fill(recMu1,(-genMu.first.Phi()+recMu1.Phi()),-1);
+      // mapHisto["hResolPhiGenVSMu"]->Fill(recMu1,(-genMu.first.Phi()+recMu1.Phi()),-1);
+      mapHisto["hResolPhiGenVSMu"]->Fill(recMu1,MuScleFitUtils::deltaPhiNoFabs(recMu1.Phi(), genMu.first.Phi()),-1);
       // Fill also the resolution histogramsm using the resolution functions:
       // the parameters are those from the last iteration, as the muons up to this point have also the
       // corrections from the same iteration.
@@ -658,7 +659,8 @@ edm::EDLooper::Status MuScleFit::duringLoop (const Event & event, const EventSet
       mapHisto["hResolCotgThetaGenVSMu"]->Fill(recMu2,(-cos(genMu.second.Theta())/sin(genMu.second.Theta())
 							     +cos(recMu2.Theta())/sin(recMu2.Theta())),+1);
       mapHisto["hResolEtaGenVSMu"]->Fill(recMu2,(-genMu.second.Eta()+recMu2.Eta()),+1);
-      mapHisto["hResolPhiGenVSMu"]->Fill(recMu2,(-genMu.second.Phi()+recMu2.Phi()),+1);
+      // mapHisto["hResolPhiGenVSMu"]->Fill(recMu2,(-genMu.second.Phi()+recMu2.Phi()),+1);
+      mapHisto["hResolPhiGenVSMu"]->Fill(recMu2,MuScleFitUtils::deltaPhiNoFabs(recMu2.Phi(), genMu.second.Phi()),+1);
       // Fill also the resolution histogramsm using the resolution functions
       mapHisto["hFunctionResolPt"]->Fill( recMu2, MuScleFitUtils::resolutionFunctionForVec->sigmaPt(recMu2.Pt(), recMu2.Eta(), *parval ), +1 );
       mapHisto["hFunctionResolCotgTheta"]->Fill( recMu2, MuScleFitUtils::resolutionFunctionForVec->sigmaCotgTh(recMu2.Pt(), recMu2.Eta(), *parval ), +1 );
@@ -673,7 +675,8 @@ edm::EDLooper::Status MuScleFit::duringLoop (const Event & event, const EventSet
       mapHisto["hResolCotgThetaSimVSMu"]->Fill(simMu.first,(-cos(simMu.first.Theta())/sin(simMu.first.Theta())
                                                             +cos(recMu1.Theta())/sin(recMu1.Theta())),-1);
       mapHisto["hResolEtaSimVSMu"]->Fill(simMu.first,(-simMu.first.Eta()+recMu1.Eta()),-1);
-      mapHisto["hResolPhiSimVSMu"]->Fill(simMu.first,(-simMu.first.Phi()+recMu1.Phi()),-1);
+      // mapHisto["hResolPhiSimVSMu"]->Fill(simMu.first,(-simMu.first.Phi()+recMu1.Phi()),-1);
+      mapHisto["hResolPhiSimVSMu"]->Fill(simMu.first,MuScleFitUtils::deltaPhiNoFabs(recMu1.Phi(), simMu.first.Phi()),-1);
     }
     if(checkDeltaR(simMu.second,recMu2)){
       mapHisto["hResolPtSimVSMu"]->Fill(simMu.second,(-simMu.second.Pt()+recMu2.Pt())/simMu.second.Pt(),+1);
@@ -681,7 +684,8 @@ edm::EDLooper::Status MuScleFit::duringLoop (const Event & event, const EventSet
       mapHisto["hResolCotgThetaSimVSMu"]->Fill(simMu.second,(-cos(simMu.second.Theta())/sin(simMu.second.Theta())
 							     +cos(recMu2.Theta())/sin(recMu2.Theta())),+1);
       mapHisto["hResolEtaSimVSMu"]->Fill(simMu.second,(-simMu.second.Eta()+recMu2.Eta()),+1);
-      mapHisto["hResolPhiSimVSMu"]->Fill(simMu.second,(-simMu.second.Phi()+recMu2.Phi()),+1);
+      // mapHisto["hResolPhiSimVSMu"]->Fill(simMu.second,(-simMu.second.Phi()+recMu2.Phi()),+1);
+      mapHisto["hResolPhiSimVSMu"]->Fill(simMu.second,MuScleFitUtils::deltaPhiNoFabs(recMu2.Phi(), simMu.second.Phi()),+1);
     }
 
     // Compute likelihood histograms
@@ -717,6 +721,34 @@ edm::EDLooper::Status MuScleFit::duringLoop (const Event & event, const EventSet
 	mapHisto["hLikeVSMuPlus"]->Fill (recMu2, deltalike);
 	mapHisto["hResolMassVSMu"]->Fill (recMu1, massResol,-1);
 	mapHisto["hResolMassVSMu"]->Fill (recMu2, massResol,+1);
+
+
+        double recoMass = (recMu1+recMu2).mass();
+        double genMass = (genMu.first + genMu.second).mass();
+        // Fill the mass resolution (computed from MC), we use the covariance class to compute the variance
+        if( genMass != 0 ) {
+          // double diffMass = (recoMass - genMass)/genMass;
+          double diffMass = recoMass - genMass;
+          // Fill if for both muons
+          double pt1 = recMu1.pt();
+          double eta1 = recMu1.eta();
+          double pt2 = recMu2.pt();
+          double eta2 = recMu2.eta();
+          // This is to avoid nan
+          if( diffMass == diffMass ) {
+            massResolutionVsPtEta_->Fill(pt1, eta1, diffMass, diffMass);
+            massResolutionVsPtEta_->Fill(pt2, eta2, diffMass, diffMass);
+          }
+          else {
+            cout << "Error, there is a nan: recoMass = " << recoMass << ", genMass = " << genMass << endl;
+          }
+          // Fill with mass resolution from resolution function
+          double massRes = MuScleFitUtils::massResolution(recMu1, recMu2, MuScleFitUtils::parResol);
+          // The value given by massRes is already divided by the mass, since the derivative functions have mass at the denominator.
+          mapHisto["hFunctionResolMass"]->Fill( recMu1, pow(massRes,2), -1 );
+          mapHisto["hFunctionResolMass"]->Fill( recMu2, pow(massRes,2), +1 );
+        }
+
 
 	Mass_P->Fill(bestRecRes.mass(), prob);
 	Mass_fine_P->Fill(bestRecRes.mass(), prob);
@@ -797,6 +829,13 @@ void MuScleFit::fillHistoMap(TFile* outputFile, unsigned int iLoop) {
   // ---------------------------
   Mass_P = new TProfile ("Mass_P", "Mass probability", 4000, 0., 200., 0., 1.);
   Mass_fine_P = new TProfile ("Mass_fine_P", "Mass probability", 4000, 0., 20., 0., 1.);
+
+
+  double ptMax = 40.;
+  // Mass resolution vs (pt, eta) of the muons from MC
+  massResolutionVsPtEta_ = new HCovarianceVSxy ( "Mass", "Mass", 100, 0., ptMax, 60, -3, 3 );
+  // Mass resolution vs (pt, eta) from resolution function
+  mapHisto["hFunctionResolMass"] = new HFunctionResolution (outputFile, "hFunctionResolMass", ptMax);
 }
 
 bool MuScleFit::checkDeltaR(reco::Particle::LorentzVector& genMu, reco::Particle::LorentzVector& recMu){
@@ -817,6 +856,8 @@ void MuScleFit::clearHistoMap() {
        histo!=mapHisto.end(); histo++) {
     delete (*histo).second;
   }
+  massResolutionVsPtEta_->Clear();
+  delete massResolutionVsPtEta_;
 }
 
 void MuScleFit::writeHistoMap() {
@@ -824,6 +865,8 @@ void MuScleFit::writeHistoMap() {
        histo!=mapHisto.end(); histo++) {
     (*histo).second->Write();
   }
+  // theFiles[iLoop]->cd();
+  massResolutionVsPtEta_->Write();
 }
 
 // Simple method to check parameters consistency. It aborts the job if the parameters

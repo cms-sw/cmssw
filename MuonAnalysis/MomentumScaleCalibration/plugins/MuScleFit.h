@@ -4,8 +4,8 @@
 /** \class MuScleFit
  *  Analyzer of the Global muon tracks
  *
- *  $Date: 2008/10/09 15:40:09 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/10/29 09:22:13 $
+ *  $Revision: 1.5 $
  *  \author C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo - INFN Padova
  */
 
@@ -141,6 +141,7 @@ class MuScleFit: public edm::EDLooper {
 
   TProfile * Mass_P;
   TProfile * Mass_fine_P;
+  HCovarianceVSxy * massResolutionVsPtEta_;
 };
 #endif
 
