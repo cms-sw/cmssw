@@ -389,7 +389,8 @@ class PerfSuite:
         if cmsdriverOptions:
             #Set the eventual Pile Up cmsdriver options first:
             if TimeSizePUCandles or IgProfPUCandles or CallgrindPUCandles or MemcheckPUCandles:
-                cmsdriverPUOptions = '--cmsdriver="%s %s %s"'%(cmsdriverOptions," --pileup=",cmsDriverPileUpOption)
+                #Bug fixed: no space between --pileup= and LowLumiPileUp (otherwise could omit the =)
+                cmsdriverPUOptions = '--cmsdriver="%s %s%s"'%(cmsdriverOptions," --pileup=",cmsDriverPileUpOption)
             #Set the regular ones too:
             cmsdriverOptions = '--cmsdriver="%s"'%cmsdriverOptions        
     
@@ -897,7 +898,7 @@ class PerfSuite:
             #First submit the cmsScimark benchmarks on the unused cores:
             scimark = ""
             scimarklarge = ""
-            if not self._unittest:
+            if not (self._unittest or self._noexec):
                 for core in range(cores):
                     if (not core in cpus) and runonspare:
                         self.logh.write("Submitting cmsScimarkLaunch.csh to run on core cpu "+str(core) + "\n")
@@ -915,7 +916,7 @@ class PerfSuite:
             benching = not self._debug
             ##FIXME:
             #We may want to introduce a switch here or agree on a different default (currently 10 cmsScimark and 10 cmsScimarkLarge)
-            if benching and not self._unittest: 
+            if benching and not (self._unittest or self._noexec): 
                 #Submit the cmsScimark benchmarks on the cpu where the suite will be run:
                 for cpu in cpus:
                     scimark      = open(os.path.join(perfsuitedir,"cmsScimark2.log")      ,"w")        
@@ -963,6 +964,8 @@ class PerfSuite:
                     #Accept plain LFNs from DBS for RelVal CASTOR files:
                     if '/store/relval/' in PUInputFile:
                         PUInputFile="/castor/cern.ch/cms"+PUInputFile
+                    self.logh.write("Copying the file %s locally to %s\n"%(PUInputFile,PUInputName))
+                    self.logh.flush()
                     GetPUInput=subprocess.Popen("%s %s %s"%(copycmd,PUInputFile,PUInputName), shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
                     GetPUInputExitCode=GetPUInput.wait()
                     #Allow even the potential copy of a local file (even one already named INPUT_PILEUP_EVENTS.root!)
@@ -1011,12 +1014,13 @@ class PerfSuite:
             
             #Stopping all cmsScimark jobs and analysing automatically the logfiles
             #No need to waste CPU while the load does not affect Valgrind measurements!
-            self.logh.write("Stopping all cmsScimark jobs now\n")
-            subcmd = "cd %s ; %s" % (perfsuitedir,self.AuxiliaryScripts[2])
-            stopcmd = "sh -c \"%s\"" % subcmd
-            self.printFlush(stopcmd)
-            #os.popen(stopcmd)
-            self.printFlush(os.popen4(stopcmd)[1].read())
+            if not (self._unittest or self._noexec):
+                self.logh.write("Stopping all cmsScimark jobs now\n")
+                subcmd = "cd %s ; %s" % (perfsuitedir,self.AuxiliaryScripts[2])
+                stopcmd = "sh -c \"%s\"" % subcmd
+                self.printFlush(stopcmd)
+                #os.popen(stopcmd)
+                self.printFlush(os.popen4(stopcmd)[1].read())
             
             #Valgrind tests:
             if CallgrindEvents > 0:
@@ -1071,7 +1075,7 @@ class PerfSuite:
                     ReportExit=self.simpleGenReport(cpus,perfsuitedir,MemcheckEvents,MemcheckPUCandles,cmsdriverPUOptions,stepOptions,"Memcheck",profilers,bypasshlt)
                     FinalExitCode=FinalExitCode+ReportExit
                 
-            if benching and not self._unittest:
+            if benching and not (self._unittest or self._noexec):
                 #Ending the performance suite with the cmsScimark benchmarks again:
                 for cpu in cpus:
                     if cmsScimark > 0:

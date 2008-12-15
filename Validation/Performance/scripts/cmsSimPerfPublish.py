@@ -34,7 +34,8 @@ ValgrindNumOfEvents = 1
 DirName=( #These need to match the candle directory names ending (depending on the type of profiling)
           "TimeSize",
           "IgProf",
-          "Valgrind"
+          "Callgrind",
+          "Memcheck"
           )
 
 ##################
