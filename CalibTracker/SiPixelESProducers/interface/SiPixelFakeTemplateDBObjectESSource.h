@@ -29,6 +29,7 @@ class SiPixelFakeTemplateDBObjectESSource : public edm::ESProducer, public edm::
  private:
   
  	vstring templateID_;
+	float version_;
 
 };
 #endif
