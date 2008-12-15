@@ -5,6 +5,8 @@ CaloRecoTauAlgorithm::CaloRecoTauAlgorithm() : TransientTrackBuilder_(0),Magneti
 CaloRecoTauAlgorithm::CaloRecoTauAlgorithm(const ParameterSet& iConfig) : TransientTrackBuilder_(0),MagneticField_(0),chargedpi_mass_(0.13957018){
   LeadTrack_minPt_                    = iConfig.getParameter<double>("LeadTrack_minPt");
   Track_minPt_                        = iConfig.getParameter<double>("Track_minPt");
+  IsolationTrack_minPt_               = iConfig.getParameter<double>("IsolationTrack_minPt");
+  IsolationTrack_minHits_             = iConfig.getParameter<unsigned int>("IsolationTrack_minHits");
   UseTrackLeadTrackDZconstraint_      = iConfig.getParameter<bool>("UseTrackLeadTrackDZconstraint");
   TrackLeadTrack_maxDZ_               = iConfig.getParameter<double>("TrackLeadTrack_maxDZ");
   ECALRecHit_minEt_                   = iConfig.getParameter<double>("ECALRecHit_minEt");       
@@ -151,8 +153,9 @@ CaloTau CaloRecoTauAlgorithm::buildCaloTau(Event& iEvent,const EventSetup& iSetu
     myCaloTau.setsignalTracksInvariantMass(mySignalTksInvariantMass.mass());
     
     TrackRefVector myIsolTks;
-    if (UseTrackLeadTrackDZconstraint_) myIsolTks=myCaloTauElementsOperators.tracksInAnnulus((*myleadTk).momentum(),TrackerSignalConeMetric_,myTrackerSignalConeSize,TrackerIsolConeMetric_,myTrackerIsolConeSize,Track_minPt_,TrackLeadTrack_maxDZ_,myleadTkDZ);
-    else myIsolTks=myCaloTauElementsOperators.tracksInAnnulus((*myleadTk).momentum(),TrackerSignalConeMetric_,myTrackerSignalConeSize,TrackerIsolConeMetric_,myTrackerIsolConeSize,Track_minPt_);
+    if (UseTrackLeadTrackDZconstraint_) myIsolTks=myCaloTauElementsOperators.tracksInAnnulus((*myleadTk).momentum(),TrackerSignalConeMetric_,myTrackerSignalConeSize,TrackerIsolConeMetric_,myTrackerIsolConeSize,IsolationTrack_minPt_,TrackLeadTrack_maxDZ_,myleadTkDZ);
+    else myIsolTks=myCaloTauElementsOperators.tracksInAnnulus((*myleadTk).momentum(),TrackerSignalConeMetric_,myTrackerSignalConeSize,TrackerIsolConeMetric_,myTrackerIsolConeSize,IsolationTrack_minPt_);
+    myIsolTks = TauTagTools::filteredTracksByNumTrkHits(myIsolTks,IsolationTrack_minHits_);
     myCaloTau.setisolationTracks(myIsolTks);
     
     // setting sum of Pt of the isolation annulus Tracks

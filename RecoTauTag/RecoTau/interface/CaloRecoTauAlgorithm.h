@@ -47,6 +47,8 @@ class  CaloRecoTauAlgorithm  {
   const MagneticField* MagneticField_;
   double LeadTrack_minPt_;
   double Track_minPt_;
+  double IsolationTrack_minPt_;
+  unsigned int IsolationTrack_minHits_;
   bool UseTrackLeadTrackDZconstraint_;
   double TrackLeadTrack_maxDZ_;
   double ECALRecHit_minEt_;

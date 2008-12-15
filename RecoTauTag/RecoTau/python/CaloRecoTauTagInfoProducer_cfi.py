@@ -5,11 +5,16 @@ caloRecoTauTagInfoProducer = cms.EDProducer("CaloRecoTauTagInfoProducer",
     #string PVProducer                         = "pixelVertices"
     PVProducer = cms.string('offlinePrimaryVertices'),
     # parameters of the considered rec. Tracks (were catched through a JetTracksAssociation object) :
-    tkminPt = cms.double(1.0),
-    tkminPixelHitsn	= cms.int32(2),
-    tkminTrackerHitsn = cms.int32(8),	
+    tkminPt = cms.double(0.5),
+    tkminPixelHitsn	= cms.int32(0),
+    tkminTrackerHitsn = cms.int32(3),	
     tkmaxChi2 = cms.double(100.0),	
     UsePVconstraint = cms.bool(False),
+
+    UseTrackQuality = cms.bool(True),
+    #only used if UseTrackQuality is True
+    tkQuality = cms.string('goodIterative'),
+    
     BarrelBasicClustersSource = cms.InputTag("hybridSuperClusters","hybridBarrelBasicClusters"),
     EndcapBasicClustersSource = cms.InputTag("multi5x5BasicClusters","multi5x5EndcapBasicClusters"),
 

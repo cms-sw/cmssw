@@ -5,6 +5,7 @@
 <use name=DataFormats/VertexReco>
 <use name=DataFormats/ParticleFlowReco>
 <use name=DataFormats/ParticleFlowCandidate>
+<use name=DataFormats/TrackReco>
 <use name=FWCore/Framework>
 <use name=FWCore/MessageLogger>
 <use name=FWCore/ParameterSet>

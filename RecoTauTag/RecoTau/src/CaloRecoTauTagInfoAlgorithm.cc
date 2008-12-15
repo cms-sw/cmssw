@@ -11,6 +11,11 @@ CaloRecoTauTagInfoAlgorithm::CaloRecoTauTagInfoAlgorithm(const ParameterSet& par
   // 
   UsePVconstraint_                    = parameters.getParameter<bool>("UsePVconstraint");
   tkPVmaxDZ_                          = parameters.getParameter<double>("tkPVmaxDZ");
+  //
+  UseTrackQuality_                    = parameters.getParameter<bool>("UseTrackQuality");
+  if (UseTrackQuality_) {
+    tkQuality_ = reco::TrackBase::qualityByName(parameters.getParameter<std::string>("tkQuality"));
+  }
   // parameters of the considered EcalRecHits 
   BarrelBasicClusters_                = parameters.getParameter<InputTag>("BarrelBasicClustersSource"); 
   EndcapBasicClusters_                = parameters.getParameter<InputTag>("EndcapBasicClustersSource"); 
@@ -27,6 +32,7 @@ CaloTauTagInfo CaloRecoTauTagInfoAlgorithm::buildCaloTauTagInfo(Event& theEvent,
   TrackRefVector theFilteredTracks;
   if (UsePVconstraint_) theFilteredTracks=TauTagTools::filteredTracks(theTracks,tkminPt_,tkminPixelHitsn_,tkminTrackerHitsn_,tkmaxipt_,tkmaxChi2_,tkPVmaxDZ_,thePV, thePV.z());
   else theFilteredTracks=TauTagTools::filteredTracks(theTracks,tkminPt_,tkminPixelHitsn_,tkminTrackerHitsn_,tkmaxipt_,tkmaxChi2_,thePV);
+  if (UseTrackQuality_) theFilteredTracks = filterTracksByQualityBit(theFilteredTracks,tkQuality_);
   resultExtended.setTracks(theFilteredTracks);
   
   //resultExtended.setpositionAndEnergyECALRecHits(getPositionAndEnergyEcalRecHits(theEvent,theEventSetup,theCaloJet));
@@ -152,4 +158,13 @@ vector<BasicClusterRef> CaloRecoTauTagInfoAlgorithm::getNeutralEcalBasicClusters
     if(Track_matchedwithEcalBasicCluster) kmatchedBasicCluster=theNeutralBasicClusters.erase(kmatchedBasicCluster);
   }
   return theNeutralBasicClusters;
+}
+
+TrackRefVector CaloRecoTauTagInfoAlgorithm::filterTracksByQualityBit(const TrackRefVector& tracks, reco::TrackBase::TrackQuality quality) const
+{
+  TrackRefVector filteredTracks;
+  for (TrackRefVector::const_iterator iTrack = tracks.begin(); iTrack != tracks.end(); iTrack++) {
+    if ((*iTrack)->quality(quality)) filteredTracks.push_back(*iTrack);
+  }
+  return filteredTracks;
 }

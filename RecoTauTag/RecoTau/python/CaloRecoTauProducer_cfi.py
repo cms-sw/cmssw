@@ -34,7 +34,9 @@ caloRecoTauProducer = cms.EDProducer("CaloRecoTauProducer",
                                      
                                      TrackLeadTrack_maxDZ = cms.double(0.2),
                                      Track_minPt = cms.double(1.0),
-                                     TrackerIsolConeSizeFormula = cms.string('0.50'), ## **   
+                                     TrackerIsolConeSizeFormula = cms.string('0.50'), ## **
+                                     IsolationTrack_minPt = cms.double(0.5),
+                                     IsolationTrack_minHits = cms.uint32(0),
                                      
                                      ECALSignalConeSize_max = cms.double(0.6),
                                      ECALIsolConeSize_min = cms.double(0.0),

@@ -26,6 +26,8 @@
 
 #include "RecoTauTag/TauTagTools/interface/TauTagTools.h"
 
+#include "DataFormats/TrackReco/interface/TrackBase.h"
+
 using namespace std;
 using namespace reco;
 using namespace edm;
@@ -42,6 +44,7 @@ class  CaloRecoTauTagInfoAlgorithm  {
   //  vector<pair<math::XYZPoint,float> > getPositionAndEnergyEcalRecHits(Event&,const EventSetup&,const CaloJetRef&);
 
   vector<BasicClusterRef> getNeutralEcalBasicClusters(Event&,const EventSetup& theEventSetup,const CaloJetRef&,const TrackRefVector&,float theECALBasicClustersAroundCaloJet_DRConeSize,float theECALBasicClusterminE,float theECALBasicClusterpropagTrack_matchingDRConeSize);
+  TrackRefVector filterTracksByQualityBit(const TrackRefVector& tracks, reco::TrackBase::TrackQuality quality) const;
   //
   double tkminPt_;
   int tkminPixelHitsn_;
@@ -51,6 +54,9 @@ class  CaloRecoTauTagInfoAlgorithm  {
   // 
   bool UsePVconstraint_;
   double tkPVmaxDZ_;
+  //
+  bool UseTrackQuality_;
+  reco::TrackBase::TrackQuality tkQuality_;
   //
   double ECALBasicClustersAroundCaloJet_DRConeSize_;
   double ECALBasicClusterminE_;
