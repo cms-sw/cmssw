@@ -27,6 +27,10 @@
 #include <xercesc/dom/DOMElement.hpp>
 #include <xercesc/sax/ErrorHandler.hpp>
 #include <xercesc/sax/SAXParseException.hpp>
+#include <xercesc/dom/DOMImplementation.hpp>
+#include <xercesc/dom/DOMWriter.hpp>
+#include <xercesc/framework/StdOutFormatTarget.hpp>
+#include <xercesc/dom/DOM.hpp>
 
 #include <boost/preprocessor/tuple/elem.hpp>
 #include <boost/preprocessor/seq/for_each_i.hpp>
@@ -47,6 +51,7 @@
 #include "DQM/CSCMonitorModule/interface/CSCDQM_MonitorObjectProvider.h"
 #include "DQM/CSCMonitorModule/interface/CSCDQM_Exception.h"
 #include "DQM/CSCMonitorModule/interface/CSCDQM_Utility.h"
+#include "DQM/CSCMonitorModule/interface/CSCDQM_Logger.h"
 
 #define CONFIG_PARAMETERS_SEQ \
   \
@@ -86,7 +91,7 @@
   BOOST_PP_TUPLE_ELEM(3, 1, elem) = BOOST_PP_TUPLE_ELEM(3, 2, elem);
 
 #define CONFIG_PARAMETER_GETTER_MACRO(r, data, i, elem) \
-  BOOST_PP_TUPLE_ELEM(3, 0, elem) BOOST_PP_CAT(get, BOOST_PP_TUPLE_ELEM(3, 1, elem))() { \
+  const BOOST_PP_TUPLE_ELEM(3, 0, elem) BOOST_PP_CAT(get, BOOST_PP_TUPLE_ELEM(3, 1, elem))() const { \
     return BOOST_PP_TUPLE_ELEM(3, 1, elem); \
   } \
 
@@ -102,6 +107,15 @@
   if (nodeName.compare(BOOST_PP_STRINGIZE(BOOST_PP_TUPLE_ELEM(3, 1, elem))) == 0) { \
     stm >> BOOST_PP_TUPLE_ELEM(3, 1, elem); \
     continue; \
+  } \
+
+#define CONFIG_PARAMETER_PRINTXML_MACRO(r, data, i, elem) \
+  { \
+    DOMElement* el = doc->createElement(XERCES_TRANSCODE(BOOST_PP_STRINGIZE(BOOST_PP_TUPLE_ELEM(3, 1, elem)))); \
+    std::string value = toString(config.BOOST_PP_CAT(get, BOOST_PP_TUPLE_ELEM(3, 1, elem))()); \
+    DOMText* tdata = doc->createTextNode(XERCES_TRANSCODE(value.c_str())); \
+    el->appendChild(tdata); \
+    rootElem->appendChild(el); \
   } \
 
 namespace cscdqm {
@@ -137,16 +151,21 @@ namespace cscdqm {
 
       }
 
-      void load(const std::string configFile) {
+      void load(const std::string& configFile) {
         XMLPlatformUtils::Initialize();
         boost::shared_ptr<XercesDOMParser> parser(new XercesDOMParser());
+
+        /*
         parser->setValidationScheme(XercesDOMParser::Val_Always);
         parser->setDoNamespaces(true);
-        parser->setDoSchema(true);
+        parser->setDoSchema(false);
         parser->setExitOnFirstFatalError(true);
         parser->setValidationConstraintFatal(true);
+        */
+
         XMLFileErrorHandler eh;
         parser->setErrorHandler(&eh);
+
         parser->parse(configFile.c_str());
         DOMDocument *doc = parser->getDocument();
         DOMNode *docNode = (DOMNode*) doc->getDocumentElement();
@@ -155,13 +174,36 @@ namespace cscdqm {
         for(uint32_t i = 0; i < itemList->getLength(); i++) {
           DOMNode* node = itemList->item(i);
           if (node->getNodeType() != DOMNode::ELEMENT_NODE) { continue; }
+          /*
           std::string nodeName = XMLString::transcode(node->getNodeName());
           std::string value = XMLString::transcode(node->getTextContent());
           std::istringstream stm(value);
 
           BOOST_PP_SEQ_FOR_EACH_I(CONFIG_PARAMETER_LOADXML_MACRO, _, CONFIG_PARAMETERS_SEQ)
+          */
 
         }
+        //XMLPlatformUtils::Terminate();
+      }
+
+      static void printXML(const Configuration& config) {
+        XMLPlatformUtils::Initialize();
+
+        DOMImplementation* domImpl = DOMImplementationRegistry::getDOMImplementation(XERCES_TRANSCODE("core"));
+        DOMDocument *doc = domImpl->createDocument(0, XERCES_TRANSCODE("processor_configuration"), 0);
+        DOMElement* rootElem = doc->getDocumentElement();
+
+        BOOST_PP_SEQ_FOR_EACH_I(CONFIG_PARAMETER_PRINTXML_MACRO, _, CONFIG_PARAMETERS_SEQ)
+
+        DOMWriter   *ser = domImpl->createDOMWriter();
+        if (ser->canSetFeature(XMLUni::fgDOMWRTFormatPrettyPrint, true))
+          ser->setFeature(XMLUni::fgDOMWRTFormatPrettyPrint, true);
+        XMLFileErrorHandler eh;
+        ser->setErrorHandler((DOMErrorHandler*) &eh);
+        ser->writeNode(new StdOutFormatTarget(), *doc);
+
+        doc->release();
+        XMLPlatformUtils::Terminate();
       }
 
 #ifdef DQMGLOBAL

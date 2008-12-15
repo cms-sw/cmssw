@@ -29,7 +29,7 @@ namespace cscdqm {
     config->incNEventsCSC();
 
     MonitorObject* me = 0;
-    if (getEMUHisto(EMU_ALL_READOUT_ERRORS, me)) {
+    if (getEMUHisto(h::EMU_ALL_READOUT_ERRORS, me)) {
       if(errorStat != 0) {
         me->Fill(nodeNumber, 1);
         for (unsigned int i = 0; i < 16; i++) {
@@ -43,7 +43,7 @@ namespace cscdqm {
     }
 
     bool eventDenied = false;
-    if (((uint32_t) errorStat & config->get(CONF_DDU_CHECK_MASK)) > 0) {
+    if (((uint32_t) errorStat & config->getDDU_CHECK_MASK()) > 0) {
       eventDenied = true;
     }
 

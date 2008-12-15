@@ -20,11 +20,23 @@
 #define CSCDQM_Logger_H
 
 #include <iostream>
+#include <iomanip>
+//#include <typeinfo> typeid(this).name()
 
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 
+#ifdef DQMGLOBAL
+
 #define LOG_DEBUG       ((!edm::MessageDrop::instance()->debugEnabled) ? \
                         cscdqm::LogDebugger() : cscdqm::LogDebugger(true))
+
+#endif
+
+#ifdef DQMLOCAL
+
+#define LOG_DEBUG       cscdqm::LogDebugger()
+
+#endif
 
 #define LOG_ERROR       cscdqm::LogError()
 #define LOG_WARN        cscdqm::LogWarn()
@@ -45,7 +57,11 @@ namespace cscdqm {
    * LOG_INFO << "x = " << x;
    */
   class LogInfo : public edm::LogInfo, public Logger {
+#ifdef DQMGLOBAL
     public: LogInfo() : edm::LogInfo("") { }
+#else
+    public: LogInfo() : edm::LogInfo() { }
+#endif
   };
 
   /**
@@ -54,7 +70,11 @@ namespace cscdqm {
    * << "x = " << x;
    */
   class LogWarn : public edm::LogWarning, public Logger {
+#ifdef DQMGLOBAL
     public: LogWarn() : edm::LogWarning("") { }
+#else
+    public: LogWarn() : edm::LogWarning() { }
+#endif
   };
 
   /**
@@ -63,7 +83,11 @@ namespace cscdqm {
    * "x = " << x;
    */
   class LogError : public edm::LogError, public Logger {
+#ifdef DQMGLOBAL
     public: LogError() : edm::LogError("") { }
+#else
+    public: LogError() : edm::LogError() { }
+#endif
   };
 
 #ifdef DQMGLOBAL
@@ -76,7 +100,7 @@ namespace cscdqm {
   class LogDebugger : public edm::LogDebug_, public Logger {
     public: 
       LogDebugger() : edm::LogDebug_() { }
-      LogDebugger(const bool& b) : edm::LogDebug_("", __FILE__, __LINE__) { }
+      LogDebugger() : edm::LogDebug_("", __FILE__, __LINE__) { }
   };
 
 #endif
@@ -90,8 +114,7 @@ namespace cscdqm {
    */
   class LogDebugger : public edm::LogDebug, public Logger {
     public: 
-      LogDebugger() : edm::LogDebug("") { }
-      LogDebugger(const bool& b) : edm::LogDebug("") { }
+      LogDebugger() : edm::LogDebug() { }
   };
 
 #endif
@@ -104,7 +127,8 @@ namespace cscdqm {
   class LogCout : public Logger {
     public:
 
-      LogCout() {}
+      LogCout() { }
+      ~LogCout() { std::cout << std::endl; }
 
       template< class T >
       LogCout& operator<< (T const & t) { 

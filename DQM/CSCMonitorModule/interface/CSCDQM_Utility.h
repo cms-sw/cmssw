@@ -24,11 +24,25 @@
 #include <vector>
 #include <sstream>
 
+#include <xercesc/util/XMLString.hpp>
 #include <boost/shared_ptr.hpp>
 #include <TString.h>
 #include <TPRegexp.h>
 
 namespace cscdqm {
+
+  /**
+  * @brief  Converting from whatever to string (failsafe!) 
+  * @param  t whatever
+  * @return result string
+  */
+  template <class T>
+  const std::string toString(T& t) {
+    std::ostringstream st;
+    st << t;
+    std::string result = st.str();
+    return result;
+  }
 
   /**
   * @brief  Converting from string to whatever number (failsafe!) 
@@ -61,6 +75,36 @@ namespace cscdqm {
       static void trimString(std::string& str);
       static uint32_t fastHash(const char * data, int len);
       static uint32_t fastHash(const char * data) { return fastHash(data, strlen(data)); }
+
+  };
+
+
+#define XERCES_TRANSCODE(str) cscdqm::XercesStringTranscoder(str).unicodeForm()
+
+  /**
+  * @class XercesStringTranscoder
+  * @brief This is a simple class that lets us do easy (though not terribly
+  * efficient) trancoding of char* data to XMLCh data.
+  */
+  class XercesStringTranscoder {
+
+    public :
+
+      XercesStringTranscoder(const char* const toTranscode) {
+        fUnicodeForm = XERCES_CPP_NAMESPACE::XMLString::transcode(toTranscode);
+      }
+
+      ~XercesStringTranscoder() {
+        XERCES_CPP_NAMESPACE::XMLString::release(&fUnicodeForm);
+      }
+
+      const XMLCh* unicodeForm() const {
+        return fUnicodeForm;
+      }
+
+    private :
+
+      XMLCh* fUnicodeForm;
 
   };
 

@@ -34,6 +34,8 @@ namespace cscdqm {
 
     LOG_INFO << "Booking histograms from " << config->getBOOKING_XML_FILE();
 
+    DOMDocument *doc = 0;
+
     try {
 
       XMLPlatformUtils::Initialize();
@@ -49,7 +51,7 @@ namespace cscdqm {
       parser->setErrorHandler(&eh);
 
       parser->parse(config->getBOOKING_XML_FILE().c_str());
-      DOMDocument *doc = parser->getDocument();
+      doc = parser->getDocument();
       DOMNode *docNode = (DOMNode*) doc->getDocumentElement();
 
       DOMNodeList *itemList = docNode->getChildNodes();
@@ -114,9 +116,13 @@ namespace cscdqm {
 
     } catch (XMLException& e) {
       char* message = XMLString::transcode( e.getMessage() );
+      if (doc) doc->release();
+      XMLPlatformUtils::Terminate();
       throw Exception(message);
     }
 
+    if (doc) doc->release();
+    XMLPlatformUtils::Terminate();
   }
   
   void Collection::getNodeProperties(DOMNode*& node, CoHistoProps& p) {
