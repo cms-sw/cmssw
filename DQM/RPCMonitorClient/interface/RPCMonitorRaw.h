@@ -1,6 +1,5 @@
 #ifndef DQM_RPCMonitorModule_RPCMonitorRaw_H
 #define DQM_RPCMonitorModule_RPCMonitorRaw_H
-
 /** \class RPCMonitorRaw 
  **  Analyse errors in raw data stream as RPCRawDataCounts produced by RPCRawToDigi  
  **/
@@ -11,8 +10,6 @@
 
 #include "FWCore/ParameterSet/interface/InputTag.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include "EventFilter/RPCRawToDigi/interface/RPCRawDataCounts.h"
 
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -32,12 +29,15 @@ public:
 private:
 
   edm::ParameterSet theConfig;
-  RPCRawDataCounts theCounts;
   
   bool theWriteHistos;
   
-  MonitorElement* me_h[3];
-  MonitorElement* me_e;
+  MonitorElement* me_t[3];
+  MonitorElement* me_e[3];
+  MonitorElement* me_mapGoodEvents;
+  MonitorElement* me_mapBadEvents;
 };
 
 #endif
+
+

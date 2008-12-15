@@ -18,7 +18,6 @@
 
 #include <map>
 #include <sstream>
-//#include <math.h>
 
 using namespace edm;
 using namespace std;
@@ -174,6 +173,33 @@ void RPCDeadChannelTest::beginRun(const Run& r, const EventSetup& iSetup){
    me->setBinLabel(ybin,histoName.str().c_str(),2);
  } 
 
+
+
+ ESHandle<RPCGeometry> rpcGeo;
+ iSetup.get<MuonGeometryRecord>().get(rpcGeo);
+ 
+ //loop on all geometry and get all histos
+ for (TrackingGeometry::DetContainer::const_iterator it=rpcGeo->dets().begin();it<rpcGeo->dets().end();it++){
+   if( dynamic_cast< RPCChamber* >( *it ) != 0 ){
+     RPCChamber* ch = dynamic_cast< RPCChamber* >( *it ); 
+     std::vector< const RPCRoll*> roles = (ch->rolls());
+     //Loop on rolls in given chamber
+     for(std::vector<const RPCRoll*>::const_iterator r = roles.begin();r != roles.end(); ++r){
+       RPCDetId detId = (*r)->id();
+      
+       //Get Occupancy ME for roll
+       RPCGeomServ RPCname(detId);	   
+       
+       RPCBookFolderStructure *  folderStr = new RPCBookFolderStructure();
+       MonitorElement * myMe = dbe_->get(prefixDir_+"/"+ folderStr->folderStructure(detId)+"/Occupancy_"+RPCname.name()); 
+       if (!myMe)continue;
+
+       myOccupancyMe_.push_back(myMe);
+       myDetIds_.push_back(detId);
+       myRollNames_.push_back(RPCname.name());
+     }
+   }
+ }//end loop on all geometry and get all histos
 }
 
 void RPCDeadChannelTest::beginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {}
@@ -192,109 +218,92 @@ void RPCDeadChannelTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, Even
   //check some statements and prescale Factor
   if(nLumiSegs%prescaleFactor_ == 0) {
 
-    ESHandle<RPCGeometry> rpcGeo;
-    iSetup.get<MuonGeometryRecord>().get(rpcGeo);
+    edm::ESHandle<RPCGeometry> rpcgeo;
+    iSetup.get<MuonGeometryRecord>().get(rpcgeo);
 
     map<int, map< int ,  pair<float,float> > >  barrelMap, endcapMap;
     stringstream meName;
     //Loop on chambers
-    for (TrackingGeometry::DetContainer::const_iterator it=rpcGeo->dets().begin();it<rpcGeo->dets().end();it++){
-      if( dynamic_cast< RPCChamber* >( *it ) != 0 ){
-	RPCChamber* ch = dynamic_cast< RPCChamber* >( *it ); 
-       std::vector< const RPCRoll*> roles = (ch->rolls());
-       //Loop on rolls in given chamber
-       for(std::vector<const RPCRoll*>::const_iterator r = roles.begin();r != roles.end(); ++r){
-	 RPCDetId detId = (*r)->id();
-	 int nstrips =(*r)->nstrips() ;
-	 //Get Occupancy ME for roll
-	 RPCGeomServ RPCname(detId);	   
+    for (unsigned int  i = 0 ; i<myOccupancyMe_.size();i++){
+      
+      MonitorElement * myMe =myOccupancyMe_[i];
+      RPCDetId detId = myDetIds_[i];
+      
+      
+      const RPCRoll * rpcRoll = rpcgeo->roll(detId);      
 
-	 RPCBookFolderStructure *  folderStr = new RPCBookFolderStructure();
-	 MonitorElement * myMe = dbe_->get(prefixDir_+"/"+ folderStr->folderStructure(detId)+"/Occupancy_"+RPCname.name()); 
-	 if (!myMe)continue;
+      int nstrips =rpcRoll->nstrips();
 
-	 MonitorElement * myGlobalMe;
-	MonitorElement * myGlobalMe2;
+      MonitorElement * myGlobalMe;
+      MonitorElement * myGlobalMe2;
+      
+      const QReport * theOccupancyQReport = myMe->getQReport("DeadChannel_0");  
+      if(!theOccupancyQReport) continue;
+      
+      vector<dqm::me_util::Channel> badChannels = theOccupancyQReport->getBadChannels();
+      
+      if (detId.region()==0) {
+	barrelMap[detId.ring()][detId.sector()].first += badChannels.size();
+	barrelMap[detId.ring()][detId.sector()].second += nstrips ;
+	meName.str("");
+	meName<<prefixDir_+"/"+ globalFolder_+"/DeadChannels_Roll_vs_Sector_Wheel"<<detId.ring();
+      }else{
+	endcapMap[detId.region()*detId.station()][detId.sector()].first +=  badChannels.size();
+	endcapMap[detId.region()*detId.station()][detId.sector()].second+=nstrips;
+	meName.str("");
+	meName<<prefixDir_+"/"+ globalFolder_+"/DeadChannels_Roll_vs_Sector_Disk"<<detId.region()*detId.station();
+      }
+      myGlobalMe = dbe_->get(meName.str());
+      if (!myGlobalMe)continue;
+      rpcdqm::utils rollNumber;
+      int nr = rollNumber.detId2RollNr(detId);
+      myGlobalMe->setBinContent(detId.sector(),nr, badChannels.size()*100/nstrips );
+      
+      string Yaxis=myRollNames_[i];
+      if (detId.region()==0){
+	Yaxis.erase (1,1);
+	Yaxis.erase(0,3);
+	Yaxis.replace(Yaxis.find("S"),4,"");
+	Yaxis.erase(Yaxis.find("_")+2,8);
+      }else{
+	Yaxis.erase(0,8);
+      }
+      
+      myGlobalMe->setBinLabel(nr, Yaxis, 2);
+      
+      if (detId.region()==0){
+	
+	meName.str("");
+	meName<<prefixDir_+"/"+ globalFolder_+"/ClusterSize_AliveStrips_Roll_vs_Sector_Wheel"<<detId.ring();
+	
+	myGlobalMe = dbe_->get(meName.str());
+	
+	
+	meName.str("");
+	meName<<prefixDir_+"/"+ globalFolder_+"/ClusterSizeMeanValue_Roll_vs_Sector_Wheel_"<<detId.ring();
+	
+	myGlobalMe2 = dbe_->get(meName.str());
+	
+	
+	if (!myGlobalMe || !myGlobalMe2) continue;
+	
+	int goodCh =nstrips-badChannels.size();
+	
+	if(badChannels.size()<nstrips)	 myGlobalMe->setBinContent(detId.sector(),nr, myGlobalMe2->getBinContent(detId.sector(),nr)/goodCh );
+	else  myGlobalMe->setBinContent(detId.sector(),nr, 1 ); 
+	
+      }
+      
+      myGlobalMe->setBinLabel(nr, Yaxis, 2);
+    }//End loop on rolls in given chambers
 
-	 const QReport * theOccupancyQReport = myMe->getQReport("DeadChannel_0");  
-	 if(!theOccupancyQReport) continue;
-
-	 vector<dqm::me_util::Channel> badChannels = theOccupancyQReport->getBadChannels();
-
-	 if (detId.region()==0) {
-	   barrelMap[detId.ring()][detId.sector()].first += badChannels.size();
-	   barrelMap[detId.ring()][detId.sector()].second += (*r)->nstrips() ;
-	   meName.str("");
-	   meName<<prefixDir_+"/"+ globalFolder_+"/DeadChannels_Roll_vs_Sector_Wheel"<<detId.ring();
-	 }else{
-	   endcapMap[detId.region()*detId.station()][detId.sector()].first +=  badChannels.size();
-	   endcapMap[detId.region()*detId.station()][detId.sector()].second+=(*r)->nstrips() ;
-	   meName.str("");
-	   meName<<prefixDir_+"/"+ globalFolder_+"/DeadChannels_Roll_vs_Sector_Disk"<<detId.region()*detId.station();
-	 }
-	 myGlobalMe = dbe_->get(meName.str());
-	 if (!myGlobalMe)continue;
-	 rpcdqm::utils prova;
-	 int nr = prova.detId2RollNr(detId);
-	 myGlobalMe->setBinContent(detId.sector(),nr, badChannels.size()*100/(*r)->nstrips() );
-
-// 	 string Yaxis=RPCname.name();
-// 	 if (detId.region()==0){
-// 	   Yaxis.erase (1,1);
-// 	   Yaxis.erase(0,3);
-// 	   Yaxis.replace(Yaxis.find("S"),4,"");
-// 	   Yaxis.erase(Yaxis.find("_")+2,8);
-// 	 }else{
-// 	   Yaxis.erase(0,8);
-// 	 }
-
-	 string YLabel = RPCname.shortname();
-	  myGlobalMe->setBinLabel(nr, YLabel, 2);
-
-	 if (detId.region()==0){
-
-	   meName.str("");
-	   meName<<prefixDir_+"/"+ globalFolder_+"/ClusterSize_AliveStrips_Roll_vs_Sector_Wheel"<<detId.ring();
-
-	   myGlobalMe = dbe_->get(meName.str());
-
-
-	   meName.str("");
-	   meName<<prefixDir_+"/"+ globalFolder_+"/ClusterSizeMeanValue_Roll_vs_Sector_Wheel_"<<detId.ring();
-
-	   myGlobalMe2 = dbe_->get(meName.str());
-	   //cout<<meName.str()<<endl;
-
-	 if (!myGlobalMe || !myGlobalMe2) continue;
-
-	 //	 cout<<"FOUND"<<endl;
-
-	 int goodCh =(*r)->nstrips()-badChannels.size();
-
-	 float uj= myGlobalMe2->getBinContent(detId.sector(),nr);
-
-	 if(badChannels.size()<(*r)->nstrips()){
-
-	     myGlobalMe->setBinContent(detId.sector(),nr, uj/goodCh );
-
-	  } else 
-	     myGlobalMe->setBinContent(detId.sector(),nr, 1 ); 
-
-
-	 }
-
-	 myGlobalMe->setBinLabel(nr, YLabel, 2);
-       }//End loop on rolls in given chambers
-    }
-  }//End loop on chamber
-
-  this->fillDeadChannelHisto(barrelMap, 0);
-
-  this->fillDeadChannelHisto(endcapMap, 1);
-
+    this->fillDeadChannelHisto(barrelMap, 0);
+    
+    this->fillDeadChannelHisto(endcapMap, 1);
   }
-
 }
+
+
  
 void RPCDeadChannelTest::endRun(const Run& r, const EventSetup& c){}
 

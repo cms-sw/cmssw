@@ -8,11 +8,3 @@ rpcFEDIntegrity = cms.EDAnalyzer("RPCFEDIntegrity",
  )
 
 
-rpcRawDataCount = cms.EDAnalyzer("RPCMonitorRaw",
-  writeHistograms = cms.untracked.bool(False),
-  histoFileName = cms.untracked.string('rpcMonitorRaw.root')
-)
-
-
-
-rpcDATAIntegrity= cms.Sequence(rpcFEDIntegrity * rpcRawDataCount)

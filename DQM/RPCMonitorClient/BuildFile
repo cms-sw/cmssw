@@ -22,7 +22,6 @@
 <use name=DataFormats/RPCDigi>
 <use name=DataFormats/FEDRawData>
 
-<use name=CondFormats/DataRecords>
 <use name=CondFormats/RunInfo>
 
 <export>
@@ -50,7 +49,6 @@
 <use name=DataFormats/RPCDigi>
 <use name=DataFormats/FEDRawData>
 
-<use name=CondFormats/DataRecords>
 <use name=CondFormats/RunInfo>
 
 </export>

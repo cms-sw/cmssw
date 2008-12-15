@@ -6,8 +6,8 @@
  * *
  *  DQM Test Client
  *
- *  $Date: 2008/04/25 14:24:56 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/10/30 17:33:39 $
+ *  $Revision: 1.5 $
  *  \author 
  *   
  */
@@ -30,7 +30,7 @@
 
 #include <memory>
 #include <string>
-#include <map>
+#include <vector>
 
 class RPCDetId;
 
@@ -74,14 +74,12 @@ private:
 
   int prescaleFactor_;
   std::string globalFolder_,prefixDir_;
-
-
+  std::vector<MonitorElement *>  myOccupancyMe_;
+  std::vector<RPCDetId>   myDetIds_;
+  std::vector<std::string>    myRollNames_;
   DQMStore* dbe_;
 
-  edm::ParameterSet parameters;
-  edm::ESHandle<RPCGeometry> muonGeom;
-  std::map<RPCDetId,MonitorElement*>  meCollection;
-
+  
 };
 
 #endif

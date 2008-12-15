@@ -9,8 +9,9 @@
 
 #include <memory>
 #include <string>
-
+#include <map>
 class DQMStore;
+class MonitorElement;
 
 class RPCFEDIntegrity:public edm::EDAnalyzer {
 public:
@@ -52,7 +53,14 @@ public:
 
   DQMStore* dbe_;
 
-unsigned int FATAL_LIMIT;
+  int FATAL_LIMIT;
+
+  enum fedHisto{Entries, Fatal, NonFatal};
+
+
+  std::map< std::pair<int,int>, int > readoutErrors_;
+  std::map< std::pair<int,int>, int > recordTypes_;
+  MonitorElement * fedMe_[3];
 
   int  numOfFED_ ,  minFEDNum_ ,  maxFEDNum_ ;
   std::vector<std::string> histoName_; 

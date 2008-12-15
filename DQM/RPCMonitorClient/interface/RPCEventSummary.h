@@ -6,8 +6,8 @@
  * *
  *  DQM Event Summary module for RPCs
  *
- *  $Date: 2008/09/28 15:37:48 $
- *  $Revision: 1.6 $
+ *  $Date: 2008/11/12 12:26:53 $
+ *  $Revision: 1.7 $
  *  \author Anna Cimmino
  *   
  */
@@ -78,13 +78,13 @@ public:
   float allRolls_;
   float allGood_;
 
-  edm::ESHandle<RPCGeometry> muonGeom;
-  //edm::ESHandle<DTTtrig> tTrigMap;
-
-
+  std::vector<MonitorElement *>  myOccupancyMe_;
+  std::vector<RPCDetId>   myDetIds_;
+  std::vector<std::string>    myRollNames_;
+  
   std::vector<std::string> segmentNames; 
 
-  std::map<RPCDetId,std::string>  meCollection;
+
 };
 
 #endif

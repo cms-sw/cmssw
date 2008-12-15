@@ -117,8 +117,6 @@ void RPCEventSummary::beginRun(const Run& r, const EventSetup& c){
     segmentNames.push_back(segName.str());
   }
   
-  //  segmentNames.push_back("RPC_DataIntegrity");
-  // segmentNames.push_back("RPC_Timing");
 
   for(unsigned int i=0; i<segmentNames.size(); i++){
     if ( me = dbe_->get(eventInfoPath_ + "/reportSummaryContents/" +segmentNames[i]) ) {
@@ -127,6 +125,36 @@ void RPCEventSummary::beginRun(const Run& r, const EventSetup& c){
     me = dbe_->bookFloat(segmentNames[i]);
     me->Fill(1);
   }
+
+
+ ESHandle<RPCGeometry> rpcGeo;
+ c.get<MuonGeometryRecord>().get(rpcGeo);
+ 
+ //loop on all geometry and get all histos
+ for (TrackingGeometry::DetContainer::const_iterator it=rpcGeo->dets().begin();it<rpcGeo->dets().end();it++){
+   if( dynamic_cast< RPCChamber* >( *it ) != 0 ){
+     RPCChamber* ch = dynamic_cast< RPCChamber* >( *it ); 
+     std::vector< const RPCRoll*> roles = (ch->rolls());
+     //Loop on rolls in given chamber
+     for(std::vector<const RPCRoll*>::const_iterator r = roles.begin();r != roles.end(); ++r){
+       RPCDetId detId = (*r)->id();
+      
+       //Get Occupancy ME for roll
+       RPCGeomServ RPCname(detId);	   
+       
+       RPCBookFolderStructure *  folderStr = new RPCBookFolderStructure();
+       MonitorElement * myMe = dbe_->get(prefixDir_+"/"+ folderStr->folderStructure(detId)+"/Occupancy_"+RPCname.name()); 
+       if (!myMe)continue;
+
+       myOccupancyMe_.push_back(myMe);
+       myDetIds_.push_back(detId);
+       myRollNames_.push_back(RPCname.name());
+     }
+   }
+ }//end loop on all geometry and get all histos
+
+
+
 }
 
 void RPCEventSummary::beginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context){} 
@@ -151,60 +179,56 @@ void RPCEventSummary::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSe
   iSetup.get<MuonGeometryRecord>().get(rpcGeo);
  
   map<int, map< int ,  pair<float,float> > >  barrelMap, endcapPlusMap, endcapMinusMap;
-    
-  //Loop on chambers
-  for (TrackingGeometry::DetContainer::const_iterator it=rpcGeo->dets().begin();it<rpcGeo->dets().end();it++){
-    if( dynamic_cast< RPCChamber* >( *it ) != 0 ){
-       RPCChamber* ch = dynamic_cast< RPCChamber* >( *it ); 
-       std::vector< const RPCRoll*> roles = (ch->rolls());
-       int ty=1;
-       //Loop on rolls in given chamber
-       for(std::vector<const RPCRoll*>::const_iterator r = roles.begin();r != roles.end(); ++r){
-	 RPCDetId detId = (*r)->id();
-	 //Get Occupancy ME for roll
-	 RPCGeomServ RPCname(detId);
-	 RPCBookFolderStructure *  folderStr = new RPCBookFolderStructure();
-	 MonitorElement * myMe = dbe_->get(prefixDir_+"/"+ folderStr->folderStructure(detId)+"/Occupancy_"+RPCname.name()); 
-	 if (!myMe)continue;
-	 
-	 //check for enough statistics
-	 if (myMe->getEntries() < minHitsInRoll_) continue;
+     edm::ESHandle<RPCGeometry> rpcgeo;
+    iSetup.get<MuonGeometryRecord>().get(rpcgeo);
 
-	 const QReport * theOccupancyQReport = myMe->getQReport("DeadChannel_0");  
-	 if(!theOccupancyQReport) continue;
-	 vector<dqm::me_util::Channel> badChannels = theOccupancyQReport->getBadChannels();
-	 float goodFraction =((*r)->nstrips() - badChannels.size())/(*r)->nstrips();		  
-	 if (detId.region()==0) {
-	   barrelMap[detId.ring()][detId.sector()].first += goodFraction;
-	   barrelMap[detId.ring()][detId.sector()].second++ ;
-	 }else if(detId.region()==-1){
-	   endcapMinusMap[-1 * detId.station()][detId.sector()].first +=  goodFraction;
-	   endcapMinusMap[-1 * detId.station()][detId.sector()].second++ ;
-	 }else {
-	   endcapPlusMap[detId.station()][detId.sector()].first += goodFraction;
-	   endcapPlusMap[detId.station()][detId.sector()].second++;
-	 }
-	 ty++;      
-       }//End loop on rolls in given chambers
+       stringstream meName;
+    //Loop on chambers
+    for (unsigned int  i = 0 ; i<myOccupancyMe_.size();i++){
+      
+      MonitorElement * myMe =myOccupancyMe_[i];
+      RPCDetId detId = myDetIds_[i];
+       
+      const RPCRoll * rpcRoll = rpcgeo->roll(detId);      
+
+      int nstrips =rpcRoll->nstrips();
+
+      	 
+      //check for enough statistics
+      if (myMe->getEntries() < minHitsInRoll_) continue;
+      
+      const QReport * theOccupancyQReport = myMe->getQReport("DeadChannel_0");  
+      if(!theOccupancyQReport) continue;
+      vector<dqm::me_util::Channel> badChannels = theOccupancyQReport->getBadChannels();
+      float goodFraction =(nstrips - badChannels.size())/nstrips;		  
+      if (detId.region()==0) {
+	barrelMap[detId.ring()][detId.sector()].first += goodFraction;
+	barrelMap[detId.ring()][detId.sector()].second++ ;
+      }else if(detId.region()==-1){
+	endcapMinusMap[-1 * detId.station()][detId.sector()].first +=  goodFraction;
+	endcapMinusMap[-1 * detId.station()][detId.sector()].second++ ;
+      }else {
+	endcapPlusMap[detId.station()][detId.sector()].first += goodFraction;
+	endcapPlusMap[detId.station()][detId.sector()].second++;
+      }
     }
-  }//End loop on chamber
-  
-  //clear counters
-  allRolls_=0;
-  allGood_=0;
-  
-  this->fillReportSummary(barrelMap, 0);
-  
-  this->fillReportSummary(endcapPlusMap, 1);
-  
-  this->fillReportSummary(endcapMinusMap, -1);
 
-  //Fill report summary
-  MonitorElement *   reportSummary = dbe_->get(eventInfoPath_ +"/reportSummary");
-  if(reportSummary == NULL) return;
-
-  if (allRolls_!=0)   reportSummary->Fill(allGood_/allRolls_);
-  else reportSummary->Fill(-1);
+    //clear counters
+    allRolls_=0;
+    allGood_=0;
+    
+    this->fillReportSummary(barrelMap, 0);
+    
+    this->fillReportSummary(endcapPlusMap, 1);
+    
+    this->fillReportSummary(endcapMinusMap, -1);
+    
+    //Fill report summary
+    MonitorElement *   reportSummary = dbe_->get(eventInfoPath_ +"/reportSummary");
+    if(reportSummary == NULL) return;
+    
+    if (allRolls_!=0)   reportSummary->Fill(allGood_/allRolls_);
+    else reportSummary->Fill(-1);
   }
 }
 

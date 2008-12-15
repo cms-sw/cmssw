@@ -5,7 +5,7 @@ process = cms.Process("rpcdqm")
 ################# Input ########################
 process.load("DQM.RPCMonitorClient.66722_cff")
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100))
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10))
 
 ################# Geometry  ######################
 process.load("Geometry.MuonCommonData.muonIdealGeometryXML_cfi")
@@ -46,7 +46,6 @@ process.rpcdigidqm.DigiDQMSaveRootFile = False
 process.load("DQM.RPCMonitorClient.RPCEventSummary_cfi")
 process.rpcEventSummary.EventInfoPath = 'RPC/EventInfo'
 process.rpcEventSummary.RPCPrefixDir = 'RPC/RecHits'
-process.rpcEventSummary.RPCPrefixDir = 'RPC/RecHits'
 process.rpcEventSummary.PrescaleFactor = 1
 
 
@@ -54,8 +53,7 @@ process.RPCDeadChannelTest = cms.EDAnalyzer("RPCDeadChannelTest",
         diagnosticPrescale = cms.untracked.int32(1)
 )
 
-process.rpcOccupancyTest = cms.EDAnalyzer("RPCOccupancyTest")
-
+#process.rpcOccupancyTest = cms.EDAnalyzer("RPCOccupancyTest")
 
 process.load("DQM.RPCMonitorClient.RPCMon_SS_Dbx_Global_cfi")
 
@@ -77,7 +75,7 @@ process.MessageLogger = cms.Service("MessageLogger",
 
 ################# Path ###########################
 process.rpcDigi = cms.Sequence(process.rpcunpacker*process.rpcRecHits*process.rpcdigidqm*process.rpcAfterPulse)
-process.rpcClient = cms.Sequence(process.rpcDATAIntegrity*process.qTesterRPC*process.RPCDeadChannelTest*process.rpcOccupancyTest*process.dqmEnv*process.rpcEventSummary*process.dqmSaver)
+process.rpcClient = cms.Sequence(process.rpcDATAIntegrity*process.qTesterRPC*process.RPCDeadChannelTest*process.dqmEnv*process.rpcEventSummary*process.dqmSaver)
 process.p = cms.Path(process.rpcDigi*process.rpcClient)
 
 

@@ -26,7 +26,7 @@ class RPCMon_SS_Dbx_Global : public edm::EDAnalyzer {
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob();
 
-      std::string  globalFolder_;
+      std::string  globalFolder_, digiLabel_;
       bool  saveRootFile_;
       int  verbose_ ;
       std::string rootFileName_;
