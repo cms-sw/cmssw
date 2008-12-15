@@ -110,8 +110,7 @@ TrackAssociatorByHits::associateRecoToSim(edm::RefToBaseVector<reco::Track>& tC,
 
       int tpindex =0;
       for (TrackingParticleCollection::iterator t = tPC.begin(); t != tPC.end(); ++t, ++tpindex) {
-        int nsimhit = t->trackPSimHit(DetId::Tracker).size(); 
-	//int nsimhit = t->trackerPSimHit_end()-t->trackerPSimHit_begin();
+        //int nsimhit = t->trackPSimHit(DetId::Tracker).size(); 
 	//LogTrace("TrackAssociator") << "TP number " << tpindex << " pdgId=" << t->pdgId() << " with number of PSimHits: "  << nsimhit;
 	idcachev.clear();
 	nshared = getShared(matchedIds, idcachev, t);
@@ -207,7 +206,7 @@ TrackAssociatorByHits::associateSimToReco(edm::RefToBaseVector<reco::Track>& tC,
 
 	  //count the TP simhit
 	  //LogTrace("TrackAssociator") << "recounting of tp hits";
-	  for(std::vector<PSimHit>::const_iterator TPhit = t->trackerPSimHit.begin(); TPhit != t->trackerPSimHit.end(); TPhit++){
+	  for(std::vector<PSimHit>::const_iterator TPhit = trackerPSimHit.begin(); TPhit != trackerPSimHit.end(); TPhit++){
 	    DetId dId = DetId(TPhit->detUnitId());
 	  
 	    unsigned int subdetId = static_cast<unsigned int>(dId.subdetId());
