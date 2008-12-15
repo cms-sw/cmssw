@@ -13,7 +13,7 @@
 #include "CondCore/DBCommon/interface/TypedRef.h"
 #include "CondCore/PluginSystem/interface/DataProxy.h"
 
-
+#include "boost/shared_ptr.hpp"
 #include <string>
 #include <vector>
 #include <map>
