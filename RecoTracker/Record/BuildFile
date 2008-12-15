@@ -2,12 +2,14 @@
    <lib name=RecoTrackerRecord>
    <use name=FWCore/Framework>
    <use name=CalibTracker/Records>
+   <use name=CondFormats/DataRecord>
 </export>
 
 <use name=FWCore/Utilities>
 <use name=FWCore/Framework>
 <use name=Geometry/Records>
 <use name=TrackingTools/Records>
+<use name=CondFormats/DataRecord>
 <use name=CalibTracker/Records>
 <use name=clhep>
 <use name=boost>

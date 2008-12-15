@@ -14,6 +14,7 @@
 #include "CalibTracker/Records/interface/SiStripRegionCablingRcd.h"
 #include "CalibTracker/Records/interface/SiStripQualityRcd.h"
 #include "CondFormats/DataRecord/interface/SiPixelQualityRcd.h"
+#include "CondFormats/DataRecord/interface/SiPixelFedCablingMapRcd.h" // FIXME should be in the dependencies of the SiPixelQualityRcd
 
 
 #include "boost/mpl/vector.hpp"
@@ -30,7 +31,8 @@ class CkfComponentsRecord : public edm::eventsetup::DependentRecordImplementatio
 					       SiStripDetCablingRcd,
                                                SiStripNoisesRcd,
                                                SiStripRegionCablingRcd,
-                                               SiPixelQualityRcd> > {};
+                                               SiPixelQualityRcd,
+                                               SiPixelFedCablingMapRcd> > {};
 
 #endif 
 
