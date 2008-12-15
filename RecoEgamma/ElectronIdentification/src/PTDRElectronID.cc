@@ -53,6 +53,8 @@ double PTDRElectronID::result(const reco::GsfElectron* electron,
   case 33:  icut=3; break;
   case 34:  icut=3; break;
   case 40:  icut=8; break;
+  case 41:  icut=8; break;
+  case 42:  icut=8; break;
   case 100: icut=4; break;
   case 110: icut=5; break;
   case 120: icut=6; break;
@@ -61,14 +63,15 @@ double PTDRElectronID::result(const reco::GsfElectron* electron,
   case 132: icut=7; break;
   case 133: icut=7; break;
   case 134: icut=7; break;
-
+  case 140: icut=8; break;
+  
   default:
     edm::LogError("CutBasedElectronID") << "Error: unrecognized electron classification ";
     break;
   }
 
   if (acceptCracks_[variables_])
-    if (electron->classification()==40) return 1.;
+    if (((electron->classification()%100)/10)==4) return 1.;
   
   if (useEoverPIn_[variables_]) {
     double value = electron->eSuperClusterOverP();
