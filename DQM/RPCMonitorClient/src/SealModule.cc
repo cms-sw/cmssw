@@ -14,5 +14,3 @@ DEFINE_ANOTHER_FWK_MODULE(RPCFEDIntegrity);
 DEFINE_ANOTHER_FWK_MODULE(RPCMonitorRaw);
 #include <DQM/RPCMonitorClient/interface/RPCDaqInfo.h>
 DEFINE_ANOTHER_FWK_MODULE(RPCDaqInfo);
-#include <DQM/RPCMonitorClient/interface/RPCOccupancyTest.h>
-DEFINE_ANOTHER_FWK_MODULE(RPCOccupancyTest);

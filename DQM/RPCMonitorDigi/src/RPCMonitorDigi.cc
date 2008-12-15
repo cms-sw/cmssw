@@ -38,6 +38,10 @@ RPCMonitorDigi::RPCMonitorDigi( const ParameterSet& pset ):counter(0){
   dqmshifter = pset.getUntrackedParameter<bool>("dqmshifter", false);
   dqmexpert = pset.getUntrackedParameter<bool>("dqmexpert", false);
   dqmsuperexpert = pset.getUntrackedParameter<bool>("dqmsuperexpert", false);
+
+  RPCDataLabel = pset.getUntrackedParameter<std::string>("RecHitLabel","rpcRecHitLabel");
+  digiLabel = pset.getUntrackedParameter<std::string>("DigiLabel","muonRPCDigis");
+
 }
 
 RPCMonitorDigi::~RPCMonitorDigi(){}
@@ -200,17 +204,22 @@ void RPCMonitorDigi::analyze(const Event& iEvent,const EventSetup& iSetup ){
   for (mapItrReset = foundHitsInChamber.begin(); mapItrReset != foundHitsInChamber.end(); ++ mapItrReset) {
     mapItrReset->second=false;
   }
-  
+ 
+ 
   /// RPC Geometry
   ESHandle<RPCGeometry> rpcGeo;
   iSetup.get<MuonGeometryRecord>().get(rpcGeo);
-  
-  /// DIGI     
-  Handle<RPCDigiCollection> rpcdigis;
+
+  /// RecHits     
+ //  edm::Handle<RPCRecHitCollection> rpcHits;
+//   iEvent.getByLabel(RPCDataLabel,rpcHits);
+
+  /// Digis
+  edm::Handle<RPCDigiCollection> rpcdigis;
   iEvent.getByType(rpcdigis);
 
-  /// RecHits
-  Handle<RPCRecHitCollection> rpcHits;
+
+edm::Handle<RPCRecHitCollection> rpcHits;
   iEvent.getByType(rpcHits);
 
   map<int,int> bxMap;

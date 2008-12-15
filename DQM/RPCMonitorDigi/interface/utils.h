@@ -86,7 +86,7 @@ namespace rpcdqm{
 	  } 
 	}
       }else{//Endcap
-	int seg=0;
+	//	int seg=0;
 	int nseg=36;
 	int nsub=6;
 	if ( _id.ring()==1 &&  _id.station() > 1) {
