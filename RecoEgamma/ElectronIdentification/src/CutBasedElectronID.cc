@@ -29,7 +29,6 @@ int CutBasedElectronID::classify(const reco::GsfElectron* electron) {
   double fBrem = (pin-pout)/pin;
   
   int cat;
-  
   if((fabs(eta)<1.479 && fBrem<0.06) || (fabs(eta)>1.479 && fBrem<0.1)) 
     cat=1;
   else if (eOverP < 1.2 && eOverP > 0.8) 
@@ -97,49 +96,8 @@ double CutBasedElectronID::result(const reco::GsfElectron* electron,
   
   int cat = classify(electron);
 
-  // TIGHT Selection
-  if (quality_ == "tight") {
-    
-    if ((eOverP < 0.8) && (fBrem < 0.2)) 
-      return 0.;
-    
-    if (eOverP < 0.9*(1-fBrem))
-      return 0.;
-    
-    cut = cuts_.getParameter<std::vector<double> >("hOverE");
-    if (hOverE > cut[cat+4*eb]) 
-      return 0.;    
-    
-    cut = cuts_.getParameter<std::vector<double> >("sigmaEtaEta");
-    if (sigmaee > cut[cat+4*eb]) 
-      return 0.;    
-    
-    cut = cuts_.getParameter<std::vector<double> >("deltaPhiIn");
-    if (eOverP < 1.5) {
-      if (fabs(deltaPhiIn) > cut[cat+4*eb]) 
-        return 0.;    
-    } else {
-      if (fabs(deltaPhiIn) > cut[3+4*eb])
-        return 0.;
-    }
-    
-    cut = cuts_.getParameter<std::vector<double> >("deltaEtaIn");
-    if (fabs(deltaEtaIn) > cut[cat+4*eb]) 
-      return 0.;    
-    
-    cut = cuts_.getParameter<std::vector<double> >("eSeedOverPinMin");
-    if (eSeedOverPin < cut[cat+4*eb]) 
-      return 0.;  
-
-    cut = cuts_.getParameter<std::vector<double> >("eSeedOverPinMax");
-    if (eSeedOverPin > cut[cat+4*eb]) 
-      return 0.;  
-
-    return 1.;
-  }
-  
-    // LOOSE Selection
-  if (quality_ == "loose") {
+  // LOOSE and TIGHT Selections
+  if (quality_ == "tight" || quality_ == "loose") {
     
     if ((eOverP < 0.8) && (fBrem < 0.2)) 
       return 0.;
@@ -168,8 +126,12 @@ double CutBasedElectronID::result(const reco::GsfElectron* electron,
     cut = cuts_.getParameter<std::vector<double> >("eSeedOverPin");
     if (eSeedOverPin < cut[cat+4*eb]) 
       return 0.;  
-    
-    return 1.; 
+
+    if (quality_ == "tight")
+      if (eOverP < 0.9*(1-fBrem))
+        return 0.;
+
+    return 1.;
   }
   
   return 0.;
