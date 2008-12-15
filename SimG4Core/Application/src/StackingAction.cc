@@ -59,9 +59,11 @@ G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track * aTra
   int flag = 0;
 
   NewTrackAction newTA;
-  if (aTrack->GetCreatorProcess()==0 || aTrack->GetParentID()==0)
+  if (aTrack->GetCreatorProcess()==0 || aTrack->GetParentID()==0) {
     newTA.primary(aTrack);
-  else {
+  } else if (aTrack->GetTouchable() == 0) {
+    classification = fKill;
+  } else {
     const G4Track * mother = CurrentG4Track::track();
     if ((savePDandCinTracker && isThisVolume(aTrack->GetTouchable(),tracker))||
 	(savePDandCinCalo && isThisVolume(aTrack->GetTouchable(),calo)) ||
