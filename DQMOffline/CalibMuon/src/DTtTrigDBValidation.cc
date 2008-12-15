@@ -79,7 +79,8 @@ void DTtTrigDBValidation::beginRun(const edm::Run& run, const EventSetup& setup)
 		        (*it).first.slId);
     float tTrigmean;
     float tTrigrms;
-    DTTtrigRefMap->get(slId, tTrigmean, tTrigrms, DTTimeUnits::counts);
+    float kFactor;
+    DTTtrigRefMap->get(slId, tTrigmean, tTrigrms, kFactor, DTTimeUnits::counts);
     LogTrace(metname)<< "Ref Superlayer: " <<  slId <<endl
 		     << " Ttrig mean (TDC counts): " << tTrigmean
 		     << " Ttrig rms (TDC counts): " << tTrigrms;
@@ -98,7 +99,8 @@ void DTtTrigDBValidation::beginRun(const edm::Run& run, const EventSetup& setup)
 		        (*it).first.slId);
     float tTrigmean;
     float tTrigrms;
-    DTTtrigMap->get(slId, tTrigmean, tTrigrms, DTTimeUnits::counts);
+    float kFactor;
+    DTTtrigMap->get(slId, tTrigmean, tTrigrms, kFactor, DTTimeUnits::counts);
     LogTrace(metname)<< "SuperLayer: " <<  slId <<endl
 		     << " Ttrig mean (TDC counts): " << tTrigmean
 		     << " Ttrig rms (TDC counts): " << tTrigrms;
