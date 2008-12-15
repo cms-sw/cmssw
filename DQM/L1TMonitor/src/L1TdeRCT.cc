@@ -679,8 +679,8 @@ void L1TdeRCT::endJob(void)
   if (outputFile_.size() != 0 && dbe)
     dbe->save(outputFile_);
 
-  std::cout << "trig count is " << trigCount << std::endl;
-  std::cout << "no trig count is " << notrigCount << std::endl;
+  //std::cout << "trig count is " << trigCount << std::endl;
+  //std::cout << "no trig count is " << notrigCount << std::endl;
 
 
   return;
