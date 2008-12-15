@@ -53,7 +53,8 @@ public:
 			       const edm::EventSetup& iSetup,
 			       double RCone,
 			       double RConeInner,
-			       double eMin);
+			       double eMin,
+                               signed int depth);
 
 
   
@@ -82,6 +83,12 @@ public:
   double photonHcalTowerConeInnerRadiusA_;
   double photonHcalTowerConeOuterRadiusA_;
   double photonHcalTowerThreshEA_;
+  double photonHcalDepth1TowerConeInnerRadiusA_;
+  double photonHcalDepth1TowerConeOuterRadiusA_;
+  double photonHcalDepth1TowerThreshEA_;
+  double photonHcalDepth2TowerConeInnerRadiusA_;
+  double photonHcalDepth2TowerConeOuterRadiusA_;
+  double photonHcalDepth2TowerThreshEA_;
   double trackConeOuterRadiusA_;
   double trackConeInnerRadiusA_;
   double isolationtrackThresholdA_;
@@ -94,6 +101,12 @@ public:
   double photonHcalTowerConeInnerRadiusB_;
   double photonHcalTowerConeOuterRadiusB_;
   double photonHcalTowerThreshEB_;
+  double photonHcalDepth1TowerConeInnerRadiusB_;
+  double photonHcalDepth1TowerConeOuterRadiusB_;
+  double photonHcalDepth1TowerThreshEB_;
+  double photonHcalDepth2TowerConeInnerRadiusB_;
+  double photonHcalDepth2TowerConeOuterRadiusB_;
+  double photonHcalDepth2TowerThreshEB_;
   double trackConeOuterRadiusB_;
   double trackConeInnerRadiusB_;
   double isolationtrackThresholdB_;
