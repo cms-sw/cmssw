@@ -49,7 +49,23 @@ isolationSumsCalculator = cms.PSet(
     HcalTowerThreshEA = cms.double(0.0),
     HcalTowerInnerRadiusB = cms.double(0.15),
     HcalTowerOuterRadiusB = cms.double(0.3),
-    HcalTowerThreshEB = cms.double(0.0)
+    HcalTowerThreshEB = cms.double(0.0),
+
+    HcalDepth1TowerInnerRadiusA = cms.double(0.15),
+    HcalDepth1TowerOuterRadiusA = cms.double(0.4),
+    HcalDepth1TowerThreshEA = cms.double(0.0),
+    HcalDepth1TowerInnerRadiusB = cms.double(0.15),
+    HcalDepth1TowerOuterRadiusB = cms.double(0.3),
+    HcalDepth1TowerThreshEB = cms.double(0.0),
+
+    HcalDepth2TowerInnerRadiusA = cms.double(0.15),
+    HcalDepth2TowerOuterRadiusA = cms.double(0.4),
+    HcalDepth2TowerThreshEA = cms.double(0.0),
+    HcalDepth2TowerInnerRadiusB = cms.double(0.15),
+    HcalDepth2TowerOuterRadiusB = cms.double(0.3),
+    HcalDepth2TowerThreshEB = cms.double(0.0),
+
+
 
 )
 
