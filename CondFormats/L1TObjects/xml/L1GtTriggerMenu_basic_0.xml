@@ -1,8 +1,8 @@
 <?xml version='1.0' encoding="UTF-8"?>
 <!DOCTYPE PoolDatabase SYSTEM "InMemory">
  <PoolDatabase >
-  <PoolContainer name="" >
-   <Class table="L1GTTRIGGERMENU" id_columns="ID" name="L1GtTriggerMenu" mapping_version="basic" >
+  <PoolContainer name="L1GtTriggerMenuRcd" >
+   <Class table="L1GTTRIGGERMENU" id_columns="ID" name="L1GtTriggerMenu" mapping_version="L1GtTriggerMenu_basic" >
      <Blob column="L1GTTRIGGERMENU_M__1" name="m_algorithmAliasMap" />
      <Blob column="L1GTTRIGGERMENU_M__3_BLOB" name="m_algorithmMap" />
      <Blob column="L1GTTRIGGERMENU_M__5_BLOB" name="m_corCaloTemplate" />
