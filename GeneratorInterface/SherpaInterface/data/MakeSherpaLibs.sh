@@ -6,8 +6,8 @@
 #  uses:        the required SHERPA data cards (+ libraries) [see below]
 #
 #  author:      Markus Merschmeyer, RWTH Aachen
-#  date:        2008/11/28
-#  version:     2.4
+#  date:        2008/12/14
+#  version:     2.5
 #
 
 
@@ -18,7 +18,7 @@
 
 print_help() {
     echo "" && \
-    echo "MakeSherpaLibs version 2.4" && echo && \
+    echo "MakeSherpaLibs version 2.5" && echo && \
     echo "options: -d  path       path to your SHERPA installation OR '\$CMSSW_BASE'" && \
     echo "                         (if you want to use the SHERPA package of that release)" && \
     echo "                         -> ( "${shr}" )" && \
@@ -218,23 +218,11 @@ if [ `echo ${mmtmp} | grep -c "CMSSW_"` -gt 0 ]; then
   if [ "${SHERPA_LIBRARY_PATH=$}" = "" ]; then export SHERPA_LIBRARY_PATH=${newshr}/lib/SHERPA-MC;     fi
   cd ${HDIR}
   shr=${newshr}
-  USE_CMSSW_SHERPA="TRUE"
-else
-  USE_CMSSW_SHERPA="FALSE"
-###  USE_CMSSW_SHERPA="TRUE"
 fi
 
 # find 'Run' directory
-if [ "${USE_CMSSW_SHERPA=}" = "FALSE" ]; then
-  cd ${shr}
-  shdir=`ls | grep "SHERPA"`
-  echo " <I> SHERPA directory is: "${shdir}
-  cd -
-  shrun=${shr}/${shdir}/Run
-else
-  shrun=${HDIR}/SHERPATMP/Run
-  mkdir -p ${shrun}
-fi
+shrun=${HDIR}/SHERPATMP
+mkdir -p ${shrun}
 
 echo "  -> SHERPA path: '"${shr}"'"
 echo "  -> SHERPA run path: '"${shrun}"'"
@@ -253,38 +241,33 @@ cd ${shrun}
 
 ### set base name for SHERPA output file(s) and directories
 outflbs=sherpa_${prc}
-if [ "${cfdc}" = "" ]; then
-  cardfile=${outflbs}_cards.tgz           # input card file (master -> libraries)
-else
-  cardfile=${cfdc}                        # custom input data card file
-  echo " <I> using custom data card file: "${cardfile}
-fi
+cardfile=${outflbs}_cards.tgz             # input card file (master -> libraries)
 crdsmd5s=md5sums_crds.md5                 # MD5 sums -> cards
 crdfmd5s=md5sums_crdsfile.md5             # MD5 sum -> cardfile
-if [ "${cflb}" = "" ]; then
-  libsfile=${outflbs}_libs.tgz            # output libs
-else
-  libsfile=${cflb}                        # custom input library file
-  echo " <I> using custom library file: "${libsfile}
-fi
+libsfile=${outflbs}_libs.tgz              # output libs
 libsmd5s=md5sums_libs.md5                 # MD5 sums -> libs
 libfmd5s=md5sums_libsfile.md5             # MD5 sum -> libfile
-if [ "${cfcr}" = "" ]; then
-  crssfile=${outflbs}_crss.tgz            # output cross sections
-else
-  crssfile=${cfcr}                        # custom input cross section file
-  echo " <I> using custom cross section file: "${crssfile}
-fi
+crssfile=${outflbs}_crss.tgz              # output cross sections
 crssmd5s=md5sums_crss.md5                 # MD5 sums -> cross sections
 crsfmd5s=md5sums_crssfile.md5             # MD5 sum -> cross section file
 evtsfile=${outflbs}_evts.tgz              # output events
 evtsmd5s=md5sums_evts.md5                 # MD5 sums -> events
 evtfmd5s=md5sums_evtsfile.md5             # MD5 sum -> eventfile
-#
+if [ ! "${cfdc}" = "" ]; then
+  cardfile=${cfdc}                        # custom input data card file
+  echo " <I> using custom data card file: "${cardfile}
+fi
+if [ ! "${cflb}" = "" ]; then
+  libsfile=${cflb}                        # custom input library file
+  echo " <I> using custom library file: "${libsfile}
+fi
+if [ ! "${cfcr}" = "" ]; then
+  crssfile=${cfcr}                        # custom input cross section file
+  echo " <I> using custom cross section file: "${crssfile}
+fi
 crdlfile=${outflbs}_crdL.tgz              # output cardfile (-> from library production)
 crdcfile=${outflbs}_crdC.tgz              # output cardfile (-> from cross section calculation)
 crdefile=${outflbs}_crdE.tgz              # output cardfile (-> from event generation)
-#
 loglfile=${outflbs}_logL.tgz              # output messages (-> from library production)
 logcfile=${outflbs}_logC.tgz              # output messages (-> from cross section calculation)
 logefile=${outflbs}_logE.tgz              # output messages (-> from event generation)
@@ -310,6 +293,7 @@ else
   echo "  -> creating path '"${pth}"'"
   mkdir ${pth}
 fi
+cd ${pth}
 
 
 ### get data card (+ library) tarball(s) from include path
@@ -326,19 +310,9 @@ fi
 ### check existence of data card file
 if [ -e ${cardfile} ]; then
   echo " data card file '"${cardfile}"' exists,"
-  fsize=`ls -l ${cardfile} | awk '{print $5}'`
-  if [ ${fsize} -gt 0 ]; then
-    echo "  -> unpacking data card file"
-    mv  ${cardfile} ${pth}/
-    cd ${pth}
-    tar -xzvf ${cardfile}
-    check_md5 "CRDS" "CRDS" ${crdsmd5s}
-    cd -
-  else
-    echo " <E> file "${cardfile}" is empty"
-    echo "  -> stopping..." 
-    exit
-  fi
+  echo "  -> unpacking data card file"
+  tar -xzf ${cardfile}
+  check_md5 "CRDS" "CRDS" ${crdsmd5s}
 else
   echo " <E> no data card file found"
   echo "  -> stopping..."
@@ -348,42 +322,31 @@ fi
 
 ### check required subdirectories
 ## generate/clean 'Process' subdirectory
-if [ ! -e ${pth}/${dir1} ]; then
-  echo " '"${pth}/${dir1}"' subdirectory does not exist and will be created"
-  mkdir ${pth}/${dir1}
+if [ ! -e ${dir1} ]; then
+  echo " '"${dir1}"' subdirectory does not exist and will be created"
+  mkdir ${dir1}
 else
-  echo " cleaning '"${pth}/${dir1}"' subdirectory"
-  rm -rf ${pth}/${dir1}/*
+  echo " cleaning '"${dir1}"' subdirectory"
+  rm -rf ${dir1}/*
 fi
 ## generate/clean 'Result' subdirectory
-if [ ! -e ${pth}/${dir2} ]; then
-  echo " '"${pth}/${dir2}"' subdirectory does not exist and will be created"
-  mkdir ${pth}/${dir2}
+if [ ! -e ${dir2} ]; then
+  echo " '"${dir2}"' subdirectory does not exist and will be created"
+  mkdir ${dir2}
 else
-  echo " cleaning '"${pth}/${dir2}"' subdirectory"
-  rm -rf ${pth}/${dir2}/*
+  echo " cleaning '"${dir2}"' subdirectory"
+  rm -rf ${dir2}/*
 fi
-
 
 ### check, whether only cross sections have to be calculated
 if [ "${lbo}" = "CRSS" ] || [ "${lbo}" = "EVTS" ]; then
   if [ -e ${libsfile} ]; then
     echo " <I> library file '"${libsfile}"' exists,"
-    fsize=`ls -l ${libsfile} | awk '{print $5}'`
-    if [ ${fsize} -gt 0 ]; then
-      echo "  -> unpacking library file and cleaning '"${dir2}"' subdirectory"
-      mv ${libsfile} ${pth}/
-      cd ${pth}
-      tar -xzf ${libsfile}
-#      check_md5 "CRDFILE" "LIBS" ${crdfmd5s}
-#      rm ${cardfile}
-      check_md5 "CRDS"    "LIBS" ${crdsmd5s}
-      cd -
-    else
-      echo " <E> file "${libsfile}" is empty"
-      echo "  -> stopping..." 
-      exit
-    fi
+    echo "  -> unpacking library file"
+    tar -xzf ${libsfile}
+#    check_md5 "CRDFILE" "LIBS" ${crdfmd5s}
+#    rm ${cardfile}
+    check_md5 "CRDS"    "LIBS" ${crdsmd5s}
   else
     echo " <E> no library file found"
     echo "  -> stopping..."
@@ -391,27 +354,16 @@ if [ "${lbo}" = "CRSS" ] || [ "${lbo}" = "EVTS" ]; then
   fi
 fi
 
-
 ### check, whether only events have to be generated
 if [ "${lbo}" = "EVTS" ]; then
   if [ -e ${crssfile} ]; then
     echo " <I> cross section file '"${crssfile}"' exists,"
-    fsize=`ls -l ${crssfile} | awk '{print $5}'`
-    if [ ${fsize} -gt 0 ]; then
-      echo "  -> unpacking cross section file and cleaning '"${dir2}"' subdirectory"
-      mv ${crssfile} ${pth}/
-      cd ${pth}
-      tar -xzf ${crssfile}
-      check_md5 "CRDFILE" "CRSS" ${crdfmd5s}
-      check_md5 "CRDS"    "CRSS" ${crdsmd5s}
-      check_md5 "LIBFILE" "CRSS" ${libfmd5s}
-      check_md5 "LIBS"    "CRSS" ${libsmd5s}
-      cd -
-    else
-      echo " <E> file "${crssfile}" is empty"
-      echo "  -> stopping..." 
-      exit
-    fi
+    echo "  -> unpacking cross section file"
+    tar -xzf ${crssfile}
+    check_md5 "CRDFILE" "CRSS" ${crdfmd5s}
+    check_md5 "CRDS"    "CRSS" ${crdsmd5s}
+    check_md5 "LIBFILE" "CRSS" ${libfmd5s}
+    check_md5 "LIBS"    "CRSS" ${libsmd5s}
   else
     echo " <E> no cross section file found"
     echo "  -> stopping..."
@@ -423,10 +375,12 @@ fi
 
 ### generate process-specific libraries -> redirect output (stdout, stderr) to files
 ## first pass
-cp ${shr}/bin/Sherpa ${shrun}/
+sherpaexe=`find ${shr} -type f -name Sherpa`
+echo " <I> Sherpa executable is "${sherpaexe}
+cd ${shrun}
 if [ "${lbo}" = "LIBS" ] || [ "${lbo}" = "LBCR" ]; then
   echo " <I> creating library code..."
-  ./Sherpa "PATH="${pth} "RESULT_DIRECTORY="${pth}/${dir2} 1>${shrun}/${outflbs}_pass1.out 2>${shrun}/${outflbs}_pass1.err
+  ${sherpaexe} "PATH="${pth} "RESULT_DIRECTORY="${pth}/${dir2} 1>${shrun}/${outflbs}_pass1.out 2>${shrun}/${outflbs}_pass1.err
   cd ${pth}
 ##  cp ${shr}/share/SHERPA-MC/makelibs .
   fix_makelibs
@@ -445,12 +399,12 @@ fi
 ## second pass (save integration results)
 if [ "${lbo}" = "LBCR" ] || [ "${lbo}" = "CRSS" ]; then
   echo " <I> calculating cross sections..."
-  ./Sherpa "PATH="${pth} "RESULT_DIRECTORY="${pth}/${dir2} 1>${shrun}/${outflbs}_pass2.out 2>${shrun}/${outflbs}_pass2.err
+  ${sherpaexe} "PATH="${pth} "RESULT_DIRECTORY="${pth}/${dir2} 1>${shrun}/${outflbs}_pass2.out 2>${shrun}/${outflbs}_pass2.err
 fi
 ## third pass (event generation)
 if [ "${lbo}" = "EVTS" ]; then
   echo " <I> generating events..."
-  ./Sherpa "PATH="${pth} "RESULT_DIRECTORY="${pth}/${dir2} 1>${shrun}/${outflbs}_pass3.out 2>${shrun}/${outflbs}_pass3.err
+  ${sherpaexe} "PATH="${pth} "RESULT_DIRECTORY="${pth}/${dir2} 1>${shrun}/${outflbs}_pass3.out 2>${shrun}/${outflbs}_pass3.err
 fi
 
 
@@ -458,6 +412,7 @@ fi
 cd ${shrun}/${pth}
 ## data cards
 if [ "${lbo}" = "LBCR" ] || [ "${lbo}" = "CRSS" ]; then
+  mv ../Weights*.*      ./${dir2}/
   mv ../xsections_*.dat ./${dir2}/
 fi
 touch ${crdsmd5s}
@@ -549,7 +504,4 @@ mv *.tgz ${fin}/
 
 # go back to original directory
 cd ${HDIR}
-if [ "${USE_CMSSW_SHERPA=}" = "TRUE" ]; then
-  rm -rf ./SHERPATMP
-fi
-
+rm -rf ./SHERPATMP

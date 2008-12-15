@@ -133,13 +133,20 @@ echo "CXXFLAGS (new):  "$CXXFLAGS
 echo "LDFLAGS  (new):  "$LDFLAGS
 
 
+# add compiler & linker flags
+COPTS=""
+MOPTS=""
+if [ "$FLAGS" = "TRUE" ]; then
+    COPTS=${COPTS}" CFLAGS=-m32 FFLAGS=-m32 CXXFLAGS=-m32 LDFLAGS=-m32"
+    MOPTS=${MOPTS}" CFLAGS=-m32 FFLAGS=-m32 CXXFLAGS=-m32 LDFLAGS=-m32"
+fi
+
 # download, extract compile/install LHAPDF
 cd ${IDIR}
 #if [ ! -d ${LHAPDFDIR} ]; then
 if [ ! -d ${LHAPDFIDIR} ]; then
-  COPTS=""
   if [ "${LOWMEM}" = "TRUE" ]; then
-    COPTS="--enable-low-memory"
+    COPTS=${COPTS}" --enable-low-memory"
   fi
   echo " -> downloading LHAPDF "${LHAPDFVER}" from "${LHAPDFWEBLOCATION}/${LHAPDFFILE}
   wget ${LHAPDFWEBLOCATION}/${LHAPDFFILE}
@@ -148,10 +155,10 @@ if [ ! -d ${LHAPDFIDIR} ]; then
   cd ${LHAPDFDIR}
   echo " -> configuring LHAPDF with options: "${COPTS}
   ./configure --prefix=${LHAPDFIDIR} ${COPTS}
-  echo " -> making LHAPDF"
-  make
-  echo " -> installing LHAPDF"
-  make install
+  echo " -> making LHAPDF with options "${MOPTS}
+  make ${MOPTS}
+  echo " -> installing LHAPDF with options "${MOPTS}
+  make install ${MOPTS}
   if [ ${LVLCLEAN} -gt 0 ]; then 
     echo " -> cleaning up LHAPDF installation, level: "${LVLCLEAN}" ..."
     if [ ${LVLCLEAN} -ge 1 ]; then  # normal cleanup (objects)

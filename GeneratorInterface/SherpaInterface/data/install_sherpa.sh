@@ -407,25 +407,6 @@ else
   cd ${HDIR}
 fi
 export SHERPADIR=${SHERPAIDIR}
-
-
-if [ ! -e ${SHERPADIR}/bin/Sherpa ]; then
-  echo " <E> -------------------------------------------------------"
-  echo " <E> -------------------------------------------------------"
-  echo " <E> installation of SHERPA failed, dumping log file..."
-  echo " <E> -------------------------------------------------------"
-  cat sherpa_install.log
-  echo " <E> -------------------------------------------------------"
-  echo " <E> -------------------------------------------------------"
-else
-  echo " <I> installation of SHERPA was successful..."
-  if [ -e sherpa_install.log ]; then mv sherpa_install.log ../; fi
-fi
-
-
-#shdir=`ls | grep "SHERPA"`
-#echo " <I> SHERPA directory is: "${shdir}
-#cp ./bin/Sherpa ./${shdir}/Run/
 cd ${HDIR}
 
 
@@ -447,18 +428,10 @@ fi
 
 # get LHAPDFs into SHERPA... (now with symbolic links)
 if [ "$LHAPDF" = "TRUE" ]; then
-  pdfdir=""
-  pdfdir1=${LHAPDFDIR}/../PDFsets
-  pdfdir2=${LHAPDFDIR}/PDFsets
-  pdfdir3=${LHAPDFDIR}/share/lhapdf/PDFsets
-  if [ -d ${pdfdir1} ]; then
-    pdfdir=${pdfdir1}
-  elif [ -d ${pdfdir2} ]; then
-    pdfdir=${pdfdir2}
-  elif [ -d ${pdfdir3} ]; then
-    pdfdir=${pdfdir3}
-  else
-    echo " <E> PDFsets of LHAPDF not found"
+  pdfdir=`find ${LHAPDFDIR} -type d -name PDFsets`
+  if [ ! -e ${pdfdir} ]; then
+    echo " <E> PDFsets of LHAPDF not found, stopping..."
+    exit 1
   fi
   if [ "${LINKPDF}" = "TRUE" ] && [ ! "${pdfdir}" = "" ]; then
     ln -s ${pdfdir} ${SHERPADIR}/share/SHERPA-MC/PDFsets
@@ -476,7 +449,7 @@ fi
 if [ "$LHAPDF" = "TRUE" ]; then
 echo " <I> LHAPDF version "${LHAPDFVER}" installed in "${LHAPDFDIR}
 echo " <I>  -> before using SHERPA please define"
-echo " <I>  -> export LHAPATH="${LHAPDFDIR}"/share/lhapdf/PDFsets"
+echo " <I>  -> export LHAPATH="${pdfdir}
 fi
 echo " <I> SHERPA version "${SHERPAVER}" installed in "${SHERPADIR}
 

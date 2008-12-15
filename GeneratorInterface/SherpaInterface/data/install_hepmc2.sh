@@ -137,6 +137,13 @@ echo "FFLAGS   (new):  "$FFLAGS
 echo "CXXFLAGS (new):  "$CXXFLAGS
 echo "LDFLAGS  (new):  "$LDFLAGS
 
+# add compiler & linker flags
+COPTS=""
+MOPTS=""
+if [ "$FLAGS" = "TRUE" ]; then
+    COPTS=${COPTS}" CFLAGS=-m32 FFLAGS=-m32 CXXFLAGS=-m32 LDFLAGS=-m32"
+    MOPTS=${MOPTS}" CFLAGS=-m32 FFLAGS=-m32 CXXFLAGS=-m32 LDFLAGS=-m32"
+fi
 
 # download, extract compile/install HEPMC2
 cd ${IDIR}
@@ -147,12 +154,12 @@ if [ ! -d ${HEPMC2IDIR} ]; then
   tar -xzf ${HEPMC2FILE}
   rm ${HEPMC2FILE}
   cd ${HEPMC2DIR}
-  echo " -> configuring HepMC2"
-  ./configure --prefix=${HEPMC2IDIR} ${momflag} ${lenflag}
-  echo " -> making HepMC2"
-  make
-  echo " -> installing HepMC2"
-  make install
+  echo " -> configuring HepMC2 with options "${COPTS}
+  ./configure --prefix=${HEPMC2IDIR} ${momflag} ${lenflag} ${COPTS}
+  echo " -> making HepMC2 with options "${MOPTS}
+  make ${MOPTS}
+  echo " -> installing HepMC2 with options "${MOPTS}
+  make install ${MOPTS}
   if [ ${LVLCLEAN} -gt 0 ]; then 
     echo " -> cleaning up HEPMC2 installation, level: "${LVLCLEAN}" ..."
     if [ ${LVLCLEAN} -ge 1 ]; then  # normal cleanup (objects)
