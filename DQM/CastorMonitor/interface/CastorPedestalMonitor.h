@@ -1,12 +1,6 @@
 #ifndef DQM_CASTORMONITOR_CASTORPEDESTALMONITOR_H
 #define DQM_CASTORMONITOR_CASTORPEDESTALMONITOR_H
 
-//***************************************************//
-//********** class CastorPedestalMonitor ************//
-//********** Author: Dmytro Volyanskyy   ************//
-//********** Date  : 29.08.2008          ************// 
-//***************************************************//
-
 #include "DQM/CastorMonitor/interface/CastorBaseMonitor.h"
 
 #include "CondFormats/CastorObjects/interface/CastorPedestal.h"
@@ -65,7 +59,7 @@ private:
     MonitorElement* ALLPEDS;
     MonitorElement* PEDRMS;
 
-    //=== data from the Condition Database
+    ////---- data from the Condition Database
     MonitorElement* PEDESTAL_REFS;
     MonitorElement* WIDTH_REFS;
 
