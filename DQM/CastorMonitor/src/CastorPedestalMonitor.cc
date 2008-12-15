@@ -2,37 +2,54 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
-//***************************************************//
-//********** CastorPedestalMonitor: *******************//
-//********** pedestals of Castor r/o channels ********//
-//********** Author: Dmytro Volyanskyy   ************//
-//********** Date  : 29.08.2008          ************// 
-//***************************************************//
+//****************************************************//
+//********** CastorPedestalMonitor: ******************//
+//********** Author: Dmytro Volyanskyy   *************//
+//********** Date  : 29.08.2008 (first version) ******// 
+//****************************************************//
+///// pedestals of Castor r/o channels 
 
+//==================================================================//
+//======================= Constructor ==============================//
+//==================================================================//
 CastorPedestalMonitor::CastorPedestalMonitor() { doPerChannel_ = false;  }
 
+
+//==================================================================//
+//======================= Destructor ===============================//
+//==================================================================//
 CastorPedestalMonitor::~CastorPedestalMonitor() {
 }
 
-void CastorPedestalMonitor::reset(){}
 
+//==================================================================//
+//=========================== reset  ===============================//
+//==================================================================//
+void CastorPedestalMonitor::reset(){
+}
+
+//==================================================================//
+//=========================== setup  ===============================//
+//==================================================================//
 void CastorPedestalMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
   CastorBaseMonitor::setup(ps,dbe);
   baseFolder_ = rootFolder_+"CastorPedestalMonitor";
+   
+  if(fVerbosity>0) cout << "CastorPedestalMonitor::setup (start)" << endl;
 
   doPerChannel_ = ps.getUntrackedParameter<bool>("PedestalsPerChannel", false);
   doFCpeds_ = ps.getUntrackedParameter<bool>("PedestalsInFC", true);
 
   ievt_=0;
 
-  if ( m_dbe ) {
+  if ( m_dbe !=NULL ) {
     m_dbe->setCurrentFolder(baseFolder_);
     meEVT_ = m_dbe->bookInt("Pedestal Task Event Number");
     meEVT_->Fill(ievt_);
         
     m_dbe->setCurrentFolder(baseFolder_);
   
-    //========== book the following histograms ========//
+    ////---- book the following histograms 
     char* type = "Castor All Pedestal Values";
     castHists.ALLPEDS =  m_dbe->book1D(type,type,50,0,50);
     
@@ -49,20 +66,27 @@ void CastorPedestalMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
     ///// castHists.QIEMEAN =  m_dbe->book1D("Castor QIE Mean Values","Castor QIE Mean Values",50,0,10);
  
 }
+
+  else{ 
+   if(fVerbosity>0) cout << "CastorPedestalMonitor::setup - NO DQMStore service" << endl; 
+  }
+
  
   outputFile_ = ps.getUntrackedParameter<string>("PedestalFile", "");
-  if ( outputFile_.size() != 0 ) { if(fVerbosity) cout << "Castor Pedestal Calibrations will be saved to " << outputFile_.c_str() << endl;}
+  if ( outputFile_.size() != 0 ) { if(fVerbosity>0) cout << "Castor Pedestal Calibrations will be saved to " << outputFile_.c_str() << endl;}
+
+
+ if(fVerbosity>0) cout << "CastorPedestalMonitor::setup (end)" << endl;
 
   return;
 }
 
 
 
-//==========================================================//
-//========================= processEvent ===================//
-//==========================================================//
 
-
+//==================================================================//
+//=========================== processEvent  ========================//
+//==================================================================//
 void CastorPedestalMonitor::processEvent(const CastorDigiCollection& cast, const CastorDbService& cond)
 {
   
@@ -72,7 +96,7 @@ void CastorPedestalMonitor::processEvent(const CastorDigiCollection& cast, const
   if(!shape_) shape_ = cond.getCastorShape(); // this one is generic
 
   if(!m_dbe) { 
-    if(fVerbosity) printf("CastorPedestalMonitor::processEvent DQMStore not instantiated!!!\n");  
+    if(fVerbosity>0) cout<<"CastorPedestalMonitor::processEvent DQMStore not instantiated!!!"<<endl;  
     return; 
   }
 
@@ -82,37 +106,37 @@ void CastorPedestalMonitor::processEvent(const CastorDigiCollection& cast, const
     for (CastorDigiCollection::const_iterator j=cast.begin(); j!=cast.end(); j++){
       const CastorDataFrame digi = (const CastorDataFrame)(*j);	
 
-       //======= get access to Castor Pedestal in the CONDITION DATABASE =====//
-       /////// calibs_= cond.getCastorCalibrations(digi.id());  //in HCAL code 
+       ////---- get access to Castor Pedestal in the CONDITION DATABASE
+       /////// calibs_= cond.getCastorCalibrations(digi.id());  //-- in HCAL code 
        const CastorPedestal* ped = cond.getPedestal(digi.id()); 
        const CastorPedestalWidth* pedw = cond.getPedestalWidth(digi.id());
 
        detID_.clear(); capID_.clear(); pedVals_.clear();
       
-       //===== if to convert ADC to fC 
+       ////---- if to convert ADC to fC 
       if(doFCpeds_){
 	channelCoder_ = cond.getCastorCoder(digi.id());
 	CastorCoderDb coderDB(*channelCoder_, *shape_);
 	coderDB.adc2fC(digi,tool);
       }
 
-      //====== fill Pedestal Mean and RMS values from the CONDITION DATABASE ======//
+      ////---- fill Pedestal Mean and RMS values from the CONDITION DATABASE
       for(int capID=0; capID<4; capID++){
-           //------- Pedestal Mean from the Condition Database
+           ////---- pedestal Mean from the Condition Database
 	   float pedvalue=0; 	 
 	   if(ped) pedvalue=ped->getValue(capID);
            castHists.PEDESTAL_REFS->Fill(pedvalue);
            PEDESTAL_REFS->Fill(pedvalue);
           ////////// castHists.PEDESTAL_REFS->Fill(calibs_.pedestal(capID)); //In HCAL code
 	  /////////   PEDESTAL_REFS->Fill(calibs_.pedestal(capID));  // In HCAL code
-          //-------- Pedestal RMS from the Condition Database 
+          ////---- pedestal RMS from the Condition Database 
            float width=0;
 	   if(pedw) width = pedw->getWidth(capID);
            castHists.WIDTH_REFS->Fill(width);
            WIDTH_REFS->Fill(width);
      }
       
-      //=========== fill ALL Pedestal Values ==================//
+      ////---- fill ALL Pedestal Values 
       for (int i=0; i<digi.size(); i++) {
 	if(doFCpeds_) pedVals_.push_back(tool[i]);
 	else pedVals_.push_back(digi.sample(i).adc());
@@ -121,28 +145,27 @@ void CastorPedestalMonitor::processEvent(const CastorDigiCollection& cast, const
 	castHists.ALLPEDS->Fill(pedVals_[i]);
       }
 
-      //do histograms for every channel
+      ////---- do histograms for every channel
       if(doPerChannel_) perChanHists(detID_,capID_,pedVals_,castHists.PEDVALS, baseFolder_);
 
     }
   } 
    catch (...) {
-    if(fVerbosity) cout << "CastorPedestalMonitor::processEvent  No Castor Digis." << endl;
+    if(fVerbosity>0) cout << "CastorPedestalMonitor::processEvent  No Castor Digis." << endl;
   }
 
   return;
 }
 
 void CastorPedestalMonitor::done(){
-
   return;
 }
 
 
-//==========================================================//
-//=============== do histograms for every channel ==========//
-//==========================================================//
-
+//==================================================================//
+//======================= perChanHists  ============================//
+//==================================================================//
+///// do histograms per channel
 void CastorPedestalMonitor::perChanHists( vector<HcalCastorDetId> detID, vector<int> capID, vector<float> peds,
 				          map<HcalCastorDetId, map<int, MonitorElement*> > &toolP,  
 				          ////// map<HcalCastorDetId, map<int, MonitorElement*> > &toolS, 
@@ -150,45 +173,44 @@ void CastorPedestalMonitor::perChanHists( vector<HcalCastorDetId> detID, vector<
  {
   
   if(m_dbe) m_dbe->setCurrentFolder(baseFolder);
-  string type = "Castor";
 
-  //================= loop over all channels ==============//
+  ////---- loop over all channels 
   for(unsigned int d=0; d<detID.size(); d++){
     HcalCastorDetId detid = detID[d];
     int capid = capID[d];
     float pedVal = peds[d];
-    //-- outer iteration
+    ////---- outer iteration
     bool gotit=false;
     if(REG[detid]) gotit=true;
     
     if(gotit){
-      //inner iteration
+      ////---- inner iteration
       map<int, MonitorElement*> _mei = toolP[detid];
       if(_mei[capid]==NULL){
-	if(fVerbosity) printf("CastorPedestalAnalysis::perChanHists  This histo is NULL!!??\n");
+	if(fVerbosity>0) cout<<"CastorPedestalAnalysis::perChanHists  This histo is NULL!!??"<< endl;
       }
       else _mei[capid]->Fill(pedVal);
       
       ///////// _mei = toolS[detid];
       ////////  if(_mei[capid]==NULL){
-      ////////	if(fVerbosity) printf("CastorPedestalAnalysis::perChanHists  This histo is NULL!!??\n");
+      ////////	if(fVerbosity>0) cout<<"CastorPedestalAnalysis::perChanHists  This histo is NULL!!??\n"<<endl;
       ////////  }
       //////// else _mei[capid]->Fill(pedVal-calibs_.pedestal(capid));
     }
     else{
       if(m_dbe){
-	map<int,MonitorElement*> insertP; // Pedestal values in ADC
+	map<int,MonitorElement*> insertP; //-- Pedestal values in ADC
          //////// map<int,MonitorElement*> insertS; // Pedestal values (substracted) 
 	
-        //===== Loop over capID ====:
+        ////---- Loop over capID 
 	for(int i=0; i<4; i++){
 	  char name[1024];
-	  sprintf(name,"%s Pedestal Value (ADC) zside=%d module=%d sector=%d CAPID=%d",
-		  type.c_str(),detid.zside(),detid.module(),detid.sector(),i);      
+	  sprintf(name,"Castor Pedestal Value (ADC) zside=%d module=%d sector=%d CAPID=%d",
+		  detid.zside(),detid.module(),detid.sector(),i);      
 	  insertP[i] =  m_dbe->book1D(name,name,10,-0.5,9.5);
 	  
-	  ////////// sprintf(name,"%s Pedestal Value (Subtracted) zside=%d module=%d sector=%d CAPID=%d",
-	  /////////  type.c_str(),detid.zside(),detid.module(),detid.sector(),i);      
+	  ////////// sprintf(name," Pedestal Value (Subtracted) zside=%d module=%d sector=%d CAPID=%d",
+	  /////////  detid.zside(),detid.module(),detid.sector(),i);      
 	  /////////  insertS[i] =  m_dbe->book1D(name,name,10,-5,5);	
 	}
 	
