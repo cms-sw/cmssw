@@ -27,9 +27,9 @@ type=$2
 key=$3
 tagbase=$4
 
-if [ ! -f $CMSSW_BASE/o2o/replaces/${record}_${type}_${key}_replaces.txt ]
+if [ ! -f $CMSSW_BASE/o2o/replaces/${record}_${type}/${key}.txt ]
 then
-    echo "ERROR: replaces/${record}_${type}_${key}_replaces.txt does not exist.  Exiting."
+    echo "ERROR: replaces/${record}_${type}/${key}.txt does not exist.  Exiting."
     exit
 fi
 
@@ -43,7 +43,7 @@ else
     rm $CMSSW_BASE/o2o/gen/${record}_${type}_${key}_payload.py~
 
     echo "process.l1CSCTFConfig.ptLUT_path = '$CMSSW_BASE/o2o/PtLUT.dat'" >> $CMSSW_BASE/o2o/gen/${record}_${type}_${key}_payload.py
-    echo "process.L1TriggerKeyDummy.subsystemKeys = cms.VPSet(cms.PSet(" >> $CMSSW_BASE/o2o/gen/${record}_${type}_${key}_payload.py
+    echo "process.L1TriggerKeyDummy.objectKeys = cms.VPSet(cms.PSet(" >> $CMSSW_BASE/o2o/gen/${record}_${type}_${key}_payload.py
     echo "    record = cms.string('${record}')," >> $CMSSW_BASE/o2o/gen/${record}_${type}_${key}_payload.py
     echo "    type = cms.string('${type}')," >> $CMSSW_BASE/o2o/gen/${record}_${type}_${key}_payload.py
     echo "    key = cms.string('${key}')" >> $CMSSW_BASE/o2o/gen/${record}_${type}_${key}_payload.py
@@ -58,7 +58,7 @@ else
 	echo "process.L1CondDBPayloadWriter.offlineAuthentication = cms.string('.')" >> $CMSSW_BASE/o2o/gen/${record}_${type}_${key}_payload.py
     fi
 
-    cat $CMSSW_BASE/o2o/replaces/${record}_${type}_${key}_replaces.txt >> $CMSSW_BASE/o2o/gen/${record}_${type}_${key}_payload.py
+    cat $CMSSW_BASE/o2o/replaces/${record}_${type}/${key}.txt >> $CMSSW_BASE/o2o/gen/${record}_${type}_${key}_payload.py
 
     if [ ${nflag} -eq 0 ]
 	then

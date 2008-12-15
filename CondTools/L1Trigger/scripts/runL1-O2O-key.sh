@@ -35,15 +35,9 @@ then
     perl -pi~ -e "s/CRUZET/${tagbase}/g" $CMSSW_BASE/o2o/gen/${tsckey}_key.py
     rm $CMSSW_BASE/o2o/gen/${tsckey}_key.py~
 
-    echo "process.L1TriggerKeyOnline.tscKey = cms.string('${tsckey}')" >> $CMSSW_BASE/o2o/gen/${tsckey}_key.py
-
-    echo "process.L1TriggerKeyOnline.onlineAuthentication = cms.string('${CMSSW_BASE}/o2o')" >> $CMSSW_BASE/o2o/gen/${tsckey}_key.py
-    echo "process.L1TriggerKeyOnline.recordsToInclude = cms.vstring(" >> $CMSSW_BASE/o2o/gen/${tsckey}_key.py
-    for RECORD in $@
-      do
-      echo "    '${RECORD}'," >> $CMSSW_BASE/o2o/gen/${tsckey}_key.py
-    done
-    echo ")" >> $CMSSW_BASE/o2o/gen/${tsckey}_key.py
+    echo "process.L1SubsystemKeysOnline.tscKey = cms.string('${tsckey}')" >> $CMSSW_BASE/o2o/gen/${tsckey}_key.py
+    echo "process.L1SubsystemKeysOnline.onlineAuthentication = cms.string('${CMSSW_BASE}/o2o')" >> $CMSSW_BASE/o2o/gen/${tsckey}_key.py
+    echo "process.L1RCTObjectKeysOnline.onlineAuthentication = cms.string('${CMSSW_BASE}/o2o')" >> $CMSSW_BASE/o2o/gen/${tsckey}_key.py
 
     if [ ${sflag} -ne 0 ]
         then

@@ -41,14 +41,14 @@ if [ ${nflag} -eq 0 ]
     # setup schema
     if [ ${sflag} -ne 0 ]
 	then
-	cmscond_bootstrap_detector -D L1T -f $CMSSW_BASE/o2o/dbconfigSqlite.xml -b $CMSSW_RELEASE_BASE
+	cmscond_bootstrap_detector -D L1T -f $CMSSW_BASE/o2o/dbconfigSqlite.xml -b $CMSSW_BASE
     else
-	cmscond_bootstrap_detector -D L1T -f $CMSSW_BASE/o2o/dbconfigORCON.xml -b $CMSSW_RELEASE_BASE
+	cmscond_bootstrap_detector -D L1T -f $CMSSW_BASE/o2o/dbconfigORCON.xml -b $CMSSW_BASE
     fi
 
     # generate .py
     cp $CMSSW_BASE/src/CondTools/L1Trigger/test/init_cfg.py $CMSSW_BASE/o2o/gen/init_cfg.py
-    echo "process.L1CondDBPayloadWriter.L1TriggerKeyListTag = cms.string('L1TriggerKeyList_${tagbase}_hlt')" >> $CMSSW_BASE/o2o/gen/init_cfg.py
+    echo "process.L1CondDBPayloadWriter.L1TriggerKeyListTag = cms.string('L1TriggerKeyList_${tagbase}_offline')" >> $CMSSW_BASE/o2o/gen/init_cfg.py
 
     if [ ${sflag} -ne 0 ]
 	then

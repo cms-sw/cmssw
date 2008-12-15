@@ -33,9 +33,9 @@ then
     perl -pi~ -e "s/CRUZET/${tagbase}/g" $CMSSW_BASE/o2o/gen/${tsckey}_${runnum}_iov.py
     rm $CMSSW_BASE/o2o/gen/${tsckey}_${runnum}_iov.py~
 
-    echo "process.L1TriggerKeyDummy.tscKey = cms.string('${tsckey}')" >> $CMSSW_BASE/o2o/gen/${tsckey}_${runnum}_iov.py
-    echo "process.EmptyIOVSource.firstRun = cms.untracked.uint32(${runnum})" >> $CMSSW_BASE/o2o/gen/${tsckey}_${runnum}_iov.py
-    echo "process.EmptyIOVSource.lastRun = cms.untracked.uint32(${runnum})" >> $CMSSW_BASE/o2o/gen/${tsckey}_${runnum}_iov.py
+    echo "process.L1CondDBIOVWriter.tscKey = cms.string('${tsckey}')" >> $CMSSW_BASE/o2o/gen/${tsckey}_${runnum}_iov.py
+    echo "process.EmptyIOVSource.firstValue = cms.uint64(${runnum})" >> $CMSSW_BASE/o2o/gen/${tsckey}_${runnum}_iov.py
+    echo "process.EmptyIOVSource.lastValue = cms.uint64(${runnum})" >> $CMSSW_BASE/o2o/gen/${tsckey}_${runnum}_iov.py
 
     if [ ${sflag} -ne 0 ]
         then

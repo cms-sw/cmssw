@@ -15,7 +15,7 @@ process.orcon = cms.ESSource("PoolDBESSource",
     process.CondDBCommon,
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('L1TriggerKeyListRcd'),
-        tag = cms.string('L1TriggerKeyList_CRUZET_hlt')
+        tag = cms.string('L1TriggerKeyList_CRUZET_offline')
     ))
 )
 process.es_prefer_orcon = cms.ESPrefer("PoolDBESSource","orcon")
@@ -28,7 +28,7 @@ process.load("L1Trigger.Configuration.L1DummyConfig_cff")
 # writer modules
 process.load("CondTools.L1Trigger.L1CondDBPayloadWriter_cfi")
 process.L1CondDBPayloadWriter.writeL1TriggerKey = cms.bool(False)
-process.L1CondDBPayloadWriter.L1TriggerKeyListTag = cms.string('L1TriggerKeyList_CRUZET_hlt')
+process.L1CondDBPayloadWriter.L1TriggerKeyListTag = cms.string('L1TriggerKeyList_CRUZET_offline')
 process.L1CondDBPayloadWriter.offlineDB = cms.string('oracle://cms_orcon_prod/CMS_COND_21X_L1T')
 process.L1CondDBPayloadWriter.offlineAuthentication = cms.string('/nfshome0/xiezhen/conddb')
 
@@ -39,9 +39,9 @@ process.maxEvents = cms.untracked.PSet(
 )
 process.source = cms.Source("EmptyIOVSource",
     timetype = cms.string('runnumber'),
-    firstRun = cms.untracked.uint32(4294967295),
-    lastRun = cms.untracked.uint32(4294967295),
-    interval = cms.uint32(1)
+    firstValue = cms.uint64(4294967295),
+    lastValue = cms.uint64(4294967295),
+    interval = cms.uint64(1)
 )
 
 process.p = cms.Path(process.L1CondDBPayloadWriter)
