@@ -15,7 +15,7 @@ siStripGainESProducerforSimulation.APVGain = 'fakeAPVGain'
 
 #Lorentz Angle
 #this SiStripLAFakeESSource is used by the digitizer
-from CalibTracker.SiStripESProducers.fake.SiStripLorentzAngleFakeESSource_cfi import *
+from CalibTracker.SiStripESProducers.services.SiStripLorentzAngleGeneratorService_cfi import *
 import CalibTracker.SiStripESProducers.fake.SiStripLorentzAngleFakeESSource_cfi
 siStripLAFakeESSourceforSimulation = CalibTracker.SiStripESProducers.fake.SiStripLorentzAngleFakeESSource_cfi.siStripLorentzAngleFakeESSource.clone()
 
