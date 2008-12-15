@@ -49,7 +49,7 @@ int main(){
   header.tag_="testtag";
   header.date_="Mar 24 1973";
 
-  EcalADCToGeVXMLTranslator transADCToGeV;
+ 
   
   EcalADCToGeVConstant adctogev_constant;
   EcalADCToGeVConstant adctogev_constant2;
@@ -60,9 +60,9 @@ int main(){
   std::string adctogevfile("/tmp/EcalADCToGeVConstant.xml");
   std::string adctogevfile2("/tmp/adctogev2.xml");
 
-  transADCToGeV.writeXML(adctogevfile,header,adctogev_constant);
-  transADCToGeV.readXML(adctogevfile,header2,adctogev_constant2);
-  transADCToGeV.writeXML(adctogevfile2,header2,adctogev_constant2);
+  EcalADCToGeVXMLTranslator::writeXML(adctogevfile,header,adctogev_constant);
+  EcalADCToGeVXMLTranslator::readXML(adctogevfile,header2,adctogev_constant2);
+  EcalADCToGeVXMLTranslator::writeXML(adctogevfile2,header2,adctogev_constant2);
   
 
   // Test Intercalibration
@@ -74,8 +74,8 @@ int main(){
 
   std::string intercalibfile("/tmp/EcalIntercalibConstants.xml");
   
-  for (int cellid = EBDetId::MIN_HASH; 
-	     cellid < EBDetId::SIZE_HASH; 
+  for (int cellid = 0; 
+	     cellid < EBDetId::kSizeForDenseIndexing; 
 	     ++cellid){// loop on EB cells
     
     
@@ -90,8 +90,8 @@ int main(){
     intercalib_errors[rawid]   =intercalib_error;
   } 
   
-  for (int cellid = EEDetId::MIN_HASH; 
-       cellid < EEDetId::SIZE_HASH; 
+  for (int cellid = 0; 
+       cellid < EEDetId::kSizeForDenseIndexing; 
        ++cellid){// loop on EB cells
     
     
@@ -135,8 +135,8 @@ int main(){
 
   std::string groupfile("/tmp/EcalWeightXtalGroups.xml");
   
-  for (int cellid = EBDetId::MIN_HASH; 
-	     cellid < EBDetId::SIZE_HASH; 
+  for (int cellid = 0 ;
+	     cellid < EBDetId::kSizeForDenseIndexing; 
 	     ++cellid){// loop on EB cells
     
     
@@ -147,8 +147,8 @@ int main(){
  
   } 
   
-  for (int cellid = EEDetId::MIN_HASH; 
-       cellid < EEDetId::SIZE_HASH; 
+  for (int cellid = 0; 
+       cellid < EEDetId::kSizeForDenseIndexing; 
        ++cellid){// loop on EB cells
     
     
@@ -181,8 +181,8 @@ int main(){
   std::string newfilegr("/tmp/gainratios-2.xml");
 
 
-  for (int cellid = EBDetId::MIN_HASH; 
-	     cellid < EBDetId::SIZE_HASH; 
+  for (int cellid = 0; 
+	     cellid < EBDetId::kSizeForDenseIndexing; 
 	     ++cellid){// loop on EB cells
     
     
@@ -194,8 +194,8 @@ int main(){
     
   } 
   
-  for (int cellid = EEDetId::MIN_HASH; 
-       cellid < EEDetId::SIZE_HASH; 
+  for (int cellid = 0; 
+       cellid < EEDetId::kSizeForDenseIndexing; 
        ++cellid){// loop on EE cells
     
     if (EEDetId::validHashIndex(cellid)){  
@@ -222,8 +222,8 @@ int main(){
 
 
 
-  for (int cellid = EBDetId::MIN_HASH; 
-	     cellid < EBDetId::SIZE_HASH; 
+  for (int cellid = 0; 
+	     cellid < EBDetId::kSizeForDenseIndexing; 
 	     ++cellid){// loop on EB cells
     
     
@@ -235,8 +235,8 @@ int main(){
     
   } 
   
-  for (int cellid = EEDetId::MIN_HASH; 
-       cellid < EEDetId::SIZE_HASH; 
+  for (int cellid = 0; 
+       cellid < EEDetId::kSizeForDenseIndexing; 
        ++cellid){// loop on EB cells
     
     if (EEDetId::validHashIndex(cellid)){  
