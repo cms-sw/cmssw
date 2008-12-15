@@ -4,21 +4,28 @@
 
 //***************************************************//
 //********** CastorRecHitMonitor: *******************//
-//********** energy and time of Castor RecHits *****//
 //********** Author: Dmytro Volyanskyy   ************//
-//********** Date  : 23.09.2008          ************// 
+//********** Date  : 23.09.2008 (first version) ******// 
 //***************************************************//
+///// energy and time of Castor RecHits 
 
+//==================================================================//
+//======================= Constructor ==============================//
+//==================================================================//
 CastorRecHitMonitor::CastorRecHitMonitor() {
   doPerChannel_ = false;
   //  occThresh_ = 1;
   ievt_=0;
 }
 
+//==================================================================//
+//======================= Destructor ==============================//
+//==================================================================//
 CastorRecHitMonitor::~CastorRecHitMonitor(){
 }
 
-void CastorRecHitMonitor::reset(){}
+void CastorRecHitMonitor::reset(){
+}
 
 
 //==========================================================//
@@ -30,6 +37,9 @@ void CastorRecHitMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
   CastorBaseMonitor::setup(ps,dbe);
   baseFolder_ = rootFolder_+"RecHitMonitor";
 
+   if(fVerbosity>0) cout << "CastorRecHitMonitor::setup (start)" << endl;
+  
+
   if ( ps.getUntrackedParameter<bool>("RecHitsPerChannel", false) ){
     doPerChannel_ = true;
   }
@@ -38,12 +48,18 @@ void CastorRecHitMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
   
   if ( m_dbe !=NULL ) {    
     m_dbe->setCurrentFolder(baseFolder_);
-    //=== book MonitorElements
+    ////---- book MonitorElements
     meEVT_ = m_dbe->bookInt("RecHit Event Number"); // meEVT_->Fill(ievt_);
     castorHists.meRECHIT_E_all = m_dbe->book1D("Castor RecHit Energies","Castor RecHit Energies",200,0,200);
     castorHists.meRECHIT_T_all = m_dbe->book1D("Castor RecHit Times","Castor RecHit Times",300,-100,200);     
     castorHists.meRECHIT_MAP_CHAN_E = m_dbe->book1D("RecHit Channel Energy Map","RecHit Channel Energy Map",30,0,30);
   } 
+
+  else{
+  if(fVerbosity>0) cout << "CastorRecHitMonitor::setup - NO DQMStore service" << endl; 
+ }
+
+  if(fVerbosity>0) cout << "CastorRecHitMonitor::setup (end)" << endl;
 
   return;
 }
@@ -68,11 +84,11 @@ namespace CastorRecHitPerChan{
 
     if(dbe) dbe->setCurrentFolder(baseFolder+"/"+type);
     
-    ///=========== energies by channel ============// 
-    _mei=toolE.find(rhit.id()); // Look for a histogram with this hit's id !!!
+    ////---- energies by channel  
+    _mei=toolE.find(rhit.id()); //-- look for a histogram with this hit's id !!!
     if (_mei!=toolE.end()){
       if (_mei->second==0) return;
-      else _mei->second->Fill(rhit.energy()); // if it's there, fill it with energy
+      else _mei->second->Fill(rhit.energy()); //-- if it's there, fill it with energy
     }
     else{
        if(dbe){
@@ -83,11 +99,11 @@ namespace CastorRecHitPerChan{
       }
     }
     
-    ///=========== times by channel ==============//
-    _mei=toolT.find(rhit.id()); // look for a histogram with this hit's id
+    ////---- times by channel
+    _mei=toolT.find(rhit.id()); //-- look for a histogram with this hit's id
     if (_mei!=toolT.end()){
       if (_mei->second==0) return;
-      else _mei->second->Fill(rhit.time()); // if it's there, fill it with time
+      else _mei->second->Fill(rhit.time()); //-- if it's there, fill it with time
     }
     else{
       if(dbe){
@@ -103,13 +119,13 @@ namespace CastorRecHitPerChan{
 }
 
 //==========================================================//
-//========================= processEvent ===================//
+//================== processEvent ==========================//
 //==========================================================//
 
 void CastorRecHitMonitor::processEvent(const CastorRecHitCollection& castorHits ){
 
   if(!m_dbe) { 
-    if(fVerbosity) cout <<"CastorRecHitMonitor::processEvent => DQMStore not instantiated !!!"<<endl;  
+    if(fVerbosity>0) cout <<"CastorRecHitMonitor::processEvent => DQMStore not instantiated !!!"<<endl;  
     return; 
   }
 
@@ -122,35 +138,35 @@ void CastorRecHitMonitor::processEvent(const CastorRecHitCollection& castorHits 
   {
      if(castorHits.size()>0)
     {    
-      ///================ loop over all hits ======================///
+      ////---- loop over all hits
       for (CASTORiter=castorHits.begin(); CASTORiter!=castorHits.end(); ++CASTORiter) { 
   
-     ///--- get energy and time for every hit:
+     ////---- get energy and time for every hit:
       float energy = CASTORiter->energy();    
       float time = CASTORiter->time();
-      ///--- fill histograms with them:
+      ////---- fill histograms with them:
       castorHists.meRECHIT_E_all->Fill(energy);
       castorHists.meRECHIT_T_all->Fill(time);
      
-      ///--- plot energy vs channel 
+      ////---- plot energy vs channel 
       HcalCastorDetId id(CASTORiter->detid().rawId());
       //float zside  = id.zside(); 
       float module = id.module(); float sector = id.sector(); //get module & sector from id
       float channel = 16*(module-1)+sector; // define channel
       castorHists.meRECHIT_MAP_CHAN_E->Fill(channel,energy);
 
-      ///--- do histograms per channel     
+      ////---- do histograms per channel     
       if(doPerChannel_) 
          CastorRecHitPerChan::perChanHists<CastorRecHit>(*CASTORiter, castorHists.meRECHIT_E, castorHists.meRECHIT_T, m_dbe, baseFolder_); 
       }
 	
    }
   }
-  catch (...) { if(fVerbosity) cout<<"CastorRecHitMonitor::Error in processEvent !!!"<<endl; }
+  catch (...) { if(fVerbosity>0) cout<<"CastorRecHitMonitor::Error in processEvent !!!"<<endl; }
 
   if (showTiming)
     { 
-      cpu_timer.stop(); std::cout << " TIMER::CastorRecHit -> " << cpu_timer.cpuTime() << std::endl; 
+      cpu_timer.stop(); cout << " TIMER::CastorRecHit -> " << cpu_timer.cpuTime() << endl; 
       cpu_timer.reset(); cpu_timer.start();  
     }
 
