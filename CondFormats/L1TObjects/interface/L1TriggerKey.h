@@ -36,12 +36,17 @@ public:
 	kNumberSubsystems
       } ;
 
+    // Empty strings cannot be stored in the CondDB, so define a null key string.
+    static std::string kNullKey ;
+
+    static std::string kEmptyKey ;
+
     // Constructors
     L1TriggerKey () {}
 
     /* Adds new record and type mapping to payload. If such exists, nothing happens */
     void add (const std::string & record, const std::string & type, const std::string & key)
-    { m_recordToKey.insert (std::make_pair (record + "@" + type, key)); }
+    { m_recordToKey.insert (std::make_pair (record + "@" + type, key.empty() ? kNullKey : key)); }
 
     void add (const RecordToKey& map)
     {
@@ -49,7 +54,7 @@ public:
 	   itr != map.end() ;
 	   ++itr )
 	{
-	  m_recordToKey.insert( *itr ) ;
+	  m_recordToKey.insert( std::make_pair( itr->first, itr->second.empty() ? kNullKey : itr->second ) ) ;
 	}
     }
 
@@ -57,7 +62,7 @@ public:
     { m_tscKey = tscKey ; }
 
     void setSubsystemKey( L1Subsystems subsystem, const std::string& key )
-    { m_subsystemKeys[ subsystem ] = key ; }
+    { m_subsystemKeys[ subsystem ] = key.empty() ? kNullKey : key ; }
 
     /* Gets payload key for record and type. If no such paylaod exists, emtpy string
      * is returned.
@@ -68,15 +73,16 @@ public:
         if (it == m_recordToKey.end ())
             return std::string ();
         else
-            return it->second;
+	  return it->second == kNullKey ? kEmptyKey : it->second ;
     }
 
     const std::string& tscKey() const
       { return m_tscKey ; }
 
     const std::string& subsystemKey( L1Subsystems subsystem ) const
-      { return m_subsystemKeys[ subsystem ] ; }
+      { return m_subsystemKeys[ subsystem ] == kNullKey ? kEmptyKey : m_subsystemKeys[ subsystem ] ; }
 
+    // NB: null keys are represented by kNullKey, not by an empty string
     const RecordToKey& recordToKeyMap() const
       { return m_recordToKey ; }
 
@@ -98,4 +104,3 @@ protected:
 };
 
 #endif
-
