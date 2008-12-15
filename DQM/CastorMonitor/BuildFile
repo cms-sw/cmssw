@@ -1,3 +1,4 @@
+<flags EDM_PLUGIN=1>
 <use name=DataFormats/HcalDetId>
 <use name=DataFormats/HcalRecHit>
 <use name=DataFormats/HcalDigi>
@@ -8,8 +9,11 @@
 <use name=FWCore/Framework>
 <use name=FWCore/MessageLogger>
 <use name=DQMServices/Core>
+<use name=DQMServices/Components>
+<use name=DataFormats/FEDRawData>
 <use name=rootmath>
 <export>
+  <lib name=DQMCastorMonitor>
   <use name=DataFormats/HcalDetId>
   <use name=DataFormats/HcalRecHit>
   <use name=DataFormats/HcalDigi>
@@ -20,6 +24,7 @@
   <use name=FWCore/Framework>
   <use name=FWCore/MessageLogger>
   <use name=DQMServices/Core>
+  <use name=DQMServices/Components>
+  <use name=DataFormats/FEDRawData>
   <use name=rootmath>
-  <lib name=CastorDQMobjects>
 </export>
