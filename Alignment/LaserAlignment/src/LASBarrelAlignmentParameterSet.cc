@@ -107,7 +107,7 @@ std::pair<double,double>& LASBarrelAlignmentParameterSet::GetBeamParameter( int 
 ///
 void LASBarrelAlignmentParameterSet::Dump( void ) {
   
-  std::cout << std::endl << " [LASBarrelAlignmentParameterSet::Dump] -- Parameter dump: " << std::endl;
+  std::cout << std::endl << " [LASBarrelAlignmentParameterSet::Dump] -- Parameter dump [rad/mm]: " << std::endl;
 
   const std::string subdetNames[6] = { " TEC+  ", " TEC-  ", " TIB+  ", " TIB-  ", " TOB+  ", " TOB-  " };
 

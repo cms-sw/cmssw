@@ -45,22 +45,18 @@ LASBarrelAlignmentParameterSet LASAlignmentTubeAlgorithm::CalculateParameters( L
   for( int aHalfbarrel = 0; aHalfbarrel < 6; ++aHalfbarrel ) beamRadii.at( aHalfbarrel ) =  radii[aHalfbarrel];
   
   // the z positions of the halfbarrel_end_faces / outer_TEC_disks (in mm);
-  // parameters are: det, side(0=+/1=-), z(inner/outer). TECs have no side (use side = 0)
+  // parameters are: det, side(0=+/1=-), z(0=lowerZ/1=higherZ). TECs have no side (use side = 0)
   std::vector<std::vector<std::vector<double> > > endFaceZPositions( 4, std::vector<std::vector<double> >( 2, std::vector<double>( 2, 0. ) ) );
-//   endFaceZPositions.at( 0 ).at( 0 ).at( 0 ) = 1250.;  // TEC+, *, disk1 ///
-//   endFaceZPositions.at( 0 ).at( 0 ).at( 1 ) = 2595.;  // TEC+, *, disk9 /// SIDE INFORMATION
-//   endFaceZPositions.at( 1 ).at( 0 ).at( 0 ) = -2595.; // TEC-, *, disk1 /// MEANINGLESS FOR TEC -> USE .at(0)!
-//   endFaceZPositions.at( 1 ).at( 0 ).at( 1 ) = -1250.; // TEC-, *, disk9 ///
   endFaceZPositions.at( 0 ).at( 0 ).at( 0 ) = 1322.5;  // TEC+, *, disk1 ///
   endFaceZPositions.at( 0 ).at( 0 ).at( 1 ) = 2667.5;  // TEC+, *, disk9 /// SIDE INFORMATION
-  endFaceZPositions.at( 1 ).at( 0 ).at( 0 ) = -1322.5; // TEC-, *, disk1 /// MEANINGLESS FOR TEC -> USE .at(0)!
-  endFaceZPositions.at( 1 ).at( 0 ).at( 1 ) = -2667.5; // TEC-, *, disk9 ///
-  endFaceZPositions.at( 2 ).at( 1 ).at( 0 ) = -300.;   // TIB,  -, inner
-  endFaceZPositions.at( 2 ).at( 1 ).at( 1 ) = -700.;   // TIB,  -, outer
+  endFaceZPositions.at( 1 ).at( 0 ).at( 0 ) = -2667.5; // TEC-, *, disk9 /// MEANINGLESS FOR TEC -> USE .at(0)!
+  endFaceZPositions.at( 1 ).at( 0 ).at( 1 ) = -1322.5; // TEC-, *, disk1 ///
+  endFaceZPositions.at( 2 ).at( 1 ).at( 0 ) = -700.;   // TIB,  -, outer
+  endFaceZPositions.at( 2 ).at( 1 ).at( 1 ) = -300.;   // TIB,  -, inner
   endFaceZPositions.at( 2 ).at( 0 ).at( 0 ) = 300.;    // TIB,  +, inner
   endFaceZPositions.at( 2 ).at( 0 ).at( 1 ) = 700.;    // TIB,  +, outer
-  endFaceZPositions.at( 3 ).at( 1 ).at( 0 ) = -300.;   // TOB,  -, inner
-  endFaceZPositions.at( 3 ).at( 1 ).at( 1 ) = -1090.;  // TOB,  -, outer
+  endFaceZPositions.at( 3 ).at( 1 ).at( 0 ) = -1090.;  // TOB,  -, outer
+  endFaceZPositions.at( 3 ).at( 1 ).at( 1 ) = -300.;   // TOB,  -, inner
   endFaceZPositions.at( 3 ).at( 0 ).at( 0 ) = 300.;    // TOB,  +, inner
   endFaceZPositions.at( 3 ).at( 0 ).at( 1 ) = 1090.;   // TOB,  +, outer
 
