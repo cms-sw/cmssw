@@ -3,9 +3,9 @@
 /** \class PhotonProducer
  **  
  **
- **  $Id: PhotonProducer.h,v 1.27 2008/11/03 22:17:09 nancy Exp $ 
- **  $Date: 2008/11/03 22:17:09 $ 
- **  $Revision: 1.27 $
+ **  $Id: PhotonProducer.h,v 1.28 2008/12/02 14:04:07 nancy Exp $ 
+ **  $Date: 2008/12/02 14:04:07 $ 
+ **  $Revision: 1.28 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -52,7 +52,7 @@ class PhotonProducer : public edm::EDProducer {
 			    const CaloSubdetectorGeometry* geometryES,
                             const CaloTopology *topology,
 			    const EcalRecHitCollection* hits,
-			    HBHERecHitMetaCollection *mhbhe,
+			    const edm::Handle<CaloTowerCollection> & hcalTowersHandle, 
 			    std::vector<double> preselCutValues,
 			    const edm::Handle<reco::ConversionCollection> & conversionHandle,
 			    const reco::ElectronPixelSeedCollection& pixelSeeds,
@@ -73,6 +73,7 @@ class PhotonProducer : public edm::EDProducer {
   edm::InputTag barrelEcalHits_;
   edm::InputTag endcapEcalHits_;
 
+  edm::InputTag hcalTowers_;
 
   std::string conversionProducer_;
   std::string conversionCollection_;

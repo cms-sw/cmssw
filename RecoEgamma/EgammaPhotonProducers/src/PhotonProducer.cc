@@ -23,7 +23,7 @@
 #include "DataFormats/EgammaReco/interface/ElectronPixelSeed.h"
 #include "RecoCaloTools/Selectors/interface/CaloConeSelector.h"
 #include "RecoEgamma/EgammaPhotonProducers/interface/PhotonProducer.h"
-
+#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaTowerIsolation.h"
 
 
 PhotonProducer::PhotonProducer(const edm::ParameterSet& config) : 
@@ -44,8 +44,8 @@ PhotonProducer::PhotonProducer(const edm::ParameterSet& config) :
   PhotonCollection_ = conf_.getParameter<std::string>("photonCollection");
   pixelSeedProducer_   = conf_.getParameter<std::string>("pixelSeedProducer");
 
-  hbheLabel_        = conf_.getParameter<std::string>("hbheModule");
-  hbheInstanceName_ = conf_.getParameter<std::string>("hbheInstance");
+  hcalTowers_ = conf_.getParameter<edm::InputTag>("hcalTowers");
+
   hOverEConeSize_   = conf_.getParameter<double>("hOverEConeSize");
   maxHOverE_        = conf_.getParameter<double>("maxHOverE");
   minSCEt_        = conf_.getParameter<double>("minSCEt");
@@ -161,6 +161,12 @@ void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEve
   if( validEcalRecHits) endcapRecHits = *(endcapHitHandle.product());
 
 
+// get Hcal towers collection 
+  Handle<CaloTowerCollection> hcalTowersHandle;
+  theEvent.getByLabel(hcalTowers_, hcalTowersHandle);
+
+
+
   // get the geometry from the event setup:
   theEventSetup.get<CaloGeometryRecord>().get(theCaloGeom_);
   const CaloGeometry* geometry = theCaloGeom_.product();
@@ -184,22 +190,6 @@ void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEve
  
 
 
-  // Get HoverE
-  bool validHcalRecHits=true;
-  Handle<HBHERecHitCollection> hbhe;
-  std::auto_ptr<HBHERecHitMetaCollection> mhbhe;
-  theEvent.getByLabel(hbheLabel_,hbheInstanceName_,hbhe);  
-  if (!hbhe.isValid()) {
-    edm::LogError("PhotonProducer") << "Error! Can't get the product "<<hbheInstanceName_.c_str();
-    validHcalRecHits=false;
-  }
-
-  if ( hOverEConeSize_ > 0.) {
-    if ( validHcalRecHits ) mhbhe=  std::auto_ptr<HBHERecHitMetaCollection>(new HBHERecHitMetaCollection(*hbhe));
-  }
-
-  
-  theHoverEcalc_=HoECalculator(theCaloGeom_);
 
   // Get ElectronPixelSeeds
   validPixelSeeds_=true;
@@ -241,7 +231,7 @@ void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEve
 						 preshowerGeometry,
 						 topology,
 						 &barrelRecHits,
-						 mhbhe.get(),
+						 hcalTowersHandle,
 						 preselCutValuesBarrel_,
 						 conversionHandle,
 						 pixelSeeds,
@@ -256,7 +246,7 @@ void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEve
 						 preshowerGeometry,
 						 topology,
 						 &endcapRecHits,
-						 mhbhe.get(),
+						 hcalTowersHandle,
 						 preselCutValuesEndcap_,
 						 conversionHandle,
 						 pixelSeeds,
@@ -279,7 +269,7 @@ void PhotonProducer::fillPhotonCollection(edm::Event& evt,
 					  const CaloSubdetectorGeometry *geometryES,
 					  const CaloTopology *topology,
 					  const EcalRecHitCollection* hits,
-					  HBHERecHitMetaCollection *mhbhe,
+					  const edm::Handle<CaloTowerCollection> & hcalTowersHandle, 
 					  std::vector<double> preselCutValues,
 					  const edm::Handle<reco::ConversionCollection> & conversionHandle,
 					  const reco::ElectronPixelSeedCollection& pixelSeeds,
@@ -298,7 +288,15 @@ void PhotonProducer::fillPhotonCollection(edm::Event& evt,
     // SC energy preselection
     if (scRef->energy()/cosh(scRef->eta()) <= minSCEt_) continue;
     // calculate HoE
-    double HoE=theHoverEcalc_(pClus,mhbhe);
+
+
+     const CaloTowerCollection* hcalTowersColl = hcalTowersHandle.product();
+     EgammaTowerIsolation towerIso1(hOverEConeSize_,0.,0.,1,hcalTowersColl) ;  
+     EgammaTowerIsolation towerIso2(hOverEConeSize_,0.,0.,2,hcalTowersColl) ;  
+     double HoE1=towerIso1.getTowerESum(&(*scRef))/scRef->energy();
+     double HoE2=towerIso2.getTowerESum(&(*scRef))/scRef->energy(); 
+     //     std::cout << " PhotonProducer " << HoE1  << "  HoE2 " << HoE2 << std::endl;
+     //std::cout << " PhotonProducer calcualtion of HoE1 " << HoE1  << "  HoE2 " << HoE2 << std::endl;
 
     
     // recalculate position of seed BasicCluster taking shower depth for unconverted photon
@@ -345,7 +343,7 @@ void PhotonProducer::fillPhotonCollection(edm::Event& evt,
 
     const reco::Particle::LorentzVector  p4(momentum.x(), momentum.y(), momentum.z(), photonEnergy );
     
-    reco::Photon newCandidate(p4, caloPosition, scRef, HoE, hasSeed, vtx);
+    reco::Photon newCandidate(p4, caloPosition, scRef, HoE1, HoE2, hasSeed, vtx);
     newCandidate.setShowerShapeVariables ( maxXtal.second, e1x5, e2x5,  e3x3, e5x5, covEtaEta,  covIetaIeta );
     //std::cout << " PhotonProducer e1x5 " << newCandidate.e1x5() << " e5x5 " <<   newCandidate.e5x5() << " max Xtal " << newCandidate.maxEnergyXtal() <<  std::endl;
 
@@ -361,22 +359,30 @@ void PhotonProducer::fillPhotonCollection(edm::Event& evt,
 					 fidFlags.isEBEEGap  );    
     newCandidate.setIsolationVariablesConeDR04 (isolVarR04.isolationEcalRecHit, 
 					      isolVarR04.isolationHcalTower, 
+					      isolVarR04.isolationHcalDepth1Tower, 
+					      isolVarR04.isolationHcalDepth2Tower, 
 					      isolVarR04.isolationSolidTrkCone,
 					      isolVarR04.isolationHollowTrkCone,
 					      isolVarR04.nTrkSolidCone,
 					      isolVarR04.nTrkHollowCone);    
     newCandidate.setIsolationVariablesConeDR03 (isolVarR03.isolationEcalRecHit, 
 					      isolVarR03.isolationHcalTower, 
+					      isolVarR03.isolationHcalDepth1Tower, 
+					      isolVarR03.isolationHcalDepth2Tower, 
 					      isolVarR03.isolationSolidTrkCone,
 					      isolVarR03.isolationHollowTrkCone,
 					      isolVarR03.nTrkSolidCone,
 					      isolVarR03.nTrkHollowCone);    
+
+
+
 
     /// Pre-selection loose  isolation cuts
     bool isLooseEM=true;
     //    std::cout << " Photon Et " <<  newCandidate.pt() << std::endl;
     if ( newCandidate.pt() < highEt_) { 
       //std::cout << " This photon Et is below " << highEt_ << " so I apply pre-selection ID cuts " << std::endl;
+      //      std::cout << " PhotonProducer Hoe1 " << newCandidate.hadronicDepth1OverEm() << "  HoE2 " <<  newCandidate.hadronicDepth2OverEm() << " tot " <<  newCandidate.hadronicOverEm() << std::endl;
       if ( newCandidate.hadronicOverEm()                >= maxHOverE_ )              isLooseEM=false;
       if ( newCandidate.ecalRecHitSumConeDR04()          > preselCutValues[0] )      isLooseEM=false;
       if ( newCandidate.hcalTowerSumConeDR04()           > preselCutValues[1] )      isLooseEM=false;
