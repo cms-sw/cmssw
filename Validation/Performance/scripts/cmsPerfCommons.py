@@ -2,49 +2,19 @@ import os, re
 
 #Sort the candles to make sure MinBias is executed before QCD_80_120, otherwise DIGI PILEUP would not find its MinBias root files
 
+#Define ALL the physics processes available to the Performance Suite user (for most uses only 2 or 5 of these at a time will be used):
 Candles=["MinBias"            ,
          "HiggsZZ4LM200"      ,         
          "SingleElectronE1000",
          "SingleMuMinusPt10"  ,
          "SinglePiMinusE1000" ,
          "TTbar"              ,
-         "QCD_80_120"         
+         "QCD_80_120",
+         #Example addition of a new candle:
+         "QCD_3000_3500"
          ]
-#Introducing different sets of "default" candles for different tests (runs of cmsPerfSuite.py):
-#CandlesToRun={'Default':[Candles[0],
-#                         Candles[1],
-#                         Candles[2],
-#                         Candles[3],
-#                         Candles[4],
-#                         Candles[5],
-#                         Candles[6]
-#                         ],
-#             'Simulation':[Candles[0],
-#                           Candles[2],
-#                           Candles[3],
-#                           Candles[4],
-#                           Candles[5]
-#                           ],
-#             'Step1':[Candles[0],
-#                      Candles[5],
-#                      ],
-#             'Step2':[Candles[0],
-#                      Candles[5],
-#                      ]
-#    }
-#SimulationCandles=["MinBias"            ,
-#                   "SingleElectronE1000",
-#                   "SingleMuMinusPt10"  ,
-#                   "SinglePiMinusE1000" ,
-#                   "TTbar"
-#                   ]
-#Step1Candles=["MinBias",
-#              "TTbar"
-#              ]
-#Step2Candles=["MinBias",
-#              "TTbar"
-#              ]
-#
+#List containing the root filenames hardcoded in cmsDriver.py
+#In the future we could eliminate this dependency by forcing the filename convention in the suite since we use the --fileout cmsDriver.py option now.
 CandFname={
     Candles[0]:"MINBIAS_",
     Candles[1]:"HZZLLLL_200",    
@@ -52,10 +22,12 @@ CandFname={
     Candles[3]:"MU-_pt10",
     Candles[4]:"PI-_1000",
     Candles[5]:"TTBAR_" ,
-    Candles[6]:"QCD_80_120"
+    Candles[6]:"QCD_80_120",
+    #Example addition of a new candle:
+    Candles[7]:"QCD_3000_3500"
     }
 
-#List with all the steps
+#List with all the "individual" steps understood by the Performance Suite
 Step = ["GEN,SIM",
         "DIGI",
         "L1",              
@@ -70,11 +42,12 @@ Step = ["GEN,SIM",
         "RECO_PILEUP"
         ]
 
-#Strings with the definition of cmsDriver.py Step1 and Step2
-#To be kept up to date
-#Step1 = 'GEN,SIM,DIGI,L1,DIGI2RAW,HLT'
-#Step2 = 'RAW2DIGI,RECO'
-
+#List of Production steps (to be used by the publishing script to find reports:
+ProductionSteps = ["GEN,SIM,DIGI,L1,DIGI2RAW,HLT",
+                   "GEN,SIM,DIGI,L1,DIGI2RAW",
+                   "RAW2DIGI,RECO"
+                   ]
+#A dictionary with the reverse look-up for the candle given the root base filename 
 revCFname = {
     "MINBIAS_"    : Candles[0],
     "HZZLLLL_200" : Candles[1],    
@@ -82,7 +55,9 @@ revCFname = {
     "MU-_pt10"    : Candles[2],
     "PI-_1000"    : Candles[3],
     "TTBAR_"      : Candles[4], 
-    "QCD_80_120"  : Candles[6]
+    "QCD_80_120"  : Candles[6],
+    #Example addition of a new candle:
+    "QCD_3000_3500": Candles[7]
     }
 
 CandDesc=["Minimum Bias",
@@ -91,7 +66,9 @@ CandDesc=["Minimum Bias",
           "Muon",
           "Pion",
           "TTBar",
-          "QCD Jets"
+          "QCD Jets 80-120 GeV",
+          #Example addition of a new candle:
+          "QCD Jets 3000-3500 GeV"
           ]
 
 # Need a little hash to match the candle with the ROOT name used by cmsDriver.py.
@@ -105,7 +82,9 @@ configs   = ['MinBias.cfi',
              'SingleMuPt10.cfi',
              'SinglePiE1000.cfi',
              'TTbar.cfi',               
-             'QCD_Pt_80_120.cfi'
+             'QCD_Pt_80_120.cfi',
+             #Example addition of a new candle:
+             'QCD_Pt_3000_3500.cfi'
              ]
     
 filenames = [CandFname[Candles[0]],        
@@ -114,74 +93,16 @@ filenames = [CandFname[Candles[0]],
              CandFname[Candles[3]],
              CandFname[Candles[4]],
              CandFname[Candles[5]],
-             CandFname[Candles[6]]
+             CandFname[Candles[6]],
+             #Example addition of a new candle:
+             CandFname[Candles[7]]
              ]
 for x in range(len(Candles)):
 
     KeywordToCfi[Candles[x]] = configs[x]
     FileName[Candles[x]]     = filenames[x]
 
-#Adding IgProf, Callgrind, MemCheck dictionaries:
-
-#Adding also the TimeSize one for now, even if it may never be used...
-#RunTimeSize={'Default':{Candles[0]:True,
-#                        Candles[1]:True,
-#                        Candles[2]:True,
-#                        Candles[3]:True,
-#                        Candles[4]:True,
-#                        Candles[5]:True,
-#                        Candles[6]:True
-#                        },
-#             'Simulation':{Candles[0]:True,
-#                           Candles[2]:True,
-#                           Candles[3]:True,
-#                           Candles[4]:True,
-#                           Candles[5]:True
-#                           },
-#             'Step1':{Candles[0]:True,
-#                      Candles[5]:True
-#                      },
-#             'Step2':{Candles[0]:True,
-#                      Candles[5]:True
-#                      }
-#             }
-#
-#RunIgProf={'Default':{Candles[0]:True,
-#                        Candles[1]:True,
-#                        Candles[2]:True,
-#                        Candles[3]:True,
-#                        Candles[4]:True,
-#                        Candles[5]:True,
-#                        Candles[6]:True
-#                        },
-#             'Simulation':{Candles[0]:True,
-#                           Candles[2]:True,
-#                           Candles[3]:True,
-#                           Candles[4]:True,
-#                           Candles[5]:True
-#                           },
-#             'Step1':{Candles[0]:True,
-#                      Candles[5]:True
-#                      },
-#             'Step2':{Candles[0]:True,
-#                      Candles[5]:True
-#                      }
-#    }
-#
-#RunCallgrind={
-#    }
-#
-#RunMemCheck={
-#    }
-
 #PILE-UP Settings:
-
-#Minimum number of TimeSizeEvents for Pile Up to run
-#Basically, this number if used to prevent DIGI PILE-UP from running when there would be too few MinBias events
-#Maybe this should be replaced by some code that would smartly produce the MinBias events needed if they are too few
-#in the MinBias_TimeSize directory (check all possible MinBias dirs, _MemCheck and Callgrind too), or they do not exist
-
-MIN_REQ_TS_EVENTS = 20
 
 #Set here the cmsDriver.py --pileup option:
 cmsDriverPileUpOption='LowLumiPileUp'
@@ -196,30 +117,6 @@ CustomiseFragment = {
          'DIGI': 'Validation/Performance/TimeMemoryInfo.py',
          'DIGI-PILEUP':'Validation/Performance/MixingModule.py'
          }
-
-#Adding a dictionary to tell on which candle to run digi pile-up:
-
-#RunDigiPileUp={'Default':{Candles[0]:True,
-#                        Candles[1]:True,
-#                        Candles[2]:True,
-#                        Candles[3]:True,
-#                        Candles[4]:True,
-#                        Candles[5]:True,
-#                        Candles[6]:True
-#                        },
-#             'Simulation':{Candles[0]:True,
-#                           Candles[2]:True,
-#                           Candles[3]:True,
-#                           Candles[4]:True,
-#                           Candles[5]:True
-#                           },
-#             'Step1':{Candles[0]:True,
-#                      Candles[5]:True
-#                      },
-#             'Step2':{Candles[0]:True,
-#                      Candles[5]:True
-#                      }
-#    }
 
 def getVerFromLog(previous):
     prevlog = os.path.join(previous,"cmsPerfSuite.log")

@@ -17,7 +17,7 @@ import cmsPerfRegress as cpr
 import re, os, sys, time, glob, socket, fnmatch
 from shutil import copy2, copystat
 from stat   import *
-from cmsPerfCommons import CandFname, Step, Candles
+from cmsPerfCommons import CandFname, Step, ProductionSteps, Candles
 import ROOT
 
 PROG_NAME  = os.path.basename(sys.argv[0])
@@ -37,6 +37,8 @@ DirName=( #These need to match the candle directory names ending (depending on t
           "Callgrind",
           "Memcheck"
           )
+#Defining Steps as a union of Step and ProductionSteps:
+Steps=Step+ProductionSteps
 
 ##################
 #
@@ -307,7 +309,7 @@ def optionparse():
         '--relval',
         action="store_true",
         dest='relval',
-        help='Use the default simulation location',
+        help='Use the default RelVal location',
         #metavar='<STEPS>',
         )
 
@@ -749,7 +751,8 @@ def createCandlHTML(tmplfile,candlHTML,CurrentCandle,WebArea,repdir,ExecutionDat
         return out
     
     def _getProfileReportLink(repdir,CurrentCandle,CurDir,step,CurrentProfile,Profiler):
-
+        #FIXME:
+        #Pileup now has it own directory... should add it in the DirName dictionary at the beginning?
         ProfileTemplate=os.path.join(repdir, "%s_%s" % (CurrentCandle,CurDir), "*_%s_%s*" % (step,CurrentProfile),Profiler)
 
         #There was the issue of SIM vs sim (same for DIGI) between the previous RelVal based performance suite and the current.
@@ -976,7 +979,7 @@ def createCandlHTML(tmplfile,candlHTML,CurrentCandle,WebArea,repdir,ExecutionDat
                     PrintedOnce = False
                     for CurrentProfile in Profile:
 
-                        for step in Step :
+                        for step in Steps: #Using Steps here that is Step+ProductionSteps!
 
                             ProfileReportLink = _getProfileReportLink(repdir,CurrentCandle,
                                                                      CurDir,
@@ -1251,7 +1254,7 @@ def createWebReports(WebArea,repdir,ExecutionDate,LogFiles,cmsScimarkResults,dat
         for NewFileLine in open(TemplateHtml) :
             if cmsverreg.search(NewFileLine):
                 if prevrev == "":
-                    INDEX.write("Simulation Performance Reports for %s\n" % CMSSW_VERSION)
+                    INDEX.write("Performance Reports for %s\n" % CMSSW_VERSION)
                 else:
                     globpath = os.path.join(repdir,"REGRESSION.%s.vs.*" % (prevrev))
                     globs = glob.glob(globpath)
@@ -1262,9 +1265,9 @@ def createWebReports(WebArea,repdir,ExecutionDate,LogFiles,cmsScimarkResults,dat
                         found = latestreg.search(os.path.basename(globs[0]))
                         if found:
                             latestrel = found.groups()[0]
-                            INDEX.write("Simulation Performance Reports with regression: %s VS %s\n" % (prevrev,latestrel))                                                        
+                            INDEX.write("Performance Reports with regression: %s VS %s\n" % (prevrev,latestrel))                                                        
                         else:
-                            INDEX.write("Simulation Performance Reports with regression: %s VS %s\n" % (prevrev,CMSSW_VERSION))                            
+                            INDEX.write("Performance Reports with regression: %s VS %s\n" % (prevrev,CMSSW_VERSION))                            
             elif hostreg.search(NewFileLine):
                 INDEX.write(HOST + "\n")
             elif fsizereg.search(NewFileLine):
@@ -1273,7 +1276,7 @@ def createWebReports(WebArea,repdir,ExecutionDate,LogFiles,cmsScimarkResults,dat
 
                     for cand in Candles:
                         fname = CandFname[cand]
-                        globpath  = os.path.join(repdir,"%s_TimeSize" % cand,"%s_*.root" % fname)
+                        globpath  = os.path.join(repdir,"%s*_TimeSize" % cand,"%s_*.root" % fname)
                         rootfiles = glob.glob(globpath)
                         rootfiles = map(lambda x: (fname,x), rootfiles)
                         rootfiles.sort(cmp=rootfile_cmp)
@@ -1344,7 +1347,7 @@ def createWebReports(WebArea,repdir,ExecutionDate,LogFiles,cmsScimarkResults,dat
 
                         for cand in Candles:
                             fname = CandFname[cand]
-                            globpath  = os.path.join(repdir,"%s_TimeSize" % cand,"%s_*.root" % fname)
+                            globpath  = os.path.join(repdir,"%s*_TimeSize" % cand,"%s_*.root" % fname)
                             rootfiles = glob.glob(globpath)
                             rootfiles = map(lambda x: (fname,x), rootfiles)
                             rootfiles.sort(cmp=rootfile_cmp)
@@ -1372,7 +1375,7 @@ def createWebReports(WebArea,repdir,ExecutionDate,LogFiles,cmsScimarkResults,dat
                                 try:
                                     statinfo = os.stat(rootf)
                                     fsize2   = statinfo.st_size
-                                    oldfile  = os.path.join(oldpath,"%s_TimeSize" % cand,base)
+                                    oldfile  = os.path.join(oldpath,"%s*_TimeSize" % cand,base)
                                     fsize1   = 0
 
                                     if os.path.exists(oldfile):
@@ -1419,7 +1422,7 @@ def createWebReports(WebArea,repdir,ExecutionDate,LogFiles,cmsScimarkResults,dat
 
                     for cand in Candles:
                         fname = CandFname[cand]
-                        globpath  = os.path.join(repdir,"%s_TimeSize" % cand,"%s_*_TimingReport.log" % fname)
+                        globpath  = os.path.join(repdir,"%s*_TimeSize" % cand,"%s_*_TimingReport.log" % fname)
                         logfiles = glob.glob(globpath)
                         logfiles = map(lambda x: (fname,x), logfiles)
                         logfiles.sort(cmp=logrep_cmp)                        
@@ -1573,7 +1576,8 @@ def getDirnameDirs(repdir,WebArea):
     os.mkdir("%s/DirectoryBrowsing" % WebArea)
     for file in os.listdir(WebArea):
         if file != "Index.html":
-            os.symlink("%s/%s"%(WebArea,file),"%s/DirectoryBrowsing/%s" % (WebArea,file))
+            #Use relative path ".." instead of WebArea to avoid problems when copying stuff to a remote server!
+            os.symlink("%s/%s"%("..",file),"%s/DirectoryBrowsing/%s" % (WebArea,file))
 
 #######################
 #

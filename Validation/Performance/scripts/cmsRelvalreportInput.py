@@ -23,7 +23,7 @@
 
 import sys, os, re, operator
 import optparse as opt
-from cmsPerfCommons import Candles, MIN_REQ_TS_EVENTS, CandDesc, FileName, KeywordToCfi, CustomiseFragment, CandFname
+from cmsPerfCommons import Candles, CandDesc, FileName, KeywordToCfi, CustomiseFragment, CandFname
 ################
 # Global variables
 #
@@ -276,39 +276,6 @@ def setupProgramParameters(options,args):
 
         userSteps = options.userSteps
         steps = getSteps(userSteps)
-        #Set the steps to be run after DIGI-PILEUP:
-        #FIXME: This is not very robust composite steps could mess up things...
-        #but for now let's assume PILE UP is not run in all complicated cases...
-        if 'DIGI' in steps:
-            AfterPileUpSteps = steps[steps.index('DIGI')+1:] #The DIGI step needs to be included to actually do the pileup!
-        else:
-            #The following should work for the case L1-RECO and RAW2DIGI-RECO...
-            if steps[0] in AllSteps:
-                if AllSteps.index(steps[0]) == AllSteps.index('DIGI')+1 : #i.e. if steps[0] is L1...
-                    AfterPileUpSteps.append(AllSteps[AllSteps.index(steps[0])])
-                else:
-                    for StepIndex in range(AllSteps.index('DIGI')+1, AllSteps.index(steps[0])+1):
-                        AfterPileUpSteps.append(AllSteps[StepIndex])
-            elif expandHyphens(steps[0])[0] in AllSteps:
-                
-                #Add the following cases:
-                #1-Step1 : --step GEN-HLT ->Run the DIGI-PU and then all steps from L1 to HLT.
-                #2-Step2: --RAW2DIGI-RECO (keep in mind it could change so make this configurable in cmsPErfCommons.py ->run DIGI-PU and then  
-                #3-GEN-SIM,DIGI
-                #4-Userdefined in cmsPerfCommons.py
-                #Other way we need to handle the hyphens even in here... and open everythin up...
-                if AllSteps.index(expandHyphens(steps[0])[0]) == AllSteps.index('DIGI')+1 : #i.e. if steps[0] is L1...
-                    AfterPileUpSteps.append(AllSteps[AllSteps.index(expandHyphens(steps[0])[0])])
-                else:
-                    for StepIndex in range(AllSteps.index('DIGI')+1, AllSteps.index(expandHyphens(steps[0])[0])+1):
-                        if AllSteps[StepIndex]=='RAW2DIGI':#Dirty hardcoded stuff to handle RAW2DIGI-RECO as one step (should we just hardcode this in the steps?Any negative onsequences?
-                            AfterPileUpSteps.append('RAW2DIGI-RECO')
-                        else:
-                            AfterPileUpSteps.append(AllSteps[StepIndex])
-                if expandHyphens(steps[0])[1] in AllSteps and not expandHyphens(steps[0])[1]=='RECO': #Dirty hardcoded stuff to handle RAW2DIGI-RECO as one step (should we just hardcode this in the steps?Any negative onsequences?
-                    AfterPileUpSteps.append(AllSteps[AllSteps.index(expandHyphens(steps[0])[1])])
-            AfterPileUpSteps.extend(steps[1:])
-            print "After pileup steps: %s"%AfterPileUpSteps
 
     if WhichCandles.lower() == 'allcandles':
         Candle = Candles
@@ -493,8 +460,6 @@ def writePrerequisteSteps(simcandles,steps,acandle,NumberOfEvents,cmsDriverOptio
     else:
         fstIdx = AllSteps.index(steps[0])
     CustomisePythonFragment = pythonFragment("GEN,SIM",cmsDriverOptions)
-    #print "fstIdx is %s"%fstIdx
-    #print "11acandle is %s"%acandle
     OutputFile = writeUnprofiledSteps(simcandles, CustomisePythonFragment, cmsDriverOptions,AllSteps[0:fstIdx],acandle,NumberOfEvents, 0,bypasshlt) 
     return (fstIdx, OutputFile)
 
@@ -709,21 +674,6 @@ def writeCommands(simcandles,
             stepIndex +=1
     return fstROOTfileStr
 
-def preparePileUpCommand(rootinput,thecandle,NumberOfEvents,cmsDriverOptions):
-
-    InputFileOption  = "--filein file:%s" % (rootinput)
-    OutputFileOption = "--fileout=%s_DIGI_PILEUP.root"  % (FileName[thecandle] )
-
-    return (
-        "%s %s -n %s --step=DIGI %s %s --pileup=%s --customise=Validation/Performance/MixingModule.py %s" %
-        (cmsDriver,
-         KeywordToCfi[thecandle],
-         NumberOfEvents,
-         InputFileOption,
-         OutputFileOption,
-         cmsDriverPileUp,
-         cmsDriverOptions))
-
 def writeCommandsToReport(simcandles,Candle,Profile,debug,NumberOfEvents,cmsDriverOptions,steps,bypasshlt):
 
     OutputStep = ''
@@ -733,11 +683,6 @@ def writeCommandsToReport(simcandles,Candle,Profile,debug,NumberOfEvents,cmsDriv
     #
     #EventContent = {'GEN,SIM': 'FEVTDEBUGHLT', 'DIGI': 'FEVTDEBUGHLT'}
 
-    digiPUrootIN = ""
-    #Using RunDigiPileUp dictionary in cmsPerfCommons.py to not have DIGI PILEUP hardcoded, but configurable
-    #in the file above.
-    #qcdStr = Candles[6]
-    DigiPileUpWillRun = False
     for acandle in Candle:
         print '*Candle ' + acandle
         
@@ -745,7 +690,7 @@ def writeCommandsToReport(simcandles,Candle,Profile,debug,NumberOfEvents,cmsDriv
         # If the first profiling we run is EdmSize we need to create the root file first
         #
 
-        #Here all regular (non pileup candles) are processed with all the default steps:
+        #Here all candles are processed with all the same command, and in the pileup case they will have the pileup settings set correctly already:
         fstoutfile = writeCommands(simcandles,
                                    Profile,
                                    acandle,
@@ -753,58 +698,6 @@ def writeCommandsToReport(simcandles,Candle,Profile,debug,NumberOfEvents,cmsDriv
                                    NumberOfEvents,
                                    cmsDriverOptions,
                                    bypasshlt)
-        
-        ##FIXME with the new way to run PU!
-        #Here starts the special treatment in case of pileup (should change variable names from qcd-related to pileup as it logically is):
-        #if acandle in DigiPileUpCandles:
-        #    digiPUrootIN = fstoutfile
-        #    DigiPileUpWillRun = True
-
-    # Add the extra "step" DIGI with PILE UP only for QCD_80_120:
-    # After digi pileup steps:
-    # Freeze this for now since we will only run by default the GEN-SIM,DIGI and DIGI pileup steps
-
-    #In case pile up is requested, check that the NumberOfEvents is more than the minimum number necessary for the MixingModule not to get stuck forever: 
-        if DigiPileUpWillRun and MIN_REQ_TS_EVENTS <= NumberOfEvents: 
-            #This piece of code seems unnecessary!
-            #thecandle = getFstOccur(qcdStr, Candle)
-
-            # First run the DIGI with PILEUP (using the MixingModule.py)
-            # Hardcode stuff for this special step
-
-            writeStepHead(simcandles,acandle,"DIGI PILE-UP")
-            #print "Here's Profile list:%s"%Profile
-            for prof in Profile:
-                if 'EdmSize' in prof:
-                    Command = "%s_DIGI_PILEUP.root " % (FileName[acandle])
-                else:
-                    Command = preparePileUpCommand(digiPUrootIN,acandle,NumberOfEvents,cmsDriverOptions)
-                if _noprof:
-                    simcandles.write("%s @@@ None @@@ None \n" % Command)
-                else:
-                    simcandles.write('%s @@@ %s @@@ %s_DIGI_PILEUP_%s\n' % (Command, Profiler[prof], FileName[acandle], prof))
-
-            # Very messy solution for now:
-            # Setting the stepIndex variable to 2, i.e. RECO step
-            
-        #The following 2 lines seem remnants of James' translation from Perl to Python...    
-        #FileIn = {}
-        #FileIn['RECO'] = '--filein file:'
-
-        #We should consider a special function to handle the pileup case instead of making the writeCommands function quite hard to read...
-        
-            writeCommands(simcandles,
-                          Profile,
-                          acandle,
-                          map(lambda x: x + "_PILEUP",AfterPileUpSteps),
-                          NumberOfEvents,
-                          cmsDriverOptions,
-                          bypasshlt,
-                          0, # start at step index 2, RECO Step
-                          True) #this is the flag that says do PILEUP!
-        
-        elif NumberOfEvents < MIN_REQ_TS_EVENTS:
-            print " WARNING: PileUp steps will not be run because the number of events is less than %s" % MIN_REQ_TS_EVENTS
         
 
 def main(argv=sys.argv):

@@ -2,7 +2,7 @@
 import os, time, sys, re, glob, exceptions
 import optparse as opt
 import cmsRelRegress as crr
-from cmsPerfCommons import Candles, MIN_REQ_TS_EVENTS, KeywordToCfi, CandFname, cmsDriverPileUpOption, getVerFromLog
+from cmsPerfCommons import Candles, KeywordToCfi, CandFname, cmsDriverPileUpOption, getVerFromLog
 import cmsRelValCmd,cmsCpuInfo
 import threading #Needed in threading use for Valgrind
 import subprocess #Nicer subprocess management than os.popen
@@ -57,20 +57,20 @@ class PerfSuite:
         parser = opt.OptionParser(usage='''./cmsPerfSuite.py [options]
            
     Examples:
-    ./cmsPerfSuite.py
+    cmsPerfSuite.py
     (this will run with the default options)
     OR
-    ./cmsPerfSuite.py -o "/castor/cern.ch/user/y/yourusername/yourdirectory/"
+    cmsPerfSuite.py -a "/castor/cern.ch/user/y/yourusername/yourdirectory/"
     (this will archive the results in a tarball on /castor/cern.ch/user/y/yourusername/yourdirectory/)
     OR
-    ./cmsPerfSuite.py -t 5 -i 2 -v 1
-    (this will run the suite with 5 events for TimeSize tests, 2 for IgProf tests, 1 for Valgrind tests)
+    cmsPerfSuite.py --step GEN-HLT -t 5 -i 2 -c 1 -m 5 --RunTimeSize MinBias,TTbar --RunIgProf TTbar --RunCallgrind TTbar --RunMemcheck TTbar --RunDigiPileUp TTbar --PUInputFile /store/relval/CMSSW_2_2_1/RelValMinBias/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_V9_v2/0001/101C84AF-56C4-DD11-A90D-001D09F24EC0.root
+    (this will run the suite with 5 events for TimeSize tests on MinBias and TTbar, 2 for IgProf tests on TTbar only, 1 for Callgrind tests on TTbar only, 5 for Memcheck on MinBias and TTbar, it will also run DIGI PILEUP for all TTbar tests defined, i.e. 5 TimeSize, 2 IgProf, 1 Callgrind, 5 Memcheck. The file /store/relval/CMSSW_2_2_1/RelValMinBias/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_V9_v2/0001/101C84AF-56C4-DD11-A90D-001D09F24EC0.root will be copied locally as INPUT_PILEUP_EVENTS.root and it will be used as the input file for the MixingModule pile up events. All these tests will be done for the step GEN-HLT, i.e. GEN,SIM,DIGI,L1,DIGI2RAW,HLT at once)
     OR
-    ./cmsPerfSuite.py -t 200 --candle QCD_80_120 --cmsdriver="--conditions FakeConditions"
-    (this will run the performance tests only on candle QCD_80_120, running 200 TimeSize evts, default IgProf and Valgrind evts. It will also add the option "--conditions FakeConditions" to all cmsDriver.py commands executed by the suite)
+    cmsPerfSuite.py --step GEN-HLT -t 5 -i 2 -c 1 -m 5 --RunTimeSize MinBias,TTbar --RunIgProf TTbar --RunCallgrind TTbar --RunMemcheck TTbar --RunTimeSizePU TTbar --PUInputFile /store/relval/CMSSW_2_2_1/RelValMinBias/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_V9_v2/0001/101C84AF-56C4-DD11-A90D-001D09F24EC0.root
+    (this will run the suite with 5 events for TimeSize tests on MinBias and TTbar, 2 for IgProf tests on TTbar only, 1 for Callgrind tests on TTbar only, 5 for Memcheck on MinBias and TTbar, it will also run DIGI PILEUP on TTbar but only for 5 TimeSize events. All these tests will be done for the step GEN-HLT, i.e. GEN,SIM,DIGI,L1,DIGI2RAW,HLT at once)
     OR
-    ./cmsPerfSuite.py -t 200 --candle QCD_80_120 --cmsdriver="--conditions=FakeConditions --eventcontent=FEVTDEBUGHLT" --step=GEN-SIM,DIGI
-    (this will run the performance tests only on candle QCD_80_120, running 200 TimeSize evts, default IgProf and Valgrind evts. It will also add the option "--conditions=FakeConditions" and the option "--eventcontent=FEVTDEBUGHLT" to all cmsDriver.py commands executed by the suite. In addition it will run only 2 cmsDriver.py "steps": "GEN,SIM" and "DIGI". Note the syntax GEN-SIM for combined cmsDriver.py steps)
+    cmsPerfSuite.py --step GEN-HLT -t 5 -i 2 -c 1 -m 5 --RunTimeSize MinBias,TTbar --RunIgProf TTbar --RunCallgrind TTbar --RunMemcheck TTbar --RunTimeSizePU TTbar --PUInputFile /store/relval/CMSSW_2_2_1/RelValMinBias/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_V9_v2/0001/101C84AF-56C4-DD11-A90D-001D09F24EC0.root --cmsdriver="--eventcontent RAWSIM --conditions FrontierConditions_GlobalTag,IDEAL_V9::All"
+    (this will run the suite with 5 events for TimeSize tests on MinBias and TTbar, 2 for IgProf tests on TTbar only, 1 for Callgrind tests on TTbar only, 5 for Memcheck on MinBias and TTbar, it will also run DIGI PILEUP on TTbar but only for 5 TimeSize events. All these tests will be done for the step GEN-HLT, i.e. GEN,SIM,DIGI,L1,DIGI2RAW,HLT at once. It will also add the options "--eventcontent RAWSIM --conditions FrontierConditions_GlobalTag,IDEAL_V9::All" to all cmsDriver.py commands executed by the suite. In addition it will run only 2 cmsDriver.py "steps": "GEN,SIM" and "DIGI". Note the syntax GEN-SIM for combined cmsDriver.py steps)
     
     Legal entries for individual candles (--candle option):
     %s
@@ -386,6 +386,7 @@ class PerfSuite:
         #############
         # Setup cmsdriver and eventual cmsdriverPUoption
         #
+        cmsdriverPUOptions=""
         if cmsdriverOptions:
             #Set the eventual Pile Up cmsdriver options first:
             if TimeSizePUCandles or IgProfPUCandles or CallgrindPUCandles or MemcheckPUCandles:
@@ -477,40 +478,7 @@ class PerfSuite:
     
     def printDate(self):
         self.logh.write(self.getDate() + "\n")
-    
-    #############
-    # If the minbias root file does not exist for qcd profiling then run a cmsDriver command to create it
-    #
-    def getPrereqRoot(self,rootdir,rootfile,cmsdriverOptions=""):
-        self.logh.write("WARNING: %s file required to run QCD profiling does not exist. Now running cmsDriver.py to get Required Minbias root file\n"   % (rootdir + "/" +rootfile))
-    
-        if not os.path.exists(rootdir):
-            os.system("mkdir -p %s" % rootdir)
-        if not self._debug:
-            cmd = "cd %s ; cmsDriver.py MinBias_cfi -s GEN,SIM -n %s %s >& ../minbias_for_pileup_generate.log" % (rootdir,str(10),cmsdriverOptions)
-            self.logh.write(cmd)
-            os.system(cmd)
-        if not os.path.exists(rootdir + "/" + rootfile):
-            self.logh.write("ERROR: We can not run QCD profiling please create root file %s to run QCD profiling.\n" % (rootdir + "/" + rootfile))
-    
-    #############
-    # Check if QCD will run and if so check the root file is there. If it is not create it.
-    #
-    def checkPileUpConditions(self,candles,TimeSizeEvents,rootdir,rootfile,cmsdriverOptions=""):
-        if TimeSizeEvents < MIN_REQ_TS_EVENTS :
-            self.logh.write("WARNING: TimeSizeEvents is less than %s but pile-up needs at least that to run. PILE-UP will be ignored\n" % MIN_REQ_TS_EVENTS)
-            
-            
-        rootfilepath = rootdir + "/" + rootfile
-        if not os.path.exists(rootfilepath):
-            self.getPrereqRoot(rootdir,rootfile,cmsdriverOptions)
-            if not os.path.exists(rootfilepath) and not self._debug:
-                self.logh.write("ERROR: Could not create or find a rootfile %s with enough TimeSize events for QCD exiting...\n" % rootfilepath)
-                sys.exit()
-        else:
-            self.logh.write("%s Root file for QCD exists. Good!!!\n" % (rootdir + "/" + rootfile))
-        return candles
-    
+       
     #############
     # Make directory for a particular candle and profiler.
     # ! This is really unnecessary code and should be replaced with a os.mkdir() call
@@ -941,15 +909,6 @@ class PerfSuite:
                     IgProfEvents   = 0
                 if not runValgrind:
                     CallgrindEvents = 0
-            #Eliminating this code:
-            #We will expect the user to provide the MinBias input file from CASTOR
-            #qcdWillRun = (not isAllCandles) and "QCD_80_120" in candles 
-            #if qcdWillRun:
-            #    candles = self.checkQcdConditions(candles,
-            #                                 TimeSizeEvents,
-            #                                 os.path.join(perfsuitedir,"%s_%s" % ("MinBias","TimeSize")),
-            #                                 "%s_cfi_GEN_SIM.root" % "MinBias",cmsdriverOptions[13:-1])#Really nasty hack to pass the cmsdriverOptions to the various checkers that could run cmsDriver.py to create needed input files
-
             
             #Handling the Pile up input file here:
             if TimeSizePUCandles or IgProfPUCandles or CallgrindPUCandles or MemcheckPUCandles:
@@ -1091,27 +1050,25 @@ class PerfSuite:
     
             #Create a tarball of the work directory
             #Adding the str(stepOptions to distinguish the tarballs for 1 release (GEN->DIGI, L1->RECO will be run in parallel)
-            TarFile = "%s_%s_%s_%s.tar" % (self.cmssw_version, str(stepOptions), self.host, self.user)
+            TarFile = "%s_%s_%s_%s.tgz" % (self.cmssw_version, str(stepOptions), self.host, self.user)
             AbsTarFile = os.path.join(perfsuitedir,TarFile)
-            tarcmd  = "tar -cf %s %s; gzip %s" % (AbsTarFile,os.path.join(perfsuitedir,"*"),AbsTarFile)
+            tarcmd  = "tar -zcf %s %s" %(AbsTarFile,os.path.join(perfsuitedir,"*"))
             self.printFlush(tarcmd)
             self.printFlush(os.popen3(tarcmd)[2].read()) #Using popen3 to get only stderr we don't want the whole stdout of tar!
     
             #Archive it on CASTOR
-            castorcmd="rfcp %s.gz %s.gz" % (AbsTarFile,os.path.join(self._CASTOR_DIR,TarFile))
+            castorcmd="rfcp %s %s" % (AbsTarFile,os.path.join(castordir,TarFile))
             self.printFlush(castorcmd)
             castorcmdstderr=os.popen3(castorcmd)[2].read()
-            #Checking the stderr of the rfcp command to copy the tarball.gz on CASTOR:
+            #Checking the stderr of the rfcp command to copy the tarball (.tgz) on CASTOR:
             if castorcmdstderr:
-                #If it failed print the stderr message to the log and tell the user the tarball.gz is kept in the working directory
+                #If it failed print the stderr message to the log and tell the user the tarball (.tgz) is kept in the working directory
                 self.printFlush(castorcmdstderr)
                 self.printFlush("Since the CASTOR archiving for the tarball failed the file %s is kept in directory %s"%(TarFile, perfsuitedir))
             else:
-                #If it was successful then remove the tarball.gz from the working directory:
-                TarGzipFile=TarFile+".gz"
-                self.printFlush("Successfully archived the tarball %s in CASTOR!\nDeleting the local copy of the tarball"%(TarGzipFile))
-                AbsTarGzipFile=AbsTarFile+".gz"
-                rmtarballcmd="rm -Rf %s"%(AbsTarGzipFile)
+                #If it was successful then remove the tarball from the working directory:
+                self.printFlush("Successfully archived the tarball %s in CASTOR!\nDeleting the local copy of the tarball"%(TarFile))
+                rmtarballcmd="rm -Rf %s"%(AbsTarFile)
                 self.printFlush(rmtarballcmd)
                 self.printFlush(os.popen4(rmtarballcmd)[1].read())
                 
