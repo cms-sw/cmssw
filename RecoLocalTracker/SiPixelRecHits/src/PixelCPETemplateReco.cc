@@ -76,9 +76,10 @@ PixelCPETemplateReco::PixelCPETemplateReco(edm::ParameterSet const & conf,
   //cout << "--------------------------------------------- templID_ = " << templID_ << endl;
 
   // Initialize template store to the selected ID [Morris, 6/25/08]  
-  templ_.pushfile( *templateDBobject_);
+	if(!templ_.pushfile( *templateDBobject_))
+		throw cms::Exception("PixelCPETemplateReco") << "\nERROR: Templates not filled correctly. Reconstruction will fail.\n\n";
 
-  speed_ = conf.getParameter<int>( "speed");
+	speed_ = conf.getParameter<int>( "speed");
   LogDebug("PixelCPETemplateReco::PixelCPETemplateReco:") <<
     "Template speed = " << speed_ << "\n";
 
