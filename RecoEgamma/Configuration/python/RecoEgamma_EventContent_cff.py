@@ -31,8 +31,10 @@ RecoEgammaFEVT = cms.PSet(
         'keep *_PhotonIDProd_*_*',
         'keep *_electronEcalRecHitIsolationLcone_*_*',                                   
         'keep *_electronEcalRecHitIsolationScone_*_*',
-        'keep *_electronHcalTowerIsolationLcone_*_*',
-        'keep *_electronHcalTowerIsolationScone_*_*',
+        'keep *_electronHcalDepth1TowerIsolationLcone_*_*',
+        'keep *_electronHcalDepth2TowerIsolationLcone_*_*',
+        'keep *_electronHcalDepth1TowerIsolationScone_*_*',
+        'keep *_electronHcalDepth2TowerIsolationScone_*_*',
         'keep *_electronTrackIsolationLcone_*_*',
         'keep *_electronTrackIsolationScone_*_*'
 
@@ -63,8 +65,10 @@ RecoEgammaRECO = cms.PSet(
         'keep *_PhotonIDProd_*_*',
         'keep *_electronEcalRecHitIsolationLcone_*_*',
         'keep *_electronEcalRecHitIsolationScone_*_*',
-        'keep *_electronHcalTowerIsolationLcone_*_*',
-        'keep *_electronHcalTowerIsolationScone_*_*',
+        'keep *_electronHcalDepth1TowerIsolationLcone_*_*',
+        'keep *_electronHcalDepth2TowerIsolationLcone_*_*',
+        'keep *_electronHcalDepth1TowerIsolationScone_*_*',
+        'keep *_electronHcalDepth2TowerIsolationScone_*_*',
         'keep *_electronTrackIsolationLcone_*_*',
         'keep *_electronTrackIsolationScone_*_*'
                                            
@@ -87,8 +91,10 @@ RecoEgammaAOD = cms.PSet(
         'keep *_PhotonIDProd_*_*',
         'keep *_electronEcalRecHitIsolationLcone_*_*',
         'keep *_electronEcalRecHitIsolationScone_*_*',
-        'keep *_electronHcalTowerIsolationLcone_*_*',
-        'keep *_electronHcalTowerIsolationScone_*_*',
+        'keep *_electronHcalDepth1TowerIsolationLcone_*_*',
+        'keep *_electronHcalDepth2TowerIsolationLcone_*_*',
+        'keep *_electronHcalDepth1TowerIsolationScone_*_*',
+        'keep *_electronHcalDepth2TowerIsolationScone_*_*',
         'keep *_electronTrackIsolationLcone_*_*',
         'keep *_electronTrackIsolationScone_*_*'
                                                                                       
