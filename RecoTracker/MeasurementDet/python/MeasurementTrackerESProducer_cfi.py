@@ -22,8 +22,10 @@ MeasurementTracker = cms.ESProducer("MeasurementTrackerESProducer",
     UseStripStripQualityDB      = cms.bool(True),            ## read Strip status from SiStripQuality
     DebugStripStripQualityDB    = cms.untracked.bool(False), ## dump out info om module status
 
-    UsePixelModuleQualityDB   = cms.bool(True),
+    UsePixelModuleQualityDB   = cms.bool(True),            ## Use DB info at the module level (that is, detid level)
     DebugPixelModuleQualityDB = cms.untracked.bool(False), ## dump out info om module status
+    UsePixelROCQualityDB      = cms.bool(True),            ## Use DB info at the ROC level
+    DebugPixelROCQualityDB    = cms.untracked.bool(False), ## dump out info om module status
 
     pixelClusterProducer = cms.string('siPixelClusters'),
     #stripLazyGetterProducer label only matters if Regional=true

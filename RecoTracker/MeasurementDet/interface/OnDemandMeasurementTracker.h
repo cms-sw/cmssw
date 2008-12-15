@@ -20,6 +20,7 @@ public:
                              int   stripQualityFlags,
                              int   stripQualityDebugFlags,
                              const SiPixelQuality *pixelQuality,
+                             const SiPixelFedCabling *pixelCabling,
                              int   pixelQualityFlags,
                              int   pixelQualityDebugFlags,
 			     const SiStripRegionCabling * stripRegionCabling,

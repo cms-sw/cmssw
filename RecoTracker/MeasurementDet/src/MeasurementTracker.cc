@@ -54,6 +54,7 @@ MeasurementTracker::MeasurementTracker(const edm::ParameterSet&              con
                                        int   stripQualityFlags,
                                        int   stripQualityDebugFlags,
                                        const SiPixelQuality *pixelQuality,
+                                       const SiPixelFedCabling *pixelCabling,
                                        int   pixelQualityFlags,
                                        int   pixelQualityDebugFlags,
 				       bool isRegional) :
@@ -65,7 +66,7 @@ MeasurementTracker::MeasurementTracker(const edm::ParameterSet&              con
 {
   this->initialize();
   this->initializeStripStatus(stripQuality, stripQualityFlags, stripQualityDebugFlags);
-  this->initializePixelStatus(pixelQuality, pixelQualityFlags, pixelQualityDebugFlags);
+  this->initializePixelStatus(pixelQuality, pixelCabling, pixelQualityFlags, pixelQualityDebugFlags);
 }
 
 MeasurementTracker::~MeasurementTracker()
@@ -444,10 +445,10 @@ void MeasurementTracker::initializeStripStatus(const SiStripQuality *quality, in
   }
 }
 
-void MeasurementTracker::initializePixelStatus(const SiPixelQuality *quality, int qualityFlags, int qualityDebugFlags) const {
+void MeasurementTracker::initializePixelStatus(const SiPixelQuality *quality, const SiPixelFedCabling *pixelCabling, int qualityFlags, int qualityDebugFlags) const {
   if ((quality != 0) && (qualityFlags != 0))  {
     edm::LogInfo("MeasurementTracker") << "qualityFlags = " << qualityFlags;
-    unsigned int on = 0, tot = 0; 
+    unsigned int on = 0, tot = 0, badrocs = 0; 
     for (std::vector<TkPixelMeasurementDet*>::const_iterator i=thePixelDets.begin();
 	 i!=thePixelDets.end(); i++) {
       uint32_t detid = ((**i).geomDet().geographicalId()).rawId();
@@ -461,10 +462,20 @@ void MeasurementTracker::initializePixelStatus(const SiPixelQuality *quality, in
        } else {
           (*i)->setActive(true);
        }
+       if ((qualityFlags & BadROCs) && (quality->getBadRocs(detid) != 0)) {
+          std::vector<LocalPoint> badROCs = quality->getBadRocPositions(detid, *theTrackerGeom, pixelCabling);
+          badrocs += badROCs.size();
+          (*i)->setBadRocPositions(badROCs);
+       } else {
+          (*i)->clearBadRocPositions();  
+       }
     }
     if (qualityDebugFlags & BadModules) {
         edm::LogInfo("MeasurementTracker PixelModuleStatus") << 
             " Total modules: " << tot << ", active " << on <<", inactive " << (tot - on);
+    }
+    if (qualityDebugFlags & BadROCs) {
+        edm::LogInfo("MeasurementTracker PixelROCStatus") << " Total of bad ROCs: " << badrocs ;
     }
   } else {
     for (std::vector<TkPixelMeasurementDet*>::const_iterator i=thePixelDets.begin();

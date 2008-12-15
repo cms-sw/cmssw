@@ -60,6 +60,10 @@ public:
   /** \brief Is this module active in reconstruction? It must be both 'setActiveThisEvent' and 'setActive'. */
   bool isActive() const { return activeThisEvent_ && activeThisPeriod_; }
 
+  /** \brief Sets the list of bad ROCs, identified by the positions of their centers in the local coordinate frame*/
+  void setBadRocPositions(std::vector< LocalPoint > & positions) { badRocPositions_.swap(positions); }
+  /** \brief Clear the list of bad ROCs */
+  void clearBadRocPositions() { badRocPositions_.clear(); }
 private:
 
   const PixelGeomDetUnit*               thePixelGDU;
@@ -69,6 +73,10 @@ private:
   unsigned int id_;
   bool empty;
   bool activeThisEvent_, activeThisPeriod_;
+  std::vector< LocalPoint > badRocPositions_;
+
+  static const float theRocWidth, theRocHeight;
+  bool hasBadComponents( const TrajectoryStateOnSurface &tsos ) const ; 
 };
 
 #endif

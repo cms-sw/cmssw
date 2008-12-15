@@ -21,7 +21,9 @@
 #include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
 #include "CalibTracker/Records/interface/SiStripQualityRcd.h"
 #include "CondFormats/DataRecord/interface/SiPixelQualityRcd.h"
+#include "CondFormats/DataRecord/interface/SiPixelFedCablingMapRcd.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
 
 #include "CalibFormats/SiStripObjects/interface/SiStripRegionCabling.h"
 #include "RecoTracker/MeasurementDet/interface/OnDemandMeasurementTracker.h"
@@ -51,10 +53,12 @@ MeasurementTrackerESProducer::produce(const CkfComponentsRecord& iRecord)
   bool onDemand = pset_.getParameter<bool>("OnDemand");
 
   // ========= SiPixelQuality related tasks =============
-  const SiPixelQuality *ptr_pixelQuality = 0;
+  const SiPixelQuality    *ptr_pixelQuality = 0;
+  const SiPixelFedCabling *ptr_pixelCabling = 0;
   int   pixelQualityFlags = 0;
   int   pixelQualityDebugFlags = 0;
-  edm::ESHandle<SiPixelQuality>	pixelQuality;
+  edm::ESHandle<SiPixelQuality>	      pixelQuality;
+  edm::ESHandle<SiPixelFedCablingMap> pixelCabling;
 
   if (pset_.getParameter<bool>("UsePixelModuleQualityDB")) {
     pixelQualityFlags += MeasurementTracker::BadModules;
@@ -62,10 +66,19 @@ MeasurementTrackerESProducer::produce(const CkfComponentsRecord& iRecord)
         pixelQualityDebugFlags += MeasurementTracker::BadModules;
     }
   }
+  if (pset_.getParameter<bool>("UsePixelROCQualityDB")) {
+    pixelQualityFlags += MeasurementTracker::BadROCs;
+    if (pset_.getUntrackedParameter<bool>("DebugPixelROCQualityDB")) {
+        pixelQualityDebugFlags += MeasurementTracker::BadROCs;
+    }
+  }
+
 
   if (pixelQualityFlags != 0) {
     iRecord.getRecord<SiPixelQualityRcd>().get(pixelQuality);
     ptr_pixelQuality = pixelQuality.product();
+    iRecord.getRecord<SiPixelFedCablingMapRcd>().get(pixelCabling);
+    ptr_pixelCabling = pixelCabling.product();
   }
   
   // ========= SiStripQuality related tasks =============
@@ -125,6 +138,7 @@ MeasurementTrackerESProducer::produce(const CkfComponentsRecord& iRecord)
                                                                                       stripQualityFlags,
                                                                                       stripQualityDebugFlags,
 										      ptr_pixelQuality,
+										      ptr_pixelCabling,
                                                                                       pixelQualityFlags,
                                                                                       pixelQualityDebugFlags,
 										      regional) ); 
@@ -146,6 +160,7 @@ MeasurementTrackerESProducer::produce(const CkfComponentsRecord& iRecord)
                                                                                                  stripQualityFlags,
                                                                                                  stripQualityDebugFlags,
                                                                                                  ptr_pixelQuality,
+                                                                                                 ptr_pixelCabling,
                                                                                                  pixelQualityFlags,
                                                                                                  pixelQualityDebugFlags,
 												 ptr_stripRegionCabling,

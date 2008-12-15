@@ -35,10 +35,13 @@ class TkGluedMeasurementDet;
 class GeometricSearchTracker;
 class SiStripRecHitMatcher;
 class GluedGeomDet;
+class SiPixelFedCabling;
 
 class MeasurementTracker : public MeasurementDetSystem {
 public:
-   enum QualityFlags { BadModules=1, BadAPVFibers=2, BadStrips=4, MaskBad128StripBlocks=8 };
+   enum QualityFlags { BadModules=1, // for everybody
+                       /* Strips: */ BadAPVFibers=2, BadStrips=4, MaskBad128StripBlocks=8, 
+                       /* Pixels: */ BadROCs=2 }; 
 
   MeasurementTracker(const edm::ParameterSet&              conf,
 		     const PixelClusterParameterEstimator* pixelCPE,
@@ -50,6 +53,7 @@ public:
                      int   stripQualityFlags,
                      int   stripQualityDebugFlags,
                      const SiPixelQuality *pixelQuality,
+                     const SiPixelFedCabling *pixelCabling,
                      int   pixelQualityFlags,
                      int   pixelQualityDebugFlags,
 		     bool  isRegional=false);
@@ -90,8 +94,7 @@ public:
   const SiStripRecHitMatcher*           theHitMatcher;
   const TrackerGeometry*                theTrackerGeom;
   const GeometricSearchTracker*         theGeometricSearchTracker;
-  const SiStripQuality*                 theStripQuality;
-  const SiPixelQuality*                 thePixelQuality;
+  const SiPixelFedCabling*              thePixelCabling;
 
   bool isRegional_;
 
@@ -110,7 +113,7 @@ public:
 
   void initializeStripStatus (const SiStripQuality *stripQuality, int qualityFlags, int qualityDebugFlags) const;
 
-  void initializePixelStatus (const SiPixelQuality *stripQuality, int qualityFlags, int qualityDebugFlags) const;
+  void initializePixelStatus (const SiPixelQuality *stripQuality, const SiPixelFedCabling *pixelCabling, int qualityFlags, int qualityDebugFlags) const;
 };
 
 #endif

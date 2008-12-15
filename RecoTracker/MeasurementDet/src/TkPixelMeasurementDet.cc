@@ -8,6 +8,9 @@
 #include "TrackingTools/PatternTools/interface/MeasurementEstimator.h"
 #include "TrackingTools/PatternTools/interface/TrajMeasLessEstim.h"
 
+const float TkPixelMeasurementDet::theRocWidth  = 8.1;
+const float TkPixelMeasurementDet::theRocHeight = 8.1;
+
 TkPixelMeasurementDet::TkPixelMeasurementDet( const GeomDet* gdet,
 					      const PixelClusterParameterEstimator* cpe) : 
     MeasurementDet (gdet),
@@ -48,8 +51,9 @@ TkPixelMeasurementDet::fastMeasurements( const TrajectoryStateOnSurface& stateOn
   }
   if ( result.empty()) {
     // create a TrajectoryMeasurement with an invalid RecHit and zero estimate
+    TrackingRecHit::Type type = (hasBadComponents(stateOnThisDet) ? TrackingRecHit::inactive : TrackingRecHit::missing);
     result.push_back( TrajectoryMeasurement( stateOnThisDet, 
-					     InvalidTransientRecHit::build(&geomDet()), 0.F)); 
+					     InvalidTransientRecHit::build(&geomDet(), type), 0.F)); 
   }
   else {
     // sort results according to estimator value
@@ -80,4 +84,17 @@ TkPixelMeasurementDet::recHits( const TrajectoryStateOnSurface& ts ) const
     result.push_back( buildRecHit( cluster, ts.localParameters() ) );
   }
   return result;
+}
+
+bool
+TkPixelMeasurementDet::hasBadComponents( const TrajectoryStateOnSurface &tsos ) const {
+    if (badRocPositions_.empty()) return false;
+    LocalPoint lp = tsos.localPosition();
+    LocalError le = tsos.localError().positionError();
+    double dx = std::sqrt(le.xx()) + theRocWidth, dy = std::sqrt(le.yy()) + theRocHeight;
+    for (std::vector<LocalPoint>::const_iterator it = badRocPositions_.begin(), ed = badRocPositions_.end(); it != ed; ++it) {
+        if ( (std::abs(it->x() - lp.x()) < dx) &&
+             (std::abs(it->y() - lp.y()) < dy) ) return true;
+    } 
+    return false;
 }

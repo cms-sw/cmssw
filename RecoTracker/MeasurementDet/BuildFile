@@ -1,6 +1,7 @@
 <export>
  <lib name=RecoTrackerMeasurementDet>
  <use name=CalibFormats/SiStripObjects>
+ <use name=CondFormats/SiPixelObjects>
  <use name=DataFormats/Common>
  <use name=DataFormats/GeometrySurface>
  <use name=DataFormats/SiPixelCluster>
@@ -24,6 +25,7 @@
 
 
 <use name=CalibFormats/SiStripObjects>
+<use name=CondFormats/SiPixelObjects>
 <use name=CalibTracker/Records>
 <use name=DataFormats/Common>
 <use name=DataFormats/GeometrySurface>
