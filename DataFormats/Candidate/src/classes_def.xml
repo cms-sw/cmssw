@@ -9,6 +9,9 @@
     <field name="mothers_" transient="true"/>
   </class>
   <class name="reco::LeafCandidate" />
+    <field name="vertex_" iotype="ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<Double32_t> >" />
+    <field name="p4Polar_" transient="true" />
+    <field name="p4Cartesian_" transient="true" />
   <class name="reco::CompositeCandidate"/>
   <class name="reco::VertexCompositeCandidate"/>
   <class name="reco::CompositeRefCandidate" />
