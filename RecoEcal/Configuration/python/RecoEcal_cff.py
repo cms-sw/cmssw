@@ -13,5 +13,4 @@ from RecoEcal.EgammaClusterProducers.multi5x5PreshowerClusteringSequence_cff imp
 from RecoEcal.EgammaClusterProducers.reducedRecHitsSequence_cff import *
 # create path with all clustering algos
 # NB: preshower MUST be run after multi5x5 clustering in the endcap
-ecalClusters = cms.Sequence(hybridClusteringSequence*multi5x5ClusteringSequence*multi5x5PreshowerClusteringSequence*reducedRecHitsSequence)
-
+ecalClusters = cms.Sequence(hybridClusteringSequence*multi5x5ClusteringSequence*multi5x5PreshowerClusteringSequence)
