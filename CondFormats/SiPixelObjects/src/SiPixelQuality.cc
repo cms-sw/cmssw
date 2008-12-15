@@ -120,13 +120,8 @@ short SiPixelQuality::getBadRocs(const uint32_t& detid) const{
   return 0;
 }
 
-const std::vector<LocalPoint> SiPixelQuality::getBadRocPositions(const uint32_t & detid, const edm::EventSetup& es, const SiPixelFedCabling* map) const{
-//const std::vector< std::pair <uint8_t, uint8_t> > SiPixelQuality::getBadRocPositions(const uint32_t & detid, const edm::EventSetup& es, const SiPixelFedCabling* map) const{
-//   SiPixelFrameReverter reverter(es,map);
-//   int fedid = reverter.findFedId(detid);
-//   SiPixelFrameConverter converter(map, fedid);
+const std::vector<LocalPoint> SiPixelQuality::getBadRocPositions(const uint32_t & detid, const TrackerGeometry& theTracker, const SiPixelFedCabling* map) const{
   std::vector<LocalPoint> badrocpositions (0);
-//  std::vector< std::pair <uint8_t, uint8_t> > badrocpositions (0);
   std::pair<uint8_t, uint8_t> coord(1,1);
    for(short i = 0; i < 16; i++){
      if (IsRocBad(detid, i) == true){
@@ -137,9 +132,9 @@ const std::vector<LocalPoint> SiPixelQuality::getBadRocPositions(const uint32_t 
           if( myroc->idInDetUnit() == i) {
               LocalPixel::RocRowCol  local = { 39, 25};   //corresponding to center of ROC row, col
               GlobalPixel global = myroc->toGlobal( LocalPixel(local) );
-              edm::ESHandle<TrackerGeometry> geom;
-              es.get<TrackerDigiGeometryRecord>().get( geom );
-              const TrackerGeometry& theTracker(*geom);
+	      //       edm::ESHandle<TrackerGeometry> geom;
+	      //     es.get<TrackerDigiGeometryRecord>().get( geom );
+	      //    const TrackerGeometry& theTracker(*geom);
               const PixelGeomDetUnit * theGeomDet = dynamic_cast<const PixelGeomDetUnit*> (theTracker.idToDet(detid) );
               RectangularPixelTopology const * topology = dynamic_cast<const RectangularPixelTopology*>(&(theGeomDet->specificTopology()));
               MeasurementPoint thepoint(global.row, global.col);
@@ -148,19 +143,8 @@ const std::vector<LocalPoint> SiPixelQuality::getBadRocPositions(const uint32_t 
          break;
 	  }
        }
-
-//    const PixelROC * myroc = new PixelROC( detid, i, 3); //PixelROC( (uint32_t) detId, (int)rocnumberindetunit, (int) rocnumberinlink);  
-//       ElectronicIndex Eidx = {0, 0, 0, 0};     //{ int link; int rocnumberinlnk; int dcol; int pxid; }
-//       DetectorIndex Didx = {0, 0, 0};  //  { uint32_t rawId; int row; int col; }; row and col in module frame
-//       converter.toDetector(Eidx, Didx);
-//       std::cout<<Didx.row<<std::endl;
-//       //  coord = (Didx.row, Didx.col);
-
-
-
      }
    }
-  //  badrocpositions.push_back(coord);
   return badrocpositions;
 }
 
