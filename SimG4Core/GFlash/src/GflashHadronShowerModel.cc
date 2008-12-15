@@ -46,7 +46,7 @@ G4bool GflashHadronShowerModel::ModelTrigger(const G4FastTrack& fastTrack)
   G4bool trigger = false;
 
   // mininum energy cutoff to parameterize
-  if (fastTrack.GetPrimaryTrack()->GetKineticEnergy() < 1.0*GeV) return trigger;
+  if (fastTrack.GetPrimaryTrack()->GetKineticEnergy() < Gflash::energyCutOff) return trigger;
 
   // check whether this is called from the normal GPIL or the wrapper process GPIL
   if(fastTrack.GetPrimaryTrack()->GetTrackStatus() == fPostponeToNextEvent ) {

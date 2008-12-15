@@ -23,7 +23,7 @@ GFlash::GFlash(G4LogicalVolumeToDDLogicalPartMap& map, const edm::ParameterSet &
 
   int  ver     = p.getUntrackedParameter<int>("Verbosity",0);
   edm::LogInfo("PhysicsList") << "You are using the simulation engine: "
-			      << "QGSP_BERT + CMS GFLASH\n";
+			      << "QGSP_BERT_EMV + CMS GFLASH\n";
 
   RegisterPhysics(new ParametrisedPhysics("parametrised",thePar)); 
 

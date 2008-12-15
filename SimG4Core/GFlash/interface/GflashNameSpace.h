@@ -26,6 +26,9 @@ namespace Gflash {
 
   const G4double EtaMin[kNumberCalorimeter] = {0.000, 0.000, 1.570,  1.570, 3.000};
   const G4double EtaMax[kNumberCalorimeter] = {1.300, 1.300, 3.000,  3.000, 5.000};
+
+  //constants needed for GflashHadronShowerModel
+  const G4double energyCutOff                 = 1.0*GeV;
     
   //constants needed for GflashHadronShowerProfile
 
@@ -44,28 +47,17 @@ namespace Gflash {
 
   //@@@approximately ScaleSensitive = 0.2 and need fine tune later 
   //@@@set it to 1.0 for the energy shape studies
-  const G4double ScaleSensitive = 0.26;
+  const G4double ScaleSensitive = 0.167;
 
-  // number of sub-detectors (calorimeters)  
-  const G4int NDET = 4; 
-  
-  const G4double FLUHAD[3][NDET] = {{0.16,.161,0.150,0.130},
-				    {0.,0.,0.,0.},
-				    {0.044,0.044,0.053,0.040}};
-  const G4double SAMHAD[3][NDET] = {{0.12,0.35,0.18,0.23},
-				    {0.,0.,0.,0.},
-				    {0.010,0.032,0.038,0.043}};
-  const G4double RLTHAD[NDET] = {32.7,23.7,32.7,23.7};
-  
-  const G4double PBYMIP[NDET] = {1.82,3.20,1.85,2.3};
+  // properties for different sub-detectors (calorimeters)
+  const G4double SAMHAD[3][kNumberCalorimeter] = {{0.0,0.89,0.0,0.89,0.0},
+                                                  {0.0,0.00,0.0,0.00,0.0},
+                                                  {0.0,0.00,0.0,0.00,0.0}};
+  const G4double RLTHAD[kNumberCalorimeter] = {32.7,23.7,32.7,23.7,23.7};
 
-  //utility functions
+  //parameters for logitudinal parameterizations and energy responses
 
-  // correlation matrix RHO[I][J]
-  //  const G4int NRegion   = 3;
   const G4int NPar  = 5;
-  //  const int NDim[NRegion] = {6,6,6};
-  //  const G4int NStart[NRegion] = {0,21,42};
 
   const G4double fdep[2][4] = {
     {  8.5073e-01,  2.9650e-02,  8.1327e-01,  2.7547e+00},
@@ -197,6 +189,27 @@ namespace Gflash {
     {  2.0000e-01,  2.7118e-01,  6.1110e-01,  1.0454e+00 },
     {  5.5325e-01, -7.0746e-02,  3.5839e+00,  4.3084e+00 },
     {  7.3839e-01, -1.1350e-01,  6.3423e-01,  2.1142e+00 }
+  };
+
+  //lateral parameters
+  const int Nrpar = 4;
+  const G4double rpar[4*Nrpar][2] = {
+    {  1.6065e+00, -1.9118e-01}, //Ecal for showerType = 1
+    {  8.3070e+00, -1.2512e+00},
+    {  6.2098e-01, -2.9482e-02},
+    { -1.6002e-01,  1.9410e-02},
+    {  2.1779e+01, -2.6719e+00}, //Hcal for showerType = 1
+    { -1.1468e-01, -1.2217e-01},
+    {  4.4093e-01, -1.5766e-02},
+    { -2.3089e-02,  9.3034e-03},
+    {  1.3713e+01, -1.9910e+00}, //Hcal for showerType = 2
+    { -1.4097e+00,  7.2315e-02},
+    {  4.4531e-01, -2.8746e-03},
+    {  3.1108e-02, -4.1437e-04},
+    {  1.9392e+00,  3.4218e-02}, //Hcal for showerType = 3
+    {  7.8122e+00, -1.5978e+00},
+    {  6.6561e-01, -3.9986e-02},
+    { -2.5633e-01,  5.7796e-02}
   };
 
 }
