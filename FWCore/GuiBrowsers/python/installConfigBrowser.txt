@@ -1,0 +1,44 @@
+For details see:
+https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideConfigBrowser
+
+------------------------------------------------------------------------
+HOW TO RUN CONFIGBROWSER
+
+Enter your CMSSW environment (any >=CMSSW_2_1_0):
+   cmsrel CMSSW_2_1_9
+   cd CMSSW_2_1_9/src
+   cmsenv
+And run:
+   python ConfigBrowser.py
+
+------------------------------------------------------------------------
+INFORMATION FOR EXPERTS ONLY
+
+All external dependencies are included in CMSSW_3_X.
+If however you need to install the dependencies, follow these instructions:
+
+export QTDIR=$HOME/local/qt-3.3.6
+export PATH=${HOME}/local/bin:${QTDIR}/bin:${PATH}
+export LD_LIBRARY_PATH=${HOME}/local/lib:${QTDIR}/lib:${LD_LIBRARY_PATH}
+export LD_RUN_PATH=${HOME}/local:${LD_RUN_PATH}
+export PYTHONPATH=${HOME}/local/lib/python2.4/site-packages:${PYTHONPATH}
+
+download qt-x11-free-3.3.6
+ ./configure --prefix=$HOME/local/qt-3.3.6
+ make
+ make install
+
+download Python-2.4.2
+ ./configure --prefix=$HOME/local
+ make
+ make install
+
+download sip-4.7.6
+ python configure.py
+ make
+ make install
+
+download PyQt-x11-gpl-3.17.4
+ python configure.py
+ make
+ make install
