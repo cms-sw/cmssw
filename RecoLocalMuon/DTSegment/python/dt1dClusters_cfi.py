@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 # module to build the 1d Clusters
 
-process.dt1DClusters = cms.EDFilter("DTClusterer",
+dt1DClusters = cms.EDFilter("DTClusterer",
     debug = cms.untracked.bool(False),
     minLayers = cms.uint32(3),
     minHits = cms.uint32(3),

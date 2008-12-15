@@ -19,10 +19,6 @@ DTCombinatorialPatternReco2DAlgo_LinearDriftFromDB_CosmicData = cms.PSet(
         # Parameters for the cleaner
         nSharedHitsMax = cms.int32(2),
         AlphaMaxTheta = cms.double(100.0),
-<<<<<<< DTCombinatorialPatternReco2DAlgo_LinearDriftFromDB_CosmicData_cfi.py
-        debug = cms.untracked.bool(False),
-        nUnSharedHitsMin = cms.int32(2)
-=======
         debug = cms.untracked.bool(False),
         nUnSharedHitsMin = cms.int32(2),
         # Parameters for  T0 fit segment in the Updator and
@@ -30,7 +26,6 @@ DTCombinatorialPatternReco2DAlgo_LinearDriftFromDB_CosmicData = cms.PSet(
         T0SegCorrectionDebug = cms.untracked.bool(False),
         performT0_vdriftSegCorrection = cms.bool(False),
         hit_afterT0_resolution = cms.double(0.03)
->>>>>>> 1.4
     ),
     Reco2DAlgoName = cms.string('DTCombinatorialPatternReco')
 )
