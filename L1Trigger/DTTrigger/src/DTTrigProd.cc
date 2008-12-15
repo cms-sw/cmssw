@@ -4,8 +4,8 @@
  *     Main EDProducer for the DTTPG
  *
  *
- *   $Date: 2008/06/30 13:45:04 $
- *   $Revision: 1.11 $
+ *   $Date: 2008/09/05 16:06:35 $
+ *   $Revision: 1.12 $
  *
  *   \author C. Battilana
  *
@@ -19,6 +19,7 @@
 // Framework related classes
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Run.h"
 
 #include "L1TriggerConfig/DTTPGConfig/interface/DTConfigManager.h"
 #include "L1TriggerConfig/DTTPGConfig/interface/DTConfigManagerRcd.h"
@@ -74,6 +75,31 @@ DTTrigProd::~DTTrigProd(){
 // }
 
 void DTTrigProd::beginRun(edm::Run& iRun, const edm::EventSetup& iEventSetup) {
+
+   if(my_debug)
+   	cout << "DTTrigProd::beginRun  " << iRun.id().run() << endl;
+
+   using namespace edm;
+
+   ESHandle< DTConfigManager > dtConfig ;
+   iEventSetup.get< DTConfigManagerRcd >().get( dtConfig ) ;
+
+   if(my_debug)
+   {
+   	cout << "DTConfigManagerRcd : Print some Config stuff" << endl;
+   	DTBtiId btiid(1,1,1,1,1);
+   	DTTracoId tracoid(1,1,1,1);
+   	DTChamberId chid(1,1,1);
+   	DTSectCollId scid(1,1);
+   	cout 	<< "BtiMap & TracoMap Size for chamber (1,1,1):" << dtConfig->getDTConfigBtiMap(chid).size() 
+		<< " " << dtConfig->getDTConfigTracoMap(chid).size() << endl;
+
+   	dtConfig->getDTConfigBti(btiid)->print();
+   	dtConfig->getDTConfigTraco(tracoid)->print();
+   	dtConfig->getDTConfigTSTheta(chid)->print();
+   	dtConfig->getDTConfigTSPhi(chid)->print();
+  }
+
 
   if (!my_trig) {
     my_trig = new DTTrig(my_params);
