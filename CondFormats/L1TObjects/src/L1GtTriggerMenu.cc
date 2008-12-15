@@ -29,7 +29,12 @@
 // forward declarations
 
 // constructor
-L1GtTriggerMenu::L1GtTriggerMenu() {
+L1GtTriggerMenu::L1GtTriggerMenu()
+  : m_triggerMenuInterface( "NULL" ),
+    m_triggerMenuName( "NULL" ),
+    m_triggerMenuImplementation( "NULL" ),
+    m_scaleDbKey( "NULL" )
+{
     // empty
 }
 
@@ -50,7 +55,10 @@ L1GtTriggerMenu::L1GtTriggerMenu(
         const std::vector<std::vector<L1GtEnergySumTemplate> >& corEnergySumTemplateVal
 
 ) :
+    m_triggerMenuInterface( "NULL" ),
     m_triggerMenuName(triggerMenuNameVal),
+    m_triggerMenuImplementation( "NULL" ),
+    m_scaleDbKey( "NULL" ),
             m_vecMuonTemplate(vecMuonTemplateVal),
             m_vecCaloTemplate(vecCaloTemplateVal),
             m_vecEnergySumTemplate(vecEnergySumTemplateVal),
@@ -62,7 +70,8 @@ L1GtTriggerMenu::L1GtTriggerMenu(
             m_vecCorrelationTemplate(vecCorrelationTemplateVal),
             m_corMuonTemplate(corMuonTemplateVal),
             m_corCaloTemplate(corCaloTemplateVal),
-            m_corEnergySumTemplate(corEnergySumTemplateVal) {
+            m_corEnergySumTemplate(corEnergySumTemplateVal)
+{
 
     m_conditionMap.resize(numberConditionChips);
     buildGtConditionMap();
@@ -76,6 +85,7 @@ L1GtTriggerMenu::L1GtTriggerMenu(const L1GtTriggerMenu& rhs)
     m_triggerMenuInterface = rhs.m_triggerMenuInterface;
     m_triggerMenuName = rhs.m_triggerMenuName;
     m_triggerMenuImplementation = rhs.m_triggerMenuImplementation;
+    m_scaleDbKey = rhs.m_scaleDbKey ;
 
     // copy physics conditions
     m_vecMuonTemplate = rhs.m_vecMuonTemplate;

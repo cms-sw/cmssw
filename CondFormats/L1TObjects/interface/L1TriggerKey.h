@@ -42,7 +42,13 @@ public:
     static std::string kEmptyKey ;
 
     // Constructors
-    L1TriggerKey () {}
+    L1TriggerKey ()
+      {
+	for( int i = 0 ; i < kNumberSubsystems ; ++i )
+	  {
+	    m_subsystemKeys[ i ] = kNullKey ;
+	  }
+      }
 
     /* Adds new record and type mapping to payload. If such exists, nothing happens */
     void add (const std::string & record, const std::string & type, const std::string & key)
