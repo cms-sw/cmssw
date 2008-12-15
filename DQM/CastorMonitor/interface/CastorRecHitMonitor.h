@@ -1,12 +1,6 @@
 #ifndef DQM_CASTORMONITOR_CASTORRECHITMONITOR_H
 #define DQM_CASTORMONITOR_CASTORRECHITMONITOR_H
 
-//***************************************************//
-//********** class CastorRecHitMonitor   ************//
-//********** Author: Dmytro Volyanskyy   ************//
-//********** Date  : 23.09.2008          ************// 
-//***************************************************//
-
 #include "DQM/CastorMonitor/interface/CastorBaseMonitor.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
@@ -27,13 +21,13 @@ private:
   // float occThresh_;
   int ievt_;
 
-  /// define Monitoring elements
+  ////---- define Monitoring elements
   struct{
-    MonitorElement* meRECHIT_E_all     ; // energy of all hits 
-    MonitorElement* meRECHIT_T_all     ; // time of all hits
-    MonitorElement* meRECHIT_MAP_CHAN_E; // energy vs channel plot
+    MonitorElement* meRECHIT_E_all     ; //-- energy of all hits 
+    MonitorElement* meRECHIT_T_all     ; //-- time of all hits
+    MonitorElement* meRECHIT_MAP_CHAN_E; //-- energy vs channel plot
 
-    std::map<HcalCastorDetId, MonitorElement*> meRECHIT_E, meRECHIT_T;  // complicated per-channel histogram setup
+    std::map<HcalCastorDetId, MonitorElement*> meRECHIT_E, meRECHIT_T;  //-- complicated per-channel histogram setup
   } castorHists ;
 
   MonitorElement* meEVT_;
