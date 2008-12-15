@@ -6,18 +6,19 @@
  * Match a standalone muon track with the most compatible tracker tracks
  * in a TrackCollection.  GlobalMuonTrackMatcher is used during global
  * muon reconstruction to check the compatability of a tracker track
- * with a standalone muon track.  The compatability is determined based
- * on a chi2 comparison of the local parameters of the two corresponding
- * TrajectoryStates on the surface of the innermost muon measurement.
+ * with a standalone muon track.  The compatability is determined 
+ * on a chi2 comparison, of the local parameters of the two corresponding
+ * TrajectoryStates on the surface of the innermost muon measurement for
+ * momentum below a threshold and above this, with the position and direction 
+ * parameters on the mentioned surface. 
  * If the comparison of local parameters fails to yield any
- * matches, then it makes a comparison of the TSOS global positon.  If
- * there is still no match, then it matches the standalone muon with the
- * tracker track that is closest in eta-phi space.
+ * matches, then it makes a comparison of the TSOS local direction.
  *
  *
- *  $Date: 2008/03/21 01:16:23 $
- *  $Revision: 1.6 $
+ *  $Date: 2008/05/09 20:20:38 $
+ *  $Revision: 1.7 $
  *
+ *  \author Edwin Antillon      Purdue University
  *  \author Chang Liu           Purdue University
  *  \author Adam Everett        Purdue University
  *  \author Norbert Neumeister  Purdue University
@@ -63,12 +64,10 @@ class GlobalMuonTrackMatcher {
     /// choose all tracks with a matching-chi2 less than Chi2Cut
     std::vector<TrackCand> match(const TrackCand& sta, 
                                  const std::vector<TrackCand>& tracks) const;
-
+  
     /// choose the one tracker track which best matches a muon track
     std::vector<TrackCand>::const_iterator matchOne(const TrackCand& sta,
                                                     const std::vector<TrackCand>& tracks) const;
-
-  private:
 
     double match_R_IP(const TrackCand&, const TrackCand&) const;
     double match_D(const TrajectoryStateOnSurface&, const TrajectoryStateOnSurface&) const;
@@ -87,9 +86,18 @@ class GlobalMuonTrackMatcher {
     
     double theMinP;
     double theMinPt;
-    double theMaxChi2;
-    double theDeltaD;
-    double theDeltaR;
+    double thePt_threshold;
+    double theEta_threshold;
+    double theChi2_1;
+    double theChi2_2;
+    double theChi2_3;
+    double theLocChi2;
+    double theDeltaD_1;
+    double theDeltaD_2;
+    double theDeltaD_3;
+    double theDeltaR_1;
+    double theDeltaR_2;
+    double theDeltaR_3;
 
     const MuonServiceProxy* theService;
     std::string theOutPropagatorName;
