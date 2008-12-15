@@ -13,7 +13,7 @@
 //
 // Original Author:  Werner Man-Li Sun
 //         Created:  Sun Mar  2 20:09:46 CET 2008
-// $Id: L1CondDBIOVWriter.cc,v 1.7 2008/11/28 04:13:14 wsun Exp $
+// $Id: L1CondDBIOVWriter.cc,v 1.8 2008/12/15 21:07:42 wsun Exp $
 //
 //
 
@@ -170,7 +170,8 @@ L1CondDBIOVWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 	       if( payloadToken.empty() )
 		 {
 		   throw cond::Exception(
-		     "L1CondDBIOVWriter: empty payload token" );
+		     "L1CondDBIOVWriter: empty payload token for " +
+		     recordType + ", key " + objectKey );
 		 }
 
 	       // Find tag for IOV token
