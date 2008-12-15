@@ -34,7 +34,9 @@ process.source = cms.Source (
        'rfio:/castor/cern.ch/user/p/pjanot/CMSSW222/aod_QCDForPF_Full_008.root',
        'rfio:/castor/cern.ch/user/p/pjanot/CMSSW222/aod_QCDForPF_Full_009.root'
        ),
-       secondaryFileNames = cms.untracked.vstring()
+    secondaryFileNames = cms.untracked.vstring(),
+    noEventSort = cms.untracked.bool(True)
+    
     )
 
 process.maxEvents = cms.untracked.PSet(
@@ -93,4 +95,4 @@ process.options = cms.untracked.PSet(
         'NotFound')
 )
 
-process.MessageLogger.cerr.FwkReport.reportEvery = 50
+process.MessageLogger.cerr.FwkReport.reportEvery = 1000
