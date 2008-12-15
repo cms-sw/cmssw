@@ -1,9 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("TEST")
-process.load("SimCalorimetry.EcalTrigPrimProducers.ecalTrigPrimESProducer_cff")
-
-process.load("CondCore.DBCommon.CondDBCommon_cfi")
 
 process.MessageLogger = cms.Service("MessageLogger",
     debugModules = cms.untracked.vstring('*'),
@@ -14,17 +11,24 @@ process.MessageLogger = cms.Service("MessageLogger",
 )
 
 process.source = cms.Source("EmptyIOVSource",
-    lastRun = cms.untracked.uint32(1),
+    lastValue = cms.uint64(1),
     timetype = cms.string('runnumber'),
-    firstRun = cms.untracked.uint32(1),
-    interval = cms.uint32(1)
+    firstValue = cms.uint64(1),
+    interval = cms.uint64(1)
 )
 
+process.load("SimCalorimetry.EcalTrigPrimProducers.ecalTrigPrimESProducer_cff")
 process.tpparams12 = cms.ESSource("EmptyESSource",
     recordName = cms.string('EcalTPGPhysicsConstRcd'),
     iovIsRunNotTime = cms.bool(True),
     firstValid = cms.vuint32(1)
 )
+
+process.EcalTrigPrimESProducer.DatabaseFile = 'TPG_startup.txt.gz'
+
+process.load("CondCore.DBCommon.CondDBCommon_cfi")
+
+process.CondDBCommon.connect = 'sqlite_file:DB_craft.db'
 
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     process.CondDBCommon,
@@ -32,51 +36,51 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     catalog = cms.untracked.string('file:PoolFileCatalog_DB.xml'),
     toPut = cms.VPSet(cms.PSet(
         record = cms.string('EcalTPGPedestalsRcd'),
-        tag = cms.string('EcalTPGPedestals_test')
+        tag = cms.string('EcalTPGPedestals_craft')
     ), 
         cms.PSet(
             record = cms.string('EcalTPGLinearizationConstRcd'),
-            tag = cms.string('EcalTPGLinearizationConst_test')
+            tag = cms.string('EcalTPGLinearizationConst_craft')
         ), 
         cms.PSet(
             record = cms.string('EcalTPGSlidingWindowRcd'),
-            tag = cms.string('EcalTPGSlidingWindow_test')
+            tag = cms.string('EcalTPGSlidingWindow_craft')
         ), 
         cms.PSet(
             record = cms.string('EcalTPGFineGrainEBIdMapRcd'),
-            tag = cms.string('EcalTPGFineGrainEBIdMap_test')
+            tag = cms.string('EcalTPGFineGrainEBIdMap_craft')
         ), 
         cms.PSet(
             record = cms.string('EcalTPGFineGrainStripEERcd'),
-            tag = cms.string('EcalTPGFineGrainStripEE_test')
+            tag = cms.string('EcalTPGFineGrainStripEE_craft')
         ), 
         cms.PSet(
             record = cms.string('EcalTPGFineGrainTowerEERcd'),
-            tag = cms.string('EcalTPGFineGrainTowerEE_test')
+            tag = cms.string('EcalTPGFineGrainTowerEE_craft')
         ), 
         cms.PSet(
             record = cms.string('EcalTPGLutIdMapRcd'),
-            tag = cms.string('EcalTPGLutIdMap_test')
+            tag = cms.string('EcalTPGLutIdMap_craft')
         ), 
         cms.PSet(
             record = cms.string('EcalTPGWeightIdMapRcd'),
-            tag = cms.string('EcalTPGWeightIdMap_test')
+            tag = cms.string('EcalTPGWeightIdMap_craft')
         ), 
         cms.PSet(
             record = cms.string('EcalTPGWeightGroupRcd'),
-            tag = cms.string('EcalTPGWeightGroup_test')
+            tag = cms.string('EcalTPGWeightGroup_craft')
         ), 
         cms.PSet(
             record = cms.string('EcalTPGLutGroupRcd'),
-            tag = cms.string('EcalTPGLutGroup_test')
+            tag = cms.string('EcalTPGLutGroup_craft')
         ), 
         cms.PSet(
             record = cms.string('EcalTPGFineGrainEBGroupRcd'),
-            tag = cms.string('EcalTPGFineGrainEBGroup_test')
+            tag = cms.string('EcalTPGFineGrainEBGroup_craft')
         ), 
         cms.PSet(
             record = cms.string('EcalTPGPhysicsConstRcd'),
-            tag = cms.string('EcalTPGPhysicsConst_test')
+            tag = cms.string('EcalTPGPhysicsConst_craft')
         ))
 )
 
@@ -133,6 +137,6 @@ process.dbCopy = cms.EDFilter("EcalTPGDBCopy",
 )
 
 process.p = cms.Path(process.dbCopy)
-process.CondDBCommon.connect = 'sqlite_file:DB.db'
+
 
 
