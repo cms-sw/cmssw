@@ -16,11 +16,15 @@ process.source = cms.Source("EmptyIOVSource",
 process.load("CondCore.DBCommon.CondDBCommon_cfi")
 process.orcon = cms.ESSource("PoolDBESSource",
                              process.CondDBCommon,
+                             BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
                              toGet =
                              cms.VPSet(cms.PSet(
     record = cms.string('L1TriggerKeyListRcd'),
-    tag = cms.string('L1TriggerKeyList_IDEAL'))
-    )
+    tag = cms.string('L1TriggerKeyList_IDEAL')),
+                             cms.PSet(
+    record = cms.string('L1TriggerKeyRcd'),
+    tag = cms.string('L1TriggerKey_IDEAL'))
+                                       )
 )
 
 process.orcon.connect = cms.string('sqlite_file:l1config.db')

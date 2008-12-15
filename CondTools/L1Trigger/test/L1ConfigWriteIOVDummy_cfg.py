@@ -26,7 +26,7 @@ process.orcon = cms.ESSource("PoolDBESSource",
     process.CondDBCommon,
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('L1TriggerKeyListRcd'),
-        tag = cms.string('L1TriggerKeyList_IDEAL')
+        tag = cms.string('L1TriggerKeyList_CRAFT_offline')
     ))
 )
 
