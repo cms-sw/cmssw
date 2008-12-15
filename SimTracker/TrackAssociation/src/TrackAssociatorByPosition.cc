@@ -24,7 +24,7 @@ TrajectoryStateOnSurface TrackAssociatorByPosition::getState(const TrackingParti
   for (std::vector<PSimHit> ::const_iterator psit=trackerPSimHit.begin();psit!=trackerPSimHit.end();++psit){    
     //get the detid
     DetId dd(psit->detUnitId());
-    LogDebug("TrackAssociatorByPosition")<<psit-simtrack->trackerPSimHit.begin()
+    LogDebug("TrackAssociatorByPosition")<<psit
 					 <<"] PSimHit on: "<<dd.rawId();
     //get the surface from the global geometry
     const GeomDet * gd=theGeometry->idToDet(dd);

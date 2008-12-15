@@ -187,8 +187,7 @@ TrackAssociatorByHits::associateSimToReco(edm::RefToBaseVector<reco::Track>& tC,
       for (TrackingParticleCollection::iterator t = tPC.begin(); t != tPC.end(); ++t, ++tpindex) {
 	idcachev.clear();
         std::vector<PSimHit> trackerPSimHit( t->trackPSimHit(DetId::Tracker) );
-        int nsimhit = trackerPSimHit.size();
-	//int nsimhit = t->trackerPSimHit().size();
+        //int nsimhit = trackerPSimHit.size();
 	float totsimhit = 0; 
 	std::vector<PSimHit> tphits;
 	//LogTrace("TrackAssociator") << "TP number " << tpindex << " pdgId=" << t->pdgId() << " with number of PSimHits: "  << nsimhit;
