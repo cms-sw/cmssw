@@ -10,7 +10,5 @@
   <use name=CondFormats/DataRecord>
   <use name=CondFormats/SiStripObjects>
   <use name=FWCore/Utilities>
-  <use name=DQM/SiStripMonitorHardware>
-  <use name=TkOnlineSw>
   <flags EDM_PLUGIN=1>
 </library>
