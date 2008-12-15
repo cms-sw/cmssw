@@ -110,13 +110,13 @@ inline CSCBadWires *  CSCBadWiresConditions::prefillBadWires()
   std::cout<<"new_nrlines "<<new_nrlines1<<" "<<new_nrlines2<<std::endl;
   cndbbadwires->numberOfBadChannels = new_nrlines2;
 
-  for(int i=0; i<new_nrlines1-1;i++){
+  for(int i=0; i<new_nrlines1;i++){
     itemvector1[i].chamber_index = new_index_id[i];
     itemvector1[i].pointer = new_point[i];
     itemvector1[i].bad_channels = new_badchannels[i];
   }
 
-  for(int j=0;j<new_nrlines2-1;j++) {
+  for(int j=0;j<new_nrlines2;j++) {
     itemvector2[j].layer =  new_layer_id[j];
     itemvector2[j].channel = new_chan_id[j];
     itemvector2[j].flag1 =  new_flag1_id[j];
