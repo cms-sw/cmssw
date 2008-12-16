@@ -232,7 +232,7 @@ void SinglePionEfficiencyNewVSpT::Loop()
    // number of eta bins and intervals
    const Int_t netabins = 12;
    const Int_t netacuts = netabins+1;
-   Float_t eta[netacuts]={0.0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.4, 1.6, 1.8, 2.0, 2.2, 2.4};
+   Float_t eta[netacuts]={0.01, 0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.4, 1.6, 1.8, 2.0, 2.2, 2.4};
    cout <<"  Eta bins " << endl;
    // prepare eta points for graph
    Float_t etagr[netabins], eetagr[netabins];
@@ -281,8 +281,8 @@ void SinglePionEfficiencyNewVSpT::Loop()
 	    ntrkreco[i] = ntrkreco[i]+1;
 	    Double_t theta = 2.*atan(exp(-etaSim1));
 	    Double_t eSim1 = ptSim1/sin(theta);
-	    //	    if(e1ECAL11x11 > -1000. && e1HCAL5x5 > -1000. && fabs(etaSim1) < 1.3) { 
-	    if(e1ECAL11x11 > -1000. && e1HCAL5x5 > -1000. && fabs(etaSim1) < 1000) { 
+	    if(e1ECAL11x11 > -1000. && e1HCAL5x5 > -1000. && fabs(etaSim1) < 1.0) { 
+	    //	    if(e1ECAL11x11 > -1000. && e1HCAL5x5 > -1000. && fabs(etaSim1) < 1000) { 
 	      ntrkrecor[i] = ntrkrecor[i]+1;
 
 	      Double_t e_ecal11 = e1ECAL11x11/eSim1;
@@ -335,8 +335,8 @@ void SinglePionEfficiencyNewVSpT::Loop()
 	    ntrkreco[i] = ntrkreco[i]+1;
 	    Double_t theta = 2.*atan(exp(-etaSim2));
 	    Double_t eSim2 = ptSim2/sin(theta);
-	    //	    if(e2ECAL11x11 > -1000. && e2HCAL5x5 > -1000. && fabs(etaSim2) < 1.3) { 
-	    if(e2ECAL11x11 > -1000. && e2HCAL5x5 > -1000. && fabs(etaSim2) < 1000.) { 
+	    if(e2ECAL11x11 > -1000. && e2HCAL5x5 > -1000. && fabs(etaSim2) < 1.0) { 
+	    //	    if(e2ECAL11x11 > -1000. && e2HCAL5x5 > -1000. && fabs(etaSim2) < 1000.) { 
 	      ntrkrecor[i] = ntrkrecor[i]+1;
 
 	      Double_t e_ecal11 = e2ECAL11x11/eSim2;
@@ -382,6 +382,7 @@ void SinglePionEfficiencyNewVSpT::Loop()
 	  }
 	}
       }
+      // Nick
    // evaluate efficiency as a function on eta
       for(Int_t i = 0; i < netabins; i++) {
 	// ==> pi+
@@ -389,7 +390,7 @@ void SinglePionEfficiencyNewVSpT::Loop()
 	  // number of sim tracks in pt interval
 	  ntrketa[i] = ntrketa[i]+1;
 	  // number of reco tracks
-	  if(drTrk1 < 0.01 && purityTrk1 == 1) {
+	  if(drTrk1 < 0.04 && purityTrk1 >= 0.7) {
 	    Double_t theta = 2.*atan(exp(-etaSim1));
 	    Double_t eSim1 = ptSim1/sin(theta);
 	    ntrketareco[i] = ntrketareco[i]+1;
@@ -404,7 +405,7 @@ void SinglePionEfficiencyNewVSpT::Loop()
 	  // number of sim tracks in pt interval
 	  ntrketa[i] = ntrketa[i]+1;
 	  // number of reco tracks
-	  if(drTrk2 < 0.01 && purityTrk2 == 1) {
+	  if(drTrk2 < 0.04 && purityTrk2 >= 0.7) {
 	    ntrketareco[i] = ntrketareco[i]+1;
 	    Double_t theta = 2.*atan(exp(-etaSim2));
 	    Double_t eSim2 = ptSim2/sin(theta);
@@ -419,29 +420,33 @@ void SinglePionEfficiencyNewVSpT::Loop()
 
    // calculate efficiency and full graph
    for(Int_t i = 0; i < nptbins; i++) {
-     trkeff[i] = 1.*ntrkreco[i]/ntrk[i];
-     etrkeff[i] = sqrt( trkeff[i]*(1.-trkeff[i])/ntrk[i] ); 
-     responceVSptF[i] = responceVSpt[i]/ntrkrecor[i];
-     cout <<" i = " << i 
-	  <<" pt interval = " << pt[i] <<" - " << pt[i+1]
-	  <<" ntrkreco[i] = " << ntrkreco[i] 
-	  <<" ntrkrecor[i] = " << ntrkrecor[i] 
-	  <<" ntrk[i] = " << ntrk[i]
-	  <<" eff = " << trkeff[i] 
-	  <<" responce = " << responceVSptF[i] << endl; 
+     if(ntrk[i] > 0) {
+       trkeff[i] = 1.*ntrkreco[i]/ntrk[i];
+       etrkeff[i] = sqrt( trkeff[i]*(1.-trkeff[i])/ntrk[i] ); 
+       //       responceVSptF[i] = responceVSpt[i]/ntrkrecor[i];
+       cout <<" i = " << i 
+	    <<" pt interval = " << pt[i] <<" - " << pt[i+1]
+	    <<" ntrkreco[i] = " << ntrkreco[i] 
+	    <<" ntrkrecor[i] = " << ntrkrecor[i] 
+	    <<" ntrk[i] = " << ntrk[i]
+	    <<" eff = " << trkeff[i] << endl;
+	 //       	    <<" responce = " << responceVSptF[i] << endl; 
+     }
    }
    // calculate efficiency vs Eta and full graph
    cout <<" Efficiency vs Eta " << endl;
    for(Int_t i = 0; i < netabins; i++) {
-     trketaeff[i] = 1.*ntrketareco[i]/ntrketa[i];
-     etrketaeff[i] = sqrt( trketaeff[i]*(1.-trketaeff[i])/ntrketa[i] );
-     responceVSetaF[i] = responceVSeta[i]/ntrketarecor[i];
-     cout <<" i = " << i 
-	  <<" eta interval = " << eta[i] <<" - " << eta[i+1]
-	  <<" ntrketareco[i] = " << ntrketareco[i] 
-	  <<" ntrketa[i] = " << ntrketa[i]
-	  <<" eff = " << trketaeff[i] 
-	  <<" responce = " << responceVSetaF[i] << endl; 
+     if(ntrketa[i] > 0) {
+       trketaeff[i] = 1.*ntrketareco[i]/ntrketa[i];
+       etrketaeff[i] = sqrt( trketaeff[i]*(1.-trketaeff[i])/ntrketa[i] );
+       responceVSetaF[i] = responceVSeta[i]/ntrketarecor[i];
+       cout <<" i = " << i 
+	    <<" eta interval = " << eta[i] <<" - " << eta[i+1]
+	    <<" ntrketareco[i] = " << ntrketareco[i] 
+	    <<" ntrketa[i] = " << ntrketa[i]
+	    <<" eff = " << trketaeff[i] 
+	    <<" responce = " << responceVSetaF[i] << endl; 
+     }
    }
 
    // create graph
@@ -476,8 +481,8 @@ void SinglePionEfficiencyNewVSpT::Loop()
    greta->GetYaxis()->SetTitle("track finding efficiency");
    xaxis->SetLimits(0.0,2.4);
    greta->SetMarkerStyle(21);
-   greta->SetMaximum(0.90);
-   greta->SetMinimum(0.65);
+   greta->SetMaximum(1.0);
+   greta->SetMinimum(0.50);
    greta->Draw("AP");
    TLatex *t = new TLatex();
    t->SetTextSize(0.042);
@@ -485,8 +490,8 @@ void SinglePionEfficiencyNewVSpT::Loop()
    //   leg->SetFillColor(10);
    //   leg->AddEntry(greta,"#pi ^{+} and #pi ^{-}","P");
    //   leg->Draw();  
-   t->DrawLatex(0.3,0.87,"CMSSW169, single #pi ^{+} and #pi ^{-}");
-   t->DrawLatex(0.8,0.85,"1 < p_{T}^{#pi^{#pm}} < 300 GeV");
+   t->DrawLatex(0.3,0.87,"CMSSW217, single #pi ^{+} and #pi ^{-}");
+   t->DrawLatex(0.8,0.85,"1 < p^{#pi^{#pm}} < 50 GeV");
    c2->SaveAs("trkeff_vs_eta.gif");
    c2->SaveAs("trkeff_vs_eta.eps");
    
@@ -527,8 +532,8 @@ void SinglePionEfficiencyNewVSpT::Loop()
    TCanvas* c6 = new TCanvas("X","Y",1);
    hhcal->Draw("hist");
    */
-   /*
-   TFile efile("sr_endcap.root","recreate");
+
+   TFile efile("sr_barrel.root","recreate");
 
    hprEH11x5->Write();
    hprEH11x3->Write();
@@ -550,5 +555,4 @@ void SinglePionEfficiencyNewVSpT::Loop()
    hE11H5_5_10GeV->Write();
 
    efile.Close();
-   */
 }

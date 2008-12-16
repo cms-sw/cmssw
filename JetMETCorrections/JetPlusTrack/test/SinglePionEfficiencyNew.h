@@ -1,18 +1,18 @@
 //////////////////////////////////////////////////////////
 // This class has been automatically generated on
-// Mon Nov 17 14:34:30 2008 by ROOT version 5.18/00a
+// Mon Nov 17 14:34:20 2008 by ROOT version 5.18/00a
 // from TTree t1/analysis tree
 // found on file: SinglePionEfficiencyNew.root
 //////////////////////////////////////////////////////////
 
-#ifndef SinglePionEfficiencyNewVSpT_h
-#define SinglePionEfficiencyNewVSpT_h
+#ifndef SinglePionEfficiencyNew_h
+#define SinglePionEfficiencyNew_h
 
 #include <TROOT.h>
 #include <TChain.h>
 #include <TFile.h>
 
-class SinglePionEfficiencyNewVSpT {
+class SinglePionEfficiencyNew {
 public :
    TTree          *fChain;   //!pointer to the analyzed TTree or TChain
    Int_t           fCurrent; //!current Tree number in a TChain
@@ -109,8 +109,8 @@ public :
    TBranch        *b_idmax1;   //!
    TBranch        *b_idmax2;   //!
 
-   SinglePionEfficiencyNewVSpT(TTree *tree=0);
-   virtual ~SinglePionEfficiencyNewVSpT();
+   SinglePionEfficiencyNew(TTree *tree=0);
+   virtual ~SinglePionEfficiencyNew();
    virtual Int_t    Cut(Long64_t entry);
    virtual Int_t    GetEntry(Long64_t entry);
    virtual Long64_t LoadTree(Long64_t entry);
@@ -122,8 +122,8 @@ public :
 
 #endif
 
-#ifdef SinglePionEfficiencyNewVSpT_cxx
-SinglePionEfficiencyNewVSpT::SinglePionEfficiencyNewVSpT(TTree *tree)
+#ifdef SinglePionEfficiencyNew_cxx
+SinglePionEfficiencyNew::SinglePionEfficiencyNew(TTree *tree)
 {
 // if parameter tree is not specified (or zero), connect the file
 // used to generate this class and read the Tree.
@@ -138,19 +138,19 @@ SinglePionEfficiencyNewVSpT::SinglePionEfficiencyNewVSpT(TTree *tree)
    Init(tree);
 }
 
-SinglePionEfficiencyNewVSpT::~SinglePionEfficiencyNewVSpT()
+SinglePionEfficiencyNew::~SinglePionEfficiencyNew()
 {
    if (!fChain) return;
    delete fChain->GetCurrentFile();
 }
 
-Int_t SinglePionEfficiencyNewVSpT::GetEntry(Long64_t entry)
+Int_t SinglePionEfficiencyNew::GetEntry(Long64_t entry)
 {
 // Read contents of entry.
    if (!fChain) return 0;
    return fChain->GetEntry(entry);
 }
-Long64_t SinglePionEfficiencyNewVSpT::LoadTree(Long64_t entry)
+Long64_t SinglePionEfficiencyNew::LoadTree(Long64_t entry)
 {
 // Set the environment to read one entry
    if (!fChain) return -5;
@@ -165,7 +165,7 @@ Long64_t SinglePionEfficiencyNewVSpT::LoadTree(Long64_t entry)
    return centry;
 }
 
-void SinglePionEfficiencyNewVSpT::Init(TTree *tree)
+void SinglePionEfficiencyNew::Init(TTree *tree)
 {
    // The Init() function is called when the selector needs to initialize
    // a new tree or chain. Typically here the branch addresses and branch
@@ -228,7 +228,7 @@ void SinglePionEfficiencyNewVSpT::Init(TTree *tree)
    Notify();
 }
 
-Bool_t SinglePionEfficiencyNewVSpT::Notify()
+Bool_t SinglePionEfficiencyNew::Notify()
 {
    // The Notify() function is called when a new file is opened. This
    // can be either for a new TTree in a TChain or when when a new TTree
@@ -239,18 +239,18 @@ Bool_t SinglePionEfficiencyNewVSpT::Notify()
    return kTRUE;
 }
 
-void SinglePionEfficiencyNewVSpT::Show(Long64_t entry)
+void SinglePionEfficiencyNew::Show(Long64_t entry)
 {
 // Print contents of entry.
 // If entry is not specified, print current entry
    if (!fChain) return;
    fChain->Show(entry);
 }
-Int_t SinglePionEfficiencyNewVSpT::Cut(Long64_t entry)
+Int_t SinglePionEfficiencyNew::Cut(Long64_t entry)
 {
 // This function may be called from Loop.
 // returns  1 if entry is accepted.
 // returns -1 otherwise.
    return 1;
 }
-#endif // #ifdef SinglePionEfficiencyNewVSpT_cxx
+#endif // #ifdef SinglePionEfficiencyNew_cxx
