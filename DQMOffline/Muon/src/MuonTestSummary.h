@@ -6,8 +6,8 @@
  * *
  *  DQM Client for global summary
  *
- *  $Date: 2008/11/27 11:37:38 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/12/05 15:43:12 $
+ *  $Revision: 1.5 $
  *  \author  G. Mila - INFN Torino
  *   
  */
@@ -77,6 +77,9 @@ private:
   double resEtaSpread_glbSta;
   double resPhiSpread_tkGlb;
   double resPhiSpread_glbSta;
+  double resOneOvPSpread_tkGlb;
+  double resOneOvPSpread_glbSta;
+  double resChargeComparison;
   double numMatchedExpected;
   double sigmaResSegmTrackExp;
   double expMolteplicityGlb;
