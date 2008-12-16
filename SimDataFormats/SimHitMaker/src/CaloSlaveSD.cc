@@ -39,3 +39,16 @@ bool CaloSlaveSD::processHits(uint32_t unitID, double eDepEM, double eDepHad,
   hits_.push_back(aCal);
   return true;
 } 
+
+void CaloSlaveSD::Clean() {
+
+  LogDebug("HitBuildIndo") << "CaloSlaveSD " << name_ << " cleaning the collection";
+  Collection().swap(hits_);
+
+}
+
+void CaloSlaveSD::ReserveMemory(unsigned int size) {
+  
+  if ( hits_.capacity() < size ) hits_.reserve(size);
+
+}

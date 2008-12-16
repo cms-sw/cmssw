@@ -30,6 +30,8 @@ public:
   std::string type()             { return "calo"; }
   virtual const_iterator begin() { return hits_.begin();}
   virtual const_iterator end()   { return hits_.end();}
+  virtual void Clean();
+  virtual void ReserveMemory(unsigned int size);
 
 protected: 
   Collection         hits_;
