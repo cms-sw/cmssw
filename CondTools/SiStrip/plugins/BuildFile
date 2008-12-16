@@ -17,7 +17,6 @@
 <use name=CondFormats/SiStripObjects>
 
 <use name=CalibFormats/SiStripObjects>
-<use name=CalibTracker/SiStripConnectivity>
 
 <use name=DataFormats/SiStripDetId>
 
