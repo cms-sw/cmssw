@@ -7,8 +7,8 @@ eidCutBased = cms.EDFilter("EleIdCutBasedRef",
     threshold = cms.double(0.5),
 
     src = cms.InputTag("pixelMatchGsfElectrons"),
-    reducedEndcapRecHitCollection = cms.InputTag("reducedEcalRecHitsEE"),
-    reducedBarrelRecHitCollection = cms.InputTag("reducedEcalRecHitsEB"),
+    reducedBarrelRecHitCollection = cms.InputTag("ecalRecHit","EcalRecHitsEB"),
+    reducedEndcapRecHitCollection = cms.InputTag("ecalRecHit","EcalRecHitsEE"),
     algorithm = cms.string('eIDCB'),
 
     electronQuality = cms.string('robust'),

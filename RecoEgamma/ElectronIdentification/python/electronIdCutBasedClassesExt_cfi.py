@@ -4,8 +4,8 @@ from RecoEcal.EgammaClusterProducers.geometryForClustering_cff import *
 eidCutBasedClassesExt = cms.EDProducer("EleIdCutBasedExtProducer",
 
     src = cms.InputTag("pixelMatchGsfElectrons"),
-    reducedBarrelRecHitCollection = cms.InputTag("reducedEcalRecHitsEB"),
-    reducedEndcapRecHitCollection = cms.InputTag("reducedEcalRecHitsEE"),
+    reducedBarrelRecHitCollection = cms.InputTag("ecalRecHit","EcalRecHitsEB"),
+    reducedEndcapRecHitCollection = cms.InputTag("ecalRecHit","EcalRecHitsEE"),
     algorithm = cms.string('eIDCBClasses'),
 
     electronQuality = cms.string('loose'),
