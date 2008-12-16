@@ -16,6 +16,7 @@
 <use name=SimGeneral/HepPDTRecord>
 <use name=SimTracker/Records>
 <use name=SimTracker/TrackAssociation>
+<use name=SimTracker/VertexAssociation>
 <use name=SimTracker/TrackerHitAssociation>
 <use name=TrackingTools/TransientTrack>
 <export>
@@ -38,6 +39,7 @@
    <use name=SimGeneral/HepPDTRecord>
    <use name=SimTracker/Records>    
    <use name=SimTracker/TrackAssociation>
+   <use name=SimTracker/VertexAssociation>
    <use name=SimTracker/TrackerHitAssociation>
    <use name=TrackingTools/TransientTrack>
 </export>
