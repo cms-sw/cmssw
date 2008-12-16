@@ -91,13 +91,14 @@ class SiPixelLorentzAngle : public edm::EDAnalyzer
 	
  private:
 	 
-	void fillPix(const SiPixelCluster & LocPix, const RectangularPixelTopology * topol);
+	void fillPix(const SiPixelCluster & LocPix, const RectangularPixelTopology * topol, Pixinfo& pixinfo);
 	void findMean(int i, int i_ring);
 	
 	TFile* hFile_;
 	TTree* SiPixelLorentzAngleTree_;
+	TTree* SiPixelLorentzAngleTreeForward_;
 	
-	// tree branches
+	// tree branches barrel
 	int run_;
 	int event_;
 	int module_;
@@ -113,6 +114,24 @@ class SiPixelLorentzAngle : public edm::EDAnalyzer
 	Hit simhit_, trackhit_;
 	Clust clust_;
 	Rechit rechit_;
+	
+	// tree branches forward
+	int runF_;
+	int eventF_;  
+	int sideF_;
+	int diskF_;
+	int bladeF_;
+	int panelF_;
+	int moduleF_;
+	float ptF_;
+	float etaF_;
+	float phiF_;
+	double chi2F_;
+	double ndofF_;
+	Pixinfo pixinfoF_;
+	Hit simhitF_, trackhitF_;
+	Clust clustF_;
+	Rechit rechitF_;
 	
 	// parameters from config file
 	edm::ParameterSet conf_;
@@ -152,9 +171,10 @@ class SiPixelLorentzAngle : public edm::EDAnalyzer
 	TH2F *h_cluster_shape_adc_rot_;
 	TH2F *h_cluster_shape_noadc_rot_;
 	TH2F *h_cluster_shape_rot_;
+	TH1F *h_tracks_;
 	
 	
-	int event_counter_, trackEventsCounter_, hitCounter_, usedHitCounter_;
+	int event_counter_, trackEventsCounter_,pixelTracksCounter_, hitCounter_, usedHitCounter_;
 
 	// CMSSW classes needed
 	PropagatorWithMaterial  *thePropagator;

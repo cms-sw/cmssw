@@ -16,11 +16,10 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
-#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
 #include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
+#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"
@@ -85,6 +84,30 @@ void SiPixelLorentzAngle::beginJob(const edm::EventSetup& c)
 	SiPixelLorentzAngleTree_->Branch("clust", &clust_, "x/F:y/F:charge/F:size_x/I:size_y/I:maxPixelCol/I:maxPixelRow:minPixelCol/I:minPixelRow/I", bufsize);
 	SiPixelLorentzAngleTree_->Branch("rechit", &rechit_, "x/F:y/F", bufsize);
 	
+	SiPixelLorentzAngleTreeForward_ = new TTree("SiPixelLorentzAngleTreeForward_","SiPixel LorentzAngle tree forward", bufsize);
+	SiPixelLorentzAngleTreeForward_->Branch("run", &run_, "run/I", bufsize);
+	SiPixelLorentzAngleTreeForward_->Branch("event", &event_, "event/I", bufsize);
+	SiPixelLorentzAngleTreeForward_->Branch("side", &sideF_, "side/I", bufsize);
+	SiPixelLorentzAngleTreeForward_->Branch("disk", &diskF_, "disk/I", bufsize);
+	SiPixelLorentzAngleTreeForward_->Branch("blade", &bladeF_, "blade/I", bufsize);
+	SiPixelLorentzAngleTreeForward_->Branch("panel", &panelF_, "panel/I", bufsize);
+	SiPixelLorentzAngleTreeForward_->Branch("module", &moduleF_, "module/I", bufsize);
+	SiPixelLorentzAngleTreeForward_->Branch("pt", &pt_, "pt/F", bufsize);
+	SiPixelLorentzAngleTreeForward_->Branch("eta", &eta_, "eta/F", bufsize);
+	SiPixelLorentzAngleTreeForward_->Branch("phi", &phi_, "phi/F", bufsize);
+	SiPixelLorentzAngleTreeForward_->Branch("chi2", &chi2_, "chi2/D", bufsize);
+	SiPixelLorentzAngleTreeForward_->Branch("ndof", &ndof_, "ndof/D", bufsize);
+	SiPixelLorentzAngleTreeForward_->Branch("trackhit", &trackhitF_, "x/F:y/F:alpha/D:beta/D:gamma_/D", bufsize);
+	SiPixelLorentzAngleTreeForward_->Branch("simhit", &simhitF_, "x/F:y/F:alpha/D:beta/D:gamma_/D", bufsize);
+	SiPixelLorentzAngleTreeForward_->Branch("npix", &pixinfoF_.npix, "npix/I", bufsize);
+	SiPixelLorentzAngleTreeForward_->Branch("rowpix", pixinfoF_.row, "row[npix]/F", bufsize);
+	SiPixelLorentzAngleTreeForward_->Branch("colpix", pixinfoF_.col, "col[npix]/F", bufsize);
+	SiPixelLorentzAngleTreeForward_->Branch("adc", pixinfoF_.adc, "adc[npix]/F", bufsize);
+	SiPixelLorentzAngleTreeForward_->Branch("xpix", pixinfoF_.x, "x[npix]/F", bufsize);
+	SiPixelLorentzAngleTreeForward_->Branch("ypix", pixinfoF_.y, "y[npix]/F", bufsize);
+	SiPixelLorentzAngleTreeForward_->Branch("clust", &clustF_, "x/F:y/F:charge/F:size_x/I:size_y/I:maxPixelCol/I:maxPixelRow:minPixelCol/I:minPixelRow/I", bufsize);
+	SiPixelLorentzAngleTreeForward_->Branch("rechit", &rechitF_, "x/F:y/F", bufsize);
+	
 	
 	//book histograms
 	char name[128];
@@ -110,13 +133,13 @@ void SiPixelLorentzAngle::beginJob(const edm::EventSetup& c)
 	h_cluster_shape_adc_rot_  = new TH2F("h_cluster_shape_adc_rot","cluster shape with adc weight", hist_x_, min_x_, max_x_, hist_y_, -max_y_, -min_y_);
 	h_cluster_shape_noadc_rot_  = new TH2F("h_cluster_shape_noadc_rot","cluster shape without adc weight", hist_x_, min_x_, max_x_, hist_y_, -max_y_, -min_y_);
 	h_cluster_shape_rot_  = new TH2F("h_cluster_shape_rot","cluster shape", hist_x_, min_x_, max_x_, hist_y_, -max_y_, -min_y_);
-	
+	h_tracks_ = new TH1F("h_tracks","h_tracks",2,0.,2.);
 	event_counter_ = 0;
 	trackEventsCounter_ = 0;
 // 	trackcounter_ = 0;
 	hitCounter_ = 0;
 	usedHitCounter_ = 0;
-	
+	pixelTracksCounter_ = 0;
 	edm::ESHandle<TrackerGeometry> estracker;
 	c.get<TrackerDigiGeometryRecord>().get(estracker);
 	tracker=&(* estracker);
@@ -164,127 +187,222 @@ void SiPixelLorentzAngle::analyze(const edm::Event& e, const edm::EventSetup& es
 			if(pt_ < ptmin_) continue;
 			// iterate over trajectory measurements
 			std::vector<PSimHit> matched;
+			h_tracks_->Fill(0);
+			bool pixeltrack = false;
 			for(std::vector<TrajectoryMeasurement>::const_iterator itTraj = tmColl.begin(); itTraj != tmColl.end(); itTraj++) {
 				if(! itTraj->updatedState().isValid()) continue;
 				TransientTrackingRecHit::ConstRecHitPointer recHit = itTraj->recHit();
 				if(! recHit->isValid() || recHit->geographicalId().det() != DetId::Tracker ) continue;
 				uint subDetID = (recHit->geographicalId().subdetId());
-				if( subDetID != PixelSubdetector::PixelBarrel) continue;
-				hitCounter_++;
-			
-				DetId detIdObj = recHit->geographicalId();
-				const PixelGeomDetUnit * theGeomDet = dynamic_cast<const PixelGeomDetUnit*> ( tracker->idToDet(detIdObj) );
-				if(!theGeomDet) continue;
-				const RectangularPixelTopology * topol = dynamic_cast<const RectangularPixelTopology*>(&(theGeomDet->specificTopology()));
-				if(!topol) continue;
-				PXBDetId pxbdetIdObj(detIdObj);
-				layer_ = pxbdetIdObj.layer();
-				ladder_ = pxbdetIdObj.ladder();
-				module_ = pxbdetIdObj.module();
-				float tmp1 = theGeomDet->surface().toGlobal(Local3DPoint(0.,0.,0.)).perp();
-				float tmp2 = theGeomDet->surface().toGlobal(Local3DPoint(0.,0.,1.)).perp();
-				if ( tmp2<tmp1 ) isflipped_ = 1;
-				else isflipped_ = 0;
-				const SiPixelRecHit * recHitPix = dynamic_cast<const SiPixelRecHit *>((*recHit).hit());
-				if(!recHitPix) continue;
-				rechit_.x  = recHitPix->localPosition().x();
-				rechit_.y  = recHitPix->localPosition().y();
-				SiPixelRecHit::ClusterRef const& cluster = recHitPix->cluster();	
-
-					// fill entries in clust_
-				clust_.x = (cluster)->x();
-				clust_.y = (cluster)->y();
-				clust_.charge = (cluster->charge())/1000.;
-				clust_.size_x = cluster->sizeX();
-				clust_.size_y = cluster->sizeY();
-				clust_.maxPixelCol = cluster->maxPixelCol();
-				clust_.maxPixelRow = cluster->maxPixelRow();
-				clust_.minPixelCol = cluster->minPixelCol();
-				clust_.minPixelRow = cluster->minPixelRow();
-					// fill entries in pixinfo_:
-				fillPix(*cluster ,topol);
-				// fill the trackhit info
-				TrajectoryStateOnSurface tsos=itTraj->updatedState();
-				if(!tsos.isValid()){
-					cout << "tsos not valid" << endl;
-					continue;	
-				}	
-				LocalVector trackdirection=tsos.localDirection();
-				LocalPoint trackposition=tsos.localPosition();
-
-				if(trackdirection.z()==0) continue;				
-				// the local position and direction
-				trackhit_.alpha = atan2(trackdirection.z(),trackdirection.x());
-				trackhit_.beta = atan2(trackdirection.z(),trackdirection.y());
-				trackhit_.gamma = atan2(trackdirection.x(),trackdirection.y());
-				trackhit_.x = trackposition.x();
-				trackhit_.y = trackposition.y();
+				if( subDetID == PixelSubdetector::PixelBarrel || subDetID == PixelSubdetector::PixelEndcap){
+					if(!pixeltrack){
+						h_tracks_->Fill(1);
+						pixelTracksCounter_++;
+					}
+					pixeltrack = true;
+				}
+				if( subDetID == PixelSubdetector::PixelBarrel){
 				
-
-				// fill entries in simhit_:	
-				if(simData_){
-					matched.clear();        
-					matched = associate->associateHit((*recHitPix));	
-					float dr_start=9999.;
-					for (std::vector<PSimHit>::iterator isim = matched.begin(); isim != matched.end(); ++isim){
-						DetId simdetIdObj((*isim).detUnitId());
-						if (simdetIdObj == detIdObj) {
-							float sim_x1 = (*isim).entryPoint().x(); // width (row index, in col direction)
-							float sim_y1 = (*isim).entryPoint().y(); // length (col index, in row direction)
-							float sim_x2 = (*isim).exitPoint().x();
-							float sim_y2 = (*isim).exitPoint().y();
-							float sim_xpos = 0.5*(sim_x1+sim_x2);
-							float sim_ypos = 0.5*(sim_y1+sim_y2);
-							float sim_px = (*isim).momentumAtEntry().x();
-							float sim_py = (*isim).momentumAtEntry().y();
-							float sim_pz = (*isim).momentumAtEntry().z();
+					hitCounter_++;
+				
+					DetId detIdObj = recHit->geographicalId();
+					const PixelGeomDetUnit * theGeomDet = dynamic_cast<const PixelGeomDetUnit*> ( tracker->idToDet(detIdObj) );
+					if(!theGeomDet) continue;
+					const RectangularPixelTopology * topol = dynamic_cast<const RectangularPixelTopology*>(&(theGeomDet->specificTopology()));
+					if(!topol) continue;
+					PXBDetId pxbdetIdObj(detIdObj);
+					layer_ = pxbdetIdObj.layer();
+					ladder_ = pxbdetIdObj.ladder();
+					module_ = pxbdetIdObj.module();
+					float tmp1 = theGeomDet->surface().toGlobal(Local3DPoint(0.,0.,0.)).perp();
+					float tmp2 = theGeomDet->surface().toGlobal(Local3DPoint(0.,0.,1.)).perp();
+					if ( tmp2<tmp1 ) isflipped_ = 1;
+					else isflipped_ = 0;
+					const SiPixelRecHit * recHitPix = dynamic_cast<const SiPixelRecHit *>((*recHit).hit());
+					if(!recHitPix) continue;
+					rechit_.x  = recHitPix->localPosition().x();
+					rechit_.y  = recHitPix->localPosition().y();
+					SiPixelRecHit::ClusterRef const& cluster = recHitPix->cluster();	
+	
+						// fill entries in clust_
+					clust_.x = (cluster)->x();
+					clust_.y = (cluster)->y();
+					clust_.charge = (cluster->charge())/1000.;
+					clust_.size_x = cluster->sizeX();
+					clust_.size_y = cluster->sizeY();
+					clust_.maxPixelCol = cluster->maxPixelCol();
+					clust_.maxPixelRow = cluster->maxPixelRow();
+					clust_.minPixelCol = cluster->minPixelCol();
+					clust_.minPixelRow = cluster->minPixelRow();
+						// fill entries in pixinfo_:
+					fillPix(*cluster ,topol, pixinfo_);
+					// fill the trackhit info
+					TrajectoryStateOnSurface tsos=itTraj->updatedState();
+					if(!tsos.isValid()){
+						cout << "tsos not valid" << endl;
+						continue;	
+					}	
+					LocalVector trackdirection=tsos.localDirection();
+					LocalPoint trackposition=tsos.localPosition();
+	
+					if(trackdirection.z()==0) continue;				
+					// the local position and direction
+					trackhit_.alpha = atan2(trackdirection.z(),trackdirection.x());
+					trackhit_.beta = atan2(trackdirection.z(),trackdirection.y());
+					trackhit_.gamma = atan2(trackdirection.x(),trackdirection.y());
+					trackhit_.x = trackposition.x();
+					trackhit_.y = trackposition.y();
 					
-							float dr = (sim_xpos-(recHitPix->localPosition().x()))*(sim_xpos-recHitPix->localPosition().x()) +
-									(sim_ypos-recHitPix->localPosition().y())*(sim_ypos-recHitPix->localPosition().y());
-							if(dr<dr_start) {
-								simhit_.x     = sim_xpos;
-								simhit_.y     = sim_ypos;
-								simhit_.alpha = atan2(sim_pz, sim_px);
-								simhit_.beta  = atan2(sim_pz, sim_py);
-								simhit_.gamma = atan2(sim_px, sim_py);
-								dr_start = dr;
+	
+					// fill entries in simhit_:	
+					if(simData_){
+						matched.clear();        
+						matched = associate->associateHit((*recHitPix));	
+						float dr_start=9999.;
+						for (std::vector<PSimHit>::iterator isim = matched.begin(); isim != matched.end(); ++isim){
+							DetId simdetIdObj((*isim).detUnitId());
+							if (simdetIdObj == detIdObj) {
+								float sim_x1 = (*isim).entryPoint().x(); // width (row index, in col direction)
+								float sim_y1 = (*isim).entryPoint().y(); // length (col index, in row direction)
+								float sim_x2 = (*isim).exitPoint().x();
+								float sim_y2 = (*isim).exitPoint().y();
+								float sim_xpos = 0.5*(sim_x1+sim_x2);
+								float sim_ypos = 0.5*(sim_y1+sim_y2);
+								float sim_px = (*isim).momentumAtEntry().x();
+								float sim_py = (*isim).momentumAtEntry().y();
+								float sim_pz = (*isim).momentumAtEntry().z();
+						
+								float dr = (sim_xpos-(recHitPix->localPosition().x()))*(sim_xpos-recHitPix->localPosition().x()) +
+										(sim_ypos-recHitPix->localPosition().y())*(sim_ypos-recHitPix->localPosition().y());
+								if(dr<dr_start) {
+									simhit_.x     = sim_xpos;
+									simhit_.y     = sim_ypos;
+									simhit_.alpha = atan2(sim_pz, sim_px);
+									simhit_.beta  = atan2(sim_pz, sim_py);
+									simhit_.gamma = atan2(sim_px, sim_py);
+									dr_start = dr;
+								}
+							}
+						} // end of filling simhit_
+					}
+					// is one pixel in cluster a large pixel ? (hit will be excluded)
+					bool large_pix = false;
+					for (int j = 0; j <  pixinfo_.npix; j++){
+						int colpos = static_cast<int>(pixinfo_.col[j]-0.5);
+						if (pixinfo_.row[j] == 0 || pixinfo_.row[j] == 79 || pixinfo_.row[j] == 80 || pixinfo_.row[j] == 159 || colpos % 52 == 0 || colpos % 52 == 51 ){
+							large_pix = true;	
+						}
+					}
+					
+					double residual = TMath::Sqrt( (trackhit_.x - rechit_.x) * (trackhit_.x - rechit_.x) + (trackhit_.y - rechit_.y) * (trackhit_.y - rechit_.y) );
+	
+					SiPixelLorentzAngleTree_->Fill();
+					if( !large_pix && (chi2_/ndof_) < normChi2Max_ && cluster->sizeY() >= clustSizeYMin_ && residual < residualMax_ && (cluster->charge() < clustChargeMax_)){
+						usedHitCounter_++;
+						// iterate over pixels in hit
+						for (int j = 0; j <  pixinfo_.npix; j++){
+								// use trackhits
+							float dx = (pixinfo_.x[j]  - (trackhit_.x - width_/2. / TMath::Tan(trackhit_.alpha))) * 10000.;
+							float dy = (pixinfo_.y[j]  - (trackhit_.y - width_/2. / TMath::Tan(trackhit_.beta))) * 10000.;
+							float depth = dy * tan(trackhit_.beta);
+							float drift = dx - dy * tan(trackhit_.gamma);
+							_h_drift_depth_adc_[module_ + (layer_ -1) * 8]->Fill(drift, depth, pixinfo_.adc[j]);
+							_h_drift_depth_adc2_[module_ + (layer_ -1) * 8]->Fill(drift, depth, pixinfo_.adc[j]*pixinfo_.adc[j]);
+							_h_drift_depth_noadc_[module_ + (layer_ -1) * 8]->Fill(drift, depth);		
+							if( layer_ == 3 && module_==1 && isflipped_){
+								float dx_rot = dx * TMath::Cos(trackhit_.gamma) + dy * TMath::Sin(trackhit_.gamma);
+								float dy_rot = dy * TMath::Cos(trackhit_.gamma) - dx * TMath::Sin(trackhit_.gamma) ;
+								h_cluster_shape_adc_->Fill(dx, dy, pixinfo_.adc[j]);
+								h_cluster_shape_noadc_->Fill(dx, dy);
+								h_cluster_shape_adc_rot_->Fill(dx_rot, dy_rot, pixinfo_.adc[j]);
+								h_cluster_shape_noadc_rot_->Fill(dx_rot, dy_rot);
 							}
 						}
-					} // end of filling simhit_
-				}
-				// is one pixel in cluster a large pixel ? (hit will be excluded)
-				bool large_pix = false;
-				for (int j = 0; j <  pixinfo_.npix; j++){
-					int colpos = static_cast<int>(pixinfo_.col[j]-0.5);
-					if (pixinfo_.row[j] == 0 || pixinfo_.row[j] == 79 || pixinfo_.row[j] == 80 || pixinfo_.row[j] == 159 || colpos % 52 == 0 || colpos % 52 == 51 ){
-						large_pix = true;	
 					}
-				}
-				
-				double residual = TMath::Sqrt( (trackhit_.x - rechit_.x) * (trackhit_.x - rechit_.x) + (trackhit_.y - rechit_.y) * (trackhit_.y - rechit_.y) );
-
-				SiPixelLorentzAngleTree_->Fill();
-				if( !large_pix && (chi2_/ndof_) < normChi2Max_ && cluster->sizeY() >= clustSizeYMin_ && residual < residualMax_ && (cluster->charge() < clustChargeMax_)){
-					usedHitCounter_++;
-					// iterate over pixels in hit
-					for (int j = 0; j <  pixinfo_.npix; j++){
-							// use trackhits
-						float dx = (pixinfo_.x[j]  - (trackhit_.x - width_/2. / TMath::Tan(trackhit_.alpha))) * 10000.;
-						float dy = (pixinfo_.y[j]  - (trackhit_.y - width_/2. / TMath::Tan(trackhit_.beta))) * 10000.;
-						float depth = dy * tan(trackhit_.beta);
-						float drift = dx - dy * tan(trackhit_.gamma);
-						_h_drift_depth_adc_[module_ + (layer_ -1) * 8]->Fill(drift, depth, pixinfo_.adc[j]);
-						_h_drift_depth_adc2_[module_ + (layer_ -1) * 8]->Fill(drift, depth, pixinfo_.adc[j]*pixinfo_.adc[j]);
-						_h_drift_depth_noadc_[module_ + (layer_ -1) * 8]->Fill(drift, depth);		
-						if( layer_ == 3 && module_==1 && isflipped_){
-							float dx_rot = dx * TMath::Cos(trackhit_.gamma) + dy * TMath::Sin(trackhit_.gamma);
-							float dy_rot = dy * TMath::Cos(trackhit_.gamma) - dx * TMath::Sin(trackhit_.gamma) ;
-							h_cluster_shape_adc_->Fill(dx, dy, pixinfo_.adc[j]);
-							h_cluster_shape_noadc_->Fill(dx, dy);
-							h_cluster_shape_adc_rot_->Fill(dx_rot, dy_rot, pixinfo_.adc[j]);
-							h_cluster_shape_noadc_rot_->Fill(dx_rot, dy_rot);
-						}
+				} else if (subDetID == PixelSubdetector::PixelEndcap) {
+					DetId detIdObj = recHit->geographicalId();
+					const PixelGeomDetUnit * theGeomDet = dynamic_cast<const PixelGeomDetUnit*> ( tracker->idToDet(detIdObj) );
+					if(!theGeomDet) continue;
+					const RectangularPixelTopology * topol = dynamic_cast<const RectangularPixelTopology*>(&(theGeomDet->specificTopology()));
+					if(!topol) continue;
+					PXFDetId pxfdetIdObj(detIdObj);
+					sideF_ = pxfdetIdObj.side();
+					diskF_ = pxfdetIdObj.disk();
+					bladeF_ = pxfdetIdObj.blade();
+					panelF_ = pxfdetIdObj.panel();
+					moduleF_ = pxfdetIdObj.module();
+// 					float tmp1 = theGeomDet->surface().toGlobal(Local3DPoint(0.,0.,0.)).perp();
+// 					float tmp2 = theGeomDet->surface().toGlobal(Local3DPoint(0.,0.,1.)).perp();
+// 					if ( tmp2<tmp1 ) isflipped_ = 1;
+// 					else isflipped_ = 0;
+					const SiPixelRecHit * recHitPix = dynamic_cast<const SiPixelRecHit *>((*recHit).hit());
+					if(!recHitPix) continue;
+					rechitF_.x  = recHitPix->localPosition().x();
+					rechitF_.y  = recHitPix->localPosition().y();
+					SiPixelRecHit::ClusterRef const& cluster = recHitPix->cluster();	
+	
+						// fill entries in clust_
+					clustF_.x = (cluster)->x();
+					clustF_.y = (cluster)->y();
+					clustF_.charge = (cluster->charge())/1000.;
+					clustF_.size_x = cluster->sizeX();
+					clustF_.size_y = cluster->sizeY();
+					clustF_.maxPixelCol = cluster->maxPixelCol();
+					clustF_.maxPixelRow = cluster->maxPixelRow();
+					clustF_.minPixelCol = cluster->minPixelCol();
+					clustF_.minPixelRow = cluster->minPixelRow();
+						// fill entries in pixinfo_:
+					fillPix(*cluster ,topol, pixinfoF_);
+					// fill the trackhit info
+					TrajectoryStateOnSurface tsos=itTraj->updatedState();
+					if(!tsos.isValid()){
+						cout << "tsos not valid" << endl;
+						continue;	
+					}	
+					LocalVector trackdirection=tsos.localDirection();
+					LocalPoint trackposition=tsos.localPosition();
+	
+					if(trackdirection.z()==0) continue;				
+					// the local position and direction
+					trackhitF_.alpha = atan2(trackdirection.z(),trackdirection.x());
+					trackhitF_.beta = atan2(trackdirection.z(),trackdirection.y());
+					trackhitF_.gamma = atan2(trackdirection.x(),trackdirection.y());
+					trackhitF_.x = trackposition.x();
+					trackhitF_.y = trackposition.y();
+					
+	
+					// fill entries in simhit_:	
+					if(simData_){
+						matched.clear();        
+						matched = associate->associateHit((*recHitPix));	
+						float dr_start=9999.;
+						for (std::vector<PSimHit>::iterator isim = matched.begin(); isim != matched.end(); ++isim){
+							DetId simdetIdObj((*isim).detUnitId());
+							if (simdetIdObj == detIdObj) {
+								float sim_x1 = (*isim).entryPoint().x(); // width (row index, in col direction)
+								float sim_y1 = (*isim).entryPoint().y(); // length (col index, in row direction)
+								float sim_x2 = (*isim).exitPoint().x();
+								float sim_y2 = (*isim).exitPoint().y();
+								float sim_xpos = 0.5*(sim_x1+sim_x2);
+								float sim_ypos = 0.5*(sim_y1+sim_y2);
+								float sim_px = (*isim).momentumAtEntry().x();
+								float sim_py = (*isim).momentumAtEntry().y();
+								float sim_pz = (*isim).momentumAtEntry().z();
+						
+								float dr = (sim_xpos-(recHitPix->localPosition().x()))*(sim_xpos-recHitPix->localPosition().x()) +
+										(sim_ypos-recHitPix->localPosition().y())*(sim_ypos-recHitPix->localPosition().y());
+								if(dr<dr_start) {
+									simhitF_.x     = sim_xpos;
+									simhitF_.y     = sim_ypos;
+									simhitF_.alpha = atan2(sim_pz, sim_px);
+									simhitF_.beta  = atan2(sim_pz, sim_py);
+									simhitF_.gamma = atan2(sim_px, sim_py);
+									dr_start = dr;
+								}
+							}
+						} // end of filling simhit_
 					}
+					SiPixelLorentzAngleTreeForward_->Fill();
 				}
 			}	//end iteration over trajectory measurements
 		} //end iteration over trajectories
@@ -345,27 +463,30 @@ void SiPixelLorentzAngle::endJob()
 	h_cluster_shape_noadc_->Write();
 	h_cluster_shape_adc_rot_->Write();
 	h_cluster_shape_noadc_rot_->Write();
+	h_tracks_->Write();
 	
 	hFile_->Write();
 	hFile_->Close();
 	cout << "events: " << event_counter_ << endl;
 	cout << "events with tracks: " << trackEventsCounter_ << endl;	
+	cout << "events with pixeltracks: " << pixelTracksCounter_ << endl;	
 	cout << "hits in the pixel: " << hitCounter_ << endl;
 	cout << "number of used Hits: " << usedHitCounter_ << endl;
 }
 
-void SiPixelLorentzAngle::fillPix(const SiPixelCluster & LocPix, const RectangularPixelTopology * topol)
+inline void SiPixelLorentzAngle::fillPix(const SiPixelCluster & LocPix, const RectangularPixelTopology * topol, Pixinfo& pixinfo)
 {
 	const std::vector<SiPixelCluster::Pixel>& pixvector = LocPix.pixels();
-	
-	for(pixinfo_.npix = 0; pixinfo_.npix < static_cast<int>(pixvector.size()); ++pixinfo_.npix) {
-		SiPixelCluster::Pixel holdpix = pixvector[pixinfo_.npix];
-		pixinfo_.row[pixinfo_.npix] = holdpix.x;
-		pixinfo_.col[pixinfo_.npix] = holdpix.y;
-		pixinfo_.adc[pixinfo_.npix] = holdpix.adc;
-		LocalPoint lp = topol->localPosition(MeasurementPoint(holdpix.x + 0.5, holdpix.y+0.5));
-		pixinfo_.x[pixinfo_.npix] = lp.x();
-		pixinfo_.y[pixinfo_.npix]= lp.y();
+	pixinfo.npix = 0;
+	for(std::vector<SiPixelCluster::Pixel>::const_iterator itPix = pixvector.begin(); itPix != pixvector.end(); itPix++){
+// 	for(pixinfo.npix = 0; pixinfo.npix < static_cast<int>(pixvector.size()); ++pixinfo.npix) {
+		pixinfo.row[pixinfo.npix] = itPix->x;
+		pixinfo.col[pixinfo.npix] = itPix->y;
+		pixinfo.adc[pixinfo.npix] = itPix->adc;
+		LocalPoint lp = topol->localPosition(MeasurementPoint(itPix->x + 0.5, itPix->y+0.5));
+		pixinfo.x[pixinfo.npix] = lp.x();
+		pixinfo.y[pixinfo.npix]= lp.y();
+		pixinfo.npix++;
 	}
 }
 
