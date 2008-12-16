@@ -18,18 +18,14 @@
 //    Status 3 parent with precisely 2 "grandparents" that
 //    is outside of the "initial" section (0-5) that has the
 //    same ID as the status 2 parton in question. 
-//    NOTE: This is not the actual ultimate progenitor,
-//    but this is the signature of matrix element decays.
-//    The ultimate progenitor is the parent of the status 3
-//    parton.
 //
 // Flavor excitation:
-//    Almost the same as the matrix element classification,
-//    but has only one outgoing parton product instead of two.
+//    If we find only one outgoing parton.
 //
 // Gluon splitting:
 //    Parent is a quark of a different flavor than the parton
-//    in question, or a gluon. Can come from either ISR or FSR.
+//    in question, or a gluon. 
+//    Can come from either ISR or FSR.
 //
 // True decay:
 //    Decays from a resonance like top, Higgs, etc.
@@ -43,6 +39,8 @@
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/Candidate/interface/ShallowClonePtrCandidate.h"
+
+#include <fstream>
 
 namespace reco {
 
@@ -103,13 +101,13 @@ public:
                              sisterJet() const { return sisterJet_; }
 
   // Operators for sorting and keys
-  bool operator< ( FlavorHistory const & right ) {
+  bool operator< ( FlavorHistory const & right ) const {
     return parton_.key() < right.parton_.key();
   }
-  bool operator> ( FlavorHistory const & right ) {
+  bool operator> ( FlavorHistory const & right ) const {
     return parton_.key() > right.parton_.key();
   }
-  bool operator== ( FlavorHistory const & right ) {
+  bool operator== ( FlavorHistory const & right ) const {
     return parton_.key() == right.parton_.key();
   }
   
@@ -125,5 +123,7 @@ protected:
 };
 
 }
+
+std::ostream & operator<<( std::ostream & out, reco::FlavorHistory const & cand);
 
 #endif

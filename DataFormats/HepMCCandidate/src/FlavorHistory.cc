@@ -59,3 +59,40 @@ FlavorHistory::FlavorHistory( FLAVOR_T flavorSource,
   
 }
 
+
+
+ostream & operator<<( ostream & out, Candidate const & cand) 
+{
+  char buff[1000];
+  sprintf(buff, "%5d, status = %5d, nmo = %5d, nda = %5d, pt = %6.2f, eta = %6.2f, phi = %6.2f, m = %6.2f", 
+	  cand.pdgId(), cand.status(), 
+	  cand.numberOfMothers(),
+	  cand.numberOfDaughters(),
+	  cand.pt(), cand.eta(), cand.phi(), cand.mass() );
+  out << buff;
+  return out;
+}
+
+ostream & operator<<( ostream & out, FlavorHistory const & cand) 
+{
+  out << "Source     = " << cand.flavorSource() << endl;
+  if ( cand.hasParton() ) 
+    out << "Parton     = " << cand.parton().key() << " : " << *(cand.parton()) << endl;
+  if ( cand.hasProgenitor() ) 
+    out << "Progenitor = " << cand.progenitor().key() << " : " << *(cand.progenitor()) << endl;
+  if ( cand.hasSister() ) 
+    out << "Sister     = " << cand.sister().key() << " : " << *(cand.sister()) << endl;
+  if ( cand.hasMatchedJet() ) 
+    out << "jet        = " << cand.matchedJet() << endl;
+  if ( cand.hasSisterJet() ) 
+    out << "sister jet = " << cand.sisterJet() << endl;
+  if ( cand.hasParton() ) {
+    out << "Ancestry: " << endl;
+    Candidate const * ipar = cand.parton()->mother();
+    while ( ipar->numberOfMothers() > 0 ) {
+      out << *ipar << endl;
+      ipar = ipar->mother();
+    }
+  }
+  return out;
+}
