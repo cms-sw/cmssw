@@ -18,10 +18,6 @@
 //    Status 3 parent with precisely 2 "grandparents" that
 //    is outside of the "initial" section (0-5) that has the
 //    same ID as the status 2 parton in question. 
-//    NOTE: This is not the actual ultimate progenitor,
-//    but this is the signature of matrix element decays.
-//    The ultimate progenitor is the parent of the status 3
-//    parton.
 //
 // Flavor excitation:
 //    Almost the same as the matrix element classification,
@@ -57,10 +53,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <fstream>
 
-
-std::ostream & operator<<( std::ostream & out, reco::Candidate const & cand) ;
-
-std::ostream & operator<<( std::ostream & out, reco::FlavorHistory const & cand);
 
 class FlavorHistoryProducer : public edm::EDProducer {
  public:

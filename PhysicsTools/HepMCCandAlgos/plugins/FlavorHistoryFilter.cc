@@ -31,6 +31,7 @@ FlavorHistoryFilter::FlavorHistoryFilter(const edm::ParameterSet& iConfig) :
   schemeName_    ( iConfig.getParameter<string> ("scheme") ),
   flavor_        ( iConfig.getParameter<int>    ("flavor") ),
   noutput_       ( iConfig.getParameter<int>    ("noutput") ),
+  flavorSource_  ( static_cast<reco::FlavorHistory::FLAVOR_T> (iConfig.getParameter<int>    ("flavorSource") ) ),
   minPt_         ( iConfig.getParameter<double> ("minPt") ),
   minDR_         ( iConfig.getParameter<double> ("minDR") ),
   maxDR_         ( iConfig.getParameter<double> ("maxDR") ),
@@ -74,6 +75,8 @@ bool
 FlavorHistoryFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
 
+  if ( verbose_ ) cout << "---------- Hello from FlavorHistoryFilter! -----" << endl;
+
   // Get the flavor history
   Handle<FlavorHistoryEvent > pFlavorHistoryEvent;
   iEvent.getByLabel(src_,pFlavorHistoryEvent);
@@ -84,16 +87,25 @@ FlavorHistoryFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   unsigned int nc = pFlavorHistoryEvent->nc();
   // Get the highest flavor in the event
   unsigned int highestFlavor = pFlavorHistoryEvent->highestFlavor();
+  // Get the flavor source
+  FlavorHistory::FLAVOR_T flavorSource = pFlavorHistoryEvent->flavorSource();
   // Get the maximum delta R between two jets of the highest flavor
   // in the event
   double dr = pFlavorHistoryEvent->deltaR();
 
+
+  // Now get types present
+  FlavorHistoryEvent::const_iterator iBegin = pFlavorHistoryEvent->begin(),
+    iEnd = pFlavorHistoryEvent->end(), i = iBegin;
+
   if ( verbose_ ) {
     cout << "Looking at flavor history event: " << endl;
-    cout << "   nb = " << nb << endl;
-    cout << "   nc = " << nc << endl;
-    cout << "   highestFlavor = " << highestFlavor << endl;
-    cout << "   dr = " << dr << endl;
+    cout << "source   = " << flavorSource << endl;
+    cout << "npartons = " << pFlavorHistoryEvent->size() << endl;
+    cout << "nbjet    = " << nb << endl;
+    cout << "ncjet    = " << nc << endl;
+    cout << "flavor   = " << highestFlavor << endl;
+    cout << "dr       = " << dr << endl;
   }
 
   // First check that the highest flavor in the event is what this
@@ -102,6 +114,9 @@ FlavorHistoryFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   if ( highestFlavor > static_cast<unsigned int>(flavor_) ) {
     return false;
   }
+
+  // Next check that the flavor source is desired one
+  if ( flavorSource_ != flavorSource ) return false;
   
   // If we are examining b quarks
   if ( flavor_ == reco::FlavorHistory::bQuarkId ) {

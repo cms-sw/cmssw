@@ -17,7 +17,7 @@
 //
 // Original Author:  "Salvatore Rappoccio"
 //         Created:  Sat Jun 28 00:41:21 CDT 2008
-// $Id: FlavorHistoryFilter.h,v 1.4 2008/11/05 18:58:25 srappocc Exp $
+// $Id: FlavorHistoryFilter.h,v 1.5 2008/11/06 19:19:27 srappocc Exp $
 //
 //
 
@@ -45,6 +45,8 @@
 
 class FlavorHistoryFilter : public edm::EDFilter {
    public:
+     typedef reco::FlavorHistory::FLAVOR_T flavor_type;
+
       explicit FlavorHistoryFilter(const edm::ParameterSet&);
       ~FlavorHistoryFilter();
 
@@ -58,6 +60,7 @@ class FlavorHistoryFilter : public edm::EDFilter {
       std::string     schemeName_;     // Which scheme to use
       int             flavor_;         // Flavor to examine
       int             noutput_;        // Required number of output HF jets
+      flavor_type     flavorSource_;   // which type to filter on
       double          minPt_;          // For pt scheme
       double          minDR_;          // For deltaR scheme
       double          maxDR_;          // For deltaR scheme
