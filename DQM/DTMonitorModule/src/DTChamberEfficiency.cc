@@ -156,62 +156,67 @@ void DTChamberEfficiency::analyze(const Event & event,
   //Read tracks from event
   Handle<reco::TrackCollection> tracks;
   event.getByLabel(theTracksLabel, tracks);
+  
+  if(tracks.isValid()) { // check the validity of the collection
 
-  //loop over the muons
-  for(reco::TrackCollection::const_iterator track = tracks->begin(); track!=tracks->end(); ++track){
+    //loop over the muons
+    for(reco::TrackCollection::const_iterator track = tracks->begin(); track!=tracks->end(); ++track) {
 
-    reco::TransientTrack trans_track(*track,magfield.product(),theTrackingGeometry);
-    const int recHitsize = (int)trans_track.recHitsSize();
-    if(recHitsize < theMinNrec) continue;
+      reco::TransientTrack trans_track(*track,magfield.product(),theTrackingGeometry);
+      const int recHitsize = (int)trans_track.recHitsSize();
+      if(recHitsize < theMinNrec) continue;
 
-    // Get the layer on which the seed relies
-    DetId id = trans_track.recHit(recHitsize-1)->geographicalId();
-    const DetLayer *initialLayer = theService->detLayerGeometry()->idToLayer(id);
+      // Get the layer on which the seed relies
+      DetId id = trans_track.recHit(recHitsize-1)->geographicalId();
+      const DetLayer *initialLayer = theService->detLayerGeometry()->idToLayer(id);
 
-    TrajectoryStateOnSurface init_fs = trans_track.innermostMeasurementState();
-    FreeTrajectoryState *init_fs_free = trans_track.innermostMeasurementState().freeState();
+      TrajectoryStateOnSurface init_fs = trans_track.innermostMeasurementState();
+      FreeTrajectoryState *init_fs_free = trans_track.innermostMeasurementState().freeState();
 
-    //get the list of compatible layers
-    vector<const DetLayer*> layer_list = compatibleLayers(initialLayer,*init_fs_free,alongMomentum);
+      //get the list of compatible layers
+      vector<const DetLayer*> layer_list = compatibleLayers(initialLayer,*init_fs_free,alongMomentum);
 
-    //loop over the list of compatible layers
-    for(int i=0;i< (int)layer_list.size();i++){
+      //loop over the list of compatible layers
+      for(int i=0;i< (int)layer_list.size();i++){
 
-      //propagate the track to the i-th layer
-      TrajectoryStateOnSurface tsos = propagator()->propagate(init_fs,layer_list.at(i)->surface()); 
-      if(!tsos.isValid()) continue;
+	//propagate the track to the i-th layer
+	TrajectoryStateOnSurface tsos = propagator()->propagate(init_fs,layer_list.at(i)->surface()); 
+	if(!tsos.isValid()) continue;
 
-      //determine the chambers kinematically compatible with the track on the i-th layer
-      vector<DetWithState> dss = layer_list.at(i)->compatibleDets(tsos, *propagator(), *theEstimator);
+	//determine the chambers kinematically compatible with the track on the i-th layer
+	vector<DetWithState> dss = layer_list.at(i)->compatibleDets(tsos, *propagator(), *theEstimator);
 
-      for(vector<DetWithState>::const_iterator detWithStateItr = dss.begin();
-	  detWithStateItr != dss.end(); ++detWithStateItr){
+	for(vector<DetWithState>::const_iterator detWithStateItr = dss.begin();
+	    detWithStateItr != dss.end(); ++detWithStateItr){
 
-	const DetId idDetLay = detWithStateItr->first->geographicalId(); 
+	  const DetId idDetLay = detWithStateItr->first->geographicalId(); 
 
-        if(!chamberSelection(idDetLay,trans_track)) continue;
+	  if(!chamberSelection(idDetLay,trans_track)) continue;
 
-	DTChamberId DTid = (DTChamberId) idDetLay;
+	  DTChamberId DTid = (DTChamberId) idDetLay;
 
-	MeasurementContainer detMeasurements_initial = theMeasurementExtractor->measurements(layer_list.at(i),
-											     detWithStateItr->first,
-											     detWithStateItr->second,
-											     *theEstimator, event);
+	  MeasurementContainer detMeasurements_initial = theMeasurementExtractor->measurements(layer_list.at(i),
+											       detWithStateItr->first,
+											       detWithStateItr->second,
+											       *theEstimator, event);
 
-	//we want to be more picky about the quality of the segments:
-	//exclude the segments with less than 12 hits
-	MeasurementContainer detMeasurements = segQualityCut(detMeasurements_initial);
+	  //we want to be more picky about the quality of the segments:
+	  //exclude the segments with less than 12 hits
+	  MeasurementContainer detMeasurements = segQualityCut(detMeasurements_initial);
 
-        vector<MonitorElement *> histos =  histosPerW[DTid.wheel()+2];  
+	  vector<MonitorElement *> histos =  histosPerW[DTid.wheel()+2];  
 
-	if (detMeasurements_initial.size() != 0) histos[0]->Fill(DTid.sector(),DTid.station(),1.);
- 	if (detMeasurements.size() != 0) histos[1]->Fill(DTid.sector(),DTid.station(),1.);
-	histos[2]->Fill(DTid.sector(),DTid.station(),1.);
+	  if (detMeasurements_initial.size() != 0) histos[0]->Fill(DTid.sector(),DTid.station(),1.);
+	  if (detMeasurements.size() != 0) histos[1]->Fill(DTid.sector(),DTid.station(),1.);
+	  histos[2]->Fill(DTid.sector(),DTid.station(),1.);
+	}
+
       }
-
     }
+  } else {
+    LogInfo("DTDQM|DTMonitorModule|DTChamberEfficiency") << "[DTChamberEfficiency] Collection: " << theTracksLabel
+							 << " is not valid!" << endl;
   }
-
   return;
 }
 
