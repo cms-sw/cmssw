@@ -22,6 +22,10 @@ pixelMatchGsfElectrons = cms.EDProducer("GsfElectronProducer",
     maxEOverPEndcaps = cms.double(10000.0),
     maxDeltaEta = cms.double(0.02),
     maxDeltaPhi = cms.double(0.1),
+    # for H/E
+    hcalTowers = cms.InputTag("towerMaker"),
+    hOverEConeSize = cms.double(0.15),
+    hOverEPtMin = cms.double(0.),
     # electron algo
     ElectronType = cms.string(''),
     # nested parameter set for TransientInitialStateEstimator
