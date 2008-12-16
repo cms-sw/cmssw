@@ -260,6 +260,7 @@ void CaloSD::PrintAll() {
 
 void CaloSD::fillHits(edm::PCaloHitContainer& c, std::string n){
   if (slave->name() == n) c=slave->hits();
+  slave->Clean();
 }
 
 bool CaloSD::getStepInfo(G4Step* aStep) {
@@ -567,6 +568,8 @@ void CaloSD::update(const ::EndOfEvent * ) {
   int count = 0, wrong = 0;
   bool ok;
   
+  slave->ReserveMemory(theHC->entries());
+
   for (int i=0; i<theHC->entries(); i++) {
     ok = saveHit((*theHC)[i]);
     count++;
