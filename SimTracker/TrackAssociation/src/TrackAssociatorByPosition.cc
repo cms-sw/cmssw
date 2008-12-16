@@ -24,14 +24,15 @@ TrajectoryStateOnSurface TrackAssociatorByPosition::getState(const TrackingParti
   std::vector<PSimHit> ::const_iterator end=pSimHit.end();
   LogDebug("TrackAssociatorByPosition")<<pSimHit.size()<<" PSimHits.";
 
+  uint count=0;
   for (std::vector<PSimHit> ::const_iterator psit=start;psit!=end;++psit){    
     //get the detid
     DetId dd(psit->detUnitId());
-    //    LogDebug("TrackAssociatorByPosition")<<psit<<"] PSimHit on: "<<dd.rawId();
+    LogDebug("TrackAssociatorByPosition")<<count++<<"] PSimHit on: "<<dd.rawId();
     //get the surface from the global geometry
     const GeomDet * gd=theGeometry->idToDet(dd);
-    if (!gd){edm::LogError("TrackAssociatorByPosition")<<"no geomdet for: "<<dd.rawId()<<". will fail.";
-      return TrajectoryStateOnSurface();}
+    if (!gd){edm::LogError("TrackAssociatorByPosition")<<"no geomdet for: "<<dd.rawId()<<". will skip.";
+      continue;}
     double d=gd->surface().toGlobal(psit->localPosition()).mag();
     if (d>dLim ){
       dLim=d;
