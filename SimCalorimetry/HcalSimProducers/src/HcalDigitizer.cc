@@ -44,15 +44,21 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps)
   theHOResponse(new CaloHitResponse(theParameterMap, theHcalIntegratedShape)),   
   theHFResponse(new CaloHitResponse(theParameterMap, theHFIntegratedShape)),
   theZDCResponse(new CaloHitResponse(theParameterMap, theZDCIntegratedShape)),
-  theAmplifier(0),
+  theHBHEAmplifier(0),
+  theHFAmplifier(0),
+  theHOAmplifier(0),
+  theZDCAmplifier(0),
   theCoderFactory(0),
-  theElectronicsSim(0),
+  theHBHEElectronicsSim(0),
+  theHFElectronicsSim(0),
+  theHOElectronicsSim(0),
+  theZDCElectronicsSim(0),
   theHBHEHitFilter(),
   theHFHitFilter(ps.getParameter<bool>("doHFWindow")),
   theHOHitFilter(),
   theZDCHitFilter(),
   theHitCorrection(0),
-  theHPDNoiseGenerator(0),
+  theNoiseGenerator(0),
   theHBHEDigitizer(0),
   theHODigitizer(0),
   theHFDigitizer(0),
@@ -74,20 +80,27 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps)
   }
 
   bool doNoise = ps.getParameter<bool>("doNoise");
-  theAmplifier = new HcalAmplifier(theParameterMap, doNoise);
+  // need to make copies, because they might get different noise generators
+  theHBHEAmplifier = new HcalAmplifier(theParameterMap, doNoise);
+  theHFAmplifier = new HcalAmplifier(theParameterMap, doNoise);
+  theHOAmplifier = new HcalAmplifier(theParameterMap, doNoise);
+  theZDCAmplifier = new HcalAmplifier(theParameterMap, doNoise);
   theCoderFactory = new HcalCoderFactory(HcalCoderFactory::DB);
-  theElectronicsSim = new HcalElectronicsSim(theAmplifier, theCoderFactory);
+  theHBHEElectronicsSim = new HcalElectronicsSim(theHBHEAmplifier, theCoderFactory);
+  theHFElectronicsSim = new HcalElectronicsSim(theHFAmplifier, theCoderFactory);
+  theHOElectronicsSim = new HcalElectronicsSim(theHOAmplifier, theCoderFactory);
+  theZDCElectronicsSim = new HcalElectronicsSim(theZDCAmplifier, theCoderFactory);
 
-  theHBHEDigitizer = new HBHEDigitizer(theHBHEResponse, theElectronicsSim, doNoise);
-  theHODigitizer = new HODigitizer(theHOResponse, theElectronicsSim, doNoise);
-  theHFDigitizer = new HFDigitizer(theHFResponse, theElectronicsSim, doNoise);
-  theZDCDigitizer = new ZDCDigitizer(theZDCResponse, theElectronicsSim, doNoise);
+  theHBHEDigitizer = new HBHEDigitizer(theHBHEResponse, theHBHEElectronicsSim, doNoise);
+  theHODigitizer = new HODigitizer(theHOResponse, theHOElectronicsSim, doNoise);
+  theHFDigitizer = new HFDigitizer(theHFResponse, theHFElectronicsSim, doNoise);
+  theZDCDigitizer = new ZDCDigitizer(theZDCResponse, theZDCElectronicsSim, doNoise);
 
   bool doHPDNoise = ps.getParameter<bool>("doHPDNoise");
   if(doHPDNoise) {
     //edm::ParameterSet hpdNoisePset = ps.getParameter<edm::ParameterSet>("HPDNoiseLibrary");
-    theHPDNoiseGenerator = new HPDNoiseGenerator(ps, theParameterMap); 
-    theHBHEDigitizer->setNoiseSignalGenerator(theHPDNoiseGenerator);
+    theNoiseGenerator = new HPDNoiseGenerator(ps, theParameterMap); 
+    theHBHEDigitizer->setNoiseSignalGenerator(theNoiseGenerator);
   }
 
   edm::Service<edm::RandomNumberGenerator> rng;
@@ -99,8 +112,16 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps)
   }
 
   CLHEP::HepRandomEngine& engine = rng->getEngine();
-  theAmplifier->setRandomEngine(engine);
-  theElectronicsSim->setRandomEngine(engine);
+  theHBHEAmplifier->setRandomEngine(engine);
+  theHFAmplifier->setRandomEngine(engine);
+  theHOAmplifier->setRandomEngine(engine);
+  theZDCAmplifier->setRandomEngine(engine);
+
+  theHBHEElectronicsSim->setRandomEngine(engine);
+  theHFElectronicsSim->setRandomEngine(engine);
+  theHOElectronicsSim->setRandomEngine(engine);
+  theZDCElectronicsSim->setRandomEngine(engine);
+
 
   hitsProducer_ = ps.getParameter<std::string>("hitsProducer");
 
@@ -123,11 +144,38 @@ HcalDigitizer::~HcalDigitizer() {
   delete theHOResponse;
   delete theHFResponse;
   delete theZDCResponse;
-  delete theElectronicsSim;
-  delete theAmplifier;
+  delete theHBHEElectronicsSim;
+  delete theHFElectronicsSim;
+  delete theHOElectronicsSim;
+  delete theZDCElectronicsSim;
+  delete theHBHEAmplifier;
+  delete theHFAmplifier;
+  delete theHOAmplifier;
+  delete theZDCAmplifier;
   delete theCoderFactory;
   delete theHitCorrection;
-  delete theHPDNoiseGenerator;
+  delete theNoiseGenerator;
+}
+
+
+void HcalDigitizer::setHBHENoiseSignalGenerator(CaloVNoiseSignalGenerator * noiseGenerator)
+{
+  theHBHEAmplifier->setNoiseSignalGenerator(noiseGenerator);
+}
+
+void HcalDigitizer::setHFNoiseSignalGenerator(CaloVNoiseSignalGenerator * noiseGenerator)
+{
+  theHFAmplifier->setNoiseSignalGenerator(noiseGenerator);
+}
+
+void HcalDigitizer::setHONoiseSignalGenerator(CaloVNoiseSignalGenerator * noiseGenerator)
+{
+  theHOAmplifier->setNoiseSignalGenerator(noiseGenerator);
+}
+
+void HcalDigitizer::setZDCNoiseSignalGenerator(CaloVNoiseSignalGenerator * noiseGenerator)
+{
+  theZDCAmplifier->setNoiseSignalGenerator(noiseGenerator);
 }
 
 
@@ -135,7 +183,11 @@ void HcalDigitizer::produce(edm::Event& e, const edm::EventSetup& eventSetup) {
   // get the appropriate gains, noises, & widths for this event
   edm::ESHandle<HcalDbService> conditions;
   eventSetup.get<HcalDbRecord>().get(conditions);
-  theAmplifier->setDbService(conditions.product());
+  theHBHEAmplifier->setDbService(conditions.product());
+  theHFAmplifier->setDbService(conditions.product());
+  theHOAmplifier->setDbService(conditions.product());
+  theZDCAmplifier->setDbService(conditions.product());
+
   theCoderFactory->setDbService(conditions.product());
   theParameterMap->setDbService(conditions.product());
 

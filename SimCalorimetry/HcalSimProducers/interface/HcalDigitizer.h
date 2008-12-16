@@ -28,6 +28,11 @@ public:
   /**Produces the EDM products,*/
   virtual void produce(edm::Event& e, const edm::EventSetup& c);
 
+  void setHBHENoiseSignalGenerator(CaloVNoiseSignalGenerator * noiseGenerator);
+  void setHFNoiseSignalGenerator(CaloVNoiseSignalGenerator * noiseGenerator);
+  void setHONoiseSignalGenerator(CaloVNoiseSignalGenerator * noiseGenerator);
+  void setZDCNoiseSignalGenerator(CaloVNoiseSignalGenerator * noiseGenerator);
+
 private:
   /// some hits in each subdetector, just for testing purposes
   void fillFakeHits();
@@ -54,9 +59,21 @@ private:
   CaloHitResponse * theHFResponse;
   CaloHitResponse * theZDCResponse;
 
-  HcalAmplifier * theAmplifier;
+  // we need separate amplifiers (and electronicssims)
+  // because they might have separate noise generators
+  HcalAmplifier * theHBHEAmplifier;
+  HcalAmplifier * theHFAmplifier;
+  HcalAmplifier * theHOAmplifier;
+  HcalAmplifier * theZDCAmplifier;
+
+
   HcalCoderFactory * theCoderFactory;
-  HcalElectronicsSim * theElectronicsSim;
+
+  HcalElectronicsSim * theHBHEElectronicsSim;
+  HcalElectronicsSim * theHFElectronicsSim;
+  HcalElectronicsSim * theHOElectronicsSim;
+  HcalElectronicsSim * theZDCElectronicsSim;
+
 
   HBHEHitFilter theHBHEHitFilter;
   HFHitFilter   theHFHitFilter;
@@ -64,7 +81,7 @@ private:
   ZDCHitFilter  theZDCHitFilter;
 
   HcalHitCorrection * theHitCorrection;
-  CaloVNoiseSignalGenerator * theHPDNoiseGenerator;
+  CaloVNoiseSignalGenerator * theNoiseGenerator;
 
   HBHEDigitizer * theHBHEDigitizer;
   HODigitizer* theHODigitizer;
