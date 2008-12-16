@@ -401,6 +401,8 @@ void SinglePionEfficiency::Loop()
    // ratio of responses of lost and found tracks
    Double_t leak[netabins][nptbins];
 
+   Double_t drTrkcut = 0.01;
+   Double_t purityTrkcut = 0.75;
    // 
    for (Long64_t jentry=0; jentry<nentries;jentry++) {
       Long64_t ientry = LoadTree(jentry);
@@ -415,7 +417,7 @@ void SinglePionEfficiency::Loop()
 	    // checking leakage
 	    if(ptSim1 > 10. && ptSim1 < 10000.)
 	      {
-		if(drTrk1 < 0.01 && purityTrk1 == 1) 
+		if(drTrk2 < 0.01 && purityTrk2 == 1) 
 		  {
 		    hEnTrkNotInter[ieta]->Fill(etCalo1/ptSim1);
 		  } else {
@@ -426,7 +428,7 @@ void SinglePionEfficiency::Loop()
 	    if(ptSim1 >= pt[ipt] && ptSim1 < pt[ipt+1]) {
 	      ntrk[ieta][ipt] = ntrk[ieta][ipt]+1;
 	      // number of reco tracks
-	      if(drTrk1 < 0.01 && purityTrk1 == 1) {
+	      if(drTrk1 < drTrkcut && purityTrk1 >= purityTrkcut) { 
 		ntrkreco[ieta][ipt] = ntrkreco[ieta][ipt]+1;
 		// response for found tracks
 		responseFoundTrk[ieta][ipt] = responseFoundTrk[ieta][ipt] + etCalo1/ptSim1;  
@@ -464,7 +466,7 @@ void SinglePionEfficiency::Loop()
 	    if(ptSim2 >= pt[ipt] && ptSim2 < pt[ipt+1]) {
 	      ntrk[ieta][ipt] = ntrk[ieta][ipt]+1;
 	      // number of reco tracks
-	      if(drTrk2 < 0.01 && purityTrk2 == 1) {
+	      if(drTrk2 < drTrkcut && purityTrk2 >= purityTrkcut) { 
 		ntrkreco[ieta][ipt] = ntrkreco[ieta][ipt]+1;
 		// response for found tracks
 		responseFoundTrk[ieta][ipt] = responseFoundTrk[ieta][ipt] + etCalo2/ptSim2;  
