@@ -201,12 +201,24 @@ globalMuons.GLBTrajBuilderParameters.TrackerRecHitBuilder = 'WithoutRefit'
 globalMuons.GLBTrajBuilderParameters.TransformerOutPropagator = cms.string('SmartPropagatorAny')
 globalMuons.GLBTrajBuilderParameters.MatcherOutPropagator = cms.string('SmartPropagator')
 
+from RecoMuon.GlobalMuonProducer.tevMuons_cfi import *
+GlobalMuonRefitter.TrackerRecHitBuilder = 'WithoutRefit'
+GlobalMuonRefitter.Propagator = 'SmartPropagatorAny'
+GlobalTrajectoryBuilderCommon.TrackerRecHitBuilder = 'WithoutRefit'
+tevMuons.RefitterParameters.TrackerRecHitBuilder = 'WithoutRefit'
+tevMuons.RefitterParameters.Propagator =  'SmartPropagatorAny'
+KFSmootherForRefitInsideOut.Propagator = 'SmartPropagatorAny'
+KFSmootherForRefitOutsideIn.Propagator = 'SmartPropagator'
+KFFitterForRefitInsideOut.Propagator = 'SmartPropagatorAny'
+KFFitterForRefitOutsideIn.Propagator = 'SmartPropagatorAny'
+
 famosMuonSequence = cms.Sequence(
     muonDigi+
     muonlocalreco+
     ancientMuonSeed+
     standAloneMuons+
-    globalMuons
+    globalMuons+
+    tevMuons
 )
 
 #Muon identification sequence
@@ -257,8 +269,6 @@ pixelMatchGsfElectrons.endcapSuperClusters = cms.InputTag("correctedEndcapSuperC
 pixelMatchGsfElectrons.reducedEndcapRecHitCollection = cms.InputTag("caloRecHits","EcalRecHitsEE")
 pixelMatchGsfElectrons.reducedBarrelRecHitCollection = cms.InputTag("caloRecHits","EcalRecHitsEB")
 
-
-
 from RecoEgamma.ElectronIdentification.electronIdSequence_cff import *
 eidRobustTight.reducedBarrelRecHitCollection = cms.InputTag("caloRecHits","EcalRecHitsEB")
 eidRobustTight.reducedEndcapRecHitCollection = cms.InputTag("caloRecHits","EcalRecHitsEE")
@@ -270,7 +280,6 @@ eidTight.reducedBarrelRecHitCollection = cms.InputTag("caloRecHits","EcalRecHits
 eidTight.reducedEndcapRecHitCollection = cms.InputTag("caloRecHits","EcalRecHitsEE")
 eidLoose.reducedBarrelRecHitCollection = cms.InputTag("caloRecHits","EcalRecHitsEB")
 eidLoose.reducedEndcapRecHitCollection = cms.InputTag("caloRecHits","EcalRecHitsEE")
-
 famosElectronSequence = cms.Sequence(
     iterativeFirstSeeds+
     newCombinedSeeds+
@@ -297,12 +306,37 @@ famosPhotonSequence = cms.Sequence(
     photonIDSequence
 )
 
-# Add isolation information for electrons and photons
-#from RecoEgamma.EgammaIsolationAlgos.egammaCalExtractorBlocks_cff import *
-#EgammaIsoEcalFromHitsExtractorBlock.barrelRecHits = 'caloRecHits:EcalRecHitsEB'
-#EgammaIsoEcalFromHitsExtractorBlock.endcapRecHits = 'caloRecHits:EcalRecHitsEE'
-#EgammaIsoHcalFromHitsExtractorBlock.hcalRecHits = 'caloRecHits'
-#from RecoEgamma.EgammaIsolationAlgos.egammaIsolationSequence_cff import *
+# Add pre-calculated isolation sums for electrons (NB for photons they are stored in the Photon. All is done in the
+# sequence above
+from RecoEgamma.EgammaIsolationAlgos.egammaIsolationSequence_cff import *
+electronEcalRecHitIsolationLcone.ecalBarrelRecHitProducer =  cms.InputTag("caloRecHits")
+electronEcalRecHitIsolationLcone.ecalBarrelRecHitCollection =  cms.InputTag("EcalRecHitsEB")
+
+electronEcalRecHitIsolationLcone.ecalEndcapRecHitProducer =  cms.InputTag("caloRecHits")
+electronEcalRecHitIsolationLcone.ecalEndcapRecHitCollection =  cms.InputTag("EcalRecHitsEE")
+
+electronEcalRecHitIsolationScone.ecalBarrelRecHitProducer =  cms.InputTag("caloRecHits")
+electronEcalRecHitIsolationScone.ecalBarrelRecHitCollection =  cms.InputTag("EcalRecHitsEB")
+
+electronEcalRecHitIsolationScone.ecalEndcapRecHitProducer =  cms.InputTag("caloRecHits")
+electronEcalRecHitIsolationScone.ecalEndcapRecHitCollection =  cms.InputTag("EcalRecHitsEE")
+
+
+#Add egamma ecal interesting rec hits
+from RecoEgamma.EgammaIsolationAlgos.interestingEleIsoDetIdModule_cff import *
+interestingEleIsoDetId.recHitsLabel = cms.InputTag("caloRecHits","EcalRecHitsEB")
+from RecoEgamma.EgammaIsolationAlgos.interestingGamIsoDetIdModule_cff import *
+interestingGamIsoDetId.recHitsLabel = cms.InputTag("caloRecHits","EcalRecHitsEB")
+
+from RecoEgamma.EgammaIsolationAlgos.interestingEgammaIsoDetIdsSequence_cff import *
+#import  RecoEgamma.EgammaIsolationAlgos.interestingEgammaIsoDetIdsSequence_cff
+interestingEleIsoDetIdEB.recHitsLabel = cms.InputTag("caloRecHits","EcalRecHitsEB")
+interestingEleIsoDetIdEE.recHitsLabel = cms.InputTag("caloRecHits","EcalRecHitsEE")
+interestingGamIsoDetIdEB.recHitsLabel = cms.InputTag("caloRecHits","EcalRecHitsEB")
+interestingGamIsoDetIdEE.recHitsLabel = cms.InputTag("caloRecHits","EcalRecHitsEB")
+
+
+
 
 # B tagging
 from RecoJets.JetAssociationProducers.ic5JetTracksAssociatorAtVertex_cfi import *
@@ -327,12 +361,9 @@ famosBTaggingSequence = cms.Sequence(
 from RecoTauTag.Configuration.RecoTauTag_cff import *
 caloRecoTauTagInfoProducer.EBRecHitsSource = cms.InputTag("caloRecHits","EcalRecHitsEB")
 caloRecoTauTagInfoProducer.EERecHitsSource = cms.InputTag("caloRecHits","EcalRecHitsEE")
-
 caloRecoTauProducer.EBRecHitsSource = cms.InputTag("caloRecHits","EcalRecHitsEB")
 caloRecoTauProducer.EERecHitsSource = cms.InputTag("caloRecHits","EcalRecHitsEE")
 caloRecoTauProducer.ESRecHitsSource = cms.InputTag("caloRecHits","EcalRecHitsES")
-
-
 
 famosTauTaggingSequence = cms.Sequence(tautagging)
 
@@ -453,7 +484,9 @@ famosWithElectrons = cms.Sequence(
     famosWithTracks+
     caloRecHits+
     ecalClusters+ 
-    famosElectronSequence
+    famosElectronSequence+
+    interestingEgammaIsoDetIds+
+    egammaIsolationSequence
 )
 
 famosWithPhotons = cms.Sequence(
@@ -461,7 +494,9 @@ famosWithPhotons = cms.Sequence(
     vertexreco+
     caloRecHits+
     ecalClusters+
-    famosPhotonSequence
+    famosPhotonSequence+
+    interestingEgammaIsoDetIds+
+    egammaIsolationSequence
 )
 
 famosWithElectronsAndPhotons = cms.Sequence(
@@ -470,7 +505,9 @@ famosWithElectronsAndPhotons = cms.Sequence(
     caloRecHits+
     ecalClusters+
     famosElectronSequence+
-    famosPhotonSequence
+    famosPhotonSequence+
+    interestingEgammaIsoDetIds+
+    egammaIsolationSequence
 )
 
 famosWithBTagging = cms.Sequence(
@@ -512,6 +549,8 @@ reconstructionWithFamos = cms.Sequence(
     ecalClusters+
     famosElectronSequence+
     famosPhotonSequence+
+    egammaIsolationSequence+
+    interestingEgammaIsoDetIds+
     famosMuonSequence+
     famosMuonIdAndIsolationSequence+
     famosParticleFlowSequence+
