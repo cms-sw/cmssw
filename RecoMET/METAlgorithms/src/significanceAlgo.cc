@@ -21,7 +21,7 @@
 //
 // Original Author:  Kyle Story, Freya Blekman (Cornell University)
 //         Created:  Fri Apr 18 11:58:33 CEST 2008
-// $Id: significanceAlgo.cc,v 1.5 2008/11/10 06:25:16 dlange Exp $
+// $Id: significanceAlgo.cc,v 1.6 2008/11/13 01:30:44 rcr Exp $
 //
 //
 
@@ -115,7 +115,7 @@ metsig::ASignificance(const std::vector<SigInputObj>& EventVec, double &met_r, d
   v_tot.Invert();
   metvec(0) = xmet; metvec(1) = ymet;
   chisq0 = metvec * (v_tot * metvec);
-  double lnSignificance = 0.5 * chisq0;  
+  double lnSignificance = chisq0;  
 
   return lnSignificance;
 }
