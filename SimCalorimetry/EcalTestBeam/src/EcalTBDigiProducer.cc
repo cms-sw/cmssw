@@ -12,6 +12,12 @@
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "CondFormats/EcalObjects/interface/EcalPedestals.h"
 #include "CondFormats/DataRecord/interface/EcalPedestalsRcd.h"
+#include "CondFormats/EcalObjects/interface/EcalIntercalibConstants.h"
+#include "CondFormats/DataRecord/interface/EcalIntercalibConstantsRcd.h"
+#include "CondFormats/EcalObjects/interface/EcalADCToGeVConstant.h"
+#include "CondFormats/DataRecord/interface/EcalADCToGeVConstantRcd.h"
+#include "CondFormats/EcalObjects/interface/EcalGainRatios.h"
+#include "CondFormats/DataRecord/interface/EcalGainRatiosRcd.h"
 #include "CLHEP/Random/RandFlat.h"
 
 EcalTBDigiProducer::EcalTBDigiProducer(const edm::ParameterSet& params) 
@@ -200,6 +206,13 @@ void  EcalTBDigiProducer::checkCalibrations(const edm::EventSetup & eventSetup)
   const EcalPedestals* thePedestals=dbPed.product();
   
   theCoder->setPedestals( thePedestals );
+
+  // Ecal Intercalibration Constants
+  edm::ESHandle<EcalIntercalibConstants> pIcal;
+  eventSetup.get<EcalIntercalibConstantsRcd>().get(pIcal);
+  const EcalIntercalibConstants *ical = pIcal.product();
+  
+  theCoder->setIntercalibConstants( ical );
 
   // ADC -> GeV Scale
   edm::ESHandle<EcalADCToGeVConstant> pAgc;
