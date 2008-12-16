@@ -11,17 +11,20 @@ using namespace edm;
 using namespace reco;
 
 TrajectoryStateOnSurface TrackAssociatorByPosition::getState(const TrackingParticle & st)const{
-  TrackingParticle* simtrack = const_cast<TrackingParticle*>(&st);
+  //  TrackingParticle* simtrack = const_cast<TrackingParticle*>(&st);
   //loop over PSimHits
   const PSimHit * psimhit=0;
   const BoundPlane * plane=0;
   double dLim=thePositionMinimumDistance;
 
   //    look for the further most hit beyond a certain limit
-  std::vector<PSimHit> trackerPSimHit( simtrack->trackPSimHit(DetId::Tracker) );
-  LogDebug("TrackAssociatorByPosition")<<trackerPSimHit.size()<<" PSimHits.";
+  std::vector<PSimHit> pSimHit = st.trackPSimHit();
+  if (!theConsiderAllSimHits) pSimHit=st.trackPSimHit(DetId::Tracker);
+  std::vector<PSimHit> ::const_iterator start=pSimHit.begin();
+  std::vector<PSimHit> ::const_iterator end=pSimHit.end();
+  LogDebug("TrackAssociatorByPosition")<<pSimHit.size()<<" PSimHits.";
 
-  for (std::vector<PSimHit> ::const_iterator psit=trackerPSimHit.begin();psit!=trackerPSimHit.end();++psit){    
+  for (std::vector<PSimHit> ::const_iterator psit=start;psit!=end;++psit){    
     //get the detid
     DetId dd(psit->detUnitId());
     //    LogDebug("TrackAssociatorByPosition")<<psit<<"] PSimHit on: "<<dd.rawId();

@@ -15,7 +15,9 @@ TrackAssociatorByPosition = cms.ESProducer("TrackAssociatorByPositionESProducer"
     #	string method = "chi2"
     #use the distance between state in a plane in the muon system
     method = cms.string('dist'),
-    QCut = cms.double(10.0)
+    QCut = cms.double(10.0),
+    # False is the old behavior, True will use also the muon simhits to do the matching.                                       
+    ConsiderAllSimHits = cms.bool(False)
 )
 
 

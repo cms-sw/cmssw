@@ -4,8 +4,8 @@
 /** \class TrackAssociatorByPosition
  *  Class that performs the association of reco::Tracks and TrackingParticles based on position in muon detector
  *
- *  $Date: 2007/12/18 16:15:32 $
- *  $Revision: 1.6 $
+ *  $Date: 2008/01/31 15:08:42 $
+ *  $Revision: 1.7 $
  *  \author vlimant
  */
 
@@ -48,6 +48,8 @@ class TrackAssociatorByPosition : public TrackAssociatorBase {
      else if (meth=="posdr"){theMethod = 3;}
      else{
        edm::LogError("TrackAssociatorByPosition")<<meth<<" mothed not recognized. Use dr or chi2.";     }
+
+     theConsiderAllSimHits = iConfig.getParameter<bool>("ConsiderAllSimHits");
    };
 
 
@@ -77,7 +79,8 @@ class TrackAssociatorByPosition : public TrackAssociatorBase {
   double theQCut;
   bool theMinIfNoMatch;
   double thePositionMinimumDistance;
- 
+  bool theConsiderAllSimHits;
+  
   FreeTrajectoryState getState(const reco::Track &) const;
   TrajectoryStateOnSurface getState(const TrackingParticle &)const;
 
