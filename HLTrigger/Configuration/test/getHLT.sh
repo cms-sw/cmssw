@@ -18,6 +18,7 @@ if ($1 == CVS) then
   ./getHLT.py $HLTmaster/8E29_$HLTversion 8E29 GEN-HLT
   ./getHLT.py $HLTmaster/1E31_$HLTversion 1E31 GEN-HLT
 
+  /bin/ls -l HLT_?E??_cff.py
   /bin/mv -f HLT_?E??_cff.py ../python
 
 else
