@@ -10,5 +10,3 @@ ecalRecHit = cms.EDProducer("EcalRecalibRecHitProducer",
     EBRecalibRecHitCollection = cms.string('EcalRecHitsEB'),
     EERecalibRecHitCollection = cms.string('EcalRecHitsEE')
 )
-
-

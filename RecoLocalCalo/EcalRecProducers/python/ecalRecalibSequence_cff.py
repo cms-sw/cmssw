@@ -5,10 +5,11 @@ from RecoLocalCalo.EcalRecProducers.getEcalConditions_frontier_cff import *
 #ECAL reconstruction
 from RecoLocalCalo.EcalRecProducers.ecalRecalibRecHit_cfi import *
 ecalRecalibSequence = cms.Sequence(cms.SequencePlaceholder("ecalRecalibRecHit"))
-ecalConditions.toGet = cms.VPSet(cms.PSet(
-    record = cms.string('EcalPedestalsRcd'),
-    tag = cms.string('EcalPedestals_trivial')
-), 
+ecalConditions.toGet = cms.VPSet(
+    cms.PSet(
+        record = cms.string('EcalPedestalsRcd'),
+        tag = cms.string('EcalPedestals_trivial')
+    ), 
     cms.PSet(
         record = cms.string('EcalADCToGeVConstantRcd'),
         tag = cms.string('EcalADCToGeVConstant_trivial')
@@ -40,5 +41,5 @@ ecalConditions.toGet = cms.VPSet(cms.PSet(
     cms.PSet(
         record = cms.string('EcalLaserAPDPNRatiosRefRcd'),
         tag = cms.string('EcalLaserAPDPNRatiosRef_trivial')
-    ))
-
+    )
+)

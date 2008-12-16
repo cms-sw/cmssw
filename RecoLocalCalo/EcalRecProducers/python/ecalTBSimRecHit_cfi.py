@@ -6,7 +6,6 @@ ecalTBSimRecHit = cms.EDProducer("EcalRecHitProducer",
     EEuncalibRecHitCollection = cms.InputTag("ecalTBSimWeightUncalibRecHit","EcalUncalibRecHitsEE"),
     EBuncalibRecHitCollection = cms.InputTag("ecalTBSimWeightUncalibRecHit","EcalUncalibRecHitsEB"),
     EBrechitCollection = cms.string('EcalRecHitsEB'),
-    ChannelStatusToBeExcluded = cms.vint32()
+    ChannelStatusToBeExcluded = cms.vint32(),
+    algo = cms.string("EcalRecHitWorkerSimple")
 )
-
-
