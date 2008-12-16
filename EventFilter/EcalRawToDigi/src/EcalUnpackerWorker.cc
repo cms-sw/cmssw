@@ -84,6 +84,12 @@ EcalUnpackerWorker::EcalUnpackerWorker(const edm::ParameterSet & conf){
 }
 
 EcalUnpackerWorker::~EcalUnpackerWorker(){
+  //delete everything that is own by the EcalUnpackerWorker
+  delete myMap_;
+  delete unpacker_;
+  delete UncalibWorker_;
+  delete CalibWorker_;
+
 }
 
 void EcalUnpackerWorker::set(const edm::EventSetup & es) const {
