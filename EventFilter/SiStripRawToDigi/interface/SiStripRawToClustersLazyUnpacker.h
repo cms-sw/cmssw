@@ -13,13 +13,16 @@
 #include <vector>
 #include <list>
 
+/// tkonlinesw headers
+#include "Fed9UUtils.hh"
+
 class SiStripRawToClustersLazyUnpacker : public edm::LazyUnpacker<SiStripCluster> {
 
  public:
 
   typedef edm::DetSet<SiStripCluster> DetSet;
 
-  SiStripRawToClustersLazyUnpacker(const SiStripRegionCabling&, const SiStripClusterizerFactory&, const FEDRawDataCollection&, bool = false); 
+  SiStripRawToClustersLazyUnpacker(const SiStripRegionCabling&, const SiStripClusterizerFactory&, const FEDRawDataCollection&); 
   
   virtual ~SiStripRawToClustersLazyUnpacker();
 
@@ -28,52 +31,6 @@ class SiStripRawToClustersLazyUnpacker : public edm::LazyUnpacker<SiStripCluster
  private:
 
   SiStripRawToClustersLazyUnpacker();
-
-  /// raw data
-  const FEDRawDataCollection* raw_;
-
-  /// cabling
-  const SiStripRegionCabling::Cabling* regions_;
-
-  /// clusterizer factory
-  const SiStripClusterizerFactory* clusterizer_;
-
-  /// FED event cache
-  std::vector< sistrip::FEDBuffer* > buffers_;
-
-  /// raw-to-digi
-  SiStripRawToDigiUnpacker rawToDigi_;
-
-  /// dump frequency
-  bool dump_;
-
-  /// FED mode
-  sistrip::FEDReadoutMode mode_;
-
-  /// Cache of buffers pointed to by FED9UEvent
-  std::list<FEDRawData> fedRawData_;
-
-};
-
-#include "Fed9UUtils.hh"
-
-namespace sistrip {
-
-class RawToClustersLazyUnpacker : public edm::LazyUnpacker<SiStripCluster> {
-
- public:
-
-  typedef edm::DetSet<SiStripCluster> DetSet;
-
-  RawToClustersLazyUnpacker(const SiStripRegionCabling&, const SiStripClusterizerFactory&, const FEDRawDataCollection&); 
-  
-  virtual ~RawToClustersLazyUnpacker();
-
-  virtual void fill(const uint32_t&, record_type&); 
-
- private:
-
-  RawToClustersLazyUnpacker();
 
   /// raw data
   const FEDRawDataCollection* raw_;
@@ -95,6 +52,51 @@ class RawToClustersLazyUnpacker : public edm::LazyUnpacker<SiStripCluster> {
 
 };
 
+namespace sistrip {
+  
+  class RawToClustersLazyUnpacker : public edm::LazyUnpacker<SiStripCluster> {
+    
+  public:
+    
+    typedef edm::DetSet<SiStripCluster> DetSet;
+    
+    RawToClustersLazyUnpacker(const SiStripRegionCabling&, const SiStripClusterizerFactory&, const FEDRawDataCollection&, bool = false); 
+    
+    virtual ~RawToClustersLazyUnpacker();
+    
+    virtual void fill(const uint32_t&, record_type&); 
+    
+  private:
+    
+    /// private default constructor
+    RawToClustersLazyUnpacker();
+    
+    /// raw data
+    const FEDRawDataCollection* raw_;
+    
+    /// cabling
+    const SiStripRegionCabling::Cabling* regions_;
+    
+    /// clusterizer factory
+    const SiStripClusterizerFactory* clusterizer_;
+    
+    /// FED event cache
+    std::vector< sistrip::FEDBuffer* > buffers_;
+    
+    /// raw-to-digi
+    RawToDigiUnpacker rawToDigi_;
+    
+    /// dump frequency
+    bool dump_;
+    
+    /// FED mode
+    sistrip::FEDReadoutMode mode_;
+    
+    /// Cache of buffers pointed to by FED9UEvent
+    std::list<FEDRawData> fedRawData_;
+    
+  };
+  
 }
 
 #endif ///  EventFilter_SiStripRawToDigi_SiStripRawToClustersLazyUnpacker_H
