@@ -46,7 +46,8 @@
 #include "SimG4Core/Notification/interface/CurrentG4Track.h"
 
 #include <iostream>
-#include <strstream>
+#include <sstream>
+#include <fstream>
 #include <memory>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -219,10 +220,10 @@ void RunManager::initG4(const edm::EventSetup & es)
      
     if (m_StorePhysicsTables)
     {
-	std::ostrstream dir;
+	std::ostringstream dir;
 	dir << tableDir << '\0';
 	std::string cmd = std::string("/control/shell mkdir -p ")+tableDir;
-	if (!std::ifstream(dir.str(), std::ios::in))
+	if (!std::ifstream(dir.str().c_str(), std::ios::in))
 	    G4UImanager::GetUIpointer()->ApplyCommand(cmd);
 	m_physicsList->StorePhysicsTable(tableDir);
     }
