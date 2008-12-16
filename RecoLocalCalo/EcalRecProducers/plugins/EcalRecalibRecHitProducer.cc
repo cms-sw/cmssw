@@ -1,14 +1,14 @@
 /** \class EcalRecalibRecHitProducer
  *   produce ECAL rechits from uncalibrated rechits
  *
- *  $Id: EcalRecalibRecHitProducer.cc,v 1.1 2008/12/10 02:20:30 ferriff Exp $
- *  $Date: 2008/12/10 02:20:30 $
- *  $Revision: 1.1 $
+ *  $Id: EcalRecalibRecHitProducer.cc,v 1.2 2008/12/15 15:38:25 ferriff Exp $
+ *  $Date: 2008/12/15 15:38:25 $
+ *  $Revision: 1.2 $
  *  \author Federico Ferri, University of Milano Bicocca and INFN
  *
  **/
 
-#include "RecoLocalCalo/EcalRecProducers/interface/EcalRecalibRecHitProducer.h"
+#include "RecoLocalCalo/EcalRecProducers/plugins/EcalRecalibRecHitProducer.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalRecHitSimpleAlgo.h"
 #include "CondFormats/EcalObjects/interface/EcalIntercalibConstants.h"
 #include "CondFormats/DataRecord/interface/EcalIntercalibConstantsRcd.h"
