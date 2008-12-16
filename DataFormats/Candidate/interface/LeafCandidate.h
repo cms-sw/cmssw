@@ -6,7 +6,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: LeafCandidate.h,v 1.17 2007/10/15 12:44:33 llista Exp $
+ * \version $Id: LeafCandidate.h,v 1.18 2008/12/05 12:15:18 hegner Exp $
  *
  */
 #include "DataFormats/Candidate/interface/Candidate.h"
@@ -32,8 +32,6 @@ namespace reco {
 
     typedef unsigned int index;
 
-    /// collection of daughter candidates
-    typedef CandidateCollection daughters;
     /// default constructor                                                               
     LeafCandidate() : cachePolarFixed_( false ) { }
     // constructor from candidate                                                         
