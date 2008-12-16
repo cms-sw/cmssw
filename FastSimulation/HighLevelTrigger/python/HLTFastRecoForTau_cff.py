@@ -11,11 +11,19 @@ hltL3TauCtfWithMaterialTracks = cms.EDFilter("FastTrackMerger",
     TrackProducers = cms.VInputTag(cms.InputTag("globalPixelWithMaterialTracks"),
                                    cms.InputTag("globalPixelTrackCandidates")),
     ptMin = cms.untracked.double(1.0)
+
+)
+hltL25TauCtfWithMaterialTracks = cms.EDFilter("FastTrackMerger",
+    SaveTracksOnly = cms.untracked.bool(True),
+    TrackProducers = cms.VInputTag(cms.InputTag("globalPixelWithMaterialTracks"),
+                                   cms.InputTag("globalPixelTrackCandidates")),
+    ptMin = cms.untracked.double(1.0)
 )
 
 
 #--- Fastsim sequences replacing modules in tau paths ---#
 #hltL3TauCkfTrackCandidates = cms.Sequence(globalPixelTracking)
 HLTL3TauTrackReconstructionSequence = cms.Sequence(globalPixelTracking + hltL3TauCtfWithMaterialTracks)
+HLTL25TauTrackReconstructionSequence = cms.Sequence(globalPixelTracking + hltL25TauCtfWithMaterialTracks)
 
 
