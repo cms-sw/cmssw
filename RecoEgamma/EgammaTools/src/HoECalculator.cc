@@ -25,14 +25,22 @@ double HoECalculator::operator() ( const reco::SuperCluster* clus , const edm::E
 }
 
 double HoECalculator::operator() ( const reco::SuperCluster* clus, 
-				   HBHERecHitMetaCollection *mhbhe) {
-  //  return getHoE(GlobalPoint(clus->x(),clus->y(),clus->z()), clus->energy(), mhbhe);
-  float HoEmax = 0.;
-  for (reco::BasicClusterRefVector::iterator bc=clus->clustersBegin(); bc!=clus->clustersEnd(); bc++) {
-    float HoE = getHoE(GlobalPoint((*bc)->x(),(*bc)->y(),(*bc)->z()),clus->energy(), mhbhe);
-    if (HoE > HoEmax) HoEmax = HoE;
-  }
-  return HoEmax;
+				   HBHERecHitMetaCollection *mhbhe, int ialgo) {
+  double HoE=0.;
+  switch (ialgo) {
+    case 1:
+      for (reco::BasicClusterRefVector::iterator bc=clus->clustersBegin(); bc!=clus->clustersEnd(); bc++) {
+	double HoEi = getHoE(GlobalPoint((*bc)->x(),(*bc)->y(),(*bc)->z()),clus->energy(), mhbhe);
+	if (HoEi > HoE) HoE = HoEi;
+      }
+      break;
+    case 2:
+      HoE = getHoE(GlobalPoint(clus->x(),clus->y(),clus->z()), clus->energy(), mhbhe);
+      break;
+    default:
+      std::cout << "!!! algo for HoE should be 1 or 2 " << std::endl;
+  } 
+  return HoE;   
 }
 
 

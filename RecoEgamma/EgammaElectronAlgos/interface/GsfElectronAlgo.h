@@ -25,6 +25,8 @@
 #include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 
+#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaTowerIsolation.h"
+
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
@@ -43,8 +45,9 @@ class GsfElectronAlgo {
       double maxEOverPBarrel, double maxEOverPEndcaps,
       double minEOverPBarrel, double minEOverPEndcaps,
       double maxDeltaEta, double maxDeltaPhi,
-      bool applyEtaCorrection, bool applyAmbResolution,
-      double hOverEConeSize, double hOverEPtMin
+      double hOverEConeSize, double hOverEPtMin,
+      double maxHOverEDepth1, double maxHOverEDepth2,
+      bool applyEtaCorrection, bool applyAmbResolution
 		) ;
     ~GsfElectronAlgo() ;
 
@@ -60,13 +63,14 @@ class GsfElectronAlgo {
     void process
      ( edm::Handle<reco::GsfTrackCollection> tracksH,
        edm::Handle<reco::TrackCollection> ctfTracksH,
+       edm::Handle<CaloTowerCollection> towersH,
        edm::Handle<EcalRecHitCollection> reducedEBRecHits,
        edm::Handle<EcalRecHitCollection> reducedEERecHits,
        const math::XYZPoint &bs,
        GsfElectronPtrCollection & outEle);
 
     // preselection method
-    bool preSelection( const reco::SuperCluster & ) ;
+    bool preSelection( const reco::SuperCluster &, double HoE1, double HoE2 ) ;
 
     // interface to be improved...
     void createElectron
@@ -74,6 +78,7 @@ class GsfElectronAlgo {
        const reco::BasicClusterRef & elbcRef, 
        const reco::GsfTrackRef & trackRef,
        const reco::TrackRef & ctfTrackRef, const float shFracInnerHits,
+       double HoE1, double HoE2,
        edm::Handle<EcalRecHitCollection> reducedEBRecHits,
        edm::Handle<EcalRecHitCollection> reducedEERecHits,
        GsfElectronPtrCollection & outEle ) ;
@@ -109,6 +114,14 @@ class GsfElectronAlgo {
     // maximum phi difference between the supercluster position and the track position at the closest impact to the supercluster
     // position to the supercluster
     double maxDeltaPhi_;
+    // cone size for H/E evaluation
+    double hOverEConeSize_;
+    // min tower Et for H/E evaluation
+    double hOverEPtMin_;
+    // minimum H/E for depth1
+    double maxHOverEDepth1_;
+    // minimum H/E for depth2
+    double maxHOverEDepth2_;
 
     // if this parameter is false, only SC level Escale correctoins are applied
     bool applyEtaCorrection_;
@@ -145,10 +158,6 @@ class GsfElectronAlgo {
     TrajectoryStateOnSurface sclTSOS_;
     TrajectoryStateOnSurface seedTSOS_;
     TrajectoryStateOnSurface eleTSOS_;
-
-    const CaloTowerCollection* towers_;
-    double hOverEConeSize_;
-    double hOverEPtMin_;
 
     unsigned long long cacheIDGeom_;
     unsigned long long cacheIDTopo_;

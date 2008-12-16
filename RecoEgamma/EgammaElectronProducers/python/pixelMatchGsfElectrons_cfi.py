@@ -9,7 +9,7 @@ pixelMatchGsfElectrons = cms.EDProducer("GsfElectronProducer",
     endcapSuperClusters = cms.InputTag("correctedMulti5x5SuperClustersWithPreshower","electronPixelSeeds"),
     tracks = cms.InputTag("pixelMatchGsfFit"),
     ctfTracks = cms.InputTag("generalTracks"),
-    hcalRecHits = cms.InputTag("hbhereco"),
+    hcalTowers = cms.InputTag("towerMaker"),
     reducedBarrelRecHitCollection = cms.InputTag("ecalRecHit","EcalRecHitsEB"),
     reducedEndcapRecHitCollection = cms.InputTag("ecalRecHit","EcalRecHitsEE"),
     # steering
@@ -22,10 +22,10 @@ pixelMatchGsfElectrons = cms.EDProducer("GsfElectronProducer",
     maxEOverPEndcaps = cms.double(10000.0),
     maxDeltaEta = cms.double(0.02),
     maxDeltaPhi = cms.double(0.1),
-    # for H/E
-    hcalTowers = cms.InputTag("towerMaker"),
     hOverEConeSize = cms.double(0.15),
     hOverEPtMin = cms.double(0.),
+    maxHOverEDepth1 = cms.double(0.1),
+    maxHOverEDepth2 = cms.double(0.1),
     # electron algo
     ElectronType = cms.string(''),
     # nested parameter set for TransientInitialStateEstimator

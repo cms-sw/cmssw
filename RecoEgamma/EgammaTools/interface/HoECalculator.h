@@ -29,7 +29,8 @@ class HoECalculator
 		       const edm::EventSetup& c )  ;
    
    double operator() ( const reco::SuperCluster* , 
-                       HBHERecHitMetaCollection *mhbhe);
+                       HBHERecHitMetaCollection *mhbhe,
+		       int ialgo=1);
 
    double operator() ( const reco::BasicCluster* , 
                        HBHERecHitMetaCollection *mhbhe);

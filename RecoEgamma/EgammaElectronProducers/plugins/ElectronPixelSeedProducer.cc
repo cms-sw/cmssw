@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ElectronPixelSeedProducer.cc,v 1.26 2008/12/13 08:44:55 charlot Exp $
+// $Id: ElectronPixelSeedProducer.cc,v 1.27 2008/12/13 18:31:48 charlot Exp $
 //
 //
 
@@ -132,15 +132,16 @@ void ElectronPixelSeedProducer::produce(edm::Event& e, const edm::EventSetup& iS
 void ElectronPixelSeedProducer::filterClusters(const edm::Handle<reco::SuperClusterCollection> &superClusters, 
  const CaloTowerCollection *towers, SuperClusterRefVector &sclRefs) {
 
-  // filter the superclusters with Et cut and HCAL towers content behind SC position
+  // filter the superclusters
+  // - with EtCut
+  // - with HoE using hcal rechit behind supercluster position
   for (unsigned int i=0;i<superClusters->size();++i) {
     const SuperCluster &scl=(*superClusters)[i];
 
     if (scl.energy()/cosh(scl.eta())>SCEtCut_) {
 
-      double HoE1=towerIso1_->getTowerESum(&scl)/scl.energy();
-      double HoE2=towerIso2_->getTowerESum(&scl)/scl.energy();
-      if ( HoE1 <= maxHOverEDepth1_ && HoE2 <= maxHOverEDepth2_ ) {
+      double HoE=calc_(&scl,mhbhe,2);
+      if (HoE <= maxHOverE_) {
 	sclRefs.push_back(edm::Ref<reco::SuperClusterCollection> (superClusters,i));
       }
  

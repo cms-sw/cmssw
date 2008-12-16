@@ -12,7 +12,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Thu july 6 13:22:06 CEST 2006
-// $Id: GsfElectronAlgo.cc,v 1.33 2008/12/13 08:44:55 charlot Exp $
+// $Id: GsfElectronAlgo.cc,v 1.34 2008/12/13 21:50:16 charlot Exp $
 //
 //
 
@@ -86,13 +86,15 @@ GsfElectronAlgo::GsfElectronAlgo
    double maxEOverPBarrel, double maxEOverPEndcaps,
    double minEOverPBarrel, double minEOverPEndcaps,
    double maxDeltaEta, double maxDeltaPhi,
-   bool applyEtaCorrection, bool applyAmbResolution, 
-   double hOverEConeSize, double hOverEPtMin )
+   double hOverEConeSize, double hOverEPtMin,
+   double maxHOverEDepth1, double maxHOverEDepth2,
+   bool applyEtaCorrection, bool applyAmbResolution )
  : maxEOverPBarrel_(maxEOverPBarrel), maxEOverPEndcaps_(maxEOverPEndcaps),
    minEOverPBarrel_(minEOverPBarrel), minEOverPEndcaps_(minEOverPEndcaps),
    maxDeltaEta_(maxDeltaEta), maxDeltaPhi_(maxDeltaPhi),
+   hOverEConeSize_(hOverEConeSize), hOverEPtMin_(hOverEPtMin),
+   maxHOverEDepth1_(maxHOverEDepth1), maxHOverEDepth2_(maxHOverEDepth2),
    applyEtaCorrection_(applyEtaCorrection), applyAmbResolution_(applyAmbResolution),
-   towers_(0), hOverEConeSize_(hOverEConeSize), hOverEPtMin_(hOverEPtMin),
    cacheIDGeom_(0),cacheIDTopo_(0),cacheIDTDGeom_(0),cacheIDMagField_(0)
  {
   // this is the new version allowing to configurate the algo
@@ -159,12 +161,9 @@ void  GsfElectronAlgo::run(Event& e, GsfElectronCollection & outEle) {
   e.getByLabel( reducedBarrelRecHitCollection_, pEBRecHits );
   edm::Handle< EcalRecHitCollection > pEERecHits;
   e.getByLabel( reducedEndcapRecHitCollection_, pEERecHits ) ;
-
-
-  // get Hcal towers collection and instantiate isolators for HoE calculation
-  edm::Handle<CaloTowerCollection> towersHandle;
-  e.getByLabel(hcalTowers_, towersHandle);
-  towers_ = towersHandle.product();
+  edm::Handle<CaloTowerCollection> towersH;
+  e.getByLabel(hcalTowers_, towersH);
+  //towers_ = towersHandle.product();
 
   // get the beamspot from the Event:
   edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
@@ -175,7 +174,7 @@ void  GsfElectronAlgo::run(Event& e, GsfElectronCollection & outEle) {
   GsfElectronPtrCollection tempEle;
 
   // create electrons
-  process(tracksH,ctfTracksH,pEBRecHits,pEERecHits,bsPosition,tempEle);
+  process(tracksH,ctfTracksH,towersH,pEBRecHits,pEERecHits,bsPosition,tempEle);
 
   std::ostringstream str;
 
@@ -222,11 +221,16 @@ void  GsfElectronAlgo::run(Event& e, GsfElectronCollection & outEle) {
 void GsfElectronAlgo::process(
   edm::Handle<GsfTrackCollection> gsfTracksH,
   edm::Handle<TrackCollection> ctfTracksH,
+  edm::Handle<CaloTowerCollection> towersH,
   edm::Handle<EcalRecHitCollection> reducedEBRecHits,
   edm::Handle<EcalRecHitCollection> reducedEERecHits,
   const math::XYZPoint & bsPosition,
   GsfElectronPtrCollection & outEle )
  {
+  // HCAL iso deposits
+  EgammaTowerIsolation towerIso1(hOverEConeSize_,0.,hOverEPtMin_,1,towersH.product()) ;  
+  EgammaTowerIsolation towerIso2(hOverEConeSize_,0.,hOverEPtMin_,2,towersH.product()) ;  
+
   const GsfTrackCollection * gsfTrackCollection = gsfTracksH.product() ;
   for (unsigned int i=0;i<gsfTrackCollection->size();++i) {
 
@@ -244,19 +248,24 @@ void GsfElectronAlgo::process(
     if (!calculateTSOS(t,theClus, bsPosition)) continue;
     vtxMom_=computeMode(vtxTSOS_);
     sclPos_=sclTSOS_.globalPosition();
-    if (preSelection(theClus))
+    
+    // hadronic energy
+    double HoE1=towerIso1.getTowerESum(&theClus)/theClus.energy();
+    double HoE2=towerIso2.getTowerESum(&theClus)/theClus.energy();
+    
+    if (preSelection(theClus, HoE1, HoE2))
      {
       pair<TrackRef,float> ctfpair = getCtfTrackRef(gsfTrackRef,ctfTracksH) ;
       const TrackRef ctfTrackRef = ctfpair.first ;
       const float fracShHits = ctfpair.second ;
       // interface to be improved...
-      createElectron(scRef,elbcRef,gsfTrackRef,ctfTrackRef,fracShHits,reducedEBRecHits,reducedEERecHits,outEle) ;
+      createElectron(scRef,elbcRef,gsfTrackRef,ctfTrackRef,fracShHits,HoE1,HoE2,reducedEBRecHits,reducedEERecHits,outEle) ;
       LogInfo("")<<"Constructed new electron with energy  "<< scRef->energy();
     }
   } // loop over tracks
 }
 
-bool GsfElectronAlgo::preSelection(const SuperCluster& clus)
+bool GsfElectronAlgo::preSelection(const SuperCluster& clus, double HoE1, double HoE2)
 {
 
   LogDebug("")<< "========== preSelection ==========";
@@ -269,6 +278,11 @@ bool GsfElectronAlgo::preSelection(const SuperCluster& clus)
   if ((subdet_==EcalEndcap) && (clus.energy()/vtxMom_.mag() < minEOverPEndcaps_)) return false;
   LogDebug("") << "E/p criteria is satisfied ";
 
+  // HoE cuts
+  LogDebug("") << "HoE1 : " << HoE1 << "HoE2 : " << HoE2;
+  if ( HoE1 > maxHOverEDepth1_ || HoE2 > maxHOverEDepth2_ ) return false;
+  LogDebug("") << "H/E criteria is satisfied ";
+  
   // delta eta criteria
   double etaclu = clus.eta();
   double etatrk = sclPos_.eta();
@@ -334,6 +348,7 @@ void GsfElectronAlgo::createElectron
    const BasicClusterRef & elbcRef,
    const GsfTrackRef & trackRef,
    const TrackRef & ctfTrackRef, const float shFracInnerHits,
+   double HoE1, double HoE2,
    edm::Handle<EcalRecHitCollection> reducedEBRecHits,
    edm::Handle<EcalRecHitCollection> reducedEERecHits,
    GsfElectronPtrCollection & outEle )
@@ -378,11 +393,6 @@ void GsfElectronAlgo::createElectron
 								 vtxMom_.y()*scale,
 								 vtxMom_.z()*scale,
 								 (*scRef).energy());
-
-      EgammaTowerIsolation towerIso1(hOverEConeSize_,0.,hOverEPtMin_,1,towers_) ;  
-      EgammaTowerIsolation towerIso2(hOverEConeSize_,0.,hOverEPtMin_,2,towers_) ;  
-      double HoE1=towerIso1.getTowerESum(&(*scRef))/scRef->energy();
-      double HoE2=towerIso2.getTowerESum(&(*scRef))/scRef->energy();
 
       // now create electron
       GsfElectron * ele = new
