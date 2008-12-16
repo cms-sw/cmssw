@@ -32,7 +32,6 @@ void OHltTree::Loop(OHltRateCounter *rc,OHltConfig *cfg,OHltMenu *menu,int procI
     if (jentry%cfg->nPrintStatusEvery == 0)
       cout<<"Processing entry "<<jentry<<"/"<<nentries<<"\r"<<flush<<endl;
 
-
     // 1. Loop to check which Bit fired
     // Triggernames are assigned to trigger cuts in unambigous way!
     // If you define a new trigger also define a new unambigous name!

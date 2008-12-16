@@ -364,5 +364,26 @@ void OHltMenu::SetMapL1SeedsOfStandardHLTPath() {
   map_L1SeedsOfStandardHLTPath.insert(mypair("L1_DoubleJetCountsHFRing0Sum3", myvec(1,"L1_DoubleJetCountsHFRing0Sum3")));   
   map_L1SeedsOfStandardHLTPath.insert(mypair("L1_SingleJetCountsHFRing0Sum6", myvec(1,"L1_SingleJetCountsHFRing0Sum6")));    
 
+  /* New Taus */
+  // This is openhlt and not standard hlt,
+  // but the same mechanism can also be used here!
+  // L1 prescales can be checked in the same way as 
+  // for standard hlt in CheckOpenHlt(). 
+  // Look for "New Taus" in OHltTreeOpen.cpp!
+  vtmp.clear();
+  vtmp.push_back("L1_SingleTauJet30"); vtmp.push_back("L1_SingleJet70");
+  map_L1SeedsOfStandardHLTPath.insert(mypair("OpenHLT_SingleLooseIsoTau20", vtmp));
+
+  vtmp.clear();
+  vtmp.push_back("L1_SingleTauJet30"); vtmp.push_back("L1_SingleJet70");
+  map_L1SeedsOfStandardHLTPath.insert(mypair("OpenHLT_SingleLooseIsoTau20_Trk5", vtmp));
+  
+  vtmp.clear();
+  vtmp.push_back("L1_DoubleTauJet30"); vtmp.push_back("L1_DoubleJet70");
+  map_L1SeedsOfStandardHLTPath.insert(mypair("OpenHLT_DoubleLooseIsoTau15", vtmp));
+  
+  vtmp.clear();
+  vtmp.push_back("L1_DoubleTauJet30"); vtmp.push_back("L1_DoubleJet70");
+  map_L1SeedsOfStandardHLTPath.insert(mypair("OpenHLT_DoubleLooseIsoTau15_Trk5", vtmp));
 
 }

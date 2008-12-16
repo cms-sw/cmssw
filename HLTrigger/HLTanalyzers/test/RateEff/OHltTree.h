@@ -1150,6 +1150,7 @@ public :
   void CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it);
   void PrintOhltVariables(int level, int type);
   int OpenHltTauPassed(float Et,float Eiso, float L25Tpt, int L25Tiso,float L3Tpt, int L3Tiso);
+  int OHltTree::OpenHltTauL2SCPassed(float Et,float L25Tpt, int L25Tiso, float L3Tpt, int L3Tiso);
   int OpenHlt1ElectronPassed(float Et,int L1iso,float Tiso,float Hiso);
   int OpenHlt1LWElectronPassed(float Et,int L1iso,float Tiso,float Hiso); 
   int OpenHlt1PhotonPassed(float Et,int L1iso,float Tiso,float Eiso,float HisoBR,float HisoEC);
