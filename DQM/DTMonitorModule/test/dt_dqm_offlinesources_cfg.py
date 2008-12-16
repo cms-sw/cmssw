@@ -24,9 +24,10 @@ process.load("CondCore.DBCommon.CondDBSetup_cfi")
 
 
 # Conditions (Global Tag is used here):
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = "CRAFT_V4P::All"
-process.prefer("GlobalTag")
+
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cfi")
+process.GlobalTag.globaltag = "CRAFT_30X::All"
+#process.prefer("GlobalTag")
 
 # Magnetic fiuld: force mag field to be 3.8 tesla
 process.load("Configuration.StandardSequences.MagneticField_38T_cff")
@@ -39,8 +40,9 @@ process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.RawToDigi_Data_cff")
 
 # reconstruction sequence for Cosmics
-#process.load("Configuration.StandardSequences.ReconstructionCosmics_cff")
-process.load("RecoLocalMuon.Configuration.RecoLocalMuonCosmics_cff")
+process.load("Configuration.StandardSequences.ReconstructionCosmics_cff")
+#process.load("RecoLocalMuon.Configuration.RecoLocalMuonCosmics_cff")
+#process.load("RecoMuon.Configuration.RecoMuonCosmics_cff")
 
 
 
@@ -67,8 +69,8 @@ process.out = cms.OutputModule("PoolOutputModule",
 process.MessageLogger = cms.Service("MessageLogger",
                                     debugModules = cms.untracked.vstring('*'),
                                     destinations = cms.untracked.vstring('cout'),
-                                    categories = cms.untracked.vstring('DTTimeEvolutionHisto'), 
-                                    cout = cms.untracked.PSet(threshold = cms.untracked.string('DEBUG'),
+                                    categories = cms.untracked.vstring('DTChamberEfficiency'), 
+                                    cout = cms.untracked.PSet(threshold = cms.untracked.string('WARNING'),
                                                               noLineBreaks = cms.untracked.bool(False),
                                                               DEBUG = cms.untracked.PSet(
                                                                       limit = cms.untracked.int32(0)),
@@ -76,7 +78,7 @@ process.MessageLogger = cms.Service("MessageLogger",
                                                                       limit = cms.untracked.int32(0)),
                                                               DTSegmentAnalysisTest = cms.untracked.PSet(
                                                                                  limit = cms.untracked.int32(-1)),
-                                                              DTTimeEvolutionHisto = cms.untracked.PSet(
+                                                              DTChamberEfficiency = cms.untracked.PSet(
                                                                                  limit = cms.untracked.int32(-1))
                                                               )
                                     )
@@ -85,15 +87,27 @@ process.MessageLogger = cms.Service("MessageLogger",
 
 
 # raw to digi
-process.unpackers = cms.Sequence(process.muonDTDigis)
+process.unpackers = cms.Sequence(process.muonDTDigis + process.muonCSCDigis + process.muonRPCDigis)
 # reco
-process.reco = cms.Sequence(process.dt1DRecHits + process.dt4DSegments)
-
+#process.reco = cms.Sequence(process.dt1DRecHits + process.dt4DSegments + process.muonRecoGR)
+process.reco = cms.Sequence(process.muonsLocalRecoCosmics + process.STAmuontrackingforcosmics1Leg)
 
 process.DTDQMOfflineCosmics = cms.Sequence(process.dtSources)
 
 
-
+process.ttrig = cms.ESSource("PoolDBESSource",
+                             process.CondDBSetup,
+                             timetype = cms.string('runnumber'),
+                             toGet = cms.VPSet(
+    cms.PSet(
+    record = cms.string('DTTtrigRcd'),
+    tag = cms.string('tTrig_CRAFT_V01_offline')
+    )
+    ),
+                             connect = cms.string('sqlite_file:/afs/cern.ch/user/c/cerminar/public/DT_tTrig_CRAFT_V01_k-07_offline.db'),
+                             authenticationMethod = cms.untracked.uint32(0)
+                             )
+process.prefer = cms.ESPrefer("PoolDBESSource","ttrig")
 
 
 
