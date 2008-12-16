@@ -22,7 +22,6 @@
 <use name=CalibTracker/Records>
 <use name=CommonTools/TrackerMap>
 
-<use name=CalibTracker/SiStripConnectivity>
 <use name=CommonTools/SiStripZeroSuppression>
 
 <use name=PhysicsTools/UtilAlgos>
