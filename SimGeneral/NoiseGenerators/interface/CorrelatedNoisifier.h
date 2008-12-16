@@ -42,7 +42,7 @@ public:
   void noisify(T & frame)
   {
     // make a vector of random values
-    assert(frame.size() == theSize);
+    assert(frame.size() == (int)theSize);
     std::valarray<double> uncorrelated(0.,theSize);
     for (unsigned int i=0; i<theSize; i++)
       uncorrelated[i]=theRandomGaussian->fire();
