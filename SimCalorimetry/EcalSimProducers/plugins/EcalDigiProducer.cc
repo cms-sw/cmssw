@@ -6,7 +6,6 @@
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Provenance/interface/Provenance.h"
-#include "CalibCalorimetry/EcalTrivialCondModules/interface/EcalTrivialConditionRetriever.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloDigiCollectionSorter.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
@@ -14,6 +13,11 @@
 #include "CondFormats/DataRecord/interface/EcalPedestalsRcd.h"
 #include "CondFormats/EcalObjects/interface/EcalIntercalibConstants.h"
 #include "CondFormats/DataRecord/interface/EcalIntercalibConstantsRcd.h"
+#include "CondFormats/EcalObjects/interface/EcalADCToGeVConstant.h"
+#include "CondFormats/DataRecord/interface/EcalADCToGeVConstantRcd.h"
+#include "CondFormats/EcalObjects/interface/EcalGainRatios.h"
+#include "CondFormats/DataRecord/interface/EcalGainRatiosRcd.h"
+
 
 EcalDigiProducer::EcalDigiProducer(const edm::ParameterSet& params) 
   :  theGeometry(0)
