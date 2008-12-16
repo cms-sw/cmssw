@@ -8,7 +8,7 @@ TrackAssociatorByPosition = cms.ESProducer("TrackAssociatorByPositionESProducer"
     QminCut = cms.double(120.0),
     MinIfNoMatch = cms.bool(False),
     ComponentName = cms.string('TrackAssociatorByPosition'),
-    propagator = cms.string('SteppingHelixPropagatorAny'),
+    propagator = cms.string('SteppingHelixPropagatorAlong'),
     # minimum distance from the origin to find a hit from a simulated particle and match it to reconstructed track
     positionMinimumDistance = cms.double(0.0),
     #use a chi2 estimation on the 5x5 local parameters and errors in a plane in the muon system
