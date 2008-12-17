@@ -121,7 +121,6 @@ muonValidationHLT_seq = cms.Sequence(
     )
 
 recoMuonValidationHLT_seq = cms.Sequence(
-    muonSelector_seq
-    *muonAssociationHLT_seq
+    muonAssociationHLT_seq
     *muonValidationHLT_seq
     )
