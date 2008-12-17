@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/12/16 15:49:48 $
- *  $Revision: 1.8 $
+ *  $Date: 2008/12/17 13:57:16 $
+ *  $Revision: 1.9 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -34,8 +34,6 @@ MuonTestSummary::MuonTestSummary(const edm::ParameterSet& ps){
   // parameter initialization for kinematics test
   etaExpected = ps.getParameter<double>("etaExpected");
   phiExpected = ps.getParameter<double>("phiExpected");
-  etaSpread = ps.getParameter<double>("etaSpread");
-  phiSpread = ps.getParameter<double>("phiSpread");
   chi2Fraction = ps.getParameter<double>("chi2Fraction");
   chi2Spread = ps.getParameter<double>("chi2Spread");
   resEtaSpread_tkGlb = ps.getParameter<double>("resEtaSpread_tkGlb");
@@ -296,11 +294,17 @@ void MuonTestSummary::doKinematicsTests(string muonType, int bin){
     TH1F * etaHisto_root = etaHisto->getTH1F();
     double binSize = (etaHisto_root->GetXaxis()->GetXmax()-etaHisto_root->GetXaxis()->GetXmin())/etaHisto_root->GetNbinsX();
     int binZero = int((0-etaHisto_root->GetXaxis()->GetXmin())/binSize);
-    if(etaHisto_root->Integral(binZero,etaHisto_root->GetNbinsX())!=0){
+    if(etaHisto_root->Integral(1,binZero-1)!=0 && etaHisto_root->Integral(binZero,etaHisto_root->GetNbinsX())!=0){
       double symmetryFactor = 
 	double(etaHisto_root->Integral(1,binZero-1)) / double(etaHisto_root->Integral(binZero,etaHisto_root->GetNbinsX()));
+      double errSymmetryFactor =
+	symmetryFactor*sqrt(1.0/double(etaHisto_root->Integral(1,binZero-1)) + 1.0/double(etaHisto_root->Integral(binZero,etaHisto_root->GetNbinsX())));
       LogTrace(metname)<<"eta symmetryFactor for "<<muonType<<" : "<<symmetryFactor<<endl;
-      if (symmetryFactor>(etaExpected-etaSpread) && symmetryFactor<(etaExpected+etaSpread))
+      LogTrace(metname)<<"eta errSymmetryFactor for "<<muonType<<" : "<<errSymmetryFactor<<endl;
+      double tParameter;
+      if((symmetryFactor-etaExpected)>0) tParameter=double(symmetryFactor-etaExpected)/errSymmetryFactor;
+      else tParameter=double(-symmetryFactor+etaExpected)/errSymmetryFactor;
+      if (tParameter<1.95) //2sigma rejection
 	kinematicsSummaryMap->setBinContent(bin,2,1);
       else
 	kinematicsSummaryMap->setBinContent(bin,2,0);
@@ -317,11 +321,17 @@ void MuonTestSummary::doKinematicsTests(string muonType, int bin){
     TH1F * phiHisto_root = phiHisto->getTH1F();
     double binSize = (phiHisto_root->GetXaxis()->GetXmax()-phiHisto_root->GetXaxis()->GetXmin())/phiHisto_root->GetNbinsX();
     int binZero = int((0-phiHisto_root->GetXaxis()->GetXmin())/binSize);
-    if(phiHisto_root->Integral(1,binZero)!=0){
+    if(phiHisto_root->Integral(binZero+1,phiHisto_root->GetNbinsX())!=0 && phiHisto_root->Integral(1,binZero)!=0){
       double symmetryFactor = 
 	double(phiHisto_root->Integral(binZero+1,phiHisto_root->GetNbinsX())) / double(phiHisto_root->Integral(1,binZero));
+      double errSymmetryFactor = 
+	symmetryFactor*sqrt(1.0/double(phiHisto_root->Integral(binZero+1,phiHisto_root->GetNbinsX())) + 1.0/double(phiHisto_root->Integral(1,binZero)));
       LogTrace(metname)<<"phi symmetryFactor for "<<muonType<<" : "<<symmetryFactor<<endl;
-      if (symmetryFactor>(phiExpected-phiSpread) && symmetryFactor<(phiExpected+phiSpread))
+      LogTrace(metname)<<"phi errSymmetryFactor for "<<muonType<<" : "<<errSymmetryFactor<<endl;
+      double tParameter;
+      if((symmetryFactor-phiExpected)>0) tParameter=double(symmetryFactor-phiExpected)/errSymmetryFactor;
+      else tParameter=double(-symmetryFactor+phiExpected)/errSymmetryFactor;
+      if (tParameter<1.95) //2sigma rejection
 	kinematicsSummaryMap->setBinContent(bin,3,1);
       else
 	kinematicsSummaryMap->setBinContent(bin,3,0);
@@ -634,7 +644,7 @@ void MuonTestSummary::doMolteplicityTests(){
   else 
     molteplicitySummaryMap->setBinContent(2,0);
 
-  if(molteplicity_STA<expMolteplicitySta+0.04 && molteplicity_STA>expMolteplicitySta-0.04)
+  if(molteplicity_STA<expMolteplicitySta+0.1 && molteplicity_STA>expMolteplicitySta-0.1)
     molteplicitySummaryMap->setBinContent(3,1);
   else 
     molteplicitySummaryMap->setBinContent(3,0);

@@ -6,8 +6,8 @@
  * *
  *  DQM Client for global summary
  *
- *  $Date: 2008/12/16 15:50:37 $
- *  $Revision: 1.6 $
+ *  $Date: 2008/12/17 13:57:52 $
+ *  $Revision: 1.7 $
  *  \author  G. Mila - INFN Torino
  *   
  */
@@ -69,8 +69,6 @@ private:
   // test ranges
   double etaExpected;
   double phiExpected;
-  double etaSpread;
-  double phiSpread;
   double chi2Fraction;
   double chi2Spread;
   double resEtaSpread_tkGlb;
