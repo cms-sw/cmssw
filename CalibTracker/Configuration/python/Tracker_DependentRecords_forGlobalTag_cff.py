@@ -8,7 +8,7 @@ from CalibTracker.SiStripESProducers.fake.SiStripPedestalsFakeESSource_cfi impor
 #
 # Dependent Records
 #
-from Geometry.TrackerGeometryBuilder.trackerGeometry_cfi import *
+
 #Gain
 # first SiStripGainESProducer takes SiStripGainRcd from DB
 from CalibTracker.SiStripESProducers.SiStripGainESProducer_cfi import *
@@ -33,8 +33,6 @@ from RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitMatcher_cfi import *
 
 #cabling
 sistripconn = cms.ESProducer("SiStripConnectivity")
-
-TrackerDigiGeometryESModule.applyAlignment = True
 
 ##add quality info
 #NB in case of usage of GlobalTag, these Fakes will be substituded by the records in the GT (having the esprefer)

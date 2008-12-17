@@ -1,7 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-from Geometry.TrackerGeometryBuilder.trackerGeometry_cfi import *
-
 #Gain
 # first SiStripGainESProducer takes SiStripGainRcd from DB
 from CalibTracker.SiStripESProducers.SiStripGainESProducer_cfi import *
@@ -26,9 +24,6 @@ from RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitMatcher_cfi import *
 
 #cabling
 sistripconn = cms.ESProducer("SiStripConnectivity")
-
-TrackerDigiGeometryESModule.applyAlignment = True
-
 
 from CalibTracker.SiStripESProducers.SiStripQualityESProducer_cfi import *
 siStripQualityESProducer.ListOfRecordToMerge = cms.VPSet(
