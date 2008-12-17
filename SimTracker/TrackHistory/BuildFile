@@ -4,6 +4,7 @@
 <use name=DataFormats/Math>
 <use name=DataFormats/BTauReco>
 <use name=DataFormats/VertexReco>
+<use name=SimTracker/VertexAssociation>
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
 <use name=FWCore/Utilities>
@@ -23,6 +24,7 @@
    <use name=boost>
    <use name=root>
    <use name=DataFormats/Math>
+   <use name=SimTracker/VertexAssociation>
    <use name=DataFormats/BTauReco>
    <use name=DataFormats/VertexReco>
    <use name=FWCore/Framework>
