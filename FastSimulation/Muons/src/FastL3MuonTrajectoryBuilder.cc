@@ -10,8 +10,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2008/04/10 17:38:45 $
- *  $Revision: 1.8 $
+ *  $Date: 2008/05/14 17:43:24 $
+ *  $Revision: 1.9 $
  *
  *  Authors :
  *  Patrick Janot - CERN
@@ -125,12 +125,8 @@ FastL3MuonTrajectoryBuilder::trajectories(const TrackCand& staCandIn) {
   CandidateContainer tkTrajs;
   for (std::vector<TrackCand>::const_iterator tkt = trackerTracks.begin(); tkt != trackerTracks.end(); tkt++) {
     if ((*tkt).first != 0 && (*tkt).first->isValid()) {
-      std::vector<Trajectory> refittedTk;
-      Trajectory refittedTkTraj = *(*tkt).first;
-      refittedTk = refitTrajectory(*(*tkt).first);
-      if(refittedTk.size() == 1) refittedTkTraj = refittedTk.front();
-      
-      MuonCandidate* muonCand = new MuonCandidate( 0 ,staCand.second,(*tkt).second, new Trajectory(refittedTkTraj));
+
+      MuonCandidate* muonCand = new MuonCandidate(0,staCand.second,(*tkt).second,new Trajectory(*(*tkt).first));      
       tkTrajs.push_back(muonCand);
 #ifdef FAMOS_DEBUG
       if ( muonCand->muonTrack()->innerMomentum().Perp2() > 400. ) 
