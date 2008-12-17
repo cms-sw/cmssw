@@ -7,13 +7,19 @@
 namespace {
   struct dictionary {
     HFShowerLibraryEventInfo                             rv1;
+    edm::Wrapper<HFShowerLibraryEventInfo>               p1;
     std::vector<HFShowerLibraryEventInfo>                v1;
     edm::Wrapper<std::vector<HFShowerLibraryEventInfo> > wc1;
+
     HFShowerPhoton                                       rv2;
     std::vector<HFShowerPhoton>                          v2;
     edm::Wrapper<std::vector<HFShowerPhoton> >           wc2;
+
     PCaloHit                                             rv3;
     edm::PCaloHitContainer                               v3;
     edm::Wrapper<edm::PCaloHitContainer>                 wc3;
+
+    HFShowerPhotonCollection                             rv4;
+    edm::Wrapper<HFShowerPhotonCollection>               wc4;
   };
 }

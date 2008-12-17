@@ -7,5 +7,6 @@
   <class name="edm::Wrapper<std::vector<HFShowerPhoton> >" />
   <class name="HFShowerLibraryEventInfo"/>
   <class name="std::vector<HFShowerLibraryEventInfo>"/>
+  <class name="edm::Wrapper<HFShowerLibraryEventInfo>" />
   <class name="edm::Wrapper<std::vector<HFShowerLibraryEventInfo> >" />
 </lcgdict>
