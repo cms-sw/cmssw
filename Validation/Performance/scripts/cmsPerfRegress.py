@@ -178,7 +178,7 @@ def getTimingLogData(logfile_name):
 ###########
 # Parse memory check data from log file
 #
-def getSimpleMemLogData(logfile_name,startevt):
+def getSimpleMemLogData(logfile_name,startevt, candle):
     data=[]
     values_set=('vsize','delta_vsize','rss','delta_rss')
     
@@ -189,21 +189,35 @@ def getSimpleMemLogData(logfile_name,startevt):
     
     step = ""
     steps = []
+    #Get the step from log filename:
+    stepreg = re.compile("%s_([^_]*(_PILEUP)?)_%s((.log)|(.gz))?" % (CandFname[candle],"TimingReport"))
+    #print logfile_name
+    found=stepreg.search(logfile_name)
+    if found:
+        step=found.groups()[0]
+        print "Determined step from log filename to be %s"%step
+    else:
+        print "Could not determine step from log filename"
+        
+    steps.append((step,data))
+    
     # we get the info we need!
     i=0
     while i < len(logfile_lines):
         line=logfile_lines[i]
-        if "RelValreport" in line and "cmsDriver" in line and "step" in line:
-            stepreg = re.compile("--step=([^ ]*)")
-            found = stepreg.search(line)
-            if found:
-                if step == "":
-                    step = found.groups()[0]
-                else:
-                    steps.append((step,data))
-                    step = found.groups()[0]
-                    data = []        
-        elif '%MSG-w MemoryCheck:' in line:
+        #Format has changed... we use the output of individual steps, so no need to read into the logfile to find which step we are
+        #referring too (by the way it would not work now!)... the step info comes from the logfilename done above...
+        #if "RelValreport" in line and "cmsDriver" in line and "step" in line:
+        #    stepreg = re.compile("--step=([^ ]*)")
+        #    found = stepreg.search(line)
+        #    if found:
+        #        if step == "":
+        #            step = found.groups()[0]
+        #        else:
+        #            steps.append((step,data))
+        #            step = found.groups()[0]
+        #            data = []        
+        if '%MSG-w MemoryCheck:' in line:
             line=line[:-1] #no \n!
             line_content_list=line.split(' ')
             event_number=int(line_content_list[-1])
@@ -681,7 +695,7 @@ def cmpSimpMemReport(rootfilename,outdir,oldLogfile,newLogfile,startevt,batch=Tr
     # the fundamental structure: the key is the evt number the value is a list containing
     # VSIZE deltaVSIZE RSS deltaRSS
     try:
-        info1 = getSimpleMemLogData(oldLogfile,startevt)
+        info1 = getSimpleMemLogData(oldLogfile,startevt, candle)
         if len(info1) == 0:
             raise IndexError
     except IndexError:
@@ -690,14 +704,15 @@ def cmpSimpMemReport(rootfilename,outdir,oldLogfile,newLogfile,startevt,batch=Tr
         raise SimpMemParseErr(oldLogfile)        
     
     try:
-        info2 = getSimpleMemLogData(newLogfile,startevt)
+        info2 = getSimpleMemLogData(newLogfile,startevt, candle)
         if len(info2) == 0:
             raise IndexError
     except IndexError:
         raise SimpMemParseErr(newLogfile)
     except IOError:
         raise SimpMemParseErr(newLogfile)        
-
+    #print info1
+    #print info2
     canvases = []
     # skim the second entry when the event number is the same BUG!!!!!!!
     # i take elements in couples!
@@ -815,6 +830,7 @@ def cmpSimpMemReport(rootfilename,outdir,oldLogfile,newLogfile,startevt,batch=Tr
             elif CandFname.has_key(logcandle):
                 candFilename = CandFname[logcandle]
             else:
+                print "%s is an unknown candle!"%candle
                 candFilename = "Unknown-candle"
 
             outputdir = "%s_%s_SimpleMemReport" % (candFilename,stepname1)
@@ -1087,10 +1103,10 @@ def _main():
     try:
         if   reporttype == "timing":
             rootfilename = "timingrep-regression.root"
-            cmpTimingReport(rootfilename ,outdir,file1,file2,secsperbin,False)
+            cmpTimingReport(rootfilename ,outdir,file1,file2,secsperbin,True)
         elif reporttype == "simplememory":
             rootfilename = "simpmem-regression.root"
-            cmpSimpMemReport(rootfilename,outdir,file1,file2,secsperbin,False)
+            cmpSimpMemReport(rootfilename,outdir,file1,file2,secsperbin,True)
         elif reporttype == "edmsize":
             cmpEdmSizeReport(outdir,file1,file2)
         elif reporttype == "callgrind":

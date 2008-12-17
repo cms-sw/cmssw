@@ -10,7 +10,7 @@
 import FWCore.ParameterSet.Config as cms
 def customise(process):
     #Renaming the process
-    process.__dict__['_Process__name']='DIGIPILEUP'
+    process.__dict__['_Process__name']=process.__dict__['_Process__name']+'-PILEUP'
     #Adding SimpleMemoryCheck service:
     process.SimpleMemoryCheck=cms.Service("SimpleMemoryCheck",
                                           ignoreTotal=cms.untracked.int32(1),

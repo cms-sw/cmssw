@@ -23,7 +23,7 @@
 
 import sys, os, re, operator
 import optparse as opt
-from cmsPerfCommons import Candles, CandDesc, FileName, KeywordToCfi, CustomiseFragment, CandFname
+from cmsPerfCommons import Candles, CandDesc, FileName, KeywordToCfi, CustomiseFragment, CandFname, EventContents
 ################
 # Global variables
 #
@@ -440,7 +440,11 @@ def writeUnprofiledSteps(simcandles,CustomisePythonFragment,cmsDriverOptions,unp
     #This affects the Step1/Step2 running since Step1 will produce an HLT.root file and Step2 should start from there!
     #Adding the argument bypasshlt to the calls...
     InputFileOption = setInputFile(AllSteps,unprofiledSteps[0],acandle,stepIndex - 1,bypasshlt=bypasshlt)
-
+    #Introduce an over-ride of cmsDriverOptions:
+    #For the case of unprofiled steps, always run them with FEVTDEBUGHLT eventcontent
+    #At the moment the only use case is when running step2 on its own...
+    for eventcontent in EventContents:
+        cmsDriverOptions=re.sub(eventcontent,'FEVTDEBUGHLT',cmsDriverOptions)
     Command = ("%s %s -n %s --step=%s %s %s --customise=%s %s"
                        % (cmsDriver,
                           KeywordToCfi[acandle],

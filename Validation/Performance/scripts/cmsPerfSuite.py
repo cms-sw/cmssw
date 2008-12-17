@@ -694,17 +694,9 @@ class PerfSuite:
                 #Catch the case of PILE UP:
                 if "--pileup" in cmsdriverOptions:
                     adir=self.mkCandleDir(pfdir,"%s_PU"%candle,Name)
+                    print "PUPUPU %s"%adir
                 else:
-                    adir=self.mkCandleDir(pfdir,candle,Name)
-                #if callgrind:
-                    #Take this out for now?
-                    #If we take out Callgrind for GEN-SIM, DIGI we could do without this awkward hardcoded kludge
-                    #if candle == "SingleMuMinusPt10" : 
-                    #    self.logh.write("Valgrind tests **GEN,SIM ONLY** on %s candle\n" % candle    )
-                    #else:
-                    #    self.logh.write("Valgrind tests **SKIPPING GEN,SIM** on %s candle\n" % candle)
-
-                        #self.cprootfile(adir,candle,NumEvents,cmsdriverOptions[13:-1])#Nasty hack to propagate cmsdriverOptions to potential cmsDriver.py commands to create necessary root files...              
+                    adir=self.mkCandleDir(pfdir,candle,Name)       
 
                 if self._unittest:
                     # Run cmsDriver.py
@@ -712,10 +704,7 @@ class PerfSuite:
                     self.testCmsDriver(cpu,adir,candle)
                 else:
                     self.runCmsInput(cpu,adir,NumEvents,candle,cmsdriverOptions,stepOptions,profiles,bypasshlt)            
-                    #if valgrind and candle == "QCD_80_120":
-                    #    self.valFilterReport(adir)
-                    #FIXME:no_exec
-                    #Here's a point where a no_exec would kick in (do everything but do not launch cmsRelvalreport.py
+                    #Here where the no_exec option kicks in (do everything but do not launch cmsRelvalreport.py, it also prevents cmsScimark spawning...):
                     if self._noexec:
                         self.logh.write("Running in debugging mode, without executing cmsRelvalreport.py\n")
                         pass
@@ -724,17 +713,7 @@ class PerfSuite:
                         print "Individual Relvalreport.py ExitCode %s"%ExitCode
                         RelvalreportExitCode=RelvalreportExitCode+ExitCode
                         print "Summed Relvalreport.py ExitCode %s"%RelvalreportExitCode
-                    #proflogs = []
-                    #Change the log testing to look for G4 cerr but also for CMSException
-                    #Also look in the main cmsRelvalreport log (not the TimingReport only)
-                    #That contains all other information.
-                    #if   Name == "TimeSize":
-                    #    proflogs = [ "TimingReport" ]
-                    #elif Name == "Valgrind":
-                    #    pass
-                    #elif Name == "IgProf":
-                    #    pass
-                    #
+                    
                     #for proflog in proflogs:
                     #With the change from 2>1&|tee to >& to preserve exit codes, we need now to check all logs...
                     #less nice... we might want to do this externally so that in post-processing its a re-usable tool
@@ -1045,7 +1024,11 @@ class PerfSuite:
                         self.logh.write("Following with %s cmsScimarkLarge on cpu%s\n" % (cmsScimarkLarge,cpu))
                         self.benchmarks(cpu,perfsuitedir,scimarklarge.name,cmsScimarkLarge)
     
-            if not prevrel == "":
+            if prevrel:
+                self.logh.write("Running the regression analysis with respect to %s\n"%getVerFromLog(prevrel))
+                self.logh.write(time.ctime(time.time()))
+                self.logh.flush()
+                
                 crr.regressReports(prevrel,os.path.abspath(perfsuitedir),oldRelName = getVerFromLog(prevrel),newRelName=self.cmssw_version)
     
             #Create a tarball of the work directory

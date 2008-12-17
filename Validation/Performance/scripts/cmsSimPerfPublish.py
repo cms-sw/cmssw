@@ -27,18 +27,25 @@ TMP_DIR    = ""
 cpFileFilter = ( "*.root", ) # Unix pattern matching not regex
 cpDirFilter  = (           ) # Unix pattern matching not regex
 
-TimeSizeNumOfEvents = 100
-IgProfNumOfEvents   = 5
-ValgrindNumOfEvents = 1
+TimeSizeNumOfEvents = -9999
+IgProfNumOfEvents   = -9999
+CallgrindNumOfEvents = -9999
+MemcheckNumOfEvents = -9999
 
 DirName=( #These need to match the candle directory names ending (depending on the type of profiling)
           "TimeSize",
-          "IgProf",
+          "IgProf",          
           "Callgrind",
-          "Memcheck"
+         "Memcheck",
+          #Adding the extra PU directories:
+          "PU_TimeSize",
+          "PU_IgProf",          
+          "PU_Callgrind",
+          "PU_Memcheck"
           )
 #Defining Steps as a union of Step and ProductionSteps:
-Steps=Step+ProductionSteps
+Steps=set(Step+ProductionSteps)
+
 
 ##################
 #
@@ -183,7 +190,7 @@ class Table(object):
 # Main 
 #
 def main():
-        
+    global TimeSizeNumOfEvents,IgProfNumOfEvents,CallgrindNumOfEvents,MemcheckNumOfEvents
     def _copyReportsToStaging(repdir,LogFiles,cmsScimarkDir,stage):
 
         if _verbose:
@@ -219,6 +226,15 @@ def main():
     # Determine program parameters and input/staging locations
     print "\n Determining locations for input and staging..."
     (drive,path,remote,stage,port,repdir,prevrev) = getStageRepDirs(options,args)
+
+    #Get the number of events for each test from logfile:
+    print "\n Getting the number of events for each test..."
+    #Let's do a quick implementation of something that looks at the logfile:
+    cmsPerfSuiteLogfile="%s/cmsPerfSuite.log"%repdir
+    #print "AAAA %s"%cmsPerfSuiteLogfile
+    if os.path.exists(cmsPerfSuiteLogfile):
+        (TimeSizeNumOfEvents,IgProfNumOfEvents,CallgrindNumOfEvents,MemcheckNumOfEvents)=getNumOfEventsFromLog(cmsPerfSuiteLogfile)
+    #For now keep the dangerous default? Better set it to a negative number...
 
     print "\n Scan report directory..."
     # Retrieve some directories and information about them
@@ -274,7 +290,7 @@ def get_environ():
     PerformancePkg="%s/src/Validation/Performance"        % CMSSW_BASE
     if (os.path.exists(PerformancePkg)):
         BASE_PERFORMANCE=PerformancePkg
-        print "**[cmsSimPerfPublish.pl]Using LOCAL version of Validation/Performance instead of the RELEASE version**"
+        print "**Using LOCAL version of Validation/Performance instead of the RELEASE version**"
     else:
         BASE_PERFORMANCE="%s/src/Validation/Performance"  % CMS_RELEASE_BASE
 
@@ -390,6 +406,31 @@ def optionparse():
         sys.exit()
 
     return (options, args)
+
+
+#A function to get the number of events for each test from the logfile:
+def getNumOfEventsFromLog(logfile):
+    '''A very fragile function to get the Number of events for each test by parsing the logfile of the Suite. This relies on the fact that nobody will turn off the print out of the options in the cmsPerfSuite.py output... ARGH!'''
+    log=open(logfile,"r")
+    TimeSizeEvents=0
+    IgProfEvents=0
+    CallgrindEvents=0
+    MemcheckEvents=0
+    for line in log:
+        if 'TimeSizeEvents' in line and not TimeSizeEvents:
+            lineitems=line.split()
+            TimeSizeEvents=lineitems[lineitems.index('TimeSizeEvents')+1]
+        if 'IgProfEvents' in line and not IgProfEvents:
+            lineitems=line.split()
+            IgProfEvents=lineitems[lineitems.index('IgProfEvents')+1]
+        if 'CallgrindEvents' in line and not CallgrindEvents:
+            lineitems=line.split()
+            CallgrindEvents=lineitems[lineitems.index('CallgrindEvents')+1]
+        if 'MemcheckEvents' in line and not MemcheckEvents:
+            lineitems=line.split()
+            MemcheckEvents=lineitems[lineitems.index('MemcheckEvents')+1]
+    return (TimeSizeEvents,IgProfEvents,CallgrindEvents,MemcheckEvents)
+
 
 #####################
 #
@@ -742,6 +783,7 @@ def step_cmp(x,y):
 # Create HTML pages for candles
 
 def createCandlHTML(tmplfile,candlHTML,CurrentCandle,WebArea,repdir,ExecutionDate,LogFiles,cmsScimarkResults,date,prevrev):
+    global TimeSizeNumOfEvents,IgProfNumOfEvents,CallgrindNumOfEvents,MemcheckNumOfEvents
     def _stripbase(base, astr):
         basereg = re.compile("^%s/?(.*)" % base)
         out = astr
@@ -754,17 +796,24 @@ def createCandlHTML(tmplfile,candlHTML,CurrentCandle,WebArea,repdir,ExecutionDat
         #FIXME:
         #Pileup now has it own directory... should add it in the DirName dictionary at the beginning?
         ProfileTemplate=os.path.join(repdir, "%s_%s" % (CurrentCandle,CurDir), "*_%s_%s*" % (step,CurrentProfile),Profiler)
-
+        #print ProfileTemplate
         #There was the issue of SIM vs sim (same for DIGI) between the previous RelVal based performance suite and the current.
         ProfileTemplateLowCaps=os.path.join(repdir, "%s_%s" % (CurrentCandle,CurDir), "*_%s_%s*" % (step.lower(),CurrentProfile),Profiler)        
         ProfileReportLink = glob.glob(ProfileTemplate)
+        #Filter out the Pile up directories when step does not contain Pile up
+        #if not ('PILEUP' in step):
+        #    print "NPNPNPNP BEFORE %s"%ProfileReportLink
+        #    ProfileReportLink=filter(lambda x: "PU" not in x,ProfileReportLink)
+        #    print "NPNPNPNP %s"%ProfileReportLink
         #print ProfileReportLink
         if len(ProfileReportLink) > 0:
+            #print ProfileReportLink
             if not reduce(lambda x,y: x or y,map(lambda x: CurrentCandle in x,ProfileReportLink)):# match with caps try low caps
                 ProfileReportLink = glob.glob(ProfileTemplateLowCaps)
         else:
             ProfileReportLink = glob.glob(ProfileTemplateLowCaps)
         ProfileReportLink = map(lambda x: _stripbase(repdir,x),ProfileReportLink)
+        #print ProfileReportLink
         return ProfileReportLink
 
     def _writeReportLink(INDEX,ProfileReportLink,CurrentProfile,step,NumOfEvents,Profiler=""):
@@ -775,14 +824,19 @@ def createCandlHTML(tmplfile,candlHTML,CurrentCandle,WebArea,repdir,ExecutionDat
                 INDEX.write("<li><a href=\"%s\">%s %s %s (%s events)</a></li>\n" % (ProfileReportLink,CurrentProfile,Profiler,step,"5"))
             else:
                 INDEX.write("<li><a href=\"%s\">%s %s %s (%s events)</a></li>\n" % (ProfileReportLink,CurrentProfile,Profiler,step,NumOfEvents))
-            
+    #FIXME:
+    #These numbers are used in the index.html they are not automatically matched to the actual
+    #ones (one should automate this, by looking into the cmsCreateSimPerfTestPyRelVal.log logfile)    
+                            
     NumOfEvents={
-        #FIXME:
-        #These numbers are used in the index.html they are not automatically matched to the actual
-        #ones (one should automate this, by looking into the cmsCreateSimPerfTestPyRelVal.log logfile)
                 DirName[0] : TimeSizeNumOfEvents,
                 DirName[1] : IgProfNumOfEvents,
-                DirName[2] : ValgrindNumOfEvents
+                DirName[2] : CallgrindNumOfEvents,
+                DirName[3] : MemcheckNumOfEvents,
+                DirName[4] : TimeSizeNumOfEvents,
+                DirName[5] : IgProfNumOfEvents,
+                DirName[6] : CallgrindNumOfEvents,
+                DirName[7] : MemcheckNumOfEvents
                 }
 
     Profile=(
@@ -845,12 +899,14 @@ def createCandlHTML(tmplfile,candlHTML,CurrentCandle,WebArea,repdir,ExecutionDat
                     if not prevrev == "":
 
                         profs = []
-                        if   CurDir == DirName[0]:
+                        if   CurDir == DirName[0] or CurDir == DirName[4]:
                             profs = Profile[0:4]
-                        elif CurDir == DirName[1]:
+                        elif CurDir == DirName[1] or CurDir == DirName[5]:
                             profs = Profile[4:8]
-                        elif CurDir == DirName[2]:
-                            profs = Profile[8:9]
+                        elif CurDir == DirName[2] or CurDir == DirName[6]:
+                            profs = [Profile[8]] #Keeping format to a list...
+                        elif CurDir == DirName[3] or CurDir == DirName[7]:
+                            profs = [Profile[9]] #Keeping format to a list...
                         #This could be optimized, but for now just comment the code:
                         #This for cycle takes care of the case in which there are regression reports to link to the html:
                         for prof in profs:
@@ -930,7 +986,7 @@ def createCandlHTML(tmplfile,candlHTML,CurrentCandle,WebArea,repdir,ExecutionDat
                                         CAND.write(html)
                                         CAND.write("\n</tr></table>")   
 
-                            elif prof == "EdmSize" or prof == "IgProfMemTotal" or prof == "IgProfMemLive" or prof== "IgProfperf" or prof == "valgrind":
+                            elif prof == "EdmSize" or prof == "IgProfMemTotal" or prof == "IgProfMemLive" or prof== "IgProfperf" or prof == "Callgrind":
                                 regresPath = os.path.join(LocalPath,"%s_*_%s_regression" % (CandFname[CurrentCandle],prof))
                                 regresses  = glob.glob(regresPath)
                                 stepreg = re.compile("%s_([^_]*(_PILEUP)?)_%s_regression" % (CandFname[CurrentCandle],prof))
@@ -948,7 +1004,7 @@ def createCandlHTML(tmplfile,candlHTML,CurrentCandle,WebArea,repdir,ExecutionDat
                                         if found:
                                             step = found.groups()[0]
                                         htmlpage = ""
-                                        if prof == "IgProfMemLive" or prof == "IgProfMemTotal" or prof== "IgProfperf" or prof == "valgrind":
+                                        if prof == "IgProfMemLive" or prof == "IgProfMemTotal" or prof== "IgProfperf" or prof == "Callgrind":
                                             htmlpage = "overall.html"
                                         else:
                                             htmlpage = "objects_pp.html"
@@ -978,14 +1034,17 @@ def createCandlHTML(tmplfile,candlHTML,CurrentCandle,WebArea,repdir,ExecutionDat
 
                     PrintedOnce = False
                     for CurrentProfile in Profile:
-
+                        #print Steps
                         for step in Steps: #Using Steps here that is Step+ProductionSteps!
-
+                            #print step
+                            
                             ProfileReportLink = _getProfileReportLink(repdir,CurrentCandle,
                                                                      CurDir,
                                                                      step,
                                                                      CurrentProfile,
                                                                      OutputHtml[CurrentProfile])
+                            #if ProfileReportLink:
+                            #    print ProfileReportLink
                             isProfinLink = False
                             if len (ProfileReportLink) > 0:
                                 isProfinLink = reduce(lambda x,y: x or y,map(lambda x: CurrentProfile in x,ProfileReportLink))
@@ -1019,12 +1078,13 @@ def createCandlHTML(tmplfile,candlHTML,CurrentCandle,WebArea,repdir,ExecutionDat
                                 elif (CurrentProfile == Profile[9]):
 
                                     for memprof in memcheck_valgrindOut:
+                                        #print memprof
                                         ProfileReportLink = _getProfileReportLink(repdir,CurrentCandle,
-                                                                                 CurDir,
-                                                                                 step,
-                                                                                 CurrentProfile,
-                                                                                  
-                                                                                 memprof)
+                                                                                  CurDir,
+                                                                                  step,
+                                                                                  CurrentProfile,
+                                                                                  memprof
+                                                                                  )
                                         isProfinLink = False
                                         if len (ProfileReportLink) > 0:
                                             isProfinLink = reduce(lambda x,y: x or y,map(lambda x: CurrentProfile in x,ProfileReportLink))                                        
@@ -1036,6 +1096,7 @@ def createCandlHTML(tmplfile,candlHTML,CurrentCandle,WebArea,repdir,ExecutionDat
                                     for prolink in ProfileReportLink:
                                         if "regression" not in prolink: #To avoid duplication of links to regression reports!
                                             _writeReportLink(CAND,prolink,CurrentProfile,step,NumOfEvents[CurDir])
+                                            #print "Step is %s, CurrentProfile is %s and ProfileReportLink is %s and prolink is %s"%(step,CurrentProfile,ProfileReportLink,prolink)
 
 
                     if PrintedOnce:

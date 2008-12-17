@@ -34,18 +34,22 @@ Step = ["GEN,SIM",
         "DIGI2RAW",
         "HLT",
         "RAW2DIGI,RECO",
+        #Add also all PILEUP steps
         "DIGI_PILEUP",
         "L1_PILEUP",
         "DIGI2RAW_PILEUP",
         "HLT_PILEUP",
-        "RAW2DIGI_PILEUP",
-        "RECO_PILEUP"
+        "RAW2DIGI,RECO_PILEUP"
         ]
 
 #List of Production steps (to be used by the publishing script to find reports:
 ProductionSteps = ["GEN,SIM,DIGI,L1,DIGI2RAW,HLT",
                    "GEN,SIM,DIGI,L1,DIGI2RAW",
-                   "RAW2DIGI,RECO"
+                   "RAW2DIGI,RECO", #This is already included in Step! So remember to eliminate duplicates if doing the union of the two!
+                   #Add also all PILEUP steps
+                   "GEN,SIM,DIGI,L1,DIGI2RAW,HLT_PILEUP",
+                   "GEN,SIM,DIGI,L1,DIGI2RAW_PILEUP",
+                   "RAW2DIGI,RECO_PILEUP" #This is already included in Step!
                    ]
 #A dictionary with the reverse look-up for the candle given the root base filename 
 revCFname = {
@@ -101,6 +105,11 @@ for x in range(len(Candles)):
 
     KeywordToCfi[Candles[x]] = configs[x]
     FileName[Candles[x]]     = filenames[x]
+
+#Allowed event contents (this list is used at the moment only in cmsRelvalreportInput.py to make sure any unprofiled step uses the FEVTDEBUGHLT eventcontent. Other uses can be devised later (adding FEVTDEBUG and FEVTDEBUGHLT for example)
+EventContents=['RAWSIM',
+               'RECOSIM'
+               ]
 
 #PILE-UP Settings:
 

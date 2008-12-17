@@ -571,7 +571,7 @@ class Profile:
             exit=0
             for command in report_commands:
                 exit= exit + execute(command)      
-                return exit
+            return exit
         #####################################################################                
                 
         # Profiler is TimeReport parser
