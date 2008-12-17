@@ -46,6 +46,6 @@ process.prod4 = cms.EDAnalyzer("CSCPedestalReadAnalyzer")
 process.output = cms.OutputModule("AsciiOutputModule")
 
 process.p = cms.Path(process.prod1*process.prod2*process.prod3*process.prod4)
-process.ep = cms.EndPath(process.print)
+process.ep = cms.EndPath(process.output)
 
 
