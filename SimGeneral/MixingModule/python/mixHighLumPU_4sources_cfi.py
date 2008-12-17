@@ -13,7 +13,7 @@ import FWCore.ParameterSet.Config as cms
 # we have put minbias files for all the sources, just as an example
 #
 from SimGeneral.MixingModule.mixObjects_cfi import *
-mix = cms.EDFilter("MixingModule",
+mix = cms.EDProducer("MixingModule",
     LabelPlayback = cms.string(''),
     maxBunch = cms.int32(3),
     minBunch = cms.int32(-5), ## in units of 25 nsec

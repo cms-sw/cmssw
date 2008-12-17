@@ -8,7 +8,7 @@ process.source = cms.Source("PoolSource",
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
 )
-process.test = cms.EDFilter("TestMix",
+process.test = cms.EDProducer("TestMix",
     PrintLevel = cms.untracked.int32(2)
 )
 
