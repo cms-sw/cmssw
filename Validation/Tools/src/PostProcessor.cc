@@ -2,8 +2,8 @@
  *  Class:PostProcessor 
  *
  *
- *  $Date: 2008/12/11 17:33:27 $
- *  $Revision: 1.12 $
+ *  $Date: 2008/12/15 20:46:08 $
+ *  $Revision: 1.1 $
  * 
  *  \author Junghwan Goh - SungKyunKwan University
  */
@@ -182,15 +182,26 @@ void PostProcessor::computeEfficiency(const string& startDir, const string& effi
   efficME->setEntries(simME->getEntries());
 
   // Global efficiency
-  ME* efficME_value = theDQM->bookFloat(newEfficMEName+"_value");
-  ME* efficME_error = theDQM->bookFloat(newEfficMEName+"_error");
+  ME* globalEfficME = theDQM->get(efficDir+"/globalEfficiencies");
+  if ( !globalEfficME ) globalEfficME = theDQM->book1D("globalEfficiencies", "Global efficiencies", 1, 0, 1);
+  if ( !globalEfficME ) {
+    LogError("PostProcessor") << "computeEfficiency() : Cannot book globalEffic-ME from the DQM\n";
+    return;
+  }
+  TH1F* hGlobalEffic = globalEfficME->getTH1F();
+  if ( !hGlobalEffic ) {
+    LogError("PostProcessor") << "computeEfficiency() : Cannot create TH1F from ME, globalEfficME\n";
+    return;
+  }
 
   const float nSimAll = hSim->GetEntries();
   const float nRecoAll = hReco->GetEntries();
   const float efficAll = nSimAll ? nRecoAll/nSimAll : 0;
   const float errorAll = nSimAll && efficAll < 1 ? sqrt(efficAll*(1-efficAll)/nSimAll) : 0;
-  efficME_value->Fill(efficAll);
-  efficME_error->Fill(errorAll);
+
+  const int iBin = hGlobalEffic->Fill(newEfficMEName.c_str(), 0);
+  hGlobalEffic->SetBinContent(iBin, efficAll);
+  hGlobalEffic->SetBinError(iBin, errorAll);
 }
 
 void PostProcessor::computeResolution(const string& startDir, const string& namePrefix, const string& titlePrefix,
