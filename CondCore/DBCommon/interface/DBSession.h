@@ -9,7 +9,7 @@
 */
 //
 // Author:      Zhen Xie
-// $Id: DBSession.h,v 1.9 2008/11/10 16:09:19 xiezhen Exp $
+// $Id: DBSession.h,v 1.10 2008/11/13 18:31:12 xiezhen Exp $
 //
 #include <string>
 //#include "CoralKernel/Context.h"
@@ -26,6 +26,7 @@ namespace pool{
 }
 namespace cond{
   class SessionConfiguration;
+  class CoralServiceManager;
   /*
   **/
   class DBSession{
@@ -44,6 +45,7 @@ namespace cond{
   private:
     //    coral::IHandle<coral::Context> m_context;
     SessionConfiguration* m_sessionConfig;
+    CoralServiceManager* m_pluginmanager;
   };
 }//ns cond
 #endif

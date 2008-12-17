@@ -4,13 +4,17 @@
 #include "CondCore/DBCommon/interface/CoralTransaction.h"
 #include "CondCore/DBCommon/interface/SessionConfiguration.h"
 #include "CondCore/DBCommon/interface/ConnectionConfiguration.h"
+#include "CondCore/DBCommon/interface/Exception.h"
 #include "PoolConnectionProxy.h"
 #include "CoralConnectionProxy.h"
+
 //#include <iostream>
 cond::Connection::Connection(const std::string& con,
 			     int connectionTimeOut):
   m_con( con ),
-  m_connectionTimeOut ( connectionTimeOut )
+  m_connectionTimeOut ( connectionTimeOut ),
+  m_connectionServiceHandle(0),
+  m_blobstreamingServiceHandle(0)
 {
   m_coralConnectionPool.reserve(10);
 }
@@ -19,6 +23,8 @@ cond::Connection::~Connection(){
 }
 void cond::Connection::connect( cond::DBSession* session ){
   m_connectionServiceHandle=&(session->connectionService());
+  if(!m_connectionServiceHandle)throw cond::Exception("cond::Connection::connect: unable to load connection service");
+  m_blobstreamingServiceHandle=&(session->blobStreamingService());
   m_idleConnectionCleanupPeriod=session->configuration().connectionConfiguration()->idleConnectionCleanupPeriod();
 }
 
@@ -49,7 +55,7 @@ cond::Connection::poolTransaction(){
       return static_cast<cond::PoolTransaction&>((*it)->transaction());
     }
   }
-  cond::PoolConnectionProxy* me=new cond::PoolConnectionProxy(m_connectionServiceHandle,m_con,m_connectionTimeOut,m_idleConnectionCleanupPeriod); 
+  cond::PoolConnectionProxy* me=new cond::PoolConnectionProxy(m_connectionServiceHandle,m_blobstreamingServiceHandle,m_con,m_connectionTimeOut,m_idleConnectionCleanupPeriod); 
   m_poolConnectionPool.push_back(me);
   return static_cast<cond::PoolTransaction&>(me->transaction());
 }

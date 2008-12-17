@@ -2,7 +2,7 @@
 #include "StorageSvc/DbReflex.h"
 #include <typeinfo>
 #include "cxxabi.h"
-#include <iostream>
+//#include <iostream>
 
 namespace pool {  void genMD5(const std::string& s, void* code);  }
 

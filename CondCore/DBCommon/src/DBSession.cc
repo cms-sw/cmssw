@@ -1,4 +1,4 @@
-// $Id: DBSession.cc,v 1.24 2008/11/10 16:09:19 xiezhen Exp $
+// $Id: DBSession.cc,v 1.25 2008/11/13 18:31:12 xiezhen Exp $
 //coral includes
 #include "CoralKernel/Context.h"
 #include "CoralKernel/IHandle.h"
@@ -16,14 +16,17 @@
 #include "CondCore/DBCommon/interface/SessionConfiguration.h"
 #include "CondCore/DBCommon/interface/ConnectionConfiguration.h"
 #include "CondCore/DBCommon/interface/Exception.h"
+#include "CondCore/DBCommon/interface/CoralServiceManager.h"
 // pool includes
 #include <boost/filesystem/operations.hpp>
 //#include <iostream>
 cond::DBSession::DBSession(){ 
   m_sessionConfig = new cond::SessionConfiguration;
+  m_pluginmanager = new cond::CoralServiceManager;
 }
 cond::DBSession::~DBSession(){
   delete m_sessionConfig;
+  delete m_pluginmanager;
 }
 void cond::DBSession::open(){
   switch ( m_sessionConfig->messageLevel() ) {
@@ -48,7 +51,7 @@ void cond::DBSession::open(){
   }
   //load authentication service
   if( m_sessionConfig->authenticationMethod()== cond::XML ) {
-    coral::Context::instance().loadComponent( "COND/Services/XMLAuthenticationService" );
+    coral::Context::instance().loadComponent( "COND/Services/XMLAuthenticationService",m_pluginmanager);
     boost::filesystem::path authPath( m_sessionConfig->authName() );
     if(boost::filesystem::is_directory(m_sessionConfig->authName())){
       authPath /= boost::filesystem::path("authentication.xml");
@@ -56,15 +59,15 @@ void cond::DBSession::open(){
     std::string authName=authPath.string();
     coral::Context::instance().PropertyManager().property("AuthenticationFile")->set(authName);
   }else{
-    coral::Context::instance().loadComponent( "CORAL/Services/EnvironmentAuthenticationService" );
+    coral::Context::instance().loadComponent( "CORAL/Services/EnvironmentAuthenticationService");
   }
  
-  coral::Context::instance().loadComponent( "CORAL/Services/ConnectionService" );
+  coral::Context::instance().loadComponent( "CORAL/Services/ConnectionService");
 
   coral::IConnectionServiceConfiguration& conserviceConfig = connectionService().configuration();
   cond::ConnectionConfiguration* conConfig=m_sessionConfig->connectionConfiguration();
   if(m_sessionConfig->isSQLMonitoringOn()){
-    coral::Context::instance().loadComponent( "COND/Services/SQLMonitoringService");
+    coral::Context::instance().loadComponent( "COND/Services/SQLMonitoringService",m_pluginmanager);
     conConfig->setMonitorLevel(coral::monitor::Trace);
   }
   if( conConfig ){
@@ -83,9 +86,9 @@ void cond::DBSession::open(){
     if( m_sessionConfig->hasBlobStreamService() ){
       std::string streamerName=m_sessionConfig->blobStreamerName();
       if(streamerName.empty()){
-	coral::Context::instance().loadComponent( "COND/Services/TBufferBlobStreamingService" );
+	coral::Context::instance().loadComponent( "COND/Services/TBufferBlobStreamingService",m_pluginmanager );
       }else{
-        coral::Context::instance().loadComponent(streamerName);
+	coral::Context::instance().loadComponent(streamerName,m_pluginmanager);
       }
     }
   }

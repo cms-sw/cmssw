@@ -5,20 +5,26 @@
 //connection service includes
 #include "RelationalAccess/IConnectionService.h"
 #include "RelationalAccess/IConnectionServiceConfiguration.h"
+#include "CoralKernel/Context.h"
+#include "CoralKernel/IHandle.h"
 //pool includes
 #include "PersistencySvc/DatabaseConnectionPolicy.h"
 #include "PersistencySvc/ISession.h"
+#include "PersistencySvc/IConfiguration.h"
 #include "PersistencySvc/ITransaction.h"
 #include "DataSvc/DataSvcFactory.h"
 #include "DataSvc/IDataSvc.h"
 #include "FileCatalog/IFileCatalog.h"
+#include "POOLCore/IBlobStreamingService.h"
 //#include <iostream>
 cond::PoolConnectionProxy::PoolConnectionProxy(
 	  coral::IConnectionService* connectionServiceHandle,
+	  pool::IBlobStreamingService* blobStreamingServiceHandle,
 	  const std::string& con,
 	  int connectionTimeOut,
 	  int idleConnectionCleanupPeriod):
   cond::IConnectionProxy(connectionServiceHandle,con,connectionTimeOut,idleConnectionCleanupPeriod),
+  m_blobstreamingService(blobStreamingServiceHandle),
   m_datasvc(0),
   m_transaction( 0 ),
   m_transactionCounter( 0 ),
@@ -56,12 +62,18 @@ void
 cond::PoolConnectionProxy::connect(){
   if(!m_datasvc){
     m_datasvc=pool::DataSvcFactory::instance(m_catalog);
-    pool::DatabaseConnectionPolicy policy;
-    policy.setWriteModeForNonExisting(pool::DatabaseConnectionPolicy::CREATE);
-    policy.setWriteModeForExisting(pool::DatabaseConnectionPolicy::UPDATE);
-    policy.setReadMode(pool::DatabaseConnectionPolicy::READ);
-    m_datasvc->session().setDefaultConnectionPolicy(policy);
   }
+  m_datasvc->configuration().setConnectionService(m_connectionSvcHandle,false);
+  if(m_blobstreamingService!=0){
+    m_datasvc->configuration().setBlobStreamer(m_blobstreamingService, false);
+  }
+  
+  pool::DatabaseConnectionPolicy policy;
+  policy.setWriteModeForNonExisting(pool::DatabaseConnectionPolicy::CREATE);
+  policy.setWriteModeForExisting(pool::DatabaseConnectionPolicy::UPDATE);
+  policy.setReadMode(pool::DatabaseConnectionPolicy::READ);
+  m_datasvc->session().setDefaultConnectionPolicy(policy);
+  
   /*m_datasvc=pool::DataSvcFactory::instance(m_catalog);
   pool::DatabaseConnectionPolicy policy;
   policy.setWriteModeForNonExisting(pool::DatabaseConnectionPolicy::CREATE);

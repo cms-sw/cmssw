@@ -16,6 +16,7 @@
 namespace pool{
   class IDataSvc;
   class IFileCatalog;
+  class IBlobStreamingService;
 }
 namespace cond{
   class ITransaction;
@@ -24,6 +25,7 @@ namespace cond{
     public ITransactionObserver{
     public:
     PoolConnectionProxy(coral::IConnectionService* connectionServiceHandle,
+			pool::IBlobStreamingService* blobStreamingServiceHandle,
 			const std::string& con,
 			int connectionTimeOut,
 			int idleConnectionCleanupPeriod);
@@ -42,6 +44,7 @@ namespace cond{
     void connect();
     void disconnect();
     private:
+    pool::IBlobStreamingService* m_blobstreamingService;
     pool::IDataSvc* m_datasvc;
     cond::ITransaction* m_transaction;
     //std::string m_con;

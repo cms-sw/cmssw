@@ -13,6 +13,9 @@
 //
 #include <vector>
 #include <string>
+namespace pool{
+  class IBlobStreamingService;
+}
 namespace coral{
   class IConnectionService;
 }
@@ -49,6 +52,7 @@ namespace cond{
     std::vector<PoolConnectionProxy*> m_poolConnectionPool;
     std::vector<CoralConnectionProxy*> m_coralConnectionPool;
     coral::IConnectionService* m_connectionServiceHandle;
+    pool::IBlobStreamingService* m_blobstreamingServiceHandle;
   };// class Connection
 }//ns cond
 #endif
