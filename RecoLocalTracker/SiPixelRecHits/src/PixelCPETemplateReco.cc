@@ -50,7 +50,7 @@ PixelCPETemplateReco::PixelCPETemplateReco(edm::ParameterSet const & conf,
   
   GlobalPoint center(0.0, 0.0, 0.0);
   float field_magnitude = magfield_->inTesla(center).mag();
-
+  
   DoCosmics_ = conf.getParameter<bool>("DoCosmics");
 
   if ( field_magnitude > 3.9 ) 
@@ -73,11 +73,17 @@ PixelCPETemplateReco::PixelCPETemplateReco(edm::ParameterSet const & conf,
 	}
     }
   
+  //cout << "(int)DoCosmics_ = " << (int)DoCosmics_ << endl;
+  //cout << "field_magnitude = " << field_magnitude << endl;
   //cout << "--------------------------------------------- templID_ = " << templID_ << endl;
 
+  // ggiurgiu@fnal.gov, 12/17/2008: bypass the template DB access for now and revert to template text file access:
+
   // Initialize template store to the selected ID [Morris, 6/25/08]  
-	if(!templ_.pushfile( *templateDBobject_))
-		throw cms::Exception("PixelCPETemplateReco") << "\nERROR: Templates not filled correctly. Reconstruction will fail.\n\n";
+  //	if(!templ_.pushfile( *templateDBobject_))
+  //	throw cms::Exception("PixelCPETemplateReco") << "\nERROR: Templates not filled correctly. Reconstruction will fail.\n\n";
+
+  templ_.pushfile( templID_ );
 
 	speed_ = conf.getParameter<int>( "speed");
   LogDebug("PixelCPETemplateReco::PixelCPETemplateReco:") <<
