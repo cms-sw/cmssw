@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-postProcessorMuonMultiTrack = cms.EDFilter("PostProcessor",
+postProcessorMuonMultiTrack = cms.EDAnalyzer("PostProcessor",
     subDir = cms.untracked.string("RecoMuonV/MultiTrack/*"),
     efficiency = cms.vstring(
     "effic 'Efficiency vs #eta' num_assoc(simToReco)_eta num_simul_eta",
@@ -32,7 +32,7 @@ postProcessorMuonMultiTrack = cms.EDFilter("PostProcessor",
     outputFileName = cms.untracked.string("")
 )
 
-postProcessorMuonMultiTrackComp = cms.EDFilter(
+postProcessorMuonMultiTrackComp = cms.EDAnalyzer(
     "PostProcessor",
     subDir = cms.untracked.string("RecoMuonV/MultiTrack/"),
     efficiency = cms.vstring(
@@ -55,7 +55,7 @@ postProcessorMuonMultiTrackComp = cms.EDFilter(
     )
 
 
-postProcessorRecoMuon = cms.EDFilter("PostProcessor",
+postProcessorRecoMuon = cms.EDAnalyzer("PostProcessor",
     subDir = cms.untracked.string("RecoMuonV/RecoMuon_*"),
 
     efficiency = cms.vstring("Trk/EffP   'Efficiency vs p'     Trk/P   Muons/SimP  ",
