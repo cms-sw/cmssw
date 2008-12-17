@@ -1,10 +1,6 @@
 <use name=DQMServices/Components>
 <use name=DQMServices/Core>
-<use name=DQMServices/WebComponents>
 <export>
-  <use name=DQMServices/Components>
-  <use name=DQMServices/Core>
-  <use name=DQMServices/WebComponents>
   <lib name=DQMServicesExamples>
 </export>
 
