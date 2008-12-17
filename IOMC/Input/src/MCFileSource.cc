@@ -1,11 +1,11 @@
-// $Id: MCFileSource.cc,v 1.12 2007/06/19 13:47:57 weng Exp $
+// $Id: MCFileSource.cc,v 1.13 2008/11/25 18:14:33 saout Exp $
 
 /**  
 *  See header file for a description of this class.
 *
 *
-*  $Date: 2007/06/19 13:47:57 $
-*  $Revision: 1.12 $
+*  $Date: 2008/11/25 18:14:33 $
+*  $Revision: 1.13 $
 *  \author Jo. Weng  - CERN, Ph Division & Uni Karlsruhe
 *  \author F.Moortgat - CERN, Ph Division
 */
@@ -29,7 +29,7 @@ using namespace std;
 
 //-------------------------------------------------------------------------
 MCFileSource::MCFileSource(const ParameterSet & pset, InputSourceDescription const& desc) :
-  ExternalInputSource(pset, desc),
+  ExternalInputSource(pset, desc, false),
   reader_(HepMCFileReader::instance()), evt_(0)
 {
   edm::LogInfo("MCFileSource") << "Reading HepMC file:" << fileNames()[0];
