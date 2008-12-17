@@ -1,4 +1,4 @@
-# last update on $Date: 2008/08/11 19:12:41 $ by $Author: flucke $
+# last update on $Date: 2008/09/15 19:37:58 $ by $Author: flucke $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -56,12 +56,7 @@ process.MessageLogger = cms.Service("MessageLogger",
 
 # initialize magnetic field
 process.load("Configuration.StandardSequences.MagneticField_cff")
-# 0 T field, untested:
-#process.load("MagneticField.Engine.uniformMagneticField_cfi")
-# Are these prefers still needed?
-#process.es_prefer_magfield = cms.ESPrefer("XMLIdealGeometryESSource", "magfield")
-#process.es_prefer_uniform = cms.ESPrefer("UniformMagneticFieldESProducer")
-
+#process.load("Configuration.StandardSequences.MagneticField_0T_cff")
 
 # ideal geometry and interface
 process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
@@ -69,35 +64,38 @@ process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
 # for Muon: process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = 'IDEAL_V9::All'  # take your favourite
+process.GlobalTag.globaltag = 'IDEAL_30X::All'  # take your favourite
 #    # if alignment constants not from global tag, add this
 #from CondCore.DBCommon.CondDBSetup_cfi import *
-#process.trackerAlignment = cms.ESSource("PoolDBESSource",CondDBSetup,
-#                                        connect = cms.string("frontier://FrontierProd/CMS_COND_21X_ALIGNMENT"),
-#                                        timetype = cms.string("runnumber"),
-#                                        toGet = cms.VPSet(cms.PSet(record = cms.string("TrackerAlignmentRcd"),
-#                                                                   tag = cms.string("TrackerIdealGeometry210_mc")
-#                                                                   ),
-#                                                          cms.PSet(record = cms.string("TrackerAlignmentErrorRcd"),
-#                                                                   tag = cms.string("TrackerIdealGeometryErrors210_mc")
-#                                                                   )
-#                                                          )
-#                                        )
+#process.trackerAlignment = cms.ESSource(
+#    "PoolDBESSource",
+#    CondDBSetup,
+#    connect = cms.string("frontier://FrontierProd/CMS_COND_30X_ALIGNMENT"),
+##    connect = cms.string("frontier://FrontierPrep/CMS_COND_ALIGNMENT"),
+#    toGet = cms.VPSet(cms.PSet(record = cms.string("TrackerAlignmentRcd"),
+#                               tag = cms.string("TrackerIdealGeometry210_mc")
+#                               ),
+#                      cms.PSet(record = cms.string("TrackerAlignmentErrorRcd"),
+#                               tag = cms.string("TrackerIdealGeometryErrors210_mc")
+#                               )
+#                      )
+#    )
 #process.es_prefer_trackerAlignment = cms.ESPrefer("PoolDBESSource", "trackerAlignment")
+## might help for double es_prefer: del process.es_prefer_GlobalTag
 
 process.load("RecoVertex.BeamSpotProducer.BeamSpot_cfi")
 
 # track selection for alignment
 process.load("Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi")
-process.AlignmentTrackSelector.src = 'ALCARECOTkAlMuonIsolated' #'generalTracks' ## ALCARECOTkAlMinBias # adjust to input file
+process.AlignmentTrackSelector.src = 'ALCARECOTkAlMinBias' #'generalTracks' ## ALCARECOTkAlMuonIsolated # adjust to input file
 process.AlignmentTrackSelector.ptMin = 2.
 process.AlignmentTrackSelector.etaMin = -5.
 process.AlignmentTrackSelector.etaMax = 5.
 process.AlignmentTrackSelector.nHitMin = 9
 process.AlignmentTrackSelector.chi2nMax = 100.
-process.AlignmentTrackSelector.applyNHighestPt = True
-process.AlignmentTrackSelector.nHighestPt = 2
 # some further possibilities
+#process.AlignmentTrackSelector.applyNHighestPt = True
+#process.AlignmentTrackSelector.nHighestPt = 2
 #process.AlignmentTrackSelector.applyChargeCheck = True
 #process.AlignmentTrackSelector.minHitChargeStrip = 50.
 # needs RECO files:
@@ -106,7 +104,9 @@ process.AlignmentTrackSelector.nHighestPt = 2
 
 
 # refitting
-process.load("RecoTracker.TrackProducer.RefitterWithMaterial_cff")
+process.load("RecoTracker.TrackProducer.TrackRefitters_cff")
+# In the following use
+# TrackRefitter (normal tracks), TrackRefitterP5 (cosmics) or TrackRefitterBHM (beam halo)
 process.TrackRefitter.src = 'AlignmentTrackSelector'
 process.TrackRefitter.TrajectoryInEvent = True
 # beam halo propagation needs larger phi changes going from one TEC to another
@@ -135,26 +135,30 @@ process.TrackRefitter.TrajectoryInEvent = True
 process.load("Alignment.CommonAlignmentProducer.AlignmentProducer_cff")
 
 process.AlignmentProducer.ParameterBuilder.Selector = cms.PSet(
-    alignParams = cms.vstring('PixelHalfBarrels,rrrrrr', 
-        'TrackerTOBHalfBarrel,111111', 
-        'TrackerTIBHalfBarrel,111111', 
-        'TrackerTECEndcap,111111', 
-        'TrackerTIDEndcap,111111', 
-        'PixelDets,111001', 
-        'BarrelDetsDS,111001', 
-        'TECDets,111001,endCapDS', 
-        'TIDDets,111001,endCapDS', 
-        'BarrelDetsSS,101001', 
-        'TECDets,101001,endCapSS', 
-        'TIDDets,101001,endCapSS'
+    alignParams = cms.vstring(
+#        'PixelHalfBarrels,rrrrrr', 
+#        'PXEndCaps,111111',
+#        'TrackerTOBHalfBarrel,111111', 
+#        'TrackerTIBHalfBarrel,111111', 
+#        'TrackerTECEndcap,111111', 
+#        'TrackerTIDEndcap,111111', 
+#        'PixelDets,111001', 
+#        'BarrelDetsDS,111001', 
+#        'TECDets,111001,endCapDS', 
+#        'TIDDets,111001,endCapDS', 
+#        'BarrelDetsSS,101001', 
+#        'TECDets,101001,endCapSS', 
+#        'TIDDets,101001,endCapSS'
+#
 # very simple scenario for testing
-#	    # 6 parameters for larger structures, pixel as reference
-#        'PixelHalfBarrels,ffffff',
-#        'TrackerTOBHalfBarrel,111111',
-#        'TrackerTIBHalfBarrel,111111',
-#        'TrackerTECEndcap,ffffff',
-#        'TrackerTIDEndcap,ffffff' 
-                              ),
+# # 6 parameters for larger structures
+         'PixelHalfBarrels,ffffff',
+         'PXEndCaps,111111',
+         'TrackerTOBHalfBarrel,111111',
+         'TrackerTIBHalfBarrel,111111',
+         'TrackerTECEndcap,ffffff',
+         'TrackerTIDEndcap,ffffff' 
+         ),
     endCapSS = cms.PSet(
         phiRanges = cms.vdouble(),
         rRanges = cms.vdouble(40.0, 60.0, 75.0, 999.0),
@@ -173,11 +177,11 @@ process.AlignmentProducer.ParameterBuilder.Selector = cms.PSet(
     )
 )
 #process.AlignmentProducer.doMuon = True # to align muon system
-process.AlignmentProducer.doMisalignmentScenario = False
+process.AlignmentProducer.doMisalignmentScenario = False #True
 # If the above is true, you might want to choose the scenario:
 #from Alignment.TrackerAlignment.Scenarios_cff import *
 #process.AlignmentProducer.MisalignmentScenario = TrackerSurveyLASOnlyScenario
-process.AlignmentProducer.applyDbAlignment = True #false # otherwise neither globalTag not trackerAlignment
+process.AlignmentProducer.applyDbAlignment = False # neither globalTag nor trackerAlignment
 # monitor not strictly needed:
 #process.TFileService = cms.Service("TFileService", fileName = cms.string("histograms.root"))
 #process.AlignmentProducer.monitorConfig = cms.PSet(monitors = cms.untracked.vstring ("AlignmentMonitorGeneric"),
@@ -188,8 +192,8 @@ process.AlignmentProducer.algoConfig = cms.PSet(
     process.MillePedeAlignmentAlgorithm
 )
 
-from Alignment.MillePedeAlignmentAlgorithm.PresigmaScenarios_cff import *
-process.AlignmentProducer.algoConfig.pedeSteerer.Presigmas.extend(TrackerShortTermPresigmas.Presigmas)
+#from Alignment.MillePedeAlignmentAlgorithm.PresigmaScenarios_cff import *
+#process.AlignmentProducer.algoConfig.pedeSteerer.Presigmas.extend(TrackerShortTermPresigmas.Presigmas)
 process.AlignmentProducer.algoConfig.mode = 'full' # 'mille' # 'pede' # 'pedeSteerer'
 process.AlignmentProducer.algoConfig.mergeBinaryFiles = cms.vstring()
 process.AlignmentProducer.algoConfig.monitorFile = cms.untracked.string("millePedeMonitor.root")
@@ -197,25 +201,25 @@ process.AlignmentProducer.algoConfig.binaryFile = cms.string("milleBinaryISN.dat
 #process.AlignmentProducer.algoConfig.TrajectoryFactory = process.BzeroReferenceTrajectoryFactory
 # ...OR TwoBodyDecayTrajectoryFactory OR ...
 #process.AlignmentProducer.algoConfig.max2Dcorrelation = 2. # to switch off
-#process.AlignmentProducer.algoConfig.fileDir = '/tmp/flucke/test'
+#process.AlignmentProducer.algoConfig.fileDir = '/tmp/flucke'
 #process.AlignmentProducer.algoConfig.pedeReader.fileDir = './'
 #process.AlignmentProducer.algoConfig.treeFile = 'treeFile_GF.root'
 ##default is sparsGMRES                                    <method>  n(iter)  Delta(F)
 #process.AlignmentProducer.algoConfig.pedeSteerer.method = 'inversion  9  0.8'
 #process.AlignmentProducer.algoConfig.pedeSteerer.options = cms.vstring(
 #   'entries 100',
-#   'chisqcut  20.0  4.5' # ,'outlierdownweighting 3' #,'dwfractioncut 0.1' 
+#   'chisqcut  20.0  4.5' # ,'outlierdownweighting 3' #,'dwfractioncut 0.1'
+#   'bandwidth 6'
 #)
 
 process.source = cms.Source("PoolSource",
     skipEvents = cms.untracked.uint32(0),
-    fileNames = cms.untracked.vstring(#'/store/relval/2008/6/22/RelVal-RelValZMM-1213987236-IDEAL_V2-2nd/0004/04666D76-1941-DD11-9549-001617E30E28.root'
-                                      # <== is a relval file from CMSSW_2_1_0_pre8.
-                                      '/store/relval/CMSSW_2_1_8/RelValZMM/ALCARECO/STARTUP_V7_StreamALCARECOTkAlMuonIsolated_v1/0003/A8583C5E-0283-DD11-8D18-000423D987FC.root'
-                                      # <== is a relval from CMSSW_2_1_8.
-                                      #"file:aFile.root" #"rfio:/castor/cern.ch/cms/store/..."
-                                      )
-)
+    fileNames = cms.untracked.vstring(
+    '/store/relval/CMSSW_3_0_0_pre2/RelValTTbar/ALCARECO/STARTUP_V7_StreamALCARECOTkAlMinBias_v2/0001/580E7A0F-1DB4-DD11-8AA8-001617DBD224.root'
+    # <== is a relval from CMSSW_3_0_0_pre2.
+    #"file:aFile.root" #"rfio:/castor/cern.ch/cms/store/..."
+    )
+                            )
 #process.source = cms.Source("EmptySource")
 #process.maxEvents = cms.untracked.PSet(
 #    input = cms.untracked.int32(0)
@@ -227,20 +231,23 @@ process.p = cms.Path(process.offlineBeamSpot*process.AlignmentTrackSelector*proc
 # Default in MPS is saving as alignment_MP.db. Uncomment next line not to save them.
 # For a standalone (non-MPS) run, uncomment also the PoolDBOutputService part.
 #process.AlignmentProducer.saveToDB = True
+##process.AlignmentProducer.saveApeToDB = True # no sense: Millepede does not set it!
 #from CondCore.DBCommon.CondDBSetup_cfi import *
-#process.PoolDBOutputService = cms.Service("PoolDBOutputService",
-#                                          CondDBSetup,
-#                                          timetype = cms.untracked.string('runnumber'),
-#                                          connect = cms.string('sqlite_file:TkAlignment.db'),
-#                                          toPut = cms.VPSet(cms.PSet(
-#    record = cms.string('TrackerAlignmentRcd'),
-#    tag = cms.string('testTag')
-#    ),
-#                                                            cms.PSet(
-#    record = cms.string('TrackerAlignmentErrorRcd'),
-#    tag = cms.string('testTagAPE')
-#    ))
-#                                          )
+#process.PoolDBOutputService = cms.Service(
+#    "PoolDBOutputService",
+#    CondDBSetup,
+#    timetype = cms.untracked.string('runnumber'),
+#    connect = cms.string('sqlite_file:TkAlignment.db'),
+#    toPut = cms.VPSet(cms.PSet(
+#      record = cms.string('TrackerAlignmentRcd'),
+#      tag = cms.string('testTag')
+#    )#,
+#    #                  cms.PSet(
+#    #  record = cms.string('TrackerAlignmentErrorRcd'),
+#    #  tag = cms.string('testTagAPE') # needed is saveApeToDB = True
+#    #)
+#                      )
+#    )
 # MPS needs next line as placeholder for pede _cfg.py:
 #MILLEPEDEBLOCK
 
