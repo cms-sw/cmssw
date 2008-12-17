@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-stripRecHitsValid = cms.EDFilter("SiStripRecHitsValid",
+stripRecHitsValid = cms.EDAnalyzer("SiStripRecHitsValid",
     outputFile = cms.untracked.string(''),
     associatePixel = cms.bool(False),
     stereoRecHits = cms.InputTag("siStripMatchedRecHits","stereoRecHit"),

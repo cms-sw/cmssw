@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-pixRecHitsValid = cms.EDFilter("SiPixelRecHitsValid",
+pixRecHitsValid = cms.EDAnalyzer("SiPixelRecHitsValid",
     src = cms.InputTag("siPixelRecHits"),
     outputFile = cms.untracked.string(''),
     associatePixel = cms.bool(True),

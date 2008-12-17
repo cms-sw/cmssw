@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-PixelTrackingRecHitsValid = cms.EDFilter("SiPixelTrackingRecHitsValid",
+PixelTrackingRecHitsValid = cms.EDAnalyzer("SiPixelTrackingRecHitsValid",
                                          src = cms.untracked.string('generalTracks'),
                                          outputFile = cms.untracked.string(''),
                                          #debugNtuple = cms.untracked.string('SiPixelTrackingRecHitsValid_Ntuple.root'),

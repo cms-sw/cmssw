@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-StripTrackingRecHitsValid = cms.EDFilter("SiStripTrackingRecHitsValid",
+StripTrackingRecHitsValid = cms.EDAnalyzer("SiStripTrackingRecHitsValid",
     outputFile = cms.untracked.string(''),
     associatePixel = cms.bool(False),
     ROUList = cms.vstring('g4SimHitsTrackerHitsTIBLowTof', 
