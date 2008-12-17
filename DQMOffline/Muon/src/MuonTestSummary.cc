@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/12/09 14:23:10 $
- *  $Revision: 1.7 $
+ *  $Date: 2008/12/16 15:49:48 $
+ *  $Revision: 1.8 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -44,7 +44,9 @@ MuonTestSummary::MuonTestSummary(const edm::ParameterSet& ps){
   resPhiSpread_glbSta = ps.getParameter<double>("resPhiSpread_glbSta");
   resOneOvPSpread_tkGlb = ps.getParameter<double>("resOneOvPSpread_tkGlb");
   resOneOvPSpread_glbSta = ps.getParameter<double>("resOneOvPSpread_glbSta");
-  resChargeComparison = ps.getParameter<double>("resChargeComparison");
+  resChargeLimit_tkGlb = ps.getParameter<double>("resChargeLimit_tkGlb");
+  resChargeLimit_glbSta = ps.getParameter<double>("resChargeLimit_glbSta");
+  resChargeLimit_tkSta = ps.getParameter<double>("resChargeLimit_tkSta");
   numMatchedExpected = ps.getParameter<double>("numMatchedExpected");
   expMolteplicityGlb = ps.getParameter<double>("expMolteplicityGlb");
   expMolteplicityTk = ps.getParameter<double>("expMolteplicityTk");
@@ -349,7 +351,7 @@ void MuonTestSummary::doResidualsTests(string type, string parameter, int bin){
       if(histo_root->GetEntries()>20){
 	TF1 *gfit = new TF1("Gaussian","gaus",(statMean-(2*statSigma)),(statMean+(2*statSigma)));
 	try {
-	  histo_root->Fit(gfit);
+	  histo_root->Fit(gfit, "Q");
 	} catch (...) {
 	  edm::LogError (metname)<< "[MuonTestSummary]: Exception when fitting Res_"<<type<<"_"<<parameter;
 	}
@@ -397,21 +399,21 @@ void MuonTestSummary::doResidualsTests(string type, string parameter, int bin){
     if(residualsHisto){
       if((residualsHisto->getBinContent(3)+residualsHisto->getBinContent(4))!=0){
 	LogTrace(metname)<<"charge comparison TkGlb: "<<residualsHisto->getBinContent(4)/double(residualsHisto->getBinContent(3)+residualsHisto->getBinContent(4))<<endl;
-	if(residualsHisto->getBinContent(4)/double(residualsHisto->getBinContent(3)+residualsHisto->getBinContent(4)) < resChargeComparison)
+	if(residualsHisto->getBinContent(4)/double(residualsHisto->getBinContent(3)+residualsHisto->getBinContent(4)) < resChargeLimit_tkGlb)
 	  residualsSummaryMap->setBinContent(1, 4, 1);
 	else
 	  residualsSummaryMap->setBinContent(1, 4, 0);
       }
       if((residualsHisto->getBinContent(1)+residualsHisto->getBinContent(2))!=0){
 	LogTrace(metname)<<"charge comparison GlbSta: "<<residualsHisto->getBinContent(2)/double(residualsHisto->getBinContent(1)+residualsHisto->getBinContent(2))<<endl;
-	if(residualsHisto->getBinContent(2)/double(residualsHisto->getBinContent(1)+residualsHisto->getBinContent(2)) < resChargeComparison)
+	if(residualsHisto->getBinContent(2)/double(residualsHisto->getBinContent(1)+residualsHisto->getBinContent(2)) < resChargeLimit_glbSta)
 	  residualsSummaryMap->setBinContent(2, 4, 1);
 	else
 	  residualsSummaryMap->setBinContent(2, 4, 0);
       }
       if(residualsHisto->getBinContent(5)+residualsHisto->getBinContent(6)!=0){
 	LogTrace(metname)<<"charge comparison TkSta: "<<residualsHisto->getBinContent(6)/double(residualsHisto->getBinContent(5)+residualsHisto->getBinContent(6))<<endl;
-	if(residualsHisto->getBinContent(6)/double(residualsHisto->getBinContent(5)+residualsHisto->getBinContent(6)) < resChargeComparison)
+	if(residualsHisto->getBinContent(6)/double(residualsHisto->getBinContent(5)+residualsHisto->getBinContent(6)) < resChargeLimit_tkSta)
 	  residualsSummaryMap->setBinContent(3, 4, 1);
 	else
 	  residualsSummaryMap->setBinContent(3, 4, 0);
@@ -508,7 +510,7 @@ void MuonTestSummary::doMuonIDTests(){
       if(resHisto_root->GetEntries()>20){
 	TF1 *gfit = new TF1("Gaussian","gaus",-2,2);
 	try {
-	  resHisto_root->Fit(gfit);
+	  resHisto_root->Fit(gfit, "Q");
 	} catch (...) {
 	  edm::LogError (metname)<< "[MuonTestSummary]: Exception when fitting "<<resHistos[name];
 	}
@@ -615,11 +617,11 @@ void MuonTestSummary::doMolteplicityTests(){
 
   MonitorElement* molteplicityHisto = dbe->get("Muons/MuonRecoAnalyzer/muReco");
   
-  double molteplicity_GLB = double(molteplicityHisto->getBinContent(1)+molteplicityHisto->getBinContent(2)+molteplicityHisto->getBinContent(3))/double(molteplicityHisto->getEntries());
+  double molteplicity_GLB = double(molteplicityHisto->getBinContent(1)+molteplicityHisto->getBinContent(2))/double(molteplicityHisto->getEntries());
   LogTrace(metname)<<"molteplicity_GLB: "<<molteplicity_GLB<<endl;
-  double molteplicity_TK = double(molteplicityHisto->getBinContent(4))/double(molteplicityHisto->getEntries());
+  double molteplicity_TK = double(molteplicityHisto->getBinContent(3)+molteplicityHisto->getBinContent(4))/double(molteplicityHisto->getEntries());
   LogTrace(metname)<<"molteplicity_TK: "<<molteplicity_TK<<endl;
-  double molteplicity_STA = double(molteplicityHisto->getBinContent(5))/double(molteplicityHisto->getEntries());
+  double molteplicity_STA = double(molteplicityHisto->getBinContent(3)+molteplicityHisto->getBinContent(5))/double(molteplicityHisto->getEntries());
   LogTrace(metname)<<"molteplicity_STA: "<<molteplicity_STA<<endl;
 
   if(molteplicity_GLB<expMolteplicityGlb+0.06 && molteplicity_GLB>expMolteplicityGlb-0.06)
