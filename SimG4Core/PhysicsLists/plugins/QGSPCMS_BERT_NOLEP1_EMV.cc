@@ -1,5 +1,5 @@
-#include "QGSPCMS_BERT_NOLEP1.hh"
-#include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysics.h"
+#include "QGSPCMS_BERT_NOLEP1_EMV.hh"
+#include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysics71.h"
 #include "SimG4Core/PhysicsLists/interface/HadronPhysicsQGSP_BERT_NOLEP1.hh"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -12,8 +12,8 @@
 
 #include "G4DataQuestionaire.hh"
 
-QGSPCMS_BERT_NOLEP1::QGSPCMS_BERT_NOLEP1(G4LogicalVolumeToDDLogicalPartMap& map,
-					 const edm::ParameterSet & p) : PhysicsList(map, p) {
+QGSPCMS_BERT_NOLEP1_EMV::QGSPCMS_BERT_NOLEP1_EMV(G4LogicalVolumeToDDLogicalPartMap& map,
+						 const edm::ParameterSet & p) : PhysicsList(map, p) {
 
   G4DataQuestionaire it(photon);
   
@@ -21,13 +21,13 @@ QGSPCMS_BERT_NOLEP1::QGSPCMS_BERT_NOLEP1(G4LogicalVolumeToDDLogicalPartMap& map,
   bool emPhys  = p.getUntrackedParameter<bool>("EMPhysics",true);
   bool hadPhys = p.getUntrackedParameter<bool>("HadPhysics",true);
   edm::LogInfo("PhysicsList") << "You are using the simulation engine: "
-			      << "QGSP_BERT_NOLEP1 1.0 with Flags for EM Physics "
+			      << "QGSP_BERT_NOLEP1_EMV 1.0 with Flags for EM Physics "
 			      << emPhys << " and for Hadronic Physics "
 			      << hadPhys << "\n";
 
   if (emPhys) {
     // EM Physics
-    RegisterPhysics( new CMSEmStandardPhysics("standard EM",ver));
+    RegisterPhysics( new CMSEmStandardPhysics71("standard EM v71",ver));
 
     // Synchroton Radiation & GN Physics
     RegisterPhysics( new G4EmExtraPhysics("extra EM"));

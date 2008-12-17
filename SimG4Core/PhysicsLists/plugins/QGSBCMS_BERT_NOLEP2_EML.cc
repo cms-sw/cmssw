@@ -1,19 +1,19 @@
-#include "QGSPCMS_BERT_NOLEP1.hh"
-#include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysics.h"
-#include "SimG4Core/PhysicsLists/interface/HadronPhysicsQGSP_BERT_NOLEP1.hh"
+#include "QGSBCMS_BERT_NOLEP2_EML.hh"
+#include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysicsLPM.h"
+#include "SimG4Core/PhysicsLists/interface/HadronPhysicsQGSB_BERT_NOLEP2.hh"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "G4DecayPhysics.hh"
 #include "G4EmExtraPhysics.hh"
-#include "G4IonPhysics.hh"
+#include "G4IonBinaryCascadePhysics.hh"
 #include "G4QStoppingPhysics.hh"
 #include "G4HadronElasticPhysics.hh"
 #include "G4NeutronTrackingCut.hh"
 
 #include "G4DataQuestionaire.hh"
 
-QGSPCMS_BERT_NOLEP1::QGSPCMS_BERT_NOLEP1(G4LogicalVolumeToDDLogicalPartMap& map,
-					 const edm::ParameterSet & p) : PhysicsList(map, p) {
+QGSBCMS_BERT_NOLEP2_EML::QGSBCMS_BERT_NOLEP2_EML(G4LogicalVolumeToDDLogicalPartMap& map,
+						 const edm::ParameterSet & p) : PhysicsList(map, p) {
 
   G4DataQuestionaire it(photon);
   
@@ -21,13 +21,13 @@ QGSPCMS_BERT_NOLEP1::QGSPCMS_BERT_NOLEP1(G4LogicalVolumeToDDLogicalPartMap& map,
   bool emPhys  = p.getUntrackedParameter<bool>("EMPhysics",true);
   bool hadPhys = p.getUntrackedParameter<bool>("HadPhysics",true);
   edm::LogInfo("PhysicsList") << "You are using the simulation engine: "
-			      << "QGSP_BERT_NOLEP1 1.0 with Flags for EM Physics "
+			      << "QGSB_BERT_NOLEP2_EML 1.0 with Flags for EM Physics "
 			      << emPhys << " and for Hadronic Physics "
 			      << hadPhys << "\n";
 
   if (emPhys) {
     // EM Physics
-    RegisterPhysics( new CMSEmStandardPhysics("standard EM",ver));
+    RegisterPhysics( new CMSEmStandardPhysicsLPM("standard EM LPM",ver));
 
     // Synchroton Radiation & GN Physics
     RegisterPhysics( new G4EmExtraPhysics("extra EM"));
@@ -42,13 +42,13 @@ QGSPCMS_BERT_NOLEP1::QGSPCMS_BERT_NOLEP1(G4LogicalVolumeToDDLogicalPartMap& map,
 
     // Hadron Physics
     G4bool quasiElastic=true;
-    RegisterPhysics( new HadronPhysicsQGSP_BERT_NOLEP1("hadron",quasiElastic));
+    RegisterPhysics( new HadronPhysicsQGSB_BERT_NOLEP2("hadron",quasiElastic));
   
     // Stopping Physics
     RegisterPhysics( new G4QStoppingPhysics("stopping"));
 
     // Ion Physics
-    RegisterPhysics( new G4IonPhysics("ion"));
+    RegisterPhysics( new G4IonBinaryCascadePhysics("ionBIC"));
 
     // Neutron tracking cut
     RegisterPhysics( new G4NeutronTrackingCut("Neutron tracking cut", ver));

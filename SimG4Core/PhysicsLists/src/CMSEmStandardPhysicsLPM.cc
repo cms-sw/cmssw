@@ -16,7 +16,6 @@
 #include "G4eIonisation.hh"
 #include "G4eBremsstrahlung.hh"
 #include "G4eplusAnnihilation.hh"
-#include "G4eBremsstrahlungHEModel.hh"
 #include "G4eBremsstrahlungRelModel.hh"
 
 #include "G4MuIonisation.hh"
