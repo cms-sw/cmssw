@@ -79,13 +79,13 @@ class SiPixelRecHitQuality {
     //
     inline float probabilityX( QualWordType qualWord ) const     {
       int raw = (qualWord >> probX_shift) & probX_mask;
-      float prob = pow( probX_units, (double)( -raw)) ;
+      float prob = pow( probX_units, (float)( -raw)) ;
       // cout << "Bits = " << raw << " --> Prob = " << prob << endl;
       return prob;
     }
     inline float probabilityY( QualWordType qualWord ) const     {
       int raw = (qualWord >> probY_shift) & probY_mask;
-      float prob = pow( probY_units, (double)( -raw)) ;
+      float prob = pow( probY_units, (float)( -raw)) ;
       // cout << "Bits = " << raw << " --> Prob = " << prob << endl;
       return prob;
     }
