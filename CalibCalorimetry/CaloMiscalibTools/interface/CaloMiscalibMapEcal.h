@@ -92,7 +92,7 @@ void print()
            EcalIntercalibConstant icalconst;
            icalconst = (*icalit);
 
-	   EEDetId eedetidneg(iX,iY,1);
+	   EEDetId eedetidneg(iX,iY,-1);
 	   EcalIntercalibConstantMap::const_iterator icalit2= map_.find(eedetidneg.rawId());
            EcalIntercalibConstant icalconst2;
            icalconst2 = (*icalit2);
