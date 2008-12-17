@@ -41,7 +41,8 @@ const int cluster_matrix_size_y = 21;
 //  in setTheDet().  Here we only load the templates into the template store templ_ .
 //-----------------------------------------------------------------------------
 PixelCPETemplateReco::PixelCPETemplateReco(edm::ParameterSet const & conf, 
-					   const MagneticField * mag, const SiPixelLorentzAngle * lorentzAngle, const SiPixelTemplateDBObject * templateDBobject) 
+					   const MagneticField * mag, const SiPixelLorentzAngle * lorentzAngle, 
+					   const SiPixelTemplateDBObject * templateDBobject) 
   : PixelCPEBase(conf, mag, lorentzAngle, 0, templateDBobject)
 {
   // &&& initialize the templates, etc.
@@ -52,6 +53,7 @@ PixelCPETemplateReco::PixelCPETemplateReco(edm::ParameterSet const & conf,
   float field_magnitude = magfield_->inTesla(center).mag();
   
   DoCosmics_ = conf.getParameter<bool>("DoCosmics");
+  LoadTemplatesFromDB_ = conf.getParameter<bool>("LoadTemplatesFromDB");
 
   if ( field_magnitude > 3.9 ) 
     {
@@ -74,21 +76,28 @@ PixelCPETemplateReco::PixelCPETemplateReco(edm::ParameterSet const & conf,
     }
   
   //cout << "(int)DoCosmics_ = " << (int)DoCosmics_ << endl;
+  //cout << "(int)LoadTemplatesFromDB_ = " << (int)LoadTemplatesFromDB_ << endl;
   //cout << "field_magnitude = " << field_magnitude << endl;
   //cout << "--------------------------------------------- templID_ = " << templID_ << endl;
 
-  // ggiurgiu@fnal.gov, 12/17/2008: bypass the template DB access for now and revert to template text file access:
+  // ggiurgiu@fnal.gov, 12/17/2008: use configuration parameter to decide between DB or text file template access
+  if ( LoadTemplatesFromDB_ )
+    {
+      // Initialize template store to the selected ID [Morris, 6/25/08]  
+      if ( !templ_.pushfile( *templateDBobject_) )
+	throw cms::Exception("PixelCPETemplateReco") << "\nERROR: Templates not filled correctly. Reconstruction will fail.\n\n";
+    }
+  else 
+    {
+      if ( !templ_.pushfile( templID_ ) )
+	throw cms::Exception("PixelCPETemplateReco") 
+	  << "\nERROR: Templates not loaded correctly from text file. Reconstruction will fail.\n\n";
+    }
 
-  // Initialize template store to the selected ID [Morris, 6/25/08]  
-  //	if(!templ_.pushfile( *templateDBobject_))
-  //	throw cms::Exception("PixelCPETemplateReco") << "\nERROR: Templates not filled correctly. Reconstruction will fail.\n\n";
-
-  templ_.pushfile( templID_ );
-
-	speed_ = conf.getParameter<int>( "speed");
+  speed_ = conf.getParameter<int>( "speed");
   LogDebug("PixelCPETemplateReco::PixelCPETemplateReco:") <<
     "Template speed = " << speed_ << "\n";
-
+  
   UseClusterSplitter_ = conf.getParameter<bool>("UseClusterSplitter");
 
 }
