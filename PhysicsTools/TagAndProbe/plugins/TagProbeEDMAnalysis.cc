@@ -576,12 +576,14 @@ TagProbeEDMAnalysis::analyze(const edm::Event& iEvent,
 	    !( fabs((*cnd_gmid)[i]) == truthParentId_ || fabs((*cnd_moid)[i]) == truthParentId_ ) ) continue;
 
 	    if( (*cnd_tag)[i] == 1 ) ++nTag;
-	    if( (*cnd_tag)[i] == 1 || (*cnd_aprobe)[i] == 1 ) ++nMatch;
-	    px += (*cnd_rpx)[i];
-	    py += (*cnd_rpy)[i];
-	    pz += (*cnd_rpz)[i];
-	    e += (*cnd_re)[i];
-	    
+	    if( (*cnd_tag)[i] == 1 || (*cnd_aprobe)[i] == 1 )
+            {
+	       ++nMatch;
+	       px += (*cnd_rpx)[i];
+	       py += (*cnd_rpy)[i];
+	       pz += (*cnd_rpz)[i];
+	       e += (*cnd_re)[i];
+	    }
 	 }
 	 if( nTag >= 1 && nMatch == 2 )
 	 {
