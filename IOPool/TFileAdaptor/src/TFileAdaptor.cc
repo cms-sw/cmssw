@@ -169,5 +169,42 @@ public:
   }
 };
 
+
+#include <iostream>
+#include <boost/shared_ptr.hpp>
+
+
+/* 
+ * wrapper to bind TFileAdaptor to root, python etc
+ * loading IOPoolTFileAdaptor library and instantiating
+ * TFileAdaptorUI will make root to use StorageAdaptor for I/O instead
+ * of its own plugins
+ */
+class TFileAdaptorUI {
+public:
+  
+  TFileAdaptorUI();
+  ~TFileAdaptorUI();
+
+  // print current Storage statistics on cout
+  void stats() const;
+  
+private:
+  boost::shared_ptr<TFileAdaptor> me;
+};
+
+TFileAdaptorUI::TFileAdaptorUI() {
+  edm::ActivityRegistry ar;
+  TFileAdaptorParams param;
+  me.reset(new TFileAdaptor(param,ar));
+}
+
+TFileAdaptorUI::~TFileAdaptorUI() {}
+
+void TFileAdaptorUI::stats() const {
+  me->stats(std::cout); std::cout << std::endl;
+}
+
+
 typedef TFileAdaptor AdaptorConfig;
 DEFINE_FWK_SERVICE(AdaptorConfig);
