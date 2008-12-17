@@ -16,8 +16,8 @@
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/L1Trigger/interface/L1EmParticle.h"
 #include "DataFormats/L1Trigger/interface/L1EmParticleFwd.h"
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
-//#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+//#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Common/interface/AssociationMap.h"
 
@@ -308,12 +308,12 @@ EmDQM::analyze(const edm::Event & event , const edm::EventSetup& setup)
   //  Did the highest energy particles happen               //
   //  to have |eta| < 2.5 ?  Then continue.                 //
   ////////////////////////////////////////////////////////////
-  edm::Handle< edm::View<reco::Candidate> > genParticles;
+  edm::Handle< edm::View<reco::GenParticle> > genParticles;
   event.getByLabel("genParticles", genParticles);
 
   std::vector<reco::GenParticle> allSortedGenParticles;
 
-  for(edm::View<reco::Candidate>::const_iterator currentGenParticle = genParticles->begin(); currentGenParticle != genParticles->end(); currentGenParticle++){
+  for(edm::View<reco::GenParticle>::const_iterator currentGenParticle = genParticles->begin(); currentGenParticle != genParticles->end(); currentGenParticle++){
 
     if (  !( abs((*currentGenParticle).pdgId())==pdgGen  && (*currentGenParticle).status()==1 && (*currentGenParticle).et() > 2.0)  )  continue;
 
