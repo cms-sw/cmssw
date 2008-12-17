@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_0_0/pre3/1E31_V43/V1 (CMSSW_3_0_X_2008-12-01-1600_HLT2)
+# /dev/CMSSW_3_0_0/pre3/1E31_V47/V1 (CMSSW_3_0_X_2008-12-17-0400)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_0_0/pre3/1E31_V43/V1')
+  tableName = cms.string('/dev/CMSSW_3_0_0/pre3/1E31_V47/V1')
 )
 
 BTagRecord = cms.ESSource( "EmptyESSource",
@@ -771,7 +771,7 @@ hltEcalRegionalRestFEDs = cms.EDProducer( "EcalListOfFEDSProducer",
     Pi0ListToIgnore = cms.InputTag( "hltEcalRegionalPi0FEDs" ),
     OutputLabel = cms.untracked.string( "" )
 )
-hltEcalRegionalRestDigis = cms.EDProducer( "EcalRawToDigiDev",
+hltEcalRegionalRestDigis = cms.EDProducer( "EcalRawToDigi",
     syncCheck = cms.untracked.bool( False ),
     eventPut = cms.untracked.bool( True ),
     InputLabel = cms.untracked.string( "rawDataCollector" ),
@@ -781,17 +781,19 @@ hltEcalRegionalRestDigis = cms.EDProducer( "EcalRawToDigiDev",
     orderedFedList = cms.untracked.vint32( 601, 602, 603, 604, 605, 606, 607, 608, 609, 610, 611, 612, 613, 614, 615, 616, 617, 618, 619, 620, 621, 622, 623, 624, 625, 626, 627, 628, 629, 630, 631, 632, 633, 634, 635, 636, 637, 638, 639, 640, 641, 642, 643, 644, 645, 646, 647, 648, 649, 650, 651, 652, 653, 654 ),
     orderedDCCIdList = cms.untracked.vint32( 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54 )
 )
-hltEcalRegionalRestWeightUncalibRecHit = cms.EDProducer( "EcalWeightUncalibRecHitProducer",
+hltEcalRegionalRestWeightUncalibRecHit = cms.EDProducer( "EcalUncalibRecHitProducer",
     EBdigiCollection = cms.InputTag( 'hltEcalRegionalRestDigis','ebDigis' ),
     EEdigiCollection = cms.InputTag( 'hltEcalRegionalRestDigis','eeDigis' ),
     EBhitCollection = cms.string( "EcalUncalibRecHitsEB" ),
-    EEhitCollection = cms.string( "EcalUncalibRecHitsEE" )
+    EEhitCollection = cms.string( "EcalUncalibRecHitsEE" ),
+    algo = cms.string( "EcalUncalibRecHitWorkerWeights" )
 )
 hltEcalRegionalRestRecHitTmp = cms.EDProducer( "EcalRecHitProducer",
     EBuncalibRecHitCollection = cms.InputTag( 'hltEcalRegionalRestWeightUncalibRecHit','EcalUncalibRecHitsEB' ),
     EEuncalibRecHitCollection = cms.InputTag( 'hltEcalRegionalRestWeightUncalibRecHit','EcalUncalibRecHitsEE' ),
     EBrechitCollection = cms.string( "EcalRecHitsEB" ),
     EErechitCollection = cms.string( "EcalRecHitsEE" ),
+    algo = cms.string( "EcalRecHitWorkerSimple" ),
     ChannelStatusToBeExcluded = cms.vint32(  )
 )
 hltEcalRecHitAll = cms.EDProducer( "EcalRecHitsMerger",
@@ -813,7 +815,8 @@ hltEcalRecHitAll = cms.EDProducer( "EcalRecHitsMerger",
 )
 hltEcalPreshowerRecHit = cms.EDProducer( "ESRecHitProducer",
     ESdigiCollection = cms.InputTag( "hltEcalPreshowerDigis" ),
-    ESrechitCollection = cms.string( "EcalRecHitsES" )
+    ESrechitCollection = cms.string( "EcalRecHitsES" ),
+    algo = cms.string( "ESRecHitWorker" )
 )
 hltHcalDigis = cms.EDProducer( "HcalRawToDigi",
     InputLabel = cms.InputTag( "rawDataCollector" ),
@@ -909,18 +912,18 @@ hltMet = cms.EDProducer( "METProducer",
     alias = cms.string( "RawCaloMET" ),
     globalThreshold = cms.double( 0.5 ),
     noHF = cms.bool( False ),
-    HO_PhiResPar = cms.vdouble( 0.02511 ),
-    HF_PhiResPar = cms.vdouble( 0.05022 ),
-    EB_EtResPar = cms.vdouble( 0.2, 0.03, 0.0050 ),
-    EE_PhiResPar = cms.vdouble( 0.02511 ),
-    HE_PhiResPar = cms.vdouble( 0.02511 ),
-    HB_PhiResPar = cms.vdouble( 0.02511 ),
-    EB_PhiResPar = cms.vdouble( 0.00502 ),
-    HB_EtResPar = cms.vdouble( 0.0, 1.22, 0.05 ),
-    HF_EtResPar = cms.vdouble( 0.0, 1.82, 0.09 ),
-    HE_EtResPar = cms.vdouble( 0.0, 1.3, 0.05 ),
     HO_EtResPar = cms.vdouble( 0.0, 1.3, 0.0050 ),
-    EE_EtResPar = cms.vdouble( 0.2, 0.03, 0.0050 )
+    HF_EtResPar = cms.vdouble( 0.0, 1.82, 0.09 ),
+    HB_PhiResPar = cms.vdouble( 0.02511 ),
+    HE_PhiResPar = cms.vdouble( 0.02511 ),
+    EE_EtResPar = cms.vdouble( 0.2, 0.03, 0.0050 ),
+    EB_PhiResPar = cms.vdouble( 0.00502 ),
+    EE_PhiResPar = cms.vdouble( 0.02511 ),
+    HB_EtResPar = cms.vdouble( 0.0, 1.22, 0.05 ),
+    EB_EtResPar = cms.vdouble( 0.2, 0.03, 0.0050 ),
+    HF_PhiResPar = cms.vdouble( 0.05022 ),
+    HE_EtResPar = cms.vdouble( 0.0, 1.3, 0.05 ),
+    HO_PhiResPar = cms.vdouble( 0.02511 )
 )
 hltHtMet = cms.EDProducer( "METProducer",
     src = cms.InputTag( "hltMCJetCorJetIcone5" ),
@@ -929,18 +932,18 @@ hltHtMet = cms.EDProducer( "METProducer",
     alias = cms.string( "HTMET" ),
     globalThreshold = cms.double( 5.0 ),
     noHF = cms.bool( False ),
-    HO_PhiResPar = cms.vdouble( 0.02511 ),
-    HF_PhiResPar = cms.vdouble( 0.05022 ),
-    EB_EtResPar = cms.vdouble( 0.2, 0.03, 0.0050 ),
-    EE_PhiResPar = cms.vdouble( 0.02511 ),
-    HE_PhiResPar = cms.vdouble( 0.02511 ),
-    HB_PhiResPar = cms.vdouble( 0.02511 ),
-    EB_PhiResPar = cms.vdouble( 0.00502 ),
-    HB_EtResPar = cms.vdouble( 0.0, 1.22, 0.05 ),
-    HF_EtResPar = cms.vdouble( 0.0, 1.82, 0.09 ),
-    HE_EtResPar = cms.vdouble( 0.0, 1.3, 0.05 ),
     HO_EtResPar = cms.vdouble( 0.0, 1.3, 0.0050 ),
-    EE_EtResPar = cms.vdouble( 0.2, 0.03, 0.0050 )
+    HF_EtResPar = cms.vdouble( 0.0, 1.82, 0.09 ),
+    HB_PhiResPar = cms.vdouble( 0.02511 ),
+    HE_PhiResPar = cms.vdouble( 0.02511 ),
+    EE_EtResPar = cms.vdouble( 0.2, 0.03, 0.0050 ),
+    EB_PhiResPar = cms.vdouble( 0.00502 ),
+    EE_PhiResPar = cms.vdouble( 0.02511 ),
+    HB_EtResPar = cms.vdouble( 0.0, 1.22, 0.05 ),
+    EB_EtResPar = cms.vdouble( 0.2, 0.03, 0.0050 ),
+    HF_PhiResPar = cms.vdouble( 0.05022 ),
+    HE_EtResPar = cms.vdouble( 0.0, 1.3, 0.05 ),
+    HO_PhiResPar = cms.vdouble( 0.02511 )
 )
 hlt1jet30 = cms.EDFilter( "HLT1CaloJet",
     inputTag = cms.InputTag( "hltMCJetCorJetIcone5" ),
@@ -968,7 +971,7 @@ hltEcalRegionalJetsFEDs = cms.EDProducer( "EcalListOfFEDSProducer",
     TauSource = cms.untracked.InputTag( 'hltL1extraParticles','Tau' ),
     OutputLabel = cms.untracked.string( "" )
 )
-hltEcalRegionalJetsDigis = cms.EDProducer( "EcalRawToDigiDev",
+hltEcalRegionalJetsDigis = cms.EDProducer( "EcalRawToDigi",
     syncCheck = cms.untracked.bool( False ),
     eventPut = cms.untracked.bool( True ),
     InputLabel = cms.untracked.string( "rawDataCollector" ),
@@ -978,17 +981,19 @@ hltEcalRegionalJetsDigis = cms.EDProducer( "EcalRawToDigiDev",
     orderedFedList = cms.untracked.vint32( 601, 602, 603, 604, 605, 606, 607, 608, 609, 610, 611, 612, 613, 614, 615, 616, 617, 618, 619, 620, 621, 622, 623, 624, 625, 626, 627, 628, 629, 630, 631, 632, 633, 634, 635, 636, 637, 638, 639, 640, 641, 642, 643, 644, 645, 646, 647, 648, 649, 650, 651, 652, 653, 654 ),
     orderedDCCIdList = cms.untracked.vint32( 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54 )
 )
-hltEcalRegionalJetsWeightUncalibRecHit = cms.EDProducer( "EcalWeightUncalibRecHitProducer",
+hltEcalRegionalJetsWeightUncalibRecHit = cms.EDProducer( "EcalUncalibRecHitProducer",
     EBdigiCollection = cms.InputTag( 'hltEcalRegionalJetsDigis','ebDigis' ),
     EEdigiCollection = cms.InputTag( 'hltEcalRegionalJetsDigis','eeDigis' ),
     EBhitCollection = cms.string( "EcalUncalibRecHitsEB" ),
-    EEhitCollection = cms.string( "EcalUncalibRecHitsEE" )
+    EEhitCollection = cms.string( "EcalUncalibRecHitsEE" ),
+    algo = cms.string( "EcalUncalibRecHitWorkerWeights" )
 )
 hltEcalRegionalJetsRecHitTmp = cms.EDProducer( "EcalRecHitProducer",
     EBuncalibRecHitCollection = cms.InputTag( 'hltEcalRegionalJetsWeightUncalibRecHit','EcalUncalibRecHitsEB' ),
     EEuncalibRecHitCollection = cms.InputTag( 'hltEcalRegionalJetsWeightUncalibRecHit','EcalUncalibRecHitsEE' ),
     EBrechitCollection = cms.string( "EcalRecHitsEB" ),
     EErechitCollection = cms.string( "EcalRecHitsEE" ),
+    algo = cms.string( "EcalRecHitWorkerSimple" ),
     ChannelStatusToBeExcluded = cms.vint32(  )
 )
 hltEcalRegionalJetsRecHit = cms.EDProducer( "EcalRecHitsMerger",
@@ -1289,7 +1294,7 @@ hltEcalRegionalEgammaFEDs = cms.EDProducer( "EcalListOfFEDSProducer",
     Ptmin_noniso = cms.untracked.double( 5.0 ),
     OutputLabel = cms.untracked.string( "" )
 )
-hltEcalRegionalEgammaDigis = cms.EDProducer( "EcalRawToDigiDev",
+hltEcalRegionalEgammaDigis = cms.EDProducer( "EcalRawToDigi",
     syncCheck = cms.untracked.bool( False ),
     eventPut = cms.untracked.bool( True ),
     InputLabel = cms.untracked.string( "rawDataCollector" ),
@@ -1299,17 +1304,19 @@ hltEcalRegionalEgammaDigis = cms.EDProducer( "EcalRawToDigiDev",
     orderedFedList = cms.untracked.vint32( 601, 602, 603, 604, 605, 606, 607, 608, 609, 610, 611, 612, 613, 614, 615, 616, 617, 618, 619, 620, 621, 622, 623, 624, 625, 626, 627, 628, 629, 630, 631, 632, 633, 634, 635, 636, 637, 638, 639, 640, 641, 642, 643, 644, 645, 646, 647, 648, 649, 650, 651, 652, 653, 654 ),
     orderedDCCIdList = cms.untracked.vint32( 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54 )
 )
-hltEcalRegionalEgammaWeightUncalibRecHit = cms.EDProducer( "EcalWeightUncalibRecHitProducer",
+hltEcalRegionalEgammaWeightUncalibRecHit = cms.EDProducer( "EcalUncalibRecHitProducer",
     EBdigiCollection = cms.InputTag( 'hltEcalRegionalEgammaDigis','ebDigis' ),
     EEdigiCollection = cms.InputTag( 'hltEcalRegionalEgammaDigis','eeDigis' ),
     EBhitCollection = cms.string( "EcalUncalibRecHitsEB" ),
-    EEhitCollection = cms.string( "EcalUncalibRecHitsEE" )
+    EEhitCollection = cms.string( "EcalUncalibRecHitsEE" ),
+    algo = cms.string( "EcalUncalibRecHitWorkerWeights" )
 )
 hltEcalRegionalEgammaRecHitTmp = cms.EDProducer( "EcalRecHitProducer",
     EBuncalibRecHitCollection = cms.InputTag( 'hltEcalRegionalEgammaWeightUncalibRecHit','EcalUncalibRecHitsEB' ),
     EEuncalibRecHitCollection = cms.InputTag( 'hltEcalRegionalEgammaWeightUncalibRecHit','EcalUncalibRecHitsEE' ),
     EBrechitCollection = cms.string( "EcalRecHitsEB" ),
     EErechitCollection = cms.string( "EcalRecHitsEE" ),
+    algo = cms.string( "EcalRecHitWorkerSimple" ),
     ChannelStatusToBeExcluded = cms.vint32(  )
 )
 hltEcalRegionalEgammaRecHit = cms.EDProducer( "EcalRecHitsMerger",
@@ -4636,7 +4643,7 @@ hltL1sAlCaEcalPhiSym = cms.EDFilter( "HLTLevel1GTSeed",
     L1MuonCollectionTag = cms.InputTag( "hltL1extraParticles" )
 )
 hltPreAlCaEcalPhiSym = cms.EDFilter( "HLTPrescaler" )
-hltEcalDigis = cms.EDProducer( "EcalRawToDigiDev",
+hltEcalDigis = cms.EDProducer( "EcalRawToDigi",
     syncCheck = cms.untracked.bool( False ),
     eventPut = cms.untracked.bool( True ),
     InputLabel = cms.untracked.string( "rawDataCollector" ),
@@ -4644,17 +4651,19 @@ hltEcalDigis = cms.EDProducer( "EcalRawToDigiDev",
     orderedFedList = cms.untracked.vint32( 601, 602, 603, 604, 605, 606, 607, 608, 609, 610, 611, 612, 613, 614, 615, 616, 617, 618, 619, 620, 621, 622, 623, 624, 625, 626, 627, 628, 629, 630, 631, 632, 633, 634, 635, 636, 637, 638, 639, 640, 641, 642, 643, 644, 645, 646, 647, 648, 649, 650, 651, 652, 653, 654 ),
     orderedDCCIdList = cms.untracked.vint32( 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54 )
 )
-hltEcalWeightUncalibRecHit = cms.EDProducer( "EcalWeightUncalibRecHitProducer",
+hltEcalWeightUncalibRecHit = cms.EDProducer( "EcalUncalibRecHitProducer",
     EBdigiCollection = cms.InputTag( 'hltEcalDigis','ebDigis' ),
     EEdigiCollection = cms.InputTag( 'hltEcalDigis','eeDigis' ),
     EBhitCollection = cms.string( "EcalUncalibRecHitsEB" ),
-    EEhitCollection = cms.string( "EcalUncalibRecHitsEE" )
+    EEhitCollection = cms.string( "EcalUncalibRecHitsEE" ),
+    algo = cms.string( "EcalUncalibRecHitWorkerWeights" )
 )
 hltEcalRecHit = cms.EDProducer( "EcalRecHitProducer",
     EBuncalibRecHitCollection = cms.InputTag( 'hltEcalWeightUncalibRecHit','EcalUncalibRecHitsEB' ),
     EEuncalibRecHitCollection = cms.InputTag( 'hltEcalWeightUncalibRecHit','EcalUncalibRecHitsEE' ),
     EBrechitCollection = cms.string( "EcalRecHitsEB" ),
     EErechitCollection = cms.string( "EcalRecHitsEE" ),
+    algo = cms.string( "EcalRecHitWorkerSimple" ),
     ChannelStatusToBeExcluded = cms.vint32(  )
 )
 hltAlCaPhiSymStream = cms.EDFilter( "HLTEcalPhiSymFilter",
@@ -4684,7 +4693,7 @@ hltEcalRegionalPi0FEDs = cms.EDProducer( "EcalListOfFEDSProducer",
     Ptmin_noniso = cms.untracked.double( 2.0 ),
     OutputLabel = cms.untracked.string( "" )
 )
-hltEcalRegionalPi0Digis = cms.EDProducer( "EcalRawToDigiDev",
+hltEcalRegionalPi0Digis = cms.EDProducer( "EcalRawToDigi",
     syncCheck = cms.untracked.bool( False ),
     eventPut = cms.untracked.bool( True ),
     InputLabel = cms.untracked.string( "rawDataCollector" ),
@@ -4694,17 +4703,19 @@ hltEcalRegionalPi0Digis = cms.EDProducer( "EcalRawToDigiDev",
     orderedFedList = cms.untracked.vint32( 601, 602, 603, 604, 605, 606, 607, 608, 609, 610, 611, 612, 613, 614, 615, 616, 617, 618, 619, 620, 621, 622, 623, 624, 625, 626, 627, 628, 629, 630, 631, 632, 633, 634, 635, 636, 637, 638, 639, 640, 641, 642, 643, 644, 645, 646, 647, 648, 649, 650, 651, 652, 653, 654 ),
     orderedDCCIdList = cms.untracked.vint32( 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54 )
 )
-hltEcalRegionalPi0WeightUncalibRecHit = cms.EDProducer( "EcalWeightUncalibRecHitProducer",
+hltEcalRegionalPi0WeightUncalibRecHit = cms.EDProducer( "EcalUncalibRecHitProducer",
     EBdigiCollection = cms.InputTag( 'hltEcalRegionalPi0Digis','ebDigis' ),
     EEdigiCollection = cms.InputTag( 'hltEcalRegionalPi0Digis','eeDigis' ),
     EBhitCollection = cms.string( "EcalUncalibRecHitsEB" ),
-    EEhitCollection = cms.string( "EcalUncalibRecHitsEE" )
+    EEhitCollection = cms.string( "EcalUncalibRecHitsEE" ),
+    algo = cms.string( "EcalUncalibRecHitWorkerWeights" )
 )
 hltEcalRegionalPi0RecHitTmp = cms.EDProducer( "EcalRecHitProducer",
     EBuncalibRecHitCollection = cms.InputTag( 'hltEcalRegionalPi0WeightUncalibRecHit','EcalUncalibRecHitsEB' ),
     EEuncalibRecHitCollection = cms.InputTag( 'hltEcalRegionalPi0WeightUncalibRecHit','EcalUncalibRecHitsEE' ),
     EBrechitCollection = cms.string( "EcalRecHitsEB" ),
     EErechitCollection = cms.string( "EcalRecHitsEE" ),
+    algo = cms.string( "EcalRecHitWorkerSimple" ),
     ChannelStatusToBeExcluded = cms.vint32(  )
 )
 hltEcalRegionalPi0RecHit = cms.EDProducer( "EcalRecHitsMerger",
@@ -4793,6 +4804,13 @@ hltTriggerSummaryRAW = cms.EDProducer( "TriggerSummaryProducerRAW",
 )
 hltBoolFinalPath = cms.EDFilter( "HLTBool",
     result = cms.bool( False )
+)
+hltL1gtTrigReport = cms.EDAnalyzer( "L1GtTrigReport",
+    UseL1GlobalTriggerRecord = cms.bool( False ),
+    L1GtRecordInputTag = cms.InputTag( "hltGtDigis" )
+)
+hltTrigReport = cms.EDAnalyzer( "HLTrigReport",
+    HLTriggerResults = cms.InputTag( 'TriggerResults','','HLT' )
 )
 
 HLTBeginSequence = cms.Sequence( hltTriggerType + hltGtDigis + hltGctDigis + hltL1GtObjectMap + hltL1extraParticles + hltOfflineBeamSpot )
@@ -4900,6 +4918,7 @@ AlCa_IsoTrack = cms.Path( HLTBeginSequence + hltL1sAlCaIsoTrack + hltPreAlCaIsoT
 AlCa_EcalPhiSym = cms.Path( HLTBeginSequence + hltL1sAlCaEcalPhiSym + hltPreAlCaEcalPhiSym + hltEcalDigis + hltEcalWeightUncalibRecHit + hltEcalRecHit + hltAlCaPhiSymStream + HLTEndSequence )
 AlCa_EcalPi0 = cms.Path( HLTBeginSequence + hltL1sAlCaEcalPi0 + hltPreAlCaEcalPi0 + HLTDoRegionalPi0EcalSequence + hltAlCaPi0RegRecHits + HLTEndSequence )
 HLTriggerFinalPath = cms.Path( hltTriggerSummaryAOD + hltPreTriggerSummaryRAW + hltTriggerSummaryRAW + hltBoolFinalPath )
+HLTAnalyzerEndpath = cms.EndPath( hltL1gtTrigReport + hltTrigReport )
 
 
-HLTSchedule = cms.Schedule( HLTriggerFirstPath, HLT_L1Jet15, HLT_Jet30, HLT_Jet80, HLT_Jet110, HLT_Jet180, HLT_FwdJet20, HLT_DiJetAve15, HLT_DiJetAve50, HLT_DiJetAve70, HLT_DiJetAve130, HLT_QuadJet30, HLT_SumET120, HLT_L1MET20, HLT_MET25, HLT_MET50, HLT_MET65, HLT_IsoEle18_L1R, HLT_LooseIsoEle15_LW_L1R, HLT_Ele15_LW_L1R, HLT_DoubleEle10_LW_OnlyPixelM_L1R, HLT_IsoPhoton15_L1R, HLT_IsoPhoton20_L1R, HLT_Photon15_L1R, HLT_Photon25_L1R, HLT_DoubleIsoPhoton20_L1R, HLT_L1Mu, HLT_L1MuOpen, HLT_Mu5, HLT_Mu9, HLT_Mu11, HLT_DoubleMu3, HLT_SingleLooseIsoTau20, HLT_SingleLooseIsoTau20_Trk5, HLT_DoubleLooseIsoTau15, HLT_DoubleLooseIsoTau15_Trk5, HLT_BTagMu_Jet20_Calib, HLT_ZeroBias, HLT_MinBiasHcal, HLT_MinBiasEcal, HLT_MinBiasPixel, HLT_MinBiasPixel_Trk5, HLT_BackwardBSC, HLT_ForwardBSC, HLT_CSCBeamHalo, HLT_CSCBeamHaloOverlapRing1, HLT_CSCBeamHaloOverlapRing2, HLT_CSCBeamHaloRing2or3, HLT_TrackerCosmics, AlCa_IsoTrack, AlCa_EcalPhiSym, AlCa_EcalPi0, HLTriggerFinalPath )
+HLTSchedule = cms.Schedule( HLTriggerFirstPath, HLT_L1Jet15, HLT_Jet30, HLT_Jet80, HLT_Jet110, HLT_Jet180, HLT_FwdJet20, HLT_DiJetAve15, HLT_DiJetAve50, HLT_DiJetAve70, HLT_DiJetAve130, HLT_QuadJet30, HLT_SumET120, HLT_L1MET20, HLT_MET25, HLT_MET50, HLT_MET65, HLT_IsoEle18_L1R, HLT_LooseIsoEle15_LW_L1R, HLT_Ele15_LW_L1R, HLT_DoubleEle10_LW_OnlyPixelM_L1R, HLT_IsoPhoton15_L1R, HLT_IsoPhoton20_L1R, HLT_Photon15_L1R, HLT_Photon25_L1R, HLT_DoubleIsoPhoton20_L1R, HLT_L1Mu, HLT_L1MuOpen, HLT_Mu5, HLT_Mu9, HLT_Mu11, HLT_DoubleMu3, HLT_SingleLooseIsoTau20, HLT_SingleLooseIsoTau20_Trk5, HLT_DoubleLooseIsoTau15, HLT_DoubleLooseIsoTau15_Trk5, HLT_BTagMu_Jet20_Calib, HLT_ZeroBias, HLT_MinBiasHcal, HLT_MinBiasEcal, HLT_MinBiasPixel, HLT_MinBiasPixel_Trk5, HLT_BackwardBSC, HLT_ForwardBSC, HLT_CSCBeamHalo, HLT_CSCBeamHaloOverlapRing1, HLT_CSCBeamHaloOverlapRing2, HLT_CSCBeamHaloRing2or3, HLT_TrackerCosmics, AlCa_IsoTrack, AlCa_EcalPhiSym, AlCa_EcalPi0, HLTriggerFinalPath, HLTAnalyzerEndpath )
