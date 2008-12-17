@@ -6,7 +6,7 @@
  *
  * \author N.Marinelli  University of Notre Dame, US
  *
- * \version $Id: Conversion.h,v 1.4 2008/05/08 19:42:45 nancy Exp $
+ * \version $Id: Conversion.h,v 1.5 2008/10/24 12:52:04 nancy Exp $
  *
  */
 
@@ -41,7 +41,7 @@ namespace reco {
       virtual ~Conversion();
       /// returns a clone of the candidate
       Conversion * clone() const;
-      /// reference to a SuperCluster
+      /// Poiner to CaloCluster (foe Egamma Conversions it points to  a SuperCluster)
       reco::CaloClusterPtrVector caloCluster() const ;
       /// vector of references to  tracks
       std::vector<reco::TrackRef> tracks() const ; 
