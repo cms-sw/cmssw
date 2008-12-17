@@ -1,22 +1,19 @@
-# The following comments couldn't be translated into the new config version:
-
+# This is a template in case constants are not taken from global tag:
 import FWCore.ParameterSet.Config as cms
 
 from Alignment.CommonAlignmentProducer.GlobalPosition_Frontier_cff import *
 import CalibTracker.Configuration.Common.PoolDBESSource_cfi
-trackerAlignment = CalibTracker.Configuration.Common.PoolDBESSource_cfi.poolDBESSource.clone()
-trackerAlignment.connect = 'frontier://FrontierProd/CMS_COND_21X_ALIGNMENT'
-#trackerAlignment.connect = 'oracle://cms_orcoff_prep/CMS_COND_ALIGNMENT' # oracle dev. DB
-trackerAlignment.toGet = cms.VPSet(cms.PSet(
-    record = cms.string('TrackerAlignmentRcd'),
-    tag = cms.string('TrackerIdealGeometry210_mc')
-), 
-    cms.PSet(
-        record = cms.string('TrackerAlignmentErrorRcd'),
-        tag = cms.string('TrackerIdealGeometryErrors210_mc')
-    ))
-#from Geometry.TrackerGeometryBuilder.trackerGeometry_cfi import *
-#es_prefer_trackerAlignment = cms.ESPrefer("PoolDBESSource","trackerAlignment")
-# to apply misalignments
-#TrackerDigiGeometryESModule.applyAlignment = True
+# 'connect' to be adjusted to release, 'tags' to newer payloads... 
+trackerAlignment = CalibTracker.Configuration.Common.PoolDBESSource_cfi.poolDBESSource.clone(
+    # connect = 'sqlite_file:afile.db'
+    connect = 'frontier://FrontierProd/CMS_COND_21X_ALIGNMENT',
+    toGet = cms.VPSet(cms.PSet(record = cms.string('TrackerAlignmentRcd'),
+                               tag = cms.string('TrackerIdealGeometry210_mc')
+                               ), 
+                      cms.PSet(record = cms.string('TrackerAlignmentErrorRcd'),
+                               tag = cms.string('TrackerIdealGeometryErrors210_mc')
+                               ))
+    )
 
+# Might be needed if you want to overwrite the global tag:
+# ESPrefer("PoolDBESSource", "trackerAlignment")
