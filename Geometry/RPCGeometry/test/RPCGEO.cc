@@ -13,7 +13,7 @@
 //
 // Original Author:  pts/91
 //         Created:  Wed Sep 26 17:08:29 CEST 2007
-// $Id$
+// $Id: RPCGEO.cc,v 1.1 2008/11/25 14:10:46 carrillo Exp $
 //
 //
 
@@ -121,7 +121,6 @@ RPCGEO::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    int counterRollsEndCap=0;
    int ENDCAP[5][4];
    int ENDCAProll[5][4];
-   int rollsStation4Sector4Wheel0=0;
    int rollsNearDiskp3=0;	 
    int rollsNearDiskp2=0;
 
@@ -218,15 +217,15 @@ RPCGEO::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	 
 	 RollsInCMS++;
 	 
-	 std::cout<<rpcId<<" - "<<rpcsrv.name()<<" - "<<rpcsrv.shortname()<<std::endl;
+	 //std::cout<<rpcId<<" - "<<rpcsrv.name()<<" - "<<rpcsrv.shortname()<<std::endl;
 	//std::cout<<rpcsrv.name()<<std::endl;
 	
 
 	 if (rpcId.region()==0){ 
 	   //std::cout<<"Getting the RPC Topolgy"<<std::endl;
-	   const RectangularStripTopology* top_= dynamic_cast<const RectangularStripTopology*> (&((*r)->topology()));
-	   float stripl = top_->stripLength();
-	   float stripw = top_->pitch();
+	   //const RectangularStripTopology* top_= dynamic_cast<const RectangularStripTopology*> (&((*r)->topology()));
+	   //float stripl = top_->stripLength();
+	   //float stripw = top_->pitch();
 	   //std::cout<<rpcsrv.name()<<" strips lenght="<<stripl<<std::endl;
 
 	   
@@ -266,19 +265,41 @@ RPCGEO::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	   double rpcphiFirst = FirstStripCenterPointInGlobal.barePhi();//*180./3.141592;
 	   double rpcphiLast  = LastStripCenterPointInGlobal.barePhi();//*180./3.141592;
 
-	   double rpcYFirst = FirstStripCenterPointInGlobal.y();
-	   double rpcYLast  = LastStripCenterPointInGlobal.y();
+	   //double rpcYFirst = FirstStripCenterPointInGlobal.y();
+	   //double rpcYLast  = LastStripCenterPointInGlobal.y();
 
 	   double diff=rpcphiLast-rpcphiFirst;
 	   
 	   double rollphi = (rpcphiFirst+rpcphiLast)*0.5*180./3.141592;
 	     
 	   double orientation=diff/fabs(diff);
-	   
-	   std::cout<<rpcsrv.name()<<" midlephi="<<rollphi<<" "<<orientation<<" seg="<<rpcsrv.segment()<<" First.phi="<<rpcphiFirst<<" First.Y="<<FirstStripCenterPointInGlobal.y()<<" Last.phi="<<rpcphiLast<<" Last.Y="<<LastStripCenterPointInGlobal.y()<<std::endl;
-	   
+
+	   int seg=rpcsrv.segment();
+
+	   if(seg==19) orientation = orientation*-1;
+
+	   std::cout<<rpcsrv.name()<<" midlephi="<<rollphi<<" "<<orientation<<" seg="<<seg
+		    <<" First.phi="<<rpcphiFirst<<" First.Y="<<FirstStripCenterPointInGlobal.y()
+		    <<"  Last.phi="<<rpcphiLast<<" Last.Y="<<LastStripCenterPointInGlobal.y()
+		    <<" Last.X="<<LastStripCenterPointInGlobal.x()
+		    <<" Last.Z="<<LastStripCenterPointInGlobal.z();	   
+
 	   //cscphi = 2*3.1415926536+CenterPointCSCGlobal.barePhi():cscphi=CenterPointCSCGlobal.barePhi();
-	   
+
+	   bool ok = false;
+
+	   if((rpcId.station()==1&&(rpcId.ring()==2&&seg%2!=0||rpcId.ring()==3)||rpcId.station()==3)
+	      &&orientation*rpcId.region()==1.){
+	     ok=true;
+	   }
+	   if((rpcId.station()==1&&rpcId.ring()==2&&seg%2==0||rpcId.station()==2)
+	      &&orientation*rpcId.region()==-1.){
+	     ok=true;
+	   }
+
+	   if(ok) std::cout<<" OK"<<std::endl;
+	   else std::cout<<" WRONG!!!"<<std::endl;
+	     
 	   counterRollsEndCap++;
 
 	   if(rpcId.region()==1){
