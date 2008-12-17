@@ -47,10 +47,10 @@ ecalEndcapMonitorModule.EcalTrigPrimDigiCollection = 'ecalDigis:EcalTriggerPrimi
 ecalEndcapMonitorModule.verbose = False
 
 ecalBarrelCosmicTask.EcalRawDataCollection = 'ecalDigis:'
-ecalBarrelCosmicTask.EcalUncalibratedRecHitCollection = 'ecalWeightUncalibRecHit:EcalUncalibRecHitsEB'
+ecalBarrelCosmicTask.EcalUncalibratedRecHitCollection = 'ecalUncalibRecHit:EcalUncalibRecHitsEB'
 
 ecalEndcapCosmicTask.EcalRawDataCollection = 'ecalDigis:'
-ecalEndcapCosmicTask.EcalUncalibratedRecHitCollection = 'ecalWeightUncalibRecHit:EcalUncalibRecHitsEE'
+ecalEndcapCosmicTask.EcalUncalibratedRecHitCollection = 'ecalUncalibRecHit:EcalUncalibRecHitsEE'
 
 ecalBarrelIntegrityTask.EBDetIdCollection0 = 'ecalDigis:EcalIntegrityDCCSizeErrors'
 ecalBarrelIntegrityTask.EBDetIdCollection1 = 'ecalDigis:EcalIntegrityGainErrors'
@@ -105,10 +105,10 @@ ecalEndcapSelectiveReadoutTask.EESRFlagCollection = 'ecalDigis:'
 ecalEndcapSelectiveReadoutTask.EcalTrigPrimDigiCollection = 'ecalDigis:EcalTriggerPrimitives'
 
 ecalBarrelTimingTask.EcalRawDataCollection = 'ecalDigis:'
-ecalBarrelTimingTask.EcalUncalibratedRecHitCollection = 'ecalWeightUncalibRecHit:EcalUncalibRecHitsEB'
+ecalBarrelTimingTask.EcalUncalibratedRecHitCollection = 'ecalUncalibRecHit:EcalUncalibRecHitsEB'
 
 ecalEndcapTimingTask.EcalRawDataCollection = 'ecalDigis:'
-ecalEndcapTimingTask.EcalUncalibratedRecHitCollection = 'ecalWeightUncalibRecHit:EcalUncalibRecHitsEE'
+ecalEndcapTimingTask.EcalUncalibratedRecHitCollection = 'ecalUncalibRecHit:EcalUncalibRecHitsEE'
 
 ecalBarrelTriggerTowerTask.EcalTrigPrimDigiCollectionReal = 'ecalDigis:EcalTriggerPrimitives'
 ecalBarrelTriggerTowerTask.EBDigiCollection = 'ecalDigis:ebDigis'
