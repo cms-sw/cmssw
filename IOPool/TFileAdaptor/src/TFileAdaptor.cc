@@ -195,7 +195,7 @@ private:
 
 TFileAdaptorUI::TFileAdaptorUI() {
   edm::ActivityRegistry ar;
-  TFileAdaptorParams param;
+  const edm::ParameterSet param;
   me.reset(new TFileAdaptor(param,ar));
 }
 
