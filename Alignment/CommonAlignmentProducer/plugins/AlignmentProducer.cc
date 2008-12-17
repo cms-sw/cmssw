@@ -1,9 +1,9 @@
 /// \file AlignmentProducer.cc
 ///
 ///  \author    : Frederic Ronga
-///  Revision   : $Revision: 1.28 $
-///  last update: $Date: 2008/08/22 12:47:01 $
-///  by         : $Author: ntran $
+///  Revision   : $Revision: 1.29 $
+///  last update: $Date: 2008/09/10 07:42:33 $
+///  by         : $Author: flucke $
 
 #include "AlignmentProducer.h"
 #include "FWCore/Framework/interface/LooperFactory.h" 
@@ -65,7 +65,7 @@
 //_____________________________________________________________________________
 AlignmentProducer::AlignmentProducer(const edm::ParameterSet& iConfig) :
   theAlignmentAlgo(0), theAlignmentParameterStore(0),
-  theAlignableTracker(0), theAlignableMuon(0),
+  theAlignableTracker(0), theAlignableMuon(0), globalPositions_(0),
   nevent_(0), theParameterSet(iConfig),
   theMaxLoops( iConfig.getUntrackedParameter<unsigned int>("maxLoops",0) ),
   stNFixAlignables_(iConfig.getParameter<int>("nFixAlignables") ),
@@ -74,6 +74,7 @@ AlignmentProducer::AlignmentProducer(const edm::ParameterSet& iConfig) :
   applyDbAlignment_( iConfig.getUntrackedParameter<bool>("applyDbAlignment",false) ),
   doMisalignmentScenario_(iConfig.getParameter<bool>("doMisalignmentScenario")),
   saveToDB_(iConfig.getParameter<bool>("saveToDB")),
+  saveApeToDB_(iConfig.getParameter<bool>("saveApeToDB")),
   doTracker_( iConfig.getUntrackedParameter<bool>("doTracker") ),
   doMuon_( iConfig.getUntrackedParameter<bool>("doMuon") ),
   useSurvey_( iConfig.getParameter<bool>("useSurvey") ) 
@@ -122,6 +123,7 @@ AlignmentProducer::~AlignmentProducer()
   delete theAlignableTracker;
   delete theAlignableMuon;
 
+  delete globalPositions_;
 }
 
 
@@ -160,95 +162,41 @@ void AlignmentProducer::beginOfJob( const edm::EventSetup& iSetup )
   edm::LogInfo("Alignment") << "@SUB=AlignmentProducer::beginOfJob";
 
   nevent_ = 0;
-  GeometryAligner aligner;
 
   // Create the geometries from the ideal geometries (first time only)
   this->createGeometries_( iSetup );
   
   // Retrieve and apply alignments, if requested (requires DB setup)
   if ( applyDbAlignment_ ) {
-    //    iSetup.get<TrackerDigiGeometryRecord>().getRecord<GlobalPositionRcd>().get(globalPositionRcd_);
+    // we need GlobalPositionRcd - and have to keep track for later removal
+    // before writing again to DB...
     edm::ESHandle<Alignments> globalPositionRcd;
     iSetup.get<GlobalPositionRcd>().get(globalPositionRcd);
-    if ( doTracker_ ) {
-      edm::ESHandle<Alignments> alignments;
-      iSetup.get<TrackerAlignmentRcd>().get( alignments );
-      edm::ESHandle<AlignmentErrors> alignmentErrors;
-      iSetup.get<TrackerAlignmentErrorRcd>().get( alignmentErrors );
-      aligner.applyAlignments<TrackerGeometry>( &(*theTracker), &(*alignments), &(*alignmentErrors),
-						align::DetectorGlobalPosition(*globalPositionRcd, DetId(DetId::Tracker)) );
-    }
-    if ( doMuon_ ) {
-      edm::ESHandle<Alignments> dtAlignments;
-      iSetup.get<DTAlignmentRcd>().get( dtAlignments );
-      edm::ESHandle<AlignmentErrors> dtAlignmentErrors;
-      iSetup.get<DTAlignmentErrorRcd>().get( dtAlignmentErrors );
-      aligner.applyAlignments<DTGeometry>( &(*theMuonDT), &(*dtAlignments), &(*dtAlignmentErrors),
-					   align::DetectorGlobalPosition(*globalPositionRcd, DetId(DetId::Muon)) );
+    globalPositions_ = new Alignments(*globalPositionRcd);
 
-      edm::ESHandle<Alignments> cscAlignments;
-      iSetup.get<CSCAlignmentRcd>().get( cscAlignments );
-      edm::ESHandle<AlignmentErrors> cscAlignmentErrors;
-      iSetup.get<CSCAlignmentErrorRcd>().get( cscAlignmentErrors );
-      aligner.applyAlignments<CSCGeometry>( &(*theMuonCSC), &(*cscAlignments), &(*cscAlignmentErrors),
-					    align::DetectorGlobalPosition(*globalPositionRcd, DetId(DetId::Muon)) );
+    if ( doTracker_ ) {     // apply to tracker
+      this->applyDB<TrackerGeometry,TrackerAlignmentRcd,TrackerAlignmentErrorRcd>
+	(&(*theTracker), iSetup,  
+	 align::DetectorGlobalPosition(*globalPositions_, DetId(DetId::Tracker)));
+    }
+
+    if ( doMuon_ ) { // apply to tracker
+      this->applyDB<DTGeometry,DTAlignmentRcd,DTAlignmentErrorRcd>
+	(&(*theMuonDT), iSetup,
+	 align::DetectorGlobalPosition(*globalPositions_, DetId(DetId::Muon)));
+      this->applyDB<CSCGeometry,CSCAlignmentRcd,CSCAlignmentErrorRcd>
+	(&(*theMuonCSC), iSetup,
+	 align::DetectorGlobalPosition(*globalPositions_, DetId(DetId::Muon)));
     }
   }
 
   // Create alignable tracker and muon 
-  if (doTracker_)
-  {
+  if (doTracker_) {
     theAlignableTracker = new AlignableTracker( &(*theTracker) );
-	  /*
-    if (useSurvey_)
-    {
-      edm::ESHandle<Alignments> surveys;
-      edm::ESHandle<SurveyErrors> surveyErrors;
-
-      iSetup.get<TrackerSurveyRcd>().get(surveys);
-      iSetup.get<TrackerSurveyErrorRcd>().get(surveyErrors);
-
-      theSurveyIndex  = 0;
-      theSurveyValues = &*surveys;
-      theSurveyErrors = &*surveyErrors;
-      addSurveyInfo_(theAlignableTracker);
-    }
-	   */
   }
 
-  if (doMuon_)
-  {
+  if (doMuon_) {
      theAlignableMuon = new AlignableMuon( &(*theMuonDT), &(*theMuonCSC) );
-	  /*
-	  if (useSurvey_)
-	  {
-		  edm::ESHandle<Alignments> dtSurveys;
-		  edm::ESHandle<SurveyErrors> dtSurveyErrors;
-		  edm::ESHandle<Alignments> cscSurveys;
-		  edm::ESHandle<SurveyErrors> cscSurveyErrors;
-		  
-		  iSetup.get<DTSurveyRcd>().get(dtSurveys);
-		  iSetup.get<DTSurveyErrorRcd>().get(dtSurveyErrors);
-		  iSetup.get<CSCSurveyRcd>().get(cscSurveys);
-		  iSetup.get<CSCSurveyErrorRcd>().get(cscSurveyErrors);
-		  
-		  theSurveyIndex  = 0;
-		  theSurveyValues = &*dtSurveys;
-		  theSurveyErrors = &*dtSurveyErrors;
-		  std::vector<Alignable*> barrels = theAlignableMuon->DTBarrel();
-		  for (std::vector<Alignable*>::const_iterator iter = barrels.begin();  iter != barrels.end();  ++iter) {
-			  addSurveyInfo_(*iter);
-		  }
-		  
-		  theSurveyIndex  = 0;
-		  theSurveyValues = &*cscSurveys;
-		  theSurveyErrors = &*cscSurveyErrors;
-		  std::vector<Alignable*> endcaps = theAlignableMuon->CSCEndcaps();
-		  for (std::vector<Alignable*>::const_iterator iter = endcaps.begin();  iter != endcaps.end();  ++iter) {
-			  addSurveyInfo_(*iter);
-		  }
-	  }
-	   */
   }
 
   // Create alignment parameter builder
@@ -304,7 +252,8 @@ void AlignmentProducer::beginOfJob( const edm::EventSetup& iSetup )
   theAlignmentAlgo->initialize( iSetup, theAlignableTracker,
                                 theAlignableMuon, theAlignmentParameterStore );
 
-  for (std::vector<AlignmentMonitorBase*>::const_iterator monitor = theMonitors.begin();  monitor != theMonitors.end();  ++monitor) {
+  for (std::vector<AlignmentMonitorBase*>::const_iterator monitor = theMonitors.begin();
+       monitor != theMonitors.end();  ++monitor) {
      (*monitor)->beginOfJob(theAlignableTracker, theAlignableMuon, theAlignmentParameterStore);
   }
 }
@@ -320,64 +269,37 @@ void AlignmentProducer::endOfJob()
   }
 
   // Save alignments to database
-  if (saveToDB_) {
-    edm::LogInfo("Alignment") << "Writing Alignments to DB...";
-    // Call service
-    edm::Service<cond::service::PoolDBOutputService> poolDbService;
-    if( !poolDbService.isAvailable() ) // Die if not available
-      throw cms::Exception("NotAvailable") << "PoolDBOutputService not available";
-    
-    if ( doTracker_ ) {
-       // Get alignments+errors
-       Alignments* alignments = theAlignableTracker->alignments();
-       AlignmentErrors* alignmentErrors = theAlignableTracker->alignmentErrors();
-
-       // FIXME: remove the global coordinate transformation from these alignments!
-       // GeometryAligner aligner;
-       // Alignments localAlignments = aligner.removeGlobalTransform(alignments,
-       //                              align::DetectorGlobalPosition(*globalPositionRcd_, DetId(DetId::Tracker)));
-       // and put &localAlignments into the database
-       // (the removal code should be in GeometryAligner so that a
-       // developer can see that the inverse is properly calculated in
-       // the same file that it is added)
-
-       // Store
-       const std::string alignRecordName("TrackerAlignmentRcd");
-       const std::string errorRecordName("TrackerAlignmentErrorRcd");
-
-       poolDbService->writeOne<Alignments>(alignments, poolDbService->beginOfTime(),
-                                           alignRecordName);
-       poolDbService->writeOne<AlignmentErrors>(alignmentErrors, poolDbService->beginOfTime(),
-                                                errorRecordName);
+  if (saveToDB_ || saveApeToDB_) {
+    if ( doTracker_ ) { // first tracker
+      const AlignTransform *trackerGlobal = 0; // will be 'removed' from constants 
+      if (globalPositions_) { // i.e. applied before in applyDB
+	trackerGlobal = &align::DetectorGlobalPosition(*globalPositions_,
+						       DetId(DetId::Tracker));
+      }
+      // Get alignments+errors - ownership taken over by writeDB(..), so no delete
+      Alignments *alignments = theAlignableTracker->alignments();
+      AlignmentErrors *alignmentErrors = theAlignableTracker->alignmentErrors();
+      this->writeDB(alignments, "TrackerAlignmentRcd",
+		    alignmentErrors, "TrackerAlignmentErrorRcd", trackerGlobal);
     }
- 
-    if ( doMuon_ ) {
-       // Get alignments+errors
-       Alignments*      dtAlignments       = theAlignableMuon->dtAlignments();
-       AlignmentErrors* dtAlignmentErrors  = theAlignableMuon->dtAlignmentErrors();
-       Alignments*      cscAlignments      = theAlignableMuon->cscAlignments();
-       AlignmentErrors* cscAlignmentErrors = theAlignableMuon->cscAlignmentErrors();
-  
-       // FIXME: remove the global coordinate transformation from these alignments!
-       // GeometryAligner aligner;
-       // Alignments localDTAlignments = aligner.removeGlobalTransform(alignments, align::DetectorGlobalPosition(*globalPositionRcd_, DetId(DetId::Muon)));
-       // Alignments localCSCAlignments = aligner.removeGlobalTransform(alignments, align::DetectorGlobalPosition(*globalPositionRcd_, DetId(DetId::Muon)));
-       // and put &localDTAlignments, &localCSCAlignments into the database
-
-       const std::string dtAlignRecordName("DTAlignmentRcd");
-       const std::string dtErrorRecordName("DTAlignmentErrorRcd");
-       const std::string cscAlignRecordName("CSCAlignmentRcd");
-       const std::string cscErrorRecordName("CSCAlignmentErrorRcd");
-
-       poolDbService->writeOne<Alignments>(dtAlignments, poolDbService->beginOfTime(),
-                                           dtAlignRecordName);
-       poolDbService->writeOne<AlignmentErrors>(dtAlignmentErrors, poolDbService->beginOfTime(),
-                                                dtErrorRecordName);
-
-       poolDbService->writeOne<Alignments>(cscAlignments, poolDbService->beginOfTime(),
-                                           cscAlignRecordName);
-       poolDbService->writeOne<AlignmentErrors>(cscAlignmentErrors, poolDbService->beginOfTime(),
-                                                cscErrorRecordName);
+    
+    if ( doMuon_ ) { // now muon
+      const AlignTransform *muonGlobal = 0; // will be 'removed' from constants 
+      if (globalPositions_) { // i.e. applied before in applyDB
+	muonGlobal = &align::DetectorGlobalPosition(*globalPositions_,
+						    DetId(DetId::Muon));
+      }
+      // Get alignments+errors, first DT - ownership taken over by writeDB(..), so no delete
+      Alignments      *alignments       = theAlignableMuon->dtAlignments();
+      AlignmentErrors *alignmentErrors  = theAlignableMuon->dtAlignmentErrors();
+      this->writeDB(alignments, "DTAlignmentRcd",
+		    alignmentErrors, "DTAlignmentErrorRcd", muonGlobal);
+      
+      // Get alignments+errors, now CSC - ownership taken over by writeDB(..), so no delete
+      alignments       = theAlignableMuon->cscAlignments();
+      alignmentErrors  = theAlignableMuon->cscAlignmentErrors();
+      this->writeDB(alignments, "CSCAlignmentRcd",
+		    alignmentErrors, "CSCAlignmentErrorRcd", muonGlobal);
     }
   }
 }
@@ -446,8 +368,8 @@ AlignmentProducer::duringLoop( const edm::Event& event,
 {
   nevent_++;
 
-	// reading in survey records
-	readInSurveyRcds( setup );
+  // reading in survey records
+  readInSurveyRcds( setup );
 	
 	
   // Printout event number
@@ -612,64 +534,136 @@ void AlignmentProducer::addSurveyInfo_(Alignable* ali)
 
 void AlignmentProducer::readInSurveyRcds( const edm::EventSetup& iSetup ){
 	
-	// Get Survey Rcds and add Survey Info
-	if ( doTracker_ && useSurvey_ ){
-		bool tkSurveyBool = watchTkSurveyRcd_.check(iSetup);
-		bool tkSurveyErrBool = watchTkSurveyErrRcd_.check(iSetup);
-		edm::LogInfo("Alignment") << "watcher tksurveyrcd: " << tkSurveyBool;
-		edm::LogInfo("Alignment") << "watcher tksurveyerrrcd: " << tkSurveyErrBool;
-		if ( tkSurveyBool || tkSurveyErrBool){
-			
-			edm::LogInfo("Alignment") << "ADDING THE SURVEY INFORMATION";
-			edm::ESHandle<Alignments> surveys;
-			edm::ESHandle<SurveyErrors> surveyErrors;
-			
-			iSetup.get<TrackerSurveyRcd>().get(surveys);
-			iSetup.get<TrackerSurveyErrorRcd>().get(surveyErrors);
-			
-			theSurveyIndex  = 0;
-			theSurveyValues = &*surveys;
-			theSurveyErrors = &*surveyErrors;
-			addSurveyInfo_(theAlignableTracker);
-		}
-	}
-	
-	if ( doMuon_ && useSurvey_)
-	{
-		bool DTSurveyBool = watchTkSurveyRcd_.check(iSetup);
-		bool DTSurveyErrBool = watchTkSurveyErrRcd_.check(iSetup);
-		bool CSCSurveyBool = watchTkSurveyRcd_.check(iSetup);
-		bool CSCSurveyErrBool = watchTkSurveyErrRcd_.check(iSetup);
-		
-		if ( DTSurveyBool || DTSurveyErrBool || CSCSurveyBool || CSCSurveyErrBool ){
-			edm::ESHandle<Alignments> dtSurveys;
-			edm::ESHandle<SurveyErrors> dtSurveyErrors;
-			edm::ESHandle<Alignments> cscSurveys;
-			edm::ESHandle<SurveyErrors> cscSurveyErrors;
-			
-			iSetup.get<DTSurveyRcd>().get(dtSurveys);
-			iSetup.get<DTSurveyErrorRcd>().get(dtSurveyErrors);
-			iSetup.get<CSCSurveyRcd>().get(cscSurveys);
-			iSetup.get<CSCSurveyErrorRcd>().get(cscSurveyErrors);
-			
-			theSurveyIndex  = 0;
-			theSurveyValues = &*dtSurveys;
-			theSurveyErrors = &*dtSurveyErrors;
-			std::vector<Alignable*> barrels = theAlignableMuon->DTBarrel();
-			for (std::vector<Alignable*>::const_iterator iter = barrels.begin();  iter != barrels.end();  ++iter) {
-				addSurveyInfo_(*iter);
-			}
-			
-			theSurveyIndex  = 0;
-			theSurveyValues = &*cscSurveys;
-			theSurveyErrors = &*cscSurveyErrors;
-			std::vector<Alignable*> endcaps = theAlignableMuon->CSCEndcaps();
-			for (std::vector<Alignable*>::const_iterator iter = endcaps.begin();  iter != endcaps.end();  ++iter) {
-				addSurveyInfo_(*iter);
-			}
-		}
-	}
-	
+  // Get Survey Rcds and add Survey Info
+  if ( doTracker_ && useSurvey_ ){
+    bool tkSurveyBool = watchTkSurveyRcd_.check(iSetup);
+    bool tkSurveyErrBool = watchTkSurveyErrRcd_.check(iSetup);
+    edm::LogInfo("Alignment") << "watcher tksurveyrcd: " << tkSurveyBool;
+    edm::LogInfo("Alignment") << "watcher tksurveyerrrcd: " << tkSurveyErrBool;
+    if ( tkSurveyBool || tkSurveyErrBool){
+      
+      edm::LogInfo("Alignment") << "ADDING THE SURVEY INFORMATION";
+      edm::ESHandle<Alignments> surveys;
+      edm::ESHandle<SurveyErrors> surveyErrors;
+      
+      iSetup.get<TrackerSurveyRcd>().get(surveys);
+      iSetup.get<TrackerSurveyErrorRcd>().get(surveyErrors);
+      
+      theSurveyIndex  = 0;
+      theSurveyValues = &*surveys;
+      theSurveyErrors = &*surveyErrors;
+      addSurveyInfo_(theAlignableTracker);
+    }
+  }
+  
+  if ( doMuon_ && useSurvey_) {
+    bool DTSurveyBool = watchTkSurveyRcd_.check(iSetup);
+    bool DTSurveyErrBool = watchTkSurveyErrRcd_.check(iSetup);
+    bool CSCSurveyBool = watchTkSurveyRcd_.check(iSetup);
+    bool CSCSurveyErrBool = watchTkSurveyErrRcd_.check(iSetup);
+    
+    if ( DTSurveyBool || DTSurveyErrBool || CSCSurveyBool || CSCSurveyErrBool ){
+      edm::ESHandle<Alignments> dtSurveys;
+      edm::ESHandle<SurveyErrors> dtSurveyErrors;
+      edm::ESHandle<Alignments> cscSurveys;
+      edm::ESHandle<SurveyErrors> cscSurveyErrors;
+      
+      iSetup.get<DTSurveyRcd>().get(dtSurveys);
+      iSetup.get<DTSurveyErrorRcd>().get(dtSurveyErrors);
+      iSetup.get<CSCSurveyRcd>().get(cscSurveys);
+      iSetup.get<CSCSurveyErrorRcd>().get(cscSurveyErrors);
+      
+      theSurveyIndex  = 0;
+      theSurveyValues = &*dtSurveys;
+      theSurveyErrors = &*dtSurveyErrors;
+      std::vector<Alignable*> barrels = theAlignableMuon->DTBarrel();
+      for (std::vector<Alignable*>::const_iterator iter = barrels.begin();  iter != barrels.end();  ++iter) {
+	addSurveyInfo_(*iter);
+      }
+      
+      theSurveyIndex  = 0;
+      theSurveyValues = &*cscSurveys;
+      theSurveyErrors = &*cscSurveyErrors;
+      std::vector<Alignable*> endcaps = theAlignableMuon->CSCEndcaps();
+      for (std::vector<Alignable*>::const_iterator iter = endcaps.begin();  iter != endcaps.end();  ++iter) {
+	addSurveyInfo_(*iter);
+      }
+    }
+  }
+
 }
+
+
+//////////////////////////////////////////////////
+// a templated method - but private, so not accessible from outside
+// ==> does not have to be in header file
+template<class G, class Rcd, class ErrRcd>
+void AlignmentProducer::applyDB(G* geometry, const edm::EventSetup &iSetup,
+				const AlignTransform &globalCoordinates) const
+{
+  // 'G' is the geometry class for that DB should be applied,
+  // 'Rcd' is the record class for its Alignments 
+  // 'ErrRcd' is the record class for its AlignmentErrors
+  // 'globalCoordinates' are global transformation for this geometry
+  edm::ESHandle<Alignments> alignments;
+  iSetup.get<Rcd>().get(alignments);
+
+  edm::ESHandle<AlignmentErrors> alignmentErrors;
+  iSetup.get<ErrRcd>().get(alignmentErrors);
+
+  GeometryAligner aligner;
+  aligner.applyAlignments<G>(geometry, &(*alignments), &(*alignmentErrors),
+			     globalCoordinates);
+}
+
+
+//////////////////////////////////////////////////
+void AlignmentProducer::writeDB(Alignments *alignments,
+				const std::string &alignRcd,
+				AlignmentErrors *alignmentErrors,
+				const std::string &errRcd,
+				const AlignTransform *globalCoordinates) const
+{
+  // Call service
+  edm::Service<cond::service::PoolDBOutputService> poolDb;
+  if (!poolDb.isAvailable()) { // Die if not available
+    delete alignments;      // promised to take over ownership...
+    delete alignmentErrors; // dito
+    throw cms::Exception("NotAvailable") << "PoolDBOutputService not available";
+  }
+
+  if (globalCoordinates  // happens only if (applyDbAlignment_ == true)
+      && globalCoordinates->transform() != AlignTransform::Transform::Identity) {
+    // FIXME: remove the global coordinate transformation from these alignments!
+    // GeometryAligner aligner;
+    // Alignments localAlignments = aligner.removeGlobalTransform(alignments,
+    //                              globalCoordinates);
+    // and put &localAlignments into the database
+    // (the removal code should be in GeometryAligner so that a
+    // developer can see that the inverse is properly calculated in
+    // the same file that it is added)
+    // 
+    // Would we have to adjust errors as well? 
+    // GF: Yes since they are defined in global coordinates and will have
+    // to be transformed to new global coordinates...
+    edm::LogError("Alignment") << "@SUB=AlignmentProducer::writeDB"
+			       << "Would have to remove globalCoordinates!";
+  }
+  
+  if (saveToDB_) {
+    edm::LogInfo("Alignment") << "Writing Alignments to " << alignRcd << ".";
+    poolDb->writeOne<Alignments>(alignments, poolDb->beginOfTime(), alignRcd);
+  } else { // poolDb->writeOne(..) takes over 'alignments' ownership,...
+    delete alignments; // ...otherwise we have to delete, as promised!
+  }
+
+  if (saveApeToDB_) {
+    edm::LogInfo("Alignment") << "Writing AlignmentErrors to " << errRcd << ".";
+    poolDb->writeOne<AlignmentErrors>(alignmentErrors, poolDb->beginOfTime(), errRcd);
+  } else { // poolDb->writeOne(..) takes over 'alignmentErrors' ownership,...
+    delete alignmentErrors; // ...otherwise we have to delete, as promised!
+  }
+}
+
 
 DEFINE_ANOTHER_FWK_LOOPER( AlignmentProducer );

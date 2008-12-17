@@ -19,6 +19,7 @@ looper = cms.Looper("AlignmentProducer",
     # Save alignment corrections to DB: if true, requires configuration of PoolDBOutputService
     # See DBConfiguration.cff for an example
     saveToDB = cms.bool(False),
+    saveApeToDB = cms.bool(False),
     doMuon = cms.untracked.bool(False),
     MisalignmentScenario = cms.PSet(
         NoMovementsScenario
