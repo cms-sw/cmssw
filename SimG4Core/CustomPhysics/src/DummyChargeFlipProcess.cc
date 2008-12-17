@@ -57,7 +57,6 @@ DumpPhysicsTable(const G4ParticleDefinition& /*aParticleType*/)
 G4VParticleChange *DummyChargeFlipProcess::PostStepDoIt(
   const G4Track &aTrack, const G4Step &/*aStep*/)
 {
-  SetDispatch(this);
   G4ParticleChange * pc = new G4ParticleChange();
   pc->Initialize(aTrack);
   const G4DynamicParticle* aParticle = aTrack.GetDynamicParticle();
