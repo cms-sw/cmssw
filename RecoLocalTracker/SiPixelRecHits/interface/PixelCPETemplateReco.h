@@ -83,6 +83,8 @@ class PixelCPETemplateReco : public PixelCPEBase
 
   mutable bool DoCosmics_;
 
+  mutable bool LoadTemplatesFromDB_;
+
 };
 
 #endif
