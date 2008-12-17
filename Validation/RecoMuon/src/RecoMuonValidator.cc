@@ -6,11 +6,6 @@
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 
-#include "DataFormats/DetId/interface/DetId.h"
-#include "DataFormats/MuonDetId/interface/DTChamberId.h"
-#include "DataFormats/MuonDetId/interface/CSCDetId.h"
-#include "DataFormats/MuonDetId/interface/RPCDetId.h"
-
 #include "SimTracker/Records/interface/TrackAssociatorRecord.h"
 #include "SimTracker/TrackAssociation/interface/TrackAssociatorByChi2.h"
 #include "SimTracker/TrackAssociation/interface/TrackAssociatorByHits.h"
@@ -128,9 +123,7 @@ struct RecoMuonValidator::MuonME {
     // - Misc. variables
     hNTrks_ = dqm->book1D("NTrks", "Number of reco tracks per event", hDim.nTrks, 0, hDim.nTrks);
     hNTrksEta_ = dqm->book1D("NTrksEta", "Number of reco tracks vs #eta", hDim.nBinEta, hDim.minEta, hDim.maxEta);
-    hNTrksEta_St1_ = dqm->book1D("NTrksEta_St1", "Number of reco tracks vs #eta only in Station1", hDim.nBinEta, hDim.minEta, hDim.maxEta);
     hNTrksPt_ = dqm->book1D("NTrksPt", "Number of reco tracks vs p_{T}", hDim.nBinPt, hDim.minPt, hDim.maxPt);
-    hNTrksPt_St1_ = dqm->book1D("NTrksPt_St1", "Number of reco tracks vs p_{T} only in Station1", hDim.nBinPt, hDim.minPt, hDim.maxPt);
 
     hMisQPt_  = dqm->book1D("MisQPt" , "Charge mis-id vs Pt" , hDim.nBinPt , hDim.minPt , hDim.maxPt );
     hMisQEta_ = dqm->book1D("MisQEta", "Charge mis-id vs Eta", hDim.nBinEta, hDim.minEta, hDim.maxEta);
@@ -317,7 +310,7 @@ struct RecoMuonValidator::MuonME {
   MEP hNDof_, hChi2_, hChi2Norm_, hChi2Prob_;
   MEP hNDof_vs_Eta_, hChi2_vs_Eta_, hChi2Norm_vs_Eta_, hChi2Prob_vs_Eta_;
 
-  MEP hNTrks_, hNTrksEta_, hNTrksEta_St1_,  hNTrksPt_, hNTrksPt_St1_;
+  MEP hNTrks_, hNTrksEta_,  hNTrksPt_;
 
   MEP hMisQPt_, hMisQEta_;
 
@@ -633,21 +626,6 @@ void RecoMuonValidator::analyze(const Event& event, const EventSetup& eventSetup
 
       staMuME_->hNTrksEta_->Fill(staTrack->eta());
       staMuME_->hNTrksPt_->Fill(staTrack->pt());
-      int station = 0;
-      DetId id(staTrack->outerDetId());
-      if ( id.subdetId() == MuonSubdetId::DT ) {
-	DTChamberId did(id.rawId());
-        station = did.station();
-      }  else if ( id.subdetId() == MuonSubdetId::CSC ) {
-	CSCDetId did(id.rawId());
-	station = did.station();
-      }   else if ( id.subdetId() == MuonSubdetId::RPC ) {
-	RPCDetId rpcid(id.rawId());
-	station = rpcid.station();
-      }
-
-      if(station == 1) staMuME_->hNTrksEta_St1_->Fill(staTrack->eta());
-      if(station == 1) staMuME_->hNTrksPt_St1_->Fill(staTrack->pt());
       
     }
 
@@ -667,21 +645,6 @@ void RecoMuonValidator::analyze(const Event& event, const EventSetup& eventSetup
 
       glbMuME_->hNTrksEta_->Fill(glbTrack->eta());
       glbMuME_->hNTrksPt_->Fill(glbTrack->pt());
-      int station = 0;
-      DetId id(glbTrack->outerDetId());
-      if ( id.subdetId() == MuonSubdetId::DT ) {
-	DTChamberId did(id.rawId());
-        station = did.station();
-      }  else if ( id.subdetId() == MuonSubdetId::CSC ) {
-	CSCDetId did(id.rawId());
-	station = did.station();
-      }   else if ( id.subdetId() == MuonSubdetId::RPC ) {
-	RPCDetId rpcid(id.rawId());
-	station = rpcid.station();
-      }
-
-      if(station == 1) glbMuME_->hNTrksEta_St1_->Fill(glbTrack->eta());
-      if(station == 1) glbMuME_->hNTrksPt_St1_->Fill(glbTrack->pt());
       
     }
 

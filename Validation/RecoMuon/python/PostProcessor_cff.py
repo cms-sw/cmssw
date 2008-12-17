@@ -70,8 +70,6 @@ postProcessorRecoMuon = cms.EDAnalyzer("PostProcessor",
                              "Sta/EffPhi 'Efficiency vs #phi'  Sta/Phi Muons/SimPhi",
                              "Sta/MisQProbPt  'Charge Mis-identification probability vs p_{T}' Sta/MisQPt  Muons/SimPt ",
                              "Sta/MisQProbEta 'Charge Mis-identification probability vs #eta'  Sta/MisQEta Muons/SimEta",
-                             "Sta/Station1Prob_Eta 'Probability to have hits in only instation 1 vs #eta' Sta/NTrksEta_St1 Sta/NTrksEta",
-                             "Sta/Station1Prob_Pt 'Probability to have hits in only instation 1 vs p_{T}' Sta/NTrksPt_St1 Sta/NTrksPt",
 
                              "Glb/EffP   'Efficiency vs p'     Glb/P   Muons/SimP  ",
                              "Glb/EffPt  'Efficiency vs p_{T}' Glb/Pt  Muons/SimPt ",
@@ -79,8 +77,7 @@ postProcessorRecoMuon = cms.EDAnalyzer("PostProcessor",
                              "Glb/EffPhi 'Efficiency vs #phi'  Glb/Phi Muons/SimPhi",
                              "Glb/MisQProbPt  'Charge Mis-identification probability vs p_{T}' Glb/MisQPt  Muons/SimPt ",
                              "Glb/MisQProbEta 'Charge Mis-identification probability vs #eta'  Glb/MisQEta Muons/SimEta",
-                             "Glb/Station1Prob_Eta 'Probability to have hits in only instation 1 vs #eta' Glb/NTrksEta_St1 Glb/NTrksEta",
-                             "Glb/Station1Prob_Pt 'Probability to have hits in only instation 1 vs p_{T}' Glb/NTrksPt_St1 Glb/NTrksPt",),
+
 
     resolution = cms.vstring("Trk/ErrP_vs_P      '#sigma(p) vs p'           Trk/ErrP_vs_P     ",
                              "Trk/ErrP_vs_Eta    '#sigma(p) vs #eta'        Trk/ErrP_vs_Eta   ",
