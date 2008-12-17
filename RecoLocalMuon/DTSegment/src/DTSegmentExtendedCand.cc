@@ -43,6 +43,6 @@ unsigned int DTSegmentExtendedCand::nHits() const {
 
 bool DTSegmentExtendedCand::good() const {
   if (superLayer()->id().superLayer()==2) 
-     return nHits()>=nHitsMin && chi2()/NDOF() < chi2max*2.;
+     return DTSegmentCand::nHits()>=nHitsMin && chi2()/NDOF() < chi2max*2.;
   return DTSegmentCand::nHits()>=nHitsMin && chi2()/NDOF() < chi2max ;
 }
