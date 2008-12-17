@@ -64,15 +64,8 @@ void popcon::EcalPedestalsHandler::getNewObjectsP5()
 	std::cout << "max_since : "  << max_since << endl;
 	Ref ped_db = lastPayload();
 	
-	std::cout << "retrieved last payload "  << endl;
-
-
 	// we copy the last valid record to a temporary object peds
 	EcalPedestals* peds = new EcalPedestals();
-
-	std::cout << "retrieved last payload "  << endl;
-
-	//	const EcalPedestalsMap & pedMap = ped_db->getMap(); // map of pedestals
 	std::cout << "retrieved last payload "  << endl;
 
 	for(int iEta=-EBDetId::MAX_IETA; iEta<=EBDetId::MAX_IETA ;++iEta) {
@@ -84,12 +77,8 @@ void popcon::EcalPedestalsHandler::getNewObjectsP5()
 	
 
 		EBDetId ebdetid(iEta,iPhi,EBDetId::ETAPHIMODE);
-		//unsigned int hiee = ebdetid.hashedIndex();
-		//EcalPedestals::Item aped= ped_db->barrel(hiee);
 		EcalPedestals::const_iterator it =ped_db->find(ebdetid.rawId());
 	
-		//		pedIter= pedMap.find(ebdetid.rawId());
-		//pedIter= pedMap.find(hiee);
 		EcalPedestals::Item aped = (*it);
 	
 
@@ -108,15 +97,19 @@ void popcon::EcalPedestalsHandler::getNewObjectsP5()
 	  }
 	}
 
-	/*
+
 	for(int iX=EEDetId::IX_MIN; iX<=EEDetId::IX_MAX ;++iX) {
 	  for(int iY=EEDetId::IY_MIN; iY<=EEDetId::IY_MAX; ++iY) {
 	    // make an EEDetId since we need EEDetId::rawId() to be used as the key for the pedestals
 	    if (EEDetId::validDetId(iX,iY,1))
 	      {
 		EEDetId eedetidpos(iX,iY,1);
-		unsigned int hiee = eedetidpos.hashedIndex();
-		EcalPedestals::Item aped= ped_db->endcap(hiee);
+
+		EcalPedestals::const_iterator it =ped_db->find(eedetidpos.rawId());
+		EcalPedestals::Item aped = (*it);
+
+		//	unsigned int hiee = eedetidpos.hashedIndex();
+		//	EcalPedestals::Item aped= ped_db->endcap(hiee);
 
 		// here I copy the last valid value in the peds object
 		EcalPedestals::Item item;
@@ -133,8 +126,10 @@ void popcon::EcalPedestalsHandler::getNewObjectsP5()
 	      {
 		EEDetId eedetidneg(iX,iY,-1);
 
-		unsigned int hiee = eedetidneg.hashedIndex();
-		EcalPedestals::Item aped= ped_db->endcap(hiee);
+		EcalPedestals::const_iterator it =ped_db->find(eedetidneg.rawId());
+		EcalPedestals::Item aped = (*it);
+		//     unsigned int hiee = eedetidneg.hashedIndex();
+		//     EcalPedestals::Item aped= ped_db->endcap(hiee);
 
 		// here I copy the last valid value in the peds object
 		EcalPedestals::Item item;
@@ -150,23 +145,15 @@ void popcon::EcalPedestalsHandler::getNewObjectsP5()
 	  }
 	}
 
-	*/
-
-	cout <<"WOW: we just retrieved the last valid record from DB "<< endl;
-
-
 	// here we retrieve all the runs after the last from online DB 
 
 	cout << "Retrieving run list from ONLINE DB ... " << endl;
-
-	cout << "Making connection..." << flush;
 	econn = new EcalCondDBInterface( m_sid, m_user, m_pass );
-	cout << "Done." << endl;
+	cout << "Connection done" << endl;
 	
 	if (!econn)
 	  {
-	    cout << " connection parameters " <<m_sid <<"/"<<m_user<<"/"<<m_pass<<endl;
-	    //	    cerr << e.what() << endl;
+	    cout << " Problem with OMDS: connection parameters " <<m_sid <<"/"<<m_user<<"/"<<m_pass<<endl;
 	    throw cms::Exception("OMDS not available");
 	  } 
 
@@ -214,9 +201,8 @@ void popcon::EcalPedestalsHandler::getNewObjectsP5()
 	  for(int kr=0; kr<mon_runs; kr++){
 
 	    unsigned long irun=(unsigned long) mon_run_vec[kr].getRunIOV().getRunNumber();
-	    cout << "here is the run number: "<< mon_run_vec[kr].getRunIOV().getRunNumber() << endl;
 	  
-	    cout <<" retrieve the data for a given run"<< endl;
+	    cout << "retrieve the data for run number: "<< mon_run_vec[kr].getRunIOV().getRunNumber() << endl;
 	  
 	    if (mon_run_vec[kr].getSubRunNumber() <=1){ 
 
@@ -230,10 +216,6 @@ void popcon::EcalPedestalsHandler::getNewObjectsP5()
 	      typedef map<EcalLogicID, MonPedestalsDat>::const_iterator CImon;
 	      EcalLogicID ecid_xt;
 	      MonPedestalsDat  rd_ped;
-	      
-
-
-
 
 
 	      // this to validate ...	      
@@ -243,7 +225,8 @@ void popcon::EcalPedestalsHandler::getNewObjectsP5()
 		rd_ped  = p->second;
 		int sm_num=ecid_xt.getID1();
 		int xt_num=ecid_xt.getID2(); 
-		
+		int yt_num=ecid_xt.getID3(); 
+
 		EcalPedestals::Item item;
 		item.mean_x1  =rd_ped.getPedMeanG1() ;
 		item.rms_x1   =rd_ped.getPedRMSG1();
@@ -252,16 +235,16 @@ void popcon::EcalPedestalsHandler::getNewObjectsP5()
 		item.mean_x12 =rd_ped.getPedMeanG12();
 		item.rms_x12  =rd_ped.getPedRMSG12();
 		
-		EBDetId ebdetid(sm_num,xt_num,EBDetId::SMCRYSTALMODE);
-		// here we change in the peds object only the values that are available in the online DB 
-		// otherwise we keep the old value 
+
+		// here we check and count how many bad channels we have 
 
 		if(!checkPedestal(&item) ){
 		  nbad++;
-		  cout <<"BAD LIST: channel " << sm_num << "/" << xt_num << "ped/rms "<<item.mean_x12<< "/"<< item.rms_x12 << endl;
+		  if(nbad<50) cout <<"BAD LIST: channel " << sm_num << "/" << xt_num << "/"<< yt_num 
+				   <<  "ped/rms "<<item.mean_x12<< "/"<< item.rms_x12 << endl;
 		}
 	      }
-
+	    
 	      // ok or bad? 
 	      // a bad run is for more than 10% bad channels 
 
@@ -272,7 +255,9 @@ void popcon::EcalPedestalsHandler::getNewObjectsP5()
 		  rd_ped  = p->second;
 		  int sm_num=ecid_xt.getID1();
 		  int xt_num=ecid_xt.getID2(); 
+		  int yt_num=ecid_xt.getID3(); 
 		  
+
 		  EcalPedestals::Item item;
 		  item.mean_x1  =rd_ped.getPedMeanG1() ;
 		  item.rms_x1   =rd_ped.getPedRMSG1();
@@ -280,38 +265,73 @@ void popcon::EcalPedestalsHandler::getNewObjectsP5()
 		  item.rms_x6   =rd_ped.getPedRMSG6() ;
 		  item.mean_x12 =rd_ped.getPedMeanG12();
 		  item.rms_x12  =rd_ped.getPedRMSG12();
+
+
+		  if(ecid_xt.getName()=="EB_crystal_number") {
+		    // Barrel channel 
+		    EBDetId ebdetid(sm_num,xt_num,EBDetId::SMCRYSTALMODE);
+		    
+		    // individual objects check
+		    if(item.mean_x1==-1 || item.rms_x1 ==-1 || item.mean_x6==-1 || 
+		       item.rms_x6==-1 || item.mean_x12==-1 || item.rms_x12==-1 ||
+		       item.mean_x1==0 || item.rms_x1 ==0 || item.mean_x6==0 || 
+		       item.rms_x6==0 || item.mean_x12==0 || item.rms_x12==0 ) {
+		      // if one is bad we 
+		      // retrieve the old valid value  
+		      unsigned int hieb = ebdetid.hashedIndex();
+		      EcalPedestals::Item previous_ped= peds->barrel(hieb);
+		      if(item.mean_x1==-1  || item.mean_x1==0) item.mean_x1 =previous_ped.mean_x1;
+		      if(item.rms_x1==-1   || item.rms_x1==0)  item.rms_x1  =previous_ped.rms_x1;
+		      if(item.mean_x6==-1  || item.mean_x6==0) item.mean_x6 =previous_ped.mean_x6;
+		      if(item.rms_x6==-1   || item.rms_x6==0)  item.rms_x6  =previous_ped.rms_x6;
+		      if(item.mean_x12==-1 || item.mean_x12==0)item.mean_x12=previous_ped.mean_x12;
+		      if(item.rms_x12==-1  || item.rms_x12==0) item.rms_x12 =previous_ped.rms_x12;
+		    } 
+		    
+		    // here we change in the peds object only the channels that are available in the online DB 
+		    // otherwise we keep the previous value 
 		  
-		  EBDetId ebdetid(sm_num,xt_num,EBDetId::SMCRYSTALMODE);
-
-		  // individual objects check
-		  if(item.mean_x1==-1 || item.rms_x1 ==-1 || item.mean_x6==-1 || 
-		     item.rms_x6==-1 || item.mean_x12==-1 || item.rms_x12==-1 ||
-		     item.mean_x1==0 || item.rms_x1 ==0 || item.mean_x6==0 || 
-		     item.rms_x6==0 || item.mean_x12==0 || item.rms_x12==0 ) {
-		    // if one is bad we 
-		    // retrieve the old valid value  
-		    unsigned int hieb = ebdetid.hashedIndex();
-		    EcalPedestals::Item previous_ped= peds->barrel(hieb);
-		    if(item.mean_x1==-1  || item.mean_x1==0) item.mean_x1 =previous_ped.mean_x1;
-                    if(item.rms_x1==-1   || item.rms_x1==0)  item.rms_x1  =previous_ped.rms_x1;
-                    if(item.mean_x6==-1  || item.mean_x6==0) item.mean_x6 =previous_ped.mean_x6;
-                    if(item.rms_x6==-1   || item.rms_x6==0)  item.rms_x6  =previous_ped.rms_x6;
-                    if(item.mean_x12==-1 || item.mean_x12==0)item.mean_x12=previous_ped.mean_x12;
-                    if(item.rms_x12==-1  || item.rms_x12==0) item.rms_x12 =previous_ped.rms_x12;
-		  } 
-
-		  // here we change in the peds object only the channels that are available in the online DB 
-		  // otherwise we keep the previous value 
-		  peds->insert(std::make_pair(ebdetid.rawId(),item));
-		}
+		    peds->insert(std::make_pair(ebdetid.rawId(),item)); 
+		  } else {
+		    // Endcap channel 
+		    // in this case xt_num is x 
+		    // yt_num is y and sm_num is the side +/- 1 
+		    if(EEDetId::validDetId(xt_num,yt_num,sm_num)){
+		      EEDetId eedetid(xt_num,yt_num,sm_num);
+		      
+		      // individual objects check
+		      if(item.mean_x1==-1 || item.rms_x1 ==-1 || item.mean_x6==-1 || 
+			 item.rms_x6==-1 || item.mean_x12==-1 || item.rms_x12==-1 ||
+			 item.mean_x1==0 || item.rms_x1 ==0 || item.mean_x6==0 || 
+			 item.rms_x6==0 || item.mean_x12==0 || item.rms_x12==0 ) {
+			// if one is bad we 
+			// retrieve the old valid value  
+			unsigned int hiee = eedetid.hashedIndex();
+			EcalPedestals::Item previous_ped= peds->endcap(hiee);
+			if(item.mean_x1==-1  || item.mean_x1==0) item.mean_x1 =previous_ped.mean_x1;
+			if(item.rms_x1==-1   || item.rms_x1==0)  item.rms_x1  =previous_ped.rms_x1;
+			if(item.mean_x6==-1  || item.mean_x6==0) item.mean_x6 =previous_ped.mean_x6;
+			if(item.rms_x6==-1   || item.rms_x6==0)  item.rms_x6  =previous_ped.rms_x6;
+			if(item.mean_x12==-1 || item.mean_x12==0)item.mean_x12=previous_ped.mean_x12;
+			if(item.rms_x12==-1  || item.rms_x12==0) item.rms_x12 =previous_ped.rms_x12;
+		      } 
+		      
+		      // here we change in the peds object only the channels that are available in the online DB 
+		      // otherwise we keep the previous value 
+		      peds->insert(std::make_pair(eedetid.rawId(),item)); 
+		    }
+		    
+		  }		       
 		
+		}
+	      
 		cout << "Generating popcon record for run " << irun << "..." << flush;
 		
 		// now I copy peds in pedtemp and I ship pedtemp to popcon
 		// if I use always the same peds I always overwrite
 		// so I really have to create new objects for each new run
 		// popcon deletes everything for me 
-		
+
 		EcalPedestals* pedtemp = new EcalPedestals();
 		
 		for(int iEta=-EBDetId::MAX_IETA; iEta<=EBDetId::MAX_IETA ;++iEta) {
@@ -341,36 +361,71 @@ void popcon::EcalPedestalsHandler::getNewObjectsP5()
 		      }
 		  }
 		}
+		// endcaps 
+		for(int iX=EEDetId::IX_MIN; iX<=EEDetId::IX_MAX ;++iX) {
+		  for(int iY=EEDetId::IY_MIN; iY<=EEDetId::IY_MAX; ++iY) {
+		    // make an EEDetId since we need EEDetId::rawId() to be used as the key for the pedestals
+		    if (EEDetId::validDetId(iX,iY,1))
+		      {
+			EEDetId eedetid(iX,iY,1);
+			unsigned int hiee = eedetid.hashedIndex();
+			EcalPedestals::Item aped= peds->endcap(hiee);
+			// here I copy the last valid value in the peds object
+			EcalPedestals::Item item;
+			item.mean_x1  = aped.mean_x1;
+			item.rms_x1   = aped.rms_x1;
+			item.mean_x6  = aped.mean_x6;
+			item.rms_x6   = aped.rms_x6;
+			item.mean_x12 = aped.mean_x12;
+			item.rms_x12  = aped.rms_x12;
+			// here I copy the last valid value in the pedtemp object
+			pedtemp->insert(std::make_pair(eedetid.rawId(),item));
+		      }
+		    if (EEDetId::validDetId(iX,iY,-1))
+		      {
+			EEDetId eedetid(iX,iY,-1);
+			unsigned int hiee = eedetid.hashedIndex();
+			EcalPedestals::Item aped= peds->endcap(hiee);
+			// here I copy the last valid value in the peds object
+			EcalPedestals::Item item;
+			item.mean_x1  = aped.mean_x1;
+			item.rms_x1   = aped.rms_x1;
+			item.mean_x6  = aped.mean_x6;
+			item.rms_x6   = aped.rms_x6;
+			item.mean_x12 = aped.mean_x12;
+			item.rms_x12  = aped.rms_x12;
+			// here I copy the last valid value in the pedtemp object
+			pedtemp->insert(std::make_pair(eedetid.rawId(),item));
+		      }
+		  }
+		}
 
-
-	      Time_t snc= (Time_t) irun ;
+		Time_t snc= (Time_t) irun ;
 	      	      
-	      m_to_transfer.push_back(std::make_pair((EcalPedestals*)pedtemp,snc));
+		m_to_transfer.push_back(std::make_pair((EcalPedestals*)pedtemp,snc));
 	      
 
-	      ss << "Run=" << irun << "_WAS_GOOD_"<<endl; 
-	      m_userTextLog = ss.str()+";";
-
-
-	      
-	      } else {
-
-		cout<< "Run was BAD !!!! not sent to the DB"<< endl;
-		ss << "Run=" << irun << "_WAS_BAD_"<<endl; 
+		ss << "Run=" << irun << "_WAS_GOOD_"<<endl; 
 		m_userTextLog = ss.str()+";";
-	      }
+		
+	      
+	      
+		} else {
+		  
+		  cout<< "Run was BAD !!!! not sent to the DB number of bad channels="<<nbad << endl;
+		  ss << "Run=" << irun << "_WAS_BAD_"<<endl; 
+		  m_userTextLog = ss.str()+";";
+		}
 	    }
 	  }
-	  
+	    
+	
+	  delete econn;
+	  delete peds;  // this is the only one that popcon does not delete 
+
 	}
-	
-	
-	delete econn;
+	  std::cout << "Ecal - > end of getNewObjects -----------\n";
 
-	delete peds;  // this is the only one that popcon does not delete 
-
-	std::cout << "Ecal - > end of getNewObjects -----------\n";
-	      
 	
 }
 
