@@ -91,4 +91,4 @@ muonValidation_seq = cms.Sequence(trkMuonTrackVTrackAssoc+staMuonTrackVTrackAsso
                                  +staMuonTrackVMuonAssoc+glbMuonTrackVMuonAssoc
                                  +recoMuonVMuAssoc+recoMuonVTrackAssoc)
 
-recoMuonValidation = cms.Sequence(muonSelector_seq*muonAssociation_seq*muonValidation_seq)
+recoMuonValidation = cms.Sequence(muonAssociation_seq*muonValidation_seq)
