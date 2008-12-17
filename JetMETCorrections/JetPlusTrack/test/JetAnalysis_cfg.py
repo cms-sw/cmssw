@@ -22,7 +22,7 @@ process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
 process.load("JetMETCorrections.Configuration.JetPlusTrackCorrections_cff")
 
-process.load("JetMETCorrections.Configuration.ZSPJetCorrections152_cff")
+process.load("JetMETCorrections.Configuration.ZSPJetCorrections219_cff")
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
