@@ -96,6 +96,7 @@ private:
 	theHitData = SiStripRecHit2D(*rh);
       else{
       const GeomDetUnit* gdu = dynamic_cast<const GeomDetUnit*>(geom);
+      LogDebug("TSiStripRecHit2DLocalPos")<<"calculating coarse position/error.";
       if (gdu){
 	if (rh->cluster().isNonnull()){
 	  StripClusterParameterEstimator::LocalValues lval= theCPE->localParameters(*rh->cluster(), *gdu);

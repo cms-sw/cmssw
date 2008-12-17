@@ -67,6 +67,7 @@ private:
       if (!theCPE || !theMatcher) return;
       const SiStripMatchedRecHit2D *orig = static_cast<const SiStripMatchedRecHit2D *> (trackingRecHit_);
       if (orig && !orig->hasPositionAndError()){
+	LogDebug("TSiStripMatchedRecHit")<<"calculating coarse position/error.";
 	const GeomDet *det = this->det();
 	const GluedGeomDet *gdet = static_cast<const GluedGeomDet *> (det);
 	LocalVector tkDir = det->surface().toLocal( det->position()-GlobalPoint(0,0,0));
