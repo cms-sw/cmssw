@@ -12,7 +12,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Thu july 6 13:22:06 CEST 2006
-// $Id: GsfElectronAlgo.cc,v 1.35 2008/12/16 23:03:48 charlot Exp $
+// $Id: GsfElectronAlgo.cc,v 1.36 2008/12/17 00:02:18 charlot Exp $
 //
 //
 
@@ -425,6 +425,7 @@ const BasicClusterRef GsfElectronAlgo::getEleBasicCluster(const GsfTrackRef &t, 
     GlobalPoint posclu(scRef->x(),scRef->y(),scRef->z());
     float dphimin = 1.e30;
     for (basicCluster_iterator bc=scRef->clustersBegin(); bc!=scRef->clustersEnd(); bc++) {
+      GlobalPoint posclu((*bc)->position().x(),(*bc)->position().y(),(*bc)->position().z());
       tempTSOS
         = TransverseImpactPointExtrapolator(*geomPropFw_).extrapolate(outTSOS,GlobalPoint((*bc)->position().x(),(*bc)->position().y(),(*bc)->position().z()));
       if (!tempTSOS.isValid()) tempTSOS=outTSOS;
