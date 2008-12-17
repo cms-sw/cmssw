@@ -14,7 +14,9 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
-#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaTowerIsolation.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "RecoCaloTools/MetaCollections/interface/CaloRecHitMetaCollections.h"
+#include "RecoEgamma/EgammaTools/interface/HoECalculator.h"
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/EDProduct.h"
@@ -41,11 +43,11 @@ class ElectronPixelSeedProducer : public edm::EDProducer
  private:
 
   void filterClusters(const edm::Handle<reco::SuperClusterCollection> &superClusters,
-   const CaloTowerCollection *towers, reco::SuperClusterRefVector &sclRefs);
+   HBHERecHitMetaCollection*mhbhe, reco::SuperClusterRefVector &sclRefs);
   void filterSeeds(edm::Event& e, const edm::EventSetup& setup, reco::SuperClusterRefVector &sclRefs);
 
   edm::InputTag superClusters_[2];
-  edm::InputTag hcalTowers_;
+  edm::InputTag hcalRecHits_;
   edm::InputTag initialSeeds_;
 
   const edm::ParameterSet conf_;
@@ -54,14 +56,12 @@ class ElectronPixelSeedProducer : public edm::EDProducer
 
   TrajectorySeedCollection *theInitialSeedColl;
 
-  EgammaTowerIsolation *towerIso1_;
-  EgammaTowerIsolation *towerIso2_;
+  //for the filter
+  edm::ESHandle<CaloGeometry>       theCaloGeom;
+  HoECalculator calc_; 
 
   // parameters for H/E
-  double maxHOverEDepth1_;
-  double maxHOverEDepth2_;
-  double hOverEConeSize_;
-  double hOverEPtMin_;
+  double maxHOverE_;
 
   // super cluster Et cut
   double SCEtCut_;

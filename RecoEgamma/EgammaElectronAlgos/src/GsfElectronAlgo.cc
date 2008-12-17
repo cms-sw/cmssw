@@ -12,7 +12,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Thu july 6 13:22:06 CEST 2006
-// $Id: GsfElectronAlgo.cc,v 1.34 2008/12/13 21:50:16 charlot Exp $
+// $Id: GsfElectronAlgo.cc,v 1.35 2008/12/16 23:03:48 charlot Exp $
 //
 //
 
@@ -423,14 +423,16 @@ const BasicClusterRef GsfElectronAlgo::getEleBasicCluster(const GsfTrackRef &t, 
     TrajectoryStateOnSurface outTSOS
       = mtsTransform_->outerStateOnSurface(*t, *(trackerHandle_.product()), theMagField.product());
     GlobalPoint posclu(scRef->x(),scRef->y(),scRef->z());
-    float distmin = 1.e30;
+    float dphimin = 1.e30;
     for (basicCluster_iterator bc=scRef->clustersBegin(); bc!=scRef->clustersEnd(); bc++) {
       tempTSOS
         = TransverseImpactPointExtrapolator(*geomPropFw_).extrapolate(outTSOS,GlobalPoint((*bc)->position().x(),(*bc)->position().y(),(*bc)->position().z()));
+      if (!tempTSOS.isValid()) tempTSOS=outTSOS;
       GlobalPoint extrap = tempTSOS.globalPosition();
-      float dist = (posclu - extrap).mag();
-      if (dist<distmin) {
-        distmin = dist;
+      float dphi = posclu.phi() - extrap.phi();
+      if (fabs(dphi)>CLHEP::pi) dphi = dphi < 0? (CLHEP::twopi) + dphi : dphi - CLHEP::twopi;
+      if (fabs(dphi)<dphimin) {
+        dphimin = fabs(dphi);
 	eleRef = (*bc);
 	eleTSOS_ = tempTSOS;
       }
