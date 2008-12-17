@@ -1,6 +1,6 @@
-// Last commit: $Id: $
-// Latest tag:  $Name: $
-// Location:    $Source: $
+// Last commit: $Id: SiStripGainESSource.h,v 1.1 2008/09/22 17:55:03 bainbrid Exp $
+// Latest tag:  $Name: V02-00-01 $
+// Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/CalibTracker/SiStripESProducers/interface/SiStripGainESSource.h,v $
 
 #ifndef CalibTracker_SiStripESProducers_SiStripGainESSource_H
 #define CalibTracker_SiStripESProducers_SiStripGainESSource_H

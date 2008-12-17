@@ -1,6 +1,5 @@
 <library file="*.cc" name=CalibTrackerSiStripConnectivityPlugins>
   <use name=CalibTracker/Records>
-  <use name=CalibTracker/SiStripConnectivity>
   <use name=CalibFormats/SiStripObjects>
   <use name=CondFormats/DataRecord>
   <use name=CondFormats/SiStripObjects>
