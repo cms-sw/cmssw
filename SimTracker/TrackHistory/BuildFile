@@ -10,13 +10,11 @@
 <use name=MagneticField/Records>
 <use name=MagneticField/Engine>
 <use name=PhysicsTools/UtilAlgos>
-<use name=RecoBTag/Analysis>
 <use name=RecoVertex/PrimaryVertexProducer>
 <use name=SimDataFormats/TrackingAnalysis>
 <use name=SimGeneral/HepPDTRecord>
 <use name=SimTracker/Records>
 <use name=SimTracker/TrackAssociation>
-<use name=SimTracker/VertexAssociation>
 <use name=SimTracker/TrackerHitAssociation>
 <use name=TrackingTools/TransientTrack>
 <export>
@@ -39,7 +37,6 @@
    <use name=SimGeneral/HepPDTRecord>
    <use name=SimTracker/Records>    
    <use name=SimTracker/TrackAssociation>
-   <use name=SimTracker/VertexAssociation>
    <use name=SimTracker/TrackerHitAssociation>
    <use name=TrackingTools/TransientTrack>
 </export>

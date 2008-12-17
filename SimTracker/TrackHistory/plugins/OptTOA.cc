@@ -29,7 +29,6 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "RecoBTag/Analysis/interface/Tools.h"
 #include "TrackingTools/IPTools/interface/IPTools.h"
 
 #include "RecoVertex/PrimaryVertexProducer/interface/PrimaryVertexSorter.h"
