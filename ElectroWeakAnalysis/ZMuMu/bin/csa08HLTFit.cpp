@@ -232,7 +232,7 @@ int main(int ac, char *av[]) {
 			zMuSa, histoZMuSa, 
 			zMuMuNoIso,histoZMuMuNoIso,
 			fMin, fMax);
-	cout << "N. deg. of freedom: " << chi2.degreesOfFreedom() << endl;
+	cout << "N. bins: " << chi2.numberOfBins() << endl;
 	fit::RootMinuit<ChiSquared> minuit(chi2, true);
 	commands.add(minuit, yieldZMuMu);
 	commands.add(minuit, effTk);

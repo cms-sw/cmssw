@@ -257,7 +257,7 @@ int main(int ac, char *av[]) {
 			//			zMuSa, histoZMuSa, 
 			zMuMuNoIso,histoZMuMuNoIso,
 			fMin, fMax);
-	cout << "N. deg. of freedom: " << chi2.degreesOfFreedom() << endl;
+	cout << "N. bins: " << chi2.numberOfBins() << endl;
 
 	fit::CombinedChiSquaredLikelihood<ChiSquared, Likelihood> combo(chi2, like);
 	
