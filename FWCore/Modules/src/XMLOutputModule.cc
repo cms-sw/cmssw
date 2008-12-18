@@ -8,7 +8,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Aug  4 20:45:44 EDT 2006
-// $Id: XMLOutputModule.cc,v 1.12 2008/11/28 17:44:29 wmtan Exp $
 //
 
 // system include files
