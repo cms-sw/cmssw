@@ -8,7 +8,7 @@
 //
 // Original Author:  Dan Riley
 //         Created:  Tue May 20 10:31:32 EDT 2008
-// $Id: BranchMapReader.cc,v 1.3 2008/09/23 20:40:04 dsr Exp $
+// $Id: BranchMapReader.cc,v 1.4.2.1 2008/12/17 04:40:53 wmtan Exp $
 //
 
 // system include files
@@ -81,7 +81,7 @@ namespace fwlite {
             // call to regenerate branchName
             it->second.init();
   	        edm::EventEntryInfo entry(it->second.branchID(), status, it->second.oldProductID());
-  	        eventInfoMap_.insert(entry);
+  	        // eventInfoMap_.insert(entry); // Kludge to allow compilation
             branchDescriptionMap_.insert(BranchMapReader::bidToDesc::value_type(it->second.branchID(), it->second));
             // std::cout << "v1 updatemap " << it->second.branchID() << std::endl;
 	        }
@@ -187,7 +187,7 @@ namespace fwlite {
       for (std::vector<edm::EventEntryInfo>::const_iterator it = pEventEntryInfoVector_->begin(), 
            itEnd = pEventEntryInfoVector_->end();
            it != itEnd; ++it) {
-        eventInfoMap_.insert(*it);
+        // eventInfoMap_.insert(*it); // Kludge to allow compilation
         // std::cout << "v8 updatemap " << it->productID() << " " << it->branchID() << std::endl;
       }
       mapperFilled_ = true;
