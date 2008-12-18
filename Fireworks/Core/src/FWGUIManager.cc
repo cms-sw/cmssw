@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.82 2008/12/05 17:32:34 amraktad Exp $
+// $Id: FWGUIManager.cc,v 1.83 2008/12/11 20:55:42 dmytro Exp $
 //
 
 // system include files
@@ -166,9 +166,9 @@ m_tasks(new CmsShowTaskExecutor)
      getAction(cmsshow::sExportImage)->activated.connect(sigc::mem_fun(*this, &FWGUIManager::exportImageOfMainView));
      getAction(cmsshow::sSaveConfig)->activated.connect(writeToPresentConfigurationFile_);
      getAction(cmsshow::sSaveConfigAs)->activated.connect(sigc::mem_fun(*this,&FWGUIManager::promptForConfigurationFile));
-     getAction(cmsshow::sShowEventDisplayInsp)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::createEDIFrame));
-     getAction(cmsshow::sShowMainViewCtl)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::createViewPopup));
-      getAction(cmsshow::sShowObjInsp)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::createModelPopup));
+     getAction(cmsshow::sShowEventDisplayInsp)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::showEDIFrame));
+     getAction(cmsshow::sShowMainViewCtl)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::showViewPopup));
+      getAction(cmsshow::sShowObjInsp)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::showModelPopup));
       getAction(cmsshow::sShowAddCollection)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::addData));
       assert(getAction(cmsshow::sHelp) != 0);
       getAction(cmsshow::sHelp)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::createHelpPopup));
@@ -538,7 +538,7 @@ FWGUIManager::viewSelected(unsigned int iSelIndex)
          (*it)->unselect();
       }
    }
-   createViewPopup();
+   showViewPopup();
    refillViewPopup(m_viewBases[iSelIndex]);
 }
 
@@ -643,7 +643,6 @@ FWGUIManager::createEDIFrame() {
     m_ediFrame->Connect("CloseWindow()", "FWGUIManager", this, "resetEDIFrame()");
      m_ediFrame->CenterOnParent(kTRUE,TGTransientFrame::kTopRight);
   }
-   m_ediFrame->MapWindow();
 }
 
 void
@@ -658,6 +657,14 @@ FWGUIManager::resetEDIFrame() {
    m_ediFrame->UnmapWindow();
 }
 
+void 
+FWGUIManager::showEDIFrame()
+{
+   createEDIFrame();
+   m_ediFrame->MapWindow();
+}
+
+
 void
 FWGUIManager::createModelPopup() {
   if (m_modelPopup == 0) {
@@ -667,8 +674,14 @@ FWGUIManager::createModelPopup() {
     //    m_modelChangeConn = m_changeManager->changeSignalsAreDone_.connect(boost::bind(&CmsShowModelPopup::updateDisplay, m_modelPopup));
      m_modelPopup->CenterOnParent(kTRUE,TGTransientFrame::kRight);
   }
+}
+
+void 
+FWGUIManager::showModelPopup()
+{
    m_modelPopup->MapWindow();
 }
+
 
 void
 FWGUIManager::updateModel(FWEventItem* iItem) {
@@ -690,7 +703,6 @@ FWGUIManager::createViewPopup() {
     m_viewPopup->Connect("CloseWindow()", "FWGUIManager", this, "resetViewPopup()");
      m_viewPopup->CenterOnParent(kTRUE,TGTransientFrame::kBottomRight);
   }
-  m_viewPopup->MapWindow();
    /* seems to work but a small scale test caused seg faults
    Int_t x,y;
    UInt_t w,h;
@@ -710,6 +722,12 @@ void
 FWGUIManager::resetViewPopup() {
    m_viewPopup->DontCallClose();
    m_viewPopup->UnmapWindow();
+}
+
+void
+FWGUIManager::showViewPopup() {
+   createViewPopup();
+   m_viewPopup->MapWindow();
 }
 
 void FWGUIManager::createHelpPopup ()
@@ -798,9 +816,22 @@ FWGUIManager::itemClicked(TGListTreeItem *item, Int_t btn,  UInt_t mask, Int_t x
    FWListItemBase* lib = dynamic_cast<FWListItemBase*>(el);
    //assert(0!=lib);
    if(3==btn) {
-      if(lib && lib->doSelection(mask&kKeyControlMask) ) {
-         gEve->GetSelection()->UserPickedElement(el,mask&kKeyControlMask);
-
+      //open the appropriate controller window
+   }
+   //NOTE: the return of doSelection is 'true' if this is a collection, else it returns false
+   if(1==btn || 3==btn) {
+      if(lib) {
+         bool isCollection =lib->doSelection(mask&kKeyControlMask);
+         if(3==btn) {
+            if(isCollection) {
+               showEDIFrame();
+            } else {
+               showModelPopup();
+            }
+         }
+         if(isCollection) {
+            gEve->GetSelection()->UserPickedElement(el,mask&kKeyControlMask);
+         }
          //NOTE: editor should be decided by looking at FWSelectionManager and NOT directly from clicking
          // in the list
          //m_editor->DisplayElement(el);
@@ -1179,13 +1210,13 @@ FWGUIManager::setFrom(const FWConfiguration& iFrom)
             const std::string& controllerName = it->first;
             std::cout <<"found controller "<<controllerName<<std::endl;
             if(controllerName == kCollectionController) {
-               createEDIFrame();
+               showEDIFrame();
                setWindowInfoFrom(it->second,m_ediFrame);
             } else if (controllerName == kViewController) {
-               createViewPopup();
+               showViewPopup();
                setWindowInfoFrom(it->second, m_viewPopup);
             } else if (controllerName == kObjectController) {
-               createModelPopup();
+               showModelPopup();
                setWindowInfoFrom(it->second, m_modelPopup);
             }
          }

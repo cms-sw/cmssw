@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 10:52:24 EST 2008
-// $Id: FWGUIManager.h,v 1.40 2008/08/29 02:33:03 dmytro Exp $
+// $Id: FWGUIManager.h,v 1.41 2008/11/06 22:05:22 amraktad Exp $
 //
 
 // system include files
@@ -105,15 +105,21 @@ class FWGUIManager : public FWConfigurable
       TGVerticalFrame* createList(TGSplitFrame *p);
       TGMainFrame* createViews(TGCompositeFrame *p);
       TGMainFrame* createTextView(TGTab *p);
+   
       void createEDIFrame();
       void updateEDI(FWEventItem* iItem);
       void resetEDIFrame();
+      void showEDIFrame();
+   
       void createModelPopup();
       void updateModel(FWEventItem* iItem);
       void resetModelPopup();
+      void showModelPopup();
+   
       void createViewPopup();
       void refillViewPopup(FWViewBase* iView);
       void resetViewPopup();
+      void showViewPopup();
 
      // help
      void createHelpPopup ();
