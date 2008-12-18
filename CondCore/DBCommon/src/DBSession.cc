@@ -1,4 +1,4 @@
-// $Id: DBSession.cc,v 1.25 2008/11/13 18:31:12 xiezhen Exp $
+// $Id: DBSession.cc,v 1.26 2008/12/17 15:53:18 xiezhen Exp $
 //coral includes
 #include "CoralKernel/Context.h"
 #include "CoralKernel/IHandle.h"
@@ -51,19 +51,21 @@ void cond::DBSession::open(){
   }
   //load authentication service
   if( m_sessionConfig->authenticationMethod()== cond::XML ) {
-    coral::Context::instance().loadComponent( "COND/Services/XMLAuthenticationService",m_pluginmanager);
+    
     boost::filesystem::path authPath( m_sessionConfig->authName() );
     if(boost::filesystem::is_directory(m_sessionConfig->authName())){
       authPath /= boost::filesystem::path("authentication.xml");
     }
     std::string authName=authPath.string();
     coral::Context::instance().PropertyManager().property("AuthenticationFile")->set(authName);
+    coral::Context::instance().loadComponent( "COND/Services/XMLAuthenticationService",m_pluginmanager);
   }else{
     coral::Context::instance().loadComponent( "CORAL/Services/EnvironmentAuthenticationService");
   }
- 
   coral::Context::instance().loadComponent( "CORAL/Services/ConnectionService");
-
+  coral::IAuthenticationService& authServ = authenticationService();
+  coral::IConnectionService& connSrv = connectionService();
+  connSrv.configuration().setAuthenticationService(authServ);
   coral::IConnectionServiceConfiguration& conserviceConfig = connectionService().configuration();
   cond::ConnectionConfiguration* conConfig=m_sessionConfig->connectionConfiguration();
   if(m_sessionConfig->isSQLMonitoringOn()){

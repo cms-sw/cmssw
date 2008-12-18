@@ -5,10 +5,8 @@
 #include "CoralCommon/Cipher.h"
 #include "RelationalAccess/AuthenticationServiceException.h"
 #include "CoralKernel/IPropertyManager.h"
-#include "CoralKernel/IProperty.h"
-//#include "CoralKernel/MessageStream.h"
+#include "CoralKernel/Property.h"
 #include "CoralKernel/Context.h"
-//#include "CoralKernel/CoralPluginDef.h"
 #include "CondCore/DBCommon/interface/CoralServiceMacros.h"
 #include "xercesc/parsers/XercesDOMParser.hpp"
 #include "xercesc/framework/MemBufInputSource.hpp"
@@ -18,39 +16,17 @@
 #include "xercesc/util/PlatformUtils.hpp"
 #include "XMLAuthenticationService.h"
 
-
 #include <memory>
 #include <cstdlib>
 #include <fstream>
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <boost/filesystem.hpp>
+#include <boost/bind.hpp>
 //#include <iostream>
+#include "CoralBase/MessageStream.h"
+
 static std::string XML_AUTHENTICATION_FILE("authentication.xml");
-
-
-namespace cond {
-
-  namespace XMLAuthenticationService {
-    /*
-    class CallbackForInputFileName {
-      public:
-        explicit CallbackForInputFileName( cond::XMLAuthenticationService::XMLAuthenticationService& authenticationService )
-          : m_authenticationService( authenticationService )
-        {
-        }
-
-        void operator() ( const coral::Property& p )
-        {
-          std::string fileName = boost::any_cast< std::string >( p.get() );
-          m_authenticationService.setInputFileName( fileName );
-        }
-      private:
-        cond::XMLAuthenticationService::XMLAuthenticationService& m_authenticationService;
-    };
-    */ 
-  }  
-}
 
 cond::XMLAuthenticationService::DataSourceEntry::DataSourceEntry( const std::string& serviceName,
                                                                   const std::string& connectionName ):
@@ -108,9 +84,17 @@ cond::XMLAuthenticationService::XMLAuthenticationService::XMLAuthenticationServi
   : coral::Service( key ),
     m_isInitialized( false ),
     m_inputFileName( "" ),
-    m_data()
+    m_data(),
+    m_mutexLock(),
+    m_callbackID(0)
 {
-  coral::Context::instance().PropertyManager().property("AuthenticationFile")->set(XML_AUTHENTICATION_FILE);
+  boost::function1<void, std::string> cb(boost::bind(&cond::XMLAuthenticationService::XMLAuthenticationService::setInputFileName, this, _1));
+       
+  coral::Property* pm = dynamic_cast<coral::Property*>(coral::Context::instance().PropertyManager().property("AuthenticationFile"));
+  if(pm){
+    m_inputFileName = pm->get();
+    m_callbackID = pm->registerCallback(cb);
+  } 
 }
 
 cond::XMLAuthenticationService::XMLAuthenticationService::~XMLAuthenticationService()
@@ -129,8 +113,8 @@ cond::XMLAuthenticationService::XMLAuthenticationService::setInputFileName(  con
 bool
 cond::XMLAuthenticationService::XMLAuthenticationService::processFile( const std::string& inputFileName )
 {
-  //seal::MessageStream log( this, this->name(),seal::Msg::Verbose );
-  //log << seal::Msg::Debug << "Processing file \""<< inputFileName<<"\"" << seal::flush;
+  coral::MessageStream log("cond::XMLAuthenticationService::processFile");
+  //std::cout<< "Processing file \""<< inputFileName<<"\"" <<std::endl;
   bool result = true;
 
   cond::FileReader inputFile;
@@ -139,9 +123,8 @@ cond::XMLAuthenticationService::XMLAuthenticationService::processFile( const std
     inputFile.read(inputFileName);
     cont = inputFile.content();
   } catch (const cond::Exception& exc){
-    //seal::MessageStream log( this, this->name(),seal::Msg::Verbose );
-    //log << seal::Msg::Error << exc.what() << seal::flush;
-    return false;
+    log << coral::Error << "File \"" << inputFileName << "\" not found."<<std::string(exc.what())<<coral::MessageStream::endmsg;
+   return false;
   }
   
   // check the 
@@ -151,23 +134,19 @@ cond::XMLAuthenticationService::XMLAuthenticationService::processFile( const std
     cond::DecodingKey key;
     try{
       key.readUserKeyString(cont);
-
-      //seal::MessageStream log( this, this->name(),seal::Msg::Verbose );
-      //log << seal::Msg::Debug << "Decoding content of file \""<< key.dataSource()<<"\"" << seal::flush;
-        
+      log << coral::Debug << "Decoding content of file \""<< key.dataSource()<<"\""<<coral::MessageStream::endmsg;
       cond::FileReader dataFile;
       dataFile.read(key.dataSource());
       cont = dataFile.content();
       cont = coral::Cipher::decode(cont,key.key());      
     } catch (const cond::Exception& exc){
-      //seal::MessageStream log( this, this->name(),seal::Msg::Verbose );
-      //log << seal::Msg::Error << exc.what() << seal::flush;
+      log << coral::Error << std::string(exc.what())<<coral::MessageStream::endmsg;
       return false;
     }
     
   } else {
     //seal::MessageStream log( this, this->name(),seal::Msg::Verbose );
-    //log << seal::Msg::Debug << "Authentication file is expected standard XML."<< seal::flush;    
+    log<<coral::Debug<< "Authentication file is expected standard XML."<<coral::MessageStream::endmsg;
   }
   
   xercesc::MemBufInputSource* memBufInputSource = 0;
@@ -217,19 +196,19 @@ cond::XMLAuthenticationService::XMLAuthenticationService::processFile( const std
             credential = iConnection->second;
             // Issue a warning here.
             //coral::MessageStream log( this, this->name(),seal::Msg::Verbose );
-            //log << coral::Msg::Warning << "Credential parameters for connection string \""
-            //    << sConnectionName
-            //    << "\" have already been defined. Only new elements are appended, while existing will be ignored."
-            //    << coral::flush;
+	    log<<coral::Debug<<"Credential parameters for connection string \""
+	      << sConnectionName
+		     << "\" have already been defined. Only new elements are appended, while existing will be ignored."
+		     << coral::MessageStream::endmsg;
           } else {
             credential = new cond::XMLAuthenticationService::DataSourceEntry( this->name(), sConnectionName );
             m_data.insert( std::make_pair( sConnectionName, credential ) );
           }
-
+	  
           xercesc::DOMNodeList* parameterList = connectionNode->getChildNodes();
           
           if ( parameterList )
-          {
+	    {
             XMLSize_t numberOfParameters = parameterList->getLength();
             
             for ( XMLSize_t iParameter = 0; iParameter < numberOfParameters; ++iParameter )
@@ -302,6 +281,7 @@ cond::XMLAuthenticationService::XMLAuthenticationService::processFile( const std
     char* message = xercesc::XMLString::transcode( toCatch.getMessage() );
     //coral::MessageStream log( this, this->name(),coral::Msg::Verbose );
     //log << coral::Msg::Error << message << coral::flush;
+    log<<coral::Error<<std::string(message)<<coral::MessageStream::endmsg;
     xercesc::XMLString::release( &message );
     result = false;
   }
@@ -310,6 +290,7 @@ cond::XMLAuthenticationService::XMLAuthenticationService::processFile( const std
     char* message = xercesc::XMLString::transcode( toCatch.msg );
     //seal::MessageStream log( this, this->name(),seal::Msg::Verbose );
     //log << seal::Msg::Error << message << seal::flush;
+    log<<coral::Error<<std::string(message)<<coral::MessageStream::endmsg;
     xercesc::XMLString::release( &message );
     result = false;
   }
@@ -318,12 +299,14 @@ cond::XMLAuthenticationService::XMLAuthenticationService::processFile( const std
     char* message = xercesc::XMLString::transcode( toCatch.getMessage() );
     //seal::MessageStream log( this, this->name(),seal::Msg::Verbose );
     //log << seal::Msg::Error << message << seal::flush;
+    log<<coral::Error<<std::string(message)<<coral::MessageStream::endmsg;
     xercesc::XMLString::release( &message );
     result = false;
   }
   catch (...){
     //seal::MessageStream log( this, this->name(),seal::Msg::Verbose );
     //log << seal::Msg::Error << "Unexpected Exception parsing file \"" << inputFileName << "\"" << seal::flush;
+    log<<coral::Error<<"Unexpected Exception parsing file \"" << inputFileName << "\"" <<coral::MessageStream::endmsg;
     result = false;
   }
   if(memBufInputSource) delete memBufInputSource;
@@ -334,11 +317,13 @@ cond::XMLAuthenticationService::XMLAuthenticationService::processFile( const std
 bool
 cond::XMLAuthenticationService::XMLAuthenticationService::initialize()
 {  
+  coral::MessageStream log("cond::XMLAuthenticationService::initialize");
   std::set< std::string > inputFileNames = this->verifyFileName();
   if ( inputFileNames.empty() )
   {
     //seal::MessageStream log( this, this->name(),seal::Msg::Verbose );
-    //log << seal::Msg::Error << "Could not open \"" << m_inputFileName << "\" for reading" << seal::flush;
+    //std::cout<< "Could not open \"" << m_inputFileName << "\" for reading" << std::endl;
+    log<<coral::Debug<<"Could not open \"" << m_inputFileName << "\" for reading" <<coral::MessageStream::endmsg;
     return false;
   }
 
@@ -351,6 +336,7 @@ cond::XMLAuthenticationService::XMLAuthenticationService::initialize()
     char* message = xercesc::XMLString::transcode( toCatch.getMessage() );
     //seal::MessageStream log( this, this->name(),seal::Msg::Verbose );
     //log << seal::Msg::Error << message << seal::flush;
+    log<<coral::Error<<std::string(message)<<coral::MessageStream::endmsg;
     xercesc::XMLString::release( &message );
     return false;
   }
@@ -411,12 +397,7 @@ cond::XMLAuthenticationService::XMLAuthenticationService::credentials( const std
 std::set< std::string >
 cond::XMLAuthenticationService::XMLAuthenticationService::verifyFileName()
 {
-
-  {
-    //seal::MessageStream log( this, this->name(),seal::Msg::Verbose );
-    //log << seal::Msg::Debug << "Verifying file name: \"" << m_inputFileName << "\"." << seal::flush;
-  }
-  
+  coral::MessageStream log("cond::XMLAuthenticationService::verifyFileName");
   std::set< std::string > fileNames;
 
   // Try the file name as is...
@@ -424,7 +405,7 @@ cond::XMLAuthenticationService::XMLAuthenticationService::verifyFileName()
   if ( boost::filesystem::exists( m_inputFileName ) ) {
     if(boost::filesystem::is_directory( m_inputFileName )){
       //seal::MessageStream log( this, this->name(),seal::Msg::Verbose );
-      //log << seal::Msg::Error << "Provided path \"" << m_inputFileName << "\" is a directory." << seal::flush;
+      log <<coral::Error << "Provided path \"" << m_inputFileName << "\" is a directory." <<coral::MessageStream::endmsg;
       return fileNames;
     }
     boost::filesystem::path& fullPath = filePath.normalize();
@@ -435,22 +416,20 @@ cond::XMLAuthenticationService::XMLAuthenticationService::verifyFileName()
   // Try to find other files in the path variable
   const char* thePathVariable = ::getenv( "CORAL_AUTH_PATH" );
   if ( ! thePathVariable ) return fileNames;
-  //seal::MessageStream log( this, this->name(),seal::Msg::Verbose );
-  //log << seal::Msg::Debug << "File \"" << m_inputFileName << "\" not found in the current directory. Trying in the search path." << seal::flush;
+  log<<coral::Debug<< "File \"" << m_inputFileName << "\" not found in the current directory. Trying in the search path." <<coral::MessageStream::endmsg;
 
   std::string searchPath(thePathVariable);
+  //std::cout<<"searchPath "<<searchPath<<std::endl;
   if(boost::filesystem::exists(searchPath)){
     if(!boost::filesystem::is_directory( searchPath )){
-      //seal::MessageStream log( this, this->name(),seal::Msg::Verbose );
-      //log << seal::Msg::Error << "Search path \"" << searchPath << "\" is not a directory." << seal::flush;
+      log<<coral::Debug<<"Search path \"" << searchPath << "\" is not a directory."<<coral::MessageStream::endmsg;
       return fileNames;
     }
     boost::filesystem::path fullPath( searchPath );
     fullPath /= filePath;
     fileNames.insert( fullPath.string() );
   } else {
-    //seal::MessageStream log( this, this->name(),seal::Msg::Verbose );
-    //log << seal::Msg::Error << "Search path \"" << searchPath << "\" does not exist." << seal::flush;
+    log<<coral::Debug<<"Search path \"" << searchPath << "\" does not exist."<<coral::MessageStream::endmsg;
     return fileNames;    
   }
   

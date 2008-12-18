@@ -136,6 +136,8 @@ namespace cond {
 
       /// the mutex lock
       mutable boost::mutex m_mutexLock;
+
+      coral::Property::CallbackID m_callbackID;
     };
 
   }
