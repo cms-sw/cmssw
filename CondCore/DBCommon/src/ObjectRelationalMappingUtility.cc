@@ -1,6 +1,9 @@
 #include "CondCore/DBCommon/interface/ObjectRelationalMappingUtility.h"
 #include "ObjectRelationalAccess/ObjectRelationalMappingUtilities.h"
 #include "ObjectRelationalAccess/ObjectRelationalMappingPersistency.h"
+#include "ObjectRelationalAccess/ObjectRelationalMappingPersistency.h"
+#include "ObjectRelationalAccess/ObjectRelationalMappingPersistency.h"
+#include "ObjectRelationalAccess/ObjectRelationalMappingSchema.h"
 #include "RelationalAccess/ISessionProxy.h"
 cond::ObjectRelationalMappingUtility::ObjectRelationalMappingUtility( coral::ISessionProxy* coralsessionHandle ):m_coralsessionHandle(coralsessionHandle){
   m_mappingutil=new pool::ObjectRelationalMappingUtilities( coralsessionHandle );
@@ -20,8 +23,8 @@ void cond::ObjectRelationalMappingUtility::buildAndStoreMappingFromFile( const s
 }
 */
 bool cond::ObjectRelationalMappingUtility::existsMapping(const std::string& version){
-  pool::ObjectRelationalMappingPersistency mappingPersistency(m_coralsessionHandle->nominalSchema());
-  if(!mappingPersistency.existsMappingDatabase()) return false;
+  pool::ObjectRelationalMappingSchema mappingSchema(m_coralsessionHandle->nominalSchema());
+  if(!mappingSchema.existTables()) return false;
   return m_mappingutil->existsMapping(version);
 }
 
