@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_0_0/pre3/1E31_V47/V1 (CMSSW_3_0_X_2008-12-17-0400)
+# /dev/CMSSW_3_0_0/pre3/1E31_V50/V1 (CMSSW_3_0_X_2008-12-17-0400)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_0_0/pre3/1E31_V47/V1')
+  tableName = cms.string('/dev/CMSSW_3_0_0/pre3/1E31_V50/V1')
 )
 
 BTagRecord = cms.ESSource( "EmptyESSource",
@@ -3692,11 +3692,20 @@ hltL3Muons = cms.EDProducer( "L3MuonProducer",
         DoPredictionsOnly = cms.bool( False )
       ),
       GlobalMuonTrackMatcher = cms.PSet( 
-        Chi2Cut = cms.double( 50.0 ),
         MinP = cms.double( 2.5 ),
         MinPt = cms.double( 1.0 ),
-        DeltaRCut = cms.double( 0.2 ),
-        DeltaDCut = cms.double( 10.0 )
+        Pt_threshold = cms.double( 35.0 ),
+        Eta_threshold = cms.double( 1.0 ),
+        Chi2Cut_1 = cms.double( 30.0 ),
+        Chi2Cut_2 = cms.double( 80.0 ),
+        Chi2Cut_3 = cms.double( 200.0 ),
+        LocChi2Cut = cms.double( 0.0080 ),
+        DeltaDCut_1 = cms.double( 20.0 ),
+        DeltaDCut_2 = cms.double( 15.0 ),
+        DeltaDCut_3 = cms.double( 30.0 ),
+        DeltaRCut_1 = cms.double( 0.1 ),
+        DeltaRCut_2 = cms.double( 0.15 ),
+        DeltaRCut_3 = cms.double( 0.2 )
       ),
       TrackerPropagator = cms.string( "SteppingHelixPropagatorAny" ),
       Chi2CutRPC = cms.double( 1.0 ),
