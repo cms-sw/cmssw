@@ -3,6 +3,7 @@
 
 #include "RootFile.h"
 #include "DuplicateChecker.h"
+#include "ProvenanceAdaptor.h"
 
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/GlobalIdentifier.h"
@@ -10,15 +11,18 @@
 #include "DataFormats/Provenance/interface/BranchType.h"
 #include "FWCore/Framework/interface/FileBlock.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
+#include "FWCore/Framework/interface/GroupSelector.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
 #include "DataFormats/Provenance/interface/BranchChildren.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/ParameterSetBlob.h"
-#include "DataFormats/Provenance/interface/EntryDescriptionRegistry.h"
+#include "DataFormats/Provenance/interface/ParentageRegistry.h"
 #include "DataFormats/Provenance/interface/ModuleDescriptionRegistry.h"
+#include "DataFormats/Provenance/interface/ProcessConfigurationRegistry.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "DataFormats/Provenance/interface/RunID.h"
+#include "DataFormats/Common/interface/RefCoreStreamer.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -29,9 +33,12 @@
 #include "FWCore/Utilities/interface/FriendlyName.h"
 
 //used for backward compatibility
+#include "DataFormats/Provenance/interface/BranchEntryDescription.h"
+#include "DataFormats/Provenance/interface/EntryDescriptionRegistry.h"
 #include "DataFormats/Provenance/interface/EventAux.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockAux.h"
 #include "DataFormats/Provenance/interface/RunAux.h"
+#include "DataFormats/Provenance/interface/RunLumiEntryInfo.h"
 
 #include "TROOT.h"
 #include "TClass.h"
@@ -62,7 +69,7 @@ namespace edm {
                      bool noEventSort,
 		     GroupSelectorRules const& groupSelectorRules,
                      bool dropMergeable,
-                     boost::shared_ptr<edm::DuplicateChecker> duplicateChecker,
+                     boost::shared_ptr<DuplicateChecker> duplicateChecker,
                      bool dropDescendants) :
       file_(fileName),
       logicalFile_(logicalFileName),
@@ -87,7 +94,6 @@ namespace edm {
       eventListIter_(whichEventsToProcess_.begin()),
       noEventSort_(noEventSort),
       fastClonable_(false),
-      groupSelector_(),
       reportToken_(0),
       eventAux_(),
       lumiAux_(),
@@ -97,14 +103,16 @@ namespace edm {
       runTree_(filePtr_, InRun),
       treePointers_(),
       productRegistry_(),
+      branchIDLists_(),
       processingMode_(processingMode),
       forcedRunOffset_(forcedRunOffset),
       newBranchToOldBranch_(),
       eventHistoryTree_(0),
+      history_(new History),
       branchChildren_(new BranchChildren),
-      nextIDfixup_(false),
       duplicateChecker_(duplicateChecker),
-      dropDescendants_(dropDescendants) {
+      provenanceAdaptor_() {
+
     eventTree_.setCacheSize(treeCacheSize);
 
     eventTree_.setTreeMaxVirtualSize(treeMaxVirtualSize);
@@ -115,53 +123,109 @@ namespace edm {
     treePointers_[InLumi]  = &lumiTree_;
     treePointers_[InRun]   = &runTree_;
 
-    // Set up buffers for registries.
-    // Need to read to a temporary registry so we can do a translation of the BranchKeys.
-    // This preserves backward compatibility against friendly class name algorithm changes.
-    ProductRegistry tempReg;
-    ProductRegistry *ppReg = &tempReg;
-    BranchChildren* branchChildrenBuffer = branchChildren_.get();
-    typedef std::map<ParameterSetID, ParameterSetBlob> PsetMap;
-    PsetMap psetMap;
-    ProcessHistoryMap pHistMap;
-    ModuleDescriptionMap mdMap;
-    PsetMap *psetMapPtr = &psetMap;
-    ProcessHistoryMap *pHistMapPtr = &pHistMap;
-    ModuleDescriptionMap *mdMapPtr = &mdMap;
-    FileFormatVersion *fftPtr = &fileFormatVersion_;
-    FileID *fidPtr = &fid_;
-    FileIndex *findexPtr = &fileIndex_;
-    std::vector<EventProcessHistoryID> *eventHistoryIDsPtr = &eventProcessHistoryIDs_;
+    setRefCoreStreamer(0, true); // backward compatibility
 
     // Read the metadata tree.
     TTree *metaDataTree = dynamic_cast<TTree *>(filePtr_->Get(poolNames::metaDataTreeName().c_str()));
     if (!metaDataTree)
-      throw edm::Exception(edm::errors::EventCorruption) << "Could not find tree " << poolNames::metaDataTreeName()
-							 << " in the input file.";
+      throw edm::Exception(errors::FileReadError) << "Could not find tree " << poolNames::metaDataTreeName()
+							 << " in the input file.\n";
 
-    metaDataTree->SetBranchAddress(poolNames::productDescriptionBranchName().c_str(),(&ppReg));
-    metaDataTree->SetBranchAddress(poolNames::parameterSetMapBranchName().c_str(), &psetMapPtr);
-    metaDataTree->SetBranchAddress(poolNames::processHistoryMapBranchName().c_str(), &pHistMapPtr);
-    metaDataTree->SetBranchAddress(poolNames::moduleDescriptionMapBranchName().c_str(), &mdMapPtr);
+    // To keep things simple, we just read in every possible branch that exists.
+    // We don't pay attention to which branches exist in which file format versions
+
+    FileFormatVersion *fftPtr = &fileFormatVersion_;
     metaDataTree->SetBranchAddress(poolNames::fileFormatVersionBranchName().c_str(), &fftPtr);
-    if (metaDataTree->FindBranch(poolNames::productDependenciesBranchName().c_str()) != 0) {
-      metaDataTree->SetBranchAddress(poolNames::productDependenciesBranchName().c_str(), &branchChildrenBuffer);
-    }
+
+    FileID *fidPtr = &fid_;
     if (metaDataTree->FindBranch(poolNames::fileIdentifierBranchName().c_str()) != 0) {
       metaDataTree->SetBranchAddress(poolNames::fileIdentifierBranchName().c_str(), &fidPtr);
     }
+
+    FileIndex *findexPtr = &fileIndex_;
     if (metaDataTree->FindBranch(poolNames::fileIndexBranchName().c_str()) != 0) {
       metaDataTree->SetBranchAddress(poolNames::fileIndexBranchName().c_str(), &findexPtr);
     }
+
+    // Need to read to a temporary registry so we can do a translation of the BranchKeys.
+    // This preserves backward compatibility against friendly class name algorithm changes.
+    ProductRegistry tempReg;
+    ProductRegistry *ppReg = &tempReg;
+    metaDataTree->SetBranchAddress(poolNames::productDescriptionBranchName().c_str(),(&ppReg));
+
+    typedef std::map<ParameterSetID, ParameterSetBlob> PsetMap;
+    PsetMap psetMap;
+    PsetMap *psetMapPtr = &psetMap;
+    metaDataTree->SetBranchAddress(poolNames::parameterSetMapBranchName().c_str(), &psetMapPtr);
+
+    ProcessHistoryRegistry::collection_type pHistMap;
+    ProcessHistoryRegistry::collection_type *pHistMapPtr = &pHistMap;
+    metaDataTree->SetBranchAddress(poolNames::processHistoryMapBranchName().c_str(), &pHistMapPtr);
+
+    ProcessConfigurationRegistry::collection_type pProcConfigMap;
+    if (metaDataTree->FindBranch(poolNames::processConfigurationBranchName().c_str()) != 0) {
+      ProcessConfigurationRegistry::collection_type *pProcConfigMapPtr = &pProcConfigMap;
+      metaDataTree->SetBranchAddress(poolNames::processConfigurationBranchName().c_str(), &pProcConfigMapPtr);
+    }
+
+    std::auto_ptr<BranchIDListRegistry::collection_type> branchIDListsAPtr(new BranchIDListRegistry::collection_type);
+    BranchIDListRegistry::collection_type *branchIDListsPtr = branchIDListsAPtr.get();
+    if (metaDataTree->FindBranch(poolNames::branchIDListBranchName().c_str()) != 0) {
+      metaDataTree->SetBranchAddress(poolNames::branchIDListBranchName().c_str(), &branchIDListsPtr);
+    }
+
+    BranchChildren* branchChildrenBuffer = branchChildren_.get();
+    if (metaDataTree->FindBranch(poolNames::productDependenciesBranchName().c_str()) != 0) {
+      metaDataTree->SetBranchAddress(poolNames::productDependenciesBranchName().c_str(), &branchChildrenBuffer);
+    }
+
+    // backward compatibility
+    std::vector<EventProcessHistoryID> *eventHistoryIDsPtr = &eventProcessHistoryIDs_;
     if (metaDataTree->FindBranch(poolNames::eventHistoryBranchName().c_str()) != 0) {
       metaDataTree->SetBranchAddress(poolNames::eventHistoryBranchName().c_str(), &eventHistoryIDsPtr);
     }
 
+    ModuleDescriptionRegistry::collection_type mdMap;
+    ModuleDescriptionRegistry::collection_type *mdMapPtr = &mdMap;
+    if (metaDataTree->FindBranch(poolNames::moduleDescriptionMapBranchName().c_str()) != 0) {
+      metaDataTree->SetBranchAddress(poolNames::moduleDescriptionMapBranchName().c_str(), &mdMapPtr);
+    }
+    // Here we read the metadata tree
     input::getEntry(metaDataTree, 0);
 
-    readEntryDescriptionTree();
+    setRefCoreStreamer(true);  // backward compatibility
+
+    // Merge into the parameter set registry.
+    pset::Registry& psetRegistry = *pset::Registry::instance();
+    for (PsetMap::const_iterator i = psetMap.begin(), iEnd = psetMap.end(); i != iEnd; ++i) {
+      ParameterSet pset(i->second.pset_);
+      pset.setID(i->first);
+      psetRegistry.insertMapped(pset);
+    } 
+
+    if (fileFormatVersion_.value_ < 11) {
+      // Old format input file.  Create a provenance adaptor.
+      provenanceAdaptor_.reset(new ProvenanceAdaptor(tempReg, pHistMap, pProcConfigMap));
+      // Fill in the branchIDLists branch from the provenance adaptor
+      branchIDLists_ = provenanceAdaptor_->branchIDLists();
+    } else {
+      // New format input file. The branchIDLists branch was read directly from the input file. 
+      if (metaDataTree->FindBranch(poolNames::branchIDListBranchName().c_str()) == 0) {
+	throw edm::Exception(errors::EventCorruption)
+	  << "Failed to find branchIDLists branch in metaData tree.\n";
+      }
+      branchIDLists_.reset(branchIDListsAPtr.release());
+    }
+
+    // Merge into the remaining hashed registries.
+    ProcessConfigurationRegistry::instance()->insertCollection(pProcConfigMap);
+    ProcessHistoryRegistry::instance()->insertCollection(pHistMap);
+    ModuleDescriptionRegistry::instance()->insertCollection(mdMap);
 
     validateFile();
+
+    // Read the parentage tree.  Old format files are handled internally in readParentageTree().
+    readParentageTree();
 
     initializeDuplicateChecker();
     if (noEventSort_) fileIndex_.sortBy_Run_Lumi_EventEntry();
@@ -183,6 +247,7 @@ namespace edm {
     tempReg.setFrozen();
 
     std::auto_ptr<ProductRegistry> newReg(new ProductRegistry);
+
     // Do the translation from the old registry to the new one
     {
       ProductRegistry::ProductList const& prodList = tempReg.productList();
@@ -191,12 +256,15 @@ namespace edm {
         BranchDescription const& prod = it->second;
         std::string newFriendlyName = friendlyname::friendlyName(prod.className());
 	if (newFriendlyName == prod.friendlyClassName()) {
-	  prod.init();
           newReg->copyProduct(prod);
 	} else {
+          if (fileFormatVersion_.value_ >= 11) {
+	    throw edm::Exception(errors::UnimplementedFeature)
+	      << "Cannot change friendly class name algorithm without more development work\n"
+	      << "to update BranchIDLists.  Contact the framework group.\n";
+	  }
           BranchDescription newBD(prod);
           newBD.updateFriendlyClassName();
-	  newBD.init();
           newReg->copyProduct(newBD);
 	  // Need to call init to get old branch name.
 	  prod.init();
@@ -204,89 +272,15 @@ namespace edm {
 	}
       }
       // freeze the product registry
-      newReg->setNextID(tempReg.nextID());
       newReg->setFrozen();
       productRegistry_.reset(newReg.release());
-      // This is the selector for drop on input.
-      groupSelector_.initialize(groupSelectorRules, productRegistry()->allBranchDescriptions());
     }
 
-    // Merge into the registries. For now, we do NOT merge the product registry.
-    pset::Registry& psetRegistry = *pset::Registry::instance();
-    for (PsetMap::const_iterator i = psetMap.begin(), iEnd = psetMap.end(); i != iEnd; ++i) {
-      psetRegistry.insertMapped(ParameterSet(i->second.pset_));
-    } 
-    ProcessHistoryRegistry & processNameListRegistry = *ProcessHistoryRegistry::instance();
-    for (ProcessHistoryMap::const_iterator j = pHistMap.begin(), jEnd = pHistMap.end(); j != jEnd; ++j) {
-      processNameListRegistry.insertMapped(j->second);
-    } 
-    ModuleDescriptionRegistry & moduleDescriptionRegistry = *ModuleDescriptionRegistry::instance();
-    for (ModuleDescriptionMap::const_iterator k = mdMap.begin(), kEnd = mdMap.end(); k != kEnd; ++k) {
-      moduleDescriptionRegistry.insertMapped(k->second);
-    } 
-
-    ProductRegistry::ProductList & prodList  = const_cast<ProductRegistry::ProductList &>(productRegistry()->productList());
-
-    // Do drop on input. On the first pass, just fill in a set of branches to be dropped.
-    std::set<BranchID> branchesToDrop;
-    for (ProductRegistry::ProductList::const_iterator it = prodList.begin(), itEnd = prodList.end();
-        it != itEnd; ++it) {
-      BranchDescription const& prod = it->second;
-      if(!selected(prod)) {
-        if (dropDescendants_) {
-          branchChildren_->appendToDescendants(prod.branchID(), branchesToDrop);
-        } else {
-          branchesToDrop.insert(prod.branchID());
-        }
-      }
-    }
-
-    // On this pass, actually drop the branches.
-    std::set<BranchID>::const_iterator branchesToDropEnd = branchesToDrop.end();
-    for (ProductRegistry::ProductList::iterator it = prodList.begin(), itEnd = prodList.end();
-        it != itEnd;) {
-      BranchDescription const& prod = it->second;
-      bool drop = branchesToDrop.find(prod.branchID()) != branchesToDropEnd;
-      if(drop) {
-	if (selected(prod)) {
-          LogWarning("RootFile")
-            << "Branch '" << prod.branchName() << "' is being dropped from the input\n"
-            << "of file '" << file_ << "' because it is dependent on a branch\n" 
-            << "that was explicitly dropped.\n";
-	}
-        treePointers_[prod.branchType()]->dropBranch(newBranchToOldBranch(prod.branchName()));
-        ProductRegistry::ProductList::iterator icopy = it;
-        ++it;
-        prodList.erase(icopy);
-      } else {
-        ++it;
-      }
-    }
-
-    // Drop on input mergeable run and lumi products, this needs to be invoked for
-    // secondary file input
-    if (dropMergeable) {
-      for (ProductRegistry::ProductList::iterator it = prodList.begin(), itEnd = prodList.end();
-          it != itEnd;) {
-        BranchDescription const& prod = it->second;
-        if (prod.branchType() != InEvent) {
-          TClass *cp = gROOT->GetClass(prod.wrappedName().c_str());
-          boost::shared_ptr<EDProduct> dummy(static_cast<EDProduct *>(cp->New()));
-          if (dummy->isMergeable()) {
-            treePointers_[prod.branchType()]->dropBranch(newBranchToOldBranch(prod.branchName()));
-            ProductRegistry::ProductList::iterator icopy = it;
-            ++it;
-            prodList.erase(icopy);
-          } else {
-            ++it;
-          }
-        }
-        else ++it;
-      }
-    }
+    dropOnInput(groupSelectorRules, dropDescendants, dropMergeable);
 
     // Set up information from the product registry.
-    for (ProductRegistry::ProductList::iterator it = prodList.begin(), itEnd = prodList.end();
+    ProductRegistry::ProductList const& prodList = productRegistry()->productList();
+    for (ProductRegistry::ProductList::const_iterator it = prodList.begin(), itEnd = prodList.end();
         it != itEnd; ++it) {
       BranchDescription const& prod = it->second;
       treePointers_[prod.branchType()]->addBranch(it->first, prod,
@@ -302,51 +296,73 @@ namespace edm {
   }
 
   void
-  RootFile::readEntryDescriptionTree()
-  { 
-    if (fileFormatVersion_.value_ < 6) return; 
+  RootFile::readEntryDescriptionTree() {
+    // Called only for old format files.
+    if (fileFormatVersion_.value_ < 8) return; 
     TTree* entryDescriptionTree = dynamic_cast<TTree*>(filePtr_->Get(poolNames::entryDescriptionTreeName().c_str()));
     if (!entryDescriptionTree) 
-      throw edm::Exception(edm::errors::EventCorruption) << "Could not find tree " << poolNames::entryDescriptionTreeName()
-							 << " in the input file.";
+      throw edm::Exception(errors::FileReadError) << "Could not find tree " << poolNames::entryDescriptionTreeName()
+							 << " in the input file.\n";
 
 
     EntryDescriptionID idBuffer;
     EntryDescriptionID* pidBuffer = &idBuffer;
     entryDescriptionTree->SetBranchAddress(poolNames::entryDescriptionIDBranchName().c_str(), &pidBuffer);
 
-    if (fileFormatVersion_.value_ <= 8) {
-      EntryDescription entryDescriptionBuffer;
-      EntryDescription *pEntryDescriptionBuffer = &entryDescriptionBuffer;
-      entryDescriptionTree->SetBranchAddress(poolNames::entryDescriptionBranchName().c_str(), &pEntryDescriptionBuffer);
+    EntryDescriptionRegistry& oldregistry = *EntryDescriptionRegistry::instance();
 
-      EntryDescriptionRegistry& registry = *EntryDescriptionRegistry::instance();
+    EventEntryDescription entryDescriptionBuffer;
+    EventEntryDescription *pEntryDescriptionBuffer = &entryDescriptionBuffer;
+    entryDescriptionTree->SetBranchAddress(poolNames::entryDescriptionBranchName().c_str(), &pEntryDescriptionBuffer);
 
-      for (Long64_t i = 0, numEntries = entryDescriptionTree->GetEntries(); i < numEntries; ++i) {
-        input::getEntry(entryDescriptionTree, i);
-        if (idBuffer != entryDescriptionBuffer.id())
-	  throw edm::Exception(edm::errors::EventCorruption) << "Corruption of EntryDescription tree detected.";
-	// This discards the parentage information, for now.
-	EventEntryDescription eid;
-	eid.moduleDescriptionID() = entryDescriptionBuffer.moduleDescriptionID();
-        registry.insertMapped(eid);
-      }
-    } else {
-      EventEntryDescription entryDescriptionBuffer;
-      EventEntryDescription *pEntryDescriptionBuffer = &entryDescriptionBuffer;
-      entryDescriptionTree->SetBranchAddress(poolNames::entryDescriptionBranchName().c_str(), &pEntryDescriptionBuffer);
+    // Fill in the parentage registry.
+    ParentageRegistry& registry = *ParentageRegistry::instance();
 
-      EntryDescriptionRegistry& registry = *EntryDescriptionRegistry::instance();
-
-      for (Long64_t i = 0, numEntries = entryDescriptionTree->GetEntries(); i < numEntries; ++i) {
-        input::getEntry(entryDescriptionTree, i);
-        if (idBuffer != entryDescriptionBuffer.id())
-	  throw edm::Exception(edm::errors::EventCorruption) << "Corruption of EntryDescription tree detected.";
-        registry.insertMapped(entryDescriptionBuffer);
-      }
+    for (Long64_t i = 0, numEntries = entryDescriptionTree->GetEntries(); i < numEntries; ++i) {
+      input::getEntry(entryDescriptionTree, i);
+      if (idBuffer != entryDescriptionBuffer.id())
+	throw edm::Exception(errors::EventCorruption) << "Corruption of EntryDescription tree detected.\n";
+      oldregistry.insertMapped(entryDescriptionBuffer);
+      Parentage parents;
+      parents.parents() = entryDescriptionBuffer.parents();
+      registry.insertMapped(parents);
     }
     entryDescriptionTree->SetBranchAddress(poolNames::entryDescriptionIDBranchName().c_str(), 0);
     entryDescriptionTree->SetBranchAddress(poolNames::entryDescriptionBranchName().c_str(), 0);
+  }
+
+  void
+  RootFile::readParentageTree()
+  { 
+    if (fileFormatVersion_.value_ < 11) {
+      // Old format file.
+      readEntryDescriptionTree();
+      return;
+    }
+    // New format file
+    TTree* parentageTree = dynamic_cast<TTree*>(filePtr_->Get(poolNames::parentageTreeName().c_str()));
+    if (!parentageTree) 
+      throw edm::Exception(errors::FileReadError) << "Could not find tree " << poolNames::parentageTreeName()
+							 << " in the input file.\n";
+
+    ParentageID idBuffer;
+    ParentageID* pidBuffer = &idBuffer;
+    parentageTree->SetBranchAddress(poolNames::parentageIDBranchName().c_str(), &pidBuffer);
+
+    Parentage parentageBuffer;
+    Parentage *pParentageBuffer = &parentageBuffer;
+    parentageTree->SetBranchAddress(poolNames::parentageBranchName().c_str(), &pParentageBuffer);
+
+    ParentageRegistry& registry = *ParentageRegistry::instance();
+
+    for (Long64_t i = 0, numEntries = parentageTree->GetEntries(); i < numEntries; ++i) {
+      input::getEntry(parentageTree, i);
+      if (idBuffer != parentageBuffer.id())
+        throw edm::Exception(errors::EventCorruption) << "Corruption of Parentage tree detected.\n";
+      registry.insertMapped(parentageBuffer);
+    }
+    parentageTree->SetBranchAddress(poolNames::parentageIDBranchName().c_str(), 0);
+    parentageTree->SetBranchAddress(poolNames::parentageBranchName().c_str(), 0);
   }
 
   bool
@@ -590,6 +606,7 @@ namespace edm {
   void
   RootFile::fillFileIndex() {
     // This function is for backward compatibility only.
+    // Newer files store the file index.
     LuminosityBlockNumber_t lastLumi = 0;
     RunNumber_t lastRun = 0;
 
@@ -646,8 +663,8 @@ namespace edm {
       fid_ = FileID(createGlobalIdentifier());
     }
     if(!eventTree_.isValid()) {
-      throw edm::Exception(edm::errors::EventCorruption) <<
-	 "'Events' tree is corrupted or not present\n" << "in the input file.";
+      throw edm::Exception(errors::EventCorruption) <<
+	 "'Events' tree is corrupted or not present\n" << "in the input file.\n";
     }
     if (fileIndex_.empty()) {
       fillFileIndex();
@@ -704,14 +721,13 @@ namespace edm {
     // data tree, this is too hard to do in this first version.
 
     if (fileFormatVersion_.value_ >= 7) {
-      History* pHistory = &history_;
+      History* pHistory = history_.get();
       TBranch* eventHistoryBranch = eventHistoryTree_->GetBranch(poolNames::eventHistoryBranchName().c_str());
       if (!eventHistoryBranch)
-	throw edm::Exception(edm::errors::EventCorruption)
-	  << "Failed to find history branch in event history tree";
+	throw edm::Exception(errors::EventCorruption)
+	  << "Failed to find history branch in event history tree.\n";
       eventHistoryBranch->SetAddress(&pHistory);
       input::getEntry(eventHistoryTree_, eventTree_.entryNumber());
-      eventAux_.processHistoryID_ = history_.processHistoryID();
     } else {
       // for backward compatibility.  If we could figure out how many
       // processes this event has been through, we should fill in
@@ -722,9 +738,13 @@ namespace edm {
           eventProcessHistoryIter_ = lower_bound_all(eventProcessHistoryIDs_, target);	
           assert(eventProcessHistoryIter_->eventID_ == eventAux_.id());
         }
-        eventAux_.processHistoryID_ = eventProcessHistoryIter_->processHistoryID_;
+	history_->setProcessHistoryID(eventProcessHistoryIter_->processHistoryID_);
         ++eventProcessHistoryIter_;
       }
+    }
+    if (fileFormatVersion_.value_ < 11) {
+      // old format.  branchListIndexes_ must be filled in from the ProvenanceAdaptor.
+      provenanceAdaptor_->branchListIndexes(history_->branchListIndexes());
     }
   }
 
@@ -825,29 +845,24 @@ namespace edm {
     fillHistory();
     overrideRunNumber(eventAux_.id_, eventAux_.isRealData());
 
+    boost::shared_ptr<BranchMapper> mapper = (fileFormatVersion().value_ >= 11 ?
+        makeBranchMapper<ProductProvenance>(eventTree_, InEvent) :
+        makeBranchMapper<EventEntryInfo>(eventTree_, InEvent));
+
     // We're not done ... so prepare the EventPrincipal
     std::auto_ptr<EventPrincipal> thisEvent(new EventPrincipal(
 		eventAux_,
 		pReg,
 		processConfiguration_,
-		eventAux_.processHistoryID_,
-		makeBranchMapper<EventEntryInfo>(eventTree_, InEvent),
-		eventTree_.makeDelayedReader()));
-    thisEvent->setHistory(history_);
-    // The following block handles files originating from the repacker where the max product ID was not
-    // set correctly in the registry.
-    if (nextIDfixup_) {
-      ProductRegistry* pr = const_cast<ProductRegistry*>(pReg.get());
-      pr->setProductIDs(productRegistry_->nextID());
-      nextIDfixup_ = false;
-      edm::LogError("MetaDataError")
-           << "'nextID' for the ProductRegistry in the input file is less than the largest\n"
-			     << "ProductID used in a previous process.\n"
-			     << "Updating the ProductRegistry to attempt to correct the problem\n";
-    }
+		history_,
+		mapper,
+		eventTree_.makeDelayedReader(fileFormatVersion_.value_ < 11)));
 
     // Create a group in the event for each product
     eventTree_.fillGroups(*thisEvent);
+    if (fileFormatVersion().value_ < 11 && fileFormatVersion().value_ >= 8) {
+      thisEvent->readProvenanceImmediate();
+    }
     return thisEvent;
   }
 
@@ -901,8 +916,9 @@ namespace edm {
 	new RunPrincipal(runAux_,
 			 pReg,
 			 processConfiguration_,
-			 runAux_.processHistoryID_,
-			 makeBranchMapper<RunEntryInfo>(runTree_, InRun),
+		         fileFormatVersion().value_ <= 10 && fileFormatVersion().value_ >= 8 ?
+		         makeBranchMapper<RunLumiEntryInfo>(runTree_, InRun) :
+		         makeBranchMapper<ProductProvenance>(runTree_, InRun),
 			 runTree_.makeDelayedReader()));
     // Create a group in the run for each product
     runTree_.fillGroups(*thisRun);
@@ -959,8 +975,9 @@ namespace edm {
     boost::shared_ptr<LuminosityBlockPrincipal> thisLumi(
 	new LuminosityBlockPrincipal(lumiAux_,
 				     pReg, processConfiguration_,
-				     lumiAux_.processHistoryID_,
-				     makeBranchMapper<LumiEntryInfo>(lumiTree_, InLumi),
+				     fileFormatVersion().value_ <= 10 && fileFormatVersion().value_ >= 8 ?
+				     makeBranchMapper<RunLumiEntryInfo>(lumiTree_, InLumi) :
+				     makeBranchMapper<ProductProvenance>(lumiTree_, InLumi),
 				     lumiTree_.makeDelayedReader()));
     // Create a group in the lumi for each product
     lumiTree_.fillGroups(*thisLumi);
@@ -1030,15 +1047,9 @@ namespace edm {
     eventHistoryTree_ = dynamic_cast<TTree*>(filePtr_->Get(poolNames::eventHistoryTreeName().c_str()));
 
     if (!eventHistoryTree_)
-      throw edm::Exception(edm::errors::EventCorruption)
-	<< "Failed to find the event history tree\n";
+      throw edm::Exception(errors::EventCorruption)
+	<< "Failed to find the event history tree.\n";
   }
-
-  bool
-  RootFile::selected(BranchDescription const& desc) const {
-    return groupSelector_.selected(desc);
-  }
-
 
   void
   RootFile::initializeDuplicateChecker() {
@@ -1051,4 +1062,143 @@ namespace edm {
       eventTree_.setEntryNumber(-1);
     }
   }
+
+  void
+  RootFile::dropOnInput (GroupSelectorRules const& rules, bool dropDescendants, bool dropMergeable) {
+    // This is the selector for drop on input.
+    GroupSelector groupSelector;
+    groupSelector.initialize(rules, productRegistry()->allBranchDescriptions());
+
+    ProductRegistry::ProductList& prodList = const_cast<ProductRegistry::ProductList&>(productRegistry()->productList());
+    // Do drop on input. On the first pass, just fill in a set of branches to be dropped.
+    std::set<BranchID> branchesToDrop;
+    for (ProductRegistry::ProductList::const_iterator it = prodList.begin(), itEnd = prodList.end();
+        it != itEnd; ++it) {
+      BranchDescription const& prod = it->second;
+      if(!groupSelector.selected(prod)) {
+        if (dropDescendants) {
+          branchChildren_->appendToDescendants(prod.branchID(), branchesToDrop);
+        } else {
+          branchesToDrop.insert(prod.branchID());
+        }
+      }
+    }
+
+    // On this pass, actually drop the branches.
+    std::set<BranchID>::const_iterator branchesToDropEnd = branchesToDrop.end();
+    for (ProductRegistry::ProductList::iterator it = prodList.begin(), itEnd = prodList.end(); it != itEnd;) {
+      BranchDescription const& prod = it->second;
+      bool drop = branchesToDrop.find(prod.branchID()) != branchesToDropEnd;
+      if(drop) {
+	if (groupSelector.selected(prod)) {
+          LogWarning("RootFile")
+            << "Branch '" << prod.branchName() << "' is being dropped from the input\n"
+            << "of file '" << file_ << "' because it is dependent on a branch\n" 
+            << "that was explicitly dropped.\n";
+	}
+        treePointers_[prod.branchType()]->dropBranch(newBranchToOldBranch(prod.branchName()));
+        ProductRegistry::ProductList::iterator icopy = it;
+        ++it;
+        prodList.erase(icopy);
+      } else {
+        ++it;
+      }
+    }
+
+    // Drop on input mergeable run and lumi products, this needs to be invoked for
+    // secondary file input
+    if (dropMergeable) {
+      for (ProductRegistry::ProductList::iterator it = prodList.begin(), itEnd = prodList.end(); it != itEnd;) {
+        BranchDescription const& prod = it->second;
+        if (prod.branchType() != InEvent) {
+          TClass *cp = gROOT->GetClass(prod.wrappedName().c_str());
+          boost::shared_ptr<EDProduct> dummy(static_cast<EDProduct *>(cp->New()));
+          if (dummy->isMergeable()) {
+            treePointers_[prod.branchType()]->dropBranch(newBranchToOldBranch(prod.branchName()));
+            ProductRegistry::ProductList::iterator icopy = it;
+            ++it;
+            prodList.erase(icopy);
+          } else {
+            ++it;
+          }
+        }
+        else ++it;
+      }
+    }
+  }
+
+  // backward compatibility
+  boost::shared_ptr<BranchMapper>
+  RootFile:: makeBranchMapperInOldRelease(RootTree & rootTree, BranchType const& type) const {
+    if (fileFormatVersion_.value_ >= 7) {
+      rootTree.fillStatus();
+    } else { 
+       LogWarning("RootFile")
+         << "Backward compatibility not fully supported for reading files"
+	 << " written in CMSSW_1_8_4 or prior releases in releaseCMSSW_3_0_0.\n";
+    }
+    if (type == InEvent) {
+      boost::shared_ptr<BranchMapperWithReader<EventEntryInfo> > mapper(new BranchMapperWithReader<EventEntryInfo>(0, 0));
+      mapper->setDelayedRead(false);
+      for(ProductRegistry::ProductList::const_iterator it = productRegistry_->productList().begin(),
+          itEnd = productRegistry_->productList().end(); it != itEnd; ++it) {
+        if (type == it->second.branchType() && !it->second.transient()) {
+	  if (fileFormatVersion_.value_ >= 7) {
+	    input::BranchMap::const_iterator ix = rootTree.branches().find(it->first);
+	    input::BranchInfo const& ib = ix->second;
+	    TBranch *br = ib.provenanceBranch_;
+            std::auto_ptr<EntryDescriptionID> pb(new EntryDescriptionID);
+            EntryDescriptionID* ppb = pb.get();
+            br->SetAddress(&ppb);
+            input::getEntry(br, rootTree.entryNumber());
+	    std::vector<ProductStatus>::size_type index = it->second.oldProductID().productIndex() - 1;
+	    EventEntryInfo entry(it->second.branchID(), rootTree.productStatuses()[index], it->second.oldProductID(), *pb);
+	    mapper->insert(entry.makeProductProvenance());
+          } else {
+	    TBranch *br = rootTree.branches().find(it->first)->second.provenanceBranch_;
+	    std::auto_ptr<BranchEntryDescription> pb(new BranchEntryDescription);
+	    BranchEntryDescription* ppb = pb.get();
+	    br->SetAddress(&ppb);
+	    input::getEntry(br, rootTree.entryNumber());
+	    std::auto_ptr<EntryDescription> entryDesc = pb->convertToEntryDescription();
+	    ProductStatus status = (ppb->creatorStatus() == BranchEntryDescription::Success ? productstatus::present() : productstatus::neverCreated());
+	    EventEntryInfo entry(it->second.branchID(), status, it->second.oldProductID());
+	    mapper->insert(entry.makeProductProvenance());
+	  }
+	  mapper->insertIntoMap(it->second.oldProductID(), it->second.branchID());
+        }
+      }
+      return mapper;
+    } else {
+      boost::shared_ptr<BranchMapperWithReader<ProductProvenance> > mapper(new BranchMapperWithReader<ProductProvenance>(0, 0));
+      mapper->setDelayedRead(false);
+      for(ProductRegistry::ProductList::const_iterator it = productRegistry_->productList().begin(),
+          itEnd = productRegistry_->productList().end(); it != itEnd; ++it) {
+	if (type == it->second.branchType() && !it->second.transient()) {
+	  if (fileFormatVersion_.value_ >= 7) {
+	    input::BranchMap::const_iterator ix = rootTree.branches().find(it->first);
+	    input::BranchInfo const& ib = ix->second;
+	    TBranch *br = ib.provenanceBranch_;
+            input::getEntry(br, rootTree.entryNumber());
+	    std::vector<ProductStatus>::size_type index = it->second.oldProductID().productIndex() - 1;
+	    ProductProvenance entry(it->second.branchID(), rootTree.productStatuses()[index]);
+	    mapper->insert(entry);
+	  } else {
+	    TBranch *br = rootTree.branches().find(it->first)->second.provenanceBranch_;
+	    std::auto_ptr<BranchEntryDescription> pb(new BranchEntryDescription);
+	    BranchEntryDescription* ppb = pb.get();
+	    br->SetAddress(&ppb);
+	    input::getEntry(br, rootTree.entryNumber());
+	    std::auto_ptr<EntryDescription> entryDesc = pb->convertToEntryDescription();
+	    ProductStatus status = (ppb->creatorStatus() == BranchEntryDescription::Success ? productstatus::present() : productstatus::neverCreated());
+	    ProductProvenance entry(it->second.branchID(), status);
+	    mapper->insert(entry);
+	  }
+	}
+      }
+      return mapper;
+    }
+    return boost::shared_ptr<BranchMapper>();
+  }
+  // end backward compatibility
 }

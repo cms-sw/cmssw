@@ -22,14 +22,14 @@ namespace edm {
       }
       return branch;
     }
-    TBranch * getEventEntryInfoBranch(TTree * tree, BranchType const& branchType) {
+    TBranch * getProductProvenanceBranch(TTree * tree, BranchType const& branchType) {
       TBranch *branch = tree->GetBranch(BranchTypeToBranchEntryInfoBranchName(branchType).c_str());
       return branch;
     }
-    TBranch * getStatusBranch(TTree * tree, BranchType const& branchType) {
-      TBranch *branch = tree->GetBranch(BranchTypeToProductStatusBranchName(branchType).c_str());
-      return branch;
-    }
+    TBranch * getStatusBranch(TTree * tree, BranchType const& branchType) { // backward compatibility
+      TBranch *branch = tree->GetBranch(BranchTypeToProductStatusBranchName(branchType).c_str()); // backward compatibility
+      return branch; // backward compatibility
+    } // backward compatibility
   }
   RootTree::RootTree(boost::shared_ptr<TFile> filePtr, BranchType const& branchType) :
     filePtr_(filePtr),
@@ -37,15 +37,15 @@ namespace edm {
     metaTree_(dynamic_cast<TTree *>(filePtr_.get() != 0 ? filePtr->Get(BranchTypeToMetaDataTreeName(branchType).c_str()) : 0)),
     branchType_(branchType),
     auxBranch_(tree_ ? getAuxiliaryBranch(tree_, branchType_) : 0),
-    branchEntryInfoBranch_(metaTree_ ? getEventEntryInfoBranch(metaTree_, branchType_) : 0),
+    branchEntryInfoBranch_(metaTree_ ? getProductProvenanceBranch(metaTree_, branchType_) : 0),
     entries_(tree_ ? tree_->GetEntries() : 0),
     entryNumber_(-1),
     branchNames_(),
     branches_(new BranchMap),
-    productStatuses_(),
-    pProductStatuses_(&productStatuses_),
-    infoTree_(dynamic_cast<TTree *>(filePtr_.get() != 0 ? filePtr->Get(BranchTypeToInfoTreeName(branchType).c_str()) : 0)),
-    statusBranch_(infoTree_ ? getStatusBranch(infoTree_, branchType_) : 0)
+    productStatuses_(), // backward compatibility
+    pProductStatuses_(&productStatuses_), // backward compatibility
+    infoTree_(dynamic_cast<TTree *>(filePtr_.get() != 0 ? filePtr->Get(BranchTypeToInfoTreeName(branchType).c_str()) : 0)), // backward compatibility
+    statusBranch_(infoTree_ ? getStatusBranch(infoTree_, branchType_) : 0) // backward compatibility
   { }
 
   bool
@@ -53,10 +53,10 @@ namespace edm {
     if (metaTree_ == 0 || metaTree_->GetNbranches() == 0) {
       return tree_ != 0 && auxBranch_ != 0 && tree_->GetNbranches() == 1; 
     }
-    if (tree_ != 0 && auxBranch_ != 0 && metaTree_ != 0) {
-      if (branchEntryInfoBranch_ != 0 || statusBranch_ != 0) return true;
-      return (entries_ == metaTree_->GetEntries() && tree_->GetNbranches() <= metaTree_->GetNbranches() + 1); 
-    }
+    if (tree_ != 0 && auxBranch_ != 0 && metaTree_ != 0) { // backward compatibility
+      if (branchEntryInfoBranch_ != 0 || statusBranch_ != 0) return true; // backward compatibility
+      return (entries_ == metaTree_->GetEntries() && tree_->GetNbranches() <= metaTree_->GetNbranches() + 1);  // backward compatibility
+    } // backward compatibility
     return false;
   }
 
@@ -111,8 +111,9 @@ namespace edm {
   }
 
   boost::shared_ptr<DelayedReader>
-  RootTree::makeDelayedReader() const {
-    boost::shared_ptr<DelayedReader> store(new RootDelayedReader(entryNumber_, branches_, filePtr_));
+  RootTree::makeDelayedReader(bool oldFormat) const {
+    boost::shared_ptr<DelayedReader>
+        store(new RootDelayedReader(entryNumber_, branches_, filePtr_, oldFormat));
     return store;
   }
 

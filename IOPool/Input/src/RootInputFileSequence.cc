@@ -10,6 +10,7 @@
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/FileBlock.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "DataFormats/Provenance/interface/BranchIDListHelper.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -88,7 +89,8 @@ namespace edm {
             << "'setRunNumber' was " << setRun_ <<", while the first run was "
             << setRun_ - forcedRunOffset_ << ".\n";
         }
-        updateProductRegistry();
+        productRegistryUpdate().updateFromInput(rootFile_->productRegistry()->productList());
+        BranchIDListHelper::updateFromInput(rootFile_->branchIDLists(), fileIter_->fileName());
       }
     } else {
       Service<RandomNumberGenerator> rng;
@@ -128,12 +130,6 @@ namespace edm {
     }
     if (!rootFile_) {
       return boost::shared_ptr<FileBlock>(new FileBlock);
-    }
-    if (primary()) {
-      productRegistryUpdate().setProductIDs(rootFile_->productRegistry()->nextID());
-      if (rootFile_->productRegistry()->nextID() > productRegistry()->nextID()) {
-        productRegistryUpdate().setNextID(rootFile_->productRegistry()->nextID());
-      }
     }
     return rootFile_->createFileBlock();
   }
@@ -188,14 +184,6 @@ namespace edm {
     }
   }
 
-  void RootInputFileSequence::updateProductRegistry() const {
-    ProductRegistry::ProductList const& prodList = rootFile_->productRegistry()->productList();
-    for (ProductRegistry::ProductList::const_iterator it = prodList.begin(), itEnd = prodList.end();
-	it != itEnd; ++it) {
-      productRegistryUpdate().copyProduct(it->second);
-    }
-  }
-
   ProductRegistry const&
   RootInputFileSequence::fileProductRegistry() const {
     return *rootFile_->productRegistry();
@@ -221,6 +209,7 @@ namespace edm {
       if (!mergeInfo.empty()) {
         throw edm::Exception(errors::MismatchedInputFiles,"RootInputFileSequence::nextFile()") << mergeInfo;
       }
+      BranchIDListHelper::updateFromInput(rootFile_->branchIDLists(), fileIter_->fileName());
     }
     return true;
   }
@@ -245,6 +234,7 @@ namespace edm {
       if (!mergeInfo.empty()) {
         throw edm::Exception(errors::MismatchedInputFiles,"RootInputFileSequence::previousEvent()") << mergeInfo;
       }
+      BranchIDListHelper::updateFromInput(rootFile_->branchIDLists(), fileIter_->fileName());
     }
     if (rootFile_) rootFile_->setToLastEntry();
     return true;
@@ -588,8 +578,8 @@ namespace edm {
       time_t t = time(0);
       char ts[] = "dd-Mon-yyyy hh:mm:ss TZN     ";
       strftime( ts, strlen(ts)+1, "%d-%b-%Y %H:%M:%S %Z", localtime(&t) );
-      edm::LogAbsolute("fileAction") << ts << msg << file;
-      edm::FlushMessageLog();
+      LogAbsolute("fileAction") << ts << msg << file;
+      FlushMessageLog();
     }
   }
 }

@@ -17,7 +17,7 @@ RootTree.h // used by ROOT input sources
 #include "Inputfwd.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "DataFormats/Provenance/interface/ProvenanceFwd.h"
-#include "DataFormats/Provenance/interface/EventEntryInfo.h"
+#include "DataFormats/Provenance/interface/ProductProvenance.h"
 #include "DataFormats/Provenance/interface/BranchKey.h"
 #include "IOPool/Input/src/BranchMapperWithReader.h"
 #include "TBranch.h"
@@ -49,7 +49,7 @@ namespace edm {
     std::vector<std::string> const& branchNames() const {return branchNames_;}
     template <typename T>
     void fillGroups(T& item);
-    boost::shared_ptr<DelayedReader> makeDelayedReader() const;
+    boost::shared_ptr<DelayedReader> makeDelayedReader(bool oldFormat = false) const;
     template <typename T>
     boost::shared_ptr<BranchMapper> makeBranchMapper() const;
     //TBranch *auxBranch() {return auxBranch_;}
@@ -63,13 +63,15 @@ namespace edm {
     void setCacheSize(unsigned int cacheSize) const;
     void setTreeMaxVirtualSize(int treeMaxVirtualSize);
     BranchMap const& branches() const {return *branches_;}
-    std::vector<ProductStatus> const& productStatuses() const {return productStatuses_;}
+    std::vector<ProductStatus> const& productStatuses() const {return productStatuses_;} // backward compatibility
 
     // below for backward compatibility
-    void fillStatus() {
-      statusBranch_->SetAddress(&pProductStatuses_);
-      input::getEntry(statusBranch_, entryNumber_);
-    }
+    void fillStatus() { // backward compatibility
+      statusBranch_->SetAddress(&pProductStatuses_); // backward compatibility
+      input::getEntry(statusBranch_, entryNumber_); // backward compatibility
+    } // backward compatibility
+
+    TBranch *const branchEntryInfoBranch() const {return branchEntryInfoBranch_;}
 
   private:
     boost::shared_ptr<TFile> filePtr_;
@@ -87,10 +89,10 @@ namespace edm {
     boost::shared_ptr<BranchMap> branches_;
 
     // below for backward compatibility
-    std::vector<ProductStatus> productStatuses_;
-    std::vector<ProductStatus>* pProductStatuses_;
-    TTree *const infoTree_;
-    TBranch *const statusBranch_;
+    std::vector<ProductStatus> productStatuses_; // backward compatibility
+    std::vector<ProductStatus>* pProductStatuses_; // backward compatibility
+    TTree *const infoTree_; // backward compatibility
+    TBranch *const statusBranch_; // backward compatibility
   };
 
   template <typename T>

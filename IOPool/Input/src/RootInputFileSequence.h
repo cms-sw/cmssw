@@ -5,8 +5,6 @@
 
 RootInputFileSequence: This is an InputSource
 
-$Id: RootInputFileSequence.h,v 1.22 2008/12/01 20:29:54 wmtan Exp $
-
 ----------------------------------------------------------------------*/
 
 #include <memory>
@@ -66,7 +64,6 @@ namespace edm {
     ProductRegistry const& fileProductRegistry() const;
   private:
     void initFile(bool skipBadFiles);
-    void updateProductRegistry() const;
     bool nextFile();
     bool previousFile();
     void rewindFile();
@@ -109,8 +106,7 @@ namespace edm {
     GroupSelectorRules groupSelectorRules_;
     bool primarySequence_;
     bool randomAccess_;
-    boost::shared_ptr<edm::DuplicateChecker> duplicateChecker_;
-
+    boost::shared_ptr<DuplicateChecker> duplicateChecker_;
     bool dropDescendants_;
   }; // class RootInputFileSequence
 }

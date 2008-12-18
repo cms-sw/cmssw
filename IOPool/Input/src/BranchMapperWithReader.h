@@ -3,10 +3,14 @@
 
 /*----------------------------------------------------------------------
   
-BranchMapperWithReader: The mapping from per event product ID's to BranchID's.
+BranchMapperWithReader:
 
 ----------------------------------------------------------------------*/
+#include "DataFormats/Provenance/interface/BranchID.h"
 #include "DataFormats/Provenance/interface/BranchMapper.h"
+#include "DataFormats/Provenance/interface/EventEntryInfo.h"
+#include "DataFormats/Provenance/interface/ProductID.h"
+#include "Inputfwd.h"
 
 #include <vector>
 #include "TBranch.h"
@@ -37,7 +41,6 @@ namespace edm {
   { }
 
   template <typename T>
-  inline
   void
   BranchMapperWithReader<T>::readProvenance_() const {
     branchPtr_->SetAddress(&pInfoVector_);
@@ -45,9 +48,33 @@ namespace edm {
     BranchMapperWithReader<T> * me = const_cast<BranchMapperWithReader<T> *>(this);
     for (typename std::vector<T>::const_iterator it = infoVector_.begin(), itEnd = infoVector_.end();
       it != itEnd; ++it) {
-      me->insert(it->makeEntryInfo());
+      me->insert(it->makeProductProvenance());
     }
   }
 
+  // Backward compatibility
+  template <>
+  class BranchMapperWithReader<EventEntryInfo> : public BranchMapper {
+  public:
+    BranchMapperWithReader(TBranch * branch, input::EntryNumber entryNumber) :
+	 BranchMapper(true),
+	 branchPtr_(branch), entryNumber_(entryNumber),
+	 infoVector_(), pInfoVector_(&infoVector_), oldProductIDToBranchIDMap_()
+  { }
+
+    virtual ~BranchMapperWithReader() {}
+
+    void insertIntoMap(ProductID const& oldProductID, BranchID const& branchID);
+
+  private:
+    virtual void readProvenance_() const;
+    virtual BranchID oldProductIDToBranchID_(ProductID const& oldProductID) const;
+
+    TBranch * branchPtr_; 
+    input::EntryNumber entryNumber_;
+    std::vector<EventEntryInfo> infoVector_;
+    mutable std::vector<EventEntryInfo> * pInfoVector_;
+    std::map<unsigned int, BranchID> oldProductIDToBranchIDMap_;
+  };
 }
 #endif

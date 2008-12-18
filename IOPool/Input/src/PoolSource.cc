@@ -222,7 +222,7 @@ namespace edm {
   }
 
   void
-  PoolSource::fillDescription(edm::ParameterSetDescription& iDesc,
+  PoolSource::fillDescription(ParameterSetDescription& iDesc,
                               std::string const& moduleLabel) {
 
     iDesc.addOptionalUntracked<unsigned int>("firstRun", 1U);

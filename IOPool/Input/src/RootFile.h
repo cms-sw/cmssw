@@ -18,12 +18,11 @@ RootFile.h // used by ROOT input sources
 
 #include "RootTree.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/GroupSelector.h"
 #include "FWCore/Framework/interface/InputSource.h"
 #include "DataFormats/Provenance/interface/BranchChildren.h"
+#include "DataFormats/Provenance/interface/BranchIDListRegistry.h"
 #include "DataFormats/Provenance/interface/BranchMapper.h"
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
-#include "DataFormats/Provenance/interface/EventProcessHistoryID.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockID.h"
 #include "DataFormats/Provenance/interface/ProductStatus.h"
@@ -32,14 +31,14 @@ RootFile.h // used by ROOT input sources
 #include "DataFormats/Provenance/interface/FileID.h"
 #include "DataFormats/Provenance/interface/FileIndex.h"
 #include "DataFormats/Provenance/interface/History.h"
-#include "DataFormats/Provenance/interface/EventEntryInfo.h"
+#include "DataFormats/Provenance/interface/ProductProvenance.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
-#include "DataFormats/Provenance/interface/RunLumiEntryInfo.h"
+#include "DataFormats/Provenance/interface/ProductProvenance.h"
 #include "DataFormats/Provenance/interface/ProvenanceFwd.h"
-#include "DataFormats/Provenance/interface/EventEntryDescription.h"
-#include "DataFormats/Provenance/interface/BranchEntryDescription.h"
+#include "DataFormats/Provenance/interface/Parentage.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "FWCore/MessageLogger/interface/JobReport.h"
+#include "DataFormats/Provenance/interface/EventProcessHistoryID.h" // backward compatibility
 class TFile;
 
 namespace edm {
@@ -48,6 +47,8 @@ namespace edm {
   // Class RootFile: supports file reading.
 
   class DuplicateChecker;
+  class ProvenanceAdaptor;
+  class GroupSelectorRules;
 
   class RootFile : private boost::noncopyable {
   public:
@@ -72,7 +73,7 @@ namespace edm {
              bool noEventSort,
 	     GroupSelectorRules const& groupSelectorRules,
              bool dropMergeable,
-             boost::shared_ptr<edm::DuplicateChecker> duplicateChecker,
+             boost::shared_ptr<DuplicateChecker> duplicateChecker,
              bool dropDescendantsOfDroppedProducts);
     void reportOpened();
     void close(bool reallyClose);
@@ -86,6 +87,7 @@ namespace edm {
     std::string const& file() const {return file_;}
     boost::shared_ptr<RunPrincipal> readRun(boost::shared_ptr<ProductRegistry const> pReg);
     boost::shared_ptr<ProductRegistry const> productRegistry() const {return productRegistry_;}
+    BranchIDListRegistry::collection_type const& branchIDLists() {return *branchIDLists_;}
     EventAuxiliary const& eventAux() const {return eventAux_;}
     LuminosityBlockAuxiliary const& luminosityBlockAux() {return lumiAux_;}
     RunAuxiliary const& runAux() const {return runAux_;}
@@ -134,14 +136,17 @@ namespace edm {
     void overrideRunNumber(LuminosityBlockID & id);
     void overrideRunNumber(EventID & id, bool isRealData);
     std::string const& newBranchToOldBranch(std::string const& newBranch) const;
+    void dropOnInput(GroupSelectorRules const& rules, bool dropDescendants, bool dropMergeable);
+    void readParentageTree();
     void readEntryDescriptionTree();
     void readEventHistoryTree();
 
-    bool selected(BranchDescription const& desc) const;
     void initializeDuplicateChecker();
 
     template <typename T>
     boost::shared_ptr<BranchMapper> makeBranchMapper(RootTree & rootTree, BranchType const& type) const;
+
+    boost::shared_ptr<BranchMapper> makeBranchMapperInOldRelease(RootTree & rootTree, BranchType const& type) const;
 
     std::string const file_;
     std::string const logicalFile_;
@@ -155,8 +160,8 @@ namespace edm {
     FileIndex::const_iterator fileIndexBegin_;
     FileIndex::const_iterator fileIndexEnd_;
     FileIndex::const_iterator fileIndexIter_;
-    std::vector<EventProcessHistoryID> eventProcessHistoryIDs_;
-    std::vector<EventProcessHistoryID>::const_iterator eventProcessHistoryIter_;
+    std::vector<EventProcessHistoryID> eventProcessHistoryIDs_;  // backward compatibility
+    std::vector<EventProcessHistoryID>::const_iterator eventProcessHistoryIter_; // backward compatibility
     RunNumber_t startAtRun_;
     LuminosityBlockNumber_t startAtLumi_;
     EventNumber_t startAtEvent_;
@@ -166,7 +171,6 @@ namespace edm {
     std::vector<EventID>::const_iterator eventListIter_;
     bool noEventSort_;
     bool fastClonable_;
-    GroupSelector groupSelector_;
     JobReport::Token reportToken_;
     EventAuxiliary eventAux_;
     LuminosityBlockAuxiliary lumiAux_;
@@ -176,73 +180,26 @@ namespace edm {
     RootTree runTree_;
     RootTreePtrArray treePointers_;
     boost::shared_ptr<ProductRegistry const> productRegistry_;
+    boost::shared_ptr<BranchIDListRegistry::collection_type const> branchIDLists_;
     InputSource::ProcessingMode processingMode_;
     int forcedRunOffset_;
     std::map<std::string, std::string> newBranchToOldBranch_;
     TTree * eventHistoryTree_;
-    History history_;    
+    boost::shared_ptr<History> history_;    
     boost::shared_ptr<BranchChildren> branchChildren_;
-    mutable bool nextIDfixup_;
-    boost::shared_ptr<edm::DuplicateChecker> duplicateChecker_;
-    bool dropDescendants_;
+    boost::shared_ptr<DuplicateChecker> duplicateChecker_;
+    boost::shared_ptr<ProvenanceAdaptor> provenanceAdaptor_;
   }; // class RootFile
 
   template <typename T>
+  inline
   boost::shared_ptr<BranchMapper>
   RootFile::makeBranchMapper(RootTree & rootTree, BranchType const& type) const {
-    if (fileFormatVersion_.value_ >= 8) {
-      boost::shared_ptr<BranchMapper> bm = rootTree.makeBranchMapper<T>();
-      // The following block handles files originating from the repacker where the max product ID was not
-      // set correctly in the registry.
-      if (fileFormatVersion_.value_ <= 9) {
-        ProductID pid = bm->maxProductID();
-        if (pid.id() >= productRegistry_->nextID()) {
-          ProductRegistry* pr = const_cast<ProductRegistry*>(productRegistry_.get());
-          pr->setProductIDs(pid.id() + 1);
-          nextIDfixup_ = true;
-        }
-      }
-      return bm;
+    if (fileFormatVersion_.value_ < 8) {
+      return makeBranchMapperInOldRelease(rootTree, type);
     } 
-    // backward compatibility
-    boost::shared_ptr<BranchMapper> mapper(new BranchMapper);
-    if (fileFormatVersion_.value_ >= 7) {
-      rootTree.fillStatus();
-      for(ProductRegistry::ProductList::const_iterator it = productRegistry_->productList().begin(),
-          itEnd = productRegistry_->productList().end(); it != itEnd; ++it) {
-        if (type == it->second.branchType() && !it->second.transient()) {
-	  input::BranchMap::const_iterator ix = rootTree.branches().find(it->first);
-	  input::BranchInfo const& ib = ix->second;
-	  TBranch *br = ib.provenanceBranch_;
-	  //TBranch *br = rootTree.branches().find(it->first)->second.provenanceBranch_;
-          std::auto_ptr<EntryDescriptionID> pb(new EntryDescriptionID);
-          EntryDescriptionID* ppb = pb.get();
-          br->SetAddress(&ppb);
-          input::getEntry(br, rootTree.entryNumber());
-	  std::vector<ProductStatus>::size_type index = it->second.oldProductID().id() - 1;
-	  EventEntryInfo entry(it->second.branchID(),
-		  rootTree.productStatuses()[index], it->second.oldProductID(), *pb);
-	  mapper->insert(entry);
-        }
-      }
-    } else {
-      for(ProductRegistry::ProductList::const_iterator it = productRegistry_->productList().begin(),
-          itEnd = productRegistry_->productList().end(); it != itEnd; ++it) {
-        if (type == it->second.branchType() && !it->second.transient()) {
-	  TBranch *br = rootTree.branches().find(it->first)->second.provenanceBranch_;
-          std::auto_ptr<BranchEntryDescription> pb(new BranchEntryDescription);
-          BranchEntryDescription* ppb = pb.get();
-          br->SetAddress(&ppb);
-          input::getEntry(br, rootTree.entryNumber());
-          std::auto_ptr<EntryDescription> entryDesc = pb->convertToEntryDescription();
-	  ProductStatus status = (ppb->creatorStatus() == BranchEntryDescription::Success ? productstatus::present() : productstatus::neverCreated());
-	  // Throws parents away for now.
-	  EventEntryInfo entry(it->second.branchID(), status, entryDesc->moduleDescriptionID(), it->second.oldProductID());
-	  mapper->insert(entry);
-       }
-      }
-    }
-    return mapper;
+    boost::shared_ptr<BranchMapper> bm = rootTree.makeBranchMapper<T>();
+    return bm;
   }
 
 }

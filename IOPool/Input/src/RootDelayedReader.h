@@ -32,7 +32,8 @@ namespace edm {
     typedef input::BranchMap::const_iterator iterator;
     RootDelayedReader(EntryNumber const& entry,
       boost::shared_ptr<BranchMap const> bMap,
-      boost::shared_ptr<TFile const> filePtr);
+      boost::shared_ptr<TFile const> filePtr,
+      bool oldFormat);
 
     virtual ~RootDelayedReader();
 
@@ -49,6 +50,8 @@ namespace edm {
     // the TFile containing the branch from being reclaimed.
     boost::shared_ptr<TFile const> filePtr_;
     boost::shared_ptr<DelayedReader> nextReader_;
+    bool customStreamers_;
+    bool oldFormat_;
   }; // class RootDelayedReader
   //------------------------------------------------------------
 }

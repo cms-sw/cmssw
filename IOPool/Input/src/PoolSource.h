@@ -36,7 +36,7 @@ namespace edm {
     using InputSource::productRegistryUpdate;
     using InputSource::runPrincipal;
 
-    static void fillDescription(edm::ParameterSetDescription& iDesc,
+    static void fillDescription(ParameterSetDescription& iDesc,
                                 std::string const& moduleLabel);
 
   private:
