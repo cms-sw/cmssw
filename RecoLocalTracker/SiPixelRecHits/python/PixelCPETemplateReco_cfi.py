@@ -14,5 +14,5 @@ templates = cms.ESProducer("PixelCPETemplateRecoESProducer",
     # gavril
     DoCosmics = cms.bool(True),
 
-    LoadTemplatesFromDB = cms.bool(False)
+    LoadTemplatesFromDB = cms.bool(True)
 )
