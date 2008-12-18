@@ -34,8 +34,7 @@ process.MessageLogger.cout = cms.untracked.PSet(
         limit = cms.untracked.int32(10000000)
     ),
     MuonAssociatorByHits = cms.untracked.PSet(
-#        limit = cms.untracked.int32(10000000)
-        limit = cms.untracked.int32(0)
+        limit = cms.untracked.int32(10000000)
     ),
     DTHitAssociator = cms.untracked.PSet(
         limit = cms.untracked.int32(10000000)
