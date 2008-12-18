@@ -13,7 +13,7 @@
 #include "CoralBase/AttributeList.h"
 #include "CoralBase/Attribute.h"
 #include "CoralBase/AttributeSpecification.h"
-#include "SealBase/TimeInfo.h"
+//#include "SealBase/TimeInfo.h"
 
 #include "CondCore/DBCommon/interface/Time.h"
 
@@ -481,7 +481,7 @@ queryVI->setCondition( conditionVI , conditionData6 );
    std::cout<< "change currunt during run intervall in microseconds " << temp_sum.m_run_intervall_micros << std::endl;
    
    double wi=0;
-   // std::vector<double> v_wi;
+   std::vector<double> v_wi;
    double sumwixi=0;
    double sumwi=0;
    float min=-1;
@@ -495,8 +495,8 @@ queryVI->setCondition( conditionVI , conditionData6 );
 	std::cout<< "--> " << temp_sum.m_current[i] << std::endl;
 	if (tsize >1 && ( i < temp_sum.m_current.size()-1 )) { 
 	  wi =  (time_curr[i] - time_curr[i+1])  ;
-          temp_sum.m_times_of_currents.push_back(wi);
-	  //v_wi.push_back(wi);
+	  //  temp_sum.m_times_of_currents.push_back(wi);
+	  v_wi.push_back(wi);
 	  sumwixi+= wi * temp_sum.m_current[i] ;
 	  sumwi += wi;
 	}  
@@ -504,7 +504,8 @@ queryVI->setCondition( conditionVI , conditionData6 );
 	max= std::max(max, temp_sum.m_current[i]);
       }
       
-      for (size_t i =0; i<temp_sum.m_times_of_currents.size(); i++){
+      for (size_t i =0; i<v_wi.size(); i++){
+	//for (size_t i =0; i<temp_sum.m_times_of_currents.size(); i++){
 	//	std::cout<<"wi "<<temp_sum.m_times_of_currents[i]<<std::endl;
       }
       temp_sum.m_start_current=(temp_sum.m_current[0]) ;
