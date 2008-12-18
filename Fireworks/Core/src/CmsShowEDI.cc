@@ -8,7 +8,7 @@
 //
 // Original Author:  Joshua Berger
 //         Created:  Mon Jun 23 15:48:11 EDT 2008
-// $Id: CmsShowEDI.cc,v 1.16 2008/12/05 21:55:40 chrjones Exp $
+// $Id: CmsShowEDI.cc,v 1.17 2008/12/06 02:39:13 chrjones Exp $
 //
 
 // system include files
@@ -243,7 +243,6 @@ m_validator( new FWExpressionValidator)
    SetWindowName("Collection Controller");
   Resize(GetDefaultSize());
   MapSubwindows();
-  MapWindow();
   Layout();
 }
 
