@@ -13,7 +13,7 @@
 //
 // Original Author:  Yetkin Yilmaz
 //         Created:  Tue Dec 18 09:44:41 EST 2007
-// $Id: HydjetAnalyzer.cc,v 1.2 2008/08/29 17:24:35 yilmaz Exp $
+// $Id: HydjetAnalyzer.cc,v 1.8 2008/12/02 17:48:29 yilmaz Exp $
 //
 //
 
@@ -126,6 +126,7 @@ class HydjetAnalyzer : public edm::EDAnalyzer {
    bool doAnalysis_;
    bool printLists_;
    bool doCF_;
+   bool doVertex_;
    double etaMax_;
    double ptMin_;
 
@@ -155,6 +156,7 @@ HydjetAnalyzer::HydjetAnalyzer(const edm::ParameterSet& iConfig)
    doAnalysis_ = iConfig.getUntrackedParameter<bool>("doAnalysis", true);
    printLists_ = iConfig.getUntrackedParameter<bool>("printLists", false);
    doCF_ = iConfig.getUntrackedParameter<bool>("doMixed", false);
+   doVertex_ = iConfig.getUntrackedParameter<bool>("doVertex", false);
 
    etaMax_ = iConfig.getUntrackedParameter<double>("etaMax", 2);
    ptMin_ = iConfig.getUntrackedParameter<double>("ptMin", 0);
@@ -287,20 +289,22 @@ HydjetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    }
 
-   edm::Handle<edm::SimVertexContainer> simVertices;
-   iEvent.getByType<edm::SimVertexContainer>(simVertices);
+   if(doVertex_){
+     edm::Handle<edm::SimVertexContainer> simVertices;
+     iEvent.getByType<edm::SimVertexContainer>(simVertices);
+     
+     if (! simVertices.isValid() ) throw cms::Exception("FatalError") << "No vertices found\n";
+     int inum = 0;
 
-   if (! simVertices.isValid() ) throw cms::Exception("FatalError") << "No vertices found\n";
-   int inum = 0;
-
-   edm::SimVertexContainer::const_iterator it=simVertices->begin();
-   SimVertex vertex = (*it);
-   cout<<" Vertex position "<< inum <<" " << vertex.position().rho()<<" "<<vertex.position().z()<<endl;
-   vx = vertex.position().x();
-   vy = vertex.position().y();
-   vz = vertex.position().z();
-   vr = vertex.position().rho();
-
+     edm::SimVertexContainer::const_iterator it=simVertices->begin();
+     SimVertex vertex = (*it);
+     cout<<" Vertex position "<< inum <<" " << vertex.position().rho()<<" "<<vertex.position().z()<<endl;
+     vx = vertex.position().x();
+     vy = vertex.position().y();
+     vz = vertex.position().z();
+     vr = vertex.position().rho();
+   }
+   
    for(int i = 0; i<3; ++i){
       hev_.ptav[i] = hev_.ptav[i]/hev_.n[i];
    }
