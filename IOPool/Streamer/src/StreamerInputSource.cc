@@ -8,9 +8,9 @@
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/FileBlock.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
-#include "DataFormats/Provenance/interface/EventEntryDescription.h"
-#include "DataFormats/Provenance/interface/EventEntryInfo.h"
-#include "DataFormats/Provenance/interface/EntryDescriptionRegistry.h"
+#include "DataFormats/Provenance/interface/Parentage.h"
+#include "DataFormats/Provenance/interface/ProductProvenance.h"
+#include "DataFormats/Provenance/interface/ParentageRegistry.h"
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
 #include "DataFormats/Provenance/interface/RunAuxiliary.h"
@@ -27,6 +27,7 @@
 #include "FWCore/ParameterSet/interface/Registry.h"
 #include "FWCore/Utilities/interface/ThreadSafeRegistry.h"
 
+#include "DataFormats/Provenance/interface/BranchIDListRegistry.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
@@ -66,7 +67,6 @@ namespace edm {
   // ---------------------------------------
   boost::shared_ptr<FileBlock>
   StreamerInputSource::readFile_() {
-    productRegistryUpdate().setProductIDs(productRegistry()->nextID());
     return boost::shared_ptr<FileBlock>(new FileBlock);
   }
 
@@ -76,32 +76,23 @@ namespace edm {
 
     SendDescs const& descs = header.descs();
 
-    SendDescs::const_iterator i(descs.begin()), e(descs.end());
-
     FDEBUG(6) << "mergeIntoRegistry: Product List: " << std::endl;
 
     if (subsequent) {
       ProductRegistry pReg;
-      for(; i != e; ++i) {
-	pReg.copyProduct(*i);
-	FDEBUG(6) << "StreamInput prod = " << i->className() << std::endl;
-      }
+      pReg.updateFromInput(descs);
       std::string mergeInfo = reg.merge(pReg, std::string(), BranchDescription::Permissive);
       if (!mergeInfo.empty()) {
         throw cms::Exception("MismatchedInput","RootInputFileSequence::previousEvent()") << mergeInfo;
       }
+      BranchIDListHelper::updateFromInput(header.branchIDLists(), std::string());
     } else {
       declareStreamers(descs);
       buildClassCache(descs);
       loadExtraClasses();
-      for(; i != e; ++i) {
-	i->setDefaultTransients();
-	i->init();
-	reg.copyProduct(*i);
-	FDEBUG(6) << "StreamInput prod = " << i->className() << std::endl;
-      }
+      reg.updateFromInput(descs);
+      BranchIDListHelper::updateFromInput(header.branchIDLists(), std::string());
     }
-    reg.setNextID(header.nextID());
   }
 
   void
@@ -131,13 +122,11 @@ namespace edm {
 
   void
   StreamerInputSource::saveTriggerNames(InitMsgView const* header) {
-
     ParameterSet trigger_pset;
     std::vector<std::string> paths;
     header->hltTriggerNames(paths);
     trigger_pset.addParameter<Strings>("@trigger_paths", paths);
-    pset::Registry* psetRegistry = pset::Registry::instance();
-    psetRegistry->insertMapped(trigger_pset);
+    trigger_pset.fillIDandInsert();
   }
 
   boost::shared_ptr<RunPrincipal>
@@ -240,15 +229,12 @@ namespace edm {
   {
      std::auto_ptr<SendJobHeader> sd = deserializeRegistry(initView);
      mergeIntoRegistry(*sd, productRegistryUpdate(), subsequent);
-     ModuleDescriptionRegistry & moduleDescriptionRegistry = *ModuleDescriptionRegistry::instance();
-     ModuleDescriptionMap const& mdMap = sd->moduleDescriptionMap();
-     for (ModuleDescriptionMap::const_iterator k = mdMap.begin(), kEnd = mdMap.end(); k != kEnd; ++k) {
-       moduleDescriptionRegistry.insertMapped(k->second);
-     } 
      SendJobHeader::ParameterSetMap const & psetMap = sd->processParameterSet();
      pset::Registry& psetRegistry = *pset::Registry::instance();
      for (SendJobHeader::ParameterSetMap::const_iterator i = psetMap.begin(), iEnd = psetMap.end(); i != iEnd; ++i) {
-       psetRegistry.insertMapped(ParameterSet(i->second.pset_));
+       ParameterSet pset(i->second.pset_);
+       pset.setID(i->first);
+       psetRegistry.insertMapped(pset);
      }
   }
 
@@ -301,12 +287,12 @@ namespace edm {
 
     setRefCoreStreamer(&productGetter_);
     std::auto_ptr<SendEvent> sd((SendEvent*)xbuf_.ReadObjectAny(tc_));
+    setRefCoreStreamer();
 
     if(sd.get()==0) {
         throw cms::Exception("StreamTranslation","Event deserialization error")
           << "got a null event from input stream\n";
     }
-    sd->processHistory().setDefaultTransients();
     ProcessHistoryRegistry::instance()->insertMapped(sd->processHistory());
 
     FDEBUG(5) << "Got event: " << sd->aux().id() << " " << sd->products().size() << std::endl;
@@ -329,15 +315,15 @@ namespace edm {
       newLumi_ = true;
     }
 
+    boost::shared_ptr<History> history (new History(sd->history()));
     std::auto_ptr<EventPrincipal> ep(new EventPrincipal(sd->aux(),
                                                    productRegistry(),
                                                    processConfiguration(),
-                                                   sd->processHistory().id()));
+                                                   history));
     productGetter_.setEventPrincipal(ep.get());
 
     // no process name list handling
 
-    ProductID largestID;
     SendProds & sps = sd->products();
     for(SendProds::iterator spi = sps.begin(), spe = sps.end(); spi != spe; ++spi) {
         FDEBUG(10) << "check prodpair" << std::endl;
@@ -350,46 +336,26 @@ namespace edm {
              << std::endl;
 
 	ConstBranchDescription branchDesc(*spi->desc());
-	// This EventEntryInfo constructor inserts into the entry description registry
-        boost::shared_ptr<EventEntryInfo> eventEntryDesc(
-	     new EventEntryInfo(spi->branchID(),
+	// This ProductProvenance constructor inserts into the entry description registry
+        boost::shared_ptr<ProductProvenance> productProvenance(
+	     new ProductProvenance(spi->branchID(),
 				spi->status(),
-				spi->mod(),
-				spi->productID(),
 				*spi->parents()));
 
-	ep->branchMapperPtr()->insert(*eventEntryDesc);
-	if(spi->productID() > largestID) {
-	   largestID = spi->productID();
-	}
+	ep->branchMapperPtr()->insert(*productProvenance);
         if(spi->prod() != 0) {
           std::auto_ptr<EDProduct> aprod(const_cast<EDProduct*>(spi->prod()));
           FDEBUG(10) << "addgroup next " << spi->branchID() << std::endl;
-          ep->addGroup(aprod, branchDesc, eventEntryDesc);
+          ep->addGroup(aprod, branchDesc, productProvenance);
           FDEBUG(10) << "addgroup done" << std::endl;
         } else {
           FDEBUG(10) << "addgroup empty next " << spi->branchID() << std::endl;
-          ep->addGroup(branchDesc, eventEntryDesc);
+          ep->addGroup(branchDesc, productProvenance);
           FDEBUG(10) << "addgroup empty done" << std::endl;
         }
         spi->clear();
     }
 
-    if(largestID.id() >= productRegistry()->nextID()) {
-       edm::LogError("MetaDataError")<<"The input file has a critical problem, the 'nextID' for the ProductRegistry ("
-				     <<productRegistry()->nextID()
-				     <<")\n is less than the largest ProductID ("
-				     <<largestID.id()
-				     <<") used in a previous process.\n"
-	  " Will modify the ProductRegistry to attempt to correct the problem,\n"
-	  " although it is possible that edm::Ref*'s or edm::Ptr's may still fail.\n"
-	  " Please contact StreamerOutputModule developers.";
-       //NOTE: this works since only EDProducers get their ProductIDs for the event from
-       // the ProductRegistry and they do not do that until they 'put' their data
-       // so at this point no one has tried to use the ProductIDs yet
-       productRegistryUpdate().setNextID(largestID.id()+1);
-       productRegistryUpdate().setProductIDs(largestID.id()+1);
-    }
     FDEBUG(10) << "Size = " << ep->size() << std::endl;
 
     return ep;     

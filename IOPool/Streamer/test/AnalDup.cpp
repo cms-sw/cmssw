@@ -19,7 +19,7 @@
 
       Code entry point, comment the function call that you don't want to make.
 
- $Id$
+ $Id: AnalDup.cpp,v 1.1.2.2 2008/11/14 19:01:18 wmtan Exp $
 
 */
 

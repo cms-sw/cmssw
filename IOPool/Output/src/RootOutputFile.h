@@ -25,8 +25,7 @@
 #include "DataFormats/Provenance/interface/FileID.h"
 #include "DataFormats/Provenance/interface/FileIndex.h"
 #include "DataFormats/Provenance/interface/Selections.h"
-#include "DataFormats/Provenance/interface/EventEntryInfo.h"
-#include "DataFormats/Provenance/interface/RunLumiEntryInfo.h"
+#include "DataFormats/Provenance/interface/ProductProvenance.h"
 #include "IOPool/Output/src/PoolOutputModule.h"
 #include "IOPool/Output/src/RootOutputTree.h"
 
@@ -50,16 +49,16 @@ namespace edm {
     //void endFile();
     void writeLuminosityBlock(LuminosityBlockPrincipal const& lb);
     void writeRun(RunPrincipal const& r);
-    void writeEntryDescriptions();
     void writeFileFormatVersion();
     void writeFileIdentifier();
     void writeFileIndex();
     void writeEventHistory();
     void writeProcessConfigurationRegistry();
     void writeProcessHistoryRegistry();
-    void writeModuleDescriptionRegistry();
     void writeParameterSetRegistry();
     void writeProductDescriptionRegistry();
+    void writeParentageRegistry();
+    void writeBranchIDListRegistry();
     void writeProductDependencies();
 
     void finishEndFile();
@@ -72,26 +71,19 @@ namespace edm {
     //-------------------------------
     // Local types
     //
-    typedef EventEntryInfo::EntryInfoVector EventEntryInfoVector;
-    typedef LumiEntryInfo::EntryInfoVector LumiEntryInfoVector;
-    typedef RunEntryInfo::EntryInfoVector RunEntryInfoVector;
 
     //-------------------------------
     // Private functions
 
     void setBranchAliases(TTree *tree, Selections const& branches) const;
 
-    template <typename T>
-    void fillBranches(BranchType const& branchType, Principal const& principal, std::vector<T> * entryInfoVecPtr);
+    void fillBranches(BranchType const& branchType,
+		      Principal const& principal,
+		      std::vector<ProductProvenance> * productProvenanceVecPtr);
 
-     template <typename T>
-     static void insertAncestors(const T& iParents,
-                          const BranchMapper& iMapper,
-                          std::set<T>& oToFill);
-
-     void insertAncestors(const EventEntryInfo& iGetParents,
-                          const BranchMapper& iMapper,
-                          std::set<EventEntryInfo>& oToFill);
+     void insertAncestors(ProductProvenance const& iGetParents,
+                          Principal const& principal,
+                          std::set<ProductProvenance>& oToFill);
         
     //-------------------------------
     // Member data
@@ -108,17 +100,17 @@ namespace edm {
     FileIndex::EntryNumber_t lumiEntryNumber_;
     FileIndex::EntryNumber_t runEntryNumber_;
     TTree * metaDataTree_;
-    TTree * entryDescriptionTree_;
+    TTree * parentageTree_;
     TTree * eventHistoryTree_;
     EventAuxiliary const*           pEventAux_;
     LuminosityBlockAuxiliary const* pLumiAux_;
     RunAuxiliary const*             pRunAux_;
-    EventEntryInfoVector            eventEntryInfoVector_;
-    LumiEntryInfoVector	            lumiEntryInfoVector_;
-    RunEntryInfoVector              runEntryInfoVector_;
-    EventEntryInfoVector *          pEventEntryInfoVector_;
-    LumiEntryInfoVector *           pLumiEntryInfoVector_;
-    RunEntryInfoVector *            pRunEntryInfoVector_;
+    ProductProvenanceVector         eventEntryInfoVector_;
+    ProductProvenanceVector	    lumiEntryInfoVector_;
+    ProductProvenanceVector         runEntryInfoVector_;
+    ProductProvenanceVector *       pEventEntryInfoVector_;
+    ProductProvenanceVector *       pLumiEntryInfoVector_;
+    ProductProvenanceVector *       pRunEntryInfoVector_;
     History const*                  pHistory_;
     RootOutputTree eventTree_;
     RootOutputTree lumiTree_;
@@ -128,90 +120,6 @@ namespace edm {
     std::set<BranchID> branchesWithStoredHistory_;
   };
    
-   //Used by the 'fillBranches' code
-   template <typename T>
-   void RootOutputFile::insertAncestors(const T& iGetParents,
-                                        const BranchMapper& iMapper,
-                                        std::set<T>& oToFill) {
-      //do nothing
-   }
-
-   
-   
-  template <typename T>
-  void RootOutputFile::fillBranches(
-		BranchType const& branchType,
-		Principal const& principal,
-		std::vector<T> * entryInfoVecPtr) {
-
-    std::vector<boost::shared_ptr<EDProduct> > dummies;
-
-    bool const fastCloning = (branchType == InEvent) && currentlyFastCloning_;
-    
-    OutputItemList const& items = om_->selectedOutputItemList()[branchType];
-
-    std::set<T> keep;
-
-    std::set<T> keepPlusAncestors;
-
-    // Loop over EDProduct branches, fill the provenance, and write the branch.
-    for (OutputItemList::const_iterator i = items.begin(), iEnd = items.end(); i != iEnd; ++i) {
-
-      BranchID const& id = i->branchDescription_->branchID();
-      branchesWithStoredHistory_.insert(id);
-       
-      bool getProd = (i->branchDescription_->produced() ||
-	 !fastCloning || treePointers_[branchType]->uncloned(i->branchDescription_->branchName()));
-
-      EDProduct const* product = 0;
-      OutputHandle<T> const oh = principal.getForOutput<T>(id, getProd);
-      if (!oh.entryInfo()) {
-	// No product with this ID is in the event.
-	// Create and write the provenance.
-	if (i->branchDescription_->produced()) {
-          keep.insert(T(i->branchDescription_->branchID(),
-		      productstatus::neverCreated(),
-		      i->branchDescription_->moduleDescriptionID()));
-          keepPlusAncestors.insert(T(i->branchDescription_->branchID(),
-			      productstatus::neverCreated(),
-			      i->branchDescription_->moduleDescriptionID()));
-	} else {
-          keep.insert(T(i->branchDescription_->branchID(),
-		      productstatus::dropped(),
-		      i->branchDescription_->moduleDescriptionID()));
-          keepPlusAncestors.insert(T(i->branchDescription_->branchID(),
-			      productstatus::dropped(),
-			      i->branchDescription_->moduleDescriptionID()));
-	}
-      } else {
-	product = oh.wrapper();
-        keep.insert(*oh.entryInfo());
-        keepPlusAncestors.insert(*oh.entryInfo());
-        assert(principal.branchMapperPtr());
-        insertAncestors(*oh.entryInfo(),*principal.branchMapperPtr(),keepPlusAncestors);
-      }
-      if (getProd) {
-	if (product == 0) {
-	  // No product with this ID is in the event.
-	  // Add a null product.
-	  TClass *cp = gROOT->GetClass(i->branchDescription_->wrappedName().c_str());
-	  boost::shared_ptr<EDProduct> dummy(static_cast<EDProduct *>(cp->New()));
-	  dummies.push_back(dummy);
-	  product = dummy.get();
-	}
-	i->product_ = product;
-      }
-    }
-     
-    if (om_->dropMetaData()) {
-      entryInfoVecPtr->assign(keep.begin(),keep.end());
-    } else {
-      entryInfoVecPtr->assign(keepPlusAncestors.begin(),keepPlusAncestors.end());
-    }
-    treePointers_[branchType]->fillTree();
-    entryInfoVecPtr->clear();
-  }
-
 }
 
 #endif

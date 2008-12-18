@@ -6,9 +6,6 @@
 ReflexTools provides a small number of Reflex-based tools, used in
 the CMS event model.  
 
-
-$Id: ReflexTools.h,v 1.10 2008/11/27 01:36:31 elmer Exp $
-
 ----------------------------------------------------------------------*/
 
 #include <ostream>

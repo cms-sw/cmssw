@@ -7,10 +7,10 @@
 #include "IOPool/Streamer/interface/StreamSerializer.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/BranchID.h"
-#include "DataFormats/Provenance/interface/EntryDescriptionRegistry.h"
-#include "DataFormats/Provenance/interface/EventEntryDescription.h"
-#include "DataFormats/Provenance/interface/EventEntryInfo.h"
-#include "DataFormats/Provenance/interface/ModuleDescriptionRegistry.h"
+#include "DataFormats/Provenance/interface/ParentageRegistry.h"
+#include "DataFormats/Provenance/interface/Parentage.h"
+#include "DataFormats/Provenance/interface/ProductProvenance.h"
+#include "DataFormats/Provenance/interface/BranchIDListRegistry.h"
 #include "TClass.h"
 #include "IOPool/Streamer/interface/ClassFiller.h"
 #include "IOPool/Streamer/interface/InitMsgBuilder.h"
@@ -61,14 +61,10 @@ namespace edm
                   << std::endl;
     }
     edm::Service<edm::ConstProductRegistry> reg;
-    sd.setNextID(reg->nextID());
-    sd.setModuleDescriptionMap(ModuleDescriptionRegistry::instance()->data());
+    sd.setBranchIDLists(BranchIDListRegistry::instance()->data());
     SendJobHeader::ParameterSetMap psetMap;
 
-    pset::Registry const* psetRegistry = pset::Registry::instance();
-    for (pset::Registry::const_iterator it = psetRegistry->begin(), itEnd = psetRegistry->end(); it != itEnd; ++it) {
-      psetMap.insert(std::make_pair(it->first, ParameterSetBlob(it->second.toStringOfTracked())));
-    }
+    pset::fillMap(pset::Registry::instance(), psetMap);
     sd.setParameterSetMap(psetMap);
 
     data_buffer.rootbuf_.Reset();
@@ -131,13 +127,17 @@ namespace edm
 
    */
   int StreamSerializer::serializeEvent(EventPrincipal const& eventPrincipal,
+                                       ParameterSetID const& selectorConfig,
                                        bool use_compression, int compression_level,
                                        SerializeDataBuffer &data_buffer)
 
   {
-    EventEntryDescription entryDesc;
+    Parentage parentage;
     
-    SendEvent se(eventPrincipal.aux(), eventPrincipal.processHistory());
+	
+    History historyForOutput(eventPrincipal.history());
+    historyForOutput.addEventSelectionEntry(selectorConfig);
+    SendEvent se(eventPrincipal.aux(), eventPrincipal.processHistory(), historyForOutput);
 
     Selections::const_iterator i(selections_->begin()),ie(selections_->end());
     // Loop over EDProducts, fill the provenance, and write.
@@ -146,20 +146,18 @@ namespace edm
       BranchDescription const& desc = **i;
       BranchID const& id = desc.branchID();
 
-      OutputHandle<EventEntryInfo> const oh = eventPrincipal.getForOutput<EventEntryInfo>(id, true);
-      if (!oh.entryInfo()) {
+      OutputHandle const oh = eventPrincipal.getForOutput(id, true);
+      if (!oh.productProvenance()) {
 	// No product with this ID was put in the event.
 	// Create and write the provenance.
         se.products().push_back(StreamedProduct(desc));
       } else {
-        bool found = EntryDescriptionRegistry::instance()->getMapped(oh.entryInfoSharedPtr()->entryDescriptionID(), entryDesc);
+        bool found = ParentageRegistry::instance()->getMapped(oh.productProvenanceSharedPtr()->parentageID(), parentage);
 	assert (found);
         se.products().push_back(StreamedProduct(oh.wrapper(),
 					       desc,
-					       entryDesc.moduleDescriptionID(),
-					       oh.entryInfoSharedPtr()->productID(),
-					       oh.entryInfoSharedPtr()->productStatus(),
-					       &entryDesc.parents()));
+					       oh.productProvenanceSharedPtr()->productStatus(),
+					       &parentage.parents()));
       }
     }
 

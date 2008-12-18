@@ -17,6 +17,11 @@ typedef TBufferFile RootBuffer;
 typedef TBuffer RootBuffer;
 #endif
 
+#include "DataFormats/Provenance/interface/Selections.h"
+#include "DataFormats/Provenance/interface/ParameterSetID.h"
+#include <vector>
+
+
 const int init_size = 1024*1024;
 
 // Data structure to be shared by all output modules for event serialization
@@ -51,9 +56,6 @@ struct SerializeDataBuffer
   SBuffer bufs_;       // place for EVENT message creation
 };
 
-#include "DataFormats/Provenance/interface/Selections.h"
-#include <vector>
-
 class EventMsgBuilder;
 class InitMsgBuilder;
 namespace edm
@@ -69,6 +71,7 @@ namespace edm
 
     int serializeRegistry(SerializeDataBuffer &data_buffer);   
     int serializeEvent(EventPrincipal const& eventPrincipal,
+                       ParameterSetID const& selectorConfig,
                        bool use_compression, int compression_level,
                        SerializeDataBuffer &data_buffer);
 

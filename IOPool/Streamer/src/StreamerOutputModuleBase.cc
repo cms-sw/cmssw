@@ -253,7 +253,7 @@ namespace edm {
       setLumiSection();
     }
 
-    serializer_.serializeEvent(e, useCompression_, compressionLevel_, serialize_databuffer);
+    serializer_.serializeEvent(e, selectorConfig(), useCompression_, compressionLevel_, serialize_databuffer);
 
     // resize bufs_ to reflect space used in serializer_ + header
     // I just added an overhead for header of 50000 for now
