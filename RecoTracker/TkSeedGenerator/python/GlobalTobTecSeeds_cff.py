@@ -9,5 +9,11 @@ from RecoTracker.TransientTrackingRecHit.TransientTrackingRecHitBuilderWithoutRe
 from RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cfi import *
 from TrackingTools.MaterialEffects.MaterialPropagator_cfi import *
 from RecoTracker.TkSeedingLayers.TobTecLayerPairs_cfi import *
-from RecoTracker.TkSeedGenerator.GlobalTobTecSeeds_cfi import *
 
+import RecoTracker.TkSeedGenerator.SeedGeneratorFromRegionHitsEDProducer_cfi
+globalTobTecSeeds = RecoTracker.TkSeedGenerator.SeedGeneratorFromRegionHitsEDProducer_cfi.seedGeneratorFromRegionHitsEDProducer.clone(
+    OrderedHitsFactoryPSet = cms.PSet(
+      ComponentName = cms.string('StandardHitPairGenerator'),
+      SeedingLayers = cms.string('TobTecLayerPairs')
+    )
+)
