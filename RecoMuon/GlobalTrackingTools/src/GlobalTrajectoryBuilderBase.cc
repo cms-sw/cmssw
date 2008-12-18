@@ -12,8 +12,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2008/10/31 18:26:22 $
- *  $Revision: 1.28 $
+ *  $Date: 2008/12/12 21:18:46 $
+ *  $Revision: 1.29 $
  *
  *  \author N. Neumeister        Purdue University
  *  \author C. Liu               Purdue University
@@ -773,16 +773,11 @@ GlobalTrajectoryBuilderBase::chooseTrajectory(const std::vector<Trajectory*>& t,
 double 
 GlobalTrajectoryBuilderBase::trackProbability(const Trajectory& track) const {
 
-  int nDOF = 0;
-  ConstRecHitContainer rechits = track.recHits();
-  for ( ConstRecHitContainer::const_iterator i = rechits.begin(); i != rechits.end(); ++i ) {
-    if ((*i)->isValid()) nDOF += (*i)->dimension();
+  if ( track.ndof() > 0 && track.chiSquared() > 0 ) { 
+    return -LnChiSquaredProbability(track.chiSquared(), track.ndof());
+  } else {
+    return 0.0;
   }
-  
-  nDOF = max(nDOF - 5, 0);
-  double prob = -LnChiSquaredProbability(track.chiSquared(), nDOF);
-  
-  return prob;
 
 }
 
