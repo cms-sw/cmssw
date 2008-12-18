@@ -57,14 +57,13 @@ largeD0step4layerpairs.TID.matchedRecHits = 'largeD0step4StripRecHits:matchedRec
 largeD0step4layerpairs.TEC.matchedRecHits = 'largeD0step4StripRecHits:matchedRecHit'
 
 #SEEDS
-from RecoTracker.TkSeedGenerator.GlobalPixelLessSeeds_cff import *
-import RecoTracker.TkSeedGenerator.GlobalPixelLessSeeds_cfi
-largeD0step4Seeds = RecoTracker.TkSeedGenerator.GlobalPixelLessSeeds_cfi.globalPixelLessSeeds.clone()
+import RecoTracker.TkSeedGenerator.GlobalPixelLessSeeds_cff
+largeD0step4Seeds = RecoTracker.TkSeedGenerator.GlobalPixelLessSeeds_cff.globalPixelLessSeeds.clone()
 largeD0step4Seeds.OrderedHitsFactoryPSet.SeedingLayers = 'largeD0step4LayerPairs'
 largeD0step4Seeds.RegionFactoryPSet.RegionPSet.ptMin = 0.6
 largeD0step4Seeds.RegionFactoryPSet.RegionPSet.originRadius = 5.0
 largeD0step4Seeds.RegionFactoryPSet.RegionPSet.originHalfLength = 15.0
-#largeD0step4Seeds.propagator = cms.string('PropagatorWithMaterialPtMin09')
+#largeD0step4Seeds.SeedCreatorPSet.propagator = cms.string('PropagatorWithMaterialPtMin09')
 
 #TRAJECTORY MEASUREMENT
 import RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cfi

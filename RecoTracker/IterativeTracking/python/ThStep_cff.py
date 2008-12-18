@@ -21,16 +21,19 @@ OppositeMaterialPropagatorPtMin03 = TrackingTools.MaterialEffects.OppositeMateri
 OppositeMaterialPropagatorPtMin03.ComponentName = 'PropagatorWithMaterialOppositePtMin03'
 OppositeMaterialPropagatorPtMin03.ptMin = 0.3
 
-import RecoTracker.TkSeedGenerator.GlobalMixedSeeds_cfi
+import RecoTracker.TkSeedGenerator.GlobalMixedSeeds_cff
 #SEEDS
-thPLSeeds = RecoTracker.TkSeedGenerator.GlobalMixedSeeds_cfi.globalMixedSeeds.clone()
+thPLSeeds = RecoTracker.TkSeedGenerator.GlobalMixedSeeds_cff.globalMixedSeeds.clone()
 import RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cfi
 thPLSeeds.OrderedHitsFactoryPSet.SeedingLayers = 'ThLayerPairs'
 thPLSeeds.RegionFactoryPSet.RegionPSet.ptMin = 0.3
 thPLSeeds.RegionFactoryPSet.RegionPSet.originHalfLength = 7.0
 thPLSeeds.RegionFactoryPSet.RegionPSet.originRadius = 1.2
-thPLSeeds.propagator = cms.string('PropagatorWithMaterialPtMin03')
-thPLSeeds.UseFastHelix = False
+import RecoTracker.TkSeedGenerator.SeedFromConsecutiveHitsStraightLineCreator_cfi
+thPLSeeds.SeedCreatorPSet = RecoTracker.TkSeedGenerator.SeedFromConsecutiveHitsStraightLineCreator_cfi.SeedFromConsecutiveHitsStraightLineCreator.clone(
+    propagator = cms.string('PropagatorWithMaterialPtMin03')
+    )
+
 
 #TRAJECTORY MEASUREMENT
 thMeasurementTracker = RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cfi.MeasurementTracker.clone()

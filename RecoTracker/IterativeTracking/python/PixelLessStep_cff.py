@@ -29,8 +29,8 @@ fourthStripRecHits.ClusterProducer = 'fourthClusters'
 
 
 #SEEDS
-import RecoTracker.TkSeedGenerator.GlobalMixedSeeds_cfi
-fourthPLSeeds = RecoTracker.TkSeedGenerator.GlobalMixedSeeds_cfi.globalMixedSeeds.clone()
+import RecoTracker.TkSeedGenerator.GlobalMixedSeeds_cff
+fourthPLSeeds = RecoTracker.TkSeedGenerator.GlobalMixedSeeds_cff.globalMixedSeeds.clone()
 import RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cfi
 fourthPLSeeds.OrderedHitsFactoryPSet.SeedingLayers = 'FourthLayerPairs'
 fourthPLSeeds.RegionFactoryPSet.RegionPSet.ptMin = 0.6

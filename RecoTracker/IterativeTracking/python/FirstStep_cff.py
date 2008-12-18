@@ -25,7 +25,7 @@ newTrajectoryBuilder.trajectoryFilterName = 'newTrajectoryFilter'
 from RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cff import *
 
 ### step0
-newSeedFromTriplets = RecoTracker.TkSeedGenerator.GlobalSeedsFromTripletsWithVertices_cfi.globalSeedsFromTripletsWithVertices.clone()
+newSeedFromTriplets = RecoTracker.TkSeedGenerator.GlobalSeedsFromTripletsWithVertices_cff.globalSeedsFromTripletsWithVertices.clone()
 newSeedFromTriplets.RegionFactoryPSet.RegionPSet.ptMin = 0.5
 newTrackCandidateMaker = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone()
 newTrackCandidateMaker.src = cms.InputTag('newSeedFromTriplets')
@@ -67,7 +67,7 @@ newMixedLayerPairs.BPix.HitProducer = 'newPixelRecHits'
 newMixedLayerPairs.FPix.HitProducer = 'newPixelRecHits'
 newMixedLayerPairs.TEC.matchedRecHits = cms.InputTag("newStripRecHits","matchedRecHit")
 
-newSeedFromPairs = RecoTracker.TkSeedGenerator.GlobalSeedsFromPairsWithVertices_cfi.globalSeedsFromPairsWithVertices.clone()
+newSeedFromPairs = RecoTracker.TkSeedGenerator.GlobalSeedsFromPairsWithVertices_cff.globalSeedsFromPairsWithVertices.clone()
 newSeedFromPairs.RegionFactoryPSet.RegionPSet.ptMin = 0.9
 newSeedFromPairs.OrderedHitsFactoryPSet.SeedingLayers = cms.string('newMixedLayerPairs')
 

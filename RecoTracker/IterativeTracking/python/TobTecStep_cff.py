@@ -62,8 +62,8 @@ fifthlayerpairs.TOB.matchedRecHits = 'fifthStripRecHits:matchedRecHit'
 fifthlayerpairs.TEC.matchedRecHits = 'fifthStripRecHits:matchedRecHit'
 
 #SEEDS
-import RecoTracker.TkSeedGenerator.GlobalMixedSeeds_cfi
-fifthSeeds = RecoTracker.TkSeedGenerator.GlobalMixedSeeds_cfi.globalMixedSeeds.clone()
+import RecoTracker.TkSeedGenerator.GlobalMixedSeeds_cff
+fifthSeeds = RecoTracker.TkSeedGenerator.GlobalMixedSeeds_cff.globalMixedSeeds.clone()
 fifthSeeds.OrderedHitsFactoryPSet.SeedingLayers = 'fifthlayerPairs'
 fifthSeeds.RegionFactoryPSet.RegionPSet.ptMin = 0.9
 fifthSeeds.RegionFactoryPSet.RegionPSet.originHalfLength = 10.0

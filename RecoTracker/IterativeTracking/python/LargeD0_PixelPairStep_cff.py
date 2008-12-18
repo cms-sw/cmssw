@@ -67,15 +67,17 @@ largeD0step2layerpairs.BPix.HitProducer = 'largeD0step2PixelRecHits'
 largeD0step2layerpairs.FPix.HitProducer = 'largeD0step2PixelRecHits'
 
 #SEEDS
-import RecoTracker.TkSeedGenerator.GlobalPixelSeeds_cfi
-largeD0step2Seeds = RecoTracker.TkSeedGenerator.GlobalPixelSeeds_cfi.globalPixelSeeds.clone()
+import RecoTracker.TkSeedGenerator.GlobalPixelSeeds_cff
+largeD0step2Seeds = RecoTracker.TkSeedGenerator.GlobalPixelSeeds_cff.globalPixelSeeds.clone()
 largeD0step2Seeds.OrderedHitsFactoryPSet.SeedingLayers = 'largeD0step2LayerPairs'
 largeD0step2Seeds.RegionFactoryPSet.RegionPSet.ptMin = 0.6
 largeD0step2Seeds.RegionFactoryPSet.RegionPSet.originRadius = 2.5
 largeD0step2Seeds.RegionFactoryPSet.RegionPSet.originHalfLength = 15
-largeD0step2Seeds.propagator = cms.string('PropagatorWithMaterialPtMin06')
-# The fast-helix fit doesn't work well for large d0 pixel pair seeding.
-largeD0step2Seeds.UseFastHelix = False
+import RecoTracker.TkSeedGenerator.SeedFromConsecutiveHitsStraightLineCreator_cfi
+largeD0step2Seeds.SeedCreatorPSet = RecoTracker.TkSeedGenerator.SeedFromConsecutiveHitsStraightLineCreator_cfi.SeedFromConsecutiveHitsStraightLineCreator.clone(
+    propagator = cms.string('PropagatorWithMaterialPtMin06')
+)
+
 
 #TRAJECTORY MEASUREMENT
 import RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cfi

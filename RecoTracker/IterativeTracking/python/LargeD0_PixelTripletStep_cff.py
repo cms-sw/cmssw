@@ -50,13 +50,13 @@ largeD0step1layertriplets.BPix.HitProducer = 'largeD0step1PixelRecHits'
 largeD0step1layertriplets.FPix.HitProducer = 'largeD0step1PixelRecHits'
 
 #SEEDS
-import RecoTracker.TkSeedGenerator.GlobalSeedsFromTripletsWithVertices_cfi
-largeD0step1Seeds = RecoTracker.TkSeedGenerator.GlobalSeedsFromTripletsWithVertices_cfi.globalSeedsFromTripletsWithVertices.clone()
+import RecoTracker.TkSeedGenerator.GlobalSeedsFromTripletsWithVertices_cff
+largeD0step1Seeds = RecoTracker.TkSeedGenerator.GlobalSeedsFromTripletsWithVertices_cff.globalSeedsFromTripletsWithVertices.clone()
 largeD0step1Seeds.OrderedHitsFactoryPSet.SeedingLayers = 'largeD0step1LayerTriplets'
 largeD0step1Seeds.RegionFactoryPSet.RegionPSet.ptMin = 0.9
 largeD0step1Seeds.RegionFactoryPSet.RegionPSet.originRadius = 2.5
 largeD0step1Seeds.RegionFactoryPSet.RegionPSet.originHalfLength = 15
-#largeD0step1Seeds.propagator = cms.string('PropagatorWithMaterialPtMin09')
+#largeD0step1Seeds.SeedCreatorPSet.propagator = cms.string('PropagatorWithMaterialPtMin09')
 
 #TRAJECTORY MEASUREMENT
 import RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cfi

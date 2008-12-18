@@ -68,16 +68,16 @@ largeD0step3layerpairs.TID.matchedRecHits = 'largeD0step3StripRecHits:matchedRec
 largeD0step3layerpairs.TEC.matchedRecHits = 'largeD0step3StripRecHits:matchedRecHit'
 
 #SEEDS
-from RecoTracker.TkSeedGenerator.GlobalMixedSeeds_cff import *
-import RecoTracker.TkSeedGenerator.GlobalMixedSeeds_cfi
-largeD0step3Seeds = RecoTracker.TkSeedGenerator.GlobalMixedSeeds_cfi.globalMixedSeeds.clone()
+import RecoTracker.TkSeedGenerator.GlobalMixedSeeds_cff
+largeD0step3Seeds = RecoTracker.TkSeedGenerator.GlobalMixedSeeds_cff.globalMixedSeeds.clone()
 largeD0step3Seeds.OrderedHitsFactoryPSet.SeedingLayers = 'largeD0step3LayerPairs'
 largeD0step3Seeds.RegionFactoryPSet.RegionPSet.ptMin = 0.6
 largeD0step3Seeds.RegionFactoryPSet.RegionPSet.originRadius = 3.5
 largeD0step3Seeds.RegionFactoryPSet.RegionPSet.originHalfLength = 12.5
-largeD0step3Seeds.propagator = cms.string('PropagatorWithMaterialPtMin06')
-# The fast-helix fit doesn't work well for large d0 pixel pair seeding.
-largeD0step3Seeds.UseFastHelix = False
+import RecoTracker.TkSeedGenerator.SeedFromConsecutiveHitsStraightLineCreator_cfi
+largeD0step3Seeds.SeedCreatorPSet = RecoTracker.TkSeedGenerator.SeedFromConsecutiveHitsStraightLineCreator_cfi.SeedFromConsecutiveHitsStraightLineCreator.clone(
+    propagator = cms.string('PropagatorWithMaterialPtMin06')
+)
 
 
 #TRAJECTORY MEASUREMENT

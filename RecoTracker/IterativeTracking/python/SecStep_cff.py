@@ -30,8 +30,8 @@ secStripRecHits.ClusterProducer = 'secClusters'
 
 import RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi
 seclayertriplets = RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi.pixellayertriplets.clone()
-import RecoTracker.TkSeedGenerator.GlobalSeedsFromTripletsWithVertices_cfi
-secTriplets = RecoTracker.TkSeedGenerator.GlobalSeedsFromTripletsWithVertices_cfi.globalSeedsFromTripletsWithVertices.clone()
+import RecoTracker.TkSeedGenerator.GlobalSeedsFromTripletsWithVertices_cff
+secTriplets = RecoTracker.TkSeedGenerator.GlobalSeedsFromTripletsWithVertices_cff.globalSeedsFromTripletsWithVertices.clone()
 
 seclayertriplets.ComponentName = 'SecLayerTriplets'
 seclayertriplets.BPix.HitProducer = 'secPixelRecHits'
