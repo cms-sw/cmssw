@@ -72,6 +72,7 @@ class MuonAssociatorByHits {
   template<typename iter>
     void getMatchedIds(std::vector<SimHitIdpr>& tracker_matchedIds, std::vector<SimHitIdpr>& muon_matchedIds, 
 		       int& n_valid_hits,int& n_tracker_valid_hits,int& n_dt_valid_hits,int& n_csc_valid_hits,int& n_rpc_valid_hits,
+		       int& n_selected_hits,int& n_tracker_selected_hits,int& n_dt_selected_hits,int& n_csc_selected_hits,int& n_rpc_selected_hits,
 		       int& n_matched_hits,int& n_tracker_matched_hits,int& n_dt_matched_hits,int& n_csc_matched_hits,int& n_rpc_matched_hits,
 		       iter begin, iter end,
 		       TrackerHitAssociator* trackertruth, 
@@ -85,11 +86,11 @@ class MuonAssociatorByHits {
   const unsigned int MinHitCut_track;    
   const bool AbsoluteNumberOfHits_muon;
   const unsigned int MinHitCut_muon;    
+  bool UseTracker;
+  bool UseMuon;
   const double PurityCut_track;
   const double PurityCut_muon;
-  const bool SimToReco_useTracker;
   const double EfficiencyCut_track;
-  const bool SimToReco_useMuon;
   const double EfficiencyCut_muon;
   const bool UsePixels;
   const bool UseGrouped;

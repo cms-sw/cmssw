@@ -23,13 +23,13 @@ muonAssociatorByHits = cms.EDProducer("MuonAssociatorEDProducer",
     AbsoluteNumberOfHits_muon = cms.bool(False),
     MinHitCut_muon = cms.uint32(1),
     #
+    UseTracker = cms.bool(True),
+    UseMuon = cms.bool(True),
+    #
     PurityCut_track = cms.double(0.5),
     PurityCut_muon = cms.double(0.5),
     #
-    SimToReco_useTracker = cms.bool(False),
     EfficiencyCut_track = cms.double(0.5),
-    #
-    SimToReco_useMuon = cms.bool(True),
     EfficiencyCut_muon = cms.double(0.5),
     #
     #........(for inner tracker stub of Global Muons)...
