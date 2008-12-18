@@ -13,7 +13,7 @@ from RecoTracker.TkSeedingLayers.PixelLayerPairs_cfi import *
 from RecoTracker.TkSeedingLayers.MixedLayerPairs_cfi import *
 
 from RecoTracker.TkTrackingRegions.GlobalTrackingRegionWithVertices_cfi import *
-from RecoTracker.TkSeedGenerator.SeedGeneratorFromRegionHitsEDProducer_cfi import *
+import RecoTracker.TkSeedGenerator.SeedGeneratorFromRegionHitsEDProducer_cfi
 globalSeedsFromPairsWithVertices = RecoTracker.TkSeedGenerator.SeedGeneratorFromRegionHitsEDProducer_cfi.seedGeneratorFromRegionHitsEDProducer.clone(
     OrderedHitsFactoryPSet = cms.PSet(
       ComponentName = cms.string('StandardHitPairGenerator'),
