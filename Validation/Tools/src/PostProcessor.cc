@@ -2,8 +2,8 @@
  *  Class:PostProcessor 
  *
  *
- *  $Date: 2008/12/15 20:46:08 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/12/17 05:18:50 $
+ *  $Revision: 1.2 $
  * 
  *  \author Junghwan Goh - SungKyunKwan University
  */
@@ -34,7 +34,9 @@ PostProcessor::PostProcessor(const ParameterSet& pset)
   resLimitedFit_ = pset.getUntrackedParameter<bool>("resolutionLimitedFit",false);
 
   outputFileName_ = pset.getUntrackedParameter<string>("outputFileName", "");
-  subDir_ = pset.getUntrackedParameter<string>("subDir");
+  subDirs_ = pset.getUntrackedParameter<vstring>("subDirs");
+
+  isWildcardUsed_ = false;
 }
 
 void PostProcessor::endJob()
@@ -47,34 +49,41 @@ void PostProcessor::endJob()
     return;
   }
 
-  if ( subDir_[subDir_.size()-1] == '/' ) subDir_.erase(subDir_.size()-1);
-
   // Process wildcard in the sub-directory
-  vector<string> subDirs;
-  if ( subDir_[subDir_.size()-1] == '*' ) {
-    const string::size_type shiftPos = subDir_.rfind('/');
+  set<string> subDirSet;
 
-    const string searchPath = subDir_.substr(0, shiftPos);
-    theDQM->cd(searchPath);
+  for(vstring::const_iterator iSubDir = subDirs_.begin();
+      iSubDir != subDirs_.end(); ++iSubDir) {
+    string subDir = *iSubDir;
 
-    vector<string> foundDirs = theDQM->getSubdirs();
-    const string matchStr = subDir_.substr(0, subDir_.size()-2);
+    if ( subDir[subDir.size()-1] == '/' ) subDir.erase(subDir.size()-1);
 
-    for(vector<string>::const_iterator iDir = foundDirs.begin();
-        iDir != foundDirs.end(); ++iDir) {
-      const string dirPrefix = iDir->substr(0, matchStr.size());
+    if ( subDir[subDir.size()-1] == '*' ) {
+      isWildcardUsed_ = true;
+      const string::size_type shiftPos = subDir.rfind('/');
 
-      if ( dirPrefix == matchStr ) {
-        subDirs.push_back(*iDir);
+      const string searchPath = subDir.substr(0, shiftPos);
+      theDQM->cd(searchPath);
+
+      vector<string> foundDirs = theDQM->getSubdirs();
+      const string matchStr = subDir.substr(0, subDir.size()-2);
+
+      for(vector<string>::const_iterator iDir = foundDirs.begin();
+          iDir != foundDirs.end(); ++iDir) {
+        const string dirPrefix = iDir->substr(0, matchStr.size());
+
+        if ( dirPrefix == matchStr ) {
+          subDirSet.insert(*iDir);
+        }
       }
     }
-  }
-  else {
-    subDirs.push_back(subDir_);
+    else {
+      subDirSet.insert(subDir);
+    }
   }
 
-  for(vector<string>::const_iterator iSubDir = subDirs.begin();
-      iSubDir != subDirs.end(); ++iSubDir) {
+  for(set<string>::const_iterator iSubDir = subDirSet.begin();
+      iSubDir != subDirSet.end(); ++iSubDir) {
     typedef boost::escaped_list_separator<char> elsc;
 
     const string& dirName = *iSubDir;
@@ -127,7 +136,10 @@ void PostProcessor::computeEfficiency(const string& startDir, const string& effi
                                       const string& recoMEName, const string& simMEName)
 {
   if ( ! theDQM->dirExists(startDir) ) {
-    LogWarning("PostProcessor") << "computeEfficiency() : Cannot find sub-directory " << startDir << endl; 
+    if ( verbose_ >= 2 || (verbose_ == 1 && !isWildcardUsed_) ) {
+      LogWarning("PostProcessor") << "computeEfficiency() : "
+                                  << "Cannot find sub-directory " << startDir << endl; 
+    }
     return;
   }
 
@@ -137,21 +149,28 @@ void PostProcessor::computeEfficiency(const string& startDir, const string& effi
   ME* recoME = theDQM->get(startDir+"/"+recoMEName);
 
   if ( !simME ) {
-    LogWarning("PostProcessor") << "computeEfficiency() : "
-                              << "No sim-ME '" << simMEName << "' found\n";
+    if ( verbose_ >= 2 || (verbose_ == 1 && !isWildcardUsed_) ) {
+      LogWarning("PostProcessor") << "computeEfficiency() : "
+                                  << "No sim-ME '" << simMEName << "' found\n";
+    }
     return;
   }
 
   if ( !recoME ) {
-    LogWarning("PostProcessor") << "computeEfficiency() : " 
-                              << "No reco-ME '" << recoMEName << "' found\n";
+    if ( verbose_ >= 2 || (verbose_ == 1 && !isWildcardUsed_) ) {
+      LogWarning("PostProcessor") << "computeEfficiency() : " 
+                                  << "No reco-ME '" << recoMEName << "' found\n";
+    }
     return;
   }
 
   TH1F* hSim  = simME ->getTH1F();
   TH1F* hReco = recoME->getTH1F();
   if ( !hSim || !hReco ) {
-    LogWarning("PostProcessor") << "computeEfficiency() : Cannot create TH1F from ME\n";
+    if ( verbose_ >= 2 || (verbose_ == 1 && !isWildcardUsed_) ) {
+      LogWarning("PostProcessor") << "computeEfficiency() : "
+                                  << "Cannot create TH1F from ME\n";
+    }
     return;
   }
 
@@ -166,7 +185,8 @@ void PostProcessor::computeEfficiency(const string& startDir, const string& effi
   ME* efficME = theDQM->book1D(newEfficMEName, efficMETitle, hSim->GetNbinsX(), hSim->GetXaxis()->GetXmin(), hSim->GetXaxis()->GetXmax()); 
 
   if ( !efficME ) {
-    LogWarning("PostProcessor") << "computeEfficiency() : Cannot book effic-ME from the DQM\n";
+    LogWarning("PostProcessor") << "computeEfficiency() : "
+                                << "Cannot book effic-ME from the DQM\n";
     return;
   }
 
@@ -185,12 +205,14 @@ void PostProcessor::computeEfficiency(const string& startDir, const string& effi
   ME* globalEfficME = theDQM->get(efficDir+"/globalEfficiencies");
   if ( !globalEfficME ) globalEfficME = theDQM->book1D("globalEfficiencies", "Global efficiencies", 1, 0, 1);
   if ( !globalEfficME ) {
-    LogError("PostProcessor") << "computeEfficiency() : Cannot book globalEffic-ME from the DQM\n";
+    LogError("PostProcessor") << "computeEfficiency() : "
+                              << "Cannot book globalEffic-ME from the DQM\n";
     return;
   }
   TH1F* hGlobalEffic = globalEfficME->getTH1F();
   if ( !hGlobalEffic ) {
-    LogError("PostProcessor") << "computeEfficiency() : Cannot create TH1F from ME, globalEfficME\n";
+    LogError("PostProcessor") << "computeEfficiency() : "
+                              << "Cannot create TH1F from ME, globalEfficME\n";
     return;
   }
 
@@ -208,7 +230,10 @@ void PostProcessor::computeResolution(const string& startDir, const string& name
                                       const std::string& srcName)
 {
   if ( ! theDQM->dirExists(startDir) ) {
-    LogWarning("PostProcessor") << "computeResolution() : Cannot find sub-directory " << startDir << endl;
+    if ( verbose_ >= 2 || (verbose_ == 1 && !isWildcardUsed_) ) {
+      LogWarning("PostProcessor") << "computeResolution() : "
+                                  << "Cannot find sub-directory " << startDir << endl;
+    }
     return;
   }
 
@@ -216,13 +241,19 @@ void PostProcessor::computeResolution(const string& startDir, const string& name
 
   ME* srcME = theDQM->get(startDir+"/"+srcName);
   if ( !srcME ) {
-    LogWarning("PostProcessor") << "computeResolution() : No source ME '" << srcName << "' found\n";
+    if ( verbose_ >= 2 || (verbose_ == 1 && !isWildcardUsed_) ) {
+      LogWarning("PostProcessor") << "computeResolution() : "
+                                  << "No source ME '" << srcName << "' found\n";
+    }
     return;
   }
 
   TH2F* hSrc = srcME->getTH2F();
   if ( !hSrc ) {
-    LogWarning("PostProcessor") << "computeResolution() : Cannot create TH2F from source-ME\n";
+    if ( verbose_ >= 2 || (verbose_ == 1 && !isWildcardUsed_) ) {
+      LogWarning("PostProcessor") << "computeResolution() : "
+                                  << "Cannot create TH2F from source-ME\n";
+    }
     return;
   }
 

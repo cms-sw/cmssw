@@ -6,8 +6,8 @@
  *
  *  DQM histogram post processor
  *
- *  $Date: 2008/12/11 17:33:27 $
- *  $Revision: 1.7 $
+ *  $Date: 2008/12/15 20:46:08 $
+ *  $Revision: 1.1 $
  *
  *  \author Junghwan Goh - SungKyunKwan University
  */
@@ -44,9 +44,10 @@ class PostProcessor : public edm::EDAnalyzer
 
  private:
   unsigned int verbose_;
+  bool isWildcardUsed_;
 
   DQMStore* theDQM;
-  std::string subDir_;
+  std::vector<std::string> subDirs_;
   std::string outputFileName_;
   std::vector<std::string> effCmds_, resCmds_;
   bool resLimitedFit_;
