@@ -65,7 +65,8 @@ G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track * aTra
     classification = fKill;
   } else {
     const G4Track * mother = CurrentG4Track::track();
-    if ((savePDandCinTracker && isThisVolume(aTrack->GetTouchable(),tracker))||
+    if ((savePDandCinTracker && (isThisVolume(aTrack->GetTouchable(),tracker)||
+				 isThisVolume(aTrack->GetTouchable(),beam))) ||
 	(savePDandCinCalo && isThisVolume(aTrack->GetTouchable(),calo)) ||
 	(savePDandCinMuon && isThisVolume(aTrack->GetTouchable(),muon)))
       flag = isItPrimaryDecayProductOrConversion(aTrack, *mother);
@@ -110,6 +111,7 @@ void StackingAction::initPointer() {
     for (pvcite = pvs->begin(); pvcite != pvs->end(); pvcite++) {
       if (savePDandCinTracker) {
         if ((*pvcite)->GetName() == "Tracker") tracker = (*pvcite);
+        if ((*pvcite)->GetName() == "Beam")    beam    = (*pvcite);
       }
       if (savePDandCinCalo) {
         if ((*pvcite)->GetName() == "CALO")    calo    = (*pvcite);
@@ -117,14 +119,16 @@ void StackingAction::initPointer() {
       if (savePDandCinMuon) {
         if ((*pvcite)->GetName() == "MUON")    muon    = (*pvcite);
       }
-      if ( (!savePDandCinTracker || tracker) && (!savePDandCinCalo || calo) &&
-	   (!savePDandCinMuon || muon ) ) break;
+      if ( (!savePDandCinTracker || (tracker && beam)) && 
+	   (!savePDandCinCalo || calo) && (!savePDandCinMuon || muon ) ) break;
     }
     edm::LogInfo("SimG4CoreApplication") << "Pointers for Tracker " << tracker
-                                         << ", Calo " << calo << ", Muon "
-					 << muon;
+                                         << ", BeamPipe " << beam << ", Calo " 
+					 << calo << ", Muon " << muon;
     if (tracker) edm::LogInfo("SimG4CoreApplication") << "Tracker vol name "
 						      << tracker->GetName();
+    if (beam)    edm::LogInfo("SimG4CoreApplication") << "BeamPipe vol name "
+						      << beam->GetName();
     if (calo)    edm::LogInfo("SimG4CoreApplication")<< "Calorimeter vol name "
 						     << calo->GetName();
     if (muon)    edm::LogInfo("SimG4CoreApplication") << "Muon vol name "
@@ -163,13 +167,15 @@ void StackingAction::initPointer() {
 bool StackingAction::isThisVolume(const G4VTouchable* touch, 
 				  G4VPhysicalVolume* pv) const {
 
-  int level = ((touch->GetHistoryDepth())+1);
-  if (level >= 3) {
-    int  ii   = level - 3;
-    bool flag = (touch->GetVolume(ii) == pv);
-    return flag;
+  bool flag = false;
+  if (pv != 0 && touch !=0) {
+    int level = ((touch->GetHistoryDepth())+1);
+    if (level >= 3) {
+      int  ii = level - 3;
+      flag    = (touch->GetVolume(ii) == pv);
+    }
   }
-  return false;
+  return flag;
 }
 
 int StackingAction::isItPrimaryDecayProductOrConversion(const G4Track * aTrack,

@@ -26,7 +26,7 @@ private:
   int    isItFromPrimary(const G4Track &, int) const;
   bool   isItLongLived(const G4Track*) const;
 private:
-  G4VPhysicalVolume        *tracker, *calo, *muon;
+  G4VPhysicalVolume        *tracker, *beam, *calo, *muon;
   bool                     savePDandCinTracker, savePDandCinCalo;
   bool                     savePDandCinMuon, saveFirstSecondary;
   bool                     killHeavy, trackNeutrino;
