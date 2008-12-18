@@ -20,8 +20,8 @@ namespace edm {
   public:
     // default ctor for serialization
     ParameterSetEntry();
-    ParameterSetEntry(const ParameterSet & pset, bool isTracked);
-    ParameterSetEntry(const std::string & rep);
+    ParameterSetEntry(ParameterSet const& pset, bool isTracked);
+    ParameterSetEntry(std::string const& rep);
 
     ~ParameterSetEntry();
 
@@ -34,7 +34,7 @@ namespace edm {
   
     /// returns the PSet, reconstituting it from the
     /// Registry, if necessary
-    const ParameterSet & pset() const;
+    ParameterSet const& pset() const;
     ParameterSet & pset();
 
     /// we expect this to only be called by ParameterSet, on tracked psets

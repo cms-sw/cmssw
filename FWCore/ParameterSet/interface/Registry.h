@@ -2,7 +2,7 @@
 #define FWCore_ParameterSet_Registry_h
 
 // ----------------------------------------------------------------------
-// $Id: Registry.h,v 1.11 2007/06/14 04:55:59 wmtan Exp $
+// $Id: Registry.h,v 1.12.4.1 2008/12/16 08:47:44 wmtan Exp $
 //
 // Declaration for pset::Registry. This is an implementation detail of
 // the ParameterSet library.
@@ -21,52 +21,35 @@
 
 
 
-namespace edm
-{
-  namespace pset
-  {
+namespace edm {
+  namespace pset {
 
-    class ProcessParameterSetIDCache
-    {
+    class ProcessParameterSetIDCache {
     public:
       ProcessParameterSetIDCache() : id_() { }
-      edm::ParameterSetID id() const { return id_; }
+      ParameterSetID id() const { return id_; }
       void setID(ParameterSetID const& id) { id_ = id; }
     private:
-      edm::ParameterSetID id_;      
+      ParameterSetID id_;      
     };
 
-    typedef edm::detail::ThreadSafeRegistry<edm::ParameterSetID,
-    					    edm::ParameterSet,
-					    ProcessParameterSetIDCache>
-                                            Registry;
+    typedef detail::ThreadSafeRegistry<ParameterSetID,
+    					ParameterSet,
+					ProcessParameterSetIDCache>
+                                        Registry;
 
     /// Associated free functions.
-
-    /// Insert the *tracked parts* of the given ParameterSet into the
-    /// Registry. If there was already a ParameterSet with the same
-    /// ID, we don't change itw. This should be OK, since it should
-    /// have the same contents if the ID is the same.
-    /// Return 'true' if we really added the new ParameterSet, and
-    /// 'false' if the ParameterSet was already present.
-
-    bool insertParameterSetIntoRegistry(Registry* reg,
-					edm::ParameterSet const& p);
-
-    void loadAllNestedParameterSets(Registry* reg,
-				    edm::ParameterSet const& main);
-
 
     /// Return the ParameterSetID of the top-level ParameterSet stored
     /// in the given Registry. Note the the returned ParameterSetID may
     /// be invalid; this will happen if the Registry has not yet been
     /// filled.
-    edm::ParameterSetID getProcessParameterSetID(Registry const* reg);
+    ParameterSetID getProcessParameterSetID(Registry const* reg);
 
     /// Fill the given map with the persistent form of each
     /// ParameterSet in the given registry.
-    typedef std::map<edm::ParameterSetID, edm::ParameterSetBlob> regmap_type;
-    void fill(Registry* reg, regmap_type& fillme);
+    typedef std::map<ParameterSetID, ParameterSetBlob> regmap_type;
+    void fillMap(Registry* reg, regmap_type& fillme);
 
   }  // namespace pset
 

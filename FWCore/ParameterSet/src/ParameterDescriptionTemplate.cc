@@ -34,7 +34,9 @@ namespace edm {
 
     bool exists = pset.existsAs<ParameterSet>(label(), isTracked());
 
-    if (!isOptional() && !exists) throwParameterNotDefined();
+    if (!isOptional() && !exists) {
+       throwParameterNotDefined();
+    }
 
     if (exists) {
       ParameterSet containedPSet;
@@ -89,7 +91,8 @@ namespace edm {
 
     bool exists = pset.existsAs<std::vector<ParameterSet> >(label(), isTracked());
 
-    if (!isOptional() && !exists) throwParameterNotDefined();
+    if (!isOptional() && !exists) {
+    }
 
     if (exists) {
       std::vector<ParameterSet> containedPSets;

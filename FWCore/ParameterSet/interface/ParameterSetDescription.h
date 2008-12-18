@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Jul 31 15:18:40 EDT 2007
-// $Id: ParameterSetDescription.h,v 1.4 2008/12/03 21:10:13 wdd Exp $
+// $Id: ParameterSetDescription.h,v 1.4.2.1 2008/12/09 01:03:55 wmtan Exp $
 //
 
 #include "FWCore/ParameterSet/interface/ParameterDescription.h"
