@@ -7,7 +7,8 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('file:RelVal.root')
+    fileNames = cms.untracked.vstring('file:RelVal_GEN-SIM-RECO.root'),
+    secondaryFileNames = cms.untracked.vstring('file:RelVal_GEN-SIM-DIGI-RAW-HLTDEBUG.root')
 )
 
 # MessageLogger
@@ -24,7 +25,7 @@ process.MessageLogger.cout = cms.untracked.PSet(
         limit = cms.untracked.int32(0)
     ),
     default = cms.untracked.PSet(
-        limit = cms.untracked.int32(10000000)
+        limit = cms.untracked.int32(0)
     ),
     testReader = cms.untracked.PSet(
         limit = cms.untracked.int32(10000000)
@@ -33,7 +34,8 @@ process.MessageLogger.cout = cms.untracked.PSet(
         limit = cms.untracked.int32(10000000)
     ),
     MuonAssociatorByHits = cms.untracked.PSet(
-        limit = cms.untracked.int32(10000000)
+#        limit = cms.untracked.int32(10000000)
+        limit = cms.untracked.int32(0)
     ),
     DTHitAssociator = cms.untracked.PSet(
         limit = cms.untracked.int32(10000000)
@@ -74,15 +76,16 @@ process.MessageLogger.cerr = cms.untracked.PSet(
 # Mixing Module
 process.load("SimGeneral.MixingModule.mixNoPU_cfi")
 
+# Standard Sequences
 process.load("Configuration.StandardSequences.Geometry_cff")
-process.load("Configuration.StandardSequences.FakeConditions_cff")
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+process.GlobalTag.globaltag = cms.string('IDEAL_30X::All')
 
 # MuonAssociatorByHits
 process.load("SimMuon.MCTruth.MuonAssociatorByHits_cfi")
-# default is standalone muons:
-#    process.muonAssociatorByHits.tracksTag = cms.InputTag("standAloneMuons")
-#    process.muonAssociatorByHits.SimToReco_useTracker = cms.bool(False)
-#    process.muonAssociatorByHits.SimToReco_useMuon = cms.bool(True)
+process.muonAssociatorByHits.tracksTag = cms.InputTag("standAloneMuons")
+process.muonAssociatorByHits.UseTracker = cms.bool(False)
+process.muonAssociatorByHits.UseMuon = cms.bool(True)
 
 # test analysis
 process.testanalyzer = cms.EDAnalyzer("testReader",
