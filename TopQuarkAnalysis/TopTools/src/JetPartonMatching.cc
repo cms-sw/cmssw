@@ -24,7 +24,7 @@ JetPartonMatching::JetPartonMatching(const std::vector<const reco::Candidate*>& 
   calculate(); 
 }
 
-JetPartonMatching::JetPartonMatching(const std::vector<const reco::Candidate*>& p, const std::vector<pat::JetType>& j,
+JetPartonMatching::JetPartonMatching(const std::vector<const reco::Candidate*>& p, const std::vector<pat::Jet>& j,
 				     const int algorithm = 3, const bool useMaxDist = true,
 				     const bool useDeltaR = true, const double maxDist = 0.3)
   : partons(p), algorithm_(algorithm), useMaxDist_(useMaxDist), useDeltaR_(useDeltaR), maxDist_(maxDist)

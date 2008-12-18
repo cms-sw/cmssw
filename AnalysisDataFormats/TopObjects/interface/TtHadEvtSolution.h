@@ -1,7 +1,7 @@
 #ifndef TopObjects_TtHadEvtSolution_h
 #define TopObjects_TtHadEvtSolution_h
 //
-// $Id: TtHadEvtSolution.h,v 1.8 2008/08/28 00:38:55 rwolf Exp $
+// $Id: TtHadEvtSolution.h,v 1.9 2008/11/14 19:20:51 rwolf Exp $
 // adapted TtSemiEvtSolution.h,v 1.14 2007/07/06 03:07:47 lowette Exp 
 // for fully hadronic channel
 
@@ -64,12 +64,12 @@ class TtHadEvtSolution {
   reco::Particle getRecHadW_plus() const;     
   reco::Particle getRecHadW_minus() const;       
   
-  pat::JetType getRecHadb() const { return this->getHadb().correctedJet("RAW"); };
-  pat::JetType getRecHadbbar() const { return this->getHadbbar().correctedJet("RAW"); };
-  pat::JetType getRecHadp() const { return this->getHadp().correctedJet("RAW"); };
-  pat::JetType getRecHadq() const { return this->getHadq().correctedJet("RAW"); };
-  pat::JetType getRecHadj() const { return this->getHadj().correctedJet("RAW"); };
-  pat::JetType getRecHadk() const { return this->getHadk().correctedJet("RAW"); };
+  pat::Jet getRecHadb() const { return this->getHadb().correctedJet("RAW"); };
+  pat::Jet getRecHadbbar() const { return this->getHadbbar().correctedJet("RAW"); };
+  pat::Jet getRecHadp() const { return this->getHadp().correctedJet("RAW"); };
+  pat::Jet getRecHadq() const { return this->getHadq().correctedJet("RAW"); };
+  pat::Jet getRecHadj() const { return this->getHadj().correctedJet("RAW"); };
+  pat::Jet getRecHadk() const { return this->getHadk().correctedJet("RAW"); };
   
   reco::Particle getCalHadt() const;
   reco::Particle getCalHadtbar() const;

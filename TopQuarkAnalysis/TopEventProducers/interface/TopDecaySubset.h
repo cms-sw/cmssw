@@ -50,7 +50,7 @@ class TopDecaySubset : public edm::EDProducer {
   /// print the whole listing if particle with pdgId is contained in the top decay chain
   void printSource(const reco::GenParticleCollection&, int pdgId);
 
- private:
+ protected:
 
   unsigned int pdg_;                     // pdgId for special selection
                                          // for printout

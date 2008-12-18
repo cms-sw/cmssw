@@ -1,5 +1,5 @@
 //
-// $Id: TtSemiEvtSolution.h,v 1.27 2008/08/28 00:38:55 rwolf Exp $
+// $Id: TtSemiEvtSolution.h,v 1.28 2008/11/14 19:20:51 rwolf Exp $
 //
 
 #ifndef TopObjects_TtSemiEvtSolution_h
@@ -75,12 +75,12 @@ class TtSemiEvtSolution {
   //-------------------------------------------
   reco::Particle getRecHadt() const;
   reco::Particle getRecHadW() const;       
-  pat::JetType getRecHadb() const { return this->getHadb().correctedJet("RAW"); };
-  pat::JetType getRecHadp() const { return this->getHadp().correctedJet("RAW"); };
-  pat::JetType getRecHadq() const { return this->getHadq().correctedJet("RAW"); };
+  pat::Jet getRecHadb() const { return this->getHadb().correctedJet("RAW"); };
+  pat::Jet getRecHadp() const { return this->getHadp().correctedJet("RAW"); };
+  pat::Jet getRecHadq() const { return this->getHadq().correctedJet("RAW"); };
   reco::Particle getRecLept() const;             
   reco::Particle getRecLepW() const;  
-  pat::JetType getRecLepb() const { return this->getLepb().correctedJet("RAW"); }; 
+  pat::Jet getRecLepb() const { return this->getLepb().correctedJet("RAW"); }; 
   pat::Muon getRecLepm() const { return this->getMuon(); };
   pat::Electron getRecLepe() const { return this->getElectron(); };
   pat::MET getRecLepn() const { return this->getNeutrino(); };  

@@ -1,5 +1,5 @@
 //
-// $Id: TtDilepEvtSolutionMaker.cc,v 1.20 2008/07/24 10:38:54 rwolf Exp $
+// $Id: TtDilepEvtSolutionMaker.cc,v 1.21 2008/08/28 00:38:51 rwolf Exp $
 //
 
 #include "PhysicsTools/Utilities/interface/deltaR.h"
@@ -173,7 +173,7 @@ void TtDilepEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup
       // that have the charge opposite to the muon one, and do not match in eta-phi
       std::vector<std::vector<pat::Tau>::const_iterator> subset1;
       for(std::vector<pat::Tau>::const_iterator tau = taus->begin(); tau < taus->end(); ++tau ) {
-        if(tau->charge()*expectedCharge>=0 && DeltaR<reco::Particle>()(*tau,*(muons->begin()))>0.1) { 
+        if(tau->charge()*expectedCharge>=0 && DeltaR<pat::Particle>()(*tau,*(muons->begin()))>0.1) { 
 	  *tauIdx = tau-taus->begin(); 
           leptonFound = true;
           subset1.push_back(tau);
@@ -197,7 +197,7 @@ void TtDilepEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup
       // discard the jet that matches the tau (if one) 
       if(leptonFound) {
         for(std::vector<pat::Jet>::const_iterator jet = jets->begin(); jet<jets->end(); ++jet) {
-          if(DeltaR<reco::Particle>()(*(taus->begin()+*tauIdx),*jet)<0.1) {
+          if(DeltaR<pat::Particle>()(*(taus->begin()+*tauIdx),*jet)<0.1) {
             JetVetoByTaus.push_back(jet-jets->begin());
           }
 	}
@@ -221,7 +221,7 @@ void TtDilepEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup
       // that have the charge opposite to the muon one, and do not match in eta-phi
       std::vector<std::vector<pat::Tau>::const_iterator> subset1;
       for(std::vector<pat::Tau>::const_iterator tau = taus->begin(); tau < taus->end(); ++tau ) {
-        if(tau->charge()*expectedCharge>=0 && DeltaR<reco::Particle>()(*tau,*(electrons->begin()))>0.1) { 
+        if(tau->charge()*expectedCharge>=0 && DeltaR<pat::Particle>()(*tau,*(electrons->begin()))>0.1) { 
 	  *tauIdx = tau-taus->begin(); 
 	  leptonFound = true; 
           subset1.push_back(tau);
@@ -245,7 +245,7 @@ void TtDilepEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup
       // discard the jet that matches the tau (if one) 
       if(leptonFound) {
         for(std::vector<pat::Jet>::const_iterator jet = jets->begin(); jet<jets->end(); ++jet) {
-          if(DeltaR<reco::Particle>()(*(taus->begin()+*tauIdx),*jet)<0.1) {
+          if(DeltaR<pat::Particle>()(*(taus->begin()+*tauIdx),*jet)<0.1) {
             JetVetoByTaus.push_back(jet-jets->begin());
           }
         }
@@ -268,7 +268,7 @@ void TtDilepEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup
       }
     }
     for(std::vector<pat::Jet>::const_iterator jet = jets->begin(); jet<jets->end(); ++jet) {
-      if(DeltaR<reco::Particle>()((*taus)[0],*jet)<0.1 || DeltaR<reco::Particle>()((*taus)[1],*jet)<0.1) {
+      if(DeltaR<pat::Particle>()((*taus)[0],*jet)<0.1 || DeltaR<pat::Particle>()((*taus)[1],*jet)<0.1) {
         JetVetoByTaus.push_back(jet-jets->begin());
       }
     }

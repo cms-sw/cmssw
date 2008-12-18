@@ -1,5 +1,5 @@
 //
-// $Id: StEvtSolution.h,v 1.11 2008/02/15 12:10:39 rwolf Exp $
+// $Id: StEvtSolution.h,v 1.12 2008/11/14 19:20:51 rwolf Exp $
 //
 
 #ifndef TopObjects_StEvtSolution_h
@@ -54,8 +54,8 @@ class StEvtSolution {
   //-------------------------------------------
   // get uncalibrated reco objects
   //-------------------------------------------
-  pat::JetType   getRecBottom()   const { return this->getBottom().correctedJet("RAW"); };
-  pat::JetType   getRecLight()    const { return this->getLight ().correctedJet("RAW"); };
+  pat::Jet       getRecBottom()   const { return this->getBottom().correctedJet("RAW"); };
+  pat::Jet       getRecLight()    const { return this->getLight ().correctedJet("RAW"); };
   pat::Muon      getRecMuon()     const { return this->getMuon(); };     // redundant
   pat::Electron  getRecElectron() const { return this->getElectron(); }; // redundant
   pat::MET       getRecNeutrino() const { return this->getNeutrino(); }; // redundant

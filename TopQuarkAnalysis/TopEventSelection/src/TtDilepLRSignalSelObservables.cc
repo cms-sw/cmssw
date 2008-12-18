@@ -61,14 +61,14 @@ TtDilepLRSignalSelObservables::operator() (TtDilepEvtSolution &solution,
     if (genEvent->isFullLeptonic()) {
       //cout << "Dilepton:\n";
       // Match the leptons, by type and deltaR
-      dr = DeltaR<reco::Particle>()(solution.getLeptPos(), *(solution.getGenLepp()));
+      dr = DeltaR<reco::Particle, pat::Particle>()(solution.getLeptPos(), *(solution.getGenLepp()));
       matchLeptPos = (
 	( ((solution.getWpDecay()=="electron")&&(abs(solution.getGenLepp()->pdgId())==11))
        || ((solution.getWpDecay()=="muon")&&(abs(solution.getGenLepp()->pdgId())==13)) )
        && (dr < 0.1) );
       // cout << solution.getWpDecay() << solution.getGenLepp()->pdgId()<<" "<<dr<<endl;
 
-      dr = DeltaR<reco::Particle>()(solution.getLeptNeg(), *(solution.getGenLepm()));
+      dr = DeltaR<reco::Particle, pat::Particle>()(solution.getLeptNeg(), *(solution.getGenLepm()));
       matchLeptNeg = (
 	( ((solution.getWmDecay()=="electron")&&(abs(solution.getGenLepm()->pdgId())==11))
            || ((solution.getWmDecay()=="muon")&&(abs(solution.getGenLepm()->pdgId())==13)) )
@@ -81,14 +81,14 @@ TtDilepLRSignalSelObservables::operator() (TtDilepEvtSolution &solution,
       //cout << "Semi-Leptonic: ";
 
       if (id>0) {
-	dr = DeltaR<reco::Particle>()(solution.getLeptNeg(), *(genEvent->singleLepton()));
+	dr = DeltaR<reco::Particle, pat::Particle>()(solution.getLeptNeg(), *(genEvent->singleLepton()));
 	matchLeptNeg = (
 	  ( ((solution.getWmDecay()=="electron") && (id==11))
              || ((solution.getWmDecay()=="muon") && (id==13)) )
 	  && (dr < 0.1) );
 	// cout << solution.getWmDecay() << id<<" "<<dr<<endl;
       } else {
-	dr = DeltaR<reco::Particle>()(solution.getLeptPos(), *(genEvent->singleLepton()));
+	dr = DeltaR<reco::Particle, pat::Particle>()(solution.getLeptPos(), *(genEvent->singleLepton()));
 	matchLeptPos = (
 	  ( ((solution.getWpDecay()=="electron")&& (id==-11))
 	 || ((solution.getWpDecay()=="muon")    && (id==-13)) )
@@ -105,8 +105,8 @@ TtDilepLRSignalSelObservables::operator() (TtDilepEvtSolution &solution,
       if (solution.getJetB().partonFlavour()==5) ++count1;
       if (solution.getJetBbar().partonFlavour()==5) ++count1;
 
-      dr1 = DeltaR<reco::Particle>()(solution.getCalJetB(), *(genEvent->b()));
-      dr2 = DeltaR<reco::Particle>()(solution.getCalJetB(), *(genEvent->bBar()));
+      dr1 = DeltaR<pat::Particle>()(solution.getCalJetB(), *(genEvent->b()));
+      dr2 = DeltaR<pat::Particle>()(solution.getCalJetB(), *(genEvent->bBar()));
 
       matchB1= ( (dr1<0.4) || (dr2<0.4));
       matchB = ( (solution.getJetB().partonFlavour()==5) && (dr1<0.4) );
@@ -117,8 +117,8 @@ TtDilepLRSignalSelObservables::operator() (TtDilepEvtSolution &solution,
       if (dr1<0.3) ++count5;
       //cout << solution.getJetB().partonFlavour() << " "<<dr<<endl;
 
-      dr1 = DeltaR<reco::Particle>()(solution.getCalJetBbar(), *(genEvent->b()));
-      dr2 = DeltaR<reco::Particle>()(solution.getCalJetBbar(), *(genEvent->bBar()));
+      dr1 = DeltaR<pat::Particle>()(solution.getCalJetBbar(), *(genEvent->b()));
+      dr2 = DeltaR<pat::Particle>()(solution.getCalJetBbar(), *(genEvent->bBar()));
 
       matchBbar = ( (solution.getJetBbar().partonFlavour()==5) && (dr2<0.4) );
       if (matchBbar) ++count3;
@@ -169,7 +169,7 @@ TtDilepLRSignalSelObservables::operator() (TtDilepEvtSolution &solution,
 
   // delta phi btw the b-jets
 
-//   double deltaTheta = DeltaPhi<reco::Particle>()(solution.getJetB(), 
+//   double deltaTheta = DeltaPhi<pat::Particle>()(solution.getJetB(), 
 // 			solution.getJetBbar());
   
 //   double deltaPhi = delta( solution.getJetB().p4().phi(),

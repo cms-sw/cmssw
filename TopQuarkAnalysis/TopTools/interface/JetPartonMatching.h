@@ -21,7 +21,7 @@ class JetPartonMatching {
 		    const int, const bool, const bool, const double);
   JetPartonMatching(const std::vector<const reco::Candidate*>&, const std::vector<reco::CaloJet>&,
 		    const int, const bool, const bool, const double);
-  JetPartonMatching(const std::vector<const reco::Candidate*>&, const std::vector<pat::JetType>&,
+  JetPartonMatching(const std::vector<const reco::Candidate*>&, const std::vector<pat::Jet>&,
 		    const int, const bool, const bool, const double);
   JetPartonMatching(const std::vector<const reco::Candidate*>&, const std::vector<const reco::Candidate*>&,
 		    const int, const bool, const bool, const double);

@@ -2,7 +2,7 @@
 // Author:  Jan Heyninck
 // Created: Tue Apr  3 17:33:23 PDT 2007
 //
-// $Id: TtSemiLRJetCombObservables.cc,v 1.9 2008/04/29 18:08:39 srappocc Exp $
+// $Id: TtSemiLRJetCombObservables.cc,v 1.10 2008/07/24 10:38:55 rwolf Exp $
 //
 #include "TopQuarkAnalysis/TopJetCombination/interface/TtSemiLRJetCombObservables.h"
 #include "PhysicsTools/Utilities/interface/deltaR.h"
@@ -69,54 +69,54 @@ TtSemiLRJetCombObservables::operator() (TtSemiEvtSolution &solution, const edm::
       if(debug) cout << "== *(solution.getGenLepl())" << solution.getGenLepl()->pt() << endl;
       // cout << "Semilepton:\n";
       // Match the lepton by deltaR
-      if (solution.getDecay() == "muon")     drLepl = DeltaR<reco::Particle>()(solution.getRecLepm(), *(solution.getGenLepl()));
+      if (solution.getDecay() == "muon")     drLepl = DeltaR<pat::Particle, reco::GenParticle>()(solution.getRecLepm(), *(solution.getGenLepl()));
       if(debug) cout << "== matching lepton " << endl;
-      if (solution.getDecay() == "electron") drLepl = DeltaR<reco::Particle>()(solution.getRecLepe(), *(solution.getGenLepl()));
+      if (solution.getDecay() == "electron") drLepl = DeltaR<pat::Particle, reco::GenParticle>()(solution.getRecLepe(), *(solution.getGenLepl()));
       matchLepl = (drLepl < 0.3);
       
       if(debug) cout << "== lepton is matched " << endl;
       // Match the neutrino by deltaR
-      drLepn = DeltaR<reco::Particle>()(solution.getRecLepn(), *(solution.getGenLepn()));
+      drLepn = DeltaR<pat::Particle, reco::GenParticle>()(solution.getRecLepn(), *(solution.getGenLepn()));
       matchLepn = (drLepn < 0.3);
 
       // Match the hadronic b by deltaR
-      drHadb = DeltaR<reco::Particle>()(solution.getRecHadb(), *(solution.getGenHadb()));
+      drHadb = DeltaR<pat::Particle, reco::GenParticle>()(solution.getRecHadb(), *(solution.getGenHadb()));
       matchHadb = (drHadb < 0.3);
 
       // Match the hadronicleptonic b by deltaR
-      drLepb = DeltaR<reco::Particle>()(solution.getRecLepb(), *(solution.getGenLepb()));
+      drLepb = DeltaR<pat::Particle, reco::GenParticle>()(solution.getRecLepb(), *(solution.getGenLepb()));
       matchLepb = (drLepb < 0.3);
 
       // Match the hadronic p by deltaR
-      drHadp = DeltaR<reco::Particle>()(solution.getRecHadp(), *(solution.getGenHadp()));
+      drHadp = DeltaR<pat::Particle, reco::GenParticle>()(solution.getRecHadp(), *(solution.getGenHadp()));
       matchHadp = (drHadp < 0.3);
       
       // Match the hadronic pq by deltaR
-      drHadpq = DeltaR<reco::Particle>()(solution.getRecHadp(), *(solution.getGenHadq()));
+      drHadpq = DeltaR<pat::Particle, reco::GenParticle>()(solution.getRecHadp(), *(solution.getGenHadq()));
       matchHadpq = (drHadpq < 0.3);
     
       // Match the hadronic q by deltaR
-      drHadq = DeltaR<reco::Particle>()(solution.getRecHadq(), *(solution.getGenHadq()));
+      drHadq = DeltaR<pat::Particle, reco::GenParticle>()(solution.getRecHadq(), *(solution.getGenHadq()));
       matchHadq = (drHadq < 0.3);      
 
       // Match the hadronic qp by deltaR
-      drHadqp = DeltaR<reco::Particle>()(solution.getRecHadq(), *(solution.getGenHadp()));
+      drHadqp = DeltaR<pat::Particle, reco::GenParticle>()(solution.getRecHadq(), *(solution.getGenHadp()));
       matchHadqp = (drHadqp < 0.3);  
 
       // Match the hadronic W by deltaR
-      drHadW = DeltaR<reco::Particle>()(solution.getRecHadW(), *(solution.getGenHadW()));
+      drHadW = DeltaR<reco::Particle, reco::GenParticle>()(solution.getRecHadW(), *(solution.getGenHadW()));
       matchHadW = (drHadW < 0.3);    
 
       // Match the leptonic W by deltaR
-      drLepW = DeltaR<reco::Particle>()(solution.getRecLepW(), *(solution.getGenLepW()));
+      drLepW = DeltaR<reco::Particle, reco::GenParticle>()(solution.getRecLepW(), *(solution.getGenLepW()));
       matchLepW = (drLepW < 0.3);  
      
       // Match the hadronic t by deltaR
-      drHadt = DeltaR<reco::Particle>()(solution.getRecHadt(), *(solution.getGenHadt()));
+      drHadt = DeltaR<reco::Particle, reco::GenParticle>()(solution.getRecHadt(), *(solution.getGenHadt()));
       matchHadt = (drHadt < 0.3);    
 
       // Match the leptonic t by deltaR
-      drLept = DeltaR<reco::Particle>()(solution.getRecLept(), *(solution.getGenLept()));
+      drLept = DeltaR<reco::Particle, reco::GenParticle>()(solution.getRecLept(), *(solution.getGenLept()));
       matchLept = (drLept < 0.3);   
     }
   } catch (...){cout << "Exception\n";}
