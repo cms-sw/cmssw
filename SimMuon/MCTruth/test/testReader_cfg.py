@@ -23,7 +23,7 @@ process.MessageLogger.cout = cms.untracked.PSet(
         limit = cms.untracked.int32(0)
     ),
     default = cms.untracked.PSet(
-        limit = cms.untracked.int32(10000000)
+        limit = cms.untracked.int32(0)
     ),
     testReader = cms.untracked.PSet(
         limit = cms.untracked.int32(10000000)
@@ -52,9 +52,6 @@ process.MessageLogger.cerr = cms.untracked.PSet(
 
 process.testanalyzer = cms.EDAnalyzer("testReader",
     tracksTag = cms.InputTag("standAloneMuons"),
-    #       tracksTag = cms.InputTag("standAloneMuons:UpdatedAtVtx")
-    #       tracksTag = cms.InputTag("globalMuons")
-    #       tracksTag = cms.InputTag("generalTracks")
     tpTag = cms.InputTag("mergedtruth","MergedTrackTruth"),
     assoMapsTag = cms.InputTag("muonAssociatorByHits")
 )
