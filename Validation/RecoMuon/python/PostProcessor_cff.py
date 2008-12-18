@@ -32,8 +32,7 @@ postProcessorMuonMultiTrack = cms.EDAnalyzer("PostProcessor",
     outputFileName = cms.untracked.string("")
 )
 
-postProcessorMuonMultiTrackComp = cms.EDAnalyzer(
-    "PostProcessor",
+postProcessorMuonMultiTrackComp = cms.EDAnalyzer("PostProcessor",
     subDir = cms.untracked.string("RecoMuonV/MultiTrack/"),
     efficiency = cms.vstring(
     "Eff_GlbTk_Eta 'Eff_{GLB,TK} vs #eta' globalMuons_tpToGlbAssociation/effic general_tpToTkmuAssociation/effic",
@@ -52,7 +51,7 @@ postProcessorMuonMultiTrackComp = cms.EDAnalyzer(
     ),
     resolution = cms.vstring(""),
     outputFileName = cms.untracked.string("")
-    )
+)
 
 
 postProcessorRecoMuon = cms.EDAnalyzer("PostProcessor",
@@ -77,7 +76,7 @@ postProcessorRecoMuon = cms.EDAnalyzer("PostProcessor",
                              "Glb/EffPhi 'Efficiency vs #phi'  Glb/Phi Muons/SimPhi",
                              "Glb/MisQProbPt  'Charge Mis-identification probability vs p_{T}' Glb/MisQPt  Muons/SimPt ",
                              "Glb/MisQProbEta 'Charge Mis-identification probability vs #eta'  Glb/MisQEta Muons/SimEta",
-
+                             ),
 
     resolution = cms.vstring("Trk/ErrP_vs_P      '#sigma(p) vs p'           Trk/ErrP_vs_P     ",
                              "Trk/ErrP_vs_Eta    '#sigma(p) vs #eta'        Trk/ErrP_vs_Eta   ",
@@ -91,7 +90,7 @@ postProcessorRecoMuon = cms.EDAnalyzer("PostProcessor",
                              "Trk/PullPhi_vs_Eta 'Pull of #phi vs #eta'     Trk/PullPhi_vs_Eta",
                              "Trk/PullPt_vs_Pt   'Pull of p_{T} vs p_{T}'   Trk/PullPt_vs_Pt  ",
                              "Trk/PullPt_vs_Eta  'Pull of p_{T} vs #eta'    Trk/PullPt_vs_Eta ",
-       
+
                              "Sta/ErrP_vs_P      '#sigma(p) vs p'           Sta/ErrP_vs_P     ",
                              "Sta/ErrP_vs_Eta    '#sigma(p) vs #eta'        Sta/ErrP_vs_Eta   ",
                              "Sta/ErrPt_vs_Pt    '#sigma(p) vs p_{T}'       Sta/ErrPt_vs_Pt   ",
@@ -104,7 +103,7 @@ postProcessorRecoMuon = cms.EDAnalyzer("PostProcessor",
                              "Sta/PullPhi_vs_Eta 'Pull of #phi vs #eta'     Sta/PullPhi_vs_Eta",
                              "Sta/PullPt_vs_Pt   'Pull of p_{T} vs p_{T}'   Sta/PullPt_vs_Pt  ",
                              "Sta/PullPt_vs_Eta  'Pull of p_{T} vs #eta'    Sta/PullPt_vs_Eta ",
-        
+
                              "Glb/ErrP_vs_P      '#sigma(p) vs p'           Glb/ErrP_vs_P     ",
                              "Glb/ErrP_vs_Eta    '#sigma(p) vs #eta'        Glb/ErrP_vs_Eta   ",
                              "Glb/ErrPt_vs_Pt    '#sigma(p) vs p_{T}'       Glb/ErrPt_vs_Pt   ",
@@ -117,7 +116,6 @@ postProcessorRecoMuon = cms.EDAnalyzer("PostProcessor",
                              "Glb/PullPhi_vs_Eta 'Pull of #phi vs #eta'     Glb/PullPhi_vs_Eta",
                              "Glb/PullPt_vs_Pt   'Pull of p_{T} vs p_{T}'   Glb/PullPt_vs_Pt  ",
                              "Glb/PullPt_vs_Eta  'Pull of p_{T} vs #eta'    Glb/PullPt_vs_Eta ",
-
                              ),
     outputFileName = cms.untracked.string("")
 )
