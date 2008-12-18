@@ -18,6 +18,9 @@ namespace fit {
     const ChiSquared & chi2() const { return chi2_; }
     Likelihood & like() { return like_; }
     const Likelihood & like() const { return like_; }
+    size_t numberOfBins() const { 
+      return chi2_.numberOfBins();
+    }
   private:
     ChiSquared chi2_;
     Likelihood like_;
@@ -26,9 +29,11 @@ namespace fit {
   template<typename ChiSquared, typename Likelihood>
   struct RootMinuitResultPrinter<CombinedChiSquaredLikelihood<ChiSquared, Likelihood> > {
     static void print(double amin, unsigned int numberOfFreeParameters, const CombinedChiSquaredLikelihood<ChiSquared, Likelihood> & f) {
-      std::cout << "-2 log(maximum-likelihood) = " << amin << ", free parameters = " << numberOfFreeParameters
+      unsigned int ndof = f.numberOfBins() - numberOfFreeParameters;
+      std::cout << "-2 log(maximum-likelihood) = " << amin << ", n.d.o.f = " << ndof
+		<< ", free parameters = " << numberOfFreeParameters
 		<< std::endl;      
-      std::cout << "chi-2 contibution: " << f.chi2()() << std::endl
+      std::cout << "chi-2 contibution: " << f.chi2()() << "(n. bins: " << f.chi2().numberOfBins() << ")" << std::endl
 		<< "likelihood contriution: " << -2.*f.like()() << std::endl;
     }
   };

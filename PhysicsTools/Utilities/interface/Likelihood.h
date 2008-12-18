@@ -3,6 +3,7 @@
 #include "PhysicsTools/Utilities/interface/RootMinuitResultPrinter.h"
 #include "PhysicsTools/Utilities/interface/RootMinuitFuncEvaluator.h"
 #include <cmath>
+#include "TMath.h"
 
 namespace fit {
   template<typename PDF, typename Tuple>
@@ -32,23 +33,30 @@ namespace fit {
     double operator()() const { return log(); }
     double log() const {
       double l = - (*yield_)();
-      //      std::cout << "yield: " << -l << std::endl;
       for(typename Sample::const_iterator i = sample_.begin(); i != sample_.end(); ++i) {
 	double p = Evaluator::evaluate(*pdf_, *i);
-	//	std::cout << "prob(" << *i << ")= " << p << std::endl;
 	l += std::log(p);
       }
+      sampleSize_ = sample_.size();
       return l;
+    }
+    double logNFactorial() const {
+      return std::log(TMath::Factorial(sampleSize_));
+    }
+    double absoluteLog() const {
+      return log() - logNFactorial();
     }
     PDF & pdf() { return * pdf_; }
     const PDF & pdf() const { return * pdf_; }
     Yield & yield() { return * yield_; }
     const Yield & yield() const { return * yield_; }
+    unsigned int sampleSize() const { return sampleSize_; }
   private:
     typedef LikelihoodEvaluator<PDF, typename Sample::value_type> Evaluator;
     PDF * pdf_;
     Yield * yield_;
     Sample sample_;
+    mutable unsigned int sampleSize_;
   };
 
   template<typename Sample, typename PDF>

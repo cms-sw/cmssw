@@ -48,14 +48,14 @@ namespace fit {
      chi5_.setHistos(histo5);
      chi6_.setHistos(histo6);
    }
-   size_t degreesOfFreedom() const { 
+   size_t numberOfBins() const { 
      return 
-     chi1_.degreesOfFreedom() +
-     chi2_.degreesOfFreedom() +
-     chi3_.degreesOfFreedom() +
-     chi4_.degreesOfFreedom() +
-     chi5_.degreesOfFreedom() +
-     chi6_.degreesOfFreedom() ;
+     chi1_.numberOfBins() +
+     chi2_.numberOfBins() +
+     chi3_.numberOfBins() +
+     chi4_.numberOfBins() +
+     chi5_.numberOfBins() +
+     chi6_.numberOfBins() ;
    }
    T1 & function1() { return chi1_.function(); }
    const T1 & function1() const { return chi1_.function(); }
@@ -110,13 +110,13 @@ namespace fit {
      chi4_.setHistos(histo4);
      chi5_.setHistos(histo5);
    }
-   size_t degreesOfFreedom() const { 
+   size_t numberOfBins() const { 
      return 
-     chi1_.degreesOfFreedom() +
-     chi2_.degreesOfFreedom() +
-     chi3_.degreesOfFreedom() +
-     chi4_.degreesOfFreedom() +
-     chi5_.degreesOfFreedom();
+     chi1_.numberOfBins() +
+     chi2_.numberOfBins() +
+     chi3_.numberOfBins() +
+     chi4_.numberOfBins() +
+     chi5_.numberOfBins();
    }
    T1 & function1() { return chi1_.function(); }
    const T1 & function1() const { return chi1_.function(); }
@@ -164,12 +164,12 @@ namespace fit {
      chi3_.setHistos(histo3);
      chi4_.setHistos(histo4);
    }
-   size_t degreesOfFreedom() const { 
+   size_t numberOfBins() const { 
      return 
-     chi1_.degreesOfFreedom() +
-     chi2_.degreesOfFreedom() +
-     chi3_.degreesOfFreedom() +
-     chi4_.degreesOfFreedom();
+     chi1_.numberOfBins() +
+     chi2_.numberOfBins() +
+     chi3_.numberOfBins() +
+     chi4_.numberOfBins();
    }
    T1 & function1() { return chi1_.function(); }
    const T1 & function1() const { return chi1_.function(); }
@@ -209,11 +209,11 @@ namespace fit {
      chi2_.setHistos(histo2);
      chi3_.setHistos(histo3);
    }
-   size_t degreesOfFreedom() const { 
+   size_t numberOfBins() const { 
      return 
-       chi1_.degreesOfFreedom() +
-       chi2_.degreesOfFreedom() +
-       chi3_.degreesOfFreedom();
+       chi1_.numberOfBins() +
+       chi2_.numberOfBins() +
+       chi3_.numberOfBins();
    }
    T1 & function1() { return chi1_.function(); }
    const T1 & function1() const { return chi1_.function(); }
@@ -248,10 +248,10 @@ namespace fit {
       chi1_.setHistos(histo1);
       chi2_.setHistos(histo2);
     }
-    size_t degreesOfFreedom() const { 
+    size_t numberOfBins() const { 
       return 
-	chi1_.degreesOfFreedom() +
-	chi2_.degreesOfFreedom();
+	chi1_.numberOfBins() +
+	chi2_.numberOfBins();
     }
    private:
     HistoChiSquare<T1> chi1_;
@@ -276,8 +276,8 @@ namespace fit {
     void setHistos(TH1 *histo1) { 
       chi1_.setHistos(histo1);
     }
-    size_t degreesOfFreedom() const { 
-      return chi1_.degreesOfFreedom(); 
+    size_t numberOfBins() const { 
+      return chi1_.numberOfBins(); 
     }
    private:
     HistoChiSquare<T1> chi1_;
@@ -288,7 +288,7 @@ namespace fit {
   struct RootMinuitResultPrinter<MultiHistoChiSquare<T1, T2, T3, T4, T5, T6> > {
     static void print(double amin, unsigned int numberOfFreeParameters, 
 		      const MultiHistoChiSquare<T1, T2, T3, T4, T5, T6> & f) {
-      unsigned int ndof = f.degreesOfFreedom() - numberOfFreeParameters;
+      unsigned int ndof = f.numberOfBins() - numberOfFreeParameters;
       std::cout << "chi-squared/n.d.o.f. = " << amin << "/" << ndof << " = " << amin/ndof 
 		<< "; prob: " << TMath::Prob(amin, ndof)
 		<< std::endl;
