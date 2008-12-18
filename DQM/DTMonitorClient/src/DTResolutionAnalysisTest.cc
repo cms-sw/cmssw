@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/12/10 10:28:23 $
- *  $Revision: 1.10 $
+ *  $Date: 2008/12/12 18:11:12 $
+ *  $Revision: 1.11 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -152,7 +152,7 @@ void DTResolutionAnalysisTest::endLuminosityBlock(LuminosityBlock const& lumiSeg
 	if(histo_root->GetEntries()>20){
 	  TF1 *gfit = new TF1("Gaussian","gaus",(statMean-(2*statSigma)),(statMean+(2*statSigma)));
 	  try {
-	    histo_root->Fit(gfit);
+	    histo_root->Fit(gfit, "Q0");
 	  } catch (...) {
 	    edm::LogWarning ("DTDQM|DTMonitorModule|DTResolutionAnalysisTask")
 	      << "[DTResolutionAnalysisTask]: Exception when fitting SL : " << slID;
