@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import cmsSimPerfPublish as cspp
+import cmsPerfPublish as cspp
 import cmsPerfSuite      as cps
 import cmsPerfHarvest    as cph
 #G.Benelli
