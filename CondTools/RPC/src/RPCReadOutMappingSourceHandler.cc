@@ -26,7 +26,7 @@ void popcon::RPCReadOutMappingSourceHandler::getNewObjects()
         edm::Service<cond::service::PoolDBOutputService> mydbservice;
 
 // first check what is already there in offline DB
-	const RPCReadOutMapping* cabling_prev = 0;  //just to avoid warnings
+	const RPCReadOutMapping* cabling_prev;
         if(m_validate==1) {
 //          std::cout<<" Validation was requested, so will check present contents"<<std::endl;
           std::cout<<" Sorry, validation not available for the moment..."<<std::endl;
