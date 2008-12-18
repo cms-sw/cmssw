@@ -9,13 +9,13 @@ dtunpacker = cms.EDFilter("DTUnpackingModule",
     fedbyType = cms.untracked.bool(False),
     useStandardFEDid = cms.untracked.bool(True),
     readOutParameters = cms.PSet(
-        debug = cms.untracked.bool(True),
+        debug = cms.untracked.bool(False),
         rosParameters = cms.PSet(
             writeSC = cms.untracked.bool(True),
             readingDDU = cms.untracked.bool(False),
             performDataIntegrityMonitor = cms.untracked.bool(False),
             readDDUIDfromDDU = cms.untracked.bool(False),
-            debug = cms.untracked.bool(True),
+            debug = cms.untracked.bool(False),
             localDAQ = cms.untracked.bool(True)
         ),
         localDAQ = cms.untracked.bool(True),
