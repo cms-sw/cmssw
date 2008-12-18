@@ -231,8 +231,9 @@ void NuclearInteractionSimulator::compute(ParticlePropagator& Particle)
     // Is this particle type foreseen?
     unsigned fPid = abs(thePid);
     if ( fPid != 211 && fPid != 130 && fPid != 321 && fPid != 2112 && fPid != 2212 ) { 
-      std::cout << "Unknown particle type = " << thePid << std::endl;
-      thePid = 211;
+      return;
+      //std::cout << "Unknown particle type = " << thePid << std::endl;
+      //thePid = 211;
     }
 
     // The inelastic interaction length at p(pion) = 5 GeV/c
