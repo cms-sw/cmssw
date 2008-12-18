@@ -23,13 +23,13 @@ namespace edm {
 
   std::string const& BranchTypeToMetaDataTreeName(BranchType const& branchType);
 
-  std::string const& BranchTypeToInfoTreeName(BranchType const& branchType);
+  std::string const& BranchTypeToInfoTreeName(BranchType const& branchType); // backward compatibility
 
   std::string const& BranchTypeToAuxiliaryBranchName(BranchType const& branchType);
 
-  std::string const& BranchTypeToAuxBranchName(BranchType const& branchType);
+  std::string const& BranchTypeToAuxBranchName(BranchType const& branchType); // backward compatibility
 
-  std::string const& BranchTypeToProductStatusBranchName(BranchType const& branchType);
+  std::string const& BranchTypeToProductStatusBranchName(BranchType const& branchType); // backward compatibility
 
   std::string const& BranchTypeToBranchEntryInfoBranchName(BranchType const& branchType);
 
@@ -46,13 +46,22 @@ namespace edm {
 
   namespace poolNames {
     //------------------------------------------------------------------
-    // EntryDescription Tree
+    // EntryDescription Tree // Obsolete
     std::string const& entryDescriptionTreeName();
 
-    // Branches on EntryDescription Tree
+    // Branches on EntryDescription Tree // Obsolete
     std::string const& entryDescriptionIDBranchName();
     std::string const& entryDescriptionBranchName();
 
+    //------------------------------------------------------------------
+    // Parentage Tree
+    std::string const& parentageTreeName();
+
+    // Branches on parentage tree
+    std::string const& parentageIDBranchName();
+    std::string const& parentageBranchName();
+
+    //------------------------------------------------------------------
     //------------------------------------------------------------------
     // MetaData Tree (1 entry per file)
     std::string const& metaDataTreeName();
@@ -61,9 +70,10 @@ namespace edm {
     std::string const& productDescriptionBranchName();
     std::string const& productDependenciesBranchName();
     std::string const& parameterSetMapBranchName();
-    std::string const& moduleDescriptionMapBranchName();
+    std::string const& moduleDescriptionMapBranchName(); // Obsolete
     std::string const& processHistoryMapBranchName();
-    std::string const& processConfigurationMapBranchName();
+    std::string const& processConfigurationBranchName();
+    std::string const& branchIDListBranchName();
     std::string const& fileFormatVersionBranchName();
     std::string const& fileIdentifierBranchName();
     std::string const& fileIndexBranchName();

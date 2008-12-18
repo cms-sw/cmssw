@@ -1,5 +1,5 @@
-#ifndef DataFormats_Common_HashedTypes_h
-#define DataFormats_Common_HashedTypes_h
+#ifndef DataFormats_Provenance_HashedTypes_h
+#define DataFormats_Provenance_HashedTypes_h
 
 
 /// Declaration of the enum HashedTypes, used in defining several "id"
@@ -8,12 +8,13 @@
 namespace edm
 {
   enum HashedTypes {
-      ModuleDescriptionType,
+      ModuleDescriptionType, // Obsolete
       ParameterSetType,
       ProcessHistoryType,
       ProcessConfigurationType,
-      EntryDescriptionType
+      EntryDescriptionType, // Obsolete
+      ParentageType
   };		     
 }
 
-#endif // DataFormats_Common_HashedTypes_h
+#endif // DataFormats_Provenance_HashedTypes_h

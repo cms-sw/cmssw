@@ -15,6 +15,7 @@ and how it came into existence.
 #include "DataFormats/Provenance/interface/EventEntryInfo.h"
 #include "DataFormats/Provenance/interface/EntryDescription.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
+#include "DataFormats/Provenance/interface/ModuleDescriptionID.h"
 
 /*
   BranchEntryDescription

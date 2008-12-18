@@ -70,10 +70,6 @@ namespace edm {
       ProcessHistoryID phid_;
     };
 
-    void setDefaultTransients() const {
-	transients_ = Transients();
-    };
-
   private:
     ProcessHistoryID & phid() const {return transients_.get().phid_;}
     collection_type data_;

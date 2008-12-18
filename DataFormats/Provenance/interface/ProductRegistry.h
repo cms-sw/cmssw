@@ -16,7 +16,10 @@
 #include <string>
 #include <vector>
 
+#include "boost/array.hpp"
+
 #include "DataFormats/Provenance/interface/BranchKey.h"
+#include "DataFormats/Provenance/interface/BranchType.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/ConstBranchDescription.h"
 #include "DataFormats/Provenance/interface/Transient.h"
@@ -44,7 +47,7 @@ namespace edm {
     // A constructor from the persistent data memebers from another product registry.
     // saves time by not copying the transient components.
     // The constructed registry will be frozen.
-    ProductRegistry(ProductList const& productList, unsigned int nextID);
+    explicit ProductRegistry(ProductList const& productList);
 
     virtual ~ProductRegistry() {}
 
@@ -59,22 +62,25 @@ namespace edm {
 
     void copyProduct(BranchDescription const& productdesc);
 
-    void setProductIDs(unsigned int startingID);
-
     void setFrozen() const;
 
     std::string merge(ProductRegistry const& other,
 	std::string const& fileName,
 	BranchDescription::MatchMode m);
 
+    void updateFromInput(ProductList const& other);
+
+    void updateFromInput(std::vector<BranchDescription> const& other);
+
     ProductList const& productList() const {
       //throwIfNotFrozen();
       return productList_;
     }
 
-    unsigned int nextID() const {return nextID_;}
-
-    void setNextID(unsigned int next) {nextID_ = next;}
+    ProductList& productListUpdator() {
+      throwIfFrozen();
+      return productList_;
+    }
 
     // Return all the branch names currently known to *this.  This
     // does a return-by-value of the vector so that it may be used in
@@ -118,6 +124,8 @@ namespace edm {
       Transients();
       bool frozen_;
       ConstProductList constProductList_; 
+      // Is at least one (run), (lumi), (event) product produced this process?
+      boost::array<bool, NumBranchTypes> productProduced_;
 
       // indices used to quickly find a group in the vector groups_
       // by type, first one by the type of the EDProduct and the
@@ -127,11 +135,11 @@ namespace edm {
       TypeLookup elementLookup_;
     };
 
-    void setDefaultTransients() const {
-	transients_ = Transients();
-    };
+    bool productProduced(BranchType branchType) const {return transients_.get().productProduced_[branchType];}
 
   private:
+    void setProductProduced(BranchType branchType) const {transients_.get().productProduced_[branchType] = true;}
+
     bool & frozen() const {return transients_.get().frozen_;}
     
     void initializeTransients() const;
@@ -143,7 +151,6 @@ namespace edm {
                            const BranchKey& bk) const;
     
     ProductList productList_;
-    unsigned int nextID_;
     mutable Transient<Transients> transients_;
     
   };
@@ -151,7 +158,7 @@ namespace edm {
   inline
   bool
   operator==(ProductRegistry const& a, ProductRegistry const& b) {
-    return a.nextID() == b.nextID() && a.productList() == b.productList();
+    return a.productList() == b.productList();
   }
 
   inline

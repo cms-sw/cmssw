@@ -3,7 +3,7 @@
 
 /*----------------------------------------------------------------------
   
-BranchMapper: The mapping from per event product ID's to BranchID's.
+BranchMapper: Manages the per event/lumi/run per product provenance.
 
 ----------------------------------------------------------------------*/
 #include <iosfwd>
@@ -11,9 +11,9 @@ BranchMapper: The mapping from per event product ID's to BranchID's.
 #include <map>
 #include "boost/shared_ptr.hpp"
 
-#include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Provenance/interface/BranchID.h"
-#include "DataFormats/Provenance/interface/EventEntryInfo.h"
+#include "DataFormats/Provenance/interface/ProductProvenance.h"
+#include "DataFormats/Provenance/interface/ProcessHistoryID.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 
 /*
@@ -22,44 +22,48 @@ BranchMapper: The mapping from per event product ID's to BranchID's.
 */
 
 namespace edm {
+  class ProductID;
   class BranchMapper {
   public:
     BranchMapper();
 
     explicit BranchMapper(bool delayedRead);
 
-    virtual ~BranchMapper() {}
+    virtual ~BranchMapper();
 
     void write(std::ostream& os) const;
 
-    BranchID productToBranch(ProductID const& pid) const;
-    
-    boost::shared_ptr<EventEntryInfo> branchToEntryInfo(BranchID const& bid) const;
+    boost::shared_ptr<ProductProvenance> branchIDToProvenance(BranchID const& bid) const;
 
-    void insert(EventEntryInfo const& entryInfo);
+    void insert(ProductProvenance const& provenanceProduct);
 
     void mergeMappers(boost::shared_ptr<BranchMapper> other) {nextMapper_ = other;}
 
-    ProductID maxProductID() const;
+    void setDelayedRead(bool value) {delayedRead_ = value;}
 
-    void setDelayedRead(bool value) { delayedRead_ = value; }
+    BranchID oldProductIDToBranchID(ProductID const& oldProductID) const {
+      return oldProductIDToBranchID_(oldProductID);
+    }
+
+    ProcessHistoryID const& processHistoryID() const {return processHistoryID_;}
+
+    ProcessHistoryID& processHistoryID() {return processHistoryID_;}
 
   private:
-    typedef std::set<EventEntryInfo> eiSet;
-    typedef std::map<ProductID, eiSet::const_iterator> eiMap;
-    static bool fpred(eiSet::value_type const& a, eiSet::value_type const& b);
+    typedef std::set<ProductProvenance> eiSet;
 
     void readProvenance() const;
     virtual void readProvenance_() const {}
 
-    eiSet entryInfoSet_;
+    virtual BranchID oldProductIDToBranchID_(ProductID const& oldProductID) const;
 
-    eiMap entryInfoMap_;
+    eiSet entryInfoSet_;
 
     boost::shared_ptr<BranchMapper> nextMapper_;
 
     mutable bool delayedRead_;
 
+    ProcessHistoryID processHistoryID_;
   };
   
   inline

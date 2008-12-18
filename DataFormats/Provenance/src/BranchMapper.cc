@@ -8,17 +8,19 @@
 namespace edm {
   BranchMapper::BranchMapper() :
     entryInfoSet_(),
-    entryInfoMap_(),
     nextMapper_(),
-    delayedRead_(false)
+    delayedRead_(false),
+    processHistoryID_()
   { }
 
   BranchMapper::BranchMapper(bool delayedRead) :
     entryInfoSet_(),
-    entryInfoMap_(),
     nextMapper_(),
-    delayedRead_(delayedRead)
+    delayedRead_(delayedRead),
+    processHistoryID_()
   { }
+
+  BranchMapper::~BranchMapper() {}
 
   void
   BranchMapper::readProvenance() const {
@@ -29,80 +31,30 @@ namespace edm {
   }
 
   void
-  BranchMapper::insert(EventEntryInfo const& entryInfo) {
+  BranchMapper::insert(ProductProvenance const& entryInfo) {
     readProvenance();
     entryInfoSet_.insert(entryInfo);
-    if (!entryInfoMap_.empty()) {
-      entryInfoMap_.insert(std::make_pair(entryInfo.productID(), entryInfoSet_.find(entryInfo)));
-    }
   }
     
-  boost::shared_ptr<EventEntryInfo>
-  BranchMapper::branchToEntryInfo(BranchID const& bid) const {
+  boost::shared_ptr<ProductProvenance>
+  BranchMapper::branchIDToProvenance(BranchID const& bid) const {
     readProvenance();
-    EventEntryInfo ei(bid);
+    ProductProvenance ei(bid);
     eiSet::const_iterator it = entryInfoSet_.find(ei);
     if (it == entryInfoSet_.end()) {
       if (nextMapper_) {
-	return nextMapper_->branchToEntryInfo(bid);
+	return nextMapper_->branchIDToProvenance(bid);
       } else {
-	return boost::shared_ptr<EventEntryInfo>();
+	return boost::shared_ptr<ProductProvenance>();
       }
     }
-    return boost::shared_ptr<EventEntryInfo>(new EventEntryInfo(*it));
+    return boost::shared_ptr<ProductProvenance>(new ProductProvenance(*it));
   }
 
-/*
-  ProductID 
-  BranchMapper::branchToProduct(BranchID const& bid) const {
-    readProvenance();
-    EventEntryInfo ei(bid);
-    typename eiSet::const_iterator it = entryInfoSet_.find(ei);
-    if (it == entryInfoSet_.end()) {
-      if (nextMapper_) {
-	return nextMapper_->branchToProduct(bid);
-      } else {
-	return ProductID();
-      }
-    }
-    return it->productID();
-  }
-*/
-
-  BranchID 
-  BranchMapper::productToBranch(ProductID const& pid) const {
-    readProvenance();
-    if (entryInfoMap_.empty()) {
-      eiMap & map = const_cast<eiMap &>(entryInfoMap_);
-      for (eiSet::const_iterator i = entryInfoSet_.begin(), iEnd = entryInfoSet_.end();
-	  i != iEnd; ++i) {
-	map.insert(std::make_pair(i->productID(), i));
-      }
-    }
-    eiMap::const_iterator it = entryInfoMap_.find(pid);
-    if (it == entryInfoMap_.end()) {
-      if (nextMapper_) {
-	return nextMapper_->productToBranch(pid);
-      } else {
-	return BranchID();
-      }
-    }
-    return it->second->branchID();
-  }
-
-  bool
-  BranchMapper::fpred(eiSet::value_type const& a, eiSet::value_type const& b) {
-    return a.productID() < b.productID();
-  }
-
-  ProductID
-  BranchMapper::maxProductID() const {
-    readProvenance();
-    if (entryInfoSet_.empty()) {
-      return ProductID(0);
-    } else {
-      eiSet::const_iterator it = std::max_element(entryInfoSet_.begin(), entryInfoSet_.end(), fpred);
-      return it->productID();
-    }
+  BranchID
+  BranchMapper::oldProductIDToBranchID_(ProductID const& ) const {
+    throw edm::Exception(errors::LogicError)
+        << "Internal error:  Illegal call of oldProductIDToBranchID_.\n"
+        << "Please report this error to the Framework group\n";
   }
 }

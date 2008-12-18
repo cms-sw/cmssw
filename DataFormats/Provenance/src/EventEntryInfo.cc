@@ -94,9 +94,9 @@ namespace edm {
       noEntryDescription() = true;
     }
 
-  EventEntryInfo
-  EventEntryInfo::makeEntryInfo() const {
-    return *this;
+  ProductProvenance
+  EventEntryInfo::makeProductProvenance() const {
+    return ProductProvenance(branchID_, productStatus_);
   }
 
   EventEntryDescription const &

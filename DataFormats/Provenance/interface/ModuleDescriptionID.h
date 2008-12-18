@@ -4,6 +4,8 @@
 #include "DataFormats/Provenance/interface/HashedTypes.h"
 #include "DataFormats/Provenance/interface/Hash.h"
 
+// Obsolete
+
 namespace edm
 {
   typedef Hash<ModuleDescriptionType> ModuleDescriptionID;

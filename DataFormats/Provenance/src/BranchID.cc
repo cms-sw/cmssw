@@ -4,9 +4,10 @@
 
 namespace edm {
 
-  void BranchID::setID(std::string const& branchName) {
+  BranchID::value_type
+  BranchID::toID(std::string const& branchName) {
     cms::CRC32Calculator crc32(branchName);
-    id_ = crc32.checksum();
+    return crc32.checksum();
   }
 
   std::ostream&

@@ -14,7 +14,9 @@ and how it came into existence, plus the product identifier and the status.
 
 #include "DataFormats/Provenance/interface/BranchID.h"
 #include "DataFormats/Provenance/interface/EntryDescriptionID.h"
+#include "DataFormats/Provenance/interface/ModuleDescriptionID.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
+#include "DataFormats/Provenance/interface/ProductProvenance.h"
 #include "DataFormats/Provenance/interface/ProductStatus.h"
 #include "DataFormats/Provenance/interface/ProvenanceFwd.h"
 #include "DataFormats/Provenance/interface/Transient.h"
@@ -24,6 +26,7 @@ and how it came into existence, plus the product identifier and the status.
 */
 
 namespace edm {
+  class EventEntryDescription;
   class EventEntryInfo {
   public:
     typedef std::vector<EventEntryInfo> EntryInfoVector;
@@ -53,7 +56,7 @@ namespace edm {
 
     ~EventEntryInfo() {}
 
-    EventEntryInfo makeEntryInfo() const;
+    ProductProvenance makeProductProvenance() const;
 
     void write(std::ostream& os) const;
 
@@ -76,10 +79,6 @@ namespace edm {
       ModuleDescriptionID moduleDescriptionID_;
       boost::shared_ptr<EventEntryDescription> entryDescriptionPtr_;
       bool noEntryDescription_;
-    };
-
-    void setDefaultTransients() const {
-	transients_ = Transients();
     };
 
   private:

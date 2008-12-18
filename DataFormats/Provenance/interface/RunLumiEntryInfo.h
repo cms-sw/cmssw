@@ -13,42 +13,39 @@ and how it came into existence, plus the product identifier and the status.
 #include "boost/shared_ptr.hpp"
 
 #include "DataFormats/Provenance/interface/BranchID.h"
+#include "DataFormats/Provenance/interface/EntryDescriptionID.h"
 #include "DataFormats/Provenance/interface/ModuleDescriptionID.h"
 #include "DataFormats/Provenance/interface/ProductStatus.h"
+#include "DataFormats/Provenance/interface/ProductProvenance.h"
 #include "DataFormats/Provenance/interface/ProvenanceFwd.h"
 
 /*
   RunLumiEntryInfo
 */
-#include "DataFormats/Provenance/interface/ProductID.h"
-
 namespace edm {
   class RunLumiEntryInfo {
   public:
     typedef std::vector<RunLumiEntryInfo> EntryInfoVector;
     RunLumiEntryInfo();
     explicit RunLumiEntryInfo(BranchID const& bid);
-    explicit RunLumiEntryInfo(EventEntryInfo const& ei);
+    explicit RunLumiEntryInfo(ProductProvenance const& ei);
     RunLumiEntryInfo(BranchID const& bid,
 		    ProductStatus status);
     RunLumiEntryInfo(BranchID const& bid,
 		    ProductStatus status,
 		    ModuleDescriptionID const& mid,
-		    ProductID const& pid = ProductID(),
 		    std::vector<BranchID> const& parents = std::vector<BranchID>());
 
     RunLumiEntryInfo(BranchID const& bid,
 		    ProductStatus status,
-		    ProductID const& pid,
 		    EntryDescriptionID const& edid);
 
     ~RunLumiEntryInfo() {}
 
-    EventEntryInfo makeEntryInfo() const;
+    ProductProvenance makeProductProvenance() const;
 
     void write(std::ostream& os) const;
 
-    ProductID const& productID() const {assert(0 && "Run and lumi products do not have productID's"); return *new ProductID;}
     BranchID const& branchID() const {return branchID_;}
     ProductStatus const& productStatus() const {return productStatus_;}
     ModuleDescriptionID const& moduleDescriptionID() const {return moduleDescriptionID_;}
@@ -56,6 +53,7 @@ namespace edm {
     void setModuleDescriptionID(ModuleDescriptionID const& mdid) {moduleDescriptionID_ = mdid;}
     void setPresent();
     void setNotPresent();
+    ModuleDescriptionID const& entryDescriptionID() const {return moduleDescriptionID_;}
 
   private:
     BranchID branchID_;

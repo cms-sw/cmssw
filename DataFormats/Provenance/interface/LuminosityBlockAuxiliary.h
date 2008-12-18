@@ -36,6 +36,7 @@ namespace edm
     ~LuminosityBlockAuxiliary() {}
     void write(std::ostream& os) const;
     ProcessHistoryID& processHistoryID() const {return processHistoryID_;}
+    void setProcessHistoryID(ProcessHistoryID const& phid) const {processHistoryID_ = phid;}
     LuminosityBlockNumber_t luminosityBlock() const {return id().luminosityBlock();}
     RunNumber_t run() const {return id().run();}
     LuminosityBlockID const& id() const {return id_;}

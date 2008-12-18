@@ -10,6 +10,7 @@ This class is not persistable.
 ----------------------------------------------------------------------*/
 #include <iosfwd>
 #include <string>
+#include <map>
 #include <set>
 
 #include "boost/shared_ptr.hpp"
@@ -36,7 +37,6 @@ namespace edm {
     std::string const& moduleLabel() const {return ptr_->moduleLabel();}
     std::string const& processName() const {return ptr_->processName();}
     BranchID const& branchID() const {return ptr_->branchID();}
-    ProductID const& productIDtoAssign() const {return ptr_->productIDtoAssign();}
     std::string const& fullClassName() const {return ptr_->fullClassName();}
     std::string const& className() const {return ptr_->fullClassName();}
     std::string const& friendlyClassName() const {return ptr_->friendlyClassName();}
@@ -48,11 +48,10 @@ namespace edm {
     int const& splitLevel() const {return ptr_->splitLevel();}
     int const& basketSize() const {return ptr_->basketSize();}
 
-    ModuleDescriptionID const& moduleDescriptionID() const {return ptr_->moduleDescriptionID();}
-    std::set<ParameterSetID> const& psetIDs() const {return ptr_->psetIDs();}
+    ParameterSetID const& parameterSetID() const {return ptr_->parameterSetID();}
+    std::map<ProcessConfigurationID, ParameterSetID> const& parameterSetIDs() const {return ptr_->parameterSetIDs();}
     ParameterSetID const& psetID() const {return ptr_->psetID();}
-    bool isPsetIDUnique() const {return ptr_->psetIDs().size() == 1;}
-    std::set<ProcessConfigurationID> const& processConfigurationIDs() const {return ptr_->processConfigurationIDs();}
+    bool isPsetIDUnique() const {return ptr_->parameterSetIDs().size() == 1;}
     std::set<std::string> const& branchAliases() const {return ptr_->branchAliases();}
     std::string const& branchName() const {return ptr_->branchName();}
     BranchType const& branchType() const {return ptr_->branchType();}

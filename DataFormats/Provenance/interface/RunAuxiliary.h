@@ -34,6 +34,7 @@ namespace edm
     ~RunAuxiliary() {}
     void write(std::ostream& os) const;
     ProcessHistoryID& processHistoryID() const {return processHistoryID_;}
+    void setProcessHistoryID(ProcessHistoryID const& phid) const {processHistoryID_ = phid;}
     RunID const& id() const {return id_;}
     Timestamp const& beginTime() const {return beginTime_;}
     Timestamp const& endTime() const {return endTime_;}

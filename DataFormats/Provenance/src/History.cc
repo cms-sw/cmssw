@@ -4,39 +4,28 @@ namespace edm
 {
   
   History::size_type
-  History::size() const
-  {
+  History::size() const {
     return eventSelections_.size();
   }
 
   void 
-  History::addEntry(EventSelectionID const& eventSelection)
-  {
+  History::addEventSelectionEntry(EventSelectionID const& eventSelection) {
     eventSelections_.push_back(eventSelection);
   }
 
-  void
-  History::setProcessHistoryID(ProcessHistoryID const& pid) {
-    processHistoryID_ = pid;
+  void 
+  History::addBranchListIndexEntry(BranchListIndex const& branchListIndex) {
+    branchListIndexes_.push_back(branchListIndex);
   }
 
-
   EventSelectionID const&
-  History::getEventSelectionID(History::size_type i) const
-  {
+  History::getEventSelectionID(History::size_type i) const {
     return eventSelections_[i];
   }
 
   EventSelectionIDVector const&
-  History::eventSelectionIDs() const
-  {
+  History::eventSelectionIDs() const {
     return eventSelections_;
-  }
-
-  ProcessHistoryID const&
-  History::processHistoryID() const
-  {
-    return processHistoryID_;
   }
 
 }

@@ -1,5 +1,7 @@
 <lcgdict>
- <class name="edm::ProductID"/>
+ <class name="edm::ProductID">
+   <field name="oldID_" transient="true"/>
+ </class>
  <class name="edm::BranchID"/>
  <class name="edm::EventID"/>
  <class name="edm::LuminosityBlockID"/>
@@ -13,9 +15,6 @@
  <class name="edm::History"/>
  <class name="edm::LuminosityBlockAuxiliary"/>
  <class name="edm::RunAuxiliary"/>
- <class name="edm::EventAux"/>
- <class name="edm::LuminosityBlockAux"/>
- <class name="edm::RunAux"/>
  <class name="edm::ProductRegistry"/>
  <class name="std::map<edm::BranchKey,edm::BranchDescription>"/>
  <class name="std::pair<edm::BranchKey,edm::BranchDescription>"/>
@@ -27,15 +26,9 @@
  <class name="std::vector<edm::ProductID>"/>
  <class name="std::vector<edm::EventID>"/>
  <class name="std::vector<std::vector<edm::EventID> >"/>
- <class name="edm::ModuleDescription"/>
- <class name="edm::BranchEntryDescription"/>
  <class name="edm::BranchChildren"/>
- <class name="edm::EventEntryInfo"/>
- <class name="edm::RunLumiEntryInfo"/>
- <class name="std::vector<edm::EventEntryInfo>"/>
- <class name="std::vector<edm::RunLumiEntryInfo>"/>
- <class name="edm::EntryDescription"/>
- <class name="edm::EventEntryDescription"/>
+ <class name="edm::ProductProvenance"/>
+ <class name="std::vector<edm::ProductProvenance>"/>
  <class name="edm::BranchDescription"/>
  <class name="edm::ParameterSetBlob"/>
  <class name="edm::ProcessConfiguration"/>
@@ -45,25 +38,42 @@
  <class name="edm::FileIndex::Element"/>
  <class name="std::vector<edm::FileIndex::Element>"/>
  <class name="edm::FileIndex"/>
- <class name="edm::EventProcessHistoryID"/>
- <class name="std::vector<edm::EventProcessHistoryID>"/>
- <class name="edm::Hash<0>"/>
- <class name="std::map<edm::Hash<0>,edm::ModuleDescription>"/>
- <class name="std::pair<edm::Hash<0>,edm::ModuleDescription>"/>
- <class name="edm::Hash<2>"/>
- <class name="std::set<edm::Hash<2> >"/>
- <class name="std::map<edm::Hash<2>,edm::ProcessHistory>"/>
- <class name="std::pair<edm::Hash<2>,edm::ProcessHistory>"/>
- <class name="edm::Hash<1>"/>
- <class name="std::set<edm::Hash<1> >"/>
- <class name="std::map<edm::Hash<1>,edm::ParameterSetBlob>"/>
- <class name="std::pair<edm::Hash<1>,edm::ParameterSetBlob>"/>
- <class name="edm::Hash<3>"/>
- <class name="std::set<edm::Hash<3> >"/>
- <class name="std::map<edm::Hash<3>,edm::ProcessConfiguration>"/>
- <class name="std::pair<edm::Hash<3>,edm::ProcessConfiguration>"/>
- <class name="edm::Hash<4>"/>
+ <class name="edm::ProcessHistoryID"/>
+ <class name="std::set<edm::ProcessHistoryID >"/>
+ <class name="std::map<edm::ProcessHistoryID,edm::ProcessHistory>"/>
+ <class name="std::pair<edm::ProcessHistoryID,edm::ProcessHistory>"/>
+ <class name="edm::ParameterSetID"/>
+ <class name="std::vector<edm::ParameterSetID >"/>
+ <class name="std::vector<std::vector<edm::ParameterSetID > >"/>
+ <class name="std::map<edm::ParameterSetID,edm::ParameterSetBlob>"/>
+ <class name="std::pair<edm::ParameterSetID,edm::ParameterSetBlob>"/>
+ <class name="edm::ProcessConfigurationID"/>
+ <class name="std::map<edm::ProcessConfigurationID,std::string>"/>
+ <class name="std::pair<edm::ProcessConfigurationID,std::string>"/>
+ <class name="std::map<edm::ProcessConfigurationID,edm::ParameterSetID>"/>
+ <class name="std::pair<edm::ProcessConfigurationID,edm::ParameterSetID>"/>
+ <class name="std::map<edm::ProcessConfigurationID,edm::ProcessConfiguration>"/>
+ <class name="std::pair<edm::ProcessConfigurationID,edm::ProcessConfiguration>"/>
+ <class name="edm::ParentageID"/>
+ <class name="edm::Parentage"/>
  <class pattern="edm::Transient<*>">
    <field name="value_" transient="true"/>
  </class>
+
+ <class name="edm::EventAux"/>
+ <class name="edm::LuminosityBlockAux"/>
+ <class name="edm::RunAux"/>
+ <class name="edm::ModuleDescription"/>
+ <class name="edm::BranchEntryDescription"/>
+ <class name="edm::EventEntryInfo"/>
+ <class name="edm::RunLumiEntryInfo"/>
+ <class name="std::vector<edm::EventEntryInfo>"/>
+ <class name="std::vector<edm::RunLumiEntryInfo>"/>
+ <class name="edm::EntryDescription"/>
+ <class name="edm::EventEntryDescription"/>
+ <class name="edm::EventProcessHistoryID"/>
+ <class name="std::vector<edm::EventProcessHistoryID>"/>
+ <class name="edm::ModuleDescriptionID"/>
+ <class name="std::map<edm::ModuleDescriptionID,edm::ModuleDescription>"/>
+ <class name="std::pair<edm::ModuleDescriptionID,edm::ModuleDescription>"/>
 </lcgdict>

@@ -12,8 +12,9 @@ and how it came into existence.
 #include "boost/shared_ptr.hpp"
 
 #include "DataFormats/Provenance/interface/ProductID.h"
-#include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "DataFormats/Provenance/interface/EntryDescriptionID.h"
+#include "DataFormats/Provenance/interface/ModuleDescription.h"
+#include "DataFormats/Provenance/interface/ModuleDescriptionID.h"
 
 /*
   EntryDescription

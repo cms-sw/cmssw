@@ -4,25 +4,59 @@
 /*----------------------------------------------------------------------
   
 ProductID: A unique identifier for each EDProduct within a process.
+Used only in Ref, Ptr, and similar classes.
 
-$Id: ProductID.h,v 1.1 2007/03/04 04:48:09 wmtan Exp $
+The high order 16 bits is the process index, identifying the process
+in which the product was created.  Exception: An index of 0 means that
+the product was created prior to the new format (i.e. prior to CMSSW_3_0_0.
+
+The low order 16 bits is the product index, identifying the product that
+in which the product was created.  An index of zero means no product.
+
+
+The 
 
 ----------------------------------------------------------------------*/
 
 #include <iosfwd>
 
 namespace edm {
-  struct ProductID {
-    ProductID() : id_(0) {}
-    explicit ProductID(unsigned int id) : id_(id) {}
-    bool isValid() const { return id_ != 0U; }
-    unsigned int id() const { return id_; }
-    unsigned int id_;
-    bool operator<(ProductID const& rh) const {return id_ < rh.id_;}
-    bool operator>(ProductID const& rh) const {return id_ > rh.id_;}
-    bool operator==(ProductID const& rh) const {return id_ == rh.id_;}
-    bool operator!=(ProductID const& rh) const {return id_ != rh.id_;}
+
+  typedef unsigned short ProcessIndex;
+  typedef unsigned short ProductIndex;
+  class ProductID {
+  public:
+    ProductID() : processIndex_(0),
+		  productIndex_(0),
+		  oldID_(0) {}
+    explicit
+    ProductID(ProductIndex productIndex) : processIndex_(0), productIndex_(productIndex), oldID_(0) {}
+    ProductID(ProcessIndex processIndex, ProductIndex productIndex) :
+      processIndex_(processIndex), productIndex_(productIndex), oldID_(0) {}
+    bool isValid() const {return productIndex_ != 0;}
+    ProcessIndex processIndex() const {return processIndex_;}
+    ProcessIndex productIndex() const {return productIndex_;}
+    ProductIndex id() const {return productIndex_;} // backward compatibility
+
+    unsigned int oldID() const {return oldID_;}
+    unsigned int & oldID() {return oldID_;}
+
+  private:
+    ProcessIndex processIndex_;
+    ProductIndex productIndex_;
+    unsigned int oldID_;
   };
+
+  inline
+  bool operator==(ProductID const& lh, ProductID const& rh) {
+    return lh.processIndex() == rh.processIndex() && lh.productIndex() == rh.productIndex();
+  }
+  inline
+  bool operator!=(ProductID const& lh, ProductID const& rh) {
+    return !(lh == rh);
+  }
+
+  bool operator<(ProductID const& lh, ProductID const& rh);
 
   std::ostream&
   operator<<(std::ostream& os, ProductID const& id);

@@ -13,12 +13,13 @@ BranchID: A unique identifier for each branch.
 namespace edm {
   class BranchID {
   public:
+    typedef unsigned int value_type;
     BranchID() : id_(0) { }
-    explicit BranchID(std::string const& str) {
-      setID(str);
+    explicit BranchID(std::string const& branchName) : id_(toID(branchName)) {
     }
-    void setID(std::string const& branchName);
-
+    explicit BranchID(value_type id) : id_(id) {
+    }
+    void setID(std::string const& branchName) {id_ = toID(branchName);}
     unsigned int id() const { return id_; }
     bool isValid() const {return id_ != 0;}
 
@@ -28,8 +29,10 @@ namespace edm {
     bool operator!=(BranchID const& rh) const {return id_ != rh.id_;}
 
   private:
-    unsigned int id_;
+    static value_type toID(std::string const& branchName);
+    value_type id_;
   };
+  
 
   std::ostream&
   operator<<(std::ostream& os, BranchID const& id);

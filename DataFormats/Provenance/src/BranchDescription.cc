@@ -14,8 +14,7 @@
 
 namespace edm {
   BranchDescription::Transients::Transients() :
-    moduleDescriptionID_(),
-    productIDtoAssign_(),
+    parameterSetID_(),
     branchName_(),
     wrappedName_(),
     produced_(false),
@@ -35,8 +34,8 @@ namespace edm {
     fullClassName_(),
     friendlyClassName_(),
     productInstanceName_(),
-    psetIDs_(),
-    processConfigurationIDs_(),
+    parameterSetIDs_(),
+    moduleNames_(),
     branchAliases_(),
     transients_()
   {
@@ -60,48 +59,16 @@ namespace edm {
     fullClassName_(name),
     friendlyClassName_(fName),
     productInstanceName_(pin),
-    psetIDs_(),
-    processConfigurationIDs_(),
+    parameterSetIDs_(),
+    moduleNames_(),
     branchAliases_(aliases),
     transients_()
   {
     present() = true;
     produced() = true;
-    moduleDescriptionID() = modDesc.id();
-    psetIDs_.insert(modDesc.parameterSetID());
-    processConfigurationIDs_.insert(modDesc.processConfigurationID());
-    init();
-  }
-
-
-
-  BranchDescription::BranchDescription(
-			BranchType const& branchType,
-			std::string const& mdLabel, 
-			std::string const& procName, 
-			std::string const& name, 
-			std::string const& fName, 
-			std::string const& pin, 
-			ModuleDescriptionID const& mdID,
-			std::set<ParameterSetID> const& psIDs,
-			std::set<ProcessConfigurationID> const& procConfigIDs,
-			std::set<std::string> const& aliases) :
-    branchType_(branchType),
-    moduleLabel_(mdLabel),
-    processName_(procName),
-    branchID_(),
-    productID_(),
-    fullClassName_(name),
-    friendlyClassName_(fName),
-    productInstanceName_(pin),
-    psetIDs_(psIDs),
-    processConfigurationIDs_(procConfigIDs),
-    branchAliases_(aliases),
-    transients_()
-  {
-    present() = true;
-    produced() = true;
-    moduleDescriptionID() = mdID;
+    transients_.get().parameterSetID_ = modDesc.parameterSetID();
+    parameterSetIDs_.insert(std::make_pair(modDesc.processConfigurationID(),modDesc.parameterSetID()));
+    moduleNames_.insert(std::make_pair(modDesc.processConfigurationID(),modDesc.moduleName()));
     init();
   }
 
@@ -182,20 +149,20 @@ namespace edm {
 
   ParameterSetID const&
     BranchDescription::psetID() const {
-    assert(!psetIDs().empty());
-    if (psetIDs().size() != 1) {
+    assert(!parameterSetIDs().empty());
+    if (parameterSetIDs().size() != 1) {
       throw cms::Exception("Ambiguous")
 	<< "Your application requires all events on Branch '" << branchName()
 	<< "'\n to have the same provenance. This file has events with mixed provenance\n"
 	<< "on this branch.  Use a different input file.\n";
     }
-    return *psetIDs().begin();
+    return parameterSetIDs().begin()->second;
   }
 
   void
   BranchDescription::merge(BranchDescription const& other) {
-    psetIDs_.insert(other.psetIDs().begin(), other.psetIDs().end());
-    processConfigurationIDs_.insert(other.processConfigurationIDs().begin(), other.processConfigurationIDs().end());
+    parameterSetIDs_.insert(other.parameterSetIDs().begin(), other.parameterSetIDs().end());
+    moduleNames_.insert(other.moduleNames().begin(), other.moduleNames().end());
     branchAliases_.insert(other.branchAliases().begin(), other.branchAliases().end());
     present() = present() || other.present();
     if (splitLevel() == invalidSplitLevel) splitLevel() = other.splitLevel();
@@ -240,8 +207,8 @@ namespace edm {
     if (friendlyClassName_.empty())
       throwExceptionWithText("Friendly class name is not allowed to be empty");
 
-    if (produced() && !moduleDescriptionID().isValid())
-      throwExceptionWithText("Invalid ModuleDescriptionID detected");    
+    if (produced() && !parameterSetID().isValid())
+      throwExceptionWithText("Invalid ParameterSetID detected");    
   }
 
   void
@@ -265,10 +232,10 @@ namespace edm {
     if (b.branchType() < a.branchType()) return false;
     if (a.branchID() < b.branchID()) return true;
     if (b.branchID() < a.branchID()) return false;
-    if (a.psetIDs() < b.psetIDs()) return true;
-    if (b.psetIDs() < a.psetIDs()) return false;
-    if (a.processConfigurationIDs() < b.processConfigurationIDs()) return true;
-    if (b.processConfigurationIDs() < a.processConfigurationIDs()) return false;
+    if (a.parameterSetIDs() < b.parameterSetIDs()) return true;
+    if (b.parameterSetIDs() < a.parameterSetIDs()) return false;
+    if (a.moduleNames() < b.moduleNames()) return true;
+    if (b.moduleNames() < a.moduleNames()) return false;
     if (a.branchAliases() < b.branchAliases()) return true;
     if (b.branchAliases() < a.branchAliases()) return false;
     if (a.present() < b.present()) return true;
@@ -292,8 +259,8 @@ namespace edm {
   operator==(BranchDescription const& a, BranchDescription const& b) {
     return combinable(a, b) &&
        (a.present() == b.present()) &&
-       (a.psetIDs() == b.psetIDs()) &&
-       (a.processConfigurationIDs() == b.processConfigurationIDs()) &&
+       (a.moduleNames() == b.moduleNames()) &&
+       (a.parameterSetIDs() == b.parameterSetIDs()) &&
        (a.branchAliases() == b.branchAliases());
   }
 
@@ -326,21 +293,12 @@ namespace edm {
       differences << "Branch '" << a.branchName() << "' was dropped in previous files but is present in '" << fileName << "'.\n";
     }
     if (m == BranchDescription::Strict) {
-	if (b.psetIDs().size() > 1) {
+	if (b.parameterSetIDs().size() > 1) {
 	  differences << "Branch '" << b.branchName() << "' uses more than one parameter set in file '" << fileName << "'.\n";
-	} else if (a.psetIDs().size() > 1) {
+	} else if (a.parameterSetIDs().size() > 1) {
 	  differences << "Branch '" << a.branchName() << "' uses more than one parameter set in previous files.\n";
-	} else if (a.psetIDs() != b.psetIDs()) {
+	} else if (a.parameterSetIDs() != b.parameterSetIDs()) {
 	  differences << "Branch '" << b.branchName() << "' uses different parameter sets in file '" << fileName << "'.\n";
-	  differences << "    than in previous files.\n";
-	}
-
-	if (b.processConfigurationIDs().size() > 1) {
-	  differences << "Branch '" << b.branchName() << "' uses more than one process configuration in file '" << fileName << "'.\n";
-	} else if (a.processConfigurationIDs().size() > 1) {
-	  differences << "Branch '" << a.branchName() << "' uses more than one process configuration in previous files.\n";
-	} else if (a.processConfigurationIDs() != b.processConfigurationIDs()) {
-	  differences << "Branch '" << b.branchName() << "' uses different process configurations in file '" << fileName << "'.\n";
 	  differences << "    than in previous files.\n";
 	}
     }

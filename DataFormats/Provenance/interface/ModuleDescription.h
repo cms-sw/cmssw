@@ -5,7 +5,7 @@
   
 ModuleDescription: The description of a producer module.
 
-$Id: ModuleDescription.h,v 1.8 2006/08/24 22:15:44 wmtan Exp $
+$Id: ModuleDescription.h,v 1.1.8.1 2008/11/20 20:31:50 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <string>
 #include <iosfwd>
@@ -44,7 +44,7 @@ namespace edm {
 
     bool operator!=(ModuleDescription const& rh) const;
     
-    ModuleDescriptionID id() const;
+    ModuleDescriptionID id() const; // For backward compatibility
 
     // ID of parameter set of the creator
     ParameterSetID parameterSetID_;

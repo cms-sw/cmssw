@@ -9,6 +9,7 @@ This description also applies to every product instance on the branch.
 ----------------------------------------------------------------------*/
 #include <iosfwd>
 #include <string>
+#include <map>
 #include <set>
 
 #include "DataFormats/Provenance/interface/ProvenanceFwd.h"
@@ -16,7 +17,6 @@ This description also applies to every product instance on the branch.
 #include "DataFormats/Provenance/interface/BranchID.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
-#include "DataFormats/Provenance/interface/ModuleDescriptionID.h"
 #include "DataFormats/Provenance/interface/ProcessConfigurationID.h"
 #include "DataFormats/Provenance/interface/Transient.h"
 
@@ -48,18 +48,6 @@ namespace edm {
 		      ModuleDescription const& modDesc,
 		      std::set<std::string> const& aliases = std::set<std::string>());
 
-
-    BranchDescription(BranchType const& branchType,
-		      std::string const& mdLabel, 
-		      std::string const& procName, 
-		      std::string const& name, 
-		      std::string const& fName, 
-		      std::string const& pin, 
-		      ModuleDescriptionID const& mdID, // = ModuleDescriptionID(),
-		      std::set<ParameterSetID> const& psIDs, // = std::set<ParameterSetID>(),
-		      std::set<ProcessConfigurationID> const& procConfigIDs, // = std::set<ProcessConfigurationID>(),
-		      std::set<std::string> const& aliases = std::set<std::string>());
-
     ~BranchDescription() {}
 
     void init() const;
@@ -72,7 +60,6 @@ namespace edm {
     std::string const& processName() const {return processName_;}
     BranchID const& branchID() const {return branchID_;}
     ProductID const& oldProductID() const {return productID_;}
-    ProductID & productIDtoAssign() const {return transients_.get().productIDtoAssign_;}
     std::string const& fullClassName() const {return fullClassName_;}
     std::string const& className() const {return fullClassName();}
     std::string const& friendlyClassName() const {return friendlyClassName_;}
@@ -84,11 +71,13 @@ namespace edm {
     int & splitLevel() const {return transients_.get().splitLevel_;}
     int & basketSize() const {return transients_.get().basketSize_;}
 
-    ModuleDescriptionID & moduleDescriptionID() const {return transients_.get().moduleDescriptionID_;}
-    std::set<ParameterSetID> const& psetIDs() const {return psetIDs_;}
+    ParameterSetID const& parameterSetID() const {return transients_.get().parameterSetID_;}
+    std::map<ProcessConfigurationID, ParameterSetID> const& parameterSetIDs() const {return parameterSetIDs_;}
+    std::map<ProcessConfigurationID, std::string> const& moduleNames() const {return moduleNames_;}
+    std::map<ProcessConfigurationID, ParameterSetID>& parameterSetIDs() {return parameterSetIDs_;}
+    std::map<ProcessConfigurationID, std::string>& moduleNames() {return moduleNames_;}
     ParameterSetID const& psetID() const;
-    bool isPsetIDUnique() const {return psetIDs().size() == 1;}
-    std::set<ProcessConfigurationID> const& processConfigurationIDs() const {return processConfigurationIDs_;}
+    bool isPsetIDUnique() const {return parameterSetIDs().size() == 1;}
     std::set<std::string> const& branchAliases() const {return branchAliases_;}
     std::set<std::string> & branchAliases() {return branchAliases_;}
     std::string & branchName() const {return transients_.get().branchName_;}
@@ -96,25 +85,16 @@ namespace edm {
     std::string & wrappedName() const {return transients_.get().wrappedName_;}
 
     void setPresent(bool isPresent) const {present() = isPresent;}
-    void setProductIDtoAssign(ProductID const& id) const {productIDtoAssign() = id;}
     void updateFriendlyClassName();
-
-    void setDefaultTransients() const {
-	transients_ = Transients();
-    };
 
     struct Transients {
       Transients();
 
-      // The module description id of the producer.
+      // The parameter set id of the producer.
       // This is only valid if produced_ is true.
       // This is just used as a cache, and is not logically
       // part of the branch description.
-      ModuleDescriptionID moduleDescriptionID_;
-
-      // An ID to be assigned to products on the branch,
-      // This is only valid if produced_ is true.
-      ProductID productIDtoAssign_;
+      ParameterSetID parameterSetID_;
 
       // The branch name, which is currently derivable fron the other attributes.
       std::string branchName_;
@@ -170,7 +150,6 @@ namespace edm {
     // the full name of the type of product this is
     std::string fullClassName_;
 
-  public:
     // a readable name of the type of product this is
     std::string friendlyClassName_;
 
@@ -178,14 +157,21 @@ namespace edm {
     // that are produced by the same producer
     std::string productInstanceName_;
 
-  private:
     // ID's of parameter set of the creators of products
     // on this branch
-    std::set<ParameterSetID> psetIDs_;
+    // std::set<ParameterSetID> psetIDs_;
 
     // ID's of process configurations for products
     // on this branch
-    std::set<ProcessConfigurationID> processConfigurationIDs_;
+    // std::set<ProcessConfigurationID> processConfigurationIDs_;
+
+    // ID's of process configurations for products on this branch
+    //  with corresponding parameter set IDs,
+    std::map<ProcessConfigurationID, ParameterSetID> parameterSetIDs_;
+
+    // ID's of process configurations for products on this branch
+    //  with corresponding module names
+    std::map<ProcessConfigurationID, std::string> moduleNames_;
 
     // The branch ROOT alias(es), which are settable by the user.
     std::set<std::string> branchAliases_;

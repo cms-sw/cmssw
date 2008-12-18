@@ -9,7 +9,6 @@
 
 
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
-#include "DataFormats/Provenance/interface/BranchType.h"
 #include "FWCore/Utilities/interface/ReflexTools.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/TypeID.h"
@@ -30,20 +29,20 @@ namespace edm {
 
   ProductRegistry::ProductRegistry() :
       productList_(),
-      nextID_(1),
       transients_() {
   }
 
   ProductRegistry::Transients::Transients() :
       frozen_(false),
       constProductList_(),
+      productProduced_(),
       productLookup_(),
       elementLookup_() {
+	for (size_t i = 0; i < productProduced_.size(); ++i) productProduced_[i] = false;
   }
 
-  ProductRegistry::ProductRegistry(ProductList const& productList, unsigned int nextID) :
+  ProductRegistry::ProductRegistry(ProductList const& productList) :
       productList_(productList),
-      nextID_(nextID),
       transients_() {
     frozen() = true;
   }
@@ -55,7 +54,13 @@ namespace edm {
     throwIfFrozen();
     productDesc.init();
     checkDicts(productDesc);
-    productList_.insert(std::make_pair(BranchKey(productDesc), productDesc));
+    std::pair<ProductList::iterator, bool> ret =
+	 productList_.insert(std::make_pair(BranchKey(productDesc), productDesc));
+    if (!ret.second) {
+      throw edm::Exception(errors::Configuration, "Duplicate Process")
+	  << "The process name " << productDesc.processName() << " was previously used on these products.\n"
+	  << "Please modify the configuration file to use a distinct process name.\n";
+    }
     addCalled(productDesc,fromListener);
   }
  
@@ -74,23 +79,6 @@ namespace edm {
     }
   }
   
-  void
-  ProductRegistry::setProductIDs(unsigned int startingID) {
-    throwIfNotFrozen();
-    if (startingID < nextID_) {
-      startingID = nextID_;
-    }
-    --startingID;
-    for (ProductList::iterator it = productList_.begin(), itEnd = productList_.end();
-        it != itEnd; ++it) {
-      if (it->second.produced() && it->second.branchType() == InEvent) {
-        it->second.setProductIDtoAssign(ProductID(++startingID));
-      }
-    }
-    setNextID(startingID + 1);
-    initializeTransients();
-  }
-
   bool
   ProductRegistry::anyProducts(BranchType brType) const {
     throwIfNotFrozen();
@@ -158,6 +146,22 @@ namespace edm {
     return result;
   }
   
+  void
+  ProductRegistry::updateFromInput(ProductList const& other) {
+    for (ProductList::const_iterator it = other.begin(), itEnd = other.end();
+	it != itEnd; ++it) {
+      copyProduct(it->second);
+    }
+  }
+
+  void
+  ProductRegistry::updateFromInput(std::vector<BranchDescription> const& other) {
+    for (std::vector<BranchDescription>::const_iterator it = other.begin(), itEnd = other.end();
+	it != itEnd; ++it) {
+      copyProduct(*it);
+    }
+  }
+
   std::string
   ProductRegistry::merge(ProductRegistry const& other,
 	std::string const& fileName,
@@ -196,10 +200,6 @@ namespace edm {
 	++j;
       }
     }
-    if (other.nextID() > nextID()) {
-      setNextID(other.nextID());
-      setProductIDs(other.nextID());
-    }
     initializeTransients();
     return differences.str();
   }
@@ -209,6 +209,10 @@ namespace edm {
     productLookup().clear();
     elementLookup().clear();
     for (ProductList::const_iterator i = productList_.begin(), e = productList_.end(); i != e; ++i) {
+      if (i->second.produced()) {
+	setProductProduced(i->second.branchType());
+      }
+
       constProductList().insert(std::make_pair(i->first, ConstBranchDescription(i->second)));
 
       ProcessLookup& processLookup = productLookup()[i->first.friendlyClassName_];

@@ -11,7 +11,7 @@ namespace edm
     explicit FileFormatVersion(int vers) : value_(vers)  { }
     bool isValid() const { return value_ >= 0; }
 
-    bool fastCopyPossible() const { return value_ >= 8; }
+    bool fastCopyPossible() const { return value_ >= 11; }
     
     int value_;
   };

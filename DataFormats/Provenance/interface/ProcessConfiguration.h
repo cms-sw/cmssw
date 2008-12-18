@@ -10,16 +10,13 @@
 #include "DataFormats/Provenance/interface/ProcessConfigurationID.h"
 
 namespace edm {
-  struct ProcessConfiguration {
-    ProcessConfiguration() : processName_(), parameterSetID_(), releaseVersion_(), passID_() {}
+  class ProcessConfiguration {
+  public:
+    ProcessConfiguration();
     ProcessConfiguration(std::string const& procName,
 			 ParameterSetID const& pSetID,
 			 ReleaseVersion const& relVersion,
-			 PassID const& pass) :
-      processName_(procName),
-      parameterSetID_(pSetID),
-      releaseVersion_(relVersion),
-      passID_(pass) { }
+			 PassID const& pass);
     
     std::string const& processName() const {return processName_;}
     ParameterSetID const& parameterSetID() const {return parameterSetID_;}
@@ -27,11 +24,15 @@ namespace edm {
     PassID const& passID() const {return passID_;}
     ProcessConfigurationID id() const;
 
+  private:
     std::string processName_;
     ParameterSetID parameterSetID_;
     ReleaseVersion releaseVersion_; 
     PassID passID_;
   };
+
+  bool
+  operator<(ProcessConfiguration const& a, ProcessConfiguration const& b);
 
   inline
   bool
