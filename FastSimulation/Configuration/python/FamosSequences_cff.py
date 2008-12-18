@@ -263,7 +263,6 @@ pixelMatchGsfFit = TrackingTools.GsfTracking.GsfElectronFit_cfi.GsfGlobalElectro
 pixelMatchGsfFit.src = 'electronGSGsfTrackCandidates'
 pixelMatchGsfFit.TTRHBuilder = 'WithoutRefit'
 pixelMatchGsfFit.TrajectoryInEvent = True
-pixelMatchGsfElectrons.hcalRecHits = 'caloRecHits'
 pixelMatchGsfElectrons.barrelSuperClusters = cms.InputTag("correctedHybridSuperClusters","electronGSPixelSeeds")
 pixelMatchGsfElectrons.endcapSuperClusters = cms.InputTag("correctedEndcapSuperClustersWithPreshower","electronGSPixelSeeds")
 pixelMatchGsfElectrons.reducedEndcapRecHitCollection = cms.InputTag("caloRecHits","EcalRecHitsEE")
