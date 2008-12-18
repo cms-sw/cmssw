@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/12/17 13:57:16 $
- *  $Revision: 1.9 $
+ *  $Date: 2008/12/17 16:35:45 $
+ *  $Revision: 1.10 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -357,19 +357,22 @@ void MuonTestSummary::doResidualsTests(string type, string parameter, int bin){
       float statSigma = residualsHisto->getRMS(1);
       Double_t mean = -1;
       Double_t sigma = -1;
+      Double_t errSigma = -1;
       TH1F * histo_root = residualsHisto->getTH1F();
       if(histo_root->GetEntries()>20){
 	TF1 *gfit = new TF1("Gaussian","gaus",(statMean-(2*statSigma)),(statMean+(2*statSigma)));
 	try {
-	  histo_root->Fit(gfit, "Q");
+	  histo_root->Fit(gfit, "Q0");
 	} catch (...) {
 	  edm::LogError (metname)<< "[MuonTestSummary]: Exception when fitting Res_"<<type<<"_"<<parameter;
 	}
 	if(gfit){
 	  mean = gfit->GetParameter(1); 
 	  sigma = gfit->GetParameter(2);
+	  errSigma = gfit->GetParErrors()[2];
 	  LogTrace(metname)<<"mean: "<<mean<<"for Res_"<<type<<"_"<<parameter<<endl;
 	  LogTrace(metname)<<"sigma: "<<sigma<<"for Res_"<<type<<"_"<<parameter<<endl;
+	  LogTrace(metname)<<"errSigma: "<<errSigma<<"for Res_"<<type<<"_"<<parameter<<endl;
 	}
       }
       else{
@@ -377,27 +380,27 @@ void MuonTestSummary::doResidualsTests(string type, string parameter, int bin){
       }
       
       if(sigma!=-1 && parameter=="eta" && type=="TkGlb"){
-	if(sigma<resEtaSpread_tkGlb) residualsSummaryMap->setBinContent(bin, 1, 1);
+	if(sigma-errSigma<resEtaSpread_tkGlb) residualsSummaryMap->setBinContent(bin, 1, 1);
 	else residualsSummaryMap->setBinContent(bin, 1, 0);
       }
       if(sigma!=-1 && parameter=="eta" && (type=="GlbSta" || type=="TkSta")) {
-	if(sigma<resEtaSpread_glbSta) residualsSummaryMap->setBinContent(bin, 1, 1);
+	if(sigma-errSigma<resEtaSpread_glbSta) residualsSummaryMap->setBinContent(bin, 1, 1);
 	else residualsSummaryMap->setBinContent(bin, 1, 0);
       }
       if(sigma!=-1 && parameter=="phi" && type=="TkGlb"){
-	if(sigma<resPhiSpread_tkGlb) residualsSummaryMap->setBinContent(bin, 2, 1);     
+	if(sigma-errSigma<resPhiSpread_tkGlb) residualsSummaryMap->setBinContent(bin, 2, 1);     
 	else residualsSummaryMap->setBinContent(bin, 2, 0);
       }
       if(sigma!=-1 && parameter=="phi" && (type=="GlbSta" || type=="TkSta")){ 
-	if(sigma<resPhiSpread_glbSta) residualsSummaryMap->setBinContent(bin, 2, 1); 
+	if(sigma-errSigma<resPhiSpread_glbSta) residualsSummaryMap->setBinContent(bin, 2, 1); 
 	else residualsSummaryMap->setBinContent(bin, 2, 0); 
       }
       if(sigma!=-1 && parameter=="oneOverp" && type=="TkGlb"){
-	if(sigma<resOneOvPSpread_tkGlb) residualsSummaryMap->setBinContent(bin, 3, 1);
+	if(sigma-errSigma<resOneOvPSpread_tkGlb) residualsSummaryMap->setBinContent(bin, 3, 1);
 	else residualsSummaryMap->setBinContent(bin, 3, 0);
       }
       if(sigma!=-1 && parameter=="oneOverp" && (type=="GlbSta" || type=="TkSta")) {
-	if(sigma<resOneOvPSpread_glbSta) residualsSummaryMap->setBinContent(bin, 3, 1);
+	if(sigma-errSigma<resOneOvPSpread_glbSta) residualsSummaryMap->setBinContent(bin, 3, 1);
 	else residualsSummaryMap->setBinContent(bin, 3, 0);
       }
     }
@@ -520,7 +523,7 @@ void MuonTestSummary::doMuonIDTests(){
       if(resHisto_root->GetEntries()>20){
 	TF1 *gfit = new TF1("Gaussian","gaus",-2,2);
 	try {
-	  resHisto_root->Fit(gfit, "Q");
+	  resHisto_root->Fit(gfit, "Q0");
 	} catch (...) {
 	  edm::LogError (metname)<< "[MuonTestSummary]: Exception when fitting "<<resHistos[name];
 	}
