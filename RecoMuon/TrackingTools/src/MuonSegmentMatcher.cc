@@ -6,7 +6,7 @@
 //
 // Original Author:  Alan Tua
 //         Created:  Wed Jul  9 21:40:17 CEST 2008
-// $Id: MuonSegmentMatcher.cc,v 1.1 2008/10/24 16:50:59 ptraczyk Exp $
+// $Id: MuonSegmentMatcher.cc,v 1.2 2008/11/13 12:22:08 ptraczyk Exp $
 //
 //
 
@@ -71,6 +71,7 @@ vector<const DTRecSegment4D*> MuonSegmentMatcher::matchDT(const reco::Track &muo
 
   // Loop and select DT recHits
   for(trackingRecHit_iterator hit = muon.recHitsBegin(); hit != muon.recHitsEnd(); ++hit) {
+    if ( (*hit)->geographicalId().det() != DetId::Muon ) continue; 
     if ( (*hit)->geographicalId().subdetId() != MuonSubdetId::DT ) continue; 
     if (!(*hit)->isValid()) continue; 
     dtHits.push_back(*hit);
@@ -214,7 +215,7 @@ vector<const CSCSegment*> MuonSegmentMatcher::matchCSC(const reco::Track& muon, 
     CSCDetId myChamber((*segmentCSC).geographicalId().rawId());
 
     for(trackingRecHit_iterator hitC = muon.recHitsBegin(); hitC != muon.recHitsEnd(); ++hitC) {
-
+      if ( (*hitC)->geographicalId().det() != DetId::Muon ) continue; 
       if ( (*hitC)->geographicalId().subdetId() != MuonSubdetId::CSC ) continue;
       if(!(*hitC)->isValid()) continue;
 
