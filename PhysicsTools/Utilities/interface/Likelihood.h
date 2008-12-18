@@ -32,9 +32,11 @@ namespace fit {
     double operator()() const { return log(); }
     double log() const {
       double l = - (*yield_)();
-      std::cout << "yield: " << -l << std::endl;
+      //      std::cout << "yield: " << -l << std::endl;
       for(typename Sample::const_iterator i = sample_.begin(); i != sample_.end(); ++i) {
-	l += std::log(Evaluator::evaluate(*pdf_, *i));
+	double p = Evaluator::evaluate(*pdf_, *i);
+	//	std::cout << "prob(" << *i << ")= " << p << std::endl;
+	l += std::log(p);
       }
       return l;
     }
@@ -67,7 +69,7 @@ namespace fit {
     PDF & pdf() { return * pdf_; }
     const PDF & pdf() const { return * pdf_; }
   private:
-  typedef LikelihoodEvaluator<PDF, typename Sample::value_type> Evaluator;
+    typedef LikelihoodEvaluator<PDF, typename Sample::value_type> Evaluator;
     PDF * pdf_;
     Sample sample_;
   };
@@ -75,7 +77,7 @@ namespace fit {
   template<typename Sample, typename PDF, typename Yield>
   struct RootMinuitResultPrinter<Likelihood<Sample, PDF, Yield> > {
     static void print(double amin, unsigned int numberOfFreeParameters, const Likelihood<Sample, PDF, Yield> & f) {
-      std::cout << "maximum log-likelihood = " << 0.5*amin << ", free parameters = " << numberOfFreeParameters
+      std::cout << "-2 log(maximum-likelihood) = " << amin << ", free parameters = " << numberOfFreeParameters
 		<< std::endl;      
     }
   };
