@@ -11,5 +11,15 @@ from RecoTracker.TkSeedingLayers.TTRHBuilderWithoutAngle4MixedTriplets_cfi impor
 from RecoTracker.TkSeedingLayers.TTRHBuilderWithoutAngle4MixedPairs_cfi import *
 from RecoTracker.TkSeedingLayers.MixedLayerTriplets_cfi import *
 from RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi import *
-from RecoTracker.TkSeedGenerator.GlobalSeedsFromTripletsWithVertices_cfi import *
+from RecoPixelVertexing.PixelTriplets.PixelTripletHLTGenerator_cfi import *
+
+from RecoTracker.TkSeedGenerator.SeedGeneratorFromRegionHitsEDProducer_cfi import *
+globalSeedsFromTripletsWithVertices = RecoTracker.TkSeedGenerator.SeedGeneratorFromRegionHitsEDProducer_cfi.seedGeneratorFromRegionHitsEDProducer.clone(
+    OrderedHitsFactoryPSet = cms.PSet(
+      ComponentName = cms.string('StandardHitTripletGenerator'),
+      SeedingLayers = cms.string('PixelLayerTriplets'),
+      GeneratorPSet = cms.PSet( PixelTripletHLTGenerator)
+    )
+)
+    
 

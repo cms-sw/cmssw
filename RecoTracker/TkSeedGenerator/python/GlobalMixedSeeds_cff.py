@@ -15,5 +15,12 @@ from TrackingTools.MaterialEffects.MaterialPropagator_cfi import *
 # generate pixel seeds #####################
 from RecoTracker.TkSeedingLayers.TTRHBuilderWithoutAngle4MixedPairs_cfi import *
 from RecoTracker.TkSeedingLayers.MixedLayerPairs_cfi import *
-from RecoTracker.TkSeedGenerator.GlobalMixedSeeds_cfi import *
 
+
+from RecoTracker.TkSeedGenerator.SeedGeneratorFromRegionHitsEDProducer_cfi import *
+globalMixedSeeds = RecoTracker.TkSeedGenerator.SeedGeneratorFromRegionHitsEDProducer_cfi.seedGeneratorFromRegionHitsEDProducer.clone(
+    OrderedHitsFactoryPSet = cms.PSet(
+       ComponentName = cms.string('StandardHitPairGenerator'),
+       SeedingLayers = cms.string('MixedLayerPairs')
+    )
+)
