@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Nov 26 11:27:21 EST 2008
-// $Id: FWRPZ2DSimpleProxyBuilder.cc,v 1.2 2008/12/01 01:00:59 chrjones Exp $
+// $Id: FWRPZ2DSimpleProxyBuilder.cc,v 1.3 2008/12/02 21:17:46 chrjones Exp $
 //
 
 // system include files
@@ -99,8 +99,14 @@ FWRPZ2DSimpleProxyBuilder::itemBeingDestroyedImp(const FWEventItem*)
 void 
 FWRPZ2DSimpleProxyBuilder::modelChangesImp(const FWModelIds& iIds)
 {
-   modelChanges(iIds,m_rhoPhiElementsPtr.get());
-   modelChanges(iIds,m_rhoZElementsPtr.get());
+   //If we need an update it means no view wanted this info and therefore
+   // it was never made and therefore we should not try to update it
+   if(!m_rhoPhiNeedsUpdate) {
+      modelChanges(iIds,m_rhoPhiElementsPtr.get());
+   }
+   if(!m_rhoZNeedsUpdate) {
+      modelChanges(iIds,m_rhoZElementsPtr.get());
+   }
 }
 
 class FWRPSimpleCaller {
