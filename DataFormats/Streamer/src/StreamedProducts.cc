@@ -4,11 +4,9 @@
 namespace edm {
     StreamedProduct::StreamedProduct(EDProduct const* prod,
 		    BranchDescription const& desc,
-		    ModuleDescriptionID const& mod,
-		    ProductID pid,
 		    ProductStatus status,
 		    std::vector<BranchID> const* parents) :
-      prod_(prod), desc_(&desc), mod_(mod), productID_(pid), status_(status), parents_(parents) {
+      prod_(prod), desc_(&desc), status_(status), parents_(parents) {
       if (productstatus::present(status_) && (prod == 0 || !prod->isPresent())) {
 	desc.init();
         throw edm::Exception(edm::errors::LogicError, "StreamedProduct::StreamedProduct\n")

@@ -21,9 +21,11 @@
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
 #include "DataFormats/Provenance/interface/ParameterSetBlob.h"
+#include "DataFormats/Provenance/interface/History.h"
 #include "DataFormats/Provenance/interface/ProcessHistory.h"
 #include "DataFormats/Provenance/interface/ProductStatus.h"
 #include "DataFormats/Provenance/interface/ProvenanceFwd.h"
+#include "DataFormats/Provenance/interface/BranchIDList.h"
 
 namespace edm {
 
@@ -32,22 +34,18 @@ namespace edm {
 
   class StreamedProduct {
   public:
-    StreamedProduct() : prod_(0), desc_(0), mod_(), productID_(), status_(productstatus::neverCreated()), parents_(0) {}
+    StreamedProduct() : prod_(0), desc_(0), status_(productstatus::neverCreated()), parents_(0) {}
     explicit StreamedProduct(BranchDescription const& desc) :
-	prod_(0), desc_(&desc), mod_(), productID_(), status_(productstatus::neverCreated()), parents_(0) {}
+	prod_(0), desc_(&desc), status_(productstatus::neverCreated()), parents_(0) {}
 
     StreamedProduct(EDProduct const* prod,
 		    BranchDescription const& desc,
-		    ModuleDescriptionID const& mod,
-		    ProductID pid,
 		    ProductStatus status,
 		    std::vector<BranchID> const* parents);
 
     EDProduct const* prod() const {return prod_;}
     BranchDescription const* desc() const {return desc_;}
-    ModuleDescriptionID const& mod() const {return mod_;}
     BranchID branchID() const {return desc_->branchID();}
-    ProductID productID() const {return productID_;}
     ProductStatus status() const {return status_;}
     std::vector<BranchID> const* parents() const {return parents_;}
 
@@ -55,7 +53,6 @@ namespace edm {
      prod_= 0;
      delete desc_;
      desc_= 0;
-     productID_ = ProductID();
      status_ = productstatus::neverCreated();
      delete parents_;
      parents_ = 0;
@@ -64,8 +61,6 @@ namespace edm {
   private:
     EDProduct const* prod_;
     BranchDescription const* desc_;
-    ModuleDescriptionID  mod_;
-    ProductID productID_;
     ProductStatus status_;
     std::vector<BranchID> const* parents_;
   };
@@ -79,15 +74,17 @@ namespace edm {
   class SendEvent {
   public:
     SendEvent() { }
-    SendEvent(EventAuxiliary const& aux, ProcessHistory const& processHistory) :
-	aux_(aux), processHistory_(processHistory), products_() {}
+    SendEvent(EventAuxiliary const& aux, ProcessHistory const& processHistory, History const& history) :
+	aux_(aux), processHistory_(processHistory), history_(history), products_() {}
     EventAuxiliary const& aux() const {return aux_;}
     SendProds const& products() const {return products_;}
     ProcessHistory const& processHistory() const {return processHistory_;}
+    History const& history() const {return history_;}
     SendProds & products() {return products_;}
   private:
     EventAuxiliary aux_;
     ProcessHistory processHistory_;
+    History history_;
     SendProds products_;
 
     // other tables necessary for provenance lookup
@@ -100,19 +97,16 @@ namespace edm {
     typedef std::map<ParameterSetID, ParameterSetBlob> ParameterSetMap;
     SendJobHeader() { }
     SendDescs const& descs() const {return descs_;}
-    unsigned int nextID() const {return nextID_;}
     ParameterSetMap const& processParameterSet() const {return processParameterSet_;}
-    ModuleDescriptionMap const& moduleDescriptionMap() const {return moduleDescriptionMap_;}
+    BranchIDLists const& branchIDLists() const {return branchIDLists_;}
     void push_back(BranchDescription const& bd) {descs_.push_back(bd);}
-    void setModuleDescriptionMap(ModuleDescriptionMap const& mdMap) {moduleDescriptionMap_ = mdMap;}
     void setParameterSetMap(ParameterSetMap const& psetMap) {processParameterSet_ = psetMap;}
-    void setNextID(unsigned int next) {nextID_ = next;}
+    void setBranchIDLists(BranchIDLists const& bidlists) {branchIDLists_ = bidlists;}
 
   private:
     SendDescs descs_;
     ParameterSetMap processParameterSet_;
-    ModuleDescriptionMap moduleDescriptionMap_;
-    unsigned int nextID_;
+    BranchIDLists branchIDLists_;
     // trigger bit descriptions will be added here and permanent
     //  provenance values
   };
