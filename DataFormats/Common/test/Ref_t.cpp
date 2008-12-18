@@ -89,7 +89,7 @@ void TestRef::nondefault_ctor()
   SimpleEDProductGetter getter;
   
   edm::EDProductGetter::Operate op(&getter);
-  edm::ProductID id(201U);
+  edm::ProductID id(1, 201U);
   CPPUNIT_ASSERT(id.isValid());
 
   std::auto_ptr<product1_t> prod(new product1_t);
@@ -122,7 +122,7 @@ void TestRef::nondefault_ctor()
 //   SimpleEDProductGetter getter;
   
 //   edm::EDProductGetter::Operate op(&getter);
-//   edm::ProductID id(201U);
+//   edm::ProductID id(1, 201U);
 //   CPPUNIT_ASSERT(id.isValid());
 
 //   std::auto_ptr<product2_t> prod(new product2_t);
@@ -150,7 +150,7 @@ void TestRef::using_wrong_productid()
   SimpleEDProductGetter getter;
   
   edm::EDProductGetter::Operate op(&getter);
-  edm::ProductID id(1U);
+  edm::ProductID id(1, 1U);
   CPPUNIT_ASSERT(id.isValid());
 
   std::auto_ptr<product1_t> prod(new product1_t);
@@ -158,7 +158,7 @@ void TestRef::using_wrong_productid()
   prod->push_back(2);
   getter.addProduct(id, prod);
 
-  edm::ProductID wrong_id(100U);
+  edm::ProductID wrong_id(1, 100U);
   CPPUNIT_ASSERT(wrong_id.isValid()); // its valid, but not used.
 
   ref1_t  ref(wrong_id, 0, &getter);

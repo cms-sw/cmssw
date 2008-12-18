@@ -1,4 +1,4 @@
-// $Id: ptrvector_t.cppunit.cc,v 1.3 2008/03/18 12:49:22 wmtan Exp $
+// $Id: ptrvector_t.cppunit.cc,v 1.4.4.1 2008/11/04 19:24:08 wmtan Exp $
 
 #include <algorithm>
 #include <vector>
@@ -71,11 +71,11 @@ testPtrVector::check()
   std::vector<Inherit1> v1(2,Inherit1());
   std::vector<Inherit2> v2(2,Inherit2());
   
-  TestHandle<std::vector<Inherit1> > h1(&v1, ProductID(1));
+  TestHandle<std::vector<Inherit1> > h1(&v1, ProductID(1, 1));
   PtrVector<Inherit1 > rv1;
   rv1.push_back( Ptr<Inherit1 >( h1, 0 ) );
   rv1.push_back( Ptr<Inherit1 >( h1, 1 ) );
-  TestHandle<std::vector<Inherit2> > h2(&v2, ProductID(2));
+  TestHandle<std::vector<Inherit2> > h2(&v2, ProductID(1, 2));
   PtrVector<Inherit2 > rv2;
   rv2.push_back( Ptr<Inherit2 >( h2, 0 ) );
   rv2.push_back( Ptr<Inherit2 >( h2, 1 ) );
@@ -154,7 +154,7 @@ testPtrVector::get()
   TestGetter tester;
   tester.hold_ = &wrapper;
   
-  edm::ProductID const pid(1);
+  edm::ProductID const pid(1, 1);
   
   IntCollection const* wptr = dynamic_cast<IntCollection const*>(wrapper.product());
   
@@ -169,7 +169,7 @@ testPtrVector::get()
   std::cerr << "pre size" <<std::endl;
   CPPUNIT_ASSERT(iVec.size() == 2);
   std::cerr << "pre iterator diff" <<std::endl;
-  CPPUNIT_ASSERT(iVec.end()-iVec.begin() == iVec.size());
+  CPPUNIT_ASSERT(static_cast<size_t>(iVec.end()-iVec.begin()) == iVec.size());
   std::cerr << "address compare" <<std::endl;
   CPPUNIT_ASSERT(&(*(*(iVec.begin()))) == &(*(wptr->begin())));
   std::cerr << "pre value deref" <<std::endl;

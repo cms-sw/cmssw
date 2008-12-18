@@ -240,7 +240,7 @@ namespace edm {
 	  itProdInfoEnd = prodsList.end();
 	itProdInfo != itProdInfoEnd;
 	++itProdInfo) {
-      if(processName_ == itProdInfo->second.processName() &&
+      if(processName_ == itProdInfo->second.processName() && itProdInfo->second.branchType() == InEvent &&
          unscheduledLabels.end() != unscheduledLabels.find(itProdInfo->second.moduleLabel())) {
 	boost::shared_ptr<ConstBranchDescription const> bd(new ConstBranchDescription(itProdInfo->second));
 	demandBranches_.push_back(bd);
@@ -250,7 +250,6 @@ namespace edm {
     // Sanity check: make sure nobody has added a worker after we've
     // already relied on all_workers_ being full.
     assert (all_workers_count == all_workers_.size());
-      
   } // Schedule::Schedule
 
   void

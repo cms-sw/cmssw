@@ -14,60 +14,72 @@ namespace edm {
   Group::Group() :
     product_(),
     branchDescription_(),
-    entryInfo_(),
+    pid_(),
+    productProvenance_(),
     prov_(),
     dropped_(false),
     onDemand_(false) {}
 
-  Group::Group(std::auto_ptr<EDProduct> edp, ConstBranchDescription const& bd, std::auto_ptr<EventEntryInfo> entryInfo) :
+  Group::Group(std::auto_ptr<EDProduct> edp, ConstBranchDescription const& bd,
+      ProductID const& pid,  std::auto_ptr<ProductProvenance> productProvenance) :
     product_(edp.release()),
     branchDescription_(new ConstBranchDescription(bd)),
-    entryInfo_(entryInfo.release()),
-    prov_(new Provenance(*branchDescription_, entryInfo_)),
+    pid_(pid),
+    productProvenance_(productProvenance.release()),
+    prov_(new Provenance(*branchDescription_, pid_, productProvenance_)),
     dropped_(!branchDescription_->present()),
     onDemand_(false) {
   }
 
-  Group::Group(ConstBranchDescription const& bd, std::auto_ptr<EventEntryInfo> entryInfo) :
+  Group::Group(ConstBranchDescription const& bd,
+      ProductID const& pid,  std::auto_ptr<ProductProvenance> productProvenance) :
     product_(),
     branchDescription_(new ConstBranchDescription(bd)),
-    entryInfo_(entryInfo.release()),
-    prov_(new Provenance(*branchDescription_, entryInfo_)),
+    pid_(pid),
+    productProvenance_(productProvenance.release()),
+    prov_(new Provenance(*branchDescription_, pid, productProvenance_)),
     dropped_(!branchDescription_->present()),
     onDemand_(false) {
   }
 
-  Group::Group(std::auto_ptr<EDProduct> edp, ConstBranchDescription const& bd, boost::shared_ptr<EventEntryInfo> entryInfo) :
+  Group::Group(std::auto_ptr<EDProduct> edp, ConstBranchDescription const& bd,
+         ProductID const& pid, boost::shared_ptr<ProductProvenance> productProvenance) :
     product_(edp.release()),
     branchDescription_(new ConstBranchDescription(bd)),
-    entryInfo_(entryInfo),
-    prov_(new Provenance(*branchDescription_, entryInfo_)),
+    pid_(pid),
+    productProvenance_(productProvenance),
+    prov_(new Provenance(*branchDescription_, pid, productProvenance_)),
     dropped_(!branchDescription_->present()),
     onDemand_(false) {
   }
 
-  Group::Group(ConstBranchDescription const& bd, boost::shared_ptr<EventEntryInfo> entryInfo) :
+  Group::Group(ConstBranchDescription const& bd,
+         ProductID const& pid, boost::shared_ptr<ProductProvenance> productProvenance) :
     product_(),
     branchDescription_(new ConstBranchDescription(bd)),
-    entryInfo_(entryInfo),
-    prov_(new Provenance(*branchDescription_, entryInfo_)),
+    pid_(pid),
+    productProvenance_(productProvenance),
+    prov_(new Provenance(*branchDescription_, pid, productProvenance_)),
     dropped_(!branchDescription_->present()),
     onDemand_(false) {
   }
 
-  Group::Group(ConstBranchDescription const& bd, bool demand) :
+  Group::Group(ConstBranchDescription const& bd, ProductID const& pid, bool demand) :
     product_(),
     branchDescription_(new ConstBranchDescription(bd)),
-    entryInfo_(),
+    pid_(pid),
+    productProvenance_(),
     prov_(),
     dropped_(!branchDescription_->present()),
-    onDemand_(demand) {
+    onDemand_(true) {
+	assert(demand);
   }
 
-  Group::Group(ConstBranchDescription const& bd) :
+  Group::Group(ConstBranchDescription const& bd, ProductID const& pid) :
     product_(),
     branchDescription_(new ConstBranchDescription(bd)),
-    entryInfo_(),
+    pid_(pid),
+    productProvenance_(),
     prov_(),
     dropped_(!branchDescription_->present()),
     onDemand_(false) {
@@ -79,15 +91,15 @@ namespace edm {
   ProductStatus
   Group::status() const {
     if (dropped_) return productstatus::dropped();
-    if (!entryInfo_) {
+    if (!productProvenance_) {
       if (product_) return product_->isPresent() ? productstatus::present() : productstatus::neverCreated();
       else return productstatus::unknown();
     }
     if (product_) {
       // for backward compatibility
-      product_->isPresent() ? entryInfo_->setPresent() : entryInfo_->setNotPresent();
+      product_->isPresent() ? productProvenance_->setPresent() : productProvenance_->setNotPresent();
     }
-    return entryInfo_->productStatus();
+    return productProvenance_->productStatus();
   }
 
   bool
@@ -117,12 +129,12 @@ namespace edm {
   }
   
   void 
-  Group::setProvenance(boost::shared_ptr<EventEntryInfo> entryInfo) const {
-    entryInfo_ = entryInfo;  // Group takes ownership
-    if (entryInfo_) {
-      prov_.reset(new Provenance(*branchDescription_, entryInfo_));
+  Group::setProvenance(boost::shared_ptr<ProductProvenance> productProvenance) const {
+    productProvenance_ = productProvenance;  // Group takes ownership
+    if (productProvenance_) {
+      prov_.reset(new Provenance(*branchDescription_, pid_, productProvenance_));
     } else {
-      prov_.reset(new Provenance(*branchDescription_));
+      prov_.reset(new Provenance(*branchDescription_, pid_));
     }
   }
 
@@ -130,7 +142,7 @@ namespace edm {
   Group::swap(Group& other) {
     std::swap(product_, other.product_);
     std::swap(branchDescription_, other.branchDescription_);
-    std::swap(entryInfo_, other.entryInfo_);
+    std::swap(productProvenance_, other.productProvenance_);
     std::swap(prov_, other.prov_);
     std::swap(dropped_, other.dropped_);
     std::swap(onDemand_, other.onDemand_);
@@ -170,7 +182,7 @@ namespace edm {
   Provenance const *
   Group::provenance() const {
     if (!prov_.get()) {
-      prov_.reset(new Provenance(*branchDescription_, entryInfo_));
+      prov_.reset(new Provenance(*branchDescription_, pid_, productProvenance_));
     }
     return prov_.get();
   }
@@ -181,7 +193,7 @@ namespace edm {
     // This is grossly inadequate. It is also not critical for the
     // first pass.
     os << std::string("Group for product with ID: ")
-       << entryInfo_->productID();
+       << pid_;
   }
 
   void
@@ -205,15 +217,8 @@ namespace edm {
         << "process = " << processName() << "\n";
     }
 
-    if (!entryInfo_) {
+    if (!productProvenance_) {
       return;
-    }
-
-    // Don't support specifying multple modules.  So just null the description
-    // if they are different.    
-
-    if (entryInfo_->moduleDescriptionID() != newGroup->entryInfo_->moduleDescriptionID()) {
-      entryInfo_->setModuleDescriptionID(ModuleDescriptionID());
     }
 
     if (!productUnavailable() && !newGroup->productUnavailable()) {

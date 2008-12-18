@@ -6,8 +6,6 @@
 EDProduct: The base class of all things that will be inserted into the
 Event.
 
-$Id: EDProduct.h,v 1.14 2008/01/24 23:38:35 wmtan Exp $
-
 ----------------------------------------------------------------------*/
 
 #include <vector>

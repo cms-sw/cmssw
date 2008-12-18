@@ -16,10 +16,11 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Nov  1 15:06:31 EST 2005
-// $Id: EDProductGetter.h,v 1.5 2007/12/21 22:42:30 wmtan Exp $
+// $Id: EDProductGetter.h,v 1.6.4.2 2008/12/08 21:39:30 wmtan Exp $
 //
 
 // system include files
+#include "boost/utility.hpp"
 
 // user include files
 #include "DataFormats/Provenance/interface/ProductID.h"
@@ -28,7 +29,7 @@
 
 namespace edm {
    class EDProduct;
-   class EDProductGetter {
+   class EDProductGetter : private boost::noncopyable {
 
    public:
    
@@ -56,11 +57,13 @@ namespace edm {
       };
       
       friend class Operate;
+
+      ProductID oldToNewProductID(ProductID const& oldProductID) const {
+	if (oldProductID.oldID() == 0) return oldProductID;
+	return oldToNewProductID_(oldProductID);
+      }
 private:
-      EDProductGetter(EDProductGetter const&); // stop default
-
-      const EDProductGetter& operator=(EDProductGetter const&); // stop default
-
+      virtual ProductID oldToNewProductID_(ProductID const& oldProductID) const;
       /**This does not take ownership of the argument, so it is up to the caller to be
          sure that the object lifetime is greater than the time for which it is set*/
       static EDProductGetter const* set(EDProductGetter const*);
@@ -69,7 +72,7 @@ private:
    };
 
    EDProductGetter const*
-   mustBeNonZero(EDProductGetter const* prodGetter, std::string refType, ProductID const& peoductID);
+   mustBeNonZero(EDProductGetter const* prodGetter, std::string refType, ProductID const& productID);
 }
 
 #endif

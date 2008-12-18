@@ -16,31 +16,36 @@ is the storage unit of such information.
 
 #include "DataFormats/Common/interface/EDProduct.h"
 #include "DataFormats/Provenance/interface/ConstBranchDescription.h"
-#include "DataFormats/Provenance/interface/EventEntryInfo.h"
+#include "DataFormats/Provenance/interface/ProductProvenance.h"
 #include "DataFormats/Provenance/interface/Provenance.h"
+#include "DataFormats/Provenance/interface/ProductID.h"
 
 namespace edm {
   class Group {
   public:
     Group();
 
-    Group(ConstBranchDescription const& bd, bool demand);
+    Group(ConstBranchDescription const& bd, ProductID const& pid, bool demand);
 
-    explicit Group(ConstBranchDescription const& bd);
-
-    Group(std::auto_ptr<EDProduct> edp,
-	  ConstBranchDescription const& bd,
-	  std::auto_ptr<EventEntryInfo> entryInfo);
-
-    Group(ConstBranchDescription const& bd,
-	  std::auto_ptr<EventEntryInfo> entryInfo);
+    Group(ConstBranchDescription const& bd, ProductID const& pid);
 
     Group(std::auto_ptr<EDProduct> edp,
 	  ConstBranchDescription const& bd,
-	  boost::shared_ptr<EventEntryInfo> entryInfo);
+	  ProductID const& pid,
+	  std::auto_ptr<ProductProvenance> productProvenance);
 
     Group(ConstBranchDescription const& bd,
-	  boost::shared_ptr<EventEntryInfo> entryInfo);
+	  ProductID const& pid,
+	  std::auto_ptr<ProductProvenance> productProvenance);
+
+    Group(std::auto_ptr<EDProduct> edp,
+	  ConstBranchDescription const& bd,
+	  ProductID const& pid,
+	  boost::shared_ptr<ProductProvenance> productProvenance);
+
+    Group(ConstBranchDescription const& bd,
+	  ProductID const& pid,
+	  boost::shared_ptr<ProductProvenance> productProvenance);
 
     ~Group();
 
@@ -57,7 +62,7 @@ namespace edm {
 
     boost::shared_ptr<EDProduct> product() const { return product_; }
 
-    boost::shared_ptr<EventEntryInfo> entryInfoPtr() const {return entryInfo_;}
+    boost::shared_ptr<ProductProvenance> productProvenancePtr() const {return productProvenance_;}
 
     ConstBranchDescription const& productDescription() const {return *branchDescription_;}
 
@@ -79,7 +84,7 @@ namespace edm {
     // The following is const because we can add the provenance
     // to the cache after creation of the Group, without changing the meaning
     // of the Group.
-    void setProvenance(boost::shared_ptr<EventEntryInfo> entryInfo) const;
+    void setProvenance(boost::shared_ptr<ProductProvenance> productProvenance) const;
 
     // Write the group to the stream.
     void write(std::ostream& os) const;
@@ -101,13 +106,16 @@ namespace edm {
 
     void mergeGroup(Group * newGroup);
 
+    ProductID const& productID() const {return pid_;};
+
   private:
     Group(const Group&);
     void operator=(const Group&);
 
     mutable boost::shared_ptr<EDProduct> product_;
     boost::shared_ptr<ConstBranchDescription> branchDescription_;
-    mutable boost::shared_ptr<EventEntryInfo> entryInfo_;
+    mutable ProductID pid_;
+    mutable boost::shared_ptr<ProductProvenance> productProvenance_;
     mutable boost::shared_ptr<Provenance> prov_;
     bool    dropped_;
     bool    onDemand_;

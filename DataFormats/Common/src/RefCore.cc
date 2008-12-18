@@ -29,7 +29,7 @@ namespace edm {
 	<< "code to test validity before dereferencing.\n";
     }
 
-    if (prodPtr_ == 0 && productGetter() == 0) {
+    if (productPtr() == 0 && productGetter() == 0) {
       throw Exception(errors::InvalidReference,
 		      "BadRefCore")
 	<< "Attempt to dereference a RefCore containing a valid ProductID\n"
@@ -43,12 +43,17 @@ namespace edm {
 
   bool
   RefCore::isAvailable() const {
-      return prodPtr_ != 0 || (id_.isValid() && productGetter() != 0 && productGetter()->getIt(id_) != 0);
+      return productPtr() != 0 || (id_.isValid() && productGetter() != 0 && productGetter()->getIt(id_) != 0);
   }
 
   void
   RefCore::setProductGetter(EDProductGetter const* prodGetter) const {
-    if (!isTransient()) {
+    transients_.setProductGetter(prodGetter);
+  }
+
+  void
+  RefCore::RefCoreTransients::setProductGetter(EDProductGetter const* prodGetter) const {
+    if (!transient_) {
       prodGetter_ = prodGetter;
     }
   }

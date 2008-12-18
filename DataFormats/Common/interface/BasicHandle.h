@@ -23,8 +23,6 @@ If failedToGet() returns true then the requested data is not available
 If failedToGet() returns false but isValid() is also false then no attempt 
   to get data has occurred
 
-$Id: BasicHandle.h,v 1.8 2008/11/21 00:01:59 wmtan Exp $
-
 ----------------------------------------------------------------------*/
 
 #include "DataFormats/Provenance/interface/Provenance.h"
@@ -47,10 +45,11 @@ namespace edm {
 
     BasicHandle(boost::shared_ptr<EDProduct const> prod, Provenance const* prov) :
       product_(prod), prov_(prov) {
+
     }
 
     ///Used when the attempt to get the data failed
-    BasicHandle(const boost::shared_ptr<cms::Exception>& iWhyFailed):
+    BasicHandle(boost::shared_ptr<cms::Exception> const& iWhyFailed):
     product_(),
     prov_(0),
     whyFailed_(iWhyFailed) {}
@@ -92,9 +91,6 @@ namespace edm {
     }
 
     ProductID id() const {
-      if (!prov_) {
-        return ProductID();
-      }
       return prov_->productID();
     }
 

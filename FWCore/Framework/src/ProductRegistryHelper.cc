@@ -2,7 +2,6 @@
   
 ----------------------------------------------------------------------*/
 
-#include "DataFormats/Provenance/interface/ModuleDescriptionRegistry.h"
 #include "FWCore/Framework/interface/ProductRegistryHelper.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
@@ -31,7 +30,6 @@ namespace edm {
 			      iDesc);
       if (!p->branchAlias_.empty()) pdesc.branchAliases().insert(p->branchAlias_);
       iReg.addProduct(pdesc, iIsListener);
-      ModuleDescriptionRegistry::instance()->insertMapped(iDesc);
     }//for
   }
 }

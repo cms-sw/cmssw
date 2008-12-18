@@ -17,9 +17,11 @@ Test of the EventPrincipal class.
 #include "FWCore/Utilities/interface/TypeID.h"
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
+#include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "DataFormats/Provenance/interface/RunAuxiliary.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
+#include "DataFormats/Provenance/interface/BranchIDListHelper.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
 //#include "FWCore/Framework/interface/Selector.h"
 #include "DataFormats/TestObjects/interface/ToyProducts.h"
@@ -54,7 +56,7 @@ void testEventGetRefBeforePut::failGetProductNotRegisteredTest() {
 
   edm::ProductRegistry *preg = new edm::ProductRegistry;
   preg->setFrozen();
-  preg->setProductIDs(1U);
+  edm::BranchIDListHelper::updateRegistries(*preg);
   edm::EventID col(1L, 1L);
   std::string uuid = edm::createGlobalIdentifier();
   edm::Timestamp fakeTime;
@@ -99,6 +101,7 @@ void testEventGetRefBeforePut::getRefTest() {
 
   edm::ModuleDescription modDesc;
   modDesc.moduleName_ = "Blah";
+  modDesc.parameterSetID_ = edm::ParameterSet().id();
 
   edm::BranchDescription product(edm::InEvent,
 				 label,
@@ -106,9 +109,7 @@ void testEventGetRefBeforePut::getRefTest() {
 				 dummytype.userClassName(),
 				 className,
 				 productInstanceName,
-				 modDesc.id(),
-				 std::set<edm::ParameterSetID>(),
-				 std::set<edm::ProcessConfigurationID>()
+				 modDesc
 				);
 
   product.init();
@@ -116,7 +117,7 @@ void testEventGetRefBeforePut::getRefTest() {
   edm::ProductRegistry *preg = new edm::ProductRegistry;
   preg->addProduct(product);
   preg->setFrozen();
-  preg->setProductIDs(1U);
+  edm::BranchIDListHelper::updateRegistries(*preg);
   edm::EventID col(1L, 1L);
   std::string uuid = edm::createGlobalIdentifier();
   edm::Timestamp fakeTime;

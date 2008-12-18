@@ -20,14 +20,17 @@ Test program for edm::Event.
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
+#include "DataFormats/Provenance/interface/History.h"
 #include "DataFormats/Provenance/interface/ProcessHistory.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
 #include "DataFormats/Provenance/interface/RunAuxiliary.h"
+#include "DataFormats/Provenance/interface/BranchIDListHelper.h"
 #include "DataFormats/TestObjects/interface/Thing.h"
 #include "DataFormats/TestObjects/interface/ToyProducts.h"
+#include "DataFormats/Provenance/interface/BranchIDListHelper.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
@@ -157,11 +160,7 @@ testEvent::registerProduct(std::string const& tag,
   processParams.template addParameter<std::string>("@process_name", processName);
   processParams.template addParameter<ParameterSet>(moduleLabel, moduleParams);
   
-  ProcessConfiguration process;
-  process.processName_    = processName;
-  process.releaseVersion_ = getReleaseVersion();
-  process.passID_         = getPassID();
-  process.parameterSetID_ = processParams.id();
+  ProcessConfiguration process(processName, processParams.id(), getReleaseVersion(), getPassID());
 
   ModuleDescription localModuleDescription;
   localModuleDescription.parameterSetID_       = moduleParams.id();
@@ -177,9 +176,7 @@ testEvent::registerProduct(std::string const& tag,
 			   product_type.userClassName(),
 			   product_type.friendlyClassName(),
 			   productInstanceName,
-			   localModuleDescription.id(),
-			   std::set<ParameterSetID>(),
-			   std::set<ProcessConfigurationID>()
+			   localModuleDescription
 			  );
 
   moduleDescriptions_[tag] = localModuleDescription;
@@ -214,6 +211,8 @@ testEvent::testEvent() :
   currentModuleDescription_(0),
   moduleDescriptions_()
 {
+  BranchIDListHelper::clearRegistries();
+
   typedef edmtest::IntProduct prod_t;
   typedef std::vector<edmtest::Thing> vec_t;
 
@@ -238,11 +237,7 @@ testEvent::testEvent() :
   processParams.addParameter<std::string>("@process_name", processName);
   processParams.addParameter(moduleLabel, moduleParams);
 
-  ProcessConfiguration process;
-  process.processName_    = processName;
-  process.releaseVersion_ = getReleaseVersion();
-  process.passID_         = getPassID();
-  process.parameterSetID_ = processParams.id();
+  ProcessConfiguration process(processName, processParams.id(), getReleaseVersion(), getPassID());
 
   TypeID product_type(typeid(prod_t));
 
@@ -260,16 +255,14 @@ testEvent::testEvent() :
 			   product_type.userClassName(),
 			   product_type.friendlyClassName(),
 			   productInstanceName,
-			   currentModuleDescription_->id(),
-			   std::set<ParameterSetID>(),
-			   std::set<ProcessConfigurationID>()
+			   *currentModuleDescription_
 			  );
 
   availableProducts_->addProduct(branch);
 
   // Freeze the product registry before we make the Event.
   availableProducts_->setFrozen();
-  availableProducts_->setProductIDs(1U);
+  BranchIDListHelper::updateRegistries(*availableProducts_);
 }
 
 testEvent::~testEvent()
@@ -297,11 +290,7 @@ void testEvent::setUp()
   processParamsEarly.addParameter<std::string>("@process_name", processNameEarly);
   processParamsEarly.addParameter(moduleLabelEarly, moduleParamsEarly);
 
-  ProcessConfiguration processEarly;
-  processEarly.processName_    = "EARLY";
-  processEarly.releaseVersion_ = getReleaseVersion();
-  processEarly.passID_         = getPassID();
-  processEarly.parameterSetID_ = processParamsEarly.id();
+  ProcessConfiguration processEarly("EARLY", processParamsEarly.id(), getReleaseVersion(), getPassID());
 
   ParameterSet moduleParamsLate;
   std::string moduleLabelLate("currentModule");
@@ -314,11 +303,7 @@ void testEvent::setUp()
   processParamsLate.addParameter<std::string>("@process_name", processNameLate);
   processParamsLate.addParameter(moduleLabelLate, moduleParamsLate);
 
-  ProcessConfiguration processLate;
-  processLate.processName_    = "LATE";
-  processLate.releaseVersion_ = getReleaseVersion();
-  processLate.passID_         = getPassID();
-  processLate.parameterSetID_ = processParamsLate.id();
+  ProcessConfiguration processLate("LATE", processParamsLate.id(), getReleaseVersion(), getPassID());
 
   ProcessHistory* processHistory = new ProcessHistory;
   ProcessHistory& ph = *processHistory;
@@ -355,10 +340,12 @@ void testEvent::setUp()
   boost::shared_ptr<LuminosityBlockPrincipal>lbp(new LuminosityBlockPrincipal(lumiAux, preg, pc));
   lbp->setRunPrincipal(rp);
   EventAuxiliary eventAux(id, uuid, time, lbp->luminosityBlock(), true);
+  boost::shared_ptr<History> history(new History);
+  const_cast<ProcessHistoryID &>(history->processHistoryID()) = processHistoryID;
   principal_  = new EventPrincipal(eventAux,
 				   preg,
                                    pc,
-                                   processHistoryID);
+                                   history);
 
   principal_->setLuminosityBlockPrincipal(lbp);
   currentEvent_ = new Event(*principal_, *currentModuleDescription_);
@@ -452,7 +439,7 @@ void testEvent::getByProductID()
   ProductID invalid;
   CPPUNIT_ASSERT_THROW(currentEvent_->get(invalid, h), cms::Exception);
   CPPUNIT_ASSERT(!h.isValid());
-  ProductID notpresent(std::numeric_limits<unsigned int>::max());
+  ProductID notpresent(0, std::numeric_limits<unsigned short>::max());
   CPPUNIT_ASSERT(!currentEvent_->get(notpresent, h));
   CPPUNIT_ASSERT(!h.isValid());
   CPPUNIT_ASSERT(h.failedToGet());

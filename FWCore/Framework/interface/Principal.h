@@ -27,7 +27,7 @@ pointer to a Group, when queried.
 #include "DataFormats/Provenance/interface/ProvenanceFwd.h"
 #include "DataFormats/Provenance/interface/BranchID.h"
 #include "DataFormats/Provenance/interface/BranchMapper.h"
-#include "DataFormats/Provenance/interface/EventEntryInfo.h"
+#include "DataFormats/Provenance/interface/ProductProvenance.h"
 #include "DataFormats/Common/interface/EDProductGetter.h"
 #include "DataFormats/Common/interface/OutputHandle.h"
 #include "DataFormats/Common/interface/Wrapper.h"
@@ -54,7 +54,7 @@ namespace edm {
 
     Principal(boost::shared_ptr<ProductRegistry const> reg,
 	      ProcessConfiguration const& pc,
-              ProcessHistoryID const& hist = ProcessHistoryID(),
+	      ProcessHistoryID const& hist = ProcessHistoryID(),
               boost::shared_ptr<BranchMapper> mapper = boost::shared_ptr<BranchMapper>(new BranchMapper),
               boost::shared_ptr<DelayedReader> rtrv = boost::shared_ptr<DelayedReader>(new NoDelayedReader));
 
@@ -62,8 +62,7 @@ namespace edm {
 
     EDProductGetter const* prodGetter() const {return this;}
 
-    template <typename T>
-    OutputHandle<T>  getForOutput(BranchID const& bid, bool getProd) const;
+    OutputHandle getForOutput(BranchID const& bid, bool getProd) const;
 
     BasicHandle  getBySelector(TypeID const& tid,
                                SelectorBase const& s) const;
@@ -96,11 +95,10 @@ namespace edm {
     void
     readImmediate() const;
 
-    ProcessHistory const& processHistory() const;    
+    void
+    readProvenanceImmediate() const;
 
-    ProcessHistoryID const& processHistoryID() const {
-      return processHistoryID_;   
-    }
+    ProcessHistory const& processHistory() const;    
 
     ProcessConfiguration const& processConfiguration() const {return processConfiguration_;}
 
@@ -122,6 +120,12 @@ namespace edm {
     const_iterator begin() const {return groups_.begin();}
     const_iterator end() const {return groups_.end();}
 
+    Provenance
+    getProvenance(BranchID const& bid) const;
+
+    void
+    getAllProvenance(std::vector<Provenance const *> & provenances) const;
+
   protected:
     // ----- Add a new Group
     // *this takes ownership of the Group, which in turn owns its
@@ -135,12 +139,17 @@ namespace edm {
                                        bool resolveProv,
 				       bool fillOnDemand) const;
 
+    void resolveProvenance(Group const& g) const;
+
   private:
     virtual EDProduct const* getIt(ProductID const&) const;
 
     virtual void addOrReplaceGroup(std::auto_ptr<Group> g) = 0;
 
-    virtual void resolveProvenance(Group const& g) const = 0;
+
+    virtual ProcessHistoryID const& processHistoryID() const = 0;
+
+    virtual void setProcessHistoryID(ProcessHistoryID const& phid) const = 0;
 
     virtual bool unscheduledFill(std::string const& moduleLabel) const = 0;
 
@@ -166,8 +175,6 @@ namespace edm {
     // *this is const.
     void resolveProduct(Group const& g, bool fillOnDemand) const;
 
-    mutable ProcessHistoryID processHistoryID_;
-
     boost::shared_ptr<ProcessHistory> processHistoryPtr_;
 
     ProcessConfiguration const& processConfiguration_;
@@ -189,28 +196,6 @@ namespace edm {
     // from the persistent store.
     boost::shared_ptr<DelayedReader> store_;
   };
-
-  template <typename T>
-  OutputHandle<T>
-  Principal::getForOutput(BranchID const& bid, bool getProd) const {
-    SharedConstGroupPtr const& g = getGroup(bid, getProd, true, false);
-    if (g.get() == 0) {
-      return OutputHandle<T>();
-    }
-    if (getProd && (g->product() == 0 || !g->product()->isPresent()) &&
-	    g->productDescription().present() &&
-	    g->productDescription().branchType() == InEvent &&
-            productstatus::present(g->entryInfoPtr()->productStatus())) {
-        throw edm::Exception(edm::errors::LogicError, "Principal::getForOutput\n")
-         << "A product with a status of 'present' is not actually present.\n"
-         << "The branch name is " << g->productDescription().branchName() << "\n"
-         << "Contact a framework developer.\n";
-    }
-    if (!g->product() && !g->entryInfoPtr()) {
-      return OutputHandle<T>();
-    }
-    return OutputHandle<T>(g->product().get(), &g->productDescription(), g->entryInfoPtr());
-  }
 
   template <typename PROD>
   inline

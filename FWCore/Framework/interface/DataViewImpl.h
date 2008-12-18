@@ -101,7 +101,7 @@ edm::Ref<AppleCollection> ref(refApples, index);
 
 #include "DataFormats/Provenance/interface/BranchType.h"
 #include "DataFormats/Provenance/interface/ConstBranchDescription.h"
-#include "DataFormats/Provenance/interface/EventEntryInfo.h"
+#include "DataFormats/Provenance/interface/ProductProvenance.h"
 #include "DataFormats/Common/interface/traits.h"
 
 #include "DataFormats/Common/interface/Handle.h"

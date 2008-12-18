@@ -31,6 +31,11 @@ namespace edm {
       return dynamic_cast<EventPrincipal const&>(principal());
     }
 
+    ProductID
+    Event::makeProductID(ConstBranchDescription const& desc) const {
+      return eventPrincipal().branchIDToProductID(desc.branchID());
+    }
+
     Run const&
     Event::getRun() const {
       return getLuminosityBlock().getRun();
@@ -58,7 +63,7 @@ namespace edm {
   Provenance
   Event::getProvenance(BranchID const& bid) const
   {
-    return eventPrincipal().getProvenance(bid);
+    return principal().getProvenance(bid);
   }
 
   Provenance
@@ -70,7 +75,7 @@ namespace edm {
   void
   Event::getAllProvenance(std::vector<Provenance const*> & provenances) const
   {
-    eventPrincipal().getAllProvenance(provenances);
+    principal().getAllProvenance(provenances);
   }
 
   bool
@@ -137,13 +142,11 @@ namespace edm {
 	pit->first = 0;
 
 	// set provenance
-	std::auto_ptr<EventEntryInfo> eventEntryInfoPtr(
-		new EventEntryInfo(pit->second->branchID(),
+	std::auto_ptr<ProductProvenance> productProvenancePtr(
+		new ProductProvenance(pit->second->branchID(),
 				   productstatus::present(),
-				   pit->second->moduleDescriptionID(),
-				   pit->second->productIDtoAssign(),
 				   gotBranchIDVector));
-	ep.put(pr, *pit->second, eventEntryInfoPtr);
+	ep.put(pr, *pit->second, productProvenancePtr);
 	++pit;
     }
 

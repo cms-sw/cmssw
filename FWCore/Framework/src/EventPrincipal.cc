@@ -4,7 +4,12 @@
 #include "FWCore/Framework/interface/Group.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "DataFormats/Common/interface/BasicHandle.h"
+#include "DataFormats/Provenance/interface/BranchListIndex.h"
+#include "DataFormats/Provenance/interface/BranchIDList.h"
+#include "DataFormats/Provenance/interface/BranchIDListRegistry.h"
 #include "DataFormats/Provenance/interface/Provenance.h"
+#include "DataFormats/Provenance/interface/ProductIDToBranchID.h"
+#include "DataFormats/Provenance/interface/ProductRegistry.h"
 
 #include <algorithm>
 
@@ -12,15 +17,30 @@ namespace edm {
   EventPrincipal::EventPrincipal(EventAuxiliary const& aux,
 	boost::shared_ptr<ProductRegistry const> reg,
 	ProcessConfiguration const& pc,
-	ProcessHistoryID const& hist,
+	boost::shared_ptr<History> history,
 	boost::shared_ptr<BranchMapper> mapper,
 	boost::shared_ptr<DelayedReader> rtrv) :
-	  Base(reg, pc, hist, mapper, rtrv),
+	  Base(reg, pc, history->processHistoryID(), mapper, rtrv),
 	  aux_(aux),
 	  luminosityBlockPrincipal_(),
 	  unscheduledHandler_(),
 	  moduleLabelsRunning_(),
-	  eventHistory_() {
+	  history_(history),
+	  branchToProductIDHelper_() {
+	    if (reg->productProduced(InEvent)) {
+	      addToProcessHistory();
+	      // Add index into BranchIDListRegistry for products produced this process
+	      history_->addBranchListIndexEntry(BranchIDListRegistry::instance()->size()-1);
+	    }
+	    mapper->processHistoryID() = processHistoryID();
+	    // Fill in helper map for Branch to ProductID mapping
+	    for (BranchListIndexes::const_iterator
+		 it = history->branchListIndexes().begin(),
+		 itEnd = history->branchListIndexes().end();
+		 it != itEnd; ++it) {
+	      ProcessIndex pix = it - history->branchListIndexes().begin();
+	      branchToProductIDHelper_.insert(std::make_pair(*it, pix));
+	    }
 	  }
 
   RunPrincipal const&
@@ -35,7 +55,7 @@ namespace edm {
 
   void
   EventPrincipal::addOnDemandGroup(ConstBranchDescription const& desc) {
-    std::auto_ptr<Group> g(new Group(desc, true));
+    std::auto_ptr<Group> g(new Group(desc, branchIDToProductID(desc.branchID()), true));
     addOrReplaceGroup(g);
   }
 
@@ -62,73 +82,102 @@ namespace edm {
 
   void
   EventPrincipal::addGroup(ConstBranchDescription const& bd) {
-    std::auto_ptr<Group> g(new Group(bd));
+    std::auto_ptr<Group> g(new Group(bd, branchIDToProductID(bd.branchID())));
     addOrReplaceGroup(g);
   }
 
   void
   EventPrincipal::addGroup(std::auto_ptr<EDProduct> prod,
 	 ConstBranchDescription const& bd,
-	 std::auto_ptr<EventEntryInfo> entryInfo) {
-    std::auto_ptr<Group> g(new Group(prod, bd, entryInfo));
+	 std::auto_ptr<ProductProvenance> productProvenance) {
+    std::auto_ptr<Group> g(new Group(prod, bd, branchIDToProductID(bd.branchID()), productProvenance));
     addOrReplaceGroup(g);
   }
 
   void
   EventPrincipal::addGroup(ConstBranchDescription const& bd,
-	 std::auto_ptr<EventEntryInfo> entryInfo) {
-    std::auto_ptr<Group> g(new Group(bd, entryInfo));
+	 std::auto_ptr<ProductProvenance> productProvenance) {
+    std::auto_ptr<Group> g(new Group(bd, branchIDToProductID(bd.branchID()), productProvenance));
     addOrReplaceGroup(g);
   }
 
   void
   EventPrincipal::addGroup(std::auto_ptr<EDProduct> prod,
 	 ConstBranchDescription const& bd,
-	 boost::shared_ptr<EventEntryInfo> entryInfo) {
-    std::auto_ptr<Group> g(new Group(prod, bd, entryInfo));
+	 boost::shared_ptr<ProductProvenance> productProvenance) {
+    std::auto_ptr<Group> g(new Group(prod, bd, branchIDToProductID(bd.branchID()), productProvenance));
     addOrReplaceGroup(g);
   }
 
   void
   EventPrincipal::addGroup(ConstBranchDescription const& bd,
-	 boost::shared_ptr<EventEntryInfo> entryInfo) {
-    std::auto_ptr<Group> g(new Group(bd, entryInfo));
+	 boost::shared_ptr<ProductProvenance> productProvenance) {
+    std::auto_ptr<Group> g(new Group(bd, branchIDToProductID(bd.branchID()), productProvenance));
     addOrReplaceGroup(g);
   }
 
   void 
   EventPrincipal::put(std::auto_ptr<EDProduct> edp,
 		ConstBranchDescription const& bd,
-		std::auto_ptr<EventEntryInfo> entryInfo) {
+		std::auto_ptr<ProductProvenance> productProvenance) {
 
     if (edp.get() == 0) {
       throw edm::Exception(edm::errors::InsertFailure,"Null Pointer")
 	<< "put: Cannot put because auto_ptr to product is null."
 	<< "\n";
     }
-    this->addToProcessHistory();
+    ProductID pid = branchIDToProductID(bd.branchID());
     // Group assumes ownership
-    if (!entryInfo->productID().isValid()) {
+    if (!pid.isValid()) {
       throw edm::Exception(edm::errors::InsertFailure,"Null Product ID")
 	<< "put: Cannot put product with null Product ID."
 	<< "\n";
     }
-    branchMapperPtr()->insert(*entryInfo);
-    this->addGroup(edp, bd, entryInfo);
+    branchMapperPtr()->insert(*productProvenance);
+    this->addGroup(edp, bd, productProvenance);
+  }
+
+  BranchID
+  EventPrincipal::pidToBid(ProductID const& pid) const {
+    if (!pid.isValid()) {
+      throw edm::Exception(edm::errors::ProductNotFound,"InvalidID")
+        << "get by product ID: invalid ProductID supplied\n";
+    }
+    return productIDToBranchID(pid, BranchIDListRegistry::instance()->data(), history().branchListIndexes());
+  }
+
+  ProductID
+  EventPrincipal::branchIDToProductID(BranchID const& bid) const {
+    if (!bid.isValid()) {
+      throw edm::Exception(edm::errors::NotFound,"InvalidID")
+        << "branchIDToProductID: invalid BranchID supplied\n";
+    }
+    BranchIDListHelper::BranchIDToIndexMap const& branchIDToIndexMap =
+      BranchIDListRegistry::instance()->extra().branchIDToIndexMap();   
+    BranchIDListHelper::BranchIDToIndexMap::const_iterator it = branchIDToIndexMap.find(bid);
+    if (it == branchIDToIndexMap.end()) {
+      throw edm::Exception(edm::errors::NotFound,"Bad BranchID")
+        << "branchIDToProductID: productID cannot be determined from BranchID\n";
+    }
+    BranchListIndex blix = it->second.first;
+    ProductIndex productIndex = it->second.second;
+    std::map<BranchListIndex, ProcessIndex>:: const_iterator i = branchToProductIDHelper_.find(blix);
+    if (i == branchToProductIDHelper_.end()) {
+      throw edm::Exception(edm::errors::NotFound,"Bad branch ID")
+        << "branchIDToProductID: productID cannot be determined from BranchID\n";
+    }
+    ProcessIndex processIndex = i->second;
+    return ProductID(processIndex+1, productIndex+1);
   }
 
   BasicHandle
-  EventPrincipal::getByProductID(ProductID const& oid) const {
-    BranchID bid = branchMapperPtr()->productToBranch(oid);
+  EventPrincipal::getByProductID(ProductID const& pid) const {
+    BranchID bid = pidToBid(pid);
     SharedConstGroupPtr const& g = getGroup(bid, true, true, true);
     if (g.get() == 0) {
-      if (!oid.isValid()) {
-        throw edm::Exception(edm::errors::ProductNotFound,"InvalidID")
-	  << "get by product ID: invalid ProductID supplied\n";
-      }
       boost::shared_ptr<cms::Exception> whyFailed( new edm::Exception(edm::errors::ProductNotFound,"InvalidID") );
       *whyFailed
-	<< "get by product ID: no product with given id: "<< oid << "\n";
+	<< "get by product ID: no product with given id: "<< pid << "\n";
       return BasicHandle(whyFailed);
     }
 
@@ -137,7 +186,7 @@ namespace edm {
     if (g->onDemand()) {
       boost::shared_ptr<cms::Exception> whyFailed( new edm::Exception(edm::errors::ProductNotFound,"InvalidID") );
       *whyFailed
-	<< "get by product ID: no product with given id: " << oid << "\n"
+	<< "get by product ID: no product with given id: " << pid << "\n"
         << "onDemand production failed to produce it.\n";
       return BasicHandle(whyFailed);
     }
@@ -145,60 +194,14 @@ namespace edm {
   }
 
   EDProduct const *
-  EventPrincipal::getIt(ProductID const& oid) const {
-    return getByProductID(oid).wrapper();
-  }
-
-  Provenance
-  EventPrincipal::getProvenance(BranchID const& bid) const {
-    SharedConstGroupPtr const& g = getGroup(bid, false, true, true);
-    if (g.get() == 0) {
-      throw edm::Exception(edm::errors::ProductNotFound,"InvalidID")
-	<< "getProvenance: no product with given branch id: "<< bid << "\n";
-    }
-
-    if (g->onDemand()) {
-      unscheduledFill(g->productDescription().moduleLabel());
-    }
-    // We already tried to produce the unscheduled products above
-    // If they still are not there, then throw
-    if (g->onDemand()) {
-      throw edm::Exception(edm::errors::ProductNotFound)
-	<< "getProvenance: no product with given BranchID: "<< bid <<"\n";
-    }
-
-    return *g->provenance();
+  EventPrincipal::getIt(ProductID const& pid) const {
+    return getByProductID(pid).wrapper();
   }
 
   Provenance
   EventPrincipal::getProvenance(ProductID const& pid) const {
-    BranchID bid = branchMapperPtr()->productToBranch(pid);
+    BranchID bid = pidToBid(pid);
     return getProvenance(bid);
-  }
-
-  // This one is mostly for test printout purposes
-  // No attempt to trigger on demand execution
-  // Skips provenance when the EDProduct is not there
-  void
-  EventPrincipal::getAllProvenance(std::vector<Provenance const*> & provenances) const {
-    provenances.clear();
-    for (Base::const_iterator i = begin(), iEnd = end(); i != iEnd; ++i) {
-      if (i->second->provenanceAvailable()) {
-	resolveProvenance(*i->second);
-	if (i->second->provenance()->branchEntryInfoSharedPtr() &&
-	    i->second->provenance()->isPresent() &&
-	    i->second->provenance()->product().present())
-	   provenances.push_back(i->second->provenance());
-	}
-    }
-  }
-
-  void
-  EventPrincipal::resolveProvenance(Group const& g) const {
-    if (!g.entryInfoPtr()) {
-      // Now fix up the Group
-      g.setProvenance(branchMapperPtr()->branchToEntryInfo(g.productDescription().branchID()));
-    }
   }
 
   void
@@ -209,13 +212,7 @@ namespace edm {
   EventSelectionIDVector const&
   EventPrincipal::eventSelectionIDs() const
   {
-    return eventHistory_.eventSelectionIDs();
-  }
-
-  History const&
-  EventPrincipal::history() const
-  {
-    return eventHistory_;
+    return history_->eventSelectionIDs();
   }
 
   bool
@@ -248,8 +245,8 @@ namespace edm {
     return true;
   }
 
-  void
-  EventPrincipal::setHistory(History const& h) {
-    eventHistory_ = h;
+  ProductID
+  EventPrincipal::oldToNewProductID_(ProductID const& oldProductID) const {
+    return branchIDToProductID(branchMapperPtr()->oldProductIDToBranchID(oldProductID));
   }
 }

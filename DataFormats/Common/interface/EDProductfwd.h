@@ -14,6 +14,7 @@ namespace edm
   class EDProduct;
   class EDProductGetter;
   class ProductID;
+  class OutputHandle;
   class RefCore;
 
   template <typename C, typename T, typename F> class Ref;
@@ -28,7 +29,6 @@ namespace edm
   template <typename T> class Wrapper;
   template <typename T> class Handle;
   template <typename T> class OrphanHandle;
-  template <typename T> class OutputHandle;
 
   namespace reftobase
   {

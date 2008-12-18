@@ -1,4 +1,4 @@
-// $Id: reftobase_t.cppunit.cc,v 1.6 2008/03/14 00:57:32 wmtan Exp $
+// $Id: reftobase_t.cppunit.cc,v 1.7.4.1 2008/11/04 19:24:08 wmtan Exp $
 #include <cppunit/extensions/HelperMacros.h>
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/Common/interface/Ref.h"
@@ -41,13 +41,13 @@ testRefToBase::check()
   std::vector<Inherit1> v1(2,Inherit1());
   std::vector<Inherit2> v2(2,Inherit2());
   
-  TestHandle<std::vector<Inherit1> > h1(&v1, ProductID(1));
+  TestHandle<std::vector<Inherit1> > h1(&v1, ProductID(1, 1));
   Ref<std::vector<Inherit1> > r1(h1, 1);
   RefToBase<Base> b1(r1);
   CPPUNIT_ASSERT(&(*b1) == static_cast<Base*>(&(v1[1])));
   CPPUNIT_ASSERT(b1.operator->() == b1.get());
   CPPUNIT_ASSERT(b1.get() == static_cast<Base*>(&(v1[1])));
-  CPPUNIT_ASSERT(b1.id() == ProductID(1));
+  CPPUNIT_ASSERT(b1.id() == ProductID(1, 1));
   
   //copy constructor
   RefToBase<Base> b2(b1);

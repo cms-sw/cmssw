@@ -10,6 +10,7 @@ Test of the EventPrincipal class.
 #include "FWCore/Version/interface/GetReleaseVersion.h"
 #include "FWCore/Utilities/interface/GlobalIdentifier.h"
 #include "FWCore/Utilities/interface/TypeID.h"
+#include "DataFormats/Provenance/interface/BranchIDListHelper.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
@@ -128,6 +129,7 @@ void testGenericHandle::getbyLabelTest() {
 
   edm::ModuleDescription modDesc;
   modDesc.moduleName_ = "Blah";
+  modDesc.parameterSetID_ = edm::ParameterSet().id();
 
   edm::BranchDescription product(edm::InEvent,
 				 label,
@@ -135,9 +137,7 @@ void testGenericHandle::getbyLabelTest() {
 				 dummytype.userClassName(),
 				 className,
 				 productInstanceName,
-				 modDesc.id(),
-				 std::set<edm::ParameterSetID>(),
-				 std::set<edm::ProcessConfigurationID>()
+				 modDesc
 				);
 
   product.init();
@@ -145,7 +145,7 @@ void testGenericHandle::getbyLabelTest() {
   edm::ProductRegistry *preg = new edm::ProductRegistry;
   preg->addProduct(product);
   preg->setFrozen();
-  preg->setProductIDs(1U);
+  edm::BranchIDListHelper::updateRegistries(*preg);
 
   edm::ProductRegistry::ProductList const& pl = preg->productList();
   edm::BranchKey const bk(product);
@@ -165,12 +165,10 @@ void testGenericHandle::getbyLabelTest() {
   edm::EventPrincipal ep(eventAux, pregc, pc);
   ep.setLuminosityBlockPrincipal(lbp);
   const edm::BranchDescription& branchFromRegistry = it->second;
-  boost::shared_ptr<edm::EventEntryDescription> entryDescriptionPtr(new edm::EventEntryDescription);
-  entryDescriptionPtr->moduleDescriptionID() = branchFromRegistry.moduleDescriptionID();
-  std::auto_ptr<edm::EventEntryInfo> branchEntryInfoPtr(
-      new edm::EventEntryInfo(branchFromRegistry.branchID(),
+  boost::shared_ptr<edm::Parentage> entryDescriptionPtr(new edm::Parentage);
+  std::auto_ptr<edm::ProductProvenance> branchEntryInfoPtr(
+      new edm::ProductProvenance(branchFromRegistry.branchID(),
                               edm::productstatus::present(),
-                              branchFromRegistry.productIDtoAssign(),
                               entryDescriptionPtr));
   edm::ConstBranchDescription const desc(branchFromRegistry);
   ep.put(pprod, desc, branchEntryInfoPtr);

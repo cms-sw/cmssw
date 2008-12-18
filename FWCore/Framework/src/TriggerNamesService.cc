@@ -3,7 +3,7 @@
 // Implementation:
 //
 // Original Author:  Jim Kowalkowski
-// $Id: TriggerNamesService.cc,v 1.11 2007/09/27 14:30:25 paterno Exp $
+// $Id: TriggerNamesService.cc,v 1.12.8.2 2008/11/10 19:36:22 wmtan Exp $
 //
 
 #include "FWCore/Framework/interface/TriggerNamesService.h"

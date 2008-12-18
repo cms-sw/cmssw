@@ -25,6 +25,7 @@ For its usage, see "FWCore/Framework/interface/DataViewImpl.h"
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "DataFormats/Provenance/interface/History.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockID.h"
+#include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Provenance/interface/RunID.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
 
@@ -215,6 +216,9 @@ namespace edm {
     EventPrincipal &
     eventPrincipal();
 
+    ProductID
+    makeProductID(ConstBranchDescription const& desc) const;
+
     // commit_() is called to complete the transaction represented by
     // this DataViewImpl. The friendships required seems gross, but any
     // alternative is not great either.  Putting it into the
@@ -271,7 +275,7 @@ namespace edm {
       if(bh.failedToGet()) {
           boost::shared_ptr<cms::Exception> whyFailed(new edm::Exception(edm::errors::ProductNotFound) );
           *whyFailed
-              << "get View by ID failed: no product with ID = " << oid.id() <<"\n";
+              << "get View by ID failed: no product with ID = " << oid <<"\n";
           Handle<View<ELEMENT> > temp(whyFailed);
           result.swap(temp);
           return false;
@@ -318,7 +322,7 @@ namespace edm {
     // product.release(); // The object has been copied into the Wrapper.
     // The old copy must be deleted, so we cannot release ownership.
 
-    return(OrphanHandle<PROD>(wp->product(), desc.productIDtoAssign()));
+    return(OrphanHandle<PROD>(wp->product(), makeProductID(desc)));
   }
 
   template <typename PROD>
@@ -329,7 +333,7 @@ namespace edm {
       getBranchDescription(TypeID(*p), productInstanceName);
 
     //should keep track of what Ref's have been requested and make sure they are 'put'
-    return RefProd<PROD>(desc.productIDtoAssign(), prodGetter());
+    return RefProd<PROD>(makeProductID(desc), prodGetter());
   }
 
   template <typename PROD>

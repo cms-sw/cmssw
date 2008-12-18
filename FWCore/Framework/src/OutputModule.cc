@@ -4,7 +4,7 @@
 
 #include "FWCore/Framework/interface/OutputModule.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
-#include "DataFormats/Provenance/interface/EntryDescriptionRegistry.h"
+#include "DataFormats/Provenance/interface/ParentageRegistry.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ConstProductRegistry.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -117,7 +117,6 @@ namespace edm {
   OutputModule::OutputModule(ParameterSet const& pset) : 
     maxEvents_(-1),
     remainingEvents_(maxEvents_),
-    nextID_(),
     keptProducts_(),
     hasNewlyDroppedBranch_(),
     process_name_(),
@@ -177,7 +176,6 @@ namespace edm {
     if (groupSelector_.initialized()) return;
     groupSelector_.initialize(groupSelectorRules_, getAllBranchDescriptions());
     Service<ConstProductRegistry> reg;
-    nextID_ = reg->nextID();
 
     // TODO: See if we can collapse keptProducts_ and groupSelector_ into a
     // single object. See the notes in the header for GroupSelector
@@ -377,11 +375,11 @@ namespace edm {
     writeEventHistory();
     writeProcessConfigurationRegistry();
     writeProcessHistoryRegistry();
-    writeModuleDescriptionRegistry();
     writeParameterSetRegistry();
     writeProductDescriptionRegistry();
+    writeParentageRegistry();
+    writeBranchIDListRegistry();
     writeProductDependencies();
-    writeEntryDescriptions();
     writeBranchMapper();
     finishEndFile();
     branchParents_.clear();
@@ -402,10 +400,6 @@ namespace edm {
     return groupSelector_.selected(desc);
   }
 
-  unsigned int OutputModule::nextID() const {
-    return nextID_;
-  }
-  
   void
   OutputModule::fillDescription(edm::ParameterSetDescription& iDesc,
                                 std::string const& moduleLabel) {
@@ -415,13 +409,13 @@ namespace edm {
   void
   OutputModule::updateBranchParents(EventPrincipal const& ep) {
     for (EventPrincipal::const_iterator i = ep.begin(), iEnd = ep.end(); i != iEnd; ++i) {
-      if (i->second->entryInfoPtr() != 0) {
+      if (i->second->productProvenancePtr() != 0) {
 	BranchID const& bid = i->first;
 	BranchParents::iterator it = branchParents_.find(bid);
 	if (it == branchParents_.end()) {
-	   it = branchParents_.insert(std::make_pair(bid, std::set<EntryDescriptionID>())).first;
+	   it = branchParents_.insert(std::make_pair(bid, std::set<ParentageID>())).first;
 	}
-	it->second.insert(i->second->entryInfoPtr()->entryDescriptionID());
+	it->second.insert(i->second->productProvenancePtr()->parentageID());
 	branchChildren_.insertEmpty(bid);
       }
     }
@@ -432,11 +426,11 @@ namespace edm {
     for (BranchParents::const_iterator i = branchParents_.begin(), iEnd = branchParents_.end();
         i != iEnd; ++i) {
       BranchID const& child = i->first;
-      std::set<EntryDescriptionID> const& eIds = i->second;
-      for (std::set<EntryDescriptionID>::const_iterator it = eIds.begin(), itEnd = eIds.end();
+      std::set<ParentageID> const& eIds = i->second;
+      for (std::set<ParentageID>::const_iterator it = eIds.begin(), itEnd = eIds.end();
           it != itEnd; ++it) {
-        EventEntryDescription entryDesc;
-        EntryDescriptionRegistry::instance()->getMapped(*it, entryDesc);
+        Parentage entryDesc;
+        ParentageRegistry::instance()->getMapped(*it, entryDesc);
 	std::vector<BranchID> const& parents = entryDesc.parents();
 	for (std::vector<BranchID>::const_iterator j = parents.begin(), jEnd = parents.end();
 	  j != jEnd; ++j) {

@@ -1,5 +1,5 @@
 /*
- *  $Id: DetSetVector_t.cpp,v 1.17 2008/03/18 12:49:22 wmtan Exp $
+ *  $Id: DetSetVector_t.cpp,v 1.18.4.1 2008/11/04 19:24:08 wmtan Exp $
  *  CMSSW
  *
  */
@@ -221,27 +221,27 @@ void refTest()
   typedef edm::Ref<coll_type,Value> RefDet;
 
   {
-    RefDetSet refSet(edm::ProductID(1),0,&theGetter);
+    RefDetSet refSet(edm::ProductID(1, 1),0,&theGetter);
     assert(!(d1 <*refSet) && !(*refSet < d1));
   }
   {
-    RefDetSet refSet(edm::ProductID(1),1,&theGetter);
+    RefDetSet refSet(edm::ProductID(1, 1),1,&theGetter);
     assert(!(d3 <*refSet) && !(*refSet < d3));
   }
   {
-    RefDet refDet(edm::ProductID(1),RefDet::key_type(3,0),&theGetter);
+    RefDet refDet(edm::ProductID(1, 1),RefDet::key_type(3,0),&theGetter);
     assert(!(v1<*refDet)&&!(*refDet < v1));
   }
 
   {
-    TestHandle<coll_type> pc2(&c, ProductID(1));
+    TestHandle<coll_type> pc2(&c, ProductID(1, 1));
     RefDet refDet = makeRefToDetSetVector(pc2,det_id_type(3),c[3].data.begin());
     assert(!(v1<*refDet)&&!(*refDet < v1));
   }
 
   try {
     //bad detid
-    TestHandle<coll_type> pc2(&c, ProductID(1));
+    TestHandle<coll_type> pc2(&c, ProductID(1, 1));
     RefDet refDet = makeRefToDetSetVector(pc2,det_id_type(12),c[3].data.begin());
 
     assert("Failed to throw required exception" == 0);
@@ -254,7 +254,7 @@ void refTest()
 
   try {
     //bad iterator
-    TestHandle<coll_type> pc2(&c, ProductID(1));
+    TestHandle<coll_type> pc2(&c, ProductID(1, 1));
     RefDet refDet = makeRefToDetSetVector(pc2,det_id_type(1),c[3].data.begin());
 
     assert("Failed to throw required exception" == 0);

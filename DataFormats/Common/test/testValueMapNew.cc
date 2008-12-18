@@ -1,4 +1,4 @@
-// $Id: testValueMapNew.cc,v 1.4 2008/03/14 00:57:32 wmtan Exp $
+// $Id: testValueMapNew.cc,v 1.5.4.1 2008/11/04 19:24:08 wmtan Exp $
 #include <cppunit/extensions/HelperMacros.h>
 #include <algorithm>
 #include <iterator>
@@ -34,7 +34,7 @@ testValueMapNew::testValueMapNew() {
   v1.push_back(2);
   v1.push_back(3);
   v1.push_back(4);
-  ProductID const pidK1(2);
+  ProductID const pidK1(1, 2);
   handleK1 = edm::TestHandle<CKey1>(&v1, pidK1);
 
   v2.push_back(10.);
@@ -42,7 +42,7 @@ testValueMapNew::testValueMapNew() {
   v2.push_back(30.);
   v2.push_back(40.);
   v2.push_back(50.);
-  ProductID const pidK2(3);
+  ProductID const pidK2(1, 3);
   handleK2 = edm::TestHandle<CKey2>(&v2, pidK2);
 
   const int ww1[4] = { 2, 1, 0, 2 };
@@ -86,12 +86,12 @@ void testValueMapNew::checkAll() {
 
 void testValueMapNew::test(const edm::ValueMap<int> & values) {
   CPPUNIT_ASSERT(values.idSize()==2);
-  CPPUNIT_ASSERT(!values.contains(ProductID(0)));
-  CPPUNIT_ASSERT(!values.contains(ProductID(1)));
-  CPPUNIT_ASSERT(values.contains(ProductID(2)));
-  CPPUNIT_ASSERT(values.contains(ProductID(3)));
-  CPPUNIT_ASSERT(!values.contains(ProductID(4)));
-  CPPUNIT_ASSERT(!values.contains(ProductID(5)));
+  CPPUNIT_ASSERT(!values.contains(ProductID(1, 0)));
+  CPPUNIT_ASSERT(!values.contains(ProductID(1, 1)));
+  CPPUNIT_ASSERT(values.contains(ProductID(1, 2)));
+  CPPUNIT_ASSERT(values.contains(ProductID(1, 3)));
+  CPPUNIT_ASSERT(!values.contains(ProductID(1, 4)));
+  CPPUNIT_ASSERT(!values.contains(ProductID(1, 5)));
   int r1 = values[edm::Ref<CKey1>(handleK1, 0)];
   int r2 = values[edm::Ref<CKey1>(handleK1, 1)];
   int r3 = values[edm::Ref<CKey1>(handleK1, 2)];
@@ -113,9 +113,9 @@ void testValueMapNew::test(const edm::ValueMap<int> & values) {
   CPPUNIT_ASSERT(values.size() == w1.size()+w2.size());
   edm::ValueMap<int>::const_iterator b = values.begin(), e = values.end(), i;
   CPPUNIT_ASSERT(e-b == 2);
-  CPPUNIT_ASSERT(b.id()==ProductID(2));
-  CPPUNIT_ASSERT((b+1).id()==ProductID(3));
-  ProductID pids[] = { ProductID(2), ProductID(3) };
+  CPPUNIT_ASSERT(b.id()==ProductID(1, 2));
+  CPPUNIT_ASSERT((b+1).id()==ProductID(1, 3));
+  ProductID pids[] = { ProductID(1, 2), ProductID(1, 3) };
   const std::vector<int> * w[] = { &w1, &w2 }; 
   for(i = b; i != e; ++i) {
     size_t idx = i - b;

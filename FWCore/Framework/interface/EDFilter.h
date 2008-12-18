@@ -8,7 +8,6 @@ processing in a processing path.
 Filters can also insert products into the event.
 These products should be informational products about the filter decision.
 
-$Id: EDFilter.h,v 1.20 2008/06/24 23:25:11 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 

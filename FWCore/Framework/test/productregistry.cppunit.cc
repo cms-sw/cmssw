@@ -72,16 +72,15 @@ namespace {
         iConstReg.watchProductAdditions(this, &Responder::respond);
       }
       void respond(const edm::BranchDescription& iDesc){
+         edm::ModuleDescription module;
+	 module.parameterSetID_ = iDesc.parameterSetID();
          edm::BranchDescription prod(iDesc.branchType(),
 				     name_,
 				     iDesc.processName(),
 				     iDesc.fullClassName(),
 				     iDesc.friendlyClassName(),
 				     iDesc.productInstanceName() + "-" + name_,
-				     iDesc.moduleDescriptionID(),
-				     iDesc.psetIDs(),
-				     iDesc.processConfigurationIDs(),
-				     iDesc.branchAliases()
+				     module
 				    );
          reg_->addProduct(prod);
       }
@@ -99,11 +98,13 @@ testProductRegistry::testProductRegistry() :
 void testProductRegistry::setUp()
 {
   intModule_ = new edm::ModuleDescription;
+  intModule_->parameterSetID_ = edm::ParameterSet().id();
   intBranch_ = new edm::BranchDescription(edm::InEvent, "label", "PROD",
 					  "int", "int", "int",
 					  *intModule_);
 
   floatModule_ = new edm::ModuleDescription;
+  floatModule_->parameterSetID_ = intModule_->parameterSetID_;
   floatBranch_ = new edm::BranchDescription(edm::InEvent, "label", "PROD",
 					    "float", "float", "float",
 					    *floatModule_);

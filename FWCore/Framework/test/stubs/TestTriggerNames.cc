@@ -13,7 +13,6 @@
 
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
 #include "DataFormats/Provenance/interface/Provenance.h"
-#include "DataFormats/Provenance/interface/ModuleDescription.h"
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 
@@ -172,12 +171,9 @@ namespace edmtest
       // The provenance of the TriggerResults object should also contain the 
       // parameter set ID for the parameter set that lists the trigger paths.
       // Test this by getting this parameter set and verifying the trigger
-      // paths are the correct size. Note that this will fail (crash at
-      // an assert) if the input is from a streamer file as the streamer format
-      // does not save all the provenance.  Turn this test off with the streamerSource
-      // parameter in the configuration file in that case.
+      // paths are the correct size.
       if (!streamerSource_) {
-        ParameterSetID trigpathsID = prod[0].provenance()->moduleDescription().parameterSetID();
+        ParameterSetID trigpathsID = prod[0].provenance()->product().psetID();
         pset::Registry* psetRegistry = pset::Registry::instance();
         ParameterSet trigpset;
         bool status = psetRegistry->getMapped(trigpathsID, trigpset);

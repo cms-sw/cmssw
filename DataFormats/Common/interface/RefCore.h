@@ -5,7 +5,7 @@
   
 RefCore: The component of edm::Ref containing the product ID and product getter.
 
-$Id: RefCore.h,v 1.20 2008/02/15 05:57:03 wmtan Exp $
+$Id: RefCore.h,v 1.21.4.1 2008/11/19 22:40:27 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include "DataFormats/Provenance/interface/ProductID.h"
@@ -16,19 +16,17 @@ namespace edm {
   class EDProduct;
   class RefCore {
   public:
-    RefCore() : id_(), prodPtr_(0), prodGetter_(0), transient_(false) {}
+    RefCore() : id_(), transients_() {}
 
     RefCore(ProductID const& theId, void const* prodPtr, EDProductGetter const* prodGetter, bool transient) :
       id_(theId), 
-      prodPtr_(prodPtr), 
-      prodGetter_(prodGetter),
-      transient_(transient) { }
+      transients_(prodPtr, prodGetter, transient) {}
 
     ProductID id() const {return id_;}
 
-    void const* productPtr() const {return prodPtr_;}
+    void const* productPtr() const {return transients_.prodPtr_;}
 
-    void setProductPtr(void const* prodPtr) const {prodPtr_ = prodPtr;}
+    void setProductPtr(void const* prodPtr) const {transients_.setProductPtr(prodPtr);}
 
     // Checks for null
     bool isNull() const {return !isNonnull(); }
@@ -45,8 +43,8 @@ namespace edm {
     bool isAvailable() const;
 
     EDProductGetter const* productGetter() const {
-      if (!prodGetter_) setProductGetter(EDProductGetter::instance());
-      return prodGetter_;
+      if (!transients_.prodGetter_) setProductGetter(EDProductGetter::instance());
+      return transients_.prodGetter_;
     }
 
     void setProductGetter(EDProductGetter const* prodGetter) const;
@@ -55,20 +53,30 @@ namespace edm {
 
     void swap(RefCore &);
     
-    bool isTransient() const {return transient_;}
+    bool isTransient() const {return transients_.transient_;}
 
-    int isTransientInt() const {return transient_ ? 1 : 0;}
+    int isTransientInt() const {return transients_.transient_ ? 1 : 0;}
 
     void pushBackItem(RefCore const& productToBeInserted, bool checkPointer);
 
+    struct RefCoreTransients {
+       RefCoreTransients() : prodPtr_(0), prodGetter_(0), transient_(false) {}
+       explicit RefCoreTransients(void const* prodPtr, EDProductGetter const* prodGetter, bool transient) :
+	 prodPtr_(prodPtr), prodGetter_(prodGetter), transient_(transient) {}
+       bool isTransient() const {return transient_;}
+       void setProductGetter(EDProductGetter const* prodGetter) const;
+       void setProductPtr(void const* prodPtr) const {prodPtr_ = prodPtr;}
+       mutable void const* prodPtr_;               // transient
+       mutable EDProductGetter const* prodGetter_; // transient
+       bool transient_;				// transient
+    };
+
  private:
     void setId(ProductID const& iId) {id_ = iId;}
-    void setTransient() {transient_ = true;}
+    void setTransient() {transients_.transient_ = true;}
 
     ProductID id_;
-    mutable void const* prodPtr_;               // transient
-    mutable EDProductGetter const* prodGetter_; // transient
-    bool transient_;				// transient
+    RefCoreTransients  transients_;
   };
 
   inline
@@ -93,9 +101,7 @@ namespace edm {
   void
   RefCore::swap( RefCore & other ) {
     std::swap(id_, other.id_);
-    std::swap(prodPtr_, other.prodPtr_);
-    std::swap(prodGetter_, other.prodGetter_);
-    std::swap(transient_, other.transient_);
+    std::swap(transients_, other.transients_);
   }
 
   inline void swap(edm::RefCore & lhs, edm::RefCore & rhs) {

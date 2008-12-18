@@ -197,7 +197,8 @@ namespace edm {
     assert(state_ == IsFile);
     assert(!limitReached());
     doneReadAhead_ = false;
-    return readFile_();
+    boost::shared_ptr<FileBlock> fb = readFile_();
+    return fb;
   }
 
   void
@@ -210,9 +211,6 @@ namespace edm {
   // containing Products.
   boost::shared_ptr<FileBlock>
   InputSource::readFile_() {
-    if (primary()) {
-      productRegistryUpdate().setProductIDs(1U);
-    }
     return boost::shared_ptr<FileBlock>(new FileBlock);
   }
 

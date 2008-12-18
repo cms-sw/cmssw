@@ -16,7 +16,6 @@
 //
 // Author:      Chris Jones
 // Created:     Thu Mar 31 12:45:32 EST 2005
-// $Id: DataProxyTemplate.h,v 1.10 2007/10/26 23:27:55 elmer Exp $
 //
 
 // system include files

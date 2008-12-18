@@ -11,6 +11,7 @@
 
 #include "DataFormats/Provenance/interface/ProcessConfiguration.h"
 #include "DataFormats/Provenance/interface/BranchType.h"
+#include "DataFormats/Provenance/interface/BranchIDListHelper.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Version/interface/GetReleaseVersion.h"
@@ -231,6 +232,7 @@ namespace edm {
       md.moduleLabel_ = "source";
       md.processConfiguration_ = ProcessConfiguration(common.processName_,
 				params.id(), getReleaseVersion(), getPassID());
+      ProcessConfigurationRegistry::instance()->insertMapped(md.processConfiguration_);
 
       sourceSpecified = true;
       InputSourceDescription isdesc(md, preg, areg, common.maxEventsInput_, common.maxLumisInput_);
@@ -566,6 +568,11 @@ namespace edm {
   EventProcessor::init(boost::shared_ptr<edm::ProcessDesc> & processDesc,
 			ServiceToken const& iToken, 
 			serviceregistry::ServiceLegacy iLegacy) {
+
+    // The BranchIDListRegistry and ProductIDListRegistry are indexed registries, and are singletons.
+    //  They must be cleared here because some processes run multiple EventProcessors in succession.
+    BranchIDListHelper::clearRegistries();
+
     // TODO: Fix const-correctness. The ParameterSets that are
     // returned here should be const, so that we can be sure they are
     // not modified.
@@ -641,6 +648,7 @@ namespace edm {
     //   initialize(iToken,iLegacy);
     FDEBUG(2) << parameterSet->toString() << std::endl;
     connectSigs(this);
+    BranchIDListHelper::updateRegistries(preg_);
   }
 
   EventProcessor::~EventProcessor()

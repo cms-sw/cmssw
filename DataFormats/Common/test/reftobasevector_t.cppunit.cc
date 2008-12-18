@@ -1,4 +1,4 @@
-// $Id: reftobasevector_t.cppunit.cc,v 1.10 2008/03/14 00:57:32 wmtan Exp $
+// $Id: reftobasevector_t.cppunit.cc,v 1.11.4.1 2008/11/04 19:24:08 wmtan Exp $
 
 #include <algorithm>
 
@@ -60,11 +60,11 @@ testRefToBaseVector::check()
   std::vector<Inherit1> v1(2,Inherit1());
   std::vector<Inherit2> v2(2,Inherit2());
   
-  TestHandle<std::vector<Inherit1> > h1(&v1, ProductID(1));
+  TestHandle<std::vector<Inherit1> > h1(&v1, ProductID(1, 1));
   RefVector<std::vector<Inherit1> > rv1;
   rv1.push_back( Ref<std::vector<Inherit1> >( h1, 0 ) );
   rv1.push_back( Ref<std::vector<Inherit1> >( h1, 1 ) );
-  TestHandle<std::vector<Inherit2> > h2(&v2, ProductID(2));
+  TestHandle<std::vector<Inherit2> > h2(&v2, ProductID(1, 2));
   RefVector<std::vector<Inherit2> > rv2;
   rv2.push_back( Ref<std::vector<Inherit2> >( h2, 0 ) );
   rv2.push_back( Ref<std::vector<Inherit2> >( h2, 1 ) );

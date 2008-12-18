@@ -1,4 +1,4 @@
-// $Id: testRangeMap.cc,v 1.14 2007/08/06 22:16:53 wmtan Exp $
+// $Id: testRangeMap.cc,v 1.14.4.1 2008/12/10 19:49:22 wmtan Exp $
 #include <cppunit/extensions/HelperMacros.h>
 #include "DataFormats/Common/interface/RangeMap.h"
 #include "DataFormats/Common/interface/CopyPolicy.h"

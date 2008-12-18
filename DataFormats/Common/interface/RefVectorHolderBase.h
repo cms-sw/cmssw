@@ -2,7 +2,6 @@
 #define DataFormats_Common_RefVectorHolderBase_h
 #include "DataFormats/Common/interface/RefHolderBase.h"
 #include "FWCore/Utilities/interface/EDMException.h"
-#include "Reflex/Type.h"
 #include "boost/shared_ptr.hpp"
 
 namespace edm {

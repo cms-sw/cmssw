@@ -26,7 +26,6 @@ namespace edm {
 		       boost::shared_ptr<BranchMapper> mapper,
 		       boost::shared_ptr<DelayedReader> rtrv) :
     EDProductGetter(),
-    processHistoryID_(hist),
     processHistoryPtr_(boost::shared_ptr<ProcessHistory>(new ProcessHistory)),
     processConfiguration_(pc),
     processHistoryModified_(false),
@@ -35,10 +34,10 @@ namespace edm {
     branchMapperPtr_(mapper),
     store_(rtrv)
   {
-    if (processHistoryID_.isValid()) {
+    if (hist.isValid()) {
       ProcessHistoryRegistry& history(*ProcessHistoryRegistry::instance());
       assert(history.notEmpty());
-      bool found = history.getMapped(processHistoryID_, *processHistoryPtr_);
+      bool found = history.getMapped(hist, *processHistoryPtr_);
       assert(found);
     }
   }
@@ -96,7 +95,7 @@ namespace edm {
     // It would probably be better to move the ProcessHistory construction out to somewhere
     // which persists for longer than one Event
     ProcessHistoryRegistry::instance()->insertMapped(ph);
-    processHistoryID_ = ph.id();
+    setProcessHistoryID(ph.id());
     processHistoryModified_ = true;
   }
 
@@ -275,12 +274,19 @@ namespace edm {
 
   void
   Principal::readImmediate() const {
+    readProvenanceImmediate();
+    for (Principal::const_iterator i = begin(), iEnd = end(); i != iEnd; ++i) {
+      if (!i->second->productUnavailable()) {
+        resolveProduct(*i->second, false);
+      }
+    }
+  }
+
+  void
+  Principal::readProvenanceImmediate() const {
     for (Principal::const_iterator i = begin(), iEnd = end(); i != iEnd; ++i) {
       if (i->second->provenanceAvailable()) {
 	resolveProvenance(*i->second);
-      }
-      if (!i->second->productUnavailable()) {
-        resolveProduct(*i->second, false);
       }
     }
     branchMapperPtr_->setDelayedRead(false);
@@ -400,6 +406,73 @@ namespace edm {
 
     // Now fix up the Group
     g.setProduct(edp);
+  }
+
+  void
+  Principal::resolveProvenance(Group const& g) const {
+    if (!g.productProvenancePtr()) {
+      // Now fix up the Group
+      g.setProvenance(branchMapperPtr()->branchIDToProvenance(g.productDescription().branchID()));
+    }
+  }
+
+  OutputHandle
+  Principal::getForOutput(BranchID const& bid, bool getProd) const {
+    SharedConstGroupPtr const& g = getGroup(bid, getProd, true, false);
+    if (g.get() == 0) {
+      return OutputHandle();
+    }
+    if (getProd && (g->product() == 0 || !g->product()->isPresent()) &&
+	    g->productDescription().present() &&
+	    g->productDescription().branchType() == InEvent &&
+            productstatus::present(g->productProvenancePtr()->productStatus())) {
+        throw edm::Exception(edm::errors::LogicError, "Principal::getForOutput\n")
+         << "A product with a status of 'present' is not actually present.\n"
+         << "The branch name is " << g->productDescription().branchName() << "\n"
+         << "Contact a framework developer.\n";
+    }
+    if (!g->product() && !g->productProvenancePtr()) {
+      return OutputHandle();
+    }
+    return OutputHandle(g->product().get(), &g->productDescription(), g->productProvenancePtr());
+  }
+
+  Provenance
+  Principal::getProvenance(BranchID const& bid) const {
+    SharedConstGroupPtr const& g = getGroup(bid, false, true, true);
+    if (g.get() == 0) {
+      throw edm::Exception(edm::errors::ProductNotFound,"InvalidID")
+	<< "getProvenance: no product with given branch id: "<< bid << "\n";
+    }
+
+    if (g->onDemand()) {
+      unscheduledFill(g->productDescription().moduleLabel());
+    }
+    // We already tried to produce the unscheduled products above
+    // If they still are not there, then throw
+    if (g->onDemand()) {
+      throw edm::Exception(edm::errors::ProductNotFound)
+	<< "getProvenance: no product with given BranchID: "<< bid <<"\n";
+    }
+
+    return *g->provenance();
+  }
+
+  // This one is mostly for test printout purposes
+  // No attempt to trigger on demand execution
+  // Skips provenance when the EDProduct is not there
+  void
+  Principal::getAllProvenance(std::vector<Provenance const*> & provenances) const {
+    provenances.clear();
+    for (const_iterator i = begin(), iEnd = end(); i != iEnd; ++i) {
+      if (i->second->provenanceAvailable()) {
+        resolveProvenance(*i->second);
+        if (i->second->provenance()->productProvenanceSharedPtr() &&
+            i->second->provenance()->isPresent() &&
+            i->second->provenance()->product().present())
+           provenances.push_back(i->second->provenance());
+        }
+    }
   }
 
   void

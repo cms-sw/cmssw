@@ -5,8 +5,6 @@
   
 Wrapper: A template wrapper around EDProducts to hold the product ID.
 
-$Id: Wrapper.h,v 1.30 2008/11/21 00:00:17 wmtan Exp $
-
 ----------------------------------------------------------------------*/
 
 #include <algorithm>

@@ -31,7 +31,7 @@ namespace edm {
   class EventPrincipal : public Principal {
   public:
     typedef EventAuxiliary Auxiliary;
-    typedef std::vector<EventEntryInfo> EntryInfoVector;
+    typedef std::vector<ProductProvenance> EntryInfoVector;
 
     typedef Principal Base;
 
@@ -41,7 +41,7 @@ namespace edm {
     EventPrincipal(EventAuxiliary const& aux,
 	boost::shared_ptr<ProductRegistry const> reg,
 	ProcessConfiguration const& pc,
-	ProcessHistoryID const& hist = ProcessHistoryID(),
+	boost::shared_ptr<History> history = boost::shared_ptr<History>(new History),
 	boost::shared_ptr<BranchMapper> mapper = boost::shared_ptr<BranchMapper>(new BranchMapper),
 	boost::shared_ptr<DelayedReader> rtrv = boost::shared_ptr<DelayedReader>(new NoDelayedReader));
     ~EventPrincipal() {}
@@ -88,7 +88,6 @@ namespace edm {
     }
 
     EventAuxiliary const& aux() const {
-      aux_.processHistoryID_ = processHistoryID();
       return aux_;
     }
 
@@ -110,41 +109,48 @@ namespace edm {
 
     EventSelectionIDVector const& eventSelectionIDs() const;
 
-    History const& history() const;
+    History const& history() const {return *history_;}
 
-    void setHistory(History const& h);
-
-    Provenance
-    getProvenance(BranchID const& bid) const;
+    History& history() {return *history_;}
 
     Provenance
     getProvenance(ProductID const& pid) const;
 
-    void
-    getAllProvenance(std::vector<Provenance const *> & provenances) const;
-
     BasicHandle
     getByProductID(ProductID const& oid) const;
 
-    void put(std::auto_ptr<EDProduct> edp, ConstBranchDescription const& bd, std::auto_ptr<EventEntryInfo> entryInfo);
+    void put(std::auto_ptr<EDProduct> edp, ConstBranchDescription const& bd,
+	 std::auto_ptr<ProductProvenance> productProvenance);
 
     void addGroup(ConstBranchDescription const& bd);
 
-    void addGroup(std::auto_ptr<EDProduct> prod, ConstBranchDescription const& bd, std::auto_ptr<EventEntryInfo> entryInfo);
+    void addGroup(std::auto_ptr<EDProduct> prod, ConstBranchDescription const& bd,
+	 std::auto_ptr<ProductProvenance> productProvenance);
 
-    void addGroup(ConstBranchDescription const& bd, std::auto_ptr<EventEntryInfo> entryInfo);
+    void addGroup(ConstBranchDescription const& bd, std::auto_ptr<ProductProvenance> productProvenance);
 
-    void addGroup(std::auto_ptr<EDProduct> prod, ConstBranchDescription const& bd, boost::shared_ptr<EventEntryInfo> entryInfo);
+    void addGroup(std::auto_ptr<EDProduct> prod, ConstBranchDescription const& bd,
+	 boost::shared_ptr<ProductProvenance> productProvenance);
 
-    void addGroup(ConstBranchDescription const& bd, boost::shared_ptr<EventEntryInfo> entryInfo);
+    void addGroup(ConstBranchDescription const& bd, boost::shared_ptr<ProductProvenance> productProvenance);
 
-    virtual EDProduct const* getIt(ProductID const& oid) const;
+    virtual EDProduct const* getIt(ProductID const& pid) const;
+
+    ProductID branchIDToProductID(BranchID const& bid) const;
+
+    using Base::getProvenance;
 
   private:
 
+    BranchID pidToBid(ProductID const& pid) const;
+
     virtual void addOrReplaceGroup(std::auto_ptr<Group> g);
 
-    virtual void resolveProvenance(Group const& g) const;
+    virtual ProcessHistoryID const& processHistoryID() const {return history().processHistoryID();}
+
+    virtual void setProcessHistoryID(ProcessHistoryID const& phid) const {return history().setProcessHistoryID(phid);}
+
+    virtual ProductID oldToNewProductID_(ProductID const& oldProductID) const;
 
     virtual bool unscheduledFill(std::string const& moduleLabel) const;
 
@@ -156,7 +162,9 @@ namespace edm {
 
     mutable std::vector<std::string> moduleLabelsRunning_;
 
-    History   eventHistory_;
+    boost::shared_ptr<History> history_;
+
+    std::map<BranchListIndex, ProcessIndex> branchToProductIDHelper_;
 
   };
 

@@ -1,4 +1,4 @@
-// $Id: DetSetRefVector_t.cppunit.cc,v 1.5 2008/03/14 00:21:07 wmtan Exp $
+// $Id: DetSetRefVector_t.cppunit.cc,v 1.6.4.1 2008/11/04 19:24:08 wmtan Exp $
 #include <cppunit/extensions/HelperMacros.h>
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Common/interface/DetSetRefVector.h"
@@ -76,7 +76,7 @@ testDetSetRefVector::checkConstruction()
   c.insert(d1);
   c.post_insert();
 
-  edm::TestHandle<dsv_type> pc2(&c, edm::ProductID(1));
+  edm::TestHandle<dsv_type> pc2(&c, edm::ProductID(1, 1));
 
   {
     std::vector<edm::det_id_type> ids;
@@ -135,7 +135,7 @@ testDetSetRefVector::checkFind()
   c.insert(d1);
   c.post_insert();
 
-  edm::TestHandle<dsv_type> pc2(&c, edm::ProductID(1));
+  edm::TestHandle<dsv_type> pc2(&c, edm::ProductID(1, 1));
 
   {
     std::vector<edm::det_id_type> ids;

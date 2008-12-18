@@ -56,7 +56,7 @@ void TestRefCore::nondefault_ctor()
 {
   SimpleEDProductGetter getter;
   edm::EDProductGetter::Operate op(&getter);
-  edm::ProductID id(201U);
+  edm::ProductID id(1, 201U);
   CPPUNIT_ASSERT(id.isValid());
 
   edm::RefCore  refcore(id, 0, &getter, false);

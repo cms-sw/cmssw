@@ -1,4 +1,4 @@
-// $Id: testAssociationVector.cc,v 1.9 2008/03/14 00:57:32 wmtan Exp $
+// $Id: testAssociationVector.cc,v 1.10.4.1 2008/11/04 19:24:08 wmtan Exp $
 #include <cppunit/extensions/HelperMacros.h>
 #include <algorithm>
 #include <iterator>
@@ -27,7 +27,7 @@ void testAssociationVector::checkAll() {
   k.push_back(1.1);
   k.push_back(2.2);
   k.push_back(3.3);
-  ProductID const pid(1);
+  ProductID const pid(1, 1);
   TestHandle<CKey> handle(&k, pid);
   RefProd<CKey> ref(handle);
   AssociationVector<RefProd<CKey>, CVal> v(ref);
@@ -49,7 +49,7 @@ void testAssociationVector::checkAll() {
   CPPUNIT_ASSERT( v[rc0] == 1 );
   CPPUNIT_ASSERT( v[rc1] == 2 );
   CPPUNIT_ASSERT( v[rc2] == 3 );
-  ProductID const assocPid(2);
+  ProductID const assocPid(1, 2);
   TestHandle<AssociationVector<RefProd<CKey>, CVal> > assocHandle(&v, assocPid); 
   Ref<AssociationVector<RefProd<CKey>, CVal> > r1( assocHandle, 0 );
   CPPUNIT_ASSERT(*r1->first == 1.1);

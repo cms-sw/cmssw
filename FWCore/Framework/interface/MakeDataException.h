@@ -28,7 +28,6 @@ if(outOfBoundsValue) {
 //
 // Author:      Chris Jones
 // Created:     Fri Apr  1 13:18:53 EST 2005
-// $Id: MakeDataException.h,v 1.7 2007/06/14 17:52:15 wmtan Exp $
 //
 
 // system include files

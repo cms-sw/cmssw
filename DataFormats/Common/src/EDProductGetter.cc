@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Nov  1 15:06:41 EST 2005
-// $Id: EDProductGetter.cc,v 1.3 2007/01/23 00:25:53 wmtan Exp $
+// $Id: EDProductGetter.cc,v 1.4.4.2 2008/12/06 00:55:56 wmtan Exp $
 //
 
 // system include files
@@ -34,7 +34,7 @@ namespace edm {
   {
   }
   
-  // EDProductGetter::EDProductGetter(const EDProductGetter& rhs)
+  // EDProductGetter::EDProductGetter(EDProductGetter const& rhs)
   // {
   //    // do actual copying here;
   // }
@@ -46,7 +46,7 @@ namespace edm {
   //
   // assignment operators
   //
-  // const EDProductGetter& EDProductGetter::operator=(const EDProductGetter& rhs)
+  // EDProductGetter const& EDProductGetter::operator=(EDProductGetter const& rhs)
   // {
   //   //An exception safe implementation is
   //   EDProductGetter temp(rhs);
@@ -93,6 +93,13 @@ namespace edm {
      EDProductGetter::set(returnValue);
      return returnValue;
   }
+
+  ProductID
+  EDProductGetter::oldToNewProductID_(ProductID const&) const {
+    throw edm::Exception(errors::LogicError)
+        << "Internal error:  Call of oldToNewProductID_ for non-EventPrincipal.\n"
+        << "Please report this error to the Framework group\n";
+  }
   
   EDProductGetter const*
   mustBeNonZero(EDProductGetter const* prodGetter, std::string refType, ProductID const& productID) {
@@ -103,4 +110,5 @@ namespace edm {
   	<< "The product getter pointer passed to the constructor must refer\n"
   	<< "to a real getter, such as an EventPrincipal.\n";
   }
+
 }

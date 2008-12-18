@@ -24,7 +24,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Jan  7 15:40:43 EST 2006
-// $Id: GenericHandle.h,v 1.13 2008/05/12 18:14:07 wmtan Exp $
+// $Id: GenericHandle.h,v 1.13.4.5 2008/12/16 00:43:04 wmtan Exp $
 //
 
 // system include files
@@ -33,6 +33,7 @@
 // user include files
 #include "Reflex/Object.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Utilities/interface/UseReflex.h"
 #include "DataFormats/Common/interface/Handle.h"
 
 // forward declarations
@@ -46,8 +47,8 @@ template<>
 class Handle<GenericObject> {
 public:
       ///Throws exception if iName is not a known C++ class type
-      Handle(const std::string& iName) : 
-        type_(Reflex::Type::ByName(iName)), prod_(), prov_(0), id_(0) {
+      Handle(std::string const& iName) : 
+        type_(Reflex::Type::ByName(iName)), prod_(), prov_(0) {
            if(type_ == Reflex::Type()) {
               throw edm::Exception(edm::errors::NotFound)<<"Handle<GenericObject> told to use uknown type '"<<iName<<"'.\n Please check spelling or that a module uses this type in the job.";
            }
@@ -60,8 +61,8 @@ public:
         }
    
    ///Throws exception if iType is invalid
-   Handle(const Reflex::Type& iType):
-      type_(iType), prod_(), prov_(0), id_(0) {
+   Handle(Reflex::Type const& iType):
+      type_(iType), prod_(), prov_(0) {
          if(iType == Reflex::Type()) {
             throw edm::Exception(edm::errors::NotFound)<<"Handle<GenericObject> given an invalid Reflex::Type";
          }
@@ -73,22 +74,20 @@ public:
          }
       }
    
-   Handle(const Handle<GenericObject>& h):
+   Handle(Handle<GenericObject> const& h):
    type_(h.type_),
    prod_(h.prod_),
    prov_(h.prov_),
-   id_(h.id_),
    whyFailed_(h.whyFailed_)
    { }
    
-   Handle(Reflex::Object const& prod, Provenance const* prov):
+   Handle(Reflex::Object const& prod, Provenance const* prov, ProductID const& pid):
    type_(prod.TypeOf()),
    prod_(prod),
-   prov_(prov),
-   id_(prov->productID()) { 
+   prov_(prov) { 
       assert(prod_);
       assert(prov_);
-      assert(id_ != ProductID());
+      assert(prov_->productID() != ProductID());
    }
    
       //~Handle();
@@ -100,12 +99,11 @@ public:
       swap(type_, other.type_);
       std::swap(prod_, other.prod_);
       swap(prov_, other.prov_);
-      swap(id_, other.id_);
       swap(whyFailed_, other.whyFailed_);
    }
    
    
-   Handle<GenericObject>& operator=(const Handle<GenericObject>& rhs)
+   Handle<GenericObject>& operator=(Handle<GenericObject> const& rhs)
    {
       Handle<GenericObject> temp(rhs);
       this->swap(temp);
@@ -131,19 +129,17 @@ public:
    Reflex::Type const& type() const {return type_;}
    Provenance const* provenance() const {return prov_;}
    
-   ProductID id() const {return id_;}
+   ProductID id() const {return prov_->productID();}
 
-   void clear() { prov_ = 0; id_ = ProductID(); 
-   whyFailed_.reset();}
+   void clear() { prov_ = 0; whyFailed_.reset();}
       
-   void setWhyFailed(const boost::shared_ptr<cms::Exception>& iWhyFailed) {
+   void setWhyFailed(boost::shared_ptr<cms::Exception> const& iWhyFailed) {
     whyFailed_=iWhyFailed;
   }
 private:
    Reflex::Type type_;
    Reflex::Object prod_;
    Provenance const* prov_;    
-   ProductID id_;
    boost::shared_ptr<cms::Exception> whyFailed_;
 
 };
@@ -159,7 +155,7 @@ void convert_handle(BasicHandle const& orig,
 template<>
 bool
 edm::Event::getByLabel<GenericObject>(std::string const& label,
-                                      const std::string& productInstanceName,
+                                      std::string const& productInstanceName,
                                       Handle<GenericObject>& result) const;
 
 template <> 	 

@@ -1,15 +1,15 @@
 #include <cassert>
-#include "DataFormats/Provenance/interface/ModuleDescriptionRegistry.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
+#include "FWCore/ParameterSet/interface/Registry.h"
 
 int main()
 {
-  edm::ModuleDescriptionRegistry* mreg = 
-    edm::ModuleDescriptionRegistry::instance();
+  edm::pset::Registry* psreg = 
+    edm::pset::Registry::instance();
 
   edm::ProcessHistoryRegistry* pnlreg = 
     edm::ProcessHistoryRegistry::instance();
 
-  assert( mreg );
+  assert( psreg );
   assert( pnlreg );
 }

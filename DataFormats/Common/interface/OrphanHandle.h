@@ -36,7 +36,7 @@ namespace edm {
     // Default constructed handles are invalid.
     OrphanHandle();
 
-    OrphanHandle(const OrphanHandle<T>& h);
+    OrphanHandle(OrphanHandle<T> const& h);
 
     OrphanHandle(T const* prod, ProductID const& id);
 
@@ -45,7 +45,7 @@ namespace edm {
     void swap(OrphanHandle<T>& other);
 
     
-    OrphanHandle<T>& operator=(const OrphanHandle<T>& rhs);
+    OrphanHandle<T>& operator=(OrphanHandle<T> const& rhs);
 
     bool isValid() const;
 
@@ -65,11 +65,11 @@ namespace edm {
   template <class T>
   OrphanHandle<T>::OrphanHandle() :
     prod_(0),
-    id_(0)
+    id_()
   { }
 
   template <class T>
-  OrphanHandle<T>::OrphanHandle(const OrphanHandle<T>& h) :
+  OrphanHandle<T>::OrphanHandle(OrphanHandle<T> const& h) :
     prod_(h.prod_),
     id_(h.id_)
   { }
@@ -106,7 +106,7 @@ namespace edm {
 
   template <class T>
   OrphanHandle<T>&
-  OrphanHandle<T>::operator=(const OrphanHandle<T>& rhs) {
+  OrphanHandle<T>::operator=(OrphanHandle<T> const& rhs) {
     OrphanHandle<T> temp(rhs);
     this->swap(temp);
     return *this;
