@@ -13,7 +13,7 @@
 #include "CoralBase/AttributeList.h"
 #include "CoralBase/Attribute.h"
 #include "CoralBase/AttributeSpecification.h"
-#include "SealBase/TimeInfo.h"
+//#include "SealBase/TimeInfo.h"
 
 #include "CondCore/DBCommon/interface/Time.h"
 

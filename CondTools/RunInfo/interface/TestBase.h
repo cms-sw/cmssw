@@ -1,5 +1,5 @@
-#ifndef TestBaseDQM_H
-#define TestBaseDQM_H
+#ifndef CondTools_RunInfo_TestBase_H
+#define CondTools_RunInfo_TestBase_H
 
 /*
  *  \class TestBase

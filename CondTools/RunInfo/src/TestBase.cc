@@ -1,4 +1,5 @@
-#include "DQM/Integration/interface/TestBase.h"
+//#include "DQM/Integration/interface/TestBase.h"
+#include "CondTools/RunInfo/interface/TestBase.h"
 #include "RelationalAccess/IRelationalDomain.h"
 #include "RelationalAccess/IConnection.h"
 #include "RelationalAccess/ISession.h"
