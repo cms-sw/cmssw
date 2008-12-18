@@ -8,6 +8,7 @@
 #include "DataFormats/Provenance/interface/ParameterSetBlob.h"
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
+#include "DataFormats/Provenance/interface/ProcessConfigurationID.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -16,6 +17,7 @@
 #include <iostream>
 #include <memory>
 #include <sstream>
+#include <map>
 
 #include "boost/utility.hpp"
 #include "boost/scoped_ptr.hpp"
@@ -435,13 +437,14 @@ ProvenanceDumper::work_() {
       std::cout << it->second.branchName()
       << " id " << it->second.productID() << std::endl;
     */
-    for (std::set<edm::ParameterSetID>::const_iterator itId = it->second.psetIDs().begin(),
-	   itIdEnd = it->second.psetIDs().end();
-	 itId != itIdEnd;
-	 ++itId) {
+    for (std::map<edm::ProcessConfigurationID, edm::ParameterSetID>::const_iterator
+	   itId = it->second.parameterSetIDs().begin(),
+	   itIdEnd = it->second.parameterSetIDs().end();
+	   itId != itIdEnd;
+	   ++itId) {
 	 
       std::stringstream s;
-      s <<*itId;
+      s << itId->second;
       moduleToIdBranches[std::make_pair(it->second.processName(),it->second.moduleLabel())][s.str()].push_back(it->second);
       //idToBranches[*itId].push_back(it->second);
     }

@@ -12,7 +12,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Sep 19 11:47:28 CEST 2005
-// $Id: EventContentAnalyzer.cc,v 1.31 2008/11/28 17:44:29 wmtan Exp $
 //
 //
 

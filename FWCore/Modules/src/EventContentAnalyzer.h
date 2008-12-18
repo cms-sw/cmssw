@@ -16,7 +16,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Sep 19 11:49:35 CEST 2005
-// $Id: EventContentAnalyzer.h,v 1.4 2007/08/08 03:41:43 chrjones Exp $
 //
 
 // system include files
