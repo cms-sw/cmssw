@@ -11,7 +11,8 @@
 #include "G4RegionStore.hh"
  
 StackingAction::StackingAction(const edm::ParameterSet & p): tracker(0),
-							     calo(0), muon(0) {
+							     beam(0), calo(0),
+							     muon(0) {
   trackNeutrino  = p.getParameter<bool>("TrackNeutrino");
   killHeavy      = p.getParameter<bool>("KillHeavy");
   kmaxIon        = p.getParameter<double>("IonThreshold")*MeV;
