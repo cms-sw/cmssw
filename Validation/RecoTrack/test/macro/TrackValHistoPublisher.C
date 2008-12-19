@@ -1,4 +1,5 @@
-void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
+void TrackValHistoPublisher(char* newFile="../DQM_V0001_R000000001__CMSSW_3_0_0_pre2__RelVal__Validation.root",char* 
+refFile="../val.RelValTTbar.root")
 {
   //gROOT->ProcessLine(".x HistoCompare_Tracks.C");
  gROOT ->Reset();
@@ -31,7 +32,7 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
  TFile * rfile = new TFile(refFile);
  TDirectory * rdir=gDirectory;
 
- if(sfile->cd("DQMData/RecoTrackV")) sfile->cd("DQMData/RecoTrackV/Track");
+ if(sfile->cd("DQMData/Run 1/RecoTrackV")) sfile->cd("DQMData/Run 1/RecoTrackV/Run summary/Track");
  else sfile->cd("DQMData/Track");
  sdir=gDirectory;
  TList *sl= sdir->GetListOfKeys();
@@ -151,7 +152,7 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
 
    // ====== hits and pt
    rdir->GetObject(collname1+"/hits_eta",rh1);                                                                                                                                                                                
-   sdir->GetObject(collname2+"/hits_eta",sh1);                                                                                                                                                                                
+   sdir->GetObject(collname2+"/nhits_vs_eta_pfx",(TProfile*)sh1);                                                                                                                                                                                
    rdir->GetObject(collname1+"/hits",rh2);                                                                                                                                                                                    
    sdir->GetObject(collname2+"/hits",sh2);         
    
@@ -201,10 +202,10 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
    rdir->GetObject(collname1+"/chi2_prob",rh2);
    sdir->GetObject(collname2+"/chi2_prob",sh2);
    rdir->GetObject(collname1+"/chi2mean",rh3);
-   sdir->GetObject(collname2+"/chi2mean",sh3);
+   sdir->GetObject(collname2+"/chi2_vs_eta_pfx",(TProfile*)sh3);
 
    rdir->GetObject(collname1+"/h_ptshifteta",rh4);
-   sdir->GetObject(collname2+"/h_ptshifteta",sh4);
+   sdir->GetObject(collname2+"/ptres_vs_eta_Mean",sh4);
 
 
    canvas = new TCanvas("Tracks2","Tracks: chi2 & chi2 probability",1000,1050);
@@ -330,21 +331,21 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
 
    //===== resolutions vs eta
    rdir->GetObject(collname1+"/sigmaphi",rh1);
-   sdir->GetObject(collname2+"/sigmaphi",sh1);
+   sdir->GetObject(collname2+"/phires_vs_eta_Sigma",sh1);
 
    rdir->GetObject(collname1+"/sigmacotTheta",rh2);
-   sdir->GetObject(collname2+"/sigmacotTheta",sh2);
+   sdir->GetObject(collname2+"/cotThetares_vs_eta_Sigma",sh2);
 
    rdir->GetObject(collname1+"/sigmadxy",rh3);
    //rdir->GetObject(collname1+"/sigmad0",rh3);
-   sdir->GetObject(collname2+"/sigmadxy",sh3);
+   sdir->GetObject(collname2+"/dxyres_vs_eta_Sigma",sh3);
 
    rdir->GetObject(collname1+"/sigmadz",rh4);
    //rdir->GetObject(collname1+"/sigmaz0",rh4);
-   sdir->GetObject(collname2+"/sigmadz",sh4);
+   sdir->GetObject(collname2+"/dzres_vs_eta_Sigma",sh4);
 
    rdir->GetObject(collname1+"/sigmapt",rh5);
-   sdir->GetObject(collname2+"/sigmapt",sh5);
+   sdir->GetObject(collname2+"/ptres_vs_eta_Sigma",sh5);
 
 
 
@@ -470,22 +471,22 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
 
    //===== resolutions vs pt
    rdir->GetObject(collname1+"/sigmaphiPt",rh1);
-   sdir->GetObject(collname2+"/sigmaphiPt",sh1);
+   sdir->GetObject(collname2+"/phires_vs_pt_Sigma",sh1);
 
    rdir->GetObject(collname1+"/sigmacotThetaPt",rh2);
-   sdir->GetObject(collname2+"/sigmacotThetaPt",sh2);
+   sdir->GetObject(collname2+"/cotThetares_vs_pt_Sigma",sh2);
 
 
    rdir->GetObject(collname1+"/sigmadxyPt",rh3);
    //rdir->GetObject(collname1+"/sigmad0Pt",rh3);
-   sdir->GetObject(collname2+"/sigmadxyPt",sh3);
+   sdir->GetObject(collname2+"/dxyres_vs_pt_Sigma",sh3);
 
    rdir->GetObject(collname1+"/sigmadzPt",rh4);
    //rdir->GetObject(collname1+"/sigmaz0Pt",rh4);
-   sdir->GetObject(collname2+"/sigmadzPt",sh4);
+   sdir->GetObject(collname2+"/dzres_vs_pt_Sigma",sh4);
 
    rdir->GetObject(collname1+"/sigmaptPt",rh5);
-   sdir->GetObject(collname2+"/sigmaptPt",sh5);
+   sdir->GetObject(collname2+"/ptres_vs_pt_Sigma",sh5);
 
 
    rh1->SetTitle("");

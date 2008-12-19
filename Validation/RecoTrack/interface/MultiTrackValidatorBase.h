@@ -4,8 +4,8 @@
 /** \class MultiTrackValidatorBase
  *  Base class for analyzers that produces histrograms to validate Track Reconstruction performances
  *
- *  $Date: 2008/06/30 13:14:03 $
- *  $Revision: 1.11 $
+ *  $Date: 2008/08/20 04:02:15 $
+ *  $Revision: 1.12 $
  *  \author cerati
  */
 
@@ -64,12 +64,9 @@ class MultiTrackValidatorBase {
   
   virtual void doProfileX(TH2 * th2, MonitorElement* me){
     if (th2->GetNbinsX()==me->getNbinsX()){
-      TH1F * h1 = (TH1F*) th2->ProfileX();
-      for (int bin=0;bin!=h1->GetNbinsX();bin++){
-	me->setBinContent(bin+1,h1->GetBinContent(bin+1));
-	me->setBinError(bin+1,h1->GetBinError(bin+1));
-      }
-      delete h1;
+      TProfile * p1 = (TProfile*) th2->ProfileX();
+      p1->Copy(*me->getTProfile());
+      delete p1;
     } else {
       throw cms::Exception("MultiTrackValidator") << "Different number of bins!";
     }
