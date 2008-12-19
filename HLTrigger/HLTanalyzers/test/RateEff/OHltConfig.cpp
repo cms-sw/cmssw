@@ -42,26 +42,34 @@ OHltConfig::OHltConfig(TString cfgfile,OHltMenu *omenu)
     for (int i=0;i<nproc;i++) {
       stmp = p[i];
       pnames.push_back(TString(stmp));
-      //cout << pnames[i] << endl;
       stmp = pa[i];
       ppaths.push_back(TString(stmp));
-      //cout << ppaths[i] << endl;
       stmp = fn[i];
       pfnames.push_back(TString(stmp));
-      //cout << pfnames[i] << endl;
       ftmp = xs[i];
       psigmas.push_back(ftmp);
-      //cout << psigmas[i] << endl;
       btmp = muc[i];
       pdomucuts.push_back(btmp);
-      //cout << pdomucuts[i] << endl;
       btmp = ec[i];
       pdoecuts.push_back(btmp);
-      //cout << pdoecuts[i] << endl;
     }
     /**********************************/
 
-    print();
+    /**** Branch Selections ****/ 
+    // Only for experts:
+    // Select certain branches to speed up code.
+    // Modify only if you know what you do!
+    cfg.lookupValue("branch.doSelectBranches",doSelectBranches);    
+    cfg.lookupValue("branch.selectBranchL1",selectBranchL1);    
+    cfg.lookupValue("branch.selectBranchHLT",selectBranchHLT);    
+    cfg.lookupValue("branch.selectBranchOpenHLT",selectBranchOpenHLT);    
+    cfg.lookupValue("branch.selectBranchL1extra",selectBranchL1extra);    
+    cfg.lookupValue("branch.selectBranchReco",selectBranchReco);    
+    cfg.lookupValue("branch.selectBranchMC",selectBranchMC);    
+    /**********************************/
+
+    
+print();
     fillMenu(omenu);   
     printMenu(omenu);   
 
@@ -138,13 +146,21 @@ void OHltConfig::print()
   cout << "versionTag: " << versionTag << endl;
   cout << "alcaCondition: " << alcaCondition << endl;
   cout << "doPrintAll: " << doPrintAll << endl;
-
-  cout << endl;
+  cout << "---------------------------------------------" <<  endl;
   cout << "iLumi: " << iLumi << endl;
   cout << "bunchCrossingTime: " << bunchCrossingTime << endl;
   cout << "maxFilledBunches: " << maxFilledBunches << endl;
   cout << "nFilledBunches: " << nFilledBunches << endl;
   cout << "cmsEnergy: " << cmsEnergy << endl;
+  cout << "---------------------------------------------" <<  endl;
+  cout << "doSelectBranches: " << doSelectBranches << endl;
+  cout << "selectBranchL1: " << selectBranchL1 << endl;
+  cout << "selectBranchHLT: " << selectBranchHLT << endl;
+  cout << "selectBranchOpenHLT: " << selectBranchOpenHLT << endl;
+  cout << "selectBranchL1extra: " << selectBranchL1extra << endl;
+  cout << "selectBranchReco: " << selectBranchReco << endl;
+  cout << "selectBranchMC: " << selectBranchMC << endl;
+  cout << "---------------------------------------------" <<  endl;
   
   cout << endl;
   cout << "Number of Samples: "<<pnames.size()<<  endl;

@@ -60,5 +60,19 @@ class OHltConfig {
   bool isL1Menu; 
   bool doL1preloop; 
   /**********************************/
+
+  /****  ****/ 
+  // Only for experts:
+  // Select certain branches to speed up code.
+  // Modify only if you know what you do!
+  bool doSelectBranches; 
+  bool selectBranchL1; 
+  bool selectBranchHLT;
+  bool selectBranchOpenHLT; 
+  bool selectBranchReco;
+  bool selectBranchL1extra; 
+  bool selectBranchMC; 
+
+  /**********************************/
 };
 #endif

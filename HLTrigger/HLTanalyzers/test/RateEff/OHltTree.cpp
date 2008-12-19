@@ -24,6 +24,38 @@ void OHltTree::Loop(OHltRateCounter *rc,OHltConfig *cfg,OHltMenu *menu,int procI
     nentries = fChain->GetEntries();
   cout<<"Entries to be processed: "<<nentries<<endl;
 
+  // Only for experts:
+  // Select certain branches to speed up code.
+  // Modify only if you know what you do!
+  if (cfg->doSelectBranches) {
+    fChain->SetBranchStatus("*",kFALSE);
+    fChain->SetBranchStatus("MCmu*",kTRUE); // for ppMuX
+    fChain->SetBranchStatus("MCel*",kTRUE); // for ppEleX
+    if (cfg->selectBranchL1) {
+      fChain->SetBranchStatus("L1_*",kTRUE);
+    }
+    if (cfg->selectBranchHLT) {
+      fChain->SetBranchStatus("HLT_*",kTRUE);
+      fChain->SetBranchStatus("AlCa_*",kTRUE);
+    }
+    if (cfg->selectBranchOpenHLT) {
+      fChain->SetBranchStatus("*oh*",kTRUE);
+      fChain->SetBranchStatus("*recoJet*",kTRUE);
+      fChain->SetBranchStatus("*recoMet*",kTRUE);
+    }
+    if (cfg->selectBranchReco) {
+      fChain->SetBranchStatus("*reco*",kTRUE);
+    }
+    if (cfg->selectBranchL1extra) {
+      fChain->SetBranchStatus("*L1*",kTRUE);
+    }
+    if (cfg->selectBranchMC) {
+      fChain->SetBranchStatus("*MC*",kTRUE);
+    }
+  } else {
+    fChain->SetBranchStatus("*",kTRUE);
+  }
+
   for (Long64_t jentry=0; jentry<nentries;jentry++) {
     Long64_t ientry = LoadTree(jentry);
     if (ientry < 0) break;
@@ -69,12 +101,13 @@ void OHltTree::Loop(OHltRateCounter *rc,OHltConfig *cfg,OHltMenu *menu,int procI
       if (triggerBit[it]) {
 	rc->iCount[it]++;
 	for (int it2 = 0; it2 < nTrig; it2++){
-	  if ( (it2<it) && triggerBit[it2] )
-	    previousBitsFired[it] = true;
-	  if ( (it2!=it) && triggerBit[it2] )
-	    allOtherBitsFired[it] = true;
-	  if (triggerBit[it2])
+	  if (triggerBit[it2]) {
 	    rc->overlapCount[it][it2] += 1;
+	    if (it2<it)
+	      previousBitsFired[it] = true;
+	    if (it2!=it)
+	      allOtherBitsFired[it] = true;
+	  }
 	}
 	if (not previousBitsFired[it])
 	  rc->sPureCount[it]++;
