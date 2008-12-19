@@ -64,7 +64,6 @@ EcalRawToDigi::EcalRawToDigi(edm::ParameterSet const& conf):
 {
   
   first_ = true;
-  mmm_ = new EcalElectronicsMapping();
   DCCDataUnpacker::silentMode_ = conf.getUntrackedParameter<bool>("silentMode",false) ;
   
   if( numbXtalTSamples_ <6 || numbXtalTSamples_>64 || (numbXtalTSamples_-2)%4 ){
@@ -172,9 +171,7 @@ void EcalRawToDigi::produce(edm::Event& e, const edm::EventSetup& es) {
    edm::ESHandle< EcalElectronicsMapping > ecalmapping;
    es.get< EcalMappingRcd >().get(ecalmapping);
 
-   const EcalElectronicsMapping* TheMapping = ecalmapping.product();
-   *mmm_ = *TheMapping;
-   myMap_ -> setEcalElectronicsMapping(mmm_);   // because I can not pass a const to SetEcalElectronicsMapping
+   myMap_ -> setEcalElectronicsMapping(ecalmapping.product());
 
    first_ = false;
 

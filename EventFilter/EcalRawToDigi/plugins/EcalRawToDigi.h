@@ -9,8 +9,8 @@
  *
  * \file EcalRawToDigi.h
  *
- * $Date: 2008/07/14 11:22:44 $
- * $Revision: 1.16 $
+ * $Date: 2008/12/11 18:05:57 $
+ * $Revision: 1.1 $
  * \author N. Almeida
  * \author G. Franzoni
  *
@@ -86,7 +86,6 @@ class EcalRawToDigi : public edm::EDProducer{
   //an electronics mapper class 
   EcalElectronicsMapper * myMap_;
 
-  EcalElectronicsMapping * mmm_; 
  
   //Ecal unpacker
   DCCDataUnpacker * theUnpacker_;
