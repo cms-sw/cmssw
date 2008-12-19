@@ -101,6 +101,20 @@ process.source = cms.Source("EmptyIOVSource",
 )
 
 
+process.load("CondCore.DBCommon.CondDBCommon_cfi")
+process.CondDBCommon.connect = cms.string(dbconnect_)
+process.CondDBCommon.DBParameters.authenticationPath = cms.untracked.string('/afs/cern.ch/cms/DB/conddb')
+
+process.PoolDBOutputService = cms.Service("PoolDBOutputService",
+    process.CondDBCommon,
+    timetype = cms.untracked.string('runnumber'),
+    toPut = cms.VPSet(cms.PSet(
+        record = cms.string(record_+'Rcd'),
+        tag = cms.string(tag_)
+         )),
+        logconnect= cms.untracked.string('sqlite_file:log.db')                                  
+)
+
 
 process.popconAnalyzer = cms.EDAnalyzer(analyzer_[record_],
     record = cms.string(record_+'Rcd'),
@@ -114,21 +128,4 @@ process.popconAnalyzer = cms.EDAnalyzer(analyzer_[record_],
 )    
 
 
-process.load("CondCore.DBCommon.CondDBCommon_cfi")
-process.CondDBCommon.connect = cms.string(dbconnect_)
-process.CondDBCommon.DBParameters.authenticationPath = cms.untracked.string('/afs/cern.ch/cms/DB/conddb')
-
-process.PoolDBOutputService = cms.Service("PoolDBOutputService",
-    process.CondDBCommon,
-    timetype = cms.untracked.string('runnumber'),
-    toPut = cms.VPSet(cms.PSet(
-        record = cms.string(record_+'Rcd'),
-        tag = cms.string(tag_)
-         )), 
-)
-
-
 process.p = cms.Path(process.popconAnalyzer)
-
-#if __name__ == "__main__":
-#    usage()
