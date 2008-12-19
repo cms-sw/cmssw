@@ -1,0 +1,12 @@
+<?xml version='1.0' encoding="UTF-8"?>
+<!DOCTYPE PoolDatabase SYSTEM "InMemory">
+ <PoolDatabase >
+  <PoolContainer name="CSCRecoDigiParametersRcd" >
+   <Class table="CSCRECODIGIPARAMET_1" id_columns="ID" name="CSCRecoDigiParameters" mapping_version="basic" >
+     <Blob column="CSCRECODIGIPARAMET_2" name="pChamberType"/>
+     <Blob column="CSCRECODIGIPARAMET_3" name="pUserParOffset"/>
+     <Blob column="CSCRECODIGIPARAMET_4" name="pUserParSize"/>
+     <Blob column="CSCRECODIGIPARAMET_5" name="pfupars"/>
+   </Class >
+  </PoolContainer >
+ </PoolDatabase >

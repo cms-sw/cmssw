@@ -1,0 +1,9 @@
+<?xml version='1.0' encoding="UTF-8"?>
+<!DOCTYPE PoolDatabase SYSTEM "InMemory">
+ <PoolDatabase >
+  <PoolContainer name="GeometryFileRcd" >
+   <Class table="GEOMETRYFILE" id_columns="IOV_VALUE_ID" name="GeometryFile" mapping_version="basic" >
+     <Blob column="GEOMETRYFILE_BLOB" name="blob"/>
+   </Class >
+  </PoolContainer >
+ </PoolDatabase >
