@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2008/06/19 13:36:58 $
- *  $Revision: 1.8 $
+ *  $Date: 2008/10/10 10:15:59 $
+ *  $Revision: 1.9 $
  *  \author  M. Zanetti - INFN Padova
  *  \revision FRC 060906
  */
@@ -237,10 +237,10 @@ void DTROS25Unpacker::interpretRawData(const unsigned int* index, int datasize,
 		detectorProduct->insertDigi(detId.layerId(),digi);
 	      }
 	      else {
-		LogWarning ("DTRawToDigi|DTROS25Unpacker") <<"Unable to map the RO channel. DDU"<<dduID
-					  <<"ROS"<<rosID<<"ROB"<<robID<<"TDC"<<tdcID<<"TDC channel"<<tdcChannel;
-		if (debug) cout<<"[DTROS25Unpacker] ***ERROR***  Missing wire: DDU"<<dduID
-			       <<"ROS"<<rosID<<"ROB"<<robID<<"TDC"<<tdcID<<"TDC channel"<<tdcChannel<<endl;
+		LogWarning ("DTRawToDigi|DTROS25Unpacker") <<"Unable to map the RO channel: DDU "<<dduID
+					  <<" ROS "<<rosID<<" ROB "<<robID<<" TDC "<<tdcID<<" TDC ch. "<<tdcChannel;
+		if (debug) cout<<"[DTROS25Unpacker] ***ERROR***  Missing wire: DDU "<<dduID
+			       <<" ROS "<<rosID<<" ROB "<<robID<<" TDC "<<tdcID<<" TDC ch. "<<tdcChannel<<endl;
 	      }
 
 	    } // TDC information
