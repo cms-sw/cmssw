@@ -21,6 +21,7 @@
 // user include files
 
 #include "Validation/RecoTau/interface/TauTagValidation.h"
+#include "PhysicsTools/JetMCUtils/interface/JetMCTag.h"
 
 using namespace edm;
 using namespace std;
@@ -94,7 +95,7 @@ void TauTagValidation::beginJob(const edm::EventSetup& iConfig)
 
     MonitorElement * ptTemp,* etaTemp,* phiTemp, *energyTemp;
     
-    dbeTau->setCurrentFolder("RecoTauV/" + TauProducer_ + "_"+ refCollection_.label() );
+    dbeTau->setCurrentFolder("RecoTauV/" + TauProducer_ + "_ReferenceCollection" );
 
     // What kind of Taus do we originally have!
     
@@ -195,6 +196,12 @@ void TauTagValidation::beginJob(const edm::EventSetup& iConfig)
 
       }
   }
+
+  for ( std::vector< edm::ParameterSet >::iterator it = discriminators_.begin(); it!= discriminators_.end();  it++) 
+    {
+      cerr<< " "<< it->getParameter<string>("discriminator") << " "<< it->getParameter<double>("selectionCut") << endl;
+      
+    }
 }
 
 // -- method called to produce fill all the histograms --------------------
@@ -202,17 +209,26 @@ void TauTagValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 {
   
   numEvents_++;
-  double matching_criteria;
+  double matching_criteria = -1.0;
+
+  typedef edm::View<reco::Candidate> genCandidateCollection;
+  //  typedef edm::Vector<reco::PFTau> pfCandidateCollection;
+  //  typedef edm::Vector<reco::CaloTau> caloCandidateCollection;
 
   //  std::cout << "--------------------------------------------------------------"<<endl;
   //std::cout << " RunNumber: " << iEvent.id().run() << ", EventNumber: " << iEvent.id().event() << std:: endl;
   //std::cout << "Event number: " << ++numEvents_ << endl;
   //std::cout << "--------------------------------------------------------------"<<endl;
 
-  // ------------------------ Reference product -------------------------------------------------------------------------
+  // ------------------------ Reference product -----------------------------------------------------------------------
 
-  Handle<LVCollection> ReferenceCollection;
-  iEvent.getByLabel(refCollection_, ReferenceCollection);
+  Handle<genCandidateCollection> ReferenceCollection;
+  bool isGen = iEvent.getByLabel(refCollection_.instance() , ReferenceCollection);    // get the product from the event
+
+  if (!isGen) {
+    std::cerr << " Reference collection: " << refCollection_.instance() << " not found while running TauTagValidation.cc " << std::endl;
+    return;
+  }
 
   if(dataType_ == "Leptons"){
     matching_criteria = matchDeltaR_Leptons_;
@@ -222,90 +238,87 @@ void TauTagValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     matching_criteria = matchDeltaR_Jets_;
   }
 
-  //  cerr<<"ReferenceCollection size: "<< ReferenceCollection->size() << endl;
-  
-  //  MonitorElement* pt_temp, eta_temp, phi_temp, energy_temp;
-
-  for (LVCollection::const_iterator RefJet= ReferenceCollection->begin() ; RefJet != ReferenceCollection->end(); RefJet++ ){ 
-    ptTauVisibleMap.find(refCollection_.instance())->second->Fill(RefJet->pt());
-    etaTauVisibleMap.find(refCollection_.instance())->second->Fill(RefJet->eta());
-    phiTauVisibleMap.find(refCollection_.instance())->second->Fill(RefJet->phi()*180.0/TMath::Pi());
-    energyTauVisibleMap.find(refCollection_.instance())->second->Fill(RefJet->energy());
-  } 
-  
-    
   // ------------------------------ PFTauCollection Matched and other discriminators ---------------------------------------------------------
 
   if ( TauProducer_.find("pfRecoTau") != string::npos)
     {
       Handle<PFTauCollection> thePFTauHandle;
       iEvent.getByLabel(TauProducer_,thePFTauHandle);
+      
+      const PFTauCollection  *pfTauProduct;
+      pfTauProduct = thePFTauHandle.product();
 
-      for (LVCollection::const_iterator RefJet= ReferenceCollection->begin() ; RefJet != ReferenceCollection->end(); RefJet++ ){ 
+      PFTauCollection::size_type thePFTauClosest;      
+
+      for (genCandidateCollection::const_iterator RefJet= ReferenceCollection->begin() ; RefJet != ReferenceCollection->end(); RefJet++ ){ 
+
+	if ((fabs(RefJet->eta()) > 2.5) || (RefJet->pt() < 5.0)) continue;
 	
-	bool truePFTau = false;
+	ptTauVisibleMap.find(refCollection_.instance())->second->Fill(RefJet->pt());
+	etaTauVisibleMap.find(refCollection_.instance())->second->Fill(RefJet->eta());
+	phiTauVisibleMap.find(refCollection_.instance())->second->Fill(RefJet->phi()*180.0/TMath::Pi());
+	energyTauVisibleMap.find(refCollection_.instance())->second->Fill(RefJet->energy());
+	
+	const reco::Candidate *gen_particle = &(*RefJet);
+	
 	double delta=TMath::Pi();
-	PFTauCollection::size_type  thePFTauClosest=thePFTauHandle->size();
-	
-	for (PFTauCollection::size_type iPFTau=0 ; iPFTau <  thePFTauHandle->size() ; iPFTau++) 
-	  {	
-	    PFTauRef thePFTauSearch(thePFTauHandle,iPFTau);
-	    
-	    LV PFTauDirection((*thePFTauSearch).px(), (*thePFTauSearch).py(), (*thePFTauSearch).pz(), (*thePFTauSearch).energy());
-	    
-	    if ( ROOT::Math::VectorUtil::DeltaR(PFTauDirection, (*RefJet)) < delta){
-	      delta =  ROOT::Math::VectorUtil::DeltaR(PFTauDirection, (*RefJet));
+
+	thePFTauClosest = pfTauProduct->size();
+
+	for (PFTauCollection::size_type iPFTau=0 ; iPFTau <  pfTauProduct->size() ; iPFTau++) 
+	  {		    
+	    if (algo_->deltaR(gen_particle, & pfTauProduct->at(iPFTau)) < delta){
+	      delta = algo_->deltaR(gen_particle, & pfTauProduct->at(iPFTau));
 	      thePFTauClosest = iPFTau;
-	    }
-	    if ( delta <  matching_criteria ) {
-	      truePFTau=true;
 	    }
 	  }
 	
-	if (truePFTau && (thePFTauClosest != thePFTauHandle->size())) {
-	  
-	  ptTauVisibleMap.find( TauProducer_+"Matched")->second->Fill(RefJet->pt());
-	  etaTauVisibleMap.find( TauProducer_+"Matched" )->second->Fill(RefJet->eta());
-	  phiTauVisibleMap.find( TauProducer_+"Matched" )->second->Fill(RefJet->phi()*180.0/TMath::Pi());
-	  energyTauVisibleMap.find(  TauProducer_+"Matched")->second->Fill(RefJet->energy());
-	  
-	  PFTauRef thePFTau(thePFTauHandle,thePFTauClosest);
-	  Handle<PFTauDiscriminator> currentDiscriminator;
+	// Skip if there is no reconstructed Tau matching the Reference 
+	if (thePFTauClosest == pfTauProduct->size()) continue;
+	
+	double deltaR = algo_->deltaR(gen_particle, & pfTauProduct->at(thePFTauClosest));
 
-	  for ( std::vector< edm::ParameterSet >::iterator it = discriminators_.begin(); it!= discriminators_.end();  it++) 
-	    {
+	// Skip if the delta R difference is larger than the required criteria
+	if (deltaR > matching_criteria && matching_criteria != -1.0) continue;
+	
+	ptTauVisibleMap.find( TauProducer_+"Matched")->second->Fill(RefJet->pt());
+	etaTauVisibleMap.find( TauProducer_+"Matched" )->second->Fill(RefJet->eta());
+	phiTauVisibleMap.find( TauProducer_+"Matched" )->second->Fill(RefJet->phi()*180.0/TMath::Pi());
+	energyTauVisibleMap.find(  TauProducer_+"Matched")->second->Fill(RefJet->energy());
+	
+	PFTauRef thePFTau(thePFTauHandle, thePFTauClosest);
+	Handle<PFTauDiscriminator> currentDiscriminator;
+	
+	for ( std::vector< edm::ParameterSet >::iterator it = discriminators_.begin(); it!= discriminators_.end();  it++) 
+	  {
+	    string currentDiscriminatorLabel = it->getParameter<string>("discriminator");	      
+	    iEvent.getByLabel(currentDiscriminatorLabel, currentDiscriminator);
+	    
+	    if ((*currentDiscriminator)[thePFTau] >= it->getParameter<double>("selectionCut")){
+	      ptTauVisibleMap.find(  currentDiscriminatorLabel )->second->Fill(RefJet->pt());
+	      etaTauVisibleMap.find(  currentDiscriminatorLabel )->second->Fill(RefJet->eta());
+	      phiTauVisibleMap.find(  currentDiscriminatorLabel )->second->Fill(RefJet->phi()*180.0/TMath::Pi());
+	      energyTauVisibleMap.find(  currentDiscriminatorLabel )->second->Fill(RefJet->energy());
 	      
-	      string currentDiscriminatorLabel = it->getParameter<string>("discriminator");	      
-	      iEvent.getByLabel(currentDiscriminatorLabel, currentDiscriminator);
-	      
-	      if((*currentDiscriminator)[thePFTau] >= it->getParameter<double>("selectionCut"))
-		{
-		  ptTauVisibleMap.find(  currentDiscriminatorLabel )->second->Fill(RefJet->pt());
-		  etaTauVisibleMap.find(  currentDiscriminatorLabel )->second->Fill(RefJet->eta());
-		  phiTauVisibleMap.find(  currentDiscriminatorLabel )->second->Fill(RefJet->phi()*180.0/TMath::Pi());
-		  energyTauVisibleMap.find(  currentDiscriminatorLabel )->second->Fill(RefJet->energy());
-		  
-		  if ( currentDiscriminatorLabel.find("LeadingTrackPtCut") != string::npos){
-		    nPFJet_LeadingChargedHadron_ChargedHadronsSignal_->Fill((*thePFTau).signalPFChargedHadrCands().size());
-		    nPFJet_LeadingChargedHadron_ChargedHadronsIsolAnnulus_->Fill((*thePFTau).isolationPFChargedHadrCands().size());
-		    nPFJet_LeadingChargedHadron_GammasSignal_->Fill((*thePFTau).signalPFGammaCands().size());		 
-		    nPFJet_LeadingChargedHadron_GammasIsolAnnulus_->Fill((*thePFTau).isolationPFGammaCands().size()); 
-		    nPFJet_LeadingChargedHadron_NeutralHadronsSignal_->Fill((*thePFTau).signalPFNeutrHadrCands().size());	 
-		    nPFJet_LeadingChargedHadron_NeutralHadronsIsolAnnulus_->Fill((*thePFTau).isolationPFNeutrHadrCands().size());
-		  }
-		  
-		  else if ( currentDiscriminatorLabel.find("ByIsolation") != string::npos ){
-		    nIsolated_NoChargedNoGammas_ChargedHadronsSignal_->Fill((*thePFTau).signalPFChargedHadrCands().size());	 
-		    nIsolated_NoChargedNoGammas_GammasSignal_->Fill((*thePFTau).signalPFGammaCands().size());		 
-		    nIsolated_NoChargedNoGammas_NeutralHadronsSignal_->Fill((*thePFTau).signalPFNeutrHadrCands().size());	 
-		    nIsolated_NoChargedNoGammas_NeutralHadronsIsolAnnulus_->Fill((*thePFTau).isolationPFNeutrHadrCands().size());		  
-		  }
-		}
-	      else {
-		break; 
+	      if ( currentDiscriminatorLabel.find("LeadingTrackPtCut") != string::npos){
+		nPFJet_LeadingChargedHadron_ChargedHadronsSignal_->Fill((*thePFTau).signalPFChargedHadrCands().size());
+		nPFJet_LeadingChargedHadron_ChargedHadronsIsolAnnulus_->Fill((*thePFTau).isolationPFChargedHadrCands().size());
+		nPFJet_LeadingChargedHadron_GammasSignal_->Fill((*thePFTau).signalPFGammaCands().size());		 
+		nPFJet_LeadingChargedHadron_GammasIsolAnnulus_->Fill((*thePFTau).isolationPFGammaCands().size()); 
+		nPFJet_LeadingChargedHadron_NeutralHadronsSignal_->Fill((*thePFTau).signalPFNeutrHadrCands().size());	 
+		nPFJet_LeadingChargedHadron_NeutralHadronsIsolAnnulus_->Fill((*thePFTau).isolationPFNeutrHadrCands().size());
+	      }	      
+	      else if ( currentDiscriminatorLabel.find("ByIsolation") != string::npos ){
+		nIsolated_NoChargedNoGammas_ChargedHadronsSignal_->Fill((*thePFTau).signalPFChargedHadrCands().size());	 
+		nIsolated_NoChargedNoGammas_GammasSignal_->Fill((*thePFTau).signalPFGammaCands().size());		 
+		nIsolated_NoChargedNoGammas_NeutralHadronsSignal_->Fill((*thePFTau).signalPFNeutrHadrCands().size());	 
+		nIsolated_NoChargedNoGammas_NeutralHadronsIsolAnnulus_->Fill((*thePFTau).isolationPFNeutrHadrCands().size());		  
 	      }
 	    }
-	}
+	    else {
+	      break; 
+	    }
+	  }
       }
     }
   // ------------------------------ CaloTauCollection Matched and other discriminators ---------------------------------------------------------
@@ -314,61 +327,73 @@ void TauTagValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       
       Handle<CaloTauCollection> theCaloTauHandle;
       iEvent.getByLabel(TauProducer_,theCaloTauHandle);
+      
+      const CaloTauCollection *caloTauProduct;
+      caloTauProduct = theCaloTauHandle.product();
+      
+      for (genCandidateCollection::const_iterator RefJet= ReferenceCollection->begin() ; RefJet != ReferenceCollection->end(); RefJet++ ){ 
+	
+	if ((fabs(RefJet->eta()) > 2.5) || (RefJet->pt() < 5.0)) continue;
+	
+	ptTauVisibleMap.find(refCollection_.instance())->second->Fill(RefJet->pt());
+	etaTauVisibleMap.find(refCollection_.instance())->second->Fill(RefJet->eta());
+	phiTauVisibleMap.find(refCollection_.instance())->second->Fill(RefJet->phi()*180.0/TMath::Pi());
+	energyTauVisibleMap.find(refCollection_.instance())->second->Fill(RefJet->energy());
 
+	const reco::Candidate *gen_particle = &(*RefJet);
 
-      for (LVCollection::const_iterator RefJet= ReferenceCollection->begin() ; RefJet != ReferenceCollection->end(); RefJet++ ){ 
-  
 	bool trueCaloTau = false;
 	double delta=TMath::Pi();
-	CaloTauCollection::size_type  theCaloTauClosest=theCaloTauHandle->size();
+	CaloTauCollection::size_type  theCaloTauClosest=caloTauProduct->size();
 	
-	for (CaloTauCollection::size_type iCaloTau=0 ; iCaloTau <  theCaloTauHandle->size() ; iCaloTau++) 
+	for (CaloTauCollection::size_type iCaloTau=0 ; iCaloTau <  caloTauProduct->size() ; iCaloTau++) 
 	  {	
-		CaloTauRef theCaloTauSearch(theCaloTauHandle,iCaloTau);
 	    
-		LV CaloTauDirection((*theCaloTauSearch).px(), (*theCaloTauSearch).py(), (*theCaloTauSearch).pz(), (*theCaloTauSearch).energy());
-		
-		if ( ROOT::Math::VectorUtil::DeltaR(CaloTauDirection, (*RefJet)) < delta){
-		  delta =  ROOT::Math::VectorUtil::DeltaR(CaloTauDirection, (*RefJet));
-		  theCaloTauClosest = iCaloTau;
-		}
-
+	    if (algo_->deltaR(gen_particle, & caloTauProduct->at(iCaloTau)) < delta){
+	      delta = algo_->deltaR(gen_particle, & caloTauProduct->at(iCaloTau));
+	      theCaloTauClosest = iCaloTau;
+	    }
 	    if ( delta <  matching_criteria ) {
 	      trueCaloTau=true;
 	    }
 	  }
 
-	if (trueCaloTau && (theCaloTauClosest != theCaloTauHandle->size())) {
-
-	  ptTauVisibleMap.find( TauProducer_+"Matched")->second->Fill(RefJet->pt());
-	  etaTauVisibleMap.find( TauProducer_+"Matched" )->second->Fill(RefJet->eta());
-	  phiTauVisibleMap.find( TauProducer_+"Matched" )->second->Fill(RefJet->phi()*180.0/TMath::Pi());
-	  energyTauVisibleMap.find(  TauProducer_+"Matched")->second->Fill(RefJet->energy());
-
-	  CaloTauRef theCaloTau(theCaloTauHandle,theCaloTauClosest);
-	  Handle<CaloTauDiscriminator> currentDiscriminator;
-
-	  for (  std::vector< edm::ParameterSet >::iterator it = discriminators_.begin(); it!= discriminators_.end();  it++)
-	    {
-
-	      string currentDiscriminatorLabel = it->getParameter<string>("discriminator");
-	      iEvent.getByLabel(currentDiscriminatorLabel, currentDiscriminator);
-	      
-
+	// Skip if there is no reconstructed Tau matching the Reference 
+	if (theCaloTauClosest == caloTauProduct->size()) continue;
+	
+	double deltaR = algo_->deltaR(gen_particle, & caloTauProduct->at(theCaloTauClosest));
+	
+	// Skip if the delta R difference is larger than the required criteria
+	if (deltaR > matching_criteria && matching_criteria != -1.0) continue;
+	
+	ptTauVisibleMap.find( TauProducer_+"Matched")->second->Fill(RefJet->pt());
+	etaTauVisibleMap.find( TauProducer_+"Matched" )->second->Fill(RefJet->eta());
+	phiTauVisibleMap.find( TauProducer_+"Matched" )->second->Fill(RefJet->phi()*180.0/TMath::Pi());
+	energyTauVisibleMap.find(  TauProducer_+"Matched")->second->Fill(RefJet->energy());
+	
+	CaloTauRef theCaloTau(theCaloTauHandle,theCaloTauClosest);
+	Handle<CaloTauDiscriminator> currentDiscriminator;
+	
+	for (  std::vector< edm::ParameterSet >::iterator it = discriminators_.begin(); it!= discriminators_.end();  it++)
+	  {
+	    
+	    string currentDiscriminatorLabel = it->getParameter<string>("discriminator");
+	    iEvent.getByLabel(currentDiscriminatorLabel, currentDiscriminator);	      
+	    
 	    if((*currentDiscriminator)[theCaloTau] >= it->getParameter<double>("selectionCut") )
 	      {
 		ptTauVisibleMap.find( currentDiscriminatorLabel)->second->Fill(RefJet->pt());
 		etaTauVisibleMap.find( currentDiscriminatorLabel )->second->Fill(RefJet->eta());
 		phiTauVisibleMap.find( currentDiscriminatorLabel )->second->Fill(RefJet->phi()*180.0/TMath::Pi());
 		energyTauVisibleMap.find( currentDiscriminatorLabel )->second->Fill(RefJet->energy());
-
+		
 		if ( currentDiscriminatorLabel.find("LeadingTrackPtCut") != string::npos){
 		  nCaloJet_LeadingTrack_signalTracksInvariantMass_->Fill((*theCaloTau).signalTracksInvariantMass());
 		  nCaloJet_LeadingTrack_signalTracks_->Fill((*theCaloTau).signalTracks().size()); 
 		  nCaloJet_LeadingTrack_isolationTracks_->Fill((*theCaloTau).isolationTracks().size());
 		  nCaloJet_LeadingTrack_isolationECALhitsEtSum_->Fill((*theCaloTau).isolationECALhitsEtSum());
 		}
-
+		
 		else if ( currentDiscriminatorLabel.find("ByIsolation") != string::npos ){
 		  nEMIsolated_signalTracksInvariantMass_->Fill((*theCaloTau).signalTracksInvariantMass());
 		  nEMIsolated_signalTracks_->Fill((*theCaloTau).signalTracks().size());     
@@ -377,10 +402,9 @@ void TauTagValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	    else {
 	      break; 
 	    }
-	  }
-	}
+	  }	
       }
-    }      
+    }    
 }
 
 
