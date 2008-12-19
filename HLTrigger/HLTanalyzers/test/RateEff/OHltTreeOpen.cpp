@@ -541,16 +541,25 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
     // Look for "New Taus" in OHltMenu.cpp!
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second>0) { 
       if (GetIntRandom() % menu->GetPrescale(it) == 0) {  
-	if(OpenHltTauL2SCPassed(20.,0.,0,0.,0)>=1) { 
+	if(OpenHltTauPassed(20.,5.,0.,0,0.,0)>=1) { 
 	  triggerBit[it] = true;       
 	}        
       }        
     }
   }
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_SingleLooseIsoTau20_Trk5") == 0) {        
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_SingleLooseIsoTau30_Trk10") == 0) {        
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second>0) { 
       if (GetIntRandom() % menu->GetPrescale(it) == 0) {  
-	if(OpenHltTauL2SCPassed(20.,5.,0,0.,0)>=1) { 
+	if(OpenHltTauPassed(30.,5.,10.,0,0.,0)>=1) { 
+	  triggerBit[it] = true;       
+	}        
+      }        
+    }        
+  }
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_SingleLooseIsoTau30_Trk5") == 0) {        
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second>0) { 
+      if (GetIntRandom() % menu->GetPrescale(it) == 0) {  
+	if(OpenHltTauPassed(30.,5.,5.,0,0.,0)>=1) { 
 	  triggerBit[it] = true;       
 	}        
       }        
@@ -559,13 +568,64 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_DoubleLooseIsoTau15") == 0) { 
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second>0) { 
       if (GetIntRandom() % menu->GetPrescale(it) == 0) {  
-	if(OpenHltTauL2SCPassed(15.,0.,0,0.,0)>=2) { 
+	if(OpenHltTauPassed(15.,5.,0.,0,0.,0)>=2) { 
 	  triggerBit[it] = true; 
 	} 
       } 
     } 
   }
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_DoubleLooseIsoTau15_Trk5") == 0) { 
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second>0) { 
+      if (GetIntRandom() % menu->GetPrescale(it) == 0) {  
+	if(OpenHltTauPassed(15.,5.,5.,0,0.,0)>=2) { 
+	  triggerBit[it] = true; 
+	} 
+      } 
+    } 
+  }
+
+
+
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_SingleLooseIsoTau20_L2R") == 0) {        
+    // This prescale method benefits from convenient mapping mechanism, 
+    // but the L1 seeds have to be registered in OHltMenu::SetMapL1SeedsOfStandardHLTPath():
+    // Look for "New Taus" in OHltMenu.cpp!
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second>0) { 
+      if (GetIntRandom() % menu->GetPrescale(it) == 0) {  
+	if(OpenHltTauL2SCPassed(20.,0.,0,0.,0)>=1) { 
+	  triggerBit[it] = true;       
+	}        
+      }        
+    }
+  }
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_SingleLooseIsoTau30_Trk10_L2R") == 0) {        
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second>0) { 
+      if (GetIntRandom() % menu->GetPrescale(it) == 0) {  
+	if(OpenHltTauL2SCPassed(30.,10.,0,0.,0)>=1) { 
+	  triggerBit[it] = true;       
+	}        
+      }        
+    }        
+  }
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_SingleLooseIsoTau30_Trk5_L2R") == 0) {        
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second>0) { 
+      if (GetIntRandom() % menu->GetPrescale(it) == 0) {  
+	if(OpenHltTauL2SCPassed(30.,5.,0,0.,0)>=1) { 
+	  triggerBit[it] = true;       
+	}        
+      }        
+    }        
+  }
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_DoubleLooseIsoTau15_L2R") == 0) { 
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second>0) { 
+      if (GetIntRandom() % menu->GetPrescale(it) == 0) {  
+	if(OpenHltTauL2SCPassed(15.,0.,0,0.,0)>=2) { 
+	  triggerBit[it] = true; 
+	} 
+      } 
+    } 
+  }
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_DoubleLooseIsoTau15_Trk5_L2R") == 0) { 
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second>0) { 
       if (GetIntRandom() % menu->GetPrescale(it) == 0) {  
 	if(OpenHltTauL2SCPassed(15.,5.,0,0.,0)>=2) { 

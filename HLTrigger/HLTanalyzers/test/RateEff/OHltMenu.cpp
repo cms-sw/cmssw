@@ -371,12 +371,18 @@ void OHltMenu::SetMapL1SeedsOfStandardHLTPath() {
   // for standard hlt in CheckOpenHlt(). 
   // Look for "New Taus" in OHltTreeOpen.cpp!
   vtmp.clear();
-  vtmp.push_back("L1_SingleTauJet30"); vtmp.push_back("L1_SingleJet70");
+  vtmp.push_back("L1_SingleTauJet40"); vtmp.push_back("L1_SingleJet70");
   map_L1SeedsOfStandardHLTPath.insert(mypair("OpenHLT_SingleLooseIsoTau20", vtmp));
 
   vtmp.clear();
-  vtmp.push_back("L1_SingleTauJet30"); vtmp.push_back("L1_SingleJet70");
-  map_L1SeedsOfStandardHLTPath.insert(mypair("OpenHLT_SingleLooseIsoTau20_Trk5", vtmp));
+  vtmp.push_back("L1_SingleTauJet60"); vtmp.push_back("L1_SingleJet100");
+  //vtmp.push_back("L1_SingleTauJet80"); vtmp.push_back("L1_SingleJet100");
+  map_L1SeedsOfStandardHLTPath.insert(mypair("OpenHLT_SingleLooseIsoTau30_Trk5", vtmp));
+  
+  vtmp.clear();
+  vtmp.push_back("L1_SingleTauJet60"); vtmp.push_back("L1_SingleJet100");
+  //vtmp.push_back("L1_SingleTauJet80"); vtmp.push_back("L1_SingleJet100");
+  map_L1SeedsOfStandardHLTPath.insert(mypair("OpenHLT_SingleLooseIsoTau30_Trk10", vtmp));
   
   vtmp.clear();
   vtmp.push_back("L1_DoubleTauJet30"); vtmp.push_back("L1_DoubleJet70");
@@ -385,5 +391,28 @@ void OHltMenu::SetMapL1SeedsOfStandardHLTPath() {
   vtmp.clear();
   vtmp.push_back("L1_DoubleTauJet30"); vtmp.push_back("L1_DoubleJet70");
   map_L1SeedsOfStandardHLTPath.insert(mypair("OpenHLT_DoubleLooseIsoTau15_Trk5", vtmp));
+
+  
+  vtmp.clear();
+  vtmp.push_back("L1_SingleTauJet40"); vtmp.push_back("L1_SingleJet70");
+  map_L1SeedsOfStandardHLTPath.insert(mypair("OpenHLT_SingleLooseIsoTau20_L2R", vtmp));
+
+  vtmp.clear();
+  vtmp.push_back("L1_SingleTauJet60"); vtmp.push_back("L1_SingleJet100");
+  //vtmp.push_back("L1_SingleTauJet80"); vtmp.push_back("L1_SingleJet100");
+  map_L1SeedsOfStandardHLTPath.insert(mypair("OpenHLT_SingleLooseIsoTau30_Trk5_L2R", vtmp));
+  
+  vtmp.clear();
+  vtmp.push_back("L1_SingleTauJet60"); vtmp.push_back("L1_SingleJet100");
+  //vtmp.push_back("L1_SingleTauJet80"); vtmp.push_back("L1_SingleJet100");
+  map_L1SeedsOfStandardHLTPath.insert(mypair("OpenHLT_SingleLooseIsoTau30_Trk10_L2R", vtmp));
+  
+  vtmp.clear();
+  vtmp.push_back("L1_DoubleTauJet30"); vtmp.push_back("L1_DoubleJet70");
+  map_L1SeedsOfStandardHLTPath.insert(mypair("OpenHLT_DoubleLooseIsoTau15_L2R", vtmp));
+  
+  vtmp.clear();
+  vtmp.push_back("L1_DoubleTauJet30"); vtmp.push_back("L1_DoubleJet70");
+  map_L1SeedsOfStandardHLTPath.insert(mypair("OpenHLT_DoubleLooseIsoTau15_Trk5_L2R", vtmp));
 
 }
