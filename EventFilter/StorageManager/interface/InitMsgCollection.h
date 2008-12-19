@@ -6,13 +6,14 @@
  * been received by the storage manager and will be sent to event
  * consumers and written to output streams.
  *
- * $Id: InitMsgCollection.h,v 1.3 2008/04/16 01:38:24 biery Exp $
+ * $Id: InitMsgCollection.h,v 1.4.4.1 2008/11/16 12:20:38 biery Exp $
  */
 
 #include "IOPool/Streamer/interface/InitMessage.h"
 #include "boost/shared_ptr.hpp"
 #include "boost/thread/thread.hpp"
 #include <vector>
+#include <map>
 
 namespace stor
 {
@@ -48,6 +49,7 @@ namespace stor
     int size();
 
     std::string getSelectionHelpString();
+    std::string getOutputModuleName(uint32 outputModuleId);
     static std::string stringsToText(Strings const& list,
                                      unsigned int maxCount = 0);
 
@@ -57,6 +59,8 @@ namespace stor
 
     std::vector<InitMsgSharedPtr> initMsgList_;
     InitMsgSharedPtr serializedFullSet_;
+
+    std::map<uint32, std::string> outModNameTable_;
 
     boost::mutex listLock_;
 

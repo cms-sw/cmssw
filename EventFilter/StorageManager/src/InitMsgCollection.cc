@@ -3,7 +3,7 @@
  * been received by the storage manager and will be sent to event
  * consumers and written to output disk files.
  *
- * $Id: InitMsgCollection.cc,v 1.4 2008/04/16 01:39:59 biery Exp $
+ * $Id: InitMsgCollection.cc,v 1.5.4.1 2008/11/16 12:20:38 biery Exp $
  */
 
 #include "DataFormats/Streamer/interface/StreamedProducts.h"
@@ -29,6 +29,7 @@ InitMsgCollection::InitMsgCollection()
 {
   FDEBUG(5) << "Executing constructor for InitMsgCollection" << std::endl;
   initMsgList_.clear();
+  outModNameTable_.clear();
 
   serializedFullSet_.reset(new InitMsgBuffer(2 * sizeof(Header)));
   OtherMessageBuilder fullSetMsg(&(*serializedFullSet_)[0], Header::INIT_SET);
@@ -457,6 +458,7 @@ void InitMsgCollection::clear()
 {
   boost::mutex::scoped_lock sl(listLock_);
   initMsgList_.clear();
+  outModNameTable_.clear();
 }
 
 /**
@@ -520,6 +522,23 @@ std::string InitMsgCollection::getSelectionHelpString()
 }
 
 /**
+ * Returns the name of the output module with the specified module ID,
+ * or an empty string of the specified module ID is not known.
+ *
+ * @return the output module label or an empty string
+ */
+std::string InitMsgCollection::getOutputModuleName(uint32 outputModuleId)
+{
+  if (outModNameTable_.find(outputModuleId) == outModNameTable_.end())
+  {
+    return "";
+  }
+  else {
+    return outModNameTable_[outputModuleId];
+  }
+}
+
+/**
  * Creates a single text string from the elements in the specified
  * list of strings.  The specified maximum number of elements are
  * included, however a zero value for the maximum number will include
@@ -562,6 +581,10 @@ void InitMsgCollection::add(InitMsgView const& initMsgView)
   std::copy(initMsgView.startAddress(),
             initMsgView.startAddress()+initMsgView.size(),
             &(*serializedProds)[0]);
+
+  // add the module ID name to the name map
+  outModNameTable_[initMsgView.outputModuleId()] =
+    initMsgView.outputModuleLabel();
 
   // calculate various sizes needed for adding the message to
   // the serialized version of the full set
