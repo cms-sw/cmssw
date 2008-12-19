@@ -35,14 +35,10 @@ void OHltTree::Loop(OHltRateCounter *rc,OHltConfig *cfg,OHltMenu *menu,int procI
     // 1. Loop to check which Bit fired
     // Triggernames are assigned to trigger cuts in unambigous way!
     // If you define a new trigger also define a new unambigous name!
-    SetMapBitOfStandardHLTPath();
     if(menu->DoL1preLoop() && menu->IsHltMenu()) {
-      // Third argument should be set to 1 to apply random prescale method.
-      // Currrently this is the only option implemented.
       ApplyL1Prescales(menu);
     }
-    SetMapL1BitOfStandardHLTPath();
-
+    SetMapL1BitOfStandardHLTPath(menu);
     SetL1MuonQuality();
 	  
     //////////////////////////////////////////////////////////////////
@@ -58,15 +54,12 @@ void OHltTree::Loop(OHltRateCounter *rc,OHltConfig *cfg,OHltMenu *menu,int procI
       //////////////////////////////////////////////////////////////////
       // Standard paths
       if ( (map_BitOfStandardHLTPath.find(menu->GetTriggerName(i))->second==1) ) {	
-
-	//if (menu->GetTriggerName(i)=="HLT_L1MuOpen") {
-	//cout<<"AAA "<<map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(i))->second<<endl;
-	//}
 	if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(i))->second>0) 
 	  if (GetIntRandom() % menu->GetPrescale(i) == 0)  
 	    triggerBit[i] = true; 
       } else {
-	CheckOpenHlt(cfg,menu,i);
+      // Open HLT paths
+ 	CheckOpenHlt(cfg,menu,i);
       }
     }
 
