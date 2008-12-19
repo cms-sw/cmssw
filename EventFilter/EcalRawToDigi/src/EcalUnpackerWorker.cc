@@ -96,6 +96,9 @@ void EcalUnpackerWorker::set(const edm::EventSetup & es) const {
   UncalibWorker_->set(es);
   CalibWorker_->set(es);
   es.get<EcalRegionCablingRecord>().get(cabling);
+
+  //the mapping is set as long as the mapping is valid.
+  myMap_->setEcalElectronicsMapping(cabling->mapping());
 }
 
 void EcalUnpackerWorker::write(edm::Event & e) const{
