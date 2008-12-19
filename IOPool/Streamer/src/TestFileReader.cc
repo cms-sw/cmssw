@@ -76,7 +76,8 @@ namespace edmtestp
     memcpy(buf_, init->startAddress(), len);
     new (b.buffer()) stor::FragEntry(buf_, buf_, len, 1, 1,
                                      init->code(), init->run(),
-                                     0, init->outputModuleId());
+                                     0, init->outputModuleId(),
+                                     getpid(), 0);
     b.commit(sizeof(stor::FragEntry));
   }
 
@@ -126,7 +127,8 @@ namespace edmtestp
           //new (b.buffer()) stor::FragEntry((void*)eview->eventData(),
        new (b.buffer()) stor::FragEntry(buf_, buf_, len, 1, 1,
                                         eview->code(), eview->run(),
-                                        eview->event(), eview->outModId());
+                                        eview->event(), eview->outModId(),
+                                        getpid(), 0);
        b.commit(sizeof(stor::FragEntry));
    }
 
