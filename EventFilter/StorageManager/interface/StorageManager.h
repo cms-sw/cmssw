@@ -10,7 +10,7 @@
 
      See CMS EventFilter wiki page for further notes.
 
-   $Id: StorageManager.h,v 1.44 2008/10/12 15:18:14 hcheung Exp $
+   $Id: StorageManager.h,v 1.43.2.4 2008/11/16 09:42:55 biery Exp $
 */
 
 #include <string>
@@ -91,7 +91,6 @@ namespace stor {
     void receiveRegistryMessage(toolbox::mem::Reference *ref);
     void receiveDataMessage(toolbox::mem::Reference *ref);
     void receiveErrorDataMessage(toolbox::mem::Reference *ref);
-    //void receiveOtherMessage(toolbox::mem::Reference *ref);
     void receiveDQMMessage(toolbox::mem::Reference *ref);
 
     void sendDiscardMessage(unsigned int, 
@@ -99,6 +98,7 @@ namespace stor {
 			    unsigned int, 
 			    std::string);
 
+    void configureAction();
     void stopAction();
     void haltAction();
 
@@ -158,6 +158,7 @@ namespace stor {
     bool pushMode_;
     std::string smConfigString_;
     std::string smFileCatalog_;
+    bool reconfigurationRequested_;
 
     xdata::Boolean collateDQM_;
     xdata::Boolean archiveDQM_;
@@ -167,7 +168,6 @@ namespace stor {
     xdata::Integer readyTimeDQM_;
     xdata::Boolean useCompressionDQM_;
     xdata::Integer compressionLevelDQM_;
-    xdata::Boolean allowDupAutoBUEvtNums_;
 
     evf::Css css_;
     xdata::UnsignedInteger32 receivedFrames_;
@@ -305,6 +305,8 @@ namespace stor {
     unsigned int lastEventSeen_; // report last seen event id
     unsigned int lastErrorEventSeen_; // report last error event id seen
     boost::mutex rblist_lock_;  // quick (temporary) fix for registration problem
+
+    std::string sm_cvs_version_;
 
     enum
     {
