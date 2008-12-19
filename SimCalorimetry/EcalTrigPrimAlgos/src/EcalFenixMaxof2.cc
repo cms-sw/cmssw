@@ -13,10 +13,12 @@ EcalFenixMaxof2::EcalFenixMaxof2(int maxNrSamples, int nbMaxStrips) : nbMaxStrip
 EcalFenixMaxof2::~EcalFenixMaxof2(){
 }
   
-void EcalFenixMaxof2::process(std::vector<std::vector <int> > &bypasslinout, int nstrip,std::vector<int> &output){
+void EcalFenixMaxof2::process(std::vector<std::vector <int> > &bypasslinout, int nstrip,std::vector<int> &output)
+{
   for (int i2strip =0;i2strip<nstrip-1;++i2strip)
     for (unsigned int i=0;i<output.size();i++)	    sumby2_[i2strip][i]=0; 
-
+  for (unsigned int i=0;i<output.size();i++) output[i] = 0;
+  
   for (unsigned int i=0;i<output.size();i++){
     if (nstrip-1==0){
       output[i]=bypasslinout[0][i];
