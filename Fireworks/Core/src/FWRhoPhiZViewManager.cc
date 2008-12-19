@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sat Jan  5 14:08:51 EST 2008
-// $Id: FWRhoPhiZViewManager.cc,v 1.45 2008/11/18 21:56:16 chrjones Exp $
+// $Id: FWRhoPhiZViewManager.cc,v 1.46 2008/11/26 02:14:02 chrjones Exp $
 //
 
 // system include files
@@ -742,6 +742,7 @@ void FWRhoPhiZViewManager::makeTrackerGeometryRhoZ()
    float layer = m_rhoZGeomProjMgr->GetCurrentDepth();
    m_rhoZGeomProjMgr->SetCurrentDepth(0.);
    m_rhoZGeomProjMgr->ImportElements( list );
+   m_rhoZGeomProjMgr->ImportElements( list ); // hack
    m_rhoZGeomProjMgr->SetCurrentDepth(layer);
 
    m_eveStore->AddElement(list);
@@ -767,6 +768,7 @@ void FWRhoPhiZViewManager::makeTrackerGeometryRhoPhi()
    ref->SetNextPoint(0.,0.,0.);
    m_rhoPhiGeomProjMgr->SetCurrentDepth(0.);
    m_rhoPhiGeomProjMgr->ImportElements( el );
+   m_rhoPhiGeomProjMgr->ImportElements( el ); // hack
    m_rhoPhiGeomProjMgr->SetCurrentDepth(layer);
 
    m_eveStore->AddElement(el);
