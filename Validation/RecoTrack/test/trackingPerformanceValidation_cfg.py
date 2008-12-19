@@ -64,8 +64,24 @@ process.digi2track = cms.Sequence(process.siPixelDigis*process.SiStripRawToDigis
                                   process.cutsRecoTracks*
                                   ##process.cutsTPEffic*process.cutsTPFake* these modules are now useless
                                   process.multiTrackValidator)
+#redo also tracking particles
+process.digi2track_and_TP = cms.Sequence(process.mix*process.trackingParticles*
+                                  process.siPixelDigis*process.SiStripRawToDigis*
+                                  process.trackerlocalreco*
+                                  process.ckftracks*
+                                  process.cutsRecoTracks*
+                                  ##process.cutsTPEffic*process.cutsTPFake* these modules are now useless
+                                  process.multiTrackValidator)
 
 process.re_tracking = cms.Sequence(process.siPixelRecHits*process.siStripMatchedRecHits*
+                                   process.ckftracks*
+                                   process.cutsRecoTracks*
+                                   ##process.cutsTPEffic*process.cutsTPFake* these modules are now useless
+                                   process.multiTrackValidator
+                                   )
+
+process.re_tracking_and_TP = cms.Sequence(process.mix*process.trackingParticles*
+                                   process.siPixelRecHits*process.siStripMatchedRecHits*
                                    process.ckftracks*
                                    process.cutsRecoTracks*
                                    ##process.cutsTPEffic*process.cutsTPFake* these modules are now useless
