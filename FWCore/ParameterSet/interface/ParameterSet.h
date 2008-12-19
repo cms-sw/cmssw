@@ -66,7 +66,7 @@ namespace edm {
     void augment(ParameterSet const& from); 
     // encode
     std::string toString() const;
-    std::string toStringOfTracked() const;
+    void toString(std::string& result) const;
     // decode
     bool fromString(std::string const&);
 

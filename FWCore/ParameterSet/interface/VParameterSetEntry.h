@@ -25,7 +25,7 @@ namespace edm {
 
     ~VParameterSetEntry();
 
-    std::string toString() const;
+    void toString(std::string& result) const;
     int sizeOfString() const;
 
     bool isTracked() const {return tracked;}

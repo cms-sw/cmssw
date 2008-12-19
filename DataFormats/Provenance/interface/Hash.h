@@ -12,7 +12,7 @@
   
 Hash:
 
-$Id: Hash.h,v 1.3.8.1 2008/11/14 18:58:50 wmtan Exp $
+$Id: Hash.h,v 1.6 2008/12/18 05:00:31 wmtan Exp $
 
   Note: The call to 'fixup' in every member function is a temporary
   measure for backwards compatibility. It is necessary in every function
@@ -52,6 +52,7 @@ namespace edm {
     bool operator== (Hash<I> const& other) const;
     bool operator!= (Hash<I> const& other) const;
     std::ostream& print(std::ostream& os) const;
+    void toString(std::string& result) const;
     void swap(Hash<I>& other);
 
     // Return the 16-byte (non-printable) string form.
@@ -175,6 +176,17 @@ namespace edm {
     copy_all(tMe.hash_, temp.bytes);
     os << temp.toString();
     return os;
+  }
+
+  template <int I>
+  inline
+  void
+  Hash<I>::toString(std::string& result) const
+  {
+    Hash<I> tMe(*this);
+    cms::MD5Result temp;
+    copy_all(tMe.hash_, temp.bytes);
+    result += temp.toString();
   }
 
   template <int I>

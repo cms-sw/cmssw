@@ -6,7 +6,7 @@
    Declaration of class ModuleRegistry
 
    \author Stefano ARGIRO
-   \version $Id: WorkerRegistry.h,v 1.9 2007/03/04 06:10:25 wmtan Exp $
+   \version $Id: WorkerRegistry.h,v 1.10 2008/10/16 23:06:28 wmtan Exp $
    \date 18 May 2005
 */
 
@@ -55,10 +55,11 @@ namespace edm {
   private:
     /// Get a unique name for the worker
     /** Form a string to be used as a key in the map of workers */
-    std::string mangleWorkerParameters(ParameterSet const& parameterSet,
-				       std::string const& processName,
-				       ReleaseVersion const& releaseVersion,
-				       PassID const& passID);
+    void mangleWorkerParameters(ParameterSet const& parameterSet,
+				std::string const& processName,
+				ReleaseVersion const& releaseVersion,
+				PassID const& passID,
+				std::string& result);
 
     /// the container of workers
     typedef std::map<std::string, boost::shared_ptr<Worker> > WorkerMap;

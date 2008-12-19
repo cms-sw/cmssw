@@ -31,16 +31,15 @@ namespace edm {
     
   ParameterSetEntry::~ParameterSetEntry() {}
 
-  std::string ParameterSetEntry::toString() const {
-    std::string result = tracked ? "+Q" : "-Q";
-    std::stringstream str;
-    theID.print(str);
-    result += str.str();
-    return result;
+  void ParameterSetEntry::toString(std::string& result) const {
+    result += tracked ? "+Q" : "-Q";
+    theID.toString(result);
   }
   
   int ParameterSetEntry::sizeOfString() const {
-    return toString().size();
+    std::string str;
+    toString(str);
+    return str.size();
   }
 
   ParameterSet & ParameterSetEntry::pset() {

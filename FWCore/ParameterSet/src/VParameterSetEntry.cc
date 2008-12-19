@@ -1,8 +1,6 @@
 #include "FWCore/ParameterSet/interface/VParameterSetEntry.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/split.h"
-#include <sstream>
-#include <iostream>
 namespace edm {
 
   VParameterSetEntry::VParameterSetEntry()
@@ -49,23 +47,23 @@ namespace edm {
     swap(theVPSet, empty);
   }
 
-  std::string VParameterSetEntry::toString() const {
-    std::string result = tracked ? "+q" : "-q";
-    std::stringstream str;
-    str << '{';
+  void VParameterSetEntry::toString(std::string& result) const {
+    result += tracked ? "+q" : "-q";
+    result += '{';
     std::string start;
     std::string const between(",");
     for (std::vector<ParameterSetEntry>::const_iterator i = thePSetEntries.begin(), e = thePSetEntries.end(); i != e; ++i) {
-      str << start << i->toString();
+      result += start;
+      i->toString(result);
       start = between;
     }
-    str << '}';
-    result += str.str();
-    return result;
+    result += '}';
   }
   
   int VParameterSetEntry::sizeOfString() const {
-    return toString().size();
+    std::string str;
+    toString(str);
+    return str.size();
   }
 
   std::vector<ParameterSet>& VParameterSetEntry::vpset() {

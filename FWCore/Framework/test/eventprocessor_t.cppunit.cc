@@ -2,7 +2,7 @@
 
 Test of the EventProcessor class.
 
-$Id: eventprocessor_t.cppunit.cc,v 1.35 2008/07/03 18:34:57 wdd Exp $
+$Id: eventprocessor_t.cppunit.cc,v 1.36 2008/08/08 20:44:38 wdd Exp $
 
 ----------------------------------------------------------------------*/  
 #include <exception>
@@ -169,7 +169,7 @@ bool testeventprocessor::asyncRunAsync(edm::EventProcessor& ep)
       ep.runAsync();
       if(sleep_secs_>0) sleep(sleep_secs_);
 
-      edm::EventProcessor::StatusCode rc;
+      edm::EventProcessor::StatusCode rc = edm::EventProcessor::StatusCode();
       if (i < 2) {
         rc = ep.waitTillDoneAsync(1000);
       }

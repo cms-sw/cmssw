@@ -96,8 +96,10 @@ namespace edm {
 
     ProcessConfiguration config;
     bool process_found = ph.getConfigurationForProcess(processName, config);
-    if (process_found)
+    if (process_found) {
       pset::Registry::instance()->getMapped(config.parameterSetID(), ps);
+      assert(!ps.empty());
+    }
     return process_found;
   }
 

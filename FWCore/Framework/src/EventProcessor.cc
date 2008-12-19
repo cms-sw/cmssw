@@ -230,8 +230,9 @@ namespace edm {
       // There is no module label for the unnamed input source, so 
       // just use "source".
       md.moduleLabel_ = "source";
+      // Only the tracked parameters belong in the process configuration.
       md.processConfiguration_ = ProcessConfiguration(common.processName_,
-				params.id(), getReleaseVersion(), getPassID());
+				params.trackedPart().id(), getReleaseVersion(), getPassID());
       ProcessConfigurationRegistry::instance()->insertMapped(md.processConfiguration_);
 
       sourceSpecified = true;
@@ -646,7 +647,7 @@ namespace edm {
 		    actReg_));
 
     //   initialize(iToken,iLegacy);
-    FDEBUG(2) << parameterSet->toString() << std::endl;
+    FDEBUG(2) << parameterSet << std::endl;
     connectSigs(this);
     BranchIDListHelper::updateRegistries(preg_);
   }

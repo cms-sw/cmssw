@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------
-// $Id: types.cc,v 1.18 2008/11/05 14:41:43 wmtan Exp $
+// $Id: types.cc,v 1.19 2008/11/06 09:57:39 elmer Exp $
 //
 // definition of type encoding/decoding functions
 // ----------------------------------------------------------------------
@@ -1034,7 +1034,8 @@ bool
 bool
   edm::encode(std::string & to, ParameterSet const& from)
 {
-  to = from.toString();
+  to.clear(); // just a precaution
+  from.toString(to);
   return true;
 }  // encode from ParameterSet
 

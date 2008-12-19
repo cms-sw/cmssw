@@ -113,7 +113,8 @@ namespace edm {
     }
 
     // tracked parts always have a correct ID, and always have their registries updated
-    std::string stringrep = toString();
+    std::string stringrep;
+    toString(stringrep);
     cms::Digest md5alg(stringrep);
     id_ = ParameterSetID(md5alg.digest().toString());
     assert(id_.isValid());
@@ -410,16 +411,15 @@ namespace edm {
   // coding
   // ----------------------------------------------------------------------
 
-  std::string
-  ParameterSet::toString() const {
+  void
+  ParameterSet::toString(std::string& rep) const {
     // make sure the PSets get filled
     if(!frozen_) {
       fillIDandInsert();
     }
-    std::string rep;
     if (empty()) {
-      std::string emptyPSet = "<>";
-      return emptyPSet;
+      rep += "<>";
+      return;
     }
     size_t size = 1;
     for(table::const_iterator b = tbl_.begin(), e = tbl_.end(); b != e; ++b) {
@@ -438,7 +438,7 @@ namespace edm {
       size += b->second.sizeOfString();
     }
 
-    rep.reserve(size);
+    rep.reserve(rep.size()+size);
     rep += '<';
     std::string start;
     std::string const between(";");
@@ -446,34 +446,33 @@ namespace edm {
       rep += start;
       rep += b->first;
       rep += '=';
-      rep += b->second.toString();
+      b->second.toString(rep);
       start = between;
     }
     for(psettable::const_iterator b = psetTable_.begin(), e = psetTable_.end(); b != e; ++b) {
       rep += start;
       rep += b->first;
       rep += '=';
-      rep += b->second.toString();
+      b->second.toString(rep);
       start = between;
     }
     for(vpsettable::const_iterator b = vpsetTable_.begin(), e = vpsetTable_.end(); b != e; ++b) {
       rep += start;
       rep += b->first;
       rep += '=';
-      rep += b->second.toString();
+      b->second.toString(rep);
       start = between;
     }
 
     rep += '>';
-    return rep;
   }  // to_string()
 
-  // ----------------------------------------------------------------------
-
   std::string
-  ParameterSet::toStringOfTracked() const {
-    return trackedPart().toString();
-  } 
+  ParameterSet::toString() const {
+    std::string result;
+    toString(result);
+    return result;
+  }
 
   // ----------------------------------------------------------------------
 
@@ -657,7 +656,11 @@ namespace edm {
 
   bool operator==(ParameterSet const& a, ParameterSet const& b) {
     // Maybe can replace this with comparison of id_ values.
-    return a.toString() == b.toString();
+    std::string aString;
+    std::string bString;
+    a.toString(aString);
+    b.toString(bString);
+    return aString == bString;
   }
 
   std::string ParameterSet::dump() const {
