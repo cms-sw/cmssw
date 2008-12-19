@@ -31,7 +31,7 @@ FlavorHistoryFilter::FlavorHistoryFilter(const edm::ParameterSet& iConfig) :
   schemeName_    ( iConfig.getParameter<string> ("scheme") ),
   flavor_        ( iConfig.getParameter<int>    ("flavor") ),
   noutput_       ( iConfig.getParameter<int>    ("noutput") ),
-  flavorSource_  ( static_cast<reco::FlavorHistory::FLAVOR_T> (iConfig.getParameter<int>    ("flavorSource") ) ),
+  flavorSource_  ( iConfig.getParameter<std::vector<int> >    ("flavorSource") ),
   minPt_         ( iConfig.getParameter<double> ("minPt") ),
   minDR_         ( iConfig.getParameter<double> ("minDR") ),
   maxDR_         ( iConfig.getParameter<double> ("maxDR") ),
@@ -43,7 +43,8 @@ FlavorHistoryFilter::FlavorHistoryFilter(const edm::ParameterSet& iConfig) :
 				       << "        deltaR\n";
   }
   
-  
+  // Deal with the case if minDR == maxDR, just increment maxDR by epsilon
+  if ( minDR_ == maxDR_ ) maxDR_ += 0.001;
 }
 
 
@@ -112,30 +113,41 @@ FlavorHistoryFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   // filter is checking. Otherwise we need to fail the event,
   // since it should be handled by another filter
   if ( highestFlavor > static_cast<unsigned int>(flavor_) ) {
+    if ( verbose_ ) cout << "Rejecting event, highest flavor is " << highestFlavor << endl;
     return false;
   }
 
-  // Next check that the flavor source is desired one
-  if ( flavorSource_ != flavorSource ) return false;
+  // Next check that the flavor source is one of the desired ones
+  vector<int>::const_iterator iflavorSource = find( flavorSource_.begin(), flavorSource_.end(), static_cast<int>(flavorSource) );
+  if ( iflavorSource == flavorSource_.end() ) {
+    if ( verbose_ ) cout << "Rejecting event, didn't find flavor source " << static_cast<int>(flavorSource) << endl;
+    return false;
+  }
   
   // If we are examining b quarks
   if ( flavor_ == reco::FlavorHistory::bQuarkId ) {
     // if we have no b quarks, return false
-    if ( nb <= 0 ) return false;
+    if ( nb <= 0 ) {
+      if ( verbose_ ) cout << "Rejecting event, nb = " << nb << endl;
+      return false;
+    }
     // here, nb > 0
     else {
       // if we want 1 b, require nb == 1
       if ( noutput_ == 1 && nb == 1 ) {
+	if ( verbose_ ) cout << "Accepting event" << endl;
 	return true;
       }
       // if we want 2 b, then look at delta R
       else if ( noutput_ > 1 && nb > 1 ) {
 	// If dr is within the range we want, pass.
 	// Otherwise, fail.
-	return ( dr > minDR_ && dr < maxDR_ );
+	if ( verbose_ ) cout << "Want multiples, dr = " << dr << endl;
+	return ( dr >= minDR_ && dr < maxDR_ );
       }
       // otherwise return false
       else {
+	if ( verbose_ ) cout << "Rejecting event, isn't output = 1 + nb = 1, or output > 0 and delta R in proper range" << endl;
 	return false;
       }
     }// end if nb > 0
@@ -160,7 +172,7 @@ FlavorHistoryFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
       else if ( noutput_ > 1 && nc > 1 ) {
 	// If dr is within the range we want, pass.
 	// Otherwise, fail.
-	return ( dr > minDR_ && dr < maxDR_ );
+	return ( dr >= minDR_ && dr < maxDR_ );
       }
       // otherwise return false
       else {
@@ -171,6 +183,7 @@ FlavorHistoryFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   }
   // Otherwise return false
   else {
+    if ( verbose_ ) cout << "Something is weird, flavor is " << flavor_ << endl;
     return false;
   }
 
