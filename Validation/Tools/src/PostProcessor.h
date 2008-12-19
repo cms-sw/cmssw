@@ -6,8 +6,8 @@
  *
  *  DQM histogram post processor
  *
- *  $Date: 2008/12/15 20:46:08 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/12/18 03:29:09 $
+ *  $Revision: 1.2 $
  *
  *  \author Junghwan Goh - SungKyunKwan University
  */
@@ -35,7 +35,7 @@ class PostProcessor : public edm::EDAnalyzer
 
   void computeEfficiency(const std::string& startDir, 
                          const std::string& efficMEName, const std::string& efficMETitle,
-                         const std::string& recoMEName, const std::string& simMEName);
+                         const std::string& recoMEName, const std::string& simMEName,const std::string& type="eff");
   void computeResolution(const std::string &, 
                          const std::string& fitMEPrefix, const std::string& fitMETitlePrefix, 
                          const std::string& srcMEName);

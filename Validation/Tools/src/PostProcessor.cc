@@ -2,8 +2,8 @@
  *  Class:PostProcessor 
  *
  *
- *  $Date: 2008/12/17 05:18:50 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/12/18 03:29:09 $
+ *  $Revision: 1.3 $
  * 
  *  \author Junghwan Goh - SungKyunKwan University
  */
@@ -99,12 +99,12 @@ void PostProcessor::endJob()
         args.push_back(*iToken);
       }
 
-      if ( args.size() != 4 ) {
+      if ( args.size() < 4 ) {
         LogError("PostProcessor") << "Wrong input to effCmds\n";
         continue;
       }
 
-      computeEfficiency(dirName, args[0], args[1], args[2], args[3]);
+      computeEfficiency(dirName, args[0], args[1], args[2], args[3], args[4]);
     }
 
     for(vstring::const_iterator iCmd = resCmds_.begin();
@@ -133,7 +133,7 @@ void PostProcessor::endJob()
 }
 
 void PostProcessor::computeEfficiency(const string& startDir, const string& efficMEName, const string& efficMETitle,
-                                      const string& recoMEName, const string& simMEName)
+                                      const string& recoMEName, const string& simMEName, const std::string & type)
 {
   if ( ! theDQM->dirExists(startDir) ) {
     if ( verbose_ >= 2 || (verbose_ == 1 && !isWildcardUsed_) ) {
@@ -194,7 +194,9 @@ void PostProcessor::computeEfficiency(const string& startDir, const string& effi
   for(int bin = 0; bin <= nBin; ++bin) {
     const float nSim  = simME ->getBinContent(bin);
     const float nReco = recoME->getBinContent(bin);
-    const float eff = nSim ? nReco/nSim : 0.;
+    float eff =0;
+    if (type=="fake")eff = nSim ? 1-nReco/nSim : 0.;
+    else eff= nSim ? nReco/nSim : 0.;
     const float err = nSim && eff <= 1 ? sqrt(eff*(1-eff)/nSim) : 0.;
     efficME->setBinContent(bin, eff);
     efficME->setBinError(bin, err);
@@ -218,7 +220,9 @@ void PostProcessor::computeEfficiency(const string& startDir, const string& effi
 
   const float nSimAll = hSim->GetEntries();
   const float nRecoAll = hReco->GetEntries();
-  const float efficAll = nSimAll ? nRecoAll/nSimAll : 0;
+  float efficAll=0; 
+  if (type=="fake")   efficAll = nSimAll ? 1-nRecoAll/nSimAll : 0;
+  else   efficAll = nSimAll ? nRecoAll/nSimAll : 0;
   const float errorAll = nSimAll && efficAll < 1 ? sqrt(efficAll*(1-efficAll)/nSimAll) : 0;
 
   const int iBin = hGlobalEffic->Fill(newEfficMEName.c_str(), 0);
