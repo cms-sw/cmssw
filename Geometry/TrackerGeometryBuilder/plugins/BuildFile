@@ -1,7 +1,7 @@
 
 <library file="*.cc" name=GeometryTrackerGeometryBuilderPlugins>
 <use name=CondFormats/Alignment>
-<use name=CondFormats/IdealGeometryObjects>
+<use name=CondFormats/GeometryObjects>
 <use name=CondFormats/AlignmentRecord>
 <use name=DetectorDescription/Core>
 <use name=FWCore/Framework>
