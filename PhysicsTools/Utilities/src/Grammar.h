@@ -7,7 +7,7 @@
  * \author original version: Chris Jones, Cornell, 
  *         extended by Luca Lista, INFN
  *
- * \version $Revision: 1.17 $
+ * \version $Revision: 1.18 $
  *
  */
 #include "boost/spirit/core.hpp"
@@ -178,9 +178,10 @@ namespace reco {
 	    factor >> * (('^' >> expect(factor)) [ power_of_s ]);
 	  factor = 
 	    number | 
-	    (function1 >> expect(ch_p('(')) >> expect(expression) >> expectParenthesis(ch_p(')'))) [ fun_s ] |
-	    (function2 >> expect(ch_p('(')) >> expect(expression) >> 
+	    (function1 >> ch_p('(') >> expect(expression) >> expectParenthesis(ch_p(')'))) [ fun_s ] |
+	    (function2 >> ch_p('(') >> expect(expression) >> 
 	     expect(ch_p(',')) >> expect(expression) >> expectParenthesis(ch_p(')'))) [ fun_s ] |
+            //NOTE: no expect around the first ch_p('(') otherwise it can't parse a method that starts like a function name (i.e. maxSomething)
 	    method | 
 	    //NOTE: no 'expectedParenthesis around ending ')' because at this point the partial phrase
 	    //       "(a"
