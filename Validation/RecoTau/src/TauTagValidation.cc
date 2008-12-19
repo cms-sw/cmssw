@@ -15,13 +15,12 @@
 //
 // Original Author:  Ricardo Vasquez Sierra
 //         Created:  October 8, 2008
-// $Id: TauTagValidation.cc,v 1.2 2008/10/24 19:39:00 vasquez Exp $
+// $Id: TauTagValidation.cc,v 1.4 2008/12/19 18:28:18 vasquez Exp $
 //
 //
 // user include files
 
 #include "Validation/RecoTau/interface/TauTagValidation.h"
-#include "PhysicsTools/JetMCUtils/interface/JetMCTag.h"
 
 using namespace edm;
 using namespace std;
