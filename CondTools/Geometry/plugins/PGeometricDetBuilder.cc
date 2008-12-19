@@ -117,7 +117,7 @@ PGeometricDetBuilder::beginJob( edm::EventSetup const& es)
   if ( mydbservice->isNewTagRequest("PGeometricDetRcd") ) {
     mydbservice->createNewIOV<PGeometricDet>( pgd,mydbservice->beginOfTime(),mydbservice->endOfTime(),"PGeometricDetRcd");
   } else {
-    mydbservice->appendSinceTime<PGeometricDet>( pgd,mydbservice->currentTime(),"PGeometricDetRcd");
+    edm::LogError("PGeometricDetBuilder")<<"PGeometricDetBuilder Tag already present";
   }
 }
   

@@ -38,14 +38,12 @@ XMLGeometryBuilder::beginJob( edm::EventSetup const& es)
     return;
   }
 
-  std::cout<<"STO CREANDO L'OGGETTO"<<std::endl;
   GeometryFile* pgf= new GeometryFile(fname,zip);
-  std::cout<<"HO CREATO L'OGGETTO E LO VADO A SCRIVERE NEL DB"<<std::endl;
 
   if ( mydbservice->isNewTagRequest("GeometryFileRcd") ) {
     mydbservice->createNewIOV<GeometryFile>( pgf,mydbservice->beginOfTime(),mydbservice->endOfTime(),"GeometryFileRcd");
   } else {
-    mydbservice->appendSinceTime<GeometryFile>(pgf,mydbservice->currentTime(),"GeometryFileRcd");      
+    edm::LogError("XMLGeometryBuilder")<<"GeometryFileRcs Tag already exist";
   }
 }
   

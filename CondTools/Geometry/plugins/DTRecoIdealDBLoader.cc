@@ -41,7 +41,7 @@ DTRecoIdealDBLoader::beginJob( edm::EventSetup const& es)
   RecoIdealGeometry* rig = new RecoIdealGeometry;
   edm::Service<cond::service::PoolDBOutputService> mydbservice;
   if( !mydbservice.isAvailable() ){
-    std::cout<<"PoolDBOutputService unavailable"<<std::endl;
+    edm::LogError("DTRecoIdealDBLoader")<<"PoolDBOutputService unavailable";
     return;
   }
 
@@ -54,7 +54,6 @@ DTRecoIdealDBLoader::beginJob( edm::EventSetup const& es)
   DTGeometryParsFromDD dtgp;
 
   dtgp.build( &cpv, *pMNDC, *rig );
-  std::cout << "RecoIdealGeometry " << rig->size() << std::endl;
 
   if ( mydbservice->isNewTagRequest("DTRecoGeometryRcd") ) {
     mydbservice->createNewIOV<RecoIdealGeometry>(rig
@@ -62,6 +61,6 @@ DTRecoIdealDBLoader::beginJob( edm::EventSetup const& es)
                                                  , mydbservice->endOfTime()
                                                  , "DTRecoGeometryRcd");
   } else {
-    std::cout << "DTRecoGeometryRcd Tag is already present." << std::endl;
+    edm::LogError("DTRecoIdealDBLoader")<<"DTRecoGeometryRcd Tag is already present.";
   }
 }

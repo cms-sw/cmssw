@@ -10,13 +10,11 @@
 <use name=FWCore/ParameterSet>
 <use name=FWCore/ServiceRegistry>
 
+<use name=Geometry/Records>
 <use name=Geometry/TrackerGeometryBuilder>
 <use name=Geometry/TrackerNumberingBuilder>
-<use name=Geometry/Records>
-
 <use name=Geometry/CaloEventSetup>
 <use name=Geometry/CaloGeometry>
-
 <use name=Geometry/CSCGeometryBuilder>
 <use name=Geometry/DTGeometry> 
 <use name=Geometry/DTGeometryBuilder>

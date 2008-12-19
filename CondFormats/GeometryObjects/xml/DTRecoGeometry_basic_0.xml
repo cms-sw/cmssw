@@ -2,11 +2,11 @@
 <!DOCTYPE PoolDatabase SYSTEM "InMemory">
  <PoolDatabase >
   <PoolContainer name="DTRecoGeometryRcd" >
-   <Class table="RECOIDEALGEOMETRY" id_columns="ID" name="RecoIdealGeometry" mapping_version="basic" >
-     <Blob column="RECOIDEALGEOMETRY__1" name="pDetIds"/>
-     <Blob column="RECOIDEALGEOMETRY__2" name="pNumShapeParms"/>
-     <Blob column="RECOIDEALGEOMETRY__3" name="pPars"/>
-     <Blob column="RECOIDEALGEOMETRY__4" name="pParsIndex"/>
+   <Class table="DTRECOGEOMETRY" id_columns="ID" name="RecoIdealGeometry" mapping_version="DTRecoGeometry_basic" >
+     <Blob column="DTRECOGEOMETRY__1" name="pDetIds"/>
+     <Blob column="DTRECOGEOMETRY__2" name="pNumShapeParms"/>
+     <Blob column="DTRECOGEOMETRY__3" name="pPars"/>
+     <Blob column="DTRECOGEOMETRY__4" name="pParsIndex"/>
    </Class >
   </PoolContainer >
  </PoolDatabase >

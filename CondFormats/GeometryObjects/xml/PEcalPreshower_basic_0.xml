@@ -2,7 +2,7 @@
 <!DOCTYPE PoolDatabase SYSTEM "InMemory">
  <PoolDatabase >
   <PoolContainer name="PEcalPreshowerRcd" >
-   <Class table="PECALGEOMETRY" id_columns="IOV_VALUE_ID" name="PECALGeometry" mapping_version="basic" >
+   <Class table="PECALPRESHOWERGEOMETRY" id_columns="IOV_VALUE_ID" name="PEcalGeometry" mapping_version="PEcalPreshower_basic" >
       <Blob column="TRANSLATION" name="m_translation"/>
       <Blob column="DIMENSION" name="m_dimension"/>
       <Blob column="INDEX" name="m_indexes"/>

@@ -44,7 +44,7 @@ CSCRecoIdealDBLoader::beginJob( edm::EventSetup const& es)
   CSCRecoDigiParameters* rdp = new CSCRecoDigiParameters;
   edm::Service<cond::service::PoolDBOutputService> mydbservice;
   if( !mydbservice.isAvailable() ){
-    std::cout<<"PoolDBOutputService unavailable"<<std::endl;
+    edm::LogError("CSCRecoIdealDBLoader")<<"PoolDBOutputService unavailable";
     return;
   }
 
@@ -64,7 +64,7 @@ CSCRecoIdealDBLoader::beginJob( edm::EventSetup const& es)
 						 , mydbservice->endOfTime()
 						 , "CSCRecoGeometryRcd");
   } else {
-    std::cout << "RecoIdealGeometryRcd Tag is already present." << std::endl;
+    edm::LogError("CSCRecoIdealDBLoader")<<"CSCRecoGeometryRcd Tag is already present.";
   }
   if ( mydbservice->isNewTagRequest("CSCRecoDigiParametersRcd") ) {
     mydbservice->createNewIOV<CSCRecoDigiParameters>(rdp
@@ -72,7 +72,7 @@ CSCRecoIdealDBLoader::beginJob( edm::EventSetup const& es)
 						     , mydbservice->endOfTime()
 						     , "CSCRecoDigiParametersRcd");
   } else {
-    std::cout << "CSCRecoDigiParametersRcd Tag is already present." << std::endl;
+    edm::LogError("CSCRecoIdealDBLoader")<<"CSCRecoDigiParametersRcd Tag is already present.";
   }
 
 }
