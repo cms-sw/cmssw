@@ -144,9 +144,6 @@ mappingBuilder_(0)
 EcalElectronicsMapper::~EcalElectronicsMapper(){
 
 
-  if( mappingBuilder_ ){ delete mappingBuilder_; }
- 
-
   //DETETE ARRAYS
   for(uint sm=0; sm < NUMB_SM; sm++){
     for(uint fe=0; fe< NUMB_FE; fe++){
