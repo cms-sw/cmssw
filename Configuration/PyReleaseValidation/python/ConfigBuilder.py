@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.105 $"
+__version__ = "$Revision: 1.106 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -371,9 +371,9 @@ class ConfigBuilder(object):
 					      filterName = cms.untracked.string('Stream'+stream.name))
 	if isinstance(stream.paths,tuple):
             for path in stream.paths:
-	        self.process.schedule.append(path)
+	        self.schedule.append(path)
 	else:		
-	    self.process.schedule.append(stream.paths)
+	    self.schedule.append(stream.paths)
                 # in case of relvals we don't want to have additional outputs  
 	if not self._options.relval: 
 	    self.additionalOutputs[name] = output
@@ -394,7 +394,6 @@ class ConfigBuilder(object):
             alcaConfig = self.loadAndRemember(sequence.split(',')[0])
             sequence = sequence.split(',')[1]				
         # decide which ALCA paths to use
-        print type(alcaConfig)
         alcaList = sequence.split("+")
         for name in alcaConfig.__dict__:
             alcastream = getattr(alcaConfig,name)
@@ -635,7 +634,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.105 $"),
+              (version=cms.untracked.string("$Revision: 1.106 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )
@@ -690,7 +689,7 @@ class ConfigBuilder(object):
 		self.pythonCfgCode += "process.%s = %s" %(name, output.dumpPython())
                 tmpOut = cms.EndPath(output)  
                 setattr(self.process,name+'OutPath',tmpOut)
-                self.process.schedule.append(tmpOut)
+                self.schedule.append(tmpOut)
 
         # dump all additional commands
         self.pythonCfgCode += "\n# Other statements\n"
