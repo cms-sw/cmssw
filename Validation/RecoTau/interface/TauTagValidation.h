@@ -31,6 +31,8 @@
 #include "DataFormats/TauReco/interface/CaloTau.h"
 #include "DataFormats/TauReco/interface/CaloTauDiscriminator.h"
 
+#include "RecoParticleFlow/Benchmark/interface/PFBenchmarkAlgo.h"
+
 // Math
 #include "Math/GenVector/VectorUtil.h"
 #include "Math/GenVector/PxPyPzE4D.h"
@@ -146,6 +148,10 @@ private:
   DQMStore* dbeTau;
 
   int numEvents_;
+
+ protected:
+
+  PFBenchmarkAlgo *algo_;
 
 };
 
