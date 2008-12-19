@@ -101,7 +101,6 @@ void EcalUnpackerWorker::setHandles(const EcalUnpackerWorkerRecord & iRecord) {
 void EcalUnpackerWorker::set(const edm::EventSetup & es) const {
   UncalibWorker_->set(es);
   CalibWorker_->set(es);
-  es.get<EcalRegionCablingRecord>().get(cabling);
 }
 
 void EcalUnpackerWorker::write(edm::Event & e) const{
