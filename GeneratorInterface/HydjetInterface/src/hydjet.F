@@ -441,7 +441,7 @@ c           mstj(41)=0                           ! vacuum showering off
 
 * PYQUEN: quenched jets if noquen=0 or non-quenched jets if noquen=1 and ishad=1
         if(ishad.eq.1.or.nhsel.eq.2.or.nhsel.eq.4) 
-     >           call pyquen(Ap,ifbp,bfixp) 
+     >           call pyquen(Ap,ifbp,bfixp,99,0) 
 
 * treatment of "nuclear shadowing" (for Pb, Au, Pd or Ca beams only) 
         if(ishad.eq.1) then
