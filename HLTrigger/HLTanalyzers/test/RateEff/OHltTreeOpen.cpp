@@ -245,15 +245,15 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
     }   
   }   
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_L1Mu") == 0) {        
-    if( (map_BitOfStandardHLTPath.find("L1_SingleMu7==1")->second +
-	 map_BitOfStandardHLTPath.find("(L1_DoubleMu3==1")->second) > 0) {              
+    if( (map_BitOfStandardHLTPath.find("L1_SingleMu7")->second +
+	 map_BitOfStandardHLTPath.find("(L1_DoubleMu3")->second) > 0) {              
       if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }       
     }        
   }        
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_L1MuOpen") == 0) {         
-    if( (map_BitOfStandardHLTPath.find("L1_SingleMuOpen==1")->second +
-	 map_BitOfStandardHLTPath.find("L1_SingleMu3==1")->second +
-	 map_BitOfStandardHLTPath.find("(L1_DoubleMu5==1")->second) > 0) {               
+    if( (map_BitOfStandardHLTPath.find("L1_SingleMuOpen")->second +
+	 map_BitOfStandardHLTPath.find("L1_SingleMu3")->second +
+	 map_BitOfStandardHLTPath.find("(L1_DoubleMu5")->second) > 0) {               
       if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }        
     }         
   }         
