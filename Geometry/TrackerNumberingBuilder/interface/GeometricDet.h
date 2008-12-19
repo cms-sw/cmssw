@@ -9,7 +9,7 @@
 #include "DataFormats/GeometrySurface/interface/Bounds.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
-#include "CondFormats/IdealGeometryObjects/interface/PGeometricDet.h"
+#include "CondFormats/GeometryObjects/interface/PGeometricDet.h"
 #include <vector>
 #include "FWCore/ParameterSet/interface/types.h"
 

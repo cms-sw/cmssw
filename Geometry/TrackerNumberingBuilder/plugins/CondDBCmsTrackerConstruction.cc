@@ -1,7 +1,7 @@
 #include "CondDBCmsTrackerConstruction.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
-#include "CondFormats/IdealGeometryObjects/interface/PGeometricDet.h"
+#include "CondFormats/GeometryObjects/interface/PGeometricDet.h"
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
 #include "Geometry/TrackerNumberingBuilder/plugins/ExtractStringFromDDD.h"
 #include "Geometry/TrackerNumberingBuilder/plugins/CmsTrackerBuilder.h"
