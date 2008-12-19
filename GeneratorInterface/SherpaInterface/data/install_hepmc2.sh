@@ -21,6 +21,7 @@ print_help() {
     echo "         -C  level      cleaning level of SHERPA installation ("${LVLCLEAN}" )" && \
     echo "                         -> 0: nothing, 1: +objects (make clean)" && \
     echo "         -D             debug flag, compile with '-g' option ("${FLGDEBUG}" )" && \
+    echo "         -X             create XML file for tool override in CMSSW" && \
     echo "         -h             display this help and exit" && echo
 }
 
@@ -37,10 +38,11 @@ HEPMC2WEBLOCATION=""       # (web)location of HEPMC2 tarball
 HEPMC2FILE=""              # file name of HEPMC2 tarball
 LVLCLEAN=0                 # cleaning level (0-2)
 FLGDEBUG="FALSE"           # debug flag for compilation
+FLGXMLFL="FALSE"           # create XML tool definition file for SCRAM?
 
 
 # get & evaluate options
-while getopts :v:d:W:S:C:fDh OPT
+while getopts :v:d:W:S:C:fDXh OPT
 do
   case $OPT in
   v) HEPMC2VER=$OPTARG ;;
@@ -50,6 +52,7 @@ do
   S) HEPMC2FILE=$OPTARG ;;
   C) LVLCLEAN=$OPTARG ;;
   D) FLGDEBUG=TRUE ;;
+  X) FLGXMLFL=TRUE ;;
   h) print_help && exit 0 ;;
   \?)
     shift `expr $OPTIND - 1`
@@ -170,7 +173,31 @@ else
   echo " <W> path exists => using already installed HepMC2"
 fi
 rm -rf ${HEPMC2DIR}
+export HEPMC2DIR=${HEPMC2IDIR}
 cd ${HDIR}
+
+
+# create XML file fro SCRAM
+if [ "${FLGXMLFL}" = "TRUE" ]; then
+  xmlfile=hepmc.xml
+  echo " <I> creating HepMC tool definition XML file"
+  if [ -e ${xmlfile} ]; then rm ${xmlfile}; fi; touch ${xmlfile}
+  echo "  <tool name=\"HepMC\" version=\""${HEPMC2VER}"\">" >> ${xmlfile}
+  tmppath=`find ${HEPMC2DIR} -type f -name libHepMC.so\*`
+  tmpcnt=`echo ${tmppath} | grep -o "/" | grep -c "/"`
+  tmppath=`echo ${tmppath} | cut -f 0-${tmpcnt} -d "/"`
+  for LIB in `cd ${tmppath}; ls *.so | cut -f 1 -d "." | sed -e 's/lib//'; cd ${HDIR}`; do
+    echo "    <lib name=\""${LIB}"\"/>" >> ${xmlfile}
+  done
+  echo "    <client>" >> ${xmlfile}
+  echo "      <Environment name=\"HEPMC_BASE\" value=\""${HEPMC2DIR}"\"/>" >> ${xmlfile}
+  echo "      <Environment name=\"LIBDIR\" default=\"\$HEPMC_BASE/lib\"/>" >> ${xmlfile}
+  echo "      <Environment name=\"INCLUDE\" default=\"\$HEPMC_BASE/include\"/>" >> ${xmlfile}
+  echo "    </client>" >> ${xmlfile}
+  echo "    <runtime name=\"CMSSW_FWLITE_INCLUDE_PATH\" value=\"\$HEPMC_BASE/include\" type=\"path\"/>" >> ${xmlfile}
+  echo "    <use name=\"CLHEP\"/>" >> ${xmlfile}
+  echo "  </tool>" >> ${xmlfile}
+fi
 
 
 echo " -> HEPMC2 installation directory is: "

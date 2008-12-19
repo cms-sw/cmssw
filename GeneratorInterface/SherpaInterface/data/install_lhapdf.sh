@@ -23,6 +23,7 @@ print_help() {
     echo "         -C  level      cleaning level of SHERPA installation ("${LVLCLEAN}" )" && \
     echo "                         -> 0: nothing, 1: +objects (make clean)" && \
     echo "         -D             debug flag, compile with '-g' option ("${FLGDEBUG}" )" && \
+    echo "         -X             create XML file for tool override in CMSSW" && \
     echo "         -h             display this help and exit" && echo
 }
 
@@ -41,10 +42,11 @@ LHAPDFWEBLOCATION=""       # (web)location of LHAPDF tarball
 LHAPDFFILE=""              # file name of LHAPDF tarball
 LVLCLEAN=0                 # cleaning level (0-2)
 FLGDEBUG="FALSE"           # debug flag for compilation
+FLGXMLFL="FALSE"           # create XML tool definition file for SCRAM?
 
 
 # get & evaluate options
-while getopts :v:d:W:S:C:fnlDh OPT
+while getopts :v:d:W:S:C:fnlDXh OPT
 do
   case $OPT in
   v) LHAPDFVER=$OPTARG ;;
@@ -56,6 +58,7 @@ do
   S) LHAPDFFILE=$OPTARG ;;
   C) LVLCLEAN=$OPTARG ;;
   D) FLGDEBUG=TRUE ;;
+  X) FLGXMLFL=TRUE ;;
   h) print_help && exit 0 ;;
   \?)
     shift `expr $OPTIND - 1`
@@ -169,7 +172,32 @@ else
   echo " <W> path exists => using already installed LHAPDF"
 fi
 rm -rf ${LHAPDFDIR}
+export LHAPDFDIR=${LHAPDFIDIR}
 cd ${HDIR}
+
+
+# create XML file fro SCRAM
+if [ "${FLGXMLFL}" = "TRUE" ]; then
+  xmlfile=lhapdf.xml
+  echo " <I> creating LHAPDF tool definition XML file"
+  if [ -e ${xmlfile} ]; then rm ${xmlfile}; fi; touch ${xmlfile}
+  echo "  <tool name=\"lhapdf\" version=\""${LHAPDFVER}"\">" >> ${xmlfile}
+  tmppath=`find ${LHAPDFDIR} -type f -name libLHAPDF.so\*`
+  tmpcnt=`echo ${tmppath} | grep -o "/" | grep -c "/"`
+  tmppath=`echo ${tmppath} | cut -f 0-${tmpcnt} -d "/"`
+  for LIB in `cd ${tmppath}; ls *.so | cut -f 1 -d "." | sed -e 's/lib//'; cd ${HDIR}`; do
+    echo "    <lib name=\""${LIB}"\"/>" >> ${xmlfile}
+  done
+  echo "    <client>" >> ${xmlfile}
+  echo "      <Environment name=\"LHAPDF_BASE\" value=\""${LHAPDFDIR}"\"/>" >> ${xmlfile}
+  echo "      <Environment name=\"LIBDIR\" default=\"\$LHAPDF_BASE/lib\"/>" >> ${xmlfile}
+  echo "      <Environment name=\"LHAPATH\" default=\"\$LHAPDF_BASE/share/lhapdf/PDFsets\"/>" >> ${xmlfile}
+  echo "    </client>" >> ${xmlfile}
+  echo "    <runtime name=\"LHAPATH\" value=\"\$LHAPDF_BASE/share/lhapdf/PDFsets\" type=\"path\"/>" >> ${xmlfile}
+  echo "    <use name=\"f77compiler\"/>" >> ${xmlfile}
+  echo "  </tool>" >> ${xmlfile}
+
+fi
 
 
 echo " -> LHAPDF installation directory is: "

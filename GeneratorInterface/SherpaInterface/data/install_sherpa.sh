@@ -39,6 +39,7 @@ print_help() {
     echo "         -I             installation flag ( "${FLGINSTL}" )" && \
     echo "                         -> use 'configure/make/make install' instead" && \
     echo "                         -> of 'TOOLS/makeinstall'" && \
+    echo "         -X             create XML file for tool override in CMSSW" && \
     echo "         -h             display this help and exit" && echo
 }
 
@@ -64,16 +65,16 @@ FIXES="FALSE"              # apply inofficial fixes
 FDIR="./"                  # path containing fixes
 PATCHES="FALSE"            # apply SHERPA patches
 PDIR="./"                  # path containing patches
-MULTITHR="FALSE"           # use multithreading
 SHERPAWEBLOCATION=""       # (web)location of SHERPA tarball
 SHERPAFILE=""              # file name of SHERPA tarball
 LVLCLEAN=0                 # cleaning level (0-2)
 FLGDEBUG="FALSE"           # debug flag for compilation
 FLGINSTL="FALSE"           # installation flag
+FLGXMLFL="FALSE"           # create XML tool definition file for SCRAM?
 
 
 # get & evaluate options
-while getopts :v:d:m:l:p:F:W:S:C:M:L:fPTDIh OPT
+while getopts :v:d:m:l:p:F:W:S:C:M:L:fPTDIXh OPT
 do
   case $OPT in
   v) SHERPAVER=$OPTARG ;;
@@ -81,17 +82,20 @@ do
   f) FLAGS=TRUE ;;
   F) FIXES=TRUE && FDIR=$OPTARG ;;
   m) HEPMC=TRUE && HVER=$OPTARG ;;
-  M) OPTHEPMC=$OPTARG ;;
+  M) OPTHEPMC=${OPTHEPMC}" "$OPTARG ;;
   l) LHAPDF=TRUE && LVER=$OPTARG ;;
-  L) OPTLHAPDF=$OPTARG ;;
+  L) OPTLHAPDF=${OPTLHAPDF}" "$OPTARG ;;
   P) LINKPDF=TRUE ;;
   p) PATCHES=TRUE && PDIR=$OPTARG ;;
-  T) MULTITHR=TRUE ;;
+  T) SHCFLAGS=${SHCFLAGS}" --enable-multithread" &&
+      SHMFLAGS=${SHMFLAGS}" --copt --enable-multithread" ;;
   W) SHERPAWEBLOCATION=$OPTARG ;;
   S) SHERPAFILE=$OPTARG ;;
   C) LVLCLEAN=$OPTARG ;;
   D) FLGDEBUG=TRUE ;;
   I) FLGINSTL=TRUE ;;
+  X) FLGXMLFL=TRUE &&
+      OPTHEPMC=${OPTHEPMC}" -X" && OPTLHAPDF=${OPTLHAPDF}" -X" ;;
   h) print_help && exit 0 ;;
   \?)
     shift `expr $OPTIND - 1`
@@ -149,7 +153,6 @@ echo "  -> installation directory: '"${IDIR}"'"
 echo "  -> SHERPA patches: '"${PATCHES}"' in '"${PDIR}"'"
 echo "  -> SHERPA fixes: '"${FIXES}"' in '"${FDIR}"'"
 echo "  -> flags: '"${FLAGS}"'"
-echo "  -> multithreading: '"${MULTITHR}"'"
 echo "  -> SHERPA location: '"${SHERPAWEBLOCATION}"'"
 echo "  -> SHERPA file name: '"${SHERPAFILE}"'"
 echo "  -> cleaning level: '"${LVLCLEAN}"'"
@@ -303,12 +306,6 @@ MAKEFLG=${M_CFLAGS}" "${M_LDFLAGS}" "${M_CXXFLGS2}" "${M_FFLGS2}
 SHCFLAGS=${SHCFLAGS}" "${CONFFLG}
 SHMFLAGS=${SHMFLAGS}" "${MAKEFLG}
 
-if [ ${vb} -ge 1 ]; then  # enable multithreading if version >= 1.1.X
-  if [ "$MULTITHR" = "TRUE" ]; then
-    SHCFLAGS=${SHCFLAGS}" --enable-multithread"
-    SHMFLAGS=${SHMFLAGS}" --copt --enable-multithread"
-  fi
-fi
 
 
 # apply the necessary patches
@@ -370,9 +367,6 @@ if [ "$FLGINSTL" = "TRUE" ]; then
     automake
     autoconf
   fi
-#  echo " -> configuring SHERPA with flags: --prefix="${SHERPADIR}" "${SHCFLAGS}
-#  echo "./configure --prefix="${SHERPADIR}" "${SHCFLAGS} > ../sherpa_configr.cmd
-#  ./configure --prefix=${SHERPADIR} ${SHCFLAGS} > ../sherpa_install.log 2>&1
   echo " -> configuring SHERPA with flags: --prefix="${SHERPAIDIR}" "${SHCFLAGS}
   echo "./configure --prefix="${SHERPAIDIR}" "${SHCFLAGS} > ../sherpa_configr.cmd
   ./configure --prefix=${SHERPAIDIR} ${SHCFLAGS} > ../sherpa_install.log 2>&1
@@ -438,6 +432,34 @@ if [ "$LHAPDF" = "TRUE" ]; then
   else
     cp -r ${pdfdir} ${SHERPADIR}/share/SHERPA-MC/
   fi
+fi
+cd ${HDIR}
+
+
+# create XML file fro SCRAM
+if [ "${FLGXMLFL}" = "TRUE" ]; then
+  xmlfile=sherpa.xml
+  echo " <I> creating Sherpa tool definition XML file"
+  if [ -e ${xmlfile} ]; then rm ${xmlfile}; fi; touch ${xmlfile}
+  echo "  <tool name=\"Sherpa\" version=\""${SHERPAVER}"\">" >> ${xmlfile}
+  tmppath=`find ${SHERPADIR} -type f -name libSherpaMain.so\*`
+  tmpcnt=`echo ${tmppath} | grep -o "/" | grep -c "/"`
+  tmppath=`echo ${tmppath} | cut -f 0-${tmpcnt} -d "/"`
+  for LIB in `cd ${tmppath}; ls *.so | cut -f 1 -d "." | sed -e 's/lib//'; cd ${HDIR}`; do
+    echo "    <lib name=\""${LIB}"\"/>" >> ${xmlfile}
+  done
+  echo "    <client>" >> ${xmlfile}
+  echo "      <Environment name=\"SHERPA_BASE\" value=\""${SHERPADIR}"\"/>" >> ${xmlfile}
+  echo "      <Environment name=\"BINDIR\" default=\"\$SHERPA_BASE/bin\"/>" >> ${xmlfile}
+  echo "      <Environment name=\"LIBDIR\" default=\"\$SHERPA_BASE/lib/SHERPA-MC\"/>" >> ${xmlfile}
+  echo "      <Environment name=\"INCLUDE\" default=\"\$SHERPA_BASE/include\"/>" >> ${xmlfile}
+  echo "    </client>" >> ${xmlfile}
+  echo "    <runtime name=\"CMSSW_FWLITE_INCLUDE_PATH\" value=\"\$SHERPA_BASE/include\" type=\"path\"/>" >> ${xmlfile}
+  echo "    <runtime name=\"SHERPA_SHARE_PATH\" value=\"\$SHERPA_BASE/share/SHERPA-MC\" type=\"path\"/>" >> ${xmlfile}
+  echo "    <runtime name=\"SHERPA_INCLUDE_PATH\" value=\"\$SHERPA_BASE/include/SHERPA-MC\" type=\"path\"/>" >> ${xmlfile}
+  echo "    <use name=\"HepMC\"/>" >> ${xmlfile}
+  echo "    <use name=\"lhapdf\"/>" >> ${xmlfile}
+  echo "  </tool>" >> ${xmlfile}
 fi
 
 
