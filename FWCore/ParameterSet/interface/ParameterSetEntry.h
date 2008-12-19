@@ -25,6 +25,7 @@ namespace edm {
 
     ~ParameterSetEntry();
 
+    std::string toString() const;
     void toString(std::string& result) const;
     int sizeOfString() const;
 

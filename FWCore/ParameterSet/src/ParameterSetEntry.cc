@@ -35,7 +35,14 @@ namespace edm {
     result += tracked ? "+Q" : "-Q";
     theID.toString(result);
   }
-  
+
+  std::string
+  ParameterSetEntry::toString() const {
+    std::string result;
+    toString(result);
+    return result;
+  }
+
   int ParameterSetEntry::sizeOfString() const {
     std::string str;
     toString(str);

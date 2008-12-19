@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------
-// $Id: Entry.cc,v 1.32 2008/12/18 05:14:04 wmtan Exp $
+// $Id: Entry.cc,v 1.33 2008/12/19 00:45:08 wmtan Exp $
 //
 // definition of Entry's function members
 // ----------------------------------------------------------------------
@@ -531,6 +531,13 @@ namespace edm {
     result += '(';
     result += rep;
     result += ')';
+  }
+
+  std::string
+  Entry::toString() const {
+    std::string result;
+    toString(result);
+    return result;
   }
 
 // ----------------------------------------------------------------------

@@ -134,8 +134,8 @@ namespace edm {
     ~Entry();
     // encode
 
-    void
-    toString(std::string& result) const;
+    std::string toString() const;
+    void toString(std::string& result) const;
 
     size_t sizeOfString() const {return rep.size() + 4;}
   

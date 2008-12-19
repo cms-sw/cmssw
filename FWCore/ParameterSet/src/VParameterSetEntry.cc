@@ -60,6 +60,12 @@ namespace edm {
     result += '}';
   }
   
+  std::string VParameterSetEntry::toString() const {
+    std::string result;
+    toString(result);
+    return result;
+  }
+
   int VParameterSetEntry::sizeOfString() const {
     std::string str;
     toString(str);
