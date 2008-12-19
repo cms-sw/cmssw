@@ -14,20 +14,12 @@
 
 namespace stor {
 
-  typedef std::vector<toolbox::mem::Reference*> FrameRefCollection;
-  typedef boost::shared_ptr< std::vector<unsigned char> > RegData;
-
 struct SMFUSenderRegCollection // used to stored collection of INIT messages
 {
   std::vector<std::string> outModName_;
   std::map<std::string, uint32> outModName2ModId_;
   std::map<uint32, std::string> outModId2ModName_;
-  std::map<uint32, std::string> outModId2RealModName_;
   std::map<std::string, uint32> registrySizeMap_;    // size of registry in bytes once received AND copied
-  std::map<std::string, bool> regAllReceivedMap_;  // All Registry fragments are received or not
-  std::map<std::string, bool> regCheckedOKMap_;    // // Registry checked to be same as configuration
-  std::map<std::string, FrameRefCollection> frameRefsMap_; //vector of frame reference pointers
-  std::map<std::string, RegData> registryDataMap_;
   std::map<std::string, uint32> totFramesMap_;  // number of frames in this fragment
   std::map<std::string, uint32> currFramesMap_; // current frames received for registry
 };
@@ -54,7 +46,7 @@ struct SMFUSenderEntry  // used to store each FU sender
                  const std::string outModName,
                  const uint32 outModId,
                  const uint32 rbBufferID,
-                 toolbox::mem::Reference *ref);
+                 const uint32 regSize);
   private:
   
   char          hltURL_[MAX_I2O_SM_URLCHARS];       // FU+HLT identifiers
@@ -82,21 +74,18 @@ struct SMFUSenderEntry  // used to store each FU sender
 
   bool sameURL(const char* hltURL);
   bool sameClassName(const char* hltClassName);
-  bool testCompleteRegistry(const std::string outModName);
-  bool copyRegistry(const std::string outModName, toolbox::mem::Reference *head);
 
   public:
   
   /// returns true if frame added completes the registry
   void addReg2Entry(const unsigned int frameCount, const unsigned int numFramesToAllocate,
                  const std::string outModName, const uint32 outModId,
-                 toolbox::mem::Reference *ref);
+                 const uint32 regSize);
   bool addFrame(const unsigned int frameCount, const unsigned int numFrames,
-                toolbox::mem::Reference *ref, const std::string outModName);
+                const uint32 regSize, const std::string outModName);
   bool update4Data(const unsigned int runNumber, const unsigned int eventNumber,
                    const unsigned int frameNum, const unsigned int totalFrames,
                    const unsigned int origdatasize, const uint32 outModId);
-  void setregCheckedOK(const std::string outModName, const bool status);
   bool sameOutMod(const std::string outModName);
   bool sameOutMod(const uint32 outModId);
   void setDataStatus();
@@ -117,10 +106,8 @@ struct SMFUSenderEntry  // used to store each FU sender
   SMFUSenderRegCollection getRegistryCollection() const {return registryCollection_;}
   SMFUSenderDatCollection getDatCollection() const {return datCollection_;}
   unsigned int getregistrySize(const std::string outModName);
-  bool         getregAllReceived(const std::string outModName);
   unsigned int gettotFrames(const std::string outModName);
   unsigned int getcurrFrames(const std::string outModName);
-  bool         getregCheckedOK(const std::string outModName);
   unsigned int getconnectStatus() const {return connectStatus_;}
   double       getlastLatency() const {return lastLatency_;}
   unsigned int getrunNumber() const {return runNumber_;}
@@ -139,8 +126,6 @@ struct SMFUSenderEntry  // used to store each FU sender
   unsigned int gettotalBadEvents() const {return totalBadEvents_;}
 
   bool getDataStatus();  
-  char* getregistryData(const std::string outModName); // const char* here needs modifying InitMsgView ctor
-  void shrinkRegistryData(const std::string outModName);
   bool matchFirst(const char* hltURL, const char* hltClassName, 
                              const unsigned int hltLocalId,
                              const unsigned int hltInstance, 
