@@ -1,0 +1,8 @@
+<use name=FWCore/Framework>
+<use name=DQMServices/Core>
+<use name=DQMServices/Components>
+<use name=FWCore/PluginManager>
+<use name=DataFormats/MuonReco>
+<use name=RecoMuon/TrackingTools>
+<use name=TrackingTools/TransientTrack>
+<flags EDM_PLUGIN=1>
