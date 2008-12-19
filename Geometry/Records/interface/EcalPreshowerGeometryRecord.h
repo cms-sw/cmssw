@@ -13,6 +13,7 @@
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 #include "FWCore/Framework/interface/DependentRecordImplementation.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/PEcalPreshowerRcd.h"
 #include "CondFormats/AlignmentRecord/interface/ESAlignmentRcd.h"
 #include "CondFormats/AlignmentRecord/interface/ESAlignmentErrorRcd.h"
 #include "CondFormats/AlignmentRecord/interface/GlobalPositionRcd.h"
@@ -26,7 +27,8 @@ class EcalPreshowerGeometryRecord :
                 IdealGeometryRecord,
 		ESAlignmentRcd, 
 		ESAlignmentErrorRcd,
-		GlobalPositionRcd
+		GlobalPositionRcd,
+                PEcalPreshowerRcd
 		> > {};
 
 #endif /* RECORDS_ECALPRESHOWERGEOMETRYRECORD_H */

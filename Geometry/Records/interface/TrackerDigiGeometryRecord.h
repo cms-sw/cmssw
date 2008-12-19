@@ -16,7 +16,7 @@
 //
 // Author:      
 // Created:     Mon Jul 25 11:05:09 EDT 2005
-// $Id: TrackerDigiGeometryRecord.h,v 1.6 2007/10/18 12:19:12 fronga Exp $
+// $Id: TrackerDigiGeometryRecord.h,v 1.7 2008/02/19 13:54:58 pivarski Exp $
 //
 
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
@@ -31,11 +31,11 @@
 
 class TrackerDigiGeometryRecord : 
   public edm::eventsetup::DependentRecordImplementation<TrackerDigiGeometryRecord,
-							boost::mpl::vector<IdealGeometryRecord,
-									   TrackerAlignmentRcd, 
-									   TrackerAlignmentErrorRcd,
-		                                                           GlobalPositionRcd,
-                                                                           PGeometricDetRcd> > {};
+                boost::mpl::vector<IdealGeometryRecord,
+                TrackerAlignmentRcd, 
+                TrackerAlignmentErrorRcd,
+                GlobalPositionRcd,
+                PGeometricDetRcd> > {};
 
 #endif /* RECORDS_TRACKERDIGIGEOMETRYRECORD_H */
 

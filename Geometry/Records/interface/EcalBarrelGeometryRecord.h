@@ -13,6 +13,7 @@
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 #include "FWCore/Framework/interface/DependentRecordImplementation.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/PEcalBarrelRcd.h"
 #include "CondFormats/AlignmentRecord/interface/EBAlignmentRcd.h"
 #include "CondFormats/AlignmentRecord/interface/EBAlignmentErrorRcd.h"
 #include "CondFormats/AlignmentRecord/interface/GlobalPositionRcd.h"
@@ -26,7 +27,8 @@ class EcalBarrelGeometryRecord :
                 IdealGeometryRecord,
 		EBAlignmentRcd, 
 		EBAlignmentErrorRcd,
-		GlobalPositionRcd    
+		GlobalPositionRcd,
+                PEcalBarrelRcd
 		> > {};
 
 #endif /* RECORDS_ECALBARRELGEOMETRYRECORD_H */

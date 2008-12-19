@@ -13,6 +13,7 @@
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 #include "FWCore/Framework/interface/DependentRecordImplementation.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/PEcalEndcapRcd.h"
 #include "CondFormats/AlignmentRecord/interface/EEAlignmentRcd.h"
 #include "CondFormats/AlignmentRecord/interface/EEAlignmentErrorRcd.h"
 #include "CondFormats/AlignmentRecord/interface/GlobalPositionRcd.h"
@@ -26,7 +27,8 @@ class EcalEndcapGeometryRecord :
                 IdealGeometryRecord,
 		EEAlignmentRcd, 
 		EEAlignmentErrorRcd,
-		GlobalPositionRcd
+		GlobalPositionRcd,
+                PEcalEndcapRcd
 		> > {};
 
 #endif /* RECORDS_ECALENDCAPGEOMETRYRECORD_H */
