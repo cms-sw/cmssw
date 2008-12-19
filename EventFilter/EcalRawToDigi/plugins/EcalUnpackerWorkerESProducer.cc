@@ -18,7 +18,7 @@ EcalUnpackerWorkerESProducer::produce(const EcalUnpackerWorkerRecord & iRecord)
    EcalUnpackerWorkerESProducer::ReturnType euw(new EcalUnpackerWorker(conf_));
 
    //set eshandles
-   //   euw->setHandles(iRecord);
+   euw->setHandles(iRecord);
 
    return euw;
 }
