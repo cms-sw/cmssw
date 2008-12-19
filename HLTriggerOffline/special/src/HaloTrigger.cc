@@ -31,10 +31,12 @@ using namespace trigger;
 HaloTrigger::HaloTrigger(const ParameterSet& ps) 
 	: HLTriggerTag( ps.getParameter< InputTag >("HLTriggerTag") ),
 	  L1GTRR( ps.getParameter< InputTag >("L1GTRR") ),
-		GMTInputTag( ps.getParameter< InputTag >("GMTInputTag") )
+		GMTInputTag( ps.getParameter< InputTag >("GMTInputTag") ),
+		trackProducer( ps.getParameter< InputTag >("trackProducer") )
 {
 	first = false;
 	outFile = ps.getUntrackedParameter<string>("outFile");
+	gtHaloBit = ps.getUntrackedParameter<int>("gtHaloBit");
 }
 
 HaloTrigger::~HaloTrigger()
@@ -141,7 +143,10 @@ void HaloTrigger::analyze(const Event& e, const EventSetup& es)
 	}
 	
 	edm::Handle<std::vector<L1MuRegionalCand> > csctf;
-	e.getByLabel("gtDigis","CSC",csctf);
+	//e.getByLabel("gtDigis","CSC",csctf);
+  e.getByLabel(trackProducer.label(),trackProducer.instance(),csctf);
+
+	
 	std::vector<L1MuRegionalCand>::const_iterator tfTrk;
 		
 	for(tfTrk = csctf->begin(); tfTrk != csctf->end(); tfTrk++)

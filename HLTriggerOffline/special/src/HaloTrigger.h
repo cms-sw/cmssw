@@ -41,8 +41,9 @@ private:
 	DQMStore * dbe;
 	MonitorElement* halocount;
 
-	edm::InputTag HLTriggerTag, L1CSCTriggerTag, L1GTRR, GMTInputTag;
+	edm::InputTag HLTriggerTag, L1CSCTriggerTag, L1GTRR, GMTInputTag, trackProducer;
 	std::string outFile;
+	int gtHaloBit;
 };
 
 #endif
