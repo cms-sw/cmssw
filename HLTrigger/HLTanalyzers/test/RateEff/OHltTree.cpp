@@ -64,6 +64,9 @@ void OHltTree::Loop(OHltRateCounter *rc,OHltConfig *cfg,OHltMenu *menu,int procI
     if (jentry%cfg->nPrintStatusEvery == 0)
       cout<<"Processing entry "<<jentry<<"/"<<nentries<<"\r"<<flush<<endl;
 
+    if ( cfg->pdomucuts[procID] && MCmu3!=0 ) continue;
+    if ( cfg->pdoecuts[procID] && MCel3!=0 ) continue;
+    
     // 1. Loop to check which Bit fired
     // Triggernames are assigned to trigger cuts in unambigous way!
     // If you define a new trigger also define a new unambigous name!
@@ -80,18 +83,19 @@ void OHltTree::Loop(OHltRateCounter *rc,OHltConfig *cfg,OHltMenu *menu,int procI
       triggerBit[i] = false;
       previousBitsFired[i] = false;
       allOtherBitsFired[i] = false;
-      if ( cfg->pdomucuts[procID] && MCmu3!=0 ) continue;
-      if ( cfg->pdoecuts[procID] && MCel3!=0 ) continue;
 
       //////////////////////////////////////////////////////////////////
       // Standard paths
-      if ( (map_BitOfStandardHLTPath.find(menu->GetTriggerName(i))->second==1) ) {	
-	if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(i))->second>0) 
-	  if (GetIntRandom() % menu->GetPrescale(i) == 0)  
-	    triggerBit[i] = true; 
+      TString st = menu->GetTriggerName(i);
+      if (st.BeginsWith("HLT_") || st.BeginsWith("L1_") || st.BeginsWith("AlCa_")) {
+	// Prefixes reserved for Standard HLT&L1	
+	if ( (map_BitOfStandardHLTPath.find(st)->second==1) ) {	
+	  if (map_L1BitOfStandardHLTPath.find(st)->second>0) {
+	    if (GetIntRandom() % menu->GetPrescale(i) == 0) { triggerBit[i] = true; }
+	  }
+	}
       } else {
-      // Open HLT paths
- 	CheckOpenHlt(cfg,menu,i);
+	CheckOpenHlt(cfg,menu,i);
       }
     }
 

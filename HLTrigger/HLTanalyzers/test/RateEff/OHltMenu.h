@@ -21,16 +21,16 @@ class OHltMenu {
   inline bool 		                IsHltMenu()  {return !isL1Menu;}
 
   inline unsigned int 		        GetTriggerSize()  {return names.size();}
-  inline std::vector<TString> 		GetTriggerNames() {return names;}
+  inline std::vector<TString>& 		GetTriggerNames() {return names;}
   inline TString  		        GetTriggerName(int i) {return names[i];}
-  inline std::map<TString,int> 		GetPrescaleMap()  {return prescales;}
+  inline std::map<TString,int>& 		GetPrescaleMap()  {return prescales;}
   inline int 		                GetPrescale(int i)  {return prescales[names[i]];}
   inline int 		                GetPrescale(TString s)  {return prescales[s];}
-  inline std::map<TString,float>        GetEventsizeMap() {return eventSizes;}
+  inline std::map<TString,float>&        GetEventsizeMap() {return eventSizes;}
   inline float                          GetEventsize(int i) {return eventSizes[names[i]];}
 
   void SetMapL1SeedsOfStandardHLTPath();
-  std::map<TString, std::vector<TString> >
+  std::map<TString, std::vector<TString> >&
     GetL1SeedsOfHLTPathMap() { return map_L1SeedsOfStandardHLTPath; }; // mapping to all seeds
 
   void AddTrigger(TString trigname, int prescale, float eventSize);
@@ -41,9 +41,9 @@ class OHltMenu {
   // For L1 prescale preloop to be used in HLT mode only
   void AddL1forPreLoop(TString trigname, int prescale); 
   inline unsigned int 		        GetL1TriggerSize()  {return L1names.size();}
-  inline std::vector<TString> 		GetL1Names() {return L1names;}
+  inline std::vector<TString>& 		GetL1Names() {return L1names;}
   inline TString  		        GetL1TriggerName(int i) {return L1names[i];}
-  inline std::map<TString,int> 		GetL1PrescaleMap() {return L1prescales;}
+  inline std::map<TString,int>& 		GetL1PrescaleMap() {return L1prescales;}
   inline int                		GetL1Prescale(int i) {return L1prescales[L1names[i]];}
   inline int                		GetL1Prescale(TString s) {return L1prescales[s];}
 

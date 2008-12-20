@@ -1164,7 +1164,7 @@ public :
   int OpenHltQuadJetPassed(double pt);
   int OpenHltJRMuonPassed(double ptl1,double ptl2,double ptl3,double dr,int iso,double ptl3hi);
 
-  std::map<TString, std::vector<TString> >
+  std::map<TString, std::vector<TString> >&
     GetL1SeedsOfHLTPathMap() { return map_L1SeedsOfStandardHLTPath; }; // mapping to all seeds
 
 
@@ -2024,24 +2024,33 @@ void OHltTree::SetMapL1SeedsOfStandardHLTPath(OHltMenu *menu) {
 
 void OHltTree::ApplyL1Prescales(OHltMenu *menu)
 {
-  for (unsigned int i=0;i<menu->GetL1TriggerSize();i++) {
-    if (map_BitOfStandardHLTPath.find(menu->GetL1TriggerName(i))->second == 1) {
+  TString st;
+  unsigned int tt = menu->GetL1TriggerSize();
+  for (unsigned int i=0;i<tt;i++) {
+    st = menu->GetL1TriggerName(i);
+    if (map_BitOfStandardHLTPath.find(st)->second == 1) {
       if (GetIntRandom() % menu->GetL1Prescale(i) != 0) {
-	map_BitOfStandardHLTPath[menu->GetL1TriggerName(i)] = 0;	
+	map_BitOfStandardHLTPath[st] = 0;	
       }
     }
   }
 }
 
 void OHltTree::SetMapL1BitOfStandardHLTPath(OHltMenu *menu) {
-  for (unsigned int i=0;i<menu->GetTriggerSize();i++) {
-    map< TString, vector<TString> >::const_iterator it = map_L1SeedsOfStandardHLTPath.find(menu->GetTriggerName(i));
+  int tt = 0;
+  TString st;
+  unsigned ts = menu->GetTriggerSize();
+  for (unsigned int i=0;i<ts;i++) {
+    st = menu->GetTriggerName(i);
+    map< TString, vector<TString> >::const_iterator it = map_L1SeedsOfStandardHLTPath.find(st);
     if (it != map_L1SeedsOfStandardHLTPath.end()) {
-      map_L1BitOfStandardHLTPath[menu->GetTriggerName(i)] = 0;
-      for (unsigned int j=0;j<it->second.size();j++) {
-	map_L1BitOfStandardHLTPath[menu->GetTriggerName(i)] += (map_BitOfStandardHLTPath.find( ((map_L1SeedsOfStandardHLTPath.find(menu->GetTriggerName(i)))->second)[j] ))->second;
+      tt = 0;
+      unsigned ts2 = it->second.size();
+      for (unsigned int j=0;j<ts2;j++) {
+ 	tt += (map_BitOfStandardHLTPath.find((map_L1SeedsOfStandardHLTPath.find(st)->second)[j]))->second;
       }
     }
+    map_L1BitOfStandardHLTPath[st] = tt;
   }
 }
 
