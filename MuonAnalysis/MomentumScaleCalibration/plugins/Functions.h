@@ -671,7 +671,8 @@ class resolutionFunctionType8 : public resolutionFunctionBase<T> {
     TString thisParName[] = { "Pt res. sc.", "Pt res. Pt sc.", "Pt res. Eta sc.",
                               "Cth res. sc.", "Cth res. 1/Pt sc.", "Cth res. Eta sc.", "Cth res. Eta^2 sc.",
                               "Phi res. sc.", "Phi res. 1/Pt sc.", "Phi res. Eta sc.", "Phi res. Eta^2 sc." };
-    double thisMini[] = {  -0.01, 0.000001, 0.5,
+//    double thisMini[] = {  -0.01, 0.000001, 0.5,
+    double thisMini[] = {  -0.01, 0.00000001, 0.5,
                            -0.0004, 0.003, 0.000002, 0.0004,
                            0.0001, 0.001, -0.0000007, 0.00008 };
 //     double thisMini[] = {  -0.006, 0.00005, 0.8,
@@ -683,7 +684,8 @@ class resolutionFunctionType8 : public resolutionFunctionBase<T> {
                             1., 1., 1., 1. };
       this->setPar( Start, Step, Mini, Maxi, ind, parname, parResol, parResolOrder, thisStep, thisMini, thisMaxi, thisParName );
     } else {
-      double thisMaxi[] = { 0.0, 0.0004, 1.2,
+//      double thisMaxi[] = { 0.0, 0.0004, 1.2,
+      double thisMaxi[] = { 0.1, 0.0004, 1.2,
                             -0.0002, 0.005, 0.000004, 0.0007,
                             0.0003, 0.003, -0.0000011, 0.00012 };
       this->setPar( Start, Step, Mini, Maxi, ind, parname, parResol, parResolOrder, thisStep, thisMini, thisMaxi, thisParName );
