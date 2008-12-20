@@ -38,7 +38,6 @@ namespace edm {
     ParameterSet const& pset() const;
     ParameterSet & pset();
 
-    /// we expect this to only be called by ParameterSet, on tracked psets
     void updateID() const;
 
     friend std::ostream & operator<<(std::ostream & os, ParameterSetEntry const& psetEntry);

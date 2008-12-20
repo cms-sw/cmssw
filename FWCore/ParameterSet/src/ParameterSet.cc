@@ -47,7 +47,9 @@ namespace edm {
     psetTable_(),
     vpsetTable_(),
     frozen_(false),
-    id_()
+    isFullyTracked_(True),
+    id_(),
+    trackedID_()
   {
   }
 
@@ -59,14 +61,16 @@ namespace edm {
     psetTable_(),
     vpsetTable_(),
     frozen_(false),
-    id_()
+    isFullyTracked_(True),
+    id_(),
+    trackedID_()
   {
-    if(!fromString(code))
+    if(!fromString(code)) {
       throw edm::Exception(errors::Configuration,"InvalidInput")
 	<< "The encoded configuration string "
 	<< "passed to a ParameterSet during construction is invalid:\n"
 	<< code;
-
+    }
   }
 
   ParameterSet::~ParameterSet() {}
@@ -112,7 +116,6 @@ namespace edm {
       }
     }
 
-    // tracked parts always have a correct ID, and always have their registries updated
     std::string stringrep;
     toString(stringrep);
     cms::Digest md5alg(stringrep);
@@ -122,8 +125,7 @@ namespace edm {
 
   
   void ParameterSet::updateRegistry() const {
-    pset::Registry* reg = pset::Registry::instance();
-    reg->insertMapped(*this);
+    pset::Registry::instance()->insertMapped(*this);
   }
 
   // ----------------------------------------------------------------------
@@ -133,6 +135,28 @@ namespace edm {
     // checks if frozen and valid
     fillIDandInsert();
     return id_;
+  }
+
+  ParameterSetID
+  ParameterSet::trackedID() const {
+    fillIDandInsert();
+    if (!trackedID_.isValid()) {
+      if (isFullyTracked_ == True) {
+        trackedID_ = id_;
+      } else {
+        trackedID_ = trackedPart().id();
+        isFullyTracked_ = (trackedID_ == id_ ? True : False);
+      }
+    }
+    return trackedID_;
+  }
+
+  bool
+  ParameterSet::isFullyTracked() const {
+    if (isFullyTracked_ == Unknown) {
+      isFullyTracked_ = (trackedID() == id() ? True : False);
+    }
+    return (isFullyTracked_ == True);
   }
 
   void ParameterSet::setID(ParameterSetID const& id) const {
@@ -499,16 +523,21 @@ namespace edm {
 
       std::string rep(q+1, b->end());
       // entries are generically of the form tracked-type-rep
+      if (rep[0] == '-') {
+	isFullyTracked_ = False;
+      }
       if(rep[1] == 'Q') {
         ParameterSetEntry psetEntry(rep);
         if(!psetTable_.insert(std::make_pair(name, psetEntry)).second) {
           return false;
 	}
+	isFullyTracked_ = isFullyTracked_ && Unknown;
       } else if(rep[1] == 'q') {
         VParameterSetEntry vpsetEntry(rep);
         if(!vpsetTable_.insert(std::make_pair(name, vpsetEntry)).second) {
           return false;
 	}
+	isFullyTracked_ = isFullyTracked_ && Unknown;
       } else if(rep[1] == 'P') {
         //old representation of ParameterSet, included for backwards-compatibility
         Entry value(name, rep);
@@ -516,6 +545,7 @@ namespace edm {
         if(!psetTable_.insert(std::make_pair(name, psetEntry)).second) {
           return false;
         }
+	isFullyTracked_ = isFullyTracked_ && Unknown;
       } else if(rep[1] == 'p') {
         //old representation of VParameterSet, included for backwards-compatibility
         Entry value(name, rep);
@@ -523,11 +553,13 @@ namespace edm {
         if(!vpsetTable_.insert(std::make_pair(name, vpsetEntry)).second) {
           return false;
         }
+	isFullyTracked_ = isFullyTracked_ && Unknown;
       } else {
         // form value and insert name/value pair
         Entry  value(name, rep);
-        if(!tbl_.insert(std::make_pair(name, value)).second)
+        if(!tbl_.insert(std::make_pair(name, value)).second) {
           return false;
+        }
       }
     }
 
@@ -570,16 +602,23 @@ namespace edm {
 
   ParameterSet
   ParameterSet::trackedPart() const {
+    if (isFullyTracked_ == True) {
+      return *this;
+    }
     ParameterSet result;
     for(table::const_iterator tblItr = tbl_.begin(); tblItr != tbl_.end(); ++tblItr) {
       if(tblItr->second.isTracked()) {
         result.tbl_.insert(*tblItr);
+      } else {
+        isFullyTracked_ = False;
       }
     }
     for(psettable::const_iterator psetItr = psetTable_.begin(); psetItr != psetTable_.end(); ++psetItr) {
       if(psetItr->second.isTracked()) {
         result.addParameter<ParameterSet>(psetItr->first, psetItr->second.pset().trackedPart());
         result.psetTable_[psetItr->first].updateID();
+      } else {
+        isFullyTracked_ = False;
       }
     }
     for(vpsettable::const_iterator vpsetItr = vpsetTable_.begin(); vpsetItr != vpsetTable_.end(); ++vpsetItr) {
@@ -593,8 +632,11 @@ namespace edm {
 	}
         result.addParameter<VParameterSet>(vpsetItr->first, vresult);
         result.vpsetTable_[vpsetItr->first].updateIDs();
+      } else {
+        isFullyTracked_ = False;
       }
     }
+    result.isFullyTracked_ = True;
     return result;
   }
 
@@ -1756,6 +1798,7 @@ namespace edm {
   ParameterSet::addParameter<ParameterSet>(std::string const& name, ParameterSet value) {
     checkIfFrozen();
     insertParameterSet(true, name, ParameterSetEntry(value, true));
+    isFullyTracked_ = isFullyTracked_ && value.isFullyTracked_;
   }
 
   template <>
@@ -1763,6 +1806,7 @@ namespace edm {
   ParameterSet::addParameter<VParameterSet>(std::string const& name, VParameterSet value) {
     checkIfFrozen();
     insertVParameterSet(true, name, VParameterSetEntry(value, true));
+    isFullyTracked_ = isFullyTracked_ && Unknown;
   }
 
   template <>
@@ -1770,6 +1814,7 @@ namespace edm {
   ParameterSet::addParameter<ParameterSet>(char const* name, ParameterSet value) {
     checkIfFrozen();
     insertParameterSet(true, name, ParameterSetEntry(value, true));
+    isFullyTracked_ = isFullyTracked_ && value.isFullyTracked_;
   }
 
   template <>
@@ -1777,30 +1822,35 @@ namespace edm {
   ParameterSet::addParameter<VParameterSet>(char const* name, VParameterSet value) {
     checkIfFrozen();
     insertVParameterSet(true, name, VParameterSetEntry(value, true));
+    isFullyTracked_ = isFullyTracked_ && Unknown;
   }
 
   template <>
   void
   ParameterSet::addUntrackedParameter<ParameterSet>(std::string const& name, ParameterSet value) {
     insertParameterSet(true, name, ParameterSetEntry(value, false));
+    isFullyTracked_ = False;
   }
 
   template <>
   void
   ParameterSet::addUntrackedParameter<VParameterSet>(std::string const& name, VParameterSet value) {
     insertVParameterSet(true, name, VParameterSetEntry(value, false));
+    isFullyTracked_ = False;
   }
 
   template <>
   void
   ParameterSet::addUntrackedParameter<ParameterSet>(char const* name, ParameterSet value) {
     insertParameterSet(true, name, ParameterSetEntry(value, false));
+    isFullyTracked_ = False;
   }
 
   template <>
   void
   ParameterSet::addUntrackedParameter<VParameterSet>(char const* name, VParameterSet value) {
     insertVParameterSet(true, name, VParameterSetEntry(value, false));
+    isFullyTracked_ = False;
   }
 
 //----------------------------------------------------------------------------------
@@ -1821,5 +1871,17 @@ namespace edm {
     getParameterSetVectorNames(output, trackiness);
     return output; 
   }
+
+//----------------------------------------------------------------------------------
+  ParameterSet::Bool
+  operator&&(ParameterSet::Bool a, ParameterSet::Bool b) {
+    if (a == ParameterSet::False || b == ParameterSet::False) {
+      return ParameterSet::False;
+    } else if (a == ParameterSet::Unknown || b == ParameterSet::Unknown) {
+      return ParameterSet::Unknown;
+    }
+    return ParameterSet::True;
+  }
+
 
 } // namespace edm

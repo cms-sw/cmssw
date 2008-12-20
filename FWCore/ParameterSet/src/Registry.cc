@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------
-// $Id: Registry.cc,v 1.11 2008/12/18 05:14:04 wmtan Exp $
+// $Id: Registry.cc,v 1.12 2008/12/19 00:45:08 wmtan Exp $
 //
 // ----------------------------------------------------------------------
 
@@ -20,17 +20,9 @@ namespace edm {
       // Note: The tracked part is in the registry.
       // The full parameter set including the untracked parts may also be there.
       for (iter i = reg->begin(), e = reg->end(); i != e; ++i) {
-        // Note: The tracked part of the parameter set is in the registry.
-        // The full parameter set including the untracked parts may also be there.
-	// Persist only the former.
-	std::string stringOfAll;
-	i->second.toString(stringOfAll);
-	std::string stringOfTracked;
-	i->second.trackedPart().toString(stringOfTracked);
-	if (stringOfTracked == stringOfAll) {
-	  // This parameter set contains no untracked parts.
-	  // Persist it.
-	  fillme[i->first].pset_ = stringOfTracked;
+	// Persist only fully tracked parameter sets.
+	if (i->second.isFullyTracked()) {
+	  fillme[i->first].pset_ = i->second.toString();
 	}
       }
     }

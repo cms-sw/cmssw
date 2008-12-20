@@ -31,6 +31,11 @@ namespace edm {
 
   class ParameterSet {
   public:
+    enum Bool {
+      False = 0,
+      True = 1,
+      Unknown = 2
+    };
 
     // default-construct
     ParameterSet();
@@ -42,6 +47,7 @@ namespace edm {
 
     // identification
     ParameterSetID id() const;
+    ParameterSetID trackedID() const;
     // side effects: freezes the pset, and doesn't touch sub-psets
     void setID(ParameterSetID const& id) const;
 
@@ -146,18 +152,18 @@ namespace edm {
     
     template <typename T>
     void
-    addUntrackedParameter(std::string const& name, T value)
-    {
-      // No need to invalidate: this is modifying an untracked parameter!
+    addUntrackedParameter(std::string const& name, T value) {
+      checkIfFrozen();
       insert(true, name, Entry(name, value, false));
+      isFullyTracked_ = False;
     }
 
     template <typename T>
     void
-    addUntrackedParameter(char const* name, T value)
-    {
-      // No need to invalidate: this is modifying an untracked parameter!
+    addUntrackedParameter(char const* name, T value) {
+      checkIfFrozen();
       insert(true, name, Entry(name, value, false));
+      isFullyTracked_ = False;
     }
 
     bool empty() const {
@@ -188,9 +194,12 @@ namespace edm {
     friend std::ostream& operator << (std::ostream& os, ParameterSet const& pset);
 
     /// needs to be called before saving or serializing
-    void fillID() const;
-
     void fillIDandInsert() const;
+
+    bool isFullyTracked() const;
+
+    /// called if isFullyTracked_ is known for external reasons
+    void setFullyTracked(Bool isFullyTracked = True) const {isFullyTracked_ = isFullyTracked;}
 
   private:
     typedef std::map<std::string, Entry> table;
@@ -203,16 +212,21 @@ namespace edm {
     vpsettable vpsetTable_;
 
     mutable bool frozen_;
+
+    // Is this parameter set fully tracked to all depths?
+    // False, True, or Unknown
+    mutable Bool isFullyTracked_;
+
     // If the id_ is invalid, that means a new value should be
     // calculated before the value is returned. Upon construction, the
     // id_ is made valid. Updating any parameter invalidates the id_.
     mutable ParameterSetID id_;
 
+    mutable ParameterSetID trackedID_;
+
     void freeze() const;
     void checkIfFrozen() const;
    
-    // these two methods should only be called on tracked-parts
-    // of parameter sets, so we call them automatically in trackedPart();
     void calculateID() const;
     void updateRegistry() const;
 
@@ -981,6 +995,9 @@ namespace edm {
   template <>
   std::vector<std::string> 
   ParameterSet::getParameterNamesForType<VParameterSet>(bool trackiness) const;
+
+  ParameterSet::Bool
+  operator&&(ParameterSet::Bool a, ParameterSet::Bool b);
 
 }  // namespace edm
 #endif
