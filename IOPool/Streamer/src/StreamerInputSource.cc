@@ -234,6 +234,7 @@ namespace edm {
      for (SendJobHeader::ParameterSetMap::const_iterator i = psetMap.begin(), iEnd = psetMap.end(); i != iEnd; ++i) {
        ParameterSet pset(i->second.pset_);
        pset.setID(i->first);
+       pset.setFullyTracked();
        psetRegistry.insertMapped(pset);
      }
   }
