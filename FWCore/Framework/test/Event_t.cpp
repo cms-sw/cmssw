@@ -160,13 +160,9 @@ testEvent::registerProduct(std::string const& tag,
   processParams.template addParameter<std::string>("@process_name", processName);
   processParams.template addParameter<ParameterSet>(moduleLabel, moduleParams);
   
-  ProcessConfiguration process(processName, processParams.id(), getReleaseVersion(), getPassID());
+  ProcessConfiguration process(processName, processParams.trackedID(), getReleaseVersion(), getPassID());
 
-  ModuleDescription localModuleDescription;
-  localModuleDescription.parameterSetID_       = moduleParams.id();
-  localModuleDescription.moduleName_           = moduleClassName;
-  localModuleDescription.moduleLabel_          = moduleLabel;
-  localModuleDescription.processConfiguration_ = process;
+  ModuleDescription localModuleDescription(moduleParams.trackedID(), moduleClassName, moduleLabel, process);
   
   TypeID product_type(typeid(T));
 
@@ -237,15 +233,11 @@ testEvent::testEvent() :
   processParams.addParameter<std::string>("@process_name", processName);
   processParams.addParameter(moduleLabel, moduleParams);
 
-  ProcessConfiguration process(processName, processParams.id(), getReleaseVersion(), getPassID());
+  ProcessConfiguration process(processName, processParams.trackedID(), getReleaseVersion(), getPassID());
 
   TypeID product_type(typeid(prod_t));
 
-  currentModuleDescription_ = new ModuleDescription();
-  currentModuleDescription_->parameterSetID_       = moduleParams.id();
-  currentModuleDescription_->moduleName_           = moduleClassName;
-  currentModuleDescription_->moduleLabel_          = moduleLabel;
-  currentModuleDescription_->processConfiguration_ = process;
+  currentModuleDescription_ = new ModuleDescription(moduleParams.trackedID(), moduleClassName, moduleLabel, process);
 
   std::string productInstanceName("int1");
 
@@ -290,7 +282,7 @@ void testEvent::setUp()
   processParamsEarly.addParameter<std::string>("@process_name", processNameEarly);
   processParamsEarly.addParameter(moduleLabelEarly, moduleParamsEarly);
 
-  ProcessConfiguration processEarly("EARLY", processParamsEarly.id(), getReleaseVersion(), getPassID());
+  ProcessConfiguration processEarly("EARLY", processParamsEarly.trackedID(), getReleaseVersion(), getPassID());
 
   ParameterSet moduleParamsLate;
   std::string moduleLabelLate("currentModule");
@@ -303,7 +295,7 @@ void testEvent::setUp()
   processParamsLate.addParameter<std::string>("@process_name", processNameLate);
   processParamsLate.addParameter(moduleLabelLate, moduleParamsLate);
 
-  ProcessConfiguration processLate("LATE", processParamsLate.id(), getReleaseVersion(), getPassID());
+  ProcessConfiguration processLate("LATE", processParamsLate.trackedID(), getReleaseVersion(), getPassID());
 
   ProcessHistory* processHistory = new ProcessHistory;
   ProcessHistory& ph = *processHistory;

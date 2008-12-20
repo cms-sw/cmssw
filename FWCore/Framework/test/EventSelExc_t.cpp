@@ -217,7 +217,7 @@ void evSelTest (PathSpecifiers const & ps, TrigResults const & tr, bool ans)
   trigger_pset.addParameter<Strings>("@trigger_paths", trigger_path_names);
   trigger_pset.fillIDandInsert();
 
-  TriggerResults results_id(bm, trigger_pset.id());
+  TriggerResults results_id(bm, trigger_pset.trackedID());
 
   bool x = select_based_on_pset.acceptEvent(results_id);
   bool y = select_based_on_path_specifiers_and_names.acceptEvent(results_id);

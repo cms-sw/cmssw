@@ -25,8 +25,7 @@ namespace
   // Test helpers
   edm::ModuleDescription makeModuleDescription(std::string const& label)
   {
-    edm::ModuleDescription temp;
-    temp.moduleLabel_ = label;
+    edm::ModuleDescription temp("", label);
     return temp;    
   }
   

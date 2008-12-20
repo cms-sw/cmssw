@@ -223,17 +223,16 @@ namespace edm {
       // Fill in "ModuleDescription", in case the input source produces
       // any EDproducts,which would be registered in the ProductRegistry.
       // Also fill in the process history item for this process.
-      ModuleDescription md;
-      md.parameterSetID_ = main_input.id();
-      md.moduleName_ =
-	main_input.getParameter<std::string>("@module_type");
       // There is no module label for the unnamed input source, so 
       // just use "source".
-      md.moduleLabel_ = "source";
       // Only the tracked parameters belong in the process configuration.
-      md.processConfiguration_ = ProcessConfiguration(common.processName_,
-				params.trackedPart().id(), getReleaseVersion(), getPassID());
-      ProcessConfigurationRegistry::instance()->insertMapped(md.processConfiguration_);
+      ModuleDescription md(main_input.trackedID(),
+			   main_input.getParameter<std::string>("@module_type"),
+			   "source",
+			   ProcessConfiguration(common.processName_,
+						params.trackedID(),
+						getReleaseVersion(),
+						getPassID()));
 
       sourceSpecified = true;
       InputSourceDescription isdesc(md, preg, areg, common.maxEventsInput_, common.maxLumisInput_);

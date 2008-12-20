@@ -109,7 +109,7 @@ test_ep::fake_single_module_process(std::string const& tag,
 					  processName);
   
   edm::ProcessConfiguration* result = 
-    new edm::ProcessConfiguration(processName, processParams.id(), release, pass);
+    new edm::ProcessConfiguration(processName, processParams.trackedID(), release, pass);
   processConfigurations_[tag] = result;
   return result;
 }
@@ -119,7 +119,6 @@ test_ep::fake_single_process_branch(std::string const& tag,
 				    std::string const& processName,
 				    std::string const& productInstanceName)
 {
-  edm::ModuleDescription mod;
   std::string moduleLabel = processName + "dummyMod";
   std::string moduleClass("DummyModule");
   edm::TypeID dummyType(typeid(edmtest::DummyProduct));
@@ -128,12 +127,9 @@ test_ep::fake_single_process_branch(std::string const& tag,
   edm::ParameterSet modParams;
   modParams.addParameter<std::string>("@module_type", moduleClass);
   modParams.addParameter<std::string>("@module_label", moduleLabel);
-  mod.parameterSetID_ = modParams.id();
-  mod.moduleName_ = moduleClass;
-  mod.moduleLabel_ = moduleLabel;
   edm::ProcessConfiguration* process = 
     fake_single_module_process(tag, processName, modParams);
-  mod.processConfiguration_ = *process;
+  edm::ModuleDescription mod(modParams.trackedID(), moduleClass, moduleLabel, *process);
 
   edm::BranchDescription* result = 
     new edm::BranchDescription(edm::InEvent, 

@@ -15,6 +15,7 @@ Test of the EventPrincipal class.
 #include "FWCore/Version/interface/GetReleaseVersion.h"
 #include "FWCore/Utilities/interface/GlobalIdentifier.h"
 #include "FWCore/Utilities/interface/TypeID.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
@@ -71,9 +72,7 @@ void testEventGetRefBeforePut::failGetProductNotRegisteredTest() {
   edm::EventPrincipal ep(eventAux, pregc, pc);
   ep.setLuminosityBlockPrincipal(lbp);
   try {
-     edm::ModuleDescription modDesc;
-     modDesc.moduleName_ = "Blah";
-     modDesc.moduleLabel_ = "blahs"; 
+     edm::ModuleDescription modDesc(edm::ParameterSet().trackedID(), "Blah", "blahs");
      edm::Event event(ep, modDesc);
      
      std::string label("this does not exist");
@@ -99,9 +98,7 @@ void testEventGetRefBeforePut::getRefTest() {
   edm::TypeID dummytype(dp);
   std::string className = dummytype.friendlyClassName();
 
-  edm::ModuleDescription modDesc;
-  modDesc.moduleName_ = "Blah";
-  modDesc.parameterSetID_ = edm::ParameterSet().id();
+  edm::ModuleDescription modDesc(edm::ParameterSet().trackedID(), "Blah", "");
 
   edm::BranchDescription product(edm::InEvent,
 				 label,
@@ -134,10 +131,7 @@ void testEventGetRefBeforePut::getRefTest() {
 
   edm::RefProd<edmtest::IntProduct> refToProd;
   try {
-    edm::ModuleDescription modDesc;
-    modDesc.moduleName_="Blah";
-    modDesc.moduleLabel_=label; 
-    modDesc.processConfiguration_ = pc;
+    edm::ModuleDescription modDesc("Blah", label, pc);
 
     edm::Event event(ep, modDesc);
     std::auto_ptr<edmtest::IntProduct> pr(new edmtest::IntProduct);

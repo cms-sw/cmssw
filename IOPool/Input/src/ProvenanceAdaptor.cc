@@ -78,7 +78,7 @@ namespace edm {
 	ParameterSet processParameterSet;
 	pset::Registry::instance()->getMapped(psetID, processParameterSet);
 	ParameterSet moduleParameterSet = processParameterSet.getParameter<ParameterSet>(bd.moduleLabel());
-	bd.parameterSetIDs().insert(std::make_pair(pcid, moduleParameterSet.id()));
+	bd.parameterSetIDs().insert(std::make_pair(pcid, moduleParameterSet.trackedID()));
 	bd.moduleNames().insert(std::make_pair(pcid, moduleParameterSet.getParameter<std::string>("@module_type")));
       }
     }

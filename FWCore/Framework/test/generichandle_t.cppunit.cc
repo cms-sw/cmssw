@@ -10,6 +10,7 @@ Test of the EventPrincipal class.
 #include "FWCore/Version/interface/GetReleaseVersion.h"
 #include "FWCore/Utilities/interface/GlobalIdentifier.h"
 #include "FWCore/Utilities/interface/TypeID.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
@@ -87,9 +88,7 @@ void testGenericHandle::failgetbyLabelTest() {
   edm::GenericHandle h("edmtest::DummyProduct");
   bool didThrow=true;
   try {
-     edm::ModuleDescription modDesc;
-     modDesc.moduleName_="Blah";
-     modDesc.moduleLabel_="blahs"; 
+     edm::ModuleDescription modDesc(edm::ParameterSet().trackedID(), "Blah", "blahs");
      edm::Event event(ep, modDesc);
      
      std::string label("this does not exist");
@@ -127,9 +126,7 @@ void testGenericHandle::getbyLabelTest() {
   edm::TypeID dummytype(dp);
   std::string className = dummytype.friendlyClassName();
 
-  edm::ModuleDescription modDesc;
-  modDesc.moduleName_ = "Blah";
-  modDesc.parameterSetID_ = edm::ParameterSet().id();
+  edm::ModuleDescription modDesc(edm::ParameterSet().trackedID(), "Blah", "");
 
   edm::BranchDescription product(edm::InEvent,
 				 label,
@@ -175,9 +172,7 @@ void testGenericHandle::getbyLabelTest() {
   
   edm::GenericHandle h("edmtest::DummyProduct");
   try {
-    edm::ModuleDescription modDesc;
-    modDesc.moduleName_="Blah";
-    modDesc.moduleLabel_="blahs"; 
+    edm::ModuleDescription modDesc(edm::ParameterSet().trackedID(), "Blah", "blahs");
     edm::Event event(ep, modDesc);
 
     event.getByLabel(label, productInstanceName,h);

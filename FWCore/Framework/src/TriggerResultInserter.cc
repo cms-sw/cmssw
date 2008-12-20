@@ -10,7 +10,7 @@ namespace edm
 {
   TriggerResultInserter::TriggerResultInserter(const ParameterSet& pset, const TrigResPtr& trptr) :
     trptr_(trptr),
-    pset_id_(pset.id())
+    pset_id_(pset.trackedID())
   {
     produces<TriggerResults>();
   }

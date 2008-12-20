@@ -14,6 +14,7 @@
 
 #include "FWCore/Framework/src/SignallingProductRegistry.h"
 #include "FWCore/Framework/interface/ConstProductRegistry.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "FWCore/PluginManager/interface/ProblemTracker.h"
@@ -72,8 +73,7 @@ namespace {
         iConstReg.watchProductAdditions(this, &Responder::respond);
       }
       void respond(const edm::BranchDescription& iDesc){
-         edm::ModuleDescription module;
-	 module.parameterSetID_ = iDesc.parameterSetID();
+         edm::ModuleDescription module(iDesc.parameterSetID(), "", "");
          edm::BranchDescription prod(iDesc.branchType(),
 				     name_,
 				     iDesc.processName(),
@@ -97,14 +97,12 @@ testProductRegistry::testProductRegistry() :
 
 void testProductRegistry::setUp()
 {
-  intModule_ = new edm::ModuleDescription;
-  intModule_->parameterSetID_ = edm::ParameterSet().id();
+  intModule_ = new edm::ModuleDescription(edm::ParameterSet().trackedID(), "", "");
   intBranch_ = new edm::BranchDescription(edm::InEvent, "label", "PROD",
 					  "int", "int", "int",
 					  *intModule_);
 
-  floatModule_ = new edm::ModuleDescription;
-  floatModule_->parameterSetID_ = intModule_->parameterSetID_;
+  floatModule_ = new edm::ModuleDescription(intModule_->parameterSetID(), "", "");
   floatBranch_ = new edm::BranchDescription(edm::InEvent, "label", "PROD",
 					    "float", "float", "float",
 					    *floatModule_);

@@ -68,11 +68,10 @@ namespace edm {
 		 Schedule::TrigResPtr trptr) {
 
       WorkerParams work_args(proc_pset,trig_pset,preg,actions,proc_name);
-      ModuleDescription md;
-      md.parameterSetID_ = trig_pset.id();
-      md.moduleName_ = "TriggerResultInserter";
-      md.moduleLabel_ = "TriggerResults";
-      md.processConfiguration_ = ProcessConfiguration(proc_name, proc_pset.id(), getReleaseVersion(), getPassID());
+      ModuleDescription md(trig_pset.trackedID(),
+			   "TriggerResultInserter",
+			   "TriggerResults",
+			   ProcessConfiguration(proc_name, proc_pset.trackedID(), getReleaseVersion(), getPassID()));
 
       areg->preModuleConstructionSignal_(md);
       std::auto_ptr<EDProducer> producer(new TriggerResultInserter(trig_pset,trptr));
@@ -156,7 +155,7 @@ namespace edm {
     for(AllWorkers::iterator itWorker=workersBegin();
 	itWorker != workersEnd();
 	++itWorker) {
-      usedWorkerLabels.insert((*itWorker)->description().moduleLabel_);
+      usedWorkerLabels.insert((*itWorker)->description().moduleLabel());
     }
     std::vector<std::string> modulesInConfig(proc_pset.getParameter<std::vector<std::string> >("@all_modules"));
     std::set<std::string> modulesInConfigSet(modulesInConfig.begin(),modulesInConfig.end());
@@ -285,7 +284,7 @@ namespace edm {
         it != itEnd; ++it) {
       OutputModuleDescription desc(maxEventsOut);
       if (!vMaxEventsOut.empty()) {
-	std::string moduleLabel = (*it)->description().moduleLabel_;
+	std::string moduleLabel = (*it)->description().moduleLabel();
         if (!vMaxEventsOut.empty()) {
           try {
             desc.maxEvents_ = vMaxEventsOut.getUntrackedParameter<int>(moduleLabel);
@@ -495,7 +494,7 @@ namespace edm {
 				  << std::right << std::setw(10) << pi->timesPassed(i) << " "
 				  << std::right << std::setw(10) << pi->timesFailed(i) << " "
 				  << std::right << std::setw(10) << pi->timesExcept(i) << " "
-				  << pi->getWorker(i)->description().moduleLabel_ << "";
+				  << pi->getWorker(i)->description().moduleLabel() << "";
       }
     }
 
@@ -520,7 +519,7 @@ namespace edm {
 				  << std::right << std::setw(10) << pi->timesPassed(i) << " "
 				  << std::right << std::setw(10) << pi->timesFailed(i) << " "
 				  << std::right << std::setw(10) << pi->timesExcept(i) << " "
-				  << pi->getWorker(i)->description().moduleLabel_ << "";
+				  << pi->getWorker(i)->description().moduleLabel() << "";
       }
     }
 
@@ -542,7 +541,7 @@ namespace edm {
 				<< std::right << std::setw(10) << (*ai)->timesPassed() << " "
 				<< std::right << std::setw(10) << (*ai)->timesFailed() << " "
 				<< std::right << std::setw(10) << (*ai)->timesExcept() << " "
-				<< (*ai)->description().moduleLabel_ << "";
+				<< (*ai)->description().moduleLabel() << "";
 
     }
     LogVerbatim("FwkSummary") << "";
@@ -646,7 +645,7 @@ namespace edm {
 				  << std::right << std::setw(10) << pi->timeCpuReal(i).second/std::max(1,totalEvents()) << " "
 				  << std::right << std::setw(10) << pi->timeCpuReal(i).first/std::max(1,pi->timesVisited(i)) << " "
 				  << std::right << std::setw(10) << pi->timeCpuReal(i).second/std::max(1,pi->timesVisited(i)) << " "
-				  << pi->getWorker(i)->description().moduleLabel_ << "";
+				  << pi->getWorker(i)->description().moduleLabel() << "";
       }
     }
     LogVerbatim("FwkSummary") << "TimeReport "
@@ -682,7 +681,7 @@ namespace edm {
 				  << std::right << std::setw(10) << pi->timeCpuReal(i).second/std::max(1,totalEvents()) << " "
 				  << std::right << std::setw(10) << pi->timeCpuReal(i).first/std::max(1,pi->timesVisited(i)) << " "
 				  << std::right << std::setw(10) << pi->timeCpuReal(i).second/std::max(1,pi->timesVisited(i)) << " "
-				  << pi->getWorker(i)->description().moduleLabel_ << "";
+				  << pi->getWorker(i)->description().moduleLabel() << "";
       }
     }
     LogVerbatim("FwkSummary") << "TimeReport "
@@ -722,7 +721,7 @@ namespace edm {
 				<< std::right << std::setw(10) << (*ai)->timeCpuReal().second/std::max(1,(*ai)->timesRun()) << " "
 				<< std::right << std::setw(10) << (*ai)->timeCpuReal().first/std::max(1,(*ai)->timesVisited()) << " "
 				<< std::right << std::setw(10) << (*ai)->timeCpuReal().second/std::max(1,(*ai)->timesVisited()) << " "
-				<< (*ai)->description().moduleLabel_ << "";
+				<< (*ai)->description().moduleLabel() << "";
     }
     LogVerbatim("FwkSummary") << "TimeReport "
 			      << std::right << std::setw(10) << "CPU" << " "
@@ -830,7 +829,7 @@ namespace edm {
     sum.timesFailed  = path.timesFailed(which);
     sum.timesExcept  = path.timesExcept(which);
     sum.moduleLabel  = 
-      path.getWorker(which)->description().moduleLabel_;
+      path.getWorker(which)->description().moduleLabel();
   }
 
   void 
@@ -857,7 +856,7 @@ namespace edm {
     sum.timesPassed  = w.timesPassed();
     sum.timesFailed  = w.timesFailed();
     sum.timesExcept  = w.timesExcept();
-    sum.moduleLabel  = w.description().moduleLabel_;
+    sum.moduleLabel  = w.description().moduleLabel();
   }
 
   void
