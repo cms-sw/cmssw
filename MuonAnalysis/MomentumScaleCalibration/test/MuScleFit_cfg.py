@@ -25,7 +25,7 @@ process.load("MagneticField.Engine.uniformMagneticField_cfi")
 # )
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(10000)
+    input = cms.untracked.int32(-1)
 )
 process.looper = cms.Looper(
     "MuScleFit",
@@ -35,16 +35,16 @@ process.looper = cms.Looper(
     # -------------------------------------------
 
     # // global muons //
-    MuonLabel = cms.InputTag("muons"),
-    muonType = cms.int32(1),
+    # MuonLabel = cms.InputTag("muons"),
+    # muonType = cms.int32(1),
 
     # // standalone muons //
-    # MuonLabel = cms.InputTag("standAloneMuons:UpdatedAtVtx")
-    # muonType = cms.int32(2), 
+    # MuonLabel = cms.InputTag("standAloneMuons:UpdatedAtVtx"),
+    # muonType = cms.int32(2),
 
     # // tracker tracks //
-    # MuonLabel = cms.InputTag("generalTracks") //ctfWithMaterialTracks
-    # muonType = cms.int32(3), 
+    MuonLabel = cms.InputTag("generalTracks"), # ctfWithMaterialTracks
+    muonType = cms.int32(3),
 
     # Output settings
     # ---------------
@@ -53,11 +53,11 @@ process.looper = cms.Looper(
 
     # Likelihood settings
     # -------------------
-    maxLoopNumber = cms.untracked.int32(2),
+    maxLoopNumber = cms.untracked.int32(3),
     # Select which fits to do in which loop (0 = do not, 1 = do)
-    doResolFit =      cms.vint32(0, 0),
-    doScaleFit =      cms.vint32(1, 0),
-    doBackgroundFit = cms.vint32(0, 0),
+    doResolFit =      cms.vint32(0, 1, 0),
+    doScaleFit =      cms.vint32(1, 0, 0),
+    doBackgroundFit = cms.vint32(0, 0, 0),
 
     # Fit parameters and fix flags (1 = use par)
     # ==========================================
@@ -193,40 +193,15 @@ process.looper = cms.Looper(
     # Eta^2 dep. of sigmaPhi.
     # ----------------------------------------------------------------
     ResolFitType = cms.int32(8),
-    # This parameters are modified to have a better agreement with Y
-    ResolFitType = cms.int32(8),
-    parResol = cms.vdouble(-0.007, 0.0001, 1.0,
-                           -0.00028, 0.0041, 0.0000028, 0.00054,
-                           0.00014, 0.0018, -0.00000094, 0.0001),
+    parResol = cms.vdouble(-0.003, 0.000205, 1.0,
+                           0.00043, 0.0041, 0.0000028, 0.000077,
+                           0.00011, 0.0018, -0.00000094, 0.000022),
     parResolFix = cms.vint32(0, 0, 0,
-                             0, 0, 0, 0,
-                             0, 0, 0, 0),
+                             1, 1, 1, 1,
+                             1, 1, 1, 1),
     parResolOrder = cms.vint32(0, 0, 0,
-                               1, 1, 1, 1,
-                               2, 2, 2, 2),
-
-    # This parameters are taken directly from the MuonGun (5<Pt<100, |eta|<3)
-    # parResol = cms.vdouble(0.012, 0.0001, 1.0,
-    #                        0.00043, 0.0041, 0.0000028, 0.000077,
-    #                        0.00011, 0.0018, -0.00000094, 0.000022),
-    # parResolFix = cms.vint32(0, 0, 0,
-    #                          0, 0, 0, 0,
-    #                          0, 0, 0, 0),
-    # parResolOrder = cms.vint32(0, 0, 0,
-    #                            1, 1, 1, 1,
-    #                            2, 2, 2, 2),
-
-    # This parameters are sligtly modified for the unfiltered J/Psi events
-    # parResol = cms.vdouble(-0.007, 0.0001, 1.0,
-    #                        0.00022, 0.0041, 0.0000028, 0.000077,
-    #                        0.00014, 0.0018, -0.00000094, 0.000022),
-    # parResolFix = cms.vint32(0, 0, 0,
-    #                          0, 0, 0, 0,
-    #                          0, 0, 0, 0),
-    # parResolOrder = cms.vint32(0, 0, 0,
-    #                            1, 1, 1, 1,
-    #                            2, 2, 2, 2),
-
+                               0, 0, 0, 0,
+                               0, 0, 0, 0),
 
     # -------------------- #
     # Scale fit parameters #
