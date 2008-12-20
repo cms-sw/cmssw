@@ -5,7 +5,7 @@
 // 
 // Author:      Valentin Kuznetsov
 // Created:     Wed Jul  5 11:44:26 EDT 2006
-// $Id: EDLooper.cc,v 1.10 2008/01/09 23:45:55 wdd Exp $
+// $Id: EDLooper.cc,v 1.11 2008/03/19 22:02:36 wdd Exp $
 
 #include "FWCore/Framework/interface/EDLooper.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -31,9 +31,7 @@ namespace edm {
 
   EDLooper::Status
   EDLooper::doDuringLoop(edm::EventPrincipal& eventPrincipal, const edm::EventSetup& es) {
-    edm::ModuleDescription modDesc;
-    modDesc.moduleName_="EDLooper";
-    modDesc.moduleLabel_="";
+    edm::ModuleDescription modDesc("EDLooper", "");
     Event event(eventPrincipal, modDesc);
 
     Status status = kContinue;
