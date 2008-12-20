@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Sep  8 14:17:58 EDT 2005
-// $Id: Tracer.cc,v 1.14 2008/10/16 23:08:00 wmtan Exp $
+// $Id: Tracer.cc,v 1.15 2008/10/20 19:38:22 wmtan Exp $
 //
 
 // system include files
@@ -220,7 +220,7 @@ Tracer::preModuleEvent(ModuleDescription const& iDescription) {
    for(unsigned int depth = 0; depth !=depth_; ++depth) {
       std::cout<<indention_;
    }
-   std::cout<<" module for event:" <<iDescription.moduleLabel_<<std::endl;
+   std::cout<<" module for event:" <<iDescription.moduleLabel()<<std::endl;
 }
 void 
 Tracer::postModuleEvent(ModuleDescription const& iDescription) {
@@ -230,7 +230,7 @@ Tracer::postModuleEvent(ModuleDescription const& iDescription) {
       std::cout<<indention_;
    }
    
-   std::cout<<" finished for event:"<<iDescription.moduleLabel_<<std::endl;
+   std::cout<<" finished for event:"<<iDescription.moduleLabel()<<std::endl;
 }
 
 void 
@@ -259,7 +259,7 @@ Tracer::preModuleBeginRun(ModuleDescription const& iDescription) {
    for(unsigned int depth = 0; depth !=depth_; ++depth) {
       std::cout<<indention_;
    }
-   std::cout<<" module for begin run:" <<iDescription.moduleLabel_<<std::endl;
+   std::cout<<" module for begin run:" <<iDescription.moduleLabel()<<std::endl;
 }
 void 
 Tracer::postModuleBeginRun(ModuleDescription const& iDescription) {
@@ -269,7 +269,7 @@ Tracer::postModuleBeginRun(ModuleDescription const& iDescription) {
       std::cout<<indention_;
    }
    
-   std::cout<<" finished for begin run:"<<iDescription.moduleLabel_<<std::endl;
+   std::cout<<" finished for begin run:"<<iDescription.moduleLabel()<<std::endl;
 }
 
 void 
@@ -298,7 +298,7 @@ Tracer::preModuleEndRun(ModuleDescription const& iDescription) {
    for(unsigned int depth = 0; depth !=depth_; ++depth) {
       std::cout<<indention_;
    }
-   std::cout<<" module for end run:" <<iDescription.moduleLabel_<<std::endl;
+   std::cout<<" module for end run:" <<iDescription.moduleLabel()<<std::endl;
 }
 void 
 Tracer::postModuleEndRun(ModuleDescription const& iDescription) {
@@ -308,7 +308,7 @@ Tracer::postModuleEndRun(ModuleDescription const& iDescription) {
       std::cout<<indention_;
    }
    
-   std::cout<<" finished for end run:"<<iDescription.moduleLabel_<<std::endl;
+   std::cout<<" finished for end run:"<<iDescription.moduleLabel()<<std::endl;
 }
 
 void 
@@ -337,7 +337,7 @@ Tracer::preModuleBeginLumi(ModuleDescription const& iDescription) {
    for(unsigned int depth = 0; depth !=depth_; ++depth) {
       std::cout<<indention_;
    }
-   std::cout<<" module for begin lumi:" <<iDescription.moduleLabel_<<std::endl;
+   std::cout<<" module for begin lumi:" <<iDescription.moduleLabel()<<std::endl;
 }
 void 
 Tracer::postModuleBeginLumi(ModuleDescription const& iDescription) {
@@ -347,7 +347,7 @@ Tracer::postModuleBeginLumi(ModuleDescription const& iDescription) {
       std::cout<<indention_;
    }
    
-   std::cout<<" finished for begin lumi:"<<iDescription.moduleLabel_<<std::endl;
+   std::cout<<" finished for begin lumi:"<<iDescription.moduleLabel()<<std::endl;
 }
 
 void 
@@ -377,7 +377,7 @@ Tracer::preModuleEndLumi(ModuleDescription const& iDescription) {
    for(unsigned int depth = 0; depth !=depth_; ++depth) {
       std::cout<<indention_;
    }
-   std::cout<<" module for end lumi:" <<iDescription.moduleLabel_<<std::endl;
+   std::cout<<" module for end lumi:" <<iDescription.moduleLabel()<<std::endl;
 }
 
 void 
@@ -388,55 +388,55 @@ Tracer::postModuleEndLumi(ModuleDescription const& iDescription) {
       std::cout<<indention_;
    }
    
-   std::cout<<" finished for end lumi:"<<iDescription.moduleLabel_<<std::endl;
+   std::cout<<" finished for end lumi:"<<iDescription.moduleLabel()<<std::endl;
 }
 
 void 
 Tracer::preSourceConstruction(ModuleDescription const& iDescription) {
   std::cout <<indention_;
-  std::cout<<" constructing source:" <<iDescription.moduleName_<<std::endl;
+  std::cout<<" constructing source:" <<iDescription.moduleName()<<std::endl;
 }
 
 void 
 Tracer::postSourceConstruction(ModuleDescription const& iDescription) {
   std::cout <<indention_;
-  std::cout<<" construction finished:"<<iDescription.moduleName_<<std::endl;
+  std::cout<<" construction finished:"<<iDescription.moduleName()<<std::endl;
 }
 
 void 
 Tracer::preModuleConstruction(ModuleDescription const& iDescription) {
   std::cout <<indention_;
-  std::cout<<" constructing module:" <<iDescription.moduleLabel_<<std::endl;
+  std::cout<<" constructing module:" <<iDescription.moduleLabel()<<std::endl;
 }
 
 void 
 Tracer::postModuleConstruction(ModuleDescription const& iDescription) {
   std::cout <<indention_;
-  std::cout<<" construction finished:"<<iDescription.moduleLabel_<<std::endl;
+  std::cout<<" construction finished:"<<iDescription.moduleLabel()<<std::endl;
 }
 
 void 
 Tracer::preModuleBeginJob(ModuleDescription const& iDescription) {
   std::cout <<indention_;
-  std::cout<<" beginJob module:" <<iDescription.moduleLabel_<<std::endl;
+  std::cout<<" beginJob module:" <<iDescription.moduleLabel()<<std::endl;
 }
 
 void 
 Tracer::postModuleBeginJob(ModuleDescription const& iDescription) {
   std::cout <<indention_;
-  std::cout<<" beginJob finished:"<<iDescription.moduleLabel_<<std::endl;
+  std::cout<<" beginJob finished:"<<iDescription.moduleLabel()<<std::endl;
 }
 
 void 
 Tracer::preModuleEndJob(ModuleDescription const& iDescription) {
   std::cout <<indention_;
-  std::cout<<" endJob module:" <<iDescription.moduleLabel_<<std::endl;
+  std::cout<<" endJob module:" <<iDescription.moduleLabel()<<std::endl;
 }
 
 void 
 Tracer::postModuleEndJob(ModuleDescription const& iDescription) {
   std::cout <<indention_;
-  std::cout<<" endJob finished:"<<iDescription.moduleLabel_<<std::endl;
+  std::cout<<" endJob finished:"<<iDescription.moduleLabel()<<std::endl;
 }
 
 //

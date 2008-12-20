@@ -323,7 +323,7 @@ namespace edm {
     UnscheduledCallProducer() : UnscheduledHandler(), labelToWorkers_() {}
     void addWorker(Worker* aWorker) {
       assert(0 != aWorker);
-      labelToWorkers_[aWorker->description().moduleLabel_]=aWorker;
+      labelToWorkers_[aWorker->description().moduleLabel()]=aWorker;
     }
   private:
     virtual bool tryToFillImpl(std::string const& moduleLabel,

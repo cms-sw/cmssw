@@ -6,7 +6,7 @@
 // Implementation:
 //
 // Original Author:  Jim Kowalkowski
-// $Id: Timing.cc,v 1.12 2008/04/23 15:06:21 fischler Exp $
+// $Id: Timing.cc,v 1.13 2008/06/20 20:55:48 fischler Exp $
 //
 // Change Log
 //
@@ -142,8 +142,8 @@ namespace edm {
         edm::LogAbsolute("TimeModule") << "TimeModule> "
 	   << curr_event_.event() << " "
 	   << curr_event_.run() << " "
-	   << desc.moduleLabel_ << " "
-	   << desc.moduleName_ << " "
+	   << desc.moduleLabel() << " "
+	   << desc.moduleName() << " "
 	   << t;
       }
    

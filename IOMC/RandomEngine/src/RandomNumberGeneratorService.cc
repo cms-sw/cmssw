@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones, W. David Dagenhart
 //   Created:  Tue Mar  7 09:43:46 EST 2006 (originally in FWCore/Services)
-// $Id: RandomNumberGeneratorService.cc,v 1.19 2008/05/14 15:39:07 marafino Exp $
+// $Id: RandomNumberGeneratorService.cc,v 1.20 2008/05/14 21:49:41 marafino Exp $
 //
 
 #include "IOMC/RandomEngine/src/RandomNumberGeneratorService.h"
@@ -461,7 +461,7 @@ RandomNumberGeneratorService::mySeed() const {
 void 
 RandomNumberGeneratorService::preModuleConstruction(const ModuleDescription& iDesc)
 {
-  push(iDesc.moduleLabel_);
+  push(iDesc.moduleLabel());
 }
 
 void 
@@ -538,7 +538,7 @@ RandomNumberGeneratorService::postEventProcessing(const Event&, const EventSetup
 void 
 RandomNumberGeneratorService::preModule(const ModuleDescription& iDesc)
 {
-  push(iDesc.moduleLabel_);
+  push(iDesc.moduleLabel());
 }
 
 void 
@@ -550,7 +550,7 @@ RandomNumberGeneratorService::postModule(const ModuleDescription&)
 void 
 RandomNumberGeneratorService::preModuleBeginJob(const ModuleDescription& iDesc)
 {
-  push(iDesc.moduleLabel_);
+  push(iDesc.moduleLabel());
 }
 
 void 
@@ -562,7 +562,7 @@ RandomNumberGeneratorService::postModuleBeginJob(const ModuleDescription&)
 void 
 RandomNumberGeneratorService::preModuleEndJob(const ModuleDescription& iDesc)
 {
-  push(iDesc.moduleLabel_);
+  push(iDesc.moduleLabel());
 }
 
 void 

@@ -6,7 +6,7 @@
 Worker: this is a basic scheduling unit - an abstract base class to
 something that is really a producer or filter.
 
-$Id: Worker.h,v 1.34 2008/10/08 22:34:14 wmtan Exp $
+$Id: Worker.h,v 1.35 2008/10/16 23:06:28 wmtan Exp $
 
 A worker will not actually call through to the module unless it is
 in a Ready state.  After a module is actually run, the state will not
@@ -140,7 +140,7 @@ namespace edm {
     cms::Exception& exceptionContext(ModuleDescription const& iMD,
 				     T const& ip,
 				     cms::Exception& iEx) {
-      iEx << iMD.moduleName_ << "/" << iMD.moduleLabel_ 
+      iEx << iMD.moduleName() << "/" << iMD.moduleLabel()
         << " " << ip.id() << "\n";
       return iEx;
     }

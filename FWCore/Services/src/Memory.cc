@@ -6,7 +6,7 @@
 // Implementation:
 //
 // Original Author:  Jim Kowalkowski
-// $Id: Memory.cc,v 1.16 2008/07/13 04:32:54 elmer Exp $
+// $Id: Memory.cc,v 1.17 2008/10/08 22:11:44 wmtan Exp $
 //
 // Change Log
 //
@@ -271,13 +271,13 @@ namespace edm {
  
     void SimpleMemoryCheck::preSourceConstruction(const ModuleDescription& md) 
     {
-      updateAndPrint("pre-ctor", md.moduleLabel_, md.moduleName_);
+      updateAndPrint("pre-ctor", md.moduleLabel(), md.moduleName());
     }
  
  
     void SimpleMemoryCheck::postSourceConstruction(const ModuleDescription& md)
     {
-      updateAndPrint("ctor", md.moduleLabel_, md.moduleName_);
+      updateAndPrint("ctor", md.moduleLabel(), md.moduleName());
     }
  
     void SimpleMemoryCheck::postSource() 
@@ -287,12 +287,12 @@ namespace edm {
  
     void SimpleMemoryCheck::postModuleConstruction(const ModuleDescription& md)
     {
-      updateAndPrint("ctor", md.moduleLabel_, md.moduleName_);
+      updateAndPrint("ctor", md.moduleLabel(), md.moduleName());
     }
  
     void SimpleMemoryCheck::postModuleBeginJob(const ModuleDescription& md) 
     {
-      updateAndPrint("beginJob", md.moduleLabel_, md.moduleName_);
+      updateAndPrint("beginJob", md.moduleLabel(), md.moduleName());
     }
  
     void SimpleMemoryCheck::postEndJob() 
@@ -472,13 +472,13 @@ namespace edm {
  
     void SimpleMemoryCheck::postModule(const ModuleDescription& md) {
       if (!oncePerEventMode) {
-        updateAndPrint("module", md.moduleLabel_, md.moduleName_);
+        updateAndPrint("module", md.moduleLabel(), md.moduleName());
       } else if (moduleSummaryRequested) {			// changelog 2
         update();
       }
       if (moduleSummaryRequested) {				// changelog 2
 	double dv = current_->vsize - moduleEntryVsize_;
-	std::string label =  md.moduleLabel_;
+	std::string label =  md.moduleLabel();
 	updateModuleMemoryStats (modules_[label],dv);
       }
     }

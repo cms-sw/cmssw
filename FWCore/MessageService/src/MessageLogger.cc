@@ -8,7 +8,7 @@
 //
 // Original Author:  W. Brown, M. Fischler
 //         Created:  Fri Nov 11 16:42:39 CST 2005
-// $Id: MessageLogger.cc,v 1.26 2008/06/20 20:55:47 fischler Exp $
+// $Id: MessageLogger.cc,v 1.27 2008/06/24 20:31:40 fischler Exp $
 //
 // Change log
 //
@@ -241,9 +241,9 @@ MessageLogger::postEventProcessing(const Event&, const EventSetup&)
 void
 MessageLogger::preSourceConstruction(const ModuleDescription& desc)
 {
-  curr_module_ = desc.moduleName_;
+  curr_module_ = desc.moduleName();
   curr_module_ += ":";
-  curr_module_ += desc.moduleLabel_;
+  curr_module_ += desc.moduleLabel();
   MessageDrop::instance()->moduleName = curr_module_ + "{*ctor*}";  
   if (!anyDebugEnabled_) {
     MessageDrop::instance()->debugEnabled = false;
@@ -251,7 +251,7 @@ MessageLogger::preSourceConstruction(const ModuleDescription& desc)
     MessageDrop::instance()->debugEnabled = true;
   } else {
     MessageDrop::instance()->debugEnabled = 
-    			debugEnabledModules_.count(desc.moduleLabel_);
+    			debugEnabledModules_.count(desc.moduleLabel());
   }
 }
 
@@ -290,9 +290,9 @@ void
 MessageLogger::preModuleConstruction(const ModuleDescription& desc)
 {
   // LogInfo("preModule") << "Module:" << desc.moduleLabel();
-  curr_module_ = desc.moduleName_;
+  curr_module_ = desc.moduleName();
   curr_module_ += ":";
-  curr_module_ += desc.moduleLabel_;
+  curr_module_ += desc.moduleLabel();
   
   MessageDrop::instance()->moduleName = curr_module_ + "{ctor}";  
   if (!anyDebugEnabled_) {
@@ -301,7 +301,7 @@ MessageLogger::preModuleConstruction(const ModuleDescription& desc)
     MessageDrop::instance()->debugEnabled = true;
   } else {
     MessageDrop::instance()->debugEnabled = 
-    			debugEnabledModules_.count(desc.moduleLabel_);
+    			debugEnabledModules_.count(desc.moduleLabel());
   }
 }
 
@@ -313,9 +313,9 @@ MessageLogger::preModule(const ModuleDescription& desc)
   MessageDrop* messageDrop = MessageDrop::instance();
   std::map<const ModuleDescription*,std::string>::const_iterator itFind = descToCalcName_.find(&desc);
   if ( itFind == descToCalcName_.end()) {
-    curr_module_ = desc.moduleName_;
+    curr_module_ = desc.moduleName();
     curr_module_ += ":";
-    curr_module_ += desc.moduleLabel_;
+    curr_module_ += desc.moduleLabel();
     //cache this value to improve performance based on profiling studies
     descToCalcName_[&desc]=curr_module_;
     messageDrop->moduleName = curr_module_;  
@@ -329,11 +329,11 @@ MessageLogger::preModule(const ModuleDescription& desc)
     messageDrop->debugEnabled = true;
   } else {
     messageDrop->debugEnabled = 
-    			debugEnabledModules_.count(desc.moduleLabel_);
+    			debugEnabledModules_.count(desc.moduleLabel());
   }
 
   std::map<const std::string,ELseverityLevel>::const_iterator it =
-       suppression_levels_.find(desc.moduleLabel_);
+       suppression_levels_.find(desc.moduleLabel());
   if ( it != suppression_levels_.end() ) {
     messageDrop->debugEnabled  = messageDrop->debugEnabled 
                                            && (it->second < ELseverityLevel::ELsev_success );
@@ -348,7 +348,7 @@ MessageLogger::preModule(const ModuleDescription& desc)
 void
 MessageLogger::postSourceConstruction(const ModuleDescription& iDescription)
 {
-  // LogInfo("postModule") << "Module:" << iDescription.moduleLabel_
+  // LogInfo("postModule") << "Module:" << iDescription.moduleLabel();
   //                      << " finished";
   curr_module_ = "AfterSourceConstruction";
   MessageDrop::instance()->moduleName = curr_module_;  
@@ -357,7 +357,7 @@ MessageLogger::postSourceConstruction(const ModuleDescription& iDescription)
 void
 MessageLogger::postModuleConstruction(const ModuleDescription& iDescription)
 {
-  // LogInfo("postModule") << "Module:" << iDescription.moduleLabel_
+  // LogInfo("postModule") << "Module:" << iDescription.moduleLabel()
   //                      << " finished";
   curr_module_ = "AfterModuleConstruction";
   MessageDrop::instance()->moduleName = curr_module_;  
@@ -366,7 +366,7 @@ MessageLogger::postModuleConstruction(const ModuleDescription& iDescription)
 void
 MessageLogger::postSource()
 {
-  // LogInfo("postModule") << "Module:" << iDescription.moduleLabel_
+  // LogInfo("postModule") << "Module:" << iDescription.moduleLabel()
   //                      << " finished";
   curr_module_ = "PostSource";
   MessageDrop::instance()->moduleName = curr_module_;  
@@ -375,7 +375,7 @@ MessageLogger::postSource()
 void
 MessageLogger::postModule(const ModuleDescription& iDescription)
 {
-  // LogInfo("postModule") << "Module:" << iDescription.moduleLabel_
+  // LogInfo("postModule") << "Module:" << iDescription.moduleLabel()
   //                      << " finished";
   //curr_module_ = kPostModule;
   //MessageDrop::instance()->moduleName = curr_module_;  

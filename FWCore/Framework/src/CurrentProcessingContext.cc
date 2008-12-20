@@ -26,7 +26,7 @@ namespace edm
   CurrentProcessingContext::moduleLabel() const
   {
     return is_active()
-      ? &(moduleDescription_->moduleLabel_)
+      ? &(moduleDescription_->moduleLabel())
       : 0;
   }
 
