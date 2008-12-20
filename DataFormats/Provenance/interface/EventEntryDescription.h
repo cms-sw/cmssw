@@ -40,7 +40,7 @@ namespace edm {
 
     void write(std::ostream& os) const;
 
-    std::string const& moduleName() const {return getModuleDescriptionPtr()->moduleName_;}
+    std::string const& moduleName() const {return getModuleDescriptionPtr()->moduleName();}
     PassID const& passID() const {return getModuleDescriptionPtr()->passID();}
     ParameterSetID const& psetID() const {return getModuleDescriptionPtr()->parameterSetID();}
     ReleaseVersion const& releaseVersion() const {return getModuleDescriptionPtr()->releaseVersion();}

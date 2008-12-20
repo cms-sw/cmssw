@@ -31,7 +31,8 @@ This description also applies to every product instance on the branch.
 */
 
 namespace edm {
-  struct BranchDescription {
+  class BranchDescription {
+  public:
     static int const invalidSplitLevel = -1;
     static int const invalidBasketSize = 0;
     enum MatchMode { Strict = 0,

@@ -7,7 +7,7 @@
 
 /*----------------------------------------------------------------------
 
-$Id: ModuleDescription.cc,v 1.1 2007/03/04 04:48:09 wmtan Exp $
+$Id: ModuleDescription.cc,v 1.2 2007/06/28 23:30:50 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -19,6 +19,25 @@ namespace edm {
     moduleLabel_(),
     processConfiguration_()
   { }
+
+  ModuleDescription::ModuleDescription(
+		ParameterSetID const& pid,
+		std::string const& modName,
+		std::string const& modLabel,
+		ProcessConfiguration const& procConfig) :
+			parameterSetID_(pid),
+			moduleName_(modName),
+			moduleLabel_(modLabel),
+			processConfiguration_(procConfig) {}
+
+  ModuleDescription::ModuleDescription(
+		std::string const& modName,
+		std::string const& modLabel,
+		ProcessConfiguration const& procConfig) :
+			parameterSetID_(),
+			moduleName_(modName),
+			moduleLabel_(modLabel),
+			processConfiguration_(procConfig) {}
 
   bool
   ModuleDescription::operator<(ModuleDescription const& rh) const {

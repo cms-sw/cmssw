@@ -5,7 +5,7 @@
   
 ModuleDescription: The description of a producer module.
 
-$Id: ModuleDescription.h,v 1.1.8.1 2008/11/20 20:31:50 wmtan Exp $
+$Id: ModuleDescription.h,v 1.2 2008/12/18 05:00:31 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <string>
 #include <iosfwd>
@@ -20,9 +20,19 @@ namespace edm {
   // once a module is born, these parts of the module's product provenance
   // are constant   (change to ModuleDescription)
 
-  struct ModuleDescription {
+  class ModuleDescription {
+  public:
 
     ModuleDescription();
+
+    ModuleDescription(std::string const& modName,
+		      std::string const& modLabel,
+		      ProcessConfiguration const& procConfig = ProcessConfiguration());
+
+    ModuleDescription(ParameterSetID const& pid,
+		      std::string const& modName,
+		      std::string const& modLabel,
+		      ProcessConfiguration const& procConfig = ProcessConfiguration());
 
     void write(std::ostream& os) const;
 
@@ -46,6 +56,7 @@ namespace edm {
     
     ModuleDescriptionID id() const; // For backward compatibility
 
+  // private: public for now.  Will be made private ASAP.
     // ID of parameter set of the creator
     ParameterSetID parameterSetID_;
 
