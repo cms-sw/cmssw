@@ -75,6 +75,7 @@ namespace edm {
              bool dropMergeable,
              boost::shared_ptr<DuplicateChecker> duplicateChecker,
              bool dropDescendantsOfDroppedProducts);
+    ~RootFile();
     void reportOpened();
     void close(bool reallyClose);
     std::auto_ptr<EventPrincipal> readCurrentEvent(

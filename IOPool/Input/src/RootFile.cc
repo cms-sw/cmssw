@@ -163,8 +163,8 @@ namespace edm {
     metaDataTree->SetBranchAddress(poolNames::processHistoryMapBranchName().c_str(), &pHistMapPtr);
 
     ProcessConfigurationRegistry::collection_type pProcConfigMap;
+    ProcessConfigurationRegistry::collection_type *pProcConfigMapPtr = &pProcConfigMap;
     if (metaDataTree->FindBranch(poolNames::processConfigurationBranchName().c_str()) != 0) {
-      ProcessConfigurationRegistry::collection_type *pProcConfigMapPtr = &pProcConfigMap;
       metaDataTree->SetBranchAddress(poolNames::processConfigurationBranchName().c_str(), &pProcConfigMapPtr);
     }
 
@@ -294,6 +294,9 @@ namespace edm {
     fastClonable_ = setIfFastClonable(remainingEvents, remainingLumis);
 
     reportOpened();
+  }
+
+  RootFile::~RootFile() {
   }
 
   void
