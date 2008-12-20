@@ -77,12 +77,10 @@ std::pair<float,float> SiPixelCPEGenericDBErrorParametrization::getError(const S
 				<< "Non-pixel detector type !!!" ;
 	}
 	
-	const SiPixelCPEGenericErrorParm::DbVector & db_errors = parmErrors->errors();
-
 	if (bigInX && sizex == 1) errors.first  = element.first;
-	else                      errors.first  = db_errors[(int)element.first].sigma;
+	else                      errors.first  = parmErrors->errors()[(int)element.first].sigma;
 	if (bigInY && sizey == 1) errors.second = element.second;
-	else                      errors.second = db_errors[(int)element.second].sigma;
+	else                      errors.second = parmErrors->errors()[(int)element.second].sigma;
 
 	return errors;
 }
@@ -111,12 +109,10 @@ std::pair<float,float> SiPixelCPEGenericDBErrorParametrization::getError(GeomDet
 				<< "Non-pixel detector type !!!" ;
 	}
 	
-	const SiPixelCPEGenericErrorParm::DbVector & db_errors = errorsH->errors();
-
 	if (bigInX && sizex == 1) errors.first  = element.first;
-	else                      errors.first  = db_errors[(int)element.first].sigma;
+	else                      errors.first  = errorsH->errors()[(int)element.first].sigma;
 	if (bigInY && sizey == 1) errors.second = element.second;
-	else                      errors.second = db_errors[(int)element.second].sigma;
+	else                      errors.second = errorsH->errors()[(int)element.second].sigma;
 
 	return errors;
 }
