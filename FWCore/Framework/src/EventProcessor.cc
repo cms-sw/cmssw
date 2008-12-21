@@ -10,6 +10,7 @@
 #include "boost/thread/xtime.hpp"
 
 #include "DataFormats/Provenance/interface/ProcessConfiguration.h"
+#include "DataFormats/Provenance/interface/ProcessConfigurationRegistry.h"
 #include "DataFormats/Provenance/interface/BranchType.h"
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
@@ -226,13 +227,12 @@ namespace edm {
       // There is no module label for the unnamed input source, so 
       // just use "source".
       // Only the tracked parameters belong in the process configuration.
+      ProcessConfiguration pc(common.processName_, params.trackedID(), getReleaseVersion(), getPassID());
+      ProcessConfigurationRegistry::instance()->insertMapped(pc);
       ModuleDescription md(main_input.trackedID(),
 			   main_input.getParameter<std::string>("@module_type"),
 			   "source",
-			   ProcessConfiguration(common.processName_,
-						params.trackedID(),
-						getReleaseVersion(),
-						getPassID()));
+			   pc);
 
       sourceSpecified = true;
       InputSourceDescription isdesc(md, preg, areg, common.maxEventsInput_, common.maxLumisInput_);

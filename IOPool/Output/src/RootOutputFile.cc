@@ -311,12 +311,10 @@ namespace edm {
   }
 
   void RootOutputFile::writeProcessConfigurationRegistry() {
-/*
     ProcessConfigurationRegistry::collection_type *p = &ProcessConfigurationRegistry::instance()->data();
     TBranch* b = metaDataTree_->Branch(poolNames::processConfigurationBranchName().c_str(), &p, om_->basketSize(), 0);
     assert(b);
     b->Fill();
-*/
   }
 
   void RootOutputFile::writeProcessHistoryRegistry() { 
