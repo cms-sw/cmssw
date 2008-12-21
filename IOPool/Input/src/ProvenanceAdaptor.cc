@@ -3,6 +3,7 @@
 ProvenanceAdaptor.cc
 
 ----------------------------------------------------------------------*/
+#include <algorithm>
 #include <cassert>
 #include "IOPool/Input/src/ProvenanceAdaptor.h"
 #include <set>
@@ -60,26 +61,29 @@ namespace edm {
 
     void
     fillMapsInProductRegistry(ProcessConfigurationMap const& procConfigMap, ProductRegistry& productRegistry) {
-      std::map<std::string, ParameterSetID> processParameterSets;
-      std::map<std::string, ProcessConfigurationID> processConfigurations;
-      for (ProcessConfigurationMap::const_iterator it = procConfigMap.begin(), itEnd = procConfigMap.end();
-	  it != itEnd; ++it) {
-	processParameterSets.insert(std::make_pair(it->second.processName(), it->second.parameterSetID()));
-	processConfigurations.insert(std::make_pair(it->second.processName(), it->first));
-      }
-      ProductRegistry::ProductList& prodList = productRegistry.productListUpdator();
-      for (ProductRegistry::ProductList::iterator it = prodList.begin(), itEnd = prodList.end();
-	  it != itEnd; ++it) {
-	BranchDescription& bd = it->second;
-	std::string const& procName = bd.processName();
-	ProcessConfigurationID const& pcid = processConfigurations[procName];
-	ParameterSetID const& psetID = processParameterSets[procName]; 
-
+      for (ProcessConfigurationMap::const_iterator i = procConfigMap.begin(), iEnd = procConfigMap.end();
+	  i != iEnd; ++i) {
+	ProcessConfigurationID const& pcid = i->first;
+	std::string const& processName = i->second.processName();
+	ParameterSetID const& processParameterSetID = i->second.parameterSetID();
 	ParameterSet processParameterSet;
-	pset::Registry::instance()->getMapped(psetID, processParameterSet);
-	ParameterSet moduleParameterSet = processParameterSet.getParameter<ParameterSet>(bd.moduleLabel());
-	bd.parameterSetIDs().insert(std::make_pair(pcid, moduleParameterSet.trackedID()));
-	bd.moduleNames().insert(std::make_pair(pcid, moduleParameterSet.getParameter<std::string>("@module_type")));
+	pset::Registry::instance()->getMapped(processParameterSetID, processParameterSet);
+	for (ProductRegistry::ProductList::iterator
+	    it = productRegistry.productListUpdator().begin(),
+	    itEnd = productRegistry.productListUpdator().end();
+	    it != itEnd; ++it) {
+	  BranchDescription& bd = it->second;
+	  if (processName != bd.processName()) {
+	    continue;
+	  }
+	  std::string const& moduleLabel = bd.moduleLabel();
+	  if (moduleLabel == std::string("TriggerResults")) {
+	    continue; // No parameter set for "TriggerResults"
+	  }
+	  ParameterSet moduleParameterSet = processParameterSet.getParameter<ParameterSet>(moduleLabel);
+	  bd.parameterSetIDs().insert(std::make_pair(pcid, moduleParameterSet.trackedID()));
+	  bd.moduleNames().insert(std::make_pair(pcid, moduleParameterSet.getParameter<std::string>("@module_type")));
+	}
       }
     }
 
@@ -146,8 +150,8 @@ namespace edm {
 		productRegistry_(productRegistry),
 		branchIDLists_(),
 		branchListIndexes_() {
-    // fillProcessConfigurationMap(pHistMap, procConfigMap);
-    // fillMapsInProductRegistry(procConfigMap, productRegistry);
+    fillProcessConfigurationMap(pHistMap, procConfigMap);
+    fillMapsInProductRegistry(procConfigMap, productRegistry);
     fillListsAndIndexes(productRegistry, pHistMap, branchIDLists_, branchListIndexes_);
   }
 
