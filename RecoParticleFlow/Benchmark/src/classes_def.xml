@@ -2,4 +2,5 @@
   <class name="PFBenchmarkAlgo"/>
   <class name="GenericBenchmark"/>
   <class name="PFJetBenchmark"/>
+  <class name="PFMETBenchmark"/>
 </lcgdict>
