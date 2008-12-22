@@ -28,7 +28,7 @@
 #ifdef DQMGLOBAL
 
 #define LOG_DEBUG       ((!edm::MessageDrop::instance()->debugEnabled) ? \
-                        cscdqm::LogDebugger() : cscdqm::LogDebugger(true))
+                        cscdqm::LogDebugger(false) : cscdqm::LogDebugger())
 
 #endif
 
@@ -99,8 +99,8 @@ namespace cscdqm {
    */
   class LogDebugger : public edm::LogDebug_, public Logger {
     public: 
-      LogDebugger() : edm::LogDebug_() { }
       LogDebugger() : edm::LogDebug_("", __FILE__, __LINE__) { }
+      LogDebugger(const bool empty) : edm::LogDebug_() { }
   };
 
 #endif
