@@ -185,13 +185,13 @@ void PixelMaxVsf::writeXMLHeader(pos::PixelConfigKey key,
   *outstream << " <HEADER>"                                                                               << std::endl ; 
   *outstream << "  <TYPE>"                                                                                << std::endl ; 
   *outstream << "   <EXTENSION_TABLE_NAME>ROC_MAXVSF</EXTENSION_TABLE_NAME>"                              << std::endl ; 
-  *outstream << "   <NAME>ROC MaxVsf Settings</NAME>"                                                     << std::endl ; 
+  *outstream << "   <NAME>ROC MaxVsf Setting</NAME>"                                                      << std::endl ; 
   *outstream << "  </TYPE>"                                                                               << std::endl ; 
   *outstream << "  <RUN>"                                                                                 << std::endl ; 
   *outstream << "   <RUN_TYPE>ROC MaxVsf Settings</RUN_TYPE>"                                             << std::endl ; 
   *outstream << "   <RUN_NUMBER>1</RUN_NUMBER>"                                                           << std::endl ; 
   *outstream << "   <RUN_BEGIN_TIMESTAMP>" << PixelTimeFormatter::getTime() << "</RUN_BEGIN_TIMESTAMP>"   << std::endl ; 
-  *outstream << "   <COMMENT_DESCRIPTION>ROC MaxVsf Settings</COMMENT_DESCRIPTION>"                       << std::endl ; 
+  *outstream << "   <COMMENT_DESCRIPTION>ROC MaxVsf Setting</COMMENT_DESCRIPTION>"                        << std::endl ; 
   *outstream << "   <LOCATION>CERN TAC</LOCATION>"                                                        << std::endl ; 
   *outstream << "   <INITIATED_BY_USER>Dario Menasce</INITIATED_BY_USER>"                                 << std::endl ; 
   *outstream << "  </RUN>"                                                                                << std::endl ; 

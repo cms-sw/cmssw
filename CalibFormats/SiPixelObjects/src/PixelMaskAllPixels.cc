@@ -70,7 +70,7 @@ PixelMaskAllPixels::PixelMaskAllPixels(std::vector< std::vector<std::string> >& 
 	 assert(0);
        }
    }
- 
+  maskbits_.clear() ;
   for(unsigned int r = 1 ; r < tableMat.size() ; r++){   //Goes to every row of the Matrix
     std::string currentRocName = tableMat[r][colM["ROC_NAME"]]  ;               
     PixelROCName rocid(currentRocName);

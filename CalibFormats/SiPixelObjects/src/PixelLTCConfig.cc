@@ -152,9 +152,9 @@ void PixelLTCConfig::writeXML( std::ofstream *outstream,
 {
   std::string mthn = "[PixelLTCConfig::writeXML()]\t\t\t    " ;
 
-  *outstream << "  "                                                            			  << std::endl ;
-  *outstream << "  <LTC_OBJ_DATA_FILE>LTCConfiguration.txt</LTC_OBJ_DATA_FILE>" 			  << std::endl ;
-  *outstream << "  "                                                            			  << std::endl ;
+  *outstream << " <DATA>"                                                            			  << std::endl ;
+  *outstream << "  <LTC_OBJ_DATA_FILE>./LTCConfiguration.txt</LTC_OBJ_DATA_FILE>" 			  << std::endl ;
+  *outstream << " </DATA>"                                                            			  << std::endl ;
 }
 
 //=============================================================================================

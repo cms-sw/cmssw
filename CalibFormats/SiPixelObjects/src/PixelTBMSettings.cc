@@ -80,14 +80,16 @@ PixelTBMSettings::PixelTBMSettings(std::vector < std::vector< std::string> > &ta
  
   if(tableMat.size() >1)
     {
-      PixelModuleName tmp(tableMat[1][colM["MODULE_NAME"]]);
-      moduleId_ = tmp ;
+		  std::cout << "[PixelTBMSettings::PixelTBMSettings()]\tModule from DB: " << tableMat[1][colM["MODULE_NAME"]]<< std::endl ;
+      PixelROCName tmp(tableMat[1][colM["MODULE_NAME"]]);
+      rocid_ = tmp ;
+		  std::cout << "[PixelTBMSettings::PixelTBMSettings()]\tBuilt ROCNAME: " << rocid_.rocname()<< std::endl ;
       
       analogInputBias_  = atoi(tableMat[1][colM["ANLG_INBIAS_VAL"]].c_str());
       analogOutputBias_ = atoi(tableMat[1][colM["ANLG_OUTBIAS_VAL"]].c_str());
       analogOutputGain_ = atoi(tableMat[1][colM["ANLG_OUTGAIN_VAL"]].c_str());
       
-      if( tableMat[1][colM["TBM_MODE"]] == "Single"){
+      if( tableMat[1][colM["TBM_MODE"]] == "SingleMode"){
 	singlemode_=true;
       }
       else{

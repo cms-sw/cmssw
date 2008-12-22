@@ -72,7 +72,7 @@ PixelTrimAllPixels::PixelTrimAllPixels( std::vector <std::vector<std::string> >&
     //unsigned char *bits ;        /// supose to be " unsigned  char bits[tableMat[1][colM["TRIM_BLOB"]].size()] ;  "
     //char c[2080];
     std::string bits;
-	
+	trimbits_.clear() ;
     for(unsigned int r = 1 ; r < tableMat.size() ; r++)    //Goes to every row of the Matrix
       {
 	PixelROCName rocid( tableMat[r][colM["ROC_NAME"]] );

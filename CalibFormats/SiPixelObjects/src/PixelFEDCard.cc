@@ -299,6 +299,24 @@ PixelFEDCard::PixelFEDCard(vector<vector<string> > &tableMat):PixelConfigBase(" 
 
   readDBTBMLevels(tableMat, size[0]+1, size[1]) ;
   readDBROCLevels(tableMat, size[1]+1, size[2]) ;
+  Ccntrl_original=Ccntrl;
+  modeRegister_original=modeRegister;
+
+
+  Ncntrl_original=Ncntrl;
+  NCcntrl_original=NCcntrl;
+  SCcntrl_original=SCcntrl;
+  Scntrl_original=Scntrl;
+
+  Nbaseln_original=Nbaseln;
+  NCbaseln_original=NCbaseln;
+  SCbaseln_original=SCbaseln;
+  Sbaseln_original=Sbaseln;
+
+  // Modified by MR on 17-11-2008 
+  // This new variable has to be read from DB!!!!!
+  // We need to add a column in the DB. Talk to Umesh.
+  FineDes1Del = 14 ;
 }
 
 void PixelFEDCard::readDBTBMLevels(std::vector<std::vector<std::string> > &tableMat, int firstRow, int lastRow)
@@ -1410,6 +1428,8 @@ void PixelFEDCard::writeXML( std::ofstream *fedstream,
       *fedstream << "   <B2_ADCGN>"                 << NCadcg       	   << "</B2_ADCGN>"		    << std::endl ;
       *fedstream << "   <B3_ADCGN>"                 << SCadcg       	   << "</B3_ADCGN>"		    << std::endl ;
       *fedstream << "   <B4_ADCGN>"                 << Sadcg        	   << "</B4_ADCGN>"		    << std::endl ;
+//       std::cout << "PixelFEDCard::WriteXML()\tNbaseln:" << Nbaseln << std::endl ;
+//       std::cout << "PixelFEDCard::WriteXML()\tNbaseln:" << std::hex << Nbaseln << std::dec << std::endl ;
       *fedstream << "   <NORTH_BADJ>"               << Nbaseln      	   << "</NORTH_BADJ>"		    << std::endl ;
       *fedstream << "   <NORTHCENTER_BADJ>"         << NCbaseln     	   << "</NORTHCENTER_BADJ>"	    << std::endl ;
       *fedstream << "   <SOUTHCENTER_BADJ>"         << SCbaseln     	   << "</SOUTHCENTER_BADJ>"	    << std::endl ;

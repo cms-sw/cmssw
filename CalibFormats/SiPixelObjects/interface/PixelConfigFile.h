@@ -175,11 +175,11 @@ namespace pos{
       static int counter=0;
 
       if (counter!=0){
-	while(counter!=0){
-	  std::cout <<"[PixelConfigFile::getConfig()] waiting for other thread to complete reading"<<std::endl;
-	  ::sleep(1);
-	}
-	return configs;
+			 while(counter!=0){
+			   std::cout <<"[PixelConfigFile::getConfig()] waiting for other thread to complete reading"<<std::endl;
+			   ::sleep(1);
+			 }
+			 return configs;
       }
       
 
@@ -202,6 +202,14 @@ namespace pos{
 	  //	  std::cout << "[pos::PixelConfigFile::getConfig()] Reading configurations.txt"<< std::endl ;
 	  configs.readfile(filename);
 //	  std::cout << "[pos::PixelConfigFile::getConfig()] Size read: " << configs.size() << std::endl ;
+	  forceConfigReload(false) ;
+	}
+      else
+	{
+	  if( getForceConfigReload() ) {
+	    configs.reload(filename);
+	    forceConfigReload(false) ;
+	  }
 	}
 
       counter--;
@@ -239,6 +247,12 @@ namespace pos{
     static void forceAliasesReload(bool m){
       if(getForceAliasesReload() != m){
     	getForceAliasesReload() = m;
+      }
+    }
+
+    static void forceConfigReload(bool m){
+      if(getForceConfigReload() != m){
+    	getForceConfigReload() = m;
       }
     }
 
@@ -853,6 +867,10 @@ namespace pos{
     static bool& getForceAliasesReload(){
       static bool forceAliasesReload = false; 
       return forceAliasesReload;
+    }
+    static bool& getForceConfigReload(){
+      static bool forceConfigReload = false; 
+      return forceConfigReload;
     }
   
  };

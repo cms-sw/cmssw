@@ -74,13 +74,14 @@ PixelTKFECConfig::PixelTKFECConfig(std::vector<std::vector<std::string> >& table
   
   for(unsigned int r = 1 ; r < tableMat.size() ; r++)    //Goes to every row of the Matrix
     {
-      std::string TKFECID  = tableMat[r][colM["TRACKER_FEC"]] ;
-      unsigned int crate   = atoi(tableMat[r][colM["CRATE"]].c_str()) ;
+      std::string TKFECID  = tableMat[r][colM["TRKFEC_NAME"]] ;
+      unsigned int crate   = atoi(tableMat[r][colM["CRATE_NUMBER"]].c_str()) ;
       std::string type     = "VME" ;
-      unsigned int address = strtoul(tableMat[r][colM["VME_ADDRESS_HEX"]].c_str() , 0, 16);
+      unsigned int address = strtoul(tableMat[r][colM["VME_ADDR"]].c_str() , 0, 16);
       PixelTKFECParameters tmp;
       tmp.setTKFECParameters(TKFECID , crate , type, address);
       TKFECconfig_.push_back(tmp);
+      cout << "[PixelTKFECConfig::PixelTKFECConfig()]\tID: " << TKFECID << " crate: " << crate << " address: " << address << endl;
     }
 }// end contructor
 
@@ -308,11 +309,11 @@ void PixelTKFECConfig::writeXML( std::ofstream *outstream,
   std::string mthn = "[PixelTKFECConfig::writeXML()]\t\t\t    " ;
 
   for(unsigned int i=0;i<TKFECconfig_.size();i++){
-    *outstream << "  <DATA>"                                                                 		  << std::endl ;
-    *outstream << "   <TRKFEC_NAME>"   << TKFECconfig_[i].getTKFECID() << "</TRKFEC_NAME>"   		  << std::endl ;
-    *outstream << "   <CRATE_NUMBER>"  << TKFECconfig_[i].getCrate()   << "</CRATE_NUMBER>"   		  << std::endl ;
-    *outstream << "   <VME_ADDR>"      << TKFECconfig_[i].getAddress() << "</VME_ADDR>" 		  << std::endl ;
-    *outstream << "  </DATA>"                                                                		  << std::endl ;
+    *outstream << "  <DATA>"                                                                 		         << std::endl ;
+    *outstream << "   <TRKFEC_NAME>"                  << TKFECconfig_[i].getTKFECID()        << "</TRKFEC_NAME>" << std::endl ;
+    *outstream << "   <CRATE_NUMBER>"                 << TKFECconfig_[i].getCrate()          << "</CRATE_NUMBER>"<< std::endl ;
+    *outstream << "   <VME_ADDR>"      << "0x" << hex << TKFECconfig_[i].getAddress() << dec << "</VME_ADDR>"    << std::endl ;
+    *outstream << "  </DATA>"                                                                		         << std::endl ;
   }
 }
 

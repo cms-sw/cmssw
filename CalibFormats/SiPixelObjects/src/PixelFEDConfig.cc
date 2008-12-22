@@ -31,14 +31,14 @@ PixelFEDConfig::PixelFEDConfig(std::vector<std::vector<std::string> >& tableMat 
    VME_ADDR				     NOT NULL VARCHAR2(200)
 */
 
-    colNames.push_back("CONFIG_KEY"  );
-    colNames.push_back("KEY_TYPE"    );
-    colNames.push_back("KEY_ALIAS"   );
-    colNames.push_back("VERSION"     );
-    colNames.push_back("KIND_OF_COND");
-    colNames.push_back("PIXEL_FED"   );
-    colNames.push_back("CRATE_NUMBER");
-    colNames.push_back("VME_ADDR"    );
+    colNames.push_back("CONFIG_KEY"    );
+    colNames.push_back("KEY_TYPE"      );
+    colNames.push_back("KEY_ALIAS"     );
+    colNames.push_back("VERSION"       );
+    colNames.push_back("KIND_OF_COND"  );
+    colNames.push_back("PIXEL_FED"     );
+    colNames.push_back("CRATE_NUMBER"  );
+    colNames.push_back("VME_ADDR" );
 /*
    colNames.push_back("PIXEL_FED"    ); //0
    colNames.push_back("CRATE_NUMBER" ); //1
@@ -74,15 +74,16 @@ PixelFEDConfig::PixelFEDConfig(std::vector<std::vector<std::string> >& tableMat 
      //becuase the PixelFecConfig class ask for the fec number not the name.  
      // 01234567
      // PxlFED_XX
-     fedname.erase(0,7); 
+//      fedname.erase(0,7); 
      fednum = (unsigned int)atoi(fedname.c_str()) ;
      
      if(fedconfig_.empty())
        {
        PixelFEDParameters tmp;
        unsigned int vme_base_address = 0 ;
-       string hexVMEAddr = tableMat[r][colM["VME_ADDRS_HEX"]] ;
-       sscanf(hexVMEAddr.c_str(), "%x", &vme_base_address) ;
+       vme_base_address = strtoul(tableMat[r][colM["VME_ADDR"]].c_str(), 0, 16);
+//        string hexVMEAddr = tableMat[r][colM["VME_ADDRS_HEX"]] ;
+//        sscanf(hexVMEAddr.c_str(), "%x", &vme_base_address) ;
        tmp.setFEDParameters( fednum, (unsigned int)atoi(tableMat[r][colM["CRATE_NUMBER"]].c_str()) , 
 			     vme_base_address);   
        fedconfig_.push_back(tmp);
@@ -103,7 +104,7 @@ PixelFEDConfig::PixelFEDConfig(std::vector<std::vector<std::string> >& tableMat 
 	   {
 	     PixelFEDParameters tmp;
 	     tmp.setFEDParameters( fednum, (unsigned int)atoi(tableMat[r][colM["CRATE_NUMBER"]].c_str()) , 
-				   (unsigned int)atoi(tableMat[r][colM["VME_ADDRS_HEX"]].c_str()));   
+				   (unsigned int)strtoul(tableMat[r][colM["VME_ADDR"]].c_str(), 0, 16));   
 	     fedconfig_.push_back(tmp); 
 	   }
        }//end else 
