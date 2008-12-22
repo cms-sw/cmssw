@@ -47,7 +47,7 @@ int main() {
     startFun.Draw("same");
     
     ChiSquared chi2(f, &histo, 80, 120);
-    int fullBins = chi2.degreesOfFreedom();
+    int fullBins = chi2.numberOfBins();
     std::cout << "N. deg. of freedom: " << fullBins << std::endl;
     fit::RootMinuit<ChiSquared> minuit(chi2, true);
     commands.add(minuit, yield);
