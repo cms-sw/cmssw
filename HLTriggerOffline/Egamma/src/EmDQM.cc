@@ -321,7 +321,7 @@ EmDQM::analyze(const edm::Event & event , const edm::EventSetup& setup)
     allSortedGenParticles.push_back(tmpcand);
   }
 
-  std::sort(allSortedGenParticles.begin(), allSortedGenParticles.end(),pTComparator_);
+  std::sort(allSortedGenParticles.begin(), allSortedGenParticles.end(),pTGenComparator_);
 
   // Were enough high energy gen particles found?
   if (allSortedGenParticles.size() < gencut_) {
@@ -363,7 +363,7 @@ EmDQM::analyze(const edm::Event & event , const edm::EventSetup& setup)
 
   std::vector<reco::Particle> sortedGen;
   for(edm::View<reco::Candidate>::const_iterator genpart = cutCounter->begin(); genpart != cutCounter->end();genpart++){
-    reco::Particle tmpcand( *(genpart) );
+    reco::Particle tmpcand(  genpart->charge(), genpart->p4(), genpart->vertex(),genpart->pdgId(),genpart->status() );
     sortedGen.push_back(tmpcand);
   }
   std::sort(sortedGen.begin(),sortedGen.end(),pTComparator_ );

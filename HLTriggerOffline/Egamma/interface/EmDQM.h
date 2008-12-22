@@ -94,6 +94,7 @@ private:
 
   template <class T> void fillHistos(edm::Handle<trigger::TriggerEventWithRefs>& ,const edm::Event& ,unsigned int, std::vector<reco::Particle>& );
   GreaterByPt<reco::Particle> pTComparator_;
+  GreaterByPt<reco::GenParticle> pTGenComparator_;
   
 };
 #endif
