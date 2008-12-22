@@ -2,8 +2,8 @@
  *  Class:PostProcessor 
  *
  *
- *  $Date: 2008/12/19 17:14:39 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/12/22 08:31:48 $
+ *  $Revision: 1.1 $
  * 
  *  \author Junghwan Goh - SungKyunKwan University
  */
@@ -103,6 +103,8 @@ void PostProcessor::endJob()
         LogError("PostProcessor") << "Wrong input to effCmds\n";
         continue;
       }
+
+      if ( args.size() == 4 ) args.push_back("eff");
 
       computeEfficiency(dirName, args[0], args[1], args[2], args[3], args[4]);
     }
