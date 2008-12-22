@@ -18,6 +18,7 @@ class SiStripLorentzAngleGenerator : public SiStripCondObjBuilderBase<SiStripLor
  private:
   
   void createObject();
+  float hallMobility;
 
   
 };

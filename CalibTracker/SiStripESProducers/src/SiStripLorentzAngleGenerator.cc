@@ -3,6 +3,8 @@
 #include <boost/cstdint.hpp>
 #include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
+#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
+#include "CLHEP/Random/RandGauss.h"
 
 #include<cmath>
 
@@ -24,29 +26,31 @@ void SiStripLorentzAngleGenerator::createObject(){
 
 
   edm::FileInPath fp_              = _pset.getParameter<edm::FileInPath>("file");
-  double   appliedVoltage_         = _pset.getParameter<double>("AppliedVoltage");
-  double   chargeMobility_         = _pset.getParameter<double>("ChargeMobility");
-  double   temperature_            = _pset.getParameter<double>("Temperature");
-  double   temperatureerror_       = _pset.getParameter<double>("TemperatureError");
-  double   rhall_                  = _pset.getParameter<double>("HoleRHAllParameter");
-  double   holeBeta_               = _pset.getParameter<double>("HoleBeta");
-  double   holeSaturationVelocity_ = _pset.getParameter<double>("HoleSaturationVelocity");
+  double   TIB_EstimatedValue         = _pset.getParameter<double>("TIB_EstimatedValue");
+  double   TOB_EstimatedValue         = _pset.getParameter<double>("TOB_EstimatedValue");
+  double   PerCent_Err		      = _pset.getParameter<double>("PerCent_Err");
+  
 
   SiStripDetInfoFileReader reader(fp_.fullPath());
-
+  
   const std::vector<uint32_t> DetIds = reader.getAllDetIds();
-  float mulow = chargeMobility_*std::pow((temperature_/300.),-2.5);
-  float vsat = holeSaturationVelocity_*std::pow((temperature_/300.),0.52);
-  float beta = holeBeta_*std::pow((temperature_/300.),0.17);
+  double StdDev_TIB = (PerCent_Err/100)*TIB_EstimatedValue;
+  double StdDev_TOB = (PerCent_Err/100)*TOB_EstimatedValue;
+  
   
   for(std::vector<uint32_t>::const_iterator detit=DetIds.begin(); detit!=DetIds.end(); detit++){
-
-    const float & thickness=reader.getThickness(*detit);
-    float e = appliedVoltage_/thickness;
-    float mu = ( mulow/(pow(double((1+pow((mulow*e/vsat),beta))),1./beta)));
-    float hallMobility = 1.E-4*mu*rhall_;
     
+    hallMobility = 0;
+    StripSubdetector subid(*detit);
     
+    if(subid.subdetId() == int (StripSubdetector::TIB)){
+    if(StdDev_TIB>0)hallMobility=RandGauss::shoot(TIB_EstimatedValue,StdDev_TIB);
+    else hallMobility = TIB_EstimatedValue;}
+    
+    if(subid.subdetId() == int (StripSubdetector::TOB)){
+    if(StdDev_TOB>0)hallMobility=RandGauss::shoot(TOB_EstimatedValue,StdDev_TOB);
+    else hallMobility = TOB_EstimatedValue;}
+       
     if ( ! obj_->putLorentzAngle(*detit, hallMobility) )
       edm::LogError("SiStripLorentzAngleGenerator")<<" detid already exists"<<std::endl;
   }

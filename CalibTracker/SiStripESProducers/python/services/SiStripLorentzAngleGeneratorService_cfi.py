@@ -2,14 +2,10 @@ import FWCore.ParameterSet.Config as cms
 
 
 SiStripLorentzAngleGenerator = cms.Service("SiStripLorentzAngleGenerator",
-                                           TemperatureError = cms.double(10.0),
-                                           Temperature = cms.double(297.0),
-                                           HoleRHAllParameter = cms.double(0.7),
-                                           ChargeMobility = cms.double(480.0),
-                                           HoleBeta = cms.double(1.213),
-                                           HoleSaturationVelocity = cms.double(8370000.0),
-                                           file = cms.FileInPath('CalibTracker/SiStripCommon/data/SiStripDetInfo.dat'),
-                                           AppliedVoltage = cms.double(150.0)
+                                           TIB_EstimatedValue = cms.double(0.024),
+                                           TOB_EstimatedValue = cms.double(0.030),
+                                           PerCent_Err	      = cms.double(20),
+                                           file = cms.FileInPath('CalibTracker/SiStripCommon/data/SiStripDetInfo.dat'),         
                                            )
 
 

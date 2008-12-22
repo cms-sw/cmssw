@@ -37,13 +37,20 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
         authenticationPath = cms.untracked.string('/afs/cern.ch/cms/DB/conddb')
     ),
     timetype = cms.untracked.string('runnumber'),
+<<<<<<< DummyCondDBWriter_SiStripLorentzAngle_cfg.py
+    connect = cms.string('sqlite_file:LA_test_dummy.db'),
+=======
     connect = cms.string('sqlite_file:dbfile.db'),
+>>>>>>> 1.2
     toPut = cms.VPSet(cms.PSet(
         record = cms.string('SiStripLorentzAngleRcd'),
         tag = cms.string('SiStripLorentzAngle_Fake_30X')
     ))
 )
 
+process.SiStripLorentzAngleGenerator.TIB_EstimatedValue = cms.double(0.0174)
+process.SiStripLorentzAngleGenerator.TOB_EstimatedValue = cms.double(0.0222)
+process.SiStripLorentzAngleGenerator.PerCent_Err = cms.double(20)
 
 process.p1 = cms.Path(process.siStripLorentzAngleDummyDBWriter)
 
