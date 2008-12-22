@@ -11,6 +11,7 @@
 	* Brought forward the additional event statistics from Harry.
 	* Included the fix for the spurious discard messages sent to the
 	  resource broker.
+	* Added sample Python configuration files to test subdirectory.
 
 2008-11-21  Kurt Biery <biery@fnal.gov>
 
