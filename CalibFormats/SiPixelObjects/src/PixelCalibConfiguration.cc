@@ -588,9 +588,11 @@ void PixelCalibConfiguration::buildROCAndModuleLists(const PixelNameTranslation*
 				for ( std::vector <PixelModuleName>::const_iterator moduleList_itr = moduleList.begin(); moduleList_itr != moduleList.end(); moduleList_itr++ )
 				{
 					std::vector<PixelROCName> ROCsOnThisModule = translation->getROCsFromModule( *moduleList_itr );
-					for ( std::vector<PixelROCName>::iterator ROCsOnThisModule_itr = ROCsOnThisModule.begin(); ROCsOnThisModule_itr != ROCsOnThisModule.end(); ROCsOnThisModule_itr++ )
-					{
-						rocSet.insert(*ROCsOnThisModule_itr);
+					for ( std::vector<PixelROCName>::iterator ROCsOnThisModule_itr = ROCsOnThisModule.begin(); ROCsOnThisModule_itr != ROCsOnThisModule.end(); ROCsOnThisModule_itr++ ) {
+					  map<PixelROCName, PixelROCStatus> iroclist=detconfig->getROCsList();
+					  PixelROCStatus istatus =  iroclist[*ROCsOnThisModule_itr];
+					  if ( !istatus.get(PixelROCStatus::noAnalogSignal) )
+					    rocSet.insert(*ROCsOnThisModule_itr);
 					}
 				}
 			}

@@ -27,7 +27,7 @@ namespace pos{
   public:
 
     //Insert new status before nStatus
-    enum ROCstatus {off=0, noHits, noInit, nStatus};
+    enum ROCstatus {off=0, noHits, noInit, noAnalogSignal, nStatus};
 
     PixelROCStatus();
     PixelROCStatus(const std::set<ROCstatus>& stat);
