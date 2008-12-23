@@ -183,7 +183,8 @@ namespace cscdqm {
 
         }
 
-        XMLPlatformUtils::Terminate();
+        //doc->release();
+        //XMLPlatformUtils::Terminate();
 
       }
 
