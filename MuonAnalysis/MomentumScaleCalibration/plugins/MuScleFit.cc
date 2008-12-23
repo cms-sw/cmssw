@@ -1,8 +1,8 @@
 //  \class MuScleFit
-//  Analyzer of the StandAlone muon tracks
+//  Fitter of momentum scale and resolution from resonance decays to muon track pairs
 //
-//  $Date: 2008/12/04 16:21:10 $
-//  $Revision: 1.15 $
+//  $Date: 2008/12/15 16:27:31 $
+//  $Revision: 1.16 $
 //  \author R. Bellan, C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo, M.De Mattia - INFN Padova
 //
 //  Recent additions: 
@@ -77,6 +77,19 @@
 //    fit parameters is used.
 //  - The muon pair which we call our resonance must be chosen in a way which does not
 //    bias our likelihood: we cannot just choose the pair closest to a resonance.
+//
+//
+//    Notes on additions, T.Dorigo 22/12/2008
+//    ---------------------------------------
+//
+//  - File Probs_new_1000_CTEQ.root now contains a set of 40 additional two-dim histograms,
+//    defining the probability distribution of Z boson decays as a function of measured mass
+//    and expected sigma in 40 different bins of Z rapidity, extracted from CTEQ 6 PDF (at
+//    Leading Order) from the convolution in the factorization integral. See programs CTEQ.cpp
+//    and Fits.C.
+//  - The probability for Z boson events now thus depends on the measured rapidity of the dimuon
+//    system. All functions in file MuScleFitUtils.cc have been suitably changed.
+//
 // ----------------------------------------------------------------------------------
 
 #include "MuScleFit.h"
@@ -235,15 +248,22 @@ MuScleFit::MuScleFit (const ParameterSet& pset) {
   // of mass and resolution of a given measurement,
   // for each of the six considered diLmuon resonances.
   // -------------------------------------------------
-  cout << "[MuScleFit-Constructor]: Reading TH2D probabilities from Probs_1000.root file" << endl;
+  TH2D * GLZ[40];
   TH2D * GL[6];
   TFile * ProbsFile;
   if ( theMuonType!=2 ) {
-    ProbsFile = new TFile ("Probs_1000.root"); // NNBB need to reset this if MuScleFitUtils::nbins changes
+    ProbsFile = new TFile ("Probs_new_1000_CTEQ.root"); // NNBB need to reset this if MuScleFitUtils::nbins changes
+    cout << "[MuScleFit-Constructor]: Reading TH2D probabilities from Probs_new_1000_CTEQ.root file" << endl;
   } else {
     ProbsFile = new TFile ("Probs_SM_1000.root"); // NNBB need to reset this if MuScleFitUtils::nbins changes
+    cout << "[MuScleFit-Constructor]: Reading TH2D probabilities from Probs_new_SM_1000_CTEQ.root file" << endl;
   }    
   ProbsFile->cd();
+  for ( int i=0; i<40; i++ ) {
+    char nameh[6];
+    sprintf (nameh,"GLZ%d",i);
+    GLZ[i] = dynamic_cast<TH2D*>(ProbsFile->Get(nameh)); 
+  }
   GL[0] = dynamic_cast<TH2D*> (ProbsFile->Get("GL0"));
   GL[1] = dynamic_cast<TH2D*> (ProbsFile->Get("GL1"));
   GL[2] = dynamic_cast<TH2D*> (ProbsFile->Get("GL2"));
@@ -251,6 +271,21 @@ MuScleFit::MuScleFit (const ParameterSet& pset) {
   GL[4] = dynamic_cast<TH2D*> (ProbsFile->Get("GL4"));
   GL[5] = dynamic_cast<TH2D*> (ProbsFile->Get("GL5"));
 
+  // Extract normalization for mass slice in Y bins of Z
+  // ---------------------------------------------------
+  for (int iY=0; iY<40; iY++) {
+    for (int iy=0; iy<=MuScleFitUtils::nbins; iy++) {
+      MuScleFitUtils::GLZNorm[iY][iy] = 0.;
+      for (int ix=0; ix<=MuScleFitUtils::nbins; ix++) {
+	MuScleFitUtils::GLZValue[iY][ix][iy] = GLZ[iY]->GetBinContent (ix+1, iy+1);
+	MuScleFitUtils::GLZNorm[iY][iy] += MuScleFitUtils::GLZValue[iY][ix][iy];
+      }
+      if (debug>2) cout << "GLZValue[" << iY << "][500][" << iy << "] = " 
+		       << MuScleFitUtils::GLZValue[iY][500][iy] 
+		       << " GLZNorm[" << iY << "][" << iy << "] = " 
+		       << MuScleFitUtils::GLZNorm[iY][iy] << endl;
+    }
+  }
   // Extract normalization for each mass slice
   // -----------------------------------------
   for (int ires=0; ires<6; ires++) {
@@ -389,8 +424,21 @@ edm::EDLooper::Status MuScleFit::endOfLoop (const edm::EventSetup& eventSetup, u
 
   // Mass probability histograms
   // ---------------------------
+  theFiles[iLoop]->cd();
   Mass_P->Write();
   Mass_fine_P->Write();
+  PtminvsY->Write();
+  PtmaxvsY->Write();
+  EtamuvsY->Write();
+  Y->Write();
+  MY->Write();
+  MYP->Write();
+  YL->Write();
+  PL->Write();
+  PTL->Write();
+  GM->Write();
+  SM->Write();
+  GSM->Write();
 
   // Likelihood minimization to compute corrections
   // ----------------------------------------------
@@ -570,6 +618,20 @@ edm::EDLooper::Status MuScleFit::duringLoop (const Event & event, const EventSet
 
     //Fill histograms
     //------------------
+    if (recMu1.Pt()>recMu2.Pt()) {
+      PtminvsY->Fill(recMu2.Pt(),bestRecRes.Rapidity());
+      PtmaxvsY->Fill(recMu1.Pt(),bestRecRes.Rapidity());
+      EtamuvsY->Fill(recMu1.Eta(),bestRecRes.Rapidity());
+      EtamuvsY->Fill(recMu2.Eta(),bestRecRes.Rapidity());
+    } else {
+      PtmaxvsY->Fill(recMu2.Pt(),bestRecRes.Rapidity());
+      PtminvsY->Fill(recMu1.Pt(),bestRecRes.Rapidity());
+      EtamuvsY->Fill(recMu1.Eta(),bestRecRes.Rapidity());
+      EtamuvsY->Fill(recMu2.Eta(),bestRecRes.Rapidity());
+    }
+    Y->Fill(fabs(bestRecRes.Rapidity()));
+    MY->Fill(fabs(bestRecRes.Rapidity()),bestRecRes.mass());
+    MYP->Fill(fabs(bestRecRes.Rapidity()),bestRecRes.mass());
     mapHisto["hRecBestMu"]->Fill(recMu1);
     if ((abs(recMu1.eta())<2.5) && (recMu1.pt()>2.5)) {
       mapHisto["hRecBestMu_Acc"]->Fill(recMu1);
@@ -622,6 +684,9 @@ edm::EDLooper::Status MuScleFit::duringLoop (const Event & event, const EventSet
     pair <reco::Particle::LorentzVector, reco::Particle::LorentzVector> genMu = 
       MuScleFitUtils::findGenMuFromRes(evtMC);
     //first is always mu-, second is always mu+
+
+    double genmass = (genMu.first+genMu.second).mass();
+    GM->Fill(genmass);
     if(checkDeltaR(genMu.first,recMu1)){
 //       mapHisto["hResolPtGenVSMu"]->Fill(genMu.first,(-genMu.first.Pt()+recMu1.Pt())/genMu.first.Pt(),-1);
 //       mapHisto["hResolThetaGenVSMu"]->Fill(genMu.first,(-genMu.first.Theta()+recMu1.Theta()),-1);
@@ -669,6 +734,10 @@ edm::EDLooper::Status MuScleFit::duringLoop (const Event & event, const EventSet
     pair <reco::Particle::LorentzVector, reco::Particle::LorentzVector> simMu = 
       MuScleFitUtils::findSimMuFromRes(evtMC,simTracks);
     //first is always mu-, second is always mu+
+    double simmass = (simMu.first+simMu.second).mass();
+    SM->Fill(simmass);
+    GSM->Fill(genmass-simmass);
+
     if(checkDeltaR(simMu.first,recMu1)){
       mapHisto["hResolPtSimVSMu"]->Fill(simMu.first,(-simMu.first.Pt()+recMu1.Pt())/simMu.first.Pt(),-1);
       mapHisto["hResolThetaSimVSMu"]->Fill(simMu.first,(-simMu.first.Theta()+recMu1.Theta()),-1);
@@ -706,11 +775,11 @@ edm::EDLooper::Status MuScleFit::duringLoop (const Event & event, const EventSet
 	  initpar.push_back(MuScleFitUtils::parBgr[i]);
 	}
 	massResol = MuScleFitUtils::massResolution (recMu1, recMu2, initpar);
-	prob      = MuScleFitUtils::massProb (bestRecRes.mass(), massResol, initpar);
+	prob      = MuScleFitUtils::massProb (bestRecRes.mass(), bestRecRes.Rapidity(), massResol, initpar);
       } else {
 	massResol = MuScleFitUtils::massResolution (recMu1, recMu2, 
                                                     MuScleFitUtils::parvalue[loopCounter-1]);
-	prob      = MuScleFitUtils::massProb (bestRecRes.mass(), 
+	prob      = MuScleFitUtils::massProb (bestRecRes.mass(), bestRecRes.Rapidity(), 
                                               massResol, MuScleFitUtils::parvalue[loopCounter-1]);
       }
       if (prob>0) { 
@@ -721,7 +790,9 @@ edm::EDLooper::Status MuScleFit::duringLoop (const Event & event, const EventSet
 	mapHisto["hLikeVSMuPlus"]->Fill (recMu2, deltalike);
 	mapHisto["hResolMassVSMu"]->Fill (recMu1, massResol,-1);
 	mapHisto["hResolMassVSMu"]->Fill (recMu2, massResol,+1);
-
+	YL->Fill(bestRecRes.Rapidity(),deltalike);
+	PL->Fill(bestRecRes.P(),deltalike);
+	PTL->Fill(bestRecRes.Pt(),deltalike);
 
         double recoMass = (recMu1+recMu2).mass();
         double genMass = (genMu.first + genMu.second).mass();
@@ -829,7 +900,18 @@ void MuScleFit::fillHistoMap(TFile* outputFile, unsigned int iLoop) {
   // ---------------------------
   Mass_P = new TProfile ("Mass_P", "Mass probability", 4000, 0., 200., 0., 1.);
   Mass_fine_P = new TProfile ("Mass_fine_P", "Mass probability", 4000, 0., 20., 0., 1.);
-
+  PtminvsY = new TH2D ("PtminvsY","PtminvsY",120, 0., 120., 120, 0., 6.);
+  PtmaxvsY = new TH2D ("PtmaxvsY","PtmaxvsY",120, 0., 120., 120, 0., 6.);
+  EtamuvsY = new TH2D ("EtamuvsY","EtamuvsY",120, 0., 3., 120, 0., 6.);
+  Y = new TH1D ("Y","Y", 100, 0., 5. );
+  MY = new TH2D ("MY","MY",100, 0., 5., 100, 0., 200.);
+  MYP = new TProfile ("MYP","MYP",100, 0., 5., 0.,200.);
+  YL = new TProfile("YL","YL", 40, -4., 4., -10000000.,10000000.);
+  PL = new TProfile("PL","PL", 40, 0., 200., -10000000.,10000000.);
+  PTL = new TProfile("PTL","PTL", 40, 0., 100., -10000000., 10000000.);
+  GM = new TH1D ("GM","GM", 120, 61., 121.);
+  SM = new TH1D ("SM","SM", 120, 61., 121.);
+  GSM = new TH1D("GSM","GSM", 100, -2.5, 2.5);
 
   double ptMax = 40.;
   // Mass resolution vs (pt, eta) of the muons from MC

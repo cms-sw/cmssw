@@ -1,7 +1,7 @@
 /** See header file for a class description 
  *
- *  $Date: 2008/11/21 16:50:03 $
- *  $Revision: 1.16 $
+ *  $Date: 2008/12/15 16:27:31 $
+ *  $Revision: 1.17 $
  *  \author S. Bolognesi - INFN Torino / T. Dorigo, M.De Mattia - INFN Padova
  */
 // Some notes:
@@ -150,6 +150,8 @@ double MuScleFitUtils::x[][10000];
 // Probability matrices and normalization values
 // ---------------------------------------------
 int MuScleFitUtils::nbins = 1000; 
+double MuScleFitUtils::GLZValue[][1001][1001];  
+double MuScleFitUtils::GLZNorm[][1001];         
 double MuScleFitUtils::GLValue[][1001][1001];  
 double MuScleFitUtils::GLNorm[][1001];         
 double MuScleFitUtils::ResMaxSigma[][3];
@@ -163,7 +165,7 @@ double MuScleFitUtils::ResHalfWidth[][3];
 int MuScleFitUtils::MuonType;
 
 double MuScleFitUtils::ResGamma[] = {2.4952, 0.0000934, 0.000337, 0.000054, 0.000032, 0.000020};
-double MuScleFitUtils::ResMass[] = {90.986, 10.3552, 10.0233, 9.4603, 3.68609, 3.0969};
+double MuScleFitUtils::ResMass[] = {91.1876, 10.3552, 10.0233, 9.4603, 3.68609, 3.0969};
 unsigned int MuScleFitUtils::loopCounter = 5;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -186,9 +188,10 @@ pair<SimTrack,SimTrack> MuScleFitUtils::findBestSimuRes (vector<SimTrack>& simMu
       // Choose the best resonance using its mass. Check Z, Y(3S,2S,1S), Psi(2S), J/Psi in order
       // ---------------------------------------------------------------------------------------
       double mcomb = ((*simMu1).momentum()+(*simMu2).momentum()).mass();
+      double Y = ((*simMu1).momentum()+(*simMu2).momentum()).Rapidity();
       for (int ires=0; ires<6; ires++) {
 	if (resfind[ires]>0) {
-	  double prob = massProb (mcomb, ires, 0.);
+	  double prob = massProb (mcomb, Y, ires, 0.);
 	  if (prob>maxprob) {
 	    simMuFromBestRes.first = (*simMu1);
 	    simMuFromBestRes.second = (*simMu2);
@@ -228,6 +231,7 @@ pair<lorentzVector,lorentzVector> MuScleFitUtils::findBestRecoRes (vector<reco::
       if ((*Muon1).p4().Pt()>3.0 && (*Muon2).p4().Pt()>3.0 &&
 	  abs((*Muon1).p4().Eta())<2.4 && abs((*Muon2).p4().Eta())<2.4) {
 	double mcomb = ((*Muon1).p4()+(*Muon2).p4()).mass();
+	double Y = ((*Muon1).p4()+(*Muon2).p4()).Eta();
 	if (debug>1) {
 	  cout<<"muon1 "<<(*Muon1).p4().Px()<<", "<<(*Muon1).p4().Py()<<", "<<(*Muon1).p4().Pz()<<", "<<(*Muon1).p4().E()<<endl;
 	  cout<<"muon2 "<<(*Muon2).p4().Px()<<", "<<(*Muon2).p4().Py()<<", "<<(*Muon2).p4().Pz()<<", "<<(*Muon2).p4().E()<<endl;
@@ -236,7 +240,7 @@ pair<lorentzVector,lorentzVector> MuScleFitUtils::findBestRecoRes (vector<reco::
 	double prob;
 	for (int ires=0; ires<6; ires++) {
 	  if (resfind[ires]>0) {
-	    prob = massProb (mcomb, ires, massResol);
+	    prob = massProb (mcomb, Y, ires, massResol);
 	    if (prob>maxprob) {
 	      if ((*Muon1).charge()<0) { // store first the mu minus and then the mu plus
 		recMuFromBestRes.first = (*Muon1).p4();
@@ -710,7 +714,7 @@ double MuScleFitUtils::massResolution (const lorentzVector& mu1,
 
 // Mass probability - version with linear background included, accepts vector<double> parval
 // -----------------------------------------------------------------------------------------
-double MuScleFitUtils::massProb (double mass, double massResol, vector<double> parval) {
+double MuScleFitUtils::massProb (double mass, double rapidity, double massResol, vector<double> parval) {
 
   double * p = new double[(int)(parval.size())];
   // Replaced by auto_ptr, which handles delete at the end
@@ -724,14 +728,14 @@ double MuScleFitUtils::massProb (double mass, double massResol, vector<double> p
     p[id] = *it;
   }
   // p must be passed by value as below:
-  double massProbability = massProb (mass, massResol, p);
+  double massProbability = massProb (mass, rapidity, massResol, p);
   delete[] p;
   return massProbability;
 }
 
 // Mass probability - version with linear background included
 // ----------------------------------------------------------
-double MuScleFitUtils::massProb (double mass, double massResol, double * parval) {
+double MuScleFitUtils::massProb (double mass, double rapidity, double massResol, double * parval) {
 
   // double MuScleFitUtils::massProb (double mass, double massResol,  std::auto_ptr<double> parval) {
 
@@ -816,7 +820,96 @@ double MuScleFitUtils::massProb (double mass, double massResol, double * parval)
   double PS[6] = {0.};
   bool resConsidered[6] = {false};
   int nres = 0;  // number of resonances contributing here
-  for (int ires=0; ires<6; ires++) {
+
+  // First check the Z, which is divided in 40 rapidity bins
+  // NB max value of Z rapidity to be considered is 4. here
+  // -------------------------------------------------------
+  if (resfind[0]>0 && fabs(mass-ResMass[0])<ResHalfWidth[0][MuonType] && fabs(rapidity)<4.) {
+    int iY = (int)(fabs(rapidity)*10.);
+    resConsidered[0] = true;
+    nres += 1; 
+    
+    if (MuScleFitUtils::debug>1) cout << "massProb:resFound = 0, rapidity bin =" << iY << endl;
+    
+    // Interpolate the four values of GLZValue[] in the 
+    // grid square within which the (mass,sigma) values lay 
+    // ----------------------------------------------------
+    double fracMass = (mass-(ResMass[0]-ResHalfWidth[0][MuonType]))/(2*ResHalfWidth[0][MuonType]);
+    if (debug>1) cout<< setprecision(9)<<"mass ResMass[0] ResHalfWidth[0][MuonType] ResHalfWidth[0][MuonType]"
+		     << mass << " "<<ResMass[0]<<" "<<ResHalfWidth[0][MuonType]<<" "<<ResHalfWidth[0][MuonType]<<endl;
+    int iMassLeft  = (int)(fracMass*(double)nbins);
+    int iMassRight = iMassLeft+1;
+    double fracMassStep = (double)nbins*(fracMass - (double)iMassLeft/(double)nbins);
+    if (debug>1) cout<<"nbins iMassLeft fracMass "<<nbins<<" "<<iMassLeft<<" "<<fracMass<<endl;
+    
+    // Simple protections for the time being: the region where we fit should not include
+    // values outside the boundaries set by ResMass-ResHalfWidth : ResMass+ResHalfWidth
+    // ---------------------------------------------------------------------------------
+    if (iMassLeft<0) {
+      cout << "WARNING: fracMass=" << fracMass << ", iMassLeft=" 
+	   << iMassLeft << "; mass = " << mass << " and bounds are " << ResMass[0]-ResHalfWidth[0][MuonType] 
+	   << ":" << ResMass[0]+ResHalfWidth[0][MuonType] << " - iMassLeft set to 0" << endl;
+      iMassLeft  = 0;
+      iMassRight = 1;
+    }
+    if (iMassRight>nbins) {
+      cout << "WARNING: fracMass=" << fracMass << ", iMassRight=" 
+	   << iMassRight << "; mass = " << mass << " and bounds are " << ResMass[0]-ResHalfWidth[0][MuonType] 
+	   << ":" << ResMass[0]+ResHalfWidth[0][MuonType] << " - iMassRight set to " << nbins-1 << endl;
+      iMassLeft  = nbins-1;
+      iMassRight = nbins;
+    }
+    double fracSigma = (massResol/ResMaxSigma[0][MuonType]);
+    int iSigmaLeft = (int)(fracSigma*(double)nbins);
+    int iSigmaRight = iSigmaLeft+1;
+    double fracSigmaStep = (double)nbins * (fracSigma - (double)iSigmaLeft/(double)nbins);
+    
+    // Simple protections for the time being: they should not affect convergence, since
+    // ResMaxSigma is set to very large values, and if massResol exceeds them the fit 
+    // should not get any prize for that (for large sigma, the prob. distr. becomes flat)
+    // ----------------------------------------------------------------------------------
+    if (iSigmaLeft<0) { 
+      cout << "WARNING: fracSigma = " << fracSigma << ", iSigmaLeft=" 
+	   << iSigmaLeft << " -  iSigmaLeft set to 0" << endl;
+      iSigmaLeft  = 0;
+      iSigmaRight = 1;
+    }
+    if (iSigmaRight>nbins ) { 
+      if (counter_resprob<100)
+	cout << "WARNING: fracSigma = " << fracSigma << ", iSigmaRight=" 
+	     << iSigmaRight << "; sigma = " << massResol << " and bounds are 0:" 
+	     << ResMaxSigma[0][MuonType] << " - iSigmaRight set to " << nbins-1 << endl;
+      iSigmaLeft  = nbins-1;
+      iSigmaRight = nbins;
+    }
+    
+    // If f11,f12,f21,f22 are the values at the four corners, one finds by linear interpolation the
+    // formula below for PS[]
+    // --------------------------------------------------------------------------------------------
+    double f11 = 0.;
+    if (GLZNorm[iY][iSigmaLeft]>0) 
+      f11 = GLZValue[iY][iMassLeft][iSigmaLeft] / GLZNorm[iY][iSigmaLeft];
+    double f12 = 0.;
+    if (GLZNorm[iY][iSigmaRight]>0) 
+      f12 = GLZValue[iY][iMassLeft][iSigmaRight] / GLZNorm[iY][iSigmaRight];
+    double f21 = 0.;
+    if (GLZNorm[iY][iSigmaLeft]>0) 
+      f21 = GLZValue[iY][iMassRight][iSigmaLeft] / GLZNorm[iY][iSigmaLeft];
+    double f22 = 0.;
+    if (GLZNorm[iY][iSigmaRight]>0) 
+      f22 = GLZValue[iY][iMassRight][iSigmaRight] / GLZNorm[iY][iSigmaRight];
+    PS[0] = f11 + (f12-f11)*fracSigmaStep + (f21-f11)*fracMassStep + 
+      (f22-f21-f12+f11)*fracMassStep*fracSigmaStep;    
+    if (PS[0]>0.1 || debug>1) cout << "ires = 0 " << " PS=" << PS[0] << " f11,f12,f21,f22=" 
+				      << f11 << " " << f12 << " " << f21 << " " << f22 << " " 
+				      << " fSS=" << fracSigmaStep << " fMS=" << fracMassStep << " iSL, iSR=" 
+				      << iSigmaLeft << " " << iSigmaRight << " GLV,GLN=" 
+				      << GLZValue[iY][iMassLeft][iSigmaLeft] 
+				      << " " << GLZNorm[iY][iSigmaLeft] << endl;
+  } 
+  // Next check the other resonances
+  // -------------------------------
+  for (int ires=1; ires<6; ires++) {
     if (resfind[ires]>0 && fabs(mass-ResMass[ires])<ResHalfWidth[ires][MuonType]) {
 
       resConsidered[ires] = true;
@@ -1286,6 +1379,7 @@ extern "C" void likelihood (int& npar, double* grad, double& fval, double* xval,
       corrMu1 = MuScleFitUtils::applyScale (recMu1, xval, -1);
       corrMu2 = MuScleFitUtils::applyScale (recMu2, xval,  1);
       double corrMass = MuScleFitUtils::invDimuonMass (corrMu1, corrMu2);
+      double Y = (corrMu1+corrMu2).Rapidity();
       if (MuScleFitUtils::debug>19) {
 	cout << "[MuScleFitUtils-likelihood]: Original/Corrected resonance mass = " << mass
 	     << " / " << corrMass << endl;
@@ -1300,7 +1394,7 @@ extern "C" void likelihood (int& npar, double* grad, double& fval, double* xval,
       // Compute probability of this mass value including background modeling
       // --------------------------------------------------------------------
       if (MuScleFitUtils::debug>1) cout << "calling massProb inside likelihood function" << endl;
-      double prob = MuScleFitUtils::massProb (corrMass, massResol, xval);
+      double prob = MuScleFitUtils::massProb (corrMass, Y, massResol, xval);
       if (MuScleFitUtils::debug>1) cout << "likelihood:massProb = " << prob << endl;
 
       // Compute likelihood
@@ -2512,7 +2606,7 @@ double MuScleFitUtils::massProb2 (double mass, int ires, double massResol) {
 
 // Mass probability for likelihood computation - no-background version (not used anymore)
 // --------------------------------------------------------------------------------------
-double MuScleFitUtils::massProb (double mass, int ires, double massResol) {
+double MuScleFitUtils::massProb (double mass, double rapidity, int ires, double massResol) {
   
   // This routine computes the likelihood that a given measured mass "measMass" is
   // the result of resonance #ires if the resolution expected for the two muons is massResol

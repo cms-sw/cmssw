@@ -5,8 +5,8 @@
  *  
  *  Provide basic functionalities useful for MuScleFit
  *
- *  $Date: 2008/11/18 13:21:23 $
- *  $Revision: 1.5 $
+ *  $Date: 2008/12/15 16:27:31 $
+ *  $Revision: 1.6 $
  *  \author S. Bolognesi - INFN Torino / T. Dorigo - INFN Padova
  */
 
@@ -81,10 +81,10 @@ public:
   static double massResolution (const lorentzVector& mu1, const lorentzVector& mu2, std::auto_ptr<double> parval);
   static double massResolution (const lorentzVector& mu1, const lorentzVector& mu2, double* parval);
 
-  static double massProb (double mass, int ires, double massResol);
-  static double massProb (double mass, double massResol, std::vector<double> parval);
-  static double massProb (double mass, double massResol, std::auto_ptr<double> parval);
-  static double massProb (double mass, double massResol, double* parval);
+  static double massProb (double mass, double rapidity, int ires, double massResol);
+  static double massProb (double mass, double rapidity, double massResol, std::vector<double> parval);
+  static double massProb (double mass, double rapidity, double massResol, std::auto_ptr<double> parval);
+  static double massProb (double mass, double rapidity, double massResol, double* parval);
   static double massProb2 (double mass, int ires, double massResol); // Not used yet
   static double computeWeight (double mass);
 
@@ -155,6 +155,8 @@ public:
   static double x[7][10000]; // smearing values set by MuScleFit constructor
   static int goodmuon;       // number of events with a usable resonance
   static int counter_resprob;// number of times there are resolution problems
+  static double GLZValue[40][1001][1001]; // matrix with integral values of Lorentz * Gaussian 
+  static double GLZNorm[40][1001];        // normalization values per each sigma
   static double GLValue[6][1001][1001]; // matrix with integral values of Lorentz * Gaussian 
   static double GLNorm[6][1001];        // normalization values per each sigma
   static double ResMaxSigma[6][3];         // max sigma of matrix
