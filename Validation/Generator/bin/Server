@@ -36,6 +36,7 @@ class ClientThread ( threading.Thread, TempGeneratorValidator.JobManager):
     self.__scratch = None 
     threading.Thread.__init__( self )
     self.__JobType = ""
+    self.__GridJob = ""
 
   ## Define the basic send function
   def send ( self, string ):
@@ -63,17 +64,28 @@ class ClientThread ( threading.Thread, TempGeneratorValidator.JobManager):
          print 'received client'
          if client.has_key('normaljob'):
            run = client['normaljob']['Run']
+           #if client.has_key['normaljob']['Grid']:
+           #  Grid = True
+           #else:
+           #  Grid = False
            process = client['normaljob']['Process']
            compare = client['normaljob']['Compare']
            release = client['normaljob']['Release']
            self.__JobType = client['normaljob']['JobType']
            site = client['normaljob']['Site']
+	   self.__GridJob = client['normaljob']['Grid']
            # To run Config files on local node, uncomment next two lines
-           if self.__JobType.upper() != "BATCH":
+           if self.__JobType.upper() != "BATCH" and self.__JobType.upper() != "CRAB":
              self.config_run(run, process, compare) ## Local Node!!
-           else:
+	     if self.__GridJob.upper() == "TRUE":
+		self.Crab_run(run, process)
+           elif self.__JobType.upper() == "BATCH":
              self.batch_run(run, process, compare, site) ## Condor Batch Jobs!!
-           self.NewPublisher(run, process, compare, release, self.__JobType, site)
+	     if self.__GridJob.upper() == "TRUE":
+	        self.Crab_run(run, process)
+           elif self.__JobType.upper() == "CRAB":
+             self.Crab_run(run, process)
+           self.NewPublisher(run, process, compare, release, self.__JobType, site, self.__GridJob)
            message = {}
            message['Matrix'] = {"Status" : "Start"}
            self.send(pickle.dumps(message))
