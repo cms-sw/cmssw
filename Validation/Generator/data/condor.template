@@ -1,6 +1,7 @@
 universe = vanilla
 Executable = ${file} 
-should_transfer_files = NO
+Should_Transfer_Files = YES
+whenToTransferOutput = ON_EXIT
 Output = ${scratch}/stdout.log
 Error  = ${scratch}/stderr.log
 Log    = ${scratch}/condor.log
