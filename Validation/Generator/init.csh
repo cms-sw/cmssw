@@ -7,7 +7,7 @@
 
 setenv VTOOLS_ROOT ${PWD}
 
-setenv PYTHONPATH $VTOOLS_ROOT/python
+#setenv PYTHONPATH $VTOOLS_ROOT/python
 
 #setenv ROOTSYS /uscmst1/prod/sw/cms/slc4_ia32_gcc345/lcg/root/5.14.00g-CMS8
 

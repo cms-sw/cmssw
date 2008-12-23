@@ -12,10 +12,10 @@ import os
 variables = {}
 
 # initial directory
-variables['HomeDirectory'] =  "/uscms_data/d1/kjsmith/CMSSW_2_1_17/src/Validation/Generator/"
+variables['HomeDirectory'] =  "/uscms_data/d1/kjsmith/Test/CMSSW_2_1_17/src/Validation/Generator/"
 
 # Directory where references are stored
-variables['ReleaseDirectory'] = "/uscms_data/d1/kjsmith/CMSSW_2_1_17/src/Validation/Generator/DropBox/releases/"
+variables['ReleaseDirectory'] = "/uscms_data/d1/kjsmith/Test/CMSSW_2_1_17/src/Validation/Generator/DropBox/releases/"
 
 # web directory
 variables['WebDirectory'] = "/afs/fnal.gov/files/home/room2/kjsmith/public_html/"
