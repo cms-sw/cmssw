@@ -3,12 +3,12 @@ import FWCore.ParameterSet.Config as cms
 
 loadTau = cms.EDAnalyzer("DQMFileLoader",
   test = cms.PSet(
-    inputFileNames = cms.vstring('/afs/cern.ch/user/v/vasquez/scratch0/CMSSW_2_2_1/src/Validation/RecoTau/test/CMSSW_2_2_1_HadronicTauOneAndThreeProng_ALL_NewDiscriminators.root'),
+    inputFileNames = cms.vstring('/afs/cern.ch/user/v/vasquez/scratch0/CMSSW_2_2_0/src/Validation/RecoTau/test/FastSim_CMSSW_2_2_0_tauGenJets.root'),
     scaleFactor = cms.double(1.),
     dqmDirectory_store = cms.string('test')
   ),
   reference = cms.PSet(
-    inputFileNames = cms.vstring('/afs/cern.ch/user/v/vasquez/scratch0/validation/CMSSW_2_2_0/src/Validation/RecoTau/test/CMSSW_2_2_0_HadronicTauOneAndThreeProng_ALL_NewDiscriminators.root'),
+    inputFileNames = cms.vstring('/afs/cern.ch/user/v/vasquez/scratch0/CMSSW_2_2_0/src/Validation/RecoTau/test/CMSSW_2_2_0_tauGenJets.root'),
     scaleFactor = cms.double(1.),
     dqmDirectory_store = cms.string('reference')
   )
@@ -18,12 +18,12 @@ plotPFTauEfficiencies = cms.EDAnalyzer("DQMHistPlotter",
   processes = cms.PSet(
     test = cms.PSet(
       dqmDirectory = cms.string('test'),
-      legendEntry = cms.string('CMSSW_2_2_1'),
+      legendEntry = cms.string('CMSSW_2_2_0 FastSim'),
       type = cms.string('smMC') # Data/smMC/bsmMC/smSumMC
     ),
     reference = cms.PSet(
       dqmDirectory = cms.string('reference'),
-      legendEntry = cms.string('CMSSW_2_2_0'),
+      legendEntry = cms.string('CMSSW_2_2_0 FullSim'),
       type = cms.string('smMC') # Data/smMC/bsmMC/smSumMC
     )
   ),
@@ -227,7 +227,7 @@ plotPFTauEfficiencies = cms.EDAnalyzer("DQMHistPlotter",
     ),
     TrackIsolationEff = cms.PSet(
       plots = cms.PSet(
-        dqmMonitorElements = cms.vstring('#PROCESSDIR#/RecoTauV/pfRecoTauProducer_pfRecoTauDiscriminationByTrackIsolation/IsolationEff#PAR#'),
+        dqmMonitorElements = cms.vstring('#PROCESSDIR#/RecoTauV/pfRecoTauProducer_pfRecoTauDiscriminationByTrackIsolation/TrackIsolationEff#PAR#'),
         processes = cms.vstring('test', 'reference')
       ),
       parameter = cms.vstring('pt', 'eta', 'phi', 'energy'),
@@ -239,7 +239,7 @@ plotPFTauEfficiencies = cms.EDAnalyzer("DQMHistPlotter",
     ),
     ECALIsolationEff = cms.PSet(
       plots = cms.PSet(
-        dqmMonitorElements = cms.vstring('#PROCESSDIR#/RecoTauV/pfRecoTauProducer_pfRecoTauDiscriminationByECALIsolation/IsolationEff#PAR#'),
+        dqmMonitorElements = cms.vstring('#PROCESSDIR#/RecoTauV/pfRecoTauProducer_pfRecoTauDiscriminationByECALIsolation/ECALIsolationEff#PAR#'),
         processes = cms.vstring('test', 'reference')
       ),
       parameter = cms.vstring('pt', 'eta', 'phi', 'energy'),
@@ -288,13 +288,13 @@ plotPFTauEfficiencies = cms.EDAnalyzer("DQMHistPlotter",
           legendEntry = cms.string('Lead Track Finding')
         ),
         cms.PSet(
-          dqmMonitorElements = cms.vstring('#PROCESSDIR#/RecoTauV/pfRecoTauProducer_pfRecoTauDiscriminationByTrackIsolation/IsolationEff#PAR#'),
+          dqmMonitorElements = cms.vstring('#PROCESSDIR#/RecoTauV/pfRecoTauProducer_pfRecoTauDiscriminationByTrackIsolation/TrackIsolationEff#PAR#'),
           process = cms.string('test'),
           drawOptionEntry = cms.string('eff_overlay03'),
           legendEntry = cms.string('Track')
         ),
         cms.PSet(
-          dqmMonitorElements = cms.vstring('#PROCESSDIR#/RecoTauV/pfRecoTauProducer_pfRecoTauDiscriminationByECALIsolation/IsolationEff#PAR#'),
+          dqmMonitorElements = cms.vstring('#PROCESSDIR#/RecoTauV/pfRecoTauProducer_pfRecoTauDiscriminationByECALIsolation/ECALIsolationEff#PAR#'),
           process = cms.string('test'),
           drawOptionEntry = cms.string('eff_overlay04'),
           legendEntry = cms.string('Track + Gamma Iso.')
@@ -324,7 +324,7 @@ plotPFTauEfficiencies = cms.EDAnalyzer("DQMHistPlotter",
   canvasSizeX = cms.int32(640),
   canvasSizeY = cms.int32(640),                         
 
-  outputFilePath = cms.string('./pfRecoTauProducer/HadronicTauOneAndThreeProng/'),
+  outputFilePath = cms.string('./pfRecoTauProducer/'),
 #  outputFileName = cms.string('FIRSTTEST.ps'),
   indOutputFileName = cms.string('#PLOT#.png')    
 )                    
@@ -333,12 +333,12 @@ plotPFTauHighEfficiencyEfficiencies = cms.EDAnalyzer("DQMHistPlotter",
   processes = cms.PSet(
     test = cms.PSet(
       dqmDirectory = cms.string('test'),
-      legendEntry = cms.string('CMSSW_2_2_1'),
+      legendEntry = cms.string('CMSSW_2_2_0 FastSim'),
       type = cms.string('smMC') # Data/smMC/bsmMC/smSumMC
     ),
     reference = cms.PSet(
       dqmDirectory = cms.string('reference'),
-      legendEntry = cms.string('CMSSW_2_2_0'),
+      legendEntry = cms.string('CMSSW_2_2_0 FullSim'),
       type = cms.string('smMC') # Data/smMC/bsmMC/smSumMC
     )
   ),
@@ -542,7 +542,7 @@ plotPFTauHighEfficiencyEfficiencies = cms.EDAnalyzer("DQMHistPlotter",
     ),
     TrackIsolationEff = cms.PSet(
       plots = cms.PSet(
-        dqmMonitorElements = cms.vstring('#PROCESSDIR#/RecoTauV/pfRecoTauProducerHighEfficiency_pfRecoTauDiscriminationByTrackIsolationHighEfficiency/IsolationEff#PAR#'),
+        dqmMonitorElements = cms.vstring('#PROCESSDIR#/RecoTauV/pfRecoTauProducerHighEfficiency_pfRecoTauDiscriminationByTrackIsolationHighEfficiency/TrackIsolationEff#PAR#'),
         processes = cms.vstring('test', 'reference')
       ),
       parameter = cms.vstring('pt', 'eta', 'phi', 'energy'),
@@ -554,7 +554,7 @@ plotPFTauHighEfficiencyEfficiencies = cms.EDAnalyzer("DQMHistPlotter",
     ),
     ECALIsolationEff = cms.PSet(
       plots = cms.PSet(
-        dqmMonitorElements = cms.vstring('#PROCESSDIR#/RecoTauV/pfRecoTauProducerHighEfficiency_pfRecoTauDiscriminationByECALIsolationHighEfficiency/IsolationEff#PAR#'),
+        dqmMonitorElements = cms.vstring('#PROCESSDIR#/RecoTauV/pfRecoTauProducerHighEfficiency_pfRecoTauDiscriminationByECALIsolationHighEfficiency/ECALIsolationEff#PAR#'),
         processes = cms.vstring('test', 'reference')
       ),
       parameter = cms.vstring('pt', 'eta', 'phi', 'energy'),
@@ -603,13 +603,13 @@ plotPFTauHighEfficiencyEfficiencies = cms.EDAnalyzer("DQMHistPlotter",
           legendEntry = cms.string('Lead Track Finding')
         ),
         cms.PSet(
-          dqmMonitorElements = cms.vstring('#PROCESSDIR#/RecoTauV/pfRecoTauProducerHighEfficiency_pfRecoTauDiscriminationByTrackIsolationHighEfficiency/IsolationEff#PAR#'),
+          dqmMonitorElements = cms.vstring('#PROCESSDIR#/RecoTauV/pfRecoTauProducerHighEfficiency_pfRecoTauDiscriminationByTrackIsolationHighEfficiency/TrackIsolationEff#PAR#'),
           process = cms.string('test'),
           drawOptionEntry = cms.string('eff_overlay03'),
           legendEntry = cms.string('Track')
         ),
         cms.PSet(
-          dqmMonitorElements = cms.vstring('#PROCESSDIR#/RecoTauV/pfRecoTauProducerHighEfficiency_pfRecoTauDiscriminationByECALIsolationHighEfficiency/IsolationEff#PAR#'),
+          dqmMonitorElements = cms.vstring('#PROCESSDIR#/RecoTauV/pfRecoTauProducerHighEfficiency_pfRecoTauDiscriminationByECALIsolationHighEfficiency/ECALIsolationEff#PAR#'),
           process = cms.string('test'),
           drawOptionEntry = cms.string('eff_overlay04'),
           legendEntry = cms.string('Track + Gamma Iso.')
@@ -639,7 +639,7 @@ plotPFTauHighEfficiencyEfficiencies = cms.EDAnalyzer("DQMHistPlotter",
   canvasSizeX = cms.int32(640),
   canvasSizeY = cms.int32(640),                         
 
-  outputFilePath = cms.string('./pfRecoTauProducerHighEfficiency/HadronicTauOneAndThreeProng/'),
+  outputFilePath = cms.string('./pfRecoTauProducerHighEfficiency/'),
 #  outputFileName = cms.string('FIRSTTEST.ps'),
   indOutputFileName = cms.string('#PLOT#.png')    
 )      
@@ -651,12 +651,12 @@ plotCaloTauEfficiencies = cms.EDAnalyzer("DQMHistPlotter",
   processes = cms.PSet(
     test = cms.PSet(
       dqmDirectory = cms.string('test'),
-      legendEntry = cms.string('CMSSW_2_2_1'),
+      legendEntry = cms.string('CMSSW_2_2_0 Fast Sim'),
       type = cms.string('smMC') # Data/smMC/bsmMC/smSumMC
     ),
     reference = cms.PSet(
       dqmDirectory = cms.string('reference'),
-      legendEntry = cms.string('CMSSW_2_2_0'),
+      legendEntry = cms.string('CMSSW_2_2_0 Full Sim'),
       type = cms.string('smMC') # Data/smMC/bsmMC/smSumMC
     )
   ),
@@ -911,7 +911,7 @@ plotCaloTauEfficiencies = cms.EDAnalyzer("DQMHistPlotter",
   canvasSizeX = cms.int32(640),
   canvasSizeY = cms.int32(640),                         
 
-  outputFilePath = cms.string('./caloRecoTauProducer/HadronicTauOneAndThreeProng/'),
+  outputFilePath = cms.string('./caloRecoTauProducer/'),
 #  outputFileName = cms.string('FIRSTTEST.ps'),
   indOutputFileName = cms.string('#PLOT#.png')    
 )                    
