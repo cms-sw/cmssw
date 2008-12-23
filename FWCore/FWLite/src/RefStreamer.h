@@ -11,7 +11,7 @@ namespace edm {
 namespace fwlite {
   class RefStreamer : public TClassStreamer {
   public:
-    explicit RefStreamer(edm::EDProductGetter const* ep) : cl_("edm::RefCore"), prodGetter_(ep) {}
+    explicit RefStreamer(edm::EDProductGetter const* ep) : cl_("edm::RefCore::RefCoreTransients"), prodGetter_(ep) {}
 
     edm::EDProductGetter const* setProductGetter(edm::EDProductGetter const* ep) {
       edm::EDProductGetter const* previous = prodGetter_;

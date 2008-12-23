@@ -13,13 +13,14 @@ namespace fwlite {
     using edm::RefCore;
     using edm::Exception;
     using edm::errors::InvalidReference;
+    typedef RefCore::RefCoreTransients RefCoreTransients;
     if (R__b.IsReading()) {
       cl_->ReadBuffer(R__b, objp);
-      RefCore* obj = static_cast<RefCore *>(objp);
+      RefCoreTransients* obj = static_cast<RefCoreTransients *>(objp);
       obj->setProductGetter(prodGetter_);
       obj->setProductPtr(0);
     } else {
-      RefCore* obj = static_cast<RefCore *>(objp);
+      RefCoreTransients* obj = static_cast<RefCoreTransients *>(objp);
       if (obj->isTransient()) {
         throw Exception(InvalidReference,"Inconsistency")
           << "RefStreamer: transient Ref or Ptr cannot be made persistent.";
@@ -30,7 +31,7 @@ namespace fwlite {
 
   edm::EDProductGetter const* setRefStreamer(edm::EDProductGetter const* ep) {
     using namespace edm;
-    static TClass *cl = gROOT->GetClass("edm::RefCore");
+    static TClass *cl = gROOT->GetClass("edm::RefCore::RefCoreTransients");
     assert(cl);
     RefStreamer *st = static_cast<RefStreamer *>(cl->GetStreamer());
     edm::EDProductGetter const* pOld = 0;
