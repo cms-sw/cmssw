@@ -70,6 +70,7 @@
  <class name="std::vector<edm::EventEntryInfo>"/>
  <class name="std::vector<edm::RunLumiEntryInfo>"/>
  <class name="edm::EntryDescription"/>
+ <class name="edm::EntryDescriptionID"/>
  <class name="edm::EventEntryDescription"/>
  <class name="edm::EventProcessHistoryID"/>
  <class name="std::vector<edm::EventProcessHistoryID>"/>
