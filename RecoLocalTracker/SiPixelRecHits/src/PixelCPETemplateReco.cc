@@ -265,10 +265,20 @@ PixelCPETemplateReco::localPosition(const SiPixelCluster& cluster, const GeomDet
 	"reconstruction failed with error " << ierr << "\n";
 
       // Gavril: what do we do in this case ? For now, just return the cluster center of gravity in microns
-      // In the x case, apply a rough Lorentz drift correction
-			double lorentz_drift = 60.0; // in microns
-			templXrec_ = theTopol->localX( cluster.x() ) - lorentz_drift * micronsToCm; // very rough Lorentz drift correction
+      // In the x case, apply a rough Lorentz drift average correction
+      // To do: call PixelCPEGeneric whenever PixelTempReco2D fails
+      double lorentz_drift = -999.9;
+      if ( thePart == GeomDetEnumerators::PixelBarrel )
+	lorentz_drift = 60.0; // in microns
+      else if ( thePart == GeomDetEnumerators::PixelEndcap )
+	lorentz_drift = 10.0; // in microns
+      else 
+	throw cms::Exception("PixelCPETemplateReco::localPosition :") 
+	  << "A non-pixel detector type in here?" << "\n";
+
+      templXrec_ = theTopol->localX( cluster.x() ) - lorentz_drift * micronsToCm; // very rough Lorentz drift correction
       templYrec_ = theTopol->localY( cluster.y() );
+
     }
   else if ( UseClusterSplitter_ && templQbin_ == 0 )
     {
@@ -285,9 +295,21 @@ PixelCPETemplateReco::localPosition(const SiPixelCluster& cluster, const GeomDet
 	  LogDebug("PixelCPETemplateReco::localPosition") <<
 	    "reconstruction failed with error " << ierr << "\n";
 	  
-	  double lorentz_drift = 60.0; // in microns
+	  // Gavril: what do we do in this case ? For now, just return the cluster center of gravity in microns
+	  // In the x case, apply a rough Lorentz drift average correction
+	  // To do: call PixelCPEGeneric whenever PixelTempReco2D fails
+	  double lorentz_drift = -999.9;
+	  if ( thePart == GeomDetEnumerators::PixelBarrel )
+	    lorentz_drift = 60.0; // in microns
+	  else if ( thePart == GeomDetEnumerators::PixelEndcap )
+	    lorentz_drift = 10.0; // in microns
+	  else 
+	    throw cms::Exception("PixelCPETemplateReco::localPosition :") 
+	      << "A non-pixel detector type in here?" << "\n";
+
 	  templXrec_ = theTopol->localX( cluster.x() ) - lorentz_drift * micronsToCm; // very rough Lorentz drift correction
 	  templYrec_ = theTopol->localY( cluster.y() );
+
 	}
       else
 	{
@@ -404,8 +426,23 @@ PixelCPETemplateReco::localError( const SiPixelCluster& cluster,
     {
       // If reconstruction fails the hit position is calculated from cluster center of gravity 
       // corrected in x by average Lorentz drift. Assign huge errors.
-      xerr = 10.0 * (float)cluster.sizeX() * xerr;
-      yerr = 10.0 * (float)cluster.sizeX() * yerr;
+      //xerr = 10.0 * (float)cluster.sizeX() * xerr;
+      //yerr = 10.0 * (float)cluster.sizeX() * yerr;
+
+      // Assign better errors based on the residuals for failed template cases
+      if ( thePart == GeomDetEnumerators::PixelBarrel )
+	{
+	  xerr = 55.0 * micronsToCm;
+	  yerr = 36.0 * micronsToCm;
+	}
+      else if ( thePart == GeomDetEnumerators::PixelEndcap )
+	{
+	  xerr = 42.0 * micronsToCm;
+	  yerr = 39.0 * micronsToCm;
+	}
+      else 
+	throw cms::Exception("PixelCPETemplateReco::localError :") << "A non-pixel detector type in here?" ;
+
 
       return LocalError(xerr*xerr, 0, yerr*yerr);
     }
