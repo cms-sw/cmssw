@@ -174,16 +174,17 @@ namespace cscdqm {
         for(uint32_t i = 0; i < itemList->getLength(); i++) {
           DOMNode* node = itemList->item(i);
           if (node->getNodeType() != DOMNode::ELEMENT_NODE) { continue; }
-          /*
+
           std::string nodeName = XMLString::transcode(node->getNodeName());
           std::string value = XMLString::transcode(node->getTextContent());
           std::istringstream stm(value);
 
           BOOST_PP_SEQ_FOR_EACH_I(CONFIG_PARAMETER_LOADXML_MACRO, _, CONFIG_PARAMETERS_SEQ)
-          */
 
         }
-        //XMLPlatformUtils::Terminate();
+
+        XMLPlatformUtils::Terminate();
+
       }
 
       static void printXML(const Configuration& config) {
