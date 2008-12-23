@@ -230,13 +230,23 @@ HLTMonJetMETConsumer::beginJob(const edm::EventSetup&)
        injetmet_probe_Phi[i] = dbe->get(MEname);
 
        // book outgoing MEs (probes)
-       outjetmet_Et[i] = dbe->book1D(Form("jetmet_Et_%i",i),Form("Et %i",i),nbin_Et, xmin_Et, xmax_Et);
-       outjetmet_Eta[i] = dbe->book1D(Form("jetmet_Eta_%i",i),Form("Eta %i",i),nbin_Eta, xmin_Eta, xmax_Eta);
-       outjetmet_Phi[i] = dbe->book1D(Form("jetmet_Phi_%i",i),Form("Phi %i",i),nbin_Phi, xmin_Phi, xmax_Phi);
+       //       outjetmet_Et[i] = dbe->book1D(Form("%s_Et_%i",i),theHLTProbeLabels[i],Form("Et %i",i),nbin_Et, xmin_Et, xmax_Et);
+       outjetmet_Et[i]  = dbe->book1D(Form("%s_Et",   theHLTProbeLabels[i].c_str()),
+				      Form("Et (%s)", theHLTProbeLabels[i].c_str()),nbin_Et, xmin_Et, xmax_Et);
+       outjetmet_Eta[i] = dbe->book1D(Form("%s_Eta",  theHLTProbeLabels[i].c_str()),
+				      Form("Eta (%s)",theHLTProbeLabels[i].c_str()),nbin_Eta, xmin_Eta, xmax_Eta);
+       outjetmet_Phi[i] = dbe->book1D(Form("%s_Phi",  theHLTProbeLabels[i].c_str()),
+				      Form("Phi (%s)",theHLTProbeLabels[i].c_str()),nbin_Phi, xmin_Phi, xmax_Phi);
        
-       outjetmet_Eff_Et[i] = dbe->book1D(Form("jetmet_Eff_Et_%i",i),Form("Eff vs. Et %i",i),nbin_Et, xmin_Et, xmax_Et);
-       outjetmet_Eff_Eta[i] = dbe->book1D(Form("jetmet_Eff_Eta_%i",i),Form("Eff vs. Eta %i",i),nbin_Eta, xmin_Eta, xmax_Eta);
-       outjetmet_Eff_Phi[i] = dbe->book1D(Form("jetmet_Eff_Phi_%i",i),Form("Eff vs. Phi %i",i),nbin_Phi, xmin_Phi, xmax_Phi);
+       outjetmet_Eff_Et[i]  = dbe->book1D(Form("Eff_%s_Et",theHLTProbeLabels[i].c_str()),
+					  Form("Eff vs Et %s / %s",theHLTProbeLabels[i].c_str(),theHLTRefLabels[i].c_str()),
+					  nbin_Et, xmin_Et, xmax_Et);
+       outjetmet_Eff_Eta[i] = dbe->book1D(Form("Eff_%s_Eta",theHLTProbeLabels[i].c_str()),
+					  Form("Eff vs Eta %s / %s",theHLTProbeLabels[i].c_str(),theHLTRefLabels[i].c_str()),
+					  nbin_Eta, xmin_Eta, xmax_Eta);
+       outjetmet_Eff_Phi[i] = dbe->book1D(Form("Eff_%s_Phi",theHLTProbeLabels[i].c_str()),
+					  Form("Eff vs Phi %s / %s",theHLTProbeLabels[i].c_str(),theHLTRefLabels[i].c_str()),
+					  nbin_Phi, xmin_Phi, xmax_Phi);
      }
      
     LogDebug("HLTMonJetMETConsumer") << " reading histo: "  << histdir_;    
