@@ -56,11 +56,13 @@ namespace edm {
 	    i != iEnd; ++i) {
 	  procConfigMap.insert(std::make_pair(i->id(), *i));
 	}
-      }
-    }
+      } }
 
     void
     fillMapsInProductRegistry(ProcessConfigurationMap const& procConfigMap, ProductRegistry& productRegistry) {
+      std::string const triggerResults = std::string("TriggerResults");
+      std::string const source = std::string("source");
+      std::string const input = std::string("@main_input");
       for (ProcessConfigurationMap::const_iterator i = procConfigMap.begin(), iEnd = procConfigMap.end();
 	  i != iEnd; ++i) {
 	ProcessConfigurationID const& pcid = i->first;
@@ -77,10 +79,11 @@ namespace edm {
 	    continue;
 	  }
 	  std::string const& moduleLabel = bd.moduleLabel();
-	  if (moduleLabel == std::string("TriggerResults")) {
+	  if (moduleLabel == triggerResults) {
 	    continue; // No parameter set for "TriggerResults"
 	  }
-	  ParameterSet moduleParameterSet = processParameterSet.getParameter<ParameterSet>(moduleLabel);
+	  bool isInput = (moduleLabel == source);
+	  ParameterSet moduleParameterSet = processParameterSet.getParameter<ParameterSet>(isInput ? input : moduleLabel);
 	  bd.parameterSetIDs().insert(std::make_pair(pcid, moduleParameterSet.trackedID()));
 	  bd.moduleNames().insert(std::make_pair(pcid, moduleParameterSet.getParameter<std::string>("@module_type")));
 	}
