@@ -1,1467 +1,598 @@
 /*
  *  Routine to calculate CSC efficiencies 
- *   (no ME1/1 yet)
  *  Comments about the program logic are denoted by //----
  * 
  *  Stoyan Stoynev, Northwestern University.
  */ 
   
-#include "RecoLocalMuon/CSCEfficiency/interface/CSCEfficiency.h"
+#include "RecoLocalMuon/CSCEfficiency/src/CSCEfficiency.h"
 
-//#define DATA 1 // 0 - MC; 1 - data 
-#define SQR(x) ((x)*(x))
-//---- Histogram limits
-#define XMIN  -70.
-#define XMAX  70.
-#define YMIN -165.
-#define YMAX 165.
-#define LAYER_MIN -0.5
-#define LAYER_MAX 9.5
-
-template <class T>
-inline std::string to_string (const T& t)
-{
-  std::stringstream ss; 
-  ss << t;
-  return ss.str();
-}
-
-void Rotate(double Xinit, double Yinit, double angle, double & Xrot, double & Yrot);
+#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
+#include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
 
 using namespace std;
 using namespace edm;
 
-// Constructor
-//CSCEfficiency::CSCEfficiency(const ParameterSet& pset){
-//---- this allows access to MC (if needed)
-//CSCEfficiency::CSCEfficiency(const ParameterSet& pset) : theSimHitMap("MuonCSCHits"){
-CSCEfficiency::CSCEfficiency(const ParameterSet& pset) : theSimHitMap( pset.getParameter<edm::InputTag>("MuonCSCHits") ){
-  const float Xmin = XMIN;
-  const float Xmax = XMAX;
-  const int nXbins = int(4.*(Xmax - Xmin));
-  const float Ymin = YMIN;
-  const float Ymax = YMAX;
-  const int nYbins = int(2.*(Ymax - Ymin));
-  const float Layer_min = LAYER_MIN;
-  const float Layer_max = LAYER_MAX;
-  const int nLayer_bins = int(Layer_max - Layer_min);
-  //
-
-  //---- Get the input parameters
-  stripDigiTag_  = pset.getParameter<edm::InputTag>("stripDigiTag") ;
-  wireDigiTag_ = pset.getParameter<edm::InputTag>("wireDigiTag") ;
-  rootFileName     = pset.getUntrackedParameter<string>("rootFileName");
-  WorkInEndcap     = pset.getUntrackedParameter<int>("WorkInEndcap");
-  ExtrapolateFromStation      = pset.getUntrackedParameter<int>("ExtrapolateFromStation");
-  ExtrapolateToStation     = pset.getUntrackedParameter<int>("ExtrapolateToStation");
-  ExtrapolateToRing     = pset.getUntrackedParameter<int>("ExtrapolateToRing");
-  DATA  = pset.getUntrackedParameter<bool>("runOnData");// // 0 - MC; 1 - data
-  update  = pset.getUntrackedParameter<bool>("update");
-  //
-  //if(!update){
-
-    if(!DATA){
-      mycscunpacker     = pset.getUntrackedParameter<string>("mycscunpacker");
-    }
-    //---- set counter to zero
-    nEventsAnalyzed = 0;
-    std::string Path = "AllChambers/";
-    std::string FullName;
-    if(update){
-      //---- File with input histograms 
-      theFile = new TFile(rootFileName.c_str(), "UPDATE");
-    }
-    else{
-      //---- File with output histograms 
-      theFile = new TFile(rootFileName.c_str(), "RECREATE");
-    }
-    theFile->cd();
-    //---- Book histograms for the analysis
-    char SpecName[50];
-
-    sprintf(SpecName,"DataFlow"); 
-    if(!update){
-      DataFlow =  
-	new TH1F(SpecName,"Data flow;condition number;entries",30,-0.5,29.5);
-    }
-    else{
-      FullName = Path + to_string(SpecName);
-      strcpy(SpecName, FullName.c_str());
-      DataFlow = (TH1F*)(theFile)->Get(SpecName);
-    }
-    //
-    int Chan = 100;
-    float minChan = 0.;
-    float maxChan = 30.;
-    sprintf(SpecName,"chi2_ndf");    
-    if(!update){
-      Chi2 = 
-	new TH1F(SpecName,"Chi2/ndf;chi2/ndf;entries",Chan,minChan,maxChan);
-    }
-    else{
-      FullName = Path + to_string(SpecName);
-      strcpy(SpecName, FullName.c_str());
-      Chi2 = (TH1F*)(theFile)->Get(SpecName);
-    }
-    //
-    sprintf(SpecName,"chi2_ndf-ME1_a");
-    if(!update){
-      Chi2_ME1_a = 
-	new TH1F(SpecName,"Chi2/ndf-ME1_a;chi2/ndf;entries",Chan,minChan,maxChan);
-    }
-    else{
-      FullName = Path + to_string(SpecName);
-      strcpy(SpecName, FullName.c_str());
-      Chi2_ME1_a = (TH1F*)(theFile)->Get(SpecName);
-    }
-    //
-    sprintf(SpecName,"chi2_ndf-ME1_b");
-    if(!update){
-      Chi2_ME1_b = 
-	new TH1F(SpecName,"Chi2/ndf-ME1_b;chi2/ndf;entries",Chan,minChan,maxChan);
-    }
-    else{
-      FullName = Path + to_string(SpecName);
-      strcpy(SpecName, FullName.c_str());
-      Chi2_ME1_b = (TH1F*)(theFile)->Get(SpecName);
-    }
-    //
-    sprintf(SpecName,"chi2_ndf-ME1_2");
-    if(!update){
-      Chi2_ME1_2 = 
-	new TH1F(SpecName,"Chi2/ndf-ME1_2;chi2/ndf;entries",Chan,minChan,maxChan);
-    }
-    else{
-      FullName = Path + to_string(SpecName);
-      strcpy(SpecName, FullName.c_str());
-      Chi2_ME1_2 = (TH1F*)(theFile)->Get(SpecName);
-    }
-    //
-    sprintf(SpecName,"chi2_ndf-ME1_3");
-    if(!update){
-      Chi2_ME1_3 = 
-	new TH1F(SpecName,"Chi2/ndf-ME1_3;chi2/ndf;entries",Chan,minChan,maxChan);
-    }
-    else{
-      FullName = Path + to_string(SpecName);
-      strcpy(SpecName, FullName.c_str());
-      Chi2_ME1_3 = (TH1F*)(theFile)->Get(SpecName);
-    }
-    //
-    sprintf(SpecName,"chi2_ndf-ME2_1");
-    if(!update){
-      Chi2_ME2_1 = 
-	new TH1F(SpecName,"Chi2/ndf-ME2_1;chi2/ndf;entries",Chan,minChan,maxChan);
-    }
-    else{
-      FullName = Path + to_string(SpecName);
-      strcpy(SpecName, FullName.c_str());
-      Chi2_ME2_1 = (TH1F*)(theFile)->Get(SpecName);
-    }
-    //
-    sprintf(SpecName,"chi2_ndf-ME2_2");
-    if(!update){
-      Chi2_ME2_2 = 
-	new TH1F(SpecName,"Chi2/ndf-ME2_2;chi2/ndf;entries",Chan,minChan,maxChan);
-    }
-    else{
-      FullName = Path + to_string(SpecName);
-      strcpy(SpecName, FullName.c_str());
-      Chi2_ME2_2 = (TH1F*)(theFile)->Get(SpecName);
-    }
-    //
-    sprintf(SpecName,"chi2_ndf-ME3_1");
-    if(!update){
-      Chi2_ME3_1 = 
-	new TH1F(SpecName,"Chi2/ndf-ME3_1;chi2/ndf;entries",Chan,minChan,maxChan);
-    }
-    else{
-      FullName = Path + to_string(SpecName);
-      strcpy(SpecName, FullName.c_str());
-      Chi2_ME3_1 = (TH1F*)(theFile)->Get(SpecName);
-    }
-    //
-    sprintf(SpecName,"chi2_ndf-ME3_2");
-    if(!update){
-      Chi2_ME3_2 = 
-	new TH1F(SpecName,"Chi2/ndf-ME3_2;chi2/ndf;entries",Chan,minChan,maxChan);
-    }
-    else{
-      FullName = Path + to_string(SpecName);
-      strcpy(SpecName, FullName.c_str());
-      Chi2_ME3_2 = (TH1F*)(theFile)->Get(SpecName);
-    }
-    //
-    sprintf(SpecName,"chi2_ndf-ME4_1");
-    if(!update){
-      Chi2_ME4_1 = 
-	new TH1F(SpecName,"Chi2/ndf-ME4_1;chi2/ndf;entries",Chan,minChan,maxChan);
-    }
-    else{
-      FullName = Path + to_string(SpecName);
-      strcpy(SpecName, FullName.c_str());
-      Chi2_ME4_1 = (TH1F*)(theFile)->Get(SpecName);
-    }
-    //
-    sprintf(SpecName,"XY_ALCTmissing");
-    if(!update){
-      XY_ALCTmissing =
-        new TH2F(SpecName,"XY - ALCT missing;cm;cm",nXbins,XMIN,XMAX,nYbins,YMIN,YMAX);
-    }
-    else{
-      FullName = Path + to_string(SpecName);
-      strcpy(SpecName, FullName.c_str());
-      XY_ALCTmissing = (TH2F*)(theFile)->Get(SpecName);
-    }
-    //
-    sprintf(SpecName,"dydz_Eff_ALCT");
-    if(!update){
-      dydz_Eff_ALCT =
-        new TH1F(SpecName,"ALCT efficient events vs. dy/dz of the segment in ref. station;dydz;entries",30,-1.5,1.5);
-    }
-    else{
-      FullName = Path + to_string(SpecName);
-      strcpy(SpecName, FullName.c_str());
-      dydz_Eff_ALCT = (TH1F*)(theFile)->Get(SpecName);
-    }
-    //
-    sprintf(SpecName,"dydz_All_ALCT");
-    if(!update){
-      dydz_All_ALCT =
-        new TH1F(SpecName,"ALCT events vs. dy/dz of the segment in ref. station ;dydz;entries",30,-1.5,1.5);
-    }
-    else{
-      FullName = Path + to_string(SpecName);
-      strcpy(SpecName, FullName.c_str());
-      dydz_All_ALCT = (TH1F*)(theFile)->Get(SpecName);
-    }    
-    //
-    sprintf(SpecName,"EfficientSegments");
-    if(!update){
-      EfficientSegments = 
-	new TH1F(SpecName,"Efficient segments;chamber number;entries",NumCh, FirstCh-0.5, LastCh+0.5);
-    }
-    else{
-      FullName = Path + to_string(SpecName);
-      strcpy(SpecName, FullName.c_str());
-      EfficientSegments = (TH1F*)(theFile)->Get(SpecName);
-    }
-    //
-    sprintf(SpecName,"AllSegments");
-    if(!update){
-      AllSegments = 
-	new TH1F(SpecName,"All segments;chamber number;entries",NumCh, FirstCh-0.5, LastCh+0.5);
-    }
-    else{
-      FullName = Path + to_string(SpecName);
-      strcpy(SpecName, FullName.c_str());
-      AllSegments = (TH1F*)(theFile)->Get(SpecName);
-    }
-    //
-    sprintf(SpecName,"EfficientSegments_theta");
-    if(!update){
-      EfficientSegments_theta = 
-	new TH1F(SpecName,"Efficient segments in theta;theta;entries",79, 0., 3.16);
-    }
-    else{
-      FullName = Path + to_string(SpecName);
-      strcpy(SpecName, FullName.c_str());
-      EfficientSegments_theta = (TH1F*)(theFile)->Get(SpecName);
-    }
-    //
-    sprintf(SpecName,"AllSegments_theta");
-    if(!update){
-      AllSegments_theta = 
-	new TH1F(SpecName,"All segments in theta;theta;entries",79, 0., 3.16);
-    }
-    else{
-      FullName = Path + to_string(SpecName);
-      strcpy(SpecName, FullName.c_str());
-      AllSegments_theta = (TH1F*)(theFile)->Get(SpecName);
-    }
-
-    //
-    sprintf(SpecName,"EfficientRechits_inSegment");
-    if(!update){
-      EfficientRechits_inSegment = 
-	new TH1F(SpecName,"Existing RecHit given a segment;layers (1-6);entries",nLayer_bins,Layer_min,Layer_max);
-    }
-    else{
-      FullName = Path + to_string(SpecName)+"_AllCh";
-      strcpy(SpecName, FullName.c_str());
-      EfficientRechits_inSegment = (TH1F*)((theFile))->Get(SpecName);
-    }
-    sprintf(SpecName,"InefficientSingleHits");
-    if(!update){
-      InefficientSingleHits = 
-      new TH1F(SpecName,"Single RecHits not in the segment;layers (1-6);entries ",nLayer_bins,Layer_min,Layer_max);
-    }
-    else{
-      FullName = Path + to_string(SpecName)+"_AllCh";
-      strcpy(SpecName, FullName.c_str());
-      InefficientSingleHits =  (TH1F*)((theFile))->Get(SpecName);
-    }
-    sprintf(SpecName,"AllSingleHits");
-    if(!update){
-      AllSingleHits = 
-	new TH1F(SpecName,"Single RecHits given a segment; layers (1-6);entries",nLayer_bins,Layer_min,Layer_max);
-    }
-    else{
-      FullName = Path + to_string(SpecName)+"_AllCh";
-      strcpy(SpecName, FullName.c_str());
-      AllSingleHits = (TH1F*)((theFile))->Get(SpecName);
-    }
-    
-    sprintf(SpecName,"XvsY_InefficientRecHits");
-    if(!update){
-      XvsY_InefficientRecHits =  
-	new TH2F(SpecName,"Rechits if one or more layers have no any (local system);X, cm; Y, cm",
-		 nXbins,Xmin,Xmax,nYbins,Ymin,Ymax);
-    }
-    else{
-      FullName = Path + to_string(SpecName)+"_AllCh";
-      strcpy(SpecName, FullName.c_str());
-      XvsY_InefficientRecHits = (TH2F*)((theFile))->Get(SpecName);
-    }
-    sprintf(SpecName,"XvsY_InefficientRecHits_good");
-    if(!update){
-      XvsY_InefficientRecHits_good =  
-	new TH2F(SpecName,"Rechits if one or more layers have no any (local system) - sensitive area only;X, cm; Y, cm",
-		 nXbins,Xmin,Xmax,nYbins,Ymin,Ymax);
-    }
-    else{
-      FullName = Path + to_string(SpecName)+"_AllCh";
-      strcpy(SpecName, FullName.c_str());
-     XvsY_InefficientRecHits_good = (TH2F*)((theFile))->Get(SpecName);
-    }
-
-    sprintf(SpecName,"XvsY_InefficientSegments");
-    if(!update){
-      XvsY_InefficientSegments =  
-	new TH2F(SpecName,"Segments with less than 6 hits;X, cm; Y, cm",nXbins,Xmin,Xmax,nYbins,Ymin,Ymax);
-    }
-    else{
-      FullName = Path + to_string(SpecName)+"_AllCh";
-      strcpy(SpecName, FullName.c_str());
-      XvsY_InefficientSegments = (TH2F*)((theFile))->Get(SpecName);
-    }
-
-    sprintf(SpecName,"XvsY_InefficientSegments_good");
-    if(!update){
-      XvsY_InefficientSegments_good =  
-	new TH2F(SpecName,"Segments with less than 6 hits - sensitive area only;X, cm; Y, cm",
-		 nXbins,Xmin,Xmax,nYbins,Ymin,Ymax);
-    }
-    else{
-      FullName = Path + to_string(SpecName)+"_AllCh";
-      strcpy(SpecName, FullName.c_str());
-      XvsY_InefficientSegments_good = (TH2F*)((theFile))->Get(SpecName);
-    }
-    //
-    sprintf(SpecName,"EfficientRechits");
-    if(!update){
-      EfficientRechits = 
-	new TH1F(SpecName,"Existing RecHit;layers (1-6);entries",nLayer_bins,Layer_min,Layer_max);
-    }
-    else{
-      FullName = Path + to_string(SpecName)+"_AllCh";
-      strcpy(SpecName, FullName.c_str());
-      EfficientRechits = (TH1F*)((theFile))->Get(SpecName);
-    }
-
-    sprintf(SpecName,"EfficientRechits_good");
-    if(!update){
-      EfficientRechits_good = 
-	new TH1F(SpecName,"Existing RecHit - sensitive area only;layers (1-6);entries",nLayer_bins,Layer_min,Layer_max);
-    }
-    else{
-      FullName = Path + to_string(SpecName)+"_AllCh";
-      strcpy(SpecName, FullName.c_str());
-      EfficientRechits_good = (TH1F*)((theFile))->Get(SpecName);
-    }
-    sprintf(SpecName,"EfficientLCTs");
-    if(!update){
-      EfficientLCTs =  
-	new TH1F(SpecName,"Existing LCTs (1-a, 2-c, 3-corr);3 sets + normalization;entries",30,0.5,30.5);
-    }
-    else{
-      FullName = Path + to_string(SpecName)+"_AllCh";
-      strcpy(SpecName, FullName.c_str());
-      EfficientLCTs = (TH1F*)((theFile))->Get(SpecName);
-    }
-
-    sprintf(SpecName,"EfficientStrips");
-    if(!update){
-      EfficientStrips = 
-	new TH1F(SpecName,"Existing strip;layer (1-6); entries",nLayer_bins,Layer_min,Layer_max);
-    }
-    else{
-      FullName = Path + to_string(SpecName)+"_AllCh";
-      strcpy(SpecName, FullName.c_str());
-      EfficientStrips = (TH1F*)((theFile))->Get(SpecName);
-    }
-    sprintf(SpecName,"EfficientWireGroups");
-    if(!update){
-      EfficientWireGroups = 
-	new TH1F(SpecName,"Existing WireGroups;layer (1-6); entries ",nLayer_bins,Layer_min,Layer_max);
-    }
-    else{
-      FullName = Path + to_string(SpecName)+"_AllCh";
-      strcpy(SpecName, FullName.c_str());
-      EfficientWireGroups = (TH1F*)((theFile))->Get(SpecName);
-    }
-
-    for(int iLayer=0; iLayer<6;iLayer++){
-      sprintf(SpecName,"XvsY_InefficientRecHits_inSegment_L%d",iLayer);
-      if(!update){
-	XvsY_InefficientRecHits_inSegment.push_back
-	  (new TH2F(SpecName,"Missing RecHit/layer in a segment (local system, good region);X, cm; Y, cm",
-		    nXbins,Xmin,Xmax,nYbins,Ymin, Ymax));
-      }
-      else{
-	FullName = Path + to_string(SpecName)+"_AllCh";
-	strcpy(SpecName, FullName.c_str());
-	XvsY_InefficientRecHits_inSegment.push_back( (TH2F*)((theFile))->Get(SpecName));
-      }
-      //
-      sprintf(SpecName,"Y_InefficientRecHits_inSegment_L%d",iLayer);
-      if(!update){
-	Y_InefficientRecHits_inSegment.push_back
-	  (new TH1F(SpecName,"Missing RecHit/layer in a segment (local system, whole chamber);Y, cm; entries",
-		    nYbins,Ymin, Ymax));
-      }
-      else{
-	FullName = Path + to_string(SpecName)+"_AllCh";
-	strcpy(SpecName, FullName.c_str());
-	Y_InefficientRecHits_inSegment.push_back( (TH1F*)((theFile))->Get(SpecName));
-      }    
-        //
-      sprintf(SpecName,"Y_AllRecHits_inSegment_L%d",iLayer);
-      if(!update){
-	Y_AllRecHits_inSegment.push_back
-	  (new TH1F(SpecName,"All (extrapolated from the segment) RecHit/layer in a segment (local system, whole chamber);Y, cm; entries",
-		    nYbins,Ymin, Ymax));
-      }
-      else{
-	FullName = Path + to_string(SpecName)+"_AllCh";
-	strcpy(SpecName, FullName.c_str());
-	Y_AllRecHits_inSegment.push_back( (TH1F*)((theFile))->Get(SpecName));
-      }
-    }
-    //
-
-
-    //
-    sprintf(SpecName,"Sim_Rechits");
-    if(!update){
-      SimRechits = 
-	new TH1F(SpecName,"Existing RecHit (Sim);layers (1-6);entries",nLayer_bins,Layer_min,Layer_max);
-    }
-    else{
-      FullName = Path + to_string(SpecName)+"_AllCh";
-      strcpy(SpecName, FullName.c_str());
-      SimRechits = (TH1F*)((theFile))->Get(SpecName);
-    }
-    //
-    sprintf(SpecName,"Sim_Simhits");
-    if(!update){
-      SimSimhits = 
-	new TH1F(SpecName,"Existing SimHit (Sim);layers (1-6);entries",nLayer_bins,Layer_min,Layer_max);
-    }
-    else{
-      FullName = Path + to_string(SpecName)+"_AllCh";
-      strcpy(SpecName, FullName.c_str());
-      SimSimhits = (TH1F*)((theFile))->Get(SpecName);
-    }
-    //
-    sprintf(SpecName,"Sim_Rechits_each");
-    if(!update){
-      SimRechits_each = 
-	new TH1F(SpecName,"Existing RecHit (Sim), each;layers (1-6);entries",nLayer_bins,Layer_min,Layer_max);
-    }
-    else{
-      FullName = Path + to_string(SpecName)+"_AllCh";
-      strcpy(SpecName, FullName.c_str());
-      SimRechits_each = (TH1F*)((theFile))->Get(SpecName);
-    }
-    //
-    sprintf(SpecName,"Sim_Simhits_each");
-    if(!update){
-      SimSimhits_each = 
-	new TH1F(SpecName,"Existing SimHit (Sim), each;layers (1-6);entries",nLayer_bins,Layer_min,Layer_max);
-    }
-    else{
-      FullName = Path + to_string(SpecName)+"_AllCh";
-      strcpy(SpecName, FullName.c_str());
-      SimSimhits_each = (TH1F*)((theFile))->Get(SpecName);
-    }
-    
-
-    //---- Book groups of histograms (for any chamber)
-    for(int iChamber=FirstCh;iChamber<FirstCh+NumCh;iChamber++){
-      sprintf(SpecName,"Chamber_%d",iChamber);
-      if(!update){
-	theFile->mkdir(SpecName);
-      }
-      theFile->cd(SpecName);
-      std::string Path = to_string(SpecName)+"/";
-      sprintf(SpecName,"EfficientRechits_inSegment_Ch%d",iChamber);
-      if(!update){
-	ChHist[iChamber-FirstCh].EfficientRechits_inSegment = 
-	  new TH1F(SpecName,"Existing RecHit given a segment;layers (1-6);entries",nLayer_bins,Layer_min,Layer_max);
-      }
-      else{
-	FullName = Path + to_string(SpecName);
-	strcpy(SpecName, FullName.c_str());
-	ChHist[iChamber-FirstCh].EfficientRechits_inSegment = (TH1F*)((theFile))->Get(SpecName);
-      }
-
-      sprintf(SpecName,"InefficientSingleHits_Ch%d",iChamber);
-      if(!update){
-	ChHist[iChamber-FirstCh].InefficientSingleHits = 
-	  new TH1F(SpecName,"Single RecHits not in the segment;layers (1-6);entries ",nLayer_bins,Layer_min,Layer_max);
-      }
-      else{
-	FullName = Path + to_string(SpecName);
-	strcpy(SpecName, FullName.c_str());
-	ChHist[iChamber-FirstCh].InefficientSingleHits = (TH1F*)((theFile))->Get(SpecName);
-      }
-
-      sprintf(SpecName,"AllSingleHits_Ch%d",iChamber);
-      if(!update){
-	ChHist[iChamber-FirstCh].AllSingleHits = 
-	  new TH1F(SpecName,"Single RecHits given a segment; layers (1-6);entries",nLayer_bins,Layer_min,Layer_max);
-      }
-      else{
-	FullName = Path + to_string(SpecName);
-	strcpy(SpecName, FullName.c_str());
-	ChHist[iChamber-FirstCh].AllSingleHits = (TH1F*)((theFile))->Get(SpecName);
-      }
-
-      sprintf(SpecName,"XvsY_InefficientRecHits_Ch%d ",iChamber);
-      if(!update){
-	ChHist[iChamber-FirstCh].XvsY_InefficientRecHits =  
-	  new TH2F(SpecName,"Rechits if one or more layers have no any (local system);X, cm; Y, cm",
-		 nXbins,Xmin,Xmax,nYbins,Ymin,Ymax);
-      }
-      else{
-	FullName = Path + to_string(SpecName);
-	strcpy(SpecName, FullName.c_str());
-	ChHist[iChamber-FirstCh].XvsY_InefficientRecHits = (TH2F*)((theFile))->Get(SpecName);
-      }
-
-      sprintf(SpecName,"XvsY_InefficientRecHits_good_Ch%d ",iChamber);
-      if(!update){
-	ChHist[iChamber-FirstCh].XvsY_InefficientRecHits_good =  
-	  new TH2F(SpecName,"Rechits if one or more layers have no any (local system) - sensitive area only;X, cm; Y, cm",
-		 nXbins,Xmin,Xmax,nYbins,Ymin,Ymax);
-      }
-      else{
-	FullName = Path + to_string(SpecName);
-	strcpy(SpecName, FullName.c_str());
-	ChHist[iChamber-FirstCh].XvsY_InefficientRecHits_good = (TH2F*)((theFile))->Get(SpecName);
-      }
-
-      sprintf(SpecName,"XvsY_InefficientSegments_Ch%d",iChamber);
-      if(!update){
-	ChHist[iChamber-FirstCh].XvsY_InefficientSegments =  
-	  new TH2F(SpecName,"Segments with less than 6 hits;X, cm; Y, cm",nXbins,Xmin,Xmax,nYbins,Ymin,Ymax);
-      }
-      else{
-	FullName = Path + to_string(SpecName);
-	strcpy(SpecName, FullName.c_str());
-	ChHist[iChamber-FirstCh].XvsY_InefficientSegments = (TH2F*)((theFile))->Get(SpecName);
-      }
-
-      sprintf(SpecName,"XvsY_InefficientSegments_good_Ch%d",iChamber);
-      if(!update){
-	ChHist[iChamber-FirstCh].XvsY_InefficientSegments_good =  
-	  new TH2F(SpecName,"Segments with less than 6 hits - sensitive area only;X, cm; Y, cm",
-		   nXbins,Xmin,Xmax,nYbins,Ymin,Ymax);
-      }
-      else{
-	FullName = Path + to_string(SpecName);
-	strcpy(SpecName, FullName.c_str());
-	ChHist[iChamber-FirstCh].XvsY_InefficientSegments_good = (TH2F*)((theFile))->Get(SpecName);
-      }
-
-      //
-      sprintf(SpecName,"EfficientRechits_Ch%d",iChamber);
-      if(!update){
-	ChHist[iChamber-FirstCh].EfficientRechits = 
-	  new TH1F(SpecName,"Existing RecHit;layers (1-6);entries",nLayer_bins,Layer_min,Layer_max);
-      }
-      else{
-	FullName = Path + to_string(SpecName);
-	strcpy(SpecName, FullName.c_str());
-	ChHist[iChamber-FirstCh].EfficientRechits = (TH1F*)((theFile))->Get(SpecName);
-      }
-
-      sprintf(SpecName,"EfficientRechits_good_Ch%d",iChamber);
-      if(!update){
-	ChHist[iChamber-FirstCh].EfficientRechits_good = 
-	  new TH1F(SpecName,"Existing RecHit - sensitive area only;layers (1-6);entries",nLayer_bins,Layer_min,Layer_max);
-      }
-      else{
-	FullName = Path + to_string(SpecName);
-	strcpy(SpecName, FullName.c_str());
-	ChHist[iChamber-FirstCh].EfficientRechits_good = (TH1F*)((theFile))->Get(SpecName);
-      }
-
-      sprintf(SpecName,"EfficientLCTs_Ch%d",iChamber);
-      if(!update){
-	ChHist[iChamber-FirstCh].EfficientLCTs =  
-	  new TH1F(SpecName,"Existing LCTs (1-a, 2-c, 3-corr);3 sets + normalization;entries",30,0.5,30.5);
-      }
-      else{
-	FullName = Path + to_string(SpecName);
-	strcpy(SpecName, FullName.c_str());
-	ChHist[iChamber-FirstCh].EfficientLCTs = (TH1F*)((theFile))->Get(SpecName);
-      }
-
-      sprintf(SpecName,"EfficientStrips_Ch%d",iChamber);
-      if(!update){
-	ChHist[iChamber-FirstCh].EfficientStrips = 
-	  new TH1F(SpecName,"Existing strip;layer (1-6); entries",nLayer_bins,Layer_min,Layer_max);
-      }
-      else{
-	FullName = Path + to_string(SpecName);
-	strcpy(SpecName, FullName.c_str());
-	ChHist[iChamber-FirstCh].EfficientStrips = (TH1F*)((theFile))->Get(SpecName);
-      }
-
-      sprintf(SpecName,"EfficientWireGroups_Ch%d",iChamber);
-      if(!update){
-	ChHist[iChamber-FirstCh].EfficientWireGroups = 
-	  new TH1F(SpecName,"Existing WireGroups;layer (1-6); entries ",nLayer_bins,Layer_min,Layer_max);
-      }
-      else{
-	FullName = Path + to_string(SpecName);
-	strcpy(SpecName, FullName.c_str());
-	ChHist[iChamber-FirstCh].EfficientWireGroups = (TH1F*)((theFile))->Get(SpecName);
-      }
-
-      for(int iLayer=0; iLayer<6;iLayer++){
-	sprintf(SpecName,"XvsY_InefficientRecHits_inSegment_Ch%d_L%d",iChamber,iLayer);
-	if(!update){
-	  ChHist[iChamber-FirstCh].XvsY_InefficientRecHits_inSegment.push_back
-	    (new TH2F(SpecName,"Missing RecHit/layer in a segment (local system, good region);X, cm; Y, cm",
-		      nXbins,Xmin,Xmax,nYbins,Ymin, Ymax));
-	}
-	else{
-	  FullName = Path + to_string(SpecName);
-	  strcpy(SpecName, FullName.c_str());
-	  ChHist[iChamber-FirstCh].XvsY_InefficientRecHits_inSegment.push_back((TH2F*)((theFile))->Get(SpecName));
-	}
-	//
-	sprintf(SpecName,"Y_InefficientRecHits_inSegment_Ch%d_L%d",iChamber,iLayer);
-	if(!update){
-	  ChHist[iChamber-FirstCh].Y_InefficientRecHits_inSegment.push_back
-	    (new TH1F(SpecName,"Missing RecHit/layer in a segment (local system, whole chamber);Y, cm; entries",
-		      nYbins,Ymin, Ymax));
-	}
-	else{
-	  FullName = Path + to_string(SpecName);
-	  strcpy(SpecName, FullName.c_str());
-	  ChHist[iChamber-FirstCh].Y_InefficientRecHits_inSegment.push_back((TH1F*)((theFile))->Get(SpecName));
-	}
-	//
-	sprintf(SpecName,"Y_AllRecHits_inSegment_Ch%d_L%d",iChamber,iLayer);
-	if(!update){
-	  ChHist[iChamber-FirstCh].Y_AllRecHits_inSegment.push_back
-	    (new TH1F(SpecName,"All (extrapolated from the segment) RecHit/layer in a segment (local system, whole chamber);Y, cm; entries",
-		      nYbins,Ymin, Ymax));
-	}
-	else{
-	  FullName = Path + to_string(SpecName);
-	  strcpy(SpecName, FullName.c_str());
-	  ChHist[iChamber-FirstCh].Y_AllRecHits_inSegment.push_back((TH1F*)((theFile))->Get(SpecName));
-	}
-      }
-      //
-      sprintf(SpecName,"Sim_Rechits_Ch%d",iChamber);
-      if(!update){
-	ChHist[iChamber-FirstCh].SimRechits = 
-	  new TH1F(SpecName,"Existing RecHit (Sim);layers (1-6);entries",nLayer_bins,Layer_min,Layer_max);
-      }
-      else{
-	FullName = Path + to_string(SpecName)+"_AllCh";
-	strcpy(SpecName, FullName.c_str());
-	ChHist[iChamber-FirstCh].SimRechits = (TH1F*)((theFile))->Get(SpecName);
-      }
-      //
-      sprintf(SpecName,"Sim_Simhits_Ch%d",iChamber);
-      if(!update){
-	ChHist[iChamber-FirstCh].SimSimhits = 
-	  new TH1F(SpecName,"Existing SimHit (Sim);layers (1-6);entries",nLayer_bins,Layer_min,Layer_max);
-      }
-      else{
-	FullName = Path + to_string(SpecName)+"_AllCh";
-	strcpy(SpecName, FullName.c_str());
-	ChHist[iChamber-FirstCh].SimSimhits = (TH1F*)((theFile))->Get(SpecName);
-      }
-      //
-      sprintf(SpecName,"Sim_Rechits_each_Ch%d",iChamber);
-      if(!update){
-	ChHist[iChamber-FirstCh].SimRechits_each = 
-	  new TH1F(SpecName,"Existing RecHit (Sim), each;layers (1-6);entries",nLayer_bins,Layer_min,Layer_max);
-      }
-      else{
-	FullName = Path + to_string(SpecName)+"_AllCh";
-	strcpy(SpecName, FullName.c_str());
-	ChHist[iChamber-FirstCh].SimRechits_each = (TH1F*)((theFile))->Get(SpecName);
-      }
-      //
-      sprintf(SpecName,"Sim_Simhits_each_Ch%d",iChamber);
-      if(!update){
-	ChHist[iChamber-FirstCh].SimSimhits_each = 
-	  new TH1F(SpecName,"Existing SimHit (Sim), each;layers (1-6);entries",nLayer_bins,Layer_min,Layer_max);
-      }
-      else{
-	FullName = Path + to_string(SpecName)+"_AllCh";
-	strcpy(SpecName, FullName.c_str());
-	ChHist[iChamber-FirstCh].SimSimhits_each = (TH1F*)((theFile))->Get(SpecName);
-      }
-      
-      //Auto_ptr... ? better but it doesn't work... (with root?...) 
-      //    sprintf(SpecName,"IneffperLayerRecHit_st3_Ch%d",iChamber);
-      //ChHist[iChamber-FirstCh].perLayerIneffRecHit = new TH1F(SpecName,"Ineff per Layer Rec Hit",10,-0.5,9.5);
-      //std::auto_ptr<TH1F> q2(new TH1F(SpecName,"Ineff per Layer Rec Hit",10,-0.5,9.5));
-      //ChHist[iChamber-FirstCh].perLayerIneffRecHit =q2;
-      theFile->cd();
-    }
-}
-
-// Destructor
-CSCEfficiency::~CSCEfficiency(){
-  // Write the histos to a file
-  theFile->cd();
-  //
-  char SpecName[20];
-  int Nbins;
-  std::vector<float> bins, Efficiency, EffError;
-  TH1F * readHisto;
-  TH1F * writeHisto;
-  std::vector<float> eff(2);
-  //
-
-  const float Ymin = YMIN;
-  const float Ymax = YMAX;
-  const int nYbins = int(2.*(Ymax - Ymin));
-  const float Layer_min = LAYER_MIN;
-  const float Layer_max = LAYER_MAX-2.;
-  const int nLayer_bins = int(Layer_max - Layer_min);
-
-  //
-  //
-  const int chMin = 1;
-  const int chMax = 36;
-  int chRange = chMax - chMin +1;
-
-  sprintf(SpecName,"eff_S");
-  TH1F * h_effStrips =  
-    new TH1F(SpecName,"Efficiency",chRange,float(chMin) -0.5,float(chMax) +0.5);
-  sprintf(SpecName,"eff_S2");
-  TH1F * h_allStrips =  
-    new TH1F(SpecName,"Efficiency",chRange,float(chMin) -0.5,float(chMax) +0.5);
-  //
-  sprintf(SpecName,"eff_W");
-  TH1F * h_effWGs =  
-    new TH1F(SpecName,"Efficiency",chRange,float(chMin) -0.5,float(chMax) +0.5);
-  TH1F * h_allWGs =  
-    new TH1F(SpecName,"Efficiency",chRange,float(chMin) -0.5,float(chMax) +0.5);
-  //
-  sprintf(SpecName,"eff_R");
-  TH1F * h_effRHs =  
-    new TH1F(SpecName,"Efficiency",chRange,float(chMin) -0.5,float(chMax) +0.5);
-  TH1F * h_allRHs =  
-    new TH1F(SpecName,"Efficiency",chRange,float(chMin) -0.5,float(chMax) +0.5);
-  //
-  sprintf(SpecName,"eff_R_g");
-  TH1F * h_effRHs_good =  
-    new TH1F(SpecName,"Efficiency",chRange,float(chMin) -0.5,float(chMax) +0.5);
-  TH1F * h_allRHs_good =  
-    new TH1F(SpecName,"Efficiency",chRange,float(chMin) -0.5,float(chMax) +0.5);
-  //
-  sprintf(SpecName,"eff_R_in");
-  TH1F * h_effRHs_inSeg =  
-    new TH1F(SpecName,"Efficiency",chRange,float(chMin) -0.5,float(chMax) +0.5);
-  TH1F * h_allRHs_inSeg =  
-    new TH1F(SpecName,"Efficiency",chRange,float(chMin) -0.5,float(chMax) +0.5);
-  //
-  //---- loop over chambers
-  for(int iChamber=FirstCh;iChamber<FirstCh+NumCh;iChamber++){
-    sprintf(SpecName,"Chamber_%d",iChamber);
-    //---- Histograms are added chamber by chamber (all data summed up)
-    if(!update){
-      if(iChamber==FirstCh){
-	const char *current_title;
-	const char *changed_title;
-	//
-	AllSingleHits = (TH1F*)ChHist[iChamber-FirstCh].AllSingleHits->Clone();
-	current_title = AllSingleHits->GetName();
-	changed_title = ChangeTitle(current_title);
-	AllSingleHits->SetName(changed_title);
-	//
-	EfficientRechits_inSegment = (TH1F*)ChHist[iChamber-FirstCh].EfficientRechits_inSegment->Clone();
-	current_title = EfficientRechits_inSegment->GetName();
-	changed_title = ChangeTitle(current_title);
-	EfficientRechits_inSegment->SetName(changed_title);
-	//
-	InefficientSingleHits = (TH1F*)ChHist[iChamber-FirstCh].InefficientSingleHits->Clone();
-	current_title = InefficientSingleHits->GetName();
-	changed_title = ChangeTitle(current_title);
-	InefficientSingleHits->SetName(changed_title);
-	//
-	XvsY_InefficientRecHits = (TH2F*)ChHist[iChamber-FirstCh].XvsY_InefficientRecHits->Clone();
-	current_title = XvsY_InefficientRecHits->GetName();
-	changed_title = ChangeTitle(current_title);
-	XvsY_InefficientRecHits->SetName(changed_title);
-	//
-	XvsY_InefficientRecHits_good = (TH2F*)ChHist[iChamber-FirstCh].XvsY_InefficientRecHits_good->Clone();
-	current_title = XvsY_InefficientRecHits_good->GetName();
-	changed_title = ChangeTitle(current_title);
-	XvsY_InefficientRecHits_good->SetName(changed_title);
-	//
-	XvsY_InefficientSegments  = (TH2F*)ChHist[iChamber-FirstCh].XvsY_InefficientSegments->Clone();
-	current_title = XvsY_InefficientSegments->GetName();
-	changed_title = ChangeTitle(current_title);
-	XvsY_InefficientSegments->SetName(changed_title);
-	//
-	XvsY_InefficientSegments_good = (TH2F*)ChHist[iChamber-FirstCh].XvsY_InefficientSegments_good->Clone();
-	current_title = XvsY_InefficientSegments_good->GetName();
-	changed_title = ChangeTitle(current_title);
-	XvsY_InefficientSegments_good->SetName(changed_title);
-	//
-	EfficientRechits = (TH1F*)ChHist[iChamber-FirstCh].EfficientRechits->Clone();
-	current_title = EfficientRechits->GetName();
-	changed_title = ChangeTitle(current_title);
-	EfficientRechits->SetName(changed_title);
-	//
-	EfficientRechits_good = (TH1F*)ChHist[iChamber-FirstCh].EfficientRechits_good->Clone();
-	current_title = EfficientRechits_good->GetName();
-	changed_title = ChangeTitle(current_title);
-	EfficientRechits_good->SetName(changed_title);
-	//
-	EfficientLCTs = (TH1F*)ChHist[iChamber-FirstCh].EfficientLCTs->Clone();
-	current_title = EfficientLCTs->GetName();
-	changed_title = ChangeTitle(current_title);
-	EfficientLCTs->SetName(changed_title);
-	//
-	EfficientStrips = (TH1F*)ChHist[iChamber-FirstCh].EfficientStrips->Clone();
-	current_title = EfficientStrips->GetName();
-	changed_title = ChangeTitle(current_title);
-	EfficientStrips->SetName(changed_title);
-	//
-	EfficientWireGroups = (TH1F*)ChHist[iChamber-FirstCh].EfficientWireGroups->Clone();
-	current_title = EfficientWireGroups->GetName();
-	changed_title = ChangeTitle(current_title);
-	EfficientWireGroups->SetName(changed_title);
-	for(int iLayer=0; iLayer<6;iLayer++){
-	  XvsY_InefficientRecHits_inSegment[iLayer] = 
-	    (TH2F*)ChHist[iChamber-FirstCh].XvsY_InefficientRecHits_inSegment[iLayer]->Clone();
-	  current_title = XvsY_InefficientRecHits_inSegment[iLayer]->GetName();
-	  changed_title = ChangeTitle(current_title);
-	  XvsY_InefficientRecHits_inSegment[iLayer]->SetName(changed_title);
-	  //
-	  Y_InefficientRecHits_inSegment[iLayer] = 
-	    (TH1F*)ChHist[iChamber-FirstCh].Y_InefficientRecHits_inSegment[iLayer]->Clone();
-	  current_title = Y_InefficientRecHits_inSegment[iLayer]->GetName();
-	  changed_title = ChangeTitle(current_title);
-	  Y_InefficientRecHits_inSegment[iLayer]->SetName(changed_title);
-	  //
-	  Y_AllRecHits_inSegment[iLayer] = 
-	    (TH1F*)ChHist[iChamber-FirstCh].Y_AllRecHits_inSegment[iLayer]->Clone();
-	  current_title = Y_AllRecHits_inSegment[iLayer]->GetName();
-	  changed_title = ChangeTitle(current_title);
-	  Y_AllRecHits_inSegment[iLayer]->SetName(changed_title);
-	}
-	//
-	SimRechits=(TH1F*)ChHist[iChamber-FirstCh].SimRechits->Clone();
-	current_title = SimRechits->GetName();
-	changed_title = ChangeTitle(current_title);
-	SimRechits->SetName(changed_title);
-	//
-	SimSimhits=(TH1F*)ChHist[iChamber-FirstCh].SimSimhits->Clone();
-	current_title = SimSimhits->GetName();
-	changed_title = ChangeTitle(current_title);
-	SimSimhits->SetName(changed_title);
-	//
-	SimRechits_each=(TH1F*)ChHist[iChamber-FirstCh].SimRechits_each->Clone();
-	current_title = SimRechits_each->GetName();
-	changed_title = ChangeTitle(current_title);
-	SimRechits_each->SetName(changed_title);
-	//
-	SimSimhits_each=(TH1F*)ChHist[iChamber-FirstCh].SimSimhits_each->Clone();
-	current_title = SimSimhits_each->GetName();
-	changed_title = ChangeTitle(current_title);
-	SimSimhits_each->SetName(changed_title);
-	//
-      }
-      else{
-	AllSingleHits->Add(ChHist[iChamber-FirstCh].AllSingleHits);
-	EfficientRechits_inSegment->Add(ChHist[iChamber-FirstCh].EfficientRechits_inSegment);
-	InefficientSingleHits->Add(ChHist[iChamber-FirstCh].InefficientSingleHits);
-	XvsY_InefficientRecHits->Add(ChHist[iChamber-FirstCh].XvsY_InefficientRecHits);
-	XvsY_InefficientRecHits_good->Add(ChHist[iChamber-FirstCh].XvsY_InefficientRecHits_good);
-	XvsY_InefficientSegments->Add(ChHist[iChamber-FirstCh].XvsY_InefficientSegments);
-	XvsY_InefficientSegments_good->Add(ChHist[iChamber-FirstCh].XvsY_InefficientSegments_good);
-	EfficientRechits->Add(ChHist[iChamber-FirstCh].EfficientRechits);
-	EfficientRechits_good->Add(ChHist[iChamber-FirstCh].EfficientRechits_good);
-	EfficientLCTs->Add(ChHist[iChamber-FirstCh].EfficientLCTs);
-	EfficientStrips->Add(ChHist[iChamber-FirstCh].EfficientStrips);
-	EfficientWireGroups->Add(ChHist[iChamber-FirstCh].EfficientWireGroups);
-	for(int iLayer=0; iLayer<6;iLayer++){
-	  XvsY_InefficientRecHits_inSegment[iLayer]->
-	    Add(ChHist[iChamber-FirstCh].XvsY_InefficientRecHits_inSegment[iLayer]);
-	  Y_InefficientRecHits_inSegment[iLayer]->
-	    Add(ChHist[iChamber-FirstCh].Y_InefficientRecHits_inSegment[iLayer]);
-	  Y_AllRecHits_inSegment[iLayer]->Add(ChHist[iChamber-FirstCh].Y_AllRecHits_inSegment[iLayer]);
-	}
-	SimRechits->Add(ChHist[iChamber-FirstCh].SimRechits);
-	SimSimhits->Add(ChHist[iChamber-FirstCh].SimSimhits);
-	SimRechits_each->Add(ChHist[iChamber-FirstCh].SimRechits_each);
-	SimSimhits_each->Add(ChHist[iChamber-FirstCh].SimSimhits_each);
-      }
-      //---- Write histograms chamber by chamber 
-      theFile->cd(SpecName);
-      
-      ChHist[iChamber-FirstCh].EfficientRechits_inSegment->Write();
-      ChHist[iChamber-FirstCh].AllSingleHits->Write();
-      ChHist[iChamber-FirstCh].InefficientSingleHits->Write();
-      ChHist[iChamber-FirstCh].XvsY_InefficientSegments->Write();
-      ChHist[iChamber-FirstCh].XvsY_InefficientSegments_good->Write();
-      ChHist[iChamber-FirstCh].XvsY_InefficientRecHits_good->Write();
-      ChHist[iChamber-FirstCh].XvsY_InefficientRecHits->Write();
-      ChHist[iChamber-FirstCh].EfficientRechits->Write();
-      ChHist[iChamber-FirstCh].EfficientRechits_good->Write();
-      ChHist[iChamber-FirstCh].EfficientLCTs->Write();
-      ChHist[iChamber-FirstCh].EfficientStrips->Write();
-      ChHist[iChamber-FirstCh].EfficientWireGroups->Write();
-      for(unsigned int iLayer = 0; iLayer< 6; iLayer++){
-	ChHist[iChamber-FirstCh].XvsY_InefficientRecHits_inSegment[iLayer]->Write();
-	ChHist[iChamber-FirstCh].Y_InefficientRecHits_inSegment[iLayer]->Write();
-	ChHist[iChamber-FirstCh].Y_AllRecHits_inSegment[iLayer]->Write();
-      }
-      ChHist[iChamber-FirstCh].SimRechits->Write();
-      ChHist[iChamber-FirstCh].SimSimhits->Write();
-      ChHist[iChamber-FirstCh].SimRechits_each->Write();
-      ChHist[iChamber-FirstCh].SimSimhits_each->Write();
-      //
-    }
-    // efficiencies per chamber
-    const int min = 2;
-    const int max = 7;
-    int reference = 9;
-    float effStrips =    ChHist[iChamber-FirstCh].EfficientStrips->Integral(min,max);   
-    float allStrips = 6.*ChHist[iChamber-FirstCh].EfficientStrips->GetBinContent(reference);   
-    h_effStrips->SetBinContent(iChamber,effStrips);
-    h_allStrips->SetBinContent(iChamber,allStrips);
-      //
-    float effWGs = ChHist[iChamber-FirstCh].EfficientWireGroups->Integral(min,max);   
-    float allWGs = 6.*ChHist[iChamber-FirstCh].EfficientWireGroups->GetBinContent(reference);
-    h_effWGs->SetBinContent(iChamber,effWGs);
-    h_allWGs->SetBinContent(iChamber,allWGs);
-    //
-    float effRHs = ChHist[iChamber-FirstCh].EfficientRechits->Integral(min,max);   
-    float allRHs = 6.*ChHist[iChamber-FirstCh].EfficientRechits->GetBinContent(reference); 
-    h_effRHs->SetBinContent(iChamber,effRHs);
-    h_allRHs->SetBinContent(iChamber,allRHs);
-    //
-    float effRHs_good = ChHist[iChamber-FirstCh].EfficientRechits_good->Integral(min,max);   
-    float allRHs_good = 6.*ChHist[iChamber-FirstCh].EfficientRechits_good->GetBinContent(reference);
-    h_effRHs_good->SetBinContent(iChamber,effRHs_good);
-    h_allRHs_good->SetBinContent(iChamber,allRHs_good);
-    //
-    reference = 10;
-    float effRHs_inSeg = ChHist[iChamber-FirstCh].EfficientRechits_inSegment->Integral(min,max);   
-    float allRHs_inSeg = 6.*ChHist[iChamber-FirstCh].EfficientRechits_inSegment->GetBinContent(reference);
-    h_effRHs_inSeg->SetBinContent(iChamber,effRHs_inSeg);
-    h_allRHs_inSeg->SetBinContent(iChamber,allRHs_inSeg);
-    //
-    reference = 9;
-    //
-    
-    theFile->cd(SpecName);
-    //---- Calculate the efficiencies, write the result in histograms
-    sprintf(SpecName,"FINAL_Rechit_inSegment_Efficiency_Ch%d",iChamber);
-    ChHist[iChamber-FirstCh].FINAL_Rechit_inSegment_Efficiency =  
-      new TH1F(SpecName,"Rechit in segment Efficiency;layer (1-6);efficiency",nLayer_bins,Layer_min,Layer_max);
-    readHisto = ChHist[iChamber-FirstCh].EfficientRechits_inSegment;
-    writeHisto = ChHist[iChamber-FirstCh].FINAL_Rechit_inSegment_Efficiency;
-    histoEfficiency(readHisto, writeHisto,10);
-    ChHist[iChamber-FirstCh].FINAL_Rechit_inSegment_Efficiency->Write("",TObject::kOverwrite); 
-
-    //
-    sprintf(SpecName,"FINAL_Attachment_Efficiency_Ch%d",iChamber);
-    ChHist[iChamber-FirstCh].FINAL_Attachment_Efficiency =
-      new TH1F(SpecName,"Attachment Efficiency (rechit to segment);layer (1-6);efficiency",nLayer_bins+2,Layer_min,Layer_max+2.);
-    ChHist[iChamber-FirstCh].FINAL_Attachment_Efficiency->Sumw2();
-    sprintf(SpecName,"efficientSegments_Ch%d",iChamber);
-    TH1F * efficientSegments = new TH1F(SpecName,"Attachment Efficiency (rechit to segment);layer (1-6);efficiency",nLayer_bins+2,Layer_min,Layer_max+2.);
-    efficientSegments = (TH1F*)ChHist[iChamber-FirstCh].AllSingleHits->Clone();
-    efficientSegments->Add(ChHist[iChamber-FirstCh].InefficientSingleHits,-1.);
-    ChHist[iChamber-FirstCh].FINAL_Attachment_Efficiency->
-      Divide(efficientSegments,
-              ChHist[iChamber-FirstCh].AllSingleHits,
-              1.,1.,"B");
-    delete efficientSegments;
-    ChHist[iChamber-FirstCh].FINAL_Attachment_Efficiency->Write(); 
-
-//
-    sprintf(SpecName,"FINAL_Rechit_Efficiency_Ch%d",iChamber);
-    ChHist[iChamber-FirstCh].FINAL_Rechit_Efficiency =  
-      new TH1F(SpecName,"Rechit Efficiency;layer (1-6);efficiency",nLayer_bins,Layer_min,Layer_max);
-    readHisto = ChHist[iChamber-FirstCh].EfficientRechits;
-    writeHisto = ChHist[iChamber-FirstCh].FINAL_Rechit_Efficiency;
-    histoEfficiency(readHisto, writeHisto,9);
-    ChHist[iChamber-FirstCh].FINAL_Rechit_Efficiency->Write(); 
-
-//
-    sprintf(SpecName,"FINAL_Rechit_Efficiency_good_Ch%d",iChamber);
-    ChHist[iChamber-FirstCh].FINAL_Rechit_Efficiency_good =  
-      new TH1F(SpecName,"Rechit Efficiency - sensitive area only;layer (1-6);efficiency",nLayer_bins,Layer_min,Layer_max);
-    readHisto = ChHist[iChamber-FirstCh].EfficientRechits_good;
-    writeHisto = ChHist[iChamber-FirstCh].FINAL_Rechit_Efficiency_good;
-    histoEfficiency(readHisto, writeHisto,9);
-    ChHist[iChamber-FirstCh].FINAL_Rechit_Efficiency_good->Write(); 
-
-//
-    sprintf(SpecName,"FINAL_LCTs_Efficiency_Ch%d",iChamber);
-    ChHist[iChamber-FirstCh].FINAL_LCTs_Efficiency =  new TH1F(SpecName,"LCTs Efficiency;1-a, 2-c, 3-corr (3 sets);efficiency",30,0.5,30.5);
-    Nbins =  ChHist[iChamber-FirstCh].EfficientLCTs->GetSize()-2;//without underflows and overflows
-    bins.clear();
-    bins.resize(Nbins);
-    Efficiency.clear();
-    Efficiency.resize(Nbins);
-    EffError.clear();
-    EffError.resize(Nbins);
-    bins[Nbins-1] = ChHist[iChamber-FirstCh].EfficientLCTs->GetBinContent(Nbins);
-    bins[Nbins-2] = ChHist[iChamber-FirstCh].EfficientLCTs->GetBinContent(Nbins-1);
-    bins[Nbins-3] = ChHist[iChamber-FirstCh].EfficientLCTs->GetBinContent(Nbins-2);
-    for (int i=0;i<Nbins;i++){
-      bins[i] = ChHist[iChamber-FirstCh].EfficientLCTs->GetBinContent(i+1);
-      float Norm = bins[Nbins-1];
-      //---- special logic
-      if(i>19){
-	 Norm = bins[Nbins-3];
-      }
-      getEfficiency(bins[i], Norm, eff);
-      Efficiency[i] = eff[0];
-      EffError[i] = eff[1];
-      ChHist[iChamber-FirstCh].FINAL_LCTs_Efficiency->SetBinContent(i+1, Efficiency[i]);
-      ChHist[iChamber-FirstCh].FINAL_LCTs_Efficiency->SetBinError(i+1, EffError[i]);
-    }
-    ChHist[iChamber-FirstCh].FINAL_LCTs_Efficiency->Write();
-
-//
-    sprintf(SpecName,"FINAL_Strip_Efficiency_Ch%d",iChamber);
-    ChHist[iChamber-FirstCh].FINAL_Strip_Efficiency =  
-      new TH1F(SpecName,"Strip Efficiency;layer (1-6);efficiency",nLayer_bins,Layer_min,Layer_max);
-    readHisto = ChHist[iChamber-FirstCh].EfficientStrips;
-    writeHisto = ChHist[iChamber-FirstCh].FINAL_Strip_Efficiency;
-    histoEfficiency(readHisto, writeHisto,9);
-    ChHist[iChamber-FirstCh].FINAL_Strip_Efficiency->Write(); 
-
-//
-    sprintf(SpecName,"FINAL_WireGroup_Efficiency_Ch%d",iChamber);
-    ChHist[iChamber-FirstCh].FINAL_WireGroup_Efficiency =  
-      new TH1F(SpecName,"WireGroup Efficiency;layer (1-6);efficiency",nLayer_bins,Layer_min,Layer_max);
-    readHisto = ChHist[iChamber-FirstCh].EfficientWireGroups;
-    writeHisto = ChHist[iChamber-FirstCh].FINAL_WireGroup_Efficiency;
-    histoEfficiency(readHisto, writeHisto,9);
-    ChHist[iChamber-FirstCh].FINAL_WireGroup_Efficiency->Write(); 
-    //
-    for(int iLayer=0; iLayer<6;iLayer++){
-      sprintf(SpecName,"FINAL_Y_RecHit_InSegment_Efficiency_Ch%d_L%d",iChamber,iLayer);
-      ChHist[iChamber-FirstCh].FINAL_Y_RecHit_InSegment_Efficiency.push_back
-	(new TH1F(SpecName,"RecHit/layer in a segment efficiency (local system, whole chamber);Y, cm;entries",
-		  nYbins,Ymin, Ymax));
-      ChHist[iChamber-FirstCh].FINAL_Y_RecHit_InSegment_Efficiency.back()->Sumw2();
-      sprintf(SpecName,"efficientRecHits_Ch%d_L%d",iChamber,iLayer);
-      TH1F *efficientRecHits_Y  = new TH1F(SpecName,"RecHit/layer in a segment efficiency (local system, whole chamber);Y, cm;entries",
-					   nYbins,Ymin, Ymax);
-      efficientRecHits_Y = (TH1F*)ChHist[iChamber-FirstCh].Y_AllRecHits_inSegment.back()->Clone();
-      efficientRecHits_Y->Add(ChHist[iChamber-FirstCh].Y_InefficientRecHits_inSegment.back(),-1.);
-      ChHist[iChamber-FirstCh].FINAL_Y_RecHit_InSegment_Efficiency.back()->
-      Divide(efficientRecHits_Y,
-             ChHist[iChamber-FirstCh].Y_AllRecHits_inSegment[iLayer],
-             1.,1.,"B");
-      delete efficientRecHits_Y;
-      ChHist[iChamber-FirstCh].FINAL_Y_RecHit_InSegment_Efficiency.back()->Write();
-    }
-    //
-    sprintf(SpecName,"FINAL_SimRechit_Efficiency_Ch%d",iChamber);
-    ChHist[iChamber-FirstCh].FINAL_SimRechit_Efficiency =
-      new TH1F(SpecName,"Rechit Efficiency (Nrechit layers / Nsimhit layers);layer (1-6);efficiency",nLayer_bins+2,Layer_min,Layer_max+2.);
-    ChHist[iChamber-FirstCh].FINAL_SimRechit_Efficiency->Sumw2();
-    sprintf(SpecName,"SimRechits_Ch%d",iChamber);
-    TH1F * SimRechits = new TH1F(SpecName,"Rechit Efficiency (Nrechit layers / Nsimhit layers);layer (1-6);efficiency",nLayer_bins+2,Layer_min,Layer_max+2.);
-    SimRechits = (TH1F*)ChHist[iChamber-FirstCh].SimRechits->Clone();
-    ChHist[iChamber-FirstCh].FINAL_SimRechit_Efficiency->
-      Divide(SimRechits,
-	     ChHist[iChamber-FirstCh].SimSimhits,
-	     1.,1.,"B");
-    delete SimRechits;
-    ChHist[iChamber-FirstCh].FINAL_SimRechit_Efficiency->Write();
-    // 
-    sprintf(SpecName,"FINAL_SimRechit_each_Efficiency_Ch%d",iChamber);
-    ChHist[iChamber-FirstCh].FINAL_SimRechit_each_Efficiency =
-      new TH1F(SpecName,"Rechit Efficiency (Nrechits/Nsimhits);layer (1-6);efficiency",nLayer_bins+2,Layer_min,Layer_max+2.);
-    ChHist[iChamber-FirstCh].FINAL_SimRechit_each_Efficiency->Sumw2();
-    sprintf(SpecName,"SimRechits_each_Ch%d",iChamber);
-    TH1F * SimRechits_each = new TH1F(SpecName,"Rechit Efficiency (Nrechits/ Nsimhits);layer (1-6);efficiency",nLayer_bins+2,Layer_min,Layer_max+2.);
-    SimRechits_each = (TH1F*)ChHist[iChamber-FirstCh].SimRechits_each->Clone();
-    ChHist[iChamber-FirstCh].FINAL_SimRechit_each_Efficiency->
-      Divide(SimRechits_each,
-	     ChHist[iChamber-FirstCh].SimSimhits_each,
-	     1.,1.,"B");
-    delete SimRechits_each;
-    ChHist[iChamber-FirstCh].FINAL_SimRechit_each_Efficiency->Write();
-    // 
-    theFile->cd();
-    //
-  }
-  sprintf(SpecName,"AllChambers");
-  if(!update){
-    theFile->mkdir(SpecName);
-    theFile->cd(SpecName);
-    DataFlow->Write();
-
-    Chi2->Write();
-    Chi2_ME1_a->Write();
-    Chi2_ME1_b->Write();
-    Chi2_ME1_2->Write();
-    Chi2_ME1_3->Write();
-    Chi2_ME2_1->Write();
-    Chi2_ME2_2->Write();
-    Chi2_ME3_1->Write();
-    Chi2_ME3_2->Write();
-    Chi2_ME4_1->Write();
-    //
-    XY_ALCTmissing->Write();
-    EfficientSegments->Write();
-    AllSegments->Write();
-    EfficientSegments_theta->Write();
-    AllSegments_theta->Write();
-    //---- Write "summed" histograms 
-    EfficientRechits_inSegment->Write();
-    AllSingleHits->Write();
-    InefficientSingleHits->Write();
-    XvsY_InefficientRecHits->Write();
-    XvsY_InefficientRecHits_good->Write();
-    XvsY_InefficientSegments->Write();
-    XvsY_InefficientSegments_good->Write();
-    EfficientRechits->Write();
-    EfficientRechits_good->Write();
-    EfficientLCTs->Write();
-    EfficientStrips->Write();
-    EfficientWireGroups->Write();
-    for(unsigned int iLayer = 0; iLayer< 6; iLayer++){
-      XvsY_InefficientRecHits_inSegment[iLayer]->Write();
-      Y_InefficientRecHits_inSegment[iLayer]->Write();
-      Y_AllRecHits_inSegment[iLayer]->Write();
-    }
-    SimRechits->Write();
-    SimSimhits->Write();
-    SimRechits_each->Write();
-    SimSimhits_each->Write();
-    
-  }
-  theFile->cd(SpecName);
-  // efficiencies per chamber
-  TGraphAsymmErrors* g_effStrips = new TGraphAsymmErrors(chRange);
-  g_effStrips->BayesDivide(h_effStrips,h_allStrips);
-  g_effStrips->SetTitle("Strip efficiency per chamber ;Chamber # ; efficiency");
-  g_effStrips->SetName("FINAL_Strip_Efficiency_perChamber");
-
-  g_effStrips->Write();
-  delete h_effStrips;
-  delete h_allStrips;
-  //
-  TGraphAsymmErrors* g_effWGs = new TGraphAsymmErrors(chRange);
-  g_effWGs->BayesDivide(h_effWGs,h_allWGs);
-  g_effWGs->SetTitle("Wire group efficiency per chamber ;Chamber # ; efficiency");
-  g_effWGs->SetName("FINAL_WireGroup_Efficiency_perChamber");
-  g_effWGs->Write();
-  delete h_effWGs;
-  delete h_allWGs;
-  //
-  TGraphAsymmErrors* g_effRHs = new TGraphAsymmErrors(chRange);
-  g_effRHs->BayesDivide(h_effRHs,h_allRHs);
-  g_effRHs->SetTitle("Rechit efficiency per chamber ;Chamber # ; efficiency");
-  g_effRHs->SetName("FINAL_Rechit_Efficiency_perChamber");
-  g_effRHs->Write();
-
-  delete h_effRHs;
-  delete h_allRHs;
-  //
-  TGraphAsymmErrors* g_effRHs_good = new TGraphAsymmErrors(chRange);
-  g_effRHs_good->BayesDivide(h_effRHs_good,h_allRHs_good);
-  g_effRHs_good->SetTitle("Rechit (sensitive region) efficiency per chamber ;Chamber # ; efficiency");
-  g_effRHs_good->SetName("FINAL_Rechit_good_Efficiency_perChamber");
-  g_effRHs_good->Write();
-
-  delete h_effRHs_good;
-  delete h_allRHs_good;
-  //
-  TGraphAsymmErrors* g_effRHs_inSeg = new TGraphAsymmErrors(chRange);
-  g_effRHs_inSeg->BayesDivide(h_effRHs_inSeg,h_allRHs_inSeg);
-  g_effRHs_inSeg->SetTitle("Rechit (in Segment) efficiency per chamber ;Chamber # ; efficiency");
-  g_effRHs_inSeg->SetName("FINAL_Rechit_inSegment_Efficiency_perChamber");
-  g_effRHs_inSeg->Write();
-
-  delete h_effRHs_inSeg;
-  delete h_allRHs_inSeg;
-  //
-
-  sprintf(SpecName,"FINAL_dydz_Efficiency_ALCT");
-  FINAL_dydz_Efficiency_ALCT=
-    new TH1F(SpecName,"ALCT efficiency vs dy/dz of the segment in ref. system;dydz;efficiency", 30, -1.5, 1.5);
-  FINAL_dydz_Efficiency_ALCT->Sumw2();
-
-  FINAL_dydz_Efficiency_ALCT->Divide(dydz_Eff_ALCT, dydz_All_ALCT, 1.,1.,"B");
-
-  //
-  sprintf(SpecName,"FINAL_dydz_Efficiency_ALCT");
-  FINAL_dydz_Efficiency_ALCT=
-    new TH1F(SpecName,"ALCT efficiency vs dy/dz of the segment in ref. system;dydz;efficiency", 30, -1.5, 1.5);
-  FINAL_dydz_Efficiency_ALCT->Sumw2();
-
-  FINAL_dydz_Efficiency_ALCT->Divide(dydz_Eff_ALCT, dydz_All_ALCT, 1.,1.,"B");
-  FINAL_dydz_Efficiency_ALCT ->Write();
-  dydz_Eff_ALCT->Write();// skip?
-  dydz_All_ALCT->Write();// skip?
-
-  //Calculate the efficiency, write the result in a histogram
-  sprintf(SpecName,"FINAL_Segment_Efficiency");
-  FINAL_Segment_Efficiency =
-    new TH1F(SpecName,"Segment Efficiency;chamber number;efficiency", NumCh, FirstCh-0.5, LastCh+0.5);
-  FINAL_Segment_Efficiency->Sumw2();
-  FINAL_Segment_Efficiency->
-    Divide(EfficientSegments,
-            AllSegments,
-            1.,1.,"B");
-  FINAL_Segment_Efficiency->Write(); 
-  //
-  sprintf(SpecName,"FINAL_Segment_Efficiency_theta");
-  FINAL_Segment_Efficiency_theta =
-    new TH1F(SpecName,"Segment Efficiency in theta;theta;efficiency", 79, 0., 3.16);
-  FINAL_Segment_Efficiency_theta->Sumw2();
-  FINAL_Segment_Efficiency_theta->
-    Divide(EfficientSegments_theta,
-            AllSegments_theta,
-            1.,1.,"B");
-  FINAL_Segment_Efficiency_theta->Write(); 
-//
-  sprintf(SpecName,"FINAL_Rechit_inSegment_Efficiency");
-  FINAL_Rechit_inSegment_Efficiency =  
-    new TH1F(SpecName,"Rechit in segment Efficiency;layer (1-6);efficiency",nLayer_bins,Layer_min,Layer_max);
-  readHisto = EfficientRechits_inSegment;
-  writeHisto = FINAL_Rechit_inSegment_Efficiency;
-  histoEfficiency(readHisto, writeHisto,10);
-  FINAL_Rechit_inSegment_Efficiency->Write(); 
-
-  //
-  sprintf(SpecName,"FINAL_Attachment_Efficiency");
-  FINAL_Attachment_Efficiency =
-    new TH1F(SpecName,"Attachment Efficiency (rechit to segment);layer (1-6);efficiency",nLayer_bins+2,Layer_min,Layer_max+2.);
-  FINAL_Attachment_Efficiency->Sumw2();
-  sprintf(SpecName,"efficientSegments");
-  TH1F * efficientSegments = new TH1F(SpecName,"Attachment Efficiency (rechit to segment);layer (1-6);efficiency",nLayer_bins+2,Layer_min,Layer_max+2.);
-  efficientSegments = (TH1F*)AllSingleHits->Clone();
-  efficientSegments->Add(InefficientSingleHits,-1.);
-  FINAL_Attachment_Efficiency->
-    Divide(efficientSegments,
-            AllSingleHits,
-            1.,1.,"B");
-  delete efficientSegments;
-  FINAL_Attachment_Efficiency->Write(); 
-
-  //
-  sprintf(SpecName,"FINAL_Rechit_Efficiency");
-  FINAL_Rechit_Efficiency =  
-    new TH1F(SpecName,"Rechit Efficiency;layer (1-6);efficiency",nLayer_bins,Layer_min,Layer_max);
-  readHisto = EfficientRechits;
-  writeHisto = FINAL_Rechit_Efficiency;
-  histoEfficiency(readHisto, writeHisto,9);
-  FINAL_Rechit_Efficiency->Write(); 
-  
-//
-  sprintf(SpecName,"FINAL_Rechit_Efficiency_good");
-  FINAL_Rechit_Efficiency_good =  
-    new TH1F(SpecName,"Rechit Efficiency - sensitive area only;layer (1-6);efficiency",nLayer_bins,Layer_min,Layer_max);
-  readHisto = EfficientRechits_good;
-  writeHisto = FINAL_Rechit_Efficiency_good;
-  histoEfficiency(readHisto, writeHisto,9);
-  FINAL_Rechit_Efficiency_good->Write(); 
-  
-//
-  sprintf(SpecName,"FINAL_LCTs_Efficiency");
-  FINAL_LCTs_Efficiency =  new TH1F(SpecName,"LCTs Efficiency;1-a, 2-c, 3-corr (3 sets);efficiency",30,0.5,30.5);
-  Nbins =  EfficientLCTs->GetSize()-2;//without underflows and overflows
-  bins.clear();
-  bins.resize(Nbins);
-  Efficiency.clear();
-  Efficiency.resize(Nbins);
-  EffError.clear();
-  EffError.resize(Nbins);
-  bins[Nbins-1] = EfficientLCTs->GetBinContent(Nbins);
-  bins[Nbins-2] = EfficientLCTs->GetBinContent(Nbins-1);
-  bins[Nbins-3] = EfficientLCTs->GetBinContent(Nbins-2);
-  for (int i=0;i<Nbins;i++){
-    bins[i] = EfficientLCTs->GetBinContent(i+1);
-    float Norm = bins[Nbins-1];
-    //---- special logic
-    if(i>19){
-      Norm = bins[Nbins-3];
-    }
-    getEfficiency(bins[i], Norm, eff);
-    Efficiency[i] = eff[0];
-    EffError[i] = eff[1];
-    FINAL_LCTs_Efficiency->SetBinContent(i+1, Efficiency[i]);
-    FINAL_LCTs_Efficiency->SetBinError(i+1, EffError[i]);
-  }
-  FINAL_LCTs_Efficiency->Write();
-  
-//
-  sprintf(SpecName,"FINAL_Strip_Efficiency");
-  FINAL_Strip_Efficiency =  
-    new TH1F(SpecName,"Strip Efficiency;layer (1-6);efficiency",nLayer_bins,Layer_min,Layer_max);
-  readHisto = EfficientStrips;
-  writeHisto = FINAL_Strip_Efficiency;
-  histoEfficiency(readHisto, writeHisto,9);
-  FINAL_Strip_Efficiency->Write(); 
-  
-//
-  sprintf(SpecName,"FINAL_WireGroup_Efficiency");
-  FINAL_WireGroup_Efficiency =  
-    new TH1F(SpecName,"WireGroup Efficiency;layer (1-6);efficiency",nLayer_bins,Layer_min,Layer_max);
-  readHisto = EfficientWireGroups;
-  writeHisto = FINAL_WireGroup_Efficiency;
-  histoEfficiency(readHisto, writeHisto,9);
-  FINAL_WireGroup_Efficiency->Write(); 
-  //
-  for(int iLayer=0; iLayer<6;iLayer++){
-    sprintf(SpecName,"FINAL_Y_RecHit_InSegment_Efficiency_L%d",iLayer);
-    FINAL_Y_RecHit_InSegment_Efficiency.push_back
-      (new TH1F(SpecName,"RecHit/layer in a segment efficiency (local system);Y, cm;entries",
-		nYbins,Ymin, Ymax));
-    FINAL_Y_RecHit_InSegment_Efficiency[iLayer]->Sumw2();
-    sprintf(SpecName,"efficientRecHits_L%d",iLayer);
-    TH1F *efficientRecHits_Y  = new TH1F(SpecName,"RecHit/layer in a segment efficiency (local system, whole chamber);Y, cm;entries",
-					 nYbins,Ymin, Ymax);
-    efficientRecHits_Y = (TH1F*)Y_AllRecHits_inSegment[iLayer]->Clone();
-    efficientRecHits_Y->Add(Y_InefficientRecHits_inSegment[iLayer],-1.);
-    FINAL_Y_RecHit_InSegment_Efficiency[iLayer]->
-      Divide(efficientRecHits_Y,
-	     Y_AllRecHits_inSegment[iLayer],
-	     1.,1.,"B");
-    delete efficientRecHits_Y;
-    FINAL_Y_RecHit_InSegment_Efficiency[iLayer]->Write(); 
-  }
-  //
-  sprintf(SpecName,"FINAL_SimRechit_Efficiency");
-  FINAL_SimRechit_Efficiency =
-    new TH1F(SpecName,"Rechit Efficiency (Nrechit layers / Nsimhit layers);layer (1-6);efficiency",nLayer_bins+2,Layer_min,Layer_max+2.);
-  FINAL_SimRechit_Efficiency->Sumw2();
-  sprintf(SpecName,"SimRechits_tmp");
-  TH1F * SimRechits_tmp = new TH1F(SpecName,"Rechit Efficiency (Nrechit layers / Nsimhit layers);layer (1-6);efficiency",nLayer_bins+2,Layer_min,Layer_max+2.);
-  SimRechits_tmp = (TH1F*)SimRechits->Clone();
-  FINAL_SimRechit_Efficiency->
-    Divide(SimRechits_tmp,
-	   SimSimhits,
-	   1.,1.,"B");
-  delete SimRechits_tmp;
-  FINAL_SimRechit_Efficiency->Write();
-  // 
-  sprintf(SpecName,"FINAL_SimRechit_each_Efficiency");
-  FINAL_SimRechit_each_Efficiency =
-    new TH1F(SpecName,"Rechit Efficiency (Nrechits/ Nsimhits);layer (1-6);efficiency",nLayer_bins+2,Layer_min,Layer_max+2.);
-  FINAL_SimRechit_each_Efficiency->Sumw2();
-  sprintf(SpecName,"SimRechits_each_tmp");
-  TH1F * SimRechits_each_tmp = new TH1F(SpecName,"Rechit Efficiency (Nrechits/ Nsimhits);layer (1-6);efficiency",nLayer_bins+2,Layer_min,Layer_max+2.);
-  SimRechits_each_tmp = (TH1F*)SimRechits_each->Clone();
-  FINAL_SimRechit_each_Efficiency->
-    Divide(SimRechits_each_tmp,
-	   SimSimhits_each,
-	   1.,1.,"B");
-  delete SimRechits_each_tmp;
-  FINAL_SimRechit_each_Efficiency->Write();
-  // 
-  
-  //---- Close the file
-  theFile->Close();
-}
-
 //---- The Analysis  (main)
-void CSCEfficiency::analyze(const Event & event, const EventSetup& eventSetup){
+bool CSCEfficiency::filter(Event & event, const EventSetup& eventSetup){
+  bool passTheEvent = false;
   DataFlow->Fill(0.);  
+  MuonPatternRecoDumper debug;
+ 
   //---- increment counter
   nEventsAnalyzed++;
   // printalot debug output
-  printalot = (nEventsAnalyzed < 100);
+  printalot = (nEventsAnalyzed < int(printout_NEvents)); // 
   int iRun   = event.id().run();
   int iEvent = event.id().event();
-  if(0==fmod(double (nEventsAnalyzed) ,double(100) )){
-    printf("\n==enter==CSCEfficiency===== run %i\tevent %i\tn Analyzed %i\n",iRun,iEvent,nEventsAnalyzed);
+  if(0==fmod(double (nEventsAnalyzed) ,double(1000) )){
+    if(printalot){
+      printf("\n==enter==CSCEfficiency===== run %i\tevent %i\tn Analyzed %i\n",iRun,iEvent,nEventsAnalyzed);
+    }
   }
   
   //---- These declarations create handles to the types of records that you want
   //---- to retrieve from event "e".
   if (printalot) printf("\tget handles for digi collections\n");
-  edm::Handle<CSCWireDigiCollection> wires;
-  edm::Handle<CSCStripDigiCollection> strips;
   
   //---- Pass the handle to the method "getByType", which is used to retrieve
   //---- one and only one instance of the type in question out of event "e". If
   //---- zero or more than one instance exists in the event an exception is thrown.
   if (printalot) printf("\tpass handles\n");
-  if(DATA){
-    //event.getByLabel("muonCSCDigis","MuonCSCWireDigi",wires);
-    //event.getByLabel("muonCSCDigis","MuonCSCStripDigi",strips);    
+  edm::Handle<CSCALCTDigiCollection> alcts;
+  edm::Handle<CSCCLCTDigiCollection> clcts;
+  edm::Handle<CSCCorrelatedLCTDigiCollection> correlatedlcts;
+  edm::Handle<CSCWireDigiCollection> wires;
+  edm::Handle<CSCStripDigiCollection> strips;
+  edm::Handle<CSCRecHit2DCollection> rechits; 
+  edm::Handle<CSCSegmentCollection> segments;
+  //edm::Handle<reco::TrackCollection> saMuons;
+  edm::Handle<edm::View<reco::Track> > trackCollectionH;
+  edm::Handle<edm::PSimHitContainer> simhits;
+
+  if(useDigis){
+    event.getByLabel(alctDigiTag_, alcts);
+    event.getByLabel(clctDigiTag_, clcts);
+    event.getByLabel(corrlctDigiTag_, correlatedlcts);
+
     event.getByLabel( stripDigiTag_, strips);
     event.getByLabel( wireDigiTag_,  wires);
   }
-  else{
-    theSimHitMap.fill(event);
-    //event.getByLabel(mycscunpacker,"MuonCSCWireDigi",wires);
-    //event.getByLabel(mycscunpacker,"MuonCSCStripDigi",strips);
-    event.getByLabel( stripDigiTag_, strips);
-    event.getByLabel( wireDigiTag_,  wires);
+  if(!isData){
+    event.getByLabel(simHitTag, simhits);
   }
+  event.getByLabel(rechitDigiTag_,rechits); 
+  event.getByLabel(segmentDigiTag_, segments);
+  //event.getByLabel(saMuonTag,saMuons);
+  event.getByLabel(tracksTag,trackCollectionH);
+  const edm::View<reco::Track>  trackCollection = *(trackCollectionH.product());
 
   //---- Get the CSC Geometry :
   if (printalot) printf("\tget the CSC geometry.\n");
-  ESHandle<CSCGeometry> cscGeom;
+  edm::ESHandle<CSCGeometry> cscGeom;
   eventSetup.get<MuonGeometryRecord>().get(cscGeom);
 
-  //
-  //---- ==============================================
-  //----
-  //---- look at DIGIs
-  //----
-  //---- ===============================================
-  //
 
-  //---- WIRE GROUPS
-  for(int iE=0;iE<2;iE++){
-    for(int iS=0;iS<4;iS++){
-      for(int iR=0;iR<4;iR++){
-	for(int iC=0;iC<NumCh;iC++){
-	  for(int iL=0;iL<6;iL++){
-	    AllWG[iE][iS][iR][iC][iL].clear();
-            AllStrips[iE][iS][iR][iC][iL].clear(); 
+  edm::ESHandle<Propagator> shProp_any;
+  eventSetup.get<TrackingComponentsRecord>().get("SteppingHelixPropagatorAny", shProp_any);
+
+  edm::ESHandle<Propagator> shProp_along;
+  eventSetup.get<TrackingComponentsRecord>().get("SteppingHelixPropagatorAlong", shProp_along);
+
+  edm::ESHandle<Propagator> shProp_opposite;
+  eventSetup.get<TrackingComponentsRecord>().get("SteppingHelixPropagatorOpposite", shProp_opposite);
+
+  // which propagator
+  const SteppingHelixPropagator* shPropTr =
+    dynamic_cast<const SteppingHelixPropagator*>(&*shProp_any);
+
+  edm::ESHandle< MagneticField > magneticField;
+  eventSetup.get< IdealMagneticFieldRecord >().get( magneticField );
+
+  GlobalPoint gpZero(0.,0.,0.);
+  if(magneticField->inTesla(gpZero).mag2()<0.1){
+    magField = false;
+  }
+  else{
+    magField = true;
+  }
+
+  //---- store info from digis
+  fillDigiInfo(alcts, clcts, correlatedlcts, wires, strips, simhits, rechits, segments, cscGeom);
+
+  if (printalot) std::cout<<"Start track loop"<<std::endl;
+  for(edm::View<reco::Track>::size_type i=0; i<trackCollection.size(); ++i) {
+    DataFlow->Fill(1.);
+    //---- Just one track? (maybe define "clean" track?...)
+    if(1!=trackCollection.size()){
+      break;
+    }
+    DataFlow->Fill(2.);
+    edm::RefToBase<reco::Track> track(trackCollectionH, i);
+    if (printalot){
+      std::cout<<"i track = "<<i<<" P = "<<track->p()<<" chi2/ndf = "<<track->normalizedChi2()<<" nSeg = "<<segments->size()<<std::endl;
+      std::cout<<"quality undef/loose/tight/high/confirmed/goodIt/size "<<
+	track->quality(reco::Track::undefQuality)<<"/"<<
+	track->quality(reco::Track::loose)<<"/"<<
+	track->quality(reco::Track::tight)<<"/"<<
+	track->quality(reco::Track::highPurity)<<"/"<<
+	track->quality(reco::Track::confirmed)<<"/"<<
+	track->quality(reco::Track::goodIterative)<<"/"<<
+	track->quality(reco::Track::qualitySize)<<
+	std::endl;
+      std::cout<<" pt = "<< track->pt()<<" +-"<<track->ptError()<<" q/pt = "<<track->qoverp()<<" +- "<<track->qoverpError()<<std::endl;
+      //std::cout<<" const Pmin = "<<minTrackMomentum<<" pMax = "<<maxTrackMomentum<<" maxNormChi2 = "<<maxNormChi2<<std::endl;
+      std::cout<<" track inner position = "<<track->innerPosition()<<" outer position = "<<track->outerPosition()<<std::endl;
+      std::cout<<"track eta (outer) = "<<track->outerPosition().eta()<<" phi (outer) = "<<
+	track->outerPosition().phi()<<std::endl;
+      std::cout<<" nHits = "<<track->found()<<std::endl;
+    }
+    //bool trackerOK = false; 
+    //if(fabs(track->innerPosition().z())< 500. ||fabs(track->outerPosition().z())< 500.){
+    //trackerOK = true; 
+    //}
+    float dpT_ov_pT =  track->ptError()/ track->pt();
+    //bool closeToMagnet = (fabs(track->innerPosition().z())< 750. || fabs(track->outerPosition().z())< 750. );
+   
+    //---- These define a "good" track
+    if(track->normalizedChi2()>maxNormChi2){// quality
+      break;
+    }
+    DataFlow->Fill(3.);
+    if(track->found()<minTrackHits){// enough data points
+      break;
+    }
+    DataFlow->Fill(4.);
+    if(!segments->size()){// better have something in the CSC 
+      break;
+    }
+    DataFlow->Fill(5.);
+    if(magField && (track->p()<minP || track->p()>maxP)){// proper energy range 
+      break;
+    }
+    DataFlow->Fill(6.);
+    if(dpT_ov_pT >0.5){// not too crazy uncertainty
+      break;
+    }
+    DataFlow->Fill(7.);
+
+    passTheEvent = true; 
+    if (printalot) std::cout<<"good Track"<<std::endl;
+    Hep3Vector r3T(track->outerPosition().x(),track->outerPosition().y(),track->outerPosition().z());
+    Hep3Vector p3T(track->outerMomentum().x(),track->outerMomentum().y(),track->outerMomentum().z());
+    Hep3Vector p3_propagated, r3_propagated;
+    AlgebraicSymMatrix66 cov_propagated, covT;
+    covT *= 1e-20;
+    cov_propagated *= 1e-20;
+    int charge = track->charge(); 
+    FreeTrajectoryState ftsStart = getFromCLHEP(p3T, r3T, charge, covT, &*(magneticField));
+    if (printalot){
+      std::cout<<" p = "<<track->p()<<" norm chi2 = "<<track->normalizedChi2()<<std::endl;
+      std::cout<<" dump the very first FTS  = "<<debug.dumpFTS(ftsStart)<<std::endl;
+    }
+    TrajectoryStateOnSurface tSOSDest;
+    int endcap = 0;
+    //---- which endcap to look at
+    if(track->outerPosition().z()>0){
+      endcap = 1;
+    }
+    else{
+      endcap = 2;
+    }
+    int chamber = 1;
+    //---- a "refference" CSCDetId for each ring
+    std::vector< CSCDetId > refME;
+    for(int iS=1;iS<5;++iS){
+      for(int iR=1;iR<4;++iR){
+	if(1!=iS && iR>2){
+	  continue;
+	}
+	else if(4==iS && iR>1){
+	  continue;
+	} 
+	refME.push_back( CSCDetId(endcap, iS, iR, chamber));
+      }
+    }
+    //---- loop over the "refference" CSCDetIds
+    for(uint iSt = 0; iSt<refME.size();++iSt){
+      if (printalot){
+	std::cout<<"loop iStatation = "<<iSt<<std::endl;
+	std::cout<<"refME[iSt]: st = "<<refME[iSt].station()<<" rg = "<<refME[iSt].ring()<<std::endl;
+      }
+      std::map <std::string, bool> chamberTypes;
+      chamberTypes["ME11"] = false;
+      chamberTypes["ME12"] = false;
+      chamberTypes["ME13"] = false;
+      chamberTypes["ME21"] = false;
+      chamberTypes["ME22"] = false;
+      chamberTypes["ME31"] = false;
+      chamberTypes["ME32"] = false;
+      chamberTypes["ME41"] = false;
+      const CSCChamber* cscChamber_base = cscGeom->chamber(refME[iSt].chamberId());
+      DetId detId = cscChamber_base->geographicalId();
+      if (printalot){
+	std::cout<<" base iStation : eta = "<<cscGeom->idToDet(detId)->surface().position().eta()<<" phi = "<<" phi = "<<
+	  cscGeom->idToDet(detId)->surface().position().phi() <<std::endl;
+	std::cout<<" dump base iStation detid  = "<<debug.dumpMuonId(detId)<<std::endl;
+	std::cout<<" dump FTS start  = "<<debug.dumpFTS(ftsStart)<<std::endl;
+      }
+      //const Plane* pDest = dynamic_cast<const Plane*>(&(cscGeom->idToDet(detId)->surface()));
+      //std::cout<<" test "<<std::endl;
+      //std::cout<<" pDest = "<<pDest<<std::endl;
+      float zDistInner = track->innerPosition().z() - cscGeom->idToDet(detId)->surface().position().z();
+      float zDistOuter = track->outerPosition().z() - cscGeom->idToDet(detId)->surface().position().z();
+      //---- only detectors between the inner and outer points of the track are considered for non IP-data 
+      if(!isIPdata && (zDistInner*zDistOuter>0. || fabs(zDistInner)<15. || fabs(zDistOuter)<15.)){ // for non IP-data
+	continue;
+      }
+      //---- propagate to this ME
+      tSOSDest = shPropTr->propagate(ftsStart, cscGeom->idToDet(detId)->surface());
+      if(tSOSDest.isValid()){
+	ftsStart = *tSOSDest.freeState();
+	if (printalot) std::cout<<"  dump FTS end   = "<<debug.dumpFTS(ftsStart)<<std::endl;
+	getFromFTS(ftsStart, p3_propagated, r3_propagated, charge, cov_propagated);
+	float feta =  fabs(r3_propagated.eta());
+	float phi =  r3_propagated.phi();
+	//---- which rings are (possibly) penetrated
+	ringCandidates(refME[iSt].station(), feta, chamberTypes);
+
+	map<std::string,bool>::iterator iter;   
+	int iterations = 0;
+	//---- loop over ring candidates 
+	for( iter = chamberTypes.begin(); iter != chamberTypes.end(); iter++ ) {
+	  ++iterations;
+	  //---- is this ME a machinig candidate station 
+	  if(iter->second && (iterations-1)==int(iSt)){
+	    if (printalot){
+	      std::cout<<" Chamber type "<< iter->first<<" is a candidate..."<<std::endl;
+	      std::cout<<" station() = "<< refME[iSt].station()<<" ring() = "<<refME[iSt].ring()<<" iSt = "<<iSt<<std::endl;
+	    }
+	    std::vector <int> coupleOfChambers;
+	    //---- which chamber (and its closes neighbor) is penetrated by the track - candidates
+	    chamberCandidates(refME[iSt].station(), refME[iSt].ring(), phi, coupleOfChambers);
+	    //---- loop over the two chamber candidates
+	    for(uint iCh =0;iCh<coupleOfChambers.size();++iCh){
+	      DataFlow->Fill(9.);  
+	      if (printalot) std::cout<<" Check chamber N = "<<coupleOfChambers.at(iCh)<<std::endl;;
+	      CSCDetId theCSCId(refME[iSt].endcap(), refME[iSt].station(), refME[iSt].ring(), coupleOfChambers.at(iCh));
+	      const CSCChamber* cscChamber = cscGeom->chamber(theCSCId.chamberId());
+	      const BoundPlane bp = cscGeom->idToDet(cscChamber->geographicalId())->surface();
+	      float zFTS = ftsStart.position().z();
+	      float dz = fabs(bp.position().z() - zFTS);
+	      //---- propagate to the chamber (from this ME) if it is a different surface (odd/even chambers)
+	      if(dz>0.1){// i.e. non-zero (float 0 check is bad) 
+		//if(fabs(zChanmber - zFTS ) > 0.1){
+		tSOSDest = shPropTr->propagate(ftsStart, cscGeom->idToDet(cscChamber->geographicalId())->surface());
+		if(tSOSDest.isValid()){
+		  ftsStart = *tSOSDest.freeState();
+		}
+		else{
+		  std::cout<<"TSOS not valid! Break."<<std::endl;
+		  break;
+		}
+	      }
+	      DataFlow->Fill(11.);  
+	      FreeTrajectoryState ftsInit = ftsStart;
+	      bool inDeadZone = false;
+	      //---- loop over the 6 layers
+	      for(int iLayer = 0;iLayer<6;++iLayer){
+		bool extrapolationPassed = true;
+		if (printalot){
+		  std::cout<<" iLayer = "<<iLayer<<"   dump FTS init  = "<<debug.dumpFTS(ftsInit)<<std::endl;
+		  std::cout<<" dump detid  = "<<debug.dumpMuonId(cscChamber->geographicalId())<<std::endl;
+		  std::cout<<"Surface to propagate to:  pos = "<<cscChamber->layer(iLayer+1)->surface().position()<<" eta = "
+			   <<cscChamber->layer(iLayer+1)->surface().position().eta()<<" phi = "
+			   <<cscChamber->layer(iLayer+1)->surface().position().phi()<<std::endl;
+		}
+		//---- propagate to this layer
+		tSOSDest = shPropTr->propagate(ftsInit, cscChamber->layer(iLayer+1)->surface());
+		if(tSOSDest.isValid()){
+		  ftsInit = *tSOSDest.freeState();
+		  if (printalot) std::cout<<" Propagation between layers successful:  dump FTS end  = "<<debug.dumpFTS(ftsInit)<<std::endl;
+		  getFromFTS(ftsInit, p3_propagated, r3_propagated, charge, cov_propagated);
+		}
+		else{
+		  if (printalot) std::cout<<"Propagation between layers not successful - notValid TSOS"<<std::endl;
+		  extrapolationPassed = false;
+		  inDeadZone = true;
+		}
+		//}
+		//---- Extrapolation passed? For each layer?
+		if(extrapolationPassed){
+		  GlobalPoint theExtrapolationPoint(r3_propagated.x(),r3_propagated.y(),r3_propagated.z());
+		  LocalPoint theLocalPoint = cscChamber->layer(iLayer+1)->toLocal(theExtrapolationPoint);
+		  //std::cout<<" Candidate chamber: extrapolated LocalPoint = "<<theLocalPoint<<std::endl;
+		  inDeadZone = ( inDeadZone ||
+				 !inSensitiveLocalRegion(theLocalPoint.x(), theLocalPoint.y(), 
+							 refME[iSt].station(), refME[iSt].ring()));
+		  if (printalot) std::cout<<" Candidate chamber: extrapolated LocalPoint = "<<theLocalPoint<<"inDeadZone = "<<inDeadZone<<std::endl;
+		  //---- break if in dead zone for any layer ("clean" tracks)
+		  if(inDeadZone){
+		    break;
+		  }
+		}
+		else{
+		  break;
+		}
+	      }
+	      DataFlow->Fill(13.);
+	      //---- Track in a sensitive are for each layer?  
+	      if(!inDeadZone){//---- for any layer
+		DataFlow->Fill(15.);  
+		if (printalot) std::cout<<"Do efficiencies..."<<std::endl;
+		//---- Do efficiencies
+		if(useDigis){
+		  bool digi_flag; digi_flag = digisPerChamber(theCSCId, cscChamber, ftsStart);
+		  bool stripANDwire_flag; stripANDwire_flag = stripWire_Efficiencies(theCSCId, ftsStart);
+		}
+		bool recHitANDsegment_flag; recHitANDsegment_flag = recHitSegment_Efficiencies(theCSCId, cscChamber, ftsStart);
+		if(!isData){
+		  recSimHitEfficiency(theCSCId, ftsStart);
+		}
+	      }
+	    }
+	    if(tSOSDest.isValid()){
+	      ftsStart = *tSOSDest.freeState();
+	    }
 	  }
 	}
       }
     }
   }
+  //---- End
+  if (printalot) printf("==exit===CSCEfficiency===== run %i\tevent %i\n\n",iRun,iEvent);
+  return passTheEvent;
+}
 
+//
+bool CSCEfficiency::inSensitiveLocalRegion(double xLocal, double yLocal, int station, int ring){
+  //---- Good region means sensitive area of a chamber. "Local" stands for the local system 
+  bool pass = false;
+  std::vector <double> chamberBounds(3);// the sensitive area
+  float y_center = 99999.;
+  //---- hardcoded... not good
+  if(station>1 && station<5){
+    if(2==ring){
+      chamberBounds[0] = 66.46/2; // (+-)x1 shorter
+      chamberBounds[1] = 127.15/2; // (+-)x2 longer 
+      chamberBounds[2] = 323.06/2;
+      y_center = -0.95;
+    }
+    else{
+      if(2==station){
+	chamberBounds[0] = 54.00/2; // (+-)x1 shorter
+	chamberBounds[1] = 125.71/2; // (+-)x2 longer 
+	chamberBounds[2] = 189.66/2;
+	y_center = -0.955;
+      }
+      else if(3==station){
+	chamberBounds[0] = 61.40/2; // (+-)x1 shorter
+	chamberBounds[1] = 125.71/2; // (+-)x2 longer 
+	chamberBounds[2] = 169.70/2;
+	y_center = -0.97;
+      }
+      else if(4==station){
+	chamberBounds[0] = 69.01/2; // (+-)x1 shorter
+	chamberBounds[1] = 125.65/2; // (+-)x2 longer 
+	chamberBounds[2] = 149.42/2;
+	y_center = -0.94;
+      }
+    }
+  }
+  else if(1==station){
+    if(3==ring){
+      chamberBounds[0] = 63.40/2; // (+-)x1 shorter
+      chamberBounds[1] = 92.10/2; // (+-)x2 longer 
+      chamberBounds[2] = 164.16/2;
+      y_center = -1.075;
+    }
+    else if(2==ring){
+      chamberBounds[0] = 51.00/2; // (+-)x1 shorter
+      chamberBounds[1] = 83.74/2; // (+-)x2 longer 
+      chamberBounds[2] = 174.49/2;
+      y_center = -0.96;
+    }
+    else{// to be investigated
+      chamberBounds[0] = 30./2;//40./2; // (+-)x1 shorter
+      chamberBounds[1] = 60./2;//100./2; // (+-)x2 longer 
+      chamberBounds[2] = 160./2;//142./2;
+      y_center = 0.;
+    }
+  }
+  double yUp = chamberBounds[2] + y_center;
+  double yDown = - chamberBounds[2] + y_center;
+  double xBound1Shifted = chamberBounds[0]-distanceFromDeadZone;//
+  double xBound2Shifted = chamberBounds[1]-distanceFromDeadZone;//
+  double lineSlope = (yUp - yDown)/(xBound2Shifted-xBound1Shifted);
+  double lineConst = yUp - lineSlope*xBound2Shifted;
+  double yBoundary =  lineSlope*abs(xLocal) + lineConst;
+  pass = checkLocal(yLocal, yBoundary, station, ring);
+  return pass;
+}
+
+bool CSCEfficiency::checkLocal(double yLocal, double yBoundary, int station, int ring){
+//---- check if it is in a good local region (sensitive area - geometrical and HV boundaries excluded) 
+  bool pass = false;
+  std::vector <float> deadZoneCenter(6);
+  const float deadZoneHalf = 0.32*7/2;// wire spacing * (wires missing + 1)/2
+  float cutZone = deadZoneHalf + distanceFromDeadZone;//cm
+  //---- hardcoded... not good
+  if(station>1 && station<5){
+    if(2==ring){
+      deadZoneCenter[0]= -162.48 ;
+      deadZoneCenter[1] = -81.8744;
+      deadZoneCenter[2] = -21.18165;
+      deadZoneCenter[3] = 39.51105;
+      deadZoneCenter[4] = 100.2939;
+      deadZoneCenter[5] = 160.58;
+      
+      if(yLocal >yBoundary &&
+	 ((yLocal> deadZoneCenter[0] + cutZone && yLocal< deadZoneCenter[1] - cutZone) ||
+	  (yLocal> deadZoneCenter[1] + cutZone && yLocal< deadZoneCenter[2] - cutZone) ||
+	  (yLocal> deadZoneCenter[2] + cutZone && yLocal< deadZoneCenter[3] - cutZone) ||
+	  (yLocal> deadZoneCenter[3] + cutZone && yLocal< deadZoneCenter[4] - cutZone) ||
+	  (yLocal> deadZoneCenter[4] + cutZone && yLocal< deadZoneCenter[5] - cutZone))){
+	pass = true;
+      }
+    }
+    else if(1==ring){
+      if(2==station){
+	deadZoneCenter[0]= -95.80 ;
+	deadZoneCenter[1] = -27.47;
+	deadZoneCenter[2] = 33.67;
+	deadZoneCenter[3] = 90.85;
+      }
+      else if(3==station){
+	deadZoneCenter[0]= -89.305 ;
+	deadZoneCenter[1] = -39.705;
+	deadZoneCenter[2] = 20.195;
+	deadZoneCenter[3] = 77.395;
+      }
+      else if(4==station){
+	deadZoneCenter[0]= -75.645;
+	deadZoneCenter[1] = -26.055;
+	deadZoneCenter[2] = 23.855;
+	deadZoneCenter[3] = 70.575;
+      }
+      if(yLocal >yBoundary &&
+	 ((yLocal> deadZoneCenter[0] + cutZone && yLocal< deadZoneCenter[1] - cutZone) ||
+	  (yLocal> deadZoneCenter[1] + cutZone && yLocal< deadZoneCenter[2] - cutZone) ||
+	  (yLocal> deadZoneCenter[2] + cutZone && yLocal< deadZoneCenter[3] - cutZone))){
+	pass = true;
+      }
+    }
+  }
+  else if(1==station){
+    if(3==ring){
+      deadZoneCenter[0]= -83.155 ;
+      deadZoneCenter[1] = -22.7401;
+      deadZoneCenter[2] = 27.86665;
+      deadZoneCenter[3] = 81.005;
+      if(yLocal > yBoundary &&
+	 ((yLocal> deadZoneCenter[0] + cutZone && yLocal< deadZoneCenter[1] - cutZone) ||
+	  (yLocal> deadZoneCenter[1] + cutZone && yLocal< deadZoneCenter[2] - cutZone) ||
+	  (yLocal> deadZoneCenter[2] + cutZone && yLocal< deadZoneCenter[3] - cutZone))){
+	pass = true;
+      }
+    }
+    else if(2==ring){
+      deadZoneCenter[0]= -86.285 ;
+      deadZoneCenter[1] = -32.88305;
+      deadZoneCenter[2] = 32.867423;
+      deadZoneCenter[3] = 88.205;
+      if(yLocal > (yBoundary) &&
+	 ((yLocal> deadZoneCenter[0] + cutZone && yLocal< deadZoneCenter[1] - cutZone) ||
+	  (yLocal> deadZoneCenter[1] + cutZone && yLocal< deadZoneCenter[2] - cutZone) ||
+	  (yLocal> deadZoneCenter[2] + cutZone && yLocal< deadZoneCenter[3] - cutZone))){
+	pass = true;
+      }
+    }
+    else{
+      deadZoneCenter[0]= -81.0;
+      deadZoneCenter[1] = 81.0;
+      if(yLocal > (yBoundary) &&
+	 ((yLocal> deadZoneCenter[0] + cutZone && yLocal< deadZoneCenter[1] - cutZone) )){
+	pass = true;
+      }
+    }
+  }
+  return pass;
+}
+
+void CSCEfficiency::fillDigiInfo(edm::Handle<CSCALCTDigiCollection> &alcts, 
+				 edm::Handle<CSCCLCTDigiCollection> &clcts, 
+				 edm::Handle<CSCCorrelatedLCTDigiCollection> &correlatedlcts,
+				 edm::Handle<CSCWireDigiCollection> &wires,
+				 edm::Handle<CSCStripDigiCollection> &strips,
+				 edm::Handle<edm::PSimHitContainer> &simhits,
+				 edm::Handle<CSCRecHit2DCollection> &rechits,
+				 edm::Handle<CSCSegmentCollection> &segments,
+				 edm::ESHandle<CSCGeometry> &cscGeom){
+  for(int iE=0;iE<2;iE++){
+    for(int iS=0;iS<4;iS++){
+      for(int iR=0;iR<4;iR++){
+	for(int iC=0;iC<NumCh;iC++){
+	  allSegments[iE][iS][iR][iC].clear(); 
+	  allCLCT[iE][iS][iR][iC] = allALCT[iE][iS][iR][iC] = allCorrLCT[iE][iS][iR][iC] = false;
+	  for(int iL=0;iL<6;iL++){
+	    allStrips[iE][iS][iR][iC][iL].clear(); 
+	    allWG[iE][iS][iR][iC][iL].clear();
+	    allRechits[iE][iS][iR][iC][iL].clear(); 
+	    allSimhits[iE][iS][iR][iC][iL].clear(); 
+	  }
+	}
+      }
+    }
+  }
+  //
+  if(useDigis){
+    fillLCT_info(alcts, clcts, correlatedlcts);
+    fillWG_info(wires, cscGeom);
+    fillStrips_info(strips);
+  }
+  fillRechitsSegments_info(rechits, segments, cscGeom);
+  if(!isData){
+    fillSimhit_info(simhits);
+  }
+}
+
+
+void CSCEfficiency::fillLCT_info(edm::Handle<CSCALCTDigiCollection> &alcts, 
+				 edm::Handle<CSCCLCTDigiCollection> &clcts, 
+				 edm::Handle<CSCCorrelatedLCTDigiCollection> &correlatedlcts ){
+  //---- ALCTDigis
+  int nSize = 0;
+  for (CSCALCTDigiCollection::DigiRangeIterator j=alcts->begin(); j!=alcts->end(); j++) {
+    ++nSize;
+    const CSCDetId& id = (*j).first;
+    const CSCALCTDigiCollection::Range& range =(*j).second;
+    for (CSCALCTDigiCollection::const_iterator digiIt =
+	   range.first; digiIt!=range.second;
+	 ++digiIt){
+      // Valid digi in the chamber (or in neighbouring chamber) 
+      if((*digiIt).isValid()){
+	allALCT[id.endcap()-1][id.station()-1][id.ring()-1][id.chamber()-FirstCh] = true;
+      }
+    }// for digis in layer
+  }// end of for (j=...
+  ALCTPerEvent->Fill(nSize);
+  //---- CLCTDigis
+  nSize = 0;
+  for (CSCCLCTDigiCollection::DigiRangeIterator j=clcts->begin(); j!=clcts->end(); j++) {
+    ++nSize;
+    const CSCDetId& id = (*j).first;
+    std::vector<CSCCLCTDigi>::const_iterator digiIt = (*j).second.first;
+    std::vector<CSCCLCTDigi>::const_iterator last = (*j).second.second;
+    for( ; digiIt != last; ++digiIt) {
+      // Valid digi in the chamber (or in neighbouring chamber) 
+      if((*digiIt).isValid()){
+	allCLCT[id.endcap()-1][id.station()-1][id.ring()-1][id.chamber()-FirstCh] = true;
+      }
+    }
+  }
+  CLCTPerEvent->Fill(nSize);
+  //---- CorrLCTDigis
+  for (CSCCorrelatedLCTDigiCollection::DigiRangeIterator j=correlatedlcts->begin(); j!=correlatedlcts->end(); j++) {
+    const CSCDetId& id = (*j).first;
+    std::vector<CSCCorrelatedLCTDigi>::const_iterator digiIt = (*j).second.first;
+    std::vector<CSCCorrelatedLCTDigi>::const_iterator last = (*j).second.second;
+    for( ; digiIt != last; ++digiIt) {
+      // Valid digi in the chamber (or in neighbouring chamber) 
+      if((*digiIt).isValid()){
+	allCorrLCT[id.endcap()-1][id.station()-1][id.ring()-1][id.chamber()-FirstCh] = true;
+      }
+    }
+  }
+}
+//
+void CSCEfficiency::fillWG_info(edm::Handle<CSCWireDigiCollection> &wires, edm::ESHandle<CSCGeometry> &cscGeom){
+  //---- WIRE GROUPS
   for (CSCWireDigiCollection::DigiRangeIterator j=wires->begin(); j!=wires->end(); j++) {
     CSCDetId id = (CSCDetId)(*j).first;
     const CSCLayer *layer_p = cscGeom->layer (id);
     const CSCLayerGeometry *layerGeom = layer_p->geometry ();
+    //
+
     const std::vector<float> LayerBounds = layerGeom->parameters ();
     std::vector<CSCWireDigi>::const_iterator digiItr = (*j).second.first;
     std::vector<CSCWireDigi>::const_iterator last = (*j).second.second;
@@ -1471,17 +602,21 @@ void CSCEfficiency::analyze(const Event & event, const EventSetup& eventSetup){
       std::pair <std::pair < int, float >, int >  LayerSignal(WG_pos, digiItr->getTimeBin()); 
       
       //---- AllWG contains basic information about WG (WG number and Y-position, time bin)
-      AllWG[id.endcap()-1][id.station()-1][id.ring()-1][id.chamber()-FirstCh]
+      allWG[id.endcap()-1][id.station()-1][id.ring()-1][id.chamber()-FirstCh]
 	[id.layer()-1].push_back(LayerSignal);
+      if(printalot){
+	//std::cout<<" WG check : "<<std::endl;
+	//printf("\t\tendcap/station/ring/chamber/layer: %i/%i/%i/%i/%i\n",id.endcap(),id.station(),id.ring(),id.chamber(),id.layer());
+	//std::cout<<" WG size = "<<allWG[id.endcap()-1][id.station()-1][id.ring()-1][id.chamber()-FirstCh]
+	//[id.layer()-1].size()<<std::endl;
+      }
     }
-  }  
-
+  }
+}
+void CSCEfficiency::fillStrips_info(edm::Handle<CSCStripDigiCollection> &strips){
   //---- STRIPS
   for (CSCStripDigiCollection::DigiRangeIterator j=strips->begin(); j!=strips->end(); j++) {
     CSCDetId id = (CSCDetId)(*j).first;
-    const CSCLayer *layer_p = cscGeom->layer (id);
-    const CSCLayerGeometry *layerGeom = layer_p->geometry ();
-    const std::vector<float> LayerBounds = layerGeom->parameters ();
     int largestADCValue = -1;
     int largestStrip = -1;
     std::vector<CSCStripDigi>::const_iterator digiItr = (*j).second.first;
@@ -1510,1403 +645,962 @@ void CSCEfficiency::analyze(const Event & event, const EventSetup& eventSetup){
 	  peakTime = iCount;
 	}
       }
-      if(largestADCValue>maxADC){
+      if(largestADCValue>maxADC){// FIX IT!!!
 	maxADC = largestADCValue;
 	std::pair <int, float> LayerSignal (myStrip, peakADC);
 	
         //---- AllStrips contains basic information about strips 
         //---- (strip number and peak signal for most significant strip in the layer) 
-	AllStrips[id.endcap()-1][id.station()-1][id.ring()-1][id.chamber()-1][id.layer()-1].clear();
-	AllStrips[id.endcap()-1][id.station()-1][id.ring()-1][id.chamber()-1][id.layer()-1].push_back(LayerSignal);
+	allStrips[id.endcap()-1][id.station()-1][id.ring()-1][id.chamber()-1][id.layer()-1].clear();
+	allStrips[id.endcap()-1][id.station()-1][id.ring()-1][id.chamber()-1][id.layer()-1].push_back(LayerSignal);
       }
     }
   }
-
-  //
-  //---- ==============================================
-  //----
-  //---- look at RECHITs
-  //----
-  //---- ===============================================
-
-  if (printalot) printf("\tGet the recHits collection.\t");
-  Handle<CSCRecHit2DCollection> recHits; 
-  event.getByLabel("csc2DRecHits",recHits);  
-  int nRecHits = recHits->size();
-  if (printalot) printf("  The size is %i\n",nRecHits);
-  //
-  SetOfRecHits AllRecHits[2][4][4][ NumCh];
-  std::vector<bool> InitVectBool6(6);
-  std::vector<double> InitVectD6(6);
-  map<int,  std::vector <bool> > MyRecHits;// 6 chambers, 6 layers
-  map<int,  std::vector <double> > MyRecHitsPosX;
-  map<int,  std::vector <double> > MyRecHitsPosY;
-  map<int,  std::vector <double> > MyRecHitsPosZ;
-  for(int iSt=0;iSt<NumCh;iSt++){
-    MyRecHits[iSt] = InitVectBool6;
-    MyRecHitsPosX[iSt] = MyRecHitsPosY[iSt] = MyRecHitsPosZ[iSt] = InitVectD6;
+}
+void CSCEfficiency::fillSimhit_info(edm::Handle<edm::PSimHitContainer> &simhits){
+  //---- SIMHITS
+  edm::PSimHitContainer::const_iterator dSHsimIter;
+  for (dSHsimIter = simhits->begin(); dSHsimIter != simhits->end(); dSHsimIter++){
+    // Get DetID for this simHit:
+    CSCDetId sId = (CSCDetId)(*dSHsimIter).detUnitId();
+    std::pair <LocalPoint, bool> simHitPos((*dSHsimIter).localPosition(), (*dSHsimIter).particleType());  
+    allSimhits[sId.endcap()-1][sId.station()-1][sId.ring()-1][sId.chamber()-FirstCh][sId.layer()-1].push_back(simHitPos);
   }
-
-
+}
+//
+void CSCEfficiency::fillRechitsSegments_info(edm::Handle<CSCRecHit2DCollection> &rechits,
+					     edm::Handle<CSCSegmentCollection> &segments,
+					     edm::ESHandle<CSCGeometry> &cscGeom
+					     ){
+  //---- RECHITS AND SEGMENTS
   //---- Loop over rechits 
-  if (printalot) printf("\t...start loop over rechits...\n");
+  if (printalot){ 
+    //printf("\tGet the recHits collection.\t ");
+    printf("  The size of the rechit collection is %i\n",rechits->size());
+    //printf("\t...start loop over rechits...\n");
+  }
+  recHitsPerEvent->Fill(rechits->size());
   //---- Build iterator for rechits and loop :
   CSCRecHit2DCollection::const_iterator recIt;
-
-  for (recIt = recHits->begin(); recIt != recHits->end(); recIt++) {
+  for (recIt = rechits->begin(); recIt != rechits->end(); recIt++) {
     //---- Find chamber with rechits in CSC 
-    CSCDetId idrec = (CSCDetId)(*recIt).cscDetId();
-    int kEndcap  = idrec.endcap();
-    int kRing    = idrec.ring();
-    int kStation = idrec.station();
-    int kChamber = idrec.chamber();
-    int kLayer   = idrec.layer();
-    if (printalot) printf("\t\t\tendcap/station/ring/chamber/layer: %i/%i/%i/%i/%i\n",kEndcap,kStation,kRing,kChamber,kLayer);
-    //---- Store reco hit as a Local Point:
-    LocalPoint rhitlocal = (*recIt).localPosition();  
-    double xreco = rhitlocal.x();
-    double yreco = rhitlocal.y();
-    double zreco = rhitlocal.z();
-    LocalError rerrlocal = (*recIt).localPositionError();  
-    double xxerr = rerrlocal.xx();
-    double yyerr = rerrlocal.yy();
-    double xyerr = rerrlocal.xy();
-
-    //---- Get pointer to the layer:
-    const CSCLayer* csclayer = cscGeom->layer( idrec );
-
-    //---- Transform hit position from local chamber geometry to global CMS geom
-    GlobalPoint rhitglobal= csclayer->toGlobal(rhitlocal);
-
-    double grecx = rhitglobal.x();
-    double grecy = rhitglobal.y();
-    double grecz = rhitglobal.z();
-
-    // Fill RecHit information in the arrays
-    if(WorkInEndcap==kEndcap && 
-       ExtrapolateToStation==kStation && 
-       ExtrapolateToRing==kRing){
-      if(kChamber>=FirstCh && kChamber<=LastCh){
-	MyRecHits[kChamber-FirstCh][kLayer-1] = true;
-	MyRecHitsPosX[kChamber-FirstCh][kLayer-1] = rhitglobal.x();
-	MyRecHitsPosY[kChamber-FirstCh][kLayer-1] = rhitglobal.y();
-	MyRecHitsPosZ[kChamber-FirstCh][kLayer-1] = rhitglobal.z();
-      }
+    CSCDetId id = (CSCDetId)(*recIt).cscDetId();
+    if (printalot){
+      const CSCLayer* csclayer = cscGeom->layer( id);
+      LocalPoint rhitlocal = (*recIt).localPosition();  
+      LocalError rerrlocal = (*recIt).localPositionError();  
+      GlobalPoint rhitglobal= csclayer->toGlobal(rhitlocal);
+      printf("\t\tendcap/station/ring/chamber/layer: %i/%i/%i/%i/%i\n",id.endcap(),id.station(),id.ring(),id.chamber(),id.layer());
+      printf("\t\tx,y,z: %f, %f, %f\texx,eey,exy: %f, %f, %f\tglobal x,y,z: %f, %f, %f \n",
+	     rhitlocal.x(), rhitlocal.y(), rhitlocal.z(), rerrlocal.xx(), rerrlocal.yy(), rerrlocal.xy(),
+	     rhitglobal.x(), rhitglobal.y(), rhitglobal.z());
     }
-
-    //---- Fill RecHit information in a structure (contain basic info about rechits)
-    ChamberRecHits *ThisChamber = &AllRecHits[kEndcap-1][kStation-1][kRing-1][kChamber-FirstCh].sChamber;
-    std::vector <double> *vec_p = &ThisChamber->RecHitsPosX[kLayer-1];// possibly many RecHits in a layer 
-    vec_p->push_back(grecx);
-    vec_p = &ThisChamber->RecHitsPosY[kLayer-1];
-    vec_p->push_back(grecy);
-    vec_p = &ThisChamber->RecHitsPosZ[kLayer-1];
-    vec_p->push_back(grecz);
-    vec_p = &ThisChamber->RecHitsPosXlocal[kLayer-1];
-    vec_p->push_back(xreco);
-    vec_p = &ThisChamber->RecHitsPosYlocal[kLayer-1];
-    vec_p->push_back(yreco);
-
-    //
-    if (printalot) printf("\t\t\tx,y,z: %f, %f, %f\texx,eey,exy: %f, %f, %f\tglobal x,y,z: %f, %f, %f \n",xreco,yreco,zreco,xxerr,yyerr,xyerr,grecx,grecy,grecz);
+    std::pair <LocalPoint, bool> recHitPos((*recIt).localPosition(), false);  
+    allRechits[id.endcap()-1][id.station()-1][id.ring()-1][id.chamber()-FirstCh][id.layer()-1].push_back(recHitPos);
   }
-  //---- loop over all layers, chambers, etc.
-  for(int ii=0;ii<2;ii++){ // endcaps
-    for(int jj=0;jj<4;jj++){ // stations
-      for(int kk=0;kk<4;kk++){ // rings
-  	for(int ll=0;ll<LastCh-FirstCh+1;ll++){ // chambers
-	  for(int mm = 0;mm<6;mm++){ // layers
-	    int new_size = 
-	      AllRecHits[ii][jj][kk][ll].sChamber.RecHitsPosX[mm].size();
-	    //---- number of rechits in the layer
-	    AllRecHits[ii][jj][kk][ll].sChamber.NRecHits[mm]=new_size;
-	    //---- if this is the right one
-	    if((WorkInEndcap-1) == ii && 
-	       (ExtrapolateToStation-1) == jj &&
-	       (ExtrapolateToRing-1)== kk){
-	      //---- if the number of RecHits in the layer is NOT 1!
-              //---- ...used later for getting clean samples
-	      if( 1!=new_size){
-		MyRecHits[ll][mm] = false;
-	      }
-	    }
-	  }
-	}
-      }
-    }
+  
+  if (printalot){
+    printf("  The size of the segment collection is %i\n", segments->size());
+    //printf("\t...start loop over segments...\n");
   }
-  //
-
-  //---- look at SIMHITs
-  SetOfSimHits AllSimHits[2][4][4][ NumCh];
-  if(!DATA){
-    //SetOfSimHits AllSimHits[2][4][4][ NumCh];
-    //if (printalot) printf("\t...start loop over simhits... The size is: "<<detsWithHits.size()<<"\n");
-    std::vector<int> detsWithHits = theSimHitMap.detsWithHits();
-    int rawdetId = 0;
-    if (printalot) printf("\t Loop over simhits... \n");
-    for(unsigned int iDet=0;iDet<detsWithHits.size();iDet++){
-      rawdetId = detsWithHits[iDet];
-      edm::PSimHitContainer simHits = theSimHitMap.hits(rawdetId);
-      CSCDetId simId = (CSCDetId)(*(simHits.begin())).detUnitId();
-      int kEndcap  = simId.endcap();
-      int kRing    = simId.ring();
-      int kStation = simId.station();
-      int kChamber = simId.chamber();
-      int kLayer   = simId.layer();
-
-      //---- Fill SimHit information in a structure (contain basic info about simhits)
-      AllSimHits[kEndcap-1][kStation-1][kRing-1][kChamber-FirstCh].sChamber.NSimHits[kLayer-1] = simHits.size();
-      for(unsigned int simhit = 0; simhit <simHits.size(); ++simhit) {
-	AllSimHits[kEndcap-1][kStation-1][kRing-1][kChamber-FirstCh].sChamber.SimHitsPosXlocal[kLayer-1].push_back(simHits[simhit].localPosition().x());
-	AllSimHits[kEndcap-1][kStation-1][kRing-1][kChamber-FirstCh].sChamber.SimHitsPosYlocal[kLayer-1].push_back(simHits[simhit].localPosition().y());
-	AllSimHits[kEndcap-1][kStation-1][kRing-1][kChamber-FirstCh].sChamber.SimHitsEnergy[kLayer-1].push_back(simHits[simhit].energyLoss());
-	AllSimHits[kEndcap-1][kStation-1][kRing-1][kChamber-FirstCh].sChamber.SimHitsPID[kLayer-1].push_back(simHits[simhit].particleType());
-      }
-    }
-    all_SimHits = &AllSimHits;
-  }
-
-  //---- ==============================================
-  //----
-  //---- look at SEGMENTs
-  //----
-  //---- ===============================================
-
-  //---- get CSC segment collection
-  if (printalot) printf("\tGet CSC segment collection...\n");
-  Handle<CSCSegmentCollection> cscSegments;
-  event.getByLabel("cscSegments", cscSegments);
-  int nSegments = cscSegments->size();
-  if (printalot) printf("  The size is %i\n",nSegments);
-
-  //---- Initializations...
-  int iSegment = 0;
-  //---- A couple of segments is looked for in a sertain part of the program. 
-  //---- They are required to be in different stations and rings
-  int Couple = 2;
-  std::vector<int> InitVect6(6);
-  std::vector<int> InitVectCh(NumCh);
-  std::vector<double> InitVect3(3);
-  //---- A way to create 2-dim array...
-  map<int, std::vector<int> > ChambersWithSegments;//
-  //
-  map<int, std::vector<double> > PosLocalCouple;
-  //
-  map<int, std::vector<double> > DirLocalCouple;
-  //
-  map<int, std::vector<double> > PosCouple;
-  //
-  map<int, std::vector<double> > DirCouple;
-  //
-  map<int, std::vector<double> > ChamberBoundsCouple;
-  //--- 2 map elements created (explicit correspondence needed below) 
-  for(int iCop=0;iCop<2;iCop++){
-    PosLocalCouple[iCop] =
-      DirLocalCouple[iCop] =
-      PosCouple[iCop] =
-      DirCouple[iCop] =  
-      ChamberBoundsCouple[iCop] = InitVect3;
-    ChambersWithSegments[iCop] = InitVectCh;
-  }  
-  std::vector<double> Chi2Couple(Couple);
-  std::vector<double> NDFCouple(Couple);
-  std::vector<double> NhitsCouple(Couple);
-  std::vector<double> XchamberCouple(Couple);
-  std::vector<double> YchamberCouple(Couple);
-  std::vector<double> RotPhiCouple(Couple);
-  std::vector<int> goodSegment(Couple);
-  std::vector<int> NChamberCouple(Couple);
-  std::vector<int> LayersInSecondCouple(6);
-
-  std::vector<int> SegmentInChamber;
-  std::vector<int> SegmentInRing;
-  std::vector<int> SegmentInStation;
-  double rotationPhi = 0.;
-  std::vector <double> DirGlobal_ThirdSegment;
-
-  //---- Fill utility info in RecHit structure
-  int thisEndcap = -99; 
-  int thisRing = -99;
-  int thisStation = - 99;
-  int thisChamber = -99;
-  for(CSCSegmentCollection::const_iterator it=cscSegments->begin(); it != cscSegments->end(); it++) {
+  segmentsPerEvent->Fill(segments->size());
+  for(CSCSegmentCollection::const_iterator it = segments->begin(); it != segments->end(); it++) {
     CSCDetId id  = (CSCDetId)(*it).cscDetId();
-    if(thisEndcap==id.endcap() && thisRing==id.ring() && 
-       thisStation == id.station() && thisChamber == id.chamber()){
-      AllRecHits[thisEndcap-1][thisStation-1][thisRing-1][thisChamber-FirstCh].sChamber.nSegments++;
-      
-    }
-    else{
-      AllRecHits[id.endcap()-1][id.station()-1][id.ring()-1][id.chamber()-FirstCh].sChamber.nSegments = 1;
-      thisEndcap=id.endcap();
-      thisRing=id.ring();
-      thisStation = id.station();
-      thisChamber = id.chamber();
-    }
-  }
-  //---- all_RecHits is actually passed to other functions (below) 
-  all_RecHits = &AllRecHits;
-
-  //---- Loop over segments
-  for(CSCSegmentCollection::const_iterator it=cscSegments->begin(); it != cscSegments->end(); it++) {
-    iSegment++;
-    CSCDetId id  = (CSCDetId)(*it).cscDetId();
-    SegmentInChamber.push_back(id.chamber());
-    SegmentInRing.push_back(id.ring());
-    SegmentInStation.push_back(id.station());
-    //
-    std::vector <int> LayersInChamber(6);
-    printf("\t iSegment = %i",iSegment);
-    double chisq    = (*it).chi2();
-    int DOF = (*it).degreesOfFreedom();
-    int nhits      = (*it).nRecHits();
-    LocalPoint localPos = (*it).localPosition();
-    LocalVector localDir = (*it).localDirection();
+    StHist[id.endcap()-1][id.station(-1)].segmentChi2_ndf->Fill((*it).chi2()/(*it).degreesOfFreedom());
+    StHist[id.endcap()-1][id.station(-1)].hitsInSegment->Fill((*it).nRecHits());
     if (printalot){ 
       printf("\tendcap/station/ring/chamber: %i %i %i %i\n",
 	     id.endcap(),id.station(),id.ring(),id.chamber());
-      cout<<"chi2/ndf = "<<chisq/DOF<<" nhits = "<<nhits <<std::endl;
+      std::cout<<"\tposition(loc) = "<<(*it).localPosition()<<" error(loc) = "<<(*it).localPositionError()<<std::endl;
+      std::cout<<"\t chi2/ndf = "<<(*it).chi2()/(*it).degreesOfFreedom()<<" nhits = "<<(*it).nRecHits() <<std::endl;
+
     }
-    Chi2->Fill(chisq/DOF);
-    if(1==id.station()){
-      if(1==id.ring()){
-	Chi2_ME1_b->Fill(chisq/DOF);
-      }
-      else if(2==id.ring()){
-	Chi2_ME1_2->Fill(chisq/DOF);
-      }
-      else if(3==id.ring()){
-	Chi2_ME1_3->Fill(chisq/DOF);
-      }
-      else if(4==id.ring()){
-	Chi2_ME1_a->Fill(chisq/DOF);
-      }
-    }
-    else if(2==id.station()){
-      if(1==id.ring()){
-	Chi2_ME2_1->Fill(chisq/DOF);
-      }
-      else if(2==id.ring()){
-	Chi2_ME2_2->Fill(chisq/DOF);
-      }
-    }
-    else if(3==id.station()){
-      if(1==id.ring()){
-	Chi2_ME3_1->Fill(chisq/DOF);
-      }
-      else if(2==id.ring()){
-	Chi2_ME3_2->Fill(chisq/DOF);
-      }
-    }
-    else if(4==id.station()){
-      if(1==id.ring()){
-	Chi2_ME4_1->Fill(chisq/DOF);
-      }
-    }
+    allSegments[id.endcap()-1][id.station()-1][id.ring()-1][id.chamber()-FirstCh].push_back
+      (make_pair((*it).localPosition(), (*it).localDirection()));
+
+
     //---- try to get the CSC recHits that contribute to this segment.
-    if (printalot) printf("\tGet the recHits for this segment.\t");
+    //if (printalot) printf("\tGet the recHits for this segment.\t");
     std::vector<CSCRecHit2D> theseRecHits = (*it).specificRecHits();
     int nRH = (*it).nRecHits();
-    if (printalot) printf("    nRH = %i\n",nRH);
-    int jRH = 0;
+    if (printalot){
+      printf("\tGet the recHits for this segment.\t");
+      printf("    nRH = %i\n",nRH);
+    }
+    //---- Find which of the rechits in the chamber is in the segment
+    int layerRH = 0;
     for ( vector<CSCRecHit2D>::const_iterator iRH = theseRecHits.begin(); iRH != theseRecHits.end(); iRH++) {
-      jRH++;
+      ++layerRH;
       CSCDetId idRH = (CSCDetId)(*iRH).cscDetId();
-      int kEndcap  = idRH.endcap();
-      int kRing    = idRH.ring();
-      int kStation = idRH.station();
-      int kChamber = idRH.chamber();
-      int kLayer   = idRH.layer();
-      LayersInChamber[kLayer-1] = 1;
-
-      //---- Find which of the rechits (number) in the chamber is in the segment
-      int iterations = 0;
-      int RecHitCoincidence = 0;
-      ChamberRecHits *sChamber_p=&AllRecHits[kEndcap-1][kStation-1][kRing-1][kChamber-FirstCh].sChamber;
-      for(unsigned int hitsIn =0; hitsIn < (*sChamber_p).RecHitsPosXlocal[kLayer-1].size();hitsIn++){
-
-      //---- OK but find another condition to check (int, bool)!
-	if( (*sChamber_p).RecHitsPosXlocal[kLayer-1][hitsIn] == (*iRH).localPosition().x() &&
-	    (*sChamber_p).RecHitsPosYlocal[kLayer-1][hitsIn] == (*iRH).localPosition().y() ){
-	  (*sChamber_p).TheRightRecHit[kLayer-1] = iterations;
-          RecHitCoincidence++;
-	}
-	iterations++;
+      if(printalot){ 
+	printf("\t%i RH\tendcap/station/ring/chamber/layer: %i/%i/%i/%i/%i\n",
+	       layerRH,idRH.endcap(),idRH.station(),idRH.ring(),idRH.chamber(),idRH.layer());
       }
-      if(!RecHitCoincidence){
-	(*sChamber_p).TheRightRecHit[kLayer-1] = -1;
-      }
-      if (printalot) printf("\t%i RH\tendcap/station/ring/chamber/layer: %i %i %i %i %i\n",jRH,kEndcap,kStation,kRing,kChamber,kLayer);
-      if(printalot) std::cout<<"recHit number from the layer in the segment = "<< (*sChamber_p).TheRightRecHit[kLayer-1]<<std::endl;
-    }
-
-    //---- global transformation: from Ingo Bloch
-    double globX = 0.;
-    double globY = 0.;
-    double globZ = 0.;
-    double globDirX = 0.;
-    double globDirY = 0.;
-    double globDirZ = 0.;
-    //
-    double globchamberPhi = 0.;
-    double globchamberX =0.;
-    double globchamberY =0.;
-    double globchamberZ =0.;
-    //
-    const CSCChamber *cscchamber = cscGeom->chamber(id);
-    if (cscchamber) {
-      LocalPoint localCenter(0.,0.,0);
-      GlobalPoint cscchamberCenter =  cscchamber->toGlobal(localCenter);
-      rotationPhi = globchamberPhi = cscchamberCenter.phi();
-      globchamberX = cscchamberCenter.x();
-      globchamberY = cscchamberCenter.y();
-      globchamberZ = cscchamberCenter.z();
-      //
-      GlobalPoint globalPosition = cscchamber->toGlobal(localPos);
-      globX = globalPosition.x();
-      globY = globalPosition.y();
-      globZ = globalPosition.z();
-      //
-      GlobalVector globalDirection = cscchamber->toGlobal(localDir);
-      globDirX   = globalDirection.x();
-      globDirY   = globalDirection.y();
-      globDirZ   = globalDirection.z();
-      if(printalot) std::cout<<"SEGMENT: globDirX/globDirZ = "<<globDirX/globDirZ<<" globDirY/globDirZ = "<<globDirY/globDirZ<<std::endl;
-    } else {
-      if (printalot) printf("\tFailed to get a local->global segment tranformation.\n");
-    }
-
-    //---- Group a couple of segments in the two stations (later require only 1 in each station)  
-    if (WorkInEndcap==id.endcap()) {
-      if((ExtrapolateToStation==id.station()&& ExtrapolateToRing==id.ring() && 
-	  id.station()>=FirstCh &&id.station()<=LastCh) || 
-	 ExtrapolateFromStation==id.station()){
-        int CoupleNum = id.station()-2;
-	//
-   	if(id.station()==ExtrapolateToStation){
-	  CoupleNum = 1;
-	}
-	else if(id.station()==ExtrapolateFromStation){
-	  CoupleNum = 0;
-	}
-	else{
-	  cout<<"Wrong reference station!!! (shouldn't be)"<<endl;
-	}
-	//
-	ChambersWithSegments[CoupleNum][LastCh-id.chamber()]++;
-        PosLocalCouple[CoupleNum][0] = localPos.x();
-        PosLocalCouple[CoupleNum][1] = localPos.y();
-        PosLocalCouple[CoupleNum][2] = localPos.z();
-	//
-        DirLocalCouple[CoupleNum][0] = localDir.x();
-        DirLocalCouple[CoupleNum][1] = localDir.y();
-        DirLocalCouple[CoupleNum][2] = localDir.z();
-	//
-        PosCouple[CoupleNum][0] = globX;
-        PosCouple[CoupleNum][1] = globY;
-        PosCouple[CoupleNum][2] = globZ;
-	//
-        DirCouple[CoupleNum][0] = globDirX;
-        DirCouple[CoupleNum][1] = globDirY;
-        DirCouple[CoupleNum][2] = globDirZ;
-	//
-
-	//
-	RotPhiCouple[CoupleNum] = rotationPhi;
-        Chi2Couple[CoupleNum] = chisq;
-	NDFCouple[CoupleNum] = DOF;
-	NhitsCouple[CoupleNum] = nhits;
-	//
-	XchamberCouple[CoupleNum] = globchamberX;
-	YchamberCouple[CoupleNum] = globchamberY;
-	NChamberCouple[CoupleNum] = id.chamber();
-	//
-	const CSCLayer *layer_p = cscchamber->layer(1);//layer 1
-	const CSCLayerGeometry *layerGeom = layer_p->geometry ();
-	const std::vector<float> LayerBounds = layerGeom->parameters ();
-	ChamberBoundsCouple[CoupleNum][0] = LayerBounds[0]; // (+-)x1 shorter
-	ChamberBoundsCouple[CoupleNum][1] = LayerBounds[1]; // (+-)x2 longer 
-	ChamberBoundsCouple[CoupleNum][2] = LayerBounds[3]; // (+-)y1=y2
-	if(ExtrapolateToStation==id.station()){
-	  LayersInSecondCouple = LayersInChamber;
-	}
-      }
-      if(2 == ExtrapolateToStation && 
-	 (1==ExtrapolateFromStation || 3==ExtrapolateFromStation)){
-	if(ExtrapolateFromStation != id.station() && ExtrapolateToStation != id.station() && 6==nhits && chisq/DOF<3){
-	  DirGlobal_ThirdSegment.push_back(globDirX);
-	  DirGlobal_ThirdSegment.push_back(globDirY);
-	  DirGlobal_ThirdSegment.push_back(globDirZ);
-	} 
-      }
-    }
-  }
-  printf("My nSegments: %i\n",nSegments); 
-
-  //---- Are there segments at all?
-  if(nSegments){
-    DataFlow->Fill(2.);  
-    std::vector<int> SegmentsInStation(2);
-    for(int iCh=0;iCh<NumCh;iCh++){
-      SegmentsInStation[0]+=ChambersWithSegments[0][iCh];// refernce station
-      SegmentsInStation[1]+=ChambersWithSegments[1][iCh];// investigated station
-    }
-
-    //---- One (only) segment in the reference station... 
-    if(1==SegmentsInStation[0] ){ 
-      DataFlow->Fill(4.);  
-
-      //---- ...with a good quality
-      if(6==NhitsCouple[0] && (Chi2Couple[0]/NDFCouple[0])<3.){
-	//if(6==NhitsCouple[0]){
-	DataFlow->Fill(6.);  
-        flag = false;
-	// For calculations of LCT efficiencies (ask for 2 segments in St1 and St3 if St2 is investigated)
-	if(DirGlobal_ThirdSegment.size()){
-	  double XDirprime, YDirprime;
-	  Rotate(DirCouple[0][0], DirCouple[0][1], -(RotPhiCouple[1]+M_PI/2), XDirprime, YDirprime);
-	  double ZDirprime = DirCouple[0][2];
-	  double XDirsecond, YDirsecond;
-	  Rotate(DirGlobal_ThirdSegment[0], DirGlobal_ThirdSegment[1], -(RotPhiCouple[1]+M_PI/2), XDirsecond, YDirsecond);
-	  double ZDirsecond  = DirGlobal_ThirdSegment[2];
-	  float diff_dxdz = XDirprime/ZDirprime - XDirsecond/ZDirsecond;
-	  if(fabs(diff_dxdz)<0.4){// && XDirprime/ZDirprime<0.4){
-	    flag = true;
-	    seg_dydz = YDirprime/ZDirprime;
-	  }
-	}
-	int NSegFound = 0;
-	double theta = acos(DirCouple[0][2]);
-	for(int iSeg=0;iSeg<nSegments;iSeg++){
-	  if( NChamberCouple[1]==SegmentInChamber[iSeg] // is there a segment in the chamber required
-	      && ExtrapolateToRing==SegmentInRing[iSeg] // and in the extrapolated ring
-	      && ExtrapolateToStation==SegmentInStation[iSeg]){ // and in the extrapolated station  
-	    NSegFound++;
-	  }
-	}
-
-	//---- Various efficiency calcultions
-	CalculateEfficiencies( event, eventSetup, PosCouple[0], DirCouple[0],NSegFound, theta);
-
-	//---- One (only) segment in the station/ring to which we extrapolate 
-	if(1==NSegFound){
-	  DataFlow->Fill(25.);
-	  //
-  
-	  for (int iLayer=0; iLayer<6; iLayer++) {
-	    //---- Exactly 1 rechit in the layer  
-	    if(MyRecHits[NChamberCouple[1]-FirstCh][iLayer]){
-	      //---- Is it present in the segment?
-	      if(!LayersInSecondCouple[iLayer]){
-		ChHist[NChamberCouple[1]-FirstCh].InefficientSingleHits->Fill(iLayer+1);
-	      }
-	      ChHist[NChamberCouple[1]-FirstCh].AllSingleHits->Fill(iLayer+1);
-	    }
-	  }
-	  
-	  //---- rotation at an angle (rotationPhi+PI/2.) positions the
-          //---- station "rotationPhi" at -pi (global co-ordinates)
-	  double Xsecond, Ysecond;
-	  Rotate(PosCouple[1][0], PosCouple[1][1], -(RotPhiCouple[1]+M_PI/2), Xsecond, Ysecond);
-	  double XDirprime, YDirprime;
-	  Rotate(DirCouple[0][0], DirCouple[0][1], -(RotPhiCouple[1]+M_PI/2), XDirprime, YDirprime);
-	  double ZDirprime = DirCouple[0][2];
-	  double XDirsecond, YDirsecond;
-	  Rotate(DirCouple[1][0], DirCouple[1][1], -(RotPhiCouple[1]+M_PI/2), XDirsecond, YDirsecond);
-	  double ZDirsecond  = DirCouple[1][2];
-	  double dxdz_diff = XDirprime/ZDirprime - XDirsecond/ZDirsecond;
-	  //---- Let the segments (in the two different stations) have "close" directions
-	  if(abs(dxdz_diff)<0.15){
-	    DataFlow->Fill(26.);  
-	    if(6!=NhitsCouple[1]){
-	      ChHist[NChamberCouple[1]-FirstCh].XvsY_InefficientSegments->Fill(PosLocalCouple[1][0],PosLocalCouple[1][1]);
-	    }
-	    double Xchambersecond, Ychambersecond;
-	    Rotate(XchamberCouple[1], YchamberCouple[1], -(RotPhiCouple[1]+M_PI/2.), Xchambersecond, Ychambersecond);
-	    //
-	    double Yup, Ydown, LineSlope , LineConst, Yright;
-	    Yup = Ychambersecond + ChamberBoundsCouple[1][2];
-	    Ydown = Ychambersecond - ChamberBoundsCouple[1][2];
-	    LineSlope = (Yup - Ydown)/(ChamberBoundsCouple[1][0]-ChamberBoundsCouple[1][1]);
-	    LineConst = Yup - LineSlope*ChamberBoundsCouple[1][0];
-	    Yright =  LineSlope*abs(Xsecond) + LineConst;
-	    double XBound1Shifted = ChamberBoundsCouple[1][0]-20.;//
-	    double XBound2Shifted = ChamberBoundsCouple[1][1]-20.;//
-	    LineSlope = (Yup - Ydown)/(XBound1Shifted-XBound2Shifted);
-	    LineConst = Yup - LineSlope*XBound1Shifted;
-	    Yright =  LineSlope*abs(Xsecond) + LineConst;
-	    
-	    //---- "Good region" checks
-	    if(GoodRegion(Ysecond, Yright, ExtrapolateToStation, ExtrapolateToRing, 0)){
-	      DataFlow->Fill(27.);  
-	      if(6!=NhitsCouple[1]){
-		ChHist[NChamberCouple[1]-FirstCh].XvsY_InefficientSegments_good->Fill(PosLocalCouple[1][0],PosLocalCouple[1][1]);
-	      }
-	    }
-	    //
-	    ChamberRecHits *sChamber_p =
-	      &(*all_RecHits)[WorkInEndcap-1][ExtrapolateToStation-1][ExtrapolateToRing-1][NChamberCouple[1]-FirstCh].sChamber; 
-	    
-	    double Zlayer = 0.;
-	    int ChosenLayer = -1;
-	    if(sChamber_p->RecHitsPosZ[3-1].size()){
-	      ChosenLayer = 2;
-	      Zlayer = sChamber_p->RecHitsPosZ[3-1][0];
-	    }
-	    else if(sChamber_p->RecHitsPosZ[4-1].size()){
-	      ChosenLayer = 3;
-	      Zlayer = sChamber_p->RecHitsPosZ[4-1][0]; 
-	    }
-	    else if(sChamber_p->RecHitsPosZ[5-1].size()){
-	      ChosenLayer = 4;
-	      Zlayer = sChamber_p->RecHitsPosZ[5-1][0]; 
-	    }
-	    else if(sChamber_p->RecHitsPosZ[2-1].size()){
-	      ChosenLayer = 1;
-	      Zlayer = sChamber_p->RecHitsPosZ[2-1][0]; 
-	    }
-	    
-	    if(-1!=ChosenLayer){
-	      
-	      //---- hardcoded values... noot good
-	      double dist = 2.54; // distance between two layers is 2.54 cm except for ME1/1 chambers!
-	      for (int iLayer=0; iLayer<6; iLayer++) {
-		
-		//---- two steps because Zsegment is not (exactly) at the middle...
-		double z1Position = PosCouple[1][2]; // segment Z position (between layers 2 and 3)
-		double z2Position = Zlayer;// rechit in the chosen layer ;  Z position
-		double z1Direction = DirLocalCouple[1][2]; // segment Z direction
-		double initPosition = PosLocalCouple[1][1]; // segment Y position
-		double initDirection = DirLocalCouple[1][1]; // segment Y direction
-		double ParamLine = LineParam(z1Position, z2Position, z1Direction);
-		
-		//---- find extrapolated position of a segment at a given layer
-		double y = Extrapolate1D(initPosition, initDirection, ParamLine); // this is still the position 
-		//in the chosen layer!
-		
-		initPosition = PosLocalCouple[1][0];
-		initDirection = DirLocalCouple[1][0];
-		double x = Extrapolate1D(initPosition, initDirection, ParamLine);//  this is still the position 
-		// in the chosen layer!
-		int sign;
-		
-		if( z1Position>z2Position){
-		  sign = -1;
-		}
-		else{
-		  sign = 1;
-		}
-		z1Position = z2Position;// start from the chosen layer and go to layer iLayer (z2Position below)
-		int diffLayer = abs(ChosenLayer - iLayer);
-		z2Position = z1Position + float(sign)*float(diffLayer)*dist;
-		
-		ParamLine = LineParam(z1Position, z2Position, z1Direction);
-		initPosition = y;
-		initDirection = DirLocalCouple[1][1];
-		y = Extrapolate1D(initPosition, initDirection, ParamLine); // this is the extrapolated position in layer iLayer
-		
-		initPosition = x;
-		initDirection = DirLocalCouple[1][0];
-		x = Extrapolate1D(initPosition, initDirection, ParamLine); // this is the extrapolated position in layer iLayer
-		
-		if(GoodRegion(Ysecond, Yright, ExtrapolateToStation, ExtrapolateToRing, 0)){
-		  if(sChamber_p->NRecHits[iLayer]>0){
-		    ChHist[NChamberCouple[1]-FirstCh].EfficientRechits_inSegment->Fill(iLayer+1);
-		  }
-		  else{
-		    ChHist[NChamberCouple[1]-FirstCh].XvsY_InefficientRecHits_inSegment[iLayer]->Fill(x,y); 
-		  }
-		}
-		if(sChamber_p->NRecHits[iLayer]<1){
-		  ChHist[NChamberCouple[1]-FirstCh].Y_InefficientRecHits_inSegment[iLayer]->Fill(y); 
-		}
-		ChHist[NChamberCouple[1]-FirstCh].Y_AllRecHits_inSegment[iLayer]->Fill(y);
-	      }
-              //---- Normalization 
-	      if(GoodRegion(Ysecond, Yright, ExtrapolateToStation, ExtrapolateToRing, 0)){
-		ChHist[NChamberCouple[1]-FirstCh].EfficientRechits_inSegment->Fill(9);
-	      }
-	    }
+      for(uint jRH = 0; 
+	  jRH<allRechits[idRH.endcap()-1][idRH.station()-1][idRH.ring()-1][idRH.chamber()-FirstCh][idRH.layer()-1].size();
+	  ++jRH){
+	LocalPoint lp = allRechits[idRH.endcap()-1][idRH.station()-1][idRH.ring()-1][idRH.chamber()-FirstCh][idRH.layer()-1][jRH].first;
+	float xDiff = iRH->localPosition().x() - 
+	  allRechits[idRH.endcap()-1][idRH.station()-1][idRH.ring()-1][idRH.chamber()-FirstCh][idRH.layer()-1][jRH].first.x();
+	float yDiff = iRH->localPosition().y() - 
+	  allRechits[idRH.endcap()-1][idRH.station()-1][idRH.ring()-1][idRH.chamber()-FirstCh][idRH.layer()-1][jRH].first.y();
+	if(fabs(xDiff)<0.0001 && fabs(yDiff)<0.0001){
+	  std::pair <LocalPoint, bool> 
+	    recHitPos(allRechits[idRH.endcap()-1][idRH.station()-1][idRH.ring()-1][idRH.chamber()-FirstCh][idRH.layer()-1][jRH].first, true);
+	  allRechits[idRH.endcap()-1][idRH.station()-1][idRH.ring()-1][idRH.chamber()-FirstCh][idRH.layer()-1][jRH] = recHitPos;
+	  if(printalot){ 
+	    std::cout<<" number of the rechit (from zero) in the segment = "<< jRH<<std::endl;
 	  }
 	}
       }
     }
   }
-  //---- End
-  if (printalot) printf("==exit===CSCEfficiency===== run %i\tevent %i\n\n",iRun,iEvent);
 }
+//
 
-void Rotate(double Xinit, double Yinit, double angle, double & Xrot, double & Yrot){
-  // rotation is counterclockwise (if angle>0)
-  Xrot = Xinit*cos(angle) - Yinit*sin(angle);
-  Yrot = Xinit*sin(angle) + Yinit*cos(angle);
-}
-bool CSCEfficiency::GoodRegion(double Y, double Yborder, int Station, int Ring, int Chamber){
-//---- Good region means sensitive area of a chamber (i.e. geometrical and HV boundaries excluded)
-//---- hardcoded... not good
-  bool pass = false;
-  double Ycenter = 99999.; 
-  float y_center = 99999.;
-  if(Station>1 && Station<5){
-    if(2==Ring){  
-      y_center = -0.95;
-      Ycenter = 338.0/2+360.99-3.49+y_center;
+void CSCEfficiency::ringCandidates(int station, float feta, std::map <std::string, bool> & chamberTypes){
+  // yeah, hardcoded again...
+  switch (station){
+  case 1:
+    if(feta>0.85 && feta<1.18){//ME13
+      chamberTypes["ME13"] = true;
+    }      
+    if(feta>1.18 && feta<1.7){//ME12
+      chamberTypes["ME12"] = true;
     }
-    else if(1==Ring){ 
-      if(2==Station){
-	y_center = -0.955;
-	Ycenter = 204.60/2 + 143.89 - 3.49 + y_center;
-      } 
-      else if(3==Station){
-	y_center = -0.97;
-	Ycenter = 184.61/2 + 163.89 - 3.49 + y_center;
-      }
-      else if(4==Station){
-	y_center = -0.94;
-	Ycenter = 164.67/2 + 183.79 - 3.49 + y_center;
-      }
-    }   
-  }
-  else{
-    if(3==Ring){
-      y_center = -1.075;
-      Ycenter = 179.30/2+508.99-3.49+y_center; 
+    if(feta>1.5 && feta<2.45){//ME11
+      chamberTypes["ME11"] = true;
     }
-    else if(2==Ring){ 
-      y_center = -0.96;
-       Ycenter = 189.41/2+278.49-3.49+y_center;
-    }
-    else if(1==Ring){
-      Ycenter = 0.;
-    }
-  }
-  Ycenter = -Ycenter;
-  double Y_local = -(Y - Ycenter);
-  double Yborder_local = -(Yborder - Ycenter);
-  bool  withinChamberOnly = false;
-  pass = CheckLocal(Y_local, Yborder_local, Station, Ring, withinChamberOnly); 
-  return pass;
-}
-bool CSCEfficiency::GoodLocalRegion(double X, double Y, int Station, int Ring, int Chamber){
-  //---- Good region means sensitive area of a chamber. "Local" stands for the local system 
-  bool pass = false;
-  std::vector <double> ChamberBoundsCouple(3);
-  float y_center = 99999.;
-  //---- hardcoded... not good
-  if(Station>1 && Station<5){
-    if(2==Ring){
-      ChamberBoundsCouple[0] = 66.46/2; // (+-)x1 shorter
-      ChamberBoundsCouple[1] = 127.15/2; // (+-)x2 longer 
-      ChamberBoundsCouple[2] = 323.06/2;
-      y_center = -0.95;
-    }
-    else{
-      if(2==Station){
-	ChamberBoundsCouple[0] = 54.00/2; // (+-)x1 shorter
-	ChamberBoundsCouple[1] = 125.71/2; // (+-)x2 longer 
-	ChamberBoundsCouple[2] = 189.66/2;
-	y_center = -0.955;
-      }
-      else if(3==Station){
-	ChamberBoundsCouple[0] = 61.40/2; // (+-)x1 shorter
-	ChamberBoundsCouple[1] = 125.71/2; // (+-)x2 longer 
-	ChamberBoundsCouple[2] = 169.70/2;
-	y_center = -0.97;
-      }
-      else if(4==Station){
-	ChamberBoundsCouple[0] = 69.01/2; // (+-)x1 shorter
-	ChamberBoundsCouple[1] = 125.65/2; // (+-)x2 longer 
-	ChamberBoundsCouple[2] = 149.42/2;
-	y_center = -0.94;
-      }
-    }
-  }
-  else if(1==Station){
-    if(3==Ring){
-      ChamberBoundsCouple[0] = 63.40/2; // (+-)x1 shorter
-      ChamberBoundsCouple[1] = 92.10/2; // (+-)x2 longer 
-      ChamberBoundsCouple[2] = 164.16/2;
-      y_center = -1.075;
-    }
-    else if(2==Ring){
-      ChamberBoundsCouple[0] = 51.00/2; // (+-)x1 shorter
-      ChamberBoundsCouple[1] = 83.74/2; // (+-)x2 longer 
-      ChamberBoundsCouple[2] = 174.49/2;
-      y_center = -0.96;
-    }
-    else{
-      ChamberBoundsCouple[0] = 40./2; // (+-)x1 shorter
-      ChamberBoundsCouple[1] = 100./2; // (+-)x2 longer 
-      ChamberBoundsCouple[2] = 142./2;
-      y_center = 0.;
-    }
-  }
-  double Yup = ChamberBoundsCouple[2] + y_center;
-  double Ydown = - ChamberBoundsCouple[2] + y_center;
-  double XBound1Shifted = ChamberBoundsCouple[0]-20.;//
-  double XBound2Shifted = ChamberBoundsCouple[1]-20.;//
-  double LineSlope = (Yup - Ydown)/(XBound2Shifted-XBound1Shifted);
-  double LineConst = Yup - LineSlope*XBound2Shifted;
-  double Yborder =  LineSlope*abs(X) + LineConst;
-  bool  withinChamberOnly = false;
-  pass = CheckLocal(Y, Yborder, Station, Ring, withinChamberOnly);
-  return pass;
-}
-
-bool CSCEfficiency::CheckLocal(double Y, double Yborder, int Station, int Ring, bool withinChamberOnly){
-//---- check if it is in a good local region (sensitive area - geometrical and HV boundaries excluded) 
-  bool pass = false;
-  //bool withinChamberOnly = false;// false = "good region"; true - boundaries only
-  std::vector <float> DeadZoneCenter(6);
-  float CutZone = 10.;//cm
-  //---- hardcoded... not good
-  if(!withinChamberOnly){
-    if(Station>1 && Station<5){
-      if(2==Ring){
-	DeadZoneCenter[0]= -162.48 ;
-	DeadZoneCenter[1] = -81.8744;
-	DeadZoneCenter[2] = -21.18165;
-	DeadZoneCenter[3] = 39.51105;
-	DeadZoneCenter[4] = 100.2939;
-	DeadZoneCenter[5] = 160.58;
-
-	if(Y >Yborder &&
-	   ((Y> DeadZoneCenter[0] + CutZone && Y< DeadZoneCenter[1] - CutZone) ||
-	    (Y> DeadZoneCenter[1] + CutZone && Y< DeadZoneCenter[2] - CutZone) ||
-	    (Y> DeadZoneCenter[2] + CutZone && Y< DeadZoneCenter[3] - CutZone) ||
-	    (Y> DeadZoneCenter[3] + CutZone && Y< DeadZoneCenter[4] - CutZone) ||
-	    (Y> DeadZoneCenter[4] + CutZone && Y< DeadZoneCenter[5] - CutZone))){
-	  pass = true;
-	}
-      }
-      else if(1==Ring){
-	if(2==Station){
-	  DeadZoneCenter[0]= -95.80 ;
-	  DeadZoneCenter[1] = -27.47;
-	  DeadZoneCenter[2] = 33.67;
-	  DeadZoneCenter[3] = 90.85;
-	}
-	else if(3==Station){
-	  DeadZoneCenter[0]= -89.305 ;
-	  DeadZoneCenter[1] = -39.705;
-	  DeadZoneCenter[2] = 20.195;
-	  DeadZoneCenter[3] = 77.395;
-	}
-	else if(4==Station){
-	  DeadZoneCenter[0]= -75.645;
-	  DeadZoneCenter[1] = -26.055;
-	  DeadZoneCenter[2] = 23.855;
-	  DeadZoneCenter[3] = 70.575;
-	}
-	if(Y >Yborder &&
-	   ((Y> DeadZoneCenter[0] + CutZone && Y< DeadZoneCenter[1] - CutZone) ||
-	    (Y> DeadZoneCenter[1] + CutZone && Y< DeadZoneCenter[2] - CutZone) ||
-	    (Y> DeadZoneCenter[2] + CutZone && Y< DeadZoneCenter[3] - CutZone))){
-	  pass = true;
-	}
-	//pass = true;
-      }
-    }
-    else if(1==Station){
-      if(3==Ring){
-	DeadZoneCenter[0]= -83.155 ;
-	DeadZoneCenter[1] = -22.7401;
-	DeadZoneCenter[2] = 27.86665;
-	DeadZoneCenter[3] = 81.005;
-	if(Y > Yborder &&
-	   ((Y> DeadZoneCenter[0] + CutZone && Y< DeadZoneCenter[1] - CutZone) ||
-	    (Y> DeadZoneCenter[1] + CutZone && Y< DeadZoneCenter[2] - CutZone) ||
-	    (Y> DeadZoneCenter[2] + CutZone && Y< DeadZoneCenter[3] - CutZone))){
-	  pass = true;
-	}
-      }
-      else if(2==Ring){
-	DeadZoneCenter[0]= -86.285 ;
-	DeadZoneCenter[1] = -32.88305;
-	DeadZoneCenter[2] = 32.867423;
-	DeadZoneCenter[3] = 88.205;
-	if(Y > (Yborder) &&
-	   ((Y> DeadZoneCenter[0] + CutZone && Y< DeadZoneCenter[1] - CutZone) ||
-	    (Y> DeadZoneCenter[1] + CutZone && Y< DeadZoneCenter[2] - CutZone) ||
-	    (Y> DeadZoneCenter[2] + CutZone && Y< DeadZoneCenter[3] - CutZone))){
-	  pass = true;
-	}
-      }
-      else{
-	DeadZoneCenter[0]= -81.0;
-	DeadZoneCenter[1] = 81.0;
-	if(Y > (Yborder) &&
-	   ((Y> DeadZoneCenter[0] + CutZone && Y< DeadZoneCenter[1] - CutZone) )){
-	  pass = true;
-	}
-      }
-    }
-  }
-  else{
-    if(Station>1 && Station<5){
-      if(2==Ring){
-	if(Y >Yborder && fabs(Y+0.95)<151.53){
-	  pass = true;
-	}
-      }
-      else if(1==Ring){
-        float theCenter = 0.95;
-        float theCutEdge = 151.53;
-        if(2==Station){
-          theCenter = - 0.955;
-          theCutEdge = 84.83;
-        }
-        else if(3==Station){
-          theCenter = - 0.97;
-          theCutEdge = 74.85;
-        }
-        else if(4==Station){
-          theCenter = -0.94;
-          theCutEdge = 64.71;
-        }
-        if(Y >Yborder && fabs(Y-theCenter)<theCutEdge){
-          pass = true;
-        }
-      }
-    }
-    else if(1==Station){
-      if(3==Ring){
-	if(Y > Yborder &&  fabs(Y+1.075)<72.08){
-	  pass = true;
-	}
-      }
-      else if(2==Ring){
-	if(Y > (Yborder) && fabs(Y+0.96)<77.245){
-	  pass = true;
-	}
-      }
-      else{
-	if(Y > (Yborder) && fabs(Y)<71.){
-	  pass = true;
-	}
-      }
-    }
-  }
-  return pass;
-}
-
-void CSCEfficiency::CalculateEfficiencies(const Event & event, const EventSetup& eventSetup,
-				    std::vector<double> &Pos , std::vector<double> &Dir, int NSegFound, double theta){
-  DataFlow->Fill(7.);  
-  edm::Handle<CSCALCTDigiCollection> alcts;
-  edm::Handle<CSCCLCTDigiCollection> clcts;
-  //edm::Handle<CSCRPCDigiCollection> rpcs;
-  edm::Handle<CSCCorrelatedLCTDigiCollection> correlatedlcts;
-  if(DATA){
-    event.getByLabel("muonCSCDigis","MuonCSCALCTDigi",alcts);
-    event.getByLabel("muonCSCDigis","MuonCSCCLCTDigi",clcts);
-    //event.getByLabel("muonCSCDigis","MuonCSCRPCDigi",rpcs);
-    event.getByLabel("muonCSCDigis","MuonCSCCorrelatedLCTDigi",correlatedlcts); 
-  }
-  ESHandle<CSCGeometry> cscGeom;
-  eventSetup.get<MuonGeometryRecord>().get(cscGeom);
-  //
-  const std::vector<CSCChamber*> ChamberContainer = cscGeom->chambers();
-  //---- Rechit efficiency from simhits
-  if(!DATA){
-    RecSimHitEfficiency();
-  }
-
-  //---- Find a chamber fulfilling conditions 
-  for(unsigned int nCh=0;nCh<ChamberContainer.size();nCh++){
-    const CSCChamber *cscchamber = ChamberContainer[nCh];
-    CSCDetId id  = cscchamber->id();
-    if(id.chamber() > (FirstCh-1) && id.chamber() < (LastCh+1) &&
-       id.station() == ExtrapolateToStation && 
-       id.ring() == ExtrapolateToRing && id.endcap() == WorkInEndcap){
-      LocalPoint localCenter(0.,0.,0);
-      GlobalPoint cscchamberCenter =  cscchamber->toGlobal(localCenter);
-      float ZStation = cscchamberCenter.z();
-      double ParLine = LineParam(Pos[2], ZStation, Dir[2]);
-      double Xextrapolated = Extrapolate1D(Pos[0],Dir[0], ParLine );
-      double Yextrapolated = Extrapolate1D(Pos[1],Dir[1], ParLine );
+    break;
+  case 2:
+    if(feta>0.95 && feta<1.6){//ME22
+      chamberTypes["ME22"] = true;
       
-      GlobalPoint ExtrapolatedSegment(Xextrapolated, Yextrapolated, ZStation);
-      LocalPoint ExtrapolatedSegmentLocal = cscchamber->toLocal(ExtrapolatedSegment);
-      const CSCLayer *layer_p = cscchamber->layer(1);//layer 1
-      const CSCLayerGeometry *layerGeom = layer_p->geometry ();
-      const std::vector<float> LayerBounds = layerGeom->parameters ();
-      float y_center = 0.;
-      float ShiftFromEdge = 20.; //cm from the edge
-      double Yup = LayerBounds[3] + y_center;
-      double Ydown = - LayerBounds[3] + y_center;
-      double XBound1Shifted = LayerBounds[0] - ShiftFromEdge;//
-      double XBound2Shifted = LayerBounds[1] - ShiftFromEdge;//
-      double LineSlope = (Yup - Ydown)/(XBound2Shifted-XBound1Shifted);
-      double LineConst = Yup - LineSlope*XBound2Shifted;
-      double Yborder =  LineSlope*abs(ExtrapolatedSegmentLocal.x()) + LineConst;
-      CSCDetId id  = cscchamber->id();
-      bool  withinChamberOnly = false;
-      if( CheckLocal(ExtrapolatedSegmentLocal.y(), Yborder, id.station(), id.ring(), withinChamberOnly)){
-        DataFlow->Fill(9.);
-        int cond = 0;
-        if(flag){
-          cond = 1;
-        }
-
-        //---- So at this point a segments from the reference station points
-        //---- to a chamber ("good region") in the investigated station and ring
-        //---- Calculate efficiencies
-        bool LCTflag = false;
-        if(DATA){
-          LCTflag = LCT_Efficiencies(alcts, clcts, correlatedlcts, id.chamber(), cond);
-        }
-        if(!LCTflag){
-          XY_ALCTmissing->Fill(ExtrapolatedSegmentLocal.x(),ExtrapolatedSegmentLocal.y());
-          std::cout<<"NO ALCT when ME1 and ME3"<<std::endl;
-        }
-        StripWire_Efficiencies(id.chamber());
-        Segment_Efficiency(id.chamber(), NSegFound, theta);
-      }
-      //---- Good regions are checked separately within;
-      // here just check chamber (this is a quick fix to avoid noise hits)
-      withinChamberOnly = true;
-      ShiftFromEdge = 10.; //cm from the edge
-      XBound1Shifted = LayerBounds[0] - ShiftFromEdge;//
-      XBound2Shifted = LayerBounds[1] - ShiftFromEdge;//
-      LineSlope = (Yup - Ydown)/(XBound2Shifted-XBound1Shifted);
-      LineConst = Yup - LineSlope*XBound2Shifted;
-      Yborder =  LineSlope*abs(ExtrapolatedSegmentLocal.x()) + LineConst;
-      if( CheckLocal(ExtrapolatedSegmentLocal.y(), Yborder, id.station(), id.ring(), withinChamberOnly)){
-        RecHitEfficiency(ExtrapolatedSegmentLocal.x() , ExtrapolatedSegmentLocal.y(), id.chamber());
-      }
+    }  
+    if(feta>1.55 && feta<2.45){//ME21
+      chamberTypes["ME21"] = true;
     }
+    break;
+  case 3:
+    if(feta>1.08 && feta<1.72){//ME32
+      chamberTypes["ME32"] = true;
+      
+    }  
+    if(feta>1.69 && feta<2.45){//ME31
+      chamberTypes["ME31"] = true;
+    }
+    break;
+  case 4:
+    if(feta>1.78 && feta<2.45){//ME41
+      chamberTypes["ME41"] = true;
+    }
+    break;
+  default:
+    break;
   }
 }
 //
-double CSCEfficiency::Extrapolate1D(double initPosition, double initDirection, double ParameterOfTheLine){
-  double ExtrapolatedPosition = initPosition + initDirection*ParameterOfTheLine;
-  return ExtrapolatedPosition; 
-}
-//
-double CSCEfficiency::LineParam(double z1Position, double z2Position, double z1Direction){
-  double ParamLine = (z2Position-z1Position)/z1Direction;
-  return ParamLine;
-}
-//
-void CSCEfficiency::RecHitEfficiency(double X, double Y, int iCh){
-  ChamberRecHits *sChamber_p =
-    &(*all_RecHits)[WorkInEndcap-1][ExtrapolateToStation-1][ExtrapolateToRing-1][iCh-FirstCh].sChamber;
-  ChamberRecHits *sChamberLeft_p = sChamber_p;
-  ChamberRecHits *sChamberRight_p = sChamber_p;
-  // neighbouring chamber (-1)
-
-  if(iCh-FirstCh-1>=0){
-    sChamberLeft_p =
-      &(*all_RecHits)[WorkInEndcap-1][ExtrapolateToStation-1][ExtrapolateToRing-1][iCh-FirstCh-1].sChamber;
+void CSCEfficiency::chamberCandidates(int station, int ring, float phi, std::vector <int> &coupleOfChambers){
+  coupleOfChambers.clear();
+  // -pi< phi<+pi
+  float phi_zero = 0.;// check! the phi at the "edge" of Ch 1
+  float phi_const = 2.*M_PI/36.;
+  int last_chamber = 36;
+  int first_chamber = 1;
+  if(1 != station && 1==ring){
+    phi_const*=2;
+    last_chamber /= 2;
   }
-  // neighbouring chamber (+1)
-  if(iCh-FirstCh+1<NumCh){
-    sChamberRight_p =
-      &(*all_RecHits)[WorkInEndcap-1][ExtrapolateToStation-1][ExtrapolateToRing-1][iCh-FirstCh+1].sChamber;
+  if(phi<0.){
+    if (printalot) std::cout<<" info: negative phi = "<<phi<<std::endl;
+    phi += 2*M_PI;
   }
-  int missingLayersLeft = 0;
-  int missingLayersRight = 0;
-  int missingLayers = 0;
-  for(int iLayer=0;iLayer<6;iLayer++){
-    if(!sChamber_p->RecHitsPosX[iLayer].size()){
-      missingLayers++;
+  float chamber_float = (phi - phi_zero)/phi_const;
+  int chamber_int = int(chamber_float);
+  if (chamber_float - float(chamber_int) -0.5 <0.){
+    if(0!=chamber_int ){
+      coupleOfChambers.push_back(chamber_int);
     }
-    if(!sChamberLeft_p->RecHitsPosX[iLayer].size()){
-      missingLayersLeft++;
+    else{
+      coupleOfChambers.push_back(last_chamber);
     }
-    if(!sChamberRight_p->RecHitsPosX[iLayer].size()){
-      missingLayersRight++;
-    }
-  }
-  if(missingLayers>missingLayersLeft || missingLayers>missingLayersRight){
-    // Skip that chamber - the signal is noise most probably
-  }
-  else{
-    //---- The segments points to "good region"  
-    if(GoodLocalRegion(X, Y, ExtrapolateToStation, ExtrapolateToRing, iCh)){
-      if(6==missingLayers){
-	if(printalot) std::cout<<"missing all layers"<<std::endl;
-      }
-      for(int iLayer=0;iLayer<6;iLayer++){
-	if(missingLayers){
-	  for(unsigned int iRH=0; iRH<sChamber_p->RecHitsPosX[iLayer].size();iRH++){
-	    ChHist[iCh-FirstCh].XvsY_InefficientRecHits->Fill(sChamber_p->RecHitsPosXlocal[iLayer][iRH],
-							      sChamber_p->RecHitsPosYlocal[iLayer][iRH]);
-	  }
-	}
-	//---- Are there rechits in the layer
-	if(sChamber_p->NRecHits[iLayer]>0){
-	  ChHist[iCh-FirstCh].EfficientRechits->Fill(iLayer+1);
-	}
-      }
-      if(6!=missingLayers){
-	ChHist[iCh-FirstCh].EfficientRechits->Fill(8);
-      }
-      ChHist[iCh-FirstCh].EfficientRechits->Fill(9);
-    }
-    //
-    int badhits = 0;
-    int realhit = 0; 
-    for(int iLayer=0;iLayer<6;iLayer++){
-      for(unsigned int iRH=0; iRH<sChamber_p->RecHitsPosX[iLayer].size();iRH++){
-	realhit++;
-	//---- A rechit in "good region"
-	if(!GoodLocalRegion(sChamber_p->RecHitsPosXlocal[iLayer][iRH], 
-			    sChamber_p->RecHitsPosYlocal[iLayer][iRH], 
-			    ExtrapolateToStation, ExtrapolateToRing, iCh)){
-	  badhits++;
-	}
-      }
-    }
+    coupleOfChambers.push_back(chamber_int+1); 
     
-    //---- All rechits are in "good region" (no segment is required in the chamber)
-    if(0!=realhit && 0==badhits ){
-      if(printalot) std::cout<<"good rechits"<<std::endl;
-      for(int iLayer=0;iLayer<6;iLayer++){
-	if(missingLayers){
-	  for(unsigned int iRH=0; iRH<sChamber_p->RecHitsPosX[iLayer].size();iRH++){
-	    ChHist[iCh-FirstCh].XvsY_InefficientRecHits_good->Fill(sChamber_p->RecHitsPosXlocal[iLayer][iRH],
-								   sChamber_p->RecHitsPosYlocal[iLayer][iRH]);
-	  }
-	}
-	if(sChamber_p->NRecHits[iLayer]>0){
-	  ChHist[iCh-FirstCh].EfficientRechits_good->Fill(iLayer+1);
-	}
-      }
-      if(6!=missingLayers){
-	ChHist[iCh-FirstCh].EfficientRechits_good->Fill(8);
-      }
-      ChHist[iCh-FirstCh].EfficientRechits_good->Fill(9);
-    }
-  }
-}
-//
-void CSCEfficiency::RecSimHitEfficiency(void){
-  for(int iCh=0;iCh<LastCh;iCh++){
-    //---- Rechits...
-    ChamberRecHits *sChamber_p =
-      &(*all_RecHits)[WorkInEndcap-1][ExtrapolateToStation-1][ExtrapolateToRing-1][iCh].sChamber;
-    //---- Simhits...
-    ChamberSimHits *sSimChamber_p =
-      &(*all_SimHits)[WorkInEndcap-1][ExtrapolateToStation-1][ExtrapolateToRing-1][iCh].sChamber;
-    for(int iLayer=0; iLayer<6;iLayer++){
-      if(sSimChamber_p->NSimHits[iLayer]){
-	ChHist[iCh].SimSimhits->Fill(iLayer+1);
-	if(sChamber_p->NRecHits[iLayer]){
-	  ChHist[iCh].SimRechits->Fill(iLayer+1);
-	}
-	//---- Next is not too usefull... 
-        for(unsigned int iSimHits=0;iSimHits<sSimChamber_p->SimHitsPosXlocal[iLayer].size();iSimHits++){
-	  ChHist[iCh].SimSimhits_each->Fill(iLayer+1);
-	}
-	for(unsigned int iRecHits=0;iRecHits<sChamber_p->RecHitsPosXlocal[iLayer].size();iRecHits++){
-	  ChHist[iCh].SimRechits_each->Fill(iLayer+1);
-	}
-	//
-      }
-    }
-  }
-}
-//
-bool CSCEfficiency::LCT_Efficiencies(edm::Handle<CSCALCTDigiCollection> alcts, 
-				  edm::Handle<CSCCLCTDigiCollection> clcts, 
-				  edm::Handle<CSCCorrelatedLCTDigiCollection> correlatedlcts, int iCh, int cond){
-  bool result = true;
-  int Nalcts = 0;
-  int Nclcts = 0;
-  int Ncorr = 0;
-  int Nalcts_1ch = 0;
-  int Nclcts_1ch = 0;
-  int Ncorr_1ch = 0;
-
-  //---- ALCTDigis
-  for (CSCALCTDigiCollection::DigiRangeIterator j=alcts->begin(); j!=alcts->end(); j++) {
-    const CSCDetId& id = (*j).first;
-    const CSCALCTDigiCollection::Range& range =(*j).second;
-    for (CSCALCTDigiCollection::const_iterator digiIt =
-	   range.first; digiIt!=range.second;
-	 ++digiIt){
-      //digiIt->print();
-      // Valid digi in the chamber (or in neighbouring chamber) 
-      if(0!=(*digiIt).isValid() && 
-	 id.station()==ExtrapolateToStation && id.ring()==ExtrapolateToRing){
-	if(id.chamber()==iCh){
-	  //std::cout<<"iCh = "<<iCh<<std::endl;
-          //digiIt->print();
-	  Nalcts++;
-	  Nalcts_1ch++;
-	}
-	else if(1==abs(id.chamber()-iCh)){
-	  Nalcts++;
-	}
-      }
-    }// for digis in layer
-  }// end of for (j=...
-
-  //---- CLCTDigis
-  for (CSCCLCTDigiCollection::DigiRangeIterator j=clcts->begin(); j!=clcts->end(); j++) {
-    const CSCDetId& id = (*j).first;
-    std::vector<CSCCLCTDigi>::const_iterator digiIt = (*j).second.first;
-    std::vector<CSCCLCTDigi>::const_iterator last = (*j).second.second;
-    for( ; digiIt != last; ++digiIt) {
-      //digiIt->print();
-      // Valid digi in the chamber (or in neighbouring chamber) 
-      if(0!=(*digiIt).isValid() && 
-	 id.station()==ExtrapolateToStation && id.ring()==ExtrapolateToRing){
-	if(id.chamber()==iCh){
-          //digiIt->print();
-	  //std::cout<<"iCh = "<<iCh<<std::endl;
-	  Nclcts++;
-	  Nclcts_1ch++;
-	}
-	else if(1==abs(id.chamber()-iCh)){
-	  Nclcts++;
-	}
-      }
-    }
-  }
-
-  //---- CorrLCTDigis
-  for (CSCCorrelatedLCTDigiCollection::DigiRangeIterator j=correlatedlcts->begin(); j!=correlatedlcts->end(); j++) {
-    const CSCDetId& id = (*j).first;
-    std::vector<CSCCorrelatedLCTDigi>::const_iterator digiIt = (*j).second.first;
-    std::vector<CSCCorrelatedLCTDigi>::const_iterator last = (*j).second.second;
-    for( ; digiIt != last; ++digiIt) {
-      //digiIt->print();
-      // Valid digi in the chamber (or in neighbouring chamber) 
-      if(0!=(*digiIt).isValid() && 
-	 id.station()==ExtrapolateToStation && id.ring()==ExtrapolateToRing){
-	if(id.chamber()==iCh){
-          //digiIt->print();
-	  //std::cout<<"iCh = "<<iCh<<std::endl;
-	  Ncorr++;
-	  Ncorr_1ch++;
-	}
-	else if(1==abs(id.chamber()-iCh)){
-	  Ncorr++;
-	}
-      }
-    }
-  }
-  //
-  if(Nalcts){
-    if(!Nclcts){
-      if(printalot) std::cout<<"No alct-clct coincidence!"<<std::endl;
-    }
-    //---- Special logic
-    ChHist[iCh-FirstCh].EfficientLCTs->Fill(1);
-    if(Nalcts_1ch){
-      ChHist[iCh-FirstCh].EfficientLCTs->Fill(11);
-      if(cond){
-	ChHist[iCh-FirstCh].EfficientLCTs->Fill(21);
-	dydz_Eff_ALCT->Fill(seg_dydz);
-      }
-    }
   }
   else{
-    if(cond){
-      result = false;
-    }
-  //std::cout<<"no ALCT!!!"<<std::endl;
-  }
-
-  if(Nclcts){
-    ChHist[iCh-FirstCh].EfficientLCTs->Fill(3);
-    if(Nclcts_1ch){
-      ChHist[iCh-FirstCh].EfficientLCTs->Fill(13);
-      if(cond){
-	ChHist[iCh-FirstCh].EfficientLCTs->Fill(23);
-      }
+    coupleOfChambers.push_back(chamber_int+1);
+    if(last_chamber!=chamber_int+1){
+      coupleOfChambers.push_back(chamber_int+2);
+    } 
+    else{
+      coupleOfChambers.push_back(first_chamber);
     }
   }
-
-  if(Ncorr){
-    ChHist[iCh-FirstCh].EfficientLCTs->Fill(5);
-    if(Ncorr_1ch){
-      ChHist[iCh-FirstCh].EfficientLCTs->Fill(15);
-      if(cond){
-	ChHist[iCh-FirstCh].EfficientLCTs->Fill(25);
-      }
-    }
-  }
-  ChHist[iCh-FirstCh].EfficientLCTs->Fill(30);
-  if(cond){
-    if(!Nalcts) if(printalot) std::cout<<"NO ALCT!"<<std::endl;
-    ChHist[iCh-FirstCh].EfficientLCTs->Fill(28);
-    dydz_All_ALCT->Fill(seg_dydz);
-  }
-  return result;
+  if (printalot) std::cout<<" phi = "<<phi<<" phi_zero = "<<phi_zero<<" phi_const = "<<phi_const<<
+    " candidate chambers: first ch = "<<coupleOfChambers[0]<<" second ch = "<<coupleOfChambers[1]<<std::endl;
 }
-//
-void CSCEfficiency::StripWire_Efficiencies( int iCh){
-  int EndCap = WorkInEndcap -1;
-  int Ring = ExtrapolateToRing - 1;
-  int Station = ExtrapolateToStation - 1;
 
+//
+bool CSCEfficiency::digisPerChamber(CSCDetId & id, const CSCChamber* cscChamber, FreeTrajectoryState &ftsChamber){
+  int ec, st, rg, ch, secondRing;
+  returnTypes(id, ec, st, rg, ch, secondRing);
+  
+  // Segments
+  bool firstCondition = allSegments[ec][st][rg][ch].size() ? true : false;
+  bool secondCondition = false;
+  //---- ME1 is special as usual - ME1a and ME1b are actually one chamber
+  if(secondRing>-1){
+    secondCondition = allSegments[ec][st][secondRing][ch].size() ? true : false;
+  }
+  if(firstCondition || secondCondition){
+    ChHist[ec][st][rg][ch].digiAppearanceCount->Fill(1);
+  }
+  else{
+    ChHist[ec][st][rg][ch].digiAppearanceCount->Fill(0);
+  }
+
+  LocalVector localDir = cscChamber->toLocal(ftsChamber.momentum());
+  // ALCTs
+  firstCondition = allALCT[ec][st][rg][ch];
+  secondCondition = false;
+  if(secondRing>-1){
+    secondCondition = allALCT[ec][st][secondRing][ch];
+  }
+  if(firstCondition || secondCondition){
+    ChHist[ec][st][rg][ch].digiAppearanceCount->Fill(3);
+    StHist[ec][st].EfficientALCT_momTheta->Fill(ftsChamber.momentum().theta());
+    ChHist[ec][st][rg][ch].EfficientALCT_theta->Fill(localDir.theta());
+  }
+  else{
+    ChHist[ec][st][rg][ch].digiAppearanceCount->Fill(2);
+    StHist[ec][st].InefficientALCT_momTheta->Fill(ftsChamber.momentum().theta());
+    ChHist[ec][st][rg][ch].InefficientALCT_theta->Fill(localDir.theta());
+  }
+
+  // CLCTs
+  firstCondition = allCLCT[ec][st][rg][ch];
+  secondCondition = false;
+  if(secondRing>-1){
+    secondCondition = allCLCT[ec][st][secondRing][ch];
+  }
+  if(firstCondition || secondCondition){
+    ChHist[ec][st][rg][ch].digiAppearanceCount->Fill(5);
+    StHist[ec][st].EfficientCLCT_momPhi->Fill(ftsChamber.momentum().phi() );// - phi chamber...
+    ChHist[ec][st][rg][ch].EfficientCLCT_phi->Fill(localDir.phi());
+  }
+  else{
+    ChHist[ec][st][rg][ch].digiAppearanceCount->Fill(4);
+    StHist[ec][st].InefficientCLCT_momPhi->Fill(ftsChamber.momentum().phi());// - phi chamber...
+    ChHist[ec][st][rg][ch].InefficientCLCT_phi->Fill(localDir.phi());
+  }
+
+  // CorrLCTs
+  firstCondition = allCorrLCT[ec][st][rg][ch];
+  secondCondition = false;
+  if(secondRing>-1){
+    secondCondition = allCorrLCT[ec][st][secondRing][ch];
+  }
+  if(firstCondition || secondCondition){
+    ChHist[ec][st][rg][ch].digiAppearanceCount->Fill(7);
+  }
+  else{
+    ChHist[ec][st][rg][ch].digiAppearanceCount->Fill(6);
+  }
+
+  return true;
+}
+
+//
+bool CSCEfficiency::stripWire_Efficiencies(CSCDetId & id, FreeTrajectoryState &ftsChamber){
+  int ec, st, rg, ch, secondRing;
+  returnTypes(id, ec, st, rg, ch, secondRing);
+
+  bool firstCondition, secondCondition;
   int missingLayers_s = 0;
   int missingLayers_wg = 0;
-  int badhits_s = 0;
-  int badhits_wg = 0;
-
- //----Strips
   for(int iLayer=0;iLayer<6;iLayer++){
-    if(!AllStrips[EndCap][Station][Ring][iCh-FirstCh][iLayer].size()){
-      missingLayers_s++;
+ //----Strips
+    if(printalot){ 
+      printf("\t%i swEff: \tendcap/station/ring/chamber/layer: %i/%i/%i/%i/%i\n",
+	     iLayer + 1,id.endcap(),id.station(),id.ring(),id.chamber(),iLayer+1);
+      std::cout<<" size S = "<<allStrips[id.endcap()-1][id.station()-1][id.ring()-1][id.chamber()-FirstCh][iLayer].size()<<
+	"size W = "<<allWG[id.endcap()-1][id.station()-1][id.ring()-1][id.chamber()-FirstCh][iLayer].size()<<std::endl;
+
     }
-    for(unsigned int iStrip=0; 
-	iStrip<AllStrips[EndCap][Station][Ring][iCh-FirstCh][iLayer].size();
-	iStrip++){
-      //---- better?
-      int Nstrips =80;
-      int Step = 10;
-      if(1==ExtrapolateToStation && 3==ExtrapolateToRing){
-	Nstrips =64;
+    firstCondition = allStrips[ec][st][rg][ch][iLayer].size() ? true : false;
+    //allSegments[ec][st][rg][ch].size() ? true : false;
+    secondCondition = false;
+    if(secondRing>-1){
+      secondCondition = allStrips[ec][st][secondRing][ch][iLayer].size() ? true : false;
+    }
+    if(firstCondition || secondCondition){
+      ChHist[ec][st][rg][ch].EfficientStrips->Fill(iLayer+1);
+    }
+    else{
+      if(printalot){ 
+	std::cout<<"missing strips ";
+	printf("\t\tendcap/station/ring/chamber/layer: %i/%i/%i/%i/%i\n",id.endcap(),id.station(),id.ring(),id.chamber(),iLayer+1);
       }
-      //---- away from boundaries
-      if(AllStrips[EndCap][Station][Ring][iCh-FirstCh][iLayer][iStrip].first<Step ||
-	 AllStrips[EndCap][Station][Ring][iCh-FirstCh][iLayer][iStrip].first>(Nstrips-Step) ){
-	badhits_s++;
+    }
+    // Wires
+    firstCondition = allWG[ec][st][rg][ch][iLayer].size() ? true : false;
+    secondCondition = false;
+    if(secondRing>-1){
+      secondCondition = allWG[ec][st][secondRing][ch][iLayer].size() ? true : false;
+    }
+    if(firstCondition || secondCondition){
+      ChHist[ec][st][rg][ch].EfficientWireGroups->Fill(iLayer+1);
+    }
+    else{
+      if(printalot){ 
+	std::cout<<"missing wires ";
+	printf("\t\tendcap/station/ring/chamber/layer: %i/%i/%i/%i/%i\n",id.endcap(),id.station(),id.ring(),id.chamber(),iLayer+1);
       }
     }
   }
-
-  //---- Wire groups
-  for(int iLayer=0;iLayer<6;iLayer++){
-    if(!AllWG[EndCap][Station][Ring][iCh-FirstCh][iLayer].size()){
-      missingLayers_wg++;
+  // Normalization
+  if(6!=missingLayers_s){
+    ChHist[ec][st][rg][ch].EfficientStrips->Fill(8);
+  }
+  if(6!=missingLayers_wg){
+    ChHist[ec][st][rg][ch].EfficientWireGroups->Fill(8);
+  }
+  ChHist[ec][st][rg][ch].EfficientStrips->Fill(9);
+  ChHist[ec][st][rg][ch].EfficientWireGroups->Fill(9);
+//
+  ChHist[ec][st][rg][ch].StripWiresCorrelations->Fill(1);
+  if(missingLayers_s!=missingLayers_wg){
+    ChHist[ec][st][rg][ch].StripWiresCorrelations->Fill(2);
+    if(6==missingLayers_wg){
+      ChHist[ec][st][rg][ch].StripWiresCorrelations->Fill(3);
+      ChHist[ec][st][rg][ch].NoWires_momTheta->Fill(ftsChamber.momentum().theta());
     }
-    for(unsigned int iWG=0; 
-	iWG<AllWG[EndCap][Station][Ring][iCh-FirstCh][iLayer].size();
-	iWG++){
-      if(!GoodLocalRegion(0.,
-			  AllWG[EndCap][Station][Ring][iCh-FirstCh][iLayer][iWG].first.second, 
-			  ExtrapolateToStation, ExtrapolateToRing, iCh)){
-	badhits_wg++;
-      }
+    if(6==missingLayers_s){
+      ChHist[ec][st][rg][ch].StripWiresCorrelations->Fill(4);
+      ChHist[ec][st][rg][ch].NoStrips_momPhi->Fill(ftsChamber.momentum().theta());
     }
   }
-  //
+  else if(6==missingLayers_s){
+    ChHist[ec][st][rg][ch].StripWiresCorrelations->Fill(5);
+  }
 
-
-  //
- //----Strips
-  if(0==badhits_s && 0==badhits_wg){
-    if(printalot){
-      if(6!=missingLayers_wg){
-	if(printalot) std::cout<<"good strips"<<std::endl;
+  return true;	
+}
+//
+bool CSCEfficiency::recSimHitEfficiency(CSCDetId & id, FreeTrajectoryState &ftsChamber){
+  int ec, st, rg, ch, secondRing;
+  returnTypes(id, ec, st, rg, ch, secondRing);
+  bool firstCondition, secondCondition;
+  for(int iLayer=0; iLayer<6;iLayer++){
+    firstCondition = allSimhits[ec][st][rg][ch][iLayer].size() ? true : false;
+    secondCondition = false;
+    int thisRing = rg;
+    if(secondRing>-1){
+      secondCondition = allSimhits[ec][st][secondRing][ch][iLayer].size() ? true : false;
+      if(secondCondition){
+	thisRing = secondRing;
       }
     }
-    for(int iLayer=0;iLayer<6;iLayer++){
-      if(AllStrips[EndCap][Station][Ring][iCh-FirstCh][iLayer].size()>0){
-	ChHist[iCh-FirstCh].EfficientStrips->Fill(iLayer+1);
+    if(firstCondition || secondCondition){
+      for(uint iSH=0;
+	  iSH<allSimhits[ec][st][thisRing][ch][iLayer].size();
+	  ++iSH){
+	if(13 ==
+	   fabs(allSimhits[ec][st][thisRing][ch][iLayer][iSH].second)){
+	  ChHist[ec][st][rg][ch].SimSimhits->Fill(iLayer+1);
+	  if(allRechits[ec][st][thisRing][ch][iLayer].size()){
+	    ChHist[ec][st][rg][ch].SimRechits->Fill(iLayer+1);
+	  }
+	  break;
+	}
       }
-      else{
-	if(6!=missingLayers_s){
-	  if(printalot) std::cout<<"missing strips iLayer+1 = "<<iLayer+1<<std::endl;
+      //---- Next is not too usefull... 
+      /*
+      for(unsigned int iSimHits=0;
+	  iSimHits<allSimhits[id.endcap()-1][id.station()-1][id.ring()-1][id.chamber()-FirstCh][iLayer].size();
+	  iSimHits++){
+	ChHist[ec][st][rg][id.chamber()-FirstCh].SimSimhits_each->Fill(iLayer+1);
+      }
+      for(unsigned int iRecHits=0;
+	  iRecHits<allRechits[id.endcap()-1][id.station()-1][id.ring()-1][id.chamber()-FirstCh][iLayer].size();
+	  iRecHits++){
+	ChHist[ec][st][rg][id.chamber()-FirstCh].SimRechits_each->Fill(iLayer+1);
+      }
+      */
+      //
+    }   
+  }
+  return true;
+}
+
+//
+bool CSCEfficiency::recHitSegment_Efficiencies(CSCDetId & id, const CSCChamber* cscChamber, FreeTrajectoryState &ftsChamber){
+  int ec, st, rg, ch, secondRing;
+  returnTypes(id, ec, st, rg, ch, secondRing);
+  bool firstCondition, secondCondition;
+
+  std::vector <bool> missingLayers_rh(6);
+  std::vector <int> usedInSegment(6);
+  // Rechits
+  if(printalot) std::cout<<"RecHits eff"<<std::endl;
+  for(int iLayer=0;iLayer<6;++iLayer){
+    firstCondition = allRechits[ec][st][rg][ch][iLayer].size() ? true : false;
+    secondCondition = false;
+    int thisRing = rg;
+    if(secondRing>-1){
+      secondCondition = allRechits[ec][st][secondRing][ch][iLayer].size() ? true : false;
+      if(secondCondition){
+	thisRing = secondRing;
+      }
+    }
+    if(firstCondition || secondCondition){
+      ChHist[ec][st][rg][ch].EfficientRechits_good->Fill(iLayer+1);
+      for(uint iR=0;
+	  iR<allRechits[ec][st][thisRing][ch][iLayer].size();
+	  ++iR){
+	if(allRechits[ec][st][thisRing][ch][iLayer][iR].second){
+	  usedInSegment[iLayer] = 1;
+	  break;
+	}
+	else{
+	  usedInSegment[iLayer] = -1;
 	}
       }
     }
-    if(6!=missingLayers_s){
-      ChHist[iCh-FirstCh].EfficientStrips->Fill(8);
-    }
-    ChHist[iCh-FirstCh].EfficientStrips->Fill(9);
-  }
-
-  //---- Wire groups
-
-  if(0==badhits_wg && 0==badhits_s){
-    if(printalot){
-      if(6!=missingLayers_wg){
-	if(printalot) std::cout<<"good WG"<<std::endl;
+    else{
+      missingLayers_rh[iLayer] = true;
+      if(printalot){
+	std::cout<<"missing rechits ";
+	printf("\t\tendcap/station/ring/chamber/layer: %i/%i/%i/%i/%i\n",id.endcap(),id.station(),id.ring(),id.chamber(),iLayer+1);
       }
     }
-    for(int iLayer=0;iLayer<6;iLayer++){
-      if(AllWG[EndCap][Station][Ring][iCh-FirstCh][iLayer].size()>0){
-	ChHist[iCh-FirstCh].EfficientWireGroups->Fill(iLayer+1);
+  }
+  GlobalVector globalDir;
+  GlobalPoint globalPos;
+ // Segments
+  firstCondition = allSegments[ec][st][rg][ch].size() ? true : false;
+  secondCondition = false;
+  int secondSize = 0;
+  int thisRing = rg;
+  if(secondRing>-1){
+    secondCondition = allSegments[ec][st][secondRing][ch].size() ? true : false;
+    secondSize = allSegments[ec][st][secondRing][ch].size();
+    if(secondCondition){
+      thisRing = secondRing;
+    }
+  }
+  if(firstCondition || secondCondition){
+    if (printalot) std::cout<<"segments - start ec = "<<ec<<" st = "<<st<<" rg = "<<rg<<" ch = "<<ch<<std::endl;
+    StHist[ec][st].EfficientSegments_XY->Fill(ftsChamber.position().x(),ftsChamber.position().y());
+    if(1==allSegments[ec][st][rg][ch].size() + secondSize){
+      globalDir = cscChamber->toGlobal(allSegments[ec][st][thisRing][ch][0].second);
+      globalPos = cscChamber->toGlobal(allSegments[ec][st][thisRing][ch][0].first);
+      StHist[ec][st].EfficientSegments_eta->Fill(fabs(ftsChamber.position().eta()));
+      double residual = sqrt(pow(ftsChamber.position().x() - globalPos.x(),2)+
+			     pow(ftsChamber.position().y() - globalPos.y(),2)+
+			     pow(ftsChamber.position().z() - globalPos.z(),2));
+      if (printalot) std::cout<<" fts.position() = "<<ftsChamber.position()<<" segPos = "<<globalPos<<" res = "<<residual<< std::endl;
+      StHist[ec][st].ResidualSegments->Fill(residual);
+    }
+    for(int iLayer=0;iLayer<6;++iLayer){
+      if(printalot) std::cout<<" iLayer = "<<iLayer<<" usedInSegment = "<<usedInSegment[iLayer]<<std::endl;
+      if(0!=usedInSegment[iLayer]){
+	if(-1==usedInSegment[iLayer]){
+	  ChHist[ec][st][rg][ch].InefficientSingleHits->Fill(iLayer+1);
+	}
+	ChHist[ec][st][rg][ch].AllSingleHits->Fill(iLayer+1);
+      }
+      firstCondition = allRechits[ec][st][rg][ch][iLayer].size() ? true : false;
+      secondCondition = false;
+      if(secondRing>-1){
+	secondCondition = allRechits[ec][st][secondRing][ch][iLayer].size() ? true : false;
+      }
+      std::vector<float> posXY(2);
+      bool oneSegment = false;
+      if(1==allSegments[ec][st][rg][ch].size() + secondSize){
+	oneSegment = true;
+	const BoundPlane bp = cscChamber->layer(iLayer+1)->surface();
+	linearExtrapolation(globalPos,globalDir, bp.position().z(), posXY);
+      }
+      if(firstCondition || secondCondition){
+	ChHist[ec][st][rg][ch].EfficientRechits_inSegment->Fill(iLayer+1);
+	if(oneSegment){
+	  ChHist[ec][st][rg][ch].Y_EfficientRecHits_inSegment[iLayer]->Fill(posXY.at(1));
+	}
       }
       else{
-	if(6!=missingLayers_wg){
-	  if(printalot) std::cout<<"missing WG iLayer+1 = "<<iLayer+1<<std::endl;
+	if(oneSegment){
+	  ChHist[ec][st][rg][ch].Y_InefficientRecHits_inSegment[iLayer]->Fill(posXY.at(1));
 	}
       }
     }
-    if(6!=missingLayers_wg){
-      ChHist[iCh-FirstCh].EfficientWireGroups->Fill(8);
-    }
-    ChHist[iCh-FirstCh].EfficientWireGroups->Fill(9);
   }
+  else{
+    StHist[ec][st].InefficientSegments_XY->Fill(ftsChamber.position().x(),ftsChamber.position().y());
+    if(printalot){
+      std::cout<<"missing segment "<<std::endl;
+      printf("\t\tendcap/station/ring/chamber: %i/%i/%i/%i\n",id.endcap(),id.station(),id.ring(),id.chamber());
+      std::cout<<" fts.position() = "<<ftsChamber.position()<<std::endl;
+    }
+  }
+  // Normalization
+  ChHist[ec][st][rg][ch].EfficientRechits_good->Fill(8);
+  if(allSegments[ec][st][rg][ch].size()+secondSize<2){
+    StHist[ec][st].AllSegments_eta->Fill(fabs(ftsChamber.position().eta()));
+  }
+  ChHist[ec][st][rg][id.chamber()-FirstCh].EfficientRechits_inSegment->Fill(9);
+
+  return true;
 }
 //
-void CSCEfficiency::Segment_Efficiency(int iCh,  int NSegmentsFound, double theta){
-  ChamberRecHits *sChamber_p =
-    &(*all_RecHits)[WorkInEndcap-1][ExtrapolateToStation-1][ExtrapolateToRing-1][iCh-FirstCh].sChamber;
-  int missingLayers = 0;
-  for(int iLayer=0;iLayer<6;iLayer++){
-    if(!sChamber_p->RecHitsPosX[iLayer].size()){
-      missingLayers++;
-    }
+void CSCEfficiency::returnTypes(CSCDetId & id, int &ec, int &st, int &rg, int &ch, int &secondRing){
+  ec = id.endcap()-1;
+  st = id.station()-1;
+  rg = id.ring()-1;
+  secondRing = -1;
+  if(1==id.station() && (4==id.ring() || 1==id.ring()) ){
+    rg = 0;
+    secondRing = 3;
   }
-  if(missingLayers<5){
-    if(NSegmentsFound){
-      EfficientSegments->Fill(iCh);
-      EfficientSegments_theta->Fill(theta);
-    }
-    AllSegments->Fill(iCh);
-    AllSegments_theta->Fill(theta);
-  }
+  ch = id.chamber()-FirstCh;
+}
+
+//
+void CSCEfficiency::getFromFTS( const FreeTrajectoryState& fts,
+				Hep3Vector& p3, Hep3Vector& r3,
+				int& charge, AlgebraicSymMatrix66& cov){
+  
+  GlobalVector p3GV = fts.momentum();
+  GlobalPoint r3GP = fts.position();
+
+  p3.set(p3GV.x(), p3GV.y(), p3GV.z());
+  r3.set(r3GP.x(), r3GP.y(), r3GP.z());
+
+  charge = fts.charge();
+  cov = fts.hasError() ? fts.cartesianError().matrix() : AlgebraicSymMatrix66();
+
+}
+
+FreeTrajectoryState CSCEfficiency::getFromCLHEP(const Hep3Vector& p3, const Hep3Vector& r3,
+                                                       int charge, const AlgebraicSymMatrix66& cov,
+                                                       const MagneticField* field){
+
+  GlobalVector p3GV(p3.x(), p3.y(), p3.z());
+  GlobalPoint r3GP(r3.x(), r3.y(), r3.z());
+  GlobalTrajectoryParameters tPars(r3GP, p3GV, charge, field);
+
+  CartesianTrajectoryError tCov(cov);
+
+  return cov.kRows == 6 ? FreeTrajectoryState(tPars, tCov) : FreeTrajectoryState(tPars) ;
+}
+
+void CSCEfficiency::linearExtrapolation(GlobalPoint initialPosition ,GlobalVector initialDirection, 
+					float zSurface, std::vector <float> &posZY){
+  double paramLine =  lineParameter(initialPosition.z(), zSurface, initialDirection.z());
+  double xPosition = extrapolate1D(initialPosition.x(), initialDirection.x(),paramLine);
+  double yPosition = extrapolate1D(initialPosition.y(), initialDirection.y(),paramLine);
+  posZY.clear();
+  posZY.push_back(xPosition);
+  posZY.push_back(yPosition);
 }
 //
-void CSCEfficiency::getEfficiency(float bin, float Norm, std::vector<float> &eff){
-  //---- Efficiency with binomial error
-  float Efficiency = 0.;
-  float EffError = 0.;
-  if(fabs(Norm)>0.000000001){
-    Efficiency = bin/Norm;
-    if(bin<Norm){
-      EffError = sqrt( (1.-Efficiency)*Efficiency/Norm );
-    }
-  }
-  eff[0] = Efficiency;
-  eff[1] = EffError;
+double CSCEfficiency::extrapolate1D(double initPosition, double initDirection, double parameterOfTheLine){
+  double extrapolatedPosition = initPosition + initDirection*parameterOfTheLine;
+  return extrapolatedPosition;
 }
 //
-void CSCEfficiency::histoEfficiency(TH1F *readHisto, TH1F *writeHisto, int flag){
+double CSCEfficiency::lineParameter(double initZPosition, double destZPosition, double initZDirection){
+  double paramLine = (destZPosition-initZPosition)/initZDirection;
+  return paramLine;
+}
+
+
+// Constructor
+CSCEfficiency::CSCEfficiency(const ParameterSet& pset){
+
+  // const float Xmin = -70;
+  //const float Xmax = 70;
+  //const int nXbins = int(4.*(Xmax - Xmin));
+  const float Ymin = -165;
+  const float Ymax = 165;
+  const int nYbins = int((Ymax - Ymin)/2);
+  const float Layer_min = -0.5;
+  const float Layer_max = 9.5;
+  const int nLayer_bins = int(Layer_max - Layer_min);
+  //
+
+  //---- Get the input parameters
+  printout_NEvents  = pset.getUntrackedParameter<uint>("printout_NEvents",0);
+  rootFileName     = pset.getUntrackedParameter<string>("rootFileName","cscHists.root");
+
+  isData  = pset.getUntrackedParameter<bool>("runOnData",true);// 
+  isIPdata  = pset.getUntrackedParameter<bool>("IPdata",false);// 
+  useDigis = pset.getUntrackedParameter<bool>("useDigis", true);// 
+  distanceFromDeadZone = pset.getUntrackedParameter<double>("distanceFromDeadZone", 10.);// 
+  minP = pset.getUntrackedParameter<double>("minP",10.);//
+  maxP = pset.getUntrackedParameter<double>("maxP",100.);//
+  maxNormChi2 = pset.getUntrackedParameter<double>("maxNormChi2", 3.);//
+  minTrackHits = pset.getUntrackedParameter<uint>("minTrackHits",10);//
+
+
+  alctDigiTag_  = pset.getParameter<edm::InputTag>("alctDigiTag") ;
+  clctDigiTag_  = pset.getParameter<edm::InputTag>("clctDigiTag") ;
+  corrlctDigiTag_  = pset.getParameter<edm::InputTag>("corrlctDigiTag") ;
+  stripDigiTag_  = pset.getParameter<edm::InputTag>("stripDigiTag") ;
+  wireDigiTag_ = pset.getParameter<edm::InputTag>("wireDigiTag") ;
+  rechitDigiTag_ = pset.getParameter<edm::InputTag>("rechitDigiTag") ;
+  segmentDigiTag_ = pset.getParameter<edm::InputTag>("segmentDigiTag") ;
+  simHitTag     = pset.getParameter<edm::InputTag>("simHitTag");
+  tracksTag = pset.getParameter< edm::InputTag >("tracksTag");
+
+  ParameterSet serviceParameters = pset.getParameter<ParameterSet>("ServiceParameters");
+  theService        = new MuonServiceProxy(serviceParameters);
+
+
+  //---- set counter to zero
+  nEventsAnalyzed = 0;
+  //---- set presence of magnetic field
+  magField = true;
+  //
+  std::string Path = "AllChambers/";
+  std::string FullName;
+  //---- File with output histograms 
+  theFile = new TFile(rootFileName.c_str(), "RECREATE");
+  theFile->cd();
+  //---- Book histograms for the analysis
+  char SpecName[50];
+  
+  sprintf(SpecName,"DataFlow"); 
+  DataFlow =  
+    new TH1F(SpecName,"Data flow;condition number;entries",30,-0.5,29.5);
+  //
+  int Chan = 50;
+  float minChan = -0.5;
+  float maxChan = 49.5;
+  //sprintf(SpecName,"AllSegments_theta__ndf"); 
+
+
+  //
+  sprintf(SpecName,"ALCTPerEvent");    
+  ALCTPerEvent = new TH1F(SpecName,"ALCTs per event;N digis;entries",Chan,minChan,maxChan);
+  //
+  sprintf(SpecName,"CLCTPerEvent");    
+  CLCTPerEvent = new TH1F(SpecName,"CLCTs per event;N digis;entries",Chan,minChan,maxChan);
+  //
+    sprintf(SpecName,"recHitsPerEvent");    
+  recHitsPerEvent = new TH1F(SpecName,"RecHits per event;N digis;entries",150,-0.5,149.5);
+  //
+  sprintf(SpecName,"segmentsPerEvent");    
+  segmentsPerEvent = new TH1F(SpecName,"segments per event;N digis;entries",Chan,minChan,maxChan);
+  //
+  //---- Book groups of histograms (for any chamber)
+
+  map<std::string,bool>::iterator iter;  
+  for(int ec = 0;ec<2;++ec){
+    for(int st = 0;st<4;++st){
+      theFile->cd();
+      sprintf(SpecName,"Stations__E%d_S%d",ec+1, st+1);
+      theFile->mkdir(SpecName);
+      theFile->cd(SpecName);
+
+      //
+      sprintf(SpecName,"segmentChi2_ndf_St%d",st+1);
+      StHist[ec][st].segmentChi2_ndf = 
+	new TH1F(SpecName,"Chi2/ndf of a segment;chi2/ndf;entries",100,0.,20.);
+      //
+      sprintf(SpecName,"hitsInSegment_St%d",st+1);
+      StHist[ec][st].hitsInSegment = 
+	new TH1F(SpecName,"Number of hits in a segment;nHits;entries",7,-0.5,6.5);
+      //
+      Chan = 170;
+      minChan = 0.85;
+      maxChan = 2.55;
+      //
+      sprintf(SpecName,"AllSegments_eta_St%d",st+1);
+      StHist[ec][st].AllSegments_eta = 
+	new TH1F(SpecName,"All segments in eta;eta;entries",Chan,minChan,maxChan);
+      //
+      sprintf(SpecName,"EfficientSegments_eta_St%d",st+1);
+      StHist[ec][st].EfficientSegments_eta = 
+	new TH1F(SpecName,"Efficient segments in eta;eta;entries",Chan,minChan,maxChan);
+      //
+      sprintf(SpecName,"ResidualSegments_St%d",st+1);
+      StHist[ec][st].ResidualSegments = 
+	new TH1F(SpecName,"Residual (segments);residual,cm;entries",75,0.,15.);
+      //
+      Chan = 200;
+      minChan = -800.;
+      maxChan = 800.;
+      int Chan2 = 200;
+      float minChan2 = -800.;
+      float maxChan2 = 800.;
+      
+      sprintf(SpecName,"EfficientSegments_XY_St%d",st+1);
+      StHist[ec][st].EfficientSegments_XY = new TH2F(SpecName,"Efficient segments in XY;X;Y",
+						     Chan,minChan,maxChan,Chan2,minChan2,maxChan2);
+      sprintf(SpecName,"InefficientSegments_XY_St%d",st+1);
+      StHist[ec][st].InefficientSegments_XY = new TH2F(SpecName,"Inefficient segments in XY;X;Y",
+						       Chan,minChan,maxChan,Chan2,minChan2,maxChan2);
+      //
+      Chan = 80;
+      minChan = 0;
+      maxChan = 3.2;
+      sprintf(SpecName,"EfficientALCT_momTheta_St%d",st+1);
+      StHist[ec][st].EfficientALCT_momTheta = new TH1F(SpecName,"Efficient ALCT in theta (momentum);theta, rad;entries",
+						       Chan,minChan,maxChan);
+      //
+      sprintf(SpecName,"InefficientALCT_momTheta_St%d",st+1);
+      StHist[ec][st].InefficientALCT_momTheta = new TH1F(SpecName,"Inefficient ALCT in theta (momentum);theta, rad;entries",
+							 Chan,minChan,maxChan);
+      //
+      Chan = 160;
+      minChan = -3.2;
+      maxChan = 3.2;
+      sprintf(SpecName,"EfficientCLCT_momPhi_St%d",st+1);
+      StHist[ec][st].EfficientCLCT_momPhi = new TH1F(SpecName,"Efficient CLCT in phi (momentum);phi, rad;entries",
+						     Chan,minChan,maxChan);
+      //
+      sprintf(SpecName,"InefficientCLCT_momPhi_St%d",st+1);
+      StHist[ec][st].InefficientCLCT_momPhi = new TH1F(SpecName,"Inefficient CLCT in phi (momentum);phi, rad;entries",
+						       Chan,minChan,maxChan);
+      //
+      theFile->cd();
+      for(int rg = 0;rg<3;++rg){
+	if(0!=st && rg>1){
+	  continue;
+	}
+	else if(1==rg && 3==st){
+	  continue;
+	}
+	for(int iChamber=FirstCh;iChamber<FirstCh+NumCh;iChamber++){
+	  if(0!=st && 0==rg && iChamber >18){
+	    continue;
+	  }
+	  theFile->cd();
+	  sprintf(SpecName,"Chambers__E%d_S%d_R%d_Chamber_%d",ec+1, st+1, rg+1,iChamber);
+	  theFile->mkdir(SpecName);
+	  theFile->cd(SpecName);
+	  //
+
+	  sprintf(SpecName,"EfficientRechits_inSegment_Ch%d",iChamber);
+	  ChHist[ec][st][rg][iChamber-FirstCh].EfficientRechits_inSegment = 
+	    new TH1F(SpecName,"Existing RecHit given a segment;layers (1-6);entries",nLayer_bins,Layer_min,Layer_max);
+	  //
+	  sprintf(SpecName,"InefficientSingleHits_Ch%d",iChamber);
+	  ChHist[ec][st][rg][iChamber-FirstCh].InefficientSingleHits = 
+	    new TH1F(SpecName,"Single RecHits not in the segment;layers (1-6);entries ",nLayer_bins,Layer_min,Layer_max);
+	  //
+	  sprintf(SpecName,"AllSingleHits_Ch%d",iChamber);
+	  ChHist[ec][st][rg][iChamber-FirstCh].AllSingleHits = 
+	    new TH1F(SpecName,"Single RecHits given a segment; layers (1-6);entries",nLayer_bins,Layer_min,Layer_max);
+	  //
+	  sprintf(SpecName,"digiAppearanceCount_Ch%d",iChamber);
+	  ChHist[ec][st][rg][iChamber-FirstCh].digiAppearanceCount = 
+	    new TH1F(SpecName,"Digi appearance (no-yes): segment(0,1), ALCT(2,3), CLCT(4,5), CorrLCT(6,7); digi type;entries",
+		     8,-0.5,7.5);
+	  //
+	  Chan = 80;
+	  minChan = 0;
+	  maxChan = 3.2;
+	  sprintf(SpecName,"EfficientALCT_theta_Ch%d",iChamber);
+	  ChHist[ec][st][rg][iChamber-FirstCh].EfficientALCT_theta = 
+	    new TH1F(SpecName,"Efficient ALCT; local theta;entries",
+		     Chan, minChan, maxChan);
+	  //
+	  sprintf(SpecName,"InefficientALCT_theta_Ch%d",iChamber);
+	  ChHist[ec][st][rg][iChamber-FirstCh].InefficientALCT_theta = 
+	    new TH1F(SpecName,"Inefficient ALCT; local theta;entries",
+		     Chan, minChan, maxChan);
+	  //
+	  Chan = 160;
+	  minChan = -3.2;
+	  maxChan = 3.2;
+	  sprintf(SpecName,"EfficientCLCT_theta_Ch%d",iChamber);
+	  ChHist[ec][st][rg][iChamber-FirstCh].EfficientCLCT_phi = 
+	    new TH1F(SpecName,"Efficient CLCT; local phi;entries",
+		     Chan, minChan, maxChan);
+	  //
+	  sprintf(SpecName,"InefficientCLCT_theta_Ch%d",iChamber);
+	  ChHist[ec][st][rg][iChamber-FirstCh].InefficientCLCT_phi = 
+	    new TH1F(SpecName,"Inefficient CLCT; local phi;entries",
+		     Chan, minChan, maxChan);
+	  //
+	  sprintf(SpecName,"EfficientRechits_good_Ch%d",iChamber);
+	  ChHist[ec][st][rg][iChamber-FirstCh].EfficientRechits_good = 
+	    new TH1F(SpecName,"Existing RecHit - sensitive area only;layers (1-6);entries",nLayer_bins,Layer_min,Layer_max);
+	  //
+	  sprintf(SpecName,"EfficientStrips_Ch%d",iChamber);
+	  ChHist[ec][st][rg][iChamber-FirstCh].EfficientStrips = 
+	    new TH1F(SpecName,"Existing strip;layer (1-6); entries",nLayer_bins,Layer_min,Layer_max);
+	  //
+	  sprintf(SpecName,"EfficientWireGroups_Ch%d",iChamber);
+	  ChHist[ec][st][rg][iChamber-FirstCh].EfficientWireGroups = 
+	    new TH1F(SpecName,"Existing WireGroups;layer (1-6); entries ",nLayer_bins,Layer_min,Layer_max);
+	  //
+	  sprintf(SpecName,"StripWiresCorrelations_Ch%d",iChamber);
+	  ChHist[ec][st][rg][iChamber-FirstCh].StripWiresCorrelations = 
+	    new TH1F(SpecName,"StripWire correlations;; entries ",5,0.5,5.5);
+	  //
+	  Chan = 80;
+	  minChan = 0;
+	  maxChan = 3.2;
+	  sprintf(SpecName,"NoWires_momTheta_Ch%d",iChamber);
+	  ChHist[ec][st][rg][iChamber-FirstCh].NoWires_momTheta = 
+	    new TH1F(SpecName,"No wires (all strips present) - in theta (momentum);theta, rad;entries",
+		     Chan,minChan,maxChan);
+	  //
+	  Chan = 160;
+	  minChan = -3.2;
+	  maxChan = 3.2;
+	  sprintf(SpecName,"NoStrips_momPhi_Ch%d",iChamber);
+	  ChHist[ec][st][rg][iChamber-FirstCh].NoStrips_momPhi = 
+	    new TH1F(SpecName,"No strips (all wires present) - in phi (momentum);phi, rad;entries",
+		     Chan,minChan,maxChan);
+	  //
+	  for(int iLayer=0; iLayer<6;iLayer++){
+	    sprintf(SpecName,"Y_InefficientRecHits_inSegment_Ch%d_L%d",iChamber,iLayer);
+	    ChHist[ec][st][rg][iChamber-FirstCh].Y_InefficientRecHits_inSegment.push_back
+	      (new TH1F(SpecName,"Missing RecHit/layer in a segment (local system, whole chamber);Y, cm; entries",
+			nYbins,Ymin, Ymax));
+	    //
+	    sprintf(SpecName,"Y_EfficientRecHits_inSegment_Ch%d_L%d",iChamber,iLayer);
+	    ChHist[ec][st][rg][iChamber-FirstCh].Y_EfficientRecHits_inSegment.push_back
+	      (new TH1F(SpecName,"Efficient (extrapolated from the segment) RecHit/layer in a segment (local system, whole chamber);Y, cm; entries",
+			nYbins,Ymin, Ymax));
+	    
+	  }
+	  //
+	  sprintf(SpecName,"Sim_Rechits_Ch%d",iChamber);
+	  ChHist[ec][st][rg][iChamber-FirstCh].SimRechits = 
+	    new TH1F(SpecName,"Existing RecHit (Sim);layers (1-6);entries",nLayer_bins,Layer_min,Layer_max);
+	  //
+	  sprintf(SpecName,"Sim_Simhits_Ch%d",iChamber);
+	  ChHist[ec][st][rg][iChamber-FirstCh].SimSimhits = 
+	    new TH1F(SpecName,"Existing SimHit (Sim);layers (1-6);entries",nLayer_bins,Layer_min,Layer_max);
+	  //
+	  /*
+	  sprintf(SpecName,"Sim_Rechits_each_Ch%d",iChamber);
+	  ChHist[ec][st][rg][iChamber-FirstCh].SimRechits_each = 
+	    new TH1F(SpecName,"Existing RecHit (Sim), each;layers (1-6);entries",nLayer_bins,Layer_min,Layer_max);
+	  //
+	  sprintf(SpecName,"Sim_Simhits_each_Ch%d",iChamber);
+	  ChHist[ec][st][rg][iChamber-FirstCh].SimSimhits_each = 
+	    new TH1F(SpecName,"Existing SimHit (Sim), each;layers (1-6);entries",nLayer_bins,Layer_min,Layer_max);
+	  */
+	  theFile->cd();
+	}
+      }
+    }
+  }
+}
+
+// Destructor
+CSCEfficiency::~CSCEfficiency(){
+  // Write the histos to a file
+  theFile->cd();
+  //
+  char SpecName[20];
+  std::vector<float> bins, Efficiency, EffError;
   std::vector<float> eff(2);
-  int Nbins =  readHisto->GetSize()-2;//without underflows and overflows
-  std::vector<float> bins(Nbins);
-  std::vector<float> Efficiency(Nbins);
-  std::vector<float> EffError(Nbins);
-  float Norm = 1;
-  if(flag<=Nbins){
-    Norm = readHisto->GetBinContent(flag);;
-  }
-  for (int i=0;i<Nbins;i++){
-    bins[i] = readHisto->GetBinContent(i+1);
-    getEfficiency(bins[i], Norm, eff);
-    Efficiency[i] = eff[0];
-    EffError[i] = eff[1];
-    writeHisto->SetBinContent(i+1, Efficiency[i]);
-    writeHisto->SetBinError(i+1, EffError[i]);
-  }  
-}
-//
-const char* CSCEfficiency::ChangeTitle(const char * name){
-  std::string str = to_string(name);
-  std::string searchString( "Ch1" ); 
-  std::string replaceString( "AllCh" );
 
-  assert( searchString != replaceString );
-
-  std::string::size_type pos = 0;
-  while ( (pos = str.find(searchString, pos)) != string::npos ) {
-    str.replace( pos, searchString.size(), replaceString );
-    pos++;
+  //---- loop over chambers
+  std::map <std::string, bool> chamberTypes;
+  chamberTypes["ME11"] = false;
+  chamberTypes["ME12"] = false;
+  chamberTypes["ME13"] = false;
+  chamberTypes["ME21"] = false;
+  chamberTypes["ME22"] = false;
+  chamberTypes["ME31"] = false;
+  chamberTypes["ME32"] = false;
+  chamberTypes["ME41"] = false;
+  
+  map<std::string,bool>::iterator iter;  
+  std::cout<<" Writing proper histogram structure (patience)..."<<std::endl;
+  for(int ec = 0;ec<2;++ec){
+    for(int st = 0;st<4;++st){
+      sprintf(SpecName,"Stations__E%d_S%d",ec+1, st+1);
+      theFile->cd(SpecName);
+      StHist[ec][st].segmentChi2_ndf->Write();
+      StHist[ec][st].hitsInSegment->Write();
+      StHist[ec][st].AllSegments_eta->Write();
+      StHist[ec][st].EfficientSegments_eta->Write();
+      StHist[ec][st].ResidualSegments->Write();
+      StHist[ec][st].EfficientSegments_XY->Write();
+      StHist[ec][st].InefficientSegments_XY->Write();
+      StHist[ec][st].EfficientALCT_momTheta->Write();
+      StHist[ec][st].InefficientALCT_momTheta->Write();
+      StHist[ec][st].EfficientCLCT_momPhi->Write();
+      StHist[ec][st].InefficientCLCT_momPhi->Write();
+      for(int rg = 0;rg<3;++rg){
+	if(0!=st && rg>1){
+	  continue;
+	}
+	else if(1==rg && 3==st){
+	  continue;
+	}
+	for(int iChamber=FirstCh;iChamber<FirstCh+NumCh;iChamber++){
+	  if(0!=st && 0==rg && iChamber >18){
+	    continue;
+	  }
+	  sprintf(SpecName,"Chambers__E%d_S%d_R%d_Chamber_%d",ec+1, st+1, rg+1,iChamber);
+	  theFile->cd(SpecName);
+	  
+	  ChHist[ec][st][rg][iChamber-FirstCh].EfficientRechits_inSegment->Write();
+	  ChHist[ec][st][rg][iChamber-FirstCh].AllSingleHits->Write();
+	  ChHist[ec][st][rg][iChamber-FirstCh].digiAppearanceCount->Write();
+	  ChHist[ec][st][rg][iChamber-FirstCh].EfficientALCT_theta->Write();
+	  ChHist[ec][st][rg][iChamber-FirstCh].InefficientALCT_theta->Write();
+	  ChHist[ec][st][rg][iChamber-FirstCh].EfficientCLCT_phi->Write();
+	  ChHist[ec][st][rg][iChamber-FirstCh].InefficientCLCT_phi->Write();
+	  ChHist[ec][st][rg][iChamber-FirstCh].InefficientSingleHits->Write();
+	  ChHist[ec][st][rg][iChamber-FirstCh].EfficientRechits_good->Write();
+	  ChHist[ec][st][rg][iChamber-FirstCh].EfficientStrips->Write();
+	  ChHist[ec][st][rg][iChamber-FirstCh].StripWiresCorrelations->Write();
+	  ChHist[ec][st][rg][iChamber-FirstCh].NoWires_momTheta->Write();
+	  ChHist[ec][st][rg][iChamber-FirstCh].NoStrips_momPhi->Write();
+	  ChHist[ec][st][rg][iChamber-FirstCh].EfficientWireGroups->Write();
+	  for(unsigned int iLayer = 0; iLayer< 6; iLayer++){
+	    ChHist[ec][st][rg][iChamber-FirstCh].Y_InefficientRecHits_inSegment[iLayer]->Write();
+	    ChHist[ec][st][rg][iChamber-FirstCh].Y_EfficientRecHits_inSegment[iLayer]->Write();
+	  }
+	  ChHist[ec][st][rg][iChamber-FirstCh].SimRechits->Write();
+	  ChHist[ec][st][rg][iChamber-FirstCh].SimSimhits->Write();
+	  /*
+	  ChHist[ec][st][rg][iChamber-FirstCh].SimRechits_each->Write();
+	  ChHist[ec][st][rg][iChamber-FirstCh].SimSimhits_each->Write();
+	  */
+	  //
+	  theFile->cd(SpecName);
+	  theFile->cd();
+	}
+      }
+    }
   }
-  const char* NewName = str.c_str();
-  return NewName;
+  //
+  sprintf(SpecName,"AllChambers");
+  theFile->mkdir(SpecName);
+  theFile->cd(SpecName);
+  DataFlow->Write(); 
+  ALCTPerEvent->Write();
+  CLCTPerEvent->Write();
+  recHitsPerEvent->Write();
+  segmentsPerEvent->Write();
+  //
+  theFile->cd(SpecName);
+  //---- Close the file
+  theFile->Close();
 }
+
+// ------------ method called once each job just before starting event loop  ------------
+void
+CSCEfficiency::beginJob(const edm::EventSetup&)
+{
+}
+
+// ------------ method called once each job just after ending the event loop  ------------
+void
+CSCEfficiency::endJob() {
+}
+
 DEFINE_FWK_MODULE(CSCEfficiency);
-
 
