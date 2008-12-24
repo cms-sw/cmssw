@@ -30,7 +30,7 @@ namespace edm {
 	    if (reg->productProduced(InEvent)) {
 	      addToProcessHistory();
 	      // Add index into BranchIDListRegistry for products produced this process
-	      history_->addBranchListIndexEntry(BranchIDListRegistry::instance()->size()-1);
+	      history_->addBranchListIndexEntry(BranchIDListRegistry::instance()->extra().producedBranchListIndex());
 	    }
 	    mapper->processHistoryID() = processHistoryID();
 	    // Fill in helper map for Branch to ProductID mapping
@@ -152,22 +152,23 @@ namespace edm {
       throw edm::Exception(edm::errors::NotFound,"InvalidID")
         << "branchIDToProductID: invalid BranchID supplied\n";
     }
-    BranchIDListHelper::BranchIDToIndexMap const& branchIDToIndexMap =
-      BranchIDListRegistry::instance()->extra().branchIDToIndexMap();   
-    BranchIDListHelper::BranchIDToIndexMap::const_iterator it = branchIDToIndexMap.find(bid);
-    if (it == branchIDToIndexMap.end()) {
-      throw edm::Exception(edm::errors::NotFound,"Bad BranchID")
-        << "branchIDToProductID: productID cannot be determined from BranchID\n";
+    typedef BranchIDListHelper::BranchIDToIndexMap BIDToIndexMap;
+    typedef BIDToIndexMap::const_iterator Iter;
+    typedef std::pair<Iter, Iter> IndexRange;
+
+    BIDToIndexMap const& branchIDToIndexMap = BranchIDListRegistry::instance()->extra().branchIDToIndexMap();   
+    IndexRange range = branchIDToIndexMap.equal_range(bid);
+    for (Iter it = range.first; it != range.second; ++it) {
+      BranchListIndex blix = it->second.first;
+      ProductIndex productIndex = it->second.second;
+      std::map<BranchListIndex, ProcessIndex>::const_iterator i = branchToProductIDHelper_.find(blix);
+      if (i != branchToProductIDHelper_.end()) {
+        ProcessIndex processIndex = i->second;
+        return ProductID(processIndex+1, productIndex+1);
+      }
     }
-    BranchListIndex blix = it->second.first;
-    ProductIndex productIndex = it->second.second;
-    std::map<BranchListIndex, ProcessIndex>:: const_iterator i = branchToProductIDHelper_.find(blix);
-    if (i == branchToProductIDHelper_.end()) {
-      throw edm::Exception(edm::errors::NotFound,"Bad branch ID")
-        << "branchIDToProductID: productID cannot be determined from BranchID\n";
-    }
-    ProcessIndex processIndex = i->second;
-    return ProductID(processIndex+1, productIndex+1);
+    throw edm::Exception(edm::errors::NotFound,"Bad BranchID")
+      << "branchIDToProductID: productID cannot be determined from BranchID\n";
   }
 
   BasicHandle

@@ -2,6 +2,7 @@
 #include "DataFormats/Provenance/interface/BranchIDListRegistry.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+#include <limits>
 
 namespace edm {
 
@@ -18,8 +19,14 @@ namespace edm {
 	  << "Contact the framework group.\n";
       }
     }
+    BranchIDToIndexMap& branchIDToIndexMap = breg.extra().branchIDToIndexMap_;
     for (; j != jEnd; ++j) {
+      BranchListIndex blix = breg.data().size();
       breg.insertMapped(*j);
+      for (BranchIDList::const_iterator i = j->begin(), iEnd = j->end(); i != iEnd; ++i) {
+        ProductIndex pix = i - j->begin();
+	branchIDToIndexMap.insert(std::make_pair(*i, std::make_pair(blix, pix)));
+      }
     }
   }
 
@@ -36,16 +43,17 @@ namespace edm {
       }
     }
     BranchIDListRegistry& breg = *BranchIDListRegistry::instance();
-    breg.insertMapped(bidlist);
-
-    // Add entries to aid BranchID to ProductID mapping
     BranchIDToIndexMap& branchIDToIndexMap = breg.extra().branchIDToIndexMap_;
-    for (BranchIDLists::const_iterator it = breg.data().begin(), itEnd = breg.data().end(); it != itEnd; ++it) {
-      BranchListIndex blix = it - breg.data().begin();
-      for (BranchIDList::const_iterator i = it->begin(), iEnd = it->end(); i != iEnd; ++i) {
-        ProductIndex pix = i - it->begin();
+    if (!bidlist.empty()) {
+      BranchListIndex blix = breg.data().size();
+      breg.extra().producedBranchListIndex_ = blix;
+      breg.insertMapped(bidlist);
+      for (BranchIDList::const_iterator i = bidlist.begin(), iEnd = bidlist.end(); i != iEnd; ++i) {
+        ProductIndex pix = i - bidlist.begin();
 	branchIDToIndexMap.insert(std::make_pair(*i, std::make_pair(blix, pix)));
       }
+    } else {
+      breg.extra().producedBranchListIndex_ = std::numeric_limits<BranchListIndex>::max();
     }
   }
 
