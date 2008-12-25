@@ -13,9 +13,9 @@
 
 //macros for building barrel and endcap histos with one call
 #define DBOOK1D(name,title,nbinsx,lowx,highx) \
-  BOOK1D(B##name,"Barrel "#title,nbinsx,lowx,highx); BOOK1D(E##name,"Endcap "#title,nbinsx,lowx,highx);
+  BOOK1D(B##name,"Barrel "#title,nbinsx,lowx,highx); BOOK1D(E##name,"Endcap "#title,nbinsx,lowx,highx); BOOK1D(F##name,"Forward "#title,nbinsx,lowx,highx);
 #define DBOOK2D(name,title,nbinsx,lowx,highx,nbinsy,lowy,highy) \
-  BOOK2D(B##name,"Barrel "#title,nbinsx,lowx,highx,nbinsy,lowy,highy); BOOK2D(E##name,"Endcap "#title,nbinsx,lowx,highx,nbinsy,lowy,highy);
+  BOOK2D(B##name,"Barrel "#title,nbinsx,lowx,highx,nbinsy,lowy,highy); BOOK2D(E##name,"Endcap "#title,nbinsx,lowx,highx,nbinsy,lowy,highy); BOOK2D(F##name,"Forward "#title,nbinsx,lowx,highx,nbinsy,lowy,highy);
 
 // all versions OK
 // preprocesor macro for setting axis titles
@@ -24,7 +24,7 @@
 
 //macro for setting the titles for barrel and endcap together
 #define DSETAXES(name,xtitle,ytitle) \
-  SETAXES(B##name,xtitle,ytitle);SETAXES(E##name,xtitle,ytitle)
+  SETAXES(B##name,xtitle,ytitle);SETAXES(E##name,xtitle,ytitle);SETAXES(F##name,xtitle,ytitle);
 /*#define SET2AXES(name,xtitle,ytitle) \
   hE##name->GetXaxis()->SetTitle(xtitle); hE##name->GetYaxis()->SetTitle(ytitle);  hB##name->GetXaxis()->SetTitle(xtitle); hB##name->GetYaxis()->SetTitle(ytitle)
 */
@@ -113,17 +113,18 @@ void PFJetBenchmark::setup(
   sprintf(cutString,"Jets #eta Distribution |#eta|<%4.1f", maxEta_cut);
   BOOK1D(jetsEta,cutString,100, -5, 5);
 	
+  BOOK2D(RPtvsEta,"#DeltaP_{T}/P_{T} vs #eta",200, -5., 5., 200,-1,1);       //used to be 50 bin for each in x-direction
   // delta Pt or E quantities for Barrel
   DBOOK1D(RPt,#DeltaP_{T}/P_{T},80,-1,1);
   DBOOK1D(RCHE,#DeltaE/E (charged had),80,-2,2);
   DBOOK1D(RNHE,#DeltaE/E (neutral had),80,-2,2);
   DBOOK1D(RNEE,#DeltaE/E (neutral em),80,-2,2);
   DBOOK1D(Rneut,#DeltaE/E (neutral),80,-2,2);
-  DBOOK2D(RPtvsPt,#DeltaP_{T}/P_{T} vs P_{T},250, 0, 500, 100,-2,2);       //used to be 50 bin for each in x-direction
-  DBOOK2D(RCHEvsPt,#DeltaE/E (charged had) vs P_{T},40, 0, 500, 80,-2,2);
-  DBOOK2D(RNHEvsPt,#DeltaE/E (neutral had) vs P_{T},40, 0, 500, 80,-2,2);
-  DBOOK2D(RNEEvsPt,#DeltaE/E (neutral em) vs P_{T},40, 0, 500, 80,-2,2);
-  DBOOK2D(RneutvsPt,#DeltaE/E (neutral) vs P_{T},40, 0, 500, 80,-2,2);
+  DBOOK2D(RPtvsPt,#DeltaP_{T}/P_{T} vs P_{T},250, 0, 500, 200,-1,1);       //used to be 50 bin for each in x-direction
+  DBOOK2D(RCHEvsPt,#DeltaE/E (charged had) vs P_{T},100, 0, 500, 120,-1,2);
+  DBOOK2D(RNHEvsPt,#DeltaE/E (neutral had) vs P_{T},100, 0, 500, 120,-1,2);
+  DBOOK2D(RNEEvsPt,#DeltaE/E (neutral em) vs P_{T},100, 0, 500, 120,-1,2);
+  DBOOK2D(RneutvsPt,#DeltaE/E (neutral) vs P_{T},100, 0, 500, 120,-1,2);
   DBOOK1D(RPt20_40,#DeltaP_{T}/P_{T},80,-1,1);
   DBOOK1D(RPt40_60,#DeltaP_{T}/P_{T},80,-1,1);
   DBOOK1D(RPt60_80,#DeltaP_{T}/P_{T},80,-1,1);
@@ -142,6 +143,7 @@ void PFJetBenchmark::setup(
   SETAXES(Njets,"","Multiplicity");
   SETAXES(jetsPt, PT, "Number of Events");
   SETAXES(jetsEta, "#eta", "Number of Events");
+  SETAXES(RPtvsEta, "#eta", "#DeltaP_{T}/P_{T}");
   // delta Pt or E quantities for Barrel and Endcap
   DSETAXES(RPt, "#DeltaP_{T}/P_{T}", "Events");
   DSETAXES(RPt20_40, "#DeltaP_{T}/P_{T}", "Events");
@@ -205,8 +207,10 @@ void PFJetBenchmark::process(const reco::PFJetCollection& pfJets, const reco::Ge
     // separate Barrel PFJets from Endcap PFJets
     bool Barrel = false;
     bool Endcap = false;
+    bool Forward = false;
     if (abs(rec_eta) < 1.4 ) Barrel = true;
-    if (abs (rec_eta) > 1.6 && abs (rec_eta) < 3. ) Endcap = true;
+    if (abs (rec_eta) > 1.6 && abs (rec_eta) < 2.4 ) Endcap = true;
+    if (abs (rec_eta) > 3.5 && abs (rec_eta) < 4.5 ) Forward = true;
 
     // do only barrel for now
     //  if(!Barrel) continue;
@@ -248,6 +252,7 @@ void PFJetBenchmark::process(const reco::PFJetCollection& pfJets, const reco::Ge
       double resNeutralHadEnergy= 0.;
       double resNeutralEmEnergy= 0.;
       double resNeutralEnergy= 0.;
+
       // get relative delta quantities (protect against division by zero!)
       if (true_pt > 0.0001){
 	resPt = (rec_pt -true_pt)/true_pt ; 
@@ -300,6 +305,9 @@ void PFJetBenchmark::process(const reco::PFJetCollection& pfJets, const reco::Ge
 	     << endl;
       }
 			
+
+      if(plot1)hRPtvsEta->Fill(rec_eta, resPt);
+
       // fill histograms for relative delta quantitites of matched jets
       // delta Pt or E quantities for Barrel
       if (Barrel){
@@ -352,6 +360,32 @@ void PFJetBenchmark::process(const reco::PFJetCollection& pfJets, const reco::Ge
 	if(plot3)hERNHEvsPt->Fill(pt_denom, resNeutralHadEnergy);
 	if(plot4)hERNEEvsPt->Fill(pt_denom, resNeutralEmEnergy);
 	if(plot5)hERneutvsPt->Fill(pt_denom, resNeutralEnergy);
+      }						
+      // delta Pt or E quantities for Forward
+      if (Forward){
+	if(plot1) {
+	  hFRPt->Fill (resPt);
+	  if ( pt_denom >  20. && pt_denom <  40. ) hFRPt20_40->Fill (resPt);
+	  if ( pt_denom >  40. && pt_denom <  60. ) hFRPt40_60->Fill (resPt);
+	  if ( pt_denom >  60. && pt_denom <  80. ) hFRPt60_80->Fill (resPt);
+	  if ( pt_denom >  80. && pt_denom < 100. ) hFRPt80_100->Fill (resPt);
+	  if ( pt_denom > 100. && pt_denom < 150. ) hFRPt100_150->Fill (resPt);
+	  if ( pt_denom > 150. && pt_denom < 200. ) hFRPt150_200->Fill (resPt);
+	  if ( pt_denom > 200. && pt_denom < 250. ) hFRPt200_250->Fill (resPt);
+	  if ( pt_denom > 250. && pt_denom < 300. ) hFRPt250_300->Fill (resPt);
+	  if ( pt_denom > 300. && pt_denom < 400. ) hFRPt300_400->Fill (resPt);
+	  if ( pt_denom > 400. && pt_denom < 500. ) hFRPt400_500->Fill (resPt);
+	  if ( pt_denom > 500. && pt_denom < 750. ) hFRPt500_750->Fill (resPt);
+	}
+	if(plot2)hFRCHE->Fill(resChargedHadEnergy);
+	if(plot3)hFRNHE->Fill(resNeutralHadEnergy);
+	if(plot4)hFRNEE->Fill(resNeutralEmEnergy);
+	if(plot5)hFRneut->Fill(resNeutralEnergy);
+	if(plot1)hFRPtvsPt->Fill(pt_denom, resPt);
+	if(plot2)hFRCHEvsPt->Fill(pt_denom, resChargedHadEnergy);
+	if(plot3)hFRNHEvsPt->Fill(pt_denom, resNeutralHadEnergy);
+	if(plot4)hFRNEEvsPt->Fill(pt_denom, resNeutralEmEnergy);
+	if(plot5)hFRneutvsPt->Fill(pt_denom, resNeutralEnergy);
       }						
     } // end case deltaR < deltaRMax
 		

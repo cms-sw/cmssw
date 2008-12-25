@@ -73,6 +73,7 @@ class PFJetBenchmark {
   TH1F *hNjets;
   TH1F *hjetsPt;
   TH1F *hjetsEta;
+  TH2F *hRPtvsEta ;
 	
   // delta Pt or E quantities for Barrel
   TH1F *hBRPt;
@@ -119,6 +120,29 @@ class PFJetBenchmark {
   TH2F *hERNHEvsPt ;
   TH2F *hERNEEvsPt;
   TH2F *hERneutvsPt;
+	
+  // delta Pt or E quantities for Forward
+  TH1F *hFRPt ;
+  TH1F *hFRPt20_40;
+  TH1F *hFRPt40_60;
+  TH1F *hFRPt60_80;
+  TH1F *hFRPt80_100;
+  TH1F *hFRPt100_150;
+  TH1F *hFRPt150_200;
+  TH1F *hFRPt200_250;
+  TH1F *hFRPt250_300;
+  TH1F *hFRPt300_400;
+  TH1F *hFRPt400_500;
+  TH1F *hFRPt500_750;
+  TH1F *hFRCHE;
+  TH1F *hFRNHE;
+  TH1F *hFRNEE;
+  TH1F *hFRneut;
+  TH2F *hFRPtvsPt ;
+  TH2F *hFRCHEvsPt;
+  TH2F *hFRNHEvsPt ;
+  TH2F *hFRNEEvsPt;
+  TH2F *hFRneutvsPt;
 	
   std::string outputFile_;	
  protected:
