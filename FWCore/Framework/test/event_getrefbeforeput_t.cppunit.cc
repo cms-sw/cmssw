@@ -55,6 +55,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION(testEventGetRefBeforePut);
 
 void testEventGetRefBeforePut::failGetProductNotRegisteredTest() {
 
+  edm::BranchIDListHelper::clearRegistries();
   edm::ProductRegistry *preg = new edm::ProductRegistry;
   preg->setFrozen();
   edm::BranchIDListHelper::updateRegistries(*preg);
@@ -89,6 +90,7 @@ void testEventGetRefBeforePut::failGetProductNotRegisteredTest() {
 }
 
 void testEventGetRefBeforePut::getRefTest() {
+  edm::BranchIDListHelper::clearRegistries();
   std::string processName = "PROD";
 
   std::string label("fred");

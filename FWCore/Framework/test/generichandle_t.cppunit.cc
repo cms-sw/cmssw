@@ -72,6 +72,7 @@ void testGenericHandle::failWrongType() {
 }
 void testGenericHandle::failgetbyLabelTest() {
 
+  edm::BranchIDListHelper::clearRegistries();
   edm::EventID id;
   edm::Timestamp time;
   std::string uuid = edm::createGlobalIdentifier();
@@ -113,6 +114,7 @@ void testGenericHandle::failgetbyLabelTest() {
 }
 
 void testGenericHandle::getbyLabelTest() {
+  edm::BranchIDListHelper::clearRegistries();
   std::string processName = "PROD";
 
   typedef edmtest::DummyProduct DP;
