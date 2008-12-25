@@ -13,9 +13,11 @@ namespace edm {
   public:
     typedef std::pair<BranchListIndex, ProductIndex> IndexPair;
     typedef std::multimap<BranchID, IndexPair> BranchIDToIndexMap;
-    BranchIDListHelper() : producedBranchListIndex_(0), branchIDToIndexMap_() {}
+    typedef std::map<BranchListIndex, BranchListIndex> BranchListIndexMapper;
+    BranchIDListHelper();
     static void updateFromInput(BranchIDLists const& bidlists, std::string const& fileName);
     static void updateRegistries(ProductRegistry const& reg);
+    static void fixBranchListIndexes(BranchListIndexes& indexes);
     static void clearRegistries();  // Use only for tests
 
     BranchListIndex producedBranchListIndex() const {return producedBranchListIndex_;}
@@ -24,6 +26,7 @@ namespace edm {
   private:
     BranchListIndex producedBranchListIndex_;
     BranchIDToIndexMap branchIDToIndexMap_;
+    BranchListIndexMapper branchListIndexMapper_;
   };
 }
 

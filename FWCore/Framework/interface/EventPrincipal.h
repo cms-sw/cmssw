@@ -164,7 +164,7 @@ namespace edm {
 
     boost::shared_ptr<History> history_;
 
-    std::map<BranchListIndex, ProcessIndex> branchToProductIDHelper_;
+    std::map<BranchListIndex, ProcessIndex> branchListIndexToProcessIndex_;
 
   };
 

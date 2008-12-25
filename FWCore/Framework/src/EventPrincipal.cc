@@ -26,20 +26,21 @@ namespace edm {
 	  unscheduledHandler_(),
 	  moduleLabelsRunning_(),
 	  history_(history),
-	  branchToProductIDHelper_() {
+	  branchListIndexToProcessIndex_() {
 	    if (reg->productProduced(InEvent)) {
 	      addToProcessHistory();
 	      // Add index into BranchIDListRegistry for products produced this process
 	      history_->addBranchListIndexEntry(BranchIDListRegistry::instance()->extra().producedBranchListIndex());
 	    }
 	    mapper->processHistoryID() = processHistoryID();
+	    BranchIDListHelper::fixBranchListIndexes(history_->branchListIndexes());
 	    // Fill in helper map for Branch to ProductID mapping
 	    for (BranchListIndexes::const_iterator
 		 it = history->branchListIndexes().begin(),
 		 itEnd = history->branchListIndexes().end();
 		 it != itEnd; ++it) {
 	      ProcessIndex pix = it - history->branchListIndexes().begin();
-	      branchToProductIDHelper_.insert(std::make_pair(*it, pix));
+	      branchListIndexToProcessIndex_.insert(std::make_pair(*it, pix));
 	    }
 	  }
 
@@ -160,9 +161,9 @@ namespace edm {
     IndexRange range = branchIDToIndexMap.equal_range(bid);
     for (Iter it = range.first; it != range.second; ++it) {
       BranchListIndex blix = it->second.first;
-      ProductIndex productIndex = it->second.second;
-      std::map<BranchListIndex, ProcessIndex>::const_iterator i = branchToProductIDHelper_.find(blix);
-      if (i != branchToProductIDHelper_.end()) {
+      std::map<BranchListIndex, ProcessIndex>::const_iterator i = branchListIndexToProcessIndex_.find(blix);
+      if (i != branchListIndexToProcessIndex_.end()) {
+        ProductIndex productIndex = it->second.second;
         ProcessIndex processIndex = i->second;
         return ProductID(processIndex+1, productIndex+1);
       }

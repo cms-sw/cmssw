@@ -90,7 +90,9 @@ namespace edm {
             << setRun_ - forcedRunOffset_ << ".\n";
         }
         productRegistryUpdate().updateFromInput(rootFile_->productRegistry()->productList());
-        BranchIDListHelper::updateFromInput(rootFile_->branchIDLists(), fileIter_->fileName());
+	if (primarySequence_) {
+          BranchIDListHelper::updateFromInput(rootFile_->branchIDLists(), fileIter_->fileName());
+	}
       }
     } else {
       Service<RandomNumberGenerator> rng;
