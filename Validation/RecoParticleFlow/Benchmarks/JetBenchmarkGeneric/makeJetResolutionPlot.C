@@ -66,7 +66,7 @@ void PlotGraphs( TGraph* gra, TGraph* grb,
 
 }
 
-void Resolution(bool barrel, const char* input, const char* output) {
+void Resolution(unsigned barrel, const char* input, const char* output,unsigned algo=0) {
   
   gROOT->Reset();
   TFile *f = new TFile(input);
@@ -76,7 +76,7 @@ void Resolution(bool barrel, const char* input, const char* output) {
 
   vector<float> pts;
 
-  if ( barrel ) { 
+  if ( barrel == 1) { 
     hists.push_back( "BRPt20_40") ;
     hists.push_back( "BRPt40_60");
     hists.push_back( "BRPt60_80");
@@ -88,7 +88,7 @@ void Resolution(bool barrel, const char* input, const char* output) {
     hists.push_back( "BRPt300_400");
     hists.push_back( "BRPt400_500");
     hists.push_back( "BRPt500_750");
-  } else {
+  } else if ( barrel == 2 ) {
     hists.push_back( "ERPt20_40") ;
     hists.push_back( "ERPt40_60");
     hists.push_back( "ERPt60_80");
@@ -100,6 +100,18 @@ void Resolution(bool barrel, const char* input, const char* output) {
     hists.push_back( "ERPt300_400");
     hists.push_back( "ERPt400_500");
     hists.push_back( "ERPt500_750");
+  } else if ( barrel == 3 ) {
+    hists.push_back( "FRPt20_40") ;
+    hists.push_back( "FRPt40_60");
+    hists.push_back( "FRPt60_80");
+    hists.push_back( "FRPt80_100");
+    hists.push_back( "FRPt100_150");
+    hists.push_back( "FRPt150_200");
+    hists.push_back( "FRPt200_250");
+    hists.push_back( "FRPt250_300");
+    hists.push_back( "FRPt300_400");
+    hists.push_back( "FRPt400_500");
+    hists.push_back( "FRPt500_750");
   }
   pts.push_back(30);
   pts.push_back(50);
@@ -119,12 +131,16 @@ void Resolution(bool barrel, const char* input, const char* output) {
   vector<float> arithmavs;
 
   int n=0;
-  f->cd("DQMData/PFTask/Benchmarks/iterativeCone5PFJets/Gen");
+  if ( algo == 0 ) 
+    f->cd("DQMData/PFTask/Benchmarks/iterativeCone5PFJets/Gen");
+  else if ( algo == 1 ) 
+    f->cd("DQMData/PFTask/Benchmarks/kt4PFJets/Gen");
+    
   for( unsigned i=0; i<hists.size(); ++i) {
 
     TH1* h = (TH1*) gDirectory->Get( hists[i].c_str() );
     if( !h ) {
-      cerr<<h->GetName()<<" does not exist"<<endl;
+      cerr<<hists[i].c_str()<<" does not exist"<<endl;
       continue;
     }
 

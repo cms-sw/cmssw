@@ -1,36 +1,45 @@
 #include <vector>
 
-void PlotHisto(char* hname, TFile* f1, TFile* f2)
+void PlotHisto(char* hname, TFile* f1, TFile* f2, unsigned algo1=0, unsigned algo2=0)
 {
-f1->cd("DQMData/PFTask/Benchmarks/iterativeCone5PFJets/Gen"); 
-TH1F* h1 = (TH1F*) gDirectory->Get(hname);
-f2->cd("DQMData/PFTask/Benchmarks/iterativeCone5PFJets/Gen"); 
-TH1F* h2 = (TH1F*) gDirectory->Get(hname);
-h1->SetTitle(hname);
-h1->SetStats(0);
-h1->SetMinimum(0);
 
-h1->Scale( h2->GetEntries()/h1->GetEntries() );
-
-h1->SetMarkerStyle(22);
-h1->SetMarkerSize(0.6);
-h1->SetMarkerColor(2);
-h1->Draw("error");
-h2->SetLineColor(4);
-h2->SetLineWidth(1.5);
-h2->Draw("same");
+  if ( algo1 == 0 ) 
+    f1->cd("DQMData/PFTask/Benchmarks/iterativeCone5PFJets/Gen"); 
+  else if ( algo1 == 1 ) 
+    f1->cd("DQMData/PFTask/Benchmarks/kt4PFJets/Gen"); 
+  TH1F* h1 = (TH1F*) gDirectory->Get(hname);
+  if ( algo2 == 0 ) 
+    f2->cd("DQMData/PFTask/Benchmarks/iterativeCone5PFJets/Gen"); 
+  else if ( algo2 == 1 ) 
+    f2->cd("DQMData/PFTask/Benchmarks/kt4PFJets/Gen"); 
+  TH1F* h2 = (TH1F*) gDirectory->Get(hname);
+  h1->SetTitle(hname);
+  h1->SetStats(0);
+  h1->SetMinimum(0);
+  
+  h1->Scale( h2->GetEntries()/h1->GetEntries() );
+  
+  h1->SetMarkerStyle(22);
+  h1->SetMarkerSize(0.6);
+  h1->SetMarkerColor(2);
+  h1->Draw("error");
+  h2->SetLineColor(4);
+  h2->SetLineWidth(1.5);
+  h2->Draw("same");
 }
 
-void Compare(bool barrel, 
+void Compare(unsigned barrel, 
 	     const char* fastInput, 
 	     const char* fullInput,
-	     const char* output)
+	     const char* output,
+	     unsigned algo1=0,
+	     unsigned algo2=0)
 {
   gROOT->Reset();
   TFile *f1 = new TFile(fastInput);
   TFile *f2 = new TFile(fullInput);
   vector< string > hists;
-  if ( barrel ) {
+  if ( barrel == 1) {
     hists.push_back( "BRPt20_40") ;
     hists.push_back( "BRPt40_60");
     hists.push_back( "BRPt60_80");
@@ -42,7 +51,7 @@ void Compare(bool barrel,
     hists.push_back( "BRPt300_400");
     hists.push_back( "BRPt400_500");
     hists.push_back( "BRPt500_750");
-  } else { 
+  } else if ( barrel == 2 ) { 
     hists.push_back( "ERPt20_40") ;
     hists.push_back( "ERPt40_60");
     hists.push_back( "ERPt60_80");
@@ -54,6 +63,18 @@ void Compare(bool barrel,
     hists.push_back( "ERPt300_400");
     hists.push_back( "ERPt400_500");
     hists.push_back( "ERPt500_750");
+  } else if ( barrel == 3 ) { 
+    hists.push_back( "FRPt20_40") ;
+    hists.push_back( "FRPt40_60");
+    hists.push_back( "FRPt60_80");
+    hists.push_back( "FRPt80_100");
+    hists.push_back( "FRPt100_150");
+    hists.push_back( "FRPt150_200");
+    hists.push_back( "FRPt200_250");
+    hists.push_back( "FRPt250_300");
+    hists.push_back( "FRPt300_400");
+    hists.push_back( "FRPt400_500");
+    hists.push_back( "FRPt500_750");
   }
 
   /* */
@@ -61,7 +82,7 @@ void Compare(bool barrel,
   c->Divide(3,4);
   for( unsigned i=0; i<hists.size(); ++i) {
     c->cd(i+1);
-    PlotHisto( hists[i].c_str(), f1, f2 );
+    PlotHisto( hists[i].c_str(), f1, f2, algo1, algo2 );
   }
   /* */
 

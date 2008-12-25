@@ -1,8 +1,9 @@
 #!/bin/sh
 
-cmsswDir=/afs/cern.ch/user/p/pjanot/scratch0/CMSSW_2_2_2/src
-castorDir=/castor/cern.ch/user/p/pjanot/CMSSW222
-castor="\/castor\/cern.ch\/user\/p\/pjanot\/CMSSW222"
+cmsswDir=/afs/cern.ch/user/p/pjanot/scratch0/CMSSW_3_0_0_pre3/src
+castorDir=/castor/cern.ch/user/p/pjanot/CMSSW300pre3
+castor="\/castor\/cern.ch\/user\/p\/pjanot\/CMSSW300pre3"
+
 name=QCDForPF
 simu=Full
 
@@ -17,7 +18,7 @@ jobin=${job}
   esac
 
 
-  for ((out=1; out<=1; out++));
+  for ((out=1; out<=2; out++));
     do
     case $out in
 	0)
@@ -66,7 +67,7 @@ chmod 755 copy_${type}_${name}_${job}.sh
 chmod 755 drop_${type}_${name}_${job}.sh
 
 # uncomment if you wish to copy
-#copy_${type}_${name}.sh
+#copy_${type}_${name}_${job}.sh
 #rm copy_${type}_${name}_${job}.sh
 
 # uncomment if you wish to drop
