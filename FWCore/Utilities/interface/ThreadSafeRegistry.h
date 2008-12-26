@@ -2,6 +2,7 @@
 #define FWCore_Utilities_ThreadSafeRegistry_h
 
 #include <map>
+#include <vector>
 #include "boost/thread.hpp"
 
 // ----------------------------------------------------------------------
@@ -39,6 +40,8 @@ namespace edm {
 
       typedef typename collection_type::const_iterator const_iterator;
 
+      typedef typename std::vector<value_type> vector_type;
+
       static ThreadSafeRegistry* instance();
 
       /// Retrieve the value_type object with the given key.
@@ -55,12 +58,12 @@ namespace edm {
       /// same.  Return 'true' if we really added the new
       /// value_type object, and 'false' if the
       /// value_type object was already present.
-
       bool insertMapped(value_type const& v);
 
       /// put the value_type objects in the given collection
       /// into the registry.
       void insertCollection(collection_type const& c);
+      void insertCollection(vector_type const& c);
 
       /// Return true if there are no contained value_type objects.
       bool empty() const;
@@ -175,6 +178,14 @@ namespace edm {
     ThreadSafeRegistry<KEY,T,E>::insertCollection(collection_type const& c) {
       for (typename collection_type::const_iterator it = c.begin(), itEnd = c.end(); it != itEnd; ++it) {
 	insertMapped(it->second);
+      }
+    }
+
+    template <typename KEY, typename T, typename E>
+    void 
+    ThreadSafeRegistry<KEY,T,E>::insertCollection(vector_type const& c) {
+      for (typename vector_type::const_iterator it = c.begin(), itEnd = c.end(); it != itEnd; ++it) {
+	insertMapped(*it);
       }
     }
 
