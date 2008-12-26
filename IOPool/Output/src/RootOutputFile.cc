@@ -258,29 +258,18 @@ namespace edm {
   }
 
   void RootOutputFile::writeParentageRegistry() {
-    ParentageID const* hash(0);
     Parentage const*   desc(0);
     
-    if (!parentageTree_->Branch(poolNames::parentageIDBranchName().c_str(), 
-					&hash, om_->basketSize(), 0))
-      throw edm::Exception(edm::errors::FatalRootError) 
-	<< "Failed to create a branch for ParentageIDs in the output file";
-
     if (!parentageTree_->Branch(poolNames::parentageBranchName().c_str(), 
 					&desc, om_->basketSize(), 0))
       throw edm::Exception(edm::errors::FatalRootError) 
 	<< "Failed to create a branch for Parentages in the output file";
 
     ParentageRegistry& ptReg = *ParentageRegistry::instance();
-    for (ParentageRegistry::const_iterator
-	   i = ptReg.begin(),
-	   e = ptReg.end();
-	 i != e;
-	 ++i) {
-	hash = const_cast<ParentageID*>(&(i->first)); // cast needed because keys are const
-	desc = &(i->second);
-	parentageTree_->Fill();
-      }
+    for (ParentageRegistry::const_iterator i = ptReg.begin(), e = ptReg.end(); i != e; ++i) {
+      desc = &(i->second);
+      parentageTree_->Fill();
+    }
   }
 
   void RootOutputFile::writeFileFormatVersion() {
@@ -311,7 +300,14 @@ namespace edm {
   }
 
   void RootOutputFile::writeProcessConfigurationRegistry() {
-    ProcessConfigurationRegistry::collection_type *p = &ProcessConfigurationRegistry::instance()->data();
+    typedef ProcessConfigurationRegistry::collection_type Map;
+    Map const& procConfigMap = ProcessConfigurationRegistry::instance()->data();
+    std::vector<ProcessConfiguration> procConfigVector;
+    for (Map::const_iterator i = procConfigMap.begin(), e = procConfigMap.end(); i != e; ++i) {
+      procConfigVector.push_back(i->second);
+    }
+    sort_all(procConfigVector);
+    std::vector<ProcessConfiguration>* p = &procConfigVector;
     TBranch* b = metaDataTree_->Branch(poolNames::processConfigurationBranchName().c_str(), &p, om_->basketSize(), 0);
     assert(b);
     b->Fill();

@@ -57,7 +57,6 @@ namespace edm {
     std::string const entryDescriptionBranch   = "Description";
 
     std::string const parentageTree     = "Parentage";
-    std::string const parentageIDBranch = "Hash";
     std::string const parentageBranch   = "Description";
 
     std::string const metaDataTree = "MetaData";
@@ -66,7 +65,7 @@ namespace edm {
     std::string const parameterSetMap = "ParameterSetMap";
     std::string const moduleDescriptionMap = "ModuleDescriptionMap";
     std::string const processHistoryMap = "ProcessHistoryMap";
-    std::string const processConfigurationMap = "ProcessConfigurationMap";
+    std::string const processConfiguration = "ProcessConfiguration";
     std::string const branchIDLists = "BranchIDLists";
     std::string const fileFormatVersion = "FileFormatVersion";
     std::string const fileIdentifier = "FileIdentifier";
@@ -135,10 +134,6 @@ namespace edm {
       return parentageTree;
     }
 
-    std::string const& parentageIDBranchName() {
-      return parentageIDBranch;
-    }
-
     std::string const& parentageBranchName() {
       return parentageBranch;
     }
@@ -175,7 +170,7 @@ namespace edm {
 
     // Branch on MetaData Tree
     std::string const& processConfigurationBranchName() {
-      return processConfigurationMap;
+      return processConfiguration;
     }
 
     // Branch on MetaData Tree

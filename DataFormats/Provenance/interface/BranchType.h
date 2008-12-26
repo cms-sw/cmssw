@@ -58,7 +58,6 @@ namespace edm {
     std::string const& parentageTreeName();
 
     // Branches on parentage tree
-    std::string const& parentageIDBranchName();
     std::string const& parentageBranchName();
 
     //------------------------------------------------------------------

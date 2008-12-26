@@ -162,10 +162,10 @@ namespace edm {
     ProcessHistoryRegistry::collection_type *pHistMapPtr = &pHistMap;
     metaDataTree->SetBranchAddress(poolNames::processHistoryMapBranchName().c_str(), &pHistMapPtr);
 
-    ProcessConfigurationRegistry::collection_type pProcConfigMap;
-    ProcessConfigurationRegistry::collection_type *pProcConfigMapPtr = &pProcConfigMap;
+    std::vector<ProcessConfiguration> procConfigVector;
+    std::vector<ProcessConfiguration>* procConfigVectorPtr = &procConfigVector;
     if (metaDataTree->FindBranch(poolNames::processConfigurationBranchName().c_str()) != 0) {
-      metaDataTree->SetBranchAddress(poolNames::processConfigurationBranchName().c_str(), &pProcConfigMapPtr);
+      metaDataTree->SetBranchAddress(poolNames::processConfigurationBranchName().c_str(), &procConfigVectorPtr);
     }
 
     std::auto_ptr<BranchIDListRegistry::collection_type> branchIDListsAPtr(new BranchIDListRegistry::collection_type);
@@ -206,7 +206,7 @@ namespace edm {
 
     if (fileFormatVersion_.value_ < 11) {
       // Old format input file.  Create a provenance adaptor.
-      provenanceAdaptor_.reset(new ProvenanceAdaptor(tempReg, pHistMap, pProcConfigMap));
+      provenanceAdaptor_.reset(new ProvenanceAdaptor(tempReg, pHistMap, procConfigVector));
       // Fill in the branchIDLists branch from the provenance adaptor
       branchIDLists_ = provenanceAdaptor_->branchIDLists();
     } else {
@@ -219,7 +219,7 @@ namespace edm {
     }
 
     // Merge into the remaining hashed registries.
-    ProcessConfigurationRegistry::instance()->insertCollection(pProcConfigMap);
+    ProcessConfigurationRegistry::instance()->insertCollection(procConfigVector);
     ProcessHistoryRegistry::instance()->insertCollection(pHistMap);
     ModuleDescriptionRegistry::instance()->insertCollection(mdMap);
 
@@ -349,10 +349,6 @@ namespace edm {
       throw edm::Exception(errors::FileReadError) << "Could not find tree " << poolNames::parentageTreeName()
 							 << " in the input file.\n";
 
-    ParentageID idBuffer;
-    ParentageID* pidBuffer = &idBuffer;
-    parentageTree->SetBranchAddress(poolNames::parentageIDBranchName().c_str(), &pidBuffer);
-
     Parentage parentageBuffer;
     Parentage *pParentageBuffer = &parentageBuffer;
     parentageTree->SetBranchAddress(poolNames::parentageBranchName().c_str(), &pParentageBuffer);
@@ -361,11 +357,8 @@ namespace edm {
 
     for (Long64_t i = 0, numEntries = parentageTree->GetEntries(); i < numEntries; ++i) {
       input::getEntry(parentageTree, i);
-      if (idBuffer != parentageBuffer.id())
-        throw edm::Exception(errors::EventCorruption) << "Corruption of Parentage tree detected.\n";
       registry.insertMapped(parentageBuffer);
     }
-    parentageTree->SetBranchAddress(poolNames::parentageIDBranchName().c_str(), 0);
     parentageTree->SetBranchAddress(poolNames::parentageBranchName().c_str(), 0);
   }
 

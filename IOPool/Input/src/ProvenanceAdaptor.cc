@@ -49,25 +49,27 @@ namespace edm {
     }
 
     void
-    fillProcessConfigurationMap(ProcessHistoryMap const& pHistMap, ProcessConfigurationMap& procConfigMap) {
+    fillProcessConfiguration(ProcessHistoryMap const& pHistMap, std::vector<ProcessConfiguration>& procConfigVector) {
       for (ProcessHistoryMap::const_iterator it = pHistMap.begin(), itEnd = pHistMap.end();
 	  it != itEnd; ++it) {
         for (std::vector<ProcessConfiguration>::const_iterator i = it->second.begin(), iEnd = it->second.end();
 	    i != iEnd; ++i) {
-	  procConfigMap.insert(std::make_pair(i->id(), *i));
+	  procConfigVector.push_back(*i);
 	}
-      } }
+      }
+    }
 
     void
-    fillMapsInProductRegistry(ProcessConfigurationMap const& procConfigMap, ProductRegistry& productRegistry) {
+    fillMapsInProductRegistry(std::vector<ProcessConfiguration> const& procConfigVector,
+			      ProductRegistry& productRegistry) {
       std::string const triggerResults = std::string("TriggerResults");
       std::string const source = std::string("source");
       std::string const input = std::string("@main_input");
-      for (ProcessConfigurationMap::const_iterator i = procConfigMap.begin(), iEnd = procConfigMap.end();
+      for (std::vector<ProcessConfiguration>::const_iterator i = procConfigVector.begin(), iEnd = procConfigVector.end();
 	  i != iEnd; ++i) {
-	ProcessConfigurationID const& pcid = i->first;
-	std::string const& processName = i->second.processName();
-	ParameterSetID const& processParameterSetID = i->second.parameterSetID();
+	ProcessConfigurationID pcid = i->id();
+	std::string const& processName = i->processName();
+	ParameterSetID const& processParameterSetID = i->parameterSetID();
 	ParameterSet processParameterSet;
 	pset::Registry::instance()->getMapped(processParameterSetID, processParameterSet);
 	for (ProductRegistry::ProductList::iterator
@@ -149,12 +151,12 @@ namespace edm {
   ProvenanceAdaptor::ProvenanceAdaptor(
 	     ProductRegistry& productRegistry,
 	     ProcessHistoryMap const& pHistMap,
-	     ProcessConfigurationMap& procConfigMap) :
+	     std::vector<ProcessConfiguration>& procConfigVector) :
 		productRegistry_(productRegistry),
 		branchIDLists_(),
 		branchListIndexes_() {
-    fillProcessConfigurationMap(pHistMap, procConfigMap);
-    fillMapsInProductRegistry(procConfigMap, productRegistry);
+    fillProcessConfiguration(pHistMap, procConfigVector);
+    fillMapsInProductRegistry(procConfigVector, productRegistry);
     fillListsAndIndexes(productRegistry, pHistMap, branchIDLists_, branchListIndexes_);
   }
 
