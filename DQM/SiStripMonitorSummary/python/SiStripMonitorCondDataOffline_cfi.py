@@ -7,17 +7,18 @@ CondDataMonitoring = cms.EDFilter("SiStripMonitorCondData",
     OutputMEsInRootFile        = cms.bool(True),
 
     MonitorSiStripPedestal     = cms.bool(False),
-    MonitorSiStripNoise        = cms.bool(True),
+    MonitorSiStripNoise        = cms.bool(False),
     MonitorSiStripQuality      = cms.bool(False),
     MonitorSiStripCabling      = cms.bool(False),
     MonitorSiStripLowThreshold = cms.bool(False),
     MonitorSiStripHighThreshold= cms.bool(False),
-    MonitorSiStripApvGain      = cms.bool(False),                              
+    MonitorSiStripApvGain      = cms.bool(True),                              
     MonitorSiStripLorentzAngle = cms.bool(False),                            
 
     FillConditions_PSet = cms.PSet(
       FolderName_For_QualityAndCabling_SummaryHistos= cms.string("SiStrip/Tracks"),
-      Mod_On                  = cms.bool(True),
+      Mod_On                  = cms.bool(False),
+      HistoMaps_On            = cms.bool(False),
       SummaryOnStringLevel_On = cms.bool(False),
       SummaryOnLayerLevel_On  = cms.bool(True),
       GrandSummary_On         = cms.bool(True),
@@ -46,7 +47,7 @@ CondDataMonitoring = cms.EDFilter("SiStripMonitorCondData",
 
     SiStripPedestalsDQM_PSet = cms.PSet(
 
-      CondObj_fillId       = cms.string('onlyProfile'),
+      CondObj_fillId       = cms.string('ProfileAndCumul'),
       CondObj_name         = cms.string('pedestal'),
 
       FillSummaryAtLayerLevel           = cms.bool(True),
@@ -74,7 +75,7 @@ CondDataMonitoring = cms.EDFilter("SiStripMonitorCondData",
     # -----
     SiStripNoisesDQM_PSet = cms.PSet(
 
-      CondObj_fillId    = cms.string('onlyProfile'),
+      CondObj_fillId    = cms.string('ProfileAndCumul'),
       CondObj_name      = cms.string('noise'),
 
       GainRenormalisation               = cms.bool(False),
@@ -198,7 +199,7 @@ CondDataMonitoring = cms.EDFilter("SiStripMonitorCondData",
     SiStripLorentzAngleDQM_PSet = cms.PSet(
 
       CondObj_name = cms.string('lorentzangle'),
-      CondObj_fillId = cms.string('none'),
+      CondObj_fillId       = cms.string('ProfileAndCumul'),    
       
       FillSummaryProfileAtLayerLevel = cms.bool(True),
       FillCumulativeSummaryAtLayerLevel = cms.bool(True),
