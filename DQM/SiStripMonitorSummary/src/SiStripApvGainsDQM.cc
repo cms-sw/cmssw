@@ -7,6 +7,10 @@
 SiStripApvGainsDQM::SiStripApvGainsDQM(const edm::EventSetup & eSetup,
                                        edm::ParameterSet const& hPSet,
                                        edm::ParameterSet const& fPSet):SiStripBaseCondObjDQM(eSetup,hPSet, fPSet){
+
+  // Build the Histo_TkMap:
+  if(HistoMaps_On_ ) Tk_HM_ = new TkHistoMap("SiStrip/Histo_Map","MeanApvGain_TkMap",0.);
+
 }
 // -----
 
@@ -136,6 +140,7 @@ void SiStripApvGainsDQM::fillMEsForLayer( std::map<uint32_t, ModMEs> selMEsMap_,
     }// istrip
   }//if Fill ...
 
+
   if(hPSet_.getParameter<bool>("FillSummaryAtLayerLevel")){
   
     // -->  summary    
@@ -147,8 +152,8 @@ void SiStripApvGainsDQM::fillMEsForLayer( std::map<uint32_t, ModMEs> selMEsMap_,
 						"layer", 
 						getLayerNameAndId(selDetId_).first, 
 						"") ;
-  
-    // -----
+
+
     // get detIds belonging to same layer to fill X-axis with detId-number
   
     std::vector<uint32_t> sameLayerDetIds_;
@@ -160,22 +165,34 @@ void SiStripApvGainsDQM::fillMEsForLayer( std::map<uint32_t, ModMEs> selMEsMap_,
     unsigned int iBin=0;
     for(unsigned int i=0;i<sameLayerDetIds_.size();i++){
       if(sameLayerDetIds_[i]==selDetId_){iBin=i+1;}
-    }  
-  
+    }
+
+    float meanApvGain=0;
+    
     for( int iapv=0;iapv<nApv;++iapv){
-      try{ 
+      try{
+	meanApvGain = meanApvGain +gainHandle_ ->getApvGain(iapv,gainRange);
 	selME_.SummaryDistr->Fill(iBin,gainHandle_->getApvGain(iapv,gainRange));
-      } 
+      }
       catch(cms::Exception& e){
-	edm::LogError("SiStripApvGainsDQM")          
-	  << "[SiStripApvGainsDQM::fillMEsForLayer] cms::Exception accessing gainHandle_->getApvGain(iapv,gainRange) for apv "  
-	  << iapv 
+	edm::LogError("SiApvGainsDQM")          
+	  << "[SiStripApvGainsDQM::fillMEsForLayer] cms::Exception accessing noiseHandle_->gainHandle_->getApvGain(iapv,gainRange) for apv "  
+	  << iapv
 	  << "and detid " 
 	  << selDetId_  
 	  << " :  " 
 	  << e.what() ;
       }
-    }// iapv
+    }//iapv
+    meanApvGain  = meanApvGain/nApv;
+
+  
+    // -----
+
+
+    // Fill the Histo_TkMap with the mean ApvGain:
+        if(HistoMaps_On_ ) Tk_HM_->fill(selDetId_, meanApvGain);
+
   }//if Fill ...
 }  
 // -----

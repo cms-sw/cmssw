@@ -16,6 +16,7 @@ SiStripBaseCondObjDQM::SiStripBaseCondObjDQM(const edm::EventSetup & eSetup,
   reader = new SiStripDetInfoFileReader(edm::FileInPath(std::string("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat") ).fullPath());
   
   Mod_On_                  = fPSet_.getParameter<bool>("Mod_On");
+  HistoMaps_On_            = fPSet_.getParameter<bool>("HistoMaps_On");
   SummaryOnLayerLevel_On_  = fPSet_.getParameter<bool>("SummaryOnLayerLevel_On");
   SummaryOnStringLevel_On_ = fPSet_.getParameter<bool>("SummaryOnStringLevel_On");
   GrandSummary_On_           = fPSet_.getParameter<bool>("GrandSummary_On");
@@ -30,7 +31,6 @@ SiStripBaseCondObjDQM::SiStripBaseCondObjDQM(const edm::EventSetup & eSetup,
        << "[SiStripBaseCondObjDQM::SiStripBaseCondObjDQMs] PLEASE CHECK : String and layer level options can not be activated together"
        << std::endl; 
   }
-
 
 }
 // -----

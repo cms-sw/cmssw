@@ -5,7 +5,12 @@ using namespace std;
 
 SiStripCablingDQM::SiStripCablingDQM(const edm::EventSetup & eSetup,
 				     edm::ParameterSet const& hPSet,
-				     edm::ParameterSet const& fPSet):SiStripBaseCondObjDQM(eSetup, hPSet, fPSet){}
+				     edm::ParameterSet const& fPSet):SiStripBaseCondObjDQM(eSetup, hPSet, fPSet){
+
+  // Build the Histo_TkMap:
+  if(HistoMaps_On_ ) Tk_HM_ = new TkHistoMap("SiStrip/Histo_Map","Cabling_TkMap",0.);
+
+}
 // -----
 
 // -----
@@ -13,36 +18,49 @@ SiStripCablingDQM::~SiStripCablingDQM(){}
 // -----
 
 
+
 // -----
 void SiStripCablingDQM::getActiveDetIds(const edm::EventSetup & eSetup){
+  
+  // Get active and total detIds
+  getConditionObject(eSetup);
+  cablingHandle_->addActiveDetectorsRawIds(activeDetIds);
+  cablingHandle_->addAllDetectorsRawIds(all_DetIds);
+  selectModules(activeDetIds);
 
 
+  //Initialize arrays for counting:
   int counterTIB[4];
-  for(int i=0;i<4;i++)counterTIB[i]=0;
-
+  for(int i=0;i<4;i++) counterTIB[i]=0;
   int counterTID[2][3];
   for(int i=0;i<2;i++){
     for(int j=0;j<3;j++)counterTID[i][j]=0;
   }
-
   int counterTOB[6];
   for(int i=0;i<6;i++)counterTOB[i]=0;
-
   int counterTEC[2][9];
   for(int i=0;i<2;i++){
     for(int j=0;j<9;j++)counterTEC[i][j]=0;
   }
 
-  cablingHandle_->addActiveDetectorsRawIds(activeDetIds);
-  selectModules(activeDetIds);
+
+  std::vector<uint32_t>::const_iterator iall_det=all_DetIds.begin();
+
+  //fill Histo_Map with initial value: 
+  for(;iall_det!=all_DetIds.end();++iall_det){
+    uint32_t all_detId = *iall_det;
+    if(HistoMaps_On_ ) Tk_HM_->setBinContent(all_detId, 0);
+  }
+
 
   std::vector<uint32_t>::const_iterator idet=activeDetIds.begin();
 
+  //fill arrays for counting and fill Histo_Map with value for connected : 
   for(;idet!=activeDetIds.end();++idet){
-
     uint32_t detId = *idet;
-
     StripSubdetector subdet(detId);
+
+    if(HistoMaps_On_ ) {Tk_HM_->setBinContent(detId, 1);}
 
     switch (subdet.subdetId()) 
       {
@@ -86,43 +104,15 @@ void SiStripCablingDQM::getActiveDetIds(const edm::EventSetup & eSetup){
 	}
       }
 
-    /*    std::string s;
-    s=getLayerNameAndId(*idet).first; 
-    LogDebug("SiStripCabling")<<"Sub Det and Layer "<<s;
-    for(int i=0;i<4;i++){
-      std::stringstream ss;
-      ss<<"TIB__layer__"<<i+1;
-      if(strstr(s.c_str(),ss.str().c_str())!=NULL)counterTIB[i]++;
-    }
-
-    for(int i=0;i<2;i++){
-      for(int j=0;j<3;j++){
-	std::stringstream ss;
-	ss<<"TID__side__"<<i+1<<"__wheel__"<<j+1;
-	if(strstr(s.c_str(),ss.str().c_str())!=NULL)counterTID[i][j]++;
-      }
-    }
-
-    for(int i=0;i<6;i++){
-      std::stringstream ss;
-      ss<<"TOB__layer__"<<i+1;
-      if(strstr(s.c_str(),ss.str().c_str())!=NULL)counterTOB[i]++;
-    }
-
-    for(int i=0;i<2;i++){
-      for(int j=0;j<9;j++){
-	std::stringstream ss;
-	ss<<"TEC__side__"<<i+1<<"__wheel__"<<j+1;
-	if(strstr(s.c_str(),ss.str().c_str())!=NULL)counterTEC[i][j]++;
-      }
-      }*/
-  }
+  } // idet
 
   //obtained from tracker.dat and hard-coded
   int TIBDetIds[4]={672,864,540,648};
   int TIDDetIds[2][3]={{136,136,136},{136,136,136}};
   int TOBDetIds[6]={1008,1152,648,720,792,888};
   int TECDetIds[2][9]={{408,408,408,360,360,360,312,312,272},{408,408,408,360,360,360,312,312,272}};
+
+
 
   DQMStore* dqmStore_=edm::Service<DQMStore>().operator->();
 
@@ -165,3 +155,5 @@ void SiStripCablingDQM::getActiveDetIds(const edm::EventSetup & eSetup){
   }
 
 }
+
+

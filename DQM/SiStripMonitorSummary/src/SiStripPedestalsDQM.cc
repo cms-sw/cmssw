@@ -6,6 +6,10 @@ SiStripPedestalsDQM::SiStripPedestalsDQM(const edm::EventSetup & eSetup,
                                          edm::ParameterSet const& hPSet,
                                          edm::ParameterSet const& fPSet):SiStripBaseCondObjDQM(eSetup, hPSet, fPSet){
 
+  // Build the Histo_TkMap:
+  if(HistoMaps_On_ ) Tk_HM_ = new TkHistoMap("SiStrip/Histo_Map","MeanPed_TkMap",0.);
+
+
 }
 // -----
 
@@ -199,6 +203,9 @@ void SiStripPedestalsDQM::fillMEsForLayer( std::map<uint32_t, ModMEs> selMEsMap_
     }   
   
     selME_.SummaryDistr->Fill(iBin,meanPedestal);
+
+    // Fill the Histo_TkMap with the mean Pedestal:
+        if(HistoMaps_On_ ) Tk_HM_->fill(selDetId_, meanPedestal);
 
   }//if Fill ...
   

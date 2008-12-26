@@ -5,6 +5,10 @@
 SiStripLorentzAngleDQM::SiStripLorentzAngleDQM(const edm::EventSetup & eSetup,
 					       edm::ParameterSet const& hPSet,
 					       edm::ParameterSet const& fPSet):SiStripBaseCondObjDQM(eSetup, hPSet, fPSet){
+
+  // Build the Histo_TkMap:
+  if(HistoMaps_On_ ) Tk_HM_ = new TkHistoMap("SiStrip/Histo_Map","LA_TkMap",0.);
+
 }
 // -----
 
@@ -138,6 +142,10 @@ void SiStripLorentzAngleDQM::fillMEsForLayer( std::map<uint32_t, ModMEs> selMEsM
     for(unsigned int i=0;i< sameLayerDetIds_.size(); i++){
       try{ 
 	selME_.SummaryOfProfileDistr->Fill(i+1,lorentzangleHandle_->getLorentzAngle(sameLayerDetIds_[i]));
+
+    // Fill the Histo_TkMap with the mean Pedestal:
+        if(HistoMaps_On_ ) Tk_HM_->fill(selDetId_, lorentzangleHandle_->getLorentzAngle(sameLayerDetIds_[i]));
+
       }
       catch(cms::Exception& e){
 	edm::LogError("SiStripLorentzAngleDQM")
@@ -199,6 +207,10 @@ void SiStripLorentzAngleDQM::fillMEsForLayer( std::map<uint32_t, ModMEs> selMEsM
       for(unsigned int i=0;i< sameLayerDetIds_.size(); i++){
 	try{ 
 	  selME_.SummaryOfProfileDistr->Fill(i+1,lorentzangleHandle_->getLorentzAngle(sameLayerDetIds_[i]));
+
+    // Fill the Histo_TkMap with the mean Pedestal:
+        if(HistoMaps_On_ ) Tk_HM_->fill(selDetId_, lorentzangleHandle_->getLorentzAngle(sameLayerDetIds_[i]));
+
 	}
 	catch(cms::Exception& e){
 	  edm::LogError("SiStripLorentzAngleDQM")
