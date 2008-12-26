@@ -4,8 +4,8 @@
 /** \class SiStripAnalyser
  * *
  *  SiStrip SiStripAnalyser
- *  $Date: 2008/09/27 18:20:57 $
- *  $Revision: 1.25 $
+ *  $Date: 2008/12/12 20:26:48 $
+ *  $Revision: 1.26 $
  *  \author  S. Dutta INFN-Pisa
  *   
  */
@@ -83,6 +83,7 @@ private:
   int tkMapFrequency_;
   int staticUpdateFrequency_;
   int globalStatusFilling_;
+  int shiftReportFrequency_;
   edm::InputTag rawDataTag_;
 
   std::string outputFilePath_;

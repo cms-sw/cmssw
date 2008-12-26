@@ -50,9 +50,9 @@ void SiStripWebInterface::handleAnalyserRequest(xgi::Input* in,xgi::Output* out,
   }    
   else if (requestID == "CheckQTResults") {
     std::string infoType = get_from_multimap(requestMap_, "InfoType");
-    infoExtractor_->readQTestSummary(dqmStore_, infoType, detcabling, out);
+    infoExtractor_->readQTestSummary(dqmStore_, infoType, out);
     theActionFlag = NoAction;
-  } 
+  }
   else if (requestID == "SingleModuleHistoList") {
     theActionFlag = NoAction;
     std::string sname = get_from_multimap(requestMap_, "FolderName");    

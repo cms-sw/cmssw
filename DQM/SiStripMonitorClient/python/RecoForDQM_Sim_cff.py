@@ -11,7 +11,7 @@ from RecoLocalTracker.SiStripZeroSuppression.SiStripZeroSuppression_cfi import *
 from RecoLocalTracker.SiPixelRecHits.PixelCPEESProducers_cff import *
 
 # TrackRefitter With Material
-from RecoTracker.TrackProducer.RefitterWithMaterial_cff import *
+from RecoTracker.TrackProducer.TrackRefitters_cff import *
 TrackRefitter.TrajectoryInEvent = True
 
 # Sequence

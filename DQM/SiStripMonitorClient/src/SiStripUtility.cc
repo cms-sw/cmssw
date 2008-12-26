@@ -162,3 +162,14 @@ int SiStripUtility::getMEStatus(MonitorElement* me, int& bad_channels) {
   }
   return status;
 }
+//
+// -- Get Status of Monitor Element
+//
+void SiStripUtility::getMEValue(MonitorElement* me, string & val){
+  val = "";
+  if (me) {
+    val = me->valueString();
+    val = val.substr(val.find("=")+1);
+  }
+}
+

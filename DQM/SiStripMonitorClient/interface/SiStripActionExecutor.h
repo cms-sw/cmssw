@@ -5,7 +5,9 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include <iostream>
 #include <fstream>
+#include <sstream>
 #include <map>
 #include <vector>
 #include <string>
@@ -16,6 +18,7 @@ class MonitorUserInterface;
 class SiStripTrackerMapCreator;
 class SiStripFedCabling;
 class SiStripDetCabling;
+class SiStripConfigWriter;
 
 class SiStripActionExecutor {
 
@@ -41,6 +44,11 @@ class SiStripActionExecutor {
  
  void resetGlobalStatus();
  void fillDummyGlobalStatus();
+ void createDummyShiftReport();
+ void createShiftReport(DQMStore * dqm_store);
+ void printReportSummary(MonitorElement* me, std::ostringstream& str_val, std::string name);
+ void printShiftHistoParameters(DQMStore * dqm_store,
+             std::map<std::string, std::vector<std::string> >&layout_map,std::ostringstream& str_val);
 
  private:
 
@@ -69,5 +77,6 @@ class SiStripActionExecutor {
   MonitorElement * OnTrackClusterReport;
 
   bool bookedGlobalStatus_;
+  SiStripConfigWriter* configWriter_;
 };
 #endif

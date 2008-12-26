@@ -6,8 +6,8 @@
  *  Base class for Parsers used by DQM
  *
  *
- *  $Date: 2006/08/01 18:14:27 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/10/26 19:40:29 $
+ *  $Revision: 1.2 $
  *  \author Suchandra Dutta
  */
 #include <xercesc/util/PlatformUtils.hpp>
@@ -37,11 +37,17 @@ class SiStripConfigWriter{
 	///Destructor
 	~SiStripConfigWriter();
 	///Write XML file
-        bool init();
-        void write(std::string& fname);
-        void createLayout(std::string& name);
-        void createRow();
-        void createColumn(std::string& element, std::string& name);
+        bool init(std::string main);
+        void write(std::string fname);
+        void createElement(std::string tag);
+        void createElement(std::string tag, std::string name);
+        void createChildElement(std::string tag,std::string name);
+        void createChildElement(std::string tag,std::string name,std::string att_name,std::string att_val);
+        void createChildElement(std::string tag,std::string name,std::string att_name1,std::string att_val1,
+                                                                   std::string att_name2,std::string att_val2);
+        void createChildElement(std::string tag,std::string name,std::string att_name1,std::string att_val1,
+                                                                   std::string att_name2,std::string att_val2,
+                                                                   std::string att_name3,std::string att_val3);
         
  protected:	 
 	 
@@ -50,8 +56,7 @@ class SiStripConfigWriter{
  private:
 	 
 	xercesc::DOMElement* theTopElement;
-	xercesc::DOMElement* lastLayout;
-	xercesc::DOMElement* lastRow;
+	xercesc::DOMElement* lastElement;
 	xercesc::DOMDocument* theDoc ;
         xercesc::DOMImplementation* domImpl;
         xercesc::DOMWriter* domWriter;

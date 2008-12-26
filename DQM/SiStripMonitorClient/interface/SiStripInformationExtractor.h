@@ -51,7 +51,7 @@ class SiStripInformationExtractor {
   void readGlobalHistoList(DQMStore* dqm_store, std::string& dname, xgi::Output * out);
   void readLayoutNames(std::multimap<std::string, std::string>& req_map, xgi::Output * out);
 
-  void readQTestSummary(DQMStore* dqm_store, std::string type, const edm::ESHandle<SiStripDetCabling>& detcabling, xgi::Output * out);
+  void readQTestSummary(DQMStore* dqm_store, std::string type, xgi::Output * out);
 
   void readNonGeomHistoTree(DQMStore* dqm_store, std::string& fld_name, xgi::Output * out);
   
@@ -88,6 +88,7 @@ class SiStripInformationExtractor {
   SiStripLayoutParser* layoutParser_;
 
   std::map<std::string, std::vector< std::string > > layoutMap;
+  std::vector<std::string> subdetVec;
   bool  readReference_;
  
 

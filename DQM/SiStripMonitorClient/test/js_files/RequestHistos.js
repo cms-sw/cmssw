@@ -523,3 +523,16 @@ RequestHistos.DrawLayerCondDBHisto = function()
  			          onComplete: IMGC.processImageURLs // <-- call-back function
  			         });
 }
+//
+// Check Shifter Report
+//
+RequestHistos.CheckShiftReport = function() {
+  var url          = WebLib.getApplicationURL();
+  url              = url + "/sistrip_shift_report.txt"; 
+  var retVal = new Ajax.Request(url,
+                               {           
+                  		method: 'get',	  
+ 			        parameters: '', 
+ 			        onSuccess: RequestHistos.FillTextStatus
+ 			       });
+}

@@ -15,11 +15,12 @@
 #include "DQM/SiStripMonitorClient/interface/SiStripUtility.h"
 #include "DQM/SiStripMonitorClient/interface/SiStripSummaryCreator.h"
 #include "DQM/SiStripMonitorClient/interface/SiStripTrackerMapCreator.h"
+#include "DQM/SiStripMonitorClient/interface/SiStripLayoutParser.h"
+#include "DQM/SiStripMonitorClient/interface/SiStripConfigWriter.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 
-#include <iostream>
 #include <iomanip>
 using namespace std;
 //
@@ -30,7 +31,7 @@ SiStripActionExecutor::SiStripActionExecutor() {
     " Creating SiStripActionExecutor " << "\n" ;
   summaryCreator_= 0;
   tkMapCreator_ = 0; 
-
+  configWriter_ = 0;
   bookedGlobalStatus_ = false;
 }
 //
@@ -488,4 +489,128 @@ bool SiStripActionExecutor::goToDir(DQMStore * dqm_store, string name) {
     else return true;
   }
   return false;  
+}
+//
+// -- 
+//
+void SiStripActionExecutor::createDummyShiftReport(){
+  ofstream report_file;
+  report_file.open("sistrip_shift_report.txt", ios::out);
+  report_file << " Nothing to report!!" << endl;
+  report_file.close();
+}
+//
+// -- Create Shift Report
+//
+void SiStripActionExecutor::createShiftReport(DQMStore * dqm_store){
+
+  // Read layout configuration
+  string localPath = string("DQM/SiStripMonitorClient/data/sistrip_plot_layout.xml");
+  SiStripLayoutParser* layout_parser = new SiStripLayoutParser();
+  layout_parser->getDocument(edm::FileInPath(localPath).fullPath());
+    
+  map<string, vector<string> > layout_map;
+  if (!layout_parser->getAllLayouts(layout_map)) return;
+  delete layout_parser;
+
+  
+  ostringstream shift_summary;
+  if (configWriter_) delete configWriter_;
+  configWriter_ = new SiStripConfigWriter();
+  configWriter_->init("ShiftReport");
+
+
+  // Print Report Summary Content
+  shift_summary << " Report Summary Content :" << endl;  
+  shift_summary << " =========================" << endl;  
+  configWriter_->createElement("ReportSummary");
+  
+  if (SummaryReport) { 
+    printReportSummary(SummaryReport, shift_summary, "Overall"); 
+  }
+  if (SummaryTIB) {
+    printReportSummary(SummaryTIB, shift_summary, "TIB");
+  }
+  if (SummaryTOB) {
+    printReportSummary(SummaryTOB, shift_summary, "TOB");
+  }
+  if (SummaryTIDF) {
+    printReportSummary(SummaryTIDF, shift_summary, "TIDF");
+  }
+  if (SummaryTIDB) {
+    printReportSummary(SummaryTIDB, shift_summary, "TIDB");
+  }
+  if (SummaryTECF) {
+    printReportSummary(SummaryTECF, shift_summary, "TECF");
+  }
+  if (SummaryTECB) {
+    printReportSummary(SummaryTECB, shift_summary, "TECB");
+  }
+
+  shift_summary << endl;
+  printShiftHistoParameters(dqm_store, layout_map, shift_summary);
+  
+  ofstream report_file;
+  report_file.open("sistrip_shift_report.txt", ios::out);
+  report_file << shift_summary.str() << endl;
+  report_file.close();
+  configWriter_->write("sistrip_shift_report.xml");
+  delete configWriter_;
+  configWriter_ = 0;
+}
+//
+//  -- Print Report Summary
+//
+void SiStripActionExecutor::printReportSummary(MonitorElement* me,
+					       ostringstream& str_val, string name) { 
+  str_val <<" " << name << "  : ";
+  if (me->kind()==MonitorElement::DQM_KIND_REAL){
+    string value;
+    SiStripUtility::getMEValue(me, value);
+    configWriter_->createChildElement("MonitorElement", name, "value", value);
+    float fvalue = atof(value.c_str());
+    if (fvalue == -1.0)  str_val <<" Dummy Value "<<endl;
+    else                 str_val << fvalue << endl;
+  }
+}
+//
+//  -- Print Shift Histogram Properties
+//
+void SiStripActionExecutor::printShiftHistoParameters(DQMStore * dqm_store, map<string, vector<string> >& layout_map, ostringstream& str_val) { 
+
+  str_val << endl;
+  for (map<std::string, std::vector< std::string > >::iterator it = layout_map.begin() ; it != layout_map.end(); it++) {
+    string set_name = it->first;
+    if (set_name.find("Summary") != string::npos) continue;
+    configWriter_->createElement(set_name);
+    
+    str_val << " " << set_name << " : " << endl;
+    str_val << " ===================================="<< endl;
+    
+    str_val << setprecision(2);
+    str_val << setiosflags(ios::fixed);
+    for (vector<string>::iterator im = it->second.begin(); 
+	 im != it->second.end(); im++) {  
+      string path_name = (*im);
+      if (path_name.size() == 0) continue;
+      MonitorElement* me = dqm_store->get(path_name);
+      ostringstream entry_str, mean_str, rms_str;
+      entry_str << setprecision(2);
+      entry_str << setiosflags(ios::fixed);
+      mean_str << setprecision(2);
+      mean_str << setiosflags(ios::fixed);
+      rms_str << setprecision(2);
+      rms_str << setiosflags(ios::fixed);
+      entry_str << setw(7) << me->getEntries();
+      mean_str << setw(7) << me->getMean();
+      rms_str << setw(7) << me->getRMS();
+      configWriter_->createChildElement("MonitorElement", me->getName(), 
+	"entries",entry_str.str(),"mean",mean_str.str(),"rms",rms_str.str());
+      
+      if (me) str_val << " "<< me->getName()  <<" : entries = "<< setw(7) 
+		      << me->getEntries() << " mean = "<< me->getMean()
+		      <<" : rms = "<< me->getRMS()<< endl;
+    }
+    str_val << endl;
+  }    
 }

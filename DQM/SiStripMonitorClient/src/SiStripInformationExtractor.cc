@@ -56,6 +56,13 @@ void SiStripInformationExtractor::readConfiguration() {
           " Problem in reading Layout " << "\n" ;
   if (layoutParser_) delete layoutParser_;
 
+  subdetVec.push_back("SiStrip/MechanicalView/TIB");
+  subdetVec.push_back("SiStrip/MechanicalView/TOB");
+  subdetVec.push_back("SiStrip/MechanicalView/TID/side_2");
+  subdetVec.push_back("SiStrip/MechanicalView/TID/side_1");
+  subdetVec.push_back("SiStrip/MechanicalView/TEC/side_2");
+  subdetVec.push_back("SiStrip/MechanicalView/TEC/side_1");
+
 }
 //
 // --  Fill Summary Histo List
@@ -698,9 +705,7 @@ void SiStripInformationExtractor::readStatusMessage(DQMStore* dqm_store, std::mu
 //
 // -- Read the text Summary of QTest result
 //
-void SiStripInformationExtractor::readQTestSummary(DQMStore* dqm_store, string type, const edm::ESHandle<SiStripDetCabling>& detcabling, xgi::Output * out) {
-  std::vector<uint32_t> SelectedDetIds;
-  detcabling->addActiveDetectorsRawIds(SelectedDetIds);
+void SiStripInformationExtractor::readQTestSummary(DQMStore* dqm_store, string type, xgi::Output * out) {
 
   int nDetsWithError = 0;
   int nDetsWithWarning = 0;
@@ -710,54 +715,71 @@ void SiStripInformationExtractor::readQTestSummary(DQMStore* dqm_store, string t
   ostringstream qtest_summary, lite_summary;
   
   SiStripFolderOrganizer folder_organizer;
-  for (std::vector<uint32_t>::const_iterator idetid=SelectedDetIds.begin(), iEnd=SelectedDetIds.end();idetid!=iEnd;++idetid){    
-    uint32_t detId = *idetid;
-    if (detId == 0 || detId == 0xFFFFFFFF){
-      edm::LogError("SiStripInformationExtractor") 
-                  <<"SiStripInformationExtractor::readQTestSummary: " 
-                  << "Wrong DetId !!!!!! " <<  detId << " Neglecting !!!!!! ";
-      continue;
+  for (vector<string>::const_iterator isubdet = subdetVec.begin(); isubdet != subdetVec.end(); isubdet++) {
+    string dname = (*isubdet);
+    if (!dqm_store->dirExists(dname)) continue;
+    qtest_summary << "============"<< endl;  
+    qtest_summary << dname.substr(dname.find("View/")+5) << endl;
+    qtest_summary << "============"<< endl;  
+    qtest_summary << endl;  
+
+    dqm_store->cd(dname);
+    int ndet    = 0;
+    int errdet  = 0;       
+    int warndet = 0;
+    SiStripFolderOrganizer folder_organizer;
+    vector<string> subDirVec = dqm_store->getSubdirs();
+    for (vector<string>::const_iterator ic = subDirVec.begin();
+	 ic != subDirVec.end(); ic++) {
+      dqm_store->cd((*ic));
+      vector<string> mids;
+      SiStripUtility::getModuleFolderList(dqm_store, mids);
+      ndet += mids.size();
+      for (vector<string>::const_iterator im = mids.begin();
+	   im != mids.end(); im++) {
+	uint32_t detId = atoi((*im).c_str());
+	string subdir_path;
+	folder_organizer.getFolderName(detId, subdir_path);
+	vector<MonitorElement*> meVec = dqm_store->getContents(subdir_path);
+	if (meVec.size() == 0) continue;
+	int err_me = 0;
+	int warn_me = 0;
+	for (vector<MonitorElement*>::const_iterator it = meVec.begin();
+	     it != meVec.end(); it++) {
+	  MonitorElement * me = (*it);     
+	  if (!me) continue;
+	  if (me->getQReports().size() == 0) continue;
+	  int istat =  SiStripUtility::getMEStatus((*it));
+	  qtest_summary << " Module Id " << detId << " : "<< endl;
+	  if (istat == dqm::qstatus::ERROR) {
+	    err_me++;
+	    qtest_summary << me->getName() << " ==> Error " << endl; 
+	  } else if (istat == dqm::qstatus::WARNING) {
+	    warn_me++;
+	    qtest_summary << me->getName() << " ==> Warning " << endl; 
+	  }
+	}
+	if (err_me > 0 || warn_me >0) {
+	  if (err_me > 0) {
+	    errdet++;
+	    nTotalError += err_me;
+	  }
+          if (warn_me > 0) {
+            warndet++;
+	    nDetsWithWarning++;
+	    nTotalWarning += warn_me;
+          }
+        }
+      }      
     }
-    nDetsTotal++;
-    string dir_path;
-    folder_organizer.getFolderName(detId, dir_path);     
-    vector<MonitorElement*> detector_mes = dqm_store->getContents(dir_path);
-    int error_me = 0;
-    int warning_me = 0;
-    for (vector<MonitorElement *>::const_iterator it = detector_mes.begin();
-	 it!= detector_mes.end(); it++) {
-      MonitorElement * me = (*it);     
-      if (!me) continue;
-      vector<QReport*> q_reports = me->getQReports();
-      if (!me->hasError() && !me->hasWarning() ) continue;
-      if (q_reports.size() == 0) continue;
-      if (me->hasError()) error_me++;
-      if (me->hasWarning()) warning_me++;
-      if (error_me == 1 || warning_me == 1) {
-	qtest_summary << " Module = " << me->getPathname() << endl;
-	qtest_summary << "====================================================================="<< endl; 
-      }
-      qtest_summary << me->getName() << endl; 
-      for (vector<QReport*>::const_iterator it = q_reports.begin(); it != q_reports.end();
-	   it++) {
-	int status =  (*it)->getStatus();
-	string mess_str = (*it)->getMessage();
-        
-	if (status == dqm::qstatus::STATUS_OK || status == dqm::qstatus::OTHER) continue;
-	if (status == dqm::qstatus::ERROR)        qtest_summary << " ERROR =>   ";
-        else if (status == dqm::qstatus::WARNING) qtest_summary << " WARNING => ";
-	qtest_summary << mess_str.substr(0, mess_str.find(")")+1) 
-                    << " Result  : "  << mess_str.substr(mess_str.find(")")+2) << endl;
-      } 
-    }
-    if (error_me > 0)   {
-      nDetsWithError++;
-      nTotalError += error_me;
-    }
-    if (warning_me > 0) {
-      nDetsWithWarning++;
-      nTotalWarning += warning_me;
-    }
+    qtest_summary << "--------------------------------------------------------------------"<< endl;  
+    qtest_summary << " Detectors :  Total "<< ndet 
+                  << " with Error " << errdet  
+                  << " with Warning " << warndet << endl; 
+    qtest_summary << "--------------------------------------------------------------------"<< endl;  
+    nDetsTotal += ndet;    
+    nDetsWithError += errdet;
+    nDetsWithWarning += warndet;
   }
   lite_summary << " Total Detectors " << nDetsTotal << endl;
   lite_summary << " # of Detectors with Warning " << nDetsWithWarning << endl;
@@ -767,15 +789,13 @@ void SiStripInformationExtractor::readQTestSummary(DQMStore* dqm_store, string t
   lite_summary << " Total # MEs with Warning " << nTotalWarning << endl;
   lite_summary << " Total # MEs with Error "   << nTotalError << endl;
 
-
   setPlainHeader(out);
   if (type == "Lite") *out << lite_summary.str();
   else {
-   if (nDetsWithWarning == 0 && nDetsWithError ==0)  *out << lite_summary.str();
-   else  *out << qtest_summary.str();
+    //   if (nDetsWithWarning == 0 && nDetsWithError ==0)  *out << lite_summary.str();
+    *out << qtest_summary.str();
   }
-
-  //  dqm_store->cd();
+  dqm_store->cd();
 }
 //
 // -- Create Images 
