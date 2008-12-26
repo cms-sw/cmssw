@@ -7,7 +7,7 @@ set -o nounset
 echo "====> Starting CondDB cron job at $(date)<===="
 
 DEBUG=1
-PROGNAME=/home/cmstacuser/CMSSWReleasesForCondDB/CMSSW_2_1_4/src/RunCondDBOffline21X_PedNoise.sh  
+PROGNAME=/home/cmstacuser/CMSSWReleasesForCondDB/CMSSW_2_1_12/src/RunCondDBOffline21X_PedNoise.sh  
 #PROGNAME=/bin/ls  
 COMMAND=cmsRun
 let "count = $(ps --no-headers -l -C $COMMAND | wc -l)"
