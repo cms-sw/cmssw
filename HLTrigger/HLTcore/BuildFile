@@ -5,11 +5,5 @@
 <use name=FWCore/PrescaleService>
 <use name=FWCore/ServiceRegistry>
 <export>
-  <use name=DataFormats/Common>
-  <use name=DataFormats/HLTReco>
-  <use name=FWCore/Framework>
-  <use name=FWCore/ParameterSet>
-  <use name=FWCore/PrescaleService>
-  <use name=FWCore/ServiceRegistry>
   <lib name=HLTriggerHLTcore>
 </export>
