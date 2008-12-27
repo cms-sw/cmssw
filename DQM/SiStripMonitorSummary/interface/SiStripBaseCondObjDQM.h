@@ -29,6 +29,8 @@
 #include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 
+#include "DQM/SiStripCommon/interface/TkHistoMap.h"  /// ADDITON OF TK_HISTO_MAP
+
 #include <vector>
 #include <map>
 #include <string>
@@ -93,6 +95,7 @@ class SiStripBaseCondObjDQM {
     edm::ParameterSet fPSet_;
     
     bool Mod_On_;
+    bool HistoMaps_On_;
     bool SummaryOnLayerLevel_On_;
     bool SummaryOnStringLevel_On_;
     bool GrandSummary_On_;
@@ -102,10 +105,12 @@ class SiStripBaseCondObjDQM {
     std::map<uint32_t, ModMEs> ModMEsMap_;
     std::map<uint32_t, ModMEs> SummaryMEsMap_;
     std::vector<uint32_t> activeDetIds;
+    std::vector<uint32_t> all_DetIds;
  
     unsigned long long cacheID_memory;
     unsigned long long cacheID_current;
 
+    TkHistoMap* Tk_HM_;
 
   
  private:
@@ -128,6 +133,9 @@ class SiStripBaseCondObjDQM {
     SiStripHistoId hidmanager;                        
     SiStripFolderOrganizer folder_organizer;         
     DQMStore* dqmStore_;
+
+
+
 
 };
 
