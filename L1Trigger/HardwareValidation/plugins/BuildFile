@@ -14,7 +14,6 @@
 <use name=DataFormats/L1GlobalTrigger>
 <use name=DataFormats/L1Trigger>
 <use name=DataFormats/FEDRawData>
-<use name=FastSimulation/Utilities>
 <use name=L1Trigger/CSCTrackFinder>
 
 <library file=*.cc name=L1TriggerHardwareValidationPlugins>
