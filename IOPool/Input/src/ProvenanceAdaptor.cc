@@ -49,10 +49,10 @@ namespace edm {
     }
 
     void
-    fillProcessConfiguration(ProcessHistoryMap const& pHistMap, std::vector<ProcessConfiguration>& procConfigVector) {
+    fillProcessConfiguration(ProcessHistoryMap const& pHistMap, ProcessConfigurationVector& procConfigVector) {
       for (ProcessHistoryMap::const_iterator it = pHistMap.begin(), itEnd = pHistMap.end();
 	  it != itEnd; ++it) {
-        for (std::vector<ProcessConfiguration>::const_iterator i = it->second.begin(), iEnd = it->second.end();
+        for (ProcessConfigurationVector::const_iterator i = it->second.begin(), iEnd = it->second.end();
 	    i != iEnd; ++i) {
 	  procConfigVector.push_back(*i);
 	}
@@ -60,12 +60,12 @@ namespace edm {
     }
 
     void
-    fillMapsInProductRegistry(std::vector<ProcessConfiguration> const& procConfigVector,
+    fillMapsInProductRegistry(ProcessConfigurationVector const& procConfigVector,
 			      ProductRegistry& productRegistry) {
       std::string const triggerResults = std::string("TriggerResults");
       std::string const source = std::string("source");
       std::string const input = std::string("@main_input");
-      for (std::vector<ProcessConfiguration>::const_iterator i = procConfigVector.begin(), iEnd = procConfigVector.end();
+      for (ProcessConfigurationVector::const_iterator i = procConfigVector.begin(), iEnd = procConfigVector.end();
 	  i != iEnd; ++i) {
 	ProcessConfigurationID pcid = i->id();
 	std::string const& processName = i->processName();
@@ -151,7 +151,7 @@ namespace edm {
   ProvenanceAdaptor::ProvenanceAdaptor(
 	     ProductRegistry& productRegistry,
 	     ProcessHistoryMap const& pHistMap,
-	     std::vector<ProcessConfiguration>& procConfigVector) :
+	     ProcessConfigurationVector& procConfigVector) :
 		productRegistry_(productRegistry),
 		branchIDLists_(),
 		branchListIndexes_() {

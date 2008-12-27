@@ -70,7 +70,8 @@ namespace edm {
     std::string const& productDependenciesBranchName();
     std::string const& parameterSetMapBranchName();
     std::string const& moduleDescriptionMapBranchName(); // Obsolete
-    std::string const& processHistoryMapBranchName();
+    std::string const& processHistoryMapBranchName(); // Obsolete
+    std::string const& processHistoryBranchName();
     std::string const& processConfigurationBranchName();
     std::string const& branchIDListBranchName();
     std::string const& fileFormatVersionBranchName();

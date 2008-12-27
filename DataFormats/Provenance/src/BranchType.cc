@@ -63,8 +63,9 @@ namespace edm {
     std::string const productRegistry = "ProductRegistry";
     std::string const productDependencies = "ProductDependencies";
     std::string const parameterSetMap = "ParameterSetMap";
-    std::string const moduleDescriptionMap = "ModuleDescriptionMap";
-    std::string const processHistoryMap = "ProcessHistoryMap";
+    std::string const moduleDescriptionMap = "ModuleDescriptionMap"; // Obsolete
+    std::string const processHistoryMap = "ProcessHistoryMap"; // Obsolete
+    std::string const processHistory = "ProcessHistory";
     std::string const processConfiguration = "ProcessConfiguration";
     std::string const branchIDLists = "BranchIDLists";
     std::string const fileFormatVersion = "FileFormatVersion";
@@ -158,14 +159,19 @@ namespace edm {
       return parameterSetMap;
     }
 
-    // Branch on MetaData Tree
+    // Branch on MetaData Tree // Obsolete
     std::string const& moduleDescriptionMapBranchName() {
       return moduleDescriptionMap;
     }
 
-    // Branch on MetaData Tree
+    // Branch on MetaData Tree // Obsolete
     std::string const& processHistoryMapBranchName() {
       return processHistoryMap;
+    }
+
+    // Branch on MetaData Tree
+    std::string const& processHistoryBranchName() {
+      return processHistory;
     }
 
     // Branch on MetaData Tree

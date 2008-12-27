@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May  8 15:07:03 EDT 2007
-// $Id: Event.cc,v 1.22 2008/09/23 20:42:30 dsr Exp $
+// $Id: Event.cc,v 1.23 2008/11/28 17:44:48 wmtan Exp $
 //
 
 // system include files
@@ -513,10 +513,22 @@ Event::history() const
       <<edm::poolNames::metaDataTreeName();
     }
     if (historyMap_.empty()) {
-      edm::ProcessHistoryMap* pPhm=&historyMap_;
-      TBranch* b = meta->GetBranch(edm::poolNames::processHistoryMapBranchName().c_str());
-      b->SetAddress(&pPhm);
-      b->GetEntry(0);
+      if (fileVersion_ < 11) {
+        edm::ProcessHistoryMap* pPhm=&historyMap_;
+        TBranch* b = meta->GetBranch(edm::poolNames::processHistoryMapBranchName().c_str());
+        b->SetAddress(&pPhm);
+        b->GetEntry(0);
+      } else {
+	edm::ProcessHistoryVector historyVector;
+        edm::ProcessHistoryVector* pPhv=&historyVector;
+        TBranch* b = meta->GetBranch(edm::poolNames::processHistoryBranchName().c_str());
+        b->SetAddress(&pPhv);
+        b->GetEntry(0);
+	for (edm::ProcessHistoryVector::const_iterator i = historyVector.begin(), e = historyVector.end();
+	    i != e; ++i) {
+          historyMap_.insert(std::make_pair(i->id(), *i));
+        }
+      }
     }
     if (newFormat) {
       if (fileVersion_ >= 7) {

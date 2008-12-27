@@ -54,6 +54,7 @@ namespace {
   std::vector<edm::ProcessConfigurationID> dummyVectorProcC;
   std::map<edm::ProcessConfigurationID, edm::ParameterSetID> dummyMapParamSetID;
   std::map<edm::ProcessConfigurationID, std::string> dummyMapModuleName;
+  std::vector<edm::ProcessHistory> dummyVectorProcH;
   std::set<edm::ProcessHistoryID> dummySetProcH;
   std::pair<edm::ParameterSetID, edm::ParameterSetBlob> dummyPairParam;
   std::pair<edm::ProcessHistoryID, edm::ProcessHistory> dummyPairProcH;

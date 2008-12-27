@@ -158,12 +158,21 @@ namespace edm {
     PsetMap *psetMapPtr = &psetMap;
     metaDataTree->SetBranchAddress(poolNames::parameterSetMapBranchName().c_str(), &psetMapPtr);
 
+    // backward compatibility
     ProcessHistoryRegistry::collection_type pHistMap;
     ProcessHistoryRegistry::collection_type *pHistMapPtr = &pHistMap;
-    metaDataTree->SetBranchAddress(poolNames::processHistoryMapBranchName().c_str(), &pHistMapPtr);
+    if (metaDataTree->FindBranch(poolNames::processHistoryMapBranchName().c_str()) != 0) {
+      metaDataTree->SetBranchAddress(poolNames::processHistoryMapBranchName().c_str(), &pHistMapPtr);
+    }
 
-    std::vector<ProcessConfiguration> procConfigVector;
-    std::vector<ProcessConfiguration>* procConfigVectorPtr = &procConfigVector;
+    ProcessHistoryRegistry::vector_type pHistVector;
+    ProcessHistoryRegistry::vector_type *pHistVectorPtr = &pHistVector;
+    if (metaDataTree->FindBranch(poolNames::processHistoryBranchName().c_str()) != 0) {
+      metaDataTree->SetBranchAddress(poolNames::processHistoryBranchName().c_str(), &pHistVectorPtr);
+    }
+
+    ProcessConfigurationVector procConfigVector;
+    ProcessConfigurationVector* procConfigVectorPtr = &procConfigVector;
     if (metaDataTree->FindBranch(poolNames::processConfigurationBranchName().c_str()) != 0) {
       metaDataTree->SetBranchAddress(poolNames::processConfigurationBranchName().c_str(), &procConfigVectorPtr);
     }
@@ -209,6 +218,7 @@ namespace edm {
       provenanceAdaptor_.reset(new ProvenanceAdaptor(tempReg, pHistMap, procConfigVector));
       // Fill in the branchIDLists branch from the provenance adaptor
       branchIDLists_ = provenanceAdaptor_->branchIDLists();
+      ProcessHistoryRegistry::instance()->insertCollection(pHistMap);
     } else {
       // New format input file. The branchIDLists branch was read directly from the input file. 
       if (metaDataTree->FindBranch(poolNames::branchIDListBranchName().c_str()) == 0) {
@@ -216,11 +226,11 @@ namespace edm {
 	  << "Failed to find branchIDLists branch in metaData tree.\n";
       }
       branchIDLists_.reset(branchIDListsAPtr.release());
+      ProcessHistoryRegistry::instance()->insertCollection(pHistVector);
     }
 
     // Merge into the remaining hashed registries.
     ProcessConfigurationRegistry::instance()->insertCollection(procConfigVector);
-    ProcessHistoryRegistry::instance()->insertCollection(pHistMap);
     ModuleDescriptionRegistry::instance()->insertCollection(mdMap);
 
     validateFile();

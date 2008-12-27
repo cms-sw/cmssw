@@ -40,8 +40,7 @@
  <class name="edm::FileIndex"/>
  <class name="edm::ProcessHistoryID"/>
  <class name="std::set<edm::ProcessHistoryID >"/>
- <class name="std::map<edm::ProcessHistoryID,edm::ProcessHistory>"/>
- <class name="std::pair<edm::ProcessHistoryID,edm::ProcessHistory>"/>
+ <class name="std::vector<edm::ProcessHistory>"/>
  <class name="edm::ParameterSetID"/>
  <class name="std::vector<edm::ParameterSetID >"/>
  <class name="std::vector<std::vector<edm::ParameterSetID > >"/>
@@ -59,6 +58,8 @@
    <field name="value_" transient="true"/>
  </class>
 
+ <class name="std::map<edm::ProcessHistoryID,edm::ProcessHistory>"/>
+ <class name="std::pair<edm::ProcessHistoryID,edm::ProcessHistory>"/>
  <class name="edm::EventAux"/>
  <class name="edm::LuminosityBlockAux"/>
  <class name="edm::RunAux"/>

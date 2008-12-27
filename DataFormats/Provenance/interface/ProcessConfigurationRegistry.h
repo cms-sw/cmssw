@@ -9,6 +9,7 @@ namespace edm
 {
   typedef edm::detail::ThreadSafeRegistry<edm::ProcessConfigurationID,edm::ProcessConfiguration> ProcessConfigurationRegistry;
   typedef ProcessConfigurationRegistry::collection_type ProcessConfigurationMap;
+  typedef ProcessConfigurationRegistry::vector_type ProcessConfigurationVector;
 }
 
 #endif

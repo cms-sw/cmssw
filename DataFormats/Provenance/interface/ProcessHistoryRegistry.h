@@ -9,6 +9,7 @@ namespace edm
 {
   typedef edm::detail::ThreadSafeRegistry<edm::ProcessHistoryID,edm::ProcessHistory> ProcessHistoryRegistry;
   typedef ProcessHistoryRegistry::collection_type ProcessHistoryMap;
+  typedef ProcessHistoryRegistry::vector_type ProcessHistoryVector;
 }
 
 #endif

@@ -302,20 +302,26 @@ namespace edm {
   void RootOutputFile::writeProcessConfigurationRegistry() {
     typedef ProcessConfigurationRegistry::collection_type Map;
     Map const& procConfigMap = ProcessConfigurationRegistry::instance()->data();
-    std::vector<ProcessConfiguration> procConfigVector;
+    ProcessConfigurationVector procConfigVector;
     for (Map::const_iterator i = procConfigMap.begin(), e = procConfigMap.end(); i != e; ++i) {
       procConfigVector.push_back(i->second);
     }
     sort_all(procConfigVector);
-    std::vector<ProcessConfiguration>* p = &procConfigVector;
+    ProcessConfigurationVector* p = &procConfigVector;
     TBranch* b = metaDataTree_->Branch(poolNames::processConfigurationBranchName().c_str(), &p, om_->basketSize(), 0);
     assert(b);
     b->Fill();
   }
 
   void RootOutputFile::writeProcessHistoryRegistry() { 
-    ProcessHistoryRegistry::collection_type *p = &ProcessHistoryRegistry::instance()->data();
-    TBranch* b = metaDataTree_->Branch(poolNames::processHistoryMapBranchName().c_str(), &p, om_->basketSize(), 0);
+    typedef ProcessHistoryRegistry::collection_type Map;
+    Map const& procHistoryMap = ProcessHistoryRegistry::instance()->data();
+    ProcessHistoryVector procHistoryVector;
+    for (Map::const_iterator i = procHistoryMap.begin(), e = procHistoryMap.end(); i != e; ++i) {
+      procHistoryVector.push_back(i->second);
+    }
+    ProcessHistoryVector *p = &procHistoryVector;
+    TBranch* b = metaDataTree_->Branch(poolNames::processHistoryBranchName().c_str(), &p, om_->basketSize(), 0);
     assert(b);
     b->Fill();
   }

@@ -228,7 +228,7 @@ private:
   std::stringstream        errorLog_;
   int                      errorCount_;
   edm::ProductRegistry     reg_;
-  edm::ProcessHistoryMap   phm_;
+  edm::ProcessHistoryVector phv_;
   ParameterSetMap          psm_;
   HistoryNode              historyGraph_;
 
@@ -333,18 +333,18 @@ ProvenanceDumper::dumpProcessHistory_(TTree& history)
 {
   dumpEventFilteringParameterSets_(history);
   std::cout << "Processing History:"<<std::endl;
-  if (1 == phm_.size()) {
-    std::cout << phm_.begin()->second;
-    historyGraph_.addChild(HistoryNode(*(phm_.begin()->second.begin()), 1));
+  if (1 == phv_.size()) {
+    std::cout << *phv_.begin();
+    historyGraph_.addChild(HistoryNode(*(phv_.begin()->begin()), 1));
   } else {
     bool multipleHistories =false;
     std::map<edm::ProcessConfigurationID, unsigned int> simpleIDs;
-    for (edm::ProcessHistoryMap::const_iterator it = phm_.begin(), itEnd = phm_.end();
+    for (edm::ProcessHistoryVector::const_iterator it = phv_.begin(), itEnd = phv_.end();
 	 it != itEnd;
 	 ++it) {
       //loop over the history entries looking for matches
       HistoryNode* parent = &historyGraph_;
-      for (edm::ProcessHistory::const_iterator itH = it->second.begin(), e = it->second.end();
+      for (edm::ProcessHistory::const_iterator itH = it->begin(), e = it->end();
 	   itH != e;
 	   ++itH) {
 	if (parent->size() == 0) {
@@ -397,12 +397,25 @@ ProvenanceDumper::work_() {
   ParameterSetMap* pPsm =&psm_;
   meta->SetBranchAddress(edm::poolNames::parameterSetMapBranchName().c_str(),&pPsm);
 
-  edm::ProcessHistoryMap* pPhm=&phm_;
-  meta->SetBranchAddress(edm::poolNames::processHistoryMapBranchName().c_str(),&pPhm);
+  edm::ProcessHistoryVector* pPhv=&phv_;
+  if (meta->FindBranch(edm::poolNames::processHistoryBranchName().c_str()) != 0) {
+    meta->SetBranchAddress(edm::poolNames::processHistoryMapBranchName().c_str(),&pPhv);
+  }
+
+  edm::ProcessHistoryMap phm;
+  edm::ProcessHistoryMap* pPhm=&phm;
+  if (meta->FindBranch(edm::poolNames::processHistoryMapBranchName().c_str()) != 0) {
+    meta->SetBranchAddress(edm::poolNames::processHistoryMapBranchName().c_str(),&pPhm);
+  }
 
   meta->GetEntry(0);
   assert(0!=pReg);
   pReg->setFrozen();
+
+  // backward compatibility
+  for (edm::ProcessHistoryMap::const_iterator i = phm.begin(), e = phm.end(); i != e; ++i) {
+    phv_.push_back(i->second);
+  }
 
   dumpProcessHistory_(*history);
   

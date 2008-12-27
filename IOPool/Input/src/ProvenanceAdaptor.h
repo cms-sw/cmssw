@@ -31,7 +31,7 @@ namespace edm {
   ProvenanceAdaptor(
 	     ProductRegistry& productRegistry,
 	     ProcessHistoryMap const& pHistMap,
-	     std::vector<ProcessConfiguration>& procConfigVector);
+	     ProcessConfigurationVector& procConfigVector);
 
   
   boost::shared_ptr<BranchIDLists const> branchIDLists() const;
