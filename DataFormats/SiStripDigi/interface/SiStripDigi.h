@@ -2,6 +2,7 @@
 #define DataFormats_SiStripDigi_SiStripDigi_H
 
 #include "boost/cstdint.hpp"
+#include <iosfwd>
 
 /**  
      @brief A Digi for the silicon strip detector, containing both
@@ -33,11 +34,7 @@ class SiStripDigi {
   
 };
 
-#include<iostream>
-inline std::ostream & operator<<(std::ostream & o, const SiStripDigi& digi) {
-  return o << " " << digi.strip()
-	   << " " << digi.adc();
-}
+std::ostream & operator<<(std::ostream & o, const SiStripDigi& digi);
 
 // inline methods
 const uint16_t& SiStripDigi::strip() const { return strip_; }
