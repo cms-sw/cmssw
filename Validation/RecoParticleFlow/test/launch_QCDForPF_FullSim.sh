@@ -1,9 +1,9 @@
 #!/bin/sh
 
-castorDir=/castor/cern.ch/user/p/pjanot/CMSSW222/
-cmsswDir=/afs/cern.ch/user/p/pjanot/scratch0/CMSSW_2_2_2/src
+castorDir=/castor/cern.ch/user/p/pjanot/CMSSW300pre3/
+cmsswDir=/afs/cern.ch/user/p/pjanot/scratch0/CMSSW_3_0_0_pre3/src
 
-for ((job=0;job<=100;job++));
+for ((job=0;job<90;job++));
   do
   echo "JOB "$job
   name="QCDForPF_Full_"${job}
@@ -33,7 +33,7 @@ echo "EOF" >> job_${name}.sh
 cat >> job_${name}.sh << EOF
 cmsRun TEST_cfg.py >& log
 
-#rfcp display.root $castorDir$displayfilename
+rfcp display.root $castorDir$displayfilename
 rfcp aod.root $castorDir$aodfilename
 #rfcp reco.root $castorDir$recofilename
 

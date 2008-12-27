@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("PROD")
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(250)
+    input = cms.untracked.int32(300)
 )
 
 #generation
@@ -27,7 +27,7 @@ process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.MagneticField_40T_cff")
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = "IDEAL_V9::All"
+process.GlobalTag.globaltag = "IDEAL_30X::All"
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 
@@ -116,7 +116,7 @@ process.p4 = cms.Path(process.DigiToRaw)
 process.p5= cms.Path(process.RawToDigi)
 process.p6= cms.Path(process.reconstruction+process.particleFlowSimParticle)
 #process.outpath = cms.EndPath(process.aod+process.reco+process.display)
-process.outpath = cms.EndPath(process.aod)
+process.outpath = cms.EndPath(process.aod+process.display)
 process.schedule = cms.Schedule(process.p0,process.p1,process.p2,process.p3,process.p4,process.p5,process.p6,process.outpath)
 
 
