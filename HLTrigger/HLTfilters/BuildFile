@@ -16,5 +16,4 @@
 <use name=HLTrigger/HLTcore>
 <use name=PhysicsTools/Utilities>
 <use name=CondFormats/HLTObjects>
-<use name=CondFormats/DataRecord>
 <flags EDM_PLUGIN=1>
