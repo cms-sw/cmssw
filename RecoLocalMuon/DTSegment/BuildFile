@@ -14,17 +14,4 @@
 
 <export>
    <lib name=RecoLocalMuonDTSegment>
-
-<use name=FWCore/Framework>
-<use name=FWCore/PluginManager>
-<use name=FWCore/ParameterSet>
-<use name=DataFormats/DTRecHit>
-<use name=RecoLocalMuon/DTRecHit>
-
-<use name=Geometry/Records>
-<use name=Geometry/DTGeometry>
-
-   <use name=CLHEP>
-   <use name=root>	
-
 </export>
