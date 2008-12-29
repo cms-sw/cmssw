@@ -12,6 +12,3 @@ ecalEndcapHltTask.FEDRawDataCollection = 'rawDataCollector'
 ecalEndcapSelectiveReadoutTask.FEDRawDataCollection = 'rawDataCollector'
 dtDataIntegrityUnpacker.inputLabel = cms.untracked.InputTag('rawDataCollector') 
 
-# this is a TEMPORARY HUGLY hack until the DT map gets fixed
-DQMOfflineCosmics.remove(dtDataIntegrityUnpacker)
-
