@@ -1,4 +1,4 @@
-// $Id: StorageManager.cc,v 1.86.2.11 2008/11/24 21:21:13 biery Exp $
+// $Id: StorageManager.cc,v 1.93 2008/12/19 23:32:36 biery Exp $
 
 #include <iostream>
 #include <iomanip>
@@ -117,7 +117,7 @@ StorageManager::StorageManager(xdaq::ApplicationStub * s)
   progressMarker_(ProgressMarker::instance()->idle()),
   lastEventSeen_(0),
   lastErrorEventSeen_(0),
-  sm_cvs_version_("$Id: StorageManager.cc,v 1.86.2.11 2008/11/24 21:21:13 biery Exp $ $Name:  $")
+  sm_cvs_version_("$Id: StorageManager.cc,v 1.93 2008/12/19 23:32:36 biery Exp $ $Name:  $")
 {  
   LOG4CPLUS_INFO(this->getApplicationLogger(),"Making StorageManager");
 
@@ -282,8 +282,38 @@ StorageManager::StorageManager(xdaq::ApplicationStub * s)
   maxBandwidth2_    = 0.;
   minBandwidth2_    = 999999.; 
 
+  ispace->fireItemAvailable("receivedDQMSamples4Stats",&DQMsamples_);
+  ispace->fireItemAvailable("receivedDQMPeriod4Stats",&DQMperiod4samples_);
+  DQMsamples_          = 20;
+  DQMperiod4samples_   = 300;
+  DQMinstantBandwidth_ = 0.;
+  DQMinstantRate_      = 0.;
+  DQMinstantLatency_   = 0.;
+  DQMtotalSamples_     = 0;
+  DQMduration_         = 0.;
+  DQMmeanBandwidth_    = 0.;
+  DQMmeanRate_         = 0.;
+  DQMmeanLatency_      = 0.;
+
+  DQMinstantBandwidth2_= 0.;
+  DQMinstantRate2_     = 0.;
+  DQMinstantLatency2_  = 0.;
+  DQMtotalSamples2_    = 0;
+  DQMduration2_        = 0.;
+  DQMmeanBandwidth2_   = 0.;
+  DQMmeanRate2_        = 0.;
+  DQMmeanLatency2_     = 0.;
+
+  DQMmaxBandwidth_     = 0.;
+  DQMminBandwidth_     = 999999.;
+
+  DQMmaxBandwidth2_    = 0.;
+  DQMminBandwidth2_    = 999999.; 
+
   pmeter_ = new stor::SMPerformanceMeter();
   pmeter_->init(samples_, period4samples_);
+  DQMpmeter_ = new stor::SMPerformanceMeter();
+  DQMpmeter_->init(DQMsamples_, DQMperiod4samples_);
 
   string        xmlClass = getApplicationDescriptor()->getClassName();
   unsigned long instance = getApplicationDescriptor()->getInstance();
@@ -316,6 +346,7 @@ StorageManager::~StorageManager()
 {
   delete ah_;
   delete pmeter_;
+  delete DQMpmeter_;
 }
 
 xoap::MessageReference
@@ -1098,6 +1129,7 @@ void StorageManager::receiveDQMMessage(toolbox::mem::Reference *ref)
          unsigned long actualFrameSize = (unsigned long)sizeof(I2O_SM_DQM_MESSAGE_FRAME)
                                          +thislen;
          addMeasurement(actualFrameSize);
+         addDQMMeasurement(actualFrameSize);
 
          // no data sender list update yet for DQM data, should add it here
       }
@@ -1127,6 +1159,7 @@ void StorageManager::receiveDQMMessage(toolbox::mem::Reference *ref)
     unsigned long actualFrameSize = (unsigned long)sizeof(I2O_SM_DQM_MESSAGE_FRAME)
                                     + len;
     addMeasurement(actualFrameSize);
+    addDQMMeasurement(actualFrameSize);
 
     // no data sender list update yet for DQM data, should add it here
   }
@@ -1201,6 +1234,52 @@ void StorageManager::addMeasurement(unsigned long size)
     fsm_.fireFailed(reasonForFailedState_,this);
 
   }
+}
+
+void StorageManager::addDQMMeasurement(unsigned long size)
+{
+  // for bandwidth performance measurements, first sample based
+  if ( DQMpmeter_->addSample(size) )
+  {
+    // Copy measurements for our record
+    stor::SMPerfStats stats = DQMpmeter_->getStats();
+
+    DQMinstantBandwidth_= stats.shortTermCounter_->getValueRate();
+    DQMinstantRate_     = stats.shortTermCounter_->getSampleRate();
+    DQMinstantLatency_  = 1000000.0 / DQMinstantRate_;
+
+    double now = ForeverCounter::getCurrentTime();
+    DQMtotalSamples_    = stats.longTermCounter_->getSampleCount();
+    DQMduration_        = stats.longTermCounter_->getDuration(now);
+    DQMmeanBandwidth_   = stats.longTermCounter_->getValueRate(now);
+    DQMmeanRate_        = stats.longTermCounter_->getSampleRate(now);
+    DQMmeanLatency_     = 1000000.0 / DQMmeanRate_;
+
+    DQMmaxBandwidth_    = stats.maxBandwidth_;
+    DQMminBandwidth_    = stats.minBandwidth_;
+  }
+
+  // for time period bandwidth performance measurements
+  if ( DQMpmeter_->getStats().shortPeriodCounter_->hasValidResult() )
+  {
+    // Copy measurements for our record
+    stor::SMPerfStats stats = DQMpmeter_->getStats();
+
+    DQMinstantBandwidth2_= stats.shortPeriodCounter_->getValueRate();
+    DQMinstantRate2_     = stats.shortPeriodCounter_->getSampleRate();
+    DQMinstantLatency2_  = 1000000.0 / DQMinstantRate2_;
+
+    double now = ForeverCounter::getCurrentTime();
+    DQMtotalSamples2_    = stats.longTermCounter_->getSampleCount();
+    DQMduration2_        = stats.longTermCounter_->getDuration(now);
+    DQMmeanBandwidth2_   = stats.longTermCounter_->getValueRate(now);
+    DQMmeanRate2_        = stats.longTermCounter_->getSampleRate(now);
+    DQMmeanLatency2_     = 1000000.0 / DQMmeanRate2_;
+
+    DQMmaxBandwidth2_    = stats.maxBandwidth2_;
+    DQMminBandwidth2_    = stats.minBandwidth2_;
+  }
+  DQMreceivedVolume_ = DQMpmeter_->totalvolumemb();
 }
 
 //////////// *** Default web page //////////////////////////////////////////////////////////
@@ -1770,6 +1849,120 @@ void StorageManager::defaultWebPage(xgi::Input *in, xgi::Output *out)
           *out << "</td>" << endl;
           *out << "<td align=right>" << endl;
           *out << store_receivedVolume_ << endl;
+          *out << "</td>" << endl;
+        *out << "  </tr>" << endl;
+
+  *out << "</table>" << endl;
+
+// statistics for received DQM data only
+
+  *out << "<table frame=\"void\" rules=\"groups\" class=\"states\">" << endl;
+  *out << "<colgroup> <colgroup align=\"rigth\">"                    << endl;
+    *out << "  <tr>"                                                   << endl;
+    *out << "    <th colspan=2>"                                       << endl;
+    *out << "      " << "Received DQM Data Statistics "                    << endl;
+    *out << "    </th>"                                                << endl;
+    *out << "  </tr>"                                                  << endl;
+
+        *out << "<tr>" << endl;
+        *out << "<th >" << endl;
+        *out << "Parameter" << endl;
+        *out << "</th>" << endl;
+        *out << "<th>" << endl;
+        *out << "Value" << endl;
+        *out << "</th>" << endl;
+        *out << "</tr>" << endl;
+        *out << "<tr>" << endl;
+          *out << "<td >" << endl;
+          *out << "DQM Folder Updates Received" << endl;
+          *out << "</td>" << endl;
+          *out << "<td align=right>" << endl;
+          *out << DQMtotalSamples_ << endl;
+          *out << "</td>" << endl;
+        *out << "  </tr>" << endl;
+// performance statistics
+    *out << "  <tr>"                                                   << endl;
+    *out << "    <th colspan=2>"                                       << endl;
+    *out << "      " << "Statistics for last " << DQMsamples_ << " folder updates" << " (and last " << DQMperiod4samples_ << " sec)" << endl;
+    *out << "    </th>"                                                << endl;
+    *out << "  </tr>"                                                  << endl;
+        *out << "<tr>" << endl;
+          *out << "<td >" << endl;
+          *out << "Bandwidth (MB/s)" << endl;
+          *out << "</td>" << endl;
+          *out << "<td align=right>" << endl;
+          *out << DQMinstantBandwidth_ << " (" << DQMinstantBandwidth2_ << ")" << endl;
+          *out << "</td>" << endl;
+        *out << "  </tr>" << endl;
+        *out << "<tr>" << endl;
+          *out << "<td >" << endl;
+          *out << "Rate (Updates/s)" << endl;
+          *out << "</td>" << endl;
+          *out << "<td align=right>" << endl;
+          *out << DQMinstantRate_ << " (" << DQMinstantRate2_ << ")" << endl;
+          *out << "</td>" << endl;
+        *out << "  </tr>" << endl;
+        *out << "<tr>" << endl;
+          *out << "<td >" << endl;
+          *out << "Latency (us/update)" << endl;
+          *out << "</td>" << endl;
+          *out << "<td align=right>" << endl;
+          *out << DQMinstantLatency_ << " (" << DQMinstantLatency2_ << ")" << endl;
+          *out << "</td>" << endl;
+        *out << "  </tr>" << endl;
+        *out << "<tr>" << endl;
+          *out << "<td >" << endl;
+          *out << "Maximum Bandwidth (MB/s)" << endl;
+          *out << "</td>" << endl;
+          *out << "<td align=right>" << endl;
+          *out << DQMmaxBandwidth_ << " (" << DQMmaxBandwidth2_ << ")" << endl;
+          *out << "</td>" << endl;
+        *out << "  </tr>" << endl;
+        *out << "<tr>" << endl;
+          *out << "<td >" << endl;
+          *out << "Minimum Bandwidth (MB/s)" << endl;
+          *out << "</td>" << endl;
+          *out << "<td align=right>" << endl;
+          *out << DQMminBandwidth_ << " (" << DQMminBandwidth2_ << ")" << endl;
+          *out << "</td>" << endl;
+        *out << "  </tr>" << endl;
+// mean performance statistics for whole run
+    *out << "  <tr>"                                                   << endl;
+    *out << "    <th colspan=2>"                                       << endl;
+    *out << "      " << "Mean Performance for " << DQMtotalSamples_ << " (" << DQMtotalSamples2_ << ")" << " events, duration "
+         << DQMduration_ << " (" << DQMduration2_ << ")" << " seconds" << endl;
+    *out << "    </th>"                                                << endl;
+    *out << "  </tr>"                                                  << endl;
+        *out << "<tr>" << endl;
+          *out << "<td >" << endl;
+          *out << "Bandwidth (MB/s)" << endl;
+          *out << "</td>" << endl;
+          *out << "<td align=right>" << endl;
+          *out << DQMmeanBandwidth_ << " (" << DQMmeanBandwidth2_ << ")" << endl;
+          *out << "</td>" << endl;
+        *out << "  </tr>" << endl;
+        *out << "<tr>" << endl;
+          *out << "<td >" << endl;
+          *out << "Rate (Updates/s)" << endl;
+          *out << "</td>" << endl;
+          *out << "<td align=right>" << endl;
+          *out << DQMmeanRate_ << " (" << DQMmeanRate2_ << ")" << endl;
+          *out << "</td>" << endl;
+        *out << "  </tr>" << endl;
+        *out << "<tr>" << endl;
+          *out << "<td >" << endl;
+          *out << "Latency (us/update)" << endl;
+          *out << "</td>" << endl;
+          *out << "<td align=right>" << endl;
+          *out << DQMmeanLatency_ << " (" << DQMmeanLatency2_ << ")" << endl;
+          *out << "</td>" << endl;
+        *out << "  </tr>" << endl;
+        *out << "<tr>" << endl;
+          *out << "<td >" << endl;
+          *out << "Total DQM Data Volume Stored (MB)" << endl;
+          *out << "</td>" << endl;
+          *out << "<td align=right>" << endl;
+          *out << DQMreceivedVolume_ << endl;
           *out << "</td>" << endl;
         *out << "  </tr>" << endl;
 
@@ -4648,6 +4841,10 @@ void StorageManager::configureAction()
   if (DQMconsumerQueueSize_ < cutoff)
     DQMconsumerQueueSize_ = cutoff;
 
+  // if samples_ is given in the XML config we need to set it
+  pmeter_->init(samples_, period4samples_);
+  DQMpmeter_->init(DQMsamples_, DQMperiod4samples_);
+
   jc_.reset(new stor::JobController(my_config, getApplicationLogger(), &deleteSMBuffer));
 
   int disks(nLogicalDisk_);
@@ -4726,6 +4923,7 @@ bool StorageManager::enabling(toolbox::task::WorkLoop* wl)
     receivedErrorEvents_ = 0;
     storedVolume_ = 0;
     receivedVolume_ = 0;
+    DQMreceivedVolume_ = 0;
     receivedEventsFromOutMod_.clear();
     namesOfStream_.clear();
     namesOfOutMod_.clear();
@@ -4739,6 +4937,8 @@ bool StorageManager::enabling(toolbox::task::WorkLoop* wl)
     openFiles_  = 0;
     lastEventSeen_ = 0;
     lastErrorEventSeen_ = 0;
+    pmeter_->init(samples_, period4samples_);
+    DQMpmeter_->init(DQMsamples_, DQMperiod4samples_);
     jc_->start();
 
     boost::shared_ptr<InitMsgCollection> initMsgCollection = jc_->getInitMsgCollection();

@@ -10,7 +10,7 @@
 
      See CMS EventFilter wiki page for further notes.
 
-   $Id: StorageManager.h,v 1.43.2.4 2008/11/16 09:42:55 biery Exp $
+   $Id: StorageManager.h,v 1.45.14.1 2008/12/22 19:25:04 biery Exp $
 */
 
 #include <string>
@@ -218,6 +218,8 @@ namespace stor {
     // *** for received data performance measurements
     void addMeasurement(unsigned long size);
     stor::SMPerformanceMeter *pmeter_;
+    void addDQMMeasurement(unsigned long size);
+    stor::SMPerformanceMeter *DQMpmeter_;
 
     // *** measurements for last set of samples
     xdata::UnsignedInteger32 samples_; // number of samples/frames per measurement
@@ -277,6 +279,36 @@ namespace stor {
     xdata::Double store_meanBandwidth2_;    // bandwidth in MB/s
     xdata::Double store_meanRate2_;         // number of frames/s
     xdata::Double store_meanLatency2_;      // micro-seconds/frame
+
+    // Statistics for received DQM data
+    // *** measurements for last set of samples
+    xdata::UnsignedInteger32 DQMsamples_; // number of samples/frames per measurement
+    xdata::UnsignedInteger32 DQMperiod4samples_; // time period per measurement
+    xdata::Double DQMinstantBandwidth_; // bandwidth in MB/s
+    xdata::Double DQMinstantRate_;      // number of frames/s
+    xdata::Double DQMinstantLatency_;   // micro-seconds/frame
+    xdata::Double DQMmaxBandwidth_;     // maximum bandwidth in MB/s
+    xdata::Double DQMminBandwidth_;     // minimum bandwidth in MB/s
+    // *** measurements for last time period
+    xdata::Double DQMinstantBandwidth2_;// bandwidth in MB/s
+    xdata::Double DQMinstantRate2_;     // number of frames/s
+    xdata::Double DQMinstantLatency2_;  // micro-seconds/frame
+    xdata::Double DQMmaxBandwidth2_;    // maximum bandwidth in MB/s
+    xdata::Double DQMminBandwidth2_;    // minimum bandwidth in MB/s
+
+    // *** measurements for all samples
+    xdata::Double DQMduration_;         // time for run in seconds
+    xdata::UnsignedInteger32 DQMtotalSamples_; //number of samples/frames per measurement
+    xdata::Double DQMmeanBandwidth_;    // bandwidth in MB/s
+    xdata::Double DQMmeanRate_;         // number of frames/s
+    xdata::Double DQMmeanLatency_;      // micro-seconds/frame
+    xdata::Double DQMreceivedVolume_;   // total received data in MB
+
+    xdata::Double DQMduration2_;         // time for run in seconds
+    xdata::UnsignedInteger32 DQMtotalSamples2_; //number of samples/frames per measurement
+    xdata::Double DQMmeanBandwidth2_;    // bandwidth in MB/s
+    xdata::Double DQMmeanRate2_;         // number of frames/s
+    xdata::Double DQMmeanLatency2_;      // micro-seconds/frame
 
     // *** additional flashlist contents (rest was already there)
     xdata::String            class_;
