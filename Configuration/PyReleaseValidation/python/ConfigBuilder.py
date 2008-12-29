@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.106 $"
+__version__ = "$Revision: 1.107 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -547,7 +547,7 @@ class ConfigBuilder(object):
         for name in harvestingConfig.__dict__:
             harvestingstream = getattr(harvestingConfig,name)
             if name in harvestingList and isinstance(harvestingstream,cms.Path):
-               self.process.schedule.append(harvestingstream)
+               self.schedule.append(harvestingstream)
                harvestingList.remove(name)
         # This if statment must disappears once some config happens in the alca harvesting step
         if 'alcaHarvesting' in harvestingList:
@@ -634,7 +634,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.106 $"),
+              (version=cms.untracked.string("$Revision: 1.107 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )
