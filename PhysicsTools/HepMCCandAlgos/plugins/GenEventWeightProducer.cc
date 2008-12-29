@@ -2,7 +2,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: FastGenParticleCandidateProducer.cc,v 1.17 2007/06/07 09:11:34 santocch Exp $
+ * \version $Id: GenEventWeightProducer.cc,v 1.1 2007/06/12 11:53:57 llista Exp $
  *
  */
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -23,7 +23,7 @@ class GenEventWeightProducer : public edm::EDProducer {
   edm::InputTag src_;
 };
 
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Utilities/interface/EDMException.h"

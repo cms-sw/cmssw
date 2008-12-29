@@ -3,7 +3,7 @@
  * \author Luca Lista, INFN
  * \author Filip Moortgat, ETH
  *
- * \version $Id: GenEventScaleProducer.cc,v 1.1 2007/08/12 11:53:57 llista Exp $
+ * \version $Id: GenEventScaleProducer.cc,v 1.1 2007/08/29 07:33:41 fabiocos Exp $
  *
  */
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -24,7 +24,7 @@ class GenEventScaleProducer : public edm::EDProducer {
   edm::InputTag src_;
 };
 
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Utilities/interface/EDMException.h"

@@ -2,7 +2,7 @@
 
 #include "PhysicsTools/HepMCCandAlgos/test/HZZ4muAnalyzer.h"
 
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 // essentials !!!
 #include "FWCore/Framework/interface/Event.h"
