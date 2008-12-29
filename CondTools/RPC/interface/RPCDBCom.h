@@ -11,19 +11,20 @@ namespace coral {
 
 class RPCDBCom
 {
-public:
+ public:
   RPCDBCom();
   virtual ~RPCDBCom();
   virtual void run() = 0;
   void setVerbosityLevel( coral::MsgLevel level );
 
-protected:
+ protected:
   coral::ISession* connect( const std::string& connectionString,
                             const std::string& userName,
                             const std::string& password );
 
-private:
+ private:
   coral::IConnection*         m_connection;
 };
 
 #endif
+

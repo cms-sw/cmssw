@@ -52,3 +52,6 @@ RPCDBCom::setVerbosityLevel( coral::MsgLevel level )
 {
   coral::MessageStream::setMsgVerbosity(level);
 }
+
+
+
