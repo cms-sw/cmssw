@@ -137,11 +137,11 @@ std::pair<double,double>& LASEndcapAlignmentParameterSet::GetBeamParameter( int 
 
 
 ///
-/// printout for debugging
+/// pretty-printout of all parameter and error values
 ///
-void LASEndcapAlignmentParameterSet::Dump( void ) {
+void LASEndcapAlignmentParameterSet::Print( void ) {
   
-  std::cout << " [LASEndcapAlignmentParameterSet::Dump] -- Dumping parameters:" << std::endl;
+  std::cout << " [LASEndcapAlignmentParameterSet::Print] -- Listing parameters:" << std::endl;
   std::cout << std::endl;
   std::cout << "  Disk parameters:" << std::endl;
   std:: cout << " ----------------" << std::endl;
@@ -172,7 +172,7 @@ void LASEndcapAlignmentParameterSet::Dump( void ) {
     }
   }
 
-  std::cout << " [LASEndcapAlignmentParameterSet::Dump] -- End of dump." << std::endl << std::endl;
+  std::cout << " [LASEndcapAlignmentParameterSet::Print] -- End of list." << std::endl << std::endl;
 
 }
 

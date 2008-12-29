@@ -22,7 +22,7 @@ LASBarrelAlignmentParameterSet LASAlignmentTubeAlgorithm::CalculateParameters( L
 
   // for debugging only
   //######################################################################################
-  ReadMisalignmentFromFile( "misalign-var.txt", measuredCoordinates, nominalCoordinates );
+  //ReadMisalignmentFromFile( "misalign-var.txt", measuredCoordinates, nominalCoordinates );
   //######################################################################################
 
 
@@ -108,7 +108,7 @@ LASBarrelAlignmentParameterSet LASAlignmentTubeAlgorithm::CalculateParameters( L
 
 
 
-  // pooh... now calculate them for TIBTOB
+  // now calculate them for TIBTOB
   det = 2; beam = 0; pos = 0;
   do {
     
@@ -135,7 +135,7 @@ LASBarrelAlignmentParameterSet LASAlignmentTubeAlgorithm::CalculateParameters( L
     beamReducedZ[1] /= ( disk9EndFaceZPositions.at( 1 ) - disk9EndFaceZPositions.at( 0 ) );
     
 
-    // residual in r*phi (in the formulas this corresponds to y_ik)
+    // residual in phi (in the formulas this corresponds to y_ik/R)
     const double phiResidual = measuredCoordinates.GetTIBTOBEntry( det, beam, pos ).GetPhi() - nominalCoordinates.GetTIBTOBEntry( det, beam, pos ).GetPhi();
 
     // sums over measured values
@@ -196,7 +196,7 @@ LASBarrelAlignmentParameterSet LASAlignmentTubeAlgorithm::CalculateParameters( L
     beamReducedZ[1] = disk9EndFaceZPositions.at( 1 ) - ( measuredCoordinates.GetTEC2TECEntry( det, beam, disk ).GetZ() - radialOffset ); // ZTPrimePrime
     beamReducedZ[1] /= ( disk9EndFaceZPositions.at( 1 ) - disk9EndFaceZPositions.at( 0 ) );
 
-    // residual in r*phi (in the formulas this corresponds to y_ik)
+    // residual in phi (in the formulas this corresponds to y_ik/R)
     const double phiResidual = measuredCoordinates.GetTEC2TECEntry( det, beam, disk ).GetPhi() - nominalCoordinates.GetTEC2TECEntry( det, beam, disk ).GetPhi();
 
     // sums over measured values

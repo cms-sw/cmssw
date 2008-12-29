@@ -103,11 +103,11 @@ std::pair<double,double>& LASBarrelAlignmentParameterSet::GetBeamParameter( int 
 
 
 ///
+/// pretty-print all parameter and error values
 ///
-///
-void LASBarrelAlignmentParameterSet::Dump( void ) {
+void LASBarrelAlignmentParameterSet::Print( void ) {
   
-  std::cout << std::endl << " [LASBarrelAlignmentParameterSet::Dump] -- Parameter dump [rad/mm]: " << std::endl;
+  std::cout << std::endl << " [LASBarrelAlignmentParameterSet::Print] -- Parameter list [rad/mm]: " << std::endl;
 
   const std::string subdetNames[6] = { " TEC+  ", " TEC-  ", " TIB+  ", " TIB-  ", " TOB+  ", " TOB-  " };
 
@@ -146,8 +146,6 @@ void LASBarrelAlignmentParameterSet::Dump( void ) {
     std::cout << std::endl;
   }
 
-  std::cout << " [LASBarrelAlignmentParameterSet::Dump] -- End parameter dump." << std::endl;
+  std::cout << " [LASBarrelAlignmentParameterSet::Print] -- End parameter list." << std::endl;
 
 }
-
-  

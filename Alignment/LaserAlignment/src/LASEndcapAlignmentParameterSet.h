@@ -31,7 +31,7 @@ class LASEndcapAlignmentParameterSet {
   std::pair<double,double>& GetDiskParameter( int aSubdetector, int aDisk, int aParameter );
   std::pair<double,double>& GetGlobalParameter( int aSubdetector, int aParameter );
   std::pair<double,double>& GetBeamParameter( int aSubdetector, int aBeam, int aParameter );
-  void Dump( void );
+  void Print( void );
 
  private:
   void Init( void );

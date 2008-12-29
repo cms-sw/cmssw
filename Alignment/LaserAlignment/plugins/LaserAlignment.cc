@@ -1,8 +1,8 @@
 /** \file LaserAlignment.cc
  *  LAS reconstruction module
  *
- *  $Date: 2008/11/28 12:38:31 $
- *  $Revision: 1.28 $
+ *  $Date: 2008/12/15 09:07:09 $
+ *  $Revision: 1.29 $
  *  \author Maarten Thomas
  *  \author Jan Olzem
  */
@@ -563,7 +563,7 @@ void LaserAlignment::endJob() {
       
       // first, set the measured coordinates to their nominal values
       measuredCoordinates.SetTECEntry( det, ring, beam, disk, nominalCoordinates.GetTECEntry( det, ring, beam, disk ) );
-      
+
       if( isGoodFit ) { // convert strip position to global phi and replace the nominal phi value/error
 	measuredCoordinates.GetTECEntry( det, ring, beam, disk ).SetPhi( ConvertAngle( theStripDet->surface().toGlobal( theStripDet->specificTopology().localPosition( 255.5 ) ).barePhi() ) ); // #########
 	//	const GlobalPoint& globalPoint = theStripDet->surface().toGlobal( theStripDet->specificTopology().localPosition( peakFinderResults.first ) );
@@ -610,7 +610,6 @@ void LaserAlignment::endJob() {
       measuredCoordinates.SetTIBTOBEntry( det, beam, pos, nominalCoordinates.GetTIBTOBEntry( det, beam, pos ) );
       
       if( isGoodFit ) { // convert strip position to global phi and replace the nominal phi value/error
-	if( det == 2 ) std::cout << "PPPPPPPPPPPP: " << ConvertAngle( theStripDet->surface().toGlobal( theStripDet->specificTopology().localPosition( 255.5 ) ).barePhi() ) << std::endl; /////////////////////////////////
 	measuredCoordinates.GetTIBTOBEntry( det, beam, pos ).SetPhi( ConvertAngle( theStripDet->surface().toGlobal( theStripDet->specificTopology().localPosition( peakFinderResults.first ) ).barePhi() ) );
 	measuredCoordinates.GetTIBTOBEntry( det, beam, pos ).SetPhiError( 0.00028 ); // PRELIMINARY ESTIMATE
       }
@@ -641,7 +640,7 @@ void LaserAlignment::endJob() {
 	// <- here we will later implement the kink corrections
     
 	// access the tracker geometry for this module
-	const DetId theDetId( detectorId.GetTEC2TECEntry( det, beam, pos ) );
+	const DetId theDetId( detectorId.GetTEC2TECEntry( det, beam, disk ) );
 	const StripGeomDetUnit* const theStripDet = dynamic_cast<const StripGeomDetUnit*>( theTracker.idToDet( theDetId ) );
 
 	// first, set the measured coordinates to their nominal values
@@ -667,24 +666,60 @@ void LaserAlignment::endJob() {
 
 
 
+//     ////////////////////////////////////////////////////////////////////////////////////////
+//     // this dumps the measurement in the same format as sim_misal.C::sim_at()
+//     std::cout << "+++++++++++++++++++++++++++++++++++++++++++++++++++++++" << std::endl;
+//     for( det = 0; det < 2; ++det ) {
+//       for( disk = 0; disk < 5; ++disk ) {
+// 	for( beam = 0; beam < 8; ++beam ) {
+
+// 	  std::cout << std::setw( 8 ) << det
+// 		    << std::setw( 8 ) << beam
+// 		    << std::setw( 8 ) << disk
+// 		    << std::setw( 8 ) << "-1"
+// 		    << std::setw( 12 ) << measuredCoordinates.GetTEC2TECEntry( det, beam, disk ).GetPhi()
+// 		    << std::setw( 12 ) << measuredCoordinates.GetTEC2TECEntry( det, beam, disk ).GetPhiError()
+// 		    << std::endl;
+
+// 	}
+//       }
+//     }
+//     for( det = 2; det < 4; ++det ) {
+//       for( pos = 0; pos < 6; ++pos ) {
+// 	for( beam = 0; beam < 8; ++beam ) {
+
+// 	  std::cout << std::setw( 8 ) << det
+// 		    << std::setw( 8 ) << beam
+// 		    << std::setw( 8 ) << pos
+// 		    << std::setw( 8 ) << "-1"
+// 		    << std::setw( 12 ) << measuredCoordinates.GetTIBTOBEntry( det, beam, pos ).GetPhi()
+// 		    << std::setw( 12 ) << measuredCoordinates.GetTIBTOBEntry( det, beam, pos ).GetPhiError()
+// 		    << std::endl;
+
+// 	}
+//       }
+//     }
+//     std::cout << "+++++++++++++++++++++++++++++++++++++++++++++++++++++++" << std::endl;
+//     ////////////////////////////////////////////////////////////////////////////////////////
+    
+
+
+
+
+
 
 
     // now reconstruct the geometry and update the db object
     LASGeometryUpdater geometryUpdater( nominalCoordinates );
 
-
-//     // run the alignment tube algorithm (analytical) /////////////////////////////////// this block must be removed from here (s. below)
-//     LASAlignmentTubeAlgorithm alignmentTubeAlgorithm;
-//     LASBarrelAlignmentParameterSet alignmentTubeParameters = alignmentTubeAlgorithm.CalculateParameters( measuredCoordinates, nominalCoordinates );
-
     // run the endcap algorithm
     LASEndcapAlgorithm endcapAlgorithm;
     LASEndcapAlignmentParameterSet endcapParameters = endcapAlgorithm.CalculateParameters( measuredCoordinates, nominalCoordinates );
-    endcapParameters.Dump();
+    endcapParameters.Print();
 
     // do a pre-alignment of the endcaps (TEC2TEC only)
     // so that the alignment tube algorithms finds orderly disks
-    //    geometryUpdater.EndcapUpdate( endcapParameters, measuredCoordinates, *theAlignableTracker );
+    geometryUpdater.EndcapUpdate( endcapParameters, measuredCoordinates, *theAlignableTracker );
 
     // run the alignment tube algorithm (analytical)
     LASAlignmentTubeAlgorithm alignmentTubeAlgorithm;
@@ -694,7 +729,7 @@ void LaserAlignment::endJob() {
 //     LASBarrelAlgorithm barrelAlgorithm;
 //     LASBarrelAlignmentParameterSet alignmentTubeParameters = barrelAlgorithm.CalculateParameters( measuredCoordinates, nominalCoordinates );
 
-    alignmentTubeParameters.Dump();
+    alignmentTubeParameters.Print();
 
     // combine the results and update the db object
     geometryUpdater.TrackerUpdate( endcapParameters, alignmentTubeParameters, *theAlignableTracker );
