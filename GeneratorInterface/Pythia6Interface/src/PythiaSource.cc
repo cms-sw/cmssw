@@ -1,6 +1,6 @@
 /*
- *  $Date: 2008/08/25 15:26:22 $
- *  $Revision: 1.35 $
+ *  $Date: 2008/11/24 18:51:05 $
+ *  $Revision: 1.36 $
  *  
  *  Filip Moorgat & Hector Naves 
  *  26/10/05
@@ -239,6 +239,12 @@ PythiaSource::PythiaSource( const ParameterSet & pset,
     phimin = pset.getUntrackedParameter<double>("Phimin",-3.1415926536);
     phimax = pset.getUntrackedParameter<double>("Phimax",+3.1415926536);
 
+  }
+
+  // Turn off banner printout
+  if (!call_pygive("MSTU(12)=12345")) {
+    throw edm::Exception(edm::errors::Configuration,"PythiaError") 
+          <<" pythia did not accept MSTU(12)=12345";
   }
 
   // Set PYTHIA parameters in a single ParameterSet
