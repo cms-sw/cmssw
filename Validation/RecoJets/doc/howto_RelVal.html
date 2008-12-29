@@ -1,50 +1,120 @@
 <!--     To read this HowTo, open it in a web browser...    //-->
 
+<h1>Instructions For Running the JetMET Validation Utility</h1>
 
-<h1> How to do a validation?</h1>
+The release validation utility is used to compare a target release against a 
+reference release. Many Jet and MET related distributions produced and used for the
+comparison. The results are written to subdirectories corresponding to the 
+different jet reconstuction algorithms and can be viewed using a web browser.
+
+<hr>
+
+<ol>
+<b><li>Create a release area</b>
+<pre>
+  scramv1 project CMSSW CMSSW_2_2_3
+  cd CMSSW_2_2_3/src
+  eval `scramv1 runtime -csh`
+  cmscvsroot CMSSW
+</pre>
 
 <p>
-1) First <b>check out</b> the latest version of <b>Jet Plus Tracks</b>. The instructions can be found under:
+<b><li>(Optional) Check out the latest version of <em>Jet Plus Tracks</em>
+correction code</b>
+
+<p>Follow the instructions which can be founds at:<br>
 <a href="https://twiki.cern.ch/twiki/bin/view/CMS/JetPlusTracksCorrections"><src="https://twiki.cern.ch/twiki/bin/view/CMS/JetPlusTracksCorrections" alt=""> https://twiki.cern.ch/twiki/bin/view/CMS/JetPlusTracksCorrections </a>
-<br>
-</p>
 
 <p>
-2) <b>cvs co Validation/RecoJets</b><br>
-&nbsp Check out the JetMet release validation package.
-</p>
+<b><li>Check out and build the JetMet release validation package</b>
+<p>
+<pre>
+   cvs co Validation/RecoJets
+   scramv1 b
+</pre>
 
 <p>
-3) <b>cmsRun alljets_validation_cfg.py</b>
-<br>
-&nbsp Edit the alljets_validation_cfg.py file, and define over which samples you would like to run. For comparing two different releases you have to run alljets_validation_cfg.py two times (once for each sample).<br>
-&nbsp You get two root files containing the histograms.
-</p>
+<b><li>Specify the dataset</b>
+<p>
+Edit the file
+<pre>
+   Validation/RecoJets/analysis/alljets_validation_cfg.py
+</pre> 
+and include the data files you would like to run over. 
 
 <p>
-4) <b>./validation.sh</b><br>
-&nbsp Run the validation.sh script. This script produces all the plots that are available. You are asked by the script to enter the name of the files you want to compare and the name of the directory where the plots should be stored. This name is also the title in the histograms.<br>
-<p/>
+<b><li>Run the job</b>
+<p>
+Execute the following commands:
+<pre>
+   cd Validation/RecoJets/analysis
+   cmsRun allJets_validation_cfg.py
+</pre>
+
+<p>This will produce a output root file containing histograms of various
+distributions used to validate the release.
+
+<p>In order to compare distributions from two different releases 
+you have to run over a reference sample and a target sample to produce 
+two sets of root file.
+
 
 <p>
-5) Open the <b>index.html</b> file (located in the new directory) in a web browser. Now you can look at all the plots...
-</p>
+<b><li>Run the <tt>validation.sh</tt> script</b>
+
+<p>The script will produce gif files comparing the reference distribution
+with the target distribution. 
+
+<p>The script will prompt you to enter the name of the root files you want 
+to compare and the name of the directory where the plots should be 
+written to. This directory name is also used for the title in the histograms.
+
 
 <p>
-<h4>Example:</h4>
-The alljets_validation_cfg.py runs per default over a CMSSW_2_1_10/RelValQCD_Pt_80_120/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/STARTUP_V7_v2 sample.<br>
-&nbsp <FONT face="courier">cmsRun alljets_validation_cfg.py</FONT face><br>
-The histogramms are now saved in a file called QCD_80_120_STARTUP_V7_v2.root<br>
-To get the plots run now the script:<br>
-&nbsp <FONT face="courier"> ./validation</FONT><br>
+<b><li>Open the <tt>index.html</tt> file (located in the new directory)
+in a web browser</b>
+<pre>
+  firefox index.html
+</pre>
+Now you can view at all the plots...
+</ol>
+
+<hr>
+<p>
+<h2>Example</h2>
+The <tt>alljets_validation_cfg.py</tt> runs per default over the
+<pre>
+  CMSSW_2_1_10/RelValQCD_Pt_80_120/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/STARTUP_V7_v2 
+</pre>
+sample.
+<pre>
+  cmsRun alljets_validation_cfg.py
+</pre>
+The histogramms are written to the root file:
+<pre>
+  QCD_80_120_STARTUP_V7_v2.root
+</pre>
+
+<p>To generate the comparison plots run the script:<br>
+<pre>
+  ./validation
+</pre>
+
 The prompt shows:<br>
-&nbsp <FONT face="courier">This script produces all the histograms and plots...</FONT><br>
-&nbsp <FONT face="courier">Enter the REFERNCE.root file, the NEW.root file and the directory name/histo title([REFERNCE.root] [NEW.root] [title]):</FONT><br>
-For a test compare the file to itself, and safe the files in a directory called testdir<br>
-&nbsp <FONT face="courier">QCD_80_120_STARTUP_V7_v2.root QCD_80_120_STARTUP_V7_v2.root testdir</FONT><br>
-now look at the plots...<br>
-&nbsp <FONT face="courier">firefox testdir/index.html</FONT><br>
+<pre>
+  This script produces all the histograms and plots...
+  Enter the REFERNCE.root file, the NEW.root file and the directory name/histo title([REFERNCE.root] [NEW.root] [title])
+</pre>
+For a test compare the file to itself, and save the files in a directory called testdir
+<pre>
+  QCD_80_120_STARTUP_V7_v2.root QCD_80_120_STARTUP_V7_v2.root testdir
+</pre>
 
+<p>
+The plots can be examined in a browser by executing:
+<pre>
+  firefox testdir/index.html</FONT><br>
+</pre>
 
 
 
