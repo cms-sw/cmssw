@@ -7,7 +7,7 @@ process.load("Geometry.TrackerGeometryBuilder.trackerGeometry_cfi")
 process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
 process.load('Configuration/StandardSequences/MagneticField_38T_cff')
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.load("RecoTracker.TrackProducer.RefitterWithMaterial_cff")
+process.load("RecoTracker.TrackProducer.TrackRefitters_cff")
 
 process.source = cms.Source("PoolSource",
    fileNames = cms.untracked.vstring(
@@ -32,10 +32,15 @@ process.MessageLogger = cms.Service("MessageLogger",
 # Conditions (Global Tag is used here):
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.GlobalTag.connect = "frontier://PromptProd/CMS_COND_21X_GLOBALTAG"
-process.GlobalTag.globaltag = "CRUZET4_V4P::All"
+process.GlobalTag.globaltag = "CRAFT_V3P::All"
 process.prefer("GlobalTag")
 
-process.TrackRefitter.src = 'ctfWithMaterialTracksP5'
+process.load("RecoVertex.BeamSpotProducer.BeamSpot_cfi")
+
+#process.TrackRefitter.src = 'ALCARECOTkAlCosmicsCTF0T'
+process.TrackRefitter.src = 'ALCARECOTkAlCosmicsCosmicTF0T'
+#process.TrackRefitter.src = 'ALCARECOTkAlCosmicsRS0T'
+#process.TrackRefitter.src = 'ctfWithMaterialTracksP5'
 process.TrackRefitter.TrajectoryInEvent = True
 
 process.SiStripCalib = cms.EDFilter("SiStripGainFromData",
@@ -59,5 +64,5 @@ process.SiStripCalib = cms.EDFilter("SiStripGainFromData",
     doStoreOnDB         = cms.bool(False)
 )
 
-process.p = cms.Path(process.TrackRefitter*process.SiStripCalib)
+process.p = cms.Path(process.offlineBeamSpot*process.TrackRefitter*process.SiStripCalib)
 

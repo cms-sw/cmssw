@@ -8,7 +8,7 @@ void DrawTProfile(TFile** File, char** Histos_Name, std::vector<char*> legend, c
 void DrawTH2D  (TFile** File, char** Histos_Name, std::vector<char*> legend, char* Title, char* Xlegend, char* Ylegend, double xmin, double xmax, double ymin, double ymax,  bool save, char* save_path, double MarkerSize);
 void DrawTH2D  (TFile** File, char** Histos_Name, std::vector<char*> legend, char* Title, char* Xlegend, char* Ylegend, double xmin, double xmax, double ymin, double ymax,  bool save, char* save_path);
 void DrawTH2DZ(TFile* File, char* Histos_Name, char* legend, char* Title, char* Xlegend, char* Ylegend, double xmin, double xmax, double ymin, double ymax,  bool save, char* save_path, bool Normalization);
-
+void PrintJobInfo(TFile* File);
 
 void macro()
 {
@@ -19,131 +19,171 @@ void macro()
 	bool save = true;
 
 
-        TFile* Run62966  = new TFile("file:../SiStripCalib.root");
+        TFile* CRAFT  = new TFile("file:../SiStripCalib.root");
+
+        PrintJobInfo(CRAFT);
 
         char** Histos_Name = new char*[4];                  std::vector<char*> legend;legend.clear();   TFile** Files = new TFile*[4];
-        Histos_Name[0] = "MPV_Vs_EtaTEC";                   legend.push_back("TEC");                    Files[0] = Run62966;
-        Histos_Name[1] = "MPV_Vs_EtaTIB";                   legend.push_back("TIB");                    Files[1] = Run62966;
-        Histos_Name[2] = "MPV_Vs_EtaTID";                   legend.push_back("TID");                    Files[2] = Run62966;
-        Histos_Name[3] = "MPV_Vs_EtaTOB";                   legend.push_back("TOB");                    Files[3] = Run62966;
-        DrawTH2D(Files, Histos_Name,legend, "", "module #eta", "MPV", -3.0,3.0,150,500,save,"Pictures/Run62966_MPV_Vs_EtaSubDet.png");
+        Histos_Name[0] = "MPV_Vs_EtaTEC";                   legend.push_back("TEC");                    Files[0] = CRAFT;
+        Histos_Name[1] = "MPV_Vs_EtaTIB";                   legend.push_back("TIB");                    Files[1] = CRAFT;
+        Histos_Name[2] = "MPV_Vs_EtaTID";                   legend.push_back("TID");                    Files[2] = CRAFT;
+        Histos_Name[3] = "MPV_Vs_EtaTOB";                   legend.push_back("TOB");                    Files[3] = CRAFT;
+        DrawTH2D(Files, Histos_Name,legend, "", "module #eta", "MPV (ADC/mm)", -3.0,3.0, 0,500,save,"Pictures/CRAFT_MPV_Vs_EtaSubDet.png");
+        delete [] Histos_Name; Histos_Name=NULL;    
+
+        char** Histos_Name = new char*[4];                  std::vector<char*> legend;legend.clear();   TFile** Files = new TFile*[4];
+        Histos_Name[0] = "MPV_Vs_PhiTEC";                   legend.push_back("TEC");                    Files[0] = CRAFT;
+        Histos_Name[1] = "MPV_Vs_PhiTIB";                   legend.push_back("TIB");                    Files[1] = CRAFT;
+        Histos_Name[2] = "MPV_Vs_PhiTID";                   legend.push_back("TID");                    Files[2] = CRAFT;
+        Histos_Name[3] = "MPV_Vs_PhiTOB";                   legend.push_back("TOB");                    Files[3] = CRAFT;
+        DrawTH2D(Files, Histos_Name,legend, "", "module #phi", "MPV (ADC/mm)", -3.2,3.2, 0,500,save,"Pictures/CRAFT_MPV_Vs_PhiSubDet.png");
+        delete [] Histos_Name; Histos_Name=NULL;
+ 
+
+        char** Histos_Name = new char*[4];                  std::vector<char*> legend;legend.clear();   TFile** Files = new TFile*[4];
+        Histos_Name[0] = "APV_MPV";                         legend.push_back("");                       Files[0] = CRAFT;
+        DrawSuperposedHistos(Files, Histos_Name, legend, 1, "",  "APV Pair Index", "MPV (ADC/mm)", 0, 0, 0, 500, save, "Pictures/CRAFT_APV_MPV.png",true);
+
+        char** Histos_Name = new char*[4];                  std::vector<char*> legend;legend.clear();   TFile** Files = new TFile*[4];
+        Histos_Name[0] = "APV_Gain";                        legend.push_back("");                       Files[0] = CRAFT;
+        DrawSuperposedHistos(Files, Histos_Name, legend, 1, "",  "APV Pair Index", "Gain", 0, 0, 0.0, 2.0, save, "Pictures/CRAFT_APV_Gain.png",true);
+
+        DrawTH2DZ(CRAFT, "APV_Charge" ,"", "", "APV Pair Index", "Charge", 0,0,0,0,save,"Pictures/CRAFT_APV_Charge.png", false);
+
+
+        char** Histos_Name = new char*[4];                  std::vector<char*> legend;legend.clear();   TFile** Files = new TFile*[4];
+        Histos_Name[0] = "MPVs320";                         legend.push_back("320 #mum");               Files[0] = CRAFT;
+        Histos_Name[1] = "MPVs500";                         legend.push_back("500 #mum");               Files[1] = CRAFT;
+        Histos_Name[2] = "MPVs";                            legend.push_back("320 + 500 #mum");         Files[2] = CRAFT;
+        DrawSuperposedHistos(Files, Histos_Name, legend, 1, "",  "MPV (ADC/mm)", "a.u.", 0, 500, 0, 0, save, "Pictures/CRAFT_MPVs.png",false);
+        delete [] Histos_Name; Histos_Name=NULL;
+
+        char** Histos_Name = new char*[4];                  std::vector<char*> legend;legend.clear();   TFile** Files = new TFile*[4];
+        Histos_Name[0] = "MPV_Vs_PathLength";               legend.push_back("");                       Files[0] = CRAFT;
+        DrawSuperposedHistos(Files, Histos_Name, legend, 1, "",  "Pathlength", "MPV (ADC/mm)", 0, 0, 0, 400, save, "Pictures/CRAFT_MPV_Vs_PathLength.png",false);
         delete [] Histos_Name; Histos_Name=NULL;     
-
-        char** Histos_Name = new char*[4];                  std::vector<char*> legend;legend.clear();   TFile** Files = new TFile*[4];
-        Histos_Name[0] = "APV_MPV";                         legend.push_back("");                       Files[0] = Run62966;
-        DrawSuperposedHistos(Files, Histos_Name, legend, 1, "",  "APV Pair Index", "MPV", 0, 0, 150, 500, save, "Pictures/Run62966_APV_MPV.png",true);
-
-        char** Histos_Name = new char*[4];                  std::vector<char*> legend;legend.clear();   TFile** Files = new TFile*[4];
-        Histos_Name[0] = "APV_Gain";                        legend.push_back("");                       Files[0] = Run62966;
-        DrawSuperposedHistos(Files, Histos_Name, legend, 1, "",  "APV Pair Index", "Gain", 0, 0, 0.5, 1.5, save, "Pictures/Run62966_APV_Gain.png",true);
-
-        DrawTH2DZ(Run62966, "APV_Charge" ,"", "", "APV Pair Index", "Charge", 0,0,0,0,save,"Pictures/Run62966_APV_Charge.png", false);
+        DrawTH2DZ(CRAFT, "Charge_Vs_PathLength" ,"", "", "PathLength", "Charge", 0,0,0,0,save,"Pictures/CRAFT_Charge_Vs_PathLength.png", false);
 
 
         char** Histos_Name = new char*[4];                  std::vector<char*> legend;legend.clear();   TFile** Files = new TFile*[4];
-        Histos_Name[0] = "MPVs320";                         legend.push_back("320 #mum");               Files[0] = Run62966;
-        Histos_Name[1] = "MPVs500";                         legend.push_back("500 #mum");               Files[1] = Run62966;
-        Histos_Name[2] = "MPVs";                            legend.push_back("320 + 500 #mum");         Files[2] = Run62966;
-        DrawSuperposedHistos(Files, Histos_Name, legend, 1, "",  "MPV", "a.u.", 150, 500, 0, 0, save, "Pictures/Run62966_MPVs.png",false);
+        Histos_Name[0] = "MPV_Vs_PathLength320";            legend.push_back("");                       Files[0] = CRAFT;
+        DrawSuperposedHistos(Files, Histos_Name, legend, 1, "",  "Pathlength", "MPV (ADC/mm)", 0, 0, 0, 400, save, "Pictures/CRAFT_MPV_Vs_PathLength320.png",false);
         delete [] Histos_Name; Histos_Name=NULL;
-
-        char** Histos_Name = new char*[4];                  std::vector<char*> legend;legend.clear();   TFile** Files = new TFile*[4];
-        Histos_Name[0] = "MPV_Vs_PathLength";               legend.push_back("");                       Files[0] = Run62966;
-        DrawSuperposedHistos(Files, Histos_Name, legend, 1, "",  "Pathlength", "MPV", 0, 0, 0, 400, save, "Pictures/Run62966_MPV_Vs_PathLength.png",false);
-        delete [] Histos_Name; Histos_Name=NULL;     
-        DrawTH2DZ(Run62966, "Charge_Vs_PathLength" ,"", "", "PathLength", "Charge", 0,0,0,0,save,"Pictures/Run62966_Charge_Vs_PathLength.png", false);
+        DrawTH2DZ(CRAFT, "Charge_Vs_PathLength320" ,"", "", "PathLength", "Charge", 0,0,0,0,save,"Pictures/CRAFT_Charge_Vs_PathLength320.png", false);
 
 
         char** Histos_Name = new char*[4];                  std::vector<char*> legend;legend.clear();   TFile** Files = new TFile*[4];
-        Histos_Name[0] = "MPV_Vs_PathLength320";            legend.push_back("");                       Files[0] = Run62966;
-        DrawSuperposedHistos(Files, Histos_Name, legend, 1, "",  "Pathlength", "MPV", 0, 0, 0, 400, save, "Pictures/Run62966_MPV_Vs_PathLength320.png",false);
+        Histos_Name[0] = "MPV_Vs_PathLength500";            legend.push_back("");                       Files[0] = CRAFT;
+        DrawSuperposedHistos(Files, Histos_Name, legend, 1, "",  "Pathlength", "MPV (ADC/mm)", 0, 0, 0, 400, save, "Pictures/CRAFT_MPV_Vs_PathLength500.png",false);
         delete [] Histos_Name; Histos_Name=NULL;
-        DrawTH2DZ(Run62966, "Charge_Vs_PathLength320" ,"", "", "PathLength", "Charge", 0,0,0,0,save,"Pictures/Run62966_Charge_Vs_PathLength320.png", false);
+        DrawTH2DZ(CRAFT, "Charge_Vs_PathLength500" ,"", "", "PathLength", "Charge", 0,0,0,0,save,"Pictures/CRAFT_Charge_Vs_PathLength500.png", false);
+
 
 
         char** Histos_Name = new char*[4];                  std::vector<char*> legend;legend.clear();   TFile** Files = new TFile*[4];
-        Histos_Name[0] = "MPV_Vs_PathLength500";            legend.push_back("");                       Files[0] = Run62966;
-        DrawSuperposedHistos(Files, Histos_Name, legend, 1, "",  "Pathlength", "MPV", 0, 0, 0, 400, save, "Pictures/Run62966_MPV_Vs_PathLength500.png",false);
+        Histos_Name[0] = "MPV_Vs_PathTIB";                  legend.push_back("");                       Files[0] = CRAFT;
+        DrawSuperposedHistos(Files, Histos_Name, legend, 1, "",  "Pathlength", "MPV (ADC/mm)", 0, 0, 0, 400, save, "Pictures/CRAFT_MPV_Vs_PathLengthTIB.png",false);
         delete [] Histos_Name; Histos_Name=NULL;
-        DrawTH2DZ(Run62966, "Charge_Vs_PathLength500" ,"", "", "PathLength", "Charge", 0,0,0,0,save,"Pictures/Run62966_Charge_Vs_PathLength500.png", false);
-
+        DrawTH2DZ(CRAFT, "Charge_Vs_PathTIB" ,"", "", "PathLength", "Charge", 0,0,0,0,save,"Pictures/CRAFT_Charge_Vs_PathLengthTIB.png", false);
 
 
         char** Histos_Name = new char*[4];                  std::vector<char*> legend;legend.clear();   TFile** Files = new TFile*[4];
-        Histos_Name[0] = "MPV_Vs_PathTIB";                  legend.push_back("");                       Files[0] = Run62966;
-        DrawSuperposedHistos(Files, Histos_Name, legend, 1, "",  "Pathlength", "MPV", 0, 0, 0, 400, save, "Pictures/Run62966_MPV_Vs_PathLengthTIB.png",false);
+        Histos_Name[0] = "MPV_Vs_PathTID";                  legend.push_back("");                       Files[0] = CRAFT;
+        DrawSuperposedHistos(Files, Histos_Name, legend, 1, "",  "Pathlength", "MPV (ADC/mm)", 0, 0, 0, 400, save, "Pictures/CRAFT_MPV_Vs_PathLengthTID.png",false);
         delete [] Histos_Name; Histos_Name=NULL;
-        DrawTH2DZ(Run62966, "Charge_Vs_PathTIB" ,"", "", "PathLength", "Charge", 0,0,0,0,save,"Pictures/Run62966_Charge_Vs_PathLengthTIB.png", false);
+        DrawTH2DZ(CRAFT, "Charge_Vs_PathTID" ,"", "", "PathLength", "Charge", 0,0,0,0,save,"Pictures/CRAFT_Charge_Vs_PathLengthTID.png", false);
 
 
         char** Histos_Name = new char*[4];                  std::vector<char*> legend;legend.clear();   TFile** Files = new TFile*[4];
-        Histos_Name[0] = "MPV_Vs_PathTID";                  legend.push_back("");                       Files[0] = Run62966;
-        DrawSuperposedHistos(Files, Histos_Name, legend, 1, "",  "Pathlength", "MPV", 0, 0, 0, 400, save, "Pictures/Run62966_MPV_Vs_PathLengthTID.png",false);
+        Histos_Name[0] = "MPV_Vs_PathTOB";                  legend.push_back("");                       Files[0] = CRAFT;
+        DrawSuperposedHistos(Files, Histos_Name, legend, 1, "",  "Pathlength", "MPV (ADC/mm)", 0, 0, 0, 400, save, "Pictures/CRAFT_MPV_Vs_PathLengthTOB.png",false);
         delete [] Histos_Name; Histos_Name=NULL;
-        DrawTH2DZ(Run62966, "Charge_Vs_PathTID" ,"", "", "PathLength", "Charge", 0,0,0,0,save,"Pictures/Run62966_Charge_Vs_PathLengthTID.png", false);
+        DrawTH2DZ(CRAFT, "Charge_Vs_PathTOB" ,"", "", "PathLength", "Charge", 0,0,0,0,save,"Pictures/CRAFT_Charge_Vs_PathLengthTOB.png", false);
+
 
 
         char** Histos_Name = new char*[4];                  std::vector<char*> legend;legend.clear();   TFile** Files = new TFile*[4];
-        Histos_Name[0] = "MPV_Vs_PathTOB";                  legend.push_back("");                       Files[0] = Run62966;
-        DrawSuperposedHistos(Files, Histos_Name, legend, 1, "",  "Pathlength", "MPV", 0, 0, 0, 400, save, "Pictures/Run62966_MPV_Vs_PathLengthTOB.png",false);
+        Histos_Name[0] = "MPV_Vs_PathTEC1";                  legend.push_back("");                       Files[0] = CRAFT;
+        DrawSuperposedHistos(Files, Histos_Name, legend, 1, "",  "Pathlength", "MPV (ADC/mm)", 0, 0, 0, 400, save, "Pictures/CRAFT_MPV_Vs_PathLengthTEC320.png",false);
         delete [] Histos_Name; Histos_Name=NULL;
-        DrawTH2DZ(Run62966, "Charge_Vs_PathTOB" ,"", "", "PathLength", "Charge", 0,0,0,0,save,"Pictures/Run62966_Charge_Vs_PathLengthTOB.png", false);
-
+        DrawTH2DZ(CRAFT, "Charge_Vs_PathTEC1" ,"", "", "PathLength", "Charge", 0,0,0,0,save,"Pictures/CRAFT_Charge_Vs_PathTEC320.png", false);
 
 
         char** Histos_Name = new char*[4];                  std::vector<char*> legend;legend.clear();   TFile** Files = new TFile*[4];
-        Histos_Name[0] = "MPV_Vs_PathTEC1";                  legend.push_back("");                       Files[0] = Run62966;
-        DrawSuperposedHistos(Files, Histos_Name, legend, 1, "",  "Pathlength", "MPV", 0, 0, 0, 400, save, "Pictures/Run62966_MPV_Vs_PathLengthTEC320.png",false);
+        Histos_Name[0] = "MPV_Vs_PathTEC2";                  legend.push_back("");                       Files[0] = CRAFT;
+        DrawSuperposedHistos(Files, Histos_Name, legend, 1, "",  "Pathlength", "MPV (ADC/mm)", 0, 0, 0, 400, save, "Pictures/CRAFT_MPV_Vs_PathLengthTEC500.png",false);
         delete [] Histos_Name; Histos_Name=NULL;
-        DrawTH2DZ(Run62966, "Charge_Vs_PathTEC1" ,"", "", "PathLength", "Charge", 0,0,0,0,save,"Pictures/Run62966_Charge_Vs_PathTEC320.png", false);
+        DrawTH2DZ(CRAFT, "Charge_Vs_PathTEC2" ,"", "", "PathLength", "Charge", 0,0,0,0,save,"Pictures/CRAFT_Charge_Vs_PathTEC500.png", false);
 
 
         char** Histos_Name = new char*[4];                  std::vector<char*> legend;legend.clear();   TFile** Files = new TFile*[4];
-        Histos_Name[0] = "MPV_Vs_PathTEC2";                  legend.push_back("");                       Files[0] = Run62966;
-        DrawSuperposedHistos(Files, Histos_Name, legend, 1, "",  "Pathlength", "MPV", 0, 0, 0, 400, save, "Pictures/Run62966_MPV_Vs_PathLengthTEC500.png",false);
-        delete [] Histos_Name; Histos_Name=NULL;
-        DrawTH2DZ(Run62966, "Charge_Vs_PathTEC2" ,"", "", "PathLength", "Charge", 0,0,0,0,save,"Pictures/Run62966_Charge_Vs_PathTEC500.png", false);
-
-
-
-
-        char** Histos_Name = new char*[4];                  std::vector<char*> legend;legend.clear();   TFile** Files = new TFile*[4];
-        Histos_Name[0] = "FirstStrip";                      legend.push_back("");                       Files[0] = Run62966;
-        DrawSuperposedHistos(Files, Histos_Name, legend, 1, "",  "FirstStrip", "u.a.", 0, 0, 0, 0, save, "Pictures/Run62966_FirstStrip.png",false);
+        Histos_Name[0] = "FirstStrip";                      legend.push_back("");                       Files[0] = CRAFT;
+        DrawSuperposedHistos(Files, Histos_Name, legend, 1, "",  "FirstStrip", "u.a.", 0, 0, 0, 0, save, "Pictures/CRAFT_FirstStrip.png",false);
         delete [] Histos_Name; Histos_Name=NULL;
 
 
         char** Histos_Name = new char*[4];                  std::vector<char*> legend;legend.clear();   TFile** Files = new TFile*[4];
-        Histos_Name[0] = "Entries_Vs_Error";                legend.push_back("");                       Files[0] = Run62966;
-        DrawTH2D(Files, Histos_Name,legend, "", "#Entries in Charge Distribution", "Fit Error on the MPV", 0,350,0,0,save,"Pictures/Run62966_Entries_Vs_Error.png");
-        delete [] Histos_Name; Histos_Name=NULL;
-
-
-
-
-/*
-        char** Histos_Name = new char*[4];                  std::vector<char*> legend;legend.clear();   TFile** Files = new TFile*[4];
-        Histos_Name[0] = "MPV_vs_10RplusEta";               legend.push_back("");                       Files[0] = Run62966;
-        DrawTH2D(Files, Histos_Name,legend, "", "R #times 10 + #eta", "MPV", 235,242,290,325,save,"Pictures/Run62966_MPV_Vs_10RplusEta_240.png");
+        Histos_Name[0] = "Error_Vs_Entries";                legend.push_back("");                       Files[0] = CRAFT;
+        DrawTH2D(Files, Histos_Name,legend, "", "#Entries in Charge Distribution", "Fit Error on the MPV (ADC/mm)", 0,1000,0,0,save,"Pictures/CRAFT_Error_Vs_Entries.png");
         delete [] Histos_Name; Histos_Name=NULL;
 
         char** Histos_Name = new char*[4];                  std::vector<char*> legend;legend.clear();   TFile** Files = new TFile*[4];
-        Histos_Name[0] = "MPV_vs_10RplusEta";               legend.push_back("");                       Files[0] = Run62966;
-        DrawTH2D(Files, Histos_Name,legend, "", "R #times 10 + #eta", "MPV", 1096,1102,305,325,save,"Pictures/Run62966_MPV_Vs_10RplusEta_1100.png");
+        Histos_Name[0] = "Error_Vs_MPV";                    legend.push_back("");                       Files[0] = CRAFT;
+        DrawTH2D(Files, Histos_Name,legend, "", "MPV (ADC/mm)", "Fit Error on the MPV (ADC/mm)", 0,1000,0,0,save,"Pictures/CRAFT_Error_Vs_MPV.png");
         delete [] Histos_Name; Histos_Name=NULL;
 
         char** Histos_Name = new char*[4];                  std::vector<char*> legend;legend.clear();   TFile** Files = new TFile*[4];
-        Histos_Name[0] = "MPV_vs_10RplusEta";               legend.push_back("");                       Files[0] = Run62966;
-        DrawTH2D(Files, Histos_Name,legend, "", "R #times 10 + #eta", "MPV", 582,590,260,320,save,"Pictures/Run62966_MPV_Vs_10RplusEta_585_Sat.png");
+        Histos_Name[0] = "Error_Vs_Eta";                    legend.push_back("");                       Files[0] = CRAFT;
+        DrawTH2D(Files, Histos_Name,legend, "", "module #eta", "Fit Error on the MPV (ADC/mm)", 0,0,0,0,save,"Pictures/CRAFT_Error_Vs_Eta.png");
         delete [] Histos_Name; Histos_Name=NULL;
-*/
+
+        char** Histos_Name = new char*[4];                  std::vector<char*> legend;legend.clear();   TFile** Files = new TFile*[4];
+        Histos_Name[0] = "Error_Vs_Phi";                    legend.push_back("");                       Files[0] = CRAFT;
+        DrawTH2D(Files, Histos_Name,legend, "", "module #phi", "Fit Error on the MPV (ADC/mm)", 0,0,0,0,save,"Pictures/CRAFT_Error_Vs_Phi.png");
+        delete [] Histos_Name; Histos_Name=NULL;
+
+
+        char** Histos_Name = new char*[4];                  std::vector<char*> legend;legend.clear();   TFile** Files = new TFile*[4];
+        Histos_Name[0] = "NoMPV_Vs_EtaPhi";                 legend.push_back("");                       Files[0] = CRAFT;
+        DrawTH2D(Files, Histos_Name,legend, "", "module #eta", "module #phi", 0,0,0,0,save,"Pictures/CRAFT_NoMPV_Vs_EtaPhi.png");
+        delete [] Histos_Name; Histos_Name=NULL;
+
+
+        char** Histos_Name = new char*[4];                  std::vector<char*> legend;legend.clear();   TFile** Files = new TFile*[4];
+        Histos_Name[0] = "Charge_TEC";                      legend.push_back("TEC");                    Files[0] = CRAFT;
+        Histos_Name[1] = "Charge_TIB";                      legend.push_back("TIB");                    Files[1] = CRAFT;
+        Histos_Name[2] = "Charge_TID";                      legend.push_back("TID");                    Files[2] = CRAFT;
+        Histos_Name[3] = "Charge_TOB";                      legend.push_back("TOB");                    Files[3] = CRAFT;
+        DrawSuperposedHistos(Files, Histos_Name,legend, 1, "", "Normalized Charge (ADC/mm)", "u.a.", 0,800,0,0, save, "Pictures/CRAFT_Charge_Vs_SubDet.png", false);
+        delete [] Histos_Name; Histos_Name=NULL;  
+
+        char** Histos_Name = new char*[4];                  std::vector<char*> legend;legend.clear();   TFile** Files = new TFile*[4];
+        Histos_Name[0] = "Charge_TEC+";                     legend.push_back("TEC+");                    Files[0] = CRAFT;
+        Histos_Name[1] = "Charge_TEC-";                     legend.push_back("TEC-");                    Files[1] = CRAFT;
+        Histos_Name[2] = "Charge_TID+";                     legend.push_back("TID+");                    Files[2] = CRAFT;
+        Histos_Name[3] = "Charge_TID-";                     legend.push_back("TID-");                    Files[3] = CRAFT;
+        DrawSuperposedHistos(Files, Histos_Name,legend, 1, "", "Normalized Charge (ADC/mm)", "u.a.", 0,800,0,0, save, "Pictures/CRAFT_Charge_Vs_SubDetSided.png", false);
+        delete [] Histos_Name; Histos_Name=NULL;
+
+
 
 }
 
 
+void PrintJobInfo(TFile* File){
+   TH1D* JobInfo = File->FindObjectAny("JobInfo");
+
+   printf("NEvent = %i\n",  JobInfo->GetBinContent(JobInfo->GetXaxis()->FindBin(1)));
+   printf("SRun   = %i\n",  JobInfo->GetBinContent(JobInfo->GetXaxis()->FindBin(3)));
+   printf("SEvent = %i\n",  JobInfo->GetBinContent(JobInfo->GetXaxis()->FindBin(4)));
+   printf("ERun   = %i\n",  JobInfo->GetBinContent(JobInfo->GetXaxis()->FindBin(6)));
+   printf("EEvent = %i\n",  JobInfo->GetBinContent(JobInfo->GetXaxis()->FindBin(7)));
+
+}
+
 void DrawSuperposedHistos(TFile** File, char** Histos_Name, std::vector<char*> legend, int Rebin, char* Title,  char* Xlegend, char* Ylegend, double xmin, double xmax, double ymin, double ymax, bool save, char* save_path, bool special)
 {
-   int Color[]    = {2,4,1,4,1,6,3,9,5};
+   int Color[]    = {4,2,1,3,6,8,9,5};
    int Marker[]   = {21,22,23,20,20,3,2};
    int Style[]    = {1,5,7,9,10};
 
