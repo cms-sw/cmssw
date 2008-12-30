@@ -1,12 +1,12 @@
-#ifndef POPCON_RPC_GAS_SH
-#define POPCON_RPC_GAS_SH
+#ifndef POPCON_RPC_DATA_SRC_H
+#define POPCON_RPC_DATA_SRC_H
 
 /*
- * \class RpcGasSH
+ * \class RpcData
  *  Core of RPC PopCon Appication
  *
- *  $Date: 2008/12/12 20:02:34 $
- *  $Revision: 1.7 $
+ *  $Date: 2008/12/12 20:03:18 $
+ *  $Revision: 1.2 $
  *  \author D. Pagano - Dip. Fis. Nucl. e Teo. & INFN Pavia
  */
 
@@ -17,8 +17,8 @@
 
 #include "CondCore/PopCon/interface/PopConSourceHandler.h"
 
-#include "CondFormats/RPCObjects/interface/RPCObGas.h"
-#include "CondFormats/DataRecord/interface/RPCObGasRcd.h"
+#include "CondFormats/RPCObjects/interface/RPCObCond.h"
+#include "CondFormats/DataRecord/interface/RPCObCondRcd.h"
 #include "CoralBase/TimeStamp.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 #include "CondTools/RPC/interface/RPCFw.h"
@@ -26,14 +26,14 @@
 
 
 namespace popcon{
-  class RpcObGasData : public popcon::PopConSourceHandler<RPCObGas>{
+  class RpcDataV : public popcon::PopConSourceHandler<RPCObVmon>{
   public:
     void getNewObjects();
     std::string id() const { return m_name;}
-    ~RpcObGasData(); 
-    RpcObGasData(const edm::ParameterSet& pset); 
+    ~RpcDataV(); 
+    RpcDataV(const edm::ParameterSet& pset); 
 
-    RPCObGas* Gasdata;
+    RPCObVmon* Vdata;
 
     unsigned long long snc;
     unsigned long long niov;	    
@@ -48,3 +48,4 @@ namespace popcon{
   };
 }
 #endif
+

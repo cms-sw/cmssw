@@ -1,8 +1,8 @@
  /* 
  *  See header file for a description of this class.
  *
- *  $Date: 2008/11/25 15:00:14 $
- *  $Revision: 1.9 $
+ *  $Date: 2008/12/12 20:19:31 $
+ *  $Revision: 1.13 $
  *  \author D. Pagano - Dip. Fis. Nucl. e Teo. & INFN Pavia
  */
 
@@ -22,6 +22,9 @@
 #include <stdexcept>
 #include <vector>
 #include <math.h>
+#include <iostream>
+#include <sstream>
+
 
 RPCFw::RPCFw( const std::string& connectionString,
               const std::string& userName,
@@ -43,7 +46,7 @@ RPCFw::run()
 
 
 //----------------------------- I M O N ------------------------------------------------------------------------
-std::vector<RPCObCond::Item> RPCFw::createIMON(int from)
+std::vector<RPCObImon::I_Item> RPCFw::createIMON(int from)
 {
   thr = UTtoT(from);
   std::cout <<">> Processing since: "<<thr.day()<<"/"<<thr.month()<<"/"<<thr.year()<<" "<<thr.hour()<<":"<<thr.minute()<<"."<<thr.second()<< std::endl;
@@ -59,7 +62,7 @@ std::vector<RPCObCond::Item> RPCFw::createIMON(int from)
   queryI->addToOutputList( "FWCAENCHANNEL.DPID", "DPID" );
   queryI->addToOutputList( "FWCAENCHANNEL.CHANGE_DATE", "TSTAMP" );
   queryI->addToOutputList( "FWCAENCHANNEL.ACTUAL_IMON", "IMON" );
-  std::string condI = "FWCAENCHANNEL.ACTUAL_IMON is not NULL AND ";
+  std::string condI = "FWCAENCHANNEL.ACTUAL_IMON is not NULL";
 
   std::string condition = "FWCAENCHANNEL.ACTUAL_IMON is not NULL AND FWCAENCHANNEL.CHANGE_DATE >:tmax";
   coral::AttributeList conditionData;
@@ -68,8 +71,8 @@ std::vector<RPCObCond::Item> RPCFw::createIMON(int from)
   conditionData[0].data<coral::TimeStamp>() = thr;
   coral::ICursor& cursorI = queryI->execute();
 
-  RPCObCond::Item Itemp;
-  std::vector<RPCObCond::Item> imonarray;
+  RPCObImon::I_Item Itemp;
+  std::vector<RPCObImon::I_Item> imonarray;
   while ( cursorI.next() ) {
     const coral::AttributeList& row = cursorI.currentRow();
     float idoub = row["DPID"].data<float>();
@@ -99,7 +102,7 @@ std::vector<RPCObCond::Item> RPCFw::createIMON(int from)
 
 
 //------------------------------------------------------- V M O N ---------------------------------------------------
-std::vector<RPCObCond::Item> RPCFw::createVMON(int from)
+std::vector<RPCObVmon::V_Item> RPCFw::createVMON(int from)
 {
   thr = UTtoT(from);
   std::cout <<">> Processing since: "<<thr.day()<<"/"<<thr.month()<<"/"<<thr.year()<<" "<<thr.hour()<<":"<<thr.minute()<<"."<<thr.second()<< std::endl;
@@ -124,8 +127,8 @@ std::vector<RPCObCond::Item> RPCFw::createVMON(int from)
   conditionData[0].data<coral::TimeStamp>() = thr;
   coral::ICursor& cursorV = queryV->execute();
 
-  RPCObCond::Item Vtemp;
-  std::vector<RPCObCond::Item> vmonarray;
+  RPCObVmon::V_Item Vtemp;
+  std::vector<RPCObVmon::V_Item> vmonarray;
   while ( cursorV.next() ) {
     const coral::AttributeList& row = cursorV.currentRow();
     float idoub = row["DPID"].data<float>();
@@ -152,7 +155,7 @@ std::vector<RPCObCond::Item> RPCFw::createVMON(int from)
 
 
 //------------------------------ S T A T U S ---------------------------------------------------------------------
-std::vector<RPCObCond::Item> RPCFw::createSTATUS(int from)
+std::vector<RPCObStatus::S_Item> RPCFw::createSTATUS(int from)
 {
   thr = UTtoT(from);
   std::cout <<">> Processing since: "<<thr.day()<<"/"<<thr.month()<<"/"<<thr.year()<<" "<<thr.hour()<<":"<<thr.minute()<<"."<<thr.second()<< std::endl;
@@ -177,8 +180,8 @@ std::vector<RPCObCond::Item> RPCFw::createSTATUS(int from)
   conditionData[0].data<coral::TimeStamp>() = thr;
   coral::ICursor& cursorS = queryS->execute();
 
-  RPCObCond::Item Stemp;
-  std::vector<RPCObCond::Item> statusarray;
+  RPCObStatus::S_Item Stemp;
+  std::vector<RPCObStatus::S_Item> statusarray;
   while ( cursorS.next() ) {
     const coral::AttributeList& row = cursorS.currentRow();
     float idoub = row["DPID"].data<float>();
@@ -269,7 +272,7 @@ std::vector<RPCObGas::Item> RPCFw::createGAS(int from)
 
 
 //------------------------------ T E M P E R A T U R E ---------------------------------------------------------------------
-std::vector<RPCObCond::Item> RPCFw::createT(int from)
+std::vector<RPCObTemp::T_Item> RPCFw::createT(int from)
 {
   thr = UTtoT(from);
   std::cout <<">> Processing since: "<<thr.day()<<"/"<<thr.month()<<"/"<<thr.year()<<" "<<thr.hour()<<":"<<thr.minute()<<"."<<thr.second()<< std::endl;
@@ -294,8 +297,8 @@ std::vector<RPCObCond::Item> RPCFw::createT(int from)
   conditionData[0].data<coral::TimeStamp>() = thr;
   coral::ICursor& cursorS = queryS->execute();
 
-  RPCObCond::Item Ttemp;
-  std::vector<RPCObCond::Item> temparray;
+  RPCObTemp::T_Item Ttemp;
+  std::vector<RPCObTemp::T_Item> temparray;
   while ( cursorS.next() ) {
     const coral::AttributeList& row = cursorS.currentRow();
     float idoub = row["DPID"].data<float>();
@@ -323,6 +326,82 @@ std::vector<RPCObCond::Item> RPCFw::createT(int from)
 
 }
 
+
+//----------------------------- I D   M A P ------------------------------------------------------------------------
+std::vector<RPCObPVSSmap::Item> RPCFw::createIDMAP()
+{
+  //  float thri = 0;
+  std::cout <<">> Processing data..." << std::endl;
+
+  coral::ISession* session = this->connect( m_connectionString,
+                                            m_userName, m_password );
+  session->transaction().start( true );
+  coral::ISchema& schema = session->nominalSchema();
+  int nRows = 0;
+  std::cout << ">> creating IDMAP object..." << std::endl;
+  coral::IQuery* queryM = schema.newQuery();
+  queryM->addToTableList( "RPCPVSSDETID");
+  queryM->addToOutputList( "RPCPVSSDETID.SINCE", "SINCE" );
+  queryM->addToOutputList( "RPCPVSSDETID.PVSS_ID", "PVSS_ID" );
+  queryM->addToOutputList( "RPCPVSSDETID.REGION", "REGION" );
+  queryM->addToOutputList( "RPCPVSSDETID.RING", "RING" );
+  queryM->addToOutputList( "RPCPVSSDETID.STATION", "STATION" );
+  queryM->addToOutputList( "RPCPVSSDETID.SECTOR", "SECTOR" );
+  queryM->addToOutputList( "RPCPVSSDETID.LAYER", "LAYER" );
+  queryM->addToOutputList( "RPCPVSSDETID.SUBSECTOR", "SUBSECTOR" );
+  queryM->addToOutputList( "RPCPVSSDETID.SUPPLYTYPE", "SUPPLYTYPE" );
+
+  std::string condM = "RPCPVSSDETID.PVSS_ID is not NULL";
+
+  //  queryM->setCondition(condM);
+  coral::ICursor& cursorM = queryM->execute();
+
+  RPCObPVSSmap::Item Itemp;
+  std::vector<RPCObPVSSmap::Item> idmaparray;
+  while ( cursorM.next() ) {
+    const coral::AttributeList& row = cursorM.currentRow();
+    int id = row["PVSS_ID"].data<int>();
+    std::string reg = row["REGION"].data<std::string>();
+    std::string rin = row["RING"].data<std::string>();
+    std::string sta = row["STATION"].data<std::string>();
+    std::string sec = row["SECTOR"].data<std::string>();
+    std::string lay = row["LAYER"].data<std::string>();
+    std::string sub = row["SUBSECTOR"].data<std::string>();
+    std::string sup = row["SUPPLYTYPE"].data<std::string>();
+
+
+    coral::TimeStamp ts =  row["SINCE"].data<coral::TimeStamp>();
+
+    std::ostringstream dday;
+    std::ostringstream dmon;
+    std::ostringstream dyea;
+    dday << ts.day();
+    dmon << ts.month();
+    dyea << ts.year();
+    std::string date = dday.str() + "-" + dmon.str() + "-" + dyea.str();
+
+    Itemp.since = date;
+    Itemp.dpid = id;
+    Itemp.region = reg;
+    Itemp.ring = rin;
+    Itemp.station = sta;
+    Itemp.sector = sec;
+    Itemp.layer = lay;
+    Itemp.subsector = sub;
+    Itemp.suptype = sup;
+
+    idmaparray.push_back(Itemp);
+
+    ++nRows;
+  }
+
+
+  std::cout << ">> IDMAP array --> size: " << idmaparray.size() << " >> done." << std::endl;
+  delete queryM;
+  session->transaction().commit();
+  delete session;
+  return idmaparray;
+}
 
 
 

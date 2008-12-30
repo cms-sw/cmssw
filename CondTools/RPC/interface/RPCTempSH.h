@@ -5,8 +5,8 @@
  * \class RpcData
  *  Core of RPC PopCon Appication
  *
- *  $Date: 2008/10/11 08:47:02 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/12/12 20:03:06 $
+ *  $Revision: 1.2 $
  *  \author D. Pagano - Dip. Fis. Nucl. e Teo. & INFN Pavia
  */
 
@@ -26,21 +26,18 @@
 
 
 namespace popcon{
-  class RpcData : public popcon::PopConSourceHandler<RPCObCond>{
+  class RpcDataT : public popcon::PopConSourceHandler<RPCObTemp>{
   public:
     void getNewObjects();
     std::string id() const { return m_name;}
-    ~RpcData(); 
-    RpcData(const edm::ParameterSet& pset); 
+    ~RpcDataT(); 
+    RpcDataT(const edm::ParameterSet& pset); 
 
-    RPCObCond* Idata;
-    RPCObCond* Vdata;
-    RPCObCond* Sdata;
-    RPCObCond* Tdata;
+    RPCObTemp* Tdata;
 
-    int snc;
-    int niov;	    
-    int utime;
+    unsigned long long snc;
+    unsigned long long niov;	    
+    unsigned long long utime;
   private:
     std::string m_name;
     std::string host;
