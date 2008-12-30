@@ -4,7 +4,7 @@
 // Producer for validation histograms for CaloJet objects
 // F. Ratnikov, Sept. 7, 2006
 // Modified by J F Novak July 10, 2008
-// $Id: CaloJetTester.h,v 1.7 2008/09/15 12:03:12 chlebana Exp $
+// $Id: CaloJetTester.h,v 1.8 2008/10/29 09:52:02 jueugste Exp $
 
 #include <string>
 
@@ -182,6 +182,20 @@ private:
   MonitorElement* mCaloSumET_3000;
   MonitorElement* mCaloMETSig;
   MonitorElement* mCaloMETSig_3000;
+
+  // RecHits
+  MonitorElement* mHBEne;
+  MonitorElement* mHBTime;
+  MonitorElement* mHEEne;
+  MonitorElement* mHETime;
+  MonitorElement* mHOEne;
+  MonitorElement* mHOTime;
+  MonitorElement* mHFEne;
+  MonitorElement* mHFTime;
+  MonitorElement* mEBEne;
+  MonitorElement* mEBTime;
+  MonitorElement* mEEEne;
+  MonitorElement* mEETime;
 
 
 };

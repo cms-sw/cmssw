@@ -1,7 +1,7 @@
 // Producer for validation histograms for CaloJet objects
 // F. Ratnikov, Sept. 7, 2006
 // Modified by J F Novak July 10, 2008
-// $Id: CaloJetTester.cc,v 1.7 2008/09/15 12:03:12 chlebana Exp $
+// $Id: CaloJetTester.cc,v 1.8 2008/10/29 09:52:02 jueugste Exp $
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -76,9 +76,9 @@ CaloJetTester::CaloJetTester(const edm::ParameterSet& iConfig)
     = mGenJetMatchEnergyFraction = mReverseMatchEnergyFraction = mRMatch
     = mDeltaEta = mDeltaPhi = mEScale = mlinEScale = mDeltaE
     = mHadEnergyProfile = mEmEnergyProfile = mJetEnergyProfile = mHadJetEnergyProfile = mEMJetEnergyProfile
-
     = mEScale_pt10 = mEScaleFineBin
-
+    = mHBEne = mHBTime = mHEEne = mHETime = mHFEne = mHFTime = mHOEne = mHOTime
+    = mEBEne = mEBTime = mEEEne = mEETime 
     = 0;
   
   DQMStore* dbe = &*edm::Service<DQMStore>();
@@ -193,6 +193,19 @@ CaloJetTester::CaloJetTester(const edm::ParameterSet& iConfig)
     mNJets1           = dbe->bookProfile("NJets1", "NJets1", 100, 0, 200,  100, 0, 50, "s");
     mNJets2           = dbe->bookProfile("NJets2", "NJets2", 100, 0, 4000, 100, 0, 50, "s");
 
+    mHBEne     = dbe->book1D( "HBEne",  "HBEne", 1000, -20, 100 );
+    mHBTime    = dbe->book1D( "HBTime", "HBTime", 200, -200, 200 );
+    mHEEne     = dbe->book1D( "HEEne",  "HEEne", 1000, -20, 100 );
+    mHETime    = dbe->book1D( "HETime", "HETime", 200, -200, 200 );
+    mHOEne     = dbe->book1D( "HOEne",  "HOEne", 1000, -20, 100 );
+    mHOTime    = dbe->book1D( "HOTime", "HOTime", 200, -200, 200 );
+    mHFEne     = dbe->book1D( "HFEne",  "HFEne", 1000, -20, 100 );
+    mHFTime    = dbe->book1D( "HFTime", "HFTime", 200, -200, 200 );
+    mEBEne     = dbe->book1D( "EBEne",  "EBEne", 1000, -20, 100 );
+    mEBTime    = dbe->book1D( "EBTime", "EBTime", 200, -200, 200 );
+    mEEEne     = dbe->book1D( "EEEne",  "EEEne", 1000, -20, 100 );
+    mEETime    = dbe->book1D( "EETime", "EETime", 200, -200, 200 );
+
     double log10PtMin = 0.5; //=3.16
     double log10PtMax = 4.; ///=10000
     int log10PtBins = 14; 
@@ -271,39 +284,43 @@ void CaloJetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSe
   double countsfornumberofevents = 1;
   numberofevents->Fill(countsfornumberofevents);
 
-   const CaloMET *calomet;
-      // Get CaloMET
-      edm::Handle<CaloMETCollection> calo;
-      mEvent.getByLabel("met", calo);
-      if (!calo.isValid()) {
-        edm::LogInfo("OutputInfo") << " failed to retrieve data required by MET Task";
-        edm::LogInfo("OutputInfo") << " MET Task cannot continue...!";
-       } else {
-        const CaloMETCollection *calometcol = calo.product();
-       calomet = &(calometcol->front());
+  // ***********************************
+  // *** Get CaloMET
+  // ***********************************
 
-      double caloSumET = calomet->sumEt();
-      double caloMETSig = calomet->mEtSig();
-      double caloMET = calomet->pt();
-      double caloMEx = calomet->px();
-      double caloMEy = calomet->py();
-      double caloMETPhi = calomet->phi();
+  const CaloMET *calomet;
+  edm::Handle<CaloMETCollection> calo;
+  mEvent.getByLabel("met", calo);
+  if (!calo.isValid()) {
+    edm::LogInfo("OutputInfo") << " failed to retrieve data required by MET Task";
+    edm::LogInfo("OutputInfo") << " MET Task cannot continue...!";
+  } else {
+    const CaloMETCollection *calometcol = calo.product();
+    calomet = &(calometcol->front());
+    
+    double caloSumET = calomet->sumEt();
+    double caloMETSig = calomet->mEtSig();
+    double caloMET = calomet->pt();
+    double caloMEx = calomet->px();
+    double caloMEy = calomet->py();
+    double caloMETPhi = calomet->phi();
 
-
-      mCaloMEx->Fill(caloMEx);
-      mCaloMEx_3000->Fill(caloMEx);
-      mCaloMEy->Fill(caloMEy);
-      mCaloMEy_3000->Fill(caloMEy);
-      mCaloMET->Fill(caloMET);
-      mCaloMET_3000->Fill(caloMET);
-      mCaloMETPhi->Fill(caloMETPhi);
-      mCaloSumET->Fill(caloSumET);
-      mCaloSumET_3000->Fill(caloSumET);
-      mCaloMETSig->Fill(caloMETSig);
-      mCaloMETSig_3000->Fill(caloMETSig);
+    mCaloMEx->Fill(caloMEx);
+    mCaloMEx_3000->Fill(caloMEx);
+    mCaloMEy->Fill(caloMEy);
+    mCaloMEy_3000->Fill(caloMEy);
+    mCaloMET->Fill(caloMET);
+    mCaloMET_3000->Fill(caloMET);
+    mCaloMETPhi->Fill(caloMETPhi);
+    mCaloSumET->Fill(caloSumET);
+    mCaloSumET_3000->Fill(caloSumET);
+    mCaloMETSig->Fill(caloMETSig);
+    mCaloMETSig_3000->Fill(caloMETSig);
   }
 
- //Get the CaloTower collection
+  // ***********************************
+  // *** Get the CaloTower collection
+  // ***********************************
   Handle<CaloTowerCollection> caloTowers;
   mEvent.getByLabel( "towerMaker", caloTowers );
   for( CaloTowerCollection::const_iterator cal = caloTowers->begin(); cal != caloTowers->end(); ++ cal ){
@@ -322,13 +339,116 @@ void CaloJetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSe
     mEmEnergyProfile->Fill (cal->ieta(), cal->iphi(), cal->emEnergy());
 
     mHadTiming->Fill (cal->hcalTime());
-    mEmTiming->Fill (cal->ecalTime());
-    
+    mEmTiming->Fill (cal->ecalTime());    
+  }
+  
+  // ***********************************
+  // *** Get the RecHits collection
+  // ***********************************
+  try {
+    std::vector<edm::Handle<HBHERecHitCollection> > colls;
+    mEvent.getManyByType(colls);
+    std::vector<edm::Handle<HBHERecHitCollection> >::iterator i;
+    for (i=colls.begin(); i!=colls.end(); i++) {
+      for (HBHERecHitCollection::const_iterator j=(*i)->begin(); j!=(*i)->end(); j++) {
+        //      std::cout << *j << std::endl;
+        if (j->id().subdet() == HcalBarrel) {
+          mHBEne->Fill(j->energy()); 
+          mHBTime->Fill(j->time()); 
+        }
+        if (j->id().subdet() == HcalEndcap) {
+          mHEEne->Fill(j->energy()); 
+          mHETime->Fill(j->time()); 
+        }
+
+        /***
+        std::cout << j->id()     << " "
+                  << j->id().subdet() << " "
+                  << j->id().ieta()   << " "
+                  << j->id().iphi()   << " "
+                  << j->id().depth()  << " "
+                  << j->energy() << " "
+                  << j->time()   << std::endl;
+        ****/
+      }
+    }
+  } catch (...) {
+    edm::LogInfo("OutputInfo") << " No HB/HE RecHits.";
+  }
+
+  try {
+    std::vector<edm::Handle<HFRecHitCollection> > colls;
+    mEvent.getManyByType(colls);
+    std::vector<edm::Handle<HFRecHitCollection> >::iterator i;
+    for (i=colls.begin(); i!=colls.end(); i++) {
+      for (HFRecHitCollection::const_iterator j=(*i)->begin(); j!=(*i)->end(); j++) {
+        //      std::cout << *j << std::endl;
+        if (j->id().subdet() == HcalForward) {
+          mHFEne->Fill(j->energy()); 
+          mHFTime->Fill(j->time()); 
+        }
+      }
+    }
+  } catch (...) {
+    edm::LogInfo("OutputInfo") << " No HF RecHits.";
+  }
+
+  try {
+    std::vector<edm::Handle<HORecHitCollection> > colls;
+    mEvent.getManyByType(colls);
+    std::vector<edm::Handle<HORecHitCollection> >::iterator i;
+    for (i=colls.begin(); i!=colls.end(); i++) {
+      for (HORecHitCollection::const_iterator j=(*i)->begin(); j!=(*i)->end(); j++) {
+        if (j->id().subdet() == HcalOuter) {
+          mHOEne->Fill(j->energy()); 
+          mHOTime->Fill(j->time()); 
+        }
+        //      std::cout << *j << std::endl;
+      }
+    }
+  } catch (...) {
+    edm::LogInfo("OutputInfo") << " No HO RecHits.";
+  }
+  try {
+    std::vector<edm::Handle<EBRecHitCollection> > colls;
+    mEvent.getManyByType(colls);
+    std::vector<edm::Handle<EBRecHitCollection> >::iterator i;
+    for (i=colls.begin(); i!=colls.end(); i++) {
+      for (EBRecHitCollection::const_iterator j=(*i)->begin(); j!=(*i)->end(); j++) {
+        //      if (j->id() == EcalBarrel) {
+          mEBEne->Fill(j->energy()); 
+          mEBTime->Fill(j->time()); 
+          //    }
+        //      std::cout << *j << std::endl;
+        //      std::cout << j->id() << std::endl;
+      }
+    }
+  } catch (...) {
+    edm::LogInfo("OutputInfo") << " No EB RecHits.";
+  }
+
+  try {
+    std::vector<edm::Handle<EERecHitCollection> > colls;
+    mEvent.getManyByType(colls);
+    std::vector<edm::Handle<EERecHitCollection> >::iterator i;
+    for (i=colls.begin(); i!=colls.end(); i++) {
+      for (EERecHitCollection::const_iterator j=(*i)->begin(); j!=(*i)->end(); j++) {
+        //      if (j->id().subdet() == EcalEndcap) {
+          mEEEne->Fill(j->energy()); 
+          mEETime->Fill(j->time()); 
+          //    }
+        //      std::cout << *j << std::endl;
+      }
+    }
+  } catch (...) {
+    edm::LogInfo("OutputInfo") << " No EE RecHits.";
   }
 
 
+  //***********************************
+  //*** Get the Jet collection
+  //***********************************
   math::XYZTLorentzVector p4tmp[2];
-
   Handle<CaloJetCollection> caloJets;
   mEvent.getByLabel(mInputCollection, caloJets);
   CaloJetCollection::const_iterator jet = caloJets->begin ();
