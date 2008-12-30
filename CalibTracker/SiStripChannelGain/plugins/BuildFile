@@ -22,6 +22,7 @@
 <use name=Geometry/TrackerGeometryBuilder>
 <use name=Geometry/TrackerNumberingBuilder>
 <use name=TrackingTools/PatternTools>
+<use name=DQMServices/Core>
 <use name=rootcore>
 <use name=root>
 <library file="*.cc" name=CalibTrackerSiStripChannelGainPlugins>
