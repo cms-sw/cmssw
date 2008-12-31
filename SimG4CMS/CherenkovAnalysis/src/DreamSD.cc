@@ -22,7 +22,6 @@
 #include "SimG4CMS/CherenkovAnalysis/interface/DreamSD.h"
 #include "SimG4CMS/CherenkovAnalysis/interface/PMTResponse.h"
 
-
 //________________________________________________________________________________________
 DreamSD::DreamSD(G4String name, const DDCompactView & cpv,
 	       SensitiveDetectorCatalog & clg, 
@@ -305,8 +304,8 @@ double DreamSD::cherenkovDeposit_( G4Step* aStep ) {
   }
 
   LogDebug("EcalSim") << "Material properties: " << "\n"
-                      << "  Pmin = " << Rindex->GetMinPhotonMomentum()
-                      << "  Pmax = " << Rindex->GetMaxPhotonMomentum();
+                      << "  Pmin = " << Rindex->GetMinPhotonEnergy()
+                      << "  Pmax = " << Rindex->GetMaxPhotonEnergy();
   
   // Get particle properties
   G4StepPoint* pPreStepPoint  = aStep->GetPreStepPoint();
@@ -344,8 +343,8 @@ double DreamSD::cherenkovDeposit_( G4Step* aStep ) {
   }
 
   // Material refraction properties
-  double Pmin = Rindex->GetMinPhotonMomentum();
-  double Pmax = Rindex->GetMaxPhotonMomentum();
+  double Pmin = Rindex->GetMinPhotonEnergy();
+  double Pmax = Rindex->GetMaxPhotonEnergy();
   double dp = Pmax - Pmin;
   double maxCos = BetaInverse / Rindex->GetMaxProperty(); 
   double maxSin2 = (1.0 - maxCos) * (1.0 + maxCos);
@@ -436,8 +435,8 @@ const double DreamSD::getAverageNumberOfPhotons_( const double charge,
   //	- new G4PhysicsOrderedFreeVector allocated to hold CAI's
  
   // Min and Max photon momenta  
-  double Pmin = Rindex->GetMinPhotonMomentum();
-  double Pmax = Rindex->GetMaxPhotonMomentum();
+  double Pmin = Rindex->GetMinPhotonEnergy();
+  double Pmax = Rindex->GetMaxPhotonEnergy();
 
   // Min and Max Refraction Indices 
   double nMin = Rindex->GetMinProperty();	
@@ -458,11 +457,11 @@ const double DreamSD::getAverageNumberOfPhotons_( const double charge,
   } 
   // If n(Pmin) < 1/Beta, and n(Pmax) >= 1/Beta, then
   // we need to find a P such that the value of n(P) == 1/Beta.
-  // Interpolation is performed by the GetPhotonMomentum() and
+  // Interpolation is performed by the GetPhotonEnergy() and
   // GetProperty() methods of the G4MaterialPropertiesTable and
   // the GetValue() method of G4PhysicsVector.  
   else {
-    Pmin = Rindex->GetPhotonMomentum(BetaInverse);
+    Pmin = Rindex->GetPhotonEnergy(BetaInverse);
     dp = Pmax - Pmin;
     // need boolean for current implementation of G4PhysicsVector
     // ==> being phased out
