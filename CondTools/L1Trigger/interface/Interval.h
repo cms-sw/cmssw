@@ -2,6 +2,7 @@
 #define CondTools_L1Trigger_Interval_h
 
 #include <map>
+#include <cassert>
 
 namespace l1t
 {
