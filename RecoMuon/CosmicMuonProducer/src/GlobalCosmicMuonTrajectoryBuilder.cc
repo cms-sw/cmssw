@@ -1,8 +1,8 @@
 /**
  *  Class: GlobalCosmicMuonTrajectoryBuilder
  *
- *  $Date: 2008/11/05 01:52:48 $
- *  $Revision: 1.14 $
+ *  $Date: 2008/12/15 16:36:49 $
+ *  $Revision: 1.15 $
  *  \author Chang Liu  -  Purdue University <Chang.Liu@cern.ch>
  *
  **/
@@ -329,9 +329,11 @@ GlobalCosmicMuonTrajectoryBuilder::getTransientRecHits(const reco::Track& track)
         TransientTrackingRecHit::RecHitPointer ttrhit = theTrackerRecHitBuilder->build(&**hit);
         TrajectoryStateOnSurface predTsos =  theService->propagator(thePropagatorName)->propagate(currTsos, theService->trackingGeometry()->idToDet(recoid)->surface());
         LogTrace(category_)<<"predtsos "<<predTsos.isValid();
-        if ( predTsos.isValid() ) currTsos = predTsos;
-        TransientTrackingRecHit::RecHitPointer preciseHit = ttrhit->clone(predTsos);
-        result.push_back(preciseHit);
+        if ( predTsos.isValid() ) {
+          currTsos = predTsos;
+          TransientTrackingRecHit::RecHitPointer preciseHit = ttrhit->clone(currTsos);
+          result.push_back(preciseHit);
+       }
       } else if ( recoid.det() == DetId::Muon ) {
 	result.push_back(theMuonRecHitBuilder->build(&**hit));
       }
