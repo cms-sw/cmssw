@@ -4,8 +4,8 @@
  *  class to build trajectories of cosmic muons and beam-halo muons
  *
  *
- *  $Date: 2008/10/18 22:23:35 $
- *  $Revision: 1.41 $
+ *  $Date: 2008/10/22 03:44:57 $
+ *  $Revision: 1.42 $
  *  \author Chang Liu  - Purdue Univeristy
  */
 
@@ -342,7 +342,6 @@ CosmicMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
   if ( theTraversingMuonFlag && ( allUnusedHits.size() >= 2 ) && 
      ( ( myTraj.lastLayer()->location() == GeomDetEnumerators::barrel ) ||
        ( myTraj.firstMeasurement().layer()->location() == GeomDetEnumerators::barrel ) ) ) {
-      theNTraversing++;
 //      LogTrace(category_)<<utilities()->print(allUnusedHits);
       LogTrace(category_)<<"Building trajectory in second hemisphere...";
       buildSecondHalf(myTraj);
@@ -353,6 +352,18 @@ CosmicMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
 //     getDirectionByTime(myTraj);
   if (beamhaloFlag) estimateDirection(myTraj);
   if ( myTraj.empty() ) return trajL;
+
+// try to smooth it
+
+  vector<Trajectory> smoothed = theSmoother->trajectories(myTraj);
+  if ( !smoothed.empty() )  {
+     LogTrace(category_) <<" Smoothed successfully.";
+     myTraj = smoothed.front();
+  }
+  else {
+     LogTrace(category_) <<" Smooth failed.";
+  }
+
 
   LogTrace(category_) <<"first "<< myTraj.firstMeasurement().updatedState()
                       <<"\n last "<<myTraj.lastMeasurement().updatedState();
