@@ -17,6 +17,11 @@
    
 */
 
+typedef HepGeom::Point3D<double> HepPoint3D;
+typedef HepGeom::Plane3D<double> HepPlane3D;
+typedef HepGeom::Vector3D<double> HepVector3D;
+typedef HepGeom::Rotate3D        HepRotate3D;
+
 class TruncatedPyramid : public CaloCellGeometry
 {
    public:

@@ -13,10 +13,14 @@
 
 Abstract base class for an individual cell's geometry.
     
-$Date: 2007/09/26 19:26:58 $
-$Revision: 1.13 $
+$Date: 2008/11/10 15:20:15 $
+$Revision: 1.14 $
 \author J. Mans, P. Meridiani
 */
+
+typedef HepGeom::Transform3D HepTransform3D;
+typedef HepGeom::Point3D<double> HepPoint3D;
+typedef HepGeom::Translate3D  HepTranslate3D;
 
 class CaloCellGeometry 
 {
@@ -30,6 +34,8 @@ class CaloCellGeometry
       typedef EZMgrFL< double >   ParMgr ;
 
       enum CornersSize { k_cornerSize = 8 };
+
+      static const float k_ScaleFromDDDtoGeant ;
 
       virtual ~CaloCellGeometry() {}
       

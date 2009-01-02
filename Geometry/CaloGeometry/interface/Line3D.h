@@ -10,7 +10,13 @@
 #include "CLHEP/Geometry/Point3D.h"
 #include "CLHEP/Geometry/Normal3D.h"
 #include "CLHEP/Geometry/Plane3D.h"
-#include "CLHEP/config/iostream.h"
+#include <iostream>
+
+typedef double  HepDouble;
+typedef bool    HepBoolean;
+typedef HepGeom::Point3D<double> HepPoint3D;
+typedef HepGeom::Plane3D<double> HepPlane3D;
+typedef HepGeom::Vector3D<double> HepVector3D;
 
 class HepLine3D 
 {
@@ -64,7 +70,7 @@ class HepLine3D
 
       const HepVector3D& uv() const { return uu ; }
 
-      HepPoint3D point( const HepPlane3D& pl, HepBoolean& parallel ) const
+      HepPoint3D point( const HepGeom::Plane3D<double>& pl, HepBoolean& parallel ) const
       {
 	 const HepDouble num ( -pl.d() - pl.a()*pp.x() - pl.b()*pp.y() - pl.c()*pp.z() ) ;
 	 const HepDouble den (           pl.a()*uu.x() + pl.b()*uu.y() + pl.c()*uu.z() ) ;

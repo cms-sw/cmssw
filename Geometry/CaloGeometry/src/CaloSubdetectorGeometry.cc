@@ -4,6 +4,8 @@
 #include <Math/Transform3D.h>
 #include <Math/EulerAngles.h>
 
+using namespace CLHEP;
+
 CaloSubdetectorGeometry::~CaloSubdetectorGeometry() 
 { 
    for( CellCont::iterator i ( m_cellG.begin() );

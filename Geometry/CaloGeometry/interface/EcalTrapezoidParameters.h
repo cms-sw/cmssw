@@ -62,6 +62,7 @@
 
 // forward declarations
 
+typedef HepGeom::Point3D<double> HepPoint3D;
 template class std::vector<HepPoint3D> ;
 
 class EcalTrapezoidParameters

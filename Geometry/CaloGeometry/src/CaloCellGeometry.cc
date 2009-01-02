@@ -1,5 +1,7 @@
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 
+const float CaloCellGeometry::k_ScaleFromDDDtoGeant ( 0.1 ) ;
+
 const CaloCellGeometry::CornersVec&
 CaloCellGeometry::getCorners() const
 {
