@@ -84,7 +84,7 @@ void DDTIBLayerAlgo::initialize(const DDNumericArguments & nArgs,
 
   for (unsigned int i = 0; i < ribW.size(); i++)
     LogDebug("TIBGeom") << "\tribW[" << i << "] = " <<  ribW[i] 
-			<< "\tribPhi[" << i << "] = " << ribPhi[i]/deg;
+			<< "\tribPhi[" << i << "] = " << ribPhi[i]/CLHEP::deg;
   
   dohmCarrierPhiOff   = nArgs["DOHMCarrierPhiOffset"];
 
@@ -185,11 +185,11 @@ void DDTIBLayerAlgo::execute() {
   double rmax = MFRingOutR;
 
   DDSolid solid = DDSolidFactory::tubs(DDName(idName, idNameSpace), 0.5*layerL,
-				       rmin, rmax, 0, twopi);
+				       rmin, rmax, 0, CLHEP::twopi);
 
   LogDebug("TIBGeom") << "DDTIBLayerAlgo test: "  
 		      << DDName(idName,idNameSpace) << " Tubs made of " 
-		      << genMat << " from 0 to " << twopi/deg 
+		      << genMat << " from 0 to " << CLHEP::twopi/CLHEP::deg 
 		      << " with Rin " << rmin << " Rout " << rmax 
 		      << " ZHalf " << 0.5*layerL;
 
@@ -203,10 +203,10 @@ void DDTIBLayerAlgo::execute() {
   double rout = cylinderInR;
   std::string name = idName + "Down";
   solid = DDSolidFactory::tubs(DDName(name, idNameSpace), 0.5*layerL,
-			       rin, rout, 0, twopi);
+			       rin, rout, 0, CLHEP::twopi);
   LogDebug("TIBGeom") << "DDTIBLayerAlgo test: " 
 		      << DDName(name, idNameSpace) << " Tubs made of " 
-		      << genMat << " from 0 to " << twopi/deg 
+		      << genMat << " from 0 to " << CLHEP::twopi/CLHEP::deg 
 		      << " with Rin " << rin << " Rout " << rout 
 		      << " ZHalf " << 0.5*layerL;
   DDLogicalPart layerIn(solid.ddname(), matter, solid);
@@ -216,22 +216,23 @@ void DDTIBLayerAlgo::execute() {
 		      << " at (0,0,0) with no rotation";
 
   double rposdet = radiusLo;
-  double dphi    = twopi/stringsLo;
+  double dphi    = CLHEP::twopi/stringsLo;
   DDName detIn(DDSplit(detectorLo).first, DDSplit(detectorLo).second);
   for (int n = 0; n < stringsLo; n++) {
     double phi    = (n+0.5)*dphi;
-    double phix   = phi - detectorTilt + 90*deg;
-    double phideg = phix/deg;
+    double phix   = phi - detectorTilt + 90*CLHEP::deg;
+    double phideg = phix/CLHEP::deg;
     DDRotation rotation;
     if (phideg != 0) {
-      double theta  = 90*deg;
-      double phiy   = phix + 90.*deg;
+      double theta  = 90*CLHEP::deg;
+      double phiy   = phix + 90.*CLHEP::deg;
       std::string rotstr = idName + dbl_to_string(phideg*10.);
       rotation = DDRotation(DDName(rotstr, idNameSpace));
       if (!rotation) {
         LogDebug("TIBGeom") << "DDTIBLayerAlgo test: Creating a new "
 			    << "rotation: "	<< rotstr << "\t90., " 
-			    << phix/deg << ", 90.,"	<< phiy/deg <<", 0, 0";
+			    << phix/CLHEP::deg << ", 90.,"
+			    << phiy/CLHEP::deg << ", 0, 0";
         rotation = DDrot(DDName(rotstr, idNameSpace), theta, phix, theta, phiy,
                          0., 0.);
       }
@@ -249,10 +250,10 @@ void DDTIBLayerAlgo::execute() {
   rout = rmax-MFRingT;
   name = idName + "Up";
   solid = DDSolidFactory::tubs(DDName(name, idNameSpace), 0.5*layerL,
-			       rin, rout, 0, twopi);
+			       rin, rout, 0, CLHEP::twopi);
   LogDebug("TIBGeom") << "DDTIBLayerAlgo test: " 
 		      << DDName(name, idNameSpace) << " Tubs made of " 
-		      << genMat << " from 0 to " << twopi/deg 
+		      << genMat << " from 0 to " << CLHEP::twopi/CLHEP::deg 
 		      << " with Rin " << rin << " Rout " << rout
 		      << " ZHalf " << 0.5*layerL;
   DDLogicalPart layerOut(solid.ddname(), matter, solid);
@@ -262,22 +263,23 @@ void DDTIBLayerAlgo::execute() {
 		      << " at (0,0,0) with no rotation";
 
   rposdet = radiusUp;
-  dphi    = twopi/stringsUp;
+  dphi    = CLHEP::twopi/stringsUp;
   DDName detOut(DDSplit(detectorUp).first, DDSplit(detectorUp).second);
   for (int n = 0; n < stringsUp; n++) {
     double phi    = (n+0.5)*dphi;
-    double phix   = phi - detectorTilt - 90*deg;
-    double phideg = phix/deg;
+    double phix   = phi - detectorTilt - 90*CLHEP::deg;
+    double phideg = phix/CLHEP::deg;
     DDRotation rotation;
     if (phideg != 0) {
-      double theta  = 90*deg;
-      double phiy   = phix + 90.*deg;
+      double theta  = 90*CLHEP::deg;
+      double phiy   = phix + 90.*CLHEP::deg;
       std::string rotstr = idName + dbl_to_string(phideg*10.);
       rotation = DDRotation(DDName(rotstr, idNameSpace));
       if (!rotation) {
         LogDebug("TIBGeom") << "DDTIBLayerAlgo test: Creating a new "
 			    << "rotation: " << rotstr << "\t90., " 
-			    << phix/deg << ", 90.,"	<< phiy/deg <<", 0, 0";
+			    << phix/CLHEP::deg << ", 90.,"
+			    << phiy/CLHEP::deg << ", 0, 0";
         rotation = DDrot(DDName(rotstr, idNameSpace), theta, phix, theta, phiy,
                          0., 0.);
       }
@@ -298,12 +300,12 @@ void DDTIBLayerAlgo::execute() {
   rout = cylinderInR+cylinderT;
   name = idName + "Cylinder";
   solid = DDSolidFactory::tubs(DDName(name, idNameSpace), 0.5*layerL,
-			       rin, rout, 0, twopi);
+			       rin, rout, 0, CLHEP::twopi);
   LogDebug("TIBGeom") << "DDTIBLayerAlgo test: " 
 		      << DDName(name, idNameSpace) << " Tubs made of " 
-		      << cylinderMat << " from 0 to " << twopi/deg 
-		      << " with Rin " << rin << " Rout " << rout 
-		      << " ZHalf " << 0.5*layerL;
+		      << cylinderMat << " from 0 to " 
+		      << CLHEP::twopi/CLHEP::deg << " with Rin " << rin 
+		      << " Rout " << rout << " ZHalf " << 0.5*layerL;
   matname = DDName(DDSplit(cylinderMat).first, DDSplit(cylinderMat).second);
   DDMaterial matcyl(matname);
   DDLogicalPart cylinder(solid.ddname(), matcyl, solid);
@@ -318,10 +320,10 @@ void DDTIBLayerAlgo::execute() {
   rout -= supportT;
   name  = idName + "CylinderIn";
   solid = DDSolidFactory::tubs(DDName(name, idNameSpace), 0.5*layerL,
-			       rin, rout, 0, twopi);
+			       rin, rout, 0, CLHEP::twopi);
   LogDebug("TIBGeom") << "DDTIBLayerAlgo test: "
 		      << DDName(name, idNameSpace) << " Tubs made of "
-		      << genMat << " from 0 to " << twopi/deg 
+		      << genMat << " from 0 to " << CLHEP::twopi/CLHEP::deg 
 		      << " with Rin " << rin << " Rout " << rout 
 		      << " ZHalf " << 0.5*layerL;
   DDLogicalPart cylinderIn(solid.ddname(), matter, solid);
@@ -336,12 +338,12 @@ void DDTIBLayerAlgo::execute() {
   DDMaterial matfiller(matname);
   name = idName + "Filler";
   solid = DDSolidFactory::tubs(DDName(name, idNameSpace), fillerDz, rin, rout, 
-			       0., twopi);
+			       0., CLHEP::twopi);
   LogDebug("TIBGeom") << "DDTIBLayerAlgo test: " 
 		      << DDName(name, idNameSpace) << " Tubs made of " 
 		      << fillerMat << " from " << 0. << " to "
-		      << twopi/deg << " with Rin " << rin << " Rout "
-		      << rout << " ZHalf "  << fillerDz;
+		      << CLHEP::twopi/CLHEP::deg << " with Rin " << rin 
+		      << " Rout " << rout << " ZHalf "  << fillerDz;
   DDLogicalPart cylinderFiller(solid.ddname(), matfiller, solid);
   DDpos (cylinderFiller, cylinderIn, 1, DDTranslation(0.0, 0.0, 0.5*layerL-fillerDz), DDRotation());
   DDpos (cylinderFiller, cylinderIn, 2, DDTranslation(0.0, 0.0,-0.5*layerL+fillerDz), DDRotation());
@@ -360,26 +362,29 @@ void DDTIBLayerAlgo::execute() {
     name = idName + "Rib" + dbl_to_string(i);
     double width = 2.*ribW[i]/(rin+rout);
     double dz    = 0.5*layerL-2.*fillerDz;
-    solid = DDSolidFactory::tubs(DDName(name, idNameSpace), dz, rin+0.5*mm, rout-0.5*mm, 
+    solid = DDSolidFactory::tubs(DDName(name, idNameSpace), dz, 
+				 rin+0.5*CLHEP::mm, rout-0.5*CLHEP::mm, 
 				 -0.5*width, width);
     LogDebug("TIBGeom") << "DDTIBLayerAlgo test: " 
 			<< DDName(name, idNameSpace) << " Tubs made of " 
-			<< ribMat << " from " << -0.5*width/deg << " to "
-			<< 0.5*width/deg << " with Rin " << rin+0.5*mm << " Rout "
-			<< rout-0.5*mm << " ZHalf "  << dz;
+			<< ribMat << " from " << -0.5*width/CLHEP::deg <<" to "
+			<< 0.5*width/CLHEP::deg << " with Rin " 
+			<< rin+0.5*CLHEP::mm << " Rout " 
+			<< rout-0.5*CLHEP::mm << " ZHalf "  << dz;
     DDLogicalPart cylinderRib(solid.ddname(), matrib, solid);
     double phix   = ribPhi[i];
-    double phideg = phix/deg;
+    double phideg = phix/CLHEP::deg;
     DDRotation rotation;
     if (phideg != 0) {
-      double theta  = 90*deg;
-      double phiy   = phix + 90.*deg;
+      double theta  = 90*CLHEP::deg;
+      double phiy   = phix + 90.*CLHEP::deg;
       std::string rotstr = idName + dbl_to_string(phideg*10.);
       rotation = DDRotation(DDName(rotstr, idNameSpace));
       if (!rotation) {
         LogDebug("TIBGeom") << "DDTIBLayerAlgo test: Creating a new "
 			    << "rotation: "	<< rotstr << "\t90., " 
-			    << phix/deg << ", 90.," << phiy/deg <<", 0, 0";
+			    << phix/CLHEP::deg << ", 90.," << phiy/CLHEP::deg 
+			    << ", 0, 0";
         rotation = DDrot(DDName(rotstr, idNameSpace), theta, phix, theta, phiy,
                          0., 0.);
       }
@@ -401,13 +406,13 @@ void DDTIBLayerAlgo::execute() {
   rout = rin + MFRingT;
   name = idName + "InnerMFRing";
   solid = DDSolidFactory::tubs(DDName(name, idNameSpace), MFRingDz,
-			       rin, rout, 0, twopi);
+			       rin, rout, 0, CLHEP::twopi);
 
   LogDebug("TIBGeom") << "DDTIBLayerAlgo test: " 
 		      << DDName(name, idNameSpace) << " Tubs made of " 
-		      << MFIntRingMat << " from 0 to " << twopi/deg 
-		      << " with Rin " << rin << " Rout " << rout 
-		      << " ZHalf " << MFRingDz;
+		      << MFIntRingMat << " from 0 to " 
+		      << CLHEP::twopi/CLHEP::deg << " with Rin " << rin 
+		      << " Rout " << rout << " ZHalf " << MFRingDz;
 
   DDLogicalPart inmfr(solid.ddname(), matintmfr, solid);
   DDpos (inmfr, layer, 1, DDTranslation(0.0, 0.0, -0.5*layerL+MFRingDz), DDRotation());
@@ -422,20 +427,21 @@ void DDTIBLayerAlgo::execute() {
   rin   = rout - MFRingT;
   name = idName + "OuterMFRing";
   solid = DDSolidFactory::tubs(DDName(name, idNameSpace), MFRingDz,
-			       rin, rout, 0, twopi);
+			       rin, rout, 0, CLHEP::twopi);
 
   LogDebug("TIBGeom") << "DDTIBLayerAlgo test: " 
 		      << DDName(name, idNameSpace) << " Tubs made of " 
-		      << MFExtRingMat << " from 0 to " << twopi/deg 
-		      << " with Rin " << rin << " Rout " << rout 
-		      << " ZHalf " << MFRingDz;
+		      << MFExtRingMat << " from 0 to " 
+		      << CLHEP::twopi/CLHEP::deg << " with Rin " << rin 
+		      << " Rout " << rout << " ZHalf " << MFRingDz;
 
   DDLogicalPart outmfr(solid.ddname(), matextmfr, solid);
   DDpos (outmfr, layer, 1, DDTranslation(0.0, 0.0, -0.5*layerL+MFRingDz), DDRotation());
   DDpos (outmfr, layer, 2, DDTranslation(0.0, 0.0, +0.5*layerL-MFRingDz), DDRotation());
   LogDebug("TIBGeom") << "DDTIBLayerAlgo test: " << outmfr.name() 
 		      << " number 1 and 2 positioned in " << layer.name()
-		      << " at (0,0,+-" << 0.5*layerL-MFRingDz << ") with no rotation";
+		      << " at (0,0,+-" << 0.5*layerL-MFRingDz 
+		      << ") with no rotation";
 
   //Central Support rings
   //
@@ -448,11 +454,11 @@ void DDTIBLayerAlgo::execute() {
   rout = centRing1par[3];
   name = idName + "CentRing1";
   solid = DDSolidFactory::tubs(DDName(name, idNameSpace), centDz,
-			       rin, rout, 0, twopi);
+			       rin, rout, 0, CLHEP::twopi);
 
   LogDebug("TIBGeom") << "DDTIBLayerAlgo test: " 
 		      << DDName(name, idNameSpace) << " Tubs made of " 
-		      << centMat << " from 0 to " << twopi/deg 
+		      << centMat << " from 0 to " << CLHEP::twopi/CLHEP::deg 
 		      << " with Rin " << rin << " Rout " << rout 
 		      << " ZHalf " << centDz;
 
@@ -468,11 +474,11 @@ void DDTIBLayerAlgo::execute() {
   rout = centRing2par[3];
   name = idName + "CentRing2";
   solid = DDSolidFactory::tubs(DDName(name, idNameSpace), centDz,
-			       rin, rout, 0, twopi);
+			       rin, rout, 0, CLHEP::twopi);
 
   LogDebug("TIBGeom") << "DDTIBLayerAlgo test: " 
 		      << DDName(name, idNameSpace) << " Tubs made of " 
-		      << centMat << " from 0 to " << twopi/deg 
+		      << centMat << " from 0 to " << CLHEP::twopi/CLHEP::deg 
 		      << " with Rin " << rin << " Rout " << rout 
 		      << " ZHalf " << centDz;
 
@@ -495,20 +501,21 @@ void DDTIBLayerAlgo::execute() {
 
   solid = DDSolidFactory::tubs(DDName(name, idNameSpace), dohmCarrierDz, 
 			       dohmCarrierRin, dohmCarrierRout, 
-			       dohmCarrierPhiOff, 180.*deg-2.*dohmCarrierPhiOff);
+			       dohmCarrierPhiOff, 
+			       180.*CLHEP::deg-2.*dohmCarrierPhiOff);
   LogDebug("TIBGeom") << "DDTIBLayerAlgo test: " 
 		      << DDName(name, idNameSpace) << " Tubs made of "
 		      << dohmCarrierMaterial << " from "
 		      << dohmCarrierPhiOff << " to " 
-		      << 180.*deg-dohmCarrierPhiOff << " with Rin "
-		      << dohmCarrierRin << " Rout " << MFRingOutR << " ZHalf "  
+		      << 180.*CLHEP::deg-dohmCarrierPhiOff << " with Rin "
+		      << dohmCarrierRin << " Rout " << MFRingOutR << " ZHalf " 
 		      << dohmCarrierDz;
 
 
   // Define FW and BW carrier logical volume and
   // place DOHM Primary and auxiliary modules inside it
 
-  dphi = twopi/stringsUp;
+  dphi = CLHEP::twopi/stringsUp;
 
   DDRotation dohmRotation;
 
@@ -539,8 +546,8 @@ void DDTIBLayerAlgo::execute() {
       dohmList = dohmListFW;
       tran = DDTranslation(0., 0., dohmCarrierZ);
       rotstr = idName + "FwDown";
-      rotation = DDrot(DDName(rotstr, idNameSpace), 90.*deg, 180.*deg, 
-		       90.*deg, 270.*deg, 0.*deg, 0.*deg);
+      rotation = DDrot(DDName(rotstr, idNameSpace), 90.*CLHEP::deg, 
+		       180.*CLHEP::deg, 90.*CLHEP::deg,270.*CLHEP::deg, 0.,0.);
       dohmCarrierReplica = 2;
       placeDohm=0;
       break;
@@ -549,8 +556,9 @@ void DDTIBLayerAlgo::execute() {
       dohmList = dohmListBW;
       tran = DDTranslation(0., 0., -dohmCarrierZ);
       rotstr = idName + "BwUp";
-      rotation = DDrot(DDName(rotstr, idNameSpace), 90.*deg, 180.*deg, 
-		       90.*deg, 90.*deg, 180.*deg, 0.*deg);
+      rotation = DDrot(DDName(rotstr, idNameSpace), 90.*CLHEP::deg, 
+		       180.*CLHEP::deg, 90.*CLHEP::deg, 90.*CLHEP::deg, 
+		       180.*CLHEP::deg, 0.);
       dohmCarrierReplica = 1;
       placeDohm=1;
       break;
@@ -559,8 +567,8 @@ void DDTIBLayerAlgo::execute() {
       dohmList = dohmListBW;
       tran = DDTranslation(0., 0., -dohmCarrierZ);
       rotstr = idName + "BwDown";
-      rotation = DDrot(DDName(rotstr, idNameSpace), 90.*deg, 0.*deg, 
-		       90.*deg, 270.*deg, 180.*deg, 0.*deg);
+      rotation = DDrot(DDName(rotstr, idNameSpace), 90.*CLHEP::deg, 0., 
+		       90.*CLHEP::deg, 270.*CLHEP::deg, 180.*CLHEP::deg, 0.);
       dohmCarrierReplica = 2;
       placeDohm=0;
       break;
@@ -574,18 +582,18 @@ void DDTIBLayerAlgo::execute() {
     for (int i = 0; i < placeDohm*((int)(dohmList.size())); i++) {
 
       double phi    = (std::abs(dohmList[i])+0.5-1.)*dphi;
-      double phix   = phi + 90*deg;
-      double phideg = phix/deg;
+      double phix   = phi + 90*CLHEP::deg;
+      double phideg = phix/CLHEP::deg;
       if (phideg != 0) {
-	double theta  = 90*deg;
-	double phiy   = phix + 90.*deg;
+	double theta  = 90*CLHEP::deg;
+	double phiy   = phix + 90.*CLHEP::deg;
 	std::string   rotstr = idName+dbl_to_string(std::abs(dohmList[i])-1.);
 	dohmRotation = DDRotation(DDName(rotstr, idNameSpace));
 	if (!dohmRotation) {
 	  LogDebug("TIBGeom") << "DDTIBLayerAlgo test: Creating a new "
 			      << "rotation: "	<< rotstr << "\t" << theta 
-			      << ", "  << phix/deg << ", " << theta << ", "
-			      << phiy/deg <<", 0, 0";
+			      << ", " << phix/CLHEP::deg << ", " << theta 
+			      << ", " << phiy/CLHEP::deg <<", 0, 0";
 	  dohmRotation = DDrot(DDName(rotstr, idNameSpace), theta, phix, theta,
 			       phiy, 0., 0.);
 	}
@@ -702,12 +710,14 @@ void DDTIBLayerAlgo::execute() {
       if( pillarPhi[i]>0. ) {
 	
 	pillarTran = DDTranslation(0., 0., pillarZ[i]);
-	pillarRota = DDanonymousRot(DDcreateRotationMatrix(90.*deg, pillarPhi[i], 90.*deg, 90.*deg+pillarPhi[i], 0., 0.));
+	pillarRota = DDanonymousRot(DDcreateRotationMatrix(90.*CLHEP::deg, pillarPhi[i], 90.*CLHEP::deg, 90.*CLHEP::deg+pillarPhi[i], 0., 0.));
 	
 	DDpos (Pillar, parent(), i, pillarTran, pillarRota);
 	LogDebug("TIBGeom") << "DDTIBLayerAlgo test "
-			    << Pillar.name() << " positioned in " << parent().name() << " at "
-			    << pillarTran << " with " << pillarRota << " copy number " << pillarReplica;
+			    << Pillar.name() << " positioned in " 
+			    << parent().name() << " at "
+			    << pillarTran << " with " << pillarRota 
+			    << " copy number " << pillarReplica;
 	
 	pillarReplica++;
       }

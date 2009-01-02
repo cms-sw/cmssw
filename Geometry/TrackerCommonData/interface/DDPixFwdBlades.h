@@ -120,8 +120,8 @@ private:
   
   static std::map<std::string, int> copyNumbers;
   
-  static HepRotation* nippleRotationZPlus;
-  static HepRotation* nippleRotationZMinus;
+  static CLHEP::HepRotation* nippleRotationZPlus;
+  static CLHEP::HepRotation* nippleRotationZMinus;
   static double nippleTranslationX, nippleTranslationY, nippleTranslationZ;
 
   // -- Helper functions :  --------------------------------------------------------------

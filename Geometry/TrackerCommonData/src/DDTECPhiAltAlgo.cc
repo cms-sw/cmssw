@@ -39,11 +39,11 @@ void DDTECPhiAltAlgo::initialize(const DDNumericArguments & nArgs,
 
   LogDebug("TECGeom") << "DDTECPhiAltAlgo debug: Parameters for "
 		      << "positioning--" << "\tStartAngle " 
-		      << startAngle/deg << "\tIncrAngle " << incrAngle/deg
-		      << "\tRadius " << radius << "\tZ in/out " << zIn 
-		      << ", " << zOut << "\tCopy Numbers " << number 
-		      << " Start/Increment " << startCopyNo << ", " 
-		      << incrCopyNo;
+		      << startAngle/CLHEP::deg << "\tIncrAngle " 
+		      << incrAngle/CLHEP::deg << "\tRadius " << radius 
+		      << "\tZ in/out " << zIn << ", " << zOut 
+		      << "\tCopy Numbers " << number  << " Start/Increment " 
+		      << startCopyNo << ", " << incrCopyNo;
 
   idNameSpace = DDCurrentNamespace::ns();
   childName   = sArgs["ChildName"]; 
@@ -56,24 +56,25 @@ void DDTECPhiAltAlgo::initialize(const DDNumericArguments & nArgs,
 void DDTECPhiAltAlgo::execute() {
 
   if (number > 0) {
-    double theta  = 90.*deg;
+    double theta  = 90.*CLHEP::deg;
     int    copyNo = startCopyNo;
 
     DDName mother = parent().name();
     DDName child(DDSplit(childName).first, DDSplit(childName).second);
     for (int i=0; i<number; i++) {
       double phiz = startAngle + i*incrAngle;
-      double phix = phiz + 90.*deg;
-      double phideg = phiz/deg;
+      double phix = phiz + 90.*CLHEP::deg;
+      double phideg = phiz/CLHEP::deg;
   
       DDRotation rotation;
       std::string rotstr = DDSplit(childName).first+dbl_to_string(phideg*10.);
       rotation = DDRotation(DDName(rotstr, idNameSpace));
       if (!rotation) {
 	LogDebug("TECGeom") << "DDTECPhiAltAlgo test: Creating a new "
-			    << "rotation " << rotstr << "\t" << theta/deg
-			    << ", " << phix/deg << ", 0, 0, " << theta/deg
-			    << ", " << phiz/deg;
+			    << "rotation " << rotstr << "\t" 
+			    << theta/CLHEP::deg << ", " << phix/CLHEP::deg 
+			    << ", 0, 0, " << theta/CLHEP::deg << ", " 
+			    << phiz/CLHEP::deg;
 	rotation = DDrot(DDName(rotstr, idNameSpace), theta, phix, 0., 0.,
 			 theta, phiz);
       }

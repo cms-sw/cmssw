@@ -49,7 +49,7 @@ void DDTIDModuleAlgo::initialize(const DDNumericArguments & nArgs,
   else                                              doComponents = true;
 
   LogDebug("TIDGeom") << "DDTIDModuleAlgo debug: ModuleThick " 
-		      << moduleThick << " Detector Tilt " << detTilt/deg
+		      << moduleThick << " Detector Tilt " << detTilt/CLHEP::deg
 		      << " Height " << fullHeight << " dl(Top) " << dlTop
 		      << " dl(Bottom) " << dlBottom << " dl(Hybrid) "
 		      << dlHybrid << " doComponents " << doComponents;
@@ -260,8 +260,10 @@ void DDTIDModuleAlgo::execute() {
       double bbl1, bbl2; // perhaps useless (bl1 enough)
 
       // Frame Sides
-      name    = DDName(DDSplit(sideFrameName[k]).first,DDSplit(sideFrameName[k]).second);
-      matname = DDName(DDSplit(sideFrameMat).first,DDSplit(sideFrameMat).second);
+      name    = DDName(DDSplit(sideFrameName[k]).first,
+		       DDSplit(sideFrameName[k]).second);
+      matname = DDName(DDSplit(sideFrameMat).first,
+		       DDSplit(sideFrameMat).second);
       matter  = DDMaterial(matname);
       if (dlHybrid > dlTop) {
 	// ring 1, ring 2
@@ -274,7 +276,8 @@ void DDTIDModuleAlgo::execute() {
       }
       h1 = 0.5 * sideFrameThick;
       dz = 0.5 * sideFrameHeight;
-      solid = DDSolidFactory::trap(name, dz, 0, 0, h1, bbl1, bbl1, 0, h1,  bbl2, bbl2, 0);
+      solid = DDSolidFactory::trap(name, dz, 0, 0, h1, bbl1, bbl1, 0, 
+				   h1,  bbl2, bbl2, 0);
       LogDebug("TIDGeom") << "DDTIDModuleAlgo test:\t" << solid.name() 
 			  << " Trap made of " << matname << " of dimensions "
 			  << dz << ", 0, 0, " << h1 << ", " << bbl1 << ", " 
@@ -302,12 +305,13 @@ void DDTIDModuleAlgo::execute() {
 	zpos    = bottomFrameHeight+0.5*dz-0.5*sideFrameHeight;
       }
       dz     /= 2.;
-      solid = DDSolidFactory::trap(name, dz, 0,0, h1,bbl1,bbl1, 0, h1,bbl2,bbl2, 0);
+      solid = DDSolidFactory::trap(name, dz, 0,0, h1,bbl1,bbl1, 0, 
+				   h1,bbl2,bbl2, 0);
       LogDebug("TIDGeom") << "DDTIDModuleAlgo test:\t" << solid.name() 
 			  << " Trap made of " << matname << " of dimensions "
 			  << dz << ", 0, 0, " << h1 << ", " << bbl1 << ", " 
-			  << bbl1 << ", 0, " << h1 << ", " << bbl2 << ", " << bbl2
-			  << ", 0";
+			  << bbl1 << ", 0, " << h1 << ", " << bbl2 << ", " 
+			  << bbl2 << ", 0";
       DDLogicalPart holeFrame(solid.ddname(), matter, solid);      
 
       rotstr = DDSplit(holeFrameRot[k]).first;
@@ -323,7 +327,7 @@ void DDTIDModuleAlgo::execute() {
 			  << " at (0,0," << zpos << ") with no rotation";
 
       // Kapton circuit
-      //      name    = DDName(DDSplit(kaptonName[k]).first,DDSplit(kaptonName[k]).second);
+      //  name = DDName(DDSplit(kaptonName[k]).first,DDSplit(kaptonName[k]).second);
       matname = DDName(DDSplit(kaptonMat).first,DDSplit(kaptonMat).second);
       matter  = DDMaterial(matname);
       double kaptonExtraHeight=0;      // kapton extra height in the stereo
@@ -356,12 +360,15 @@ void DDTIDModuleAlgo::execute() {
       if ( k == 1 ) {
 	// Uncut solid
 	std::string kaptonUncutName=kaptonName[k]+"Uncut";
-	name    = DDName(DDSplit(kaptonUncutName).first,DDSplit(kaptonUncutName).second);
-	solidUncut = DDSolidFactory::trap(name, dz, 0, 0, h1, bbl1, bbl1, 0, h1,  bbl2, bbl2, 0);
+	name    = DDName(DDSplit(kaptonUncutName).first,
+			 DDSplit(kaptonUncutName).second);
+	solidUncut = DDSolidFactory::trap(name, dz, 0, 0, h1, bbl1, bbl1, 0,
+					  h1,  bbl2, bbl2, 0);
 
 	// Piece to be cut
 	std::string kaptonCutName=kaptonName[k]+"Cut";
-	name    = DDName(DDSplit(kaptonCutName).first,DDSplit(kaptonCutName).second);	 
+	name    = DDName(DDSplit(kaptonCutName).first,
+			 DDSplit(kaptonCutName).second);	 
 
 	if (dlHybrid > dlTop) {
 	  dz   = 0.5 * dlTop;
@@ -372,7 +379,8 @@ void DDTIDModuleAlgo::execute() {
 	bbl1     =  fabs(dz*sin(detTilt));
 	bbl2     =  bbl1*0.000001;
 	double thet = atan((bbl1-bbl2)/(2*dz));	
-	solidCut  = DDSolidFactory::trap(name, dz, thet, 0, h1, bbl1, bbl1, 0, h1, bbl2, bbl2, 0);
+	solidCut  = DDSolidFactory::trap(name, dz, thet, 0, h1, bbl1, bbl1, 0,
+					 h1, bbl2, bbl2, 0);
 
 	std::string aRot("tidmodpar:9PYX"); 
 	rotstr  = DDSplit(aRot).first;
@@ -383,19 +391,23 @@ void DDTIDModuleAlgo::execute() {
 	zpos = 0.5 * kaptonHeight - bbl2;
 
 	// Subtraction Solid
-	name   = DDName(DDSplit(kaptonName[k]).first,DDSplit(kaptonName[k]).second);  
-	solid  = DDSolidFactory::subtraction(name, solidUncut, solidCut, DDTranslation(xpos,0.0,zpos), rot );	 
+	name   = DDName(DDSplit(kaptonName[k]).first,
+			DDSplit(kaptonName[k]).second);  
+	solid  = DDSolidFactory::subtraction(name, solidUncut, solidCut, 
+					     DDTranslation(xpos,0.0,zpos),rot);
       } else {
-	name   = DDName(DDSplit(kaptonName[k]).first,DDSplit(kaptonName[k]).second);
-	solid  = DDSolidFactory::trap(name, dz, 0, 0, h1, bbl1, bbl1, 0, h1,  bbl2, bbl2, 0);
+	name   = DDName(DDSplit(kaptonName[k]).first,
+			DDSplit(kaptonName[k]).second);
+	solid  = DDSolidFactory::trap(name, dz, 0, 0, h1, bbl1, bbl1, 0, 
+				      h1,  bbl2, bbl2, 0);
       }
 
       DDLogicalPart kapton(solid.ddname(), matter, solid);         
       LogDebug("TIDGeom") << "DDTIDModuleAlgo test:\t" << solid.name() 
-			  << " SUBTRACTION SOLID Trap made of " << matname << " of dimensions "
-			  << dz << ", 0, 0, " << h1 << ", " << bbl1 << ", " 
-			  << bbl1 << ", 0, " << h1 << ", " << bbl2 << ", " 
-			  << bbl2 << ", 0";
+			  << " SUBTRACTION SOLID Trap made of " << matname 
+			  << " of dimensions " << dz << ", 0, 0, " << h1 
+			  << ", " << bbl1 << ", " << bbl1 << ", 0, " << h1 
+			  << ", " << bbl2 << ", " << bbl2 << ", 0";
 
 
       // Hole in the kapton below the wafer 
@@ -421,12 +433,13 @@ void DDTIDModuleAlgo::execute() {
 	zpos = -0.5*(kaptonHeight-kaptonExtraHeight-dz);
       }
       dz     /= 2.;
-      solid = DDSolidFactory::trap(name, dz, 0,0, h1,bbl1,bbl1, 0, h1,bbl2,bbl2, 0);
+      solid = DDSolidFactory::trap(name, dz, 0,0, h1,bbl1,bbl1, 0, 
+				   h1,bbl2,bbl2, 0);
       LogDebug("TIDGeom") << "DDTIDModuleAlgo test:\t" << solid.name() 
 			  << " Trap made of " << matname << " of dimensions "
 			  << dz << ", 0, 0, " << h1 << ", " << bbl1 << ", " 
-			  << bbl1 << ", 0, " << h1 << ", " << bbl2 << ", " << bbl2
-			  << ", 0";
+			  << bbl1 << ", 0, " << h1 << ", " << bbl2 << ", " 
+			  << bbl2 << ", 0";
       DDLogicalPart holeKapton(solid.ddname(), matter, solid);      
 
       rotstr = DDSplit(holeKaptonRot[k]).first;
@@ -444,7 +457,8 @@ void DDTIDModuleAlgo::execute() {
 
 
       // Wafer
-      name    = DDName(DDSplit(waferName[k]).first,DDSplit(waferName[k]).second);
+      name    = DDName(DDSplit(waferName[k]).first,
+		       DDSplit(waferName[k]).second);
       matname = DDName(DDSplit(waferMat).first, DDSplit(waferMat).second);
       matter  = DDMaterial(matname);
       if (k == 0 && dlHybrid < dlTop) {
@@ -500,7 +514,8 @@ void DDTIDModuleAlgo::execute() {
 			  << " at " << tran << " with " << rot;
       
       //Pitch Adapter
-      name    = DDName(DDSplit(pitchName[k]).first,DDSplit(pitchName[k]).second);
+      name    = DDName(DDSplit(pitchName[k]).first,
+		       DDSplit(pitchName[k]).second);
       matname = DDName(DDSplit(pitchMat).first, DDSplit(pitchMat).second);
       matter  = DDMaterial(matname);
       if (dlHybrid > dlTop) {
@@ -530,7 +545,7 @@ void DDTIDModuleAlgo::execute() {
 				       h1, bl2, bl2, 0);
 	LogDebug("TIDGeom") << "DDTIDModuleAlgo test:\t" << solid.name() 
 			    << " Trap made of " << matname << " of "
-			    << "dimensions " << dz << ", " << thet/deg 
+			    << "dimensions " << dz << ", " << thet/CLHEP::deg 
 			    << ", 0, " << h1 << ", " << bl1 << ", " << bl1 
 			    << ", 0, " << h1 << ", " << bl2 << ", " << bl2 
 			    << ", 0";

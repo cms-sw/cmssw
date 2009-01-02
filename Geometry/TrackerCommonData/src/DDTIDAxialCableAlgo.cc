@@ -47,10 +47,10 @@ void DDTIDAxialCableAlgo::initialize(const DDNumericArguments & nArgs,
 		      << "ing " << angles.size() << " copies in Service volume"
 		      << "\n                            zBend " << zBend 
 		      << " zEnd " << zEnd << " rMin " << rMin << " rMax " 
-		      << rMax << " Cable width " << width/deg << " thickness " 
-		      << thick << " with Angles";
+		      << rMax << " Cable width " << width/CLHEP::deg 
+		      << " thickness " << thick << " with Angles";
   for (int i=0; i<(int)(angles.size()); i++)
-    LogDebug("TIDGeom") << "\tangles[" << i << "] = " << angles[i]/deg;
+    LogDebug("TIDGeom") << "\tangles[" << i << "] = " << angles[i]/CLHEP::deg;
   LogDebug("TIDGeom") << "                          Wheels " 
 		      << zposWheel.size() << " at Z";
   for (int i=0; i<(int)(zposWheel.size()); i++)
@@ -119,8 +119,8 @@ void DDTIDAxialCableAlgo::execute() {
 
     LogDebug("TIDGeom") << "DDTIDAxialCableAlgo test: " 
 			<< DDName(name,idNameSpace) << " Polycone made of "
-			<< matIn << " from " << -0.5*width/deg << " to " 
-			<< 0.5*width/deg << " and with " << pconZ.size()
+			<< matIn << " from " << -0.5*width/CLHEP::deg << " to "
+			<< 0.5*width/CLHEP::deg << " and with " << pconZ.size()
 			<< " sections ";
     for (int i = 0; i <(int)(pconZ.size()); i++) 
       LogDebug("TIDGeom") <<  "\t[" << i  << "]\tZ = " << pconZ[i] 
@@ -158,8 +158,8 @@ void DDTIDAxialCableAlgo::execute() {
 
   LogDebug("TIDGeom") << "DDTIDAxialCableAlgo test: " 
 		      << DDName(name, idNameSpace) << " Polycone made of "
-		      << matIn << " from " << -0.5*width/deg << " to "
-		      << 0.5*width/deg << " and with "  << pconZ.size()
+		      << matIn << " from " << -0.5*width/CLHEP::deg << " to "
+		      << 0.5*width/CLHEP::deg << " and with "  << pconZ.size()
 		      << " sections ";
   for (int i = 0; i < (int)(pconZ.size()); i++) 
     LogDebug("TIDGeom") << "\t[" << i << "]\tZ = " << pconZ[i] 
@@ -178,8 +178,8 @@ void DDTIDAxialCableAlgo::execute() {
                                r, rTop, -0.5*width, width);
   LogDebug("TIDGeom") << "DDTIDAxialCableAlgo test: " 
 		      << DDName(name, idNameSpace) << " Tubs made of " 
-		      << matOut << " from " << -0.5*width/deg << " to " 
-		      << 0.5*width/deg << " with Rin " << r << " Rout " 
+		      << matOut << " from " << -0.5*width/CLHEP::deg << " to " 
+		      << 0.5*width/CLHEP::deg << " with Rin " << r << " Rout " 
 		      << rTop << " ZHalf " << 0.5*(zEnd-zBend);
   mat    = DDName(DDSplit(matOut).first, DDSplit(matOut).second);
   matter = DDMaterial(mat);
@@ -187,11 +187,11 @@ void DDTIDAxialCableAlgo::execute() {
   logs.push_back(DDName(name, idNameSpace));
 
   //Position the cables
-  double theta = 90.*deg;
+  double theta = 90.*CLHEP::deg;
   for (int i=0; i<(int)(angles.size()); i++) {
     double phix = angles[i];
-    double phiy = phix + 90.*deg;
-    double phideg = phix/deg;
+    double phiy = phix + 90.*CLHEP::deg;
+    double phideg = phix/CLHEP::deg;
 
     DDRotation rotation;
     if (phideg != 0) {
@@ -199,9 +199,10 @@ void DDTIDAxialCableAlgo::execute() {
       rotation = DDRotation(DDName(rotstr, idNameSpace));
       if (!rotation) {
 	LogDebug("TIDGeom") << "DDTIDAxialCableAlgo test: Creating a new "
-			    << "rotation: " << rotstr << " " << theta/deg 
-			    << ", " << phix/deg << ", " << theta/deg 
-			    << ", " << phiy/deg << ", 0, 0";
+			    << "rotation: " << rotstr << " " 
+			    << theta/CLHEP::deg << ", " << phix/CLHEP::deg 
+			    << ", " << theta/CLHEP::deg << ", " 
+			    << phiy/CLHEP::deg << ", 0, 0";
 	rotation = DDrot(DDName(rotstr, idNameSpace), theta, phix, theta, 
 			 phiy, 0., 0.);
       }

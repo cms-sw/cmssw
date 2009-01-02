@@ -51,7 +51,7 @@ void DDTECModuleAlgo::initialize(const DDNumericArguments & nArgs,
   isRing6 = (ringNo == 6);
 
   LogDebug("TECGeom") << "DDTECModuleAlgo debug: ModuleThick " << moduleThick
-		      << " Detector Tilt " << detTilt/deg << " Height "
+		      << " Detector Tilt " << detTilt/CLHEP::deg << " Height "
 		      << fullHeight << " dl(Top) " << dlTop << " dl(Bottom) "
 		      << dlBottom << " dl(Hybrid) " << dlHybrid
 		      << " rPos " << rPos << " standrad rotation " 
@@ -175,9 +175,11 @@ void DDTECModuleAlgo::initialize(const DDNumericArguments & nArgs,
 		      << sideFrameMat << " Thickness " << siReenforceThick;
     
   for (int i= 0; i < (int)(siReenforceWidth.size());i++){
-    LogDebug("TECGeom") << " SiReenforcement"<<i<<"'s Width: " <<     siReenforceWidth[i]
-			<< " SiReenforcement"<<i<<"'s Height: " <<    siReenforceHeight[i]
-			<< " SiReenforcement"<<i<<"'s y Position: " <<siReenforceYPos[i];
+    LogDebug("TECGeom") << " SiReenforcement" << i << "'s Width: " 
+			<< siReenforceWidth[i] << " SiReenforcement" << i 
+			<< "'s Height: " << siReenforceHeight[i]
+			<< " SiReenforcement" << i << "'s y Position: "
+			<<siReenforceYPos[i];
   }
   inactiveDy  = 0;
   inactivePos = 0;
@@ -192,8 +194,7 @@ void DDTECModuleAlgo::initialize(const DDNumericArguments & nArgs,
   isStereo = (int)nArgs["isStereo"] == 1;
   if(!isStereo){
     LogDebug("TECGeom") << "This is a normal module, in ring "<<ringNo<<"!"; 
-  }
-  else{
+  } else {
     LogDebug("TECGeom") << "This is a stereo module, in ring "<<ringNo<<"!"; 
     posCorrectionPhi= nArgs["PosCorrectionPhi"];
     topFrame2LHeight = nArgs["TopFrame2LHeight"];
@@ -246,9 +247,9 @@ void DDTECModuleAlgo::doPos(DDLogicalPart toPos, double x, double y, double z,
   z += rPos;
 
   if(isStereo){
-	// z is x , x is y
-	//z+= rPos*sin(posCorrectionPhi);  <<- this is already corrected with the r position!
-	x+= rPos*sin(posCorrectionPhi);
+    // z is x , x is y
+    //z+= rPos*sin(posCorrectionPhi);  <<- this is already corrected with the r position!
+    x+= rPos*sin(posCorrectionPhi);
   }
   if (rotName == "NULL") rotName = standardRot;
 
@@ -292,9 +293,9 @@ void DDTECModuleAlgo::execute() {
   dxtop = 0.5*dlHybrid + frameWidth - frameOver;
   topfr = 0.5*dlBottom * sin(detTilt);
   if(isRing6){
-	dxbot = dxtop;
-	dxtop = 0.5*dlTop    + frameWidth - frameOver;
-	topfr = 0.5*dlTop    * sin(detTilt);
+    dxbot = dxtop;
+    dxtop = 0.5*dlTop    + frameWidth - frameOver;
+    topfr = 0.5*dlTop    * sin(detTilt);
   }
   dxdif = dxtop - dxbot;
 
@@ -331,7 +332,7 @@ void DDTECModuleAlgo::execute() {
   if(isStereo) {
     xpos = - 0.5*topFrameBotWidth + bl2*cos(detTilt) + dz*sin(fabs(thet)+detTilt)/cos(fabs(thet));
     xpos = -xpos;
-    zpos = topFrameEndZ -topFrame2LHeight- 0.5*sin(detTilt)*(topFrameBotWidth - topFrame2Width)-dz*cos(detTilt+fabs(thet))/cos(fabs(thet))+bl2*sin(detTilt)-0.1*mm;
+    zpos = topFrameEndZ -topFrame2LHeight- 0.5*sin(detTilt)*(topFrameBotWidth - topFrame2Width)-dz*cos(detTilt+fabs(thet))/cos(fabs(thet))+bl2*sin(detTilt)-0.1*CLHEP::mm;
   }
   //position
   doPos(sideFrameLeft,xpos,ypos,zpos,waferRot);
@@ -365,7 +366,7 @@ void DDTECModuleAlgo::execute() {
   if(isStereo){
     xpos = 0.5*topFrameBotWidth - bl2*cos(detTilt) - dz*sin(fabs(detTilt-fabs(thet)))/cos(fabs(thet));
     xpos = -xpos;
-    zpos = topFrameEndZ -topFrame2RHeight+ 0.5*sin(detTilt)*(topFrameBotWidth - topFrame2Width)-dz*cos(detTilt-fabs(thet))/cos(fabs(thet))-bl2*sin(detTilt)-0.1*mm;
+    zpos = topFrameEndZ -topFrame2RHeight+ 0.5*sin(detTilt)*(topFrameBotWidth - topFrame2Width)-dz*cos(detTilt-fabs(thet))/cos(fabs(thet))-bl2*sin(detTilt)-0.1*CLHEP::mm;
   }
   //position it
   doPos(sideFrameRight,xpos,ypos,zpos,waferRot);
@@ -384,8 +385,8 @@ void DDTECModuleAlgo::execute() {
     thet = sideFrameRtheta;
     if(isStereo) thet = -atan(fabs(sideFrameRWidthLow-sideFrameRWidth)/(2*sideFrameRHeight)-tan(fabs(thet)));
                    // ^-- this calculates the lower left angel of the tipped trapezoid, which is the SideFframe...
-
-    solid = DDSolidFactory::trap(DDName(name,idNameSpace), dz, thet, 0, h1, bl1, 
+    
+    solid = DDSolidFactory::trap(DDName(name,idNameSpace), dz, thet,0, h1, bl1,
 				 bl1, 0, h1, bl2, bl2, 0);
     LogDebug("TECGeom") << "DDTECModuleAlgo test:\t" << solid.name() 
 			<< " Trap made of " << matname << " of dimensions "
@@ -505,28 +506,28 @@ void DDTECModuleAlgo::execute() {
   matter  = DDMaterial(matname);
   
   if (!isStereo) {
-	dx      = 0.5 * pitchWidth;
-	dy      = 0.5 * pitchThick;
-	dz      = 0.5 * pitchHeight;
-	solid   = DDSolidFactory::box(DDName(name, idNameSpace), dx, dy, dz);
-	LogDebug("TECGeom") << "DDTECModuleAlgo test:\t" << solid.name() 
-						<< " Box made of " << matname <<" of dimensions "
-						<< dx << ", " << dy << ", " << dz;
+    dx      = 0.5 * pitchWidth;
+    dy      = 0.5 * pitchThick;
+    dz      = 0.5 * pitchHeight;
+    solid   = DDSolidFactory::box(DDName(name, idNameSpace), dx, dy, dz);
+    LogDebug("TECGeom") << "DDTECModuleAlgo test:\t" << solid.name() 
+			<< " Box made of " << matname <<" of dimensions "
+			<< dx << ", " << dy << ", " << dz;
   } else {
-	dz      = 0.5 * pitchWidth;    
-	h1      = 0.5 * pitchThick;
-	bl1     = 0.5 * pitchHeight + 0.5 * dz * sin(detTilt);
-	bl2     = 0.5 * pitchHeight - 0.5 * dz * sin(detTilt);
-	double thet = atan((bl1-bl2)/(2.*dz));
-	solid   = DDSolidFactory::trap(DDName(name,idNameSpace), dz, thet, 0, h1,
-								   bl1, bl1, 0, h1, bl2, bl2, 0);
-	LogDebug("TECGeom") << "DDTECModuleAlgo test:\t" << solid.name()
-						<< " Trap made of " << matname 
-						<< " of dimensions " << dz << ", " << thet/deg
-						<< ", 0, " << h1 << ", " << bl1 << ", " << bl1
-						<< ", 0, " << h1 << ", " << bl2 << ", " << bl2
-						<< ", 0";
-    }
+    dz      = 0.5 * pitchWidth;    
+    h1      = 0.5 * pitchThick;
+    bl1     = 0.5 * pitchHeight + 0.5 * dz * sin(detTilt);
+    bl2     = 0.5 * pitchHeight - 0.5 * dz * sin(detTilt);
+    double thet = atan((bl1-bl2)/(2.*dz));
+    solid   = DDSolidFactory::trap(DDName(name,idNameSpace), dz, thet, 0, h1,
+				   bl1, bl1, 0, h1, bl2, bl2, 0);
+    LogDebug("TECGeom") << "DDTECModuleAlgo test:\t" << solid.name()
+			<< " Trap made of " << matname 
+			<< " of dimensions " << dz << ", " << thet/CLHEP::deg
+			<< ", 0, " << h1 << ", " << bl1 << ", " << bl1
+			<< ", 0, " << h1 << ", " << bl2 << ", " << bl2
+			<< ", 0";
+  }
   xpos = 0;
   ypos = pitchZ;
   zpos = 0.5 * (-waferPosition + fullHeight + pitchHeight);
@@ -546,58 +547,57 @@ void DDTECModuleAlgo::execute() {
   bl1 = 0.5 * topFrameBotWidth;
   bl2 = 0.5 * topFrameTopWidth;
   if (isRing6) {    // ring 6 faces the other way!
-	bl1 = 0.5 * topFrameTopWidth;
-	bl2 = 0.5 * topFrameBotWidth;
+    bl1 = 0.5 * topFrameTopWidth;
+    bl2 = 0.5 * topFrameBotWidth;
   }
   
   solid = DDSolidFactory::trap(DDName(name,idNameSpace), dz, 0, 0, h1, bl1, 
-							   bl1,0, h1, bl2, bl2, 0);
+			       bl1,0, h1, bl2, bl2, 0);
   LogDebug("TECGeom") << "DDTECModuleAlgo test:\t" << solid.name() 
-					  << " Trap made of " << matname << " of dimensions " 
-					  << dz << ", 0, 0, " << h1 << ", " << bl1 << ", "  
-					  << bl1 << ", 0, " << h1 << ", " << bl2 << ", " << bl2
-					  << ", 0";
+		      << " Trap made of " << matname << " of dimensions " 
+		      << dz << ", 0, 0, " << h1 << ", " << bl1 << ", "  
+		      << bl1 << ", 0, " << h1 << ", " << bl2 << ", " << bl2
+		      << ", 0";
   DDLogicalPart topFrame(solid.ddname(), matter, solid);
   
   if(isStereo){ 
-	name = idName + "TopFrame2";
-      //additional object to build the not trapzoid geometry of the stereo topframes
-	dz      = 0.5 * topFrame2Width;    
-	h1      = 0.5 * topFrameThick;
-	bl1     = 0.5 * topFrame2LHeight;
-	bl2     = 0.5 * topFrame2RHeight;
-	double thet = atan((bl1-bl2)/(2.*dz));
+    name = idName + "TopFrame2";
+    //additional object to build the not trapzoid geometry of the stereo topframes
+    dz      = 0.5 * topFrame2Width;    
+    h1      = 0.5 * topFrameThick;
+    bl1     = 0.5 * topFrame2LHeight;
+    bl2     = 0.5 * topFrame2RHeight;
+    double thet = atan((bl1-bl2)/(2.*dz));
 	
-	solid   = DDSolidFactory::trap(DDName(name,idNameSpace), dz, thet, 0, h1,
-								   bl1, bl1, 0, h1, bl2, bl2, 0);
-	LogDebug("TECGeom") << "DDTECModuleAlgo test:\t" << solid.name()
-						<< " Trap made of " << matname 
-						<< " of dimensions " << dz << ", " << thet/deg
-						<< ", 0, " << h1 << ", " << bl1 << ", " << bl1
-						<< ", 0, " << h1 << ", " << bl2 << ", " << bl2
-						<< ", 0";
+    solid   = DDSolidFactory::trap(DDName(name,idNameSpace), dz, thet, 0, h1,
+				   bl1, bl1, 0, h1, bl2, bl2, 0);
+    LogDebug("TECGeom") << "DDTECModuleAlgo test:\t" << solid.name()
+			<< " Trap made of " << matname << " of dimensions "
+			<< dz << ", " << thet/CLHEP::deg << ", 0, " << h1 
+			<< ", " << bl1 << ", " << bl1 << ", 0, " << h1 
+			<< ", " << bl2 << ", " << bl2 << ", 0";
   }
   
   // Position the topframe
   ypos = topFrameZ;
   zpos = 0.5 * (-waferPosition + fullHeight - topFrameHeight)+ pitchHeight + hybridHeight;
   if(isRing6){
-	zpos *=-1;
+    zpos *=-1;
   }
 
   doPos(topFrame, 0,ypos,zpos,"NULL");
   if(isStereo){
-	//create
-	DDLogicalPart topFrame2(solid.ddname(), matter, solid);
-	zpos -= 0.5*(topFrameHeight + 0.5*(topFrame2LHeight+topFrame2RHeight));
-	doPos(topFrame2, 0,ypos,zpos,pitchRot);
+    //create
+    DDLogicalPart topFrame2(solid.ddname(), matter, solid);
+    zpos -= 0.5*(topFrameHeight + 0.5*(topFrame2LHeight+topFrame2RHeight));
+    doPos(topFrame2, 0,ypos,zpos,pitchRot);
   }
   
   //Si - Reencorcement
   for (int i= 0; i < (int)(siReenforceWidth.size());i++){
-	char buf[5];
-	sprintf(buf,"%i",i);
-	name    = idName + "SiReenforce"+buf;
+    char buf[5];
+    sprintf(buf,"%i",i);
+    name    = idName + "SiReenforce"+buf;
     matname = DDName(DDSplit(siReenforceMat).first, DDSplit(siReenforceMat).second);
     matter  = DDMaterial(matname);
     
@@ -606,12 +606,12 @@ void DDTECModuleAlgo::execute() {
     bl1 = bl2 = 0.5 * siReenforceWidth[i];
     
     solid = DDSolidFactory::trap(DDName(name,idNameSpace), dz, 0, 0, h1, bl1, 
-								 bl1, 0, h1, bl2, bl2, 0);
+				 bl1, 0, h1, bl2, bl2, 0);
     LogDebug("TECGeom") << "DDTECModuleAlgo test:\t" << solid.name() 
-						<< " Trap made of " << matname << " of dimensions "
-						<< dz << ", 0, 0, " << h1 << ", " << bl1 << ", "
-						<< bl1 << ", 0, " << h1 << ", " << bl2 << ", " << bl2
-						<< ", 0";
+			<< " Trap made of " << matname << " of dimensions "
+			<< dz << ", 0, 0, " << h1 << ", " << bl1 << ", "
+			<< bl1 << ", 0, " << h1 << ", " << bl2 << ", " << bl2
+			<< ", 0";
     DDLogicalPart siReenforce(solid.ddname(), matter, solid);
     //translate
     xpos =0 ;
@@ -620,11 +620,11 @@ void DDTECModuleAlgo::execute() {
 	
     if (isRing6)  zpos *= -1;
     if(isStereo){ 
-	  xpos = (-siReenforceYPos[i]+0.5*fullHeight)*sin(detTilt);
-	//  thet = detTilt;
-	//  if(topFrame2RHeight > topFrame2LHeight) thet *= -1;
-	//    zpos -= topFrame2RHeight + sin(thet)*(sideFrameRWidth + 0.5*dlTop);
-	  zpos -= topFrame2RHeight + sin (fabs(detTilt))* 0.5*topFrame2Width;
+      xpos = (-siReenforceYPos[i]+0.5*fullHeight)*sin(detTilt);
+      //  thet = detTilt;
+      //  if(topFrame2RHeight > topFrame2LHeight) thet *= -1;
+      //    zpos -= topFrame2RHeight + sin(thet)*(sideFrameRWidth + 0.5*dlTop);
+      zpos -= topFrame2RHeight + sin (fabs(detTilt))* 0.5*topFrame2Width;
     }
     doPos(siReenforce,xpos,ypos,zpos,waferRot);
   }

@@ -51,9 +51,9 @@ void DDTrackerLinear::initialize(const DDNumericArguments & nArgs,
   LogDebug("TrackerGeom") << "DDTrackerLinear debug: Parent " << parentName 
 			  << "\tChild " << childName << " NameSpace " 
 			  << idNameSpace << "\tNumber " << number 
-			  << "\tAxis (theta/phi) " << theta/deg << ", "
-			  << phi/deg << "\t(Offset/Delta) " << offset << ", " 
-			  << delta << "\tCentre " << centre[0] << ", " 
+			  << "\tAxis (theta/phi) " << theta/CLHEP::deg << ", "
+			  << phi/CLHEP::deg << "\t(Offset/Delta) " << offset 
+			  << ", "  << delta << "\tCentre " << centre[0] << ", "
 			  << centre[1] << ", " << centre[2] << "\tRotation "
 			  << rotMat;
 }

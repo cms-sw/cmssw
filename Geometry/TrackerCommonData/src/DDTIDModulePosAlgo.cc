@@ -42,7 +42,7 @@ void DDTIDModulePosAlgo::initialize(const DDNumericArguments & nArgs,
   dlHybrid          = nArgs["DlHybrid"];
 
   LogDebug("TIDGeom") << "DDTIDModulePosAlgo debug: Detector Tilt " 
-		      << detTilt/deg << " Height " << fullHeight 
+		      << detTilt/CLHEP::deg << " Height " << fullHeight 
 		      << " dl(Top) " << dlTop << " dl(Bottom) " << dlBottom
 		      << " dl(Hybrid) " << dlHybrid;
 
@@ -232,7 +232,8 @@ void DDTIDModulePosAlgo::execute() {
 
     
     // Side Spacers (Alumina)
-    name = DDName(DDSplit(sidSpacersName).first, DDSplit(sidSpacersName).second);
+    name = DDName(DDSplit(sidSpacersName).first, 
+		  DDSplit(sidSpacersName).second);
     ypos = sidSpacersZ;
 
     double zSideSpacers;
@@ -247,27 +248,28 @@ void DDTIDModulePosAlgo::execute() {
     xpos = dxbotenv+(zSideSpacers-0.5*sidSpacersHeight)*tanEnv-0.5*sidSpacersWidth+sideFrameOver;      
 
     double phix, phiy, phiz;
-    phix=0.*deg; phiy=90.*deg; phiz=0.*deg;
+    phix=0.*CLHEP::deg; phiy=90.*CLHEP::deg; phiz=0.*CLHEP::deg;
 
     double thetay, thetax;
-    thetay=90.*deg;
+    thetay=90.*CLHEP::deg;
     double thetaz = thetaWafer;
 
     for (int j1=0; j1<2; j1++){
       copy++;
  
       // tilt Side Spacers (parallel to Side Frame)
-      thetax = 90.*deg+thetaz;
-      double thetadeg = thetax/deg;
+      thetax = 90.*CLHEP::deg+thetaz;
+      double thetadeg = thetax/CLHEP::deg;
       if (thetadeg != 0) {
 	std::string arotstr = DDSplit(sidSpacersName).first+dbl_to_string(thetadeg*10.);
-	rot = DDrot(DDName(arotstr,  DDSplit(sidSpacersName).second), thetax, phix, thetay, phiy, thetaz, phiz);
+	rot = DDrot(DDName(arotstr,  DDSplit(sidSpacersName).second), thetax, 
+		    phix, thetay, phiy, thetaz, phiz);
       }
 
       DDpos (name, parentName, copy,  DDTranslation(xpos,ypos,zpos), rot);
       LogDebug("TIDGeom") << "DDTIDModulePosAlgo test: " << name <<" number "
 			  << copy << " positioned in " << parentName << " at "
-			  << DDTranslation(xpos,ypos,zpos) << " with " << rot;       	
+			  << DDTranslation(xpos,ypos,zpos) << " with " << rot;
       xpos = -xpos;
       thetaz = -thetaz;
     }
@@ -363,7 +365,8 @@ void DDTIDModulePosAlgo::execute() {
 			<< tran << " with " << rot;
 
     // Side frame
-    name = DDName(DDSplit(sideFrameName[k]).first, DDSplit(sideFrameName[k]).second);
+    name = DDName(DDSplit(sideFrameName[k]).first, 
+		  DDSplit(sideFrameName[k]).second);
     ypos = sideFrameZ[k];
     double zSideFrame;
     if (dlHybrid > dlTop) {

@@ -41,10 +41,12 @@ void DDTECCoolAlgo::initialize(const DDNumericArguments & nArgs,
 		      << rPosition ;
   phiPosition    = vArgs["PhiPosition"]; 
   coolInsert     = vsArgs["CoolInsert"];
-  if(phiPosition.size() == coolInsert.size()){
-    for (int i=0; i<(int)(phiPosition.size()); i++) LogDebug("TECGeom") << "DDTECCoolAlgo debug: Insert[" << i << "]: "
-								      << coolInsert.at(i) << " at Phi " << phiPosition.at(i)/deg;
-  }else{
+  if (phiPosition.size() == coolInsert.size()) {
+    for (int i=0; i<(int)(phiPosition.size()); i++) 
+      LogDebug("TECGeom") << "DDTECCoolAlgo debug: Insert[" << i << "]: "
+			  << coolInsert.at(i) << " at Phi " 
+			  << phiPosition.at(i)/CLHEP::deg;
+  } else {
     LogDebug("TECGeom") << "ERROR: Number of inserts does not match the numer of PhiPositions!";
   }
   LogDebug("TECGeom") << " Done creating instance of DDTECCoolAlgo ";
@@ -69,7 +71,8 @@ void DDTECCoolAlgo::execute() {
     LogDebug("TECGeom") << "DDTECCoolAlgo test " << child << "["  
 			<< copyNo << "] positioned in " << mother 
 			<< " at " << tran  << " with " << rotation 
-			<< " phi " << phiPosition.at(i)/deg <<" r " << rPosition;
+			<< " phi " << phiPosition.at(i)/CLHEP::deg << " r " 
+			<< rPosition;
     copyNo++;
   }
   LogDebug("TECGeom") << "<<== End of DDTECCoolAlgo construction ...";

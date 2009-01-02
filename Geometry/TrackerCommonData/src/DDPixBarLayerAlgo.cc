@@ -72,7 +72,7 @@ void DDPixBarLayerAlgo::execute() {
   DDName      mother = parent().name();
   std::string idName = DDSplit(mother).first;
 
-  double dphi = twopi/number;
+  double dphi = CLHEP::twopi/number;
   double d2   = 0.5*coolWidth;
   double d1   = d2 - coolSide*sin(0.5*dphi);
   double x1   = (d1+d2)/(2.*sin(0.5*dphi));
@@ -87,10 +87,10 @@ void DDPixBarLayerAlgo::execute() {
   double rtmi = rmin + 0.5*ladderThick[0] - ladderThick[1];
   double rtmx = sqrt(rmxh*rmxh+ladderWidth[1]*ladderWidth[1]);
   DDSolid solid = DDSolidFactory::tubs(DDName(idName, idNameSpace),0.5*layerDz,
-                                       rtmi, rtmx, 0, twopi);
+                                       rtmi, rtmx, 0, CLHEP::twopi);
   LogDebug("PixelGeom") << "DDPixBarLayerAlgo test: " 
 			<< DDName(idName, idNameSpace) << " Tubs made of " 
-			<< genMat << " from 0 to " << twopi/deg 
+			<< genMat << " from 0 to " << CLHEP::twopi/CLHEP::deg 
 			<< " with Rin " << rtmi << " Rout " << rtmx 
 			<< " ZHalf " << 0.5*layerDz;
   DDName matname(DDSplit(genMat).first, DDSplit(genMat).second);
@@ -133,7 +133,7 @@ void DDPixBarLayerAlgo::execute() {
   DDName ladderHalf(DDSplit(ladder[1]).first, DDSplit(ladder[1]).second);
 
   int nphi=number/2, copy=1, iup=-1;
-  double phi0 = 90*deg;
+  double phi0 = 90*CLHEP::deg;
   for (int i=0; i<number; i++) {
 	
     double phi = phi0 + i*dphi;
@@ -146,12 +146,14 @@ void DDPixBarLayerAlgo::execute() {
       xx   = (0.5*ladderWidth[1] - sensorEdge) * sin(phi);
       tran = DDTranslation(xx, rrr*sin(phi), 0);
       rots = idName + dbl_to_string(copy);
-      phix = phi-90*deg;
-      phiy = 90*deg+phix;
+      phix = phi-90*CLHEP::deg;
+      phiy = 90*CLHEP::deg+phix;
       LogDebug("PixelGeom") << "DDPixBarLayerAlgo test: Creating a new "
-			    << "rotation: " << rots << "\t90., " << phix/deg 
-			    << ", 90.," << phiy/deg << ", 0, 0";
-      rot = DDrot(DDName(rots,idNameSpace), 90*deg, phix, 90*deg, phiy, 0.,0.);
+			    << "rotation: " << rots << "\t90., " 
+			    << phix/CLHEP::deg << ", 90.," << phiy/CLHEP::deg 
+			    << ", 0, 0";
+      rot = DDrot(DDName(rots,idNameSpace), 90*CLHEP::deg, phix, 90*CLHEP::deg,
+		  phiy, 0.,0.);
       DDpos (ladderHalf, layer, copy, tran, rot);
       LogDebug("PixelGeom") << "DDPixBarLayerAlgo test: " << ladderHalf 
 			    << " number " << copy << " positioned in " 
@@ -162,12 +164,14 @@ void DDPixBarLayerAlgo::execute() {
       rrr  = rr - dr - 0.5*(ladderThick[1]-ladderThick[0]);
       tran = DDTranslation(-xx, rrr*sin(phi), 0);
       rots = idName + dbl_to_string(copy);
-      phix = phi+90*deg;
-      phiy = 90*deg+phix;
+      phix = phi+90*CLHEP::deg;
+      phiy = 90*CLHEP::deg+phix;
       LogDebug("PixelGeom") << "DDPixBarLayerAlgo test: Creating a new "
-			    << "rotation: " << rots << "\t90., " << phix/deg 
-			    << ", 90.," << phiy/deg << ", 0, 0";
-      rot = DDrot(DDName(rots,idNameSpace), 90*deg, phix, 90*deg, phiy, 0.,0.);
+			    << "rotation: " << rots << "\t90., " 
+			    << phix/CLHEP::deg << ", 90.," << phiy/CLHEP::deg 
+			    << ", 0, 0";
+      rot = DDrot(DDName(rots,idNameSpace), 90*CLHEP::deg, phix, 90*CLHEP::deg,
+		  phiy, 0.,0.);
       DDpos (ladderHalf, layer, copy, tran, rot);
       LogDebug("PixelGeom") << "DDPixBarLayerAlgo test: " << ladderHalf 
 			    << " number " << copy << " positioned in " 
@@ -179,13 +183,15 @@ void DDPixBarLayerAlgo::execute() {
       rrr  = rr + iup*dr;
       tran = DDTranslation(rrr*cos(phi), rrr*sin(phi), 0);
       rots = idName + dbl_to_string(copy);
-      if (iup > 0) phix = phi-90*deg;
-      else         phix = phi+90*deg;
-      phiy = phix+90.*deg;
+      if (iup > 0) phix = phi-90*CLHEP::deg;
+      else         phix = phi+90*CLHEP::deg;
+      phiy = phix+90.*CLHEP::deg;
       LogDebug("PixelGeom") << "DDPixBarLayerAlgo test: Creating a new "
-			    << "rotation: " << rots << "\t90., " << phix/deg 
-			    << ", 90.," << phiy/deg << ", 0, 0";
-      rot = DDrot(DDName(rots,idNameSpace), 90*deg, phix, 90*deg, phiy, 0.,0.);
+			    << "rotation: " << rots << "\t90., " 
+			    << phix/CLHEP::deg << ", 90.," << phiy/CLHEP::deg 
+			    << ", 0, 0";
+      rot = DDrot(DDName(rots,idNameSpace), 90*CLHEP::deg, phix, 90*CLHEP::deg,
+		  phiy, 0.,0.);
       DDpos (ladderFull, layer, copy, tran, rot);
       LogDebug("PixelGeom") << "DDPixBarLayerAlgo test: " << ladderFull 
 			    << " number " << copy << " positioned in " 
@@ -198,12 +204,14 @@ void DDPixBarLayerAlgo::execute() {
 			 rrr*sin(phi)+x2*cos(phi), 0);
     rots = idName + dbl_to_string(i+100);
     phix = phi+0.5*dphi;
-    if (iup > 0) phix += 180*deg;
-    phiy = phix+90.*deg;
+    if (iup > 0) phix += 180*CLHEP::deg;
+    phiy = phix+90.*CLHEP::deg;
     LogDebug("PixelGeom") << "DDPixBarLayerAlgo test: Creating a new "
-			  << "rotation: " << rots << "\t90., " << phix/deg 
-			  << ", 90.," << phiy/deg << ", 0, 0";
-    rot = DDrot(DDName(rots,idNameSpace), 90*deg, phix, 90*deg, phiy, 0.,0.);
+			  << "rotation: " << rots << "\t90., " 
+			  << phix/CLHEP::deg << ", 90.," << phiy/CLHEP::deg 
+			  << ", 0, 0";
+    rot = DDrot(DDName(rots,idNameSpace), 90*CLHEP::deg, phix, 90*CLHEP::deg,
+		phiy, 0.,0.);
     DDpos (coolTube, layer, i+1, tran, rot);
     LogDebug("PixelGeom") << "DDPixBarLayerAlgo test: " << coolTube.name() 
 			  << " number " << i+1 << " positioned in " 

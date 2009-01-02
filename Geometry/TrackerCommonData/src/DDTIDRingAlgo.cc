@@ -48,17 +48,18 @@ void DDTIDRingAlgo::initialize(const DDNumericArguments & nArgs,
   zICC              = vArgs["ICCZ"];
 
   LogDebug("TIDGeom") <<"DDTIDRingAlgo debug: Parameters for positioning--"
-		      << " StartAngle " << startAngle/deg<<" Copy Numbers "
-		      << number << " Modules at R " << rModule << " Z " 
-		      << zModule[0] << ", " << zModule[1] << " ICCs at R "
-		      << rICC << " Z " << zICC[0] << ", " << zICC[1]; 
+		      << " StartAngle " << startAngle/CLHEP::deg
+		      << " Copy Numbers " << number << " Modules at R " 
+		      << rModule << " Z " << zModule[0] << ", " << zModule[1] 
+		      << " ICCs at R " << rICC << " Z " << zICC[0] << ", " 
+		      << zICC[1]; 
 }
 
 void DDTIDRingAlgo::execute() {
 
-  double theta = 90.*deg;
-  double phiy  = 0.*deg;
-  double dphi  = twopi/number;
+  double theta = 90.*CLHEP::deg;
+  double phiy  = 0.*CLHEP::deg;
+  double dphi  = CLHEP::twopi/number;
 
   DDName mother = parent().name();
   DDName module;
@@ -73,34 +74,35 @@ void DDTIDRingAlgo::execute() {
     double ypos = rModule*sin(phiz);
     double zpos, thetay, phix;
     if (i%2 == 0) {
-      phix   = phiz + 90.*deg;
-      thetay = 0*deg;
+      phix   = phiz + 90.*CLHEP::deg;
+      thetay = 0*CLHEP::deg;
       zpos   = zModule[0];
       module = DDName(DDSplit(moduleName[0]).first, 
 		      DDSplit(moduleName[0]).second);
     } else {
-      phix   = phiz - 90.*deg;
-      thetay = 180*deg;
+      phix   = phiz - 90.*CLHEP::deg;
+      thetay = 180*CLHEP::deg;
       zpos   = zModule[1];
       module = DDName(DDSplit(moduleName[1]).first, 
 		      DDSplit(moduleName[1]).second);
     }
     
     // stereo face inside toward structure, rphi face outside
-    phix   = phix   - 180.*deg;
-    thetay = thetay + 180.*deg;
+    phix   = phix   - 180.*CLHEP::deg;
+    thetay = thetay + 180.*CLHEP::deg;
     //
     
     DDTranslation trmod(xpos, ypos, zpos);
-    double phideg = phiz/deg;
+    double phideg = phiz/CLHEP::deg;
     DDRotation rotation;
     std::string rotstr = DDSplit(mother).first + dbl_to_string(phideg*10.);
     rotation = DDRotation(DDName(rotstr, idNameSpace));
     if (!rotation) {
       LogDebug("TIDGeom") << "DDTIDRingAlgo test: Creating a new rotation "
-			  << rotstr << "\t" << theta/deg << ", " <<phix/deg
-			  << ", " << thetay/deg << ", " << phiy/deg << ", "
-			  << theta/deg << ", " << phiz/deg;
+			  << rotstr << "\t" << theta/CLHEP::deg << ", " 
+			  << phix/CLHEP::deg << ", " << thetay/CLHEP::deg 
+			  << ", " << phiy/CLHEP::deg << ", "
+			  << theta/CLHEP::deg << ", " << phiz/CLHEP::deg;
       rotation = DDrot(DDName(rotstr, idNameSpace), theta, phix, thetay, phiy,
 		       theta, phiz);
     }

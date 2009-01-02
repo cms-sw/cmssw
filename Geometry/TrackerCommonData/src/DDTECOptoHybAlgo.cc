@@ -73,16 +73,17 @@ void DDTECOptoHybAlgo::execute() {
     DDTranslation tran(xpos, ypos, zpos);
 
     DDRotation rotation;
-    double phiy = phix + 90.*deg;
-    double phideg = phix/deg;
+    double phiy = phix + 90.*CLHEP::deg;
+    double phideg = phix/CLHEP::deg;
     if (phideg != 0) {
       std::string rotstr= DDSplit(childName).first+dbl_to_string(phideg*1000.);
       rotation = DDRotation(DDName(rotstr, idNameSpace));
       if (!rotation) {
-	double theta = 90.*deg;
+	double theta = 90.*CLHEP::deg;
 	LogDebug("TECGeom") << "DDTECOptoHybAlgo test: Creating a new "
 			    << "rotation: " << rotstr << "\t90., " 
-			    << phix/deg << ", 90.," << phiy/deg <<", 0, 0";
+			    << phix/CLHEP::deg << ", 90.," << phiy/CLHEP::deg
+			    << ", 0, 0";
 	rotation = DDrot(DDName(rotstr, idNameSpace), theta, phix, theta, phiy,
 			 0., 0.);
       }

@@ -28,26 +28,26 @@
 
   // -- Input geometry parameters :  -----------------------------------------------------
 
-const int DDPixFwdBlades::nBlades = 24;            // Number of blades
-const double DDPixFwdBlades::bladeAngle = 20.*deg;    // Angle of blade rotation around its axis
-const double DDPixFwdBlades::zPlane = 0.;             // Common shift in Z for all blades (with respect to disk center plane)
-const double DDPixFwdBlades::bladeZShift = 6.*mm;     // Shift in Z between the axes of two adjacent blades
+const int DDPixFwdBlades::nBlades = 24;                     // Number of blades
+const double DDPixFwdBlades::bladeAngle = 20.*CLHEP::deg;   // Angle of blade rotation around its axis
+const double DDPixFwdBlades::zPlane = 0.;                   // Common shift in Z for all blades (with respect to disk center plane)
+const double DDPixFwdBlades::bladeZShift = 6.*CLHEP::mm;    // Shift in Z between the axes of two adjacent blades
   
-const double DDPixFwdBlades::ancorRadius = 54.631*mm; // Distance from beam line to ancor point defining center of "blade frame"
+const double DDPixFwdBlades::ancorRadius = 54.631*CLHEP::mm;// Distance from beam line to ancor point defining center of "blade frame"
   
-      // Coordinates of Nipple ancor points J and K in "blade frame" :
+// Coordinates of Nipple ancor points J and K in "blade frame" :
 
-const double DDPixFwdBlades::jX = -16.25*mm;
-const double DDPixFwdBlades::jY = 96.50*mm;
-const double DDPixFwdBlades::jZ = 1.25*mm;
-const double DDPixFwdBlades::kX = 16.25*mm;
-const double DDPixFwdBlades::kY = 96.50*mm;
-const double DDPixFwdBlades::kZ = -1.25*mm;
+const double DDPixFwdBlades::jX = -16.25*CLHEP::mm;
+const double DDPixFwdBlades::jY = 96.50*CLHEP::mm;
+const double DDPixFwdBlades::jZ = 1.25*CLHEP::mm;
+const double DDPixFwdBlades::kX = 16.25*CLHEP::mm;
+const double DDPixFwdBlades::kY = 96.50*CLHEP::mm;
+const double DDPixFwdBlades::kZ = -1.25*CLHEP::mm;
   
 // -- Static initialization :  -----------------------------------------------------------
 
-HepRotation* DDPixFwdBlades::nippleRotationZPlus = 0;
-HepRotation* DDPixFwdBlades::nippleRotationZMinus = 0;
+CLHEP::HepRotation* DDPixFwdBlades::nippleRotationZPlus = 0;
+CLHEP::HepRotation* DDPixFwdBlades::nippleRotationZMinus = 0;
 double DDPixFwdBlades::nippleTranslationX = 0.;
 double DDPixFwdBlades::nippleTranslationY = 0.;
 double DDPixFwdBlades::nippleTranslationZ = 0.;
@@ -109,8 +109,8 @@ void DDPixFwdBlades::execute() {
   // -- Compute Nipple parameters if not already computed :
   
   if (!nippleRotationZPlus) {
-  	computeNippleParameters(1.);   // Z Plus endcap
-  	computeNippleParameters(-1.);  // Z Minus endcap
+    computeNippleParameters(1.);   // Z Plus endcap
+    computeNippleParameters(-1.);  // Z Minus endcap
   }
   if (childName == "") return;
   
@@ -126,36 +126,36 @@ void DDPixFwdBlades::execute() {
   
   // -- Get translation and rotation from "blade frame" to "child frame", if any :
   
-  HepRotation childRotMatrix = HepRotation();
+  CLHEP::HepRotation childRotMatrix = CLHEP::HepRotation();
   if (childRotationName != "") {
     DDRotation childRotation = DDRotation(DDName(DDSplit(childRotationName).first, DDSplit(childRotationName).second));
     // due to conversion to ROOT::Math::Rotation3D -- Michael Case
     DD3Vector x, y, z;
     childRotation.rotation()->GetComponents(x, y, z); // these are the orthonormal columns.
-    HepRep3x3 tr(x.X(), y.X(), z.X(), x.Y(), y.Y(), z.Y(), x.Z(), y.Z(), z.Z());
-    childRotMatrix = HepRotation(tr);
+    CLHEP::HepRep3x3 tr(x.X(), y.X(), z.X(), x.Y(), y.Y(), z.Y(), x.Z(), y.Z(), z.Z());
+    childRotMatrix = CLHEP::HepRotation(tr);
   } else if (childName == "pixfwdNipple:PixelForwardNippleZPlus") {
     childRotMatrix = *nippleRotationZPlus;
   } else if (childName == "pixfwdNipple:PixelForwardNippleZMinus") {
     childRotMatrix = *nippleRotationZMinus;
   }
   
-  Hep3Vector childTranslation;
+  CLHEP::Hep3Vector childTranslation;
   if (childName == "pixfwdNipple:PixelForwardNippleZPlus") {
-  	childTranslation = Hep3Vector(nippleTranslationX, nippleTranslationY, nippleTranslationZ);
+    childTranslation = CLHEP::Hep3Vector(nippleTranslationX, nippleTranslationY, nippleTranslationZ);
   } else if (childName == "pixfwdNipple:PixelForwardNippleZMinus") {
-  	childTranslation = Hep3Vector(-nippleTranslationX, nippleTranslationY, nippleTranslationZ);
+    childTranslation = CLHEP::Hep3Vector(-nippleTranslationX, nippleTranslationY, nippleTranslationZ);
   } else {
-  	childTranslation = Hep3Vector(childTranslationVector[0],childTranslationVector[1],childTranslationVector[2]);
+    childTranslation = CLHEP::Hep3Vector(childTranslationVector[0],childTranslationVector[1],childTranslationVector[2]);
   }
   
   // Create a matrix for rotation around blade axis (to "blade frame") :
   
-  HepRotation bladeRotMatrix(Hep3Vector(0.,1.,0.), effBladeAngle);
+  CLHEP::HepRotation bladeRotMatrix(CLHEP::Hep3Vector(0.,1.,0.),effBladeAngle);
   
   // Cycle over Phi positions, placing copies of the child volume :
 
-  double deltaPhi = (360./nBlades)*deg;
+  double deltaPhi = (360./nBlades)*CLHEP::deg;
   int nQuarter = nBlades/4;
   double zShiftMax = effBladeZShift*((nQuarter-1)/2.);
 
@@ -163,24 +163,24 @@ void DDPixFwdBlades::execute() {
     
     // check if this blade position should be skipped :
   	
-  	if (flagString[iBlade] != flagSelector[0]) continue;
+    if (flagString[iBlade] != flagSelector[0]) continue;
     int copy = issueCopyNumber();
     
     // calculate Phi and Z shift for this blade :
 
-    double phi = (iBlade + 0.5) * deltaPhi - 90.*deg;
+    double phi = (iBlade + 0.5) * deltaPhi - 90.*CLHEP::deg;
     int iQuarter = iBlade % nQuarter;
     double zShift = - zShiftMax + iQuarter * effBladeZShift;
     
     // compute rotation matrix from mother to blade frame :
     
-    HepRotation* rotMatrix = new HepRotation(Hep3Vector(0.,0.,1.), phi);
+    CLHEP::HepRotation* rotMatrix = new CLHEP::HepRotation(CLHEP::Hep3Vector(0.,0.,1.), phi);
     (*rotMatrix) *= bladeRotMatrix;
     
     // convert translation vector from blade frame to mother frame, and add Z shift :
     
-    Hep3Vector translation = (*rotMatrix)(childTranslation + Hep3Vector(0., ancorRadius, 0.));
-    translation += Hep3Vector(0., 0., zShift + zPlane);
+    CLHEP::Hep3Vector translation = (*rotMatrix)(childTranslation + CLHEP::Hep3Vector(0., ancorRadius, 0.));
+    translation += CLHEP::Hep3Vector(0., 0., zShift + zPlane);
     
     // create DDRotation for placing the child if not already existent :
 
@@ -229,67 +229,67 @@ void DDPixFwdBlades::computeNippleParameters(double endcap) {
 	
   double effBladeAngle = endcap * bladeAngle;
   
-  Hep3Vector jC; // Point J in the "cover" blade frame
-  Hep3Vector kB; // Point K in the "body" blade frame
+  CLHEP::Hep3Vector jC; // Point J in the "cover" blade frame
+  CLHEP::Hep3Vector kB; // Point K in the "body" blade frame
   std::string rotNameNippleToCover;
   std::string rotNameCoverToNipple;
   std::string rotNameNippleToBody;
 
   if (endcap > 0.) {
-  	jC = Hep3Vector(jX, jY + ancorRadius, jZ);
-  	kB = Hep3Vector(kX, kY + ancorRadius, kZ);
-	rotNameNippleToCover = "NippleToCoverZPlus";
-	rotNameCoverToNipple = "CoverToNippleZPlus";
-	rotNameNippleToBody = "NippleToBodyZPlus";
+    jC = CLHEP::Hep3Vector(jX, jY + ancorRadius, jZ);
+    kB = CLHEP::Hep3Vector(kX, kY + ancorRadius, kZ);
+    rotNameNippleToCover = "NippleToCoverZPlus";
+    rotNameCoverToNipple = "CoverToNippleZPlus";
+    rotNameNippleToBody = "NippleToBodyZPlus";
   } else {
-  	jC = Hep3Vector(-jX, jY + ancorRadius, jZ);
-  	kB = Hep3Vector(-kX, kY + ancorRadius, kZ);
-	rotNameNippleToCover = "NippleToCoverZMinus";
-	rotNameCoverToNipple = "CoverToNippleZMinus";
-	rotNameNippleToBody = "NippleToBodyZMinus";
+    jC = CLHEP::Hep3Vector(-jX, jY + ancorRadius, jZ);
+    kB = CLHEP::Hep3Vector(-kX, kY + ancorRadius, kZ);
+    rotNameNippleToCover = "NippleToCoverZMinus";
+    rotNameCoverToNipple = "CoverToNippleZMinus";
+    rotNameNippleToBody = "NippleToBodyZMinus";
   }
 		
   // Z-shift from "cover" to "body" blade frame:
   
-  Hep3Vector tCB(bladeZShift*sin(effBladeAngle), 0., bladeZShift*cos(effBladeAngle));
+  CLHEP::Hep3Vector tCB(bladeZShift*sin(effBladeAngle), 0., bladeZShift*cos(effBladeAngle));
   
   // Rotation from "cover" blade frame into "body" blade frame :
   
-  double deltaPhi = endcap*(360./nBlades)*deg;
-  HepRotation rCB(Hep3Vector(1.*sin(effBladeAngle), 0., 1.*cos(effBladeAngle)), deltaPhi);
+  double deltaPhi = endcap*(360./nBlades)*CLHEP::deg;
+  CLHEP::HepRotation rCB(CLHEP::Hep3Vector(1.*sin(effBladeAngle), 0., 1.*cos(effBladeAngle)), deltaPhi);
   
   // Transform vector k into "cover" blade frame :
   
-  Hep3Vector kC = rCB * (kB + tCB);
+  CLHEP::Hep3Vector kC = rCB * (kB + tCB);
   
   // Vector JK in the "cover" blade frame:
   
-  Hep3Vector jkC = kC - jC;
+  CLHEP::Hep3Vector jkC = kC - jC;
   double* jkLength = new double(jkC.mag());
   DDConstant JK(DDName("JK", "pixfwdNipple"), jkLength);
-  LogDebug("PixelGeom") << "+++++++++++++++ DDPixFwdBlades: " << "JK Length " <<  *jkLength * mm;
+  LogDebug("PixelGeom") << "+++++++++++++++ DDPixFwdBlades: " << "JK Length " <<  *jkLength * CLHEP::mm;
   
   // Position of the center of a nipple in "cover" blade frame :
   
-  Hep3Vector nippleTranslation((kC+jC)/2. - Hep3Vector(0., ancorRadius, 0.));
+  CLHEP::Hep3Vector nippleTranslation((kC+jC)/2. - CLHEP::Hep3Vector(0., ancorRadius, 0.));
   if (endcap > 0) {
-  	nippleTranslationX = nippleTranslation.x();
-  	nippleTranslationY = nippleTranslation.y();
-  	nippleTranslationZ = nippleTranslation.z();
+    nippleTranslationX = nippleTranslation.x();
+    nippleTranslationY = nippleTranslation.y();
+    nippleTranslationZ = nippleTranslation.z();
   }
   LogDebug("PixelGeom") << "Child translation : " << nippleTranslation;
   
   // Rotations from nipple frame to "cover" blade frame and back :
   
-  Hep3Vector vZ(0.,0.,1.);
-  Hep3Vector axis = vZ.cross(jkC);
+  CLHEP::Hep3Vector vZ(0.,0.,1.);
+  CLHEP::Hep3Vector axis = vZ.cross(jkC);
   double angleCover = vZ.angle(jkC);
   LogDebug("PixelGeom") << " Angle to Cover: " << angleCover;
-  HepRotation* rpCN = new HepRotation(axis, angleCover);
+  CLHEP::HepRotation* rpCN = new CLHEP::HepRotation(axis, angleCover);
   if (endcap > 0.) {
-  	nippleRotationZPlus = rpCN;
+    nippleRotationZPlus = rpCN;
   } else {
-  	nippleRotationZMinus = rpCN;
+    nippleRotationZMinus = rpCN;
   }
   //( endcap > 0. ? nippleRotationZPlus : nippleRotationZMinus ) = rpCN;
 
@@ -301,7 +301,7 @@ void DDPixFwdBlades::computeNippleParameters(double endcap) {
 						  rpCN->zx(), rpCN->zy(), rpCN->zz() );
 
   DDrot(DDName(rotNameCoverToNipple, "pixfwdNipple"), ddrpCN);
-  HepRotation* rpNC = new HepRotation(axis, -angleCover);
+  CLHEP::HepRotation* rpNC = new CLHEP::HepRotation(axis, -angleCover);
   DDRotationMatrix* ddrpNC = new DDRotationMatrix(rpNC->xx(), rpNC->xy(), rpNC->xz(),
 						  rpNC->yx(), rpNC->yy(), rpNC->yz(),
 						  rpNC->zx(), rpNC->zy(), rpNC->zz() );
@@ -310,7 +310,7 @@ void DDPixFwdBlades::computeNippleParameters(double endcap) {
   
   // Rotation from nipple frame to "body" blade frame :
   
-  HepRotation* rpNB = new HepRotation( (*rpNC) * rCB );
+  CLHEP::HepRotation* rpNB = new CLHEP::HepRotation( (*rpNC) * rCB );
   DDRotationMatrix* ddrpNB = new DDRotationMatrix(rpNB->xx(), rpNB->xy(), rpNB->xz(),
 						  rpNB->yx(), rpNB->yy(), rpNB->yz(),
 						  rpNB->zx(), rpNB->zy(), rpNB->zz() );

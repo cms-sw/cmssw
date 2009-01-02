@@ -87,7 +87,8 @@ void DDTOBAxCableAlgo::execute() {
     // Each sector is divided in 3 parts from phi[i] to phi[i+1]
     
     widthphi = ( (i+1 == (int)(sectorStartPhi.size())) ?
-		 (sectorStartPhi[0]+twopi)-sectorStartPhi[i] : (sectorStartPhi[i+1]-sectorStartPhi[i]) );
+		 (sectorStartPhi[0]+CLHEP::twopi)-sectorStartPhi[i] :
+		 (sectorStartPhi[i+1]-sectorStartPhi[i]) );
     
     // First Part: A
     name  = "TOBAxService_" + sectorNumber[i] + "A";
@@ -102,18 +103,22 @@ void DDTOBAxCableAlgo::execute() {
     
     LogDebug("TOBGeom") << "DDTOBAxCableAlgo test: " 
 			<< DDName(name, idNameSpace) << " Tubs made of " 
-      			<< sectorMaterial_A[i] << " from " << startphi/deg << " to " << (startphi+deltaphi)/deg
-			<< " with Rin " << rin << " Rout " << rout 
-			<< " ZHalf " << dz;
+      			<< sectorMaterial_A[i] << " from " 
+			<< startphi/CLHEP::deg << " to "
+			<< (startphi+deltaphi)/CLHEP::deg << " with Rin " 
+			<< rin << " Rout " << rout << " ZHalf " << dz;
     
-    DDName sectorMatName(DDSplit(sectorMaterial_A[i]).first, DDSplit(sectorMaterial_A[i]).second);
+    DDName sectorMatName(DDSplit(sectorMaterial_A[i]).first,
+			 DDSplit(sectorMaterial_A[i]).second);
     DDMaterial sectorMatter(sectorMatName);
     DDLogicalPart sectorLogic(DDName(name, idNameSpace), sectorMatter, solid);
     
-    DDpos(DDName(name,idNameSpace), tubsName, i+1, DDTranslation(), DDRotation());
+    DDpos(DDName(name,idNameSpace), tubsName, i+1, DDTranslation(), 
+	  DDRotation());
     LogDebug("TOBGeom") << "DDTOBAxCableAlgo test: "
 			<< DDName(name,idNameSpace) << " number " << i+1 
-			<< " positioned in " << tubsName << " with no translation and no rotation";
+			<< " positioned in " << tubsName 
+			<< " with no translation and no rotation";
     
     // Second Part: B
     name  = "TOBAxService_" + sectorNumber[i] + "B";
@@ -125,18 +130,22 @@ void DDTOBAxCableAlgo::execute() {
     
     LogDebug("TOBGeom") << "DDTOBAxCableAlgo test: " 
 			<< DDName(name, idNameSpace) << " Tubs made of " 
-      			<< sectorMaterial_B[i] << " from " << startphi/deg << " to " << (startphi+deltaphi)/deg
+      			<< sectorMaterial_B[i] << " from " << startphi/CLHEP::deg << " to " << (startphi+deltaphi)/CLHEP::deg
 			<< " with Rin " << rin << " Rout " << rout 
 			<< " ZHalf " << dz;
     
-    sectorMatName = DDName(DDSplit(sectorMaterial_B[i]).first, DDSplit(sectorMaterial_B[i]).second);
+    sectorMatName = DDName(DDSplit(sectorMaterial_B[i]).first,
+			   DDSplit(sectorMaterial_B[i]).second);
     sectorMatter  = DDMaterial(sectorMatName);
-    sectorLogic   = DDLogicalPart(DDName(name, idNameSpace), sectorMatter, solid);
+    sectorLogic   = DDLogicalPart(DDName(name, idNameSpace), sectorMatter,
+				  solid);
     
-    DDpos(DDName(name,idNameSpace), tubsName, i+1, DDTranslation(), DDRotation());
+    DDpos(DDName(name,idNameSpace), tubsName, i+1, DDTranslation(), 
+	  DDRotation());
     LogDebug("TOBGeom") << "DDTOBAxCableAlgo test: "
 			<< DDName(name,idNameSpace) << " number " << i+1 
-			<< " positioned in " << tubsName << " with no translation and no rotation";
+			<< " positioned in " << tubsName 
+			<< " with no translation and no rotation";
     
     // Third Part: C
     name  = "TOBAxService_" + sectorNumber[i] + "C";
@@ -148,19 +157,23 @@ void DDTOBAxCableAlgo::execute() {
     
     LogDebug("TOBGeom") << "DDTOBAxCableAlgo test: " 
 			<< DDName(name, idNameSpace) << " Tubs made of " 
-      			<< sectorMaterial_C[i] << " from " << startphi/deg << " to " << (startphi+deltaphi)/deg
-			<< " with Rin " << rin << " Rout " << rout 
-			<< " ZHalf " << dz;
+      			<< sectorMaterial_C[i] << " from " 
+			<< startphi/CLHEP::deg << " to " 
+			<< (startphi+deltaphi)/CLHEP::deg << " with Rin " 
+			<< rin << " Rout " << rout << " ZHalf " << dz;
     
-    sectorMatName = DDName(DDSplit(sectorMaterial_C[i]).first, DDSplit(sectorMaterial_C[i]).second);
+    sectorMatName = DDName(DDSplit(sectorMaterial_C[i]).first, 
+			   DDSplit(sectorMaterial_C[i]).second);
     sectorMatter  = DDMaterial(sectorMatName);
-    sectorLogic   = DDLogicalPart(DDName(name, idNameSpace), sectorMatter, solid);
+    sectorLogic   = DDLogicalPart(DDName(name, idNameSpace), sectorMatter, 
+				  solid);
     
-    DDpos(DDName(name,idNameSpace), tubsName, i+1, DDTranslation(), DDRotation());
+    DDpos(DDName(name,idNameSpace), tubsName, i+1, DDTranslation(), 
+	  DDRotation());
     LogDebug("TOBGeom") << "DDTOBAxCableAlgo test: "
 			<< DDName(name,idNameSpace) << " number " << i+1 
-			<< " positioned in " << tubsName << " with no translation and no rotation";
-    
+			<< " positioned in " << tubsName 
+			<< " with no translation and no rotation";
   }
   
   LogDebug("TOBGeom") << "<<== End of DDTOBAxCableAlgo construction ...";

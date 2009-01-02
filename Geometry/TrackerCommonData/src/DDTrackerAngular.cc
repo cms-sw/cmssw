@@ -36,7 +36,7 @@ void DDTrackerAngular::initialize(const DDNumericArguments & nArgs,
   radius      = nArgs["Radius"];
   center      = vArgs["Center"];
   
-  if (fabs(rangeAngle-360.0*deg)<0.001*deg) { 
+  if (fabs(rangeAngle-360.0*CLHEP::deg)<0.001*CLHEP::deg) { 
     delta    =   rangeAngle/double(n);
   } else {
     if (n > 1) {
@@ -48,9 +48,10 @@ void DDTrackerAngular::initialize(const DDNumericArguments & nArgs,
 
   LogDebug("TrackerGeom") << "DDTrackerAngular debug: Parameters for position"
 			  << "ing:: n " << n << " Start, Range, Delta " 
-			  << startAngle/deg << " " << rangeAngle/deg << " " 
-			  << delta/deg << " Radius " << radius << " Centre " 
-			  << center[0] << ", " << center[1] << ", "<<center[2];
+			  << startAngle/CLHEP::deg << " " 
+			  << rangeAngle/CLHEP::deg << " " << delta/CLHEP::deg
+			  << " Radius " << radius << " Centre " << center[0] 
+			  << ", " << center[1] << ", "<<center[2];
 
   idNameSpace = DDCurrentNamespace::ns();
   childName   = sArgs["ChildName"]; 
@@ -65,13 +66,13 @@ void DDTrackerAngular::execute() {
 
   DDName mother = parent().name();
   DDName child(DDSplit(childName).first, DDSplit(childName).second);
-  double theta  = 90.*deg;
+  double theta  = 90.*CLHEP::deg;
   int    copy   = startCopyNo;
   double phi    = startAngle;
   for (int i=0; i<n; i++) {
     double phix = phi;
-    double phiy = phix + 90.*deg;
-    double phideg = phix/deg;
+    double phiy = phix + 90.*CLHEP::deg;
+    double phideg = phix/CLHEP::deg;
 
     DDRotation rotation;
     if (phideg != 0) {
@@ -80,7 +81,8 @@ void DDTrackerAngular::execute() {
       if (!rotation) {
 	LogDebug("TrackerGeom") << "DDTrackerAngular test: Creating a new "
 				<< "rotation: " << rotstr << "\t90., " 
-				<< phix/deg << ", 90.," << phiy/deg <<", 0, 0";
+				<< phix/CLHEP::deg << ", 90.," 
+				<< phiy/CLHEP::deg <<", 0, 0";
 	rotation = DDrot(DDName(rotstr, idNameSpace), theta, phix, theta, phiy,
 			 0., 0.);
       }

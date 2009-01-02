@@ -38,10 +38,11 @@ void DDTECPhiAlgo::initialize(const DDNumericArguments & nArgs,
 
   LogDebug("TECGeom") << "DDTECPhiAlgo debug: Parameters for "
 		      << "positioning--" << "\tStartAngle " 
-		      << startAngle/deg << "\tIncrAngle " << incrAngle/deg
-		      << "\tZ in/out " << zIn << ", " << zOut 
-		      << "\tCopy Numbers " << number << " Start/Increment " 
-		      << startCopyNo << ", " << incrCopyNo;
+		      << startAngle/CLHEP::deg << "\tIncrAngle " 
+		      << incrAngle/CLHEP::deg << "\tZ in/out " << zIn << ", " 
+		      << zOut 	      << "\tCopy Numbers " << number 
+		      << " Start/Increment " << startCopyNo << ", " 
+		      << incrCopyNo;
 
   idNameSpace = DDCurrentNamespace::ns();
   childName   = sArgs["ChildName"]; 
@@ -54,24 +55,25 @@ void DDTECPhiAlgo::initialize(const DDNumericArguments & nArgs,
 void DDTECPhiAlgo::execute() {
 
   if (number > 0) {
-    double theta  = 90.*deg;
+    double theta  = 90.*CLHEP::deg;
     int    copyNo = startCopyNo;
 
     DDName mother = parent().name();
     DDName child(DDSplit(childName).first, DDSplit(childName).second);
     for (int i=0; i<number; i++) {
       double phix = startAngle + i*incrAngle;
-      double phiy = phix + 90.*deg;
-      double phideg = phix/deg;
+      double phiy = phix + 90.*CLHEP::deg;
+      double phideg = phix/CLHEP::deg;
   
       DDRotation rotation;
       std::string rotstr = DDSplit(childName).first+dbl_to_string(phideg*10.);
       rotation = DDRotation(DDName(rotstr, idNameSpace));
       if (!rotation) {
 	LogDebug("TECGeom") << "DDTECPhiAlgo test: Creating a new "
-			    << "rotation " << rotstr << "\t" << theta/deg
-			    << ", " << phix/deg << ", " << theta/deg << ", "
-			    << phiy/deg << ", 0, 0";
+			    << "rotation " << rotstr << "\t" 
+			    << theta/CLHEP::deg << ", " << phix/CLHEP::deg 
+			    << ", " << theta/CLHEP::deg << ", "
+			    << phiy/CLHEP::deg << ", 0, 0";
 	rotation = DDrot(DDName(rotstr, idNameSpace), theta, phix, theta, phiy,
 			 0., 0.);
       }

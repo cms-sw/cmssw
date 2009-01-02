@@ -43,7 +43,7 @@ void DDTECAxialCableAlgo::initialize(const DDNumericArguments & nArgs,
   startAngle  = vArgs["StartAngle"];
   zPos        = vArgs["ZPos"];
   
-  if (fabs(rangeAngle-360.0*deg)<0.001*deg) { 
+  if (fabs(rangeAngle-360.0*CLHEP::deg)<0.001*CLHEP::deg) { 
     delta    =   rangeAngle/double(n);
   } else {
     if (n > 1) {
@@ -58,14 +58,14 @@ void DDTECAxialCableAlgo::initialize(const DDNumericArguments & nArgs,
 		      << n << " copies in Service volume\n"
 		      << "                            zStart " << zStart 
 		      << " zEnd " << zEnd << " rMin " << rMin << " rMax "
-		      << rMax << " Cable width " << width/deg << " thickness " 
-		      << thickR << ", " << thickZ << " dZ " << dZ << "\n"
-		      << "                            Range, Delta " 
-		      << rangeAngle/deg << ", " << delta/deg;
+		      << rMax << " Cable width " << width/CLHEP::deg 
+		      << " thickness " << thickR << ", " << thickZ << " dZ " 
+		      << dZ << "\n                            Range, Delta " 
+		      << rangeAngle/CLHEP::deg << ", " << delta/CLHEP::deg;
   for (int i=0; i<(int)(startAngle.size()); i++)
     LogDebug("TECGeom") << "                          Cable " << i 
 			<< " from Z " << zPos[i] << " startAngle " 
-			<< startAngle[i]/deg;
+			<< startAngle[i]/CLHEP::deg;
   idNameSpace = DDCurrentNamespace::ns();
   childName   = sArgs["ChildName"]; 
   matName     = sArgs["Material"]; 
@@ -80,7 +80,7 @@ void DDTECAxialCableAlgo::initialize(const DDNumericArguments & nArgs,
 void DDTECAxialCableAlgo::execute() {
 
   DDName mother = parent().name();
-  double theta  = 90.*deg;
+  double theta  = 90.*CLHEP::deg;
 
   for (int k=0; k<(int)(startAngle.size()); k++) {
 
@@ -120,8 +120,8 @@ void DDTECAxialCableAlgo::execute() {
 
     LogDebug("TECGeom") << "DDTECAxialCableAlgo test: " 
 			<< DDName(name, idNameSpace) <<" Polycone made of "
-			<< matName << " from " << -0.5*width/deg << " to "
-			<< 0.5*width/deg << " and with " << pconZ.size()
+			<< matName << " from " <<-0.5*width/CLHEP::deg <<" to "
+			<< 0.5*width/CLHEP::deg << " and with " << pconZ.size()
 			<< " sections ";
     for (int ii = 0; ii <(int)(pconZ.size()); ii++) 
       LogDebug("TECGeom") << "\t" << "\tZ[" << ii << "] = " << pconZ[ii] 
@@ -134,8 +134,8 @@ void DDTECAxialCableAlgo::execute() {
     double phi = startAngle[k];
     for (i=0; i<n; i++) {
       double phix = phi;
-      double phiy = phix + 90.*deg;
-      double phideg = phix/deg;
+      double phiy = phix + 90.*CLHEP::deg;
+      double phideg = phix/CLHEP::deg;
 
       DDRotation rotation;
       if (phideg != 0) {
@@ -144,8 +144,8 @@ void DDTECAxialCableAlgo::execute() {
 	if (!rotation) {
 	  LogDebug("TECGeom") << "DDTECAxialCableAlgo test: Creating a new"
 			      << " rotation: " << rotstr << "\t90., " 
-			      << phix/deg << ", 90.," << phiy/deg 
-			      << ", 0, 0";
+			      << phix/CLHEP::deg << ", 90.," 
+			      << phiy/CLHEP::deg << ", 0, 0";
 	  rotation = DDrot(DDName(rotstr, idNameSpace), theta, phix, theta, 
 			   phiy, 0., 0.);
 	}

@@ -40,10 +40,10 @@ void DDTrackerPhiAltAlgo::initialize(const DDNumericArguments & nArgs,
 
   LogDebug("TrackerGeom") << "DDTrackerPhiAltAlgo debug: Parameters for "
 			  << "positioning--" << " Tilt " << tilt 
-			  << "\tStartAngle " << startAngle/deg 
-			  << "\tRangeAngle " << rangeAngle/deg << "\tRin "
-			  << radiusIn << "\tRout " << radiusOut << "\t ZPos "
-			  << zpos << "\tCopy Numbers " << number 
+			  << "\tStartAngle " << startAngle/CLHEP::deg 
+			  << "\tRangeAngle " << rangeAngle/CLHEP::deg 
+			  << "\tRin " << radiusIn << "\tRout " << radiusOut 
+			  << "\t ZPos " << zpos << "\tCopy Numbers " << number 
 			  << " Start/Increment " << startCopyNo << ", " 
 			  << incrCopyNo;
 
@@ -58,9 +58,9 @@ void DDTrackerPhiAltAlgo::initialize(const DDNumericArguments & nArgs,
 void DDTrackerPhiAltAlgo::execute() {
 
   if (number > 0) {
-    double theta  = 90.*deg;
+    double theta  = 90.*CLHEP::deg;
     double dphi;
-    if (number == 1 || fabs(rangeAngle-360.0*deg)<0.001*deg) 
+    if (number == 1 || fabs(rangeAngle-360.0*CLHEP::deg)<0.001*CLHEP::deg) 
       dphi = rangeAngle/number;
     else
       dphi = rangeAngle/(number-1);
@@ -70,9 +70,9 @@ void DDTrackerPhiAltAlgo::execute() {
     DDName child(DDSplit(childName).first, DDSplit(childName).second);
     for (int i=0; i<number; i++) {
       double phi  = startAngle + i*dphi;
-      double phix = phi - tilt + 90.*deg;
-      double phiy = phix + 90.*deg;
-      double phideg = phix/deg;
+      double phix = phi - tilt + 90.*CLHEP::deg;
+      double phiy = phix + 90.*CLHEP::deg;
+      double phideg = phix/CLHEP::deg;
   
       DDRotation rotation;
       if (phideg != 0) {
@@ -81,8 +81,8 @@ void DDTrackerPhiAltAlgo::execute() {
 	if (!rotation) {
 	  LogDebug("TrackerGeom") << "DDTrackerPhiAltAlgo test: Creating a new"
 				  << " rotation " << rotstr << "\t" << "90., "
-				  << phix/deg << ", 90.," << phiy/deg 
-				  << ", 0, 0";
+				  << phix/CLHEP::deg << ", 90.," 
+				  << phiy/CLHEP::deg << ", 0, 0";
 	  rotation = DDrot(DDName(rotstr, idNameSpace), theta, phix, theta,
 			   phiy, 0., 0.);
 	}
