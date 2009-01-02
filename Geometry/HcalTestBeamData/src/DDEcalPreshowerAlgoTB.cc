@@ -17,6 +17,8 @@
 #include "CLHEP/Units/PhysicalConstants.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 
+using namespace CLHEP;
+
 DDEcalPreshowerAlgoTB::DDEcalPreshowerAlgoTB() : DDAlgorithm() {
   LogDebug("HCalGeom") << "DDEcalPreshowerAlgoTB info: Creating an instance" ;
 
