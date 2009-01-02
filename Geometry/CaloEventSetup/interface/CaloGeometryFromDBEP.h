@@ -40,6 +40,8 @@ class CaloGeometryFromDBEP : public edm::ESProducer
       typedef CaloSubdetectorGeometry::TrVec  TrVec      ;
       typedef CaloSubdetectorGeometry::DimVec DimVec     ;
       typedef CaloSubdetectorGeometry::IVec   IVec       ;
+      typedef HepGeom::Point3D<double> HepPoint3D;
+      typedef HepGeom::Transform3D  HepTransform3D;
 
       CaloGeometryFromDBEP<T>( const edm::ParameterSet& ps ) :
 	 m_applyAlignment ( ps.getUntrackedParameter<bool>("applyAlignment", false) )
@@ -155,10 +157,10 @@ class CaloGeometryFromDBEP : public edm::ESProducer
 	    const ROOT::Math::Transform3D rt ( ea, tl ) ;
 	    double xx,xy,xz,dx,yx,yy,yz,dy,zx,zy,zz,dz;
 	    rt.GetComponents(xx,xy,xz,dx,yx,yy,yz,dy,zx,zy,zz,dz) ;
-	    tr = HepTransform3D( HepRep3x3( xx, xy, xz,
-					    yx, yy, yz,
-					    zx, zy, zz ), 
-				 Hep3Vector(dx,dy,dz)     );
+	    tr = HepTransform3D( CLHEP::HepRep3x3( xx, xy, xz,
+						   yx, yy, yz,
+						   zx, zy, zz ), 
+				 CLHEP::Hep3Vector(dx,dy,dz)     );
 
 	    const HepTransform3D atr ( 0 == at ? tr :
 				       ( 0 == gt ? at->transform()*tr :

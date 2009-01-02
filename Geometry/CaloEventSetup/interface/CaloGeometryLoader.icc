@@ -101,15 +101,15 @@ CaloGeometryLoader<T>::makeGeometry( const DDCompactView*  cpv        ,
 
       DD3Vector x, y, z;
       fv.rotation().GetComponents( x, y, z ) ;
-      const HepRep3x3 temp( x.X(), y.X(), z.X(),
-			    x.Y(), y.Y(), z.Y(),
-			    x.Z(), y.Z(), z.Z() );
-      const HepRotation hr ( temp );
-      const Hep3Vector h3v( fv.translation().X(),
-			    fv.translation().Y(),
-			    fv.translation().Z()  ) ;
-      const HepTransform3D ht3d ( hr,                        // only scale translation
-				  k_ScaleFromDDDtoGeant*h3v ) ;    
+      const CLHEP::HepRep3x3 temp( x.X(), y.X(), z.X(),
+				   x.Y(), y.Y(), z.Y(),
+			           x.Z(), y.Z(), z.Z() );
+      const CLHEP::HepRotation hr ( temp );
+      const CLHEP::Hep3Vector h3v ( fv.translation().X(),
+		 		    fv.translation().Y(),
+				    fv.translation().Z()  ) ;
+      const HepGeom::Transform3D ht3d ( hr,          // only scale translation
+	 	 		        k_ScaleFromDDDtoGeant*h3v ) ;    
 
       const DetId id ( getDetIdForDDDNode( fv ) ) ;
 
@@ -129,7 +129,7 @@ CaloGeometryLoader<T>::makeGeometry( const DDCompactView*  cpv        ,
 				      ( globals->m_align.size() > gIndex ? 
 					&globals->m_align[ gIndex ] : 0 ) ) ;
 
-      const HepTransform3D atr ( 0 == at ? ht3d :
+      const HepGeom::Transform3D atr ( 0 == at ? ht3d :
 				 ( 0 == globalT ? at->transform()*ht3d :
 				   globalT->transform()*at->transform()*ht3d ) ) ;
 

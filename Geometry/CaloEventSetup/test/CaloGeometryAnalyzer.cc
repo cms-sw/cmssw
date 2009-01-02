@@ -51,6 +51,7 @@
 //
 // class decleration
 //
+using namespace CLHEP;
 
 class CaloGeometryAnalyzer : public edm::EDAnalyzer {
   public:
