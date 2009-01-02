@@ -35,10 +35,10 @@ void DDHCalTestBeamAlgo::initialize(const DDNumericArguments & nArgs,
   copyNumber = int (nArgs["Number"]);
   dist       = (distance+distanceZ/sin(theta));
   LogDebug("HCalGeom") << "DDHCalTestBeamAlgo debug: Parameters for position"
-		       << "ing--" << " Eta " << eta << "\tPhi " << phi/deg 
-		       << "\tTheta " << theta/deg << "\tDistance " << distance
-		       << "/" << distanceZ << "/" << dist << "\tDz " << dz 
-		       << "\tcopyNumber " << copyNumber;
+		       << "ing--" << " Eta " << eta << "\tPhi " 
+		       << phi/CLHEP::deg << "\tTheta " << theta/CLHEP::deg 
+		       << "\tDistance " << distance << "/" << distanceZ << "/"
+		       << dist <<"\tDz " << dz <<"\tcopyNumber " << copyNumber;
 
   idNameSpace = DDCurrentNamespace::ns();
   childName   = sArgs["ChildName"]; 
@@ -50,22 +50,23 @@ void DDHCalTestBeamAlgo::initialize(const DDNumericArguments & nArgs,
 
 void DDHCalTestBeamAlgo::execute() {
 
-  double thetax = 90.*deg + theta;
+  double thetax = 90.*CLHEP::deg + theta;
   double sthx   = sin(thetax);
   if (abs(sthx)>1.e-12) sthx = 1./sthx;
   else                  sthx = 1.;
   double phix   = atan2(sthx*cos(theta)*sin(phi),sthx*cos(theta)*cos(phi));
-  double thetay = 90.*deg;
-  double phiy   = 90.*deg + phi;
+  double thetay = 90.*CLHEP::deg;
+  double phiy   = 90.*CLHEP::deg + phi;
   double thetaz = theta;
   double phiz   = phi;
   
   DDRotation rotation;
   string rotstr = childName;
   LogDebug("HCalGeom") << "DDHCalTestBeamAlgo test: Creating a new rotation "
-		       << rotstr << "\t" << thetax/deg << "," << phix/deg 
-		       << "," << thetay/deg << "," << phiy/deg << "," 
-		       << thetaz/deg <<"," << phiz/deg;
+		       << rotstr << "\t" << thetax/CLHEP::deg << "," 
+		       << phix/CLHEP::deg << "," << thetay/CLHEP::deg << "," 
+		       << phiy/CLHEP::deg << "," << thetaz/CLHEP::deg <<"," 
+		       << phiz/CLHEP::deg;
   rotation = DDrot(DDName(rotstr, idNameSpace), thetax, phix, thetay, phiy,
 		   thetaz, phiz);
 	

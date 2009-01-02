@@ -37,11 +37,11 @@ void DDHCalTBZposAlgo::initialize(const DDNumericArguments & nArgs,
   tilt       = nArgs["TiltAngle"];
   copyNumber = int (nArgs["Number"]);
   LogDebug("HCalGeom") << "DDHCalTBZposAlgo debug: Parameters for position"
-		       << "ing--" << " Eta " << eta << "\tTheta " << theta/deg 
-		       << "\tShifts " << shiftX << ", " << shiftY 
-		       << " along x, y axes; \tZoffest " << zoffset
+		       << "ing--" << " Eta " << eta << "\tTheta " 
+		       << theta/CLHEP::deg << "\tShifts " << shiftX << ", " 
+		       << shiftY  << " along x, y axes; \tZoffest " << zoffset
 		       << "\tRadial Distance " << dist << "\tTilt angle "
-		       << tilt/deg << "\tcopyNumber " << copyNumber;
+		       << tilt/CLHEP::deg << "\tcopyNumber " << copyNumber;
 
   idNameSpace = DDCurrentNamespace::ns();
   childName   = sArgs["ChildName"]; 
@@ -56,13 +56,13 @@ void DDHCalTBZposAlgo::execute() {
   DDName mother = parent().name();
   DDName child(DDSplit(childName).first, DDSplit(childName).second);
  
-  double thetax = 90.*deg - theta;
+  double thetax = 90.*CLHEP::deg - theta;
   double z      = zoffset + dist*tan(thetax);
   double x      = shiftX - shiftY*sin(tilt);
   double y      = shiftY*cos(tilt);
   DDTranslation tran(x,y,z);
   DDRotation rot;
-  double tiltdeg = tilt/deg;
+  double tiltdeg = tilt/CLHEP::deg;
   int    itilt   = int(tiltdeg+0.1);
   if (itilt != 0) {
     std::string rotstr = "R";
@@ -73,8 +73,8 @@ void DDHCalTBZposAlgo::execute() {
       LogDebug("HCalGeom") << "DDHCalAngular test: Creating a new rotation "
 			   << DDName(rotstr,idNameSpace) << "\t90, " << tiltdeg
 			   << ", 90, " << (tiltdeg+90) << ", 0, 0";
-      rot = DDrot(DDName(rotstr, idNameSpace), 90*deg, tilt, 
-		  90*deg, (90*deg+tilt), 0*deg,  0*deg);
+      rot = DDrot(DDName(rotstr, idNameSpace), 90*CLHEP::deg, tilt, 
+		  90*CLHEP::deg, (90*CLHEP::deg+tilt), 0.0,  0.0);
     }
   }
   DDpos (child, mother, copyNumber, tran, rot);

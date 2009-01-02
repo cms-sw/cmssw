@@ -203,8 +203,8 @@ void DDHCalBarrelAlgo::constructGeneralVolume() {
 
   DDRotation rot = DDRotation();
 
-  double alpha = pi/getNsectors();
-  double dphi  = getNsectortot()*twopi/getNsectors();
+  double alpha = CLHEP::pi/getNsectors();
+  double dphi  = getNsectortot()*CLHEP::twopi/getNsectors();
   int nsec, ntot=15;
   if (getNhalf() == 1)
     nsec = 8;
@@ -320,8 +320,8 @@ void DDHCalBarrelAlgo::constructGeneralVolume() {
     LogDebug("HCalGeom") << "DDHCalBarrelAlgo test: "
 			 << DDName(idName, idNameSpace) <<" Polyhedra made of "
 			 << getGenMaterial() << " with " << getNsectortot()
-			 << " sectors from " << -alpha/deg <<" to "
-			 << (-alpha+dphi)/deg << " and with " << nsec
+			 << " sectors from " << -alpha/CLHEP::deg <<" to "
+			 << (-alpha+dphi)/CLHEP::deg << " and with " << nsec
 			 << " sections ";
     for (i = 0; i <pgonZ.size(); i++) {
       LogDebug("HCalGeom") << "\t" << "\tZ = " << pgonZ[i] << "\tRmin = " 
@@ -334,8 +334,8 @@ void DDHCalBarrelAlgo::constructGeneralVolume() {
     LogDebug("HCalGeom") << "DDHCalBarrelAlgo test: " 
 			 << DDName(idName, idNameSpace) <<" Polyhedra made of "
 			 << getGenMaterial() << " with " << getNsectortot()
-			 << " sectors from " << -alpha/deg << " to " 
-			 << (-alpha+dphi)/deg << " and with " << nsec 
+			 << " sectors from " << -alpha/CLHEP::deg << " to " 
+			 << (-alpha+dphi)/CLHEP::deg << " and with " << nsec 
 			 << " sections ";
     for (i = 0; i < pgonZHalf.size(); i++) {
       LogDebug("HCalGeom") << "\t" << "\tZ = " << pgonZHalf[i] << "\tRmin = "
@@ -360,8 +360,9 @@ void DDHCalBarrelAlgo::constructGeneralVolume() {
   nf   = (ntot+1)/2;
   LogDebug("HCalGeom") << "DDHCalBarrelAlgo test: " << DDName(name,idNameSpace)
 		       << " Polyhedra made of " << getGenMaterial() << " with "
-		       << getNsectortot() << " sectors from " << -alpha/deg 
-		       << " to " << (-alpha+dphi)/deg << " and with " << nf
+		       << getNsectortot() << " sectors from " 
+		       << -alpha/CLHEP::deg << " to " 
+		       << (-alpha+dphi)/CLHEP::deg << " and with " << nf
 		       << " sections "; 
   for (i = 0; i < pgonZHalf.size(); i++) {
     LogDebug("HCalGeom") << "\t" << "\tZ = " << pgonZHalf[i] << "\tRmin = "
@@ -390,8 +391,8 @@ void DDHCalBarrelAlgo::constructGeneralVolume() {
   name = idName + "Module";
   LogDebug("HCalGeom") << "DDHCalBarrelAlgo test: " << DDName(name,idNameSpace)
 		       << " Polyhedra made of " << getGenMaterial() 
-		       << " with 1 sector from " << -alpha/deg << " to "  
-		       << alpha/deg << " and with " << nf << " sections";
+		       << " with 1 sector from " << -alpha/CLHEP::deg << " to "
+		       << alpha/CLHEP::deg << " and with " << nf <<" sections";
   for (i = 0; i < pgonZHalf.size(); i++) {
     LogDebug("HCalGeom") << "\t" << "\tZ = " << pgonZHalf[i] << "\tRmin = " 
 			 << pgonRminHalf[i] << "\tRmax = " << pgonRmaxHalf[i];
@@ -404,7 +405,7 @@ void DDHCalBarrelAlgo::constructGeneralVolume() {
   
   for (int ii=0; ii<getNsectortot(); ii++) {
     double phi    = ii*2*alpha;
-    double phideg = phi/deg;
+    double phideg = phi/CLHEP::deg;
     
     DDRotation rotation;
     string rotstr("NULL");
@@ -417,8 +418,9 @@ void DDHCalBarrelAlgo::constructGeneralVolume() {
 	LogDebug("HCalGeom") << "DDHCalBarrelAlgo test: Creating a new rotat"
 			     << "ion " << rotstr << "\t" << 90 << "," << phideg
 			     << ","  << 90 << "," << (phideg+90) << ", 0, 0";
-	rotation = DDrot(DDName(rotstr, rotns), 90*deg, phideg*deg, 
-			 90*deg, (90+phideg)*deg, 0*deg,  0*deg);
+	rotation = DDrot(DDName(rotstr, rotns), 90*CLHEP::deg, 
+			 phideg*CLHEP::deg, 90*CLHEP::deg, 
+			 (90+phideg)*CLHEP::deg, 0*CLHEP::deg,  0*CLHEP::deg);
       } //if !rotation
     } //if phideg!=0
   
@@ -439,7 +441,7 @@ void DDHCalBarrelAlgo::constructInsideSector(DDLogicalPart sector) {
   LogDebug("HCalGeom") << "DDHCalBarrelAlgo test: Layers (" << getNLayers()
 		       << ") ...";
 
-  double alpha = pi/getNsectors();
+  double alpha = CLHEP::pi/getNsectors();
   double rin   = getRin();
   for (int i = 0; i < getNLayers(); i++) {
     string  name   = idName + getLayerLabel(i);
@@ -517,14 +519,15 @@ void DDHCalBarrelAlgo::constructInsideSector(DDLogicalPart sector) {
       double rmid  = 0.5*(rin+rout);
       double width = rmid*tan(alpha) - getLayerGap(i);
       alpha1 = atan(width/rmid);
-      LogDebug("HCalGeom") << "\t" << "Alpha_1 modified from " << alpha/deg 
-			   << " to " << alpha1/deg << " Rmid " << rmid
-			   << " Reduced width " << width;
+      LogDebug("HCalGeom") << "\t" << "Alpha_1 modified from " 
+			   << alpha/CLHEP::deg << " to " << alpha1/CLHEP::deg 
+			   << " Rmid " << rmid << " Reduced width " << width;
     }
     LogDebug("HCalGeom") << "DDHCalBarrelAlgo test: " << name << " (Layer " 
 			 << i << ") Polyhedra made of " << getLayerMaterial(i)
-			 << " with 1 sector from " << -alpha1/deg << " to " 
-			 << alpha1/deg << " and with " << nsec << " sections";
+			 << " with 1 sector from " << -alpha1/CLHEP::deg 
+			 << " to " << alpha1/CLHEP::deg << " and with " 
+			 << nsec << " sections";
     for (unsigned int k=0; k<pgonZ.size(); k++) {
       LogDebug("HCalGeom") << "\t" << "\t" << pgonZ[k] << "\t" << pgonRmin[k]
 			   << "\t" << pgonRmax[k];
@@ -679,8 +682,8 @@ DDLogicalPart DDHCalBarrelAlgo::constructSideLayer(DDLogicalPart laylog,
 					    pgonRmax);
   LogDebug("HCalGeom") << "DDHCalBarrelAlgo test: " << solid.name() 
 		       << " Polyhedra made of " << getSideMat(k) 
-		       << " with 1 sector from " << -alpha/deg
-		       << " to " << alpha/deg << " and with "
+		       << " with 1 sector from " << -alpha/CLHEP::deg
+		       << " to " << alpha/CLHEP::deg << " and with "
 		       << pgonZ.size() << " sections";
   for (unsigned int ii=0; ii<pgonZ.size(); ii++) {
     LogDebug("HCalGeom") << "\t\tZ = " << pgonZ[ii] << "\tRmin = " 
@@ -708,8 +711,8 @@ DDLogicalPart DDHCalBarrelAlgo::constructSideLayer(DDLogicalPart laylog,
 					  pgonRmax);
 	LogDebug("HCalGeom") << "DDHCalBarrelAlgo test: " << solid.name() 
 			     << " Polyhedra made of " << getSideAbsMat(i) 
-			     << " with 1 sector from " << -alpha1/deg
-			     << " to " << alpha1/deg << " and with "
+			     << " with 1 sector from " << -alpha1/CLHEP::deg
+			     << " to " << alpha1/CLHEP::deg << " and with "
 			     << pgonZ.size() << " sections";
 	for (unsigned int ii=0; ii<pgonZ.size(); ii++) {
 	  LogDebug("HCalGeom") << "\t\tZ = " << pgonZ[ii] << "\tRmin = " 
@@ -763,8 +766,8 @@ DDLogicalPart DDHCalBarrelAlgo::constructMidLayer(DDLogicalPart laylog,
 				      2*alpha, pgonZ, pgonRmin, pgonRmax);
     LogDebug("HCalGeom") << "DDHCalBarrelAlgo test: " << solid.name() 
 			 << " Polyhedra made of " << getAbsorbMat(k) 
-			 << " with 1 sector from " << -alpha/deg
-			 << " to " << alpha/deg << " and with "
+			 << " with 1 sector from " << -alpha/CLHEP::deg
+			 << " to " << alpha/CLHEP::deg << " and with "
 			 << pgonZ.size() << " sections";
     for (unsigned int ii=0; ii<pgonZ.size(); ii++) {
       LogDebug("HCalGeom") << "\t\tZ = " << pgonZ[ii] << "\tRmin = " 
@@ -792,8 +795,8 @@ DDLogicalPart DDHCalBarrelAlgo::constructMidLayer(DDLogicalPart laylog,
 					  pgonRmax);
 	LogDebug("HCalGeom") << "DDHCalBarrelAlgo test: " << solid.name() 
 			     << " Polyhedra made of " << getMidAbsMat(i) 
-			     << " with 1 sector from " << -alpha1/deg
-			   << " to " << alpha1/deg << " and with "
+			     << " with 1 sector from " << -alpha1/CLHEP::deg
+			   << " to " << alpha1/CLHEP::deg << " and with "
 			     << pgonZ.size() << " sections";
 	for (unsigned int ii=0; ii<pgonZ.size(); ii++) {
 	  LogDebug("HCalGeom") << "\t\tZ = " << pgonZ[ii] << "\tRmin = " 
@@ -823,8 +826,8 @@ DDLogicalPart DDHCalBarrelAlgo::constructMidLayer(DDLogicalPart laylog,
 					pgonRmax);
       LogDebug("HCalGeom") << "DDHCalBarrelAlgo test: " << solid.name() 
 			   << " Polyhedra made of " << getMiddleMat() 
-			   << " with 1 sector from " << -alpha1/deg
-			   << " to " << alpha1/deg << " and with "
+			   << " with 1 sector from " << -alpha1/CLHEP::deg
+			   << " to " << alpha1/CLHEP::deg << " and with "
 			   << pgonZ.size() << " sections";
       for (unsigned int ii=0; ii<pgonZ.size(); ii++) {
 	LogDebug("HCalGeom") << "\t\tZ = " << pgonZ[ii] << "\tRmin = " 
@@ -854,8 +857,8 @@ DDLogicalPart DDHCalBarrelAlgo::constructMidLayer(DDLogicalPart laylog,
 					  pgonRmax);
 	LogDebug("HCalGeom") << "DDHCalBarrelAlgo test: " << solid.name() 
 			     << " Polyhedra made of " << getMidAbsMat(i) 
-			     << " with 1 sector from " << -alpha1/deg
-			     << " to " << alpha1/deg << " and with "
+			     << " with 1 sector from " << -alpha1/CLHEP::deg
+			     << " to " << alpha1/CLHEP::deg << " and with "
 			     << pgonZ.size() << " sections";
 	for (unsigned int ii=0; ii<pgonZ.size(); ii++) {
 	  LogDebug("HCalGeom") << "\t\tZ = " << pgonZ[ii] << "\tRmin = " 

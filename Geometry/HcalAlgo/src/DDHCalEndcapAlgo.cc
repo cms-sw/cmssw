@@ -130,11 +130,12 @@ void DDHCalEndcapAlgo::initialize(const DDNumericArguments & nArgs,
   riDip    = ziDip*tan(angBot);
   roDip    = rout - heboxDepth;
   dzShift  = (z1Beam - z0Beam) - gap/sin(angGap);
-  LogDebug("HCalGeom") << "DDHCalEndcapAlgo debug: angTop " << angTop/deg 
-		       <<"\tSlope " << slope << "\tDzShift " << dzShift
-		       << "\n\tz1Beam " << z1Beam << "\tziKink" << ziKink
-		       << "\triKink " << riKink << "\triDip " << riDip 
-		       << "\n\troDip " << roDip << "\tRotation " << rotation;
+  LogDebug("HCalGeom") << "DDHCalEndcapAlgo debug: angTop " 
+		       << angTop/CLHEP::deg  <<"\tSlope " << slope 
+		       << "\tDzShift " << dzShift << "\n\tz1Beam " << z1Beam 
+		       << "\tziKink" << ziKink << "\triKink " << riKink 
+		       << "\triDip " << riDip << "\n\troDip " << roDip 
+		       << "\tRotation " << rotation;
 
   ///////////////////////////////////////////////////////////////
   //Modules
@@ -334,8 +335,8 @@ void DDHCalEndcapAlgo::constructGeneralVolume() {
 		       << " Second " << DDSplit(getRotation()).second 
 		       << " Rotation " << rot;
   DDTranslation r0(0,0,getZShift());
-  double alpha = pi/getNsectors();
-  double dphi  = getNsectortot()*twopi/getNsectors();
+  double alpha = CLHEP::pi/getNsectors();
+  double dphi  = getNsectortot()*CLHEP::twopi/getNsectors();
 
   //!!!!!!!!!!!!!!!!!Should be zero. And removed as soon as
   //vertical walls are allowed in SolidPolyhedra
@@ -383,9 +384,9 @@ void DDHCalEndcapAlgo::constructGeneralVolume() {
   LogDebug("HCalGeom") << "DDHCalEndcapAlgo test: " 
 		       << DDName(idName, idNameSpace) << " Polyhedra made of "
 		       << getGenMat() << " with " << getNsectortot() 
-		       << " sectors from " << -alpha/deg << " to " 
-		       << (-alpha+dphi)/deg << " and with " << pgonZ.size() 
-		       << " sections";
+		       << " sectors from " << -alpha/CLHEP::deg << " to " 
+		       << (-alpha+dphi)/CLHEP::deg << " and with " 
+		       << pgonZ.size() << " sections";
   for (i = 0; i <pgonZ.size(); i++) 
     LogDebug("HCalGeom") << "\t\tZ = " << pgonZ[i] << "\tRmin = " <<pgonRmin[i]
 			 << "\tRmax = " << pgonRmax[i];
@@ -422,8 +423,9 @@ void DDHCalEndcapAlgo::constructGeneralVolume() {
 				    pgonRminMod, pgonRmaxMod);
   LogDebug("HCalGeom") << "DDHCalEndcapAlgo test: " << DDName(name,idNameSpace)
 		       << " Polyhedra made of " << getGenMat() << " with "
-		       << getNsectortot() << " sectors from " << -alpha/deg 
-		       << " to " << (-alpha+dphi)/deg << " and with "
+		       << getNsectortot() << " sectors from " 
+		       << -alpha/CLHEP::deg << " to " 
+		       << (-alpha+dphi)/CLHEP::deg << " and with "
 		       << pgonZMod.size() << " sections ";
   for (i = 0; i < pgonZMod.size(); i++) 
     LogDebug("HCalGeom") << "\t\tZ = " << pgonZMod[i] << "\tRmin = " 
@@ -443,8 +445,8 @@ void DDHCalEndcapAlgo::constructGeneralVolume() {
 				      pgonRminMod, pgonRmaxMod);
   LogDebug("HCalGeom") << "DDHCalEndcapAlgo test: " << DDName(name,idNameSpace)
 		       << " Polyhedra made of " << getGenMat() 
-		       <<" with 1 sector from " << -alpha/deg << " to " 
-		       << alpha/deg << " and with " << pgonZMod.size() 
+		       <<" with 1 sector from " << -alpha/CLHEP::deg << " to " 
+		       << alpha/CLHEP::deg << " and with " << pgonZMod.size() 
 		       << " sections";
   for (i = 0; i < pgonZMod.size(); i++) 
     LogDebug("HCalGeom") << "\t\tZ = " << pgonZMod[i] << "\tRmin = " 
@@ -454,7 +456,7 @@ void DDHCalEndcapAlgo::constructGeneralVolume() {
   
   for (int ii=0; ii<getNsectortot(); ii++) {
     double phi    = ii*2*alpha;
-    double phideg = phi/deg;
+    double phideg = phi/CLHEP::deg;
     
     DDRotation rotation;
     string rotstr("NULL");
@@ -468,8 +470,9 @@ void DDHCalEndcapAlgo::constructGeneralVolume() {
 			     << "rotation " << rotstr << "\t" << 90 << "," 
 			     << phideg << ","  << 90 << "," << (phideg+90)
 			     << ", 0, 0";
-	rotation = DDrot(DDName(rotstr, rotns), 90*deg, phideg*deg, 
-			 90*deg, (90+phideg)*deg, 0*deg,  0*deg);
+	rotation = DDrot(DDName(rotstr, rotns), 90*CLHEP::deg, 
+			 phideg*CLHEP::deg, 90*CLHEP::deg, 
+			 (90+phideg)*CLHEP::deg, 0*CLHEP::deg,  0*CLHEP::deg);
       } //if !rotation
     } //if phideg!=0
   
@@ -496,8 +499,9 @@ void DDHCalEndcapAlgo::constructGeneralVolume() {
 				    pgonRminBack, pgonRmaxBack);
   LogDebug("HCalGeom") << "DDHCalEndcapAlgo test: " << DDName(name,idNameSpace)
 		       << " Polyhedra made of " << getAbsMat() << " with " 
-		       << getNsectortot() << " sectors from " << -alpha/deg 
-		       << " to " << (-alpha+dphi)/deg << " and with " 
+		       << getNsectortot() << " sectors from " 
+		       << -alpha/CLHEP::deg << " to " 
+		       << (-alpha+dphi)/CLHEP::deg << " and with " 
 		       << pgonZBack.size()	<< " sections";
   for (i = 0; i < pgonZBack.size(); i++) 
     LogDebug("HCalGeom") << "\t\tZ = " << pgonZBack[i] << "\tRmin = " 
@@ -517,7 +521,7 @@ void DDHCalEndcapAlgo::constructInsideSector(DDLogicalPart sector) {
   
   LogDebug("HCalGeom") << "DDHCalEndcapAlgo test: Modules (" << getModules()
 		       << ") ...";
-  double alpha = pi/getNsectors();
+  double alpha = CLHEP::pi/getNsectors();
 
   for (int i = 0; i < getModules(); i++) {
     string  name   = idName + getModName(i);
@@ -565,8 +569,8 @@ void DDHCalEndcapAlgo::constructInsideSector(DDLogicalPart sector) {
       LogDebug("HCalGeom") << "DDHCalEndcapAlgo test: " 
 			   << DDName(name,idNameSpace) << " Polyhedra made of "
 			   << getModMat(i) << " with 1 sector from "
-			   << -alpha/deg << " to " << alpha/deg << " and with "
-			   << nsec << " sections";
+			   << -alpha/CLHEP::deg << " to " << alpha/CLHEP::deg 
+			   << " and with " << nsec << " sections";
       for (unsigned int k=0; k<pgonZ.size(); k++)
 	LogDebug("HCalGeom") << "\t\tZ = " << pgonZ[k] << "\tRmin = "
 			     << pgonRmin[k] << "\tRmax = " << pgonRmax[k];
@@ -594,9 +598,9 @@ void DDHCalEndcapAlgo::parameterLayer0(int mod, int layer, int iphi,
 
   //Given module and layer number compute parameters of trapezoid
   //and positioning parameters
-  double alpha = pi/getNsectors();
+  double alpha = CLHEP::pi/getNsectors();
   LogDebug("HCalGeom") << "Input " << iphi << " " << layer << " " << iphi
-		       << " Alpha " << alpha/deg;
+		       << " Alpha " << alpha/CLHEP::deg;
 
   double zi, zo;
   if (iphi == 0) {
@@ -630,8 +634,8 @@ void DDHCalEndcapAlgo::parameterLayer0(int mod, int layer, int iphi,
     alp  = -alp;
   }
   LogDebug("HCalGeom") << "Output Dimensions " << yh << " " << bl << " "
-		       << tl << " " << alp/deg << " Position " << xpos << " " 
-		       << ypos << " " << zpos;
+		       << tl << " " << alp/CLHEP::deg << " Position " << xpos 
+		       << " " << ypos << " " << zpos;
 }
 
 
@@ -645,10 +649,10 @@ void DDHCalEndcapAlgo::parameterLayer(int iphi, double rinF, double routF,
 
   //Given rin, rout compute parameters of the trapezoid and 
   //position of the trapezoid for a standrd layer
-  double alpha = pi/getNsectors();
+  double alpha = CLHEP::pi/getNsectors();
   LogDebug("HCalGeom") << "Input " << iphi << " Front " << rinF << " " << routF
 		       << " " << zi << " Back " << rinB << " " << routB << " "
-		       << zo << " Alpha " << alpha/deg;
+		       << zo << " Alpha " << alpha/CLHEP::deg;
 
   yh1 = 0.5 * (routF - rinF);
   bl1 = 0.5 * rinF  * tan(alpha);
@@ -674,9 +678,9 @@ void DDHCalEndcapAlgo::parameterLayer(int iphi, double rinF, double routF,
   phi  = atan2 (dy, dx);
   LogDebug("HCalGeom") << "Output Dimensions " << yh1 << " " << bl1 << " "
 		       << tl1 << " " << yh2 << " " << bl2 << " " << tl2
-		       << " " << alp/deg << " " << theta/deg << " "
-		       << phi/deg << " Position " << xpos << " " << ypos
-		       << " " << zpos;
+		       << " " << alp/CLHEP::deg << " " << theta/CLHEP::deg
+		       << " " << phi/CLHEP::deg << " Position " << xpos << " "
+		       << ypos << " " << zpos;
 }
 
 
@@ -710,8 +714,8 @@ void DDHCalEndcapAlgo::constructInsideModule0(DDLogicalPart module, int mod) {
 			 << " Trap made of " << getPlastMat() 
 			 << " of dimensions " << 0.5*getLayerT(layer) 
 			 << ", 0, 0, " << yh << ", " << bl << ", " << tl 
-			 << ", " << alp/deg << ", " << yh << ", " << bl 
-			 << ", " << tl << ", " << alp/deg;
+			 << ", " << alp/CLHEP::deg << ", " << yh << ", " << bl 
+			 << ", " << tl << ", " << alp/CLHEP::deg;
     glog = DDLogicalPart(solid.ddname(), matplastic, solid);
 
     DDTranslation r1(xpos, ypos, zpos);
@@ -761,10 +765,10 @@ void DDHCalEndcapAlgo::constructInsideModule0(DDLogicalPart module, int mod) {
 			       bl1, tl1, alp, yh2, bl2, tl2, alp);
   LogDebug("HCalGeom") << "DDHCalEndcapAlgo test: " << solid.name() 
 		       << " Trap made of " << getAbsMat() << " of dimensions " 
-		       << 0.5*getThick(mod) << ", " << theta/deg << ", " 
-		       << phi/deg << ", " << yh1 << ", " << bl1 << ", " 
-		       << tl1 << ", " << alp/deg << ", " << yh2 << ", " << bl2 
-		       << ", " << tl2 << ", " << alp/deg;
+		       << 0.5*getThick(mod) << ", " << theta/CLHEP::deg << ", "
+		       << phi/CLHEP::deg << ", " << yh1 << ", " << bl1 << ", " 
+		       << tl1 << ", " << alp/CLHEP::deg << ", " << yh2 << ", "
+		       << bl2 << ", " << tl2 << ", " << alp/CLHEP::deg;
   glog = DDLogicalPart(solid.ddname(), matabsorbr, solid);
 
   DDTranslation r2(xpos, ypos, zpos);
@@ -788,7 +792,7 @@ void DDHCalEndcapAlgo::constructInsideModule(DDLogicalPart module, int mod) {
   DDName plasName(DDSplit(getPlastMat()).first, DDSplit(getPlastMat()).second);
   DDMaterial matplastic(plasName);
 
-  double  alpha = pi/getNsectors();
+  double  alpha = CLHEP::pi/getNsectors();
   double  zi    = getZminBlock(mod);
 
   for (int i = 0; i < getLayerN(mod); i++) {
@@ -828,10 +832,10 @@ void DDHCalEndcapAlgo::constructInsideModule(DDLogicalPart module, int mod) {
       LogDebug("HCalGeom") << "DDHCalEndcapAlgo test: " << solid.name() 
 			   << " Trap made of " << getGenMat() 
 			   << " of dimensions " << 0.5*getThick(mod) << ", " 
-			   << theta/deg << ", " << phi/deg << ", " << yh1 
-			   << ", " << bl1 << ", " << tl1 << ", " << alp/deg 
-			   << ", " << yh2 << ", " << bl2 << ", " << tl2 << ", "
-			   << alp/deg;
+			   << theta/CLHEP::deg << ", " << phi/CLHEP::deg
+			   << ", " << yh1 << ", " << bl1 << ", " << tl1 << ", "
+			   << alp/CLHEP::deg << ", " << yh2 << ", " << bl2 
+			   << ", " << tl2 << ", " << alp/CLHEP::deg;
       glog = DDLogicalPart(solid.ddname(), matter, solid);
 
       DDTranslation r1(xpos, ypos, zpos);
@@ -852,8 +856,8 @@ void DDHCalEndcapAlgo::constructInsideModule(DDLogicalPart module, int mod) {
 			   << " Trap made of " << getPlastMat() 
 			   << " of dimensions " << 0.5*getLayerT(layer) 
 			   << ", 0, 0, " << yh << ", " << bl << ", " << tl
-			   << ", " << alp/deg << ", " << yh << ", " << bl 
-			   << ", " << tl << ", " << alp/deg;
+			   << ", " << alp/CLHEP::deg << ", " << yh << ", " 
+			   << bl << ", " << tl << ", " << alp/CLHEP::deg;
       plog = DDLogicalPart(solid.ddname(), matplastic, solid);
 
       ypos = 0.5*(routF+rinB) - xpos;
@@ -888,8 +892,8 @@ void DDHCalEndcapAlgo::constructScintLayer(DDLogicalPart detector, double dz,
   LogDebug("HCalGeom") << "DDHCalEndcapAlgo test: " << DDName(name,idNameSpace)
 		       << " Trap made of " << getScintMat() <<" of dimensions "
 		       << 0.5*dz << ", 0, 0, " << yh << ", "  << bl << ", " 
-		       << tl << ", " << alp/deg << ", " << yh << ", " << bl 
-		       << ", " << tl << ", " << alp/deg;
+		       << tl << ", " << alp/CLHEP::deg << ", " << yh << ", " 
+		       << bl << ", " << tl << ", " << alp/CLHEP::deg;
 
   DDLogicalPart glog(solid.ddname(), matter, solid); 
 

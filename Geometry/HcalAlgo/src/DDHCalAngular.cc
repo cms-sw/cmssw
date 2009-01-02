@@ -35,9 +35,10 @@ void DDHCalAngular::initialize(const DDNumericArguments & nArgs,
   startCopyNo = int (nArgs["startCopyNo"]);
   incrCopyNo  = int (nArgs["incrCopyNo"]);
   LogDebug("HCalGeom") << "DDHCalAngular debug: Parameters for positioning-- "
-		       << n << " copies in " << rangeAngle/deg << " from " 
-		       << startAngle/deg << "\tShifts " << shiftX << ", " 
-		       << shiftY << " along x, y axes; \tZoffest " << zoffset
+		       << n << " copies in " << rangeAngle/CLHEP::deg 
+		       << " from " << startAngle/CLHEP::deg << "\tShifts " 
+		       << shiftX << ", " << shiftY 
+		       << " along x, y axes; \tZoffest " << zoffset
 		       << "\tStart and inremental copy nos " << startCopyNo 
 		       << ", " << incrCopyNo;
 
@@ -58,7 +59,7 @@ void DDHCalAngular::execute() {
 
   for (int ii=0; ii<n; ii++) {
 
-    double phideg = phi/deg;
+    double phideg = phi/CLHEP::deg;
     int    iphi;
     if (phideg > 0) iphi = int(phideg+0.1);
     else            iphi = int(phideg-0.1);
@@ -76,8 +77,9 @@ void DDHCalAngular::execute() {
         LogDebug("HCalGeom") << "DDHCalAngular test: Creating a new rotation "
 			     << DDName(rotstr, idNameSpace) << "\t90, " 
 			     << phideg << ", 90, " << (phideg+90) << ", 0, 0";
-        rotation = DDrot(DDName(rotstr, rotns), 90*deg, phideg*deg, 
-                         90*deg, (90+phideg)*deg, 0*deg,  0*deg);
+        rotation = DDrot(DDName(rotstr, rotns), 90*CLHEP::deg, 
+			 phideg*CLHEP::deg, 90*CLHEP::deg, 
+			 (90+phideg)*CLHEP::deg, 0*CLHEP::deg,  0*CLHEP::deg);
       } 
     }
     

@@ -37,8 +37,8 @@ void DDHCalXtalAlgo::initialize(const DDNumericArguments & nArgs,
   LogDebug("HCalGeom") << "DDHCalXtalAlgo debug: Parameters for positioning:: "
 		       << "Axis " << iaxis << "\tRadius " << radius 
 		       << "\tOffset " << offset << "\tDx " << dx << "\tDz " 
-		       << dz << "\tAngWidth " << angwidth/deg << "\tNumbers " 
-		       << names.size();
+		       << dz << "\tAngWidth " << angwidth/CLHEP::deg 
+		       << "\tNumbers " << names.size();
   for (unsigned int i = 0; i < names.size(); i++)
     LogDebug("HCalGeom") << "\tnames[" << i << "] = " << names[i];
 
@@ -53,19 +53,19 @@ void DDHCalXtalAlgo::execute() {
 
   double theta[3], phi[3], pos[3];
   phi[0] = 0;
-  phi[1] = 90*deg;
-  theta[1-iaxis] = 90*deg;
+  phi[1] = 90*CLHEP::deg;
+  theta[1-iaxis] = 90*CLHEP::deg;
   pos[1-iaxis]   = 0;
   int number = (int)(names.size());
   for (int i=0; i<number; i++) {
     double angle = 0.5*angwidth*(2*i+1-number);
-    theta[iaxis] = 90*deg + angle;
+    theta[iaxis] = 90*CLHEP::deg + angle;
     if (angle>0) {
       theta[2]   = angle;
-      phi[2]     = 90*iaxis*deg;
+      phi[2]     = 90*iaxis*CLHEP::deg;
     } else {
       theta[2]   =-angle;
-      phi[2]     = 90*(2-3*iaxis)*deg;
+      phi[2]     = 90*(2-3*iaxis)*CLHEP::deg;
     }
     pos[iaxis]   = angle*(dz+radius);
     pos[2]       = dx*abs(sin(angle)) + offset;
@@ -75,12 +75,12 @@ void DDHCalXtalAlgo::execute() {
     DDTranslation tran(pos[0], pos[1], pos[2]);
     DDName parentName = parent().name(); 
 
-    if (abs(angle) > 0.01*deg) {
+    if (abs(angle) > 0.01*CLHEP::deg) {
       LogDebug("HCalGeom") << "DDHCalXtalAlgo test: Creating a new rotation " 
-			   << rotstr << "\t" << theta[0]/deg << "," 
-			   << phi[0]/deg << "," << theta[1]/deg << "," 
-			   << phi[1]/deg << "," << theta[2]/deg << "," 
-			   << phi[2]/deg;
+			   << rotstr << "\t" << theta[0]/CLHEP::deg << "," 
+			   << phi[0]/CLHEP::deg << "," << theta[1]/CLHEP::deg 
+			   << "," << phi[1]/CLHEP::deg << "," 
+			   << theta[2]/CLHEP::deg << ","  << phi[2]/CLHEP::deg;
       rotation = DDrot(DDName(rotstr, idNameSpace), theta[0], phi[0], theta[1],
 		       phi[1], theta[2], phi[2]);
     }

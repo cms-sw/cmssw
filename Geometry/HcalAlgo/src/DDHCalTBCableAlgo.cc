@@ -74,8 +74,8 @@ void DDHCalTBCableAlgo::execute() {
   LogDebug("HCalGeom") << "==>> Constructing DDHCalTBCableAlgo...";
   unsigned int i=0;
 
-  double alpha = pi/nsectors;
-  double dphi  = nsectortot*twopi/nsectors;
+  double alpha = CLHEP::pi/nsectors;
+  double dphi  = nsectortot*CLHEP::twopi/nsectors;
 
   double zstep0 = zoff[1]+rmax[1]*tan(theta[1])+(rin-rmax[1])*tan(theta[2]);
   double zstep1 = zstep0+thick/cos(theta[2]);
@@ -110,8 +110,9 @@ void DDHCalTBCableAlgo::execute() {
   LogDebug("HCalGeom") << "DDHCalTBCableAlgo test: " 
 		       << DDName(idName,idNameSpace) << " Polyhedra made of " 
 		       << genMat << " with " << nsectortot << " sectors from "
-		       << -alpha/deg << " to " << (-alpha+dphi)/deg 
-		       << " and with " << pgonZ.size() << " sections";
+		       << -alpha/CLHEP::deg << " to " 
+		       << (-alpha+dphi)/CLHEP::deg << " and with " 
+		       << pgonZ.size() << " sections";
   for (i = 0; i <pgonZ.size(); i++) 
     LogDebug("HCalGeom") << "\t\tZ = " << pgonZ[i] << "\tRmin = " 
 			 << pgonRmin[i] << "\tRmax = " << pgonRmax[i];
@@ -141,9 +142,9 @@ void DDHCalTBCableAlgo::execute() {
   name = idName + "Module";
   LogDebug("HCalGeom") << "DDHCalTBCableAlgo test: " 
 		       << DDName(name,idNameSpace) << " Polyhedra made of " 
-		       << genMat << " with 1 sector from " << -alpha/deg 
-		       << " to " << alpha/deg << " and with " << pgonZ.size() 
-		       << " sections";
+		       << genMat << " with 1 sector from " <<-alpha/CLHEP::deg 
+		       << " to " << alpha/CLHEP::deg << " and with " 
+		       << pgonZ.size() << " sections";
   for (i = 0; i < pgonZ.size(); i++) 
     LogDebug("HCalGeom") << "\t\tZ = " << pgonZ[i] << "\tRmin = " 
 			 << pgonRmin[i] << "\tRmax = " << pgonRmax[i];
@@ -154,7 +155,7 @@ void DDHCalTBCableAlgo::execute() {
   
   for (int ii=0; ii<nsectortot; ii++) {
     double phi    = ii*2*alpha;
-    double phideg = phi/deg;
+    double phideg = phi/CLHEP::deg;
     
     DDRotation rotation;
     string rotstr("NULL");
@@ -167,8 +168,9 @@ void DDHCalTBCableAlgo::execute() {
 	LogDebug("HCalGeom") << "DDHCalTBCableAlgo test: Creating a new "
 			     << "rotation " << rotstr << "\t90," << phideg 
 			     << ", 90, " << (phideg+90) << ", 0, 0";
-	rotation = DDrot(DDName(rotstr, idNameSpace), 90*deg, phideg*deg, 
-			 90*deg, (90+phideg)*deg, 0*deg,  0*deg);
+	rotation = DDrot(DDName(rotstr, idNameSpace), 90*CLHEP::deg, 
+			 phideg*CLHEP::deg, 90*CLHEP::deg, 
+			 (90+phideg)*CLHEP::deg, 0*CLHEP::deg,  0*CLHEP::deg);
       }
     } 
   
@@ -196,10 +198,10 @@ void DDHCalTBCableAlgo::execute() {
 
   string rotstr = name;
   LogDebug("HCalGeom") << "DDHCalTBCableAlgo test: Creating a new rotation: " 
-		       << rotstr << "\t90, 270, " << (180-theta[2]/deg) 
-		       << ", 0, " << (90-theta[2]/deg) << ", 0";
-  rot = DDrot(DDName(rotstr, idNameSpace), 90*deg, 270*deg, 
-	      180*deg-theta[2], 0*deg, 90*deg-theta[2], 0*deg);
+		       << rotstr << "\t90, 270, " << (180-theta[2]/CLHEP::deg) 
+		       << ", 0, " << (90-theta[2]/CLHEP::deg) << ", 0";
+  rot = DDrot(DDName(rotstr, idNameSpace), 90*CLHEP::deg, 270*CLHEP::deg, 
+	      180*CLHEP::deg-theta[2], 0, 90*CLHEP::deg-theta[2], 0);
   DDTranslation r1(0.5*(rinl+routl), 0, 0.5*(pgonZ[1]+pgonZ[2]));
   DDpos(glog, seclogic, 1, r1, rot);
   LogDebug("HCalGeom") << "DDHCalTBCableAlgo test: " << glog.name() 
@@ -222,10 +224,11 @@ void DDHCalTBCableAlgo::execute() {
 
   rotstr = idName + "Left";
   LogDebug("HCalGeom") << "DDHCalTBCableAlgo test: Creating a new rotation " 
-		       << rotstr << "\t"  << (90+phi/deg) << "," << 0  << "," 
-		       << 90 << "," << 90 << "," << phi/deg << "," << 0;
-  DDRotation rot2 = DDrot(DDName(rotstr, idNameSpace), 90*deg+phi, 0*deg, 
-			  90*deg, 90*deg, phi, 0*deg);
+		       << rotstr << "\t"  << (90+phi/CLHEP::deg) << "," << 0  
+		       << "," << 90 << "," << 90 << "," << phi/CLHEP::deg 
+		       << "," << 0;
+  DDRotation rot2 = DDrot(DDName(rotstr, idNameSpace), 90*CLHEP::deg+phi, 0.0, 
+			  90*CLHEP::deg, 90*CLHEP::deg, phi, 0.0);
   DDTranslation r2((xmid-0.5*width1*cos(phi)), 0, 0);
   DDpos(cablog1, glog, 1, r2, rot2);
   LogDebug("HCalGeom") << "DDHCalTBCableAlgo test: " << cablog1.name() 
@@ -234,10 +237,11 @@ void DDHCalTBCableAlgo::execute() {
 
   rotstr = idName + "Right";
   LogDebug("HCalGeom") << "DDHCalTBCableAlgo test: Creating a new rotation " 
-		       << rotstr << "\t"  << (90-phi/deg) << ", 0, 90, 90, " 
-		       << -phi/deg << ", 0";
-  DDRotation rot3 = DDrot(DDName(rotstr, idNameSpace), 90*deg-phi, 0*deg, 
-			  90*deg, 90*deg, -phi, 0*deg);
+		       << rotstr << "\t"  << (90-phi/CLHEP::deg) 
+		       << ", 0, 90, 90, " << -phi/CLHEP::deg << ", 0";
+  DDRotation rot3 = DDrot(DDName(rotstr, idNameSpace), 90*CLHEP::deg-phi, 
+			  0*CLHEP::deg, 90*CLHEP::deg, 90*CLHEP::deg,
+			  -phi, 0*CLHEP::deg);
   DDTranslation r3(-(xmid-0.5*width1*cos(phi)), 0, 0);
   DDpos(cablog1, glog, 2, r3, rot3);
   LogDebug("HCalGeom") << "DDHCalTBCableAlgo test: " << cablog1.name() 
