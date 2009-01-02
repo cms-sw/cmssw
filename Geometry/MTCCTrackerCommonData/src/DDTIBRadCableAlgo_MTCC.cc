@@ -108,12 +108,12 @@ void DDTIBRadCableAlgo_MTCC::execute() {
       rin   = layRin[i]+0.5*(deltaR-cylinderT)-supportDR;
       rout  = layRin[i]+0.5*(deltaR+cylinderT)+supportDR;
       solid = DDSolidFactory::tubs(DDName(name, idNameSpace), dz, rin, 
-				   rout, 0, twopi);
+				   rout, 0, CLHEP::twopi);
       LogDebug("TIBGeom") << "DDTIBRadCableAlgo_MTCC test: " 
 			  << DDName(name, idNameSpace) << " Tubs made of "
-			  << supportMat << " from 0 to " << twopi/deg 
-			  << " with Rin " << rin << " Rout " << rout 
-			  << " ZHalf " << dz;
+			  << supportMat << " from 0 to " 
+			  << CLHEP::twopi/CLHEP::deg << " with Rin " << rin 
+			  << " Rout " << rout << " ZHalf " << dz;
       DDLogicalPart suppLogic(DDName(name, idNameSpace), suppMatter, solid);
       
       DDTranslation r1(0, 0, (dz-diskDz));
@@ -129,12 +129,12 @@ void DDTIBRadCableAlgo_MTCC::execute() {
       if (i == 0) rin = rMin;
       else        rin = layRin[i-1]+0.5*(deltaR+cylinderT)+supportDR;
       solid = DDSolidFactory::tubs(DDName(name, idNameSpace), dz, rin, 
-				   rout, 0, twopi);
+				   rout, 0, CLHEP::twopi);
       LogDebug("TIBGeom") << "DDTIBRadCableAlgo_MTCC test: "
 			  << DDName(name, idNameSpace) << " Tubs made of " 
-			  << strucMat[i] << " from 0 to " << twopi/deg 
-			  << " with Rin " << rin << " Rout " << rout 
-			  << " ZHalf " << dz;
+			  << strucMat[i] << " from 0 to "
+			  << CLHEP::twopi/CLHEP::deg << " with Rin " << rin 
+			  << " Rout " << rout << " ZHalf " << dz;
       DDName strucName(DDSplit(strucMat[i]).first, DDSplit(strucMat[i]).second);
       DDMaterial strucMatter(strucName);
       DDLogicalPart strucLogic(DDName(name, idNameSpace), strucMatter, solid);
@@ -161,17 +161,17 @@ void DDTIBRadCableAlgo_MTCC::execute() {
       pgonRmax.push_back(rMax); 
       pgonRmax.push_back(rMax); 
       pgonRmax.push_back(rv); 
-      solid = DDSolidFactory::polycone(DDName(name, idNameSpace), 0, twopi,
-				       pgonZ, pgonRmin, pgonRmax);
+      solid = DDSolidFactory::polycone(DDName(name, idNameSpace), 0,
+				       CLHEP::twopi,pgonZ, pgonRmin, pgonRmax);
       LogDebug("TIBGeom") << "DDTIBRadCableAlgo_MTCC test: "
 			  << DDName(name, idNameSpace) 
 			  << " Polycone made of " << cableMat[i]
-			  << " from 0 to " << twopi/deg << " and with " 
-			  << pgonZ.size() << " sections";
+			  << " from 0 to " << CLHEP::twopi/CLHEP::deg 
+			  << " and with " << pgonZ.size() << " sections";
       for (unsigned int ii = 0; ii <pgonZ.size(); ii++) 
 	LogDebug("TIBGeom") << "\t" << "\tZ = " << pgonZ[ii] << "\tRmin = " 
 			    << pgonRmin[ii] << "\tRmax = " << pgonRmax[ii];
-      DDName cableName(DDSplit(cableMat[i]).first, DDSplit(cableMat[i]).second);
+      DDName cableName(DDSplit(cableMat[i]).first,DDSplit(cableMat[i]).second);
       LogDebug("TIBGeom") << " material cableName " << i << " " << cableName;
       DDMaterial cableMatter(cableName);
       DDLogicalPart cableLogic(DDName(name, idNameSpace), cableMatter, solid);
@@ -201,13 +201,13 @@ void DDTIBRadCableAlgo_MTCC::execute() {
       rout = rMax;
       name  = "TIBOpenZone" + dbl_to_string(i);
       solid = DDSolidFactory::tubs(DDName(name, idNameSpace), dz, rin, 
-				   rout, 0, twopi);
+				   rout, 0, CLHEP::twopi);
       LogDebug("TIBGeom") << "DDTIBRadCableAlgo_MTCC test: "
 			  << DDName(name, idNameSpace) << " Tubs made of "
-			  << strucMat[i] << " from 0 to " << twopi/deg
-			  << " with Rin " << rin << " Rout " << rout 
-			  << " ZHalf " << dz;
-      DDName strucName(DDSplit(strucMat[i]).first, DDSplit(strucMat[i]).second);
+			  << strucMat[i] << " from 0 to " 
+			  << CLHEP::twopi/CLHEP::deg << " with Rin " << rin 
+			  << " Rout " << rout << " ZHalf " << dz;
+      DDName strucName(DDSplit(strucMat[i]).first,DDSplit(strucMat[i]).second);
       DDMaterial strucMatter(strucName);
       DDLogicalPart strucLogic(DDName(name, idNameSpace), strucMatter, solid);
       

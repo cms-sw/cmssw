@@ -45,7 +45,7 @@ void DDTIBLayerAlgo_MTCC::initialize(const DDNumericArguments & nArgs,
   coolTubeW    = nArgs["CoolTubeWidth"];
   coolTubeT    = nArgs["CoolTubeThickness"];
   LogDebug("TIBGeom") << "DDTIBLayerAlgo_MTCC debug: Tilt Angle " 
-		      << detectorTilt/deg << " Layer Length/tolerance " 
+		      << detectorTilt/CLHEP::deg << " Layer Length/tolerance " 
 		      << layerL << " " << detectorTol
 		      << " Detector layer Width/Thick " << detectorW << ", " 
 		      << detectorT << " Cooling Tube/Cable layer Width/Thick " 
@@ -64,12 +64,12 @@ void DDTIBLayerAlgo_MTCC::initialize(const DDNumericArguments & nArgs,
   emptyCoolCableLo = sArgs["EmptyStringCabLoName"];
   roffCableLo  = nArgs["ROffsetCabLo"];
   LogDebug("TIBGeom") << "DDTIBLayerAlgo_MTCC debug: Lower layer Radius " 
-		      << radiusLo << " Phi offset " << phioffLo/deg << " min "
-		      << phiMinLo/deg << " max " << phiMaxLo/deg
-		      << " Number " << stringsLo << " String " << detectorLo 
-		      << " at offset " << roffDetLo << " String " 
-		      << coolCableLo << " at offset " << roffCableLo
-		      << " Strings filled: ";
+		      << radiusLo << " Phi offset " << phioffLo/CLHEP::deg 
+		      << " min " << phiMinLo/CLHEP::deg << " max " 
+		      << phiMaxLo/CLHEP::deg << " Number " << stringsLo 
+		      << " String " << detectorLo << " at offset " 
+		      << roffDetLo << " String " << coolCableLo <<" at offset "
+		      << roffCableLo << " Strings filled: ";
   for(unsigned int i=0; i<stringLoList.size(); i++) {
     LogDebug("TIBGeom") << "String " << i << " " << (int)stringLoList[i];
   }
@@ -90,12 +90,12 @@ void DDTIBLayerAlgo_MTCC::initialize(const DDNumericArguments & nArgs,
   emptyCoolCableUp = sArgs["EmptyStringCabUpName"];
   roffCableUp  = nArgs["ROffsetCabUp"];
   LogDebug("TIBGeom") << "DDTIBLayerAlgo_MTCC debug: Upper layer Radius " 
-		      << radiusUp << " Phi offset " << phioffUp/deg << " min "
-		      << phiMinUp/deg << " max " << phiMaxUp/deg
-		      << " Number " << stringsUp << " String " << detectorUp 
-		      << " at offset " << roffDetUp << " String " 
-		      << coolCableUp << " at offset " << roffCableUp
-		      << " Strings filled: ";
+		      << radiusUp << " Phi offset " << phioffUp/CLHEP::deg 
+		      << " min " << phiMinUp/CLHEP::deg << " max " 
+		      << phiMaxUp/CLHEP::deg << " Number " << stringsUp 
+		      << " String " << detectorUp << " at offset " << roffDetUp
+		      << " String " << coolCableUp << " at offset " 
+		      << roffCableUp << " Strings filled: ";
   for(unsigned int i=0; i<stringUpList.size(); i++) {
     LogDebug("TIBGeom") << "String " << i << " " << (int)stringUpList[i];
   }
@@ -119,7 +119,7 @@ void DDTIBLayerAlgo_MTCC::initialize(const DDNumericArguments & nArgs,
 		      << ribW.size() << " positions with width/phi";
   for (unsigned int i = 0; i < ribW.size(); i++)
     LogDebug("TIBGeom") << "Rib " <<  i << " " <<  ribW[i] << " " 
-			<< ribPhi[i]/deg;
+			<< ribPhi[i]/CLHEP::deg;
   
   dohmN               = int(nArgs["DOHMPhiNumber"]);
   dohmCarrierW        = nArgs["DOHMCarrierWidth"];
@@ -186,11 +186,12 @@ void DDTIBLayerAlgo_MTCC::execute() {
   double rmax = sqrt((radiusUp+roffDetUp+redgd1)*(radiusUp+roffDetUp+redgd1)+
 		     redgd2*redgd2) + detectorTol;
   DDSolid solid = DDSolidFactory::tubs(DDName(idName, idNameSpace), 0.5*layerL,
-				       rmin, rmax, 0, twopi);
+				       rmin, rmax, 0, CLHEP::twopi);
   LogDebug("TIBGeom") << "DDTIBLayerAlgo_MTCC test: " 
 		      << DDName(idName,idNameSpace) << " Tubs made of " 
-		      << genMat << " from 0 to " << twopi/deg << " with Rin "
-		      << rmin << " Rout " << rmax << " ZHalf " << 0.5*layerL;
+		      << genMat << " from 0 to " << CLHEP::twopi/CLHEP::deg 
+		      << " with Rin " << rmin << " Rout " << rmax << " ZHalf "
+		      << 0.5*layerL;
   DDName matname(DDSplit(genMat).first, DDSplit(genMat).second);
   DDMaterial matter(matname);
   DDLogicalPart layer(solid.ddname(), matter, solid);
@@ -200,11 +201,12 @@ void DDTIBLayerAlgo_MTCC::execute() {
   double rout = 0.5*(radiusLo+radiusUp-cylinderT);
   std::string name = idName + "Down";
   solid = DDSolidFactory::tubs(DDName(name, idNameSpace), 0.5*layerL,
-			       rin, rout, 0, twopi);
+			       rin, rout, 0, CLHEP::twopi);
   LogDebug("TIBGeom") << "DDTIBLayerAlgo_MTCC test: "
 		      << DDName(name, idNameSpace) << " Tubs made of " 
-		      << genMat << " from 0 to " << twopi/deg << " with Rin " 
-		      << rin << " Rout " << rout << " ZHalf " << 0.5*layerL;
+		      << genMat << " from 0 to " << CLHEP::twopi/CLHEP::deg 
+		      << " with Rin " << rin << " Rout " << rout << " ZHalf " 
+		      << 0.5*layerL;
   DDLogicalPart layerIn(solid.ddname(), matter, solid);
   DDpos (layerIn, layer, 1, DDTranslation(0.0, 0.0, 0.0), DDRotation());
   LogDebug("TIBGeom") << "DDTIBLayerAlgo_MTCC test: " << layerIn.name() 
@@ -213,24 +215,25 @@ void DDTIBLayerAlgo_MTCC::execute() {
   
   double rposdet = radiusLo + roffDetLo;
   double rposcab = rposdet + roffCableLo;
-  double dphi    = twopi/stringsLo;
+  double dphi    = CLHEP::twopi/stringsLo;
   DDName detIn(DDSplit(detectorLo).first, DDSplit(detectorLo).second);
   DDName cabIn(DDSplit(coolCableLo).first, DDSplit(coolCableLo).second);
   for (int n = 0; n < stringsLo; n++) {
     double phi    = phioffLo + n*dphi;
     if( phi>=phiMinLo && phi<phiMaxLo ) { // phi range
-      double phix   = phi - detectorTilt + 90*deg;
-      double phideg = phix/deg;
+      double phix   = phi - detectorTilt + 90*CLHEP::deg;
+      double phideg = phix/CLHEP::deg;
       DDRotation rotation;
       if (phideg != 0) {
-	double theta  = 90*deg;
-	double phiy   = phix + 90.*deg;
+	double theta  = 90*CLHEP::deg;
+	double phiy   = phix + 90.*CLHEP::deg;
 	std::string rotstr = idName + dbl_to_string(phideg*10.);
 	rotation = DDRotation(DDName(rotstr, idNameSpace));
 	if (!rotation) {
 	  LogDebug("TIBGeom") << "DDTIBLayer_MTCC test: Creating a new "
 			      << "rotation: " << rotstr << "\t90., " 
-			      << phix/deg << ", 90.," << phiy/deg << ", 0, 0";
+			      << phix/CLHEP::deg << ", 90.," 
+			      << phiy/CLHEP::deg << ", 0, 0";
 	  rotation = DDrot(DDName(rotstr, idNameSpace), theta,phix, theta,phiy,
 			   0., 0.);
 	}
@@ -287,11 +290,12 @@ void DDTIBLayerAlgo_MTCC::execute() {
   rout = rmax;
   name = idName + "Up";
   solid = DDSolidFactory::tubs(DDName(name, idNameSpace), 0.5*layerL,
-			       rin, rout, 0, twopi);
+			       rin, rout, 0, CLHEP::twopi);
   LogDebug("TIBGeom") << "DDTIBLayerAlgo_MTCC test: " 
 		      << DDName(name, idNameSpace) << " Tubs made of " 
-		      << genMat << " from 0 to " << twopi/deg << " with Rin "
-		      << rin << " Rout " << rout << " ZHalf " << 0.5*layerL;
+		      << genMat << " from 0 to " << CLHEP::twopi/CLHEP::deg 
+		      << " with Rin " << rin << " Rout " << rout << " ZHalf " 
+		      << 0.5*layerL;
   DDLogicalPart layerOut(solid.ddname(), matter, solid);
   DDpos (layerOut, layer, 1, DDTranslation(0.0, 0.0, 0.0), DDRotation());
   LogDebug("TIBGeom") << "DDTIBLayerAlgo_MTCC test: " << layerOut.name() 
@@ -300,24 +304,25 @@ void DDTIBLayerAlgo_MTCC::execute() {
   
   rposdet = radiusUp + roffDetUp;
   rposcab = rposdet + roffCableUp;
-  dphi    = twopi/stringsUp;
+  dphi    = CLHEP::twopi/stringsUp;
   DDName detOut(DDSplit(detectorUp).first, DDSplit(detectorUp).second);
   DDName cabOut(DDSplit(coolCableUp).first, DDSplit(coolCableUp).second);
   for (int n = 0; n < stringsUp; n++) {
     double phi    = phioffUp + n*dphi;
     if( phi>=phiMinUp && phi<phiMaxUp ) { // phi range
-      double phix   = phi - detectorTilt - 90*deg;
-      double phideg = phix/deg;
+      double phix   = phi - detectorTilt - 90*CLHEP::deg;
+      double phideg = phix/CLHEP::deg;
       DDRotation rotation;
       if (phideg != 0) {
-	double theta  = 90*deg;
-	double phiy   = phix + 90.*deg;
+	double theta  = 90*CLHEP::deg;
+	double phiy   = phix + 90.*CLHEP::deg;
 	std::string rotstr = idName + dbl_to_string(phideg*10.);
 	rotation = DDRotation(DDName(rotstr, idNameSpace));
 	if (!rotation) {
 	  LogDebug("TIBGeom") << "DDTIBLayer_MTCC test: Creating a new "
 			      << "rotation: " << rotstr << "\t90., " 
-			      << phix/deg << ", 90.," << phiy/deg << ", 0, 0";
+			      << phix/CLHEP::deg << ", 90.," 
+			      << phiy/CLHEP::deg << ", 0, 0";
 	  rotation = DDrot(DDName(rotstr, idNameSpace), theta,phix, theta,phiy,
 			   0., 0.);
 	}
@@ -381,8 +386,8 @@ void DDTIBLayerAlgo_MTCC::execute() {
 			       rin, rout, phiMin, phidiff);
   LogDebug("TIBGeom") << "DDTIBLayerAlgo_MTCC test: " 
 		      << DDName(name, idNameSpace) << " Tubs made of " 
-		      << cylinderMat << " from " << phiMin/deg << " to "
-		      << (phiMin+phidiff)/deg << " with Rin " << rin 
+		      << cylinderMat << " from " << phiMin/CLHEP::deg << " to "
+		      << (phiMin+phidiff)/CLHEP::deg << " with Rin " << rin 
 		      << " Rout " << rout << " ZHalf " << 0.25*layerL;
   matname = DDName(DDSplit(cylinderMat).first, DDSplit(cylinderMat).second);
   DDMaterial matcyl(matname);
@@ -398,9 +403,10 @@ void DDTIBLayerAlgo_MTCC::execute() {
 			       rin, rout, phiMin, phidiff);
   LogDebug("TIBGeom") << "DDTIBLayerAlgo_MTCC test: " 
 		      << DDName(name, idNameSpace) << " Tubs made of " 
-		      << genMat << " from " << phiMin/deg << " to " 
-		      << (phiMin+phidiff)/deg << phidiff/deg << " with Rin " 
-		      << rin << " Rout " << rout << " ZHalf " << 0.5*layerL;
+		      << genMat << " from " << phiMin/CLHEP::deg << " to " 
+		      << (phiMin+phidiff)/CLHEP::deg << phidiff/CLHEP::deg 
+		      << " with Rin " << rin << " Rout " << rout << " ZHalf " 
+		      << 0.5*layerL;
   DDLogicalPart cylinderIn(solid.ddname(), matter, solid);
   DDpos (cylinderIn, cylinder, 1, DDTranslation(0.0, 0.0, -0.25*layerL), DDRotation());
   LogDebug("TIBGeom") << "DDTIBLayerAlgo_MTCC test: " << cylinderIn.name() 
@@ -411,8 +417,8 @@ void DDTIBLayerAlgo_MTCC::execute() {
 			       rin, rout, phiMin, phidiff);
   LogDebug("TIBGeom") << "DDTIBLayerAlgo_MTCC test: " 
 		      << DDName(name, idNameSpace) << " Tubs made of " 
-		      << genMat << " from " << phiMin/deg << " to " 
-		      << (phiMin+phidiff)/deg << " with Rin " << rin 
+		      << genMat << " from " << phiMin/CLHEP::deg << " to " 
+		      << (phiMin+phidiff)/CLHEP::deg << " with Rin " << rin 
 		      << " Rout " << rout << " ZHalf " << 0.5*supportW;
   matname = DDName(DDSplit(supportMat).first, DDSplit(supportMat).second);
   DDMaterial matsup(matname);
@@ -431,23 +437,24 @@ void DDTIBLayerAlgo_MTCC::execute() {
 				 -0.5*width, width);
     LogDebug("TIBGeom") << "DDTIBLayerAlgo_MTCC test: " 
 			<< DDName(name, idNameSpace) << " Tubs made of " 
-			<< ribMat << " from " << -0.5*width/deg
-			<< " to " << 0.5*width/deg << " with Rin " << rin 
-			<< " Rout " << rout << " ZHalf "  << dz;
+			<< ribMat << " from " << -0.5*width/CLHEP::deg
+			<< " to " << 0.5*width/CLHEP::deg << " with Rin " 
+			<< rin << " Rout " << rout << " ZHalf "  << dz;
     DDLogicalPart cylinderRib(solid.ddname(), matrib, solid);
     double phix   = ribPhi[i];
-    double phideg = phix/deg;
-    if( phideg>=phiMin/deg && phideg<phiMax/deg ) { // phi range
+    double phideg = phix/CLHEP::deg;
+    if( phideg>=phiMin/CLHEP::deg && phideg<phiMax/CLHEP::deg ) { // phi range
       DDRotation rotation;
       if (phideg != 0) {
-	double theta  = 90*deg;
-	double phiy   = phix + 90.*deg;
+	double theta  = 90*CLHEP::deg;
+	double phiy   = phix + 90.*CLHEP::deg;
 	std::string rotstr = idName + dbl_to_string(phideg*10.);
 	rotation = DDRotation(DDName(rotstr, idNameSpace));
 	if (!rotation) {
 	  LogDebug("TIBGeom") << "DDTIBLayer_MTCC test: Creating a new "
 			      << "rotation: " << rotstr << "\t90., " 
-			      << phix/deg << ", 90.," << phiy/deg << ", 0, 0";
+			      << phix/CLHEP::deg << ", 90.," 
+			      << phiy/CLHEP::deg << ", 0, 0";
 	  rotation = DDrot(DDName(rotstr, idNameSpace), theta,phix, theta,phiy,
 			   0., 0.);
 	}
@@ -463,7 +470,7 @@ void DDTIBLayerAlgo_MTCC::execute() {
   
   // DOHM + carrier (portadohm)
   double dz_dohm    = 0.5*dohmCarrierW;
-  double dphi_dohm  = twopi/((double)dohmN);
+  double dphi_dohm  = CLHEP::twopi/((double)dohmN);
   double rout_dohm  = 0.5*(radiusLo+radiusUp+cylinderT)+dohmCarrierR;
   
   // DOHM Carrier TIB+ & TIB-
@@ -477,8 +484,8 @@ void DDTIBLayerAlgo_MTCC::execute() {
   LogDebug("TIBGeom") << "DDTIBLayerAlgo_MTCC test: " 
 		      << DDName(name, idNameSpace) << " Tubs made of " 
 		      << dohmCarrierMaterial << " from " 
-		      << -0.5*(dphi_dohm)/deg << " to " 
-		      << -0.5*(dphi_dohm)/deg+dphi_dohm/deg << " with Rin " 
+		      << -0.5*(dphi_dohm)/CLHEP::deg << " to " 
+		      << +0.5*(dphi_dohm)/CLHEP::deg << " with Rin " 
 		      << rin_lo << " Rout " << rout_lo << " ZHalf "  
 		      << dz_dohm;
   // create different name objects for only PRIMary DOHMs and PRIMary+AUXiliary DOHM Carriers
@@ -500,8 +507,8 @@ void DDTIBLayerAlgo_MTCC::execute() {
   LogDebug("TIBGeom") << "DDTIBLayerAlgo_MTCC test: " 
 		      << DDName(name, idNameSpace) << " Tubs made of " 
 		      << dohmCarrierMaterial << " from " 
-		      << -0.5*(dphi_dohm)/deg << " to " 
-		      << -0.5*(dphi_dohm)/deg+dphi_dohm/deg << " with Rin " 
+		      << -0.5*(dphi_dohm)/CLHEP::deg << " to " 
+		      << +0.5*(dphi_dohm)/CLHEP::deg << " with Rin " 
 		      << rin_up << " Rout " << rout_up << " ZHalf "
 		      << dz_dohm;
   // create different name objects for only PRIMary DOHMs and PRIMary+AUXiliary DOHM Carriers
@@ -549,18 +556,19 @@ void DDTIBLayerAlgo_MTCC::execute() {
     
     if(prim) {
       double phix   = ((double)i+0.5)*dphi_dohm;
-      double phideg = phix/deg;
-      //    if( phideg>=phiMin/deg && phideg<phiMax/deg ) { // phi range
+      double phideg = phix/CLHEP::deg;
+      //    if( phideg>=phiMin/CLHEP::deg && phideg<phiMax/CLHEP::deg ) { // phi range
       DDRotation rotation;
       if (phideg != 0) {
-	double theta  = 90*deg;
-	double phiy   = phix + 90.*deg;
+	double theta  = 90*CLHEP::deg;
+	double phiy   = phix + 90.*CLHEP::deg;
 	std::string rotstr = idName + dbl_to_string(phideg*10.);
 	rotation = DDRotation(DDName(rotstr, idNameSpace));
 	if (!rotation) {
 	  LogDebug("TIBGeom") << "DDTIBLayer_MTCC test: Creating a new "
 			      << "rotation: " << rotstr << "\t90., " 
-			      << phix/deg << ", 90.," << phiy/deg << ", 0, 0";
+			      << phix/CLHEP::deg << ", 90.," 
+			      << phiy/CLHEP::deg << ", 0, 0";
 	  rotation = DDrot(DDName(rotstr, idNameSpace), theta,phix, theta,phiy,
 			   0., 0.);
 	}
