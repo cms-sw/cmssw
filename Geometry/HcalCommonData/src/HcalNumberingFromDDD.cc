@@ -30,7 +30,7 @@ HcalNumberingFromDDD::~HcalNumberingFromDDD() {
 }
 
 HcalNumberingFromDDD::HcalID HcalNumberingFromDDD::unitID(int det,
-							  Hep3Vector point,
+							  CLHEP::Hep3Vector point,
 							  int depth,
 							  int lay) const {
 
@@ -136,10 +136,10 @@ HcalNumberingFromDDD::HcalID HcalNumberingFromDDD::unitID(int det,
     fibin = phibin[ieta-1];
   }
 
-  int    nphi  = int((twopi+0.1*fibin)/fibin);
+  int    nphi  = int((CLHEP::twopi+0.1*fibin)/fibin);
   int    zside = etaR>0 ? 1: 0;
   double hphi  = phi+fioff;
-  if (hphi < 0)    hphi += twopi;
+  if (hphi < 0)    hphi += CLHEP::twopi;
   int    iphi  = int(hphi/fibin) + 1;
   if (iphi > nphi) iphi = 1;
 
@@ -629,7 +629,7 @@ void HcalNumberingFromDDD::loadSpecPars(DDFilteredView fv) {
     phioff[i] = tmp1[i];
 #ifdef DebugLog
     LogDebug("HCalGeom") << "HcalNumberingFromDDD: phioff[" << i << "] = "
-			 << phioff[i]/deg;
+			 << phioff[i]/CLHEP::deg;
 #endif
   }
 
@@ -653,7 +653,7 @@ void HcalNumberingFromDDD::loadSpecPars(DDFilteredView fv) {
     rTable[i] = tmp3[i];
 #ifdef DebugLog
     LogDebug("HCalGeom") << "HcalNumberingFromDDD: rTable[" << i << "] = "
-			 << rTable[i]/cm;
+			 << rTable[i]/CLHEP::cm;
 #endif
   }
 
@@ -665,7 +665,7 @@ void HcalNumberingFromDDD::loadSpecPars(DDFilteredView fv) {
     phibin[i] = tmp4[i];
 #ifdef DebugLog
     LogDebug("HCalGeom") << "HcalNumberingFromDDD: phibin[" << i << "] = "
-			 << phibin[i]/deg;
+			 << phibin[i]/CLHEP::deg;
 #endif
   }
 
