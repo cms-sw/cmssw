@@ -5,7 +5,7 @@
 #include "IOMC/NtupleConverter/interface/NtupleROOTFile.h"
 #include "IOMC/NtupleConverter/interface/H2RootNtplSource.h"
 #include "IOMC/NtupleConverter/interface/Ntuple2HepMCFiller.h"
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <iostream>

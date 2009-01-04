@@ -1,17 +1,11 @@
 <use name=boost>
 <use name=FWCore/Framework>
 <use name=FWCore/Sources>
-<use name=SimDataFormats/HepMCProduct>
+<use name=SimDataFormats/GeneratorProducts>
 <use name=hepmc>
 <use name=root> 
 <flags EDM_PLUGIN=1>
 <export>
  <lib name=IOMCNtupleConverter>
- <use name=boost>
- <use name=FWCore/Framework>
- <use name=FWCore/Sources>
- <use name=SimDataFormats/HepMCProduct>
- <use name=hepmc>  
- <use name=root> 
 </export>
 
