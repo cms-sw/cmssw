@@ -12,6 +12,7 @@ namespace edm {
     setRefCoreStreamer(0, true);
     branchPtr_->SetAddress(&pInfoVector_);
     input::getEntry(branchPtr_, entryNumber_);
+    setRefCoreStreamer(true);
     BranchMapperWithReader<EventEntryInfo> * me = const_cast<BranchMapperWithReader<EventEntryInfo> *>(this);
     for (std::vector<EventEntryInfo>::const_iterator it = infoVector_.begin(), itEnd = infoVector_.end();
       it != itEnd; ++it) {
@@ -29,9 +30,7 @@ namespace edm {
   BranchMapperWithReader<EventEntryInfo>::oldProductIDToBranchID_(ProductID const& oldProductID) const {
     std::map<unsigned int, BranchID>::const_iterator it = oldProductIDToBranchIDMap_.find(oldProductID.oldID());    
     if (it == oldProductIDToBranchIDMap_.end()) {
-      throw edm::Exception(errors::LogicError)
-        << "Internal error:  Old ProductID not found by oldProductIDToBranchID_.\n"
-        << "Please report this error to the Framework group\n";
+      return BranchID();
     }
     return it->second;
   }

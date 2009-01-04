@@ -6,6 +6,7 @@
 #include "TTreeCloner.h"
 #include "Rtypes.h"
 
+#include "DataFormats/Common/interface/RefCoreStreamer.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -80,6 +81,7 @@ namespace edm {
     if (tree->GetNbranches() != 0) {
       tree->SetEntries(-1);
     }
+    setRefCoreStreamer(true);
     tree->AutoSave();
   }
 
