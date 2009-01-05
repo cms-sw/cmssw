@@ -3,8 +3,8 @@
  *  an empty MCHepEvent will be generated (needed by OscarProducer). The actual simulation of 
  *  the laser beams is done in the SimWatcher attached to OscarProducer
  *
- *  $Date: 2007/03/26 07:58:56 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/12/04 23:53:06 $
+ *  $Revision: 1.4 $
  *  \author Maarten Thomas
  */
 // system include files
@@ -14,7 +14,7 @@
 #include "Alignment/LaserAlignmentSimulation/plugins/LaserAlignmentSource.h"
 #include "FWCore/Framework/interface/InputSourceMacros.h" 
 
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 //
 // constructors and destructor

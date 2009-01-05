@@ -6,9 +6,5 @@
 <use name=clhep>
 <use name=geant4>
 <export>
-  <use name=FWCore/ParameterSet>
-  <use name=SimG4Core/Notification>
-  <use name=clhep>
-  <use name=geant4>
   <lib name=AlignmentLaserAlignmentSimulation>
 </export>

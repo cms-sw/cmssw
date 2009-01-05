@@ -1,7 +1,6 @@
 <use name=FWCore/ParameterSet>
 <use name=FWCore/Framework>
 <use name=FWCore/MessageLogger>
-<use name=seal>
 <use name=geant4>
 <use name=clhep>
 <use name=boost>
@@ -31,7 +30,7 @@
 
 <library file=LaserAlignmentSource.cc>
  <lib name=AlignmentLaserAlignmentSimulation>
- <use name=SimDataFormats/HepMCProduct>
+ <use name=SimDataFormats/GeneratorProducts>
  <use name=FWCore/Framework>
  <use name=FWCore/ParameterSet>
  <use name=clhep>
