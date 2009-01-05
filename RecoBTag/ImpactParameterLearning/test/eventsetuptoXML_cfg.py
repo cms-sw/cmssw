@@ -18,11 +18,20 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("analyzer")
-#include "Configuration/StandardSequences/data/FakeConditions.cff"
 #
-# include only needed conditions by TrackProbability
+# one of the two
+#
+
+# 1 - frontier
+#
+#process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cfi")
+#process.GlobalTag.globaltag = "IDEAL_V5::All"
+
+# 2 - file    ---  edit the replace only if you do NOT want to use the default
 #
 process.load("RecoBTag.TrackProbability.trackProbabilityFakeCond_cfi")
+#process.trackProbabilityFakeCond.connect = "sqlite_fip:RecoBTag/ImpactParameterLearning/test/btagnew_new.db"
+
 
 #untracked PSet maxEvents = {untracked int32 input = 100}
 # Message Logger
