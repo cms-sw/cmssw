@@ -19,7 +19,7 @@ process.load("RecoBTag.TrackProbability.trackProbabilityFakeCond_cfi")
 # 3 - file    ---  edit the file position
 #
 #process.load("RecoBTag.TrackProbability.trackProbabilityFakeCond_cfi")
-process.trackProbabilityFakeCond.connect = "sqlite_fip:RecoBTag/ImpactParameterLearning/test/btagnew_new.db"
+#process.trackProbabilityFakeCond.connect = "sqlite_fip:RecoBTag/ImpactParameterLearning/test/btagnew_new.db"
 
 # Message Logger
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
