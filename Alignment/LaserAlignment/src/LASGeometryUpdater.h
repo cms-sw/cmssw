@@ -17,7 +17,7 @@ class LASGeometryUpdater {
   
  public:
   LASGeometryUpdater( LASGlobalData<LASCoordinateSet>& );
-  void EndcapUpdate( LASEndcapAlignmentParameterSet&, LASGlobalData<LASCoordinateSet>&, AlignableTracker& );
+  void EndcapUpdate( LASEndcapAlignmentParameterSet&, LASGlobalData<LASCoordinateSet>& );
   void TrackerUpdate( LASEndcapAlignmentParameterSet&, LASBarrelAlignmentParameterSet&, AlignableTracker& );
 
  private:

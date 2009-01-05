@@ -1,8 +1,8 @@
 /** \file LaserAlignment.cc
  *  LAS reconstruction module
  *
- *  $Date: 2008/12/15 09:07:09 $
- *  $Revision: 1.29 $
+ *  $Date: 2008/12/29 17:09:45 $
+ *  $Revision: 1.30 $
  *  \author Maarten Thomas
  *  \author Jan Olzem
  */
@@ -719,7 +719,7 @@ void LaserAlignment::endJob() {
 
     // do a pre-alignment of the endcaps (TEC2TEC only)
     // so that the alignment tube algorithms finds orderly disks
-    geometryUpdater.EndcapUpdate( endcapParameters, measuredCoordinates, *theAlignableTracker );
+    geometryUpdater.EndcapUpdate( endcapParameters, measuredCoordinates );
 
     // run the alignment tube algorithm (analytical)
     LASAlignmentTubeAlgorithm alignmentTubeAlgorithm;
