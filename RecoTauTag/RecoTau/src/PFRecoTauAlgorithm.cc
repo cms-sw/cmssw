@@ -42,30 +42,29 @@ PFRecoTauAlgorithm::PFRecoTauAlgorithm(const ParameterSet& iConfig) : TransientT
   HCALIsolConeSize_min_               = iConfig.getParameter<double>("HCALIsolConeSize_min");
   HCALIsolConeSize_max_               = iConfig.getParameter<double>("HCALIsolConeSize_max");
   
-  AreaMetric_recoElements_maxabsEta_  = iConfig.getParameter<double>("AreaMetric_recoElements_maxabsEta");
+  AreaMetric_recoElements_maxabsEta_    = iConfig.getParameter<double>("AreaMetric_recoElements_maxabsEta");
   ChargedHadrCand_IsolAnnulus_minNhits_ = iConfig.getParameter<uint32_t>("ChargedHadrCand_IsolAnnulus_minNhits");
   Track_IsolAnnulus_minNhits_           = iConfig.getParameter<uint32_t>("Track_IsolAnnulus_minNhits");
 
-  ElecPreIDLeadTkMatch_maxDR_ = iConfig.getParameter<double>("ElecPreIDLeadTkMatch_maxDR");
-  EcalStripSumE_minClusEnergy_ = iConfig.getParameter<double>("EcalStripSumE_minClusEnergy");
-  EcalStripSumE_deltaEta_ = iConfig.getParameter<double>("EcalStripSumE_deltaEta");
+  ElecPreIDLeadTkMatch_maxDR_           = iConfig.getParameter<double>("ElecPreIDLeadTkMatch_maxDR");
+  EcalStripSumE_minClusEnergy_          = iConfig.getParameter<double>("EcalStripSumE_minClusEnergy");
+  EcalStripSumE_deltaEta_               = iConfig.getParameter<double>("EcalStripSumE_deltaEta");
   EcalStripSumE_deltaPhiOverQ_minValue_ = iConfig.getParameter<double>("EcalStripSumE_deltaPhiOverQ_minValue");
   EcalStripSumE_deltaPhiOverQ_maxValue_ = iConfig.getParameter<double>("EcalStripSumE_deltaPhiOverQ_maxValue");
 
   DataType_ = iConfig.getParameter<string>("DataType");
 
   //TFormula computation
-
-   myMatchingConeSizeTFormula=TauTagTools::computeConeSizeTFormula(MatchingConeSizeFormula_,"Matching cone size");
-  //Charged particels cones
-  myTrackerSignalConeSizeTFormula=TauTagTools::computeConeSizeTFormula(TrackerSignalConeSizeFormula_,"Tracker signal cone size");
-  myTrackerIsolConeSizeTFormula=TauTagTools::computeConeSizeTFormula(TrackerIsolConeSizeFormula_,"Tracker isolation cone size");
+  myMatchingConeSizeTFormula      = TauTagTools::computeConeSizeTFormula(MatchingConeSizeFormula_,"Matching cone size");
+  //Charged particles cones
+  myTrackerSignalConeSizeTFormula = TauTagTools::computeConeSizeTFormula(TrackerSignalConeSizeFormula_,"Tracker signal cone size");
+  myTrackerIsolConeSizeTFormula   = TauTagTools::computeConeSizeTFormula(TrackerIsolConeSizeFormula_,"Tracker isolation cone size");
   //Gamma candidates cones
-  myECALSignalConeSizeTFormula=TauTagTools::computeConeSizeTFormula(ECALSignalConeSizeFormula_,"ECAL signal cone size");
-  myECALIsolConeSizeTFormula=TauTagTools::computeConeSizeTFormula(ECALIsolConeSizeFormula_,"ECAL isolation cone size");
+  myECALSignalConeSizeTFormula    = TauTagTools::computeConeSizeTFormula(ECALSignalConeSizeFormula_,"ECAL signal cone size");
+  myECALIsolConeSizeTFormula      = TauTagTools::computeConeSizeTFormula(ECALIsolConeSizeFormula_,"ECAL isolation cone size");
   //Neutral hadrons cones
-  myHCALSignalConeSizeTFormula=TauTagTools::computeConeSizeTFormula(HCALSignalConeSizeFormula_,"HCAL signal cone size");
-  myHCALIsolConeSizeTFormula=TauTagTools::computeConeSizeTFormula(HCALIsolConeSizeFormula_,"HCAL isolation cone size");
+  myHCALSignalConeSizeTFormula    = TauTagTools::computeConeSizeTFormula(HCALSignalConeSizeFormula_,"HCAL signal cone size");
+  myHCALIsolConeSizeTFormula      = TauTagTools::computeConeSizeTFormula(HCALIsolConeSizeFormula_,"HCAL isolation cone size");
  
 
 }
@@ -133,16 +132,27 @@ PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef,co
     //Compute energy of the PFTau considering only inner constituents (inner == pfcandidates inside a cone which is equal to the maximum value of the signal cone)
     PFCandidateRefVector myTmpPFCandsInSignalCone = myPFTauElementsOperators.PFCandsInCone((*myleadPFCand).momentum(),TrackerSignalConeMetric_,TrackerSignalConeSize_max_,0.5);
     math::XYZTLorentzVector tmpLorentzVect(0.,0.,0.,0.);
-    for (PFCandidateRefVector::const_iterator iCand=myTmpPFCandsInSignalCone.begin();iCand!=myTmpPFCandsInSignalCone.end();iCand++) tmpLorentzVect+=(**iCand).p4();
+
+    double jetOpeningAngle = 0.0;
+    for (PFCandidateRefVector::const_iterator iCand = myTmpPFCandsInSignalCone.begin(); iCand != myTmpPFCandsInSignalCone.end(); iCand++) 
+    {
+       //find the maximum opening angle of the jet (now a parameter in available TFormulas)
+       double deltaRToSeed = TauTagTools::computeDeltaR(myleadPFCand->momentum(), (**iCand).momentum());
+       if (deltaRToSeed > jetOpeningAngle)
+          jetOpeningAngle = deltaRToSeed;
+
+       tmpLorentzVect+=(**iCand).p4();
+    }
+
     double energy = tmpLorentzVect.energy();
     double transverseEnergy = tmpLorentzVect.pt();
     //    Taking  signal and isolation cone sizes
-    double myTrackerSignalConeSize=myPFTauElementsOperators.computeConeSize(myTrackerSignalConeSizeTFormula,TrackerSignalConeSize_min_,TrackerSignalConeSize_max_,transverseEnergy, energy);
-    double myTrackerIsolConeSize=myPFTauElementsOperators.computeConeSize(myTrackerIsolConeSizeTFormula,TrackerIsolConeSize_min_,TrackerIsolConeSize_max_,transverseEnergy, energy);     	
-    double myECALSignalConeSize=myPFTauElementsOperators.computeConeSize(myECALSignalConeSizeTFormula,ECALSignalConeSize_min_,ECALSignalConeSize_max_,transverseEnergy, energy);
-    double myECALIsolConeSize=myPFTauElementsOperators.computeConeSize(myECALIsolConeSizeTFormula,ECALIsolConeSize_min_,ECALIsolConeSize_max_,transverseEnergy, energy);     	
-    double myHCALSignalConeSize=myPFTauElementsOperators.computeConeSize(myHCALSignalConeSizeTFormula,HCALSignalConeSize_min_,HCALSignalConeSize_max_,transverseEnergy, energy);
-    double myHCALIsolConeSize=myPFTauElementsOperators.computeConeSize(myHCALIsolConeSizeTFormula,HCALIsolConeSize_min_,HCALIsolConeSize_max_,transverseEnergy, energy);     	
+    double myTrackerSignalConeSize = myPFTauElementsOperators.computeConeSize(myTrackerSignalConeSizeTFormula , TrackerSignalConeSize_min_ , TrackerSignalConeSize_max_ , transverseEnergy , energy, jetOpeningAngle);
+    double myTrackerIsolConeSize   = myPFTauElementsOperators.computeConeSize(myTrackerIsolConeSizeTFormula   , TrackerIsolConeSize_min_   , TrackerIsolConeSize_max_   , transverseEnergy , energy, jetOpeningAngle);
+    double myECALSignalConeSize    = myPFTauElementsOperators.computeConeSize(myECALSignalConeSizeTFormula    , ECALSignalConeSize_min_    , ECALSignalConeSize_max_    , transverseEnergy , energy, jetOpeningAngle);
+    double myECALIsolConeSize      = myPFTauElementsOperators.computeConeSize(myECALIsolConeSizeTFormula      , ECALIsolConeSize_min_      , ECALIsolConeSize_max_      , transverseEnergy , energy, jetOpeningAngle);
+    double myHCALSignalConeSize    = myPFTauElementsOperators.computeConeSize(myHCALSignalConeSizeTFormula    , HCALSignalConeSize_min_    , HCALSignalConeSize_max_    , transverseEnergy , energy, jetOpeningAngle);
+    double myHCALIsolConeSize      = myPFTauElementsOperators.computeConeSize(myHCALIsolConeSizeTFormula      , HCALIsolConeSize_min_      , HCALIsolConeSize_max_      , transverseEnergy , energy, jetOpeningAngle);
     
     //Taking signal PFCandidates
     PFCandidateRefVector mySignalPFChargedHadrCands,mySignalPFNeutrHadrCands,mySignalPFGammaCands,mySignalPFCands;
@@ -318,7 +328,7 @@ PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef,co
 
 
 //From RECO
- if(DataType_ == "RECO"){
+if(DataType_ == "RECO"){
    
    // Against double counting of clusters
    std::vector<math::XYZPoint> hcalPosV; hcalPosV.clear();

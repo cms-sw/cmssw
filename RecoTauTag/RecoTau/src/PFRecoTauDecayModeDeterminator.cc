@@ -20,10 +20,12 @@ PFRecoTauDecayModeDeterminator::~PFRecoTauDecayModeDeterminator()
 //   delete vertexFitter_;  //now a very small memory leak, fix me later
 }
 
-/* ******************************************************************
+
+/* 
+ * ******************************************************************
    **     Merges a list of photons in to Pi0 candidates            **
    ******************************************************************
-*/
+ */
 void PFRecoTauDecayModeDeterminator::mergePiZeroes(compCandList& input, compCandRevIter seed)
 {
    //uses std::list instead of vector, so that iterators can be deleted in situ
@@ -101,23 +103,48 @@ void PFRecoTauDecayModeDeterminator::produce(Event& iEvent,const EventSetup& iSe
      const PFCandidateRefVector& theChargedHadronCandidates = myPFTau.signalPFChargedHadrCands();
      const PFCandidateRefVector& theGammaCandidates         = myPFTau.signalPFGammaCands();
 
-     LorentzVector totalFourVector;
+     LorentzVector totalFourVector;                       //contains non-filtered stuff only.
 
      //shallow clone everything
      vector<ShallowCloneCandidate>    chargedCandidates;
      list<CompositeCandidate>         gammaCandidates;
-     VertexCompositeCandidate chargedCandsToAdd;  //move me if wanted for filter
+     VertexCompositeCandidate         chargedCandsToAdd;  
+     CompositeCandidate               filteredStuff;      //empty for now.
 
-     for( PFCandidateRefVector::const_iterator iCharged  = theChargedHadronCandidates.begin();
-                                               iCharged != theChargedHadronCandidates.end();
-                                             ++iCharged)
+     bool needToProcessTracks = true;
+     if (filterTwoProngs_ && theChargedHadronCandidates.size() == 2)
      {
-        // copy as shallow clone, and asssume mass of pi+
-        chargedCandsToAdd.addDaughter(ShallowCloneCandidate(CandidateBaseRef(*iCharged)));
-        Candidate* justAdded = chargedCandsToAdd.daughter(chargedCandsToAdd.numberOfDaughters()-1);
-        totalFourVector += justAdded->p4();
-        justAdded->setMass(chargedPionMass);
+        size_t indexOfHighestPt = (theChargedHadronCandidates[0]->pt() > theChargedHadronCandidates[1]->pt()) ? 0 : 1;
+        size_t indexOfLowerPt   = ( indexOfHighestPt ) ? 0 : 1; 
+        //maybe include a like signed requirement?? (future)
+        double highPt = theChargedHadronCandidates[indexOfHighestPt]->pt();
+        double lowPt  = theChargedHadronCandidates[indexOfLowerPt]->pt();
+        if (lowPt/highPt < minPtFractionForSecondProng_)  //if it is super low, filter it!
+        {
+           needToProcessTracks = false;  //we are doing it here instead
+           chargedCandsToAdd.addDaughter(ShallowCloneCandidate(CandidateBaseRef(theChargedHadronCandidates[indexOfHighestPt])));
+           Candidate* justAdded = chargedCandsToAdd.daughter(chargedCandsToAdd.numberOfDaughters()-1);
+           totalFourVector += justAdded->p4();
+           justAdded->setMass(chargedPionMass);
+           //add the two prong to the list of filtered stuff (to be added to the isolation collection later)
+           filteredStuff.addDaughter(ShallowCloneCandidate(CandidateBaseRef(theChargedHadronCandidates[indexOfLowerPt])));
+        }
      }
+
+     if(needToProcessTracks) //not a two prong, filter is turned off, or 2nd prong passes cuts
+     {
+        for( PFCandidateRefVector::const_iterator iCharged  = theChargedHadronCandidates.begin();
+              iCharged != theChargedHadronCandidates.end();
+              ++iCharged)
+        {
+           // copy as shallow clone, and asssume mass of pi+
+           chargedCandsToAdd.addDaughter(ShallowCloneCandidate(CandidateBaseRef(*iCharged)));
+           Candidate* justAdded = chargedCandsToAdd.daughter(chargedCandsToAdd.numberOfDaughters()-1);
+           totalFourVector += justAdded->p4();
+           justAdded->setMass(chargedPionMass);
+        }
+     }
+
      for( PFCandidateRefVector::const_iterator iGamma  = theGammaCandidates.begin();
                                                iGamma != theGammaCandidates.end();
                                              ++iGamma)
@@ -145,9 +172,6 @@ void PFRecoTauDecayModeDeterminator::produce(Event& iEvent,const EventSetup& iSe
         iGamma->setMass(neutralPionMass);
         mergedPiZerosToAdd.addDaughter(*iGamma);
      }
-     addP4.set(mergedPiZerosToAdd);
-
-     CompositeCandidate filteredStuff; //empty for now.
 
      // apply vertex fitting.
      if (refitTracks_ && chargedCandsToAdd.numberOfDaughters() > 1)
@@ -156,7 +180,10 @@ void PFRecoTauDecayModeDeterminator::produce(Event& iEvent,const EventSetup& iSe
         vertexFitter_->set(chargedCandsToAdd);  //refits tracks, adds vertexing info
      }
 
+     // correctly set the four vectors of the composite candidates
      addP4.set(chargedCandsToAdd);
+     addP4.set(mergedPiZerosToAdd);
+     addP4.set(filteredStuff);
 
      /*
      LorentzVector refitFourVector = chargedCandsToAdd.p4() + mergedPiZerosToAdd.p4();

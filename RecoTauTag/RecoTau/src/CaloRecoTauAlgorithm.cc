@@ -130,7 +130,7 @@ CaloTau CaloRecoTauAlgorithm::buildCaloTau(Event& iEvent,const EventSetup& iSetu
 
 
     double myTrackerSignalConeSize=myCaloTauElementsOperators.computeConeSize(myTrackerSignalConeSizeTFormula,TrackerSignalConeSize_min_,TrackerSignalConeSize_max_);
-        double myTrackerIsolConeSize=myCaloTauElementsOperators.computeConeSize(myTrackerIsolConeSizeTFormula,TrackerIsolConeSize_min_,TrackerIsolConeSize_max_);     	
+    double myTrackerIsolConeSize=myCaloTauElementsOperators.computeConeSize(myTrackerIsolConeSizeTFormula,TrackerIsolConeSize_min_,TrackerIsolConeSize_max_);     	
     double myECALSignalConeSize=myCaloTauElementsOperators.computeConeSize(myECALSignalConeSizeTFormula,ECALSignalConeSize_min_,ECALSignalConeSize_max_);
     double myECALIsolConeSize=myCaloTauElementsOperators.computeConeSize(myECALIsolConeSizeTFormula,ECALIsolConeSize_min_,ECALIsolConeSize_max_);     	
 
