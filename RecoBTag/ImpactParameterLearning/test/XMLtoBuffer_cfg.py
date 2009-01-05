@@ -54,11 +54,11 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     connect = cms.string('sqlite_file:btagnew_new.db'),
     toPut = cms.VPSet(cms.PSet(
         record = cms.string('BTagTrackProbability2DRcd'),
-        tag = cms.string('probBTagPDF2D_tag')
+        tag = cms.string('probBTagPDF2D_tag_mc')
     ), 
         cms.PSet(
             record = cms.string('BTagTrackProbability3DRcd'),
-            tag = cms.string('probBTagPDF3D_tag')
+            tag = cms.string('probBTagPDF3D_tag_mc')
         ))
 )
 
