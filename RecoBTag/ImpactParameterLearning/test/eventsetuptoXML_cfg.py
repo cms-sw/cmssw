@@ -1,19 +1,3 @@
-# The following comments couldn't be translated into the new config version:
-
-#! /bin/env cmsRun
-
-#include "CondCore/DBCommon/data/CondDBCommon.cfi"
-#replace CondDBCommon.connect = "sqlite_file:btagnew.db"
-#replace CondDBCommon.catalog = "file:mycatalog.xml"
-#        es_source = PoolDBESSource {
-#                                  using CondDBCommon
-#                                 VPSet toGet = {
-#                                   {string record = "BTagTrackProbability2DRcd"
-#                                     string tag = "probBTagPDF2D_tag"    },
-#                                   {string record = "BTagTrackProbability3DRcd"
-#                                     string tag = "probBTagPDF3D_tag"    }
-#                                    }
-#                                   }
 
 import FWCore.ParameterSet.Config as cms
 
@@ -29,13 +13,13 @@ process = cms.Process("analyzer")
 
 # 2 - fake
 #
-#process.load("RecoBTag.TrackProbability.trackProbabilityFakeCond_cfi")
+process.load("RecoBTag.TrackProbability.trackProbabilityFakeCond_cfi")
 
 
 # 3 - file    ---  edit the file position
 #
-process.load("RecoBTag.TrackProbability.trackProbabilityFakeCond_cfi")
-process.trackProbabilityFakeCond.connect = "sqlite_fip:RecoBTag/ImpactParameterLearning/test/btagnew_new_JANDREA.db"
+#process.load("RecoBTag.TrackProbability.trackProbabilityFakeCond_cfi")
+process.trackProbabilityFakeCond.connect = "sqlite_fip:RecoBTag/ImpactParameterLearning/test/btagnew_new.db"
 
 # Message Logger
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
@@ -48,7 +32,7 @@ process.source = cms.Source("EmptySource",
 )
 
 process.ipCalib = cms.EDFilter("ImpactParameterCalibration",
-    writeToDB = cms.bool(False),
+    writeToDB = cms.bool(True),
     writeToBinary = cms.bool(False),
     nBins = cms.int32(10000),
     resetHistograms = cms.bool(False),
@@ -71,11 +55,11 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     connect = cms.string('sqlite_file:btagnew_new.db'),
     toPut = cms.VPSet(cms.PSet(
         record = cms.string('BTagTrackProbability2DRcd'),
-        tag = cms.string('probBTagPDF2D_tag')
+        tag = cms.string('probBTagPDF2D_tag_mc')
     ), 
         cms.PSet(
             record = cms.string('BTagTrackProbability3DRcd'),
-            tag = cms.string('probBTagPDF3D_tag')
+            tag = cms.string('probBTagPDF3D_tag_mc')
         ))
 )
 
