@@ -120,7 +120,7 @@ int CosmicMuonLinksProducer::sharedHits(const reco::Track& track1, const reco::T
   for (trackingRecHit_iterator hit1 = track1.recHitsBegin(); hit1 != track1.recHitsEnd(); ++hit1) {
     if ( !(*hit1)->isValid() ) continue;
     DetId id1 = (*hit1)->geographicalId();
-
+    if ( id1.det() != DetId::Muon ) continue; //ONLY MUON
     LogTrace(category_)<<"first ID "<<id1.rawId()<<" "<<(*hit1)->localPosition()<<endl;
     GlobalPoint pos1 = theService->trackingGeometry()->idToDet(id1)->surface().toGlobal((*hit1)->localPosition());
 
@@ -129,8 +129,9 @@ int CosmicMuonLinksProducer::sharedHits(const reco::Track& track1, const reco::T
           if ( !(*hit2)->isValid() ) continue;
 
           DetId id2 = (*hit2)->geographicalId();
+          if ( id2.det() != DetId::Muon ) continue; //ONLY MUON
 
-          LogTrace(category_)<<"second ID "<<id2.rawId()<< (*hit2)->localPosition()<<endl;
+//          LogTrace(category_)<<"second ID "<<id2.rawId()<< (*hit2)->localPosition()<<endl;
 
           if (id2.rawId() != id1.rawId() ) continue;
 
