@@ -95,6 +95,63 @@ PiZeroPt::doComputation(PFTauDiscriminantManager* input, vector<double>& result)
 }
 
 void
+FilteredObjectPt::doComputation(PFTauDiscriminantManager* input, vector<double>& result)
+{
+   const reco::PFTauDecayMode* theDecayMode = input->getDecayMode();
+   if (!theDecayMode)
+      return;
+
+   const vector<const reco::Candidate*> theFilteredObjects = theDecayMode->filteredObjectCandidates();
+
+   for(vector<const reco::Candidate*>::const_iterator iObject  = theFilteredObjects.begin();
+                                                      iObject != theFilteredObjects.end();
+                                                    ++iObject)
+   {
+      const reco::Candidate* currentObject = *iObject;
+      result.push_back(currentObject->pt());
+   }
+}
+
+void
+GammaOccupancy::doComputation(PFTauDiscriminantManager* input, vector<double>& result)
+{
+   const vector<const reco::Candidate*>& theSignalObjects = input->signalObjectsSortedByPt();
+
+   for(vector<const reco::Candidate*>::const_iterator iObject  = theSignalObjects.begin();
+         iObject != theSignalObjects.end();
+         ++iObject)
+   {
+      const reco::Candidate* currentObject = *iObject;
+      if (!currentObject->charge())
+         result.push_back(input->getLeafDaughters(currentObject).size());
+   }
+}
+
+void
+GammaPt::doComputation(PFTauDiscriminantManager* input, vector<double>& result)
+{
+   const vector<const reco::Candidate*>& theSignalObjects = input->signalObjectsSortedByPt();
+
+   for(vector<const reco::Candidate*>::const_iterator iObject  = theSignalObjects.begin();
+         iObject != theSignalObjects.end();
+         ++iObject)
+   {
+      const reco::Candidate* currentObject = *iObject;
+      if (!currentObject->charge())
+      {
+         vector<const reco::Candidate*> daughters = input->getLeafDaughters(currentObject);
+         for(vector<const reco::Candidate*>::const_iterator iDaughter  = daughters.begin();
+                                                            iDaughter != daughters.end();
+                                                          ++iDaughter)
+         {
+            result.push_back((*iDaughter)->pt());
+         }
+      }
+   }
+}
+
+
+void
 TrackAngle::doComputation(PFTauDiscriminantManager* input, vector<double>& result)
 {
    const vector<const reco::Candidate*>& theSignalObjects = input->signalObjectsSortedByPt();
@@ -280,8 +337,4 @@ NeutralOutlierAngle::doComputation(PFTauDiscriminantManager* input, vector<doubl
 
 
 }
-
-
-
-
 

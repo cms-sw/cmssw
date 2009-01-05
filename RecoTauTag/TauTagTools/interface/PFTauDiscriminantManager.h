@@ -52,6 +52,9 @@ class PFTauDiscriminantManager {
       const vector<const reco::Candidate*>& outlierObjectsSortedByPt();
       const vector<const reco::Candidate*>& outlierObjectsSortedByDR();
 
+      /// return the lowest level constituent candidates of a composite candidate
+      static vector<const reco::Candidate*> getLeafDaughters(const reco::Candidate* input);
+
       /// 
       candPtrVector                         filterByCharge(const candPtrVector& input, bool isCharged) const;
 

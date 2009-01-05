@@ -42,8 +42,6 @@ namespace TauTagTools{
   TFormula computeConeSizeTFormula(const string& ConeSizeFormula,const char* errorMessage);
   void replaceSubStr(string& s,const string& oldSubStr,const string& newSubStr); 
 
-
-
   double computeDeltaR(const math::XYZVector& vec1, const math::XYZVector& vec2);
   double computeAngle(const math::XYZVector& vec1, const math::XYZVector& vec2);
   //binary predicate classes for sorting a list of indexes corresponding to PFRefVectors...(as they can't use STL??)

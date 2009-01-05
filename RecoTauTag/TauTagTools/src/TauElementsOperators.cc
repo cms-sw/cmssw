@@ -12,15 +12,16 @@ double TauElementsOperators::computeConeSize(const TFormula& ConeSizeTFormula,do
   if (ConeSize>ConeSizeMax)ConeSize=ConeSizeMax;
   return ConeSize;
 }
-double TauElementsOperators::computeConeSize(const TFormula& ConeSizeTFormula,double ConeSizeMin,double ConeSizeMax, double transverseEnergy, double energy){
-  double y=transverseEnergy;
-  double x=energy;
 
-  double ConeSize=ConeSizeTFormula.Eval(x,y);
+double TauElementsOperators::computeConeSize(const TFormula& ConeSizeTFormula,double ConeSizeMin,double ConeSizeMax, double transverseEnergy, double energy, double jetOpeningAngle){
+  double ConeSize=ConeSizeTFormula.Eval(energy, transverseEnergy, jetOpeningAngle);
   if (ConeSize<ConeSizeMin)ConeSize=ConeSizeMin;
   if (ConeSize>ConeSizeMax)ConeSize=ConeSizeMax;
   return ConeSize;
 }
+
+/*
+ * DEPRECATED????
 TFormula  TauElementsOperators::computeConeSizeTFormula(const string& ConeSizeFormula,const char* errorMessage){
   //--- check functional form 
   //    given as configuration parameter for matching and signal cone sizes;
@@ -42,6 +43,7 @@ TFormula  TauElementsOperators::computeConeSizeTFormula(const string& ConeSizeFo
 			     << " and Functions that are supported by ROOT's TFormular Class." << endl;
   }else return ConeSizeTFormula;
 }
+*/
 
 
 

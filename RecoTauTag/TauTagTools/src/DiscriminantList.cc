@@ -26,6 +26,9 @@ DiscriminantList::DiscriminantList()
    theDiscriminants_.push_back(new NeutralOutlierPt()      ); 
    theDiscriminants_.push_back(new NeutralOutlierAngle()   ); 
    theDiscriminants_.push_back(new OutlierNCharged()       ); 
+   theDiscriminants_.push_back(new GammaOccupancy()        );
+   theDiscriminants_.push_back(new GammaPt()               );
+   theDiscriminants_.push_back(new FilteredObjectPt()      );
 }
 
 //cleanup on destruction

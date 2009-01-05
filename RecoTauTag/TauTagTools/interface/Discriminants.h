@@ -97,6 +97,34 @@ class PiZeroPt : public DiscriminantBase<double> {
       void doComputation(PFTauDiscriminantManager* input, vector<double>& result);
 };
 
+// any objects in the PFTauDecayMode that were moved filtered
+class FilteredObjectPt : public DiscriminantBase<double> {
+   public:
+      FilteredObjectPt():DiscriminantBase<double>("FilteredObjectPt", "vector<double>", false, true, 0.0){};
+      ~FilteredObjectPt(){};
+   protected:
+      void doComputation(PFTauDiscriminantManager* input, vector<double>& result);
+};
+
+//  Matches to PiZeroPt, each element gives the corresponding # of photons in each PiZero
+class GammaOccupancy : public DiscriminantBase<double> {
+   public:
+      GammaOccupancy():DiscriminantBase<double>("GammaOccupancy", "vector<double>", false, true, 0.0){}
+      ~GammaOccupancy(){};
+   protected:
+      void doComputation(PFTauDiscriminantManager* input, vector<double>& result);
+};
+
+// In same order as PiZeroPt.  Can be matched to PiZeros using PiZeroPt and GammaOccupancy
+class GammaPt : public DiscriminantBase<double> {
+   public:
+      GammaPt():DiscriminantBase<double>("GammaPt", "vector<double>", false, true, 0.0){}
+      ~GammaPt(){};
+   protected:
+      void doComputation(PFTauDiscriminantManager* input, vector<double>& result);
+};
+
+
 class TrackAngle : public DiscriminantBase<double> {
    public:
       TrackAngle():DiscriminantBase<double>("TrackAngle", "vector<double>", false, true, 0.0){};

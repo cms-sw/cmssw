@@ -17,12 +17,14 @@ TFormula computeConeSizeTFormula(const string& ConeSizeFormula,const char* error
   //    given as configuration parameter for matching and signal cone sizes;
   //
   //    The size of a cone may depend on the energy "E" and/or transverse energy "ET" of the tau-jet candidate.
+  //    Alternatively one can additionally use "JetOpeningDR", which specifies the opening angle of the seed jet.
   //    Any functional form that is supported by ROOT's TFormula class can be used (e.g. "3.0/E", "0.25/sqrt(ET)")
   //
   //    replace "E"  by TFormula variable "x"
   //            "ET"                      "y"
   TFormula ConeSizeTFormula;
   string ConeSizeFormulaStr = ConeSizeFormula;
+  replaceSubStr(ConeSizeFormulaStr,"JetOpeningDR", "z");
   replaceSubStr(ConeSizeFormulaStr,"ET","y");
   replaceSubStr(ConeSizeFormulaStr,"E","x");
   ConeSizeTFormula.SetName("ConeSize");
