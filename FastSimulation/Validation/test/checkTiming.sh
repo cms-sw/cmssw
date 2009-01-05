@@ -7,7 +7,7 @@ echo 'process.load("FWCore/MessageService/MessageLogger_cfi")' >> IntegrationTes
 echo 'process.MessageLogger.destinations = cms.untracked.vstring("pyDetailedInfo.txt")' >> IntegrationTestWithHLTWithTiming_cfg.py 
 
 #run and measure total fime
-#/usr/bin/time -o timefrac -f'%P' oval run cmsRun.runWithTiming
+/usr/bin/time -o timefrac -f'%P' oval run cmsRun.runWithTiming
 rm IntegrationTestWithHLTWithTiming_cfg.py
 
 # extract timing info
