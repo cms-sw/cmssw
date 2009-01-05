@@ -2,7 +2,7 @@
 // Author:  Jan Heyninck
 // Created: Tue Apr  3 17:33:23 PDT 2007
 //
-// $Id: TtSemiLRJetCombObservables.cc,v 1.10 2008/07/24 10:38:55 rwolf Exp $
+// $Id: TtSemiLRJetCombObservables.cc,v 1.11 2008/12/18 21:19:52 rwolf Exp $
 //
 #include "TopQuarkAnalysis/TopJetCombination/interface/TtSemiLRJetCombObservables.h"
 #include "PhysicsTools/Utilities/interface/deltaR.h"
@@ -80,27 +80,27 @@ TtSemiLRJetCombObservables::operator() (TtSemiEvtSolution &solution, const edm::
       matchLepn = (drLepn < 0.3);
 
       // Match the hadronic b by deltaR
-      drHadb = DeltaR<pat::Particle, reco::GenParticle>()(solution.getRecHadb(), *(solution.getGenHadb()));
+      drHadb = DeltaR<pat::Jet, reco::GenParticle>()(solution.getRecHadb(), *(solution.getGenHadb()));
       matchHadb = (drHadb < 0.3);
 
       // Match the hadronicleptonic b by deltaR
-      drLepb = DeltaR<pat::Particle, reco::GenParticle>()(solution.getRecLepb(), *(solution.getGenLepb()));
+      drLepb = DeltaR<pat::Jet, reco::GenParticle>()(solution.getRecLepb(), *(solution.getGenLepb()));
       matchLepb = (drLepb < 0.3);
 
       // Match the hadronic p by deltaR
-      drHadp = DeltaR<pat::Particle, reco::GenParticle>()(solution.getRecHadp(), *(solution.getGenHadp()));
+      drHadp = DeltaR<pat::Jet, reco::GenParticle>()(solution.getRecHadp(), *(solution.getGenHadp()));
       matchHadp = (drHadp < 0.3);
       
       // Match the hadronic pq by deltaR
-      drHadpq = DeltaR<pat::Particle, reco::GenParticle>()(solution.getRecHadp(), *(solution.getGenHadq()));
+      drHadpq = DeltaR<pat::Jet, reco::GenParticle>()(solution.getRecHadp(), *(solution.getGenHadq()));
       matchHadpq = (drHadpq < 0.3);
     
       // Match the hadronic q by deltaR
-      drHadq = DeltaR<pat::Particle, reco::GenParticle>()(solution.getRecHadq(), *(solution.getGenHadq()));
+      drHadq = DeltaR<pat::Jet, reco::GenParticle>()(solution.getRecHadq(), *(solution.getGenHadq()));
       matchHadq = (drHadq < 0.3);      
 
       // Match the hadronic qp by deltaR
-      drHadqp = DeltaR<pat::Particle, reco::GenParticle>()(solution.getRecHadq(), *(solution.getGenHadp()));
+      drHadqp = DeltaR<pat::Jet, reco::GenParticle>()(solution.getRecHadq(), *(solution.getGenHadp()));
       matchHadqp = (drHadqp < 0.3);  
 
       // Match the hadronic W by deltaR
