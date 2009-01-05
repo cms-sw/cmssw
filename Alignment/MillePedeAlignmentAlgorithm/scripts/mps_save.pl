@@ -1,8 +1,8 @@
-#!/usr/local/bin/perl
+#!/usr/bin/env perl
 #     R. Mankel, DESY Hamburg     11-Oct-2007
 #     A. Parenti, DESY Hamburg    16-Apr-2008
-#     $Revision: 1.7 $
-#     $Date: 2008/07/29 15:37:46 $
+#     $Revision: 1.8 $
+#     $Date: 2008/07/29 17:10:40 $
 #
 #  Save output from jobs that have FETCH status
 #  
@@ -71,23 +71,17 @@ if (@JOBSTATUS[$i] eq "FETCH"
   $dirPrefix = "jobData/@JOBDIR[$i]/";
 
   @FILENAMES = ("treeFile_merge.root","histograms_merge.root","millePedeMonitor_merge.root",
-		"alignment_merge.py","alignment.log",
-		"alignment.log.gz","millepede.log","millepede.log.gz",
-		"millepede.res","millepede.his","pede.dump",
+		"alignment_merge.py","alignment.log*","millepede.log*",
+		"millepede.res","millepede.his*[^~]","pede.dump*",
 		"alignments_MP.db");
 
   while ($theFile = shift @FILENAMES) {
     $copyFile = $dirPrefix.$theFile;
-    if (-r $copyFile) {
-      print "cp -p $copyFile $saveDir/\n";
-      system "cp -p $copyFile $saveDir/";
-      $retcode = $? >> 8;
-      if ($retcode) {
+    print "cp -p $copyFile $saveDir/\n";
+    system "cp -p $copyFile $saveDir/";
+    $retcode = $? >> 8;
+    if ($retcode) {
 	print "Copy of $copyFile failed, retcode=$retcode\n";
-      }
-    }
-    else {
-      print "$copyFile unreadable or not existing\n";
     }
   }
 
