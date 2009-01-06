@@ -209,6 +209,12 @@ TrajectoryManager::reconstruct()
     while ( cyliter != _theGeometry->cylinderEnd() &&
 	    loop<100 &&                            // No more than 100 loops
 	    mySimEvent->track(fsimi).notYetToEndVertex(PP.vertex())) { // The particle decayed
+
+      // Skip layers with no material (kept just for historical reasons)
+      if ( cyliter->surface().mediumProperties()->radLen() < 1E-10 ) { 
+	++cyliter; ++cyl;
+	continue;
+      }
       
       // Pathological cases:
       // To prevent from interacting twice in a row with the same layer
