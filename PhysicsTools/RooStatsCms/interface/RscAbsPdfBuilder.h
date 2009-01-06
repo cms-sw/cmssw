@@ -204,7 +204,7 @@ bin/model_html.exe macros/examples/example_qqhtt.rsc qqhtt
 
 You could also produce the combined model of the H to ZZ to 4 leptons with the 
 \e TDR_HZZ_card_maker.py script in the scripts directory (see the 
-\link datacard Datacards section).
+\link datacard \endlink Datacards section).
 
 \subsubsection PL Profile Likelihood
 Now, after the warm up is time for a statistical method. Let's try to produce 
