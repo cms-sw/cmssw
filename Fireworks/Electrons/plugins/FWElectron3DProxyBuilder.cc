@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Dec  2 14:17:03 EST 2008
-// $Id: FWElectron3DProxyBuilder.cc,v 1.1 2008/12/02 21:11:52 chrjones Exp $
+// $Id: FWElectron3DProxyBuilder.cc,v 1.1 2008/12/04 15:26:01 dmytro Exp $
 //
 
 // system include files
@@ -24,7 +24,8 @@
 #include "TEveTrackPropagator.h"
 #include "Fireworks/Core/interface/FWEvePtr.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
-#include "Fireworks/Core/interface/prepareTrack.h"
+#include "Fireworks/Candidates/interface/prepareSimpleTrack.h"
+#include "Fireworks/Tracks/interface/prepareTrack.h"
 #include "Fireworks/Core/src/CmsShowMain.h"
 #include "TEveTrack.h"
 

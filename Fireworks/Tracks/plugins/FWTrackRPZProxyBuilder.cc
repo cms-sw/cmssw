@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Nov 25 14:42:13 EST 2008
-// $Id$
+// $Id: FWTrackRPZProxyBuilder.cc,v 1.1 2008/11/26 02:16:40 chrjones Exp $
 //
 
 // system include files
@@ -26,7 +26,7 @@
 
 #include "Fireworks/Core/src/CmsShowMain.h"
 
-#include "Fireworks/Core/interface/prepareTrack.h"
+#include "Fireworks/Tracks/interface/prepareTrack.h"
 
 class FWTrackRPZProxyBuilder : public FWRPZSimpleProxyBuilderTemplate<reco::Track> {
       

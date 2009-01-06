@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Dec  5 09:54:40 EST 2008
-// $Id$
+// $Id: FWCandidateRPZProxyBuilder.cc,v 1.1 2008/12/05 19:51:27 chrjones Exp $
 //
 
 // system include files
@@ -20,7 +20,7 @@
 #include "Fireworks/Core/interface/FWRPZSimpleProxyBuilderTemplate.h"
 #include "Fireworks/Core/interface/FWEvePtr.h"
 #include "Fireworks/Core/src/CmsShowMain.h"
-#include "Fireworks/Core/interface/prepareTrack.h"
+#include "Fireworks/Candidates/interface/prepareSimpleTrack.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 
 class FWCandidateRPZProxyBuilder : public FWRPZSimpleProxyBuilderTemplate<reco::Candidate>  {

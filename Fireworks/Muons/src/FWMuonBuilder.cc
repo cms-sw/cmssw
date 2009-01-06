@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Nov 19 16:12:27 EST 2008
-// $Id: FWMuonBuilder.cc,v 1.3 2008/12/05 01:50:35 chrjones Exp $
+// $Id: FWMuonBuilder.cc,v 1.4 2008/12/11 20:55:03 dmytro Exp $
 //
 
 // system include files
@@ -30,7 +30,7 @@
 
 #include "Fireworks/Muons/interface/FWMuonBuilder.h"
 
-#include "Fireworks/Core/interface/prepareTrack.h"
+#include "Fireworks/Tracks/interface/prepareTrack.h"
 
 
 //
