@@ -22,33 +22,35 @@ process.source = cms.Source(
     # untracked vstring fileNames = {'/store/unmerged/RelVal/2006/9/24/RelVal101Z-EE/GEN-SIM-DIGI-RECO/0005/0AC156B5-094C-DB11-A4D3-000E0C4D2475.root'}
     # untracked uint32 skipEvents = 476
     fileNames = cms.untracked.vstring(
-        'rfio:/castor/cern.ch/user/p/pjanot/CMSSW170pre12/SingleParticlePID-11-pT35/SingleParticlePID-11-pT35_0.root', 
-        'rfio:/castor/cern.ch/user/p/pjanot/CMSSW170pre12/SingleParticlePID-11-pT35/SingleParticlePID-11-pT35_1.root', 
-        'rfio:/castor/cern.ch/user/p/pjanot/CMSSW170pre12/SingleParticlePID-11-pT35/SingleParticlePID-11-pT35_2.root', 
-        'rfio:/castor/cern.ch/user/p/pjanot/CMSSW170pre12/SingleParticlePID-11-pT35/SingleParticlePID-11-pT35_3.root', 
-        'rfio:/castor/cern.ch/user/p/pjanot/CMSSW170pre12/SingleParticlePID-11-pT35/SingleParticlePID-11-pT35_4.root', 
-        'rfio:/castor/cern.ch/user/p/pjanot/CMSSW170pre12/SingleParticlePID-11-pT35/SingleParticlePID-11-pT35_5.root', 
-        'rfio:/castor/cern.ch/user/p/pjanot/CMSSW170pre12/SingleParticlePID-11-pT35/SingleParticlePID-11-pT35_6.root', 
-        'rfio:/castor/cern.ch/user/p/pjanot/CMSSW170pre12/SingleParticlePID-11-pT35/SingleParticlePID-11-pT35_7.root', 
-        'rfio:/castor/cern.ch/user/p/pjanot/CMSSW170pre12/SingleParticlePID-11-pT35/SingleParticlePID-11-pT35_8.root', 
-        'rfio:/castor/cern.ch/user/p/pjanot/CMSSW170pre12/SingleParticlePID-11-pT35/SingleParticlePID-11-pT35_9.root', 
-        'rfio:/castor/cern.ch/user/p/pjanot/CMSSW170pre12/SingleParticlePID11-pT35/SingleParticlePID11-pT35_0.root', 
-        'rfio:/castor/cern.ch/user/p/pjanot/CMSSW170pre12/SingleParticlePID11-pT35/SingleParticlePID11-pT35_1.root', 
-        'rfio:/castor/cern.ch/user/p/pjanot/CMSSW170pre12/SingleParticlePID11-pT35/SingleParticlePID11-pT35_2.root', 
-        'rfio:/castor/cern.ch/user/p/pjanot/CMSSW170pre12/SingleParticlePID11-pT35/SingleParticlePID11-pT35_3.root', 
-        'rfio:/castor/cern.ch/user/p/pjanot/CMSSW170pre12/SingleParticlePID11-pT35/SingleParticlePID11-pT35_4.root', 
-        'rfio:/castor/cern.ch/user/p/pjanot/CMSSW170pre12/SingleParticlePID11-pT35/SingleParticlePID11-pT35_5.root', 
-        'rfio:/castor/cern.ch/user/p/pjanot/CMSSW170pre12/SingleParticlePID11-pT35/SingleParticlePID11-pT35_6.root', 
-        'rfio:/castor/cern.ch/user/p/pjanot/CMSSW170pre12/SingleParticlePID11-pT35/SingleParticlePID11-pT35_7.root', 
-        'rfio:/castor/cern.ch/user/p/pjanot/CMSSW170pre12/SingleParticlePID11-pT35/SingleParticlePID11-pT35_8.root', 
-        'rfio:/castor/cern.ch/user/p/pjanot/CMSSW170pre12/SingleParticlePID11-pT35/SingleParticlePID11-pT35_9.root'
-    )
+        'rfio:/castor/cern.ch/user/p/pjanot/CMSSW300pre3/SingleParticlePID-11-pT35/SingleParticlePID-11-pT35_0.root', 
+        'rfio:/castor/cern.ch/user/p/pjanot/CMSSW300pre3/SingleParticlePID-11-pT35/SingleParticlePID-11-pT35_1.root', 
+        'rfio:/castor/cern.ch/user/p/pjanot/CMSSW300pre3/SingleParticlePID-11-pT35/SingleParticlePID-11-pT35_2.root', 
+        'rfio:/castor/cern.ch/user/p/pjanot/CMSSW300pre3/SingleParticlePID-11-pT35/SingleParticlePID-11-pT35_3.root', 
+        'rfio:/castor/cern.ch/user/p/pjanot/CMSSW300pre3/SingleParticlePID-11-pT35/SingleParticlePID-11-pT35_4.root', 
+        'rfio:/castor/cern.ch/user/p/pjanot/CMSSW300pre3/SingleParticlePID-11-pT35/SingleParticlePID-11-pT35_5.root', 
+        'rfio:/castor/cern.ch/user/p/pjanot/CMSSW300pre3/SingleParticlePID-11-pT35/SingleParticlePID-11-pT35_6.root', 
+        'rfio:/castor/cern.ch/user/p/pjanot/CMSSW300pre3/SingleParticlePID-11-pT35/SingleParticlePID-11-pT35_7.root', 
+        'rfio:/castor/cern.ch/user/p/pjanot/CMSSW300pre3/SingleParticlePID-11-pT35/SingleParticlePID-11-pT35_8.root', 
+        'rfio:/castor/cern.ch/user/p/pjanot/CMSSW300pre3/SingleParticlePID-11-pT35/SingleParticlePID-11-pT35_9.root', 
+        'rfio:/castor/cern.ch/user/p/pjanot/CMSSW300pre3/SingleParticlePID11-pT35/SingleParticlePID11-pT35_0.root', 
+        'rfio:/castor/cern.ch/user/p/pjanot/CMSSW300pre3/SingleParticlePID11-pT35/SingleParticlePID11-pT35_1.root', 
+        'rfio:/castor/cern.ch/user/p/pjanot/CMSSW300pre3/SingleParticlePID11-pT35/SingleParticlePID11-pT35_2.root', 
+        'rfio:/castor/cern.ch/user/p/pjanot/CMSSW300pre3/SingleParticlePID11-pT35/SingleParticlePID11-pT35_3.root', 
+        'rfio:/castor/cern.ch/user/p/pjanot/CMSSW300pre3/SingleParticlePID11-pT35/SingleParticlePID11-pT35_4.root', 
+        'rfio:/castor/cern.ch/user/p/pjanot/CMSSW300pre3/SingleParticlePID11-pT35/SingleParticlePID11-pT35_5.root', 
+        'rfio:/castor/cern.ch/user/p/pjanot/CMSSW300pre3/SingleParticlePID11-pT35/SingleParticlePID11-pT35_6.root', 
+        'rfio:/castor/cern.ch/user/p/pjanot/CMSSW300pre3/SingleParticlePID11-pT35/SingleParticlePID11-pT35_7.root', 
+        'rfio:/castor/cern.ch/user/p/pjanot/CMSSW300pre3/SingleParticlePID11-pT35/SingleParticlePID11-pT35_8.root', 
+        'rfio:/castor/cern.ch/user/p/pjanot/CMSSW300pre3/SingleParticlePID11-pT35/SingleParticlePID11-pT35_9.root'
+    ),
+    noEventSort = cms.untracked.bool(True)
 )
 
 # Famos configuration
-process.load("FastSimulation.Configuration.CommonInputsFake_cff")
+process.load("FastSimulation.Configuration.CommonInputs_cff")
 process.load("FastSimulation.Configuration.FamosSequences_cff")
 process.load("Configuration.StandardSequences.MagneticField_40T_cff")
+process.GlobalTag.globaltag = "IDEAL_30X::All"
 #process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 process.VolumeBasedMagneticFieldESProducer.useParametrizedTrackerField = True
 # No SimHits
@@ -57,7 +59,8 @@ process.famosSimHits.SimulateTracking = False
 # No vertex smearing
 process.famosSimHits.VertexGenerator.BetaStar = 0.00001
 # Use CMMSW170 tuning
-process.misalignedTrackerInteractionGeometry.TrackerMaterial.TrackerMaterialVersion = 2
+process.misalignedTrackerInteractionGeometry.TrackerMaterial.TrackerMaterialVersion = 3
+process.TrackerInteractionGeometryESProducer.TrackerMaterial.TrackerMaterialVersion = 3
 
 
 process.testME = cms.EDFilter(
@@ -65,16 +68,16 @@ process.testME = cms.EDFilter(
 
     # Full, Fast radii and lengths for plots
     BPCylinderRadius = cms.untracked.vdouble(3.2, 3.05),
-    BPCylinderLength = cms.untracked.vdouble(999.0, 28.3),
+    BPCylinderLength = cms.untracked.vdouble(999.0, 28.2),
 
     PXB1CylinderRadius = cms.untracked.vdouble(6.0, 6.0),
-    PXB1CylinderLength = cms.untracked.vdouble(28.2, 28.3),
+    PXB1CylinderLength = cms.untracked.vdouble(27.5, 28.2),
 
     PXB2CylinderRadius = cms.untracked.vdouble(8.5, 8.5),
-    PXB2CylinderLength = cms.untracked.vdouble(28.2, 28.3),
+    PXB2CylinderLength = cms.untracked.vdouble(27.5, 28.2),
 
     PXB3CylinderRadius = cms.untracked.vdouble(11.5, 11.5),
-    PXB3CylinderLength = cms.untracked.vdouble(28.2, 28.3),
+    PXB3CylinderLength = cms.untracked.vdouble(27.5, 28.2),
 
     PXBCablesCylinderRadius = cms.untracked.vdouble(16.9, 16.9),
     PXBCablesCylinderLength = cms.untracked.vdouble(30.0, 30.0),
@@ -173,9 +176,9 @@ process.testME = cms.EDFilter(
         # Charged particles with pT < pTMin (GeV/c) are not simulated
         pTMin = cms.double(0.0),
         # Particles with energy smaller than EMin (GeV) are not simulated
-        EMin = cms.double(0.0)
+        EMin = cms.double(0.0),
         # Protons with energy in excess of this value (GeV) will kept no matter what
-        EProton = cms.double(99999.0),
+        EProton = cms.double(99999.0)
     )
 )
 

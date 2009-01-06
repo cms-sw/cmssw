@@ -67,6 +67,8 @@ private:
   std::vector<double> tmpRadius;
   std::vector<double> tmpLength;
 
+  unsigned int nevt;
+
 };
 
 testMaterialEffects::testMaterialEffects(const edm::ParameterSet& p) :
@@ -147,6 +149,13 @@ testMaterialEffects::testMaterialEffects(const edm::ParameterSet& p) :
   h100.push_back(htmp);
   trackerRadius.push_back(tmpRadius);
   trackerLength.push_back(tmpLength);
+
+  // Beam Pipe (cont'd)
+  htmp[0] = dbe->book1D("BPFullDummy", "Full Beam Pipe",220,0.,5.5);
+  htmp[1] = dbe->book1D("BPFastDummy", "Fast Beam Pipe",220,0.,5.5);
+  h200.push_back(htmp);
+  blockTrackerRadius.push_back(tmpRadius);
+  blockTrackerLength.push_back(tmpLength);
 
   // Beam Pipe (cont'd)
   htmp[0] = dbe->book1D("BPFull", "Full Beam Pipe",220,0.,5.5);
@@ -543,6 +552,8 @@ testMaterialEffects::testMaterialEffects(const edm::ParameterSet& p) :
   //	      << " "  << trackerRadius[hist][1] 
   //	      << ", Length = " << trackerLength[hist][0] 
   //	      << " " << trackerLength[hist][1] << std::endl;
+
+  nevt=0;
 								
 }
 
@@ -566,14 +577,21 @@ void testMaterialEffects::beginJob(const edm::EventSetup & es)
 void
 testMaterialEffects::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 {
-  //  std::cout << "Fill full event " << std::endl;
+
+  if( nevt < 100 && nevt%10 == 0 || 
+      nevt < 1000 && nevt%100 == 0 || 
+      nevt%1000 == 0 ) 
+    std::cout<<"process entry "<< nevt << std::endl;
+  nevt++; 
+
+  //std::cout << "Fill full event " << std::endl;
   edm::Handle<std::vector<SimTrack> > fullSimTracks;
   iEvent.getByLabel("g4SimHits",fullSimTracks);
   edm::Handle<std::vector<SimVertex> > fullSimVertices;
   iEvent.getByLabel("g4SimHits",fullSimVertices);
   mySimEvent[0]->fill( *fullSimTracks, *fullSimVertices );
   
-  //  std::cout << "Fill full event " << std::endl;
+  //std::cout << "Fill fast event " << std::endl;
   edm::Handle<std::vector<SimTrack> > fastSimTracks;
   iEvent.getByLabel("famosSimHits",fastSimTracks);
   edm::Handle<std::vector<SimVertex> > fastSimVertices;
@@ -659,7 +677,7 @@ testMaterialEffects::analyze( const edm::Event& iEvent, const edm::EventSetup& i
  	// Fill the individual layer histograms !
 	bool filled = false;
 	for ( unsigned hist=0; hist<h100.size() && !filled; ++hist ) {
-	  if ( eta<3. && ( radius < trackerRadius[hist][ievt] && 
+	  if ( eta<5. && ( radius < trackerRadius[hist][ievt] && 
 			   zed < trackerLength[hist][ievt] ) ) {
 	    h100[hist][ievt]->Fill(eta);
 	    filled = true;
@@ -670,7 +688,7 @@ testMaterialEffects::analyze( const edm::Event& iEvent, const edm::EventSetup& i
  	// Fill the block histograms !
 	filled = false;
 	for ( unsigned hist=0; hist<h200.size() && !filled; ++hist ) {
-	  if ( eta<3. && ( radius < blockTrackerRadius[hist][ievt] && 
+	  if ( eta<5. && ( radius < blockTrackerRadius[hist][ievt] && 
 			   zed < blockTrackerLength[hist][ievt] ) ) {
 	    h200[hist][ievt]->Fill(eta);
 	    filled = true;
@@ -694,7 +712,7 @@ testMaterialEffects::analyze( const edm::Event& iEvent, const edm::EventSetup& i
 	       ( hist == 2 && 
 		 radius < subTrackerRadius[1][ievt] && 
 		 zed < subTrackerLength[1][ievt] ) ) {
-	    if ( ( hist <= 3 && eta < 3. ) || hist>=4 ) h300[hist][ievt]->Fill(eta);
+	    if ( ( hist <= 3 && eta < 5. ) || hist>=4 ) h300[hist][ievt]->Fill(eta);
 	    if ( hist == 0 ) h8[ievt]->Fill(zed,radius);
 	    if ( hist == 1 ) h9[ievt]->Fill(zed,radius);
 	    if ( hist == 2 ) h10[ievt]->Fill(zed,radius);
