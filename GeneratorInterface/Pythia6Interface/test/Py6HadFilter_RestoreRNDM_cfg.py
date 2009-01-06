@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 ### from Configuration.GenProduction.PythiaUESettings_cfi import *
 
-process = cms.Process("TEST")
+process = cms.Process("RERUN")
 process.load("FWCore.Framework.test.cmsExceptionsFatal_cff")
 
 process.load("Configuration.StandardSequences.Services_cff")
@@ -11,10 +11,11 @@ process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService
     generator = cms.PSet(
         initialSeed = cms.untracked.uint32(123456789),
         engineName = cms.untracked.string('HepJamesRandom')
-    )
+    ),
+    restoreStateLabel = cms.untracked.string('randomEngineStateProducer')
 )
 
-process.randomEngineStateProducer = cms.EDProducer("RandomEngineStateProducer")
+## process.randomEngineStateProducer = cms.EDProducer("RandomEngineStateProducer")
 
 # The following three lines reduce the clutter of repeated printouts
 # of the same exception message.
@@ -25,8 +26,9 @@ process.MessageLogger.fwkJobReports = []
 
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(5))
 
-process.source = cms.Source("LHESource",
-    fileNames = cms.untracked.vstring('file:ttbar.lhe')
+process.source = cms.Source("PoolSource",
+    fileNames = cms.untracked.vstring('file:TestTTbar.root'),
+    skipEvents = cms.untracked.uint32(3)
 )
 
 process.generator = cms.EDFilter("Pythia6HadronizerFilter",
@@ -73,11 +75,12 @@ process.generator = cms.EDFilter("Pythia6HadronizerFilter",
 )
 
 process.GEN = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string('TestTTbar.root')
+    fileName = cms.untracked.string('TestTTbar_redo.root')
 )
 
 process.p = cms.Path(process.generator)
-process.p1 = cms.Path(process.randomEngineStateProducer)
+## process.p1 = cms.Path(process.randomEngineStateProducer)
 process.outpath = cms.EndPath(process.GEN)
 
-process.schedule = cms.Schedule(process.p, process.p1, process.outpath)
+## process.schedule = cms.Schedule(process.p, process.p1, process.outpath)
+process.schedule = cms.Schedule(process.p, process.outpath)
