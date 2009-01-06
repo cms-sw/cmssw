@@ -10,7 +10,7 @@ from Configuration.StandardSequences.MagneticField_cff import *
 from Configuration.StandardSequences.MixingNoPileUp_cff import *
 from Configuration.StandardSequences.Reconstruction_cff import *
 from Configuration.StandardSequences.FrontierConditions_GlobalTag_cff import *
-GlobalTag.globaltag = 'IDEAL_V9::All'
+GlobalTag.globaltag = 'IDEAL_30X::All'
 
 from DQMServices.Core.DQM_cfg import *
 maxEvents = cms.untracked.PSet(
@@ -48,35 +48,8 @@ hcalTowerAnalyzer = cms.EDFilter("CaloTowersValidation",
 
 DQM.collectorHost = ''
 
-XMLIdealGeometryESSource.geomXMLFiles = cms.vstring(
-    "Geometry/CMSCommonData/data/materials.xml",
-    "Geometry/CMSCommonData/data/rotations.xml",
-    "Geometry/HcalCommonData/data/hcalrotations.xml",
-    "Geometry/HcalCommonData/data/hcalforwardmaterial.xml",
-    "Geometry/CMSCommonData/data/normal/cmsextent.xml",
-    "Geometry/CMSCommonData/data/cms.xml",
-    "Geometry/CMSCommonData/data/cmsMother.xml",
-    "Geometry/CMSCommonData/data/muonBase.xml",
-    "Geometry/CMSCommonData/data/cmsMuon.xml",
-    "Geometry/CMSCommonData/data/mgnt.xml",
-    "Geometry/CMSCommonData/data/muonMagnet.xml",
-    "Geometry/CMSCommonData/data/muonMB.xml",
-    "Geometry/CMSCommonData/data/caloBase.xml",
-    "Geometry/CMSCommonData/data/cmsCalo.xml",
-    "Geometry/HcalCommonData/data/hcalalgo.xml",
-    "Geometry/HcalCommonData/data/hcalbarrelalgo.xml",
-    "Geometry/HcalCommonData/data/hcalendcapalgo.xml",
-    "Geometry/HcalCommonData/data/hcalouteralgo.xml",
-    "Geometry/HcalCommonData/data/hcalforwardalgo.xml",
-    "Geometry/HcalCommonData/data/hcalforwardfibre.xml",
-    "Geometry/HcalCommonData/data/hcalsens.xml",
-    "Geometry/HcalSimData/data/CaloUtil.xml",
-    "Geometry/HcalSimData/data/HcalProdCuts.xml",
-    "Geometry/CMSCommonData/data/FieldParameters.xml"
-)
+from Configuration.StandardSequences.GeometryHCAL_cff import *
 
-
-CaloGeometryBuilder.SelectedCalos = ['HCAL']
 
 VtxSmeared.SigmaX = 0.00001
 VtxSmeared.SigmaY = 0.00001

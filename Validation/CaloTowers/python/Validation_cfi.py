@@ -9,7 +9,7 @@ from Configuration.StandardSequences.MagneticField_cff import *
 from Configuration.StandardSequences.MixingNoPileUp_cff import *
 from Configuration.StandardSequences.Reconstruction_cff import *
 from Configuration.StandardSequences.FrontierConditions_GlobalTag_cff import *
-GlobalTag.globaltag = 'IDEAL_V9::All'
+GlobalTag.globaltag = 'IDEAL_30X::All'
 
 
 from DQMServices.Core.DQM_cfg import *
@@ -48,47 +48,7 @@ hcalTowerAnalyzer = cms.EDFilter("CaloTowersValidation",
 
 DQM.collectorHost = ''
 
-XMLIdealGeometryESSource.geomXMLFiles = cms.vstring(
-    "Geometry/CMSCommonData/data/materials.xml",
-    "Geometry/CMSCommonData/data/rotations.xml",
-    "Geometry/HcalCommonData/data/hcalrotations.xml",
-    "Geometry/HcalCommonData/data/hcalforwardmaterial.xml",
-    "Geometry/TrackerCommonData/data/trackermaterial.xml",
-    "Geometry/CMSCommonData/data/normal/cmsextent.xml",
-    "Geometry/CMSCommonData/data/cms.xml",
-    "Geometry/CMSCommonData/data/cmsMother.xml",
-    "Geometry/CMSCommonData/data/muonBase.xml",
-    "Geometry/CMSCommonData/data/cmsMuon.xml",
-    "Geometry/CMSCommonData/data/mgnt.xml",
-    "Geometry/CMSCommonData/data/muonMagnet.xml",
-    "Geometry/CMSCommonData/data/muonMB.xml",
-    "Geometry/CMSCommonData/data/caloBase.xml",
-    "Geometry/CMSCommonData/data/cmsCalo.xml",
-    "Geometry/HcalCommonData/data/hcalalgo.xml",
-    "Geometry/EcalCommonData/data/eregalgo.xml",
-    "Geometry/EcalCommonData/data/ebalgo.xml",
-    "Geometry/EcalCommonData/data/ebcon.xml",
-    "Geometry/EcalCommonData/data/ebrot.xml",
-    "Geometry/EcalCommonData/data/eecon.xml",
-    "Geometry/EcalCommonData/data/escon.xml",
-    "Geometry/EcalCommonData/data/eefixed.xml",
-    "Geometry/EcalCommonData/data/eehier.xml",
-    "Geometry/EcalCommonData/data/eealgo.xml",
-    "Geometry/EcalCommonData/data/esalgo.xml",
-    "Geometry/EcalCommonData/data/eeF.xml",
-    "Geometry/EcalCommonData/data/eeB.xml",
-    "Geometry/HcalCommonData/data/hcalbarrelalgo.xml",
-    "Geometry/HcalCommonData/data/hcalendcapalgo.xml",
-    "Geometry/HcalCommonData/data/hcalouteralgo.xml",
-    "Geometry/HcalCommonData/data/hcalforwardalgo.xml",
-    "Geometry/HcalCommonData/data/hcalforwardfibre.xml",
-    "Geometry/EcalSimData/data/ecalsens.xml",
-    "Geometry/HcalCommonData/data/hcalsens.xml",
-    "Geometry/HcalSimData/data/CaloUtil.xml",
-    "Geometry/EcalSimData/data/EcalProdCuts.xml",
-    "Geometry/HcalSimData/data/HcalProdCuts.xml",
-    "Geometry/CMSCommonData/data/FieldParameters.xml"	
-)
+from Configuration.StandardSequences.GeometryECALHCAL_cff import *
 
 VtxSmeared.SigmaX = 0.00001
 VtxSmeared.SigmaY = 0.00001
