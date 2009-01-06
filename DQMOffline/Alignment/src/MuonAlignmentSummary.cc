@@ -1,7 +1,7 @@
 /*
  *  DQM client for muon alignment summary
  *
- *  $Date: 2008/12/13 09:56:39 $
+ *  $Date: 2008/12/13 15:31:21 $
  *  $Revision: 1.1 $
  *  \author J. Fernandez - Univ. Oviedo <Javier.Fernandez@cern.ch>
  */
@@ -85,8 +85,8 @@ void MuonAlignmentSummary::beginRun(edm::Run const& run,edm::EventSetup const& i
 	
         dbe->setCurrentFolder(topFolder+"/CSC");
         hLocalPositionCSC=dbe->book2D("hLocalPositionCSC","Local CSC position (cm) absolute MEAN residuals;Sector;;cm",36,1,37,36,0,36);
-        hLocalAngleCSC=dbe->book2D("hLocalAngleCSC","Local CSC angle (rad) absolute MEAN residuals;Sector;;cm", 36,1,37,36,0,36); 
-        hLocalPositionRmsCSC=dbe->book2D("hLocalPositionRmsCSC","Local CSC position (cm) RMS residuals;Sector;;rad", 36,1,37,36,0,36);
+        hLocalAngleCSC=dbe->book2D("hLocalAngleCSC","Local CSC angle (rad) absolute MEAN residuals;Sector;;rad", 36,1,37,36,0,36); 
+        hLocalPositionRmsCSC=dbe->book2D("hLocalPositionRmsCSC","Local CSC position (cm) RMS residuals;Sector;;cm", 36,1,37,36,0,36);
         hLocalAngleRmsCSC=dbe->book2D("hLocalAngleRmsCSC","Local CSC angle (rad) RMS residuals;Sector;;rad", 36,1,37,36,0,36); 
 	
         hLocalXMeanCSC=dbe->book1D("hLocalXMeanCSC","Distribution of MEAN Local X (cm) residuals for CSC;<X> (cm);number of chambers",100,-meanPositionRange,meanPositionRange);
