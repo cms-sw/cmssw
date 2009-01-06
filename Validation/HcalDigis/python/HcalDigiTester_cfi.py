@@ -5,7 +5,8 @@ from Configuration.StandardSequences.SimulationRandomNumberGeneratorSeeds_cff im
 from Configuration.StandardSequences.Geometry_cff import *
 from Configuration.StandardSequences.Digi_cff     import *
 from Configuration.StandardSequences.MixingNoPileUp_cff import *
-from Configuration.StandardSequences.FakeConditions_cff import *
+from Configuration.StandardSequences.FrontierConditions_GlobalTag_cff import *
+GlobalTag.globaltag = 'IDEAL_30X::All'
 
 from DQMServices.Core.DQM_cfg import *
 

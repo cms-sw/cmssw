@@ -51,8 +51,8 @@ HcalSubdetDigiMonitor::HcalSubdetDigiMonitor(DQMStore* dbe,
     {
       ndigis      = HistLim(20, 0., 20.);
       sime        = HistLim(30, 0., 30.);
-      digiAmp     = HistLim(300, -100., 500.);
-      ratio       = HistLim(50, 0., 50.);
+      digiAmp     = HistLim(550, -100., 1000.);
+      ratio       = HistLim(120, 0., 120.);
       pedLim      = HistLim(100, 0., 20.); 
       pedWidthLim = HistLim(100, 0., 5.); 
 
@@ -60,8 +60,9 @@ HcalSubdetDigiMonitor::HcalSubdetDigiMonitor(DQMStore* dbe,
   else if(subdet_ == "HO")
     {
       sime    = HistLim(100, 0., 0.2);
-      digiAmp = HistLim(300, 0., 300.);
-    }
+      digiAmp = HistLim(200, 0., 200.);
+      gainLim = HistLim(150, 0., 1.5); 
+   }
   
   Char_t histo[100];
   const char * sub = subdet_.c_str();
