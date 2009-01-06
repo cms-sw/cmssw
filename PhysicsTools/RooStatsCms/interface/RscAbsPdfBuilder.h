@@ -113,55 +113,47 @@ performed using the classes provided within the framework.
 
 \section dependencies_sec Dependencies
 RooStatsCms depends only on 
-<a href="http://root.cern.ch/" target="blank">ROOT</a> 5.20.00. 
+<a href="http://root.cern.ch/" target="blank">ROOT</a> 5.22. 
 This version of the package has been 
 developed and tested with Scientific Linux 4 (Intel(R) Xeon(R) CPU 5150, gcc 
 3.1.4 ) and Debian 4.0 Etch (amd64 gcc 4.1.2).
-Recently a lot of changes were added to RooFit, also driven by the growth of 
-RooStatsCms. We strongly recomend to use the 
-latest version of roofit (HEAD) to profit from all the improvements.
-To obtain it, just usethis svn command:
-
-\verbatim
-svn co -rHEAD http://root.cern.ch/svn/root/trunk/roofit
-\endverbatim
 
 \section getting_started_sec Getting started
 
 \subsection getting_sec Obtain the package
 The package can be found in the Cms Higgs Working Group CVS 
 <a href="http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/
-CMSSW/HiggsAnalysis/RooStatsCms" target="blank">here</a>. 
+CMSSW/PhysicsTools/RooStatsCms" target="blank">here</a>. 
 To check it out type (bash users):
 \verbatim
 export CVSROOT=<yourusername>@cmscvs.cern.ch:/cvs_server/repositories/CMSSW
 export CVS_RSH=ssh
-cvs co -r V00-04-00 HiggsAnalysis/RooStatsCms
+cvs co -r V00-05-00 PhysicsTools/RooStatsCms
 \endverbatim
 You can have the package as a tarball <a href="http://cmssw.cvs.cern.ch/
-cgi-bin/cmssw.cgi/CMSSW/HiggsAnalysis/
-RooStatsCms.tar.gz?view=tar&pathrev=V00-04-00">here</a>.
+cgi-bin/cmssw.cgi/CMSSW/PhysicsTools/
+RooStatsCms.tar.gz?view=tar&pathrev=V00-05-00">here</a>.
 
 The head is available also as a tarball <a href="http://cmssw.cvs.cern.ch/
-cgi-bin/cmssw.cgi/CMSSW/HiggsAnalysis/RooStatsCms.tar.gz?view=tar" 
+cgi-bin/cmssw.cgi/CMSSW/PhysicsTools/RooStatsCms.tar.gz?view=tar" 
 target="blank">here</a>. \n \b Warning: this latter is a developement 
 version. It might be unstable. For the latest stable version, 
 please refer to the last tag!
 
-\subsection root_afs_subsec Root 5.20 on lxplus
+\subsection root_afs_subsec Root 5.22 on lxplus
 Setting Root on the lxplus machines is easy and works out of the box just copy
 and paste these lines (bash shell).
 
 \b Bash \b shell:
 \verbatim
-export ROOTSYS=/afs/cern.ch/sw/lcg/external/root/5.20.00/slc4_ia32_gcc34/root/
+export ROOTSYS=/afs/cern.ch/sw/lcg/external/root/5.22.00/slc4_ia32_gcc34/root/
 export PATH=$PATH:$ROOTSYS/bin
 export LD_LIBRARY_PATH=$ROOTSYS/lib
 \endverbatim
 
 \b Tcsh \b shell:
 \verbatim
-setenv ROOTSYS /afs/cern.ch/sw/lcg/external/root/5.20.00/slc4_ia32_gcc34/root/
+setenv ROOTSYS /afs/cern.ch/sw/lcg/external/root/5.22.00/slc4_ia32_gcc34/root/
 setenv LD_LIBRARY_PATH $ROOTSYS/lib
 set path=($path $ROOTSYS/bin)
 \endverbatim
