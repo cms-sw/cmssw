@@ -33,7 +33,6 @@ TrackerInteractionGeometry::TrackerInteractionGeometry(const edm::ParameterSet& 
   // Thickness of all layers
   // Version of the material description
   version = trackerMaterial.getParameter<unsigned int>("TrackerMaterialVersion");
-  std::cout << "Tracker Material Version = " << version << std::endl;
   // Beam Pipe
   beamPipeThickness = trackerMaterial.getParameter<std::vector<double> >("BeamPipeThickness");
   // Pixel Barrel Layers 1-3
