@@ -28,15 +28,6 @@ namespace fwlite {
 namespace fw {
    std::pair<double,double> getPhiRange( const std::vector<double>& phis,
 					 double phi );
-   TEveTrack* getEveTrack( const reco::Track& track,
-			   double max_r = 120,
-			   double max_z = 300,
-			   double magnetic_field = 4 );
-   TEveTrack* getEveTrack( const reco::Candidate& track,
-			   double max_r = 120,
-			   double max_z = 300,
-			   double magnetic_field = 4 );
-
    TEveGeoShape* getShape( const char* name,
 			   TGeoBBox* shape,
 			   Color_t color );
