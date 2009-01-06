@@ -157,6 +157,7 @@ echo "  -> SHERPA location: '"${SHERPAWEBLOCATION}"'"
 echo "  -> SHERPA file name: '"${SHERPAFILE}"'"
 echo "  -> cleaning level: '"${LVLCLEAN}"'"
 echo "  -> debugging mode: '"${FLGDEBUG}"'"
+echo "  -> CMSSW override: '"${FLGXMLFL}"'"
 echo "  -> use conf/make/make: '"${FLGINSTL}"'"
 echo "  -> HepMC2: '"${HEPMC}"', version '"${HVER}"'"
 echo "  ->   options: "${OPTHEPMC}
@@ -196,21 +197,21 @@ if [ "$HEPMC" = "TRUE" ]; then
       echo " -> ... and exists: Installation cancelled!"
     fi
   else
-    export HEPMC2DIR=${IDIR}"/HepMC-"${HVER}
+#    export HEPMC2DIR=${IDIR}"/HepMC-"${HVER}
     export HEPMC2IDIR=${IDIR}"/HEPMC_"${HVER}
     echo " -> no HepMC2 directory specified, trying installation"
     echo "     into "${HEPMC2IDIR}
     ${MSI}/${shhmifile} ${IFLG} ${FLOC} ${OPTHEPMC}
+    export HEPMC2DIR=${HEPMC2IDIR}
   fi
 ###FIXME
   if [ "${SHERPAVER}" = "1.0.11" ]; then
     SHCFLAGS=${SHCFLAGS}" --enable-hepmc2"
     SHMFLAGS=${SHMFLAGS}" --copt --enable-hepmc2"
   else
-    SHCFLAGS=${SHCFLAGS}" --enable-hepmc2="${HEPMC2IDIR}
-    SHMFLAGS=${SHMFLAGS}" --copt --enable-hepmc2="${HEPMC2IDIR}
+    SHCFLAGS=${SHCFLAGS}" --enable-hepmc2="${HEPMC2DIR}
+    SHMFLAGS=${SHMFLAGS}" --copt --enable-hepmc2="${HEPMC2DIR}
   fi
-  export HEPMC2DIR=${HEPMC2IDIR}
 ###FIXME
 fi
 
@@ -230,24 +231,24 @@ if [ "$LHAPDF" = "TRUE" ]; then
       echo " -> ... and exists: Installation cancelled!"
     fi
   else
-    export LHAPDFDIR=${IDIR}"/lhapdf-"${LVER}
+#    export LHAPDFDIR=${IDIR}"/lhapdf-"${LVER}
     export LHAPDFIDIR=${IDIR}"/LHAPDF_"${LVER}
     echo " -> no LHAPDF directory specified, trying installation"
     echo "     into "${LHAPDFIDIR}
     ${MSI}/${shlhifile} ${IFLG} ${FLOC} ${OPTLHAPDF}
-  fi
-###FIXME
+    export LHAPDFDIR=${LHAPDFIDIR}
+ fi
+  PATCHLHAPDF=TRUE
+  FIXLHAPDF=TRUE
+ ###FIXME
   if [ "${SHERPAVER}" = "1.0.11" ]; then
     SHCFLAGS=${SHCFLAGS}" --enable-lhapdf"
     SHMFLAGS=${SHMFLAGS}" --copt --enable-lhapdf"
   else
-    SHCFLAGS=${SHCFLAGS}" --enable-lhapdf="${LHAPDFIDIR}
-    SHMFLAGS=${SHMFLAGS}" --copt --enable-lhapdf="${LHAPDFIDIR}
+    SHCFLAGS=${SHCFLAGS}" --enable-lhapdf="${LHAPDFDIR}
+    SHMFLAGS=${SHMFLAGS}" --copt --enable-lhapdf="${LHAPDFDIR}
   fi
 ###FIXME
-  PATCHLHAPDF=TRUE
-  FIXLHAPDF=TRUE
-  export LHAPDFDIR=${LHAPDFIDIR}
 fi
 #echo "STOP"
 #sleep 1000
@@ -361,11 +362,15 @@ if [ -e ${SHERPADIR}/bin/Sherpa ]; then
 fi
 
 if [ "$FLGINSTL" = "TRUE" ]; then
+#  if [ "$FIXES" = "TRUE" ] && [ "${SHERPAVER}" = "1.1.2" ]; then
   if [ "$FIXES" = "TRUE" ]; then
-    aclocal
-    autoheader
-    automake
-    autoconf
+# fix: 06.01.2009
+    autoreconf -fi
+#
+#    aclocal
+#    autoheader
+#    automake
+#    autoconf
   fi
   echo " -> configuring SHERPA with flags: --prefix="${SHERPAIDIR}" "${SHCFLAGS}
   echo "./configure --prefix="${SHERPAIDIR}" "${SHCFLAGS} > ../sherpa_configr.cmd
@@ -436,7 +441,7 @@ fi
 cd ${HDIR}
 
 
-# create XML file fro SCRAM
+# create XML file for SCRAM
 if [ "${FLGXMLFL}" = "TRUE" ]; then
   xmlfile=sherpa.xml
   echo " <I> creating Sherpa tool definition XML file"
@@ -460,6 +465,7 @@ if [ "${FLGXMLFL}" = "TRUE" ]; then
   echo "    <use name=\"HepMC\"/>" >> ${xmlfile}
   echo "    <use name=\"lhapdf\"/>" >> ${xmlfile}
   echo "  </tool>" >> ${xmlfile}
+  mv ${xmlfile} ${HDIR}/
 fi
 
 

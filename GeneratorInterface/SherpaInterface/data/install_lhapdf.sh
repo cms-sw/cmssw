@@ -5,13 +5,13 @@
 #               can be used standalone or called from other scripts
 #
 #  author:      Markus Merschmeyer, RWTH Aachen
-#  date:        2008/12/08
-#  version:     2.2
+#  date:        2009/01/05
+#  version:     2.3
 #
 
 print_help() {
     echo "" && \
-    echo "install_lhapdf version 2.2" && echo && \
+    echo "install_lhapdf version 2.3" && echo && \
     echo "options: -v  version    define LHAPDF version ( "${LHAPDFVER}" )" && \
     echo "         -d  path       define LHAPDF installation directory" && \
     echo "                         -> ( "${IDIR}" )" && \
@@ -103,6 +103,7 @@ echo "  -> LHAPDF location: '"${LHAPDFWEBLOCATION}"'"
 echo "  -> LHAPDF file name: '"${LHAPDFFILE}"'"
 echo "  -> cleaning level: '"${LVLCLEAN}"'"
 echo "  -> debugging mode: '"${FLGDEBUG}"'"
+echo "  -> CMSSW override: '"${FLGXMLFL}"'"
 
 
 # set path to local LHAPDF installation
@@ -196,7 +197,7 @@ if [ "${FLGXMLFL}" = "TRUE" ]; then
   echo "    <runtime name=\"LHAPATH\" value=\"\$LHAPDF_BASE/share/lhapdf/PDFsets\" type=\"path\"/>" >> ${xmlfile}
   echo "    <use name=\"f77compiler\"/>" >> ${xmlfile}
   echo "  </tool>" >> ${xmlfile}
-
+  mv ${xmlfile} ${HDIR}/
 fi
 
 

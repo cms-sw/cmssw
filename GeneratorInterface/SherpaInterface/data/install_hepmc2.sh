@@ -5,13 +5,13 @@
 #               can be used standalone or called from other scripts
 #
 #  author:      Markus Merschmeyer, RWTH Aachen
-#  date:        2008/09/19
-#  version:     2.1
+#  date:        2009/01/05
+#  version:     2.2
 #
 
 print_help() {
     echo "" && \
-    echo "install_hepmc2 version 2.1" && echo && \
+    echo "install_hepmc2 version 2.2" && echo && \
     echo "options: -v  version    define HepMC2 version ( "${HEPMC2VER}" )" && \
     echo "         -d  path       define HepMC2 installation directory" && \
     echo "                         -> ( "${IDIR}" )" && \
@@ -92,6 +92,7 @@ echo "  -> HepMC2 location: '"${HEPMC2WEBLOCATION}"'"
 echo "  -> HepMC2 file name: '"${HEPMC2FILE}"'"
 echo "  -> cleaning level: '"${LVLCLEAN}"'"
 echo "  -> debugging mode: '"${FLGDEBUG}"'"
+echo "  -> CMSSW override: '"${FLGXMLFL}"'"
 
 # analyze HEPMC2 version
 va=`echo ${HEPMC2VER} | cut -f1 -d"."`
@@ -197,6 +198,7 @@ if [ "${FLGXMLFL}" = "TRUE" ]; then
   echo "    <runtime name=\"CMSSW_FWLITE_INCLUDE_PATH\" value=\"\$HEPMC_BASE/include\" type=\"path\"/>" >> ${xmlfile}
   echo "    <use name=\"CLHEP\"/>" >> ${xmlfile}
   echo "  </tool>" >> ${xmlfile}
+  mv ${xmlfile} ${HDIR}/
 fi
 
 
