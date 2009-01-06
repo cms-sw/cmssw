@@ -6,7 +6,7 @@
 //
 // Original Author:  Alan Tua
 //         Created:  Wed Jul  9 21:40:17 CEST 2008
-// $Id: MuonSegmentMatcher.cc,v 1.2 2008/11/13 12:22:08 ptraczyk Exp $
+// $Id: MuonSegmentMatcher.cc,v 1.3 2008/12/18 14:03:31 bellan Exp $
 //
 //
 
@@ -43,7 +43,7 @@ using namespace std;
 
 // constructors and destructor
 
-MuonSegmentMatcher::MuonSegmentMatcher(const edm::ParameterSet& iConfig, const edm::ParameterSet& matchParameters, MuonServiceProxy* service)
+MuonSegmentMatcher::MuonSegmentMatcher(const edm::ParameterSet& matchParameters, MuonServiceProxy* service)
   :
   theService(service),
   DTSegmentTags_(matchParameters.getUntrackedParameter<edm::InputTag>("DTsegments")),
