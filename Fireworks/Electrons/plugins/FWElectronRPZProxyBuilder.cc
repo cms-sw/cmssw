@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Nov 26 14:52:01 EST 2008
-// $Id: FWElectronRPZProxyBuilder.cc,v 1.4 2008/12/01 14:46:08 chrjones Exp $
+// $Id: FWElectronRPZProxyBuilder.cc,v 1.5 2008/12/05 21:00:00 chrjones Exp $
 //
 
 // system include files
@@ -16,6 +16,7 @@
 #include "TROOT.h"
 #include "TEveTrack.h"
 #include "TEveCompound.h"
+#include "TEveTrackPropagator.h"
 
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
@@ -26,8 +27,13 @@
 
 // user include files
 #include "Fireworks/Core/interface/FWRPZ2DSimpleProxyBuilderTemplate.h"
-#include "Fireworks/Core/interface/BuilderUtils.h"
+#include "Fireworks/Candidates/interface/prepareSimpleTrack.h"
+#include "Fireworks/Tracks/interface/prepareTrack.h"
+//#include "Fireworks/Core/interface/BuilderUtils.h"
 #include "Fireworks/Electrons/interface/makeSuperCluster.h"
+#include "Fireworks/Core/interface/FWEvePtr.h"
+#include "Fireworks/Core/interface/FWEventItem.h"
+#include "Fireworks/Core/src/CmsShowMain.h"
 
 
 class FWElectronRPZProxyBuilder : public FWRPZ2DSimpleProxyBuilderTemplate<reco::GsfElectron> {
@@ -51,7 +57,8 @@ private:
    void buildRhoPhi(const reco::GsfElectron& iData, unsigned int iIndex,TEveElement& oItemHolder) const;
    void buildRhoZ(const reco::GsfElectron& iData, unsigned int iIndex,TEveElement& oItemHolder) const;
       // ---------- member data --------------------------------
-   
+   FWEvePtr<TEveTrackPropagator> m_propagator;   
+
 };
 
 //
@@ -65,8 +72,13 @@ private:
 //
 // constructors and destructor
 //
-FWElectronRPZProxyBuilder::FWElectronRPZProxyBuilder()
+FWElectronRPZProxyBuilder::FWElectronRPZProxyBuilder() :
+m_propagator( new TEveTrackPropagator)
+
 {
+   m_propagator->SetMagField( - CmsShowMain::getMagneticField() );
+   m_propagator->SetMaxR(123.0);
+   m_propagator->SetMaxZ(300.0);
 }
 
 // FWElectronRPZProxyBuilder::FWElectronRPZProxyBuilder(const FWElectronRPZProxyBuilder& rhs)
@@ -104,11 +116,19 @@ FWElectronRPZProxyBuilder::buildRhoPhi(const reco::GsfElectron& iData, unsigned 
                                      iData.superCluster(),
                                      iData.phi(),
                                      oItemHolder);
+   m_propagator->SetMagField( - CmsShowMain::getMagneticField() );
    TEveTrack* track(0);
    if ( iData.gsfTrack().isAvailable() )
-      track = fw::getEveTrack( *(iData.gsfTrack()) );
+      track = fireworks::prepareTrack( *(iData.gsfTrack()),
+				      m_propagator.get(), 
+				      &oItemHolder, 
+				      item()->defaultDisplayProperties().color() );
    else
-      track = fw::getEveTrack( iData );
+      track = fireworks::prepareSimpleTrack( iData,
+					    m_propagator.get(), 
+					    &oItemHolder, 
+					    item()->defaultDisplayProperties().color() );
+   track->MakeTrack();
    oItemHolder.AddElement(track);   
 }
 
@@ -119,11 +139,19 @@ FWElectronRPZProxyBuilder::buildRhoZ(const reco::GsfElectron& iData, unsigned in
                                    iData.superCluster(),
                                    iData.phi(),
                                    oItemHolder);
+   m_propagator->SetMagField( - CmsShowMain::getMagneticField() );
    TEveTrack* track(0);
    if ( iData.gsfTrack().isAvailable() )
-      track = fw::getEveTrack( *(iData.gsfTrack()) );
+      track = fireworks::prepareTrack( *(iData.gsfTrack()),
+				      m_propagator.get(), 
+				      &oItemHolder, 
+				      item()->defaultDisplayProperties().color() );
    else
-      track = fw::getEveTrack( iData );
+      track = fireworks::prepareSimpleTrack( iData,
+					    m_propagator.get(), 
+					    &oItemHolder, 
+					    item()->defaultDisplayProperties().color() );
+   track->MakeTrack();
    oItemHolder.AddElement(track);
    
 }
