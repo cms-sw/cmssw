@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Dec  2 14:17:03 EST 2008
-// $Id$
+// $Id: FWElectronGlimpseProxyBuilder.cc,v 1.1 2008/12/02 21:11:52 chrjones Exp $
 //
 
 // system include files
@@ -18,7 +18,7 @@
 #include "Fireworks/Core/interface/FWGlimpseSimpleProxyBuilderTemplate.h"
 #include "Fireworks/Core/interface/FWEveScalableStraightLineSet.h"
 #include "Fireworks/Core/interface/FWEveValueScaler.h"
-#include "Fireworks/Core/interface/BuilderUtils.h"
+#include "Fireworks/Candidates/interface/addStraightLineSegment.h"
 
 class FWElectronGlimpseProxyBuilder: public FWGlimpseSimpleProxyBuilderTemplate<reco::GsfElectron> {
       

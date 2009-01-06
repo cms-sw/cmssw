@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Dec  4 19:04:30 EST 2008
-// $Id$
+// $Id: FWMuonsGlimpseProxyBuilder.cc,v 1.1 2008/12/05 01:51:49 chrjones Exp $
 //
 
 // system include files
@@ -18,7 +18,7 @@
 #include "Fireworks/Core/interface/FWGlimpseSimpleProxyBuilderTemplate.h"
 #include "Fireworks/Core/interface/FWEveScalableStraightLineSet.h"
 #include "Fireworks/Core/interface/FWEveValueScaler.h"
-#include "Fireworks/Core/interface/BuilderUtils.h"
+#include "Fireworks/Candidates/interface/addStraightLineSegment.h"
 
 class FWMuonsGlimpseProxyBuilder : public FWGlimpseSimpleProxyBuilderTemplate<reco::Muon> {
    

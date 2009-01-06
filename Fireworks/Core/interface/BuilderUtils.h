@@ -12,7 +12,6 @@ class TEveGeoShape;
 class TGeoBBox;
 class TEveElement;
 class TEveElementList;
-class TEveStraightLineSegment;
 class TEveStraightLineSet;
 class DetId;
 class DetIdToMatrix;
@@ -56,10 +55,6 @@ namespace fw {
 				       double eta, double phi,
 				       int n_eta = 5, int n_phi = 10);
      //    TEveElementList *getMuonCalTowers (double eta, double phi);
-
-     void addStraightLineSegment( TEveStraightLineSet * marker,
-				  reco::Candidate const * cand,
-				  double scale_factor = 2);
 
      std::string getTimeGMT( const fwlite::Event& event );
 }

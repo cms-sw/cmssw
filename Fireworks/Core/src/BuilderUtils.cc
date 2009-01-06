@@ -8,14 +8,12 @@
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerFwd.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
-#include "DataFormats/Candidate/interface/Candidate.h"
 #include "TGeoBBox.h"
 #include "TGeoArb8.h"
 #include "TColor.h"
 #include "TROOT.h"
 #include "TEveTrans.h"
 #include "TEveGeoNode.h"
-#include "TEveStraightLineSet.h"
 #include <time.h>
 #include "DataFormats/FWLite/interface/Event.h"
 
@@ -184,16 +182,6 @@ TEveElementList *fw::getEcalCrystals (const EcalRecHitCollection *hits,
     ret->AddElement(egs);
   }
   return ret;
-}
-
-void fw::addStraightLineSegment( TEveStraightLineSet * marker,
-				 reco::Candidate const * cand,
-				 double scale_factor)
-{
-  double phi = cand->phi();
-  double theta = cand->theta();
-  double size = cand->pt() * scale_factor;
-  marker->AddLine( 0, 0, 0, size * cos(phi)*sin(theta), size *sin(phi)*sin(theta), size*cos(theta));
 }
 
 std::string
