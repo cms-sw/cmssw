@@ -16,6 +16,14 @@ TkLayerMap::TkLayerMap(int in):layerEnumNb_(in){
 
   initialize(layerEnumNb_);
 
+ if(!edm::Service<SiStripDetInfoFileReader>().isAvailable()){
+    edm::LogError("TkLayerMap") << 
+      "\n------------------------------------------"
+      "\nUnAvailable Service SiStripDetInfoFileReader: please insert in the configuration file an instance like"
+      "\n\tprocess.SiStripDetInfoFileReader = cms.Service(\"SiStripDetInfoFileReader\")"
+      "\n------------------------------------------";
+  }
+ 
   SiStripDetInfoFileReader * fr=edm::Service<SiStripDetInfoFileReader>().operator->();
 
   std::vector<uint32_t> TkDetIdList=fr->getAllDetIds();

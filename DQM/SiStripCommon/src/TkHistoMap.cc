@@ -3,11 +3,25 @@
 //#define debug_TkHistoMap
 
 TkHistoMap::TkHistoMap(std::string path, std::string MapName,float baseline): 
-  dqmStore_(edm::Service<DQMStore>().operator->()),
-  tkdetmap_(edm::Service<TkDetMap>().operator->()),
   HistoNumber(23),
   MapName_(MapName)
 {
+  if(!edm::Service<DQMStore>().isAvailable()){
+    edm::LogError("TkHistoMap") << 
+      "\n------------------------------------------"
+      "\nUnAvailable Service DQMStore: please insert in the configuration file an instance like"
+      "\n\tprocess.load(\"DQMServices.Core.DQMStore_cfg\")"
+      "\n------------------------------------------";
+  }
+  dqmStore_=edm::Service<DQMStore>().operator->();
+  if(!edm::Service<TkHistoMap>().isAvailable()){
+    edm::LogError("TkHistoMap") << 
+      "\n------------------------------------------"
+      "\nUnAvailable Service TkHistoMap: please insert in the configuration file an instance like"
+      "\n\tprocess.TkDetMap = cms.Service(\"TkDetMap\")"
+      "\n------------------------------------------";
+  }
+  tkdetmap_=edm::Service<TkDetMap>().operator->();
   LogTrace("TkHistoMap") <<"TkHistoMap::constructor "; 
   createTkHistoMap(path,MapName, baseline);
 }
