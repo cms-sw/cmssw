@@ -304,19 +304,17 @@ FBaseSimEvent::fill(const std::vector<SimTrack>& simTracks,
       // Don't save tracks that have decayed immediately but for which no daughters
       // were saved (probably due to cuts on E, pT and eta)
       //  if ( part.PDGcTau() > 0.1 || endVertex.find(trackId) != endVertex.end() ) 
-	myTracks[trackId] = addSimTrack(&part,myVertices[vertexId],track.genpartIndex());
-	if ( track.trackerSurfacePosition().perp2() > 22500. || fabs(track.trackerSurfacePosition().z()) > 400. ) 
-	  (*theSimTracks)[ myTracks[trackId] ].setTkPosition(track.trackerSurfacePosition()/10.);
-	else
-	  (*theSimTracks)[ myTracks[trackId] ].setTkPosition(track.trackerSurfacePosition());
+      myTracks[trackId] = addSimTrack(&part,myVertices[vertexId],track.genpartIndex());
+      if ( myTracks[trackId] >= 0 ) { 
+	(*theSimTracks)[ myTracks[trackId] ].setTkPosition(track.trackerSurfacePosition());
 	(*theSimTracks)[ myTracks[trackId] ].setTkMomentum(track.trackerSurfaceMomentum());
+      }
     } else {
       myTracks[trackId] = myTracks[motherId];
-      if ( track.trackerSurfacePosition().perp2() > 22500. || fabs(track.trackerSurfacePosition().z()) > 400. ) 
-	(*theSimTracks)[ myTracks[trackId] ].setTkPosition(track.trackerSurfacePosition()/10.);
-      else
+      if ( myTracks[trackId] >= 0 ) { 
 	(*theSimTracks)[ myTracks[trackId] ].setTkPosition(track.trackerSurfacePosition());
-      (*theSimTracks)[ myTracks[trackId] ].setTkMomentum(track.trackerSurfaceMomentum());
+	(*theSimTracks)[ myTracks[trackId] ].setTkMomentum(track.trackerSurfaceMomentum());
+      }
     }
     
   }
