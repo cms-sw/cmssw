@@ -146,14 +146,14 @@ and paste these lines (bash shell).
 
 \b Bash \b shell:
 \verbatim
-export ROOTSYS=/afs/cern.ch/sw/lcg/app/releases/ROOT/5.22.00/slc4_ia32_gcc43/root/
+export ROOTSYS=/afs/cern.ch/sw/lcg/app/releases/ROOT/5.22.00/slc4_ia32_gcc34/root/
 export PATH=$PATH:$ROOTSYS/bin
 export LD_LIBRARY_PATH=$ROOTSYS/lib
 \endverbatim
 
 \b Tcsh \b shell:
 \verbatim
-setenv ROOTSYS /afs/cern.ch/sw/lcg/app/releases/ROOT/5.22.00/slc4_ia32_gcc43/root/
+setenv ROOTSYS /afs/cern.ch/sw/lcg/app/releases/ROOT/5.22.00/slc4_ia32_gcc34/root/
 setenv LD_LIBRARY_PATH $ROOTSYS/lib
 set path=($path $ROOTSYS/bin)
 \endverbatim
