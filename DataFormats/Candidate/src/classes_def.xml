@@ -51,6 +51,7 @@
   <class name="edm::reftobase::RefVectorHolder<reco::CandidateRefVector>"/>
 
   <class name="edm::RefToBaseVector<reco::Candidate>" />
+  <class name="edm::PtrVector<reco::Candidate>" />
 
   <class name="edm::RefToBaseProd<reco::Candidate>">
     <field name="view_" transient="true" />
@@ -89,6 +90,7 @@
   <class name="edm::Wrapper<std::vector<reco::LeafCandidate> >" />
   <class name="edm::Wrapper<reco::CandidateRefVector>"/>
   <class name="edm::Wrapper<reco::CandidateBaseRefVector>" />
+  <class name="edm::Wrapper<reco::CandidatePtrVector>" />
   <class name="edm::Wrapper<reco::CandMatchMap>" />
   <class name="edm::Wrapper<reco::CandViewMatchMap>" />
   <class name="edm::Wrapper<reco::CandMatchMapMany>" /> 

@@ -48,6 +48,7 @@ namespace {
     edm::reftobase::VectorHolder<reco::Candidate, reco::CandidateRefVector>::const_iterator_imp_specific rhcri1;
     edm::Wrapper<reco::CandidateRefVector> wrv1;
     edm::Wrapper<reco::CandidateBaseRefVector> wrv2;
+    edm::Wrapper<reco::CandidatePtrVector> wrv2p;
     edm::Wrapper<std::vector<reco::CandidateBaseRef> > wrv21;
     edm::Wrapper<std::vector<reco::CandidatePtr> > wrv22;
     edm::Wrapper<reco::CompositeCandidateRefVector> wrv3;
