@@ -33,6 +33,7 @@ TrackerInteractionGeometry::TrackerInteractionGeometry(const edm::ParameterSet& 
   // Thickness of all layers
   // Version of the material description
   version = trackerMaterial.getParameter<unsigned int>("TrackerMaterialVersion");
+  std::cout << "Tracker Material Version = " << version << std::endl;
   // Beam Pipe
   beamPipeThickness = trackerMaterial.getParameter<std::vector<double> >("BeamPipeThickness");
   // Pixel Barrel Layers 1-3
@@ -275,22 +276,22 @@ TrackerInteractionGeometry::TrackerInteractionGeometry(const edm::ParameterSet& 
   // First TIB layer: r=25.6786, l=130.04
   ++bl;
   maxRadius = (**bl).specificSurface().radius();
-  maxLength = (**bl).specificSurface().bounds().length()/2.+7.0;
+  maxLength = (**bl).specificSurface().bounds().length()/2.;
   const SimpleCylinderBounds  TIB1( maxRadius-0.0150, maxRadius+0.0150, -maxLength, +maxLength);
   // Second TIB layer: r=34.0341, l=131.999
   ++bl;
   maxRadius = (**bl).specificSurface().radius();
-  maxLength = std::max( (**bl).specificSurface().bounds().length()/2.+7.0, maxLength+0.000 );
+  maxLength = std::max( (**bl).specificSurface().bounds().length()/2., maxLength+0.000 );
   const SimpleCylinderBounds  TIB2( maxRadius-0.0150, maxRadius+0.0150, -maxLength, +maxLength);
   // Third TIB layer: r=41.9599, l=131.628  !!!! Needs to be larger than TIB2
   ++bl;
   maxRadius = (**bl).specificSurface().radius();
-  maxLength = std::max( (**bl).specificSurface().bounds().length()/2.+7.0, maxLength+0.000 );
+  maxLength = std::max( (**bl).specificSurface().bounds().length()/2., maxLength+0.000 );
   const SimpleCylinderBounds  TIB3( maxRadius-0.0150, maxRadius+0.0150, -maxLength, +maxLength);
   // Fourth TIB layer: r=49.8924, l=132.78
   ++bl;
   maxRadius = (**bl).specificSurface().radius();
-  maxLength = std::max( (**bl).specificSurface().bounds().length()/2.+7.0, maxLength+0.000 );
+  maxLength = std::max( (**bl).specificSurface().bounds().length()/2., maxLength+0.000 );
   const SimpleCylinderBounds  TIB4( maxRadius-0.0150, maxRadius+0.0150, -maxLength, +maxLength);
 
   // Inner Barrel Cylinder & Ends : Cables and walls

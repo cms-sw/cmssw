@@ -7,109 +7,110 @@ TrackerMaterialBlock = cms.PSet(
         # version 0 = Tracker geometry used between CMSSW_1_2_0 and CMSSW_1_4_10. Works for CSA07; 
         # version 1 = Tuned to CMSSW_1_7_0 geometry
         # version 2 = Tuned to CMSSW_1_8_0 geometry
-        TrackerMaterialVersion = cms.uint32(2),
+        # version 3 = Tuned to CMSSW_3_0_0 geometry
+        TrackerMaterialVersion = cms.uint32(3),
 
         #**********************************************************************
         # Thickness of all (sensitive and dead) layers in x/X0
         #**********************************************************************
         # Beam Pipe
-        BeamPipeThickness = cms.vdouble(0.0038, 0.00265, 0.00265), ## decrease by 30%
+        BeamPipeThickness = cms.vdouble(0.0038, 0.00265, 0.00265, 0.00265),
         # Pixel Barrel Layers 1-3
-        PXBThickness = cms.vdouble(0.0222, 0.0217, 0.0217), ## ~ no change
+        PXBThickness = cms.vdouble(0.0222, 0.0217, 0.0217, 0.0217), 
         # Pixel Barrel services at the end of layers 1-3
-        PXB1CablesThickness = cms.vdouble(0.1, 0.042, 0.042), ## divide by ~2
-        PXB2CablesThickness = cms.vdouble(0.04, 0.042, 0.042), ## ~ no change
-        PXB3CablesThickness = cms.vdouble(0.03, 0.042, 0.042), ## increase by 50%
+        PXB1CablesThickness = cms.vdouble(0.1, 0.042, 0.042, 0.000), 
+        PXB2CablesThickness = cms.vdouble(0.04, 0.042, 0.042, 0.000),
+        PXB3CablesThickness = cms.vdouble(0.03, 0.042, 0.042, 0.000),
         # Pixel Barrel outside cables
-        PXBOutCables1Thickness = cms.vdouble(0.04, 0.04, 0.04), ## no change
-        PXBOutCables2Thickness = cms.vdouble(0.025, 0.015, 0.015), ## divide by 2
+        PXBOutCables1Thickness = cms.vdouble(0.04, 0.04, 0.04, 0.04), 
+        PXBOutCables2Thickness = cms.vdouble(0.025, 0.015, 0.015, 0.012),
         # Pixel Disks 1-2
-        PXDThickness = cms.vdouble(0.044, 0.058, 0.058), ## Increase by a third
+        PXDThickness = cms.vdouble(0.044, 0.058, 0.058, 0.058),
         # Pixel Endcap outside cables
-        PXDOutCables1Thickness = cms.vdouble(0.023, 0.034, 0.034), ## Increase by a third
-        PXDOutCables2Thickness = cms.vdouble(0.085, 0.185, 0.185), ## Increase by 110%
+        PXDOutCables1Thickness = cms.vdouble(0.023, 0.034, 0.034, 0.050),
+        PXDOutCables2Thickness = cms.vdouble(0.085, 0.185, 0.250, 0.250),
         # Tracker Inner barrel layers 1-4
-        TIBLayer1Thickness = cms.vdouble(0.06, 0.053, 0.053), ## decrease of 10%
-        TIBLayer2Thickness = cms.vdouble(0.047, 0.053, 0.053), ## increase of 15%
-        TIBLayer3Thickness = cms.vdouble(0.035, 0.035, 0.035), ## no change
-        TIBLayer4Thickness = cms.vdouble(0.033, 0.04, 0.04), ## increase of 20%
+        TIBLayer1Thickness = cms.vdouble(0.06, 0.053, 0.053, 0.053),
+        TIBLayer2Thickness = cms.vdouble(0.047, 0.053, 0.053, 0.053),
+        TIBLayer3Thickness = cms.vdouble(0.035, 0.035, 0.035, 0.035),
+        TIBLayer4Thickness = cms.vdouble(0.033, 0.04, 0.04, 0.04),
         # TIB outside services (endcap)
-        TIBOutCables1Thickness = cms.vdouble(0.04, 0.108, 0.108), ## Put everything in one layer
-        TIBOutCables2Thickness = cms.vdouble(0.04, 0.0, 0.0), ## remove
+        TIBOutCables1Thickness = cms.vdouble(0.04, 0.108, 0.108, 0.130),
+        TIBOutCables2Thickness = cms.vdouble(0.04, 0.0, 0.0, 0.0),
         # Tracker Inner disks layers 1-3
-        TIDLayer1Thickness = cms.vdouble(0.05, 0.04, 0.04), ## decrease by 20%
-        TIDLayer2Thickness = cms.vdouble(0.05, 0.04, 0.04), ## decrease by 20%
-        TIDLayer3Thickness = cms.vdouble(0.05, 0.055, 0.055), ## increase by 10%
+        TIDLayer1Thickness = cms.vdouble(0.05, 0.04, 0.04, 0.04),
+        TIDLayer2Thickness = cms.vdouble(0.05, 0.04, 0.04, 0.04),
+        TIDLayer3Thickness = cms.vdouble(0.05, 0.055, 0.055, 0.055),
         # TID outside wall (endcap)
-        TIDOutsideThickness = cms.vdouble(0.07, 0.074, 0.074), ## increase of ~5%
+        TIDOutsideThickness = cms.vdouble(0.07, 0.074, 0.074, 0.074),
         # TOB inside wall (barrel)
-        TOBInsideThickness = cms.vdouble(0.017, 0.009, 0.009), ## decrease by a factor 2
+        TOBInsideThickness = cms.vdouble(0.017, 0.009, 0.009, 0.009),
         # Tracker Outer barrel layers 1-6
-        TOBLayer1Thickness = cms.vdouble(0.044, 0.03, 0.03), ## decrease by 30%
-        TOBLayer2Thickness = cms.vdouble(0.044, 0.03, 0.03), ## decrease by 30%
-        TOBLayer3Thickness = cms.vdouble(0.033, 0.022, 0.022), ## decrease by 30%
-        TOBLayer4Thickness = cms.vdouble(0.033, 0.022, 0.022), ## decrease by 30%
-        TOBLayer5Thickness = cms.vdouble(0.033, 0.022, 0.022), ## decrease by 30%
-        TOBLayer6Thickness = cms.vdouble(0.033, 0.022, 0.022), ## decrease by 30%
+        TOBLayer1Thickness = cms.vdouble(0.044, 0.03, 0.03, 0.03),
+        TOBLayer2Thickness = cms.vdouble(0.044, 0.03, 0.03, 0.03),
+        TOBLayer3Thickness = cms.vdouble(0.033, 0.022, 0.022, 0.022),
+        TOBLayer4Thickness = cms.vdouble(0.033, 0.022, 0.022, 0.022),
+        TOBLayer5Thickness = cms.vdouble(0.033, 0.022, 0.022, 0.022),
+        TOBLayer6Thickness = cms.vdouble(0.033, 0.022, 0.022, 0.022),
         # TOB services (endcap)
-        TOBOutsideThickness = cms.vdouble(0.09, 0.15, 0.15), ## 80% increase
+        TOBOutsideThickness = cms.vdouble(0.09, 0.15, 0.15, 0.15),
         # Tracker EndCap disks layers 1-9
-        TECLayerThickness = cms.vdouble(0.041, 0.045, 0.045), ## 10% increase
+        TECLayerThickness = cms.vdouble(0.041, 0.045, 0.045, 0.050),
         # TOB outside wall (barrel)
-        BarrelCablesThickness = cms.vdouble(0.1, 0.038, 0.038), ## A factor of three less
+        BarrelCablesThickness = cms.vdouble(0.1, 0.038, 0.038, 0.042),
         # TEC outside wall (endcap)
-        EndcapCables1Thickness = cms.vdouble(0.26, 0.21, 0.21), ## 20% decrease
-        EndcapCables2Thickness = cms.vdouble(0.08, 0.0, 0.0), ## 70% increase
+        EndcapCables1Thickness = cms.vdouble(0.26, 0.21, 0.21, 0.21),
+        EndcapCables2Thickness = cms.vdouble(0.08, 0.0, 0.0, 0.0),
 
         #**********************************************************************
         # Position of dead material layers (cables, services, etc.)
         #**********************************************************************
         # Beam pipe
-        BeamPipeRadius = cms.vdouble(3.0, 3.0, 3.0),
-        BeamPipeLength = cms.vdouble(26.4, 28.3, 28.3), ## Lengthen bt 1.9 cm
+        BeamPipeRadius = cms.vdouble(3.0, 3.0, 3.0, 3.0),
+        BeamPipeLength = cms.vdouble(26.4, 28.3, 28.3, 28.3),
         # Cables and Services at the end of PIXB1,2,3 ("disk")
-        PXB1CablesInnerRadius = cms.vdouble(3.6, 3.7, 3.7), ## shorten by 1 mm
-        PXB2CablesInnerRadius = cms.vdouble(6.1, 6.3, 6.3), ## shorten by 2 mm
-        PXB3CablesInnerRadius = cms.vdouble(8.5, 9.0, 9.0), ## shorten by 5 mm
+        PXB1CablesInnerRadius = cms.vdouble(3.6, 3.7, 3.7, 3.7),
+        PXB2CablesInnerRadius = cms.vdouble(6.1, 6.3, 6.3, 6.3),
+        PXB3CablesInnerRadius = cms.vdouble(8.5, 9.0, 9.0, 9.0),
         # Pixel Barrel Outside walls and cables (endcap)
-        PXBOutCables1InnerRadius = cms.vdouble(11.9, 11.9, 11.9),
-        PXBOutCables1OuterRadius = cms.vdouble(15.5, 15.5, 15.5),
-        PXBOutCables1ZPosition = cms.vdouble(27.999, 28.799, 28.799), ## Lengthen by 8 mm
-        PXBOutCables2InnerRadius = cms.vdouble(3.8, 3.8, 3.8),
-        PXBOutCables2OuterRadius = cms.vdouble(16.5, 16.5, 16.5),
-        PXBOutCables2ZPosition = cms.vdouble(28.0, 28.8, 28.8), ## Lengthen by 8 mm
+        PXBOutCables1InnerRadius = cms.vdouble(11.9, 11.9, 11.9, 4.2),
+        PXBOutCables1OuterRadius = cms.vdouble(15.5, 15.5, 15.5, 16.5),
+        PXBOutCables1ZPosition = cms.vdouble(27.999, 28.799, 28.799, 28.799),
+        PXBOutCables2InnerRadius = cms.vdouble(3.8, 3.8, 3.8, 3.8),
+        PXBOutCables2OuterRadius = cms.vdouble(16.5, 16.5, 16.5, 16.5),
+        PXBOutCables2ZPosition = cms.vdouble(28.0, 28.8, 28.8, 28.8),
         # Pixel Outside walls and cables (barrel and endcap)
-        PixelOutCablesRadius = cms.vdouble(17.1, 17.5, 17.5), ## 4mm outer
-        PixelOutCablesLength = cms.vdouble(64.8, 72.0, 72.0),
-        PixelOutCablesInnerRadius = cms.vdouble(3.0, 3.0, 7.197), ## Stop tbis disk at eta = 3.0
-        PixelOutCablesOuterRadius = cms.vdouble(17.3, 17.61, 17.61), ## 3 mm outer
-        PixelOutCablesZPosition = cms.vdouble(64.9, 72.1, 72.1),
+        PixelOutCablesRadius = cms.vdouble(17.1, 17.5, 17.5, 17.5), 
+        PixelOutCablesLength = cms.vdouble(64.8, 72.0, 72.0, 65.0),
+        PixelOutCablesInnerRadius = cms.vdouble(3.0, 3.0, 7.197, 7.2),
+        PixelOutCablesOuterRadius = cms.vdouble(17.3, 17.61, 17.61, 17.61),
+        PixelOutCablesZPosition = cms.vdouble(64.9, 72.1, 72.1, 65.1),
         # Tracker Inner Barrel Outside Cables and walls (endcap)
-        TIBOutCables1InnerRadius = cms.vdouble(22.5, 22.5, 22.5),
-        TIBOutCables1OuterRadius = cms.vdouble(53.9, 53.9, 53.9),
-        TIBOutCables1ZPosition = cms.vdouble(75.001, 74.0, 74.0), ## -1 cm
-        TIBOutCables2OuterRadius = cms.vdouble(53.901, 53.901, 53.901),
-        TIBOutCables2InnerRadius = cms.vdouble(35.5, 35.5, 35.5),
-        TIBOutCables2ZPosition = cms.vdouble(75.001, 74.001, 74.001), ## -1 cm
+        TIBOutCables1InnerRadius = cms.vdouble(22.5, 22.5, 22.5, 22.5),
+        TIBOutCables1OuterRadius = cms.vdouble(53.9, 53.9, 53.9, 53.9),
+        TIBOutCables1ZPosition = cms.vdouble(75.001, 74.0, 74.0, 74.0), 
+        TIBOutCables2OuterRadius = cms.vdouble(53.901, 53.901, 53.901, 53.901),
+        TIBOutCables2InnerRadius = cms.vdouble(35.5, 35.5, 35.5, 35.5),
+        TIBOutCables2ZPosition = cms.vdouble(75.001, 74.001, 74.001, 74.001),
         # Tracker Inner Disks Outside Cables and walls (endcap)
-        TIDOutCablesInnerRadius = cms.vdouble(32.0, 22.0, 22.0), ## 10 cm more
-        TIDOutCablesZPosition = cms.vdouble(108.0, 108.0, 108.0),
+        TIDOutCablesInnerRadius = cms.vdouble(32.0, 22.0, 22.0, 22.0), 
+        TIDOutCablesZPosition = cms.vdouble(108.0, 108.0, 108.0, 108.0),
         # Tracker outer barrel Inside wall (barrel)
-        TOBInCablesRadius = cms.vdouble(54.5, 54.5, 54.6),
-        TOBInCablesLength = cms.vdouble(108.2, 108.2, 108.2),
+        TOBInCablesRadius = cms.vdouble(54.5, 54.5, 54.6, 54.6),
+        TOBInCablesLength = cms.vdouble(108.2, 108.2, 108.2, 108.2),
         # Tracker Outer Barrel Outside Cables and walls (barrel and endcap)
-        TOBOutCablesInnerRadius = cms.vdouble(55.0, 55.0, 55.0),
-        TOBOutCablesOuterRadius = cms.vdouble(109.5, 111.0, 111.0),
-        TOBOutCablesZPosition = cms.vdouble(110.0, 115.0, 115.0),
-        TOBOutCablesRadius = cms.vdouble(119.5, 119.5, 119.5),
-        TOBOutCablesLength = cms.vdouble(299.9, 299.9, 299.9),
+        TOBOutCablesInnerRadius = cms.vdouble(55.0, 55.0, 55.0, 55.0),
+        TOBOutCablesOuterRadius = cms.vdouble(109.5, 111.0, 111.0, 111.0),
+        TOBOutCablesZPosition = cms.vdouble(110.0, 115.0, 115.0, 115.0),
+        TOBOutCablesRadius = cms.vdouble(119.5, 119.5, 119.5, 119.5),
+        TOBOutCablesLength = cms.vdouble(299.9, 299.9, 299.9, 299.9),
         # Tracker Endcaps Outside Cables and walls (endcaps)
-        TECOutCables1InnerRadius = cms.vdouble(6.0, 30.0, 4.42), ## Not that low! for eta>3
-        TECOutCables1OuterRadius = cms.vdouble(120.001, 120.001, 120.001),
-        TECOutCables1ZPosition = cms.vdouble(300.0, 300.0, 300.0),
-        TECOutCables2InnerRadius = cms.vdouble(70.0, 68.0, 68.0), ## 2cm longer 
-        TECOutCables2OuterRadius = cms.vdouble(120.001, 120.001, 120.001),
-        TECOutCables2ZPosition = cms.vdouble(300.0, 300.0, 300.0),
+        TECOutCables1InnerRadius = cms.vdouble(6.0, 30.0, 4.42, 4.42), 
+        TECOutCables1OuterRadius = cms.vdouble(120.001, 120.001, 120.001, 120.001),
+        TECOutCables1ZPosition = cms.vdouble(300.0, 300.0, 300.0, 300.0),
+        TECOutCables2InnerRadius = cms.vdouble(70.0, 68.0, 68.0, 68.0), 
+        TECOutCables2OuterRadius = cms.vdouble(120.001, 120.001, 120.001, 120.001),
+        TECOutCables2ZPosition = cms.vdouble(300.0, 300.0, 300.0, 300.0),
 
 
         #*********************************************************************
@@ -120,8 +121,17 @@ TrackerMaterialBlock = cms.PSet(
         # Convention is < 100 for sensitive layer, > 100 for dead material
         # (although this convention is used nowhere...)
         FudgeLayer = cms.vuint32(
-	106,  # Pixel Barrel services 
-	106,  # Pixel Barrel services 
+        104,  # Pixel Barrel services
+        104,  # Pixel Barrel services
+        104,  # Pixel Barrel services
+        104,  # Pixel Barrel services
+        104,  # Pixel Barrel services
+        104,  # Pixel Barrel services
+        104,  # Pixel Barrel services
+	106,  # Pixel wall 
+	106,  # Pixel wall 
+	107,  # Pixel endcap services
+	107,  # Pixel endcap services
 	107,  # Pixel endcap services
 	6,    # TIB1 services  
 	7,    # TIB2 services  
@@ -192,17 +202,27 @@ TrackerMaterialBlock = cms.PSet(
 	114,  # Endcap Wall : 4.00<eta<4.40
 	114,  # Endcap Wall : 3.71<eta<4.00
 	114,  # Endcap Wall : 3.61<eta<3.71
-	114,  # Endcap Wall : 3.50<eta<3.61
-	114,  # Endcap Wall : 3.00<eta<3.50
-	114,  # Endcap Wall
+	114,  # Endcap Wall : 3.30<eta<3.61
+	114,  # Endcap Wall : 3.05<eta<3.30
+	114,  # Endcap Wall : 2.95<eta<3.05
+	114,  # Endcap Wall : 2.75<eta<2.95
 	114   # Endcap Wall
         ),
 
         # Lower limit on Radius or Z
         FudgeMin = cms.vdouble(
       	 0.0,  # Pixel Barrel services 
-	27.5,  # Pixel Barrel services 
+      	 4.2,  # Pixel Barrel services 
+      	 5.1,  # Pixel Barrel services 
+      	 7.1,  # Pixel Barrel services 
+      	 8.2,  # Pixel Barrel services 
+      	10.0,  # Pixel Barrel services 
+      	11.0,  # Pixel Barrel services
+	 0.0,  # Pixel Wall 
+	27.5,  # Pixel Wall 
 	 0.0,  # Pixel endcap services
+	10.0,  # Pixel endcap services
+	16.0,  # Pixel endcap services
 	35.0,  # TIB1 services  
 	35.0,  # TIB2 services  
 	35.0,  # TIB3 services  
@@ -272,17 +292,27 @@ TrackerMaterialBlock = cms.PSet(
 	 7.37, # Endcap Wall : 4.00<eta<4.40
 	10.99, # Endcap Wall : 3.71<eta<4.00
 	14.70, # Endcap Wall : 3.61<eta<3.71
-	16.24, # Endcap Wall : 3.50<eta<3.61
-	18.13, # Endcap Wall : 3.00<eta<3.50
-        33.0,  # Endcap wall
+	16.24, # Endcap Wall : 3.30<eta<3.61
+	22.00, # Endcap Wall : 3.05<eta<3.30
+	28.50, # Endcap Wall : 2.95<eta<3.05
+        31.50, # Endcap wall : 2.75<eta<2.95
         68.0   # Endcap wall
          ),
 
         # Upper limit on Radius or Z
         FudgeMax = cms.vdouble(
-	 27.5,  # Pixel Barrel services 
-	 32.0,  # Pixel Barrel services 
-	 13.0,  # Pixel endcap services
+      	  4.2,  # Pixel Barrel services 
+      	  5.1,  # Pixel Barrel services 
+      	  7.1,  # Pixel Barrel services 
+      	  8.2,  # Pixel Barrel services 
+      	 10.0,  # Pixel Barrel services 
+      	 11.0,  # Pixel Barrel services
+       	 11.9,  # Pixel Barrel services 
+	 27.5,  # Pixel Wall 
+	 32.0,  # Pixel Wall 
+	 10.0,  # Pixel endcap services
+	 11.0,  # Pixel endcap services
+	 18.0,  # Pixel endcap services
 	 68.0,  # TIB1 services  
 	 68.0,  # TIB2 services  
 	 68.0,  # TIB3 services  
@@ -352,17 +382,27 @@ TrackerMaterialBlock = cms.PSet(
 	 10.99, # Endcap Wall : 4.00<eta<4.40
 	 14.70, # Endcap Wall : 3.71<eta<4.00
 	 16.24, # Endcap Wall : 3.61<eta<3.71
-	 18.13, # Endcap Wall : 3.50<eta<3.61
-	 30.00, # Endcap Wall : 3.00<eta<3.50
-	 35.0,  # Endcap wall
+	 22.00, # Endcap Wall : 3.30<eta<3.61
+	 28.50, # Endcap Wall : 3.05<eta<3.30
+	 31.50, # Endcap Wall : 2.95<eta<3.05
+	 36.00, # Endcap Wall : 2.75<eta<2.95
 	120.0   # Endcap wall
          ),
 
         # Fudge factor on x/X0
         FudgeFactor = cms.vdouble(
-	0.40,  # Pixel Barrel services 
-	2.00,  # Pixel Barrel services 
+	0.00,  # Pixel Barrel services 
+	2.50,  # Pixel Barrel services 
+	0.00,  # Pixel Barrel services 
+	2.70,  # Pixel Barrel services 
+	0.00,  # Pixel Barrel services 
+	2.80,  # Pixel Barrel services 
+	0.50,  # Pixel Barrel services 
+	0.27,  # Pixel Wall
+	1.90,  # Pixel Wall 
 	1.60,  # Pixel endcap services
+	1.30,  # Pixel endcap services
+	0.70,  # Pixel endcap services
 	1.45,  # TIB1 services  
 	1.45,  # TIB2 services  
 	1.45,  # TIB3 services  
@@ -401,25 +441,25 @@ TrackerMaterialBlock = cms.PSet(
 	0.50,  # TOB services
 	1.50,  # TOB services
 	1.80,  # TOB services
-	 2.2,  # TEC Layer 1
+	 2.0,  # TEC Layer 1
 	 0.8,  # TEC Layer 1
 	 1.6,  # TEC Layer 1
-	 2.2,  # TEC Layer 2
+	 2.0,  # TEC Layer 2
 	 0.8,  # TEC Layer 2
 	 1.6,  # TEC Layer 2
-	 2.2,  # TEC Layer 3
+	 2.0,  # TEC Layer 3
 	 0.8,  # TEC Layer 3
 	 1.6,  # TEC Layer 3
-	 2.5,  # TEC Layer 4
+	 2.3,  # TEC Layer 4
 	 0.6,  # TEC Layer 4
 	 1.4,  # TEC Layer 4
-	 2.5,  # TEC Layer 5
+	 2.3,  # TEC Layer 5
 	 0.6,  # TEC Layer 5
 	 1.4,  # TEC Layer 5
 	 2.5,  # TEC Layer 6
 	 0.6,  # TEC Layer 6
 	 1.4,  # TEC Layer 6
-	 3.0,  # TEC Layer 7
+	 2.7,  # TEC Layer 7
 	 0.6,  # TEC Layer 7
 	 3.0,  # TEC Layer 8
 	 0.6,  # TEC Layer 8
@@ -432,10 +472,11 @@ TrackerMaterialBlock = cms.PSet(
 	 0.424, # Endcap Wall : 4.00<eta<4.40
 	 0.327, # Endcap Wall : 3.71<eta<4.00
 	 0.591, # Endcap Wall : 3.61<eta<3.71
-	 1.81,  # Endcap Wall : 3.50<eta<3.61
-	 2.37,  # Endcap Wall : 3.00<eta<3.50
-         1.0,  # Endcap wall: decrease from 3.0 (v2) to 1.0 (v3)
-         1.6   # Endcap wall
+	 2.00,  # Endcap Wall : 3.30<eta<3.61
+	 4.00,  # Endcap Wall : 3.05<eta<3.30
+	 2.00,  # Endcap Wall : 2.95<eta<3.05
+	 3.20,  # Endcap Wall : 2.75<eta<2.95
+         1.60   # Endcap wall
         )
         
     )
