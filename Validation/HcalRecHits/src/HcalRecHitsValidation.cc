@@ -489,7 +489,7 @@ HcalRecHitsValidation::HcalRecHitsValidation(edm::ParameterSet const& conf) {
 	}
 
 	sprintf (histo, "HcalRecHitTask_number_of_rechits_above_1GeV_HO");
-	meNumRecHitsThreshHO = dbe_->book1D(histo, histo,   30, 0., 30.);   
+	meNumRecHitsThreshHO = dbe_->book1D(histo, histo,   100, 0., 100.);   
 	
 	sprintf (histo, "HcalRecHitTask_sum_of_rechits_energy_HO" ) ;
 	meSumRecHitsEnergyHO = dbe_->book1D(histo,histo, 80 , -20., 380.);
@@ -560,17 +560,17 @@ HcalRecHitsValidation::HcalRecHitsValidation(edm::ParameterSet const& conf) {
             
       if(imc != 0) {
 	sprintf (histo, "HcalRecHitTask_energy_rechits_vs_simhits_HF");
-	meRecHitSimHitHF  = dbe_->book2D(histo, histo, 30, 0., 30., 200, 0., 200.);      
+	meRecHitSimHitHF  = dbe_->book2D(histo, histo, 50, 0., 50., 150, 0., 150.);      
 	sprintf (histo, "HcalRecHitTask_energy_rechits_vs_simhits_HFL");
-	meRecHitSimHitHFL = dbe_->book2D(histo, histo, 30, 0., 30., 200, 0., 200.);      
+	meRecHitSimHitHFL = dbe_->book2D(histo, histo, 50, 0., 50., 150, 0., 150.);      
 	sprintf (histo, "HcalRecHitTask_energy_rechits_vs_simhits_HFS");
-	meRecHitSimHitHFS = dbe_->book2D(histo, histo, 30, 0., 30., 200, 0., 200.);
+	meRecHitSimHitHFS = dbe_->book2D(histo, histo, 50, 0., 50., 150, 0., 150.);
 	sprintf (histo, "HcalRecHitTask_energy_rechits_vs_simhits_profile_HF");
-	meRecHitSimHitProfileHF  = dbe_->bookProfile(histo, histo, 30, 0., 30., 500, 0., 500.);  
+	meRecHitSimHitProfileHF  = dbe_->bookProfile(histo, histo, 50, 0., 50., 500, 0., 500.);  
 	sprintf (histo, "HcalRecHitTask_energy_rechits_vs_simhits_profile_HFL");
-	meRecHitSimHitProfileHFL = dbe_->bookProfile(histo, histo, 30, 0., 30., 500, 0., 500.);  
+	meRecHitSimHitProfileHFL = dbe_->bookProfile(histo, histo, 50, 0., 50., 500, 0., 500.);  
 	sprintf (histo, "HcalRecHitTask_energy_rechits_vs_simhits_profile_HFS");
-	meRecHitSimHitProfileHFS = dbe_->bookProfile(histo, histo, 30, 0., 30., 500, 0., 500.);  
+	meRecHitSimHitProfileHFS = dbe_->bookProfile(histo, histo, 50, 0., 50., 500, 0., 500.);  
       }
     }
   }  //end-of if(_dbe) 

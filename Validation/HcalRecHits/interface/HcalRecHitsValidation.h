@@ -29,7 +29,7 @@
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 #include <vector>
 #include <utility>
