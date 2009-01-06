@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:23 CDT 2008
-// $Id: CmsShowMainFrame.cc,v 1.33 2008/12/10 15:15:59 amraktad Exp $
+// $Id: CmsShowMainFrame.cc,v 1.34 2008/12/10 16:10:58 amraktad Exp $
 //
 // hacks
 #define private public
@@ -51,6 +51,8 @@
 
 #include "Fireworks/Core/interface/FWGUIManager.h"
 #include "Fireworks/Core/interface/FWCustomIconsButton.h"
+
+#include "Fireworks/Core/interface/FWIntValueListener.h"
 
 //
 // constants, enums and typedefs
@@ -103,7 +105,6 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    CSGAction *keyboardShort = new CSGAction(this, cmsshow::sKeyboardShort.c_str());
    m_runEntry = new CSGAction(this, "Run Entry");
    m_eventEntry = new CSGAction(this, "Event Entry");
-   m_delaySlider = new CSGAction(this, "Play Delay");
    CSGAction *eventFilter = new CSGAction(this, "Event Filter");
    m_nextEvent = nextEvent;
    m_previousEvent = previousEvent;
@@ -120,8 +121,6 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    playEventsBack->setToolTip("Play events backwards");
 
    TGMenuBar *menuBar = new TGMenuBar(this, this->GetWidth(), 14);
-
-  
 
    TGPopupMenu *fileMenu = new TGPopupMenu(gClient->GetRoot());
    menuBar->AddPopup("File", fileMenu, new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 0, 0));
@@ -270,7 +269,14 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    TImage *imgSld  = TImage::Open(coreIcondir+"slider-bg-down.png");
    sliderFrame->SetBackgroundPixmap(imgSld->GetPixmap());
    TString sldBtn = coreIcondir +"slider-button.png";
-   m_delaySlider->createDelaySlider(sliderFrame, 0, 10000, sldBtn, new TGLayoutHints(kLHintsTop | kLHintsLeft, 39, 8, 1, 3));
+
+   m_delaySlider = new TGHSlider(sliderFrame, 109, 100, kSlider1 | kScaleNo);
+   sliderFrame->AddFrame(m_delaySlider, new TGLayoutHints(kLHintsTop | kLHintsLeft, 39, 8, 1, 3));
+   m_delaySlider->SetRange(0, 10000);
+   m_delaySlider->SetPosition(0);
+   m_delaySlider->SetBackgroundColor(0x1a1a1a);
+   m_delaySlider->ChangeSliderPic(sldBtn);
+
    controlFrame->AddFrame(sliderFrame, new TGLayoutHints(kLHintsTop | kLHintsLeft, 10, 0, 0, 0));
 
    fullbar->AddFrame(controlFrame, new TGLayoutHints(kLHintsLeft, 2, 2, 5, 5));
@@ -285,9 +291,12 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    delayFrame->AddFrame(label, new TGLayoutHints(kLHintsTop | kLHintsCenterX, 0, 0, 22, 0));
 
    TGHorizontalFrame *labFixed = new TGHorizontalFrame(delayFrame, 70, 20, kFixedSize, backgroundColor);
-   m_delaySlider->createLabel(labFixed, "0.0s", 0xffffff, backgroundColor,  new TGLayoutHints(kLHintsTop | kLHintsCenterX |kLHintsExpandX , 0, 0, 0, 0));
+   m_delayLabel = new TGLabel(labFixed, "0.0s");
+   m_delayLabel->SetBackgroundColor(backgroundColor);
+   m_delayLabel->SetTextJustify(kTextCenterX);
+   m_delayLabel->SetTextColor(0xffffff);
+   labFixed->AddFrame(m_delayLabel, new TGLayoutHints(kLHintsTop | kLHintsCenterX |kLHintsExpandX , 0, 0, 0, 0));
    delayFrame->AddFrame(labFixed, new TGLayoutHints(kLHintsLeft, 0, 4, 0, 0));
-
 
    fullbar->AddFrame(delayFrame, new TGLayoutHints(kLHintsTop | kFixedSize, 0, 0, 0, 0));
 
@@ -377,6 +386,9 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    //   Resize(this->GetDefaultSize());
    Layout();
    MapWindow();
+
+    m_delaySliderListener =  new FWIntValueListener();
+   TQObject::Connect(m_delaySlider, "PositionChanged(Int_t)", "FWIntValueListenerBase",  m_delaySliderListener, "setValue(Int_t)");
 }
 
 // CmsShowMainFrame::CmsShowMainFrame(const CmsShowMainFrame& rhs)
@@ -443,8 +455,8 @@ Bool_t CmsShowMainFrame::activateToolBarEntry(int entry) {
    return kFALSE;
 }
 
-Long_t CmsShowMainFrame::getDelay() const {
-   return m_delay;
+Long_t CmsShowMainFrame::getToolTipDelay() const {
+   return m_tooltipDelay;
 }
 
 void CmsShowMainFrame::defaultAction() {
@@ -623,6 +635,14 @@ CmsShowMainFrame::getRunEntry() const {
 CSGAction*
 CmsShowMainFrame::getEventEntry() const {
   return m_eventEntry;
+}
+
+void
+CmsShowMainFrame::setPlayDelayGUI(Int_t val, Bool_t sliderChanged)
+{
+   m_delayLabel->SetText(Form("%.1f", val*0.001));
+   if (sliderChanged)
+      m_delaySlider->SetPosition(val);
 }
 
 void

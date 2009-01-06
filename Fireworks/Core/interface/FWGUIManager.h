@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 10:52:24 EST 2008
-// $Id: FWGUIManager.h,v 1.41 2008/11/06 22:05:22 amraktad Exp $
+// $Id: FWGUIManager.h,v 1.42 2008/12/18 21:24:52 chrjones Exp $
 //
 
 // system include files
@@ -84,7 +84,6 @@ class CmsShowEDI;
 class CmsShowModelPopup;
 class CmsShowViewPopup;
 class FWViewManagerManager;
-
 class CmsShowHelpPopup;
 
 class FWGUIManager : public FWConfigurable
@@ -177,7 +176,11 @@ class FWGUIManager : public FWConfigurable
       sigc::signal<void> goingToQuit_;
       sigc::signal<void> writeToPresentConfigurationFile_;
 
+      sigc::signal<void, Int_t> changedDelayBetweenEvents_;
+
       void openEveBrowserForDebugging() const;
+      void setDelayBetweenEvents(Int_t);
+
    private:
       FWGUIManager(const FWGUIManager&); // stop default
 
@@ -197,6 +200,8 @@ class FWGUIManager : public FWConfigurable
 
       void exportImageOfMainView();
       void promptForConfigurationFile();
+
+      void delaySliderChanged(Int_t);
 
       // ---------- member data --------------------------------
 

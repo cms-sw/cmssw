@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.55 2008/12/09 05:53:26 dmytro Exp $
+// $Id: CmsShowMain.cc,v 1.56 2008/12/09 16:02:27 chrjones Exp $
 //
 
 // system include files
@@ -42,7 +42,6 @@
 #include "TGTextEntry.h"
 #include "TStopwatch.h"
 #include "TGFileDialog.h"
-#include "TGSlider.h"
 
 //needed to work around a bug
 #include "TApplication.h"
@@ -83,7 +82,6 @@
 #include "Fireworks/Core/interface/ActionsList.h"
 
 #include "Fireworks/Core/src/CmsShowTaskExecutor.h"
-#include "Fireworks/Core/interface/FWIntValueListener.h"
 
 
 //
@@ -738,7 +736,6 @@ CmsShowMain::setupDetailedViewManagers()
    registerDetailView("Muons", new MuonDetailView);
    registerDetailView("Tracks", new TrackDetailView);
    registerDetailView("GenParticles", new GenParticleDetailView);
-
 }
 
 namespace {
@@ -782,16 +779,8 @@ CmsShowMain::setupDataHandling()
    if (CSGAction* action = m_guiManager->getAction("Event Entry"))
      action->activated.connect(boost::bind(&CmsShowNavigator::goToEvent,m_navigator, action));
 
-   if (CSGAction* action = m_guiManager->getAction("Play Delay"))
-   {
-     TGSlider* slider =  action->getSlider();
-     action->getSlider()->SetPosition(m_playDelay);
-     action->getLabel()->SetText(Form(" %.1fs ", m_playDelay*0.001));
-
-     FWIntValueListener* listener = new FWIntValueListener();
-     TQObject::Connect(slider, "PositionChanged(Int_t)", "FWIntValueListenerBase", listener, "setValue(Int_t)");
-     listener->valueChanged_.connect(boost::bind(&CmsShowMain::setPlayDelay, this, action));
-   }
+   m_guiManager->setDelayBetweenEvents(m_playDelay);
+   m_guiManager->changedDelayBetweenEvents_.connect(boost::bind(&CmsShowMain::setPlayDelay,this,_1));
 
    if (CSGAction* action = m_guiManager->getAction("Event Filter"))
      action->activated.connect(boost::bind(&CmsShowNavigator::filterEvents,m_navigator,action));
@@ -812,10 +801,9 @@ CmsShowMain::setupDataHandling()
 }
 
 void
-CmsShowMain::setPlayDelay(CSGAction* action)
+CmsShowMain::setPlayDelay(Int_t val)
 {
-  m_playDelay = action->getSlider()->GetPosition();
-  action->getLabel()->SetText(Form("%.1fs", m_playDelay*0.001));
+  m_playDelay = val;
   m_playTimer->Reset();
   m_playTimer->SetTime(m_playDelay);
 }

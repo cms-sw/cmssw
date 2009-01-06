@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:11 CDT 2008
-// $Id: CSGAction.cc,v 1.17 2008/12/04 19:07:57 amraktad Exp $
+// $Id: CSGAction.cc,v 1.18 2008/12/08 15:06:16 chrjones Exp $
 //
 
 // system include files
@@ -20,7 +20,6 @@
 #include "TGLabel.h"
 #include "TGTextEntry.h"
 #include "TGNumberEntry.h"
-#include "TGSlider.h"
 
 // user include files
 #include "Fireworks/Core/interface/CSGAction.h"
@@ -55,7 +54,6 @@ CSGAction::CSGAction(CmsShowMainFrame *frame, const char *name) {
    m_modcode = 0;
    m_textEntry = 0;
    m_numberEntry = 0;
-   m_slider = 0;
 }
 // CSGAction::CSGAction(const CSGAction& rhs)
 // {
@@ -105,22 +103,14 @@ void CSGAction::setToolTip(const std::string& tip) {
    for(std::vector<TGButton*>::iterator it = m_buttons.begin(), itEnd = m_buttons.end();
        it != itEnd;
        ++it) {
-      (*it)->SetToolTipText(tip.c_str(), m_frame->getDelay());
+      (*it)->SetToolTipText(tip.c_str(), m_frame->getToolTipDelay());
    }
   if (m_tools != 0) m_tools->fTipText = tip.c_str();
 }
 
-void CSGAction::createLabel(TGCompositeFrame* p, const char* txt, UInt_t txtCol, UInt_t bgCol, TGLayoutHints* l, Int_t id) {
-   m_label = new TGLabel(p, txt);
-   m_label->SetBackgroundColor(bgCol);
-   m_label->SetTextJustify(kTextCenterX);
-   m_label->SetTextColor(txtCol);
-   p->AddFrame(m_label, l);
-}
-
 void CSGAction::createTextButton(TGCompositeFrame* p, TGLayoutHints* l, Int_t id, GContext_t norm, FontStruct_t font, UInt_t option) {
    TGTextButton* textButton = new TGTextButton(p, m_name.c_str(), id, norm, font, option);
-   if (m_toolTip != "") textButton->SetToolTipText(m_toolTip.c_str(), m_frame->getDelay());
+   if (m_toolTip != "") textButton->SetToolTipText(m_toolTip.c_str(), m_frame->getToolTipDelay());
    p->AddFrame(textButton, l);
    TQObject::Connect(textButton, "Clicked()", "CSGAction", this, "activate()");
    m_buttons.push_back(textButton);
@@ -149,24 +139,9 @@ void CSGAction::createNumberEntry(TGCompositeFrame* p, bool intType, TGLayoutHin
    TQObject::Connect(m_numberEntry, "ReturnPressed()", "CSGAction", this, "activate()");
 }
 
-void CSGAction::createDelaySlider(TGCompositeFrame* p, Int_t min, Int_t max, const char* buttPath,  TGLayoutHints* l, Int_t id)
-{
-   if (m_slider != 0)
-      delete m_slider;
-   
-   m_slider = new TGHSlider(p, 109, 100, kSlider1 | kScaleNo);
-   p->AddFrame(m_slider, l);
-
-   m_slider->SetRange(min, max);
-   m_slider->SetPosition(0);
-
-   m_slider->SetBackgroundColor(0x1a1a1a);
-   m_slider->ChangeSliderPic(buttPath);
-}
-
 void CSGAction::createPictureButton(TGCompositeFrame* p, const TGPicture* pic, TGLayoutHints* l, Int_t id, GContext_t norm, UInt_t option) {
    TGPictureButton* picButton = new TGPictureButton(p, pic, id, norm, option);
-   if (m_toolTip != "") picButton->SetToolTipText(m_toolTip.c_str(), m_frame->getDelay());
+   if (m_toolTip != "") picButton->SetToolTipText(m_toolTip.c_str(), m_frame->getToolTipDelay());
    p->AddFrame(picButton, l);
    TQObject::Connect(picButton, "Clicked()", "CSGAction", this, "activate()");
    m_buttons.push_back(picButton);
@@ -183,7 +158,7 @@ CSGAction::createCustomIconsButton(TGCompositeFrame* p,
                                    UInt_t option)
 {
    FWCustomIconsButton* picButton = new FWCustomIconsButton(p, upPic, downPic, disabledPic, id, norm, option);
-   if (m_toolTip != "") picButton->SetToolTipText(m_toolTip.c_str(), m_frame->getDelay());
+   if (m_toolTip != "") picButton->SetToolTipText(m_toolTip.c_str(), m_frame->getToolTipDelay());
    p->AddFrame(picButton, l);
    TQObject::Connect(picButton, "Clicked()", "CSGAction", this, "activate()");
    m_buttons.push_back(picButton);

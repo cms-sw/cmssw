@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.83 2008/12/11 20:55:42 dmytro Exp $
+// $Id: FWGUIManager.cc,v 1.84 2008/12/18 21:24:52 chrjones Exp $
 //
 
 // system include files
@@ -85,6 +85,7 @@
 #include "Fireworks/Core/interface/FWCustomIconsButton.h"
 
 #include "Fireworks/Core/interface/FWTypeToRepresentations.h"
+#include "Fireworks/Core/interface/FWIntValueListener.h"
 
 //
 // constants, enums and typedefs
@@ -174,6 +175,8 @@ m_tasks(new CmsShowTaskExecutor)
       getAction(cmsshow::sHelp)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::createHelpPopup));
       assert(getAction(cmsshow::sKeyboardShort) != 0);
       getAction(cmsshow::sKeyboardShort)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::createShortcutPopup));
+
+      m_cmsShowMainFrame->getDelaySliderListener()->valueChanged_.connect(boost::bind(&FWGUIManager::delaySliderChanged,this,_1));
    }
    {
      // createEDIFrame();
@@ -1230,6 +1233,18 @@ FWGUIManager::openEveBrowserForDebugging() const
    gEve->GetBrowser()->MapWindow();
 }
 
+void
+FWGUIManager::delaySliderChanged(Int_t val)
+{
+   m_cmsShowMainFrame->setPlayDelayGUI(val, kFALSE);
+   changedDelayBetweenEvents_.emit(val);
+}
+
+void
+FWGUIManager::setDelayBetweenEvents(Int_t val)
+{
+   m_cmsShowMainFrame->setPlayDelayGUI(val, kTRUE);
+}
 
 //
 // static member functions

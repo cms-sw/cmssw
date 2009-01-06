@@ -16,7 +16,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:34:30 PST 2007
-// $Id: CmsShowMain.h,v 1.10 2008/11/28 22:21:46 amraktad Exp $
+// $Id: CmsShowMain.h,v 1.11 2008/12/09 05:53:26 dmytro Exp $
 //
 
 // system include files
@@ -111,7 +111,7 @@ private:
    void stopPlaying();
    void reachedEnd();
 
-  void setPlayDelay(CSGAction* act);  
+  void setPlayDelay(Int_t);  
 
   // ---------- member data --------------------------------
   std::auto_ptr<FWConfigurationManager> m_configurationManager;

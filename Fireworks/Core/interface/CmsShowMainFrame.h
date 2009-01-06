@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 18:11:16 CDT 2008
-// $Id: CmsShowMainFrame.h,v 1.15 2008/12/01 15:51:05 amraktad Exp $
+// $Id: CmsShowMainFrame.h,v 1.16 2008/12/10 13:56:14 dmytro Exp $
 //
 
 // system include files
@@ -41,6 +41,8 @@ class FWGUIManager;
 class TGPopupMenu;
 class TGTextEntry;
 class TGLabel;
+class TGSlider;
+class FWIntValueListener;
 
 namespace fwlite {
   class Event;
@@ -56,8 +58,7 @@ public:
    const std::vector<CSGAction*>& getListOfActions() const;
    CSGAction* getRunEntry() const;
    CSGAction* getEventEntry() const;
-   //delay for tooltips
-   Long_t getDelay() const;
+   Long_t getToolTipDelay() const;
 
    // ---------- static member functions --------------------
 
@@ -76,6 +77,8 @@ public:
    bool nextIsEnabled();
    void updateStatusBar(const char* status);
    void clearStatusBar();
+   void setPlayDelayGUI(Int_t val, Bool_t sliderChanged);
+
    void resizeMenu(TGPopupMenu *menu);
    void HandleMenu(Int_t id);
    Bool_t HandleKey(Event_t *event);
@@ -83,6 +86,9 @@ public:
    CSGContinuousAction* playEventsBackwardsAction() const { return m_playEventsBack;}
 
    CSGAction* createNewViewerAction(const std::string& iActionName);
+   
+   FWIntValueListener* getDelaySliderListener() { return m_delaySliderListener; }
+
 private:
    CmsShowMainFrame(const CmsShowMainFrame&); // stop default
 
@@ -92,10 +98,9 @@ private:
    // ---------- member data --------------------------------
    std::vector<CSGAction*> m_actionList;
    FWGUIManager *m_manager;
-   Long_t m_delay;
+   Long_t m_tooltipDelay;
    CSGAction *m_runEntry;
    CSGAction *m_eventEntry;
-   CSGAction *m_delaySlider;
    TGLabel* m_lumiBlock;
    TGLabel* m_timeText;
    CSGAction *m_nextEvent;
@@ -104,6 +109,11 @@ private:
    CSGAction *m_goToLast;
    CSGContinuousAction *m_playEvents;
    CSGContinuousAction *m_playEventsBack;
+
+   FWIntValueListener* m_delaySliderListener;
+   TGSlider* m_delaySlider;
+   TGLabel*  m_delayLabel;
+
    TGStatusBar* m_statBar;
 
    TGPopupMenu *m_newViewerMenu;
