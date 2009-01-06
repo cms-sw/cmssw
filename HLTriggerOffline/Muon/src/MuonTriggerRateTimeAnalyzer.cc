@@ -13,7 +13,7 @@
 //
 // Original Author:  Muriel Vander Donckt
 //         Created:  Tue Jul 24 12:17:12 CEST 2007
-// $Id: MuonTriggerRateTimeAnalyzer.cc,v 1.9 2008/11/06 00:41:55 klukas Exp $
+// $Id: MuonTriggerRateTimeAnalyzer.cc,v 1.10 2008/11/10 20:34:53 klukas Exp $
 //
 //
 
@@ -30,7 +30,6 @@
 
 #include "HLTriggerOffline/Muon/interface/HLTMuonGenericRate.h"
 #include "HLTriggerOffline/Muon/interface/HLTMuonOverlap.h"
-#include "HLTriggerOffline/Muon/interface/HLTMuonTime.h"
 
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
@@ -51,7 +50,6 @@ private:
   int theNumberOfTriggers;
   std::vector<HLTMuonGenericRate*> theTriggerAnalyzers;
   HLTMuonOverlap *theOverlapAnalyzer;
-  HLTMuonTime    *theTimeAnalyzer;
 
 };
 
@@ -83,7 +81,6 @@ MuonTriggerRateTimeAnalyzer::MuonTriggerRateTimeAnalyzer(const ParameterSet& pse
     }
   }
   theOverlapAnalyzer = new HLTMuonOverlap( pset );    
-  theTimeAnalyzer    = new HLTMuonTime( pset );  
 
   theNumberOfTriggers = theTriggerAnalyzers.size();  
 }
@@ -100,8 +97,6 @@ MuonTriggerRateTimeAnalyzer::~MuonTriggerRateTimeAnalyzer()
   } 
   theTriggerAnalyzers.clear();
   delete theOverlapAnalyzer;
-  delete theTimeAnalyzer;
-
 }
 
 
@@ -118,7 +113,6 @@ MuonTriggerRateTimeAnalyzer::analyze(const Event& iEvent, const EventSetup& iSet
     {
       (*thisAnalyzer)->analyze(iEvent);
     } 
-  theTimeAnalyzer    ->analyze(iEvent);
   theOverlapAnalyzer ->analyze(iEvent);
 }
 
@@ -134,7 +128,6 @@ MuonTriggerRateTimeAnalyzer::beginJob(const EventSetup&)
     {
       (*thisAnalyzer)->begin();
     } 
-  theTimeAnalyzer    ->begin();
   theOverlapAnalyzer ->begin();
 }
 
@@ -149,7 +142,6 @@ MuonTriggerRateTimeAnalyzer::endJob() {
     {
       (*thisAnalyzer)->finish();
     }
-  theTimeAnalyzer    ->finish();
   theOverlapAnalyzer ->finish();
 }
 
