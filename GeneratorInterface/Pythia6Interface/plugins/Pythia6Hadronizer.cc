@@ -32,6 +32,12 @@ namespace gen
 
 extern "C" {
    void pygive_(const char *line, int length);
+   void txgive_(const char *line, int length);
+   void txgive_init_(void);
+//   void pyupev_() ;   
+//  void pyexec_();
+   void upinit_() { FortranCallback::getInstance()->fillHeader(); return; }
+   void upevnt_() { FortranCallback::getInstance()->fillEvent();  return ; }
 
    static bool call_pygive(const std::string &line)
    {
@@ -44,11 +50,14 @@ extern "C" {
              pydat1.mstu[22] == numErr;
    }
 
-//   void pyupev_() ;   
-//  void pyexec_();
+   static bool call_txgive(const std::string &line)
+   {
+      txgive_(line.c_str(), line.length());
+      return true;
+   }
 
-   void upinit_() { FortranCallback::getInstance()->fillHeader(); return; }
-   void upevnt_() { FortranCallback::getInstance()->fillEvent();  return ; }
+   static void call_txgive_init(void)
+   { txgive_init_(); }
 
 } // extern "C"
 
@@ -73,34 +82,48 @@ Pythia6Hadronizer::Pythia6Hadronizer(edm::ParameterSet const& ps)
    std::vector<std::string> setNames =
       pythia_params.getParameter<std::vector<std::string> >("parameterSets");
       
-   std::vector<std::string>	paramLines;
+   // std::vector<std::string>	paramLines;
+   paramGeneral.clear();
+   paramCSA.clear();
+   
 
    for(std::vector<std::string>::const_iterator iter = setNames.begin();
 	                                        iter != setNames.end(); ++iter) 
    {
-		std::vector<std::string> lines =
-			pythia_params.getParameter< std::vector<std::string> >(*iter);
+      std::vector<std::string> lines =
+         pythia_params.getParameter< std::vector<std::string> >(*iter);
 
-		for(std::vector<std::string>::const_iterator line = lines.begin();
-		                                             line != lines.end(); ++line ) 
-		{
-			if (line->substr(0, 7) == "MRPY(1)")
-				throw cms::Exception("PythiaError")
-					<< "Attempted to set random number"
-					   " using Pythia command 'MRPY(1)'."
-					   " Please use the"
-					   " RandomNumberGeneratorService."
-					<< std::endl;
+      for(std::vector<std::string>::const_iterator line = lines.begin();
+		                                   line != lines.end(); ++line ) 
+      {
+         if (line->substr(0, 7) == "MRPY(1)")
+	    throw cms::Exception("PythiaError") <<
+	    "Attempted to set random number"
+	    " using Pythia command 'MRPY(1)'."
+	    " Please use the"
+	    " RandomNumberGeneratorService." <<
+	    std::endl;
 
-			paramLines.push_back(*line);
-		}
+	 if ( *iter == "CSAParameters" )
+	 {
+	    paramCSA.push_back(*line);
+	 }
+	 else if ( *iter == "SLHAParameteters" )
+	 {
+	    // here store SLHA params as needed
+	 }
+	 else
+	 {
+	    paramGeneral.push_back(*line);
+	 }
+      }
    }
 
 /* old stuff
    edm::Service<edm::RandomNumberGenerator> rng;
    std::ostringstream ss;
    ss << "MRPY(1)=" << rng->mySeed();
-   paramLines.push_back(ss.str());
+   paramGeneral.push_back(ss.str());
 */
    // Initialize the random engine unconditionally
    //
@@ -114,17 +137,6 @@ Pythia6Hadronizer::Pythia6Hadronizer(edm::ParameterSet const& ps)
           <<" Pythia did not accept MSTU(12)=12345";
    }
    
-   // now pass config cards 
-   //
-   for(std::vector<std::string>::const_iterator iter = paramLines.begin();
-	                                        iter != paramLines.end(); ++iter)
-   {
-		if (!call_pygive(*iter))
-			throw cms::Exception("PythiaError")
-				<< "Pythia did not accept \""
-				<< *iter << "\"." << std::endl;
-   }
-
 }
 
 bool Pythia6Hadronizer::doEvent()
@@ -208,6 +220,8 @@ bool Pythia6Hadronizer::decay()
 bool Pythia6Hadronizer::initializeForExternalPartons()
 {
      
+   setParams();
+   
    call_pygive("MSEL=0");
 /*
    call_pygive(std::string("MSTP(143)=") +
@@ -221,6 +235,12 @@ bool Pythia6Hadronizer::initializeForExternalPartons()
 bool Pythia6Hadronizer::initializeForInternalPartons()
 {
     
+   setParams();
+   
+   // can one set CSA & SLHA parameters simultaneously ?
+   
+   if ( !paramCSA.empty() ) setCSAParams();
+   
    call_pyinit("CMS", "p", "p", fCOMEnergy);
    return true;
 }
@@ -265,6 +285,36 @@ void Pythia6Hadronizer::setLHEEventProd( LHEEventProduct* lheep )
 
    return;
 
+}
+
+void Pythia6Hadronizer::setParams()
+{
+   // now pass general config cards 
+   //
+   for(std::vector<std::string>::const_iterator iter = paramGeneral.begin();
+	                                        iter != paramGeneral.end(); ++iter)
+   {
+      if (!call_pygive(*iter))
+         throw cms::Exception("PythiaError")
+	 << "Pythia did not accept \""
+	 << *iter << "\"." << std::endl;
+   }
+   
+   return ;
+}
+
+void Pythia6Hadronizer::setCSAParams()
+{
+      
+   call_txgive_init();
+   
+   for(std::vector<std::string>::const_iterator iter = paramCSA.begin();
+	                                        iter != paramCSA.end(); ++iter)
+   {
+      call_txgive(*iter);
+   }   
+   
+   return ;
 }
 
 }

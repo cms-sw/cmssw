@@ -6,8 +6,9 @@
 <use name=hepmc> 
 <use name=pythia6>
 <use name=GeneratorInterface/CommonInterface>
+<use name=f77compiler>
 
-<library file="*.cc" name=GeneratorInterfacePythia6Filters>
+<library file="*.cc,*.f" name=GeneratorInterfacePythia6Filters>
   <flags EDM_PLUGIN=1>
 </library>
 

@@ -52,6 +52,9 @@ namespace gen
      
   private:
            
+     std::vector<std::string> paramGeneral;
+     std::vector<std::string> paramCSA;
+     
      // the following 7 params are common for all generators(interfaces)
      // probably better to wrap them up in a class and reuse ?
      //
@@ -70,6 +73,9 @@ namespace gen
      // this is the only one specific to Pythia6
      //
      unsigned int    fPythiaListVerbosity ;
+     
+     void setParams();
+     void setCSAParams();
           
   };
 }
