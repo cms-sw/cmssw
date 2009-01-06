@@ -2,9 +2,9 @@
 //
 //
 
-// class template GeneratorFilter<HAD> provides an EDFilter which uses
-// the hadronizer type HAD to generate partons, hadronize them, and
-// decay the resulting particles, in the CMS framework.
+// class template HadronizerFilter<HAD> provides an EDFilter which uses
+// the hadronizer type HAD to read in external partons and hadronize them, 
+// and decay the resulting particles, in the CMS framework.
 
 #include "FWCore/Framework/interface/EDFilter.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -16,23 +16,24 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
+#include "SimDataFormats/GeneratorProducts/interface/LHERunInfoProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
 
-//#include "GeneratorInterface/LHEInterface/interface/LHEEvent.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenInfoProduct.h"
 
 namespace edm
 {
-  template <class HAD> class GeneratorFilter : public EDFilter
+  template <class HAD> class HadronizerFilter : public EDFilter
   {
   public:
     typedef HAD Hadronizer;
 
     // The given ParameterSet will be passed to the contained
     // Hadronizer object.
-    explicit GeneratorFilter(ParameterSet const& ps);
+    explicit HadronizerFilter(ParameterSet const& ps);
 
-    virtual ~GeneratorFilter();
+    virtual ~HadronizerFilter();
 
     virtual bool filter(Event& e, EventSetup const& es);
     virtual void beginJob(EventSetup const&);
@@ -48,6 +49,8 @@ namespace edm
 
   private:
     Hadronizer hadronizer_;
+
+
   };
 
   //------------------------------------------------------------------------
@@ -55,7 +58,7 @@ namespace edm
   // Implementation
 
   template <class HAD>
-  GeneratorFilter<HAD>::GeneratorFilter(ParameterSet const& ps) :
+  HadronizerFilter<HAD>::HadronizerFilter(ParameterSet const& ps) :
     EDFilter(),
     hadronizer_(ps)
   {
@@ -76,19 +79,26 @@ namespace edm
   }
 
   template <class HAD>
-  GeneratorFilter<HAD>::~GeneratorFilter()
+  HadronizerFilter<HAD>::~HadronizerFilter()
   { }
 
   template <class HAD>
   bool
-  GeneratorFilter<HAD>::filter(Event& ev, EventSetup const& /* es */)
+  HadronizerFilter<HAD>::filter(Event& ev, EventSetup const& /* es */)
   {
     
     std::auto_ptr<HepMCProduct> bare_product(new HepMCProduct());
         
+    
+    // get LHE stuff and pass to hadronizer !
+    //
+    edm::Handle<LHEEventProduct> product;
+    ev.getByLabel("source", product);
+    
+    hadronizer_.setLHEEventProd( (LHEEventProduct*)(product.product()) ) ;
+    
     // hadronizer_.generatePartons();
-    // hadronizer_.hadronize();
-    if ( !hadronizer_.generatePartonsAndHadronize() ) return false;
+    if ( !hadronizer_.hadronize() ) return false ;
 
     // When the external decay driver is added to the system, it
     // should be called here.
@@ -110,9 +120,12 @@ namespace edm
 
   template <class HAD>
   void
-  GeneratorFilter<HAD>::beginJob(EventSetup const&)
+  HadronizerFilter<HAD>::beginJob(EventSetup const&)
   { 
-
+    
+    // do things that's common through the job, such as
+    // attach external decay packages, etc.
+    
     if (! hadronizer_.declareStableParticles())
       throw edm::Exception(errors::Configuration)
 	<< "Failed to declare stable particles in hadronizer "
@@ -122,52 +135,64 @@ namespace edm
   
   template <class HAD>
   void
-  GeneratorFilter<HAD>::endJob()
+  HadronizerFilter<HAD>::endJob()
   { }
 
   template <class HAD>
   bool
-  GeneratorFilter<HAD>::beginRun(Run &, EventSetup const&)
+  HadronizerFilter<HAD>::beginRun(Run& run, EventSetup const&)
   {
-    // Create the LHEGeneratorInfo product describing the run
-    // conditions here, and insert it into the Run object.
+    
+    // this is run-specific
+    
+    // get LHE stuff and pass to hadronizer !
 
-    if (! hadronizer_.initializeForInternalPartons())
+    edm::Handle<LHERunInfoProduct> product;
+    run.getByLabel("source", product);
+            
+    hadronizer_.setLHERunInfoProd( (LHERunInfoProduct*)(product.product()) ) ;
+   
+    if (! hadronizer_.initializeForExternalPartons())
       throw edm::Exception(errors::Configuration) 
 	<< "Failed to initialize hadronizer "
 	<< hadronizer_.classname()
 	<< " for internal parton generation\n";
 
+
+    // Create the LHEGeneratorInfo product describing the run
+    // conditions here, and insert it into the Run object.
+    
     return true;
+  
   }
 
   template <class HAD>
   bool
-  GeneratorFilter<HAD>::endRun(Run& r, EventSetup const&)
+  HadronizerFilter<HAD>::endRun(Run& r, EventSetup const&)
   {
     // If relevant, record the integrated luminosity for this run
     // here.  To do so, we would need a standard function to invoke on
     // the contained hadronizer that would report the integrated
     // luminosity.
-
+    
     hadronizer_.statistics();
     
     std::auto_ptr<edm::GenInfoProduct> giproduct(new edm::GenInfoProduct(hadronizer_.getGenInfoProduct()));
     r.put(giproduct);
-
+    
     return true;
   }
 
   template <class HAD>
   bool
-  GeneratorFilter<HAD>::beginLuminosityBlock(LuminosityBlock &, EventSetup const&)
+  HadronizerFilter<HAD>::beginLuminosityBlock(LuminosityBlock &, EventSetup const&)
   {
     return true;
   }
 
   template <class HAD>
   bool
-  GeneratorFilter<HAD>::endLuminosityBlock(LuminosityBlock &, EventSetup const&)
+  HadronizerFilter<HAD>::endLuminosityBlock(LuminosityBlock &, EventSetup const&)
   {
     // If relevant, record the integration luminosity of this
     // luminosity block here.  To do so, we would need a standard
@@ -178,22 +203,22 @@ namespace edm
 
   template <class HAD>
   void
-  GeneratorFilter<HAD>::respondToOpenInputFile(FileBlock const& fb)
+  HadronizerFilter<HAD>::respondToOpenInputFile(FileBlock const& fb)
   { }
 
   template <class HAD>
   void
-  GeneratorFilter<HAD>::respondToCloseInputFile(FileBlock const& fb)
+  HadronizerFilter<HAD>::respondToCloseInputFile(FileBlock const& fb)
   { }
 
   template <class HAD>
   void
-  GeneratorFilter<HAD>::respondToOpenOutputFiles(FileBlock const& fb)
+  HadronizerFilter<HAD>::respondToOpenOutputFiles(FileBlock const& fb)
   { }
 
   template <class HAD>
   void
-  GeneratorFilter<HAD>::respondToCloseOutputFiles(FileBlock const& fb)
+  HadronizerFilter<HAD>::respondToCloseOutputFiles(FileBlock const& fb)
   { }
 
 }

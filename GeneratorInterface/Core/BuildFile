@@ -1,10 +1,14 @@
-# <use name=SimDataFormats/HepMCProduct>
+<use name=FWCore/ServiceRegistry>
+<use name=FWCore/Utilities>
 <use name=SimDataFormats/GeneratorProducts>
 <use name=hepmc> 
+<use name=clhep>
 <export>
-	# <use name=SimDataFormats/HepMCProduct>
+        <use name=FWCore/ServiceRegistry>
+        <use name=FWCore/Utilities>
 	<use name=SimDataFormats/GeneratorProducts>
         <use name=hepmc> 
+	<use name=clhep>
 	<lib name=GeneratorInterfaceCore>
 </export>
 
