@@ -6,7 +6,7 @@
 //
 // Original Author:  Traczyk Piotr
 //         Created:  Thu Oct 11 15:01:28 CEST 2007
-// $Id: MuonTimingExtractor.cc,v 1.4 2008/11/11 09:56:05 ptraczyk Exp $
+// $Id: MuonTimingExtractor.cc,v 1.5 2008/11/13 12:22:08 ptraczyk Exp $
 //
 //
 
@@ -35,6 +35,7 @@
 
 #include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
+#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
@@ -86,7 +87,7 @@ MuonTimingExtractor::MuonTimingExtractor(const edm::ParameterSet& iConfig)
   
   ParameterSet matchParameters = iConfig.getParameter<edm::ParameterSet>("MatchParameters");
 
-  theMatcher = new MuonSegmentMatcher(serviceParameters, matchParameters, theService);
+  theMatcher = new MuonSegmentMatcher(matchParameters, theService);
 
 }
 
@@ -118,7 +119,9 @@ MuonTimingExtractor::fillTiming(edm::Event& iEvent, const edm::EventSetup& iSetu
 
   const GlobalTrackingGeometry *theTrackingGeometry = &*theService->trackingGeometry();
   
-  Propagator *propag = &*theService->propagator("SteppingHelixPropagatorAny")->clone();
+  edm::ESHandle<Propagator> propagator;
+  iSetup.get<TrackingComponentsRecord>().get("SteppingHelixPropagatorAny", propagator);
+  const Propagator *propag = propagator.product();
 
   double invbeta=0;
   double invbetaerr=0;
