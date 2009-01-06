@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Nov 19 16:12:27 EST 2008
-// $Id: FWMuonBuilder.cc,v 1.4 2008/12/11 20:55:03 dmytro Exp $
+// $Id: FWMuonBuilder.cc,v 1.5 2009/01/06 20:07:47 chrjones Exp $
 //
 
 // system include files
@@ -26,7 +26,7 @@
 
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/src/CmsShowMain.h"
-#include "Fireworks/Core/interface/BuilderUtils.h"
+#include "Fireworks/Tracks/interface/estimate_field.h"
 
 #include "Fireworks/Muons/interface/FWMuonBuilder.h"
 

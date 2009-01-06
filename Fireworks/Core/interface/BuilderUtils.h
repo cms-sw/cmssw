@@ -6,10 +6,6 @@
 #include "Rtypes.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
-namespace reco {
-   class Track;
-   class Candidate;
-}
 
 class TEveTrack;
 class TEveGeoShape;
@@ -24,6 +20,9 @@ namespace fwlite {
    class Event;
 }
 
+namespace reco {
+   class Candidate;
+}
 
 namespace fw {
    std::pair<double,double> getPhiRange( const std::vector<double>& phis,
@@ -61,7 +60,6 @@ namespace fw {
      void addStraightLineSegment( TEveStraightLineSet * marker,
 				  reco::Candidate const * cand,
 				  double scale_factor = 2);
-     double estimate_field( const reco::Track& track );
 
      std::string getTimeGMT( const fwlite::Event& event );
 }

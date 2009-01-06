@@ -3,13 +3,12 @@
 #include <math.h>
 #include "TEveTrack.h"
 #include "TEveTrackPropagator.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerFwd.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
 #include "TGeoBBox.h"
 #include "TGeoArb8.h"
 #include "TColor.h"
@@ -195,20 +194,6 @@ void fw::addStraightLineSegment( TEveStraightLineSet * marker,
   double theta = cand->theta();
   double size = cand->pt() * scale_factor;
   marker->AddLine( 0, 0, 0, size * cos(phi)*sin(theta), size *sin(phi)*sin(theta), size*cos(theta));
-}
-
-double
-fw::estimate_field( const reco::Track& track )
-{
-   if ( ! track.extra().isAvailable() ) return -1;
-   math::XYZVector displacement(track.outerPosition().x()-track.innerPosition().x(),
-				track.outerPosition().y()-track.innerPosition().y(),
-				0);
-   math::XYZVector transverseMomentum(track.innerMomentum().x(),
-				      track.innerMomentum().y(),
-				      0);
-   double cosAlpha = transverseMomentum.Dot(displacement)/transverseMomentum.r()/displacement.r();
-   return 200*sqrt(1-cosAlpha*cosAlpha)/0.2998*transverseMomentum.r()/displacement.r();
 }
 
 std::string

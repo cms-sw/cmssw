@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Nov 25 14:42:13 EST 2008
-// $Id: FWTrackRPZProxyBuilder.cc,v 1.1 2008/11/26 02:16:40 chrjones Exp $
+// $Id: FWTrackRPZProxyBuilder.cc,v 1.2 2009/01/06 20:07:48 chrjones Exp $
 //
 
 // system include files
@@ -17,7 +17,7 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 
 // user include files
-#include "Fireworks/Core/interface/BuilderUtils.h"
+#include "Fireworks/Tracks/interface/estimate_field.h"
 #include "Fireworks/Core/interface/FWRPZSimpleProxyBuilderTemplate.h"
 #include "Fireworks/Core/interface/FWEvePtr.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
