@@ -186,6 +186,7 @@ namespace edm {
     template <typename T>
     void
     addUntrackedParameter(std::string const& name, T value) {
+      invalidateRegistration();
       insert(true, name, Entry(name, value, false));
       isFullyTracked_ = False;
     }
@@ -193,6 +194,7 @@ namespace edm {
     template <typename T>
     void
     addUntrackedParameter(char const* name, T value) {
+      invalidateRegistration();
       insert(true, name, Entry(name, value, false));
       isFullyTracked_ = False;
     }
@@ -255,7 +257,7 @@ namespace edm {
 
     mutable ParameterSetID trackedID_;
 
-    void invalidateRegistration(std::string const& nameOfTracked) const;
+    void invalidateRegistration(std::string const& nameOfTracked = std::string()) const;
    
     void calculateID();
 
