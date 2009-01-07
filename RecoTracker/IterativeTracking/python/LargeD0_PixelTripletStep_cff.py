@@ -7,26 +7,27 @@ import FWCore.ParameterSet.Config as cms
 #HIT REMOVAL
 trkfilter1 = cms.EDFilter("QualityFilter",
     TrackQuality = cms.string('highPurity'),
+# Reject hits found in standard iterations                          
     recTracks = cms.InputTag("tobtecStep")
 )
 
 largeD0step1Clusters = cms.EDFilter("TrackClusterRemover",
-# To run this step, eliminating hits from all previous iterations ...   
-#    trajectories = cms.InputTag("tobtecStep"),
     trajectories = cms.InputTag("trkfilter1"),
+
+# To run this step eliminating hits from standard iterations.
     oldClusterRemovalInfo = cms.InputTag("fifthClusters"),
     pixelClusters = cms.InputTag("fifthClusters"),
     stripClusters = cms.InputTag("fifthClusters"),
 
-# To run it independently of all tracking iterations ...
+# To run it, not eliminating any hits.
 #    trajectories = cms.InputTag("zeroStepFilter"),
 #    pixelClusters = cms.InputTag("siPixelClusters"),
 #    stripClusters = cms.InputTag("siStripClusters"),
-
+                                     
     Common = cms.PSet(
        maxChi2 = cms.double(30.0)
-# To run it independently of all tracking iterations, also need ...
-#      maxChi2 = cms.double(0.0)
+# To run it not eliminating any hits, you also need ...
+#       maxChi2 = cms.double(0.0)
     )
 )
 
@@ -129,12 +130,50 @@ largeD0step1WithMaterialTracks.clusterRemovalInfo = 'largeD0step1Clusters'
 largeD0step1WithMaterialTracks.AlgorithmName = cms.string('iter1LargeD0')
 largeD0step1WithMaterialTracks.Fitter = 'largeD0step1FittingSmootherWithOutlierRejection'
 
+# TRACK QUALITY DEFINITION
+import RecoTracker.FinalTrackSelectors.selectLoose_cfi
+import RecoTracker.FinalTrackSelectors.selectTight_cfi
+import RecoTracker.FinalTrackSelectors.selectHighPurity_cfi
+
+largeD0step1Loose = RecoTracker.FinalTrackSelectors.selectLoose_cfi.selectLoose.clone()
+largeD0step1Loose.src = 'largeD0step1WithMaterialTracks'
+largeD0step1Loose.keepAllTracks = False
+largeD0step1Loose.copyExtras = True
+largeD0step1Loose.copyTrajectories = True
+largeD0step1Loose.applyImpactSigCuts = False
+largeD0step1Loose.chi2n_par = 99.
+largeD0step1Loose.minNumberLayers = 5
+largeD0step1Loose.minNumber3DLayers = 0
+
+largeD0step1Tight = RecoTracker.FinalTrackSelectors.selectTight_cfi.selectTight.clone()
+largeD0step1Tight.src = 'largeD0step1Loose'
+largeD0step1Tight.keepAllTracks = True
+largeD0step1Tight.copyExtras = True
+largeD0step1Tight.copyTrajectories = True
+largeD0step1Tight.applyImpactSigCuts = False
+largeD0step1Tight.chi2n_par = 99.
+largeD0step1Tight.minNumberLayers = 10
+largeD0step1Tight.minNumber3DLayers = 3
+
+largeD0step1Trk = RecoTracker.FinalTrackSelectors.selectHighPurity_cfi.selectHighPurity.clone()
+largeD0step1Trk.src = 'largeD0step1Tight'
+largeD0step1Trk.keepAllTracks = True
+largeD0step1Trk.copyExtras = True
+largeD0step1Trk.copyTrajectories = True
+largeD0step1Trk.applyImpactSigCuts = False
+largeD0step1Trk.chi2n_par = 99.
+largeD0step1Trk.minNumberLayers = 10
+largeD0step1Trk.minNumber3DLayers = 3
+
 largeD0step1 = cms.Sequence(trkfilter1*
-                          largeD0step1Clusters*
-                          largeD0step1PixelRecHits*largeD0step1StripRecHits*
-                          largeD0step1Seeds*
-                          largeD0step1TrackCandidates*
-                          largeD0step1WithMaterialTracks)
+                            largeD0step1Clusters*
+                            largeD0step1PixelRecHits*largeD0step1StripRecHits*
+                            largeD0step1Seeds*
+                            largeD0step1TrackCandidates*
+                            largeD0step1WithMaterialTracks*
+                            largeD0step1Loose*
+                            largeD0step1Tight*
+                            largeD0step1Trk)
                           
 
 

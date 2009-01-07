@@ -7,31 +7,33 @@ import FWCore.ParameterSet.Config as cms
 #HIT REMOVAL
 trkfilter3 = cms.EDFilter("QualityFilter",
     TrackQuality = cms.string('highPurity'),
+# Reject hits found in standard iterations                          
     recTracks = cms.InputTag("tobtecStep")
+# Reject hits found in all previous iterations                          
+#    recTracks = cms.InputTag("largeD0step2")
 )
 
 largeD0step3Clusters = cms.EDFilter("TrackClusterRemover",
-# To run this step, eliminating hits from all previous iterations ...                                    
-#    trajectories = cms.InputTag("largeD0step2"),
-#    oldClusterRemovalInfo = cms.InputTag("largeD0step2Clusters"),
-#    pixelClusters = cms.InputTag("largeD0step2Clusters"),
-#    stripClusters = cms.InputTag("largeD0step2Clusters"),
-
-# To run this step independently of the other large d0 tracking iterations ...
-#    trajectories = cms.InputTag("tobtecStep"),
     trajectories = cms.InputTag("trkfilter3"),
+
+# To run this step eliminating hits from standard iterations.
     oldClusterRemovalInfo = cms.InputTag("fifthClusters"),
     pixelClusters = cms.InputTag("fifthClusters"),
     stripClusters = cms.InputTag("fifthClusters"),
 
-# To run it independently of all tracking iterations ...
+# To run this step, eliminating hits from all previous iterations ...   
+#    oldClusterRemovalInfo = cms.InputTag("largeD0step2Clusters"),
+#    pixelClusters = cms.InputTag("largeD0step2Clusters"),
+#    stripClusters = cms.InputTag("largeD0step2Clusters"),
+
+# To run it, not eliminating any hits.
 #    trajectories = cms.InputTag("zeroStepFilter"),
 #    pixelClusters = cms.InputTag("siPixelClusters"),
 #    stripClusters = cms.InputTag("siStripClusters"),
-
+                                     
     Common = cms.PSet(
        maxChi2 = cms.double(30.0)
-# To run it independently of all tracking iterations, also need ...
+# To run it not eliminating any hits, you also need ...
 #       maxChi2 = cms.double(0.0)
     )
 )
@@ -160,12 +162,51 @@ largeD0step3WithMaterialTracks.clusterRemovalInfo = 'largeD0step3Clusters'
 largeD0step3WithMaterialTracks.AlgorithmName = cms.string('iter3LargeD0')
 largeD0step3WithMaterialTracks.Fitter = 'largeD0step3FittingSmootherWithOutlierRejection'
 
+# TRACK QUALITY DEFINITION
+import RecoTracker.FinalTrackSelectors.selectLoose_cfi
+import RecoTracker.FinalTrackSelectors.selectTight_cfi
+import RecoTracker.FinalTrackSelectors.selectHighPurity_cfi
+
+largeD0step3Loose = RecoTracker.FinalTrackSelectors.selectLoose_cfi.selectLoose.clone()
+largeD0step3Loose.src = 'largeD0step3WithMaterialTracks'
+largeD0step3Loose.keepAllTracks = False
+largeD0step3Loose.copyExtras = True
+largeD0step3Loose.copyTrajectories = True
+largeD0step3Loose.applyImpactSigCuts = False
+largeD0step3Loose.chi2n_par = 99.
+largeD0step3Loose.minNumberLayers = 5
+largeD0step3Loose.minNumber3DLayers = 0
+
+largeD0step3Tight = RecoTracker.FinalTrackSelectors.selectTight_cfi.selectTight.clone()
+largeD0step3Tight.src = 'largeD0step3Loose'
+largeD0step3Tight.keepAllTracks = True
+largeD0step3Tight.copyExtras = True
+largeD0step3Tight.copyTrajectories = True
+largeD0step3Tight.applyImpactSigCuts = False
+largeD0step3Tight.chi2n_par = 99.
+largeD0step3Tight.minNumberLayers = 10
+largeD0step3Tight.minNumber3DLayers = 3
+
+largeD0step3Trk = RecoTracker.FinalTrackSelectors.selectHighPurity_cfi.selectHighPurity.clone()
+largeD0step3Trk.src = 'largeD0step3Tight'
+largeD0step3Trk.keepAllTracks = True
+largeD0step3Trk.copyExtras = True
+largeD0step3Trk.copyTrajectories = True
+largeD0step3Trk.applyImpactSigCuts = False
+largeD0step3Trk.chi2n_par = 99.
+largeD0step3Trk.minNumberLayers = 10
+largeD0step3Trk.minNumber3DLayers = 3
+
 largeD0step3 = cms.Sequence(trkfilter3*
-                          largeD0step3Clusters*
-                          largeD0step3PixelRecHits*largeD0step3StripRecHits*
-                          largeD0step3Seeds*
-                          largeD0step3TrackCandidates*
-                          largeD0step3WithMaterialTracks)
+                            largeD0step3Clusters*
+                            largeD0step3PixelRecHits*largeD0step3StripRecHits*
+                            largeD0step3Seeds*
+                            largeD0step3TrackCandidates*
+                            largeD0step3WithMaterialTracks*
+                            largeD0step3Loose*
+                            largeD0step3Tight*
+                            largeD0step3Trk)
+
                           
 
 

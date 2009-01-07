@@ -7,31 +7,33 @@ import FWCore.ParameterSet.Config as cms
 #HIT REMOVAL
 trkfilter5 = cms.EDFilter("QualityFilter",
     TrackQuality = cms.string('highPurity'),
+# Reject hits found in standard iterations                          
     recTracks = cms.InputTag("tobtecStep")
+# Reject hits found in all previous iterations                          
+#    recTracks = cms.InputTag("largeD0step4")
 )
 
 largeD0step5Clusters = cms.EDFilter("TrackClusterRemover",
-# To run this step, eliminating hits from all previous iterations ...   
-#    trajectories = cms.InputTag("largeD0step4"),
-#    oldClusterRemovalInfo = cms.InputTag("largeD0step4Clusters"),
-#    pixelClusters = cms.InputTag("largeD0step4Clusters"),
-#    stripClusters = cms.InputTag("largeD0step4Clusters"),
-
-# To run this step independently of the other large d0 tracking iterations ...
-#    trajectories = cms.InputTag("tobtecStep"),
     trajectories = cms.InputTag("trkfilter5"),
+
+# To run this step eliminating hits from standard iterations.
     oldClusterRemovalInfo = cms.InputTag("fifthClusters"),
     pixelClusters = cms.InputTag("fifthClusters"),
     stripClusters = cms.InputTag("fifthClusters"),
 
-# To run it independently of all tracking iterations ...
+# To run this step, eliminating hits from all previous iterations ...   
+#    oldClusterRemovalInfo = cms.InputTag("largeD0step4Clusters"),
+#    pixelClusters = cms.InputTag("largeD0step4Clusters"),
+#    stripClusters = cms.InputTag("largeD0step4Clusters"),
+
+# To run it, not eliminating any hits.
 #    trajectories = cms.InputTag("zeroStepFilter"),
 #    pixelClusters = cms.InputTag("siPixelClusters"),
 #    stripClusters = cms.InputTag("siStripClusters"),
                                      
     Common = cms.PSet(
        maxChi2 = cms.double(30.0)
-# To run it independently of all tracking iterations, also need ...
+# To run it not eliminating any hits, you also need ...
 #       maxChi2 = cms.double(0.0)
     )
 )
@@ -144,12 +146,54 @@ largeD0step5WithMaterialTracks.clusterRemovalInfo = 'largeD0step5Clusters'
 largeD0step5WithMaterialTracks.AlgorithmName = cms.string('iter5LargeD0')
 largeD0step5WithMaterialTracks.Fitter = 'largeD0step5FittingSmootherWithOutlierRejection'
 
+# TRACK QUALITY DEFINITION
+import RecoTracker.FinalTrackSelectors.selectLoose_cfi
+import RecoTracker.FinalTrackSelectors.selectTight_cfi
+import RecoTracker.FinalTrackSelectors.selectHighPurity_cfi
+
+largeD0step5Loose = RecoTracker.FinalTrackSelectors.selectLoose_cfi.selectLoose.clone()
+largeD0step5Loose.src = 'largeD0step5WithMaterialTracks'
+largeD0step5Loose.keepAllTracks = False
+largeD0step5Loose.copyExtras = True
+largeD0step5Loose.copyTrajectories = True
+largeD0step5Loose.applyImpactSigCuts = False
+largeD0step5Loose.chi2n_par = 99.
+largeD0step5Loose.minNumberLayers = 5
+largeD0step5Loose.minNumber3DLayers = 0
+largeD0step5Loose.maxNumberLostLayers = 0
+
+largeD0step5Tight = RecoTracker.FinalTrackSelectors.selectTight_cfi.selectTight.clone()
+largeD0step5Tight.src = 'largeD0step5Loose'
+largeD0step5Tight.keepAllTracks = True
+largeD0step5Tight.copyExtras = True
+largeD0step5Tight.copyTrajectories = True
+largeD0step5Tight.applyImpactSigCuts = False
+largeD0step5Tight.chi2n_par = 99.
+largeD0step5Tight.minNumberLayers = 7
+largeD0step5Tight.minNumber3DLayers = 2
+largeD0step5Tight.maxNumberLostLayers = 0
+
+largeD0step5Trk = RecoTracker.FinalTrackSelectors.selectHighPurity_cfi.selectHighPurity.clone()
+largeD0step5Trk.src = 'largeD0step5Tight'
+largeD0step5Trk.keepAllTracks = True
+largeD0step5Trk.copyExtras = True
+largeD0step5Trk.copyTrajectories = True
+largeD0step5Trk.applyImpactSigCuts = False
+largeD0step5Trk.chi2n_par = 99.
+largeD0step5Trk.minNumberLayers = 7
+largeD0step5Trk.minNumber3DLayers = 2
+largeD0step5Trk.maxNumberLostLayers = 1
+
 largeD0step5 = cms.Sequence(trkfilter5*
                           largeD0step5Clusters*
                           largeD0step5PixelRecHits*largeD0step5StripRecHits*
                           largeD0step5Seeds*
                           largeD0step5TrackCandidates*
-                          largeD0step5WithMaterialTracks)
+                          largeD0step5WithMaterialTracks*
+                          largeD0step5Loose*
+                          largeD0step5Tight*
+                          largeD0step5Trk)
+
                           
 
 
