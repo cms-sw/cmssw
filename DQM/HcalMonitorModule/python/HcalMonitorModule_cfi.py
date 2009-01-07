@@ -218,15 +218,20 @@ hcalMonitor = cms.EDFilter("HcalMonitorModule",
                            HotCellMonitor_minErrorFlag                    = cms.untracked.double(0.05),
 
                            # DIGI MONITOR
-                           DigiMonitor = cms.untracked.bool(True),
-                           # Will deprecate these with new version of digi monitor
-                           MakeDigiDiagnosticPlots = cms.untracked.bool(False),
-                           HBcheckNevents = cms.untracked.int32(250),
-                           HEcheckNevents = cms.untracked.int32(250),
-                           HOcheckNevents = cms.untracked.int32(1000),
-                           HFcheckNevents = cms.untracked.int32(250),
-                           DigisPerChannel = cms.untracked.bool(False),
-                           DigiOccThresh = cms.untracked.int32(0),
+                           DigiMonitor                                    = cms.untracked.bool(True),
+                           DigiMonitor_checkNevents                       = cms.untracked.int32(500),
+                           DigiMonitor_problems_checkForMissingDigis      = cms.untracked.bool(False), # also checked in DeadCellMonitor, which may be the more appropriate place for the check
+                           DigiMonitor_problems_checkCapID                = cms.untracked.bool(True),
+                           DigiMonitor_problems_checkDigiSize             = cms.untracked.bool(True),
+                           DigiMonitor_problems_checkADCsum               = cms.untracked.bool(True),
+                           DigiMonitor_problems_checkDVerr                = cms.untracked.bool(True),
+                           DigiMonitor_minDigiSize                        = cms.untracked.int32(10),
+                           DigiMonitor_maxDigiSize                        = cms.untracked.int32(10),
+                           # ADC counts must be above the threshold values below for appropriate histograms to be filled
+                           DigiMonitor_shapeThresh                        = cms.untracked.int32(-1),
+                           DigiMonitor_ADCsumThresh                       = cms.untracked.int32(-1),
+                           DigMonitor_makeDiagnosticPlots                 = cms.untracked.bool(False), # doesn't do anything yet
+                           DigiMonitor_DigisPerChannel                    = cms.untracked.bool(False), # not currently used
 
                            # RECHIT MONITOR
                            RecHitMonitor                                  = cms.untracked.bool(True),
@@ -294,41 +299,45 @@ def setHcalTaskValues(process):
 
     # set minimum error value
     minErrorFlag = deepcopy(process.minErrorFlag)
-    process.PedestalMonitor_minErrorFlag = minErrorFlag
+    process.BeamMonitor_minErrorFlag     = minErrorFlag
     process.DeadCellMonitor_minErrorFlag = minErrorFlag
     process.HotCellMonitor_minErrorFlag  = minErrorFlag
+    process.PedestalMonitor_minErrorFlag = minErrorFlag
     process.RecHitMonitor_minErrorFlag   = minErrorFlag
-    process.BeamMonitor_minErrorFlag     = minErrorFlag
+        
+    # create a minErrorFlag for DigiMonitor?  I think we want the DigiMonitor errors to appear whenever an error exists, even if it's at a low rate.
 
     # set checkNevents
     checkNevents = deepcopy(process.checkNevents)
-    process.PedestalMonitor_checkNevents                  = checkNevents
+    process.BeamMonitor_checkNevents                      = checkNevents
     process.DeadCellMonitor_checkNevents                  = checkNevents
     process.DeadCellMonitor_checkNevents_occupancy        = checkNevents
     process.DeadCellMonitor_checkNevents_rechit_occupancy = checkNevents
     process.DeadCellMonitor_checkNevents_pedestal         = checkNevents
     process.DeadCellMonitor_checkNevents_neighbor         = checkNevents
     process.DeadCellMonitor_checkNevents_energy           = checkNevents
+    process.DigiMonitor_checkNevents                      = checkNevents
     process.HotCellMonitor_checkNevents                   = checkNevents
     process.HotCellMonitor_checkNevents_persistent        = checkNevents
     process.HotCellMonitor_checkNevents_pedestal          = checkNevents
     process.HotCellMonitor_checkNevents_neighbor          = checkNevents
     process.HotCellMonitor_checkNevents_energy            = checkNevents
+    process.PedestalMonitor_checkNevents                  = checkNevents
     process.RecHitMonitor_checkNevents                    = checkNevents
-    process.BeamMonitor_checkNevents                      = checkNevents
-
+    
     # set pedestalsInFC
     pedestalsInFC = deepcopy(process.pedestalsInFC)
-    process.PedestalMonitor_pedestalsInFC = pedestalsInFC
     process.DeadCellMonitor_pedestalsInFC = pedestalsInFC
     process.HotCellMonitor_pedestalsInFC  = pedestalsInFC
+    process.PedestalMonitor_pedestalsInFC = pedestalsInFC
 
     # set makeDiagnoticPlots
     makeDiagnosticPlots                         = deepcopy(process.makeDiagnosticPlots)
+    process.BeamMonitor_makeDiagnosticPlots     = makeDiagnosticPlots
     process.DeadCellMonitor_makeDiagnosticPlots = makeDiagnosticPlots
+    process.DigiMonitor_makeDiagnosticsPlots    = makeDiagnosticPlots
     process.HotCellMonitor_makeDiagnosticPlots  = makeDiagnosticPlots
     process.RecHitMonitor_makeDiagnosticPlots   = makeDiagnosticPlots
-    process.BeamMonitor_makeDiagnosticPlots     = makeDiagnosticPlots
     return
 
 
