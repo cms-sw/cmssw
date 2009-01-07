@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------
-// $Id: types.cc,v 1.19 2008/11/06 09:57:39 elmer Exp $
+// $Id: types.cc,v 1.20 2008/12/19 00:45:08 wmtan Exp $
 //
 // definition of type encoding/decoding functions
 // ----------------------------------------------------------------------
@@ -985,11 +985,15 @@ bool
       ; b != e ; ++b)
   {
     std::string  val;
-    if(! decode(val, *b))
+    // treat blank string specially
+    if(*b == "XXX")
+    {
+       val = "";
+    }
+    else if(! decode(val, *b))
       return false;
     to.push_back(val);
   }
-
   return true;
 }  // decode to vector<string>
 
@@ -1005,9 +1009,13 @@ bool
                                               , e = from.end()
      ; b != e ; ++b)
   {
-    if(! encode(converted, *b))
+    // treat blank string specially
+    if(*b == "")
+    {
+       converted = "XXX";
+    }
+    else if(! encode(converted, *b))
       return false;
-
     if(b != from.begin()) 
       to += ",";
     to += converted;
