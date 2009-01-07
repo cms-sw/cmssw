@@ -232,7 +232,7 @@ void RPCDeadChannelTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, Even
       
       const RPCRoll * rpcRoll = rpcgeo->roll(detId);      
 
-      int nstrips =rpcRoll->nstrips();
+      unsigned int nstrips =rpcRoll->nstrips();
 
       MonitorElement * myGlobalMe;
       MonitorElement * myGlobalMe2;
@@ -258,18 +258,10 @@ void RPCDeadChannelTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, Even
       rpcdqm::utils rollNumber;
       int nr = rollNumber.detId2RollNr(detId);
       myGlobalMe->setBinContent(detId.sector(),nr, badChannels.size()*100/nstrips );
-      
-      string Yaxis=myRollNames_[i];
-      if (detId.region()==0){
-	Yaxis.erase (1,1);
-	Yaxis.erase(0,3);
-	Yaxis.replace(Yaxis.find("S"),4,"");
-	Yaxis.erase(Yaxis.find("_")+2,8);
-      }else{
-	Yaxis.erase(0,8);
-      }
-      
-      myGlobalMe->setBinLabel(nr, Yaxis, 2);
+
+      RPCGeomServ RPCname(detId);	  
+      string YLabel = RPCname.shortname();
+      myGlobalMe->setBinLabel(nr, YLabel, 2);
       
       if (detId.region()==0){
 	
@@ -294,7 +286,7 @@ void RPCDeadChannelTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, Even
 	
       }
       
-      myGlobalMe->setBinLabel(nr, Yaxis, 2);
+      myGlobalMe->setBinLabel(nr,YLabel , 2);
     }//End loop on rolls in given chambers
 
     this->fillDeadChannelHisto(barrelMap, 0);

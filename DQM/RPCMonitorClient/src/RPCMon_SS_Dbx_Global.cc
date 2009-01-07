@@ -149,20 +149,16 @@ void RPCMon_SS_Dbx_Global::analyze(const Event& iEvent, const EventSetup&  iSetu
 	     } 
 	     me->Fill(id.sector(),nr);
 	   }
-	   if (id.region()==0){ //fill barrel labels
-	     string Yaxis=RPCname.name();
-	     Yaxis.erase (1,1);
-	     Yaxis.erase(0,3);
-	     Yaxis.replace(Yaxis.find("S"),4,"");
-	     Yaxis.erase(Yaxis.find("_")+2,8);
-	     me->setBinLabel(nr, Yaxis, 2);
-	   }
+
+	   string YLabel = RPCname.shortname();
+	   me->setBinLabel(nr, YLabel, 2);
 	 }
        }
-     }	    
-   }
- }                   // for  digis in layer
-}              
+     }
+   }	    
+ }// for  digis in layer
+} 
+              
 
 
 
