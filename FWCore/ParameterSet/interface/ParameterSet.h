@@ -48,8 +48,8 @@ namespace edm {
     // identification
     ParameterSetID id() const;
     ParameterSetID trackedID() const;
-    // side effects: freezes the pset, and doesn't touch sub-psets
     void setID(ParameterSetID const& id) const;
+    bool isRegistered() const {return id_.isValid();}
 
     // Entry-handling
     Entry const& retrieve(char const*) const;
@@ -69,13 +69,9 @@ namespace edm {
     void insertVParameterSet(bool okay_to_replace, std::string const& name, VParameterSetEntry const& entry);
     void insert(bool ok_to_replace, char const* , Entry const&);
     void insert(bool ok_to_replace, std::string const&, Entry const&);
-    void augment(ParameterSet const& from); 
     // encode
     std::string toString() const;
     void toString(std::string& result) const;
-    // decode
-    bool fromString(std::string const&);
-
 
     template <typename T>
     T
@@ -85,17 +81,53 @@ namespace edm {
     T
     getParameter(char const*) const;
 
+    ParameterSet const&
+    getParameterSet(std::string const&) const;
+
+    ParameterSet const&
+    getParameterSet(char const*) const;
+
+    ParameterSet const&
+    getUntrackedParameterSet(std::string const& name, ParameterSet const& defaultValue) const;
+
+    ParameterSet const&
+    getUntrackedParameterSet(char const * name, ParameterSet const& defaultValue) const;
+
+    ParameterSet const&
+    getUntrackedParameterSet(std::string const& name) const;
+
+    ParameterSet const&
+    getUntrackedParameterSet(char const* name) const;
+
+    VParameterSet const&
+    getParameterSetVector(std::string const& name) const;
+
+    VParameterSet const&
+    getParameterSetVector(char const* name) const;
+
+    VParameterSet const&
+    getUntrackedParameterSetVector(std::string const& name, VParameterSet const& defaultValue) const;
+
+    VParameterSet const&
+    getUntrackedParameterSetVector(char const* name, VParameterSet const& defaultValue) const;
+
+    VParameterSet const&
+    getUntrackedParameterSetVector(std::string const& name) const;
+
+    VParameterSet const&
+    getUntrackedParameterSetVector(char const* name) const;
+
     template <typename T> 
     void 
     addParameter(std::string const& name, T value) {
-      checkIfFrozen();
+      invalidateRegistration(name);
       insert(true, name, Entry(name, value, true));
     }
 
     template <typename T> 
     void 
     addParameter(char const* name, T value) {
-      checkIfFrozen();
+      invalidateRegistration(name);
       insert(true, name, Entry(name, value, true));
     }
 
@@ -153,7 +185,7 @@ namespace edm {
     template <typename T>
     void
     addUntrackedParameter(std::string const& name, T value) {
-      checkIfFrozen();
+      invalidateRegistration();
       insert(true, name, Entry(name, value, false));
       isFullyTracked_ = False;
     }
@@ -161,7 +193,7 @@ namespace edm {
     template <typename T>
     void
     addUntrackedParameter(char const* name, T value) {
-      checkIfFrozen();
+      invalidateRegistration();
       insert(true, name, Entry(name, value, false));
       isFullyTracked_ = False;
     }
@@ -193,8 +225,7 @@ namespace edm {
 
     friend std::ostream& operator << (std::ostream& os, ParameterSet const& pset);
 
-    /// needs to be called before saving or serializing
-    void fillIDandInsert() const;
+    ParameterSet const& registerIt();
 
     bool isFullyTracked() const;
 
@@ -202,6 +233,9 @@ namespace edm {
     void setFullyTracked(Bool isFullyTracked = True) const {isFullyTracked_ = isFullyTracked;}
 
   private:
+    // decode
+    bool fromString(std::string const&);
+
     typedef std::map<std::string, Entry> table;
     table tbl_;
 
@@ -210,8 +244,6 @@ namespace edm {
 
     typedef std::map<std::string, VParameterSetEntry> vpsettable;
     vpsettable vpsetTable_;
-
-    mutable bool frozen_;
 
     // Is this parameter set fully tracked to all depths?
     // False, True, or Unknown
@@ -224,11 +256,9 @@ namespace edm {
 
     mutable ParameterSetID trackedID_;
 
-    void freeze() const;
-    void checkIfFrozen() const;
+    void invalidateRegistration(std::string const& nameOfTracked = std::string()) const;
    
-    void calculateID() const;
-    void updateRegistry() const;
+    void calculateID();
 
     // get the untracked Entry object, throwing an exception if it is
     // not found.

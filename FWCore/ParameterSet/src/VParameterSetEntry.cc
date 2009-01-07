@@ -37,16 +37,6 @@ namespace edm {
     
   VParameterSetEntry::~VParameterSetEntry() {}
 
-  void VParameterSetEntry::updateIDs() const {
-    for (std::vector<ParameterSetEntry>::const_iterator i = psetEntries().begin(), e = psetEntries().end();
-        i != e; ++i) {
-      i->updateID();
-    }
-    // clear theVPSet
-    value_ptr<VParameterSet> empty;
-    swap(theVPSet, empty);
-  }
-
   void VParameterSetEntry::toString(std::string& result) const {
     result += tracked ? "+q" : "-q";
     result += '{';
@@ -70,17 +60,6 @@ namespace edm {
     std::string str;
     toString(str);
     return str.size();
-  }
-
-  std::vector<ParameterSet>& VParameterSetEntry::vpset() {
-    if (!theVPSet) {
-      theVPSet = value_ptr<std::vector<ParameterSet> >(new std::vector<ParameterSet>);
-      theVPSet->reserve(thePSetEntries.size());
-      for (std::vector<ParameterSetEntry>::const_iterator i = thePSetEntries.begin(), e = thePSetEntries.end(); i != e; ++i) {
-        theVPSet->push_back(i->pset());
-      }
-    }
-    return *theVPSet;
   }
 
   std::vector<ParameterSet> const& VParameterSetEntry::vpset() const {

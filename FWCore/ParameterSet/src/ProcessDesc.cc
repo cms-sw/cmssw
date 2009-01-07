@@ -22,9 +22,9 @@ namespace edm
   : pset_(new ParameterSet(pset)), trackedPartOfPset_(new ParameterSet(pset.trackedPart())),
     services_(new std::vector<ParameterSet>())
   {
-    trackedPartOfPset_->fillIDandInsert();
+    trackedPartOfPset_->registerIt();
     pset::Registry::instance()->extra().setID(trackedPartOfPset_->id());
-    pset_->fillIDandInsert();
+    pset_->registerIt();
   }
 
   ProcessDesc::~ProcessDesc() {
@@ -47,9 +47,9 @@ namespace edm
   }
 
   
-  void ProcessDesc::addService(ParameterSet const& pset) {
+  void ProcessDesc::addService(ParameterSet& pset) {
     services_->push_back(pset);
-    pset.fillIDandInsert();
+    pset.registerIt();
   }
 
 

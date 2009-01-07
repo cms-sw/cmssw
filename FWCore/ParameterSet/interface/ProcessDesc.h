@@ -29,7 +29,7 @@ namespace edm {
     /// get the descriptions of the services
     boost::shared_ptr<std::vector<ParameterSet> > getServicesPSets() const;
 
-    void addService(ParameterSet const& pset);
+    void addService(ParameterSet& pset);
     /// add a service as an empty pset
     void addService(std::string const& service);
     /// add a service if it's not already there

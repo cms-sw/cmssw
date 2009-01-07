@@ -34,11 +34,9 @@ namespace edm {
     /// returns the VPSet, reconstituting it from the
     /// Registry, if necessary
     std::vector<ParameterSet> const& vpset() const;
-    std::vector<ParameterSet>& vpset();
 
     std::vector<ParameterSetEntry> const& psetEntries() const {return thePSetEntries;}
-
-    void updateIDs() const;
+    std::vector<ParameterSetEntry>& psetEntries() {return thePSetEntries;}
 
     friend std::ostream & operator<<(std::ostream & os, VParameterSetEntry const& vpsetEntry);
 

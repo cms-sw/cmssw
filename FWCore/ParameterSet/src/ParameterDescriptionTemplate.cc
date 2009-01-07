@@ -39,13 +39,7 @@ namespace edm {
     }
 
     if (exists) {
-      ParameterSet containedPSet;
-      if (isTracked()) {
-        containedPSet = pset.getParameter<ParameterSet>(label());
-      }
-      else {
-        containedPSet = pset.getUntrackedParameter<ParameterSet>(label());
-      }
+      ParameterSet const& containedPSet = (isTracked() ? pset.getParameterSet(label()) : pset.getUntrackedParameterSet(label()));
       psetDesc_.validate(containedPSet);
     }
   }
@@ -95,13 +89,8 @@ namespace edm {
     }
 
     if (exists) {
-      std::vector<ParameterSet> containedPSets;
-      if (isTracked()) {
-        containedPSets = pset.getParameter<std::vector<ParameterSet> >(label());
-      }
-      else {
-        containedPSets = pset.getUntrackedParameter<std::vector<ParameterSet> >(label());
-      }
+      std::vector<ParameterSet> const& containedPSets =
+	 (isTracked() ? pset.getParameterSetVector(label()) : pset.getUntrackedParameterSetVector(label()));
       if (containedPSets.size() != vPsetDesc_.size()) {
         throw edm::Exception(errors::Configuration)
           << "Unexpected number of ParameterSets in vector of parameter sets named \"" << label() << "\".";

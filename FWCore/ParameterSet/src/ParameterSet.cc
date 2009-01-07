@@ -31,11 +31,22 @@
 namespace edm {
 
   void
-  ParameterSet::checkIfFrozen() const {
-    if(frozen_) {
-      throw edm::Exception(errors::Configuration,"InsertFailure")
-        << "This ParameterSet has been frozen, so may not be changed";
+  ParameterSet::invalidateRegistration(std::string const& nameOfTracked) const {
+    // We have added a new parameter.  Invalidate the ID.
+    if(isRegistered()) {
+      id_ = ParameterSetID();
     }
+    if (!nameOfTracked.empty() && trackedID_.isValid()) {
+      // We have added a new tracked parameter.  Invalidate the tracked ID.
+      trackedID_ = ParameterSetID();
+      // Give a warning.
+      LogWarning("ParameterSet") << "Warning: You have added a new tracked parameter\n"
+				 <<  "'" << nameOfTracked << "' to a previously registered parameter set.\n"
+				 << "This is a bad idea because the new parameter(s) will not be recorded.\n"
+				 << "Use the forthcoming ParameterSetDescription facility instead.\n"
+				 << "A warning is given only for the first such parameter in a pset.\n";
+    }
+    assert(!isRegistered());
   }
 
   // ----------------------------------------------------------------------
@@ -46,7 +57,6 @@ namespace edm {
     tbl_(),
     psetTable_(),
     vpsetTable_(),
-    frozen_(false),
     isFullyTracked_(True),
     id_(),
     trackedID_()
@@ -60,7 +70,6 @@ namespace edm {
     tbl_(),
     psetTable_(),
     vpsetTable_(),
-    frozen_(false),
     isFullyTracked_(True),
     id_(),
     trackedID_()
@@ -75,44 +84,31 @@ namespace edm {
 
   ParameterSet::~ParameterSet() {}
 
-  void ParameterSet::freeze() const {
-    // there are three steps in freezing
-    if (!frozen_) {
-      for(psettable::const_iterator i = psetTable_.begin(), e = psetTable_.end(); i != e; ++i) {
-        i->second.pset().freeze();
-      }
-
-      for(vpsettable::const_iterator i = vpsetTable_.begin(), e = vpsetTable_.end(); i != e; ++i) {
-	for (std::vector<ParameterSetEntry>::const_iterator
-	    it = i->second.psetEntries().begin(), et = i->second.psetEntries().end();
-	    it != et; ++it) {
-          it->pset().freeze();
-	}
-      }
-
-      frozen_ = true;
-    }
-  }
- 
-  void ParameterSet::fillIDandInsert() const {
-    freeze();
-    if(!id_.isValid()) {
+  ParameterSet const& ParameterSet::registerIt() {
+    if(!isRegistered()) {
       calculateID();
-      updateRegistry();
+      pset::Registry::instance()->insertMapped(*this);
     }
+    return *this;
   }
 
-  void ParameterSet::calculateID() const {
+  void ParameterSet::calculateID() {
     // make sure contained PSets are updated
-    for(psettable::const_iterator i = psetTable_.begin(), e = psetTable_.end(); i != e; ++i) {
-      i->second.updateID();
+    for(psettable::iterator i = psetTable_.begin(), e = psetTable_.end(); i != e; ++i) {
+      if (!i->second.pset().isRegistered()) {
+	i->second.pset().registerIt();
+	i->second.updateID();
+      }
     }
 
-    for(vpsettable::const_iterator i = vpsetTable_.begin(), e = vpsetTable_.end(); i != e; ++i) {
-      for (std::vector<ParameterSetEntry>::const_iterator
+    for(vpsettable::iterator i = vpsetTable_.begin(), e = vpsetTable_.end(); i != e; ++i) {
+      for (std::vector<ParameterSetEntry>::iterator
 	    it = i->second.psetEntries().begin(), et = i->second.psetEntries().end();
 	    it != et; ++it) {
-        it->updateID();
+	if (!it->pset().isRegistered()) {
+          it->pset().registerIt();
+          it->updateID();
+	}
       }
     }
 
@@ -120,35 +116,44 @@ namespace edm {
     toString(stringrep);
     cms::Digest md5alg(stringrep);
     id_ = ParameterSetID(md5alg.digest().toString());
-    assert(id_.isValid());
-  }
-
-  
-  void ParameterSet::updateRegistry() const {
-    pset::Registry::instance()->insertMapped(*this);
+    assert(isRegistered());
   }
 
   // ----------------------------------------------------------------------
   // identification
   ParameterSetID
   ParameterSet::id() const {
-    // checks if frozen and valid
-    fillIDandInsert();
+    // checks if valid
+    if (!isRegistered()) {
+      throw edm::Exception(edm::errors::LogicError)
+        << "ParameterSet::id() called prematurely\n"
+        << "before ParameterSet::registerIt() has been called.\n";
+    }
     return id_;
   }
 
   ParameterSetID
   ParameterSet::trackedID() const {
-    fillIDandInsert();
     if (!trackedID_.isValid()) {
+      if (!isRegistered()) {
+	throw edm::Exception(edm::errors::LogicError)
+          << "ParameterSet::trackedID() called prematurely\n"
+          << "before ParameterSet::registerIt() has been called.\n";
+      }
       if (isFullyTracked_ == True) {
         trackedID_ = id_;
       } else {
-        trackedID_ = trackedPart().id();
+	ParameterSet pset = trackedPart();
+	pset.registerIt();
+        trackedID_ = pset.id_;
         isFullyTracked_ = (trackedID_ == id_ ? True : False);
       }
     }
     return trackedID_;
+  }
+
+  void ParameterSet::setID(ParameterSetID const& id) const {
+    id_ = id;
   }
 
   bool
@@ -157,11 +162,6 @@ namespace edm {
       isFullyTracked_ = (trackedID() == id() ? True : False);
     }
     return (isFullyTracked_ == True);
-  }
-
-  void ParameterSet::setID(ParameterSetID const& id) const {
-    frozen_ = true;
-    id_ = id;
   }
 
   // ----------------------------------------------------------------------
@@ -410,37 +410,12 @@ namespace edm {
   }  // insert()
 
   // ----------------------------------------------------------------------
-  // copy without overwriting
-  // ----------------------------------------------------------------------
-  void
-  ParameterSet::augment(ParameterSet const& from) {
-    // This preemptive invalidation may be more agressive than necessary.
-    checkIfFrozen();
-
-    if(& from == this)
-      return;
-
-    for(table::const_iterator b = from.tbl_.begin(), e = from.tbl_.end(); b != e; ++b) {
-      this->insert(false, b->first, b->second);
-    }
-    for(psettable::const_iterator b = from.psetTable_.begin(), e = from.psetTable_.end(); b != e; ++b) {
-      this->insertParameterSet(false, b->first, b->second);
-    }
-    for(vpsettable::const_iterator b = from.vpsetTable_.begin(), e = from.vpsetTable_.end(); b != e; ++b) {
-      this->insertVParameterSet(false, b->first, b->second);
-    }
-  }  // augment()
-
-  // ----------------------------------------------------------------------
   // coding
   // ----------------------------------------------------------------------
 
   void
   ParameterSet::toString(std::string& rep) const {
     // make sure the PSets get filled
-    if(!frozen_) {
-      fillIDandInsert();
-    }
     if (empty()) {
       rep += "<>";
       return;
@@ -502,9 +477,6 @@ namespace edm {
 
   bool
   ParameterSet::fromString(std::string const& from) {
-    // This preemptive invalidation may be more agressive than necessary.
-    checkIfFrozen();
-
     std::vector<std::string> temp;
     if(!split(std::back_inserter(temp), from, '<', ';', '>'))
       return false;
@@ -616,7 +588,6 @@ namespace edm {
     for(psettable::const_iterator psetItr = psetTable_.begin(); psetItr != psetTable_.end(); ++psetItr) {
       if(psetItr->second.isTracked()) {
         result.addParameter<ParameterSet>(psetItr->first, psetItr->second.pset().trackedPart());
-        result.psetTable_[psetItr->first].updateID();
       } else {
         isFullyTracked_ = False;
       }
@@ -631,7 +602,6 @@ namespace edm {
 	  vresult.push_back(i->pset().trackedPart());
 	}
         result.addParameter<VParameterSet>(vpsetItr->first, vresult);
-        result.vpsetTable_[vpsetItr->first].updateIDs();
       } else {
         isFullyTracked_ = False;
       }
@@ -937,13 +907,13 @@ namespace edm {
   template<>
   ParameterSet
   ParameterSet::getParameter<ParameterSet>(std::string const& name) const {
-    return retrieveParameterSet(name).pset();
+    return getParameterSet(name);
   }
   
   template<>
   VParameterSet
   ParameterSet::getParameter<VParameterSet>(std::string const& name) const {
-    return retrieveVParameterSet(name).vpset();
+    return getParameterSetVector(name);
   }
   
   // untracked parameters
@@ -1423,13 +1393,13 @@ namespace edm {
   template<>
   ParameterSet
   ParameterSet::getParameter<ParameterSet>(char const* name) const {
-    return retrieveParameterSet(name).pset();
+    return getParameterSet(name);
   }
   
   template<>
   VParameterSet
   ParameterSet::getParameter<VParameterSet>(char const* name) const {
-    return retrieveVParameterSet(name).vpset();
+    return getParameterSetVector(name);
   }
 
   // untracked parameters
@@ -1735,59 +1705,49 @@ namespace edm {
   template<>
   ParameterSet
   ParameterSet::getUntrackedParameter<ParameterSet>(char const* name, ParameterSet const& defaultValue) const {
-    ParameterSetEntry const* entryPtr = retrieveUntrackedParameterSet(name);
-    return entryPtr == 0 ? defaultValue : entryPtr->pset();
+    return getUntrackedParameterSet(name, defaultValue);
   }
 
   template<>
   VParameterSet
   ParameterSet::getUntrackedParameter<VParameterSet>(char const* name, VParameterSet const& defaultValue) const {
-    VParameterSetEntry const* entryPtr = retrieveUntrackedVParameterSet(name);
-    return entryPtr == 0 ? defaultValue : entryPtr->vpset();
+    return getUntrackedParameterSetVector(name, defaultValue);
   }
 
   template<>
   ParameterSet
   ParameterSet::getUntrackedParameter<ParameterSet>(std::string const& name, ParameterSet const& defaultValue) const {
-    return getUntrackedParameter<ParameterSet>(name.c_str(), defaultValue);
+    return getUntrackedParameterSet(name, defaultValue);
   }
 
   template<>
   VParameterSet
   ParameterSet::getUntrackedParameter<VParameterSet>(std::string const& name, VParameterSet const& defaultValue) const {
-    return getUntrackedParameter<VParameterSet>(name.c_str(), defaultValue);
+    return getUntrackedParameterSetVector(name, defaultValue);
   }
 
   template<>
   ParameterSet
   ParameterSet::getUntrackedParameter<ParameterSet>(char const* name) const {
-    ParameterSetEntry const* result = retrieveUntrackedParameterSet(name);
-    if (result == 0)
-      throw edm::Exception(errors::Configuration, "MissingParameter:")
-        << "The required ParameterSet '" << name << "' was not specified.\n";
-    return result->pset();
+    return getUntrackedParameterSet(name);
   }
 
   template<>
   VParameterSet
   ParameterSet::getUntrackedParameter<VParameterSet>(char const* name) const {
-    VParameterSetEntry const* result = retrieveUntrackedVParameterSet(name);
-    if (result == 0)
-      throw edm::Exception(errors::Configuration, "MissingParameter:")
-        << "The required ParameterSetVector '" << name << "' was not specified.\n";
-    return result->vpset();
+    return getUntrackedParameterSetVector(name);
   }
 
   template<>
   ParameterSet
   ParameterSet::getUntrackedParameter<ParameterSet>(std::string const& name) const {
-    return getUntrackedParameter<ParameterSet>(name.c_str());
+    return getUntrackedParameterSet(name);
   }
 
   template<>
   VParameterSet
   ParameterSet::getUntrackedParameter<VParameterSet>(std::string const& name) const {
-    return getUntrackedParameter<VParameterSet>(name.c_str());
+    return getUntrackedParameterSetVector(name);
   }
 
 //----------------------------------------------------------------------------------
@@ -1796,7 +1756,7 @@ namespace edm {
   template <>
   void
   ParameterSet::addParameter<ParameterSet>(std::string const& name, ParameterSet value) {
-    checkIfFrozen();
+    invalidateRegistration(name);
     insertParameterSet(true, name, ParameterSetEntry(value, true));
     isFullyTracked_ = isFullyTracked_ && value.isFullyTracked_;
   }
@@ -1804,7 +1764,7 @@ namespace edm {
   template <>
   void
   ParameterSet::addParameter<VParameterSet>(std::string const& name, VParameterSet value) {
-    checkIfFrozen();
+    invalidateRegistration(name);
     insertVParameterSet(true, name, VParameterSetEntry(value, true));
     isFullyTracked_ = isFullyTracked_ && Unknown;
   }
@@ -1812,7 +1772,7 @@ namespace edm {
   template <>
   void
   ParameterSet::addParameter<ParameterSet>(char const* name, ParameterSet value) {
-    checkIfFrozen();
+    invalidateRegistration(name);
     insertParameterSet(true, name, ParameterSetEntry(value, true));
     isFullyTracked_ = isFullyTracked_ && value.isFullyTracked_;
   }
@@ -1820,7 +1780,7 @@ namespace edm {
   template <>
   void
   ParameterSet::addParameter<VParameterSet>(char const* name, VParameterSet value) {
-    checkIfFrozen();
+    invalidateRegistration(name);
     insertVParameterSet(true, name, VParameterSetEntry(value, true));
     isFullyTracked_ = isFullyTracked_ && Unknown;
   }
@@ -1828,6 +1788,7 @@ namespace edm {
   template <>
   void
   ParameterSet::addUntrackedParameter<ParameterSet>(std::string const& name, ParameterSet value) {
+    invalidateRegistration();
     insertParameterSet(true, name, ParameterSetEntry(value, false));
     isFullyTracked_ = False;
   }
@@ -1835,6 +1796,7 @@ namespace edm {
   template <>
   void
   ParameterSet::addUntrackedParameter<VParameterSet>(std::string const& name, VParameterSet value) {
+    invalidateRegistration();
     insertVParameterSet(true, name, VParameterSetEntry(value, false));
     isFullyTracked_ = False;
   }
@@ -1842,6 +1804,7 @@ namespace edm {
   template <>
   void
   ParameterSet::addUntrackedParameter<ParameterSet>(char const* name, ParameterSet value) {
+    invalidateRegistration();
     insertParameterSet(true, name, ParameterSetEntry(value, false));
     isFullyTracked_ = False;
   }
@@ -1849,6 +1812,7 @@ namespace edm {
   template <>
   void
   ParameterSet::addUntrackedParameter<VParameterSet>(char const* name, VParameterSet value) {
+    invalidateRegistration();
     insertVParameterSet(true, name, VParameterSetEntry(value, false));
     isFullyTracked_ = False;
   }
@@ -1870,6 +1834,75 @@ namespace edm {
     std::vector<std::string> output;
     getParameterSetVectorNames(output, trackiness);
     return output; 
+  }
+
+  ParameterSet const&
+  ParameterSet::getParameterSet(std::string const& name) const {
+    return retrieveParameterSet(name).pset();
+  }
+
+  ParameterSet const&
+  ParameterSet::getParameterSet(char const* name) const {
+    return retrieveParameterSet(name).pset();
+  }
+  ParameterSet const&
+  ParameterSet::getUntrackedParameterSet(std::string const& name, ParameterSet const& defaultValue) const {
+    return getUntrackedParameterSet(name.c_str(), defaultValue);
+  }
+
+  ParameterSet const&
+  ParameterSet::getUntrackedParameterSet(char const* name, ParameterSet const& defaultValue) const {
+    ParameterSetEntry const* entryPtr = retrieveUntrackedParameterSet(name);
+    return entryPtr == 0 ? defaultValue : entryPtr->pset();
+  }
+
+  ParameterSet const&
+  ParameterSet::getUntrackedParameterSet(std::string const& name) const {
+    return getUntrackedParameterSet(name.c_str());
+  }
+
+  ParameterSet const&
+  ParameterSet::getUntrackedParameterSet(char const* name) const {
+    ParameterSetEntry const* result = retrieveUntrackedParameterSet(name);
+    if (result == 0)
+      throw edm::Exception(errors::Configuration, "MissingParameter:")
+        << "The required ParameterSet '" << name << "' was not specified.\n";
+    return result->pset();
+  }
+
+  VParameterSet const&
+  ParameterSet::getParameterSetVector(std::string const& name) const {
+    return retrieveVParameterSet(name).vpset();
+  }
+
+  VParameterSet const&
+  ParameterSet::getParameterSetVector(char const* name) const {
+    return retrieveVParameterSet(name).vpset();
+  }
+
+  VParameterSet const&
+  ParameterSet::getUntrackedParameterSetVector(std::string const& name, VParameterSet const& defaultValue) const {
+    return getUntrackedParameterSetVector(name.c_str(), defaultValue);
+  }
+
+  VParameterSet const&
+  ParameterSet::getUntrackedParameterSetVector(char const* name, VParameterSet const& defaultValue) const {
+    VParameterSetEntry const* entryPtr = retrieveUntrackedVParameterSet(name);
+    return entryPtr == 0 ? defaultValue : entryPtr->vpset();
+  }
+
+  VParameterSet const&
+  ParameterSet::getUntrackedParameterSetVector(std::string const& name) const {
+    return getUntrackedParameterSetVector(name.c_str());
+  }
+
+  VParameterSet const&
+  ParameterSet::getUntrackedParameterSetVector(char const* name) const {
+    VParameterSetEntry const* result = retrieveUntrackedVParameterSet(name);
+    if (result == 0)
+      throw edm::Exception(errors::Configuration, "MissingParameter:")
+        << "The required ParameterSetVector '" << name << "' was not specified.\n";
+    return result->vpset();
   }
 
 //----------------------------------------------------------------------------------

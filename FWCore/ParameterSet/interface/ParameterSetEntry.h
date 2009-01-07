@@ -36,7 +36,7 @@ namespace edm {
     /// returns the PSet, reconstituting it from the
     /// Registry, if necessary
     ParameterSet const& pset() const;
-    ParameterSet & pset();
+    ParameterSet& pset();
 
     void updateID() const;
 
