@@ -137,7 +137,7 @@ namespace edm {
     process_name_ = tns->getProcessName();
 
     ParameterSet selectevents =
-      pset.getUntrackedParameter("SelectEvents", ParameterSet());
+      pset.getUntrackedParameter("SelectEvents", ParameterSet().registerIt());
 
     selector_config_id_ = selectevents.trackedID();
     // If selectevents is an emtpy ParameterSet, then we are to write

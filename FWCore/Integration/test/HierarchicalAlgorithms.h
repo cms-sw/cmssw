@@ -30,7 +30,7 @@ namespace edmtest {
   public:
     explicit alg_1(const edm::ParameterSet& ps) : 
       count_(ps.getParameter<int>("count")),
-      inner_alg_(ps.getParameter<edm::ParameterSet>("nest_2"))
+      inner_alg_(ps.getParameterSet("nest_2"))
     { }
 
   private:

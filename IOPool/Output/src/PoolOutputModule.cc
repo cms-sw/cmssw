@@ -53,7 +53,7 @@ namespace edm {
     // We don't use this next parameter, but we read it anyway because it is part
     // of the configuration of this module.  An external parser creates the
     // configuration by reading this source code.
-    pset.getUntrackedParameter<ParameterSet>("dataset", ParameterSet());
+    pset.getUntrackedParameterSet("dataset", ParameterSet());
   }
 
   PoolOutputModule::OutputItem::Sorter::Sorter(TTree * tree) {

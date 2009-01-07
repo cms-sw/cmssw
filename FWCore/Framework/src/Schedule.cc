@@ -120,7 +120,7 @@ namespace edm {
     demandBranches_(),
     endpathsAreActive_(true)
   {
-    ParameterSet opts(pset_.getUntrackedParameter<ParameterSet>("options", ParameterSet()));
+    ParameterSet const& opts = pset_.getUntrackedParameterSet("options", ParameterSet());
     bool hasPath = false;
 
     int trig_bitpos = 0;
@@ -178,7 +178,7 @@ namespace edm {
 	  ++itLabel) {
 	if (allowUnscheduled) {
 	  //Need to hold onto the parameters long enough to make the call to getWorker
-	  ParameterSet workersParams(proc_pset.getParameter<ParameterSet>(*itLabel));
+	  ParameterSet const& workersParams = proc_pset.getParameterSet(*itLabel);
 	  WorkerParams params(proc_pset, workersParams,
 			      *prod_reg_, *act_table_,
 			      processName_, getReleaseVersion(), getPassID());
@@ -255,10 +255,9 @@ namespace edm {
   Schedule::limitOutput() {
     std::string const output("output");
 
-    ParameterSet maxEventsPSet(pset_.getUntrackedParameter<ParameterSet>("maxEvents", ParameterSet()));
+    ParameterSet const& maxEventsPSet = pset_.getUntrackedParameterSet("maxEvents", ParameterSet());
     int maxEventSpecs = 0; 
     int maxEventsOut = -1;
-    ParameterSet vMaxEventsOut;
     std::vector<std::string> intNamesE = maxEventsPSet.getParameterNamesForType<int>(false);
     if (search_all(intNamesE, output)) {
       maxEventsOut = maxEventsPSet.getUntrackedParameter<int>(output);
@@ -266,8 +265,9 @@ namespace edm {
     }
     std::vector<std::string> psetNamesE;
     maxEventsPSet.getParameterSetNames(psetNamesE, false);
+    ParameterSet const* vMaxEventsOut = 0;
     if (search_all(psetNamesE, output)) {
-      vMaxEventsOut = maxEventsPSet.getUntrackedParameter<ParameterSet>(output);
+      vMaxEventsOut = &maxEventsPSet.getUntrackedParameterSet(output);
       ++maxEventSpecs;
     }
 
@@ -283,11 +283,11 @@ namespace edm {
     for (AllOutputWorkers::const_iterator it = all_output_workers_.begin(), itEnd = all_output_workers_.end();
         it != itEnd; ++it) {
       OutputModuleDescription desc(maxEventsOut);
-      if (!vMaxEventsOut.empty()) {
+      if (!vMaxEventsOut->empty()) {
 	std::string moduleLabel = (*it)->description().moduleLabel();
-        if (!vMaxEventsOut.empty()) {
+        if (!vMaxEventsOut->empty()) {
           try {
-            desc.maxEvents_ = vMaxEventsOut.getUntrackedParameter<int>(moduleLabel);
+            desc.maxEvents_ = vMaxEventsOut->getUntrackedParameter<int>(moduleLabel);
 	  } catch (edm::Exception) {
             throw edm::Exception(edm::errors::Configuration) <<
               "\nNo entry in 'maxEvents' for output module label '" << moduleLabel << "'.\n";
@@ -330,9 +330,9 @@ namespace edm {
       std::string realname = *it;
       if (filterAction != WorkerInPath::Normal) realname.erase(0,1);
 
-      ParameterSet modpset;
+      ParameterSet const* modpset = 0;
       try {
-	modpset= pset_.getParameter<ParameterSet>(realname);
+	modpset = &pset_.getParameterSet(realname);
       } catch(cms::Exception&) {
 	std::string pathType("endpath");
 	if(!search_all(end_path_name_list_, name)) {
@@ -343,7 +343,7 @@ namespace edm {
 	  "\" appears in " << pathType << " \"" << name <<
 	  "\"\n please check spelling or remove that label from the path.";
       }
-      WorkerParams params(pset_, modpset, *prod_reg_, *act_table_,
+      WorkerParams params(pset_, *modpset, *prod_reg_, *act_table_,
 			  processName_, getReleaseVersion(), getPassID());
       WorkerInPath w(worker_reg_->getWorker(params), filterAction);
       tmpworkers.push_back(w);

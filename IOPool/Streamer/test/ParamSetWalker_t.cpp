@@ -25,7 +25,7 @@ class ParamSetWalker {
       //cout << "Module Label: " << procPset->getParameter<string>("@module_label")
       //     << std::endl;
       
-     edm::ParameterSet allTrigPaths = procPset->getUntrackedParameter<edm::ParameterSet>("@trigger_paths");
+     edm::ParameterSet const& allTrigPaths = procPset->getUntrackedParameterSet("@trigger_paths");
      std::cout << "Found  Trig Path :" << allTrigPaths.toString() << std::endl; 
      
      if (allTrigPaths.empty())
@@ -49,7 +49,7 @@ class ParamSetWalker {
           it != itEnd; ++it) {  
               std::cout << "Found a end Path PSet :" << (*it) << std::endl;
               //Lets Check this Module if its a EventStreamFileWriter type
-              edm::ParameterSet aModInEndPathPset = procPset->getParameter<edm::ParameterSet>((*it));
+              edm::ParameterSet const& aModInEndPathPset = procPset->getParameterSet((*it));
               if (aModInEndPathPset.empty())
                     throw cms::Exception("ParamSetWalker","ParamSetWalker") 
                           << "Empty End Path Found in the Config File" << std::endl;
@@ -63,7 +63,7 @@ class ParamSetWalker {
                  std::string indexFileName = aModInEndPathPset.getParameter<string> ("indexFileName");
                  std::cout << "Index File Name:" << indexFileName << std::endl;
 
-                 edm::ParameterSet selectEventsPSet = aModInEndPathPset.getUntrackedParameter<edm::ParameterSet>("SelectEvents");
+                 edm::ParameterSet const& selectEventsPSet = aModInEndPathPset.getUntrackedParameterSet("SelectEvents");
                  if (!selectEventsPSet.empty()) {
                     std::cout << "SelectEvents: " << selectEventsPSet.toString() << std::endl;
                  }

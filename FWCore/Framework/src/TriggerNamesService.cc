@@ -3,7 +3,7 @@
 // Implementation:
 //
 // Original Author:  Jim Kowalkowski
-// $Id: TriggerNamesService.cc,v 1.12.8.2 2008/11/10 19:36:22 wmtan Exp $
+// $Id: TriggerNamesService.cc,v 1.13 2008/12/18 04:49:03 wmtan Exp $
 //
 
 #include "FWCore/Framework/interface/TriggerNamesService.h"
@@ -20,16 +20,16 @@ namespace edm {
     TriggerNamesService::TriggerNamesService(const ParameterSet& pset) {
 
       trigger_pset_ = 
-	pset.getUntrackedParameter<ParameterSet>("@trigger_paths");
+	pset.getUntrackedParameterSet("@trigger_paths");
 
       trignames_ = trigger_pset_.getParameter<Strings>("@trigger_paths");
       end_names_ = pset.getParameter<Strings>("@end_paths");
 
       ParameterSet defopts;
-      ParameterSet opts = 
-	pset.getUntrackedParameter<ParameterSet>("options", defopts);
+      ParameterSet const& opts = 
+	pset.getUntrackedParameterSet("options", defopts);
       wantSummary_ =
-	opts.getUntrackedParameter("wantSummary",false);
+	opts.getUntrackedParameter("wantSummary", false);
 
       process_name_ = pset.getParameter<std::string>("@process_name");
 

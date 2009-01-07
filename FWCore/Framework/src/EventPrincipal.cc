@@ -251,6 +251,6 @@ namespace edm {
   EventPrincipal::oldToNewProductID_(ProductID const& oldProductID) const {
     BranchID bid = branchMapperPtr()->oldProductIDToBranchID(oldProductID);
     if (!bid.isValid()) return oldProductID;
-    return branchIDToProductID(branchMapperPtr()->oldProductIDToBranchID(oldProductID));
+    return branchIDToProductID(bid);
   }
 }

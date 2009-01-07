@@ -126,7 +126,7 @@ namespace edm {
     std::vector<std::string> paths;
     header->hltTriggerNames(paths);
     trigger_pset.addParameter<Strings>("@trigger_paths", paths);
-    trigger_pset.fillIDandInsert();
+    trigger_pset.registerIt();
   }
 
   boost::shared_ptr<RunPrincipal>

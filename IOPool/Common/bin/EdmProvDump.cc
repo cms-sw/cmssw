@@ -135,7 +135,7 @@ void HistoryNode::printHistory(const std::string& iIndent) const
 
 std::string eventSetupComponent(const char* iType, const std::string& iCompName, const edm::ParameterSet& iProcessConfig, const std::string& iProcessName) {
   std::ostringstream result;
-  const edm::ParameterSet& pset = iProcessConfig.getParameter<edm::ParameterSet>(iCompName);
+  edm::ParameterSet const& pset = iProcessConfig.getParameterSet(iCompName);
   std::string name( pset.getParameter<std::string>("@module_label") );
   if(0 == name.size() ) {
     name = pset.getParameter<std::string>("@module_type");
