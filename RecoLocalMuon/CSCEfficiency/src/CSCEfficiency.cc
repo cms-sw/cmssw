@@ -156,7 +156,7 @@ bool CSCEfficiency::filter(Event & event, const EventSetup& eventSetup){
     }
     DataFlow->Fill(7.);
 
-    passTheEvent = true; 
+    //passTheEvent = true; 
     if (printalot) std::cout<<"good Track"<<std::endl;
     Hep3Vector r3T(track->outerPosition().x(),track->outerPosition().y(),track->outerPosition().z());
     Hep3Vector p3T(track->outerMomentum().x(),track->outerMomentum().y(),track->outerMomentum().z());
@@ -219,12 +219,6 @@ bool CSCEfficiency::filter(Event & event, const EventSetup& eventSetup){
       //const Plane* pDest = dynamic_cast<const Plane*>(&(cscGeom->idToDet(detId)->surface()));
       //std::cout<<" test "<<std::endl;
       //std::cout<<" pDest = "<<pDest<<std::endl;
-      float zDistInner = track->innerPosition().z() - cscGeom->idToDet(detId)->surface().position().z();
-      float zDistOuter = track->outerPosition().z() - cscGeom->idToDet(detId)->surface().position().z();
-      //---- only detectors between the inner and outer points of the track are considered for non IP-data 
-      if(!isIPdata && (zDistInner*zDistOuter>0. || fabs(zDistInner)<15. || fabs(zDistOuter)<15.)){ // for non IP-data
-	continue;
-      }
       //---- propagate to this ME
       tSOSDest = shPropTr->propagate(ftsStart, cscGeom->idToDet(detId)->surface());
       if(tSOSDest.isValid()){
@@ -257,6 +251,16 @@ bool CSCEfficiency::filter(Event & event, const EventSetup& eventSetup){
 	      CSCDetId theCSCId(refME[iSt].endcap(), refME[iSt].station(), refME[iSt].ring(), coupleOfChambers.at(iCh));
 	      const CSCChamber* cscChamber = cscGeom->chamber(theCSCId.chamberId());
 	      const BoundPlane bp = cscGeom->idToDet(cscChamber->geographicalId())->surface();
+              float zDistInner = track->innerPosition().z() - bp.position().z();
+              float zDistOuter = track->outerPosition().z() - bp.position().z();
+//---- only detectors between the inner and outer points of the track are considered for non IP-data 
+              if(printalot){
+                std::cout<<" zIn = "<<track->innerPosition().z()<<" zOut = "<<track->outerPosition().z()<<" zSurf = "<<bp.position().z()<<std::endl;
+                std::cout<<" zDistInner = "<<zDistInner<<" zDistOuter = "<<zDistOuter<<std::endl;
+              }
+              if(!isIPdata && (zDistInner*zDistOuter>0. || fabs(zDistInner)<15. || fabs(zDistOuter)<15.)){ // for non IP-data
+               continue;
+              }
 	      float zFTS = ftsStart.position().z();
 	      float dz = fabs(bp.position().z() - zFTS);
 	      //---- propagate to the chamber (from this ME) if it is a different surface (odd/even chambers)
@@ -323,6 +327,9 @@ bool CSCEfficiency::filter(Event & event, const EventSetup& eventSetup){
 		//---- Do efficiencies
 		if(useDigis){
 		  bool digi_flag; digi_flag = digisPerChamber(theCSCId, cscChamber, ftsStart);
+		  if(digi_flag){
+		    passTheEvent = true;
+		  }
 		  bool stripANDwire_flag; stripANDwire_flag = stripWire_Efficiencies(theCSCId, ftsStart);
 		}
 		bool recHitANDsegment_flag; recHitANDsegment_flag = recHitSegment_Efficiencies(theCSCId, cscChamber, ftsStart);
@@ -706,8 +713,8 @@ void CSCEfficiency::fillRechitsSegments_info(edm::Handle<CSCRecHit2DCollection> 
   segmentsPerEvent->Fill(segments->size());
   for(CSCSegmentCollection::const_iterator it = segments->begin(); it != segments->end(); it++) {
     CSCDetId id  = (CSCDetId)(*it).cscDetId();
-    StHist[id.endcap()-1][id.station(-1)].segmentChi2_ndf->Fill((*it).chi2()/(*it).degreesOfFreedom());
-    StHist[id.endcap()-1][id.station(-1)].hitsInSegment->Fill((*it).nRecHits());
+    StHist[id.endcap()-1][id.station()-1].segmentChi2_ndf->Fill((*it).chi2()/(*it).degreesOfFreedom());
+    StHist[id.endcap()-1][id.station()-1].hitsInSegment->Fill((*it).nRecHits());
     if (printalot){ 
       printf("\tendcap/station/ring/chamber: %i %i %i %i\n",
 	     id.endcap(),id.station(),id.ring(),id.chamber());
@@ -860,6 +867,24 @@ bool CSCEfficiency::digisPerChamber(CSCDetId & id, const CSCChamber* cscChamber,
   }
 
   LocalVector localDir = cscChamber->toLocal(ftsChamber.momentum());
+  if(printalot){
+    std::cout<<" global dir = "<<ftsChamber.momentum()<<std::endl;
+    std::cout<<" local dir = "<<localDir<<std::endl;
+    std::cout<<" local theta = "<<localDir.theta()<<std::endl;
+  }
+  float dxdz = localDir.x()/localDir.z();
+  float dydz = localDir.y()/localDir.z();
+  if(2==st || 3==st){
+    if(printalot){
+      std::cout<<"st 3 or 4 ... flip dy/dz"<<std::endl;
+    }
+    dydz = - dydz;
+  }
+  if(printalot){
+    std::cout<<"dy/dz = "<<dydz<<std::endl;
+  }
+  bool missingALCT = false;
+  bool missingCLCT = false;
   // ALCTs
   firstCondition = allALCT[ec][st][rg][ch];
   secondCondition = false;
@@ -869,12 +894,17 @@ bool CSCEfficiency::digisPerChamber(CSCDetId & id, const CSCChamber* cscChamber,
   if(firstCondition || secondCondition){
     ChHist[ec][st][rg][ch].digiAppearanceCount->Fill(3);
     StHist[ec][st].EfficientALCT_momTheta->Fill(ftsChamber.momentum().theta());
-    ChHist[ec][st][rg][ch].EfficientALCT_theta->Fill(localDir.theta());
+    ChHist[ec][st][rg][ch].EfficientALCT_dydz->Fill(dydz);
   }
   else{
+    missingALCT = true;
     ChHist[ec][st][rg][ch].digiAppearanceCount->Fill(2);
     StHist[ec][st].InefficientALCT_momTheta->Fill(ftsChamber.momentum().theta());
-    ChHist[ec][st][rg][ch].InefficientALCT_theta->Fill(localDir.theta());
+    ChHist[ec][st][rg][ch].InefficientALCT_dydz->Fill(dydz);
+    if(printalot){
+      std::cout<<" missing ALCT";
+      printf("\t\tendcap/station/ring/chamber: %i/%i/%i/%i\n",ec+1,st+1,rg+1,ch+1);
+    }
   }
 
   // CLCTs
@@ -886,12 +916,17 @@ bool CSCEfficiency::digisPerChamber(CSCDetId & id, const CSCChamber* cscChamber,
   if(firstCondition || secondCondition){
     ChHist[ec][st][rg][ch].digiAppearanceCount->Fill(5);
     StHist[ec][st].EfficientCLCT_momPhi->Fill(ftsChamber.momentum().phi() );// - phi chamber...
-    ChHist[ec][st][rg][ch].EfficientCLCT_phi->Fill(localDir.phi());
+    ChHist[ec][st][rg][ch].EfficientCLCT_dxdz->Fill(dxdz);
   }
   else{
+    missingCLCT = true;
     ChHist[ec][st][rg][ch].digiAppearanceCount->Fill(4);
     StHist[ec][st].InefficientCLCT_momPhi->Fill(ftsChamber.momentum().phi());// - phi chamber...
-    ChHist[ec][st][rg][ch].InefficientCLCT_phi->Fill(localDir.phi());
+    ChHist[ec][st][rg][ch].InefficientCLCT_dxdz->Fill(dxdz);
+    if(printalot){
+      std::cout<<" missing CLCT";
+      printf("\t\tendcap/station/ring/chamber: %i/%i/%i/%i\n",ec+1,st+1,rg+1,ch+1);
+    }
   }
 
   // CorrLCTs
@@ -906,8 +941,11 @@ bool CSCEfficiency::digisPerChamber(CSCDetId & id, const CSCChamber* cscChamber,
   else{
     ChHist[ec][st][rg][ch].digiAppearanceCount->Fill(6);
   }
-
-  return true;
+  bool out = false;
+  if((missingCLCT && !missingALCT )|| (missingALCT && 0==st&&2==rg)){
+    out = true;
+  }
+  return out;
 }
 
 //
@@ -1399,30 +1437,30 @@ CSCEfficiency::CSCEfficiency(const ParameterSet& pset){
 	    new TH1F(SpecName,"Digi appearance (no-yes): segment(0,1), ALCT(2,3), CLCT(4,5), CorrLCT(6,7); digi type;entries",
 		     8,-0.5,7.5);
 	  //
-	  Chan = 80;
-	  minChan = 0;
-	  maxChan = 3.2;
-	  sprintf(SpecName,"EfficientALCT_theta_Ch%d",iChamber);
-	  ChHist[ec][st][rg][iChamber-FirstCh].EfficientALCT_theta = 
-	    new TH1F(SpecName,"Efficient ALCT; local theta;entries",
+	  Chan = 100;
+	  minChan = -1.1;
+	  maxChan = 0.9;
+	  sprintf(SpecName,"EfficientALCT_dydz_Ch%d",iChamber);
+	  ChHist[ec][st][rg][iChamber-FirstCh].EfficientALCT_dydz = 
+	    new TH1F(SpecName,"Efficient ALCT; local dy/dz (ME 3 and 4 flipped);entries",
 		     Chan, minChan, maxChan);
 	  //
-	  sprintf(SpecName,"InefficientALCT_theta_Ch%d",iChamber);
-	  ChHist[ec][st][rg][iChamber-FirstCh].InefficientALCT_theta = 
-	    new TH1F(SpecName,"Inefficient ALCT; local theta;entries",
+	  sprintf(SpecName,"InefficientALCT_dydz_Ch%d",iChamber);
+	  ChHist[ec][st][rg][iChamber-FirstCh].InefficientALCT_dydz = 
+	    new TH1F(SpecName,"Inefficient ALCT; local dy/dz (ME 3 and 4 flipped);entries",
 		     Chan, minChan, maxChan);
 	  //
-	  Chan = 160;
-	  minChan = -3.2;
-	  maxChan = 3.2;
-	  sprintf(SpecName,"EfficientCLCT_theta_Ch%d",iChamber);
-	  ChHist[ec][st][rg][iChamber-FirstCh].EfficientCLCT_phi = 
-	    new TH1F(SpecName,"Efficient CLCT; local phi;entries",
+	  Chan = 100;
+	  minChan = -1.;
+	  maxChan = 1.0;
+	  sprintf(SpecName,"EfficientCLCT_dxdz_Ch%d",iChamber);
+	  ChHist[ec][st][rg][iChamber-FirstCh].EfficientCLCT_dxdz = 
+	    new TH1F(SpecName,"Efficient CLCT; local dxdz;entries",
 		     Chan, minChan, maxChan);
 	  //
-	  sprintf(SpecName,"InefficientCLCT_theta_Ch%d",iChamber);
-	  ChHist[ec][st][rg][iChamber-FirstCh].InefficientCLCT_phi = 
-	    new TH1F(SpecName,"Inefficient CLCT; local phi;entries",
+	  sprintf(SpecName,"InefficientCLCT_dxdz_Ch%d",iChamber);
+	  ChHist[ec][st][rg][iChamber-FirstCh].InefficientCLCT_dxdz = 
+	    new TH1F(SpecName,"Inefficient CLCT; local dxdz;entries",
 		     Chan, minChan, maxChan);
 	  //
 	  sprintf(SpecName,"EfficientRechits_good_Ch%d",iChamber);
@@ -1548,10 +1586,10 @@ CSCEfficiency::~CSCEfficiency(){
 	  ChHist[ec][st][rg][iChamber-FirstCh].EfficientRechits_inSegment->Write();
 	  ChHist[ec][st][rg][iChamber-FirstCh].AllSingleHits->Write();
 	  ChHist[ec][st][rg][iChamber-FirstCh].digiAppearanceCount->Write();
-	  ChHist[ec][st][rg][iChamber-FirstCh].EfficientALCT_theta->Write();
-	  ChHist[ec][st][rg][iChamber-FirstCh].InefficientALCT_theta->Write();
-	  ChHist[ec][st][rg][iChamber-FirstCh].EfficientCLCT_phi->Write();
-	  ChHist[ec][st][rg][iChamber-FirstCh].InefficientCLCT_phi->Write();
+	  ChHist[ec][st][rg][iChamber-FirstCh].EfficientALCT_dydz->Write();
+	  ChHist[ec][st][rg][iChamber-FirstCh].InefficientALCT_dydz->Write();
+	  ChHist[ec][st][rg][iChamber-FirstCh].EfficientCLCT_dxdz->Write();
+	  ChHist[ec][st][rg][iChamber-FirstCh].InefficientCLCT_dxdz->Write();
 	  ChHist[ec][st][rg][iChamber-FirstCh].InefficientSingleHits->Write();
 	  ChHist[ec][st][rg][iChamber-FirstCh].EfficientRechits_good->Write();
 	  ChHist[ec][st][rg][iChamber-FirstCh].EfficientStrips->Write();

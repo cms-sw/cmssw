@@ -256,10 +256,10 @@ public:
     TH1F * digiAppearanceCount;
     TH1F * AllSingleHits;
     TH1F * EfficientRechits_good;
-    TH1F * EfficientALCT_theta;
-    TH1F * InefficientALCT_theta;
-    TH1F * EfficientCLCT_phi;
-    TH1F * InefficientCLCT_phi;
+    TH1F * EfficientALCT_dydz;
+    TH1F * InefficientALCT_dydz;
+    TH1F * EfficientCLCT_dxdz;
+    TH1F * InefficientCLCT_dxdz;
     TH1F * EfficientStrips;
     TH1F * StripWiresCorrelations;
     TH1F * NoWires_momTheta;

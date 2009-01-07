@@ -16,10 +16,10 @@
 void getEfficiency(float efficientEvents, float allEvents, std::vector<float> &efficiencyResult);
 void getType(int iE, int iS, int iR, float & verticalScale);
 
-void monHists(){
+void computeEfficiencies(){
   //TFile* anaFile = TFile::Open("efficiencies.root", "RECREATE"); // my output file
   //cout << tmp[0] << endl;
-  char *file_name = "cscHists.root";
+  char *file_name = "cscHists_merged.root";
   TFile *f1=
     (TFile*)gROOT->GetListOfFiles()->FindObject(file_name);
   if (!f1){
@@ -28,6 +28,9 @@ void monHists(){
   // All files in a vector
   std::vector< TFile * > DataFiles;
   DataFiles.push_back(f1);
+
+  string mytitle;
+  char *myTitle;
 
   const Int_t nx = 36;
   const Int_t ny = 16;
@@ -52,6 +55,9 @@ void monHists(){
 				   nx,0. + 0.5,float(nx) + 0.5, ny,0. + 0.5,float(ny) + 0.5);
 
 
+  //TH1F *h_alct_theta_Efficiency = new TH1F("alct_theta_Efficiency",
+  //				   "ALCT efficiency vs local theta;local theta;efficiency",
+  //				   );
 
   TFile* anaFile = TFile::Open("efficiencies.root", "RECREATE"); // my output file
   TCanvas *c1 = new TCanvas("c1", "canvas 1",16,30,700,500);
@@ -61,8 +67,13 @@ void monHists(){
   gStyle->SetPalette(1);
 
   TH1F *data_p1;
+  TH1F *data_p2;
+  TH1F *sum_All_alct_theta;
+  TH1F *sum_Eff_alct_theta;
   string dirName;
   char * charName;
+  char * charName_2;
+  char * charName_3;
   string histo_1, histo_2, histo_3;
   int firstSt_it = 0;
   //TH1F *sum_histo;
@@ -70,6 +81,7 @@ void monHists(){
   int nAll = 0;
   std::vector<float> efficiencyResult(2);
   float verticalScale;
+  int inerations = 0;
   for(int iE=1;iE<3;++iE){
     for(int iS=1;iS<5;++iS){
       dirName = Form("Stations__E%d_S%d",iE,iS);
@@ -144,13 +156,48 @@ void monHists(){
 	  nAll = data_p1->GetBinContent(7) + nEfficient;
 	  getEfficiency(float(nEfficient), float(nAll), efficiencyResult);
 	  h_corrlctEfficiency->SetBinContent(iC,int(verticalScale+0.5), efficiencyResult[0]);
+	  //
+	  
+	  histo_1 = Form("Chambers__E%d_S%d_R%d_Chamber_%d/EfficientALCT_theta_Ch%d",iE,iS,iR,iC,iC);
+	  charName_2 = histo_1.c_str();
+	  histo_2 = Form("Chambers__E%d_S%d_R%d_Chamber_%d/InefficientALCT_theta_Ch%d",iE,iS,iR,iC,iC);
+	  charName_3 = histo_2.c_str();
+	  data_p1 =(TH1F*)(*(DataFiles[0]))->Get(charName_2);
+	  data_p2 =(TH1F*)(*(DataFiles[0]))->Get(charName_3);
+	  if(!inerations){
+	    sum_All_alct_theta=(TH1F*)data_p1->Clone();
+	    sum_All_alct_theta->SetName("all");
+	    sum_All_alct_theta->Add(data_p2);
+	    sum_Eff_alct_theta=(TH1F*)data_p1->Clone();
+	    sum_Eff_alct_theta->SetName("eff");
+	  }
+	  else{
+	    sum_All_alct_theta->Add(data_p1);
+	    sum_All_alct_theta->Add(data_p2);
+	    sum_Eff_alct_theta->Add(data_p1);
+	  }
+	  
 	  //h_corrlctEfficiency->Fill(chambers[iC],types[int(verticalScale+0.5)],efficiencyResult[0]);
 	  //h2->Fill(chambers[ibinX-1],types[ibinY-1],newCont);
-
+	  ++inerations;
 	}
       }
     }
   }
+  cout<<" nSize = "<<sum_Eff_alct_theta->GetNbinsX()<<std::endl;
+  TGraphAsymmErrors* g_effALCT_theta = new TGraphAsymmErrors(sum_Eff_alct_theta->GetNbinsX());
+  g_effALCT_theta->BayesDivide(sum_Eff_alct_theta,sum_All_alct_theta);
+  myTitle = "Efficiency - ALCT vs theta; theta, rad; efficiency ";
+  g_effALCT_theta->SetTitle(myTitle);
+  /*
+  TH1F *efficiency_alct_theta = (TH1F*)sum_Eff_alct_theta->Clone();
+  efficiency_alct_theta->SetName("Efficiency_ALCT_vs_theta");
+  myTitle = "Efficiency - ALCT vs theta; theta, rad; efficiency ";
+  efficiency_alct_theta->SetTitle(myTitle);
+  efficiency_alct_theta->Divide(sum_Eff_alct_theta,sum_Ineff_alct_theta,1.,1.,"B");
+  */
+  //sum_All_alct_theta->Delete();
+  //sum_Eff_alct_theta->Delete();
   h_rhEfficiency->Draw("colz");
   
   //f1->Close();
@@ -162,6 +209,9 @@ void monHists(){
 
   h_rhEfficiency->Write();
   h_segEfficiency->Write();
+
+  //efficiency_alct_theta->Write();
+  g_effALCT_theta->Write();
 
   anaFile->Write();
   anaFile->Close();
