@@ -73,11 +73,16 @@ void MultiTrackValidator::beginRun(Run const&, EventSetup const& setup) {
 
       h_effic.push_back( dbe_->book1D("effic","efficiency vs #eta",nint,min,max) );
       h_efficPt.push_back( dbe_->book1D("efficPt","efficiency vs pT",nintpT,minpT,maxpT) );
+      h_effic_vs_hit.push_back( dbe_->book1D("effic_vs_hit","effic vs hit",nintHit,minHit,maxHit) );
+      h_effic_vs_phi.push_back( dbe_->book1D("effic_vs_phi","effic vs phi",nintPhi,minPhi,maxPhi) );
+
+
       h_fakerate.push_back( dbe_->book1D("fakerate","fake rate vs #eta",nint,min,max) );
       h_fakeratePt.push_back( dbe_->book1D("fakeratePt","fake rate vs pT",nintpT,minpT,maxpT) );
-      h_effic_vs_hit.push_back( dbe_->book1D("effic_vs_hit","effic vs hit",nintHit,minHit,maxHit) );
       h_fake_vs_hit.push_back( dbe_->book1D("fakerate_vs_hit","fake rate vs hit",nintHit,minHit,maxHit) );
- 
+      h_fake_vs_phi.push_back( dbe_->book1D("fakerate_vs_phi","fake vs phi",nintPhi,minPhi,maxPhi) );
+
+
       h_recoeta.push_back( dbe_->book1D("num_reco_eta","N of reco track vs eta",nint,min,max) );
       h_assoceta.push_back( dbe_->book1D("num_assoc(simToReco)_eta","N of associated tracks (simToReco) vs eta",nint,min,max) );
       h_assoc2eta.push_back( dbe_->book1D("num_assoc(recoToSim)_eta","N of associated (recoToSim) tracks vs eta",nint,min,max) );
@@ -86,10 +91,18 @@ void MultiTrackValidator::beginRun(Run const&, EventSetup const& setup) {
       h_assocpT.push_back( dbe_->book1D("num_assoc(simToReco)_pT","N of associated tracks (simToReco) vs pT",nintpT,minpT,maxpT) );
       h_assoc2pT.push_back( dbe_->book1D("num_assoc(recoToSim)_pT","N of associated (recoToSim) tracks vs pT",nintpT,minpT,maxpT) );
       h_simulpT.push_back( dbe_->book1D("num_simul_pT","N of simulated tracks vs pT",nintpT,minpT,maxpT) );
+      //
       h_recohit.push_back( dbe_->book1D("num_reco_hit","N of reco track vs hit",nintHit,minHit,maxHit) );
       h_assochit.push_back( dbe_->book1D("num_assoc(simToReco)_hit","N of associated tracks (simToReco) vs hit",nintHit,minHit,maxHit) );
       h_assoc2hit.push_back( dbe_->book1D("num_assoc(recoToSim)_hit","N of associated (recoToSim) tracks vs hit",nintHit,minHit,maxHit) );
       h_simulhit.push_back( dbe_->book1D("num_simul_hit","N of simulated tracks vs hit",nintHit,minHit,maxHit) );
+      //
+      h_recophi.push_back( dbe_->book1D("num_reco_phi","N of reco track vs phi",nintPhi,minPhi,maxPhi) );
+      h_assocphi.push_back( dbe_->book1D("num_assoc(simToReco)_phi","N of associated tracks (simToReco) vs phi",nintPhi,minPhi,maxPhi) );
+      h_assoc2phi.push_back( dbe_->book1D("num_assoc(recoToSim)_phi","N of associated (recoToSim) tracks vs phi",nintPhi,minPhi,maxPhi) );
+      h_simulphi.push_back( dbe_->book1D("num_simul_phi","N of simulated tracks vs phi",nintPhi,minPhi,maxPhi) );
+
+
 
       h_eta.push_back( dbe_->book1D("eta", "pseudorapidity residue", 1000, -0.1, 0.1 ) );
       h_pt.push_back( dbe_->book1D("pullPt", "pull of p_{t}", 100, -10, 10 ) );
@@ -340,6 +353,17 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	    }
 	  }
 	} // END for (unsigned int f=0; f<etaintervals[w].size()-1; f++){
+
+	for (unsigned int f=0; f<phiintervals[w].size()-1; f++){
+	  if (tp->momentum().phi() > phiintervals[w][f]&&
+	      tp->momentum().phi() <phiintervals[w][f+1]) {
+	    totSIM_phi[w][f]++;
+	    if (rt.size()!=0) {
+	      totASS_phi[w][f]++;
+	    }
+	  }
+	} // END for (unsigned int f=0; f<phiintervals[w].size()-1; f++){
+
 	
 	for (unsigned int f=0; f<pTintervals[w].size()-1; f++){
           if (getPt(sqrt(tp->momentum().perp2()))>pTintervals[w][f]&&
@@ -394,6 +418,17 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	    }		
 	  }
 	}
+
+	for (unsigned int f=0; f<phiintervals[w].size()-1; f++){
+	  if (track->momentum().phi()>phiintervals[w][f]&&
+	      track->momentum().phi()<phiintervals[w][f+1]) {
+	    totREC_phi[w][f]++; 
+	    if (tp.size()!=0) {
+	      totASS2_phi[w][f]++;
+	    }		
+	  }
+	}
+
 	
 	for (unsigned int f=0; f<pTintervals[w].size()-1; f++){
 	  if (getPt(sqrt(track->momentum().perp2()))>pTintervals[w][f]&&
@@ -667,6 +702,9 @@ void MultiTrackValidator::endRun(Run const&, EventSetup const&) {
       fillPlotFromVectors(h_fakeratePt[w],totASS2pT[w],totRECpT[w],"fakerate");
       fillPlotFromVectors(h_effic_vs_hit[w],totASS_hit[w],totSIM_hit[w],"effic");
       fillPlotFromVectors(h_fake_vs_hit[w],totASS2_hit[w],totREC_hit[w],"fakerate");
+      fillPlotFromVectors(h_effic_vs_phi[w],totASS_phi[w],totSIM_phi[w],"effic");
+      fillPlotFromVectors(h_fake_vs_phi[w],totASS2_phi[w],totREC_phi[w],"fakerate");
+
 
       fillPlotFromVector(h_recoeta[w],totRECeta[w]);
       fillPlotFromVector(h_simuleta[w],totSIMeta[w]);
@@ -682,6 +720,11 @@ void MultiTrackValidator::endRun(Run const&, EventSetup const&) {
       fillPlotFromVector(h_simulhit[w],totSIM_hit[w]);
       fillPlotFromVector(h_assochit[w],totASS_hit[w]);
       fillPlotFromVector(h_assoc2hit[w],totASS2_hit[w]);
+
+      fillPlotFromVector(h_recophi[w],totREC_phi[w]);
+      fillPlotFromVector(h_simulphi[w],totSIM_phi[w]);
+      fillPlotFromVector(h_assocphi[w],totASS_phi[w]);
+      fillPlotFromVector(h_assoc2phi[w],totASS2_phi[w]);
       w++;
     }
   }

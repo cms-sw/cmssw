@@ -4,8 +4,8 @@
 /** \class MultiTrackValidatorBase
  *  Base class for analyzers that produces histrograms to validate Track Reconstruction performances
  *
- *  $Date: 2008/08/20 04:02:15 $
- *  $Revision: 1.12 $
+ *  $Date: 2008/12/19 17:26:18 $
+ *  $Revision: 1.13 $
  *  \author cerati
  */
 
@@ -54,6 +54,9 @@ class MultiTrackValidatorBase {
     minHit(pset.getParameter<double>("minHit")),
     maxHit(pset.getParameter<double>("maxHit")),
     nintHit(pset.getParameter<int>("nintHit")),
+    minPhi(pset.getParameter<double>("minPhi")),
+    maxPhi(pset.getParameter<double>("maxPhi")),
+    nintPhi(pset.getParameter<int>("nintPhi")),
     useInvPt(pset.getParameter<bool>("useInvPt"))
     {
       dbe_ = edm::Service<DQMStore>().operator->();
@@ -113,10 +116,13 @@ class MultiTrackValidatorBase {
 
   void setUpVectors() {
     std::vector<double> etaintervalsv;
+    std::vector<double> phiintervalsv;
     std::vector<double> pTintervalsv;
     std::vector<int>    totSIMveta,totASSveta,totASS2veta,totRECveta;
     std::vector<int>    totSIMvpT,totASSvpT,totASS2vpT,totRECvpT;
     std::vector<int>    totSIMv_hit,totASSv_hit,totASS2v_hit,totRECv_hit;
+    std::vector<int>    totSIMv_phi,totASSv_phi,totASS2v_phi,totRECv_phi;
+
 
     double step=(max-min)/nint;
     std::ostringstream title,name;
@@ -161,6 +167,23 @@ class MultiTrackValidatorBase {
     totASS_hit.push_back(totASSv_hit);
     totASS2_hit.push_back(totASS2v_hit);
     totREC_hit.push_back(totRECv_hit);
+
+    double stepPhi = (maxPhi-minPhi)/nintPhi;
+    phiintervalsv.push_back(minPhi);
+    for (int k=1;k<nintPhi+1;k++) {
+      double d=minPhi+k*stepPhi;
+      phiintervalsv.push_back(d);
+      totSIMv_phi.push_back(0);
+      totASSv_phi.push_back(0);
+      totASS2v_phi.push_back(0);
+      totRECv_phi.push_back(0);
+    }
+    phiintervals.push_back(phiintervalsv);
+    totSIM_phi.push_back(totSIMv_phi);
+    totASS_phi.push_back(totASSv_phi);
+    totASS2_phi.push_back(totASS2v_phi);
+    totREC_phi.push_back(totRECv_phi);
+
   }
 
  protected:
@@ -182,6 +205,8 @@ class MultiTrackValidatorBase {
   int nintpT;
   double minHit, maxHit;
   int nintHit;
+  double minPhi, maxPhi;
+  int nintPhi;
   bool useInvPt;
 
   edm::ESHandle<MagneticField> theMF;
@@ -192,9 +217,10 @@ class MultiTrackValidatorBase {
 
   //1D
   std::vector<MonitorElement*> h_tracks, h_fakes, h_hits, h_charge;
-  std::vector<MonitorElement*> h_effic, h_efficPt, h_fakerate, h_fakeratePt, h_recoeta, h_assoceta, h_assoc2eta, h_simuleta;
-  std::vector<MonitorElement*>  h_effic_vs_hit, h_fake_vs_hit;
-  std::vector<MonitorElement*> h_recopT, h_assocpT, h_assoc2pT, h_simulpT, h_recohit, h_assochit, h_assoc2hit, h_simulhit;
+  std::vector<MonitorElement*> h_effic,  h_fakerate, h_recoeta, h_assoceta, h_assoc2eta, h_simuleta;
+  std::vector<MonitorElement*> h_efficPt, h_fakeratePt, h_recopT, h_assocpT, h_assoc2pT, h_simulpT;
+  std::vector<MonitorElement*> h_effic_vs_hit, h_fake_vs_hit, h_recohit, h_assochit, h_assoc2hit, h_simulhit;
+  std::vector<MonitorElement*> h_effic_vs_phi, h_fake_vs_phi, h_recophi, h_assocphi, h_assoc2phi, h_simulphi;
   std::vector<MonitorElement*> h_pt, h_eta, h_pullTheta,h_pullPhi,h_pullDxy,h_pullDz,h_pullQoverp;
 
   //2D  
@@ -208,10 +234,12 @@ class MultiTrackValidatorBase {
   std::vector<MonitorElement*> h_hits_eta;
  
   std::vector< std::vector<double> > etaintervals;
+  std::vector< std::vector<double> > phiintervals;
   std::vector< std::vector<double> > pTintervals;
   std::vector< std::vector<int> > totSIMeta,totRECeta,totASSeta,totASS2eta;
   std::vector< std::vector<int> > totSIMpT,totRECpT,totASSpT,totASS2pT;
   std::vector< std::vector<int> > totSIM_hit,totREC_hit,totASS_hit,totASS2_hit;
+  std::vector< std::vector<int> > totSIM_phi,totREC_phi,totASS_phi,totASS2_phi;
 };
 
 
