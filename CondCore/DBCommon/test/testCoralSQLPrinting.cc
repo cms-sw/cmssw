@@ -22,10 +22,10 @@ int main() {
   coral::Context::instance().loadComponent("CORAL/Services/ConnectionService");
   coral::Context::instance().loadComponent("COND/Services/SQLMonitoringService");
   coral::Context::instance().loadComponent("COND/Services/XMLAuthenticationService");
-  coral::Context::instance().PropertyManager().property("AuthenticationFile")->set(std::string("/build/gg/key.dat"));
+  //coral::Context::instance().PropertyManager().property("AuthenticationFile")->set(std::string("/build/gg/key.dat"));
   coral::IHandle<coral::IConnectionService> connectionService=coral::Context::instance().query<coral::IConnectionService>();
   connectionService->configuration().setMonitoringLevel(coral::monitor::Trace);	  //std::string connectionString("sqlite_file:mytest.db");
-  std::string connectionString("oracle://cms_orcoff_int2r/CMS_COND_PRESH");
+  std::string connectionString("oracle://cms_orcoff_prep/CMS_COND_PRESH");
   
   coral::ISessionProxy* session = connectionService->connect( connectionString );
   session->transaction().start();

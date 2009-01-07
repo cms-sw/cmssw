@@ -8,7 +8,8 @@
 #include "CondCore/DBCommon/interface/LogDBEntry.h"
 #include "CondCore/DBCommon/interface/Logger.h"
 #include "CondCore/DBCommon/interface/UserLogInfo.h"
-
+#include "FWCore/PluginManager/interface/PluginManager.h"
+#include "FWCore/PluginManager/interface/standard.h"
 #include <string>
 #include <iostream>
 //#include <stdio.h>
@@ -29,8 +30,10 @@ int main(){
 	 "PedestalsRcd",
 	 1);
   std::string tok2=tk.tokenAsString();
-  //std::string constr("sqlite_file:mylog.db");
-  std::string constr("oracle://devdb10/cms_xiezhen_dev");
+  std::string constr("sqlite_file:mylog.db");
+  //std::string constr("oracle://devdb10/cms_xiezhen_dev");
+  edmplugin::PluginManager::Config config;
+  edmplugin::PluginManager::configure(edmplugin::standard::config());
   cond::DBSession* session=new cond::DBSession;
   session->configuration().setMessageLevel( cond::Error );
   session->configuration().setAuthenticationMethod(cond::XML);

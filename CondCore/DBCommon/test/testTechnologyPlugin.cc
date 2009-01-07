@@ -1,6 +1,7 @@
 #include "CondCore/DBCommon/interface/TechnologyProxyFactory.h"
 #include "CondCore/DBCommon/interface/TechnologyProxy.h"
 #include "FWCore/PluginManager/interface/PluginManager.h"
+#include "FWCore/PluginManager/interface/standard.h"
 #include "CondCore/DBCommon/interface/DBSession.h"
 #include "CondCore/DBCommon/interface/ConnectionHandler.h"
 #include "FWCore/Catalog/interface/SiteLocalConfig.h"
@@ -8,7 +9,8 @@
 #include <iostream>
 int main(){
   edmplugin::PluginManager::Config config;
-  const char* path = getenv("LD_LIBRARY_PATH");
+  edmplugin::PluginManager::configure(edmplugin::standard::config());
+  /*  const char* path = getenv("LD_LIBRARY_PATH");
   std::string spath(path? path: "");
   std::string::size_type last=0;
   std::string::size_type i=0;
@@ -21,7 +23,7 @@ int main(){
   paths.push_back(spath.substr(last,std::string::npos));
   config.searchPath(paths);
   edmplugin::PluginManager::configure(config);
-  
+  */
   std::cout<<"testing Connection Handler "<<std::endl;
   cond::DBSession* session=new cond::DBSession;
   static cond::ConnectionHandler& conHandler=cond::ConnectionHandler::Instance();

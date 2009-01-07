@@ -5,7 +5,8 @@
 #include "CondCore/DBCommon/interface/CoralTransaction.h"
 #include "CondCore/DBCommon/interface/Connection.h"
 #include "CondCore/DBCommon/interface/TypedRef.h"
-
+#include "FWCore/PluginManager/interface/PluginManager.h"
+#include "FWCore/PluginManager/interface/standard.h"
 #include "RelationalAccess/ISchema.h"
 #include "RelationalAccess/TableDescription.h"
 #include "CoralBase/AttributeSpecification.h"
@@ -13,6 +14,8 @@
 #include <string>
 #include <iostream>
 int main(){
+  edmplugin::PluginManager::Config config;
+  edmplugin::PluginManager::configure(edmplugin::standard::config());
   cond::DBSession* session=new cond::DBSession;
   session->configuration().setMessageLevel( cond::Error );
   session->configuration().setAuthenticationMethod(cond::XML);

@@ -6,7 +6,8 @@
 #include "CondCore/DBCommon/interface/TypedRef.h"
 #include "CondCore/DBCommon/interface/CoralTransaction.h"
 #include "CondCore/DBCommon/interface/PoolTransaction.h"
-
+#include "FWCore/PluginManager/interface/PluginManager.h"
+#include "FWCore/PluginManager/interface/standard.h"
 #include "RelationalAccess/ISchema.h"
 #include "testCondObj.h"
 #include <string>
@@ -22,6 +23,8 @@ void wait ( int seconds )
   while (clock() < endwait) {}
 }
 int main(){
+  edmplugin::PluginManager::Config config;
+  edmplugin::PluginManager::configure(edmplugin::standard::config());
   cond::DBSession* session=new cond::DBSession;
   session->configuration().setMessageLevel( cond::Error );
   session->configuration().setAuthenticationMethod(cond::XML);

@@ -7,10 +7,14 @@
 #include "CondCore/DBCommon/interface/Connection.h"
 #include "CondCore/DBCommon/interface/MessageLevel.h"
 #include "CondCore/DBCommon/interface/ConnectionHandler.h"
+#include "FWCore/PluginManager/interface/PluginManager.h"
+#include "FWCore/PluginManager/interface/standard.h"
 #include "testCondObj.h"
 #include <string>
 #include <iostream>
 int main(){
+  edmplugin::PluginManager::Config config;
+  edmplugin::PluginManager::configure(edmplugin::standard::config());
   cond::DBSession* session=new cond::DBSession;
   session->configuration().setMessageLevel(cond::Error);
   session->configuration().setAuthenticationMethod(cond::XML);

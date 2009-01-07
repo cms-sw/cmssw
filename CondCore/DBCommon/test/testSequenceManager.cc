@@ -5,13 +5,16 @@
 #include "CondCore/DBCommon/interface/Connection.h"
 #include "CondCore/DBCommon/interface/CoralTransaction.h"
 #include "CondCore/DBCommon/interface/SequenceManager.h"
-
+#include "FWCore/PluginManager/interface/PluginManager.h"
+#include "FWCore/PluginManager/interface/standard.h"
 #include <string>
 #include <iostream>
 //#include <stdio.h>
 //#include <time.h>
 
 int main(){
+  edmplugin::PluginManager::Config config;
+  edmplugin::PluginManager::configure(edmplugin::standard::config());
   cond::DBSession* session=new cond::DBSession;
   session->configuration().setMessageLevel( cond::Error );
   session->configuration().setAuthenticationMethod(cond::XML);
