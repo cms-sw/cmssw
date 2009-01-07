@@ -1,27 +1,30 @@
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
-#include "Math/Cartesian3D.h" 
-#include "DataFormats/Common/interface/RefProd.h" 
+#include "Math/Cartesian3D.h"
+#include "DataFormats/Common/interface/RefProd.h"
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/PreshowerClusterShape.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
-#include "Rtypes.h" 
-#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h" 
+#include "Rtypes.h"
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/ClusterShape.h"
 #include "DataFormats/EgammaReco/interface/HFEMClusterShape.h"
 #include "DataFormats/EgammaReco/interface/EgammaTrigger.h"
 #include "DataFormats/EgammaReco/interface/ElectronSeed.h"
-#include "DataFormats/EgammaReco/interface/ElectronSeedFwd.h" 
+#include "DataFormats/EgammaReco/interface/ElectronSeedFwd.h"
 #include "DataFormats/EgammaReco/interface/PreshowerCluster.h"
-#include "DataFormats/EgammaReco/interface/PreshowerClusterFwd.h" 
+#include "DataFormats/EgammaReco/interface/PreshowerClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterShapeAssociation.h"
 #include "DataFormats/EgammaReco/interface/HFEMClusterShapeAssociation.h"
 
-namespace { 
+namespace {
   struct dictionary {
-    std::vector<reco::BasicCluster> v11;
+
+	edm::RefToBase<reco::CaloCluster> refToBaseCaloCluster ;
+
+	std::vector<reco::BasicCluster> v11;
     reco::BasicClusterCollection v1;
     edm::Wrapper<reco::BasicClusterCollection> w1;
     edm::Ref<reco::BasicClusterCollection> r1;
@@ -66,11 +69,11 @@ namespace {
     edm::Ref<reco::ElectronSeedCollection> r111;
     edm::RefProd<reco::ElectronSeedCollection> rp111;
     edm::Wrapper<edm::RefVector<reco::ElectronSeedCollection> > wrv111;
-    edm::RefToBase<reco::ElectronSeed> rtb11;  
+    edm::RefToBase<reco::ElectronSeed> rtb11;
     edm::reftobase::IndirectHolder<reco::ElectronSeed> ih11;
     edm::reftobase::Holder< reco::ElectronSeed, edm::Ref<reco::ElectronSeedCollection> > rbh11;
     edm::reftobase::RefHolder< edm::Ref<reco::ElectronSeedCollection> > rbrh11;
-    
+
     reco::PreshowerClusterCollection ps5;
     edm::Wrapper<reco::PreshowerClusterCollection> psw5;
     edm::Ref<reco::PreshowerClusterCollection> psr5;
