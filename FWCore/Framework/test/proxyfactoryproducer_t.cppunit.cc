@@ -104,6 +104,7 @@ void testProxyfactor::appendLabelTest()
   std::string kToAppend("Barney");
   pset.addParameter("appendToDataLabel",
                     kToAppend);
+  pset.registerIt();
   {
     TestLabelProducer testProd;
     testProd.setAppendToDataLabel(pset);

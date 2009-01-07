@@ -73,7 +73,9 @@ void testEventGetRefBeforePut::failGetProductNotRegisteredTest() {
   edm::EventPrincipal ep(eventAux, pregc, pc);
   ep.setLuminosityBlockPrincipal(lbp);
   try {
-     edm::ModuleDescription modDesc(edm::ParameterSet().trackedID(), "Blah", "blahs");
+     edm::ParameterSet pset;
+     pset.registerIt();
+     edm::ModuleDescription modDesc(pset.trackedID(), "Blah", "blahs");
      edm::Event event(ep, modDesc);
      
      std::string label("this does not exist");
@@ -100,7 +102,9 @@ void testEventGetRefBeforePut::getRefTest() {
   edm::TypeID dummytype(dp);
   std::string className = dummytype.friendlyClassName();
 
-  edm::ModuleDescription modDesc(edm::ParameterSet().trackedID(), "Blah", "");
+  edm::ParameterSet pset;
+  pset.registerIt();
+  edm::ModuleDescription modDesc(pset.trackedID(), "Blah", "");
 
   edm::BranchDescription product(edm::InEvent,
 				 label,

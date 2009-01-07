@@ -221,6 +221,7 @@ int main()
   for (unsigned int i = 0; i < num_trig_paths; ++i) {
     proc_pset.addParameter<Strings>(trigger_path_names[i], dummy);
   }
+  proc_pset.registerIt();
 
   // Now create and setup the service
   typedef edm::service::TriggerNamesService TNS;

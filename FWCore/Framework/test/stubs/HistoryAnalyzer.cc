@@ -40,13 +40,17 @@ namespace edmtest {
     pass_(params.getParameter<int>("historySize")),
     eventCount_(0),
     expectedCount_(params.getParameter<int>("expectedCount")),
-    emptyID_(ParameterSet().trackedID()),
+    emptyID_(),
     outputConfigID_()
   {
+    ParameterSet emptyPset;
+    emptyPset.registerIt();
+    emptyID_ = emptyPset.trackedID();
     ParameterSet temp;
     typedef std::vector<std::string> vstring;
     vstring wanted_paths(1, "f55");
     temp.addParameter<std::vector<std::string> >("SelectEvents", wanted_paths);
+    temp.registerIt();
     outputConfigID_ = temp.trackedID();
   }
 

@@ -89,7 +89,9 @@ void testGenericHandle::failgetbyLabelTest() {
   edm::GenericHandle h("edmtest::DummyProduct");
   bool didThrow=true;
   try {
-     edm::ModuleDescription modDesc(edm::ParameterSet().trackedID(), "Blah", "blahs");
+     edm::ParameterSet pset;
+     pset.registerIt();
+     edm::ModuleDescription modDesc(pset.trackedID(), "Blah", "blahs");
      edm::Event event(ep, modDesc);
      
      std::string label("this does not exist");
@@ -128,7 +130,9 @@ void testGenericHandle::getbyLabelTest() {
   edm::TypeID dummytype(dp);
   std::string className = dummytype.friendlyClassName();
 
-  edm::ModuleDescription modDesc(edm::ParameterSet().trackedID(), "Blah", "");
+  edm::ParameterSet pset;
+  pset.registerIt();
+  edm::ModuleDescription modDesc(pset.trackedID(), "Blah", "");
 
   edm::BranchDescription product(edm::InEvent,
 				 label,
@@ -174,7 +178,9 @@ void testGenericHandle::getbyLabelTest() {
   
   edm::GenericHandle h("edmtest::DummyProduct");
   try {
-    edm::ModuleDescription modDesc(edm::ParameterSet().trackedID(), "Blah", "blahs");
+    edm::ParameterSet pset;
+    pset.registerIt();
+    edm::ModuleDescription modDesc(pset.trackedID(), "Blah", "blahs");
     edm::Event event(ep, modDesc);
 
     event.getByLabel(label, productInstanceName,h);

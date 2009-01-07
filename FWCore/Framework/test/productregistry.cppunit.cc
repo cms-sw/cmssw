@@ -97,7 +97,9 @@ testProductRegistry::testProductRegistry() :
 
 void testProductRegistry::setUp()
 {
-  intModule_ = new edm::ModuleDescription(edm::ParameterSet().trackedID(), "", "");
+  edm::ParameterSet pset;
+  pset.registerIt();
+  intModule_ = new edm::ModuleDescription(pset.trackedID(), "", "");
   intBranch_ = new edm::BranchDescription(edm::InEvent, "label", "PROD",
 					  "int", "int", "int",
 					  *intModule_);

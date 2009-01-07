@@ -160,6 +160,7 @@ void evSelTest (PathSpecifiers const & ps, TrigResults const & tr, bool ans)
 {
   ParameterSet pset;
   pset.addParameter<Strings>("SelectEvents",ps.path);
+  pset.registerIt();
 
   // There are 3 different ways to build the EventSelector.  All
   // should give the same result.  We exercise all 3 here.
@@ -215,7 +216,7 @@ void evSelTest (PathSpecifiers const & ps, TrigResults const & tr, bool ans)
 
   ParameterSet trigger_pset;
   trigger_pset.addParameter<Strings>("@trigger_paths", trigger_path_names);
-  trigger_pset.fillIDandInsert();
+  trigger_pset.registerIt();
 
   TriggerResults results_id(bm, trigger_pset.trackedID());
 
@@ -262,6 +263,7 @@ int main()
   for (size_t i = 0; i < num_trig_paths; ++i) {
     proc_pset.addParameter<Strings>(trigger_path_names[i], dummy);
   }
+  proc_pset.registerIt();
 
   // Now create and setup the service
   typedef edm::service::TriggerNamesService TNS;

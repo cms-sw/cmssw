@@ -55,8 +55,9 @@ void testone(const Strings& paths,
              int jmask)
 {
   ParameterSet pset; //, parent;
-  pset.addParameter<Strings>("SelectEvents",pattern);
+  pset.addParameter<Strings>("SelectEvents", pattern);
   //parent.addUntrackedParameter<ParameterSet>("SelectEvents",pset);
+  pset.registerIt();
 
   // There are 3 different ways to build the EventSelector.  All
   // should give the same result.  We exercise all 3 here.
@@ -126,7 +127,7 @@ void testone(const Strings& paths,
 
   ParameterSet trigger_pset;
   trigger_pset.addParameter<Strings>("@trigger_paths", paths);
-  trigger_pset.fillIDandInsert();
+  trigger_pset.registerIt();
 
   TriggerResults results_id(bm, trigger_pset.trackedID());
 
@@ -261,6 +262,7 @@ int main()
   for (size_t i = 0; i < numBits; ++i) {
     proc_pset.addParameter<Strings>(paths[i], dummy);
   }
+  proc_pset.registerIt();
 
   // Now create and setup the service
   typedef edm::service::TriggerNamesService TNS;

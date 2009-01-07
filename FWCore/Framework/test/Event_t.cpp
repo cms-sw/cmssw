@@ -155,10 +155,12 @@ testEvent::registerProduct(std::string const& tag,
   ParameterSet moduleParams;
   moduleParams.template addParameter<std::string>("@module_type", moduleClassName);
   moduleParams.template addParameter<std::string>("@module_label", moduleLabel);
+  moduleParams.registerIt();
   
   ParameterSet processParams;
   processParams.template addParameter<std::string>("@process_name", processName);
   processParams.template addParameter<ParameterSet>(moduleLabel, moduleParams);
+  processParams.registerIt();
   
   ProcessConfiguration process(processName, processParams.trackedID(), getReleaseVersion(), getPassID());
 
@@ -227,11 +229,13 @@ testEvent::testEvent() :
   std::string moduleClassName("IntProducer");
   moduleParams.addParameter<std::string>("@module_type", moduleClassName);
   moduleParams.addParameter<std::string>("@module_label", moduleLabel);
+  moduleParams.registerIt();
 
   ParameterSet processParams;
   std::string processName("CURRENT");
   processParams.addParameter<std::string>("@process_name", processName);
   processParams.addParameter(moduleLabel, moduleParams);
+  processParams.registerIt();
 
   ProcessConfiguration process(processName, processParams.trackedID(), getReleaseVersion(), getPassID());
 
@@ -276,11 +280,13 @@ void testEvent::setUp()
   std::string moduleClassNameEarly("IntProducer");
   moduleParamsEarly.addParameter<std::string>("@module_type", moduleClassNameEarly);
   moduleParamsEarly.addParameter<std::string>("@module_label", moduleLabelEarly);
+  moduleParamsEarly.registerIt();
 
   ParameterSet processParamsEarly;
   std::string processNameEarly("EARLY");
   processParamsEarly.addParameter<std::string>("@process_name", processNameEarly);
   processParamsEarly.addParameter(moduleLabelEarly, moduleParamsEarly);
+  processParamsEarly.registerIt();
 
   ProcessConfiguration processEarly("EARLY", processParamsEarly.trackedID(), getReleaseVersion(), getPassID());
 
@@ -289,11 +295,13 @@ void testEvent::setUp()
   std::string moduleClassNameLate("IntProducer");
   moduleParamsLate.addParameter<std::string>("@module_type", moduleClassNameLate);
   moduleParamsLate.addParameter<std::string>("@module_label", moduleLabelLate);
+  moduleParamsLate.registerIt();
 
   ParameterSet processParamsLate;
   std::string processNameLate("LATE");
   processParamsLate.addParameter<std::string>("@process_name", processNameLate);
   processParamsLate.addParameter(moduleLabelLate, moduleParamsLate);
+  processParamsLate.registerIt();
 
   ProcessConfiguration processLate("LATE", processParamsLate.trackedID(), getReleaseVersion(), getPassID());
 

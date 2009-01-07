@@ -62,10 +62,12 @@ void testmaker2::maker2Test()
   ParameterSet p1;
   p1.addParameter("@module_type",std::string("TestMod") );
   p1.addParameter("@module_label",std::string("t1") );
+  p1.registerIt();
 
   ParameterSet p2;
   p2.addParameter("@module_type",std::string("TestMod") );
   p2.addParameter("@module_label",std::string("t2") );
+  p2.registerIt();
 
   edm::ActionTable table;
 
