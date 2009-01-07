@@ -12,8 +12,8 @@
 #include "DataFormats/EgammaReco/interface/ClusterShape.h"
 #include "DataFormats/EgammaReco/interface/HFEMClusterShape.h"
 #include "DataFormats/EgammaReco/interface/EgammaTrigger.h"
-#include "DataFormats/EgammaReco/interface/ElectronPixelSeed.h"
-#include "DataFormats/EgammaReco/interface/ElectronPixelSeedFwd.h" 
+#include "DataFormats/EgammaReco/interface/ElectronSeed.h"
+#include "DataFormats/EgammaReco/interface/ElectronSeedFwd.h" 
 #include "DataFormats/EgammaReco/interface/PreshowerCluster.h"
 #include "DataFormats/EgammaReco/interface/PreshowerClusterFwd.h" 
 #include "DataFormats/EgammaReco/interface/BasicClusterShapeAssociation.h"
@@ -61,15 +61,15 @@ namespace {
     edm::RefProd<reco::PreshowerClusterShapeCollection> rp6;
     edm::Wrapper<edm::RefVector<reco::PreshowerClusterShapeCollection> > wrv6;
 
-    reco::ElectronPixelSeedCollection v111;
-    edm::Wrapper<reco::ElectronPixelSeedCollection> w111;
-    edm::Ref<reco::ElectronPixelSeedCollection> r111;
-    edm::RefProd<reco::ElectronPixelSeedCollection> rp111;
-    edm::Wrapper<edm::RefVector<reco::ElectronPixelSeedCollection> > wrv111;
-    edm::RefToBase<reco::ElectronPixelSeed> rtb11;  
-    edm::reftobase::IndirectHolder<reco::ElectronPixelSeed> ih11;
-    edm::reftobase::Holder< reco::ElectronPixelSeed, edm::Ref<reco::ElectronPixelSeedCollection> > rbh11;
-    edm::reftobase::RefHolder< edm::Ref<reco::ElectronPixelSeedCollection> > rbrh11;
+    reco::ElectronSeedCollection v111;
+    edm::Wrapper<reco::ElectronSeedCollection> w111;
+    edm::Ref<reco::ElectronSeedCollection> r111;
+    edm::RefProd<reco::ElectronSeedCollection> rp111;
+    edm::Wrapper<edm::RefVector<reco::ElectronSeedCollection> > wrv111;
+    edm::RefToBase<reco::ElectronSeed> rtb11;  
+    edm::reftobase::IndirectHolder<reco::ElectronSeed> ih11;
+    edm::reftobase::Holder< reco::ElectronSeed, edm::Ref<reco::ElectronSeedCollection> > rbh11;
+    edm::reftobase::RefHolder< edm::Ref<reco::ElectronSeedCollection> > rbrh11;
     
     reco::PreshowerClusterCollection ps5;
     edm::Wrapper<reco::PreshowerClusterCollection> psw5;

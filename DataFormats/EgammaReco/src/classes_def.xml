@@ -65,18 +65,18 @@
   <class name="edm::RefVector<std::vector<reco::PreshowerClusterShape>,reco::PreshowerClusterShape,edm::refhelper::FindUsingAdvance<std::vector<reco::PreshowerClusterShape>,reco::PreshowerClusterShape> >"/>
   <class name="edm::Wrapper<edm::RefVector<std::vector<reco::PreshowerClusterShape>,reco::PreshowerClusterShape,edm::refhelper::FindUsingAdvance<std::vector<reco::PreshowerClusterShape>,reco::PreshowerClusterShape> > >" splitLevel="0"/>
 
-  <class name="reco::ElectronPixelSeed"/>
-  <class name="std::vector<reco::ElectronPixelSeed>"/>
-  <class name="edm::Ref<std::vector<reco::ElectronPixelSeed>,reco::ElectronPixelSeed,edm::refhelper::FindUsingAdvance<std::vector<reco::ElectronPixelSeed>,reco::ElectronPixelSeed> >"/>
-  <class name="edm::RefProd<std::vector<reco::ElectronPixelSeed> >"/>
-  <class name="edm::Wrapper<std::vector<reco::ElectronPixelSeed> >"/>
-  <class name="edm::RefVector<std::vector<reco::ElectronPixelSeed>,reco::ElectronPixelSeed,edm::refhelper::FindUsingAdvance<std::vector<reco::ElectronPixelSeed>,reco::ElectronPixelSeed> >"/>
-  <class name="edm::Wrapper<edm::RefVector<std::vector<reco::ElectronPixelSeed>,reco::ElectronPixelSeed,edm::refhelper::FindUsingAdvance<std::vector<reco::ElectronPixelSeed>,reco::ElectronPixelSeed> > >"/>
-  <class name="edm::RefToBase<reco::ElectronPixelSeed>"/>
-  <class name="edm::reftobase::BaseHolder<reco::ElectronPixelSeed>" />
-  <class name="edm::reftobase::IndirectHolder<reco::ElectronPixelSeed>" />
-  <class name="edm::reftobase::RefHolder<edm::Ref<std::vector<reco::ElectronPixelSeed>,reco::ElectronPixelSeed,edm::refhelper::FindUsingAdvance<std::vector<reco::ElectronPixelSeed>,reco::ElectronPixelSeed> > >"/>
-  <class name="edm::reftobase::Holder<reco::ElectronPixelSeed,edm::Ref<std::vector<reco::ElectronPixelSeed>,reco::ElectronPixelSeed,edm::refhelper::FindUsingAdvance<std::vector<reco::ElectronPixelSeed>,reco::ElectronPixelSeed> > >"/>
+  <class name="reco::ElectronSeed"/>
+  <class name="std::vector<reco::ElectronSeed>"/>
+  <class name="edm::Ref<std::vector<reco::ElectronSeed>,reco::ElectronSeed,edm::refhelper::FindUsingAdvance<std::vector<reco::ElectronSeed>,reco::ElectronSeed> >"/>
+  <class name="edm::RefProd<std::vector<reco::ElectronSeed> >"/>
+  <class name="edm::Wrapper<std::vector<reco::ElectronSeed> >"/>
+  <class name="edm::RefVector<std::vector<reco::ElectronSeed>,reco::ElectronSeed,edm::refhelper::FindUsingAdvance<std::vector<reco::ElectronSeed>,reco::ElectronSeed> >"/>
+  <class name="edm::Wrapper<edm::RefVector<std::vector<reco::ElectronSeed>,reco::ElectronSeed,edm::refhelper::FindUsingAdvance<std::vector<reco::ElectronSeed>,reco::ElectronSeed> > >"/>
+  <class name="edm::RefToBase<reco::ElectronSeed>"/>
+  <class name="edm::reftobase::BaseHolder<reco::ElectronSeed>" />
+  <class name="edm::reftobase::IndirectHolder<reco::ElectronSeed>" />
+  <class name="edm::reftobase::RefHolder<edm::Ref<std::vector<reco::ElectronSeed>,reco::ElectronSeed,edm::refhelper::FindUsingAdvance<std::vector<reco::ElectronSeed>,reco::ElectronSeed> > >"/>
+  <class name="edm::reftobase::Holder<reco::ElectronSeed,edm::Ref<std::vector<reco::ElectronSeed>,reco::ElectronSeed,edm::refhelper::FindUsingAdvance<std::vector<reco::ElectronSeed>,reco::ElectronSeed> > >"/>
 
   
   <class name="reco::PreshowerCluster"/>
