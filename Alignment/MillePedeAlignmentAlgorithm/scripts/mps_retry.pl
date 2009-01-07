@@ -1,8 +1,8 @@
-#!/usr/local/bin/perl
+#!/usr/bin/env perl
 #     R. Mankel, DESY Hamburg     10-Jul-2007
 #     A. Parenti, DESY Hamburg    16-Apr-2008
-#     $Revision: 1.2 $
-#     $Date: 2008/04/14 19:16:42 $
+#     $Revision: 1.4 $
+#     $Date: 2008/07/29 17:10:40 $
 #
 #  Re-Setup failed jobs for resubmission
 #  

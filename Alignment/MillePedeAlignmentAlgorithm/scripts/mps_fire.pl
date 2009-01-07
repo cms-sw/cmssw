@@ -1,8 +1,8 @@
-#!/usr/local/bin/perl
+#!/usr/bin/env perl
 #     R. Mankel, DESY Hamburg      3-Jul-2007
 #     A. Parenti, DESY Hamburg    21-Apr-2008
-#     $Revision: 1.9 $
-#     $Date: 2008/07/21 19:59:40 $
+#     $Revision: 1.10 $
+#     $Date: 2008/10/16 18:34:57 $
 #
 #  Submit jobs that are setup in local mps database
 #  

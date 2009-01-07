@@ -1,8 +1,8 @@
-#!/usr/local/bin/perl
+#!/usr/bin/env perl
 #     R. Mankel, DESY Hamburg     17-Oct-2007
 #     A. Parenti, DESY Hamburg    16-Apr-2008
-#     $Revision: 1.2 $
-#     $Date: 2008/04/17 16:36:01 $
+#     $Revision: 1.3 $
+#     $Date: 2008/07/29 15:36:18 $
 #
 #  Try periodically to fire merge job.
 #  Terminate when done

@@ -1,8 +1,8 @@
-#!/usr/local/bin/perl
+#!/usr/bin/env perl
 #     R. Mankel, DESY Hamburg     16-Jul-2007
 #     A. Parenti, DESY Hamburg    16-Apr-2008
-#     $Revision: 1.1 $
-#     $Date: 2008/04/10 16:10:12 $
+#     $Revision: 1.2 $
+#     $Date: 2008/04/17 16:38:47 $
 #
 #  Kill all jobs being processed by ZARAH,
 #  i.e. those pending, running or suspended.

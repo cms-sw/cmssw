@@ -1,9 +1,9 @@
-#!/usr/local/bin/perl
+#!/usr/bin/env perl
 #     R. Mankel, DESY Hamburg     03-Jul-2007
 #     A. Parenti, DESY Hamburg    24-Apr-2008
 #
-#     $Revision: 1.17 $
-#     $Date: 2008/08/12 21:46:04 $
+#     $Revision: 1.18 $
+#     $Date: 2008/08/19 10:39:32 $
 #
 #  produce cfg file for merging run
 #
