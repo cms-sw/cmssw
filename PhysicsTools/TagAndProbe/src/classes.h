@@ -2,6 +2,9 @@
 #include "PhysicsTools/TagAndProbe/interface/CandidateAssociation.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/Common/interface/RefToBase.h"
+#include "PhysicsTools/TagAndProbe/interface/EffTableReader.h"
+#include "PhysicsTools/TagAndProbe/interface/EffTableLoader.h"
+#include "PhysicsTools/TagAndProbe/interface/dibin.h"
 
 namespace
 {
