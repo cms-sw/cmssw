@@ -657,12 +657,13 @@ void PhiSymmetryCalibration::analyze( const edm::Event& event,
     EBDetId hit = EBDetId(itb->id());
     float eta = cellEta_[abs(hit.ieta())-1];
     float et = itb->energy()/cosh(eta);
+    float e  = itb->energy();
 
     if (reiteration_) et= et /  previousCalibs_[hit] * newCalibs_.get()[hit];
 
     float et_thr = eCut_barl_/cosh(eta);
     et_thr*=1.05;
-    if (et > et_thr && et < et_thr+4.8) {
+    if (e >  eCut_barl_ && et < et_thr+4.8) {
       int sign = hit.ieta()>0 ? 1 : 0;
       etsum_barl_[abs(hit.ieta())-1][hit.iphi()-1][sign] += et;
       nhits_barl_[abs(hit.ieta())-1][hit.iphi()-1][sign] ++;
@@ -673,7 +674,7 @@ void PhiSymmetryCalibration::analyze( const edm::Event& event,
       //Apply a miscalibration to all crystals and increment the 
       //ET sum, combined for all crystals
       for (int imiscal=0; imiscal<kNMiscalBinsEB; imiscal++) {
-	if (miscalEB_[imiscal]*et > et_thr && miscalEB_[imiscal]*et < et_thr+4.8) {
+	if (miscalEB_[imiscal]*e >  eCut_barl_&& miscalEB_[imiscal]*et < et_thr+4.8) {
 	  etsum_barl_miscal_[imiscal][abs(hit.ieta())-1] += miscalEB_[imiscal]*et;
 	}
       }
@@ -687,13 +688,14 @@ void PhiSymmetryCalibration::analyze( const edm::Event& event,
     EEDetId hit = EEDetId(ite->id());
     float eta = cellPos_[hit.ix()-1][hit.iy()-1].eta();
     float et = ite->energy()/cosh(eta);
+    float e  = itb->energy();
 
     if (reiteration_) et= et /  previousCalibs_[hit] * newCalibs_.get()[hit];
 
     float et_thr = eCut_endc_/cosh(eta);
     et_thr*=1.05;
-    //if (et > et_thr && et < et_thr+4.8) {
-    if (ite->energy() > eCut_endc_ && et < et_thr+4.8){
+
+    if (e > eCut_endc_ && et < et_thr+4.8){
       int sign = hit.zside()>0 ? 1 : 0;
       etsum_endc_[hit.ix()-1][hit.iy()-1][sign] += et;
       nhits_endc_[hit.ix()-1][hit.iy()-1][sign] ++;;
@@ -703,8 +705,7 @@ void PhiSymmetryCalibration::analyze( const edm::Event& event,
       //Apply a miscalibration to all crystals and increment the 
       //ET sum, combined for all crystals
       for (int imiscal=0; imiscal<kNMiscalBinsEE; imiscal++) {
-	//if (miscalEE_[imiscal]*et > et_thr && miscalEE_[imiscal]*et < et_thr+4.8) {
-        if (ite->energy() > eCut_endc_ && et < et_thr+4.8){
+        if (miscalEE_[imiscal]*e> eCut_endc_ && et*miscalEE_[imiscal] < et_thr+4.8){
 	  int ring = endcapRing_[hit.ix()-1][hit.iy()-1];
 	  etsum_endc_miscal_[imiscal][ring] += miscalEE_[imiscal]*et*meanCellArea_[ring]/cellArea_[hit.ix()-1][hit.iy()-1];
 	}
