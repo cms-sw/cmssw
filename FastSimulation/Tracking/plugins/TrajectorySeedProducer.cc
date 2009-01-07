@@ -45,7 +45,7 @@
 //for debug only 
 //#define FAMOS_DEBUG
 
-TrajectorySeedProducer::TrajectorySeedProducer(const edm::ParameterSet& conf) 
+TrajectorySeedProducer::TrajectorySeedProducer(const edm::ParameterSet& conf) :thePropagator(0)
 {  
 
   // The input tag for the beam spot
