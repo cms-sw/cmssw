@@ -1,4 +1,3 @@
-
 <use name=FWCore/Framework>
 <use name=SimDataFormats/HepMCProduct>
 <use name=SimGeneral/HepPDTRecord>
@@ -12,18 +11,25 @@
 <use name=DataFormats/MuonReco>
 <use name=DataFormats/Common>
 <use name=SimDataFormats/Track>
+
+<use name="CondCore/DBOutputService">
+<use name="CondFormats/MomentumScaleCalibrationObjects">
+<use name="CondFormats/PhysicsToolsObjects">
+
 <use name=hepmc>
 <use name=heppdt>
 <use name=CLHEP>
 <use name=root>
 <use name=rootgraphics>
 
+<use name=MuonAnalysis/MomentumScaleCalibration>
+
 <flags EDM_PLUGIN=1> 
 <use name=ROOTMath>
 <use name=ROOTMinuit>
 #<use name=rootcore>
 
- <library file="*.cc" name=MuonAnalysisMomentumScaleCalibrationPlugins>
+<library file="*.cc" name=MuonAnalysisMomentumScaleCalibrationPlugins>
 	<flags EDM_PLUGIN=1> 
 </library>
 
