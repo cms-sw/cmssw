@@ -210,7 +210,7 @@ TrajectorySeedProducer::TrajectorySeedProducer(const edm::ParameterSet& conf) :t
 // Virtual destructor needed.
 TrajectorySeedProducer::~TrajectorySeedProducer() {
   
-  delete thePropagator;
+  if(thePropagator) delete thePropagator;
 
   // do nothing
 #ifdef FAMOS_DEBUG
