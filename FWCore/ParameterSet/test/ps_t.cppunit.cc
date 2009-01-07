@@ -1,5 +1,5 @@
 /*
- * $Id: ps_t.cppunit.cc,v 1.15 2008/12/19 00:45:09 wmtan Exp $
+ * $Id: ps_t.cppunit.cc,v 1.16 2009/01/07 00:17:46 wmtan Exp $
  */
 
 #include <algorithm>
@@ -31,6 +31,7 @@ class testps: public CppUnit::TestFixture
   CPPUNIT_TEST(mapByIdTest);
   CPPUNIT_TEST(nameAccessTest);
   CPPUNIT_TEST(testEmbeddedPSet);
+  CPPUNIT_TEST(testRegistration);
   CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -49,6 +50,7 @@ public:
   void mapByIdTest();
   void nameAccessTest();
   void testEmbeddedPSet();
+  void testRegistration();
   // Still more to do...
 private:
 };
@@ -407,4 +409,32 @@ void testps::testEmbeddedPSet()
   CPPUNIT_ASSERT(trackedPart.getParameterSet("psEmbedded").getParameterSet("psDeeper").getParameter<int>("deepest") == 6);
   CPPUNIT_ASSERT(defrosted.getUntrackedParameter<boost::uint64_t>("u64") == 64);
   CPPUNIT_ASSERT(!trackedPart.exists("u64"));
+}
+
+void testps::testRegistration()
+{
+  edm::ParameterSet ps;
+  edm::ParameterSet psEmbedded, psDeeper;
+  psEmbedded.addUntrackedParameter<std::string>("p1", "wham");
+  psEmbedded.addParameter<std::string>("p2", "bam");
+  psDeeper.addParameter<int>("deepest", 6);
+  psDeeper.registerIt();
+  edm::InputTag it("label", "instance");
+  std::vector<edm::InputTag> vit;
+  vit.push_back(it);
+  psEmbedded.addParameter<edm::InputTag>("it", it);
+  psEmbedded.addParameter<std::vector<edm::InputTag> >("vit", vit);
+  psEmbedded.addParameter<edm::ParameterSet>("psDeeper", psDeeper);
+  psEmbedded.registerIt();
+  ps.addParameter<edm::ParameterSet>("psEmbedded", psEmbedded);
+  ps.addParameter<double>("topLevel", 1.);
+  ps.addUntrackedParameter<boost::uint64_t>("u64", 64);
+  ps.registerIt();
+  CPPUNIT_ASSERT(ps.isRegistered());
+  CPPUNIT_ASSERT(psEmbedded.isRegistered());
+  CPPUNIT_ASSERT(psDeeper.isRegistered());
+  psEmbedded.addParameter<std::string>("p3", "slam");
+  CPPUNIT_ASSERT(ps.isRegistered());
+  CPPUNIT_ASSERT(!psEmbedded.isRegistered());
+  CPPUNIT_ASSERT(psDeeper.isRegistered());
 }

@@ -34,6 +34,7 @@ namespace edm {
   ParameterSet::invalidateRegistration(std::string const& nameOfTracked) const {
     // We have added a new parameter.  Invalidate the ID.
     if(isRegistered()) {
+      trackedID();
       id_ = ParameterSetID();
     }
     if (!nameOfTracked.empty() && trackedID_.isValid()) {
