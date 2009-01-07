@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 10:52:24 EST 2008
-// $Id: FWGUIManager.h,v 1.42 2008/12/18 21:24:52 chrjones Exp $
+// $Id: FWGUIManager.h,v 1.43 2009/01/06 17:15:59 amraktad Exp $
 //
 
 // system include files
@@ -176,10 +176,10 @@ class FWGUIManager : public FWConfigurable
       sigc::signal<void> goingToQuit_;
       sigc::signal<void> writeToPresentConfigurationFile_;
 
-      sigc::signal<void, Int_t> changedDelayBetweenEvents_;
+      sigc::signal<void, Float_t> changedDelayBetweenEvents_;
 
       void openEveBrowserForDebugging() const;
-      void setDelayBetweenEvents(Int_t);
+      void setDelayBetweenEvents(Float_t);
 
    private:
       FWGUIManager(const FWGUIManager&); // stop default

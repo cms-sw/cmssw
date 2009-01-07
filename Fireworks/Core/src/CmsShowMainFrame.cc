@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:23 CDT 2008
-// $Id: CmsShowMainFrame.cc,v 1.34 2008/12/10 16:10:58 amraktad Exp $
+// $Id: CmsShowMainFrame.cc,v 1.35 2009/01/06 17:16:00 amraktad Exp $
 //
 // hacks
 #define private public
@@ -270,7 +270,7 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    sliderFrame->SetBackgroundPixmap(imgSld->GetPixmap());
    TString sldBtn = coreIcondir +"slider-button.png";
 
-   m_delaySlider = new TGHSlider(sliderFrame, 109, 100, kSlider1 | kScaleNo);
+   m_delaySlider = new TGHSlider(sliderFrame, 109, kSlider1 | kScaleNo);
    sliderFrame->AddFrame(m_delaySlider, new TGLayoutHints(kLHintsTop | kLHintsLeft, 39, 8, 1, 3));
    m_delaySlider->SetRange(0, 10000);
    m_delaySlider->SetPosition(0);
@@ -638,11 +638,11 @@ CmsShowMainFrame::getEventEntry() const {
 }
 
 void
-CmsShowMainFrame::setPlayDelayGUI(Int_t val, Bool_t sliderChanged)
+CmsShowMainFrame::setPlayDelayGUI(Float_t val, Bool_t sliderChanged)
 {
-   m_delayLabel->SetText(Form("%.1f", val*0.001));
+   m_delayLabel->SetText(Form("%.1f", val));
    if (sliderChanged)
-      m_delaySlider->SetPosition(val);
+      m_delaySlider->SetPosition(Int_t(val*1000));
 }
 
 void

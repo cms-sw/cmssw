@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.84 2008/12/18 21:24:52 chrjones Exp $
+// $Id: FWGUIManager.cc,v 1.85 2009/01/06 17:16:00 amraktad Exp $
 //
 
 // system include files
@@ -1236,12 +1236,13 @@ FWGUIManager::openEveBrowserForDebugging() const
 void
 FWGUIManager::delaySliderChanged(Int_t val)
 {
-   m_cmsShowMainFrame->setPlayDelayGUI(val, kFALSE);
-   changedDelayBetweenEvents_.emit(val);
+   Float_t sec = val*0.001;
+   m_cmsShowMainFrame->setPlayDelayGUI(sec, kFALSE);
+   changedDelayBetweenEvents_.emit(sec);
 }
 
 void
-FWGUIManager::setDelayBetweenEvents(Int_t val)
+FWGUIManager::setDelayBetweenEvents(Float_t val)
 {
    m_cmsShowMainFrame->setPlayDelayGUI(val, kTRUE);
 }

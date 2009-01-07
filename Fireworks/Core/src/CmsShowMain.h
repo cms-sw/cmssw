@@ -16,7 +16,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:34:30 PST 2007
-// $Id: CmsShowMain.h,v 1.11 2008/12/09 05:53:26 dmytro Exp $
+// $Id: CmsShowMain.h,v 1.12 2009/01/06 17:16:00 amraktad Exp $
 //
 
 // system include files
@@ -111,7 +111,7 @@ private:
    void stopPlaying();
    void reachedEnd();
 
-  void setPlayDelay(Int_t);  
+  void setPlayDelay(Float_t);  
 
   // ---------- member data --------------------------------
   std::auto_ptr<FWConfigurationManager> m_configurationManager;
@@ -141,7 +141,7 @@ private:
    TTimer* m_playBackTimer;
    bool m_isPlaying;
    bool m_forward;
-   Long_t m_playDelay;
+   Float_t m_playDelay;  // delay between events in seconds
 
    std::auto_ptr<TMonitor> m_monitor;
 };

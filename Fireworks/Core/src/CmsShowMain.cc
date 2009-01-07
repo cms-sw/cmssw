@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.56 2008/12/09 16:02:27 chrjones Exp $
+// $Id: CmsShowMain.cc,v 1.57 2009/01/06 17:16:00 amraktad Exp $
 //
 
 // system include files
@@ -163,7 +163,7 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
   m_playTimer(0),
   m_playBackTimer(0),
   m_isPlaying(false),
-  m_playDelay(3000)
+  m_playDelay(3.f)
   //  m_configFileName(iConfigFileName)
 {
    m_eiManager->setContext(m_context.get());
@@ -356,7 +356,7 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
          m_startupTasks->addTask(f);
       }
       if (vm.count(kLoopPlaybackOpt)) {
-         m_playDelay = vm[kLoopPlaybackOpt].as<int>()*1000;
+         m_playDelay = vm[kLoopPlaybackOpt].as<float>();
 	 f=boost::bind(&CSGContinuousAction::switchMode,m_guiManager->playEventsAction());
 	 m_startupTasks->addTask(f);
       }
@@ -419,9 +419,9 @@ void CmsShowMain::draw(const fwlite::Event& event)
   m_guiManager->clearStatus();
    if(m_isPlaying) {
       if(m_forward) {
-         m_playTimer->Start(m_playDelay,kFALSE);
+         m_playTimer->Start(m_playDelay*1000,kFALSE);
       } else {
-         m_playBackTimer->Start(m_playDelay,kFALSE);
+         m_playBackTimer->Start(m_playDelay*1000,kFALSE);
       }
    } else {
       m_guiManager->enableActions();
@@ -801,11 +801,11 @@ CmsShowMain::setupDataHandling()
 }
 
 void
-CmsShowMain::setPlayDelay(Int_t val)
+CmsShowMain::setPlayDelay(Float_t val)
 {
   m_playDelay = val;
   m_playTimer->Reset();
-  m_playTimer->SetTime(m_playDelay);
+  m_playTimer->SetTime(m_playDelay*1000);
 }
 
 void

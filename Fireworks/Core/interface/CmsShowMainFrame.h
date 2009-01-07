@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 18:11:16 CDT 2008
-// $Id: CmsShowMainFrame.h,v 1.16 2008/12/10 13:56:14 dmytro Exp $
+// $Id: CmsShowMainFrame.h,v 1.17 2009/01/06 17:15:59 amraktad Exp $
 //
 
 // system include files
@@ -77,7 +77,7 @@ public:
    bool nextIsEnabled();
    void updateStatusBar(const char* status);
    void clearStatusBar();
-   void setPlayDelayGUI(Int_t val, Bool_t sliderChanged);
+   void setPlayDelayGUI(Float_t val, Bool_t sliderChanged);
 
    void resizeMenu(TGPopupMenu *menu);
    void HandleMenu(Int_t id);
