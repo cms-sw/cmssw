@@ -1,4 +1,4 @@
-// $Id: SealModule.cc,v 1.15 2008/10/16 17:00:51 hdyoo Exp $
+// $Id: SealModule.cc,v 1.16 2008/10/20 15:16:05 berryhil Exp $
 
 #include "DQM/HLTEvF/interface/PathTimerService.h"
 #include "DQM/HLTEvF/interface/PathTimerInserter.h"
@@ -10,6 +10,7 @@
 #include "DQM/HLTEvF/interface/HLTMon.h"
 #include "DQM/HLTEvF/interface/HLTEventInfoClient.h"
 #include "DQM/HLTEvF/interface/HLTMonMuonClient.h"
+#include "DQM/HLTEvF/interface/HLTMonJetMETConsumer.h"
 
 using edm::service::PathTimerService;
 
@@ -27,4 +28,4 @@ DEFINE_FWK_MODULE(HLTEventInfoClient);
 DEFINE_FWK_MODULE(FourVectorHLTOnline);
 DEFINE_FWK_MODULE(HLTMon);
 DEFINE_FWK_MODULE(HLTMonMuonClient);
-
+DEFINE_FWK_MODULE(HLTMonJetMETConsumer);

@@ -20,7 +20,7 @@ using namespace edm;
 HLTMonJetMETConsumer::HLTMonJetMETConsumer(const edm::ParameterSet& iConfig)
 {
   
-  LogDebug("HLTMonJetMETConsumer") << "constructor...." ;
+  //  LogDebug("HLTMonJetMETConsumer") << "constructor...." ;
   
   logFile_.open("HLTMonJetMETConsumer.log");
   
@@ -129,6 +129,15 @@ HLTMonJetMETConsumer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
     num_Phi = injetmet_probe_Phi[i]->getTH1F();
     denom_Phi = injetmet_ref_Phi[i]->getTH1F();
 
+    if (!num_Et) {
+      std::cout << "Can't find probe " << theHLTProbeLabels[i] << std::endl;
+      return;
+    }
+    if (!denom_Et) {
+      std::cout << "Can't find reference " << theHLTProbeLabels[i] << std::endl;
+      return;
+    }
+
     for(int j=1; j <= num_Et->GetXaxis()->GetNbins();j++ ){
       double y1 = num_Et->GetBinContent(j);
       double y2 = denom_Et->GetBinContent(j);
@@ -189,6 +198,7 @@ HLTMonJetMETConsumer::beginJob(const edm::EventSetup&)
      MEtemp = dbe->get(MEname);
 //      if (!MEtemp) {printf("Error in HLTMonJetMETConsumer: %s not found.\n",MEname.c_str()); }
      if (!MEtemp) {LogError("HLTMonJetMETConsumer") << "Error! Filter " << MEname << " not found.\n";}
+     if (!MEtemp) {std::cout<<"HLTMonJetMETConsumer: Error! Filter " << MEname << " not found.\n";}
      htemp = MEtemp->getTH1F();
      int nbin_Et = htemp->GetNbinsX();
      double xmin_Et = htemp->GetXaxis()->GetXmin();
@@ -228,6 +238,13 @@ HLTMonJetMETConsumer::beginJob(const edm::EventSetup&)
        injetmet_probe_Eta[i] = dbe->get(MEname);
        MEname = histdir_ + "/" + theHLTProbeLabels[i] + "phi";
        injetmet_probe_Phi[i] = dbe->get(MEname);
+
+       if (!injetmet_ref_Et[i]) {
+	 std::cout << "Can't find reference " << std::endl;
+       }
+       if (!injetmet_probe_Et[i]) {
+	 std::cout << "Can't find probe " << std::endl;
+       }
 
        // book outgoing MEs (probes)
        //       outjetmet_Et[i] = dbe->book1D(Form("%s_Et_%i",i),theHLTProbeLabels[i],Form("Et %i",i),nbin_Et, xmin_Et, xmax_Et);
