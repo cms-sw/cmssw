@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.57 2009/01/06 17:16:00 amraktad Exp $
+// $Id: CmsShowMain.cc,v 1.58 2009/01/07 11:54:57 amraktad Exp $
 //
 
 // system include files
@@ -419,9 +419,9 @@ void CmsShowMain::draw(const fwlite::Event& event)
   m_guiManager->clearStatus();
    if(m_isPlaying) {
       if(m_forward) {
-         m_playTimer->Start(m_playDelay*1000,kFALSE);
+         m_playTimer->Start((Long_t)(m_playDelay*1000), kFALSE);
       } else {
-         m_playBackTimer->Start(m_playDelay*1000,kFALSE);
+         m_playBackTimer->Start((Long_t)(m_playDelay*1000), kFALSE);
       }
    } else {
       m_guiManager->enableActions();
@@ -805,7 +805,7 @@ CmsShowMain::setPlayDelay(Float_t val)
 {
   m_playDelay = val;
   m_playTimer->Reset();
-  m_playTimer->SetTime(m_playDelay*1000);
+  m_playTimer->SetTime((Long_t)(m_playDelay*1000));
 }
 
 void
