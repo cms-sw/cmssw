@@ -169,6 +169,7 @@ PixelPortcardMap::PixelPortcardMap(std::string filename):
 
   }while (!in.eof());
 }
+
     
 /*const std::map<PixelModuleName, int>& PixelPortcardMap::modules(std::string portcard) const{
 
@@ -279,14 +280,36 @@ std::set< PixelModuleName > PixelPortcardMap::modules(std::string portCardName) 
 	return returnThis;
 }
 
-std::set< std::string > PixelPortcardMap::portcards()
+std::set< std::string > PixelPortcardMap::portcards(const PixelDetectorConfig* detconfig)
 {
 	std::set< std::string > returnThis;
+
+	if(detconfig != 0){
 	
-	// Loop over the entire map, and add all port cards to returnThis.
-	for( std::map< PixelChannel, std::pair<std::string, int> >::const_iterator map_itr = map_.begin(); map_itr != map_.end(); ++map_itr )
-	{
-		returnThis.insert(map_itr->second.first);
+	  const std::vector <PixelModuleName> moduleList=detconfig->getModuleList();
+	  
+	  for(std::vector <PixelModuleName>::const_iterator it=moduleList.begin(), it_end=moduleList.end(); it!=it_end; ++it){
+
+	    for( std::map< PixelChannel, std::pair<std::string, int> >::const_iterator map_itr = map_.begin(); map_itr != map_.end(); ++map_itr )
+	      {
+		if ( map_itr->first.modulename() == it->modulename() )
+		  {
+		    returnThis.insert(map_itr->second.first);
+		  }
+	      }
+	
+	  }
+	  
+	 
+	}
+	else{
+	
+	  for( std::map< PixelChannel, std::pair<std::string, int> >::const_iterator map_itr = map_.begin(); map_itr != map_.end(); ++map_itr )
+	    {
+	      
+	      returnThis.insert(map_itr->second.first);
+	    }
+	  
 	}
 	
 	return returnThis;

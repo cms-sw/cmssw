@@ -16,7 +16,7 @@
 #include "CalibFormats/SiPixelObjects/interface/PixelModuleName.h"
 #include "CalibFormats/SiPixelObjects/interface/PixelTBMChannel.h"
 #include "CalibFormats/SiPixelObjects/interface/PixelChannel.h"
-
+#include "CalibFormats/SiPixelObjects/interface/PixelDetectorConfig.h"
 namespace pos{
 /*!  \ingroup ConfigurationObjects "Configuration Objects"
 *    
@@ -54,7 +54,7 @@ namespace pos{
     std::set< PixelModuleName > modules(std::string portCardName) const;
 
     // all port cards in the map
-    std::set< std::string > portcards();
+    std::set< std::string > portcards(const PixelDetectorConfig* detconfig=0);
 
     virtual void writeASCII(std::string dir) const;
     void 	 writeXML(        pos::PixelConfigKey key, int version, std::string path) const {;}
@@ -72,10 +72,11 @@ namespace pos{
 				  std::ofstream *out1 = NULL,
 				  std::ofstream *out2 = NULL
 				  ) const ;
-
+    
   private:
     //                               portcardname, AOH #
     std::map< PixelChannel, std::pair<std::string, int> > map_;
+    
   };
 }
 /* @} */
