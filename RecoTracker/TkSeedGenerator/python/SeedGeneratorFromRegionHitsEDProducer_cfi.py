@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from RecoTracker.TkTrackingRegions.GlobalTrackingRegion_cfi import *
 from RecoTracker.TkSeedGenerator.SeedFromConsecutiveHitsCreator_cfi import *
+#from RecoTracker.TkSeedGenerator.SeedFromConsecutiveHitsStraightLineCreator_cfi import *
 
 seedGeneratorFromRegionHitsEDProducer = cms.EDProducer("SeedGeneratorFromRegionHitsEDProducer",
     OrderedHitsFactoryPSet = cms.PSet(
@@ -15,7 +16,10 @@ seedGeneratorFromRegionHitsEDProducer = cms.EDProducer("SeedGeneratorFromRegionH
         RegionPSetBlock,
         ComponentName = cms.string('GlobalRegionProducer')
     ),
+# This works best ...
     SeedCreatorPSet = cms.PSet(SeedFromConsecutiveHitsCreator)
+# except for large impact parameter pixel-pair seeding, when this is better ...
+#   SeedCreatorPSet = cms.PSet(SeedFromConsecutiveHitsStraightLineCreator)                                                       
 )
 
 
