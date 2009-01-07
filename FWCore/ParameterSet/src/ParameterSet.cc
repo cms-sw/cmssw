@@ -410,6 +410,26 @@ namespace edm {
     }
   }  // insert()
 
+  void
+  ParameterSet::augment(ParameterSet const& from) {
+    // This preemptive invalidation may be more agressive than necessary.
+    invalidateRegistration();
+
+    if(&from == this) {
+      return;
+    }
+
+    for(table::const_iterator b = from.tbl_.begin(), e = from.tbl_.end(); b != e; ++b) {
+      this->insert(false, b->first, b->second);
+    }
+    for(psettable::const_iterator b = from.psetTable_.begin(), e = from.psetTable_.end(); b != e; ++b) {
+      this->insertParameterSet(false, b->first, b->second);
+    }
+    for(vpsettable::const_iterator b = from.vpsetTable_.begin(), e = from.vpsetTable_.end(); b != e; ++b) {
+      this->insertVParameterSet(false, b->first, b->second);
+    }
+  }  // augment()
+
   // ----------------------------------------------------------------------
   // coding
   // ----------------------------------------------------------------------
