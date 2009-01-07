@@ -69,6 +69,7 @@ namespace edm {
     void insertVParameterSet(bool okay_to_replace, std::string const& name, VParameterSetEntry const& entry);
     void insert(bool ok_to_replace, char const* , Entry const&);
     void insert(bool ok_to_replace, std::string const&, Entry const&);
+    void augment(ParameterSet const& from); 
     // encode
     std::string toString() const;
     void toString(std::string& result) const;
@@ -185,7 +186,6 @@ namespace edm {
     template <typename T>
     void
     addUntrackedParameter(std::string const& name, T value) {
-      invalidateRegistration();
       insert(true, name, Entry(name, value, false));
       isFullyTracked_ = False;
     }
@@ -193,7 +193,6 @@ namespace edm {
     template <typename T>
     void
     addUntrackedParameter(char const* name, T value) {
-      invalidateRegistration();
       insert(true, name, Entry(name, value, false));
       isFullyTracked_ = False;
     }
@@ -256,7 +255,7 @@ namespace edm {
 
     mutable ParameterSetID trackedID_;
 
-    void invalidateRegistration(std::string const& nameOfTracked = std::string()) const;
+    void invalidateRegistration(std::string const& nameOfTracked) const;
    
     void calculateID();
 
