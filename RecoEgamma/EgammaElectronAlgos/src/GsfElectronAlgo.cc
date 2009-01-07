@@ -12,7 +12,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Thu july 6 13:22:06 CEST 2006
-// $Id: GsfElectronAlgo.cc,v 1.36 2008/12/17 00:02:18 charlot Exp $
+// $Id: GsfElectronAlgo.cc,v 1.37 2008/12/17 00:31:08 charlot Exp $
 //
 //
 
@@ -490,7 +490,6 @@ void GsfElectronAlgo::resolveElectrons( GsfElectronPtrCollection & inEle, reco::
       << "Blessing electron with E/P " << (*e1)->eSuperClusterOverP()
       << ", cluster " << (*e1)->superCluster().get()
       << " & track " << (*e1)->gsfTrack().get() ;
-    outEle.push_back(**e1) ;
     for( e2 = e1, ++e2 ;  e2 != inEle.end() ; )
      {
       if ((*e1)->superCluster()==(*e2)->superCluster())
@@ -513,6 +512,7 @@ void GsfElectronAlgo::resolveElectrons( GsfElectronPtrCollection & inEle, reco::
       else
        { ++e2 ; }
      }
+    outEle.push_back(**e1) ;
    }
  }
 
