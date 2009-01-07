@@ -11,14 +11,19 @@
 #include "CondCore/MetaDataService/interface/MetaData.h"
 #include "CondCore/DBCommon/interface/TypedRef.h"
 #include "CondFormats/Calibration/interface/Pedestals.h"
+#include "FWCore/PluginManager/interface/PluginManager.h"
+#include "FWCore/PluginManager/interface/standard.h"
 int main(){
   try{
     // for runnumber
     cond::TimeType timetype = cond::runnumber;
     cond::Time_t globalSince = cond::timeTypeSpecs[timetype].beginValue;
-
+    edmplugin::PluginManager::Config config;
+    edmplugin::PluginManager::configure(edmplugin::standard::config());
     cond::DBSession* session=new cond::DBSession;
     session->configuration().setMessageLevel(cond::Error);
+    session->configuration().setAuthenticationMethod( cond::XML );
+    session->configuration().setAuthenticationPath(".");
     //cond::Connection myconnection("oracle://cms_orcoff_prep/CMS_COND_PRESH",0);
     cond::Connection myconnection("sqlite_file:test.db",0);
     session->open();
