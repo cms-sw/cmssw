@@ -2,16 +2,16 @@ import FWCore.ParameterSet.Config as cms
 
 from Configuration.StandardSequences.SimulationRandomNumberGeneratorSeeds_cff import *
 from Configuration.StandardSequences.VtxSmearedGauss_cff import *
-from Configuration.StandardSequences.Geometry_cff import *
 from Configuration.StandardSequences.MagneticField_cff import *
 from SimG4Core.Application.g4SimHits_cfi import *
 from SimCalorimetry.HcalSimProducers.hcalUnsuppressedDigis_cfi import *
 from SimCalorimetry.HcalZeroSuppressionProducers.hcalDigis_cfi import *
 from Configuration.StandardSequences.MixingNoPileUp_cff import *
+from Configuration.StandardSequences.Reconstruction_cff import *
+from Configuration.StandardSequences.GeometryHCAL_cff import *
 from Configuration.StandardSequences.FrontierConditions_GlobalTag_cff import *
 GlobalTag.globaltag = 'IDEAL_30X::All'
 
-from Configuration.StandardSequences.Reconstruction_cff import *
 maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
 )
@@ -23,35 +23,6 @@ source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring('file:/afs/cern.ch/cms/data/CMSSW/Validation/HcalHits/data/1_4_x/mc_pi+100_etaphi44.root')
 )
 
-XMLIdealGeometryESSource.geomXMLFiles = cms.vstring(
-    "Geometry/CMSCommonData/data/materials.xml",
-    "Geometry/CMSCommonData/data/rotations.xml",
-    "Geometry/HcalCommonData/data/hcalrotations.xml",
-    "Geometry/HcalCommonData/data/hcalforwardmaterial.xml",
-    "Geometry/CMSCommonData/data/normal/cmsextent.xml",
-    "Geometry/CMSCommonData/data/cms.xml",
-    "Geometry/CMSCommonData/data/cmsMother.xml",
-    "Geometry/CMSCommonData/data/muonBase.xml",
-    "Geometry/CMSCommonData/data/cmsMuon.xml",
-    "Geometry/CMSCommonData/data/mgnt.xml",
-    "Geometry/CMSCommonData/data/muonMagnet.xml",
-    "Geometry/CMSCommonData/data/muonMB.xml",
-    "Geometry/CMSCommonData/data/caloBase.xml",
-    "Geometry/CMSCommonData/data/cmsCalo.xml",
-    "Geometry/HcalCommonData/data/hcalalgo.xml",
-    "Geometry/HcalCommonData/data/hcalbarrelalgo.xml",
-    "Geometry/HcalCommonData/data/hcalendcapalgo.xml",
-    "Geometry/HcalCommonData/data/hcalouteralgo.xml",
-    "Geometry/HcalCommonData/data/hcalforwardalgo.xml",
-    "Geometry/HcalCommonData/data/hcalforwardfibre.xml",
-    "Geometry/HcalCommonData/data/hcalsens.xml",
-    "Geometry/HcalSimData/data/CaloUtil.xml",
-    "Geometry/HcalSimData/data/HcalProdCuts.xml",
-    "Geometry/CMSCommonData/data/FieldParameters.xml"
-
-)
-
-CaloGeometryBuilder.SelectedCalos = ['HCAL']
 
 VtxSmeared.SigmaX = 0.00001
 VtxSmeared.SigmaY = 0.00001

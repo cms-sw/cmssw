@@ -3,14 +3,12 @@ import FWCore.ParameterSet.Config as cms
 from Configuration.StandardSequences.SimulationRandomNumberGeneratorSeeds_cff import *
 from Configuration.StandardSequences.VtxSmearedGauss_cff import *
 from Configuration.StandardSequences.Simulation_cff import *
-from Configuration.StandardSequences.Geometry_cff import *
-from Configuration.StandardSequences.Digi_cff import *
 from Configuration.StandardSequences.MagneticField_cff import *
 from Configuration.StandardSequences.MixingNoPileUp_cff import *
 from Configuration.StandardSequences.Reconstruction_cff import *
+from Configuration.StandardSequences.GeometryECALHCAL_cff import *
 from Configuration.StandardSequences.FrontierConditions_GlobalTag_cff import *
 GlobalTag.globaltag = 'IDEAL_30X::All'
-
 
 from DQMServices.Core.DQM_cfg import *
 MessageLogger = cms.Service("MessageLogger")
@@ -47,8 +45,6 @@ hcalTowerAnalyzer = cms.EDFilter("CaloTowersValidation",
 )
 
 DQM.collectorHost = ''
-
-from Configuration.StandardSequences.GeometryECALHCAL_cff import *
 
 VtxSmeared.SigmaX = 0.00001
 VtxSmeared.SigmaY = 0.00001
