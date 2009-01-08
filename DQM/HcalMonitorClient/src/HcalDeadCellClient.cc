@@ -282,7 +282,7 @@ void HcalDeadCellClient::analyze(void)
     {
       if ( debug_>1 ) cout << "<HcalDeadCellClient::analyze>  Running analyze "<<endl;
     }
-  getHistograms();
+  //getHistograms(); // not needed here?
   return;
 } // void HcalDeadCellClient::analyze(void)
 
@@ -372,7 +372,7 @@ void HcalDeadCellClient::htmlOutput(int runNo, string htmlDir, string htmlName)
     {
       cpu_timer.reset(); cpu_timer.start();
     }
-
+  getHistograms(); 
   if (debug_>1) cout << "Preparing HcalDeadCellClient html output ..." << endl;
 
   string client = "DeadCellMonitor";
@@ -457,6 +457,8 @@ void HcalDeadCellClient::htmlOutput(int runNo, string htmlDir, string htmlName)
             {
               eta=ieta+int(etaMin)-1;
               phi=iphi+int(phiMin)-1;
+	      if (abs(eta)>20 && phi%2!=1) continue;
+	      if (abs(eta)>39 && phi%4!=3) continue;
 	      int mydepth=depth+1;
 	      if (mydepth>4) mydepth-=4; // last two depth values are for HE depth 1,2
 	      if (ProblemDeadCellsByDepth[depth]==0)

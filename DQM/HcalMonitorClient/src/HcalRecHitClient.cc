@@ -1,7 +1,5 @@
 #include <DQM/HcalMonitorClient/interface/HcalRecHitClient.h>
 #include <DQM/HcalMonitorClient/interface/HcalClientUtils.h>
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include <math.h>
 #include <iostream>
 
@@ -624,8 +622,7 @@ void HcalRecHitClient::htmlOutput(int runNo, string htmlDir, string htmlName)
   htmlFile << "<hr>" << endl;
 
   htmlFile << "<h2><strong>Hcal Rec Hit Status</strong></h2>" << endl;
-  htmlFile << "<h3>" << endl;
-  htmlFile << "</h3>" << endl;
+
 
   htmlFile << "<table align=\"center\" border=\"0\" cellspacing=\"0\" " << endl;
   htmlFile << "cellpadding=\"10\"> " << endl;
@@ -645,7 +642,7 @@ void HcalRecHitClient::htmlOutput(int runNo, string htmlDir, string htmlName)
   
   // Now print out problem cells
   htmlFile <<"<br>"<<endl;
-  htmlFile << "<h2><strong>Hcal Problem Cells</strong></h2>" << endl;
+  htmlFile << "<h2><strong>Hcal Problem Rec Hits</strong></h2>" << endl;
   htmlFile << "(A problem cell is listed below if its failure rate exceeds "<<(100.*minErrorFlag_)<<"%).<br><br>"<<endl;
   htmlFile << "<table align=\"center\" border=\"1\" cellspacing=\"0\" " << endl;
   htmlFile << "cellpadding=\"10\"> " << endl;
@@ -673,6 +670,8 @@ void HcalRecHitClient::htmlOutput(int runNo, string htmlDir, string htmlName)
             {
               eta=ieta+int(etaMin)-1;
               phi=iphi+int(phiMin)-1;
+	      if (abs(eta)>20 && phi%2!=1) continue;
+	      if (abs(eta)>39 && phi%4!=3) continue;
 	      int mydepth=depth+1;
 	      if (mydepth>4) mydepth-=4; // last two depth values are for HE depth 1,2
 	      if (ProblemRecHitsByDepth[depth]==0)

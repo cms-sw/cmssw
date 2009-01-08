@@ -10,6 +10,10 @@ HcalHotCellClient::HcalHotCellClient(){} // constructor
 void HcalHotCellClient::init(const ParameterSet& ps, DQMStore* dbe,string clientName){
   //Call the base class first
   HcalBaseClient::init(ps,dbe,clientName);
+  if (showTiming_)
+    {
+      cpu_timer.reset(); cpu_timer.start();
+    }
 
   // Get variable values from cfg file
   // Set which hot cell checks will looked at
@@ -67,6 +71,11 @@ void HcalHotCellClient::init(const ParameterSet& ps, DQMStore* dbe,string client
   subdets_.push_back("HE Depth 1 ");
   subdets_.push_back("HE Depth 2 ");
 
+  if (showTiming_)
+    {
+      cpu_timer.stop();  cout <<"TIMER:: HcalHotCellClient INIT -> "<<cpu_timer.cpuTime()<<endl;
+    }
+
   return;
 } // void HcalHotCellClient::init(...)
 
@@ -77,13 +86,23 @@ HcalHotCellClient::~HcalHotCellClient()
 } // destructor
 
 
-void HcalHotCellClient::beginJob(const EventSetup& eventSetup){
+void HcalHotCellClient::beginJob(const EventSetup& eventSetup)
+{
+  if (showTiming_)
+    {
+      cpu_timer.reset(); cpu_timer.start();
+    }
 
   if ( debug_>1 ) cout << "HcalHotCellClient: beginJob" << endl;
 
   ievt_ = 0;
   jevt_ = 0;
   this->setup();
+  if (showTiming_)
+    {
+      cpu_timer.stop();  cout <<"TIMER:: HcalHotCellClient BEGINJOB -> "<<cpu_timer.cpuTime()<<endl;
+    }
+
   return;
 } // void HcalHotCellClient::beginJob(const EventSetup& eventSetup);
 
@@ -95,24 +114,49 @@ void HcalHotCellClient::beginRun(void)
   jevt_ = 0;
   this->setup();
   this->resetAllME();
+  if (showTiming_)
+    {
+      cpu_timer.stop();  cout <<"TIMER:: HcalHotCellClient BEGINRUN -> "<<cpu_timer.cpuTime()<<endl;
+    }
+
   return;
 } // void HcalHotCellClient::beginRun(void)
 
 
 void HcalHotCellClient::endJob(void) 
 {
+  if (showTiming_)
+    {
+      cpu_timer.reset(); cpu_timer.start();
+    }
+
   if ( debug_>1 ) cout << "HcalHotCellClient: endJob, ievt = " << ievt_ << endl;
 
   this->cleanup();
+  if (showTiming_)
+    {
+      cpu_timer.stop();  cout <<"TIMER:: HcalHotCellClient ENDJOB -> "<<cpu_timer.cpuTime()<<endl;
+    }
+
   return;
 } // void HcalHotCellClient::endJob(void)
 
 
 void HcalHotCellClient::endRun(void) 
 {
+  if (showTiming_)
+    {
+      cpu_timer.reset(); cpu_timer.start();
+    }
+
   if ( debug_>1 ) cout << "HcalHotCellClient: endRun, jevt = " << jevt_ << endl;
 
   this->cleanup();
+  if (showTiming_)
+    {
+      cpu_timer.stop();  cout <<"TIMER:: HcalHotCellClient ENDRUN -> "<<cpu_timer.cpuTime()<<endl;
+    }
+
   return;
 } // void HcalHotCellClient::endRun(void)
 
@@ -125,6 +169,11 @@ void HcalHotCellClient::setup(void)
 
 void HcalHotCellClient::cleanup(void) 
 {
+  if (showTiming_)
+    {
+      cpu_timer.reset(); cpu_timer.start();
+    }
+
   if(cloneME_)
     {
       // delete individual histogram pointers
@@ -203,7 +252,11 @@ void HcalHotCellClient::cleanup(void)
   dqmReportMapWarn_.clear(); 
   dqmReportMapOther_.clear();
   dqmQtests_.clear();
-  
+  if (showTiming_)
+    {
+      cpu_timer.stop();  cout <<"TIMER:: HcalHotCellClient CLEANUP -> "<<cpu_timer.cpuTime()<<endl;
+    }
+
   return;
 } // void HcalHotCellClient::cleanup(void)
 
@@ -211,6 +264,11 @@ void HcalHotCellClient::cleanup(void)
 void HcalHotCellClient::report()
 {
   if(!dbe_) return;
+  if (showTiming_)
+    {
+      cpu_timer.reset(); cpu_timer.start();
+    }
+
   if ( debug_>1 ) cout << "HcalHotCellClient: report" << endl;
   this->setup();
 
@@ -224,6 +282,10 @@ void HcalHotCellClient::report()
     if ( debug_>1 ) cout << "Found '" << name.str().c_str() << "'" << endl;
   }
   getHistograms();
+  if (showTiming_)
+    {
+      cpu_timer.stop();  cout <<"TIMER:: HcalHotCellClient REPORT -> "<<cpu_timer.cpuTime()<<endl;
+    }
 
   return;
 } // HcalHotCellClient::report()
@@ -232,6 +294,10 @@ void HcalHotCellClient::report()
 void HcalHotCellClient::getHistograms()
 {
   if(!dbe_) return;
+  if (showTiming_)
+    {
+      cpu_timer.reset(); cpu_timer.start();
+    }
 
   ostringstream name;
   // dummy histograms
@@ -282,6 +348,10 @@ void HcalHotCellClient::getHistograms()
       name.str("");
 
     } // for (int i=0;i<6;++i)
+  if (showTiming_)
+    {
+      cpu_timer.stop();  cout <<"TIMER:: HcalHotCellClient GETHISTOGRAMS -> "<<cpu_timer.cpuTime()<<endl;
+    }
 
   return;
 } //void HcalHotCellClient::getHistograms()
@@ -289,12 +359,22 @@ void HcalHotCellClient::getHistograms()
 
 void HcalHotCellClient::analyze(void)
 {
+  if (showTiming_)
+    {
+      cpu_timer.reset(); cpu_timer.start();
+    }
+
   jevt_++;
   if ( jevt_ % 10 == 0 ) 
     {
       if ( debug_>1 ) cout << "<HcalHotCellClient::analyze>  Running analyze "<<endl;
     }
-  getHistograms();
+  //getHistograms(); // unnecessary, I think
+  if (showTiming_)
+    {
+      cpu_timer.stop();  cout <<"TIMER:: HcalHotCellClient ANALYZE -> "<<cpu_timer.cpuTime()<<endl;
+    }
+
   return;
 } // void HcalHotCellClient::analyze(void)
 
@@ -311,6 +391,10 @@ void HcalHotCellClient::createTests()
 void HcalHotCellClient::resetAllME()
 {
   if(!dbe_) return;
+  if (showTiming_)
+    {
+      cpu_timer.reset(); cpu_timer.start();
+    }
   
   ostringstream name;
 
@@ -364,15 +448,21 @@ void HcalHotCellClient::resetAllME()
 	  resetME((process_+"HotCellMonitor_Hcal/diagnostics/pedestal/HF_normped").c_str(),dbe_);
 	  resetME((process_+"HotCellMonitor_Hcal/diagnostics/rechitenergy/HF_rechitenergy").c_str(),dbe_);
 	  resetME((process_+"HotCellMonitor_Hcal/diagnostics/neighborcells/HF_energyVsNeighbor").c_str(),dbe_);
-    } // if (hotclient_makeDiagnostics_)
-
+	} // if (hotclient_makeDiagnostics_)
+      
+    } // for (int i=0;i<6;++i)
+  if (showTiming_)
+    {
+      cpu_timer.stop();  cout <<"TIMER:: HcalHotCellClient RESETALLME -> "<<cpu_timer.cpuTime()<<endl;
     }
+
   return;
 } // void HcalHotCellClient::resetAllME()
 
 
 void HcalHotCellClient::htmlOutput(int runNo, string htmlDir, string htmlName)
 {
+  getHistograms();
   if (showTiming_)
     {
       cpu_timer.reset(); cpu_timer.start();
@@ -460,6 +550,8 @@ void HcalHotCellClient::htmlOutput(int runNo, string htmlDir, string htmlName)
             {
               eta=ieta+int(etaMin)-1;
               phi=iphi+int(phiMin)-1;
+	      if (abs(eta)>20 && phi%2!=1) continue;
+	      if (abs(eta)>39 && phi%4!=3) continue;
 	      int mydepth=depth+1;
 	      if (mydepth>4) mydepth-=4; // last two depth values are for HE depth 1,2
 	      if (ProblemHotCellsByDepth[depth]==0)
@@ -711,6 +803,11 @@ ofstream htmlFile;
 
 void HcalHotCellClient::loadHistograms(TFile* infile)
 {
+  if (showTiming_)
+    {
+      cpu_timer.reset(); cpu_timer.start();
+    }
+
   TNamed* tnd = (TNamed*)infile->Get("DQMData/Hcal/HotCellMonitor_Hcal/Hot Cell Task Event Number");
   if(tnd)
     {
@@ -757,6 +854,11 @@ void HcalHotCellClient::loadHistograms(TFile* infile)
 	}
 
     } //for (int i=0;i<6;++i)
+  if (showTiming_)
+    {
+      cpu_timer.stop();  cout <<"TIMER:: HcalHotCellClient LOAD HISTOGRAMS -> "<<cpu_timer.cpuTime()<<endl;
+    }
+
   return;
 } // void HcalHotCellClient::loadHistograms(...)
 

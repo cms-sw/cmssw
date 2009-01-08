@@ -1,6 +1,8 @@
 #include <DQM/HcalMonitorClient/interface/HcalBaseClient.h>
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include <math.h>
+#include <iostream>
 
 HcalBaseClient::HcalBaseClient()
 {
