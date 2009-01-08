@@ -8,8 +8,8 @@
 
 /** \class HcalTrigPrimMonitor
   *  
-  * $Date: 2008/07/09 19:36:49 $
-  * $Revision: 1.13 $
+  * $Date: 2008/09/19 09:20:54 $
+  * $Revision: 1.14 $
   * \author W. Fisher - FNAL
   */
  static const float TrigMonAdc2fc[128]={-0.5, 0.5, 1.5, 2.5, 3.5, 4.5, 5.5, 6.5, 7.5,
@@ -56,15 +56,14 @@ public:
 private:  ///Monitoring elements
 
   int ievt_;
-  int etaBins_, phiBins_;
 
   double occThresh_;
   double TPThresh_;
   int TPdigi_;
   int ADCdigi_;
-  double etaMax_, etaMin_, phiMax_, phiMin_;
 
-  int checkNevents_; // only fill some histograms every N events -- not yet in use
+  int TPcheckNevents_; // only fill some histograms every N events -- not yet in use
+  bool TPmakeDiagnostics_; // make diagnostic plots
 
   MonitorElement* meEVT_;
   MonitorElement* tpCount_;

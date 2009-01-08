@@ -14,8 +14,8 @@
 
 /** \class HcalDeadCellMonitor
   *
-  * $Date: 2008/10/30 12:46:39 $
-  * $Revision: 1.22 $
+  * $Date: 2008/11/06 18:02:33 $
+  * $Revision: 1.23 $
   * \author J. Temple - Univ. of Maryland
   */
 
@@ -129,7 +129,7 @@ class HcalDeadCellMonitor: public HcalBaseMonitor {
   
 
   unsigned int occupancy[ETABINS][PHIBINS][4]; // will get filled when an occupied digi is found
-  unsigned int rechit_occupancy[ETABINS][PHIBINS][4]; // filled when rechit is presentx
+  unsigned int rechit_occupancy[ETABINS][PHIBINS][4]; // filled when rechit is present
   unsigned int abovepedestal[ETABINS][PHIBINS][4]; // filled when digi is below pedestal+nsigma
   unsigned int belowneighbors[ETABINS][PHIBINS][4];
   unsigned int aboveenergy[ETABINS][PHIBINS][4];
