@@ -313,10 +313,12 @@ std::string getAnyIMG(int runNo,myHist* hist, int size, std::string htmlDir,
   if (hist->GetMaximum()>0 && hist->GetMinimum()>0)
     {
       // Don't bother with this yet until we get something useful working
+      /*
       if (setLogx)
 	can->SetLogx();
       if (setLogy)
 	can->SetLogy();  
+      */
     }	
   can->SaveAs(saveName.c_str());  
   delete can;
