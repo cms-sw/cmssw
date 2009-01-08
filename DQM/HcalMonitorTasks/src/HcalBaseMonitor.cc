@@ -69,9 +69,8 @@ void HcalBaseMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
   phiMin_ = ps.getUntrackedParameter<double>("MinPhi", PHIMIN);
   phiBins_ = (int)(phiMax_ - phiMin_);
 
-
   return;
-}
+} //void HcalBaseMonitor::setup()
 
 void HcalBaseMonitor::done(){}
 

@@ -18,50 +18,43 @@ void HcalTrigPrimMonitor::clearME(){
     m_dbe->removeContents();
     meEVT_= 0;
   }
+} // void HcalTrigPrimMonitor::clearME()
 
-}
 
 void HcalTrigPrimMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
   HcalBaseMonitor::setup(ps,dbe);
   baseFolder_ = rootFolder_+"TrigPrimMonitor";
 
-  etaMax_ = ps.getUntrackedParameter<double>("MaxEta", 41.5);
-  etaMin_ = ps.getUntrackedParameter<double>("MinEta", -41.5);
-  etaBins_ = (int)(etaMax_ - etaMin_);
-  
-  phiMax_ = ps.getUntrackedParameter<double>("MaxPhi", 73);
-  phiMin_ = ps.getUntrackedParameter<double>("MinPhi", 0);
-  phiBins_ = (int)(phiMax_ - phiMin_);
   
   occThresh_ = ps.getUntrackedParameter<double>("TPOccThresh", 1.0);
-
   TPThresh_ = ps.getUntrackedParameter<double>("TPThreshold", 1.0);
 
   TPdigi_ = ps.getUntrackedParameter<int>("TPdigiTS", 1);
-
   ADCdigi_ = ps.getUntrackedParameter<int>("ADCdigiTS", 3);
 
-  checkNevents_=ps.getUntrackedParameter<int>("checkNevents",1000);
+  TPcheckNevents_=ps.getUntrackedParameter<int>("TrigPrimMonitor_checkNevents",checkNevents_);
+
+  TPmakeDiagnostics_=ps.getUntrackedParameter<bool>("TrigPrimMonitor_makeDiagnostics",makeDiagnostics);
 
   ievt_=0;
   
   if ( m_dbe !=NULL ) {    
 
     char* type;
-//    char name[128];
+    //    char name[128];
     m_dbe->setCurrentFolder(baseFolder_);
 
-//ZZ Expert Plots
+    //ZZ Expert Plots
     m_dbe->setCurrentFolder(baseFolder_ + "/ZZ Expert Plots/ZZ DQM Expert Plots");
     type = "TrigPrim Event Number";
     meEVT_ = m_dbe->bookInt(type);
-
-// 00 TP Occupancy
+    
+    // 00 TP Occupancy
     m_dbe->setCurrentFolder(baseFolder_);
     type = "00 TP Occupancy";
     TPOcc_          = m_dbe->book2D(type,type,etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
 
-//Timing Plots
+    //Timing Plots
     m_dbe->setCurrentFolder(baseFolder_+"/Timing Plots");
     type = "TP Size";
     tpSize_ = m_dbe->book1D(type,type,20,-0.5,19.5);
@@ -73,7 +66,8 @@ void HcalTrigPrimMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
     TPTimingBot_    = m_dbe->book1D(type,type,10,0,10);
     type = "TS with max ADC";
     TS_MAX_         = m_dbe->book1D(type,type,10,0,10);
-//Energy Plots
+
+    //Energy Plots
     m_dbe->setCurrentFolder(baseFolder_+"/Energy Plots");
     type = "# TP Digis";
     tpCount_ = m_dbe->book1D(type,type,500,-0.5,4999.5);
@@ -101,7 +95,7 @@ void HcalTrigPrimMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
       tpSpectrum_[i]= m_dbe->book1D(teststr,teststr,100,-0.5,99.5);      
     }
 
-//Electronics Plots
+    //Electronics Plots
     m_dbe->setCurrentFolder(baseFolder_+"/Electronics Plots");
     type = "HBHE Sliding Pair Sum Maxes";
     me_HBHE_ZS_SlidingSum = m_dbe->book1D(type,type,128,0,128);
@@ -123,7 +117,7 @@ void HcalTrigPrimMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
     type = "TrigPrim Spigot Energy Map";
     EN_ELEC_DCC = m_dbe->book2D(type,type,HcalDCCHeader::SPIGOT_COUNT,-0.5,HcalDCCHeader::SPIGOT_COUNT-0.5,36,-0.5,35.5);
 
-//Geometry Plots
+    //Geometry Plots
     m_dbe->setCurrentFolder(baseFolder_+"/Geometry Plots");
     type = "TrigPrim Eta Occupancy Map";
     OCC_ETA = m_dbe->book1D(type,type,etaBins_,etaMin_,etaMax_);
@@ -155,18 +149,18 @@ void HcalTrigPrimMonitor::processEvent(const HBHERecHitCollection& hbHits,
 				       const HFDigiCollection& hfdigi,
                                        const HcalTrigPrimDigiCollection& tpDigis,
 				       const HcalElectronicsMap& emap
-				       ){
-  
+				       )
+{
 
   if(!m_dbe) { 
-    cout <<"HcalTrigPrimMonitor::processEvent   DQMStore not instantiated!!!"<<endl;  
+    if (fVerbosity>0) cout <<"HcalTrigPrimMonitor::processEvent   DQMStore not instantiated!!!"<<endl;  
     return; 
   }
 
   ievt_++;
   meEVT_->Fill(ievt_);
   
-  tpCount_->Fill(tpDigis.size()*1.0);  // number of TPGs collected per event
+  //XXX// tpCount_->Fill(tpDigis.size()*1.0);  // number of TPGs collected per event
   
   float data[10];
   ClearEvent();
@@ -186,45 +180,33 @@ void HcalTrigPrimMonitor::processEvent(const HBHERecHitCollection& hbHits,
 	HcalTrigTowerDetId tpid=digi.id();
 	HcalElectronicsId eid = emap.lookupTrigger(tpid);
 	
-	tpSOI_ET_->Fill(digi.SOI_compressedEt());      
+	//XXX// tpSOI_ET_->Fill(digi.SOI_compressedEt());      
 	//if(digi.SOI_compressedEt()>0 || true) // digi.SOI_compressedEt() check does nothing here -- do we only want to fill when SOI_compressedEt >0?
-
 	{	
+	  //XXX// tpSize_->Fill(digi.size());	
+	  //XXX//OCC_ETA->Fill(tpid.ieta());
+	  //XXX//OCC_PHI->Fill(tpid.iphi());
+	  //XXX//OCC_MAP_GEO->Fill(tpid.ieta(), tpid.iphi());
 	  
-	  tpSize_->Fill(digi.size());	
-	  OCC_ETA->Fill(tpid.ieta());
-	  OCC_PHI->Fill(tpid.iphi());
-	  OCC_MAP_GEO->Fill(tpid.ieta(), tpid.iphi());
-	  
-	  EN_ETA->Fill(tpid.ieta(),digi.SOI_compressedEt());
-	  EN_PHI->Fill(tpid.iphi(),digi.SOI_compressedEt());
-	  EN_MAP_GEO->Fill(tpid.ieta(), tpid.iphi(),digi.SOI_compressedEt());
+	  //XXX//EN_ETA->Fill(tpid.ieta(),digi.SOI_compressedEt());
+	  //XXX//EN_PHI->Fill(tpid.iphi(),digi.SOI_compressedEt());
+	  //XXX//EN_MAP_GEO->Fill(tpid.ieta(), tpid.iphi(),digi.SOI_compressedEt());
 	  
 	  float slotnum = eid.htrSlot() + 0.5*eid.htrTopBottom();	
-	  OCC_ELEC_VME->Fill(slotnum,eid.readoutVMECrateId());
-	  OCC_ELEC_DCC->Fill(eid.spigot(),eid.dccid());
-	  EN_ELEC_VME->Fill(slotnum,eid.readoutVMECrateId(),digi.SOI_compressedEt());
-	  EN_ELEC_DCC->Fill(eid.spigot(),eid.dccid(),digi.SOI_compressedEt());
+	  //XXX//OCC_ELEC_VME->Fill(slotnum,eid.readoutVMECrateId());
+	  //XXX//OCC_ELEC_DCC->Fill(eid.spigot(),eid.dccid());
+	  //XXX//EN_ELEC_VME->Fill(slotnum,eid.readoutVMECrateId(),digi.SOI_compressedEt());
+	  //XXX//EN_ELEC_DCC->Fill(eid.spigot(),eid.dccid(),digi.SOI_compressedEt());
 	  double etSum = 0;
 	  bool threshCond = false;
 	  //	printf("\nSampling\n");
-	  float compressedEt;
 	  
 	  for (int j=0; j<digi.size(); ++j) 
 	    {
-	      //	  printf("Sample %d\n",j);
-	      
-	      compressedEt = digi.sample(j).compressedEt();
-	      //	  float compressedEt =1;
-	      /*
-	      // According to Kerem, we only need to fill these if > TPThresh (see code below)
-	      tpSpectrum_[j]->Fill(compressedEt);
-	      tpSpectrumAll_->Fill(compressedEt);
-	      */
-	      etSum += compressedEt;
-	      if (compressedEt>occThresh_) threshCond = true;
+	      etSum += digi.sample(j).compressedEt();
+	      if (digi.sample(j).compressedEt()>occThresh_) threshCond = true;
 	    }
-	tpETSumAll_->Fill(etSum);
+	//XXX//tpETSumAll_->Fill(etSum);
 	
 	if (threshCond)
 	  {
@@ -232,33 +214,34 @@ void HcalTrigPrimMonitor::processEvent(const HBHERecHitCollection& hbHits,
 	    
 	    TPGsOverThreshold++;
 	  }
-	} // if (digi.SOI_compressedEt() || true) -- defunct loop
+	} // if (digi.SOI_compressedEt() || true) -- defunct loop condition
 
 	/**************/
-	  
-	for (int i=0; i<digi.size(); ++i) {
-	  data[i]=digi.sample(i).compressedEt();
-	  if(digi.sample(i).compressedEt()>TPThresh_)
-	    {
-	      tpSpectrum_[i]->Fill(digi.sample(i).compressedEt());
-	      tpSpectrumAll_->Fill(digi.sample(i).compressedEt());
-	      TPTiming_->Fill(i);
-	      if(digi.id().iphi()>1  && digi.id().iphi()<36)  TPTimingTop_->Fill(i);
-	      if(digi.id().iphi()>37 && digi.id().iphi()<72)  TPTimingBot_->Fill(i);
-	      //TPOcc_->Fill(digi.id().ieta(),digi.id().iphi());
-	    }
-	  TPOcc_->Fill(digi.id().ieta(),digi.id().iphi());
-	}
+	for (int i=0; i<digi.size(); ++i) 
+	  {
+	    data[i]=digi.sample(i).compressedEt();
+	    if(digi.sample(i).compressedEt()>TPThresh_)
+	      {
+		//XXX//tpSpectrum_[i]->Fill(digi.sample(i).compressedEt());
+		//XXX//tpSpectrumAll_->Fill(digi.sample(i).compressedEt());
+		//XXX//TPTiming_->Fill(i);
+		//XXX//if(digi.id().iphi()>1  && digi.id().iphi()<36)  TPTimingTop_->Fill(i);
+		//XXX//if(digi.id().iphi()>37 && digi.id().iphi()<72)  TPTimingBot_->Fill(i);
+		//TPOcc_->Fill(digi.id().ieta(),digi.id().iphi());
+	      }
+	    //XXX//TPOcc_->Fill(digi.id().ieta(),digi.id().iphi());
+	  }
 	set_tp(digi.id().ieta(),digi.id().iphi(),1,data);
 	/*************/
+
       } // for (HcalTrigPrimDigiCollection...)
 
-    tpCountThr_->Fill(TPGsOverThreshold*1.0);  // number of TPGs collected per event
+    //XXX//tpCountThr_->Fill(TPGsOverThreshold*1.0);  // number of TPGs collected per event
     
   } // try
   catch (...) 
     {    
-      cout<<"HcalTrigPrimMonitor:  no tp digis"<<endl;;
+      if (fVerbosity>0) cout<<"HcalTrigPrimMonitor:  no tp digis"<<endl;;
     }
   try{
     for(HBHEDigiCollection::const_iterator j=hbhedigi.begin(); j!=hbhedigi.end(); ++j){
@@ -270,7 +253,7 @@ void HcalTrigPrimMonitor::processEvent(const HBHERecHitCollection& hbHits,
 	   maxsum = data[i] + data[i-1];
        }
        set_adc(digi.id().ieta(),digi.id().iphi(),digi.id().depth(),data);
-       me_HBHE_ZS_SlidingSum->Fill(maxsum);
+       //XXX//me_HBHE_ZS_SlidingSum->Fill(maxsum);
     } // for (HBHEDigiCollection...)
   } // try 
   catch (...) {    }  
@@ -284,7 +267,7 @@ void HcalTrigPrimMonitor::processEvent(const HBHERecHitCollection& hbHits,
 	   maxsum = data[i] + data[i-1];
        }
        //set_adc(digi.id().ieta(),digi.id().iphi(),digi.id().depth(),data);
-       me_HF_ZS_SlidingSum->Fill(maxsum);
+       //XXX//me_HF_ZS_SlidingSum->Fill(maxsum);
     } // for (HFDigiCollection...)
   } // try 
   catch (...) {   }  
@@ -298,7 +281,7 @@ void HcalTrigPrimMonitor::processEvent(const HBHERecHitCollection& hbHits,
 	   maxsum = data[i] + data[i-1];
        }
        //set_adc(digi.id().ieta(),digi.id().iphi(),digi.id().depth(),data);
-       me_HO_ZS_SlidingSum->Fill(maxsum);
+       //XXX//me_HO_ZS_SlidingSum->Fill(maxsum);
     } // for (HODigiCollection...)
   } // try 
   catch (...) {      }
@@ -317,28 +300,31 @@ void HcalTrigPrimMonitor::processEvent(const HBHERecHitCollection& hbHits,
 	  float tmp12 = (TrigMonAdc2fc[j3]+0.5);
 	  int j4=(int)get_adc(eta,phi,2)[ADCdigi_+1];
 	  float tmp22 = (TrigMonAdc2fc[j4]+0.5);
-	  if(IsSet_adc(eta,phi,1) && IsSet_tp(eta,phi,1)){
-	    
-	    if(get_tp(eta,phi)[TPdigi_]>TPThresh_){ 
-	      TPvsDigi_->Fill(tmp11+tmp21+tmp12+tmp22,get_tp(eta,phi)[TPdigi_]);
-	      
-	      float Energy=0;
-	      int TS = 0;
-	      for(int j=0;j<10;++j){
-		if (get_adc(eta,phi,1)[j]>Energy){
-		  Energy=get_adc(eta,phi,1)[j];
-		  TS = j;
-		}
-	      } // for (int j=0;j<10;++j)
-	      MAX_ADC_->Fill(Energy);
-	      TS_MAX_->Fill(TS);
-	      //This may need to continue?
-	      Energy=0; for(int j=0;j<10;++j) Energy+=get_adc(eta,phi,1)[j]; 
-	      TP_ADC_->Fill(Energy);	       	       
-	    } // if (get_tp(eta,phi)[TPdigi_]>TPThresh_)
-	  } // if (IsSet_adc(...))
+	  if(IsSet_adc(eta,phi,1) && IsSet_tp(eta,phi,1))
+	    {
+	      if(get_tp(eta,phi)[TPdigi_]>TPThresh_)
+		{ 
+		  //XXX//TPvsDigi_->Fill(tmp11+tmp21+tmp12+tmp22,get_tp(eta,phi)[TPdigi_]);
+		  
+		  float Energy=0;
+		  int TS = 0;
+		  for(int j=0;j<10;++j)
+		    {
+		      if (get_adc(eta,phi,1)[j]>Energy)
+			{
+			  Energy=get_adc(eta,phi,1)[j];
+			  TS = j;
+			}
+		    } // for (int j=0;j<10;++j)
+		  //XXX//MAX_ADC_->Fill(Energy);
+		  //XXX//TS_MAX_->Fill(TS);
+		  //This may need to continue?
+		  Energy=0; for(int j=0;j<10;++j) Energy+=get_adc(eta,phi,1)[j]; 
+		  //XXX//TP_ADC_->Fill(Energy);	       	       
+		} // if (get_tp(eta,phi)[TPdigi_]>TPThresh_)
+	    } // if (IsSet_adc(...))
 	} //for (eta=-16;...)
     } // for (phi=1;...)
-
+  
   return;
 }
