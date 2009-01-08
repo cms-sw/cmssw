@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.86 2009/01/07 11:54:57 amraktad Exp $
+// $Id: FWGUIManager.cc,v 1.87 2009/01/08 14:07:13 amraktad Exp $
 //
 
 // system include files
@@ -70,7 +70,6 @@
 #include "Fireworks/Core/src/FWGUIEventDataAdder.h"
 
 #include "Fireworks/Core/interface/CSGAction.h"
-#include "Fireworks/Core/interface/CSGNumAction.h"
 
 #include "Fireworks/Core/interface/ActionsList.h"
 

@@ -36,7 +36,6 @@
   <class name="FWLongParameter"/>
   <class name="FWConfiguration::KeyValues"/>
   <class name="GenParticleDetailView"/>
-  <class name="CSGNumAction"/>
   <class name="CSGAction"/>
   <class name="CmsShowMainFrame"/>
   <class name="FWGlimpseViewManager"/>

@@ -35,7 +35,6 @@
 #include "Fireworks/Core/src/FWBoolParameterSetter.h"
 #include "Fireworks/Core/interface/FWBoolParameter.h"
 #include "Fireworks/Core/interface/GenParticleDetailView.h"
-#include "Fireworks/Core/interface/CSGNumAction.h"
 #include "Fireworks/Core/interface/CSGAction.h"
 #include "Fireworks/Core/interface/CmsShowMainFrame.h"
 #include "Fireworks/Core/interface/FWGlimpseViewManager.h"

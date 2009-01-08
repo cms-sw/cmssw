@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:23 CDT 2008
-// $Id: CmsShowMainFrame.cc,v 1.36 2009/01/07 11:54:57 amraktad Exp $
+// $Id: CmsShowMainFrame.cc,v 1.37 2009/01/08 14:07:13 amraktad Exp $
 //
 // hacks
 #define private public
@@ -44,7 +44,6 @@
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "Fireworks/Core/interface/CSGAction.h"
 #include "Fireworks/Core/interface/CSGContinuousAction.h"
-#include "Fireworks/Core/interface/CSGNumAction.h"
 #include "Fireworks/Core/interface/CmsShowMainFrame.h"
 #include "Fireworks/Core/interface/ActionsList.h"
 #include "Fireworks/Core/interface/BuilderUtils.h"
