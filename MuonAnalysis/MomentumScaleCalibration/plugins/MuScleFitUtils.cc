@@ -1,7 +1,7 @@
 /** See header file for a class description 
  *
- *  $Date: 2008/12/15 16:27:31 $
- *  $Revision: 1.17 $
+ *  $Date: 2008/12/23 14:20:21 $
+ *  $Revision: 1.18 $
  *  \author S. Bolognesi - INFN Torino / T. Dorigo, M.De Mattia - INFN Padova
  */
 // Some notes:
@@ -43,7 +43,7 @@
 // Includes the definitions of all the bias and scale functions
 // These functions are selected in the constructor according
 // to the input parameters.
-#include "Functions.h"
+#include "MuonAnalysis/MomentumScaleCalibration/interface/Functions.h"
 
 using namespace std;
 using namespace edm;
@@ -167,7 +167,6 @@ int MuScleFitUtils::MuonType;
 double MuScleFitUtils::ResGamma[] = {2.4952, 0.0000934, 0.000337, 0.000054, 0.000032, 0.000020};
 double MuScleFitUtils::ResMass[] = {91.1876, 10.3552, 10.0233, 9.4603, 3.68609, 3.0969};
 unsigned int MuScleFitUtils::loopCounter = 5;
-
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
 // Find the best simulated resonance from a vector of simulated muons (SimTracks) 
