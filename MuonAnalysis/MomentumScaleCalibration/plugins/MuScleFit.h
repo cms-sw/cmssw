@@ -4,8 +4,8 @@
 /** \class MuScleFit
  *  Analyzer of the Global muon tracks
  *
- *  $Date: 2008/12/15 16:27:31 $
- *  $Revision: 1.6 $
+ *  $Date: 2008/12/23 14:20:34 $
+ *  $Revision: 1.7 $
  *  \author C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo - INFN Padova
  */
 
@@ -16,7 +16,7 @@
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
 #include <CLHEP/Vector/LorentzVector.h>
 #include <vector>
-#include "Histograms.h"
+#include "MuonAnalysis/MomentumScaleCalibration/interface/Histograms.h"
 
 namespace edm {
   class ParameterSet;

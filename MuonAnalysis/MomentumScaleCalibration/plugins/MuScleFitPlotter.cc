@@ -1,14 +1,14 @@
 //  \class MuScleFitPlotter
 //  Plotter for simulated,generated and reco info of muons
 //
-//  $Date: 2008/07/03 11:21:05 $
-//  $Revision: 1.2 $
+//  $Date: 2008/12/04 16:20:42 $
+//  $Revision: 1.3 $
 //  \author  C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo, M.De Mattia - INFN Padova
 //
 // ----------------------------------------------------------------------------------
 
 #include "MuScleFitPlotter.h"
-#include "Histograms.h"
+#include "MuonAnalysis/MomentumScaleCalibration/interface/Histograms.h"
 #include "MuScleFitUtils.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
