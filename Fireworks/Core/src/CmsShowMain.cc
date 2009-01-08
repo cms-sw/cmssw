@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.62 2009/01/08 15:13:29 chrjones Exp $
+// $Id: CmsShowMain.cc,v 1.63 2009/01/08 17:03:39 chrjones Exp $
 //
 
 // system include files
@@ -858,6 +858,7 @@ CmsShowMain::playForward()
    m_isPlaying=true;
    m_forward=true;
    m_navigator->setAutoRewind( true );
+   m_guiManager->setPlayMode(m_isPlaying);
    m_guiManager->getAction(cmsshow::sNextEvent)->activated();
 }
 
@@ -866,12 +867,14 @@ CmsShowMain::playBackward()
 {
    m_isPlaying=true;
    m_forward=false;
+   m_guiManager->setPlayMode(m_isPlaying);
    m_guiManager->getAction(cmsshow::sPreviousEvent)->activated();
 }
 
 void
 CmsShowMain::stopPlaying()
 {
+   m_guiManager->setPlayMode(false);
    if(m_isPlaying) {
       m_isPlaying=false;
       m_navigator->setAutoRewind( false );

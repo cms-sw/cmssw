@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.88 2009/01/08 14:24:36 amraktad Exp $
+// $Id: FWGUIManager.cc,v 1.89 2009/01/08 15:42:53 amraktad Exp $
 //
 
 // system include files
@@ -36,7 +36,6 @@
 //#include "TEveGedEditor.h"
 #include "TEveSelection.h"
 #include "TGFileDialog.h"
-#include "TStopwatch.h"
 #include "TColor.h"
 #include "TVirtualX.h"
 
@@ -369,6 +368,14 @@ void
 FWGUIManager::disableNext()
 {
   m_cmsShowMainFrame->enableNext(false);
+}
+
+void
+FWGUIManager::setPlayMode(bool play)
+{
+   m_cmsShowMainFrame->m_runEntry->SetState(!play);
+   m_cmsShowMainFrame->m_eventEntry->SetState(!play);
+   m_cmsShowMainFrame->m_filterEntry->SetState(!play);
 }
 
 void

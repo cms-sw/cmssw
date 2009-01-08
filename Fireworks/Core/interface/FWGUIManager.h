@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 10:52:24 EST 2008
-// $Id: FWGUIManager.h,v 1.44 2009/01/07 11:54:57 amraktad Exp $
+// $Id: FWGUIManager.h,v 1.45 2009/01/08 14:07:13 amraktad Exp $
 //
 
 // system include files
@@ -150,6 +150,7 @@ class FWGUIManager : public FWConfigurable
       void enableActions(bool enable = true);
       void disablePrevious();
       void disableNext();
+      void setPlayMode(bool);
       void updateStatus(const char* status);
       void clearStatus();
       void loadEvent(const fwlite::Event& event);

@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:23 CDT 2008
-// $Id: CmsShowMainFrame.cc,v 1.37 2009/01/08 14:07:13 amraktad Exp $
+// $Id: CmsShowMainFrame.cc,v 1.38 2009/01/08 14:24:36 amraktad Exp $
 //
 // hacks
 #define private public
@@ -463,20 +463,26 @@ void CmsShowMainFrame::defaultAction() {
 }
 
 void CmsShowMainFrame::loadEvent(const fwlite::Event& event) {
-  m_runEntry->SetIntNumber(event.id().run());
-  m_eventEntry->SetIntNumber(event.id().event());
-  m_timeText->SetText( fw::getTimeGMT( event ).c_str() );
-  char title[128];
-  snprintf(title,128,"Lumi block id: %d", event.aux_.luminosityBlock());
-  m_lumiBlock->SetText( title );
-  // loadEvent gets called before the special cases [at beginning, at end, etc]
-  // so we can enable all our event controls here
-  m_nextEvent->enable();
-  m_previousEvent->enable();
-  m_goToFirst->enable();
+
+   if (event.id().run() != (int)(m_runEntry->GetIntNumber()))
+      m_runEntry->SetIntNumber(event.id().run());
+
+   if (event.id().event() != (int)(m_eventEntry->GetIntNumber()))
+      m_eventEntry->SetIntNumber(event.id().event());
+
+   m_timeText->SetText( fw::getTimeGMT( event ).c_str() );
+   char title[128];
+   snprintf(title,128,"Lumi block id: %d", event.aux_.luminosityBlock());
+   m_lumiBlock->SetText( title );
+
+   // loadEvent gets called before the special cases [at beginning, at end, etc]
+   // so we can enable all our event controls here
+   m_nextEvent->enable();
+   m_previousEvent->enable();
+   m_goToFirst->enable();
    m_goToLast->enable();
-  m_playEvents->enable();
-  m_playEventsBack->enable();
+   m_playEvents->enable();
+   m_playEventsBack->enable();
 }
 
 void CmsShowMainFrame::quit() {
@@ -506,8 +512,8 @@ CmsShowMainFrame::enableActions(bool enable)
          (*it_act)->globalDisable();
    }
 
-   m_runEntry->SetState(enable);
-   m_eventEntry->SetState(enable);
+   m_runEntry->SetEditDisabled(!enable);
+   m_eventEntry->SetEditDisabled(!enable);
 }
 
 void
