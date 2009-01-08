@@ -39,9 +39,9 @@ hcalClient = cms.EDFilter("HcalMonitorClient",
                           
                           # DigiClient
                           DigiClient                = cms.untracked.bool(True),
-                          digiErrorFrac             = cms.untracked.double(0.05),
-                          CapIdMEAN_ErrThresh       = cms.untracked.double(1.5),
-                          CapIdRMS_ErrThresh        = cms.untracked.double(0.25),
+                          #digiErrorFrac             = cms.untracked.double(0.05),
+                          #CapIdMEAN_ErrThresh       = cms.untracked.double(1.5),
+                          #CapIdRMS_ErrThresh        = cms.untracked.double(0.25),
 
                           # Dead Cell Client
                           DeadCellClient                                = cms.untracked.bool(True),
@@ -116,18 +116,13 @@ def setHcalClientValuesFromMonitor(client, origmonitor, debug=False):
 
     client.diagnosticPrescaleEvt                  = monitor.checkNevents # combine checkNevents and diagnosticPrescaleEvt into one?
     client.fillUnphysicalIphi                     = monitor.fillUnphysicalIphi 
-    
-    # Pedestal Client
-    client.PedestalClient                         = monitor.PedestalMonitor
-    client.PedestalClient_nominalPedMeanInADC     = monitor.PedestalMonitor_nominalPedMeanInADC
-    client.PedestalClient_nominalPedWidthInADC    = monitor.PedestalMonitor_nominalPedWidthInADC
-    client.PedestalClient_maxPedMeanDiffADC       = monitor.PedestalMonitor_maxPedMeanDiffADC
-    client.PedestalClient_maxPedWidthDiffADC      = monitor.PedestalMonitor_maxPedWidthDiffADC
-    client.PedestalClient_pedestalsInFC           = monitor.PedestalMonitor_pedestalsInFC
-    client.PedestalClient_startingTimeSlice       = monitor.PedestalMonitor_startingTimeSlice
-    client.PedestalClient_endingTimeSlice         = monitor.PedestalMonitor_endingTimeSlice
-    #client.PedestalClient_minErrorFlag           = monitor.PedestalMonitor_minErrorFlag # want to keep these separate?
 
+    # Beam Client
+    client.BeamClient                             = monitor.BeamMonitor
+    client.BeamClient_checkNevents                = monitor.BeamMonitor_checkNevents
+    client.BeamClient_minErrorFlag                = monitor.BeamMonitor_minErrorFlag
+    client.BeamClient_makeDiagnosticPlots         = monitor.BeamMonitor_makeDiagnosticPlots
+    
     # Dead Cell
     client.DeadCellClient                         = monitor.DeadCellMonitor
     client.DeadCellClient_test_occupancy          = monitor.DeadCellMonitor_test_occupancy
@@ -140,6 +135,9 @@ def setHcalClientValuesFromMonitor(client, origmonitor, debug=False):
     client.DeadCellClient_checkNevents_energy     = monitor.DeadCellMonitor_checkNevents_energy        
     #client.DeadCellClient_minErrorFlag           = monitor.DeadCellMonitor_minErrorFlag # want to keep these separate?
     client.DeadCellClient_makeDiagnosticPlots     = monitor.DeadCellMonitor_makeDiagnosticPlots          
+
+    # Digi 
+    client.DigiClient                             = monitor.DigiMonitor
 
     # Hot Cell
     client.HotCellClient                          = monitor.HotCellMonitor
@@ -154,19 +152,24 @@ def setHcalClientValuesFromMonitor(client, origmonitor, debug=False):
     #client.HotCellClient_minErrorFlag            = monitor.HotCellMonitor_minErrorFlag # want to keep these separate?
     client.HotCellClient_makeDiagnosticPlots      = monitor.HotCellMonitor_makeDiagnosticPlots
 
+    # Pedestal Client
+    client.PedestalClient                         = monitor.PedestalMonitor
+    client.PedestalClient_nominalPedMeanInADC     = monitor.PedestalMonitor_nominalPedMeanInADC
+    client.PedestalClient_nominalPedWidthInADC    = monitor.PedestalMonitor_nominalPedWidthInADC
+    client.PedestalClient_maxPedMeanDiffADC       = monitor.PedestalMonitor_maxPedMeanDiffADC
+    client.PedestalClient_maxPedWidthDiffADC      = monitor.PedestalMonitor_maxPedWidthDiffADC
+    client.PedestalClient_pedestalsInFC           = monitor.PedestalMonitor_pedestalsInFC
+    client.PedestalClient_startingTimeSlice       = monitor.PedestalMonitor_startingTimeSlice
+    client.PedestalClient_endingTimeSlice         = monitor.PedestalMonitor_endingTimeSlice
+    #client.PedestalClient_minErrorFlag           = monitor.PedestalMonitor_minErrorFlag # want to keep these separate?
+
     # Rec Hit Client
     client.RecHitClient                           = monitor.RecHitMonitor
     client.RecHitClient_checkNevents              = monitor.RecHitMonitor_checkNevents
     client.RecHitClient_minErrorFlag              = monitor.RecHitMonitor_minErrorFlag
     client.RecHitClient_makeDiagnosticPlots       = monitor.RecHitMonitor_makeDiagnosticPlots
 
-    # Beam Client
-    client.BeamClient                             = monitor.BeamMonitor
-    client.BeamClient_checkNevents                = monitor.BeamMonitor_checkNevents
-    client.BeamClient_minErrorFlag                = monitor.BeamMonitor_minErrorFlag
-    client.BeamClient_makeDiagnosticPlots         = monitor.BeamMonitor_makeDiagnosticPlots
-    
-    client.DigiClient        = monitor.DigiMonitor
+
     client.DataFormatClient  = monitor.DataFormatMonitor
     client.LEDClient         = monitor.LEDMonitor
     client.CaloTowerClient   = monitor.CaloTowerMonitor
