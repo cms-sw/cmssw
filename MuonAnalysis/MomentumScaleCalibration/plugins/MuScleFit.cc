@@ -1,8 +1,8 @@
 //  \class MuScleFit
 //  Fitter of momentum scale and resolution from resonance decays to muon track pairs
 //
-//  $Date: 2008/12/15 16:27:31 $
-//  $Revision: 1.16 $
+//  $Date: 2008/12/23 14:20:15 $
+//  $Revision: 1.17 $
 //  \author R. Bellan, C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo, M.De Mattia - INFN Padova
 //
 //  Recent additions: 
@@ -93,7 +93,7 @@
 // ----------------------------------------------------------------------------------
 
 #include "MuScleFit.h"
-#include "Histograms.h"
+#include "MuonAnalysis/MomentumScaleCalibration/interface/Histograms.h"
 #include "MuScleFitUtils.h"
 #include "MuScleFitPlotter.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -126,7 +126,7 @@
 #include "TMinuit.h"
 #include <vector>
 
-#include "Functions.h"
+#include "MuonAnalysis/MomentumScaleCalibration/interface/Functions.h"
 
 using namespace std;
 using namespace edm;
@@ -183,24 +183,31 @@ MuScleFit::MuScleFit (const ParameterSet& pset) {
   int biasType = pset.getParameter<int>("BiasType");
   MuScleFitUtils::BiasType = biasType;
   // No error, the scale functions are used also for the bias
-  MuScleFitUtils::biasFunction = biasFunctionArray[biasType];
+  // MuScleFitUtils::biasFunction = biasFunctionArray[biasType];
+  MuScleFitUtils::biasFunction = scaleFunctionVecService( biasType );
   int smearType = pset.getParameter<int>("SmearType");
   MuScleFitUtils::SmearType = smearType;
-  MuScleFitUtils::smearFunction = smearFunctionArray[smearType];
+  // MuScleFitUtils::smearFunction = smearFunctionArray[smearType];
+  MuScleFitUtils::smearFunction = smearFunctionService( smearType );
 
   // Fit types
   // ---------
   int resolFitType = pset.getParameter<int>("ResolFitType");
   MuScleFitUtils::ResolFitType = resolFitType;
-  MuScleFitUtils::resolutionFunction = resolutionFunctionArray[resolFitType];
-  MuScleFitUtils::resolutionFunctionForVec = resolutionFunctionArrayForVec[resolFitType];
+  // MuScleFitUtils::resolutionFunction = resolutionFunctionArray[resolFitType];
+  MuScleFitUtils::resolutionFunction = resolutionFunctionService( resolFitType );
+  // MuScleFitUtils::resolutionFunctionForVec = resolutionFunctionArrayForVec[resolFitType];
+  MuScleFitUtils::resolutionFunctionForVec = resolutionFunctionVecService( resolFitType );
   int scaleType = pset.getParameter<int>("ScaleFitType");
   MuScleFitUtils::ScaleFitType = scaleType;
-  MuScleFitUtils::scaleFunction = scaleFunctionArray[scaleType];
-  MuScleFitUtils::scaleFunctionForVec = scaleFunctionArrayForVec[scaleType];
+  // MuScleFitUtils::scaleFunction = scaleFunctionArray[scaleType];
+  MuScleFitUtils::scaleFunction = scaleFunctionService( scaleType );
+  // MuScleFitUtils::scaleFunctionForVec = scaleFunctionArrayForVec[scaleType];
+  MuScleFitUtils::scaleFunctionForVec = scaleFunctionVecService( scaleType );
   int backgroundType = pset.getParameter<int>("BgrFitType");
   MuScleFitUtils::BgrFitType   = backgroundType;
-  MuScleFitUtils::backgroundFunction = backgroundFunctionArray[backgroundType];
+  // MuScleFitUtils::backgroundFunction = backgroundFunctionArray[backgroundType];
+  MuScleFitUtils::backgroundFunction = backgroundFunctionService( backgroundType );
 
   // Initial parameters values
   // -------------------------
@@ -257,7 +264,7 @@ MuScleFit::MuScleFit (const ParameterSet& pset) {
   } else {
     ProbsFile = new TFile ("Probs_SM_1000.root"); // NNBB need to reset this if MuScleFitUtils::nbins changes
     cout << "[MuScleFit-Constructor]: Reading TH2D probabilities from Probs_new_SM_1000_CTEQ.root file" << endl;
-  }    
+  }
   ProbsFile->cd();
   for ( int i=0; i<40; i++ ) {
     char nameh[6];
