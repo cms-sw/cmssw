@@ -40,8 +40,8 @@ namespace edm {
     if (!nameOfTracked.empty() && trackedID_.isValid()) {
       // We have added a new tracked parameter.  Invalidate the tracked ID.
       trackedID_ = ParameterSetID();
-      // Give a warning.
-      LogWarning("ParameterSet") << "Warning: You have added a new tracked parameter\n"
+      // Give a warning (informational for now)
+      LogInfo("ParameterSet")    << "Warning: You have added a new tracked parameter\n"
 				 <<  "'" << nameOfTracked << "' to a previously registered parameter set.\n"
 				 << "This is a bad idea because the new parameter(s) will not be recorded.\n"
 				 << "Use the forthcoming ParameterSetDescription facility instead.\n"
