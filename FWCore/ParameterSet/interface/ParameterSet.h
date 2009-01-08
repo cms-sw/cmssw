@@ -367,6 +367,12 @@ namespace edm {
   FileInPath
   ParameterSet::getParameter<FileInPath>(std::string const& name) const;
   
+  // FileInPath can't default-construct something useful, so we specialize
+  // this template
+  template <>
+  std::vector<std::string> 
+  ParameterSet::getParameterNamesForType<FileInPath>(bool trackiness) const;
+
   // ----------------------------------------------------------------------
   // InputTag
 

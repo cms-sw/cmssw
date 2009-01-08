@@ -687,6 +687,16 @@ namespace edm {
     return count;
   }
 
+
+  template <>
+  std::vector<std::string> ParameterSet::getParameterNamesForType<FileInPath>(bool trackiness) const
+  {
+    std::vector<std::string> result;
+    getNamesByCode_('F', trackiness, result);
+    return result;
+  }
+
+
   bool operator==(ParameterSet const& a, ParameterSet const& b) {
     // Maybe can replace this with comparison of id_ values.
     std::string aString;
