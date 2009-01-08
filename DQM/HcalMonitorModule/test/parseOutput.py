@@ -16,13 +16,19 @@ import os
 import string
 from math import log
 
-def computeAvg(mylist):
+def computeAvg(mylist,dump=False):
     ''' Compute the average value of a list of numbers. '''
     avg=0
     if (len(mylist)==0):
         return avg
+    if (dump==True):
+        print "Length of list = ",len(mylist)
+    count=0
     for i in mylist:
+        count=count+1
         avg=avg+i
+        if (dump==True):
+            print "i = ",i,"  sum = ",avg," avg = ",(avg/count)
     avg=avg/len(mylist)
     return avg
 
@@ -68,9 +74,16 @@ for F in myfile:
 
     # break timer keys into tasks and subtasks
     # (subtasks begin with "Hcal")
-    
+
+    dump=False
     for i in mykeys:
-        temp=computeAvg(myTimers[i])
+        #if (i=="HcalDeadCellMonitor PROCESSEVENT_DIGI"):
+        #    dump=True
+        #else:
+        #    dump=False
+        temp=computeAvg(myTimers[i],dump)
+        #if (i=="HcalDeadCellMonitor PROCESSEVENT_DIGI"):
+        #    print "AVG = ",i,temp
         if i[0:4]=="Hcal":
             mySubTime[temp]=i
             sumsub=sumsub+temp
