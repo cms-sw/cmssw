@@ -1,6 +1,6 @@
 2009-01-08  Emilio Meschi <emilio.meschi@cern.ch>
 
-	* tag V00-15-02
+	* tag V00-15-03
 	* merge of HEAD and online branch
 	* cleaned up obsolete classes
 	* added ServiceWeb access and Stepper
