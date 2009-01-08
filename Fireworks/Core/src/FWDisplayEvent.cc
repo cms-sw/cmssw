@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: FWDisplayEvent.cc,v 1.59 2008/11/06 22:05:25 amraktad Exp $
+// $Id: FWDisplayEvent.cc,v 1.60 2009/01/08 15:13:29 chrjones Exp $
 //
 
 // system include files
@@ -46,7 +46,6 @@
 #include "Fireworks/Core/interface/FWModelExpressionSelector.h"
 #include "Fireworks/Core/interface/FWDetailViewManager.h"
 #include "Fireworks/Core/interface/FWTextView.h"
-#include "Fireworks/Core/interface/ElectronSCViewManager.h"
 #include "DataFormats/FWLite/interface/Event.h"
 
 #include "Fireworks/Core/interface/FWConfigurationManager.h"

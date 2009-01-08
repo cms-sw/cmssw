@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.61 2009/01/08 14:24:36 amraktad Exp $
+// $Id: CmsShowMain.cc,v 1.62 2009/01/08 15:13:29 chrjones Exp $
 //
 
 // system include files
@@ -60,7 +60,6 @@
 #include "Fireworks/Core/interface/FWModelExpressionSelector.h"
 #include "Fireworks/Core/interface/FWDetailViewManager.h"
 #include "Fireworks/Core/interface/FWTextView.h"
-#include "Fireworks/Core/interface/ElectronSCViewManager.h"
 #include "Fireworks/Core/interface/FWPhysicsObjectDesc.h"
 #include "Fireworks/Core/interface/ElectronDetailView.h"
 #include "Fireworks/Core/interface/PhotonDetailView.h"

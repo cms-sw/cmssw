@@ -13,7 +13,6 @@
   <class name="FWGUISubviewArea"/>
   <class name="FW3DLegoView"/>
   <class name="FWConfiguration"/>
-  <class name="ElectronsProxySCBuilder"/>
   <class name="FWRhoPhiZViewManager"/>
   <class name="FWListEventItem"/>
   <class name="FWListEventItemEditor"/>
@@ -24,7 +23,6 @@
   <class name="ElectronDetailView"/>
   <class name="TrackDetailView"/>
   <class name="MuonDetailView"/>
-  <class name="ElectronView"/>
   <class name="FWListViewObject"/>
   <class name="FWParameterSetterBase"/>
   <class name="FWDoubleParameterSetter"/>
