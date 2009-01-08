@@ -10,7 +10,7 @@
 #include <sstream>
 #include "MuonAnalysis/MomentumScaleCalibration/plugins/Functions.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
-#include "MuonAnalysis/MomentumScaleCalibrationObjects/interface/MuScleFitScale.h"
+#include "CondFormats/MomentumScaleCalibrationObjects/interface/MuScleFitScale.h"
 
 /**
  * This is used to have a common set of functions for the specialized templates to use.

@@ -13,7 +13,7 @@
 <use name=SimDataFormats/Track>
 
 <use name="CondCore/DBOutputService">
-<use name="MuonAnalysis/MomentumScaleCalibrationObjects">
+<use name="CondFormats/MomentumScaleCalibrationObjects">
 <use name="CondFormats/PhysicsToolsObjects">
 
 <use name=hepmc>
