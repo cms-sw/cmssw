@@ -1,5 +1,5 @@
 /*
- * $Id: ps_t.cppunit.cc,v 1.16 2009/01/07 00:17:46 wmtan Exp $
+ * $Id: ps_t.cppunit.cc,v 1.17 2009/01/07 04:57:53 wmtan Exp $
  */
 
 #include <algorithm>
@@ -30,6 +30,7 @@ class testps: public CppUnit::TestFixture
   CPPUNIT_TEST(idTest);
   CPPUNIT_TEST(mapByIdTest);
   CPPUNIT_TEST(nameAccessTest);
+  CPPUNIT_TEST(fileInPathTest);
   CPPUNIT_TEST(testEmbeddedPSet);
   CPPUNIT_TEST(testRegistration);
   CPPUNIT_TEST_SUITE_END();
@@ -49,6 +50,7 @@ public:
   void idTest();
   void mapByIdTest();
   void nameAccessTest();
+  void fileInPathTest();
   void testEmbeddedPSet();
   void testRegistration();
   // Still more to do...
@@ -203,6 +205,16 @@ void testps::stringTest()
   p1.registerIt();
   std::vector<std::string> vs2 = p1.getParameter<std::vector<std::string> >("vs");
   //FIXME doesn't count spaces
+}
+
+
+void testps::fileInPathTest()
+{
+  edm::ParameterSet p;
+  edm::FileInPath fip("FWCore/ParameterSet/python/Config.py");
+  p.addParameter<edm::FileInPath>("fip", fip);
+  CPPUNIT_ASSERT(p.existsAs<edm::FileInPath>("fip"));
+  CPPUNIT_ASSERT(p.getParameterNamesForType<edm::FileInPath>()[0] == "fip");
 }
 
 
