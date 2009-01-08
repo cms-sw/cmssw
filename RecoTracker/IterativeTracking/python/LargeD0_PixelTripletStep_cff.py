@@ -52,8 +52,11 @@ largeD0step1layertriplets.FPix.HitProducer = 'largeD0step1PixelRecHits'
 
 #SEEDS
 import RecoTracker.TkSeedGenerator.GlobalSeedsFromTripletsWithVertices_cff
+from RecoPixelVertexing.PixelTriplets.PixelTripletLargeTipGenerator_cfi import *
 largeD0step1Seeds = RecoTracker.TkSeedGenerator.GlobalSeedsFromTripletsWithVertices_cff.globalSeedsFromTripletsWithVertices.clone()
 largeD0step1Seeds.OrderedHitsFactoryPSet.SeedingLayers = 'largeD0step1LayerTriplets'
+# Use modified pixel-triplet code that works best for large impact parameters
+largeD0step1Seeds.OrderedHitsFactoryPSet.GeneratorPSet = cms.PSet(PixelTripletLargeTipGenerator)
 largeD0step1Seeds.RegionFactoryPSet.RegionPSet.ptMin = 0.9
 largeD0step1Seeds.RegionFactoryPSet.RegionPSet.originRadius = 2.5
 largeD0step1Seeds.RegionFactoryPSet.RegionPSet.originHalfLength = 15
@@ -140,7 +143,7 @@ largeD0step1Loose.src = 'largeD0step1WithMaterialTracks'
 largeD0step1Loose.keepAllTracks = False
 largeD0step1Loose.copyExtras = True
 largeD0step1Loose.copyTrajectories = True
-largeD0step1Loose.applyImpactSigCuts = False
+largeD0step1Loose.applyAdaptedPVCuts = False
 largeD0step1Loose.chi2n_par = 99.
 largeD0step1Loose.minNumberLayers = 5
 largeD0step1Loose.minNumber3DLayers = 0
@@ -150,7 +153,7 @@ largeD0step1Tight.src = 'largeD0step1Loose'
 largeD0step1Tight.keepAllTracks = True
 largeD0step1Tight.copyExtras = True
 largeD0step1Tight.copyTrajectories = True
-largeD0step1Tight.applyImpactSigCuts = False
+largeD0step1Tight.applyAdaptedPVCuts = False
 largeD0step1Tight.chi2n_par = 99.
 largeD0step1Tight.minNumberLayers = 10
 largeD0step1Tight.minNumber3DLayers = 3
@@ -160,7 +163,7 @@ largeD0step1Trk.src = 'largeD0step1Tight'
 largeD0step1Trk.keepAllTracks = True
 largeD0step1Trk.copyExtras = True
 largeD0step1Trk.copyTrajectories = True
-largeD0step1Trk.applyImpactSigCuts = False
+largeD0step1Trk.applyAdaptedPVCuts = False
 largeD0step1Trk.chi2n_par = 99.
 largeD0step1Trk.minNumberLayers = 10
 largeD0step1Trk.minNumber3DLayers = 3
