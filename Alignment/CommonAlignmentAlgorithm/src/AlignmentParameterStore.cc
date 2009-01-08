@@ -1,9 +1,9 @@
 /**
  * \file AlignmentParameterStore.cc
  *
- *  $Revision: 1.22 $
- *  $Date: 2008/02/12 22:50:54 $
- *  (last update by $Author: cklae $)
+ *  $Revision: 1.23 $
+ *  $Date: 2008/09/02 15:31:23 $
+ *  (last update by $Author: flucke $)
  */
 
 // This class's header should be first
@@ -200,7 +200,7 @@ AlignmentParameterStore::selectParameters( const align::Alignables& alignables )
 
 
 //__________________________________________________________________________________________________
-void AlignmentParameterStore::updateParameters( const CompositeAlignmentParameters& aap )
+void AlignmentParameterStore::updateParameters( const CompositeAlignmentParameters& aap, bool updateCorrelations )
 {
 
   align::Alignables alignables = aap.components();
@@ -221,11 +221,14 @@ void AlignmentParameterStore::updateParameters( const CompositeAlignmentParamete
     (*it)->setAlignmentParameters( apnew );
 	  
     // Now update correlations between detectors
-    int jpos = 1;
-    for( align::Alignables::const_iterator it2 = alignables.begin(); it2 != it; ++it2 ) 
+    if ( updateCorrelations )
     {
-      theCorrelationsStore->setCorrelations( *it, *it2, covariance, ipos-1, jpos-1 );
-      jpos += (*it2)->alignmentParameters()->numSelected();
+      int jpos = 1;
+      for( align::Alignables::const_iterator it2 = alignables.begin(); it2 != it; ++it2 ) 
+      {
+	theCorrelationsStore->setCorrelations( *it, *it2, covariance, ipos-1, jpos-1 );
+	jpos += (*it2)->alignmentParameters()->numSelected();
+      }
     }
 
     ipos+=nsel;

@@ -10,9 +10,9 @@
 ///
 /// Basic class for management of alignment parameters and correlations 
 ///
-///  $Date: 2007/10/08 14:38:15 $
-///  $Revision: 1.14 $
-/// (last update by $Author: cklae $)
+///  $Date: 2008/09/02 15:23:22 $
+///  $Revision: 1.15 $
+/// (last update by $Author: flucke $)
 
 namespace edm { class ParameterSet; }
 class AlignmentUserVariables;
@@ -44,7 +44,7 @@ public:
     selectParameters( const std::vector <Alignable*>& alignables ) const;
 
   /// update parameters 
-  void updateParameters(const CompositeAlignmentParameters& aap);
+  void updateParameters(const CompositeAlignmentParameters& aap, bool updateCorrelations = true);
 
   /// get all alignables 
   const align::Alignables& alignables(void) const { return theAlignables; }
