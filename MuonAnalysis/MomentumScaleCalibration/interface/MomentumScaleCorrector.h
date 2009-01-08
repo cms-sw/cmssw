@@ -8,7 +8,7 @@
 
 #include <fstream>
 #include <sstream>
-#include "MuonAnalysis/MomentumScaleCalibration/plugins/Functions.h"
+#include "MuonAnalysis/MomentumScaleCalibration/interface/Functions.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "CondFormats/MomentumScaleCalibrationObjects/interface/MuScleFitScale.h"
 
