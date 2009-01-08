@@ -61,12 +61,12 @@ class tagInventoryPrinter:
         """
         print requested tag inventory entry or all
         """
-        context = coral.Context()
-        if self.__verbose is True:
-            context.setVerbosityLevel( 'DEBUG' )
-        else:
-            context.setVerbosityLevel( 'ERROR' )
-        svc = coral.ConnectionService( context )
+        #context = coral.Context()
+        #if self.__verbose is True:
+        #    context.setVerbosityLevel( 'DEBUG' )
+        #else:
+        #    context.setVerbosityLevel( 'ERROR' )
+        svc = coral.ConnectionService()
         config=svc.configuration()
         os.environ['CORAL_AUTH_PATH']=self.__authpath
         config.setDefaultAuthenticationService('CORAL/Services/XMLAuthenticationService')

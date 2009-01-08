@@ -146,13 +146,13 @@ class tagTreeBuilder:
         if len(self.__nodecollection)==0 and len(self.__leafcollection)==0:
             print 'empty data, do nothing'
             return
-        context = coral.Context()
-        if self.__verbose is True:
-            context.setVerbosityLevel( 'DEBUG' )
-        else:
-            context.setVerbosityLevel( 'ERROR' )
+        #context = coral.Context()
+        #if self.__verbose is True:
+        #    context.setVerbosityLevel( 'DEBUG' )
+        #else:
+        #    context.setVerbosityLevel( 'ERROR' )
             
-        svc = coral.ConnectionService( context )
+        svc = coral.ConnectionService()
         config=svc.configuration()
         os.environ['CORAL_AUTH_PATH']=self.__authpath
         config.setDefaultAuthenticationService('CORAL/Services/XMLAuthenticationService')

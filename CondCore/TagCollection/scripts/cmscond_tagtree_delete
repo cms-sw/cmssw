@@ -95,12 +95,12 @@ class tagTreeDelete:
         """
         delete requested tag tree and selected branch or all
         """
-        context = coral.Context()
-        if self.__verbose is True:
-            context.setVerbosityLevel( 'DEBUG' )
-        else:
-            context.setVerbosityLevel( 'ERROR' )
-        svc = coral.ConnectionService( context )
+        #context = coral.Context()
+        #if self.__verbose is True:
+        #    context.setVerbosityLevel( 'DEBUG' )
+        #else:
+        #    context.setVerbosityLevel( 'ERROR' )
+        svc = coral.ConnectionService()
         #try:
         config=svc.configuration()
         os.environ['CORAL_AUTH_PATH']=self.__authpath
