@@ -1,5 +1,5 @@
-#ifndef Alignment_KalmanAlignmentAlgorithm_MultipleMetricsUpdator_h
-#define Alignment_KalmanAlignmentAlgorithm_MultipleMetricsUpdator_h
+#ifndef Alignment_KalmanAlignmentAlgorithm_SingleMetricsUpdator_h
+#define Alignment_KalmanAlignmentAlgorithm_SingleMetricsUpdator_h
 
 #include "Alignment/KalmanAlignmentAlgorithm/interface/KalmanAlignmentMetricsUpdator.h"
 #include "Alignment/KalmanAlignmentAlgorithm/interface/KalmanAlignmentMetricsCalculator.h"
@@ -26,9 +26,21 @@ public:
 
 private:
 
+  bool additionalSelectionCriterion( Alignable* const& referenceAli,
+				     Alignable* const& additionalAli,
+				     short int metricalDist ) const;
+
   KalmanAlignmentMetricsCalculator theMetricsCalculator;
 
-  std::vector< unsigned int > theFixedAlignableIds;
+  std::vector< unsigned int > theExcludedSubdetIds;
+
+  bool theASCFlag;
+  double theMinDeltaPerp;
+  double theMaxDeltaPerp;
+  double theMinDeltaZ;
+  double theMaxDeltaZ;
+  double theGeomDist;
+  short int theMetricalThreshold;
 
 };
 

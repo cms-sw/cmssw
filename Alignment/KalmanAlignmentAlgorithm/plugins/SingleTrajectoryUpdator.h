@@ -24,7 +24,8 @@ public:
   virtual void process( const ReferenceTrajectoryPtr & trajectory,
 			AlignmentParameterStore* store,
 			AlignableNavigator* navigator,
-			KalmanAlignmentMetricsUpdator* metrics );
+			KalmanAlignmentMetricsUpdator* metrics,
+			const MagneticField* magField = 0 );
 
   virtual SingleTrajectoryUpdator* clone( void ) const { return new SingleTrajectoryUpdator( *this ); }
 
@@ -36,6 +37,9 @@ private:
   double theExtraWeight;
   double theExternalPredictionWeight;
   bool theCovCheckFlag;
+
+  unsigned int theNumberOfPreAlignmentEvts;
+  unsigned int theNumberOfProcessedEvts;
 };
 
 

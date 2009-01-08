@@ -10,15 +10,27 @@
 
 SimpleMetricsUpdator::SimpleMetricsUpdator( const edm::ParameterSet & config ) : KalmanAlignmentMetricsUpdator( config )
 {
-  short int maxDistance = config.getUntrackedParameter< int >( "MaxMetricsDistance", 5 );
+  short int maxDistance = config.getUntrackedParameter< int >( "MaxMetricsDistance", 3 );
   theMetricsCalculator.setMaxDistance( maxDistance );
 
   std::vector< unsigned int > dummy;
-  theFixedAlignableIds = config.getUntrackedParameter< std::vector<unsigned int> >( "FixedAlignableIds", dummy );
+  theExcludedSubdetIds = config.getUntrackedParameter< std::vector<unsigned int> >( "ExcludedSubdetIds", dummy );
+
+  theASCFlag =  config.getUntrackedParameter< bool >( "ApplyAdditionalSelectionCriterion", false );
+  if ( theASCFlag )
+  {
+    theMinDeltaPerp = config.getParameter< double >( "MinDeltaPerp" );
+    theMaxDeltaPerp = config.getParameter< double >( "MaxDeltaPerp" );
+    theMinDeltaZ = config.getParameter< double >( "MinDeltaZ" );
+    theMaxDeltaZ = config.getParameter< double >( "MaxDeltaZ" );
+    theGeomDist = config.getParameter< double >( "GeomDist" );
+    theMetricalThreshold = config.getParameter< unsigned int >( "MetricalThreshold" );
+  }
 
   edm::LogInfo("Alignment") << "@SUB=SimpleMetricsUpdator::SimpleMetricsUpdator "
                             << "\nInstance of MetricsCalculator created (MaxMetricsDistance = " << maxDistance << ").";
 }
+
 
 void SimpleMetricsUpdator::update( const std::vector< Alignable* > & alignables )
 {
@@ -29,7 +41,7 @@ void SimpleMetricsUpdator::update( const std::vector< Alignable* > & alignables 
   {
     unsigned int subdetId = static_cast< unsigned int >( (*it)->geomDetId().subdetId() );
 
-    if ( std::find( theFixedAlignableIds.begin(), theFixedAlignableIds.end(), subdetId ) == theFixedAlignableIds.end() )
+    if ( std::find( theExcludedSubdetIds.begin(), theExcludedSubdetIds.end(), subdetId ) == theExcludedSubdetIds.end() )
     {
       alignablesForUpdate.push_back( *it );
     }
@@ -57,6 +69,9 @@ SimpleMetricsUpdator::additionalAlignables( const std::vector< Alignable* > & al
     updateList = theMetricsCalculator.getDistances( *itAD );
     for ( itUL = updateList.begin(); itUL != updateList.end(); itUL++ )
     {
+      // extra selection criterion
+      if ( theASCFlag && !additionalSelectionCriterion( *itAD, itUL->first, itUL->second ) ) continue;
+
       alignablesFromUpdateList.insert( itUL->first );
     }
     updateList.clear();
@@ -110,6 +125,47 @@ SimpleMetricsUpdator::additionalAlignablesWithDistances( const std::vector< Alig
   }
 
   return result;
+}
+
+
+bool
+SimpleMetricsUpdator::additionalSelectionCriterion( Alignable* const& referenceAli,
+						    Alignable* const& additionalAli,
+						    short int metricalDist ) const
+{
+  if ( metricalDist <= theMetricalThreshold ) return true;
+
+  const DetId detId( referenceAli->geomDetId() );
+
+  const align::PositionType& pos1 = referenceAli->globalPosition(); 
+  const align::PositionType& pos2 = additionalAli->globalPosition(); 
+
+  bool barrelRegion = ( detId.subdetId()%2 != 0 );
+
+  if ( barrelRegion )
+  {
+    double perp1 = pos1.perp();
+    double perp2 = pos2.perp();
+    double deltaPerp = perp2 - perp1;
+
+    if ( ( deltaPerp < theMinDeltaPerp ) || ( deltaPerp > theMaxDeltaPerp ) ) return false;
+  }
+  else
+  {
+    double z1 = pos1.z();
+    double z2 = pos2.z();
+    double signZ = ( z1 > 0. ) ? 1. : -1;
+    double deltaZ = signZ*( z2 - z1 );
+
+    if ( ( deltaZ < theMinDeltaZ ) || ( deltaZ > theMaxDeltaZ ) ) return false;
+  }
+
+  double r1 = pos1.mag();
+  double r2 = pos2.mag();
+  double sp = pos1.x()*pos2.x() + pos1.y()*pos2.y() + pos1.z()*pos2.z();
+
+  double dist = sqrt( r2*r2 - sp*sp/r1/r1 );
+  return ( dist < theGeomDist );
 }
 
 

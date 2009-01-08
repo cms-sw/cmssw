@@ -4,6 +4,7 @@
 
 #include "Alignment/CommonAlignment/interface/AlignmentUserVariables.h"
 #include "Alignment/CommonAlignment/interface/Alignable.h"
+#include "Alignment/CommonAlignment/interface/AlignableObjectId.h"
 #include "Alignment/TrackerAlignment/interface/TrackerAlignableId.h"
 
 #include <string>
@@ -19,7 +20,6 @@ public:
   /// Create new user variables by specifying the associated Alignable, the Alignable's Id and how
   /// often the evolution of the estimated parameters should be updated.
   KalmanAlignmentUserVariables( Alignable* parent,
-				TrackerAlignableId* alignableId = 0,
 				int frequency = 100 );
 
   KalmanAlignmentUserVariables( void ) :
@@ -77,6 +77,10 @@ protected:
 
   std::string theIdentifier;
   std::string theTypeAndLayer;
+
+  static const TrackerAlignableId* theAlignableId;
+  static const AlignableObjectId* theObjectId;
+
 };
 
 

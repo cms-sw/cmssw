@@ -19,7 +19,8 @@ public:
   virtual void process( const ReferenceTrajectoryPtr & trajectory,
 			AlignmentParameterStore* store,
 			AlignableNavigator* navigator,
-			KalmanAlignmentMetricsUpdator* metrics );
+			KalmanAlignmentMetricsUpdator* metrics,
+			const MagneticField* magField = 0 );
 
   virtual DummyUpdator* clone( void ) const { return new DummyUpdator( *this ); }
 

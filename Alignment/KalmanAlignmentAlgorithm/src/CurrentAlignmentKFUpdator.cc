@@ -82,10 +82,13 @@ void CurrentAlignmentKFUpdator::includeCurrentAlignmentEstimate( const Transient
 								 typename AlgebraicROOTObject<D>::Vector & vecR,
 								 typename AlgebraicROOTObject<D>::SymMatrix & matV ) const
 {
-  AlignableDet* alignableDet = theAlignableNavigator->alignableDetFromGeomDet( aRecHit.det() );
-  if ( !alignableDet )
+  const GeomDet* det = aRecHit.det();
+  if ( !det ) return;
+
+  AlignableDetOrUnitPtr alignableDet = theAlignableNavigator->alignableFromGeomDet( det );
+  if ( alignableDet.isNull() )
   {
-    std::cout << "[CurrentAlignmentKFUpdator::includeCurrentAlignmentEstimate] No AlignableDet associated with RecHit." << std::endl;
+    //std::cout << "[CurrentAlignmentKFUpdator::includeCurrentAlignmentEstimate] No AlignableDet associated with RecHit." << std::endl;
     return;
   }
 
@@ -116,7 +119,7 @@ void CurrentAlignmentKFUpdator::includeCurrentAlignmentEstimate( const Transient
 }
 
 
-AlignmentParameters* CurrentAlignmentKFUpdator::getAlignmentParameters( const AlignableDet* alignableDet ) const
+AlignmentParameters* CurrentAlignmentKFUpdator::getAlignmentParameters( const AlignableDetOrUnitPtr alignableDet ) const
 {
   // Get alignment parameters from AlignableDet ...
   AlignmentParameters* alignmentParameters = alignableDet->alignmentParameters();

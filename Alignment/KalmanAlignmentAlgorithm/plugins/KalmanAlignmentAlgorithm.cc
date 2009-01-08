@@ -1,5 +1,4 @@
 
-//#include "Alignment/KalmanAlignmentAlgorithm/plugins/KalmanAlignmentAlgorithm.h"
 #include "KalmanAlignmentAlgorithm.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentAlgorithmPluginFactory.h"
 
@@ -9,14 +8,14 @@
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentIORoot.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterSelector.h"
 
-//#include "Alignment/KalmanAlignmentAlgorithm/interface/KalmanAlignmentUpdator.h"
-//#include "Alignment/KalmanAlignmentAlgorithm/interface/KalmanAlignmentMetricsUpdator.h"
+#include "Alignment/CommonAlignmentParametrization/interface/AlignmentParametersFactory.h"
+#include "Alignment/CommonAlignmentParametrization/interface/RigidBodyAlignmentParameters.h"
+
 #include "Alignment/KalmanAlignmentAlgorithm/interface/KalmanAlignmentUpdatorPlugin.h"
 #include "Alignment/KalmanAlignmentAlgorithm/interface/KalmanAlignmentMetricsUpdatorPlugin.h"
 #include "Alignment/KalmanAlignmentAlgorithm/interface/KalmanAlignmentUserVariables.h"
 #include "Alignment/KalmanAlignmentAlgorithm/interface/KalmanAlignmentDataCollector.h"
 #include "Alignment/KalmanAlignmentAlgorithm/interface/CurrentAlignmentKFUpdator.h"
-#include "Alignment/CommonAlignmentParametrization/interface/RigidBodyAlignmentParameters.h"
 
 #include "Alignment/ReferenceTrajectories/interface/TrajectoryFactoryPlugin.h"
 
@@ -31,13 +30,24 @@
 #include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h" 
+
 #include "DataFormats/TrackingRecHit/interface/AlignmentPositionError.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
 // miscellaneous includes
 #include "FWCore/Utilities/interface/Exception.h"
 #include "Utilities/Timing/interface/TimingReport.h"
 #include "CLHEP/Random/RandGauss.h"
 #include <fstream>
+
+//REMOVE:
+// #include "TrackingTools/PatternTools/interface/TrajectoryStateClosestToBeamLineBuilder.h"
+// #include "TrackingTools/TrajectoryState/interface/PerigeeConversions.h"
+// #include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
+// #include "TrackingTools/AnalyticalJacobians/interface/AnalyticalCurvilinearJacobian.h"
+// #include "TrackingTools/AnalyticalJacobians/interface/JacobianLocalToCurvilinear.h"
+
 
 using namespace std;
 
@@ -56,21 +66,39 @@ void KalmanAlignmentAlgorithm::initialize( const edm::EventSetup& setup,
 					   AlignableMuon* muon,
 					   AlignmentParameterStore* store )
 {
-  theParameterStore = store;
-  theNavigator = new AlignableNavigator( tracker->components() );
-  theSelector = new AlignmentParameterSelector( tracker );
+cout << "THERE ARE STILL SOME COUT'S TO BE REMOVED" << endl;
 
-  theRefitter = new KalmanAlignmentTrackRefitter( theConfiguration.getParameter< edm::ParameterSet >( "TrackRefitter" ), theNavigator );
+  theTracker = tracker;
 
-  initializeAlignmentParameters( setup );
-  initializeAlignmentSetups( setup );
+  theMergerFlag = theConfiguration.getParameter<bool>( "MergeResults" );
 
-  KalmanAlignmentDataCollector::configure( theConfiguration.getParameter< edm::ParameterSet >( "DataCollector" ) );
+  if ( theMergerFlag )
+  {
+    mergeResults();
+  } else {
+    theParameterStore = store;
+    theNavigator = new AlignableNavigator( tracker->components() );
+    theSelector = new AlignmentParameterSelector( tracker );
+
+    theRefitter = new KalmanAlignmentTrackRefitter( theConfiguration.getParameter< edm::ParameterSet >( "TrackRefitter" ), theNavigator );
+
+    initializeAlignmentParameters( setup );
+    initializeAlignmentSetups( setup );
+
+    KalmanAlignmentDataCollector::configure( theConfiguration.getParameter< edm::ParameterSet >( "DataCollector" ) );
+  }
 }
 
 
 void KalmanAlignmentAlgorithm::terminate( void )
 {
+  if ( theMergerFlag )
+  {
+    TimingReport* timing = TimingReport::current();
+    timing->dump( cout );  
+    return; // only merging mode. nothing to do here.
+  }
+
   cout << "[KalmanAlignmentAlgorithm::terminate] start ..." << endl;
 
   set< Alignable* > allAlignables;
@@ -140,14 +168,25 @@ void KalmanAlignmentAlgorithm::terminate( void )
 void KalmanAlignmentAlgorithm::run( const edm::EventSetup & setup,
 				    const ConstTrajTrackPairCollection & tracks )
 {
+  if ( theMergerFlag ) return; // only merging mode. nothing to do here.
+
   static int iEvent = 1;
-  if ( iEvent % 500 == 0 )  cout << "[KalmanAlignmentAlgorithm::run] Event Nr. " << iEvent << endl;
+  if ( iEvent % 100 == 0 ) cout << "[KalmanAlignmentAlgorithm::run] Event Nr. " << iEvent << endl;
   iEvent++;
+
+  edm::ESHandle< MagneticField > aMagneticField;
+  setup.get< IdealMagneticFieldRecord >().get( aMagneticField );  
+
+  TimeMe* timer;
+  timer = new TimeMe( "Full_Algo" );
 
   try
   {
     // Run the refitter algorithm
-    TrackletCollection refittedTracklets = theRefitter->refitTracks( setup, theAlignmentSetups, tracks );
+    reco::BeamSpot dummyBeamSpot;
+    dummyBeamSpot.dummy();
+
+    TrackletCollection refittedTracklets = theRefitter->refitTracks( setup, theAlignmentSetups, tracks, &dummyBeamSpot );
 
     // Associate tracklets to alignment setups
     map< AlignmentSetup*, TrackletCollection > setupToTrackletMap;
@@ -170,13 +209,16 @@ void KalmanAlignmentAlgorithm::run( const edm::EventSetup & setup,
       }
 
       // Construct reference trajectories
-      ReferenceTrajectoryCollection trajectories = itMap->first->trajectoryFactory()->trajectories( setup, tracklets, external );
+      ReferenceTrajectoryCollection trajectories =
+	itMap->first->trajectoryFactory()->trajectories( setup, tracklets, external );
+
       ReferenceTrajectoryCollection::iterator itTrajectories;
 
       // Run the alignment algorithm.
       for ( itTrajectories = trajectories.begin(); itTrajectories != trajectories.end(); ++itTrajectories )
       {
-	itMap->first->alignmentUpdator()->process( *itTrajectories, theParameterStore, theNavigator, itMap->first->metricsUpdator() );
+	itMap->first->alignmentUpdator()->process( *itTrajectories, theParameterStore, theNavigator,
+						   itMap->first->metricsUpdator(), aMagneticField.product() );
 
 	KalmanAlignmentDataCollector::fillHistogram( "Trajectory_RecHits", (*itTrajectories)->recHits().size() );
       }
@@ -189,12 +231,17 @@ void KalmanAlignmentAlgorithm::run( const edm::EventSetup & setup,
     throw exception;
   }
 
+
+  delete timer;
 }
 
 
 void KalmanAlignmentAlgorithm::initializeAlignmentParameters( const edm::EventSetup& setup )
 {
-  TrackerAlignableId* alignableId = new TrackerAlignableId;
+  // Just to be sure, set all APEs to zero ...
+  setAPEToZero();
+
+  //TrackerAlignableId* alignableId = new TrackerAlignableId;
 
   const edm::ParameterSet initConfig = theConfiguration.getParameter< edm::ParameterSet >( "ParameterConfig" );
 
@@ -241,6 +288,10 @@ void KalmanAlignmentAlgorithm::initializeAlignmentParameters( const edm::EventSe
 
     addPositionError = initConfig.getUntrackedParameter< bool >( "AddPositionError", false );
 
+    double xAPEError = initConfig.getUntrackedParameter< double >( "SigmaXPositionError", 2e-2 );
+    double yAPEError = initConfig.getUntrackedParameter< double >( "SigmaYPositionError", 2e-2  );
+    double zAPEError = initConfig.getUntrackedParameter< double >( "SigmaZPositionError", 2e-2  );
+
     double sigmaXShift = config.getUntrackedParameter< double >( "SigmaXShifts", 4e-2 );
     double sigmaYShift = config.getUntrackedParameter< double >( "SigmaYShifts", 4e-2 );
     double sigmaZShift = config.getUntrackedParameter< double >( "SigmaZShifts", 4e-2 );
@@ -274,6 +325,8 @@ void KalmanAlignmentAlgorithm::initializeAlignmentParameters( const edm::EventSe
     for ( itAlignable = alignablesFromSelector.begin(); itAlignable != alignablesFromSelector.end(); ++itAlignable )
       //if ( (*itAlignable)->alignmentParameters() )
       alignables.push_back( *itAlignable );
+
+    cout << "[" << *itInitSel << "] total number of selected alignables = " << alignables.size() << endl;
 
     sort( alignables.begin(), alignables.end(), *this );
 
@@ -311,6 +364,13 @@ void KalmanAlignmentAlgorithm::initializeAlignmentParameters( const edm::EventSe
 
     for ( itAlignable = alignables.begin(); itAlignable != alignables.end(); itAlignable++ )
     {
+      if ( (*itAlignable)->alignmentParameters()->type() != AlignmentParametersFactory::kRigidBody )
+      {
+	cout << "[KalmanAlignmentAlgorithm::initializeAlignmentParameters] "
+	     << "alignable is not associated with rigid body alignment parameters --> skip" << endl;
+	continue;
+      }
+
       displacement[0] = applyXShifts ? sigmaXShift*RandGauss::shoot() : 0.;
       displacement[1] = applyYShifts ? sigmaZShift*RandGauss::shoot() : 0.;
       displacement[2] = applyZShifts ? sigmaYShift*RandGauss::shoot() : 0.;
@@ -342,7 +402,7 @@ void KalmanAlignmentAlgorithm::initializeAlignmentParameters( const edm::EventSe
 
       if ( addPositionError )
       {
-	LocalVector localError( sqrt(startError[0][0]), sqrt(startError[1][1]), sqrt(startError[2][2]) );
+	LocalVector localError( sqrt(xAPEError), sqrt(yAPEError), sqrt(zAPEError) );
 	GlobalVector globalError = (*itAlignable)->surface().toGlobal( localError );
 	AlignmentPositionError ape( globalError.x(), globalError.y(), globalError.z() );
 	( *itAlignable )->setAlignmentPositionError( ape );
@@ -365,13 +425,13 @@ void KalmanAlignmentAlgorithm::initializeAlignmentParameters( const edm::EventSe
 	  {
 	    //cout << "apply param and cov from FILE -> none stored, apply DEFAULT " << endl;
 	    alignmentParameters = (*itAlignable)->alignmentParameters()->clone( startParameters, startError );
-	    alignmentParameters->setUserVariables( new KalmanAlignmentUserVariables( *itAlignable, alignableId, updateGraph ) );
+	    alignmentParameters->setUserVariables( new KalmanAlignmentUserVariables( *itAlignable, updateGraph ) );
 	  }
 	  else
 	  {
 	    //cout << "apply param and cov from FILE" << endl;
 	    alignmentParameters = alignmentParametersMap[*itAlignable].back();
-	    KalmanAlignmentUserVariables* userVariables = new KalmanAlignmentUserVariables( *itAlignable, alignableId, updateGraph );
+	    KalmanAlignmentUserVariables* userVariables = new KalmanAlignmentUserVariables( *itAlignable, updateGraph );
 	    userVariables->update( alignmentParameters );
 	    alignmentParameters->setUserVariables( userVariables );
 	  }
@@ -381,13 +441,13 @@ void KalmanAlignmentAlgorithm::initializeAlignmentParameters( const edm::EventSe
 	  if ( alignmentParametersMap.find( *itAlignable ) == alignmentParametersMap.end() )
 	  {
 	    alignmentParameters = (*itAlignable)->alignmentParameters()->clone( startParameters, startError );
-	    alignmentParameters->setUserVariables( new KalmanAlignmentUserVariables( *itAlignable, alignableId, updateGraph ) );
+	    alignmentParameters->setUserVariables( new KalmanAlignmentUserVariables( *itAlignable, updateGraph ) );
 	  }
 	  else
 	  {
 	    AlgebraicVector parameters = alignmentParametersMap[*itAlignable].back()->parameters();
 	    alignmentParameters = (*itAlignable)->alignmentParameters()->clone( parameters, startError );
-	    KalmanAlignmentUserVariables* userVariables = new KalmanAlignmentUserVariables( *itAlignable, alignableId, updateGraph );
+	    KalmanAlignmentUserVariables* userVariables = new KalmanAlignmentUserVariables( *itAlignable, updateGraph );
 	    userVariables->update( alignmentParameters );
 	    alignmentParameters->setUserVariables( userVariables );
 	  }
@@ -397,7 +457,7 @@ void KalmanAlignmentAlgorithm::initializeAlignmentParameters( const edm::EventSe
 	  //cout << "apply DEFAULT param and cov" << endl;
 	  alignmentParameters = (*itAlignable)->alignmentParameters()->clone( startParameters, startError );
 	  //alignmentParameters = (*itAlignable)->alignmentParameters()->clone( trueParameters, startError );
-	  alignmentParameters->setUserVariables( new KalmanAlignmentUserVariables( *itAlignable, alignableId, updateGraph ) );
+	  alignmentParameters->setUserVariables( new KalmanAlignmentUserVariables( *itAlignable, updateGraph ) );
 	}
 
 	(*itAlignable)->setAlignmentParameters( alignmentParameters );
@@ -416,11 +476,13 @@ void KalmanAlignmentAlgorithm::initializeAlignmentParameters( const edm::EventSe
 	    //randomStartErrors[iParam][iParam] += randSig[iParam]*randSig[iParam];
 	  }
 
-	  cout << randomStartParameters << endl;
+	  //cout << randomStartParameters << endl;
 
 	  alignmentParameters = (*itAlignable)->alignmentParameters()->clone( randomStartParameters, randomStartErrors );
 	  (*itAlignable)->setAlignmentParameters( alignmentParameters );
 	}
+
+	(*itAlignable)->alignmentParameters()->setValid( true );
 
       }
 
@@ -432,31 +494,7 @@ void KalmanAlignmentAlgorithm::initializeAlignmentParameters( const edm::EventSe
 	vector< AlignmentParameters* >::iterator itParam;
 
 	for ( itParam = allAlignmentParameters.begin(); itParam != allAlignmentParameters.end(); ++itParam )
-	{
-	  RigidBodyAlignmentParameters* alignmentParameters = dynamic_cast<RigidBodyAlignmentParameters*>( *itParam );
-
-	  if ( !alignmentParameters )
-	    throw cms::Exception( "BadConfig" ) << "applyParameters: provided alignable does not have rigid body alignment parameters";
-
-	  if ( applyParam )
-	  {
-	    AlgebraicVector shift = alignmentParameters->translation();
-	    const AlignableSurface& alignableSurface = ( *itAlignable )->surface();
-	    ( *itAlignable )->move( alignableSurface.toGlobal( align::LocalVector( shift[0], shift[1], shift[2] ) ) );
-
-	    align::EulerAngles angles = alignmentParameters->rotation();
-	    if ( angles.normsq() > 1e-10 ) ( *itAlignable )->rotateInLocalFrame( align::toMatrix( angles ) );
-	  }
-
-	  if ( applyCovar )
-	  {
-	    const AlgebraicSymMatrix& aliCov = alignmentParameters->covariance();
-	    LocalVector localError( sqrt(aliCov[0][0]), sqrt(aliCov[1][1]), sqrt(aliCov[2][2]) );
-	    GlobalVector globalError = (*itAlignable)->surface().toGlobal( localError );
-	    AlignmentPositionError ape( globalError.x(), globalError.y(), globalError.z() );
-	    ( *itAlignable )->setAlignmentPositionError( ape );
-	  }
-	}
+	  applyAlignmentParameters( *itAlignable, *itParam, applyParam, applyCovar );
 
 	if ( ( *itAlignable )->alignmentParameters() )
 	{
@@ -493,7 +531,7 @@ void KalmanAlignmentAlgorithm::initializeAlignmentSetups( const edm::EventSetup&
     string strSortingDir = confSetup.getUntrackedParameter< string >( "SortingDirection", "SortInsideOut" );
     vector<int> trackingIDs = confSetup.getParameter< vector<int> >( "Tracking" );
     unsigned int minTrackingHits = confSetup.getUntrackedParameter< unsigned int >( "MinTrackingHits", 0 );
-
+    
     string strExternalPropDir = confSetup.getUntrackedParameter< string >( "ExternalPropagationDirection", "alongMomentum" );
     string strExternalSortingDir = confSetup.getUntrackedParameter< string >( "ExternalSortingDirection", "SortInsideOut" );
     vector<int> externalIDs = confSetup.getParameter< vector<int> >( "External" );
@@ -527,6 +565,7 @@ void KalmanAlignmentAlgorithm::initializeAlignmentSetups( const edm::EventSetup&
 	PropagatorWithMaterial propagator( fitterDir, 0.106, aKFFitter->propagator()->magneticField() );
 	Chi2MeasurementEstimator estimator( 30. );
 	fitter = new KFTrajectoryFitter( &propagator, updator, &estimator );
+// 	fitter = new KFTrajectoryFitter( &propagator, aKFFitter->updator(), &estimator );
 
 	AnalyticalPropagator externalPropagator( aKFFitter->propagator()->magneticField(), externalFitterDir );
 	Chi2MeasurementEstimator externalEstimator( 1000. );
@@ -540,6 +579,7 @@ void KalmanAlignmentAlgorithm::initializeAlignmentSetups( const edm::EventSetup&
 	PropagatorWithMaterial propagator( smootherDir, 0.106, aKFSmoother->propagator()->magneticField() );
 	Chi2MeasurementEstimator estimator( 30. );
 	smoother = new KFTrajectorySmoother( &propagator, updator, &estimator );
+// 	smoother = new KFTrajectorySmoother( &propagator, aKFFitter->updator(), &estimator );
 
 	AnalyticalPropagator externalPropagator( aKFSmoother->propagator()->magneticField(), externalSmootherDir );
 	Chi2MeasurementEstimator externalEstimator( 1000. );
@@ -549,9 +589,9 @@ void KalmanAlignmentAlgorithm::initializeAlignmentSetups( const edm::EventSetup&
       if ( fitter && smoother )
       {
 	KFFittingSmoother* fittingSmoother = new KFFittingSmoother( *fitter, *smoother, outlierEstimateCut );
-	KFFittingSmoother* externalFittingSmoother = new KFFittingSmoother( *externalFitter, *externalSmoother );
-	///KFFittingSmoother* fittingSmoother = aFittingSmoother->clone();
-	///KFFittingSmoother* externalFittingSmoother = aFittingSmoother->clone();
+ 	KFFittingSmoother* externalFittingSmoother = new KFFittingSmoother( *externalFitter, *externalSmoother );
+// 	KFFittingSmoother* fittingSmoother = aFittingSmoother->clone();
+// 	KFFittingSmoother* externalFittingSmoother = aFittingSmoother->clone();
 
 	string identifier;
 	edm::ParameterSet config;
@@ -620,5 +660,145 @@ KalmanAlignmentAlgorithm::getSortingDirection( const std::string& sortDir ) cons
 				      << "Unknown sorting direction: " << sortDir << std::endl;
 }
 
+
+void
+KalmanAlignmentAlgorithm::applyAlignmentParameters( Alignable* ali, AlignmentParameters* par,
+						    bool applyPar, bool applyCov ) const
+{
+  RigidBodyAlignmentParameters* rbap = dynamic_cast<RigidBodyAlignmentParameters*>( par );
+
+  if ( !rbap )
+    throw cms::Exception( "BadConfig" ) << "applyParameters: provided alignable does not have rigid body alignment parameters";
+
+  if ( applyPar )
+  {
+    AlgebraicVector shift = rbap->translation();
+    const AlignableSurface& alignableSurface = ali->surface();
+    ali->move( alignableSurface.toGlobal( align::LocalVector( shift[0], shift[1], shift[2] ) ) );
+
+    align::EulerAngles angles = rbap->rotation();
+    if ( angles.normsq() > 1e-10 ) ali->rotateInLocalFrame( align::toMatrix( angles ) );
+  }
+
+  if ( applyCov )
+  {
+    const AlgebraicSymMatrix& aliCov = rbap->covariance();
+    LocalVector localError( sqrt(aliCov[0][0]), sqrt(aliCov[1][1]), sqrt(aliCov[2][2]) );
+    GlobalVector globalError = ali->surface().toGlobal( localError );
+    AlignmentPositionError ape( globalError.x(), globalError.y(), globalError.z() );
+    ali->setAlignmentPositionError( ape );
+  }
+}
+
+
+void KalmanAlignmentAlgorithm::getComponents( Alignable* ali,
+					      vector<Alignable*>& comps ) const
+{
+  comps.push_back( ali );
+  vector<Alignable*> nextComps = ali->components();
+  vector<Alignable*>::iterator it;
+  for ( it = nextComps.begin(); it != nextComps.end(); ++it ) getComponents( *it, comps );
+}
+
+
+void KalmanAlignmentAlgorithm::mergeResults( void ) const
+{
+  std::cout << "[KalmanAlignmentAlgorithm::mergeResults] START MERGING RESULTS" << std::endl;
+
+  edm::ParameterSet mergeConf = theConfiguration.getParameter<edm::ParameterSet>( "Merger" );
+
+  vector<string> inFileNames = mergeConf.getParameter< vector<string> >( "InputMergeFileNames" );
+  string outFileName = mergeConf.getParameter<string>( "OutputMergeFileName" );
+
+  bool applyPar = mergeConf.getParameter<bool>( "ApplyParameters" );
+  bool applyCov = mergeConf.getParameter<bool>( "ApplyErrors" );
+
+  map< Alignable*, vector< AlignmentParameters* > > alignmentParametersMap;
+
+  vector< Alignable* > allAlignables;
+  getComponents( theTracker, allAlignables );
+
+  cout << "allAlignables.size() = " << allAlignables.size() << endl;
+
+  AlignmentIORoot alignmentIO;
+
+  TimeMe* timer = 0;
+
+  for ( vector<string>::iterator itFile = inFileNames.begin(); itFile != inFileNames.end(); ++itFile )
+  {
+    int iter = 1;
+    int ierr = 0;
+
+    while ( !ierr )
+    {
+      cout << "Read alignment parameters. file / iteration = " << *itFile << " / " << iter << endl;
+      delete timer;
+      timer = new TimeMe( "ReadFile" );
+
+      vector< AlignmentParameters* > alignmentParameters =
+	alignmentIO.readAlignmentParameters( allAlignables, (*itFile).c_str(), iter, ierr );
+
+      cout << "#param / ierr = " << alignmentParameters.size() << " / " << ierr << endl;
+      delete timer;
+      timer = new TimeMe( "AssociateParametersToAlignables" );
+
+      vector< AlignmentParameters* >::iterator itParam;
+      for ( itParam = alignmentParameters.begin(); itParam != alignmentParameters.end(); ++itParam )
+	  alignmentParametersMap[(*itParam)->alignable()].push_back( *itParam );
+
+      ++iter;
+    }
+  }
+
+  delete timer;
+  timer = new TimeMe( "MergeResults" );
+
+  vector< Alignable* > alignablesToWrite;
+  alignablesToWrite.reserve( alignmentParametersMap.size() );
+
+  map< Alignable*, vector< AlignmentParameters* > >::iterator itMap;
+  for ( itMap = alignmentParametersMap.begin(); itMap != alignmentParametersMap.end(); ++itMap )
+  {
+    //cout << "merge param for alignable" << itMap->first << endl;
+
+    AlgebraicVector mergedParam( 6, 0 );
+    AlgebraicSymMatrix mergedCov( 6, 0 );
+    int nMerge = 0;
+
+    vector< AlignmentParameters* >& vecParam = itMap->second;
+    vector< AlignmentParameters* >::iterator itParam;
+    for ( itParam = vecParam.begin(); itParam != vecParam.end(); ++itParam, ++nMerge )
+      mergedParam += (*itParam)->parameters();
+
+    mergedParam /= nMerge;
+
+    // no merging of errors up to now
+    AlignmentParameters* mergedAliParam = vecParam.front()->clone( mergedParam, mergedCov );
+    itMap->first->setAlignmentParameters( mergedAliParam );
+
+    alignablesToWrite.push_back( itMap->first );
+
+    if ( applyPar || applyCov ) applyAlignmentParameters( itMap->first, mergedAliParam, applyPar, applyCov );
+  }
+
+  delete timer;
+
+  cout << "alignablesToWrite.size() = " << alignablesToWrite.size() << endl;
+
+  int ierr = 0;
+  // Write output to "iteration 1", ...
+  alignmentIO.writeAlignmentParameters( alignablesToWrite, outFileName.c_str(), 1, false, ierr );
+  // ... or, if "iteration 1" already exists, write it to "highest iteration + 1"
+  if ( ierr == -1 ) alignmentIO.writeAlignmentParameters( alignablesToWrite, outFileName.c_str(), -1, false, ierr );
+
+  std::cout << "[KalmanAlignmentAlgorithm::mergeResults] DONE" << std::endl;
+}
+
+
+void KalmanAlignmentAlgorithm::setAPEToZero( void )
+{
+  AlignmentPositionError zeroAPE( 0., 0., 0. );
+  theTracker->setAlignmentPositionError( zeroAPE );
+}
 
 DEFINE_EDM_PLUGIN( AlignmentAlgorithmPluginFactory, KalmanAlignmentAlgorithm, "KalmanAlignmentAlgorithm");

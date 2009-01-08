@@ -14,6 +14,7 @@ DummyUpdator::~DummyUpdator( void ) {}
 void DummyUpdator::process( const ReferenceTrajectoryPtr & trajectory,
 			    AlignmentParameterStore* store,
 			    AlignableNavigator* navigator,
-			    KalmanAlignmentMetricsUpdator* metrics ) {}
+			    KalmanAlignmentMetricsUpdator* metrics,
+			    const MagneticField* magField ) {}
 
 DEFINE_EDM_PLUGIN( KalmanAlignmentUpdatorPlugin, DummyUpdator, "DummyUpdator" );

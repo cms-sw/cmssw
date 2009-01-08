@@ -15,6 +15,8 @@
 
 class TrajectoryFitter;
 
+namespace reco { class BeamSpot; }
+
 /// This class serves the very specific needs of the KalmanAlignmentAlgorithm.
 /// Tracks are partially refitted to 'tracklets' using the current estimate on
 /// the alignment (see class CurrentAlignmentKFUpdator. These tracklets are
@@ -27,6 +29,7 @@ class TrajectoryFitter;
 
 
 class KalmanAlignmentTrackRefitter : public TrackProducerBase<reco::Track>
+//class KalmanAlignmentTrackRefitter : public TrackProducerBase
 {
 
 public:
@@ -51,7 +54,8 @@ public:
 
   TrackletCollection refitTracks( const edm::EventSetup& eventSetup,
 				  const AlignmentSetupCollection& algoSetups,
-				  const ConstTrajTrackPairCollection& tracks );
+				  const ConstTrajTrackPairCollection& tracks,
+				  const reco::BeamSpot* beamSpot );
 
   /// Dummy implementation, due to inheritance from TrackProducerBase.
   virtual void produce( edm::Event&, const edm::EventSetup& ) {}
@@ -65,17 +69,27 @@ private:
 					       const TransientTrackingRecHitBuilder* recHitBuilder,
 					       const reco::TransientTrack& originalTrack,
 					       RecHitContainer& recHits,
+					       const reco::BeamSpot* beamSpot,
 					       const SortingDirection& sortingDir,
 					       bool useExternalEstimate,
-					       bool reuseMomentumEstimate );
+					       bool reuseMomentumEstimate,
+					       const std::string identifier = std::string("RefitSingle_") );
 
   void sortRecHits( RecHitContainer& hits,
 		    const TransientTrackingRecHitBuilder* builder,
 		    const SortingDirection& sortingDir ) const;
 
-  void debugTrackData( const std::string identifier, const Trajectory* traj, const reco::Track* track );
+
+  bool rejectTrack( const reco::Track* track ) const;
+
+
+  void debugTrackData( const std::string identifier,
+		       const Trajectory* traj,
+		       const reco::Track* track,
+		       const reco::BeamSpot* bs );
 
   TrackProducerAlgorithm<reco::Track> theRefitterAlgo;
+  //TrackProducerAlgorithm theRefitterAlgo;
   AlignableNavigator* theNavigator;
   bool theDebugFlag;
 };

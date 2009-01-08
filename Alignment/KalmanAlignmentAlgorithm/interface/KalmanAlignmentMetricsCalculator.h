@@ -7,6 +7,12 @@
 
 #include "Alignment/CommonAlignment/interface/Alignable.h"
 
+#include "Alignment/CommonAlignment/interface/StructureType.h"
+#include "CondFormats/Alignment/interface/Definitions.h"
+
+#include "TTree.h"
+#include "TFile.h"
+
 
 class KalmanAlignmentMetricsCalculator
 {
@@ -42,6 +48,9 @@ public:
   /// Return all known alignables.
   const std::vector< Alignable* > alignables( void ) const;
 
+  void writeDistances( std::string filename );
+  void readDistances( std::string filename );
+
 private:
 
   void clearDistances( FullDistancesList& dist );
@@ -72,6 +81,15 @@ private:
   short int theMaxDistance;
 
   SingleDistancesList theDefaultReturnList;
+
+  // For reading and writing
+
+  void createBranches( TTree* tree );
+  void setBranchAddresses( TTree* tree );
+
+  align::ID theAli1Id, theAli2Id;
+  align::StructureType theAli1ObjId, theAli2ObjId;
+  int theDist;
 };
 
 

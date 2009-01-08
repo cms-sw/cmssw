@@ -19,6 +19,8 @@ class AlignableNavigator;
 class AlignmentParameterSelector;
 class TrajectoryFitter;
 
+namespace reco { class BeamSpot; }
+
 class KalmanAlignmentAlgorithm : public AlignmentAlgorithmBase
 {
 
@@ -60,6 +62,14 @@ private:
 
   void initializeAlignmentSetups( const edm::EventSetup& setup );
 
+  void applyAlignmentParameters( Alignable* ali, AlignmentParameters* par, bool applyPar, bool applyCov ) const;
+
+  void getComponents( Alignable* ali, std::vector<Alignable*>& comps ) const;
+
+  void mergeResults( void ) const;
+
+  void setAPEToZero( void );
+
   inline const PropagationDirection getDirection( const std::string& dir ) const
     { return ( dir == "alongMomentum" ) ? alongMomentum : oppositeToMomentum; }
 
@@ -78,6 +88,9 @@ private:
   AlignableNavigator* theNavigator;
   AlignmentParameterSelector* theSelector;
 
+  AlignableTracker* theTracker;
+
+  bool theMergerFlag;
 };
 
 #endif

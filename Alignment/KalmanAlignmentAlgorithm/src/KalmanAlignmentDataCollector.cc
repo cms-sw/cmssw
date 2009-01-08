@@ -1,10 +1,10 @@
 
 #include "Alignment/KalmanAlignmentAlgorithm/interface/KalmanAlignmentDataCollector.h"
 
-#include "TH1F.h"
 #include "TGraph.h"
 #include "TNtuple.h"
 #include "TFile.h"
+#include "TH1F.h"
 
 using namespace std;
 
@@ -237,7 +237,7 @@ void KalmanAlignmentDataCollector::writeToTFile( string file_name, string mode )
   }
 
 
-  if ( !theXGraphData.empty() )
+  if ( !theNtupleData.empty() )
   {
     map< string, vector< float > >::iterator itN = theNtupleData.begin();
 

@@ -19,7 +19,7 @@ public:
 
   virtual const std::vector< Alignable* > additionalAlignables( const std::vector< Alignable* > & alignables ) = 0;
 
-  virtual const std::map< Alignable*, short int > additionalAlignablesWithDistances( const std::vector< Alignable* > & alignables ) = 0;
+  //virtual const std::map< Alignable*, short int > additionalAlignablesWithDistances( const std::vector< Alignable* > & alignables ) = 0;
 
   virtual const std::vector< Alignable* > alignables( void ) const = 0;
 };

@@ -6,18 +6,21 @@
 
 void KalmanAlignmentUpdator::updateUserVariables( const std::vector< Alignable* > & alignables ) const
 {
+  std::vector< Alignable* > updated;
   std::vector< Alignable* >::const_iterator itAlignable = alignables.begin();
 
   while ( itAlignable != alignables.end() )
   {
     AlignmentParameters* alignmentParameters = ( *itAlignable )->alignmentParameters();
 
-    if ( alignmentParameters != 0 )
+    if ( std::find(updated.begin(),updated.end(),*itAlignable) == updated.end() && alignmentParameters != 0 )
     {
       KalmanAlignmentUserVariables* userVariables =
 	dynamic_cast< KalmanAlignmentUserVariables* >( alignmentParameters->userVariables() );
 
       if ( userVariables != 0 ) userVariables->update();
+
+      updated.push_back( *itAlignable );
     }
 
     ++itAlignable;
@@ -26,7 +29,7 @@ void KalmanAlignmentUpdator::updateUserVariables( const std::vector< Alignable* 
 
 
 const std::vector< Alignable* >
-KalmanAlignmentUpdator::alignablesFromAlignableDets( const std::vector< AlignableDetOrUnitPtr >& alignableDets,
+KalmanAlignmentUpdator::alignablesFromAlignableDets( std::vector< AlignableDetOrUnitPtr >& alignableDets,
 						     AlignmentParameterStore* store ) const
 {
   std::vector< Alignable* > alignables;
@@ -39,4 +42,14 @@ KalmanAlignmentUpdator::alignablesFromAlignableDets( const std::vector< Alignabl
   }
 
   return alignables;
+}
+
+
+unsigned int
+KalmanAlignmentUpdator::nDifferentAlignables( const std::vector<Alignable*>& ali ) const
+{
+  std::set< Alignable* > list;
+  list.insert( ali.begin(), ali.end() );
+  unsigned int ndiff = list.size();
+  return ndiff;
 }

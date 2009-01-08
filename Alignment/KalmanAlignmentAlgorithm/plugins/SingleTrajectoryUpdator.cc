@@ -10,6 +10,8 @@
 
 #include "FWCore/Utilities/interface/Exception.h"
 
+#include "Alignment/KalmanAlignmentAlgorithm/interface/KalmanAlignmentDataCollector.h"
+
 #include <algorithm>
 
 
@@ -19,10 +21,15 @@ using namespace std;
 SingleTrajectoryUpdator::SingleTrajectoryUpdator( const edm::ParameterSet & config ) :
   KalmanAlignmentUpdator( config )
 {
-  theMinNumberOfHits = config.getUntrackedParameter< unsigned int >( "MinNumberOfHits", 1 );
-  theExtraWeight = config.getUntrackedParameter< double >( "ExtraWeight", 1e-4 );
-  theExternalPredictionWeight = config.getUntrackedParameter< double >( "ExternalPredictionWeight", 1. );
-  theCovCheckFlag = config.getUntrackedParameter< bool >( "CheckCovariance", true );
+  theMinNumberOfHits = config.getParameter< unsigned int >( "MinNumberOfHits" );
+  theExtraWeight = config.getParameter< double >( "ExtraWeight" );
+  theExternalPredictionWeight = config.getParameter< double >( "ExternalPredictionWeight" );
+  theCovCheckFlag = config.getParameter< bool >( "CheckCovariance" );
+
+  theNumberOfPreAlignmentEvts = config.getParameter< unsigned int >( "NumberOfPreAlignmentEvts" );
+  theNumberOfProcessedEvts = 0;
+
+  std::cout << "[SingleTrajectoryUpdator] Use " << theNumberOfPreAlignmentEvts << "events for pre-alignment" << std::endl;
 }
 
 
@@ -32,9 +39,12 @@ SingleTrajectoryUpdator::~SingleTrajectoryUpdator( void ) {}
 void SingleTrajectoryUpdator::process( const ReferenceTrajectoryPtr & trajectory,
 				       AlignmentParameterStore* store,
 				       AlignableNavigator* navigator,
-				       KalmanAlignmentMetricsUpdator* metrics )
+				       KalmanAlignmentMetricsUpdator* metrics,
+				       const MagneticField* magField )
 {
   if ( !( *trajectory ).isValid() ) return;
+
+//   std::cout << "[SingleTrajectoryUpdator::process] START" << std::endl;
 
   TimeMe* timer;
   timer = new TimeMe( "Retrieve_Alignables" );
@@ -42,17 +52,23 @@ void SingleTrajectoryUpdator::process( const ReferenceTrajectoryPtr & trajectory
   vector< AlignableDetOrUnitPtr > currentAlignableDets = navigator->alignablesFromHits( ( *trajectory ).recHits() );
   vector< Alignable* > currentAlignables = alignablesFromAlignableDets( currentAlignableDets, store );
 
+  delete timer;
+
+  if ( nDifferentAlignables( currentAlignables ) < 2 ) return;
   if ( currentAlignables.size() < theMinNumberOfHits ) return;
 
-  delete timer;
-  timer = new TimeMe( "Update_Metrics" );
+  ++theNumberOfProcessedEvts;
+  bool includeCorrelations = ( theNumberOfPreAlignmentEvts < theNumberOfProcessedEvts );
 
+  timer = new TimeMe( "Update_Metrics" );
+  
   metrics->update( currentAlignables );
 
   delete timer;
-  timer = new TimeMe( "Retrieve_Alignables" );
+  timer = new TimeMe( "Retrieve_Additional_Alignables" );
 
-  vector< Alignable* > additionalAlignables = metrics->additionalAlignables( currentAlignables );
+  vector< Alignable* > additionalAlignables;
+  if ( includeCorrelations ) additionalAlignables = metrics->additionalAlignables( currentAlignables );
 
   vector< Alignable* > allAlignables;
   allAlignables.reserve( currentAlignables.size() + additionalAlignables.size() );
@@ -100,6 +116,7 @@ void SingleTrajectoryUpdator::process( const ReferenceTrajectoryPtr & trajectory
     const AlgebraicSymMatrix& externalParamCov = trajectory->parameterErrors();
     AlgebraicSymMatrix externalTrackCov = theExternalPredictionWeight*externalParamCov.similarity( derivatives );
     AlgebraicSymMatrix fullCov = misalignedCov + externalTrackCov;
+    measurementCov += externalTrackCov;
 
     weightMatrix = fullCov.inverse( checkInversion );
     if ( checkInversion != 0 )
@@ -132,6 +149,11 @@ void SingleTrajectoryUpdator::process( const ReferenceTrajectoryPtr & trajectory
     weightMatrix = invMisalignedCov - weightMatrix2;
     residuals = allMeasurements - referenceTrajectory - correctionTerm;
   }
+
+//   AlgebraicVector deltaR = allMeasurements - referenceTrajectory;
+//   for ( int i = 0; i < deltaR.num_row()/2; ++i )
+//     KalmanAlignmentDataCollector::fillHistogram( "DeltaR_", i, deltaR[2*i] );
+//   return;
 
   AlgebraicMatrix fullCovTimesDeriv = alignmentCovSubset*alignmentDeriv.T();
   AlgebraicMatrix fullGainMatrix = fullCovTimesDeriv*weightMatrix;
@@ -184,19 +206,36 @@ void SingleTrajectoryUpdator::process( const ReferenceTrajectoryPtr & trajectory
   delete timer;
   timer = new TimeMe( "Update_Parameters" );
 
-  store->updateParameters( *updatedParameters );
-  delete updatedParameters;
+  if ( !checkCovariance( updatedAlignmentCov ) )
+  {
+    if ( includeCorrelations ) throw cms::Exception( "BadCovariance" );
 
-  if ( !checkCovariance( updatedAlignmentCov ) ) throw cms::Exception( "BadLogic" );
+    delete updatedParameters;
+    delete timer;
+    return;
+  }
+
+  store->updateParameters( *updatedParameters, includeCorrelations );
+  delete updatedParameters;
 
   delete timer;
   timer = new TimeMe( "Update_UserVariables" );
 
+
   // update user variables for debugging
   //updateUserVariables( alignmentParameters.components() );
+
+  //std::cout << "update user variables now" << std::endl;
   updateUserVariables( currentAlignables );
+  //std::cout << "done." << std::endl;
 
   delete timer;
+
+  static int i = 0;
+  if ( i%100 == 0 ) KalmanAlignmentDataCollector::fillGraph( "correlation_entries", i, store->numCorrelations() );
+  ++i;
+
+  //std::cout << "[SingleTrajectoryUpdator::process] DONE" << std::endl;
 
   return;
 }
