@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:11 CDT 2008
-// $Id: CSGAction.cc,v 1.18 2008/12/08 15:06:16 chrjones Exp $
+// $Id: CSGAction.cc,v 1.19 2009/01/06 17:16:00 amraktad Exp $
 //
 
 // system include files
@@ -18,8 +18,6 @@
 #include <KeySymbols.h>
 #include <TGMenu.h>
 #include "TGLabel.h"
-#include "TGTextEntry.h"
-#include "TGNumberEntry.h"
 
 // user include files
 #include "Fireworks/Core/interface/CSGAction.h"
@@ -52,8 +50,6 @@ CSGAction::CSGAction(CmsShowMainFrame *frame, const char *name) {
    m_entry = m_frame->getListOfActions().size();
    m_keycode = 0;
    m_modcode = 0;
-   m_textEntry = 0;
-   m_numberEntry = 0;
 }
 // CSGAction::CSGAction(const CSGAction& rhs)
 // {
@@ -114,29 +110,6 @@ void CSGAction::createTextButton(TGCompositeFrame* p, TGLayoutHints* l, Int_t id
    p->AddFrame(textButton, l);
    TQObject::Connect(textButton, "Clicked()", "CSGAction", this, "activate()");
    m_buttons.push_back(textButton);
-}
-
-void CSGAction::createTextEntry(TGCompositeFrame* p, TGLayoutHints* l, const char* text, Int_t id)
-{
-   if (m_textEntry != 0) {
-      delete m_textEntry;
-   }
-   m_textEntry = new TGTextEntry(p, text, id);
-   p->AddFrame(m_textEntry, l);
-   TQObject::Connect(m_textEntry, "ReturnPressed()", "CSGAction", this, "activate()");
-}
-
-void CSGAction::createNumberEntry(TGCompositeFrame* p, bool intType, TGLayoutHints* l, Int_t id)
-{
-   if (m_numberEntry != 0) {
-      delete m_numberEntry;
-   }
-   if ( intType )
-     m_numberEntry = new TGNumberEntryField(p, id, 0, TGNumberFormat::kNESInteger);
-   else
-     m_numberEntry = new TGNumberEntryField(p, id);
-   p->AddFrame(m_numberEntry, l);
-   TQObject::Connect(m_numberEntry, "ReturnPressed()", "CSGAction", this, "activate()");
 }
 
 void CSGAction::createPictureButton(TGCompositeFrame* p, const TGPicture* pic, TGLayoutHints* l, Int_t id, GContext_t norm, UInt_t option) {

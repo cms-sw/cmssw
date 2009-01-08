@@ -16,7 +16,7 @@
 //
 // Original Author:  Joshua Berger
 //         Created:  Tue Jun 10 14:56:34 EDT 2008
-// $Id: CmsShowNavigator.h,v 1.11 2008/11/06 22:05:22 amraktad Exp $
+// $Id: CmsShowNavigator.h,v 1.12 2008/11/10 15:31:24 chrjones Exp $
 //
 
 // system include files
@@ -53,9 +53,9 @@ class CmsShowNavigator
       void previousEvent();
       void firstEvent();
       void lastEvent();
-      void filterEvents(CSGAction* action);
-      void goToRun(CSGAction* action);
-      void goToEvent(CSGAction* action);
+      void filterEventsAndReset(std::string selection);
+      void goToRun(Int_t);
+      void goToEvent(Int_t);
 
       bool autoRewind() const { return m_loopMode; }
       void setAutoRewind( bool mode ) { m_loopMode = mode; }
@@ -76,15 +76,13 @@ class CmsShowNavigator
 
       const CmsShowNavigator& operator=(const CmsShowNavigator&); // stop default
 
-      void filterEventsAndReset(const char* selection);
-
       // ---------- member data --------------------------------
       TFile *m_file;
       fwlite::Event *m_event;
       edm::EventID m_firstID;
       edm::EventID m_lastID;
       TTree *m_eventTree;
-     std::string m_selection;
+      std::string m_selection;
       TEventList *m_eventList;
       int m_currentEntry;
       int m_nEntries;

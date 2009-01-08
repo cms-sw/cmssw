@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 10:52:24 EST 2008
-// $Id: FWGUIManager.h,v 1.43 2009/01/06 17:15:59 amraktad Exp $
+// $Id: FWGUIManager.h,v 1.44 2009/01/07 11:54:57 amraktad Exp $
 //
 
 // system include files
@@ -128,9 +128,6 @@ class FWGUIManager : public FWConfigurable
 
       // ---------- const member functions ---------------------
       //      bool waitingForUserAction() const;
-      CSGAction* getRunEntry();
-      CSGAction* getEventEntry();
-
       CSGContinuousAction* playEventsAction();
       CSGContinuousAction* playEventsBackwardsAction();
 
@@ -173,13 +170,24 @@ class FWGUIManager : public FWConfigurable
       void itemBelowMouse(TGListTreeItem*, UInt_t);
 
       sigc::signal<void, const std::string&> writeToConfigurationFile_;
+      sigc::signal<void, const std::string&> changedEventFilter_;
+      sigc::signal<void, int> changedEventId_;
+      sigc::signal<void, int> changedRunId_;
       sigc::signal<void> goingToQuit_;
       sigc::signal<void> writeToPresentConfigurationFile_;
-
+     
+      sigc::signal<void> changedRunEntry_;
+      sigc::signal<void> changedEventEntry_;
+      sigc::signal<void> changedFileterEntry_;
+  
       sigc::signal<void, Float_t> changedDelayBetweenEvents_;
 
       void openEveBrowserForDebugging() const;
       void setDelayBetweenEvents(Float_t);
+
+      void eventFilterChanged();
+      void runIdChanged();
+      void eventIdChanged();
 
    private:
       FWGUIManager(const FWGUIManager&); // stop default

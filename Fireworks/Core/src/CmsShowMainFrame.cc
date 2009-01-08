@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:23 CDT 2008
-// $Id: CmsShowMainFrame.cc,v 1.35 2009/01/06 17:16:00 amraktad Exp $
+// $Id: CmsShowMainFrame.cc,v 1.36 2009/01/07 11:54:57 amraktad Exp $
 //
 // hacks
 #define private public
@@ -103,9 +103,6 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    CSGAction *showAddCollection = new CSGAction(this, cmsshow::sShowAddCollection.c_str());
    CSGAction *help = new CSGAction(this, cmsshow::sHelp.c_str());
    CSGAction *keyboardShort = new CSGAction(this, cmsshow::sKeyboardShort.c_str());
-   m_runEntry = new CSGAction(this, "Run Entry");
-   m_eventEntry = new CSGAction(this, "Event Entry");
-   CSGAction *eventFilter = new CSGAction(this, "Event Filter");
    m_nextEvent = nextEvent;
    m_previousEvent = previousEvent;
    m_goToFirst = goToFirst;
@@ -312,22 +309,25 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    runInfo->SetBackgroundColor(backgroundColor);
    TGHorizontalFrame *rLeft = new TGHorizontalFrame(runInfo, 200, 20);
    makeFixedSizeLabel(rLeft, "Run", backgroundColor, 0xffffff);
-   m_runEntry->createNumberEntry(rLeft, new TGLayoutHints(kLHintsNormal | kLHintsExpandX, 0,0,0,0));
+   m_runEntry = new TGNumberEntryField(rLeft, -1, 0, TGNumberFormat::kNESInteger);
+   rLeft->AddFrame(m_runEntry, new TGLayoutHints(kLHintsNormal | kLHintsExpandX, 0,0,0,0));
    runInfo->AddFrame(rLeft, new TGLayoutHints(kLHintsLeft));
 
    TGHorizontalFrame *rRight = new TGHorizontalFrame(runInfo, 200, 20);
    makeFixedSizeLabel(rRight, "Event", backgroundColor, 0xffffff);
-   m_eventEntry->createNumberEntry(rRight, new TGLayoutHints(kLHintsNormal | kLHintsExpandX, 0,0,0,0));
+   m_eventEntry = new TGNumberEntryField(rRight, -1, 0, TGNumberFormat::kNESInteger);
+   rRight->AddFrame(m_eventEntry, new TGLayoutHints(kLHintsNormal | kLHintsExpandX, 0,0,0,0));
+
    runInfo->AddFrame(rRight, new TGLayoutHints(kLHintsRight));
 
    texts->AddFrame(runInfo, new TGLayoutHints(kLHintsNormal | kLHintsExpandX, 0,0,0,1));
 
    // lower row
-   TGHorizontalFrame *evtFilter = new TGHorizontalFrame(texts, maxW, entryHeight, 0);
-   makeFixedSizeLabel(evtFilter, "Filter", backgroundColor, 0xffffff);
-   eventFilter->createTextEntry(evtFilter, new TGLayoutHints(kLHintsLeft | kLHintsExpandX, 0,0,0,0));
-   texts->AddFrame(evtFilter, new TGLayoutHints(kLHintsNormal | kLHintsExpandX, 0,0,1,0));
-
+   TGHorizontalFrame *filterFrame = new TGHorizontalFrame(texts, maxW, entryHeight, 0);
+   makeFixedSizeLabel(filterFrame, "Filter", backgroundColor, 0xffffff);
+   m_filterEntry = new TGTextEntry(filterFrame, "");
+   filterFrame->AddFrame(m_filterEntry, new TGLayoutHints(kLHintsLeft | kLHintsExpandX, 0,0,0,0));
+   texts->AddFrame(filterFrame, new TGLayoutHints(kLHintsNormal | kLHintsExpandX, 0,0,1,0));
    fullbar->AddFrame(texts, new TGLayoutHints(kLHintsNormal| kLHintsCenterY, 20, 5, 5, 5));
 
    /**************************************************************************/
@@ -464,8 +464,8 @@ void CmsShowMainFrame::defaultAction() {
 }
 
 void CmsShowMainFrame::loadEvent(const fwlite::Event& event) {
-  m_runEntry->getNumberEntry()->SetIntNumber(event.id().run());
-  m_eventEntry->getNumberEntry()->SetIntNumber(event.id().event());
+  m_runEntry->SetIntNumber(event.id().run());
+  m_eventEntry->SetIntNumber(event.id().event());
   m_timeText->SetText( fw::getTimeGMT( event ).c_str() );
   char title[128];
   snprintf(title,128,"Lumi block id: %d", event.aux_.luminosityBlock());
@@ -499,22 +499,16 @@ CmsShowMainFrame::getAction(const std::string& name)
 void
 CmsShowMainFrame::enableActions(bool enable)
 {
+   std::vector<CSGAction*>::iterator it_act;
+   for (it_act = m_actionList.begin(); it_act != m_actionList.end(); ++it_act) {
+      if (enable)
+         (*it_act)->globalEnable();
+      else
+         (*it_act)->globalDisable();
+   }
 
-  std::vector<CSGAction*>::iterator it_act;
-  for (it_act = m_actionList.begin(); it_act != m_actionList.end(); ++it_act) {
-    if (enable)
-      (*it_act)->globalEnable();
-    else
-      (*it_act)->globalDisable();
-  }
-  if (enable) {
-    m_runEntry->enable();
-    m_eventEntry->enable();
-  }
-  else {
-    m_runEntry->disable();
-    m_eventEntry->disable();
-  }
+   m_runEntry->SetState(enable);
+   m_eventEntry->SetState(enable);
 }
 
 void
@@ -625,16 +619,6 @@ void CmsShowMainFrame::resizeMenu(TGPopupMenu *menu) {
 
 const std::vector<CSGAction *>& CmsShowMainFrame::getListOfActions() const {
    return m_actionList;
-}
-
-CSGAction*
-CmsShowMainFrame::getRunEntry() const {
-  return m_runEntry;
-}
-
-CSGAction*
-CmsShowMainFrame::getEventEntry() const {
-  return m_eventEntry;
 }
 
 void

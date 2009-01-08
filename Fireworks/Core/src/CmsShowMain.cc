@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.58 2009/01/07 11:54:57 amraktad Exp $
+// $Id: CmsShowMain.cc,v 1.59 2009/01/07 14:35:27 amraktad Exp $
 //
 
 // system include files
@@ -774,16 +774,13 @@ CmsShowMain::setupDataHandling()
    m_guiManager->playEventsAction()->stopped_.connect(sigc::mem_fun(*this,&CmsShowMain::stopPlaying));
    m_guiManager->playEventsBackwardsAction()->started_.connect(sigc::mem_fun(*this,&CmsShowMain::playBackward));
    m_guiManager->playEventsBackwardsAction()->stopped_.connect(sigc::mem_fun(*this,&CmsShowMain::stopPlaying));
-   if (CSGAction* action = m_guiManager->getAction("Run Entry"))
-     action->activated.connect(boost::bind(&CmsShowNavigator::goToRun,m_navigator, action));
-   if (CSGAction* action = m_guiManager->getAction("Event Entry"))
-     action->activated.connect(boost::bind(&CmsShowNavigator::goToEvent,m_navigator, action));
 
    m_guiManager->setDelayBetweenEvents(m_playDelay);
    m_guiManager->changedDelayBetweenEvents_.connect(boost::bind(&CmsShowMain::setPlayDelay,this,_1));
 
-   if (CSGAction* action = m_guiManager->getAction("Event Filter"))
-     action->activated.connect(boost::bind(&CmsShowNavigator::filterEvents,m_navigator,action));
+   m_guiManager->changedRunId_.connect(boost::bind(&CmsShowNavigator::goToRun,m_navigator,_1));
+   m_guiManager->changedEventId_.connect(boost::bind(&CmsShowNavigator::goToEvent,m_navigator,_1));
+   m_guiManager->changedEventFilter_.connect(boost::bind(&CmsShowNavigator::filterEventsAndReset,m_navigator,_1));
 
    {
       SignalTimer* timer = new SignalTimer();

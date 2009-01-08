@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.85 2009/01/06 17:16:00 amraktad Exp $
+// $Id: FWGUIManager.cc,v 1.86 2009/01/07 11:54:57 amraktad Exp $
 //
 
 // system include files
@@ -21,6 +21,7 @@
 #include "TGLabel.h"
 #include "TGComboBox.h"
 #include "TGTextEntry.h"
+#include "TGNumberEntry.h"
 #include "TApplication.h"
 #include "TROOT.h"
 #include "TSystem.h"
@@ -169,14 +170,19 @@ m_tasks(new CmsShowTaskExecutor)
      getAction(cmsshow::sSaveConfigAs)->activated.connect(sigc::mem_fun(*this,&FWGUIManager::promptForConfigurationFile));
      getAction(cmsshow::sShowEventDisplayInsp)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::showEDIFrame));
      getAction(cmsshow::sShowMainViewCtl)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::showViewPopup));
-      getAction(cmsshow::sShowObjInsp)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::showModelPopup));
-      getAction(cmsshow::sShowAddCollection)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::addData));
-      assert(getAction(cmsshow::sHelp) != 0);
-      getAction(cmsshow::sHelp)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::createHelpPopup));
-      assert(getAction(cmsshow::sKeyboardShort) != 0);
-      getAction(cmsshow::sKeyboardShort)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::createShortcutPopup));
+     getAction(cmsshow::sShowObjInsp)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::showModelPopup));
+     getAction(cmsshow::sShowAddCollection)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::addData));
+     assert(getAction(cmsshow::sHelp) != 0);
+     getAction(cmsshow::sHelp)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::createHelpPopup));
+     assert(getAction(cmsshow::sKeyboardShort) != 0);
+     getAction(cmsshow::sKeyboardShort)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::createShortcutPopup));
 
-      m_cmsShowMainFrame->getDelaySliderListener()->valueChanged_.connect(boost::bind(&FWGUIManager::delaySliderChanged,this,_1));
+     // toolbar special widget with non-void actions
+     m_cmsShowMainFrame->m_delaySliderListener->valueChanged_.connect(boost::bind(&FWGUIManager::delaySliderChanged,this,_1));
+
+     TQObject::Connect(m_cmsShowMainFrame->m_filterEntry, "ReturnPressed()", "FWGUIManager", this, "filterEvents()");
+     TQObject::Connect(m_cmsShowMainFrame->m_filterEntry, "ReturnPressed()", "FWGUIManager", this, "filterEvents()");
+     TQObject::Connect(m_cmsShowMainFrame->m_filterEntry, "ReturnPressed()", "FWGUIManager", this, "filterEvents()");
    }
    {
      // createEDIFrame();
@@ -340,18 +346,6 @@ CSGAction*
 FWGUIManager::getAction(const std::string name)
 {
   return m_cmsShowMainFrame->getAction(name);
-}
-
-CSGAction*
-FWGUIManager::getRunEntry()
-{
-  return m_cmsShowMainFrame->getRunEntry();
-}
-
-CSGAction*
-FWGUIManager::getEventEntry()
-{
-  return m_cmsShowMainFrame->getEventEntry();
 }
 
 CSGContinuousAction*
@@ -1233,6 +1227,9 @@ FWGUIManager::openEveBrowserForDebugging() const
    gEve->GetBrowser()->MapWindow();
 }
 
+//
+// toolbar widgets callbacks
+//
 void
 FWGUIManager::delaySliderChanged(Int_t val)
 {
@@ -1245,6 +1242,21 @@ void
 FWGUIManager::setDelayBetweenEvents(Float_t val)
 {
    m_cmsShowMainFrame->setPlayDelayGUI(val, kTRUE);
+}
+
+void FWGUIManager::runIdChanged() 
+{
+   changedRunId_.emit(m_cmsShowMainFrame->m_runEntry->GetIntNumber());
+}
+
+void FWGUIManager::eventIdChanged() 
+{
+   changedEventId_.emit(m_cmsShowMainFrame->m_eventEntry->GetIntNumber());
+}
+
+void FWGUIManager::eventFilterChanged() 
+{
+   changedEventFilter_.emit(m_cmsShowMainFrame->m_filterEntry->GetText());
 }
 
 //

@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Tue Jun 10 14:56:46 EDT 2008
-// $Id: CmsShowNavigator.cc,v 1.18 2008/11/10 15:31:24 chrjones Exp $
+// $Id: CmsShowNavigator.cc,v 1.19 2008/12/09 05:53:26 dmytro Exp $
 //
 
 // hacks
@@ -107,7 +107,7 @@ CmsShowNavigator::loadFile(const std::string& fileName)
    m_eventTree = dynamic_cast<TTree*> (m_file->Get("Events"));
    assert(m_eventTree!=0);
    m_eventList = new TEventList("list","");
-   filterEventsAndReset(m_selection.c_str()); // first event is loaded at the end
+   filterEventsAndReset(m_selection); // first event is loaded at the end
 }
 
 void
@@ -202,9 +202,8 @@ CmsShowNavigator::lastEvent()
 }
 
 void
-CmsShowNavigator::goToRun(CSGAction* action)
+CmsShowNavigator::goToRun(Int_t run)
 {
-   Long_t run = action->getNumberEntry()->GetIntNumber();
    Int_t entry = realEntry(run, 0);
    if ( entry < 0 ) {
       oldEvent.emit(*m_event);
@@ -224,9 +223,8 @@ CmsShowNavigator::goToRun(CSGAction* action)
 }
 
 void
-CmsShowNavigator::goToEvent(CSGAction* action)
+CmsShowNavigator::goToEvent(Int_t event)
 {
-   Long_t event = action->getNumberEntry()->GetIntNumber();
    Int_t entry = realEntry(m_event->id().run(), event);
    if ( entry < 0 ) {
       oldEvent.emit(*m_event);
@@ -246,16 +244,8 @@ CmsShowNavigator::goToEvent(CSGAction* action)
 }
 
 void
-CmsShowNavigator::filterEvents(CSGAction* action)
+CmsShowNavigator::filterEventsAndReset(std::string selection)
 {
-   if ( action->getTextEntry() )
-     filterEventsAndReset( action->getTextEntry()->GetText() );
-}
-
-void
-CmsShowNavigator::filterEventsAndReset(const char* sel)
-{
-     std::string selection = sel;
      for (FWEventItemsManager::const_iterator i = m_main.m_eiManager->begin(),
 	       end = m_main.m_eiManager->end();
 	  i != end;
@@ -291,7 +281,7 @@ CmsShowNavigator::filterEventsAndReset(const char* sel)
      if ( m_eventTree->GetEventList() ){
 	m_nEntries = m_eventList->GetN();
 	if ( m_nEntries < 1 ) {
-	   std::cout << "WARNING: No events passed selection: " << sel << std::endl;
+	   std::cout << "WARNING: No events passed selection: " << selection.c_str() << std::endl;
 	   m_eventTree->SetEventList(0);
 	   m_nEntries = m_event->size();
 	}

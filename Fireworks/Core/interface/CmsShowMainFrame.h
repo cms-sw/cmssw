@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 18:11:16 CDT 2008
-// $Id: CmsShowMainFrame.h,v 1.17 2009/01/06 17:15:59 amraktad Exp $
+// $Id: CmsShowMainFrame.h,v 1.18 2009/01/07 11:54:57 amraktad Exp $
 //
 
 // system include files
@@ -40,6 +40,7 @@ class CSGContinuousAction;
 class FWGUIManager;
 class TGPopupMenu;
 class TGTextEntry;
+class TGNumberEntryField;
 class TGLabel;
 class TGSlider;
 class FWIntValueListener;
@@ -49,15 +50,13 @@ namespace fwlite {
 }
 
 class CmsShowMainFrame : public TGMainFrame, public sigc::trackable {
-
+   friend class FWGUIManager;
 public:
    CmsShowMainFrame(const TGWindow *p = 0,UInt_t w = 1,UInt_t h = 1,FWGUIManager *m = 0);
    virtual ~CmsShowMainFrame();
 
    // ---------- const member functions ---------------------
    const std::vector<CSGAction*>& getListOfActions() const;
-   CSGAction* getRunEntry() const;
-   CSGAction* getEventEntry() const;
    Long_t getToolTipDelay() const;
 
    // ---------- static member functions --------------------
@@ -86,8 +85,12 @@ public:
    CSGContinuousAction* playEventsBackwardsAction() const { return m_playEventsBack;}
 
    CSGAction* createNewViewerAction(const std::string& iActionName);
-   
-   FWIntValueListener* getDelaySliderListener() { return m_delaySliderListener; }
+
+protected:
+   FWIntValueListener*  m_delaySliderListener;
+   TGTextEntry*         m_filterEntry;
+   TGNumberEntryField*  m_runEntry;
+   TGNumberEntryField*  m_eventEntry;
 
 private:
    CmsShowMainFrame(const CmsShowMainFrame&); // stop default
@@ -99,8 +102,6 @@ private:
    std::vector<CSGAction*> m_actionList;
    FWGUIManager *m_manager;
    Long_t m_tooltipDelay;
-   CSGAction *m_runEntry;
-   CSGAction *m_eventEntry;
    TGLabel* m_lumiBlock;
    TGLabel* m_timeText;
    CSGAction *m_nextEvent;
@@ -110,7 +111,6 @@ private:
    CSGContinuousAction *m_playEvents;
    CSGContinuousAction *m_playEventsBack;
 
-   FWIntValueListener* m_delaySliderListener;
    TGSlider* m_delaySlider;
    TGLabel*  m_delayLabel;
 

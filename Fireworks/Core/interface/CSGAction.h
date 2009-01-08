@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 18:15:56 CDT 2008
-// $Id: CSGAction.h,v 1.9 2008/12/01 15:51:05 amraktad Exp $
+// $Id: CSGAction.h,v 1.10 2009/01/06 17:15:59 amraktad Exp $
 //
 
 // system include files
@@ -35,8 +35,6 @@ class CSGConnector;
 class TGMenuBar;
 class TString;
 
-class TGTextEntry;
-class TGNumberEntryField;
 class FWCustomIconsButton;
 
 class CSGAction : public sigc::trackable {
@@ -49,8 +47,6 @@ public:
    const std::string& getName() const;
    const std::string& getToolTip() const;
    TString getSCCombo() const;
-   TGTextEntry  *getTextEntry() const { return m_textEntry; }
-   TGNumberEntryField *getNumberEntry() const { return m_numberEntry; }
    Int_t getKeycode() const;
    Int_t getModcode() const;
    TGPopupMenu *getMenu() const;
@@ -66,8 +62,6 @@ public:
    void setName(const std::string& name);
    void setToolTip(const std::string& tip);
    void createTextButton(TGCompositeFrame* p, TGLayoutHints* l = 0, Int_t id = -1, GContext_t norm = TGButton::GetDefaultGC()(), FontStruct_t font = TGTextButton::GetDefaultFontStruct(), UInt_t option = kRaisedFrame|kDoubleBorder);
-   void createTextEntry(TGCompositeFrame* p, TGLayoutHints* l = 0, const char* text = 0, Int_t id = -1);
-   void createNumberEntry(TGCompositeFrame* p,  bool intType, TGLayoutHints* l = 0, Int_t id = -1);
    void createPictureButton(TGCompositeFrame* p, const TGPicture* pic, TGLayoutHints* l = 0, Int_t id = -1, GContext_t norm = TGButton::GetDefaultGC()(), UInt_t option = kRaisedFrame|kDoubleBorder);
    FWCustomIconsButton* createCustomIconsButton(TGCompositeFrame* p,
                                 const TGPicture* upPic,
@@ -115,8 +109,6 @@ private:
    CSGConnector *m_connector;
    Bool_t m_enabled;
    Bool_t m_globalEnabled;
-   TGTextEntry* m_textEntry;
-   TGNumberEntryField* m_numberEntry;
 };
 
 
