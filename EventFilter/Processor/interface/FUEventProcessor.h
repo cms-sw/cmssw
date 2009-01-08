@@ -94,10 +94,9 @@ namespace evf
     void spotlightWebPage(xgi::Input *,xgi::Output *)
       throw(xgi::exception::Exception);
     void moduleWeb(xgi::Input *in,xgi::Output *out) throw(xgi::exception::Exception);
+    void serviceWeb(xgi::Input *in,xgi::Output *out) throw(xgi::exception::Exception);
     void modulePs(xgi::Input  *in, xgi::Output *out)throw(xgi::exception::Exception);
     void microState(xgi::Input *in,xgi::Output *out)throw(xgi::exception::Exception);
-    void jsGen(xgi::Input *in,xgi::Output *out,std::string url) 
-      throw (xgi::exception::Exception);
     void css(xgi::Input *in,xgi::Output *out) throw (xgi::exception::Exception)
     {
       css_.css(in,out);
@@ -157,6 +156,7 @@ namespace evf
     xdata::Boolean                   hasShMem_;
     xdata::Boolean                   hasPrescaleService_;
     xdata::Boolean                   hasModuleWebRegistry_;
+    xdata::Boolean                   hasServiceWebRegistry_;
     xdata::Boolean                   isRunNumberSetter_;
     xdata::Boolean                   isPython_;
     bool                             outprev_;

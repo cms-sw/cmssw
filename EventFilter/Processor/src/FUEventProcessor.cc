@@ -8,6 +8,8 @@
 #include "EventFilter/Processor/interface/FUEventProcessor.h"
 
 #include "EventFilter/Utilities/interface/ModuleWebRegistry.h"
+#include "EventFilter/Utilities/interface/ServiceWebRegistry.h"
+#include "EventFilter/Utilities/interface/ServiceWeb.h"
 #include "EventFilter/Utilities/interface/TimeProfilerService.h"
 #include "EventFilter/Utilities/interface/Exception.h"
 #include "EventFilter/Utilities/interface/ParameterSetRetriever.h"
@@ -118,6 +120,7 @@ FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s)
   , hasShMem_(true)
   , hasPrescaleService_(true)
   , hasModuleWebRegistry_(true)
+  , hasServiceWebRegistry_(true)
   , isRunNumberSetter_(true)
   , isPython_(false)
   , outprev_(true)
@@ -193,6 +196,7 @@ FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s)
   ispace->fireItemAvailable("hasSharedMemory",      &hasShMem_);
   ispace->fireItemAvailable("hasPrescaleService",   &hasPrescaleService_);
   ispace->fireItemAvailable("hasModuleWebRegistry", &hasModuleWebRegistry_);
+  ispace->fireItemAvailable("hasServiceWebRegistry", &hasServiceWebRegistry_);
   ispace->fireItemAvailable("isRunNumberSetter",    &isRunNumberSetter_);
   ispace->fireItemAvailable("isPython",             &isPython_);
   ispace->fireItemAvailable("monSleepSec",          &monSleepSec_);
@@ -263,6 +267,7 @@ FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s)
   xgi::bind(this, &FUEventProcessor::defaultWebPage,   "Default"   );
   xgi::bind(this, &FUEventProcessor::spotlightWebPage, "Spotlight" );
   xgi::bind(this, &FUEventProcessor::moduleWeb     ,   "moduleWeb" );
+  xgi::bind(this, &FUEventProcessor::serviceWeb    ,   "serviceWeb" );
   xgi::bind(this, &FUEventProcessor::microState    ,   "microState");
 
   // instantiate the plugin manager, not referenced here after!
@@ -589,6 +594,21 @@ bool FUEventProcessor::halting(toolbox::task::WorkLoop* wl)
       mwr->clear();
     }
 
+  ServiceWebRegistry *swr = 0;
+  try{
+    if(edm::Service<ServiceWebRegistry>().isAvailable())
+      swr = edm::Service<ServiceWebRegistry>().operator->();
+  }
+  catch(...) { 
+    LOG4CPLUS_INFO(getApplicationLogger(),
+		   "exception when trying to get service ModuleWebRegistry");
+  }
+  
+  if(swr) 
+    {
+      swr->clear();
+    }
+
   edm::event_processor::State st = evtProcessor_->getState();
   try {
     LOG4CPLUS_INFO(getApplicationLogger(),"Start halting ...");
@@ -685,6 +705,7 @@ void FUEventProcessor::initEventProcessor()
     internal::addServiceMaybe(*pServiceSets,"MicroStateService");
     if(hasPrescaleService_) internal::addServiceMaybe(*pServiceSets,"PrescaleService");
     if(hasModuleWebRegistry_) internal::addServiceMaybe(*pServiceSets,"ModuleWebRegistry");
+    if(hasServiceWebRegistry_) internal::addServiceMaybe(*pServiceSets,"ServiceWebRegistry");
     
     try{
       serviceToken_ = edm::ServiceRegistry::createSet(*pServiceSets);
@@ -732,6 +753,19 @@ void FUEventProcessor::initEventProcessor()
 
   if(mwr) mwr->clear(); // in case we are coming from stop we need to clear the mwr
 
+  ServiceWebRegistry *swr = 0;
+  try{
+    if(edm::Service<ServiceWebRegistry>().isAvailable())
+      swr = edm::Service<ServiceWebRegistry>().operator->();
+  }
+  catch(...) { 
+    LOG4CPLUS_INFO(getApplicationLogger(),
+		   "exception when trying to get service ModuleWebRegistry");
+  }
+
+  //  if(swr) swr->clear(); // in case we are coming from stop we need to clear the swr
+
+
   // instantiate the event processor
   try{
     vector<string> defaultServices;
@@ -763,10 +797,11 @@ void FUEventProcessor::initEventProcessor()
     if(mwr) 
       {
 	mwr->publish(getApplicationInfoSpace());
-      }
-    if(mwr) 
-      {
 	mwr->publishToXmas(scalersInfoSpace_);
+      }
+    if(swr) 
+      {
+	swr->publish(getApplicationInfoSpace());
       }
     // get the prescale service
     LOG4CPLUS_INFO(getApplicationLogger(),
@@ -929,18 +964,15 @@ void FUEventProcessor::defaultWebPage(xgi::Input  *in, xgi::Output *out)
   throw (xgi::exception::Exception)
 {
 
+
   string urn = getApplicationDescriptor()->getURN();
-  ostringstream ourl;
-  ourl << "'/" <<  urn << "/microState'";
   *out << "<!-- base href=\"/" <<  urn
        << "\"> -->" << endl;
   *out << "<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\">"	<< endl;
   *out << "<html>"								<< endl;
   *out << "<head>"								<< endl;
 
-  //insert javascript code
-  jsGen(in,out,ourl.str());
-
+  *out << "<script src=\"/evf/html/microEPPage.js\"></script>"<< endl;
   *out << "<style type=\"text/css\">"						<< endl;
   *out << "#s1 {"								<< endl;
   *out << "border-width: 2px; border: solid blue; text-align: right; "
@@ -1085,6 +1117,14 @@ void FUEventProcessor::defaultWebPage(xgi::Input  *in, xgi::Output *out)
   *out << "</tr>"                                            << endl;
   *out << "<tr>" << endl;
   *out << "<td >" << endl;
+  *out << "Has Service Web" << endl;
+  *out << "</td>" << endl;
+  *out << "<td>" << endl;
+  *out << hasServiceWebRegistry_.toString() << endl;
+  *out << "</td>" << endl;
+  *out << "</tr>"                                            << endl;
+  *out << "<tr>" << endl;
+  *out << "<td >" << endl;
   *out << "Monitor Sleep (s)" << endl;
   *out << "</td>" << endl;
   *out << "<td>" << endl;
@@ -1210,8 +1250,48 @@ void FUEventProcessor::defaultWebPage(xgi::Input  *in, xgi::Output *out)
 	*out << "<td>" << lumiSectionsCtr_[i].second << "</td>" << endl;
   *out << "     </tr>"							<< endl;    
   *out << "</table>" << endl;
-  *out << "</th></tr>" << endl;
 
+  ServiceWebRegistry *swr = 0;
+  if(0!=evtProcessor_)
+    {
+      edm::ServiceRegistry::Operate operate(evtProcessor_->getToken());
+      try{
+	if(edm::Service<ServiceWebRegistry>().isAvailable())
+	  swr = edm::Service<ServiceWebRegistry>().operator->();
+      }
+      catch(...) {
+	LOG4CPLUS_WARN(getApplicationLogger(),
+		       "Exception when trying to get service ServiceWebRegistry");
+      }
+    }
+  if(0!=swr)
+    {
+      std::vector<ServiceWeb *> swebs = swr->getWebs();
+      *out << "<table frame=\"void\" rules=\"groups\" class=\"states\">" << endl;
+      //      *out << "<colgroup> <colgroup align=\"right\">"                    << endl;
+      *out << "  <tr>"                                                   << endl;
+      *out << "    <th colspan=2>"                                       << endl;
+      *out << "      " << "Linked Services"                              << endl;
+      *out << "    </th>"                                                << endl;
+      *out << "  </tr>"                                                  << endl;
+      
+      *out << "<tr>" << endl;
+      *out << "<th >" << endl;
+      *out << "Service" << endl;
+      *out << "</th>" << endl;
+      *out << "<th>" << endl;
+      *out << "Address" << endl;
+      *out << "</th>" << endl;
+      *out << "</tr>" << endl;
+      for(unsigned int i = 0; i < swebs.size(); i++)
+	{
+	  *out << " <tr><td><a href=\"/" << urn << "/serviceWeb?service=" 
+	       << swebs[i]->name() << "\">" << swebs[i]->name() 
+	       << "</a></td><td>" << hex << (unsigned int)swebs[i] 
+	       << dec << "</td></tr>" << endl;
+	}
+      *out << "</table>" << endl;
+    }
   *out << "</table>"							<< endl;
   *out << "</body>"                                                  << endl;
   *out << "</html>"                                                  << endl;
@@ -1344,59 +1424,35 @@ void FUEventProcessor::moduleWeb(xgi::Input  *in, xgi::Output *out)
 
 
 //______________________________________________________________________________
-void FUEventProcessor::jsGen(xgi::Input *in, xgi::Output *out, string url)
+void FUEventProcessor::serviceWeb(xgi::Input  *in, xgi::Output *out)
   throw (xgi::exception::Exception)
 {
-  *out << "<script type=\"text/javascript\"> \n";
-  *out << "var xmlhttp \n";
-  *out << " \n";
-  *out << "function loadXMLDoc() \n";
-  *out << "{ \n";
-  *out << "xmlhttp=null \n";
-  *out << " \n";
-  *out << "document.getElementById('s2').innerHTML=\"XApp<br>EP<br>&mu;<br>Acc/Proc<br>LS<br>PS\"";
-  *out << " \n";
-  *out << "if (window.XMLHttpRequest) \n";
-  *out << "  { \n";
-  *out << "  xmlhttp=new XMLHttpRequest() \n";
-  *out << "  } \n";
-  *out << " \n";
-  *out << "else if (window.ActiveXObject) \n";
-  *out << "  { \n";
-  *out << "  xmlhttp=new ActiveXObject(\"Microsoft.XMLHTTP\") \n";
-  *out << "  } \n";
-  *out << "if (xmlhttp!=null) \n";
-  *out << "  { \n";
-  *out << "  xmlhttp.onreadystatechange=state_Change \n";
-  *out << "  xmlhttp.open(\"GET\"," << url << ",true) \n";
-  *out << "  xmlhttp.send(null) \n";
-  *out << "  setTimeout('loadXMLDoc()',500) \n";
-  *out << "  } \n";
-  *out << "else \n";
-  *out << "  { \n";
-  *out << "  alert(\"Your browser does not support XMLHTTP.\") \n";
-  *out << "  } \n";
-  *out << "} \n";
-  *out << " \n";
-  *out << "function state_Change() \n";
-  *out << "{ \n";
-  // if xmlhttp shows "loaded"
-  *out << "if (xmlhttp.readyState==4) \n";
-  *out << "  { \n";
-  // if "OK" 
-  *out << " if (xmlhttp.status==200) \n";
-  *out << "  { \n";
-  *out << "  document.getElementById('s1').innerHTML=xmlhttp.responseText \n";
-  *out << "  } \n";
-  *out << "  else \n";
-  *out << "  { \n";
-  *out << "  document.getElementById('s1').innerHTML=xmlhttp.statusText \n";
-  *out << "  } \n";
-  *out << "  } \n";
-  *out << "} \n";
-  *out << " \n";
-  *out << "</script> \n";
+  Cgicc cgi(in);
+  vector<FormEntry> el1;
+  cgi.getElement("service",el1);
+  if(evtProcessor_)  {
+    if(el1.size()!=0) {
+      string ser = el1[0].getValue();
+      edm::ServiceRegistry::Operate operate(evtProcessor_->getToken());
+      ServiceWebRegistry *swr = 0;
+      try{
+	if(edm::Service<ServiceWebRegistry>().isAvailable())
+	  swr = edm::Service<ServiceWebRegistry>().operator->();
+      }
+      catch(...) { 
+	LOG4CPLUS_WARN(getApplicationLogger(),
+		       "Exception when trying to get service ModuleWebRegistry");
+      }
+      swr->invoke(in,out,ser);
+    }
+  }
+  else {
+    *out<<"EventProcessor just disappeared "<<endl;
+  }
 }
+
+
+//______________________________________________________________________________
 
 
 void FUEventProcessor::spotlightWebPage(xgi::Input  *in, xgi::Output *out)
