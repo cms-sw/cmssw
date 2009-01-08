@@ -16,7 +16,6 @@
 TtSemiLepSignalSelMVATrainer::TtSemiLepSignalSelMVATrainer(const edm::ParameterSet& cfg):
   leptons_   (cfg.getParameter<edm::InputTag>("leptons")),
   jets_      (cfg.getParameter<edm::InputTag>("jets")),
-  //matching_  (cfg.getParameter<edm::InputTag>("matching")),
   METs_      (cfg.getParameter<edm::InputTag>("METs")),
   maxNJets_  (cfg.getParameter<int>("maxNJets")),
   lepChannel_(cfg.getParameter<int>("lepChannel"))
@@ -51,7 +50,6 @@ TtSemiLepSignalSelMVATrainer::analyze(const edm::Event& evt, const edm::EventSet
   evt.getByLabel(jets_, jet_handle);
   const std::vector<pat::Jet> jets = *jet_handle;
   //std::sort(jets.begin(),jets.end(),JetETComparison);
-
    
   // skip events with no appropriate lepton candidate in
   if( lepton_handle->empty() ) return;
