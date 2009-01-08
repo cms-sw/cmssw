@@ -1,5 +1,8 @@
 #include <DQM/HcalMonitorClient/interface/HcalMonitorClient.h>
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include <DQM/HcalMonitorClient/interface/HcalMonitorClient.h>
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 //--------------------------------------------------------
 HcalMonitorClient::HcalMonitorClient(const ParameterSet& ps){
@@ -99,14 +102,14 @@ void HcalMonitorClient::initialize(const ParameterSet& ps){
 
   // exit on end job switch
   enableExit_ = ps.getUntrackedParameter<bool>("enableExit", true);
-  if (debug_>0)
+  if (debug_>1)
     {
       if( enableExit_ ) cout << "-->enableExit switch is ON" << endl;
       else cout << "-->enableExit switch is OFF" << endl;
     }
   
   runningStandalone_ = ps.getUntrackedParameter<bool>("runningStandalone", false);
-  if (debug_>0)
+  if (debug_>1)
     {
       if( runningStandalone_ ) cout << "-->standAlone switch is ON" << endl;
       else cout << "-->standAlone switch is OFF" << endl;
@@ -135,7 +138,8 @@ void HcalMonitorClient::initialize(const ParameterSet& ps){
     dataformat_client_->init(ps, dbe_,"DataFormatClient");
   }
   if( ps.getUntrackedParameter<bool>("DigiClient", false) ){
-    if(debug_>0)   cout << "===>DQM Digi Client is ON" << endl;
+    if(debug_>0)  
+      cout << "===>DQM Digi Client is ON" << endl;
     digi_client_         = new HcalDigiClient();
     digi_client_->init(ps, dbe_,"DigiClient");
   }
@@ -186,6 +190,7 @@ void HcalMonitorClient::initialize(const ParameterSet& ps){
   }
   dqm_db_ = new HcalHotCellDbInterface(); 
 
+  
   // set parameters   
   prescaleEvt_ = ps.getUntrackedParameter<int>("diagnosticPrescaleEvt", -1);
   if (debug_>0) 
@@ -221,7 +226,7 @@ void HcalMonitorClient::initialize(const ParameterSet& ps){
 //--------------------------------------------------------
 // remove all MonitorElements and directories
 void HcalMonitorClient::removeAllME(){
-
+  if (debug_>0) cout <<"<HcalMonitorClient>removeAllME()"<<endl;
   if(dbe_==NULL) return;
 
   // go to top directory
@@ -233,11 +238,13 @@ void HcalMonitorClient::removeAllME(){
     dbe_->rmdir("Collector");
   if(dbe_->dirExists("Summary"))
     dbe_->rmdir("Summary");
+  return;
 }
 
 //--------------------------------------------------------
 ///do a reset of all monitor elements...
 void HcalMonitorClient::resetAllME() {
+  if (debug_>0) cout <<"<HcalMonitorClient> resetAllME()"<<endl;
   if( dataformat_client_ ) dataformat_client_->resetAllME();
   if( digi_client_ )       digi_client_->resetAllME();
   if( rechit_client_ )     rechit_client_->resetAllME();
@@ -255,7 +262,7 @@ void HcalMonitorClient::resetAllME() {
 //--------------------------------------------------------
 void HcalMonitorClient::beginJob(const EventSetup& c){
 
-  if( debug_ ) cout << "HcalMonitorClient: beginJob" << endl;
+  if( debug_>0 ) cout << "HcalMonitorClient: beginJob" << endl;
   
   ievt_ = 0;
   if( summary_client_ )    summary_client_->beginJob(dbe_);
@@ -377,7 +384,8 @@ void HcalMonitorClient::endJob(void) {
 void HcalMonitorClient::endRun(const Run& r, const EventSetup& c) {
 
   if (debug_>0)
-    cout << endl<<"Standard endRun() for run " << r.id().run() << endl<<endl;
+    cout << endl<<"<HcalMonitorClient> Standard endRun() for run " << r.id().run() << endl<<endl;
+
 
   if( debug_ >0) cout <<"HcalMonitorClient: processed events: "<<ievt_<<endl;
 
@@ -411,15 +419,19 @@ void HcalMonitorClient::endRun(const Run& r, const EventSetup& c) {
 }
 
 //--------------------------------------------------------
-void HcalMonitorClient::beginLuminosityBlock(const LuminosityBlock &l, const EventSetup &c) {
+void HcalMonitorClient::beginLuminosityBlock(const LuminosityBlock &l, const EventSetup &c) 
+{
+  if( debug_>0 ) cout << "HcalMonitorClient: beginLuminosityBlock" << endl;
   if(actonLS_ && !prescale()){
     // do scheduled tasks...
   }
+
 }
 
 //--------------------------------------------------------
 void HcalMonitorClient::endLuminosityBlock(const LuminosityBlock &l, const EventSetup &c) {
   // then do your thing
+  if( debug_>0 ) cout << "HcalMonitorClient: endLuminosityBlock" << endl;
   if(actonLS_ && !prescale()){
     // do scheduled tasks...
     analyze();
@@ -431,7 +443,7 @@ void HcalMonitorClient::endLuminosityBlock(const LuminosityBlock &l, const Event
 //--------------------------------------------------------
 void HcalMonitorClient::analyze(const Event& e, const edm::EventSetup& eventSetup){
 
-  if (debug_>1) 
+  if (debug_>0) 
     cout <<"Entered HcalMonitorClient::analyze(const Evt...)"<<endl;
   
   if(resetEvents_>0 && (ievent_%resetEvents_)==0) resetAllME();
@@ -474,8 +486,8 @@ void HcalMonitorClient::analyze(const Event& e, const edm::EventSetup& eventSetu
 
 //--------------------------------------------------------
 void HcalMonitorClient::analyze(){
-  if (debug_>1) 
-    cout <<"Entered HcalMonitorClient::analyze()"<<endl;
+  if (debug_>0) 
+    cout <<"<HcalMonitorClient> Entered HcalMonitorClient::analyze()"<<endl;
 
   //nevt_++; // counter not currently displayed anywhere 
   if(debug_>1) cout<<"\nHcal Monitor Client heartbeat...."<<endl;
@@ -496,7 +508,7 @@ void HcalMonitorClient::analyze(){
       cpu_timer.reset(); cpu_timer.start(); 
     } 
 
-  if( digi_client_ )       digi_client_->analyze(); 
+  if( digi_client_)       digi_client_->analyze(); 
   if (showTiming_) 
     { 
       cpu_timer.stop(); 
@@ -771,6 +783,7 @@ void HcalMonitorClient::htmlOutput(void){
     else htmlFile << "<td bgcolor=lime align=center>This monitor task has no problems</td>" << endl;
     htmlFile << "</tr></table>" << endl;
   }
+
   if( dead_client_) {
     htmlName = "HcalDeadCellClient.html";
     dead_client_->htmlOutput(irun_, htmlDir, htmlName);
@@ -1009,8 +1022,5 @@ bool HcalMonitorClient::prescale(){
   return true;
 }
 
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include <DQM/HcalMonitorClient/interface/HcalMonitorClient.h>
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 DEFINE_FWK_MODULE(HcalMonitorClient);
