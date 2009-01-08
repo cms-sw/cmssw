@@ -261,9 +261,9 @@ class DBCopy(object):
             raise Exception, str(e)
 
 if __name__ == "__main__":
-    context = coral.Context()
-    context.setVerbosityLevel( 'ERROR' )
-    svc = coral.ConnectionService( context )
+    #context = coral.Context()
+    #context.setVerbosityLevel( 'ERROR' )
+    svc = coral.ConnectionService()
     
     sourcesession = svc.connect( 'sqlite_file:source.db',
                                  accessMode = coral.access_Update )

@@ -214,9 +214,7 @@ class entryComment(object):
         
     
 if __name__ == "__main__":
-    context = coral.Context()
-    context.setVerbosityLevel( 'ERROR' )
-    svc = coral.ConnectionService( context )
+    svc = coral.ConnectionService()
     session = svc.connect( 'sqlite_file:testentryComment.db',
                            accessMode = coral.access_Update )
     try:

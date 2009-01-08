@@ -582,9 +582,7 @@ class tagTree(object):
         editor.updateRows(setClause2,condition2,inputData)
 if __name__ == "__main__":
     os.putenv( "CORAL_AUTH_PATH", "." )
-    context = coral.Context()
-    context.setVerbosityLevel( 'ERROR' )
-    svc = coral.ConnectionService( context )
+    svc = coral.ConnectionService()
     session = svc.connect( 'sqlite_file:testTree.db',
                            accessMode = coral.access_Update )
     #session = svc.connect( 'oracle://devdb10/cms_xiezhen_dev',

@@ -78,9 +78,7 @@ class IdGenerator(object):
             raise Exception, str(e)
 if __name__ == "__main__":
     idtableName = 'TagTreeTable_IDS'
-    context = coral.Context()
-    context.setVerbosityLevel( 'ERROR' )
-    svc = coral.ConnectionService( context )
+    svc = coral.ConnectionService()
     session = svc.connect( 'sqlite_file:data.db', accessMode = coral.access_Update )
     transaction = session.transaction()
     try:

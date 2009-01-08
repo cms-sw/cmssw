@@ -395,9 +395,7 @@ def listtableset( schema,tableset ):
   return False
 
 if __name__ == "__main__":
-    context = coral.Context()
-    context.setVerbosityLevel( 'ERROR' )
-    svc = coral.ConnectionService( context )
+    svc = coral.ConnectionService()
     session = svc.connect( 'sqlite_file:source.db',
                            accessMode = coral.access_Update )
     session.transaction().start(True)
