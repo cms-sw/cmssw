@@ -65,14 +65,14 @@ HcalDataFormatClient::~HcalDataFormatClient(){
 }
 
 void HcalDataFormatClient::beginJob(void){
-  if ( debug_ ) cout << "HcalDataFormatClient: beginJob" << endl;
+  if ( debug_>0 ) cout << "HcalDataFormatClient: beginJob" << endl;
 
   ievt_ = 0; jevt_ = 0;
   return;
 }
 
 void HcalDataFormatClient::beginRun(void){
-  if ( debug_ ) cout << "HcalDataFormatClient: beginRun" << endl;
+  if ( debug_>0 ) cout << "HcalDataFormatClient: beginRun" << endl;
 
   jevt_ = 0;
   this->resetAllME();
@@ -80,7 +80,7 @@ void HcalDataFormatClient::beginRun(void){
 }
 
 void HcalDataFormatClient::endJob(void) {
-  if ( debug_ ) cout << "HcalDataFormatClient: endJob, ievt = " << ievt_ << endl;
+  if ( debug_>0 ) cout << "HcalDataFormatClient: endJob, ievt = " << ievt_ << endl;
 
   this->cleanup();
 
@@ -89,7 +89,7 @@ void HcalDataFormatClient::endJob(void) {
 
 void HcalDataFormatClient::endRun(void) {
 
-  if ( debug_ ) cout << "HcalDataFormatClient: endRun, jevt = " << jevt_ << endl;
+  if ( debug_>0 ) cout << "HcalDataFormatClient: endRun, jevt = " << jevt_ << endl;
 
   this->cleanup();
 
@@ -212,7 +212,7 @@ void HcalDataFormatClient::analyze(void){
 
   int updates = 0;
   if ( updates % 10 == 0 ) {
-    if ( debug_ ) cout << "HcalDataFormatClient: " << updates << " updates" << endl;
+    if ( debug_>0 ) cout << "HcalDataFormatClient: " << updates << " updates" << endl;
   }
 
   return;
@@ -430,7 +430,7 @@ void HcalDataFormatClient::labelyBits(TH2F* hist){
 
 void HcalDataFormatClient::report(){
   if(!dbe_) return;
-  if ( debug_ ) cout << "HcalDataFormatClient: report" << endl;
+  if ( debug_>0 ) cout << "HcalDataFormatClient: report" << endl;
   
   char name[256];
   
@@ -440,7 +440,7 @@ void HcalDataFormatClient::report(){
     string s = me->valueString();
     ievt_ = -1;
     sscanf((s.substr(2,s.length()-2)).c_str(), "%d", &ievt_);
-    if ( debug_ ) cout << "Found '" << name << "'" << endl;
+    if ( debug_>0 ) cout << "Found '" << name << "'" << endl;
   }
   else printf("Didn't find %s\n",name);
   getHistograms();
@@ -578,7 +578,7 @@ void HcalDataFormatClient::resetAllME(){
 
 void HcalDataFormatClient::htmlOutput(int runNo, string htmlDir, string htmlName){
 
-  cout << "Preparing HcalDataFormatClient html output ..." << endl;
+  if (debug_>0) cout << "Preparing HcalDataFormatClient html output ..." << endl;
   string client = "DataFormatMonitor";
   htmlErrors(runNo,htmlDir,client,process_,dbe_,dqmReportMapErr_,dqmReportMapWarn_,dqmReportMapOther_);
 
@@ -770,7 +770,7 @@ void HcalDataFormatClient::htmlOutput(int runNo, string htmlDir, string htmlName
 
 void HcalDataFormatClient::createTests(){
 
-  if(debug_) cout << "HcalDataFormatClient: creating tests" << endl;
+  if(debug_>0) cout << "HcalDataFormatClient: creating tests" << endl;
 
   if(!dbe_) return;
 
