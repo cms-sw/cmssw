@@ -470,9 +470,9 @@ class  tagInventory(object):
             raise Exception, str(e)
         
 if __name__ == "__main__":
-    context = coral.Context()
-    context.setVerbosityLevel( 'ERROR' )
-    svc = coral.ConnectionService( context )
+    #context = coral.Context()
+    #context.setVerbosityLevel( 'ERROR' )
+    svc = coral.ConnectionService()
     session = svc.connect( 'sqlite_file:testInventory.db',
                            accessMode = coral.access_Update )
     try:
