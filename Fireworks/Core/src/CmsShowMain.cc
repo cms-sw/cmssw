@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.60 2009/01/08 14:07:13 amraktad Exp $
+// $Id: CmsShowMain.cc,v 1.61 2009/01/08 14:24:36 amraktad Exp $
 //
 
 // system include files
@@ -61,7 +61,6 @@
 #include "Fireworks/Core/interface/FWDetailViewManager.h"
 #include "Fireworks/Core/interface/FWTextView.h"
 #include "Fireworks/Core/interface/ElectronSCViewManager.h"
-#include "Fireworks/Core/interface/MuonPUViewManager.h"
 #include "Fireworks/Core/interface/FWPhysicsObjectDesc.h"
 #include "Fireworks/Core/interface/ElectronDetailView.h"
 #include "Fireworks/Core/interface/PhotonDetailView.h"
@@ -295,7 +294,6 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
       boost::shared_ptr<FWViewManagerBase> rpzViewManager( new FWRhoPhiZViewManager(m_guiManager.get()) );
       rpzViewManager->setGeom(&m_detIdToGeo);
       m_viewManager->add(rpzViewManager);
-      //   m_viewManager->add( boost::shared_ptr<FWViewManagerBase>( new MuonPUViewManager));
 
       m_viewManager->add( boost::shared_ptr<FWViewManagerBase>( new FWEveLegoViewManager(m_guiManager.get()) ) );
 
@@ -510,7 +508,6 @@ CmsShowMain::setupViewManagers()
    boost::shared_ptr<FWViewManagerBase> rpzViewManager( new FWRhoPhiZViewManager(m_guiManager.get()) );
    rpzViewManager->setGeom(&m_detIdToGeo);
    m_viewManager->add(rpzViewManager);
-   //   m_viewManager->add( boost::shared_ptr<FWViewManagerBase>( new MuonPUViewManager));
 
    m_viewManager->add( boost::shared_ptr<FWViewManagerBase>( new FWEveLegoViewManager(m_guiManager.get()) ) );
 

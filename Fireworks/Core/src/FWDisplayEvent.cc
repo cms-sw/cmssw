@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: FWDisplayEvent.cc,v 1.58 2008/09/22 17:41:58 amraktad Exp $
+// $Id: FWDisplayEvent.cc,v 1.59 2008/11/06 22:05:25 amraktad Exp $
 //
 
 // system include files
@@ -47,7 +47,6 @@
 #include "Fireworks/Core/interface/FWDetailViewManager.h"
 #include "Fireworks/Core/interface/FWTextView.h"
 #include "Fireworks/Core/interface/ElectronSCViewManager.h"
-#include "Fireworks/Core/interface/MuonPUViewManager.h"
 #include "DataFormats/FWLite/interface/Event.h"
 
 #include "Fireworks/Core/interface/FWConfigurationManager.h"
@@ -113,7 +112,6 @@ m_viewManager( new FWViewManagerManager(m_changeManager.get())),
   boost::shared_ptr<FWViewManagerBase> rpzViewManager( new FWRhoPhiZViewManager(m_guiManager.get()) );
   rpzViewManager->setGeom(&m_detIdToGeo);
   m_viewManager->add(rpzViewManager);
-//   m_viewManager->add( boost::shared_ptr<FWViewManagerBase>( new MuonPUViewManager));
 
   m_viewManager->add( boost::shared_ptr<FWViewManagerBase>( new FWEveLegoViewManager(m_guiManager.get()) ) );
 

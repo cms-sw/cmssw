@@ -14,7 +14,6 @@
   <class name="FW3DLegoView"/>
   <class name="FWConfiguration"/>
   <class name="ElectronsProxySCBuilder"/>
-  <class name="MuonsProxyPUBuilder"/>
   <class name="FWRhoPhiZViewManager"/>
   <class name="FWListEventItem"/>
   <class name="FWListEventItemEditor"/>
