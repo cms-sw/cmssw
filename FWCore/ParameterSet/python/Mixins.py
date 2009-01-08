@@ -453,8 +453,10 @@ class _ValidatingListBase(list):
         return result
 
 class _ValidatingParameterListBase(_ValidatingListBase,_ParameterTypeBase):
-    def __init__(self,*arg,**args):
+    def __init__(self,*arg,**args):        
         _ParameterTypeBase.__init__(self)
+        if len (arg) == 1 and isinstance (arg[0], list):
+            arg = arg[0]
         super(_ValidatingParameterListBase,self).__init__(*arg,**args)
     def value(self):
         return list(self)
