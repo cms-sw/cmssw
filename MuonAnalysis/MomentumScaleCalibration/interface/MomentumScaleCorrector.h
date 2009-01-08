@@ -51,7 +51,7 @@ class MomentumScaleCorrector
     iterationNum_ = scaleFunctionId_.size()-1;
     vector<int>::const_iterator id = scaleFunctionId_.begin();
     for( ; id != scaleFunctionId_.end(); ++id ) {
-      scaleFunctionVec_.push_back( scaleFunctionArray[*id] );
+      scaleFunctionVec_.push_back( scaleFunctionService( *id ) );
     }
     // Fill the arrays that will be used when calling the correction function.
     convertToArrays();
@@ -61,10 +61,11 @@ class MomentumScaleCorrector
     if( parScaleArray_ != 0 ) {
       for( unsigned int i=0; i<parScaleVec_.size(); ++i ) {
         delete[] parScaleArray_[i];
+        delete scaleFunction_[i];
       }
-      delete parScaleArray_;
+      delete[] parScaleArray_;
+      delete[] scaleFunction_;
     }
-    delete[] scaleFunction_;
   }
   /// Method to do the corrections. It is templated to work with all the track types.
   template <class U>

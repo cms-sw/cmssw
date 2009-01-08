@@ -55,7 +55,8 @@ void MomentumScaleCorrector::readParameters( TString fileName )
       // scaleFunction_ = scaleFunctionArrayForVec[scaleFunctionNum];
       // scaleFunction_ = scaleFunctionArray[scaleFunctionNum];
       scaleFunctionId_.push_back(scaleFunctionNum);
-      scaleFunctionVec_.push_back( scaleFunctionArray[scaleFunctionNum] );
+      // scaleFunctionVec_.push_back( scaleFunctionArray[scaleFunctionNum] );
+      scaleFunctionVec_.push_back( scaleFunctionService( scaleFunctionNum ) );
     }
     // Take the parameters for the current iteration
     if ( (lineInt != string::npos) ) {
