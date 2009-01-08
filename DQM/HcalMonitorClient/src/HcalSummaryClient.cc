@@ -59,8 +59,8 @@ HcalSummaryClient::HcalSummaryClient(const ParameterSet& ps)
   // Find out which subtasks are being run
   // At the moment, only hot/dead/pedestal comply with correct format of histograms; ignore all others
   //dataFormatMon_.onoff=(ps.getUntrackedParameter<bool>("DataFormatClient",false));
-  //digiMon_.onoff=(ps.getUntrackedParameter<bool>("DigiClient",false));
-  //recHitMon_.onoff=(ps.getUntrackedParameter<bool>("RecHitClient",false));
+  digiMon_.onoff=(ps.getUntrackedParameter<bool>("DigiClient",false));
+  recHitMon_.onoff=(ps.getUntrackedParameter<bool>("RecHitClient",false));
   pedestalMon_.onoff=(ps.getUntrackedParameter<bool>("PedestalClient",false));
   pedestalMon_.onoff=false; // don't include pedestal monitoring in overall data quality?
   //ledMon_.onoff=(ps.getUntrackedParameter<bool>("LEDClient",false));
@@ -71,8 +71,8 @@ HcalSummaryClient::HcalSummaryClient(const ParameterSet& ps)
 
   // Set histogram problem names & directories  for each subtask
   dataFormatMon_.problemName  = "";
-  digiMon_.problemName        = "";
-  recHitMon_.problemName      = "";
+  digiMon_.problemName        = "Problem Digi Rate";
+  recHitMon_.problemName      = "Problem RecHit Rate";
   pedestalMon_.problemName    = " Problem Pedestal Rate";
   ledMon_.problemName         = "";
   hotCellMon_.problemName     = " Problem Hot Cell Rate";
@@ -81,7 +81,7 @@ HcalSummaryClient::HcalSummaryClient(const ParameterSet& ps)
   caloTowerMon_.problemName   = "";
 
   dataFormatMon_.problemDir   = "";
-  digiMon_.problemDir         = "";
+  digiMon_.problemDir         = "DigiMonitor_Hcal/problem_digis";
   recHitMon_.problemDir       = "";
   pedestalMon_.problemDir     = "PedestalMonitor_Hcal/problem_pedestals";
   ledMon_.problemDir          = "";
@@ -204,7 +204,7 @@ void HcalSummaryClient::setup(void)
 
   // Make overall 2D histogram
   dqmStore_->setCurrentFolder(prefixME_+"/EventInfo/");
-  histo<<"reportSummaryMap";
+  histo<<"advancedReportSummaryMap";
   me=dqmStore_->get(prefixME_+"/EventInfo/"+histo.str().c_str());
   if (me)
     dqmStore_->removeElement(me->getName());
@@ -219,7 +219,7 @@ void HcalSummaryClient::setup(void)
   
   // Make new simplified status histogram
   histo.str("");
-  histo<<"simplifiedReportSummaryMap";
+  histo<<"reportSummaryMap";
   me=dqmStore_->get(prefixME_+"/EventInfo/"+histo.str().c_str());
   if (me)
     dqmStore_->removeElement(me->getName());
@@ -275,20 +275,22 @@ void HcalSummaryClient::analyze(void)
     }
 
   // Reset summary map to 'unknown' status 
-  MonitorElement* reportMap = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryMap");
-  if (!reportMap)
+
+  MonitorElement* simpleMap = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryMap");
+  if (!simpleMap)
     {
-      cout <<"<HcalSummaryClient::analyze> Could not get reportSummaryMap!"<<endl;
+      cout <<"<HcalSummaryClient::analyze> Could not get advancedReportSummaryMap!"<<endl;
       return;
     }
+  for (int ix=1;ix<=5;++ix)
+    simpleMap->setBinContent(ix,1,-1);
+
+  MonitorElement* reportMap = dqmStore_->get(prefixME_ + "/EventInfo/advancedReportSummaryMap");
   // Set all bins to "unknown" to start
   for (int ieta=1;ieta<=etaBins_;++ieta)
     for (int iphi=1; iphi<=phiBins_;++iphi)
       reportMap->setBinContent(ieta,iphi,-1);
 
-  MonitorElement* simpleMap = dqmStore_->get(prefixME_ + "/EventInfo/simplifiedReportSummaryMap");
-  for (int ix=1;ix<=5;++ix)
-    simpleMap->setBinContent(ix,1,-1);
 
   // Set values to 'unknown' status; they'll be set by analyze_everything routines 
 
@@ -521,7 +523,7 @@ void HcalSummaryClient::analyze_subtask(SubTaskSummaryStatus &s)
   ostringstream name;
   MonitorElement* me;
   TH2F* hist;
-  MonitorElement* reportMap = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryMap");
+  MonitorElement* reportMap = dqmStore_->get(prefixME_ + "/EventInfo/advancedReportSummaryMap");
 
   // Layer 1 HB& HF
   if (HBpresent_ || HFpresent_)
@@ -843,10 +845,10 @@ void HcalSummaryClient::analyze_subtask(SubTaskSummaryStatus &s)
 
 void HcalSummaryClient::resetSummaryPlot(int Subdet)
 {
-  MonitorElement* reportMap = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryMap");
+  MonitorElement* reportMap = dqmStore_->get(prefixME_ + "/EventInfo/advancedReportSummaryMap");
   if (!reportMap)
     {
-      cout <<"<HcalSummaryClient::resetSummaryPlot> Could not get reportSummaryMap!"<<endl;
+      cout <<"<HcalSummaryClient::resetSummaryPlot> Could not get advancedReportSummaryMap!"<<endl;
       return;
     }
   TH2F* hist=reportMap->getTH2F();
@@ -931,10 +933,10 @@ void HcalSummaryClient::htmlOutput(int& run, time_t& mytime, int& minlumi, int& 
 
   // Test for now -- let's just dump out global summary histogram
   MonitorElement* me;
-  me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryMap");
+  me = dqmStore_->get(prefixME_ + "/EventInfo/advancedReportSummaryMap");
   obj2f = me->getTH2F();
 
-  me = dqmStore_->get(prefixME_ + "/EventInfo/simplifiedReportSummaryMap");
+  me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryMap");
   TH2F* simple2f = me->getTH2F();
 
   // Standard error palette, extended to greys for - values
@@ -996,11 +998,11 @@ void HcalSummaryClient::htmlOutput(int& run, time_t& mytime, int& minlumi, int& 
   htmlFile << "<tr align=\"center\">" << endl;
   htmlFile <<"<td>Task</td><td>HB</td><td>HE</td><td>HO</td><td>HF</td><td>ZDC</td><td>HCAL</td></tr>"<<endl;
   if (dataFormatMon_.onoff)
-    htmlFile<<"<td><Data Format Monitor</td><td>"<<dataFormatMon_.status[0]<<"</td><td>"<<dataFormatMon_.status[1]<<"</td><td>"<<dataFormatMon_.status[2]<<"</td><td>"<<dataFormatMon_.status[3]<<"</td><td>"<<dataFormatMon_.status[4]<<"</td><td>"<<dataFormatMon_.ALLstatus<<"</td></tr>"<<endl;
+    htmlFile<<"<td>Data Format Monitor</td><td>"<<dataFormatMon_.status[0]<<"</td><td>"<<dataFormatMon_.status[1]<<"</td><td>"<<dataFormatMon_.status[2]<<"</td><td>"<<dataFormatMon_.status[3]<<"</td><td>"<<dataFormatMon_.status[4]<<"</td><td>"<<dataFormatMon_.ALLstatus<<"</td></tr>"<<endl;
   if (digiMon_.onoff)
-    htmlFile<<"<td><Digi Monitor</td><td>"<<digiMon_.status[0]<<"</td><td>"<<digiMon_.status[1]<<"</td><td>"<<digiMon_.status[2]<<"</td><td>"<<digiMon_.status[3]<<"</td><td>"<<digiMon_.status[4]<<"</td><td>"<<digiMon_.ALLstatus<<"</td></tr>"<<endl;
+    htmlFile<<"<td>Digi Monitor</td><td>"<<digiMon_.status[0]<<"</td><td>"<<digiMon_.status[1]<<"</td><td>"<<digiMon_.status[2]<<"</td><td>"<<digiMon_.status[3]<<"</td><td>"<<digiMon_.status[4]<<"</td><td>"<<digiMon_.ALLstatus<<"</td></tr>"<<endl;
   if (recHitMon_.onoff)
-    htmlFile<<"<td>Digi Monitor</td><td>"<<recHitMon_.status[0]<<"</td><td>"<<recHitMon_.status[1]<<"</td><td>"<<recHitMon_.status[2]<<"</td><td>"<<recHitMon_.status[3]<<"</td><td>"<<recHitMon_.status[4]<<"</td><td>"<<recHitMon_.ALLstatus<<"</td></tr>"<<endl;
+    htmlFile<<"<td>Rec Hit Monitor</td><td>"<<recHitMon_.status[0]<<"</td><td>"<<recHitMon_.status[1]<<"</td><td>"<<recHitMon_.status[2]<<"</td><td>"<<recHitMon_.status[3]<<"</td><td>"<<recHitMon_.status[4]<<"</td><td>"<<recHitMon_.ALLstatus<<"</td></tr>"<<endl;
   if (pedestalMon_.onoff)
     htmlFile<<"<td>Pedestal Monitor</td><td>"<<pedestalMon_.status[0]<<"</td><td>"<<pedestalMon_.status[1]<<"</td><td>"<<pedestalMon_.status[2]<<"</td><td>"<<pedestalMon_.status[3]<<"</td><td>"<<pedestalMon_.status[4]<<"</td><td>"<<pedestalMon_.ALLstatus<<"</td></tr>"<<endl;
   if (ledMon_.onoff)

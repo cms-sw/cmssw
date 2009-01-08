@@ -175,6 +175,17 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
 	  heHists.count_presample[i]=0;
 	  hoHists.count_presample[i]=0;
 	  hfHists.count_presample[i]=0;
+	  for (int j=0;j<10;++j)
+	    {
+	      hbHists.tssumplus[i][j]=0;
+	      heHists.tssumplus[i][j]=0;
+	      hoHists.tssumplus[i][j]=0;
+	      hfHists.tssumplus[i][j]=0;
+	      hbHists.tssumminus[i][j]=0;
+	      heHists.tssumminus[i][j]=0;
+	      hoHists.tssumminus[i][j]=0;
+	      hfHists.tssumminus[i][j]=0;
+	    }
 	}
       if (i<200)
 	{
@@ -230,7 +241,7 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
       setupDepthHists2D(DigiErrorsBadCapID," Digis with Bad Cap ID Rotation", "");
       m_dbe->setCurrentFolder(baseFolder_+"/problem_digis/baddigisize");
       setupDepthHists2D(DigiErrorsBadDigiSize," Digis with Bad Size", "");
-      DigiSize = m_dbe->book2D("Digi Size", "Digi Size",4,0,4,20,0,20);
+      DigiSize = m_dbe->book2D("Digi Size", "Digi Size",4,0,4,20,-0.5,19.5);
       DigiSize->setBinLabel(1,"HB",1);
       DigiSize->setBinLabel(2,"HE",1);
       DigiSize->setBinLabel(3,"HO",1);
@@ -242,16 +253,28 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
       name<<" Digis with ADC sum below threshold ADC counts"; // make the name variable at some point?  Or just change title to specify ADC threshold?
       setupDepthHists2D(DigiErrorsBadADCSum," Digis with ADC sum below threshold ADC counts", "");
       name.str("");
+      for (int i=0;i<6;++i)
+	{
+	  name<<DigiErrorsBadADCSum[i]->getTitle()<<"(ADC sum > "<<occThresh_<<" events)";
+	  DigiErrorsBadADCSum[i]->setTitle(static_cast<const string>(name.str().c_str()));
+	  name.str("");
+	}
       m_dbe->setCurrentFolder(baseFolder_+"/problem_digis/nodigis");
       name<<" Digis Missing for a Number of Consecutive Events";
       // setup requires char*; .c_str() returns const char*; recast
       setupDepthHists2D(DigiErrorsNoDigi," Digis Missing for a Number of Consecutive Events", "");
       name.str("");
+      for (int i=0;i<6;++i)
+	{
+	  name<<DigiErrorsNoDigi[i]->getTitle()<<"("<<digi_checkNevents_<<" events)";
+	  DigiErrorsNoDigi[i]->setTitle(static_cast<const string>(name.str().c_str()));
+	  name.str("");
+	}
       m_dbe->setCurrentFolder(baseFolder_+"/problem_digis/data_invalid_error");
       setupDepthHists2D(DigiErrorsDVErr," Digis with Data Invalid or Error Bit Set", "");
 
       m_dbe->setCurrentFolder(baseFolder_+"/digi_occupancy");
-      setupDepthHists2D(DigiOccupancyByDepth,"Digi Eta-Phi Occupancy Map","");
+      setupDepthHists2D(DigiOccupancyByDepth," Digi Eta-Phi Occupancy Map","");
       DigiOccupancyPhi= m_dbe->book1D("Digi Phi Occupancy Map",
 				      "Digi Phi Occupancy Map",
 				      phiBins_,phiMin_,phiMax_);
@@ -325,6 +348,17 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
 					  10,-0.5,9.5);
       hbHists.shape->setAxisTitle("Time Slice",1);
       hbHists.shapeThresh->setAxisTitle("Time Slice",1);
+
+      // Create plots of sums of adjacent time slices
+      for (int ts=0;ts<9;++ts)
+	{
+	  name<<"HB Plus Time Slices "<<ts<<" and "<<ts+1;
+	  hbHists.TS_sum_plus.push_back(m_dbe->book1D(name.str().c_str(),name.str().c_str(),50,-5.5,44.5));
+	  name.str("");
+	  name<<"HB Minus Time Slices "<<ts<<" and "<<ts+1;
+	  hbHists.TS_sum_minus.push_back(m_dbe->book1D(name.str().c_str(),name.str().c_str(),50,-5.5,44.5));
+	  name.str("");
+	}
       hbHists.presample= m_dbe->book1D("HB Digi Presamples","HB Digi Presamples",50,-0.5,49.5);
       hbHists.BQ = m_dbe->book1D("HB Bad Quality Digis","HB Bad Quality Digis",DIGI_SUBDET_NUM,-0.5,DIGI_SUBDET_NUM-0.5);
       hbHists.BQFrac = m_dbe->book1D("HB Bad Quality Digi Fraction","HB Bad Quality Digi Fraction",DIGI_BQ_FRAC_NBINS,(0-0.5/(DIGI_BQ_FRAC_NBINS-1)),1+0.5/(DIGI_BQ_FRAC_NBINS-1));
@@ -347,6 +381,17 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
 					  10,-0.5,9.5);
       heHists.shape->setAxisTitle("Time Slice",1);
       heHists.shapeThresh->setAxisTitle("Time Slice",1);
+      // Create plots of sums of adjacent time slices
+      for (int ts=0;ts<9;++ts)
+	{
+	  name<<"HE Plus Time Slices "<<ts<<" and "<<ts+1;
+	  heHists.TS_sum_plus.push_back(m_dbe->book1D(name.str().c_str(),name.str().c_str(),50,-5.5,44.5));
+	  name.str("");
+	  name<<"HE Minus Time Slices "<<ts<<" and "<<ts+1;
+	  heHists.TS_sum_minus.push_back(m_dbe->book1D(name.str().c_str(),name.str().c_str(),50,-5.5,44.5));
+	  name.str("");
+	}
+
       heHists.presample= m_dbe->book1D("HE Digi Presamples","HE Digi Presamples",50,-0.5,49.5);
       heHists.BQ = m_dbe->book1D("HE Bad Quality Digis","HE Bad Quality Digis",DIGI_SUBDET_NUM,-0.5,DIGI_SUBDET_NUM-0.5);
       heHists.BQFrac = m_dbe->book1D("HE Bad Quality Digi Fraction","HE Bad Quality Digi Fraction",DIGI_BQ_FRAC_NBINS,(0-0.5/(DIGI_BQ_FRAC_NBINS-1)),1+0.5/(DIGI_BQ_FRAC_NBINS-1));
@@ -369,6 +414,16 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
 					  10,-0.5,9.5);
       hoHists.shape->setAxisTitle("Time Slice",1);
       hoHists.shapeThresh->setAxisTitle("Time Slice",1);
+      // Create plots of sums of adjacent time slices
+      for (int ts=0;ts<9;++ts)
+	{
+	  name<<"HO Plus Time Slices "<<ts<<" and "<<ts+1;
+	  hoHists.TS_sum_plus.push_back(m_dbe->book1D(name.str().c_str(),name.str().c_str(),50,-5.5,44.5));
+	  name.str("");
+	  name<<"HO Minus Time Slices "<<ts<<" and "<<ts+1;
+	  hoHists.TS_sum_minus.push_back(m_dbe->book1D(name.str().c_str(),name.str().c_str(),50,-5.5,44.5));
+	  name.str("");
+	}
       hoHists.presample= m_dbe->book1D("HO Digi Presamples","HO Digi Presamples",50,-0.5,49.5);
       hoHists.BQ = m_dbe->book1D("HO Bad Quality Digis","HO Bad Quality Digis",DIGI_SUBDET_NUM,-0.5,DIGI_SUBDET_NUM-0.5);
       hoHists.BQFrac = m_dbe->book1D("HO Bad Quality Digi Fraction","HO Bad Quality Digi Fraction",DIGI_BQ_FRAC_NBINS,(0-0.5/(DIGI_BQ_FRAC_NBINS-1)),1+0.5/(DIGI_BQ_FRAC_NBINS-1));
@@ -389,6 +444,16 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
       hfHists.shapeThresh = m_dbe->book1D("HF Digi Shape - over thresh",
 					  "HF Digi Shape - over thresh",
 					  10,-0.5,9.5);
+      // Create plots of sums of adjacent time slices
+      for (int ts=0;ts<9;++ts)
+	{
+	  name<<"HF Plus Time Slices "<<ts<<" and "<<ts+1;
+	  hfHists.TS_sum_plus.push_back(m_dbe->book1D(name.str().c_str(),name.str().c_str(),50,-5.5,44.5));
+	  name.str("");
+	  name<<"HF Minus Time Slices "<<ts<<" and "<<ts+1;
+	  hfHists.TS_sum_minus.push_back(m_dbe->book1D(name.str().c_str(),name.str().c_str(),50,-5.5,44.5));
+	  name.str("");
+	}
       hfHists.shape->setAxisTitle("Time Slice",1);
       hfHists.shapeThresh->setAxisTitle("Time Slice",1);
       hfHists.presample= m_dbe->book1D("HF Digi Presamples","HF Digi Presamples",50,-0.5,49.5);
@@ -446,6 +511,8 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
   hfHists.count_bad=0;
   hfHists.count_all=0;
 
+  int tssum=0;
+
   if (showTiming)
     {
       cpu_timer.reset(); cpu_timer.start();
@@ -486,7 +553,8 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
 	    // loop over time slices of digi to check capID and errors
 	    ++hbHists.count_presample[digi.presamples()];
 
-	    // Check CapID rotation
+
+	    // Compare starting cap ID with first capID found
 	    if (firsthbcap==-1) firsthbcap = digi.sample(0).capid();
 	    int capdif = digi.sample(0).capid() - firsthbcap;
 	    //capdif = capdif%3 - capdif/3; // unnecessary?
@@ -499,13 +567,16 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
 		if (fVerbosity > 1)
 		  cout <<"<HcalDigiMonitor> Odd behavior of HB capIDs:  capID diff = "<<capdif<<" = "<<digi.sample(0).capid()<< " - "<<firsthbcap<<endl;
 	      }
+
 	    int last=-1;
 	    for (int i=0;i<digi.size();++i)
 	      {
+		// Check capid rotation
 		int thisCapid = digi.sample(i).capid();
 		if (thisCapid<4) ++hbHists.capid[thisCapid];
 		if(bitUpset(last,thisCapid)) bitUp=true;
 		last = thisCapid;
+
 		// Check for digi error bits
 		if (digi_checkdverr_)
 		  {
@@ -515,10 +586,21 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
 		if (digi.sample(i).er() || !digi.sample(i).dv())
 		  ++digierrorsdverr[static_cast<int>(iEta+(etaBins_-2)/2)][iPhi-1][iDepth-1];
 		++hbHists.dverr[static_cast<int>(2*digi.sample(i).er()+digi.sample(i).dv())];
+		//  Store ADC value and make ADC sum over whole digi sample
 		ADCcount+=digi.sample(i).adc();
 		if (digi.sample(i).adc()<200) ++hbHists.adc[digi.sample(i).adc()];
 		hbHists.count_shape[i]+=digi.sample(i).adc();
-	      }
+		// Calculate ADC sum of adjacent samples
+		if (i==digi.size()-1) continue;
+		tssum= digi.sample(i).adc()+digi.sample(i+1).adc();
+		if (tssum<45 && tssum>=-5)
+		  {
+		    if (iEta>0)
+		      ++hbHists.tssumplus[tssum+5][i];
+		    else
+		      ++hbHists.tssumminus[tssum+5][i];
+		  }
+	      } // for (int i=0;i<digi.size();++i)
 	    if(ADCcount>occThresh_) occ=true; 
 	    if (ADCcount<200)
 	      ++hbHists.adcsum[ADCcount];
@@ -606,7 +688,17 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
 		ADCcount+=digi.sample(i).adc();
 		if (digi.sample(i).adc()<200) ++heHists.adc[digi.sample(i).adc()];
 		heHists.count_shape[i]+=digi.sample(i).adc();
-	      }
+		// Calculate ADC sum of adjacent samples
+		if (i==digi.size()-1) continue;
+		tssum= digi.sample(i).adc()+digi.sample(i+1).adc();
+		if (tssum<45 && tssum>=-5)
+		  {
+		    if (iEta>0)
+		      ++heHists.tssumplus[tssum+5][i];
+		    else
+		      ++heHists.tssumminus[tssum+5][i];
+		  }
+	      } //for (int i=0;i<digi.size();++i)
 	    if(ADCcount>occThresh_) occ=true; 
 	    if (ADCcount<200)
 	      ++heHists.adcsum[ADCcount];
@@ -726,7 +818,17 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
 	      ADCcount+=digi.sample(i).adc();
 	      if (digi.sample(i).adc()<200) ++hoHists.adc[digi.sample(i).adc()];
 	      hoHists.count_shape[i]+=digi.sample(i).adc();
-	    }
+	      // Calculate ADC sum of adjacent samples
+		if (i==digi.size()-1) continue;
+		tssum= digi.sample(i).adc()+digi.sample(i+1).adc();
+		if (tssum<45 && tssum>=-5)
+		  {
+		    if (iEta>0)
+		      ++hoHists.tssumplus[tssum+5][i];
+		    else
+		      ++hoHists.tssumminus[tssum+5][i];
+		  }
+	    } //for (int i=0;i<digi.size();++i)
 	  if(ADCcount>occThresh_) occ=true;
 	  if (ADCcount<200)
 	    ++hoHists.adcsum[ADCcount];
@@ -839,7 +941,17 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
 	      ADCcount+=digi.sample(i).adc();
 	      if (digi.sample(i).adc()<200) ++hfHists.adc[digi.sample(i).adc()];
 	      hfHists.count_shape[i]+=digi.sample(i).adc();
-	    }
+	      // Calculate ADC sum of adjacent samples
+		if (i==digi.size()-1) continue;
+		tssum= digi.sample(i).adc()+digi.sample(i+1).adc();
+		if (tssum<45 && tssum>=-5)
+		  {
+		    if (iEta>0)
+		      ++hfHists.tssumplus[tssum+5][i];
+		    else
+		      ++hfHists.tssumminus[tssum+5][i];
+		  }
+	    } // for (int i=0;i<digi.size();++i)
 	  if(ADCcount>occThresh_) occ=true; 
 	  if (ADCcount<200)
 	    ++hfHists.adcsum[ADCcount];
@@ -882,6 +994,11 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
 	}
     } // if (hfHists.check)
 
+ if (showTiming)
+    {
+      cpu_timer.stop();  cout <<"TIMER:: HcalDigiMonitor DIGI HF -> "<<cpu_timer.cpuTime()<<endl;
+    }
+
   // This only counts digis that are present but bad somehow; it does not count digis that are missing
   int count_all=hbHists.count_all+heHists.count_all+hoHists.count_all+hfHists.count_all;
   int count_bad=hbHists.count_bad+heHists.count_bad+hoHists.count_bad+hfHists.count_bad;
@@ -894,11 +1011,6 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
   if (ievt_%digi_checkNevents_==0)
     fill_Nevents();
   
- if (showTiming)
-    {
-      cpu_timer.stop();  cout <<"TIMER:: HcalDigiMonitor DIGI HF -> "<<cpu_timer.cpuTime()<<endl;
-    }
-
   return;
 } // void HcalDigiMonitor::processEvent(...)
 
@@ -916,6 +1028,23 @@ void HcalDigiMonitor::fill_Nevents()
   double problemvalue=0;
   double problemsum=0;
   bool valid=false;
+
+
+  // Fill plots of sums of adjacent digi samples
+  for (int i=0;i<10;++i)
+    {
+      for (int j=0;j<50;++j)
+	{
+	  if (hbHists.tssumplus[j][i]>0) hbHists.TS_sum_plus[i]->setBinContent(j+1, hbHists.tssumplus[j][i]);
+	  if (hbHists.tssumminus[j][i]>0) hbHists.TS_sum_minus[i]->setBinContent(j+1, hbHists.tssumminus[j][i]);
+	  if (heHists.tssumplus[j][i]>0) heHists.TS_sum_plus[i]->setBinContent(j+1, heHists.tssumplus[j][i]);
+	  if (heHists.tssumminus[j][i]>0) heHists.TS_sum_minus[i]->setBinContent(j+1, heHists.tssumminus[j][i]);
+	  if (hoHists.tssumplus[j][i]>0) hoHists.TS_sum_plus[i]->setBinContent(j+1, hoHists.tssumplus[j][i]);
+	  if (hoHists.tssumminus[j][i]>0) hoHists.TS_sum_minus[i]->setBinContent(j+1, hoHists.tssumminus[j][i]);
+	  if (hfHists.tssumplus[j][i]>0) hfHists.TS_sum_plus[i]->setBinContent(j+1, hfHists.tssumplus[j][i]);
+	  if (hfHists.tssumminus[j][i]>0) hfHists.TS_sum_minus[i]->setBinContent(j+1, hfHists.tssumminus[j][i]);
+	}
+    } // for (int i=0;i<10;++i)
 
   // Fill plots of number of digis found
   for (int i=0;i<DIGI_NUM;++i)

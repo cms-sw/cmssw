@@ -4,6 +4,9 @@
 #include "DQM/HcalMonitorClient/interface/HcalBaseClient.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
+#include "DQM/HcalMonitorClient/interface/HcalClientUtils.h"
+#include "DQM/HcalMonitorClient/interface/HcalHistoUtils.h"
+
 struct DigiClientHists
 {
   // structures of histograms for each subdetector
@@ -18,6 +21,8 @@ struct DigiClientHists
   TH1F* CapID;
   TH1F* ADC;
   TH1F* ADCsum;
+  TH1F* TS_sum_plus[9];
+  TH1F* TS_sum_minus[9];
 };
 
 class HcalDigiClient : public HcalBaseClient {
@@ -81,14 +86,14 @@ private:
   TH2F* DigiErrorsBadADCSum[6];
   TH2F* DigiErrorsNoDigi[6];
   TH2F* DigiErrorsDVErr[6];
-  TH2F* DigiOccupancyByDepth;
+  TH2F* DigiOccupancyByDepth[6];
   TH2F* DigiOccupancyVME;
   TH2F* DigiOccupancySpigot;
   TH2F* DigiErrorEtaPhi;
   TH2F* DigiErrorVME;
   TH2F* DigiErrorSpigot;
 
-  TH1F* DigiSize;
+  TH2F* DigiSize;
   TH1F* DigiOccupancyEta;
   TH1F* DigiOccupancyPhi;
   TH1F* DigiNum;

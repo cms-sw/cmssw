@@ -13,8 +13,8 @@
 
 /** \class HcalDigiMonitor
   *  
-  * $Date: 2008/10/15 20:08:50 $
-  * $Revision: 1.33 $
+  * $Date: 2009/01/07 18:37:28 $
+  * $Revision: 1.34 $
   * \author W. Fisher - FNAL
   * \author J. Temple - Univ. of Maryland
   */
@@ -35,6 +35,7 @@ struct DigiHists
   MonitorElement* CapID;
   MonitorElement* ADC;
   MonitorElement* ADCsum;
+  std::vector<MonitorElement*> TS_sum_plus, TS_sum_minus;
 
   int count_shape[10];
   int count_shapeThresh[10];
@@ -48,6 +49,8 @@ struct DigiHists
   int capid[4];
   int adc[200];
   int adcsum[200];
+  int tssumplus[50][10];
+  int tssumminus[50][10];
 };
 
 class HcalDigiMonitor: public HcalBaseMonitor {
