@@ -621,9 +621,9 @@ void HcalHotCellMonitor::fillHotHistosAtEndRun()
 
 
 void HcalHotCellMonitor::processEvent_rechitenergy( const HBHERecHitCollection& hbheHits,
-						     const HORecHitCollection& hoHits,
-						     const HFRecHitCollection& hfHits)
-						
+						    const HORecHitCollection& hoHits,
+						    const HFRecHitCollection& hfHits)
+  
 {
   // Looks at rechits of cells and compares to threshold energies.
   // Cells above thresholds get marked as hot candidates

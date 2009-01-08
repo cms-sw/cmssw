@@ -305,9 +305,9 @@ void HcalDeadCellMonitor::createMaps(const HcalDbService& cond)
 
   double myNsigma=0;
 
-  for (int ieta=(int)etaMin_;ieta<=(int)etaMax_;++ieta)
+  for (int ieta=static_cast<int>(etaMin_);ieta<=static_cast<int>(etaMax_);++ieta)
     {
-      for (int iphi=(int)phiMin_;iphi<=(int)phiMax_;++iphi)
+      for (int iphi=static_cast<int>(phiMin_);iphi<=static_cast<int>(phiMax_);++iphi)
 	{
 	  for (int depth=1;depth<=4;++depth)
 	    {
@@ -630,18 +630,18 @@ void HcalDeadCellMonitor::processEvent_rechitenergy( const HBHERecHitCollection&
 	 HBpresent_=true;
 	 if (!checkHB_) continue;
 	 if (deadmon_makeDiagnostics_) d_HBrechitenergy->Fill(en);
-	 ++rechit_occupancy[ieta+(int)((etaBins_-2)/2)][iphi-1][depth-1];
+	 ++rechit_occupancy[static_cast<int>(ieta+(etaBins_-2)/2)][iphi-1][depth-1];
 	 if (en>=HBenergyThreshold_)
-	   ++aboveenergy[ieta+(int)((etaBins_-2)/2)][iphi-1][depth-1];
+	   ++aboveenergy[static_cast<int>(ieta+(etaBins_-2)/2)][iphi-1][depth-1];
        }
      else //if (id.subdet()==HcalEndcap)
        {
 	 HEpresent_=true;
 	 if (!checkHE_) continue;
 	 if (deadmon_makeDiagnostics_) d_HErechitenergy->Fill(en);
-	 ++rechit_occupancy[ieta+(int)((etaBins_-2)/2)][iphi-1][depth-1];
+	 ++rechit_occupancy[static_cast<int>(ieta+(etaBins_-2)/2)][iphi-1][depth-1];
 	 if (en>=HEenergyThreshold_)
-	   ++aboveenergy[ieta+(int)((etaBins_-2)/2)][iphi-1][depth-1];
+	   ++aboveenergy[static_cast<int>(ieta+(etaBins_-2)/2)][iphi-1][depth-1];
        }
      if (deadmon_test_neighbor_) rechitEnergies_[id]=en;
    } //for (HBHERecHitCollection::const_iterator HBHEiter=...)
@@ -657,10 +657,10 @@ void HcalDeadCellMonitor::processEvent_rechitenergy( const HBHERecHitCollection&
 	 int ieta = id.ieta();
 	 int iphi = id.iphi();
 	 int depth = id.depth();
-	 ++rechit_occupancy[ieta+(int)((etaBins_-2)/2)][iphi-1][depth-1];
+	 ++rechit_occupancy[static_cast<int>(ieta+(etaBins_-2)/2)][iphi-1][depth-1];
 	 if (deadmon_makeDiagnostics_) d_HOrechitenergy->Fill(en);
 	 if (en>=HOenergyThreshold_)
-	   ++aboveenergy[ieta+(int)((etaBins_-2)/2)][iphi-1][depth-1];
+	   ++aboveenergy[static_cast<int>(ieta+(etaBins_-2)/2)][iphi-1][depth-1];
 	 if (deadmon_test_neighbor_) rechitEnergies_[id]=en;
        }
    } // if (checkHO_)
@@ -677,9 +677,9 @@ void HcalDeadCellMonitor::processEvent_rechitenergy( const HBHERecHitCollection&
 	 int iphi = id.iphi();
 	 int depth = id.depth();
 	 if (deadmon_makeDiagnostics_) d_HFrechitenergy->Fill(en);
-	 ++rechit_occupancy[ieta+(int)((etaBins_-2)/2)][iphi-1][depth+1];
+	 ++rechit_occupancy[static_cast<int>(ieta+(etaBins_-2)/2)][iphi-1][depth+1];
 	 if (en>=HFenergyThreshold_)
-	   ++aboveenergy[ieta+(int)((etaBins_-2)/2)][iphi-1][depth+1]; // HF depths get shifted up by +2
+	   ++aboveenergy[static_cast<int>(ieta+(etaBins_-2)/2)][iphi-1][depth+1]; // HF depths get shifted up by +2
 	 if (deadmon_test_neighbor_) rechitEnergies_[id]=en;
        }
    } // if (checkHF_)
@@ -833,7 +833,7 @@ void HcalDeadCellMonitor::processEvent_rechitneighbors( const HBHERecHitCollecti
 	 if (1.*en/(enNeighbor/allneighbors)>HENeighborParams_.maxEnergyFrac)
 	   continue;
 	 // Case 3:  Tests passed; cell marked as dead
-	 belowneighbors[ieta+(int)((etaBins_-2)/2)][iphi-1][depth-1]++;
+	 ++belowneighbors[static_cast<int>(ieta+(etaBins_-2)/2)][iphi-1][depth-1];
        }
      else //if (id.subdet()==HcalEndcap)
        {
@@ -884,7 +884,7 @@ void HcalDeadCellMonitor::processEvent_rechitneighbors( const HBHERecHitCollecti
 	 if (1.*en/(enNeighbor/allneighbors)>HENeighborParams_.maxEnergyFrac)
 	   continue;
 	 // Case 3:  Tests passed; cell marked as dead
-	 belowneighbors[ieta+(int)((etaBins_-2)/2)][iphi-1][depth-1]++;
+	 ++belowneighbors[static_cast<int>(ieta+(etaBins_-2)/2)][iphi-1][depth-1];
        }
    } //for (HBHERecHitCollection::const_iterator HBHEiter=...)
 
@@ -939,7 +939,7 @@ void HcalDeadCellMonitor::processEvent_rechitneighbors( const HBHERecHitCollecti
 	 if (1.*en/(enNeighbor/allneighbors)>HONeighborParams_.maxEnergyFrac)
 	   continue;
 	 // Case 3:  Tests passed; cell marked as dead
-	 belowneighbors[ieta+(int)((etaBins_-2)/2)][iphi-1][depth-1]++;
+	 ++belowneighbors[static_cast<int>(ieta+(etaBins_-2)/2)][iphi-1][depth-1];
        }
    } // if (checkHO_)
  
@@ -999,7 +999,7 @@ void HcalDeadCellMonitor::processEvent_rechitneighbors( const HBHERecHitCollecti
 	   continue;
 	 // Case 3:  Tests passed; cell marked as dead
 	 // remember that HF gets shifted up by 2 in depth
-	 belowneighbors[ieta+(int)((etaBins_-2)/2)][iphi-1][depth+1]++;
+	 ++belowneighbors[static_cast<int>(ieta+(etaBins_-2)/2)][iphi-1][depth+1];
        }
    } // if (checkHF_)
  
@@ -1080,7 +1080,7 @@ void HcalDeadCellMonitor::processEvent_digi( const HBHEDigiCollection& hbhedigi,
       iphi=digi.id().iphi();
       depth=digi.id().depth();
 
-      occupancy[ieta+(int)((etaBins_-2)/2)][iphi-1][depth-1]++;
+      ++occupancy[static_cast<int>(ieta+(etaBins_-2)/2)][iphi-1][depth-1];
 
       if (!deadmon_test_pedestal_)
 	continue;
@@ -1129,10 +1129,11 @@ void HcalDeadCellMonitor::processEvent_digi( const HBHEDigiCollection& hbhedigi,
       if (pedestal_thresholds_.find(myid)!=pedestal_thresholds_.end())
 	{
 	  if (ADCsum >= pedestal_thresholds_[myid])
-	    abovepedestal[ieta+(int)((etaBins_-2)/2)][iphi-1][depth-1]++;
+	    ++abovepedestal[static_cast<int>(ieta+(etaBins_-2)/2)][iphi-1][depth-1];
 	  if (deadmon_makeDiagnostics_)
 	    {
 	      if (widths_[myid]==0) continue;
+
 	      if (myid.subdet()==HcalBarrel)
 		d_HBnormped->Fill(1.*(ADCsum-pedestals_[myid])/widths_[myid]);
 	      else
@@ -1140,7 +1141,7 @@ void HcalDeadCellMonitor::processEvent_digi( const HBHEDigiCollection& hbhedigi,
 	    } // if (deadmon_makeDiagnostics)
 	}
       else if (ADCsum>0) // if pedestal can't be found, just make sure ADC counts are non-zero
-	abovepedestal[ieta+(int)((etaBins_-2)/2)][iphi-1][depth-1]++;
+	++abovepedestal[static_cast<int>(ieta+(etaBins_-2)/2)][iphi-1][depth-1];
     } // for (HBHEDigiCollection...)
 
   // Loop over HO
@@ -1162,7 +1163,7 @@ void HcalDeadCellMonitor::processEvent_digi( const HBHEDigiCollection& hbhedigi,
 	  depth=digi.id().depth();
 	  
 	  //if (deadmon_test_occupancy_) // do this for every digi?  Or just ignore occupancy array when filling histos?
-	  occupancy[ieta+(int)((etaBins_-2)/2)][iphi-1][depth-1]++;
+	  ++occupancy[static_cast<int>(ieta+(etaBins_-2)/2)][iphi-1][depth-1];
 	  
 	  if (!deadmon_test_pedestal_)
 	    continue;
@@ -1207,7 +1208,7 @@ void HcalDeadCellMonitor::processEvent_digi( const HBHEDigiCollection& hbhedigi,
 	  if (pedestal_thresholds_.find(myid)!=pedestal_thresholds_.end())
 	    {
 	      if (ADCsum >= pedestal_thresholds_[myid])
-		abovepedestal[ieta+(int)((etaBins_-2)/2)][iphi-1][depth-1]++;
+		++abovepedestal[static_cast<int>(ieta+(etaBins_-2)/2)][iphi-1][depth-1];
 	      if (deadmon_makeDiagnostics_)
 		{
 		  if (widths_[myid]==0) continue;
@@ -1215,7 +1216,7 @@ void HcalDeadCellMonitor::processEvent_digi( const HBHEDigiCollection& hbhedigi,
 		} // if (deadmon_makeDiagnostics)
 	    }
 	  else if (ADCsum>0)
-	    abovepedestal[ieta+(int)((etaBins_-2)/2)][iphi-1][depth-1]++;
+	    ++abovepedestal[static_cast<int>(ieta+(etaBins_-2)/2)][iphi-1][depth-1];
 
 	} // for (HODigiCollection...)
     } // if (checkHO_)
@@ -1239,7 +1240,7 @@ void HcalDeadCellMonitor::processEvent_digi( const HBHEDigiCollection& hbhedigi,
 	  depth=digi.id().depth()+2; // offset depth by 2 for HF
 
 	  //if (deadmon_test_occupancy_) // do this for every digi?  Or just ignore occupancy array when filling histos?
-	  occupancy[ieta+(int)((etaBins_-2)/2)][iphi-1][depth-1]++;
+	  ++occupancy[static_cast<int>(ieta+(etaBins_-2)/2)][iphi-1][depth-1];
 
 	  if (!deadmon_test_pedestal_)
 	    continue;
@@ -1283,7 +1284,7 @@ void HcalDeadCellMonitor::processEvent_digi( const HBHEDigiCollection& hbhedigi,
 	  if (pedestal_thresholds_.find(myid)!=pedestal_thresholds_.end())
 	    {
 	      if (ADCsum >= pedestal_thresholds_[myid])
-		abovepedestal[ieta+(int)((etaBins_-2)/2)][iphi-1][depth-1]++;
+		++abovepedestal[static_cast<int>(ieta+(etaBins_-2)/2)][iphi-1][depth-1];
 	      if (deadmon_makeDiagnostics_)
 		{
 		  if (widths_[myid]==0) continue;
@@ -1291,7 +1292,7 @@ void HcalDeadCellMonitor::processEvent_digi( const HBHEDigiCollection& hbhedigi,
 		} // if (deadmon_makeDiagnostics)
 	    }
 	  else if (ADCsum>0)
-	    abovepedestal[ieta+(int)((etaBins_-2)/2)][iphi-1][depth-1]++;
+	    ++abovepedestal[static_cast<int>(ieta+(etaBins_-2)/2)][iphi-1][depth-1];
 
 	} // for (HFDigiCollection...)
     } // if (checkHF_)
