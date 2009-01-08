@@ -9,6 +9,14 @@
 <use name=TrackingTools/TransientTrackingRecHit> 
 <use name=TrackingTools/TransientTrack> 
 <use name=TrackingTools/TrackFitters>
+
+<use name=DataFormats/TrackReco>
+<use name=DataFormats/MuonReco>
+<use name=PhysicsTools/UtilAlgos>
+<use name=RecoMuon/TrackingTools>
+<use name=RecoTracker/Record>
+<use name=TrackingTools/DetLayers>
+<use name=RecoMuon/GlobalTrackingTools>
 <export>
    <lib name=DQMTrackingMonitor>
    <use name=FWCore/Framework>
@@ -22,4 +30,11 @@
    <use name=TrackingTools/TransientTrackingRecHit> 
    <use name=TrackingTools/TransientTrack> 
    <use name=TrackingTools/TrackFitters>
+   <use name=DataFormats/TrackReco>
+   <use name=DataFormats/MuonReco>
+   <use name=PhysicsTools/UtilAlgos>
+   <use name=RecoMuon/TrackingTools>
+   <use name=RecoTracker/Record>
+   <use name=TrackingTools/DetLayers>
+   <use name=RecoMuon/GlobalTrackingTools>
 </export>
