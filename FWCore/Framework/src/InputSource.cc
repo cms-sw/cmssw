@@ -18,6 +18,7 @@
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include <ctime>
@@ -95,9 +96,15 @@ namespace edm {
   InputSource::~InputSource() {}
 
   void
-  InputSource::fillDescription(edm::ParameterSetDescription& iDesc,
-                               std::string const& moduleLabel) {
-    iDesc.setUnknown();
+  InputSource::fillDescriptions(ConfigurationDescriptions & descriptions) {
+    ParameterSetDescription desc;
+    desc.setUnknown();
+    descriptions.addUnknownLabel(desc);
+  }
+
+  std::string
+  InputSource::baseType() {
+    return std::string("Source");
   }
 
   // This next function is to guarantee that "runs only" mode does not return events or lumis,

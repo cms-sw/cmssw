@@ -16,6 +16,7 @@
 #include "FWCore/Framework/interface/CurrentProcessingContext.h"
 #include "FWCore/Framework/src/CPCSentry.h"
 
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 using std::vector;
@@ -401,9 +402,15 @@ namespace edm {
   }
 
   void
-  OutputModule::fillDescription(edm::ParameterSetDescription& iDesc,
-                                std::string const& moduleLabel) {
-    iDesc.setUnknown();
+  OutputModule::fillDescriptions(ConfigurationDescriptions & descriptions) {
+    ParameterSetDescription desc;
+    desc.setUnknown();
+    descriptions.addUnknownLabel(desc);
+  }
+
+  std::string
+  OutputModule::baseType() {
+    return std::string("OutputModule");
   }
 
   void

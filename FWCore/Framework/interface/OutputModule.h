@@ -61,8 +61,8 @@ namespace edm {
     SelectionsArray const& keptProducts() const {return keptProducts_;}
     boost::array<bool, NumBranchTypes> const& hasNewlyDroppedBranch() const {return hasNewlyDroppedBranch_;}
 
-    static void fillDescription(edm::ParameterSetDescription& iDesc,
-                                std::string const& moduleLabel);
+    static void fillDescriptions(ConfigurationDescriptions & descriptions);
+    static std::string baseType();
 
     BranchChildren const& branchChildren() const {return branchChildren_;}
 

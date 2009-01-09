@@ -56,7 +56,7 @@ Some examples of InputSource subclasses may be:
 
 namespace edm {
   class ParameterSet;
-  class ParameterSetDescription;
+  class ConfigurationDescriptions;
   class ActivityRegistry;
 
   class InputSource : private ProductRegistryHelper, private boost::noncopyable {
@@ -84,8 +84,8 @@ namespace edm {
     /// Destructor
     virtual ~InputSource();
 
-    static void fillDescription(edm::ParameterSetDescription& iDesc,
-                                std::string const& moduleLabel);
+    static void fillDescriptions(ConfigurationDescriptions & descriptions);
+    static std::string baseType();
 
     ItemType nextItemType();
 

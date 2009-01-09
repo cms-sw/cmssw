@@ -9,6 +9,7 @@
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/Run.h"
 
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 namespace edm
@@ -106,10 +107,14 @@ namespace edm
   }
   
   void
-  EDFilter::fillDescription(edm::ParameterSetDescription& iDesc,
-                            std::string const& moduleLabel) {
-    iDesc.setUnknown();
+  EDFilter::fillDescriptions(ConfigurationDescriptions & descriptions) {
+    ParameterSetDescription desc;
+    desc.setUnknown();
+    descriptions.addUnknownLabel(desc);
   }
-  
+
+  std::string
+  EDFilter::baseType() {
+    return std::string("EDFilter");
+  }
 }
-  
