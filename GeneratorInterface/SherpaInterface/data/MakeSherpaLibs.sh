@@ -6,8 +6,8 @@
 #  uses:        the required SHERPA data cards (+ libraries) [see below]
 #
 #  author:      Markus Merschmeyer, RWTH Aachen
-#  date:        2008/12/14
-#  version:     2.5
+#  date:        2009/01/07
+#  version:     2.6
 #
 
 
@@ -18,7 +18,7 @@
 
 print_help() {
     echo "" && \
-    echo "MakeSherpaLibs version 2.5" && echo && \
+    echo "MakeSherpaLibs version 2.6" && echo && \
     echo "options: -d  path       path to your SHERPA installation OR '\$CMSSW_BASE'" && \
     echo "                         (if you want to use the SHERPA package of that release)" && \
     echo "                         -> ( "${shr}" )" && \
@@ -242,6 +242,11 @@ cd ${shrun}
 ### set base name for SHERPA output file(s) and directories
 outflbs=sherpa_${prc}
 cardfile=${outflbs}_cards.tgz             # input card file (master -> libraries)
+if [ "${lbo}" = "CRSS" ]; then
+  cardfile=${outflbs}_crdC.tgz
+elif [ "${lbo}" = "EVTS" ]; then
+  cardfile=${outflbs}_crdE.tgz
+fi
 crdsmd5s=md5sums_crds.md5                 # MD5 sums -> cards
 crdfmd5s=md5sums_crdsfile.md5             # MD5 sum -> cardfile
 libsfile=${outflbs}_libs.tgz              # output libs
