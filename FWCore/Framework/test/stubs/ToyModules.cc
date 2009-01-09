@@ -24,9 +24,6 @@ Toy EDProducers and EDProducts for testing purposes only.
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-
-#include <boost/shared_ptr.hpp>
 
 namespace edmtest {
 
@@ -91,40 +88,6 @@ namespace edmtest {
     virtual ~IntProducer() { }
     virtual void produce(edm::Event& e, edm::EventSetup const& c);
     
-    static void fillDescription(edm::ParameterSetDescription& iDesc,
-                                std::string const& moduleLabel) {
-      iDesc.setAllowAnything();
-
-      iDesc.add<int>("ivalue", 1);
-      iDesc.addUntracked<int>("uvalue", 7);
-      iDesc.addOptional<int>("ovalue", 7);
-      iDesc.addOptionalUntracked<int>("ouvalue", 7);
-
-      //add a ParameterSet
-      edm::ParameterSetDescription bar;
-      bar.add<unsigned int>("Drinks",5);
-      bar.addUntracked<unsigned int>("uDrinks",5);
-      bar.addOptional<unsigned int>("oDrinks",5);
-      bar.addOptionalUntracked<unsigned int>("ouDrinks",5);
-      iDesc.add("bar",bar);
-
-      //add a ParameterSet
-      edm::ParameterSetDescription barx;
-      barx.add<unsigned int>("Drinks",5);
-      barx.addUntracked<unsigned int>("uDrinks",5);
-      barx.addOptional<unsigned int>("oDrinks",5);
-      barx.addOptionalUntracked<unsigned int>("ouDrinks",5);
-      std::vector<edm::ParameterSetDescription> bars;
-      bars.push_back(barx);
-      iDesc.add("bars",bars);
-
-      edm::ParameterDescription* parDescription;
-      parDescription = iDesc.addOptional<edm::ParameterSetDescription>("subpset", edm::ParameterSetDescription());
-      edm::ParameterSetDescription* subPsetDescription = 
-        parDescription->parameterSetDescription();
-
-      subPsetDescription->add<int>("xvalue", 11);
-    }
   private:
     int value_;
   };
