@@ -4,9 +4,9 @@
  * \author M. Zanetti - CERN
  *
  * Last Update:
- * $Date: 2008/02/22 23:52:29 $
- * $Revision: 1.10 $
- * $Author: lat $
+ * $Date: 2009/01/09 15:43:33 $
+ * $Revision: 1.11 $
+ * $Author: dvolyans $
  *
  */
 
@@ -148,7 +148,7 @@ void DQMClientExample::endJob(){
   const QReport * theQReport = clientHisto->getQReport(QTestName_);
   if(theQReport) {
     edm::LogWarning ("DQMClientExample") <<"*** Summary of Quality Test for clientHisto: \n"
-                                      <<"---  value  ="<< theQReport->getQTresult()<<"\n"
+                                       //<<"---  value  ="<< theQReport->getQTresult()<<"\n"
                                       <<"--- status ="<< theQReport->getStatus() << "\n"
                                       <<"--- message ="<< theQReport->getMessage() << "\n";
    vector<dqm::me_util::Channel> badChannels = theQReport->getBadChannels();
