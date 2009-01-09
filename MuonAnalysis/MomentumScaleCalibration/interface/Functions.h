@@ -354,65 +354,65 @@ public:
   }
 };
 
-/// Service to build the functor corresponding to the passed identifier
+/// Service to build the scale functor corresponding to the passed identifier
 scaleFunctionBase<double * > * scaleFunctionService( const int identifier );
 
-/// Service to build the functor corresponding to the passed identifier when receiving a vector<double>
+/// Service to build the scale functor corresponding to the passed identifier when receiving a vector<double>
 scaleFunctionBase<vector<double> > * scaleFunctionVecService( const int identifier );
 
-// Bias functions, they get vector<double>
-static scaleFunctionBase<vector<double> > * biasFunctionArray[] = {
-  new scaleFunctionType0<vector<double> >,
-  new scaleFunctionType1<vector<double> >,
-  new scaleFunctionType2<vector<double> >,
-  new scaleFunctionType3<vector<double> >,
-  new scaleFunctionType4<vector<double> >,
-  new scaleFunctionType5<vector<double> >,
-  new scaleFunctionType6<vector<double> >,
-  new scaleFunctionType7<vector<double> >,
-  new scaleFunctionType8<vector<double> >,
-  new scaleFunctionType9<vector<double> >,
-  new scaleFunctionType10<vector<double> >,
-  new scaleFunctionType11<vector<double> >,
-  new scaleFunctionType12<vector<double> >,
-  new scaleFunctionType13<vector<double> >
-};
+// // Bias functions, they get vector<double>
+// static scaleFunctionBase<vector<double> > * biasFunctionArray[] = {
+//   new scaleFunctionType0<vector<double> >,
+//   new scaleFunctionType1<vector<double> >,
+//   new scaleFunctionType2<vector<double> >,
+//   new scaleFunctionType3<vector<double> >,
+//   new scaleFunctionType4<vector<double> >,
+//   new scaleFunctionType5<vector<double> >,
+//   new scaleFunctionType6<vector<double> >,
+//   new scaleFunctionType7<vector<double> >,
+//   new scaleFunctionType8<vector<double> >,
+//   new scaleFunctionType9<vector<double> >,
+//   new scaleFunctionType10<vector<double> >,
+//   new scaleFunctionType11<vector<double> >,
+//   new scaleFunctionType12<vector<double> >,
+//   new scaleFunctionType13<vector<double> >
+// };
 
-// Scale functions, they get arrays of doubles
-static scaleFunctionBase<double* > * scaleFunctionArray[] = {
-  new scaleFunctionType0<double* >,
-  new scaleFunctionType1<double* >,
-  new scaleFunctionType2<double* >,
-  new scaleFunctionType3<double* >,
-  new scaleFunctionType4<double* >,
-  new scaleFunctionType5<double* >,
-  new scaleFunctionType6<double* >,
-  new scaleFunctionType7<double* >,
-  new scaleFunctionType8<double* >,
-  new scaleFunctionType9<double* >,
-  new scaleFunctionType10<double* >,
-  new scaleFunctionType11<double* >,
-  new scaleFunctionType12<double* >,
-  new scaleFunctionType13<double* >
-};
+// // Scale functions, they get arrays of doubles
+// static scaleFunctionBase<double* > * scaleFunctionArray[] = {
+//   new scaleFunctionType0<double* >,
+//   new scaleFunctionType1<double* >,
+//   new scaleFunctionType2<double* >,
+//   new scaleFunctionType3<double* >,
+//   new scaleFunctionType4<double* >,
+//   new scaleFunctionType5<double* >,
+//   new scaleFunctionType6<double* >,
+//   new scaleFunctionType7<double* >,
+//   new scaleFunctionType8<double* >,
+//   new scaleFunctionType9<double* >,
+//   new scaleFunctionType10<double* >,
+//   new scaleFunctionType11<double* >,
+//   new scaleFunctionType12<double* >,
+//   new scaleFunctionType13<double* >
+// };
 
-// Scale functions, they get vector<double>
-static scaleFunctionBase<vector<double> > * scaleFunctionArrayForVec[] = {
-  new scaleFunctionType0<vector<double> >,
-  new scaleFunctionType1<vector<double> >,
-  new scaleFunctionType2<vector<double> >,
-  new scaleFunctionType3<vector<double> >,
-  new scaleFunctionType4<vector<double> >,
-  new scaleFunctionType5<vector<double> >,
-  new scaleFunctionType6<vector<double> >,
-  new scaleFunctionType7<vector<double> >,
-  new scaleFunctionType8<vector<double> >,
-  new scaleFunctionType9<vector<double> >,
-  new scaleFunctionType10<vector<double> >,
-  new scaleFunctionType11<vector<double> >,
-  new scaleFunctionType12<vector<double> >,
-  new scaleFunctionType13<vector<double> >
-};
+// // Scale functions, they get vector<double>
+// static scaleFunctionBase<vector<double> > * scaleFunctionArrayForVec[] = {
+//   new scaleFunctionType0<vector<double> >,
+//   new scaleFunctionType1<vector<double> >,
+//   new scaleFunctionType2<vector<double> >,
+//   new scaleFunctionType3<vector<double> >,
+//   new scaleFunctionType4<vector<double> >,
+//   new scaleFunctionType5<vector<double> >,
+//   new scaleFunctionType6<vector<double> >,
+//   new scaleFunctionType7<vector<double> >,
+//   new scaleFunctionType8<vector<double> >,
+//   new scaleFunctionType9<vector<double> >,
+//   new scaleFunctionType10<vector<double> >,
+//   new scaleFunctionType11<vector<double> >,
+//   new scaleFunctionType12<vector<double> >,
+//   new scaleFunctionType13<vector<double> >
+// };
 
 // -------------- //
 // Smear functors //
@@ -503,15 +503,18 @@ class smearFunctionType5 : public smearFunctionBase {
   }
 };
 
-// Defined globally...
-static smearFunctionBase * smearFunctionArray[] = {
-  new smearFunctionType0,
-  new smearFunctionType1,
-  new smearFunctionType2,
-  new smearFunctionType3,
-  new smearFunctionType4,
-  new smearFunctionType5
-};
+/// Service to build the smearing functor corresponding to the passed identifier
+smearFunctionBase * smearFunctionService( const int identifier );
+
+// // Defined globally...
+// static smearFunctionBase * smearFunctionArray[] = {
+//   new smearFunctionType0,
+//   new smearFunctionType1,
+//   new smearFunctionType2,
+//   new smearFunctionType3,
+//   new smearFunctionType4,
+//   new smearFunctionType5
+// };
 
 /**
  * Resolution functions. </br>
@@ -741,30 +744,36 @@ protected:
 // Other functions are not put for now //
 // ----------------------------------- //
 
-// Defined globally...
-static resolutionFunctionBase<double *> * resolutionFunctionArray[] = {
-  0,
-  new resolutionFunctionType1<double *>,
-  0,
-  0,
-  0,
-  0,
-  new resolutionFunctionType6<double *>,
-  new resolutionFunctionType7<double *>,
-  new resolutionFunctionType8<double *>
-};
+/// Service to build the resolution functor corresponding to the passed identifier
+resolutionFunctionBase<double *> * resolutionFunctionService( const int identifier );
 
-static resolutionFunctionBase<vector<double> > * resolutionFunctionArrayForVec[] = {
-  0,
-  new resolutionFunctionType1<vector<double> >,
-  0,
-  0,
-  0,
-  0,
-  new resolutionFunctionType6<vector<double> >,
-  new resolutionFunctionType7<vector<double> >,
-  new resolutionFunctionType8<vector<double> >
-};
+/// Service to build the resolution functor corresponding to the passed identifier when receiving a vector<double>
+resolutionFunctionBase<vector<double> > * resolutionFunctionVecService( const int identifier );
+
+// // Defined globally...
+// static resolutionFunctionBase<double *> * resolutionFunctionArray[] = {
+//   0,
+//   new resolutionFunctionType1<double *>,
+//   0,
+//   0,
+//   0,
+//   0,
+//   new resolutionFunctionType6<double *>,
+//   new resolutionFunctionType7<double *>,
+//   new resolutionFunctionType8<double *>
+// };
+
+// static resolutionFunctionBase<vector<double> > * resolutionFunctionArrayForVec[] = {
+//   0,
+//   new resolutionFunctionType1<vector<double> >,
+//   0,
+//   0,
+//   0,
+//   0,
+//   new resolutionFunctionType6<vector<double> >,
+//   new resolutionFunctionType7<vector<double> >,
+//   new resolutionFunctionType8<vector<double> >
+// };
 
 /**
  * Background functors.
@@ -849,10 +858,13 @@ class backgroundFunctionType3 : public backgroundFunctionBase {
   }
 };
 
-static backgroundFunctionBase * backgroundFunctionArray[] = {
-  new backgroundFunctionType1,
-  new backgroundFunctionType2,
-  new backgroundFunctionType3
-};
+/// Service to build the background functor corresponding to the passed identifier
+backgroundFunctionBase * backgroundFunctionService( const int identifier );
+
+// static backgroundFunctionBase * backgroundFunctionArray[] = {
+//   new backgroundFunctionType1,
+//   new backgroundFunctionType2,
+//   new backgroundFunctionType3
+// };
 
 #endif // FUNCTIONS_H

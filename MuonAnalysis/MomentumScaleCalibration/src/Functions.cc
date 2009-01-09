@@ -41,3 +41,58 @@ scaleFunctionBase<vector<double> > * scaleFunctionVecService( const int identifi
   default: cout << "Error: wrong identifier = " << identifier << endl; exit(1);
   }
 }
+
+smearFunctionBase * smearFunctionService( const int identifier )
+{
+  switch ( identifier ) {
+  case ( 0 ): return ( new smearFunctionType0 ); break;
+  case ( 1 ): return ( new smearFunctionType1 ); break;
+  case ( 2 ): return ( new smearFunctionType2 ); break;
+  case ( 3 ): return ( new smearFunctionType3 ); break;
+  case ( 4 ): return ( new smearFunctionType4 ); break;
+  case ( 5 ): return ( new smearFunctionType5 ); break;
+  default: cout << "Error: undefined smear type = " << identifier << endl; exit(1); break;
+  }
+}
+
+resolutionFunctionBase<double *> * resolutionFunctionService( const int identifier )
+{
+  switch ( identifier ) {
+  case ( 0 ): cout << "Error: resolution function type " << identifier << " not defined" << endl; exit(1); break;
+  case ( 1 ): return ( new resolutionFunctionType1<double *> ); break;
+  case ( 2 ): cout << "Error: resolution function type " << identifier << " not defined" << endl; exit(1); break;
+  case ( 3 ): cout << "Error: resolution function type " << identifier << " not defined" << endl; exit(1); break;
+  case ( 4 ): cout << "Error: resolution function type " << identifier << " not defined" << endl; exit(1); break;
+  case ( 5 ): cout << "Error: resolution function type " << identifier << " not defined" << endl; exit(1); break;
+  case ( 6 ): return ( new resolutionFunctionType6<double *> ); break;
+  case ( 7 ): return ( new resolutionFunctionType7<double *> ); break;
+  case ( 8 ): return ( new resolutionFunctionType8<double *> ); break;
+  default: cout << "Error: undefined resolution type = " << identifier << endl; exit(1); break;
+  }
+}
+
+resolutionFunctionBase<vector<double> > * resolutionFunctionVecService( const int identifier )
+{
+  switch ( identifier ) {
+  case ( 0 ): cout << "Error: resolution function type " << identifier << " not defined" << endl; exit(1); break;
+  case ( 1 ): return ( new resolutionFunctionType1<vector<double> > ); break;
+  case ( 2 ): cout << "Error: resolution function type " << identifier << " not defined" << endl; exit(1); break;
+  case ( 3 ): cout << "Error: resolution function type " << identifier << " not defined" << endl; exit(1); break;
+  case ( 4 ): cout << "Error: resolution function type " << identifier << " not defined" << endl; exit(1); break;
+  case ( 5 ): cout << "Error: resolution function type " << identifier << " not defined" << endl; exit(1); break;
+  case ( 6 ): return ( new resolutionFunctionType6<vector<double> > ); break;
+  case ( 7 ): return ( new resolutionFunctionType7<vector<double> > ); break;
+  case ( 8 ): return ( new resolutionFunctionType8<vector<double> > ); break;
+  default: cout << "Error: undefined resolution type = " << identifier << endl; exit(1); break;
+  }
+}
+
+backgroundFunctionBase * backgroundFunctionService( const int identifier )
+{
+  switch ( identifier ) {
+  case ( 0 ): return new backgroundFunctionType1; break;
+  case ( 1 ): return new backgroundFunctionType2; break;
+  case ( 2 ): return new backgroundFunctionType3; break;
+  default: cout << "Error: undefined background function type = " << identifier << endl; exit(1); break;
+  }
+}
