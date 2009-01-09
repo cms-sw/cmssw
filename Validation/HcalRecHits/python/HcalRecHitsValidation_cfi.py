@@ -2,12 +2,12 @@ import FWCore.ParameterSet.Config as cms
 
 from Configuration.StandardSequences.SimulationRandomNumberGeneratorSeeds_cff import *
 from Configuration.StandardSequences.Simulation_cff import *
-from Configuration.StandardSequences.Geometry_cff import *
 from Configuration.StandardSequences.MixingNoPileUp_cff import *
+from Configuration.StandardSequences.Reconstruction_cff import *
 from Configuration.StandardSequences.FrontierConditions_GlobalTag_cff import *
 GlobalTag.globaltag = 'IDEAL_30X::All'
 
-from Configuration.StandardSequences.Reconstruction_cff import *
+
 from DQMServices.Core.DQM_cfg import *
 
 maxEvents = cms.untracked.PSet(
