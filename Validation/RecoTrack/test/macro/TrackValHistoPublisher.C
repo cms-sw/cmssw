@@ -760,6 +760,7 @@ void plotBuilding(TCanvas *canvas,
   s2->Draw("sames");
 
   canvas->cd(3);
+  gPad->SetLogx();
   setStats(r3,s3, -1, 0, false);
   r3->Draw();
   s3->Draw("sames");
