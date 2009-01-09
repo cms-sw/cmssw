@@ -86,6 +86,7 @@ namespace edm {
     bool exists = pset.existsAs<std::vector<ParameterSet> >(label(), isTracked());
 
     if (!isOptional() && !exists) {
+       throwParameterNotDefined();
     }
 
     if (exists) {
