@@ -86,7 +86,9 @@ namespace edm {
     std::vector<FileCatalogItem>::const_iterator fileIterEnd_;
     std::vector<FileCatalogItem>::const_iterator fileIter_;
     RootFileSharedPtr rootFile_;
-    BranchDescription::MatchMode matchMode_;
+    BranchDescription::MatchMode parametersMustMatch_;
+    BranchDescription::MatchMode branchesMustMatch_;
+
     CLHEP::RandFlat * flatDistribution_;
     std::vector<boost::shared_ptr<FileIndex> > fileIndexes_;
 

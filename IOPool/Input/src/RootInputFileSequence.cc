@@ -36,7 +36,8 @@ namespace edm {
     fileIterEnd_(fileCatalogItems().end()),
     fileIter_(fileIterEnd_),
     rootFile_(),
-    matchMode_(BranchDescription::Permissive),
+    parametersMustMatch_(BranchDescription::Permissive),
+    branchesMustMatch_(BranchDescription::Permissive),
     flatDistribution_(0),
     fileIndexes_(fileCatalogItems().size()),
     eventsRemainingInFile_(0),
@@ -73,8 +74,17 @@ namespace edm {
       factory->stagein(fileIter_->fileName());
 
     sort_all(eventsToProcess_);
-    std::string matchMode = pset.getUntrackedParameter<std::string>("fileMatchMode", std::string("permissive"));
-    if (matchMode == std::string("strict")) matchMode_ = BranchDescription::Strict;
+
+    std::string parametersMustMatch = pset.getUntrackedParameter<std::string>("parametersMustMatch", std::string("permissive"));
+    if (parametersMustMatch == std::string("strict")) parametersMustMatch_ = BranchDescription::Strict;
+
+    // "fileMatchMode" is for backward compatibility.
+    parametersMustMatch = pset.getUntrackedParameter<std::string>("fileMatchMode", std::string("permissive"));
+    if (parametersMustMatch == std::string("strict")) parametersMustMatch_ = BranchDescription::Strict;
+
+    std::string branchesMustMatch = pset.getUntrackedParameter<std::string>("branchesMustMatch", std::string("permissive"));
+    if (branchesMustMatch == std::string("strict")) branchesMustMatch_ = BranchDescription::Strict;
+
     if (primary()) {
       for(fileIter_ = fileIterBegin_; fileIter_ != fileIterEnd_; ++fileIter_) {
         initFile(skipBadFiles_);
@@ -207,7 +217,8 @@ namespace edm {
       // make sure the new product registry is compatible with the main one
       std::string mergeInfo = productRegistryUpdate().merge(*rootFile_->productRegistry(),
 							    fileIter_->fileName(),
-							    matchMode_);
+							    parametersMustMatch_,
+							    branchesMustMatch_);
       if (!mergeInfo.empty()) {
         throw edm::Exception(errors::MismatchedInputFiles,"RootInputFileSequence::nextFile()") << mergeInfo;
       }
@@ -232,7 +243,8 @@ namespace edm {
       // make sure the new product registry is compatible to the main one
       std::string mergeInfo = productRegistryUpdate().merge(*rootFile_->productRegistry(),
 							    fileIter_->fileName(),
-							    matchMode_);
+							    parametersMustMatch_,
+							    branchesMustMatch_);
       if (!mergeInfo.empty()) {
         throw edm::Exception(errors::MismatchedInputFiles,"RootInputFileSequence::previousEvent()") << mergeInfo;
       }

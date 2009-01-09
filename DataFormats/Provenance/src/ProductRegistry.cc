@@ -165,7 +165,8 @@ namespace edm {
   std::string
   ProductRegistry::merge(ProductRegistry const& other,
 	std::string const& fileName,
-	BranchDescription::MatchMode m) {
+	BranchDescription::MatchMode parametersMustMatch,
+	BranchDescription::MatchMode branchesMustMatch) {
     std::ostringstream differences;
 
     ProductRegistry::ProductList::iterator j = productList_.begin();
@@ -187,12 +188,15 @@ namespace edm {
 	}
 	++i;
       } else if (i == e || j != s && j->first < i->first) {
-	// Allow branch to be missing in new file
+	if (branchesMustMatch == BranchDescription::Strict) {
+	  differences << "Branch '" << j->second.branchName() << "' is in previous files\n";
+	  differences << "    but not in file '" << fileName << "'.\n";
+	}
 	++j;
       } else {
-	std::string difs = match(j->second, i->second, fileName, m);
+	std::string difs = match(j->second, i->second, fileName, parametersMustMatch);
 	if (difs.empty()) {
-	  if (m == BranchDescription::Permissive) j->second.merge(i->second);
+	  if (parametersMustMatch == BranchDescription::Permissive) j->second.merge(i->second);
 	} else {
 	  differences << difs;
 	}
