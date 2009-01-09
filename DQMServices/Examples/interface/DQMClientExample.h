@@ -5,8 +5,8 @@
  * *
  *  DQM Test Client
  *
- *  $Date: 2007/11/05 11:30:18 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/02/22 23:52:28 $
+ *  $Revision: 1.4 $
  *  \author  M. Zanetti CERN
  *   
  */
@@ -65,6 +65,7 @@ private:
 
   DQMStore* dbe_;  
   std::string monitorName_;
+  std::string QTestName_;
   int counterLS_;      ///counter
   int counterEvt_;     ///counter
   int prescaleLS_;     ///units of lumi sections
