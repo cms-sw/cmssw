@@ -32,37 +32,34 @@ class ElectronSeed : public TrajectorySeed
     typedef edm::RefToBase<CaloCluster> CaloClusterRef ;
     typedef edm::Ref<TrackCollection> CtfTrackRef ;
 
-    static std::string const &name()
+    static std::string const & name()
     {
-      static std::string const name_("ElectronSeed");
+      static std::string const name_("ElectronSeed") ;
       return name_;
     }
 
+    //! Construction of base attributes
     ElectronSeed() ;
+    ElectronSeed( const TrajectorySeed & ) ;
+    ElectronSeed( PTrajectoryStateOnDet & pts, RecHitContainer & rh,  PropagationDirection & dir ) ;
+    ElectronSeed * clone() const { return new ElectronSeed(*this) ; }
     virtual ~ElectronSeed() ;
 
-    //! Tracker driven
-    ElectronSeed( const TrajectorySeed &, const CtfTrackRef & ) ;
-
-    //! Ecal driven
-    ElectronSeed( const TrajectorySeed &, const CaloClusterRef &,
-      int subDet2 =0, float dRz2 =std::numeric_limits<float>::infinity(),
-      float dPhi2 =std::numeric_limits<float>::infinity() ) ;
-
-    //! Ecal driven, old seeding scheme
-    ElectronSeed( PTrajectoryStateOnDet & pts, RecHitContainer & rh,  PropagationDirection & dir,
-      const CaloClusterRef &,
+    //! Set additional info
+    void setCtfTrack( const CtfTrackRef & ) ;
+    void setCaloCluster( const CaloClusterRef &,
       int subDet2 =0, float dRz2 =std::numeric_limits<float>::infinity(),
       float dPhi2 =std::numeric_limits<float>::infinity() ) ;
 
     //! Accessors
-    CaloClusterRef caloCluster() const { return caloCluster_ ; }
     CtfTrackRef ctfTrack() const { return ctfTrack_ ; }
+    CaloClusterRef caloCluster() const { return caloCluster_ ; }
     int subDet2() const { return subDet2_ ; }
     float dRz2() const { return dRz2_ ; }
     float dPhi2() const { return dPhi2_ ; }
+
+    //! Utility
     TrackCharge getCharge() const { return startingState().parameters().charge() ; }
-    ElectronSeed * clone() const { return new ElectronSeed(*this) ; }
 
   private:
 

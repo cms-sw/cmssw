@@ -12,28 +12,34 @@ ElectronSeed::ElectronSeed()
  {}
 
 ElectronSeed::ElectronSeed
- ( const TrajectorySeed & seed, const CtfTrackRef & ctfTrack )
+ ( const TrajectorySeed & seed )
  : TrajectorySeed(seed),
-   ctfTrack_(ctfTrack), caloCluster_(),
+   ctfTrack_(), caloCluster_(),
    subDet2_(0), dRz2_(std::numeric_limits<float>::infinity()),
    dPhi2_(std::numeric_limits<float>::infinity())
  {}
 
 ElectronSeed::ElectronSeed
- ( const TrajectorySeed & seed, const CaloClusterRef & scl,
-   int subDet2, float dRz2, float dPhi2 )
- : TrajectorySeed(seed),
-   ctfTrack_(), caloCluster_(scl),
-   subDet2_(subDet2), dRz2_(dRz2), dPhi2_(dPhi2)
+ ( PTrajectoryStateOnDet & pts, recHitContainer & rh, PropagationDirection & dir )
+ : TrajectorySeed(pts,rh,dir),
+   ctfTrack_(), caloCluster_(),
+   subDet2_(0), dRz2_(std::numeric_limits<float>::infinity()),
+   dPhi2_(std::numeric_limits<float>::infinity())
  {}
 
-ElectronSeed::ElectronSeed
- ( PTrajectoryStateOnDet & pts, recHitContainer & rh, PropagationDirection & dir,
-   const CaloClusterRef & scl, int subDet2, float dRz2, float dPhi2 )
- : TrajectorySeed(pts,rh,dir),
-   ctfTrack_(), caloCluster_(scl),
-   subDet2_(subDet2), dRz2_(dRz2), dPhi2_(dPhi2)
- {}
+void ElectronSeed::setCtfTrack
+ ( const CtfTrackRef & ctfTrack )
+ { ctfTrack_ = ctfTrack ; }
+
+void ElectronSeed::setCaloCluster
+ ( const CaloClusterRef & scl,
+   int subDet2, float dRz2, float dPhi2 )
+ {
+  caloCluster_ = scl ;
+  subDet2_ = subDet2 ;
+  dRz2_ = dRz2 ;
+  dPhi2_ = dPhi2 ;
+ }
 
 ElectronSeed::~ElectronSeed()
  {}
