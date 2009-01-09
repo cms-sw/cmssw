@@ -26,7 +26,7 @@
 #include "DataFormats/Common/interface/BaseVectorHolder.h"
 
 namespace {
-  namespace {
+  struct dictionary {
     std::vector<reco::Candidate *> v1;
     reco::CandidateCollection o1;
     edm::Wrapper<reco::CandidateCollection> w1;
@@ -45,6 +45,7 @@ namespace {
     edm::reftobase::RefVectorHolder<reco::CandidateRefVector> rh2;
     edm::reftobase::Holder<reco::Candidate, reco::CandidateRef> rhcr1;
     edm::reftobase::VectorHolder<reco::Candidate, reco::CandidateRefVector> rhcr2;
+    edm::reftobase::BaseVectorHolder<reco::Candidate>::const_iterator ohhuh1;
     edm::reftobase::VectorHolder<reco::Candidate, reco::CandidateRefVector>::const_iterator_imp_specific rhcri1;
     edm::Wrapper<reco::CandidateRefVector> wrv1;
     edm::Wrapper<reco::CandidateBaseRefVector> wrv2;
@@ -96,5 +97,5 @@ namespace {
     edm::reftobase::RefHolder<reco::NamedCompositeCandidateRef> hcc10;
     edm::reftobase::VectorHolder<reco::Candidate, reco::NamedCompositeCandidateRefVector> hcc11;
     edm::reftobase::RefVectorHolder<reco::NamedCompositeCandidateRefVector> hcc12;
- }
+  };
 }
