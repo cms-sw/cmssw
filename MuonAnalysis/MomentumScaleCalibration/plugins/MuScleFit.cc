@@ -1,8 +1,8 @@
 //  \class MuScleFit
 //  Fitter of momentum scale and resolution from resonance decays to muon track pairs
 //
-//  $Date: 2009/01/08 17:06:28 $
-//  $Revision: 1.18 $
+//  $Date: 2009/01/09 15:34:26 $
+//  $Revision: 1.19 $
 //  \author R. Bellan, C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo, M.De Mattia - INFN Padova
 //
 //  Recent additions: 
@@ -1136,7 +1136,9 @@ void MuScleFit::readProbabilityDistributions( const edm::EventSetup & eventSetup
     // To separate the Z histograms from the other resonances we use tha names.
     if( name->find("GLZ") != string::npos ) {
       // ATTENTION: they are expected to be ordered
-      ++iY;
+
+      cout << "For iY = " << iY << " the histogram is \"" << *name << "\"" << endl;
+
       // Extract normalization for mass slice in Y bins of Z
       // ---------------------------------------------------
       for(int iy=1; iy<=nBinsY; iy++){
@@ -1150,12 +1152,17 @@ void MuScleFit::readProbabilityDistributions( const edm::EventSetup & eventSetup
                           << " GLZNorm[" << iY << "][" << iy << "] = " 
                           << MuScleFitUtils::GLZNorm[iY][iy] << endl;
       }
+      // increase the histogram counter
+      ++iY;
     }
     else {
+      // ATTENTION: they are expected to be ordered
+
       // Extract normalization for each mass slice
       // -----------------------------------------
-      // ATTENTION: they are expected to be ordered
-      ++ires;
+
+      cout << "For ires = " << ires << " the histogram is \"" << *name << "\"" << endl;
+
       // The histograms are filled like the root TH2D from which they are taken,
       // meaning that bin = 0 is the underflow and nBins+1 is the overflow.
       // We start from 1 and loop up to the last bin, excluding under/overflow.
@@ -1170,6 +1177,8 @@ void MuScleFit::readProbabilityDistributions( const edm::EventSetup & eventSetup
                           << " GLNorm[" << ires << "][" << iy << "] = " 
                           << MuScleFitUtils::GLNorm[ires][iy] << endl;
       }
+      // increase the histogram counter
+      ++ires;
     }
   }
 }
