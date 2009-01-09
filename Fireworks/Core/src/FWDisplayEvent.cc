@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: FWDisplayEvent.cc,v 1.60 2009/01/08 15:13:29 chrjones Exp $
+// $Id: FWDisplayEvent.cc,v 1.61 2009/01/08 17:03:39 chrjones Exp $
 //
 
 // system include files
@@ -179,7 +179,7 @@ void FWDisplayEvent::registerPhysicsObject(const FWPhysicsObjectDesc&iItem)
 }
 
 void FWDisplayEvent::registerDetailView (const std::string &item_name,
-					 FWDetailView *view)
+					 FWDetailViewBase *view)
 {
      m_guiManager->registerDetailView(item_name, view);
 }

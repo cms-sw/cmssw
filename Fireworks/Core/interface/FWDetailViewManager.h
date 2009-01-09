@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Mar  5 09:13:43 EST 2008
-// $Id: FWDetailViewManager.h,v 1.5 2008/03/22 08:48:58 jmuelmen Exp $
+// $Id: FWDetailViewManager.h,v 1.6 2008/11/06 22:05:22 amraktad Exp $
 //
 
 // system include files
@@ -30,7 +30,7 @@ class TEveScene;
 class TEveViewer;
 class TGMainFrame;
 class TGTextView;
-class FWDetailView;
+class FWDetailViewBase;
 
 class FWDetailViewManager
 {
@@ -46,7 +46,7 @@ class FWDetailViewManager
 
       // ---------- member functions ---------------------------
       void openDetailViewFor(const FWModelId& );
-      void registerDetailView (const std::string &, FWDetailView *);
+      void registerDetailView (const std::string &, FWDetailViewBase *);
       void close_wm ();
       void close_button ();
 
@@ -62,7 +62,7 @@ protected:
      TGMainFrame	*frame;
      TGTextView		*text_view;
 
-     std::map<std::string, FWDetailView *>	m_viewers;
+     std::map<std::string, FWDetailViewBase *>	m_viewers;
 };
 
 

@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.63 2009/01/08 17:03:39 chrjones Exp $
+// $Id: CmsShowMain.cc,v 1.64 2009/01/08 18:06:30 amraktad Exp $
 //
 
 // system include files
@@ -454,7 +454,7 @@ void CmsShowMain::registerPhysicsObject(const FWPhysicsObjectDesc&iItem)
 }
 
 void CmsShowMain::registerDetailView (const std::string &item_name,
-					 FWDetailView *view)
+					 FWDetailViewBase *view)
 {
   m_guiManager->registerDetailView(item_name, view);
 }

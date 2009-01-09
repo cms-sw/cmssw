@@ -16,10 +16,11 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:42:33 EST 2008
-// $Id: TrackDetailView.h,v 1.1 2008/03/20 04:00:27 jmuelmen Exp $
+// $Id: TrackDetailView.h,v 1.2 2008/11/06 22:05:23 amraktad Exp $
 //
 
 // system include files
+#include "DataFormats/TrackReco/interface/Track.h"
 
 // user include files
 #include "TEveBoxSet.h"
@@ -30,21 +31,20 @@
 class FWEventItem;
 class TEveElementList;
 
-class TrackDetailView : public FWDetailView {
+class TrackDetailView : public FWDetailView<reco::Track> {
 
 public:
      TrackDetailView();
      virtual ~TrackDetailView();
 
-     virtual void build (TEveElementList **product, const FWModelId &id);
+     virtual TEveElement* build (const FWModelId &id,const reco::Track*);
 
 protected:
-     void setItem (const FWEventItem *iItem) { m_item = iItem; }
      void getCenter( Double_t* vars )
      {
-	vars[0] = rotation_center[0];
-	vars[1] = rotation_center[1];
-	vars[2] = rotation_center[2];
+	vars[0] = rotationCenter()[0];
+	vars[1] = rotationCenter()[1];
+	vars[2] = rotationCenter()[2];
      }
 
 private:
@@ -52,11 +52,10 @@ private:
      const TrackDetailView& operator=(const TrackDetailView&); // stop default
 
      // ---------- member data --------------------------------
-     const FWEventItem* m_item;
      void resetCenter() {
-	rotation_center[0] = 0;
-	rotation_center[1] = 0;
-	rotation_center[2] = 0;
+	rotationCenter()[0] = 0;
+	rotationCenter()[1] = 0;
+	rotationCenter()[2] = 0;
      }
 
 };

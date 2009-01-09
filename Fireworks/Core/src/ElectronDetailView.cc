@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: ElectronDetailView.cc,v 1.22 2008/12/04 21:07:24 chrjones Exp $
+// $Id: ElectronDetailView.cc,v 1.26 2008/12/08 07:04:07 jmuelmen Exp $
 //
 
 // system include files
@@ -78,9 +78,9 @@ ElectronDetailView::~ElectronDetailView()
 //
 // member functions
 //
-void ElectronDetailView::build (TEveElementList **product, const FWModelId &id)
+TEveElement* ElectronDetailView::build (const FWModelId &id, const reco::GsfElectron* iElectron)
 {
-     return build_projected(product, id);
+     return build_projected(id, iElectron);
 }
 
 void ElectronDetailView::build_3d (TEveElementList **product, const FWModelId &id)
@@ -266,9 +266,9 @@ void ElectronDetailView::build_3d (TEveElementList **product, const FWModelId &i
 	  trackpositionAtCalo->SetMarkerSize(2);
 	  trackpositionAtCalo->SetMarkerColor(kRed);
 	  tList->AddElement(trackpositionAtCalo);
-	  rotation_center[0] = i->TrackPositionAtCalo().x();
-	  rotation_center[1] = i->TrackPositionAtCalo().y();
-	  rotation_center[2] = i->TrackPositionAtCalo().z();
+	  rotationCenter()[0] = i->TrackPositionAtCalo().x();
+	  rotationCenter()[1] = i->TrackPositionAtCalo().y();
+	  rotationCenter()[2] = i->TrackPositionAtCalo().z();
 	  TEvePointSet *scposition =
 	       new TEvePointSet("sc position", 1);
 	  scposition->SetNextPoint(i->caloPosition().x(),
@@ -302,30 +302,17 @@ void ElectronDetailView::build_3d (TEveElementList **product, const FWModelId &i
      }
 }
 
-void ElectronDetailView::build_projected (TEveElementList **product,
-					  const FWModelId &id)
+TEveElement* ElectronDetailView::build_projected (const FWModelId &id,
+                                                  const reco::GsfElectron* iElectron)
 {
+     if(0==iElectron) { return 0;}
      m_item = id.item();
      // printf("calling ElectronDetailView::buildRhoZ\n");
-     TEveElementList* tList = *product;
-     if(0 == tList) {
-	  tList =  new TEveElementList(m_item->name().c_str(),"Supercluster RhoZ",true);
-	  *product = tList;
-	  tList->SetMainColor(m_item->defaultDisplayProperties().color());
-	  gEve->AddElement(tList);
-     } else {
-	  return;
-// 	  tList->DestroyElements();
-     }
+     TEveElementList* tList =  new TEveElementList(m_item->name().c_str(),"Supercluster RhoZ",true);
+     tList->SetMainColor(m_item->defaultDisplayProperties().color());
+     gEve->AddElement(tList);
      // get electrons
      resetCenter();
-     using reco::GsfElectronCollection;
-     const GsfElectronCollection *electrons = 0;
-     // printf("getting electrons\n");
-     m_item->get(electrons);
-     // printf("got electrons\n");
-     if (electrons == 0) return;
-     // printf("%d GSF electrons\n", electrons->size());
      // get rechits
 /*
      const EcalRecHitCollection *hits = 0;
@@ -373,7 +360,7 @@ void ElectronDetailView::build_projected (TEveElementList **product,
 	     "show only crystal location" << std::endl;
      }
      float rgba[4] = { 1, 0, 0, 1 };
-     if (const reco::GsfElectron *i = &electrons->at(id.index())) {
+     if (const reco::GsfElectron *i = iElectron) {
 	  assert(i->gsfTrack().isNonnull());
 	  assert(i->superCluster().isNonnull());
 	  TEveElementList* container = new TEveElementList("supercluster");
@@ -450,17 +437,17 @@ void ElectronDetailView::build_projected (TEveElementList **product,
 	  container->AddElement(non_seed_boxes);
 	  tList->AddElement(container);
 	  if (subdetId == EcalBarrel) {
-	       rotation_center[0] = i->superCluster()->position().eta() * scale;
-	       rotation_center[1] = i->superCluster()->position().phi() * scale;
-	       rotation_center[2] = 0;
+	       rotationCenter()[0] = i->superCluster()->position().eta() * scale;
+	       rotationCenter()[1] = i->superCluster()->position().phi() * scale;
+	       rotationCenter()[2] = 0;
 	  } else if (subdetId == EcalEndcap) {
-	       rotation_center[0] = i->superCluster()->position().x() * scale;
-	       rotation_center[1] = i->superCluster()->position().y() * scale;
-	       rotation_center[2] = 0;
+	       rotationCenter()[0] = i->superCluster()->position().x() * scale;
+	       rotationCenter()[1] = i->superCluster()->position().y() * scale;
+	       rotationCenter()[2] = 0;
 	  }
-// 	  rotation_center[0] = i->TrackPositionAtCalo().x();
-// 	  rotation_center[1] = i->TrackPositionAtCalo().y();
-// 	  rotation_center[2] = i->TrackPositionAtCalo().z();
+// 	  rotationCenter()[0] = i->TrackPositionAtCalo().x();
+// 	  rotationCenter()[1] = i->TrackPositionAtCalo().y();
+// 	  rotationCenter()[2] = i->TrackPositionAtCalo().z();
 	  TEvePointSet *scposition =
 	       new TEvePointSet("sc position", 1);
 	  if (subdetId == EcalBarrel) {
@@ -495,34 +482,34 @@ void ElectronDetailView::build_projected (TEveElementList **product,
 	       new TEveLine("sc trackpositionAtCalo");
 	  if (subdetId == EcalBarrel) {
 	       trackpositionAtCalo->SetNextPoint(i->TrackPositionAtCalo().eta() * scale,
-						 rotation_center[1] - 20,
+						 rotationCenter()[1] - 20,
 						 0);
 	       trackpositionAtCalo->SetNextPoint(i->TrackPositionAtCalo().eta() * scale,
-						 rotation_center[1] + 20,
+						 rotationCenter()[1] + 20,
 						 0);
 	  } else if (subdetId == EcalEndcap) {
 	       trackpositionAtCalo->SetNextPoint(i->TrackPositionAtCalo().x() * scale,
-						 rotation_center[1] - 20,
+						 rotationCenter()[1] - 20,
 						 0);
 	       trackpositionAtCalo->SetNextPoint(i->TrackPositionAtCalo().x() * scale,
-						 rotation_center[1] + 20,
+						 rotationCenter()[1] + 20,
 						 0);
 	  }
 	  trackpositionAtCalo->SetLineColor(kBlue);
 	  tList->AddElement(trackpositionAtCalo);
 	  trackpositionAtCalo = new TEveLine("sc trackpositionAtCalo");
 	  if (subdetId == EcalBarrel) {
-	       trackpositionAtCalo->SetNextPoint(rotation_center[0] - 20,
+	       trackpositionAtCalo->SetNextPoint(rotationCenter()[0] - 20,
 						 i->TrackPositionAtCalo().phi() * scale,
 						 0);
-	       trackpositionAtCalo->SetNextPoint(rotation_center[0] + 20,
+	       trackpositionAtCalo->SetNextPoint(rotationCenter()[0] + 20,
 						 i->TrackPositionAtCalo().phi() * scale,
 						 0);
 	  } else if (subdetId == EcalEndcap) {
-	       trackpositionAtCalo->SetNextPoint(rotation_center[0] - 20,
+	       trackpositionAtCalo->SetNextPoint(rotationCenter()[0] - 20,
 						 i->TrackPositionAtCalo().y() * scale,
 						 0);
-	       trackpositionAtCalo->SetNextPoint(rotation_center[0] + 20,
+	       trackpositionAtCalo->SetNextPoint(rotationCenter()[0] + 20,
 						 i->TrackPositionAtCalo().y() * scale,
 						 0);
 	  }
@@ -532,17 +519,17 @@ void ElectronDetailView::build_projected (TEveElementList **product,
 	       new TEveLine("pin position", 1);
 	  if (subdetId == EcalBarrel) {
 	       pinposition->SetNextPoint((i->caloPosition().eta() - i->deltaEtaSuperClusterTrackAtVtx()) * scale,
-					 rotation_center[1] - 20,
+					 rotationCenter()[1] - 20,
 					 0);
 	       pinposition->SetNextPoint((i->caloPosition().eta() - i->deltaEtaSuperClusterTrackAtVtx()) * scale,
-					 rotation_center[1] + 20,
+					 rotationCenter()[1] + 20,
 					 0);
 	  } else if (subdetId == EcalEndcap) {
 	       pinposition->SetNextPoint((i->caloPosition().x() - i->deltaEtaSuperClusterTrackAtVtx()) * scale,
-					 rotation_center[1] - 20,
+					 rotationCenter()[1] - 20,
 					 0);
 	       pinposition->SetNextPoint((i->caloPosition().x() - i->deltaEtaSuperClusterTrackAtVtx()) * scale,
-					 rotation_center[1] + 20,
+					 rotationCenter()[1] + 20,
 					 0);
 	  }
 	  pinposition->SetMarkerStyle(28);
@@ -550,17 +537,17 @@ void ElectronDetailView::build_projected (TEveElementList **product,
 	  tList->AddElement(pinposition);
 	  pinposition = new TEveLine("pin position", 1);
 	  if (subdetId == EcalBarrel) {
-	       pinposition->SetNextPoint(rotation_center[0] - 20,
+	       pinposition->SetNextPoint(rotationCenter()[0] - 20,
 					 (i->caloPosition().phi() - i->deltaPhiSuperClusterTrackAtVtx()) * scale,
 					 0);
-	       pinposition->SetNextPoint(rotation_center[0] + 20,
+	       pinposition->SetNextPoint(rotationCenter()[0] + 20,
 					 (i->caloPosition().phi() - i->deltaPhiSuperClusterTrackAtVtx()) * scale,
 					 0);
 	  } else if (subdetId == EcalEndcap) {
-	       pinposition->SetNextPoint(rotation_center[0] - 20,
+	       pinposition->SetNextPoint(rotationCenter()[0] - 20,
 					 (i->caloPosition().y() - i->deltaPhiSuperClusterTrackAtVtx()) * scale,
 					 0);
-	       pinposition->SetNextPoint(rotation_center[0] + 20,
+	       pinposition->SetNextPoint(rotationCenter()[0] + 20,
 					 (i->caloPosition().y() - i->deltaPhiSuperClusterTrackAtVtx()) * scale,
 					 0);
 	  }
@@ -587,6 +574,7 @@ void ElectronDetailView::build_projected (TEveElementList **product,
 	       tList->AddElement(all_crystals);
 	  }
      }
+   return tList;
 }
 
 TEveElementList *ElectronDetailView::makeLabels (const reco::GsfElectron &electron)
@@ -594,49 +582,49 @@ TEveElementList *ElectronDetailView::makeLabels (const reco::GsfElectron &electr
      TEveElementList *ret = new TEveElementList("electron labels");
 #if DRAW_LABELS_IN_SEPARATE_VIEW
      // title
-     text_view->AddLine("Electron detailed view");
-     text_view->AddLine("");
+     textView()->AddLine("Electron detailed view");
+     textView()->AddLine("");
      // summary
      if (electron.charge() > 0)
-	  text_view->AddLine("charge = +1");
-     else text_view->AddLine("charge = -1");
+	  textView()->AddLine("charge = +1");
+     else textView()->AddLine("charge = -1");
      char summary[128];
      sprintf(summary, "%s = %.1f GeV %10s = %.2f %10s = %.2f",
 	     "ET", electron.caloEnergy() / cosh(electron.eta()),
 	     "eta", electron.eta(),
 	     "phi", electron.phi());
-     text_view->AddLine(summary);
+     textView()->AddLine(summary);
      // E/p, H/E
      char hoe[128];
      sprintf(hoe, "E/p = %.2f %13s = %.3f",
 	     electron.eSuperClusterOverP(),
 	     "H/E", electron.hadronicOverEm());
-     text_view->AddLine(hoe);
+     textView()->AddLine(hoe);
      // delta phi/eta in
      char din[128];
      sprintf(din, "delta eta in = %.3f %16s = %.3f",
 	     electron.deltaEtaSuperClusterTrackAtVtx(),
 	     "delta phi in", electron.deltaPhiSuperClusterTrackAtVtx());
-     text_view->AddLine(din);
+     textView()->AddLine(din);
      // delta phi/eta out
      char dout[128];
      sprintf(dout, "delta eta out = %.3f %16s = %.3f",
 	     electron.deltaEtaSeedClusterTrackAtCalo(),
 	     "delta phi out", electron.deltaPhiSeedClusterTrackAtCalo());
-     text_view->AddLine(dout);
+     textView()->AddLine(dout);
      // legend
-     text_view->AddLine("");
-     text_view->AddLine("      red cross: track outer helix extrapolation");
-     text_view->AddLine("     blue cross: track inner helix extrapolation");
-     text_view->AddLine("      red point: seed cluster centroid");
-     text_view->AddLine("     blue point: supercluster centroid");
-     text_view->AddLine("   red crystals: seed cluster");
-     text_view->AddLine("yellow crystals: other clusters");
+     textView()->AddLine("");
+     textView()->AddLine("      red cross: track outer helix extrapolation");
+     textView()->AddLine("     blue cross: track inner helix extrapolation");
+     textView()->AddLine("      red point: seed cluster centroid");
+     textView()->AddLine("     blue point: supercluster centroid");
+     textView()->AddLine("   red crystals: seed cluster");
+     textView()->AddLine("yellow crystals: other clusters");
 #else
      // title
      TEveText* t = new TEveText("Electron detailed view");
-     t->PtrMainTrans()->MoveLF(1, rotation_center[0] + 5);
-     t->PtrMainTrans()->MoveLF(2, rotation_center[1] + 10);
+     t->PtrMainTrans()->MoveLF(1, rotationCenter()[0] + 5);
+     t->PtrMainTrans()->MoveLF(2, rotationCenter()[1] + 10);
      t->SetMainColor((Color_t)(kWhite));
      t->SetFontSize(16);
      t->SetFontFile(8);
@@ -648,8 +636,8 @@ TEveElementList *ElectronDetailView::makeLabels (const reco::GsfElectron &electr
 	     electron.caloEnergy() / cosh(electron.eta()),
 	     electron.eta(), electron.phi());
      t = new TEveText(summary);
-     t->PtrMainTrans()->MoveLF(1, rotation_center[0] + 4.5);
-     t->PtrMainTrans()->MoveLF(2, rotation_center[1] + 10);
+     t->PtrMainTrans()->MoveLF(1, rotationCenter()[0] + 4.5);
+     t->PtrMainTrans()->MoveLF(2, rotationCenter()[1] + 10);
      t->SetMainColor((Color_t)(kWhite));
      t->SetFontSize(12);
      t->SetFontFile(8);
@@ -660,8 +648,8 @@ TEveElementList *ElectronDetailView::makeLabels (const reco::GsfElectron &electr
      sprintf(hoe, "E/p = %.2f        H/E = %.3f",
 	     electron.eSuperClusterOverP(), electron.hadronicOverEm());
      t = new TEveText(hoe);
-     t->PtrMainTrans()->MoveLF(1, rotation_center[0] + 4.0);
-     t->PtrMainTrans()->MoveLF(2, rotation_center[1] + 10);
+     t->PtrMainTrans()->MoveLF(1, rotationCenter()[0] + 4.0);
+     t->PtrMainTrans()->MoveLF(2, rotationCenter()[1] + 10);
      t->SetMainColor((Color_t)(kWhite));
      t->SetFontSize(12);
      t->SetFontFile(8);
@@ -673,8 +661,8 @@ TEveElementList *ElectronDetailView::makeLabels (const reco::GsfElectron &electr
 	     electron.deltaEtaSuperClusterTrackAtVtx(),
 	     electron.deltaPhiSuperClusterTrackAtVtx());
      t = new TEveText(din);
-     t->PtrMainTrans()->MoveLF(1, rotation_center[0] + 3.5);
-     t->PtrMainTrans()->MoveLF(2, rotation_center[1] + 10);
+     t->PtrMainTrans()->MoveLF(1, rotationCenter()[0] + 3.5);
+     t->PtrMainTrans()->MoveLF(2, rotationCenter()[1] + 10);
      t->SetMainColor((Color_t)(kWhite));
      t->SetFontSize(12);
      t->SetFontFile(8);
@@ -686,8 +674,8 @@ TEveElementList *ElectronDetailView::makeLabels (const reco::GsfElectron &electr
 	     electron.deltaEtaSeedClusterTrackAtCalo(),
 	     electron.deltaPhiSeedClusterTrackAtCalo());
      t = new TEveText(dout);
-     t->PtrMainTrans()->MoveLF(1, rotation_center[0] + 3.0);
-     t->PtrMainTrans()->MoveLF(2, rotation_center[1] + 10);
+     t->PtrMainTrans()->MoveLF(1, rotationCenter()[0] + 3.0);
+     t->PtrMainTrans()->MoveLF(2, rotationCenter()[1] + 10);
      t->SetMainColor((Color_t)(kWhite));
      t->SetFontSize(12);
      t->SetFontFile(8);
@@ -701,22 +689,22 @@ TEveElementList *ElectronDetailView::makeLabels (const reco::GsfElectron &electr
 	 electron.superCluster()->getHitsByDetId().begin()->subdetId() == EcalEndcap)
 	  is_endcap = true;
      TEveLine *eta_line = new TEveLine;
-     eta_line->SetNextPoint(rotation_center[0] - 15, rotation_center[1] - 40, 0);
-     eta_line->SetNextPoint(rotation_center[0] - 10, rotation_center[1] - 40, 0);
+     eta_line->SetNextPoint(rotationCenter()[0] - 15, rotationCenter()[1] - 40, 0);
+     eta_line->SetNextPoint(rotationCenter()[0] - 10, rotationCenter()[1] - 40, 0);
      eta_line->SetLineColor((Color_t)kWhite);
      ret->AddElement(eta_line);
      TEveText *tt = new TEveText(is_endcap ? "x" : "eta");
-     tt->PtrMainTrans()->MoveLF(1, rotation_center[0] - 9);
-     tt->PtrMainTrans()->MoveLF(2, rotation_center[1] - 40);
+     tt->PtrMainTrans()->MoveLF(1, rotationCenter()[0] - 9);
+     tt->PtrMainTrans()->MoveLF(2, rotationCenter()[1] - 40);
      ret->AddElement(tt);
      TEveLine *phi_line = new TEveLine;
-     phi_line->SetNextPoint(rotation_center[0] - 15, rotation_center[1] - 40, 0);
-     phi_line->SetNextPoint(rotation_center[0] - 15, rotation_center[1] - 35, 0);
+     phi_line->SetNextPoint(rotationCenter()[0] - 15, rotationCenter()[1] - 40, 0);
+     phi_line->SetNextPoint(rotationCenter()[0] - 15, rotationCenter()[1] - 35, 0);
      phi_line->SetLineColor((Color_t)kWhite);
      ret->AddElement(phi_line);
      tt = new TEveText(is_endcap ? "y" : "phi");
-     tt->PtrMainTrans()->MoveLF(1, rotation_center[0] - 15);
-     tt->PtrMainTrans()->MoveLF(2, rotation_center[1] - 34);
+     tt->PtrMainTrans()->MoveLF(1, rotationCenter()[0] - 15);
+     tt->PtrMainTrans()->MoveLF(2, rotationCenter()[1] - 34);
      ret->AddElement(tt);
      return ret;
 }

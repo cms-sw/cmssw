@@ -16,12 +16,13 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:42:33 EST 2008
-// $Id: MuonDetailView.h,v 1.1 2008/03/07 04:01:20 tdaniels Exp $
+// $Id: MuonDetailView.h,v 1.2 2008/11/06 22:05:23 amraktad Exp $
 //
 
 // system include files
 
 #include "Rtypes.h"
+#include "DataFormats/MuonReco/interface/Muon.h"
 
 // user include files
 #include "Fireworks/Core/interface/FWDetailView.h"
@@ -31,13 +32,13 @@
 class FWEventItem;
 class TEveElementList;
 
-class MuonDetailView : public FWDetailView {
+class MuonDetailView : public FWDetailView<reco::Muon> {
 
 public:
      MuonDetailView();
      virtual ~MuonDetailView();
 
-     virtual void build (TEveElementList **product, const FWModelId &id);
+     virtual TEveElement* build (const FWModelId &id, const reco::Muon*);
 
 protected:
      void setItem (const FWEventItem *iItem) { m_item = iItem; }

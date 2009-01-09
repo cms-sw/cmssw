@@ -16,12 +16,13 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:42:33 EST 2008
-// $Id: ElectronDetailView.h,v 1.5 2008/11/06 22:05:22 amraktad Exp $
+// $Id: ElectronDetailView.h,v 1.9 2008/12/08 07:04:06 jmuelmen Exp $
 //
 
 // system include files
 
 #include "Rtypes.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 
 // user include files
 #include "TEveBoxSet.h"
@@ -35,23 +36,23 @@ namespace reco {
      class GsfElectron;
 }
 
-class ElectronDetailView : public FWDetailView {
+class ElectronDetailView : public FWDetailView<reco::GsfElectron> {
 
 public:
      ElectronDetailView();
      virtual ~ElectronDetailView();
 
-     virtual void build (TEveElementList **product, const FWModelId &id);
+     virtual TEveElement* build (const FWModelId &id, const reco::GsfElectron*);
 
 protected:
      void setItem (const FWEventItem *iItem) { m_item = iItem; }
      void build_3d (TEveElementList **product, const FWModelId &id);
-     void build_projected (TEveElementList **product, const FWModelId &id);
+     TEveElement* build_projected (const FWModelId &id, const reco::GsfElectron*);
      void getCenter( Double_t* vars )
      {
-	vars[0] = rotation_center[0];
-	vars[1] = rotation_center[1];
-	vars[2] = rotation_center[2];
+	vars[0] = rotationCenter()[0];
+	vars[1] = rotationCenter()[1];
+	vars[2] = rotationCenter()[2];
      }
      TEveElementList *makeLabels (const reco::GsfElectron &);
      TEveElementList *getEcalCrystalsBarrel (const class DetIdToMatrix &,
@@ -72,9 +73,9 @@ private:
      // ---------- member data --------------------------------
      const FWEventItem* m_item;
      void resetCenter() {
-	rotation_center[0] = 0;
-	rotation_center[1] = 0;
-	rotation_center[2] = 0;
+	rotationCenter()[0] = 0;
+	rotationCenter()[1] = 0;
+	rotationCenter()[2] = 0;
      }
 
 };

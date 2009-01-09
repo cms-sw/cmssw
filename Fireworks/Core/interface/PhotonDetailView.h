@@ -16,7 +16,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:42:33 EST 2008
-// $Id: PhotonDetailView.h,v 1.5 2008/11/06 22:05:22 amraktad Exp $
+// $Id: PhotonDetailView.h,v 1.2 2008/12/08 07:04:06 jmuelmen Exp $
 //
 
 // system include files
@@ -26,6 +26,7 @@
 // user include files
 #include "TEveBoxSet.h"
 #include "Fireworks/Core/interface/FWDetailView.h"
+#include "DataFormats/EgammaCandidates/interface/Photon.h"
 
 // forward declarations
 
@@ -35,24 +36,18 @@ namespace reco {
      class Photon;
 }
 
-class PhotonDetailView : public FWDetailView {
+class PhotonDetailView : public FWDetailView<reco::Photon> {
 
 public:
      PhotonDetailView();
      virtual ~PhotonDetailView();
 
-     virtual void build (TEveElementList **product, const FWModelId &id);
+     virtual TEveElement* build (const FWModelId &id, const reco::Photon* );
 
 protected:
      void setItem (const FWEventItem *iItem) { m_item = iItem; }
      void build_3d (TEveElementList **product, const FWModelId &id);
-     void build_projected (TEveElementList **product, const FWModelId &id);
-     void getCenter( Double_t* vars )
-     {
-	vars[0] = rotation_center[0];
-	vars[1] = rotation_center[1];
-	vars[2] = rotation_center[2];
-     }
+     TEveElement* build_projected (const FWModelId &id, const reco::Photon*);
      TEveElementList *makeLabels (const reco::Photon &);
      TEveElementList *getEcalCrystalsBarrel (const class DetIdToMatrix &,
 					     const std::vector<class DetId> &);
@@ -71,11 +66,6 @@ private:
 
      // ---------- member data --------------------------------
      const FWEventItem* m_item;
-     void resetCenter() {
-	rotation_center[0] = 0;
-	rotation_center[1] = 0;
-	rotation_center[2] = 0;
-     }
 
 };
 

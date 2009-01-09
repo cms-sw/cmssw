@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.89 2009/01/08 15:42:53 amraktad Exp $
+// $Id: FWGUIManager.cc,v 1.90 2009/01/08 18:06:30 amraktad Exp $
 //
 
 // system include files
@@ -293,7 +293,7 @@ FWGUIManager::registerViewBuilder(const std::string& iName,
 
 void
 FWGUIManager::registerDetailView (const std::string &iItemName,
-                                  FWDetailView *iView)
+                                  FWDetailViewBase *iView)
 {
    m_detailViewManager->registerDetailView(iItemName,iView);
 }

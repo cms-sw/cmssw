@@ -16,10 +16,11 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:42:33 EST 2008
-// $Id: GenParticleDetailView.h,v 1.1 2008/05/22 05:36:33 srappocc Exp $
+// $Id: GenParticleDetailView.h,v 1.2 2008/11/06 22:05:23 amraktad Exp $
 //
 
 // system include files
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
 // user include files
 #include "TEveBoxSet.h"
@@ -30,22 +31,16 @@
 class FWEventItem;
 class TEveElementList;
 
-class GenParticleDetailView : public FWDetailView {
+class GenParticleDetailView : public FWDetailView<reco::GenParticle> {
 
 public:
      GenParticleDetailView();
      virtual ~GenParticleDetailView();
 
-     virtual void build (TEveElementList **product, const FWModelId &id);
+     virtual TEveElement* build (const FWModelId &id, const reco::GenParticle*);
 
 protected:
      void setItem (const FWEventItem *iItem) { m_item = iItem; }
-     void getCenter( Double_t* vars )
-     {
-	vars[0] = rotation_center[0];
-	vars[1] = rotation_center[1];
-	vars[2] = rotation_center[2];
-     }
 
 private:
      GenParticleDetailView(const GenParticleDetailView&); // stop default
@@ -53,12 +48,6 @@ private:
 
      // ---------- member data --------------------------------
      const FWEventItem* m_item;
-     void resetCenter() {
-	rotation_center[0] = 0;
-	rotation_center[1] = 0;
-	rotation_center[2] = 0;
-     }
-
 };
 
 #endif

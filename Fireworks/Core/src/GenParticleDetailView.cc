@@ -24,61 +24,43 @@ GenParticleDetailView::~GenParticleDetailView ()
 
 }
 
-void GenParticleDetailView::build (TEveElementList **product, const FWModelId &id)
+TEveElement* GenParticleDetailView::build (const FWModelId &id, const reco::GenParticle* iParticle)
 {
-     m_item = id.item();
-     // printf("calling ElectronDetailView::buildRhoZ\n");
-     TEveElementList* tList = *product;
-     if(0 == tList) {
-	  tList =  new TEveElementList(m_item->name().c_str(),"Supercluster RhoZ",true);
-	  *product = tList;
-	  tList->SetMainColor(m_item->defaultDisplayProperties().color());
-     } else {
-	  return;
-// 	  tList->DestroyElements();
-     }
-
-     TEveTrackPropagator* rnrStyle = new TEveTrackPropagator();
-     //units are Tesla
-     rnrStyle->SetMagField( -4.0);
-     //get this from geometry, units are CM
-     rnrStyle->SetMaxR(120.0);
-     rnrStyle->SetMaxZ(300.0);
-
-     reco::GenParticleCollection const * genParticles=0;
-     m_item->get(genParticles);
-     //fwlite::Handle<reco::TrackCollection> tracks;
-     //tracks.getByLabel(*iEvent,"ctfWithMaterialTracks");
-
-     if(0 == genParticles ) return;
-
-     //  Original Commented out here
-     //  TEveTrackPropagator* rnrStyle = tList->GetPropagator();
-
-     int index=0;
-     //cout <<"----"<<endl;
-     TEveRecTrack t;
-
-     t.fBeta = 1.;
-     reco::GenParticleCollection::const_iterator it = genParticles->begin(),
-       end = genParticles->end();
-     for( ; it != end; ++it,++index) {
-	  if (index != id.index())
-	       continue;
-	  t.fP = TEveVector(it->px(),
-			    it->py(),
-			    it->pz());
-	  t.fV = TEveVector(it->vx(),
-			    it->vy(),
-			    it->vz());
-	  t.fSign = it->charge();
-
-	  TEveElementList* genPartList = new TEveElementList(Form("genParticle%d",index));
-	  gEve->AddElement(genPartList,tList);
-	  TEveTrack* genPart = new TEveTrack(&t,rnrStyle);
-	  genPart->SetMainColor(m_item->defaultDisplayProperties().color());
-	  genPart->MakeTrack();
-	  genPartList->AddElement(genPart);
-
-     }
+   if(0==iParticle) { return 0;}
+   m_item = id.item();
+   // printf("calling ElectronDetailView::buildRhoZ\n");
+   TEveElementList* tList =   new TEveElementList(m_item->name().c_str(),"Supercluster RhoZ",true);
+   tList->SetMainColor(m_item->defaultDisplayProperties().color());
+   
+   TEveTrackPropagator* rnrStyle = new TEveTrackPropagator();
+   //units are Tesla
+   rnrStyle->SetMagField( -4.0);
+   //get this from geometry, units are CM
+   rnrStyle->SetMaxR(120.0);
+   rnrStyle->SetMaxZ(300.0);
+   
+   //  Original Commented out here
+   //  TEveTrackPropagator* rnrStyle = tList->GetPropagator();
+   
+   int index=0;
+   //cout <<"----"<<endl;
+   TEveRecTrack t;
+   
+   t.fBeta = 1.;
+   t.fP = TEveVector(iParticle->px(),
+                     iParticle->py(),
+                     iParticle->pz());
+   t.fV = TEveVector(iParticle->vx(),
+                     iParticle->vy(),
+                     iParticle->vz());
+   t.fSign = iParticle->charge();
+   
+   TEveElementList* genPartList = new TEveElementList(Form("genParticle%d",index));
+   gEve->AddElement(genPartList,tList);
+   TEveTrack* genPart = new TEveTrack(&t,rnrStyle);
+   genPart->SetMainColor(m_item->defaultDisplayProperties().color());
+   genPart->MakeTrack();
+   genPartList->AddElement(genPart);
+   
+   return tList;
 }

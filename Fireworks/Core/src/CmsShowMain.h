@@ -16,7 +16,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:34:30 PST 2007
-// $Id: CmsShowMain.h,v 1.12 2009/01/06 17:16:00 amraktad Exp $
+// $Id: CmsShowMain.h,v 1.13 2009/01/07 11:54:57 amraktad Exp $
 //
 
 // system include files
@@ -49,6 +49,7 @@ class TSocket;
 class CmsShowNavigator;
 class CmsShowTaskExecutor;
 class CSGAction;
+class FWDetailViewBase;
 
 namespace fireworks {
    class Context;
@@ -57,8 +58,6 @@ namespace fireworks {
 namespace fwlite {
   class Event;
 }
-
-class FWDetailView;
 
 class CmsShowMain
 {
@@ -90,7 +89,7 @@ public:
   //  int draw(const fwlite::Event& );
 
   void registerPhysicsObject(const FWPhysicsObjectDesc&);
-  void registerDetailView (const std::string &item_name, FWDetailView *view);
+  void registerDetailView (const std::string &item_name, FWDetailViewBase *view);
 
   void notified(TSocket*);
 private:
