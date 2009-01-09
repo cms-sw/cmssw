@@ -4,19 +4,21 @@
  * \author M. Zanetti - CERN
  *
  * Last Update:
- * $Date: 2008/02/21 03:26:58 $
- * $Revision: 1.9 $
+ * $Date: 2008/02/22 23:52:29 $
+ * $Revision: 1.10 $
  * $Author: lat $
  *
  */
 
-#include "DQMServices/Examples/interface/DQMClientExample.h"
+/*  Description: Simple example showing how to access the histograms 
+ *  already defined and filled by the DQM producer(source) 
+ *  and how to access the quality test results.
+ */
 
+#include "DQMServices/Examples/interface/DQMClientExample.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
 
 #include <TF1.h>
 #include <stdio.h>
@@ -46,25 +48,29 @@ void DQMClientExample::initialize(){
   
   // base folder for the contents of this job
   monitorName_ = parameters_.getUntrackedParameter<string>("monitorName","YourSubsystemName");
-  cout << "Monitor name = " << monitorName_ << endl;
+  cout << "DQMClientExample: Monitor name = " << monitorName_ << endl;
   if (monitorName_ != "" ) monitorName_ = monitorName_+"/" ;
 
-  prescaleLS_ = parameters_.getUntrackedParameter<int>("prescaleLS", -1);
-  cout << "DQM lumi section prescale = " << prescaleLS_ << " lumi section(s)"<< endl;
-  prescaleEvt_ = parameters_.getUntrackedParameter<int>("prescaleEvt", -1);
-  cout << "DQM event prescale = " << prescaleEvt_ << " events(s)"<< endl;
+  QTestName_ = parameters_.getUntrackedParameter<string>("QTestName","exampleQTest"); 
+  cout << "DQMClientExample: QTest name to be ran on clientHisto = " << QTestName_ << endl;
 
-      
+  prescaleLS_ = parameters_.getUntrackedParameter<int>("prescaleLS", -1);
+  cout << "DQMClientExample: DQM lumi section prescale = " << prescaleLS_ << " lumi section(s)"<< endl;
+  prescaleEvt_ = parameters_.getUntrackedParameter<int>("prescaleEvt", -1);
+  cout << "DQMClientExample: DQM event prescale = " << prescaleEvt_ << " events(s)"<< endl;
+    
+
+
 }
 
 //--------------------------------------------------------
 void DQMClientExample::beginJob(const EventSetup& context){
 
-  // get backendinterface  
+  // get back-end interface  
   dbe_ = Service<DQMStore>().operator->();
 
-  // do your thing
-  dbe_->setCurrentFolder(monitorName_+"C1/Tests");
+  // define the directory where the clientHosto will be located;
+  dbe_->setCurrentFolder(monitorName_+"DQMclient");
   clientHisto = dbe_->book1D("clientHisto", "Guassian fit results.", 2, 0, 1);
 }
 
@@ -99,15 +105,15 @@ void DQMClientExample::analyze(const Event& e, const EventSetup& context){
 //   // do your thing here
 //   
   
-  string histoName = monitorName_ + "C1/C2/histo4";
+ //----------------------------------------------------------------------------------------------
+ // example how to retrieve a ME created by the DQM producer (in Examples/src/DQMSourceExample.cc) 
+ //---------------------------------------------------------------------------------------------
+   float mean =0;  float rms = 0;
 
-  float mean =0;
-  float rms = 0;
-
+  string histoName = monitorName_ + "DQMsource/QTests/MeanTrue";
   MonitorElement * meHisto = dbe_->get(histoName);
-
-  if (meHisto)
-  {
+  if (meHisto)  
+  { //when it is found, do some stuff 
     if (TH1F *rootHisto = meHisto->getTH1F())
     {
       TF1 *f1 = new TF1("f1","gaus",1,3);
@@ -115,22 +121,19 @@ void DQMClientExample::analyze(const Event& e, const EventSetup& context){
       mean = f1->GetParameter(1);
       rms = f1->GetParameter(2);
     }
-  }
-
   clientHisto->setBinContent(1,mean);
   clientHisto->setBinContent(2,rms);
+  }
 
-
-  string criterionName = parameters_.getUntrackedParameter<string>("QTestName","exampleQTest"); 
-  const QReport * theQReport = clientHisto->getQReport(criterionName);
-  if(theQReport) {
-    vector<dqm::me_util::Channel> badChannels = theQReport->getBadChannels();
-    for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
-	 channel != badChannels.end(); channel++) {
-      edm::LogError ("DQMClientExample") <<" Bad channels: "<<(*channel).getBin()<<" "<<(*channel).getContents();
-    }
-    edm::LogWarning ("DQMClientExample") <<"-------- "<<theQReport->getMessage()<<" ------- "<<theQReport->getStatus();
-  } 
+  else
+  { //when it is not found !
+  clientHisto->setBinContent(1,-1);
+  clientHisto->setBinContent(2,-1);
+  if(counterEvt_==1) edm::LogError ("DQMClientExample") <<"--- The following ME :"<< histoName <<" cannot be found\n" 
+            		       <<"--- on the DQM source side !\n";
+  }
+ 
+  // qtest to be ran on clientHisto is defined in Examples/test/QualityTests.xml
 
 }
 
@@ -140,6 +143,26 @@ void DQMClientExample::endRun(const Run& r, const EventSetup& context){
 
 //--------------------------------------------------------
 void DQMClientExample::endJob(){
+
+  //-- example  how to access the Quality test result
+  const QReport * theQReport = clientHisto->getQReport(QTestName_);
+  if(theQReport) {
+    edm::LogWarning ("DQMClientExample") <<"*** Summary of Quality Test for clientHisto: \n"
+                                      <<"---  value  ="<< theQReport->getQTresult()<<"\n"
+                                      <<"--- status ="<< theQReport->getStatus() << "\n"
+                                      <<"--- message ="<< theQReport->getMessage() << "\n";
+   vector<dqm::me_util::Channel> badChannels = theQReport->getBadChannels();
+    for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
+	 channel != badChannels.end(); channel++) {
+      edm::LogError ("DQMClientExample") <<" Bad channels: "<<(*channel).getBin()<<" "<<(*channel).getContents();
+    }
+  } 
+
+  else {
+  edm::LogError ("DQMClientExample") <<"--- No QReport is found for clientHisto!\n"
+  << "--- Please check your XML and config files -> QTestName ( " << QTestName_ << " )must be the same!\n";
+  }
+
 }
 
 
