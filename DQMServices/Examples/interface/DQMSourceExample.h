@@ -5,8 +5,8 @@
  * *
  *  DQM Test Client
  *
- *  $Date: 2008/02/22 23:52:28 $
- *  $Revision: 1.7 $
+ *  $Date: 2008/08/12 10:12:28 $
+ *  $Revision: 1.8 $
  *  \author  M. Zanetti CERN
  *   
  */
@@ -69,6 +69,7 @@ private:
   int   NBINS;
   float XMIN, XMAX;
 
+  // monitor elements for testing of Quality Tests
   MonitorElement * xTrue;
   MonitorElement * xFalse;
   MonitorElement * yTrue;
@@ -84,12 +85,13 @@ private:
   MonitorElement * noisyTrue;
   MonitorElement * noisyFalse;
 
+  // several ME more
   MonitorElement * i1;
   MonitorElement * f1;
   MonitorElement * s1;
   MonitorElement * p1;
   MonitorElement * p2;
-  MonitorElement * h7;
+  MonitorElement * h1;
 
   MonitorElement * summ;
   MonitorElement * fitResult;
