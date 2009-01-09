@@ -4,8 +4,8 @@
 /** \class MuScleFit
  *  Analyzer of the Global muon tracks
  *
- *  $Date: 2008/12/23 14:20:34 $
- *  $Revision: 1.7 $
+ *  $Date: 2009/01/08 17:04:31 $
+ *  $Revision: 1.8 $
  *  \author C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo - INFN Padova
  */
 
@@ -17,6 +17,9 @@
 #include <CLHEP/Vector/LorentzVector.h>
 #include <vector>
 #include "MuonAnalysis/MomentumScaleCalibration/interface/Histograms.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 
 namespace edm {
   class ParameterSet;
@@ -85,10 +88,22 @@ class MuScleFit: public edm::EDLooper {
 
  private:
 
+  /**
+   * Read probability distributions from the database.
+   * These are 2-D PDFs containing a grid of 1000x1000 values of the
+   * integral of Lorentz * Gaussian as a function
+   * of mass and resolution of a given measurement,
+   * for each of the six considered diLmuon resonances.
+   */
+  void readProbabilityDistributions( const edm::EventSetup & eventSetup );
+  /// Raed probability distributions from a local root file.
+  void readProbabilityDistributionsFromFile();
+
   /// Check if two lorentzVector are near in deltaR
   bool checkDeltaR(reco::Particle::LorentzVector& genMu, reco::Particle::LorentzVector& recMu);
 
-  /** Simple method to check parameters consistency. It aborts the job if the parameters
+  /**
+   * Simple method to check parameters consistency. It aborts the job if the parameters
    * are not consistent.
    */
   void checkParameters();

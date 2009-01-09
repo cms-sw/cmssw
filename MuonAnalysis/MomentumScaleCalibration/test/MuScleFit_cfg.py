@@ -25,8 +25,23 @@ process.load("MagneticField.Engine.uniformMagneticField_cfi")
 # )
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(-1)
+    input = cms.untracked.int32(10)
 )
+
+process.poolDBESSource = cms.ESSource("PoolDBESSource",
+   BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
+   DBParameters = cms.PSet(
+        messageLevel = cms.untracked.int32(2),
+        authenticationPath = cms.untracked.string('/afs/cern.ch/cms/DB/conddb')
+    ),
+    timetype = cms.untracked.string('runnumber'),
+    connect = cms.string('sqlite_file:/data2/demattia/CMSSW_2_1_12/src/MuonAnalysis/MomentumScaleCalibration/test/dummy2.db'),
+    toGet = cms.VPSet(cms.PSet(
+        record = cms.string('MuScleFitLikelihoodPdfRcd'),
+        tag = cms.string('MuScleFitLikelihoodPdf_2_1_12')
+    ))
+)
+
 process.looper = cms.Looper(
     "MuScleFit",
     process.MuonServiceProxy,

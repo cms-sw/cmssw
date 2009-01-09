@@ -1,8 +1,8 @@
 //  \class MuScleFit
 //  Fitter of momentum scale and resolution from resonance decays to muon track pairs
 //
-//  $Date: 2008/12/23 14:20:15 $
-//  $Revision: 1.17 $
+//  $Date: 2009/01/08 17:06:28 $
+//  $Revision: 1.18 $
 //  \author R. Bellan, C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo, M.De Mattia - INFN Padova
 //
 //  Recent additions: 
@@ -128,6 +128,10 @@
 
 #include "MuonAnalysis/MomentumScaleCalibration/interface/Functions.h"
 
+// To read likelihood distributions from the database.
+#include "CondFormats/MomentumScaleCalibrationObjects/interface/MuScleFitLikelihoodPdf.h"
+#include "CondFormats/DataRecord/interface/MuScleFitLikelihoodPdfRcd.h"
+
 using namespace std;
 using namespace edm;
 using namespace reco; // For AODSIM MC objects
@@ -249,65 +253,6 @@ MuScleFit::MuScleFit (const ParameterSet& pset) {
   }
   MuScleFitUtils::goodmuon = 0;
 
-  // Read probability distributions from root file
-  // These are 2-D PDFs containing a grid of 1000x1000 values of the
-  // integral of Lorentz * Gaussian as a function
-  // of mass and resolution of a given measurement,
-  // for each of the six considered diLmuon resonances.
-  // -------------------------------------------------
-  TH2D * GLZ[40];
-  TH2D * GL[6];
-  TFile * ProbsFile;
-  if ( theMuonType!=2 ) {
-    ProbsFile = new TFile ("Probs_new_1000_CTEQ.root"); // NNBB need to reset this if MuScleFitUtils::nbins changes
-    cout << "[MuScleFit-Constructor]: Reading TH2D probabilities from Probs_new_1000_CTEQ.root file" << endl;
-  } else {
-    ProbsFile = new TFile ("Probs_SM_1000.root"); // NNBB need to reset this if MuScleFitUtils::nbins changes
-    cout << "[MuScleFit-Constructor]: Reading TH2D probabilities from Probs_new_SM_1000_CTEQ.root file" << endl;
-  }
-  ProbsFile->cd();
-  for ( int i=0; i<40; i++ ) {
-    char nameh[6];
-    sprintf (nameh,"GLZ%d",i);
-    GLZ[i] = dynamic_cast<TH2D*>(ProbsFile->Get(nameh)); 
-  }
-  GL[0] = dynamic_cast<TH2D*> (ProbsFile->Get("GL0"));
-  GL[1] = dynamic_cast<TH2D*> (ProbsFile->Get("GL1"));
-  GL[2] = dynamic_cast<TH2D*> (ProbsFile->Get("GL2"));
-  GL[3] = dynamic_cast<TH2D*> (ProbsFile->Get("GL3"));
-  GL[4] = dynamic_cast<TH2D*> (ProbsFile->Get("GL4"));
-  GL[5] = dynamic_cast<TH2D*> (ProbsFile->Get("GL5"));
-
-  // Extract normalization for mass slice in Y bins of Z
-  // ---------------------------------------------------
-  for (int iY=0; iY<40; iY++) {
-    for (int iy=0; iy<=MuScleFitUtils::nbins; iy++) {
-      MuScleFitUtils::GLZNorm[iY][iy] = 0.;
-      for (int ix=0; ix<=MuScleFitUtils::nbins; ix++) {
-	MuScleFitUtils::GLZValue[iY][ix][iy] = GLZ[iY]->GetBinContent (ix+1, iy+1);
-	MuScleFitUtils::GLZNorm[iY][iy] += MuScleFitUtils::GLZValue[iY][ix][iy];
-      }
-      if (debug>2) cout << "GLZValue[" << iY << "][500][" << iy << "] = " 
-		       << MuScleFitUtils::GLZValue[iY][500][iy] 
-		       << " GLZNorm[" << iY << "][" << iy << "] = " 
-		       << MuScleFitUtils::GLZNorm[iY][iy] << endl;
-    }
-  }
-  // Extract normalization for each mass slice
-  // -----------------------------------------
-  for (int ires=0; ires<6; ires++) {
-    for (int iy=0; iy<=MuScleFitUtils::nbins; iy++) {
-      MuScleFitUtils::GLNorm[ires][iy] = 0.;
-      for (int ix=0; ix<=MuScleFitUtils::nbins; ix++) {
-	MuScleFitUtils::GLValue[ires][ix][iy] = GL[ires]->GetBinContent (ix+1, iy+1);
-	MuScleFitUtils::GLNorm[ires][iy] += MuScleFitUtils::GLValue[ires][ix][iy];
-      }
-      if (debug>2) cout << "GLValue[" << ires << "][500][" << iy << "] = " 
-		       << MuScleFitUtils::GLValue[ires][500][iy] 
-		       << " GLNorm[" << ires << "][" << iy << "] = " 
-		       << MuScleFitUtils::GLNorm[ires][iy] << endl;
-    }
-  }
   // Initialize ResMaxSigma And ResHalfWidth - 0 = global, 1 = SM, 2 = tracker
   // -------------------------------------------------------------------------
   MuScleFitUtils::ResMaxSigma[0][0] = 50.;
@@ -360,6 +305,14 @@ MuScleFit::~MuScleFit () {
 // Begin job
 // ---------
 void MuScleFit::beginOfJob (const EventSetup& eventSetup) {
+
+  // Read probability distributions from root file
+  // These are 2-D PDFs containing a grid of 1000x1000 values of the
+  // integral of Lorentz * Gaussian as a function
+  // of mass and resolution of a given measurement,
+  // for each of the six considered diLmuon resonances.
+  // -------------------------------------------------
+  readProbabilityDistributions( eventSetup );
 
   if (debug>0) cout << "[MuScleFit]: beginOfJob" << endl;
   
@@ -1079,3 +1032,144 @@ void MuScleFit::checkParameters() {
   }
 }
 
+void MuScleFit::readProbabilityDistributionsFromFile()
+{
+  TH2D * GLZ[40];
+  TH2D * GL[6];
+  TFile * ProbsFile;
+  if ( theMuonType!=2 ) {
+    ProbsFile = new TFile ("Probs_new_1000_CTEQ.root"); // NNBB need to reset this if MuScleFitUtils::nbins changes
+    cout << "[MuScleFit-Constructor]: Reading TH2D probabilities from Probs_new_1000_CTEQ.root file" << endl;
+  } else {
+    ProbsFile = new TFile ("Probs_SM_1000.root"); // NNBB need to reset this if MuScleFitUtils::nbins changes
+    cout << "[MuScleFit-Constructor]: Reading TH2D probabilities from Probs_new_SM_1000_CTEQ.root file" << endl;
+  }
+  ProbsFile->cd();
+  for ( int i=0; i<40; i++ ) {
+    char nameh[6];
+    sprintf (nameh,"GLZ%d",i);
+    GLZ[i] = dynamic_cast<TH2D*>(ProbsFile->Get(nameh)); 
+  }
+  GL[0] = dynamic_cast<TH2D*> (ProbsFile->Get("GL0"));
+  GL[1] = dynamic_cast<TH2D*> (ProbsFile->Get("GL1"));
+  GL[2] = dynamic_cast<TH2D*> (ProbsFile->Get("GL2"));
+  GL[3] = dynamic_cast<TH2D*> (ProbsFile->Get("GL3"));
+  GL[4] = dynamic_cast<TH2D*> (ProbsFile->Get("GL4"));
+  GL[5] = dynamic_cast<TH2D*> (ProbsFile->Get("GL5"));
+
+  // Extract normalization for mass slice in Y bins of Z
+  // ---------------------------------------------------
+  for (int iY=0; iY<40; iY++) {
+    int nBinsX = GLZ[iY]->GetNbinsX();
+    int nBinsY = GLZ[iY]->GetNbinsY();
+    if( nBinsX != MuScleFitUtils::nbins+1 || nBinsY != MuScleFitUtils::nbins+1 ) {
+      cout << "Error: for histogram \"" << GLZ[iY]->GetName() << "\" bins are not " << MuScleFitUtils::nbins << endl; 
+      cout<< "nBinsX = " << nBinsX << ", nBinsY = " << nBinsY << endl;
+      exit(1);
+    }
+    for (int iy=0; iy<=MuScleFitUtils::nbins; iy++) {
+      MuScleFitUtils::GLZNorm[iY][iy] = 0.;
+      for (int ix=0; ix<=MuScleFitUtils::nbins; ix++) {
+        MuScleFitUtils::GLZValue[iY][ix][iy] = GLZ[iY]->GetBinContent (ix+1, iy+1);
+        MuScleFitUtils::GLZNorm[iY][iy] += MuScleFitUtils::GLZValue[iY][ix][iy];
+      }
+      if (debug>2) cout << "GLZValue[" << iY << "][500][" << iy << "] = " 
+                        << MuScleFitUtils::GLZValue[iY][500][iy] 
+                        << " GLZNorm[" << iY << "][" << iy << "] = " 
+                        << MuScleFitUtils::GLZNorm[iY][iy] << endl;
+    }
+  }
+  // Extract normalization for each mass slice
+  // -----------------------------------------
+  for (int ires=0; ires<6; ires++) {
+    int nBinsX = GL[ires]->GetNbinsX();
+    int nBinsY = GL[ires]->GetNbinsY();
+    if( nBinsX != MuScleFitUtils::nbins+1 || nBinsY != MuScleFitUtils::nbins+1 ) {
+      cout << "Error: for histogram \"" << GLZ[ires]->GetName() << "\" bins are not " << MuScleFitUtils::nbins << endl; 
+      cout<< "nBinsX = " << nBinsX << ", nBinsY = " << nBinsY << endl;
+      exit(1);
+    }
+    for (int iy=0; iy<=MuScleFitUtils::nbins; iy++) {
+      MuScleFitUtils::GLNorm[ires][iy] = 0.;
+      for (int ix=0; ix<=MuScleFitUtils::nbins; ix++) {
+        MuScleFitUtils::GLValue[ires][ix][iy] = GL[ires]->GetBinContent (ix+1, iy+1);
+        MuScleFitUtils::GLNorm[ires][iy] += MuScleFitUtils::GLValue[ires][ix][iy];
+      }
+      if (debug>2) cout << "GLValue[" << ires << "][500][" << iy << "] = " 
+                        << MuScleFitUtils::GLValue[ires][500][iy] 
+                        << " GLNorm[" << ires << "][" << iy << "] = " 
+                        << MuScleFitUtils::GLNorm[ires][iy] << endl;
+    }
+  }
+}
+
+void MuScleFit::readProbabilityDistributions( const edm::EventSetup & eventSetup )
+{
+
+  edm::ESHandle<MuScleFitLikelihoodPdf> likelihoodPdf;
+  eventSetup.get<MuScleFitLikelihoodPdfRcd>().get(likelihoodPdf);
+  string smSuffix = "";
+
+  // Should read different histograms in the two cases
+  if ( theMuonType == 2 ) {
+    smSuffix = "SM";
+    cout << "Error: Not yet implemented..." << endl;
+    exit(1);
+  }
+
+  edm::LogInfo("MuScleFit") << "[MuScleFit::readProbabilityDistributions] End Reading MuScleFitLikelihoodPdfRcd" << endl;
+  vector<PhysicsTools::Calibration::HistogramD2D>::const_iterator histo = likelihoodPdf->histograms.begin();
+  vector<string>::const_iterator name = likelihoodPdf->names.begin();
+  vector<int>::const_iterator xBins = likelihoodPdf->xBins.begin();
+  vector<int>::const_iterator yBins = likelihoodPdf->yBins.begin();
+  int ires = 0;
+  int iY = 0;
+  for( ; histo != likelihoodPdf->histograms.end(); ++histo, ++name, ++xBins, ++yBins ) {
+    int nBinsX = *xBins;
+    int nBinsY = *yBins;
+    if( nBinsX != MuScleFitUtils::nbins+1 || nBinsY != MuScleFitUtils::nbins+1 ) {
+      cout << "Error: for histogram \"" << *name << "\" bins are not " << MuScleFitUtils::nbins << endl; 
+      cout<< "nBinsX = " << nBinsX << ", nBinsY = " << nBinsY << endl;
+      exit(1);
+    }
+
+    // To separate the Z histograms from the other resonances we use tha names.
+    if( name->find("GLZ") != string::npos ) {
+      // ATTENTION: they are expected to be ordered
+      ++iY;
+      // Extract normalization for mass slice in Y bins of Z
+      // ---------------------------------------------------
+      for(int iy=1; iy<=nBinsY; iy++){
+        MuScleFitUtils::GLZNorm[iY][iy] = 0.;
+        for(int ix=1; ix<=nBinsX; ix++){
+          MuScleFitUtils::GLZValue[iY][ix][iy] = histo->binContent (ix+1, iy+1);
+          MuScleFitUtils::GLZNorm[iY][iy] += MuScleFitUtils::GLZValue[iY][ix][iy];
+        }
+        if (debug>2) cout << "GLZValue[" << iY << "][500][" << iy << "] = " 
+                          << MuScleFitUtils::GLZValue[iY][500][iy] 
+                          << " GLZNorm[" << iY << "][" << iy << "] = " 
+                          << MuScleFitUtils::GLZNorm[iY][iy] << endl;
+      }
+    }
+    else {
+      // Extract normalization for each mass slice
+      // -----------------------------------------
+      // ATTENTION: they are expected to be ordered
+      ++ires;
+      // The histograms are filled like the root TH2D from which they are taken,
+      // meaning that bin = 0 is the underflow and nBins+1 is the overflow.
+      // We start from 1 and loop up to the last bin, excluding under/overflow.
+      for(int iy=1; iy<=nBinsY; iy++){
+        MuScleFitUtils::GLNorm[ires][iy] = 0.;
+        for(int ix=1; ix<=nBinsX; ix++){
+          MuScleFitUtils::GLValue[ires][ix][iy] = histo->binContent (ix+1, iy+1);
+          MuScleFitUtils::GLNorm[ires][iy] += MuScleFitUtils::GLValue[ires][ix][iy];
+        }
+        if (debug>2) cout << "GLValue[" << ires << "][500][" << iy << "] = " 
+                          << MuScleFitUtils::GLValue[ires][500][iy] 
+                          << " GLNorm[" << ires << "][" << iy << "] = " 
+                          << MuScleFitUtils::GLNorm[ires][iy] << endl;
+      }
+    }
+  }
+}
