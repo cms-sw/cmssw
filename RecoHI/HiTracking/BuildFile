@@ -18,7 +18,6 @@
 <use name=RecoLocalTracker/Records>
 <use name=MagneticField/Records>
 <use name=RecoPixelVertexing/PixelLowPtUtilities>
-<flags EDM_PLUGIN=1>
 <export>
  <lib name=RecoPixelVertexingPixelLowPtUtilities>
  <use name=FWCore/Framework>

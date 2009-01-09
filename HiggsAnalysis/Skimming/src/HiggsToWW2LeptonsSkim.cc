@@ -3,8 +3,8 @@
  *  
  *  This class is an EDFilter for HWW events
  *
- *  $Date: 2007/12/12 16:08:51 $
- *  $Revision: 1.9 $
+ *  $Date: 2007/12/20 00:40:30 $
+ *  $Revision: 1.10 $
  *
  *  \author Ezio Torassa  -  INFN Padova
  *
@@ -12,7 +12,7 @@
 
 #include "HiggsAnalysis/Skimming/interface/HiggsToWW2LeptonsSkim.h"
 
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 

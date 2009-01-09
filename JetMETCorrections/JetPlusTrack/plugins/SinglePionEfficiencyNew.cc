@@ -41,7 +41,7 @@
 #include "CLHEP/Vector/LorentzVector.h"
 #include "CLHEP/Units/PhysicalConstants.h"
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 // #include "CLHEP/HepPDT/DefaultConfig.hh"
 //
 #include "DataFormats/Math/interface/LorentzVector.h"

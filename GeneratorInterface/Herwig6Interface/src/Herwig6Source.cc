@@ -7,12 +7,12 @@
 #include "GeneratorInterface/Herwig6Interface/interface/Herwig6Source.h"
 #include "GeneratorInterface/Herwig6Interface/interface/Dummies.h"
 #include "GeneratorInterface/Herwig6Interface/interface/HWRGEN.h"
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "SimDataFormats/HepMCProduct/interface/GenInfoProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenInfoProduct.h"
 #include "FWCore/Framework/interface/Run.h"
 
 #include <iostream>

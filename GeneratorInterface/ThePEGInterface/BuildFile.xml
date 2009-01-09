@@ -1,11 +1,7 @@
 <use name="FWCore/Framework"/>
-<use name="SimDataFormats/HepMCProduct"/>
+<use name="SimDataFormats/GeneratorProducts"/>
 <use name="hepmc"/>
 <use name="thepeg"/>
 <export>
 	<lib name="GeneratorInterfaceThePEGInterface"/>
-	<use name="FWCore/Framework"/>
-	<use name="SimDataFormats/HepMCProduct"/>
-	<use name="hepmc"/>
-	<use name="thepeg"/>
 </export>

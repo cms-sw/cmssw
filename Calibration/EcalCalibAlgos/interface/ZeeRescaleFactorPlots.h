@@ -16,7 +16,7 @@
 //
 // Original Author:  Lorenzo AGOSTINO, Radek Ofierzynski
 //         Created:  Tue Jul 18 12:17:01 CEST 2006
-// $Id: ZeeRescaleFactorPlots.h,v 1.1 2008/04/28 16:56:41 palmale Exp $
+// $Id: ZeeRescaleFactorPlots.h,v 1.2 2008/04/30 09:37:42 palmale Exp $
 //
 //
 
@@ -31,7 +31,7 @@
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/EventSetup.h"

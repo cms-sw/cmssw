@@ -7,7 +7,7 @@
 //
 // Original Author:  Dong Ho Moon
 //         Created:  Wed May  9 06:22:36 CEST 2007
-// $Id: TestMuL1L2Filter.cc,v 1.1 2008/08/04 15:35:39 kodolova Exp $
+// $Id: TestMuL1L2Filter.cc,v 1.2 2008/09/14 12:25:19 kodolova Exp $
 //
 //
 // Comment: Dimuon reconstruction need primary vertex
@@ -81,7 +81,7 @@
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "HepMC/GenEvent.h"
 #include "HepMC/GenParticle.h"
 #include "DataFormats/DetId/interface/DetId.h"

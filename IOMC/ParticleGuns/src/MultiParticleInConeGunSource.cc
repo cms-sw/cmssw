@@ -1,6 +1,6 @@
 /*
- *  $Date: 2007/05/28 09:53:16 $
- *  $Revision: 1.15 $
+ *  $Date: 2007/10/17 15:58:25 $
+ *  $Revision: 1.1 $
  *  \author Jean-Roch Vlimant
  */
 
@@ -8,7 +8,7 @@
 
 #include "IOMC/ParticleGuns/interface/MultiParticleInConeGunSource.h"
 
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"

@@ -1,5 +1,5 @@
 /*
- * $Id: HydjetProducer.cc,v 1.2 2008/04/11 08:49:31 yilmaz Exp $
+ * $Id: HydjetProducer.cc,v 1.3 2008/04/21 16:51:48 yilmaz Exp $
  *
  * Interface to the HYDJET generator, produces HepMC events
  *
@@ -29,7 +29,7 @@
 #include "HepMC/HeavyIon.h"
 #include "HepMC/SimpleVector.h"
 
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "SimDataFormats/HiGenData/interface/GenHIEvent.h"
 
 

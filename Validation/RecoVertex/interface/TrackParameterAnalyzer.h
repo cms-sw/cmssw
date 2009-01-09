@@ -13,7 +13,7 @@
 //
 // Original Author:  Wolfram Erdmann
 //         Created:  Fri Jun  2 10:54:05 CEST 2006
-// $Id: TrackParameterAnalyzer.h,v 1.7 2007/01/10 13:11:54 werdmann Exp $
+// $Id: TrackParameterAnalyzer.h,v 1.8 2007/08/26 04:35:55 dlange Exp $
 //
 //
 
@@ -39,7 +39,7 @@
 #include "HepMC/GenEvent.h"
 #include "HepMC/GenVertex.h"
 #include "HepMC/GenParticle.h"
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include <CLHEP/Vector/LorentzVector.h>
 
 // simulated vertices,..., add <use name=SimDataFormats/Vertex> and <../Track>

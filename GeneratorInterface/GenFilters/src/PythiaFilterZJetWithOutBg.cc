@@ -1,5 +1,5 @@
 #include "GeneratorInterface/GenFilters/interface/PythiaFilterZJetWithOutBg.h"
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include <iostream>
 #include<list>

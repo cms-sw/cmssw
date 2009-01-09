@@ -3,12 +3,12 @@
 #define BHFILTER_H
 
 
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "FWCore/Framework/interface/EDFilter.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 //#include "AnalysisExamples/SiStripDetectorPerformance/interface/CosmicGenFilter.h"
 #include "FastSimulation/BaseParticlePropagator/interface/BaseParticlePropagator.h"
 

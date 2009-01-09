@@ -13,7 +13,7 @@
 //
 // Original Author:  Yetkin Yilmaz, Young Soo Park
 //         Created:  Wed Jun 11 15:31:41 CEST 2008
-// $Id: CentralityProducer.cc,v 1.1 2008/07/04 14:14:41 yilmaz Exp $
+// $Id: CentralityProducer.cc,v 1.2 2008/07/07 15:04:55 yilmaz Exp $
 //
 //
 
@@ -39,7 +39,7 @@
 #include "DataFormats/Common/interface/EDProduct.h"
 #include "DataFormats/Common/interface/Ref.h"
 
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "HepMC/GenEvent.h"
 #include "HepMC/GenParticle.h"
 

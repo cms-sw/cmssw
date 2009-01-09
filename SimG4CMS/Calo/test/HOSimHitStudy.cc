@@ -2,7 +2,7 @@
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "SimG4CMS/Calo/interface/CaloHitID.h"
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
 #include "CLHEP/Units/PhysicalConstants.h"

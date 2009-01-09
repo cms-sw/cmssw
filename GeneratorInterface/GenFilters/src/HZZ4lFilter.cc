@@ -13,7 +13,7 @@
 //
 // Original Author:  Puljak Ivica
 //         Created:  Wed Apr 18 12:52:31 CEST 2007
-// $Id$
+// $Id: HZZ4lFilter.cc,v 1.1 2007/07/13 14:33:42 fmoortga Exp $
 //
 //
 
@@ -31,7 +31,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 
 HZZ4lFilter::HZZ4lFilter(const edm::ParameterSet& iConfig) :

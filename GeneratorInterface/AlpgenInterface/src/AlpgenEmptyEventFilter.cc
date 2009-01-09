@@ -1,5 +1,5 @@
 #include "GeneratorInterface/AlpgenInterface/interface/AlpgenEmptyEventFilter.h"
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 AlpgenEmptyEventFilter::AlpgenEmptyEventFilter(const edm::ParameterSet& ppp) 
 {}

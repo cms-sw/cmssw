@@ -1,5 +1,5 @@
 #include "GeneratorInterface/PomwigInterface/interface/PomwigFilter.h"
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 

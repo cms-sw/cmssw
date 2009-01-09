@@ -3,7 +3,7 @@
 
 #include "GeneratorInterface/GenFilters/interface/MCParticlePairFilter.h"
 
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include <iostream>
 
 using namespace edm;

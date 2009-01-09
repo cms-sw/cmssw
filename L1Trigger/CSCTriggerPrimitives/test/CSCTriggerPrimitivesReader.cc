@@ -7,8 +7,8 @@
 //
 //   Author List: S. Valuev, UCLA.
 //
-//   $Date: 2008/07/30 08:40:57 $
-//   $Revision: 1.26 $
+//   $Date: 2008/08/28 13:53:29 $
+//   $Revision: 1.27 $
 //
 //   Modifications:
 //
@@ -30,7 +30,7 @@
 #include <Geometry/Records/interface/MuonGeometryRecord.h>
 
 // MC particles
-#include <SimDataFormats/HepMCProduct/interface/HepMCProduct.h>
+#include <SimDataFormats/GeneratorProducts/interface/HepMCProduct.h>
 
 // MC tests
 #include <L1Trigger/CSCTriggerPrimitives/test/CSCAnodeLCTAnalyzer.h>

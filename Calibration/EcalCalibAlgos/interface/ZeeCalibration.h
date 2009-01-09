@@ -14,7 +14,7 @@
      <Notes on implementation>
 */
 //
-// $Id: ZeeCalibration.h,v 1.1 2007/07/12 17:27:36 meridian Exp $
+// $Id: ZeeCalibration.h,v 1.6 2008/04/30 09:53:41 palmale Exp $
 //
 //
 
@@ -54,7 +54,7 @@
 #include "TH1.h"
 #include "TH2.h"
 
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"

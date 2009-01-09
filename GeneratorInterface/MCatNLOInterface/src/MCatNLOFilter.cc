@@ -1,5 +1,5 @@
 #include "GeneratorInterface/MCatNLOInterface/interface/MCatNLOFilter.h"
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 MCatNLOFilter::MCatNLOFilter(const edm::ParameterSet& ppp) 

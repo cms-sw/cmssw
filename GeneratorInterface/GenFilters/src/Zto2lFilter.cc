@@ -13,7 +13,7 @@
 //
 // Original Author:  Aruna Nayak
 //         Created:  Thu Aug 23 11:37:45 CEST 2007
-// $Id$
+// $Id: Zto2lFilter.cc,v 1.1 2007/08/28 12:10:41 fmoortga Exp $
 //
 //
 
@@ -23,7 +23,7 @@
 #include "GeneratorInterface/GenFilters/interface/Zto2lFilter.h"
 
 #include <vector>
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "TLorentzVector.h"
 
 //

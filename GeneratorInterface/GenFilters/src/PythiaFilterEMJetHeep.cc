@@ -1,5 +1,5 @@
 #include "GeneratorInterface/GenFilters/interface/PythiaFilterEMJetHeep.h"
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 //#include "CLHEP/HepMC/GenParticle.h"
 //
 #include <iostream>

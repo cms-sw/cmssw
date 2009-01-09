@@ -18,7 +18,7 @@
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 
 #include "CondFormats/HcalObjects/interface/HcalRespCorrs.h"
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "HepMC/GenParticle.h"
 #include "HepMC/GenVertex.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalDbASCIIIO.h"

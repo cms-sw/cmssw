@@ -2,7 +2,7 @@
 #include "GeneratorInterface/GenFilters/interface/PythiaDauFilter.h"
 
 
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "HepMC/PythiaWrapper6_2.h"
 #include <iostream>
 

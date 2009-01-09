@@ -1,5 +1,5 @@
 #include "GeneratorInterface/GenFilters/interface/PythiaFilterZgamma.h"
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include <iostream>
 #include<list>
 #include<vector>

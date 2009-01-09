@@ -13,7 +13,7 @@
 //
 // Original Author:  Sergey Petrushanko
 //         Created:  Fri Jul 11 10:05:00 2008
-// $Id: EvtPlaneProducer.cc,v 1.0 2008/07/11 10:05:00 sergeant Exp $
+// $Id: EvtPlaneProducer.cc,v 1.1 2008/07/20 19:19:35 yilmaz Exp $
 //
 //
 
@@ -39,7 +39,7 @@
 #include "DataFormats/Common/interface/EDProduct.h"
 #include "DataFormats/Common/interface/Ref.h"
 
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "HepMC/GenEvent.h"
 #include "HepMC/GenParticle.h"
 

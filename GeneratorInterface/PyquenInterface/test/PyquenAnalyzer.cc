@@ -1,10 +1,10 @@
-// $Id: PyquenAnalyzer.cc,v 1.5 2007/12/04 03:51:31 mironov Exp $
+// $Id: PyquenAnalyzer.cc,v 1.6 2008/02/26 13:18:53 yilmaz Exp $
 
 #include <iostream>
 
 #include "PyquenAnalyzer.h"
 
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "SimDataFormats/HiGenData/interface/GenHIEvent.h"
 #include "DataFormats/Common/interface/Handle.h"
 

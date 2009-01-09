@@ -24,7 +24,7 @@
 #include "FWCore/Framework/interface/Event.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/LesHouches.h"
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 #include "GeneratorInterface/LHEInterface/interface/LHERunInfo.h"
 #include "GeneratorInterface/LHEInterface/interface/LHEEvent.h"

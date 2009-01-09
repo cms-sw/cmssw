@@ -1,7 +1,7 @@
 
 #include "GeneratorInterface/GenFilters/interface/MCZll.h"
 
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include <iostream>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"

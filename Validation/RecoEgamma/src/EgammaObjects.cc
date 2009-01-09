@@ -12,7 +12,7 @@
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h" 
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h" 
 
 EgammaObjects::EgammaObjects( const edm::ParameterSet& ps )
 {

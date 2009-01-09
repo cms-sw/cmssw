@@ -1,5 +1,5 @@
 <use name="FWCore/Framework"/>
-<use name="SimDataFormats/HepMCProduct"/>
+<use name="SimDataFormats/GeneratorProducts"/>
 <use name="GeneratorInterface/ThePEGInterface"/>
 <use name="hepmc"/>
 <library name="GeneratorInterfaceThePEGSource" file="ThePEGSource.cc ThePEGProducer.cc">

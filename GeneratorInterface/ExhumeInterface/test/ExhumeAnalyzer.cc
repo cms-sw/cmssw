@@ -10,7 +10,7 @@
 
 #include "CLHEP/Vector/LorentzVector.h"
 
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 
 ExhumeAnalyzer::ExhumeAnalyzer(const edm::ParameterSet& iConfig){

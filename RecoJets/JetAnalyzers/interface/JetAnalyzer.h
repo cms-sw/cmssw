@@ -27,7 +27,7 @@
 
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 
@@ -78,8 +78,8 @@
 
 /** \class JetAnalyzer
   *  
-  * $Date: 2008/01/28 21:52:42 $
-  * $Revision: 1.7 $
+  * $Date: 2008/05/14 18:16:25 $
+  * $Revision: 1.8 $
   * \author L. Apanasevich - UIC and Anwar Bhatti
   */
 class JetAnalyzer : public edm::EDAnalyzer {

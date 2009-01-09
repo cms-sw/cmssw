@@ -8,7 +8,7 @@
      \\\author: Keti Kaadze, June 2007
 */
 //
-// $Id: EnergyScaleAnalyzer.h,v 1.5 2007/06/18 18:21:12 keti Exp $
+// $Id: EnergyScaleAnalyzer.h,v 1.1 2008/04/02 12:35:58 kkaadze Exp $
 //
 
 
@@ -32,7 +32,7 @@
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/PreshowerCluster.h"
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 #include <string>
 #include "TH1.h"

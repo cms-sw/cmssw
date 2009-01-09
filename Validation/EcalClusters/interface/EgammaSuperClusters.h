@@ -9,7 +9,7 @@
      \\\author: Michael A. Balazs, Nov 2006
 */
 //
-// $Id: EgammaSuperClusters.h,v 1.7 2008/06/17 12:27:24 ferriff Exp $
+// $Id: EgammaSuperClusters.h,v 1.8 2008/06/30 18:38:51 dlevans Exp $
 //
 #include <string>
 
@@ -22,7 +22,7 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 
 class EgammaSuperClusters : public edm::EDAnalyzer

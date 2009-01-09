@@ -13,7 +13,7 @@
 #include "HepMC/GenEvent.h"
 #include "HepMC/GenParticle.h"
 
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 #include "TH1D.h"
 #include "TFile.h"
