@@ -2,7 +2,7 @@
 <use name=hepmc>
 <use name=FWCore/Framework>
 <use name=DataFormats/Common>
-<use name=SimDataFormats/HepMCProduct>
+<use name=SimDataFormats/GeneratorProducts>
 <export>
   <lib name=SimDataFormatsHiGenData>
   <use name=hepmc>

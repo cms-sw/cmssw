@@ -4,7 +4,7 @@
 <use name=DataFormats/DetId>
 <use name=DataFormats/SiStripDetId>
 <use name=DataFormats/SiPixelDetId>
-<use name=SimDataFormats/HepMCProduct>
+<use name=SimDataFormats/GeneratorProducts>
 <use name=SimDataFormats/Track>
 <use name=SimDataFormats/TrackingAnalysis>
 <use name=SimDataFormats/Vertex>
@@ -20,7 +20,7 @@
    <use name=DataFormats/DetId>
    <use name=DataFormats/SiStripDetId>
    <use name=DataFormats/SiPixelDetId>
-   <use name=SimDataFormats/HepMCProduct>
+   <use name=SimDataFormats/GeneratorProducts>
    <use name=SimDataFormats/Track>
    <use name=SimDataFormats/TrackingAnalysis>
    <use name=SimDataFormats/Vertex>

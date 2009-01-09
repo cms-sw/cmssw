@@ -20,7 +20,7 @@
 <use name=RecoMuon/TrackingTools>
 <use name=TrackingTools/TransientTrack>
 <use name=SimDataFormats/Track>
-<use name=SimDataFormats/HepMCProduct>                                                                                
+<use name=SimDataFormats/GeneratorProducts>                                                                                
 <use name=SimTracker/TrackAssociation>
 
 <use name=rootrflx>

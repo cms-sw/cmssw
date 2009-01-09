@@ -23,7 +23,7 @@
 <use name=RecoEgamma/EgammaIsolationAlgos>
 <use name=SimTracker/TrackAssociation>
 <use name=SimTracker/TrackerHitAssociation>
-<use name=SimDataFormats/HepMCProduct>
+<use name=SimDataFormats/GeneratorProducts>
 <use name=SimDataFormats/TrackingHit>
 <use name=SimDataFormats/Track>
 <use name=SimDataFormats/Vertex>

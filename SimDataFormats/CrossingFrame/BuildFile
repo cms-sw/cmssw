@@ -8,7 +8,7 @@
 <use name=SimDataFormats/Track>
 <use name=SimDataFormats/TrackingHit>
 <use name=SimDataFormats/Vertex>
-<use name=SimDataFormats/HepMCProduct>
+<use name=SimDataFormats/GeneratorProducts>
 <use name=rootrflx>
 <export>
   <use name=DataFormats/Provenance>
@@ -18,7 +18,7 @@
   <use name=SimDataFormats/Track>
   <use name=SimDataFormats/TrackingHit>
   <use name=SimDataFormats/Vertex>
-  <use name=SimDataFormats/HepMCProduct>
+  <use name=SimDataFormats/GeneratorProducts>
   <lib name=SimDataFormatsCrossingFrame>
 </export>
 

@@ -1,6 +1,6 @@
 <use name=boost>
 <use name=FWCore/Framework>
-<use name=SimDataFormats/HepMCProduct>
+<use name=SimDataFormats/GeneratorProducts>
 <use name=SimGeneral/HepPDTRecord>
 <use name=clhep> 
 <use name=hepmc>
@@ -10,7 +10,7 @@
  <lib name=IOMCParticleGuns>
  <use name=boost>
  <use name=FWCore/Framework>
- <use name=SimDataFormats/HepMCProduct>
+ <use name=SimDataFormats/GeneratorProducts>
  <use name=SimGeneral/HepPDTRecord>
  <use name=clhep> 
  <use name=hepmc>

@@ -2,7 +2,7 @@
 <use name=DataFormats/Common>
 <use name=DataFormats/Math>
 <use name=SimDataFormats/EncodedEventId>
-<use name=SimDataFormats/HepMCProduct>
+<use name=SimDataFormats/GeneratorProducts>
 <use name=SimDataFormats/Track>
 <use name=SimDataFormats/TrackingHit>
 <use name=SimDataFormats/Vertex>
@@ -12,7 +12,7 @@
   <use name=DataFormats/Common>
   <use name=DataFormats/Math>
   <use name=SimDataFormats/EncodedEventId>
-  <use name=SimDataFormats/HepMCProduct>
+  <use name=SimDataFormats/GeneratorProducts>
   <use name=SimDataFormats/Track>
   <use name=SimDataFormats/TrackingHit>
   <use name=SimDataFormats/Vertex>

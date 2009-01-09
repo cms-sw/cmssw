@@ -9,7 +9,7 @@
 <use name=TrackingTools/TrajectoryState>
 <use name=JetMETCorrections/Algorithms>
 <use name=JetMETCorrections/Objects>
-<use name=SimDataFormats/HepMCProduct>
+<use name=SimDataFormats/GeneratorProducts>
 <use name=SimGeneral/HepPDTRecord>
 <use name=Geometry/CaloEventSetup>
 <library file="*.cc" name=JetMETCorrectionsJetPlusTrackPlugins>

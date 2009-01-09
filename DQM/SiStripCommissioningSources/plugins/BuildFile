@@ -13,7 +13,7 @@
   <use name=boost>
   <use name=SimDataFormats/TrackingAnalysis>
   <use name=SimDataFormats/Track>
-  <use name=SimDataFormats/HepMCProduct>
+  <use name=SimDataFormats/GeneratorProducts>
   <use name=DataFormats/Common>
   <use name=DataFormats/FEDRawData>
   <use name=RecoTracker/TkSeedGenerator>

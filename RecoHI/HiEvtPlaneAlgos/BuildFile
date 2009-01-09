@@ -5,7 +5,7 @@
 <use name=FWCore/PluginManager>
 <use name=FWCore/ParameterSet>
 <use name=FWCore/Utilities>
-<use name=SimDataFormats/HepMCProduct>
+<use name=SimDataFormats/GeneratorProducts>
 <use name=PhysicsTools/UtilAlgos>
 <use name=DataFormats/Candidate>
 <use name=DataFormats/HcalRecHit>

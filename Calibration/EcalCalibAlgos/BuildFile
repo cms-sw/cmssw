@@ -20,7 +20,7 @@
 <use name=xerces-c>
 <use name=Calibration/Tools>
 <use name=CalibCalorimetry/CaloMiscalibTools>
-<use name=SimDataFormats/HepMCProduct>
+<use name=SimDataFormats/GeneratorProducts>
 <flags EDM_PLUGIN=1>
 <export>
    <lib name=CalibrationEcalCalibAlgos>
@@ -46,5 +46,5 @@
    <use name=root>
    <use name=xerces-c> 
    <use name=CalibCalorimetry/CaloMiscalibTools>
-   <use name=SimDataFormats/HepMCProduct>
+   <use name=SimDataFormats/GeneratorProducts>
 </export>

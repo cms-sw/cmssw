@@ -8,7 +8,7 @@
 <use name=Geometry/CaloEventSetup>
 <use name=DataFormats/RecoCandidate>
 <use name=DataFormats/EgammaCandidates>
-<use name=SimDataFormats/HepMCProduct>
+<use name=SimDataFormats/GeneratorProducts>
 <use name=root>
 <export>
   <lib name=RecoEgammaEgammaHFProducers>
@@ -21,6 +21,6 @@
   <use name=Geometry/CaloEventSetup>
   <use name=DataFormats/RecoCandidate>
   <use name=DataFormats/EgammaCandidates>
-  <use name=SimDataFormats/HepMCProduct>
+  <use name=SimDataFormats/GeneratorProducts>
   <use name=root>
 </export>

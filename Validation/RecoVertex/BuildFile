@@ -3,7 +3,7 @@
 <use name=DataFormats/TrackReco>
 <use name=DataFormats/VertexReco>
 <use name=SimDataFormats/Track>
-<use name=SimDataFormats/HepMCProduct>
+<use name=SimDataFormats/GeneratorProducts>
 <use name = hepmc>
 <use name=RecoVertex/PrimaryVertexProducer>
 <use name=root>
@@ -17,7 +17,7 @@
    <use name=DataFormats/TrackReco>
    <use name=DataFormats/VertexReco>
    <use name=SimDataFormats/Track>
-   <use name=SimDataFormats/HepMCProduct>
+   <use name=SimDataFormats/GeneratorProducts>
    <use name=RecoVertex/PrimaryVertexProducer>
    <use name=SimGeneral/HepPDTRecord>
    <use name=root>

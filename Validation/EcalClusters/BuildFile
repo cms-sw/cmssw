@@ -15,7 +15,7 @@
 <use name=DataFormats/Math>
 <use name=RecoEcal/EgammaCoreTools>
 <use name=DQMServices/Core>
-<use name=SimDataFormats/HepMCProduct>
+<use name=SimDataFormats/GeneratorProducts>
 <use name=SimDataFormats/TrackingHit>
 <use name=SimDataFormats/Track>
 <use name=SimDataFormats/Vertex>
@@ -39,7 +39,7 @@
   <use name=RecoEcal/EgammaClusterAlgos>
   <use name=RecoEcal/EgammaCoreTools>
   <use name=DQMServices/Core>        
-  <use name=SimDataFormats/HepMCProduct>
+  <use name=SimDataFormats/GeneratorProducts>
   <use name=SimDataFormats/TrackingHit>
   <use name=SimDataFormats/Track>
   <use name=SimDataFormats/Vertex>

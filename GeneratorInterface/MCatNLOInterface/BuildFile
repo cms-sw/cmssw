@@ -5,7 +5,7 @@
 <use name=FWCore/Framework>
 <use name=FWCore/Utilities>
 <use name=FWCore/ParameterSet>
-<use name=SimDataFormats/HepMCProduct>
+<use name=SimDataFormats/GeneratorProducts>
 <use name=clhep>
 <use name=hepmc>
 <use name=f77compiler>
@@ -20,7 +20,7 @@
  <use name=FWCore/Framework>
  <use name=FWCore/Utilities>
  <use name=FWCore/ParameterSet>
- <use name=SimDataFormats/HepMCProduct>
+ <use name=SimDataFormats/GeneratorProducts>
  <use name=clhep>
  <use name=hepmc>
 </export>

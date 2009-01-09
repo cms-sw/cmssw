@@ -18,7 +18,7 @@
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
 <use name=CondFormats/DataRecord>
-<use name=SimDataFormats/HepMCProduct>
+<use name=SimDataFormats/GeneratorProducts>
 <export>
    <lib name=JetMETCorrectionsJetPlusTrack>
    <use name=SimTracker/TrackerHitAssociation>

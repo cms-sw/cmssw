@@ -15,7 +15,7 @@
 <use name=DataFormats/L1GlobalTrigger>
 <use name=DataFormats/L1Trigger>
 <use name=Geometry/CaloEventSetup>
-<use name=SimDataFormats/HepMCProduct>
+<use name=SimDataFormats/GeneratorProducts>
 <use name=PhysicsTools/UtilAlgos>
 <flags EDM_PLUGIN=1>
 <export>

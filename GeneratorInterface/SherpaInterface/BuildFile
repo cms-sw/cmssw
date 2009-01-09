@@ -1,6 +1,6 @@
 <use name=boost>
 <use name=FWCore/Framework>
-<use name=SimDataFormats/HepMCProduct>
+<use name=SimDataFormats/GeneratorProducts>
 <use name=hepmc> 
 <use name=sherpa>
 <use name=clhep>	
@@ -10,7 +10,7 @@
  <lib name=GeneratorInterfaceSherpaInterface>
  <use name=boost>
  <use name=FWCore/Framework>
- <use name=SimDataFormats/HepMCProduct>
+ <use name=SimDataFormats/GeneratorProducts>
  <use name=Hepmc>  
  <use name=Sherpa>
  <use name=clhep>

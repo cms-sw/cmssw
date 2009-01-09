@@ -1,7 +1,7 @@
 <use name=hepmc>
 <use name=boost>
 <use name=FWCore/Framework>
-<use name=SimDataFormats/HepMCProduct>
+<use name=SimDataFormats/GeneratorProducts>
 <use name=SimDataFormats/HiGenData>
 <use name=GeneratorInterface/PyquenInterface>
 
@@ -12,7 +12,7 @@
  <lib name=GeneratorInterfaceHydjetInterface>
  <use name=hepmc>
  <use name=FWCore/Framework>
- <use name=SimDataFormats/HepMCProduct>
+ <use name=SimDataFormats/GeneratorProducts>
  <use name=SimDataFormats/HiGenData>
  <use name=GeneratorInterface/PyquenInterface>
 </export>
