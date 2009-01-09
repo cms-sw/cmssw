@@ -139,7 +139,7 @@ namespace edm {
     ParameterSet selectevents =
       pset.getUntrackedParameter("SelectEvents", ParameterSet().registerIt());
 
-    selector_config_id_ = selectevents.trackedID();
+    selector_config_id_ = selectevents.id();
     // If selectevents is an emtpy ParameterSet, then we are to write
     // all events, or one which contains a vstrig 'SelectEvents' that
     // is empty, we are to write all events. We have no need for any

@@ -13,7 +13,7 @@ ComponentMakerBaseHelper::createComponentDescription(ParameterSet const& iConfig
   description.label_ = iConfiguration.getParameter<std::string>("@module_label");
 
   description.releaseVersion_ = iVersion;
-  description.pid_            = iConfiguration.trackedID();
+  description.pid_            = iConfiguration.id();
   description.processName_    = iProcessName;
   description.passID_         = iPass;
   return description;

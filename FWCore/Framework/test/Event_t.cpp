@@ -162,9 +162,9 @@ testEvent::registerProduct(std::string const& tag,
   processParams.template addParameter<ParameterSet>(moduleLabel, moduleParams);
   processParams.registerIt();
   
-  ProcessConfiguration process(processName, processParams.trackedID(), getReleaseVersion(), getPassID());
+  ProcessConfiguration process(processName, processParams.id(), getReleaseVersion(), getPassID());
 
-  ModuleDescription localModuleDescription(moduleParams.trackedID(), moduleClassName, moduleLabel, process);
+  ModuleDescription localModuleDescription(moduleParams.id(), moduleClassName, moduleLabel, process);
   
   TypeID product_type(typeid(T));
 
@@ -237,11 +237,11 @@ testEvent::testEvent() :
   processParams.addParameter(moduleLabel, moduleParams);
   processParams.registerIt();
 
-  ProcessConfiguration process(processName, processParams.trackedID(), getReleaseVersion(), getPassID());
+  ProcessConfiguration process(processName, processParams.id(), getReleaseVersion(), getPassID());
 
   TypeID product_type(typeid(prod_t));
 
-  currentModuleDescription_ = new ModuleDescription(moduleParams.trackedID(), moduleClassName, moduleLabel, process);
+  currentModuleDescription_ = new ModuleDescription(moduleParams.id(), moduleClassName, moduleLabel, process);
 
   std::string productInstanceName("int1");
 
@@ -288,7 +288,7 @@ void testEvent::setUp()
   processParamsEarly.addParameter(moduleLabelEarly, moduleParamsEarly);
   processParamsEarly.registerIt();
 
-  ProcessConfiguration processEarly("EARLY", processParamsEarly.trackedID(), getReleaseVersion(), getPassID());
+  ProcessConfiguration processEarly("EARLY", processParamsEarly.id(), getReleaseVersion(), getPassID());
 
   ParameterSet moduleParamsLate;
   std::string moduleLabelLate("currentModule");
@@ -303,7 +303,7 @@ void testEvent::setUp()
   processParamsLate.addParameter(moduleLabelLate, moduleParamsLate);
   processParamsLate.registerIt();
 
-  ProcessConfiguration processLate("LATE", processParamsLate.trackedID(), getReleaseVersion(), getPassID());
+  ProcessConfiguration processLate("LATE", processParamsLate.id(), getReleaseVersion(), getPassID());
 
   ProcessHistory* processHistory = new ProcessHistory;
   ProcessHistory& ph = *processHistory;

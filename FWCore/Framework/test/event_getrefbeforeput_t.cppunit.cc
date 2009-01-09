@@ -75,7 +75,7 @@ void testEventGetRefBeforePut::failGetProductNotRegisteredTest() {
   try {
      edm::ParameterSet pset;
      pset.registerIt();
-     edm::ModuleDescription modDesc(pset.trackedID(), "Blah", "blahs");
+     edm::ModuleDescription modDesc(pset.id(), "Blah", "blahs");
      edm::Event event(ep, modDesc);
      
      std::string label("this does not exist");
@@ -104,7 +104,7 @@ void testEventGetRefBeforePut::getRefTest() {
 
   edm::ParameterSet pset;
   pset.registerIt();
-  edm::ModuleDescription modDesc(pset.trackedID(), "Blah", "");
+  edm::ModuleDescription modDesc(pset.id(), "Blah", "");
 
   edm::BranchDescription product(edm::InEvent,
 				 label,

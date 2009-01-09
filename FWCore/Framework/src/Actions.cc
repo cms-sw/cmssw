@@ -58,8 +58,8 @@ namespace edm {
 
 //	cerr << pset.toString() << std::endl;
 
-      ParameterSet const& opts = 
-	pset.getUntrackedParameterSet("options", ParameterSet());
+      ParameterSet opts = 
+	pset.getUntrackedParameter<ParameterSet>("options", ParameterSet());
       //cerr << "looking for " << actionName(code) << std::endl;
       vstring v = 
 	opts.getUntrackedParameter(actionName(code),vstring());

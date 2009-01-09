@@ -136,7 +136,7 @@ void testone(const Strings& paths,
   trigger_pset.addParameter<Strings>("@trigger_paths", paths);
   trigger_pset.registerIt();
 
-  TriggerResults results_id(bm, trigger_pset.trackedID());
+  TriggerResults results_id(bm, trigger_pset.id());
 
   bool x = select_based_on_pset.acceptEvent(results_id);
   bool y = select_based_on_pattern_paths.acceptEvent(results_id);

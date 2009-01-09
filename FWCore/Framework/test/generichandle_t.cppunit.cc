@@ -91,7 +91,7 @@ void testGenericHandle::failgetbyLabelTest() {
   try {
      edm::ParameterSet pset;
      pset.registerIt();
-     edm::ModuleDescription modDesc(pset.trackedID(), "Blah", "blahs");
+     edm::ModuleDescription modDesc(pset.id(), "Blah", "blahs");
      edm::Event event(ep, modDesc);
      
      std::string label("this does not exist");
@@ -132,7 +132,7 @@ void testGenericHandle::getbyLabelTest() {
 
   edm::ParameterSet pset;
   pset.registerIt();
-  edm::ModuleDescription modDesc(pset.trackedID(), "Blah", "");
+  edm::ModuleDescription modDesc(pset.id(), "Blah", "");
 
   edm::BranchDescription product(edm::InEvent,
 				 label,
@@ -180,7 +180,7 @@ void testGenericHandle::getbyLabelTest() {
   try {
     edm::ParameterSet pset;
     pset.registerIt();
-    edm::ModuleDescription modDesc(pset.trackedID(), "Blah", "blahs");
+    edm::ModuleDescription modDesc(pset.id(), "Blah", "blahs");
     edm::Event event(ep, modDesc);
 
     event.getByLabel(label, productInstanceName,h);

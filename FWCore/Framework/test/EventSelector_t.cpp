@@ -129,7 +129,7 @@ void testone(const Strings& paths,
   trigger_pset.addParameter<Strings>("@trigger_paths", paths);
   trigger_pset.registerIt();
 
-  TriggerResults results_id(bm, trigger_pset.trackedID());
+  TriggerResults results_id(bm, trigger_pset.id());
 
 //  	std:: cerr << "a11 \n";
   bool a11 = select.acceptEvent(results_id);

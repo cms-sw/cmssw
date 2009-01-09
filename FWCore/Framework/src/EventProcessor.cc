@@ -218,8 +218,8 @@ namespace edm {
     // find single source
     bool sourceSpecified = false;
     try {
-      ParameterSet const& main_input =
-	params.getParameterSet("@main_input");
+      ParameterSet main_input =
+	params.getParameter<ParameterSet>("@main_input");
       
       // Fill in "ModuleDescription", in case the input source produces
       // any EDproducts,which would be registered in the ProductRegistry.
@@ -227,9 +227,9 @@ namespace edm {
       // There is no module label for the unnamed input source, so 
       // just use "source".
       // Only the tracked parameters belong in the process configuration.
-      ProcessConfiguration pc(common.processName_, params.trackedID(), getReleaseVersion(), getPassID());
+      ProcessConfiguration pc(common.processName_, params.id(), getReleaseVersion(), getPassID());
       ProcessConfigurationRegistry::instance()->insertMapped(pc);
-      ModuleDescription md(main_input.trackedID(),
+      ModuleDescription md(main_input.id(),
 			   main_input.getParameter<std::string>("@module_type"),
 			   "source",
 			   pc);
@@ -281,7 +281,7 @@ namespace edm {
 	++itName) 
       {
         recordToData.clear();
-	ParameterSet const& preferPSet = params.getParameterSet(*itName);
+	ParameterSet preferPSet = params.getParameter<ParameterSet>(*itName);
         std::vector<std::string> recordNames = preferPSet.getParameterNames();
         for(std::vector<std::string>::iterator itRecordName = recordNames.begin(),
 	    itRecordNameEnd = recordNames.end();
@@ -351,7 +351,7 @@ namespace edm {
     for(std::vector<std::string>::iterator itName = providers.begin(), itNameEnd = providers.end();
 	itName != itNameEnd;
 	++itName) {
-      ParameterSet const& providerPSet = params.getParameterSet(*itName);
+      ParameterSet providerPSet = params.getParameter<ParameterSet>(*itName);
       ModuleFactory::get()->addTo(cp, 
 				    providerPSet, 
 				    common.processName_, 
@@ -365,7 +365,7 @@ namespace edm {
     for(std::vector<std::string>::iterator itName = sources.begin(), itNameEnd = sources.end();
 	itName != itNameEnd;
 	++itName) {
-      ParameterSet const& providerPSet = params.getParameterSet(*itName);
+      ParameterSet providerPSet = params.getParameter<ParameterSet>(*itName);
       SourceFactory::get()->addTo(cp, 
 				    providerPSet, 
 				    common.processName_, 
@@ -395,7 +395,7 @@ namespace edm {
     for(std::vector<std::string>::iterator itName = loopers.begin(), itNameEnd = loopers.end();
 	itName != itNameEnd;
 	++itName) {
-      ParameterSet const& providerPSet = params.getParameterSet(*itName);
+      ParameterSet providerPSet = params.getParameter<ParameterSet>(*itName);
       vLooper = LooperFactory::get()->addTo(cp, 
 				    providerPSet, 
 				    common.processName_, 
@@ -576,13 +576,13 @@ namespace edm {
 
     shared_ptr<ParameterSet> parameterSet = processDesc->getProcessPSet();
 
-    ParameterSet const& optionsPset = parameterSet->getUntrackedParameterSet("options", ParameterSet());
+    ParameterSet optionsPset = parameterSet->getUntrackedParameter<ParameterSet>("options", ParameterSet());
     fileMode_ = optionsPset.getUntrackedParameter<std::string>("fileMode", "");
     handleEmptyRuns_ = optionsPset.getUntrackedParameter<bool>("handleEmptyRuns", true);
     handleEmptyLumis_ = optionsPset.getUntrackedParameter<bool>("handleEmptyLumis", true);
 
-    maxEventsPset_ = parameterSet->getUntrackedParameterSet("maxEvents", ParameterSet());
-    maxLumisPset_ = parameterSet->getUntrackedParameterSet("maxLuminosityBlocks", ParameterSet());
+    maxEventsPset_ = parameterSet->getUntrackedParameter<ParameterSet>("maxEvents", ParameterSet());
+    maxLumisPset_ = parameterSet->getUntrackedParameter<ParameterSet>("maxLuminosityBlocks", ParameterSet());
 
     shared_ptr<std::vector<ParameterSet> > pServiceSets = processDesc->getServicesPSets();
     //makeParameterSets(config, parameterSet, pServiceSets);

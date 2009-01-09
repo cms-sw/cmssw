@@ -45,13 +45,13 @@ namespace edmtest {
   {
     ParameterSet emptyPset;
     emptyPset.registerIt();
-    emptyID_ = emptyPset.trackedID();
+    emptyID_ = emptyPset.id();
     ParameterSet temp;
     typedef std::vector<std::string> vstring;
     vstring wanted_paths(1, "f55");
     temp.addParameter<std::vector<std::string> >("SelectEvents", wanted_paths);
     temp.registerIt();
-    outputConfigID_ = temp.trackedID();
+    outputConfigID_ = temp.id();
   }
 
   void

@@ -345,7 +345,7 @@ void testEventsetup::provenanceTest()
 	 edm::ParameterSet ps;
 	 ps.addParameter<std::string>("name", "test11");
 	 ps.registerIt();
-         description.pid_ = ps.trackedID();
+         description.pid_ = ps.id();
          description.releaseVersion_ = "CMSSW_11_0_0";
          boost::shared_ptr<eventsetup::DataProxyProvider> dummyProv(new DummyProxyProvider(kBad));
          dummyProv->setDescription(description);
@@ -356,7 +356,7 @@ void testEventsetup::provenanceTest()
 	 edm::ParameterSet ps;
 	 ps.addParameter<std::string>("name", "test22");
 	 ps.registerIt();
-         description.pid_ = ps.trackedID();
+         description.pid_ = ps.id();
          description.releaseVersion_ = "CMSSW_12_0_0";
          description.processName_ = "UnitTest";
          description.passID_ = "22";
@@ -390,7 +390,7 @@ void testEventsetup::getDataWithLabelTest()
 	 edm::ParameterSet ps;
 	 ps.addParameter<std::string>("name", "test11");
 	 ps.registerIt();
-         description.pid_ = ps.trackedID();
+         description.pid_ = ps.id();
          description.releaseVersion_ = "CMSSW_11_0_0";
          boost::shared_ptr<eventsetup::DataProxyProvider> dummyProv(new DummyProxyProvider(kBad));
          dummyProv->setDescription(description);
@@ -402,7 +402,7 @@ void testEventsetup::getDataWithLabelTest()
 	 ps.addParameter<std::string>("name", "test22");
          ps.addParameter<std::string>("appendToDataLabel","blah");
 	 ps.registerIt();
-         description.pid_ = ps.trackedID();
+         description.pid_ = ps.id();
          description.releaseVersion_ = "CMSSW_12_0_0";
          description.processName_ = "UnitTest";
          description.passID_ = "22";
@@ -606,7 +606,7 @@ void testEventsetup::introspectionTest()
     edm::ParameterSet ps;
     ps.addParameter<std::string>("name", "test11");
     ps.registerIt();
-    description.pid_ = ps.trackedID();
+    description.pid_ = ps.id();
     description.releaseVersion_ = "CMSSW_11_0_0";
     boost::shared_ptr<eventsetup::DataProxyProvider> dummyProv(new DummyProxyProvider(kBad));
     dummyProv->setDescription(description);
@@ -617,7 +617,7 @@ void testEventsetup::introspectionTest()
       edm::ParameterSet ps;
       ps.addParameter<std::string>("name", "test22");
       ps.registerIt();
-      description.pid_ = ps.trackedID();
+      description.pid_ = ps.id();
       description.releaseVersion_ = "CMSSW_12_0_0";
       description.processName_ = "UnitTest";
       description.passID_ = "22";

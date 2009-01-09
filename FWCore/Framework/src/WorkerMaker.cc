@@ -12,10 +12,10 @@ Maker::createModuleDescription(WorkerParams const &p) const
 {
   ParameterSet const& procParams = *p.procPset_;
   ParameterSet const& conf = *p.pset_;
-  ModuleDescription md(conf.trackedID(),
+  ModuleDescription md(conf.id(),
 		       conf.getParameter<std::string>("@module_type"),
 		       conf.getParameter<std::string>("@module_label"),
-  		       ProcessConfiguration(p.processName_, procParams.trackedID(), p.releaseVersion_, p.passID_));
+  		       ProcessConfiguration(p.processName_, procParams.id(), p.releaseVersion_, p.passID_));
   return md;
 }
 

@@ -110,7 +110,7 @@ test_ep::fake_single_module_process(std::string const& tag,
   
   processParams.registerIt();
   edm::ProcessConfiguration* result = 
-    new edm::ProcessConfiguration(processName, processParams.trackedID(), release, pass);
+    new edm::ProcessConfiguration(processName, processParams.id(), release, pass);
   processConfigurations_[tag] = result;
   return result;
 }
@@ -131,7 +131,7 @@ test_ep::fake_single_process_branch(std::string const& tag,
   modParams.registerIt();
   edm::ProcessConfiguration* process = 
     fake_single_module_process(tag, processName, modParams);
-  edm::ModuleDescription mod(modParams.trackedID(), moduleClass, moduleLabel, *process);
+  edm::ModuleDescription mod(modParams.id(), moduleClass, moduleLabel, *process);
 
   edm::BranchDescription* result = 
     new edm::BranchDescription(edm::InEvent, 
