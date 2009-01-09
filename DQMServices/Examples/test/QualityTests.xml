@@ -35,6 +35,10 @@
 	<TestName activate="true">YRange</TestName>
 </LINK>
 
+<LINK name="*clientHisto*">
+	<TestName activate="true">YRange</TestName>
+</LINK>
+
 
 <QTEST name="Dead">
 	<TYPE>DeadChannel</TYPE>
