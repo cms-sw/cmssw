@@ -26,7 +26,7 @@ process.load("CondCore.DBCommon.CondDBSetup_cfi")
 # Conditions (Global Tag is used here):
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cfi")
-process.GlobalTag.globaltag = "CRAFT_30X::All"
+process.GlobalTag.globaltag = "CRAFT_ALL_V4::All"
 #process.prefer("GlobalTag")
 
 # Magnetic fiuld: force mag field to be 3.8 tesla
