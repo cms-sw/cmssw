@@ -1,5 +1,5 @@
 //
-// $Id: JetCorrFactors.cc,v 1.1 2008/03/07 18:52:55 lowette Exp $
+// $Id: JetCorrFactors.cc,v 1.2 2008/11/04 13:53:52 auterman Exp $
 //
 
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -36,13 +36,16 @@ JetCorrFactors::hasCorrection(CorrStep step) const {
     if ((i <= 4) && 
         (i <= flavourIndepCorrections_.size()) && 
         (flavourIndepCorrections_[i-1] != -1.0)) return true;
+    bool has_flavour = false;        
     switch (i) {
         case 5: 
-            return (flavourIndepCorrections_.size() >= 4) && (flavourDepCorrections_.size() > 0);
+    	    if (flavourDepCorrections_.size() > 0) has_flavour = (flavourDepCorrections_[0]!=-1.0);
+            return (flavourIndepCorrections_.size() >= 4) && has_flavour;
         case 6: 
             return (flavourIndepCorrections_.size() >= 5) && (flavourDepCorrections_.size() > 0);
         case 7: 
-            return (flavourIndepCorrections_.size() >= 5) && (flavourDepCorrections_.size() > 1);
+            if (flavourDepCorrections_.size() > 1) has_flavour = (flavourDepCorrections_[1]!=-1.0);
+            return (flavourIndepCorrections_.size() >= 5) && has_flavour;
         default: 
             return false;
     }
@@ -156,7 +159,7 @@ JetCorrFactors::corrStep(const std::string &step, const std::string &flavour) {
       << "invalid flavour " << flavour << " requested for jet correction: " << step << std::endl;
   if(invalidCorrect)
     throw cms::Exception("InvalidRequest") 
-      << "invalid jet correction level " << flavour << " requested" << std::endl;
+      << "invalid jet correction level " << step << " requested" << std::endl;
   return result;
 }
 

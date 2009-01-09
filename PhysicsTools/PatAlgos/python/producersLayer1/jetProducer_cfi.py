@@ -29,7 +29,7 @@ allLayer1Jets = cms.EDProducer("PATJetProducer",
 
     # Jet Energy Corrections to appy and store
     addJetCorrFactors    = cms.bool(True),
-    jetCorrFactorsSource = cms.InputTag("layer0JetCorrFactors"), ## source of the valuemap containing the jet correction factors
+    jetCorrFactorsSource = cms.VInputTag(cms.InputTag("layer0JetCorrFactors")), ## source of the valuemap containing the jet correction factors
 
     # resolution configurables
     addResolutions = cms.bool(True),
