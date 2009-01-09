@@ -1,6 +1,6 @@
 /*
- *  $Date: 2008/11/14 23:58:01 $
- *  $Revision: 1.17 $
+ *  $Date: 2008/12/05 20:37:54 $
+ *  $Revision: 1.18 $
  *  
  *  Filip Moorgat & Hector Naves 
  *  26/10/05
@@ -12,7 +12,7 @@
 
 #include "GeneratorInterface/AlpgenInterface/interface/AlpgenSource.h"
 #include "GeneratorInterface/AlpgenInterface/interface/PYR.h"
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/LesHouches.h"
 #include "SimDataFormats/GeneratorProducts/interface/LHECommonBlocks.h"
 #include "SimDataFormats/GeneratorProducts/interface/LHERunInfoProduct.h"

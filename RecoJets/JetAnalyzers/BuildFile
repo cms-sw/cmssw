@@ -14,7 +14,7 @@
 <use name=DataFormats/HcalDigi>
 <use name=DataFormats/HcalDetId>
 <use name=TBDataFormats/HcalTBObjects>
-<use name=SimDataFormats/HepMCProduct>
+<use name=SimDataFormats/GeneratorProducts>
 <use name=JetMETCorrections/Objects>
 <use name=JetMETCorrections/MCJet>
 #<flags SEAL_PLUGIN_NAME="RecoJetsJetAnalyzers">
@@ -37,5 +37,5 @@
    <use name=DataFormats/HcalDigi>
    <use name=DataFormats/HcalDetId>
    <use name=TBDataFormats/HcalTBObjects>
-   <use name=SimDataFormats/HepMCProduct>
+   <use name=SimDataFormats/GeneratorProducts>
 </export>

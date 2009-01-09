@@ -1,11 +1,11 @@
-// $Id: MCFileSource.cc,v 1.13 2008/11/25 18:14:33 saout Exp $
+// $Id: MCFileSource.cc,v 1.14 2008/12/17 15:49:56 saout Exp $
 
 /**  
 *  See header file for a description of this class.
 *
 *
-*  $Date: 2008/11/25 18:14:33 $
-*  $Revision: 1.13 $
+*  $Date: 2008/12/17 15:49:56 $
+*  $Revision: 1.14 $
 *  \author Jo. Weng  - CERN, Ph Division & Uni Karlsruhe
 *  \author F.Moortgat - CERN, Ph Division
 */
@@ -19,7 +19,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "IOMC/Input/interface/HepMCFileReader.h" 
 #include "IOMC/Input/interface/MCFileSource.h"
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 
 

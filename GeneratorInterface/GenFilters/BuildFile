@@ -22,14 +22,13 @@
 <use name=FastSimulation/BaseParticlePropagator>
 
 <use name=TrackingTools/GeomPropagators>
-<use name=MagneticField/Records>
 <use name=DataFormats/HepMCCandidate>
 
 <flags EDM_PLUGIN=1>
 <export>
  <use name=boost>
  <use name=FWCore/Framework>
- <use name=SimDataFormats/HepMCProduct>
+ <use name=SimDataFormats/GeneratorProducts>
  <use name=hepmc>
  <use name=heppdt> 
  <use name=SimGeneral/HepPDTRecord>

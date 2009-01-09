@@ -12,7 +12,7 @@
   <use name=DataFormats/EgammaReco>
   <use name=DataFormats/TrackReco>
   <use name=DataFormats/JetReco>
-  <use name=SimDataFormats/HepMCProduct>
+  <use name=SimDataFormats/GeneratorProducts>
   <use name=EventFilter/SiStripRawToDigi>
   <use name=FWCore/Framework>
   <use name=FWCore/MessageLogger>

@@ -1,7 +1,7 @@
 
 #include "GeneratorInterface/BeamHaloGenerator/interface/BeamHaloSource.h"
 #include "GeneratorInterface/BeamHaloGenerator/interface/PYR.h"
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"

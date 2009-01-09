@@ -1,13 +1,13 @@
 /*
- *  $Date: 2008/04/10 13:04:13 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/04/16 19:50:05 $
+ *  $Revision: 1.2 $
  *  \author Julia Yarba
  */
 
 #include <ostream>
 
 #include "IOMC/ParticleGuns/interface/BaseFlatGunProducer.h"
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"

@@ -12,7 +12,7 @@
 #include "DataFormats/JetReco/interface/PFJet.h"
 #include "DataFormats/JetReco/interface/GenJet.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
-#include "SimDataFormats/HepMCProduct/interface/GenInfoProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenInfoProduct.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"

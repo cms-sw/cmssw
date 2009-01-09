@@ -3,7 +3,7 @@
  * Generates PYQUEN HepMC events
  *
  * Original Author: Camelia Mironov
- * $Id: PyquenSource.cc,v 1.13 2008/04/09 19:02:38 marafino Exp $
+ * $Id: PyquenSource.cc,v 1.17 2008/12/19 17:51:50 yilmaz Exp $
 */
 
 #include <iostream>
@@ -14,9 +14,9 @@
 #include "GeneratorInterface/PyquenInterface/interface/PyquenWrapper.h"
 #include "GeneratorInterface/CommonInterface/interface/PythiaCMS.h"
 
-#include "SimDataFormats/HepMCProduct/interface/GenInfoProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenInfoProduct.h"
 #include "SimDataFormats/HiGenData/interface/GenHIEvent.h"
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"

@@ -13,7 +13,7 @@
 //
 // Original Author:  Yetkin Yilmaz
 //         Created:  Tue Dec 18 09:44:41 EST 2007
-// $Id: HydjetAnalyzer.cc,v 1.8 2008/12/02 17:48:29 yilmaz Exp $
+// $Id: HydjetAnalyzer.cc,v 1.9 2008/12/18 21:12:37 yilmaz Exp $
 //
 //
 
@@ -40,7 +40,7 @@
 
 #include "PhysicsTools/UtilAlgos/interface/TFileService.h"
 
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 #include "SimDataFormats/Vertex/interface/SimVertex.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"

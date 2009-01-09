@@ -10,7 +10,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 //
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "SimDataFormats/Track/interface/SimTrack.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/Vertex/interface/SimVertex.h"
@@ -72,8 +72,8 @@
  **  
  **
  **  $Id: PhotonValidator
- **  $Date: 2008/10/07 17:44:54 $ 
- **  $Revision: 1.13 $
+ **  $Date: 2008/11/21 11:20:46 $ 
+ **  $Revision: 1.14 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/

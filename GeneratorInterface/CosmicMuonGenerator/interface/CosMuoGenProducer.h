@@ -7,7 +7,7 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "HepMC/GenEvent.h"
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 //#include "FWCore/Framework/interface/GeneratedInputSource.h"
 //#include "FWCore/Framework/interface/InputSourceDescription.h"

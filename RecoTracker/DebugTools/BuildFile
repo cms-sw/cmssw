@@ -1,4 +1,4 @@
-<use name=SimDataFormats/HepMCProduct>
+<use name=SimDataFormats/GeneratorProducts>
 
 <use name=AnalysisDataFormats/TrackInfo>
 <use name=DataFormats/BeamSpot>

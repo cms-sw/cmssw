@@ -3,7 +3,7 @@
 <use name=FWCore/ParameterSet>
 <use name=FWCore/Utilities>
 <use name=FWCore/PluginManager>
-<use name=SimDataFormats/HepMCProduct>
+<use name=SimDataFormats/GeneratorProducts>
 <use name=hepmc>
 <flags EDM_PLUGIN=1>
 <export>

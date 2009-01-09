@@ -4,8 +4,8 @@
  */
 
 #include "GeneratorInterface/Pythia8Interface/interface/Pythia8Producer.h"
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
-#include "SimDataFormats/HepMCProduct/interface/GenInfoProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenInfoProduct.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"

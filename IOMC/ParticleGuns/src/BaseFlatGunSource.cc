@@ -1,6 +1,6 @@
 /*
- *  $Date: 2007/05/28 09:53:16 $
- *  $Revision: 1.15 $
+ *  $Date: 2008/04/16 19:50:05 $
+ *  $Revision: 1.16 $
  *  \author Julia Yarba
  */
 
@@ -8,7 +8,7 @@
 
 #include "IOMC/ParticleGuns/interface/BaseFlatGunSource.h"
 
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 

@@ -1,6 +1,6 @@
 <use name=boost>
 <use name=FWCore/Framework>
-<use name=SimDataFormats/HepMCProduct>
+<use name=SimDataFormats/GeneratorProducts>
 <use name=hepmc>
 <use name=lhapdf>
 <use name=clhep> 
@@ -13,7 +13,7 @@
 # <lib name=GeneratorInterfacePythia8Interface>
  <use name=boost>
  <use name=FWCore/Framework>
- <use name=SimDataFormats/HepMCProduct>
+ <use name=SimDataFormats/GeneratorProducts>
  <use name=hepmc>
  <use name=lhapdf>
  <use name=clhep> 
