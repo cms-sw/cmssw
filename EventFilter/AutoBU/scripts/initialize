@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/bin/env perl
 
 ################################################################################
 #
@@ -26,9 +26,11 @@ my $doEP  = 1;
 my $doPyCfg  = 0;
 my $doSM  = 1;
 my $doDQM = 0;
+my $useStepper = 0;
 
 my $PBfile;
 my $EPcfg = "";
+my $SMcfg = "";
 
 # hostname, default
 my $hostname = $ENV{"HOST"};
@@ -87,6 +89,7 @@ foreach $param (@ARGV) {
     elsif ($param    eq "-nEP")      { $doEP    =    -1; }
     elsif ($param    eq "-drop")     { $doEP=0;$doSM=0;$doDQM=0;}
     elsif ($param    eq "-noSM")     { $doSM=0; }
+    elsif ($param    eq "-debug")    { $useStepper=1; }
     elsif ($param    eq "-noDQM")    { $doDQM=0; }
     elsif ($param    eq "-python")   { $doPyCfg=1; }
     else { die ("Unknown parameter $param!\n"); }
@@ -131,8 +134,12 @@ if ($EPcfg eq "") {
 }
 
 if ($doSM) {
-    open(CFG,">./cfg/sm.cfg") or die ("Can't open file: $!\n");
-    print CFG makeCfgSm();
+    $SMcfg = $doPyCfg ? "$pwd/cfg/sm.py" : "$pwd/cfg/sm.cfg";
+    open(CFG,">$SMcfg") or die ("Can't open file: $!\n");
+    if ($doPyCfg){
+	print CFG makeCfgSmPython();}
+    else{
+	print CFG makeCfgSm();}
     close(CFG);
 }
 
@@ -189,6 +196,7 @@ my @BUproperties = ("runNumber","unsignedInt",$runNumber,
 		    "replay","boolean","false",
 		    "queueSize","unsignedInt","32",
 		    "crc","boolean","true",
+		    "overwriteEvtId","boolean","false",
 		    "eventBufferSize","unsignedInt","0x400000");
 
     
@@ -199,7 +207,7 @@ my @PBproperties = ("parameterSet","string","file:$pwd/cfg/playback.cfg",
 my @RBproperties = ("runNumber",   "unsignedInt",$runNumber,
 		    "buClassName", "string",     $BUappname,
 		    "doCrcCheck",  "unsignedInt","1",
-		    "processKillerEnabled","boolean","true",
+		    "processKillerEnabled","boolean","false",
 		    "monSleepSec", "unsignedInt","5",
 		    "nbRawCells",  "unsignedInt","16",
 		    "nbRecoCells", "unsignedInt","8",
@@ -216,7 +224,7 @@ my @EPproperties = ("parameterSet",  "string",      "file:$EPcfg",
 
 if (!$doSM) { push (@EPproperties,"outputEnabled","boolean","false"); }
 
-my @SMproperties = ("STparameterSet",   "string",     "file:$pwd/cfg/sm.cfg",
+my @SMproperties = ("STparameterSet",   "string",     "file:$SMcfg",
 		    "runNumber",        "unsignedInt",$runNumber,
 		    "filePath",         "string",     "$SMout",
 		    "fileCatalog",      "string",     "summaryCatalog.txt",
@@ -330,7 +338,7 @@ if ($doSM) {
     print CTL makeCtlCommand("Configure",$SMappname,"SM",$hostname,$SMport,1);
 }
 if ($doPB) {
-    print CTL makeCtlCommand("Configure",$EPappname,"PB",$hostname,$BUport,10);
+    print CTL makeCtlCommand("Configure",$EPappname,"PB",$hostname,$BUport,30);
     print CTL makeCtlCommand("Enable",   $EPappname,"PB",$hostname,$BUport,5);
 }
 print CTL makeCtlCommand("Configure",$PTappname,"BUPT",$hostname,$BUport,1);
@@ -527,6 +535,10 @@ sub makeCfgFu
     
     $result = $result . "  // services\n\n";
     $result = $result . "  service = DQMStore { }\n\n";
+    if ($useStepper) {
+	$result = $result . "  service = Stepper { }\n\n";
+    }
+
     $result = $result . "  service = MessageLogger {\n";
     $result = $result . "    untracked vstring destinations = { \"cout\" }\n";
     $result = $result . "    untracked PSet    cout         = " .
@@ -627,6 +639,9 @@ sub makeCfgFuPython
     $result = $result . "    )\n\n";
     
     $result = $result . "process.DQMStore = cms.Service (\"DQMStore\") \n\n";
+    if ($useStepper) {
+	$result = $result . "process.Stepper = cms.Service (\"Stepper\") \n\n";
+    }
     $result = $result . "process.MessageLogger = cms.Service (\"MessageLogger\",\n";
     $result = $result . "    destinations = cms.untracked.vstring(\'cout\'),\n";
     $result = $result . "    cout = cms.untracked.PSet (\n" .
@@ -725,6 +740,27 @@ sub makeCfgSm
     $result = $result . "  }\n\n";
 
     $result = $result . "}\n";
+}
+
+################################################################################
+sub makeCfgSmPython
+{
+    my $result = "";
+
+    $result = $result . "import FWCore.ParameterSet.Config as cms\n";
+    $result = $result . "process = cms.Process(\"SM\")\n";
+    $result = $result . "# source\n";
+    $result = $result . "process.source = cms.Source(\"FragmentInput\")\n";
+    $result = $result . "# endpath\n";
+    $result = $result . "process.out = cms.OutputModule( \"EventStreamFileWriter\",\n";
+    $result = $result . "    streamLabel = cms.string(\"A\"),\n";
+    $result = $result . "    maxSize = cms.int32(2048),\n";
+    $result = $result . "    SelectEvents = cms.untracked.PSet(SelectEvents=cms.vstring(\"*\"))\n";
+    $result = $result . ")\n\n";
+
+    $result = $result . "process.e1 = cms.EndPath( process.out )\n";
+    $result = $result . "# modules\n\n";
+
 }
 
 
