@@ -100,10 +100,10 @@ void HcalDigiTester::reco(const edm::Event& iEvent, const edm::EventSetup& iSetu
   double ampl4    = 0.;
   double ampl_all_depths = 0.;
 
-  /*
-  std::cout << " HcalDigiTester::reco :  "
-	    << "subdet=" << subdet << "  noise="<< noise_ << std::endl;
-  */
+ 
+  //  std::cout << " HcalDigiTester::reco :  "
+  //	    << "subdet=" << subdet << "  noise="<< noise_ << std::endl;
+ 
 
   // CYCLE OVER CELLS ========================================================
 
@@ -509,6 +509,7 @@ HcalDigiTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     reco<HODataFrame>(iEvent,iSetup);
     hcalselector_ = "HF";
     reco<HFDataFrame>(iEvent,iSetup);
+    hcalselector_ = "noise";
   }
 
 }
