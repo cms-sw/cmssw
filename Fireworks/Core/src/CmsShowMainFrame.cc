@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:23 CDT 2008
-// $Id: CmsShowMainFrame.cc,v 1.38 2009/01/08 14:24:36 amraktad Exp $
+// $Id: CmsShowMainFrame.cc,v 1.39 2009/01/08 18:06:30 amraktad Exp $
 //
 // hacks
 #define private public
@@ -464,10 +464,10 @@ void CmsShowMainFrame::defaultAction() {
 
 void CmsShowMainFrame::loadEvent(const fwlite::Event& event) {
 
-   if (event.id().run() != (int)(m_runEntry->GetIntNumber()))
+   if (event.id().run() != static_cast<unsigned int>(m_runEntry->GetIntNumber()))
       m_runEntry->SetIntNumber(event.id().run());
 
-   if (event.id().event() != (int)(m_eventEntry->GetIntNumber()))
+   if (event.id().event() != static_cast<unsigned int>(m_eventEntry->GetIntNumber()))
       m_eventEntry->SetIntNumber(event.id().event());
 
    m_timeText->SetText( fw::getTimeGMT( event ).c_str() );
