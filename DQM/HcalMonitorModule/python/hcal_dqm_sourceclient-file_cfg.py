@@ -104,7 +104,7 @@ process.load("RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_zdc_cfi")
 
 # hcalMonitor configurable values -----------------------
 process.hcalMonitor.debug = 0
-process.hcalMonitor.DigiOccThresh = -999999999 ##Temporary measure while DigiOcc is reworked.
+#process.hcalMonitor.DigiOccThresh = -999999999 ##Temporary measure while DigiOcc is reworked -- why was this done in the first place?  What was the problem with a threshold of 0?  -- Jeff
 process.hcalMonitor.pedestalsInFC = True
 process.hcalMonitor.showTiming = False
 process.hcalMonitor.checkNevents=100
