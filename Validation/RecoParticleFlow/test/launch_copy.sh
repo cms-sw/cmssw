@@ -1,8 +1,8 @@
 #!/bin/sh
 
-cmsswDir=/afs/cern.ch/user/p/pjanot/scratch0/CMSSW_3_0_0_pre3/src
-castorDir=/castor/cern.ch/user/p/pjanot/CMSSW300pre3
-castor="\/castor\/cern.ch\/user\/p\/pjanot\/CMSSW300pre3"
+cmsswDir=/afs/cern.ch/user/p/pjanot/scratch0/CMSSW_3_0_0_pre6/src
+castorDir=/castor/cern.ch/user/p/pjanot/CMSSW300pre6
+castor="\/castor\/cern.ch\/user\/p\/pjanot\/CMSSW300pre6"
 
 name=QCDForPF
 simu=Full
