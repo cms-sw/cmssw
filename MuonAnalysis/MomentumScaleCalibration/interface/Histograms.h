@@ -4,8 +4,8 @@
 /** \class Histograms
  *  Collection of histograms for GLB muon analysis
  *
- *  $Date: 2008/12/15 16:27:31 $
- *  $Revision: 1.15 $
+ *  $Date: 2009/01/08 12:37:25 $
+ *  $Revision: 1.1 $
  *  \author S. Bolognesi - INFN Torino / T.Dorigo - INFN Padova
  */
 
@@ -979,7 +979,11 @@ class HFunctionResolution : public Histograms {
     int yIndex = getYindex(p4.Eta());
     if ( 0 <= xIndex && xIndex < totBinsX_ && 0 <= yIndex && yIndex < totBinsY_ ) {
       resoVsPtEta_[xIndex][yIndex] += resValue;
-      resoCount_[xIndex][yIndex] += 1;
+      // ATTENTION: we count only for positive muons because we are considering di-muon resonances
+      // and we use this counter to compute the mean in the end. The resoVsPtEta value is filled with each muon,
+      // but they must be considered independently (analogous to a factor 2) so in the end we would have
+      // to divide by N/2, that is why we only increase the counter for half the muons.
+      if( charge > 0 ) resoCount_[xIndex][yIndex] += 1;
 
       // hResoVSPtEta->Fill(p4.Pt(), p4.Eta(), resValue);
       hResoVSPt_prof->Fill(p4.Pt(),resValue);
