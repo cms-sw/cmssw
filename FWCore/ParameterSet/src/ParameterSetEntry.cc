@@ -6,43 +6,44 @@
 namespace edm {
 
   ParameterSetEntry::ParameterSetEntry()
-  : tracked(false),
-    thePSet(0),
-    theID()
+  : isTracked_(false),
+    thePSet_(0),
+    theID_()
   {
   }
 
   ParameterSetEntry::ParameterSetEntry(ParameterSet const& pset, bool isTracked)
-  : tracked(isTracked),
-    thePSet(new ParameterSet(pset)),
-    theID()
+  : isTracked_(isTracked),
+    thePSet_(new ParameterSet(pset)),
+    theID_()
   {
     if (pset.isRegistered()) {
-      theID = pset.id();
+      theID_ = pset.id();
     }
   }
 
   ParameterSetEntry::ParameterSetEntry(std::string const& rep)
-  : tracked(rep[0] == '+'),
-    thePSet(),
-    theID()
+  : isTracked_(rep[0] == '+'),
+    thePSet_(),
+    theID_()
   {
     assert(rep[0] == '+' || rep[0] == '-');
     ParameterSetID newID(std::string(rep.begin()+2, rep.end()) );
-    theID.swap(newID);
+    theID_.swap(newID);
   }
     
   ParameterSetEntry::~ParameterSetEntry() {}
 
-  void ParameterSetEntry::toString(std::string& result) const {
-    result += tracked ? "+Q" : "-Q";
-    if (!theID.isValid()) {
+  void
+  ParameterSetEntry::toString(std::string& result) const {
+    result += isTracked() ? "+Q" : "-Q";
+    if (!theID_.isValid()) {
       throw edm::Exception(edm::errors::LogicError)
         << "ParameterSet::toString() called prematurely\n"
         << "before ParameterSet::registerIt() has been called\n"
         << "for all nested parameter sets\n";
     }
-    theID.toString(result);
+    theID_.toString(result);
   }
 
   std::string
@@ -52,31 +53,25 @@ namespace edm {
     return result;
   }
 
-  int ParameterSetEntry::sizeOfString() const {
-    std::string str;
-    toString(str);
-    return str.size();
-  }
-
   ParameterSet const& ParameterSetEntry::pset() const {
-    if(!thePSet) {
+    if(!thePSet_) {
       // get it from the registry, and save it here
-      thePSet = value_ptr<ParameterSet>(new ParameterSet( getParameterSet(theID) ));
+      thePSet_ = value_ptr<ParameterSet>(new ParameterSet(getParameterSet(theID_)));
     }
-    return *thePSet;
+    return *thePSet_;
   }
 
   ParameterSet& ParameterSetEntry::pset() {
-    if(!thePSet) {
+    if(!thePSet_) {
       // get it from the registry, and save it here
-      thePSet = value_ptr<ParameterSet>(new ParameterSet( getParameterSet(theID) ));
+      thePSet_ = value_ptr<ParameterSet>(new ParameterSet(getParameterSet(theID_)));
     }
-    return *thePSet;
+    return *thePSet_;
   }
 
   void ParameterSetEntry::updateID() const {
     assert(pset().isRegistered());
-    theID = pset().id();
+    theID_ = pset().id();
   }
 
   std::ostream & operator<<(std::ostream & os, ParameterSetEntry const& psetEntry) {

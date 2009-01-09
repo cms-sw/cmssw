@@ -37,7 +37,8 @@ namespace edm {
     
   VParameterSetEntry::~VParameterSetEntry() {}
 
-  void VParameterSetEntry::toString(std::string& result) const {
+  void
+  VParameterSetEntry::toString(std::string& result) const {
     result += tracked ? "+q" : "-q";
     result += '{';
     std::string start;
@@ -54,12 +55,6 @@ namespace edm {
     std::string result;
     toString(result);
     return result;
-  }
-
-  int VParameterSetEntry::sizeOfString() const {
-    std::string str;
-    toString(str);
-    return str.size();
   }
 
   std::vector<ParameterSet> const& VParameterSetEntry::vpset() const {

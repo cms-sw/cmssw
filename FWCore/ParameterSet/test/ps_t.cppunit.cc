@@ -1,5 +1,5 @@
 /*
- * $Id: ps_t.cppunit.cc,v 1.17 2009/01/07 04:57:53 wmtan Exp $
+ * $Id: ps_t.cppunit.cc,v 1.18 2009/01/08 00:46:15 rpw Exp $
  */
 
 #include <algorithm>
@@ -352,6 +352,8 @@ test_for_name()
 
   std::string firstString = ps.toString();
   edm::ParameterSet p2(firstString);
+
+  p2.registerIt();
   // equality tests toStringOfTracked internally
   CPPUNIT_ASSERT(ps == p2);
 }
@@ -412,6 +414,7 @@ void testps::testEmbeddedPSet()
 
   std::string rep = ps.toString();
   edm::ParameterSet defrosted(rep);
+  defrosted.registerIt();
   edm::ParameterSet trackedPart(ps.trackedPart());
 
   CPPUNIT_ASSERT(defrosted == ps);
@@ -419,7 +422,7 @@ void testps::testEmbeddedPSet()
   CPPUNIT_ASSERT(trackedPart.getParameterSet("psEmbedded").exists("p2"));
   CPPUNIT_ASSERT(!trackedPart.getParameterSet("psEmbedded").exists("p1"));
   CPPUNIT_ASSERT(trackedPart.getParameterSet("psEmbedded").getParameterSet("psDeeper").getParameter<int>("deepest") == 6);
-  CPPUNIT_ASSERT(defrosted.getUntrackedParameter<boost::uint64_t>("u64") == 64);
+  CPPUNIT_ASSERT(ps.getUntrackedParameter<boost::uint64_t>("u64") == 64);
   CPPUNIT_ASSERT(!trackedPart.exists("u64"));
 }
 

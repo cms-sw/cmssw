@@ -42,7 +42,6 @@ namespace edm {
 
     //Path and sequence information
     boost::shared_ptr<ParameterSet> pset_;
-    boost::shared_ptr<ParameterSet> trackedPartOfPset_;
     boost::shared_ptr<std::vector<ParameterSet> > services_;
   };
 }

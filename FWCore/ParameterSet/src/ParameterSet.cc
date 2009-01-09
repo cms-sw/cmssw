@@ -34,13 +34,8 @@ namespace edm {
   ParameterSet::invalidateRegistration(std::string const& nameOfTracked) const {
     // We have added a new parameter.  Invalidate the ID.
     if(isRegistered()) {
-      trackedID();
       id_ = ParameterSetID();
-    }
-    if (!nameOfTracked.empty() && trackedID_.isValid()) {
-      // We have added a new tracked parameter.  Invalidate the tracked ID.
-      trackedID_ = ParameterSetID();
-      // Give a warning (informational for now)
+      // Give a warning (informational for now).
       LogInfo("ParameterSet")    << "Warning: You have added a new tracked parameter\n"
 				 <<  "'" << nameOfTracked << "' to a previously registered parameter set.\n"
 				 << "This is a bad idea because the new parameter(s) will not be recorded.\n"
@@ -59,8 +54,7 @@ namespace edm {
     psetTable_(),
     vpsetTable_(),
     isFullyTracked_(True),
-    id_(),
-    trackedID_()
+    id_()
   {
   }
 
@@ -72,8 +66,7 @@ namespace edm {
     psetTable_(),
     vpsetTable_(),
     isFullyTracked_(True),
-    id_(),
-    trackedID_()
+    id_()
   {
     if(!fromString(code)) {
       throw edm::Exception(errors::Configuration,"InvalidInput")
@@ -81,6 +74,32 @@ namespace edm {
 	<< "passed to a ParameterSet during construction is invalid:\n"
 	<< code;
     }
+  }
+
+  // ----------------------------------------------------------------------
+  // from coded string and ID.  Will cause registration
+
+  ParameterSet::ParameterSet(std::string const& code, ParameterSetID const& id) :
+    tbl_(),
+    psetTable_(),
+    vpsetTable_(),
+    isFullyTracked_(True),
+    id_(id)
+  {
+    if(!fromString(code)) {
+      throw edm::Exception(errors::Configuration,"InvalidInput")
+	<< "The encoded configuration string "
+	<< "passed to a ParameterSet during construction is invalid:\n"
+	<< code;
+    }
+    if (isFullyTracked_ == False) {
+      throw edm::Exception(errors::Configuration,"InvalidInput")
+	<< "The encoded configuration string from persistent store "
+        << "passed to a ParameterSet during construction contains untracked parameters.\n"
+	<< code;
+    }
+    isFullyTracked_ = True;
+    pset::Registry::instance()->insertMapped(*this);
   }
 
   ParameterSet::~ParameterSet() {}
@@ -94,7 +113,7 @@ namespace edm {
   }
 
   void ParameterSet::calculateID() {
-    // make sure contained PSets are updated
+    // make sure contained tracked psets are updated
     for(psettable::iterator i = psetTable_.begin(), e = psetTable_.end(); i != e; ++i) {
       if (!i->second.pset().isRegistered()) {
 	i->second.pset().registerIt();
@@ -102,10 +121,11 @@ namespace edm {
       }
     }
 
+    // make sure contained tracked vpsets are updated
     for(vpsettable::iterator i = vpsetTable_.begin(), e = vpsetTable_.end(); i != e; ++i) {
       for (std::vector<ParameterSetEntry>::iterator
-	    it = i->second.psetEntries().begin(), et = i->second.psetEntries().end();
-	    it != et; ++it) {
+	  it = i->second.psetEntries().begin(), et = i->second.psetEntries().end();
+	  it != et; ++it) {
 	if (!it->pset().isRegistered()) {
           it->pset().registerIt();
           it->updateID();
@@ -133,36 +153,8 @@ namespace edm {
     return id_;
   }
 
-  ParameterSetID
-  ParameterSet::trackedID() const {
-    if (!trackedID_.isValid()) {
-      if (!isRegistered()) {
-	throw edm::Exception(edm::errors::LogicError)
-          << "ParameterSet::trackedID() called prematurely\n"
-          << "before ParameterSet::registerIt() has been called.\n";
-      }
-      if (isFullyTracked_ == True) {
-        trackedID_ = id_;
-      } else {
-	ParameterSet pset = trackedPart();
-	pset.registerIt();
-        trackedID_ = pset.id_;
-        isFullyTracked_ = (trackedID_ == id_ ? True : False);
-      }
-    }
-    return trackedID_;
-  }
-
   void ParameterSet::setID(ParameterSetID const& id) const {
     id_ = id;
-  }
-
-  bool
-  ParameterSet::isFullyTracked() const {
-    if (isFullyTracked_ == Unknown) {
-      isFullyTracked_ = (trackedID() == id() ? True : False);
-    }
-    return (isFullyTracked_ == True);
   }
 
   // ----------------------------------------------------------------------
@@ -413,8 +405,7 @@ namespace edm {
   void
   ParameterSet::augment(ParameterSet const& from) {
     // This preemptive invalidation may be more agressive than necessary.
-    invalidateRegistration();
-
+    invalidateRegistration(std::string());
     if(&from == this) {
       return;
     }
@@ -443,19 +434,27 @@ namespace edm {
     }
     size_t size = 1;
     for(table::const_iterator b = tbl_.begin(), e = tbl_.end(); b != e; ++b) {
-      size += 2;
-      size += b->first.size();
-      size += b->second.sizeOfString();
+      if (b->second.isTracked()) {
+        size += 2;
+        size += b->first.size();
+        size += b->second.sizeOfString();
+      }
     }
     for(psettable::const_iterator b = psetTable_.begin(), e = psetTable_.end(); b != e; ++b) {
-      size += 2;
-      size += b->first.size();
-      size += b->second.sizeOfString();
+      if (b->second.isTracked()) {
+        size += 2;
+        size += b->first.size();
+        size += b->first.size();
+        size += b->first.size();
+        size += sizeof(ParameterSetID);
+      }
     }
     for(vpsettable::const_iterator b = vpsetTable_.begin(), e = vpsetTable_.end(); b != e; ++b) {
-      size += 2;
-      size += b->first.size();
-      size += b->second.sizeOfString();
+      if (b->second.isTracked()) {
+        size += 2;
+        size += b->first.size();
+        size += sizeof(ParameterSetID) * b->second.vpset().size();
+      }
     }
 
     rep.reserve(rep.size()+size);
@@ -463,25 +462,31 @@ namespace edm {
     std::string start;
     std::string const between(";");
     for(table::const_iterator b = tbl_.begin(), e = tbl_.end(); b != e; ++b) {
-      rep += start;
-      rep += b->first;
-      rep += '=';
-      b->second.toString(rep);
-      start = between;
+      if (b->second.isTracked()) {
+        rep += start;
+        rep += b->first;
+        rep += '=';
+        b->second.toString(rep);
+        start = between;
+      }
     }
     for(psettable::const_iterator b = psetTable_.begin(), e = psetTable_.end(); b != e; ++b) {
-      rep += start;
-      rep += b->first;
-      rep += '=';
-      b->second.toString(rep);
-      start = between;
+      if (b->second.isTracked()) {
+        rep += start;
+        rep += b->first;
+        rep += '=';
+        b->second.toString(rep);
+        start = between;
+      }
     }
     for(vpsettable::const_iterator b = vpsetTable_.begin(), e = vpsetTable_.end(); b != e; ++b) {
-      rep += start;
-      rep += b->first;
-      rep += '=';
-      b->second.toString(rep);
-      start = between;
+      if (b->second.isTracked()) {
+        rep += start;
+        rep += b->first;
+        rep += '=';
+        b->second.toString(rep);
+        start = between;
+      }
     }
 
     rep += '>';
@@ -532,7 +537,6 @@ namespace edm {
 	}
 	isFullyTracked_ = isFullyTracked_ && Unknown;
       } else if(rep[1] == 'P') {
-        //old representation of ParameterSet, included for backwards-compatibility
         Entry value(name, rep);
         ParameterSetEntry psetEntry(value.getPSet(), value.isTracked());
         if(!psetTable_.insert(std::make_pair(name, psetEntry)).second) {
@@ -540,7 +544,6 @@ namespace edm {
         }
 	isFullyTracked_ = isFullyTracked_ && Unknown;
       } else if(rep[1] == 'p') {
-        //old representation of VParameterSet, included for backwards-compatibility
         Entry value(name, rep);
         VParameterSetEntry vpsetEntry(value.getVPSet(), value.isTracked());
         if(!vpsetTable_.insert(std::make_pair(name, vpsetEntry)).second) {
@@ -687,7 +690,6 @@ namespace edm {
     return count;
   }
 
-
   template <>
   std::vector<std::string> ParameterSet::getParameterNamesForType<FileInPath>(bool trackiness) const
   {
@@ -696,14 +698,45 @@ namespace edm {
     return result;
   }
 
-
   bool operator==(ParameterSet const& a, ParameterSet const& b) {
-    // Maybe can replace this with comparison of id_ values.
-    std::string aString;
-    std::string bString;
-    a.toString(aString);
-    b.toString(bString);
-    return aString == bString;
+    if (a.isRegistered() && b.isRegistered()) {
+      return (a.id() == b.id());
+    }
+    return isTransientEqual(a.trackedPart(), b.trackedPart());
+  }
+
+  bool isTransientEqual(ParameterSet const& a, ParameterSet const& b) {
+    if (a.tbl().size() != b.tbl().size()) return false;
+    if (a.psetTable().size() != b.psetTable().size()) return false;
+    if (a.vpsetTable().size() != b.vpsetTable().size()) return false;
+    typedef ParameterSet::table::const_iterator Ti;
+    for (Ti i = a.tbl().begin(), e = a.tbl().end(),
+	    j = b.tbl().begin(), f = b.tbl().end();
+	    i != e; ++i, ++j) {
+      if (*i != *j) return false;
+    }
+    typedef ParameterSet::psettable::const_iterator Pi;
+    for (Pi i = a.psetTable().begin(), e = a.psetTable().end(),
+	    j = b.psetTable().begin(), f = b.psetTable().end();
+	    i != e; ++i, ++j) {
+      if (i->first != j->first) return false;
+      if (i->second.isTracked() != j->second.isTracked()) return false;
+      if (!isTransientEqual(i->second.pset(), j->second.pset())) return false;
+    }
+    typedef ParameterSet::vpsettable::const_iterator PVi;
+    for (PVi i = a.vpsetTable().begin(), e = a.vpsetTable().end(),
+	     j = b.vpsetTable().begin(), f = b.vpsetTable().end();
+	     i != e; ++i, ++j) {
+      if (i->first != j->first) return false;
+      if (i->second.isTracked() != j->second.isTracked()) return false;
+      std::vector<ParameterSet> const& iv = i->second.vpset();
+      std::vector<ParameterSet> const& jv = j->second.vpset();
+      if (iv.size() != jv.size()) return false;
+      for (size_t k = 0; k < iv.size(); ++k) {
+        if (!isTransientEqual(iv[k], jv[k])) return false;
+      }
+    }
+    return true;
   }
 
   std::string ParameterSet::dump() const {
@@ -746,6 +779,8 @@ namespace edm {
       throw edm::Exception(errors::Configuration,"MissingParameterSet:")
         << "Parameter Set ID '" << id << "' not found.";
     }
+    result.setID(id);
+    result.setFullyTracked();
     return result;
   }
 
@@ -1819,7 +1854,6 @@ namespace edm {
   template <>
   void
   ParameterSet::addUntrackedParameter<ParameterSet>(std::string const& name, ParameterSet value) {
-    invalidateRegistration();
     insertParameterSet(true, name, ParameterSetEntry(value, false));
     isFullyTracked_ = False;
   }
@@ -1827,7 +1861,6 @@ namespace edm {
   template <>
   void
   ParameterSet::addUntrackedParameter<VParameterSet>(std::string const& name, VParameterSet value) {
-    invalidateRegistration();
     insertVParameterSet(true, name, VParameterSetEntry(value, false));
     isFullyTracked_ = False;
   }
@@ -1835,7 +1868,6 @@ namespace edm {
   template <>
   void
   ParameterSet::addUntrackedParameter<ParameterSet>(char const* name, ParameterSet value) {
-    invalidateRegistration();
     insertParameterSet(true, name, ParameterSetEntry(value, false));
     isFullyTracked_ = False;
   }
@@ -1843,7 +1875,6 @@ namespace edm {
   template <>
   void
   ParameterSet::addUntrackedParameter<VParameterSet>(char const* name, VParameterSet value) {
-    invalidateRegistration();
     insertVParameterSet(true, name, VParameterSetEntry(value, false));
     isFullyTracked_ = False;
   }

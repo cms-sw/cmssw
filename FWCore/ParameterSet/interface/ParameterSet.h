@@ -40,16 +40,19 @@ namespace edm {
     // default-construct
     ParameterSet();
 
-    // construct from coded string
-    explicit ParameterSet(std::string const&);
+    // construct from coded string.
+    explicit ParameterSet(std::string const& rep);
+
+    // construct from coded string and id.  Will cause registration
+    ParameterSet(std::string const& rep, ParameterSetID const& id);
 
     ~ParameterSet();
 
     // identification
     ParameterSetID id() const;
-    ParameterSetID trackedID() const;
     void setID(ParameterSetID const& id) const;
     bool isRegistered() const {return id_.isValid();}
+    ParameterSetID trackedID() const {return id();} // to be phased out.
 
     // Entry-handling
     Entry const& retrieve(char const*) const;
@@ -186,7 +189,6 @@ namespace edm {
     template <typename T>
     void
     addUntrackedParameter(std::string const& name, T value) {
-      invalidateRegistration();
       insert(true, name, Entry(name, value, false));
       isFullyTracked_ = False;
     }
@@ -194,7 +196,6 @@ namespace edm {
     template <typename T>
     void
     addUntrackedParameter(char const* name, T value) {
-      invalidateRegistration();
       insert(true, name, Entry(name, value, false));
       isFullyTracked_ = False;
     }
@@ -228,22 +229,24 @@ namespace edm {
 
     ParameterSet const& registerIt();
 
-    bool isFullyTracked() const;
-
     /// called if isFullyTracked_ is known for external reasons
     void setFullyTracked(Bool isFullyTracked = True) const {isFullyTracked_ = isFullyTracked;}
+
+    typedef std::map<std::string, Entry> table;
+    table const& tbl() const {return tbl_;}
+
+    typedef std::map<std::string, ParameterSetEntry> psettable;
+    psettable const& psetTable() const {return psetTable_;}
+
+    typedef std::map<std::string, VParameterSetEntry> vpsettable;
+    vpsettable const& vpsetTable() const {return vpsetTable_;}
 
   private:
     // decode
     bool fromString(std::string const&);
 
-    typedef std::map<std::string, Entry> table;
     table tbl_;
-
-    typedef std::map<std::string, ParameterSetEntry> psettable;
     psettable psetTable_;
-
-    typedef std::map<std::string, VParameterSetEntry> vpsettable;
     vpsettable vpsetTable_;
 
     // Is this parameter set fully tracked to all depths?
@@ -251,13 +254,11 @@ namespace edm {
     mutable Bool isFullyTracked_;
 
     // If the id_ is invalid, that means a new value should be
-    // calculated before the value is returned. Upon construction, the
-    // id_ is made valid. Updating any parameter invalidates the id_.
+    // calculated before the value is returned. Upon registration, the
+    // id_ is made valid. Updating any tracked parameter invalidates the id_.
     mutable ParameterSetID id_;
 
-    mutable ParameterSetID trackedID_;
-
-    void invalidateRegistration(std::string const& nameOfTracked = std::string()) const;
+    void invalidateRegistration(std::string const& nameOfTracked) const;
    
     void calculateID();
 
@@ -276,6 +277,8 @@ namespace edm {
   };  // ParameterSet
 
   bool operator==(ParameterSet const& a, ParameterSet const& b);
+
+  bool isTransientEqual(ParameterSet const& a, ParameterSet const& b);
 
   inline 
   bool

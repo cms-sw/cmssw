@@ -166,21 +166,15 @@ namespace edm {
   };  // Entry
 
 
-  // It is not clear whether operator== should use toString() or
-  // toStringOfTracked(). It only makes a differences for Entries that
-  // carry ParameterSets (or vectors thereof).
-  //
-  // However, it seems that operator== for Entry is *nowhere used*!.
-  // Thus, the code is new removed.
-  //   inline bool
-  //   operator==(Entry const& a, Entry const& b) {
-  //     return a.toString() == b.toString();
-  //   }
+  inline bool
+  operator==(Entry const& a, Entry const& b) {
+    return a.toString() == b.toString();
+  }
   
-  //   inline bool
-  //   operator!=(Entry const& a, Entry const& b) {
-  //     return !(a == b);
-  //   }
+  inline bool
+  operator!=(Entry const& a, Entry const& b) {
+    return !(a == b);
+  }
 } // namespace edm
 
   

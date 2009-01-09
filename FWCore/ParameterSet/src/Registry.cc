@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------
-// $Id: Registry.cc,v 1.13 2008/12/20 18:38:24 wmtan Exp $
+// $Id: Registry.cc,v 1.15 2009/01/02 05:55:28 wmtan Exp $
 //
 // ----------------------------------------------------------------------
 
@@ -18,12 +18,8 @@ namespace edm {
       typedef Registry::const_iterator iter;
       fillme.clear();
       // Note: The tracked part is in the registry.
-      // The full parameter set including the untracked parts may also be there.
       for (iter i = reg->begin(), e = reg->end(); i != e; ++i) {
-	// Persist only fully tracked parameter sets.
-	if (i->second.isFullyTracked()) {
-	  fillme[i->first].pset_ = i->second.toString();
-	}
+	fillme[i->first].pset_ = i->second.toString();
       }
     }
   } // namespace pset

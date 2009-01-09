@@ -27,11 +27,10 @@ namespace edm {
 
     std::string toString() const;
     void toString(std::string& result) const;
-    int sizeOfString() const;
 
-    bool isTracked() const {return tracked;}
+    bool isTracked() const {return isTracked_;}
 
-    ParameterSetID id() const {return theID;}
+    ParameterSetID id() const {return theID_;}
   
     /// returns the PSet, reconstituting it from the
     /// Registry, if necessary
@@ -44,15 +43,13 @@ namespace edm {
 
   private:
     
-    bool tracked;
+    bool isTracked_;
     // can be internally reconstituted from the ID, in an
     // ostensibly const function
-    mutable value_ptr<ParameterSet> thePSet;
+    mutable value_ptr<ParameterSet> thePSet_;
 
     // mutable so save() can serialize it as late as possible
-    mutable ParameterSetID theID;
-
-
+    mutable ParameterSetID theID_;
   };
 
 }
