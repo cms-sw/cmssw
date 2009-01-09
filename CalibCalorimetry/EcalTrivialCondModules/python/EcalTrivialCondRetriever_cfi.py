@@ -30,5 +30,7 @@ EcalTrivialConditionRetriever = cms.ESSource("EcalTrivialConditionRetriever",
     producedEcalClusterLocalContCorrParameters = cms.untracked.bool(True),
     localContCorrParameters = cms.untracked.vdouble( ),
     producedEcalClusterCrackCorrParameters = cms.untracked.bool(True),
-    crackCorrParameters = cms.untracked.vdouble( )
+    crackCorrParameters = cms.untracked.vdouble( ),
+    mappingFile = cms.untracked.string('Geometry/EcalMapping/data/EEMap.txt'),
+    producedEcalMappingElectronics = cms.untracked.bool(True)                                             
 )
