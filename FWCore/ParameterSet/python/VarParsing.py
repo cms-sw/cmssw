@@ -1,7 +1,7 @@
 import sys
 import os
 import re
-from Enumerate import Enumerate
+from FWCore.Python.Enumerate import Enumerate
 
 class VarParsing (object):
     """Infrastructure to parse variable definitions passed to cmsRun
