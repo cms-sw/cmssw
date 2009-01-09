@@ -1,5 +1,10 @@
 2009-01-09  Emilio Meschi <emilio.meschi@cern.ch>
 
+	* tag V00-15-05
+	* put back BxNumberFilter.cc in plugins tag
+
+2009-01-09  Emilio Meschi <emilio.meschi@cern.ch>
+
 	* tag V00-15-04
 	* get header file for StateMachine from HEAD (spotted by Pete)
 	* re-instate RunBase as its use in StorageManager is unclear
