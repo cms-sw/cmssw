@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Jul 31 15:18:40 EDT 2007
-// $Id: ParameterSetDescription.h,v 1.5 2008/12/08 22:33:59 wdd Exp $
+// $Id: ParameterSetDescription.h,v 1.7 2009/01/09 20:55:25 wmtan Exp $
 //
 
 #include "FWCore/ParameterSet/interface/ParameterDescription.h"
@@ -25,11 +25,11 @@
 #include <vector>
 #include <string>
 #include <memory>
+#include <iosfwd>
 
 namespace edm {
 
   class ParameterSet;
-  // template <typename T> class ParameterDescriptionTemplate;
 
   class ParameterSetDescription
   {
@@ -48,45 +48,24 @@ namespace edm {
     // This should only be called to allow backwards compatibility.
     void setUnknown();
 
-    template<class T>
-    ParameterDescription* add(std::string const& iLabel, T const& value) {
-      return add(iLabel, value, true, false);
+    template<class T, class U>
+    ParameterDescription* add(U const& iLabel, T const& value) {
+      return add<T, U>(iLabel, value, true, false);
     }
 
-    template<class T>
-    ParameterDescription* addUntracked(std::string const& iLabel, T const& value) {
-      return add(iLabel, value, false, false);
+    template<class T, class U>
+    ParameterDescription* addUntracked(U const& iLabel, T const& value) {
+      return add<T, U>(iLabel, value, false, false);
     }
 
-    template<class T>
-    ParameterDescription* addOptional(std::string const& iLabel, T const& value) {
-      return add(iLabel, value, true, true);
+    template<class T, class U>
+    ParameterDescription* addOptional(U const& iLabel, T const& value) {
+      return add<T, U>(iLabel, value, true, true);
     }
 
-    template<class T>
-    ParameterDescription* addOptionalUntracked(std::string const& iLabel, T const& value) {
-      return add(iLabel, value, false, true);
-    }
-
-    // Duplicate the 4 functions above with a char const* argument instead of a string
-    template<class T>
-    ParameterDescription* add(char const* iLabel, T const& value) {
-      return add(iLabel, value, true, false);
-    }
-
-    template<class T>
-    ParameterDescription* addUntracked(char const* iLabel, T const& value) {
-      return add(iLabel, value, false, false);
-    }
-
-    template<class T>
-    ParameterDescription* addOptional(char const* iLabel, T const& value) {
-      return add(iLabel, value, true, true);
-    }
-
-    template<class T>
-    ParameterDescription* addOptionalUntracked(char const* iLabel, T const& value) {
-      return add(iLabel, value, false, true);
+    template<class T, class U>
+    ParameterDescription* addOptionalUntracked(U const& iLabel, T const& value) {
+      return add<T, U>(iLabel, value, false, true);
     }
 
     //Throws a cms::Exception if invalid
@@ -109,14 +88,12 @@ namespace edm {
       parameters_.reserve(n);
     }
 
+    void writeCfi(std::ostream & os, bool startWithComma, int indentation) const; 
+
   private:
 
-    template<class T>
-    ParameterDescription* add(std::string const& iLabel, T const& value, bool isTracked, bool isOptional);
-
-    template<class T>
-    ParameterDescription* add(char const*        iLabel, T const& value, bool isTracked, bool isOptional);
-
+    template<class T, class U>
+    ParameterDescription* add(U const& iLabel, T const& value, bool isTracked, bool isOptional);
 
     static void
     validateDescription(value_ptr<ParameterDescription> const& description,
@@ -136,6 +113,11 @@ namespace edm {
     throwIllegalParameter(std::string const& parameterName,
                           ParameterSet const& pset);
 
+    static void writeParameter(value_ptr<ParameterDescription> const& description,
+                               std::ostream & os,
+                               bool  & startWithComma,
+                               int indentation);
+
     bool anythingAllowed_;
     bool unknown_;
     Parameters parameters_;
@@ -146,24 +128,10 @@ namespace edm {
 
 namespace edm {
 
-  template<class T>
+  template<class T, class U>
   ParameterDescription*
   ParameterSetDescription::
-  add(std::string const& iLabel, T const& value, bool isTracked, bool isOptional) {
-
-    std::auto_ptr<ParameterDescription> ptr(new ParameterDescriptionTemplate<T>(iLabel, isTracked, isOptional, value));
-
-    edm::value_ptr<ParameterDescription> vptr;
-    parameters_.push_back(vptr);
-    parameters_.back() = ptr;
-
-    return parameters_.back().operator->();
-  }
-
-  template<class T>
-  ParameterDescription*
-  ParameterSetDescription::
-  add(char const* iLabel, T const& value, bool isTracked, bool isOptional) {
+    add(U const& iLabel, T const& value, bool isTracked, bool isOptional) {
 
     std::auto_ptr<ParameterDescription> ptr(new ParameterDescriptionTemplate<T>(iLabel, isTracked, isOptional, value));
 

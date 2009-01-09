@@ -113,4 +113,16 @@ namespace edm {
       << "Required parameter \"" << label() << "\" not defined "
       "as " << tr << " " << parameterTypeEnumToString(type()) << ".";
   }
+
+  void
+  ParameterDescription::writeCfi(std::ostream & os, int indentation) const {
+
+    os << label()
+       << " = cms.";
+    if (!isTracked()) os << "untracked.";
+    os << parameterTypeEnumToString(type())
+       << "(";
+    writeCfi_(os, indentation);
+    os << ")";
+  }
 }

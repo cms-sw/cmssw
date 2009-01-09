@@ -18,7 +18,7 @@ and query the component for its allowed ParameterSetDescription.
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Aug  1 16:46:53 EDT 2007
-// $Id: ParameterSetDescriptionFillerBase.h,v 1.1 2007/09/17 21:04:37 chrjones Exp $
+// $Id: ParameterSetDescriptionFillerBase.h,v 1.2 2008/11/14 19:41:22 wdd Exp $
 //
 
 // system include files
@@ -39,7 +39,8 @@ class ParameterSetDescriptionFillerBase
       virtual ~ParameterSetDescriptionFillerBase();
 
       // ---------- const member functions ---------------------
-      virtual void fill(ParameterSetDescription& iDesc, std::string const& moduleLabel) const = 0;
+      virtual void fill(ConfigurationDescriptions & descriptions) const = 0;
+      virtual std::string baseType() const = 0;
   
       // ---------- static member functions --------------------
 

@@ -23,7 +23,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Aug  2 15:33:51 EDT 2007
-// $Id: ParameterDescriptionTemplate.h,v 1.5 2008/12/08 22:33:59 wdd Exp $
+// $Id: ParameterDescriptionTemplate.h,v 1.7 2009/01/09 20:55:25 wmtan Exp $
 //
 
 #include "FWCore/ParameterSet/interface/ParameterDescription.h"
@@ -31,8 +31,32 @@
 
 #include <string>
 #include <vector>
+#include <iosfwd>
 
 namespace edm {
+
+  namespace writeToCfi {
+    void writeValueToCfi(std::ostream & os, int indentation, int const& value_);
+    void writeValueToCfi(std::ostream & os, int indentation, std::vector<int> const& value_);
+    void writeValueToCfi(std::ostream & os, int indentation, unsigned const& value_);
+    void writeValueToCfi(std::ostream & os, int indentation, std::vector<unsigned> const& value_);
+    void writeValueToCfi(std::ostream & os, int indentation, boost::int64_t const& value_);
+    void writeValueToCfi(std::ostream & os, int indentation, std::vector<boost::int64_t> const& value_);
+    void writeValueToCfi(std::ostream & os, int indentation, boost::uint64_t const& value_);
+    void writeValueToCfi(std::ostream & os, int indentation, std::vector<boost::uint64_t> const& value_);
+    void writeValueToCfi(std::ostream & os, int indentation, double const& value_);
+    void writeValueToCfi(std::ostream & os, int indentation, std::vector<double> const& value_);
+    void writeValueToCfi(std::ostream & os, int indentation, bool const& value_);
+    void writeValueToCfi(std::ostream & os, int indentation, std::string const& value_);
+    void writeValueToCfi(std::ostream & os, int indentation, std::vector<std::string> const& value_);
+    void writeValueToCfi(std::ostream & os, int indentation, edm::EventID const& value_);
+    void writeValueToCfi(std::ostream & os, int indentation, std::vector<edm::EventID> const& value_);
+    void writeValueToCfi(std::ostream & os, int indentation, edm::LuminosityBlockID const& value_);
+    void writeValueToCfi(std::ostream & os, int indentation, std::vector<edm::LuminosityBlockID> const& value_);
+    void writeValueToCfi(std::ostream & os, int indentation, edm::InputTag const& value_);
+    void writeValueToCfi(std::ostream & os, int indentation, std::vector<edm::InputTag> const& value_);
+    void writeValueToCfi(std::ostream & os, int indentation, edm::FileInPath const& value_);
+  }
 
   class ParameterSetDescription;
 
@@ -83,10 +107,10 @@ namespace edm {
 
   private:
 
-    // This holds the default value of the parameter, except
-    // when the parameter is another ParameterSet or vector<ParameterSet>.
-    // In those cases it holds the nested ParameterSetDescription or
-    // vector<ParameterSetDescription>
+    virtual void writeCfi_(std::ostream & os, int indentation) const {
+      writeToCfi::writeValueToCfi(os, indentation, value_);
+    }
+
     T value_;
   };
 
@@ -117,6 +141,9 @@ namespace edm {
     }
 
   private:
+
+    virtual void writeCfi_(std::ostream & os, int indentation) const;
+
     ParameterSetDescription psetDesc_;
   };
 
@@ -147,6 +174,13 @@ namespace edm {
     }
 
   private:
+
+    virtual void writeCfi_(std::ostream & os, int indentation) const;
+
+    static void writeOneDescriptionToCfi(ParameterSetDescription const& psetDesc,
+                                         std::ostream & os,
+                                         int indentation,
+                                         bool & nextOneStartsWithAComma);
 
     void
     validateDescription(ParameterSetDescription const& psetDescription,

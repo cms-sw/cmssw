@@ -17,11 +17,15 @@
 
 #include "boost/bind.hpp"
 
+#include <ostream>
+#include <iomanip>
+
+
 namespace edm {
 
   ParameterSetDescription::ParameterSetDescription():
-  anythingAllowed_(false),
-  unknown_(false) {
+    anythingAllowed_(false),
+    unknown_(false) {
   }
 
   ParameterSetDescription::~ParameterSetDescription() {
@@ -37,6 +41,35 @@ namespace edm {
   ParameterSetDescription::setUnknown()
   {
     unknown_ = true;
+  }
+
+  void
+  ParameterSetDescription::writeCfi(std::ostream & os,
+                                    bool startWithComma,
+                                    int indentation) const {
+
+    if (parameters_.empty()) return;
+
+    for_all(parameters_, boost::bind(&ParameterSetDescription::writeParameter,
+                                     _1,
+                                     boost::ref(os),
+                                     startWithComma,
+                                     indentation));
+
+    os << "\n" << std::setfill(' ') << std::setw(indentation - 2) << "";
+  }
+
+  void
+  ParameterSetDescription::writeParameter(value_ptr<ParameterDescription> const& description,
+                                          std::ostream & os,
+                                          bool & startWithComma,
+                                          int indentation) {
+    if (startWithComma) os << ",";
+    startWithComma = true;
+
+    os << "\n" << std::setfill(' ') << std::setw(indentation) << "";
+
+    description->writeCfi(os, indentation);
   }
 
   void

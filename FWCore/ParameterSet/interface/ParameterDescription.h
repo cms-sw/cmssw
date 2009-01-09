@@ -12,11 +12,28 @@
  Usage:
     <usage>
 
+ In addition to whatever you need to do to add a new type to the
+ ParameterSet code, you need to do the following to add
+ a new type to the ParameterSetDescription code:
+ 1.  add a value to the enumeration ParameterTypes (ParameterDescription.h)
+ 2.  add new TYPE_TO_NAME and TYPE_TO_ENUM macros (ParameterDescription.cc)
+ 3.  add declaration of writeValueToCfi function to ParameterDescriptionTemplate.h
+ (Two of them if a vector of the type is also allowed)
+ 4.  define writeValueToCfi in ParameterDescriptionTemplate.cc
+ 5.  Consider whether you need a specialization of writeSingleValue and
+ writeValueInVector in ParameterDescriptionTemplate.cc. The first is needed
+ if operator<< for the new type does not print the correct format for a cfi.
+ The second is needed if the format in a vector is different from the format
+ when a single value is not in a vector.
+ 6.  add parameters of that type and vectors of that type to
+ FWCore/Integration/test/ProducerWithPSetDesc.cc
+ 7.  Check and update the reference file in
+ FWCore/Integration/test/unit_test_outputs/testProducerWithPsetDesc_cfi.py
 */
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Aug  2 15:33:46 EDT 2007
-// $Id: ParameterDescription.h,v 1.6 2008/12/08 22:33:59 wdd Exp $
+// $Id: ParameterDescription.h,v 1.8 2009/01/09 20:55:25 wmtan Exp $
 //
 
 #include "FWCore/Utilities/interface/value_ptr.h"
@@ -86,6 +103,8 @@ namespace edm {
 
     virtual ParameterDescription* clone() const = 0;
 
+    void writeCfi(std::ostream & os, int indentation) const;
+
   protected:
     ParameterDescription(std::string const& iLabel,
                          ParameterTypes iType,
@@ -99,6 +118,9 @@ namespace edm {
                          bool isOptional
                          );
   private:
+
+    virtual void writeCfi_(std::ostream & os, int indentation) const = 0;
+
     std::string label_;
     ParameterTypes type_;
     bool isTracked_;
