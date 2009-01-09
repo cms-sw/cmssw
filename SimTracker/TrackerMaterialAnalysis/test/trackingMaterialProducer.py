@@ -1,16 +1,15 @@
-#! /bin/env cmsRun
+#!/usr/bin/env cmsRun
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("Geometry")
 
-# random number generator service for these modules
-process.load("SimTracker.TrackerMaterialAnalysis.randomNumberGeneratorService_cfi")
-
 # gaussian Vertex Smearing
 process.load("Configuration.StandardSequences.VtxSmearedGauss_cff")
 
 # detector simulation (Geant4-based) with tracking material accounting 
+process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.MagneticField_40T_cff")
 process.load("SimTracker.TrackerMaterialAnalysis.trackingMaterialProducer_cff")
 
 # message logger
