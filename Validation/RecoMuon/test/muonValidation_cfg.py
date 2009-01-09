@@ -53,11 +53,8 @@ process.MEtoEDMConverter_step = cms.Path(process.MEtoEDMConverter)
 
 process.load("Configuration.StandardSequences.Services_cff")
 process.load("Configuration.StandardSequences.Geometry_cff")
-process.load("Geometry.CaloEventSetup.CaloTopology_cfi")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.load("Geometry.CommonDetUnit.globalTrackingGeometry_cfi")
-process.load("RecoMuon.DetLayers.muonDetLayerGeometry_cfi")
 process.GlobalTag.globaltag = "IDEAL_V9::All"
 
 #---- Validation stuffs ----#

@@ -1,9 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-#service = DaqMonitorROOTBackEnd{}
-from Geometry.CommonDetUnit.globalTrackingGeometry_cfi import *
-from RecoMuon.DetLayers.muonDetLayerGeometry_cfi import *
-#include "RecoTracker/GeometryESProducer/data/TrackereRecoGeometryESProducer.cfi"
 from RecoMuon.TrackingTools.MuonServiceProxy_cff import *
 from SimTracker.TrackAssociation.TrackAssociatorByPosition_cfi import *
 from SimTracker.TrackAssociation.TrackAssociatorByHits_cfi import *
