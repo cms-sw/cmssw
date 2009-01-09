@@ -25,8 +25,15 @@ void PythonParameterSet::addVPSet(bool tracked, std::string const& name,
 
 boost::python::list PythonParameterSet::getVPSet(bool tracked, std::string const& name)
 {
-  std::vector<edm::ParameterSet> const& v =
-    (tracked ? theParameterSet.getParameterSetVector(name) : theParameterSet.getUntrackedParameterSetVector(name));
+  std::vector<edm::ParameterSet> v;
+  if(tracked)
+  {
+    v = theParameterSet.getParameter<std::vector<edm::ParameterSet> >(name);
+  }
+  else
+  {
+    v = theParameterSet.getUntrackedParameter<std::vector<edm::ParameterSet> >(name);
+  }
 
   // convert to PythonParameterSets
   boost::python::list l;

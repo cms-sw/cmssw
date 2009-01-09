@@ -34,12 +34,16 @@ namespace edm {
 
     bool exists = pset.existsAs<ParameterSet>(label(), isTracked());
 
-    if (!isOptional() && !exists) {
-       throwParameterNotDefined();
-    }
+    if (!isOptional() && !exists) throwParameterNotDefined();
 
     if (exists) {
-      ParameterSet const& containedPSet = (isTracked() ? pset.getParameterSet(label()) : pset.getUntrackedParameterSet(label()));
+      ParameterSet containedPSet;
+      if (isTracked()) {
+        containedPSet = pset.getParameter<ParameterSet>(label());
+      }
+      else {
+        containedPSet = pset.getUntrackedParameter<ParameterSet>(label());
+      }
       psetDesc_.validate(containedPSet);
     }
   }
@@ -85,13 +89,16 @@ namespace edm {
 
     bool exists = pset.existsAs<std::vector<ParameterSet> >(label(), isTracked());
 
-    if (!isOptional() && !exists) {
-       throwParameterNotDefined();
-    }
+    if (!isOptional() && !exists) throwParameterNotDefined();
 
     if (exists) {
-      std::vector<ParameterSet> const& containedPSets =
-	 (isTracked() ? pset.getParameterSetVector(label()) : pset.getUntrackedParameterSetVector(label()));
+      std::vector<ParameterSet> containedPSets;
+      if (isTracked()) {
+        containedPSets = pset.getParameter<std::vector<ParameterSet> >(label());
+      }
+      else {
+        containedPSets = pset.getUntrackedParameter<std::vector<ParameterSet> >(label());
+      }
       if (containedPSets.size() != vPsetDesc_.size()) {
         throw edm::Exception(errors::Configuration)
           << "Unexpected number of ParameterSets in vector of parameter sets named \"" << label() << "\".";

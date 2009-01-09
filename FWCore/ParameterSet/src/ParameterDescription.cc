@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Aug  2 15:35:43 EDT 2007
-// $Id: ParameterDescription.cc,v 1.5.2.1 2008/12/09 01:03:56 wmtan Exp $
+// $Id: ParameterDescription.cc,v 1.6 2008/12/08 22:34:00 wdd Exp $
 //
 
 #include "FWCore/ParameterSet/interface/ParameterDescription.h"
