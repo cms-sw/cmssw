@@ -13,7 +13,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Jun 28 11:10:24 EDT 2005
-// $Id: EventSetupRecordDataGetter.cc,v 1.8 2008/01/14 16:49:23 chrjones Exp $
 //
 //
 

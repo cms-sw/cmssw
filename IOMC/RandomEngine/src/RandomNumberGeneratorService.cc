@@ -8,7 +8,6 @@
 //
 // Original Author:  Chris Jones, W. David Dagenhart
 //   Created:  Tue Mar  7 09:43:46 EST 2006 (originally in FWCore/Services)
-// $Id: RandomNumberGeneratorService.cc,v 1.21 2008/12/20 17:39:56 wmtan Exp $
 //
 
 #include "IOMC/RandomEngine/src/RandomNumberGeneratorService.h"
