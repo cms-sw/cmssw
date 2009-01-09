@@ -1,6 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-from Configuration.StandardSequences.Geometry_cff import *
 from Validation.RecoParticleFlow.pfJetBenchmarkGeneric_cfi import pfJetBenchmarkGeneric
 from Validation.RecoParticleFlow.caloJetBenchmarkGeneric_cfi import caloJetBenchmarkGeneric
 from RecoJets.Configuration.GenJetParticles_cff import *
