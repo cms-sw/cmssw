@@ -66,7 +66,7 @@ namespace edm {
       set<string> prescalerModules;
       vector<string> allModules=prcPS.getParameter<vector<string> >("@all_modules");
       for(unsigned int i=0;i<allModules.size();i++) {
-	ParameterSet const& pset  = prcPS.getParameterSet(allModules[i]);
+	ParameterSet pset  = prcPS.getParameter<ParameterSet>(allModules[i]);
 	string moduleLabel = pset.getParameter<std::string>("@module_label");
 	string moduleType  = pset.getParameter<std::string>("@module_type");
 	if (moduleType=="HLTPrescaler") prescalerModules.insert(moduleLabel);

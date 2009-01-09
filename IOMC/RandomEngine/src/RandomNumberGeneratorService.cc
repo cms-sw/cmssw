@@ -143,7 +143,7 @@ RandomNumberGeneratorService::RandomNumberGeneratorService(const ParameterSet& i
   // Deal with a source engine here
       if(*it == std::string("theSource")) source = true;
   
-      PSet const& secondary = iPSet.getParameterSet(*it);
+      PSet secondary = iPSet.getParameter<edm::ParameterSet>(*it);
       engineName = secondary.getUntrackedParameter<std::string>("engineName",std::string("HepJamesRandom"));
       if(!isEngineNameValid(engineName)) {
         throw edm::Exception(edm::errors::Configuration)
@@ -1199,7 +1199,7 @@ RandomNumberGeneratorService::oldStyleConfig(const ParameterSet& iPSet)
   }
 
   if(iPSet.exists("moduleSeedVectors")) {
-    edm::ParameterSet const& moduleSeedVectors = iPSet.getParameterSet("moduleSeedVectors");
+    const edm::ParameterSet& moduleSeedVectors = iPSet.getParameter<edm::ParameterSet>("moduleSeedVectors");
     
     std::vector<std::string> names = moduleSeedVectors.getParameterNames();
     for(std::vector<std::string>::const_iterator itName = names.begin(), itNameEnd = names.end(); itName != itNameEnd; ++itName) {
@@ -1219,7 +1219,7 @@ RandomNumberGeneratorService::oldStyleConfig(const ParameterSet& iPSet)
     // It is OK if this is missing.
 
   if(iPSet.exists("moduleSeeds")) {
-    edm::ParameterSet const& moduleSeeds = iPSet.getParameterSet("moduleSeeds");
+    const edm::ParameterSet& moduleSeeds = iPSet.getParameter<edm::ParameterSet>("moduleSeeds");
     
     std::vector<std::string> names = moduleSeeds.getParameterNames();
     for(std::vector<std::string>::const_iterator itName = names.begin(), itNameEnd = names.end();
@@ -1262,7 +1262,7 @@ RandomNumberGeneratorService::oldStyleConfig(const ParameterSet& iPSet)
           engineName = iPSet.getUntrackedParameter<std::string>("sourceEngine");
         }
       } else if(iPSet.exists("moduleEngines")) {
-        edm::ParameterSet const& moduleEngines = iPSet.getParameterSet("moduleEngines");
+        const edm::ParameterSet& moduleEngines = iPSet.getParameter<edm::ParameterSet>("moduleEngines");
         if(moduleEngines.exists(seedIter->first)) {
           engineName = moduleEngines.getUntrackedParameter<std::string>(seedIter->first);
         }

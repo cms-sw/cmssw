@@ -68,10 +68,10 @@ void
 EventSetupRecordDataGetter::analyze(const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup)
 {  
    if(0 == recordToDataKeys_.size()) {
-      typedef std::vector<ParameterSet> Parameters;
-      Parameters const& toGet = pSet_.getParameterSetVector("toGet");
+      typedef std::vector< ParameterSet > Parameters;
+      Parameters toGet = pSet_.getParameter<Parameters>("toGet");
       
-      for(Parameters::const_iterator itToGet = toGet.begin(), itToGetEnd = toGet.end(); itToGet != itToGetEnd; ++itToGet) {
+      for(Parameters::iterator itToGet = toGet.begin(), itToGetEnd = toGet.end(); itToGet != itToGetEnd; ++itToGet) {
          std::string recordName = itToGet->getParameter<std::string>("record");
          
          eventsetup::EventSetupRecordKey recordKey(eventsetup::EventSetupRecordKey::TypeTag::findType(recordName));
@@ -81,9 +81,9 @@ EventSetupRecordDataGetter::analyze(const edm::Event& /*iEvent*/, const edm::Eve
             
             continue;
          }
-         typedef std::vector<std::string> Strings;
+         typedef std::vector< std::string > Strings;
          Strings dataNames = itToGet->getParameter< Strings >("data");
-         std::vector<eventsetup::DataKey> dataKeys;
+         std::vector< eventsetup::DataKey > dataKeys;
          for(Strings::iterator itDatum = dataNames.begin(), itDatumEnd = dataNames.end();
                itDatum != itDatumEnd; ++itDatum) {
             std::string datumName(*itDatum, 0, itDatum->find_first_of("/"));

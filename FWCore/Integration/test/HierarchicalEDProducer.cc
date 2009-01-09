@@ -5,7 +5,7 @@ namespace edmtest {
 
   HierarchicalEDProducer::HierarchicalEDProducer(edm::ParameterSet const& ps) :
     radius_ (ps.getParameter<double>("radius")),
-    outer_alg_(ps.getParameterSet("nest_1"))
+    outer_alg_(ps.getParameter<edm::ParameterSet>("nest_1"))
   { produces<int>();}
 
   // Virtual destructor needed.

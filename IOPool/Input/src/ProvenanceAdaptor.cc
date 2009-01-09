@@ -85,9 +85,9 @@ namespace edm {
 	    continue; // No parameter set for "TriggerResults"
 	  }
 	  bool isInput = (moduleLabel == source);
-	  ParameterSet moduleParameterSet = processParameterSet.getParameterSet(isInput ? input : moduleLabel);
+	  ParameterSet moduleParameterSet = processParameterSet.getParameter<ParameterSet>(isInput ? input : moduleLabel);
 	  moduleParameterSet.registerIt();
-	  bd.parameterSetIDs().insert(std::make_pair(pcid, moduleParameterSet.trackedID()));
+	  bd.parameterSetIDs().insert(std::make_pair(pcid, moduleParameterSet.id()));
 	  bd.moduleNames().insert(std::make_pair(pcid, moduleParameterSet.getParameter<std::string>("@module_type")));
 	}
       }
