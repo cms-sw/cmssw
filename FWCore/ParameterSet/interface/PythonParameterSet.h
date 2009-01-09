@@ -108,9 +108,7 @@ public:
 
   PythonParameterSet newPSet() const {return PythonParameterSet();}
 
-  edm::ParameterSet const& pset() const {return theParameterSet;}
-
-  edm::ParameterSet& pset() {return theParameterSet;}
+  const edm::ParameterSet & pset() const {return theParameterSet;}
 
   std::string dump() const {return theParameterSet.dump();}
 

@@ -3,11 +3,10 @@
    Implementation of calss ProcessDesc
 
    \author Stefano ARGIRO
-   \version $Id: ProcessDesc.cc,v 1.32 2008/12/03 19:20:17 rpw Exp $
    \date 17 Jun 2005
 */
 
-static const char CVSId[] = "$Id: ProcessDesc.cc,v 1.32 2008/12/03 19:20:17 rpw Exp $";
+static const char CVSId[] = "$Id: ProcessDesc.cc,v 1.36 2009/01/09 20:47:18 wmtan Exp $";
 
 
 #include "FWCore/ParameterSet/interface/ProcessDesc.h"

@@ -133,11 +133,10 @@ namespace edm {
     
     ~Entry();
     // encode
-
-    std::string toString() const;
-    void toString(std::string& result) const;
-
+    std::string  toString() const;
+    std::string  toStringOfTracked() const;
     size_t sizeOfString() const {return rep.size() + 4;}
+    size_t sizeOfStringOfTracked() const;
   
     // access
     bool isTracked() const { return tracked == '+'; }
@@ -149,6 +148,7 @@ namespace edm {
   private:
     std::string name_;
     std::string  rep;
+    mutable std::string  tracked_rep;
     char         type;
     char         tracked;
   
@@ -166,15 +166,21 @@ namespace edm {
   };  // Entry
 
 
-  inline bool
-  operator==(Entry const& a, Entry const& b) {
-    return a.toString() == b.toString();
-  }
+  // It is not clear whether operator== should use toString() or
+  // toStringOfTracked(). It only makes a differences for Entries that
+  // carry ParameterSets (or vectors thereof).
+  //
+  // However, it seems that operator== for Entry is *nowhere used*!.
+  // Thus, the code is new removed.
+  //   inline bool
+  //   operator==(Entry const& a, Entry const& b) {
+  //     return a.toString() == b.toString();
+  //   }
   
-  inline bool
-  operator!=(Entry const& a, Entry const& b) {
-    return !(a == b);
-  }
+  //   inline bool
+  //   operator!=(Entry const& a, Entry const& b) {
+  //     return !(a == b);
+  //   }
 } // namespace edm
 
   
