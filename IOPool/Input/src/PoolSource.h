@@ -27,7 +27,7 @@ namespace edm {
 
   class RootInputFileSequence;
   class FileCatalogItem;
-  class ParameterSetDescription;
+  class ConfigurationDescriptions;
 
   class PoolSource : public VectorInputSource {
   public:
@@ -36,8 +36,7 @@ namespace edm {
     using InputSource::productRegistryUpdate;
     using InputSource::runPrincipal;
 
-    static void fillDescription(ParameterSetDescription& iDesc,
-                                std::string const& moduleLabel);
+    static void fillDescriptions(ConfigurationDescriptions & descriptions);
 
   private:
     typedef boost::shared_ptr<RootFile> RootFileSharedPtr;

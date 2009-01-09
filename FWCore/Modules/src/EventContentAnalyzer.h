@@ -28,7 +28,7 @@
 
 // forward declarations
 namespace edm {
-   class ParameterSetDescription;
+   class ConfigurationDescriptions;
 }
 
 class EventContentAnalyzer : public edm::EDAnalyzer {
@@ -39,8 +39,7 @@ public:
    virtual void analyze(const edm::Event&, const edm::EventSetup&);
    virtual void endJob();
 
-   static void fillDescription(edm::ParameterSetDescription& iDesc,
-                               std::string const& moduleLabel);
+   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
 private:
       

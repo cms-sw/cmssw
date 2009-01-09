@@ -37,6 +37,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "FWCore/Utilities/interface/Algorithms.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 //
@@ -372,19 +373,21 @@ EventContentAnalyzer::endJob()
 }
 
 void
-EventContentAnalyzer::fillDescription(edm::ParameterSetDescription& iDesc,
-                            std::string const& moduleLabel) {
+EventContentAnalyzer::fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
 
+   edm::ParameterSetDescription desc;
 
    std::string defaultString("++");
-   iDesc.addOptionalUntracked<std::string>("indentation", defaultString);
+   desc.addOptionalUntracked<std::string>("indentation", defaultString);
 
    defaultString = "  ";
-   iDesc.addOptionalUntracked<std::string>("verboseIndentation", defaultString);
+   desc.addOptionalUntracked<std::string>("verboseIndentation", defaultString);
 
    std::vector<std::string> defaultVString;
-   iDesc.addOptionalUntracked<std::vector<std::string> >("verboseForModuleLabels", defaultVString);
-   iDesc.addOptionalUntracked<bool>("verbose", false);
-   iDesc.addOptionalUntracked<std::vector<std::string> >("getDataForModuleLabels", defaultVString);
-   iDesc.addOptionalUntracked<bool>("getData", false);
+   desc.addOptionalUntracked<std::vector<std::string> >("verboseForModuleLabels", defaultVString);
+   desc.addOptionalUntracked<bool>("verbose", false);
+   desc.addOptionalUntracked<std::vector<std::string> >("getDataForModuleLabels", defaultVString);
+   desc.addOptionalUntracked<bool>("getData", false);
+
+   descriptions.add("printContent", desc);
 }

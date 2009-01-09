@@ -9,6 +9,7 @@
 #include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "TTreeCache.h"
@@ -222,44 +223,47 @@ namespace edm {
   }
 
   void
-  PoolSource::fillDescription(ParameterSetDescription& iDesc,
-                              std::string const& moduleLabel) {
+  PoolSource::fillDescriptions(ConfigurationDescriptions & descriptions) {
 
-    iDesc.addOptionalUntracked<unsigned int>("firstRun", 1U);
-    iDesc.addOptionalUntracked<unsigned int>("firstLuminosityBlock", 1U);
-    iDesc.addOptionalUntracked<unsigned int>("firstEvent", 1U);
-    iDesc.addOptionalUntracked<unsigned int>("skipEvents", 0U);
+    edm::ParameterSetDescription desc;
+
+    desc.addOptionalUntracked<unsigned int>("firstRun", 1U);
+    desc.addOptionalUntracked<unsigned int>("firstLuminosityBlock", 1U);
+    desc.addOptionalUntracked<unsigned int>("firstEvent", 1U);
+    desc.addOptionalUntracked<unsigned int>("skipEvents", 0U);
 
     std::vector<LuminosityBlockID> defaultLumis;
-    iDesc.addOptionalUntracked<std::vector<LuminosityBlockID> >("lumisToSkip", defaultLumis);
+    desc.addOptionalUntracked<std::vector<LuminosityBlockID> >("lumisToSkip", defaultLumis);
 
     std::vector<EventID> defaultEvents;
-    iDesc.addOptionalUntracked<std::vector<EventID> >("eventsToProcess", defaultEvents);
+    desc.addOptionalUntracked<std::vector<EventID> >("eventsToProcess", defaultEvents);
 
-    iDesc.addOptionalUntracked<bool>("noEventSort", false);
-    iDesc.addOptionalUntracked<bool>("skipBadFiles", false);
-    iDesc.addOptionalUntracked<bool>("dropDescendantsOfDroppedBranches", true);
-    iDesc.addOptionalUntracked<unsigned int>("cacheSize", 0U);
-    iDesc.addOptionalUntracked<int>("treeMaxVirtualSize", -1);
-    iDesc.addOptionalUntracked<unsigned int>("setRunNumber", 0U);
+    desc.addOptionalUntracked<bool>("noEventSort", false);
+    desc.addOptionalUntracked<bool>("skipBadFiles", false);
+    desc.addOptionalUntracked<bool>("dropDescendantsOfDroppedBranches", true);
+    desc.addOptionalUntracked<unsigned int>("cacheSize", 0U);
+    desc.addOptionalUntracked<int>("treeMaxVirtualSize", -1);
+    desc.addOptionalUntracked<unsigned int>("setRunNumber", 0U);
 
     std::vector<std::string> defaultStrings(1U, std::string("keep *"));
-    iDesc.addOptionalUntracked<std::vector<std::string> >("inputCommands", defaultStrings);
+    desc.addOptionalUntracked<std::vector<std::string> >("inputCommands", defaultStrings);
 
     std::string defaultString("permissive");
-    iDesc.addOptionalUntracked<std::string>("fileMatchMode", defaultString);
+    desc.addOptionalUntracked<std::string>("fileMatchMode", defaultString);
 
     defaultString = "checkEachRealDataFile";
-    iDesc.addOptionalUntracked<std::string>("duplicateCheckMode", defaultString);
+    desc.addOptionalUntracked<std::string>("duplicateCheckMode", defaultString);
 
     defaultStrings.clear();
-    iDesc.addUntracked<std::vector<std::string> >("fileNames", defaultStrings);
-    iDesc.addOptionalUntracked<std::vector<std::string> >("secondaryFileNames", defaultStrings);
+    desc.addUntracked<std::vector<std::string> >("fileNames", defaultStrings);
+    desc.addOptionalUntracked<std::vector<std::string> >("secondaryFileNames", defaultStrings);
 
     defaultString.clear();
-    iDesc.addOptionalUntracked<std::string>("overrideCatalog", defaultString);
+    desc.addOptionalUntracked<std::string>("overrideCatalog", defaultString);
 
     defaultString = "RunsLumisAndEvents";
-    iDesc.addOptionalUntracked<std::string>("processingMode", defaultString);
+    desc.addOptionalUntracked<std::string>("processingMode", defaultString);
+
+    descriptions.add("source", desc);
   }
 }
