@@ -42,7 +42,7 @@
 #include "CondFormats/L1TObjects/interface/L1CaloGeometry.h"
 
 namespace {
-  namespace {
+  struct dictionary {
     std::map< std::string, std::map< std::string, std::string > > dummy0 ;
     std::pair< std::string, std::map< std::string, std::string > > dummy0a ;
     std::pair< std::string, std::string > dummy0b ;
@@ -62,5 +62,6 @@ namespace {
     std::pair<short,L1MuDTEtaPattern> dummy11 ;
     std::pair<std::pair<short,short>,std::pair<short,std::vector<short> > > dummy12 ;
     std::pair<int, std::vector<L1GtObject> > dummy13 ;
-  }
+    std::vector<L1GctJetCounterSetup::cutDescription> dummy14;
+  };
 }
