@@ -21,7 +21,8 @@ TrackAssociatorByPosDeltaR = cms.ESProducer('TrackAssociatorByPositionESProducer
     # use the delta eta-phi estimator on the position 
     # at a plane in the muon system    
     method = cms.string('momdr'),
-    QCut = cms.double(0.5)
+    QCut = cms.double(0.5),
+    ConsiderAllSimHits = cms.bool(True)
 )
 
 tpToTkmuTrackAssociation = cms.EDProducer('TrackAssociatorEDProducer',
