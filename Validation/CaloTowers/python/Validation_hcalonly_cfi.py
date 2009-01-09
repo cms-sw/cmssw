@@ -4,13 +4,11 @@ from Configuration.StandardSequences.SimulationRandomNumberGeneratorSeeds_cff im
 from Configuration.StandardSequences.VtxSmearedGauss_cff import *
 from SimG4Core.Application.g4SimHits_cfi import *
 from SimCalorimetry.HcalSimProducers.hcalUnsuppressedDigis_cfi import *
-from SimCalorimetry.HcalZeroSuppressionProducers.hcalDigis_cfi import *
-from Configuration.StandardSequences.MagneticField_cff import *
+from SimCalorimetry.HcalZeroSuppressionProducers.hcalDigisRealistic_cfi import *
 from Configuration.StandardSequences.MixingNoPileUp_cff import *
 from Configuration.StandardSequences.Reconstruction_cff import *
 from Configuration.StandardSequences.FrontierConditions_GlobalTag_cff import *
 GlobalTag.globaltag = 'IDEAL_30X::All'
-from Configuration.StandardSequences.GeometryHCAL_cff import *
 
 from DQMServices.Core.DQM_cfg import *
 maxEvents = cms.untracked.PSet(
@@ -52,8 +50,6 @@ DQM.collectorHost = ''
 VtxSmeared.SigmaX = 0.00001
 VtxSmeared.SigmaY = 0.00001
 VtxSmeared.SigmaZ = 0.00001
-
-g4SimHits.UseMagneticField = False
 
 hbhereco.digiLabel = 'simHcalDigis'
 horeco.digiLabel = 'simHcalDigis'

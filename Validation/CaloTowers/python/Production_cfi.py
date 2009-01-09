@@ -3,12 +3,10 @@ import FWCore.ParameterSet.Config as cms
 from Configuration.StandardSequences.SimulationRandomNumberGeneratorSeeds_cff import *
 from Configuration.StandardSequences.VtxSmearedGauss_cff import *
 from Configuration.StandardSequences.Simulation_cff import *
-from Configuration.StandardSequences.MagneticField_cff import *
 from Configuration.StandardSequences.MixingNoPileUp_cff import *
 from Configuration.StandardSequences.FrontierConditions_GlobalTag_cff import *
 GlobalTag.globaltag = 'IDEAL_30X::All'
 from Configuration.StandardSequences.Reconstruction_cff import *
-from Configuration.StandardSequences.GeometryECALHCAL_cff import *
 
 maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
@@ -24,7 +22,7 @@ source = cms.Source("PoolSource",
 VtxSmeared.SigmaX = 0.00001
 VtxSmeared.SigmaY = 0.00001
 VtxSmeared.SigmaZ = 0.00001
-g4SimHits.UseMagneticField = False
+
 hbhereco.digiLabel = 'simHcalDigis'
 horeco.digiLabel = 'simHcalDigis'
 hfreco.digiLabel = 'simHcalDigis'
