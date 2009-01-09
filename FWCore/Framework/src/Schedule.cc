@@ -120,7 +120,7 @@ namespace edm {
     demandBranches_(),
     endpathsAreActive_(true)
   {
-    ParameterSet opts = pset_.getUntrackedParameter<ParameterSet>("options", ParameterSet());
+    ParameterSet opts(pset_.getUntrackedParameter<ParameterSet>("options", ParameterSet()));
     bool hasPath = false;
 
     int trig_bitpos = 0;
@@ -178,7 +178,7 @@ namespace edm {
 	  ++itLabel) {
 	if (allowUnscheduled) {
 	  //Need to hold onto the parameters long enough to make the call to getWorker
-	  ParameterSet workersParams = proc_pset.getParameter<ParameterSet>(*itLabel);
+	  ParameterSet workersParams(proc_pset.getParameter<ParameterSet>(*itLabel));
 	  WorkerParams params(proc_pset, workersParams,
 			      *prod_reg_, *act_table_,
 			      processName_, getReleaseVersion(), getPassID());
@@ -255,7 +255,7 @@ namespace edm {
   Schedule::limitOutput() {
     std::string const output("output");
 
-    ParameterSet maxEventsPSet = pset_.getUntrackedParameter<ParameterSet>("maxEvents", ParameterSet());
+    ParameterSet maxEventsPSet(pset_.getUntrackedParameter<ParameterSet>("maxEvents", ParameterSet()));
     int maxEventSpecs = 0; 
     int maxEventsOut = -1;
     ParameterSet vMaxEventsOut;

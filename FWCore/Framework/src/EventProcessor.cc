@@ -576,7 +576,7 @@ namespace edm {
 
     shared_ptr<ParameterSet> parameterSet = processDesc->getProcessPSet();
 
-    ParameterSet optionsPset = parameterSet->getUntrackedParameter<ParameterSet>("options", ParameterSet());
+    ParameterSet optionsPset(parameterSet->getUntrackedParameter<ParameterSet>("options", ParameterSet()));
     fileMode_ = optionsPset.getUntrackedParameter<std::string>("fileMode", "");
     handleEmptyRuns_ = optionsPset.getUntrackedParameter<bool>("handleEmptyRuns", true);
     handleEmptyLumis_ = optionsPset.getUntrackedParameter<bool>("handleEmptyLumis", true);
