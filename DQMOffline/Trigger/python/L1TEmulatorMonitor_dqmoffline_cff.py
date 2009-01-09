@@ -6,7 +6,6 @@ import FWCore.ParameterSet.Config as cms
 #es_prefer_GlobalTag = cms.ESPrefer("PoolDBESSource","GlobalTag")
 
 #unpacking
-#from Configuration.StandardSequences.Geometry_cff import *
 #from Configuration.StandardSequences.RawToDigi_Data_cff import *
 #
 #emulator/comparator

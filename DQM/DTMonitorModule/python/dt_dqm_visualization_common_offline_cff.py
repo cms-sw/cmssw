@@ -28,7 +28,6 @@ dtunpacker = cms.EDProducer("DTUnpackingModule",
     )
 )
 
-from Configuration.StandardSequences.Geometry_cff import *
 from Configuration.StandardSequences.ReconstructionCosmics_cff import *
 #from RecoLocalMuon.Configuration.RecoLocalMuonCosmics_cff import *
 from Configuration.StandardSequences.MagneticField_0T_cff import *

@@ -2,7 +2,6 @@ import FWCore.ParameterSet.Config as cms
 
 #Load Electron-ID specific
 
-from RecoEcal.EgammaClusterProducers.geometryForClustering_cff import *
 from RecoEgamma.ElectronIdentification.electronIdCutBasedExt_cfi import eidCutBasedExt
 electronIdCutBasedRobust = eidCutBasedExt.copy();electronIdCutBasedRobust.electronQuality = 'robust'
 

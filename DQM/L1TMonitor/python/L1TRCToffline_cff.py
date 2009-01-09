@@ -19,9 +19,6 @@ GlobalTag.connect = 'frontier://FrontierProd/CMS_COND_21X_GLOBALTAG'
 #GlobalTag.connect = 'frontier://(proxyurl=http://localhost:3128)(serverurl=http://frontier1.cms:8000/FrontierOnProd)(serverurl=http://frontier2.cms:8000/FrontierOnProd)(retrieve-ziplevel=0)/CMS_COND_21X_GLOBALTAG'
 
 
-#add'n
-from Configuration.StandardSequences.Geometry_cff import *
-
 #unpacking
 from Configuration.StandardSequences.RawToDigi_Data_cff import *
 

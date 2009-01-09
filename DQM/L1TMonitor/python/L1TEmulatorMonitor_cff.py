@@ -12,9 +12,6 @@ es_prefer_GlobalTag = cms.ESPrefer("PoolDBESSource","GlobalTag")
 # : DQM/Integration/pythin/test/l1temulator_dqm_sourceclient-*_cfg.py
 # DQM/L1TMonitor/test/test/testEmulMon_cfg.py : test example
 
-#add'n
-from Configuration.StandardSequences.Geometry_cff import *
-
 #unpacking
 from Configuration.StandardSequences.RawToDigi_Data_cff import *
 
