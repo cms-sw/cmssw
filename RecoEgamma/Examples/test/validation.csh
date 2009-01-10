@@ -19,15 +19,15 @@
 #=============BEGIN CONFIGURATION=================
 
 #Input root trees for the two cases to be compared 
-setenv NEWFILE ~/scratch0/CMSSW_2_1_9/src/RecoEgamma/Examples/test/gsfElectronHistos_RelVal219ZEE_startupv7.root 
-setenv OLDFILE ~/scratch0/CMSSW_2_1_8/src/RecoEgamma/Examples/test/gsfElectronHistos_RelVal218ZEE_startupv7.root
+setenv NEWFILE ~/scratch0/CMSSW_3_0_0_pre6/src/RecoEgamma/Examples/test/gsfElectronHistos_Relval300pre6SingleElectronPt35.root 
+setenv OLDFILE ~/scratch0/CMSSW_2_2_0/src/RecoEgamma/Examples/test/gsfElectronHistos_RelVal220SingleElectronPt35.root
 
 #Release versions to be compared (affects output directory name and html description only)
-setenv NEWRELEASE 219STARTUPV7
-setenv OLDRELEASE 218STARTUPV7
+setenv NEWRELEASE 300pre6IDEAL
+setenv OLDRELEASE 220IDEAL
 
 #Name of sample (affects output directory name and html description only)
-setenv SAMPLE ZEE
+setenv SAMPLE SingleElectronPt35
 
 #TYPE must be one of GsfElectron, GsfElectronFake, Photon or ConvertedPhoton
 setenv TYPE GsfElectron
@@ -38,7 +38,8 @@ setenv TYPE GsfElectron
 #http://cmsdoc.cern.ch/Physics/egamma/www/validation/
 
 setenv CURRENTDIR $PWD
-setenv OUTPATH /afs/cern.ch/cms/Physics/egamma/www/validation
+#setenv OUTPATH /afs/cern.ch/cms/Physics/egamma/www/validation
+setenv OUTPATH  ~/scratch0/CMSSW_3_0_0_pre6/src/RecoEgamma/Examples/test/validation
 cd $OUTPATH
 if (! -d $NEWRELEASE) then
   mkdir $NEWRELEASE
@@ -269,17 +270,31 @@ foreach i (`cat scaledhistos`)
 TCanvas *c$i = new TCanvas("c$i");
 c$i->SetFillColor(10);
 file_old->cd();
+TH1F *h_old = (TH1F*)file_old->Get("$i");
+Double_t nold;
+if (h_old) {
 $i->SetLineColor(4);
 $i->SetLineWidth(3);
+if ("$i" == "h_ele_HoE") c$i->SetLogy(1);
+if ("$i" == "h_ele_ambiguousTracks") c$i->SetLogy(1);
 $i->Draw();
-Double_t nold=$i->GetEntries();
+nold=$i->GetEntries();
+}
 file_new->cd();
-Double_t nnew=$i->GetEntries();
+TH1F *h_new = (TH1F*)file_new->Get("$i");
+if (h_new) {
+Double_t nnew;
+nnew=$i->GetEntries();
 $i->SetLineColor(2);
 $i->SetLineWidth(3);
-$i->Scale(nold/nnew);
-$i->Draw("same");
-c$i->SaveAs("gifs/$i.gif");
+if ("$i" == "h_ele_HoE") c$i->SetLogy(1);
+if ("$i" == "h_ele_ambiguousTracks") c$i->SetLogy(1);
+if (h_old) $i->Scale(nold/nnew);
+else $i->Scale(1.);
+if (h_old) $i->Draw("same");
+else $i->Draw();
+}
+if (h_new || h_old) c$i->SaveAs("gifs/$i.gif");
 
 EOF
   setenv N `expr $N + 1`
@@ -290,14 +305,22 @@ foreach i (`cat unscaledhistos`)
 TCanvas *c$i = new TCanvas("c$i");
 c$i->SetFillColor(10);
 file_old->cd();
+TH1F *h_old = (TH1F*)file_old->Get("$i");
+if (h_old) {
 $i->SetLineColor(4);
 $i->SetLineWidth(3);
 $i->Draw();
+}
+TH1F *h_new = (TH1F*)file_new->Get("$i");
+if (h_new) {
+cout << "$i" << endl;
 file_new->cd();
 $i->SetLineColor(2);
 $i->SetLineWidth(3);
-$i->Draw("same");
-c$i->SaveAs("gifs/$i.gif");
+if (h_old) $i->Draw("same");
+else $i->Draw();
+}
+if (h_new || h_old) c$i->SaveAs("gifs/$i.gif");
 
 EOF
   setenv N `expr $N + 1`
