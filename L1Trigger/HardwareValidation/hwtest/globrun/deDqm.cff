@@ -1,9 +1,0 @@
-#dqm services
-//include "DQMServices/Core/data/DQM.cfg"
-service = DQMStore {}
-#service = DQM {
-#    untracked string collectorHost = "localhost"
-#    untracked int32  collectorPort = 9090
-#    untracked double publishFrequency = 5
-#    untracked bool   debug = false
-#}
