@@ -1,10 +1,10 @@
-<export>
-<lib name=EventFilterUtilities>
-<use name=FWCore/MessageLogger>
-<use name=xdaq>
-</export>
-
 <use name=FWCore/MessageLogger>
 <use name=FWCore/ServiceRegistry>
+<use name=EventFilter/FEDInterface>
 <use name=xdaq>
 <use name=curl>
+
+<export>
+  <lib name=EventFilterUtilities>
+</export>
+

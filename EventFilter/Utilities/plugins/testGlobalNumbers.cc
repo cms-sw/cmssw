@@ -1,21 +1,21 @@
 /** \file
  * 
  * 
- * $Date: 2008/06/19 09:36:15 $
- * $Revision: 1.1 $
+ * $Date: 2008/11/04 14:43:22 $
+ * $Revision: 1.2 $
  * \author N. Amapane - S. Argiro'
  *
 */
 
-#include <FWCore/Framework/interface/MakerMacros.h>
-#include <FWCore/Framework/interface/EDAnalyzer.h>
-#include <FWCore/Framework/interface/Event.h>
-#include <DataFormats/FEDRawData/interface/FEDRawDataCollection.h>
-#include <DataFormats/FEDRawData/interface/FEDHeader.h>
-#include <DataFormats/FEDRawData/interface/FEDTrailer.h>
-#include <DataFormats/FEDRawData/interface/FEDNumbering.h>
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
+#include "DataFormats/FEDRawData/interface/FEDHeader.h"
+#include "DataFormats/FEDRawData/interface/FEDTrailer.h"
+#include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 
-#include "EventFilter/Utilities/interface/GlobalEventNumber.h"
+#include "EventFilter/FEDInterface/interface/GlobalEventNumber.h"
 
 #include <iostream>
 #include <iomanip>

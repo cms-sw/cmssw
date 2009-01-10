@@ -15,8 +15,8 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "EventFilter/Utilities/interface/GlobalEventNumber.h"
-#include <DataFormats/FEDRawData/interface/FEDRawDataCollection.h>
+#include "EventFilter/FEDInterface/interface/GlobalEventNumber.h"
+#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 
 #include <vector>
 
