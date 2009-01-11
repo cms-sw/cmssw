@@ -4,8 +4,8 @@
 /** \file GlobalCosmicMuonTrajectoryBuilder
  *  class to build combined trajectory from cosmic tracks in tk and mu
  *
- *  $Date: 2008/11/05 01:53:01 $
- *  $Revision: 1.11 $
+ *  $Date: 2008/12/15 16:37:05 $
+ *  $Revision: 1.12 $
  *  \author Chang Liu  -  Purdue University
  */
 
@@ -43,6 +43,7 @@ public:
   typedef MuonTransientTrackingRecHit::ConstMuonRecHitPointer ConstMuonRecHitPointer;
   typedef MuonTransientTrackingRecHit::MuonRecHitContainer MuonRecHitContainer;
   typedef MuonTransientTrackingRecHit::ConstMuonRecHitContainer ConstMuonRecHitContainer;
+  typedef std::pair<const Trajectory*,reco::TrackRef> TrackCand;
 
   /// Constructor
   GlobalCosmicMuonTrajectoryBuilder(const edm::ParameterSet&,const MuonServiceProxy* service);
@@ -53,9 +54,13 @@ public:
   /// dummy implementation, unused in this class
   std::vector<Trajectory*> trajectories(const TrajectorySeed&) {return std::vector<Trajectory*>();}
 
+  const Propagator* propagator() const {return &*theService->propagator(thePropagatorName);}
+
   /// choose tk Track and build combined trajectories
   virtual CandidateContainer trajectories(const TrackCand&);
 
+  /// check if tk and muon Tracks are matched
+  std::vector<TrackCand> match(const TrackCand&, const edm::Handle<reco::TrackCollection>& );
 
   virtual void setEvent(const edm::Event&);
 

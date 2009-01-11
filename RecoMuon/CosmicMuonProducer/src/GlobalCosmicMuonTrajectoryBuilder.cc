@@ -1,8 +1,8 @@
 /**
  *  Class: GlobalCosmicMuonTrajectoryBuilder
  *
- *  $Date: 2008/12/15 16:36:49 $
- *  $Revision: 1.15 $
+ *  $Date: 2008/12/31 02:33:28 $
+ *  $Revision: 1.16 $
  *  \author Chang Liu  -  Purdue University <Chang.Liu@cern.ch>
  *
  **/
@@ -21,6 +21,8 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
+#include "TrackingTools/GeomPropagators/interface/StateOnTrackerBound.h"
+#include "DataFormats/Math/interface/deltaPhi.h"
 
 using namespace std;
 using namespace edm;
@@ -94,46 +96,15 @@ MuonCandidate::CandidateContainer GlobalCosmicMuonTrajectoryBuilder::trajectorie
 
   LogTrace(category_) <<"It has "<<theTrackerTracks->front().found()<<" tk rhs";
 
-  reco::TrackRef muTrack = muCand.second;
+  vector<TrackCand> matched = match(muCand, theTrackerTracks);
 
-  //build tracker TrackCands and pick the best match if size greater than 2
-  vector<TrackCand> tkTrackCands;
-  for(reco::TrackCollection::size_type i=0; i<theTrackerTracks->size(); ++i){
-    reco::TrackRef tkTrack(theTrackerTracks,i);
-    TrackCand tkCand = TrackCand(0,tkTrack);
-    tkTrackCands.push_back(tkCand);
-    LogTrace(category_) << "chisq is " << theTrackMatcher->match(muCand,tkCand,0,0);
-    LogTrace(category_) << "d is " << theTrackMatcher->match(muCand,tkCand,1,0);
-    LogTrace(category_) << "r_pos is " << theTrackMatcher->match(muCand,tkCand,2,0);
-  }
-
-  // match muCand to tkTrackCands
-  vector<TrackCand> matched_trackerTracks = theTrackMatcher->match(muCand,tkTrackCands);
-
-  LogTrace(category_) <<"TrackMatcher found " << matched_trackerTracks.size() << "tracker tracks matched";
+  LogTrace(category_) <<"TrackMatcher found " << matched.size() << "tracker tracks matched";
   
-  if ( matched_trackerTracks.empty()) return result;
-  reco::TrackRef tkTrack;
+  if ( matched.empty()) return result;
+  reco::TrackRef tkTrack = matched.front().second;
   
-  if(  matched_trackerTracks.size() == 1 ) {
-    tkTrack = matched_trackerTracks.front().second;
-  } else {
-    // in case of more than 1 tkTrack,
-    // select the best-one based on distance (matchOption==1)
-    // at innermost Mu hit surface. (surfaceOption == 0)
-    double quality = 1e6;
-    double max_quality = 1e6;
-    for( vector<TrackCand>::const_iterator iter = matched_trackerTracks.begin(); iter != matched_trackerTracks.end(); iter++) {
-      quality = theTrackMatcher->match(muCand,*iter, 1, 0);
-      LogTrace(category_) <<" quality of tracker track is " << quality;
-      if( quality < max_quality ) {
-        max_quality=quality;
-        tkTrack = iter->second;
-      }
-    }
-      LogTrace(category_) <<" Picked tracker track with quality " << max_quality;
-  }  
   if ( tkTrack.isNull() ) return result;
+  reco::TrackRef muTrack = muCand.second;
 
   ConstRecHitContainer muRecHits;
 
@@ -341,3 +312,93 @@ GlobalCosmicMuonTrajectoryBuilder::getTransientRecHits(const reco::Track& track)
   }
   return result;
 }
+
+std::vector<GlobalCosmicMuonTrajectoryBuilder::TrackCand> GlobalCosmicMuonTrajectoryBuilder::match(const TrackCand& mu, const edm::Handle<reco::TrackCollection>& tktracks) {
+   
+   std::vector<TrackCand> result;
+
+    //no tracker tracks for muons that do not cross tracker
+    TrajectoryStateTransform tsTrans;
+   TrajectoryStateOnSurface innerTsos = tsTrans.innerStateOnSurface(*(mu.second), *theService->trackingGeometry(), &*theService->magneticField());
+
+   TrajectoryStateOnSurface outerTsos = tsTrans.outerStateOnSurface(*(mu.second), *theService->trackingGeometry(), &*theService->magneticField());
+
+   StateOnTrackerBound toTrackerBound(propagator());
+
+   TrajectoryStateOnSurface tkState = toTrackerBound(innerTsos);
+   if ( !tkState.isValid() ) tkState = toTrackerBound(outerTsos);
+   if ( !tkState.isValid() ) return result;
+
+   //build tracker TrackCands and pick the best match if size greater than 2
+   vector<TrackCand> tkTrackCands;
+   for(reco::TrackCollection::size_type i=0; i<theTrackerTracks->size(); ++i){
+     reco::TrackRef tkTrack(theTrackerTracks,i);
+     TrackCand tkCand = TrackCand(0,tkTrack);
+     tkTrackCands.push_back(tkCand);
+     LogTrace(category_) << "chisq is " << theTrackMatcher->match(mu,tkCand,0,0);
+     LogTrace(category_) << "d is " << theTrackMatcher->match(mu,tkCand,1,0);
+     LogTrace(category_) << "r_pos is " << theTrackMatcher->match(mu,tkCand,2,0);
+   }
+
+   // now if only 1 tracker tracks, return it
+   if (tkTrackCands.size() <= 1 ) {
+      return tkTrackCands;
+   }
+ 
+   // if there're many tracker tracks
+
+   // if muon is only on one side
+   if ( ( innerTsos.globalPosition().basicVector().dot( innerTsos.globalMomentum().basicVector() ) *
+       outerTsos.globalPosition().basicVector().dot(outerTsos.globalMomentum().basicVector() ) > 0 ) ) {
+     // if there're tracker tracks totally on the other half
+     // and there're tracker tracks on the same half
+     // remove the tracks on the other half
+     for(vector<TrackCand>::const_iterator itkCand = tkTrackCands.begin(); itkCand != tkTrackCands.end(); ++itkCand) {
+
+        reco::TrackRef tkTrack = itkCand->second;
+
+        if ( deltaPhi((double)innerTsos.globalPosition().phi(), tkTrack->innerPosition().Phi() ) > M_PI/2 && deltaPhi((double)innerTsos.globalPosition().phi(), tkTrack->outerPosition().Phi() ) > M_PI/2  )  {
+          cout<<"The Track is on different hemisphere"<<endl;
+        } else {
+          result.push_back(*itkCand);
+        } 
+     }
+     if ( result.empty() ) { 
+        //if all tk tracks on the other side, still keep them
+        result = tkTrackCands;
+     }
+   } else { // muon is traversing
+       result = tkTrackCands;
+   }
+
+  // match muCand to tkTrackCands
+  vector<TrackCand> matched_trackerTracks = theTrackMatcher->match(mu, result);
+
+  LogTrace(category_) <<"TrackMatcher found " << matched_trackerTracks.size() << "tracker tracks matched";
+  
+  //now pick the best matched one
+  if(  matched_trackerTracks.size() < 2 ) {
+    return matched_trackerTracks;
+  } else {
+    // in case of more than 1 tkTrack,
+    // select the best-one based on distance (matchOption==1)
+    // at innermost Mu hit surface. (surfaceOption == 0)
+    result.clear();
+    TrackCand bestMatch;
+
+    double quality = 1e6;
+    double max_quality = 1e6;
+    for( vector<TrackCand>::const_iterator iter = matched_trackerTracks.begin(); iter != matched_trackerTracks.end(); iter++) {
+      quality = theTrackMatcher->match(mu,*iter, 1, 0);
+      LogTrace(category_) <<" quality of tracker track is " << quality;
+      if( quality < max_quality ) {
+        max_quality=quality;
+        bestMatch = (*iter);
+      }
+    }
+    LogTrace(category_) <<" Picked tracker track with quality " << max_quality;
+    result.push_back(bestMatch);
+    return result;
+  }  
+}
+
