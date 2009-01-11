@@ -4,7 +4,7 @@
 #include <map>
 #include <assert.h>
 using namespace reco::parser;
-using namespace ROOT::Reflex;
+using namespace Reflex;
 using namespace std;
 
 ExpressionVar::ExpressionVar(const vector<MethodInvoker>& methods, method::TypeCode retType) : 
@@ -68,13 +68,14 @@ double ExpressionVar::value(const Object & o) const {
   return ret;
 }
 
-void ExpressionVar::trueDelete(ROOT::Reflex::Object & obj) {
-     static std::map<void *, ROOT::Reflex::NewDelFunctions *> deleters_;
+void ExpressionVar::trueDelete(Reflex::Object & obj) {
+     static std::map<void *, Reflex::NewDelFunctions *> deleters_;
      void * reflexTypeId = obj.TypeOf().Id();
-     std::map<void *, ROOT::Reflex::NewDelFunctions *>::iterator match = deleters_.find(reflexTypeId);
+     std::map<void *, Reflex::NewDelFunctions *>::iterator match = deleters_.find(reflexTypeId);
      if (match == deleters_.end()) {
-         ROOT::Reflex::Object newDel = obj.Invoke("__getNewDelFunctions");
-         ROOT::Reflex::NewDelFunctions *ptr = static_cast<ROOT::Reflex::NewDelFunctions *>(newDel.Address());
+         Reflex::Object newDel;
+         obj.Invoke("__getNewDelFunctions", newDel);
+         Reflex::NewDelFunctions *ptr = static_cast<Reflex::NewDelFunctions *>(newDel.Address());
          match = deleters_.insert(std::make_pair(reflexTypeId, ptr)).first;   
      }
      (*match->second->fDelete)(obj.Address());

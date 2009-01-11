@@ -8,7 +8,7 @@
 namespace reco {
   // second pair member is true if a reference is found 
   // of type edm::Ref, edm::RefToBase or edm::Ptr
-  std::pair<ROOT::Reflex::Member, bool> findMethod(const ROOT::Reflex::Type & type,
+  std::pair<Reflex::Member, bool> findMethod(const Reflex::Type & type,
 						   const std::string & name,
 						   const std::vector<reco::parser::AnyMethodArgument> &args,
                                                    std::vector<reco::parser::AnyMethodArgument> &fixuppedArgs,

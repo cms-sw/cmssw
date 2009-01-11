@@ -3,7 +3,7 @@
 #include "FWCore/Utilities/interface/EDMException.h"
 #include <algorithm>
 using namespace reco::parser;
-using namespace ROOT::Reflex;
+using namespace Reflex;
 using namespace std;
 
 MethodInvoker::MethodInvoker(const Member & method, const vector<AnyMethodArgument> & ints) :
@@ -55,7 +55,7 @@ std::pair<Object,bool> MethodInvoker::value(const Object & o) const {
             << " with " << args_.size() << " arguments"
             << std::endl;*/
   if(isFunction_) {
-     ret = method_.Invoke(o, args_);
+     method_.Invoke(o, ret, args_);
   } else {
      ret = method_.Get(o);
   }

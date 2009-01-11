@@ -6,11 +6,11 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.1 $
+ * \version $Revision: 1.2 $
  *
  */
 
-namespace ROOT { namespace Reflex { class Object; } }
+namespace Reflex { class Object; } 
 
 namespace reco {
   namespace parser {
@@ -19,7 +19,7 @@ namespace reco {
       /// destructor
       virtual ~SelectorBase() { }
       /// return true if the Refle object is selected
-      virtual bool operator()(const ROOT::Reflex::Object & c) const = 0;
+      virtual bool operator()(const Reflex::Object & c) const = 0;
     };
   }
 }

@@ -1,7 +1,7 @@
 #include "PhysicsTools/Utilities/src/returnType.h"
 #include <map>
 #include <string>
-using namespace ROOT::Reflex;
+using namespace Reflex;
 using namespace std;
 using namespace reco::method;
 

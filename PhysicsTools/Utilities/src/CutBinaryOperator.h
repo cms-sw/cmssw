@@ -17,7 +17,7 @@ namespace reco {
   namespace parser {
     template<typename Op>
     struct CutBinaryOperator : public CutBase {
-      virtual double value(const ROOT::Reflex::Object& o) const { 
+      virtual double value(const Reflex::Object& o) const { 
 	return op_((*lhs_).value(o), (*rhs_).value(o));
       }
       CutBinaryOperator(CutStack & cutStack) { 

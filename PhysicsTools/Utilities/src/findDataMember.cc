@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Aug 13 10:07:46 EDT 2008
-// $Id$
+// $Id: findDataMember.cc,v 1.1 2008/08/13 19:38:18 chrjones Exp $
 //
 
 // system include files
@@ -24,8 +24,8 @@
 //
 
 namespace reco {
-   ROOT::Reflex::Member findDataMember(const ROOT::Reflex::Type& iType, const std::string& iName, int& oError) {
-      using namespace ROOT::Reflex;
+   Reflex::Member findDataMember(const Reflex::Type& iType, const std::string& iName, int& oError) {
+      using namespace Reflex;
       Member returnValue;
       oError = parser::kNameDoesNotExist;
       Type type = iType;

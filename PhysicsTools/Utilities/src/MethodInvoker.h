@@ -9,15 +9,15 @@ namespace reco {
   namespace parser {
 
     struct MethodInvoker {
-      explicit MethodInvoker(const ROOT::Reflex::Member & method,
+      explicit MethodInvoker(const Reflex::Member & method,
 			     const std::vector<AnyMethodArgument>    & ints   = std::vector<AnyMethodArgument>() );
       MethodInvoker(const MethodInvoker &); 
       /// Returns the object, and an info about if we have to delete such object or not
-      std::pair<ROOT::Reflex::Object,bool> value(const ROOT::Reflex::Object & o) const;
-      const ROOT::Reflex::Member & method() const { return method_; }
+      std::pair<Reflex::Object,bool> value(const Reflex::Object & o) const;
+      const Reflex::Member & method() const { return method_; }
       MethodInvoker & operator=(const MethodInvoker &);
     private:
-      ROOT::Reflex::Member method_;
+      Reflex::Member method_;
       std::vector<AnyMethodArgument> ints_; // already fixed to the correct type
       std::vector<void*> args_;
       bool isFunction_;

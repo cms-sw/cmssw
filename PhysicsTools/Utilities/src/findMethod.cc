@@ -4,7 +4,7 @@
 #include "Reflex/Base.h"
 #include "Reflex/TypeTemplate.h"
 
-using namespace ROOT::Reflex;
+using namespace Reflex;
 using namespace std;
 using reco::parser::AnyMethodArgument;
 
@@ -20,8 +20,8 @@ static bool fatalErrorCondition(int iError)
    
 }
 namespace reco {
-  int checkMethod(const ROOT::Reflex::Member & mem, 
-                  const ROOT::Reflex::Type   & type,
+  int checkMethod(const Reflex::Member & mem, 
+                  const Reflex::Type   & type,
                   const std::vector<AnyMethodArgument> &args, std::vector<AnyMethodArgument> &fixuppedArgs) {
     int casts = 0;
     if (mem.IsConstructor()) return -1*parser::kIsConstructor;

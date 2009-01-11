@@ -4,7 +4,7 @@
  *
  * \author Luca Lista, INFN
  *
- * $Id: StringObjectFunction.h,v 1.1 2007/10/31 14:08:00 llista Exp $
+ * $Id: StringObjectFunction.h,v 1.2 2007/12/19 10:26:37 llista Exp $
  */
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "PhysicsTools/Utilities/src/ExpressionPtr.h"
@@ -14,7 +14,7 @@
 template<typename T>
 struct StringObjectFunction {
   StringObjectFunction(const std::string & expr) : 
-    type_(ROOT::Reflex::Type::ByTypeInfo(typeid(T))) {
+    type_(Reflex::Type::ByTypeInfo(typeid(T))) {
     if(! reco::parser::expressionParser<T>(expr, expr_)) {
       throw edm::Exception(edm::errors::Configuration,
 			   "failed to parse \"" + expr + "\"");
@@ -22,17 +22,17 @@ struct StringObjectFunction {
   }
   StringObjectFunction(const reco::parser::ExpressionPtr & expr) : 
     expr_(expr),
-    type_(ROOT::Reflex::Type::ByTypeInfo(typeid(T))) {
+    type_(Reflex::Type::ByTypeInfo(typeid(T))) {
   }
   double operator()(const T & t) const {
-    using namespace ROOT::Reflex;
+    using namespace Reflex;
     Object o(type_, const_cast<T *>(& t));
     return expr_->value(o);  
   }
 
 private:
   reco::parser::ExpressionPtr expr_;
-  ROOT::Reflex::Type type_;
+  Reflex::Type type_;
 };
 
 #endif

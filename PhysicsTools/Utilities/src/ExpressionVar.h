@@ -7,7 +7,7 @@
  * \author original version: Chris Jones, Cornell, 
  *         adapted to Reflex by Luca Lista, INFN
  *
- * \version $Revision: 1.6 $
+ * \version $Revision: 1.7 $
  *
  */
 #include "PhysicsTools/Utilities/src/ExpressionBase.h"
@@ -19,12 +19,12 @@ namespace reco {
   namespace parser {
     struct ExpressionVar : public ExpressionBase {
       ExpressionVar(const std::vector<MethodInvoker> & methods, method::TypeCode retType);
-      virtual double value(const ROOT::Reflex::Object & o) const;
+      virtual double value(const Reflex::Object & o) const;
 
       static bool isValidReturnType(method::TypeCode);
     private:
       std::vector<MethodInvoker> methods_;
-      static void trueDelete(ROOT::Reflex::Object & o) ;
+      static void trueDelete(Reflex::Object & o) ;
       method::TypeCode retType_;
     }; 
   }

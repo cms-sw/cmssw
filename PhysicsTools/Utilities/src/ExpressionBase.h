@@ -13,13 +13,13 @@
 #include <boost/shared_ptr.hpp>
 #include <vector>
 
-namespace ROOT { namespace Reflex { class Object; } }
+namespace Reflex { class Object; }
 
 namespace reco {
   namespace parser {
     struct ExpressionBase {
       virtual ~ExpressionBase() { }
-      virtual double value( const ROOT::Reflex::Object & ) const = 0;
+      virtual double value( const Reflex::Object & ) const = 0;
     };
     typedef boost::shared_ptr<ExpressionBase> ExpressionPtr;
   }

@@ -22,7 +22,7 @@ namespace reco {
 
     class AnyMethodArgumentFixup : public boost::static_visitor<std::pair<AnyMethodArgument, int> > {
         private:
-            ROOT::Reflex::Type rflxType_;
+            Reflex::Type rflxType_;
             const std::type_info & type_;
             template<typename From, typename To>
             std::pair<AnyMethodArgument, int> retOk_(const From &f, int cast) const {
@@ -44,7 +44,7 @@ namespace reco {
                 return std::pair<AnyMethodArgument,int>(t,-1);
             }
         public:
-            AnyMethodArgumentFixup(ROOT::Reflex::Type type) : 
+            AnyMethodArgumentFixup(Reflex::Type type) : 
                 rflxType_(type),
                 type_(type.Name() == "string" ? typeid(std::string) : type.TypeInfo()) // Otherwise Reflex does this wrong :-(
             {
@@ -54,7 +54,7 @@ namespace reco {
                     std::cerr << "Enum conversion: [" << rflxType_.Name() <<  "] => [" << type_.name() << "]" << std::endl;
                     std::cerr << "Enum has " << rflxType_.MemberSize() << ", members." << std::endl;
                     for (size_t i = 0; i < rflxType_.MemberSize(); ++i) {
-                        ROOT::Reflex::Member mem = rflxType_.MemberAt(i);
+                        Reflex::Member mem = rflxType_.MemberAt(i);
                         std::cerr << " member #"<<i<<", name = " << mem.Name() << ", rflxType_ = " << mem.TypeOf().Name() << std::endl; 
                     }
                 } // */
@@ -83,7 +83,7 @@ namespace reco {
             std::pair<AnyMethodArgument,int> operator()(const std::string &t) const { 
                 if (type_ == typeid(std::string)) { return std::pair<AnyMethodArgument,int>(t,0); }
                 if (rflxType_.IsEnum()) {
-                    ROOT::Reflex::Member value = rflxType_.MemberByName(t);
+                    Reflex::Member value = rflxType_.MemberByName(t);
                     //std::cerr << "Trying to convert '" << t << "'  to a value for enumerator '" << rflxType_.Name() << "'" << std::endl;
                     if (!value) // check for existing value
                         throw parser::Exception(t.c_str()) << "Can't convert '" << t << "' to a value for enumerator '" << rflxType_.Name() << "'\n";

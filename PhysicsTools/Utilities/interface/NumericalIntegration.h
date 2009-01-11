@@ -119,7 +119,7 @@ namespace funct {
   };
 
   struct RootIntegrator {
-    RootIntegrator(ROOT::Math::IntegrationOneDim::Type type = ROOT::Math::IntegrationOneDim::ADAPTIVE, 
+    RootIntegrator(ROOT::Math::IntegrationOneDim::Type type = ROOT::Math::IntegrationOneDim::kADAPTIVE, 
 		   double absTol = 1e-9, double relTol = 1e-6, unsigned int size = 1000, unsigned int rule = 3) :
       type_(type), absTol_(absTol), relTol_(relTol), size_(size), rule_(rule),
       integrator_(new ROOT::Math::Integrator(type, absTol, relTol, size, rule)) { }

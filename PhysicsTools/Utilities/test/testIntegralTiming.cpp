@@ -100,7 +100,7 @@ int main() {
   cout << ">>> ROOT GSL integration" << endl;
   vector<pair<double, double> > r;
   for(double e = 100; e > 1.e-5; e /= 2) {
-    RootIntegrator i4(ROOT::Math::IntegrationOneDim::ADAPTIVESINGULAR, e, e);
+    RootIntegrator i4(ROOT::Math::IntegrationOneDim::kADAPTIVESINGULAR, e, e);
     r.push_back(check(g4, i4));
   }
   gROOT->SetStyle("Plain");

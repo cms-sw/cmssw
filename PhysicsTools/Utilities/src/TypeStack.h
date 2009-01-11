@@ -14,7 +14,7 @@
 
 namespace reco {
   namespace parser {
-    typedef std::vector<ROOT::Reflex::Type> TypeStack;
+    typedef std::vector<Reflex::Type> TypeStack;
   }
 }
 

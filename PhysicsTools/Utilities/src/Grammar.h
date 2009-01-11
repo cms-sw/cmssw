@@ -7,7 +7,7 @@
  * \author original version: Chris Jones, Cornell, 
  *         extended by Luca Lista, INFN
  *
- * \version $Revision: 1.18 $
+ * \version $Revision: 1.19 $
  *
  */
 #include "boost/spirit/core.hpp"
@@ -56,19 +56,19 @@ namespace reco {
       template<typename T>
       Grammar(SelectorPtr & sel, const T *) : 
 	sel_(& sel), expr_(& dummyExpr_) { 
-	typeStack.push_back(ROOT::Reflex::Type::ByTypeInfo(typeid(T)));
+	typeStack.push_back(Reflex::Type::ByTypeInfo(typeid(T)));
       }
       template<typename T>
       Grammar(ExpressionPtr & expr, const T*) : 
 	sel_(& dummySel_), expr_(& expr) { 
-	typeStack.push_back(ROOT::Reflex::Type::ByTypeInfo(typeid(T)));
+	typeStack.push_back(Reflex::Type::ByTypeInfo(typeid(T)));
       }
-      Grammar(SelectorPtr & sel, const ROOT::Reflex::Type& iType) : 
+      Grammar(SelectorPtr & sel, const Reflex::Type& iType) : 
    	sel_(& sel), expr_(& dummyExpr_) { 
    	typeStack.push_back(iType);
          }
          template<typename T>
-         Grammar(ExpressionPtr & expr, const ROOT::Reflex::Type& iType) : 
+         Grammar(ExpressionPtr & expr, const Reflex::Type& iType) : 
    	sel_(& dummySel_), expr_(& expr) { 
    	typeStack.push_back(iType);
          }

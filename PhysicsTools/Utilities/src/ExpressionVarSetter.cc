@@ -5,7 +5,7 @@
 #include <string>
 using namespace reco::parser;
 using namespace std;
-using namespace ROOT::Reflex;
+using namespace Reflex;
 
 void ExpressionVarSetter::operator()(const char * begin, const char* end) const {
   Type type = typeStack_.back();
