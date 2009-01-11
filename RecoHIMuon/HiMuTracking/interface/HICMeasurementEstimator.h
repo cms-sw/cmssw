@@ -7,8 +7,8 @@
  *  BoundPlane. The TrajectoryState must have errors.
  *  Works for any RecHit dimension. Ported from ORCA.
  *
- *  $Date: 2008/05/22 15:31:36 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/05/23 07:42:39 $
+ *  $Revision: 1.5 $
  *  \author todorov, cerati
  */
 
@@ -27,8 +27,8 @@ public:
    *  The errors of the trajectory state are multiplied by nSigma 
    *  to define acceptance of BoundPlane and maximalLocalDisplacement.
    */
-  explicit HICMeasurementEstimator(double maxChi2, double nSigma = 3., const GeometricSearchTracker* theTracker0,
-  const MagneticField * mf):
+  explicit HICMeasurementEstimator(const GeometricSearchTracker* theTracker0,
+  const MagneticField * mf, double maxChi2, double nSigma = 3.):
   Chi2MeasurementEstimatorBase(maxChi2,nSigma)
     {
       theTracker = theTracker0;

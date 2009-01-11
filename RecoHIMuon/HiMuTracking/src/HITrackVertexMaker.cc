@@ -7,7 +7,7 @@
 //
 // Original Author:  Dong Ho Moon
 //         Created:  Wed May  9 06:22:36 CEST 2007
-// $Id: HITrackVertexMaker.cc,v 1.6 2008/09/14 12:25:20 kodolova Exp $
+// $Id: HITrackVertexMaker.cc,v 1.7 2008/09/14 12:25:49 kodolova Exp $
 //
 //
  
@@ -124,7 +124,7 @@ HITrackVertexMaker::HITrackVertexMaker(const edm::ParameterSet& ps1, const edm::
     double theChiSquareCut = 500.;
     double nsig = 3.;
     int theLowMult = 1;
-    theEstimator = new HICMeasurementEstimator(theChiSquareCut, nsig, &(*tracker), &(*magfield));
+    theEstimator = new HICMeasurementEstimator(&(*tracker), &(*magfield), theChiSquareCut, nsig);
     std::string updatorName = "KFUpdator";
     std::string propagatorAlongName    = "PropagatorWithMaterial";
     std::string propagatorOppositeName = "PropagatorWithMaterialOpposite";
