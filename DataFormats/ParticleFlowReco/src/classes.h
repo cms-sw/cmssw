@@ -129,5 +129,6 @@ namespace {
     std::vector<pftools::CalibratableElement> dummy55;
     std::vector<pftools::CandidateWrapper> dummy56;
     std::vector<pftools::CalibrationResultWrapper> dummy57;
+    std::vector<std::pair<float,float> > dummy58;
   };
 }
