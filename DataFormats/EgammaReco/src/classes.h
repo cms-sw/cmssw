@@ -23,6 +23,11 @@ namespace {
   struct dictionary {
 
 	edm::RefToBase<reco::CaloCluster> refToBaseCaloCluster ;
+    edm::reftobase::IndirectHolder<reco::CaloCluster> indirectHolderCaloCluster ;
+    edm::reftobase::Holder< reco::CaloCluster, edm::Ref<reco::SuperClusterCollection> > holderSuperCluster ;
+    edm::reftobase::RefHolder< edm::Ref<reco::SuperClusterCollection> > refHolderSuperCluster ;
+    edm::reftobase::Holder< reco::CaloCluster, edm::Ref<reco::BasicClusterCollection> > holderBasicCluster ;
+    edm::reftobase::RefHolder< edm::Ref<reco::BasicClusterCollection> > refHolderBasicCluster ;
 
 	std::vector<reco::BasicCluster> v11;
     reco::BasicClusterCollection v1;

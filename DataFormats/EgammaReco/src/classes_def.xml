@@ -2,6 +2,34 @@
 
   <class name="edm::RefToBase<reco::CaloCluster>"/>
   <class name="edm::reftobase::BaseHolder<reco::CaloCluster>"/>
+  <class name="edm::reftobase::IndirectHolder<reco::CaloCluster>" />
+  
+  <class name="edm::reftobase::Holder<
+    reco::CaloCluster,
+    edm::Ref<
+      std::vector<reco::SuperCluster>, reco::SuperCluster,
+      edm::refhelper::FindUsingAdvance<std::vector<reco::SuperCluster>,reco::SuperCluster>
+    >
+  >"/>
+  <class name="edm::reftobase::RefHolder<
+    edm::Ref<
+      std::vector<reco::SuperCluster>, reco::SuperCluster,
+      edm::refhelper::FindUsingAdvance<std::vector<reco::SuperCluster>,reco::SuperCluster>
+    >
+  >"/>
+  <class name="edm::reftobase::Holder<
+    reco::CaloCluster,
+    edm::Ref<
+      std::vector<reco::BasicCluster>, reco::BasicCluster,
+      edm::refhelper::FindUsingAdvance<std::vector<reco::BasicCluster>,reco::BasicCluster>
+    >
+  >"/>
+  <class name="edm::reftobase::RefHolder<
+    edm::Ref<
+      std::vector<reco::BasicCluster>, reco::BasicCluster,
+      edm::refhelper::FindUsingAdvance<std::vector<reco::BasicCluster>,reco::BasicCluster>
+    >
+  >"/>
 
   <class name="reco::BasicCluster"/>
   <class name="std::vector<reco::BasicCluster>"/>
