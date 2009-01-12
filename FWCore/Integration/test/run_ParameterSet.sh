@@ -23,6 +23,12 @@ pushd ${LOCAL_TMP_DIR}
 # Compare the cfi file to a reference file to ensure it is correct
   diff ${LOCAL_TMP_DIR}/testProducerWithPsetDesc_cfi.py ${LOCAL_TEST_DIR}/unit_test_outputs/testProducerWithPsetDesc_cfi.py || die "comparing testProducerWithPsetDesc_cfi.py" $?
 
+# Compare the output of the PSetAnalyzer with a reference file
+  echo cmsRun testPSetAnalyzer_cfg.py ------------------------------------------------------------
+  cmsRun -p ${LOCAL_TEST_DIR}/testPSetAnalyzer_cfg.py 2>&1 | grep " PSet test " > testPSetAnalyzer.txt
+  diff ${LOCAL_TMP_DIR}/testPSetAnalyzer.txt ${LOCAL_TEST_DIR}/unit_test_outputs/testPSetAnalyzer.txt || die "comparing testPSetAnalyzer.txt" $?
+
+
 popd
 
 exit 0
