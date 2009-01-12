@@ -2,15 +2,16 @@ import FWCore.ParameterSet.Config as cms
 
 #
 # module to produce pixel seeds for electrons from super clusters
-# $Id: electronPixelSeeds_cfi.py,v 1.7 2008/05/29 07:51:28 arizzi Exp $
+# $Id: ecalDrivenElectronSeeds_cfi.py,v 1.8 2008/10/12 08:38:04 charlot Exp $
 # Author:  Ursula Berthon, Claude Charlot
 #
-from RecoEgamma.EgammaElectronProducers.pixelSeedConfiguration_cfi import *
-electronPixelSeeds = cms.EDProducer("ElectronPixelSeedProducer",
+from RecoEgamma.EgammaElectronProducers.ecalDrivenElectronSeedsParameters_cff import *
+
+ecalDrivenElectronSeeds = cms.EDProducer("ElectronSeedProducer",
     barrelSuperClusters = cms.InputTag("correctedHybridSuperClusters"),
     endcapSuperClusters = cms.InputTag("correctedMulti5x5SuperClustersWithPreshower"),
     SeedConfiguration = cms.PSet(
-        electronPixelSeedConfiguration,
+        ecalDrivenElectronSeedsParameters,
         OrderedHitsFactoryPSet = cms.PSet(
             ComponentName = cms.string('StandardHitPairGenerator'),
             SeedingLayers = cms.string('MixedLayerPairs') 

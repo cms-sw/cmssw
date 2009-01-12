@@ -5,8 +5,8 @@
 #include "DataFormats/EgammaCandidates/interface/SiStripElectronFwd.h"
 #include "SiStripElectronProducer.h"
 #include "SiStripElectronAssociator.h"
-#include "ElectronPixelSeedProducer.h"
-#include "ElectronSiStripSeedProducer.h"
+#include "ElectronSeedProducer.h"
+#include "SiStripElectronSeedProducer.h"
 //#include "GlobalSeedProducer.h"
 #include "GsfElectronProducer.h"
 //#include "GlobalGsfElectronProducer.h"
@@ -15,8 +15,8 @@ DEFINE_SEAL_MODULE();
 
 DEFINE_ANOTHER_FWK_MODULE(SiStripElectronProducer);
 DEFINE_ANOTHER_FWK_MODULE(SiStripElectronAssociator);
-DEFINE_ANOTHER_FWK_MODULE(ElectronPixelSeedProducer);
+DEFINE_ANOTHER_FWK_MODULE(ElectronSeedProducer);
 //DEFINE_ANOTHER_FWK_MODULE(GlobalSeedProducer);
 DEFINE_ANOTHER_FWK_MODULE(GsfElectronProducer);
 //DEFINE_ANOTHER_FWK_MODULE(GlobalGsfElectronProducer);
-DEFINE_ANOTHER_FWK_MODULE(ElectronSiStripSeedProducer);
+DEFINE_ANOTHER_FWK_MODULE(SiStripElectronSeedProducer);

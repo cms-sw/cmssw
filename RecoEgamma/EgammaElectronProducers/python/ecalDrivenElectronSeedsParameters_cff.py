@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-electronPixelSeedConfiguration = cms.PSet(
+ecalDrivenElectronSeedsParameters = cms.PSet(
 
     # steering
     fromTrackerSeeds = cms.bool(True),

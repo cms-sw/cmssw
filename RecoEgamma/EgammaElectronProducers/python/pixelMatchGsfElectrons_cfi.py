@@ -5,8 +5,8 @@ import FWCore.ParameterSet.Config as cms
 pixelMatchGsfElectrons = cms.EDProducer("GsfElectronProducer",
 
     # input collections
-    barrelSuperClusters = cms.InputTag("correctedHybridSuperClusters","electronPixelSeeds"),
-    endcapSuperClusters = cms.InputTag("correctedMulti5x5SuperClustersWithPreshower","electronPixelSeeds"),
+    barrelSuperClusters = cms.InputTag("correctedHybridSuperClusters","ecalDrivenElectronSeeds"),
+    endcapSuperClusters = cms.InputTag("correctedMulti5x5SuperClustersWithPreshower","ecalDrivenElectronSeeds"),
     tracks = cms.InputTag("pixelMatchGsfFit"),
     ctfTracks = cms.InputTag("generalTracks"),
     hcalTowers = cms.InputTag("towerMaker"),

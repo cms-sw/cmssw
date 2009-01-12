@@ -1,9 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
 from RecoEgamma.EgammaElectronProducers.electronSequence_cff import *
-electronPixelSeeds.barrelSuperClusters = cms.InputTag('cosmicSuperClusters','CosmicBarrelSuperClusters')
-electronPixelSeeds.endcapSuperClusters = cms.InputTag('cosmicSuperClusters','CosmicEndcapSuperClusters')
-electronPixelSeeds.SeedConfiguration.fromTrackerSeeds = cms.bool(False)
+
+ecalDrivenElectronSeeds.barrelSuperClusters = cms.InputTag('cosmicSuperClusters','CosmicBarrelSuperClusters')
+ecalDrivenElectronSeeds.endcapSuperClusters = cms.InputTag('cosmicSuperClusters','CosmicEndcapSuperClusters')
+ecalDrivenElectronSeeds.SeedConfiguration.fromTrackerSeeds = cms.bool(False)
 
 pixelMatchGsfElectrons.barrelSuperClusters = cms.InputTag('cosmicSuperClusters','CosmicBarrelSuperClusters')
 pixelMatchGsfElectrons.endcapSuperClusters = cms.InputTag('cosmicSuperClusters','CosmicEndcapSuperClusters')

@@ -1,11 +1,11 @@
 // -*- C++ -*-
 //
 // Package:    ElectronProducers
-// Class:      ElectronPixelSeedProducer
-// 
-/**\class ElectronPixelSeedProducer RecoEgamma/ElectronProducers/src/ElectronPixelSeedProducer.cc
+// Class:      ElectronSeedProducer
+//
+/**\class ElectronSeedProducer RecoEgamma/ElectronProducers/src/ElectronSeedProducer.cc
 
- Description: EDProducer of ElectronPixelSeed objects
+ Description: EDProducer of ElectronSeed objects
 
  Implementation:
      <Notes on implementation>
@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ElectronPixelSeedProducer.cc,v 1.28 2008/12/16 23:03:49 charlot Exp $
+// $Id: ElectronSeedProducer.cc,v 1.27 2008/12/13 18:31:48 charlot Exp $
 //
 //
 
@@ -28,19 +28,19 @@
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 
-#include "RecoEgamma/EgammaElectronAlgos/interface/ElectronPixelSeedGenerator.h"
+#include "RecoEgamma/EgammaElectronAlgos/interface/ElectronSeedGenerator.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/SeedFilter.h"
 
-#include "DataFormats/EgammaReco/interface/ElectronPixelSeed.h"
-#include "DataFormats/EgammaReco/interface/ElectronPixelSeedFwd.h"
+#include "DataFormats/EgammaReco/interface/ElectronSeed.h"
+#include "DataFormats/EgammaReco/interface/ElectronSeedFwd.h"
 
-#include "ElectronPixelSeedProducer.h"
+#include "ElectronSeedProducer.h"
 
 #include <string>
 
 using namespace reco;
- 
-ElectronPixelSeedProducer::ElectronPixelSeedProducer(const edm::ParameterSet& iConfig) :conf_(iConfig),seedFilter_(0),cacheID_(0)
+
+ElectronSeedProducer::ElectronSeedProducer(const edm::ParameterSet& iConfig) :conf_(iConfig),seedFilter_(0),cacheID_(0)
 {
   edm::ParameterSet pset = iConfig.getParameter<edm::ParameterSet>("SeedConfiguration");
   initialSeeds_=pset.getParameter<edm::InputTag>("initialSeeds");
@@ -49,8 +49,8 @@ ElectronPixelSeedProducer::ElectronPixelSeedProducer(const edm::ParameterSet& iC
   fromTrackerSeeds_=pset.getParameter<bool>("fromTrackerSeeds");
   prefilteredSeeds_=pset.getParameter<bool>("preFilteredSeeds");
 
-  matcher_ = new ElectronPixelSeedGenerator(pset);
- 
+  matcher_ = new ElectronSeedGenerator(pset);
+
   if (prefilteredSeeds_) seedFilter_ = new SeedFilter(pset);
 
   //  get collections from config'
@@ -59,11 +59,11 @@ ElectronPixelSeedProducer::ElectronPixelSeedProducer(const edm::ParameterSet& iC
   hcalRecHits_ = pset.getParameter<edm::InputTag>("hcalRecHits");
 
   //register your products
-  produces<ElectronPixelSeedCollection>();
+  produces<ElectronSeedCollection>();
 }
 
 
-ElectronPixelSeedProducer::~ElectronPixelSeedProducer()
+ElectronSeedProducer::~ElectronSeedProducer()
 {
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
@@ -71,21 +71,22 @@ ElectronPixelSeedProducer::~ElectronPixelSeedProducer()
       delete seedFilter_;
 }
 
-void ElectronPixelSeedProducer::beginJob(edm::EventSetup const&iSetup) 
+void ElectronSeedProducer::beginJob(edm::EventSetup const&iSetup)
 {
 }
 
-void ElectronPixelSeedProducer::produce(edm::Event& e, const edm::EventSetup& iSetup) 
+void ElectronSeedProducer::produce(edm::Event& e, const edm::EventSetup& iSetup)
 {
-  LogDebug("ElectronPixelSeedProducer");
-  LogDebug("ElectronPixelSeedProducer")  <<"[ElectronPixelSeedProducer::produce] entering " ;
-  // get calo geometry 
+  LogDebug("ElectronSeedProducer");
+  LogDebug("ElectronSeedProducer")  <<"[ElectronSeedProducer::produce] entering " ;
+
+  // get calo geometry
   if (cacheID_!=iSetup.get<CaloGeometryRecord>().cacheIdentifier()) {
     iSetup.get<CaloGeometryRecord>().get(theCaloGeom);
     cacheID_=iSetup.get<CaloGeometryRecord>().cacheIdentifier();
   }
-  
-  matcher_->setupES(iSetup);  
+
+  matcher_->setupES(iSetup);
 
   // get Hcal Rechit collection
   edm::Handle<HBHERecHitCollection> hbhe;
@@ -103,13 +104,14 @@ void ElectronPixelSeedProducer::produce(edm::Event& e, const edm::EventSetup& iS
     else theInitialSeedColl =new TrajectorySeedCollection;
   }else
     theInitialSeedColl=0;// not needed in this case
- 
-  ElectronPixelSeedCollection *seeds= new ElectronPixelSeedCollection;
-  std::auto_ptr<ElectronPixelSeedCollection> pSeeds;
 
-  calc_=HoECalculator(theCaloGeom); 
+  ElectronSeedCollection *seeds= new ElectronSeedCollection;
+  std::auto_ptr<ElectronSeedCollection> pSeeds;
+
+  calc_=HoECalculator(theCaloGeom);
+
   // loop over barrel + endcap
-  for (unsigned int i=0; i<2; i++) {  
+  for (unsigned int i=0; i<2; i++) {
    // invoke algorithm
     edm::Handle<SuperClusterCollection> clusters;
     if (e.getByLabel(superClusters_[i],clusters))   {
@@ -122,17 +124,24 @@ void ElectronPixelSeedProducer::produce(edm::Event& e, const edm::EventSetup& iS
   }
 
   // store the accumulated result
-  pSeeds=  std::auto_ptr<ElectronPixelSeedCollection>(seeds);
-  for (ElectronPixelSeedCollection::iterator is=pSeeds->begin(); is!=pSeeds->end();is++) {
-    LogDebug("ElectronPixelSeedProducer")  << "new seed with " << (*is).nHits() << " hits, charge " << (*is).getCharge() <<
-	" and cluster energy " << (*is).superCluster()->energy() << " PID "<<(*is).superCluster().id();
-  }
-  e.put(pSeeds);
+  pSeeds = std::auto_ptr<ElectronSeedCollection>(seeds) ;
+  ElectronSeedCollection::iterator is ;
+  for ( is=pSeeds->begin() ; is!=pSeeds->end() ; is++ )
+   {
+    edm::RefToBase<CaloCluster> caloCluster = is->caloCluster() ;
+    SuperClusterRef superCluster = caloCluster.castTo<SuperClusterRef>() ;
+    LogDebug("ElectronSeedProducer")<< "new seed with "
+      << (*is).nHits() << " hits"
+      << ", charge " << (*is).getCharge()
+      << " and cluster energy " << superCluster->energy()
+      << " PID "<<superCluster.id() ;
+   }
+  e.put(pSeeds) ;
   if (fromTrackerSeeds_ && prefilteredSeeds_) delete theInitialSeedColl;
  }
 
-void ElectronPixelSeedProducer::filterClusters(const edm::Handle<reco::SuperClusterCollection> &superClusters, 
- HBHERecHitMetaCollection*mhbhe, SuperClusterRefVector &sclRefs) {
+void ElectronSeedProducer::filterClusters(const edm::Handle<reco::SuperClusterCollection> &superClusters,
+    HBHERecHitMetaCollection*mhbhe, SuperClusterRefVector &sclRefs) {
 
   // filter the superclusters
   // - with EtCut
@@ -146,21 +155,21 @@ void ElectronPixelSeedProducer::filterClusters(const edm::Handle<reco::SuperClus
       if (HoE <= maxHOverE_) {
 	sclRefs.push_back(edm::Ref<reco::SuperClusterCollection> (superClusters,i));
       }
- 
+
     }
 
   }
-  LogDebug("ElectronPixelSeedProducer")  <<"Filtered out "<<sclRefs.size() <<" superclusters from "<<superClusters->size() ;
+  LogDebug("ElectronSeedProducer")  <<"Filtered out "<<sclRefs.size() <<" superclusters from "<<superClusters->size() ;
 }
 
-void ElectronPixelSeedProducer::filterSeeds(edm::Event& e, const edm::EventSetup& setup, reco::SuperClusterRefVector &sclRefs)
+void ElectronSeedProducer::filterSeeds(edm::Event& e, const edm::EventSetup& setup, reco::SuperClusterRefVector &sclRefs)
 {
 
   for  (unsigned int i=0;i<sclRefs.size();++i) {
     seedFilter_->seeds(e, setup, sclRefs[i], theInitialSeedColl);
 
-    LogDebug("ElectronPixelSeedProducer")<< "Number fo Seeds: " << theInitialSeedColl->size() ;
+    LogDebug("ElectronSeedProducer")<< "Number fo Seeds: " << theInitialSeedColl->size() ;
   }
- 
+
 
 }

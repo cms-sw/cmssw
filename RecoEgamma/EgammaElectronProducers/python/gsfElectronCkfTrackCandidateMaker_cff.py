@@ -25,7 +25,7 @@ from TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff import *
 import TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi
 TrajectoryFilterForPixelMatchGsfElectrons = TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi.trajectoryFilterESProducer.clone()
 
-egammaCkfTrackCandidates.src = cms.InputTag('electronPixelSeeds')
+egammaCkfTrackCandidates.src = cms.InputTag('ecalDrivenElectronSeeds')
 egammaCkfTrackCandidates.TrajectoryBuilder = 'TrajectoryBuilderForPixelMatchGsfElectrons'
 egammaCkfTrackCandidates.SeedLabel = cms.InputTag('')
 egammaCkfTrackCandidates.TrajectoryCleaner = 'TrajectoryCleanerBySharedHits'
