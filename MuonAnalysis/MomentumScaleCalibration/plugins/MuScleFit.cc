@@ -1,8 +1,8 @@
 //  \class MuScleFit
 //  Fitter of momentum scale and resolution from resonance decays to muon track pairs
 //
-//  $Date: 2009/01/09 15:34:26 $
-//  $Revision: 1.19 $
+//  $Date: 2009/01/09 15:54:41 $
+//  $Revision: 1.20 $
 //  \author R. Bellan, C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo, M.De Mattia - INFN Padova
 //
 //  Recent additions: 
@@ -120,6 +120,7 @@
 #include "RecoMuon/TrackingTools/interface/MuonPatternRecoDumper.h"
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 #include <CLHEP/Vector/LorentzVector.h>
+#include "FWCore/ParameterSet/interface/FileInPath.h"
 
 #include "TFile.h"
 #include "TTree.h"
@@ -306,13 +307,15 @@ MuScleFit::~MuScleFit () {
 // ---------
 void MuScleFit::beginOfJob (const EventSetup& eventSetup) {
 
-  // Read probability distributions from root file
+  // Read probability distributions from the database
   // These are 2-D PDFs containing a grid of 1000x1000 values of the
   // integral of Lorentz * Gaussian as a function
   // of mass and resolution of a given measurement,
   // for each of the six considered diLmuon resonances.
   // -------------------------------------------------
-  readProbabilityDistributions( eventSetup );
+  // readProbabilityDistributions( eventSetup );
+
+  readProbabilityDistributionsFromFile();
 
   if (debug>0) cout << "[MuScleFit]: beginOfJob" << endl;
   
@@ -875,7 +878,7 @@ void MuScleFit::fillHistoMap(TFile* outputFile, unsigned int iLoop) {
 
   double ptMax = 40.;
   // Mass resolution vs (pt, eta) of the muons from MC
-  massResolutionVsPtEta_ = new HCovarianceVSxy ( "Mass", "Mass", 100, 0., ptMax, 60, -3, 3 );
+  massResolutionVsPtEta_ = new HCovarianceVSxy ( "Mass", "Mass", 100, 0., ptMax, 60, -3, 3, outputFile->mkdir("MassCovariance") );
   // Mass resolution vs (pt, eta) from resolution function
   mapHisto["hFunctionResolMass"] = new HFunctionResolution (outputFile, "hFunctionResolMass", ptMax);
 }
@@ -1038,10 +1041,14 @@ void MuScleFit::readProbabilityDistributionsFromFile()
   TH2D * GL[6];
   TFile * ProbsFile;
   if ( theMuonType!=2 ) {
-    ProbsFile = new TFile ("Probs_new_1000_CTEQ.root"); // NNBB need to reset this if MuScleFitUtils::nbins changes
+    edm::FileInPath file("MuonAnalysis/MomentumScaleCalibration/test/Probs_new_1000_CTEQ.root");
+    ProbsFile = new TFile (file.fullPath().c_str()); // NNBB need to reset this if MuScleFitUtils::nbins changes
+    // ProbsFile = new TFile ("Probs_new_1000_CTEQ.root"); // NNBB need to reset this if MuScleFitUtils::nbins changes
     cout << "[MuScleFit-Constructor]: Reading TH2D probabilities from Probs_new_1000_CTEQ.root file" << endl;
   } else {
-    ProbsFile = new TFile ("Probs_SM_1000.root"); // NNBB need to reset this if MuScleFitUtils::nbins changes
+    edm::FileInPath fileSM("MuonAnalysis/MomentumScaleCalibration/test/Probs_SM_1000.root");
+    ProbsFile = new TFile (fileSM.fullPath().c_str()); // NNBB need to reset this if MuScleFitUtils::nbins changes
+    // ProbsFile = new TFile ("Probs_SM_1000.root"); // NNBB need to reset this if MuScleFitUtils::nbins changes
     cout << "[MuScleFit-Constructor]: Reading TH2D probabilities from Probs_new_SM_1000_CTEQ.root file" << endl;
   }
   ProbsFile->cd();
@@ -1133,11 +1140,13 @@ void MuScleFit::readProbabilityDistributions( const edm::EventSetup & eventSetup
       exit(1);
     }
 
+    // cout << "name = " << *name << endl;
+
     // To separate the Z histograms from the other resonances we use tha names.
     if( name->find("GLZ") != string::npos ) {
       // ATTENTION: they are expected to be ordered
 
-      cout << "For iY = " << iY << " the histogram is \"" << *name << "\"" << endl;
+      // cout << "For iY = " << iY << " the histogram is \"" << *name << "\"" << endl;
 
       // Extract normalization for mass slice in Y bins of Z
       // ---------------------------------------------------
@@ -1161,7 +1170,7 @@ void MuScleFit::readProbabilityDistributions( const edm::EventSetup & eventSetup
       // Extract normalization for each mass slice
       // -----------------------------------------
 
-      cout << "For ires = " << ires << " the histogram is \"" << *name << "\"" << endl;
+      // cout << "For ires = " << ires << " the histogram is \"" << *name << "\"" << endl;
 
       // The histograms are filled like the root TH2D from which they are taken,
       // meaning that bin = 0 is the underflow and nBins+1 is the overflow.
