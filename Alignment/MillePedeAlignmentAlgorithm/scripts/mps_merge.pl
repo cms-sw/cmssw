@@ -2,8 +2,8 @@
 #     R. Mankel, DESY Hamburg     03-Jul-2007
 #     A. Parenti, DESY Hamburg    24-Apr-2008
 #
-#     $Revision: 1.18 $
-#     $Date: 2008/08/19 10:39:32 $
+#     $Revision: 1.19 $
+#     $Date: 2009/01/07 18:26:15 $
 #
 #  produce cfg file for merging run
 #
@@ -133,7 +133,8 @@ if ($nn != 1) { #
 }
 
 # blank binary output file string
-$nn = ($body =~ s/binaryFile \= \'.+?\'/binaryFile \= \'\'/);
+$nn  = ($body =~ s/binaryFile \= \'.+?\'/binaryFile \= \'\'/);
+$nn += ($body =~ s/binaryFile \= \".+?\"/binaryFile \= \'\'/);
 if ($nn != 1) {
   $replaceBlock = "$replaceBlock\nprocess.AlignmentProducer.algoConfig.binaryFile = \'\'\n";
   print "No AlignmentProducer.algoConfig.binaryFile directive found, adding one to replace block\n";
@@ -155,7 +156,8 @@ for ($i=1; $i<=$nJobs; ++$i) {
 }
 
 # replace list of binary files
-$nn = ($body =~ s/mergeBinaryFiles = \[(.|\n)*?\]/mergeBinaryFiles = \[$binaryList\]/);
+$nn  = ($body =~ s/mergeBinaryFiles = \[(.|\n)*?\]/mergeBinaryFiles = \[$binaryList\]/);
+$nn += ($body =~ s/mergeBinaryFiles = cms.vstring\(\)/mergeBinaryFiles = \[$binaryList\]/);
 
 if ($nn != 1) {
   $replaceBlock = "$replaceBlock\nprocess.AlignmentProducer.algoConfig.mergeBinaryFiles = \[$binaryList\]";
@@ -191,7 +193,8 @@ if ($nn != 1) {
 }
 
 # replace name of monitor file
-$nn = ($body =~ s/monitorFile \= \'.+?\'/monitorFile \= \'millePedeMonitor\_merge\.root\'/);
+$nn  = ($body =~ s/monitorFile \= \'.+?\'/monitorFile \= \'millePedeMonitor\_merge\.root\'/);
+$nn += ($body =~ s/monitorFile \= \".+?\"/monitorFile \= \'millePedeMonitor\_merge\.root\'/);
 if ($nn != 1) {
   $replaceBlock = "$replaceBlock\nprocess.AlignmentProducer.algoConfig.monitorFile = \'millePedeMonitor_merge.root\'";
   print "No AlignmentProducer.algoConfig.monitorFile directive found, adding one to replace block\n";
@@ -212,13 +215,20 @@ if ($nn != 1) {
 }
 
 
-# Remove any existing maxEvents directive...
-$nn = ($body =~ s/process.maxEvents = cms.untracked.PSet\(\n.+?\n\)//);
-# Then make source an EmptySource and set maxevents to zero
-$nn = ($body =~ s/process.source = cms.Source\(.+?\n\)/process.source = cms.Source\(\"EmptySource\"\)\nprocess.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(0))/s);
+# Set maxevents to zero
+$nn = ($body =~ s/process.maxEvents = cms.untracked.PSet\(\n.+?\n +?\)/process.maxEvents = cms.untracked.PSet(\n    input = cms.untracked.int32(0)\n)/);
+if ($nn != 1) {
+  $replaceBlock = "$replaceBlock\nprocess.maxEvents = cms.untracked.PSet(\n    input = cms.untracked.int32(0)\n)";
+  print "No process.maxEvents directive found, adding one to replace block\n";
+}
+
+# Make source an EmptySource
+$nn  = ($body =~ /process.source = cms.Source\(\"EmptySource\"\)/);
+$nn += ($body =~ /process.source = cms.Source\(\'EmptySource\'\)/);
 
 if ($nn != 1) {
-    print "No source directive found, use default\n";
+  $replaceBlock = "$replaceBlock\nprocess.source = cms.Source\(\"EmptySource\"\)";
+  print "No cms.Source\(\"EmptySource\"\) directive found, adding one to replace block\n";
 }
 
 $nn = ($body =~ s/#MILLEPEDEBLOCK/$replaceBlock/);
