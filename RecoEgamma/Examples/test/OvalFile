@@ -20,7 +20,16 @@ on the ROOT script newvalidation.C.
 
 <var name="VAL_NEW_RELEASE" value="300pre6IDEAL">
 <var name="VAL_REF_RELEASE" value="220IDEAL">
-<var name="VAL_REF_DIR" value="~chamont/w1/PreviousEgammaValidations/CMSSW_2_2_0/test">
+%IMPORTANT% If we do not set specific VAL_REF_File values below, newvalidation.csh will
+%IMPORTANT% compare the current histograms with the root files stored as ref in CVS. In such
+%IMPORTANT% a case, the VAL_REF_RELEASE just above must be given the value corresponding
+%IMPORTANT% to those ref file. We would like that the release of this file in the head
+%IMPORTANT% of CVS contains the rigth value for the corresponding head release of root
+%IMPORTANT% reference files. If you change the value of VAL_REF_RELEASE above and various
+%IMPORTANT% VAL_REF_FILE below for a specific validation with specific ref files, please
+%IMPORTANT% undo the changes before committing anything, so that CVS head always contains
+%IMPORTANT% a consistent default configuration
+<!var name="VAL_REF_DIR" value="~chamont/w1/PreviousEgammaValidations/CMSSW_2_2_0/test">
 
 The tags below are defining whic are the output line sof reference, to be compared
 from one execution to another. Currently, for each TH1 histogram, we require a constant

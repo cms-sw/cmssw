@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: GsfElectronDataAnalyzer.cc,v 1.9 2008/12/05 17:01:14 charlot Exp $
+// $Id: GsfElectronDataAnalyzer.cc,v 1.10 2008/12/11 23:29:35 charlot Exp $
 //
 //
 
@@ -29,8 +29,8 @@
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
-#include "DataFormats/EgammaReco/interface/ElectronPixelSeed.h"
-#include "DataFormats/EgammaReco/interface/ElectronPixelSeedFwd.h"
+#include "DataFormats/EgammaReco/interface/ElectronSeed.h"
+#include "DataFormats/EgammaReco/interface/ElectronSeedFwd.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 
@@ -888,7 +888,7 @@ GsfElectronDataAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
 	h_ele_outerPtVsPt_mode       -> Fill(bestGsfElectron.pt(),  bestGsfElectron.trackMomentumOut().Rho() );
 	
         edm::RefToBase<TrajectorySeed> seed = bestGsfElectron.gsfTrack()->extra()->seedRef();
-	ElectronPixelSeedRef elseed=seed.castTo<ElectronPixelSeedRef>();
+	ElectronSeedRef elseed=seed.castTo<ElectronSeedRef>();
 	h_ele_seed_dphi2_-> Fill(elseed->dPhi2());
         h_ele_seed_dphi2VsEta_-> Fill(bestGsfElectron.eta(), elseed->dPhi2());
         h_ele_seed_dphi2VsPt_-> Fill(bestGsfElectron.pt(), elseed->dPhi2()) ;

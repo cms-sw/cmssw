@@ -1,15 +1,15 @@
-#ifndef ElectronPixelSeedAnalyzer_h
-#define ElectronPixelSeedAnalyzer_h
+#ifndef ElectronSeedAnalyzer_h
+#define ElectronSeedAnalyzer_h
   
 //
 // Package:         RecoEgamma/ElectronTrackSeed
-// Class:           ElectronPixelSeedAnalyzer
+// Class:           ElectronSeedAnalyzer
 // 
 
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ElectronPixelSeedAnalyzer.h,v 1.2 2008/10/03 15:09:12 charlot Exp $
+// $Id: ElectronSeedAnalyzer.h,v 1.3 2008/10/06 14:53:20 charlot Exp $
 //
 //
   
@@ -34,13 +34,13 @@ class TH1F;
 class TH1I;
 class TTree;
 
-class ElectronPixelSeedAnalyzer : public edm::EDAnalyzer
+class ElectronSeedAnalyzer : public edm::EDAnalyzer
 {
  public:
   
-  explicit ElectronPixelSeedAnalyzer(const edm::ParameterSet& conf);
+  explicit ElectronSeedAnalyzer(const edm::ParameterSet& conf);
   
-  virtual ~ElectronPixelSeedAnalyzer();
+  virtual ~ElectronSeedAnalyzer();
   
   virtual void beginJob(edm::EventSetup const& iSetup);
   virtual void analyze(const edm::Event& e, const edm::EventSetup& c);

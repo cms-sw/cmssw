@@ -1,21 +1,3 @@
-// -*- C++ -*-
-//
-// Package:    ElectronPixelSeed
-// Class:      ElectronPixelSeedProducer
-//
-/**\class ElectronPixelSeedAnalyzer RecoEgamma/ElectronTrackSeedProducers/src/ElectronPixelSeedAnalyzer.cc
-
- Description: rereading of electron seeds for verification
-
- Implementation:
-     <Notes on implementation>
-*/
-//
-// Original Author:  Ursula Berthon
-//         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ElectronPixelSeedAnalyzer.cc,v 1.6 2008/10/31 22:55:24 charlot Exp $
-//
-//
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -25,8 +7,8 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "DataFormats/EgammaReco/interface/ElectronPixelSeedFwd.h"
-#include "DataFormats/EgammaReco/interface/ElectronPixelSeed.h"
+#include "DataFormats/EgammaReco/interface/ElectronSeedFwd.h"
+#include "DataFormats/EgammaReco/interface/ElectronSeed.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
@@ -40,7 +22,7 @@
 #include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
 #include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
-#include "RecoEgamma/Examples/plugins/ElectronPixelSeedAnalyzer.h"
+#include "RecoEgamma/Examples/plugins/ElectronSeedAnalyzer.h"
 
 #include "RecoEgamma/EgammaElectronAlgos/interface/FTSFromVertexToPointFactory.h"
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
@@ -76,7 +58,7 @@
 using namespace std;
 using namespace reco;
 
-ElectronPixelSeedAnalyzer::ElectronPixelSeedAnalyzer(const edm::ParameterSet& conf)
+ElectronSeedAnalyzer::ElectronSeedAnalyzer(const edm::ParameterSet& conf)
 {
   histfile_ = new
   TFile("electronpixelseeds.root","RECREATE");
@@ -84,7 +66,7 @@ ElectronPixelSeedAnalyzer::ElectronPixelSeedAnalyzer(const edm::ParameterSet& co
   inputCollection_=conf.getParameter<edm::InputTag>("inputCollection");
 }
 
-ElectronPixelSeedAnalyzer::~ElectronPixelSeedAnalyzer()
+ElectronSeedAnalyzer::~ElectronSeedAnalyzer()
 {
 
   // do anything here that needs to be done at desctruction time
@@ -94,10 +76,10 @@ ElectronPixelSeedAnalyzer::~ElectronPixelSeedAnalyzer()
   histfile_->Close();
 }
 
-void ElectronPixelSeedAnalyzer::beginJob(edm::EventSetup const&iSetup){
+void ElectronSeedAnalyzer::beginJob(edm::EventSetup const&iSetup){
   iSetup.get<TrackerDigiGeometryRecord> ().get(pDD);
   iSetup.get<IdealMagneticFieldRecord>().get(theMagField);
-  tree_ = new TTree("ElectronPixelSeeds","ElectronPixelSeed validation ntuple");
+  tree_ = new TTree("ElectronSeeds","ElectronSeed validation ntuple");
   tree_->Branch("mcEnergy",mcEnergy,"mcEnergy[10]/F");
   tree_->Branch("mcEta",mcEta,"mcEta[10]/F");
   tree_->Branch("mcPhi",mcPhi,"mcPhi[10]/F");
@@ -145,7 +127,7 @@ void ElectronPixelSeedAnalyzer::beginJob(edm::EventSetup const&iSetup){
 }
 
 void
-ElectronPixelSeedAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& iSetup)
+ElectronSeedAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& iSetup)
 {
 
   // rereads the seeds for test purposes
@@ -160,7 +142,7 @@ ElectronPixelSeedAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& i
 
   // get seeds
 
-  edm::Handle<ElectronPixelSeedCollection> elSeeds;
+  edm::Handle<ElectronSeedCollection> elSeeds;
   e.getByLabel(inputCollection_,elSeeds);
   edm::LogInfo("")<<"\n\n =================> Treating event "<<e.id()<<" Number of seeds "<<elSeeds.product()->size();
   int is=0;
@@ -173,7 +155,7 @@ ElectronPixelSeedAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& i
   float dphi1=0., dphi2=0., drz1=0., drz2=0.;
   float phi1=0., phi2=0., rz1=0., rz2=0.;
 
-  for( ElectronPixelSeedCollection::const_iterator MyS= (*elSeeds).begin(); MyS != (*elSeeds).end(); ++MyS) {
+  for( ElectronSeedCollection::const_iterator MyS= (*elSeeds).begin(); MyS != (*elSeeds).end(); ++MyS) {
 
     LogDebug("") <<"\nSeed nr "<<is<<": ";
     range r=(*MyS).recHits();
@@ -202,16 +184,17 @@ ElectronPixelSeedAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& i
 
     // debug
 
-    LogDebug("")<<" ElectronPixelSeed outermost state position: "<<t.globalPosition();
-    LogDebug("")<<" ElectronPixelSeed outermost state momentum: "<<t.globalMomentum();
-    edm::Ref<SuperClusterCollection> theClus=(*MyS).superCluster();
-    LogDebug("")<<" ElectronPixelSeed superCluster energy: "<<theClus->energy()<<", position: "<<theClus->position();
-    LogDebug("")<<" ElectronPixelSeed outermost state Pt: "<<t.globalMomentum().perp();
-    LogDebug("")<<" ElectronPixelSeed supercluster Et: "<<theClus->energy()*sin(2.*atan(exp(-theClus->position().eta())));
-    LogDebug("")<<" ElectronPixelSeed outermost momentum direction eta: "<<t.globalMomentum().eta();
-    LogDebug("")<<" ElectronPixelSeed supercluster eta: "<<theClus->position().eta();
-    LogDebug("")<<" ElectronPixelSeed seed charge: "<<(*MyS).getCharge();
-    LogDebug("")<<" ElectronPixelSeed E/p: "<<theClus->energy()/t.globalMomentum().mag();
+    LogDebug("")<<" ElectronSeed outermost state position: "<<t.globalPosition();
+    LogDebug("")<<" ElectronSeed outermost state momentum: "<<t.globalMomentum();
+    edm::RefToBase<CaloCluster> caloCluster = (*MyS).caloCluster() ;
+    edm::Ref<SuperClusterCollection> theClus = caloCluster.castTo<SuperClusterRef>() ;
+    LogDebug("")<<" ElectronSeed superCluster energy: "<<theClus->energy()<<", position: "<<theClus->position();
+    LogDebug("")<<" ElectronSeed outermost state Pt: "<<t.globalMomentum().perp();
+    LogDebug("")<<" ElectronSeed supercluster Et: "<<theClus->energy()*sin(2.*atan(exp(-theClus->position().eta())));
+    LogDebug("")<<" ElectronSeed outermost momentum direction eta: "<<t.globalMomentum().eta();
+    LogDebug("")<<" ElectronSeed supercluster eta: "<<theClus->position().eta();
+    LogDebug("")<<" ElectronSeed seed charge: "<<(*MyS).getCharge();
+    LogDebug("")<<" ElectronSeed E/p: "<<theClus->energy()/t.globalMomentum().mag();
 
     // retreive SC and compute distances between hit position and prediction the same
     // way as in the PixelHitMatcher
@@ -479,8 +462,8 @@ ElectronPixelSeedAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& i
       double seedOkRatio = 999999.;
 
       // find best matched seed
-      reco::ElectronPixelSeed bestElectronSeed;
-      for( ElectronPixelSeedCollection::const_iterator gsfIter= (*elSeeds).begin(); gsfIter != (*elSeeds).end(); ++gsfIter) {
+      reco::ElectronSeed bestElectronSeed;
+      for( ElectronSeedCollection::const_iterator gsfIter= (*elSeeds).begin(); gsfIter != (*elSeeds).end(); ++gsfIter) {
 
     range r=gsfIter->recHits();
     const GeomDet *det=0;
