@@ -31,11 +31,11 @@ void LikelihoodPdfDBReader::analyze( const edm::Event& e, const edm::EventSetup&
   for( ; histo != likelihoodPdf->histograms.end(); ++histo, ++name, ++xBins, ++yBins ) {
     int nBinsX = *xBins;
     int nBinsY = *yBins;
-    cout<< "nBinsX = " << nBinsX << ", nBinsY = " << nBinsY <<endl;
+    cout << *name << ": nBinsX = " << nBinsX << ", nBinsY = " << nBinsY << endl;
     for(int ix=0; ix<=nBinsX+1; ix++){
       for(int iy=0; iy<=nBinsY+1; iy++){
 
-        cout << *name << "("<<ix<<", "<<iy<<" ) = " << histo->binContent(ix, iy ) << endl;
+        // cout << "("<<ix<<", "<<iy<<" ) = " << histo->binContent(ix, iy ) << endl;
 
       }
     }

@@ -1,7 +1,7 @@
 /** See header file for a class description 
  *
- *  $Date: 2008/12/23 14:20:21 $
- *  $Revision: 1.18 $
+ *  $Date: 2009/01/08 17:04:00 $
+ *  $Revision: 1.19 $
  *  \author S. Bolognesi - INFN Torino / T. Dorigo, M.De Mattia - INFN Padova
  */
 // Some notes:
@@ -996,8 +996,8 @@ double MuScleFitUtils::massProb (double mass, double rapidity, double massResol,
 
   double PB = 0.;
   // Uncomment this two lines and comment all the next part (up to PStot excluded) to use the background functions defined in Functions.h
-  // ATTENTION: the functions depend strongly from the second size of the resHalfWidth[][3]. If it is changed, also the functions must be changed.
-  // Cannot call directly passing a double ** because of the declaration of directly as 2D array resHalfWidth[][]. Workaround needed.
+  // ATTENTION: the functions depend strongly on the second size of the resHalfWidth[][3]. If it is changed, the functions must be changed too.
+  // Cannot call directly passing a double ** because of the declaration of resHalfWidth[][] as 2D array. Workaround needed.
   // int resTotNum = 6;
   // PB = (*backgroundFunction)( &(parval[shift]), resTotNum, nres, resConsidered, ResMass, ResHalfWidth, MuonType, mass, nbins );
 

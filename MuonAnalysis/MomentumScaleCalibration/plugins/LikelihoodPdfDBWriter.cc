@@ -118,7 +118,7 @@ LikelihoodPdfDBWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& 
         // cout << "for calibHisto = " << calibHisto << " xBin = " << xBin << ", yBin = " << yBin << ", value = " << histo->GetBinContent(xBin,yBin) << endl;
         // calibHisto->setBinContent(xBin, yBin, histo->GetBinContent(xBin,yBin));
         pdfHisto.setBinContent(xBin, yBin, histo->GetBinContent(xBin,yBin));
-        cout << *histoName << "("<<xBin<<", "<<yBin<<" ) = " << histo->GetBinContent(xBin, yBin ) << endl;
+        // cout << *histoName << "("<<xBin<<", "<<yBin<<" ) = " << histo->GetBinContent(xBin, yBin ) << endl;
       }
     }
 
