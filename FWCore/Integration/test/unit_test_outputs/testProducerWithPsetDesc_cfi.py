@@ -117,6 +117,22 @@ testProducerWithPsetDesc = cms.EDProducer('ProducerWithPSetDesc',
     '10000:11000',
     '100000:110000'
   ),
+  lumiRangev1 = cms.LuminosityBlockRange('1:1-9:9'),
+  lumiRangev2 = cms.LuminosityBlockRange('3:4-1000:1000'),
+  vLumiRangev1 = cms.VLuminosityBlockRange(),
+  vLumiRangev2 = cms.VLuminosityBlockRange('1:1-9:9'),
+  vLumiRangev3 = cms.VLuminosityBlockRange(
+    '1:1-9:9',
+    '3:4-1000:1000'
+  ),
+  eventRangev1 = cms.EventRange('1:1-8:8'),
+  eventRangev2 = cms.EventRange('3:4-1001:1002'),
+  vEventRangev1 = cms.VEventRange(),
+  vEventRangev2 = cms.VEventRange('1:1-8:8'),
+  vEventRangev3 = cms.VEventRange(
+    '1:1-8:8',
+    '3:4-1001:1002'
+  ),
   inputTagv1 = cms.InputTag('One', 'Two', 'Three'),
   inputTagv2 = cms.InputTag('One', 'Two'),
   inputTagv3 = cms.InputTag('One'),

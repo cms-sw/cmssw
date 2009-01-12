@@ -22,7 +22,7 @@ namespace edmtest {
     produces<ThingCollection>();
   }
 
-  ProducerWithPSetDesc::~ProducerWithPSetDesc() { } 
+  ProducerWithPSetDesc::~ProducerWithPSetDesc() { }
 
   void ProducerWithPSetDesc::produce(edm::Event& e, edm::EventSetup const&) {
     // This serves no purpose, I just put it here so the module does something
@@ -32,7 +32,7 @@ namespace edmtest {
     e.put(result);
   }
 
-  void 
+  void
   ProducerWithPSetDesc::
   fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
 
@@ -165,6 +165,30 @@ namespace edmtest {
     vLuminosityBlockID.push_back(luminosityID5);
     iDesc.add<std::vector<edm::LuminosityBlockID> >("vLuminosityBlockIDv4", vLuminosityBlockID);
 
+    edm::LuminosityBlockRange lumiRange(1,1, 9,9);
+    iDesc.add<edm::LuminosityBlockRange>("lumiRangev1", lumiRange);
+    edm::LuminosityBlockRange lumiRange2(3,4, 1000,1000);
+    iDesc.add<edm::LuminosityBlockRange>("lumiRangev2", lumiRange2);
+
+    std::vector<edm::LuminosityBlockRange> vLumiRange;
+    iDesc.add<std::vector<edm::LuminosityBlockRange> >("vLumiRangev1", vLumiRange);
+    vLumiRange.push_back(lumiRange);
+    iDesc.add<std::vector<edm::LuminosityBlockRange> >("vLumiRangev2", vLumiRange);
+    vLumiRange.push_back(lumiRange2);
+    iDesc.add<std::vector<edm::LuminosityBlockRange> >("vLumiRangev3", vLumiRange);
+
+    edm::EventRange eventRange(1,1, 8,8);
+    iDesc.add<edm::EventRange>("eventRangev1", eventRange);
+    edm::EventRange eventRange2(3,4, 1001,1002);
+    iDesc.add<edm::EventRange>("eventRangev2", eventRange2);
+
+    std::vector<edm::EventRange> vEventRange;
+    iDesc.add<std::vector<edm::EventRange> >("vEventRangev1", vEventRange);
+    vEventRange.push_back(eventRange);
+    iDesc.add<std::vector<edm::EventRange> >("vEventRangev2", vEventRange);
+    vEventRange.push_back(eventRange2);
+    iDesc.add<std::vector<edm::EventRange> >("vEventRangev3", vEventRange);
+
     edm::InputTag inputTag("One", "Two", "Three");
     iDesc.add<edm::InputTag>("inputTagv1", inputTag);
     edm::InputTag inputTag2("One", "Two");
@@ -210,7 +234,7 @@ namespace edmtest {
     // Alternate way to add a ParameterSetDescription
     edm::ParameterDescription* parDescription;
     parDescription = iDesc.addOptional("subpset", edm::ParameterSetDescription());
-    edm::ParameterSetDescription* subPsetDescription = 
+    edm::ParameterSetDescription* subPsetDescription =
       parDescription->parameterSetDescription();
 
     subPsetDescription->add<int>("xvalue", 11);
@@ -221,4 +245,4 @@ namespace edmtest {
 }
 using edmtest::ProducerWithPSetDesc;
 DEFINE_FWK_MODULE(ProducerWithPSetDesc);
- 
+
