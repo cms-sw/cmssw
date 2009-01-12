@@ -18,7 +18,7 @@ import FWCore.ParameterSet.Config as cms
 RecoEgammaFEVT = cms.PSet(
     outputCommands = cms.untracked.vstring('keep *_pixelMatchGsfElectrons_*_*', 
         'keep *_pixelMatchGsfFit_*_*', 
-        'keep *_electronPixelSeeds_*_*',
+        'keep *_ecalDrivenElectronSeeds_*_*',
         'keep *_eidRobustLoose_*_*',
         'keep *_eidRobustTight_*_*',
         'keep *_eidRobustHighEnergy_*_*',
@@ -48,7 +48,7 @@ RecoEgammaRECO = cms.PSet(
         'keep recoGsfTrackExtras_pixelMatchGsfFit_*_*', 
         'keep recoTrackExtras_pixelMatchGsfFit_*_*', 
         'keep TrackingRecHitsOwned_pixelMatchGsfFit_*_*', 
-        'keep recoElectronPixelSeeds_electronPixelSeeds_*_*',
+        'keep recoElectronSeeds_ecalDrivenElectronSeeds_*_*',
         'keep floatedmValueMap_eidRobustLoose_*_*',
         'keep floatedmValueMap_eidRobustTight_*_*',
         'keep floatedmValueMap_eidRobustHighEnergy_*_*',

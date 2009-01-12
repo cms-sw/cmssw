@@ -10,24 +10,24 @@
   <td>U.Berthon</td>
 </tr>
 <tr>
-  <td><a href="classreco_1_1ElectronPixelSeed.html">reco::ElectronPixelSeed</a></td>
-  <td><a href="DataFormats_EgammaReco.html">reco::ElectronPixelSeedCollection</a></td>
-  <td><a href="RecoEgamma_Configuration.html">electronPixelSeeds</a></td>
+  <td><a href="classreco_1_1ElectronSeed.html">reco::ElectronSeed</a></td>
+  <td><a href="DataFormats_EgammaReco.html">reco::ElectronSeedCollection</a></td>
+  <td><a href="RecoEgamma_Configuration.html">ecalDrivenElectronSeeds</a></td>
   <td class="description">Trajectory seeds from electron pixel-matching</td>
   <td>U.Berthon</td>
 </tr>
 <tr>
   <td><a href="classreco_1_1SeedSuperClusterAssociation.html">reco::SeedSuperClusterAssociation</a></td>
   <td><a href="DataFormats_EgammaReco.html">reco::SeedSuperClusterAssociationCollection</a></td>
-  <td><a href="RecoEgamma_Configuration.html">electronPixelSeeds</a><i> : correctedHybridSuperClusters</i></td>
-  <td class="description">Association map between ElectronPixelSeeds and SuperClusters (barrel)</td>
+  <td><a href="RecoEgamma_Configuration.html">ecalDrivenElectronSeeds</a><i> : correctedHybridSuperClusters</i></td>
+  <td class="description">Association map between ElectronSeeds and SuperClusters (barrel)</td>
   <td>U.Berthon</td>
 </tr>
 <tr>
   <td><a href="classreco_1_1SeedSuperClusterAssociation.html">reco::SeedSuperClusterAssociation</a></td>
   <td><a href="DataFormats_EgammaReco.html">reco::SeedSuperClusterAssociationCollection</a></td>
-  <td><a href="RecoEgamma_Configuration.html">electronPixelSeeds</a><i> : correctedEndcapSuperClustersWithPreshower</i></td>
-  <td class="description">Association map between ElectronPixelSeeds and SuperClusters (endcap)</td>
+  <td><a href="RecoEgamma_Configuration.html">ecalDrivenElectronSeeds</a><i> : correctedEndcapSuperClustersWithPreshower</i></td>
+  <td class="description">Association map between ElectronSeeds and SuperClusters (endcap)</td>
   <td>U.Berthon</td>
 </tr>
 <tr>
