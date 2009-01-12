@@ -2,12 +2,12 @@
 #define GsfElectron_h
 /** \class reco::Electron
  *
- * An Electron with GsfTrack seeded from an ElectronPixelSeed
+ * An Electron with GsfTrack seeded from an ElectronSeed
  * adapted from the TRecElectron class in ORCA
  *
  * \author U.Berthon, ClaudeCharlot, LLR
  *
- * \version $Id: GsfElectron.h,v 1.17 2008/12/13 08:44:53 charlot Exp $
+ * \version $Id: GsfElectron.h,v 1.18 2008/12/15 19:49:56 nancy Exp $
  *
  */
 
@@ -26,6 +26,9 @@
 // Ursula Berthon - LLR Ecole polytechnique
 //
 // $Log: GsfElectron.h,v $
+// Revision 1.18  2008/12/15 19:49:56  nancy
+// Move a variable to avoid warning about initialization order
+//
 // Revision 1.17  2008/12/13 08:44:53  charlot
 // using isolation scheme for H/E
 //
