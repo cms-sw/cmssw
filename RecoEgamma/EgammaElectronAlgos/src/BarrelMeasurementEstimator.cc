@@ -3,7 +3,7 @@
 // Package:    EgammaElectronAlgos
 // Class:      BarrelMeasurementEstimator
 // 
-/**\class ElectronPixelSeedProducer EgammaElectronAlgos/BarrelMeasurementEstimator
+/**\class ElectronSeedProducer EgammaElectronAlgos/BarrelMeasurementEstimator
 
  Description: MeasurementEstimator for Pixel Barrel, ported from ORCA
 
@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: BarrelMeasurementEstimator.cc,v 1.11 2008/04/08 16:39:15 uberthon Exp $
+// $Id: BarrelMeasurementEstimator.cc,v 1.12 2008/04/12 22:33:58 charlot Exp $
 //
 //
 

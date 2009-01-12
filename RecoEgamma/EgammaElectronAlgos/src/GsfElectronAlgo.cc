@@ -25,8 +25,8 @@
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaTowerIsolation.h"
 
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
-#include "DataFormats/EgammaReco/interface/ElectronPixelSeed.h"
-#include "DataFormats/EgammaReco/interface/ElectronPixelSeedFwd.h"
+#include "DataFormats/EgammaReco/interface/ElectronSeed.h"
+#include "DataFormats/EgammaReco/interface/ElectronSeedFwd.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidate.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
@@ -102,7 +102,7 @@ GsfElectronAlgo::GsfElectronAlgo
   mtsTransform_ = new MultiTrajectoryStateTransform ;
   geomPropBw_ = 0 ;
   geomPropFw_ = 0 ;
-  
+
   // get nested parameter set for the TransientInitialStateEstimator
   ParameterSet tise_params = conf.getParameter<ParameterSet>("TransientInitialStateEstimatorParameters") ;
 
@@ -214,7 +214,7 @@ void  GsfElectronAlgo::run(Event& e, GsfElectronCollection & outEle) {
     for ( GsfElectronPtrCollection::const_iterator it = tempEle.begin() ; it != tempEle.end() ; it++ )
      { outEle.push_back(**it) ; }
    }
-  
+
   return;
 }
 
@@ -228,8 +228,8 @@ void GsfElectronAlgo::process(
   GsfElectronPtrCollection & outEle )
  {
   // HCAL iso deposits
-  EgammaTowerIsolation towerIso1(hOverEConeSize_,0.,hOverEPtMin_,1,towersH.product()) ;  
-  EgammaTowerIsolation towerIso2(hOverEConeSize_,0.,hOverEPtMin_,2,towersH.product()) ;  
+  EgammaTowerIsolation towerIso1(hOverEConeSize_,0.,hOverEPtMin_,1,towersH.product()) ;
+  EgammaTowerIsolation towerIso2(hOverEConeSize_,0.,hOverEPtMin_,2,towersH.product()) ;
 
   const GsfTrackCollection * gsfTrackCollection = gsfTracksH.product() ;
   for (unsigned int i=0;i<gsfTrackCollection->size();++i) {
@@ -248,11 +248,11 @@ void GsfElectronAlgo::process(
     if (!calculateTSOS(t,theClus, bsPosition)) continue;
     vtxMom_=computeMode(vtxTSOS_);
     sclPos_=sclTSOS_.globalPosition();
-    
+
     // hadronic energy
     double HoE1=towerIso1.getTowerESum(&theClus)/theClus.energy();
     double HoE2=towerIso2.getTowerESum(&theClus)/theClus.energy();
-    
+
     if (preSelection(theClus, HoE1, HoE2))
      {
       pair<TrackRef,float> ctfpair = getCtfTrackRef(gsfTrackRef,ctfTracksH) ;
@@ -282,7 +282,7 @@ bool GsfElectronAlgo::preSelection(const SuperCluster& clus, double HoE1, double
   LogDebug("") << "HoE1 : " << HoE1 << "HoE2 : " << HoE2;
   if ( HoE1 > maxHOverEDepth1_ || HoE2 > maxHOverEDepth2_ ) return false;
   LogDebug("") << "H/E criteria is satisfied ";
-  
+
   // delta eta criteria
   double etaclu = clus.eta();
   double etatrk = sclPos_.eta();
@@ -412,22 +412,21 @@ void GsfElectronAlgo::createElectron
 
 const SuperClusterRef GsfElectronAlgo::getTrSuperCluster(const GsfTrackRef & trackRef) {
     edm::RefToBase<TrajectorySeed> seed = trackRef->extra()->seedRef();
-    ElectronPixelSeedRef elseed=seed.castTo<ElectronPixelSeedRef>();
-    return elseed->superCluster();
+    ElectronSeedRef elseed=seed.castTo<ElectronSeedRef>();
+    edm::RefToBase<CaloCluster> caloCluster = elseed->caloCluster() ;
+    return caloCluster.castTo<SuperClusterRef>() ;
 }
 
 const BasicClusterRef GsfElectronAlgo::getEleBasicCluster(const GsfTrackRef &t, const SuperClusterRef & scRef) {
-    
+
     BasicClusterRef eleRef;
     TrajectoryStateOnSurface tempTSOS;
     TrajectoryStateOnSurface outTSOS
       = mtsTransform_->outerStateOnSurface(*t, *(trackerHandle_.product()), theMagField.product());
-    GlobalPoint posclu(scRef->x(),scRef->y(),scRef->z());
     float dphimin = 1.e30;
     for (basicCluster_iterator bc=scRef->clustersBegin(); bc!=scRef->clustersEnd(); bc++) {
       GlobalPoint posclu((*bc)->position().x(),(*bc)->position().y(),(*bc)->position().z());
-      tempTSOS
-        = TransverseImpactPointExtrapolator(*geomPropFw_).extrapolate(outTSOS,GlobalPoint((*bc)->position().x(),(*bc)->position().y(),(*bc)->position().z()));
+      tempTSOS = TransverseImpactPointExtrapolator(*geomPropFw_).extrapolate(outTSOS,posclu) ;
       if (!tempTSOS.isValid()) tempTSOS=outTSOS;
       GlobalPoint extrap = tempTSOS.globalPosition();
       float dphi = posclu.phi() - extrap.phi();

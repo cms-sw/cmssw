@@ -5,7 +5,7 @@
 // Package:    EgammaElectronAlgos
 // Class:      BarrelMeasurementEstimator
 // 
-/**\class ElectronPixelSeedProducer EgammaElectronAlgos/BarrelMeasurementEstimator
+/**\class ElectronSeedProducer EgammaElectronAlgos/BarrelMeasurementEstimator
 
  Description: MeasurementEstimator for Pixel Barrel, ported from ORCA
  Class defining the search area in the barrel in the pixel match
@@ -15,7 +15,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: BarrelMeasurementEstimator.h,v 1.9 2008/04/08 16:39:14 uberthon Exp $
+// $Id: BarrelMeasurementEstimator.h,v 1.10 2008/04/12 22:33:57 charlot Exp $
 //
 //
 

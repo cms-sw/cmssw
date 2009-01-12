@@ -1,12 +1,12 @@
 // -*- C++ -*-
 //
 // Package:    EgammaElectronAlgos
-// Class:      ElectronSiStripSeedGenerator.
-// 
-/**\class ElectronSiStripSeedGenerator EgammaElectronAlgos/ElectronSiStripSeedGenerator
- 
+// Class:      SiStripElectronSeedGenerator.
+//
+/**\class SiStripElectronSeedGenerator EgammaElectronAlgos/SiStripElectronSeedGenerator
+
 Description: SiStrip-driven electron seed finding algorithm.
- 
+
 */
 //
 //
@@ -17,8 +17,8 @@ Description: SiStrip-driven electron seed finding algorithm.
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/Common/interface/Handle.h"
 
-#include "DataFormats/EgammaReco/interface/ElectronPixelSeedFwd.h" 
-#include "DataFormats/EgammaReco/interface/ElectronPixelSeed.h"  
+#include "DataFormats/EgammaReco/interface/ElectronSeedFwd.h"
+#include "DataFormats/EgammaReco/interface/ElectronSeed.h"
 
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 
@@ -54,9 +54,9 @@ Description: SiStrip-driven electron seed finding algorithm.
 
 #include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
 
-#include "RecoEgamma/EgammaElectronAlgos/interface/ElectronSiStripSeedGenerator.h" 
+#include "RecoEgamma/EgammaElectronAlgos/interface/SiStripElectronSeedGenerator.h"
 
-ElectronSiStripSeedGenerator::ElectronSiStripSeedGenerator()
+SiStripElectronSeedGenerator::SiStripElectronSeedGenerator()
   :theUpdator(0),
    thePropagator(0),
    theSetup(0),
@@ -67,54 +67,54 @@ ElectronSiStripSeedGenerator::ElectronSiStripSeedGenerator()
 }
 
 
-ElectronSiStripSeedGenerator::~ElectronSiStripSeedGenerator() {
-	
+SiStripElectronSeedGenerator::~SiStripElectronSeedGenerator() {
+
   delete thePropagator;
   delete theUpdator;
-	
+
 }
 
 
-void ElectronSiStripSeedGenerator::setupES(const edm::EventSetup& setup, const edm::ParameterSet &conf) {
+void SiStripElectronSeedGenerator::setupES(const edm::EventSetup& setup, const edm::ParameterSet &conf) {
   using namespace edm;
-	
+
   theSetup= &setup;
-	
+
   setup.get<IdealMagneticFieldRecord>().get(theMagField);
 
   measurementTrackerName_ = "";
-  
+
   theUpdator = new KFUpdator();
   thePropagator = new PropagatorWithMaterial(alongMomentum,.1057,&(*theMagField));
   theEstimator = new Chi2MeasurementEstimator(30,3);
-    
+
   setup.get<TrackerDigiGeometryRecord>().get(trackerHandle);
 
   setup.get<CkfComponentsRecord>().get(measurementTrackerName_,measurementTrackerHandle);
-  
+
 }
 
-void  ElectronSiStripSeedGenerator::run(edm::Event& e,
+void  SiStripElectronSeedGenerator::run(edm::Event& e,
 					const edm::Handle<reco::SuperClusterCollection> &clusters,
-					reco::ElectronPixelSeedCollection & out) {
+					reco::ElectronSeedCollection & out) {
   measurementTrackerHandle->update(e);
-	
+
   for  (unsigned int i=0;i<clusters->size();++i) {
     edm::Ref<reco::SuperClusterCollection> theClusB(clusters,i);
     // Find the seeds
     LogDebug ("run") << "new cluster, calling findSeedsFromCluster";
     findSeedsFromCluster(theClusB,out);
-  }       
-	
+  }
+
   LogDebug ("run") << ": For event "<<e.id();
   LogDebug ("run") <<"Nr of superclusters: "<<clusters->size()
-		   <<", no. of ElectronPixelSeeds found  = " << out.size();
+		   <<", no. of ElectronSeeds found  = " << out.size();
 }
 
 
 // Find seeds using a supercluster
-void ElectronSiStripSeedGenerator::findSeedsFromCluster( edm::Ref<reco::SuperClusterCollection> seedCluster,
-							 reco::ElectronPixelSeedCollection & result) {
+void SiStripElectronSeedGenerator::findSeedsFromCluster( edm::Ref<reco::SuperClusterCollection> seedCluster,
+							 reco::ElectronSeedCollection & result) {
 
   // clear the member vectors of good hits
   layer1Hits_.clear();
@@ -122,16 +122,16 @@ void ElectronSiStripSeedGenerator::findSeedsFromCluster( edm::Ref<reco::SuperClu
   backupLayer2Hits_.clear();
 
   using namespace std;
-	
+
   double sCenergy = seedCluster->energy();
   math::XYZPoint sCposition = seedCluster->position();
   double scEta = seedCluster->eta();
-  
+
   double scz = sCposition.z();
   double scr = sqrt(pow(sCposition.x(),2)+pow(sCposition.y(),2));
-  
-  double pT = sCenergy * seedCluster->position().rho()/sqrt(seedCluster->x()*seedCluster->x()+seedCluster->y()*seedCluster->y()+seedCluster->z()*seedCluster->z());	
-    
+
+  double pT = sCenergy * seedCluster->position().rho()/sqrt(seedCluster->x()*seedCluster->x()+seedCluster->y()*seedCluster->y()+seedCluster->z()*seedCluster->z());
+
   double magneticField = 4.0;
 
   // cf Jackson p. 581-2, a little geometry
@@ -213,7 +213,7 @@ void ElectronSiStripSeedGenerator::findSeedsFromCluster( edm::Ref<reco::SuperClu
   bool hasLay1Hit = false;
   bool hasLay2Hit = false;
   bool hasBackupHit = false;
-  
+
   LayerMeasurements layerMeasurements(measurementTrackerHandle.product());
 
   std::vector<TrajectoryMeasurement> tib1measurements;
@@ -236,7 +236,7 @@ void ElectronSiStripSeedGenerator::findSeedsFromCluster( edm::Ref<reco::SuperClu
       }
     }
   }
-    
+
   for(std::vector<TrajectoryMeasurement>::const_iterator tmIter = tib2measurements.begin(); tmIter != tib2measurements.end(); ++ tmIter){
     ConstRecHitPointer hit = tmIter->recHit();
     const SiStripMatchedRecHit2D* matchedHit = matchedHitConverter(hit);
@@ -344,7 +344,7 @@ void ElectronSiStripSeedGenerator::findSeedsFromCluster( edm::Ref<reco::SuperClu
   std::vector<TrajectoryMeasurement> tec2measurements;
   if(useDL.at(6)) tec2measurements = layerMeasurements.measurements(*tec2,initialTSOS,*thePropagator,*theEstimator);
   std::vector<TrajectoryMeasurement> tec3measurements;
-  if(useDL.at(7)) tec3measurements = layerMeasurements.measurements(*tec3,initialTSOS,*thePropagator,*theEstimator); 
+  if(useDL.at(7)) tec3measurements = layerMeasurements.measurements(*tec3,initialTSOS,*thePropagator,*theEstimator);
 
   for(std::vector<TrajectoryMeasurement>::const_iterator tmIter = tec1measurements.begin(); tmIter != tec1measurements.end(); ++ tmIter){
     if(tec1MHC < 2){
@@ -396,38 +396,40 @@ void ElectronSiStripSeedGenerator::findSeedsFromCluster( edm::Ref<reco::SuperClu
   }
 
   // We have 2 arrays of hits, combine them to form seeds
-  if( hasLay1Hit && hasLay2Hit ){	
-      
-    for (std::vector<const SiStripMatchedRecHit2D*>::const_iterator hit1 = layer1Hits_.begin() ; hit1!= layer1Hits_.end(); ++hit1) { 	    
-      for (std::vector<const SiStripMatchedRecHit2D*>::const_iterator hit2 = layer2Hits_.begin() ; hit2!= layer2Hits_.end(); ++hit2) { 
+  if( hasLay1Hit && hasLay2Hit ){
+
+    for (std::vector<const SiStripMatchedRecHit2D*>::const_iterator hit1 = layer1Hits_.begin() ; hit1!= layer1Hits_.end(); ++hit1) {
+      for (std::vector<const SiStripMatchedRecHit2D*>::const_iterator hit2 = layer2Hits_.begin() ; hit2!= layer2Hits_.end(); ++hit2) {
 
 	if(seedCounter < 5){
-	  
+
 	  if(checkHitsAndTSOS(hit1,hit2,scr,scz,pT,scEta)) {
 
 	    seedCounter++;
 
 	    recHits_.clear();
-	  
+
 	    SiStripMatchedRecHit2D *hit;
 	    hit=new SiStripMatchedRecHit2D(*(dynamic_cast <const SiStripMatchedRecHit2D *> (*hit1) ) );
 	    recHits_.push_back(hit);
 	    hit=new SiStripMatchedRecHit2D(*(dynamic_cast <const SiStripMatchedRecHit2D *> (*hit2) ) );
 	    recHits_.push_back(hit);
-	    
-	    PropagationDirection dir = alongMomentum;	    
-	  
-	    result.push_back( reco::ElectronPixelSeed (seedCluster,*pts_,recHits_,dir) );
-	    
+
+	    PropagationDirection dir = alongMomentum;
+        reco::ElectronSeed seed(*pts_,recHits_,dir) ;
+        reco::ElectronSeed::CaloClusterRef caloCluster(seedCluster) ;
+        seed.setCaloCluster(caloCluster) ;
+	    result.push_back(seed);
+
 	    delete pts_;
 	    pts_=0;
-	  }	 
+	  }
 
-	} 
-      
+	}
+
       }// end of hit 2 loop
-    
-    }// end of hit 1 loop 
+
+    }// end of hit 1 loop
 
   }//end of seed making
 
@@ -439,7 +441,7 @@ void ElectronSiStripSeedGenerator::findSeedsFromCluster( edm::Ref<reco::SuperClu
       for (std::vector<const SiStripRecHit2D*>::const_iterator hit2 = backupLayer2Hits_.begin() ; hit2!= backupLayer2Hits_.end(); ++hit2) {
 
 	if(seedCounter < 5){
-	  
+
 	  if(altCheckHitsAndTSOS(hit1,hit2,scr,scz,pT,scEta)) {
 
 	    seedCounter++;
@@ -452,28 +454,30 @@ void ElectronSiStripSeedGenerator::findSeedsFromCluster( edm::Ref<reco::SuperClu
 	    SiStripRecHit2D *outerHit;
 	    outerHit=new SiStripRecHit2D(*(dynamic_cast <const SiStripRecHit2D *> (*hit2) ) );
 	    recHits_.push_back(outerHit);
-	  
-	    PropagationDirection dir = alongMomentum;	    
-	  
-	    result.push_back( reco::ElectronPixelSeed (seedCluster,*pts_,recHits_,dir) );
-	    
+
+	    PropagationDirection dir = alongMomentum;
+        reco::ElectronSeed seed(*pts_,recHits_,dir) ;
+        reco::ElectronSeed::CaloClusterRef caloCluster(seedCluster) ;
+        seed.setCaloCluster(caloCluster) ;
+	    result.push_back(seed);
+
 	    delete pts_;
 	    pts_=0;
-	  }	 
+	  }
 
-	} 
-	
+	}
+
       }// end of hit 2 loop
 
     }// end of hit 1 loop
 
   }// end of backup seed making
-  
+
 } // end of findSeedsFromCluster
 
 
-	
-bool ElectronSiStripSeedGenerator::checkHitsAndTSOS(std::vector<const SiStripMatchedRecHit2D*>::const_iterator hit1,
+
+bool SiStripElectronSeedGenerator::checkHitsAndTSOS(std::vector<const SiStripMatchedRecHit2D*>::const_iterator hit1,
 						    std::vector<const SiStripMatchedRecHit2D*>::const_iterator hit2,
 						    double rc,double zc,double pT,double scEta) {
 
@@ -496,27 +500,27 @@ bool ElectronSiStripSeedGenerator::checkHitsAndTSOS(std::vector<const SiStripMat
   double phi2 = hit2Pos.phi();
   double z2 = hit2Pos.z();
 
-  if(r2 > r1 && (fabs(z2) > fabs(z1) || fabs(scEta) < 0.25)) {	
-			
+  if(r2 > r1 && (fabs(z2) > fabs(z1) || fabs(scEta) < 0.25)) {
+
     //Consider the circle made of IP and Hit 1; Calculate it's radius using pT
-			
+
     double curv = pT*100/1.2;
-			
-    //Predict phi of hit 2	      
+
+    //Predict phi of hit 2
     double a = (r2-r1)/(2*curv);
     double b = phiDiff(phi2,phi1);
     //UB added '=0' to avoid compiler warning
     double phiMissHit2=0;
     if(fabs(b - a)<fabs(b + a)) phiMissHit2 = b - a;
-    if(fabs(b - a)>fabs(b + a)) phiMissHit2 = b + a;			      
-	      
+    if(fabs(b - a)>fabs(b + a)) phiMissHit2 = b + a;
+
     double zMissHit2 = z2 - (r2*(zc-z1)-r1*zc+rc*z1)/(rc-r1);
 
     double rPredHit2 = r1 + (rc-r1)/(zc-z1)*(z2-z1);
     double rMissHit2 = r2 - rPredHit2;
 
     int subdetector = whichSubdetector(hit2);
-    
+
     if(subdetector == 1){
       phiCut = .006;
     }else if(subdetector == 2){
@@ -543,22 +547,22 @@ bool ElectronSiStripSeedGenerator::checkHitsAndTSOS(std::vector<const SiStripMat
       if(r1 > 23 && r1 < 32 && r2 > 26 && r2 < 42) tecExtraCut = 1;
       if(fabs(phiMissHit2) < phiCut && fabs(rMissHit2) < rCut && tecExtraCut == 1 && zDiff) seedCutsSatisfied = true;
     }
-    
+
   }
 
   if(!seedCutsSatisfied) return false;
-	
+
   // seed checks borrowed from pixel-based algoritm
-	
+
   pts_=0;
-		
+
   /* Some of this code could be better optimized.  The Pixel algorithm natively
      takes Transient rec hits, so to recycle code we have to build them.
   */
 
   RecHitPointer hit1Trans = TSiStripMatchedRecHit::build(trackerHandle->idToDet((*hit1)->geographicalId()), *hit1, theMatcher_);
   RecHitPointer hit2Trans = TSiStripMatchedRecHit::build(trackerHandle->idToDet((*hit2)->geographicalId()), *hit2, theMatcher_);
-		
+
   typedef TrajectoryStateOnSurface TSOS;
 
   double vertexZ = z1 - (r1 * (zc - z1) ) / (rc - r1);
@@ -567,13 +571,13 @@ bool ElectronSiStripSeedGenerator::checkHitsAndTSOS(std::vector<const SiStripMat
   // make a spiral
   FastHelix helix(hit2Pos,hit1Pos,eleVertex,*theSetup);
   if (!helix.isValid()) return false;
-  
+
   FreeTrajectoryState fts = helix.stateAtVertex();
   TSOS propagatedState = thePropagator->propagate(fts,hit1Trans->det()->surface());
 
   if (!propagatedState.isValid()) return false;
 
-  TSOS updatedState = theUpdator->update(propagatedState, *hit1Trans);		
+  TSOS updatedState = theUpdator->update(propagatedState, *hit1Trans);
   TSOS propagatedState_out = thePropagator->propagate(fts,hit2Trans->det()->surface()) ;
 
   if (!propagatedState_out.isValid()) return false;
@@ -583,11 +587,11 @@ bool ElectronSiStripSeedGenerator::checkHitsAndTSOS(std::vector<const SiStripMat
   TSOS updatedState_out = theUpdator->update(propagatedState_out, *hit2Trans);
 
   pts_ =  transformer_.persistentState(updatedState_out, hit2Trans->geographicalId().rawId());
-		
+
   return true;
 }
 
-bool ElectronSiStripSeedGenerator::altCheckHitsAndTSOS(std::vector<const SiStripMatchedRecHit2D*>::const_iterator hit1,
+bool SiStripElectronSeedGenerator::altCheckHitsAndTSOS(std::vector<const SiStripMatchedRecHit2D*>::const_iterator hit1,
 						       std::vector<const SiStripRecHit2D*>::const_iterator hit2,
 						       double rc,double zc,double pT,double scEta) {
 
@@ -605,36 +609,36 @@ bool ElectronSiStripSeedGenerator::altCheckHitsAndTSOS(std::vector<const SiStrip
   double phi2 = hit2Pos.phi();
   double z2 = hit2Pos.z();
 
-  if(r2 > r1 && fabs(z2) > fabs(z1)) {	
-			
+  if(r2 > r1 && fabs(z2) > fabs(z1)) {
+
     //Consider the circle made of IP and Hit 1; Calculate it's radius using pT
-			
+
     double curv = pT*100/1.2;
-			
-    //Predict phi of hit 2	      
+
+    //Predict phi of hit 2
     double a = (r2-r1)/(2*curv);
     double b = phiDiff(phi2,phi1);
     double phiMissHit2 = 0;
     if(fabs(b - a)<fabs(b + a)) phiMissHit2 = b - a;
     if(fabs(b - a)>fabs(b + a)) phiMissHit2 = b + a;
-		      
+
     if(fabs(phiMissHit2) < .02) seedCutSatisfied = true;
 
   }
 
   if(!seedCutSatisfied) return false;
-	
+
   // seed checks borrowed from pixel-based algoritm
-	
+
   pts_=0;
-		
+
   /* Some of this code could be better optimized.  The Pixel algorithm natively
      takes Transient rec hits, so to recycle code we have to build them.
   */
 
   RecHitPointer hit1Trans = TSiStripMatchedRecHit::build(trackerHandle->idToDet((*hit1)->geographicalId()), *hit1, theMatcher_);
   RecHitPointer hit2Trans = TSiStripMatchedRecHit::build(trackerHandle->idToDet((*hit2)->geographicalId()), *hit2, theMatcher_);
-		
+
   typedef TrajectoryStateOnSurface TSOS;
 
   double vertexZ = z1 - (r1 * (zc - z1) ) / (rc - r1);
@@ -643,13 +647,13 @@ bool ElectronSiStripSeedGenerator::altCheckHitsAndTSOS(std::vector<const SiStrip
   // make a spiral
   FastHelix helix(hit2Pos,hit1Pos,eleVertex,*theSetup);
   if (!helix.isValid()) return false;
-  
+
   FreeTrajectoryState fts = helix.stateAtVertex();
   TSOS propagatedState = thePropagator->propagate(fts,hit1Trans->det()->surface());
 
   if (!propagatedState.isValid()) return false;
 
-  TSOS updatedState = theUpdator->update(propagatedState, *hit1Trans);		
+  TSOS updatedState = theUpdator->update(propagatedState, *hit1Trans);
   TSOS propagatedState_out = thePropagator->propagate(fts,hit2Trans->det()->surface()) ;
 
   if (!propagatedState_out.isValid()) return false;
@@ -659,12 +663,12 @@ bool ElectronSiStripSeedGenerator::altCheckHitsAndTSOS(std::vector<const SiStrip
   TSOS updatedState_out = theUpdator->update(propagatedState_out, *hit2Trans);
 
   pts_ =  transformer_.persistentState(updatedState_out, hit2Trans->geographicalId().rawId());
-		
+
   return true;
 }
 
 
-bool ElectronSiStripSeedGenerator::preselection(GlobalPoint position,GlobalPoint superCluster,double phiVsRSlope){
+bool SiStripElectronSeedGenerator::preselection(GlobalPoint position,GlobalPoint superCluster,double phiVsRSlope){
   double r = position.perp();
   double phi = position.phi();
   double z = position.z();
@@ -688,7 +692,7 @@ bool ElectronSiStripSeedGenerator::preselection(GlobalPoint position,GlobalPoint
 
 // Helper algorithms
 
-int ElectronSiStripSeedGenerator::whichSubdetector(std::vector<const SiStripMatchedRecHit2D*>::const_iterator hit){
+int SiStripElectronSeedGenerator::whichSubdetector(std::vector<const SiStripMatchedRecHit2D*>::const_iterator hit){
   int result = 0;
   if(((*hit)->geographicalId()).subdetId() == StripSubdetector::TIB){
     result = 1;
@@ -700,19 +704,19 @@ int ElectronSiStripSeedGenerator::whichSubdetector(std::vector<const SiStripMatc
   return result;
 }
 
-const SiStripMatchedRecHit2D* ElectronSiStripSeedGenerator::matchedHitConverter(ConstRecHitPointer crhp){
+const SiStripMatchedRecHit2D* SiStripElectronSeedGenerator::matchedHitConverter(ConstRecHitPointer crhp){
   const TrackingRecHit* trh = crhp->hit();
   const SiStripMatchedRecHit2D* matchedHit = dynamic_cast<const SiStripMatchedRecHit2D*>(trh);
   return matchedHit;
 }
 
-const SiStripRecHit2D* ElectronSiStripSeedGenerator::backupHitConverter(ConstRecHitPointer crhp){
+const SiStripRecHit2D* SiStripElectronSeedGenerator::backupHitConverter(ConstRecHitPointer crhp){
   const TrackingRecHit* trh = crhp->hit();
   const SiStripRecHit2D* backupHit = dynamic_cast<const SiStripRecHit2D*>(trh);
   return backupHit;
 }
 
-std::vector<bool> ElectronSiStripSeedGenerator::useDetLayer(double scEta){
+std::vector<bool> SiStripElectronSeedGenerator::useDetLayer(double scEta){
   std::vector<bool> useDetLayer;
   double variable = fabs(scEta);
   if(variable > 0 && variable < 1.8){

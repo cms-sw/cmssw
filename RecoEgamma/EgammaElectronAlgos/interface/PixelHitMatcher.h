@@ -17,7 +17,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: PixelHitMatcher.h,v 1.20 2008/06/26 16:19:54 uberthon Exp $
+// $Id: PixelHitMatcher.h,v 1.21 2008/10/27 11:15:23 chamont Exp $
 //
 //
 
@@ -30,7 +30,7 @@
 #include "RecoEgamma/EgammaElectronAlgos/interface/FTSFromVertexToPointFactory.h"
 
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
-#include "DataFormats/EgammaReco/interface/ElectronPixelSeed.h" 
+#include "DataFormats/EgammaReco/interface/ElectronSeed.h" 
 
 #include "RecoTracker/TransientTrackingRecHit/interface/TSiPixelRecHit.h"
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
