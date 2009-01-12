@@ -1,12 +1,11 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("electrons")
-
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
-
 process.load("RecoEcal.Configuration.RecoEcal_cff")
+process.load("RecoEgamma.EgammaElectronProducers.pixelMatchGsfElectronSequence_cff")
 process.load("RecoLocalTracker.SiPixelRecHits.SiPixelRecHits_cfi")
 process.load("RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitConverter_cfi")
 process.load("RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitMatcher_cfi")
@@ -16,19 +15,20 @@ process.load("RecoLocalTracker.SiStripClusterizer.SiStripClusterizer_cfi")
 process.load("RecoLocalTracker.SiPixelClusterizer.SiPixelClusterizer_cfi")
 process.load("RecoLocalTracker.SiPixelRecHits.PixelCPEESProducers_cff")
 process.load("RecoTracker.TransientTrackingRecHit.TTRHBuilders_cff")
-process.load("RecoEgamma.EgammaElectronProducers.pixelMatchGsfElectronSequence_cff")
+
+process.maxEvents = cms.untracked.PSet(
+    input = cms.untracked.int32(10)
+)
 
 process.source = cms.Source("PoolSource",
     debugVerbosity = cms.untracked.uint32(1),
     debugFlag = cms.untracked.bool(True),
     fileNames = cms.untracked.vstring(
-       '/store/relval/CMSSW_3_0_0_pre2/RelValSingleElectronPt35/GEN-SIM-RECO/IDEAL_V9_v2/0001/081F51BD-6FB2-DD11-91C4-000423D94700.root',
-       '/store/relval/CMSSW_3_0_0_pre2/RelValSingleElectronPt35/GEN-SIM-RECO/IDEAL_V9_v2/0001/E2426349-1DB4-DD11-B4F7-001617DC1F70.root'
+     '/store/relval/CMSSW_2_1_10/RelValSingleElectronPt10/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/IDEAL_V9_v2/0000/26338BA9-5899-DD11-BD75-000423D985B0.root',
+     '/store/relval/CMSSW_2_1_10/RelValSingleElectronPt10/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/IDEAL_V9_v2/0000/6A430ADA-5999-DD11-994D-001617C3B5D8.root',
+     '/store/relval/CMSSW_2_1_10/RelValSingleElectronPt10/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/IDEAL_V9_v2/0000/F2E24023-5899-DD11-BFBF-000423D94A20.root',
+     '/store/relval/CMSSW_2_1_10/RelValSingleElectronPt10/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/IDEAL_V9_v2/0000/FE4A6F3F-FD99-DD11-9587-000423D98750.root'
     )
-)
-
-process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(-1)
 )
 
 process.out = cms.OutputModule("PoolOutputModule",
@@ -40,11 +40,8 @@ process.out = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('electrons.root')
 )
 
-process.Timing = cms.Service("Timing")
-
-process.p = cms.Path(process.siPixelRecHits*process.siStripMatchedRecHits*process.newSeedFromPairs*process.newSeedFromTriplets*process.newCombinedSeeds*process.ecalClusters*process.pixelMatchGsfElectronSequence)
-
+process.p = cms.Path(process.siPixelRecHits*process.siStripMatchedRecHits*process.newSeedFromPairs*process.newSeedFromTriplets*process.newCombinedSeeds*process.ecalClusters*process.ecalDrivenElectronSeeds)
 process.outpath = cms.EndPath(process.out)
-process.GlobalTag.globaltag = 'IDEAL_30X::All'
+process.GlobalTag.globaltag = 'IDEAL_V9::All'
 
 

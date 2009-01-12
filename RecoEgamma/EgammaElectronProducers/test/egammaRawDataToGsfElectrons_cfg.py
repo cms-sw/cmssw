@@ -16,15 +16,12 @@ process.source = cms.Source("PoolSource",
     debugVerbosity = cms.untracked.uint32(1),
     debugFlag = cms.untracked.bool(True),
     fileNames = cms.untracked.vstring(
-       '/store/relval/CMSSW_3_0_0_pre2/RelValSingleElectronPt35/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_V9_v2/0001/822A1F47-1DB4-DD11-A88F-001617C3B6E8.root',
-       '/store/relval/CMSSW_3_0_0_pre2/RelValSingleElectronPt35/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_V9_v2/0001/C8F991BE-6FB2-DD11-A8ED-000423D98F98.root',
-       '/store/relval/CMSSW_3_0_0_pre2/RelValSingleElectronPt35/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_V9_v2/0001/E228F0BC-6FB2-DD11-B920-000423D999CA.root',
-       '/store/relval/CMSSW_3_0_0_pre2/RelValSingleElectronPt35/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_V9_v2/0001/FC810FB2-6FB2-DD11-BC0C-001617DBD5B2.root'
+       'file:SingleElectronPt10Raw.root'
     )
 )
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(10)
+    input = cms.untracked.int32(-1)
 )
 
 process.out = cms.OutputModule("PoolOutputModule",
@@ -33,12 +30,14 @@ process.out = cms.OutputModule("PoolOutputModule",
         'keep *_iterativeCone5CaloJets_*_*', 
         'keep *_*_*_electrons', 
         'keep *HepMCProduct_*_*_*'),
-    fileName = cms.untracked.string('electrons.root')
+    fileName = cms.untracked.string('SingleElectronPt10.root')
 )
 
 process.Timing = cms.Service("Timing")
 
-process.p = cms.Path(process.RawToDigi*process.reconstruction*process.pixelMatchGsfElectronSequence)
+process.mylocalreco =  cms.Sequence(process.trackerlocalreco*process.calolocalreco)
+process.myglobalreco = cms.Sequence(process.offlineBeamSpot+process.recopixelvertexing*process.ckftracks+process.ecalClusters+process.caloTowersRec*process.vertexreco*process.pixelMatchGsfElectronSequence)
+process.p = cms.Path(process.RawToDigi*process.mylocalreco*process.myglobalreco)
 
 process.outpath = cms.EndPath(process.out)
 process.GlobalTag.globaltag = 'IDEAL_30X::All'
