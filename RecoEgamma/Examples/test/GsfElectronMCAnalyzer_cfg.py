@@ -1,5 +1,6 @@
 
 import sys
+import os
 sys.path.append('.')
 import dbs_discovery
 
@@ -13,7 +14,7 @@ process.maxEvents = cms.untracked.PSet(
 
 process.source = cms.Source ("PoolSource",
     fileNames = cms.untracked.vstring(),
-		secondaryFileNames = cms.untracked.vstring()
+	secondaryFileNames = cms.untracked.vstring()
 )
 
 process.source.fileNames.extend(dbs_discovery.search())
@@ -21,7 +22,7 @@ process.source.fileNames.extend(dbs_discovery.search())
 process.gsfElectronAnalysis = cms.EDAnalyzer("GsfElectronMCAnalyzer",
     electronCollection = cms.InputTag("pixelMatchGsfElectrons"),
     mcTruthCollection = cms.InputTag("source"),
-    outputFile = cms.string('gsfElectronHistos_mc.root'),
+    outputFile = cms.string(os.environ['TEST_OUTPUT_FILE']),
     MaxPt = cms.double(100.0),
     DeltaR = cms.double(0.05),
     MaxAbsEta = cms.double(2.5),

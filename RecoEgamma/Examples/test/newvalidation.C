@@ -64,37 +64,49 @@ while (histo_file>>histo_name>>scaled)
   canvas_name = std::string("c")+histo_name ;
   canvas = new TCanvas(canvas_name.c_str()) ;
   canvas->SetFillColor(10) ;
-	web_page<<"<br><h3>"<<histo_name<<"</h3>" ;
+  web_page<<"<br><h3>"<<histo_name<<"</h3>" ;
 	
-	if ( file_old != 0 )
-	 {
-  	histo_old = (TH1 *)file_old->Get(histo_name.c_str()) ;
-		if (histo_old!=0)
-		 {
-  	  histo_old->SetLineColor(4) ;
+  if ( file_old != 0 )
+   {
+	histo_old = (TH1 *)file_old->Get(histo_name.c_str()) ;
+    if (histo_old!=0)
+     {
+      histo_old->SetLineColor(4) ;
       histo_old->SetLineWidth(3) ;
       histo_old->Draw() ;
-		 }
-		else
-		 {
-	    web_page<<"<br>(no such histo for "<<val_ref_release<<")" ;
-		 }
-	 }
+     }
+    else
+     {
+      web_page<<"<br>(no such histo for "<<val_ref_release<<")" ;
+     }
+   }
 	
-	histo_new = (TH1 *)file_new->Get(histo_name.c_str()) ;
-  histo_new->SetLineColor(2) ;
-  histo_new->SetLineWidth(3) ;
+  histo_new = (TH1 *)file_new->Get(histo_name.c_str()) ;
+  if (histo_new!=0)
+   {
+    histo_new->SetLineColor(2) ;
+    histo_new->SetLineWidth(3) ;
 	if ((scaled==1)&&(file_old!=0)&&(histo_old!=0))
-   { histo_new->Scale(histo_old->GetEntries()/histo_new->GetEntries()) ; }
-  histo_new->Draw("same") ;
-
-  std::cout<<histo_name
-	  <<" has "<<histo_new->GetEffectiveEntries()<<" entries"
-	  <<" of mean value "<<histo_new->GetMean()
-		<<std::endl ;
-
-  canvas->SaveAs(gif_name.c_str()) ;
+     { histo_new->Scale(histo_old->GetEntries()/histo_new->GetEntries()) ; }
+    histo_new->Draw("same") ;
+    std::cout<<histo_name
+      <<" has "<<histo_new->GetEffectiveEntries()<<" entries"
+      <<" of mean value "<<histo_new->GetMean()
+      <<std::endl ;
+    canvas->SaveAs(gif_name.c_str()) ;
 	web_page<<"<br><p><img class=\"image\" width=\"500\" src=\""<<gif_name<<"\">\n" ;
+   }
+  else if ((file_old!=0)&&(histo_old!=0))
+   {
+    std::cout<<histo_name<<" NOT FOUND"<<std::endl ;
+    web_page<<"<br>(no such histo for "<<val_new_release<<")" ;
+    canvas->SaveAs(gif_name.c_str()) ;
+	web_page<<"<br><p><img class=\"image\" width=\"500\" src=\""<<gif_name<<"\">\n" ;
+   }
+  else
+   {
+    web_page<<"<br>(no such histo for "<<val_new_release<<")" ;
+   }
  }
 
 web_page<<"\n</html>"<<std::endl ;

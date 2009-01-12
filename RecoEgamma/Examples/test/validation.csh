@@ -71,7 +71,6 @@ cat > scaledhistos <<EOF
   h_scl_E1x5   
   h_scl_E2x5max   
   h_scl_E5x5   
-  h_scl_EoEtrue_endcaps   
   h_ele_EtaMnEtaTrue   
   h_ele_PhiMnPhiTrue 
   h_ele_vertexP 

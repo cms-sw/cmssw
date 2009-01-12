@@ -72,6 +72,21 @@ if (! -d $VAL_NEW_RELEASE) then
 endif
 cd $VAL_NEW_RELEASE
 
+if (! -d data) then
+  mkdir data
+endif
+if ( "${VAL_NEW_FILE}" != "" ) then
+  if ( -r "$VAL_NEW_FILE" ) then
+    cp -f $VAL_NEW_FILE data
+  endif
+endif
+if ( -e "${CURRENTDIR}/cmsRun.${VAL_ENV}.olog" ) then
+  cp -f ${CURRENTDIR}/cmsRun.${VAL_ENV}.olog data
+endif
+if ( -e "${CURRENTDIR}/dbs_discovery.py.${VAL_ENV}.olog" ) then
+  cp -f ${CURRENTDIR}/dbs_discovery.py.${VAL_ENV}.olog data
+endif
+
 if (! -d "vs${VAL_REF_RELEASE}") then
   mkdir "vs${VAL_REF_RELEASE}"
 endif
@@ -88,6 +103,7 @@ endif
 
 cp -f $CURRENTDIR/newvalidation.C .
 
+
 #============== Prepare the list of histograms ==================
 # The second argument is 1 if the histogram is scaled, 0 otherwise
 
@@ -99,6 +115,12 @@ h_ele_PoPtrue_barrel   1
 h_ele_PoPtrue_endcaps   1
 h_scl_EoEtrue_barrel   1
 h_scl_EoEtrue_endcaps   1
+h_scl_sigetaeta 1
+h_scl_sigietaieta_barrel 1
+h_scl_sigietaieta_endcaps 1
+h_scl_E1x5 1
+h_scl_E2x5max 1
+h_scl_E5x5 1
 h_ele_EtaMnEtaTrue   1
 h_ele_PhiMnPhiTrue 1
 h_ele_vertexP 1
@@ -113,8 +135,8 @@ h_ele_EoPout 1
 h_ele_EeleOPout 1
 h_ele_EseedOP 1
 h_ele_dEtaCl_propOut 1
-h_ele_dEtaCl_propOut 1
-h_ele_dEtaEleSc_propVtx 1
+h_ele_dEtaEleCl_propOut 1
+h_ele_dEtaSc_propVtx 1
 h_ele_dPhiCl_propOut 1
 h_ele_dPhiEleCl_propOut 1
 h_ele_dPhiSc_propVtx 1
@@ -122,10 +144,16 @@ h_ele_HoE 1
 h_ele_chi2 1
 h_ele_foundHits 1
 h_ele_lostHits 1
+h_ele_ambiguousTracks 1
 h_ele_PinMnPout_mode 1
+h_ele_fbrem 1
+h_ele_seedDphi2 1
+h_ele_seedDrz2 1
+h_ele_seedSubdet2 1
 h_ele_classes 1
 h_ele_charge 1
 h_ele_EoverP_all 1
+h_ele_mee_all 1
 h_recEleNum 1
 EOF
 
@@ -149,6 +177,10 @@ h_ele_HoEVsEta_pfx 	0
 h_ele_chi2VsEta_pfx 	0
 h_ele_foundHitsVsEta_pfx 	0
 h_ele_ambiguousTracksVsEta_pfx 0
+h_ele_seedDphi2VsEta_pfx 0
+h_ele_seedDphi2VsPt_pfx 0
+h_ele_seedDrz2VsEta_pfx 0
+h_ele_seedDrz2VsPt_pfx 0
 h_ele_fbremvsEtamean	0
 h_ele_fbremvsEtamode	0
 h_ele_eta_bbremFrac 	0
@@ -182,6 +214,7 @@ h_ele_chi2 	1
 h_ele_foundHits 	1
 h_ele_lostHits 	1
 h_ele_ambiguousTracks 1
+h_ele_fbrem 1
 h_ele_classes 	1
 h_ele_charge	1
 h_ele_mee_all	1

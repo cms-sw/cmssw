@@ -11,16 +11,16 @@ The DBS_* variables are configuration variables for dbs_discovery.py,
 which prepares and send a query to the Data Discovery web server,
 and receive as a result the corresponding list of input data files.
 
-<var name="DBS_RELEASE" value="CMSSW_3_0_0_pre2">
-<var name="DBS_LIKE" value="*IDEAL_V9_v2*-RECO">
+<var name="DBS_RELEASE" value="CMSSW_3_0_0_pre6">
+<var name="DBS_LIKE" value="*IDEAL_30X_v1*-RECO">
 
 The VAL_* variables are configuration variables for newvalidation.csh,
 which compares the histograms from two releases. newvalidation.csh relies
 on the ROOT script newvalidation.C.
 
-<var name="VAL_NEW_RELEASE" value="220IdealTestAmbiguity">
-<var name="VAL_REF_RELEASE" value="220pre1IDEAL">
-<!var name="VAL_REF_DIR" value="~uberthon/scratch0/electrons/CMSSW_2_1_9/src/RecoEgamma/Examples/test">
+<var name="VAL_NEW_RELEASE" value="300pre6IDEAL">
+<var name="VAL_REF_RELEASE" value="220IDEAL">
+<var name="VAL_REF_DIR" value="~chamont/w1/PreviousEgammaValidations/CMSSW_2_2_0/test">
 
 The tags below are defining whic are the output line sof reference, to be compared
 from one execution to another. Currently, for each TH1 histogram, we require a constant
@@ -42,7 +42,7 @@ touch with changes in data catalog structure.
 <environment name="Pt10">
   <var name="DBS_SAMPLE" value="RelValSingleElectronPt10">
   <var name="VAL_ANALYZER" value="GsfElectronMCAnalyzer">
-  <!var name="VAL_REF_FILE" value="${VAL_REF_DIR}/gsf-Pt10Ideal-ElectronHistos.root">
+  <var name="VAL_REF_FILE" value="${VAL_REF_DIR}/cmsRun.Pt10.olog.${TEST_OUTPUT_FILE}">
   <executable name="dbs_discovery.py">
   <executable name="cmsRun" args="${VAL_ANALYZER}_cfg.py">
   <executable name="newvalidation.csh" args="Pt10 ${TEST_OUTPUT_FILE}">
@@ -51,7 +51,7 @@ touch with changes in data catalog structure.
 <environment name="Pt35">
   <var name="DBS_SAMPLE" value="RelValSingleElectronPt35">
   <var name="VAL_ANALYZER" value="GsfElectronMCAnalyzer">
-  <!var name="VAL_REF_FILE" value="${VAL_REF_DIR}/gsf-Pt35Ideal-ElectronHistos.root">
+  <var name="VAL_REF_FILE" value="${VAL_REF_DIR}/cmsRun.Pt35.olog.${TEST_OUTPUT_FILE}">
   <executable name="dbs_discovery.py">
   <executable name="cmsRun" args="${VAL_ANALYZER}_cfg.py">
   <executable name="newvalidation.csh" args="Pt35 ${TEST_OUTPUT_FILE}">
@@ -60,15 +60,15 @@ touch with changes in data catalog structure.
 <environment name="Pt5-100">
   <var name="DBS_SAMPLE" value="RelValSingleElectronFlatPt5To100">
   <var name="VAL_ANALYZER" value="GsfElectronMCAnalyzer">
-  <executable name="dbs_discovery.py">
-  <executable name="cmsRun" args="${VAL_ANALYZER}_cfg.py">
-  <executable name="newvalidation.csh" args="Pt5-100 ${TEST_OUTPUT_FILE}">
+  <!executable name="dbs_discovery.py">
+  <!executable name="cmsRun" args="${VAL_ANALYZER}_cfg.py">
+  <!executable name="newvalidation.csh" args="Pt5-100 ${TEST_OUTPUT_FILE}">
 </environment>
 
 <environment name="QcdPt80-120">
   <var name="DBS_SAMPLE" value="RelValQCD_Pt_80_120">
-  <!var name="VAL_REF_FILE" value="~/scratch0/CMSSW_2_1_9/src/RecoEgamma/Examples/test/gsfElectronHistos_QCD_Pt_80_120.root">
   <var name="VAL_ANALYZER" value="GsfElectronFakeAnalyzer">
+  <var name="VAL_REF_FILE" value="${VAL_REF_DIR}/cmsRun.QcdPt80-120.olog.${TEST_OUTPUT_FILE}">
   <executable name="dbs_discovery.py">
   <executable name="cmsRun" args="${VAL_ANALYZER}_cfg.py">
   <executable name="newvalidation.csh" args="QcdPt80-120 ${TEST_OUTPUT_FILE}">
