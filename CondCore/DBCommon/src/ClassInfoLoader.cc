@@ -39,11 +39,11 @@ namespace cond {
 
   }
 
-  ROOT::Reflex::Type reflexTypeByToken(std::string const & token) {
+  TypeH reflexTypeByToken(std::string const & token) {
     const pool::Guid guid(cond::classID(token));
     {
       // look if already loaded
-      ROOT::Reflex::Type type = pool::DbReflex::forGuid(guid);
+      TypeH type = pool::DbReflex::forGuid(guid);
       if (type) return type;
     }
     try {
@@ -54,7 +54,7 @@ namespace cond {
     catch (cms::Exception const & e) {
       throw cond::Exception(errmsg+token+orimsg+e.what());
     }
-    ROOT::Reflex::Type type = pool::DbReflex::forGuid(guid);
+    TypeH type = pool::DbReflex::forGuid(guid);
     if (!type) throw cond::Exception(errmsg+token +". Problem with DbReflex");
     return type;
   }
