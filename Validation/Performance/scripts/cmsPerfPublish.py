@@ -292,7 +292,7 @@ def get_environ():
         BASE_PERFORMANCE=PerformancePkg
         print "**Using LOCAL version of Validation/Performance instead of the RELEASE version**"
     else:
-        BASE_PERFORMANCE="%s/src/Validation/Performance"  % CMS_RELEASE_BASE
+        BASE_PERFORMANCE="%s/src/Validation/Performance"  % CMSSW_RELEASE_BASE
 
     return (LocalPath,ShowTagsResult)
 
