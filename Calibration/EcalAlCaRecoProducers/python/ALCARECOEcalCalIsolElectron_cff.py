@@ -29,11 +29,11 @@ goodElectronFilter2 = cms.EDFilter("CandViewCountFilter",
     minNumber = cms.uint32(0)
 )
 
-testSelector = cms.EDFilter("AssociatedVariableMaxCutCandViewSelector",
-    filter = cms.bool(True),
-    src = cms.InputTag("egammaElectronTkIsolation"),
-    max = cms.double(0.1)
-)
+#testSelector = cms.EDFilter("AssociatedVariableMaxCutCandViewSelector",
+#    filter = cms.bool(True),
+#    src = cms.InputTag("egammaElectronTkIsolation"),
+#    max = cms.double(0.1)
+#)
 
 superClusterMerger =  cms.EDFilter("EgammaSuperClusterMerger",
     src = cms.VInputTag(cms.InputTag('correctedHybridSuperClusters'), cms.InputTag('correctedMulti5x5SuperClustersWithPreshower'))
@@ -67,5 +67,6 @@ goodSuperClusterFilter2 = cms.EDFilter("CandViewCountFilter",
 )
 
 seqALCARECOEcalCalElectronRECO = cms.Sequence(alCaIsolatedElectrons)
-seqALCARECOEcalCalElectron = cms.Sequence(ewkHLTFilter*superClusterMerger*superClusterCands*goodSuperClusters*goodSuperClusterFilter*goodSuperClusters2*goodSuperClusterFilter2*goodElectrons*goodElectronFilter*goodElectrons2*goodElectronFilter2*electronFilter*electronIsolationSequence*testSelector*seqALCARECOEcalCalElectronRECO)
+#seqALCARECOEcalCalElectron = cms.Sequence(ewkHLTFilter*superClusterMerger*superClusterCands*goodSuperClusters*goodSuperClusterFilter*goodSuperClusters2*goodSuperClusterFilter2*goodElectrons*goodElectronFilter*goodElectrons2*goodElectronFilter2*electronFilter*electronIsolationSequence*testSelector*seqALCARECOEcalCalElectronRECO)
+seqALCARECOEcalCalElectron = cms.Sequence(ewkHLTFilter*superClusterMerger*superClusterCands*goodSuperClusters*goodSuperClusterFilter*goodSuperClusters2*goodSuperClusterFilter2*goodElectrons*goodElectronFilter*goodElectrons2*goodElectronFilter2*electronFilter*electronIsolationSequence*seqALCARECOEcalCalElectronRECO)
 
