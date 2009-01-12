@@ -68,6 +68,7 @@ namespace {
   edm::Wrapper<edm::ValueMap<edm::Ptr<reco::BaseTagInfo> > >	          w_vm_ptr_bti;
   std::vector<reco::BaseTagInfo*>                                         pv_bti;
   edm::OwnVector<reco::BaseTagInfo, edm::ClonePolicy<reco::BaseTagInfo> > ov_bti;
+  edm::Ptr<reco::BaseTagInfo>                                             ptr_bti;
 
   /*   To go into DataFormats/TrackReco   */
   edm::Wrapper<edm::ValueMap<reco::TrackRefVector> >	 w_vm_trv;
