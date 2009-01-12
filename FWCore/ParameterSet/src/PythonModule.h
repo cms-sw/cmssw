@@ -1,6 +1,7 @@
 #include "FWCore/ParameterSet/interface/PythonParameterSet.h"
 #include "FWCore/ParameterSet/interface/PythonProcessDesc.h"
-#include "DataFormats/Provenance/interface/EventID.h"
+#include "DataFormats/Provenance/interface/LuminosityBlockRange.h"
+#include "DataFormats/Provenance/interface/EventRange.h"
 #include <boost/python.hpp>
 #include <boost/cstdint.hpp>
 
@@ -32,6 +33,20 @@ BOOST_PYTHON_MODULE(libFWCoreParameterSet)
       .def("fullPath",     &edm::FileInPath::fullPath)
       .def("relativePath", &edm::FileInPath::relativePath)
       .def("isLocal",      &edm::FileInPath::isLocal)
+  ;
+
+  class_<edm::LuminosityBlockRange>("LuminosityBlockRange", init<unsigned int, unsigned int, unsigned int, unsigned int>())
+      .def("start",    &edm::LuminosityBlockRange::startRun)
+      .def("startSub", &edm::LuminosityBlockRange::startLumi)
+      .def("end",      &edm::LuminosityBlockRange::endRun)
+      .def("endSub",   &edm::LuminosityBlockRange::endLumi)
+  ;
+
+  class_<edm::EventRange>("EventRange", init<unsigned int, unsigned int, unsigned int, unsigned int>())
+      .def("start",    &edm::EventRange::startRun)
+      .def("startSub", &edm::EventRange::startEvent)
+      .def("end",      &edm::EventRange::endRun)
+      .def("endSub",   &edm::EventRange::endEvent)
   ;
 
 
@@ -75,6 +90,14 @@ BOOST_PYTHON_MODULE(libFWCoreParameterSet)
     .def("getLuminosityBlockID", &PythonParameterSet::getParameter<edm::LuminosityBlockID>)
     .def("addVLuminosityBlockID", &PythonParameterSet::addParameters<edm::LuminosityBlockID>)
     .def("getVLuminosityBlockID", &PythonParameterSet::getParameters<edm::LuminosityBlockID>)
+    .def("addLuminosityBlockRange", &PythonParameterSet::addParameter<edm::LuminosityBlockRange>)
+    .def("getLuminosityBlockRange", &PythonParameterSet::getParameter<edm::LuminosityBlockRange>)
+    .def("addVLuminosityBlockRange", &PythonParameterSet::addParameters<edm::LuminosityBlockRange>)
+    .def("getVLuminosityBlockRange", &PythonParameterSet::getParameters<edm::LuminosityBlockRange>)
+    .def("addEventRange", &PythonParameterSet::addParameter<edm::EventRange>)
+    .def("getEventRange", &PythonParameterSet::getParameter<edm::EventRange>)
+    .def("addVEventRange", &PythonParameterSet::addParameters<edm::EventRange>)
+    .def("getVEventRange", &PythonParameterSet::getParameters<edm::EventRange>)
     .def("addPSet", &PythonParameterSet::addPSet)
     .def("getPSet", &PythonParameterSet::getPSet)
     .def("addVPSet", &PythonParameterSet::addVPSet)
@@ -84,11 +107,13 @@ BOOST_PYTHON_MODULE(libFWCoreParameterSet)
     .def("newInputTag", &PythonParameterSet::newInputTag)
     .def("newEventID", &PythonParameterSet::newEventID)
     .def("newLuminosityBlockID", &PythonParameterSet::newLuminosityBlockID)
+    .def("newLuminosityBlockRange", &PythonParameterSet::newLuminosityBlockRange)
+    .def("newEventRange", &PythonParameterSet::newEventRange)
     .def("addNewFileInPath", &PythonParameterSet::addNewFileInPath)
     .def("newPSet", &PythonParameterSet::newPSet)
     .def("dump", &PythonParameterSet::dump)
   ;
-     
+
 
   class_<PythonProcessDesc>("ProcessDesc", init<>())
     .def(init<std::string>())

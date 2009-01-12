@@ -165,8 +165,12 @@ class string(_SimpleParameterTypeBase):
 class EventID(_ParameterTypeBase):
     def __init__(self, run, ev):
         super(EventID,self).__init__()
-        self.__run = run
-        self.__event = ev
+        if isinstance(run, str):
+            self.__run = self._valueFromString(run).__run
+            self.__event = self._valueFromString(run).__event
+        else:
+            self.__run = run
+            self.__event = ev
     def run(self):
         return self.__run
     def event(self):
@@ -187,10 +191,14 @@ class EventID(_ParameterTypeBase):
 
 
 class LuminosityBlockID(_ParameterTypeBase):
-    def __init__(self, run, block):
+    def __init__(self, run, block=None):
         super(LuminosityBlockID,self).__init__()
-        self.__run = run
-        self.__block = block
+        if isinstance(run, str):
+            self.__run = self._valueFromString(run).__run
+            self.__block = self._valueFromString(run).__block
+        else:
+            self.__run = run
+            self.__block = block
     def run(self):
         return self.__run
     def luminosityBlock(self):
@@ -211,13 +219,19 @@ class LuminosityBlockID(_ParameterTypeBase):
         parameterSet.addLuminosityBlockID(self.isTracked(), myname, self.cppID(parameterSet))
 
 
-class CmsRange(_ParameterTypeBase):
-    def __init__(self, start, startSub, end, endSub):
-        super(CmsRange,self).__init__()
-        self.__start    = start
-        self.__startSub = startSub
-        self.__end      = end
-        self.__endSub   = endSub
+class LuminosityBlockRange(_ParameterTypeBase):
+    def __init__(self, start, startSub=None, end=None, endSub=None):
+        super(LuminosityBlockRange,self).__init__()
+        if isinstance(start, str):
+            self.__start    = self._valueFromString(start).__start
+            self.__startSub = self._valueFromString(start).__startSub
+            self.__end      = self._valueFromString(start).__end
+            self.__endSub   = self._valueFromString(start).__endSub
+        else:
+            self.__start    = start
+            self.__startSub = startSub
+            self.__end      = end
+            self.__endSub   = endSub
     def start(self):
         return self.__start
     def startSub(self):
@@ -225,7 +239,7 @@ class CmsRange(_ParameterTypeBase):
     def end(self):
         return self.__end
     def endSub(self):
-        return self.__startSub
+        return self.__endSub
     @staticmethod
     def _isValid(value):
         return True
@@ -244,16 +258,64 @@ class CmsRange(_ParameterTypeBase):
             endParts[1] = "0"
         if endParts[1].lower() == "min":
             endParts[1] = "1"
-        return CmsRange(int(startParts[0]), int(startParts[1]),
+        return LuminosityBlockRange(int(startParts[0]), int(startParts[1]),
                         int(endParts[0]), int(endParts[1]))
     def pythonValue(self, options=PrintOptions()):
           return str(self.__start) + ', ' + str(self.__startSub) + ', ' \
                + str(self.__end)   + ', ' + str(self.__endSub)
     def cppID(self, parameterSet):
-        return parameterSet.newCmsRange(self.start(), self.startSub(),self.end(), self.endSub())
+        return parameterSet.newLuminosityBlockRange(self.start(), self.startSub(),self.end(), self.endSub())
     def insertInto(self, parameterSet, myname):
-        parameterSet.addCmsRange(self.isTracked(), myname, self.cppID(parameterSet))
+        parameterSet.addLuminosityBlockRange(self.isTracked(), myname, self.cppID(parameterSet))
 
+class EventRange(_ParameterTypeBase):
+    def __init__(self, start, startSub=None, end=None, endSub=None):
+        super(EventRange,self).__init__()
+        if isinstance(start, str):
+            self.__start    = self._valueFromString(start).__start
+            self.__startSub = self._valueFromString(start).__startSub
+            self.__end      = self._valueFromString(start).__end
+            self.__endSub   = self._valueFromString(start).__endSub
+        else:
+            self.__start    = start
+            self.__startSub = startSub
+            self.__end      = end
+            self.__endSub   = endSub
+    def start(self):
+        return self.__start
+    def startSub(self):
+        return self.__startSub
+    def end(self):
+        return self.__end
+    def endSub(self):
+        return self.__endSub
+    @staticmethod
+    def _isValid(value):
+        return True
+    @staticmethod
+    def _valueFromString(value):
+        """only used for cfg-parsing"""
+        value = value.replace(' ','')
+        parts = value.split("-")
+        startParts = parts[0].split(":")
+        endParts   = parts[1].split(":")
+        if startParts[1].lower() == "max":
+            startParts[1] = "0"
+        if startParts[1].lower() == "min":
+            startParts[1] = "1"
+        if endParts[1].lower() == "max":
+            endParts[1] = "0"
+        if endParts[1].lower() == "min":
+            endParts[1] = "1"
+        return EventRange(int(startParts[0]), int(startParts[1]),
+                          int(endParts[0]),   int(endParts[1]))
+    def pythonValue(self, options=PrintOptions()):
+          return str(self.__start) + ', ' + str(self.__startSub) + ', ' \
+               + str(self.__end)   + ', ' + str(self.__endSub)
+    def cppID(self, parameterSet):
+        return parameterSet.newEventRange(self.start(), self.startSub(),self.end(), self.endSub())
+    def insertInto(self, parameterSet, myname):
+        parameterSet.addEventRange(self.isTracked(), myname, self.cppID(parameterSet))
 
 class InputTag(_ParameterTypeBase):
     def __init__(self,moduleLabel,productInstanceLabel='',processName=''):
@@ -403,7 +465,7 @@ class PSet(_ParameterTypeBase,_Parameterizable,_ConfigureComponent,_Labelable):
         if len(params):
             #need to treat items both in params and myparams specially
             for key,value in params.iteritems():
-                if key in myparams:                    
+                if key in myparams:
                     if isinstance(value,_ParameterTypeBase):
                         myparams[key] =value
                     else:
@@ -610,27 +672,56 @@ class VEventID(_ValidatingParameterListBase):
         parameterSet.addVEventID(self.isTracked(), myname, cppIDs)
 
 
-class VCmsRange(_ValidatingParameterListBase):
+class VLuminosityBlockRange(_ValidatingParameterListBase):
     def __init__(self,*arg,**args):
-        super(VCmsRange,self).__init__(*arg,**args)
+        super(VLuminosityBlockRange,self).__init__(*arg,**args)
     @staticmethod
     def _itemIsValid(item):
-        return CmsRange._isValid(item)
+        return LuminosityBlockRange._isValid(item)
     def configValueForItem(self,item,options):
-        return CmsRange.formatValueForConfig(item)
+        return LuminosityBlockRange.formatValueForConfig(item)
     def pythonValueForItem(self,item, options):
-        return item.dumpPython(options)
+        if isinstance(item, str):
+            return '"'+item+'"'
+        else:
+            return item.dumpPython(options)
     @staticmethod
     def _valueFromString(value):
-        return VCmsRange(*_ValidatingParameterListBase._itemsFromStrings(value,VCmsRange._valueFromString))
+        return VLuminosityBlockRange(*_ValidatingParameterListBase._itemsFromStrings(value,VLuminosityBlockRange._valueFromString))
     def insertInto(self, parameterSet, myname):
         cppIDs = list()
         for i in self:
             item = i
             if isinstance(item, str):
-                item = CmsRange._valueFromString(item)
+                item = LuminosityBlockRange._valueFromString(item)
             cppIDs.append(item.cppID(parameterSet))
-        parameterSet.addVCmsRange(self.isTracked(), myname, cppIDs)
+        parameterSet.addVLuminosityBlockRange(self.isTracked(), myname, cppIDs)
+
+
+class VEventRange(_ValidatingParameterListBase):
+    def __init__(self,*arg,**args):
+        super(VEventRange,self).__init__(*arg,**args)
+    @staticmethod
+    def _itemIsValid(item):
+        return EventRange._isValid(item)
+    def configValueForItem(self,item,options):
+        return EventRange.formatValueForConfig(item)
+    def pythonValueForItem(self,item, options):
+        if isinstance(item, str):
+            return '"'+item+'"'
+        else:
+            return item.dumpPython(options)
+    @staticmethod
+    def _valueFromString(value):
+        return VEventRange(*_ValidatingParameterListBase._itemsFromStrings(value,VEventRange._valueFromString))
+    def insertInto(self, parameterSet, myname):
+        cppIDs = list()
+        for i in self:
+            item = i
+            if isinstance(item, str):
+                item = EventRange._valueFromString(item)
+            cppIDs.append(item.cppID(parameterSet))
+        parameterSet.addVEventRange(self.isTracked(), myname, cppIDs)
 
 
 class VPSet(_ValidatingParameterListBase,_ConfigureComponent,_Labelable):

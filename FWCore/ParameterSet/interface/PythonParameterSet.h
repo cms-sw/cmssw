@@ -15,14 +15,14 @@ public:
 
   template <class T>
   T
-  getParameter(bool tracked, std::string const& name) const 
+  getParameter(bool tracked, std::string const& name) const
   {
     T result;
     if(tracked)
     {
       result = theParameterSet.template getParameter<T>(name);
     }
-    else 
+    else
     {
       result = theParameterSet.template getUntrackedParameter<T>(name, result);
     }
@@ -38,7 +38,7 @@ public:
    {
      theParameterSet.template addParameter<T>(name, value);
    }
-   else 
+   else
    {
      theParameterSet.template addUntrackedParameter<T>(name, value);
    }
@@ -57,7 +57,7 @@ public:
   /// unfortunate side effect: destroys the original list!
   template <class T>
   void
-  addParameters(bool tracked, std::string const& name, 
+  addParameters(bool tracked, std::string const& name,
                 boost::python::list  value)
   {
     std::vector<T> v = edm::toVector<T>(value);
@@ -87,21 +87,33 @@ public:
   boost::python::list getVPSet(bool tracked, std::string const& name);
 
   // no way to interface straight into the other python InputTag
-  edm::InputTag newInputTag(const std::string& label, 
+  edm::InputTag newInputTag(const std::string& label,
                             const std::string& instance,
                             const std::string& process)
   {
     return edm::InputTag(label, instance, process);
   }
 
-  edm::EventID newEventID(unsigned int run, unsigned int event) 
+  edm::EventID newEventID(unsigned int run, unsigned int event)
   {
     return edm::EventID(run, event);
   }
 
-  edm::LuminosityBlockID newLuminosityBlockID(unsigned int run, unsigned int lumi) 
+  edm::LuminosityBlockID newLuminosityBlockID(unsigned int run, unsigned int lumi)
   {
     return edm::LuminosityBlockID(run, lumi);
+  }
+
+  edm::LuminosityBlockRange newLuminosityBlockRange(unsigned int start, unsigned int startSub,
+                                                    unsigned int end,   unsigned int endSub)
+  {
+    return edm::LuminosityBlockRange(start, startSub, end, endSub);
+  }
+
+  edm::EventRange newEventRange(unsigned int start, unsigned int startSub,
+                                unsigned int end,   unsigned int endSub)
+  {
+    return edm::EventRange(start, startSub, end, endSub);
   }
 
   void addNewFileInPath(bool tracked, std::string const & name, std::string const & value);

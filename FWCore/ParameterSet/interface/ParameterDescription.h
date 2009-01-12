@@ -4,7 +4,7 @@
 //
 // Package:     ParameterSet
 // Class  :     ParameterDescription
-// 
+//
 /**\class ParameterDescription ParameterDescription.h FWCore/ParameterSet/interface/ParameterDescription.h
 
  Description: Base class for a description of one parameter in a ParameterSet
@@ -33,7 +33,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Aug  2 15:33:46 EDT 2007
-// $Id: ParameterDescription.h,v 1.8 2009/01/09 20:55:25 wmtan Exp $
+// $Id: ParameterDescription.h,v 1.9 2009/01/09 22:34:11 wdd Exp $
 //
 
 #include "FWCore/Utilities/interface/value_ptr.h"
@@ -70,6 +70,10 @@ namespace edm {
     k_InputTag = 't',
     k_VInputTag = 'v',
     k_FileInPath = 'F',
+    k_LuminosityBlockRange = 'A',
+    k_VLuminosityBlockRange = 'a',
+    k_EventRange = 'R',
+    k_VEventRange = 'r',
     k_PSet = 'P',
     k_VPSet = 'p'
   };
@@ -127,8 +131,8 @@ namespace edm {
     bool isOptional_;
   };
 
-  template <> 
-  struct value_ptr_traits<ParameterDescription>  
+  template <>
+  struct value_ptr_traits<ParameterDescription>
   {
     static ParameterDescription * clone( ParameterDescription const * p ) { return p->clone(); }
   };

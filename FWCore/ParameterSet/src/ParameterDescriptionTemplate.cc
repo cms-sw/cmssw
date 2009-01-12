@@ -182,7 +182,7 @@ namespace edm {
                                     boost::ref(os),
                                     indentation,
                                     boost::ref(nextOneStartsWithAComma)));
-    os << "\n" << std::setw(indentation) << " "; 
+    os << "\n" << std::setw(indentation) << " ";
   }
 
   // =================================================================
@@ -201,7 +201,7 @@ namespace edm {
     // that when a value of ***type double*** is added to a ParameterSetDescription
     // the EXACT same value of type double will be created and passed to the
     // ParameterSet after the cfi files have been read.  The tricky part
-    // is these values usually appear in the C++ code and cfi file as text 
+    // is these values usually appear in the C++ code and cfi file as text
     // strings (in decimal form).  We do our best to force the text
     // string in the C++ code to be the same as the text string in the
     // cfi file by judiciously rounding to smaller precision when possible.
@@ -259,7 +259,7 @@ namespace edm {
     void writeSingleValue<edm::LuminosityBlockID>(std::ostream & os, edm::LuminosityBlockID const& value) {
       os << value.run() << ", " << value.luminosityBlock();
     }
- 
+
     template <>
     void writeSingleValue<edm::InputTag>(std::ostream & os, edm::InputTag const& value) {
       os << "'" << value.label() << "'";
@@ -299,7 +299,7 @@ namespace edm {
     template <>
     void writeValueInVector<edm::LuminosityBlockID>(std::ostream & os, edm::LuminosityBlockID const& value) {
       os << "'" << value.run() << ":" << value.luminosityBlock() << "'";
-    } 
+    }
 
     template <>
     void writeValueInVector<edm::InputTag>(std::ostream & os, edm::InputTag const& value) {
@@ -344,7 +344,7 @@ namespace edm {
       os.flags(ff);
     }
 
-    void writeValueToCfi(std::ostream & os, int indentation, int const& value_) { 
+    void writeValueToCfi(std::ostream & os, int indentation, int const& value_) {
       writeValueToCfi<int>(os, value_);
     }
 
@@ -410,6 +410,22 @@ namespace edm {
 
     void writeValueToCfi(std::ostream & os, int indentation, std::vector<edm::LuminosityBlockID> const& value_) {
       writeVectorToCfi<edm::LuminosityBlockID>(os, indentation, value_);
+    }
+
+    void writeValueToCfi(std::ostream & os, int indentation, edm::LuminosityBlockRange const& value_) {
+      writeValueToCfi<edm::LuminosityBlockRange>(os, value_);
+    }
+
+    void writeValueToCfi(std::ostream & os, int indentation, std::vector<edm::LuminosityBlockRange> const& value_) {
+      writeVectorToCfi<edm::LuminosityBlockRange>(os, indentation, value_);
+    }
+
+    void writeValueToCfi(std::ostream & os, int indentation, edm::EventRange const& value_) {
+      writeValueToCfi<edm::EventRange>(os, value_);
+    }
+
+    void writeValueToCfi(std::ostream & os, int indentation, std::vector<edm::EventRange> const& value_) {
+      writeVectorToCfi<edm::EventRange>(os, indentation, value_);
     }
 
     void writeValueToCfi(std::ostream & os, int indentation, edm::InputTag const& value_) {

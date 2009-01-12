@@ -2,7 +2,7 @@
 //
 // Package:     ParameterSet
 // Class  :     ParameterDescription
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
@@ -23,6 +23,8 @@ namespace edm {
 
   class EventID;
   class LuminosityBlockID;
+  class LuminosityBlockRange;
+  class EventRange;
   class InputTag;
   class FileInPath;
 
@@ -46,6 +48,10 @@ namespace edm {
   TYPE_TO_ENUM(edm::InputTag,k_InputTag)
   TYPE_TO_ENUM(std::vector<edm::InputTag>,k_VInputTag)
   TYPE_TO_ENUM(edm::FileInPath,k_FileInPath)
+  TYPE_TO_ENUM(edm::LuminosityBlockRange,k_LuminosityBlockRange)
+  TYPE_TO_ENUM(std::vector<edm::LuminosityBlockRange>,k_VLuminosityBlockRange)
+  TYPE_TO_ENUM(edm::EventRange,k_EventRange)
+  TYPE_TO_ENUM(std::vector<edm::EventRange>,k_VEventRange)
   // These are intentionally not implemented to prevent one
   // from calling add<ParameterSet>.  One should call
   // add<ParameterSetDescription> instead.
@@ -76,6 +82,10 @@ namespace edm {
       TYPE_TO_NAME(FileInPath);
       TYPE_TO_NAME(PSet);
       TYPE_TO_NAME(VPSet);
+      TYPE_TO_NAME(LuminosityBlockRange);
+      TYPE_TO_NAME(VLuminosityBlockRange);
+      TYPE_TO_NAME(EventRange);
+      TYPE_TO_NAME(VEventRange);
     default:
       assert(false);
     }

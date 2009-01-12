@@ -124,7 +124,7 @@ bool
     if(! encode(converted, *b))
       return false;
 
-    if(b != from.begin()) 
+    if(b != from.begin())
       to += ",";
     to += converted;
   }
@@ -262,7 +262,7 @@ bool
     if(! encode(converted, *b))
       return false;
 
-    if(b != from.begin()) 
+    if(b != from.begin())
       to += ",";
     to += converted;
   }
@@ -432,7 +432,7 @@ bool
     if(! encode(converted, *b))
       return false;
 
-    if(b != from.begin()) 
+    if(b != from.begin())
       to += ",";
     to += converted;
   }
@@ -512,7 +512,7 @@ bool
     to = std::numeric_limits<double>::has_infinity
        ? -std::numeric_limits<double>::infinity()
        : -std::numeric_limits<double>::max();
-  }  
+  }
 
   else  {
     try  {
@@ -582,7 +582,7 @@ bool
     if(! encode(converted, *b))
       return false;
 
-    if(b != from.begin()) 
+    if(b != from.begin())
       to += ",";
     to += converted;
   }
@@ -855,7 +855,115 @@ bool
 }
 
 
+// ----------------------------------------------------------------------
+// LuminosityBlockRange
+// ----------------------------------------------------------------------
 
+bool edm::decode(edm::LuminosityBlockRange& to, std::string const& from) {
+  std::vector<std::string> tokens = edm::tokenize(from, "-");
+  assert(tokens.size() == 2);
+  edm::LuminosityBlockID begin;
+  edm::LuminosityBlockID end;
+  edm::decode(begin,tokens[0]);
+  edm::decode(end,tokens[1]);
+  to = edm::LuminosityBlockRange(begin.run(), begin.luminosityBlock(),
+                                 end.run(),   end.luminosityBlock());
+  return true;
+}  // decode to LuminosityBlockRange
+
+bool edm::encode(std::string& to, const edm::LuminosityBlockRange & from) {
+  std::ostringstream os;
+  os << from.startRun() << ":" << from.startLumi() << "-"
+     << from.endRun() << ":" << from.endLumi();
+  to = os.str();
+  return true;
+}
+
+// ----------------------------------------------------------------------
+// VLuminosityBlockRange
+// ----------------------------------------------------------------------
+
+bool edm::decode(std::vector<edm::LuminosityBlockRange>& to, std::string const& from) {
+  std::vector<std::string> strings;
+  decode(strings, from);
+
+  for(std::vector<std::string>::const_iterator stringItr = strings.begin(), stringItrEnd = strings.end();
+      stringItr != stringItrEnd; ++stringItr)
+  {
+    edm::LuminosityBlockRange lumiRange;
+    decode(lumiRange, *stringItr);
+    to.push_back(lumiRange);
+  }
+  return true;
+}  // decode to VInputTag
+
+bool edm::encode(std::string& to, const std::vector<edm::LuminosityBlockRange>& from) {
+  std::vector<std::string> strings;
+  for(std::vector<edm::LuminosityBlockRange>::const_iterator idItr = from.begin(), idItrEnd = from.end();
+      idItr != idItrEnd; ++idItr)
+  {
+    std::string encodedLuminosityBlockRange;
+    encode(encodedLuminosityBlockRange, *idItr);
+    strings.push_back(encodedLuminosityBlockRange);
+  }
+  encode(to, strings);
+  return true;
+}
+
+// ----------------------------------------------------------------------
+// EventRange
+// ----------------------------------------------------------------------
+
+bool edm::decode(edm::EventRange& to, std::string const& from) {
+  std::vector<std::string> tokens = edm::tokenize(from, "-");
+  assert(tokens.size() == 2);
+  edm::EventID begin;
+  edm::EventID end;
+  edm::decode(begin,tokens[0]);
+  edm::decode(end,tokens[1]);
+  to = edm::EventRange(begin.run(), begin.event(),
+                         end.run(),   end.event());
+  return true;
+}  // decode to EventRange
+
+bool edm::encode(std::string& to, const edm::EventRange & from) {
+  std::ostringstream os;
+  os << from.startRun() << ":" << from.startEvent() << "-"
+     << from.endRun() << ":" << from.endEvent();
+  to = os.str();
+  return true;
+}
+
+// ----------------------------------------------------------------------
+// VEventRange
+// ----------------------------------------------------------------------
+
+bool edm::decode(std::vector<edm::EventRange>& to, std::string const& from) {
+  std::vector<std::string> strings;
+  decode(strings, from);
+
+  for(std::vector<std::string>::const_iterator stringItr = strings.begin(), stringItrEnd = strings.end();
+      stringItr != stringItrEnd; ++stringItr)
+  {
+    edm::EventRange eventRange;
+    decode(eventRange, *stringItr);
+    to.push_back(eventRange);
+  }
+  return true;
+}
+
+bool edm::encode(std::string& to, const std::vector<edm::EventRange>& from) {
+  std::vector<std::string> strings;
+  for(std::vector<edm::EventRange>::const_iterator idItr = from.begin(), idItrEnd = from.end();
+      idItr != idItrEnd; ++idItr)
+  {
+    std::string encodedEventRange;
+    encode(encodedEventRange, *idItr);
+    strings.push_back(encodedEventRange);
+  }
+  encode(to, strings);
+  return true;
+}
 
 // ----------------------------------------------------------------------
 
@@ -1011,7 +1119,7 @@ bool
     if(*b == "") {
        converted = "XXX";
     } else if(! encode(converted, *b)) {
-      return false; 
+      return false;
     }
 
     if(b != from.begin())
@@ -1085,7 +1193,7 @@ bool
     if(! encode(converted, *b))
       return false;
 
-    if(b != from.begin()) 
+    if(b != from.begin())
       to += ",";
     to += converted;
   }

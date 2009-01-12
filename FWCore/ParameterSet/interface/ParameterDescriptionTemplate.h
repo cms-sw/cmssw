@@ -1,7 +1,7 @@
 
 // It is unusual to put this include before the header guard,
 // but it guarantees the headers are included in the proper order.
-// ParameterSetDescription.h must be included before 
+// ParameterSetDescription.h must be included before
 // ParameterDescriptionTemplate.h
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
@@ -11,7 +11,7 @@
 //
 // Package:     ParameterSet
 // Class  :     ParameterDescriptionTemplate
-// 
+//
 /**\class ParameterDescriptionTemplate ParameterDescriptionTemplate.h FWCore/ParameterSet/interface/ParameterDescriptionTemplate.h
 
  Description: <one line class summary>
@@ -23,7 +23,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Aug  2 15:33:51 EDT 2007
-// $Id: ParameterDescriptionTemplate.h,v 1.7 2009/01/09 20:55:25 wmtan Exp $
+// $Id: ParameterDescriptionTemplate.h,v 1.8 2009/01/09 22:34:11 wdd Exp $
 //
 
 #include "FWCore/ParameterSet/interface/ParameterDescription.h"
@@ -53,6 +53,10 @@ namespace edm {
     void writeValueToCfi(std::ostream & os, int indentation, std::vector<edm::EventID> const& value_);
     void writeValueToCfi(std::ostream & os, int indentation, edm::LuminosityBlockID const& value_);
     void writeValueToCfi(std::ostream & os, int indentation, std::vector<edm::LuminosityBlockID> const& value_);
+    void writeValueToCfi(std::ostream & os, int indentation, edm::LuminosityBlockRange const& value_);
+    void writeValueToCfi(std::ostream & os, int indentation, std::vector<edm::LuminosityBlockRange> const& value_);
+    void writeValueToCfi(std::ostream & os, int indentation, edm::EventRange const& value_);
+    void writeValueToCfi(std::ostream & os, int indentation, std::vector<edm::EventRange> const& value_);
     void writeValueToCfi(std::ostream & os, int indentation, edm::InputTag const& value_);
     void writeValueToCfi(std::ostream & os, int indentation, std::vector<edm::InputTag> const& value_);
     void writeValueToCfi(std::ostream & os, int indentation, edm::FileInPath const& value_);
