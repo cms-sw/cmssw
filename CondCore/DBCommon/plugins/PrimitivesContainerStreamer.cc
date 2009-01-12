@@ -6,7 +6,13 @@
 #include "CondCore/DBCommon/interface/Exception.h"
 #include "PrimitivesContainerStreamer.h"
 
-cond::BlobWriter::BlobWriter( const Reflex::Type& type ):
+#include "RVersion.h"
+
+#if ROOT_VERSION_CODE < ROOT_VERSION(5,19,0)
+using namespace ROOT;
+#endif
+
+cond::BlobWriter::BlobWriter( const TypeH& type ):
   m_type( type ),
   m_blob()
 {}
@@ -23,11 +29,20 @@ cond::BlobWriter::write( const void* addressOfInputData )
   Reflex::Member sizeMethod = m_type.MemberByName( "size" );
   if ( ! sizeMethod )
     throw cond::Exception( "BlobWriter::write No size method is defined for the container" );
+  size_t containerSize=0;
+#if ROOT_VERSION_CODE < ROOT_VERSION(5,19,0)
+  ROOT::Reflex::Object ret = sizeMethod.Invoke(theContainer);
+  if( !ret.TypeOf() || !ret.Address() )
+    throw cond::Exception( "BlobWriter::write Could not invoke the size method on the container" );
+  containerSize = *(static_cast<size_t*>(ret.Address()));
+#else
   Reflex::Object* ret=0;
   sizeMethod.Invoke(theContainer,ret);
   if( !ret->TypeOf() || !ret->Address() )
     throw cond::Exception( "BlobWriter::write Could not invoke the size method on the container" );
-  size_t containerSize = *(static_cast<size_t*>(ret->Address()));
+  containerSize = *(static_cast<size_t*>(ret->Address()));
+#endif
+ 
   if(containerSize==0){
     //std::cout<<"empty container nothing to write"<<std::endl;
     return m_blob;
@@ -41,35 +56,39 @@ cond::BlobWriter::write( const void* addressOfInputData )
   Reflex::Member beginMethod = m_type.MemberByName( "begin" );
   if ( ! beginMethod )
     throw cond::Exception( "BlobWriter::write No begin method is defined for the container" );
-  Reflex::Type iteratorType = beginMethod.TypeOf().ReturnType();
+  TypeH iteratorType = beginMethod.TypeOf().ReturnType();
   Reflex::Member dereferenceMethod = iteratorType.MemberByName( "operator*" );
   if ( ! dereferenceMethod )
     throw cond::Exception( "BlobWriter::write Could not retrieve the dereference method of the container's iterator" );
   //size_t elementSize = dereferenceMethod.TypeOf().ReturnType().SizeOf();
   // Create an iterator
-  Reflex::Object* iteratorObject = 0;
-  beginMethod.Invoke( Reflex::Object( m_type, const_cast< void * > ( addressOfInputData ) ),iteratorObject);
-  if ( ! iteratorObject )
-    throw cond::Exception( "BlobWriter::write Could not retrieve the iterator of the container" );
-  //get first element address
-  void* elementAddress = 0;
+  void* elementAddress=0;
+  void* startingAddress=0;
+#if ROOT_VERSION_CODE < ROOT_VERSION(5,19,0)
+  ROOT::Reflex::Object iteratorObject = beginMethod.Invoke( ROOT::Reflex::Object( m_type, const_cast< void * > ( addressOfInputData ) ) );
+  elementAddress = dereferenceMethod.Invoke( iteratorObject ).Address();
+  m_blob.resize( containerSize * elementSize );
+  startingAddress = m_blob.startingAddress();
+  ::memcpy( startingAddress, elementAddress, containerSize*elementSize );
+  iteratorObject.Destruct();
+#else
   Reflex::Object* containercontents=0;
+  Reflex::Object* iteratorObject=0;
+  beginMethod.Invoke( ROOT::Reflex::Object( m_type, const_cast< void * > ( addressOfInputData ) ),iteratorObject );
+  if( !iteratorObject ) throw cond::Exception( "BlobWriter::write Could not retrieve the iterator object" );
   dereferenceMethod.Invoke( *iteratorObject, containercontents);
   if ( ! containercontents )
     throw cond::Exception( "BlobWriter::write Could not retrieve the content of the container" );
   elementAddress=containercontents->Address();
   m_blob.resize( containerSize * elementSize );
-  void* startingAddress = m_blob.startingAddress();
-  //std::cout<<"dest Address "<<elementAddress <<std::endl;
-  //std::cout<<"src address"<<addressOfInputData <<std::endl;
+  startingAddress = m_blob.startingAddress();
   ::memcpy( startingAddress, elementAddress, containerSize*elementSize );
   iteratorObject->Destruct();
-  //std::cout<<"new blob size "<<m_blob.size()<<std::endl;
+#endif
   return m_blob;
 }
 
-
-cond::BlobReader::BlobReader( const Reflex::Type& type ):
+cond::BlobReader::BlobReader( const TypeH& type ):
   m_type( type )
 {}
 
@@ -99,7 +118,7 @@ cond::BlobReader::read( const coral::Blob& blobData,
   // Clear the container
   clearMethod.Invoke( containerObject );
   //const Reflex::Type signature();
-  Reflex::Member resizeMethod = m_type.MemberByName( "resize",Reflex::Type::ByName("void (size_t)") );
+  Reflex::Member resizeMethod = m_type.MemberByName( "resize",TypeH::ByName("void (size_t)") );
   if ( ! resizeMethod )
     throw cond::Exception( "BlobReader::read Could not retrieve the resize method of the container" );
   // resize the container
@@ -120,6 +139,21 @@ cond::BlobReader::read( const coral::Blob& blobData,
   //v[1] = (void*)(&temp);
   //v.push_back((void*)(&containerSize));
   //std::cout<<resizeMethod.Name()<<std::endl;
+#if ROOT_VERSION_CODE < ROOT_VERSION(5,19,0)
+  resizeMethod.Invoke( containerObject,v );
+  ROOT::Reflex::Member beginMethod = m_type.MemberByName( "begin" );
+  if ( ! beginMethod )
+    throw cond::Exception( "BlobReader::read No begin method is defined for the container" );
+  ROOT::Reflex::Object iteratorObject = beginMethod.Invoke( ROOT::Reflex::Object( m_type, const_cast< void * > ( containerAddress ) ) );
+  ROOT::Reflex::Type iteratorType = beginMethod.TypeOf().ReturnType();
+  //get first element address
+  ROOT::Reflex::Member dereferenceMethod = iteratorType.MemberByName( "operator*" );
+  if ( ! dereferenceMethod )
+    throw cond::Exception( "BlobReader::read Could not retrieve the dereference method of the container's iterator" );
+  void* elementAddress = dereferenceMethod.Invoke( iteratorObject ).Address();
+  ::memcpy( elementAddress, srcstartingAddress, (size_t)bsize);
+  iteratorObject.Destruct();
+#else
   Reflex::Object* m=0;
   resizeMethod.Invoke( containerObject,m,v );
   // Create an iterator
@@ -142,6 +176,6 @@ cond::BlobReader::read( const coral::Blob& blobData,
     throw cond::Exception( "BlobReader::read Could not retrieve the content of the container" );
   ret->Address();
   ::memcpy( elementAddress, srcstartingAddress, (size_t)bsize);
-  //std::cout<<"memcpy"<<std::endl;
   iteratorObject->Destruct();
+#endif
 }

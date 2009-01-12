@@ -11,8 +11,8 @@ typedef TBufferFile CONDRootBuffer;
 typedef TBuffer CONDRootBuffer;
 #endif
 
-#include <Reflex/Reflex.h>
-#include <Cintex/Cintex.h>
+#include "Reflex/Reflex.h"
+#include "Cintex/Cintex.h"
 
 #include "CondCore/DBCommon/interface/Exception.h"
 
@@ -57,7 +57,7 @@ static const std::size_t nPrimitives =
 
 #undef PRIMTIVE
 
-cond::TBufferBlobTypeInfo::TBufferBlobTypeInfo(const Reflex::Type& type_)
+cond::TBufferBlobTypeInfo::TBufferBlobTypeInfo(const TypeH& type_)
  : m_arraySize(0), m_class(0), m_primitive(0)
 {
   static bool cintexInitialized = false;
@@ -66,7 +66,7 @@ cond::TBufferBlobTypeInfo::TBufferBlobTypeInfo(const Reflex::Type& type_)
     ROOT::Cintex::Cintex::Enable();
   }
 
-  Reflex::Type type = type_;
+  TypeH type = type_;
   while(true) {
     type = type.FinalType();
 
@@ -101,7 +101,7 @@ cond::TBufferBlobTypeInfo::TBufferBlobTypeInfo(const Reflex::Type& type_)
                           "Cannot handle C++ type " + type.Name());
 }
 
-cond::TBufferBlobWriter::TBufferBlobWriter(const Reflex::Type &type):
+cond::TBufferBlobWriter::TBufferBlobWriter(const TypeH &type):
   m_type(type),
   m_blob()
 {
@@ -138,7 +138,7 @@ const coral::Blob &cond::TBufferBlobWriter::write(const void *addr)
   return m_blob;
 }
 
-cond::TBufferBlobReader::TBufferBlobReader(const Reflex::Type& type):
+cond::TBufferBlobReader::TBufferBlobReader(const TypeH& type):
   m_type(type)
 {
 }

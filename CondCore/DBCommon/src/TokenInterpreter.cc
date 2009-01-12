@@ -1,6 +1,10 @@
 #include "CondCore/DBCommon/interface/TokenInterpreter.h"
 #include "POOLCore/Token.h"
 #include "StorageSvc/DbReflex.h"
+#if ROOT_VERSION_CODE < ROOT_VERSION(5,19,0)
+ using namespace ROOT;
+#endif
+
 namespace cond{
   
   bool validToken(const std::string& tokenString) {
@@ -14,7 +18,7 @@ namespace cond{
     pool::Token* mytoken=new pool::Token;
     m_containerName=mytoken->fromString(tokenString).contID();
     const pool::Guid& classID=mytoken->fromString(tokenString).classID();
-    ROOT::Reflex::Type myclass=pool::DbReflex::forGuid(classID);
+    Reflex::Type myclass=pool::DbReflex::forGuid(classID);
     m_className=myclass.Name(); 
     //for the moment default name. Should decide FINAL,SCOPED or QUALIFIED
     mytoken->release();

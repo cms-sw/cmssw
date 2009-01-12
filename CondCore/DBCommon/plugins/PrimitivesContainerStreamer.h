@@ -5,11 +5,18 @@
 #include "CoralBase/Blob.h"
 #include "POOLCore/IBlobStreamingService.h"
 #include "ObjectRelationalAccess/ObjectRelationalClassUtils.h"
+
+#if ROOT_VERSION_CODE < ROOT_VERSION(5,19,0)
+typedef ROOT::Reflex::Type TypeH;
+#else
+typedef Reflex::Type TypeH;
+#endif
+
 namespace cond {
   // prerequisite check for supported dictionary type
   
   struct PrimitiveContainerDictPrereq {
-    bool operator () ( const Reflex::Type& classDictionary )
+    bool operator () ( const TypeH& classDictionary )
     {
       return pool::ObjectRelationalClassUtils::isTypeNonAssociativeContainer(classDictionary);
       // && classDictionary.TemplateArgumentAt(0).IsFundamental();
@@ -20,7 +27,7 @@ namespace cond {
   {
   public:
     /// Constructor
-    explicit BlobWriter( const Reflex::Type& type );
+    explicit BlobWriter( const TypeH& type );
 
     /// Empty destructor
     virtual ~BlobWriter();
@@ -41,7 +48,7 @@ namespace cond {
   {
   public:
     /// Constructor
-    BlobReader( const Reflex::Type& type );
+    BlobReader( const TypeH& type );
 
     /// Empty destructor
     virtual ~BlobReader();
@@ -51,7 +58,7 @@ namespace cond {
                void* containerAddress ) const;
   private:
     /// The type
-    Reflex::Type m_type;
+    TypeH m_type;
   };
 
 }

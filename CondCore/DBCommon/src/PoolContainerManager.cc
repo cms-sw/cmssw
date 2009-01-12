@@ -10,6 +10,11 @@
 #include "DataSvc/RefBase.h"
 #include "DataSvc/AnyPtr.h"
 #include <algorithm>
+
+#if ROOT_VERSION_CODE < ROOT_VERSION(5,19,0)
+ using namespace ROOT;
+#endif
+
 cond::PoolContainerManager::PoolContainerManager(  cond::PoolTransaction& pooldb ) : m_pooldb(&pooldb){  
 }
 void 
@@ -27,7 +32,7 @@ cond::PoolContainerManager::exportContainer( cond::PoolTransaction& destdb,
 					     const std::string& className){
   std::string con=m_pooldb->parentConnection().connectStr();
   pool::IDataSvc* datasvc=&(m_pooldb->poolDataSvc());
-  const ROOT::Reflex::Type myclassType=ROOT::Reflex::Type::ByName(className);
+  const Reflex::Type myclassType=Reflex::Type::ByName(className);
   pool::Placement destPlace;
   destPlace.setDatabase(destdb.parentConnection().connectStr(), 
 			pool::DatabaseSpecification::PFN );

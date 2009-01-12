@@ -10,6 +10,10 @@
 #include "CondCore/DBCommon/interface/ClassInfoLoader.h"
 #include "StorageSvc/DbReflex.h"
 
+#if ROOT_VERSION_CODE < ROOT_VERSION(5,19,0)
+using namespace ROOT;
+#endif
+
 cond::GenericRef::GenericRef():m_datasvc(0),m_place(0){
 }
 
@@ -37,7 +41,7 @@ cond::GenericRef::GenericRef(cond::PoolTransaction& pooldb,
 			     ):
   m_datasvc(&(pooldb.poolDataSvc())),m_place(0)
 {
-  const ROOT::Reflex::Type myclassType=ROOT::Reflex::Type::ByName(className);
+  const Reflex::Type myclassType=Reflex::Type::ByName(className);
   pool::RefBase myobj(m_datasvc,token,myclassType.TypeInfo() );
   m_data=myobj;
 }
@@ -58,7 +62,7 @@ cond::GenericRef::token() const{
 
 std::string
 cond::GenericRef::className() const{
-  ROOT::Reflex::Type mytype=m_data.objectType();
+  Reflex::Type mytype=m_data.objectType();
   return mytype.Name();
 }
 
@@ -110,7 +114,7 @@ cond::GenericRef::exportTo( cond::PoolTransaction& destdb ){
   }
   std::string containerName=this->containerName();
   std::string className=this->className();
-  const ROOT::Reflex::Type myclassType=ROOT::Reflex::Type::ByName(className);
+  const Reflex::Type myclassType=Reflex::Type::ByName(className);
   pool::IDataSvc* destsvc=&(destdb.poolDataSvc());
   const pool::AnyPtr myPtr=m_data.object().get();
   pool::Placement destPlace;

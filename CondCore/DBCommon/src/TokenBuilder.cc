@@ -4,6 +4,11 @@
 #include "StorageSvc/DbReflex.h"
 #include "FWCore/PluginManager/interface/SharedLibrary.h"
 //#include <iostream>
+
+#if ROOT_VERSION_CODE < ROOT_VERSION(5,19,0)
+ using namespace ROOT;
+#endif
+
 namespace cond{
   TokenBuilder::TokenBuilder(): m_token(new pool::Token){
     m_token->setTechnology(pool::POOL_RDBMS_HOMOGENEOUS_StorageType.type());
@@ -19,7 +24,7 @@ namespace cond{
 
     const boost::filesystem::path dict_path(dictLib);
     edmplugin::SharedLibrary shared( dict_path );
-    ROOT::Reflex::Type myclass=ROOT::Reflex::Type::ByName(className);
+    Reflex::Type myclass=Reflex::Type::ByName(className);
     m_token->setDb(fid);
     m_token->setClassID(pool::DbReflex::guid(myclass));
     m_token->setCont(containerName);
