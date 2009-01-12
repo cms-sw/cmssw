@@ -8,12 +8,9 @@
 #include<boost/shared_ptr.hpp>
 #include<string>
 
-namespace ROOT {
   namespace Reflex {
     class Type;
   }
-
-}
 
 namespace cond {
 
@@ -28,7 +25,7 @@ namespace cond {
   // load plugin (delete classInfo)
   bool loadClassByToken(std::string const & token);
 
-  ROOT::Reflex::Type reflexTypeByToken(std::string const & token);
+  Reflex::Type reflexTypeByToken(std::string const & token);
 
 }
 

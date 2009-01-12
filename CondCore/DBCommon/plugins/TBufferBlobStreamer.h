@@ -11,7 +11,7 @@ namespace cond {
   class TBufferBlobTypeInfo
   {
   public:
-    TBufferBlobTypeInfo( const ROOT::Reflex::Type& type );
+    TBufferBlobTypeInfo( const Reflex::Type& type );
 
     /// length of the plain C array (zero otherwise)
     std::size_t m_arraySize;
@@ -27,7 +27,7 @@ namespace cond {
   {
   public:
     /// Constructor
-    explicit TBufferBlobWriter( const ROOT::Reflex::Type& type );
+    explicit TBufferBlobWriter( const Reflex::Type& type );
 
     /// Empty destructor
     virtual ~TBufferBlobWriter();
@@ -48,7 +48,7 @@ namespace cond {
   {
   public:
     /// Constructor
-    TBufferBlobReader( const ROOT::Reflex::Type& type );
+    TBufferBlobReader( const Reflex::Type& type );
 
     /// Empty destructor
     virtual ~TBufferBlobReader();

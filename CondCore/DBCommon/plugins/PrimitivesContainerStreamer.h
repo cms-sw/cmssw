@@ -9,7 +9,7 @@ namespace cond {
   // prerequisite check for supported dictionary type
   
   struct PrimitiveContainerDictPrereq {
-    bool operator () ( const ROOT::Reflex::Type& classDictionary )
+    bool operator () ( const Reflex::Type& classDictionary )
     {
       return pool::ObjectRelationalClassUtils::isTypeNonAssociativeContainer(classDictionary);
       // && classDictionary.TemplateArgumentAt(0).IsFundamental();
@@ -20,7 +20,7 @@ namespace cond {
   {
   public:
     /// Constructor
-    explicit BlobWriter( const ROOT::Reflex::Type& type );
+    explicit BlobWriter( const Reflex::Type& type );
 
     /// Empty destructor
     virtual ~BlobWriter();
@@ -30,7 +30,7 @@ namespace cond {
 
   private:
     /// The type
-    ROOT::Reflex::Type m_type;
+    Reflex::Type m_type;
 
     /// The blob data
     coral::Blob m_blob;
@@ -41,7 +41,7 @@ namespace cond {
   {
   public:
     /// Constructor
-    BlobReader( const ROOT::Reflex::Type& type );
+    BlobReader( const Reflex::Type& type );
 
     /// Empty destructor
     virtual ~BlobReader();
@@ -51,7 +51,7 @@ namespace cond {
                void* containerAddress ) const;
   private:
     /// The type
-    ROOT::Reflex::Type m_type;
+    Reflex::Type m_type;
   };
 
 }

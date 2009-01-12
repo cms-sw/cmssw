@@ -10,7 +10,7 @@ namespace cond {
   /// default dictionary prerequisite template argument, always true
 
   struct NoDictPrereq {
-    inline bool operator () ( const ROOT::Reflex::Type& classDictionary )
+    inline bool operator () ( const Reflex::Type& classDictionary )
     { return true; }
   };
 
@@ -32,7 +32,7 @@ namespace cond {
   virtual ~BlobStreamingService() {}
   
   /// Returns a new NON-PORTABLE streamer for writing into a BLOB
-  pool::IBlobWriter* newWriter( const ROOT::Reflex::Type& classDictionary,
+  pool::IBlobWriter* newWriter( const Reflex::Type& classDictionary,
 				const std::string& version ) const
   {
     if ( DictPrereq_t()( classDictionary ) )
@@ -41,7 +41,7 @@ namespace cond {
   }
 
   /// Returns a new NON-PORTABLE streamer for reading from a BLOB
-  pool::IBlobReader* newReader( const ROOT::Reflex::Type& classDictionary,
+  pool::IBlobReader* newReader( const Reflex::Type& classDictionary,
 				const std::string& version ) const
   {
     if ( DictPrereq_t()( classDictionary ) )
