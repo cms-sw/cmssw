@@ -16,7 +16,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:34:30 PST 2007
-// $Id: FWDisplayEvent.h,v 1.26 2008/11/06 22:05:22 amraktad Exp $
+// $Id: FWDisplayEvent.h,v 1.27 2009/01/09 20:58:49 chrjones Exp $
 //
 
 // system include files
@@ -48,8 +48,6 @@ namespace fwlite {
   class Event;
 }
 
-class FWDetailViewBase;
-
 class FWDisplayEvent
 {
 
@@ -74,7 +72,6 @@ class FWDisplayEvent
       int draw(const fwlite::Event& );
 
       void registerPhysicsObject(const FWPhysicsObjectDesc&);
-     void registerDetailView (const std::string &item_name, FWDetailViewBase *view);
    private:
       FWDisplayEvent(const FWDisplayEvent&); // stop default
 

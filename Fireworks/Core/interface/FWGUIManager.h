@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 10:52:24 EST 2008
-// $Id: FWGUIManager.h,v 1.46 2009/01/08 18:06:30 amraktad Exp $
+// $Id: FWGUIManager.h,v 1.47 2009/01/09 20:58:49 chrjones Exp $
 //
 
 // system include files
@@ -63,7 +63,6 @@ class TEveElement;
 
 class FWSummaryManager;
 class FWDetailViewManager;
-class FWDetailViewBase;
 class FWModelChangeManager;
 
 class  TGPopupMenu;
@@ -143,8 +142,6 @@ class FWGUIManager : public FWConfigurable
       void registerViewBuilder(const std::string& iName,
                               ViewBuildFunctor& iBuilder);
 
-      void registerDetailView (const std::string &iItemName,
-                               FWDetailViewBase *iView);
       void createView(const std::string& iName);
 
       void enableActions(bool enable = true);

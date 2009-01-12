@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.90 2009/01/08 18:06:30 amraktad Exp $
+// $Id: FWGUIManager.cc,v 1.91 2009/01/09 20:58:50 chrjones Exp $
 //
 
 // system include files
@@ -289,13 +289,6 @@ FWGUIManager::registerViewBuilder(const std::string& iName,
    m_nameToViewBuilder[iName]=iBuilder;
    CSGAction* action=m_cmsShowMainFrame->createNewViewerAction(iName);
    action->activated.connect(boost::bind(&FWGUIManager::createView,this,iName));
-}
-
-void
-FWGUIManager::registerDetailView (const std::string &iItemName,
-                                  FWDetailViewBase *iView)
-{
-   m_detailViewManager->registerDetailView(iItemName,iView);
 }
 
 

@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: FWDisplayEvent.cc,v 1.61 2009/01/08 17:03:39 chrjones Exp $
+// $Id: FWDisplayEvent.cc,v 1.62 2009/01/09 20:58:50 chrjones Exp $
 //
 
 // system include files
@@ -44,7 +44,6 @@
 #include "Fireworks/Core/interface/FWModelChangeManager.h"
 #include "Fireworks/Core/interface/FWSelectionManager.h"
 #include "Fireworks/Core/interface/FWModelExpressionSelector.h"
-#include "Fireworks/Core/interface/FWDetailViewManager.h"
 #include "Fireworks/Core/interface/FWTextView.h"
 #include "DataFormats/FWLite/interface/Event.h"
 
@@ -176,12 +175,6 @@ FWDisplayEvent::~FWDisplayEvent()
 void FWDisplayEvent::registerPhysicsObject(const FWPhysicsObjectDesc&iItem)
 {
   m_eiManager->add(iItem);
-}
-
-void FWDisplayEvent::registerDetailView (const std::string &item_name,
-					 FWDetailViewBase *view)
-{
-     m_guiManager->registerDetailView(item_name, view);
 }
 
 //

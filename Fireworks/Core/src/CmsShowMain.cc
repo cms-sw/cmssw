@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.64 2009/01/08 18:06:30 amraktad Exp $
+// $Id: CmsShowMain.cc,v 1.65 2009/01/09 20:58:50 chrjones Exp $
 //
 
 // system include files
@@ -58,14 +58,8 @@
 #include "Fireworks/Core/interface/FWModelChangeManager.h"
 #include "Fireworks/Core/interface/FWSelectionManager.h"
 #include "Fireworks/Core/interface/FWModelExpressionSelector.h"
-#include "Fireworks/Core/interface/FWDetailViewManager.h"
 #include "Fireworks/Core/interface/FWTextView.h"
 #include "Fireworks/Core/interface/FWPhysicsObjectDesc.h"
-#include "Fireworks/Core/interface/ElectronDetailView.h"
-#include "Fireworks/Core/interface/PhotonDetailView.h"
-#include "Fireworks/Core/interface/TrackDetailView.h"
-#include "Fireworks/Core/interface/MuonDetailView.h"
-#include "Fireworks/Core/interface/GenParticleDetailView.h"
 
 #include "DataFormats/FWLite/interface/Event.h"
 
@@ -306,10 +300,6 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
       //gEve->GetHighlight()->SetPickToSelect(TEveSelection::kPS_PableCompound);
       //TEveTrackProjected::SetBreakTracks(kFALSE);
 
-      //setupDetailedViewManagers();
-      f=boost::bind(&CmsShowMain::setupDetailedViewManagers,this);
-      m_startupTasks->addTask(f);
-
       //setupDataHandling();
       f=boost::bind(&CmsShowMain::setupDataHandling,this);
       m_startupTasks->addTask(f);
@@ -451,12 +441,6 @@ void CmsShowMain::quit()
 void CmsShowMain::registerPhysicsObject(const FWPhysicsObjectDesc&iItem)
 {
   m_eiManager->add(iItem);
-}
-
-void CmsShowMain::registerDetailView (const std::string &item_name,
-					 FWDetailViewBase *view)
-{
-  m_guiManager->registerDetailView(item_name, view);
 }
 
 //
@@ -719,18 +703,6 @@ CmsShowMain::setupConfiguration()
                                                                          m_configurationManager.get(),
                                                                          m_configFileName));
    }
-}
-
-void
-CmsShowMain::setupDetailedViewManagers()
-{
-  m_guiManager->updateStatus("Setting up detailed views...");
-   // register detail viewers
-   registerDetailView("Electrons", new ElectronDetailView);
-   registerDetailView("Photons", new PhotonDetailView);
-   registerDetailView("Muons", new MuonDetailView);
-   registerDetailView("Tracks", new TrackDetailView);
-   registerDetailView("GenParticles", new GenParticleDetailView);
 }
 
 namespace {
