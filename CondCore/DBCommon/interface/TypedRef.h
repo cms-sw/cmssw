@@ -116,7 +116,7 @@ cond::TypedRef<T>::token() const{
 // object name
 template<typename T> std::string 
 cond::TypedRef<T>::className() const{
-  ROOT::Reflex::Type mytype=m_data.objectType();
+  Reflex::Type mytype=m_data.objectType();
   return mytype.Name();
 }
 template<typename T> std::string 
