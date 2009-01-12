@@ -4,14 +4,14 @@ process = cms.Process("TEST")
 process.PoolDBESSource = cms.ESSource("PoolDBESSource",
     DBParameters = cms.PSet(
         messageLevel = cms.untracked.int32(0),
-        authenticationPath = cms.untracked.string('/afs/cern.ch/cms/DB/conddb'),
-        BlobStreamerName = cms.untracked.string('DefaultBlobStreamingService')
+        authenticationPath = cms.untracked.string('/afs/cern.ch/user/x/xiezhen')
     ),
+    BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
     toGet = cms.VPSet(cms.PSet(
-        record = cms.string('SiStripPedestalsRcd'),
-        tag = cms.string('SiStripPedNoise_TOB_v1_p')
+        record = cms.string('mySiStripNoisesRcd'),
+        tag = cms.string('noise_tag')
     )),
-    connect = cms.string('oracle://cms_orcoff_int2r/CMS_COND_STRIP')
+    connect = cms.string('oracle://devdb10/cms_xiezhen_dev')
 )
 
 process.source = cms.Source("EmptyIOVSource",
@@ -23,8 +23,8 @@ process.source = cms.Source("EmptyIOVSource",
 
 process.get = cms.EDAnalyzer("EventSetupRecordDataGetter",
     toGet = cms.VPSet(cms.PSet(
-        record = cms.string('SiStripPedestalsRcd'),
-        data = cms.vstring('SiStripPedestals')
+        record = cms.string('mySiStripNoisesRcd'),
+        data = cms.vstring('mySiStripNoises')
     )),
     verbose = cms.untracked.bool(True)
 )
