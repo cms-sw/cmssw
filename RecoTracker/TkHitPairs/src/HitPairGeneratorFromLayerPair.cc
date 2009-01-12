@@ -45,7 +45,7 @@ void HitPairGeneratorFromLayerPair::hitPairs(
 {
 
   if (theInnerLayer.detLayer()->subDetector() != PixelBarrel &&
-      theInnerLayer.detLayer()->location() == barrel ){
+      theInnerLayer.detLayer()->subDetector() != PixelEndcap ){
     hitPairsWithErrors(region,result,iEvent,iSetup);
     return;
   }
@@ -116,7 +116,7 @@ void HitPairGeneratorFromLayerPair::hitPairs(
 void HitPairGeneratorFromLayerPair::
    hitPairsWithErrors( const TrackingRegion& region,
 		       OrderedHitPairs & result,
-                   const edm::Event & iEvent,
+		       const edm::Event & iEvent,
 		       const edm::EventSetup& iSetup)
 {
   static const TransientTrackingRecHitBuilder * TTRHbuilder = 0;
@@ -166,12 +166,14 @@ void HitPairGeneratorFromLayerPair::
     for (HI ih = innerCandid.begin(); ih != innerCandid.end(); ih++) {
       TransientTrackingRecHit::RecHitPointer recHit = TTRHbuilder->build(&(**ih));
       GlobalPoint innPos = recHit->globalPosition();
-      Range allowed = checkRZ->range(innPos.perp());
+      Range allowed;
       Range hitRZ;
       if (theInnerLayer.detLayer()->location() == barrel) {
+	allowed = checkRZ->range(innPos.perp());
         float zErr = nSigmaRZ * sqrt(recHit->globalPositionError().czz());
         hitRZ = Range(innPos.z()-zErr, innPos.z()+zErr);
       } else {
+	allowed = checkRZ->range(innPos.z());
         float rErr = nSigmaRZ * sqrt(recHit->globalPositionError().rerr(innPos));
         hitRZ = Range(innPos.perp()-rErr, innPos.perp()+rErr);
       }
