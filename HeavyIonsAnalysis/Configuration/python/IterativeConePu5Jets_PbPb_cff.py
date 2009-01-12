@@ -27,7 +27,7 @@ iterativeConePu5CaloJets = cms.EDProducer("IterativeConePilupSubtractionJetProdu
     coneRadius = cms.double(0.5)
 )
 
-MCJetCorJetIconePu5 = cms.EDProducer("JetCorrectionProducer",
+MCJetCorJetIconePu5 = cms.EDProducer("CaloJetCorrectionProducer",
     src = cms.InputTag("iterativeConePu5CaloJets"),
     correctors = cms.vstring('MCJetCorrectorIcone5'),
     alias = cms.untracked.string('MCJetCorJetIconePu5')
