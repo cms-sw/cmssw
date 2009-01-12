@@ -7,6 +7,11 @@ import FWCore.ParameterSet.Config as cms
 
 from RecoEgamma.EgammaIsolationAlgos.eleIsolationSequence_cff import *
 
+eleIsoDepositTk.src = cms.InputTag("electronFilter")
+eleIsoDepositEcalFromHits.src = cms.InputTag("electronFilter")
+eleIsoDepositHcalFromTowers.src = cms.InputTag("electronFilter")
+eleIsoDepositHcalDepth1FromTowers.src = cms.InputTag("electronFilter")
+eleIsoDepositHcalDepth2FromTowers.src = cms.InputTag("electronFilter")
 
 #egammaElectronSqPtTkIsolation = cms.EDProducer("ElectronSqPtTkIsolationProducer",
 #    absolut = cms.bool(False),
