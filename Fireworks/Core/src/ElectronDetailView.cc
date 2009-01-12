@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: ElectronDetailView.cc,v 1.26 2008/12/08 07:04:07 jmuelmen Exp $
+// $Id: ElectronDetailView.cc,v 1.27 2009/01/09 20:58:50 chrjones Exp $
 //
 
 // system include files
@@ -828,3 +828,5 @@ TEveElementList *ElectronDetailView::getEcalCrystalsEndcap (
      }
      return ret;
 }
+
+REGISTER_FWDETAILVIEW(ElectronDetailView);

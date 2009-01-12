@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: MuonDetailView.cc,v 1.10 2009/01/08 15:13:30 chrjones Exp $
+// $Id: MuonDetailView.cc,v 1.11 2009/01/09 20:58:50 chrjones Exp $
 //
 
 // system include files
@@ -362,3 +362,5 @@ TEveElement* MuonDetailView::build (const FWModelId &id, const reco::Muon* iMuon
    }
    return tList;
 }
+
+REGISTER_FWDETAILVIEW(MuonDetailView);

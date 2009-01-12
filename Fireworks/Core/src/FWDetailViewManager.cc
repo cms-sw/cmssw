@@ -8,14 +8,13 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Mar  5 09:13:47 EST 2008
-// $Id: FWDetailViewManager.cc,v 1.18 2008/12/08 06:24:43 jmuelmen Exp $
+// $Id: FWDetailViewManager.cc,v 1.19 2009/01/09 20:58:50 chrjones Exp $
 //
 
 // system include files
 #include <stdio.h>
 // #include <GL/gl.h>
-
-// user include files
+#include <boost/bind.hpp>
 #include "TGButton.h"
 #include "TGFrame.h"
 #include "TGLEmbeddedViewer.h"
@@ -26,11 +25,18 @@
 #include "TEveManager.h"
 #include "TEveScene.h"
 #include "TEveViewer.h"
+
+#include "TClass.h"
+#include "TGLOrthoCamera.h"
+
+
+// user include files
 #include "Fireworks/Core/interface/FWDetailViewManager.h"
 #include "Fireworks/Core/interface/FWDetailViewBase.h"
 #include "Fireworks/Core/interface/FWModelId.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
-#include "TGLOrthoCamera.h"
+
+#include "Fireworks/Core/interface/FWDetailViewFactory.h"
 
 //
 // constants, enums and typedefs
@@ -46,6 +52,28 @@
 FWDetailViewManager::FWDetailViewManager()
      : frame(0)
 {
+   //create a list of the available ViewManager's
+   std::set<std::string> detailViews;
+   
+   std::vector<edmplugin::PluginInfo> available = FWDetailViewFactory::get()->available();
+   std::transform(available.begin(),
+                  available.end(),
+                  std::inserter(detailViews,detailViews.begin()),
+                  boost::bind(&edmplugin::PluginInfo::name_,_1));
+   
+   for(std::set<std::string>::iterator it = detailViews.begin(), itEnd=detailViews.end();
+       it!=itEnd;
+       ++it) {
+      std::string::size_type first = it->find_first_of('@');
+      std::string  type = it->substr(0,first);
+      std::cout <<"type "<<type<<std::endl;
+      FWDetailViewBase* view = FWDetailViewFactory::get()->create(*it);
+      if(0!=view) {
+         m_viewers[type] = view;
+      }
+
+      //m_typeToBuilder[purpose]=std::make_pair(*it,true);
+   }   
 }
 
 // FWDetailViewManager::FWDetailViewManager(const FWDetailViewManager& rhs)
@@ -72,12 +100,6 @@ FWDetailViewManager::~FWDetailViewManager()
 //
 // member functions
 //
-void FWDetailViewManager::registerDetailView (const std::string &item_name,
-					      FWDetailViewBase *view)
-{
-     m_viewers[item_name] = view;
-}
-
 void FWDetailViewManager::close_wm ()
 {
 //      printf("mmmm, flaming death!\n");
@@ -130,8 +152,10 @@ FWDetailViewManager::openDetailViewFor(const FWModelId &id)
    frame->SetIconName("Detail View Icon");
    
    // find the right viewer for this item
+   std::string typeName = ROOT::Reflex::Type::ByTypeInfo(*(id.item()->modelType()->GetTypeInfo())).Name(ROOT::Reflex::SCOPED);
+
    std::map<std::string, FWDetailViewBase *>::iterator viewer =
-   m_viewers.find(id.item()->name());
+   m_viewers.find(typeName);
    if (viewer == m_viewers.end()) {
       std::cout << "FWDetailViewManager: don't know what detailed view to "
       "use for object " << id.item()->name() << std::endl;
@@ -182,7 +206,8 @@ FWDetailViewManager::openDetailViewFor(const FWModelId &id)
 bool
 FWDetailViewManager::haveDetailViewFor(const FWModelId& iId) const
 {
-   return m_viewers.end() != m_viewers.find(iId.item()->name());
+   std::string typeName = ROOT::Reflex::Type::ByTypeInfo(*(iId.item()->modelType()->GetTypeInfo())).Name(ROOT::Reflex::SCOPED);
+   return m_viewers.end() != m_viewers.find(typeName);
 }
 
 //

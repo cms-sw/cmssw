@@ -158,3 +158,5 @@ TEveElement* TrackDetailView::build (const FWModelId &id, const reco::Track* iTr
    }
    return tList;
 }
+
+REGISTER_FWDETAILVIEW(TrackDetailView);

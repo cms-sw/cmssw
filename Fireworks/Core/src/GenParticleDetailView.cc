@@ -64,3 +64,5 @@ TEveElement* GenParticleDetailView::build (const FWModelId &id, const reco::GenP
    
    return tList;
 }
+
+REGISTER_FWDETAILVIEW(GenParticleDetailView);
