@@ -11,5 +11,6 @@ refitMuons = cms.EDProducer('MuonsFromRefitTracksProducer',
     src           = cms.InputTag('muons'),
     tevMuonTracks = cms.untracked.string('tevMuons'),
     fromCocktail  = cms.untracked.bool(True),
-    fromTMR       = cms.untracked.bool(False)
+    fromTMR       = cms.untracked.bool(False),
+    TMRcut        = cms.untracked.double(3.5)
 )
