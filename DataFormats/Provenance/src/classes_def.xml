@@ -5,6 +5,8 @@
  <class name="edm::BranchID"/>
  <class name="edm::EventID"/>
  <class name="edm::LuminosityBlockID"/>
+ <class name="edm::LuminosityBlockRange"/>
+ <class name="edm::EventRange"/>
  <class name="edm::RunID"/>
  <class name="edm::FileID"/>
  <class name="edm::Timestamp"/>
