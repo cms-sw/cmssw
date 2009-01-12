@@ -104,14 +104,31 @@ process.fevt = cms.OutputModule(
     fileName = cms.untracked.string("fevt.root"),
     outputCommands = cms.untracked.vstring(
       'drop *',
+      ###---these are the collection used in inpyut to the "general tracks"
+      # zero step high purity
+      'keep *_zeroStepTracksWithQuality*_*_*',
+      # step one high purity
+      'keep *_preMergingFirstStepTracksWithQuality*_*_*',
+      # first(merged 0+1)  iterative step high purity
+      'keep *_firstStepTracksWithQuality*_*_*',
+      # this should be the same as above (but not used in the merger). I see it empty
       'keep *_firstfilter_*_*',
+      # second step high quality
       'keep *_secStep_*_*',
+      #third step  high quality
       'keep *_thStep_*_*',
+      #fourth step high quality
+      'keep *_pixellessStep*_*_*',
+      # merge of secStep+thStep 
+      'keep *_merge2nd3rdTracks*_*_*',
+      # merge of merge2nd3rd+pixelless
+      'keep *_iterTracks*_*_*',
+      #merge of firstStepTracksWithQuality+iterTracks
+      "keep *_generalTracks_*_*",      
       'keep *_*Seed*_*_*',
       'keep *_sec*_*_*',
       'keep *_th*_*_*',
       'keep *_newTrackCandidateMaker_*_*',
-      "keep *_generalTracks_*_*",
       "keep SimTracks_*_*_*",
       "keep SimVertexs_*_*_*",
       "keep edmHepMCProduct_*_*_*"
