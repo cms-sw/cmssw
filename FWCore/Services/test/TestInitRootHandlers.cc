@@ -188,7 +188,11 @@ static bool printAsContainer(const std::string& iName,
                              const std::string& iIndentDelta){
    Reflex::Object sizeObj;
    try {
+#if ROOT_VERSION_CODE <= ROOT_VERSION(5,19,0)
       sizeObj = iObject.Invoke("size");
+#else
+      iObject.Invoke("size", &sizeObj);
+#endif
       assert(sizeObj.TypeOf().TypeInfo() == typeid(size_t));
       size_t size = *reinterpret_cast<size_t*>(sizeObj.Address());
       Reflex::Member atMember;
@@ -204,7 +208,11 @@ static bool printAsContainer(const std::string& iName,
       for(size_t index = 0; index != size; ++index) {
          std::ostringstream sizeS;
          sizeS << "["<<index<<"]";
+#if ROOT_VERSION_CODE <= ROOT_VERSION(5,19,0)
          contained = atMember.Invoke(iObject, Reflex::Tools::MakeVector(static_cast<void*>(&index)));
+#else
+         atMember.Invoke(iObject, &contained, Reflex::Tools::MakeVector(static_cast<void*>(&index)));
+#endif
          //std::cout <<"invoked 'at'"<<std::endl;
          try {
             printObject(sizeS.str(),contained,indexIndent,iIndentDelta);
