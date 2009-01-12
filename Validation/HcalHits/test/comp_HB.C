@@ -102,7 +102,7 @@
 
    for (int i = 0; i < Nhist; i++){
 
-     if(i == 0 ) { 
+     if(i == 5 ) { 
        f1_hist[i]->SetStats(kFALSE);   
        f2_hist[i]->SetStats(kFALSE); 
      }
@@ -137,26 +137,6 @@
      f1_hist[i]->GetYaxis()->SetTitleSize(0.045);
 
 
-     // Chi2 test
-     const float NCHI2MIN = 0.01;
-     
-     float pval;
-     stringstream mystream;
-     char tempbuff[30];
-     
-     pval = f1_hist[i]->Chi2Test(f2_hist[i]);
-     //     cout << "i_hist "  << i << " pval = " << pval << endl;
-     
-     sprintf(tempbuff,"Chi2 p-value: %6.3E%c",pval,'\0');
-     mystream<<tempbuff;
-     
-     TPaveText* ptchi2 = new TPaveText(0.25, 0.91, 0.5, 0.99, "NDC");
-     
-     if (pval > NCHI2MIN) ptchi2->SetFillColor(kGreen);
-     else                 ptchi2->SetFillColor(kRed);
-     
-     ptchi2->SetTextSize(0.03);
-     ptchi2->AddText(mystream.str().c_str());
      //
 
      TLegend *leg = new TLegend(0.55, 0.91, 0.84, 0.99, "" , "brNDC");
@@ -167,7 +147,7 @@
      leg->AddEntry(f1_hist[i],"CMSSW_300pre5","l");
      leg->AddEntry(f2_hist[i],"CMSSW_300pre6","l");
      
-     if (i > 0) {
+     if (i != 5 ) {
        TPaveStats *ptstats = new TPaveStats(0.85,0.86,0.98,0.98,"brNDC");
        ptstats->SetTextColor(41);
        f1_hist[i]->GetListOfFunctions()->Add(ptstats);
@@ -185,8 +165,33 @@
        f2_hist[i]->Draw("hist same");
      }
 
-     ptchi2->Draw();
      leg->Draw();   
+
+     // Chi2 test
+     if(i == 2 || i == 3 || i == 7 || i ==8 ) {
+       const float NCHI2MIN = 0.01;
+       
+       float pval;
+       stringstream mystream;
+       char tempbuff[30];
+       
+       pval = f1_hist[i]->Chi2Test(f2_hist[i]);
+       //     cout << "i_hist "  << i << " pval = " << pval << endl;
+       
+       sprintf(tempbuff,"Chi2 p-value: %6.3E%c",pval,'\0');
+       mystream<<tempbuff;
+       
+       TPaveText* ptchi2 = new TPaveText(0.25, 0.91, 0.5, 0.99, "NDC");
+       
+       if (pval > NCHI2MIN) ptchi2->SetFillColor(kGreen);
+       else                 ptchi2->SetFillColor(kRed);
+       
+       ptchi2->SetTextSize(0.03);
+       ptchi2->AddText(mystream.str().c_str()); 
+       ptchi2->Draw();
+
+     }
+
      
      myc->SaveAs(label[i]);
    }     

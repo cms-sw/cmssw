@@ -52,14 +52,8 @@
 
    for (int i = 0; i < Nhist; i++){
  
-     if(i == 0) {
-       f3_hist[i]->SetStats(kFALSE);
-       f4_hist[i]->SetStats(kFALSE);
-     }
-     else {
-       f3_hist[i]->SetStats(kTRUE);
-       f4_hist[i]->SetStats(kTRUE);
-     }
+     f3_hist[i]->SetStats(kTRUE);
+     f4_hist[i]->SetStats(kTRUE);
 
      f3_hist[i]->SetTitle("");
      f4_hist[i]->SetTitle("");
@@ -115,7 +109,7 @@
      leg->AddEntry(f4_hist[i],"CMSSW_300pre6","l");
 
 
-     if (i > 0) {
+     if (i >= 0) {
        TPaveStats *ptstats = new TPaveStats(0.85,0.86,0.98,0.98,"brNDC");
        ptstats->SetTextColor(41);
        f3_hist[i]->GetListOfFunctions()->Add(ptstats);
