@@ -1,6 +1,11 @@
 <lcgdict>
  <class name="edm::GenHIEvent"/>
  <class name="edm::SubEvent"/>
+ <class name="edm::AssociationMap<edm::OneToValue<std::vector<reco::GenParticle>, int, int> >">
+  <field name="transientMap_" transient="true" />
+ </class>
  <class name="std::vector<edm::SubEvent>"/>
  <class name="edm::Wrapper<edm::GenHIEvent>"/>
+ <class name="edm::helpers::Key<edm::RefProd<std::vector<reco::GenParticle> > >"/>
+ <class name="edm::Wrapper<edm::AssociationMap<edm::OneToValue<std::vector<reco::GenParticle>, int, int> > >"/>
 </lcgdict>
