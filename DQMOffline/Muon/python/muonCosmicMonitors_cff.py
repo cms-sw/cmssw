@@ -5,6 +5,8 @@ from DQM.TrackingMonitor.MonitorTrackSTACosmicMuons_cff import *
 from DQM.TrackingMonitor.MonitorTrackSTACosmicMuonsHLT_cff import *
 from DQM.TrackingMonitor.MonitorTrackGLBCosmicMuons_cfi import *
 from DQM.TrackingMonitor.MonitorTrackTKCosmicMuons_cfi import *
+from DQM.TrackingMonitor.MonitorTrackEfficiencySTACosmicMuons_cff import *
+from DQM.TrackingMonitor.MonitorTrackEfficiencyTkTracks_cff import *
 from DQMOffline.Muon.dtSegmTask_cfi import *
 from DQMOffline.Muon.rpcSource_cfi import *
 #dedicated analyzers for offline dqm
@@ -21,7 +23,7 @@ dqmInfoMuons = cms.EDFilter("DQMEventInfo",
                             subSystemFolder = cms.untracked.string('Muons')
                             )
 
-muonTrackCosmicAnalyzers = cms.Sequence(standAloneCosmicMuonsMonitors*MonitorTrackTKCosmicMuons*MonitorTrackGLBCosmicMuons)
+muonTrackCosmicAnalyzers = cms.Sequence(standAloneCosmicMuonsMonitors*MonitorTrackTKCosmicMuons*MonitorTrackGLBCosmicMuons*MonitorTrackEfficiencySTACosmicMuons*MonitorTrackEfficiencyTkTracks)
 muonTrackCosmicAnalyzersHLT = cms.Sequence(MonitorTrackSTACosmicMuonsHLTDT*MonitorTrackSTACosmicMuonsHLTCSC)
 
 muonCosmicMonitors = cms.Sequence(muonTrackCosmicAnalyzers*dtSegmentsMonitor*rpcSource*cscMonitor*muonCosmicAnalyzer*muonIdDQM*dqmInfoMuons)
