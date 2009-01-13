@@ -7,7 +7,9 @@ process.load("Configuration.StandardSequences.Geometry_cff")
 
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
-process.load("Configuration.StandardSequences.FakeConditions_cff")
+process.load("Configuration/StandardSequences/FrontierConditions_GlobalTag_cff")
+process.GlobalTag.globaltag = 'IDEAL_30X::All'
+
 
 process.load("Configuration.StandardSequences.Services_cff")
 
@@ -19,7 +21,7 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('file:./Muon.root')
+    fileNames = cms.untracked.vstring('/store/relval/CMSSW_3_0_0_pre6/RelValSingleMuPt10/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_30X_v1/0005/38E34C97-E8DD-DD11-8327-000423D94534.root')
 )
 
 process.o1 = cms.OutputModule("PoolOutputModule",
@@ -30,6 +32,7 @@ process.Timing = cms.Service("Timing")
 
 process.SimpleMemoryCheck = cms.Service("SimpleMemoryCheck")
 
+process.trackerHitsValid.outputFile ="TrackerHitHisto.root"
 process.p1 = cms.Path(process.g4SimHits*process.trackerHitsValidation)
 process.outpath = cms.EndPath(process.o1)
 
