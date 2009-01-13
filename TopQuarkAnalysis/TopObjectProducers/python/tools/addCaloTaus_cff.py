@@ -54,13 +54,11 @@ from TopQuarkAnalysis.TopObjectProducers.full.tqafLayer0_triggerMatching_cff imp
 #---------------------------------------
 import PhysicsTools.PatAlgos.producersLayer1.tauProducer_cfi
 import PhysicsTools.PatAlgos.selectionLayer1.tauSelector_cfi
-import PhysicsTools.PatAlgos.selectionLayer1.tauMinFilter_cfi
-import PhysicsTools.PatAlgos.selectionLayer1.tauMaxFilter_cfi
+import PhysicsTools.PatAlgos.selectionLayer1.tauCountFilter_cfi
 
 ## clone module(s)
 allLayer1CaloTaus      = PhysicsTools.PatAlgos.producersLayer1.tauProducer_cfi.allLayer1Taus.clone()
-minLayer1CaloTaus      = PhysicsTools.PatAlgos.selectionLayer1.tauMinFilter_cfi.minLayer1Taus.clone()
-maxLayer1CaloTaus      = PhysicsTools.PatAlgos.selectionLayer1.tauMaxFilter_cfi.maxLayer1Taus.clone()
+countLayer1CaloTaus    = PhysicsTools.PatAlgos.selectionLayer1.tauCountFilter_cfi.countLayer1Taus.clone()
 selectedLayer1CaloTaus = PhysicsTools.PatAlgos.selectionLayer1.tauSelector_cfi.selectedLayer1Taus.clone()
 
 #---------------------------------------
@@ -76,18 +74,13 @@ allLayer1CaloTaus.trigPrimMatch        = ['tauTrigMatchHLT1CaloTau']
 allLayer1CaloTaus.genParticleMatch     =  'caloTauMatch'
 allLayer1CaloTaus.genJetMatch          =  'caloTauGenJetMatch'
 selectedLayer1CaloTaus.src             =  'allLayer1CaloTaus'              ## object selection
-minLayer1CaloTaus.src                  =  'selectedLayer1CaloTaus'
-maxLayer1CaloTaus.src                  =  'selectedLayer1CaloTaus'
+countLayer1CaloTaus.src                =  'selectedLayer1CaloTaus'
 
 ##
 ## standard sequences for caloTau
 ##
 
 ## production and selection
-countLayer1CaloTaus = cms.Sequence(
-    minLayer1CaloTaus +
-    maxLayer1CaloTaus
-) 
 tqafLayer1CaloTaus = cms.Sequence(
     allLayer1CaloTaus *
     selectedLayer1CaloTaus *
