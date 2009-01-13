@@ -11,7 +11,7 @@ process.PoolDBESSource = cms.ESSource("PoolDBESSource",
                                       process.CondDBSetup,
                                       loadAll = cms.bool(True),
                                       toGet = cms.VPSet(cms.PSet(
-                                                        record = cms.string('RecoIdealGeometryRcd'),
+                                                        record = cms.string('CSCRecoGeometryRcd'),
                                                            tag = cms.string('RecoIdealGeometry')
                                                        ),cms.PSet(
                                                         record = cms.string('CSCRecoDigiParametersRcd'),

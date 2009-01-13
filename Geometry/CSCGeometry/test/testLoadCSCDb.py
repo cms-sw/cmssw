@@ -26,7 +26,7 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
                                           connect = cms.string('sqlite_file:test.db'),
                                           #                                              process.CondDBCommon,
                                           toPut = cms.VPSet(cms.PSet(
-                                                             record = cms.string('RecoIdealGeometryRcd'),
+                                                             record = cms.string('CSCRecoGeometryRcd'),
                                                                 tag = cms.string('RecoIdealGeometry')
                                                              ),cms.PSet(
                                                              record = cms.string('CSCRecoDigiParametersRcd'),

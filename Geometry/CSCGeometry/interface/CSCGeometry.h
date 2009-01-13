@@ -31,7 +31,7 @@ class CSCGeometry : public TrackingGeometry {
 
  public:
 
-  friend class CSCGeometryBuilderFromDDD;
+  friend class CSCGeometryBuilder; //FromDDD;
   friend class GeometryAligner;
 
   /// Default constructor
