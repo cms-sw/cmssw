@@ -97,7 +97,7 @@ process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
     type = cms.string('EcalSimHitsValidProducer'),
     verbose = cms.untracked.bool(False)
 ))
-process.ecalWeightUncalibRecHit.EBdigiCollection = 'simEcalDigis:ebDigis'
-process.ecalWeightUncalibRecHit.EEdigiCollection = 'simEcalDigis:eeDigis'
+process.ecalUncalibRecHit.EBdigiCollection = 'simEcalDigis:ebDigis'
+process.ecalUncalibRecHit.EEdigiCollection = 'simEcalDigis:eeDigis'
 process.ecalPreshowerRecHit.ESdigiCollection = 'simEcalPreshowerDigis'
 

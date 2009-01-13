@@ -124,7 +124,7 @@ process.ecalDigisValidation.ESdigiCollection = 'simEcalUnsuppressedDigis:esUnsup
 process.ecalBarrelDigisValidation.EBdigiCollection = 'simEcalUnsuppressedDigis:ebUnsuppDigis'
 process.ecalEndcapDigisValidation.EEdigiCollection = 'simEcalUnsuppressedDigis:eeUnsuppDigis'
 process.ecalPreshowerDigisValidation.ESdigiCollection = 'simEcalUnsuppressedDigis:esUnsuppDigis'
-process.ecalWeightUncalibRecHit.EBdigiCollection = 'simEcalUnsuppressedDigis:ebUnsuppDigis'
-process.ecalWeightUncalibRecHit.EEdigiCollection = 'simEcalUnsuppressedDigis:eeUnsuppDigis'
+process.ecalUncalibRecHit.EBdigiCollection = 'simEcalUnsuppressedDigis:ebUnsuppDigis'
+process.ecalUncalibRecHit.EEdigiCollection = 'simEcalUnsuppressedDigis:eeUnsuppDigis'
 process.ecalPreshowerRecHit.ESdigiCollection = 'simEcalUnsuppressedDigis:esUnsuppDigis'
 
