@@ -5,11 +5,32 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("GeometryTest")
+process.load("CondCore.DBCommon.CondDBSetup_cfi")
+
+process.PoolDBESSource = cms.ESSource("PoolDBESSource",
+                                      process.CondDBSetup,
+                                      loadAll = cms.bool(True),
+                                      toGet = cms.VPSet(cms.PSet(
+                                                        record = cms.string('RecoIdealGeometryRcd'),
+                                                           tag = cms.string('RecoIdealGeometry')
+                                                       ),cms.PSet(
+                                                        record = cms.string('CSCRecoDigiParametersRcd'),
+                                                           tag = cms.string('CSCRecoDigiParameters')
+                                                       )),
+                                      DBParameters = cms.PSet(
+                                                              messageLevel = cms.untracked.int32(9),
+                                                              authenticationPath = cms.untracked.string('.')
+                                                             ),
+                                      catalog = cms.untracked.string('file:PoolFileCatalog.xml'),
+                                      timetype = cms.string('runnumber'),
+                                      connect = cms.string('sqlite_file:test.db')
+                                     )
 process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")
-process.load("Geometry.MuonCommonData.muonEndcapIdealGeometryXML_cfi")
+#process.load("Geometry.MuonCommonData.muonEndcapIdealGeometryXML_cfi")
+
 # flags for modelling of CSC layer & strip geometry
 process.load("Geometry.CSCGeometry.cscGeometry_cfi")
-#process.load("Geometry.CSCGeometryBuilder.idealForDigiCscGeometry_cff")
+#process.load("Geometry.CSCGeometryBuilder.idealForDigiCscGeometryFromDB_cff")
 process.load("Alignment.CommonAlignmentProducer.FakeAlignmentSource_cfi")
 #process.preferFakeAlign = cms.ESPrefer("FakeAlignmentSource", "FakeAlignmentSource")
 process.fake2 = process.FakeAlignmentSource
@@ -76,4 +97,5 @@ process.producer = cms.EDAnalyzer("CSCGeometryAnalyzer")
 
 process.p1 = cms.Path(process.producer)
 process.CSCGeometryESModule.debugV = True
+process.CSCGeometryESModule.useDDD = False
 
