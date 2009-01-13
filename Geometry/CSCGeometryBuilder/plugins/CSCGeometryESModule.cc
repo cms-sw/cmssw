@@ -1,9 +1,19 @@
 
 #include "CSCGeometryESModule.h"
 #include "Geometry/CSCGeometryBuilder/src/CSCGeometryBuilderFromDDD.h"
+#include "Geometry/CSCGeometryBuilder/src/CSCGeometryBuilder.h"
+#include "Geometry/CSCGeometry/interface/CSCChamberSpecs.h"
 
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/Records/interface/MuonNumberingRecord.h"
+
+// #include "CondFormats/DataRecord/interface/RecoIdealGeometryRcd.h"
+// #include "CondFormats/DataRecord/interface/CSCRecoDigiParametersRcd.h"
+#include "Geometry/Records/interface/RecoIdealGeometryRcd.h"
+#include "Geometry/Records/interface/CSCRecoDigiParametersRcd.h"
+#include "CondFormats/RecoGeometryObjects/interface/RecoIdealGeometry.h"
+#include "CondFormats/RecoGeometryObjects/interface/CSCRecoDigiParameters.h"
+#include "DetectorDescription/Core/interface/DDCompactView.h"
 
 // Alignments
 #include "CondFormats/Alignment/interface/DetectorGlobalPosition.h"
@@ -55,9 +65,12 @@ CSCGeometryESModule::CSCGeometryESModule(const edm::ParameterSet & p)
 
   debugV = p.getUntrackedParameter<bool>("debugV", false);
 
-  // Switch to apply the alignment corrections
+  // Find out if using the DDD or CondDB Geometry source.
+  useDDD_ = p.getParameter<bool>("useDDD");
 
+  // Feed these value to where I need them
   applyAlignment_ = p.getParameter<bool>("applyAlignment");
+
 
   edm::LogInfo("Geometry") << "@SUB=CSCGeometryESModule" 
 			   << "Label '" << myLabel_ << "' "
@@ -81,6 +94,13 @@ boost::shared_ptr<CSCGeometry> CSCGeometryESModule::produce(const MuonGeometryRe
     edm::ESHandle<Alignments> alignments;
     record.getRecord<CSCAlignmentRcd>().get(alignmentsLabel_, alignments);
     edm::ESHandle<AlignmentErrors> alignmentErrors;
+// <<<<<<< CSCGeometryESModule.cc
+//     record.getRecord<CSCAlignmentErrorRcd>().get( alignmentErrors );
+//     GeometryAligner aligner;
+//     aligner.applyAlignments<CSCGeometry>( &(*_cscGeometry),
+// 					  &(*alignments), &(*alignmentErrors),
+// 	 align::DetectorGlobalPosition(*globalPositionRcd, DetId(DetId::Muon)));
+// =======
     record.getRecord<CSCAlignmentErrorRcd>().get(alignmentsLabel_,  alignmentErrors);
     // Only apply alignment if values exist
     if (alignments->empty() && alignmentErrors->empty() && globalPosition->empty()) {
@@ -93,6 +113,7 @@ boost::shared_ptr<CSCGeometry> CSCGeometryESModule::produce(const MuonGeometryRe
       aligner.applyAlignments<CSCGeometry>( &(*cscGeometry), &(*alignments), &(*alignmentErrors),
 	                    align::DetectorGlobalPosition(*globalPosition, DetId(DetId::Muon)) );
     }
+// >>>>>>> 1.8
   }
 
   return cscGeometry;
@@ -112,13 +133,26 @@ void CSCGeometryESModule::geometryCallback_( const MuonNumberingRecord& record )
   cscGeometry->setDebugV( debugV );
   if ( debugV ) cscGeometry->queryModelling();
 
-  edm::ESHandle<DDCompactView> cpv;
-  edm::ESHandle<MuonDDDConstants> mdc;
-  record.getRecord<IdealGeometryRecord>().get(cpv);
-  record.get( mdc );
-  CSCGeometryBuilderFromDDD builder;
-  //  cscGeometry = boost::shared_ptr<CSCGeometry>( builder.build( &(*cpv), *mdc ) );
-  builder.build( cscGeometry, &(*cpv), *mdc );
+  // Called whenever the muon numbering (or ideal geometry) changes
+  //
+  if ( useDDD_ ) {
+    edm::ESHandle<DDCompactView> cpv;
+    edm::ESHandle<MuonDDDConstants> mdc;
+    record.getRecord<IdealGeometryRecord>().get(cpv);
+    record.get( mdc );
+    CSCGeometryBuilderFromDDD builder;
+    //    _cscGeometry = boost::shared_ptr<CSCGeometry>(builder.build(_cscGeometry, &(*cpv), *mdc));
+    builder.build(cscGeometry, &(*cpv), *mdc);
+  } else {
+    edm::ESHandle<RecoIdealGeometry> rig;
+    edm::ESHandle<CSCRecoDigiParameters> rdp;
+    record.getRecord<RecoIdealGeometryRcd>().get(rig);
+    record.getRecord<CSCRecoDigiParametersRcd>().get(rdp);
+    CSCGeometryBuilder cscgb;
+    //    _cscGeometry = boost::shared_ptr<CSCGeometry>(cscgb.build(_cscGeometry, *rig, *rdp));
+    cscgb.build(cscGeometry, *rig, *rdp);
+  }
+
 }
 
 DEFINE_FWK_EVENTSETUP_MODULE(CSCGeometryESModule);

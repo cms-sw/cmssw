@@ -39,11 +39,11 @@ private:
   bool useGangedStripsInME1a;
   bool useCentreTIOffsets;
   bool debugV;
-
   bool applyAlignment_; // Switch to apply alignment corrections
-
+  bool useDDD_; // whether to build from DDD or DB
   const std::string alignmentsLabel_;
   const std::string myLabel_;
+
 };
 #endif
 
