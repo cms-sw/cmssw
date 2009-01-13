@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Wed Nov 30 14:55:01 EST 2005
-// $Id: RootAutoLibraryLoader.cc,v 1.14 2008/10/03 18:12:48 wmtan Exp $
+// $Id: RootAutoLibraryLoader.cc,v 1.15 2008/11/28 17:44:31 wmtan Exp $
 //
 
 // system include files
@@ -70,6 +70,8 @@ static const char* kDummyLibName = "*dummy";
 // I want to use it so that if the autoloading is already turned on, I can call the previously declared routine
 extern CallbackPtr G__p_class_autoloading;
 
+
+#if ROOT_VERSION_CODE <= ROOT_VERSION(5,19,0)
 namespace {
    //just want access to the copy constructor
    class MyClass : public TClass {
@@ -77,6 +79,7 @@ namespace {
       MyClass(const TClass& iOther): TClass(iOther) {}
    };
 }
+#endif
 
 namespace edm {
 
@@ -299,9 +302,13 @@ void registerTypes() {
           std::cout <<" failed to get TClass by typeid"<<std::endl;
           continue;
         }
+#if ROOT_VERSION_CODE <= ROOT_VERSION(5,19,0)
         MyClass* myNewlyNamedClass = new MyClass(*reflexNamedClass);
         myNewlyNamedClass->SetName(itSpecial->first.c_str());
         gROOT->AddClass(myNewlyNamedClass);
+#else
+        reflexNamedClass->Clone(itSpecial->first.c_str());
+#endif
       }
     }
   }
