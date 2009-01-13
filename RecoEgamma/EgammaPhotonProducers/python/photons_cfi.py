@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 from RecoEgamma.PhotonIdentification.isolationCalculator_cfi import *
 #
 # producer for photons
-# $Id: photons_cfi.py,v 1.18 2008/12/02 14:08:36 nancy Exp $
+# $Id: photons_cfi.py,v 1.19 2008/12/15 20:15:51 nancy Exp $
 #
 photons = cms.EDProducer("PhotonProducer",
     isolationSumsCalculatorSet = cms.PSet(isolationSumsCalculator),
@@ -19,7 +19,7 @@ photons = cms.EDProducer("PhotonProducer",
     photonCollection = cms.string(''),
     conversionProducer = cms.string('conversions'),
     risolveConversionAmbiguity = cms.bool(True),
-    pixelSeedProducer = cms.string('electronPixelSeeds'),
+    pixelSeedProducer = cms.string('ecalDrivenElectronSeeds'),
     hbheInstance = cms.string(''),
     posCalc_t0_endc = cms.double(6.3),
     # Old endcap clustering
