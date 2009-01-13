@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Mar  5 09:13:47 EST 2008
-// $Id: FWDetailViewManager.cc,v 1.20 2009/01/12 17:21:30 chrjones Exp $
+// $Id: FWDetailViewManager.cc,v 1.21 2009/01/13 16:25:05 chrjones Exp $
 //
 
 // system include files
@@ -38,6 +38,9 @@
 
 #include "Fireworks/Core/interface/FWDetailViewFactory.h"
 
+#include "Fireworks/Core/interface/FWSimpleRepresentationChecker.h"
+#include "Fireworks/Core/interface/FWRepresentationInfo.h"
+
 //
 // constants, enums and typedefs
 //
@@ -52,30 +55,6 @@
 FWDetailViewManager::FWDetailViewManager()
      : frame(0)
 {
-   /*
-   //create a list of the available ViewManager's
-   std::set<std::string> detailViews;
-   
-   std::vector<edmplugin::PluginInfo> available = FWDetailViewFactory::get()->available();
-   std::transform(available.begin(),
-                  available.end(),
-                  std::inserter(detailViews,detailViews.begin()),
-                  boost::bind(&edmplugin::PluginInfo::name_,_1));
-   
-   for(std::set<std::string>::iterator it = detailViews.begin(), itEnd=detailViews.end();
-       it!=itEnd;
-       ++it) {
-      std::string::size_type first = it->find_first_of('@');
-      std::string  type = it->substr(0,first);
-      std::cout <<"type "<<type<<std::endl;
-      FWDetailViewBase* view = FWDetailViewFactory::get()->create(*it);
-      if(0!=view) {
-         m_viewers[type] = view;
-      }
-      //m_typeToBuilder[purpose]=std::make_pair(*it,true);
-   }   
-    */
-
 }
 
 // FWDetailViewManager::FWDetailViewManager(const FWDetailViewManager& rhs)
@@ -233,6 +212,10 @@ FWDetailViewManager::findViewerFor(const std::string& iType) const
 {
    std::string returnValue;
    
+   std::map<std::string,std::string>::const_iterator itFind = m_typeToViewers.find(iType);
+   if(itFind != m_typeToViewers.end()) {
+      return itFind->second;
+   }
    //create a list of the available ViewManager's
    std::set<std::string> detailViews;
    
@@ -241,7 +224,7 @@ FWDetailViewManager::findViewerFor(const std::string& iType) const
                   available.end(),
                   std::inserter(detailViews,detailViews.begin()),
                   boost::bind(&edmplugin::PluginInfo::name_,_1));
-   
+   unsigned int closestMatch= 0xFFFFFFFF;
    for(std::set<std::string>::iterator it = detailViews.begin(), itEnd=detailViews.end();
        it!=itEnd;
        ++it) {
@@ -249,9 +232,18 @@ FWDetailViewManager::findViewerFor(const std::string& iType) const
       std::string  type = it->substr(0,first);
 
       if(type == iType) {
+         m_typeToViewers[iType]=*it;
          return *it;
       }
+      //see if we match via inheritance 
+      FWSimpleRepresentationChecker checker(type,"");
+      FWRepresentationInfo info = checker.infoFor(iType);
+      if(closestMatch > info.proximity()) {
+         closestMatch = info.proximity();
+         returnValue=*it;
+      }
    }
+   m_typeToViewers[iType]=returnValue;
    return returnValue;
 }
 

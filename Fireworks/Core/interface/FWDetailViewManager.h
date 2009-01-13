@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Mar  5 09:13:43 EST 2008
-// $Id: FWDetailViewManager.h,v 1.8 2009/01/12 17:21:29 chrjones Exp $
+// $Id: FWDetailViewManager.h,v 1.9 2009/01/13 16:25:05 chrjones Exp $
 //
 
 // system include files
@@ -63,6 +63,7 @@ protected:
      TGTextView		*text_view;
 
      std::map<std::string, FWDetailViewBase *>	m_viewers;
+     mutable std::map<std::string, std::string> m_typeToViewers;
 };
 
 
