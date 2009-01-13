@@ -34,26 +34,30 @@ class TtJetPartonMatch : public edm::EDProducer {
   edm::InputTag jets_;
 
   int nJets_;
+  int nComb_;
   int algorithm_;
   bool useDeltaR_;
   bool useMaxDist_;
   double maxDist_;
+  int verbosity_;
 };
 
 template<typename C>
 TtJetPartonMatch<C>::TtJetPartonMatch(const edm::ParameterSet& cfg):
-  jets_(cfg.getParameter<edm::InputTag>("jets")),
-  nJets_(cfg.getParameter<int>("nJets")),
-  algorithm_(cfg.getParameter<int>("algorithm")),
-  useDeltaR_(cfg.getParameter<bool>("useDeltaR")),
-  useMaxDist_(cfg.getParameter<bool>("useMaxDist")),
-  maxDist_(cfg.getParameter<double>("maxDist"))
+  jets_      (cfg.getParameter<edm::InputTag>("jets"      )),
+  nJets_     (cfg.getParameter<int>          ("nJets"     )),
+  nComb_     (cfg.getParameter<int>          ("nComb"     )),
+  algorithm_ (cfg.getParameter<int>          ("algorithm" )),
+  useDeltaR_ (cfg.getParameter<bool>         ("useDeltaR" )),
+  useMaxDist_(cfg.getParameter<bool>         ("useMaxDist")),
+  maxDist_   (cfg.getParameter<double>       ("maxDist"   )),
+  verbosity_ (cfg.getParameter<int>          ("verbosity" ))
 {
   // produces a vector of jet indices in the order
   // of TtSemiLepEvtPartons or TtFullHadEvtPartons
-  produces< std::vector<int> >();
-  produces< double >("SumPt");
-  produces< double >("SumDR");
+  produces< std::vector<std::vector<int> > >();
+  produces< std::vector<double> >("SumPt");
+  produces< std::vector<double> >("SumDR");
 }
 
 template<typename C>
@@ -96,21 +100,22 @@ TtJetPartonMatch<C>::produce(edm::Event& evt, const edm::EventSetup& setup)
   // do the matching with specified parameters
   JetPartonMatching jetPartonMatch(partons, jets, algorithm_, useMaxDist_, useDeltaR_, maxDist_);
 
-  // feed out parton match
-  std::auto_ptr< std::vector<int> > pOut(new std::vector<int>);
-  for(unsigned int i=0; i<partons.size(); ++i){
-    pOut->push_back( jetPartonMatch.getMatchForParton(i) );
+  // print some info for each event
+  // if corresponding verbosity level set
+  if(verbosity_>0) jetPartonMatch.print();
+
+  // feed out parton match, sumPt and sumDR
+  std::auto_ptr< std::vector<std::vector<int> > > match(new std::vector<std::vector<int> >);
+  std::auto_ptr< std::vector<double> > sumPt(new std::vector<double>);
+  std::auto_ptr< std::vector<double> > sumDR(new std::vector<double>);
+  for(unsigned int ic=0; ic<jetPartonMatch.getNumberOfAvailableCombinations(); ++ic) {
+    if((int)ic>=nComb_ && nComb_>=0) break;
+    match->push_back( jetPartonMatch.getMatchesForPartons(ic) );
+    sumPt->push_back( jetPartonMatch.getSumDeltaPt       (ic) );
+    sumDR->push_back( jetPartonMatch.getSumDeltaR        (ic) );
   }
-  evt.put(pOut);
-
-  // feed out sum of delta pt
-  std::auto_ptr< double > sumPt( new double);
-  *sumPt=jetPartonMatch.getSumDeltaPt();
+  evt.put(match);
   evt.put(sumPt, "SumPt");
-
-  // feed out sum of delta r
-  std::auto_ptr< double > sumDR( new double);
-  *sumDR=jetPartonMatch.getSumDeltaR();
   evt.put(sumDR, "SumDR");
 }
 

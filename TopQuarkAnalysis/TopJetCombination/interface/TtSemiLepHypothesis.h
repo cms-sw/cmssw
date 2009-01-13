@@ -58,13 +58,11 @@ class TtSemiLepHypothesis : public edm::EDProducer {
  protected:
 
   bool getMatch_;
-  bool getMatchVec_;
 
   edm::InputTag jets_;
   edm::InputTag leps_;
   edm::InputTag mets_;
   edm::InputTag match_;
-  edm::InputTag matchVec_;
 
   int key_;
 

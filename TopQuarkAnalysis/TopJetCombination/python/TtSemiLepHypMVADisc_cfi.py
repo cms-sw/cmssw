@@ -7,7 +7,7 @@ ttSemiLepHypMVADisc = cms.EDProducer("TtSemiLepHypMVADisc",
     leps  = cms.InputTag("selectedLayer1Muons"),
     mets  = cms.InputTag("selectedLayer1METs"),
     jets  = cms.InputTag("selectedLayer1Jets"),
-    matchVec = cms.InputTag("findTtSemiLepJetCombMVA")
+    match = cms.InputTag("findTtSemiLepJetCombMVA")
 )
 
 

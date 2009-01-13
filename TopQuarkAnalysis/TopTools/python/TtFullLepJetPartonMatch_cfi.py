@@ -1,13 +1,12 @@
 import FWCore.ParameterSet.Config as cms
 
 #
-# module to make jet-parton matches for full-hadronic
+# module to make jet-parton matches for full-leptonic
 # ttbar decays; the product will be a std::vector of
 # matches, each match a std::vector<int> in the order
-# (LightQTop, LightQBarTop, B, LightQTopBar,
-# LightQBarTopBar, BBar)
+# (B, BBar)
 #
-ttFullHadJetPartonMatch = cms.EDProducer("TtFullHadJetPartonMatch",
+ttFullLepJetPartonMatch = cms.EDProducer("TtFullLepJetPartonMatch",
     ## sources
     jets = cms.InputTag("selectedLayer1Jets"),
 
@@ -37,10 +36,10 @@ ttFullHadJetPartonMatch = cms.EDProducer("TtFullHadJetPartonMatch",
 
     #-------------------------------------------------
     # number of jets to be considered in the matching
-    # (has to be >= 6, can be set to -1 if you want to 
+    # (has to be >= 2, can be set to -1 if you want to 
     # take all)
     #-------------------------------------------------
-    nJets = cms.int32(6),
+    nJets = cms.int32(2),
 
     #-------------------------------------------------
     # number of different combinations to be stored

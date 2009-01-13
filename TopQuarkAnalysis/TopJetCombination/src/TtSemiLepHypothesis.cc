@@ -3,21 +3,16 @@
 
 
 TtSemiLepHypothesis::TtSemiLepHypothesis(const edm::ParameterSet& cfg):
-  jets_ (cfg.getParameter<edm::InputTag>("jets" )),
-  leps_ (cfg.getParameter<edm::InputTag>("leps" )),
-  mets_ (cfg.getParameter<edm::InputTag>("mets" )),
+  jets_(cfg.getParameter<edm::InputTag>("jets")),
+  leps_(cfg.getParameter<edm::InputTag>("leps")),
+  mets_(cfg.getParameter<edm::InputTag>("mets")),
   lightQ_(0), lightQBar_(0), hadronicB_(0), 
   leptonicB_(0), neutrino_(0), lepton_(0)
 {
-  getMatchVec_ = false;
-  getMatch_    = false;
-  if(cfg.exists("matchVec")) {
-    getMatchVec_ = true;
-    matchVec_    = cfg.getParameter<edm::InputTag>("matchVec");
-  }
-  else if(cfg.exists("match")) {
+  getMatch_ = false;
+  if( cfg.exists("match") ) {
     getMatch_ = true;
-    match_    = cfg.getParameter<edm::InputTag>("match");
+    match_ = cfg.getParameter<edm::InputTag>("match");
   }
 
   produces<std::vector<std::pair<reco::CompositeCandidate, std::vector<int> > > >();
@@ -26,12 +21,12 @@ TtSemiLepHypothesis::TtSemiLepHypothesis(const edm::ParameterSet& cfg):
 
 TtSemiLepHypothesis::~TtSemiLepHypothesis()
 {
-  if( lightQ_   ) delete lightQ_;
-  if( lightQBar_) delete lightQBar_;
-  if( hadronicB_) delete hadronicB_;
-  if( leptonicB_) delete leptonicB_;
-  if( neutrino_ ) delete neutrino_;
-  if( lepton_   ) delete lepton_;
+  if( lightQ_    ) delete lightQ_;
+  if( lightQBar_ ) delete lightQBar_;
+  if( hadronicB_ ) delete hadronicB_;
+  if( leptonicB_ ) delete leptonicB_;
+  if( neutrino_  ) delete neutrino_;
+  if( lepton_    ) delete lepton_;
 }
 
 void
@@ -47,16 +42,10 @@ TtSemiLepHypothesis::produce(edm::Event& evt, const edm::EventSetup& setup)
   evt.getByLabel(mets_, mets);
 
   std::vector<std::vector<int> > matchVec;
-
-  if(getMatchVec_) {
-    edm::Handle<std::vector<std::vector<int> > > matchVecHandle;
-    evt.getByLabel(matchVec_, matchVecHandle);
-    matchVec = *matchVecHandle;
-  }
-  else if(getMatch_) {
-    edm::Handle<std::vector<int> > matchHandle;
+  if( getMatch_ ) {
+    edm::Handle<std::vector<std::vector<int> > > matchHandle;
     evt.getByLabel(match_, matchHandle);
-    matchVec.push_back( *matchHandle );
+    matchVec = *matchHandle;
   }
   else {
     std::vector<int> dummyMatch;

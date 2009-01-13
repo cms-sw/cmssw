@@ -4,30 +4,30 @@
 #include "TString.h"
 
 TtSemiLepEvtBuilder::TtSemiLepEvtBuilder(const edm::ParameterSet& cfg) :
-  verbosity_(cfg.getParameter<int>("verbosity")),
-  hyps_     (cfg.getParameter<std::vector<std::string> >("hyps")),
-  kinFit_   (cfg.getParameter<edm::ParameterSet>("kinFit")),
-  decay_    (cfg.getParameter<int>("decay")),
-  genEvt_   (cfg.getParameter<edm::InputTag>("genEvent"))
+  verbosity_(cfg.getParameter<int>                      ("verbosity")),
+  hyps_     (cfg.getParameter<std::vector<std::string> >("hyps"     )),
+  decay_    (cfg.getParameter<int>                      ("decay"    )),
+  genEvt_   (cfg.getParameter<edm::InputTag>            ("genEvent" ))
 {
+  // get parameter subsets for kinFit
   if( cfg.exists("kinFit") ) {
-    // get parameter subsets for kinFit
-    fitChi2_=kinFit_.getParameter<edm::InputTag>("chi2");
-    fitProb_=kinFit_.getParameter<edm::InputTag>("prob");
+    kinFit_  = cfg.getParameter<edm::ParameterSet>("kinFit");
+    fitChi2_ = kinFit_.getParameter<edm::InputTag>("chi2");
+    fitProb_ = kinFit_.getParameter<edm::InputTag>("prob");
   }
   // get parameter subsets for genMatch
   if( cfg.exists("genMatch") ) {
-    genMatch_= cfg.getParameter<edm::ParameterSet>("genMatch");
-    sumPt_=genMatch_.getParameter<edm::InputTag>("sumPt");
-    sumDR_=genMatch_.getParameter<edm::InputTag>("sumDR");
+    genMatch_ = cfg.getParameter<edm::ParameterSet>("genMatch");
+    sumPt_    = genMatch_.getParameter<edm::InputTag>("sumPt");
+    sumDR_    = genMatch_.getParameter<edm::InputTag>("sumDR");
   }
   // get parameter subsets for mvaDisc
   if( cfg.exists("mvaDisc") ) {
-    mvaDisc_= cfg.getParameter<edm::ParameterSet>("mvaDisc");
-    meth_=mvaDisc_.getParameter<edm::InputTag>("meth");
-    disc_=mvaDisc_.getParameter<edm::InputTag>("disc");
+    mvaDisc_ = cfg.getParameter<edm::ParameterSet>("mvaDisc");
+    meth_    = mvaDisc_.getParameter<edm::InputTag>("meth");
+    disc_    = mvaDisc_.getParameter<edm::InputTag>("disc");
   }
-  // produces an TtSemiLeptonicEvent from hypothesis
+  // produces a TtSemiLeptonicEvent from hypotheses
   // and associated extra information
   produces<TtSemiLeptonicEvent>();
 }
@@ -76,17 +76,13 @@ TtSemiLepEvtBuilder::produce(edm::Event& evt, const edm::EventSetup& setup)
 
   // set genMatch extras
   if( event.isHypoAvailable(TtSemiLeptonicEvent::kGenMatch) ) {
-    edm::Handle<double> sumPt;
+    edm::Handle<std::vector<double> > sumPt;
     evt.getByLabel(sumPt_, sumPt);
-    std::vector<double> sumPtVec;
-    sumPtVec.push_back( *sumPt );
-    event.setGenMatchSumPt( sumPtVec );
+    event.setGenMatchSumPt( *sumPt );
 
-    edm::Handle<double> sumDR;
+    edm::Handle<std::vector<double> > sumDR;
     evt.getByLabel(sumDR_, sumDR);
-    std::vector<double> sumDRVec;
-    sumDRVec.push_back( *sumDR );
-    event.setGenMatchSumDR( sumDRVec );
+    event.setGenMatchSumDR( *sumDR );
   }
 
   // set mvaDisc extras
