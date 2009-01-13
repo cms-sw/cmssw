@@ -1,15 +1,15 @@
 // -*- C++ -*-
 //
 // Package:     Calo
-// Class  :     L1MetProxyEveLegoBuilder
+// Class  :     FWL1MetProxyEveLegoBuilder
 //
 // Implementation:
 //     <Notes on implementation>
 //
-// Original Author:
+// Original Author:  Chris Jones
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: L1MetProxyEveLegoBuilder.cc,v 1.2 2008/11/04 20:29:24 amraktad Exp $
 //
+// $Id: FWL1MetProxyEveLegoBuilder.cc,v 1.1 2009/01/13 20:10:02 amraktad Exp $
 
 // system include files
 #include "TEveElement.h"
@@ -22,34 +22,45 @@
 #include "TEveCompound.h"
 
 // user include files
-#include "Fireworks/Calo/interface/L1MetProxyEveLegoBuilder.h"
+#include "Fireworks/Core/interface/FW3DLegoEveElementProxyBuilder.h"
+
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/BuilderUtils.h"
 
 #include "DataFormats/L1Trigger/interface/L1EtMissParticle.h"
 #include "DataFormats/L1Trigger/interface/L1EtMissParticleFwd.h"
 
-//
-// constants, enums and typedefs
-//
+class FWL1MetProxyEveLegoBuilder : public FW3DLegoEveElementProxyBuilder
+{
+   public:
+      FWL1MetProxyEveLegoBuilder();
+      virtual ~FWL1MetProxyEveLegoBuilder();
 
-//
-// static data member definitions
-//
+      // ---------- const member functions ---------------------
+      REGISTER_PROXYBUILDER_METHODS();
 
-//
-// constructors and destructor
-//
-L1MetProxyEveLegoBuilder::L1MetProxyEveLegoBuilder()
+      // ---------- static member functions --------------------
+   private:
+      virtual void build(const FWEventItem* iItem,
+			 TEveElementList** product);
+
+      FWL1MetProxyEveLegoBuilder(const FWL1MetProxyEveLegoBuilder&); // stop default
+
+      const FWL1MetProxyEveLegoBuilder& operator=(const FWL1MetProxyEveLegoBuilder&); // stop default
+
+      // ---------- member data --------------------------------
+};
+
+FWL1MetProxyEveLegoBuilder::FWL1MetProxyEveLegoBuilder()
 {
 }
 
-L1MetProxyEveLegoBuilder::~L1MetProxyEveLegoBuilder()
+FWL1MetProxyEveLegoBuilder::~FWL1MetProxyEveLegoBuilder()
 {
 }
 
 void
-L1MetProxyEveLegoBuilder::build(const FWEventItem* iItem, TEveElementList** product)
+FWL1MetProxyEveLegoBuilder::build(const FWEventItem* iItem, TEveElementList** product)
 {
    TEveElementList* tList = *product;
 
@@ -95,4 +106,4 @@ L1MetProxyEveLegoBuilder::build(const FWEventItem* iItem, TEveElementList** prod
    }
 }
 
-REGISTER_FW3DLEGODATAPROXYBUILDER(L1MetProxyEveLegoBuilder,l1extra::L1EtMissParticleCollection,"L1-MET");
+REGISTER_FW3DLEGODATAPROXYBUILDER(FWL1MetProxyEveLegoBuilder,l1extra::L1EtMissParticleCollection,"L1-MET");

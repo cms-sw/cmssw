@@ -1,14 +1,14 @@
 // -*- C++ -*-
 //
 // Package:     Calo
-// Class  :     L1MetProxyRhoPhiZ2DBuilder
+// Class  :     FWL1MetProxyRhoPhiZ2DBuilder
 //
 // Implementation:
 //     <Notes on implementation>
 //
-// Original Author:
+// Original Author:  Chris Jones
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: L1MetProxyRhoPhiZ2DBuilder.cc,v 1.4 2008/11/26 16:19:12 chrjones Exp $
+// $Id: FWL1MetProxyRhoPhiZ2DBuilder.cc,v 1.5 2009/01/13 20:15:46 amraktad Exp $
 //
 
 // system include files
@@ -25,7 +25,7 @@
 #include "TEveCompound.h"
 
 // user include files
-#include "Fireworks/Calo/interface/L1MetProxyRhoPhiZ2DBuilder.h"
+#include "Fireworks/Core/interface/FWRPZ2DDataProxyBuilder.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/FW3DLegoDataProxyBuilder.h"
 #include "Fireworks/Core/interface/BuilderUtils.h"
@@ -35,27 +35,49 @@
 #include "DataFormats/FWLite/interface/Event.h"
 #include "DataFormats/FWLite/interface/Handle.h"
 
-//
-// constants, enums and typedefs
-//
+class FWL1MetProxyRhoPhiZ2DBuilder : public FWRPZ2DDataProxyBuilder
+{
 
-//
-// static data member definitions
-//
+   public:
+      FWL1MetProxyRhoPhiZ2DBuilder();
+      virtual ~FWL1MetProxyRhoPhiZ2DBuilder();
+
+      // ---------- const member functions ---------------------
+      REGISTER_PROXYBUILDER_METHODS();
+
+      // ---------- static member functions --------------------
+
+      // ---------- member functions ---------------------------
+
+   private:
+      virtual void buildRhoPhi(const FWEventItem* iItem,
+                               TEveElementList** product);
+
+      virtual void buildRhoZ(const FWEventItem* iItem,
+                               TEveElementList** product);
+
+      double getTheta( double eta ) { return 2*atan(exp(-eta)); }
+
+      FWL1MetProxyRhoPhiZ2DBuilder(const FWL1MetProxyRhoPhiZ2DBuilder&); // stop default
+
+      const FWL1MetProxyRhoPhiZ2DBuilder& operator=(const FWL1MetProxyRhoPhiZ2DBuilder&); // stop default
+
+      // ---------- member data --------------------------------
+};
 
 //
 // constructors and destructor
 //
-L1MetProxyRhoPhiZ2DBuilder::L1MetProxyRhoPhiZ2DBuilder()
+FWL1MetProxyRhoPhiZ2DBuilder::FWL1MetProxyRhoPhiZ2DBuilder()
 {
 }
 
-// L1MetProxyRhoPhiZ2DBuilder::L1MetProxyRhoPhiZ2DBuilder(const L1MetProxyRhoPhiZ2DBuilder& rhs)
+// FWL1MetProxyRhoPhiZ2DBuilder::FWL1MetProxyRhoPhiZ2DBuilder(const FWL1MetProxyRhoPhiZ2DBuilder& rhs)
 // {
 //    // do actual copying here;
 // }
 
-L1MetProxyRhoPhiZ2DBuilder::~L1MetProxyRhoPhiZ2DBuilder()
+FWL1MetProxyRhoPhiZ2DBuilder::~FWL1MetProxyRhoPhiZ2DBuilder()
 {
 }
 
@@ -63,7 +85,7 @@ L1MetProxyRhoPhiZ2DBuilder::~L1MetProxyRhoPhiZ2DBuilder()
 // member functions
 //
 void
-L1MetProxyRhoPhiZ2DBuilder::buildRhoPhi(const FWEventItem* iItem,
+FWL1MetProxyRhoPhiZ2DBuilder::buildRhoPhi(const FWEventItem* iItem,
 					    TEveElementList** product)
 {
    TEveElementList* tList = *product;
@@ -118,7 +140,7 @@ L1MetProxyRhoPhiZ2DBuilder::buildRhoPhi(const FWEventItem* iItem,
 }
 
 void
-L1MetProxyRhoPhiZ2DBuilder::buildRhoZ(const FWEventItem* iItem,
+FWL1MetProxyRhoPhiZ2DBuilder::buildRhoZ(const FWEventItem* iItem,
 					    TEveElementList** product)
 {
    TEveElementList* tList = *product;
@@ -170,4 +192,4 @@ L1MetProxyRhoPhiZ2DBuilder::buildRhoZ(const FWEventItem* iItem,
    }
 }
 
-REGISTER_FWRPZDATAPROXYBUILDERBASE(L1MetProxyRhoPhiZ2DBuilder,l1extra::L1EtMissParticleCollection,"L1-MET");
+REGISTER_FWRPZDATAPROXYBUILDERBASE(FWL1MetProxyRhoPhiZ2DBuilder,l1extra::L1EtMissParticleCollection,"L1-MET");
