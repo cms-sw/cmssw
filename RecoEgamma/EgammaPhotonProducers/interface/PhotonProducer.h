@@ -3,9 +3,9 @@
 /** \class PhotonProducer
  **  
  **
- **  $Id: PhotonProducer.h,v 1.28 2008/12/02 14:04:07 nancy Exp $ 
- **  $Date: 2008/12/02 14:04:07 $ 
- **  $Revision: 1.28 $
+ **  $Id: PhotonProducer.h,v 1.29 2008/12/15 20:16:58 nancy Exp $ 
+ **  $Date: 2008/12/15 20:16:58 $ 
+ **  $Revision: 1.29 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -24,7 +24,7 @@
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterShapeAssociation.h"
 #include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
-#include "DataFormats/EgammaReco/interface/ElectronPixelSeedFwd.h"
+#include "DataFormats/EgammaReco/interface/ElectronSeedFwd.h"
 #include "RecoCaloTools/MetaCollections/interface/CaloRecHitMetaCollections.h"
 #include "RecoEgamma/EgammaTools/interface/HoECalculator.h"
 #include "RecoEgamma/EgammaTools/interface/ConversionLikelihoodCalculator.h"
@@ -55,7 +55,7 @@ class PhotonProducer : public edm::EDProducer {
 			    const edm::Handle<CaloTowerCollection> & hcalTowersHandle, 
 			    std::vector<double> preselCutValues,
 			    const edm::Handle<reco::ConversionCollection> & conversionHandle,
-			    const reco::ElectronPixelSeedCollection& pixelSeeds,
+			    const reco::ElectronSeedCollection& pixelSeeds,
 			    math::XYZPoint & vtx,
 			    reco::PhotonCollection & outputCollection,
 			    int& iSC);

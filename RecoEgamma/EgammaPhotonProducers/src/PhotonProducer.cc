@@ -20,7 +20,7 @@
 #include "DataFormats/EgammaCandidates/interface/Conversion.h"
 #include "RecoEgamma/PhotonIdentification/interface/CutBasedPhotonID.h"
 
-#include "DataFormats/EgammaReco/interface/ElectronPixelSeed.h"
+#include "DataFormats/EgammaReco/interface/ElectronSeed.h"
 #include "RecoCaloTools/Selectors/interface/CaloConeSelector.h"
 #include "RecoEgamma/EgammaPhotonProducers/interface/PhotonProducer.h"
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaTowerIsolation.h"
@@ -125,7 +125,7 @@ void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEve
   theEvent.getByLabel(scHybridBarrelProducer_,scBarrelHandle);
   if (!scBarrelHandle.isValid()) {
     edm::LogError("PhotonProducer") << "Error! Can't get the product "<<scHybridBarrelProducer_.label();
-    bool validBarrelSCHandle=false;
+    validBarrelSCHandle=false;
   }
 
 
@@ -193,8 +193,8 @@ void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEve
 
   // Get ElectronPixelSeeds
   validPixelSeeds_=true;
-  Handle<reco::ElectronPixelSeedCollection> pixelSeedHandle;
-  reco::ElectronPixelSeedCollection pixelSeeds;
+  Handle<reco::ElectronSeedCollection> pixelSeedHandle;
+  reco::ElectronSeedCollection pixelSeeds;
   theEvent.getByLabel(pixelSeedProducer_, pixelSeedHandle);
   if (!pixelSeedHandle.isValid()) {
     //if ( nEvt_%100==0 ) std::cout << " PhotonProducer Can't get the product ElectronPixelSeedHandle but Photons will be produced anyway with pixel seed flag set to false "<< "\n";
@@ -272,12 +272,12 @@ void PhotonProducer::fillPhotonCollection(edm::Event& evt,
 					  const edm::Handle<CaloTowerCollection> & hcalTowersHandle, 
 					  std::vector<double> preselCutValues,
 					  const edm::Handle<reco::ConversionCollection> & conversionHandle,
-					  const reco::ElectronPixelSeedCollection& pixelSeeds,
+					  const reco::ElectronSeedCollection& pixelSeeds,
 					  math::XYZPoint & vtx,
 					  reco::PhotonCollection & outputPhotonCollection, int& iSC) {
   
 
-  reco::ElectronPixelSeedCollection::const_iterator pixelSeedItr;
+  reco::ElectronSeedCollection::const_iterator pixelSeedItr;
   for(unsigned int lSC=0; lSC < scHandle->size(); lSC++) {
     
     // get SuperClusterRef
@@ -329,8 +329,8 @@ void PhotonProducer::fillPhotonCollection(edm::Event& evt,
     bool hasSeed = false;
     if ( validPixelSeeds_) {
       for(pixelSeedItr = pixelSeeds.begin(); pixelSeedItr != pixelSeeds.end(); pixelSeedItr++) {
-	if (fabs(pixelSeedItr->superCluster()->eta() - scRef->eta()) < 0.0001 &&
-	    fabs(pixelSeedItr->superCluster()->phi() - scRef->phi()) < 0.0001) {
+	if (fabs(pixelSeedItr->caloCluster()->eta() - scRef->eta()) < 0.0001 &&
+	    fabs(pixelSeedItr->caloCluster()->phi() - scRef->phi()) < 0.0001) {
 	  hasSeed=true;
 	  break;
 	}
