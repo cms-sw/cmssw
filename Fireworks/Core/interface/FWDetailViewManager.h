@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Mar  5 09:13:43 EST 2008
-// $Id: FWDetailViewManager.h,v 1.7 2009/01/09 20:58:49 chrjones Exp $
+// $Id: FWDetailViewManager.h,v 1.8 2009/01/12 17:21:29 chrjones Exp $
 //
 
 // system include files
@@ -54,6 +54,7 @@ class FWDetailViewManager
 
       const FWDetailViewManager& operator=(const FWDetailViewManager&); // stop default
 
+      std::string findViewerFor(const std::string&) const;
 protected:
      // ---------- member data --------------------------------
      TEveScene 		*ns;

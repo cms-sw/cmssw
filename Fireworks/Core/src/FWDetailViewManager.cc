@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Mar  5 09:13:47 EST 2008
-// $Id: FWDetailViewManager.cc,v 1.19 2009/01/09 20:58:50 chrjones Exp $
+// $Id: FWDetailViewManager.cc,v 1.20 2009/01/12 17:21:30 chrjones Exp $
 //
 
 // system include files
@@ -52,6 +52,7 @@
 FWDetailViewManager::FWDetailViewManager()
      : frame(0)
 {
+   /*
    //create a list of the available ViewManager's
    std::set<std::string> detailViews;
    
@@ -71,9 +72,10 @@ FWDetailViewManager::FWDetailViewManager()
       if(0!=view) {
          m_viewers[type] = view;
       }
-
       //m_typeToBuilder[purpose]=std::make_pair(*it,true);
    }   
+    */
+
 }
 
 // FWDetailViewManager::FWDetailViewManager(const FWDetailViewManager& rhs)
@@ -157,9 +159,22 @@ FWDetailViewManager::openDetailViewFor(const FWModelId &id)
    std::map<std::string, FWDetailViewBase *>::iterator viewer =
    m_viewers.find(typeName);
    if (viewer == m_viewers.end()) {
-      std::cout << "FWDetailViewManager: don't know what detailed view to "
-      "use for object " << id.item()->name() << std::endl;
-      assert(viewer != m_viewers.end());
+      //Lookup the viewer plugin since we have not used it yet
+      std::string viewerName = findViewerFor(typeName);
+      if(0==viewerName.size()) {
+         std::cout << "FWDetailViewManager: don't know what detailed view to "
+         "use for object " << id.item()->name() << std::endl;
+         assert(viewer != m_viewers.end());
+      }
+      FWDetailViewBase* view = FWDetailViewFactory::get()->create(viewerName);
+      if(0!=view) {
+         m_viewers[typeName]= view;
+      } else {
+         std::cout << "FWDetailViewManager:could not create detailed view for "
+         "use for object " << id.item()->name() << std::endl;
+         assert(viewer != m_viewers.end());
+      }
+      viewer =m_viewers.find(typeName);
    }
    
    // get better lighting
@@ -207,7 +222,37 @@ bool
 FWDetailViewManager::haveDetailViewFor(const FWModelId& iId) const
 {
    std::string typeName = ROOT::Reflex::Type::ByTypeInfo(*(iId.item()->modelType()->GetTypeInfo())).Name(ROOT::Reflex::SCOPED);
-   return m_viewers.end() != m_viewers.find(typeName);
+   if(m_viewers.end() == m_viewers.find(typeName)) {
+      return findViewerFor(typeName).size()!=0;
+   }
+   return true;
+}
+
+std::string 
+FWDetailViewManager::findViewerFor(const std::string& iType) const
+{
+   std::string returnValue;
+   
+   //create a list of the available ViewManager's
+   std::set<std::string> detailViews;
+   
+   std::vector<edmplugin::PluginInfo> available = FWDetailViewFactory::get()->available();
+   std::transform(available.begin(),
+                  available.end(),
+                  std::inserter(detailViews,detailViews.begin()),
+                  boost::bind(&edmplugin::PluginInfo::name_,_1));
+   
+   for(std::set<std::string>::iterator it = detailViews.begin(), itEnd=detailViews.end();
+       it!=itEnd;
+       ++it) {
+      std::string::size_type first = it->find_first_of('@');
+      std::string  type = it->substr(0,first);
+
+      if(type == iType) {
+         return *it;
+      }
+   }
+   return returnValue;
 }
 
 //
