@@ -1,16 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
-# magnetic field
-# cms geometry
-#include "Geometry/TrackerRecoData/data/trackerRecoGeometryXML.cfi"
-# tracker geometry
-# tracker numbering
-# KFUpdatoerESProducer
+
 from TrackingTools.KalmanUpdators.KFUpdatorESProducer_cfi import *
-# Chi2MeasurementEstimatorESProducer
 from TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESProducer_cfi import *
-# PropagatorWithMaterialESProducer
-#include "TrackingTools/MaterialEffects/data/OppositeMaterialPropagator.cfi"
+
 # stripCPE
 from RecoLocalTracker.SiStripRecHitConverter.StripCPEfromTrackAngle_cfi import *
 from RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitMatcher_cfi import *
@@ -22,5 +15,10 @@ import copy
 from RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi import *
 # TrackProducer
 ctfPixelLess = copy.deepcopy(ctfWithMaterialTracks)
-ctfPixelLess.src = 'ckfTrackCandidatesPixelLess'
+ctfPixelLess.
+
+ctfPixelLess = RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi.ctfWithMaterialTracks.clone(
+    src = cms.InputTag("ckfTrackCandidatesPixelLess"),  
+    Fitter = cms.string('RKFittingSmoother')
+)
 
