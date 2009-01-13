@@ -4,8 +4,8 @@
 /** \class MultiTrackValidatorBase
  *  Base class for analyzers that produces histrograms to validate Track Reconstruction performances
  *
- *  $Date: 2008/12/19 17:26:18 $
- *  $Revision: 1.13 $
+ *  $Date: 2009/01/07 00:43:47 $
+ *  $Revision: 1.14 $
  *  \author cerati
  */
 
@@ -37,7 +37,7 @@ class MultiTrackValidatorBase {
  public:
   /// Constructor
   MultiTrackValidatorBase(const edm::ParameterSet& pset):
-    sim(pset.getParameter<std::string>("sim")),
+  sim(pset.getParameter<std::string>("sim")),
     label(pset.getParameter< std::vector<edm::InputTag> >("label")),
     bsSrc(pset.getParameter< edm::InputTag >("beamSpot")),
     label_tp_effic(pset.getParameter< edm::InputTag >("label_tp_effic")),
@@ -57,7 +57,24 @@ class MultiTrackValidatorBase {
     minPhi(pset.getParameter<double>("minPhi")),
     maxPhi(pset.getParameter<double>("maxPhi")),
     nintPhi(pset.getParameter<int>("nintPhi")),
-    useInvPt(pset.getParameter<bool>("useInvPt"))
+    useInvPt(pset.getParameter<bool>("useInvPt")),
+    //
+    ptRes_rangeMin(pset.getParameter<double>("ptRes_rangeMin")),
+    ptRes_rangeMax(pset.getParameter<double>("ptRes_rangeMax")),
+    phiRes_rangeMin(pset.getParameter<double>("phiRes_rangeMin")),
+    phiRes_rangeMax(pset.getParameter<double>("phiRes_rangeMax")),
+    cotThetaRes_rangeMin(pset.getParameter<double>("cotThetaRes_rangeMin")),
+    cotThetaRes_rangeMax(pset.getParameter<double>("cotThetaRes_rangeMax")),
+    dxyRes_rangeMin(pset.getParameter<double>("dxyRes_rangeMin")),
+    dxyRes_rangeMax(pset.getParameter<double>("dxyRes_rangeMax")),
+    dzRes_rangeMin(pset.getParameter<double>("dzRes_rangeMin")),
+    dzRes_rangeMax(pset.getParameter<double>("dzRes_rangeMax")),
+    ptRes_nbin(pset.getParameter<int>("ptRes_nbin")),
+    cotThetaRes_nbin(pset.getParameter<int>("cotThetaRes_nbin")),
+    phiRes_nbin(pset.getParameter<int>("phiRes_nbin")),
+    dxyRes_nbin(pset.getParameter<int>("dxyRes_nbin")),
+    dzRes_nbin(pset.getParameter<int>("dzRes_nbin"))
+    //
     {
       dbe_ = edm::Service<DQMStore>().operator->();
     }
@@ -208,6 +225,12 @@ class MultiTrackValidatorBase {
   double minPhi, maxPhi;
   int nintPhi;
   bool useInvPt;
+  //
+  double ptRes_rangeMin,ptRes_rangeMax,
+    phiRes_rangeMin,phiRes_rangeMax, cotThetaRes_rangeMin,cotThetaRes_rangeMax,    
+    dxyRes_rangeMin,dxyRes_rangeMax, dzRes_rangeMin,dzRes_rangeMax;
+  int ptRes_nbin, cotThetaRes_nbin, phiRes_nbin, dxyRes_nbin, dzRes_nbin;
+  
 
   edm::ESHandle<MagneticField> theMF;
   std::vector<const TrackAssociatorBase*> associator;
@@ -230,9 +253,22 @@ class MultiTrackValidatorBase {
   std::vector<MonitorElement*> h_assocFraction, h_assocSharedHit;
 
   //#hit vs eta: to be used with doProfileX
-  std::vector<MonitorElement*> nhits_vs_eta;
-  std::vector<MonitorElement*> h_hits_eta;
- 
+  std::vector<MonitorElement*> nhits_vs_eta, 
+    nPXBhits_vs_eta, nPXFhits_vs_eta, 
+    nTIBhits_vs_eta,nTIDhits_vs_eta,
+    nTOBhits_vs_eta,nTEChits_vs_eta,
+    nLayersWithMeas_vs_eta, nPXLlayersWithMeas_vs_eta, 
+    nSTRIPlayersWithMeas_vs_eta, nSTRIPlayersWith1dMeas_vs_eta, nSTRIPlayersWith2dMeas_vs_eta;
+
+
+  std::vector<MonitorElement*> h_hits_eta,
+    h_PXBhits_eta, h_PXFhits_eta, 
+    h_TIBhits_eta,h_TIDhits_eta,
+    h_TOBhits_eta,h_TEChits_eta,
+    h_LayersWithMeas_eta, h_PXLlayersWithMeas_eta, 
+    h_STRIPlayersWithMeas_eta, h_STRIPlayersWith1dMeas_eta, h_STRIPlayersWith2dMeas_eta;
+    
+
   std::vector< std::vector<double> > etaintervals;
   std::vector< std::vector<double> > phiintervals;
   std::vector< std::vector<double> > pTintervals;
