@@ -230,42 +230,15 @@ function build_crab_cfg() {
   crabnevt=$3    # e.g. 10
   craboutf=$4    # e.g. "XXX_GEN.root"
   crabshfile=$5  # e.g. "crab_mm.sh"
-  crabsrmpth=$6  # e.g. "srm://grid-srm.physik.rwth-aachen.de:8443//srm/managerv1\?SFN=/pnfs/..."
-#!!!             #      "srm://grid-srm.physik.rwth-aachen.de:8443//pnfs/physik.rwth-aachen.de/dcms/merschm/RES"
-  crabpst2=$7    # second parameter set (e.g. for RECO)
+  crabpst2=$6    # second parameter set (e.g. for RECO)
 
-  if [ "${crabsrmpth}" = "./" ]; then # adjust copy data flag
-    iretdata=1
-    icpydata=0
-  else
+#  if [ "${crabsrmpth}" = "./" ]; then # adjust copy data flag
+#    iretdata=1
+#    icpydata=0
+#  else
     iretdata=0
     icpydata=1
-  fi
-
-# disentangle storage path
-  CRABSE=`echo ${crabsrmpth} | cut -f2 -d":" | cut -f3 -d"/"`
-  CRABTMP=`echo ${crabsrmpth} | cut -f3 -d":" | cut -f2-99 -d"/"`
-  CRABLF1=`echo ${CRABTMP} | cut -f1 -d"="`
-  CRABLF2=`echo ${CRABTMP} | cut -f2 -d"="`
-  cnt=0
-  while [ ! "${CRABLF2}" = "" ]; do
-    let cnt=$cnt+1
-    CRABLF2=`echo ${CRABLF2} | cut -f $cnt-99 -d"."`
-  done
-  CRABLF3=`echo ${CRABTMP} | cut -f2 -d"=" | cut -f $cnt -d"." | cut -f1 -d"/"`
-  let cnt=$cnt-1
-  CRABLF2=`echo ${CRABTMP} | cut -f2 -d"=" | cut -f 1-$cnt -d"."`
-  if [ `echo ${CRABTMP} | grep -c "="` -gt 0 ]; then
-#    CRABSP=${CRABLF1}"="${CRABLF2}"."${CRABLF3}"/"
-    CRABSP="/"${CRABLF1}"="${CRABLF2}"."${CRABLF3}
-  else
-#    CRABSP=${CRABLF2}"."${CRABLF3}"/"
-    CRABSP="/"${CRABLF2}"."${CRABLF3}
-  fi
-  let cnt=$cnt+1
-  CRABLFN=`echo ${CRABTMP} | cut -f2 -d"=" | cut -f $cnt -d"." | cut -f2-99 -d"/"`
-#  CRABLFN="/"${CRABLFN}
-  CRABLFN=${CRABLFN}
+#  fi
 
   if [ -e ${crabcfgfile} ]; then rm ${crabcfgfile}; fi
   touch ${crabcfgfile}
@@ -280,17 +253,17 @@ datasetpath=none
 EOF
   echo "pset = "${crabpset}                   >> ${crabcfgfile}
   echo "total_number_of_events = "${crabnevt} >> ${crabcfgfile}
-  echo "events_per_job = 1000"                >> ${crabcfgfile}
-  echo "#number_of_jobs = 5"                  >> ${crabcfgfile}
+  echo "#events_per_job = 1000"                >> ${crabcfgfile}
+  echo "number_of_jobs = 1"                   >> ${crabcfgfile}
   echo "output_file = "${craboutf}            >> ${crabcfgfile}
   echo ""                                     >> ${crabcfgfile}
   echo "[USER]"                               >> ${crabcfgfile}
   echo "script_exe = "${crabshfile}           >> ${crabcfgfile}
   echo "return_data = "${iretdata}            >> ${crabcfgfile}
   echo "copy_data = "${icpydata}              >> ${crabcfgfile}
-  echo "storage_element = "${CRABSE}          >> ${crabcfgfile}
-  echo "storage_path = "${CRABSP}             >> ${crabcfgfile}
-  echo "lfn = "${CRABLFN}                     >> ${crabcfgfile}
+  echo "storage_element = grid-srm.physik.rwth-aachen.de" >> ${crabcfgfile}
+  echo "storage_path = /pnfs/physik.rwth-aachen.de/dcms/merschm" >> ${crabcfgfile}
+  echo "user_remote_dir = RES" >> ${crabcfgfile}
 if [ ! "${crabpst2}" = "" ]; then
   echo "additional_input_files = "${crabpst2} >> ${crabcfgfile}
 fi
@@ -334,12 +307,19 @@ function build_crab_sh() {
   echo ""                                                                                >> ${crabshfile}
   echo "wget \${SHERPATWIKI}/PrepareSherpaLibs.sh"                                       >> ${crabshfile}
   echo "chmod u+x PrepareSherpaLibs.sh"                                                  >> ${crabshfile}
-  echo "./PrepareSherpaLibs.sh -i \${PROCESS_LOC} -p \${PROCESS_ID}"                     >> ${crabshfile}
+  echo "./PrepareSherpaLibs.sh -i \${PROCESS_LOC} -p \${PROCESS_ID} -m GRID"             >> ${crabshfile}
   echo ""                                                                                >> ${crabshfile}
+#
+#  echo " echo \">>>> PWD: \";   pwd"                                                     >> ${crabshfile}
+#  echo " echo \">>>> ls -l: \"; ls -l"                                                   >> ${crabshfile}
+#  echo " find ./ -name Run.dat"                                                          >> ${crabshfile}
+#
   echo "eval \`scramv1 ru -sh\`"                                                         >> ${crabshfile}
   echo "cmsRun -p pset.py"                                                               >> ${crabshfile}
+  if [ ! "${crabpst2}" = "" ]; then
   echo ""                                                                                >> ${crabshfile}
   echo "cmsRun -p "${crabpst2}                                                           >> ${crabshfile}
+  fi
   echo ""                                                                                >> ${crabshfile}
   echo "cd \$CMSSW_BASE"                                                                 >> ${crabshfile}
   echo "TIME=\`date +%y%m%d_%H%M%S_%N\`"                                                 >> ${crabshfile}
@@ -405,7 +385,7 @@ cflb=""                                              # custom library file name
 cfcr=""                                              # custom cross section file name
 MYSRMPATH="./"                                       # SRM path for storage of results
 MYLIBDIR="SherpaRun"                                 # name of directory for process-dep. Sherpa files
-MYCONDITIONS="IDEAL_V9"
+MYCONDITIONS="IDEAL_V11"
 
 # get & evaluate options
 while getopts :i:p:d:m:c:a:D:L:C:P:h OPT
@@ -453,7 +433,7 @@ echo "  -> CMSSW user analysis path: '"${MYANADIR}"'"
 
 
 # set up 
-if [ "${imode}" = "VAL" ] || [ "${imode}" = "CRAB" ]; then
+if [ "${imode}" = "VAL" ]; then
   MYCMSSWTEST=${HDIR}
   MYCMSSWPYTH=${HDIR}
   MYCMSSWSHPA=${HDIR}/${MYLIBDIR}
@@ -463,7 +443,7 @@ if [ "${imode}" = "VAL" ] || [ "${imode}" = "CRAB" ]; then
     echo " <E> stopping... (please check it out)"
     exit 1
   fi
-elif [ "${imode}" = "PROD" ]; then
+elif [ "${imode}" = "PROD" ] || [ "${imode}" = "GRID" ]; then
   MYCMSSWTEST=${HDIR}
   MYCMSSWPYTH=${HDIR}
   MYCMSSWSHPA=${HDIR}/${MYLIBDIR}
@@ -600,15 +580,15 @@ fi
 if [ "${imode}" = "CRAB" ]; then
 
 #  nevts=1000
-  nevts=30
+  nevts=10
 
   cd ${MYCMSSWTEST}
 
   crabcfgfile="crab_GEN.cfg"
   crabshfile="crab_GEN.sh"
   SHERPATWIKI="https://twiki.cern.ch/twiki/pub/CMS/SherpaInterface"
-  build_crab_cfg ${crabcfgfile} ${shpacfgfile} ${nevts} ${shpaoutfile} ${crabshfile} ${MYSRMPATH}
-  build_crab_sh ${crabshfile} ${SHERPATWIKI} ${datadir} ${dataset} ${MYANADIR}
+  build_crab_cfg ${crabcfgfile} ${shpacfgfile} ${nevts} ${shpaoutfile} ${crabshfile}
+  build_crab_sh ${crabshfile} ${SHERPATWIKI} ${datadir} ${dataset} ${MYANADIR} ${MYSRMPATH}
 
 
 ### NEW FEATURE, BE CAREFUL
@@ -641,7 +621,7 @@ if [ "${imode}" = "CRAB" ]; then
   crabcfgfile="crab_cmsdrv.cfg"
   crabshfile="crab_cmsdrv.sh"
   SHERPATWIKI="https://twiki.cern.ch/twiki/pub/CMS/SherpaInterface"
-  build_crab_cfg ${crabcfgfile} ${cmsdrvpyfile1} ${nevts} ${cmsdrvoutfil2} ${crabshfile} ${MYSRMPATH} ${cmsdrvpyfile2}
+  build_crab_cfg ${crabcfgfile} ${cmsdrvpyfile1} ${nevts} ${cmsdrvoutfil2} ${crabshfile} ${cmsdrvpyfile2}
   build_crab_sh ${crabshfile} ${SHERPATWIKI} ${datadir} ${dataset} ${MYANADIR} ${MYSRMPATH} ${cmsdrvpyfile2}
 ### NEW FEATURE, BE CAREFUL
 
