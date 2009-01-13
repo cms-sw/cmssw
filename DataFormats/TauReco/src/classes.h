@@ -17,6 +17,7 @@
 #include "DataFormats/TauReco/interface/PFTauDecayModeAssociation.h"
 #include "DataFormats/TauReco/interface/L2TauInfoAssociation.h"
 #include "DataFormats/TauReco/interface/HLTTau.h"
+#include "DataFormats/Math/interface/Point3D.h"
 
 #include <vector>
 #include <map>
@@ -39,7 +40,8 @@ namespace {
     edm::Ref<std::vector<reco::CaloTauTagInfo> >                calotti_r;
     edm::RefProd<std::vector<reco::CaloTauTagInfo> >            calotti_rp;
     edm::RefVector<std::vector<reco::CaloTauTagInfo> >          calotti_rv;
-    
+    std::pair<ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<double>,ROOT::Math::DefaultCoordinateSystemTag>,float> calotti_ppf;    
+
     std::vector<reco::PFTauTagInfo>                             pftti_v;
     edm::Wrapper<std::vector<reco::PFTauTagInfo> >              pftti_w;
     edm::Ref<std::vector<reco::PFTauTagInfo> >                  pftti_r;
