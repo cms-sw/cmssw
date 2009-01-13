@@ -7,8 +7,11 @@ process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService
     sourceSeed = cms.untracked.uint32(98765)
 )
 
+process.maxEvents = cms.untracked.PSet(
+        input = cms.untracked.int32(10000)
+        )
+
 process.source = cms.Source("FlatRandomPtGunSource",
-    maxEvents = cms.untracked.int32(2000),
     PGunParameters = cms.untracked.PSet(
         MaxPt = cms.untracked.double(60.0),
         MinPt = cms.untracked.double(60.0),
