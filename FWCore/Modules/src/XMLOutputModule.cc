@@ -299,6 +299,13 @@ static bool printContentsOfStdContainer(std::ostream& oStream,
     int dummy=0;
     //std::cerr<<"going to loop using iterator "<<iBegin.TypeOf().Name(Reflex::SCOPED)<<std::endl;
     
+#if ROOT_VERSION_CODE <= ROOT_VERSION(5,19,0)
+    for(;  *reinterpret_cast<bool*>(compare.Invoke(iBegin, Reflex::Tools::MakeVector((iEnd.Address()))).Address()); incr.Invoke(iBegin, Reflex::Tools::MakeVector(static_cast<void*>(&dummy))),++size) {
+      //std::cerr <<"going to print"<<std::endl;
+      printObject(sStream,kObjectOpen,kObjectClose,deref.Invoke(iBegin),indexIndent,iIndentDelta);                  
+      //std::cerr <<"printed"<<std::endl;
+    }
+#else
     Reflex::Object iCompare;
     Reflex::Object iIncr;
     for(;
@@ -310,6 +317,7 @@ static bool printContentsOfStdContainer(std::ostream& oStream,
       printObject(sStream,kObjectOpen,kObjectClose,iTemp,indexIndent,iIndentDelta);                  
       //std::cerr <<"printed"<<std::endl;
     }
+#endif
   } catch( std::exception const& iE) {
     std::cerr <<"while printing std container caught exception "<<iE.what()<<std::endl;
     return false;
@@ -380,13 +388,20 @@ static bool printAsContainer(std::ostream& oStream,
       }
       Reflex::Object iObjBegin;
       Reflex::Object iObjEnd;
+#if ROOT_VERSION_CODE > ROOT_VERSION(5,19,0)
       iObject.Invoke("begin", &iObjBegin);
       iObject.Invoke("end", &iObjEnd);
+#endif
       if( printContentsOfStdContainer(oStream,
                                       iIndent+iPrefix+formatXML(typeName)+"\">\n",
                                       iIndent+iPostfix,
+#if ROOT_VERSION_CODE <= ROOT_VERSION(5,19,0)
+                                      iObject.Invoke("begin"),
+                                      iObject.Invoke("end"),
+#else
                                       iObjBegin,
                                       iObjEnd,
+#endif
                                       iIndent,
                                       iIndentDelta) ) {
         if(typeName.empty()){
