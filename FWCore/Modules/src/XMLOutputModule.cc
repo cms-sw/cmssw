@@ -299,9 +299,15 @@ static bool printContentsOfStdContainer(std::ostream& oStream,
     int dummy=0;
     //std::cerr<<"going to loop using iterator "<<iBegin.TypeOf().Name(Reflex::SCOPED)<<std::endl;
     
-    for(;  *reinterpret_cast<bool*>(compare.Invoke(iBegin, Reflex::Tools::MakeVector((iEnd.Address()))).Address()); incr.Invoke(iBegin, Reflex::Tools::MakeVector(static_cast<void*>(&dummy))),++size) {
+    Reflex::Object iCompare;
+    Reflex::Object iIncr;
+    for(;
+	 compare.Invoke(iBegin, &iCompare, Reflex::Tools::MakeVector((iEnd.Address()))), *reinterpret_cast<bool*>(iCompare.Address());
+	 incr.Invoke(iBegin, &iIncr, Reflex::Tools::MakeVector(static_cast<void*>(&dummy))), ++size) {
       //std::cerr <<"going to print"<<std::endl;
-      printObject(sStream,kObjectOpen,kObjectClose,deref.Invoke(iBegin),indexIndent,iIndentDelta);                  
+      Reflex::Object iTemp;
+      deref.Invoke(iBegin, &iTemp);
+      printObject(sStream,kObjectOpen,kObjectClose,iTemp,indexIndent,iIndentDelta);                  
       //std::cerr <<"printed"<<std::endl;
     }
   } catch( std::exception const& iE) {
@@ -323,7 +329,11 @@ static bool printAsContainer(std::ostream& oStream,
                              std::string const& iIndentDelta){
   Reflex::Object sizeObj;
   try {
+#if ROOT_VERSION_CODE <= ROOT_VERSION(5,19,0)
     sizeObj = iObject.Invoke("size");
+#else
+    iObject.Invoke("size", &sizeObj);
+#endif
     
     if(sizeObj.TypeOf().TypeInfo() != typeid(size_t)) {
       throw std::exception();
@@ -344,7 +354,11 @@ static bool printAsContainer(std::ostream& oStream,
     Reflex::Object contained;
     std::string indexIndent=iIndent+iIndentDelta;
     for(size_t index = 0; index != size; ++index) {
+#if ROOT_VERSION_CODE <= ROOT_VERSION(5,19,0)
       contained = atMember.Invoke(iObject, Reflex::Tools::MakeVector(static_cast<void*>(&index)));
+#else
+      atMember.Invoke(iObject, &contained, Reflex::Tools::MakeVector(static_cast<void*>(&index)));
+#endif
       //std::cout <<"invoked 'at'"<<std::endl;
       try {
         printObject(oStream,kObjectOpen,kObjectClose,contained,indexIndent,iIndentDelta);
@@ -364,11 +378,15 @@ static bool printAsContainer(std::ostream& oStream,
       if(typeName.empty()){
         typeName="{unknown}";
       }
+      Reflex::Object iObjBegin;
+      Reflex::Object iObjEnd;
+      iObject.Invoke("begin", &iObjBegin);
+      iObject.Invoke("end", &iObjEnd);
       if( printContentsOfStdContainer(oStream,
                                       iIndent+iPrefix+formatXML(typeName)+"\">\n",
                                       iIndent+iPostfix,
-                                      iObject.Invoke("begin"),
-                                      iObject.Invoke("end"),
+                                      iObjBegin,
+                                      iObjEnd,
                                       iIndent,
                                       iIndentDelta) ) {
         if(typeName.empty()){
