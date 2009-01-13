@@ -9,10 +9,11 @@
 
 // #include "CondFormats/DataRecord/interface/RecoIdealGeometryRcd.h"
 // #include "CondFormats/DataRecord/interface/CSCRecoDigiParametersRcd.h"
-#include "Geometry/Records/interface/RecoIdealGeometryRcd.h"
+//#include "Geometry/Records/interface/RecoIdealGeometryRcd.h"
+#include "Geometry/Records/interface/CSCRecoGeometryRcd.h"
 #include "Geometry/Records/interface/CSCRecoDigiParametersRcd.h"
-#include "CondFormats/RecoGeometryObjects/interface/RecoIdealGeometry.h"
-#include "CondFormats/RecoGeometryObjects/interface/CSCRecoDigiParameters.h"
+#include "CondFormats/GeometryObjects/interface/RecoIdealGeometry.h"
+#include "CondFormats/GeometryObjects/interface/CSCRecoDigiParameters.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 
 // Alignments
@@ -146,7 +147,7 @@ void CSCGeometryESModule::geometryCallback_( const MuonNumberingRecord& record )
   } else {
     edm::ESHandle<RecoIdealGeometry> rig;
     edm::ESHandle<CSCRecoDigiParameters> rdp;
-    record.getRecord<RecoIdealGeometryRcd>().get(rig);
+    record.getRecord<CSCRecoGeometryRcd>().get(rig);
     record.getRecord<CSCRecoDigiParametersRcd>().get(rdp);
     CSCGeometryBuilder cscgb;
     //    _cscGeometry = boost::shared_ptr<CSCGeometry>(cscgb.build(_cscGeometry, *rig, *rdp));

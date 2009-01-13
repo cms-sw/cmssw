@@ -20,8 +20,8 @@
 
 //#include <CondFormats/RecoGeometryObjects/interface/CSCWireGroupPackage.h>
 #include <Geometry/CSCGeometry/src/CSCWireGroupPackage.h>
-#include <CondFormats/RecoGeometryObjects/interface/CSCRecoDigiParameters.h>
-#include <CondFormats/RecoGeometryObjects/interface/RecoIdealGeometry.h>
+#include <CondFormats/GeometryObjects/interface/CSCRecoDigiParameters.h>
+#include <CondFormats/GeometryObjects/interface/RecoIdealGeometry.h>
 
 #include <CLHEP/Units/SystemOfUnits.h>
 

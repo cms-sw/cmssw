@@ -2,8 +2,8 @@
 #include "CSCGeometryBuilder.h"
 #include "CSCGeometryParsFromDD.h"
 
-#include <CondFormats/RecoGeometryObjects/interface/RecoIdealGeometry.h>
-#include <CondFormats/RecoGeometryObjects/interface/CSCRecoDigiParameters.h>
+#include <CondFormats/GeometryObjects/interface/RecoIdealGeometry.h>
+#include <CondFormats/GeometryObjects/interface/CSCRecoDigiParameters.h>
 
 #include <FWCore/Utilities/interface/Exception.h>
 

@@ -1,6 +1,7 @@
  <use name=CondFormats/Alignment>
  <use name=CondFormats/DataRecord>
- <use name=CondFormats/RecoGeometryObjects>
+ <use name=CondFormats/GeometryObjects>
+# <use name=CondFormats/RecoGeometryObjects>
  <use name=DataFormats/TrackingRecHit>
  <use name=DetectorDescription/Core>
  <use name=FWCore/Framework>

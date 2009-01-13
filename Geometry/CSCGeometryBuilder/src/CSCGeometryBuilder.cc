@@ -1,6 +1,6 @@
 #include "CSCGeometryBuilder.h"
-#include <CondFormats/RecoGeometryObjects/interface/CSCRecoDigiParameters.h>
-#include <CondFormats/RecoGeometryObjects/interface/RecoIdealGeometry.h>
+//#include <CondFormats/GeometryObjects/interface/CSCRecoDigiParameters.h>
+//#include <CondFormats/GeometryObjects/interface/RecoIdealGeometry.h>
 
 #include <Geometry/CSCGeometry/interface/CSCGeometry.h>
 
