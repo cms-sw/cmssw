@@ -8,8 +8,6 @@ import FWCore.ParameterSet.Config as cms
 #     throw = False
 #     )
 # from RecoMuon.Configuration.RecoMuonCosmics_cff import *  # required as of 2_1_X
-# from Geometry.CommonDetUnit.bareGlobalTrackingGeometry_cfi import *
-# from RecoMuon.DetLayers.muonDetLayerGeometry_cfi import *
 
 # import RecoLocalMuon.CSCSegment.cscSegments_cfi
 # cscSegmentsALCARECOBH = RecoLocalMuon.CSCSegment.cscSegments_cfi.cscSegments.clone()
