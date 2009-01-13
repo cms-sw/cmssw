@@ -11,12 +11,9 @@ from RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitMatcher_cfi import *
 from RecoLocalTracker.SiPixelRecHits.PixelCPEParmError_cfi import *
 #TransientTrackingBuilder
 from RecoTracker.TransientTrackingRecHit.TransientTrackingRecHitBuilder_cfi import *
-import copy
-from RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi import *
-# TrackProducer
-ctfPixelLess = copy.deepcopy(ctfWithMaterialTracks)
-ctfPixelLess.
 
+# TrackProducer
+import RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi 
 ctfPixelLess = RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi.ctfWithMaterialTracks.clone(
     src = cms.InputTag("ckfTrackCandidatesPixelLess"),  
     Fitter = cms.string('RKFittingSmoother')
