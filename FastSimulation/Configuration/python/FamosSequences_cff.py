@@ -484,7 +484,8 @@ famosWithElectrons = cms.Sequence(
     caloRecHits+
     ecalClusters+ 
     famosElectronSequence+
-    interestingEgammaIsoDetIds+
+    interestingEleIsoDetIdEB+
+    interestingEleIsoDetIdEE+
     egammaIsolationSequence
 )
 
@@ -494,8 +495,8 @@ famosWithPhotons = cms.Sequence(
     caloRecHits+
     ecalClusters+
     famosPhotonSequence+
-    interestingEgammaIsoDetIds+
-    egammaIsolationSequence
+    interestingGamIsoDetIdEB+
+    interestingGamIsoDetIdEE
 )
 
 famosWithElectronsAndPhotons = cms.Sequence(
