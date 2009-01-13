@@ -4,6 +4,7 @@ import FWCore.ParameterSet.Config as cms
 ### to reconstruct tracks without using additional pixel-with tracking steps. 
 
 pixelLessLayerPairs4PixelLessTracking = cms.ESProducer("PixelLessLayerPairsESProducer",
+    ComponentName = cms.string('pixelLessLayerPairs4PixelLessTracking'),
     layerList = cms.vstring(
         'TIB1+TIB2','TIB1+TIB3','TIB2+TIB3',
         'TIB1+TID1_pos', 'TIB1+TID1_neg',
@@ -45,7 +46,7 @@ pixelLessLayerPairs4PixelLessTracking = cms.ESProducer("PixelLessLayerPairsESPro
         TTRHBuilder = cms.string('WithTrackAngle'),
         maxRing = cms.int32(2)
     ),
-    ComponentName = cms.string('PixelLessLayerPairs'),
+
     TEC = cms.PSet(
         matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
         useRingSlector = cms.untracked.bool(True),
