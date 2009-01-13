@@ -375,7 +375,7 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 					       << " associated with quality:" << rt.begin()->second <<"\n";
 	  }
 	}else{
-	  edm::LogVerbatim("TrackValidator")
+	  edm::LogVerbatim("TrackValidator") 
 	    << "TrackingParticle #" << st
 	    << " with pt,eta,phi: " 
 	    << sqrt(tp->momentum().perp2()) << " , "
@@ -712,6 +712,7 @@ void MultiTrackValidator::endRun(Run const&, EventSetup const&) {
 
       //chi2 and #hit vs eta: get mean from 2D histos
       doProfileX(chi2_vs_eta[w],h_chi2meanh[w]);
+      doProfileX(nhits_vs_eta[w],h_hits_eta[w]);    
       doProfileX(nPXBhits_vs_eta[w],h_PXBhits_eta[w]);    
       doProfileX(nPXFhits_vs_eta[w],h_PXFhits_eta[w]);    
       doProfileX(nTIBhits_vs_eta[w],h_TIBhits_eta[w]);    
