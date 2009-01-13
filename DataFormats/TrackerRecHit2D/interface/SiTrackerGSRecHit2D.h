@@ -52,12 +52,12 @@ public:
   
  private:
   
-  int const simhitId_;
-  int const simtrackId_;
-  uint32_t const eeId_;
+  int simhitId_;
+  int simtrackId_;
+  uint32_t eeId_;
   ClusterRef cluster_;
-  int const pixelMultiplicityAlpha_;
-  int const pixelMultiplicityBeta_;
+  int pixelMultiplicityAlpha_;
+  int pixelMultiplicityBeta_;
   
 };
 
