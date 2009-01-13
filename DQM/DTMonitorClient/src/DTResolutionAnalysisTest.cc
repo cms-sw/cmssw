@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/12/12 18:11:12 $
- *  $Revision: 1.11 $
+ *  $Date: 2008/12/18 15:51:42 $
+ *  $Revision: 1.12 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -162,6 +162,7 @@ void DTResolutionAnalysisTest::endLuminosityBlock(LuminosityBlock const& lumiSeg
 	    mean = gfit->GetParameter(1); 
 	    sigma = gfit->GetParameter(2);
 	  }
+	  delete gfit;
 	}
 	else{
 	  edm::LogVerbatim ("DTDQM|DTMonitorModule|DTResolutionAnalysisTask")
