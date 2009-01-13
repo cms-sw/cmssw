@@ -404,6 +404,7 @@ def pythonFragment(step,cmsdriverOptions):
 
 
 def setInputFile(steps,step,acandle,stepIndex,pileup=False,bypasshlt=False):
+    #print "StepIndex 2:%s"%stepIndex
     InputFileOption = ""
     if pileup and stepIndex == 0:
         InputFileOption = "--filein file:%s_%s" % ( FileName[acandle],"DIGI" )
@@ -439,7 +440,13 @@ def writeUnprofiledSteps(simcandles,CustomisePythonFragment,cmsDriverOptions,unp
     #Bug here: should take into account the flag --bypass-hlt instead of assuming hlt should be bypassed
     #This affects the Step1/Step2 running since Step1 will produce an HLT.root file and Step2 should start from there!
     #Adding the argument bypasshlt to the calls...
-    InputFileOption = setInputFile(AllSteps,unprofiledSteps[0],acandle,stepIndex - 1,bypasshlt=bypasshlt)
+    #PreviousInputFile=AllSteps[AllSteps.index(unprofiledSteps[0])-1]
+    #print "StepIndex 1:%s"%stepIndex
+    #Correcting a bug: when unprofiled intermediate steps are present it would skip 1 step...
+    stepIndexAdjust=stepIndex - 2
+    if stepIndexAdjust < 0: #To avoid issues with negative indeces
+        stepIndexAdjust=0
+    InputFileOption = setInputFile(AllSteps,unprofiledSteps[0],acandle,stepIndexAdjust,bypasshlt=bypasshlt)
     #Introduce an over-ride of cmsDriverOptions:
     #For the case of unprofiled steps, always run them with FEVTDEBUGHLT eventcontent
     #At the moment the only use case is when running step2 on its own...
