@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("TEST")
+process = cms.Process("SKIM")
 
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring(
@@ -13,7 +13,7 @@ process.source = cms.Source("PoolSource",
 
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.10 $'),
+    version = cms.untracked.string('$Revision: 1.11 $'),
     name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/DPGAnalysis/Skims/python/SuperPointing_cfg.py,v $'),
     annotation = cms.untracked.string('CRAFT SuperPointing skim')
 )
