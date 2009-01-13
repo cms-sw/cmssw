@@ -91,7 +91,7 @@ process.ttSemiLepEvent.verbosity = cms.int32(0)
 process.p1 = cms.Path(process.makeGenEvt * process.makeTtSemiLepEvent)
 
 #-------------------------------------------------
-# analyze jets
+# analyze hypotheses
 #-------------------------------------------------
 process.load("TopQuarkAnalysis.Examples.HypothesisAnalyzer_cff")
 
