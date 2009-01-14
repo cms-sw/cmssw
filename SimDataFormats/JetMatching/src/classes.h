@@ -23,5 +23,7 @@ namespace {
     reco::JetMatchedPartonsRefProd                  jmprp;
     reco::JetMatchedPartonsRefVector                jmpv;
     edm::Wrapper<reco::JetMatchedPartonsCollection> wjmpc;
+    std::pair<edm::RefToBase<reco::Jet>, reco::JetFlavour> jjfp;
+    std::pair<edm::RefToBase<reco::Jet>, reco::MatchedPartons> jmpp;
   };
 }
