@@ -1,7 +1,7 @@
 //
 // F.Ratnikov (UMd), Aug. 9, 2005
 //
-// $Id: HcalDbService.cc,v 1.24 2008/07/07 10:12:49 andreasp Exp $
+// $Id: HcalDbService.cc,v 1.25 2008/11/08 21:16:42 rofierzy Exp $
 
 #include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
 
@@ -42,8 +42,8 @@ bool HcalDbService::makeHcalCalibration (const HcalGenericDetId& fId, HcalCalibr
 	float pedTrue[4];
 	for (int i=0; i<4; i++) {
 	  float x=pedestal->getValues()[i];
-	  int x1=(int)std::floor(pedTrue[i]);
-	  int x2=(int)std::floor(pedTrue[i]+1);
+	  int x1=(int)std::floor(x);
+	  int x2=(int)std::floor(x+1);
 	  // y = (y2-y1)/(x2-x1) * (x - x1) + y1  [note: x2-x1=1]
 	  float y2=coder->charge(*shape,x2,i);
 	  float y1=coder->charge(*shape,x1,i);
