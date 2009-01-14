@@ -1,16 +1,7 @@
 <lcgdict>
 
-  <!-- this is the new section, the rest is obsolete -->
-  <class name="SiStripLaserRecHit2D"/>
-  <class name="TkLasBeam"/>
-  <class name="TkLasBeamCollection"/>
-  <class name="std::vector<SiStripLaserRecHit2D>"/>
-  <class name="edm::Wrapper<TkLasBeamCollection>"/>
-  <!-- end of new section -->
-
   <class name="LASBeamProfileFit"/>
   <class name="std::vector<LASBeamProfileFit>"/>
-  <class name="std::pair<unsigned int, unsigned int>"/>
   <class name="std::map<unsigned int, std::pair<unsigned int, unsigned int> >"/>
   <class name="std::map<unsigned int, std::vector<LASBeamProfileFit> >"/>
   <class name="LASBeamProfileFitCollection"/>
