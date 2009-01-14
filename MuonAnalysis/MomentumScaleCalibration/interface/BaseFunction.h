@@ -36,9 +36,9 @@ public:
     return functionId_;
   }
 protected:
-  /// Convert vectors to arrays for faster random access.
+  /// Convert vectors to arrays for faster random access. The first pointer is replaced, thus it is taken by reference.
   template<class T>
-  void convertToArrays(T ** function_, const vector<T*> & functionVec_);
+  void convertToArrays(T **& function_, const vector<T*> & functionVec_);
 
   vector<int> functionId_;
   vector<vector<double> > parVecVec_;
@@ -48,7 +48,7 @@ protected:
 };
 
 template <class T>
-void BaseFunction::convertToArrays(T ** function_, const vector<T*> & functionVec_)
+void BaseFunction::convertToArrays(T **& function_, const vector<T*> & functionVec_)
 {
   int parVecVecSize = parVecVec_.size();
   int functionVecSize = functionVec_.size();
@@ -66,7 +66,8 @@ void BaseFunction::convertToArrays(T ** function_, const vector<T*> & functionVe
   }
   parArray_ = new double*[parVecVecSize];
   vector<vector<double> >::const_iterator parVec = parVecVec_.begin();
-  function_ = new T*[iterationNum_];
+  // iterationNum_ starts from 0.
+  function_ = new T*[parVecVecSize];
   typename vector<T * >::const_iterator func = functionVec_.begin();
 
   int iterationCounter = 0;
@@ -82,7 +83,6 @@ void BaseFunction::convertToArrays(T ** function_, const vector<T*> & functionVe
     // return make_pair(parameters, parameterErrors);
 
     function_[iterationCounter] = *func;
-    // cout << "function pointer = " << function_[iterationCounter] << endl;
   }
 }
 
