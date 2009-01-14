@@ -43,6 +43,13 @@ namespace reco {
     double DeltaP() const {return deltaP_;}
     double SigmaDeltaP() const {return sigmadeltaP_;}
     unsigned int indTrajPoint() const {return indPoint_;}
+
+    /// \return position at ECAL entrance
+    const math::XYZPointF& positionAtECALEntrance() const {
+      return positionAtECALEntrance_;
+    }
+      
+
   private:
     
     /// reference to the corresponding track (transient)
@@ -54,7 +61,7 @@ namespace reco {
     double deltaP_;
     double sigmadeltaP_;
     unsigned int indPoint_;
-
+    math::XYZPointF        positionAtECALEntrance_;
  
   };
 }

@@ -17,7 +17,16 @@ PFBlockElementBrem::PFBlockElementBrem(const GsfPFRecTrackRef& gsfref, const dou
   GsftrackRef_( gsfref->gsfTrackRef() ),
   deltaP_(DeltaP),
   sigmadeltaP_(SigmaDeltaP),
-  indPoint_(indTrajPoint){}
+  indPoint_(indTrajPoint){
+
+  const reco::PFTrajectoryPoint& atECAL 
+    = ((*GsftrackRefPF()).PFRecBrem()[(indPoint_-2)]).extrapolatedPoint( reco::PFTrajectoryPoint::ECALEntrance );
+  if( atECAL.isValid() ) 
+    positionAtECALEntrance_.SetCoordinates( atECAL.position().x(),
+					    atECAL.position().y(),
+					    atECAL.position().z() );
+   
+}
 
 
 void PFBlockElementBrem::Dump(ostream& out, 
