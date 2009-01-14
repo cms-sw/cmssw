@@ -6,8 +6,8 @@
 #  uses:        SHERPA datacards, libs and cross sections
 #
 #  author:      Markus Merschmeyer, RWTH Aachen
-#  date:        2008/12/12
-#  version:     2.6
+#  date:        2009/01/14
+#  version:     2.7
 #
 
 
@@ -18,7 +18,7 @@
 
 function print_help() {
     echo "" && \
-    echo "PrepareSherpaLibs version 2.6" && echo && \
+    echo "PrepareSherpaLibs version 2.7" && echo && \
     echo "options: -i  path       path to SHERPA datacard, library & cross section files" && \
     echo "                         can also be in WWW (http://...) or SE (srm://...)" && \
     echo "                         -> ( "${datadir}" )" && \
@@ -538,7 +538,8 @@ if [ "${imode}" = "PROD" ]; then
   mv sherpa_custom.py ${HDIR}
   cd ${HDIR}
   tar -czf sherpa_${dataset}_MASTER.tgz ${shpacfffile} sherpa_custom.py ${MYLIBDIR}
-#  rm -rf ${shpacfffile} sherpa_custom.py ${MYLIBDIR}
+#  rm -rf ${shpacfffile} sherpa_custom.py
+  rm -rf ${MYLIBDIR}
 fi
 
 if [ "${imode}" = "VAL" ]; then

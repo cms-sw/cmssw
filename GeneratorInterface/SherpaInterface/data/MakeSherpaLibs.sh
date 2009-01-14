@@ -6,8 +6,8 @@
 #  uses:        the required SHERPA data cards (+ libraries) [see below]
 #
 #  author:      Markus Merschmeyer, RWTH Aachen
-#  date:        2009/01/07
-#  version:     2.6
+#  date:        2009/01/14
+#  version:     2.7
 #
 
 
@@ -18,7 +18,7 @@
 
 print_help() {
     echo "" && \
-    echo "MakeSherpaLibs version 2.6" && echo && \
+    echo "MakeSherpaLibs version 2.7" && echo && \
     echo "options: -d  path       path to your SHERPA installation OR '\$CMSSW_BASE'" && \
     echo "                         (if you want to use the SHERPA package of that release)" && \
     echo "                         -> ( "${shr}" )" && \
@@ -415,44 +415,18 @@ fi
 
 ## generate tar balls with data cards, libraries, cross sections, events
 cd ${shrun}/${pth}
-## data cards
+
 if [ "${lbo}" = "LBCR" ] || [ "${lbo}" = "CRSS" ]; then
   mv ../Weights*.*      ./${dir2}/
   mv ../xsections_*.dat ./${dir2}/
 fi
-touch ${crdsmd5s}
-for FILE in `ls *.dat *.slha 2> /dev/null`; do
-  md5sum ${FILE} >> ${crdsmd5s}
-done
-FILES=`ls *.md5 *.dat *.slha 2> /dev/null`
-if [ "${lbo}" = "LIBS" ]; then
-  tar -czf ${crdlfile} ${FILES}
-  md5sum ${crdlfile} > ${crdfmd5s}
-elif [ "${lbo}" = "LBCR" ]; then
-  tar -czf ${crdlfile} ${FILES}
-  md5sum ${crdlfile} > ${crdfmd5s}
-elif [ "${lbo}" = "CRSS" ]; then
-  tar -czf ${crdcfile} ${FILES}
-  md5sum ${crdcfile} > ${crdfmd5s}
-elif [ "${lbo}" = "EVTS" ]; then
-  tar -czf ${crdefile} ${FILES}
-  md5sum ${crdefile} > ${evtfmd5s}
-fi
-rm *.dat
-if [ -e ${crdlfile} ]; then
-  mv ${crdlfile} ${shrun}/
-fi
-if [ -e ${crdcfile} ]; then
-  mv ${crdcfile} ${shrun}/
-fi
-if [ -e ${crdefile} ]; then
-  mv ${crdefile} ${shrun}/
-fi
-## libraries
+
+## libraries & cross sections
 if [ "${lbo}" = "LIBS" ]; then
   md5sum ${dir1}/lib/*.* > ${libsmd5s}
   tar -czf ${libsfile} *.md5 ${dir1}/*
   md5sum ${libsfile} > ${libfmd5s}
+  mv ${libsfile} ${shrun}/
 elif [ "${lbo}" = "LBCR" ]; then
   md5sum ${dir1}/lib/*.* > ${libsmd5s}
   tar -czf ${libsfile} *.md5 ${dir1}/*
@@ -460,6 +434,8 @@ elif [ "${lbo}" = "LBCR" ]; then
   md5sum ${dir2}/*.* > ${crssmd5s}
   tar -czf ${crssfile} *.md5 ${dir2}/*
   md5sum ${crssfile} > ${crsfmd5s}
+  mv ${libsfile} ${shrun}/
+  mv ${crssfile} ${shrun}/
 elif [ "${lbo}" = "CRSS" ]; then
   md5sum ${dir1}/lib/*.* > ${libsmd5s}
   md5sum ${libsfile} > ${libfmd5s}
@@ -467,6 +443,7 @@ elif [ "${lbo}" = "CRSS" ]; then
   md5sum ${dir2}/*.* > ${crssmd5s}
   tar -czf ${crssfile} *.md5 ${dir2}/*
   md5sum ${crssfile} > ${crsfmd5s}
+  mv ${crssfile} ${shrun}/
 elif [ "${lbo}" = "EVTS" ]; then
   md5sum ${dir1}/lib/*.* > ${libsmd5s}
   md5sum ${libsfile} > ${libfmd5s}
@@ -478,19 +455,46 @@ elif [ "${lbo}" = "EVTS" ]; then
 #  tar -czf ${evtsfile} *.md5 *.*
   tar -czf ${evtsfile} *.*
   md5sum ${evtsfile} > ${evtfmd5s}
-fi
-if [ -e ${libsfile} ]; then
-  mv ${libsfile} ${shrun}/
-fi
-rm -rf ${dir1}/*
-if [ -e ${crssfile} ]; then
-  mv ${crssfile} ${shrun}/
-fi
-if [ -e ${evtsfile} ]; then
   mv ${evtsfile} ${shrun}/
 fi
-rm -rf ${dir2}/*
-rm *.md5
+#rm -rf ${dir1}/*
+#rm -rf ${dir2}/*
+#rm *.md5
+
+## data cards
+touch ${crdsmd5s}
+for FILE in `ls *.dat *.slha 2> /dev/null`; do
+  md5sum ${FILE} >> ${crdsmd5s}
+done
+FILES=`ls *.md5 *.dat *.slha 2> /dev/null`
+if [ "${lbo}" = "LIBS" ]; then
+#  tar -czf ${crdlfile} ${FILES}
+#  md5sum ${crdlfile} > ${crdfmd5s}
+  tar -czf ${crdcfile} ${FILES}
+  md5sum ${crdcfile} > ${crdfmd5s}
+  mv ${crdcfile} ${shrun}/
+elif [ "${lbo}" = "LBCR" ]; then
+#  tar -czf ${crdlfile} ${FILES}
+#  md5sum ${crdlfile} > ${crdfmd5s}
+  sed -e 's:MI_HANDLER.*:MI_HANDLER   = Amisic                ! Amisic / None:' < Run.dat > Run.dat.tmp
+  mv Run.dat.tmp Run.dat
+  tar -czf ${crdefile} ${FILES}
+  md5sum ${crdefile} > ${evtfmd5s}
+  mv ${crdefile} ${shrun}/
+elif [ "${lbo}" = "CRSS" ]; then
+#  tar -czf ${crdcfile} ${FILES}
+#  md5sum ${crdcfile} > ${crdfmd5s}
+  sed -e 's:MI_HANDLER.*:MI_HANDLER   = Amisic                ! Amisic / None:' < Run.dat > Run.dat.tmp
+  mv Run.dat.tmp Run.dat
+  tar -czf ${crdefile} ${FILES}
+  md5sum ${crdefile} > ${evtfmd5s}
+  mv ${crdefile} ${shrun}/
+elif [ "${lbo}" = "EVTS" ]; then
+  echo evts
+#  tar -czf ${crdefile} ${FILES}
+#  md5sum ${crdefile} > ${evtfmd5s}
+fi
+
 ## log files
 cd ${shrun}
 FILES=`ls *.err *.out 2> /dev/null`
@@ -503,7 +507,7 @@ elif [ "${lbo}" = "CRSS" ]; then
 elif [ "${lbo}" = "EVTS" ]; then
   tar -czf ${logefile} ${FILES}
 fi
-rm *.err *.out
+#rm *.err *.out
 mv *.tgz ${fin}/
 
 
