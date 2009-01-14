@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Dec  3 11:28:28 EST 2008
-// $Id: FWCaloTower3DProxyBuilderBase.cc,v 1.4 2008/12/12 03:53:06 chrjones Exp $
+// $Id: FWCaloTower3DProxyBuilderBase.cc,v 1.1 2000/01/19 12:24:36 amraktad Exp $
 //
 
 // system include files
@@ -20,11 +20,47 @@
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
 
 // user include files
-#include "Fireworks/Calo/interface/FWCaloTower3DProxyBuilderBase.h"
+#include "Fireworks/Core/interface/FW3DDataProxyBuilder.h"
+#include "DataFormats/CaloTowers/interface/CaloTowerFwd.h"
 
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/fw3dlego_xbins.h"
 
+class FWCaloTower3DProxyBuilderBase : public FW3DDataProxyBuilder {
+   
+public:
+   FWCaloTower3DProxyBuilderBase();
+   virtual ~FWCaloTower3DProxyBuilderBase();
+   
+   // ---------- const member functions ---------------------
+   virtual const std::string histName() const = 0;
+   virtual double getEt(const CaloTower&) const = 0;
+   
+   // ---------- static member functions --------------------
+   
+   // ---------- member functions ---------------------------
+   virtual void addToScene(TEveElement&, TEveCaloDataHist**);
+   
+private:
+   FWCaloTower3DProxyBuilderBase(const FWCaloTower3DProxyBuilderBase&); // stop default
+   
+   const FWCaloTower3DProxyBuilderBase& operator=(const FWCaloTower3DProxyBuilderBase&); // stop default
+   
+   
+   virtual void build(const FWEventItem* iItem,
+                      TEveElementList** product);
+   
+   
+   virtual void modelChanges(const FWModelIds&, TEveElement*);
+   virtual void applyChangesToAllModels(TEveElement* iElements);   
+   virtual void itemBeingDestroyed(const FWEventItem*);
+   
+   // ---------- member data --------------------------------
+   TEveCaloDataHist* m_caloData;
+   TH2F* m_hist;
+   Int_t m_sliceIndex;
+   const CaloTowerCollection* m_towers;
+};
 
 //
 // constants, enums and typedefs
