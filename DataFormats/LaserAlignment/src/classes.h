@@ -4,8 +4,8 @@
 
 // this is the new section, the rest is obsolete ///////////
 #include "DataFormats/Common/interface/Wrapper.h"
-#include "Test/TestHolder/interface/SiStripLaserRecHit2D.h"
-#include "Test/TestHolder/interface/TkLasBeam.h"
+#include "DataFormats/LaserAlignment/interface/SiStripLaserRecHit2D.h"
+#include "DataFormats/LaserAlignment/interface/TkLasBeam.h"
 
 namespace {
   namespace {
