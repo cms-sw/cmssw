@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("SCALEDBWRITER")
+process = cms.Process("BACKGROUNDDBREADER")
+# process.load("MuonAnalysis.MomentumScaleCalibration.local_CSA08_Y_cff")
 
 process.source = cms.Source("EmptySource",
     numberEventsInRun = cms.untracked.uint32(1),
@@ -27,29 +28,25 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
 
-process.PoolDBOutputService = cms.Service(
-    "PoolDBOutputService",
-    BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
-    DBParameters = cms.PSet(
+process.poolDBESSource = cms.ESSource("PoolDBESSource",
+   BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
+   DBParameters = cms.PSet(
         messageLevel = cms.untracked.int32(2),
         authenticationPath = cms.untracked.string('/afs/cern.ch/cms/DB/conddb')
     ),
     timetype = cms.untracked.string('runnumber'),
-    connect = cms.string('sqlite_file:dummyScale.db'),
-    toPut = cms.VPSet(cms.PSet(
+    connect = cms.string('sqlite_file:dummyBackground.db'),
+    toGet = cms.VPSet(cms.PSet(
         record = cms.string('MuScleFitScaleRcd'),
-        tag = cms.string('MuScleFitScale_2_1_12')
+        tag = cms.string('MuScleFitBackground_2_1_12')
     ))
 )
 
-process.DBWriterModule = cms.EDAnalyzer(
-    "DBWriter",
-
+process.DBReaderModule = cms.EDAnalyzer(
+    "DBReader",
     # Specify that we want to write the scale parameters. THIS MUST NOT BE CHANGED.
-    Type = cms.untracked.string('scale'),
-    # Specify the corrections to use
-    CorrectionsIdentifier = cms.untracked.string('MCcorrDerivedFromY_globalMuons_test')
+    Type = cms.untracked.string("background")
 )
 
-process.p1 = cms.Path(process.DBWriterModule)
+process.p1 = cms.Path(process.DBReaderModule)
 

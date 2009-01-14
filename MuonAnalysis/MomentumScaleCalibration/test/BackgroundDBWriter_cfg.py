@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("SCALEDBWRITER")
+process = cms.Process("BACKGROUNDDBWRITER")
 
 process.source = cms.Source("EmptySource",
     numberEventsInRun = cms.untracked.uint32(1),
@@ -35,10 +35,10 @@ process.PoolDBOutputService = cms.Service(
         authenticationPath = cms.untracked.string('/afs/cern.ch/cms/DB/conddb')
     ),
     timetype = cms.untracked.string('runnumber'),
-    connect = cms.string('sqlite_file:dummyScale.db'),
+    connect = cms.string('sqlite_file:dummyBackground.db'),
     toPut = cms.VPSet(cms.PSet(
         record = cms.string('MuScleFitScaleRcd'),
-        tag = cms.string('MuScleFitScale_2_1_12')
+        tag = cms.string('MuScleFitBackground_2_1_12')
     ))
 )
 
@@ -46,9 +46,9 @@ process.DBWriterModule = cms.EDAnalyzer(
     "DBWriter",
 
     # Specify that we want to write the scale parameters. THIS MUST NOT BE CHANGED.
-    Type = cms.untracked.string('scale'),
+    Type = cms.untracked.string('background'),
     # Specify the corrections to use
-    CorrectionsIdentifier = cms.untracked.string('MCcorrDerivedFromY_globalMuons_test')
+    CorrectionsIdentifier = cms.untracked.string('MCbackgroundDerivedFromY_globalMuons')
 )
 
 process.p1 = cms.Path(process.DBWriterModule)
