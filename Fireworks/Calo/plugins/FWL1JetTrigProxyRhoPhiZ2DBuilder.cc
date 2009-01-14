@@ -1,33 +1,26 @@
 // -*- C++ -*-
 //
 // Package:     Calo
-// Class  :     L1JetTrigProxyRhoPhiZ2DBuilder
+// Class  :     FWL1JetTrigProxyRhoPhiZ2DBuilder
 //
 // Implementation:
 //     <Notes on implementation>
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: L1JetTrigProxyRhoPhiZ2DBuilder.cc,v 1.11 2008/11/26 16:19:12 chrjones Exp $
+// $Id: FWL1JetTrigProxyRhoPhiZ2DBuilder.cc,v 1.1 2009/01/14 04:15:46 amraktad Exp $
 //
 //
 // system include files
-#include "TEveGeoNode.h"
-#include "TGeoArb8.h"
 #include "TEveManager.h"
-#include "TH1F.h"
-#include "TColor.h"
-#include "TROOT.h"
-#include "TEvePointSet.h"
 #include "TEveScalableStraightLineSet.h"
 #include "TEveCompound.h"
 
 #include <boost/shared_ptr.hpp>
 #include <boost/mem_fn.hpp>
 
-
 // user include files
-#include "Fireworks/Calo/interface/L1JetTrigProxyRhoPhiZ2DBuilder.h"
+#include "Fireworks/Core/interface/FWRPZ2DDataProxyBuilder.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/FW3DLegoDataProxyBuilder.h"
 #include "Fireworks/Core/interface/BuilderUtils.h"
@@ -36,27 +29,50 @@
 #include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h"
 #include "Fireworks/Core/interface/FWDisplayEvent.h"
 
-//
-// constants, enums and typedefs
-//
+class FWL1JetTrigProxyRhoPhiZ2DBuilder : public FWRPZ2DDataProxyBuilder
+{
 
-//
-// static data member definitions
-//
+   public:
+      FWL1JetTrigProxyRhoPhiZ2DBuilder();
+      virtual ~FWL1JetTrigProxyRhoPhiZ2DBuilder();
+
+      // ---------- const member functions ---------------------
+
+      // ---------- static member functions --------------------
+
+      // ---------- member functions ---------------------------
+      REGISTER_PROXYBUILDER_METHODS();
+
+   private:
+      virtual void buildRhoPhi(const FWEventItem* iItem,
+                               TEveElementList** product);
+
+      virtual void buildRhoZ(const FWEventItem* iItem,
+                               TEveElementList** product);
+
+      double getTheta( double eta ) { return 2*atan(exp(-eta)); }
+
+      FWL1JetTrigProxyRhoPhiZ2DBuilder(const FWL1JetTrigProxyRhoPhiZ2DBuilder&); // stop default
+
+      const FWL1JetTrigProxyRhoPhiZ2DBuilder& operator=(const FWL1JetTrigProxyRhoPhiZ2DBuilder&); // stop default
+
+      // ---------- member data --------------------------------
+};
+
 
 //
 // constructors and destructor
 //
-L1JetTrigProxyRhoPhiZ2DBuilder::L1JetTrigProxyRhoPhiZ2DBuilder()
+FWL1JetTrigProxyRhoPhiZ2DBuilder::FWL1JetTrigProxyRhoPhiZ2DBuilder()
 {
 }
 
-// L1JetTrigProxyRhoPhiZ2DBuilder::L1JetTrigProxyRhoPhiZ2DBuilder(const L1JetTrigProxyRhoPhiZ2DBuilder& rhs)
+// FWL1JetTrigProxyRhoPhiZ2DBuilder::FWL1JetTrigProxyRhoPhiZ2DBuilder(const FWL1JetTrigProxyRhoPhiZ2DBuilder& rhs)
 // {
 //    // do actual copying here;
 // }
 
-L1JetTrigProxyRhoPhiZ2DBuilder::~L1JetTrigProxyRhoPhiZ2DBuilder()
+FWL1JetTrigProxyRhoPhiZ2DBuilder::~FWL1JetTrigProxyRhoPhiZ2DBuilder()
 {
 }
 
@@ -64,7 +80,7 @@ L1JetTrigProxyRhoPhiZ2DBuilder::~L1JetTrigProxyRhoPhiZ2DBuilder()
 // mjetber functions
 //
 void
-L1JetTrigProxyRhoPhiZ2DBuilder::buildRhoPhi(const FWEventItem* iItem,
+FWL1JetTrigProxyRhoPhiZ2DBuilder::buildRhoPhi(const FWEventItem* iItem,
 					    TEveElementList** product)
 {
 
@@ -126,7 +142,7 @@ L1JetTrigProxyRhoPhiZ2DBuilder::buildRhoPhi(const FWEventItem* iItem,
 
 
 void
-L1JetTrigProxyRhoPhiZ2DBuilder::buildRhoZ(const FWEventItem* iItem,
+FWL1JetTrigProxyRhoPhiZ2DBuilder::buildRhoZ(const FWEventItem* iItem,
 					    TEveElementList** product)
 {
 
@@ -201,4 +217,4 @@ L1JetTrigProxyRhoPhiZ2DBuilder::buildRhoZ(const FWEventItem* iItem,
 
 }
 
-REGISTER_FWRPZDATAPROXYBUILDERBASE(L1JetTrigProxyRhoPhiZ2DBuilder,l1extra::L1JetParticleCollection,"L1-Jets");
+REGISTER_FWRPZDATAPROXYBUILDERBASE(FWL1JetTrigProxyRhoPhiZ2DBuilder,l1extra::L1JetParticleCollection,"L1-Jets");

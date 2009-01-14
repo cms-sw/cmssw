@@ -1,14 +1,14 @@
 // -*- C++ -*-
 //
 // Package:     Calo
-// Class  :     L1MuonTrigProxyEveLegoBuilder
+// Class  :     FWL1MuonTrigProxyEveLegoBuilder
 //
 // Implementation:
 //     <Notes on implementation>
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: L1MuonTrigProxyEveLegoBuilder.cc,v 1.5 2008/11/06 20:18:43 amraktad Exp $
+// $Id: FWL1MuonTrigProxyEveLegoBuilder.cc,v 1.1 2009/01/14 22:05:21 amraktad Exp $
 //
 
 // system include files
@@ -20,54 +20,51 @@
 #include "TROOT.h"
 
 // user include files
-#include "Fireworks/Calo/interface/L1MuonTrigProxyEveLegoBuilder.h"
+#include "Fireworks/Core/interface/FW3DLegoEveElementProxyBuilder.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/BuilderUtils.h"
 
 #include "DataFormats/L1Trigger/interface/L1MuonParticle.h"
 #include "DataFormats/L1Trigger/interface/L1MuonParticleFwd.h"
 
-//
-// constants, enums and typedefs
-//
+#include <map>
 
-//
-// static data member definitions
-//
+class FWL1MuonTrigProxyEveLegoBuilder : public FW3DLegoEveElementProxyBuilder
+{
+
+   public:
+      FWL1MuonTrigProxyEveLegoBuilder();
+      virtual ~FWL1MuonTrigProxyEveLegoBuilder();
+
+      // ---------- const member functions ---------------------
+
+      // ---------- static member functions --------------------
+      REGISTER_PROXYBUILDER_METHODS();
+
+   private:
+      virtual void build(const FWEventItem* iItem,
+                         TEveElementList** product);
+
+      FWL1MuonTrigProxyEveLegoBuilder(const FWL1MuonTrigProxyEveLegoBuilder&); // stop default
+
+      const FWL1MuonTrigProxyEveLegoBuilder& operator=(const FWL1MuonTrigProxyEveLegoBuilder&); // stop default
+
+};
 
 //
 // constructors and destructor
 //
-L1MuonTrigProxyEveLegoBuilder::L1MuonTrigProxyEveLegoBuilder()
-{
-
-
-}
-
-// L1MuonTrigProxyEveLegoBuilder::L1MuonTrigProxyEveLegoBuilder(const L1MuonTrigProxyEveLegoBuilder& rhs)
-// {
-//    // do actual copying here;
-// }
-
-L1MuonTrigProxyEveLegoBuilder::~L1MuonTrigProxyEveLegoBuilder()
+FWL1MuonTrigProxyEveLegoBuilder::FWL1MuonTrigProxyEveLegoBuilder()
 {
 }
 
-//
-// assignment operators
-//
-// const L1MuonTrigProxyEveLegoBuilder& L1MuonTrigProxyEveLegoBuilder::operator=(const L1MuonTrigProxyEveLegoBuilder& rhs)
-// {
-//   //An exception safe implementation is
-//   L1MuonTrigProxyEveLegoBuilder temp(rhs);
-//   swap(rhs);
-//
-//   return *this;
-// }
+FWL1MuonTrigProxyEveLegoBuilder::~FWL1MuonTrigProxyEveLegoBuilder()
+{
+}
 
 
 void
-L1MuonTrigProxyEveLegoBuilder::build(const FWEventItem* iItem, TEveElementList** product)
+FWL1MuonTrigProxyEveLegoBuilder::build(const FWEventItem* iItem, TEveElementList** product)
 {
   TEveElementList* tList = *product;
   TEveGeoManagerHolder gmgr(TEveGeoShape::GetGeoMangeur());
@@ -130,10 +127,7 @@ L1MuonTrigProxyEveLegoBuilder::build(const FWEventItem* iItem, TEveElementList**
     */
     tList->AddElement(container);
   }// end loop over em particle objects
-
-
-
 }
 
-REGISTER_FW3DLEGODATAPROXYBUILDER(L1MuonTrigProxyEveLegoBuilder,l1extra::L1MuonParticleCollection,"L1MuonTrig");
+REGISTER_FW3DLEGODATAPROXYBUILDER(FWL1MuonTrigProxyEveLegoBuilder,l1extra::L1MuonParticleCollection,"L1MuonTrig");
 
