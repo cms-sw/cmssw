@@ -3,7 +3,7 @@
 #define __TKLASBEAM_H
 
 #include <vector>
-#include "Test/TestHolder/interface/SiStripLaserRecHit2D.h"
+#include "DataFormats/LaserAlignment/interface/SiStripLaserRecHit2D.h"
 
 
 ///
