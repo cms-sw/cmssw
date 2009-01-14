@@ -285,7 +285,8 @@ process.looper = cms.Looper(
     resfind = cms.vint32(0, 0, 0, 0, 0, 1),
     FitStrategy = cms.int32(2),
 
-    speedup = cms.bool(False)
+    speedup = cms.bool(False),
+    readPdfFromDB = cms.bool(False)
 
 )
 
