@@ -66,12 +66,12 @@ process.load("Configuration.StandardSequences.MagneticField_cff")
 
 #-------------------------------------------------
 # tqaf configuration; if the TQAF Layer 1 is
-# already in place yuo can comment the following
+# already in place you can comment the following
 # two lines
 #-------------------------------------------------
 
 ## std sequence for tqaf layer1
-#process.load("TopQuarkAnalysis.TopObjectProducers.tqafLayer1_full_cff")
+#process.load("TopQuarkAnalysis.TopObjectProducers.tqafLayer1_cff")
 #process.p0 = cms.Path(process.tqafLayer1)
 
 ## std sequence for tqaf layer2 ttGenEvent
@@ -82,7 +82,6 @@ process.p1 = cms.Path(process.makeGenEvt)
 from TopQuarkAnalysis.TopEventProducers.producers.TopDecaySubset_cfi import decaySubset
 decaySubset.genType=1
 
-
 #-------------------------------------------------
 # analyze genEvent
 #-------------------------------------------------
@@ -90,7 +89,8 @@ from TopQuarkAnalysis.Examples.TopGenEventAnalyzer_cfi import analyzeTopGenEvent
 process.analyzeTopGenEvent = analyzeTopGenEvent
 
 # register TFService
-process.TFileService = cms.Service("TFileService",fileName = cms.string('analyzegenevent.root')
+process.TFileService = cms.Service("TFileService",
+    fileName = cms.string('analyzeTopGenEvent.root')
 )
 
 ## analysis path   

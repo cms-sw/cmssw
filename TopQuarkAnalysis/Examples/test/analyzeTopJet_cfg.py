@@ -55,7 +55,7 @@ process.load("Configuration.StandardSequences.MagneticField_cff")
 
 #-------------------------------------------------
 # tqaf configuration; if the TQAF Layer 1 is
-# already in place yuo can comment the following
+# already in place you can comment the following
 # two lines
 #-------------------------------------------------
 
