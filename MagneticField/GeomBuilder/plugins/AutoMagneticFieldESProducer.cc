@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2008/05/06 12:03:51 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/11/14 10:42:40 $
+ *  $Revision: 1.1 $
  *  \author Nicola Amapane 11/08
  */
 
@@ -16,6 +16,10 @@
 #include "MagneticField/GeomBuilder/src/MagGeoBuilderFromDDD.h"
 
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+
+#include "CondFormats/RunInfo/interface/RunInfo.h"
+#include "CondFormats/DataRecord/interface/RunSummaryRcd.h"
+#include "MagneticField/Engine/interface/MagneticFieldHelpers.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -46,9 +50,22 @@ AutoMagneticFieldESProducer::produce(const IdealMagneticFieldRecord& iRecord)
 {
   MagneticField * result=0;
 
-  // TEMPORARY
-  int value = pset.getUntrackedParameter<int>("value", 38);
 
+  int value = pset.getParameter<int>("valueOverride");
+
+  if (value < 0) {
+    ESHandle<RunInfo> rInfo;
+    iRecord.getRecord<RunInfoRcd>().get(rInfo);
+
+    float current = rInfo->m_avg_current;
+    value = magneticFieldHelpers::closerNominalField(current);
+    
+    LogInfo("AutoMagneticField") << "Recorded avg current: " << current << "; using map for " << value/10. << " T";
+  } else {
+    LogInfo("AutoMagneticField") << "Ignoring DB current readings; using map for " << value/10. << " T";
+  }
+  
+  
   string sValue;
   if (value == 0) {  // B=0, uniform field map
     result = new UniformMagneticField(0.);
