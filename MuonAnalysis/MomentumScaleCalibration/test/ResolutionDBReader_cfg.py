@@ -37,7 +37,7 @@ process.poolDBESSource = cms.ESSource("PoolDBESSource",
     timetype = cms.untracked.string('runnumber'),
     connect = cms.string('sqlite_file:dummyResolution.db'),
     toGet = cms.VPSet(cms.PSet(
-        record = cms.string('MuScleFitScaleRcd'),
+        record = cms.string('MuScleFitDBobjectRcd'),
         tag = cms.string('MuScleFitResolution_2_1_12')
     ))
 )

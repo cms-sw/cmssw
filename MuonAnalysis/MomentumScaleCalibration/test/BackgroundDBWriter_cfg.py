@@ -37,7 +37,7 @@ process.PoolDBOutputService = cms.Service(
     timetype = cms.untracked.string('runnumber'),
     connect = cms.string('sqlite_file:dummyBackground.db'),
     toPut = cms.VPSet(cms.PSet(
-        record = cms.string('MuScleFitScaleRcd'),
+        record = cms.string('MuScleFitDBobjectRcd'),
         tag = cms.string('MuScleFitBackground_2_1_12')
     ))
 )
