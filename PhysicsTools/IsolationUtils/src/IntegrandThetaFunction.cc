@@ -16,7 +16,7 @@
 //
 // Original Author:  Christian Veelken, UC Davis
 //         Created:  Thu Nov  2 13:47:40 CST 2006
-// $Id: IntegrandThetaFunction.cc,v 1.1 2007/05/23 20:21:38 veelken Exp $
+// $Id: IntegrandThetaFunction.cc,v 1.2 2007/05/28 09:59:50 llista Exp $
 //
 //
 
@@ -39,7 +39,7 @@
 //
 
 IntegrandThetaFunction::IntegrandThetaFunction()
-  : ROOT::Math::ParamFunction(3)
+  : ROOT::Math::ParamFunction<ROOT::Math::IParametricGradFunctionOneDim>(3)
 {
   theta0_ = 0.; 
   phi0_ = 0.; 
@@ -103,6 +103,15 @@ void IntegrandThetaFunction::SetParameters(double* param)
   alpha_ = param[2];
 }
 
+double IntegrandThetaFunction::DoEvalPar(double x, const double* param) const  //FIXME: constness
+{
+  theta0_ = param[0];
+  phi0_ = param[1];
+  alpha_ = param[2];
+
+  return DoEval(x);
+}
+
 double IntegrandThetaFunction::DoEval(double x) const
 {
 //--- return zero if theta either close  to zero or close to Pi
@@ -157,6 +166,17 @@ double IntegrandThetaFunction::DoDerivative(double x) const
 
   return 0.;
 }
+
+double IntegrandThetaFunction::DoParameterDerivative(double, const double*, unsigned int) const
+{
+//--- virtual function inherited from ROOT::Math::ParamFunction base class;
+//    not implemented, because not neccessary, but needs to be defined to make code compile...
+  edm::LogWarning("") << "Function not implemented yet !" << std::endl;
+
+  return 0.;
+}
+
+
 
 void IntegrandThetaFunction::DoParameterGradient(double x, double* paramGradient) const
 {

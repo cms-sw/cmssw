@@ -19,7 +19,7 @@
 //
 // Original Author: Christian Veelken, UC Davis
 //         Created: Wed May 16 13:47:40 CST 2007
-// $Id: FixedAreaIsolationCone.h,v 1.0 2006/11/30 17:07:28 veelken Exp $
+// $Id: FixedAreaIsolationCone.h,v 1.1 2007/05/23 20:23:08 veelken Exp $
 //
 //
 
@@ -56,7 +56,7 @@ class FixedAreaIsolationCone
  private:
   ConeAreaFunction areaFunctionSignalCone_; 
   ConeAreaRootFunction areaRootFunctionIsolationCone_;
-  ROOT::Math::RootFinder<ROOT::Math::Roots::Brent> areaRootFinderIsolationCone_; 
+  ROOT::Math::RootFinder areaRootFinderIsolationCone_; 
 
   static const unsigned int debugLevel_ = 0;
 };

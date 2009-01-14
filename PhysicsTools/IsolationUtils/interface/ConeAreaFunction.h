@@ -17,7 +17,7 @@
 //
 // Original Author:  Christian Veelken, UC Davis
 //         Created:  Thu Nov  2 13:47:40 CST 2006
-// $Id: ConeAreaFunction.cc,v 1.3 2006/11/30 17:07:28 dwjang Exp $
+// $Id: ConeAreaFunction.h,v 1.1 2007/05/23 20:23:08 veelken Exp $
 //
 //
 
@@ -31,7 +31,7 @@ class IntegrandThetaFunction;
 // class declaration
 //
 
-class ConeAreaFunction : public ROOT::Math::ParamFunction
+class ConeAreaFunction : public ROOT::Math::ParamFunction<ROOT::Math::IParametricGradFunctionOneDim>
 {
  public:
   ConeAreaFunction();
@@ -45,20 +45,21 @@ class ConeAreaFunction : public ROOT::Math::ParamFunction
 
   void SetAcceptanceLimit(double etaMax);
 
-  ROOT::Math::IGenFunction* Clone () const { return new ConeAreaFunction(*this); }
+  virtual ROOT::Math::IGenFunction* Clone () const { return new ConeAreaFunction(*this); }
 
  protected:
   void SetParameters(double* param);
-
+  virtual double DoEvalPar(double , const double *) const;
   double DoEval(double x) const;
   double DoDerivative(double x) const;
   void DoParameterGradient(double x, double* paramGradient) const;
+  virtual double DoParameterDerivative(double, const double*, unsigned int) const;
 
 // !!! ONLY FOR TESTING
-double theta0_; // polar angle of cone axis
-double phi0_; // azimuth angle of cone axis
+mutable double theta0_; // polar angle of cone axis
+mutable double phi0_; // azimuth angle of cone axis
 
-double etaMax_; // maximum pseudo-rapidity at which particles used for tau cone isolation can be detected (etaMax = 2.5 for charged particles; etaMax ~ 4.0 for neutrals)
+mutable double etaMax_; // maximum pseudo-rapidity at which particles used for tau cone isolation can be detected (etaMax = 2.5 for charged particles; etaMax ~ 4.0 for neutrals)
 // !!! ONLY FOR TESTING
 
  private:

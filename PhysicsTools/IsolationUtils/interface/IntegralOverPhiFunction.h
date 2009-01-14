@@ -17,7 +17,7 @@
 //
 // Original Author:  Christian Veelken, UC Davis
 //         Created:  Thu Nov  2 13:47:40 CST 2006
-// $Id: IntegralOverPhiFunction.cc,v 1.3 2006/11/30 17:07:28 dwjang Exp $
+// $Id: IntegralOverPhiFunction.h,v 1.1 2007/05/23 20:23:08 veelken Exp $
 //
 //
 
@@ -28,7 +28,7 @@
 // class declaration
 //
 
-class IntegralOverPhiFunction : public ROOT::Math::ParamFunction
+class IntegralOverPhiFunction : public ROOT::Math::ParamFunction<ROOT::Math::IParametricGradFunctionOneDim>
 {
  public:
   IntegralOverPhiFunction();
@@ -38,18 +38,20 @@ class IntegralOverPhiFunction : public ROOT::Math::ParamFunction
   void SetParameterPhi0(double phi0);
   void SetParameterAlpha(double alpha);
 
-  ROOT::Math::IGenFunction* Clone () const { return new IntegralOverPhiFunction(*this); }
+  virtual ROOT::Math::IGenFunction* Clone () const { return new IntegralOverPhiFunction(*this); }
 
  private:
   void SetParameters(double* param);
 
   double DoEval(double x) const;
+  virtual double DoEvalPar(double x, const double* param) const;
   double DoDerivative(double x) const;
+  virtual double DoParameterDerivative(double, const double*, unsigned int) const;
   void DoParameterGradient(double x, double* paramGradient) const;
 
-  double theta0_; // polar angle of cone axis
-  double phi0_; // azimuth angle of cone axis
-  double alpha_; // opening angle of cone (measured from cone axis)
+  mutable double theta0_; // polar angle of cone axis
+  mutable double phi0_; // azimuth angle of cone axis
+  mutable double alpha_; // opening angle of cone (measured from cone axis)
 
 // !!! ONLY FOR TESTING
   mutable unsigned int numSolutionMin1_;

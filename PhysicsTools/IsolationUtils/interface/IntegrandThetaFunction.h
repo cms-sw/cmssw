@@ -17,7 +17,7 @@
 //
 // Original Author:  Christian Veelken, UC Davis
 //         Created:  Thu Nov  2 13:47:40 CST 2006
-// $Id: IntegrandThetaFunction.cc,v 1.3 2006/11/30 17:07:28 dwjang Exp $
+// $Id: IntegrandThetaFunction.h,v 1.1 2007/05/23 20:23:08 veelken Exp $
 //
 //
 
@@ -31,7 +31,7 @@ class IntegralOverPhiFunction;
 // class declaration
 //
 
-class IntegrandThetaFunction : public ROOT::Math::ParamFunction
+class IntegrandThetaFunction : public ROOT::Math::ParamFunction<ROOT::Math::IParametricGradFunctionOneDim>
 {
  public:
   IntegrandThetaFunction();
@@ -44,18 +44,20 @@ class IntegrandThetaFunction : public ROOT::Math::ParamFunction
   void SetParameterPhi0(double phi0);
   void SetParameterAlpha(double alpha);
 
-  ROOT::Math::IGenFunction* Clone () const { return new IntegrandThetaFunction(*this); }
+  virtual ROOT::Math::IGenFunction* Clone () const { return new IntegrandThetaFunction(*this); }
 
  private:
   void SetParameters(double* param);
 
   double DoEval(double x) const;
+  virtual double DoEvalPar(double, const double*) const;
   double DoDerivative(double x) const;
+  virtual double DoParameterDerivative(double, const double*, unsigned int) const;
   void DoParameterGradient(double x, double* paramGradient) const;
 
-  double theta0_; // polar angle of cone axis
-  double phi0_; // azimuth angle of cone axis
-  double alpha_; // opening angle of cone (measured from cone axis)
+  mutable double theta0_; // polar angle of cone axis
+  mutable double phi0_; // azimuth angle of cone axis
+  mutable double alpha_; // opening angle of cone (measured from cone axis)
 
   mutable IntegralOverPhiFunction* fPhi_;
 

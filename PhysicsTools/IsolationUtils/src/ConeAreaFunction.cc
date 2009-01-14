@@ -16,7 +16,7 @@
 //
 // Original Author:  Christian Veelken, UC Davis
 //         Created:  Thu Nov  2 13:47:40 CST 2006
-// $Id: ConeAreaFunction.cc,v 1.1 2007/05/23 20:21:37 veelken Exp $
+// $Id: ConeAreaFunction.cc,v 1.2 2007/05/28 09:59:50 llista Exp $
 //
 //
 
@@ -39,7 +39,7 @@
 //
 
 ConeAreaFunction::ConeAreaFunction()
-  : ROOT::Math::ParamFunction(2)
+  : ROOT::Math::ParamFunction<ROOT::Math::IParametricGradFunctionOneDim>(2)
 {
   theta0_ = 0.; 
   phi0_ = 0.; 
@@ -122,6 +122,21 @@ void ConeAreaFunction::SetAcceptanceLimit(double etaMax)
   }
 }
 
+double ConeAreaFunction::DoEvalPar(double x, const double* param) const
+{
+//--- calculate area covered by cone of opening angle alpha
+//    (measured from cone axis);
+//    evaluate integral over angle theta
+//    (polar angle of point within cone)
+// FIXME: the const above is actually not true as it is implemented now.
+
+  theta0_ = param[0];
+  phi0_ = param[1];
+
+  return DoEval(x);
+}
+
+
 double ConeAreaFunction::DoEval(double x) const
 {
 //--- calculate area covered by cone of opening angle alpha
@@ -151,6 +166,17 @@ double ConeAreaFunction::DoDerivative(double x) const
 
   return 0.;
 }
+
+double ConeAreaFunction::DoParameterDerivative(double, const double*, unsigned int) const
+{
+//--- virtual function inherited from ROOT::Math::ParamFunction base class;
+//    not implemented, because not neccessary, but needs to be defined to make code compile...
+  edm::LogWarning("") << "Function not implemented yet !" << std::endl;
+
+  return 0.;
+}
+
+
 
 void ConeAreaFunction::DoParameterGradient(double x, double* paramGradient) const
 {

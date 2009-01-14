@@ -16,7 +16,7 @@
 //
 // Original Author:  Christian Veelken, UC Davis
 //         Created:  Thu Nov  2 13:47:40 CST 2006
-// $Id: IntegralOverPhiFunction.cc,v 1.1 2007/05/23 20:21:38 veelken Exp $
+// $Id: IntegralOverPhiFunction.cc,v 1.2 2007/05/28 09:59:50 llista Exp $
 //
 //
 
@@ -44,7 +44,7 @@ void checkSolutions(unsigned int i, unsigned int& numSolution1, unsigned int& nu
 //
 
 IntegralOverPhiFunction::IntegralOverPhiFunction()
-  : ROOT::Math::ParamFunction(3)
+  : ROOT::Math::ParamFunction<ROOT::Math::IParametricGradFunctionOneDim>(3)
 { 
   theta0_ = 0.; 
   phi0_ = 0.; 
@@ -104,6 +104,17 @@ void IntegralOverPhiFunction::SetParameters(double* param)
   phi0_ = param[1];
   alpha_ = param[2];
 }
+
+double IntegralOverPhiFunction::DoEvalPar(double x, const double* param) const  //FIXME: in the current implementation const is not entirely true
+{
+  theta0_ = param[0];
+  phi0_ = param[1];
+  alpha_ = param[2];
+
+  return DoEval(x);
+}
+
+
 
 double IntegralOverPhiFunction::DoEval(double x) const
 {
@@ -210,6 +221,15 @@ double IntegralOverPhiFunction::DoEval(double x) const
 }  
 
 double IntegralOverPhiFunction::DoDerivative(double x) const
+{
+//--- virtual function inherited from ROOT::Math::ParamFunction base class;
+//    not implemented, because not neccessary, but needs to be defined to make code compile...
+  edm::LogWarning("") << "Function not implemented yet !" << std::endl;
+
+  return 0.;
+}
+
+double IntegralOverPhiFunction::DoParameterDerivative(double, const double*, unsigned int) const
 {
 //--- virtual function inherited from ROOT::Math::ParamFunction base class;
 //    not implemented, because not neccessary, but needs to be defined to make code compile...
