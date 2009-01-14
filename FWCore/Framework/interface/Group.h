@@ -16,7 +16,6 @@ is the storage unit of such information.
 
 #include "DataFormats/Common/interface/EDProduct.h"
 #include "DataFormats/Provenance/interface/ConstBranchDescription.h"
-#include "DataFormats/Provenance/interface/ProductProvenance.h"
 #include "DataFormats/Provenance/interface/Provenance.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
 
@@ -62,7 +61,7 @@ namespace edm {
 
     boost::shared_ptr<EDProduct> product() const { return product_; }
 
-    boost::shared_ptr<ProductProvenance> productProvenancePtr() const {return productProvenance_;}
+    boost::shared_ptr<ProductProvenance> productProvenancePtr() const {return provenance()->productProvenanceSharedPtr();}
 
     ConstBranchDescription const& productDescription() const {return *branchDescription_;}
 
@@ -80,11 +79,6 @@ namespace edm {
     // cache after creation of the Group, without changing the meaning
     // of the Group.
     void setProduct(std::auto_ptr<EDProduct> prod) const;
-
-    // The following is const because we can add the provenance
-    // to the cache after creation of the Group, without changing the meaning
-    // of the Group.
-    void setProvenance(boost::shared_ptr<ProductProvenance> productProvenance) const;
 
     // Write the group to the stream.
     void write(std::ostream& os) const;
@@ -115,7 +109,6 @@ namespace edm {
     mutable boost::shared_ptr<EDProduct> product_;
     boost::shared_ptr<ConstBranchDescription> branchDescription_;
     mutable ProductID pid_;
-    mutable boost::shared_ptr<ProductProvenance> productProvenance_;
     mutable boost::shared_ptr<Provenance> prov_;
     bool    dropped_;
     bool    onDemand_;

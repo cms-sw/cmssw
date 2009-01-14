@@ -410,10 +410,8 @@ namespace edm {
 
   void
   Principal::resolveProvenance(Group const& g) const {
-    if (!g.productProvenancePtr()) {
-      // Now fix up the Group
-      g.setProvenance(branchMapperPtr()->branchIDToProvenance(g.productDescription().branchID()));
-    }
+    g.provenance()->setStore(branchMapperPtr_);
+    g.provenance()->productProvenance();
   }
 
   OutputHandle

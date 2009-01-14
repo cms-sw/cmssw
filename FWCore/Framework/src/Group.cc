@@ -15,7 +15,6 @@ namespace edm {
     product_(),
     branchDescription_(),
     pid_(),
-    productProvenance_(),
     prov_(),
     dropped_(false),
     onDemand_(false) {}
@@ -25,8 +24,7 @@ namespace edm {
     product_(edp.release()),
     branchDescription_(new ConstBranchDescription(bd)),
     pid_(pid),
-    productProvenance_(productProvenance.release()),
-    prov_(new Provenance(*branchDescription_, pid_, productProvenance_)),
+    prov_(new Provenance(*branchDescription_, pid_, boost::shared_ptr<ProductProvenance>(productProvenance.release()))),
     dropped_(!branchDescription_->present()),
     onDemand_(false) {
   }
@@ -36,8 +34,7 @@ namespace edm {
     product_(),
     branchDescription_(new ConstBranchDescription(bd)),
     pid_(pid),
-    productProvenance_(productProvenance.release()),
-    prov_(new Provenance(*branchDescription_, pid, productProvenance_)),
+    prov_(new Provenance(*branchDescription_, pid_, boost::shared_ptr<ProductProvenance>(productProvenance.release()))),
     dropped_(!branchDescription_->present()),
     onDemand_(false) {
   }
@@ -47,8 +44,7 @@ namespace edm {
     product_(edp.release()),
     branchDescription_(new ConstBranchDescription(bd)),
     pid_(pid),
-    productProvenance_(productProvenance),
-    prov_(new Provenance(*branchDescription_, pid, productProvenance_)),
+    prov_(new Provenance(*branchDescription_, pid, productProvenance)),
     dropped_(!branchDescription_->present()),
     onDemand_(false) {
   }
@@ -58,8 +54,7 @@ namespace edm {
     product_(),
     branchDescription_(new ConstBranchDescription(bd)),
     pid_(pid),
-    productProvenance_(productProvenance),
-    prov_(new Provenance(*branchDescription_, pid, productProvenance_)),
+    prov_(new Provenance(*branchDescription_, pid, productProvenance)),
     dropped_(!branchDescription_->present()),
     onDemand_(false) {
   }
@@ -68,7 +63,6 @@ namespace edm {
     product_(),
     branchDescription_(new ConstBranchDescription(bd)),
     pid_(pid),
-    productProvenance_(),
     prov_(),
     dropped_(!branchDescription_->present()),
     onDemand_(true) {
@@ -79,7 +73,6 @@ namespace edm {
     product_(),
     branchDescription_(new ConstBranchDescription(bd)),
     pid_(pid),
-    productProvenance_(),
     prov_(),
     dropped_(!branchDescription_->present()),
     onDemand_(false) {
@@ -91,15 +84,15 @@ namespace edm {
   ProductStatus
   Group::status() const {
     if (dropped_) return productstatus::dropped();
-    if (!productProvenance_) {
+    if (!provenance()->productProvenanceSharedPtr()) {
       if (product_) return product_->isPresent() ? productstatus::present() : productstatus::neverCreated();
       else return productstatus::unknown();
     }
     if (product_) {
       // for backward compatibility
-      product_->isPresent() ? productProvenance_->setPresent() : productProvenance_->setNotPresent();
+      product_->isPresent() ? prov_->productProvenance().setPresent() : prov_->productProvenance().setNotPresent();
     }
-    return productProvenance_->productStatus();
+    return provenance()->productStatus();
   }
 
   bool
@@ -128,21 +121,10 @@ namespace edm {
     product_.reset(prod.release());  // Group takes ownership
   }
   
-  void 
-  Group::setProvenance(boost::shared_ptr<ProductProvenance> productProvenance) const {
-    productProvenance_ = productProvenance;  // Group takes ownership
-    if (productProvenance_) {
-      prov_.reset(new Provenance(*branchDescription_, pid_, productProvenance_));
-    } else {
-      prov_.reset(new Provenance(*branchDescription_, pid_));
-    }
-  }
-
   void  
   Group::swap(Group& other) {
     std::swap(product_, other.product_);
     std::swap(branchDescription_, other.branchDescription_);
-    std::swap(productProvenance_, other.productProvenance_);
     std::swap(prov_, other.prov_);
     std::swap(dropped_, other.dropped_);
     std::swap(onDemand_, other.onDemand_);
@@ -182,7 +164,7 @@ namespace edm {
   Provenance const *
   Group::provenance() const {
     if (!prov_.get()) {
-      prov_.reset(new Provenance(*branchDescription_, pid_, productProvenance_));
+      prov_.reset(new Provenance(*branchDescription_, pid_));
     }
     return prov_.get();
   }
@@ -217,7 +199,7 @@ namespace edm {
         << "process = " << processName() << "\n";
     }
 
-    if (!productProvenance_) {
+    if (!provenance()->productProvenanceSharedPtr()) {
       return;
     }
 
