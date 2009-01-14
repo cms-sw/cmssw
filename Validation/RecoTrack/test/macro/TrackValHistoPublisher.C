@@ -1,5 +1,4 @@
-void TrackValHistoPublisher(char* newFile="../DQM_V0001_R000000001__CMSSW_3_0_0_pre2__RelVal__Validation.root",char* 
-refFile="../val.RelValTTbar.root")
+void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
 {
   //gROOT->ProcessLine(".x HistoCompare_Tracks.C");
  gROOT ->Reset();
@@ -33,13 +32,13 @@ refFile="../val.RelValTTbar.root")
  TDirectory * rdir=gDirectory;
 
  if(sfile->cd("DQMData/Run 1/RecoTrackV")) sfile->cd("DQMData/Run 1/RecoTrackV/Run summary/Track");
- else sfile->cd("DQMData/Track");
+ else sfile->cd("DQMData/RecoTrackV/Track");
  sdir=gDirectory;
  TList *sl= sdir->GetListOfKeys();
  TString collname2 =sl->At(0)->GetName(); 
 
- if(rfile->cd("DQMData/RecoTrackV")) rfile->cd("DQMData/RecoTrackV/Track");
- else rfile->cd("DQMData/Track");
+ if(rfile->cd("DQMData/Run 1/RecoTrackV")) rfile->cd("DQMData/Run 1/RecoTrackV/Run summary/Track");
+ else rfile->cd("DQMData/RecoTrackV/Track");
  rdir=gDirectory;
  TList *rl= rdir->GetListOfKeys();
  TString collname1=rl->At(0)->GetName(); 

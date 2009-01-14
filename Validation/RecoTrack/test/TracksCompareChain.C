@@ -6,7 +6,7 @@ void TracksCompareChain()
  gROOT->SetStyle("Plain");
 
  char*  rfilename = "validationPlots.root";//new release is in red
- char*  sfilename = "../data/validationPlots.root";//reference is in blue
+ char*  sfilename = "../validationPlots.root";//reference is in blue
 
  delete gROOT->GetListOfFiles()->FindObject(rfilename);
  delete gROOT->GetListOfFiles()->FindObject(sfilename); 
@@ -17,12 +17,12 @@ void TracksCompareChain()
  TFile * sfile = new TFile(sfilename);
  TDirectory * sdir=gDirectory; 
 
- if(rfile->cd("DQMData/RecoTrackV"))rfile->cd("DQMData/RecoTrackV/Track");
- else rfile->cd("DQMData/Track");
+ if(rfile->cd("DQMData/Run 1/RecoTrackV"))rfile->cd("DQMData/Run 1/RecoTrackV/Run summary/Track");
+ else rfile->cd("DQMData/RecoTrackV/Track");
  rdir=gDirectory;
 
- if(sfile->cd("DQMData/RecoTrackV"))sfile->cd("DQMData/RecoTrackV/Track");
- else sfile->cd("DQMData/Track");
+ if(sfile->cd("DQMData/Run 1/RecoTrackV"))sfile->cd("DQMData/Run 1/RecoTrackV/Run summary/Track");
+ else sfile->cd("DQMData/RecoTrackV/Track");
  sdir=gDirectory; 
 
 
@@ -32,10 +32,10 @@ void TracksCompareChain()
  TString collnamerRS = "cutsRS";
  TString collnamesRS = "cutsRS";
  
- TString assocnamerCTF1 = "trackingParticleRecoAsssociation";//AssociatorByHits
  TString assocnamesCTF1 = "trackingParticleRecoAsssociation";//AssociatorByHits
+ //TString assocnamesCTF1 = "trackingParticleRecoAsssociation";//AssociatorByHits
  // TString assocnamerCTF1 = "AssociatorByHits";
- // TString assocnamesCTF1 = "AssociatorByHits";
+  TString assocnamerCTF1 = "AssociatorByHits";
  TString assocnamerRS1 = "AssociatorByHits";
  TString assocnamesRS1 = "AssociatorByHits";
  TString assocnamerCTF2 = "AssociatorByChi2";
@@ -103,7 +103,10 @@ void TracksCompareChain()
 //    cout<<rdir->GetPath()<<endl;
 //    cout<<sdir->GetPath()<<endl;
 //    cout<<sdir->ls()<<endl;
+   cout<<collnamerCTF+"_"+assocnamerCTF1+"/effic"<<endl;
+   rdir->ls();
    rdir->GetObject(collnamerCTF+"_"+assocnamerCTF1+"/effic",rh1);
+   sdir->ls();
    sdir->GetObject(collnamesCTF+"_"+assocnamesCTF1+"/effic",sh1);
    rdir->GetObject(collnamerCTF+"_"+assocnamerCTF2+"/effic",rc1);
    sdir->GetObject(collnamesCTF+"_"+assocnamesCTF2+"/effic",sc1);
@@ -359,17 +362,17 @@ void TracksCompareChain()
    canvas->Print("ctf_chi2_chi2prob.gif");
 
    //meanchi2 and #hits vs eta
-   rdir->GetObject(collnamerCTF+"_"+assocnamerCTF1+"/hits_eta",rh1);
+   rdir->GetObject(collnamerCTF+"_"+assocnamerCTF1+"/nhits_vs_eta_pfx",(TProfile *)rh1);
    sdir->GetObject(collnamesCTF+"_"+assocnamesCTF1+"/hits_eta",sh1);
-   rdir->GetObject(collnamerCTF+"_"+assocnamerCTF2+"/hits_eta",rc1);
+   rdir->GetObject(collnamerCTF+"_"+assocnamerCTF2+"/nhits_vs_eta_pfx",(TProfile *)rc1);
    sdir->GetObject(collnamesCTF+"_"+assocnamesCTF2+"/hits_eta",sc1);
-   rdir->GetObject(collnamerCTF+"_"+assocnamerCTF1+"/chi2mean",rh2);
+   rdir->GetObject(collnamerCTF+"_"+assocnamerCTF1+"/chi2_vs_eta_pfx",(TProfile *)rh2);
    sdir->GetObject(collnamesCTF+"_"+assocnamesCTF1+"/chi2mean",sh2);
-   rdir->GetObject(collnamerCTF+"_"+assocnamerCTF2+"/chi2mean",rc2);
+   rdir->GetObject(collnamerCTF+"_"+assocnamerCTF2+"/chi2_vs_eta_pfx",(TProfile *)rc2);
    sdir->GetObject(collnamesCTF+"_"+assocnamesCTF2+"/chi2mean",sc2);
-   rdir->GetObject(collnamerCTF+"_"+assocnamerCTF1+"/losthits_eta",rh3);
+   rdir->GetObject(collnamerCTF+"_"+assocnamerCTF1+"/nlosthits_vs_eta_pfx",(TProfile *)rh3);
    sdir->GetObject(collnamesCTF+"_"+assocnamesCTF1+"/losthits_eta",sh3);
-   rdir->GetObject(collnamerCTF+"_"+assocnamerCTF2+"/losthits_eta",rc3);
+   rdir->GetObject(collnamerCTF+"_"+assocnamerCTF2+"/nlosthits_vs_eta_pfx",(TProfile *)rc3);
    sdir->GetObject(collnamesCTF+"_"+assocnamesCTF2+"/losthits_eta",sc3);
 
    canvas = new TCanvas("Tracks3","Tracks: chi2 and #hits vs eta",1000,1000);
@@ -855,13 +858,13 @@ void TracksCompareChain()
    canvas->Print("ctf_pullDxy_Dz_Theta.gif");
 
    //resolution Pt, Phi
-   rdir->GetObject(collnamerCTF+"_"+assocnamerCTF1+"/sigmapt",rh1);
+   rdir->GetObject(collnamerCTF+"_"+assocnamerCTF1+"/ptres_vs_eta_Sigma",rh1);
    sdir->GetObject(collnamesCTF+"_"+assocnamesCTF1+"/sigmapt",sh1);
-   rdir->GetObject(collnamerCTF+"_"+assocnamerCTF2+"/sigmapt",rc1);
+   rdir->GetObject(collnamerCTF+"_"+assocnamerCTF2+"/ptres_vs_eta_Sigma",rc1);
    sdir->GetObject(collnamesCTF+"_"+assocnamesCTF2+"/sigmapt",sc1);
-   rdir->GetObject(collnamerCTF+"_"+assocnamerCTF1+"/sigmaphi",rh2);
+   rdir->GetObject(collnamerCTF+"_"+assocnamerCTF1+"/phires_vs_eta_Sigma",rh2);
    sdir->GetObject(collnamesCTF+"_"+assocnamesCTF1+"/sigmaphi",sh2);
-   rdir->GetObject(collnamerCTF+"_"+assocnamerCTF2+"/sigmaphi",rc2);
+   rdir->GetObject(collnamerCTF+"_"+assocnamerCTF2+"/phires_vs_eta_Sigma",rc2);
    sdir->GetObject(collnamesCTF+"_"+assocnamesCTF2+"/sigmaphi",sc2);
 
    canvas = new TCanvas("Tracks6","Tracks: Pt and Phi resolution",1000,1000);
@@ -973,17 +976,17 @@ void TracksCompareChain()
    canvas->Print("ctf_resolPt_Phi.gif");
 
    //resolution Dxy, Dz, Theta
-   rdir->GetObject(collnamerCTF+"_"+assocnamerCTF1+"/sigmadxy",rh1);
+   rdir->GetObject(collnamerCTF+"_"+assocnamerCTF1+"/dxyres_vs_eta_Sigma",rh1);
    sdir->GetObject(collnamesCTF+"_"+assocnamesCTF1+"/sigmadxy",sh1);
-   rdir->GetObject(collnamerCTF+"_"+assocnamerCTF2+"/sigmadxy",rc1);
+   rdir->GetObject(collnamerCTF+"_"+assocnamerCTF2+"/dxyres_vs_eta_Sigma",rc1);
    sdir->GetObject(collnamesCTF+"_"+assocnamesCTF2+"/sigmadxy",sc1);
-   rdir->GetObject(collnamerCTF+"_"+assocnamerCTF1+"/sigmadz",rh2);
+   rdir->GetObject(collnamerCTF+"_"+assocnamerCTF1+"/dzres_vs_eta_Sigma",rh2);
    sdir->GetObject(collnamesCTF+"_"+assocnamesCTF1+"/sigmadz",sh2);
-   rdir->GetObject(collnamerCTF+"_"+assocnamerCTF2+"/sigmadz",rc2);
+   rdir->GetObject(collnamerCTF+"_"+assocnamerCTF2+"/dzres_vs_eta_Sigma",rc2);
    sdir->GetObject(collnamesCTF+"_"+assocnamesCTF2+"/sigmadz",sc2);
-   rdir->GetObject(collnamerCTF+"_"+assocnamerCTF1+"/sigmacotTheta",rh3);
+   rdir->GetObject(collnamerCTF+"_"+assocnamerCTF1+"/cotThetares_vs_eta_Sigma",rh3);
    sdir->GetObject(collnamesCTF+"_"+assocnamesCTF1+"/sigmacotTheta",sh3);
-   rdir->GetObject(collnamerCTF+"_"+assocnamerCTF2+"/sigmacotTheta",rc3);
+   rdir->GetObject(collnamerCTF+"_"+assocnamerCTF2+"/cotThetares_vs_eta_Sigma",rc3);
    sdir->GetObject(collnamesCTF+"_"+assocnamesCTF2+"/sigmacotTheta",sc3);
 
    canvas = new TCanvas("Tracks7","Tracks: Dxy, Dz, Theta resolution",1000,1000);

@@ -62,7 +62,7 @@ void SiPixelRecoCompare()
   gROOT ->Reset();
     
   char*  sfilename = "./pixeltrackingrechitshist.root"; // file to be checked
-  char*  rfilename = "../data/pixeltrackingrechitshist.root"; // reference file 
+  char*  rfilename = "../pixeltrackingrechitshist.root"; // reference file 
   
   delete gROOT->GetListOfFiles()->FindObject(rfilename);
   delete gROOT->GetListOfFiles()->FindObject(sfilename);
@@ -73,14 +73,15 @@ void SiPixelRecoCompare()
   TFile * sfile = new TFile(sfilename);
   TDirectory * sdir=gDirectory; 
   
- if(rfile->cd("DQMData/RecoTrackV"))rfile->cd("DQMData/RecoTrackV/TrackingRecHits/Pixel");
- else rfile->cd("DQMData/TrackingRecHits/Pixel");
+
+ if(rfile->cd("DQMData/Run 1/RecoTrackV"))rfile->cd("DQMData/Run 1/RecoTrackV/Run summary/TrackingRecHits/Pixel");
+ else rfile->cd("DQMData/RecoTrackV/TrackingRecHits/Pixel");
  rdir=gDirectory;
- 
- if(sfile->cd("DQMData/RecoTrackV"))sfile->cd("DQMData/RecoTrackV/TrackingRecHits/Pixel");
- else sfile->cd("DQMData/TrackingRecHits/Pixel");
+
+ if(sfile->cd("DQMData/Run 1/RecoTrackV"))sfile->cd("DQMData/Run 1/RecoTrackV/Run summary/TrackingRecHits/Pixel");
+ else sfile->cd("DQMData/RecoTrackV/TrackingRecHits/Pixel");
  sdir=gDirectory; 
- 
+
 
   Char_t histo[200];
     

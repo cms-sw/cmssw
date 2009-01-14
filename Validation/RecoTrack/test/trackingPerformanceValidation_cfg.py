@@ -28,6 +28,9 @@ process.load("SimTracker.TrackAssociation.TrackAssociatorByHits_cfi")
 process.load("Validation.RecoTrack.cuts_cff")
 process.load("Validation.RecoTrack.MultiTrackValidator_cff")
 process.load("SimGeneral.TrackingAnalysis.trackingParticles_cfi")
+process.load("DQMServices.Components.EDMtoMEConverter_cff")
+
+process.load("Validation.Configuration.postValidation_cff")
 
 ### configuration MultiTrackValidator ###
 process.multiTrackValidator.outputFile = 'val.SAMPLE.root'
@@ -95,7 +98,12 @@ else:
     process.only_validation = cms.Sequence(process.cutsRecoTracks*
                                            ##process.cutsTPEffic*process.cutsTPFake* these modules are now useless
                                            process.multiTrackValidator)
-
+    
+if (process.multiTrackValidator.label[0] == 'generalTracks'):
+    process.only_validation_and_TP = cms.Sequence(process.mix*process.trackingParticles*process.multiTrackValidator)
+else:
+    process.only_validation_and_TP = cms.Sequence(process.mix*process.trackingParticles*process.cutsRecoTracks*
+                                                  process.multiTrackValidator)
 
 ### customized versoin of the OutputModule
 ### it save the mininal information which is necessary to perform tracking validation (tracks, tracking particles, 
@@ -120,6 +128,33 @@ process.OUTPUT = cms.OutputModule("PoolOutputModule",
                                   process.customEventContent,
                                   fileName = cms.untracked.string('output.SAMPLE.root')
                                   )
+
+ValidationSequence="SEQUENCE"
+
+if ValidationSequence=="harvesting":
+    process.DQMStore.collateHistograms = False
+
+    process.dqmSaver.convention = 'Offline'
+
+    process.dqmSaver.saveByRun = cms.untracked.int32(-1)
+    process.dqmSaver.saveAtJobEnd = cms.untracked.bool(True)
+    process.dqmSaver.forceRunNumber = cms.untracked.int32(1)
+
+
+    process.dqmSaver.workflow = "/GLOBALTAG/SAMPLE/Validation"
+    process.DQMStore.verbose=3
+
+    process.options = cms.untracked.PSet(
+        fileMode = cms.untracked.string('FULLMERGE')
+        )
+    for filter in (getattr(process,f) for f in process.filters_()):
+        if hasattr(filter,"outputFile"):
+            filter.outputFile=""
+
+
+process.harvesting= cms.Sequence(process.postValidation*process.EDMtoMEConverter*process.dqmSaver)
+
+
 
 
 ### final path and endPath

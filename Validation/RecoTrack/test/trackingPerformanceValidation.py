@@ -11,34 +11,50 @@ import string
 
 #Reference release
 
-RefRelease='CMSSW_2_2_0_pre1'
+RefRelease='CMSSW_2_2_3'
 
 # startup and ideal sample list
-startupsamples= ['RelValTTbar', 'RelValMinBias', 'RelValQCD_Pt_3000_3500']
-#startupsamples= ['RelValTTbar']
+#startupsamples= ['RelValTTbar', 'RelValMinBias', 'RelValQCD_Pt_3000_3500']
+startupsamples= ['RelValTTbar']
 
-idealsamples= ['RelValSingleMuPt1', 'RelValSingleMuPt10', 'RelValSingleMuPt100', 'RelValSinglePiPt1', 'RelValSinglePiPt10', 'RelValSinglePiPt100', 'RelValSingleElectronPt35', 'RelValTTbar', 'RelValQCD_Pt_3000_3500','RelValMinBias']
+#idealsamples= ['RelValSingleMuPt1', 'RelValSingleMuPt10', 'RelValSingleMuPt100', 'RelValSinglePiPt1', 'RelValSinglePiPt10', 'RelValSinglePiPt100', 'RelValSingleElectronPt35', 'RelValTTbar', 'RelValQCD_Pt_3000_3500','RelValMinBias']
+
+idealsamples= [ 'RelValSingleElectronPt35']
 #idealsamples= ['RelValTTbar']
 
 
 
 # track algorithm name and quality. Can be a list.
 Algos= ['']
-Qualities=['', 'highPurity']
+Qualities=['']
+#Qualities=['', 'highPurity']
 
 #Leave unchanged unless the track collection name changed
 Tracksname=''
 
-# Sequence. Possible values: only_validation re_tracking digi2track
-Sequence='only_validation'
+# Sequence. Possible values:
+#   -only_validation
+#   -re_tracking
+#   -digi2track
+#   -only_validation_and_TP
+#   -re_tracking_and_TP
+#   -digi2track_and_TP
+#   -harvesting
+
+#Sequence='only_validation_and_TP'
+Sequence='harvesting'
 
 # Ideal and Statup tags
-IdealTag='IDEAL_V9'
-StartupTag='STARTUP_V7'
+IdealTag='IDEAL_30X'
+StartupTag='STARTUP_30X'
 
 # Reference directory name (the macro will search for ReferenceSelection_Quality_Algo)
-ReferenceSelection='IDEAL_V9_noPU'
+ReferenceSelection='IDEAL_V11_noPU'
 StartupReferenceSelection='STARTUP_V7_noPU'
+
+# Default label is GlobalTag_noPU__Quality_Algo. Change this variable if you want to append an additional string.
+NewSelectionLabel='test2'
+
 
 #Reference and new repository
 RefRepository = '/afs/cern.ch/cms/performance/tracker/activities/reconstruction/tracking_performance'
@@ -78,6 +94,8 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
     global Sequence, RefSelection, RefRepository, NewSelection, NewRepository, defaultNevents, Events
     global cfg, macro, Tracksname
     print 'Tag: ' + GlobalTag
+
+    #build the New Selection name
     NewSelection=GlobalTag +'_noPU'
     if( trackquality !=''):
         NewSelection+='_'+trackquality
@@ -93,24 +111,32 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
         Tracks='cutsRecoTracks'
     else:
         Tracks=Tracksname
+    NewSelection+=NewSelectionLabel
+
+    #loop on all the requested samples
     for sample in samples :
         templatecfgFile = open(cfg, 'r')
         templatemacroFile = open(macro, 'r')
         print 'Get information from DBS for sample', sample
         newdir=NewRepository+'/'+NewRelease+'/'+NewSelection+'/'+sample 
+
+        #chech if the sample is already done
         if(os.path.isfile(newdir+'/building.pdf' )!=True):    
+
+            #search the primary dataset
             cmd='./DDSearchCLI.py  --limit -1 --input="find  dataset.createdate, dataset where dataset like *'
 #            cmd+=sample+'/'+NewRelease+'_'+GlobalTag+'*GEN-SIM-DIGI-RAW-HLTDEBUG-RECO* "'
             cmd+=sample+'/'+NewRelease+'_'+GlobalTag+'*GEN-SIM-RECO* "'
             cmd+='|grep '+sample+'|sort|tail -1| cut -d "," -f2 '
             print cmd
             dataset= os.popen(cmd).readline()
-            print 'DataSet:  ', dataset
-            if dataset!="":
-#                if(os.path.exists(NewSelection)==False):
-#                    os.makedirs(NewSelection)
+            print 'DataSet:  ', dataset, '\n'
 
-                cmd2='./DDSearchCLI.py  --cff --input="find file where dataset like'+ dataset +'"|grep ' + sample 
+            #Check if a dataset is found
+            if dataset!="":
+
+                #Find and format the list of files
+                cmd2='./DDSearchCLI.py  --cff --input="find file where dataset like '+ dataset +'"|grep ' + sample 
                 filenames='import FWCore.ParameterSet.Config as cms\n'
                 filenames+='readFiles = cms.untracked.vstring()\n'
                 filenames+='secFiles = cms.untracked.vstring()\n'
@@ -119,21 +145,36 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
                 for filename in os.popen(cmd2).readlines():
                     filenames+=filename
                 filenames+=']);\n'
-                cmd3='./DDSearchCLI.py  --limit -1 --input="find file.parent where dataset like'+ dataset +'"|grep ' + sample
-                filenames+='secFiles.extend( [\n'
-                first=True
-                for line in os.popen(cmd3).readlines():
-                    secfilename=line.strip()
-                    if first==True:
-                        filenames+="'"
-                        first=False
+                
+                # if not harvesting find secondary file names
+                if(Sequence!="harvesting"):
+                    cmd3='./DDSearchCLI.py  --limit -1 --input="find dataset.parent where dataset like '+ dataset +'"|grep ' + sample
+                    parentdataset=os.popen(cmd3).readline()
+                    print 'Parent DataSet:  ', parentdataset, '\n'
+
+                #Check if a dataset is found
+                    if parentdataset!="":
+                        cmd4='./DDSearchCLI.py  --cff --input="find file where dataset like '+ parentdataset +'"|grep ' + sample 
+                        filenames+='secFiles.extend( [\n'
+                        first=True
+
+                        for line in os.popen(cmd4).readlines():
+                            filenames+=line
+#                            secfilename=line.strip()
+#                            if first==True:
+#                                filenames+="'"
+#                                first=False
+#                            else :
+#                                filenames+=",\n'"
+#                            filenames+=secfilename
+#                            filenames+="'"
+
+                        filenames+=']);\n'
                     else :
-                        filenames+=",\n'"
-                    filenames+=secfilename
-                    filenames+="'"
-                    
-                filenames+=']);\n'
-#                filenames+='secFiles.extend( (               ) )'
+                        print "No primary dataset found skipping sample: ", sample
+                        continue
+                else :
+                    filenames+='secFiles.extend( (               ) )'
                 cfgFileName=sample
                 cfgFile = open(cfgFileName+'.py' , 'w' )
                 cfgFile.write(filenames)
@@ -154,8 +195,10 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
 
         #        retcode=0
                 if (retcode!=0):
-                    print 'Job for sample '+ sample + ' failed.'
+                    print 'Job for sample '+ sample + ' failed. \n'
                 else:
+                    if Sequence=="harvesting":
+                        os.system('mv  DQM_V0001_R000000001__' + GlobalTag+ '__' + sample + '__Validation.root val.' +sample+'.root')
                     referenceSample=RefRepository+'/'+RefRelease+'/'+RefSelection+'/'+sample+'/'+'val.'+sample+'.root'
                     if os.path.isfile(referenceSample ):
                         replace_map = { 'NEW_FILE':'val.'+sample+'.root', 'REF_FILE':RefRelease+'/'+RefSelection+'/val.'+sample+'.root', 'REF_LABEL':sample, 'NEW_LABEL': sample, 'REF_RELEASE':RefRelease, 'NEW_RELEASE':NewRelease, 'REFSELECTION':RefSelection, 'NEWSELECTION':NewSelection, 'TrackValHistoPublisher': sample}
@@ -164,6 +207,7 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
                             os.makedirs(RefRelease+'/'+RefSelection)
                         os.system('cp ' + referenceSample+ ' '+RefRelease+'/'+RefSelection)  
                     else:
+                        print "No reference file found at: ", RefRelease+'/'+RefSelection
                         replace_map = { 'NEW_FILE':'val.'+sample+'.root', 'REF_FILE':'val.'+sample+'.root', 'REF_LABEL':sample, 'NEW_LABEL': sample, 'REF_RELEASE':NewRelease, 'NEW_RELEASE':NewRelease, 'REFSELECTION':NewSelection, 'NEWSELECTION':NewSelection, 'TrackValHistoPublisher': sample}
 
 
@@ -188,9 +232,9 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
 
 
             else:
-                print 'No dataset found skipping sample: '+ sample
+                print 'No dataset found skipping sample: '+ sample, '\n'
         else:
-            print 'Validation for sample ' + sample + ' already done. Skipping this sample.'
+            print 'Validation for sample ' + sample + ' already done. Skipping this sample. \n'
 
 
 
@@ -204,7 +248,7 @@ try:
      NewRelease     = os.environ["CMSSW_VERSION"]
 
 except KeyError:
-     print >>sys.stderr, 'Error: An environment variable either CMSSW_{BASE, RELEASE_BASE or VERSION} HOST or USER is not available.'
+     print >>sys.stderr, 'Error: The environment variable CMSSW_VERSION is not available.'
      print >>sys.stderr, '       Please run eval `scramv1 runtime -csh` to set your environment variables'
      sys.exit()
 

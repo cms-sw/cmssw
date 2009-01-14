@@ -40,7 +40,7 @@ void SiStripTrackingRecHitsCompare()
  gROOT ->Reset();
 
  char*  rfilename = "striptrackingrechitshisto.root";
- char*  sfilename = "../data/striptrackingrechitshisto.root";
+ char*  sfilename = "../striptrackingrechitshisto.root";
 
  delete gROOT->GetListOfFiles()->FindObject(rfilename);
  delete gROOT->GetListOfFiles()->FindObject(sfilename); 
@@ -52,12 +52,12 @@ void SiStripTrackingRecHitsCompare()
  TFile * sfile = new TFile(sfilename);
  TDirectory * sdir=gDirectory; 
 
- if(rfile->cd("DQMData/RecoTrackV"))rfile->cd("DQMData/RecoTrackV/TrackingRecHits/Strip");
- else rfile->cd("DQMData/TrackingRecHits/Strip");
+ if(rfile->cd("DQMData/Run 1/RecoTrackV"))rfile->cd("DQMData/Run 1/RecoTrackV/Run summary/TrackingRecHits/Strip");
+ else rfile->cd("DQMData/RecoTrackV/TrackingRecHits/Strip");
  rdir=gDirectory;
 
- if(sfile->cd("DQMData/RecoTrackV"))sfile->cd("DQMData/RecoTrackV/TrackingRecHits/Strip");
- else sfile->cd("DQMData/TrackingRecHits/Strip");
+ if(sfile->cd("DQMData/Run 1/RecoTrackV"))sfile->cd("DQMData/Run 1/RecoTrackV/Run summary/TrackingRecHits/Strip");
+ else sfile->cd("DQMData/RecoTrackV/TrackingRecHits/Strip");
  sdir=gDirectory; 
 
  Char_t histo[200];
