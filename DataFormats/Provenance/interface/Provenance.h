@@ -19,6 +19,7 @@ existence.
 #include "DataFormats/Provenance/interface/ProductProvenance.h"
 #include "DataFormats/Provenance/interface/ConstBranchDescription.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
+#include "DataFormats/Provenance/interface/ReleaseVersion.h"
 #include "boost/shared_ptr.hpp"
 
 /*
@@ -73,6 +74,7 @@ namespace edm {
     ProcessConfigurationID processConfigurationID() const;
     ParameterSetID psetID() const;
     std::string moduleName() const;
+    ReleaseVersion const& releaseVersion() const;
     std::map<ProcessConfigurationID, ParameterSetID> const& parameterSetIDs() const {
       return product().parameterSetIDs();
     }

@@ -71,6 +71,13 @@ namespace edm {
     return config.id();
   }
 
+  ReleaseVersion const&
+  Provenance::releaseVersion() const {
+    ProcessConfiguration pc;
+    ProcessConfigurationRegistry::instance()->getMapped(processConfigurationID(), pc);
+    return pc.releaseVersion();
+  }
+
   ParameterSetID
   Provenance::psetID() const {
     if (parameterSetIDs().size() == 1) {
@@ -96,7 +103,6 @@ namespace edm {
     }
     return it->second;
   }
-
 
   void
   Provenance::write(std::ostream& os) const {
