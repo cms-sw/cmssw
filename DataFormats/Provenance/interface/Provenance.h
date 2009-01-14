@@ -56,6 +56,10 @@ namespace edm {
       if (productProvenancePtr_.get()) return *productProvenancePtr_;
       return *resolve();
     }
+    ProductProvenance& productProvenance() {
+      if (productProvenancePtr_.get()) return *productProvenancePtr_;
+      return *resolve();
+    }
     Parentage const& parentage() const {return productProvenance().parentage();}
     BranchID const& branchID() const {return product().branchID();}
     std::string const& branchName() const {return product().branchName();}
