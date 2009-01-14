@@ -76,29 +76,73 @@ if ($nn != 1) {
 }
 
 
-# look for the fileNames directive
-$nfileNames = ($body =~ m/fileNames = cms.untracked.vstring\(.*?\)/s);
+########## (AP) Look for the fileNames/readFiles directives
+
+$nn = ($body =~ s/fileNames = cms.untracked.vstring\(.*?\)/fileNames = readFiles/gs); # Remove filenames from "fileNames" directive
+
+$body =~ s/^ *readFiles.extend.*$//mg; # First remove any "readFiles.extend" directive
+$nn = ($body =~ s/^ *readFiles *=.*$/readFiles = cms.untracked.vstring()\nreadFiles.extend(\'file.root'\)/m); # Look for "readFiles =" directive
+
+if ($nn != 1) { # If not found, add the "readFiles =" directive before process.source
+  $nn = ($body =~ s/^ *process.source = cms.Source/readFiles = cms.untracked.vstring()\nreadFiles.extend(\'file.root'\)\n\nprocess.source = cms.Source/m);
+}
+
 # prepare the new filenames directive
 @FILENAMES = split "\n",$mods;
 # GF
 if ($FILENAMES[0] =~ /^CastorPool=/) { # starts with CastorPool
   @FILENAMES = @FILENAMES[1..$#FILENAMES]; # remove that line
 }
+
 # end GF
+
+######### RC/AP
+
 $newFileNames = "\n";
-while (@FILENAMES) {
+$TempFileNames = "\n";
+$MergingFileNames="\n";
+
+while(@FILENAMES>255) {
+  $f=0;
+  while($f<255) {
+## first while: check if theSplit contains more than 255 files
+
+    $theFile = shift(@FILENAMES);
+    chomp $theFile;
+    $f++;
+    $TempFileNames = "$TempFileNames        \'$theFile\'";
+    if ($f!=255) {
+      $TempFileNames = "$TempFileNames,\n";
+    }
+  } #end 2nd while
+  $MergingFileNames="$MergingFileNames \nreadFiles.extend\(\($TempFileNames \)\)\n";
+  $TempFileNames ="\n";
+} #end 1st while
+
+while(@FILENAMES) {
+
+## second while: check if theSplit is not empty
+
   $theFile = shift(@FILENAMES);
   chomp $theFile;
   $newFileNames = "$newFileNames        \'$theFile\'";
   if (@FILENAMES) {
     $newFileNames = "$newFileNames,\n";
-  }
+  } ## end if
+} ## end while
+
+# Count how many files are there in $newFileNames
+$nn = () = $newFileNames =~ /\.root/g; print "******** \$nn=".$nn."\n";
+
+if ($nn > 1) {
+  $MergingFileNames="$MergingFileNames \nreadFiles.extend\(\($newFileNames \)\)";
+} else { # One file only... use single parenthesis
+  $MergingFileNames="$MergingFileNames \nreadFiles.extend\($newFileNames\)";
 }
 
-# insert fileNames directive
-$nrep = ($body =~ s/fileNames = cms.untracked.vstring\(.*?\)/fileNames = cms.untracked.vstring\($newFileNames\) /s);
-# print "The new body is:\n$body\n";
-$nfileNames = ($body =~ m/fileNames = cms.untracked.vstring\(.*?\)/s);
+$nrep = ($body =~ s/^ *readFiles.extend\(\'file.root\'\)/$MergingFileNames/gm);
+
+####### RC/AP end
 
 # replace ISN for the root output file
 $nrep = ($body =~ s/ISN/$isn/gm);
