@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 #-------------------------------------------------
-# test cfg file for the ttSemiKinFitProducer
+# test cfg file for the ttSemiLepKinFitProducer
 #-------------------------------------------------
 process = cms.Process("TEST")
 
