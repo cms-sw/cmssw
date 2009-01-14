@@ -38,9 +38,24 @@ namespace {
     std::vector<CSCBadWires::BadChamber> bwchmcontainer;
     std::vector<CSCBadWires::BadChannel> bwchncontainer;
 
-    std::map< int, CSCMapItem::MapItem > chmap;
-
   };
+}
+
+#include "CondFormats/CSCObjects/interface/CSCChamberMap.h"
+namespace{
+  std::map< int, CSCMapItem::MapItem > chmap;
+}
+#include "CondFormats/CSCObjects/interface/CSCCrateMap.h"
+namespace{
+  std::map< int, CSCMapItem::MapItem > cratemap;
+}
+#include "CondFormats/CSCObjects/interface/CSCDDUMap.h"
+namespace{
+  std::map< int, CSCMapItem::MapItem > ddumap;
+}
+#include "CondFormats/CSCObjects/interface/CSCChamberIndex.h"
+namespace{
+  std::map< int, CSCMapItem::MapItem > indexmap;
 }
 
 #include "CondFormats/CSCObjects/interface/CSCBadChambers.h"
