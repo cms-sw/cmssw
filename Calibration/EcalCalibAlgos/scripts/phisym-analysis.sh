@@ -37,7 +37,7 @@ rm -rf *.root
 rm -rf *.log
 
 echo "$0: Submitting jobs"
-./csa07_submit.py -c $conffile -r $runlist -n $njobs -e pccmsto03:$datadir
+./phisym-submit.py -c $conffile -r $runlist -n $njobs -e pccmsto03:$datadir
 
 
 #wait for jobs to finish (look if there's any config file left)
