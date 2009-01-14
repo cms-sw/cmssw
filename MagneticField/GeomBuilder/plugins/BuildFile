@@ -3,6 +3,7 @@
 <use name=MagneticField/ParametrizedEngine>
 <use name=MagneticField/UniformEngine>
 <use name=MagneticField/Records>
+<use name=CondFormats/RunInfo>
 
 
 <library file="*.cc" name=MagneticFieldGeomBuilderPlugins><flags EDM_PLUGIN=1></library>
