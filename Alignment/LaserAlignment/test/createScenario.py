@@ -152,57 +152,57 @@ process.misalignmentProducer = cms.ESProducer("MisalignedTrackerESProducer",
     dY = cms.double( 0.0 ),
 
     TECDisk1 = cms.PSet(
-      dX = cms.double( 0.0 ),
-      dY = cms.double( 0.0 ),
-      phiZlocal = cms.double( 0.0 )
+      dX = cms.double( 0.1 ),
+      dY = cms.double( 0.1 ),
+      phiZlocal = cms.double( 0.001 )
     ),
     
     TECDisk2 = cms.PSet(
-      dX = cms.double( 0.0 ),
-      dY = cms.double( 0.0 ),
-      phiZlocal = cms.double( 0.0 )
+      dX = cms.double( 0.1 ),
+      dY = cms.double( 0.1 ),
+      phiZlocal = cms.double( 0.001 )
     ),
     
     TECDisk3 = cms.PSet(
-      dX = cms.double( 0.0 ),
-      dY = cms.double( 0.0 ),
-      phiZlocal = cms.double( 0.0 )
+      dX = cms.double( 0.1 ),
+      dY = cms.double( 0.1 ),
+      phiZlocal = cms.double( 0.001 )
     ),
 
     TECDisk4 = cms.PSet(
-      dX = cms.double( 0.0 ),
-      dY = cms.double( 0.0 ),
-      phiZlocal = cms.double( 0.0 )
+      dX = cms.double( 0.1 ),
+      dY = cms.double( 0.1 ),
+      phiZlocal = cms.double( 0.001 )
     ),
     
     TECDisk5 = cms.PSet(
-      dX = cms.double( 0.0 ),
-      dY = cms.double( 0.0 ),
-      phiZlocal = cms.double( 0.0 )
+      dX = cms.double( 0.1 ),
+      dY = cms.double( 0.1 ),
+      phiZlocal = cms.double( 0.001 )
     ),
     
     TECDisk6 = cms.PSet(
-      dX = cms.double( 0.0 ),
-      dY = cms.double( 0.0 ),
-      phiZlocal = cms.double( 0.0 )
+      dX = cms.double( 0.1 ),
+      dY = cms.double( 0.1 ),
+      phiZlocal = cms.double( 0.001 )
     ),
     
     TECDisk7 = cms.PSet(
-      dX = cms.double( 0.0 ),
-      dY = cms.double( 0.0 ),
-      phiZlocal = cms.double( 0.0 )
+      dX = cms.double( 0.1 ),
+      dY = cms.double( 0.1 ),
+      phiZlocal = cms.double( 0.001 )
     ),
     
     TECDisk8 = cms.PSet(
-      dX = cms.double( 0.0 ),
-      dY = cms.double( 0.0 ),
-      phiZlocal = cms.double( 0.0 )
+      dX = cms.double( 0.1 ),
+      dY = cms.double( 0.1 ),
+      phiZlocal = cms.double( 0.001 )
     ),
     
     TECDisk9 = cms.PSet(
-      dX = cms.double( 0.0 ),
-      dY = cms.double( 0.0 ),
-      phiZlocal = cms.double( 0.0 )
+      dX = cms.double( 0.1 ),
+      dY = cms.double( 0.1 ),
+      phiZlocal = cms.double( 0.001 )
     )
     
   )

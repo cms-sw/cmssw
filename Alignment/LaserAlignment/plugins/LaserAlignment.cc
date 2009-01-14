@@ -1,8 +1,8 @@
 /** \file LaserAlignment.cc
  *  LAS reconstruction module
  *
- *  $Date: 2008/12/29 17:09:45 $
- *  $Revision: 1.30 $
+ *  $Date: 2009/01/05 12:17:44 $
+ *  $Revision: 1.31 $
  *  \author Maarten Thomas
  *  \author Jan Olzem
  */
@@ -46,8 +46,6 @@ LaserAlignment::LaserAlignment(edm::ParameterSet const& theConf)
     theAlignPosTEC( false ), // theAlignPosTEC(theConf.getUntrackedParameter<bool>("AlignPosTEC",false)),
     theAlignNegTEC( false ), // theAlignNegTEC(theConf.getUntrackedParameter<bool>("AlignNegTEC",false)), 
     theAlignTEC2TEC( false ), // theAlignTEC2TEC(theConf.getUntrackedParameter<bool>("AlignTECTIBTOBTEC",false)),
-    theUseBrunosAlgorithm(theConf.getUntrackedParameter<bool>("UseBrunosAlignmentAlgorithm",true)),
-    theUseNewAlgorithms(theConf.getUntrackedParameter<bool>("UseNewAlgorithms",true)),
     theIsGoodFit(false),
     theSearchPhiTIB(theConf.getUntrackedParameter<double>("SearchWindowPhiTIB",0.05)),
     theSearchPhiTOB(theConf.getUntrackedParameter<double>("SearchWindowPhiTOB",0.05)),
@@ -104,10 +102,7 @@ LaserAlignment::LaserAlignment(edm::ParameterSet const& theConf)
   std::string alias ( theConf.getParameter<std::string>("@module_label") );  
 
   // declare the product to produce
-  produces<edm::DetSetVector<SiStripDigi> >().setBranchAlias( alias + "siStripDigis" );
-  produces<LASBeamProfileFitCollection>().setBranchAlias( alias + "LASBeamProfileFits" );
-  produces<LASAlignmentParameterCollection>().setBranchAlias( alias + "LASAlignmentParameters" );
-
+  produces<TkLasBeamCollection, edm::InRun>( "tkLaserBeams" ).setBranchAlias( alias + "TkLasBeamCollection" );
 
   // the alignable tracker parts
   theLASAlignPosTEC = new LaserAlignmentPosTEC;
@@ -337,12 +332,11 @@ void LaserAlignment::produce(edm::Event& theEvent, edm::EventSetup const& theSet
 
 
   // do the Tracker Statistics to retrieve the current profiles
-  trackerStatistics( theEvent, theSetup );
+  //  trackerStatistics( theEvent, theSetup );
+  fillDataProfiles( theEvent, theSetup );
 
   // index variables for the LASGlobalLoop object
   int det, ring, beam, disk, pos;
- 
-
 
   //
   // first pre-loop on selected entries to find out
@@ -486,7 +480,6 @@ void LaserAlignment::produce(edm::Event& theEvent, edm::EventSetup const& theSet
   /* here we can later on add some criteria for good alignment events!? */
   theEvents++;
 
-
 }
 
 
@@ -507,7 +500,7 @@ void LaserAlignment::closeRootFile() {
 ///
 ///
 ///
-void LaserAlignment::endJob() {
+void LaserAlignment::endRun( edm::Run& theRun, const edm::EventSetup& theSetup ) {
 
   LogDebug("LaserAlignment") << "     Total Event number = " << theEvents;
 
@@ -518,681 +511,368 @@ void LaserAlignment::endJob() {
   // index variables for the LASGlobalLoop objects
   int det, ring, beam, disk, pos;
 
-  if( theUseNewAlgorithms ) {
 
-    /////////////////////////////////////////////////////////////////////////////////////////
-    /////////////////////////////////////////////////////////////////////////////////////////
-    // this is the new barrel algorithm section, it uses LASPeakFinder to evaluate signals //
-    /////////////////////////////////////////////////////////////////////////////////////////
-    /////////////////////////////////////////////////////////////////////////////////////////
-
-
-    // measured positions container for the algorithms
-    LASGlobalData<LASCoordinateSet> measuredCoordinates;
+  /////////////////////////////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////////////////////////////////////////////////////
+  // this is the new barrel algorithm section, it uses LASPeakFinder to evaluate signals //
+  /////////////////////////////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////////////////////////////////////////////////////
     
-    // the peak finder, a pair (pos/posErr in units of strips) for its results, and the success confirmation
-    LASPeakFinder peakFinder;
-    std::pair<double,double> peakFinderResults;
-    bool isGoodFit;
     
-    // tracker geom. object for calculating the global beam positions
-    const TrackerGeometry& theTracker( *theTrackerGeometry );
+  // measured positions container for the algorithms
+  LASGlobalData<LASCoordinateSet> measuredCoordinates;
+  
+  // fitted peak positions in units of strips (pair for value,error)
+  LASGlobalData<std::pair<float,float> > measuredStripPositions;
+  
+  // the peak finder, a pair (pos/posErr in units of strips) for its results, and the success confirmation
+  LASPeakFinder peakFinder;
+  std::pair<double,double> peakFinderResults;
+  bool isGoodFit;
+  
+  // tracker geom. object for calculating the global beam positions
+  const TrackerGeometry& theTracker( *theTrackerGeometry );
+  
+  // fill LASGlobalData<LASCoordinateSet> nominalCoordinates
+  CalculateNominalCoordinates();
+  
+  // for determining the phi errors
+  //    ErrorFrameTransformer errorTransformer;
+  
+  // do the fits for TEC+- internal
+  det = 0; ring = 0; beam = 0; disk = 0;
+  do {
     
-    // fill LASGlobalData<LASCoordinateSet> nominalCoordinates
-    CalculateNominalCoordinates();
+    // do the fit
+    isGoodFit = peakFinder.FindPeakIn( collectedDataProfiles.GetTECEntry( det, ring, beam, disk ), peakFinderResults, 0 ); // offset is 0 for TEC
+    // now we have the measured positions in units of strips. 
+    if( !isGoodFit ) std::cout << " [LaserAlignment::endRun] ** WARNING: Fit failed for TEC det: "
+			       << det << ", ring: " << ring << ", beam: " << beam << ", disk: " << disk << "." << std::endl;
     
-    // for determining the phi errors
-    //    ErrorFrameTransformer errorTransformer;
-    
-    // do the fits for TEC+- internal
-    det = 0; ring = 0; beam = 0; disk = 0;
-    do {
-      
-      // do the fit
-      isGoodFit = peakFinder.FindPeakIn( collectedDataProfiles.GetTECEntry( det, ring, beam, disk ), peakFinderResults, 0 ); // offset is 0 for TEC
-      // now we have the measured positions in units of strips. 
-      if( !isGoodFit ) std::cout << " [LaserAlignment::endJob] ** WARNING: Fit failed for TEC det: "
-				 << det << ", ring: " << ring << ", beam: " << beam << ", disk: " << disk << "." << std::endl;
-      
 
-      // <- here we will later implement the kink corrections
+    // <- here we will later implement the kink corrections
       
-      // access the tracker geometry for this module
-      const DetId theDetId( detectorId.GetTECEntry( det, ring, beam, disk ) );
-      const StripGeomDetUnit* const theStripDet = dynamic_cast<const StripGeomDetUnit*>( theTracker.idToDet( theDetId ) );
+    // access the tracker geometry for this module
+    const DetId theDetId( detectorId.GetTECEntry( det, ring, beam, disk ) );
+    const StripGeomDetUnit* const theStripDet = dynamic_cast<const StripGeomDetUnit*>( theTracker.idToDet( theDetId ) );
       
-      // first, set the measured coordinates to their nominal values
-      measuredCoordinates.SetTECEntry( det, ring, beam, disk, nominalCoordinates.GetTECEntry( det, ring, beam, disk ) );
+    // first, set the measured coordinates to their nominal values
+    measuredCoordinates.SetTECEntry( det, ring, beam, disk, nominalCoordinates.GetTECEntry( det, ring, beam, disk ) );
 
-      if( isGoodFit ) { // convert strip position to global phi and replace the nominal phi value/error
-	measuredCoordinates.GetTECEntry( det, ring, beam, disk ).SetPhi( ConvertAngle( theStripDet->surface().toGlobal( theStripDet->specificTopology().localPosition( 255.5 ) ).barePhi() ) ); // #########
-	//	const GlobalPoint& globalPoint = theStripDet->surface().toGlobal( theStripDet->specificTopology().localPosition( peakFinderResults.first ) );
-	//	measuredCoordinates.GetTECEntry( det, ring, beam, disk ).SetPhi( ConvertAngle( globalPoint.barePhi() ) );
-	//	measuredCoordinates.GetTECEntry( det, ring, beam, disk ).SetPhiError( 0.00046  ); // PRELIMINARY ESTIMATE
+    if( isGoodFit ) { // convert strip position to global phi and replace the nominal phi value/error
+      measuredCoordinates.GetTECEntry( det, ring, beam, disk ).SetPhi( ConvertAngle( theStripDet->surface().toGlobal( theStripDet->specificTopology().localPosition( 255.5 ) ).barePhi() ) ); // #########
+      //	const GlobalPoint& globalPoint = theStripDet->surface().toGlobal( theStripDet->specificTopology().localPosition( peakFinderResults.first ) );
+      measuredStripPositions.GetTECEntry( det, ring, beam, disk ) = peakFinderResults;
+      //	measuredCoordinates.GetTECEntry( det, ring, beam, disk ).SetPhi( ConvertAngle( globalPoint.barePhi() ) );
+      //	measuredCoordinates.GetTECEntry( det, ring, beam, disk ).SetPhiError( 0.00046  ); // PRELIMINARY ESTIMATE
 
-	//      const GlobalError& globalError = errorTransformer.transform( theStripDet->specificTopology().localError( peakFinderResults.first, pow( peakFinderResults.second, 2 ) ), theStripDet->surface() );
-	//      measuredCoordinates.GetTECEntry( det, ring, beam, disk ).SetPhiError( globalError.phierr( globalPoint ) );
-      }
-      else { // keep nominal position but set a giant phi error so that the module is ignored by the alignment algorithm
-	const GlobalPoint& globalPoint = theStripDet->surface().toGlobal( theStripDet->specificTopology().localPosition( 255.5 ) ); // this is a cheat for missing tec signal in mc #####################
-	measuredCoordinates.GetTECEntry( det, ring, beam, disk ).SetPhi( ConvertAngle( globalPoint.barePhi() ) );
-	measuredCoordinates.GetTECEntry( det, ring, beam, disk ).SetPhiError( 0.00046  ); // PRELIMINARY ESTIMATE
-	//	measuredCoordinates.GetTECEntry( det, ring, beam, disk ).SetPhiError( 1000. );
-      }
+      //      const GlobalError& globalError = errorTransformer.transform( theStripDet->specificTopology().localError( peakFinderResults.first, pow( peakFinderResults.second, 2 ) ), theStripDet->surface() );
+      //      measuredCoordinates.GetTECEntry( det, ring, beam, disk ).SetPhiError( globalError.phierr( globalPoint ) );
+    }
+    else { // keep nominal position but set a giant phi error so that the module can be ignored by the alignment algorithm
+      measuredStripPositions.GetTECEntry( det, ring, beam, disk ) = std::pair<float,float>( 255.5, 1000. );
+      const GlobalPoint& globalPoint = theStripDet->surface().toGlobal( theStripDet->specificTopology().localPosition( 255.5 ) ); // this is a cheat for missing tec signal in mc #####################
+      measuredCoordinates.GetTECEntry( det, ring, beam, disk ).SetPhi( ConvertAngle( globalPoint.barePhi() ) );
+      measuredCoordinates.GetTECEntry( det, ring, beam, disk ).SetPhiError( 0.00046  ); // PRELIMINARY ESTIMATE
+      //	measuredCoordinates.GetTECEntry( det, ring, beam, disk ).SetPhiError( 1000. );
+    }
       
-      // fill the histograms for saving
-      for( int bin = 1; bin <= 512; ++bin ) {
-	summedHistograms.GetTECEntry( det, ring, beam, disk )->SetBinContent( bin, collectedDataProfiles.GetTECEntry( det, ring, beam, disk ).GetValue( bin - 1 ) );
-      }
+    // fill the histograms for saving
+    for( int bin = 1; bin <= 512; ++bin ) {
+      summedHistograms.GetTECEntry( det, ring, beam, disk )->SetBinContent( bin, collectedDataProfiles.GetTECEntry( det, ring, beam, disk ).GetValue( bin - 1 ) );
+    }
 
-    } while( moduleLoop.TECLoop( det, ring, beam, disk ) );
+  } while( moduleLoop.TECLoop( det, ring, beam, disk ) );
 
 
 
 
-    // do the fits for TIB/TOB
-    det = 2; beam = 0; pos = 0;
-    do {
+  // do the fits for TIB/TOB
+  det = 2; beam = 0; pos = 0;
+  do {
 
-      // do the fit
-      isGoodFit = peakFinder.FindPeakIn( collectedDataProfiles.GetTIBTOBEntry( det, beam, pos ), peakFinderResults, getTOBProfileOffset( det, beam, pos ) );
-      // now we have the measured positions in units of strips.
-      if( !isGoodFit ) std::cout << " [LaserAlignment::endJob] ** WARNING: Fit failed for TIB/TOB det: "
-				 << det << ", beam: " << beam << ", pos: " << pos << "." << std::endl;
+    // do the fit
+    isGoodFit = peakFinder.FindPeakIn( collectedDataProfiles.GetTIBTOBEntry( det, beam, pos ), peakFinderResults, getTOBProfileOffset( det, beam, pos ) );
+    // now we have the measured positions in units of strips.
+    if( !isGoodFit ) std::cout << " [LaserAlignment::endJob] ** WARNING: Fit failed for TIB/TOB det: "
+			       << det << ", beam: " << beam << ", pos: " << pos << "." << std::endl;
       
-      // <- here we will later implement the kink corrections
+    // <- here we will later implement the kink corrections
       
-      // access the tracker geometry for this module
-      const DetId theDetId( detectorId.GetTIBTOBEntry( det, beam, pos ) );
-      const StripGeomDetUnit* const theStripDet = dynamic_cast<const StripGeomDetUnit*>( theTracker.idToDet( theDetId ) );
+    // access the tracker geometry for this module
+    const DetId theDetId( detectorId.GetTIBTOBEntry( det, beam, pos ) );
+    const StripGeomDetUnit* const theStripDet = dynamic_cast<const StripGeomDetUnit*>( theTracker.idToDet( theDetId ) );
       
-      // first, set the measured coordinates to their nominal values
-      measuredCoordinates.SetTIBTOBEntry( det, beam, pos, nominalCoordinates.GetTIBTOBEntry( det, beam, pos ) );
+    // first, set the measured coordinates to their nominal values
+    measuredCoordinates.SetTIBTOBEntry( det, beam, pos, nominalCoordinates.GetTIBTOBEntry( det, beam, pos ) );
       
-      if( isGoodFit ) { // convert strip position to global phi and replace the nominal phi value/error
-	measuredCoordinates.GetTIBTOBEntry( det, beam, pos ).SetPhi( ConvertAngle( theStripDet->surface().toGlobal( theStripDet->specificTopology().localPosition( peakFinderResults.first ) ).barePhi() ) );
-	measuredCoordinates.GetTIBTOBEntry( det, beam, pos ).SetPhiError( 0.00028 ); // PRELIMINARY ESTIMATE
-      }
-      else { // keep nominal position but set a giant phi error so that the module is ignored by the alignment algorithm
-	measuredCoordinates.GetTIBTOBEntry( det, beam, pos ).SetPhiError( 1000. );
-      }
+    if( isGoodFit ) { // convert strip position to global phi and replace the nominal phi value/error
+      measuredStripPositions.GetTIBTOBEntry( det, beam, pos ) = peakFinderResults;
+      measuredCoordinates.GetTIBTOBEntry( det, beam, pos ).SetPhi( ConvertAngle( theStripDet->surface().toGlobal( theStripDet->specificTopology().localPosition( peakFinderResults.first ) ).barePhi() ) );
+      measuredCoordinates.GetTIBTOBEntry( det, beam, pos ).SetPhiError( 0.00028 ); // PRELIMINARY ESTIMATE
+    }
+    else { // keep nominal position but set a giant phi error so that the module can be ignored by the alignment algorithm
+      measuredStripPositions.GetTIBTOBEntry( det, beam, pos ) = std::pair<float,float>( 0., 1000. ); ////////////////////////////////////////////// this is wrong yet!!!!!!!!!!!!!!!!
+      measuredCoordinates.GetTIBTOBEntry( det, beam, pos ).SetPhiError( 1000. );
+    }
       
-      // fill the histograms for saving
-      for( int bin = 1; bin <= 512; ++bin ) {
-	summedHistograms.GetTIBTOBEntry( det, beam, pos )->SetBinContent( bin, collectedDataProfiles.GetTIBTOBEntry( det, beam, pos ).GetValue( bin - 1 ) );
-      }
+    // fill the histograms for saving
+    for( int bin = 1; bin <= 512; ++bin ) {
+      summedHistograms.GetTIBTOBEntry( det, beam, pos )->SetBinContent( bin, collectedDataProfiles.GetTIBTOBEntry( det, beam, pos ).GetValue( bin - 1 ) );
+    }
 	
-    } while( moduleLoop.TIBTOBLoop( det, beam, pos ) );
+  } while( moduleLoop.TIBTOBLoop( det, beam, pos ) );
 
 
 
 
-    // do the fits for TEC AT
-    det = 0; beam = 0; disk = 0;
-    do {
+  // do the fits for TEC AT
+  det = 0; beam = 0; disk = 0;
+  do {
 
-      // do the fit
-      isGoodFit = peakFinder.FindPeakIn( collectedDataProfiles.GetTEC2TECEntry( det, beam, disk ), peakFinderResults, 0 ); // no offset for TEC modules
-      // now we have the positions in units of strips.
-      if( !isGoodFit ) std::cout << " [LaserAlignment::endJob] ** WARNING: Fit failed for TEC2TEC det: "
-				 << det << ", beam: " << beam << ", disk: " << disk << "." << std::endl;
+    // do the fit
+    isGoodFit = peakFinder.FindPeakIn( collectedDataProfiles.GetTEC2TECEntry( det, beam, disk ), peakFinderResults, 0 ); // no offset for TEC modules
+    // now we have the positions in units of strips.
+    if( !isGoodFit ) std::cout << " [LaserAlignment::endRun] ** WARNING: Fit failed for TEC2TEC det: "
+			       << det << ", beam: " << beam << ", disk: " << disk << "." << std::endl;
 
-	// <- here we will later implement the kink corrections
+    // <- here we will later implement the kink corrections
     
-	// access the tracker geometry for this module
-	const DetId theDetId( detectorId.GetTEC2TECEntry( det, beam, disk ) );
+    // access the tracker geometry for this module
+    const DetId theDetId( detectorId.GetTEC2TECEntry( det, beam, disk ) );
+    const StripGeomDetUnit* const theStripDet = dynamic_cast<const StripGeomDetUnit*>( theTracker.idToDet( theDetId ) );
+
+    // first, set the measured coordinates to their nominal values
+    measuredCoordinates.SetTEC2TECEntry( det, beam, disk, nominalCoordinates.GetTEC2TECEntry( det, beam, disk ) );
+    
+    if( isGoodFit ) { // convert strip position to global phi and replace the nominal phi value/error
+      measuredStripPositions.GetTEC2TECEntry( det, beam, disk ) = peakFinderResults;
+      measuredCoordinates.GetTEC2TECEntry( det, beam, disk ).SetPhi( ConvertAngle( theStripDet->surface().toGlobal( theStripDet->specificTopology().localPosition( 255.5 ) ).barePhi() ) ); // #########
+      //	  measuredCoordinates.GetTEC2TECEntry( det, beam, disk ).SetPhi( ConvertAngle( theStripDet->surface().toGlobal( theStripDet->specificTopology().localPosition( peakFinderResults.first ) ).barePhi() ) );
+      //	  measuredCoordinates.GetTEC2TECEntry( det, beam, disk ).SetPhiError( 0.00047 ); // PRELIMINARY ESTIMATE
+    }
+    else { // keep nominal position but set a giant phi error so that the module is ignored by the alignment algorithm
+      measuredCoordinates.GetTEC2TECEntry( det, beam, disk ).SetPhi( ConvertAngle( theStripDet->surface().toGlobal( theStripDet->specificTopology().localPosition( 255.5 ) ).barePhi() ) ); // this is a cheat for missing tec signal in mc #####################
+      //	  measuredCoordinates.GetTEC2TECEntry( det, beam, disk ).SetPhiError( 1000. );
+      measuredStripPositions.GetTEC2TECEntry( det, beam, disk ) = std::pair<float,float>( 255.5, 1000. );
+    }
+
+    // fill the histograms for saving
+    for( int bin = 1; bin <= 512; ++bin ) {
+      summedHistograms.GetTEC2TECEntry( det, beam, disk )->SetBinContent( bin, collectedDataProfiles.GetTEC2TECEntry( det, beam, disk ).GetValue( bin - 1 ) );
+    }
+
+  } while( moduleLoop.TEC2TECLoop( det, beam, disk ) );
+  
+
+
+
+
+
+  // now reconstruct the geometry and update the db object
+  LASGeometryUpdater geometryUpdater( nominalCoordinates );
+
+  // run the endcap algorithm
+  LASEndcapAlgorithm endcapAlgorithm;
+  LASEndcapAlignmentParameterSet endcapParameters = endcapAlgorithm.CalculateParameters( measuredCoordinates, nominalCoordinates );
+  endcapParameters.Print();
+
+  // do a pre-alignment of the endcaps (TEC2TEC only)
+  // so that the alignment tube algorithms finds orderly disks
+  geometryUpdater.EndcapUpdate( endcapParameters, measuredCoordinates );
+
+  // run the alignment tube algorithm (analytical)
+  LASAlignmentTubeAlgorithm alignmentTubeAlgorithm;
+  LASBarrelAlignmentParameterSet alignmentTubeParameters = alignmentTubeAlgorithm.CalculateParameters( measuredCoordinates, nominalCoordinates );
+    
+  //     // run the alignment tube algorithm (minuit)
+  //     LASBarrelAlgorithm barrelAlgorithm;
+  //     LASBarrelAlignmentParameterSet alignmentTubeParameters = barrelAlgorithm.CalculateParameters( measuredCoordinates, nominalCoordinates );
+
+  alignmentTubeParameters.Print();
+
+  // combine the results and update the db object
+  geometryUpdater.TrackerUpdate( endcapParameters, alignmentTubeParameters, *theAlignableTracker );
+  
+
+
+
+
+    
+
+  /// laser hit section for trackbased interface
+  ///
+  /// due to the peculiar order of beams in TkLasBeamCollection,
+  /// we cannot use the LASGlobalLoop object here
+    
+    
+  // the collection container
+  std::auto_ptr<TkLasBeamCollection> laserBeams( new TkLasBeamCollection );
+
+  
+  // first for the endcap internal beams
+  for( det = 0; det < 2; ++det ) {
+    for( ring = 0; ring < 2; ++ring ) {
+      for( beam = 0; beam < 8; ++beam ) {
+	
+	// the beam and its identifier (see TkLasTrackBasedInterface TWiki)
+	TkLasBeam currentBeam;
+	currentBeam.setBeamId( 100 * det + 10 * beam + ring );
+	
+	// order the hits in the beam by increasing z
+	const int firstDisk = det==0 ? 0 : 8;
+	const int lastDisk  = det==0 ? 8 : 0;
+	  
+	// count upwards or downwards
+	for( disk = firstDisk; det==0 ? disk <= lastDisk : disk >= lastDisk; det==0 ? ++disk : --disk ) {
+	    
+	  // detId for the SiStripLaserRecHit2D
+	  const DetId theDetId( detectorId.GetTECEntry( det, ring, beam, disk ) );
+	    
+	  // need this to calculate the localPosition and its error
+	  const StripGeomDetUnit* const theStripDet = dynamic_cast<const StripGeomDetUnit*>( theTracker.idToDet( theDetId ) );
+	    
+	  // the hit container
+	  const SiStripLaserRecHit2D currentHit(
+						theStripDet->specificTopology().localPosition( measuredStripPositions.GetTECEntry( det, ring, beam, disk ).first ),
+						theStripDet->specificTopology().localError( measuredStripPositions.GetTECEntry( det, ring, beam, disk ).first, measuredStripPositions.GetTECEntry( det, ring, beam, disk ).second ),
+						theDetId
+						);
+
+	  ////////////////////////////////////////////////////////////////////////////////////////
+	  std::cout << "ADDING TEC HIT FOR: det: " << det << " ring: " << ring << " beam: " << beam << " disk: " << disk << " beamId: " << currentBeam.getBeamId() << " --- with:";
+	  std::cout << " u: " << currentHit.localPosition().x();
+	  std::cout << " v: " << currentHit.localPosition().y();
+	  std::cout << " w: " << currentHit.localPosition().z();
+	  std::cout << std::endl;
+	  ////////////////////////////////////////////////////////////////////////////////////////
+	    
+	  currentBeam.push_back( currentHit );
+	    
+	}	  
+	  
+	laserBeams->push_back( currentBeam );
+	  
+      }
+    }
+  }
+    
+    
+
+  // then, following the convention in TkLasTrackBasedInterface TWiki, the alignment tube beams;
+  // they comprise hits in TIBTOB & TEC2TEC
+
+  for( beam = 0; beam < 8; ++beam ) {
+
+
+    // the beam and its identifier (see TkLasTrackBasedInterface TWiki)
+    TkLasBeam currentBeam;
+    currentBeam.setBeamId( 100 * det + 10 * beam + ring );
+
+    // first: tec-
+    det = 1;
+    for( disk = 4; disk >= 0; --disk ) {
+	
+      // detId for the SiStripLaserRecHit2D
+      const DetId theDetId( detectorId.GetTEC2TECEntry( det, beam, disk ) );
+	
+      // need this to calculate the localPosition and its error
+      const StripGeomDetUnit* const theStripDet = dynamic_cast<const StripGeomDetUnit*>( theTracker.idToDet( theDetId ) );
+	
+      // the hit container
+      const SiStripLaserRecHit2D currentHit(
+					    theStripDet->specificTopology().localPosition( measuredStripPositions.GetTEC2TECEntry( det, beam, disk ).first ),
+					    theStripDet->specificTopology().localError( measuredStripPositions.GetTEC2TECEntry( det, beam, disk ).first, measuredStripPositions.GetTEC2TECEntry( det, beam, disk ).second ),
+					    theDetId
+					    );
+
+      ////////////////////////////////////////////////////////////////////////////////////////
+      std::cout << "ADDING AT HIT FOR: det: " << det << " beam: " << beam << " disk: " << disk << " beamId: " << currentBeam.getBeamId() << " --- with:";
+      std::cout << " u: " << currentHit.localPosition().x();
+      std::cout << " v: " << currentHit.localPosition().y();
+      std::cout << " w: " << currentHit.localPosition().z();
+      std::cout << std::endl;
+      ////////////////////////////////////////////////////////////////////////////////////////
+	    
+      currentBeam.push_back( currentHit );
+	
+    }
+
+      
+    // now TIB and TOB in one go
+    for( det = 2; det < 4; ++det ) {
+      for( pos = 5; pos >= 0; --pos ) { // stupidly, pos is defined from +z to -z in LASGlobalLoop
+	  
+	// detId for the SiStripLaserRecHit2D
+	const DetId theDetId( detectorId.GetTIBTOBEntry( det, beam, pos ) );
+	  
+	// need this to calculate the localPosition and its error
 	const StripGeomDetUnit* const theStripDet = dynamic_cast<const StripGeomDetUnit*>( theTracker.idToDet( theDetId ) );
-
-	// first, set the measured coordinates to their nominal values
-	measuredCoordinates.SetTEC2TECEntry( det, beam, disk, nominalCoordinates.GetTEC2TECEntry( det, beam, disk ) );
-    
-	if( isGoodFit ) { // convert strip position to global phi and replace the nominal phi value/error
-	  measuredCoordinates.GetTEC2TECEntry( det, beam, disk ).SetPhi( ConvertAngle( theStripDet->surface().toGlobal( theStripDet->specificTopology().localPosition( 255.5 ) ).barePhi() ) ); // #########
-	  //	  measuredCoordinates.GetTEC2TECEntry( det, beam, disk ).SetPhi( ConvertAngle( theStripDet->surface().toGlobal( theStripDet->specificTopology().localPosition( peakFinderResults.first ) ).barePhi() ) );
-	  //	  measuredCoordinates.GetTEC2TECEntry( det, beam, disk ).SetPhiError( 0.00047 ); // PRELIMINARY ESTIMATE
-	}
-	else { // keep nominal position but set a giant phi error so that the module is ignored by the alignment algorithm
-	  measuredCoordinates.GetTEC2TECEntry( det, beam, disk ).SetPhi( ConvertAngle( theStripDet->surface().toGlobal( theStripDet->specificTopology().localPosition( 255.5 ) ).barePhi() ) ); // this is a cheat for missing tec signal in mc #####################
-	  //	  measuredCoordinates.GetTEC2TECEntry( det, beam, disk ).SetPhiError( 1000. );
-	}
-
-	// fill the histograms for saving
-	for( int bin = 1; bin <= 512; ++bin ) {
-	  summedHistograms.GetTEC2TECEntry( det, beam, disk )->SetBinContent( bin, collectedDataProfiles.GetTEC2TECEntry( det, beam, disk ).GetValue( bin - 1 ) );
-	}
-
-    } while( moduleLoop.TEC2TECLoop( det, beam, disk ) );
-  
-
-
-
-//     ////////////////////////////////////////////////////////////////////////////////////////
-//     // this dumps the measurement in the same format as sim_misal.C::sim_at()
-//     std::cout << "+++++++++++++++++++++++++++++++++++++++++++++++++++++++" << std::endl;
-//     for( det = 0; det < 2; ++det ) {
-//       for( disk = 0; disk < 5; ++disk ) {
-// 	for( beam = 0; beam < 8; ++beam ) {
-
-// 	  std::cout << std::setw( 8 ) << det
-// 		    << std::setw( 8 ) << beam
-// 		    << std::setw( 8 ) << disk
-// 		    << std::setw( 8 ) << "-1"
-// 		    << std::setw( 12 ) << measuredCoordinates.GetTEC2TECEntry( det, beam, disk ).GetPhi()
-// 		    << std::setw( 12 ) << measuredCoordinates.GetTEC2TECEntry( det, beam, disk ).GetPhiError()
-// 		    << std::endl;
-
-// 	}
-//       }
-//     }
-//     for( det = 2; det < 4; ++det ) {
-//       for( pos = 0; pos < 6; ++pos ) {
-// 	for( beam = 0; beam < 8; ++beam ) {
-
-// 	  std::cout << std::setw( 8 ) << det
-// 		    << std::setw( 8 ) << beam
-// 		    << std::setw( 8 ) << pos
-// 		    << std::setw( 8 ) << "-1"
-// 		    << std::setw( 12 ) << measuredCoordinates.GetTIBTOBEntry( det, beam, pos ).GetPhi()
-// 		    << std::setw( 12 ) << measuredCoordinates.GetTIBTOBEntry( det, beam, pos ).GetPhiError()
-// 		    << std::endl;
-
-// 	}
-//       }
-//     }
-//     std::cout << "+++++++++++++++++++++++++++++++++++++++++++++++++++++++" << std::endl;
-//     ////////////////////////////////////////////////////////////////////////////////////////
-    
-
-
-
-
-
-
-
-    // now reconstruct the geometry and update the db object
-    LASGeometryUpdater geometryUpdater( nominalCoordinates );
-
-    // run the endcap algorithm
-    LASEndcapAlgorithm endcapAlgorithm;
-    LASEndcapAlignmentParameterSet endcapParameters = endcapAlgorithm.CalculateParameters( measuredCoordinates, nominalCoordinates );
-    endcapParameters.Print();
-
-    // do a pre-alignment of the endcaps (TEC2TEC only)
-    // so that the alignment tube algorithms finds orderly disks
-    geometryUpdater.EndcapUpdate( endcapParameters, measuredCoordinates );
-
-    // run the alignment tube algorithm (analytical)
-    LASAlignmentTubeAlgorithm alignmentTubeAlgorithm;
-    LASBarrelAlignmentParameterSet alignmentTubeParameters = alignmentTubeAlgorithm.CalculateParameters( measuredCoordinates, nominalCoordinates );
-    
-//     // run the alignment tube algorithm (minuit)
-//     LASBarrelAlgorithm barrelAlgorithm;
-//     LASBarrelAlignmentParameterSet alignmentTubeParameters = barrelAlgorithm.CalculateParameters( measuredCoordinates, nominalCoordinates );
-
-    alignmentTubeParameters.Print();
-
-    // combine the results and update the db object
-    geometryUpdater.TrackerUpdate( endcapParameters, alignmentTubeParameters, *theAlignableTracker );
-  
-
-  } // if( !theUseBrunosAlgorithm )
-
-
-
-
-
-
-
-
-  else if( !theUseNewAlgorithms ) {
-
-    /////////////////////////////////////////////////////////////////////////////////////////
-    /////////////////////////////////////////////////////////////////////////////////////////
-    // this is the old algorithm section, it uses BeamProfileFitter to evaluate signals,   //
-    // this will be replaced and work the same way as the barrel part                      //
-    /////////////////////////////////////////////////////////////////////////////////////////
-    /////////////////////////////////////////////////////////////////////////////////////////
-    
-    
-    
-    // create an empty output collection 
-    //std::auto_ptr<LASBeamProfileFitCollection> theFitOutput(new LASBeamProfileFitCollection);
-    //std::auto_ptr<LASAlignmentParameterCollection> theAlignmentParameterOutput(new LASAlignmentParameterCollection);
-    
-    theDigiVector.reserve(10000);
-    theDigiVector.clear();
-    
-    // vectors to store the beam positions for usage with Bruno's alignment algorithm
-    LASvec2D thePosTECR4BeamPositions(8,9);
-    LASvec2D thePosTECR6BeamPositions(8,9);
-    LASvec2D theNegTECR4BeamPositions(8,9);
-    LASvec2D theNegTECR6BeamPositions(8,9);
-    LASvec2D theTEC2TECBeamPositions(8,22);
-  
-    LASvec2D thePosTECR4BeamPositionErrors(8,9);
-    LASvec2D thePosTECR6BeamPositionErrors(8,9);
-    LASvec2D theNegTECR4BeamPositionErrors(8,9);
-    LASvec2D theNegTECR6BeamPositionErrors(8,9);
-    LASvec2D theTEC2TECBeamPositionErrors(8,22);
-
-    LogDebug("LaserAlignment") << "===========================================================";
-  
-    // the fit of the beam profiles
-    //  if (theEvents % theNEventsPerLaserIntensity == 0)
-    //  {
-    // do the beam profile fit
-    //    fit(theSetup);
-    //  }
-
-    //  if (theEvents % theNEventsForAllIntensities == 0)
-    //  {
-
-
-  
-    std::vector<LASBeamProfileFit> collector;
-
-    // do the fits for TEC+-
-    det = 0; ring = 0; beam = 0; disk = 0;
-    do {
-
-      // fill histo from collected data.
-      // later, the fitter will accept the profile directly
-      for( int bin = 0; bin < 512; ++bin ) {
-	summedHistograms.GetTECEntry( det, ring, beam, disk )->SetBinContent( 1 + bin, collectedDataProfiles.GetTECEntry( det, ring, beam, disk ).GetValue( bin ) );
-      }
-
-      // will store the detids in a separate container later, yet use Maarten's construct here
-      std::map<std::string, std::pair<DetId, TH1D*> >::iterator iHist = theHistograms.find( theProfileNames.GetTECEntry( det, ring, beam, disk ) );
-      if ( iHist != theHistograms.end() ) {
-      
-	// here we prepare the preliminary interface to Maarten's code
-	int aRing, aBeam, aDet;
-	if( ring == 0 ) { // this is Ring4
-	  aRing = 4;
-	  aBeam = beam;
-	}
-	else { // this is Ring6
-	  aRing = 6;
-	  aBeam = beam + 8;
-	}
-	if( det == 0 ) aDet = 2; // TEC+
-	else aDet = 1; // TEC-
-
-      
-	// pass the histo to the beam fitter
-	collector = theBeamFitter->doFit((iHist->second).first,
-					 summedHistograms.GetTECEntry( det, ring, beam, disk ), 
-					 theSaveHistograms,
-					 numberOfAcceptedProfiles.GetTECEntry( det, ring, beam, disk ), 
-					 aBeam, disk, aRing, 
-					 aDet, false /*isTEC2TEC*/, theIsGoodFit );
-
-	// if the fit succeeded, add the LASBeamProfileFit to the output collection for storage
-	// and additionally add the LASBeamProfileFit to the map for later processing (we need
-	// the info from the fit for the Alignment Algorithm)
-	if ( theIsGoodFit ) {
-	  // add the result of the fit to the map
-	  theBeamProfileFitStore[theProfileNames.GetTECEntry( det, ring, beam, disk )] = collector;
-	}
-      
-	// set theIsGoodFit to false again for the next fit
-	theIsGoodFit = false;
-
-
-      }
-      else std::cerr << "[LaserAlignment::endJob] ** WARNING: No pair<DetId,TH1D*> found for TEC det " 
-		     << det << " ring " << ring << " beam " << beam << " disk " << disk << "." << std::endl;
-
-    } while( moduleLoop.TECLoop( det, ring, beam, disk ) );
-
-  
-
-    // do the fits for TIB/TOB
-    det = 2; beam = 0; pos = 0;
-    do {
-
-      // fill histo from collected data.
-      // later, the fitter will accept the profile directly
-      for( int bin = 0; bin < 512; ++bin ) {
-	summedHistograms.GetTIBTOBEntry( det, beam, pos )->SetBinContent( 1 + bin, collectedDataProfiles.GetTIBTOBEntry( det, beam, pos ).GetValue( bin ) );
-      }
-
-      // will store the detids in a separate container later, yet use Maarten's construct here
-      std::map<std::string, std::pair<DetId, TH1D*> >::iterator iHist = theHistograms.find( theProfileNames.GetTIBTOBEntry( det, beam, pos ) );
-      if ( iHist != theHistograms.end() ) {
-      
-      
-	// here we prepare the interface to Maarten's code
-	int aRing = 0, aBeam = 0, aDet = 0;
-	disk = 0;
-      
-	// pass the histo to the beam fitter
-	collector = theBeamFitter->doFit((iHist->second).first,
-					 summedHistograms.GetTIBTOBEntry( det, beam, pos ), 
-					 theSaveHistograms,
-					 numberOfAcceptedProfiles.GetTIBTOBEntry( det, beam, pos ), 
-					 aBeam, disk, aRing, 
-					 aDet, false /*isTEC2TEC*/, theIsGoodFit );
-
-	// if the fit succeeded, add the LASBeamProfileFit to the output collection for storage
-	// and additionally add the LASBeamProfileFit to the map for later processing (we need
-	// the info from the fit for the Alignment Algorithm)
-	if ( theIsGoodFit ) {
-	  // add the result of the fit to the map
-	  theBeamProfileFitStore[theProfileNames.GetTIBTOBEntry( det, beam, pos )] = collector;
-	}
-      
-	// set theIsGoodFit to false again for the next fit
-	theIsGoodFit = false;
-
-
-      }
-      else std::cerr << "[LaserAlignment::endJob] ** WARNING: No pair<DetId,TH1D*> found for TIBTOB det " 
-		     << det << " beam " << beam << " pos " << pos << "." << std::endl;
-    
-    } while( moduleLoop.TIBTOBLoop( det, beam, pos ) );
-
-
-
-
-
-
-
-    // now the fits for TEC AT
-    det = 0; ring = 0; beam = 0; disk = 0;
-    do {
-
-      // fill histo from collected data.
-      // later, the fitter will accept the profile directly
-      for( int bin = 0; bin < 512; ++bin ) {
-	summedHistograms.GetTEC2TECEntry( det, beam, disk )->SetBinContent( 1 + bin, collectedDataProfiles.GetTEC2TECEntry( det, beam, disk ).GetValue( bin ) );
-      }
-
-      // will store the detids in a separate container later, yet use Maarten's construct here
-      std::map<std::string, std::pair<DetId, TH1D*> >::iterator iHist = theHistograms.find( theProfileNames.GetTEC2TECEntry( det, beam, disk ) );
-      if ( iHist != theHistograms.end() ) {
-      
-	// here we prepare the interface to Maarten's code
-	int aRing, aBeam, aDet;
-	aRing = 4; // always Ring4
-	aBeam = beam;
-	if( det == 0 ) aDet = 2; // TEC+
-	else aDet = 1; // TEC-
-
-      
-	// pass the histo to the beam fitter
-	collector = theBeamFitter->doFit((iHist->second).first,
-					 summedHistograms.GetTEC2TECEntry( det, beam, disk ), 
-					 theSaveHistograms,
-					 numberOfAcceptedProfiles.GetTEC2TECEntry( det, beam, disk ), 
-					 aBeam, disk, aRing, 
-					 aDet, true /*isTEC2TEC*/, theIsGoodFit );
-
-	// if the fit succeeded, add the LASBeamProfileFit to the output collection for storage
-	// and additionally add the LASBeamProfileFit to the map for later processing (we need
-	// the info from the fit for the Alignment Algorithm)
-	if ( theIsGoodFit ) {
-	  // add the result of the fit to the map
-	  theBeamProfileFitStore[theProfileNames.GetTEC2TECEntry( det, beam, disk )] = collector;
-	}
-      
-	// set theIsGoodFit to false again for the next fit
-	theIsGoodFit = false;
-
-      }
-      else {
-	std::cerr << "[LaserAlignment::endJob] ** WARNING: No pair<DetId,TH1D*> found for TEC AT det " 
-		  << det << " beam " << beam << " disk " << disk << "." << std::endl;
-	std::cerr << "                                     (if beam=0,3,5 it's probably ok)" << std::endl;
-      }
-
-    } while( moduleLoop.TEC2TECLoop( det, beam, disk ) );
-
-
-
-
-    // increase the counter for the iterations
-    //  theNumberOfIterations++;
-
-    // put the digis of the beams into the StripDigiCollection
-    for ( std::map<DetId, std::vector<SiStripRawDigi> >::const_iterator p = theDigiStore.begin(); p != theDigiStore.end(); ++p ) {
-
-      edm::DetSet<SiStripRawDigi> collector((p->first).rawId());
-    
-      if ( ( p->second ).size() > 0 ) {
-	collector.data = (p->second);
-	theDigiVector.push_back(collector);
+	  
+	// the hit container
+	const SiStripLaserRecHit2D currentHit(
+					      theStripDet->specificTopology().localPosition( measuredStripPositions.GetTIBTOBEntry( det, beam, pos ).first ),
+					      theStripDet->specificTopology().localError( measuredStripPositions.GetTIBTOBEntry( det, beam, pos ).first, measuredStripPositions.GetTIBTOBEntry( det, beam, pos ).second ),
+					      theDetId
+					      );
+
+	////////////////////////////////////////////////////////////////////////////////////////
+	std::cout << "ADDING AT HIT FOR: det: " << det << " beam: " << beam << " pos: " << pos << " beamId: " << currentBeam.getBeamId() << " --- with:";
+	std::cout << " u: " << currentHit.localPosition().x();
+	std::cout << " v: " << currentHit.localPosition().y();
+	std::cout << " w: " << currentHit.localPosition().z();
+	std::cout << std::endl;
+	////////////////////////////////////////////////////////////////////////////////////////
+	  
+	currentBeam.push_back( currentHit );
+	  
       }
     }
-
-    // clear the map to fill new digis for the next theNEventsForAllIntensities number of events
-    theDigiStore.clear();
-
-
-    // put the LASBeamProfileFits into the LASBeamProfileFitCollection
-    // loop over the map with the histograms and lookup the LASBeamFits
-    for ( std::vector<std::string>::const_iterator iHistName = theHistogramNames.begin(); iHistName != theHistogramNames.end(); ++iHistName ) {
-
-      std::map<std::string, std::pair<DetId, TH1D*> >::iterator iHist = theHistograms.find(*iHistName);
-      if ( iHist != theHistograms.end() ) {
       
-	std::map<std::string, std::vector<LASBeamProfileFit> >::iterator iBeamFit = theBeamProfileFitStore.find(*iHistName);
-	if ( iBeamFit != theBeamProfileFitStore.end() ) {
+
+
+    // then: tec+
+    det = 0;
+    for( disk = 0; disk < 5; ++disk ) {
 	
-	  // get the DetId from the map with histograms
-	  //	unsigned int theDetId = ((iHist->second).first).rawId();
-	  // get the information for the LASBeamProfileFitCollection
-	  LASBeamProfileFitCollection::Range inputRange;
-	  inputRange.first = (iBeamFit->second).begin();
-	  inputRange.second = (iBeamFit->second).end();
+      // detId for the SiStripLaserRecHit2D
+      const DetId theDetId( detectorId.GetTEC2TECEntry( det, beam, disk ) );
 	
-	  //	theFitOutput->put(inputRange,theDetId); // no production yet
+      // need this to calculate the localPosition and its error
+      const StripGeomDetUnit* const theStripDet = dynamic_cast<const StripGeomDetUnit*>( theTracker.idToDet( theDetId ) );
 	
-	  // now fill the fitted phi position and error into the appropriate vectors
-	  // which will be used by the Alignment Algorithm
-	  LASBeamProfileFit theFit = (iBeamFit->second).at(0);
-	  theLaserPhi.push_back(theFit.phi());
-	  theLaserPhiError.push_back(thePhiErrorScalingFactor * theFit.phiError());
+      // the hit container
+      const SiStripLaserRecHit2D currentHit(
+					    theStripDet->specificTopology().localPosition( measuredStripPositions.GetTEC2TECEntry( det, beam, disk ).first ),
+					    theStripDet->specificTopology().localError( measuredStripPositions.GetTEC2TECEntry( det, beam, disk ).first, measuredStripPositions.GetTEC2TECEntry( det, beam, disk ).second ),
+					    theDetId
+					    );
+
+      ////////////////////////////////////////////////////////////////////////////////////////
+      std::cout << "ADDING AT HIT FOR: det: " << det << " beam: " << beam << " disk: " << disk << " beamId: " << currentBeam.getBeamId() << " --- with:";
+      std::cout << " u: " << currentHit.localPosition().x();
+      std::cout << " v: " << currentHit.localPosition().y();
+      std::cout << " w: " << currentHit.localPosition().z();
+      std::cout << std::endl;
+      ////////////////////////////////////////////////////////////////////////////////////////
+	    
+      currentBeam.push_back( currentHit );
 	
-	  // fill also the LASvec2D for Bruno's algorithm
-	  std::vector<int> sectorLocation = checkBeam(iHistName, iHist);
-	
-	  if (sectorLocation.at(0) == 1) // TEC- beams
-	    {
-	      if (sectorLocation.at(1) == 4) // Ring 4
-		{
-		  theNegTECR4BeamPositions[sectorLocation.at(2)][sectorLocation.at(3)] = theFit.pitch() * (theFit.mean()-255.5);
-		  theNegTECR4BeamPositionErrors[sectorLocation.at(2)][sectorLocation.at(3)] = theFit.pitch() * theFit.meanError();
-		}
-	      else if (sectorLocation.at(1) == 6) // Ring 6
-		{
-		  theNegTECR6BeamPositions[sectorLocation.at(2)][sectorLocation.at(3)] = theFit.pitch() * (theFit.mean()-255.5);
-		  theNegTECR6BeamPositionErrors[sectorLocation.at(2)][sectorLocation.at(3)] = theFit.pitch() * theFit.meanError();
-		}
-	    }
-	  else if (sectorLocation.at(0) == 2) // TEC+ beams
-	    {
-	      if (sectorLocation.at(1) == 4) // Ring 4
-		{
-		  thePosTECR4BeamPositions[sectorLocation.at(2)][sectorLocation.at(3)] = theFit.pitch() * (theFit.mean()-255.5);
-		  thePosTECR4BeamPositionErrors[sectorLocation.at(2)][sectorLocation.at(3)] = theFit.pitch() * theFit.meanError();
-		}
-	      else if (sectorLocation.at(1) == 6) // Ring 6
-		{
-		  thePosTECR6BeamPositions[sectorLocation.at(2)][sectorLocation.at(3)] = theFit.pitch() * (theFit.mean()-255.5);
-		  thePosTECR6BeamPositionErrors[sectorLocation.at(2)][sectorLocation.at(3)] = theFit.pitch() * theFit.meanError();
-		}				
-	    }
-	  // implementation of TEC2TEC beams has to be done!!!!!!
-	}
-	else
-	  {
-	    // no BeamFit found for this layer, use the nominal phi position of the Det for the Alignment Algorithm
-	    // 		  // access the tracker
-	    // 		  edm::ESHandle<TrackerGeometry> theTrackerGeometry;
-	    // 		  theSetup.get<TrackerDigiGeometryRecord>().get(theTrackerGeometry);
-	  
-	    double thePhi = angle(theTrackerGeometry->idToDet((iHist->second).first)->surface().position().phi());
-	    double thePhiError = 0.1;
-	  
-	    LogDebug("LaserAlignment") << " no LASBeamProfileFit found for " << (*iHistName) << "! Use nominal phi position (" 
-				       << thePhi << ") for alignment ";
-	    theLaserPhi.push_back(thePhi);
-	    theLaserPhiError.push_back(thePhiErrorScalingFactor * thePhiError);
-	  
-	    /// for Bruno's algorithm get the pitch at strip 255.5 and multiply it with 255.5 to get the position in cm at the middle of the module
-	    //           const StripGeomDetUnit* const theStripDet = dynamic_cast<const StripGeomDetUnit*>(theTrackerGeometry->idToDet((iHist->second).first));
-	  
-	    // double thePosition = 255.5 * theStripDet->specificTopology().localPitch(theStripDet->specificTopology().localPosition(255.5));
-	    double thePosition = 0.0;
-	    double thePositionError = 0.05; // set the error to half a milllimeter in this case
-	  
-	    // fill also the LASvec2D for Bruno's algorithm
-	    std::vector<int> sectorLocation = checkBeam(iHistName, iHist);
-	  
-	    if (sectorLocation.at(0) == 1) // TEC- beams
-	      {
-		if (sectorLocation.at(1) == 4) // Ring 4
-		  {
-		    theNegTECR4BeamPositions[sectorLocation.at(2)][sectorLocation.at(3)] = thePosition;
-		    theNegTECR4BeamPositionErrors[sectorLocation.at(2)][sectorLocation.at(3)] = thePositionError;
-		  }
-		else if (sectorLocation.at(1) == 6) // Ring 6
-		  {
-		    theNegTECR6BeamPositions[sectorLocation.at(2)][sectorLocation.at(3)] = thePosition;
-		    theNegTECR6BeamPositionErrors[sectorLocation.at(2)][sectorLocation.at(3)] = thePositionError;
-		  }
-	      }
-	    else if (sectorLocation.at(0) == 2) // TEC+ beams
-	      {
-		if (sectorLocation.at(1) == 4) // Ring 4
-		  {
-		    thePosTECR4BeamPositions[sectorLocation.at(2)][sectorLocation.at(3)] = thePosition;
-		    thePosTECR4BeamPositionErrors[sectorLocation.at(2)][sectorLocation.at(3)] = thePositionError;
-		  }
-		else if (sectorLocation.at(1) == 6) // Ring 6
-		  {
-		    thePosTECR6BeamPositions[sectorLocation.at(2)][sectorLocation.at(3)] = thePosition;
-		    thePosTECR6BeamPositionErrors[sectorLocation.at(2)][sectorLocation.at(3)] = thePositionError;
-		  }				
-	      }
-	    // implementation of TEC2TEC beams has to be done!!!!!
-	  }
-      }
-      else 
-	{ 
-	  throw cms::Exception("LaserAlignment") << " You are in serious trouble!!! no entry for " << (*iHistName) << " found. "
-						 << " To avoid the calculation of wrong alignment corrections the program will abort! "; 
-	}
-    }
-    // clear the map to fill new LASBeamProfileFits for the next theNEventsForAllIntensities number of events
-    theBeamProfileFitStore.clear();
-    //  }
-  
-    // do the alignment of the tracker
-    //   if (theEvents % theDoAlignmentAfterNEvents == 0) // do this in any case!!!
-    //     {
-    //       // Create the alignable hierarchy
-    //       theAlignableTracker = new AlignableTracker( &(*gD),
-    // 						  &(*theTrackerGeometry) );
-
-    // do the Alignment of the Tracker (with Millepede) ...
-    //  alignmentAlgorithm(theAlignmentAlgorithmPS, theAlignableTracker);
-    // set the number of iterations to zero for the next alignment round *** NOT NEEDED FOR BRUNO'S ALGO!
-    theNumberOfIterations = 0;
-
-
-    if (theUseBrunosAlgorithm) {			
-
-      // do the Alignment with Bruno's algorithm
-      std::vector<LASAlignmentParameter> theAPPosTECR4;
-      std::vector<LASAlignmentParameter> theAPPosTECR6;
-      std::vector<LASAlignmentParameter> theAPNegTECR4;
-      std::vector<LASAlignmentParameter> theAPNegTECR6;
-      // which return type do we need to calculate the final correction ((corr_R4 + corr_R6)/2)??
-      // get them from the returned std::vector<LASAlignmentParameter>!
-      theAPPosTECR4 = theAlignmentAlgorithmBW->run("TEC+Ring4",thePosTECR4BeamPositions, 
-						   thePosTECR4BeamPositionErrors, theUseBSFrame, 4);
-      theAPPosTECR6 = theAlignmentAlgorithmBW->run("TEC+Ring6",thePosTECR6BeamPositions, 
-						   thePosTECR6BeamPositionErrors, theUseBSFrame, 6);
-      theAPNegTECR4 = theAlignmentAlgorithmBW->run("TEC-Ring4",theNegTECR4BeamPositions, 
-						   theNegTECR4BeamPositionErrors, theUseBSFrame, 4);
-      theAPNegTECR6 = theAlignmentAlgorithmBW->run("TEC-Ring6",theNegTECR6BeamPositions, 
-						   theNegTECR6BeamPositionErrors, theUseBSFrame, 6);
-      // implementation of TEC2TEC has to be done!!!!!
-      // theAlignmentAlgorithmBW->run(theTEC2TECBeamPositions, theTEC2TECBeamPositionErrors);
-
-      // put the alignment parameters in the output collection
-      // first TEC+ Ring 4
-      LASAlignmentParameterCollection::Range inputRangeT1R4;
-      inputRangeT1R4.first = theAPPosTECR4.begin();
-      inputRangeT1R4.second = theAPPosTECR4.end();
-      //        theAlignmentParameterOutput->put(inputRangeT1R4,"TEC+Ring4");
-      // now TEC+ Ring 6
-      LASAlignmentParameterCollection::Range inputRangeT1R6;
-      inputRangeT1R6.first = theAPPosTECR6.begin();
-      inputRangeT1R6.second = theAPPosTECR6.end();
-      //        theAlignmentParameterOutput->put(inputRangeT1R6,"TEC+Ring6");
-      // now TEC- Ring 4
-      LASAlignmentParameterCollection::Range inputRangeT2R4;
-      inputRangeT2R4.first = theAPNegTECR4.begin();
-      inputRangeT2R4.second = theAPNegTECR4.end();
-      //        theAlignmentParameterOutput->put(inputRangeT2R4,"TEC-Ring4");
-      // finally TEC- Ring 6
-      LASAlignmentParameterCollection::Range inputRangeT2R6;
-      inputRangeT2R6.first = theAPNegTECR6.begin();
-      inputRangeT2R6.second = theAPNegTECR6.end();
-      //        theAlignmentParameterOutput->put(inputRangeT2R6,"TEC-Ring6");
-
-      // apply the calculated corrections to the alignable Tracker. This will propagate the corrections from the
-      // higher level hierarchy (e.g. the TEC discs) to the lowest level in the Tracker Hierarchy: the Dets
-      /**
-       * TO BE DONE!!!!!!!!!!
-       **/
-      const align::Alignables& TECs = theAlignableTracker->endCaps();
-
-      const Alignable *TECplus = TECs[0], *TECminus = TECs[1];
-
-      if (TECplus->globalPosition().z() < 0) // reverse order
-	{
-	  TECplus = TECs[1]; TECminus = TECs[0];
-	}
-
-      const align::Alignables& posDisks = TECplus->components();
-      const align::Alignables& negDisks = TECminus->components();
-
-      for (unsigned int i = 0; i < 9; ++i) {
-	
-	align::GlobalVector translationPos( -1.0 * (theAPPosTECR4.at(0).dxk()[i] + theAPPosTECR6.at(0).dxk()[i])/2,
-					    -1.0 * (theAPPosTECR4.at(0).dyk()[i] + theAPPosTECR6.at(0).dyk()[i])/2,
-					    0.0);
-	align::GlobalVector translationNeg( -1.0 * (theAPNegTECR4.at(0).dxk()[i] + theAPNegTECR6.at(0).dxk()[i])/2,
-					    -1.0 * (theAPNegTECR4.at(0).dyk()[i] + theAPNegTECR6.at(0).dyk()[i])/2,
-					    0.0);
-	// TODO - Implement usage and propagation of errors!!!!
-	AlignmentPositionError positionErrorPos(0.0, 0.0, 0.0);
-	align::RotationType rotationErrorPos( Basic3DVector<float>(0.0, 0.0, 1.0), 0.0 );
-	AlignmentPositionError positionErrorNeg(0.0, 0.0, 0.0);
-	align::RotationType rotationErrorNeg( Basic3DVector<float>(0.0, 0.0, 1.0), 0.0 );
-	Alignable* posDisk = posDisks[i];
-	Alignable* negDisk = negDisks[i];
-	
-	// TEC+
-	posDisk->move(translationPos);
-	posDisk->addAlignmentPositionError(positionErrorPos);
-	posDisk->rotateAroundGlobalZ(-1.0 * (theAPPosTECR4.at(0).dphik()[i] + theAPPosTECR6.at(0).dphik()[i])/2);
-	posDisk->addAlignmentPositionErrorFromRotation(rotationErrorPos);
-	// TEC-
-	negDisk->move(translationNeg);
-	negDisk->addAlignmentPositionError(positionErrorNeg);
-	negDisk->rotateAroundGlobalZ(-1.0 * (theAPNegTECR4.at(0).dphik()[i] + theAPNegTECR6.at(0).dphik()[i])/2);
-	negDisk->addAlignmentPositionErrorFromRotation(rotationErrorNeg);
-      }
     }
 
 
-  } // if( !theUseNewAlgorithms )
-  
+    // save this beam to the beamCollection
+    laserBeams->push_back( currentBeam );
+
+  } // (close beam loop)
+
+
+    // now attach the collection to the run
+  theRun.put( laserBeams, "tkLaserBeams" );
+
+
+
+
 
   
 
@@ -1206,7 +886,7 @@ void LaserAlignment::endJob() {
   // Write alignments to DB: have to sort beforhand!
   if ( theStoreToDB ) {
 
-    std::cout << " [LaserAlignment::endJob] -- Storing the calculated alignment parameters to the DataBase:" << std::endl;
+    std::cout << " [LaserAlignment::endRun] -- Storing the calculated alignment parameters to the DataBase:" << std::endl;
 
     // Call service
     edm::Service<cond::service::PoolDBOutputService> poolDbService;
@@ -1227,29 +907,10 @@ void LaserAlignment::endJob() {
     else {
       poolDbService->appendSinceTime<AlignmentErrors>( alignmentErrors, poolDbService->currentTime(), theErrorRecordName );
     }
-						       
-    std::cout << " [LaserAlignment::endJob] -- Storing done." << std::endl;
     
-}
-
-
-
-  //       // Store result to EventSetup
-  //       GeometryAligner aligner;
-  //       aligner.applyAlignments<TrackerGeometry>( &(*theTrackerGeometry), &(*alignments), &(*alignmentErrors) );
-
-  //    }
-
-  // create the output collection for the DetSetVector
-  std::auto_ptr<edm::DetSetVector<SiStripRawDigi> > theDigiOutput(new edm::DetSetVector<SiStripRawDigi>(theDigiVector));
-
-  // write output to file
-  //  theEvent.put(theDigiOutput);
-  //  theEvent.put(theFitOutput);
-  //  theEvent.put(theAlignmentParameterOutput);
-
-  //   // clear the vector with pairs of DetIds and Histograms
-  //   theHistograms.clear();
+    std::cout << " [LaserAlignment::endRun] -- Storing done." << std::endl;
+    
+  }
 
 }
 
@@ -1257,6 +918,126 @@ void LaserAlignment::endJob() {
 
 
 
+///
+///
+///
+void LaserAlignment::endJob() {
+}
+
+
+
+
+
+///
+/// fills the module profiles (LASGlobalLoop<LASModuleProfile> currentDataProfiles)
+/// from the event digi containers;
+/// yet only SiStripRawDigis, later also SiStripDigis (switchable or overload) !!
+///
+void LaserAlignment::fillDataProfiles( edm::Event const& theEvent,edm::EventSetup const& theSetup ) {
+
+  edm::Handle< edm::DetSetVector<SiStripRawDigi> > theStripDigis;
+
+  // query conf for what to fetch from event
+  for ( Parameters::iterator itDigiProducersList = theDigiProducersList.begin(); itDigiProducersList != theDigiProducersList.end(); ++itDigiProducersList ) {
+    std::string digiProducer = itDigiProducersList->getParameter<std::string>( "DigiProducer" );
+    std::string digiLabel = itDigiProducersList->getParameter<std::string>( "DigiLabel" );
+    theEvent.getByLabel( digiProducer, digiLabel, theStripDigis );
+  }
+
+
+  // indices for the LASGlobalLoop object
+  int det = 0, ring = 0, beam = 0, disk = 0, pos = 0;
+  
+
+  // loop TEC internal modules
+  det = 0; ring = 0; beam = 0; disk = 0;
+  do {
+    
+    // retrieve the raw id of that module
+    const int detRawId = detectorId.GetTECEntry( det, ring, beam, disk );
+    
+    // search the digis for the raw id
+    edm::DetSetVector<SiStripRawDigi>::const_iterator detSetIter = theStripDigis->find( detRawId );
+    if( detSetIter == theStripDigis->end() ) {
+      throw cms::Exception( "Laser Alignment" ) << " [LaserAlignment::fillDataProfiles] ERROR ** No DetSet found for TEC raw id: " << detRawId << "." << std::endl;
+    }
+
+    // fill the digis to the profiles
+    edm::DetSet<SiStripRawDigi>::const_iterator digiRangeIterator = detSetIter->data.begin(); // for the loop
+    edm::DetSet<SiStripRawDigi>::const_iterator digiRangeStart = digiRangeIterator; // save starting positions
+
+    // loop all digis
+    for (; digiRangeIterator != detSetIter->data.end(); ++digiRangeIterator ) {
+      const SiStripRawDigi *digi = &*digiRangeIterator;
+      const int channel = distance( digiRangeStart, digiRangeIterator );
+      if ( channel < 512 ) currentDataProfiles.GetTECEntry( det, ring, beam, disk ).SetValue( channel, digi->adc() );
+    }
+    
+  } while( moduleLoop.TECLoop( det, ring, beam, disk ) );
+
+
+  // loop TIBTOB modules
+  det = 2; beam = 0; pos = 0;
+  do {
+    
+    // retrieve the raw id of that module
+    const int detRawId = detectorId.GetTIBTOBEntry( det, beam, pos );
+    
+    // search the digis for the raw id
+    edm::DetSetVector<SiStripRawDigi>::const_iterator detSetIter = theStripDigis->find( detRawId );
+    if( detSetIter == theStripDigis->end() ) {
+      throw cms::Exception( "Laser Alignment" ) << " [LaserAlignment::fillDataProfiles] ERROR ** No DetSet found for TIBTOB raw id: " << detRawId << "." << std::endl;
+    }
+
+    // fill the digis to the profiles
+    edm::DetSet<SiStripRawDigi>::const_iterator digiRangeIterator = detSetIter->data.begin(); // for the loop
+    edm::DetSet<SiStripRawDigi>::const_iterator digiRangeStart = digiRangeIterator; // save starting positions
+
+    // loop all digis
+    for (; digiRangeIterator != detSetIter->data.end(); ++digiRangeIterator ) {
+      const SiStripRawDigi *digi = &*digiRangeIterator;
+      const int channel = distance( digiRangeStart, digiRangeIterator );
+      if ( channel < 512 ) currentDataProfiles.GetTIBTOBEntry( det, beam, pos ).SetValue( channel, digi->adc() );
+    }
+
+  } while( moduleLoop.TIBTOBLoop( det, beam, pos ) );
+
+
+  // loop TEC internal modules
+  det = 0; beam = 0; disk = 0;
+  do {
+    
+    // retrieve the raw id of that module
+    const int detRawId = detectorId.GetTEC2TECEntry( det, beam, disk );
+    
+    // search the digis for the raw id
+    edm::DetSetVector<SiStripRawDigi>::const_iterator detSetIter = theStripDigis->find( detRawId );
+    if( detSetIter == theStripDigis->end() ) {
+      throw cms::Exception( "Laser Alignment" ) << " [LaserAlignment::fillDataProfiles] ERROR ** No DetSet found for TEC2TEC raw id: " << detRawId << "." << std::endl;
+    }
+
+    // fill the digis to the profiles
+    edm::DetSet<SiStripRawDigi>::const_iterator digiRangeIterator = detSetIter->data.begin(); // for the loop
+    edm::DetSet<SiStripRawDigi>::const_iterator digiRangeStart = digiRangeIterator; // save starting positions
+
+    // loop all digis
+    for (; digiRangeIterator != detSetIter->data.end(); ++digiRangeIterator ) {
+      const SiStripRawDigi *digi = &*digiRangeIterator;
+      const int channel = distance( digiRangeStart, digiRangeIterator );
+      if ( channel < 512 ) currentDataProfiles.GetTEC2TECEntry( det, beam, disk ).SetValue( channel, digi->adc() );
+    }
+    
+  } while( moduleLoop.TEC2TECLoop( det, beam, disk ) );
+
+}
+
+
+
+
+
+///
+/// This function fills the pedestal profiles (LASGlobalData<LASModuleProfiles> pedestalProfiles)
+/// from the ESHandle (from file or DB)
 ///
 /// Argument: readily connected SiStripPedestals object (get() alredy called)
 /// The functionality inside the loops is basically taken from:
@@ -1301,48 +1082,6 @@ void LaserAlignment::fillPedestalProfiles( edm::ESHandle<SiStripPedestals>& pede
     }
   } while( moduleLoop.TEC2TECLoop( det, beam, disk ) );
 
-}
-
-
-
-
-
-///
-///
-///
-void LaserAlignment::fillAdcCounts( TH1D* theHistogram, DetId theDetId,
-				    edm::DetSet<SiStripRawDigi>::const_iterator digiRangeIterator,
-				    edm::DetSet<SiStripRawDigi>::const_iterator digiRangeIteratorEnd,
-				    LASModuleProfile& theProfile ) {
-
-  if (theDebugLevel > 4) std::cout << "<LaserAlignment::fillAdcCounts()>: DetUnit: " << theDetId.rawId() << std::endl;
-
-  // save the first position to calculate the index (= channel/strip number)
-  int channel = 0;
-  edm::DetSet<SiStripRawDigi>::const_iterator theFirstPosition = digiRangeIterator;
-
-  // loop over all the digis in this det
-  for (; digiRangeIterator != digiRangeIteratorEnd; ++digiRangeIterator) {
-    const SiStripRawDigi *digi = &*digiRangeIterator;
-
-    // store the digis from the laser beams. They are later on used to create
-    // clusters and RecHits. In this way some sort of "Laser Tracks" can be
-    // reconstructed, which are useable for Track Based Alignment      
-    theDigiStore[theDetId].push_back((*digi));
-    
-    //    if ( theDebugLevel > 5 ) { 
-    //      std::cout << " Channel " << digi->channel() << " has " << digi->adc() << " adc counts " << std::endl; 
-    //    }
-    
-    // fill the number of adc counts in the histogram & array
-    channel = distance( theFirstPosition, digiRangeIterator );
-    if ( channel < 512 ) {
-      Double_t theBinContent = theHistogram->GetBinContent( channel + 1 ) + digi->adc();
-      theHistogram->SetBinContent( channel + 1, theBinContent );
-      theProfile.SetValue( channel, digi->adc() );
-    }
-    
-  }
 }
 
 
@@ -1709,51 +1448,3 @@ DEFINE_FWK_MODULE(LaserAlignment);
 
 // the ATTIC
 
-
-
-    //    DumpPosFileSet( measuredCoordinates );
-    
-
-//     // create "intermediate" alignable/geometry objects which are updated with the endcap-internal geometry from the measurement
-//     TrackerGeometry* endcapIntermediateTrackerGeometry = new TrackerGeometry( *theTrackerGeometry );
-//     AlignableTracker* endcapIntermediateAlignableTracker = new AlignableTracker( endcapIntermediateTrackerGeometry );
-//     geometryUpdater.EndcapUpdate( endcapParameters, measuredCoordinates, *theAlignableTracker );
-
-//     // re-apply the update to the geometry object
-//     GeometryAligner geometryAligner;
-//     geometryAligner.applyAlignments<TrackerGeometry>( endcapIntermediateTrackerGeometry, 
-// 						      endcapIntermediateAlignableTracker->alignments(), 
-// 						      endcapIntermediateAlignableTracker->alignmentErrors(), 
-// 						      align::DetectorGlobalPosition( *theGlobalPositionRcd, DetId( DetId::Tracker ) ) );
-
-//     // redo the fits for TEC+- internal
-//     det = 0; ring = 0; beam = 0; disk = 0;
-//     do {
-      
-//       // do the fit
-//       isGoodFit = peakFinder.FindPeakIn( collectedDataProfiles.GetTECEntry( det, ring, beam, disk ), peakFinderResults, 0 ); // offset is 0 for TEC
-//       // now we have the measured positions in units of strips. 
-//       if( !isGoodFit ) std::cout << " [LaserAlignment::endJob] ** WARNING: Refit failed for TEC det: "
-// 				 << det << ", ring: " << ring << ", beam: " << beam << ", disk: " << disk << "." << std::endl;
-
-// 	// <- here we will later implement the kink corrections
-    
-// 	// access the tracker geometry for this module
-// 	const DetId theDetId( detectorId.GetTECEntry( det, ring, beam, disk ) );
-// 	const StripGeomDetUnit* const theStripDet = dynamic_cast<const StripGeomDetUnit*>( endcapIntermediateTrackerGeometry->idToDet( theDetId ) );
-
-// 	// first, set the measured coordinates to their nominal values
-// 	measuredCoordinates.SetTECEntry( det, ring, beam, disk, nominalCoordinates.GetTECEntry( det, ring, beam, disk ) );
-
-// 	if( isGoodFit ) { // convert strip position to global phi and replace the nominal phi value/error
-// 	  const GlobalPoint& globalPoint = theStripDet->surface().toGlobal( theStripDet->specificTopology().localPosition( peakFinderResults.first ) );
-// 	  measuredCoordinates.GetTECEntry( det, ring, beam, disk ).SetPhi( ConvertAngle( globalPoint.barePhi() ) );
-// 	  measuredCoordinates.GetTECEntry( det, ring, beam, disk ).SetPhiError( 0.00046  ); // PRELIMINARY ESTIMATE
-// 	  //      const GlobalError& globalError = errorTransformer.transform( theStripDet->specificTopology().localError( peakFinderResults.first, pow( peakFinderResults.second, 2 ) ), theStripDet->surface() );
-// 	  //      measuredCoordinates.GetTECEntry( det, ring, beam, disk ).SetPhiError( globalError.phierr( globalPoint ) );
-// 	}
-// 	else { // keep nominal position but set a giant phi error so that the module is ignored by the alignment algorithm
-// 	  measuredCoordinates.GetTECEntry( det, ring, beam, disk ).SetPhiError( 1000. );
-// 	}
-    
-//     } while( moduleLoop.TECLoop( det, ring, beam, disk ) );

@@ -41,6 +41,7 @@
   <use name=DataFormats/SiStripCluster>
   <use name=DataFormats/SiStripDigi>
   <use name=DataFormats/TrackerRecHit2D>
+  <use name=DataFormats/TrackingRecHit>	
   <use name=DataFormats/TrajectorySeed>
   <use name=FWCore/Framework>
   <use name=FWCore/ParameterSet>

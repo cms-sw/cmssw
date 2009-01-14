@@ -244,7 +244,6 @@ void LASGeometryUpdater::TrackerUpdate( LASEndcapAlignmentParameterSet& endcapPa
 					    ( barrelParameters.GetParameter( det, 1, 2 ).first - barrelParameters.GetParameter( det, 0, 2 ).first ) / fromMmToCm,
 					    0. );
     
-
     // step 3: twist and shear back
     
     // the individual rotation/movement of the wheels is a function of their z-position
@@ -256,21 +255,4 @@ void LASGeometryUpdater::TrackerUpdate( LASEndcapAlignmentParameterSet& endcapPa
 
   } 
 
-
-
-
-  // A T T I C
-
-  
-//   // this should now give all zero
-//   std::cout << theEndcaps.at( 0 )->components().at( 8 )->rotation().xy() << std::endl; /////////////////////////////////
-//   std::cout << "000+: " << theEndcaps.at( 0 )->components().at( 8 )->globalPosition().x() << "  "
-// 	    << theEndcaps.at( 0 )->components().at( 8 )->globalPosition().y() << std::endl; /////////////////////////////////
-    
-//   std::cout << "---------------------------------" << std::endl;
-
-//   std::cout << theEndcaps.at( 1 )->components().at( 8 )->rotation().xy() << std::endl; /////////////////////////////////
-//   std::cout << "000-: " << theEndcaps.at( 1 )->components().at( 8 )->globalPosition().x() << "  "
-// 	    << theEndcaps.at( 1 )->components().at( 8 )->globalPosition().y() << std::endl; /////////////////////////////////
-  
 }

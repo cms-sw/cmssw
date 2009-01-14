@@ -4,8 +4,8 @@
 /** \class LaserAlignment
  *  Main reconstruction module for the Laser Alignment System
  *
- *  $Date: 2008/07/17 14:28:13 $
- *  $Revision: 1.17 $
+ *  $Date: 2008/11/28 12:38:31 $
+ *  $Revision: 1.18 $
  *  \author Maarten Thomas
  */
 
@@ -32,6 +32,9 @@
 #include "DataFormats/GeometryCommonDetAlgo/interface/ErrorFrameTransformer.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
+#include "DataFormats/LaserAlignment/interface/SiStripLaserRecHit2D.h"
+#include "DataFormats/LaserAlignment/interface/TkLasBeam.h"
+
 #include "CondFormats/SiStripObjects/interface/SiStripPedestals.h"
 #include "CondFormats/DataRecord/interface/SiStripPedestalsRcd.h"
 #include "CondFormats/Alignment/interface/DetectorGlobalPosition.h"
@@ -56,6 +59,8 @@
 #include "Alignment/LaserAlignment/src/LASPeakFinder.h"
 #include "Alignment/LaserAlignment/src/LASCoordinateSet.h"
 #include "Alignment/LaserAlignment/src/LASGeometryUpdater.h"
+
+
 
 
 // ROOT
@@ -84,14 +89,12 @@ class LaserAlignment : public edm::EDProducer, public TObject {
   /// destructor
   ~LaserAlignment();
   
-  /// begin job
-  virtual void beginJob(const edm::EventSetup&);
+  virtual void beginJob( const edm::EventSetup& );
+  virtual void produce( edm::Event&, edm::EventSetup const& );
+  virtual void endJob( void );
+  virtual void endRun( edm::Run&, const edm::EventSetup& );
 
-  /// produce LAS products
-  virtual void produce(edm::Event& theEvent, edm::EventSetup const& theSetup);
-
-  // end job
-  virtual void endJob();
+  
 
  private:
 
@@ -104,14 +107,17 @@ class LaserAlignment : public edm::EDProducer, public TObject {
   /// write the ROOT file with histograms
   void closeRootFile();
 
-  /// fill adc counts from the laser profiles into a histogram
-  void fillAdcCounts(TH1D * theHistogram, DetId theDetId,
-		     edm::DetSet<SiStripRawDigi>::const_iterator digiRangeIterator,
-		     edm::DetSet<SiStripRawDigi>::const_iterator digiRangeIteratorEnd,
-		     LASModuleProfile& theProfile );
-
+//   /// fill adc counts from the laser profiles into a histogram
+//   void fillAdcCounts(TH1D * theHistogram, DetId theDetId,
+//    		     edm::DetSet<SiStripRawDigi>::const_iterator digiRangeIterator,
+//    		     edm::DetSet<SiStripRawDigi>::const_iterator digiRangeIteratorEnd,
+// 		     LASModuleProfile& theProfile );
+  
   /// initialize the histograms
   void initHistograms();
+
+  /// fill profiles from SiStrip(Raw)Digi container
+  void fillDataProfiles( edm::Event const&, edm::EventSetup const& );
 
   /// fill pedestals from dbase
   void fillPedestalProfiles( edm::ESHandle<SiStripPedestals>&  );
@@ -124,7 +130,7 @@ class LaserAlignment : public edm::EDProducer, public TObject {
   int getTOBProfileOffset( int det, int beam, int pos );
   
   /// search for dets which are hit by a laser beam and fill the profiles into a histogram
-  void trackerStatistics(edm::Event const& theEvent, edm::EventSetup const& theSetup);
+    //  void trackerStatistics(edm::Event const& theEvent, edm::EventSetup const& theSetup);
 
   /// do the beam profile fit
   void fit(edm::EventSetup const& theSetup);
@@ -165,8 +171,6 @@ class LaserAlignment : public edm::EDProducer, public TObject {
   bool theAlignPosTEC;
   bool theAlignNegTEC;
   bool theAlignTEC2TEC;
-  bool theUseBrunosAlgorithm;
-  bool theUseNewAlgorithms;
   bool theIsGoodFit;
   double theSearchPhiTIB;
   double theSearchPhiTOB;

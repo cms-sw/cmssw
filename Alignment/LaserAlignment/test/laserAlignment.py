@@ -20,7 +20,7 @@ process.MessageLogger = cms.Service( "MessageLogger",
   destinations = cms.untracked.vstring( 'cout', 'cerr' )
 )
 
-# all records
+# all db records
 process.allSource = cms.ESSource( "PoolDBESSource",
   process.CondDBSetup,
   connect = cms.string( 'frontier://FrontierProd/CMS_COND_20X_GLOBALTAG' ),
@@ -113,13 +113,22 @@ process.LaserAlignment.DigiProducersList = cms.VPSet(
     DigiProducer = cms.string( 'laserAlignmentT0Producer' )
   )
 )
-
 process.LaserAlignment.saveToDbase = True
 process.LaserAlignment.saveHistograms = True
 process.LaserAlignment.SubtractPedestals = False
 process.LaserAlignment.UpdateFromIdealGeometry = True
-process.LaserAlignment.UseNewAlgorithms = True
 process.LaserAlignment.EnableJudgeZeroFilter = False
+
+
+# the output file containing the TkLasBeamCollection
+# for the track based interface
+process.out = cms.OutputModule( "PoolOutputModule",
+  fileName = cms.untracked.string( 'tkLasBeams.root' ),
+  outputCommands = cms.untracked.vstring(
+    'drop *',
+    "keep TkLasBeams_*_*_*"
+  )
+)
 
 
 # for debugging
@@ -127,7 +136,7 @@ process.dump = cms.EDAnalyzer("EventContentAnalyzer")
 
 process.alignment = cms.Sequence( process.LaserAlignment )
 process.laser = cms.Path( process.alignment )
-
+process.e = cms.EndPath( process.out )
 
 
 
