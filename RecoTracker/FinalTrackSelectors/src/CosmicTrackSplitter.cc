@@ -56,6 +56,12 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+
+#include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
+#include "TrackingTools/PatternTools/interface/Trajectory.h"
+#include "TrackingTools/TrackFitters/interface/TrajectoryStateCombiner.h"
+
+
 #include <boost/regex.hpp>
 
 /**
@@ -80,35 +86,36 @@
  *     detsToIgnore        = individual list of detids on which hits must be discarded
  */
 namespace reco { namespace modules {
-class CosmicTrackSplitter : public edm::EDProducer {
+	class CosmicTrackSplitter : public edm::EDProducer {
     public:
-       CosmicTrackSplitter(const edm::ParameterSet &iConfig) ; 
-       virtual void produce(edm::Event &iEvent, const edm::EventSetup &iSetup) ;
-
+		CosmicTrackSplitter(const edm::ParameterSet &iConfig) ; 
+		virtual void produce(edm::Event &iEvent, const edm::EventSetup &iSetup) ;
+		
     private:
-	edm::InputTag tracks_;
-    int totalTracks_;
-	size_t minimumHits_;
-
-       bool replaceWithInactiveHits_;
-       bool stripFrontInvalidHits_;
-       bool stripBackInvalidHits_;
-       bool stripAllInvalidHits_;
+		edm::InputTag tracks_;
+		edm::InputTag tjTag_;
+		int totalTracks_;
+		size_t minimumHits_;
+		
+		bool replaceWithInactiveHits_;
+		bool stripFrontInvalidHits_;
+		bool stripBackInvalidHits_;
+		bool stripAllInvalidHits_;
+		
+		double dZcut_;
+		double dXYcut_;
+		
+		std::vector<uint32_t> detsToIgnore_;
+		
+		edm::ESHandle<TrackerGeometry> theGeometry;
+		edm::ESHandle<MagneticField>   theMagField;
+		
+		TrackCandidate makeCandidate(const reco::Track &tk, std::vector<TrackingRecHit *>::iterator hitsBegin, std::vector<TrackingRecHit *>::iterator hitsEnd) ;
+		
+	}; // class
 	
-	double dZcut_;
-	double dXYcut_;
-
-       std::vector<uint32_t> detsToIgnore_;
-
-       edm::ESHandle<TrackerGeometry> theGeometry;
-       edm::ESHandle<MagneticField>   theMagField;
-
-       TrackCandidate makeCandidate(const reco::Track &tk, std::vector<TrackingRecHit *>::iterator hitsBegin, std::vector<TrackingRecHit *>::iterator hitsEnd) ;
-       
-}; // class
-
-
-CosmicTrackSplitter::CosmicTrackSplitter(const edm::ParameterSet &iConfig) :
+	
+	CosmicTrackSplitter::CosmicTrackSplitter(const edm::ParameterSet &iConfig) :
     tracks_(iConfig.getParameter<edm::InputTag>("tracks")),
     minimumHits_(iConfig.getParameter<uint32_t>("minimumHits")),
     replaceWithInactiveHits_(iConfig.getParameter<bool>("replaceWithInactiveHits")),
@@ -117,221 +124,259 @@ CosmicTrackSplitter::CosmicTrackSplitter(const edm::ParameterSet &iConfig) :
     stripAllInvalidHits_(  iConfig.getParameter<bool>("stripAllInvalidHits")  ),
     detsToIgnore_( iConfig.getParameter<std::vector<uint32_t> >("detsToIgnore") ),
 	dZcut_(iConfig.getParameter<double>("dzCut") ),
-	dXYcut_(iConfig.getParameter<double>("dxyCut") )
-{
-    // sanity check 
-    if (stripAllInvalidHits_ && replaceWithInactiveHits_) {
-        throw cms::Exception("Configuration") << "Inconsistent Configuration: you can't set both 'stripAllInvalidHits' and 'replaceWithInactiveHits' to true\n";
-    }
-
-	// sort detids to ignore
-    std::sort(detsToIgnore_.begin(), detsToIgnore_.end());
-
-	totalTracks_ = 0;
-	
-    // issue the produce<>
-    produces<TrackCandidateCollection>();
-}
-
-void 
-CosmicTrackSplitter::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) 
-{
-		
-    // read with View, so we can read also a TrackRefVector
-    edm::Handle<std::vector<reco::Track> > tracks;
-    iEvent.getByLabel(tracks_, tracks);
-
-    // read from EventSetup
-    iSetup.get<TrackerDigiGeometryRecord>().get(theGeometry);
-    iSetup.get<IdealMagneticFieldRecord>().get(theMagField);
-	
-    // prepare output collection
-    std::auto_ptr<TrackCandidateCollection> output(new TrackCandidateCollection());
-    output->reserve(tracks->size());
-    
-    // working area and tools
-    std::vector<TrackingRecHit *> hits;
-
-    //std::cout << "CosmicTrackSplitter: loop on tracks" << std::endl;
-	totalTracks_ = totalTracks_ + tracks->size();
-    // loop on tracks
-    for (std::vector<reco::Track>::const_iterator itt = tracks->begin(), edt = tracks->end(); itt != edt; ++itt) {
-        hits.clear(); // extra safety
-
-		// try to find distance of closest approach
-		math::XYZPoint refPoint = itt->referencePoint();
-		GlobalPoint v( itt->vx(), itt->vy(), itt->vz() );
-		
-		//checks on impact parameter
-		bool continueWithTrack = true;
-		if (fabs(v.z()) > dZcut_) continueWithTrack = false;
-		if (v.perp() > dXYcut_) continueWithTrack = false;
-		if (continueWithTrack == false) return;
-		
-				
-		// Loop once to see where to split the track along
-		int splitCtr = 0;
-		int theHitToSplitFrom = 0;
-		double closestDistToPCA = 1.0e10;
-		for (trackingRecHit_iterator ith = itt->recHitsBegin(), edh = itt->recHitsEnd(); ith != edh; ++ith) {
-			splitCtr++;
-			const TrackingRecHit * hit = ith->get();
-			DetId detid = hit->geographicalId();
-			GlobalPoint posHit =  theGeometry->idToDetUnit( detid )->surface().toGlobal(hit->localPosition());
-			GlobalVector diffHitandPCA = posHit - v;
-			if (diffHitandPCA.mag() < closestDistToPCA){ 
-				closestDistToPCA = diffHitandPCA.mag(); 
-			}
-			else { 
-				theHitToSplitFrom = splitCtr - 1;
-				break;
-			}
+	dXYcut_(iConfig.getParameter<double>("dxyCut") ),
+	tjTag_(iConfig.getParameter<edm::InputTag>("tjTkAssociationMapTag") )
+	{
+		// sanity check 
+		if (stripAllInvalidHits_ && replaceWithInactiveHits_) {
+			throw cms::Exception("Configuration") << "Inconsistent Configuration: you can't set both 'stripAllInvalidHits' and 'replaceWithInactiveHits' to true\n";
 		}
 		
-		// LOOP TWICE, ONCE FOR TOP AND ONCE FOR BOTTOM
-		for (int i = 0; i < 2; ++i){
+		std::cout << "sanity check" << std::endl;
+		
+		// sort detids to ignore
+		std::sort(detsToIgnore_.begin(), detsToIgnore_.end());
+		
+		totalTracks_ = 0;
+		
+		// issue the produce<>
+		produces<TrackCandidateCollection>();
+	}
+	
+	void 
+	CosmicTrackSplitter::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) 
+	{
+		//std::cout << "IN THE SPLITTER!!!!!" << std::endl;	
+		
+		// read with View, so we can read also a TrackRefVector
+		edm::Handle<std::vector<reco::Track> > tracks;
+		iEvent.getByLabel(tracks_, tracks);
+		
+		// also need trajectories ...
+		// Retrieve trajectories and tracks from the event
+		// -> merely skip if collection is empty
+		edm::Handle<TrajTrackAssociationCollection> m_TrajTracksMap;
+		iEvent.getByLabel( tjTag_, m_TrajTracksMap ); 
+		
+		// read from EventSetup
+		iSetup.get<TrackerDigiGeometryRecord>().get(theGeometry);
+		iSetup.get<IdealMagneticFieldRecord>().get(theMagField);
+		
+		// prepare output collection
+		std::auto_ptr<TrackCandidateCollection> output(new TrackCandidateCollection());
+		output->reserve(tracks->size());
+		
+		// working area and tools
+		std::vector<TrackingRecHit *> hits;
+		
+		// Form pairs of trajectories and tracks
+		//ConstTrajTrackPairCollection trajTracks;
+		//std::cout << "size of map: " << m_TrajTracksMap.size() << std::endl;
+		int HITTOSPLITFROM = 0;
+		for ( TrajTrackAssociationCollection::const_iterator iPair = m_TrajTracksMap->begin(); iPair != m_TrajTracksMap->end(); iPair++ ){
+			const Trajectory* trajFromMap = &(*(*iPair).key);
+			const reco::Track* trackFromMap = &(*(*iPair).val);
+			
+			// loop to find the hit to split from (by taking dot product of pT and transverse position
+			std::vector<TrajectoryMeasurement> measurements = trajFromMap->measurements();
+			int totalNumberOfHits = measurements.size();
+			int numberOfHits = 0;
+			double previousDotProduct = 0;
+			for (trackingRecHit_iterator ith = trackFromMap->recHitsBegin(), edh = trackFromMap->recHitsEnd(); ith != edh; ++ith) {
+				
+				GlobalVector stateMomentum = measurements[numberOfHits].forwardPredictedState().globalMomentum();
+				GlobalPoint statePosition = measurements[numberOfHits].forwardPredictedState().globalPosition();
+				double dotProduct = stateMomentum.x()*statePosition.x() + stateMomentum.y()*statePosition.y();
+				if ( dotProduct*previousDotProduct < 0 ){
+					//found hit to split from...
+					HITTOSPLITFROM = numberOfHits;
+				}
+
+				previousDotProduct = dotProduct;
+				numberOfHits++;
+
+			}
+			std::cout << "number of rechits: " << numberOfHits << std::endl;
+			
+			// check if the trajectories and rechits are in reverse order...
+			trackingRecHit_iterator bIt = trackFromMap->recHitsBegin();
+			trackingRecHit_iterator fIt = trackFromMap->recHitsEnd() - 1;
+			const TrackingRecHit* bHit = bIt->get();
+			const TrackingRecHit* fHit = fIt->get();
+			DetId bdetid = bHit->geographicalId();
+			DetId fdetid = fHit->geographicalId();
+			GlobalPoint bPosHit =  theGeometry->idToDetUnit( bdetid )->surface().toGlobal(bHit->localPosition());
+			GlobalPoint fPosHit =  theGeometry->idToDetUnit( fdetid )->surface().toGlobal(fHit->localPosition());
+			GlobalPoint bPosState = measurements[0].updatedState().globalPosition();
+			GlobalPoint fPosState = measurements[measurements.size() - 1].updatedState().globalPosition();
+			bool trajReversedFlag = false;
+			if (( (bPosHit - bPosState).mag() > (bPosHit - fPosState).mag() ) && ( (fPosHit - fPosState).mag() > (fPosHit - bPosState).mag() ) ){
+				trajReversedFlag = true;
+			}
+			if (trajReversedFlag){ int temp = HITTOSPLITFROM; HITTOSPLITFROM = totalNumberOfHits - temp; }
+		}
+
+		totalTracks_ = totalTracks_ + tracks->size();
+		// loop on tracks
+		for (std::vector<reco::Track>::const_iterator itt = tracks->begin(), edt = tracks->end(); itt != edt; ++itt) {
 			hits.clear(); // extra safety
-			int usedHitCtr = 0;
-			//std::cout << "   loop on hits of track #" << (itt - tracks->begin()) << std::endl;
-			int hitCtr = 0;
-			for (trackingRecHit_iterator ith = itt->recHitsBegin(), edh = itt->recHitsEnd(); ith != edh; ++ith) {
-				hitCtr++;
-				const TrackingRecHit * hit = ith->get(); // ith is an iterator on edm::Ref to rechit
-				//std::cout << "         hit number " << (ith - itt->recHitsBegin()) << std::endl;
-				// let's look at valid hits
-				if (hit->isValid()) { 
-					//std::cout << "            valid, detid = " << hit->geographicalId().rawId() << std::endl;
-					DetId detid = hit->geographicalId();
-					
-					if ((detid.det() == DetId::Tracker)&&((detid.subdetId() == 3)||(detid.subdetId() == 5))) {  // check for tracker hits
-						//std::cout << "            valid, tracker " << std::endl;
-						bool  verdict = true;
+			
+			std::cout << "ntracks: " << tracks->size() << std::endl;
+			
+			// try to find distance of closest approach
+			math::XYZPoint refPoint = itt->referencePoint();
+			GlobalPoint v( itt->vx(), itt->vy(), itt->vz() );
+			
+			//checks on impact parameter
+			bool continueWithTrack = true;
+			if (fabs(v.z()) > dZcut_) continueWithTrack = false;
+			if (v.perp() > dXYcut_) continueWithTrack = false;
+			if (continueWithTrack == false) return;
+			
+			// LOOP TWICE, ONCE FOR TOP AND ONCE FOR BOTTOM
+			for (int i = 0; i < 2; ++i){
+				hits.clear(); // extra safety
+				//std::cout << "   loop on hits of track #" << (itt - tracks->begin()) << std::endl;
+				int usedHitCtr = 0;
+				int hitCtr = 0;
+				for (trackingRecHit_iterator ith = itt->recHitsBegin(), edh = itt->recHitsEnd(); ith != edh; ++ith) {
+					//hitCtr++;
+					const TrackingRecHit * hit = ith->get(); // ith is an iterator on edm::Ref to rechit
+					//std::cout << "         hit number " << (ith - itt->recHitsBegin()) << std::endl;
+					// let's look at valid hits
+					if (hit->isValid()) { 
+						//std::cout << "            valid, detid = " << hit->geographicalId().rawId() << std::endl;
+						DetId detid = hit->geographicalId();
 						
-						//trying to get the global position of the hit
-						//const GeomDetUnit* geomDetUnit =  theGeometry->idToDetUnit( detid ).;
-						
-						const GlobalPoint pos =  theGeometry->idToDetUnit( detid )->surface().toGlobal(hit->localPosition());
-						//std::cout << "hit pos: " << pos << ", dca pos: " << v << std::endl;
-						
-						// top half
-						//if ((i == 0)&&(pos.y() < v.y())){
-						if ((i == 0)&&(hitCtr > theHitToSplitFrom)){
-							verdict = false;
-							//std::cout << "tophalf" << std::endl;
-						}
-						// bottom half
-						//if ((i == 1)&&(pos.y() >= v.y())){
-						if ((i == 1)&&(hitCtr <= theHitToSplitFrom)){
-							verdict = false;
-							//std::cout << "bottomhalf" << std::endl;
-						}
-						
-						// if the hit is good, check again at module level
-						if ( verdict  && std::binary_search(detsToIgnore_.begin(), detsToIgnore_.end(), detid.rawId())) {
-							verdict = false;
-						}
-						
-						//std::cout << "                   verdict after module list: " << (verdict ? "ok" : "no") << std::endl;
-						if (verdict == true) {
-							// just copy the hit
-							hits.push_back(hit->clone());
-							usedHitCtr++;
-						} 
-						else {
-							// still, if replaceWithInactiveHits is true we have to put a new hit
-							if (replaceWithInactiveHits_) {
-								hits.push_back(new InvalidTrackingRecHit(detid, TrackingRecHit::inactive));
+						//if ((detid.det() == DetId::Tracker)&&((detid.subdetId() == 3)||(detid.subdetId() == 5))) {  // check for tracker hits
+						if (detid.det() == DetId::Tracker) {  // check for tracker hits
+							//std::cout << "            valid, tracker " << std::endl;
+							bool  verdict = false;
+							
+							//trying to get the global position of the hit
+							//const GeomDetUnit* geomDetUnit =  theGeometry->idToDetUnit( detid ).;
+							
+							const GlobalPoint pos =  theGeometry->idToDetUnit( detid )->surface().toGlobal(hit->localPosition());
+							//std::cout << "hit pos: " << pos << ", dca pos: " << v << std::endl;
+							
+							// top half
+							if ((i == 0)&&(hitCtr < HITTOSPLITFROM)){
+								verdict = true;
+								//std::cout << "tophalf" << std::endl;
+							}
+							// bottom half
+							if ((i == 1)&&(hitCtr >= HITTOSPLITFROM)){
+								verdict = true;
+								//std::cout << "bottomhalf" << std::endl;
+							}
+							
+							// if the hit is good, check again at module level
+							if ( verdict  && std::binary_search(detsToIgnore_.begin(), detsToIgnore_.end(), detid.rawId())) {
+								verdict = false;
+							}
+							
+							//std::cout << "                   verdict after module list: " << (verdict ? "ok" : "no") << std::endl;
+							if (verdict == true) {
+								// just copy the hit
+								hits.push_back(hit->clone());
+								usedHitCtr++;
 							} 
+							else {
+								// still, if replaceWithInactiveHits is true we have to put a new hit
+								if (replaceWithInactiveHits_) {
+									hits.push_back(new InvalidTrackingRecHit(detid, TrackingRecHit::inactive));
+								} 
+							}
+						} 
+						else { // just copy non tracker hits
+							hits.push_back(hit->clone());
 						}
 					} 
-					else { // just copy non tracker hits
-						hits.push_back(hit->clone());
-					}
+					else {
+						if (!stripAllInvalidHits_) {
+							hits.push_back(hit->clone());
+						} 
+					} // is valid hit
+					//std::cout << "         end of hit " << (ith - itt->recHitsBegin()) << std::endl;
+					hitCtr++;
+				} // loop on hits
+				//std::cout << "   end of loop on hits of track #" << (itt - tracks->begin()) << std::endl;
+				
+				std::vector<TrackingRecHit *>::iterator begin = hits.begin(), end = hits.end();
+				
+				//std::cout << "   selected " << hits.size() << " hits " << std::endl;
+				
+				// strip invalid hits at the beginning
+				if (stripFrontInvalidHits_) {
+					while ( (begin != end) && ( (*begin)->isValid() == false ) ) ++begin;
+				}
+				
+				//std::cout << "   after front stripping we have " << (end - begin) << " hits " << std::endl;
+				
+				// strip invalid hits at the end
+				if (stripBackInvalidHits_ && (begin != end)) {
+					--end;
+					while ( (begin != end) && ( (*end)->isValid() == false ) ) --end;
+					++end;
+				}
+				
+				//std::cout << "   after back stripping we have " << (end - begin) << " hits " << std::endl;
+				
+				// if we still have some hits
+				//if ((end - begin) >= int(minimumHits_)) {
+				if ( usedHitCtr >= int(minimumHits_)) {
+					output->push_back( makeCandidate ( *itt, begin, end ) );
+					std::cout << "we made a candidate of " << hits.size() << " hits!" << std::endl;
 				} 
-				else {
-					if (!stripAllInvalidHits_) {
-						hits.push_back(hit->clone());
-					} 
-				} // is valid hit
-				//std::cout << "         end of hit " << (ith - itt->recHitsBegin()) << std::endl;
-			} // loop on hits
-			//std::cout << "   end of loop on hits of track #" << (itt - tracks->begin()) << std::endl;
-			
-			std::vector<TrackingRecHit *>::iterator begin = hits.begin(), end = hits.end();
-			
-			//std::cout << "   selected " << hits.size() << " hits " << std::endl;
-			
-			// strip invalid hits at the beginning
-			if (stripFrontInvalidHits_) {
-				while ( (begin != end) && ( (*begin)->isValid() == false ) ) ++begin;
-			}
-			
-			//std::cout << "   after front stripping we have " << (end - begin) << " hits " << std::endl;
-			
-			// strip invalid hits at the end
-			if (stripBackInvalidHits_ && (begin != end)) {
-				--end;
-				while ( (begin != end) && ( (*end)->isValid() == false ) ) --end;
-				++end;
-			}
-			
-			//std::cout << "   after back stripping we have " << (end - begin) << " hits " << std::endl;
-			
-			// if we still have some hits
-			//if ((end - begin) >= int(minimumHits_)) {
-			if ( usedHitCtr >= int(minimumHits_)) {
-				output->push_back( makeCandidate ( *itt, begin, end ) );
-				//std::cout << "we made a candidate of " << hits.size() << " hits!" << std::endl;
-			} 
-			// now delete the hits not used by the candidate
-			for (begin = hits.begin(), end = hits.end(); begin != end; ++begin) {
-				if (*begin) delete *begin;
-			} 
-			//std::cout << "loop: " << i << " has " << usedHitCtr << " active hits and " << hits.size() << " total hits..." << std::endl;
-			hits.clear();
-		} // loop twice for top and bottom
-    } // loop on tracks
-	//std::cout << "totalTracks_ = " << totalTracks_ << std::endl;
-    iEvent.put(output);
-}
-
-TrackCandidate
-CosmicTrackSplitter::makeCandidate(const reco::Track &tk, std::vector<TrackingRecHit *>::iterator hitsBegin, std::vector<TrackingRecHit *>::iterator hitsEnd) {
+				// now delete the hits not used by the candidate
+				for (begin = hits.begin(), end = hits.end(); begin != end; ++begin) {
+					if (*begin) delete *begin;
+				} 
+				std::cout << "loop: " << i << " has " << usedHitCtr << " active hits and " << hits.size() << " total hits..." << std::endl;
+				hits.clear();
+			} // loop twice for top and bottom
+		} // loop on tracks
+		//std::cout << "totalTracks_ = " << totalTracks_ << std::endl;
+		iEvent.put(output);
+	}
 	
-	//std::cout << "Making a candidate!" << std::endl;
+	TrackCandidate
+	CosmicTrackSplitter::makeCandidate(const reco::Track &tk, std::vector<TrackingRecHit *>::iterator hitsBegin, std::vector<TrackingRecHit *>::iterator hitsEnd) {
+		
+		//std::cout << "Making a candidate!" << std::endl;
+		
+		TrajectoryStateTransform transform;
+		PropagationDirection   pdir = tk.seedDirection();
+		PTrajectoryStateOnDet *state;
+		if ( pdir == anyDirection ) throw cms::Exception("UnimplementedFeature") << "Cannot work with tracks that have 'anyDirecton' \n";
+		if ( (pdir == alongMomentum) == ( tk.p() >= tk.outerP() ) ) {
+			// use inner state
+			TrajectoryStateOnSurface originalTsosIn(transform.innerStateOnSurface(tk, *theGeometry, &*theMagField));
+			state = transform.persistentState( originalTsosIn, DetId(tk.innerDetId()) );
+		} else { 
+			// use outer state
+			TrajectoryStateOnSurface originalTsosOut(transform.outerStateOnSurface(tk, *theGeometry, &*theMagField));
+			state = transform.persistentState( originalTsosOut, DetId(tk.outerDetId()) );
+		}
+		
+		TrajectorySeed seed(*state, TrackCandidate::RecHitContainer(), pdir);
+		
+		TrackCandidate::RecHitContainer ownHits;
+		ownHits.reserve(hitsEnd - hitsBegin);
+		for ( ; hitsBegin != hitsEnd; ++hitsBegin) { ownHits.push_back( *hitsBegin ); }
+		
+		TrackCandidate cand(ownHits, seed, *state, tk.seedRef());
+		delete state;
+		
+		//std::cout << "   dumping the hits now: " << std::endl;
+		//for (TrackCandidate::range hitR = cand.recHits(); hitR.first != hitR.second; ++hitR.first) {
+		//    std::cout << "     hit detid = " << hitR.first->geographicalId().rawId() <<
+		//        ", type  = " << typeid(*hitR.first).name() << std::endl;
+		//}
+		
+		return cand;
+	}
 	
-    TrajectoryStateTransform transform;
-    PropagationDirection   pdir = tk.seedDirection();
-    PTrajectoryStateOnDet *state;
-    if ( pdir == anyDirection ) throw cms::Exception("UnimplementedFeature") << "Cannot work with tracks that have 'anyDirecton' \n";
-    if ( (pdir == alongMomentum) == ( tk.p() >= tk.outerP() ) ) {
-        // use inner state
-        TrajectoryStateOnSurface originalTsosIn(transform.innerStateOnSurface(tk, *theGeometry, &*theMagField));
-        state = transform.persistentState( originalTsosIn, DetId(tk.innerDetId()) );
-    } else { 
-        // use outer state
-        TrajectoryStateOnSurface originalTsosOut(transform.outerStateOnSurface(tk, *theGeometry, &*theMagField));
-        state = transform.persistentState( originalTsosOut, DetId(tk.outerDetId()) );
-    }
-
-    TrajectorySeed seed(*state, TrackCandidate::RecHitContainer(), pdir);
- 
-    TrackCandidate::RecHitContainer ownHits;
-    ownHits.reserve(hitsEnd - hitsBegin);
-    for ( ; hitsBegin != hitsEnd; ++hitsBegin) { ownHits.push_back( *hitsBegin ); }
-
-    TrackCandidate cand(ownHits, seed, *state, tk.seedRef());
-    delete state;
-
-    //std::cout << "   dumping the hits now: " << std::endl;
-    //for (TrackCandidate::range hitR = cand.recHits(); hitR.first != hitR.second; ++hitR.first) {
-    //    std::cout << "     hit detid = " << hitR.first->geographicalId().rawId() <<
-    //        ", type  = " << typeid(*hitR.first).name() << std::endl;
-    //}
-
-    return cand;
-}
-
 }} //namespaces
 
 
