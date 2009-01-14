@@ -1,8 +1,6 @@
 // #include "CondFormats/PhysicsToolsObjects/interface/Histogram2D.h"
-// #include "MuonAnalysis/MomentumScaleCalibrationObjects/interface/MuScleFitScale.h"
-#include "CondFormats/MomentumScaleCalibrationObjects/interface/MuScleFitScale.h"
-// #include "MuonAnalysis/MomentumScaleCalibrationObjects/interface/MuScleFitScaleRcd.h"
-#include "CondFormats/DataRecord/interface/MuScleFitScaleRcd.h"
+#include "CondFormats/MomentumScaleCalibrationObjects/interface/MuScleFitDBobject.h"
+#include "CondFormats/DataRecord/interface/MuScleFitDBobjectRcd.h"
 
 #include "DBReader.h"
 
@@ -19,9 +17,9 @@ DBReader::DBReader( const edm::ParameterSet& iConfig ) : type_(iConfig.getUntrac
 }
 
 void DBReader::beginJob ( const edm::EventSetup& iSetup ) {
-  edm::ESHandle<MuScleFitScale> dbObject;
-  iSetup.get<MuScleFitScaleRcd>().get(dbObject);
-  edm::LogInfo("DBReader") << "[DBReader::analyze] End Reading MuScleFitScaleRcd" << endl;
+  edm::ESHandle<MuScleFitDBobject> dbObject;
+  iSetup.get<MuScleFitDBobject>().get(dbObject);
+  edm::LogInfo("DBReader") << "[DBReader::analyze] End Reading MuScleFitDBobjectRcd" << endl;
 
   cout << "identifiers size from dbObject = " << dbObject->identifiers.size() << endl;
   cout << "parameters size from dbObject = " << dbObject->parameters.size() << endl;;

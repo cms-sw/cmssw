@@ -4,8 +4,8 @@
 /** \class MuScleFit
  *  Analyzer of the Global muon tracks
  *
- *  $Date: 2009/01/08 17:04:31 $
- *  $Revision: 1.8 $
+ *  $Date: 2009/01/09 15:34:26 $
+ *  $Revision: 1.9 $
  *  \author C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo - INFN Padova
  */
 
@@ -120,6 +120,8 @@ class MuScleFit: public edm::EDLooper {
   std::vector<TFile*> theFiles;
 
   int debug;
+
+  bool readPdfFromDB;
 
   edm::InputTag theMuonLabel;
   int theMuonType;

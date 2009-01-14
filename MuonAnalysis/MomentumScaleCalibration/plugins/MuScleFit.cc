@@ -1,8 +1,8 @@
 //  \class MuScleFit
 //  Fitter of momentum scale and resolution from resonance decays to muon track pairs
 //
-//  $Date: 2009/01/09 15:54:41 $
-//  $Revision: 1.20 $
+//  $Date: 2009/01/12 15:23:57 $
+//  $Revision: 1.21 $
 //  \author R. Bellan, C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo, M.De Mattia - INFN Padova
 //
 //  Recent additions: 
@@ -188,30 +188,23 @@ MuScleFit::MuScleFit (const ParameterSet& pset) {
   int biasType = pset.getParameter<int>("BiasType");
   MuScleFitUtils::BiasType = biasType;
   // No error, the scale functions are used also for the bias
-  // MuScleFitUtils::biasFunction = biasFunctionArray[biasType];
   MuScleFitUtils::biasFunction = scaleFunctionVecService( biasType );
   int smearType = pset.getParameter<int>("SmearType");
   MuScleFitUtils::SmearType = smearType;
-  // MuScleFitUtils::smearFunction = smearFunctionArray[smearType];
   MuScleFitUtils::smearFunction = smearFunctionService( smearType );
 
   // Fit types
   // ---------
   int resolFitType = pset.getParameter<int>("ResolFitType");
   MuScleFitUtils::ResolFitType = resolFitType;
-  // MuScleFitUtils::resolutionFunction = resolutionFunctionArray[resolFitType];
   MuScleFitUtils::resolutionFunction = resolutionFunctionService( resolFitType );
-  // MuScleFitUtils::resolutionFunctionForVec = resolutionFunctionArrayForVec[resolFitType];
   MuScleFitUtils::resolutionFunctionForVec = resolutionFunctionVecService( resolFitType );
   int scaleType = pset.getParameter<int>("ScaleFitType");
   MuScleFitUtils::ScaleFitType = scaleType;
-  // MuScleFitUtils::scaleFunction = scaleFunctionArray[scaleType];
   MuScleFitUtils::scaleFunction = scaleFunctionService( scaleType );
-  // MuScleFitUtils::scaleFunctionForVec = scaleFunctionArrayForVec[scaleType];
   MuScleFitUtils::scaleFunctionForVec = scaleFunctionVecService( scaleType );
   int backgroundType = pset.getParameter<int>("BgrFitType");
   MuScleFitUtils::BgrFitType   = backgroundType;
-  // MuScleFitUtils::backgroundFunction = backgroundFunctionArray[backgroundType];
   MuScleFitUtils::backgroundFunction = backgroundFunctionService( backgroundType );
 
   // Initial parameters values
@@ -235,7 +228,11 @@ MuScleFit::MuScleFit (const ParameterSet& pset) {
   // --------------------------------
   MuScleFitUtils::speedup = pset.getParameter<bool>("speedup");
 
-  // Check for paramters consistency
+  // Read the Probs file from database. If false it searches the root file in
+  // MuonAnalysis/MomentumScaleCalibration/test of the active release.
+  readPdfFromDB = pset.getParameter<bool>("readPdfFromDB");
+
+  // Check for parameters consistency
   // it will abort in case of errors.
   checkParameters();
 
@@ -307,15 +304,13 @@ MuScleFit::~MuScleFit () {
 // ---------
 void MuScleFit::beginOfJob (const EventSetup& eventSetup) {
 
-  // Read probability distributions from the database
+  // Read probability distributions from the database of a local root file.
   // These are 2-D PDFs containing a grid of 1000x1000 values of the
-  // integral of Lorentz * Gaussian as a function
-  // of mass and resolution of a given measurement,
-  // for each of the six considered diLmuon resonances.
+  // integral of Lorentz * Gaussian as a function of mass and resolution
+  // of a given measurement, for each of the six considered di-muon resonances.
   // -------------------------------------------------
-  // readProbabilityDistributions( eventSetup );
-
-  readProbabilityDistributionsFromFile();
+  if( readPdfFromDB ) readProbabilityDistributions( eventSetup );
+  else readProbabilityDistributionsFromFile();
 
   if (debug>0) cout << "[MuScleFit]: beginOfJob" << endl;
   

@@ -20,7 +20,7 @@ process.load("RecoMuon.TrackingTools.MuonServiceProxy_cff")
 # )
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(10000)
+    input = cms.untracked.int32(1)
 )
 process.TestCorrectionModule = cms.EDAnalyzer(
     "TestCorrection",
@@ -42,7 +42,7 @@ process.TestCorrectionModule = cms.EDAnalyzer(
     MuonLabel = cms.InputTag("muons"),
 
     # Specify the corrections to use
-    CorrectionsIdentifier = cms.untracked.string('MCcorrDerivedFromY')
+    CorrectionsIdentifier = cms.untracked.string('MCcorrDerivedFromY_globalMuons_test')
 )
 
 process.p1 = cms.Path(process.TestCorrectionModule)

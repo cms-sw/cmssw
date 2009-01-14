@@ -45,7 +45,7 @@ process.PoolDBOutputService = cms.Service(
 process.LikelihoodPdfDBWriterModule = cms.EDAnalyzer(
     "LikelihoodPdfDBWriter",
 
-    inputFileName = cms.string('Probs_SM_1000.root'),
+    inputFileName = cms.string('Probs_new_1000_CTEQ.root'),
 )
 
 process.p1 = cms.Path(process.LikelihoodPdfDBWriterModule)

@@ -1,7 +1,7 @@
 /** See header file for a class description 
  *
- *  $Date: 2009/01/08 17:04:00 $
- *  $Revision: 1.19 $
+ *  $Date: 2009/01/12 15:24:09 $
+ *  $Revision: 1.20 $
  *  \author S. Bolognesi - INFN Torino / T. Dorigo, M.De Mattia - INFN Padova
  */
 // Some notes:
@@ -996,7 +996,7 @@ double MuScleFitUtils::massProb (double mass, double rapidity, double massResol,
 
   double PB = 0.;
   // Uncomment this two lines and comment all the next part (up to PStot excluded) to use the background functions defined in Functions.h
-  // ATTENTION: the functions depend strongly on the second size of the resHalfWidth[][3]. If it is changed, the functions must be changed too.
+  // ATTENTION: the functions depends strongly on the second size of the resHalfWidth[][3]. If it is changed, the functions must be changed too.
   // Cannot call directly passing a double ** because of the declaration of resHalfWidth[][] as 2D array. Workaround needed.
   // int resTotNum = 6;
   // PB = (*backgroundFunction)( &(parval[shift]), resTotNum, nres, resConsidered, ResMass, ResHalfWidth, MuonType, mass, nbins );
@@ -1010,7 +1010,7 @@ double MuScleFitUtils::massProb (double mass, double rapidity, double massResol,
     // the right fraction overall. This is because where two resonances overlap their windows
     // a given background fraction will contribute only half to Bgrp1.
     // -----------------------------------------------------------------------------------------
-    PB = nres/(double)nbins; 
+    PB = nres/(double)nbins;
   } else if (BgrFitType==2) { // Exponential
     Bgrp2 = parval[1+shift];
     for (int ires=0; ires<6; ires++) {
