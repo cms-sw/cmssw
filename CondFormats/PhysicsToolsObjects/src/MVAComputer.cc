@@ -18,7 +18,7 @@
 //
 // Author:      Christophe Saout
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: MVAComputer.cc,v 1.6 2008/01/22 18:56:09 muzaffar Exp $
+// $Id: MVAComputer.cc,v 1.7 2008/04/21 08:53:02 saout Exp $
 //
 #include <functional>
 #include <algorithm>
@@ -104,12 +104,13 @@ std::vector<VarProcessor*> MVAComputer::getProcessors() const
 			continue;
 
 		ROOT::Reflex::Object obj = iter->Get(thisObj);
-		ROOT::Reflex::Object sizeObj = obj.Invoke("size");
-		std::size_t size = ROOT::Reflex::Object_Cast<std::size_t>(
-							obj.Invoke("size"));
+		ROOT::Reflex::Object sizeObj;
+                obj.Invoke("size", sizeObj);
+		std::size_t size = ROOT::Reflex::Object_Cast<std::size_t>(sizeObj);
 
 		for(std::size_t i = 0; i < size; i++) {
-			ROOT::Reflex::Object item = obj.Invoke("at", i);
+			ROOT::Reflex::Object item;
+                        obj.Invoke("at", item, ROOT::Reflex::Tools::MakeVector<void*>(&i));
 			procs.push_back(static_cast<VarProcessor*>(
 					item.CastObject(baseType).Address()));
 		}
@@ -177,9 +178,9 @@ void MVAComputer::addProcessor(const VarProcessor *proc)
 			continue;
 
 		ROOT::Reflex::Object iObj = iter->Get(thisObj);
-		ROOT::Reflex::Object sizeObj = iObj.Invoke("size");
-		std::size_t size = ROOT::Reflex::Object_Cast<std::size_t>(
-							iObj.Invoke("size"));
+		ROOT::Reflex::Object sizeObj;
+                iObj.Invoke("size",sizeObj);
+		std::size_t size = ROOT::Reflex::Object_Cast<std::size_t>(sizeObj);
 
 		idx += size;
 
@@ -191,7 +192,8 @@ void MVAComputer::addProcessor(const VarProcessor *proc)
 					(*iter2)++;
 			}
 
-			iObj.Invoke("push_back",
+			ROOT::Reflex::Object dummy;                              
+			iObj.Invoke("push_back", dummy, 
 				ROOT::Reflex::Tools::MakeVector<void*>(
 							obj.Address()));
 
