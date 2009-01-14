@@ -8,7 +8,6 @@ import FWCore.ParameterSet.Config as cms
 from RecoEcal.EgammaClusterProducers.hybridClusteringSequence_cff import *
 # island clustering for the endcaps
 from RecoEcal.EgammaClusterProducers.islandClusteringSequence_cff import *
-from Geometry.CaloEventSetup.CaloGeometry_cfi import *
 # sequence to make si-strip based electrons
 from RecoEgamma.EgammaElectronProducers.electronSequence_cff import *
 from Calibration.EcalAlCaRecoProducers.alCaIsolatedElectrons_cfi import *
