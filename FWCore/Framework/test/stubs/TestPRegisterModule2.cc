@@ -3,18 +3,15 @@
    Test Module for testProductRegistry
 
    \author Stefano ARGIRO
-   \version $Id: TestPRegisterModule2.cc,v 1.8 2007/01/12 21:07:59 wmtan Exp $
    \date 19 May 2005
 */
-
-static const char CVSId[] = "$Id: TestPRegisterModule2.cc,v 1.8 2007/01/12 21:07:59 wmtan Exp $";
-
 
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 
 #include "FWCore/Framework/test/stubs/TestPRegisterModule2.h"
 #include "DataFormats/TestObjects/interface/ToyProducts.h"
+#include "FWCore/Version/interface/GetReleaseVersion.h"
 #include <cppunit/extensions/HelperMacros.h>
 #include <memory>
 #include <string>
@@ -40,6 +37,7 @@ TestPRegisterModule2::TestPRegisterModule2(edm::ParameterSet const&){
      CPPUNIT_ASSERT(stringID.friendlyClassName() == 
                     (*pd)->friendlyClassName());
      CPPUNIT_ASSERT((*pd)->moduleLabel()=="m1");
+     CPPUNIT_ASSERT((*pd)->releaseVersion()==getReleaseVersion());
      
      ++pd;
      CPPUNIT_ASSERT(pd != plist.end());
