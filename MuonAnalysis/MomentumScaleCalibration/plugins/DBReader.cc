@@ -18,7 +18,7 @@ DBReader::DBReader( const edm::ParameterSet& iConfig ) : type_(iConfig.getUntrac
 
 void DBReader::beginJob ( const edm::EventSetup& iSetup ) {
   edm::ESHandle<MuScleFitDBobject> dbObject;
-  iSetup.get<MuScleFitDBobject>().get(dbObject);
+  iSetup.get<MuScleFitDBobjectRcd>().get(dbObject);
   edm::LogInfo("DBReader") << "[DBReader::analyze] End Reading MuScleFitDBobjectRcd" << endl;
 
   cout << "identifiers size from dbObject = " << dbObject->identifiers.size() << endl;

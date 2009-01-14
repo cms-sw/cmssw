@@ -13,7 +13,7 @@
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 
 #include "DBWriter.h"
-#include "CondFormats/MomentumScaleCalibrationObjects/interface/MuScleFitScale.h"
+#include "CondFormats/MomentumScaleCalibrationObjects/interface/MuScleFitDBobject.h"
 
 using namespace std;
 using namespace edm;
@@ -43,7 +43,7 @@ DBWriter::~DBWriter()
 void
 DBWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  MuScleFitScale * dbObject = new MuScleFitScale;
+  MuScleFitDBobject * dbObject = new MuScleFitDBobject;
 
   dbObject->identifiers = corrector_->identifiers();
   dbObject->parameters = corrector_->parameters();
@@ -66,10 +66,10 @@ DBWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   // Save the parameters to the db.
   edm::Service<cond::service::PoolDBOutputService> mydbservice;
   if( mydbservice.isAvailable() ){
-    if( mydbservice->isNewTagRequest("MuScleFitScaleRcd") ){
-      mydbservice->createNewIOV<MuScleFitScale>(dbObject,mydbservice->beginOfTime(),mydbservice->endOfTime(),"MuScleFitScaleRcd");
+    if( mydbservice->isNewTagRequest("MuScleFitDBobjectRcd") ){
+      mydbservice->createNewIOV<MuScleFitDBobject>(dbObject,mydbservice->beginOfTime(),mydbservice->endOfTime(),"MuScleFitDBobjectRcd");
     } else {
-      mydbservice->appendSinceTime<MuScleFitScale>(dbObject,mydbservice->currentTime(),"MuScleFitScaleRcd");      
+      mydbservice->appendSinceTime<MuScleFitDBobject>(dbObject,mydbservice->currentTime(),"MuScleFitDBobjectRcd");      
     }
   } else {
     edm::LogError("DBWriter")<<"Service is unavailable"<<std::endl;
