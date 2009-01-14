@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Id: FWCalCaloTowerProxy3DBuilderBase.h,v 1.1 2009/01/14 12:06:45 amraktad Exp $
+// $Id: FWCaloTowerProxy3DBuilderBase.h,v 1.1 2009/01/14 18:34:12 amraktad Exp $
 //
 
 #ifndef Fireworks_Calo_CaloTowerProxy3DBuilderBase_h
@@ -14,8 +14,8 @@ class TEveCaloDataHist;
 class FWCaloTowerProxy3DBuilderBase : public FWRPZDataProxyBuilder
 {
 public:
-   FWCaloTowerProxy3DBuilderBase(): m_handleEcal(true), m_histName("blank"), m_hist(0), m_sliceIndex(-1), m_towers(0) { setHighPriority( true ); }
-   FWCaloTowerProxy3DBuilderBase(bool handleEcal, const char* name): m_handleEcal(handleEcal), m_histName(name), m_hist(0), m_sliceIndex(-1), m_towers(0) { setHighPriority( true ); }
+   FWCaloTowerProxy3DBuilderBase(): m_towers(0), m_handleEcal(true), m_histName("blank"), m_hist(0), m_sliceIndex(-1) { setHighPriority( true ); }
+   FWCaloTowerProxy3DBuilderBase(bool handleEcal, const char* name): m_towers(0), m_handleEcal(handleEcal), m_histName(name), m_hist(0), m_sliceIndex(-1) { setHighPriority( true ); }
    virtual ~FWCaloTowerProxy3DBuilderBase() {}
 
 protected:
