@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process( "SiStripDQMBadStrips" )
+process = cms.Process( "SiStripDQMBadStripsValidationReReco" )
 
 ### Miscellanous ###
 
@@ -42,28 +42,14 @@ process.load( "Configuration.StandardSequences.Geometry_cff" )
  
 process.load( "Configuration.StandardSequences.FrontierConditions_GlobalTag_cff" )
 process.GlobalTag.connect   = 'frontier://FrontierProd/CMS_COND_21X_GLOBALTAG'
-process.GlobalTag.globaltag = 'CRAFT_ALL_V4P::All'
-process.es_prefer_GlobalTag = cms.ESPrefer(
-    'PoolDBESSource',
-    'GlobalTag'
-)
-# exclude masking
-process.siStripQualityESProducer.ListOfRecordToMerge = cms.VPSet(
-    cms.PSet(
-        record = cms.string( 'SiStripDetCablingRcd' ),
-        tag = cms.string( '' )
-    ),
-    cms.PSet(
-        record = cms.string( 'SiStripBadChannelRcd' ),
-        tag = cms.string( '' )
-    )
-)
+process.GlobalTag.globaltag = 'CRAFT_ALL_V4::All'
+process.es_prefer_GlobalTag = cms.ESPrefer( 'PoolDBESSource', 'GlobalTag' )
 
 ### SiStrip DQM ###
 
 ## Reconstruction ##
 
-process.load( "DQM.SiStripMonitorClient.RecoForDQM_Cosmic_cff" )
+process.load( "RecoTracker.Configuration.RecoTrackerP5_cff" )
 
 ## DQM modules ##
 
@@ -84,27 +70,39 @@ process.siStripMonitorCluster.TH1NrOfClusterizedStrips.moduleswitchon = False
 process.siStripMonitorCluster.TH1ModuleLocalOccupancy.moduleswitchon  = False
 process.siStripMonitorCluster.TH1ClusterCharge.moduleswitchon         = False
 process.siStripMonitorCluster.TH1ClusterWidth.moduleswitchon          = False
-   
+
+# SiStripMonitorTrack #
+
+import RecoTracker.TrackProducer.RefitterWithMaterial_cfi
+process.ctfWithMaterialTracksP5Refitter                   = RecoTracker.TrackProducer.RefitterWithMaterial_cfi.TrackRefitter.clone()
+process.ctfWithMaterialTracksP5Refitter.src               = 'ctfWithMaterialTracksP5'
+process.ctfWithMaterialTracksP5Refitter.TrajectoryInEvent = True
+import DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi
+process.SiStripMonitorTrackReal = DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi.SiStripMonitorTrack.clone()
+process.SiStripMonitorTrackReal.TrackProducer = 'ctfWithMaterialTracksP5'
+process.SiStripMonitorTrackReal.TrackLabel    = ''
+process.SiStripMonitorTrackReal.Cluster_src   = 'siStripClusters'
+process.SiStripMonitorTrackReal.FolderName    = 'SiStrip/Tracks'
+# process.SiStripMonitorTrackReal.Mod_On        = True
+
 ### Input ###
 
 ## PoolSource ## 
 
 process.source = cms.Source( "PoolSource",
     fileNames = cms.untracked.vstring(
-        '/store/data/Commissioning08/RandomTriggers/RAW/v1/000/068/665/422164BB-FEA8-DD11-85E7-001D09F24E39.root',
-        '/store/data/Commissioning08/RandomTriggers/RAW/v1/000/068/665/486C391B-00A9-DD11-807C-001D09F24498.root',
-        '/store/data/Commissioning08/RandomTriggers/RAW/v1/000/068/665/5AD8595F-04A9-DD11-8627-0030487A1FEC.root',
-        '/store/data/Commissioning08/RandomTriggers/RAW/v1/000/068/665/90E5BCC7-1DA9-DD11-813C-001617C3B70E.root',
-        '/store/data/Commissioning08/RandomTriggers/RAW/v1/000/068/665/BC010482-01A9-DD11-AC2D-001D09F28EA3.root',
-        '/store/data/Commissioning08/RandomTriggers/RAW/v1/000/068/665/F8554B2C-07A9-DD11-A5AC-001D09F244BB.root'
+        '/store/data/Commissioning08/Cosmics/RECO/CRAFT_ALL_V4_ReReco-v1/0001/DE20B094-1FC2-DD11-90AC-001D0967D5A8.root',
+        '/store/data/Commissioning08/Cosmics/RECO/CRAFT_ALL_V4_ReReco-v1/0004/6C368AB3-96C2-DD11-BDAC-001D0967CF86.root',
+        '/store/data/Commissioning08/Cosmics/RECO/CRAFT_ALL_V4_ReReco-v1/0007/1A572E65-75C4-DD11-8E97-001D0967C64E.root',
+        '/store/data/Commissioning08/Cosmics/RECO/CRAFT_ALL_V4_ReReco-v1/0010/52664B9C-E8C4-DD11-B292-0019B9E48877.root'
     ),
-    skipEvents = cms.untracked.uint32( 0 )
+    skipEvents = cms.untracked.uint32(0)
 )
 
 ## Input steering ##
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32( 100000 )
+    input = cms.untracked.int32( 1000 )
 )
 
 ### Output ###
@@ -129,9 +127,8 @@ process.dqmEnv.subSystemFolder = 'SiStrip'
 # DQM path #
 
 process.p = cms.Path(
-    process.siStripDigis           *
-    process.siStripZeroSuppression *
-    process.siStripClusters        *
     process.siStripMonitorCluster  *
+    process.ctfWithMaterialTracksP5Refitter *
+    process.SiStripMonitorTrackReal *
     process.dqmSaver
 )
