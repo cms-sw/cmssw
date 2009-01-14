@@ -1,8 +1,8 @@
-#include "MuonAnalysis/MomentumScaleCalibration/interface/MomentumScaleCorrector.h"
+#include "MuonAnalysis/MomentumScaleCalibration/interface/BackgroundFunction.h"
 
 using namespace std;
 
-void MomentumScaleCorrector::readParameters( TString fileName )
+void BackgroundFunction::readParameters( TString fileName )
 {
   iterationNum_ = 0;
   parArray_ = 0;
@@ -24,7 +24,7 @@ void MomentumScaleCorrector::readParameters( TString fileName )
     // Take the iteration number
     if( iterationSubStr != string::npos ) {
 
-      int scaleFunctionNum = 0;
+      int functionNum = 0;
       // This can be used when dealing with multiple iterations
 
       // cout << "line = " << line << endl;
@@ -35,9 +35,9 @@ void MomentumScaleCorrector::readParameters( TString fileName )
       while( sLine >> num ) {
         ++wordCounter;
         //         cout << "num["<<wordCounter<<"] = " << num << endl;
-        if( wordCounter == 9 ) {
+        if( wordCounter == 10 ) {
           stringstream in(num);
-          in >> scaleFunctionNum;
+          in >> functionNum;
         }
         if( wordCounter == 13 ) {
           stringstream in(num);
@@ -48,15 +48,15 @@ void MomentumScaleCorrector::readParameters( TString fileName )
       // cout << "scale function number = " << scaleFunctionNum << endl;
 
       // Create a new vector to hold the parameters for this iteration
-      vector<double> parScale;
-      parVecVec_.push_back(parScale);
+      vector<double> parVec;
+      parVecVec_.push_back(parVec);
 
       // Set the scaleFunction
       // scaleFunction_ = scaleFunctionArrayForVec[scaleFunctionNum];
       // scaleFunction_ = scaleFunctionArray[scaleFunctionNum];
-      functionId_.push_back(scaleFunctionNum);
+      functionId_.push_back(functionNum);
       // scaleFunctionVec_.push_back( scaleFunctionArray[scaleFunctionNum] );
-      scaleFunctionVec_.push_back( scaleFunctionService( scaleFunctionNum ) );
+      backgroundFunctionVec_.push_back( backgroundFunctionService( functionNum ) );
     }
     // Take the parameters for the current iteration
     if ( (lineInt != string::npos) ) {
@@ -82,5 +82,5 @@ void MomentumScaleCorrector::readParameters( TString fileName )
     }
   }
 
-  convertToArrays( scaleFunction_, scaleFunctionVec_ );
+  convertToArrays( backgroundFunction_, backgroundFunctionVec_ );
 }

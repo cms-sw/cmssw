@@ -8,9 +8,9 @@
 
 #include <fstream>
 #include <sstream>
+#include "MuonAnalysis/MomentumScaleCalibration/interface/BaseFunction.h"
 #include "MuonAnalysis/MomentumScaleCalibration/interface/Functions.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
-#include "CondFormats/MomentumScaleCalibrationObjects/interface/MuScleFitScale.h"
 
 /**
  * This is used to have a common set of functions for the specialized templates to use.
@@ -22,7 +22,7 @@
  *
  * ATTENTION: it is important that iterations numbers in the txt file start from 0.
  */
-class MomentumScaleCorrector
+class MomentumScaleCorrector : public BaseFunction
 {
  public:
   /**
@@ -40,30 +40,26 @@ class MomentumScaleCorrector
   }
   /**
    * This constructor is used when reading parameters from the db.
-   * It receives a pointer to an object of type MuScleFitScale containing
+   * It receives a pointer to an object of type MuScleFitDBobject containing
    * the parameters and the functions identifiers.
    */
-  MomentumScaleCorrector( const MuScleFitScale * scaleObject )
+  MomentumScaleCorrector( const MuScleFitDBobject * dbObject ) : BaseFunction( dbObject )
   {
-    scaleFunctionId_ = scaleObject->identifiers;
-    parScaleVec_ = scaleObject->parameters;
-    // Needed for the tests in convertToArrays
-    iterationNum_ = scaleFunctionId_.size()-1;
-    vector<int>::const_iterator id = scaleFunctionId_.begin();
-    for( ; id != scaleFunctionId_.end(); ++id ) {
+    vector<int>::const_iterator id = functionId_.begin();
+    for( ; id != functionId_.end(); ++id ) {
       scaleFunctionVec_.push_back( scaleFunctionService( *id ) );
     }
     // Fill the arrays that will be used when calling the correction function.
-    convertToArrays();
+    convertToArrays(scaleFunction_, scaleFunctionVec_);
   }
 
   ~MomentumScaleCorrector() {
-    if( parScaleArray_ != 0 ) {
-      for( unsigned int i=0; i<parScaleVec_.size(); ++i ) {
-        delete[] parScaleArray_[i];
+    if( parArray_ != 0 ) {
+      for( unsigned int i=0; i<parVecVec_.size(); ++i ) {
+        delete[] parArray_[i];
         delete scaleFunction_[i];
       }
-      delete[] parScaleArray_;
+      delete[] parArray_;
       delete[] scaleFunction_;
     }
   }
@@ -75,30 +71,16 @@ class MomentumScaleCorrector
     double pt = track.pt();
     for( int i=0; i<iterationNum_; ++i ) {
       // return ( scaleFunction_->scale( track.pt(), track.eta(), track.phi(), track.charge(), parScale_) );
-      pt = ( scaleFunction_[i]->scale( pt, track.eta(), track.phi(), track.charge(), parScaleArray_[i]) );
+      pt = ( scaleFunction_[i]->scale( pt, track.eta(), track.phi(), track.charge(), parArray_[i]) );
     }
     return pt;
-  }
-  /// Return the vectors of parameters
-  vector<vector<double> > parameters() const {
-    return parScaleVec_;
-  }
-  /// Return the vector of function identifiers
-  vector<int> identifiers() const {
-    return scaleFunctionId_;
   }
  protected:
   /// Parser of the parameters file
   void readParameters( TString fileName );
-  /// Convert vectors to arrays for faster random access.
-  void convertToArrays();
+
   scaleFunctionBase<double * > ** scaleFunction_;
   vector<scaleFunctionBase<double * > * > scaleFunctionVec_;
-  vector<int> scaleFunctionId_;
-  vector<vector<double> > parScaleVec_;
-  // We will use the array for the function calls because it is faster than the vector for random access.
-  double ** parScaleArray_;
-  int iterationNum_;
 };
 
 #endif // MomentumScaleCorrector_h

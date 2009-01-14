@@ -4,8 +4,8 @@
 /** \class Histograms
  *  Collection of histograms for GLB muon analysis
  *
- *  $Date: 2009/01/08 12:37:25 $
- *  $Revision: 1.1 $
+ *  $Date: 2009/01/09 15:36:48 $
+ *  $Revision: 1.2 $
  *  \author S. Bolognesi - INFN Torino / T.Dorigo - INFN Padova
  */
 
@@ -983,7 +983,11 @@ class HFunctionResolution : public Histograms {
       // and we use this counter to compute the mean in the end. The resoVsPtEta value is filled with each muon,
       // but they must be considered independently (analogous to a factor 2) so in the end we would have
       // to divide by N/2, that is why we only increase the counter for half the muons.
-      if( charge > 0 ) resoCount_[xIndex][yIndex] += 1;
+      // if( charge > 0 )
+      // No more. Changing it here influences also other uses of this class. The macro FunctionTerms.cc
+      // multiplies the terms by the 2 factor.
+
+      resoCount_[xIndex][yIndex] += 1;
 
       // hResoVSPtEta->Fill(p4.Pt(), p4.Eta(), resValue);
       hResoVSPt_prof->Fill(p4.Pt(),resValue);
@@ -1292,7 +1296,7 @@ public:
     // Only fill values if they are in the selected range
     if ( 0 <= xIndex && xIndex < totBinsX_ && 0 <= yIndex && yIndex < totBinsY_ ) {
       if( TString(histoCovariance_->GetName()).Contains("CovarianceCotgTheta_Covariance") )
-        cout << "(x,y) = (" << xIndex << ", " << yIndex << "), (a,b) = (" << a << ", " << b << ")" << endl;
+//         cout << "(x,y) = (" << xIndex << ", " << yIndex << "), (a,b) = (" << a << ", " << b << ")" << endl;
       covariances_[xIndex][yIndex].fill(a,b);
       // Should be used with the variance, in which case a==b
       if( varianceCheck_ ) histoVarianceCheck_[xIndex][yIndex]->Fill(a);
