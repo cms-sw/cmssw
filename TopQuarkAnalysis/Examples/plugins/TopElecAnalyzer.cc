@@ -99,9 +99,9 @@ TopElecAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setup)
     // --------------------------------------------------
     // get ElectronId 
     // --------------------------------------------------
-    const std::vector<pat::Electron::IdPair> leptonIDs = elec->leptonIDs();
-    for(unsigned idx=0; idx<leptonIDs.size(); ++idx){
-      std::cout << ::std::setw( 12 ) << ::std::left << leptonIDs[idx].first << leptonIDs[idx].second << std::endl;
+    const std::vector<pat::Electron::IdPair> electronIDs = elec->electronIDs();
+    for(unsigned idx=0; idx<electronIDs.size(); ++idx){
+      std::cout << ::std::setw( 25 ) << ::std::left << electronIDs[idx].first << ":" << electronIDs[idx].second << std::endl;
     }
 
     // --------------------------------------------------
