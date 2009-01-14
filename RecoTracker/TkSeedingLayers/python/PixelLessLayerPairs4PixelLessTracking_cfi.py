@@ -21,34 +21,41 @@ pixelLessLayerPairs4PixelLessTracking = cms.ESProducer("PixelLessLayerPairsESPro
         'TEC1_neg+TEC2_neg',
         'TEC2_neg+TEC3_neg'),
     TID1 = cms.PSet(
-        useSimpleRphiHitsCleaner = cms.untracked.bool(True),
+        useSimpleRphiHitsCleaner = cms.untracked.bool(False),
         minRing = cms.int32(1),
         matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
+        rphiRecHits = cms.InputTag("siStripMatchedRecHits","rphiRecHitUnmatched"),
+        stereoRecHits = cms.InputTag("siStripMatchedRecHits","stereoRecHitUnmatched"),
         useRingSlector = cms.untracked.bool(True),
         TTRHBuilder = cms.string('WithTrackAngle'),
-        rphiRecHits = cms.InputTag("siStripMatchedRecHits","rphiRecHit"),
         maxRing = cms.int32(3)
     ),
     TID2 = cms.PSet(
-        useSimpleRphiHitsCleaner = cms.untracked.bool(True),
+        useSimpleRphiHitsCleaner = cms.untracked.bool(False),
         minRing = cms.int32(1),
         matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
+        rphiRecHits = cms.InputTag("siStripMatchedRecHits","rphiRecHitUnmatched"),
+        stereoRecHits = cms.InputTag("siStripMatchedRecHits","stereoRecHitUnmatched"),
         useRingSlector = cms.untracked.bool(True),
         TTRHBuilder = cms.string('WithTrackAngle'),
-        rphiRecHits = cms.InputTag("siStripMatchedRecHits","rphiRecHit"),
         maxRing = cms.int32(3)
     ),
     TID3 = cms.PSet(
-        useSimpleRphiHitsCleaner = cms.untracked.bool(True),        
+        useSimpleRphiHitsCleaner = cms.untracked.bool(False),        
         minRing = cms.int32(1),
         matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
+        rphiRecHits = cms.InputTag("siStripMatchedRecHits","rphiRecHitUnmatched"),
+        stereoRecHits = cms.InputTag("siStripMatchedRecHits","stereoRecHitUnmatched"),
         useRingSlector = cms.untracked.bool(True),
         TTRHBuilder = cms.string('WithTrackAngle'),
         maxRing = cms.int32(2)
     ),
 
     TEC = cms.PSet(
+        useSimpleRphiHitsCleaner = cms.untracked.bool(False),        
         matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
+        rphiRecHits = cms.InputTag("siStripMatchedRecHits","rphiRecHitUnmatched"),
+        stereoRecHits = cms.InputTag("siStripMatchedRecHits","stereoRecHitUnmatched"),
         useRingSlector = cms.untracked.bool(True),
         TTRHBuilder = cms.string('WithTrackAngle'),
         minRing = cms.int32(1),
@@ -58,17 +65,22 @@ pixelLessLayerPairs4PixelLessTracking = cms.ESProducer("PixelLessLayerPairsESPro
     TIB1 = cms.PSet(
         TTRHBuilder = cms.string('WithTrackAngle'),
         matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
-        useSimpleRphiHitsCleaner = cms.untracked.bool(False),
+        rphiRecHits = cms.InputTag("siStripMatchedRecHits","rphiRecHitUnmatched"),
+        stereoRecHits = cms.InputTag("siStripMatchedRecHits","stereoRecHitUnmatched"),
+        useSimpleRphiHitsCleaner = cms.untracked.bool(False)
     ),
     TIB2 = cms.PSet(
         TTRHBuilder = cms.string('WithTrackAngle'),
         matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
-        useSimpleRphiHitsCleaner = cms.untracked.bool(False),
+        rphiRecHits = cms.InputTag("siStripMatchedRecHits","rphiRecHitUnmatched"),
+        stereoRecHits = cms.InputTag("siStripMatchedRecHits","stereoRecHitUnmatched"),
+        useSimpleRphiHitsCleaner = cms.untracked.bool(False)
     ),
     TIB3 = cms.PSet(
         TTRHBuilder = cms.string('WithTrackAngle'),
-        useSimpleRphiHitsCleaner = cms.untracked.bool(False),
-        rphiRecHits = cms.InputTag("siStripMatchedRecHits","rphiRecHit"),
+        rphiRecHits = cms.InputTag("siStripMatchedRecHits","rphiRecHitUnmatched"),
+        stereoRecHits = cms.InputTag("siStripMatchedRecHits","stereoRecHitUnmatched"),
+        useSimpleRphiHitsCleaner = cms.untracked.bool(False)
     )
 )
 
