@@ -10,8 +10,8 @@ es_prefer_magfield = cms.ESPrefer("XMLIdealGeometryESSource","magfield")
 
 
 AutoMagneticFieldESProducer = cms.ESProducer("AutoMagneticFieldESProducer",
-   # TEMPORARY
-   value = cms.untracked.int32(38),
+   # if positive, set B value (in kGauss), overriding the current reading from DB
+   valueOverride = cms.int32(-1),
 
    model = cms.string('grid_1103l_071212'),
    useParametrizedTrackerField = cms.bool(True),
