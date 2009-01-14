@@ -2,10 +2,11 @@
 #include <cassert>
 #include <algorithm>
 #include <cmath>
-#include <TROOT.h>
+#include "TROOT.h"
 #include <string>
-#include <TH3F.h>
-#include <TVirtualFitter.h>
+#include "TH3F.h"
+#include "TVirtualFitter.h"
+#include "TProfile.h"
 using namespace pftools;
 
 SpaceManager::SpaceManager(std::string name) :
