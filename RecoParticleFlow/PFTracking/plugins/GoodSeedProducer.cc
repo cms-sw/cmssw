@@ -11,7 +11,8 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
-
+#include "DataFormats/EgammaReco/interface/ElectronSeed.h"
+#include "DataFormats/EgammaReco/interface/ElectronSeedFwd.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecTrack.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecTrackFwd.h"
@@ -93,7 +94,7 @@ GoodSeedProducer::GoodSeedProducer(const ParameterSet& iConfig):
   produceCkfPFT_ = iConfig.getUntrackedParameter<bool>("ProduceCkfPFTracks",true);  
 
   LogDebug("GoodSeedProducer")<<"Seeds for GSF will be produced ";
-  produces<TrajectorySeedCollection>(preidgsf_);
+  produces<ElectronSeedCollection>(preidgsf_);
 
   if(produceCkfseed_){
     LogDebug("GoodSeedProducer")<<"Seeds for CKF will be produced ";
@@ -137,7 +138,7 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
 			      <<" in run "<<iEvent.id().run();
   
   //Create empty output collections
-  auto_ptr<TrajectorySeedCollection> output_preid(new TrajectorySeedCollection);
+  auto_ptr<ElectronSeedCollection> output_preid(new ElectronSeedCollection);
   auto_ptr<TrajectorySeedCollection> output_nopre(new TrajectorySeedCollection);
   auto_ptr< PFRecTrackCollection > 
     pOutputPFRecTrackCollection(new PFRecTrackCollection);
@@ -408,39 +409,16 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
 
       if (GoodPreId){
 
-	//NEW SEED with n hits
-	int nHitsinSeed= min(nHitsInSeed_,Tj[i].foundHits());
-	
-	Trajectory seedTraj;
-	OwnVector<TrackingRecHit>  rhits;
-	
-	vector<TrajectoryMeasurement> tm=Tj[i].measurements();
-
-	for (int ihit=tm.size()-1; ihit>=int(tm.size()-nHitsinSeed);ihit-- ){ 
-	  //for the first n measurement put the TM in the trajectory
-	  // and save the corresponding hit
-	  if ((*tm[ihit].recHit()).hit()->isValid()){
-	    seedTraj.push(tm[ihit]);
-	    rhits.push_back((*tm[ihit].recHit()).hit()->clone());
-	  }
-	}
-
-	if(!seedTraj.measurements().empty()){
-	  
-	  PTrajectoryStateOnDet* state = TrajectoryStateTransform().
-	    persistentState(seedTraj.lastMeasurement().updatedState(),
-			    (*seedTraj.lastMeasurement().recHit()).hit()->geographicalId().rawId());
-	  TrajectorySeed NewSeed(*state,rhits,alongMomentum);
-	  
-	  output_preid->push_back(NewSeed);
-	  delete state;
-	}
-	else   output_preid->push_back(Seed);
+	//NEW SEED with n hits	
+	ElectronSeed NewSeed(Seed);
+	NewSeed.setCtfTrack(trackRef);
+	output_preid->push_back(NewSeed);
+      
 	if(produceCkfPFT_){
 	  
 	  PFRecTrack pftrack( trackRef->charge(), 
-				    PFRecTrack::KF_ELCAND, 
-				    i, trackRef );
+			      PFRecTrack::KF_ELCAND, 
+			      i, trackRef );
 	  bool valid = pfTransformer_->addPoints( pftrack, *trackRef, Tj[i] );
 	  if(valid)
 	    pOutputPFRecTrackCollection->push_back(pftrack);		
@@ -450,13 +428,13 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
 	  output_nopre->push_back(Seed);
 	}
 	if(produceCkfPFT_){
-
+	  
 	  PFRecTrack pftrack( trackRef->charge(), 
-				    PFRecTrack::KF, 
-				    i, trackRef );
-
+			      PFRecTrack::KF, 
+			      i, trackRef );
+	  
 	  bool valid = pfTransformer_->addPoints( pftrack, *trackRef, Tj[i] );
-
+	  
 	  if(valid)
 	    pOutputPFRecTrackCollection->push_back(pftrack);		
 	  

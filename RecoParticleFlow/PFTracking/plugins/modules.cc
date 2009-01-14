@@ -9,6 +9,7 @@
 #include "RecoParticleFlow/PFTracking/interface/PFConversionsProducer.h"
 #include "RecoParticleFlow/PFTracking/interface/PFV0Producer.h"
 #include "RecoParticleFlow/PFTracking/interface/ConvBremSeedProducer.h"
+#include "RecoParticleFlow/PFTracking/interface/ElectronSeedMerger.h"
 DEFINE_SEAL_MODULE();
 DEFINE_ANOTHER_FWK_MODULE(GoodSeedProducer);
 DEFINE_ANOTHER_FWK_MODULE(PFElecTkProducer);
@@ -19,3 +20,4 @@ DEFINE_ANOTHER_FWK_MODULE(PFNuclearProducer);
 DEFINE_ANOTHER_FWK_MODULE(PFConversionsProducer);
 DEFINE_ANOTHER_FWK_MODULE(PFV0Producer);
 DEFINE_ANOTHER_FWK_MODULE(ConvBremSeedProducer);
+DEFINE_ANOTHER_FWK_MODULE(ElectronSeedMerger);
