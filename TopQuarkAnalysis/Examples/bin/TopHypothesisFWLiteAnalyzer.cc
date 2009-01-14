@@ -85,7 +85,7 @@ int main(int argc, char* argv[])
     return -1;
   }
 
-  // acess branch of ttSemiEvent
+  // acess branch of ttSemiLepEvent
   char decayName[50];
   sprintf(decayName, "recoGenParticles_decaySubset__%s.obj", argv[2]);
   TBranch* decay_   = events_->GetBranch( decayName ); // referred to from within TtGenEvent class
@@ -94,44 +94,44 @@ int main(int argc, char* argv[])
   sprintf(genEvtName, "TtGenEvent_genEvt__%s.obj", argv[2]);
   TBranch* genEvt_  = events_->GetBranch( genEvtName ); // referred to from within TtSemiLeptonicEvent class
   assert( genEvt_ != 0 ); 
-  char semiEvtName[50];
-  sprintf(semiEvtName, "TtSemiLeptonicEvent_ttSemiLepEvent__%s.obj", argv[2]);
-  TBranch* semiEvt_ = events_->GetBranch( semiEvtName ); 
-  assert( semiEvt_ != 0 );
+  char semiLepEvtName[50];
+  sprintf(semiLepEvtName, "TtSemiLeptonicEvent_ttSemiLepEvent__%s.obj", argv[2]);
+  TBranch* semiLepEvt_ = events_->GetBranch( semiLepEvtName ); 
+  assert( semiLepEvt_ != 0 );
   
   // loop over events and fill histograms  
   int nevt = events_->GetEntries();
-  TtSemiLeptonicEvent semiEvt;
+  TtSemiLeptonicEvent semiLepEvt;
   // -------------------------------------------------  
   std::cout << "start looping " << nevt << " events..." << std::endl;
   // -------------------------------------------------
   for(int evt=0; evt<nevt; ++evt){
     // set branch address
-    semiEvt_-> SetAddress( &semiEvt );
+    semiLepEvt_-> SetAddress( &semiLepEvt );
     // get event
     decay_  ->GetEntry( evt );
     genEvt_ ->GetEntry( evt );
-    semiEvt_->GetEntry( evt );
+    semiLepEvt_->GetEntry( evt );
     events_ ->GetEntry( evt, 0 );
 
     // -------------------------------------------------  
-    if(evt>0 && !evt%100) std::cout << "  processing event: " << evt << std::endl;
+    if(evt>0 && !(evt%10)) std::cout << "  processing event: " << evt << std::endl;
     // -------------------------------------------------  
 
     // fill histograms
-    if( !semiEvt.isHypoAvailable(hypoKey) ){
+    if( !semiLepEvt.isHypoAvailable(hypoKey) ){
       std::cerr << "NonValidHyp:: " << "Hypothesis not available for this event" << std::endl;
       continue;
     }
-    if( !semiEvt.isHypoValid(hypoKey) ){
+    if( !semiLepEvt.isHypoValid(hypoKey) ){
       std::cerr << "NonValidHyp::" << "Hypothesis not valid for this event" << std::endl;
       continue;
     }
     
-    const reco::Candidate* hadTop = semiEvt.hadronicTop(hypoKey);
-    const reco::Candidate* hadW   = semiEvt.hadronicW  (hypoKey);
-    const reco::Candidate* lepTop = semiEvt.leptonicTop(hypoKey);
-    const reco::Candidate* lepW   = semiEvt.leptonicW  (hypoKey);
+    const reco::Candidate* hadTop = semiLepEvt.hadronicTop(hypoKey);
+    const reco::Candidate* hadW   = semiLepEvt.hadronicW  (hypoKey);
+    const reco::Candidate* lepTop = semiLepEvt.leptonicTop(hypoKey);
+    const reco::Candidate* lepW   = semiLepEvt.leptonicW  (hypoKey);
     
     if(hadTop && hadW && lepTop && lepW){
       hadWPt_    ->Fill( hadW->pt()    );
