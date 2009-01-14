@@ -54,6 +54,7 @@ XMLIdealGeometryESSource.geomXMLFiles = cms.vstring(
         'SLHCUpgradeSimulations/Geometry/data/strawmanb/pixbarladderstack5.xml',
         'SLHCUpgradeSimulations/Geometry/data/strawmanb/pixbarlayerstack5.xml',
         'SLHCUpgradeSimulations/Geometry/data/strawmanb/pixbar.xml',
+        'Geometry/TrackerCommonData/data/tobmaterial.xml',
         'Geometry/TrackerCommonData/data/tecmaterial.xml', 
         'Geometry/TrackerCommonData/data/tecmodpar.xml', 
         'Geometry/TrackerCommonData/data/tecmodule0.xml', 
