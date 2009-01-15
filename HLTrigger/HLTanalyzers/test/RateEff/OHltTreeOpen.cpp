@@ -683,16 +683,12 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
   }           
 
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_L1Mu20") == 0) {         
-    int rc = 0;  
-    for(int i = 0; i < NL1OpenMu; i++) {  
-      if(L1MuPt[i] > 20. && L1MuQal[i] > 3 && L1MuQal[i] < 8) {  
-	rc++;  
-      }  
-    }  
-    if(rc>0) {  
-      if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }     
-    }            
-  }         
+    if((L1_SingleMu20==1)) {      // L1 Seed            
+      if(1) {  
+	if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }     
+      }            
+    }         
+  }
 
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_L2Mu9_1Jet30") == 0){ // SGL - example lepton+jet cross-trigger
     if((L1_Mu5_Jet15==1)) {      // L1 Seed  
