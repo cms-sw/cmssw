@@ -12,6 +12,10 @@
 #include "CondFormats/CSCObjects/interface/CSCCrateMap.h"
 #include "CondFormats/CSCObjects/interface/CSCDDUMap.h"
 #include "CondFormats/CSCObjects/interface/CSCChamberIndex.h"
+#include "CondFormats/CSCObjects/interface/CSCChamberMap.h"
+#include "CondFormats/CSCObjects/interface/CSCCrateMap.h"
+#include "CondFormats/CSCObjects/interface/CSCDDUMap.h"
+#include "CondFormats/CSCObjects/interface/CSCChamberIndex.h"
 
 namespace {
   struct dictionary {
@@ -38,24 +42,10 @@ namespace {
     std::vector<CSCBadWires::BadChamber> bwchmcontainer;
     std::vector<CSCBadWires::BadChannel> bwchncontainer;
 
-  };
-}
+    std::map< int, CSCMapItem::MapItem > chmap;
+    std::pair< const int, CSCMapItem::MapItem > chmapvalue;
 
-#include "CondFormats/CSCObjects/interface/CSCChamberMap.h"
-namespace{
-  std::map< int, CSCMapItem::MapItem > chmap;
-}
-#include "CondFormats/CSCObjects/interface/CSCCrateMap.h"
-namespace{
-  std::map< int, CSCMapItem::MapItem > cratemap;
-}
-#include "CondFormats/CSCObjects/interface/CSCDDUMap.h"
-namespace{
-  std::map< int, CSCMapItem::MapItem > ddumap;
-}
-#include "CondFormats/CSCObjects/interface/CSCChamberIndex.h"
-namespace{
-  std::map< int, CSCMapItem::MapItem > indexmap;
+  };
 }
 
 #include "CondFormats/CSCObjects/interface/CSCBadChambers.h"

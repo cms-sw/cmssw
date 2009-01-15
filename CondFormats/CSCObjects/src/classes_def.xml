@@ -45,6 +45,9 @@
 
  <class name="CSCBadChambers"/>
  
+ <class name="std::map< int, CSCMapItem::MapItem >"/>
+ <class name="std::pair< const int, CSCMapItem::MapItem >"/>
+
  <class name="CSCMapItem"/>
  <class name="CSCMapItem::MapItem"/>
 
@@ -74,9 +77,5 @@
   <field name="hw2sw_" transient="true"/>
 </class>
 <class name="CSCTriggerMapping::CSCTriggerConnection"/>
-
- <class pattern="*map*"/>
- <class pattern="*pair*"/>
- <class pattern="*vector*"/>
 
 </lcgdict>   
