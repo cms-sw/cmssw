@@ -18,7 +18,7 @@
 //
 // Author:      Christophe Saout
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: MVAComputer.cc,v 1.7 2008/04/21 08:53:02 saout Exp $
+// $Id: MVAComputer.cc,v 1.8 2009/01/14 11:48:22 hegner Exp $
 //
 #include <functional>
 #include <algorithm>
@@ -73,8 +73,7 @@ std::vector<VarProcessor*> MVAComputer::getProcessors() const
 {
 	std::vector<VarProcessor*> procs;
 
-	ROOT::Reflex::Type thisType =
-				ROOT::Reflex::GetType<MVAComputer>();
+	ROOT::Reflex::Type thisType = ROOT::Reflex::GetType<MVAComputer>();
 	ROOT::Reflex::Type baseType = ROOT::Reflex::GetType<VarProcessor>();
 
 	ROOT::Reflex::Object thisObj(thisType,
@@ -104,15 +103,14 @@ std::vector<VarProcessor*> MVAComputer::getProcessors() const
 			continue;
 
 		ROOT::Reflex::Object obj = iter->Get(thisObj);
-		ROOT::Reflex::Object sizeObj;
-                obj.Invoke("size", sizeObj);
-		std::size_t size = ROOT::Reflex::Object_Cast<std::size_t>(sizeObj);
+		std::size_t size;
+                obj.Invoke("size", size);
 
 		for(std::size_t i = 0; i < size; i++) {
-			ROOT::Reflex::Object item;
-                        obj.Invoke("at", item, ROOT::Reflex::Tools::MakeVector<void*>(&i));
-			procs.push_back(static_cast<VarProcessor*>(
-					item.CastObject(baseType).Address()));
+			VarProcessor *itemPtr;
+			ROOT::Reflex::Object item(itemType, &itemPtr);
+                        obj.Invoke("at", &item, ROOT::Reflex::Tools::MakeVector<void*>(&i));
+			procs.push_back(itemPtr);
 		}
 	}
 
@@ -178,9 +176,8 @@ void MVAComputer::addProcessor(const VarProcessor *proc)
 			continue;
 
 		ROOT::Reflex::Object iObj = iter->Get(thisObj);
-		ROOT::Reflex::Object sizeObj;
-                iObj.Invoke("size",sizeObj);
-		std::size_t size = ROOT::Reflex::Object_Cast<std::size_t>(sizeObj);
+		std::size_t size;
+                iObj.Invoke("size", size);
 
 		idx += size;
 
@@ -192,8 +189,7 @@ void MVAComputer::addProcessor(const VarProcessor *proc)
 					(*iter2)++;
 			}
 
-			ROOT::Reflex::Object dummy;                              
-			iObj.Invoke("push_back", dummy, 
+			iObj.Invoke("push_back", 0, 
 				ROOT::Reflex::Tools::MakeVector<void*>(
 							obj.Address()));
 
