@@ -94,8 +94,6 @@ MuonCandidate::CandidateContainer GlobalCosmicMuonTrajectoryBuilder::trajectorie
   LogTrace(category_) <<"Found "<<theTrackerTracks->size()<<" tracker Tracks";
   if (theTrackerTracks->empty()) return result;
 
-  LogTrace(category_) <<"It has "<<theTrackerTracks->front().found()<<" tk rhs";
-
   vector<TrackCand> matched = match(muCand, theTrackerTracks);
 
   LogTrace(category_) <<"TrackMatcher found " << matched.size() << "tracker tracks matched";
@@ -132,9 +130,9 @@ MuonCandidate::CandidateContainer GlobalCosmicMuonTrajectoryBuilder::trajectorie
 
   sortHits(hits, muRecHits, tkRecHits);
 
-  LogTrace(category_)<< "Used RecHits after sort: "<<hits.size()<<endl;;
-  LogTrace(category_) <<utilities()->print(hits)<<endl;
-  LogTrace(category_) << "== End of Used RecHits == "<<endl;
+//  LogTrace(category_)<< "Used RecHits after sort: "<<hits.size()<<endl;;
+//  LogTrace(category_) <<utilities()->print(hits)<<endl;
+//  LogTrace(category_) << "== End of Used RecHits == "<<endl;
 
   TrajectoryStateTransform tsTrans;
 
@@ -235,13 +233,13 @@ void GlobalCosmicMuonTrajectoryBuilder::sortHits(ConstRecHitContainer& hits, Con
     reverse(muonHits.begin(), muonHits.end());
   }
 
-  LogTrace(category_)<< "tkHits after sort: "<<tkHits.size()<<endl;;
-  LogTrace(category_) <<utilities()->print(tkHits)<<endl;
-  LogTrace(category_) << "== End of tkHits == "<<endl;
+//  LogTrace(category_)<< "tkHits after sort: "<<tkHits.size()<<endl;;
+//  LogTrace(category_) <<utilities()->print(tkHits)<<endl;
+//  LogTrace(category_) << "== End of tkHits == "<<endl;
 
-  LogTrace(category_)<< "muonHits after sort: "<<muonHits.size()<<endl;;
-  LogTrace(category_) <<utilities()->print(muonHits)<<endl;
-  LogTrace(category_)<< "== End of muonHits == "<<endl;
+//  LogTrace(category_)<< "muonHits after sort: "<<muonHits.size()<<endl;;
+//  LogTrace(category_) <<utilities()->print(muonHits)<<endl;
+//  LogTrace(category_)<< "== End of muonHits == "<<endl;
 
   //separate muon hits into 2 different hemisphere
   ConstRecHitContainer::iterator middlepoint = muonHits.begin();
@@ -317,8 +315,10 @@ std::vector<GlobalCosmicMuonTrajectoryBuilder::TrackCand> GlobalCosmicMuonTrajec
    
    std::vector<TrackCand> result;
 
-    //no tracker tracks for muons that do not cross tracker
-    TrajectoryStateTransform tsTrans;
+   if ( fabs(mu.second->dxy()) > 200 ) return result;
+
+   //no tracker tracks for muons that do not cross tracker
+   TrajectoryStateTransform tsTrans;
    TrajectoryStateOnSurface innerTsos = tsTrans.innerStateOnSurface(*(mu.second), *theService->trackingGeometry(), &*theService->magneticField());
 
    TrajectoryStateOnSurface outerTsos = tsTrans.outerStateOnSurface(*(mu.second), *theService->trackingGeometry(), &*theService->magneticField());
@@ -348,8 +348,15 @@ std::vector<GlobalCosmicMuonTrajectoryBuilder::TrackCand> GlobalCosmicMuonTrajec
    // if there're many tracker tracks
 
    // if muon is only on one side
-   if ( ( innerTsos.globalPosition().basicVector().dot( innerTsos.globalMomentum().basicVector() ) *
-       outerTsos.globalPosition().basicVector().dot(outerTsos.globalMomentum().basicVector() ) > 0 ) ) {
+   GlobalPoint innerPos = innerTsos.globalPosition();
+   GlobalPoint outerPos = outerTsos.globalPosition();
+
+   if ( ( innerPos.basicVector().dot( innerTsos.globalMomentum().basicVector() ) *
+       outerPos.basicVector().dot(outerTsos.globalMomentum().basicVector() ) > 0 ) ) {
+
+      GlobalPoint geoInnerPos = (innerPos.mag() < outerPos.mag()) ? innerPos : outerPos;
+     LogTrace(category_) <<"geoInnerPos Mu "<<geoInnerPos<<endl;
+
      // if there're tracker tracks totally on the other half
      // and there're tracker tracks on the same half
      // remove the tracks on the other half
@@ -357,8 +364,37 @@ std::vector<GlobalCosmicMuonTrajectoryBuilder::TrackCand> GlobalCosmicMuonTrajec
 
         reco::TrackRef tkTrack = itkCand->second;
 
-        if ( deltaPhi((double)innerTsos.globalPosition().phi(), tkTrack->innerPosition().Phi() ) > M_PI/2 && deltaPhi((double)innerTsos.globalPosition().phi(), tkTrack->outerPosition().Phi() ) > M_PI/2  )  {
-          cout<<"The Track is on different hemisphere"<<endl;
+        GlobalPoint tkInnerPos(tkTrack->innerPosition().x(), tkTrack->innerPosition().y(), tkTrack->innerPosition().z());
+        GlobalPoint tkOuterPos(tkTrack->outerPosition().x(), tkTrack->outerPosition().y(), tkTrack->outerPosition().z());
+        LogTrace(category_) <<"tkTrack "<<tkInnerPos<<" "<<tkOuterPos<<endl;
+
+        float closetDistance11 =  (geoInnerPos - tkInnerPos).mag() ; 
+        float closetDistance12 =  (geoInnerPos - tkOuterPos).mag() ;
+        float closetDistance1 = (closetDistance11 < closetDistance12) ? closetDistance11 : closetDistance12;
+        LogTrace(category_) <<"closetDistance1 "<<closetDistance1<<endl;
+
+        if (true || !isTraversing(*tkTrack) ) {
+            bool keep = true;
+            for(vector<TrackCand>::const_iterator itkCand2 = tkTrackCands.begin(); itkCand2 != tkTrackCands.end(); ++itkCand2) {
+                if (itkCand2 == itkCand ) continue;
+                reco::TrackRef tkTrack2 = itkCand2->second;
+
+                GlobalPoint tkInnerPos2(tkTrack2->innerPosition().x(), tkTrack2->innerPosition().y(), tkTrack2->innerPosition().z());
+                GlobalPoint tkOuterPos2(tkTrack2->outerPosition().x(), tkTrack2->outerPosition().y(), tkTrack2->outerPosition().z());
+                LogTrace(category_) <<"tkTrack2 "<< tkInnerPos2 <<" "<<tkOuterPos2 <<endl;
+
+                float farthestDistance21 =  (geoInnerPos - tkInnerPos2).mag() ;
+                float farthestDistance22 =  (geoInnerPos - tkOuterPos2).mag() ;
+                float farthestDistance2 = (farthestDistance21 > farthestDistance22) ? farthestDistance21 : farthestDistance22;
+                LogTrace(category_) <<"farthestDistance2 "<<farthestDistance2<<endl;
+
+                if (closetDistance1 > farthestDistance2 - 1e-3) {
+                     keep = false;
+                     break;
+                } 
+            }
+            if (keep) result.push_back(*itkCand);
+            else LogTrace(category_) <<"The Track is on different hemisphere"<<endl;
         } else {
           result.push_back(*itkCand);
         } 
@@ -402,3 +438,34 @@ std::vector<GlobalCosmicMuonTrajectoryBuilder::TrackCand> GlobalCosmicMuonTrajec
   }  
 }
 
+
+bool GlobalCosmicMuonTrajectoryBuilder::isTraversing(const reco::Track& track) const {
+
+  trackingRecHit_iterator firstValid;
+  for (trackingRecHit_iterator hit = track.recHitsBegin(); hit != track.recHitsEnd(); ++hit) {
+    if((*hit)->isValid()) {
+       firstValid = hit;
+       break;
+    }
+  }
+
+  trackingRecHit_iterator lastValid;
+  for (trackingRecHit_iterator hit = track.recHitsEnd() - 1; hit != track.recHitsBegin() - 1; --hit) {
+    if((*hit)->isValid()) {
+       lastValid = hit;
+       break;
+    }
+  }
+
+  GlobalPoint posFirst = theService->trackingGeometry()->idToDet((*firstValid)->geographicalId())->position();
+
+  GlobalPoint posLast  = theService->trackingGeometry()->idToDet((*lastValid)->geographicalId() )->position();
+
+  GlobalPoint middle((posFirst.x()+posLast.x())/2, (posFirst.y()+posLast.y())/2, (posFirst.z()+posLast.z())/2);
+
+  if ( (middle.mag() < posFirst.mag()) && (middle.mag() < posLast.mag() ) ) {
+     return true;
+  }
+  return false;
+
+}
