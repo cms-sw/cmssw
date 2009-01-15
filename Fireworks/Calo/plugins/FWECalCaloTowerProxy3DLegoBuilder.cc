@@ -1,70 +1,72 @@
 // -*- C++ -*-
 //
 // Package:     Calo
-// Class  :     ECalCaloTowerProxy3DLegoBuilder
+// Class  :     FWECalCaloTowerProxy3DLegoBuilder
 //
 // Implementation:
 //     <Notes on implementation>
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: ECalCaloTowerProxy3DLegoBuilder.cc,v 1.9 2008/11/06 22:05:21 amraktad Exp $
+// $Id: FWECalCaloTowerProxy3DLegoBuilder.cc,v 1.10 2009/01/15 20:54:40 chrjones Exp $
 //
 
 // system include files
 #include "TH2F.h"
 
-
 // user include files
-#include "Fireworks/Calo/interface/ECalCaloTowerProxy3DLegoBuilder.h"
+#include "Fireworks/Core/interface/FW3DLegoEveHistProxyBuilder.h"
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerFwd.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 
 #include "Fireworks/Core/interface/fw3dlego_xbins.h"
 
-//
-// constants, enums and typedefs
-//
+class FWECalCaloTowerProxy3DLegoBuilder : public FW3DLegoEveHistProxyBuilder
+{
 
-//
-// static data member definitions
-//
+   public:
+      FWECalCaloTowerProxy3DLegoBuilder();
+      virtual ~FWECalCaloTowerProxy3DLegoBuilder();
+
+      // ---------- const member functions ---------------------
+      REGISTER_PROXYBUILDER_METHODS();
+
+      // ---------- static member functions --------------------
+
+      // ---------- member functions ---------------------------
+
+   private:
+      virtual void applyChangesToAllModels();
+      virtual void build(const FWEventItem* iItem,
+                         TH2F** product);
+
+      FWECalCaloTowerProxy3DLegoBuilder(const FWECalCaloTowerProxy3DLegoBuilder&); // stop default
+
+      const FWECalCaloTowerProxy3DLegoBuilder& operator=(const FWECalCaloTowerProxy3DLegoBuilder&); // stop default
+
+      // ---------- member data --------------------------------
+      const CaloTowerCollection* m_towers;
+      TH2F* m_hist;
+};
 
 //
 // constructors and destructor
 //
-ECalCaloTowerProxy3DLegoBuilder::ECalCaloTowerProxy3DLegoBuilder() :
+FWECalCaloTowerProxy3DLegoBuilder::FWECalCaloTowerProxy3DLegoBuilder() :
 m_towers(0)
 {
 }
 
-// ECalCaloTowerProxy3DLegoBuilder::ECalCaloTowerProxy3DLegoBuilder(const ECalCaloTowerProxy3DLegoBuilder& rhs)
-// {
-//    // do actual copying here;
-// }
-
-ECalCaloTowerProxy3DLegoBuilder::~ECalCaloTowerProxy3DLegoBuilder()
+FWECalCaloTowerProxy3DLegoBuilder::~FWECalCaloTowerProxy3DLegoBuilder()
 {
 }
-
-//
-// assignment operators
-//
-// const ECalCaloTowerProxy3DLegoBuilder& ECalCaloTowerProxy3DLegoBuilder::operator=(const ECalCaloTowerProxy3DLegoBuilder& rhs)
-// {
-//   //An exception safe implementation is
-//   ECalCaloTowerProxy3DLegoBuilder temp(rhs);
-//   swap(rhs);
-//
-//   return *this;
-// }
 
 //
 // member functions
 //
 void
-ECalCaloTowerProxy3DLegoBuilder::build(const FWEventItem* iItem,
+FWECalCaloTowerProxy3DLegoBuilder::build(const FWEventItem* iItem,
 				       TH2F** product)
 {
   if (0==*product) {
@@ -85,12 +87,11 @@ ECalCaloTowerProxy3DLegoBuilder::build(const FWEventItem* iItem,
       tower != m_towers->end(); ++tower) {
      (*product)->Fill(tower->eta(), tower->phi(), tower->emEt());
   }
-
 }
 
 
 void
-ECalCaloTowerProxy3DLegoBuilder::applyChangesToAllModels()
+FWECalCaloTowerProxy3DLegoBuilder::applyChangesToAllModels()
 {
    if(m_towers && item()) {
       m_hist->Reset();
@@ -110,7 +111,7 @@ ECalCaloTowerProxy3DLegoBuilder::applyChangesToAllModels()
 //
 // const member functions
 //
-REGISTER_FW3DLEGODATAPROXYBUILDER(ECalCaloTowerProxy3DLegoBuilder,CaloTowerCollection,"ECal");
+REGISTER_FW3DLEGODATAPROXYBUILDER(FWECalCaloTowerProxy3DLegoBuilder,CaloTowerCollection,"ECal");
 
 //
 // static member functions
