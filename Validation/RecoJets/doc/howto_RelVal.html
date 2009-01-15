@@ -97,19 +97,24 @@ The histogramms are written to the root file:
 
 <p>To generate the comparison plots run the script:<br>
 <pre>
-  ./validation
+  ./validation.sh
 </pre>
 
 The prompt shows:<br>
 <pre>
   This script produces all the histograms and plots...
-  Enter the REFERNCE.root file, the NEW.root file and the directory name/histo title([REFERNCE.root] [NEW.root] [title])
+  Enter the REFERNCE.root file, the NEW.root file, the directory name/histo title and the normalization ([REFERNCE.root] [NEW.root] [title] [normalization])
 </pre>
+With <tt>[normalization]</tt> one can chose a normalization from the number of entries in the histogramm (write <tt>y</tt>) or the number of events (write nothing). The normalization is set per default to the number of events.<br>
+
 For a test compare the file to itself, and save the files in a directory called testdir
 <pre>
   QCD_80_120_STARTUP_V7_v2.root QCD_80_120_STARTUP_V7_v2.root testdir
 </pre>
-
+or
+<pre>
+  QCD_80_120_STARTUP_V7_v2.root QCD_80_120_STARTUP_V7_v2.root testdir y
+</pre>
 <p>
 The plots can be examined in a browser by executing:
 <pre>
