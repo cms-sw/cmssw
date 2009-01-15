@@ -74,6 +74,8 @@ private:
 
   CosmicMuonUtilities* utilities() const {return smoother()->utilities();}
 
+  bool isTraversing(const reco::Track& tk) const;
+
   const MuonServiceProxy *theService;
 
   CosmicMuonSmoother* theSmoother;
