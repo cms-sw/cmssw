@@ -12,7 +12,7 @@
 
 // Original Author:  fwyzard
 //         Created:  Wed Oct 18 18:02:07 CEST 2006
-// $Id: SoftLepton.cc,v 1.24 2008/11/11 14:18:43 fwyzard Exp $
+// $Id: SoftLepton.cc,v 1.25 2008/11/11 14:55:36 fwyzard Exp $
 
 
 #include <memory>
@@ -92,7 +92,8 @@ SoftLepton::SoftLepton(const edm::ParameterSet & iConfig) :
   m_refineJetAxis( iConfig.getParameter<unsigned int>( "refineJetAxis" ) ),
   m_deltaRCut(     iConfig.getParameter<double>( "leptonDeltaRCut" ) ),
   m_chi2Cut(       iConfig.getParameter<double>( "leptonChi2Cut" ) ),
-  m_qualityCut(    iConfig.getParameter<double>( "leptonQualityCut" ) )
+  m_qualityCut(    iConfig.getParameter<double>( "leptonQualityCut" ) ),
+  m_muonSelection( (reco::Muon::SelectionType) iConfig.getParameter<unsigned int>( "muonSelection" ) )
 {
   produces<reco::SoftLeptonTagInfoCollection>();
   if (m_primaryVertex.label() == "nominal")
@@ -194,11 +195,16 @@ SoftLepton::produce(edm::Event & event, const edm::EventSetup & setup) {
     event.getByLabel(m_leptons, h_muons);
     if (h_muons.isValid()) {
       for (MuonView::const_iterator muon = h_muons->begin(); muon != h_muons->end(); ++muon) {
-        if (muon->isGlobalMuon())
-          leptons.push_back(edm::RefToBase<reco::Track>( muon->globalTrack() ));
-        else 
-        if (muon->isTrackerMuon() and muon->caloCompatibility() > m_qualityCut)
-          leptons.push_back(edm::RefToBase<reco::Track>( muon->innerTrack() ));
+        if (muon->isGood( m_muonSelection ))
+          if (not muon->globalTrack().isNull())
+            leptons.push_back(edm::RefToBase<reco::Track>( muon->globalTrack() ));
+          else 
+          if (not muon->innerTrack().isNull())
+            leptons.push_back(edm::RefToBase<reco::Track>( muon->innerTrack() ));
+          else
+          if (not muon->outerTrack().isNull())
+            // does this makes sense ?
+            leptons.push_back(edm::RefToBase<reco::Track>( muon->outerTrack() ));
       }
       break;
     }

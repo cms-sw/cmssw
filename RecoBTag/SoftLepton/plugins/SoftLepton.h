@@ -16,7 +16,7 @@
 //
 // Original Author:  fwyzard
 //         Created:  Wed Oct 18 18:02:07 CEST 2006
-// $Id: SoftLepton.h,v 1.4 2008/08/27 11:15:58 fwyzard Exp $
+// $Id: SoftLepton.h,v 1.5 2008/11/11 14:55:36 fwyzard Exp $
 //
 
 // system include files
@@ -34,6 +34,7 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/BTauReco/interface/SoftLeptonTagInfo.h"
 
 class edm::EventSetup;
@@ -94,10 +95,11 @@ private:
   double        m_deltaRCut;
   double        m_chi2Cut;
   double        m_qualityCut;
-
-  // vertex type
-  VertexType    m_pvType;
+  VertexType    m_pvType;       // vertex type
   
+  // specific for reco::Muons
+  reco::Muon::SelectionType m_muonSelection;
+
   // nominal beam spot position
   static const reco::Vertex s_nominalBeamSpot;
 };
