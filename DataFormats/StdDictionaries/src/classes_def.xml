@@ -16,6 +16,8 @@
  <class name="std::map<std::basic_string<char>,std::vector<std::basic_string<char> > >"/>
  <class name="std::map<std::basic_string<char>,std::vector<std::pair<std::basic_string<char>,double> > >"/>
  <class name="std::map<unsigned int,bool>"/>
+ <class name="std::map<unsigned int,short>"/>
+ <class name="std::pair<const unsigned int,short>"/>
  <class name="std::map<unsigned int,float>"/>
  <class name="std::map<unsigned int,int>"/>
  <class name="std::map<unsigned int,std::vector<std::pair<unsigned int,double> > >" />
@@ -37,6 +39,7 @@
  <class name="std::pair<unsigned int,bool>"/>
  <class name="std::pair<unsigned int,double>"/>
  <class name="std::pair<unsigned int,float>"/>
+ <class name="std::pair<const unsigned int,float>"/>
  <class name="std::pair<unsigned int,int>"/>
  <class name="std::pair<unsigned int,std::vector<unsigned int> >"/>
  <class name="std::pair<unsigned int,unsigned int>"/>

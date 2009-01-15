@@ -40,6 +40,7 @@ namespace {
   std::pair<int, int> dymmywp4;
   std::pair<unsigned int, bool> dymmywp5;
   std::pair<unsigned int, float> dymmywp6;
+  std::pair<const unsigned int, float> dymmywp6a;
   std::pair<unsigned int, double> dymmywp6d;
   std::pair<double, double> dymmywp7;
   std::pair<unsigned long long, std::basic_string<char> > dymmywp8;
@@ -57,6 +58,9 @@ namespace {
   std::map<unsigned short, unsigned short> dymmywm3;
   std::map<int, int> dymmywm4;
   std::map<unsigned int, bool> dymmywm5;
+  std::map<unsigned int, short> dymmywm6;
+  std::pair<const unsigned int, short> dymmywm6_valuetype;
+
   std::map<unsigned long, std::vector<unsigned long> > dymmywmv1;
   std::map<unsigned int, std::vector<unsigned int> > dymmywmv2;
   std::map<unsigned int,std::vector<std::pair<unsigned int,double> > >dymmywmv2_1;
