@@ -1,4 +1,4 @@
-#include <typeinfo>
+#include <limits>
 
 #include "DataFormats/BTauReco/interface/SoftLeptonTagInfo.h"
 #include "RecoBTag/SoftLepton/interface/LeptonTaggerDistance.h"
@@ -12,5 +12,5 @@ float LeptonTaggerDistance::discriminator(const TagInfoHelper & tagInfo) const {
       return 1.0;
   }
   // default value, used if there are no leptons associated to this jet
-  return -1.0;
+  return - std::numeric_limits<float>::infinity();
 }
