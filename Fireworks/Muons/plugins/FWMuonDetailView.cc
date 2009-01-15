@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWMuonDetailView.cc,v 1.12 2009/01/12 17:21:30 chrjones Exp $
+// $Id: FWMuonDetailView.cc,v 1.1 2009/01/13 02:10:03 chrjones Exp $
 //
 
 // system include files
@@ -44,7 +44,6 @@
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 #include "Fireworks/Core/interface/TEveElementIter.h"
-#include "Fireworks/Calo/interface/ECalCaloTowerProxy3DLegoBuilder.h"
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerFwd.h"
 // Don't forget the Muons
