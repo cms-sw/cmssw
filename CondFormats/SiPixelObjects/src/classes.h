@@ -3,6 +3,7 @@
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
 namespace {
   std::map<SiPixelFedCablingMap::Key, sipixelobjects::PixelROC> theMap; 
+  std::pair<const SiPixelFedCablingMap::Key, sipixelobjects::PixelROC> theMapValueT; 
 }
 
 #include "CondFormats/SiPixelObjects/interface/SiPixelCPEGenericErrorParm.h"

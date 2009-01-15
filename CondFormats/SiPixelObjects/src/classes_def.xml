@@ -8,10 +8,12 @@
 
   <class name="SiPixelFedCablingMap::Key"/>
   <class name="std::map<SiPixelFedCablingMap::Key,sipixelobjects::PixelROC>"/>
+  <class name="std::pair<const SiPixelFedCablingMap::Key,sipixelobjects::PixelROC>"/>
   <class name="SiPixelFedCablingMap" class_version="0"/>
 
   <class name="SiPixelCPEGenericErrorParm" class_version="0"/>
   <class name="SiPixelCPEGenericErrorParm::DbEntry"/>
+  <class name="SiPixelCPEGenericErrorParm::DbEntryBinSize"/>
   <class name="std::vector<SiPixelCPEGenericErrorParm::DbEntry>"/> 
   <class name="std::vector<SiPixelCPEGenericErrorParm::DbEntryBinSize>"/>
 
@@ -48,9 +50,5 @@
   <class pattern="PixelDCSObject<*>"/> 
   <class pattern="PixelDCSObject<*>::Item"/> 
   <class pattern="PixelDCSObject<*>::Type"/> 
-
-  <class pattern="*pair*"/>
-  <class pattern="*vector*"/>
-  <class pattern="*map*"/>
 
 </lcgdict>   
