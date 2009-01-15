@@ -1,65 +1,74 @@
 // -*- C++ -*-
 //
 // Package:     Calo
-// Class  :     MetProxyEveLegoBuilder
+// Class  :     FWMetProxyEveLegoBuilder
+
 //
 // Implementation:
 //     <Notes on implementation>
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: MetProxyEveLegoBuilder.cc,v 1.4 2008/11/04 20:29:24 amraktad Exp $
+// $Id: FWMetProxyEveLegoBuilder.cc,v 1.1 2009/11/15 22:05:21 amraktad Exp $
 //
 
 // system include files
 #include "TEveElement.h"
-#include "TColor.h"
-#include "TGeoTube.h"
-#include "TEveTrans.h"
-#include "TEveGeoNode.h"
-#include "TROOT.h"
 #include "TEveStraightLineSet.h"
 #include "TEveCompound.h"
 
 // user include files
-#include "Fireworks/Calo/interface/MetProxyEveLegoBuilder.h"
+#include "Fireworks/Core/interface/FW3DLegoEveElementProxyBuilder.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/BuilderUtils.h"
 
 #include "DataFormats/METReco/interface/CaloMETFwd.h"
 #include "DataFormats/METReco/interface/CaloMET.h"
 
-//
-// constants, enums and typedefs
-//
+class FWMetProxyEveLegoBuilder : public FW3DLegoEveElementProxyBuilder
+{
+   public:
+      FWMetProxyEveLegoBuilder();
+      virtual ~FWMetProxyEveLegoBuilder();
 
-//
-// static data member definitions
-//
+      // ---------- const member functions ---------------------
+      REGISTER_PROXYBUILDER_METHODS();
+
+      // ---------- static member functions --------------------
+   private:
+      virtual void build(const FWEventItem* iItem,
+                         TEveElementList** product);
+
+      FWMetProxyEveLegoBuilder(const FWMetProxyEveLegoBuilder&); // stop default
+
+      const FWMetProxyEveLegoBuilder& operator=(const FWMetProxyEveLegoBuilder&); // stop default
+
+      // ---------- member data --------------------------------
+};
 
 //
 // constructors and destructor
 //
-MetProxyEveLegoBuilder::MetProxyEveLegoBuilder()
+FWMetProxyEveLegoBuilder::FWMetProxyEveLegoBuilder()
 {
 }
 
-// MetProxyEveLegoBuilder::MetProxyEveLegoBuilder(const MetProxyEveLegoBuilder& rhs)
+// FWMetProxyEveLegoBuilder::FWMetProxyEveLegoBuilder(const FWMetProxyEveLegoBuilder& rhs)
 // {
 //    // do actual copying here;
 // }
 
-MetProxyEveLegoBuilder::~MetProxyEveLegoBuilder()
+FWMetProxyEveLegoBuilder::~FWMetProxyEveLegoBuilder()
 {
 }
 
 //
 // assignment operators
 //
-// const MetProxyEveLegoBuilder& MetProxyEveLegoBuilder::operator=(const MetProxyEveLegoBuilder& rhs)
+// const FWMetProxyEveLegoBuilder& FWMetProxyEveLegoBuilder::operator=(const FWMetProxyEveLegoBuilder& rhs)
 // {
 //   //An exception safe implementation is
-//   MetProxyEveLegoBuilder temp(rhs);
+//   FWMetProxyEveLegoBuilder temp(rhs);
 //   swap(rhs);
 //
 //   return *this;
@@ -67,7 +76,7 @@ MetProxyEveLegoBuilder::~MetProxyEveLegoBuilder()
 
 
 void
-MetProxyEveLegoBuilder::build(const FWEventItem* iItem, TEveElementList** product)
+FWMetProxyEveLegoBuilder::build(const FWEventItem* iItem, TEveElementList** product)
 {
    TEveElementList* tList = *product;
 
@@ -115,4 +124,4 @@ MetProxyEveLegoBuilder::build(const FWEventItem* iItem, TEveElementList** produc
    }
 }
 
-REGISTER_FW3DLEGODATAPROXYBUILDER(MetProxyEveLegoBuilder,reco::CaloMETCollection,"MET");
+REGISTER_FW3DLEGODATAPROXYBUILDER(FWMetProxyEveLegoBuilder,reco::CaloMETCollection,"MET");

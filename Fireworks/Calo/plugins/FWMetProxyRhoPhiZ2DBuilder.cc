@@ -1,33 +1,26 @@
 // -*- C++ -*-
 //
 // Package:     Calo
-// Class  :     MetProxyRhoPhiZ2DBuilder
+// Class  :     FWMetProxyRhoPhiZ2DBuilder
 //
 // Implementation:
 //     <Notes on implementation>
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: MetProxyRhoPhiZ2DBuilder.cc,v 1.10 2008/11/26 16:19:12 chrjones Exp $
+// $Id: FWMetProxyRhoPhiZ2DBuilder.cc,v 1.1 2009/01/15 04:15:46 chrjones Exp $
 //
 
 // system include files
-#include "TEveGeoNode.h"
-#include "TGeoArb8.h"
 #include "TEveManager.h"
-#include "TGeoSphere.h"
 #include "TGeoTube.h"
-#include "TH1F.h"
-#include "TColor.h"
-#include "TROOT.h"
-#include "TEvePointSet.h"
+#include "TEveGeoNode.h"
 #include "TEveScalableStraightLineSet.h"
 #include "TEveCompound.h"
 
 // user include files
-#include "Fireworks/Calo/interface/MetProxyRhoPhiZ2DBuilder.h"
+#include "Fireworks/Core/interface/FWRPZ2DDataProxyBuilder.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
-#include "Fireworks/Core/interface/FW3DLegoDataProxyBuilder.h"
 #include "Fireworks/Core/interface/BuilderUtils.h"
 
 #include "DataFormats/METReco/interface/CaloMETFwd.h"
@@ -35,27 +28,48 @@
 #include "DataFormats/FWLite/interface/Event.h"
 #include "DataFormats/FWLite/interface/Handle.h"
 
-//
-// constants, enums and typedefs
-//
+class FWMetProxyRhoPhiZ2DBuilder : public FWRPZ2DDataProxyBuilder
+{
+   public:
+      FWMetProxyRhoPhiZ2DBuilder();
+      virtual ~FWMetProxyRhoPhiZ2DBuilder();
 
-//
-// static data member definitions
-//
+      // ---------- const member functions ---------------------
+      REGISTER_PROXYBUILDER_METHODS();
+
+      // ---------- static member functions --------------------
+
+      // ---------- member functions ---------------------------
+
+   private:
+      virtual void buildRhoPhi(const FWEventItem* iItem,
+                               TEveElementList** product);
+
+      virtual void buildRhoZ(const FWEventItem* iItem,
+                               TEveElementList** product);
+
+      double getTheta( double eta ) { return 2*atan(exp(-eta)); }
+
+      FWMetProxyRhoPhiZ2DBuilder(const FWMetProxyRhoPhiZ2DBuilder&); // stop default
+
+      const FWMetProxyRhoPhiZ2DBuilder& operator=(const FWMetProxyRhoPhiZ2DBuilder&); // stop default
+
+      // ---------- member data --------------------------------
+};
 
 //
 // constructors and destructor
 //
-MetProxyRhoPhiZ2DBuilder::MetProxyRhoPhiZ2DBuilder()
+FWMetProxyRhoPhiZ2DBuilder::FWMetProxyRhoPhiZ2DBuilder()
 {
 }
 
-// MetProxyRhoPhiZ2DBuilder::MetProxyRhoPhiZ2DBuilder(const MetProxyRhoPhiZ2DBuilder& rhs)
+// FWMetProxyRhoPhiZ2DBuilder::FWMetProxyRhoPhiZ2DBuilder(const FWMetProxyRhoPhiZ2DBuilder& rhs)
 // {
 //    // do actual copying here;
 // }
 
-MetProxyRhoPhiZ2DBuilder::~MetProxyRhoPhiZ2DBuilder()
+FWMetProxyRhoPhiZ2DBuilder::~FWMetProxyRhoPhiZ2DBuilder()
 {
 }
 
@@ -63,7 +77,7 @@ MetProxyRhoPhiZ2DBuilder::~MetProxyRhoPhiZ2DBuilder()
 // member functions
 //
 void
-MetProxyRhoPhiZ2DBuilder::buildRhoPhi(const FWEventItem* iItem,
+FWMetProxyRhoPhiZ2DBuilder::buildRhoPhi(const FWEventItem* iItem,
 					    TEveElementList** product)
 {
    TEveGeoManagerHolder gmgr(TEveGeoShape::GetGeoMangeur());
@@ -129,7 +143,7 @@ MetProxyRhoPhiZ2DBuilder::buildRhoPhi(const FWEventItem* iItem,
 }
 
 void
-MetProxyRhoPhiZ2DBuilder::buildRhoZ(const FWEventItem* iItem,
+FWMetProxyRhoPhiZ2DBuilder::buildRhoZ(const FWEventItem* iItem,
 					    TEveElementList** product)
 {
    TEveElementList* tList = *product;
@@ -181,4 +195,4 @@ MetProxyRhoPhiZ2DBuilder::buildRhoZ(const FWEventItem* iItem,
    }
 }
 
-REGISTER_FWRPZDATAPROXYBUILDERBASE(MetProxyRhoPhiZ2DBuilder,reco::CaloMETCollection,"MET");
+REGISTER_FWRPZDATAPROXYBUILDERBASE(FWMetProxyRhoPhiZ2DBuilder,reco::CaloMETCollection,"MET");
