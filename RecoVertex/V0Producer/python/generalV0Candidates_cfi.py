@@ -5,6 +5,8 @@ generalV0Candidates = cms.EDProducer("V0Producer",
     trackRecoAlgorithm = cms.untracked.string('generalTracks'),
 
     # set to true, uses tracks refit by the KVF for V0Candidate kinematics
+    #  NOTE: useSmoothing and storeSmoothed...Vertex are set to FALSE
+    #  if using the AdaptiveVertexFitter
     useSmoothing = cms.bool(False),
 
     # set to true, stores tracks refit by KVF in reco::Vertex object
@@ -40,7 +42,7 @@ generalV0Candidates = cms.EDProducer("V0Producer",
     selectKshorts = cms.bool(True),
     selectLambdas = cms.bool(True),
 
-    vertexFitter = cms.untracked.string('kvf')
+    vertexFitter = cms.string('KalmanVertexFitter')
 
 )
 

@@ -13,7 +13,7 @@
 //
 // Original Author:  Brian Drell
 //         Created:  Fri May 18 22:57:40 CEST 2007
-// $Id: V0Fitter.h,v 1.15 2008/10/08 21:40:38 drell Exp $
+// $Id: V0Fitter.h,v 1.16 2008/10/17 21:03:01 drell Exp $
 //
 //
 
@@ -30,6 +30,7 @@
 #include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "RecoVertex/KalmanVertexFit/interface/KalmanVertexFitter.h"
+#include "RecoVertex/AdaptiveVertexFit/interface/AdaptiveVertexFitter.h"
 
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "MagneticField/VolumeBasedEngine/interface/VolumeBasedMagneticField.h"
@@ -103,6 +104,8 @@ class V0Fitter {
   double impactParameterSigCut;
   double mPiPiCut;
   double tkDCACut;
+
+  string vtxFitter;
 
   // Helper method that does the actual fitting using the KalmanVertexFitter
   void fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup);

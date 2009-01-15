@@ -13,7 +13,7 @@
 //
 // Original Author:  Brian Drell
 //         Created:  Fri May 18 22:57:40 CEST 2007
-// $Id: V0Fitter.cc,v 1.34 2008/12/02 23:44:09 drell Exp $
+// $Id: V0Fitter.cc,v 1.35 2008/12/06 00:30:56 drell Exp $
 //
 //
 
@@ -73,7 +73,10 @@ V0Fitter::V0Fitter(const edm::ParameterSet& theParameters,
   impactParameterSigCut = theParameters.getParameter<double>(string("impactParameterSigCut"));
   mPiPiCut = theParameters.getParameter<double>(string("mPiPiCut"));
   tkDCACut = theParameters.getParameter<double>(string("tkDCACut"));
+  vtxFitter = theParameters.getParameter<string>(string("vertexFitter"));
 
+  //edm::LogInfo("V0Producer") << "Using " << vtxFitter << " to fit V0 vertices.\n";
+  //std::cout << "Using " << vtxFitter << " to fit V0 vertices." << std::endl;
   // FOR DEBUG:
   //initFileOutput();
   //--------------------
@@ -280,12 +283,21 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
       if( mass > mPiPiCut ) continue;
 
-      // Create the vertex fitter object
-      KalmanVertexFitter theFitter(useRefTrax == 0 ? false : true);
+      // Create the vertex fitter object and vertex the tracks
+      TransientVertex theRecoVertex;
+      if(vtxFitter == string("KalmanVertexFitter")) {
+	KalmanVertexFitter theKalmanFitter(useRefTrax == 0 ? false : true);
+	theRecoVertex = theKalmanFitter.vertex(transTracks);
+      }
+      else if (vtxFitter == string("AdaptiveVertexFitter")) {
+	useRefTrax = storeRefTrax = false;
+	AdaptiveVertexFitter theAdaptiveFitter;
+	theRecoVertex = theAdaptiveFitter.vertex(transTracks);
+      }
 
       // Vertex the tracks
-      TransientVertex theRecoVertex;
-      theRecoVertex = theFitter.vertex(transTracks);
+      //TransientVertex theRecoVertex;
+      //theRecoVertex = theFitter.vertex(transTracks);
     
       // If the vertex is valid, make a VertexCompositeCandidate with it
 
