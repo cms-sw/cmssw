@@ -12,5 +12,3 @@ bTagSoftLeptonAnalysisBlock = cms.PSet(
         startEffPur = cms.double(0.005)
     )
 )
-
-

@@ -11,6 +11,9 @@ from DQMOffline.RecoB.bTagTrackBProbabilityAnalysis_cff import *
 from DQMOffline.RecoB.bTagGenericAnalysis_cff import *
 from DQMOffline.RecoB.bTagSimpleSVAnalysis_cff import *
 from DQMOffline.RecoB.bTagSoftLeptonAnalysis_cff import *
+from DQMOffline.RecoB.bTagSoftLeptonByPtAnalysis_cff import *
+from DQMOffline.RecoB.bTagSoftLeptonByIPAnalysis_cff import *
+
 from DQMOffline.RecoB.bTagCommon_cff import *
 bTagAnalysis = cms.EDFilter("BTagPerformanceAnalyzerOnData",
     bTagCommonBlock,
@@ -59,6 +62,14 @@ bTagAnalysis = cms.EDFilter("BTagPerformanceAnalyzerOnData",
         cms.PSet(
             bTagSoftLeptonAnalysisBlock,
             label = cms.InputTag("softMuonBJetTags")
+        ),
+                            cms.PSet(
+            bTagSoftLeptonByIPAnalysisBlock,
+            label = cms.InputTag("softMuonByIP3dBJetTags")
+        ), 
+        cms.PSet(
+            bTagSoftLeptonByPtAnalysisBlock,
+            label = cms.InputTag("softMuonByPtBJetTags")
         ), 
         cms.PSet(
             bTagSoftLeptonAnalysisBlock,
