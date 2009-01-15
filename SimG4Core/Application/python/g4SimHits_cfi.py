@@ -194,7 +194,7 @@ g4SimHits = cms.EDProducer("OscarProducer",
         EminTrack = cms.double(0.01)
     ),
     HFShower = cms.PSet(
-        ProbMax         = cms.double(1.0),
+        ProbMax         = cms.double(0.7268),
         CFibre          = cms.double(0.5),
         PEPerGeV        = cms.double(0.25),
         TrackEM         = cms.bool(False),
