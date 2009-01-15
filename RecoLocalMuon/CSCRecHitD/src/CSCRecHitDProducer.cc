@@ -71,7 +71,7 @@ void  CSCRecHitDProducer::produce( edm::Event& ev, const edm::EventSetup& setup 
 
 
   // Put collection in event
-  LogTrace("CSCRecHit")<< "Will output rechits collection to event" << "\n";
+  LogTrace("CSCRecHit")<< "CSCRecHitDProducer: putting rechit collection in event." << "\n";
   ev.put( oc );
 
 }
