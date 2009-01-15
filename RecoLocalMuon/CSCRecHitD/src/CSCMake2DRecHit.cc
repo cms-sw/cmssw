@@ -40,7 +40,6 @@ CSCMake2DRecHit::~CSCMake2DRecHit() {
 CSCRecHit2D CSCMake2DRecHit::hitFromStripAndWire(const CSCDetId& id, const CSCLayer* layer,
                                                  const CSCWireHit& wHit, const CSCStripHit& sHit)
 {
-  
   // Cache layer info for ease of access
   layer_        = layer;
   layergeom_    = layer_->geometry();
@@ -102,27 +101,33 @@ CSCRecHit2D CSCMake2DRecHit::hitFromStripAndWire(const CSCDetId& id, const CSCLa
   int tmax = sHit.tmax();
   int nStrip = strips.size();
   int idCenterStrip = nStrip/2;
-  int ch = strips[idCenterStrip];
-  int centerStrip = ch;
-  //float strip_pos = sHit.sHitPos(); // centroid, in units of strip #
+  int centerStrip = strips[idCenterStrip];
   
-  
-  // Setup ADCs
-  std::vector<float> adcs = sHit.s_adc();
+  // Retrieve strip pulseheights from the CSCStripHit
+  const std::vector<float>& adc    = sHit.s_adc();
+  const std::vector<float>& adcRaw = sHit.s_adcRaw();
+
   std::vector<float> adc2;
-  std::vector<float> adcsRaw = sHit.s_adcRaw();
   std::vector<float> adc2Raw;
 
+  LogTrace("CSCRecHit") << "CSCMake2DRecHit: dump of adc values to be added to rechit follows...\n";
+
   for ( int iStrip = 0; iStrip < nStrip; ++iStrip) {
+
     adc2.clear();
     adc2Raw.clear();
     for ( int t = 0; t < 4; ++t ){
-      adc2.push_back(adcs[t+iStrip*4]);
-      adc2Raw.push_back(adcsRaw[t+iStrip*4]);
+      adc2.push_back(adc[t+iStrip*4]);
+      adc2Raw.push_back(adcRaw[t+iStrip*4]);
     }
-    //---- Store raw ADCs
-    //adcMap.put( strips[iStrip], adc2.begin(), adc2.end() ); 
+    // OLD: Rechit takes _calibrated_ adc values
+    // adcMap.put( strips[iStrip], adc2.begin(), adc2.end() ); 
+    // NEW: Rechit takes _raw_ adc values
     adcMap.put( strips[iStrip], adc2Raw.begin(), adc2Raw.end() ); 
+
+    LogTrace("CSCRecHit") << "CSCMake2DRecHit: strip = " << strips[iStrip] << 
+      " adcs= " << adc2Raw[0] << " " << adc2Raw[1] << " " << adc2Raw[2] << " " << adc2Raw[3] << "\n";
+
     if (iStrip == nStrip/2 ) 
       tpeak = 50. * ( adc2[0]*(tmax-1) + adc2[1]*tmax + adc2[2]*(tmax+1) ) / (adc2[0]+adc2[1]+adc2[2]);
   }
@@ -133,8 +138,8 @@ CSCRecHit2D CSCMake2DRecHit::hitFromStripAndWire(const CSCDetId& id, const CSCLa
   LocalPoint lp0(0., 0.);
   
   float stripWidth = -99.;
-  // If at the edge, then used 1 strip cluster only :
-  if ( ch == 1 || ch == specs_->nStrips() || nStrip < 2 ) {
+  // If at the edge, then used 1 strip cluster only
+  if ( centerStrip == 1 || centerStrip == specs_->nStrips() || nStrip < 2 ) {
     lp0 = layergeom_->stripWireIntersection( centerStrip, centerWire);
     positionWithinTheStrip = 0.;
     stripWidth = layergeom_->stripPitch(lp0);
@@ -143,8 +148,7 @@ CSCRecHit2D CSCMake2DRecHit::hitFromStripAndWire(const CSCDetId& id, const CSCLa
   }
   else {
     // If not at the edge, used cluster of size ClusterSize:
-    int ch0 = strips[idCenterStrip];
-    LocalPoint lp11  = layergeom_->stripWireIntersection( ch0, centerWire);
+    LocalPoint lp11  = layergeom_->stripWireIntersection( centerStrip, centerWire);
     stripWidth = layergeom_->stripPitch( lp11 );
     
     //---- Calculate local position within the strip
@@ -166,6 +170,9 @@ CSCRecHit2D CSCMake2DRecHit::hitFromStripAndWire(const CSCDetId& id, const CSCLa
   CSCRecHit2D rechit( id, lp0, localerr, strips,
 		      adcMap, wgroups, tpeak, positionWithinTheStrip, 
 		      sigmaWithinTheStrip/stripWidth, quality);
+
+  LogTrace("CSCRecHit") << "CSCMake2DRecHit: rechit created in layer " << id << "... \n" << rechit << "\n";
+
   return rechit;
 }
 
