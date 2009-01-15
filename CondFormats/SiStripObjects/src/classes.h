@@ -65,7 +65,6 @@ namespace {
   std::vector< SiStripThreshold::DetRegistry >::iterator tmp24;
   std::vector< SiStripThreshold::DetRegistry >::const_iterator tmp25;
 
-
   std::vector<std::string>::iterator tmp30;
   std::vector<std::string>::const_iterator tmp31;
   std::vector< SiStripSummary::DetRegistry >::iterator tmp32;

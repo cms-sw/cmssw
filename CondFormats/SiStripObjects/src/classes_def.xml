@@ -27,6 +27,8 @@
   <class name="std::vector<SiStripNoises::DetRegistry>"/>
 
   <class name="SiStripThreshold" class_version="0"/>
+  <class name="SiStripThreshold::Data"/>
+  <class name="std::vector<SiStripThreshold::Data>"/>
   <class name="SiStripThreshold::DetRegistry"/>
   <class name="std::vector<SiStripThreshold::DetRegistry>"/>
   <class name="SiStripThreshold::Container"/>
@@ -53,8 +55,5 @@
   <class name="SiStripSummary" class_version="0"/>
   <class name="SiStripSummary::DetRegistry"/>
   <class name="std::vector<SiStripSummary::DetRegistry>"/>
-
-  <class pattern="*vector*"/>
-  <class pattern="*map*"/>
 
 </lcgdict>   
