@@ -19,3 +19,6 @@ std::ostream & operator<<(std::ostream & os, const CSCStripData & data) {
   std::copy( data.ph_.begin(), data.ph_.end(), std::ostream_iterator<float>(os,"\n") );
   return os;     
 }
+
+// Define space for static 
+const int CSCStripData::ntbins_;
