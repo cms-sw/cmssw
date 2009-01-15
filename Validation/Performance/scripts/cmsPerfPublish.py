@@ -1438,6 +1438,8 @@ def createWebReports(WebArea,repdir,ExecutionDate,LogFiles,cmsScimarkResults,dat
                                     statinfo = os.stat(rootf)
                                     fsize2   = statinfo.st_size
                                     oldfile  = os.path.join(oldpath,"%s_TimeSize" % cand,base)
+                                    if "PILEUP" in step:
+                                        oldfile  = os.path.join(oldpath,"%s_PU_TimeSize" % cand,base)
                                     fsize1   = 0
 
                                     if os.path.exists(oldfile):
@@ -1445,6 +1447,7 @@ def createWebReports(WebArea,repdir,ExecutionDate,LogFiles,cmsScimarkResults,dat
                                         fsize1   = statinfo.st_size
                                     else:
                                         print "######DID NOT FIND Previous file (needed for the filesize table): %s"%oldfile
+                                            
                                     if createNewRow:
                                         createNewRow = False
                                         curRow = fsize_tab.newRow(cand)
