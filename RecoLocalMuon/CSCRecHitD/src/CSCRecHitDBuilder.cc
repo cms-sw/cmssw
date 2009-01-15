@@ -49,7 +49,7 @@ CSCRecHitDBuilder::~CSCRecHitDBuilder() {
 
 void CSCRecHitDBuilder::build( const CSCStripDigiCollection* stripdc, const CSCWireDigiCollection* wiredc,
                                CSCRecHit2DCollection& oc ) {
-
+  LogTrace("CSCRecHit") << "CSCRecHitDBuilder: build entered" << "\n";
   // Clean hit collections sorted by layer    
   std::vector<CSCDetId> stripLayer;
   std::vector<CSCDetId>::const_iterator sIt;
@@ -77,7 +77,7 @@ void CSCRecHitDBuilder::build( const CSCStripDigiCollection* stripdc, const CSCW
     clean_woc.put( id, rhv.begin(), rhv.end() );
   }
 
-  LogTrace("CSCRecHit") << "Done producing wire hits " << "\n";
+  LogTrace("CSCRecHit") << "CSCRecHitDBuilder: wire hits created" << "\n";
 
   // Make collection of strip only hits
   
@@ -98,7 +98,7 @@ void CSCRecHitDBuilder::build( const CSCStripDigiCollection* stripdc, const CSCW
     clean_soc.put( id, rhv.begin(), rhv.end() );
   }
 
-  LogTrace("CSCRecHit") << "Done producing strip hits " << "\n";
+  LogTrace("CSCRecHit") << "CSCRecHitDBuilder: strip hits created" << "\n";
 
 
   // Now create 2-D hits by looking at superposition of strip and wire hit in a layer
@@ -183,8 +183,9 @@ void CSCRecHitDBuilder::build( const CSCStripDigiCollection* stripdc, const CSCW
 
         // Build 2D hit for all possible strip-wire pairs 
         // overlapping within this layer
-        LogTrace("CSCRecHit")<< "# strip hits in layer: " << cscStripHit.size() << "  " 
-                             << "# wire hits in layer: "  << cscWireHit.size()  << "\n";
+
+        LogTrace("CSCRecHit")<< "CSCRecHitDBuilder: found " << cscStripHit.size() << " strip and " 
+                             << cscWireHit.size()  << " wire hits in layer " << sDetId << "\n";
 
         for (unsigned i = 0; i != cscStripHit.size(); ++i ) {
           const CSCStripHit s_hit = cscStripHit[i];
@@ -202,6 +203,7 @@ void CSCRecHitDBuilder::build( const CSCStripDigiCollection* stripdc, const CSCW
       }
     }
 
+    LogTrace("CSCRecHit") << "CSCRecHitDBuilder: " << hits_in_layer << " rechits found in layer " << sDetId << "\n";
     // output vector of 2D rechits to collection
     if (hits_in_layer > 0) {
       oc.put( sDetId, hitsInLayer.begin(), hitsInLayer.end() );
@@ -212,7 +214,9 @@ void CSCRecHitDBuilder::build( const CSCStripDigiCollection* stripdc, const CSCW
     old_id = sDetId;
   }
 
-  LogTrace("CSCRecHit") << "Done producing 2D-hits. Number of hits : " << oc.size()<< "\n";
+  //  std::cout << "CSCRecHitDBuilder: build complete." << std::endl;
+  //  LogTrace("CSCRecHit") << "CSCRecHitDBuilder: build complete." << "\n";
+  LogTrace("CSCRecHit|CSCOutput") << "CSCRecHitDBuilder: " << oc.size() << " 2d rechits created in this event.\n";
 
 }
 
