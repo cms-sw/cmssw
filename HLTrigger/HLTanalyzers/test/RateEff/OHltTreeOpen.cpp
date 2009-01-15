@@ -608,7 +608,107 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
       } 
     } 
   } 
+
+  //------------------Triggers approved in winter 2008 reviews----------------------------   
+  //-------- https://hypernews.cern.ch/HyperNews/CMS/get/online-selection/662.html--------
+
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_L1DoubleMuOpen") == 0) {    
+    int rc = 0;
+    for(int i = 0; i < NL1OpenMu; i++) {   
+      if(L1MuPt[i] > -1.) { // L1 seed
+	rc++;
+      }
+    }
+    if(rc > 1) {
+      if(1) {    
+        if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }  
+      }    
+    }    
+  }    
+    
+  else if(menu->GetTriggerName(it).CompareTo("OpenHLT_DoubleMu0") == 0) {     
+    int rc = 0;
+    for(int i = 0; i < NL1OpenMu; i++) {    
+      if(L1MuPt[i] > -1.) { // L1 seed
+        rc++;
+      }
+    }
+    if(rc > 1) {
+      if(OpenHlt2MuonPassed(0.,0.,0.,2.,0)>=2) {     
+        if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }   
+      }     
+    }     
+  }     
   
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_IsoMu3") == 0) {   
+    if( L1_SingleMu3==1) {      // L1 Seed   
+      if(OpenHlt1MuonPassed(3.,3.,3.,2.,1)>=1) {   
+        if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }   
+      }   
+    }   
+  }   
+  
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_IsoMu9") == 0) {   
+    if( L1_SingleMu7==1) {      // L1 Seed   
+      if(OpenHlt1MuonPassed(7.,7.,9.,2.,1)>=1) {   
+        if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }    
+      }   
+    }   
+  } 
+
+  // JH. Muon group requests the L1/L2/L3 thresholds be changed from   
+  // 5/3/5 to 3/4/5. This is implemented here for the emulated trigger  
+  // (i.e. the definition is different than that used in the HLT_Mu5 trigger  
+  // bit). 
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Mu5") == 0) {   
+    if( L1_SingleMu3==1) {      // Old L1 Seed   
+      if(OpenHlt1MuonPassed(3.,4.,5.,2.,0)>=1) {   
+        if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }     
+      }   
+    }   
+  }   
+
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_L2Mu11") == 0) {           
+    if((L1_SingleMu7==1)) {      // L1 Seed           
+      int rc = 0; 
+      for(int i = 0; i < NohMuL2; i++) { 
+	if(ohMuL2Pt[i] > 11.) { 
+	  rc++; 
+	} 
+      } 
+      if(rc>0) { 
+        if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }     
+      }           
+    }           
+  }           
+
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_L1Mu20") == 0) {         
+    int rc = 0;  
+    for(int i = 0; i < NL1OpenMu; i++) {  
+      if(L1MuPt[i] > 20. && L1MuQal[i] > 3 && L1MuQal[i] < 8) {  
+	rc++;  
+      }  
+    }  
+    if(rc>0) {  
+      if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }     
+    }            
+  }         
+
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_L2Mu9_1Jet30") == 0){ // SGL - example lepton+jet cross-trigger
+    if((L1_Mu5_Jet15==1)) {      // L1 Seed  
+      int rc = 0; 
+      if(OpenHlt1CorJetPassed(30)>=1){ // Require 1 corrected jet above threshold
+	for(int i = 0; i < NohMuL2; i++) { 
+	  if(ohMuL2Pt[i] > 9.) { // Count L2 muons above threshold
+	    rc++; 
+	  } 
+	} 
+      } 
+      if(rc>0) { 
+        if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }     
+      }           
+    } 
+  } 
 }
 
 void OHltTree::PrintOhltVariables(int level, int type)
