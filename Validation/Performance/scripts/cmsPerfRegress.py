@@ -961,7 +961,10 @@ def cmpTimingReport(rootfilename,outdir,oldLogfile,newLogfile,secsperbin,batch=T
     
 def rmtree(path):
     try:
-        os.remove(path)
+        #os.remove(path)
+        #Brute force solution:
+        RemoveCmd="rm -Rf %s"%path
+        os.system(RemoveCmd)
     except OSError, detail:
         if detail.errno == 39:
             try:
