@@ -6,7 +6,7 @@
 //
 // Original Author:  Traczyk Piotr
 //         Created:  Thu Oct 11 15:01:28 CEST 2007
-// $Id: MuonTimingExtractor.cc,v 1.5 2008/11/13 12:22:08 ptraczyk Exp $
+// $Id: MuonTimingExtractor.cc,v 1.6 2009/01/06 13:13:10 ptraczyk Exp $
 //
 //
 
@@ -78,6 +78,7 @@ MuonTimingExtractor::MuonTimingExtractor(const edm::ParameterSet& iConfig)
   DTSegmentTags_(iConfig.getUntrackedParameter<edm::InputTag>("DTsegments")),
   theHitsMin(iConfig.getParameter<int>("HitsMin")),
   thePruneCut(iConfig.getParameter<double>("PruneCut")),
+  useSegmentT0(iConfig.getParameter<bool>("UseSegmentT0")),
   debug(iConfig.getParameter<bool>("debug"))
 {
   // service parameters
@@ -180,14 +181,14 @@ MuonTimingExtractor::fillTiming(edm::Event& iEvent, const edm::EventSetup& iSetu
 	thisHit.posInLayer = geomDet->toLocal(dtcell->toGlobal(hiti->localPosition())).x();
 	thisHit.distIP = dist;
 	thisHit.station = station;
+	if (useSegmentT0) thisHit.timeCorr=segm->t0();
+	  else thisHit.timeCorr=0.;
 	tms.push_back(thisHit);
       }
     } // phi = (0,1) 	        
   } // rechit
       
   bool modified = false;
-  totalWeight=0;
-  nStations=0;
   vector <double> dstnc, dsegm, dtraj, hitWeight, left;
     
   // Now loop over the measurements, calculate 1/beta and cut away outliers
@@ -266,7 +267,7 @@ MuonTimingExtractor::fillTiming(edm::Event& iEvent, const edm::EventSetup& iSetu
 	  double segmLocalPos = b+layerZ*a;
 	  double hitLocalPos = tm->posInLayer;
 	  int hitSide = -tm->isLeft*2+1;
-	  double t0_segm = (-(hitSide*segmLocalPos)+(hitSide*hitLocalPos))/0.00543;
+	  double t0_segm = (-(hitSide*segmLocalPos)+(hitSide*hitLocalPos))/0.00543+tm->timeCorr;
             
 	  dstnc.push_back(tm->distIP);
 	  dsegm.push_back(t0_segm);

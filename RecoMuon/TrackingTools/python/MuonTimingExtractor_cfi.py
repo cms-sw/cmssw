@@ -12,8 +12,9 @@ MuonTimingExtractorBlock = cms.PSet(
         RPCLayers = cms.bool(True)
     ),
     DTsegments = cms.untracked.InputTag("dt4DSegments"),
-    PruneCut = cms.double(0.3),
+    PruneCut = cms.double(1000.),
     HitsMin = cms.int32(3),
+    UseSegmentT0 = cms.bool(False),
     debug = cms.bool(False),
   )
 )
