@@ -28,7 +28,9 @@ namespace {
   EcalTBWeights tbwgt;
   EcalWeightSet wset;
   EcalTBWeights::EcalTDCId id;
+  std::pair< EcalXtalGroupId, EcalTBWeights::EcalTDCId > wgpair;
   std::map< std::pair< EcalXtalGroupId, EcalTBWeights::EcalTDCId > , EcalWeightSet > wgmap;
+  std::pair< const std::pair< EcalXtalGroupId, EcalTBWeights::EcalTDCId > , EcalWeightSet > wgmapvalue;
 }
 }
 
@@ -96,6 +98,7 @@ namespace {
 namespace {
 namespace {
    EcalLaserAPDPNRatios laser_map;
+   EcalCondObjectContainer<EcalLaserAPDPNRatios::EcalLaserAPDPNpair> laser_map_dm;
    std::vector<EcalLaserAPDPNRatios::EcalLaserTimeStamp> time_map ;
 }
 }

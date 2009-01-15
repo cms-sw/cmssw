@@ -7,6 +7,9 @@
 <class name="EcalWeightXtalGroups"/>
 <class name="EcalXtalGroupId"/>
 <class name="EcalTBWeights"/>
+<class name="std::pair< EcalXtalGroupId, EcalTBWeights::EcalTDCId >"/>
+<class name="std::map< std::pair< EcalXtalGroupId, EcalTBWeights::EcalTDCId >, EcalWeightSet >"/>
+<class name="std::pair< const std::pair< EcalXtalGroupId, EcalTBWeights::EcalTDCId >, EcalWeightSet >"/>
 
 <class name="EcalADCToGeVConstant"/>
 
@@ -32,6 +35,7 @@
 <class name="EcalLaserAPDPNRatios::EcalLaserTimeStamp"/>
 <class name="std::vector<EcalLaserAPDPNRatios::EcalLaserTimeStamp>"/>
 <class name="EcalLaserAPDPNRatios::EcalLaserAPDPNpair"/>
+<class name="EcalLaserAPDPNRatios::EcalLaserAPDPNRatiosMap"/>
 
 <class name="EcalLaserAlphas"/>
 
@@ -54,8 +58,6 @@
 <class name="EcalTPGWeightIdMap"/>
 <class name="EcalTPGWeights"/>
 
-<class pattern="*pair*"/>
-<class pattern="*map*"/>
 <class pattern="*EcalContainer*"/>
 
 <class name="EcalTPGFineGrainEBGroup"/>
