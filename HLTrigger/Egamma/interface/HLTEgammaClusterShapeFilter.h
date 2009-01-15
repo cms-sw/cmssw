@@ -22,9 +22,9 @@ class HLTEgammaClusterShapeFilter : public HLTFilter {
 
    private:
       edm::InputTag candTag_; // input tag identifying product contains filtered photons
-      edm::InputTag ecalRechitEBTag_; // input tag identifying product contains hcal isolation map
-      edm::InputTag ecalRechitEETag_; // input tag identifying product contains hcal isolation map
-      
+      edm::InputTag isoTag_; // input tag identifying product which contains clShape-ref map
+      edm::InputTag nonIsoTag_; // input tag identifying product which contains clShape-ref map
+
       double thresholdEB_;
       double thresholdEE_;
       

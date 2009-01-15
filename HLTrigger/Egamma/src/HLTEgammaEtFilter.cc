@@ -1,6 +1,6 @@
 /** \class HLTEgammaEtFilter
  *
- * $Id: HLTEgammaEtFilter.cc,v 1.7 2007/12/07 14:41:33 ghezzi Exp $
+ * $Id: HLTEgammaEtFilter.cc,v 1.8 2008/04/22 17:01:17 ghezzi Exp $
  *
  *  \author Monica Vazquez Acosta (CERN)
  *
@@ -67,6 +67,7 @@ HLTEgammaEtFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     if ( ref->et()  >= etcut_) {
       n++;
+      // std::cout << "Passed eta: " << ref->eta() << std::endl;
       filterproduct->addObject(TriggerCluster, ref);
     }
   }
