@@ -32,7 +32,7 @@ namespace cscdqm {
    */
   void Collection::load() {
 
-    LOG_INFO << "Booking histograms from " << config->getBOOKING_XML_FILE();
+    LOG_INFO << "Reading histograms from " << config->getBOOKING_XML_FILE();
 
     DOMDocument *doc = 0;
 
@@ -116,13 +116,18 @@ namespace cscdqm {
 
     } catch (XMLException& e) {
       char* message = XMLString::transcode( e.getMessage() );
-      if (doc) doc->release();
-      XMLPlatformUtils::Terminate();
+      //if (doc) doc->release();
+      //XMLPlatformUtils::Terminate();
       throw Exception(message);
     }
 
-    if (doc) doc->release();
-    XMLPlatformUtils::Terminate();
+    //if (doc) doc->release();
+    //XMLPlatformUtils::Terminate();
+
+    for (CoHistoMap::const_iterator i = collection.begin(); i != collection.end(); i++) {
+      LOG_INFO << i->second.size() << " " << i->first << " histograms defined";
+    }
+    
   }
   
   void Collection::getNodeProperties(DOMNode*& node, CoHistoProps& p) {

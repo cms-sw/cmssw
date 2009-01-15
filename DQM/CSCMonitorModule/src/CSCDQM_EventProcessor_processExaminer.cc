@@ -24,8 +24,8 @@ namespace cscdqm {
     
     binChecker.setMask(config->getBINCHECK_MASK());
     
-    if (binChecker.check(data, dataSize) < 0 ){
-      //   No ddu trailer found - force checker to summarize errors by adding artificial trailer
+    if (binChecker.check(data, dataSize) < 0) {
+      // No ddu trailer found - force checker to summarize errors by adding artificial trailer
       const uint16_t dduTrailer[4] = { 0x8000, 0x8000, 0xFFFF, 0x8000 };
       const uint16_t *tmp = dduTrailer;
       binChecker.check(tmp, uint32_t(4));

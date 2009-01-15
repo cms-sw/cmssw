@@ -29,6 +29,23 @@ namespace cscdqm {
 
   }
 
+  void EventProcessor::init() {
+
+    binChecker.crcALCT(config->getBINCHECKER_CRC_ALCT());
+    binChecker.crcTMB(config->getBINCHECKER_CRC_CLCT());
+    binChecker.crcCFEB(config->getBINCHECKER_CRC_CFEB());
+    binChecker.modeDDU(config->getBINCHECKER_MODE_DDU());
+
+    if (config->getBINCHECKER_OUTPUT()) {
+      binChecker.output1().show();
+      binChecker.output2().show();
+    } else {
+      binChecker.output1().hide();
+      binChecker.output2().hide();
+    }
+
+  }
+
   const bool EventProcessor::getEMUHisto(const HistoId& histo, MonitorObject*& me) {
     EMUHistoDef histoD(histo);
     if (config->fnGetHisto(histoD, me)) return (me != NULL);

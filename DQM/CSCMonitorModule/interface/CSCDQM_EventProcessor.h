@@ -65,6 +65,7 @@ namespace cscdqm {
       EventProcessor(Configuration* const p_config);
       ~EventProcessor() { }
 
+      void init();
       void updateFractionHistos();
       void updateEfficiencyHistos();
       void updateFractionAndEfficiencyHistos() {

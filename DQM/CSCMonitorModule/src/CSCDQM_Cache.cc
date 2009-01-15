@@ -24,7 +24,6 @@ namespace cscdqm {
     CacheMap::iterator it = cache.find(HistoCacheKey(histo));
     if (it == cache.end()) return false;
     mo = it->second.get();
-    LOG_INFO << "histo found " << histo;
     return true; 
   }
 

@@ -38,6 +38,7 @@ namespace cscdqm {
 
   void Dispatcher::init() {
     collection.bookEMUHistos();
+    processor.init();
   }
 
   void EventProcessorMutex::updateFractionAndEfficiencyHistos() {
@@ -117,7 +118,9 @@ namespace cscdqm {
 #ifdef DQMLOCAL
 
   void Dispatcher::processEvent(const char* data, const int32_t dataSize, const uint32_t errorStat, const int32_t nodeNumber) {
+    config->eventProcessStart();
     processor.processEvent(data, dataSize, errorStat, nodeNumber);
+    config->eventProcessEnd();
     updateFractionAndEfficiencyHistosAuto();
   }
 
@@ -126,7 +129,9 @@ namespace cscdqm {
 #ifdef DQMGLOBAL
 
   void Dispatcher::processEvent(const edm::Event& e, const edm::InputTag& inputTag) {
+    config->eventProcessStart();
     processor.processEvent(e, inputTag);
+    config->eventProcessEnd();
     updateFractionAndEfficiencyHistosAuto();
   }
 

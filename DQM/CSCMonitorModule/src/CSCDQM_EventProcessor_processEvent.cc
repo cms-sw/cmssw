@@ -53,8 +53,12 @@ namespace cscdqm {
 
     if (!eventDenied) {
       config->incNEventsGood();
-      CSCDDUEventData dduData((short unsigned int*) tmp, &binChecker);
-      processDDU(dduData);
+
+      if (config->getPROCESS_DDU()) {
+        CSCDDUEventData dduData((short unsigned int*) tmp, &binChecker);
+        processDDU(dduData);
+      }
+
     }
 
   }
@@ -67,6 +71,7 @@ namespace cscdqm {
   void EventProcessor::processEvent(const edm::Event& e, const edm::InputTag& inputTag) {
 
     config->incNEvents();
+
     bCSCEventCounted = false;
 
     // get a handle to the FED data collection
@@ -111,10 +116,12 @@ namespace cscdqm {
             if (getEMUHisto(h::EMU_FED_NONFATAL, mo)) mo->Fill(id);
           } 
 
-          CSCDCCEventData dccData((short unsigned int*) data);
-          const std::vector<CSCDDUEventData> & dduData = dccData.dduData();
-          for (int ddu = 0; ddu < (int)dduData.size(); ddu++) {
-            processDDU(dduData[ddu]);
+          if (config->getPROCESS_DDU()) {
+            CSCDCCEventData dccData((short unsigned int*) data);
+            const std::vector<CSCDDUEventData> & dduData = dccData.dduData();
+            for (int ddu = 0; ddu < (int)dduData.size(); ddu++) {
+              processDDU(dduData[ddu]);
+            }
           }
 
         } else {
@@ -130,5 +137,7 @@ namespace cscdqm {
   }
 
 #endif
+
+#undef ECHO_FUNCTION
 
 }
