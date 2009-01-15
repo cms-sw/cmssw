@@ -17,7 +17,8 @@
 
 #include "GeneratorInterface/Core/interface/FortranCallback.h"
 
-#include "SimDataFormats/GeneratorProducts/interface/LHERunInfoProduct.h"
+#include "GeneratorInterface/LHEInterface/interface/LHERunInfo.h"
+
 #include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
 
 #include "GeneratorInterface/Core/interface/RNDMEngineAccess.h"
@@ -66,6 +67,7 @@ Pythia6Hadronizer::Pythia6Hadronizer(edm::ParameterSet const& ps)
    : fCOMEnergy(ps.getParameter<double>("comEnergy")),
      fGenEvent(0),
      fEventCounter(0),
+     fRunInfo(0),
      fRandomEngine(getEngineReference()),     
      fHepMCVerbosity(ps.getUntrackedParameter<bool>("pythiaHepMCVerbosity",false)),
      fMaxEventsToPrint(ps.getUntrackedParameter<int>("maxEventsToPrint", 0)),
@@ -85,6 +87,7 @@ Pythia6Hadronizer::Pythia6Hadronizer(edm::ParameterSet const& ps)
    // std::vector<std::string>	paramLines;
    paramGeneral.clear();
    paramCSA.clear();
+   paramSLHA.clear();
    
 
    for(std::vector<std::string>::const_iterator iter = setNames.begin();
@@ -110,7 +113,7 @@ Pythia6Hadronizer::Pythia6Hadronizer(edm::ParameterSet const& ps)
 	 }
 	 else if ( *iter == "SLHAParameteters" )
 	 {
-	    // here store SLHA params as needed
+	    paramSLHA.push_back(*line);
 	 }
 	 else
 	 {
@@ -137,6 +140,11 @@ Pythia6Hadronizer::Pythia6Hadronizer(edm::ParameterSet const& ps)
           <<" Pythia did not accept MSTU(12)=12345";
    }
    
+}
+
+Pythia6Hadronizer::~Pythia6Hadronizer()
+{
+   if ( fRunInfo != 0 ) delete fRunInfo ;
 }
 
 bool Pythia6Hadronizer::doEvent()
@@ -207,6 +215,9 @@ bool Pythia6Hadronizer::generatePartonsAndHadronize()
 bool Pythia6Hadronizer::hadronize()
 {
    
+   // here call JetMatching::beforeHadronization
+   
+   
    doEvent();
       
    return true;
@@ -220,7 +231,10 @@ bool Pythia6Hadronizer::decay()
 bool Pythia6Hadronizer::initializeForExternalPartons()
 {
      
-   setParams();
+   // note: CSA mode is NOT supposed to woirk with external partons !!!
+   
+   setGeneralParams();
+   if ( !paramSLHA.empty() ) setSLHAParams();
    
    call_pygive("MSEL=0");
 /*
@@ -235,11 +249,9 @@ bool Pythia6Hadronizer::initializeForExternalPartons()
 bool Pythia6Hadronizer::initializeForInternalPartons()
 {
     
-   setParams();
-   
-   // can one set CSA & SLHA parameters simultaneously ?
-   
-   if ( !paramCSA.empty() ) setCSAParams();
+   setGeneralParams();   
+   if ( !paramCSA.empty() )  setCSAParams();
+   if ( !paramSLHA.empty() ) setSLHAParams();
    
    call_pyinit("CMS", "p", "p", fCOMEnergy);
    return true;
@@ -269,10 +281,12 @@ const char* Pythia6Hadronizer::classname() const
    return "gen::Pythia6Hadronizer";
 }
 
-void Pythia6Hadronizer::setLHERunInfoProd( LHERunInfoProduct* lherp )
+void Pythia6Hadronizer::setLHERunInfo( lhef::LHERunInfo* lheri )
 {
 
-   FortranCallback::getInstance()->setLHERunProd(lherp);
+   fRunInfo = lheri;
+   
+   FortranCallback::getInstance()->setLHERunInfo(lheri);
 
    return;
 
@@ -287,7 +301,7 @@ void Pythia6Hadronizer::setLHEEventProd( LHEEventProduct* lheep )
 
 }
 
-void Pythia6Hadronizer::setParams()
+void Pythia6Hadronizer::setGeneralParams()
 {
    // now pass general config cards 
    //
@@ -315,6 +329,11 @@ void Pythia6Hadronizer::setCSAParams()
    }   
    
    return ;
+}
+
+void Pythia6Hadronizer::setSLHAParams()
+{
+   return;
 }
 
 }

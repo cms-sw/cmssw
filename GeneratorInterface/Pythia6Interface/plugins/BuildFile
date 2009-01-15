@@ -6,6 +6,7 @@
 <use name=hepmc> 
 <use name=pythia6>
 <use name=GeneratorInterface/CommonInterface>
+<use name=GeneratorInterface/LHEInterface>
 <use name=f77compiler>
 
 <library file="*.cc,*.f" name=GeneratorInterfacePythia6Filters>

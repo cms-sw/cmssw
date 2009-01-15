@@ -13,7 +13,7 @@ class LHEEvent;
 
 #include "SimDataFormats/GeneratorProducts/interface/LHECommonBlocks.h"
 
-#include "SimDataFormats/GeneratorProducts/interface/LHERunInfoProduct.h"
+#include "GeneratorInterface/LHEInterface/interface/LHERunInfo.h"
 #include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
 
 
@@ -32,7 +32,7 @@ namespace gen {
       static FortranCallback* getInstance() ;
     
       //void setLHEEvent(lhef::LHEEvent* lhev) { fPartonLevel = lhev; return ; }
-      void setLHERunProd( LHERunInfoProduct* lherp ) { fRunBlock=lherp; return; }
+      void setLHERunInfo( lhef::LHERunInfo* lheri ) { fRunBlock=lheri; return; }
       void setLHEEventProd( LHEEventProduct* lheep ) { fEventBlock=lheep; return ; }
       
       void fillHeader();
@@ -47,7 +47,7 @@ namespace gen {
      // data member(s)
      
      //lhef::LHEEvent*  fPartonLevel;
-     LHERunInfoProduct* fRunBlock;
+     lhef::LHERunInfo*  fRunBlock;
      LHEEventProduct*   fEventBlock;
      
      static FortranCallback* fInstance;
@@ -73,14 +73,12 @@ FortranCallback* FortranCallback::getInstance()
 
 void FortranCallback::fillHeader()
 {
-
-   // if ( fPartonLevel == 0 ) return;  
-   // const lhef::HEPRUP* heprup = fPartonLevel->getHEPRUP();
    
    if ( fRunBlock == 0 ) return;
       
-   const lhef::HEPRUP* heprup = &(fRunBlock->heprup());
-
+   //const lhef::HEPRUP* heprup = &(fRunBlock->heprup());
+   const lhef::HEPRUP* heprup = fRunBlock->getHEPRUP();
+   
    lhef::CommonBlocks::fillHEPRUP(heprup);   
    
    return;

@@ -26,7 +26,7 @@ process.MessageLogger.fwkJobReports = []
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(5))
 
 process.source = cms.Source("LHESource",
-    fileNames = cms.untracked.vstring('file:ttbar.lhe')
+    fileNames = cms.untracked.vstring('file:ttbar_5flavours_xqcut20_10TeV.lhe')
 )
 
 process.generator = cms.EDFilter("Pythia6HadronizerFilter",

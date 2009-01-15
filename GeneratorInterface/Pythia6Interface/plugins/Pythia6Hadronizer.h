@@ -8,7 +8,11 @@
 
 #include "SimDataFormats/GeneratorProducts/interface/GenInfoProduct.h"
 
-class LHERunInfoProduct;
+namespace lhef
+{
+class LHERunInfo;
+}
+
 class LHEEventProduct;
 
 namespace HepMC
@@ -28,6 +32,7 @@ namespace gen
   {
   public:
      Pythia6Hadronizer(edm::ParameterSet const& ps);
+     ~Pythia6Hadronizer();
 
      // bool generatePartons();
      bool generatePartonsAndHadronize();
@@ -41,7 +46,7 @@ namespace gen
 
      const char* classname() const;
      
-     void setLHERunInfoProd( LHERunInfoProduct* lherp ) ;
+     void setLHERunInfo( lhef::LHERunInfo* lheri ) ;
      void setLHEEventProd( LHEEventProduct* lheep ); 
      HepMC::GenEvent* getGenEvent() { return fGenEvent; }
      const edm::GenInfoProduct& getGenInfoProduct() const { return fGenInfoProduct; }
@@ -54,6 +59,7 @@ namespace gen
            
      std::vector<std::string> paramGeneral;
      std::vector<std::string> paramCSA;
+     std::vector<std::string> paramSLHA;
      
      // the following 7 params are common for all generators(interfaces)
      // probably better to wrap them up in a class and reuse ?
@@ -63,6 +69,8 @@ namespace gen
      HepMC::GenEvent*     fGenEvent; 
      edm::GenInfoProduct  fGenInfoProduct;
      int                  fEventCounter;
+     
+     lhef::LHERunInfo*    fRunInfo;
      
      CLHEP::HepRandomEngine& fRandomEngine;
      CLHEP::RandFlat*        fRandomGenerator; 
@@ -74,8 +82,9 @@ namespace gen
      //
      unsigned int    fPythiaListVerbosity ;
      
-     void setParams();
+     void setGeneralParams();
      void setCSAParams();
+     void setSLHAParams();
           
   };
 }

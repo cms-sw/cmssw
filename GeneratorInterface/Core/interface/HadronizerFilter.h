@@ -16,7 +16,12 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
-#include "SimDataFormats/GeneratorProducts/interface/LHERunInfoProduct.h"
+// LHE Run
+// #include "SimDataFormats/GeneratorProducts/interface/LHERunInfoProduct.h" // this comes through LHERunInfo
+#include "GeneratorInterface/LHEInterface/interface/LHERunInfo.h"
+
+
+// LHE Event
 #include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
@@ -150,7 +155,7 @@ namespace edm
     edm::Handle<LHERunInfoProduct> product;
     run.getByLabel("source", product);
             
-    hadronizer_.setLHERunInfoProd( (LHERunInfoProduct*)(product.product()) ) ;
+    hadronizer_.setLHERunInfo( new lhef::LHERunInfo(*product) ) ;
    
     if (! hadronizer_.initializeForExternalPartons())
       throw edm::Exception(errors::Configuration) 
