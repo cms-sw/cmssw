@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Dec 11 22:59:38 EST 2008
-// $Id$
+// $Id: thetaBins.cc,v 1.1 2008/12/12 04:16:10 chrjones Exp $
 //
 
 // system include files
