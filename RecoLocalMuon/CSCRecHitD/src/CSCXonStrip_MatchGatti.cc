@@ -662,4 +662,8 @@ double CSCXonStrip_MatchGatti::calculateXonStripPosition(float stripWidth, bool 
   return x_gatti;
 }
 
+// Define space for statics
+const int CSCXonStrip_MatchGatti::n_val;
+const int CSCXonStrip_MatchGatti::n_SW_noME1_1;
+const int CSCXonStrip_MatchGatti::n_SW_ME1_1;
 
