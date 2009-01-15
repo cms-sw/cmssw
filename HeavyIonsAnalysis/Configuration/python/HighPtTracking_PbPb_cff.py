@@ -8,14 +8,13 @@ from RecoLocalTracker.SiPixelRecHits.PixelCPEESProducers_cff import *
 from RecoVertex.BeamSpotProducer.BeamSpot_cfi import *
 from RecoLocalTracker.Configuration.RecoLocalTracker_cff import *
 
+
 ### pixel triplets
 import RecoPixelVertexing.PixelLowPtUtilities.AllPixelTracks_cfi
 pixel3ProtoTracks = RecoPixelVertexing.PixelLowPtUtilities.AllPixelTracks_cfi.allPixelTracks.clone()
 pixel3ProtoTracks.passLabel = 'Pixel triplet tracks for vertexing'
 pixel3ProtoTracks.RegionFactoryPSet.RegionPSet.ptMin = 0.7
 pixel3ProtoTracks.RegionFactoryPSet.RegionPSet.originRadius = 0.1
-#pixel3ProtoTracks.OrderedHitsFactoryPSet.GeneratorPSet.maxAngleRatio = 3.0 # default is 10.0 in new config
-#pixel3ProtoTracks.RegionFactoryPSet.RegionPSet.precise = False # default is true in new config
 
 ### pixel vertices
 from RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi import *
@@ -30,12 +29,13 @@ pixel3PrimTracks.passLabel = 'Pixel triplet primary tracks with vertex constrain
 pixel3PrimTracks.RegionFactoryPSet.RegionPSet.ptMin = 1.5
 pixel3PrimTracks.RegionFactoryPSet.RegionPSet.originRadius = 0.2
 pixel3PrimTracks.RegionFactoryPSet.RegionPSet.useFoundVertices = True
-#pixel3PrimTracks.RegionFactoryPSet.RegionPSet.useChi2Cut = True  # discard tracks with (chi2/3) > 10
+pixel3PrimTracks.OrderedHitsFactoryPSet.GeneratorPSet.checkClusterShape = False # don't use low-pt cluster shape filter
 
 ### pixel seeds
 import RecoPixelVertexing.PixelLowPtUtilities.TrackSeeds_cfi
 primSeeds = RecoPixelVertexing.PixelLowPtUtilities.TrackSeeds_cfi.pixelTrackSeeds.clone()
 primSeeds.tripletList = ['pixel3PrimTracks']
+
 
 ### base trajectory filter
 from RecoTracker.CkfPattern.CkfTrackCandidates_cff import * #also includes both trajectory builders
