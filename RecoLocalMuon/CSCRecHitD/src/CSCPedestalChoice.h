@@ -103,6 +103,10 @@ class CSCSubtractPedestal {
     void operator()( float& elem ) const {
       elem -= ped_;
     }
+    void operator()( int& elem ) const {
+      elem -= static_cast<int>(ped_); // not strictly correct but OK for the typical large pedestals
+    }
+
   private:
      float ped_;
 };
