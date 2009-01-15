@@ -1404,6 +1404,7 @@ def createWebReports(WebArea,repdir,ExecutionDate,LogFiles,cmsScimarkResults,dat
                         for line in idfile:
                             oldpath = line
                         oldpath = oldpath.strip()
+                        print "##########TABLE DEBUG :oldpath is %s"%oldpath
                         fsize_tab = Table()
 
                         for cand in Candles:
@@ -1442,6 +1443,8 @@ def createWebReports(WebArea,repdir,ExecutionDate,LogFiles,cmsScimarkResults,dat
                                     if os.path.exists(oldfile):
                                         statinfo = os.stat(oldfile)
                                         fsize1   = statinfo.st_size
+                                    else:
+                                        print "######DID NOT FIND Previous file: %s"%oldfile
                                     if createNewRow:
                                         createNewRow = False
                                         curRow = fsize_tab.newRow(cand)
