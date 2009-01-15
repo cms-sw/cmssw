@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Id: FWCaloTowerProxy3DBuilderBase.cc,v 1.1 2009/01/14 12:06:45 amraktad Exp $
+// $Id: FWCaloTowerProxy3DBuilderBase.cc,v 1.1 2009/01/14 18:34:12 amraktad Exp $
 //
 
 // system include files
@@ -10,13 +10,13 @@
 #include "TH2F.h"
 
 // user include files
-#include "Fireworks/Calo/plugins/FWCaloTowerProxy3DBuilderBase.h"
+#include "Fireworks/Calo/plugins/FWCaloTowerRPZProxyBuilderBase.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/fw3dlego_xbins.h"
 
-TEveCaloDataHist* FWCaloTowerProxy3DBuilderBase::m_data = 0;
+TEveCaloDataHist* FWCaloTowerRPZProxyBuilderBase::m_data = 0;
 
-void FWCaloTowerProxy3DBuilderBase::build(const FWEventItem* iItem, TEveElementList** product)
+void FWCaloTowerRPZProxyBuilderBase::build(const FWEventItem* iItem, TEveElementList** product)
 {
    m_towers=0;
    iItem->get(m_towers);
@@ -74,7 +74,7 @@ void FWCaloTowerProxy3DBuilderBase::build(const FWEventItem* iItem, TEveElementL
 }
 
 void
-FWCaloTowerProxy3DBuilderBase::itemBeingDestroyedImp(const FWEventItem* iItem)
+FWCaloTowerRPZProxyBuilderBase::itemBeingDestroyedImp(const FWEventItem* iItem)
 {
    FWRPZDataProxyBuilder::itemBeingDestroyedImp(iItem);
    if(0!= m_hist) { m_hist->Reset(); }
@@ -82,14 +82,14 @@ FWCaloTowerProxy3DBuilderBase::itemBeingDestroyedImp(const FWEventItem* iItem)
 }
 
 void
-FWCaloTowerProxy3DBuilderBase::modelChanges(const FWModelIds& iIds,
+FWCaloTowerRPZProxyBuilderBase::modelChanges(const FWModelIds& iIds,
                                           TEveElement* iElements )
 {
    applyChangesToAllModels(iElements);
 }
 
 void
-FWCaloTowerProxy3DBuilderBase::applyChangesToAllModels(TEveElement* iElements)
+FWCaloTowerRPZProxyBuilderBase::applyChangesToAllModels(TEveElement* iElements)
 {
    if(m_data && m_towers && item()) {
       m_hist->Reset();
