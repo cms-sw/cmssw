@@ -1,20 +1,26 @@
 <lcgdict>
  <class name="HcalPedestal"/>
+ <class name="std::vector<HcalPedestal>"/>
  <class name="HcalPedestals"/>
 
  <class name="HcalPedestalWidth"/>
+ <class name="std::vector<HcalPedestalWidth>"/>
  <class name="HcalPedestalWidths"/>
 
  <class name="HcalGain"/>
+ <class name="std::vector<HcalGain>"/>
  <class name="HcalGains"/>
 
  <class name="HcalGainWidth"/>
+ <class name="std::vector<HcalGainWidth>"/>
  <class name="HcalGainWidths"/>
 
  <class name="HcalQIECoder"/>
+ <class name="std::vector<HcalQIECoder>"/>
  <class name="HcalQIEData"/>
 
  <class name="HcalCalibrationQIECoder"/>
+ <class name="std::vector<HcalCalibrationQIECoder>"/>
  <class name="HcalCalibrationQIEData"/>
 
  <class name="HcalElectronicsMap">
@@ -25,19 +31,24 @@
  </class>
  <class name="HcalElectronicsMap::PrecisionItem"/>
  <class name="HcalElectronicsMap::TriggerItem"/>
+ <class name="std::vector<HcalElectronicsMap::PrecisionItem>"/>
+ <class name="std::vector<HcalElectronicsMap::TriggerItem>"/>
 
  <class name="HcalChannelStatus"/>
+ <class name="std::vector<HcalChannelStatus>"/>
  <class name="HcalChannelQuality"/>
 
  <class name="HcalZSThreshold"/>
+ <class name="std::vector<HcalZSThreshold>"/>
  <class name="HcalZSThresholds"/>
 
  <class name="HcalRespCorr"/>
+ <class name="std::vector<HcalRespCorr>"/>
  <class name="HcalRespCorrs"/>
 
  <class name="HcalL1TriggerObject"/>
+ <class name="std::vector<HcalL1TriggerObject>"/>
  <class name="HcalL1TriggerObjects"/>
 
- <class pattern="*vector*"/>
  <class pattern="*HcalCondObjectContainer*"/>
 </lcgdict>   
