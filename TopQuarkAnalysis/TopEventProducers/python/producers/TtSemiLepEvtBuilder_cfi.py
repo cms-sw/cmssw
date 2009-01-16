@@ -17,6 +17,12 @@ ttSemiLepEvent = cms.EDProducer("TtSemiLepEvtBuilder",
     ## add genEvt (if available)
     genEvent = cms.InputTag("genEvt"),
 
+    ## maximum number of jets taken into account per event for each hypothesis
+    ## (this parameter is used in the ttSemiLepEvtBuilder_cff to synchronize
+    ## the individual maxNJets parameters)
+    maxNJets = cms.int32(4),  # has to be >= 4
+                              # can be set to -1 to take all jets
+
     ## labels for event hypotheses
     hyps = cms.vstring("ttSemiLepHypGeom",
                        "ttSemiLepHypWMassMaxSumPt",
