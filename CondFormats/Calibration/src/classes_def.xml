@@ -47,8 +47,6 @@
  <class name="strKeyMap"/>
  <class name="mybase"/>
  <class name="child"/>
- <class pattern="*pair*"/>
- <class pattern="*map*"/>
 
  <class name="condex::Efficiency" class_version="0"/>
  <class name="condex::ParametricEfficiencyInPt" class_version="0"/>
