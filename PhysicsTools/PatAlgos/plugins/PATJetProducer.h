@@ -1,5 +1,5 @@
 //
-// $Id: PATJetProducer.h,v 1.10 2008/09/30 21:33:05 srappocc Exp $
+// $Id: PATJetProducer.h,v 1.11 2009/01/09 17:37:47 auterman Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATJetProducer_h
@@ -13,7 +13,7 @@
    a collection of objects of JetType.
 
   \author   Steven Lowette, Jeremy Andrea
-  \version  $Id: PATJetProducer.h,v 1.10 2008/09/30 21:33:05 srappocc Exp $
+  \version  $Id: PATJetProducer.h,v 1.11 2009/01/09 17:37:47 auterman Exp $
 */
 
 
@@ -23,7 +23,7 @@
 #include "FWCore/ParameterSet/interface/InputTag.h"
 #include "DataFormats/Common/interface/View.h"
 
-#include "PhysicsTools/Utilities/interface/EtComparator.h"
+#include "PhysicsTools/Utilities/interface/PtComparator.h"
 
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/PatCandidates/interface/Electron.h"
@@ -90,7 +90,7 @@ namespace pat {
       // tools
       ObjectResolutionCalc             * theResoCalc_;
       ObjectResolutionCalc             * theBResoCalc_;
-      GreaterByEt<Jet>                   eTComparator_;
+      GreaterByEt<Jet>                   pTComparator_;
 
       bool addEfficiencies_;
       pat::helper::EfficiencyLoader efficiencyLoader_;

@@ -1,5 +1,5 @@
 //
-// $Id: PATJetProducer.cc,v 1.28 2008/11/28 22:05:56 lowette Exp $
+// $Id: PATJetProducer.cc,v 1.29 2009/01/09 17:37:47 auterman Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATJetProducer.h"
@@ -323,7 +323,7 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
   }
 
   // sort jets in Et
-  std::sort(patJets->begin(), patJets->end(), eTComparator_);
+  std::sort(patJets->begin(), patJets->end(), pTComparator_);
 
   // put genEvt  in Event
   std::auto_ptr<std::vector<Jet> > myJets(patJets);
