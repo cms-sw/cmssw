@@ -261,8 +261,14 @@ hcalMonitor = cms.EDFilter("HcalMonitorModule",
 
                            # TRIG PRIM MONITOR
                            TrigPrimMonitor = cms.untracked.bool(True),
+                           TrigPrimMonitor_OccThresh                      = cms.untracked.double(1.),
+                           TrigPrimMonitor_Threshold                      = cms.untracked.double(1.),
+                           TrigPrimMonitor_TPdigiTS                       = cms.untracked.int32(1),
+                           TrigPrimMonitor_ADCdigiTS                      = cms.untracked.int32(3),
+                           TrigPrimMonitor_checkNevents                   = cms.untracked.int32(500),
+                           TrigPrimMonitor_makeDiagnostics                = cms.untracked.bool(False),
                            gtLabel = cms.InputTag("l1GtUnpack"),
-
+                           
                            # LED MONITOR
                            LEDMonitor = cms.untracked.bool(True),
                            LED_ADC_Thresh = cms.untracked.double(-1000.0),
@@ -324,6 +330,7 @@ def setHcalTaskValues(process):
     process.HotCellMonitor_checkNevents_energy            = checkNevents
     process.PedestalMonitor_checkNevents                  = checkNevents
     process.RecHitMonitor_checkNevents                    = checkNevents
+    process.TrigPrimMonitor_checkNevents                  = checkNevents
     
     # set pedestalsInFC
     pedestalsInFC = deepcopy(process.pedestalsInFC)
@@ -338,6 +345,7 @@ def setHcalTaskValues(process):
     process.DigiMonitor_makeDiagnosticsPlots    = makeDiagnosticPlots
     process.HotCellMonitor_makeDiagnosticPlots  = makeDiagnosticPlots
     process.RecHitMonitor_makeDiagnosticPlots   = makeDiagnosticPlots
+    process.TrigPrimMonitor_makeDiagnosticPlots = makeDiagnosticPlots
     return
 
 
