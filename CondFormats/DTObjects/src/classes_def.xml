@@ -1,19 +1,28 @@
 <lcgdict>
   <class name="DTReadOutMapping" id="6E1247AF-2A00-DA11-96EE-000E0C4DE431"/>
+  <class name="std::vector<DTReadOutGeometryLink>"/> 
   <class name="DTReadOutGeometryLink" id="C428DA7A-EE34-DA11-89FB-000E0C5CE283"/>
   <class name="DTT0" id="FAEFE9C5-2A00-DA11-89E6-000E0C4DE431"/>
+  <class name="std::pair<DTT0Id,DTT0Data>"/>
+  <class name="std::vector<std::pair<DTT0Id,DTT0Data> >"/>
   <class name="DTT0Id" id="D2569A91-6C07-DB11-8994-000E0C5CE283"/>
   <class name="DTT0Data" id="604A5767-1B3B-DA11-9D99-000E0C5CE283"/>
   <class name="DTTtrig" id="FA524625-415C-DA11-A1AE-000E0C5CE283"/>
+  <class name="std::pair<DTTtrigId,DTTtrigData>"/>
+  <class name="std::vector< std::pair<DTTtrigId,DTTtrigData> >"/>
   <class name="DTTtrigId" id="B0103027-415C-DA11-8831-000E0C5CE283"/>
   <class name="DTTtrigData" id="1465F61D-E708-DB11-BDAF-000E0C5CE283"/>
   <class name="DTMtime" id="DE34E051-095D-DA11-86A8-000E0C5CE283"/>
+  <class name="std::pair<DTMtimeId,DTMtimeData>"/> 
+  <class name="std::vector< std::pair<DTMtimeId,DTMtimeData> >"/> 
   <class name="DTMtimeId" id="6A4F37E1-085D-DA11-95BC-000E0C5CE283"/>
   <class name="DTMtimeData" id="1652A588-ED08-DB11-8A60-000E0C5CE283"/>
   <class name="DTRangeT0" id="C4574CFD-EDD9-DA11-8194-000E0C5CE283"/>
   <class name="DTRangeT0Id" id="7E44AD27-EED9-DA11-88D9-000E0C5CE283"/>
   <class name="DTRangeT0Data" id="2A604FAD-F208-DB11-8307-000E0C5CE283"/>
   <class name="DTStatusFlag" id="80AB52A5-E3E4-DA11-A636-000E0C5CE283"/>
+  <class name="std::pair<DTStatusFlagId,DTStatusFlagData>"/>
+  <class name="std::vector< std::pair<DTStatusFlagId,DTStatusFlagData> >"/>
   <class name="DTStatusFlagId" id="D29C0DA7-E3E4-DA11-B3BF-000E0C5CE283"/>
   <class name="DTStatusFlagData" id="DE44FE7A-0509-DB11-947C-000E0C5CE283"/>
   <class name="DTDeadFlag" id="BAE2BE38-1A4B-DC11-82DE-000E0C5CE282"/>
@@ -28,10 +37,5 @@
   <class name="DTConfigData" id="3858CAFE-30A2-DB11-9E86-000E0C5CE283"/>
   <class name="DTConfigToken" id="4AA88D8D-31A2-DB11-A311-000E0C5CE283"/>
   <class name="std::basic_string<char>"/>
-
-  <class pattern="*map*"/>
-  <class pattern="*pair*"/>
-  <class pattern="*vector*"/>
-
 </lcgdict>
 
