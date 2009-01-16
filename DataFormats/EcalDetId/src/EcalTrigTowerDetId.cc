@@ -1,7 +1,6 @@
 #include "DataFormats/EcalDetId/interface/EcalTrigTowerDetId.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
-
 EcalTrigTowerDetId::EcalTrigTowerDetId() {
 }
   
@@ -93,11 +92,77 @@ int EcalTrigTowerDetId::iquadrant() const
     throw cms::Exception("MethodNotApplicable") << "EcalTriggerTowerDetId: iquadrant not applicable";
 }  
 
-int EcalTrigTowerDetId::hashedIndex() const 
+bool
+EcalTrigTowerDetId::validDetId( int iz, EcalSubdetector sd , int i, int j )
 {
-  return (iDCC()-1) * kEBTowersPerSM + iTT() - 1;
+   return ( 1 == abs( iz )               &&
+	    0 <  i                       &&
+	    0 <  j                       &&
+	    kEETowersInPhiPerEndcap >= j &&
+	    ( ( EcalBarrel     == sd &&
+		kEBTowersInEta >=  i     ) ||
+	      ( EcalEndcap     == sd &&
+		kEEOuterEta    <=  i &&
+		kEEInnerEta    >=  i &&
+		( 27 > i ||
+		  (  ( 0 >  iz  &&
+		       0 == j%2    ) ||
+		     ( 0 <  iz  &&
+		       1 == j%2         ) ) ) ) ) ) ;
+	    
 }
 
+int 
+EcalTrigTowerDetId::hashedIndex() const 
+{
+   const unsigned int iea ( ietaAbs() ) ;
+   const unsigned int iph ( iphi()    ) ;
+   return ( subDet() == EcalBarrel  ? 
+	    ( iDCC() - 1 )*kEBTowersPerSM + iTT() - 1 :
+	    kEBTotalTowers + ( ( zside() + 1 )/2 )*kEETowersPerEndcap +
+	    ( ( iea < 27 ? iea : 27 ) - kEEOuterEta )*kEETowersInPhiPerEndcap + 
+	    ( iea < 27 ? iph : // for iphi=27,28 only half TT present, odd for EE-, even EE+
+	      ( iea - 27 )*kEETowersInPhiPerEndcap/2 + ( iph + 1 )/2 ) - 1 ) ;
+}
+
+EcalTrigTowerDetId 
+EcalTrigTowerDetId::detIdFromDenseIndex( uint32_t di ) 
+{
+   const EcalSubdetector sd ( di < kEBTotalTowers ? EcalBarrel : EcalEndcap ) ;
+   const int iz ( di < kEBTotalTowers ? 
+		  ( di < kEBHalfTowers ?  1 : -1 ) :
+		  ( di - kEBTotalTowers < kEETowersPerEndcap ? -1 : 1 ) ) ;
+   int i ;
+   int j ;
+   if( di < kEBTotalTowers ) // barrel
+   {
+      const unsigned int itt ( di%kEBTowersPerSM ) ;
+      const unsigned int idc ( di/kEBTowersPerSM ) ;
+      j = (idc%18)*kEBTowersInPhi + 
+	 ( (1+iz)/2 )*kEBTowersInPhi - 
+	 iz*(itt%kEBTowersInPhi)  + 1 - (1+iz)/2 - 2 ;
+      if( j < 1 ) j += 72 ;
+      i = 1 + itt/kEBTowersInPhi ;
+   }
+   else
+   {
+      const int eonly ( ( di - kEBTotalTowers )%kEETowersPerEndcap ) ;
+      i = kEEOuterEta + eonly/kEETowersInPhiPerEndcap ;
+      j = 1 + eonly%kEETowersInPhiPerEndcap ;
+      if( 27 == i ) // last two rings have half of normal phi elementes
+      {
+	 if( j > kEETowersInPhiPerEndcap/2 )
+	 {
+	    ++i ; 
+	    j -= kEETowersInPhiPerEndcap/2 ;
+	 }
+	 j = 2*j ;
+	 if( 0 < iz ) --j ;
+      }
+   }
+   assert( validDetId( iz, sd, i, j ) ) ;
+   return EcalTrigTowerDetId( iz, sd, i, j ) ;
+}
 
 std::ostream& operator<<(std::ostream& s,const EcalTrigTowerDetId& id) {
   return s << "(EcalTT subDet " << ((id.subDet()==EcalBarrel)?("Barrel"):("Endcap")) 

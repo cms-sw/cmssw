@@ -10,7 +10,7 @@
     
    DetId for an Ecal Trigger tower
 
-   $Id: EcalTrigTowerDetId.h,v 1.7 2006/08/23 15:40:05 meridian Exp $
+   $Id: EcalTrigTowerDetId.h,v 1.8 2007/07/31 15:20:00 ratnik Exp $
 */
 
 
@@ -89,11 +89,24 @@ class EcalTrigTowerDetId : public DetId {
   /// get a compact index for arrays [TODO: NEEDS WORK]
   int hashedIndex() const;
 
+  uint32_t denseIndex() const { return hashedIndex() ; }
+
+  static bool validDenseIndex( uint32_t din ) { return ( din < kSizeForDenseIndexing ) ; }
+
+  static EcalTrigTowerDetId detIdFromDenseIndex( uint32_t di ) ;
+
+  /// check if a valid index combination
+  static bool validDetId( int iz, 
+			  EcalSubdetector sd, 
+			  int i, int j ) ;
+
   /// get the ECAL DCC id - in the  barrrel ism == iDCC
   int iDCC() const ; 
 
   /// sequential index within one DCC
   int iTT() const ; 
+
+
 
   static const int MIN_I = 1;
   static const int MIN_J = 1;
@@ -103,12 +116,22 @@ class EcalTrigTowerDetId : public DetId {
   static const int kEBTowersInPhi = 4; // per SM (in the Barrel)
   static const int kEBTowersPerSM = 68; // per SM (in the Barrel)
   static const int kEBTowersInEta = 17; // per SM (in the Barrel)
-  static const int kEETowersInEta = 11; // Endcap
+//  static const int kEETowersInEta = 11; // Endcap
   static const int kEETowersInPhiPerQuadrant = 18; // per Quadrant (in the Endcap)
 
   // function modes for (int, int) constructor
   static const int SUBDETIJMODE = 0;
   static const int SUBDETDCCTTMODE = 1;
+
+      enum { kEETowersInPhiPerEndcap = 4* kEETowersInPhiPerQuadrant ,
+	     kEEOuterEta             = 18 ,
+	     kEEInnerEta             = 28 ,
+	     kEETowersInEta          = ( kEEInnerEta - kEEOuterEta + 1 ) ,
+	     kEBHalfTowers           = kEBTowersPerSM*18 ,
+	     kEBTotalTowers          = kEBHalfTowers*2 ,
+	     kEETowersPerEndcap      = kEETowersInEta*kEETowersInPhiPerEndcap - 72,
+	     kEETotalTowers          = kEETowersPerEndcap*2,
+	     kSizeForDenseIndexing   = kEBTotalTowers + kEETotalTowers } ;
 };
 
 std::ostream& operator<<(std::ostream&,const EcalTrigTowerDetId& id);
