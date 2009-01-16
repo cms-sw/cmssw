@@ -4,7 +4,7 @@ process = cms.Process("TESTFIT")
 
 
 process.load("Geometry.CommonDetUnit.globalTrackingGeometry_cfi")
-process.load("TrackingTools.TrackRefitter.globalCosmicMuonTrajectories_cff")
+process.load("TrackingTools.TrackRefitter.cosmicMuonTrajectories_cff")
 #process.load("TrackingTools.TrackRefitter.cosmicMuonTrajectories_cff")
 #process.load("TrackingTools.TrackRefitter.ctfWithMaterialTrajectoriesP5_cff")
 
@@ -29,7 +29,8 @@ process.source = cms.Source("PoolSource",
     #'/store/data/CRUZET4_v1/Cosmics/RECO/CRZT210_V1_SuperPointing_v1/0000/006F3A6A-0373-DD11-A8E7-00304876A0FF.root',
     #'/store/data/CRUZET4_v1/Cosmics/RECO/CRZT210_V1_SuperPointing_v1/0000/02CF5B1E-6476-DD11-A034-003048769E65.root'
 #    '/store/data/Commissioning08/Cosmics/ALCARECO/CRUZET4_V2_StreamMuAlGlobalCosmics_CRUZET4_v2/0007/F85734BA-6572-DD11-B9F8-0019B9F72CC2.root'
-    'file:F85734BA-6572-DD11-B9F8-0019B9F72CC2.root'
+#    'file:F85734BA-6572-DD11-B9F8-0019B9F72CC2.root'
+	'file:/data/0c/kypreos/skims/run67810_1.root'	
     ))
 
 process.maxEvents = cms.untracked.PSet(

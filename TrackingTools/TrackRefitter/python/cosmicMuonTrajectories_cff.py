@@ -8,26 +8,28 @@ from TrackingTools.TrackRefitter.TracksToTrajectories_cff import *
 # KFTrajectoryFitterESProducer   ---> Fitter = "KFFitterForRefitInsideOut"
 # KFTrajectorySmootherESProducer ---> Smoother = "KFSmootherForRefitInsideOut"
 # Case 2 #
+# string RefitDirection = "alongMomentum"
+# KFTrajectoryFitterESProducer   ---> Fitter = "KFFitterForRefitOutsideIn"
+# KFTrajectorySmootherESProducer ---> Smoother = "KFSmootherForRefitOutsideIn"
+# Case 3 #
 # string RefitDirection = "oppositeToMomentum"
 # KFTrajectoryFitterESProducer   ---> Fitter = "KFFitterForRefitOutsideIn"
 # KFTrajectorySmootherESProducer ---> Smoother = "KFSmootherForRefitOutsideIn"
-# the propagator must be the same as the one used by the Fitter
+# Case 4 #
+# string RefitDirection = "oppositeToMomentum"
+# KFTrajectoryFitterESProducer   ---> Fitter = "KFFitterForRefitOutsideIn"
+# KFTrajectorySmootherESProducer ---> Smoother = "KFSmootherForRefitOutsideIn"
 #
-cosmicMuons = cms.EDProducer("TracksToTrajectories",
-                             Type = cms.string("Default"),
-                             Tracks = cms.InputTag("cosmicMuons"),
-                             TrackTransformer = cms.PSet(DoPredictionsOnly = cms.bool(False),
-                                                         Fitter = cms.string('KFFitterForRefitInsideOut'),
-                                                         #        TrackerRecHitBuilder = cms.string('WithTrackAngleAndTemplate'),
-                                                         TrackerRecHitBuilder = cms.string('WithTrackAngle'),
-                                                         Smoother = cms.string('KFSmootherForRefitInsideOut'),
-                                                         MuonRecHitBuilder = cms.string('MuonRecHitBuilder'),
-                                                         RefitDirection = cms.string('alongMomentum'),
-                                                         RefitRPCHits = cms.bool(True),
-                                                         TrackFromCosmicReco = cms.untracked.bool(True),
-                                                         Propagator = cms.string('SmartPropagatorAnyRK')
-                                                         )
-                             )
+globalCosmicMuons = cms.EDProducer("TracksToTrajectories",
+                                   Type = cms.string("CosmicMuonsForAlignment"),
+                                   Tracks = cms.InputTag("cosmicMuons"),
+                                   TrackTransformer = cms.PSet(TrackerRecHitBuilder = cms.string('WithTrackAngle'),
+                                                               MuonRecHitBuilder = cms.string('MuonRecHitBuilder'),
+                                                               RefitRPCHits = cms.bool(True),
+                                                               )
+                                   )
 
 
 
+MuAlGlobalCosmics = globalCosmicMuons.clone()
+MuAlGlobalCosmics.Tracks = cms.InputTag("ALCARECOMuAlGlobalCosmics","GlobalMuon")

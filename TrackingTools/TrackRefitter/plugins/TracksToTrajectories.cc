@@ -2,6 +2,7 @@
 
 #include "TrackingTools/TrackRefitter/interface/TrackTransformer.h"
 #include "TrackingTools/TrackRefitter/interface/TrackTransformerForGlobalCosmicMuons.h"
+#include "TrackingTools/TrackRefitter/interface/TrackTransformerForCosmicMuons.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -30,6 +31,7 @@ TracksToTrajectories::TracksToTrajectories(const ParameterSet& parameterSet):the
 
   if(type == "Default") theTrackTransformer = new TrackTransformer(trackTransformerParam);
   else if(type == "GlobalCosmicMuonsForAlignment") theTrackTransformer = new TrackTransformerForGlobalCosmicMuons(trackTransformerParam);
+  else if(type == "CosmicMuonsForAlignment") theTrackTransformer = new TrackTransformerForCosmicMuons(trackTransformerParam);
   else{
     throw cms::Exception("TracksToTrajectories") 
       <<"The selected algorithme does not exist"
