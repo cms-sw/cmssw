@@ -9,7 +9,8 @@ DTGeometryESModule = cms.ESProducer("DTGeometryESModule",
     appendToDataLabel = cms.string(''),
     applyAlignment = cms.bool(True), ## to be abondoned (?)
 
-    alignmentsLabel = cms.string('')
+    alignmentsLabel = cms.string(''),
+    fromDDD = cms.bool(False)
 )
 
 

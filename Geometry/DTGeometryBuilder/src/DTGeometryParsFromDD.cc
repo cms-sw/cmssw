@@ -2,14 +2,15 @@
  *
  *  $Date: 2008/01/22 21:12:16 $
  *  $Revision: 1.10 $
- *  \author N. Amapane - CERN. 
+ *  \author Stefano Lacaprara  <lacaprara@pd.infn.it>  INFN LNL
  */
 
-#include <Geometry/DTGeometryBuilder/src/DTGeometryBuilderFromDDD.h>
+#include <Geometry/DTGeometryBuilder/src/DTGeometryParsFromDD.h>
 #include <Geometry/DTGeometry/interface/DTGeometry.h>
 #include <Geometry/DTGeometry/interface/DTChamber.h>
 #include <Geometry/DTGeometry/interface/DTLayer.h>
 
+#include <CondFormats/GeometryObjects/interface/RecoIdealGeometry.h>
 #include <DetectorDescription/Core/interface/DDFilter.h>
 #include <DetectorDescription/Core/interface/DDFilteredView.h>
 #include <DetectorDescription/Core/interface/DDSolid.h>
@@ -30,16 +31,16 @@ using namespace std;
 
 using namespace std;
 
-DTGeometryBuilderFromDDD::DTGeometryBuilderFromDDD() {}
+DTGeometryParsFromDD::DTGeometryParsFromDD() {}
 
-DTGeometryBuilderFromDDD::~DTGeometryBuilderFromDDD(){}
+DTGeometryParsFromDD::~DTGeometryParsFromDD(){}
 
 
-void DTGeometryBuilderFromDDD::build(boost::shared_ptr<DTGeometry> theGeometry,
-                                     const DDCompactView* cview,
-                                     const MuonDDDConstants& muonConstants){
-  cout << "DTGeometryBuilderFromDDD::build" << endl;
-  //   static const string t0 = "DTGeometryBuilderFromDDD::build";
+void DTGeometryParsFromDD::build(const DDCompactView* cview,
+                                 const MuonDDDConstants& muonConstants,
+                                 RecoIdealGeometry& rig) {
+  cout << "DTGeometryParsFromDD::build" << endl;
+  //   static const string t0 = "DTGeometryParsFromDD::build";
   //   TimeMe timer(t0,true);
 
   std::string attribute = "MuStructure"; 
@@ -56,17 +57,16 @@ void DTGeometryBuilderFromDDD::build(boost::shared_ptr<DTGeometry> theGeometry,
 		     );
   DDFilteredView fview(*cview);
   fview.addFilter(filter);
-  buildGeometry(theGeometry, fview, muonConstants);
+  buildGeometry(fview, muonConstants, rig);
+  //cout << "RecoIdealGeometry " << rig.size() << endl;
 }
 
 
-void DTGeometryBuilderFromDDD::buildGeometry(boost::shared_ptr<DTGeometry> theGeometry,
-                                             DDFilteredView& fv,
-                                             const MuonDDDConstants& muonConstants) const {
-  // static const string t0 = "DTGeometryBuilderFromDDD::buildGeometry";
+void DTGeometryParsFromDD::buildGeometry(DDFilteredView& fv,
+                                         const MuonDDDConstants& muonConstants,
+                                         RecoIdealGeometry& rig) const {
+  // static const string t0 = "DTGeometryParsFromDD::buildGeometry";
   // TimeMe timer(t0,true);
-
-  //DTGeometry* theGeometry = new DTGeometry;
 
   bool doChamber = fv.firstChild();
 
@@ -82,23 +82,21 @@ void DTGeometryBuilderFromDDD::buildGeometry(boost::shared_ptr<DTGeometry> theGe
     val=DDValue("FEPos");
     string FEPos;
     if (DDfetch(&params,val)) FEPos = val.strings()[0];
-    DTChamber* chamber = buildChamber(fv,type, muonConstants);
+    insertChamber(fv,type, muonConstants,rig);
 
     // Loop on SLs
     bool doSL = fv.firstChild();
     int SLCounter=0;
     while (doSL) {
       SLCounter++;
-      DTSuperLayer* sl = buildSuperLayer(fv, chamber, type, muonConstants);
-      theGeometry->add(sl);
+      insertSuperLayer(fv, type, muonConstants,rig);
 
       bool doL = fv.firstChild();
       int LCounter=0;
       // Loop on SLs
       while (doL) {
         LCounter++;
-        DTLayer* layer = buildLayer(fv, sl, type, muonConstants);
-        theGeometry->add(layer);
+        insertLayer(fv, type, muonConstants, rig);
 
         fv.parent();
         doL = fv.nextSibling(); // go to next layer
@@ -107,118 +105,101 @@ void DTGeometryBuilderFromDDD::buildGeometry(boost::shared_ptr<DTGeometry> theGe
       fv.parent();
       doSL = fv.nextSibling(); // go to next SL
     } // sls
-    theGeometry->add(chamber);
 
     fv.parent();
     doChamber = fv.nextSibling(); // go to next chamber
   } // chambers
 }
 
-DTChamber* DTGeometryBuilderFromDDD::buildChamber(DDFilteredView& fv,
-                                                  const string& type, const MuonDDDConstants& muonConstants) const {
+void DTGeometryParsFromDD::insertChamber(DDFilteredView& fv,
+                                         const string& type,
+                                         const MuonDDDConstants& muonConstants,
+                                         RecoIdealGeometry& rig) const {
   MuonDDDNumbering mdddnum (muonConstants);
   DTNumberingScheme dtnum (muonConstants);
   int rawid = dtnum.getDetId(mdddnum.geoHistoryToBaseNumber(fv.geoHistory()));
-  DTChamberId detId(rawid);  
+  DTChamberId detId(rawid);
+  //cout << "inserting Chamber " << detId << endl;
 
   // Chamber specific parameter (size) 
-  // FIXME: some trouble for boolean solids?
-  vector<double> par = extractParameters(fv);
-
-  float width = par[0]/cm;     // r-phi  dimension - different in different chambers
-  float length = par[1]/cm;    // z      dimension - constant 125.55 cm
-  float thickness = par[2]/cm; // radial thickness - almost constant about 18 cm
+  vector<double> par;
+  par.push_back(DTChamberTag);
+  vector<double> size= extractParameters(fv);
+  par.insert(par.end(), size.begin(), size.end());
 
   ///SL the definition of length, width, thickness depends on the local reference frame of the Det
   // width is along local X
   // length is along local Y
   // thickness is long local Z
-  RectangularPlaneBounds bound(width, length, thickness);
 
-  RCPPlane surf(plane(fv,bound));
+  PosRotPair posRot(plane(fv));
 
-  DTChamber* chamber = new DTChamber(detId, surf);
-
-  return chamber;
+  rig.insert(rawid, posRot.first, posRot.second, par);
 }
 
-DTSuperLayer* DTGeometryBuilderFromDDD::buildSuperLayer(DDFilteredView& fv,
-                                                        DTChamber* chamber,
-                                                        const std::string& type, 
-							const MuonDDDConstants& muonConstants) const {
+void DTGeometryParsFromDD::insertSuperLayer(DDFilteredView& fv,
+                                            const std::string& type, 
+                                            const MuonDDDConstants& muonConstants,
+                                            RecoIdealGeometry& rig) const {
 
   MuonDDDNumbering mdddnum(muonConstants);
   DTNumberingScheme dtnum(muonConstants);
   int rawid = dtnum.getDetId(mdddnum.geoHistoryToBaseNumber(fv.geoHistory()));
   DTSuperLayerId slId(rawid);
+  //cout << "inserting SuperLayer " << slId << endl;
 
   // Slayer specific parameter (size)
-  vector<double> par = extractParameters(fv);
-
-  float width = par[0]/cm;     // r-phi  dimension - changes in different chambers
-  float length = par[1]/cm;    // z      dimension - constant 126.8 cm
-  float thickness = par[2]/cm; // radial thickness - almost constant about 20 cm
-
-  RectangularPlaneBounds bound(width, length, thickness);
+  vector<double> par;
+  par.push_back(DTSuperLayerTag);
+  vector<double> size= extractParameters(fv);
+  par.insert(par.end(), size.begin(), size.end());
 
   // Ok this is the slayer position...
-  RCPPlane surf(plane(fv,bound));
+  PosRotPair posRot(plane(fv));
 
-  DTSuperLayer* slayer = new DTSuperLayer(slId, surf, chamber);
-
-  //LocalPoint lpos(10,20,30);
-  //GlobalPoint gpos=slayer->toGlobal(lpos);
-
-  // add to the chamber
-  chamber->add(slayer);
-  return slayer;
+  rig.insert(slId, posRot.first, posRot.second, par);
 }
 
-
-DTLayer* DTGeometryBuilderFromDDD::buildLayer(DDFilteredView& fv,
-                                              DTSuperLayer* sl,
-                                              const std::string& type,
-					      const MuonDDDConstants& muonConstants) const {
+void DTGeometryParsFromDD::insertLayer(DDFilteredView& fv,
+                                       const std::string& type,
+                                       const MuonDDDConstants& muonConstants,
+                                       RecoIdealGeometry& rig) const {
 
   MuonDDDNumbering mdddnum(muonConstants);
   DTNumberingScheme dtnum(muonConstants);
   int rawid = dtnum.getDetId(mdddnum.geoHistoryToBaseNumber(fv.geoHistory()));
   DTLayerId layId(rawid);
+  //cout << "inserting Layer " << layId << endl;
 
   // Layer specific parameter (size)
-  vector<double> par = extractParameters(fv);
-  float width = par[0]/cm;     // r-phi  dimension - changes in different chambers
-  float length = par[1]/cm;    // z      dimension - constant 126.8 cm
-  float thickness = par[2]/cm; // radial thickness - almost constant about 20 cm
-
-  // define Bounds
-  RectangularPlaneBounds bound(width, length, thickness);
-
-  RCPPlane surf(plane(fv,bound));
+  vector<double> par;
+  par.push_back(DTLayerTag);
+  vector<double> size= extractParameters(fv);
+  par.insert(par.end(), size.begin(), size.end());
 
   // Loop on wires
   bool doWire = fv.firstChild();
   int WCounter=0;
   int firstWire=fv.copyno();
-  par = extractParameters(fv);
-  float wireLength = par[1]/cm;
+  //float wireLength = par[1]/cm;
   while (doWire) {
     WCounter++;
     doWire = fv.nextSibling(); // next wire
   }
+  vector<double> sensSize= extractParameters(fv);
   //int lastWire=fv.copyno();
-  DTTopology topology(firstWire, WCounter, wireLength);
+  par.push_back(firstWire);
+  par.push_back(WCounter);
+  par.push_back(sensSize[1]);
 
-  DTLayerType layerType;
+  PosRotPair posRot(plane(fv));
 
-  DTLayer* layer = new DTLayer(layId, surf, topology, layerType, sl);
+  rig.insert(layId, posRot.first, posRot.second, par);
 
-  sl->add(layer);
-  return layer;
 }
 
 vector<double> 
-DTGeometryBuilderFromDDD::extractParameters(DDFilteredView& fv) const {
+DTGeometryParsFromDD::extractParameters(DDFilteredView& fv) const {
   vector<double> par;
   if (fv.logicalPart().solid().shape() != ddbox) {
     DDBooleanSolid bs(fv.logicalPart().solid());
@@ -234,15 +215,16 @@ DTGeometryBuilderFromDDD::extractParameters(DDFilteredView& fv) const {
   return par;
 }
 
-DTGeometryBuilderFromDDD::RCPPlane 
-DTGeometryBuilderFromDDD::plane(const DDFilteredView& fv,
-                                const Bounds& bounds) const {
+DTGeometryParsFromDD::PosRotPair
+DTGeometryParsFromDD::plane(const DDFilteredView& fv) const {
   // extract the position
   const DDTranslation & trans(fv.translation());
 
-  const Surface::PositionType posResult(float(trans.x()/cm), 
-                                        float(trans.y()/cm), 
-                                        float(trans.z()/cm));
+  std::vector<double> gtran( 3 );
+  gtran[0] = (float) 1.0 * (trans.x() / cm);
+  gtran[1] = (float) 1.0 * (trans.y() / cm);
+  gtran[2] = (float) 1.0 * (trans.z() / cm);
+
   // now the rotation
   //  DDRotationMatrix tmp = fv.rotation();
   // === DDD uses 'active' rotations - see CLHEP user guide ===
@@ -258,9 +240,18 @@ DTGeometryBuilderFromDDD::plane(const DDFilteredView& fv,
 // 	    << y.X() << ", " << y.Y() << ", " << y.Z() << std::endl
 // 	    << z.X() << ", " << z.Y() << ", " << z.Z() << std::endl;
 
-  Surface::RotationType rotResult(float(x.X()),float(x.Y()),float(x.Z()),
-                                  float(y.X()),float(y.Y()),float(y.Z()),
-                                  float(z.X()),float(z.Y()),float(z.Z())); 
+  std::vector<double> grmat( 9 );
+  grmat[0] = (float) 1.0 * x.X();
+  grmat[1] = (float) 1.0 * x.Y();
+  grmat[2] = (float) 1.0 * x.Z();
+
+  grmat[3] = (float) 1.0 * y.X();
+  grmat[4] = (float) 1.0 * y.Y();
+  grmat[5] = (float) 1.0 * y.Z();
+
+  grmat[6] = (float) 1.0 * z.X();
+  grmat[7] = (float) 1.0 * z.Y();
+  grmat[8] = (float) 1.0 * z.Z();
 
 //   std::cout << "rotation by its own operator: "<< tmp << std::endl;
 //   DD3Vector tx, ty,tz;
@@ -270,5 +261,5 @@ DTGeometryBuilderFromDDD::plane(const DDFilteredView& fv,
 // 	    << ty.X() << ", " << ty.Y() << ", " << ty.Z() << std::endl
 // 	    << tz.X() << ", " << tz.Y() << ", " << tz.Z() << std::endl;
 
-  return RCPPlane( new BoundPlane( posResult, rotResult, bounds));
+  return make_pair<std::vector<double>, std::vector<double> >(gtran, grmat);
 }

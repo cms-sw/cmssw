@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2007/03/09 00:40:41 $
- *  $Revision: 1.5 $
+ *  $Date: 2008/01/22 21:24:57 $
+ *  $Revision: 1.6 $
  *  \author N. Amapane - CERN
  */
 
@@ -97,6 +97,7 @@ void DTGeometryAnalyzer::analyze( const edm::Event& iEvent,
       << " chamber " << (*det)->chamber()->id() 
       << " Topology W/H/L: " 
       << topo.cellWidth() << "/" << topo.cellHeight() << "/" << topo.cellLenght() 
+      << " first/last/# wire " << topo.firstChannel() << "/" << topo.lastChannel() << "/" << topo.channels()
       << " Position " << surf.position()
       << " normVect " << surf.normalVector() 
       << " bounds W/H/L: " << surf.bounds().width() << "/" 

@@ -8,8 +8,8 @@
  *  The geometry owns the DTChamber s; these own their DTSuperLayer s which 
  *  in turn own their DTLayer s.
  *
- *  $Date: 2006/03/21 17:13:57 $
- *  $Revision: 1.5 $
+ *  $Date: 2006/08/22 15:57:10 $
+ *  $Revision: 1.6 $
  *  \author N. Amapane - CERN
  */
 
@@ -84,6 +84,7 @@ class DTGeometry : public TrackingGeometry {
   private:
   
     friend class DTGeometryBuilderFromDDD;
+    friend class DTGeometryBuilderFromCondDB;
 
     friend class GeometryAligner;
 

@@ -1,15 +1,18 @@
 /** \file
  *
- *  $Date: 2008/02/22 12:49:23 $
- *  $Revision: 1.5 $
+ *  $Date: 2008/06/26 12:20:40 $
+ *  $Revision: 1.6 $
  *  \author N. Amapane - CERN
  */
 
 #include "DTGeometryESModule.h"
 #include <Geometry/DTGeometryBuilder/src/DTGeometryBuilderFromDDD.h>
+#include <Geometry/DTGeometryBuilder/src/DTGeometryBuilderFromCondDB.h>
 
 #include <Geometry/Records/interface/IdealGeometryRecord.h>
 #include <Geometry/Records/interface/MuonNumberingRecord.h>
+#include "CondFormats/GeometryObjects/interface/RecoIdealGeometry.h"
+#include "Geometry/Records/interface/DTRecoGeometryRcd.h"
 
 // Alignments
 #include "CondFormats/Alignment/interface/DetectorGlobalPosition.h"
@@ -23,29 +26,31 @@
 #include <FWCore/Framework/interface/ModuleFactory.h>
 
 #include <memory>
+#include <iostream>
 
 using namespace edm;
+using namespace std;
 
 DTGeometryESModule::DTGeometryESModule(const edm::ParameterSet & p)
   : alignmentsLabel_(p.getParameter<std::string>("alignmentsLabel")),
-    myLabel_(p.getParameter<std::string>("appendToDataLabel"))
+    myLabel_(p.getParameter<std::string>("appendToDataLabel")),
+    fromDDD_(p.getParameter<bool>("fromDDD"))
 {
 
   applyAlignment_ = p.getParameter<bool>("applyAlignment");
+  cout << "DTGeometryESModule " << fromDDD_ << endl;
 
   setWhatProduced(this, dependsOn(&DTGeometryESModule::geometryCallback_) );
 
   edm::LogInfo("Geometry") << "@SUB=DTGeometryESModule"
-			   << "Label '" << myLabel_ << "' "
-			   << (applyAlignment_ ? "looking for" : "IGNORING")
-			   << " alignment labels '" << alignmentsLabel_ << "'.";
+    << "Label '" << myLabel_ << "' "
+    << (applyAlignment_ ? "looking for" : "IGNORING")
+    << " alignment labels '" << alignmentsLabel_ << "'.";
 }
-
 
 DTGeometryESModule::~DTGeometryESModule(){}
 
-
-boost::shared_ptr<DTGeometry>
+boost::shared_ptr<DTGeometry> 
 DTGeometryESModule::produce(const MuonGeometryRecord & record) {
 
   //
@@ -63,14 +68,14 @@ DTGeometryESModule::produce(const MuonGeometryRecord & record) {
     // Only apply alignment if values exist
     if (alignments->empty() && alignmentErrors->empty() && globalPosition->empty()) {
       edm::LogInfo("Config") << "@SUB=DTGeometryRecord::produce"
-			     << "Alignment(Error)s and global position (label '"
-			     << alignmentsLabel_ << "') empty: Geometry producer (label "
-			     << "'" << myLabel_ << "') assumes fake and does not apply.";
+        << "Alignment(Error)s and global position (label '"
+        << alignmentsLabel_ << "') empty: Geometry producer (label "
+        << "'" << myLabel_ << "') assumes fake and does not apply.";
     } else {
       GeometryAligner aligner;
       aligner.applyAlignments<DTGeometry>( &(*_dtGeometry),
-					   &(*alignments), &(*alignmentErrors),
-					   align::DetectorGlobalPosition(*globalPosition, DetId(DetId::Muon)));
+                                           &(*alignments), &(*alignmentErrors),
+                                           align::DetectorGlobalPosition(*globalPosition, DetId(DetId::Muon)));
     }
   }
 
@@ -78,20 +83,31 @@ DTGeometryESModule::produce(const MuonGeometryRecord & record) {
 
 }
 
-
-//______________________________________________________________________________
-void DTGeometryESModule::geometryCallback_( const MuonNumberingRecord& record )
-{
-  
+void DTGeometryESModule::geometryCallback_( const MuonNumberingRecord& record ) {
   //
   // Called whenever the muon numbering (or ideal geometry) changes
   //
-  edm::ESHandle<DDCompactView> cpv;
-  edm::ESHandle<MuonDDDConstants> mdc;
-  record.getRecord<IdealGeometryRecord>().get(cpv);
-  record.get( mdc );
-  DTGeometryBuilderFromDDD builder;
-  _dtGeometry = boost::shared_ptr<DTGeometry>(builder.build(&(*cpv), *mdc));
+
+  cout << "DTGeometryESModule::produce " << fromDDD_ << endl;
+  _dtGeometry = boost::shared_ptr<DTGeometry>(new DTGeometry );
+  if ( fromDDD_ ) {
+    edm::ESHandle<MuonDDDConstants> mdc;
+    record.get( mdc );
+
+    edm::ESHandle<DDCompactView> cpv;
+    record.getRecord<IdealGeometryRecord>().get(cpv);
+
+    DTGeometryBuilderFromDDD builder;
+    builder.build(_dtGeometry, &(*cpv), *mdc);
+  } else {
+    edm::ESHandle<RecoIdealGeometry> rig;
+    record.getRecord<DTRecoGeometryRcd>().get(rig);
+
+    DTGeometryBuilderFromCondDB builder;
+    builder.build(_dtGeometry, *rig);
+  }
 
 }
+
+
 DEFINE_FWK_EVENTSETUP_MODULE(DTGeometryESModule);
