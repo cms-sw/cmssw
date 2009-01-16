@@ -3,14 +3,13 @@
 # cmssw wrapper for job submission
 # run cmssw and copy output and log to destdir 
 # 
-# $Id$
+# $Id: cmssw-job.csh,v 1.2 2008/11/12 15:36:04 argiro Exp $
 
 set conffile = $1 
 set logfile  = $2
 set errfile  = $3
 set workdir  = $4
-set outfile  = $5
-set destdir  = $6
+set destdir  = $5
 
 cd $workdir
 eval `scramv1 runtime -csh`
@@ -29,16 +28,12 @@ setenv logfiledir  `dirname $logfile`
 setenv protocol `echo $destdir | cut -d ':' -f1 `
 setenv destpath `echo $destdir | cut -d ':' -f2 `
 
-echo "copying $outfile to $destdir"
+echo "copying to $destdir"
 
 if ($protocol == 'castor') then
-   rfcp $outfile $destpath
    rfcp $logfile $destpath
 else
-   scp $outfile $destdir 
    scp $logfile $destdir 
 endif
 
 
-rm -f $outfile 
-rm -f $logfile 

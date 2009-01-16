@@ -4,7 +4,7 @@ import string, sys, os, getopt, subprocess, time
 
 def usage():
 
-   print "Usage: "+sys.argv[0]+"  -c confile -r runlistfile -e destdir -h -d -n numberjobs -o outputfile(s)"
+   print "Usage: "+sys.argv[0]+"  -c confile -r runlistfile -e destdir -h -d -n numberjobs "
    print " -h: help, -d:dryrun(do not submit jobs) -q: queue(default cmscaf)"
    sys.exit(2)
 
@@ -12,7 +12,7 @@ def usage():
 def main():
 
  try:
-     opts, args = getopt.getopt(sys.argv[1:], "c:r:e:n:q:o:hd", ["conffile=","runlist=","destdir=","numberjobs=","queue=","outfile=","help","dryrun"])
+     opts, args = getopt.getopt(sys.argv[1:], "c:r:e:n:q:hd", ["conffile=","runlist=","destdir=","numberjobs=","queue=","help","dryrun"])
 
  except getopt.GetoptError:
      #* print help information and exit:*
@@ -26,8 +26,7 @@ def main():
  logdir = "/tmp/"
  destdir = None
  have_destdir = 0
- outputfile_basedir = "/tmp/"
-
+ 
  queue = 'cmscaf'
  
  # default number jobs
@@ -35,7 +34,6 @@ def main():
 
  # base names
  configfile_basename = "config-alcarecophisym-"
- outputfile_basename =  ""
  logfile_basename = logdir
  errfile_basename = logdir
 
@@ -70,8 +68,6 @@ def main():
      if opt in ("-q","--queue"):
         queue= arg
 
-     if opt in ("-o","--outfile"):
-        outputfile_basename=arg
         
  # exit condition
  if (conffile_template==None or runlist==None):
@@ -111,9 +107,9 @@ def main():
       
       logfile = logfile_basename+str(jobcount)+".log"
       errfile = errfile_basename+str(jobcount)+".err"
-      outputfile= outputfile_basedir + outputfile_basename
+
       
-      args=['bsub','-q'+queue,"-ojob.log","-ejob.log",workdir+'/cmssw-job.csh',conffile,logfile,errfile,workdir,outputfile,destdir]   
+      args=['bsub','-q'+queue,"-ojob.log","-ejob.log",workdir+'/cmssw-job.csh',conffile,logfile,errfile,workdir,destdir]   
  
       
       if (not dryrun):
