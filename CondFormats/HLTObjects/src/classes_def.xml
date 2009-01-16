@@ -1,6 +1,4 @@
 <lcgdict>
  <class name="AlCaRecoTriggerBits"/>
- <class pattern="*pair*"/>
- <class pattern="*map*"/>
 </lcgdict>   
 
