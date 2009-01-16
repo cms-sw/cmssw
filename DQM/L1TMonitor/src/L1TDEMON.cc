@@ -560,17 +560,14 @@ L1TDEMON::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   // hBxDiffAllFed hBxDiffAllFedSpread hBxOccyAllFedSpread
 
-
   ///GT mon info
-  if(isComp[GLT]) {
+  if(isComp[GLT]&&false) {
     const int w64=64;
     GltDEDigi gltdigimon = deRecord->getGlt();
-    //bool ddecbit = gltdigimon.globalDBit[0];
-    //bool edecbit = gltdigimon.globalDBit[1];
-    std::vector<bool> edecbitv = gltdigimon.gltDecBits[0];
-    std::vector<bool> ddecbitv = gltdigimon.gltDecBits[1];
-    std::vector<bool> etchbitv = gltdigimon.gltTchBits[0];
-    std::vector<bool> dtchbitv = gltdigimon.gltTchBits[1];
+    std::vector<bool> edecbitv = (gltdigimon.gltDecBits)[0];
+    std::vector<bool> ddecbitv = (gltdigimon.gltDecBits)[1];
+    std::vector<bool> etchbitv = (gltdigimon.gltTchBits)[0];
+    std::vector<bool> dtchbitv = (gltdigimon.gltTchBits)[1];
     
     std::vector<bool> dedecbitv(2*w64,false), debitmaskv(2*w64,false), 
       gtbitmasked(2*w64,false);
