@@ -419,7 +419,8 @@ void CSCXonStrip_MatchGatti::setupMatrix() {
     cross_talks_inv(3,3) = cross_talks(3,3) = xt_lr2[iTime];
     cross_talks_inv.invert(err);
     if (err != 0) {
-      LogTrace("CSCRecHit")<<" Failed to invert XTalks matrix. Inaccurate cross-talk correction..."<<"\n";
+      edm::LogError("CSCRecHit") << "Failed to invert XTalks matrix. No cross-talk correction for this rechit.";
+      return;
     }
     //---- "charge" is XT-corrected charge
     charge = chargeSignal[0][iTime]*cross_talks_inv(1,1) + chargeSignal[1][iTime]*cross_talks_inv(1,2) + 
