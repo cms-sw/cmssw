@@ -2,8 +2,8 @@
  *  Class:PostProcessor 
  *
  *
- *  $Date: 2008/12/22 08:31:48 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/12/22 09:39:09 $
+ *  $Revision: 1.2 $
  * 
  *  \author Junghwan Goh - SungKyunKwan University
  */
@@ -90,6 +90,7 @@ void PostProcessor::endJob()
 
     for(vstring::const_iterator iCmd = effCmds_.begin();
         iCmd != effCmds_.end(); ++iCmd) {
+      if ( iCmd->empty() ) continue;
       boost::tokenizer<elsc> tokens(*iCmd, elsc("\\", " \t", "\'"));
 
       vector<string> args;
@@ -111,6 +112,7 @@ void PostProcessor::endJob()
 
     for(vstring::const_iterator iCmd = resCmds_.begin();
         iCmd != resCmds_.end(); ++ iCmd) {
+      if ( iCmd->empty() ) continue;
       boost::tokenizer<elsc> tokens(*iCmd, elsc("\\", " \t", "\'"));
 
       vector<string> args;
