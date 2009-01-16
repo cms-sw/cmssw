@@ -9,13 +9,15 @@ from MagneticField.GeomBuilder.cmsMagneticFieldXML_1103l_cfi import *
 es_prefer_magfield = cms.ESPrefer("XMLIdealGeometryESSource","magfield")
 
 
-AutoMagneticFieldESProducer = cms.ESProducer("AutoMagneticFieldESProducer",
+VolumeBasedMagneticFieldESProducer = cms.ESProducer("AutoMagneticFieldESProducer",
    # if positive, set B value (in kGauss), overriding the current reading from DB
    valueOverride = cms.int32(-1),
 
    model = cms.string('grid_1103l_071212'),
    useParametrizedTrackerField = cms.bool(True),
    subModel = cms.string('OAE_1103l_071212'),
-   label = cms.untracked.string('')
-)
+   label = cms.untracked.string(''),
+   scalingVolumes = cms.vint32(),
+   scalingFactors = cms.vdouble()
+ )
 

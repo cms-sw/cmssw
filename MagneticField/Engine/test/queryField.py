@@ -30,20 +30,29 @@ process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 #process.load("Configuration.StandardSequences.MagneticField_40T_cff")
 
 
-###Configuration to select map based on recorded current in the DB
+### Configuration to select map based on recorded current in the DB
 
-#process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-#process.GlobalTag.connect = "frontier://PromptProd/CMS_COND_21X_GLOBALTAG"
-#process.GlobalTag.globaltag = 'CRAFT_ALL_V4::All'
-#process.load("MagneticField.Engine.autoMagneticFieldProducer_cfi")
-##process.AutoMagneticFieldESProducer.valueOverride = 38
+# process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+# process.GlobalTag.connect = "frontier://PromptProd/CMS_COND_21X_GLOBALTAG"
+# process.GlobalTag.globaltag = 'CRAFT_ALL_V4::All'
+# process.load("MagneticField.Engine.autoMagneticFieldProducer_cfi")
+# #process.VolumeBasedMagneticFieldESProducer.valueOverride = 38
+
+
+### Set scaling factors
+#process.VolumeBasedMagneticFieldESProducer.scalingVolumes = ( 802 , )
+#process.VolumeBasedMagneticFieldESProducer.scalingFactors = ( 1.5 , )
+
 
 process.MessageLogger = cms.Service("MessageLogger",
     categories   = cms.untracked.vstring("MagneticField"),
     destinations = cms.untracked.vstring("cout"),
     cout = cms.untracked.PSet(  
     noLineBreaks = cms.untracked.bool(True),
-    threshold = cms.untracked.string("WARNING"),
+    threshold = cms.untracked.string("INFO"),
+    INFO = cms.untracked.PSet(
+      limit = cms.untracked.int32(0)
+    ),
     WARNING = cms.untracked.PSet(
       limit = cms.untracked.int32(0)
     ),
