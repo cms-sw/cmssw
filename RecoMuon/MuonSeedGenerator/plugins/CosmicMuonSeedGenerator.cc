@@ -2,8 +2,8 @@
 /**
  *  CosmicMuonSeedGenerator
  *
- *  $Date: 2008/09/20 21:24:12 $
- *  $Revision: 1.24 $
+ *  $Date: 2009/01/16 01:07:00 $
+ *  $Revision: 1.24.2.2 $
  *
  *  \author Chang Liu - Purdue University 
  *
@@ -33,6 +33,10 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
 
+#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
 #include "DataFormats/Math/interface/deltaR.h"
 
 #include <vector>
@@ -64,15 +68,35 @@ CosmicMuonSeedGenerator::CosmicMuonSeedGenerator(const edm::ParameterSet& pset){
   theMaxDTChi2 = pset.getParameter<double>("MaxDTChi2");
   theMaxCSCChi2 = pset.getParameter<double>("MaxCSCChi2");
 
+  theTSTransform = new TrajectoryStateTransform();
+
+  // pre-determined parameters for seed pt calculation ( pt * dphi )
+  theParameters["topmb41"] = 0.87;
+  theParameters["bottommb41"] = 1.2;
+  theParameters["topmb42"] = 0.67;
+  theParameters["bottommb42"] = 0.98;
+  theParameters["topmb43"] = 0.34;
+  theParameters["bottommb43"] = 0.58;
+  theParameters["topmb31"] = 0.54;
+  theParameters["bottommb31"] = 0.77;
+  theParameters["topmb32"] = 0.35;
+  theParameters["bottommb32"] = 0.55;
+  theParameters["topmb21"] = 0.21;
+  theParameters["bottommb21"] = 0.31;
+
 }
 
 // Destructor
-CosmicMuonSeedGenerator::~CosmicMuonSeedGenerator(){}
+CosmicMuonSeedGenerator::~CosmicMuonSeedGenerator(){
+  delete theTSTransform;
+}
 
 
 // reconstruct muon's seeds
 void CosmicMuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& eSetup){
-  
+
+  eSetup.get<IdealMagneticFieldRecord>().get(theField);
+
   auto_ptr<TrajectorySeedCollection> output(new TrajectorySeedCollection());
   
   TrajectorySeedCollection seeds;
@@ -97,13 +121,9 @@ void CosmicMuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& 
 
   MuonRecHitContainer allHits;
 
-  for (vector<DetLayer*>::reverse_iterator idtlayer = dtLayers.rbegin();
-       idtlayer != dtLayers.rend(); ++idtlayer) {
-
-       MuonRecHitContainer RHMB = muonMeasurements.recHits(*idtlayer);
-       allHits.insert(allHits.end(),RHMB.begin(),RHMB.end());
-
-  }
+  vector<MuonRecHitContainer> RHMBs;
+  vector<MuonRecHitContainer> RHMEFs;
+  vector<MuonRecHitContainer> RHMEBs;
 
   stable_sort(allHits.begin(),allHits.end(),DecreasingGlobalY());
 
@@ -123,10 +143,42 @@ void CosmicMuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& 
 
   }
 
+  for (vector<DetLayer*>::reverse_iterator idtlayer = dtLayers.rbegin();
+       idtlayer != dtLayers.rend(); ++idtlayer) {
+
+       MuonRecHitContainer RHMB = muonMeasurements.recHits(*idtlayer);
+       RHMBs.push_back(RHMB);
+
+       allHits.insert(allHits.end(),RHMB.begin(),RHMB.end());
+
+  }
+
+//  stable_sort(allHits.begin(),allHits.end(),DecreasingGlobalY());
+
   LogTrace(category)<<"all RecHits: "<<allHits.size();
 
+  CosmicMuonSeedGenerator::MuonRecHitPairVector mb41 = makeSegPairs(RHMBs[0], RHMBs[3], "mb41");
+  createSeeds(seeds, mb41, eSetup);
+
+//  CosmicMuonSeedGenerator::MuonRecHitPairVector mb43 = makeSegPairs(RHMBs[0],RHMBs[1], "mb43");
+//  createSeeds(seeds, mb43, eSetup);
+
+  CosmicMuonSeedGenerator::MuonRecHitPairVector mb42 = makeSegPairs(RHMBs[0],RHMBs[2], "mb42");
+  createSeeds(seeds, mb42, eSetup);
+
+//  CosmicMuonSeedGenerator::MuonRecHitPairVector mb32 = makeSegPairs(RHMBs[1], RHMBs[2], "mb32");
+//  createSeeds(seeds, mb32, eSetup);
+
+  CosmicMuonSeedGenerator::MuonRecHitPairVector mb31 = makeSegPairs(RHMBs[1], RHMBs[3], "mb31");
+  createSeeds(seeds, mb31, eSetup);
+
+//  CosmicMuonSeedGenerator::MuonRecHitPairVector mb21 = makeSegPairs(RHMBs[2], RHMBs[3], "mb21");
+//  createSeeds(seeds, mb21, eSetup);
+
   if ( !allHits.empty() ) {
+
     MuonRecHitContainer goodhits = selectSegments(allHits);
+    theMaxSeeds = seeds.size() + 10; // reset max seeds for the second option
     LogTrace(category)<<"good RecHits: "<<goodhits.size();
 
     if ( goodhits.empty() ) {
@@ -139,16 +191,17 @@ void CosmicMuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& 
     else {
       createSeeds(seeds,goodhits,eSetup);
     }
+  }
 
-    LogTrace(category)<<"Seeds built: "<<seeds.size();
+  LogTrace(category)<<"Seeds built: "<<seeds.size();
 
-    for(std::vector<TrajectorySeed>::iterator seed = seeds.begin();
-        seed != seeds.end(); ++seed)
+  for(std::vector<TrajectorySeed>::iterator seed = seeds.begin();
+      seed != seeds.end(); ++seed) {
         output->push_back(*seed);
-    }
+  }
 
-    event.put(output);
-    seeds.clear();
+  event.put(output);
+  seeds.clear();
 
 }
 
@@ -237,21 +290,33 @@ void CosmicMuonSeedGenerator::createSeeds(TrajectorySeedCollection& results,
   return;
 }
 
+void CosmicMuonSeedGenerator::createSeeds(TrajectorySeedCollection& results,
+                                          const CosmicMuonSeedGenerator::MuonRecHitPairVector& hitpairs,
+                                          const edm::EventSetup& eSetup) const {
+
+  const std::string category = "Muon|RecoMuon|CosmicMuonSeedGenerator";
+
+  if (hitpairs.size() == 0 || results.size() >= theMaxSeeds ) return;
+  for (CosmicMuonSeedGenerator::MuonRecHitPairVector::const_iterator ihitpair = hitpairs.begin(); ihitpair != hitpairs.end(); ihitpair++) {
+    const std::vector<TrajectorySeed>& sds = createSeed((*ihitpair),eSetup);
+    LogTrace(category)<<"created seeds from rechit "<<sds.size();
+    results.insert(results.end(),sds.begin(),sds.end());
+    if ( results.size() >= theMaxSeeds ) break;
+  }
+  return;
+}
+
+
 std::vector<TrajectorySeed> CosmicMuonSeedGenerator::createSeed(const MuonRecHitPointer& hit, const edm::EventSetup& eSetup) const {
 
   std::vector<TrajectorySeed> result;
 
   const std::string category = "Muon|RecoMuon|CosmicMuonSeedGenerator";
 
-  MuonPatternRecoDumper debug;
+  MuonPatternRecoDumper dumper;
   
-  edm::ESHandle<MagneticField> field;
-  eSetup.get<IdealMagneticFieldRecord>().get(field);
-
-  // set the pt and spt by hand
-  double pt = 7.0;
-//  double spt = 1.0;
-  // FIXME check sign!
+  // set the pt by hand
+  double pt = 10.0;
 
   AlgebraicVector t(4);
   AlgebraicSymMatrix mat(5,0) ;
@@ -274,36 +339,32 @@ std::vector<TrajectorySeed> CosmicMuonSeedGenerator::createSeed(const MuonRecHit
 
   LocalVector segDir =hit->det()->toLocal(polar);
 
-  int charge= 1; //more mu+ than mu- in natural  //(int)(pt/fabs(pt)); //FIXME
-
+  int charge= 1;
   LocalTrajectoryParameters param(segPos,segDir, charge);
+
+  charge= -1;
+  LocalTrajectoryParameters param2(segPos,segDir, charge);
 
   mat = hit->parametersError().similarityT( hit->projectionMatrix() );
   
-  float p_err = 0.2; // sqr(spt/(pt*pt)); //FIXME
+  float p_err = 0.2;
   mat[0][0]= p_err;
   
   LocalTrajectoryError error(mat);
   
   // Create the TrajectoryStateOnSurface
-  TrajectoryStateOnSurface tsos(param, error, hit->det()->surface(), &*field);
+  TrajectoryStateOnSurface tsos(param, error, hit->det()->surface(), &*theField);
+  TrajectoryStateOnSurface tsos2(param2, error, hit->det()->surface(), &*theField);
 
   LogTrace(category)<<"Trajectory State on Surface of Seed";
   LogTrace(category)<<"mom: "<<tsos.globalMomentum()<<" phi: "<<tsos.globalMomentum().phi();
   LogTrace(category)<<"pos: " << tsos.globalPosition(); 
   LogTrace(category) << "The RecSegment relies on: ";
-  LogTrace(category) << debug.dumpMuonId(hit->geographicalId());
+  LogTrace(category) << dumper.dumpMuonId(hit->geographicalId());
 
-  // Transform it in a TrajectoryStateOnSurface
-  TrajectoryStateTransform tsTransform;
-    
-  PTrajectoryStateOnDet *seedTSOS =
-    tsTransform.persistentState(tsos ,hit->geographicalId().rawId());
-    
-  edm::OwnVector<TrackingRecHit> container;
-  TrajectorySeed theSeed(*seedTSOS,container,oppositeToMomentum);
-  result.push_back(theSeed); 
-  delete seedTSOS;
+  result.push_back( tsosToSeed(tsos, hit->geographicalId().rawId()) ); 
+  result.push_back( tsosToSeed(tsos2, hit->geographicalId().rawId()) );
+
   return result;
 }
 
@@ -348,3 +409,118 @@ bool CosmicMuonSeedGenerator::leftIsBetter(const MuonTransientTrackingRecHit::Mu
      else return false;
 
 }
+
+
+CosmicMuonSeedGenerator::MuonRecHitPairVector
+CosmicMuonSeedGenerator::makeSegPairs(const MuonTransientTrackingRecHit::MuonRecHitContainer& hits1, const MuonTransientTrackingRecHit::MuonRecHitContainer& hits2, std::string tag) const {
+
+   MuonRecHitPairVector result;
+  const std::string category = "Muon|RecoMuon|CosmicMuonSeedGenerator";
+
+   if (hits1.empty() || hits2.empty()  )  return result;
+
+   for (MuonRecHitContainer::const_iterator ihit1 = hits1.begin(); ihit1 != hits1.end(); ihit1++) {
+     for (MuonRecHitContainer::const_iterator ihit2 = hits2.begin(); ihit2 != hits2.end(); ihit2++) {
+        float dphi = deltaPhi((*ihit1)->globalPosition().phi(), (*ihit2)->globalPosition().phi());
+        if ( dphi < 0.5 ) {
+	   if ((*ihit1)->globalPosition().y() > 0.0 && ( (*ihit1)->globalPosition().y()  > (*ihit2)->globalPosition().y() ) ) { 
+              std::string tag2 = "top"+tag;
+
+              result.push_back(MuonRecHitPair(*ihit1, *ihit2, tag2));
+           } else if ((*ihit1)->globalPosition().y() < 0.0 && ( (*ihit1)->globalPosition().y()  < (*ihit2)->globalPosition().y() ) ) {
+              std::string tag2 = "bottom"+tag;
+              result.push_back(MuonRecHitPair(*ihit2, *ihit1, tag2));
+
+           }
+        }
+     }
+   }
+
+   return result;
+}
+
+std::vector<TrajectorySeed> CosmicMuonSeedGenerator::createSeed(const CosmicMuonSeedGenerator::MuonRecHitPair& hitpair,
+                                         const edm::EventSetup& eSetup) const {
+   std::vector<TrajectorySeed> result; 
+
+  const std::string category = "Muon|RecoMuon|CosmicMuonSeedGenerator";
+
+  MuonPatternRecoDumper dumper;
+  
+  float dphi = deltaPhi((hitpair.first)->globalDirection().phi(), (hitpair.second)->globalDirection().phi());
+
+  LogTrace(category)<<"hitpair.type "<<hitpair.type; 
+
+  map<string, float>::const_iterator iterPar = theParameters.find(hitpair.type);
+  if ( iterPar == theParameters.end() ) {
+       return result;
+  }
+
+  // set the pt and charge by dphi
+  int charge = (dphi > 0) ? -1 : 1;
+
+  double pt = 999.0;
+  float paraC = (iterPar->second);
+
+  if (fabs(dphi) > 1e-5) {
+    pt = paraC/fabs(dphi); 
+  }
+
+  AlgebraicVector t(4);
+  AlgebraicSymMatrix mat(5,0) ;
+
+  MuonTransientTrackingRecHit::MuonRecHitPointer hit = hitpair.first;
+  if ( hit->dimension() < (hitpair.second)->dimension() ) hit = hitpair.second;
+
+  // Fill the LocalTrajectoryParameters
+  LocalPoint segPos=hit->localPosition();
+  
+  GlobalVector polar(GlobalVector::Spherical(hit->globalDirection().theta(),
+                                             hit->globalDirection().phi(),
+                                             1.));
+  // Force all track downward for cosmic, not beam-halo
+  if (hit->geographicalId().subdetId() == MuonSubdetId::DT && fabs(hit->globalDirection().eta()) < 4.0 && hit->globalDirection().phi() > 0 ) 
+    polar = - polar;
+
+  if (hit->geographicalId().subdetId() == MuonSubdetId::CSC && fabs(hit->globalDirection().eta()) > 2.3 ) {
+    polar = - polar;
+  }
+
+  polar *=fabs(pt)/polar.perp();
+
+  LocalVector segDir =hit->det()->toLocal(polar);
+
+  LocalTrajectoryParameters param(segPos,segDir, charge);
+
+  mat = hit->parametersError().similarityT( hit->projectionMatrix() );
+  
+  float p_err = 0.004/paraC;
+  mat[0][0]= p_err;
+  
+  LocalTrajectoryError error(mat);
+  
+  // Create the TrajectoryStateOnSurface
+  TrajectoryStateOnSurface tsos(param, error, hit->det()->surface(), &*theField);
+
+  LogTrace(category)<<"Trajectory State on Surface of Seed";
+  LogTrace(category)<<"mom: "<<tsos.globalMomentum()<<" phi: "<<tsos.globalMomentum().phi();
+  LogTrace(category)<<"pos: " << tsos.globalPosition(); 
+  LogTrace(category) << "The RecSegment relies on: ";
+  LogTrace(category) << dumper.dumpMuonId(hit->geographicalId());
+
+  result.push_back( tsosToSeed(tsos, hit->geographicalId().rawId()) );
+
+   return result;
+}
+
+TrajectorySeed CosmicMuonSeedGenerator::tsosToSeed(const TrajectoryStateOnSurface& tsos, uint32_t id) const {
+
+  PTrajectoryStateOnDet *seedTSOS =
+    theTSTransform->persistentState(tsos, id);
+
+  edm::OwnVector<TrackingRecHit> container;
+  TrajectorySeed seed(*seedTSOS,container,alongMomentum);
+  delete seedTSOS;
+  return seed;
+}
+
