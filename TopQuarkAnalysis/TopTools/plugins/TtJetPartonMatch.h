@@ -33,8 +33,8 @@ class TtJetPartonMatch : public edm::EDProducer {
 
   edm::InputTag jets_;
 
-  int nJets_;
-  int nComb_;
+  int maxNJets_;
+  int maxNComb_;
   int algorithm_;
   bool useDeltaR_;
   bool useMaxDist_;
@@ -45,8 +45,8 @@ class TtJetPartonMatch : public edm::EDProducer {
 template<typename C>
 TtJetPartonMatch<C>::TtJetPartonMatch(const edm::ParameterSet& cfg):
   jets_      (cfg.getParameter<edm::InputTag>("jets"      )),
-  nJets_     (cfg.getParameter<int>          ("nJets"     )),
-  nComb_     (cfg.getParameter<int>          ("nComb"     )),
+  maxNJets_  (cfg.getParameter<int>          ("maxNJets"  )),
+  maxNComb_  (cfg.getParameter<int>          ("maxNComb"  )),
   algorithm_ (cfg.getParameter<int>          ("algorithm" )),
   useDeltaR_ (cfg.getParameter<bool>         ("useDeltaR" )),
   useMaxDist_(cfg.getParameter<bool>         ("useMaxDist")),
@@ -54,7 +54,8 @@ TtJetPartonMatch<C>::TtJetPartonMatch(const edm::ParameterSet& cfg):
   verbosity_ (cfg.getParameter<int>          ("verbosity" ))
 {
   // produces a vector of jet indices in the order
-  // of TtSemiLepEvtPartons or TtFullHadEvtPartons
+  // of TtSemiLepEvtPartons, TtFullHadEvtPartons or
+  // TtFullLepEvtPartons
   produces< std::vector<std::vector<int> > >();
   produces< std::vector<double> >("SumPt");
   produces< std::vector<double> >("SumDR");
@@ -83,12 +84,13 @@ TtJetPartonMatch<C>::produce(edm::Event& evt, const edm::EventSetup& setup)
   // prepare vector of jets
   std::vector<pat::Jet> jets;
   for(unsigned int ij=0; ij<topJets->size(); ++ij) {
-    // take all jets if nJets_=-1; otherwise
-    // use nJets_ if nJets_ is big enough or
-    // use same number of jets as partons if nJets_ < number of partons
-    if(nJets_!=-1) {
-      if(nJets_>=(int)partons.size()) {
-	if((int)ij==nJets_) break;
+    // take all jets if maxNJets_ == -1; otherwise
+    // use maxNJets_ if maxNJets_ is big enough or
+    // use same number of jets as partons if
+    // maxNJets_ < number of partons
+    if(maxNJets_!=-1) {
+      if(maxNJets_>=(int)partons.size()) {
+	if((int)ij==maxNJets_) break;
       }
       else {
 	if(ij==partons.size()) break;
@@ -109,7 +111,7 @@ TtJetPartonMatch<C>::produce(edm::Event& evt, const edm::EventSetup& setup)
   std::auto_ptr< std::vector<double> > sumPt(new std::vector<double>);
   std::auto_ptr< std::vector<double> > sumDR(new std::vector<double>);
   for(unsigned int ic=0; ic<jetPartonMatch.getNumberOfAvailableCombinations(); ++ic) {
-    if((int)ic>=nComb_ && nComb_>=0) break;
+    if((int)ic>=maxNComb_ && maxNComb_>=0) break;
     match->push_back( jetPartonMatch.getMatchesForPartons(ic) );
     sumPt->push_back( jetPartonMatch.getSumDeltaPt       (ic) );
     sumDR->push_back( jetPartonMatch.getSumDeltaR        (ic) );

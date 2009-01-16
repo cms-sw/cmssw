@@ -69,29 +69,29 @@ process.load("TopQuarkAnalysis.TopEventProducers.sequences.ttGenEvent_cff")
 
 ## configure jet-parton matching
 process.load("TopQuarkAnalysis.TopTools.TtFullHadJetPartonMatch_cfi")
-process.ttFullHadJetPartonMatch.verbosity  = cms.int32(1)     #default: 0
-#process.ttFullHadJetPartonMatch.algorithm  = cms.int32(2)     #default: 0
-#process.ttFullHadJetPartonMatch.useDeltaR  = cms.bool(True)   #default: True
-#process.ttFullHadJetPartonMatch.useMaxDist = cms.bool(True)   #default: False
-#process.ttFullHadJetPartonMatch.maxDist    = cms.double(2.5)  #default: 0.3
-#process.ttFullHadJetPartonMatch.nJets      = cms.int32(7)     #default: 6
-#process.ttFullHadJetPartonMatch.nComb      = cms.int32(1)     #default: 1
+process.ttFullHadJetPartonMatch.verbosity  = 1      #default: 0
+#process.ttFullHadJetPartonMatch.algorithm  = 2      #default: 0
+#process.ttFullHadJetPartonMatch.useDeltaR  = True   #default: True
+#process.ttFullHadJetPartonMatch.useMaxDist = True   #default: False
+#process.ttFullHadJetPartonMatch.maxDist    = 2.5    #default: 0.3
+#process.ttFullHadJetPartonMatch.maxNJets   = 7      #default: 6
+#process.ttFullHadJetPartonMatch.maxNComb   = 1      #default: 1
 process.load("TopQuarkAnalysis.TopTools.TtFullLepJetPartonMatch_cfi")
-process.ttFullLepJetPartonMatch.verbosity  = cms.int32(1)     #default: 0
-#process.ttFullLepJetPartonMatch.algorithm  = cms.int32(2)     #default: 0
-#process.ttFullLepJetPartonMatch.useDeltaR  = cms.bool(True)   #default: True
-#process.ttFullLepJetPartonMatch.useMaxDist = cms.bool(True)   #default: False
-#process.ttFullLepJetPartonMatch.maxDist    = cms.double(2.5)  #default: 0.3
-#process.ttFullLepJetPartonMatch.nJets      = cms.int32(3)     #default: 2
-#process.ttFullLepJetPartonMatch.nComb      = cms.int32(1)     #default: 1
+process.ttFullLepJetPartonMatch.verbosity  = 1      #default: 0
+#process.ttFullLepJetPartonMatch.algorithm  = 2      #default: 0
+#process.ttFullLepJetPartonMatch.useDeltaR  = True   #default: True
+#process.ttFullLepJetPartonMatch.useMaxDist = True   #default: False
+#process.ttFullLepJetPartonMatch.maxDist    = 2.5    #default: 0.3
+#process.ttFullLepJetPartonMatch.maxNJets   = 3      #default: 2
+#process.ttFullLepJetPartonMatch.maxNComb   = 1      #default: 1
 process.load("TopQuarkAnalysis.TopTools.TtSemiLepJetPartonMatch_cfi")
-process.ttSemiLepJetPartonMatch.verbosity  = cms.int32(1)     #default: 0
-#process.ttSemiLepJetPartonMatch.algorithm  = cms.int32(2)     #default: 0
-#process.ttSemiLepJetPartonMatch.useDeltaR  = cms.bool(True)   #default: True
-#process.ttSemiLepJetPartonMatch.useMaxDist = cms.bool(True)   #default: False
-#process.ttSemiLepJetPartonMatch.maxDist    = cms.double(2.5)  #default: 0.3
-#process.ttSemiLepJetPartonMatch.nJets      = cms.int32(5)     #default: 4
-#process.ttSemiLepJetPartonMatch.nComb      = cms.int32(1)     #default: 1
+process.ttSemiLepJetPartonMatch.verbosity  = 1      #default: 0
+#process.ttSemiLepJetPartonMatch.algorithm  = 2      #default: 0
+#process.ttSemiLepJetPartonMatch.useDeltaR  = True   #default: True
+#process.ttSemiLepJetPartonMatch.useMaxDist = True   #default: False
+#process.ttSemiLepJetPartonMatch.maxDist    = 2.5    #default: 0.3
+#process.ttSemiLepJetPartonMatch.maxNJets   = 5      #default: 4
+#process.ttSemiLepJetPartonMatch.maxNComb   = 1      #default: 1
 
 ## necessary fixes to run 2.2.X on 2.1.X data
 ## comment this when running on samples produced

@@ -39,7 +39,7 @@ ttFullLepJetPartonMatch = cms.EDProducer("TtFullLepJetPartonMatch",
     # (has to be >= 2, can be set to -1 if you want to 
     # take all)
     #-------------------------------------------------
-    nJets = cms.int32(2),
+    maxNJets = cms.int32(2),
 
     #-------------------------------------------------
     # number of different combinations to be stored
@@ -47,7 +47,7 @@ ttFullLepJetPartonMatch = cms.EDProducer("TtFullLepJetPartonMatch",
     #  minSumDist is the only algorithm that provides
     #  more than only the best combination)
     #-------------------------------------------------
-    nComb = cms.int32(1),
+    maxNComb = cms.int32(1),
 
     #-------------------------------------------------
     # verbosity level: 0: no additional printout
