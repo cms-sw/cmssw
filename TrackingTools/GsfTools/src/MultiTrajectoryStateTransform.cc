@@ -1,4 +1,6 @@
 #include "TrackingTools/GsfTools/interface/MultiTrajectoryStateTransform.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include "DataFormats/TrackReco/interface/TrackExtraFwd.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrackExtraFwd.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
@@ -7,7 +9,38 @@
 #include "TrackingTools/TrajectoryParametrization/interface/LocalTrajectoryError.h"
 #include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
+#include "TrackingTools/GsfTools/interface/GsfPropagatorAdapter.h"
+#include "TrackingTools/PatternTools/interface/TransverseImpactPointExtrapolator.h"
+#include "TrackingTools/GsfTools/interface/MultiTrajectoryStateMode.h"
 
+MultiTrajectoryStateTransform::~MultiTrajectoryStateTransform () {delete extrapolator_;}
+
+TrajectoryStateOnSurface 
+MultiTrajectoryStateTransform::outerStateOnSurface(const reco::GsfTrack& tk) const
+{
+  return checkGeometry() ? outerStateOnSurface(tk,*geometry_,field_) : TrajectoryStateOnSurface();
+}
+
+TrajectoryStateOnSurface 
+MultiTrajectoryStateTransform::innerStateOnSurface(const reco::GsfTrack& tk) const
+{
+  return checkGeometry() ? innerStateOnSurface(tk,*geometry_,field_) : TrajectoryStateOnSurface();
+}
+
+bool
+MultiTrajectoryStateTransform::outerMomentumFromMode (const reco::GsfTrack& tk,
+						      GlobalVector& momentum) const
+{
+  return MultiTrajectoryStateMode().momentumFromModeCartesian(outerStateOnSurface(tk),momentum);
+}
+
+bool
+MultiTrajectoryStateTransform::innerMomentumFromMode (const reco::GsfTrack& tk,
+						      GlobalVector& momentum) const
+{
+  return MultiTrajectoryStateMode().momentumFromModeCartesian(outerStateOnSurface(tk),momentum);
+}
 
 TrajectoryStateOnSurface 
 MultiTrajectoryStateTransform::outerStateOnSurface( const reco::GsfTrack& tk, 
@@ -72,4 +105,35 @@ MultiTrajectoryStateTransform::stateOnSurface (const std::vector<double>& weight
   }
   return 
     TrajectoryStateOnSurface(new BasicMultiTrajectoryState(components));
+}
+
+bool
+MultiTrajectoryStateTransform::checkGeometry () const
+{
+  if ( geometry_ && field_ )  return true;
+
+  edm::LogError("MultiTrajectoryStateTransform") << "Missing ES components";
+  return false;
+}
+
+TrajectoryStateOnSurface 
+MultiTrajectoryStateTransform::extrapolatedState (const TrajectoryStateOnSurface tsos,
+						  const GlobalPoint& point) const
+{
+  return checkExtrapolator() ? extrapolator_->extrapolate(tsos,point) : TrajectoryStateOnSurface();
+}
+
+bool
+MultiTrajectoryStateTransform::checkExtrapolator () const
+{
+  if ( extrapolator_ )  return true;
+
+  if ( field_==0 ) {
+    edm::LogError("MultiTrajectoryStateTransform") << "Missing magnetic field";
+    return false;
+  }
+
+  GsfPropagatorAdapter gsfPropagator(AnalyticalPropagator(field_,anyDirection));
+  extrapolator_ = new TransverseImpactPointExtrapolator(gsfPropagator);
+  return true;
 }

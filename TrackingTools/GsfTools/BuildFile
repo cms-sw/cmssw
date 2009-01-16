@@ -11,6 +11,7 @@
  <use name="TrackingTools/GeomPropagators">
  <use name="TrackingTools/Records">
  <use name="TrackingTools/TrajectoryState">
+ <use name="TrackingTools/PatternTools">
  <use name="DataFormats/GsfTrackReco">
 </export>
 
@@ -25,5 +26,6 @@
  <use name="TrackingTools/Records">
  <use name="TrackingTools/TrajectoryParametrization">
  <use name="TrackingTools/TrajectoryState">
+ <use name="TrackingTools/PatternTools">
  <use name="DataFormats/GsfTrackReco">
  <use name="DataFormats/TrackReco">
