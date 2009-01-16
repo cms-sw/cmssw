@@ -1,35 +1,27 @@
 // -*- C++ -*-
-// $Id: TracksRecHitsProxy3DBuilder.cc,v 1.0 2008/02/22 10:37:00 Tom Danielson
+// $Id: TracksRecHitsUtil.cc,v 1.2 2009/01/16 10:37:00 amraktad
 //
 
-// system include files
-#include "TEveManager.h"
-#include "TEveTrack.h"
-#include "TEveTrackPropagator.h"
-#include "RVersion.h"
+#include "Fireworks/Tracks/plugins/TracksRecHitsUtil.h"
 
-// user include files
+#include "TEveManager.h"
+#include "TEveGeoNode.h"
+#include "TEveElement.h"
+
 #include "Fireworks/Core/interface/FWEventItem.h"
-#include "Fireworks/Core/interface/FWRPZDataProxyBuilder.h"
-// include file for the RecHits
+#include "Fireworks/Core/interface/DetIdToMatrix.h"
+#include "Fireworks/Core/interface/TEveElementIter.h"
+
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
-// include file for the TrajectorySeeds
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/HitPattern.h"
-#include "TEveGeoNode.h"
-#include "Fireworks/Tracks/interface/TracksRecHitsProxy3DBuilder.h"
-#include "Fireworks/Core/interface/TEveElementIter.h"
-#include "TEvePolygonSetProjected.h"
-// For the moment, we keep the option of having points or lines to represent recHits.
-#include "TEveStraightLineSet.h"
-#include "TEvePointSet.h"
-#include "Fireworks/Core/src/changeElementAndChildren.h"
 #include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
-  
-void TracksRecHitsProxy3DBuilder::build(const FWEventItem* iItem, TEveElementList** product)
+
+
+void TracksRecHitsUtil::buildTracksRecHits(const FWEventItem* iItem, TEveElementList** product)
 {
   TEveElementList* tList = *product;
   if ( !tList && *product ) {
@@ -62,26 +54,7 @@ void TracksRecHitsProxy3DBuilder::build(const FWEventItem* iItem, TEveElementLis
 }
 
 void
-TracksRecHitsProxy3DBuilder::modelChanges(const FWModelIds& iIds, TEveElement* iElements)
-{
-   applyChangesToAllModels(iElements);
-}
-
-void
-TracksRecHitsProxy3DBuilder::applyChangesToAllModels(TEveElement* iElements)
-{
-   if(0!=iElements && item() && item()->size()) {
-      //make the bad assumption that everything is being changed indentically
-      const FWEventItem::ModelInfo info(item()->defaultDisplayProperties(),false);
-      changeElementAndChildren(iElements, info);
-      iElements->SetRnrSelf(info.displayProperties().isVisible());
-      iElements->SetRnrChildren(info.displayProperties().isVisible());
-      iElements->ElementChanged();
-   }
-}
-
-void
-TracksRecHitsProxy3DBuilder::addHits(const reco::Track& track,
+TracksRecHitsUtil::addHits(const reco::Track& track,
 				     const FWEventItem* iItem,
 				     TEveElement* trkList)
 {
@@ -131,6 +104,3 @@ TracksRecHitsProxy3DBuilder::addHits(const reco::Track& track,
 	std::cout << "Sorry, don't have the recHits for this event." << std::endl;
      }
 }
-
-REGISTER_FWRPZDATAPROXYBUILDERBASE(TracksRecHitsProxy3DBuilder,reco::TrackCollection,"TrackHits");
-

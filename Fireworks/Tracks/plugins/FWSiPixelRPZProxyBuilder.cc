@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
 // Package:     Core
-// Class  :     SiStripProxy3DBuilder
+// Class  :     FWSiPixeRPZProxyBuilder
 //
-/**\class SiStripProxy3DBuilder SiStripProxy3DBuilder.h Fireworks/Core/interface/SiStripProxy3DBuilder.h
+/**\class FWSiPixeRPZProxyBuilder FWSiPixeRPZProxyBuilder.h Fireworks/Core/interface/FWSiPixeRPZProxyBuilder.h
 
  Description: <one line class summary>
 
@@ -14,37 +14,46 @@
 //
 // Original Author:
 //         Created:  Thu Dec  6 18:01:21 PST 2007
-// $Id: SiStripProxy3DBuilder.cc,v 1.3 2008/11/06 22:05:30 amraktad Exp $
+// $Id: FWSiPixeRPZProxyBuilder.cc,v 1.1 2009/01/16 16:19:13 chrjones Exp $
 //
 
 // system include files
 #include "TEveManager.h"
-#include "TEveTrack.h"
-#include "TEveTrackPropagator.h"
-#include "RVersion.h"
 #include "TEveCompound.h"
-#include "TEvePointSet.h"
-// #include <sstream>
+#include "TEveGeoNode.h"
 
 // user include files
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/FWRPZDataProxyBuilder.h"
-
-#include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
-
-#include "Fireworks/Tracks/interface/SiStripProxy3DBuilder.h"
 #include "Fireworks/Core/interface/BuilderUtils.h"
 #include "Fireworks/Core/src/CmsShowMain.h"
-#include "DataFormats/Common/interface/DetSetVectorNew.h"
-#include "TEveGeoNode.h"
 #include "Fireworks/Core/src/changeElementAndChildren.h"
 
-void SiStripProxy3DBuilder::build(const FWEventItem* iItem, TEveElementList** product)
+#include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
+
+class FWSiPixeRPZProxyBuilder : public FWRPZDataProxyBuilder
+{
+   public:
+      FWSiPixeRPZProxyBuilder() {}
+      virtual ~FWSiPixeRPZProxyBuilder() {}
+      REGISTER_PROXYBUILDER_METHODS();
+   private:
+      virtual void build(const FWEventItem* iItem, TEveElementList** product);
+
+      FWSiPixeRPZProxyBuilder(const FWSiPixeRPZProxyBuilder&); // stop default
+
+      const FWSiPixeRPZProxyBuilder& operator=(const FWSiPixeRPZProxyBuilder&); // stop default
+
+      void modelChanges(const FWModelIds& iIds, TEveElement* iElements);
+      void applyChangesToAllModels(TEveElement* iElements);
+};
+
+void FWSiPixeRPZProxyBuilder::build(const FWEventItem* iItem, TEveElementList** product)
 {
    TEveElementList* tList = *product;
 
    if(0 == tList) {
-      tList =  new TEveElementList(iItem->name().c_str(),"SiStripCluster",true);
+      tList =  new TEveElementList(iItem->name().c_str(),"SiPixelCluster",true);
       *product = tList;
       tList->SetMainColor(iItem->defaultDisplayProperties().color());
       gEve->AddElement(tList);
@@ -52,14 +61,13 @@ void SiStripProxy3DBuilder::build(const FWEventItem* iItem, TEveElementList** pr
       tList->DestroyElements();
    }
 
-   const edmNew::DetSetVector<SiStripCluster>* clusters=0;
-   iItem->get(clusters);
+   const SiPixelClusterCollectionNew* pixels=0;
+   iItem->get(pixels);
 
-   if(0 == clusters ) return;
-   std::set<DetId> modules;
-   int index=0;
-   for(edmNew::DetSetVector<SiStripCluster>::const_iterator set = clusters->begin();
-      set != clusters->end(); ++set,++index) {
+   if(0 == pixels ) return;
+   int index(0);
+   for(SiPixelClusterCollectionNew::const_iterator set = pixels->begin();
+       set != pixels->end(); ++set, ++index) {
       const unsigned int bufSize = 1024;
       char title[bufSize];
       char name[bufSize];
@@ -77,7 +85,7 @@ void SiStripProxy3DBuilder::build(const FWEventItem* iItem, TEveElementList** pr
 	 // const TGeoHMatrix* matrix = iItem->getGeom()->getMatrix( id );
 	 TEveGeoShape* shape = iItem->getGeom()->getShape( id );
 	 if(0!=shape) {
-	    shape->SetMainTransparency(75);
+	    shape->SetMainTransparency(50);
 	    shape->SetMainColor( iItem->defaultDisplayProperties().color() );
 	    shape->SetPickable(true);
 	    list->AddElement(shape);
@@ -85,17 +93,17 @@ void SiStripProxy3DBuilder::build(const FWEventItem* iItem, TEveElementList** pr
       }
 
       gEve->AddElement(list,tList);
-   }
+    }
 }
 
 void
-SiStripProxy3DBuilder::modelChanges(const FWModelIds& iIds, TEveElement* iElements)
+FWSiPixeRPZProxyBuilder::modelChanges(const FWModelIds& iIds, TEveElement* iElements)
 {
    applyChangesToAllModels(iElements);
 }
 
 void
-SiStripProxy3DBuilder::applyChangesToAllModels(TEveElement* iElements)
+FWSiPixeRPZProxyBuilder::applyChangesToAllModels(TEveElement* iElements)
 {
    if(0!=iElements && item() && item()->size()) {
       //make the bad assumption that everything is being changed indentically
@@ -106,4 +114,5 @@ SiStripProxy3DBuilder::applyChangesToAllModels(TEveElement* iElements)
       iElements->ElementChanged();
    }
 }
-REGISTER_FWRPZDATAPROXYBUILDERBASE(SiStripProxy3DBuilder,edmNew::DetSetVector<SiStripCluster>,"SiStrip");
+
+REGISTER_FWRPZDATAPROXYBUILDERBASE(FWSiPixeRPZProxyBuilder,SiPixelClusterCollectionNew,"SiPixel");

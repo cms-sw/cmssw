@@ -14,31 +14,38 @@
 //
 // Original Author:
 //         Created:  Thu Dec  6 18:01:21 PST 2007
-// $Id: SiPixelProxyPlain3DBuilder.cc,v 1.4 2008/11/26 16:19:13 chrjones Exp $
+// $Id: SiPixelProxyPlain3DBuilder.cc,v 1.1 2009/01/16 23:44:38 dmytro Exp $
 //
 
 // system include files
 #include "TEveManager.h"
-#include "TEveTrack.h"
-#include "TEveTrackPropagator.h"
-#include "RVersion.h"
 #include "TEveCompound.h"
-#include "TEvePointSet.h"
-// #include <sstream>
+#include "TEveGeoNode.h"
 
 // user include files
+#include "Fireworks/Core/interface/FW3DDataProxyBuilder.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
-#include "Fireworks/Core/interface/FWRPZDataProxyBuilder.h"
+#include "Fireworks/Core/interface/BuilderUtils.h"
+#include "Fireworks/Core/src/CmsShowMain.h"
+#include "Fireworks/Core/src/changeElementAndChildren.h"
 
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 
-#include "Fireworks/Tracks/interface/SiPixelProxyPlain3DBuilder.h"
-#include "Fireworks/Core/interface/BuilderUtils.h"
-#include "Fireworks/Core/src/CmsShowMain.h"
-#include "TEveGeoNode.h"
-#include "Fireworks/Core/src/changeElementAndChildren.h"
+class FWSiPixel3DProxyBuilder : public FW3DDataProxyBuilder
+{
+   public:
+      FWSiPixel3DProxyBuilder() {}
+      virtual ~FWSiPixel3DProxyBuilder() {}
+      REGISTER_PROXYBUILDER_METHODS();
+   private:
+      virtual void build(const FWEventItem* iItem, TEveElementList** product);
+      FWSiPixel3DProxyBuilder(const FWSiPixel3DProxyBuilder&); // stop default
+      const FWSiPixel3DProxyBuilder& operator=(const FWSiPixel3DProxyBuilder&); // stop default
+      void modelChanges(const FWModelIds& iIds, TEveElement* iElements);
+      void applyChangesToAllModels(TEveElement* iElements);
+};
 
-void SiPixelProxyPlain3DBuilder::build(const FWEventItem* iItem, TEveElementList** product)
+void FWSiPixel3DProxyBuilder::build(const FWEventItem* iItem, TEveElementList** product)
 {
    TEveElementList* tList = *product;
 
@@ -87,13 +94,13 @@ void SiPixelProxyPlain3DBuilder::build(const FWEventItem* iItem, TEveElementList
 }
 
 void
-SiPixelProxyPlain3DBuilder::modelChanges(const FWModelIds& iIds, TEveElement* iElements)
+FWSiPixel3DProxyBuilder::modelChanges(const FWModelIds& iIds, TEveElement* iElements)
 {
    applyChangesToAllModels(iElements);
 }
 
 void
-SiPixelProxyPlain3DBuilder::applyChangesToAllModels(TEveElement* iElements)
+FWSiPixel3DProxyBuilder::applyChangesToAllModels(TEveElement* iElements)
 {
    if(0!=iElements && item() && item()->size()) {
       //make the bad assumption that everything is being changed indentically
@@ -105,4 +112,4 @@ SiPixelProxyPlain3DBuilder::applyChangesToAllModels(TEveElement* iElements)
    }
 }
 
-REGISTER_FW3DDATAPROXYBUILDER(SiPixelProxyPlain3DBuilder,SiPixelClusterCollectionNew,"SiPixel");
+REGISTER_FW3DDATAPROXYBUILDER(FWSiPixel3DProxyBuilder,SiPixelClusterCollectionNew,"SiPixel");
