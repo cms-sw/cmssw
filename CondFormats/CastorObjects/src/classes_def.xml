@@ -23,5 +23,4 @@
  <class name="CastorChannelQuality"/>
  <class name="CastorChannelQuality::Item"/>
 
- <class pattern="*vector*"/>
 </lcgdict>   
