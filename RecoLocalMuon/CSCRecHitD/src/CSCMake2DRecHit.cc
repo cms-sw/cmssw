@@ -24,10 +24,10 @@
 
 CSCMake2DRecHit::CSCMake2DRecHit(const edm::ParameterSet& ps){
     
-  useCalib                   = ps.getUntrackedParameter<bool>("CSCUseCalibrations");
-  stripWireDeltaTime         = ps.getUntrackedParameter<int>("CSCstripWireDeltaTime"); //@@ Non-standard  CSC*s*trip...
+  useCalib            = ps.getUntrackedParameter<bool>("CSCUseCalibrations");
+  stripWireDeltaTime  = ps.getUntrackedParameter<int>("CSCstripWireDeltaTime"); //@@ Non-standard  CSC*s*trip...
 
-  xMatchGatti_             = new CSCXonStrip_MatchGatti( ps );
+  xMatchGatti_        = new CSCXonStrip_MatchGatti( ps );
 
 }   
 
@@ -110,7 +110,7 @@ CSCRecHit2D CSCMake2DRecHit::hitFromStripAndWire(const CSCDetId& id, const CSCLa
   std::vector<float> adc2;
   std::vector<float> adc2Raw;
 
-  LogTrace("CSCRecHit") << "CSCMake2DRecHit: dump of adc values to be added to rechit follows...\n";
+  LogTrace("CSCRecHit") << "CSCMake2DRecHit: dump of adc values to be added to rechit follows...";
 
   for ( int iStrip = 0; iStrip < nStrip; ++iStrip) {
 
@@ -126,7 +126,7 @@ CSCRecHit2D CSCMake2DRecHit::hitFromStripAndWire(const CSCDetId& id, const CSCLa
     adcMap.put( strips[iStrip], adc2Raw.begin(), adc2Raw.end() ); 
 
     LogTrace("CSCRecHit") << "CSCMake2DRecHit: strip = " << strips[iStrip] << 
-      " adcs= " << adc2Raw[0] << " " << adc2Raw[1] << " " << adc2Raw[2] << " " << adc2Raw[3] << "\n";
+      " adcs= " << adc2Raw[0] << " " << adc2Raw[1] << " " << adc2Raw[2] << " " << adc2Raw[3];
 
     if (iStrip == nStrip/2 ) 
       tpeak = 50. * ( adc2[0]*(tmax-1) + adc2[1]*tmax + adc2[2]*(tmax+1) ) / (adc2[0]+adc2[1]+adc2[2]);
