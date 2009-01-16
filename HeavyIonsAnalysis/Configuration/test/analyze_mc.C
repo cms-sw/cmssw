@@ -43,16 +43,16 @@ TH1D* h8 = new TH1D("h8","",1050,0,1050);
 
  c2->cd(1);
  hi->Draw("eta>>h5",selection);
- h5->Scale(1./nev);
+ h5->Scale(1./nev/h5->GetBinWidth(1));
  h5->Draw();
  c2->cd(2);
  c2->GetPad(2)->SetLogy();
  hi->Draw("pt>>h6",selection);
- h6->Scale(1./nev);
+ h6->Scale(1./nev/h6->GetBinWidth(1));
  h6->Draw();
  c2->cd(3);
  hi->Draw("phi>>h7",selection);
- h7->Scale(1./nev);
+ h7->Scale(1./nev/h7->GetBinWidth(1));
  h7->Draw();
  c2->cd(4);
  
