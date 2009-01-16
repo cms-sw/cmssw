@@ -10,12 +10,13 @@ process.load("CondCore.DBCommon.CondDBSetup_cfi")
 process.PoolDBESSource = cms.ESSource("PoolDBESSource",
                                       process.CondDBSetup,
                                       loadAll = cms.bool(True),
+                                      BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
                                       toGet = cms.VPSet(cms.PSet(
                                                         record = cms.string('CSCRecoGeometryRcd'),
-                                                           tag = cms.string('RecoIdealGeometry')
+                                                           tag = cms.string('XMLFILE_TEST_01')
                                                        ),cms.PSet(
                                                         record = cms.string('CSCRecoDigiParametersRcd'),
-                                                           tag = cms.string('CSCRecoDigiParameters')
+                                                           tag = cms.string('XMLFILE_TEST_02')
                                                        )),
                                       DBParameters = cms.PSet(
                                                               messageLevel = cms.untracked.int32(9),
@@ -23,16 +24,14 @@ process.PoolDBESSource = cms.ESSource("PoolDBESSource",
                                                              ),
                                       catalog = cms.untracked.string('file:PoolFileCatalog.xml'),
                                       timetype = cms.string('runnumber'),
-                                      connect = cms.string('sqlite_file:test.db')
+                                      connect = cms.string('sqlite_file:myfile.db')
                                      )
 process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")
-#process.load("Geometry.MuonCommonData.muonEndcapIdealGeometryXML_cfi")
+
 
 # flags for modelling of CSC layer & strip geometry
 process.load("Geometry.CSCGeometry.cscGeometry_cfi")
-#process.load("Geometry.CSCGeometryBuilder.idealForDigiCscGeometryFromDB_cff")
 process.load("Alignment.CommonAlignmentProducer.FakeAlignmentSource_cfi")
-#process.preferFakeAlign = cms.ESPrefer("FakeAlignmentSource", "FakeAlignmentSource")
 process.fake2 = process.FakeAlignmentSource
 del process.FakeAlignmentSource
 process.preferFakeAlign = cms.ESPrefer("FakeAlignmentSource", "fake2")
@@ -87,6 +86,8 @@ process.MessageLogger = cms.Service("MessageLogger",
     categories = cms.untracked.vstring('CSC', 
         'CSCNumbering', 
         'CSCGeometryBuilderFromDDD', 
+        'CSCGeometryBuilder', 
+        'CSCGeometryParsFromDD', 
         'RadialStripTopology'),
     destinations = cms.untracked.vstring('log', 
         'errors', 
@@ -95,7 +96,8 @@ process.MessageLogger = cms.Service("MessageLogger",
 
 process.producer = cms.EDAnalyzer("CSCGeometryAnalyzer")
 
-process.p1 = cms.Path(process.producer)
 process.CSCGeometryESModule.debugV = True
 process.CSCGeometryESModule.useDDD = False
+
+process.p1 = cms.Path(process.producer)
 

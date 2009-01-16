@@ -1,10 +1,9 @@
 
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("GeometryTest")
+process = cms.Process("CSCGeometryWriter")
 process.load("CondCore.DBCommon.CondDBCommon_cfi")
 
-#process.load("DetectorDescription.OfflineDBLoader.test.cmsIdealGeometryForWrite_cfi")
 process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cff")
 
 process.maxEvents = cms.untracked.PSet(
@@ -23,18 +22,13 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
                                                           authenticationPath = cms.untracked.string('.')
                                                            ),
                                           timetype = cms.untracked.string('runnumber'),
-                                          connect = cms.string('sqlite_file:test.db'),
-                                          #                                              process.CondDBCommon,
-                                          toPut = cms.VPSet(cms.PSet(
-                                                             record = cms.string('CSCRecoGeometryRcd'),
-                                                                tag = cms.string('RecoIdealGeometry')
-                                                             ),cms.PSet(
-                                                             record = cms.string('CSCRecoDigiParametersRcd'),
-                                                                tag = cms.string('CSCRecoDigiParameters')
-                                                             )
-                                                            )
+                                          BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
+                                          connect = cms.string('sqlite_file:myfile.db'),
+                                          toPut = cms.VPSet(cms.PSet(record = cms.string('CSCRecoGeometryRcd'),tag = cms.string('XMLFILE_TEST_01')),
+                                                            cms.PSet(record = cms.string('CSCRecoDigiParametersRcd'),tag = cms.string('XMLFILE_TEST_02')))
                               )
-process.load = cms.EDFilter("CSCRecoIdealDBLoader")
+
+process.CSCGeometryWriter = cms.EDAnalyzer("CSCRecoIdealDBLoader")
 
 process.MessageLogger = cms.Service("MessageLogger",
     errors = cms.untracked.PSet(
@@ -60,7 +54,7 @@ process.MessageLogger = cms.Service("MessageLogger",
         ),
         CSCNumbering = cms.untracked.PSet(
             limit = cms.untracked.int32(-1)
-        ),
+        ),    
         threshold = cms.untracked.string('DEBUG'),
         CSCGeometryBuilderFromDDD = cms.untracked.PSet(
             limit = cms.untracked.int32(-1)
@@ -73,7 +67,9 @@ process.MessageLogger = cms.Service("MessageLogger",
     debugModules = cms.untracked.vstring('*'),
     categories = cms.untracked.vstring('CSC', 
         'CSCNumbering', 
-        'CSCGeometryBuilderFromDDD', 
+        'CSCGeometryBuilderFromDDD',
+        'CSCGeometryBuilder', 
+        'CSCGeometryParsFromDD', 
         'RadialStripTopology'),
     destinations = cms.untracked.vstring('log', 
         'errors', 
@@ -82,8 +78,5 @@ process.MessageLogger = cms.Service("MessageLogger",
 
 process.myprint = cms.OutputModule("AsciiOutputModule")
 
-process.p1 = cms.Path(process.load)
+process.p1 = cms.Path(process.CSCGeometryWriter)
 process.ep = cms.EndPath(process.myprint)
-process.CondDBCommon.connect = 'sqlite_file:test.db'
-process.CondDBCommon.DBParameters.messageLevel = 0
-process.CondDBCommon.DBParameters.authenticationPath = './'
