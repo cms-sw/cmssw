@@ -9,8 +9,8 @@
  *  inside() is implemented by checking that the given point is on the 
  *  correct side of each of the surfaces sides.
  *
- *  $Date: 2008/04/09 16:20:49 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/11/14 10:51:38 $
+ *  $Revision: 1.4 $
  *  \author T. Todorov, N. Amapane
  */
 
@@ -31,7 +31,8 @@ public:
 
   MagVolume6Faces( const PositionType& pos, const RotationType& rot, 
 		   DDSolidShape shape, const std::vector<VolumeSide>& faces,
-		   const MagneticFieldProvider<float> * mfp);
+		   const MagneticFieldProvider<float> * mfp,
+		   double sf=1.);
 
   using MagVolume::inside;
   virtual bool inside( const GlobalPoint& gp, double tolerance=0.) const;

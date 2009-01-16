@@ -6,8 +6,8 @@
  *  shared surfaces. Build MagVolume6Faces and organise them in a hierarchical
  *  structure. Build MagGeometry out of it.
  *
- *  $Date: 2008/03/29 14:32:01 $
- *  $Revision: 1.8 $
+ *  $Date: 2008/11/14 10:45:02 $
+ *  $Revision: 1.9 $
  *  \author N. Amapane - INFN Torino
  */
 #include "DataFormats/GeometrySurface/interface/ReferenceCounted.h" 
@@ -37,6 +37,11 @@ public:
   /// Destructor
   virtual ~MagGeoBuilderFromDDD();
 
+  ///  Set scaling factors for individual volumes. 
+  /// "keys" is a vector of 100*volume number + sector (sector 0 = all sectors)
+  /// "values" are the corresponding scaling factors 
+  void setScaling(std::vector<int> keys, std::vector<double> values);
+
   /// Get barrel layers
   std::vector<MagBLayer*> barrelLayers() const;
 
@@ -52,7 +57,8 @@ private:
 
   // Build the geometry. 
   //virtual void build();
-  virtual void build(const DDCompactView & cpv) ;
+  virtual void build(const DDCompactView & cpv);
+
 
   // FIXME: only for temporary tests and debug, to be removed
   friend class TestMagVolume;

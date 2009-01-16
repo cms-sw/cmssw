@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2008/11/14 10:42:40 $
- *  $Revision: 1.1 $
+ *  $Date: 2009/01/14 17:03:23 $
+ *  $Revision: 1.2 $
  *  \author Nicola Amapane 11/08
  */
 
@@ -29,6 +29,7 @@
 #include <string>
 #include <sstream>
 #include <iostream>
+#include <vector>
 
 using namespace std;
 using namespace edm;
@@ -60,9 +61,9 @@ AutoMagneticFieldESProducer::produce(const IdealMagneticFieldRecord& iRecord)
     float current = rInfo->m_avg_current;
     value = magneticFieldHelpers::closerNominalField(current);
     
-    LogInfo("AutoMagneticField") << "Recorded avg current: " << current << "; using map for " << value/10. << " T";
+    edm::LogInfo("MagneticField|AutoMagneticField") << "Recorded avg current: " << current << "; using map for " << value/10. << " T";
   } else {
-    LogInfo("AutoMagneticField") << "Ignoring DB current readings; using map for " << value/10. << " T";
+    edm::LogInfo("MagneticField|AutoMagneticField") << "Ignoring DB current readings; using map for " << value/10. << " T";
   }
   
   
@@ -132,6 +133,16 @@ AutoMagneticFieldESProducer::produce(const IdealMagneticFieldRecord& iRecord)
     iRecord.get("magfield",cpv );
     MagGeoBuilderFromDDD builder(VBFPset.getParameter<std::string>("version"),
 				 VBFPset.getUntrackedParameter<bool>("debugBuilder", false));
+
+    
+    // Get scaling factors
+    vector<int> keys = pset.getParameter<vector<int> >("scalingVolumes");
+    vector<double> values = pset.getParameter<vector<double> >("scalingFactors");
+
+    if (keys.size() != 0) {
+      builder.setScaling(keys, values);
+    }
+
     builder.build(*cpv);
 
     result = new VolumeBasedMagneticField(VBFPset,

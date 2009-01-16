@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2008/04/09 17:11:29 $
- *  $Revision: 1.12 $
+ *  $Date: 2008/11/14 10:42:41 $
+ *  $Revision: 1.1 $
  */
 
 #include "MagneticField/GeomBuilder/plugins/VolumeBasedMagneticFieldESProducer.h"
@@ -17,8 +17,10 @@
 #include "MagneticField/GeomBuilder/src/MagGeoBuilderFromDDD.h"
 
 #include <string>
+#include <vector>
 #include <iostream>
 
+using namespace std;
 using namespace magneticfield;
 
 VolumeBasedMagneticFieldESProducer::VolumeBasedMagneticFieldESProducer(const edm::ParameterSet& iConfig) : pset(iConfig)
@@ -36,7 +38,17 @@ std::auto_ptr<MagneticField> VolumeBasedMagneticFieldESProducer::produce(const I
   iRecord.get("magfield",cpv );
   MagGeoBuilderFromDDD builder(pset.getParameter<std::string>("version"),
 			       pset.getUntrackedParameter<bool>("debugBuilder", false));
-  builder.build(*cpv);  
+
+  // Get scaling factors
+  vector<int> keys = pset.getParameter<vector<int> >("scalingVolumes");
+  vector<double> values = pset.getParameter<vector<double> >("scalingFactors");
+
+  if (keys.size() != 0) {
+    builder.setScaling(keys, values);
+  }
+
+  builder.build(*cpv);
+
 
   // Get slave field
   edm::ESHandle<MagneticField> paramField;
