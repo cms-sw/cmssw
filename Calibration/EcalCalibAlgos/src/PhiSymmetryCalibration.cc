@@ -17,7 +17,7 @@
 #include "CalibCalorimetry/CaloMiscalibTools/interface/MiscalibReaderFromXMLEcalEndcap.h"
 
 // Geometry
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
@@ -29,6 +29,7 @@ using namespace std;
 #include <iostream>
 #include <float.h>
 #include "TH2F.h"
+#include "TLine.h"
 
 const float PhiSymmetryCalibration::kMiscalRangeEB = .05;
 const float PhiSymmetryCalibration::kMiscalRangeEE = .3;
@@ -137,7 +138,7 @@ void PhiSymmetryCalibration::beginJob( const edm::EventSetup& iSetup )
 
   // get the ecal geometry:
   edm::ESHandle<CaloGeometry> geoHandle;
-  iSetup.get<CaloGeometryRecord>().get(geoHandle);
+  iSetup.get<IdealGeometryRecord>().get(geoHandle);
   const CaloGeometry& geometry = *geoHandle;
   const CaloSubdetectorGeometry *barrelGeometry = geometry.getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
   const CaloSubdetectorGeometry *endcapGeometry = geometry.getSubdetectorGeometry(DetId::Ecal, EcalEndcap);;
@@ -290,7 +291,24 @@ void PhiSymmetryCalibration::beginJob( const edm::EventSetup& iSetup )
       iSetup.get<EcalIntercalibConstantsRcd>().get(pIcal);
       previousCalibs_  = *(pIcal.product());
     }
+ 
+
+    // book et spectra histos
+    for (int ieta=0; ieta<kBarlRings; ieta++) {
+      stringstream name;
+      name <<"et_eb"<<ieta+1;
+      ebhistos_.push_back(new TH1F(name.str().c_str(),name.str().c_str(),1000,0.5,10));
+    }     
     
+    for (int ieta=0; ieta<kEndcEtaRings; ieta++) {
+      stringstream name;
+      name <<"et_ee"<<ieta+1;
+      eehistos_.push_back(new TH1F(name.str().c_str(),name.str().c_str(),1000,0.5,10));
+    }     
+    
+
+
+   
 }
 
 //_____________________________________________________________________________
@@ -302,6 +320,33 @@ void PhiSymmetryCalibration::endJob()
   edm::LogWarning("Calibration") << "[PhiSymmetryCalibration] At end of job";
 
   if (eventSet_==1) {
+
+    // save et spectra
+    TFile f("EtSpectra.root","recreate");
+    vector<TH1F*>::iterator it;
+    for(it=ebhistos_.begin(); it!=ebhistos_.end(); ++it){
+      TCanvas c((*it)->GetName(), (*it)->GetTitle());
+      float eta= cellEta_[it-ebhistos_.begin()];
+      float x = eCut_barl_/cosh(eta) +2.8;
+      (*it)->Draw();
+      TLine cut(x,0,x,(*it)->GetMaximum());
+      cut.Draw();
+      c.Write();
+      delete *it;
+    }
+    
+    for(it=eehistos_.begin(); it!=eehistos_.end(); ++it){
+      TCanvas c((*it)->GetName(), (*it)->GetTitle());
+      float eta= etaBoundary_[it-eehistos_.begin()];
+      float x = eCut_barl_/cosh(eta) +2.8;
+      (*it)->Draw();
+      TLine cut(x,0,x,(*it)->GetMaximum());
+      cut.Draw();
+      c.Write();
+      delete *it;
+    }
+    f.Close();
+
     // calculate factors to convert from fractional deviation of ET sum from 
     // the mean to the estimate of the miscalibration factor
     getKfactors();
@@ -335,7 +380,8 @@ void PhiSymmetryCalibration::endJob()
       }
     }
     etsum_barl_out.close();
-
+    //   edm::LogWarning("Calibration") << "[PhiSymmetryCalibration] Closed etsum file";
+ 
     stringstream etsum_file_endc;
     etsum_file_endc << "etsum_endc_"<<eventSet_<<".dat";
 
@@ -628,8 +674,7 @@ void PhiSymmetryCalibration::analyze( const edm::Event& event,
 
   nevent++;
 
-  edm::LogInfo("Calibration") << "[PhiSymmetryCalibration] New Event --------------------------------------------------------------";
-
+ 
   if ((nevent<100 && nevent%10==0) 
       ||(nevent<1000 && nevent%100==0) 
       ||(nevent<10000 && nevent%100==0) 
@@ -663,21 +708,25 @@ void PhiSymmetryCalibration::analyze( const edm::Event& event,
 
     float et_thr = eCut_barl_/cosh(eta);
     et_thr*=1.05;
-    if (e >  eCut_barl_ && et < et_thr+4.8) {
+    if (e >  eCut_barl_ && et < et_thr+2.8) {
       int sign = hit.ieta()>0 ? 1 : 0;
       etsum_barl_[abs(hit.ieta())-1][hit.iphi()-1][sign] += et;
       nhits_barl_[abs(hit.ieta())-1][hit.iphi()-1][sign] ++;
       
     }
-
     if (eventSet_==1) {
       //Apply a miscalibration to all crystals and increment the 
       //ET sum, combined for all crystals
       for (int imiscal=0; imiscal<kNMiscalBinsEB; imiscal++) {
-	if (miscalEB_[imiscal]*e >  eCut_barl_&& miscalEB_[imiscal]*et < et_thr+4.8) {
+	if (miscalEB_[imiscal]*e >  eCut_barl_&& miscalEB_[imiscal]*et < et_thr+2.8) {
 	  etsum_barl_miscal_[imiscal][abs(hit.ieta())-1] += miscalEB_[imiscal]*et;
 	}
       }
+      
+
+      // fill et spectrum for the ring
+      ebhistos_[abs(hit.ieta())-1]->Fill(et);
+      
     }
 
   }
@@ -695,7 +744,7 @@ void PhiSymmetryCalibration::analyze( const edm::Event& event,
     float et_thr = eCut_endc_/cosh(eta);
     et_thr*=1.05;
 
-    if (e > eCut_endc_ && et < et_thr+4.8){
+    if (e > eCut_endc_ && et < et_thr+2.8){
       int sign = hit.zside()>0 ? 1 : 0;
       etsum_endc_[hit.ix()-1][hit.iy()-1][sign] += et;
       nhits_endc_[hit.ix()-1][hit.iy()-1][sign] ++;;
@@ -705,11 +754,14 @@ void PhiSymmetryCalibration::analyze( const edm::Event& event,
       //Apply a miscalibration to all crystals and increment the 
       //ET sum, combined for all crystals
       for (int imiscal=0; imiscal<kNMiscalBinsEE; imiscal++) {
-        if (miscalEE_[imiscal]*e> eCut_endc_ && et*miscalEE_[imiscal] < et_thr+4.8){
+        if (miscalEE_[imiscal]*e> eCut_endc_ && et*miscalEE_[imiscal] < et_thr+2.8){
 	  int ring = endcapRing_[hit.ix()-1][hit.iy()-1];
 	  etsum_endc_miscal_[imiscal][ring] += miscalEE_[imiscal]*et*meanCellArea_[ring]/cellArea_[hit.ix()-1][hit.iy()-1];
 	}
       }
+      // fill spectrum for the ring
+      eehistos_[endcapRing_[hit.ix()-1][hit.iy()-1]]->Fill(et);
+  
     }
 
   }

@@ -151,6 +151,10 @@ class PhiSymmetryCalibration :  public edm::EDAnalyzer
   std::string reiterationXMLFileEE_;
   CaloMiscalibMapEcal newCalibs_;
   EcalIntercalibConstants previousCalibs_;
+
+  std::vector<TH1F*> ebhistos_; // et spectrum eb
+  std::vector<TH1F*> eehistos_; // et spectrum ee
+
 };
 
 #endif
