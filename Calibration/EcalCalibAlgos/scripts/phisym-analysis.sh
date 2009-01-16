@@ -62,7 +62,7 @@ rm  etsum_endc_*.dat
 
 #run calibration job
 cmsRun  phisym-calibration.cfg > output-$1-$2.log
-scp -r *.root *.dat *.log pccmsto03:$datadir
+scp -r *.root *.dat *.log $destserver:$datadir
 scp -r ../src $destserver:$datadir
 
 #cleanup*
