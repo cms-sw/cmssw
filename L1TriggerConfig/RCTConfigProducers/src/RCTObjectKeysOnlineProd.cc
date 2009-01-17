@@ -13,7 +13,7 @@
 //
 // Original Author:  Werner Man-Li Sun
 //         Created:  Fri Aug 22 19:51:36 CEST 2008
-// $Id: RCTObjectKeysOnlineProd.cc,v 1.1 2008/09/19 19:52:20 wsun Exp $
+// $Id: RCTObjectKeysOnlineProd.cc,v 1.2 2008/09/30 20:35:18 wsun Exp $
 //
 //
 
@@ -74,28 +74,31 @@ RCTObjectKeysOnlineProd::fillObjectKeys( ReturnType pL1TriggerKey )
 {
   std::string rctKey = pL1TriggerKey->subsystemKey( L1TriggerKey::kRCT ) ;
 
-  // SELECT RCT_PARAMETER FROM RCT_CONF WHERE RCT_CONF.RCT_KEY = rctKey
-  l1t::OMDSReader::QueryResults paremKeyResults =
-    m_omdsReader.basicQuery( "RCT_PARAMETER",
-			     "CMS_RCT",
-			     "RCT_CONF",
-			     "RCT_CONF.RCT_KEY",
-			     m_omdsReader.singleAttribute( rctKey  ) );
-
-
-  if( paremKeyResults.queryFailed() ||
-      paremKeyResults.numberRows() != 1 ) // check query successful
+  if( !rctKey.empty() )
     {
-      edm::LogError( "L1-O2O" ) << "Problem with RCT key." ;
-      return ;
+      // SELECT RCT_PARAMETER FROM RCT_CONF WHERE RCT_CONF.RCT_KEY = rctKey
+      l1t::OMDSReader::QueryResults paremKeyResults =
+	m_omdsReader.basicQuery( "RCT_PARAMETER",
+				 "CMS_RCT",
+				 "RCT_CONF",
+				 "RCT_CONF.RCT_KEY",
+				 m_omdsReader.singleAttribute( rctKey  ) );
+
+
+      if( paremKeyResults.queryFailed() ||
+	  paremKeyResults.numberRows() != 1 ) // check query successful
+	{
+	  edm::LogError( "L1-O2O" ) << "Problem with RCT key." ;
+	  return ;
+	}
+
+      std::string paremKey ;
+      paremKeyResults.fillVariable( paremKey ) ;
+
+      pL1TriggerKey->add( "L1RCTParametersRcd",
+			  "L1RCTParameters",
+			  paremKey ) ;
     }
-
-  std::string paremKey ;
-  paremKeyResults.fillVariable( paremKey ) ;
-
-  pL1TriggerKey->add( "L1RCTParametersRcd",
-		      "L1RCTParameters",
-		      paremKey ) ;
 }
 
 //define this as a plug-in
