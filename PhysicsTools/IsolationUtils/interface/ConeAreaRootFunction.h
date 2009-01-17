@@ -17,7 +17,7 @@
 //
 // Original Author:  Christian Veelken, UC Davis
 //         Created:  Thu Nov  2 13:47:40 CST 2006
-// $Id: ConeAreaRootFunction.cc,v 1.3 2006/11/30 17:07:28 dwjang Exp $
+// $Id: ConeAreaRootFunction.h,v 1.1 2007/05/23 20:23:08 veelken Exp $
 //
 //
 
@@ -41,8 +41,6 @@ class ConeAreaRootFunction : public ConeAreaFunction
   ROOT::Math::IGenFunction* Clone () const { return new ConeAreaRootFunction(*this); }
 
  private:
-  void SetParameters(double* param);
-
   double DoEval(double x) const;
 
   double coneArea_; // area covered by cone
