@@ -10,7 +10,7 @@ class PythonParameterSet
 public:
   PythonParameterSet();
 
-  PythonParameterSet(const edm::ParameterSet & p)
+  PythonParameterSet(edm::ParameterSet const& p)
   : theParameterSet(p) {}
 
   template <class T>
@@ -48,7 +48,7 @@ public:
   /// templated on the type of the contained object
   template <class T>
   boost::python::list
-  getParameters(bool tracked, const std::string & name) const
+  getParameters(bool tracked, std::string const& name) const
   {
     std::vector<T> v = getParameter<std::vector<T> >(tracked, name);
     return edm::toPythonList(v);
@@ -69,7 +69,7 @@ public:
   /// to wrap, compared to, say, InputTag
   /// maybe we will need to template these someday
   void addPSet(bool tracked, std::string const& name,
-               const PythonParameterSet & ppset)
+               PythonParameterSet const& ppset)
   {
     addParameter(tracked, name, ppset.theParameterSet);
   }
@@ -87,9 +87,9 @@ public:
   boost::python::list getVPSet(bool tracked, std::string const& name);
 
   // no way to interface straight into the other python InputTag
-  edm::InputTag newInputTag(const std::string& label,
-                            const std::string& instance,
-                            const std::string& process)
+  edm::InputTag newInputTag(std::string const& label,
+                            std::string const& instance,
+                            std::string const& process)
   {
     return edm::InputTag(label, instance, process);
   }
@@ -120,7 +120,9 @@ public:
 
   PythonParameterSet newPSet() const {return PythonParameterSet();}
 
-  const edm::ParameterSet & pset() const {return theParameterSet;}
+  edm::ParameterSet& pset() {return theParameterSet;}
+
+  edm::ParameterSet const& pset() const {return theParameterSet;}
 
   std::string dump() const {return theParameterSet.dump();}
 

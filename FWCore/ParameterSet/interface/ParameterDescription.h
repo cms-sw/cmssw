@@ -33,7 +33,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Aug  2 15:33:46 EDT 2007
-// $Id: ParameterDescription.h,v 1.9 2009/01/09 22:34:11 wdd Exp $
+// $Id: ParameterDescription.h,v 1.10 2009/01/12 20:10:07 ewv Exp $
 //
 
 #include "FWCore/Utilities/interface/value_ptr.h"
@@ -74,8 +74,8 @@ namespace edm {
     k_VLuminosityBlockRange = 'a',
     k_EventRange = 'R',
     k_VEventRange = 'r',
-    k_PSet = 'P',
-    k_VPSet = 'p'
+    k_PSet = 'Q',
+    k_VPSet = 'q'
   };
 
   std::string parameterTypeEnumToString(ParameterTypes iType);

@@ -16,24 +16,24 @@ public:
     It decides whether it's a file or string by seeing if
     it ends in '.py'
   */
-  PythonProcessDesc(const std::string & config);
+  PythonProcessDesc(std::string const& config);
 
-  PythonProcessDesc(const std::string & config, int argc, char * argv[]);
+  PythonProcessDesc(std::string const& config, int argc, char * argv[]);
 
-  void addService(const PythonParameterSet & pset) {theServices.push_back(pset);}
+  void addService(PythonParameterSet& pset) {theServices.push_back(pset);}
 
   PythonParameterSet newPSet() const {return PythonParameterSet();}
 
   std::string dump() const;
 
   // makes a new (copy) of the ProcessDesc
-  boost::shared_ptr<edm::ProcessDesc> processDesc() const;
+  boost::shared_ptr<edm::ProcessDesc> processDesc();
 
 private:
   void prepareToRead();
-  void read(const std::string & config);
-  void readFile(const std::string & fileName);
-  void readString(const std::string & pyConfig);
+  void read(std::string const& config);
+  void readFile(std::string const& fileName);
+  void readString(std::string const& pyConfig);
 
   static bool initialized_;
   PythonParameterSet theProcessPSet;
