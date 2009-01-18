@@ -1,4 +1,5 @@
 /*
+ * $Id: ps_t.cppunit.cc,v 1.19 2009/01/09 10:13:14 wmtan Exp $
  */
 
 #include <algorithm>
@@ -31,6 +32,7 @@ class testps: public CppUnit::TestFixture
   CPPUNIT_TEST(nameAccessTest);
   CPPUNIT_TEST(fileInPathTest);
   CPPUNIT_TEST(testEmbeddedPSet);
+  CPPUNIT_TEST(testRegistration);
   CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -50,6 +52,7 @@ public:
   void nameAccessTest();
   void fileInPathTest();
   void testEmbeddedPSet();
+  void testRegistration();
   // Still more to do...
 private:
 };
@@ -71,6 +74,7 @@ void trackedTestbody(T value)
   try {
     edm::ParameterSet p1;
     p1.template addParameter<T>("x", value);
+    p1.registerIt();
     CPPUNIT_ASSERT(p1.template getParameter<T>("x") == value);
     std::string p1_encoded = p1.toString();
     edm::ParameterSet p2(p1_encoded);
@@ -198,9 +202,11 @@ void testps::stringTest()
   vs.push_back("three");
   edm::ParameterSet p1;
   p1.addParameter<std::vector<std::string> >("vs",vs);
+  p1.registerIt();
   std::vector<std::string> vs2 = p1.getParameter<std::vector<std::string> >("vs");
   //FIXME doesn't count spaces
 }
+
 
 void testps::fileInPathTest()
 {
@@ -211,12 +217,16 @@ void testps::fileInPathTest()
   CPPUNIT_ASSERT(p.getParameterNamesForType<edm::FileInPath>()[0] == "fip");
 }
 
+
 void testps::doubleEqualityTest()
 {
   edm::ParameterSet p1, p2, p3;
   p1.addParameter<double>("x", 0.1);
   p2.addParameter<double>("x", 1.0e-1);  
   p3.addParameter<double>("x", 0.100);
+  p1.registerIt();
+  p2.registerIt();
+  p3.registerIt();
   CPPUNIT_ASSERT(p1 == p2);
   CPPUNIT_ASSERT(p1 == p3);
   CPPUNIT_ASSERT(p2 == p3);
@@ -231,6 +241,8 @@ void testps::negativeZeroTest()
   edm::ParameterSet a1, a2;
   a1.addParameter<double>("x", 0.0);
   a2.addParameter<double>("x", -0.0);
+  a1.registerIt();
+  a2.registerIt();
   // Negative and positive zero should be coded differently.
   CPPUNIT_ASSERT(a1.toString() != a2.toString());
   CPPUNIT_ASSERT(a1 != a2);
@@ -241,9 +253,11 @@ void testps::negativeZeroTest()
 void testps::idTest()
 {
   edm::ParameterSet a;
+  a.registerIt();
   edm::ParameterSetID a_id = a.id();
   edm::ParameterSet b;
   b.addParameter<int>("x", -23);
+  b.registerIt();
   edm::ParameterSetID b_id = b.id();
 
   CPPUNIT_ASSERT (a != b); 
@@ -256,18 +270,22 @@ void testps::mapByIdTest()
   edm::ParameterSet a;
   a.addParameter<double>("pi",3.14);
   a.addParameter<std::string>("name", "Bub");
+  a.registerIt();
   CPPUNIT_ASSERT( a.exists("pi") );
   CPPUNIT_ASSERT( !a.exists("pie") );
 
   edm::ParameterSet b;
   b.addParameter<bool>("b", false);
   b.addParameter<std::vector<int> >("three_zeros", std::vector<int>(3,0));
+  b.registerIt();
 
   edm::ParameterSet c;
+  c.registerIt();
 
   edm::ParameterSet d;
   d.addParameter<unsigned int>("hundred", 100);
   d.addParameter<std::vector<double> >("empty", std::vector<double>());
+  d.registerIt();
 
   edm::ParameterSetID id_a = a.id();
   edm::ParameterSetID id_b = b.id();
@@ -316,6 +334,7 @@ test_for_name()
   CPPUNIT_ASSERT( stored_value == value );
 
   preal.template addUntrackedParameter<T>("y", value);
+  preal.registerIt();
   names = ps.getParameterNames();
   CPPUNIT_ASSERT( names.size() == 2 );
 
@@ -333,6 +352,8 @@ test_for_name()
 
   std::string firstString = ps.toString();
   edm::ParameterSet p2(firstString);
+
+  p2.registerIt();
   // equality tests toStringOfTracked internally
   CPPUNIT_ASSERT(ps == p2);
 }
@@ -362,6 +383,7 @@ void testps::nameAccessTest()
   {
     edm::ParameterSet p;
     p.addParameter<double>("a", 2.5);
+    p.registerIt();
     const bool tracked = true;
     std::vector<std::string> names = 
       p.getParameterNamesForType<int>(tracked);
@@ -377,25 +399,57 @@ void testps::testEmbeddedPSet()
   psEmbedded.addUntrackedParameter<std::string>("p1", "wham");
   psEmbedded.addParameter<std::string>("p2", "bam");
   psDeeper.addParameter<int>("deepest", 6);
+  psDeeper.registerIt();
   edm::InputTag it("label", "instance");
   std::vector<edm::InputTag> vit;
   vit.push_back(it);
   psEmbedded.addParameter<edm::InputTag>("it", it);
   psEmbedded.addParameter<std::vector<edm::InputTag> >("vit", vit);
   psEmbedded.addParameter<edm::ParameterSet>("psDeeper", psDeeper);
+  psEmbedded.registerIt();
   ps.addParameter<edm::ParameterSet>("psEmbedded", psEmbedded);
   ps.addParameter<double>("topLevel", 1.);
   ps.addUntrackedParameter<boost::uint64_t>("u64", 64);
+  ps.registerIt();
 
   std::string rep = ps.toString();
   edm::ParameterSet defrosted(rep);
-  edm::ParameterSet trackedPart(ps.toStringOfTracked());
+  defrosted.registerIt();
+  edm::ParameterSet trackedPart(ps.trackedPart());
 
   CPPUNIT_ASSERT(defrosted == ps);
   CPPUNIT_ASSERT(trackedPart.exists("psEmbedded"));
-  CPPUNIT_ASSERT(trackedPart.getParameter<edm::ParameterSet>("psEmbedded").exists("p2"));
-  CPPUNIT_ASSERT(!trackedPart.getParameter<edm::ParameterSet>("psEmbedded").exists("p1"));
-  CPPUNIT_ASSERT(trackedPart.getParameter<edm::ParameterSet>("psEmbedded").getParameter<edm::ParameterSet>("psDeeper").getParameter<int>("deepest") == 6);
-  CPPUNIT_ASSERT(defrosted.getUntrackedParameter<boost::uint64_t>("u64") == 64);
+  CPPUNIT_ASSERT(trackedPart.getParameterSet("psEmbedded").exists("p2"));
+  CPPUNIT_ASSERT(!trackedPart.getParameterSet("psEmbedded").exists("p1"));
+  CPPUNIT_ASSERT(trackedPart.getParameterSet("psEmbedded").getParameterSet("psDeeper").getParameter<int>("deepest") == 6);
+  CPPUNIT_ASSERT(ps.getUntrackedParameter<boost::uint64_t>("u64") == 64);
   CPPUNIT_ASSERT(!trackedPart.exists("u64"));
+}
+
+void testps::testRegistration()
+{
+  edm::ParameterSet ps;
+  edm::ParameterSet psEmbedded, psDeeper;
+  psEmbedded.addUntrackedParameter<std::string>("p1", "wham");
+  psEmbedded.addParameter<std::string>("p2", "bam");
+  psDeeper.addParameter<int>("deepest", 6);
+  psDeeper.registerIt();
+  edm::InputTag it("label", "instance");
+  std::vector<edm::InputTag> vit;
+  vit.push_back(it);
+  psEmbedded.addParameter<edm::InputTag>("it", it);
+  psEmbedded.addParameter<std::vector<edm::InputTag> >("vit", vit);
+  psEmbedded.addParameter<edm::ParameterSet>("psDeeper", psDeeper);
+  psEmbedded.registerIt();
+  ps.addParameter<edm::ParameterSet>("psEmbedded", psEmbedded);
+  ps.addParameter<double>("topLevel", 1.);
+  ps.addUntrackedParameter<boost::uint64_t>("u64", 64);
+  ps.registerIt();
+  CPPUNIT_ASSERT(ps.isRegistered());
+  CPPUNIT_ASSERT(psEmbedded.isRegistered());
+  CPPUNIT_ASSERT(psDeeper.isRegistered());
+  psEmbedded.addParameter<std::string>("p3", "slam");
+  CPPUNIT_ASSERT(ps.isRegistered());
+  CPPUNIT_ASSERT(!psEmbedded.isRegistered());
+  CPPUNIT_ASSERT(psDeeper.isRegistered());
 }

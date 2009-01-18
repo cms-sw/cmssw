@@ -17,7 +17,7 @@ PythonProcessDesc::PythonProcessDesc()
 }
 
 
-PythonProcessDesc::PythonProcessDesc(const std::string & config)
+PythonProcessDesc::PythonProcessDesc(std::string const& config)
 :  theProcessPSet(),
    theServices(),
    theMainModule(),
@@ -28,7 +28,7 @@ PythonProcessDesc::PythonProcessDesc(const std::string & config)
   Py_Finalize();
 }
 
-PythonProcessDesc::PythonProcessDesc(const std::string & config, int argc, char * argv[])
+PythonProcessDesc::PythonProcessDesc(std::string const& config, int argc, char * argv[])
 :  theProcessPSet(),
    theServices(),
    theMainModule(),
@@ -59,7 +59,7 @@ void PythonProcessDesc::prepareToRead()
 }
 
 
-void PythonProcessDesc::read(const std::string & config)
+void PythonProcessDesc::read(std::string const& config)
 {  
   try {
     // if it ends with py, it's a file
@@ -79,7 +79,7 @@ void PythonProcessDesc::read(const std::string & config)
 }
 
 
-void PythonProcessDesc::readFile(const std::string & fileName)
+void PythonProcessDesc::readFile(std::string const& fileName)
 {
   std::string initCommand("import FWCore.ParameterSet.Config as cms\n"
                       "execfile('");
@@ -98,7 +98,7 @@ void PythonProcessDesc::readFile(const std::string & fileName)
 }
 
 
-void PythonProcessDesc::readString(const std::string & pyConfig)
+void PythonProcessDesc::readString(std::string const& pyConfig)
 {
   std::string command = pyConfig;
   command += "\nprocess.fillProcessDesc(processDesc, processPSet)";
@@ -109,7 +109,7 @@ void PythonProcessDesc::readString(const std::string & pyConfig)
 }
 
 
-boost::shared_ptr<edm::ProcessDesc> PythonProcessDesc::processDesc() const
+boost::shared_ptr<edm::ProcessDesc> PythonProcessDesc::processDesc()
 {
   boost::shared_ptr<edm::ProcessDesc> result(new edm::ProcessDesc(theProcessPSet.pset()));
   BOOST_FOREACH(PythonParameterSet service, theServices)

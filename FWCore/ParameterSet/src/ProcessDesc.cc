@@ -6,8 +6,6 @@
    \date 17 Jun 2005
 */
 
-static const char CVSId[] = "$Id: ProcessDesc.cc,v 1.36 2009/01/09 20:47:18 wmtan Exp $";
-
 
 #include "FWCore/ParameterSet/interface/ProcessDesc.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -20,63 +18,46 @@ static const char CVSId[] = "$Id: ProcessDesc.cc,v 1.36 2009/01/09 20:47:18 wmta
 namespace edm
 {
 
-  ProcessDesc::ProcessDesc(const ParameterSet & pset)
-  : pset_(new ParameterSet(pset)),
-    services_(new std::vector<ParameterSet>())
+  ProcessDesc::ProcessDesc(ParameterSet const& pset)
+  : pset_(new ParameterSet(pset)), services_(new std::vector<ParameterSet>())
   {
-    setRegistry();
-    // std::cout << pset << std::endl;
+    pset_->registerIt();
+    pset::Registry::instance()->extra().setID(pset_->id());
   }
 
-  ProcessDesc::~ProcessDesc()
-  {
+  ProcessDesc::~ProcessDesc() {
   }
 
-  ProcessDesc::ProcessDesc(const std::string& config)
+  ProcessDesc::ProcessDesc(std::string const& config)
   : pset_(new ParameterSet),
-    services_(new std::vector<ParameterSet>())
-  {
+    services_(new std::vector<ParameterSet>()) {
     throw edm::Exception(errors::Configuration,"Old config strings no longer accepted");
   }
 
-  void ProcessDesc::setRegistry() const
-  {
-    // Load every ParameterSet into the Registry
-    pset::Registry* reg = pset::Registry::instance();
-    pset::loadAllNestedParameterSets(reg, *pset_);
-  }
-
-
   boost::shared_ptr<edm::ParameterSet>  
-  ProcessDesc::getProcessPSet() const{
+  ProcessDesc::getProcessPSet() const {
     return pset_;
-
   }
 
   boost::shared_ptr<std::vector<ParameterSet> > 
-  ProcessDesc::getServicesPSets() const{
+  ProcessDesc::getServicesPSets() const {
     return services_;
   }
 
   
-  void ProcessDesc::addService(const ParameterSet & pset) 
-  {
+  void ProcessDesc::addService(ParameterSet& pset) {
     services_->push_back(pset);
-   // Load into the Registry
-    pset::Registry* reg = pset::Registry::instance();
-    reg->insertMapped(pset);
+    pset.registerIt();
   }
 
 
-  void ProcessDesc::addService(const std::string & service)
-  {
+  void ProcessDesc::addService(std::string const& service) {
     ParameterSet newpset;
     newpset.addParameter<std::string>("@service_type",service);
     addService(newpset);
   }
 
-  void ProcessDesc::addDefaultService(const std::string & service)
-  {
+  void ProcessDesc::addDefaultService(std::string const& service) {
     typedef std::vector<edm::ParameterSet>::iterator Iter;
     for(Iter it = services_->begin(), itEnd = services_->end(); it != itEnd; ++it) {
         std::string name = it->getParameter<std::string>("@service_type");
@@ -99,8 +80,7 @@ namespace edm
 
 
   void ProcessDesc::addServices(std::vector<std::string> const& defaultServices,
-                                std::vector<std::string> const& forcedServices)
-  {
+                                std::vector<std::string> const& forcedServices) {
     // Add the forced and default services to services_.
     // In services_, we want the default services first, then the forced
     // services, then the services from the configuration.  It is efficient
