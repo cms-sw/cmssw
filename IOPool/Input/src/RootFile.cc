@@ -46,6 +46,8 @@
 #include "TTree.h"
 #include "Rtypes.h"
 #include <algorithm>
+#include <map>
+#include <list>
 
 namespace edm {
 //---------------------------------------------------------------------
@@ -149,8 +151,8 @@ namespace edm {
 
     // Need to read to a temporary registry so we can do a translation of the BranchKeys.
     // This preserves backward compatibility against friendly class name algorithm changes.
-    ProductRegistry tempReg;
-    ProductRegistry *ppReg = &tempReg;
+    ProductRegistry inputProdHistReg;
+    ProductRegistry *ppReg = &inputProdHistReg;
     metaDataTree->SetBranchAddress(poolNames::productDescriptionBranchName().c_str(),(&ppReg));
 
     typedef std::map<ParameterSetID, ParameterSetBlob> PsetMap;
@@ -199,39 +201,55 @@ namespace edm {
     if (metaDataTree->FindBranch(poolNames::moduleDescriptionMapBranchName().c_str()) != 0) {
       metaDataTree->SetBranchAddress(poolNames::moduleDescriptionMapBranchName().c_str(), &mdMapPtr);
     }
+
     // Here we read the metadata tree
     input::getEntry(metaDataTree, 0);
 
     setRefCoreStreamer(true);  // backward compatibility
 
-    // Merge into the parameter set registry.
-    pset::Registry& psetRegistry = *pset::Registry::instance();
-    for (PsetMap::const_iterator i = psetMap.begin(), iEnd = psetMap.end(); i != iEnd; ++i) {
-      ParameterSet pset(i->second.pset_);
-      pset.setID(i->first);
-      pset.setFullyTracked();
-      psetRegistry.insertMapped(pset);
-    } 
-
+    ProvenanceAdaptor::ParameterSetIdConverter psetIdConverter;
+    if (fileFormatVersion_.value_ < 12) {
+      ProvenanceAdaptor::StringWithIDList params;
+      ProvenanceAdaptor::StringMap replace;
+      replace.insert(std::make_pair(std::string("=+p({})"), std::string("=+q({})")));
+      for (PsetMap::const_iterator i = psetMap.begin(), iEnd = psetMap.end(); i != iEnd; ++i) {
+	params.push_back(std::make_pair(i->second.pset_, i->first));
+      }
+      ProvenanceAdaptor::convertParameterSets(params, replace, psetIdConverter);
+    } else {
+      // Merge into the parameter set registry.
+      pset::Registry& psetRegistry = *pset::Registry::instance();
+      for (PsetMap::const_iterator i = psetMap.begin(), iEnd = psetMap.end(); i != iEnd; ++i) {
+        ParameterSet pset(i->second.pset_);
+        pset.setID(i->first);
+        pset.setFullyTracked();
+        psetRegistry.insertMapped(pset);
+      } 
+    }
     if (fileFormatVersion_.value_ < 11) {
-      // Old format input file.  Create a provenance adaptor.
-      provenanceAdaptor_.reset(new ProvenanceAdaptor(tempReg, pHistMap, procConfigVector));
+      // Old provenance format input file.  Create a provenance adaptor.
+      provenanceAdaptor_.reset(new ProvenanceAdaptor(
+	    inputProdHistReg, pHistMap, pHistVector, procConfigVector, psetIdConverter, true));
       // Fill in the branchIDLists branch from the provenance adaptor
       branchIDLists_ = provenanceAdaptor_->branchIDLists();
-      ProcessHistoryRegistry::instance()->insertCollection(pHistMap);
+      ModuleDescriptionRegistry::instance()->insertCollection(mdMap);
     } else {
-      // New format input file. The branchIDLists branch was read directly from the input file. 
+      if (fileFormatVersion_.value_ == 11) {
+        // Now provenance format, but old ParameterSet Format. Create a provenance adaptor.
+        provenanceAdaptor_.reset(new ProvenanceAdaptor(
+	    inputProdHistReg, pHistMap, pHistVector, procConfigVector, psetIdConverter, false));
+      }
+      // New provenance format input file. The branchIDLists branch was read directly from the input file. 
       if (metaDataTree->FindBranch(poolNames::branchIDListBranchName().c_str()) == 0) {
 	throw edm::Exception(errors::EventCorruption)
 	  << "Failed to find branchIDLists branch in metaData tree.\n";
       }
       branchIDLists_.reset(branchIDListsAPtr.release());
-      ProcessHistoryRegistry::instance()->insertCollection(pHistVector);
     }
 
-    // Merge into the remaining hashed registries.
+    // Merge into the hashed registries.
+    ProcessHistoryRegistry::instance()->insertCollection(pHistVector);
     ProcessConfigurationRegistry::instance()->insertCollection(procConfigVector);
-    ModuleDescriptionRegistry::instance()->insertCollection(mdMap);
 
     validateFile();
 
@@ -247,7 +265,7 @@ namespace edm {
     readEventHistoryTree();
 
     // Set product presence information in the product registry.
-    ProductRegistry::ProductList const& pList = tempReg.productList();
+    ProductRegistry::ProductList const& pList = inputProdHistReg.productList();
     for (ProductRegistry::ProductList::const_iterator it = pList.begin(), itEnd = pList.end();
         it != itEnd; ++it) {
       BranchDescription const& prod = it->second;
@@ -255,13 +273,13 @@ namespace edm {
     }
 
     // freeze our temporary product registry
-    tempReg.setFrozen();
+    inputProdHistReg.setFrozen();
 
     std::auto_ptr<ProductRegistry> newReg(new ProductRegistry);
 
     // Do the translation from the old registry to the new one
     {
-      ProductRegistry::ProductList const& prodList = tempReg.productList();
+      ProductRegistry::ProductList const& prodList = inputProdHistReg.productList();
       for (ProductRegistry::ProductList::const_iterator it = prodList.begin(), itEnd = prodList.end();
            it != itEnd; ++it) {
         BranchDescription const& prod = it->second;
@@ -749,6 +767,13 @@ namespace edm {
         ++eventProcessHistoryIter_;
       }
     }
+    if (provenanceAdaptor_) {
+      history_->setProcessHistoryID(provenanceAdaptor_->convertID(history_->processHistoryID()));
+      EventSelectionIDVector& esids = history_->eventSelectionIDs(); 
+      for (EventSelectionIDVector::iterator i = esids.begin(), e = esids.end(); i != e; ++i) {
+	(*i) = provenanceAdaptor_->convertID(*i);
+      }
+    }
     if (fileFormatVersion_.value_ < 11) {
       // old format.  branchListIndexes_ must be filled in from the ProvenanceAdaptor.
       provenanceAdaptor_->branchListIndexes(history_->branchListIndexes());
@@ -766,6 +791,9 @@ namespace edm {
       lumiTree_.fillAux<LuminosityBlockAux>(pLumiAux);
       conversion(lumiAux, lumiAux_);
     }
+    if (provenanceAdaptor_) {
+      lumiAux_.processHistoryID_ = provenanceAdaptor_->convertID(lumiAux_.processHistoryID_);
+    }
     if (lumiAux_.luminosityBlock() == 0 && fileFormatVersion_.value_ <= 3) {
       lumiAux_.id_ = LuminosityBlockID(lumiAux_.run(), LuminosityBlockNumber_t(1));
     }
@@ -781,6 +809,9 @@ namespace edm {
       RunAux *pRunAux = &runAux;
       runTree_.fillAux<RunAux>(pRunAux);
       conversion(runAux, runAux_);
+    }
+    if (provenanceAdaptor_) {
+      runAux_.processHistoryID_ = provenanceAdaptor_->convertID(runAux_.processHistoryID_);
     }
   }
 
@@ -1167,7 +1198,6 @@ namespace edm {
 	    BranchEntryDescription* ppb = pb.get();
 	    br->SetAddress(&ppb);
 	    input::getEntry(br, rootTree.entryNumber());
-	    std::auto_ptr<EntryDescription> entryDesc = pb->convertToEntryDescription();
 	    ProductStatus status = (ppb->creatorStatus() == BranchEntryDescription::Success ? productstatus::present() : productstatus::neverCreated());
 	    EventEntryInfo entry(it->second.branchID(), status, it->second.oldProductID());
 	    mapper->insert(entry.makeProductProvenance());
@@ -1196,7 +1226,6 @@ namespace edm {
 	    BranchEntryDescription* ppb = pb.get();
 	    br->SetAddress(&ppb);
 	    input::getEntry(br, rootTree.entryNumber());
-	    std::auto_ptr<EntryDescription> entryDesc = pb->convertToEntryDescription();
 	    ProductStatus status = (ppb->creatorStatus() == BranchEntryDescription::Success ? productstatus::present() : productstatus::neverCreated());
 	    ProductProvenance entry(it->second.branchID(), status);
 	    mapper->insert(entry);

@@ -7,6 +7,7 @@ ProvenanceAdaptor.h
 
 ----------------------------------------------------------------------*/
 #include <map>
+#include <list>
 #include <memory>
 #include <string>
 #include <vector>
@@ -28,18 +29,38 @@ namespace edm {
   typedef std::map<ParameterSetID, ParameterSetBlob> ParameterSetMap;
   class ProvenanceAdaptor : private boost::noncopyable {
   public:
-  ProvenanceAdaptor(
+    typedef std::list<std::string> StringList;
+    typedef std::list<std::pair<std::string, ParameterSetID> > StringWithIDList;
+    typedef std::map<std::string, std::string> StringMap;
+    typedef std::map<ParameterSetID, ParameterSetID> ParameterSetIdConverter;
+    typedef std::map<ProcessConfigurationID, ProcessConfigurationID> ProcessConfigurationIdConverter;
+    typedef std::map<ProcessHistoryID, ProcessHistoryID> ProcessHistoryIdConverter;
+    ProvenanceAdaptor(
 	     ProductRegistry& productRegistry,
-	     ProcessHistoryMap const& pHistMap,
-	     ProcessConfigurationVector& procConfigVector);
-
+	     ProcessHistoryMap& pHistMap,
+	     ProcessHistoryVector& pHistVector,
+	     ProcessConfigurationVector& procConfigVector,
+	     ParameterSetIdConverter const& parameterSetIdConverter,
+	     bool fullConversion);
   
-  boost::shared_ptr<BranchIDLists const> branchIDLists() const;
+    boost::shared_ptr<BranchIDLists const> branchIDLists() const;
 
-  void branchListIndexes(BranchListIndexes & indexes) const;
+    void branchListIndexes(BranchListIndexes & indexes) const;
+
+    static void convertParameterSets(StringWithIDList& in, StringMap& replace, ParameterSetIdConverter& psetIdConverter);
+
+    ParameterSetID const&
+    convertID(ParameterSetID const& oldID) const;
+
+    ProcessHistoryID const&
+    convertID(ProcessHistoryID const& oldID) const;
 
   private:
-    ProductRegistry const& productRegistry_;
+    void fixProcessHistory(ProcessHistoryMap& pHistMap,
+			   ProcessHistoryVector& pHistVector);
+
+    ParameterSetIdConverter parameterSetIdConverter_;
+    ProcessHistoryIdConverter processHistoryIdConverter_;
     boost::shared_ptr<BranchIDLists const> branchIDLists_;
     std::vector<BranchListIndex> branchListIndexes_;
   }; // class ProvenanceAdaptor

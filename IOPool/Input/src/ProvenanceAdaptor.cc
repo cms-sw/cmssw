@@ -3,6 +3,9 @@
 ProvenanceAdaptor.cc
 
 ----------------------------------------------------------------------*/
+  //------------------------------------------------------------
+  // Class ProvenanceAdaptor: adapts old provenance (fileFormatVersion_.value_ < 11) to new provenance.
+  // Also adapts old parameter sets (fileFormatVersion_.value_ < 12) to new provenance.
 #include <algorithm>
 #include <cassert>
 #include "IOPool/Input/src/ProvenanceAdaptor.h"
@@ -11,13 +14,121 @@ ProvenanceAdaptor.cc
 #include "DataFormats/Provenance/interface/ProcessConfiguration.h"
 #include "DataFormats/Provenance/interface/ProcessHistory.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
+#include "FWCore/ParameterSet/interface/split.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 
 namespace edm {
 
+  namespace {
+    void
+    insertIntoReplace(ProvenanceAdaptor::StringMap& replace,
+		std::string const& fromPrefix,
+		std::string const& from,
+		std::string const& fromPostfix,
+		std::string const& toPrefix,
+		std::string const& to,
+		std::string const& toPostfix) {
+      replace.insert(std::make_pair(fromPrefix+from+fromPostfix, toPrefix+to+toPostfix));
+    }
+  }
+
+  void
+  ProvenanceAdaptor::convertParameterSets(StringWithIDList& in, StringMap& replace, ParameterSetIdConverter& psetIdConverter) {
+    std::string const comma(",");
+    std::string const rparam(")");
+    std::string const rvparam("})");
+    std::string const loldparam("=+P(");
+    std::string const loldvparam("=+p({");
+    std::string const lparam("=+Q(");
+    std::string const lvparam("=+q({");
+    bool doItAgain = false;
+    for (StringMap::const_iterator j = replace.begin(), jEnd = replace.end(); j != jEnd; ++j) {
+      for (StringWithIDList::iterator i = in.begin(), iEnd = in.end(); i != iEnd; ++i) {
+	for (std::string::size_type it = i->first.find(j->first); it != std::string::npos; it = i->first.find(j->first)) {
+	  i->first.replace(it, j->first.size(), j->second);
+	  doItAgain = true;
+	}
+      }
+    }
+    for (StringWithIDList::iterator i = in.begin(), iEnd = in.end(); i != iEnd;) {
+      if (i->first.find("+P") == std::string::npos && i->first.find("+p") == std::string::npos) {
+        ParameterSet pset(i->first);
+        pset.registerIt();
+        pset.setFullyTracked();
+	std::string& from = i->first;
+	std::string to;
+	ParameterSetID newID(pset.id());
+	newID.toString(to);
+	insertIntoReplace(replace, loldparam, from, rparam, lparam, to, rparam);
+	insertIntoReplace(replace, comma, from, comma, comma, to, comma);
+	insertIntoReplace(replace, comma, from, rvparam, comma, to, rvparam);
+	insertIntoReplace(replace, loldvparam, from, comma, lvparam, to, comma);
+	insertIntoReplace(replace, loldvparam, from, rvparam, lvparam, to, rvparam);
+	if (i->second != newID && i->second != ParameterSetID()) {
+	  psetIdConverter.insert(std::make_pair(i->second, newID));
+	}
+	StringWithIDList::iterator icopy = i;
+	++i;
+	in.erase(icopy);
+	doItAgain = true;
+      } else {
+	++i;
+      }
+    }
+    if (!doItAgain && !in.empty()) {
+      for (StringWithIDList::iterator i = in.begin(), iEnd = in.end(); i != iEnd; ++i) {
+	std::list<std::string> pieces;
+	split(std::back_inserter(pieces), i->first, '<', ';', '>');
+	for (std::list<std::string>::iterator i= pieces.begin(), e = pieces.end(); i != e; ++i) {
+	  std::string removeName = i->substr(i->find('+'));
+	  if (removeName.size() >= 4) {
+	    if (removeName[1] == 'P') {
+	      std::string psetString(removeName.begin()+3, removeName.end()-1);
+	      in.push_back(std::make_pair(psetString, ParameterSetID()));
+	      doItAgain = true;
+	    } else if (removeName[1] == 'p') {
+	      std::string pvec = std::string(removeName.begin()+3, removeName.end()-1);
+	      StringList temp;
+	      split(std::back_inserter(temp), pvec, '{', ',', '}');
+	      for (StringList::const_iterator j = temp.begin(), f = temp.end(); j != f; ++j) {
+		in.push_back(std::make_pair(*j, ParameterSetID()));
+	      }
+	      doItAgain = true;
+	    }
+	  }	
+	}
+      }
+    }
+    if (doItAgain) {
+      convertParameterSets(in, replace, psetIdConverter);
+    }
+  }
   
-  //------------------------------------------------------------
-  // Class ProvenanceAdaptor: adapts old provenance (fileFormatVersion_.value_ < 11) to new provenance.
+  void
+  ProvenanceAdaptor::fixProcessHistory(ProcessHistoryMap& pHistMap,
+				       ProcessHistoryVector& pHistVector) {
+    assert (pHistMap.empty() != pHistVector.empty());
+    for (ProcessHistoryVector::const_iterator i = pHistVector.begin(), e = pHistVector.end(); i != e; ++i) {
+      pHistMap.insert(std::make_pair(i->id(), *i));
+    }
+    pHistVector.clear();
+    for (ProcessHistoryMap::const_iterator i = pHistMap.begin(), e = pHistMap.end(); i != e; ++i) {
+      ProcessHistory newHist;
+      ProcessHistoryID const& oldphID = i->first;
+      for (ProcessHistory::const_iterator it = i->second.begin(), et = i->second.end(); it != et; ++it) {
+	ParameterSetID const& newPsetID = convertID(it->parameterSetID());
+	newHist.push_back(ProcessConfiguration(it->processName(), newPsetID, it->releaseVersion(), it->passID()));
+      }
+      assert(newHist.size() == i->second.size());
+      ProcessHistoryID newphID = newHist.id();
+      pHistVector.push_back(newHist);
+      if (newphID != oldphID) {
+        processHistoryIdConverter_.insert(std::make_pair(oldphID, newphID));
+      }
+    }
+    assert(pHistVector.size() == pHistMap.size());
+  }
+
   namespace {
     typedef std::vector<std::string> OneHistory;
     typedef std::set<OneHistory> Histories;
@@ -49,12 +160,16 @@ namespace edm {
     }
 
     void
-    fillProcessConfiguration(ProcessHistoryMap const& pHistMap, ProcessConfigurationVector& procConfigVector) {
-      for (ProcessHistoryMap::const_iterator it = pHistMap.begin(), itEnd = pHistMap.end();
+    fillProcessConfiguration(ProcessHistoryVector const& pHistVec, ProcessConfigurationVector& procConfigVector) {
+      procConfigVector.clear();
+      std::set<ProcessConfiguration> pcset;
+      for (ProcessHistoryVector::const_iterator it = pHistVec.begin(), itEnd = pHistVec.end();
 	  it != itEnd; ++it) {
-        for (ProcessConfigurationVector::const_iterator i = it->second.begin(), iEnd = it->second.end();
+	for (ProcessConfigurationVector::const_iterator i = it->begin(), iEnd = it->end();
 	    i != iEnd; ++i) {
-	  procConfigVector.push_back(*i);
+	  if (pcset.insert(*i).second) {
+	    procConfigVector.push_back(*i);
+	  }
 	}
       }
     }
@@ -62,6 +177,14 @@ namespace edm {
     void
     fillMapsInProductRegistry(ProcessConfigurationVector const& procConfigVector,
 			      ProductRegistry& productRegistry) {
+      for (ProductRegistry::ProductList::iterator
+	    it = productRegistry.productListUpdator().begin(),
+	    itEnd = productRegistry.productListUpdator().end();
+	    it != itEnd; ++it) {
+	BranchDescription& bd = it->second;
+	bd.parameterSetIDs().clear();
+	bd.moduleNames().clear();
+      }
       std::string const triggerResults = std::string("TriggerResults");
       std::string const source = std::string("source");
       std::string const input = std::string("@main_input");
@@ -151,14 +274,39 @@ namespace edm {
 
   ProvenanceAdaptor::ProvenanceAdaptor(
 	     ProductRegistry& productRegistry,
-	     ProcessHistoryMap const& pHistMap,
-	     ProcessConfigurationVector& procConfigVector) :
-		productRegistry_(productRegistry),
+	     ProcessHistoryMap& pHistMap,
+	     ProcessHistoryVector& pHistVector,
+	     ProcessConfigurationVector& procConfigVector,
+	     ParameterSetIdConverter const& parameterSetIdConverter,
+	     bool fullConversion) :
+	        parameterSetIdConverter_(parameterSetIdConverter),
+	        processHistoryIdConverter_(),
 		branchIDLists_(),
 		branchListIndexes_() {
-    fillProcessConfiguration(pHistMap, procConfigVector);
+    fixProcessHistory(pHistMap, pHistVector);
+    fillProcessConfiguration(pHistVector, procConfigVector);
     fillMapsInProductRegistry(procConfigVector, productRegistry);
-    fillListsAndIndexes(productRegistry, pHistMap, branchIDLists_, branchListIndexes_);
+    if (fullConversion) {
+      fillListsAndIndexes(productRegistry, pHistMap, branchIDLists_, branchListIndexes_);
+    }
+  }
+
+  ParameterSetID const&
+  ProvenanceAdaptor::convertID(ParameterSetID const& oldID) const {
+    ParameterSetIdConverter::const_iterator it = parameterSetIdConverter_.find(oldID);
+    if (it == parameterSetIdConverter_.end()) {
+      return oldID;
+    }
+    return it->second; 
+  }
+
+  ProcessHistoryID const&
+  ProvenanceAdaptor::convertID(ProcessHistoryID const& oldID) const {
+    ProcessHistoryIdConverter::const_iterator it = processHistoryIdConverter_.find(oldID);
+    if (it == processHistoryIdConverter_.end()) {
+      return oldID;
+    }
+    return it->second; 
   }
 
   boost::shared_ptr<BranchIDLists const>
