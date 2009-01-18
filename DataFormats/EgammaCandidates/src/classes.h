@@ -1,5 +1,5 @@
 //
-// $Id: classes.h,v 1.28 2008/06/08 18:01:29 nancy Exp $
+// $Id: classes.h,v 1.29 2008/11/07 20:22:14 nancy Exp $
 //
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
@@ -42,7 +42,7 @@
 
 
 namespace {
-  namespace {
+  struct dictionary {
     reco::PhotonCollection v1;
     edm::Wrapper<reco::PhotonCollection> w1;
     edm::Ref<reco::PhotonCollection> r1;
@@ -55,8 +55,6 @@ namespace {
     edm::RefToBaseVector<reco::Photon> rtbvp;
     edm::Wrapper<edm::RefToBaseVector<reco::Photon> > rtbvp_w;
     edm::reftobase::BaseVectorHolder<reco::Photon> *bvhp_p;
-
-
 
     reco::ElectronCollection v2;
     edm::Wrapper<reco::ElectronCollection> w2;
@@ -77,8 +75,6 @@ namespace {
     edm::RefToBaseVector<reco::GsfElectron> rtbvg;
     edm::Wrapper<edm::RefToBaseVector<reco::GsfElectron> > rtbvg_w;
     edm::reftobase::BaseVectorHolder<reco::GsfElectron> *bvhg_p;
-
-
 
     reco::GsfElectronCollection v4;
     edm::Wrapper<reco::GsfElectronCollection> w4;
@@ -141,6 +137,5 @@ namespace {
 
     edm::Wrapper<reco::PhotonCandidateAssociation> pca1;
 
-
-  }
+  };
 }
