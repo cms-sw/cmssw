@@ -4,8 +4,8 @@
 /*
  * \file HcalMonitorModule.h
  *
- * $Date: 2008/11/06 18:02:33 $
- * $Revision: 1.37 $
+ * $Date: 2008/11/10 06:47:40 $
+ * $Revision: 1.38 $
  * \author W. Fisher
  *
 */
@@ -66,7 +66,6 @@
 #include <string>
 #include <sys/time.h>
 
-using namespace std;
 using namespace edm;
 
 class HcalMonitorModule : public EDAnalyzer{
