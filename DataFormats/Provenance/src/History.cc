@@ -23,9 +23,4 @@ namespace edm
     return eventSelections_[i];
   }
 
-  EventSelectionIDVector const&
-  History::eventSelectionIDs() const {
-    return eventSelections_;
-  }
-
 }

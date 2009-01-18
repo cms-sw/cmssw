@@ -38,7 +38,9 @@ namespace edm {
 
     EventSelectionID const& getEventSelectionID(size_type i) const;
 
-    EventSelectionIDVector const& eventSelectionIDs() const;
+    EventSelectionIDVector const& eventSelectionIDs() const {return eventSelections_;}
+
+    EventSelectionIDVector& eventSelectionIDs() {return eventSelections_;}
     
     ProcessHistoryID const& processHistoryID() const {return processHistoryID_;}
 
