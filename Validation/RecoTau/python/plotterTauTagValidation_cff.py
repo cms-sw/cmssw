@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 
 loadTau = cms.EDAnalyzer("DQMFileLoader",
   test = cms.PSet(
-    inputFileNames = cms.vstring('/afs/cern.ch/user/v/vasquez/scratch0/CMSSW_2_2_0/src/Validation/RecoTau/test/FastSim_CMSSW_2_2_0_tauGenJets.root'),
+    inputFileNames = cms.vstring('/afs/cern.ch/user/v/vasquez/scratch0/CMSSW_3_0_0_pre6/src/Validation/RecoTau/test/CMSSW_3_0_0_pre6_tauGenJets.root'),
     scaleFactor = cms.double(1.),
     dqmDirectory_store = cms.string('test')
   ),
@@ -18,12 +18,12 @@ plotPFTauEfficiencies = cms.EDAnalyzer("DQMHistPlotter",
   processes = cms.PSet(
     test = cms.PSet(
       dqmDirectory = cms.string('test'),
-      legendEntry = cms.string('CMSSW_2_2_0 FastSim'),
+      legendEntry = cms.string('CMSSW_3_0_0_pre6'),
       type = cms.string('smMC') # Data/smMC/bsmMC/smSumMC
     ),
     reference = cms.PSet(
       dqmDirectory = cms.string('reference'),
-      legendEntry = cms.string('CMSSW_2_2_0 FullSim'),
+      legendEntry = cms.string('CMSSW_2_2_0'),
       type = cms.string('smMC') # Data/smMC/bsmMC/smSumMC
     )
   ),
@@ -179,17 +179,17 @@ plotPFTauEfficiencies = cms.EDAnalyzer("DQMHistPlotter",
       drawOptionLegend = cms.string('p')
     ),
     eff_overlay05 = cms.PSet(
-      markerColor = cms.int32(5),
+      markerColor = cms.int32(6),
       markerSize = cms.double(1.),
       markerStyle = cms.int32(20),
-      lineColor = cms.int32(5),
+      lineColor = cms.int32(6),
       lineStyle = cms.int32(1),
       lineWidth = cms.int32(2),
       drawOption = cms.string('ex0'),
       drawOptionLegend = cms.string('p')
     ),
     eff_overlay06 = cms.PSet(
-      markerColor = cms.int32(6),
+      markerColor = cms.int32(5),
       markerSize = cms.double(1.),
       markerStyle = cms.int32(20),
       lineColor = cms.int32(5),
@@ -291,7 +291,7 @@ plotPFTauEfficiencies = cms.EDAnalyzer("DQMHistPlotter",
           dqmMonitorElements = cms.vstring('#PROCESSDIR#/RecoTauV/pfRecoTauProducer_pfRecoTauDiscriminationByTrackIsolation/TrackIsolationEff#PAR#'),
           process = cms.string('test'),
           drawOptionEntry = cms.string('eff_overlay03'),
-          legendEntry = cms.string('Track')
+          legendEntry = cms.string('Track Iso.')
         ),
         cms.PSet(
           dqmMonitorElements = cms.vstring('#PROCESSDIR#/RecoTauV/pfRecoTauProducer_pfRecoTauDiscriminationByECALIsolation/ECALIsolationEff#PAR#'),
@@ -333,12 +333,12 @@ plotPFTauHighEfficiencyEfficiencies = cms.EDAnalyzer("DQMHistPlotter",
   processes = cms.PSet(
     test = cms.PSet(
       dqmDirectory = cms.string('test'),
-      legendEntry = cms.string('CMSSW_2_2_0 FastSim'),
+      legendEntry = cms.string('CMSSW_3_0_0_pre6'),
       type = cms.string('smMC') # Data/smMC/bsmMC/smSumMC
     ),
     reference = cms.PSet(
       dqmDirectory = cms.string('reference'),
-      legendEntry = cms.string('CMSSW_2_2_0 FullSim'),
+      legendEntry = cms.string('CMSSW_2_2_0'),
       type = cms.string('smMC') # Data/smMC/bsmMC/smSumMC
     )
   ),
@@ -494,17 +494,17 @@ plotPFTauHighEfficiencyEfficiencies = cms.EDAnalyzer("DQMHistPlotter",
       drawOptionLegend = cms.string('p')
     ),
     eff_overlay05 = cms.PSet(
-      markerColor = cms.int32(5),
+      markerColor = cms.int32(6),
       markerSize = cms.double(1.),
       markerStyle = cms.int32(20),
-      lineColor = cms.int32(5),
+      lineColor = cms.int32(6),
       lineStyle = cms.int32(1),
       lineWidth = cms.int32(2),
       drawOption = cms.string('ex0'),
       drawOptionLegend = cms.string('p')
     ),
     eff_overlay06 = cms.PSet(
-      markerColor = cms.int32(6),
+      markerColor = cms.int32(5),
       markerSize = cms.double(1.),
       markerStyle = cms.int32(20),
       lineColor = cms.int32(5),
@@ -606,7 +606,7 @@ plotPFTauHighEfficiencyEfficiencies = cms.EDAnalyzer("DQMHistPlotter",
           dqmMonitorElements = cms.vstring('#PROCESSDIR#/RecoTauV/pfRecoTauProducerHighEfficiency_pfRecoTauDiscriminationByTrackIsolationHighEfficiency/TrackIsolationEff#PAR#'),
           process = cms.string('test'),
           drawOptionEntry = cms.string('eff_overlay03'),
-          legendEntry = cms.string('Track')
+          legendEntry = cms.string('Track Iso.')
         ),
         cms.PSet(
           dqmMonitorElements = cms.vstring('#PROCESSDIR#/RecoTauV/pfRecoTauProducerHighEfficiency_pfRecoTauDiscriminationByECALIsolationHighEfficiency/ECALIsolationEff#PAR#'),
@@ -651,12 +651,12 @@ plotCaloTauEfficiencies = cms.EDAnalyzer("DQMHistPlotter",
   processes = cms.PSet(
     test = cms.PSet(
       dqmDirectory = cms.string('test'),
-      legendEntry = cms.string('CMSSW_2_2_0 Fast Sim'),
+      legendEntry = cms.string('CMSSW_3_0_0_pre6'),
       type = cms.string('smMC') # Data/smMC/bsmMC/smSumMC
     ),
     reference = cms.PSet(
       dqmDirectory = cms.string('reference'),
-      legendEntry = cms.string('CMSSW_2_2_0 Full Sim'),
+      legendEntry = cms.string('CMSSW_2_2_0'),
       type = cms.string('smMC') # Data/smMC/bsmMC/smSumMC
     )
   ),
