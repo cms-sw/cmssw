@@ -118,6 +118,7 @@ class SiStripGainFromData : public ConditionDBWriter<SiStripApvGain> {
       bool         FirstSetOfConstants;
       bool         Validation;
       int          CalibrationLevel;
+      bool         CheckIfFileExist;
 
       std::string  AlgoMode;
       std::string  OutputGains;
@@ -206,6 +207,7 @@ class SiStripGainFromData : public ConditionDBWriter<SiStripApvGain> {
 //      TH2F*        MPV_vs_10RplusEta;
 
 
+      TH1F*        NSatStripInCluster;
       TH1F*        NHighStripInCluster;
 //      TH2F*        Charge_Vs_PathLength_CS1;
 //      TH2F*        Charge_Vs_PathLength_CS2;
@@ -307,6 +309,7 @@ SiStripGainFromData::SiStripGainFromData(const edm::ParameterSet& iConfig) : Con
    AllowSaturation     = iConfig.getUntrackedParameter<bool>    ("AllowSaturation"    ,  false);
    FirstSetOfConstants = iConfig.getUntrackedParameter<bool>    ("FirstSetOfConstants",  true);
    Validation          = iConfig.getUntrackedParameter<bool>    ("Validation"         ,  false);
+   CheckIfFileExist    = iConfig.getUntrackedParameter<bool>    ("CheckIfFileExist"   ,  false);
 
    CalibrationLevel    = iConfig.getUntrackedParameter<int>     ("CalibrationLevel"   ,  0);
 
@@ -332,7 +335,7 @@ SiStripGainFromData::algoBeginJob(const edm::EventSetup& iSetup)
 {
    iSetup_                  = &iSetup;
 
-   TH1::AddDirectory(kTRUE);
+//   TH1::AddDirectory(kTRUE);
 
    tmp  = dqmStore_->book1D ("JobInfo" , "JobInfo", 20,0,20); JobInfo = tmp->getTH1F();
 
@@ -394,6 +397,7 @@ SiStripGainFromData::algoBeginJob(const edm::EventSetup& iSetup)
    tmp  = dqmStore_->book2D ("NStrips_Vs_Alpha"         , "NStrips_Vs_Alpha"         , 220,-20,200, 10,0,10); NStrips_Vs_Alpha = tmp->getTH2F();
    tmp  = dqmStore_->book2D ("NStrips_Vs_Beta"          , "NStrips_Vs_Beta"          , 220,-20,200, 10,0,10); NStrips_Vs_Beta = tmp->getTH2F();
    tmp  = dqmStore_->book1D ("NHighStripInCluster"      , "NHighStripInCluster"      , 15,0,14); NHighStripInCluster = tmp->getTH1F();
+   tmp  = dqmStore_->book1D ("NSatStripInCluster"      ,  "NSatStripInCluster"       , 50,0,50); NSatStripInCluster = tmp->getTH1F();
 
    tmp  = dqmStore_->book1D ("TrackChi2OverNDF","TrackChi2OverNDF", 500, 0,10); HTrackChi2OverNDF = tmp->getTH1F();
    tmp  = dqmStore_->book1D ("TrackHits","TrackHits", 40, 0,40); HTrackHits = tmp->getTH1F();
@@ -552,13 +556,27 @@ SiStripGainFromData::algoBeginJob(const edm::EventSetup& iSetup)
 
 void 
 SiStripGainFromData::algoEndJob() {
+    cout << "START algoEndJobt\n";
+
+
    unsigned int I=0;
 
    if( strcmp(AlgoMode.c_str(),"WriteOnDB")==0 || strcmp(AlgoMode.c_str(),"Merge")==0){
+      TH1::AddDirectory(kTRUE);
+
       TFile* file = NULL;
       for(unsigned int f=0;f<VInputFiles.size();f++){
          printf("Loading New Input File : %s\n", VInputFiles[f].c_str());
-         file =  new TFile( VInputFiles[f].c_str() ); if(file==NULL || file->IsZombie() ){printf("### Bug With File %s\n### File will be skipped \n",VInputFiles[f].c_str()); continue;}
+ 	 if(CheckIfFileExist){
+	    FILE* doesFileExist = fopen( VInputFiles[f].c_str(), "r" );
+            if(!doesFileExist){
+		printf("File %s doesn't exist\n",VInputFiles[f].c_str());
+		continue;
+	    }else{
+		fclose(doesFileExist);
+	    }
+	 }
+         file =  new TFile( VInputFiles[f].c_str() ); if(!file || file->IsZombie() ){printf("### Bug With File %s\n### File will be skipped \n",VInputFiles[f].c_str()); continue;}
          APV_Charge               ->Add( (TH1*) file->FindObjectAny("APV_Charge")               , 1);
          APV_Momentum             ->Add( (TH1*) file->FindObjectAny("APV_Momentum")             , 1);
          APV_PathLength           ->Add( (TH1*) file->FindObjectAny("APV_PathLength")           , 1);
@@ -577,6 +595,7 @@ SiStripGainFromData::algoEndJob() {
          HTrackHits               ->Add( (TH1*) file->FindObjectAny("TrackHits")                , 1);
 
          NHighStripInCluster      ->Add( (TH1*) file->FindObjectAny("NHighStripInCluster")      , 1);
+         NSatStripInCluster       ->Add( (TH1*) file->FindObjectAny("NSatStripInCluster")       , 1);
          Charge_Vs_PathLength     ->Add( (TH1*) file->FindObjectAny("Charge_Vs_PathLength")     , 1);
          Charge_Vs_PathLength320  ->Add( (TH1*) file->FindObjectAny("Charge_Vs_PathLength320")  , 1);
          Charge_Vs_PathLength500  ->Add( (TH1*) file->FindObjectAny("Charge_Vs_PathLength500")  , 1);
@@ -931,34 +950,45 @@ SiStripGainFromData::algoEndJob() {
 //      delete Proj;
    }
 
+    cout << "START savingDQM\n";
+
+
    dqmStore_->cd();
    dqmStore_->save(OutputHistos.c_str());
+
+    cout << "END savingDQM\n";
+
+
+   cout << "END algoEndJob\n";
 }
 
 
 void SiStripGainFromData::algoBeginRun(const edm::Run &, const edm::EventSetup &iSetup){
+    cout << "START algoBeginRun\n";
 
-//void
-//SiStripGainFromData::algoBeginRun(const edm::Event& iEvent, const edm::EventSetup& iSetup){
-   edm::ESHandle<SiStripGain> gainHandle;
-//   if(strcmp(AlgoMode.c_str(),"MultiJob")!=0 && !FirstSetOfConstants){
-      iSetup.get<SiStripGainRcd>().get(gainHandle);
-      if(!gainHandle.isValid()){printf("\n#####################\n\nERROR --> gainHandle is not valid\n\n#####################\n\n");exit(0);}
+    edm::ESHandle<SiStripGain> gainHandle;
+    if((strcmp(AlgoMode.c_str(),"MultiJob")!=0 && !FirstSetOfConstants) || Validation){
+       iSetup.get<SiStripGainRcd>().get(gainHandle);
+       if(!gainHandle.isValid()){printf("\n#####################\n\nERROR --> gainHandle is not valid\n\n#####################\n\n");exit(0);}
 
 
-      for(std::vector<stAPVGain*>::iterator it = APVsCollOrdered.begin();it!=APVsCollOrdered.end();it++){
-         stAPVGain* APV = *it;
+       for(std::vector<stAPVGain*>::iterator it = APVsCollOrdered.begin();it!=APVsCollOrdered.end();it++){
+          stAPVGain* APV = *it;
 
-                if(gainHandle.isValid()){
-                   SiStripApvGain::Range detGainRange = gainHandle->getRange(APV->DetId);
-                   APV->PreviousGain = *(detGainRange.first + APV->APVId);
-                   APV_PrevGain->Fill(APV->Index,APV->PreviousGain);
-//                   printf("PrevGain = %f\n",APV->PreviousGain);
-                   if(APV->PreviousGain<0)APV->PreviousGain = 1;
-                }else{
-//                   printf("GAIN HANDLE IS NOT VALID\n");
-                }
+          if(gainHandle.isValid()){
+             SiStripApvGain::Range detGainRange = gainHandle->getRange(APV->DetId);
+             APV->PreviousGain = *(detGainRange.first + APV->APVId);
+//             APV_PrevGain->Fill(APV->Index,APV->PreviousGain);
+               APV_PrevGain->SetBinContent(APV_PrevGain->GetXaxis()->FindBin(APV->Index),APV->PreviousGain);
+             if(APV->PreviousGain<0)APV->PreviousGain = 1;
+           }else{
+              printf("GAIN HANDLE IS NOT VALID\n");
+           }
        }
+    }
+
+    cout << "END algoBeginRun\n";
+
 }
 
 
@@ -1065,7 +1095,7 @@ SiStripGainFromData::ComputeChargeOverPath(const SiStripRecHit2D* sistripsimpleh
    int                     FirstStrip  = Cluster->firstStrip();
    int                     APVId       = FirstStrip/128;
    stAPVGain*          APV         = APVsColl[(DetId<<3) | APVId];
-   bool                    Saturation  = false;
+   int                     Saturation  = 0;
    bool                    Overlaping  = false;
    int                     Charge      = 0;
    unsigned int            NHighStrip  = 0;
@@ -1104,12 +1134,14 @@ SiStripGainFromData::ComputeChargeOverPath(const SiStripRecHit2D* sistripsimpleh
    if(Overlaping)return -1;
 */
 
-   for(unsigned int a=0;a<Ampls.size();a++){Charge+=Ampls[a];if(Ampls[a]>=254)Saturation=true;if(Ampls[a]>=20)NHighStrip++;}
+   for(unsigned int a=0;a<Ampls.size();a++){Charge+=Ampls[a];if(Ampls[a]>=254)Saturation++;if(Ampls[a]>=20)NHighStrip++;}
    double path                    = (10.0*APV->Thickness)/fabs(cosine);
    double ClusterChargeOverPath   = (double)Charge / path ;
 
-   if(Ampls.size()>MaxNrStrips)      return -1;
-   if(Saturation && !AllowSaturation)return -1;
+   NSatStripInCluster->Fill(Saturation);
+
+   if(Ampls.size()>MaxNrStrips)        return -1;
+   if(Saturation>0 && !AllowSaturation)return -1;
                                            Charge_Vs_PathLength   ->Fill(path,Charge);
    if(APV->Thickness<0.04)                 Charge_Vs_PathLength320->Fill(path,Charge);
    if(APV->Thickness>0.04)                 Charge_Vs_PathLength500->Fill(path,Charge);
@@ -1245,6 +1277,8 @@ void SiStripGainFromData::getPeakOfLandau(TH1* InputHisto, double* FitResults, d
 
 SiStripApvGain* SiStripGainFromData::getNewObject() 
 {
+    cout << "START getNewObject\n";
+
 //  if( !(strcmp(AlgoMode.c_str(),"WriteOnDB")==0 || strcmp(AlgoMode.c_str(),"SingleJob")==0) )return NULL;
   if( !(strcmp(AlgoMode.c_str(),"WriteOnDB")==0 || strcmp(AlgoMode.c_str(),"SingleJob")==0) )return new SiStripApvGain();
 
@@ -1275,6 +1309,7 @@ SiStripApvGain* SiStripGainFromData::getNewObject()
       if ( !obj->put(PreviousDetId,range) )  printf("Bug to put detId = %i\n",PreviousDetId);
    }
 
+    cout << "END getNewObject\n";
    return obj;
 }
 
