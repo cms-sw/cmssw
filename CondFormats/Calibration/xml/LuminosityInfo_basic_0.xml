@@ -1,8 +1,13 @@
 <?xml version='1.0' encoding="UTF-8"?>
 <!DOCTYPE PoolDatabase SYSTEM "InMemory">
  <PoolDatabase >
-  <PoolContainer name="LuminosityInfoRcd" >
-   <Class name="lumi::LuminosityInfo" mapping_version="basic" >
+  <PoolContainer name="LuminosityInfoRcd">
+   <Class table="LUMINOSITYINFO" id_columns="IOV_VALUE_ID" name="lumi::LuminosityInfo" mapping_version="basic" >
+     <Primitive column="LUMINOSITYINFO_M_DEADTIME_NO_1" name="m_deadtime_normalization" />
+     <Primitive column="LUMINOSITYINFO_M_SECTIONID" name="m_sectionid" />
+     <Blob column="BUNCHCXINFO" name="m_bx" />
+     <Blob column="HLTINFO" name="m_hltinfo" />
+     <Blob column="LUMISUMMARY" name="m_summaryinfo" />
    </Class >
   </PoolContainer >
  </PoolDatabase >
