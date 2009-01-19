@@ -35,13 +35,14 @@ process.qTester    = cms.EDFilter("QualityTester",
 )
 
 
-###  DQM Client program (in DQMServices/Examples/src/DQMClientExample.cc)
+### DQM Client program (in DQMServices/Examples/src/DQMClientExample.cc)
+### by default: the client runs at the end of each lumisection
 process.dqmClient = cms.EDFilter("DQMClientExample",
     monitorName   = cms.untracked.string('YourSubsystemName'),
     QTestName     = cms.untracked.string('YRange'),                     
     prescaleEvt   = cms.untracked.int32(1),
     prescaleLS    =  cms.untracked.int32(1),                   
-    clientOnEachEvent = cms.untracked.bool(False) #run client on each event          
+    clientOnEachEvent = cms.untracked.bool(False) #run client on each event
 )
 
 # MessageLogger
