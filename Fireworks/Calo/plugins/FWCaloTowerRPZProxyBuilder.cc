@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Id: FWCaloTowerProxy3DBuilderBase.cc,v 1.1 2009/01/14 18:34:12 amraktad Exp $
+// $Id: FWCaloTowerRPZProxyBuilder.cc,v 1.1 2009/01/15 16:28:01 amraktad Exp $
 //
 
 // system include files
@@ -10,7 +10,7 @@
 #include "TH2F.h"
 
 // user include files
-#include "Fireworks/Calo/plugins/FWCaloTowerRPZProxyBuilderBase.h"
+#include "Fireworks/Calo/plugins/FWCaloTowerRPZProxyBuilder.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/fw3dlego_xbins.h"
 
@@ -111,3 +111,7 @@ FWCaloTowerRPZProxyBuilderBase::applyChangesToAllModels(TEveElement* iElements)
       m_data->DataChanged();
    }
 }
+
+
+REGISTER_FWRPZDATAPROXYBUILDERBASE(FWECalCaloTowerRPZProxyBuilder,CaloTowerCollection,"ECal");
+REGISTER_FWRPZDATAPROXYBUILDERBASE(FWHCalCaloTowerRPZProxyBuilder,CaloTowerCollection,"HCal");

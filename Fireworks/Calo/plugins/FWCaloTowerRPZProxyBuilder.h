@@ -1,9 +1,9 @@
 // -*- C++ -*-
-// $Id: FWCaloTowerProxy3DBuilderBase.h,v 1.1 2009/01/14 19:15:25 amraktad Exp $
+// $Id: FWCaloTowerRPZProxyBuilderBase.h,v 1.1 2009/01/15 16:28:01 amraktad Exp $
 //
 
-#ifndef Fireworks_Calo_CaloTowerProxy3DBuilderBase_h
-#define Fireworks_Calo_CaloTowerProxy3DBuilderBase_h
+#ifndef Fireworks_Calo_CaloTowerProxyRPZBuilder_h
+#define Fireworks_Calo_CaloTowerProxyRPZBuilder_h
 
 class TH2F;
 class TEveCaloDataHist;
@@ -41,5 +41,45 @@ private:
    TH2F*        m_hist;
    Int_t        m_sliceIndex;
 };
+
+//
+// ECal
+// 
+
+class FWECalCaloTowerRPZProxyBuilder : public FWCaloTowerRPZProxyBuilderBase
+{
+public:
+   FWECalCaloTowerRPZProxyBuilder(): FWCaloTowerRPZProxyBuilderBase(true, "ecal3D") {}
+   virtual ~FWECalCaloTowerRPZProxyBuilder() {}
+
+   // ---------- member functions ---------------------------
+   REGISTER_PROXYBUILDER_METHODS();
+
+private:
+   FWECalCaloTowerRPZProxyBuilder(const FWECalCaloTowerRPZProxyBuilder&); // stop default
+
+   const FWECalCaloTowerRPZProxyBuilder& operator=(const FWECalCaloTowerRPZProxyBuilder&); // stop default
+};
+
+//
+// HCal
+//
+
+class FWHCalCaloTowerRPZProxyBuilder : public FWCaloTowerRPZProxyBuilderBase
+{
+public:
+   FWHCalCaloTowerRPZProxyBuilder(): FWCaloTowerRPZProxyBuilderBase(false, "hcal3D") {}
+   virtual ~FWHCalCaloTowerRPZProxyBuilder() {}
+
+   // ---------- member functions ---------------------------
+   REGISTER_PROXYBUILDER_METHODS();
+
+private:
+   FWHCalCaloTowerRPZProxyBuilder(const FWHCalCaloTowerRPZProxyBuilder&); // stop default
+
+   const FWHCalCaloTowerRPZProxyBuilder& operator=(const FWHCalCaloTowerRPZProxyBuilder&); // stop default
+};
+
+
 
 #endif
