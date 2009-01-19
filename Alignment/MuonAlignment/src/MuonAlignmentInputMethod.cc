@@ -8,7 +8,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Thu Mar  6 14:25:07 CST 2008
-// $Id: MuonAlignmentInputMethod.cc,v 1.1 2008/03/15 20:26:46 pivarski Exp $
+// $Id: MuonAlignmentInputMethod.cc,v 1.2 2008/03/20 21:39:26 pivarski Exp $
 //
 
 // system include files
@@ -71,7 +71,8 @@ boost::shared_ptr<DTGeometry> MuonAlignmentInputMethod::idealDTGeometry(const ed
    iSetup.get<MuonNumberingRecord>().get(mdc);
    DTGeometryBuilderFromDDD DTGeometryBuilder;
 
-   boost::shared_ptr<DTGeometry> boost_dtGeometry = boost::shared_ptr<DTGeometry>(DTGeometryBuilder.build(&(*cpv), *mdc));
+   boost::shared_ptr<DTGeometry> boost_dtGeometry(new DTGeometry );
+   DTGeometryBuilder.build(boost_dtGeometry, &(*cpv), *mdc);
 
    return boost_dtGeometry;
 }

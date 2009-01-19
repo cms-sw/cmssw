@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Fri Mar 14 18:02:33 CDT 2008
-// $Id: MuonAlignmentOutputXML.cc,v 1.5 2008/05/17 17:17:30 pivarski Exp $
+// $Id: MuonAlignmentOutputXML.cc,v 1.6 2008/05/17 18:10:20 pivarski Exp $
 //
 
 // system include files
@@ -129,12 +129,13 @@ void MuonAlignmentOutputXML::write(AlignableMuon *alignableMuon, const edm::Even
       DTGeometryBuilderFromDDD DTGeometryBuilder;
       CSCGeometryBuilderFromDDD CSCGeometryBuilder;
  
-      DTGeometry *dtGeometry = DTGeometryBuilder.build(&(*cpv), *mdc);
+      boost::shared_ptr<DTGeometry> dtGeometry(new DTGeometry );
+      DTGeometryBuilder.build(dtGeometry, &(*cpv), *mdc);
 
       boost::shared_ptr<CSCGeometry> boost_cscGeometry(new CSCGeometry);
       CSCGeometryBuilder.build(boost_cscGeometry, &(*cpv), *mdc);
 
-      AlignableMuon ideal_alignableMuon(dtGeometry, &(*boost_cscGeometry));
+      AlignableMuon ideal_alignableMuon(&(*dtGeometry), &(*boost_cscGeometry));
 
       std::vector<Alignable*> ideal_barrels = ideal_alignableMuon.DTBarrel();
       std::vector<Alignable*> ideal_endcaps = ideal_alignableMuon.CSCEndcaps();
