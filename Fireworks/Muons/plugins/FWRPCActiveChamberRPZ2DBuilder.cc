@@ -1,45 +1,91 @@
-#include "Fireworks/Muons/interface/RPCActiveChamberProxyRhoPhiZ2DBuilder.h"
-#include "TEveTrack.h"
-#include "TEveTrackPropagator.h"
+// -*- C++ -*-
+//
+// Package:     Muons
+// Class  :     RPCActiveChamberProxyRhoPhiZ2DBuilder
+//
+//
+// Original Author:
+//         Created:  Sun Jan  6 23:42:33 EST 2008
+// $Id: RPCActiveChamberProxyRhoPhiZ2DBuilder.cc,v 1.1 2000/01/06 22:05:29 amraktad Exp $
+//
+
+
+#include "TEveStraightLineSet.h"
 #include "TEveManager.h"
+#include "TEveGeoNode.h"
+#include "TEveCompound.h"
+#include "TEvePointSet.h"
+
+#include "Fireworks/Core/interface/FWRPZ2DDataProxyBuilder.h"
+#include "Fireworks/Core/interface/TEveElementIter.h"
+#include "Fireworks/Core/interface/FWEventItem.h"
+#include "Fireworks/Core/src/changeElementAndChildren.h"
+
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
-#include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
-#include "TEveStraightLineSet.h"
-#include "Fireworks/Core/interface/FWEventItem.h"
-#include "RVersion.h"
-#include "TEveGeoNode.h"
-#include "Fireworks/Core/interface/TEveElementIter.h"
-#include "TColor.h"
-#include "TEvePolygonSetProjected.h"
 #include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
 #include "Fireworks/Core/interface/DetIdToMatrix.h"
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
 #include "Fireworks/Core/interface/FWDisplayEvent.h"
 #include "DataFormats/RPCRecHit/interface/RPCRecHitCollection.h"
 #include "Fireworks/Core/src/changeElementAndChildren.h"
-#include "TEveCompound.h"
 
-RPCActiveChamberProxyRhoPhiZ2DBuilder::RPCActiveChamberProxyRhoPhiZ2DBuilder()
+
+class FWRPCActiveChamberRPZ2DBuilder : public FWRPZ2DDataProxyBuilder
+{
+
+   public:
+      FWRPCActiveChamberRPZ2DBuilder();
+      virtual ~FWRPCActiveChamberRPZ2DBuilder();
+
+      // ---------- const member functions ---------------------
+
+      // ---------- static member functions --------------------
+      static void build(const FWEventItem* iItem,
+                        TEveElementList** product,
+                        bool rhoPhiProjection);
+      // ---------- member functions ---------------------------
+      REGISTER_PROXYBUILDER_METHODS();
+
+   private:
+      virtual void buildRhoPhi(const FWEventItem* iItem,
+                               TEveElementList** product);
+
+      virtual void buildRhoZ(const FWEventItem* iItem,
+                               TEveElementList** product);
+
+      virtual void modelChanges(const FWModelIds& iIds,
+                                TEveElement* iElements);
+      virtual void applyChangesToAllModels(TEveElement* iElements);
+
+      FWRPCActiveChamberRPZ2DBuilder(const FWRPCActiveChamberRPZ2DBuilder&); // stop default
+
+      const FWRPCActiveChamberRPZ2DBuilder& operator=(const FWRPCActiveChamberRPZ2DBuilder&); // stop default
+
+      // ---------- member data --------------------------------
+};
+
+
+FWRPCActiveChamberRPZ2DBuilder::FWRPCActiveChamberRPZ2DBuilder()
 {
 }
 
-RPCActiveChamberProxyRhoPhiZ2DBuilder::~RPCActiveChamberProxyRhoPhiZ2DBuilder()
+FWRPCActiveChamberRPZ2DBuilder::~FWRPCActiveChamberRPZ2DBuilder()
 {
 }
 
-void RPCActiveChamberProxyRhoPhiZ2DBuilder::buildRhoPhi(const FWEventItem* iItem, TEveElementList** product)
+void FWRPCActiveChamberRPZ2DBuilder::buildRhoPhi(const FWEventItem* iItem, TEveElementList** product)
 {
    build(iItem, product, true);
 }
 
-void RPCActiveChamberProxyRhoPhiZ2DBuilder::buildRhoZ(const FWEventItem* iItem, TEveElementList** product)
+void FWRPCActiveChamberRPZ2DBuilder::buildRhoZ(const FWEventItem* iItem, TEveElementList** product)
 {
    build(iItem, product, false);
 }
 
-void RPCActiveChamberProxyRhoPhiZ2DBuilder::build(const FWEventItem* iItem,
+void FWRPCActiveChamberRPZ2DBuilder::build(const FWEventItem* iItem,
 					    TEveElementList** product,
 					    bool rhoPhiProjection)
 {
@@ -123,7 +169,7 @@ void RPCActiveChamberProxyRhoPhiZ2DBuilder::build(const FWEventItem* iItem,
 }
 
 void
-RPCActiveChamberProxyRhoPhiZ2DBuilder::modelChanges(const FWModelIds& iIds, TEveElement* iElements)
+FWRPCActiveChamberRPZ2DBuilder::modelChanges(const FWModelIds& iIds, TEveElement* iElements)
 {
    //NOTE: don't use ids() since they were never filled in in the build* calls
 
@@ -134,7 +180,7 @@ RPCActiveChamberProxyRhoPhiZ2DBuilder::modelChanges(const FWModelIds& iIds, TEve
 }
 
 void
-RPCActiveChamberProxyRhoPhiZ2DBuilder::applyChangesToAllModels(TEveElement* iElements)
+FWRPCActiveChamberRPZ2DBuilder::applyChangesToAllModels(TEveElement* iElements)
 {
    //NOTE: don't use ids() since they may not have been filled in in the build* calls
    //  since this code and FWEventItem do not agree on the # of models made
@@ -149,4 +195,4 @@ RPCActiveChamberProxyRhoPhiZ2DBuilder::applyChangesToAllModels(TEveElement* iEle
    }
 }
 
-REGISTER_FWRPZDATAPROXYBUILDERBASE(RPCActiveChamberProxyRhoPhiZ2DBuilder,RPCRecHitCollection,"RPCHits");
+REGISTER_FWRPZDATAPROXYBUILDERBASE(FWRPCActiveChamberRPZ2DBuilder,RPCRecHitCollection,"RPCHits");
