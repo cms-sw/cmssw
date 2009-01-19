@@ -3,7 +3,7 @@ void SiPixelDigiCompare()
 
  gROOT ->Reset();
  char*  sfilename = "pixeldigihisto.root";
- char*  rfilename = "../data/pixeldigihisto.root"; 
+ char*  rfilename = "../pixeldigihisto.root"; 
 
  delete gROOT->GetListOfFiles()->FindObject(rfilename);
  delete gROOT->GetListOfFiles()->FindObject(sfilename);
@@ -67,12 +67,12 @@ void SiPixelDigiCompare()
       }
   }
 
- if(rfile->cd("DQMData/TrackerDigisV"))rfile->cd("DQMData/TrackerDigisV/TrackerDigis/Pixel");
- else rfile->cd("DQMData/TrackerDigis/Pixel");
+ if(rfile->cd("DQMData/Run 1/TrackerDigisV"))rfile->cd("DQMData/Run 1/TrackerDigisV/Run summary/TrackerDigis/Pixel");
+ else rfile->cd("DQMData/TrackerDigisV/TrackerDigis/Pixel");
  rdir=gDirectory;
 
- if(sfile->cd("DQMData/TrackerDigisV"))sfile->cd("DQMData/TrackerDigisV/TrackerDigis/Pixel");
- else sfile->cd("DQMData/TrackerDigis/Pixel");
+ if(sfile->cd("DQMData/Run 1/TrackerDigisV"))sfile->cd("DQMData/Run 1/TrackerDigisV/Run summary/TrackerDigis/Pixel");
+ else sfile->cd("DQMData/TrackerDigisV/TrackerDigis/Pixel");
  sdir=gDirectory; 
 
  gROOT->ProcessLine(".x HistoCompare.C");

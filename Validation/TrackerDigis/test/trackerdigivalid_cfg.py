@@ -13,18 +13,23 @@ process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 
 process.load("SimGeneral.MixingModule.mixNoPU_cfi")
 
-process.load("Configuration.StandardSequences.FakeConditions_cff")
+process.load('Configuration/StandardSequences/Digi_cff')
 
-process.load("SimTracker.Configuration.SimTracker_cff")
+process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
+process.GlobalTag.globaltag = 'IDEAL_30X::All'
+
 
 process.load("Validation.TrackerDigis.trackerDigisValidation_cff")
+process.pixelDigisValid.outputFile="pixeldigihisto.root"
+process.stripDigisValid.outputFile="stripdigihisto.root"
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(-1)
+    input = cms.untracked.int32(1)
 )
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('file:/tmp/genta/686C53F9-E933-DD11-B74E-001617DC1F70.root')
-)
+    fileNames = cms.untracked.vstring('/store/relval/CMSSW_3_0_0_pre6/RelValSingleMuPt10/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_30X_v1/0005/38E34C97-E8DD-DD11-8327-000423D94534.root'
+
+))
 
 process.Timing = cms.Service("Timing")
 

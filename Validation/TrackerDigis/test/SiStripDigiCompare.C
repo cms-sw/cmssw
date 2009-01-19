@@ -3,7 +3,7 @@ void SiStripDigiCompare()
 
  gROOT ->Reset();
  char*  sfilename = "stripdigihisto.root";
- char*  rfilename = "../data/stripdigihisto.root";
+ char*  rfilename = "../stripdigihisto.root";
 
  delete gROOT->GetListOfFiles()->FindObject(rfilename);
  delete gROOT->GetListOfFiles()->FindObject(sfilename); 
@@ -14,12 +14,12 @@ void SiStripDigiCompare()
  TFile * sfile = new TFile(sfilename);
  TDirectory * sdir=gDirectory; 
 
- if(rfile->cd("DQMData/TrackerDigisV"))rfile->cd("DQMData/TrackerDigisV/TrackerDigis/Strip");
- else rfile->cd("DQMData/TrackerDigis/Strip");
+ if(rfile->cd("DQMData/Run 1/TrackerDigisV"))rfile->cd("DQMData/Run 1/TrackerDigisV/Run summary/TrackerDigis/Strip");
+ else rfile->cd("DQMData/TrackerDigisV/TrackerDigis/Strip");
  rdir=gDirectory;
 
- if(sfile->cd("DQMData/TrackerDigisV"))sfile->cd("DQMData/TrackerDigisV/TrackerDigis/Strip");
- else sfile->cd("DQMData/TrackerDigis/Strip");
+ if(sfile->cd("DQMData/Run 1/TrackerDigisV"))sfile->cd("DQMData/Run 1/TrackerDigisV/Run summary/TrackerDigis/Strip");
+ else sfile->cd("DQMData/TrackerDigisV/TrackerDigis/Strip");
  sdir=gDirectory; 
 
 TLegend leg(0.3, 0.83, 0.55, 0.90);
