@@ -2,9 +2,9 @@
  * \file DQMSourceExample.cc
  * \author C.Leonidopoulos
  * Last Update:
- * $Date: 2008/08/12 10:12:29 $
- * $Revision: 1.16 $
- * $Author: markusm $
+ * $Date: 2009/01/09 15:42:54 $
+ * $Revision: 1.17 $
+ * $Author: dvolyans $
  *
  * Description: Simple example showing how to create a DQM source creating and filling
  * monitoring elements
@@ -19,49 +19,50 @@
 using namespace std;
 using namespace edm;
 
-
-// -----------------------------
-//  constructors and destructor
-// -----------------------------
-DQMSourceExample::DQMSourceExample( const edm::ParameterSet& ps ) {
+//==================================================================//
+//================= Constructor and Destructor =====================//
+//==================================================================//
+DQMSourceExample::DQMSourceExample( const edm::ParameterSet& ps ){
   parameters_ = ps;
   initialize();
 }
 
-
-DQMSourceExample::~DQMSourceExample() {
+DQMSourceExample::~DQMSourceExample(){
 }
 
-
-// ----------------------------------
+//==================================================================//
+//======================= Initialise ===============================//
+//==================================================================//
 void DQMSourceExample::initialize() {
 
-  counterLS_  = 0;
-  counterEvt_ = 0;
+  ////---- initialise Event and LS counters
+  counterEvt_ = 0; counterLS_  = 0;
 
-  // get back-end interface
+  ////---- get DQM store interface
   dbe_ = Service<DQMStore>().operator->();
 
-  // base folder for the contents of this job
+  ////---- define base folder for the contents of this job 
   monitorName_ = parameters_.getUntrackedParameter<string>("monitorName","YourSubsystemName");
   cout << "DQMSourceExample: Monitor name = " << monitorName_ << endl;
   if (monitorName_ != "" ) monitorName_ = monitorName_+"/" ;
-
+  
+  ////--- get steerable parameters
   prescaleLS_  = parameters_.getUntrackedParameter<int>("prescaleLS",  -1);
   cout << "DQMSourceExample: DQM lumi section prescale = " << prescaleLS_ << " lumi section(s)"<< endl;
-
   prescaleEvt_ = parameters_.getUntrackedParameter<int>("prescaleEvt", -1);
   cout << "DQMSourceExample: DQM event prescale = " << prescaleEvt_ << " events(s)"<< endl;
 
 }
 
-// ---------------------------------------------------------
+//==================================================================//
+//========================= beginJob ===============================//
+//==================================================================//
 void DQMSourceExample::beginJob(const EventSetup& context) {
 
-  // get back-end interface
+  ////---- get DQM store interface
   dbe_ = Service<DQMStore>().operator->();
 
-  //  create summ and cd into new folder
+  ////----  create summ and cd into new folder
   dbe_->setCurrentFolder(monitorName_+"DQMsource/Summary");
   summ = dbe_->book1D("summary", "Run Summary", 100, 0, 100); 
 
@@ -69,13 +70,15 @@ void DQMSourceExample::beginJob(const EventSetup& context) {
   // testing of Quality Tests 
   //-------------------------------------
 
-   // create and cd into new folder
+   ////---- create and cd into new folder
    dbe_->setCurrentFolder(monitorName_+"DQMsource/QTests");
 
-   // define histogram binning
+   ////---- define histogram binning
    NBINS = 40 ; XMIN  =  0.; XMAX  = 40.;
 
-  // book histograms for testsing of quality tests .
+  ////---- book histograms for testsing of quality tests
+  ////     a quality test applied to each of these histograms
+  ////     as defined in DQMServices/Examples/test/QualityTests.xml
   xTrue     = dbe_->book1D("XTrue",       "X Range QTest",                  NBINS, XMIN, XMAX);
   xFalse    = dbe_->book1D("XFalse",      "X Range QTest",                  NBINS, XMIN, XMAX);
   yTrue     = dbe_->book1D("YTrue",       "Y Range QTest",                  NBINS, XMIN, XMAX);
@@ -94,7 +97,7 @@ void DQMSourceExample::beginJob(const EventSetup& context) {
   // book several ME more  
   //-------------------------------------
 
-  //  create and cd into new folder
+  ////----  create and cd into new folder
   dbe_->setCurrentFolder(monitorName_+"DQMsource/C1");
   const int NBINS2 = 10;
  
@@ -102,6 +105,7 @@ void DQMSourceExample::beginJob(const EventSetup& context) {
   f1        = dbe_->bookFloat("float1");
   s1        = dbe_->bookString("s1", "My string");
   h1        = dbe_->book1D("histo1", "Example 1 1D histogram.", NBINS2, XMIN, XMAX);
+  h2        = dbe_->book1D("histo2", "Example 2 1D histogram.", NBINS, XMIN, XMAX);
   p1        = dbe_->bookProfile(  "prof1", "My profile 1D", NBINS,XMIN,XMAX,NBINS,XMIN,XMAX,"");
   p2        = dbe_->bookProfile2D("prof2", "My profile 2D", NBINS,XMIN,XMAX,NBINS,XMIN,XMAX,NBINS,XMIN,XMAX,"");
  
@@ -132,19 +136,24 @@ void DQMSourceExample::beginJob(const EventSetup& context) {
 
 }
 
-
-// ----------------------------------------------------------------------------
+//==================================================================//
+//========================= beginRun ===============================//
+//==================================================================//
 void DQMSourceExample::beginRun(const edm::Run& r, const EventSetup& context) {
 }
 
 
-// ------------------------------------------------------------------------
+//==================================================================//
+//==================== beginLuminosityBlock ========================//
+//==================================================================//
 void DQMSourceExample::beginLuminosityBlock(const LuminosityBlock& lumiSeg,
 					    const EventSetup& context) {
 }
 
 
-// ----------------------------------------------------------------------------
+//==================================================================//
+//==================== analyse (takes each event) ==================//
+//==================================================================//
 void DQMSourceExample::analyze(const Event& iEvent, const EventSetup& iSetup) {
   counterEvt_++;
   if (prescaleEvt_<1)  return;
@@ -177,6 +186,7 @@ void DQMSourceExample::analyze(const Event& iEvent, const EventSetup& iSetup) {
   wExpFalse->Fill( gRandom->Gaus(20,  2), gRandom->Gaus(20, 2), 1.);
   deadTrue->Fill(  gRandom->Gaus(20, 10), 2.);
   deadFalse->Fill( gRandom->Gaus(20,  4), 1.);
+  h2->Fill(  gRandom->Gaus(20,  4), 1.);
 
   for ( int i = 0; i != 10; ++i ) {
     float w = gRandom->Uniform(XMAX);
@@ -193,24 +203,24 @@ void DQMSourceExample::analyze(const Event& iEvent, const EventSetup& iSetup) {
 
 }
 
-
-// ----------------------------------------------------------------------
-
+//==================================================================//
+//========================= endLuminosityBlock =====================//
+//==================================================================//
 void DQMSourceExample::endLuminosityBlock(const LuminosityBlock& lumiSeg,
 					  const EventSetup& context) {
 
 }
 
-
-// ---------------------------------------------------------------------
-
+//==================================================================//
+//============================= endRun =============================//
+//==================================================================//
 void DQMSourceExample::endRun(const Run& r, const EventSetup& context) {
 
 }
 
-
-// ------------------------------
-
+//==================================================================//
+//============================= endJob =============================//
+//==================================================================//
 void DQMSourceExample::endJob() {
  
 }
