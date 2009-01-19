@@ -1,14 +1,14 @@
 // -*- C++ -*-
 //
 // Package:     Calo
-// Class  :     FWL1JetTrigProxyEveLegoBuilder
+// Class  :     FWL1JetTrigLegoEveProxyBuilder
 //
 // Implementation:
 //     <Notes on implementation>
 //
 // Original Author:  Chris Jones
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWL1JetTrigProxyEveLegoBuilder.cc,v 1.1 2009/01/13 20:10:02 amraktad Exp $
+// $Id: FWL1JetTrigLegoEveProxyBuilder.cc,v 1.1 2009/01/13 20:45:11 amraktad Exp $
 //
 
 // system include files
@@ -28,12 +28,12 @@
 #include "DataFormats/L1Trigger/interface/L1JetParticle.h"
 #include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h"
 
-class FWL1JetTrigProxyEveLegoBuilder : public FW3DLegoEveElementProxyBuilder
+class FWL1JetTrigLegoEveProxyBuilder : public FW3DLegoEveElementProxyBuilder
 {
 
    public:
-      FWL1JetTrigProxyEveLegoBuilder();
-      virtual ~FWL1JetTrigProxyEveLegoBuilder();
+      FWL1JetTrigLegoEveProxyBuilder();
+      virtual ~FWL1JetTrigLegoEveProxyBuilder();
 
       // ---------- const member functions ---------------------
 
@@ -44,37 +44,37 @@ class FWL1JetTrigProxyEveLegoBuilder : public FW3DLegoEveElementProxyBuilder
       virtual void build(const FWEventItem* iItem,
 			 TEveElementList** product);
 
-      FWL1JetTrigProxyEveLegoBuilder(const FWL1JetTrigProxyEveLegoBuilder&); // stop default
+      FWL1JetTrigLegoEveProxyBuilder(const FWL1JetTrigLegoEveProxyBuilder&); // stop default
 
-      const FWL1JetTrigProxyEveLegoBuilder& operator=(const FWL1JetTrigProxyEveLegoBuilder&); // stop default
+      const FWL1JetTrigLegoEveProxyBuilder& operator=(const FWL1JetTrigLegoEveProxyBuilder&); // stop default
 
 };
 
 //
 // constructors and destructor
 //
-FWL1JetTrigProxyEveLegoBuilder::FWL1JetTrigProxyEveLegoBuilder()
+FWL1JetTrigLegoEveProxyBuilder::FWL1JetTrigLegoEveProxyBuilder()
 {
 
 
 }
 
-// FWL1JetTrigProxyEveLegoBuilder::FWL1JetTrigProxyEveLegoBuilder(const FWL1JetTrigProxyEveLegoBuilder& rhs)
+// FWL1JetTrigLegoEveProxyBuilder::FWL1JetTrigLegoEveProxyBuilder(const FWL1JetTrigLegoEveProxyBuilder& rhs)
 // {
 //    // do actual copying here;
 // }
 
-FWL1JetTrigProxyEveLegoBuilder::~FWL1JetTrigProxyEveLegoBuilder()
+FWL1JetTrigLegoEveProxyBuilder::~FWL1JetTrigLegoEveProxyBuilder()
 {
 }
 
 //
 // assignment operators
 //
-// const FWL1JetTrigProxyEveLegoBuilder& FWL1JetTrigProxyEveLegoBuilder::operator=(const FWL1JetTrigProxyEveLegoBuilder& rhs)
+// const FWL1JetTrigLegoEveProxyBuilder& FWL1JetTrigLegoEveProxyBuilder::operator=(const FWL1JetTrigLegoEveProxyBuilder& rhs)
 // {
 //   //An exception safe implementation is
-//   FWL1JetTrigProxyEveLegoBuilder temp(rhs);
+//   FWL1JetTrigLegoEveProxyBuilder temp(rhs);
 //   swap(rhs);
 //
 //   return *this;
@@ -82,7 +82,7 @@ FWL1JetTrigProxyEveLegoBuilder::~FWL1JetTrigProxyEveLegoBuilder()
 
 
 void
-FWL1JetTrigProxyEveLegoBuilder::build(const FWEventItem* iItem, TEveElementList** product)
+FWL1JetTrigLegoEveProxyBuilder::build(const FWEventItem* iItem, TEveElementList** product)
 {
   TEveElementList* tList = *product;
 
@@ -139,5 +139,5 @@ FWL1JetTrigProxyEveLegoBuilder::build(const FWEventItem* iItem, TEveElementList*
 
 }
 
-REGISTER_FW3DLEGODATAPROXYBUILDER(FWL1JetTrigProxyEveLegoBuilder,l1extra::L1JetParticleCollection,"L1-Jets");
+REGISTER_FW3DLEGODATAPROXYBUILDER(FWL1JetTrigLegoEveProxyBuilder,l1extra::L1JetParticleCollection,"L1-Jets");
 
