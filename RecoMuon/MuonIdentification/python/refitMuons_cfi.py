@@ -8,9 +8,39 @@ import FWCore.ParameterSet.Config as cms
 # function found in DataFormats/MuonReco/src/MuonCocktails.cc.
 
 refitMuons = cms.EDProducer('MuonsFromRefitTracksProducer',
-    src           = cms.InputTag('muons'),
-    tevMuonTracks = cms.untracked.string('tevMuons'),
-    fromCocktail  = cms.untracked.bool(True),
-    fromTMR       = cms.untracked.bool(False),
-    TMRcut        = cms.untracked.double(3.5)
+    # The input MuonCollection from which the starting Muon objects
+    # will be taken. The module will only consider globalMuons from
+    # the merged muon collection.
+    src               = cms.InputTag('muons'),
+
+    # The particular set of refit tracks to use. Could also be
+    # 'tevMuons:default', 'tevMuons:picky', or 'tevMuons:firstHit' to
+    # use the corresponding refits; 'none' to use this module as just
+    # a filter for globalMuons (as opposed to trackerMuons or
+    # caloMuons); to make Muons out of the cocktail tracks, 'tevMuons'
+    # by itself must be used (also specifying fromCocktail = True
+    # below).
+    tevMuonTracks     = cms.string('tevMuons'),
+
+    # Exactly one of the below boolean flags may be True (determines
+    # the refit track picked for each muon).
+
+    # Whether to call muon::tevOptimized as in the above code and use
+    # the result of the cocktail choice.
+    fromCocktail = cms.bool(True),
+
+    # Whether to replace the input muons' kinematics with that of the
+    # tracker-only fit. I.e., the muon's momentum, vertex, and charge are
+    # taken from the track accessed by reco::Muon::innerTrack().
+    fromTrackerTrack = cms.bool(False),
+
+    # Whether to apply the TMR cocktail algorithm. For each muon track, we
+    # start with the first-muon-hit fit. If the difference in -ln(chi^2
+    # tail probability) between the first-muon-hit and tracker-only is
+    # greater than the below prescribed cut value, the tracker-only fit
+    # replaces the first-muon-hit. For further details see XXX.
+    fromTMR           = cms.bool(False),
+
+    # The cut value used in the TMR cocktail.
+    TMRcut            = cms.double(4.0)
 )

@@ -3,7 +3,7 @@
   \brief    Replaces the kinematic information in the input muons with those of the chosen refit tracks.
 
   \author   Jordan Tucker
-  \version  $Id: MuonsFromRefitTracksProducer.cc,v 1.4 2008/12/12 16:14:23 tucker Exp $
+  \version  $Id: MuonsFromRefitTracksProducer.cc,v 1.5 2009/01/12 16:47:28 tucker Exp $
 */
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -117,11 +117,11 @@ private:
 
 MuonsFromRefitTracksProducer::MuonsFromRefitTracksProducer(const ParameterSet& cfg)
   : src(cfg.getParameter<InputTag>("src")),
-    fromTrackerTrack(cfg.getUntrackedParameter<bool>("fromTrackerTrack", false)),
-    tevMuonTracks(cfg.getUntrackedParameter<string>("tevMuonTracks", "none")),
-    fromCocktail(cfg.getUntrackedParameter<bool>("fromCocktail", false)),
-    fromTMR(cfg.getUntrackedParameter<bool>("fromTMR", false)),
-    TMRcut(cfg.getUntrackedParameter<double>("TMRcut", 3.5))
+    fromTrackerTrack(cfg.getParameter<bool>("fromTrackerTrack")),
+    tevMuonTracks(cfg.getParameter<string>("tevMuonTracks")),
+    fromCocktail(cfg.getParameter<bool>("fromCocktail")),
+    fromTMR(cfg.getParameter<bool>("fromTMR")),
+    TMRcut(cfg.getParameter<double>("TMRcut"))
 {
   fromTeVRefit = tevMuonTracks != "none";
   produces<MuonCollection>();
