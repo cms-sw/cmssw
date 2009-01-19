@@ -1,21 +1,23 @@
 // -*- C++ -*-
 //
 // Package:     Calo
-// Class  :     FWL1MuonTrigProxyRhoPhiZ2DBuilder
+// Class  :     FWL1JetTrigRPZ2DProxyBuilder
 //
 // Implementation:
 //     <Notes on implementation>
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWL1MuonTrigProxyRhoPhiZ2DBuilder.cc,v 1.8 2008/12/12 04:15:46 chrjones Exp $
+// $Id: FWL1JetTrigRPZ2DProxyBuilder.cc,v 1.1 2009/01/14 19:41:44 amraktad Exp $
 //
-
+//
 // system include files
-#include "TEveGeoNode.h"
 #include "TEveManager.h"
 #include "TEveScalableStraightLineSet.h"
 #include "TEveCompound.h"
+
+#include <boost/shared_ptr.hpp>
+#include <boost/mem_fn.hpp>
 
 // user include files
 #include "Fireworks/Core/interface/FWRPZ2DDataProxyBuilder.h"
@@ -23,16 +25,16 @@
 #include "Fireworks/Core/interface/FW3DLegoDataProxyBuilder.h"
 #include "Fireworks/Core/interface/BuilderUtils.h"
 
-#include "DataFormats/L1Trigger/interface/L1MuonParticle.h"
-#include "DataFormats/L1Trigger/interface/L1MuonParticleFwd.h"
+#include "DataFormats/L1Trigger/interface/L1JetParticle.h"
+#include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h"
 #include "Fireworks/Core/interface/FWDisplayEvent.h"
 
-class FWL1MuonTrigProxyRhoPhiZ2DBuilder : public FWRPZ2DDataProxyBuilder
+class FWL1JetTrigRPZ2DProxyBuilder : public FWRPZ2DDataProxyBuilder
 {
 
    public:
-      FWL1MuonTrigProxyRhoPhiZ2DBuilder();
-      virtual ~FWL1MuonTrigProxyRhoPhiZ2DBuilder();
+      FWL1JetTrigRPZ2DProxyBuilder();
+      virtual ~FWL1JetTrigRPZ2DProxyBuilder();
 
       // ---------- const member functions ---------------------
 
@@ -50,34 +52,35 @@ class FWL1MuonTrigProxyRhoPhiZ2DBuilder : public FWRPZ2DDataProxyBuilder
 
       double getTheta( double eta ) { return 2*atan(exp(-eta)); }
 
-      FWL1MuonTrigProxyRhoPhiZ2DBuilder(const FWL1MuonTrigProxyRhoPhiZ2DBuilder&); // stop default
+      FWL1JetTrigRPZ2DProxyBuilder(const FWL1JetTrigRPZ2DProxyBuilder&); // stop default
 
-      const FWL1MuonTrigProxyRhoPhiZ2DBuilder& operator=(const FWL1MuonTrigProxyRhoPhiZ2DBuilder&); // stop default
+      const FWL1JetTrigRPZ2DProxyBuilder& operator=(const FWL1JetTrigRPZ2DProxyBuilder&); // stop default
 
       // ---------- member data --------------------------------
 };
 
+
 //
 // constructors and destructor
 //
-FWL1MuonTrigProxyRhoPhiZ2DBuilder::FWL1MuonTrigProxyRhoPhiZ2DBuilder()
+FWL1JetTrigRPZ2DProxyBuilder::FWL1JetTrigRPZ2DProxyBuilder()
 {
 }
 
-// FWL1MuonTrigProxyRhoPhiZ2DBuilder::FWL1MuonTrigProxyRhoPhiZ2DBuilder(const FWL1MuonTrigProxyRhoPhiZ2DBuilder& rhs)
+// FWL1JetTrigRPZ2DProxyBuilder::FWL1JetTrigRPZ2DProxyBuilder(const FWL1JetTrigRPZ2DProxyBuilder& rhs)
 // {
 //    // do actual copying here;
 // }
 
-FWL1MuonTrigProxyRhoPhiZ2DBuilder::~FWL1MuonTrigProxyRhoPhiZ2DBuilder()
+FWL1JetTrigRPZ2DProxyBuilder::~FWL1JetTrigRPZ2DProxyBuilder()
 {
 }
 
 //
-// mmuonber functions
+// mjetber functions
 //
 void
-FWL1MuonTrigProxyRhoPhiZ2DBuilder::buildRhoPhi(const FWEventItem* iItem,
+FWL1JetTrigRPZ2DProxyBuilder::buildRhoPhi(const FWEventItem* iItem,
 					    TEveElementList** product)
 {
 
@@ -89,26 +92,30 @@ FWL1MuonTrigProxyRhoPhiZ2DBuilder::buildRhoPhi(const FWEventItem* iItem,
     tList =  new TEveElementList(iItem->name().c_str(),"L1 RhoPhi",true);
     *product = tList;
     tList->SetMainColor(iItem->defaultDisplayProperties().color());
+    gEve->AddElement(tList);
   } else {
     tList->DestroyElements();
   }
 
-  // Get the particle map collection for L1MuonParticles
-  l1extra::L1MuonParticleCollection const * triggerColl=0;
+
+
+  // Get the particle map collection for L1JetParticles
+  l1extra::L1JetParticleCollection const * triggerColl=0;
   iItem->get(triggerColl);
   if(0==triggerColl) return;
 
+  // make a counter
    double r_ecal = 126;
-   fw::NamedCounter counter("l1muontrigs");
+   fw::NamedCounter counter("l1jettrigs");
 
    // Ready to loop over the triggered objects
-   l1extra::L1MuonParticleCollection::const_iterator trigIt = triggerColl->begin(),
+   l1extra::L1JetParticleCollection::const_iterator trigIt = triggerColl->begin(),
      trigEnd = triggerColl->end();
    // Loop over triggered objects and make some 4-vectors
-   for ( ; trigIt != trigEnd; ++trigIt ) {
+   for ( ; trigIt != trigEnd; ++trigIt, ++counter ) {
       const unsigned int nBuffer = 1024;
       char title[nBuffer];
-      snprintf(title, nBuffer, "L1 Muon %d, Et: %0.1f GeV",counter.index(),trigIt->et());
+      snprintf(title, nBuffer,"L1 Jet %d, Et: %0.1f GeV",counter.index(),trigIt->et());
      TEveCompound* container = new TEveCompound( counter.str().c_str(), title );
      container->OpenCompound();
      //guarantees that CloseCompound will be called no matter what happens
@@ -118,8 +125,8 @@ FWL1MuonTrigProxyRhoPhiZ2DBuilder::buildRhoPhi(const FWEventItem* iItem,
      double size = trigIt->pt();
 
       TEveScalableStraightLineSet* marker = new TEveScalableStraightLineSet("energy");
-      marker->SetLineWidth(1);
-      marker->SetLineStyle(7);
+      marker->SetLineWidth(2);
+      marker->SetLineStyle(2);
       marker->SetLineColor(  iItem->defaultDisplayProperties().color() );
       marker->SetScaleCenter( r_ecal*cos(phi), r_ecal*sin(phi), 0 );
       marker->AddLine( r_ecal*cos(phi), r_ecal*sin(phi), 0, (r_ecal+size)*cos(phi), (r_ecal+size)*sin(phi), 0);
@@ -129,13 +136,13 @@ FWL1MuonTrigProxyRhoPhiZ2DBuilder::buildRhoPhi(const FWEventItem* iItem,
 
      tList->AddElement(container);
 
-   }// end loop over muon particle objects
+   }// end loop over jet particle objects
 
 }
 
 
 void
-FWL1MuonTrigProxyRhoPhiZ2DBuilder::buildRhoZ(const FWEventItem* iItem,
+FWL1JetTrigRPZ2DProxyBuilder::buildRhoZ(const FWEventItem* iItem,
 					    TEveElementList** product)
 {
 
@@ -147,29 +154,32 @@ FWL1MuonTrigProxyRhoPhiZ2DBuilder::buildRhoZ(const FWEventItem* iItem,
     tList =  new TEveElementList(iItem->name().c_str(),"L1 RhoZ",true);
     *product = tList;
     tList->SetMainColor(iItem->defaultDisplayProperties().color());
+    gEve->AddElement(tList);
   } else {
     tList->DestroyElements();
   }
 
-  // Get the particle map collection for L1MuonParticles
-  l1extra::L1MuonParticleCollection const * triggerColl=0;
+
+
+  // Get the particle map collection for L1JetParticles
+  l1extra::L1JetParticleCollection const * triggerColl=0;
   iItem->get(triggerColl);
   if(0==triggerColl) return;
 
    double z_ecal = 306; // ECAL endcap inner surface
    double r_ecal = 126;
    double transition_angle = atan(r_ecal/z_ecal);
-   fw::NamedCounter counter("l1muontrigs");
+   fw::NamedCounter counter("l1jettrigs");
 
 
    // Ready to loop over the triggered objects
-   l1extra::L1MuonParticleCollection::const_iterator trigIt = triggerColl->begin(),
+   l1extra::L1JetParticleCollection::const_iterator trigIt = triggerColl->begin(),
      trigEnd = triggerColl->end();
    // Loop over triggered objects and make some 4-vectors
-   for ( ; trigIt != trigEnd; ++trigIt ) {
+   for ( ; trigIt != trigEnd; ++trigIt, ++counter ) {
       const unsigned int nBuffer = 1024;
       char title[nBuffer];
-      snprintf(title, nBuffer, "L1 Muon %d, Et: %0.1f GeV",counter.index(),trigIt->et());
+      snprintf(title, nBuffer,"L1 Jet %d, Et: %0.1f GeV",counter.index(),trigIt->et());
      TEveCompound* container = new TEveCompound( counter.str().c_str(), title );
      container->OpenCompound();
      //guarantees that CloseCompound will be called no matter what happens
@@ -190,8 +200,8 @@ FWL1MuonTrigProxyRhoPhiZ2DBuilder::buildRhoZ(const FWEventItem* iItem,
      double size = trigIt->pt();
 
       TEveScalableStraightLineSet* marker = new TEveScalableStraightLineSet("energy");
-      marker->SetLineWidth(1);
-      marker->SetLineStyle(7);
+      marker->SetLineWidth(2);
+      marker->SetLineStyle(2);
       marker->SetLineColor(  iItem->defaultDisplayProperties().color() );
       marker->SetScaleCenter(0., (trigIt->phi()>0 ? r*fabs(sin(theta)) : -r*fabs(sin(theta))), r*cos(theta));
       marker->AddLine(0., (trigIt->phi()>0 ? r*fabs(sin(theta)) : -r*fabs(sin(theta))), r*cos(theta),
@@ -201,8 +211,10 @@ FWL1MuonTrigProxyRhoPhiZ2DBuilder::buildRhoZ(const FWEventItem* iItem,
       container->SetRnrChildren( iItem->defaultDisplayProperties().isVisible() );
      tList->AddElement(container);
 
-   }// end loop over muon particle objects
+
+
+   }// end loop over jet particle objects
 
 }
 
-REGISTER_FWRPZDATAPROXYBUILDERBASE(FWL1MuonTrigProxyRhoPhiZ2DBuilder,l1extra::L1MuonParticleCollection,"L1-Muons");
+REGISTER_FWRPZDATAPROXYBUILDERBASE(FWL1JetTrigRPZ2DProxyBuilder,l1extra::L1JetParticleCollection,"L1-Jets");

@@ -1,14 +1,14 @@
 // -*- C++ -*-
 //
 // Package:     Calo
-// Class  :     FWL1EmTrigProxyRhoPhiZ2DBuilder
+// Class  :     FWL1EmTrigRPZ2DProxyBuilder
 //
 // Implementation:
 //     <Notes on implementation>
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWL1EmTrigProxyRhoPhiZ2DBuilder.cc,v 1.1 2000/01/15 04:15:46 chrjones Exp $
+// $Id: FWL1EmTrigRPZ2DProxyBuilder.cc,v 1.1 2009/01/15 18:28:56 amraktad Exp $
 //
 
 // system include files
@@ -30,12 +30,12 @@
 
 
 class TEveGeoShapeExtract;
-class FWL1EmTrigProxyRhoPhiZ2DBuilder : public FWRPZ2DDataProxyBuilder
+class FWL1EmTrigRPZ2DProxyBuilder : public FWRPZ2DDataProxyBuilder
 {
 
    public:
-      FWL1EmTrigProxyRhoPhiZ2DBuilder();
-      virtual ~FWL1EmTrigProxyRhoPhiZ2DBuilder();
+      FWL1EmTrigRPZ2DProxyBuilder();
+      virtual ~FWL1EmTrigRPZ2DProxyBuilder();
 
       // ---------- const member functions ---------------------
 
@@ -53,9 +53,9 @@ class FWL1EmTrigProxyRhoPhiZ2DBuilder : public FWRPZ2DDataProxyBuilder
 
       double getTheta( double eta ) { return 2*atan(exp(-eta)); }
 
-      FWL1EmTrigProxyRhoPhiZ2DBuilder(const FWL1EmTrigProxyRhoPhiZ2DBuilder&); // stop default
+      FWL1EmTrigRPZ2DProxyBuilder(const FWL1EmTrigRPZ2DProxyBuilder&); // stop default
 
-      const FWL1EmTrigProxyRhoPhiZ2DBuilder& operator=(const FWL1EmTrigProxyRhoPhiZ2DBuilder&); // stop default
+      const FWL1EmTrigRPZ2DProxyBuilder& operator=(const FWL1EmTrigRPZ2DProxyBuilder&); // stop default
 
       // ---------- member data --------------------------------
 };
@@ -63,11 +63,11 @@ class FWL1EmTrigProxyRhoPhiZ2DBuilder : public FWRPZ2DDataProxyBuilder
 //
 // constructors and destructor
 //
-FWL1EmTrigProxyRhoPhiZ2DBuilder::FWL1EmTrigProxyRhoPhiZ2DBuilder()
+FWL1EmTrigRPZ2DProxyBuilder::FWL1EmTrigRPZ2DProxyBuilder()
 {
 }
 
-FWL1EmTrigProxyRhoPhiZ2DBuilder::~FWL1EmTrigProxyRhoPhiZ2DBuilder()
+FWL1EmTrigRPZ2DProxyBuilder::~FWL1EmTrigRPZ2DProxyBuilder()
 {
 }
 
@@ -75,7 +75,7 @@ FWL1EmTrigProxyRhoPhiZ2DBuilder::~FWL1EmTrigProxyRhoPhiZ2DBuilder()
 // member functions
 //
 void
-FWL1EmTrigProxyRhoPhiZ2DBuilder::buildRhoPhi(const FWEventItem* iItem,
+FWL1EmTrigRPZ2DProxyBuilder::buildRhoPhi(const FWEventItem* iItem,
 					    TEveElementList** product)
 {
 
@@ -135,7 +135,7 @@ FWL1EmTrigProxyRhoPhiZ2DBuilder::buildRhoPhi(const FWEventItem* iItem,
 
 
 void
-FWL1EmTrigProxyRhoPhiZ2DBuilder::buildRhoZ(const FWEventItem* iItem,
+FWL1EmTrigRPZ2DProxyBuilder::buildRhoZ(const FWEventItem* iItem,
 					    TEveElementList** product)
 {
 
@@ -208,4 +208,4 @@ FWL1EmTrigProxyRhoPhiZ2DBuilder::buildRhoZ(const FWEventItem* iItem,
 
 }
 
-REGISTER_FWRPZDATAPROXYBUILDERBASE(FWL1EmTrigProxyRhoPhiZ2DBuilder,l1extra::L1EmParticleCollection,"L1EmTrig");
+REGISTER_FWRPZDATAPROXYBUILDERBASE(FWL1EmTrigRPZ2DProxyBuilder,l1extra::L1EmParticleCollection,"L1EmTrig");

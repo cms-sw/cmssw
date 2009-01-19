@@ -1,14 +1,14 @@
 // -*- C++ -*-
 //
 // Package:     Calo
-// Class  :     FWL1MetProxyRhoPhiZ2DBuilder
+// Class  :     FWL1MetRPZ2DProxyBuilder
 //
 // Implementation:
 //     <Notes on implementation>
 //
 // Original Author:  Chris Jones
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWL1MetProxyRhoPhiZ2DBuilder.cc,v 1.5 2009/01/13 20:15:46 amraktad Exp $
+// $Id: FWL1MetRPZ2DProxyBuilder.cc,v 1.1 2009/01/13 20:45:11 amraktad Exp $
 //
 
 // system include files
@@ -35,12 +35,12 @@
 #include "DataFormats/FWLite/interface/Event.h"
 #include "DataFormats/FWLite/interface/Handle.h"
 
-class FWL1MetProxyRhoPhiZ2DBuilder : public FWRPZ2DDataProxyBuilder
+class FWL1MetRPZ2DProxyBuilder : public FWRPZ2DDataProxyBuilder
 {
 
    public:
-      FWL1MetProxyRhoPhiZ2DBuilder();
-      virtual ~FWL1MetProxyRhoPhiZ2DBuilder();
+      FWL1MetRPZ2DProxyBuilder();
+      virtual ~FWL1MetRPZ2DProxyBuilder();
 
       // ---------- const member functions ---------------------
       REGISTER_PROXYBUILDER_METHODS();
@@ -58,9 +58,9 @@ class FWL1MetProxyRhoPhiZ2DBuilder : public FWRPZ2DDataProxyBuilder
 
       double getTheta( double eta ) { return 2*atan(exp(-eta)); }
 
-      FWL1MetProxyRhoPhiZ2DBuilder(const FWL1MetProxyRhoPhiZ2DBuilder&); // stop default
+      FWL1MetRPZ2DProxyBuilder(const FWL1MetRPZ2DProxyBuilder&); // stop default
 
-      const FWL1MetProxyRhoPhiZ2DBuilder& operator=(const FWL1MetProxyRhoPhiZ2DBuilder&); // stop default
+      const FWL1MetRPZ2DProxyBuilder& operator=(const FWL1MetRPZ2DProxyBuilder&); // stop default
 
       // ---------- member data --------------------------------
 };
@@ -68,16 +68,16 @@ class FWL1MetProxyRhoPhiZ2DBuilder : public FWRPZ2DDataProxyBuilder
 //
 // constructors and destructor
 //
-FWL1MetProxyRhoPhiZ2DBuilder::FWL1MetProxyRhoPhiZ2DBuilder()
+FWL1MetRPZ2DProxyBuilder::FWL1MetRPZ2DProxyBuilder()
 {
 }
 
-// FWL1MetProxyRhoPhiZ2DBuilder::FWL1MetProxyRhoPhiZ2DBuilder(const FWL1MetProxyRhoPhiZ2DBuilder& rhs)
+// FWL1MetRPZ2DProxyBuilder::FWL1MetRPZ2DProxyBuilder(const FWL1MetRPZ2DProxyBuilder& rhs)
 // {
 //    // do actual copying here;
 // }
 
-FWL1MetProxyRhoPhiZ2DBuilder::~FWL1MetProxyRhoPhiZ2DBuilder()
+FWL1MetRPZ2DProxyBuilder::~FWL1MetRPZ2DProxyBuilder()
 {
 }
 
@@ -85,7 +85,7 @@ FWL1MetProxyRhoPhiZ2DBuilder::~FWL1MetProxyRhoPhiZ2DBuilder()
 // member functions
 //
 void
-FWL1MetProxyRhoPhiZ2DBuilder::buildRhoPhi(const FWEventItem* iItem,
+FWL1MetRPZ2DProxyBuilder::buildRhoPhi(const FWEventItem* iItem,
 					    TEveElementList** product)
 {
    TEveElementList* tList = *product;
@@ -140,7 +140,7 @@ FWL1MetProxyRhoPhiZ2DBuilder::buildRhoPhi(const FWEventItem* iItem,
 }
 
 void
-FWL1MetProxyRhoPhiZ2DBuilder::buildRhoZ(const FWEventItem* iItem,
+FWL1MetRPZ2DProxyBuilder::buildRhoZ(const FWEventItem* iItem,
 					    TEveElementList** product)
 {
    TEveElementList* tList = *product;
@@ -192,4 +192,4 @@ FWL1MetProxyRhoPhiZ2DBuilder::buildRhoZ(const FWEventItem* iItem,
    }
 }
 
-REGISTER_FWRPZDATAPROXYBUILDERBASE(FWL1MetProxyRhoPhiZ2DBuilder,l1extra::L1EtMissParticleCollection,"L1-MET");
+REGISTER_FWRPZDATAPROXYBUILDERBASE(FWL1MetRPZ2DProxyBuilder,l1extra::L1EtMissParticleCollection,"L1-MET");
