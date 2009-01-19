@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
 // Package:     Calo
-// Class  :     FWL1MetProxyEveLegoBuilder
+// Class  :     FWL1MetLegoEveProxyBuilder
 //
 // Implementation:
 //     <Notes on implementation>
@@ -9,7 +9,7 @@
 // Original Author:  Chris Jones
 //         Created:  Sun Jan  6 23:57:00 EST 2008
 //
-// $Id: FWL1MetProxyEveLegoBuilder.cc,v 1.1 2009/01/13 20:10:02 amraktad Exp $
+// $Id: FWL1MetLegoEveProxyBuilder.cc,v 1.1 2009/01/13 20:45:11 amraktad Exp $
 
 // system include files
 #include "TEveElement.h"
@@ -30,11 +30,11 @@
 #include "DataFormats/L1Trigger/interface/L1EtMissParticle.h"
 #include "DataFormats/L1Trigger/interface/L1EtMissParticleFwd.h"
 
-class FWL1MetProxyEveLegoBuilder : public FW3DLegoEveElementProxyBuilder
+class FWL1MetLegoEveProxyBuilder : public FW3DLegoEveElementProxyBuilder
 {
    public:
-      FWL1MetProxyEveLegoBuilder();
-      virtual ~FWL1MetProxyEveLegoBuilder();
+      FWL1MetLegoEveProxyBuilder();
+      virtual ~FWL1MetLegoEveProxyBuilder();
 
       // ---------- const member functions ---------------------
       REGISTER_PROXYBUILDER_METHODS();
@@ -44,23 +44,23 @@ class FWL1MetProxyEveLegoBuilder : public FW3DLegoEveElementProxyBuilder
       virtual void build(const FWEventItem* iItem,
 			 TEveElementList** product);
 
-      FWL1MetProxyEveLegoBuilder(const FWL1MetProxyEveLegoBuilder&); // stop default
+      FWL1MetLegoEveProxyBuilder(const FWL1MetLegoEveProxyBuilder&); // stop default
 
-      const FWL1MetProxyEveLegoBuilder& operator=(const FWL1MetProxyEveLegoBuilder&); // stop default
+      const FWL1MetLegoEveProxyBuilder& operator=(const FWL1MetLegoEveProxyBuilder&); // stop default
 
       // ---------- member data --------------------------------
 };
 
-FWL1MetProxyEveLegoBuilder::FWL1MetProxyEveLegoBuilder()
+FWL1MetLegoEveProxyBuilder::FWL1MetLegoEveProxyBuilder()
 {
 }
 
-FWL1MetProxyEveLegoBuilder::~FWL1MetProxyEveLegoBuilder()
+FWL1MetLegoEveProxyBuilder::~FWL1MetLegoEveProxyBuilder()
 {
 }
 
 void
-FWL1MetProxyEveLegoBuilder::build(const FWEventItem* iItem, TEveElementList** product)
+FWL1MetLegoEveProxyBuilder::build(const FWEventItem* iItem, TEveElementList** product)
 {
    TEveElementList* tList = *product;
 
@@ -106,4 +106,4 @@ FWL1MetProxyEveLegoBuilder::build(const FWEventItem* iItem, TEveElementList** pr
    }
 }
 
-REGISTER_FW3DLEGODATAPROXYBUILDER(FWL1MetProxyEveLegoBuilder,l1extra::L1EtMissParticleCollection,"L1-MET");
+REGISTER_FW3DLEGODATAPROXYBUILDER(FWL1MetLegoEveProxyBuilder,l1extra::L1EtMissParticleCollection,"L1-MET");
