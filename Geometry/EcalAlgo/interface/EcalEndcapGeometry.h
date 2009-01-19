@@ -9,6 +9,7 @@
 #include "CondFormats/AlignmentRecord/interface/EEAlignmentRcd.h"
 #include "Geometry/EcalCommonData/interface/EcalEndcapNumberingScheme.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
+#include "Geometry/Records/interface/PEcalEndcapRcd.h"
 #include <vector>
 #include <map>
 
@@ -21,6 +22,7 @@ class EcalEndcapGeometry : public CaloSubdetectorGeometry
       typedef IdealGeometryRecord      IdealRecord   ;
       typedef EcalEndcapGeometryRecord AlignedRecord ;
       typedef EEAlignmentRcd           AlignmentRecord ;
+      typedef PEcalEndcapRcd           PGeometryRecord ;
 
       typedef EZArrayFL<EBDetId> OrderedListOfEBDetId ; // like an stl vector: begin(), end(), [i]
 

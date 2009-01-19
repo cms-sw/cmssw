@@ -19,15 +19,15 @@ DEFINE_FWK_EVENTSETUP_MODULE(EcalPreshowerGeometryEP);
 #include "Geometry/CaloEventSetup/interface/CaloGeometryFromDBEP.h"
 
 
-template class CaloGeometryFromDBEP< EcalBarrelGeometry    > ;
-template class CaloGeometryFromDBEP< EcalEndcapGeometry    > ;
-template class CaloGeometryFromDBEP< EcalPreshowerGeometry > ;
+template class CaloGeometryFromDBEP< EcalBarrelGeometry    , true> ;
+template class CaloGeometryFromDBEP< EcalEndcapGeometry    , true> ;
+template class CaloGeometryFromDBEP< EcalPreshowerGeometry , true> ;
 
-typedef CaloGeometryFromDBEP< EcalBarrelGeometry > EcalBarrelGeometryFromDBEP ;
+typedef CaloGeometryFromDBEP< EcalBarrelGeometry , false> EcalBarrelGeometryFromDBEP ;
 DEFINE_FWK_EVENTSETUP_MODULE(EcalBarrelGeometryFromDBEP);
 
-typedef CaloGeometryFromDBEP< EcalEndcapGeometry > EcalEndcapGeometryFromDBEP ;
+typedef CaloGeometryFromDBEP< EcalEndcapGeometry , false> EcalEndcapGeometryFromDBEP ;
 DEFINE_FWK_EVENTSETUP_MODULE(EcalEndcapGeometryFromDBEP);
 
-typedef CaloGeometryFromDBEP< EcalPreshowerGeometry > EcalPreshowerGeometryFromDBEP ;
+typedef CaloGeometryFromDBEP< EcalPreshowerGeometry , false> EcalPreshowerGeometryFromDBEP ;
 DEFINE_FWK_EVENTSETUP_MODULE(EcalPreshowerGeometryFromDBEP);

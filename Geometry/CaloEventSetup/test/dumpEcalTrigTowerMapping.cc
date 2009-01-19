@@ -143,12 +143,20 @@ void dumpEcalTrigTowerMapping::build(const CaloGeometry& cg, const EcalTrigTower
       h->GetXaxis()->CenterTitle(1);
       h->GetYaxis()->CenterTitle(1);  
       std::vector<DetId> eeDetIds= cg.getValidDetIds(det,subdetn);
+
+      std::cout<<"*** testing endcap trig tower mapping **"<<std::endl;
       for (unsigned int i=0;i<eeDetIds.size();i++)
 	{
 	  EEDetId myId(eeDetIds[i]);
+	  EcalTrigTowerDetId myTower=etmap.towerOf(eeDetIds[i]);      
+
+//	  std::cout<<"eedetid="<<EEDetId(eeDetIds[i])<<", myTower="<<myTower<<std::endl;
+
+	  assert( myTower == EcalTrigTowerDetId::detIdFromDenseIndex( myTower.denseIndex() ) ) ;
+
 	  if (myId.zside()==1)
 	    continue;
-	  EcalTrigTowerDetId myTower=etmap.towerOf(eeDetIds[i]);      
+
 	  TBox *box = new TBox(myId.ix()-0.5,myId.iy()-0.5,myId.ix()+0.5,myId.iy()+0.5);
 	  box->SetFillColor(towerColor(myTower));
 	  box->Draw();
@@ -196,10 +204,15 @@ void dumpEcalTrigTowerMapping::build(const CaloGeometry& cg, const EcalTrigTower
       h->GetXaxis()->CenterTitle(1);
       h->GetYaxis()->CenterTitle(1);  
       std::vector<DetId> ebDetIds= cg.getValidDetIds(det,subdetn);
+
+      std::cout<<"*** testing barrel trig tower mapping **"<<std::endl;
       for (unsigned int i=0;i<ebDetIds.size();i++)
 	{
 	  EBDetId myId(ebDetIds[i]);
 	  EcalTrigTowerDetId myTower=etmap.towerOf(ebDetIds[i]);      
+
+	  assert( myTower == EcalTrigTowerDetId::detIdFromDenseIndex( myTower.denseIndex() ) ) ;
+
 	  TBox *box = new TBox(myId.ieta()-0.5,myId.iphi()-0.5,myId.ieta()+0.5,myId.iphi()+0.5);
 	  box->SetFillColor(towerColor(myTower));
 	  box->Draw();

@@ -7,6 +7,7 @@
 #include "Geometry/Records/interface/EcalPreshowerGeometryRecord.h"
 #include "CondFormats/AlignmentRecord/interface/ESAlignmentRcd.h"
 #include "DataFormats/EcalDetId/interface/ESDetId.h"
+#include "Geometry/Records/interface/PEcalPreshowerRcd.h"
 #include <vector>
 
 class EcalPreshowerGeometry : public CaloSubdetectorGeometry
@@ -16,6 +17,7 @@ class EcalPreshowerGeometry : public CaloSubdetectorGeometry
       typedef IdealGeometryRecord         IdealRecord   ;
       typedef EcalPreshowerGeometryRecord AlignedRecord ;
       typedef ESAlignmentRcd              AlignmentRecord ;
+      typedef PEcalPreshowerRcd           PGeometryRecord ;
 
       typedef EcalPreshowerNumberingScheme NumberingScheme ;
       typedef CaloSubdetectorGeometry::ParVec ParVec ;

@@ -1,8 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
 EcalPreshowerGeometryEP = cms.ESProducer("EcalPreshowerGeometryEP",
-                                                  applyAlignment = cms.untracked.bool(False)
-                                              )
+                                         applyAlignment = cms.untracked.bool(False),
+                                         appendToDataLabel = cms.string("xml")
+                                         )
 
 EcalPreshowerGeometryFromDBEP = cms.ESProducer("EcalPreshowerGeometryFromDBEP",
                                                applyAlignment = cms.untracked.bool(False)

@@ -19,6 +19,9 @@
 #include "Geometry/CaloEventSetup/interface/CaloGeometryLoader.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 
+#include "CondFormats/GeometryObjects/interface/PEcalGeometry.h"
+
+
 #include "CondFormats/Alignment/interface/Alignments.h"
 
 #include <Math/Transform3D.h>
@@ -30,7 +33,7 @@
 // class declaration
 //
 
-template <class T>
+template <class T, bool toDB>
 class CaloGeometryFromDBEP : public edm::ESProducer 
 {
    public:
@@ -43,15 +46,15 @@ class CaloGeometryFromDBEP : public edm::ESProducer
       typedef HepGeom::Point3D<double> HepPoint3D;
       typedef HepGeom::Transform3D  HepTransform3D;
 
-      CaloGeometryFromDBEP<T>( const edm::ParameterSet& ps ) :
+      CaloGeometryFromDBEP<T,toDB>( const edm::ParameterSet& ps ) :
 	 m_applyAlignment ( ps.getUntrackedParameter<bool>("applyAlignment", false) )
       {
 	 setWhatProduced( this,
-			  &CaloGeometryFromDBEP<T>::produceAligned,
-			  edm::es::Label( T::producerName()+std::string("TEST") ) ) ;
+			  &CaloGeometryFromDBEP<T,toDB>::produceAligned,
+			  edm::es::Label( T::producerName() ) ) ;//+std::string("TEST") ) ) ;
       }
 
-      virtual ~CaloGeometryFromDBEP<T>() {}
+      virtual ~CaloGeometryFromDBEP<T,toDB>() {}
       PtrType produceAligned( const typename T::AlignedRecord& iRecord ) 
       {
 	 const Alignments* alignPtr  ( 0 ) ;
@@ -72,19 +75,33 @@ class CaloGeometryFromDBEP : public edm::ESProducer
 	    globalPtr = globals.product() ;
 	 }
 
-//*********** this section to be replaced by call to get objects from db **********************
-	 edm::ESHandle<CaloSubdetectorGeometry> pG ;
-	 iRecord.get( T::producerName(), pG ) ; 
-
-	 const CaloSubdetectorGeometry* pGptr ( pG.product() ) ;
-
 	 TrVec  tvec ;
 	 DimVec dvec ;
 	 IVec   ivec ;
 
-	 // should tag with T::producerName() which is a std::string
+	 if( toDB )
+	 {
+	    edm::ESHandle<CaloSubdetectorGeometry> pG ;
+	    iRecord.get( T::producerName() + std::string("xml"), pG ) ; 
 
-	 pGptr->getSummary( tvec, ivec, dvec ) ;
+	    const CaloSubdetectorGeometry* pGptr ( pG.product() ) ;
+
+	    pGptr->getSummary( tvec, ivec, dvec ) ;
+	 }
+	 else
+	 {
+	    // from DB
+
+	    edm::ESHandle<PEcalGeometry> peG;   
+	    iRecord.template getRecord<typename T::PGeometryRecord >().get( peG ) ; 
+         
+
+//	    std::cout<<"*******Just got geometry for "<<T::producerName()<<" from DB"<<std::endl ;
+         
+	    tvec = peG->getTranslation() ;
+	    dvec = peG->getDimension() ;
+	    ivec = peG->getIndexes() ;
+	 }
 //*********************************************************************************************
 
 	 const unsigned int nTrParm ( tvec.size()/T::k_NumberOfCellsForCorners ) ;

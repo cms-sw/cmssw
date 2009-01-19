@@ -10,6 +10,7 @@
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
+#include "Geometry/Records/interface/PEcalBarrelRcd.h"
 #include <vector>
 
 class EcalBarrelGeometry : public CaloSubdetectorGeometry 
@@ -19,6 +20,7 @@ class EcalBarrelGeometry : public CaloSubdetectorGeometry
       typedef IdealGeometryRecord      IdealRecord   ;
       typedef EcalBarrelGeometryRecord AlignedRecord ;
       typedef EBAlignmentRcd           AlignmentRecord ;
+      typedef PEcalBarrelRcd           PGeometryRecord ;
 
       typedef EZArrayFL<EEDetId> OrderedListOfEEDetId ; // like an stl vector: begin(), end(), [i]
 

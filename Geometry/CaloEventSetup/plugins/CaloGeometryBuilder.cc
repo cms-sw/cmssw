@@ -13,7 +13,7 @@
 //
 // Original Author:  Jeremiah Mans
 //         Created:  Mon Oct  3 11:35:27 CDT 2005
-// $Id: CaloGeometryBuilder.cc,v 1.10 2008/11/12 19:37:52 heltsley Exp $
+// $Id: CaloGeometryBuilder.cc,v 1.11 2008/11/12 19:55:16 heltsley Exp $
 //
 //
 
@@ -22,6 +22,7 @@
 #include "Geometry/CaloEventSetup/plugins/CaloGeometryBuilder.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 #include "DataFormats/HcalDetId/interface/HcalZDCDetId.h"
+#include "DataFormats/HcalDetId/interface/HcalCastorDetId.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 //
@@ -46,7 +47,7 @@ CaloGeometryBuilder::CaloGeometryBuilder( const edm::ParameterSet& iConfig )
 CaloGeometryBuilder::ReturnType
 CaloGeometryBuilder::produceAligned( const CaloGeometryRecord& iRecord )
 {
-   std::cout<<"*****************************entering geometry builder***********"<<std::endl;
+//   std::cout<<"*****************************entering geometry builder***********"<<std::endl;
 
    edm::ESHandle< CaloSubdetectorGeometry > pG;
 
@@ -69,17 +70,22 @@ CaloGeometryBuilder::produceAligned( const CaloGeometryRecord& iRecord )
 	 pCalo->setSubdetGeometry( DetId::Hcal, HcalOuter  , pG.product() );
 	 pCalo->setSubdetGeometry( DetId::Hcal, HcalForward, pG.product() );
       }
-      // look for zdc parts
       else if ( (*ite) == "ZDC" ) 
       {
 	 edm::LogInfo("CaloGeometryBuilder") << "Building ZDC reconstruction geometry";
 	 iRecord.getRecord< ZDCGeometryRecord >().get("ZDC", pG); 
 	 pCalo->setSubdetGeometry( DetId::Calo, HcalZDCDetId::SubdetectorId,pG.product());
       }
+      else if ( (*ite) == "CASTOR" ) 
+      {
+	 edm::LogInfo("CaloGeometryBuilder") << "Building CASTOR reconstruction geometry";
+//	 iRecord.getRecord< IdealGeometryRecord >().get("CASTOR", pG); 
+//	 pCalo->setSubdetGeometry( DetId::Calo, HcalCastorDetId::SubdetectorId,pG.product());
+      }
       // look for Ecal Barrel
       else if ( (*ite) == "EcalBarrel" ) 
       {
-	 std::cout<< "Building EcalBarrel reconstruction geometry"<<std::endl;
+//	 std::cout<< "Building EcalBarrel reconstruction geometry"<<std::endl;
 	 edm::LogInfo("CaloGeometryBuilder") << "Building EcalBarrel reconstruction geometry";
 	 iRecord.getRecord<EcalBarrelGeometryRecord>().get("EcalBarrel", pG); 
 	 pCalo->setSubdetGeometry(DetId::Ecal,EcalBarrel,pG.product());
