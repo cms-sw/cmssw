@@ -4,6 +4,12 @@
 
 DEFINE_SEAL_MODULE();
 
+//-----------------------------------------------------------------------------------------
+
+#include "CalibTracker/SiStripESProducers/plugins/DBWriter/SiStripFedCablingManipulator.h"
+DEFINE_ANOTHER_FWK_MODULE(SiStripFedCablingManipulator);
+//-----------------------------------------------------------------------------------------
+
 #include "CalibTracker/SiStripESProducers/plugins/DBWriter/DummyCondDBWriter.h"
 
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
