@@ -28,7 +28,7 @@ public:
 
  private:
 
-  void manipulate(const SiStripFedCabling*,SiStripFedCabling*);
+  void manipulate(const SiStripFedCabling*,SiStripFedCabling*&);
 
   edm::ParameterSet iConfig_;
 };

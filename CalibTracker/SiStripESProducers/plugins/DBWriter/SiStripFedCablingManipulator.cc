@@ -53,7 +53,7 @@ void SiStripFedCablingManipulator::endRun(const edm::Run & run, const edm::Event
   }
 }
 
-void SiStripFedCablingManipulator::manipulate(const SiStripFedCabling* iobj,SiStripFedCabling* oobj){
+void SiStripFedCablingManipulator::manipulate(const SiStripFedCabling* iobj,SiStripFedCabling*& oobj){
   std::string fp=iConfig_.getParameter<std::string>("file");
    
 
@@ -106,12 +106,12 @@ void SiStripFedCablingManipulator::manipulate(const SiStripFedCabling* iobj,SiSt
     const std::vector<uint16_t>& feds=iobj->feds();
     std::vector<uint16_t>::const_iterator ifeds=feds.begin();  
     for(;ifeds!=feds.end();ifeds++){
-      edm::LogInfo("SiStripFedCablingManipulator")<< "::manipulate - fedid "<< *ifeds;
       const std::vector<FedChannelConnection>& conns_per_fed =iobj->connections( *ifeds );
       std::vector<FedChannelConnection>::const_iterator iconn=conns_per_fed.begin();
       for(;iconn!=conns_per_fed.end();++iconn){
 	std::map<uint32_t, std::pair<uint32_t, uint32_t> >::const_iterator it=dcuDetIdMap.find(iconn->dcuId());
 	if(it!=dcuDetIdMap.end() && it->second.first==iconn->detId()){
+	  edm::LogInfo("SiStripFedCablingManipulator")<< "::manipulate - fedid "<< *ifeds << " dcuid " <<  iconn->dcuId() << " oldDet " << iconn->detId() << " newDetID " << it->second.second ;
 	  conns.push_back(FedChannelConnection( 
 					       iconn->fecCrate(),
 					       iconn->fecSlot(),
@@ -122,6 +122,27 @@ void SiStripFedCablingManipulator::manipulate(const SiStripFedCabling* iobj,SiSt
 					       iconn->i2cAddr(1),
 					       iconn->dcuId(),
 					       it->second.second,  //<------ New detid
+					       iconn->nApvPairs(),
+					       iconn->fedId(),
+					       iconn->fedCh(),
+					       iconn->fiberLength(),
+					       iconn->dcu(),
+					       iconn->pll(),
+					       iconn->mux(),
+					       iconn->lld()
+					       )
+			  );
+	}else{
+	  conns.push_back(FedChannelConnection( 
+					       iconn->fecCrate(),
+					       iconn->fecSlot(),
+					       iconn->fecRing(),
+					       iconn->ccuAddr(),
+					       iconn->ccuChan(),
+					       iconn->i2cAddr(0),
+					       iconn->i2cAddr(1),
+					       iconn->dcuId(),
+					       iconn->detId(),
 					       iconn->nApvPairs(),
 					       iconn->fedId(),
 					       iconn->fedCh(),
