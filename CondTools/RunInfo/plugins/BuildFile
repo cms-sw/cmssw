@@ -11,3 +11,8 @@
 <library file=LumiOMDSReader.cc name=CondToolsLumiOMDSReader>
    <flags EDM_PLUGIN=1>
 </library>
+<library file=LuminosityInfoAnalyzer.cc name=LuminosityInfoAnalyzer>
+        <flags EDM_PLUGIN=1>
+</library>
+
+ 

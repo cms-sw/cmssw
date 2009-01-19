@@ -34,6 +34,7 @@ lumi::LumiDummyReader::fill(int startRun,
 	hltdata.push_back(hltinfo);
       }
       l->setHLTData(hltdata);
+      std::cout<<"current "<<current<<std::endl;
       result.push_back(std::make_pair<lumi::LuminosityInfo*,cond::Time_t>(l,current));
     }
   }
