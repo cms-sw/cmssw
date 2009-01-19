@@ -9,7 +9,7 @@
 #include "DataFormats/Common/interface/RefToBase.h"
     
 namespace {
-  namespace {
+  struct dictionary {
     std::vector<L2MuonTrajectorySeed> v1;
     L2MuonTrajectorySeedCollection c1;
     edm::Wrapper<L2MuonTrajectorySeedCollection> w1;
@@ -23,8 +23,7 @@ namespace {
     edm::reftobase::IndirectHolder<L2MuonTrajectorySeed> ihs;
     edm::reftobase::Holder< L2MuonTrajectorySeed, edm::Ref<L2MuonTrajectorySeedCollection> > rbh;
     edm::reftobase::RefHolder< edm::Ref<L2MuonTrajectorySeedCollection> > rbrh;
-  }
-  namespace {
+
     std::vector<L3MuonTrajectorySeed> v12;
     L3MuonTrajectorySeedCollection c12;
     edm::Wrapper<L3MuonTrajectorySeedCollection> w12;
@@ -38,5 +37,5 @@ namespace {
     edm::reftobase::IndirectHolder<L3MuonTrajectorySeed> ihs2;
     edm::reftobase::Holder< L3MuonTrajectorySeed, edm::Ref<L3MuonTrajectorySeedCollection> > rbh2;
     edm::reftobase::RefHolder< edm::Ref<L3MuonTrajectorySeedCollection> > rbrh2;
-  }
+  };
 }

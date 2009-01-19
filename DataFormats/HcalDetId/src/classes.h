@@ -12,10 +12,10 @@
 #include <vector>
 
 namespace { 
- namespace {
-   std::vector<HcalElectronicsId> eids;
-   std::vector<HcalFrontEndId> feids;
-   std::vector<CastorElectronicsId> ceids;
- }
+  struct dictionary {
+    std::vector<HcalElectronicsId> eids;
+    std::vector<HcalFrontEndId> feids;
+    std::vector<CastorElectronicsId> ceids;
+  };
 }
 

@@ -8,10 +8,8 @@
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/RefProd.h"
 
-namespace 
-{
-  namespace 
-  {
+namespace {
+  struct dictionary {
     L1TriggerScalers l1TriggerScalers;
     L1TriggerRates l1TriggerRates;
     LumiScalers lumiScalers;
@@ -32,5 +30,5 @@ namespace
 
     LumiScalersCollection lumiScalersCollection;
     edm::Wrapper<LumiScalersCollection> w_lumiScalersCollection;
-  }
+  };
 }
