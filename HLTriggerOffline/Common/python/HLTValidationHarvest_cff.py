@@ -7,6 +7,6 @@ hltpostvalidation = cms.Sequence(
     HLTMuonPostVal
     +HLTTauPostVal
     +EgammaPostVal
-  # +HLTTopPostVal
+    +HLTTopPostVal
   #+ExamplePostVal
     )
