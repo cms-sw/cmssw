@@ -5,10 +5,16 @@
  * *
  *  DQM Test Client
  *
- *  $Date: 2008/02/22 23:52:28 $
- *  $Revision: 1.4 $
+ *  $Date: 2009/01/09 15:41:22 $
+ *  $Revision: 1.5 $
  *  \author  M. Zanetti CERN
  *   
+ */
+
+
+/* Jan 17, 2009: the code has been modified significantly
+ * to steer the client operations  
+ * Author: D.Volyanskyy
  */
 
 #include <FWCore/Framework/interface/EDAnalyzer.h>
@@ -27,38 +33,42 @@ class DQMClientExample: public edm::EDAnalyzer {
 
 public:
 
-  /// Constructor
+  ////---- constructor
   DQMClientExample(const edm::ParameterSet& ps);
   
-  /// Destructor
+  ////---- destructor
   virtual ~DQMClientExample();
 
 protected:
 
-  /// BeginJob
+  ////---- beginJob
   void beginJob(const edm::EventSetup& c);
 
-  /// BeginRun
+  ////---- beginRun
   void beginRun(const edm::Run& r, const edm::EventSetup& c);
 
-  /// Fake Analyze
+  ////---- analyze
   void analyze(const edm::Event& e, const edm::EventSetup& c) ;
 
+  ////---- performClient
+  void performClient();
+
+  ////---- beginLuminosityBlock
   void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
                             const edm::EventSetup& context) ;
 
-  /// DQM Client Diagnostic
-//  void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
-//                          const edm::EventSetup& c);
+  ////--- endLuminosityBlock 
+  void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
+                         const edm::EventSetup& c);
 
-  /// EndRun
+  ////---- endRun
   void endRun(const edm::Run& r, const edm::EventSetup& c);
 
-  /// Endjob
+  ////---- endJob
   void endJob();
 
 private:
-
+  ////---- initialize
   void initialize();
   
   edm::ParameterSet parameters_;
@@ -66,10 +76,15 @@ private:
   DQMStore* dbe_;  
   std::string monitorName_;
   std::string QTestName_;
-  int counterLS_;      ///counter
-  int counterEvt_;     ///counter
-  int prescaleLS_;     ///units of lumi sections
-  int prescaleEvt_;    ///prescale on number of events
+  int counterClientOperation ; //-- counter on Client Operations
+  int counterEvt_;     //-- event counter
+  int counterLS_;     //-- LS counter
+  int prescaleEvt_;    //-- prescale on number of events
+  int prescaleLS_;    //-- prescale on number of lumisections
+  bool clientOnEachEvent;
+  bool clientOnEndLumi;
+  bool clientOnEndRun;
+  bool clientOnEndJob;
 
   // -------- member data --------
   MonitorElement * clientHisto;
