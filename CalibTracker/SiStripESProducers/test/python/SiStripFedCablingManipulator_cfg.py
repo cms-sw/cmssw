@@ -58,7 +58,8 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     ))
 )
 
+process.reader = cms.EDFilter("SiStripFedCablingReader")
 
-process.p1 = cms.Path(process.siStripFedCablingManipulator)
+process.p1 = cms.Path(process.reader+process.siStripFedCablingManipulator)
 
 
