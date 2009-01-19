@@ -6,7 +6,7 @@ process.source = cms.Source("EmptySource")
 
 ### set number of events
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(10000)
+    input = cms.untracked.int32(1000)
     )
 
 ### include to get DQM histogramming services
@@ -26,19 +26,22 @@ process.dqmSource   = cms.EDFilter("DQMSourceExample",
 )
 
 ### run the quality tests as defined in QualityTests.xml
-process.qTester = cms.EDFilter("QualityTester",
-    qtList          = cms.untracked.FileInPath('DQMServices/Examples/test/QualityTests.xml'),
-    prescaleFactor  = cms.untracked.int32(1),                               
-    testInEventloop = cms.untracked.bool(True),
-    verboseQT       =  cms.untracked.bool(True)                 
+### by default: the quality tests run at the end of each lumisection
+process.qTester    = cms.EDFilter("QualityTester",
+    qtList = cms.untracked.FileInPath('DQMServices/Examples/test/QualityTests.xml'),
+    prescaleFactor = cms.untracked.int32(1),                               
+    testInEventloop = cms.untracked.bool(False), #run on each event
+    verboseQT =  cms.untracked.bool(True)                 
 )
+
 
 ###  DQM Client program (in DQMServices/Examples/src/DQMClientExample.cc)
 process.dqmClient = cms.EDFilter("DQMClientExample",
     monitorName   = cms.untracked.string('YourSubsystemName'),
     QTestName     = cms.untracked.string('YRange'),                     
-    prescaleLS    = cms.untracked.int32(1),  
-    prescaleEvt   = cms.untracked.int32(1)
+    prescaleEvt   = cms.untracked.int32(1),
+    prescaleLS    =  cms.untracked.int32(1),                   
+    clientOnEachEvent = cms.untracked.bool(False) #run client on each event          
 )
 
 # MessageLogger
@@ -75,8 +78,6 @@ process.dqmEnv.subSystemFolder = 'YourSubsystemName'
 #process.dqmSaver.saveByMinute      = -1
 #process.dqmSaver.saveByEvent       = -1
 #process.dqmSaver.saveByRun         =  1
-#process.dqmSaver.saveAtJobEnd      = False
-
 
 ### FIX YOUR  PATH TO INCLUDE dqmEnv and dqmSaver
 process.p = cms.Path(process.dqmSource*process.qTester*process.dqmClient*process.dqmEnv*process.dqmSaver)
