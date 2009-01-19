@@ -3,7 +3,9 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("processPixelRecHitValid")
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
-process.load("Configuration.StandardSequences.FakeConditions_cff")
+process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
+process.GlobalTag.globaltag = 'IDEAL_30X::All'
+
 
 process.load("Configuration.StandardSequences.Services_cff")
 
@@ -14,6 +16,7 @@ process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.Reconstruction_cff")
 
 process.load("Validation.TrackerRecHits.SiPixelRecHitsValid_cfi")
+process.pixRecHitsValid.outputFile="pixelrechitshisto.root"
 
 process.load("SimGeneral.MixingModule.mixNoPU_cfi")
 
@@ -23,7 +26,7 @@ process.maxEvents = cms.untracked.PSet(
 process.source = cms.Source("PoolSource",
     debugFlag = cms.untracked.bool(True),
     debugVebosity = cms.untracked.uint32(10),
-    fileNames = cms.untracked.vstring('/store/relval/2008/6/22/RelVal-RelValSingleMuPt10-1214048167-IDEAL_V2-2nd/0004/0AE2B3E3-0141-DD11-846F-000423D98BC4.root')
+    fileNames = cms.untracked.vstring('/store/relval/CMSSW_3_0_0_pre6/RelValSingleMuPt10/GEN-SIM-DIGI-RECO/IDEAL_30X_v3/0005/1EF32A82-57E2-DD11-A475-000423D6B444.root')
 )
 
 process.p1 = cms.Path(process.mix*process.siPixelRecHits*process.pixRecHitsValid)

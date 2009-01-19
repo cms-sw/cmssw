@@ -2,7 +2,7 @@ void SiPixelRecHitsCompare()
 {
    gROOT->Reset();
    char* sfilename = "pixelrechitshisto.root";
-   char* rfilename = "../data/pixelrechitshisto.root";
+   char* rfilename = "../pixelrechitshisto.root";
    
    //char* rfilename = "/uscms/home/ggiurgiu/work/CMSSW_1_2_0_pre4/src/Validation/TrackerRecHits/test/pixelrechitshisto_test34.root";
    //char* sfilename = "/uscms/home/ggiurgiu/work/CMSSW_1_2_0_pre4/src/Validation/TrackerRecHits/test/pixelrechitshisto_test56.root";
@@ -15,14 +15,16 @@ void SiPixelRecHitsCompare()
    TFile * rfile = new TFile(rfilename);
    TDirectory * rdir=gDirectory; 
    TFile * sfile = new TFile(sfilename);
-   TDirectory * sdir=gDirectory; 
-   if(rfile->cd("DQMData/TrackerRecHitsV"))rfile->cd("DQMData/TrackerRecHitsV/TrackerRecHits/Pixel");
-   else rfile->cd("DQMData/TrackerRecHits/Pixel");
-   rdir=gDirectory;
-   
-   if(sfile->cd("DQMData/TrackerRecHitsV"))sfile->cd("DQMData/TrackerRecHitsV/TrackerRecHits/Pixel");
-   else sfile->cd("DQMData/TrackerRecHits/Pixel");
-   sdir=gDirectory; 
+   TDirectory * sdir=gDirectory;
+
+ if(rfile->cd("DQMData/Run 1/TrackerRecHitsV"))rfile->cd("DQMData/Run 1/TrackerRecHitsV/Run summary/TrackerRecHits/Pixel");
+ else rfile->cd("DQMData/TrackerRecHitsV/TrackerRecHits/Pixel");
+ rdir=gDirectory;
+
+ if(sfile->cd("DQMData/Run 1/TrackerRecHitsV"))sfile->cd("DQMData/Run 1/TrackerRecHitsV/Run summary/TrackerRecHits/Pixel");
+ else sfile->cd("DQMData/TrackerRecHitsV/TrackerRecHits/Pixel");
+ sdir=gDirectory; 
+ 
 
 
   TLegend leg(0.3, 0.80, 0.55, 0.90);
