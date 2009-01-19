@@ -5,8 +5,8 @@
  * *
  *  DQM Test Client
  *
- *  $Date: 2008/08/12 10:12:28 $
- *  $Revision: 1.8 $
+ *  $Date: 2009/01/09 15:40:18 $
+ *  $Revision: 1.9 $
  *  \author  M. Zanetti CERN
  *   
  */
@@ -92,9 +92,8 @@ private:
   MonitorElement * p1;
   MonitorElement * p2;
   MonitorElement * h1;
-
+  MonitorElement * h2;
   MonitorElement * summ;
-  MonitorElement * fitResult;
 
 };
 
