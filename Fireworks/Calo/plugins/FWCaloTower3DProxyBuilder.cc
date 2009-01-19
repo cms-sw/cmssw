@@ -8,34 +8,22 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Dec  3 11:28:28 EST 2008
-// $Id: FWCaloTower3DProxyBuilderBase.cc,v 1.5 2008/12/19 12:24:36 amraktad Exp $
+// $Id: FWCaloTower3DProxyBuilder.cc,v 1.1 2009/01/15 16:28:00 amraktad Exp $
 //
 
-// system include files
 #include <math.h>
 #include "TEveCaloData.h"
 #include "TEveCalo.h"
 #include "TH2F.h"
 
-#include "DataFormats/CaloTowers/interface/CaloTower.h"
-
-// user include files
-#include "Fireworks/Calo/plugins/FWCaloTower3DProxyBuilderBase.h"
-
+#include "Fireworks/Calo/plugins/FWCaloTower3DProxyBuilder.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/fw3dlego_xbins.h"
 
+#include "DataFormats/CaloTowers/interface/CaloTower.h"
 
 //
-// constants, enums and typedefs
-//
-
-//
-// static data member definitions
-//
-
-//
-// constructors and destructor
+// constructors , dectructors
 //
 FWCaloTower3DProxyBuilderBase::FWCaloTower3DProxyBuilderBase():
 m_caloData(0),
@@ -43,26 +31,9 @@ m_hist(0)
 {
 }
 
-// FWCaloTower3DProxyBuilderBase::FWCaloTower3DProxyBuilderBase(const FWCaloTower3DProxyBuilderBase& rhs)
-// {
-//    // do actual copying here;
-// }
-
 FWCaloTower3DProxyBuilderBase::~FWCaloTower3DProxyBuilderBase()
 {
 }
-
-//
-// assignment operators
-//
-// const FWCaloTower3DProxyBuilderBase& FWCaloTower3DProxyBuilderBase::operator=(const FWCaloTower3DProxyBuilderBase& rhs)
-// {
-//   //An exception safe implementation is
-//   FWCaloTower3DProxyBuilderBase temp(rhs);
-//   swap(rhs);
-//
-//   return *this;
-// }
 
 //
 // member functions
@@ -172,10 +143,6 @@ FWCaloTower3DProxyBuilderBase::itemBeingDestroyed(const FWEventItem* iItem)
    }
 }
 
-//
-// const member functions
-//
+REGISTER_FW3DDATAPROXYBUILDER(FWECalCaloTower3DProxyBuilder,CaloTowerCollection,"ECal");
+REGISTER_FW3DDATAPROXYBUILDER(FWHCalCaloTower3DProxyBuilder,CaloTowerCollection,"HCal");
 
-//
-// static member functions
-//

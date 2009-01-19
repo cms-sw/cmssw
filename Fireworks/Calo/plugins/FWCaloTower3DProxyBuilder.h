@@ -1,5 +1,5 @@
-#ifndef Fireworks_Calo_FWCaloTower3DProxyBuilderBase_h
-#define Fireworks_Calo_FWCaloTower3DProxyBuilderBase_h
+#ifndef Fireworks_Calo_FWCaloTower3DProxyBuilder_h
+#define Fireworks_Calo_FWCaloTower3DProxyBuilder_h
 // -*- C++ -*-
 //
 // Package:     Calo
@@ -16,18 +16,16 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Dec  3 11:28:08 EST 2008
-// $Id: FWCaloTower3DProxyBuilderBase.h,v 1.1 2008/12/03 21:05:10 chrjones Exp $
+// $Id: FWCaloTower3DProxyBuilderBase.h,v 1.1 2009/01/15 16:28:00 amraktad Exp $
 //
 
-// system include files
 #include "Rtypes.h"
 #include <string>
 
-// user include files
 #include "Fireworks/Core/interface/FW3DDataProxyBuilder.h"
+#include "DataFormats/CaloTowers/interface/CaloTower.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerFwd.h"
 
-// forward declarations
 class TH2F;
 
 class FWCaloTower3DProxyBuilderBase : public FW3DDataProxyBuilder {
@@ -64,6 +62,56 @@ private:
    TH2F* m_hist;
    Int_t m_sliceIndex;
    const CaloTowerCollection* m_towers;
+};
+
+//
+// Ecal
+//
+
+class FWECalCaloTower3DProxyBuilder : public FWCaloTower3DProxyBuilderBase {
+public:
+   FWECalCaloTower3DProxyBuilder() {}
+   virtual ~FWECalCaloTower3DProxyBuilder() {}
+   
+   // ---------- const member functions ---------------------
+   virtual const std::string histName() const {
+      return "ECal";
+   }
+
+   virtual double getEt(const CaloTower& iTower) const {
+      return iTower.emEt();
+   }
+
+   REGISTER_PROXYBUILDER_METHODS();
+private:
+   FWECalCaloTower3DProxyBuilder(const FWECalCaloTower3DProxyBuilder&); // stop default
+   const FWECalCaloTower3DProxyBuilder& operator=(const FWECalCaloTower3DProxyBuilder&); // stop default      
+};
+
+
+//
+// Ecal
+//
+
+class FWHCalCaloTower3DProxyBuilder : public FWCaloTower3DProxyBuilderBase {
+public:
+   FWHCalCaloTower3DProxyBuilder() {}
+   virtual ~FWHCalCaloTower3DProxyBuilder(){}
+   
+   // ---------- const member functions ---------------------
+   virtual const std::string histName() const {
+      return "HCal";
+   }
+
+   virtual double getEt(const CaloTower& iTower) const {
+      return iTower.hadEt()+iTower.outerEt();
+   }
+
+   REGISTER_PROXYBUILDER_METHODS();
+private:
+   FWHCalCaloTower3DProxyBuilder(const FWHCalCaloTower3DProxyBuilder&); // stop default
+   
+   const FWHCalCaloTower3DProxyBuilder& operator=(const FWHCalCaloTower3DProxyBuilder&); // stop default      
 };
 
 
