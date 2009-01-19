@@ -1,14 +1,14 @@
 // -*- C++ -*-
 //
 // Package:     Calo
-// Class  :     FWMetProxyRhoPhiZ2DBuilder
+// Class  :     FWMetRPZ2DProxyBuilder
 //
 // Implementation:
 //     <Notes on implementation>
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWMetProxyRhoPhiZ2DBuilder.cc,v 1.1 2009/01/15 04:15:46 chrjones Exp $
+// $Id: FWMetRPZ2DProxyBuilder.cc,v 1.1 2009/01/15 18:28:57 amraktad Exp $
 //
 
 // system include files
@@ -28,11 +28,11 @@
 #include "DataFormats/FWLite/interface/Event.h"
 #include "DataFormats/FWLite/interface/Handle.h"
 
-class FWMetProxyRhoPhiZ2DBuilder : public FWRPZ2DDataProxyBuilder
+class FWMetRPZ2DProxyBuilder : public FWRPZ2DDataProxyBuilder
 {
    public:
-      FWMetProxyRhoPhiZ2DBuilder();
-      virtual ~FWMetProxyRhoPhiZ2DBuilder();
+      FWMetRPZ2DProxyBuilder();
+      virtual ~FWMetRPZ2DProxyBuilder();
 
       // ---------- const member functions ---------------------
       REGISTER_PROXYBUILDER_METHODS();
@@ -50,9 +50,9 @@ class FWMetProxyRhoPhiZ2DBuilder : public FWRPZ2DDataProxyBuilder
 
       double getTheta( double eta ) { return 2*atan(exp(-eta)); }
 
-      FWMetProxyRhoPhiZ2DBuilder(const FWMetProxyRhoPhiZ2DBuilder&); // stop default
+      FWMetRPZ2DProxyBuilder(const FWMetRPZ2DProxyBuilder&); // stop default
 
-      const FWMetProxyRhoPhiZ2DBuilder& operator=(const FWMetProxyRhoPhiZ2DBuilder&); // stop default
+      const FWMetRPZ2DProxyBuilder& operator=(const FWMetRPZ2DProxyBuilder&); // stop default
 
       // ---------- member data --------------------------------
 };
@@ -60,16 +60,16 @@ class FWMetProxyRhoPhiZ2DBuilder : public FWRPZ2DDataProxyBuilder
 //
 // constructors and destructor
 //
-FWMetProxyRhoPhiZ2DBuilder::FWMetProxyRhoPhiZ2DBuilder()
+FWMetRPZ2DProxyBuilder::FWMetRPZ2DProxyBuilder()
 {
 }
 
-// FWMetProxyRhoPhiZ2DBuilder::FWMetProxyRhoPhiZ2DBuilder(const FWMetProxyRhoPhiZ2DBuilder& rhs)
+// FWMetRPZ2DProxyBuilder::FWMetRPZ2DProxyBuilder(const FWMetRPZ2DProxyBuilder& rhs)
 // {
 //    // do actual copying here;
 // }
 
-FWMetProxyRhoPhiZ2DBuilder::~FWMetProxyRhoPhiZ2DBuilder()
+FWMetRPZ2DProxyBuilder::~FWMetRPZ2DProxyBuilder()
 {
 }
 
@@ -77,7 +77,7 @@ FWMetProxyRhoPhiZ2DBuilder::~FWMetProxyRhoPhiZ2DBuilder()
 // member functions
 //
 void
-FWMetProxyRhoPhiZ2DBuilder::buildRhoPhi(const FWEventItem* iItem,
+FWMetRPZ2DProxyBuilder::buildRhoPhi(const FWEventItem* iItem,
 					    TEveElementList** product)
 {
    TEveGeoManagerHolder gmgr(TEveGeoShape::GetGeoMangeur());
@@ -143,7 +143,7 @@ FWMetProxyRhoPhiZ2DBuilder::buildRhoPhi(const FWEventItem* iItem,
 }
 
 void
-FWMetProxyRhoPhiZ2DBuilder::buildRhoZ(const FWEventItem* iItem,
+FWMetRPZ2DProxyBuilder::buildRhoZ(const FWEventItem* iItem,
 					    TEveElementList** product)
 {
    TEveElementList* tList = *product;
@@ -195,4 +195,4 @@ FWMetProxyRhoPhiZ2DBuilder::buildRhoZ(const FWEventItem* iItem,
    }
 }
 
-REGISTER_FWRPZDATAPROXYBUILDERBASE(FWMetProxyRhoPhiZ2DBuilder,reco::CaloMETCollection,"MET");
+REGISTER_FWRPZDATAPROXYBUILDERBASE(FWMetRPZ2DProxyBuilder,reco::CaloMETCollection,"MET");
