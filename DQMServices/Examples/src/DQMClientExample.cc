@@ -3,8 +3,8 @@
  * \author M. Zanetti - CERN
  *
  * Last Update:
- * $Date: 2009/01/09 15:55:48 $
- * $Revision: 1.12 $
+ * $Date: 2009/01/19 12:58:23 $
+ * $Revision: 1.13 $
  * $Author: dvolyans $
  *
  */
@@ -149,10 +149,8 @@ void DQMClientExample::endJob(){
 //==================================================================//
 void DQMClientExample::performClient(){
 
-   std::cout << "*************************************************" << std::endl;
    std::cout << "***** run  Client operations as defined in: *****" << std::endl;
    std::cout << "***** DQMClientExample::performClient    ********" << std::endl;
-   std::cout << "*************************************************" << std::endl;
 
   //----------------------------------------------------------------------------------------------
   // example how to retrieve a ME created by the DQM producer (in Examples/src/DQMSourceExample.cc) 
@@ -194,14 +192,17 @@ void DQMClientExample::performClient(){
  // qtest to be ran on clientHisto is defined in Examples/test/QualityTests.xml
   const QReport * theQReport = clientHisto->getQReport(QTestName_);
   if(theQReport) {
+    if(counterClientOperation<1)
     edm::LogWarning ("DQMClientExample") <<"*** Summary of Quality Test for clientHisto: \n"
                                        //<<"---  value  ="<< theQReport->getQTresult()<<"\n"
                                       <<"--- status ="<< theQReport->getStatus() << "\n"
                                       <<"--- message ="<< theQReport->getMessage() << "\n";
+
    vector<dqm::me_util::Channel> badChannels = theQReport->getBadChannels();
     for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
 	 channel != badChannels.end(); channel++) {
-      edm::LogError ("DQMClientExample") <<" Bad channels: "<<(*channel).getBin()<<" "<<(*channel).getContents();
+        if(counterClientOperation<1) 
+        edm::LogError ("DQMClientExample") <<" Bad channels: "<<(*channel).getBin()<<" "<<(*channel).getContents();
     }
   } 
   else { 
