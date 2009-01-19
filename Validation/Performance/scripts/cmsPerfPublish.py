@@ -1642,7 +1642,7 @@ def getDirnameDirs(repdir,WebArea):
     syscp(dirstocp,WebArea + "/")
     os.mkdir("%s/DirectoryBrowsing" % WebArea)
     for file in os.listdir(WebArea):
-        if file != "Index.html":
+        if file != "index.html": #Potential maintenance issue if the index.html changes name to something the server automatically displays when pointing to the directory...
             #Use relative path ".." instead of WebArea to avoid problems when copying stuff to a remote server!
             os.symlink("%s/%s"%("..",file),"%s/DirectoryBrowsing/%s" % (WebArea,file))
 
