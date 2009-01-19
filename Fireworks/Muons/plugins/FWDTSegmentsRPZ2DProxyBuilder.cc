@@ -1,44 +1,82 @@
-#include "Fireworks/Muons/interface/DTSegmentsProxyRhoPhiZ2DBuilder.h"
-#include "TEveTrack.h"
-#include "TEveTrackPropagator.h"
+// -*- C++ -*-
+//
+// Package:     Muons
+// Class  :     DTSegmentsProxyRhoPhiZ2DBuilder
+//
+//
+// Original Author:
+//         Created:  Sun Jan  6 23:42:33 EST 2008
+// $Id: DTSegmentsProxyRhoPhiZ2DBuilder.cc,v 1.1 2009/01/06 22:05:29 amraktad Exp $
+//
+
+
 #include "TEveManager.h"
-#include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/MuonReco/interface/MuonFwd.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
 #include "TEveStraightLineSet.h"
-#include "Fireworks/Core/interface/FWEventItem.h"
-#include "RVersion.h"
-#include "TEveGeoNode.h"
-#include "Fireworks/Core/interface/TEveElementIter.h"
-#include "TColor.h"
-#include "TEvePolygonSetProjected.h"
-#include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
+#include "TEvePointSet.h"
+
+#include "Fireworks/Core/interface/FWRPZ2DDataProxyBuilder.h"
 #include "Fireworks/Core/interface/DetIdToMatrix.h"
-#include "DataFormats/MuonDetId/interface/DTChamberId.h"
-#include "Fireworks/Core/interface/FWDisplayEvent.h"
-#include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
 #include "Fireworks/Core/src/changeElementAndChildren.h"
 
-DTSegmentsProxyRhoPhiZ2DBuilder::DTSegmentsProxyRhoPhiZ2DBuilder()
+#include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
+#include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
+#include "DataFormats/MuonDetId/interface/DTChamberId.h"
+#include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
+
+class FWDTSegmentsRPZ2DProxyBuilder : public FWRPZ2DDataProxyBuilder
+{
+
+   public:
+      FWDTSegmentsRPZ2DProxyBuilder();
+      virtual ~FWDTSegmentsRPZ2DProxyBuilder();
+
+      // ---------- const member functions ---------------------
+
+      // ---------- static member functions --------------------
+      static void build(const FWEventItem* iItem,
+                        TEveElementList** product,
+                        bool rhoPhiProjection);
+      // ---------- member functions ---------------------------
+      REGISTER_PROXYBUILDER_METHODS();
+
+   private:
+      virtual void buildRhoPhi(const FWEventItem* iItem,
+                               TEveElementList** product);
+
+      virtual void buildRhoZ(const FWEventItem* iItem,
+                               TEveElementList** product);
+
+      virtual void modelChanges(const FWModelIds& iIds,
+                                TEveElement* iElements);
+      virtual void applyChangesToAllModels(TEveElement* iElements);
+
+      FWDTSegmentsRPZ2DProxyBuilder(const FWDTSegmentsRPZ2DProxyBuilder&); // stop default
+
+      const FWDTSegmentsRPZ2DProxyBuilder& operator=(const FWDTSegmentsRPZ2DProxyBuilder&); // stop default
+
+      // ---------- member data --------------------------------
+};
+
+
+FWDTSegmentsRPZ2DProxyBuilder::FWDTSegmentsRPZ2DProxyBuilder()
 {
 }
 
-DTSegmentsProxyRhoPhiZ2DBuilder::~DTSegmentsProxyRhoPhiZ2DBuilder()
+FWDTSegmentsRPZ2DProxyBuilder::~FWDTSegmentsRPZ2DProxyBuilder()
 {
 }
 
-void DTSegmentsProxyRhoPhiZ2DBuilder::buildRhoPhi(const FWEventItem* iItem, TEveElementList** product)
+void FWDTSegmentsRPZ2DProxyBuilder::buildRhoPhi(const FWEventItem* iItem, TEveElementList** product)
 {
    build(iItem, product, true);
 }
 
-void DTSegmentsProxyRhoPhiZ2DBuilder::buildRhoZ(const FWEventItem* iItem, TEveElementList** product)
+void FWDTSegmentsRPZ2DProxyBuilder::buildRhoZ(const FWEventItem* iItem, TEveElementList** product)
 {
    build(iItem, product, false);
 }
 
-void DTSegmentsProxyRhoPhiZ2DBuilder::build(const FWEventItem* iItem,
+void FWDTSegmentsRPZ2DProxyBuilder::build(const FWEventItem* iItem,
 					    TEveElementList** product,
 					    bool rhoPhiProjection)
 {
@@ -134,7 +172,7 @@ void DTSegmentsProxyRhoPhiZ2DBuilder::build(const FWEventItem* iItem,
 }
 
 void
-DTSegmentsProxyRhoPhiZ2DBuilder::modelChanges(const FWModelIds& iIds, TEveElement* iElements)
+FWDTSegmentsRPZ2DProxyBuilder::modelChanges(const FWModelIds& iIds, TEveElement* iElements)
 {
    //NOTE: don't use ids() since they may not have been filled in in the build* calls
    //  since this code and FWEventItem do not agree on the # of models made
@@ -146,7 +184,7 @@ DTSegmentsProxyRhoPhiZ2DBuilder::modelChanges(const FWModelIds& iIds, TEveElemen
 }
 
 void
-DTSegmentsProxyRhoPhiZ2DBuilder::applyChangesToAllModels(TEveElement* iElements)
+FWDTSegmentsRPZ2DProxyBuilder::applyChangesToAllModels(TEveElement* iElements)
 {
    //NOTE: don't use ids() since they may not have been filled in in the build* calls
    //  since this code and FWEventItem do not agree on the # of models made
@@ -161,4 +199,4 @@ DTSegmentsProxyRhoPhiZ2DBuilder::applyChangesToAllModels(TEveElement* iElements)
    }
 }
 
-REGISTER_FWRPZDATAPROXYBUILDERBASE(DTSegmentsProxyRhoPhiZ2DBuilder,DTRecSegment4DCollection,"DT-segments");
+REGISTER_FWRPZDATAPROXYBUILDERBASE(FWDTSegmentsRPZ2DProxyBuilder,DTRecSegment4DCollection,"DT-segments");
