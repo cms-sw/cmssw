@@ -82,7 +82,8 @@ std::string JetMCTagUtils::genTauDecayMode(const CompositePtrCandidate &c) {
   
   int numElectrons = 0;
   int numMuons = 0;
-  int numChargedPions = 0;
+  int numChargedHadrons = 0;
+  int numNeutralHadrons = 0;
   int numPhotons = 0;
   
   const CompositePtrCandidate::daughters& daughters = c.daughterPtrVector();
@@ -92,9 +93,7 @@ std::string JetMCTagUtils::genTauDecayMode(const CompositePtrCandidate &c) {
     int pdg_id = abs((*daughter)->pdgId());
     
     switch ( pdg_id ) {
-    case 211:
-      numChargedPions++;
-      break;
+
     case 22: 
       numPhotons++;
       break;
@@ -104,13 +103,16 @@ std::string JetMCTagUtils::genTauDecayMode(const CompositePtrCandidate &c) {
     case 13:
       numMuons++;
       break;
+    default : {if ((*daughter)->charge() != 0)  numChargedHadrons++; else numNeutralHadrons++;}
     }
   }
   
   if (numElectrons == 1) return std::string("electron");
   else if (numMuons == 1) return std::string("muon");
-  switch ( numChargedPions ) {
+
+  switch ( numChargedHadrons ) {
   case 1 : 
+    if (numNeutralHadrons != 0) return std::string("oneProngOther");
     switch ( numPhotons ) {
     case 0:
       return std::string("oneProng0Pi0");
@@ -119,19 +121,20 @@ std::string JetMCTagUtils::genTauDecayMode(const CompositePtrCandidate &c) {
     case 4:
       return std::string("oneProng2Pi0");
     default:
-      return std::string("undefined");
+      return std::string("oneProngOther");
     }
   case 3 : 
+    if (numNeutralHadrons != 0) return std::string("threeProngOther");
     switch ( numPhotons ) {
     case 0:
       return std::string("threeProng0Pi0");
     case 2:
       return std::string("threeProng1Pi0");
     default:
-      return std::string("undefined");
+      return std::string("threeProngOther");
     }
   default:
-    return std::string("undefined");
+    return std::string("rare");
   }
   
 }
