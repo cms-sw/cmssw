@@ -29,7 +29,7 @@ TtSemiLepHypGeom::buildHypo(edm::Event& evt,
   }
 
   unsigned maxNJets = maxNJets_;
-  if(maxNJets_ == -1) maxNJets = jets->size();
+  if(maxNJets_ == -1 || (int)jets->size() < maxNJets_) maxNJets = jets->size();
 
   match.clear();
   for(unsigned int i=0; i<4; ++i)
