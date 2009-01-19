@@ -10,9 +10,10 @@ process.load("SimGeneral.MixingModule.mixNoPU_cfi")
 process.load("SimGeneral.TrackingAnalysis.trackingParticles_cfi")
 
 process.load("Validation.TrackingMCTruth.trackingTruthValidation_cfi")
+process.trackingTruthValid.outputFile = "trackingtruthhisto.root"
 
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('/store/relval/2008/6/22/RelVal-RelValSingleMuPt10-1214048167-IDEAL_V2-2nd/0004/0AE2B3E3-0141-DD11-846F-000423D98BC4.root')
+    fileNames = cms.untracked.vstring('/store/relval/CMSSW_3_0_0_pre6/RelValSingleMuPt10/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_30X_v1/0005/38E34C97-E8DD-DD11-8327-000423D94534.root')
 )
 
 process.maxEvents = cms.untracked.PSet(

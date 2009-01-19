@@ -5,7 +5,7 @@ void TrackingTruthCompare()
   char*  sfilename = "trackingtruthhisto.root";
   // char*  rfilename = "mergedtruthhisto.root";
   //char*  rfilename = "/localscratch/azzi/Validation/CMSSW_1_8_0_pre5/src/Validation/TrackingMCTruth/test/trackingtruthhisto.root";
-  char*  rfilename = "../data/trackingtruthhisto.root";
+  char*  rfilename = "../trackingtruthhisto.root";
   
   delete gROOT->GetListOfFiles()->FindObject(rfilename);
   delete gROOT->GetListOfFiles()->FindObject(sfilename); 
@@ -16,12 +16,12 @@ void TrackingTruthCompare()
  TFile * sfile = new TFile(sfilename);
  TDirectory * sdir=gDirectory; 
 
- if(rfile->cd("DQMData/TrackingMCTruthV"))rfile->cd("DQMData/TrackingMCTruthV/TrackingMCTruth/TrackingParticle");
- else rfile->cd("DQMData/TrackingMCTruth/TrackingParticle");
+ if(rfile->cd("DQMData/Run 1/TrackingMCTruthV"))rfile->cd("DQMData/Run 1/TrackingMCTruthV/Run summary/TrackingMCTruth/TrackingParticle");
+ else rfile->cd("DQMData/TrackingMCTruthV/TrackingMCTruth/TrackingParticle");
  rdir=gDirectory;
  
- if(sfile->cd("DQMData/TrackingMCTruthV"))sfile->cd("DQMData/TrackingMCTruthV/TrackingMCTruth/TrackingParticle");
- else sfile->cd("DQMData/TrackingMCTruth/TrackingParticle");
+ if(sfile->cd("DQMData/Run 1/TrackingMCTruthV"))sfile->cd("DQMData/Run 1/TrackingMCTruthV/Run summary/TrackingMCTruth/TrackingParticle");
+ else sfile->cd("DQMData/TrackingMCTruthV/TrackingMCTruth/TrackingParticle");
  sdir=gDirectory; 
 
   TLegend leg(0.3, 0.83, 0.55, 0.90);
