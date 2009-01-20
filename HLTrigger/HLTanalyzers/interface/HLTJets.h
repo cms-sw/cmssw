@@ -55,7 +55,8 @@ public:
   void setup(const edm::ParameterSet& pSet, TTree* tree);
 
   /** Analyze the Data */
-  void analyze(const edm::Handle<CaloJetCollection>      & rjets,
+  void analyze(const edm::Handle<CaloJetCollection>      & recojets,
+	       const edm::Handle<CaloJetCollection>      & corjets,
 	       const edm::Handle<GenJetCollection>       & gjets,
 	       const edm::Handle<CaloMETCollection>      & rmets,
 	       const edm::Handle<GenMETCollection>       & gmets,
@@ -68,12 +69,13 @@ private:
 
   // Tree variables
   float *jcalpt, *jcalphi, *jcaleta, *jcale;
+  float *jcorcalpt, *jcorcalphi, *jcorcaleta, *jcorcale;
   float *jgenpt, *jgenphi, *jgeneta, *jgene;
   float *towet, *toweta, *towphi, *towen, *towem, *towhd, *towoe;
   float mcalmet,mcalphi,mcalsum;
   float htcalet,htcalphi,htcalsum;
   float mgenmet,mgenphi,mgensum;
-  int njetcal,njetgen,ntowcal;
+  int njetcal,ncorjetcal,njetgen,ntowcal;
 
    // Taus
   float *l2tauemiso, *l25tauPt, *l3tauPt;
