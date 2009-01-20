@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.65 2009/01/09 20:58:50 chrjones Exp $
+// $Id: CmsShowMain.cc,v 1.66 2009/01/12 17:23:48 chrjones Exp $
 //
 
 // system include files
@@ -169,7 +169,7 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
       (kConfigFileCommandOpt, po::value<std::string>(),   "Include configuration file")
       (kGeomFileCommandOpt,   po::value<std::string>(),   "Include geometry file")
       (kNoConfigFileCommandOpt,                           "Don't load any configuration file")
-      (kLoopPlaybackCommandOpt, po::value<int>(),         "Start in auto playback mode with given interval between events in seconds")
+      (kLoopPlaybackCommandOpt, po::value<float>(),       "Start in auto playback mode with given interval between events in seconds")
       (kPortCommandOpt, po::value<unsigned int>(),        "Listen to port for new data files to open")
       (kEveCommandOpt,                                    "Show Eve browser to help debug problems")
       (kDebugCommandOpt,                                  "Start the display from a debugger and producer a crash report")
