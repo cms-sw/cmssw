@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/10/03 08:53:22 $
- *  $Revision: 1.10 $
+ *  $Date: 2008/12/09 22:44:11 $
+ *  $Revision: 1.11 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -106,6 +106,7 @@ void DumpDBToFile::endJob() {
 	vector<float> consts;
 	consts.push_back(-1);
 	consts.push_back(-1);
+	consts.push_back(-1);
 	consts.push_back(vdrift);
 	consts.push_back(reso);
 
@@ -161,6 +162,7 @@ void DumpDBToFile::endJob() {
 	consts.push_back(-1);
 	consts.push_back(-1);
 	consts.push_back(-1);
+	consts.push_back(-1);
 	consts.push_back(t0mean);      
 	consts.push_back(t0rms);
 
@@ -178,6 +180,7 @@ void DumpDBToFile::endJob() {
 	cout << wireId
 	     << " Noisy Flag: " << (*statusFlag).second.noiseFlag << endl;
 	vector<float> consts;
+	consts.push_back(-1);
 	consts.push_back(-1);
 	consts.push_back(-1);
 	consts.push_back(-1);
@@ -200,6 +203,7 @@ void DumpDBToFile::endJob() {
 	cout << wireId
 	     << " Dead Flag: " << (*deadFlag).second.dead_TP << endl;
 	vector<float> consts;
+	consts.push_back(-1);
 	consts.push_back(-1);
 	consts.push_back(-1);
 	consts.push_back(-1);
