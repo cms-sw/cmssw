@@ -39,5 +39,7 @@
 <use name=MagneticField/Records>
 <use name=SimDataFormats/GeneratorProducts>
 <use name=TrackingTools/TrajectoryState>
+<use name=RecoEcal/EgammaCoreTools>
+<use name=RecoEgamma/EgammaTools>
 <use name=rootcore>
 <flags EDM_PLUGIN=1>
