@@ -16,8 +16,8 @@ namespace calogeom {
   
   Total: 7 parameters 
   
-  $Date: 2007/10/08 20:54:40 $
-  $Revision: 1.1 $
+  $Date: 2008/11/10 15:27:02 $
+  $Revision: 1.2 $
   \author P. Katsas - UoA
   */
    class IdealCastorTrapezoid: public CaloCellGeometry 
@@ -35,10 +35,9 @@ namespace calogeom {
 
 	virtual const CornersVec& getCorners() const;
 
-	const double an() const { return param()[0] ; }
-	const double dx() const { return param()[1] ; }
-	const double dy() const { return param()[2] ; }
-	const double dz() const { return param()[3] ; }
+	const double dx() const { return param()[0] ; }
+	const double dy() const { return param()[1] ; }
+	const double dz() const { return param()[2] ; }
     
      private:
   };

@@ -42,6 +42,11 @@ std::auto_ptr<CaloSubdetectorGeometry> CastorHardcodeGeometryLoader::load() {
 
 void CastorHardcodeGeometryLoader::fill(HcalCastorDetId::Section section, CaloSubdetectorGeometry* geom) 
 {
+  if( geom->cornersMgr() == 0 ) geom->allocateCorners( HcalCastorDetId::kSizeForDenseIndexing ) ;
+  if( geom->parMgr()     == 0 ) geom->allocatePar( 
+     ( geom->numberOfShapes() )*( geom->numberOfParametersPerShape() ),
+     geom->numberOfParametersPerShape() ) ;
+
   // start by making the new HcalDetIds
   std::vector<HcalCastorDetId> castorIds;
   HcalCastorDetId id;
@@ -50,9 +55,11 @@ void CastorHardcodeGeometryLoader::fill(HcalCastorDetId::Section section, CaloSu
   for(int imodule = firstCell; imodule <= lastCell; ++imodule) {
     for(int isector = 1; isector < 17; ++isector) {
     id = HcalCastorDetId(section, true, isector, imodule);
-    if(theTopology.valid(id)) castorIds.push_back(id);
+//    if(theTopology.valid(id)) 
+    castorIds.push_back(id);
     id = HcalCastorDetId(section, false, isector, imodule);
-    if(theTopology.valid(id)) castorIds.push_back(id);
+//    if(theTopology.valid(id)) 
+    castorIds.push_back(id);
    }
   }
   edm::LogInfo("CastorHardcodeGeometry") << "Number of Castor DetIds made: " << section << " " << castorIds.size();
@@ -74,8 +81,9 @@ CastorHardcodeGeometryLoader::makeCell( const HcalCastorDetId&   detId ,
   HcalCastorDetId::Section section = detId.section();
   int module = detId.module();
 //  int sector = detId.sector();
-  
-  float xMother = X0;
+
+
+  float xMother = X0;  // what the heck is X0 ?? a global constant? bkh.
   float yMother = Y0;
   float zMother = Z0;
   float dx = 0;
@@ -108,10 +116,11 @@ CastorHardcodeGeometryLoader::makeCell( const HcalCastorDetId&   detId ,
   GlobalPoint faceCenter(xfaceCenter, yfaceCenter, zfaceCenter);
 
   std::vector<double> zz ;
-  zz.resize(3) ;
+  zz.reserve(3) ;
   zz.push_back( dx ) ;
   zz.push_back( dy ) ;
   zz.push_back( dz ) ;
+
   return new calogeom::IdealCastorTrapezoid( 
      faceCenter, 
      geom->cornersMgr(),

@@ -18,6 +18,10 @@ public:
 
   virtual DetId getClosestCell(const GlobalPoint& r) const ;
 
+      
+      virtual unsigned int numberOfShapes() const { return 2 ; }
+      virtual unsigned int numberOfParametersPerShape() const { return 3 ; }
+
 private:
   const CastorTopology * theTopology;
   mutable DetId::Detector lastReqDet_;
