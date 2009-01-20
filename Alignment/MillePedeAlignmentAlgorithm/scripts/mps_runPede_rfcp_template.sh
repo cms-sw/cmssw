@@ -19,7 +19,7 @@ stager_get -M $MSSDIR/milleBinaryISN.dat
 rfcp $MSSDIR/milleBinaryISN.dat $BATCH_DIR
 
 # set up the CMS environment
-cd $HOME/cms/CMSSW/CMSSW_2_1_10
+cd $HOME/cms/CMSSW/CMSSW_3_0_0
 eval `scramv1 runtime -sh`
 rehash
 
@@ -27,7 +27,7 @@ cd $BATCH_DIR
 echo Running directory changed to $(pwd).
 
 # create link for treeFile(s) in mille job $RUNDIR's
-# (comment in case you a cfg not creating treeFiles...)
+# (comment in case your cfg is not creating treeFiles...)
 ln -s $RUNDIR/../jobISN/treeFile.root treeFileISN.root
 
 # Execute. The cfg file name will be overwritten by MPS
@@ -43,7 +43,7 @@ gzip -f *.txt
 # Merge possible alignment monitor and millepede monitor hists...
 # ...and remove individual histogram files after merging to save space (if success):
 # NOTE: the names "histograms.root" and "millePedeMonitor.root" must match what is in
-#      the mps_template.cfg!
+#      your  alignment_cfg.py!
 #hadd histograms_merge.root $RUNDIR/../job???/histograms.root
 #if [ $? -eq 0 ]; then
 #    rm $RUNDIR/../job???/histograms.root
@@ -52,7 +52,16 @@ hadd millePedeMonitor_merge.root $RUNDIR/../job???/millePedeMonitor.root
 if [ $? -eq 0 ]; then
     rm $RUNDIR/../job???/millePedeMonitor.root
 fi
-
+# Macro creating millepede.his.ps with pede information hists:
+if [ -e $CMSSW_BASE/src/Alignment/MillePedeAlignmentAlgorithm/macros/readPedeHists.C ] ; then
+    # Checked out version if existing:
+    cp $CMSSW_BASE/src/Alignment/MillePedeAlignmentAlgorithm/macros/readPedeHists.C .
+else
+    # If nothing checked out, take from release:
+    cp $CMSSW_RELEASE_BASE/src/Alignment/MillePedeAlignmentAlgorithm/macros/readPedeHists.C .
+fi
+root -b -q "readPedeHists.C+(\"print nodraw\")" 
+gzip -f *.ps
 echo "\nDirectory content after running cmsRun, zipping log file and merging histogram files:"
 ls -lh
 # Copy everything you need to MPS directory of your job,
@@ -61,6 +70,7 @@ ls -lh
 cp -p *.dump $RUNDIR
 cp -p *.log.gz $RUNDIR
 cp -p *.txt.gz $RUNDIR
+cp -p *.ps.gz $RUNDIR
 cp -p *.root $RUNDIR
 cp -p millepede.*s $RUNDIR
 cp -p *.db $RUNDIR
