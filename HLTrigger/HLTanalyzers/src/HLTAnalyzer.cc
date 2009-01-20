@@ -31,6 +31,7 @@ HLTAnalyzer::HLTAnalyzer(edm::ParameterSet const& conf) {
   std::cout << " Beginning HLTAnalyzer Analysis " << std::endl;
 
   recjets_          = conf.getParameter<edm::InputTag> ("recjets");
+  reccorjets_       = conf.getParameter<edm::InputTag> ("reccorjets");
   genjets_          = conf.getParameter<edm::InputTag> ("genjets");
   recmet_           = conf.getParameter<edm::InputTag> ("recmet");
   genmet_           = conf.getParameter<edm::InputTag> ("genmet");
@@ -149,6 +150,7 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
   // These declarations create handles to the types of records that you want
   // to retrieve from event "iEvent".
   edm::Handle<CaloJetCollection>                    recjets;
+  edm::Handle<CaloJetCollection>                    reccorjets;
   edm::Handle<GenJetCollection>                     genjets;
   edm::Handle<CaloTowerCollection>                  caloTowers;
   edm::Handle<CaloMETCollection>                    recmet;
@@ -211,10 +213,29 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
   edm::Handle<reco::RecoEcalCandidateIsolationMap>  TrackIsolMap;
   edm::Handle<reco::RecoEcalCandidateIsolationMap>  TrackNonIsolMap;
   
+  // new stuff for the egamma EleId
+  edm::InputTag ecalRechitEBTag (string("hltEcalRegionalEgammaRecHit:EcalRecHitsEB"));
+  edm::InputTag ecalRechitEETag (string("hltEcalRegionalEgammaRecHit:EcalRecHitsEE"));
+  EcalClusterLazyTools lazyTools( iEvent, iSetup, ecalRechitEBTag, ecalRechitEETag);
+
+  edm::ESHandle<MagneticField>                theMagField;
+  iSetup.get<IdealMagneticFieldRecord>().get(theMagField);
+
+  edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
+  edm::InputTag BSProducer_(string("hltOfflineBeamSpot"));
+
+
   // extract the collections from the event, check their validity and log which are missing
   std::vector<MissingCollectionInfo> missing;
 
+  //get the BeamSpot
+  getCollection( iEvent, missing, recoBeamSpotHandle,       BSProducer_ ,          "Beam Spot handle");
+  // gets its position
+  reco::BeamSpot::Point BSPosition(0,0,0);
+  BSPosition = recoBeamSpotHandle->position();
+
   getCollection( iEvent, missing, recjets,         recjets_,           kRecjets );
+  getCollection( iEvent, missing, reccorjets,      reccorjets_,        kRecCorjets );
   getCollection( iEvent, missing, genjets,         genjets_,           kGenjets );
   getCollection( iEvent, missing, recmet,          recmet_,            kRecmet );
   getCollection( iEvent, missing, genmet,          genmet_,            kGenmet );
@@ -252,6 +273,19 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
   getCollection( iEvent, missing, hPerformanceBJetsL3,      m_performanceBJetsL3,       kBTagPerformanceBJetsL3 );
   getCollection( iEvent, missing, electrons,                Electron_,                  kElectrons );
   getCollection( iEvent, missing, photons,                  Photon_,                    kPhotons );
+
+  //Read offline eleID results
+  std::vector<edm::Handle<edm::ValueMap<float> > > eIDValueMap(4); 
+//   edm::InputTag electronLabelRobustTight_(string("eidRobustTight"));
+//   edm::InputTag electronLabelTight_(string("eidTight"));
+//   edm::InputTag electronLabelRobustLoose_(string("eidRobustLoose"));
+//   edm::InputTag electronLabelLoose_(string("eidLoose"));
+//   getCollection( iEvent, missing, eIDValueMap[0],   electronLabelRobustLoose_      ,       "EleId Robust-Loose");
+//   getCollection( iEvent, missing, eIDValueMap[1],   electronLabelRobustTight_      ,       "EleId Robust-Tight");
+//   getCollection( iEvent, missing, eIDValueMap[2],   electronLabelLoose_      ,       "EleId Loose");
+//   getCollection( iEvent, missing, eIDValueMap[3],   electronLabelTight_      ,       "EleId Tight");
+
+  //read all the OpenHLT egamma collections
   getCollection( iEvent, missing, recoIsolecalcands,        CandIso_,                   kCandIso);
   getCollection( iEvent, missing, recoNonIsolecalcands,     CandNonIso_,                kCandNonIso);
   getCollection( iEvent, missing, EcalIsolMap,              EcalIso_,                   kEcalIso);
@@ -290,6 +324,7 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
   // run the analysis, passing required event fragments
   jet_analysis_.analyze(
     recjets,
+    reccorjets,
     genjets,
     recmet,
     genmet,
@@ -332,6 +367,10 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
     HcalNonIsolMap,
     TrackIsolMap,
     TrackNonIsolMap,
+    lazyTools,
+    theMagField,
+    BSPosition,
+    eIDValueMap,
     HltTree);
   
   mct_analysis_.analyze(
