@@ -206,13 +206,25 @@ def regressReports(olddir,newdir,oldRelName = "",newRelName=""):
                             else:
                                 continue
                     elif prof == "SimpleMemoryCheck":
-                        if os.path.exists(oldlog):
-                            print ""
-                            print "** "
-                            print "** Comparing for SimpleMemoryCheck", candle, step, prof, "previous release: %s, latest release %s" % (oldlog,log)
-                            print "**"
-                            #The try/except is folded in the following function for SimpleMemoryCheck:
-                            compareSimMemPair(log,candle,profdir,adir,olddir,oldRelName= oldRelName)
+                        for log in stepLogs:
+                            stepreg = re.compile("%s_([^_]*(_PILEUP)?)_%s((.log)|(.gz))?" % (CandFname[candle],"TimingReport"))
+                            base = os.path.basename(log)
+                            #Use the regular expression defined above to read out the step from the log/profile
+                            searchob = stepreg.search(base)
+                            #If in this log the regular expression was able match (and so to extract the step)
+                            if searchob:
+                                #print searchob.groups()
+                                step = searchob.groups()[0]
+                                #print "and the step taken is %s"%step
+                                #outpath = os.path.join(adir,"%s_%s_%s_regression" % (CandFname[candle],step,prof))
+                                oldlog  = os.path.join(olddir,"%s_%s" % (candle,profset),base)
+                            if os.path.exists(oldlog):
+                                print ""
+                                print "** "
+                                print "** Comparing for SimpleMemoryCheck", candle, step, prof, "previous release: %s, latest release %s" % (oldlog,log)
+                                print "**"
+                                #The try/except is folded in the following function for SimpleMemoryCheck:
+                                compareSimMemPair(log,candle,profdir,adir,olddir,oldRelName= oldRelName)
                                
     if newRelName == "":
         newRelName = getVerFromLog(newdir)

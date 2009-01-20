@@ -1032,10 +1032,10 @@ def perfreport(perftype,file1,file2,outdir,IgProfMemopt=""):
     exitstat = process.close()
 
     try:
-        rmtree(tmpdir)        
-        os.rmdir(tmpdir)
+        rmtree(tmpdir)        #Brute force solution rm -RF tmpdir done in rmtree()
+        #os.rmdir(tmpdir)
     except IOError, detail:
-        print "WARNING: Could not remove dir because %s" % detail                
+        print "WARNING: Could not remove dir because IO%s" % detail                
     except OSError, detail:
         print "WARNING: Could not remove dir because %s" % detail                
 

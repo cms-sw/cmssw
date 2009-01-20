@@ -498,10 +498,9 @@ def writeCommands(simcandles,
     fstROOTfileStr = ""
 
     #Handling the case of the first user step not being the first step (GEN,SIM):
-    print steps
+    print "Steps passed to writeCommands %s",steps
     if not (steps[0] == AllSteps[0]) and (steps[0].split("-")[0] != "GEN,SIM"):
         #Write the necessary line to run without profiling all the steps before the wanted ones in one shot:
-        #print "00acandle is %s"%acandle
         (stepIndex, rootFileStr) = writePrerequisteSteps(simcandles,steps,acandle,NumberOfEvents,cmsDriverOptions,bypasshlt)
         
         #Now take care of setting the indeces and input root file name right for the profiling part...
@@ -535,6 +534,50 @@ def writeCommands(simcandles,
             
     unprofiledSteps = []
     rawreg = re.compile("^RAW2DIGI")
+
+#New design of the loop:
+    #CurrentStepIndex = 0
+    print "UserSteps:"
+    AllStepsIndex=-1
+    #Tests that can be done before looping:
+    if not (userSteps[0] == AllSteps[0]) and (userSteps[0].split("-")[0] != "GEN,SIM"):
+            print "Need some pre-steps before starting with userSteps %s"%userSteps
+            print "Will run steps %s"%AllSteps[0:AllSteps.index(userSteps[0].split("-")[0])]
+    for step in userSteps:
+        print step
+        #Establish the corresponding index in AllSteps:
+        #AllStepsIndex=AllSteps.index(step)
+        #Check the first step to see if there are unprofiled pre-steps needed:
+        #if not (step == AllSteps[0]) and (step.split("-")[0] != "GEN,SIM"):
+        #    print "Need some pre-steps for step %s"%step
+            #implement here the running of unprofiled steps between GEN-SIM and AllSteps.index(steps[0].split("-")[0] -1)
+            #possibly calling a function WriteUnprofiledSteps(unprofiledSteps) that takes care of all (input, output filename) 
+        #Check if there are hypens (they mean we want to run all the steps between the hypens in one shot profiling them)
+        if "-" in step:
+            print "Hyphenated step: %s"%step
+            #implement profiling of steps a la cmsDriver.py, by translating the hypens:
+            #GEN-HLT -> GEN,SIM,DIGI,L1,DIGI2RAW,HLT
+            print "Expanded hyphenated steps: %s"%expandHyphens(step)
+            FirstStep=expandHyphens(step)[0]
+        if AllStepsIndex != -1:
+            try:
+                if AllSteps.index(step) == AllStepsIndex + 1:
+                    print "Consecutive steps to profile"
+                else:
+                    print "Step %s is not the consecutive step of %s, so we will need to run the intermediate ones unprofiled"%(AllSteps.index(step),AllStepsIndex)
+            except:#To catch the case of hyphenated steps
+                if AllSteps.index(expandHyphens(step)[0]) == AllStepsIndex + 1:
+                    print "Consecutive steps to profile"
+                else:
+                    print "Step %s is not the consecutive step of %s, so we will need to run the intermediate ones unprofiled"%(AllSteps.index(expandHyphens(step)[0]),AllStepsIndex)
+        try:
+            AllStepsIndex=AllSteps.index(step)
+        except: #To catch the case of hyphenated steps
+            AllStepsIndex=AllSteps.index(expandHyphens(step)[-1])
+        #if step
+
+
+        #CurrentStepIndex = CurrentStepIndex + 1
     
 #   FOR step in steps
 
