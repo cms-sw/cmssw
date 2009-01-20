@@ -12,7 +12,7 @@ templates = cms.ESProducer("PixelCPETemplateRecoESProducer",
     ClusterProbComputationFlag = cms.int32(0),
 
     # gavril
-    DoCosmics = cms.bool(True),
+    DoCosmics = cms.bool(False),
 
     LoadTemplatesFromDB = cms.bool(True)
 )
