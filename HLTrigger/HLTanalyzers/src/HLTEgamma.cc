@@ -12,6 +12,17 @@
 #include "DataFormats/EgammaReco/interface/ElectronPixelSeed.h"
 #include "DataFormats/EgammaReco/interface/ElectronPixelSeedFwd.h"
 #include "HLTrigger/HLTanalyzers/interface/HLTEgamma.h"
+
+
+
+#include "RecoEgamma/EgammaTools/interface/ECALPositionCalculator.h"
+
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
+
+#include "DataFormats/EgammaReco/interface/SuperCluster.h"
+
 #include "HLTMessages.h"
 
 static const size_t kMaxEl     = 10000;
@@ -31,11 +42,14 @@ void HLTEgamma::setup(const edm::ParameterSet& pSet, TTree* HltTree)
   eleta             = new float[kMaxEl];
   elet              = new float[kMaxEl];
   ele               = new float[kMaxEl];
+  eleId             = new int[kMaxEl];// RL  + 2*RT + 4*L +  4*T 
+  
   photonpt          = new float[kMaxPhot];
   photonphi         = new float[kMaxPhot];
   photoneta         = new float[kMaxPhot];
   photonet          = new float[kMaxPhot];
   photone           = new float[kMaxPhot];
+
   hphotet           = new float[kMaxhPhot];
   hphoteta          = new float[kMaxhPhot];
   hphotphi          = new float[kMaxhPhot];
@@ -43,6 +57,8 @@ void HLTEgamma::setup(const edm::ParameterSet& pSet, TTree* HltTree)
   hphothiso         = new float[kMaxhPhot];
   hphottiso         = new float[kMaxhPhot];
   hphotl1iso        = new int[kMaxhPhot];
+  hphotClusShap     = new float[kMaxhPhot];
+
   heleet            = new float[kMaxhEle];
   heleeta           = new float[kMaxhEle];
   helephi           = new float[kMaxhEle];
@@ -53,6 +69,10 @@ void HLTEgamma::setup(const edm::ParameterSet& pSet, TTree* HltTree)
   helel1iso         = new int[kMaxhEle];
   helePixelSeeds    = new int[kMaxhEle];
   heleNewSC         = new int[kMaxhEle];
+  heleClusShap      = new float[kMaxhEle];
+  heleDeta          = new float[kMaxhEle];
+  heleDphi          = new float[kMaxhEle];
+
   heleetLW          = new float[kMaxhEleLW];
   heleetaLW         = new float[kMaxhEleLW];
   helephiLW         = new float[kMaxhEleLW];
@@ -63,6 +83,10 @@ void HLTEgamma::setup(const edm::ParameterSet& pSet, TTree* HltTree)
   helel1isoLW       = new int[kMaxhEleLW];
   helePixelSeedsLW  = new int[kMaxhEleLW];
   heleNewSCLW       = new int[kMaxhEleLW];
+  heleClusShapLW    = new float[kMaxhEleLW];
+  heleDetaLW        = new float[kMaxhEleLW];
+  heleDphiLW        = new float[kMaxhEleLW];
+
   nele      = 0;
   nphoton   = 0;
   nhltgam   = 0;
@@ -76,12 +100,15 @@ void HLTEgamma::setup(const edm::ParameterSet& pSet, TTree* HltTree)
   HltTree->Branch("recoElecEta",        eleta,              "recoElecEta[NrecoElec]/F");
   HltTree->Branch("recoElecEt",         elet,               "recoElecEt[NrecoElec]/F");
   HltTree->Branch("recoElecE",          ele,                "recoElecE[NrecoElec]/F");
+  HltTree->Branch("recoElecEleID",      eleId,              "recoElecEleID[NrecoElec]/I");
+
   HltTree->Branch("NrecoPhot",          &nphoton,           "NrecoPhot/I");
   HltTree->Branch("recoPhotPt",         photonpt,           "recoPhotPt[NrecoPhot]/F");
   HltTree->Branch("recoPhotPhi",        photonphi,          "recoPhotPhi[NrecoPhot]/F");
   HltTree->Branch("recoPhotEta",        photoneta,          "recoPhotEta[NrecoPhot]/F");
   HltTree->Branch("recoPhotEt",         photonet,           "recoPhotEt[NrecoPhot]/F");
   HltTree->Branch("recoPhotE",          photone,            "recoPhotE[NrecoPhot]/F");
+
   HltTree->Branch("NohPhot",            & nhltgam,          "NohPhot/I");
   HltTree->Branch("ohPhotEt",           hphotet,            "ohPhotEt[NohPhot]/F");
   HltTree->Branch("ohPhotEta",          hphoteta,           "ohPhotEta[NohPhot]/F");
@@ -90,6 +117,8 @@ void HLTEgamma::setup(const edm::ParameterSet& pSet, TTree* HltTree)
   HltTree->Branch("ohPhotHiso",         hphothiso,          "ohPhotHiso[NohPhot]/F");
   HltTree->Branch("ohPhotTiso",         hphottiso,          "ohPhotTiso[NohPhot]/F");
   HltTree->Branch("ohPhotL1iso",        hphotl1iso,         "ohPhotL1iso[NohPhot]/I");
+  HltTree->Branch("ohPhotClusShap",     hphotClusShap,      "ohPhotClusShap[NohPhot]/F");
+
   HltTree->Branch("NohEle",             & nhltele,          "NohEle/I");
   HltTree->Branch("ohEleEt",            heleet,             "ohEleEt[NohEle]/F");
   HltTree->Branch("ohEleEta",           heleeta,            "ohEleEta[NohEle]/F");
@@ -101,6 +130,10 @@ void HLTEgamma::setup(const edm::ParameterSet& pSet, TTree* HltTree)
   HltTree->Branch("ohEleL1iso",         helel1iso,          "ohEleLiso[NohEle]/I");
   HltTree->Branch("ohElePixelSeeds",    helePixelSeeds,     "ohElePixelSeeds[NohEle]/I");
   HltTree->Branch("ohEleNewSC",         heleNewSC,          "ohEleNewSC[NohEle]/I");
+  HltTree->Branch("ohEleClusShap",      heleClusShap,       "ohEleClusShap[NohEle]/F");
+  HltTree->Branch("ohEleDeta",          heleDeta,           "ohEleDeta[NohEle]/F");
+  HltTree->Branch("ohEleDphi",          heleDphi,           "ohEleDphi[NohEle]/F");
+
   HltTree->Branch("NohEleLW",           & nhlteleLW,        "NohEleLW/I");
   HltTree->Branch("ohEleEtLW",          heleetLW,           "ohEleEtLW[NohEleLW]/F");
   HltTree->Branch("ohEleEtaLW",         heleetaLW,          "ohEleEtaLW[NohEleLW]/F");
@@ -112,6 +145,9 @@ void HLTEgamma::setup(const edm::ParameterSet& pSet, TTree* HltTree)
   HltTree->Branch("ohEleL1isoLW",       helel1isoLW,        "ohEleLisoLW[NohEleLW]/I");
   HltTree->Branch("ohElePixelSeedsLW",  helePixelSeedsLW,   "ohElePixelSeedsLW[NohEleLW]/I");
   HltTree->Branch("ohEleNewSCLW",       heleNewSCLW,        "ohEleNewSCLW[NohEleLW]/I");
+  HltTree->Branch("ohEleClusShapLW",    heleClusShapLW,     "ohEleClusShapLW[NohEleLW]/F");
+  HltTree->Branch("ohEleDetaLW",        heleDetaLW,         "ohEleDetaLW[NohEleLW]/F");
+  HltTree->Branch("ohEleDphiLW",        heleDphiLW,         "ohEleDphiLW[NohEleLW]/F");
 }
 
 void HLTEgamma::clear(void)
@@ -121,11 +157,14 @@ void HLTEgamma::clear(void)
   std::memset(eleta,            '\0', kMaxEl     * sizeof(float));
   std::memset(elet,             '\0', kMaxEl     * sizeof(float));
   std::memset(ele,              '\0', kMaxEl     * sizeof(float));
+  std::memset(ele,              '\0', kMaxEl     * sizeof(int));
+
   std::memset(photonpt,         '\0', kMaxPhot   * sizeof(float));
   std::memset(photonphi,        '\0', kMaxPhot   * sizeof(float));
   std::memset(photoneta,        '\0', kMaxPhot   * sizeof(float));
   std::memset(photonet,         '\0', kMaxPhot   * sizeof(float));
   std::memset(photone,          '\0', kMaxPhot   * sizeof(float));
+
   std::memset(hphotet,          '\0', kMaxhPhot  * sizeof(float));
   std::memset(hphoteta,         '\0', kMaxhPhot  * sizeof(float));
   std::memset(hphotphi,         '\0', kMaxhPhot  * sizeof(float));
@@ -133,6 +172,8 @@ void HLTEgamma::clear(void)
   std::memset(hphothiso,        '\0', kMaxhPhot  * sizeof(float));
   std::memset(hphottiso,        '\0', kMaxhPhot  * sizeof(float));
   std::memset(hphotl1iso,       '\0', kMaxhPhot  * sizeof(int));
+  std::memset(hphotClusShap,    '\0', kMaxhPhot  * sizeof(float));
+
   std::memset(heleet,           '\0', kMaxhEle   * sizeof(float));
   std::memset(heleeta,          '\0', kMaxhEle   * sizeof(float));
   std::memset(helephi,          '\0', kMaxhEle   * sizeof(float));
@@ -143,6 +184,10 @@ void HLTEgamma::clear(void)
   std::memset(helel1iso,        '\0', kMaxhEle   * sizeof(int));
   std::memset(helePixelSeeds,   '\0', kMaxhEle   * sizeof(int));
   std::memset(heleNewSC,        '\0', kMaxhEle   * sizeof(int));
+  std::memset(heleClusShap,     '\0', kMaxhEle  * sizeof(float));
+  std::memset(heleDeta,         '\0', kMaxhEle  * sizeof(float));
+  std::memset(heleDphi,         '\0', kMaxhEle  * sizeof(float));
+
   std::memset(heleetLW,         '\0', kMaxhEleLW * sizeof(float));
   std::memset(heleetaLW,        '\0', kMaxhEleLW * sizeof(float));
   std::memset(helephiLW,        '\0', kMaxhEleLW * sizeof(float));
@@ -153,6 +198,9 @@ void HLTEgamma::clear(void)
   std::memset(helel1isoLW,      '\0', kMaxhEleLW * sizeof(int));
   std::memset(helePixelSeedsLW, '\0', kMaxhEleLW * sizeof(int));
   std::memset(heleNewSCLW,      '\0', kMaxhEleLW * sizeof(int));
+  std::memset(heleClusShapLW,   '\0', kMaxhEleLW  * sizeof(float));
+  std::memset(heleDetaLW,       '\0', kMaxhEleLW  * sizeof(float));
+  std::memset(heleDphiLW,       '\0', kMaxhEleLW  * sizeof(float));
 
   nele      = 0;
   nphoton   = 0;
@@ -186,6 +234,10 @@ void HLTEgamma::analyze(const edm::Handle<reco::GsfElectronCollection>         &
                         const edm::Handle<reco::RecoEcalCandidateIsolationMap> & HcalNonIsolMap,
                         const edm::Handle<reco::RecoEcalCandidateIsolationMap> & TrackIsolMap,
                         const edm::Handle<reco::RecoEcalCandidateIsolationMap> & TrackNonIsolMap,
+			EcalClusterLazyTools& lazyTools,
+			const edm::ESHandle<MagneticField>& theMagField,
+			reco::BeamSpot::Point & BSPosition, 
+			std::vector<edm::Handle<edm::ValueMap<float> > > & eIDValueMap,
                         TTree* HltTree)
 {
   // reset the tree variables
@@ -208,6 +260,33 @@ void HLTEgamma::analyze(const edm::Handle<reco::GsfElectronCollection>         &
     nele = 0;
   }
 
+// Use of electron-identification (= RobustLoose or RobustTight or Loose or Tight)
+// variable, which does not have the Et-sorting
+//     nele = electrons->size();
+//     for (int iel = 0; iel < nele; iel++) {
+//       edm::Ref<reco::GsfElectronCollection> electronRef(electrons,iel);
+//       elpt[iel]  = electronRef->pt();
+//       elphi[iel] = electronRef->phi();
+//       eleta[iel] = electronRef->eta();
+//       elet[iel]  = electronRef->et();
+//       ele[iel]   = electronRef->energy();
+//       int eleidtmp=0;
+//       bool foundEleId = false;
+//       int pos[4]={1,2,4,8};
+//       for(int id=0; id<4; id++){
+// 	if(eIDValueMap[id].isValid()){
+// 	  foundEleId = true;
+// 	  const edm::ValueMap<float> & eIDmap  = * eIDValueMap[id] ;
+// 	  eleidtmp += pos[id]*int(eIDmap[electronRef]); 
+// 	}
+//       }
+//       if (!foundEleId){eleidtmp = -1;}
+//       eleId[iel]=eleidtmp;
+//     }
+//   } else {
+//     nele = 0;
+//   }
+
   if (photons.isValid()) {
     PhotonCollection myphotons(* photons);
     nphoton = myphotons.size();
@@ -226,21 +305,27 @@ void HLTEgamma::analyze(const edm::Handle<reco::GsfElectronCollection>         &
   }
 
   /////////////////////////////// Open-HLT Egammas ///////////////////////////////
+
+  /////    Open-HLT photons /////////////////
   std::vector<OpenHLTPhoton> theHLTPhotons;
   MakeL1IsolatedPhotons(
       theHLTPhotons,
       recoIsolecalcands,
       EcalIsolMap,
       HcalIsolMap,
-      TrackIsolMap);
+      TrackIsolMap,
+      lazyTools);
   MakeL1NonIsolatedPhotons(
       theHLTPhotons,
       recoNonIsolecalcands,
       EcalNonIsolMap,
       HcalNonIsolMap,
-      TrackNonIsolMap);
+      TrackNonIsolMap,
+      lazyTools);
+
   std::sort(theHLTPhotons.begin(), theHLTPhotons.end(), EtGreater());
   nhltgam = theHLTPhotons.size();
+
   for (int u = 0; u < nhltgam; u++) {
     hphotet[u]    = theHLTPhotons[u].Et;
     hphoteta[u]   = theHLTPhotons[u].eta;
@@ -249,8 +334,10 @@ void HLTEgamma::analyze(const edm::Handle<reco::GsfElectronCollection>         &
     hphothiso[u]  = theHLTPhotons[u].hcalIsol;
     hphottiso[u]  = theHLTPhotons[u].trackIsol;
     hphotl1iso[u] = theHLTPhotons[u].L1Isolated;
+    hphotClusShap[u] = theHLTPhotons[u].clusterShape;
   }
 
+  /////    Open-HLT electrons /////////////////
   std::vector<OpenHLTElectron> theHLTElectrons;
   MakeL1IsolatedElectrons(
       theHLTElectrons,
@@ -258,16 +345,24 @@ void HLTEgamma::analyze(const edm::Handle<reco::GsfElectronCollection>         &
       recoIsolecalcands,
       HcalEleIsolMap,
       L1IsoPixelSeedsMap,
-      TrackEleIsolMap);
+      TrackEleIsolMap,
+      lazyTools,
+      theMagField,
+      BSPosition);
   MakeL1NonIsolatedElectrons(
       theHLTElectrons,
       electronNonIsoHandle,
       recoNonIsolecalcands,
       HcalEleNonIsolMap,
       L1NonIsoPixelSeedsMap,
-      NonIsoTrackEleIsolMap);
+      NonIsoTrackEleIsolMap,
+      lazyTools,
+      theMagField,
+      BSPosition);
+
   std::sort(theHLTElectrons.begin(), theHLTElectrons.end(), EtGreater());
   nhltele = theHLTElectrons.size();
+
   for (int u = 0; u < nhltele; u++) {
     heleet[u]         = theHLTElectrons[u].Et;
     heleeta[u]        = theHLTElectrons[u].eta;
@@ -279,8 +374,12 @@ void HLTEgamma::analyze(const edm::Handle<reco::GsfElectronCollection>         &
     heletiso[u]       = theHLTElectrons[u].trackIsol;
     helel1iso[u]      = theHLTElectrons[u].L1Isolated;
     heleNewSC[u]      = theHLTElectrons[u].newSC;
+    heleClusShap[u]   = theHLTElectrons[u].clusterShape;
+    heleDeta[u]       = theHLTElectrons[u].Deta;
+    heleDphi[u]       = theHLTElectrons[u].Dphi;
   }
 
+  /////    Open-HLT electrons  LW /////////////////
   std::vector<OpenHLTElectron> theHLTElectronsLargeWindows;
   MakeL1IsolatedElectrons(
       theHLTElectronsLargeWindows,
@@ -288,16 +387,24 @@ void HLTEgamma::analyze(const edm::Handle<reco::GsfElectronCollection>         &
       recoIsolecalcands,
       HcalEleIsolMap,
       L1IsoPixelSeedsMapLW,
-      TrackEleIsolMapLW);
+      TrackEleIsolMapLW,
+      lazyTools,
+      theMagField,
+      BSPosition);
   MakeL1NonIsolatedElectrons(
       theHLTElectronsLargeWindows,
       electronNonIsoHandleLW,
       recoNonIsolecalcands,
       HcalEleNonIsolMap,
       L1NonIsoPixelSeedsMapLW,
-      NonIsoTrackEleIsolMapLW);
+      NonIsoTrackEleIsolMapLW,
+      lazyTools,
+      theMagField,
+      BSPosition);
+
   std::sort(theHLTElectronsLargeWindows.begin(), theHLTElectronsLargeWindows.end(), EtGreater());
   nhlteleLW = theHLTElectronsLargeWindows.size();
+
   for (int u = 0; u < nhlteleLW; u++) {
     heleetLW[u]         = theHLTElectronsLargeWindows[u].Et;
     heleetaLW[u]        = theHLTElectronsLargeWindows[u].eta;
@@ -309,6 +416,10 @@ void HLTEgamma::analyze(const edm::Handle<reco::GsfElectronCollection>         &
     heletisoLW[u]       = theHLTElectronsLargeWindows[u].trackIsol;
     helel1isoLW[u]      = theHLTElectronsLargeWindows[u].L1Isolated;
     heleNewSCLW[u]      = theHLTElectronsLargeWindows[u].newSC;
+    heleClusShapLW[u]   = theHLTElectronsLargeWindows[u].clusterShape;
+    heleDetaLW[u]       = theHLTElectronsLargeWindows[u].Deta;
+    heleDphiLW[u]       = theHLTElectronsLargeWindows[u].Dphi;
+
   }
 }
 
@@ -317,13 +428,16 @@ void HLTEgamma::MakeL1IsolatedPhotons(
     const edm::Handle<reco::RecoEcalCandidateCollection>   & recoIsolecalcands,
     const edm::Handle<reco::RecoEcalCandidateIsolationMap> & EcalIsolMap,
     const edm::Handle<reco::RecoEcalCandidateIsolationMap> & HcalIsolMap,
-    const edm::Handle<reco::RecoEcalCandidateIsolationMap> & TrackIsolMap)
+    const edm::Handle<reco::RecoEcalCandidateIsolationMap> & TrackIsolMap,
+    EcalClusterLazyTools& lazyTools )
 {
   // Iterator to the isolation-map
   reco::RecoEcalCandidateIsolationMap::const_iterator mapi;
 
   if (recoIsolecalcands.isValid()) {
     // loop over SuperCluster and fill the HLTPhotons
+  
+
     for (reco::RecoEcalCandidateCollection::const_iterator recoecalcand = recoIsolecalcands->begin();
          recoecalcand!= recoIsolecalcands->end(); recoecalcand++) {
 
@@ -331,10 +445,21 @@ void HLTEgamma::MakeL1IsolatedPhotons(
       pho.ecalIsol   = -999;
       pho.hcalIsol   = -999;
       pho.trackIsol  = -999;
+      pho.clusterShape = -999;
       pho.L1Isolated = true;
       pho.Et         = recoecalcand->et();
       pho.eta        = recoecalcand->eta();
       pho.phi        = recoecalcand->phi();
+
+      //Get the cluster shape
+      std::vector<float> vCov = lazyTools.covariances( *(recoecalcand->superCluster()->seed()) );
+      //      std::vector<float> vCov = lazyTools.localCovariances( *(recoecalcand->superCluster()->seed()) );
+      double sigmaee = sqrt(vCov[0]);
+      float EtaSC = fabs(recoecalcand->eta());
+      if(EtaSC > 1.479 ) {//Endcap
+        sigmaee = sigmaee - 0.02*(EtaSC - 2.3);
+      }
+      pho.clusterShape = sigmaee;
 
       // Method to get the reference to the candidate
       reco::RecoEcalCandidateRef ref = reco::RecoEcalCandidateRef(recoIsolecalcands, distance(recoIsolecalcands->begin(), recoecalcand));
@@ -367,7 +492,8 @@ void HLTEgamma::MakeL1NonIsolatedPhotons(
     const edm::Handle<reco::RecoEcalCandidateCollection>   & recoNonIsolecalcands,
     const edm::Handle<reco::RecoEcalCandidateIsolationMap> & EcalNonIsolMap,
     const edm::Handle<reco::RecoEcalCandidateIsolationMap> & HcalNonIsolMap,
-    const edm::Handle<reco::RecoEcalCandidateIsolationMap> & TrackNonIsolMap)
+    const edm::Handle<reco::RecoEcalCandidateIsolationMap> & TrackNonIsolMap,
+    EcalClusterLazyTools& lazyTools )
 {
   reco::RecoEcalCandidateIsolationMap::const_iterator mapi;
 
@@ -379,10 +505,21 @@ void HLTEgamma::MakeL1NonIsolatedPhotons(
       pho.ecalIsol   = -999;
       pho.hcalIsol   = -999;
       pho.trackIsol  = -999;
+      pho.clusterShape = -999;
       pho.L1Isolated = false;
       pho.Et         = recoecalcand->et();
       pho.eta        = recoecalcand->eta();
       pho.phi        = recoecalcand->phi();
+
+      //Get the cluster shape
+      std::vector<float> vCov = lazyTools.covariances( *(recoecalcand->superCluster()->seed()) );
+      //      std::vector<float> vCov = lazyTools.localCovariances( *(recoecalcand->superCluster()->seed()) );
+      double sigmaee = sqrt(vCov[0]);
+      float EtaSC = fabs(recoecalcand->eta());
+      if(EtaSC > 1.479 ) {//Endcap
+        sigmaee = sigmaee - 0.02*(EtaSC - 2.3);
+      }
+      pho.clusterShape = sigmaee;
 
       reco::RecoEcalCandidateRef ref = reco::RecoEcalCandidateRef(recoNonIsolecalcands, distance(recoNonIsolecalcands->begin(), recoecalcand));
 
@@ -414,7 +551,10 @@ void HLTEgamma::MakeL1IsolatedElectrons(
     const edm::Handle<reco::RecoEcalCandidateCollection>   & recoIsolecalcands,
     const edm::Handle<reco::RecoEcalCandidateIsolationMap> & HcalEleIsolMap,
     const edm::Handle<reco::ElectronPixelSeedCollection>   & L1IsoPixelSeedsMap,
-    const edm::Handle<reco::ElectronIsolationMap>          & TrackEleIsolMap)
+    const edm::Handle<reco::ElectronIsolationMap>          & TrackEleIsolMap,
+    EcalClusterLazyTools& lazyTools,
+    const edm::ESHandle<MagneticField>& theMagField,
+    reco::BeamSpot::Point & BSPosition )
 {
   // if there are electrons, then the isolation maps and the SC should be in the event; if not it is an error
 
@@ -433,10 +573,22 @@ void HLTEgamma::MakeL1IsolatedElectrons(
       ele.p          = -999;
       ele.pixelSeeds = -999;
       ele.newSC      = true;
+      ele.clusterShape = -999;
+      ele.Dphi = 700; 
+      ele.Deta = 700;
       ele.Et         = recoecalcand->et();
       ele.eta        = recoecalcand->eta();
       ele.phi        = recoecalcand->phi();
       ele.E          = recrSC->energy();
+      //Get the cluster shape
+      std::vector<float> vCov = lazyTools.covariances( *(recrSC->seed()) );
+      //      std::vector<float> vCov = lazyTools.localCovariances( *(recrSC->seed()) );
+      double sigmaee = sqrt(vCov[0]);
+      float EtaSC = fabs(recoecalcand->eta());
+      if(EtaSC > 1.479 ) {//Endcap
+        sigmaee = sigmaee - 0.02*(EtaSC - 2.3);
+      }
+      ele.clusterShape = sigmaee;
 
       // fill the hcal Isolation
       if (HcalEleIsolMap.isValid()) {
@@ -470,6 +622,9 @@ void HLTEgamma::MakeL1IsolatedElectrons(
             if (FirstElectron) {                // the first electron is stored in ele, keeping the ele.newSC = true
               FirstElectron = false;
               ele.p = electronref->track()->momentum().R();
+	      float deta=-100, dphi=-100;
+              CalculateDetaDphi(theMagField,BSPosition , electronref , deta, dphi);
+              ele.Dphi=dphi; ele.Deta=deta;
               // fill the track Isolation
               if (TrackEleIsolMap.isValid()) {
                 reco::ElectronIsolationMap::const_iterator mapTr = (*TrackEleIsolMap).find(electronref);
@@ -482,14 +637,20 @@ void HLTEgamma::MakeL1IsolatedElectrons(
               OpenHLTElectron ele2;
               ele2.hcalIsol  = ele.hcalIsol;
               ele2.trackIsol = -999;
+	      ele2.Dphi = 700; 
+	      ele2.Deta = 700;
               ele2.Et  = ele.Et;
               ele2.eta = ele.eta;
               ele2.phi = ele.phi;
               ele2.E   = ele.E;
               ele2.L1Isolated = ele.L1Isolated;
               ele2.pixelSeeds = ele.pixelSeeds;
+	      ele2.clusterShape = ele.clusterShape;
               ele2.newSC = false;
               ele2.p = electronref->track()->momentum().R();
+	      float deta=-100, dphi=-100;
+              CalculateDetaDphi(theMagField,BSPosition , electronref , deta, dphi);
+              ele2.Dphi=dphi; ele2.Deta=deta;
               // fill the track Isolation
               if (TrackEleIsolMap.isValid()) {
                 reco::ElectronIsolationMap::const_iterator mapTr = (*TrackEleIsolMap).find( electronref);
@@ -514,7 +675,10 @@ void HLTEgamma::MakeL1NonIsolatedElectrons(
     const edm::Handle<reco::RecoEcalCandidateCollection>   & recoNonIsolecalcands,
     const edm::Handle<reco::RecoEcalCandidateIsolationMap> & HcalEleIsolMap,
     const edm::Handle<reco::ElectronPixelSeedCollection>   & L1NonIsoPixelSeedsMap,
-    const edm::Handle<reco::ElectronIsolationMap>          & TrackEleIsolMap)
+    const edm::Handle<reco::ElectronIsolationMap>          & TrackEleIsolMap,
+    EcalClusterLazyTools& lazyTools,
+    const edm::ESHandle<MagneticField>& theMagField,
+    reco::BeamSpot::Point & BSPosition  )
 {
   // if there are electrons, then the isolation maps and the SC should be in the event; if not it is an error
 
@@ -533,10 +697,22 @@ void HLTEgamma::MakeL1NonIsolatedElectrons(
       ele.p          = -999;
       ele.pixelSeeds = -999;
       ele.newSC      = true;
+      ele.clusterShape = -999;
+      ele.Dphi = 700; 
+      ele.Deta = 700;
       ele.Et         = recoecalcand->et();
       ele.eta        = recoecalcand->eta();
       ele.phi        = recoecalcand->phi();
       ele.E          = recrSC->energy();
+      //Get the cluster shape
+      std::vector<float> vCov = lazyTools.covariances( *(recrSC->seed()) );
+      //      std::vector<float> vCov = lazyTools.localCovariances( *(recrSC->seed()) );
+      double sigmaee = sqrt(vCov[0]);
+      float EtaSC = fabs(recoecalcand->eta());
+      if(EtaSC > 1.479 ) {//Endcap
+        sigmaee = sigmaee - 0.02*(EtaSC - 2.3);
+      }
+      ele.clusterShape = sigmaee;
 
       // fill the hcal Isolation
       if (HcalEleIsolMap.isValid()) {
@@ -570,6 +746,10 @@ void HLTEgamma::MakeL1NonIsolatedElectrons(
             if (FirstElectron) { //the first electron is stored in ele, keeping the ele.newSC = true
               FirstElectron = false;
               ele.p = electronref->track()->momentum().R();
+	      float deta=-100, dphi=-100;
+              CalculateDetaDphi(theMagField,BSPosition , electronref , deta, dphi);
+              ele.Dphi=dphi; ele.Deta=deta;
+
               // fill the track Isolation
               if (TrackEleIsolMap.isValid()) {
                 reco::ElectronIsolationMap::const_iterator mapTr = (*TrackEleIsolMap).find( electronref);
@@ -581,14 +761,21 @@ void HLTEgamma::MakeL1NonIsolatedElectrons(
               OpenHLTElectron ele2;
               ele2.hcalIsol   = ele.hcalIsol;
               ele2.trackIsol  =-999;
+	      ele2.Dphi = 700; 
+	      ele2.Deta = 700;
               ele2.Et         = ele.Et;
               ele2.eta        = ele.eta;
               ele2.phi        = ele.phi;
               ele2.E          = ele.E;
               ele2.L1Isolated = ele.L1Isolated;
               ele2.pixelSeeds = ele.pixelSeeds;
+	      ele2.clusterShape = ele.clusterShape;
               ele2.newSC      = false;
               ele2.p          = electronref->track()->momentum().R();
+	      float deta=-100, dphi=-100;
+              CalculateDetaDphi(theMagField,BSPosition , electronref , deta, dphi);
+              ele2.Dphi=dphi; ele2.Deta=deta;
+
               // fill the track Isolation
               if (TrackEleIsolMap.isValid()) {
                 reco::ElectronIsolationMap::const_iterator mapTr = (*TrackEleIsolMap).find( electronref);
@@ -604,4 +791,36 @@ void HLTEgamma::MakeL1NonIsolatedElectrons(
       theHLTElectrons.push_back(ele);
     } // end of loop over ecalCandidates
   } // end of if (recoNonIsolecalcands) {
+}
+
+void HLTEgamma::CalculateDetaDphi(const edm::ESHandle<MagneticField>& theMagField, 
+                                  reco::BeamSpot::Point & BSPosition, 
+                                  const reco::ElectronRef eleref, 
+                                  float& deltaeta, 
+                                  float& deltaphi )
+{
+  
+  const reco::SuperClusterRef theClus = eleref->superCluster();
+  const math::XYZVector trackMom =  eleref->track()->momentum();
+
+    math::XYZPoint SCcorrPosition(theClus->x()-BSPosition.x(), theClus->y()-BSPosition.y() , theClus->z()-eleref->track()->vz() );
+    deltaeta = SCcorrPosition.eta()-eleref->track()->eta();
+
+    ECALPositionCalculator posCalc;
+    const math::XYZPoint vertex(BSPosition.x(),BSPosition.y(),eleref->track()->vz());
+
+    float phi1= posCalc.ecalPhi(theMagField.product(),trackMom,vertex,1);
+    float phi2= posCalc.ecalPhi(theMagField.product(),trackMom,vertex,-1);
+
+    float deltaphi1=fabs( phi1 - theClus->position().phi() );
+    if(deltaphi1>6.283185308) deltaphi1 -= 6.283185308;
+    if(deltaphi1>3.141592654) deltaphi1 = 6.283185308-deltaphi1;
+
+    float deltaphi2=fabs( phi2 - theClus->position().phi() );
+    if(deltaphi2>6.283185308) deltaphi2 -= 6.283185308;
+    if(deltaphi2>3.141592654) deltaphi2 = 6.283185308-deltaphi2;
+
+    deltaphi = deltaphi1;
+    if(deltaphi2<deltaphi1){ deltaphi = deltaphi2;}
+
 }
