@@ -8,7 +8,7 @@
 //
 // Original Author:  Monica Vazquez Acosta
 //         Created:  Tue Jun 13 12:17:19 CEST 2006
-// $Id: EgammaHLTTrackIsolation.cc,v 1.2 2006/10/24 10:57:48 monicava Exp $
+// $Id: EgammaHLTTrackIsolation.cc,v 1.3 2008/10/10 14:07:09 covarell Exp $
 //
 
 // system include files
@@ -43,7 +43,6 @@ std::pair<int,float> EgammaHLTTrackIsolation::electronIsolation(const reco::Trac
   return findIsoTracksWithoutEle(mom,vtx,allEle,isoTracks);
 }
 
-
 std::pair<int,float> EgammaHLTTrackIsolation::photonIsolation(const reco::RecoCandidate * const recocandidate, const reco::TrackCollection* isoTracks, bool useVertex)
 {
 
@@ -71,6 +70,15 @@ std::pair<int,float> EgammaHLTTrackIsolation::photonIsolation(const reco::RecoCa
 
 }
 
+
+std::pair<int,float> EgammaHLTTrackIsolation::photonIsolation(const reco::RecoCandidate * const recocandidate, const reco::ElectronCollection* allEle, const reco::TrackCollection* isoTracks)
+{
+
+  reco::RecoCandidate::Point pos = recocandidate->superCluster()->position();
+  GlobalVector mom(pos.x(),pos.y(),pos.z());
+  return findIsoTracksWithoutEle(mom,GlobalPoint(),allEle,isoTracks);
+
+}
 
 std::pair<int,float> EgammaHLTTrackIsolation::findIsoTracks(GlobalVector mom, GlobalPoint vtx,  const reco::TrackCollection* isoTracks, bool isElectron, bool useVertex)
 {
@@ -190,14 +198,14 @@ std::pair<int,float> EgammaHLTTrackIsolation::findIsoTracksWithoutEle(GlobalVect
       if (R < vetoConesize) passedconeveto=false;
     }
 
-    if (selected) {
+    if (selected && passedconeveto) {
       ntrack++;
-      if (passedconeveto) ptSum+=pt; //to exclude electron tracks
+      ptSum+=pt; //to exclude electron tracks
     }
 
   }
 
-  ntrack-=1; //to exclude electron track
+  // ntrack-=1; //to exclude electron track
 
   return (std::pair<int,float>(ntrack,ptSum));
 

@@ -1,6 +1,6 @@
 /** \class HLTElectronTrackIsolFilterRegional
  *
- * $Id: HLTElectronTrackIsolFilterRegional.cc,v 1.6 2008/09/17 15:40:11 ghezzi Exp $ 
+ * $Id: HLTElectronTrackIsolFilterRegional.cc,v 1.7 2008/11/03 14:43:27 ghezzi Exp $ 
  *
  *  \author Monica Vazquez Acosta (CERN)
  *
@@ -94,7 +94,7 @@ HLTElectronTrackIsolFilterRegional::filter(edm::Event& iEvent, const edm::EventS
     float vali = mapi->val;//vali is (sum pt tracks)/pt_ele 
 
     //for(reco::ElectronIsolationMap::const_iterator it = depMap->begin(); it != depMap->end(); it++){
-    if( (vali*eleref->pt() <= pttrackisolcut_) || (vali <=  pttrackisolOverEcut_) || (vali/eleref->pt() <= pttrackisolcut_) ){
+    if( (vali*eleref->pt() <= pttrackisolcut_) || (vali <=  pttrackisolOverEcut_) || (vali/eleref->pt() <= pttrackisolOverE2cut_) ){
       n++;
       filterproduct->addObject(TriggerElectron, eleref);
     }
