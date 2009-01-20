@@ -43,7 +43,7 @@
 
 
 namespace {
-  namespace {
+  struct dictionary {
 
   /*   ==========================================================================================================================
               NON PAT Dataformats, except those for RefToBase/Ptr
@@ -349,6 +349,7 @@ namespace {
   /*   UserData: Standalone UserData in the event. Needed?   */
   edm::Wrapper<pat::UserDataCollection>	 w_ov_p_ud;
   edm::Wrapper<edm::ValueMap<edm::Ptr<pat::UserData> > > w_vm_ptr_p_ud;
+  edm::Ptr<pat::UserData> yadda_pat_ptr_userdata;
   /*   UserData: a few holders   */
   pat::UserHolder<math::XYZVector>	         p_udh_v3d;
   pat::UserHolder<math::XYZPoint>	         p_udh_p3d;
@@ -357,6 +358,6 @@ namespace {
 
   edm::Wrapper<edm::ValueMap<pat::LookupTableRecord> >	 w_vm_p_lutr;
 
-  } 
+  };
 
 }
