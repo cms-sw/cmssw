@@ -6,7 +6,7 @@
 #include <vector>
 
 namespace {
-  namespace {
+  struct dictionary {
     EcalUncalibratedRecHit _ahit;
     std::vector<EcalUncalibratedRecHit> _hitVect;
     edm::SortedCollection<EcalUncalibratedRecHit> _theEURsc;
@@ -33,7 +33,7 @@ namespace {
     EcalRecHitRef _ERHitRef;
     EcalRecHitRefs _ERHitRefs;
     EcalRecHitsRef _ERHitsRef;
-  }
+  };
 }
 
 //raw to rechit specific formats
@@ -45,18 +45,13 @@ namespace {
 #include "boost/cstdint.hpp" 
 
 namespace {
-  namespace {
+  struct dictionary2 {
     edm::Wrapper< EcalRecHit > dummy01;
     edm::Wrapper< std::vector<EcalRecHit>  > dummy11;
     edm::Wrapper< edm::DetSet<EcalRecHit> > dummy21;
     edm::Wrapper< std::vector<edm::DetSet<EcalRecHit> > > dummy31;
     edm::Wrapper< edm::DetSetVector<EcalRecHit> > dummy41;
     edm::Wrapper< std::vector< std::vector < edm::DetSet<EcalRecHit> > > > dummy51;
-  }
-}
-
-namespace {
-  namespace {
     edm::Wrapper< edm::RegionIndex<EcalRecHit> > dummy71;
     edm::Wrapper< std::vector< edm::RegionIndex<EcalRecHit> > > dummy72;
     edm::Wrapper< edm::LazyGetter<EcalRecHit> > dummy73;
@@ -64,5 +59,5 @@ namespace {
     edm::Wrapper< std::vector<edm::Ref<edm::LazyGetter<EcalRecHit>,edm::RegionIndex<EcalRecHit>,edm::FindRegion<EcalRecHit> > > > dummy75;
     edm::Wrapper< edm::RefGetter<EcalRecHit> > dummy76;
     edm::Wrapper< edm::Ref< edm::LazyGetter<EcalRecHit>, EcalRecHit, edm::FindValue<EcalRecHit> > > dummy77;
-  }
+  };
 }
