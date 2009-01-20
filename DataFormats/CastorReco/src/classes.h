@@ -5,7 +5,7 @@
 #include "DataFormats/CastorReco/interface/CastorEgamma.h"
 
 namespace { 
-  namespace {
+  struct dictionary {
     std::vector<reco::CastorTower> v11;
     reco::CastorTowerCollection v1;
     edm::Wrapper<reco::CastorTowerCollection> w1;
@@ -33,5 +33,5 @@ namespace {
     edm::Ref<reco::CastorEgammaCollection> r4;
     edm::RefProd<reco::CastorEgammaCollection> rp4;
     edm::Wrapper<edm::RefVector<reco::CastorEgammaCollection> > wrv4;
-  }
+  };
 }

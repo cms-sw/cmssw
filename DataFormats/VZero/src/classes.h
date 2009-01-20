@@ -3,8 +3,8 @@
 #include <vector>
 
 namespace {
-  namespace {
+  struct dictionary {
     reco::VZeroCollection v9;
     edm::Wrapper<reco::VZeroCollection> c9;
-  }
+  };
 }

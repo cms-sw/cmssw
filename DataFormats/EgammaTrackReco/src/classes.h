@@ -24,7 +24,7 @@
 #include "DataFormats/Common/interface/Wrapper.h"
 
 namespace {
-  namespace {
+  struct dictionary {
 
     reco::TrackCandidateSuperClusterAssociationCollection v5;
     edm::Wrapper<edm::ValueMap<reco::SuperClusterRef> > m5;
@@ -44,9 +44,6 @@ namespace {
     reco::TrackCaloClusterPtrAssociation v10;
     edm::Wrapper<edm::ValueMap<reco::CaloClusterPtr> > m10;
 
-
-
-
-  }
+  };
 }
 
