@@ -10,7 +10,7 @@
 #include "DataFormats/HepMCCandidate/interface/FlavorHistoryEvent.h"
 
 namespace {
-  namespace {
+  struct dictionary {
     reco::CompositeRefCandidateT<reco::GenParticleRefVector> v1;
     edm::Wrapper<reco::GenParticleCollection> w2;
     edm::Wrapper<reco::GenParticleMatch> w3;
@@ -34,5 +34,5 @@ namespace {
     edm::Wrapper<std::vector<reco::FlavorHistoryEvent> > wvfhe1;
     edm::ValueMap<reco::FlavorHistoryEvent> vmfhe1;
     edm::Wrapper<edm::ValueMap<reco::FlavorHistoryEvent> > wvmfhe1;
-  }
+  };
 }

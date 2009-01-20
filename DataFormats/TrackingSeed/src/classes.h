@@ -6,9 +6,9 @@
 #include <vector>
 
 namespace {
-  namespace {
+  struct dictionary {
     edm::Wrapper<TrackingSeedCollection> trackingSeedCollectionWrapper;
-  }
+  };
 }
 
 #endif // TRACKINGSEED_CLASSES_H

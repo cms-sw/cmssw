@@ -6,12 +6,11 @@
 #include <vector>
 
 namespace {
-  namespace {
+  struct dictionary {
     edm::Wrapper<RoadSearchCloudCollection> roadSearchCloudCollectionWrapper;
     edm::Ref<std::vector<RoadSearchCloud>, RoadSearchCloud> roadSearchCloudRef;
     edm::RefVector<std::vector<RoadSearchCloud>, RoadSearchCloud> roadSearchCloudRefVector;
-
-  }
+  };
 }
 
 #endif // ROADSEARCHCLOUD_CLASSES_H
