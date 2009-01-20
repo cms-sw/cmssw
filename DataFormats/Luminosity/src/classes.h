@@ -4,9 +4,8 @@
 #include "DataFormats/Luminosity/interface/LumiDetails.h"
 
 namespace {
-   namespace {
-      
+   struct dictionary {
       edm::Wrapper<LumiSummary> lumisummaryobj;
       edm::Wrapper<LumiDetails> lumidetailsobj;
-   }
+   };
 }
