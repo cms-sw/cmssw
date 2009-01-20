@@ -13,7 +13,7 @@
 //
 // Original Author:  Jeremiah Mans
 //         Created:  Mon Oct  3 11:35:27 CDT 2005
-// $Id: CaloGeometryBuilder.cc,v 1.11 2008/11/12 19:55:16 heltsley Exp $
+// $Id: CaloGeometryBuilder.cc,v 1.12 2009/01/19 21:40:36 heltsley Exp $
 //
 //
 
@@ -79,8 +79,8 @@ CaloGeometryBuilder::produceAligned( const CaloGeometryRecord& iRecord )
       else if ( (*ite) == "CASTOR" ) 
       {
 	 edm::LogInfo("CaloGeometryBuilder") << "Building CASTOR reconstruction geometry";
-//	 iRecord.getRecord< IdealGeometryRecord >().get("CASTOR", pG); 
-//	 pCalo->setSubdetGeometry( DetId::Calo, HcalCastorDetId::SubdetectorId,pG.product());
+	 iRecord.getRecord< IdealGeometryRecord >().get("CASTOR", pG); 
+	 pCalo->setSubdetGeometry( DetId::Calo, HcalCastorDetId::SubdetectorId,pG.product());
       }
       // look for Ecal Barrel
       else if ( (*ite) == "EcalBarrel" ) 

@@ -32,11 +32,13 @@
 #include "Geometry/CaloGeometry/interface/TruncatedPyramid.h"
 #include "Geometry/EcalAlgo/interface/EcalPreshowerGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
+/*
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include "DataFormats/EcalDetId/interface/ESDetId.h"
+*/
 #include "Geometry/CaloGeometry/interface/CaloGenericDetId.h"
 
 
@@ -381,6 +383,24 @@ CaloGeometryAnalyzer::ctrcor( const DetId::Detector   det     ,
 	   << std::setw(4) << ip
 	   << std::setw(4) << de ;
    }
+   if( det     == DetId::Calo &&
+       subdetn == HcalZDCDetId::SubdetectorId    ) 
+   {
+      const HcalZDCDetId zcid ( did ) ;
+      const int is ( zcid.section() ) ;
+      const int ic ( zcid.channel() ) ;
+      fCtr << std::setw(4) << is
+	   << std::setw(4) << ic ;
+   }
+   if( det     == DetId::Calo  &&
+       subdetn == HcalCastorDetId::SubdetectorId    ) 
+   {
+      const HcalCastorDetId cid ( did ) ;
+      const int is ( cid.sector() ) ;
+      const int im ( cid.module() ) ;
+      fCtr << std::setw(4) << is
+	   << std::setw(4) << im ;
+   }
 
    fCtr << std::fixed << std::setw(12) << std::setprecision(4)
 	<< cell.getPosition().x()
@@ -676,6 +696,7 @@ CaloGeometryAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& 
      build(*pG,DetId::Hcal,HcalForward,"hf");
      build(*pG,DetId::Calo,CaloTowerDetId::SubdetId     ,"ct");
      build(*pG,DetId::Calo,HcalZDCDetId::SubdetectorId  ,"zd");
+     build(*pG,DetId::Calo,HcalCastorDetId::SubdetectorId  ,"ca");
      //Test eeGetClosestCell in Florian Point
      std::cout << "Checking getClosestCell for position" << GlobalPoint(-38.9692,-27.5548,-317) << std::endl;
      std::cout << "Position of Closest Cell in EE " << dynamic_cast<const TruncatedPyramid*>(pG->getGeometry(EEDetId((*pG).getSubdetectorGeometry(DetId::Ecal,EcalEndcap)->getClosestCell(GlobalPoint(-38.9692,-27.5548,-317)))))->getPosition(0.) << std::endl;

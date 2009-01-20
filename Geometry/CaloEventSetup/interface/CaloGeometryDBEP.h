@@ -1,5 +1,5 @@
-#ifndef GEOMETRY_CALOGEOMETRY_CALOGEOMETRYFROMDBEP_H
-#define GEOMETRY_CALOGEOMETRY_CALOGEOMETRYFROMDBEP_H 1
+#ifndef GEOMETRY_CALOGEOMETRY_CALOGEOMETRYDBEP_H
+#define GEOMETRY_CALOGEOMETRY_CALOGEOMETRYDBEP_H 1
 
 // system include files
 #include <memory>
@@ -34,7 +34,7 @@
 //
 
 template <class T, bool toDB>
-class CaloGeometryFromDBEP : public edm::ESProducer 
+class CaloGeometryDBEP : public edm::ESProducer 
 {
    public:
 
@@ -46,15 +46,15 @@ class CaloGeometryFromDBEP : public edm::ESProducer
       typedef HepGeom::Point3D<double> HepPoint3D;
       typedef HepGeom::Transform3D  HepTransform3D;
 
-      CaloGeometryFromDBEP<T,toDB>( const edm::ParameterSet& ps ) :
+      CaloGeometryDBEP<T,toDB>( const edm::ParameterSet& ps ) :
 	 m_applyAlignment ( ps.getUntrackedParameter<bool>("applyAlignment", false) )
       {
 	 setWhatProduced( this,
-			  &CaloGeometryFromDBEP<T,toDB>::produceAligned,
+			  &CaloGeometryDBEP<T,toDB>::produceAligned,
 			  edm::es::Label( T::producerName() ) ) ;//+std::string("TEST") ) ) ;
       }
 
-      virtual ~CaloGeometryFromDBEP<T,toDB>() {}
+      virtual ~CaloGeometryDBEP<T,toDB>() {}
       PtrType produceAligned( const typename T::AlignedRecord& iRecord ) 
       {
 	 const Alignments* alignPtr  ( 0 ) ;
