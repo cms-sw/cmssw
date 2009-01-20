@@ -13,7 +13,7 @@
 //
 // Original Author:  Erik Butz
 //         Created:  Tue Dec 11 14:03:05 CET 2007
-// $Id: TrackerOfflineValidation.cc,v 1.21 2008/11/25 20:21:27 flucke Exp $
+// $Id: TrackerOfflineValidation.cc,v 1.22 2008/11/26 20:50:18 flucke Exp $
 //
 //
 
@@ -64,6 +64,7 @@
 #include "Alignment/CommonAlignment/interface/AlignableObjectId.h"
 #include "Alignment/TrackerAlignment/interface/TrackerAlignableId.h"
 
+#include "DataFormats/Math/interface/deltaPhi.h"
 //
 // class declaration
 //
@@ -1101,20 +1102,23 @@ TrackerOfflineValidation::fillTree(TTree &tree,
       treeMem.side = tibId.string()[0];
       treeMem.rod = tibId.string()[2]; 
       treeMem.outerInner = tibId.string()[1]; 
-      if (tibId.isDoubleSide()) treeMem.isDoubleSide = 1;
+      treeMem.isRPhi = tibId.isRPhi();
+      treeMem.isDoubleSide = tibId.isDoubleSide();
     } else if(treeMem.subDetId == StripSubdetector::TID){
       TIDDetId tidId(detId_); 
       treeMem.layer = tidId.wheel(); 
       treeMem.side = tidId.side();
       treeMem.ring = tidId.ring(); 
       treeMem.outerInner = tidId.module()[0]; 
-      if (tidId.isDoubleSide()) treeMem.isDoubleSide = 1;
+      treeMem.isRPhi = tidId.isRPhi();
+      treeMem.isDoubleSide = tidId.isDoubleSide();
     } else if(treeMem.subDetId == StripSubdetector::TOB){
       TOBDetId tobId(detId_); 
       treeMem.layer = tobId.layer(); 
       treeMem.side = tobId.rod()[0];
       treeMem.rod = tobId.rod()[1]; 
-      if (tobId.isDoubleSide()) treeMem.isDoubleSide = 1;
+      treeMem.isRPhi = tobId.isRPhi();
+      treeMem.isDoubleSide = tobId.isDoubleSide();
     } else if(treeMem.subDetId == StripSubdetector::TEC) {
       TECDetId tecId(detId_); 
       treeMem.layer = tecId.wheel(); 
@@ -1122,7 +1126,8 @@ TrackerOfflineValidation::fillTree(TTree &tree,
       treeMem.ring  = tecId.ring(); 
       treeMem.petal = tecId.petal()[1]; 
       treeMem.outerInner = tecId.petal()[0];
-      if (tecId.isDoubleSide()) treeMem.isDoubleSide = 1; 
+      treeMem.isRPhi = tecId.isRPhi();
+      treeMem.isDoubleSide = tecId.isDoubleSide(); 
     }
     
     //variables concerning the tracker geometry
@@ -1134,6 +1139,23 @@ TrackerOfflineValidation::fillTree(TTree &tree,
     treeMem.posX   = gPModule.x();
     treeMem.posY   = gPModule.y();
     treeMem.posZ   = gPModule.z();
+ 
+    const Surface& surface =  tkgeom.idToDet(detId_)->surface();
+       
+
+    LocalPoint  lPhiDirection(1.,0.,0.), lROrZDirection(0.,1.,0.);
+    GlobalPoint gPhiDirection  = surface.toGlobal(lPhiDirection),
+                gROrZDirection = surface.toGlobal(lROrZDirection);
+  double dPhi = deltaPhi(gPhiDirection.phi(),gPModule.phi());
+  if(dPhi>=0.)treeMem.phiDirection = 1; else treeMem.phiDirection = -1;
+  if(treeMem.subDetId== 1 || treeMem.subDetId== 3 || treeMem.subDetId==5){
+    double dZ = gROrZDirection.z() - gPModule.z();
+    if(dZ>=0.)treeMem.rOrZDirection = 1; else treeMem.rOrZDirection = -1;
+  }else{
+    double dR = gROrZDirection.perp() - gPModule.perp();
+    if(dR>=0.)treeMem.rOrZDirection = 1; else treeMem.rOrZDirection = -1;
+  }
+
 
     //mean and RMS values (extracted from histograms(Xprime on module level)
     treeMem.entries = static_cast<UInt_t>(it->second.ResXprimeHisto->GetEntries());

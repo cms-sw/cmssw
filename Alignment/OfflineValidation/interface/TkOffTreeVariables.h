@@ -26,7 +26,7 @@ struct TkOffTreeVariables
       = blade = panel 
       = outerInner = 0;
     // Bool_t's
-    isDoubleSide = false;
+    isDoubleSide = isRPhi = false;
     // std::string's
     histNameLocalX = histNameNormLocalX 
       = histNameX = histNameNormX
@@ -42,7 +42,8 @@ struct TkOffTreeVariables
       = sigmaX = sigmaNormX
       = fitMeanX = fitSigmaX = fitMeanNormX = fitSigmaNormX  
       = fitMeanY = fitSigmaY = fitMeanNormY = fitSigmaNormY  
-      = numberOfUnderflows = numberOfOverflows = numberOfOutliers = 0.;
+      = numberOfUnderflows = numberOfOverflows = numberOfOutliers 
+      = phiDirection = rOrZDirection = 0.;
 
     // variable Int_t's
     entries = 0;
@@ -62,13 +63,14 @@ struct TkOffTreeVariables
     fitMeanY, fitSigmaY, fitMeanNormY, fitSigmaNormY,
     posR, posPhi, posEta,                     //global coordiantes    
     posX, posY, posZ,             //global coordiantes 
-    numberOfUnderflows, numberOfOverflows, numberOfOutliers;
+    numberOfUnderflows, numberOfOverflows, numberOfOutliers,
+    phiDirection, rOrZDirection ;
   UInt_t  entries, moduleId, subDetId, //number of entries for each modul //modul Id = detId and subdetector Id
     layer, side, rod, 
     ring, petal, 
     blade, panel, 
     outerInner; //orientation of modules in TIB:1/2= int/ext string, TID:1/2=back/front ring, TEC 1/2=back/front petal 
-  Bool_t isDoubleSide;
+  Bool_t isDoubleSide, isRPhi; //if (!=isDoubleSide && !=isRPhi) then module is a stereo module
   std::string histNameLocalX, histNameNormLocalX, histNameX, histNameNormX,
     histNameY, histNameNormY;    
 };
