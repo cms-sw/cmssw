@@ -10,7 +10,8 @@ CaloGenericDetId::CaloGenericDetId( DetId::Detector iDet ,
 	     ( isES() ? ESDetId::detIdFromDenseIndex( iDin ).rawId() :
 	       ( isHcal() ? HcalDetId::detIdFromDenseIndex( iDin ).rawId() :
 		 ( isZDC() ? HcalZDCDetId::detIdFromDenseIndex( iDin ).rawId() :
-		   ( isCaloTower() ? CaloTowerDetId::detIdFromDenseIndex( iDin ).rawId() : 0 ) ) ) ) ) ) ; 
+		   ( isCastor() ? HcalCastorDetId::detIdFromDenseIndex( iDin ).rawId() :
+		     ( isCaloTower() ? CaloTowerDetId::detIdFromDenseIndex( iDin ).rawId() : 0 ) ) ) ) ) ) ) ; 
 }
 
 uint32_t 
@@ -21,7 +22,8 @@ CaloGenericDetId::denseIndex() const
 	      ( isES() ? ESDetId( rawId() ).denseIndex() :
 		( isHcal() ? HcalDetId( rawId() ).denseIndex() :
 		  ( isZDC() ? HcalZDCDetId( rawId() ).denseIndex() :
-		    ( isCaloTower() ? CaloTowerDetId( rawId() ).denseIndex() : ~0 ) ) ) ) ) ) ;
+		    ( isCastor() ? HcalCastorDetId( rawId() ).denseIndex() :
+		      ( isCaloTower() ? CaloTowerDetId( rawId() ).denseIndex() : ~0 ) ) ) ) ) ) ) ;
 }
 
 uint32_t 
@@ -32,7 +34,8 @@ CaloGenericDetId::sizeForDenseIndexing() const
 	     ( isES() ? ESDetId::kSizeForDenseIndexing :
 	       ( isHcal() ? HcalDetId::kSizeForDenseIndexing :
 		 ( isZDC() ? HcalZDCDetId::kSizeForDenseIndexing :
-		   ( isCaloTower() ? CaloTowerDetId::kSizeForDenseIndexing : 0 ) ) ) ) ) ) ; 
+		   ( isCastor() ? HcalCastorDetId::kSizeForDenseIndexing :
+		     ( isCaloTower() ? CaloTowerDetId::kSizeForDenseIndexing : 0 ) ) ) ) ) ) ) ; 
 }
 
 bool 
@@ -85,11 +88,22 @@ CaloGenericDetId::validDetId() const
 	       }
 	       else
 	       {
-		  if( isCaloTower() )
+		  if( isCastor() )
 		  {
-		     const CaloTowerDetId ctid ( rawId() ) ;
-		     returnValue = CaloTowerDetId::validDetId( ctid.ieta(),
-							       ctid.iphi() ) ;
+		     const HcalCastorDetId zdid ( rawId() ) ;
+		     returnValue = HcalCastorDetId::validDetId( zdid.section(),
+								zdid.zside()>0,
+								zdid.sector(),
+								zdid.module() ) ;
+		  }
+		  else
+		  {
+		     if( isCaloTower() )
+		     {
+			const CaloTowerDetId ctid ( rawId() ) ;
+			returnValue = CaloTowerDetId::validDetId( ctid.ieta(),
+								  ctid.iphi() ) ;
+		     }
 		  }
 	       }
 	    }
