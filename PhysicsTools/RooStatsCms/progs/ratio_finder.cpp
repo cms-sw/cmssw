@@ -33,9 +33,9 @@ int main(int argc, char** argv){
                   <<   "I exclude a certain R factor on the SM cross section\n"
                   << " - I want to know how much lumi I need for a CLs of X percent\n";
 
-    if (argc != 9){
+    if (argc < 9){
         std::cerr << "Usage:\n " << argv[0]
-                  << " card model ntoys n_sigmas minR maxR deltaR varname\n";
+                  << " card model ntoys n_sigmas minR maxR deltaR varname [nbins]\n";
         if (not TString(argv[1]).Contains("-h"))
             std::cerr << "\n  Type " << argv[0] << " -h for more details.\n\n";
         return 1;
@@ -50,6 +50,11 @@ int main(int argc, char** argv){
     double maxR= atof (argv[6]);
     double deltaR= atof (argv[7]);
     TString varname (argv[8]);
+    int nbins=100;
+    if (argc==10){
+        nbins = atoi(argv[9]);
+        std::cout << "Nbins set to " << nbins << std::endl;
+        }
 
     RooMsgService::instance().setGlobalKillBelow(RooMsgService::FATAL) ;
 
@@ -67,7 +72,7 @@ int main(int argc, char** argv){
 
     // Facility to read the card and fill the constraints array properly
     RscConstrArrayFiller filler("ConstrFiller", "The array Filler", model.getConstraints());
-    filler.fill(&constr_array);
+    filler.fill(&constr_array,model_name.Data());
 
     RooArgList l (model.getVars());
     //l.Print("v");
@@ -84,6 +89,7 @@ int main(int argc, char** argv){
     finderanme.ReplaceAll(" ","");
 
     RatioFinder finder(finderanme.Data(),"Finder HWW",sb_model,b_model,varname.Data(),l,&constr_array);
+    finder.setNbins(nbins);
 
     RooMsgService::instance().setGlobalKillBelow(RooMsgService::FATAL) ;
     double desired_CL=.05;
@@ -108,8 +114,14 @@ int main(int argc, char** argv){
     std::stringstream ss;
     ss << "ratioscan_" << model_name.Data() << "_ntoys" << n_toys << "_nsigma" << n_sigma << "_" << minR << "-" << maxR << "_" << varname.Data() << ".root";
 
+
     TFile ofile(ss.str().c_str(),"RECREATE");
+    ofile.cd();
     res->Write();
+    double minB=inter_R-1;
+    double maxB=inter_R+1;
+    TH1F ratiohisto("ratio","ratio",20000,minB,maxB);
+    ratiohisto.Write();
     ofile.Close();
 
 }

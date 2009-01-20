@@ -56,7 +56,7 @@ int main(int argc, char** argv){
 
     // Facility to read the card and fill the constraints array properly
     RscConstrArrayFiller filler("ConstrFiller", "The array Filler", model.getConstraints());
-    filler.fill(&constr_array);
+    filler.fill(&constr_array,model_name.Data());
 
     RooMsgService::instance().setGlobalKillBelow(RooMsgService::DEBUG) ;
 
