@@ -30,7 +30,7 @@ namespace HCAL_HLX
 
   struct LUMI_SUMMARY {
     float DeadtimeNormalization; 
-    float LHCNormalization; // recieved from LHC 
+    float LHCNormalization; // received from LHC 
 
     float InstantLumi;
     float InstantLumiErr;
