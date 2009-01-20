@@ -2,6 +2,7 @@
 #define HLTrigger_HLTanalyzers_HLTMessages_h
 
 extern const char * kRecjets;
+extern const char * kRecCorjets;
 extern const char * kGenjets;
 extern const char * kRecmet;
 extern const char * kGenmet;

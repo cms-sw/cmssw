@@ -1,6 +1,7 @@
 #include "HLTMessages.h"
 
-const char * kRecjets                     = "reconstructed jets";
+const char * kRecjets                     = "uncorrected reconstructed jets";
+const char * kRecCorjets                  = "corrected reconstructed jets";
 const char * kGenjets                     = "generator jets";
 const char * kRecmet                      = "reconstructed MET";
 const char * kGenmet                      = "generator MET";

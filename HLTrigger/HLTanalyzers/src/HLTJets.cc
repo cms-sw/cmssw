@@ -40,6 +40,10 @@ void HLTJets::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
   jcalphi = new float[kMaxJetCal];
   jcaleta = new float[kMaxJetCal];
   jcale = new float[kMaxJetCal];
+  jcorcalpt = new float[kMaxJetCal]; 
+  jcorcalphi = new float[kMaxJetCal]; 
+  jcorcaleta = new float[kMaxJetCal]; 
+  jcorcale = new float[kMaxJetCal]; 
   const int kMaxJetgen = 10000;
   jgenpt = new float[kMaxJetgen];
   jgenphi = new float[kMaxJetgen];
@@ -94,6 +98,11 @@ void HLTJets::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
   HltTree->Branch("recoHTCalSum",&htcalsum,"recoHTCalSum/F");
   //for(int ieta=0;ieta<NETA;ieta++){cout << " ieta " << ieta << " eta min " << CaloTowerEtaBoundries[ieta] <<endl;}
 
+  HltTree->Branch("NrecoJetCorCal",&ncorjetcal,"NrecoJetCorCal/I"); 
+  HltTree->Branch("recoJetCorCalPt",jcorcalpt,"recoJetCorCalPt[NrecoJetCorCal]/F"); 
+  HltTree->Branch("recoJetCorCalPhi",jcorcalphi,"recoJetCorCalPhi[NrecoJetCorCal]/F"); 
+  HltTree->Branch("recoJetCorCalEta",jcorcaleta,"recoJetCorCalEta[NrecoJetCorCal]/F"); 
+  HltTree->Branch("recoJetCorCalE",jcorcale,"recoJetCorCalE[NrecoJetCorCal]/F"); 
 
   // Taus
   HltTree->Branch("NohTau",&nohtau,"NohTau/I");
@@ -110,6 +119,7 @@ void HLTJets::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
 
 /* **Analyze the event** */
 void HLTJets::analyze(const edm::Handle<CaloJetCollection>      & calojets,
+		      const edm::Handle<CaloJetCollection>      & calocorjets,
 		      const edm::Handle<GenJetCollection>       & genjets,
 		      const edm::Handle<CaloMETCollection>      & recmets,
 		      const edm::Handle<GenMETCollection>       & genmets,
@@ -121,7 +131,7 @@ void HLTJets::analyze(const edm::Handle<CaloJetCollection>      & calojets,
   if (_Debug) std::cout << " Beginning HLTJets " << std::endl;
 
   //initialize branch variables
-  njetcal=0; njetgen=0;ntowcal=0;
+  njetcal=0; ncorjetcal=0; njetgen=0;ntowcal=0;
   mcalmet=0.; mcalphi=0.;
   mgenmet=0.; mgenphi=0.;
   htcalet=0.,htcalphi=0.,htcalsum=0.;
@@ -146,6 +156,27 @@ void HLTJets::analyze(const edm::Handle<CaloJetCollection>      & calojets,
     njetcal = jcal;
   }
   else {njetcal = 0;}
+
+  if (calocorjets.isValid()) {
+    CaloJetCollection mycalocorjets;
+    mycalocorjets=*calocorjets;
+    std::sort(mycalocorjets.begin(),mycalocorjets.end(),PtGreater());
+    typedef CaloJetCollection::const_iterator ccorjiter;
+    int jcorcal=0;
+    for ( ccorjiter i=mycalocorjets.begin(); i!=mycalocorjets.end(); i++) {
+
+      if (i->pt()>_CalJetMin){
+	jcorcalpt[jcorcal] = i->pt();
+	jcorcalphi[jcorcal] = i->phi();
+	jcorcaleta[jcorcal] = i->eta();
+	jcorcale[jcorcal] = i->energy();
+	jcorcal++;
+      }
+
+    }
+    ncorjetcal = jcorcal;
+  }
+  else {ncorjetcal = 0;}
 
   if (caloTowers.isValid()) {
     ntowcal = caloTowers->size();
