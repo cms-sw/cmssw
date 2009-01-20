@@ -43,6 +43,10 @@ process.load("PhysicsTools.RecoAlgos.allTrackCandidates_cfi")
 process.load("PhysicsTools.PatAlgos.patLayer0_cff")
 process.load("PhysicsTools.PatAlgos.patLayer1_cff")
 
+## Necessary fixes to run 2.2.X on 2.1.X data
+from PhysicsTools.PatAlgos.tools.cmsswVersionTools import run22XonSummer08AODSIM
+run22XonSummer08AODSIM(process)
+
 # input pat analyzer sequence
 process.load("PhysicsTools.StarterKit.PatAnalyzerKit_cfi")
 

@@ -37,11 +37,19 @@ process.load("PhysicsTools.RecoAlgos.allTrackCandidates_cfi")
 process.load("PhysicsTools.PatAlgos.patLayer0_cff")
 process.load("PhysicsTools.PatAlgos.patLayer1_cff")
 
+process.goodMuons = cms.EDFilter("PATMuonSelector",
+    src = cms.InputTag("selectedLayer1Muons"),
+    cut = cms.string("pt > 20.0 && caloIso < 3.0")
+)
 
+
+## Necessary fixes to run 2.2.X on 2.1.X data
+from PhysicsTools.PatAlgos.tools.cmsswVersionTools import run22XonSummer08AODSIM
+run22XonSummer08AODSIM(process)
 
 # produce Z to mu mu candidates
 process.zToMuMu = cms.EDProducer("CandViewShallowClonePtrCombiner",
-    decay = cms.string('selectedLayer1Muons@+ selectedLayer1Muons@-'),
+    decay = cms.string('goodMuons@+ goodMuons@-'),
     cut = cms.string('0.0 < mass < 20000.0'),
     name = cms.string('zToMuMu'),
     roles = cms.vstring('muon1', 'muon2')
@@ -73,6 +81,7 @@ process.TFileService = cms.Service("TFileService",
 process.p = cms.Path(process.allTrackCandidates*
                      process.patLayer0*
                      process.patLayer1*
+                     process.goodMuons*
                      process.zToMuMu*
                      process.hToZZ*
                      process.compositeFilter*

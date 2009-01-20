@@ -17,7 +17,7 @@ process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 # Load geometry
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = cms.string('STARTUP_V4::All')
+process.GlobalTag.globaltag = cms.string('IDEAL_V9::All')
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
 # this defines the input files
@@ -35,6 +35,10 @@ process.maxEvents = cms.untracked.PSet(
 # input pat sequences
 process.load("PhysicsTools.PatAlgos.patLayer0_cff")
 process.load("PhysicsTools.PatAlgos.patLayer1_cff")
+
+## Necessary fixes to run 2.2.X on 2.1.X data
+from PhysicsTools.PatAlgos.tools.cmsswVersionTools import run22XonSummer08AODSIM
+run22XonSummer08AODSIM(process)
 
 # input pat skeleton analyzer sequence
 process.load("PhysicsTools.StarterKit.PatAnalyzerSkeleton_cfi")
