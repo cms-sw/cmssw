@@ -53,7 +53,7 @@ private:
   HLTMCtruth  mct_analysis_;
   HLTInfo     hlt_analysis_;
 
-  edm::InputTag recjets_,genjets_,recmet_,genmet_,ht_, calotowers_,hltresults_,genEventScale_;
+  edm::InputTag recjets_,reccorjets_,genjets_,recmet_,genmet_,ht_, calotowers_,hltresults_,genEventScale_;
   edm::InputTag muon_;
   std::string l1extramc_, l1extramu_;
   edm::InputTag m_l1extramu;
