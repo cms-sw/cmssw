@@ -206,16 +206,19 @@ def regressReports(olddir,newdir,oldRelName = "",newRelName=""):
                             else:
                                 continue
                     elif prof == "SimpleMemoryCheck":
+                        print "The logfiles for SimpleMemoryCheck are %s"%stepLogs
                         for log in stepLogs:
+                            print "The logfile considered now is %s"%log 
                             stepreg = re.compile("%s_([^_]*(_PILEUP)?)_%s((.log)|(.gz))?" % (CandFname[candle],"TimingReport"))
                             base = os.path.basename(log)
                             #Use the regular expression defined above to read out the step from the log/profile
                             searchob = stepreg.search(base)
+                            print "Value of searchob is %s"%searchob
                             #If in this log the regular expression was able match (and so to extract the step)
                             if searchob:
                                 #print searchob.groups()
                                 step = searchob.groups()[0]
-                                #print "and the step taken is %s"%step
+                                print "and the step taken is %s"%step
                                 #outpath = os.path.join(adir,"%s_%s_%s_regression" % (CandFname[candle],step,prof))
                                 oldlog  = os.path.join(olddir,"%s_%s" % (candle,profset),base)
                             if os.path.exists(oldlog):
