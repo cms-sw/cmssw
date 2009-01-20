@@ -10,7 +10,8 @@ process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 
 process.load("Configuration/StandardSequences/FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = 'CRAFT_30X::All'
+#process.GlobalTag.globaltag = 'CRAFT_30X::All'
+process.GlobalTag.globaltag = 'CRAFT_V3P::All'
 process.load("Configuration/StandardSequences/RawToDigi_Data_cff")
 # for Beam
 #process.load("Configuration.StandardSequences.Reconstruction_cff")
@@ -230,20 +231,21 @@ fileNames = cms.untracked.vstring (
        '/store/data/Commissioning08/Cosmics/RECO/v1/000/068/100/A6232129-DEA6-DD11-ADEF-001D09F25325.root',
        '/store/data/Commissioning08/Cosmics/RECO/v1/000/068/100/A6553B47-ECA6-DD11-922C-001D09F25438.root'
 ),
-#skipEvents = cms.untracked.uint32(20000)
+#skipEvents = cms.untracked.uint32(808)
 )
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(1000)
+    input = cms.untracked.int32(100)
     )
 
 process.ana = cms.EDFilter("CSCEfficiency",
     MuonServiceProxy,
-#    printout_NEvents = cms.untracked.uint32(50),
+#    printout_NEvents = cms.untracked.uint32(1000),
 #    rootFileName = cms.untracked.string('cscHists.root'),
     useDigis = cms.untracked.bool(True),
     runOnData = cms.untracked.bool(True),
 #    IPdata = cms.untracked.bool(False),
+#    Beamdata = cms.untracked.bool(False),
 #    distanceFromDeadZone = cms.untracked.double(10.0),
     alctDigiTag = cms.InputTag("muonCSCDigis","MuonCSCALCTDigi"),
     clctDigiTag = cms.InputTag("muonCSCDigis","MuonCSCCLCTDigi"),
@@ -263,8 +265,16 @@ process.ana = cms.EDFilter("CSCEfficiency",
 # if no magnetic filed - P values don't matter
 #    minP = cms.untracked.double(10.0),
 #    maxP = cms.untracked.double(100.0)
+# trigger
+    useTrigger = cms.untracked.bool(True),
+    HLTriggerResults = cms.InputTag('TriggerResults','','HLT' ),
+    myTriggers = cms.vstring("HLT_L1MuOpen"),#, "HLT_L1_CSCMuonHalo"),
+#    myTriggers = cms.vstring("HLT_L1_CSCMuonHalo"),
+    andOr = cms.untracked.bool(False), # "true" means OR 
+
 )
 
+# for running Iguana
 process.VisConfigurationService = cms.Service("VisConfigurationService",
     EnabledTwigs = cms.untracked.vstring('/Objects/CMS Event and Detector/Muon/Endcap/CSCs','*cosmicMuons*'),
     VisAutoStart = cms.untracked.bool(False),
@@ -287,13 +297,12 @@ process.VisConfigurationService = cms.Service("VisConfigurationService",
 )
 
 process.out = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string('/uscms_data/d1/stoyan/data/filtered/CSCEfficiency_skim.root'),
+    fileName = cms.untracked.string('/uscms_data/d1/stoyan/data/tmp/test_sample.root'),
     SelectEvents = cms.untracked.PSet(
       SelectEvents = cms.vstring('analyze')
     )
 )
-# Uncomment for output skim (change fileName path above)
-
+# Uncomment for output skim (and change fileName path above)
 #process.outpath = cms.EndPath(
 #  process.out 
 #)

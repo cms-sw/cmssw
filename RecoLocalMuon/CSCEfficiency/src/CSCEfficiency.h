@@ -72,6 +72,9 @@
 #include <RecoMuon/TrackingTools/interface/MuonServiceProxy.h>
 #include "RecoMuon/TrackingTools/interface/MuonPatternRecoDumper.h"
 
+#include "FWCore/Framework/interface/TriggerNames.h"
+#include "DataFormats/Common/interface/TriggerResults.h"
+
 #include "CLHEP/Matrix/DiagMatrix.h"
 #include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 #include "CLHEP/Matrix/Vector.h"
@@ -142,12 +145,22 @@ public:
   uint printout_NEvents;
   bool isData;
   bool isIPdata;
+  bool isBeamdata;
   bool useDigis;
   double distanceFromDeadZone;
   double minP;
   double maxP;
   double maxNormChi2;
   uint minTrackHits;
+
+  // trigger
+  bool useTrigger;
+  //edm::Handle<edm::TriggerResults> hltR
+  edm::InputTag hlTriggerResults_;  // Input tag for TriggerResults
+  std::vector<std::string> myTriggers;
+  std::vector <int> pointToTriggers;
+  bool andOr; 
+
 
   //---- The muon service
   MuonServiceProxy *theService;
@@ -159,6 +172,8 @@ public:
   int nEventsAnalyzed;
   //---- magnetic field
   bool magField;
+  //---- track direction
+  bool alongZ;
 
   //---- Variables
   //---- LCTs
@@ -227,9 +242,18 @@ public:
   double lineParameter(double initZPosition, double destZPosition, double initZDirection);
   bool inSensitiveLocalRegion(double xLocal, double yLocal, int station, int ring);
   bool checkLocal(double yLocal, double yBoundary, int station, int ring);
+  void chooseDirection(Hep3Vector & innerPosition, Hep3Vector & outerPosition);
+  TrajectoryStateOnSurface propagate(FreeTrajectoryState & ftsStart, const BoundPlane &bp,
+    edm::ESHandle<Propagator> &shProp_along,
+    edm::ESHandle<Propagator> &shProp_opposite,
+    edm::ESHandle<Propagator> &shProp_any);
+  bool applyTrigger(edm::Handle<edm::TriggerResults> &hltR);
+  //bool applyTrigger(void);
+
 
   //---- Histograms 
     TH1F * DataFlow;
+    TH1F * TriggersFired;
     //
     TH1F * ALCTPerEvent;
     TH1F * CLCTPerEvent;

@@ -82,12 +82,20 @@ bool CSCEfficiency::filter(Event & event, const EventSetup& eventSetup){
   edm::ESHandle<Propagator> shProp_opposite;
   eventSetup.get<TrackingComponentsRecord>().get("SteppingHelixPropagatorOpposite", shProp_opposite);
 
-  // which propagator
-  const SteppingHelixPropagator* shPropTr =
-    dynamic_cast<const SteppingHelixPropagator*>(&*shProp_any);
-
   edm::ESHandle< MagneticField > magneticField;
   eventSetup.get< IdealMagneticFieldRecord >().get( magneticField );
+
+
+  bool triggerPassed = true;
+  if(useTrigger){
+    // access the trigger information
+    // trigger names can be find in HLTrigger/Configuration/python/HLT_2E30_cff.py (or?)
+   // get hold of TriggerResults
+    edm::Handle<edm::TriggerResults> hltR;
+    event.getByLabel(hlTriggerResults_,hltR);
+    triggerPassed = applyTrigger(hltR);
+  }
+
 
   GlobalPoint gpZero(0.,0.,0.);
   if(magneticField->inTesla(gpZero).mag2()<0.1){
@@ -156,9 +164,12 @@ bool CSCEfficiency::filter(Event & event, const EventSetup& eventSetup){
     }
     DataFlow->Fill(7.);
 
-    //passTheEvent = true; 
+    passTheEvent = true; 
     if (printalot) std::cout<<"good Track"<<std::endl;
+    Hep3Vector r3T_inner(track->innerPosition().x(),track->innerPosition().y(),track->innerPosition().z());
     Hep3Vector r3T(track->outerPosition().x(),track->outerPosition().y(),track->outerPosition().z());
+    chooseDirection(r3T_inner, r3T);// for non-IP
+
     Hep3Vector p3T(track->outerMomentum().x(),track->outerMomentum().y(),track->outerMomentum().z());
     Hep3Vector p3_propagated, r3_propagated;
     AlgebraicSymMatrix66 cov_propagated, covT;
@@ -211,16 +222,27 @@ bool CSCEfficiency::filter(Event & event, const EventSetup& eventSetup){
       const CSCChamber* cscChamber_base = cscGeom->chamber(refME[iSt].chamberId());
       DetId detId = cscChamber_base->geographicalId();
       if (printalot){
-	std::cout<<" base iStation : eta = "<<cscGeom->idToDet(detId)->surface().position().eta()<<" phi = "<<" phi = "<<
-	  cscGeom->idToDet(detId)->surface().position().phi() <<std::endl;
+	std::cout<<" base iStation : eta = "<<cscGeom->idToDet(detId)->surface().position().eta()<<" phi = "<<
+	  cscGeom->idToDet(detId)->surface().position().phi() << " y = " <<cscGeom->idToDet(detId)->surface().position().y()<<std::endl;
 	std::cout<<" dump base iStation detid  = "<<debug.dumpMuonId(detId)<<std::endl;
 	std::cout<<" dump FTS start  = "<<debug.dumpFTS(ftsStart)<<std::endl;
       }
-      //const Plane* pDest = dynamic_cast<const Plane*>(&(cscGeom->idToDet(detId)->surface()));
-      //std::cout<<" test "<<std::endl;
-      //std::cout<<" pDest = "<<pDest<<std::endl;
+      const BoundPlane bp = cscGeom->idToDet(detId)->surface();
+      float zDistInner = track->innerPosition().z() - bp.position().z();
+      float zDistOuter = track->outerPosition().z() - bp.position().z();
+      //---- only detectors between the inner and outer points of the track are considered for non IP-data 
+      if(printalot){
+	std::cout<<" zIn = "<<track->innerPosition().z()<<" zOut = "<<track->outerPosition().z()<<" zSurf = "<<bp.position().z()<<std::endl;
+      }
+      if(!isIPdata && (zDistInner*zDistOuter>0. || fabs(zDistInner)<15. || fabs(zDistOuter)<15.)){ // for non IP-data
+	if(printalot){
+	  std::cout<<" Not an intermediate (as defined) point... Skip."<<std::endl;
+	}
+	continue;
+      }
       //---- propagate to this ME
-      tSOSDest = shPropTr->propagate(ftsStart, cscGeom->idToDet(detId)->surface());
+      //tSOSDest = shPropTr->propagate(ftsStart, cscGeom->idToDet(detId)->surface());
+      tSOSDest = propagate(ftsStart, cscGeom->idToDet(detId)->surface(), shProp_along, shProp_opposite, shProp_any);
       if(tSOSDest.isValid()){
 	ftsStart = *tSOSDest.freeState();
 	if (printalot) std::cout<<"  dump FTS end   = "<<debug.dumpFTS(ftsStart)<<std::endl;
@@ -250,23 +272,14 @@ bool CSCEfficiency::filter(Event & event, const EventSetup& eventSetup){
 	      if (printalot) std::cout<<" Check chamber N = "<<coupleOfChambers.at(iCh)<<std::endl;;
 	      CSCDetId theCSCId(refME[iSt].endcap(), refME[iSt].station(), refME[iSt].ring(), coupleOfChambers.at(iCh));
 	      const CSCChamber* cscChamber = cscGeom->chamber(theCSCId.chamberId());
-	      const BoundPlane bp = cscGeom->idToDet(cscChamber->geographicalId())->surface();
-              float zDistInner = track->innerPosition().z() - bp.position().z();
-              float zDistOuter = track->outerPosition().z() - bp.position().z();
-//---- only detectors between the inner and outer points of the track are considered for non IP-data 
-              if(printalot){
-                std::cout<<" zIn = "<<track->innerPosition().z()<<" zOut = "<<track->outerPosition().z()<<" zSurf = "<<bp.position().z()<<std::endl;
-                std::cout<<" zDistInner = "<<zDistInner<<" zDistOuter = "<<zDistOuter<<std::endl;
-              }
-              if(!isIPdata && (zDistInner*zDistOuter>0. || fabs(zDistInner)<15. || fabs(zDistOuter)<15.)){ // for non IP-data
-               continue;
-              }
+	      const BoundPlane bpCh = cscGeom->idToDet(cscChamber->geographicalId())->surface();
 	      float zFTS = ftsStart.position().z();
-	      float dz = fabs(bp.position().z() - zFTS);
+	      float dz = fabs(bpCh.position().z() - zFTS);
 	      //---- propagate to the chamber (from this ME) if it is a different surface (odd/even chambers)
 	      if(dz>0.1){// i.e. non-zero (float 0 check is bad) 
 		//if(fabs(zChanmber - zFTS ) > 0.1){
-		tSOSDest = shPropTr->propagate(ftsStart, cscGeom->idToDet(cscChamber->geographicalId())->surface());
+		tSOSDest = propagate(ftsStart, cscGeom->idToDet(cscChamber->geographicalId())->surface(), 
+				     shProp_along, shProp_opposite, shProp_any);
 		if(tSOSDest.isValid()){
 		  ftsStart = *tSOSDest.freeState();
 		}
@@ -289,7 +302,7 @@ bool CSCEfficiency::filter(Event & event, const EventSetup& eventSetup){
 			   <<cscChamber->layer(iLayer+1)->surface().position().phi()<<std::endl;
 		}
 		//---- propagate to this layer
-		tSOSDest = shPropTr->propagate(ftsInit, cscChamber->layer(iLayer+1)->surface());
+		tSOSDest = propagate(ftsInit, cscChamber->layer(iLayer+1)->surface(), shProp_along, shProp_opposite, shProp_any);
 		if(tSOSDest.isValid()){
 		  ftsInit = *tSOSDest.freeState();
 		  if (printalot) std::cout<<" Propagation between layers successful:  dump FTS end  = "<<debug.dumpFTS(ftsInit)<<std::endl;
@@ -309,7 +322,9 @@ bool CSCEfficiency::filter(Event & event, const EventSetup& eventSetup){
 		  inDeadZone = ( inDeadZone ||
 				 !inSensitiveLocalRegion(theLocalPoint.x(), theLocalPoint.y(), 
 							 refME[iSt].station(), refME[iSt].ring()));
-		  if (printalot) std::cout<<" Candidate chamber: extrapolated LocalPoint = "<<theLocalPoint<<"inDeadZone = "<<inDeadZone<<std::endl;
+		  if (printalot){
+                    std::cout<<" Candidate chamber: extrapolated LocalPoint = "<<theLocalPoint<<"inDeadZone = "<<inDeadZone<<std::endl;
+                  }
 		  //---- break if in dead zone for any layer ("clean" tracks)
 		  if(inDeadZone){
 		    break;
@@ -320,16 +335,13 @@ bool CSCEfficiency::filter(Event & event, const EventSetup& eventSetup){
 		}
 	      }
 	      DataFlow->Fill(13.);
-	      //---- Track in a sensitive are for each layer?  
+	      //---- Is a track in a sensitive area for each layer?  
 	      if(!inDeadZone){//---- for any layer
 		DataFlow->Fill(15.);  
 		if (printalot) std::cout<<"Do efficiencies..."<<std::endl;
 		//---- Do efficiencies
 		if(useDigis){
 		  bool digi_flag; digi_flag = digisPerChamber(theCSCId, cscChamber, ftsStart);
-		  if(digi_flag){
-		    passTheEvent = true;
-		  }
 		  bool stripANDwire_flag; stripANDwire_flag = stripWire_Efficiencies(theCSCId, ftsStart);
 		}
 		bool recHitANDsegment_flag; recHitANDsegment_flag = recHitSegment_Efficiencies(theCSCId, cscChamber, ftsStart);
@@ -814,7 +826,7 @@ void CSCEfficiency::chamberCandidates(int station, int ring, float phi, std::vec
   float phi_const = 2.*M_PI/36.;
   int last_chamber = 36;
   int first_chamber = 1;
-  if(1 != station && 1==ring){
+  if(1 != station && 1==ring){ // 18 chambers in the ring
     phi_const*=2;
     last_chamber /= 2;
   }
@@ -942,7 +954,8 @@ bool CSCEfficiency::digisPerChamber(CSCDetId & id, const CSCChamber* cscChamber,
     ChHist[ec][st][rg][ch].digiAppearanceCount->Fill(6);
   }
   bool out = false;
-  if((missingCLCT && !missingALCT )|| (missingALCT && 0==st&&2==rg)){
+  //if((missingCLCT && !missingALCT )|| (missingALCT && 0==st&&2==rg)){
+  if(missingALCT && 0==st&&2==rg){
     out = true;
   }
   return out;
@@ -1251,7 +1264,139 @@ double CSCEfficiency::lineParameter(double initZPosition, double destZPosition, 
   double paramLine = (destZPosition-initZPosition)/initZDirection;
   return paramLine;
 }
+//
+void CSCEfficiency::chooseDirection(Hep3Vector & innerPosition, Hep3Vector & outerPosition){
 
+  //---- Be careful with trigger conditions too
+  if(!isIPdata){
+    float dy = outerPosition.y() - innerPosition.y();
+    float dz = outerPosition.z() - innerPosition.z();
+    if(isBeamdata){
+      if(dz>0){
+	alongZ = true;
+      }
+      else{
+	alongZ = false;
+      }
+    }
+    else{//cosmics
+      if(dy/dz>0){
+	alongZ = false;
+      }
+      else{
+	alongZ = true;
+      }
+    }
+  }
+}
+//
+TrajectoryStateOnSurface CSCEfficiency::propagate(FreeTrajectoryState & ftsStart, const BoundPlane &bpDest,
+						  edm::ESHandle<Propagator> &shProp_along,
+						  edm::ESHandle<Propagator> &shProp_opposite,
+						  edm::ESHandle<Propagator> &shProp_any){
+  TrajectoryStateOnSurface tSOSDest;
+  edm::ESHandle<Propagator> shProp_chosen;
+  bool dzPositive = bpDest.position().z() - ftsStart.position().z() > 0 ? true : false;
+
+ //---- Be careful with trigger conditions too
+  if(!isIPdata){
+    bool rightDirection = !(alongZ^dzPositive);
+    if(rightDirection){
+      shProp_chosen = shProp_along;// or _any always?
+    }
+    else{
+      shProp_chosen = shProp_opposite;
+    }
+  }
+  else{
+    shProp_chosen = shProp_any; 
+  }
+  const SteppingHelixPropagator* shPropTr =
+    dynamic_cast<const SteppingHelixPropagator*>(&*shProp_chosen);
+  tSOSDest = shPropTr->propagate(ftsStart, bpDest);
+  return tSOSDest;
+}
+//
+bool CSCEfficiency::applyTrigger(edm::Handle<edm::TriggerResults> &hltR ){
+  bool triggerPassed = true;
+  edm::TriggerNames triggerNames;
+  triggerNames.init(*hltR);
+  std::vector<std::string>  hlNames=triggerNames.triggerNames();
+  pointToTriggers.clear();
+  for(uint imyT = 0;imyT<myTriggers.size();++imyT){
+    for (uint iT=0; iT<hlNames.size(); ++iT) {
+      //std::cout<<" iT = "<<iT<<" hlNames[iT] = "<<hlNames[iT]<<
+      //" : wasrun = "<<hltR->wasrun(iT)<<" accept = "<<
+      //	 hltR->accept(iT)<<" !error = "<< 
+      //	!hltR->error(iT)<<std::endl; 
+      if(!imyT){       
+        if(hltR->wasrun(iT) &&
+           hltR->accept(iT) &&
+           !hltR->error(iT) ){
+           TriggersFired->Fill(iT); 
+        }
+      }
+      if(hlNames[iT]==myTriggers[imyT]){
+	pointToTriggers.push_back(iT);
+	if(imyT){
+	  break;
+	}
+      }
+    }
+  }
+  if(pointToTriggers.size()!=myTriggers.size()){
+    pointToTriggers.clear();
+    if(printalot){
+      std::cout<<" Not all trigger names found - all trigger specifications will be ignored. Check your cfg file!"<<std::endl;
+    }
+  }
+  else{
+    if(pointToTriggers.size()){
+      if(printalot){
+        std::cout<<"The following triggers will be required in the event: "<<std::endl;
+        for(uint imyT =0; imyT <pointToTriggers.size();++imyT){
+	  std::cout<<"  "<<hlNames[pointToTriggers[imyT]];
+        }
+        std::cout<<std::endl;
+        std::cout<<" in condition (AND/OR) : "<<!andOr<<"/"<<andOr<<std::endl;
+      }
+    }
+  }
+
+  if (hltR.isValid()) {
+    if(!pointToTriggers.size()){
+      if(printalot){
+        std::cout<<" No triggers specified in the configuration or all ignored - no trigger information will be considered"<<std::endl;
+      }
+    }
+    for(uint imyT =0; imyT <pointToTriggers.size();++imyT){
+      if(hltR->wasrun(pointToTriggers[imyT]) && 
+	 hltR->accept(pointToTriggers[imyT]) && 
+	 !hltR->error(pointToTriggers[imyT]) ){
+	triggerPassed = true;
+	if(andOr){
+	  break;
+	}
+      }
+      else{
+	triggerPassed = false;
+	if(!andOr){
+	  triggerPassed = false;
+	  break;
+	}
+      }
+    }
+  }
+  else{
+    if(printalot){
+      std::cout<<" TriggerResults handle returns invalid state?! No trigger information will be considered"<<std::endl;
+    }
+  }
+  if(printalot){
+    std::cout<<" Trigger passed: "<<triggerPassed<<std::endl;
+  }
+  return triggerPassed;
+}
 
 // Constructor
 CSCEfficiency::CSCEfficiency(const ParameterSet& pset){
@@ -1273,6 +1418,7 @@ CSCEfficiency::CSCEfficiency(const ParameterSet& pset){
 
   isData  = pset.getUntrackedParameter<bool>("runOnData",true);// 
   isIPdata  = pset.getUntrackedParameter<bool>("IPdata",false);// 
+  isBeamdata  = pset.getUntrackedParameter<bool>("Beamdata",false);// 
   useDigis = pset.getUntrackedParameter<bool>("useDigis", true);// 
   distanceFromDeadZone = pset.getUntrackedParameter<double>("distanceFromDeadZone", 10.);// 
   minP = pset.getUntrackedParameter<double>("minP",10.);//
@@ -1292,7 +1438,15 @@ CSCEfficiency::CSCEfficiency(const ParameterSet& pset){
   tracksTag = pset.getParameter< edm::InputTag >("tracksTag");
 
   ParameterSet serviceParameters = pset.getParameter<ParameterSet>("ServiceParameters");
+  // maybe use the service for getting magnetic field, propagators, etc. ...
   theService        = new MuonServiceProxy(serviceParameters);
+
+  // Trigger
+  useTrigger =  pset.getUntrackedParameter<bool>("useTrigger", false);
+  hlTriggerResults_ = pset.getParameter<edm::InputTag> ("HLTriggerResults");
+  myTriggers = pset.getParameter<std::vector <std::string> >("myTriggers");
+  andOr =  pset.getUntrackedParameter<bool>("andOr");
+  pointToTriggers.clear();
 
 
   //---- set counter to zero
@@ -1312,12 +1466,13 @@ CSCEfficiency::CSCEfficiency(const ParameterSet& pset){
   DataFlow =  
     new TH1F(SpecName,"Data flow;condition number;entries",30,-0.5,29.5);
   //
+  sprintf(SpecName,"TriggersFired"); 
+  TriggersFired =
+    new TH1F(SpecName,"Triggers fired;trigger number;entries",40,-0.5,39.5);
+  //
   int Chan = 50;
   float minChan = -0.5;
   float maxChan = 49.5;
-  //sprintf(SpecName,"AllSegments_theta__ndf"); 
-
-
   //
   sprintf(SpecName,"ALCTPerEvent");    
   ALCTPerEvent = new TH1F(SpecName,"ALCTs per event;N digis;entries",Chan,minChan,maxChan);
@@ -1619,6 +1774,7 @@ CSCEfficiency::~CSCEfficiency(){
   theFile->mkdir(SpecName);
   theFile->cd(SpecName);
   DataFlow->Write(); 
+  TriggersFired->Write();
   ALCTPerEvent->Write();
   CLCTPerEvent->Write();
   recHitsPerEvent->Write();
