@@ -5,7 +5,7 @@
 import FWCore.ParameterSet.Config as cms
 
 #
-# $Id: MonitorAlCaEcalPhisym_cfi.py,v 1.2 2008/08/14 09:33:36 argiro Exp $
+# $Id: EcalPhiSymHLTVal_cfi.py,v 1.1 2009/01/19 16:50:31 argiro Exp $
 #
 # \author Stefano Argiro
 #
@@ -17,7 +17,7 @@ EcalPhiSymMon = cms.EDAnalyzer("DQMSourcePhiSym",
     AlCaStreamEETag = cms.untracked.InputTag("hltAlCaPhiSymStream","phiSymEcalRecHitsEE"),
     prescaleFactor = cms.untracked.int32(1),
     # DQM folder to write to
-    FolderName = cms.untracked.string('EcalPhiSymHLT')
+    FolderName = cms.untracked.string('HLT/EcalPhiSym')
 )
 
 
