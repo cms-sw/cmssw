@@ -73,9 +73,12 @@ cond::MetaData::getToken( const std::string& name ) const{
     coral::ITable& mytable=m_coraldb.nominalSchema().tableHandle( cond::MetaDataNames::metadataTable() );
     std::auto_ptr< coral::IQuery > query(mytable.newQuery());
     query->setRowCacheSize( 100 );
-    coral::AttributeList emptyBindVariableList;
-    std::string condition=cond::MetaDataNames::tagColumn()+" = '"+name+"'";
-    query->setCondition( condition, emptyBindVariableList );
+    coral::AttributeList BindVariableList;
+    //std::string condition=cond::MetaDataNames::tagColumn()+" = '"+name+"'";
+    std::string condition=cond::MetaDataNames::tagColumn()+"= :name";
+    BindVariableList.extend("name",typeid(std::string));
+    BindVariableList["name"].data<std::string>()=name;
+    query->setCondition( condition, BindVariableList );
     query->addToOutputList( cond::MetaDataNames::tokenColumn() );
     coral::ICursor& cursor = query->execute();
     while( cursor.next() ) {
@@ -98,9 +101,12 @@ cond::MetaData::getEntryByTag( const std::string& tagname, cond::MetaDataEntry& 
     coral::ITable& mytable=m_coraldb.nominalSchema().tableHandle( cond::MetaDataNames::metadataTable() );
     std::auto_ptr< coral::IQuery > query(mytable.newQuery());
     query->setRowCacheSize( 100 );
-    coral::AttributeList emptyBindVariableList;
-    std::string condition=cond::MetaDataNames::tagColumn()+" = '"+tagname+"'";
-    query->setCondition( condition, emptyBindVariableList );
+    coral::AttributeList BindVariableList;
+    //std::string condition=cond::MetaDataNames::tagColumn()+" = '"+tagname+"'";
+    std::string condition=cond::MetaDataNames::tagColumn()+" = :tagname";
+    BindVariableList.extend("tagname",typeid(std::string) );
+    BindVariableList["tagname"].data<std::string>()=tagname;
+    query->setCondition( condition,BindVariableList );
     query->addToOutputList( cond::MetaDataNames::tokenColumn() );
     query->addToOutputList( cond::MetaDataNames::timetypeColumn() );
     coral::ICursor& cursor = query->execute();
@@ -142,9 +148,12 @@ bool cond::MetaData::hasTag( const std::string& name ) const{
   try{
     coral::ITable& mytable=m_coraldb.nominalSchema().tableHandle( cond::MetaDataNames::metadataTable() );
     std::auto_ptr< coral::IQuery > query(mytable.newQuery());
-    coral::AttributeList emptyBindVariableList;
-    std::string condition=cond::MetaDataNames::tagColumn()+" = '"+name+"'";
-    query->setCondition( condition, emptyBindVariableList );
+    coral::AttributeList BindVariableList;
+    //std::string condition=cond::MetaDataNames::tagColumn()+" = '"+name+"'";
+    std::string condition=cond::MetaDataNames::tagColumn()+" = :name";
+    BindVariableList.extend("name", typeid(std::string) );
+    BindVariableList["name"].data<std::string>()=name;
+    query->setCondition( condition, BindVariableList );
     coral::ICursor& cursor = query->execute();
     if( cursor.next() ) result=true;
     cursor.close();
