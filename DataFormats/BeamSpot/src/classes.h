@@ -7,10 +7,9 @@
 #include "Math/CylindricalEta3D.h" 
 #include "DataFormats/Math/interface/Vector.h" 
 
-
 namespace {
-
-	reco::BeamSpot b;
-	edm::Wrapper<reco::BeamSpot> b_w;
-	
+  struct dictionary {
+    reco::BeamSpot b;
+    edm::Wrapper<reco::BeamSpot> b_w;
+  };      
 }

@@ -25,14 +25,10 @@
 #include <vector>
 
 namespace {
-  namespace {
+  struct dictionary {
     std::map<DetId, std::pair<unsigned int, unsigned int> > dummytrkrechit2d1;
     std::map<DetId, std::pair<unsigned long, unsigned long> > dummytrkrechit2d2;
-  }
-}
 
-namespace {
-  namespace {
     ProjectedSiStripRecHit2D projHit;   
     SiStripRecHit2D a1;
     SiStripMatchedRecHit2D a2;
@@ -118,7 +114,6 @@ namespace {
       edm::ClonePolicy<SiTrackerGSRecHit2D> >, 
       edm::ClonePolicy<SiTrackerGSRecHit2D> >::id_iterator    itgs2d;
  
-
    edm::Wrapper< edm::RangeMap<unsigned,
       edm::OwnVector<SiTrackerGSMatchedRecHit2D,
       edm::ClonePolicy<SiTrackerGSMatchedRecHit2D> >, 
@@ -127,17 +122,16 @@ namespace {
       edm::OwnVector<SiTrackerGSMatchedRecHit2D,
       edm::ClonePolicy<SiTrackerGSMatchedRecHit2D> >, 
       edm::ClonePolicy<SiTrackerGSMatchedRecHit2D> >::id_iterator  itgsmatched2d;
- 
    
     edm::Ref<edm::RangeMap<DetId,edm::OwnVector<SiStripRecHit2D,edm::ClonePolicy<SiStripRecHit2D> >,edm::ClonePolicy<SiStripRecHit2D> >,SiStripRecHit2D,edm::refhelper::FindUsingAdvance<edm::RangeMap<DetId,edm::OwnVector<SiStripRecHit2D,edm::ClonePolicy<SiStripRecHit2D> >,edm::ClonePolicy<SiStripRecHit2D> >,SiStripRecHit2D> > refRangeMapDetIdOwnVectorSiStripRecHit2D;
     edm::RefVector<edm::RangeMap<DetId,edm::OwnVector<SiStripRecHit2D,edm::ClonePolicy<SiStripRecHit2D> >,edm::ClonePolicy<SiStripRecHit2D> >,SiStripRecHit2D,edm::refhelper::FindUsingAdvance<edm::RangeMap<DetId,edm::OwnVector<SiStripRecHit2D,edm::ClonePolicy<SiStripRecHit2D> >,edm::ClonePolicy<SiStripRecHit2D> >,SiStripRecHit2D> > refVectorRangeMapDetIdOwnVectorSiStripRecHit2D;
-  }
 
-  edm::Wrapper<edmNew::DetSetVector<SiStripRecHit2D> > wdstvDummy1;
-  edm::Wrapper<edmNew::DetSetVector<SiStripMatchedRecHit2D> > wdstvDummy2;
-  edm::Wrapper<edmNew::DetSetVector<SiPixelRecHit> > wdstvDummy3;
+    edm::Wrapper<edmNew::DetSetVector<SiStripRecHit2D> > wdstvDummy1;
+    edm::Wrapper<edmNew::DetSetVector<SiStripMatchedRecHit2D> > wdstvDummy2;
+    edm::Wrapper<edmNew::DetSetVector<SiPixelRecHit> > wdstvDummy3;
 
-  edm::Wrapper<reco::ClusterRemovalInfo> clusterRemovalInfo;
+    edm::Wrapper<reco::ClusterRemovalInfo> clusterRemovalInfo;
+  };
 }
 
 #endif // SISTRIPRECHIT_CLASSES_H
