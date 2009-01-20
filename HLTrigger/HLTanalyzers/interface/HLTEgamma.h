@@ -44,6 +44,14 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/EgammaCandidates/interface/ElectronIsolationAssociation.h"
 
+#include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "DataFormats/Math/interface/Point3D.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "RecoEgamma/Examples/plugins/ElectronIDAnalyzer.h"
+#include "DataFormats/Common/interface/ValueMap.h"
+
 /** \class HLTEgamma
   *
   * $Date: November 2006
@@ -84,6 +92,10 @@ public:
       const edm::Handle<reco::RecoEcalCandidateIsolationMap> & HcalNonIsolMap,
       const edm::Handle<reco::RecoEcalCandidateIsolationMap> & TrackIsolMap,
       const edm::Handle<reco::RecoEcalCandidateIsolationMap> & TrackNonIsolMap,
+      EcalClusterLazyTools& lazyTools,
+      const edm::ESHandle<MagneticField>& theMagField,
+      reco::BeamSpot::Point & BSPosition,
+      std::vector<edm::Handle<edm::ValueMap<float> > > & eIDValueMap, 
       TTree* tree);
 
 private:
@@ -95,14 +107,16 @@ private:
       const edm::Handle<reco::RecoEcalCandidateCollection>   & recoIsolecalcands,
       const edm::Handle<reco::RecoEcalCandidateIsolationMap> & EcalIsolMap,
       const edm::Handle<reco::RecoEcalCandidateIsolationMap> & HcalIsolMap,
-      const edm::Handle<reco::RecoEcalCandidateIsolationMap> & TrackIsolMap);
+      const edm::Handle<reco::RecoEcalCandidateIsolationMap> & TrackIsolMap,
+      EcalClusterLazyTools& lazyTools );
 
   void MakeL1NonIsolatedPhotons(
       std::vector<OpenHLTPhoton> & photons,
       const edm::Handle<reco::RecoEcalCandidateCollection>   & recoNonIsolecalcands,
       const edm::Handle<reco::RecoEcalCandidateIsolationMap> & EcalNonIsolMap,
       const edm::Handle<reco::RecoEcalCandidateIsolationMap> & HcalNonIsolMap,
-      const edm::Handle<reco::RecoEcalCandidateIsolationMap> & TrackNonIsolMap);
+      const edm::Handle<reco::RecoEcalCandidateIsolationMap> & TrackNonIsolMap,
+      EcalClusterLazyTools& lazyTools );
 
   void MakeL1IsolatedElectrons(
       std::vector<OpenHLTElectron> & electrons,
@@ -110,7 +124,10 @@ private:
       const edm::Handle<reco::RecoEcalCandidateCollection>   & recoIsolecalcands,
       const edm::Handle<reco::RecoEcalCandidateIsolationMap> & HcalEleIsolMap,
       const edm::Handle<reco::ElectronPixelSeedCollection>   & L1IsoPixelSeedsMap,
-      const edm::Handle<reco::ElectronIsolationMap>          & TrackEleIsolMap);
+      const edm::Handle<reco::ElectronIsolationMap>          & TrackEleIsolMap,
+      EcalClusterLazyTools& lazyTools,
+      const edm::ESHandle<MagneticField>& theMagField,
+      reco::BeamSpot::Point & BSPosition  );
 
   void MakeL1NonIsolatedElectrons(
       std::vector<OpenHLTElectron> & electrons,
@@ -118,7 +135,17 @@ private:
       const edm::Handle<reco::RecoEcalCandidateCollection>   & recoNonIsolecalcands,
       const edm::Handle<reco::RecoEcalCandidateIsolationMap> & HcalEleIsolMap,
       const edm::Handle<reco::ElectronPixelSeedCollection>   & L1NonIsoPixelSeedsMap,
-      const edm::Handle<reco::ElectronIsolationMap>          & TrackEleIsolMap);
+      const edm::Handle<reco::ElectronIsolationMap>          & TrackEleIsolMap, 
+      EcalClusterLazyTools& lazyTools,
+      const edm::ESHandle<MagneticField>& theMagField,
+      reco::BeamSpot::Point & BSPosition  );
+
+void CalculateDetaDphi(
+		       const edm::ESHandle<MagneticField>& theMagField, 
+		       reco::BeamSpot::Point & BSPosition, 
+		       const reco::ElectronRef eleref, 
+		       float& deltaeta, 
+		       float& deltaphi );
 
   // Tree variables
   float *elpt, *elphi, *eleta, *elet, *ele;
@@ -126,7 +153,9 @@ private:
   float *hphotet, *hphoteta, *hphotphi, *hphoteiso, *hphothiso, *hphottiso;
   float *heleet, *heleeta, *helephi, *heleE, *helep, *helehiso, *heletiso;
   float *heleetLW, *heleetaLW, *helephiLW, *heleELW, *helepLW, *helehisoLW, *heletisoLW;
+  float *hphotClusShap, *heleClusShap, *heleDeta, *heleDphi, *heleClusShapLW, *heleDetaLW, *heleDphiLW;
   int *hphotl1iso, *helel1iso, *helePixelSeeds, *helel1isoLW, *helePixelSeedsLW;
+  int *eleId;// RL  + 2*RT + 4*L +  4*T 
   int *heleNewSC, *heleNewSCLW;
   int nele, nphoton, nhltgam, nhltele, nhlteleLW;
 
@@ -138,7 +167,7 @@ private:
     float hcalIsol;
     float trackIsol;
     bool  L1Isolated;
-
+    float clusterShape;
     float et() const { return Et; } // Function defined as such to be compatible with EtGreater()
   };
 
@@ -153,7 +182,9 @@ private:
     bool  L1Isolated;
     int   pixelSeeds;
     bool  newSC;
-
+    float clusterShape;
+    float Deta;
+    float Dphi;
     float et() const { return Et; } // Function defined as such to be compatible with EtGreater()
   };
 
