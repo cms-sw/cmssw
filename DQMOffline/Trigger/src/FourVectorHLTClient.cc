@@ -5,7 +5,7 @@
    date of first version: Sept 2008
 
 */
-//$Id: FourVectorHLTClient.cc,v 1.3 2008/10/29 14:49:08 rekovic Exp $
+//$Id: FourVectorHLTClient.cc,v 1.4 2008/11/01 19:19:47 rekovic Exp $
 
 #include "DQMOffline/Trigger/interface/FourVectorHLTClient.h"
 
@@ -347,7 +347,7 @@ void FourVectorHLTClient::endRun(const Run& r, const EventSetup& context){
       } // end if
       else {
   
-        LogWarning("FourVectorHLTClient")<< "Cannot find NUM and DEN histograms to derive " << newHistName <<  "."<< endl;
+        LogDebug("FourVectorHLTClient")<< "Cannot find NUM and DEN histograms to derive " << newHistName <<  "."<< endl;
   
 
       }
