@@ -41,15 +41,15 @@ void L1TDTTPGClient::initialize(){
   
   // base folder for the contents of this job
   monitorName_ = parameters_.getUntrackedParameter<string>("monitorName","");
-  cout << "Monitor name = " << monitorName_ << endl;
+//  cout << "Monitor name = " << monitorName_ << endl;
   prescaleLS_ = parameters_.getUntrackedParameter<int>("prescaleLS", -1);
-  cout << "DQM lumi section prescale = " << prescaleLS_ << " lumi section(s)"<< endl;
+//  cout << "DQM lumi section prescale = " << prescaleLS_ << " lumi section(s)"<< endl;
   prescaleEvt_ = parameters_.getUntrackedParameter<int>("prescaleEvt", -1);
-  cout << "DQM event prescale = " << prescaleEvt_ << " events(s)"<< endl;
+//  cout << "DQM event prescale = " << prescaleEvt_ << " events(s)"<< endl;
   output_dir_ = parameters_.getUntrackedParameter<string>("output_dir","");
-  cout << "DQM output dir = " << output_dir_ << endl;
+//  cout << "DQM output dir = " << output_dir_ << endl;
   input_dir_ = parameters_.getUntrackedParameter<string>("input_dir","");
-  cout << "DQM input dir = " << input_dir_ << endl;
+//  cout << "DQM input dir = " << input_dir_ << endl;
   
   LogInfo( "TriggerDQM");
 
