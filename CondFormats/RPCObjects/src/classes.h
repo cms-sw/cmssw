@@ -11,36 +11,27 @@
 #include "CondFormats/RPCObjects/interface/RPCObGas.h"
 #include "CondFormats/RPCObjects/interface/RPCObCond.h"
 #include "CondFormats/RPCObjects/interface/RPCObPVSSmap.h"
-
-
-namespace{
-  std::vector<ChamberStripSpec> theStrips;
-}
-
-
 #include "CondFormats/RPCObjects/interface/LinkBoardSpec.h"
-namespace{
-  std::vector<FebConnectorSpec> theFebs;
-}
-
 #include "CondFormats/RPCObjects/interface/LinkConnSpec.h"
-namespace{
-  std::vector<LinkBoardSpec> theLBs; 
-}
-
 #include "CondFormats/RPCObjects/interface/TriggerBoardSpec.h"
-namespace{
-  std::vector<LinkConnSpec> theLinks; 
-}
-
 #include "CondFormats/RPCObjects/interface/DccSpec.h"
-namespace{
-  std::vector<TriggerBoardSpec> theTBs; 
-}
-
 #include "CondFormats/RPCObjects/interface/RPCReadOutMapping.h"
+#include "CondFormats/RPCObjects/interface/RPCEMap.h"
+
+
 namespace{
-  std::map<int, DccSpec> theFeds; 
+  struct dictionary {
+    std::vector<ChamberStripSpec> theStrips;
+ 
+    std::vector<FebConnectorSpec> theFebs;
+ 
+    std::vector<LinkBoardSpec> theLBs; 
+ 
+    std::vector<LinkConnSpec> theLinks; 
+ 
+    std::vector<TriggerBoardSpec> theTBs; 
+ 
+    std::map<int, DccSpec> theFeds; 
+  };
 }
 
-#include "CondFormats/RPCObjects/interface/RPCEMap.h"

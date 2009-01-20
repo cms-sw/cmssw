@@ -30,23 +30,21 @@
 //template std::vector< Inclinometers::Item >::const_iterator;
 //template std::vector< PXsensors::Item >::iterator;
 //template std::vector< PXsensors::Item >::const_iterator;
+//template edm::Wrapper<OpticalAlignments>;
 
 namespace{
-  std::vector<OpticalAlignInfo> optaligninfovec;
-  std::vector<MBAChBenchCalPlateData> mbacalvec;
-  std::vector<MBAChBenchSurveyPlateData> mbasurveyvec;
-  std::vector<OpticalAlignMeasurementInfo> optmeasureinfovec;
-  std::vector<CSCZSensorData> zsensorvec;
-  std::vector<CSCRSensorData> rsensorvec;
-  std::vector<OpticalAlignParam> OpticalAlignParamvec;
-  std::vector< Inclinometers::Item > incvec;
-  std::vector< PXsensors::Item > pxvec;
-}
+  struct dictionary {
+    std::vector<OpticalAlignInfo> optaligninfovec;
+    std::vector<MBAChBenchCalPlateData> mbacalvec;
+    std::vector<MBAChBenchSurveyPlateData> mbasurveyvec;
+    std::vector<OpticalAlignMeasurementInfo> optmeasureinfovec;
+    std::vector<CSCZSensorData> zsensorvec;
+    std::vector<CSCRSensorData> rsensorvec;
+    std::vector<OpticalAlignParam> OpticalAlignParamvec;
+    std::vector< Inclinometers::Item > incvec;
+    std::vector< PXsensors::Item > pxvec;
 
-//template edm::Wrapper<OpticalAlignments>;
-namespace {
-  namespace {
     edm::Wrapper<OpticalAlignments> tw;
     edm::Wrapper<OpticalAlignMeasurements> tw2;
-  }
+  };
 }
