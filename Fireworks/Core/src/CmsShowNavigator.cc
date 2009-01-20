@@ -8,8 +8,10 @@
 //
 // Original Author:
 //         Created:  Tue Jun 10 14:56:46 EDT 2008
-// $Id: CmsShowNavigator.cc,v 1.19 2008/12/09 05:53:26 dmytro Exp $
+// $Id: CmsShowNavigator.cc,v 1.20 2009/01/08 14:07:13 amraktad Exp $
 //
+
+// #define Fireworks_Core_CmsShowNavigator_WriteLeakInfo
 
 // hacks
 #define private public
@@ -35,6 +37,46 @@
 #include "DataFormats/FWLite/interface/Event.h"
 #include "DataFormats/Provenance/interface/EventID.h"
 
+#ifdef Fireworks_Core_CmsShowNavigator_WriteLeakInfo
+#include  <TApplication.h>
+#include  <TSystem.h>
+#include  <TGraph.h>
+#include  <TObject.h>
+#include  <TDatime.h>
+
+namespace 
+{
+TDatime m_date;
+TFile  mg_memoryInfoFile("MemoryLeakInfo.root", "RECREATE");
+std::vector<Float_t> mg_memoryResidentVec;
+std::vector<Float_t> mg_memoryVirtualVec;
+
+void writeLeak()
+{
+   TDirectory* gd= gDirectory;
+   TFile* gf= gFile;
+   mg_memoryInfoFile.cd();
+
+   Int_t n = mg_memoryResidentVec.size();
+   TGraph gr(n);
+   TGraph gv(n);
+
+   for(Int_t i=0; i<n; i++)
+   {
+      gr.SetPoint(i, i, mg_memoryResidentVec[i]);
+      gv.SetPoint(i, i, mg_memoryVirtualVec[i]);
+   }
+   const char* date = Form("%d:%d:%d", m_date.GetDate(), m_date.GetHour(),m_date.GetMinute());
+   printf("Write graf %s_%d\n", date, gSystem->GetPid());
+   gr.Write(Form("Resident_%s_%d", date, gSystem->GetPid()), TObject::kOverwrite);
+   gv.Write(Form("Virtual_%s_%d" , date, gSystem->GetPid()), TObject::kOverwrite);
+
+   gDirectory = gd;
+   gFile = gf;
+}
+}
+#endif
+
 //
 // constants, enums and typedefs
 //
@@ -55,6 +97,12 @@ CmsShowNavigator::CmsShowNavigator(const CmsShowMain &main)
   m_eventList = 0;
   m_selection = "";
   m_currentSelectedEntry = 0;
+
+#ifdef Fireworks_Core_CmsShowNavigator_WriteLeakInfo
+  mg_memoryResidentVec.reserve(100000);
+  mg_memoryVirtualVec.reserve(100000);
+#endif
+
 }
 
 // CmsShowNavigator::CmsShowNavigator(const CmsShowNavigator& rhs)
@@ -64,6 +112,9 @@ CmsShowNavigator::CmsShowNavigator(const CmsShowMain &main)
 
 CmsShowNavigator::~CmsShowNavigator()
 {
+#ifdef Fireworks_Core_CmsShowNavigator_WriteLeakInfo
+   mg_memoryInfoFile.Close();
+#endif
 }
 
 //
@@ -146,6 +197,19 @@ CmsShowNavigator::checkPosition() {
 void
 CmsShowNavigator::nextEvent()
 {
+
+#ifdef Fireworks_Core_CmsShowNavigator_WriteLeakInfo
+   ProcInfo_t pInf;
+   gSystem->GetProcInfo(&pInf);
+
+   mg_memoryResidentVec.push_back(pInf.fMemResident/1024.0);
+   mg_memoryVirtualVec.push_back(pInf.fMemVirtual/1024.0);
+   Int_t n = mg_memoryResidentVec.size();
+   printf("%d RESIDENT %f VIRTUAL %f\n", mg_memoryResidentVec.size(), mg_memoryResidentVec.back(), mg_memoryVirtualVec.back());
+   //   if (n%5 == 0) writeLeak();
+   writeLeak();
+#endif
+
    if( ! m_nextFile.empty()) {
       loadFile(m_nextFile);
       m_nextFile.clear();
@@ -292,6 +356,8 @@ CmsShowNavigator::filterEventsAndReset(std::string selection)
      m_lastID = m_event->id();
      firstEvent();
 }
+
+
 
 
 //
