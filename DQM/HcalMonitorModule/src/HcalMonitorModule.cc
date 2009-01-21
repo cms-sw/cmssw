@@ -4,8 +4,8 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2009/01/18 16:11:18 $
- * $Revision: 1.99 $
+ * $Date: 2009/01/21 14:59:09 $
+ * $Revision: 1.100 $
  * \author W Fisher
  * \author J Temple
  *
@@ -478,7 +478,10 @@ void HcalMonitorModule::endJob(void) {
 		mystatus->unsetBit(6);
 	    } // if (myquality_.find_...)
 	  newChanQual->addValues(*mystatus);
-	} // for (unsigned int i=0;...)
+	  // Clean up pointers to avoid memory leaks
+	  delete origstatus;
+	  delete mystatus;
+ 	} // for (unsigned int i=0;...)
       // Now dump out to text file
       std::ostringstream file;
       file <<"HcalDQMstatus_"<<irun_<<".txt";
