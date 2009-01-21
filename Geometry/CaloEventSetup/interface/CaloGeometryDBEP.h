@@ -38,8 +38,7 @@ class CaloGeometryDBEP : public edm::ESProducer
 {
    public:
 
-      typedef CaloGeometryLoader<T>           LoaderType ;
-      typedef typename LoaderType::PtrType    PtrType    ;
+      typedef boost::shared_ptr< CaloSubdetectorGeometry > PtrType ;
       typedef CaloSubdetectorGeometry::TrVec  TrVec      ;
       typedef CaloSubdetectorGeometry::DimVec DimVec     ;
       typedef CaloSubdetectorGeometry::IVec   IVec       ;
