@@ -171,7 +171,7 @@ void DTChamberEfficiency::analyze(const Event & event,
       const DetLayer *initialLayer = theService->detLayerGeometry()->idToLayer(id);
 
       TrajectoryStateOnSurface init_fs = trans_track.innermostMeasurementState();
-      FreeTrajectoryState *init_fs_free = trans_track.innermostMeasurementState().freeState();
+      FreeTrajectoryState *init_fs_free = init_fs.freeState();
 
       //get the list of compatible layers
       vector<const DetLayer*> layer_list = compatibleLayers(initialLayer,*init_fs_free,alongMomentum);
