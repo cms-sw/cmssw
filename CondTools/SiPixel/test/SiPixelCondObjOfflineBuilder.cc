@@ -9,6 +9,9 @@
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
+#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
+#include "DataFormats/DetId/interface/DetId.h"
+
 
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "CLHEP/Random/RandGauss.h"
@@ -25,6 +28,10 @@ SiPixelCondObjOfflineBuilder::SiPixelCondObjOfflineBuilder(const edm::ParameterS
       rmsPed_(conf_.getParameter<double>("rmsPed")),
       meanGain_(conf_.getParameter<double>("meanGain")),
       rmsGain_(conf_.getParameter<double>("rmsGain")),
+      meanPedFPix_(conf_.getUntrackedParameter<double>("meanPedFPix",meanPed_)),
+      rmsPedFPix_(conf_.getUntrackedParameter<double>("rmsPedFPix",rmsPed_)),
+      meanGainFPix_(conf_.getUntrackedParameter<double>("meanGainFPix",meanGain_)),
+      rmsGainFPix_(conf_.getUntrackedParameter<double>("rmsGainFPix",rmsGain_)),
       deadFraction_(conf_.getParameter<double>("deadFraction")),
       secondRocRowGainOffset_(conf_.getParameter<double>("secondRocRowGainOffset")),
       secondRocRowPedOffset_(conf_.getParameter<double>("secondRocRowPedOffset")),
@@ -53,7 +60,7 @@ SiPixelCondObjOfflineBuilder::analyze(const edm::Event& iEvent, const edm::Event
    // note: the hard-coded range values are also used in random generation. That is why they're defined here
    
    float minped=0.;
-   float maxped=255;
+   float maxped=50.;
    float mingain=0.;
    float maxgain=10.;
    SiPixelGainCalibration_ = new SiPixelGainCalibrationOffline(minped,maxped,mingain,maxgain);
@@ -78,6 +85,17 @@ SiPixelCondObjOfflineBuilder::analyze(const edm::Event& iEvent, const edm::Event
        int ncols = topol.ncolumns();   // cols in y
        //std::cout << " ---> PIXEL DETID " << detid << " Cols " << ncols << " Rows " << nrows << std::endl;
 
+       double meanPedWork = meanPed_;
+       double rmsPedWork = rmsPed_;
+       double meanGainWork = meanGain_;
+       double rmsGainWork = rmsGain_;
+       DetId detId(detid);
+       if(detId.subdetId()==2){// FPIX
+	 meanPedWork = meanPedFPix_;
+	 rmsPedWork = rmsPedFPix_;
+	 meanGainWork = meanGainFPix_;
+	 rmsGainWork = rmsGainFPix_;
+       }
        
        PixelIndices pIndexConverter( ncols , nrows );
 
@@ -116,21 +134,21 @@ SiPixelCondObjOfflineBuilder::analyze(const edm::Event& iEvent, const edm::Event
 	       }
 	     }
 
-	     if(rmsPed_>0) {
-	       ped  = RandGauss::shoot( meanPed_  , rmsPed_  );
+	     if(rmsPedWork>0) {
+	       ped  = RandGauss::shoot( meanPedWork  , rmsPedWork  );
 	       while(ped<minped || ped>maxped)
-		 ped= RandGauss::shoot (meanPed_  , rmsPed_);
+		 ped= RandGauss::shoot (meanPedWork  , rmsPedWork);
 	     }
 	     else
-	       ped = meanPed_;
-	     if(rmsGain_>0){
-	       gain = RandGauss::shoot( meanGain_ , rmsGain_ );
+	       ped = meanPedWork;
+	     if(rmsGainWork>0){
+	       gain = RandGauss::shoot( meanGainWork , rmsGainWork );
 	       while(gain<mingain || gain>maxgain)
-		 gain = RandGauss::shoot( meanGain_ , rmsGain_ );
+		 gain = RandGauss::shoot( meanGainWork , rmsGainWork );
 		 
 	     }
 	     else
-	       gain = meanGain_;
+	       gain = meanGainWork;
 	   }
 
 
