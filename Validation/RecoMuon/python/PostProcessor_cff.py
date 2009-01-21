@@ -55,7 +55,7 @@ postProcessorMuonMultiTrackComp = cms.EDAnalyzer("PostProcessor",
 
 
 postProcessorRecoMuon = cms.EDAnalyzer("PostProcessor",
-    subDirs = cms.untracked.vstring("RecoMuonV/RecoMuon_MuonAssoc", "RecoMuonV/RecoMuon_TrackAssoc"),
+    subDirs = cms.untracked.vstring("RecoMuonV/RecoMuon_*",),
 
     efficiency = cms.vstring("Trk/EffP   'Efficiency vs p'     Trk/P   Muons/SimP  ",
                              "Trk/EffPt  'Efficiency vs p_{T}' Trk/Pt  Muons/SimPt ",
@@ -120,4 +120,23 @@ postProcessorRecoMuon = cms.EDAnalyzer("PostProcessor",
     outputFileName = cms.untracked.string("")
 )
 
-recoMuonPostProcessors = cms.Sequence(postProcessorMuonMultiTrack*postProcessorRecoMuon*postProcessorMuonMultiTrackComp)
+postProcessorRecoMuonComp = cms.EDAnalyzer(
+    "PostProcessor",
+       subDirs = cms.untracked.vstring(
+    "RecoMuonV/RecoMuon_MuonAssoc", "RecoMuonV/RecoMuon_TrackAssoc",),
+    efficiency = cms.vstring(
+    "Eff_GlbTrk_Eta 'Eff_{GLB,TK} vs #eta' Glb/EffEta Trk/EffEta",
+    "Eff_GlbTrk_P 'Eff_{GLB,TK} vs #eta' Glb/EffP Trk/EffP",
+    "Eff_GlbTrk_Phi 'Eff_{GLB,TK} vs #eta' Glb/EffPhi Trk/EffPhi",
+    "Eff_GlbTrk_Pt 'Eff_{GLB,TK} vs #eta' Glb/EffPt Trk/EffPt",
+    
+    "Eff_GlbSta_Eta 'Eff_{GLB,TK} vs #eta' Glb/EffEta Sta/EffEta",
+    "Eff_GlbSta_P 'Eff_{GLB,TK} vs #eta' Glb/EffP Sta/EffP",
+    "Eff_GlbSta_Phi 'Eff_{GLB,TK} vs #eta' Glb/EffPhi Sta/EffPhi",
+    "Eff_GlbSta_Pt 'Eff_{GLB,TK} vs #eta' Glb/EffPt Sta/EffPt",
+    ),
+    resolution = cms.vstring(""),
+    outputFileName = cms.untracked.string("")
+    )
+
+recoMuonPostProcessors = cms.Sequence(postProcessorMuonMultiTrack*postProcessorRecoMuon*postProcessorMuonMultiTrackComp*postProcessorRecoMuonComp)
