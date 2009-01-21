@@ -84,15 +84,16 @@ void HcalTrigPrimMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
     tpSOI_ET_ = m_dbe->book1D(type,type,100,-0.5,99.5);
     
     m_dbe->setCurrentFolder(baseFolder_+"/Energy Plots/TP Spectra by TS");
-    for (int i=0; i<10; ++i) {
-      type = "TP Spectrum sample ";
-      std::stringstream samp;
-      std::string teststr;
-      samp << i;
-      samp >> teststr;
-      teststr = type + teststr;
-      tpSpectrum_[i]= m_dbe->book1D(teststr,teststr,100,-0.5,99.5);      
-    }
+    for (int i=0; i<10; ++i) 
+      {
+	type = "TP Spectrum sample ";
+	std::stringstream samp;
+	//std::string teststr;
+	samp << type <<i;
+	//samp >> teststr;
+	//teststr = type + teststr;
+	tpSpectrum_.push_back(m_dbe->book1D(samp.str().c_str(),samp.str().c_str(),100,-0.5,199.5));      
+      }
 
     //Electronics Plots
     m_dbe->setCurrentFolder(baseFolder_+"/Electronics Plots");
@@ -141,8 +142,98 @@ void HcalTrigPrimMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
 
   } // if (m_dbe !=NULL)
 
+  // set all counters to 0
+  // 1-D counters
+
+  for (unsigned int i=0;i<5000;++i)
+    {
+      val_tpCount_[i]=0;
+      if (i<10)
+	{
+	  val_TPTiming_[i]=0;
+	  val_TPTimingTop_[i]=0;
+	  val_TPTimingBot_[i]=0;
+	  val_TS_MAX_[i]=0;
+	}
+
+      if (i<20) 
+	{
+	  val_tpSize_[i]=0;
+	  val_MAX_ADC_[i]=0;
+	}
+      if (i<72)
+	{
+	  val_OCC_PHI[i]=0;
+	  val_EN_PHI[i]=0;
+	}
+      if (i<87)
+	{
+	  val_OCC_ETA[i]=0;
+	  val_EN_ETA[i]=0;
+	}
+      if (i<100) val_tpSOI_ET_[i]=0;
+      if (i<128)
+	{
+	  val_HBHE_ZS_SlidingSum[i]=0;
+	  val_HO_ZS_SlidingSum[i]=0;
+	  val_HF_ZS_SlidingSum[i]=0;
+	}
+      if (i<200)
+	{
+	  val_tpSpectrumAll_[i]=0;
+	  val_tpETSumAll_[i]=0;
+	  val_TP_ADC_[i]=0;
+	}
+      if (i<1000) val_tpCountThr_[i]=0;
+    } // for (unsigned int i=0;i<5000;++i)
+
+  // 2D counters
+  for (unsigned int i=0;i<10;++i)
+    {
+      for (unsigned int j=0;j<200;++j)
+	{
+	  val_tpSpectrum_[i][j]=0;
+	}
+    }
+  for (unsigned int i=0;i<128;++i)
+    {
+      for (unsigned int j=0;j<200;++j)
+	{
+	  val_TPvsDigi_[i][j]=0;
+	}
+    }
+
+  for (unsigned int i=0;i<87;++i)
+    {
+      for (unsigned int j=0;j<72;++j)
+	{
+	  val_TPOcc_[i][j]=0;
+	  val_OCC_MAP_ETAPHI[i][j]=0;
+	  val_OCC_MAP_ETAPHI_THR[i][j]=0;
+	  val_EN_MAP_ETAPHI[i][j]=0;
+	}
+    }
+
+  for (unsigned int i=0;i<40;++i)
+    {
+      for (unsigned int j=0;j<18;++j)
+	{
+	  val_OCC_ELEC_VME[i][j]=0;
+	  val_EN_ELEC_VME[i][j]=0;
+	}
+    }
+
+  for (unsigned int i=0;i<15;++i)
+    {
+      for (unsigned int j=0;j<36;++j)
+	{
+	  val_OCC_ELEC_DCC[i][j]=0;
+	  val_EN_ELEC_DCC[i][j]=0;
+	}
+    }
+
   return;
-}
+} // void HcalTrigPrimMonitor::setup(...)
 
 void HcalTrigPrimMonitor::processEvent(const HBHERecHitCollection& hbHits, 
 				       const HORecHitCollection& hoHits, 
@@ -162,8 +253,7 @@ void HcalTrigPrimMonitor::processEvent(const HBHERecHitCollection& hbHits,
 
   ++ievt_;
   meEVT_->Fill(ievt_);
-  
-  //XXX// tpCount_->Fill(tpDigis.size()*1.0);  // number of TPGs collected per event
+
   ++val_tpCount_[tpDigis.size()];
 
   float data[10];
@@ -193,38 +283,24 @@ void HcalTrigPrimMonitor::processEvent(const HBHERecHitCollection& hbHits,
       iPhi=tpid.iphi();
       HcalElectronicsId eid = emap.lookupTrigger(tpid);
       
-      //XXX// tpSOI_ET_->Fill(digi.SOI_compressedEt());
       ++val_tpSOI_ET_[static_cast<int>(digi.SOI_compressedEt())];
       //if(digi.SOI_compressedEt()>0 || true) // digi.SOI_compressedEt() check does nothing here -- do we only want to fill when SOI_compressedEt >0?
       {	
-	//XXX// tpSize_->Fill(digi.size());	
 	++val_tpSize_[static_cast<int>(digi.size())];
 	
-	//XXX//OCC_ETA->Fill(tpid.ieta());
 	++val_OCC_ETA[static_cast<int>(iEta+(etaBins_-2)/2)];
 	
-	//XXX//OCC_PHI->Fill(tpid.iphi());
 	++val_OCC_PHI[iPhi-1];
-	//XXX//OCC_MAP_ETAPHI->Fill(tpid.ieta(), tpid.iphi());
 	++val_OCC_MAP_ETAPHI[static_cast<int>(iEta+(etaBins_-2)/2)][iPhi-1];
-	
-	
-	//XXX//EN_ETA->Fill(tpid.ieta(),digi.SOI_compressedEt());
-	//XXX//EN_PHI->Fill(tpid.iphi(),digi.SOI_compressedEt());
-	//XXX//EN_MAP_ETAPHI->Fill(tpid.ieta(), tpid.iphi(),digi.SOI_compressedEt());
+
 	val_EN_ETA[static_cast<int>(iEta+(etaBins_-2)/2)]+=digi.SOI_compressedEt();
 	val_EN_PHI[iPhi-1]+=digi.SOI_compressedEt();
 	val_EN_MAP_ETAPHI[static_cast<int>(iEta+(etaBins_-2)/2)][iPhi-1]+=digi.SOI_compressedEt();
 	
 	float slotnum = eid.htrSlot() + 0.5*eid.htrTopBottom();	
-	//XXX//OCC_ELEC_VME->Fill(slotnum,eid.readoutVMECrateId());
-	//XXX//OCC_ELEC_DCC->Fill(eid.spigot(),eid.dccid());
-	
 	++val_OCC_ELEC_VME[static_cast<int>(2*(slotnum))][static_cast<int>(eid.readoutVMECrateId())];
 	++val_OCC_ELEC_DCC[static_cast<int>(eid.spigot())][static_cast<int>(eid.dccid())];
-	
-	//XXX//EN_ELEC_VME->Fill(slotnum,eid.readoutVMECrateId(),digi.SOI_compressedEt());
-	//XXX//EN_ELEC_DCC->Fill(eid.spigot(),eid.dccid(),digi.SOI_compressedEt());
+
 	val_EN_ELEC_VME[static_cast<int>(2*(slotnum))][static_cast<int>(eid.readoutVMECrateId())]+=digi.SOI_compressedEt();
 	val_EN_ELEC_DCC[static_cast<int>(eid.spigot())][static_cast<int>(eid.dccid())]+=digi.SOI_compressedEt();
 	  
@@ -236,8 +312,7 @@ void HcalTrigPrimMonitor::processEvent(const HBHERecHitCollection& hbHits,
 	    etSum += digi.sample(j).compressedEt();
 	    if (digi.sample(j).compressedEt()>occThresh_) threshCond = true;
 	  }
-	
-	//XXX//tpETSumAll_->Fill(etSum);
+
 	++val_tpETSumAll_[static_cast<int>(etSum)];
 	if (threshCond)
 	  {
@@ -253,12 +328,11 @@ void HcalTrigPrimMonitor::processEvent(const HBHERecHitCollection& hbHits,
 	  data[i]=digi.sample(i).compressedEt();
 	  if(digi.sample(i).compressedEt()>TPThresh_)
 	    {
-	      //XXX//tpSpectrum_[i]->Fill(digi.sample(i).compressedEt());
-	      //XXX//tpSpectrumAll_->Fill(digi.sample(i).compressedEt());
-	      ++val_tpSpectrum_[i][static_cast<int>(digi.sample(i).compressedEt())];
-	      ++val_tpSpectrumAll_[static_cast<int>(digi.sample(i).compressedEt())];
-	      
-	      //XXX//TPTiming_->Fill(i);
+	      if (digi.sample(i).compressedEt()<=200)
+		{
+		  ++val_tpSpectrum_[i][static_cast<int>(digi.sample(i).compressedEt())];
+		  ++val_tpSpectrumAll_[static_cast<int>(digi.sample(i).compressedEt())];
+		}
 	      ++val_TPTiming_[i];
 	      if(digi.id().iphi()>1  && digi.id().iphi()<36) 
 		{
@@ -273,14 +347,12 @@ void HcalTrigPrimMonitor::processEvent(const HBHERecHitCollection& hbHits,
 	      //TPOcc_->Fill(digi.id().ieta(),digi.id().iphi());
 	      ++val_TPOcc_[static_cast<int>(iEta+(etaBins_-2)/2)][iPhi-1];
 	    }
-	  //XXX//TPOcc_->Fill(digi.id().ieta(),digi.id().iphi());
 	}
       set_tp(digi.id().ieta(),digi.id().iphi(),1,data);
       /*************/
       
     } // for (HcalTrigPrimDigiCollection...)
   
-  //XXX//tpCountThr_->Fill(TPGsOverThreshold*1.0);  // number of TPGs collected per event
   ++val_tpCountThr_[TPGsOverThreshold];
 
   for(HBHEDigiCollection::const_iterator j=hbhedigi.begin(); j!=hbhedigi.end(); ++j)
@@ -293,7 +365,6 @@ void HcalTrigPrimMonitor::processEvent(const HBHERecHitCollection& hbHits,
 	  maxsum = data[i] + data[i-1];
       }
       set_adc(digi.id().ieta(),digi.id().iphi(),digi.id().depth(),data);
-      //XXX//me_HBHE_ZS_SlidingSum->Fill(maxsum);
       if (maxsum>=0 && maxsum<128)
 	++val_HBHE_ZS_SlidingSum[static_cast<int>(maxsum)];
     } // for (HBHEDigiCollection...)
@@ -308,7 +379,6 @@ void HcalTrigPrimMonitor::processEvent(const HBHERecHitCollection& hbHits,
 	maxsum = data[i] + data[i-1];
     }
     //set_adc(digi.id().ieta(),digi.id().iphi(),digi.id().depth(),data);
-    //XXX//me_HF_ZS_SlidingSum->Fill(maxsum);
     if (maxsum>=0 && maxsum<128)
       ++val_HF_ZS_SlidingSum[static_cast<int>(maxsum)];
   } // for (HFDigiCollection...)
@@ -322,7 +392,6 @@ void HcalTrigPrimMonitor::processEvent(const HBHERecHitCollection& hbHits,
 	maxsum = data[i] + data[i-1];
     }
     //set_adc(digi.id().ieta(),digi.id().iphi(),digi.id().depth(),data);
-    //XXX//me_HO_ZS_SlidingSum->Fill(maxsum);
     if (maxsum>=0 && maxsum<128)
       ++val_HO_ZS_SlidingSum[static_cast<int>(maxsum)];
   } // for (HODigiCollection...)
@@ -348,7 +417,6 @@ void HcalTrigPrimMonitor::processEvent(const HBHERecHitCollection& hbHits,
 	      if(get_tp(eta,phi)[TPdigi_]>TPThresh_)
 		{ 
 		  tpval=get_tp(eta,phi)[TPdigi_];
-		  //XXX//TPvsDigi_->Fill(tmp11+tmp21+tmp12+tmp22,get_tp(eta,phi)[TPdigi_]);
 		  tempsum=static_cast<int>(tmp11+tmp21+tmp12+tmp22);
 		  if (tempsum>=0 && tempsum<128 && tpval>=0 && tpval<200)
 		    ++val_TPvsDigi_[static_cast<int>(tmp11+tmp21+tmp12+tmp22)][static_cast<int>(tpval)];
@@ -362,15 +430,12 @@ void HcalTrigPrimMonitor::processEvent(const HBHERecHitCollection& hbHits,
 			  TS = j;
 			}
 		    } // for (int j=0;j<10;++j)
-		  //XXX//MAX_ADC_->Fill(Energy);
 		  ++val_MAX_ADC_[static_cast<int>(Energy)];
-		  //XXX//TS_MAX_->Fill(TS);
 		  ++val_MAX_ADC_[static_cast<int>(TS)];
 		  //This may need to continue?
 		  Energy=0; 
 		  for(int j=0;j<10;++j) 
 		    Energy+=get_adc(eta,phi,1)[j]; 
-		  //XXX//TP_ADC_->Fill(Energy);
 		  ++val_TP_ADC_[static_cast<int>(Energy)];
 		} // if (get_tp(eta,phi)[TPdigi_]>TPThresh_)
 	    } // if (IsSet_adc(...))
@@ -395,11 +460,17 @@ void HcalTrigPrimMonitor::fill_Nevents()
 	tpETSumAll_->setBinContent(i+1,val_tpETSumAll_[i]);
       if (val_TP_ADC_[i])
 	TP_ADC_->setBinContent(i+1,val_TP_ADC_[i]);
+
+      // This caused an "invalid read of size four" when I used a fixed array of pointers.
+      // Swapped to vector of pointers instead.
       for (int j=0;j<10;++j)
 	{
 	  if (val_tpSpectrum_[j][i])
-	    tpSpectrum_[j]->setBinContent(i+1,val_tpSpectrum_[j][i]);
+	    {
+	      tpSpectrum_[j]->setBinContent(i+1,val_tpSpectrum_[j][i]);
+	    }
 	}
+
     }
 
   for (int i=0;i<5000;++i)

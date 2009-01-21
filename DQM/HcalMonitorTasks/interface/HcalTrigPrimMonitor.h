@@ -8,8 +8,8 @@
 
 /** \class HcalTrigPrimMonitor
   *  
-  * $Date: 2009/01/08 19:34:07 $
-  * $Revision: 1.15 $
+  * $Date: 2009/01/16 18:34:06 $
+  * $Revision: 1.16 $
   * \author W. Fisher - FNAL
   */
  static const float TrigMonAdc2fc[128]={-0.5, 0.5, 1.5, 2.5, 3.5, 4.5, 5.5, 6.5, 7.5,
@@ -72,19 +72,20 @@ private:  ///Monitoring elements
   MonitorElement* tpCountThr_;
   MonitorElement* tpSize_;
 
-  int val_tpSize_[20];
-  int val_tpCount_[5000];
-  int val_tpCountThr_[1000];
+  float val_tpSize_[20];
+  float val_tpCount_[5000];
+  float val_tpCountThr_[1000];
 
-  MonitorElement* tpSpectrum_[10];
+  std::vector<MonitorElement*> tpSpectrum_;
   MonitorElement* tpSpectrumAll_;
   MonitorElement* tpETSumAll_;
   MonitorElement* tpSOI_ET_;
 
-  int val_tpSpectrum_[10][200];
-  int val_tpSpectrumAll_[200];
-  int val_tpETSumAll_[200];
-  int val_tpSOI_ET_[100];
+  // MonitorElement setBinContent expects a float value (for TH1F, no TH1I available)
+  float val_tpSpectrum_[10][200];
+  float val_tpSpectrumAll_[200];
+  float val_tpETSumAll_[200];
+  float val_tpSOI_ET_[100];
 
   MonitorElement* TPTiming_; 
   MonitorElement* TPTimingTop_; 
@@ -95,23 +96,23 @@ private:  ///Monitoring elements
   MonitorElement* TS_MAX_;
   MonitorElement* TPvsDigi_;
   
-  int val_TPTiming_[10];
-  int val_TPTimingTop_[10];
-  int val_TPTimingBot_[10];
-  int val_TPOcc_[87][72];
-  int val_TP_ADC_[200];
-  int val_MAX_ADC_[20];
-  int val_TS_MAX_[10];
-  int val_TPvsDigi_[128][200];
+  float val_TPTiming_[10];
+  float val_TPTimingTop_[10];
+  float val_TPTimingBot_[10];
+  float val_TPOcc_[87][72];
+  float val_TP_ADC_[200];
+  float val_MAX_ADC_[20];
+  float val_TS_MAX_[10];
+  float val_TPvsDigi_[128][200];
   
 
   MonitorElement* me_HBHE_ZS_SlidingSum;
   MonitorElement* me_HF_ZS_SlidingSum;
   MonitorElement* me_HO_ZS_SlidingSum;
 
-  int val_HBHE_ZS_SlidingSum[128];
-  int val_HF_ZS_SlidingSum[128];
-  int val_HO_ZS_SlidingSum[128];
+  float val_HBHE_ZS_SlidingSum[128];
+  float val_HF_ZS_SlidingSum[128];
+  float val_HO_ZS_SlidingSum[128];
   
   MonitorElement* OCC_ETA;
   MonitorElement* OCC_PHI;
@@ -126,17 +127,18 @@ private:  ///Monitoring elements
   MonitorElement* EN_ELEC_VME;
   MonitorElement* EN_ELEC_DCC;
 
-  int val_OCC_ETA[87];
-  int val_OCC_PHI[72];
-  int val_OCC_MAP_ETAPHI[87][72];
-  int val_OCC_MAP_ETAPHI_THR[87][72];
-  int val_OCC_ELEC_VME[40][18];
-  int val_OCC_ELEC_DCC[15][36];
-  double val_EN_ETA[87];
-  double val_EN_PHI[72];
-  double val_EN_MAP_ETAPHI[87][72];
-  double val_EN_ELEC_VME[40][18];
-  double val_EN_ELEC_DCC[15][36];
+  float val_OCC_ETA[87];
+  float val_OCC_PHI[72];
+  float val_OCC_MAP_ETAPHI[87][72];
+  float val_OCC_MAP_ETAPHI_THR[87][72];
+  float val_OCC_ELEC_VME[40][18];
+  float val_OCC_ELEC_DCC[15][36];
+  // These need to be float/doubles
+  float val_EN_ETA[87];
+  float val_EN_PHI[72];
+  float val_EN_MAP_ETAPHI[87][72];
+  float val_EN_ELEC_VME[40][18];
+  float val_EN_ELEC_DCC[15][36];
 
 
   // not so nice , but very useful for correlation plots...
