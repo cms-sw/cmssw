@@ -2,16 +2,26 @@
 #include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 #include "Geometry/HcalTowerAlgo//src/HcalHardcodeGeometryData.h"
 
-HcalGeometry::HcalGeometry(const HcalTopology * topology) 
-: theTopology(topology),
-  lastReqDet_(DetId::Detector(0)), 
-  lastReqSubdet_(0) 
+HcalGeometry::HcalGeometry() :
+   theTopology    ( new HcalTopology ),
+   lastReqDet_    ( DetId::Detector(0) ), 
+   lastReqSubdet_ ( 0 ) ,
+   m_ownsTopology ( true )
+{
+}
+
+HcalGeometry::HcalGeometry( const HcalTopology* topology ) :
+   theTopology    ( topology ) ,
+   lastReqDet_    ( DetId::Detector(0) ) , 
+   lastReqSubdet_ ( 0 ) ,
+   m_ownsTopology ( false ) 
 {
 }
   
 
 HcalGeometry::~HcalGeometry() 
 {
+   if( m_ownsTopology ) delete theTopology ;
 }
 
 

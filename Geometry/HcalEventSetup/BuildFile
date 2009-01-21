@@ -25,5 +25,7 @@
 <use name=Geometry/HcalTowerAlgo>
 <use name=Geometry/CaloEventSetup>
 <use name=DataFormats/HcalDetId>
+<use name=CondFormats/Alignment>
+<use name=CondFormats/GeometryObjects>
 <use name=clhep>
 
