@@ -17,7 +17,7 @@ VertexHistory::VertexHistory (
     trackingTruth_ = config.getUntrackedParameter<edm::InputTag> ( "trackingTruth" );
 
     // Track association record
-    trackAssociator_ = config.getUntrackedParameter<std::string> ( "vertexAssociator" );
+    trackAssociator_ = config.getUntrackedParameter<std::string> ( "trackAssociator" );
 
     // Track association record
     vertexAssociator_ = config.getUntrackedParameter<std::string> ( "vertexAssociator" );
@@ -30,7 +30,7 @@ VertexHistory::VertexHistory (
 void VertexHistory::newEvent (
     const edm::Event & event, const edm::EventSetup & setup
 )
-{
+{		
     // Track collection
     edm::Handle<edm::View<reco::Track> > trackCollection;
     event.getByLabel(trackProducer_, trackCollection);
@@ -44,7 +44,8 @@ void VertexHistory::newEvent (
     setup.get<TrackAssociatorRecord>().get(trackAssociator_, trackAssociator);
  
     // Get the map between recotracks and tp
-    reco::RecoToSimCollection trackAssociation = trackAssociator->associateRecoToSim (trackCollection, TPCollection, &event);
+    reco::RecoToSimCollection 
+        trackAssociation = trackAssociator->associateRecoToSim (trackCollection, TPCollection, &event);
 
     // Vertex collection
     edm::Handle<reco::VertexCollection> vertexCollection;

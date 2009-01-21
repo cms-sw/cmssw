@@ -119,7 +119,7 @@ protected:
     */
     bool evaluate(TrackingVertexRef tvr)
     {
-        resetTrails(tvr);
+        resetTrails();
         return traceSimHistory(tvr, depth_);
     }
         
@@ -153,12 +153,6 @@ private:
     	resetTrails();
     	simParticleTrail_.push_back(tpr);
     }
-    
-    void resetTrails(TrackingVertexRef tvr)
-    {
-    	resetTrails();
-    	simVertexTrail_.push_back(tvr);
-    }    
 };
 
 #endif

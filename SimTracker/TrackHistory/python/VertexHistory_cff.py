@@ -8,15 +8,14 @@ from SimTracker.TrackAssociation.TrackAssociatorByChi2_cfi import *
 from SimTracker.TrackAssociation.TrackAssociatorByHits_cfi import *
 from SimTracker.VertexAssociation.VertexAssociatorByTracks_cfi import *
 
-
 # Track history parameters
 vertexHistory = cms.PSet(
     bestMatchByMaxValue = cms.untracked.bool(True),
-    trackingTruth = cms.untracked.InputTag("mergedtruth","MergedTrackTruth"),
+    trackingTruth = cms.untracked.InputTag('mergedtruth','MergedTrackTruth'),
     trackAssociator = cms.untracked.string('TrackAssociatorByHits'),
-    trackProducer = cms.untracked.InputTag("generalTracks"),
-    vertexAssciator = cms.untracked.string('VertexAssociatorByTracks'),
-    vertexProducer = cms.untracked.InputTag("?")
+    trackProducer = cms.untracked.InputTag('generalTracks'),
+    vertexAssociator = cms.untracked.string('VertexAssociatorByTracks'),
+    vertexProducer = cms.untracked.InputTag('offlinePrimaryVertices')
 )
 
 
