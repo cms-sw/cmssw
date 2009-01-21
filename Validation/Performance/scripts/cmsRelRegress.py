@@ -54,13 +54,19 @@ def getOldRelName(oldRelName,adir):
                 oldRelName=dir
     return oldRelName
 
-def compareSimMemPair(newLog,candle,profdir,curdir,olddir,oldRelName=""):
-    oldRelName = getOldRelName(oldRelName,olddir)
-    base = os.path.basename(newLog)
-    oldlog = os.path.join(olddir,curdir,base)
+def compareSimMemPair(newLog,candle,profdir,curdir,oldlog,oldRelName=""):
+    print "oldlog %s"%oldlog
+    print "curdir %s"%curdir
+    #oldRelName = getOldRelName(oldRelName,olddir)
+    oldRelName = getOldRelName(oldRelName,oldlog)
+    print "OLD REL NAME: %s"%oldRelName
+    #base = os.path.basename(newLog)
+    #oldlog = os.path.join(olddir,curdir,base)
     rootf  = "simpmem-regress.root"
     try:
         print "TRY candle %s"%candle
+        print "HERE Oldlog:%s"%oldlog
+        print "HERE newLog:%s"%newLog
         cpr.cmpSimpMemReport(rootf,curdir,oldlog,newLog,1,True,candle,prevrev = oldRelName)
     except cpr.SimpMemParseErr, detail:
         print "WARNING: Could not parse data from log file %s; not performing regression" % detail.message
@@ -175,7 +181,8 @@ def regressReports(olddir,newdir,oldRelName = "",newRelName=""):
                                             oldlog = os.path.join(olddir,profdir,base)
                                             print "** Comparing", candle, step, prof, "previous release: %s and latest release: %s" % (oldlog,log)
                                             print "**"
-                                            oldRelName = getOldRelName(oldRelName,olddir)
+                                            oldRelName = getOldRelName("",oldlog)
+                                            #print "TIMING OLD REL extracted from %s :\n %s"%(oldlog,oldRelName)
                                             cpr.cmpTimingReport(rootf, outd, oldlog, log, 1, batch = True, prevrev = oldRelName)
                                         elif prof == "valgrind":
                                             cpr.cmpCallgrindReport(outpath,oldlog,log)
@@ -206,14 +213,14 @@ def regressReports(olddir,newdir,oldRelName = "",newRelName=""):
                             else:
                                 continue
                     elif prof == "SimpleMemoryCheck":
-                        print "The logfiles for SimpleMemoryCheck are %s"%stepLogs
+                        #print "The logfiles for SimpleMemoryCheck are %s"%stepLogs
                         for log in stepLogs:
-                            print "The logfile considered now is %s"%log 
+                            #print "The logfile considered now is %s"%log 
                             stepreg = re.compile("%s_([^_]*(_PILEUP)?)_%s((.log)|(.gz))?" % (CandFname[candle],"TimingReport"))
                             base = os.path.basename(log)
                             #Use the regular expression defined above to read out the step from the log/profile
                             searchob = stepreg.search(base)
-                            print "Value of searchob is %s"%searchob
+                            #print "Value of searchob is %s"%searchob
                             #If in this log the regular expression was able match (and so to extract the step)
                             if searchob:
                                 #print searchob.groups()
@@ -227,7 +234,7 @@ def regressReports(olddir,newdir,oldRelName = "",newRelName=""):
                                 print "** Comparing for SimpleMemoryCheck", candle, step, prof, "previous release: %s, latest release %s" % (oldlog,log)
                                 print "**"
                                 #The try/except is folded in the following function for SimpleMemoryCheck:
-                                compareSimMemPair(log,candle,profdir,adir,olddir,oldRelName= oldRelName)
+                                compareSimMemPair(log,candle,profdir,adir,oldlog,oldRelName="")
                                
     if newRelName == "":
         newRelName = getVerFromLog(newdir)
