@@ -118,10 +118,10 @@ CombinedTrajectoryFactory = cms.PSet(
         'ReferenceTrajectoryFactory,Reference'),  # look for PSet called Reference
     useAllFactories = cms.bool(False),
     # now one PSet for each of the configured trajectories:
-    TwoBody = cms.PSet(
+    TwoBody = cms.PSet( # FIXME: better by reference?
         TwoBodyDecayTrajectoryFactory
     ),
-    Reference = cms.PSet(
+    Reference = cms.PSet( # FIXME: better by reference?
         ReferenceTrajectoryFactory
     )
 )
@@ -149,8 +149,8 @@ CombinedFwdBwdBzeroTrajectoryFactory = cms.PSet(
     useAllFactories = cms.bool(True),
     
     # now one PSet for each of the configured trajectories:
-    FwdBzero = cms.PSet(BzeroReferenceTrajectoryFactory),
-    BwdBzero = cms.PSet(BwdBzeroReferenceTrajectoryFactory)
+    FwdBzero = cms.PSet(BzeroReferenceTrajectoryFactory), # FIXME: better by reference?
+    BwdBzero = cms.PSet(BwdBzeroReferenceTrajectoryFactory) # FIXME: better by reference?
 )
 
 ###############################################################
@@ -172,9 +172,58 @@ CombinedFwdBwdDualBzeroTrajectoryFactory = cms.PSet(
     useAllFactories = cms.bool(True),
 
     # now one PSet for each of the configured trajectories:
-    FwdBzero  = cms.PSet(BzeroReferenceTrajectoryFactory),
-    BwdBzero  = cms.PSet(BwdBzeroReferenceTrajectoryFactory), # defined above for CombinedFwdBwdBzeroTrajectoryFactory
-    DualBzero = cms.PSet(DualBzeroTrajectoryFactory)
+    FwdBzero  = cms.PSet(BzeroReferenceTrajectoryFactory), # FIXME: better by reference?
+    BwdBzero  = cms.PSet(BwdBzeroReferenceTrajectoryFactory), # defined above for CombinedFwdBwdBzeroTrajectoryFactory  # FIXME: better by reference?
+    DualBzero = cms.PSet(DualBzeroTrajectoryFactory) # FIXME: better by reference?
+)
+
+
+###############################################################
+#
+# CombinedTrajectoryFactory using two instances of ReferenceTrajectoryFactory,
+# one propagating alongMomentum, one oppositeToMomentum.
+#
+###############################################################
+# First a helper object, see above for CombinedFwdBwdBzeroTrajectoryFactory:
+BwdReferenceTrajectoryFactory = copy.deepcopy(ReferenceTrajectoryFactory)
+BwdReferenceTrajectoryFactory.PropagationDirection = 'oppositeToMomentum'
+# now the PSet
+CombinedFwdBwdTrajectoryFactory = cms.PSet(
+    TrajectoryFactoryBase, # will not be used!
+    TrajectoryFactoryName = cms.string('CombinedTrajectoryFactory'),
+
+    TrajectoryFactoryNames = cms.vstring(
+        'ReferenceTrajectoryFactory,Fwd',  # look for PSet called Fwd
+        'ReferenceTrajectoryFactory,Bwd'), # look for PSet called Bwd
+    useAllFactories = cms.bool(True),
+    
+    # now one PSet for each of the configured trajectories:
+    Fwd = cms.PSet(ReferenceTrajectoryFactory), # FIXME: better by reference?
+    Bwd = cms.PSet(BwdReferenceTrajectoryFactory)  # FIXME: better by reference?
+)
+
+###############################################################
+#
+# CombinedTrajectoryFactory using three ReferenceTrajectories:
+# - two instances of ReferenceTrajectoryFactory,
+#   one propagating alongMomentum, one oppositeToMomentum,
+# - a DualTrajectory to start in the middle.
+#
+###############################################################
+CombinedFwdBwdDualTrajectoryFactory = cms.PSet(
+    TrajectoryFactoryBase, # will not be used!
+    TrajectoryFactoryName = cms.string('CombinedTrajectoryFactory'),
+
+    TrajectoryFactoryNames = cms.vstring(
+        'ReferenceTrajectoryFactory,Fwd',  # look for PSet called Fwd
+        'ReferenceTrajectoryFactory,Bwd',  # look for PSet called Bwd
+    	'DualTrajectoryFactory,Dual'),     # look for PSet called Dual
+    useAllFactories = cms.bool(True),
+
+    # now one PSet for each of the configured trajectories:
+    Fwd  = cms.PSet(ReferenceTrajectoryFactory),  # FIXME: better by reference?
+    Bwd  = cms.PSet(BwdReferenceTrajectoryFactory), # defined above for CombinedFwdBwdTrajectoryFactory # FIXME: better by reference?
+    Dual = cms.PSet(DualTrajectoryFactory) # FIXME: better by reference?
 )
 
 ###############################################################
