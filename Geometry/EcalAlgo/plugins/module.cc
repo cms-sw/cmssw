@@ -17,17 +17,24 @@ typedef CaloGeometryEP< EcalPreshowerGeometry > EcalPreshowerGeometryEP ;
 DEFINE_FWK_EVENTSETUP_MODULE(EcalPreshowerGeometryEP);
 
 #include "Geometry/CaloEventSetup/interface/CaloGeometryDBEP.h"
+#include "Geometry/CaloEventSetup/interface/CaloGeometryDBReader.h"
 
 
-template class CaloGeometryDBEP< EcalBarrelGeometry    , false> ;
-template class CaloGeometryDBEP< EcalEndcapGeometry    , false> ;
-template class CaloGeometryDBEP< EcalPreshowerGeometry , false> ;
+template class CaloGeometryDBEP< EcalBarrelGeometry    , CaloGeometryDBReader> ;
+template class CaloGeometryDBEP< EcalEndcapGeometry    , CaloGeometryDBReader> ;
+template class CaloGeometryDBEP< EcalPreshowerGeometry , CaloGeometryDBReader> ;
 
-typedef CaloGeometryDBEP< EcalBarrelGeometry , false> EcalBarrelGeometryFromDBEP ;
+typedef CaloGeometryDBEP< EcalBarrelGeometry , CaloGeometryDBReader> 
+EcalBarrelGeometryFromDBEP ;
+
 DEFINE_FWK_EVENTSETUP_MODULE(EcalBarrelGeometryFromDBEP);
 
-typedef CaloGeometryDBEP< EcalEndcapGeometry , false> EcalEndcapGeometryFromDBEP ;
+typedef CaloGeometryDBEP< EcalEndcapGeometry , CaloGeometryDBReader> 
+EcalEndcapGeometryFromDBEP ;
+
 DEFINE_FWK_EVENTSETUP_MODULE(EcalEndcapGeometryFromDBEP);
 
-typedef CaloGeometryDBEP< EcalPreshowerGeometry , false> EcalPreshowerGeometryFromDBEP ;
+typedef CaloGeometryDBEP< EcalPreshowerGeometry , CaloGeometryDBReader> 
+EcalPreshowerGeometryFromDBEP ;
+
 DEFINE_FWK_EVENTSETUP_MODULE(EcalPreshowerGeometryFromDBEP);

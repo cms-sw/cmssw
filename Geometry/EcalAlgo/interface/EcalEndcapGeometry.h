@@ -39,6 +39,8 @@ class EcalEndcapGeometry : public CaloSubdetectorGeometry
       enum { k_NumberOfParametersPerShape = 11 } ;
 
 
+      static std::string dbString() { return "PEcalEndcapRcd" ; }
+
       virtual unsigned int numberOfShapes() const { return k_NumberOfShapes ; }
       virtual unsigned int numberOfParametersPerShape() const { return k_NumberOfParametersPerShape ; }
 
