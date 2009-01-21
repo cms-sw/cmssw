@@ -72,7 +72,13 @@ struct RecoMuonValidator::MuonME {
 
     // - Resolutions
     hErrP_   = dqm->book1D("ErrP"  , "#Delta(p)/p"        , hDim.nBinErr, hDim.minErrP  , hDim.maxErrP  );
+    hErrPBarrel_   = dqm->book1D("ErrP_barrel"  , "#Delta(p)/p"        , hDim.nBinErr, hDim.minErrP  , hDim.maxErrP  );
+    hErrPOverlap_   = dqm->book1D("ErrP_overlap"  , "#Delta(p)/p"        , hDim.nBinErr, hDim.minErrP  , hDim.maxErrP  );
+    hErrPEndcap_   = dqm->book1D("ErrP_endcap"  , "#Delta(p)/p"        , hDim.nBinErr, hDim.minErrP  , hDim.maxErrP  );
     hErrPt_  = dqm->book1D("ErrPt" , "#Delta(p_{T})/p_{T}", hDim.nBinErr, hDim.minErrPt , hDim.maxErrPt );
+    hErrPtBarrel_  = dqm->book1D("ErrPt_barrel" , "#Delta(p_{T})/p_{T}", hDim.nBinErr, hDim.minErrPt , hDim.maxErrPt );
+    hErrPtOverlap_  = dqm->book1D("ErrPt_overlap" , "#Delta(p_{T})/p_{T}", hDim.nBinErr, hDim.minErrPt , hDim.maxErrPt );
+    hErrPtEndcap_  = dqm->book1D("ErrPt_endcap" , "#Delta(p_{T})/p_{T}", hDim.nBinErr, hDim.minErrPt , hDim.maxErrPt );
     hErrEta_ = dqm->book1D("ErrEta", "#sigma(#eta))"      , hDim.nBinErr, hDim.minErrEta, hDim.maxErrEta);
     hErrPhi_ = dqm->book1D("ErrPhi", "#sigma(#phi)"       , hDim.nBinErr, hDim.minErrPhi, hDim.maxErrPhi);
     hErrDxy_ = dqm->book1D("ErrDxy", "#sigma(d_{xy})"     , hDim.nBinErr, hDim.minErrDxy, hDim.maxErrDxy);
@@ -258,6 +264,17 @@ struct RecoMuonValidator::MuonME {
     hErrDxy_->Fill(errDxy);
     hErrDz_ ->Fill(errDz );
 
+    if(fabs(simEta) > 0. && fabs(simEta) < 0.8) {
+      hErrPBarrel_->Fill(errP);
+      hErrPtBarrel_->Fill(errPt);
+    } else if (fabs(simEta) > 0.8 && fabs(simEta) < 1.2) {
+      hErrPOverlap_->Fill(errP);
+      hErrPtOverlap_->Fill(errPt);
+    } else if (fabs(simEta) > 1.2 ){
+      hErrPEndcap_->Fill(errP);
+      hErrPtEndcap_->Fill(errPt);
+    }
+
     hErrP_vs_Eta_  ->Fill(simEta, errP  );
     hErrPt_vs_Eta_ ->Fill(simEta, errPt );
     hErrQPt_vs_Eta_->Fill(simEta, errQPt);
@@ -299,6 +316,8 @@ struct RecoMuonValidator::MuonME {
 
   MEP hP_, hPt_, hEta_, hPhi_;
   MEP hErrP_, hErrPt_, hErrEta_, hErrPhi_;
+  MEP hErrPBarrel_, hErrPOverlap_, hErrPEndcap_;
+  MEP hErrPtBarrel_, hErrPtOverlap_, hErrPtEndcap_;
   MEP hErrDxy_, hErrDz_;
 
   MEP hErrP_vs_Eta_, hErrPt_vs_Eta_, hErrQPt_vs_Eta_;
