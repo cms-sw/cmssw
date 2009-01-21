@@ -100,6 +100,13 @@ class DDLParser
    **/
   bool parseOneFile(const std::string& filename);
 
+  // I ASSUME I take ownership of this blob
+  //  void parse( std::vector<unsigned char>* ablob, unsigned int bsize ) ;
+  //old way  void parse( const std::vector<unsigned char>& ablob, unsigned int bsize ) ;
+  void parse( const std::vector<unsigned char>& ablob, unsigned int bsize ) ;
+
+/*   void parse( std::iostream ) ; */
+
   /// Return list of files
   std::vector<std::string> getFileList();
 

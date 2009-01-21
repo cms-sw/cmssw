@@ -37,7 +37,7 @@
 #include <xercesc/sax2/SAX2XMLReader.hpp>
 #include <xercesc/sax2/XMLReaderFactory.hpp>
 #include <xercesc/sax/SAXException.hpp>
-
+#include <xercesc/framework/MemBufInputSource.hpp>
 // EDM dependencies.
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
@@ -223,6 +223,13 @@ bool DDLParser::parseOneFile(const std::string& fullname) //, const std::string&
       return true;
     }
   return false;
+}
+
+//  This is for parsing the content of a blob stored in the conditions system of CMS.
+void DDLParser::parse( const std::vector<unsigned char>& ablob, unsigned int bsize ) {
+  char* dummy(0);
+  MemBufInputSource  mbis( &*ablob.begin(), bsize, dummy );
+  SAX2Parser_->parse(mbis);
 }
 
 std::vector < std::string >  DDLParser::getFileList(void) 
