@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 
 loadTau = cms.EDAnalyzer("DQMFileLoader",
   test = cms.PSet(
-    inputFileNames = cms.vstring('/afs/cern.ch/user/v/vasquez/scratch0/CMSSW_3_0_0_pre6/src/Validation/RecoTau/test/CMSSW_3_0_0_pre6_tauGenJets.root'),
+    inputFileNames = cms.vstring('/afs/cern.ch/user/v/vasquez/scratch0/CMSSW_2_2_3/src/Validation/RecoTau/test/CMSSW_2_2_3_tauGenJets.root'),
     scaleFactor = cms.double(1.),
     dqmDirectory_store = cms.string('test')
   ),
@@ -18,7 +18,7 @@ plotPFTauEfficiencies = cms.EDAnalyzer("DQMHistPlotter",
   processes = cms.PSet(
     test = cms.PSet(
       dqmDirectory = cms.string('test'),
-      legendEntry = cms.string('CMSSW_3_0_0_pre6'),
+      legendEntry = cms.string('CMSSW_2_2_3 Summer08'),
       type = cms.string('smMC') # Data/smMC/bsmMC/smSumMC
     ),
     reference = cms.PSet(
@@ -333,7 +333,7 @@ plotPFTauHighEfficiencyEfficiencies = cms.EDAnalyzer("DQMHistPlotter",
   processes = cms.PSet(
     test = cms.PSet(
       dqmDirectory = cms.string('test'),
-      legendEntry = cms.string('CMSSW_3_0_0_pre6'),
+      legendEntry = cms.string('CMSSW_2_2_3 Summer08'),
       type = cms.string('smMC') # Data/smMC/bsmMC/smSumMC
     ),
     reference = cms.PSet(
@@ -651,7 +651,7 @@ plotCaloTauEfficiencies = cms.EDAnalyzer("DQMHistPlotter",
   processes = cms.PSet(
     test = cms.PSet(
       dqmDirectory = cms.string('test'),
-      legendEntry = cms.string('CMSSW_3_0_0_pre6'),
+      legendEntry = cms.string('CMSSW_2_2_3 Summer08'),
       type = cms.string('smMC') # Data/smMC/bsmMC/smSumMC
     ),
     reference = cms.PSet(
