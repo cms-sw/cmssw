@@ -23,7 +23,7 @@ CastorHardcodeGeometryEP::~CastorHardcodeGeometryEP()
 
 // ------------ method called to produce the data  ------------
 CastorHardcodeGeometryEP::ReturnType
-CastorHardcodeGeometryEP::produce(const IdealGeometryRecord& iRecord)
+CastorHardcodeGeometryEP::produce(const CastorGeometryRecord& iRecord)
 {
   //using namespace edm::es;
   if (loader_==0) {
