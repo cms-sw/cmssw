@@ -1,5 +1,5 @@
 /*
- *  $Revision: 1.5 $
+ *  $Revision: 1.6 $
  *  
  *  Martin Niegel 
  *  niegel@cern.ch
@@ -59,6 +59,35 @@ SherpaSource::SherpaSource( const ParameterSet & pset,
 
   libDir_    =  pset.getUntrackedParameter<string>("libDir","Sherpa_Process");
   resultDir_ =  pset.getUntrackedParameter<string>("resultDir","Result");
+
+
+  // Set SHERPA parameters in a single ParameterSet
+  ParameterSet sherpa_params = pset.getParameter<ParameterSet>("SherpaParameters") ;
+  
+  // The parameter sets to be read (default, min bias, user ...) in the
+  // proper order.
+  vector<string> setNames = sherpa_params.getParameter<vector<string> >("parameterSets");
+
+  for ( unsigned i=0; i<setNames.size(); ++i ) {
+    
+    string mySet = setNames[i];
+    
+    // Read the SHERPA parameters for each set of parameters
+    vector<string> pars = sherpa_params.getParameter<vector<string> >(mySet);
+   
+    cout << "Write Sherpa parameter set " << mySet <<" to "<<mySet<<".dat "<<endl;
+    
+    string datfile =  libDir_ + "/" + mySet+".dat";
+   
+        std::ofstream os(datfile.c_str());
+    
+    // Loop over all parameters and stop in case of mistake
+    for( vector<string>::const_iterator itPar = pars.begin(); itPar != pars.end(); ++itPar ) {
+      os<<(*itPar)<<endl;
+    }
+
+  }
+
 
    string shRun  = "./Sherpa";
    string shPath = "PATH=" + libDir_;
