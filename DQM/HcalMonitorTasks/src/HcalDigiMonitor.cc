@@ -131,6 +131,12 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
     }
 
 
+  for (int i=0;i<20;++i)
+    {
+      for (int j=0;j<4;++j)
+	digisize[i][j]=0;
+    }
+
   for (int i=0;i<DIGI_NUM;++i)
     {
       if (i<DIGI_BQ_FRAC_NBINS)

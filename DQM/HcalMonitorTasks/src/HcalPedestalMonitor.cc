@@ -32,6 +32,8 @@ void HcalPedestalMonitor::clearME()
 
 void HcalPedestalMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe)
 {
+  HcalBaseMonitor::setup(ps,dbe);
+
   if (showTiming)
     {
       cpu_timer.reset(); cpu_timer.start();
@@ -40,7 +42,6 @@ void HcalPedestalMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe)
   if (fVerbosity)
     cout <<"<HcalPedestalMonitor::setup>  Setting up histograms"<<endl;
 
-  HcalBaseMonitor::setup(ps,dbe);
   baseFolder_ = rootFolder_+"PedestalMonitor_Hcal";
 
   // Pedestal Monitor - specific cfg variables

@@ -10,8 +10,8 @@
 
 /** \class HcalPedestalMonitor
   *  
-  * $Date: 2008/10/20 12:24:03 $
-  * $Revision: 1.18 $
+  * $Date: 2008/10/26 18:22:33 $
+  * $Revision: 1.19 $
   * \author W. Fisher - FNAL
   */
 
@@ -32,9 +32,9 @@ public:
   void reset();
   void fillDBValues(const HcalDbService& cond);
   void fillPedestalHistos(void); // fills histograms once every (checkNevents_) events
+  void clearME(); // overrides base class function
 
 private:
-  void clearME(); // overrides base class function
 
   // Configurable parameters
   //bool doPerChannel_; // enable histograms for each channel (not yet (or ever?) operational)

@@ -21,6 +21,8 @@ HcalRecHitMonitor::~HcalRecHitMonitor()
 void HcalRecHitMonitor::setup(const edm::ParameterSet& ps,
 				DQMStore* dbe)
 {
+  HcalBaseMonitor::setup(ps,dbe);
+
   if (showTiming)
     {
       cpu_timer.reset(); cpu_timer.start();
@@ -28,7 +30,6 @@ void HcalRecHitMonitor::setup(const edm::ParameterSet& ps,
   if (fVerbosity>0)
     cout <<"<HcalRecHitMonitor::setup>  Setting up histograms"<<endl;
 
-  HcalBaseMonitor::setup(ps,dbe);
   baseFolder_ = rootFolder_+"RecHitMonitor_Hcal";
 
   // Assume subdetectors not present until shown otherwise

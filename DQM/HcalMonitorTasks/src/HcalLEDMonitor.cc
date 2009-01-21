@@ -246,8 +246,9 @@ void HcalLEDMonitor::processEvent(const HBHEDigiCollection& hbhe,
     return; }
   float vals[10];
 
-  try{
-    for (HBHEDigiCollection::const_iterator j=hbhe.begin(); j!=hbhe.end(); j++){
+
+  for (HBHEDigiCollection::const_iterator j=hbhe.begin(); j!=hbhe.end(); j++)
+    {
       const HBHEDataFrame digi = (const HBHEDataFrame)(*j);
       
       calibs_= cond.getHcalCalibrations(digi.id());  // Old method was made private. 
@@ -294,13 +295,11 @@ void HcalLEDMonitor::processEvent(const HBHEDigiCollection& hbhe,
 	}
 	if(doPerChannel_) perChanHists(1,digi.id(),vals,heHists.shape, heHists.time, heHists.energy, baseFolder_);
       }
-    }
-  } catch (...) {
-    if(fVerbosity) cout <<"HcalLEDMonitor::processEvent  No HBHE Digis."<<endl;
-  }
+    } // for (HBHEDigiCollection...)
+
   
-  try{
-    for (HODigiCollection::const_iterator j=ho.begin(); j!=ho.end(); j++){
+  for (HODigiCollection::const_iterator j=ho.begin(); j!=ho.end(); j++)
+    {
       const HODataFrame digi = (const HODataFrame)(*j);	
       calibs_= cond.getHcalCalibrations(digi.id());  // Old method was made private. 
       float en=0;
@@ -331,13 +330,10 @@ void HcalLEDMonitor::processEvent(const HBHEDigiCollection& hbhe,
 	vals[i] = tmp-calibs_.pedestal(digi.sample(i).capid());
       }
       if(doPerChannel_) perChanHists(2,digi.id(),vals,hoHists.shape, hoHists.time, hoHists.energy, baseFolder_);
-    }        
-  } catch (...) {
-    if(fVerbosity>0) cout << "HcalLEDMonitor::processEvent  No HO Digis." << endl;
-  }
+    } // for (HODigiCollection...)       
   
-  try{
-    for (HFDigiCollection::const_iterator j=hf.begin(); j!=hf.end(); j++){
+  for (HFDigiCollection::const_iterator j=hf.begin(); j!=hf.end(); j++)
+    {
       const HFDataFrame digi = (const HFDataFrame)(*j);
       calibs_= cond.getHcalCalibrations(digi.id());  // Old method was made private. 
       float en=0;
@@ -458,10 +454,6 @@ void HcalLEDMonitor::processEvent(const HBHEDigiCollection& hbhe,
       }
       if(doPerChannel_) perChanHists(3,digi.id(),vals,hfHists.shape, hfHists.time, hfHists.energy, baseFolder_);
     }
-  } catch (...) {
-    if(fVerbosity>0) cout << "HcalLEDMonitor::processEvent  No HF Digis." << endl;
-  }
-
   return;
 
 }

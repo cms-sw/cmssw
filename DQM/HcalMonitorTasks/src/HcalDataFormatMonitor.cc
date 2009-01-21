@@ -1107,6 +1107,7 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
     channDIM_x=0;  
 
     // Loop over DAQ words for this spigot
+
     for (qie_work=qie_begin; qie_work!=qie_end; qie_work++) {
       bool yeah = (qie_work->raw()==0xFFFF);
       if (yeah)  // filler word
