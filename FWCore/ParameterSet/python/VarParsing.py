@@ -131,10 +131,10 @@ class VarParsing (object):
                                   , "'multipleAssign' command to avoid"
                             raise RuntimeError, "Multiple assignment"
                         self._beenSet[name] = True
-                        self._singletons[name] = value
+                        self.setDefault (name, value)
                     else:
                         # list
-                        self._lists[name].append (value)
+                        self.setDefault (name, value)
             else:
                 # commands
                 if arg.count('_'):
