@@ -33,7 +33,6 @@ class RPCDetId;
 class TFile;
 class TH1F;
 class TFile;
-class TCanvas;
 class TH2F;
 class Trajectory;
 class Propagator;

@@ -64,8 +64,6 @@
 #include "TFile.h"
 #include "TH1F.h"
 #include "TH2F.h"
-#include "TCanvas.h"
-#include "TAxis.h"
 
 
 
