@@ -15,7 +15,7 @@
 //
 // Original Author:  Ricardo Vasquez Sierra
 //         Created:  October 8, 2008
-// $Id: TauTagValidation.cc,v 1.4 2008/12/19 18:28:18 vasquez Exp $
+// $Id: TauTagValidation.cc,v 1.5 2008/12/19 19:00:00 vasquez Exp $
 //
 //
 // user include files
@@ -94,7 +94,7 @@ void TauTagValidation::beginJob(const edm::EventSetup& iConfig)
 
     MonitorElement * ptTemp,* etaTemp,* phiTemp, *energyTemp;
     
-    dbeTau->setCurrentFolder("RecoTauV/" + TauProducer_ + "_ReferenceCollection" );
+    dbeTau->setCurrentFolder("RecoTauV/" + TauProducer_ + extensionName_ + "_ReferenceCollection" );
 
     // What kind of Taus do we originally have!
     
@@ -110,7 +110,7 @@ void TauTagValidation::beginJob(const edm::EventSetup& iConfig)
 
     // Number of Tau Candidates matched to MC Taus    
 
-    dbeTau->setCurrentFolder("RecoTauV/"+ TauProducer_ + "_Matched");
+    dbeTau->setCurrentFolder("RecoTauV/"+ TauProducer_ + extensionName_ + "_Matched");
 
     ptTemp    =  dbeTau->book1D(TauProducer_ +"Matched_vs_ptTauVisible", TauProducer_ +"Matched_vs_ptTauVisible", 75, 0., 150.);
     etaTemp   =  dbeTau->book1D(TauProducer_ +"Matched_vs_etaTauVisible", TauProducer_ +"Matched_vs_etaTauVisible", 60, -3.0, 3.0 );
@@ -126,7 +126,7 @@ void TauTagValidation::beginJob(const edm::EventSetup& iConfig)
       {
 	string DiscriminatorLabel = it->getParameter<string>("discriminator");
 
-	dbeTau->setCurrentFolder("RecoTauV/" + TauProducer_ + "_" +  DiscriminatorLabel );
+	dbeTau->setCurrentFolder("RecoTauV/" +  TauProducer_ + extensionName_ + "_" +  DiscriminatorLabel );
 	
 	ptTemp    =  dbeTau->book1D(DiscriminatorLabel + "_vs_ptTauVisible", DiscriminatorLabel +"_vs_ptTauVisible", 75, 0., 150.);
 	etaTemp   =  dbeTau->book1D(DiscriminatorLabel + "_vs_etaTauVisible", DiscriminatorLabel + "_vs_etaTauVisible", 60, -3.0, 3.0 );
