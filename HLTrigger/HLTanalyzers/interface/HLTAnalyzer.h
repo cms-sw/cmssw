@@ -6,6 +6,7 @@
 #include "HLTrigger/HLTanalyzers/interface/HLTBJet.h"
 #include "HLTrigger/HLTanalyzers/interface/HLTMCtruth.h"
 #include "HLTrigger/HLTanalyzers/interface/HLTMuon.h"
+#include "HLTrigger/HLTanalyzers/interface/HLTAlCa.h"  
 #include "HLTrigger/HLTanalyzers/interface/EventHeader.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -51,6 +52,7 @@ private:
   HLTMuon     muon_analysis_;
   HLTEgamma   elm_analysis_;
   HLTMCtruth  mct_analysis_;
+  HLTAlCa     alca_analysis_; 
   HLTInfo     hlt_analysis_;
 
   edm::InputTag recjets_,reccorjets_,genjets_,recmet_,genmet_,ht_, calotowers_,hltresults_,genEventScale_;
@@ -108,6 +110,13 @@ private:
   edm::InputTag L1NonIsoPixelSeeds_;
   edm::InputTag L1IsoPixelSeedsLW_;
   edm::InputTag L1NonIsoPixelSeedsLW_;
+
+  // AlCa OpenHLT input collections  
+  edm::InputTag EERecHitTag_; 
+  edm::InputTag EBRecHitTag_;  
+  edm::InputTag HBHERecHitTag_;   
+  edm::InputTag HORecHitTag_;   
+  edm::InputTag HFRecHitTag_;   
 
   int errCnt;
   const int errMax(){return 100;}

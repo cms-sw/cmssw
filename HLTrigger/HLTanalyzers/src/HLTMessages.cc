@@ -57,3 +57,9 @@ const char * kIsoEleTrackIsol             = "isol Track electron";
 const char * kNonIsoEleTrackIsol          = "isol Track electron";
 const char * kL1IsoPixelSeeds             = "pixelSeed-SC association map for electron";
 const char * kL1NonIsoPixelSeeds          = "pixelSeed-SC for electron";
+
+const char * kEErechits                   = "ECAL Endcap RecHits"; 
+const char * kEBrechits                   = "ECAL Barrel RecHits";  
+const char * kHBHErechits                 = "HCAL Endcap-Barrel RecHits";  
+const char * kHOrechits                   = "HCAL HO RecHits";   
+const char * kHFrechits                   = "HCAL HF RecHits";  

@@ -81,6 +81,13 @@ hltanalysis = cms.EDAnalyzer("HLTAnalyzer",
     SoftmuonBJetsL3                 = cms.InputTag("openHltBSoftmuonL3BJetTags"),
     PerformanceBJetsL25             = cms.InputTag("openHltBSoftmuonL25BJetTags"),
     PerformanceBJetsL3              = cms.InputTag("openHltBPerfMeasL3BJetTags"),
+
+    ### AlCa OpenHLT related objects
+    EERecHits                   = cms.InputTag("hltAlCaPhiSymStream","phiSymEcalRecHitsEE"),
+    EBRecHits                   = cms.InputTag("hltAlCaPhiSymStream","phiSymEcalRecHitsEB"),
+    HBHERecHits                 = cms.InputTag("hbhereco"),
+    HORecHits                   = cms.InputTag("horeco"),
+    HFRecHits                   = cms.InputTag("hfreco"),
     
     ### Run parameters
     RunParameters = cms.PSet(
