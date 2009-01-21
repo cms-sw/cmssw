@@ -42,8 +42,13 @@ bool SubTaskSummaryStatus::IsOn()
 */
 
 
-HcalSummaryClient::HcalSummaryClient(const ParameterSet& ps)
+HcalSummaryClient::HcalSummaryClient() {} //constructor
+
+void HcalSummaryClient::init(const ParameterSet& ps, DQMStore* dbe, string clientName)
 {
+  //Call the base class first
+  HcalBaseClient::init(ps,dbe,clientName);
+
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
 

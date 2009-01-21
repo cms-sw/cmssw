@@ -5,8 +5,8 @@
  * \file HcalSummaryClient.h
  *
  * Code ported from DQM/EcalBarrelMonitorClient/interface/EBSummaryClient.h
- * $Date: 2008/10/20 12:16:27 $
- * $Revision: 1.13 $
+ * $Date: 2008/11/03 09:40:03 $
+ * $Revision: 1.14 $
  * \author Jeff Temple
  *
 */
@@ -50,11 +50,13 @@ class HcalSummaryClient : public HcalBaseClient {
 
   // Constructor
    
-  HcalSummaryClient(const edm::ParameterSet& ps);
+  HcalSummaryClient();
    
   // Destructor
   virtual ~HcalSummaryClient();
      
+  void init(const edm::ParameterSet& ps, DQMStore* dbe, string clientName);
+
   // BeginJob
   void beginJob(DQMStore* dqmStore);
     

@@ -27,6 +27,8 @@ HcalMonitorClient::~HcalMonitorClient(){
   if( tp_client_ )         delete tp_client_;
   if( ct_client_ )         delete ct_client_;
   if( beam_client_)        delete beam_client_;
+  if (dqm_db_)             delete dqm_db_;
+  //if( dbe_ )               delete dbe_;
   if( mui_ )               delete mui_;
  
   if (debug_>1) cout <<"HcalMonitorClient: Finished destructor..."<<endl;
@@ -125,13 +127,13 @@ void HcalMonitorClient::initialize(const ParameterSet& ps){
   gStyle->SetPalette(1);
 
   // clients' constructors
-  if( ps.getUntrackedParameter<bool>("SummaryClient", true) ){
-    if(debug_>0) 
-      cout << "===>DQM Summary Client is ON" << endl;
-    summary_client_   = new HcalSummaryClient(ps);
-    ///> No init() exists, and we may not need one....
-    //summary_client_->init(ps, dbe_,"DataFormatClient");
-  }
+  if( ps.getUntrackedParameter<bool>("SummaryClient", true) )
+    {
+      if(debug_>0) 
+	cout << "===>DQM Summary Client is ON" << endl;
+      summary_client_   = new HcalSummaryClient();
+      summary_client_->init(ps, dbe_,"SummaryClient");
+    }
   if( ps.getUntrackedParameter<bool>("DataFormatClient", false) ){
     if(debug_>0)   cout << "===>DQM DataFormat Client is ON" << endl;
     dataformat_client_   = new HcalDataFormatClient();
@@ -188,7 +190,7 @@ void HcalMonitorClient::initialize(const ParameterSet& ps){
     beam_client_          = new HcalBeamClient();
     beam_client_->init(ps, dbe_,"BeamClient");
   }
-  dqm_db_ = new HcalHotCellDbInterface(); 
+  dqm_db_ = new HcalHotCellDbInterface();  // Is this even necessary?
 
   
   // set parameters   

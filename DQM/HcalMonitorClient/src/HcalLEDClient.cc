@@ -39,16 +39,17 @@ void HcalLEDClient::init(const ParameterSet& ps, DQMStore* dbe,string clientName
   HFlumi_occbelthr2 = 0;
 
   rms_thresh_ = ps.getUntrackedParameter<double>("LEDRMS_ErrThresh", 0.8);
-  cout << "LED RMS error threshold set to " << rms_thresh_ << endl;
+  if (debug_>0) cout << "LED RMS error threshold set to " << rms_thresh_ << endl;
   
   mean_thresh_ = ps.getUntrackedParameter<double>("LEDMEAN_ErrThresh", 2.25);
-  cout << "LED MEAN error threshold set to " << mean_thresh_ << endl;
+  if (debug_>0) cout << "LED MEAN error threshold set to " << mean_thresh_ << endl;
 
 
   ///ntuple output file
   m_outputFileName = ps.getUntrackedParameter<string>("LEDoutputTextFile", "");
   if ( m_outputFileName.size() != 0 ) {
-    cout << "Hcal LED text output will be saved to " << m_outputFileName.c_str() << endl;
+    if (debug_>0)
+      cout << "Hcal LED text output will be saved to " << m_outputFileName.c_str() << endl;
     m_outTextFile.open(m_outputFileName.c_str());
     m_outTextFile<<"Det\tEta\tPhi\tD\tEnergy_Mean\tEnergy_RMS\tTime_Mean\tTime_RMS     "<<std::endl;
   }
@@ -60,7 +61,7 @@ HcalLEDClient::~HcalLEDClient(){
 
 void HcalLEDClient::beginJob(const EventSetup& eventSetup){
   
-  if ( debug_ ) cout << "HcalLEDClient: beginJob" << endl;
+  if ( debug_>0 ) cout << "HcalLEDClient: beginJob" << endl;
   //  eventSetup.get<HcalDbRecord>().get(conditions_);
   
    // get the hcal mapping
@@ -76,7 +77,7 @@ void HcalLEDClient::beginJob(const EventSetup& eventSetup){
 
 void HcalLEDClient::beginRun(void){
 
-  if ( debug_ ) cout << "HcalLEDClient: beginRun" << endl;
+  if ( debug_>0 ) cout << "HcalLEDClient: beginRun" << endl;
 
   jevt_ = 0;
   this->resetAllME();
@@ -85,7 +86,7 @@ void HcalLEDClient::beginRun(void){
 
 void HcalLEDClient::endJob(void) {
 
-  if ( debug_ ) cout << "HcalLEDClient: endJob, ievt = " << ievt_ << endl;
+  if ( debug_>0 ) cout << "HcalLEDClient: endJob, ievt = " << ievt_ << endl;
 
   this->cleanup();
   return;
@@ -93,7 +94,7 @@ void HcalLEDClient::endJob(void) {
 
 void HcalLEDClient::endRun(void) {
 
-  if ( debug_ ) cout << "HcalLEDClient: endRun, jevt = " << jevt_ << endl;
+  if ( debug_>0 ) cout << "HcalLEDClient: endRun, jevt = " << jevt_ << endl;
 
   this->cleanup();
   return;
@@ -172,7 +173,7 @@ void HcalLEDClient::cleanup(void) {
 
 void HcalLEDClient::report(){
    if(!dbe_) return;
-  if ( debug_ ) cout << "HcalLEDClient: report" << endl;
+  if ( debug_ >0 ) cout << "HcalLEDClient: report" << endl;
 
   char name[256];
   sprintf(name, "%sHcal/LEDMonitor/LED Task Event Number",process_.c_str());
@@ -181,7 +182,7 @@ void HcalLEDClient::report(){
     string s = me->valueString();
     ievt_ = -1;
     sscanf((s.substr(2,s.length()-2)).c_str(), "%d", &ievt_);
-    if ( debug_ ) cout << "Found '" << name << "'" << endl;
+    if ( debug_ >0 ) cout << "Found '" << name << "'" << endl;
   }
   getHistograms();
   return;
@@ -464,7 +465,7 @@ void HcalLEDClient::analyze(void){
   jevt_++;
   int updates = 0;
   if ( (updates % 10) == 0 ) {
-    if ( debug_ ) cout << "HcalLEDClient: " << updates << " updates" << endl;
+    if ( debug_ >0 ) cout << "HcalLEDClient: " << updates << " updates" << endl;
   }
   getHistograms();
   return;
@@ -596,7 +597,7 @@ void HcalLEDClient::resetAllME(){
 
 void HcalLEDClient::htmlOutput(int runNo, string htmlDir, string htmlName){
   
-  cout << "Preparing HcalLEDClient html output ..." << endl;
+  if (debug_>0) cout << "Preparing HcalLEDClient html output ..." << endl;
   string client = "LEDMonitor";
   htmlErrors(runNo,htmlDir,client,process_,dbe_,dqmReportMapErr_,dqmReportMapWarn_,dqmReportMapOther_);
 
