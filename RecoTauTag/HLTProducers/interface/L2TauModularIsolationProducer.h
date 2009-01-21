@@ -6,10 +6,9 @@ University of Wisconsin-Madison
 e-mail: bachtis@hep.wisc.edu
 */
 
-
 // system include files
 #include <memory>
-
+#include <string>
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -18,7 +17,6 @@ e-mail: bachtis@hep.wisc.edu
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "DataFormats/Math/interface/LorentzVectorFwd.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
@@ -39,62 +37,63 @@ e-mail: bachtis@hep.wisc.edu
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+
+//PF
+#include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
+#include "DataFormats/ParticleFlowReco/interface/PFClusterFwd.h"
+
 
 // Math
 #include "Math/GenVector/VectorUtil.h"
 #include "Math/GenVector/PxPyPzE4D.h"
 
 
-using namespace reco;
-using namespace edm;
 
-
-class L2TauNarrowConeIsolationProducer : public edm::EDProducer {
+class L2TauModularIsolationProducer : public edm::EDProducer {
    public:
-      explicit L2TauNarrowConeIsolationProducer(const edm::ParameterSet&);
-      ~L2TauNarrowConeIsolationProducer();
+      explicit L2TauModularIsolationProducer(const edm::ParameterSet&);
+      ~L2TauModularIsolationProducer();
 
    private:
       virtual void beginJob(const edm::EventSetup&) ;
       virtual void produce(edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+      virtual void endJob();
 
+      //retrieve towers / crystals / clusters around the jet
+      math::PtEtaPhiELorentzVectorCollection getECALHits(const reco::CaloJet&,const edm::Event&,const edm::EventSetup& iSetup);
+      math::PtEtaPhiELorentzVectorCollection getHCALHits(const reco::CaloJet&,const edm::Event&);  
+      math::PtEtaPhiELorentzVectorCollection getPFClusters(const reco::CaloJet&,const edm::Event&,const edm::InputTag&);  
 
-      //retrieve towers and crystals around the jet
-      math::PtEtaPhiELorentzVectorCollection getECALHits(const CaloJet&,const edm::Event&,const edm::EventSetup& iSetup);
-      math::PtEtaPhiELorentzVectorCollection getHCALHits(const CaloJet&,const edm::Event&);  
-     
       edm::InputTag l2CaloJets_;//label for the readout Collection
       edm::InputTag EBRecHits_;//Label for ECAL Barrel Hits
       edm::InputTag EERecHits_;//Label for ECAL EndCAP Hits
-      edm::InputTag CaloTowers_;//Label for ECAL EndCAP Hits
+      edm::InputTag caloTowers_;//Label for ECAL EndCAP Hits
+      edm::InputTag pfClustersECAL_;//Label for ECAL PF Clusters
+      edm::InputTag pfClustersHCAL_;//Label for HCAL PF Clusters
 
-      double associationRadius_; //Association Distance  for a tower/crystal
+      //Algorithm Configuration Variables
+      std::string ecalIsolationAlg_;
+      std::string hcalIsolationAlg_;
+      std::string ecalClusteringAlg_;
+      std::string hcalClusteringAlg_;
+
+      double associationRadius_;
+
+      double simpleClusterRadiusECAL_;
+      double simpleClusterRadiusHCAL_;
+      double innerConeECAL_;
+      double outerConeECAL_;
+      double innerConeHCAL_;
+      double outerConeHCAL_;
 
       //Thresholding
       double crystalThresholdE_;
       double crystalThresholdB_;
       double towerThreshold_;
 
-      //Sub Algorithm Configuration Variables
 
-      //ECALIsolation
-      bool ECALIsolation_run_;
-
-      double ECALIsolation_innerCone_;
-      double ECALIsolation_outerCone_;
-
-      //TowerIsolation
-      bool TowerIsolation_run_;
-
-      double TowerIsolation_innerCone_;
-      double TowerIsolation_outerCone_;
-
-      //ECALClustering
-      bool ECALClustering_run_;
-      double ECALClustering_clusterRadius_;
-
-        struct CrystalPtComparator
+        struct RecHitPtComparator
       	{
       	  bool operator()( const math::PtEtaPhiELorentzVector v1, const math::PtEtaPhiELorentzVector v2) const
       	    {
@@ -102,7 +101,10 @@ class L2TauNarrowConeIsolationProducer : public edm::EDProducer {
       	    }
        	};
 
-	CrystalPtComparator comparePt;
+	RecHitPtComparator comparePt;
+      
+
+
 
 };
 

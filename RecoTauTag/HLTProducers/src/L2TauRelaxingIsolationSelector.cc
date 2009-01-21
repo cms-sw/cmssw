@@ -48,13 +48,13 @@ L2TauRelaxingIsolationSelector::produce(edm::Event& iEvent, const edm::EventSetu
 	     
 	     //If The Cuts are Satisfied
  	   if(jet.et()>et_) 
-	     if(l2info.SeedTowerEt>seedTowerEt_)
-	       if(l2info.ECALIsolConeCut< ecalIsolEt_[0]+ecalIsolEt_[1]*jet.et()+ecalIsolEt_[2]*jet.et()*jet.et())
-		 if(l2info.ECALClusterNClusters <(int)(nClusters_[0]+nClusters_[1]*jet.et()+nClusters_[2]*jet.et()*jet.et()))
-		   if(l2info.ECALClusterEtaRMS <etaRMS_[0]+etaRMS_[1]*jet.et()+etaRMS_[2]*jet.et()*jet.et())
-		     if(l2info.ECALClusterPhiRMS <phiRMS_[0]+phiRMS_[1]*jet.et()+phiRMS_[2]*jet.et()*jet.et())
-		       if(l2info.ECALClusterDRRMS <drRMS_[0]+drRMS_[1]*jet.et()+drRMS_[2]*jet.et()*jet.et())
-			 if(l2info.TowerIsolConeCut<towerIsolEt_[0]+towerIsolEt_[1]*jet.et()+towerIsolEt_[2]*jet.et()*jet.et())
+	     if(l2info.seedHcalHitEt()>seedTowerEt_)
+	       if(l2info.ecalIsolEt()< ecalIsolEt_[0]+ecalIsolEt_[1]*jet.et()+ecalIsolEt_[2]*jet.et()*jet.et())
+		 if(l2info.nEcalHits() <(int)(nClusters_[0]+nClusters_[1]*jet.et()+nClusters_[2]*jet.et()*jet.et()))
+		   if(l2info.ecalClusterShape()[0] <etaRMS_[0]+etaRMS_[1]*jet.et()+etaRMS_[2]*jet.et()*jet.et())
+		     if(l2info.ecalClusterShape()[1] <phiRMS_[0]+phiRMS_[1]*jet.et()+phiRMS_[2]*jet.et()*jet.et())
+		       if(l2info.ecalClusterShape()[2] <drRMS_[0]+drRMS_[1]*jet.et()+drRMS_[2]*jet.et()*jet.et())
+			 if(l2info.hcalIsolEt()<towerIsolEt_[0]+towerIsolEt_[1]*jet.et()+towerIsolEt_[2]*jet.et()*jet.et())
 			     {
 			       l2IsolCaloJets->push_back(jet);
 			     }

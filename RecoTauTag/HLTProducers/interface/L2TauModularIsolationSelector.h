@@ -18,10 +18,10 @@ e-mail: bachtis@hep.wisc.edu
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 
-class L2TauRelaxingIsolationSelector : public edm::EDProducer {
+class L2TauModularIsolationSelector : public edm::EDProducer {
    public:
-      explicit L2TauRelaxingIsolationSelector(const edm::ParameterSet&);
-      ~L2TauRelaxingIsolationSelector();
+      explicit L2TauModularIsolationSelector(const edm::ParameterSet&);
+      ~L2TauModularIsolationSelector();
 
    private:
       virtual void beginJob(const edm::EventSetup&) ;
@@ -32,13 +32,24 @@ class L2TauRelaxingIsolationSelector : public edm::EDProducer {
       //Association class Input
       edm::InputTag associationInput_;  
       
-      //Sliding Cuts
+      //Sliding Cuts (ECAL)
+
       std::vector<double> ecalIsolEt_;
-      std::vector<double> towerIsolEt_;
-      std::vector<double> nClusters_;
-      std::vector<double> phiRMS_;
-      std::vector<double> etaRMS_;
-      std::vector<double> drRMS_;
+
+      std::vector<double> nEcalClusters_;
+      std::vector<double> ecalClusterPhiRMS_;
+      std::vector<double> ecalClusterEtaRMS_;
+      std::vector<double> ecalClusterDrRMS_;
+
+      //Sliding Cuts (HCAL)
+
+      std::vector<double> hcalIsolEt_;
+
+      std::vector<double> nHcalClusters_;
+      std::vector<double> hcalClusterPhiRMS_;
+      std::vector<double> hcalClusterEtaRMS_;
+      std::vector<double> hcalClusterDrRMS_;
+
 
       //Cuts of the Style This > Something
       double et_;

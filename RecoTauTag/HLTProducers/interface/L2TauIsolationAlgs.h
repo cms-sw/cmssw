@@ -1,5 +1,5 @@
 /*
-L2 Tau trigger Isolation algorithms
+L2 Tau Trigger Isolation algorithms
 
 Author: Michail Bachtis
 University of Wisconsin-Madison
@@ -15,127 +15,18 @@ e-mail: bachtis@hep.wisc.edu
 #include "DataFormats/TauReco/interface/L2TauIsolationInfo.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
 
-using namespace reco;
-
-///////////////////---CLASS DEFINITION---////////////////////
-//////////////////    L2TauECALCluster   ///////////////////
-
-
-
-class L2TauECALCluster
+class L2TauIsolationAlgs
 {
  public:
-  //Constructors
-  L2TauECALCluster();
-  L2TauECALCluster(const math::PtEtaPhiELorentzVector&); 
-  ~L2TauECALCluster();
+  L2TauIsolationAlgs();
+  ~L2TauIsolationAlgs();
 
+  double isolatedEt(const math::PtEtaPhiELorentzVectorCollection& ,const math::XYZVector&,double innerCone, double outerCone) const;
+  int nClustersAnnulus(const math::PtEtaPhiELorentzVectorCollection& ,const math::XYZVector&,double innerCone, double outerCone) const;
 
-  //Return Functions
-  math::PtEtaPhiELorentzVector p4() const;//LorenzVector
-  int nCrystals() const; //N Crystals
-
-  //Add Crystal to Cluster
-  void addCrystal(const math::PtEtaPhiELorentzVector&);//Add a Crystal
-
- private:
-  //Cluster LorentzVector
-  math::PtEtaPhiELorentzVector p4_;
-
-  //Number of crystals
-  int m_ncrystals;
-
-};
-
-typedef std::vector<L2TauECALCluster> L2TauECALClusterCollection;
-typedef std::vector<L2TauECALCluster>::const_iterator L2TauECALClusterIt;
-
-
-
-///////////////////---CLASS DEFINITION---////////////////////
-//////////////////    L2TauECALClustering///////////////////
-
-
-class L2TauECALClustering
-{
- public:
-  //Constructor 
-  L2TauECALClustering();
-  L2TauECALClustering(double);
-    
-  //Destructor
-  ~L2TauECALClustering();
-
-
-  //METHODS
-  void run(const math::PtEtaPhiELorentzVectorCollection&,const CaloJet&,L2TauIsolationInfo&);
-
- private:
-  //VARIABLES
-  double m_clusterRadius;     //Cluster Radius
-
-
-  L2TauECALClusterCollection m_clusters;//Cluster Container
-
-  //METHODS
-  void clusterize(const math::PtEtaPhiELorentzVectorCollection&); //Do Clustering
-  std::vector<double> clusterSeperation(const CaloJet&) const; //Calculation of Cluster Moments
-
-};
-
-///////////////////---CLASS DEFINITION---////////////////////
-//////////////////    L2TauECALIsolation ///////////////////
-
-class L2TauECALIsolation
-{
- public:
-  L2TauECALIsolation();
-  L2TauECALIsolation(double,double);
-
-  ~L2TauECALIsolation();
-
- 
-  void run(const math::PtEtaPhiELorentzVectorCollection&,const CaloJet& ,L2TauIsolationInfo&);
-
-
- private:
-  //METHODS;
-  double isolatedEt( const math::PtEtaPhiELorentzVectorCollection& ,const CaloJet&) const; //Return the Isolated Et
-
-
-  //VARIABLES;
-  double m_innerCone; //Inner Cone
-  double m_outerCone; //Outer Cone
-
-};
-
-
-///////////////////---CLASS DEFINITION---////////////////////
-//////////////////  L2TauTowerIsolation ///////////////////
-
-
-class L2TauTowerIsolation
-{
- public:
-  L2TauTowerIsolation();
-  L2TauTowerIsolation(double,double);
-
-  ~L2TauTowerIsolation();
-
-
-  void run(const CaloJet&, const math::PtEtaPhiELorentzVectorCollection&, L2TauIsolationInfo&);
-
-
- private:
-  //METHODS;
-  double isolatedEt(const CaloJet&,const math::PtEtaPhiELorentzVectorCollection&) const;
-  double seedTowerEt(const math::PtEtaPhiELorentzVectorCollection&) const; 
-
-  //VARIABLES;
-  double m_innerCone;
-  double m_outerCone;
-
+  std::vector<double> clusterShape(const math::PtEtaPhiELorentzVectorCollection& ,const math::XYZVector&,double innerCone,double outerCone) const;
 
 };
 
 #endif
+

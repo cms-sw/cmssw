@@ -51,13 +51,13 @@ L2TauIsolationSelector::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 	     
 	     //If The Cuts are Satisfied
 	   if(jet.et()>JetEt_) 
-	     if(l2info.ECALIsolConeCut< ECALIsolEt_)
-	       if(l2info.SeedTowerEt>SeedTowerEt_)
-	        if(l2info.ECALClusterNClusters <Cluster_nClusters_)
-		    if(l2info.ECALClusterEtaRMS <Cluster_etaRMS_)
-		       if(l2info.ECALClusterPhiRMS <Cluster_phiRMS_)
-			 if(l2info.ECALClusterDRRMS <Cluster_drRMS_)
-			   if(l2info.TowerIsolConeCut<TowerIsolEt_)
+	     if(l2info.ecalIsolEt()< ECALIsolEt_)
+	       if(l2info.seedHcalHitEt()>SeedTowerEt_)
+	        if(l2info.nEcalHits() <Cluster_nClusters_)
+		    if(l2info.ecalClusterShape()[0] <Cluster_etaRMS_)
+		       if(l2info.ecalClusterShape()[1] <Cluster_phiRMS_)
+			 if(l2info.ecalClusterShape()[2] <Cluster_drRMS_)
+			   if(l2info.hcalIsolEt()<TowerIsolEt_)
 			     {
 			         //Retrieve the Jet From the AssociationMap
 	   		       l2IsolCaloJets->push_back(jet);

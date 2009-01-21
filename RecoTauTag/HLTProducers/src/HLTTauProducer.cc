@@ -51,7 +51,7 @@ void HLTTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iES)
 	     //	     const CaloJet& jet =*(p->key);
 	     
 
-	     double emIsol  = l2info.ECALIsolConeCut;
+	     double emIsol  = l2info.ecalIsolEt();
 
     JetTracksAssociationRef jetTracks = tauL25[i].jtaRef();
     math::XYZVector jetDirL25(jetTracks->first->px(),jetTracks->first->py(),jetTracks->first->pz());   

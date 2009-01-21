@@ -1,7 +1,7 @@
 #include "RecoTauTag/HLTProducers/interface/L2TauNarrowConeIsolationProducer.h"
 #include "RecoTauTag/HLTProducers/interface/L2TauIsolationAlgs.h"
+#include "RecoTauTag/HLTProducers/interface/L2TauSimpleClustering.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
-
 
 L2TauNarrowConeIsolationProducer::L2TauNarrowConeIsolationProducer(const edm::ParameterSet& iConfig):
   l2CaloJets_(iConfig.getParameter<edm::InputTag>("L2TauJetCollection")),
@@ -64,37 +64,49 @@ L2TauNarrowConeIsolationProducer::produce(edm::Event& iEvent, const edm::EventSe
        //Loop on Jets
        for(CaloJetCollection::const_iterator jc = jcStart ;jc!=l2CaloJets->end();++jc)
 	 {
-	   L2TauIsolationInfo l2info; //Create Info Object
+	   //Create Algorithm Object
+	   L2TauIsolationAlgs alg;
+	   
+	   //Create Info Object
+	   L2TauIsolationInfo info; 
+
+	   //get Hits
+	   math::PtEtaPhiELorentzVectorCollection hitsECAL = getECALHits(*jc,iEvent,iSetup);
+	   math::PtEtaPhiELorentzVectorCollection hitsHCAL = getHCALHits(*jc,iEvent);
+
+
 
 	   //Run ECALIsolation 
 	   if(ECALIsolation_run_)
 	     {
-	       L2TauECALIsolation ecal_isolation(ECALIsolation_innerCone_,ECALIsolation_outerCone_);
-	       ecal_isolation.run(getECALHits(*jc,iEvent,iSetup),*jc,l2info);
+	       info.setEcalIsolEt( alg.isolatedEt(hitsECAL , jc->p4().Vect(), ECALIsolation_innerCone_,ECALIsolation_outerCone_) );
+	       if(hitsECAL.size()>0)
+		 info.setSeedEcalHitEt(hitsECAL[0].pt());
 	     }
 
 	   //Run ECALClustering 
 	   if(ECALClustering_run_)
 	     {
-	       L2TauECALClustering ecal_clustering(ECALClustering_clusterRadius_);
-	       ecal_clustering.run(getECALHits(*jc,iEvent,iSetup),*jc,l2info);
+	       //load simple clustering algorithm
+	       L2TauSimpleClustering clustering(ECALClustering_clusterRadius_);
+	       math::PtEtaPhiELorentzVectorCollection clusters = clustering.clusterize(hitsECAL);
+	       info.setEcalClusterShape(alg.clusterShape(clusters,jc->p4().Vect(),0,0.5) );
+	       info.setNEcalHits(clusters.size());
 	     }
 
 	   //Run CaloTower Isolation
            if(TowerIsolation_run_)
 	     {
-	       L2TauTowerIsolation tower_isolation(TowerIsolation_innerCone_,TowerIsolation_outerCone_);
-	       tower_isolation.run(*jc,getHCALHits(*jc,iEvent),l2info);
-
+	       info.setHcalIsolEt( alg.isolatedEt(hitsHCAL , jc->p4().Vect(), TowerIsolation_innerCone_,TowerIsolation_outerCone_) );
+	       if(hitsHCAL.size()>0)
+		 info.setSeedHcalHitEt(hitsHCAL[0].pt());
 	     }
 
 	   //Store the info Class
 	   edm::Ref<CaloJetCollection> jcRef(l2CaloJets,jc-jcStart);
-	   l2InfoAssoc->insert(jcRef, l2info);
+	   l2InfoAssoc->insert(jcRef, info);
 	 }
 
-
-     
      } //end of if(*jetCrystalsObj)
 
     iEvent.put(l2InfoAssoc);
