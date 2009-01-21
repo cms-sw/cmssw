@@ -4,8 +4,8 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2008/12/05 13:14:37 $
- * $Revision: 1.98 $
+ * $Date: 2009/01/18 16:11:18 $
+ * $Revision: 1.99 $
  * \author W Fisher
  * \author J Temple
  *
@@ -23,15 +23,15 @@ HcalMonitorModule::HcalMonitorModule(const edm::ParameterSet& ps){
   meEvtMask_=0; meFEDS_=0;
   meLatency_=0; meQuality_=0;
   fedsListed_ = false;
-  digiMon_ = NULL;   dfMon_ = NULL;
-  diTask_ = NULL;
-  rhMon_ = NULL;     pedMon_ = NULL; 
-  ledMon_ = NULL;    mtccMon_ = NULL;
-  hotMon_ = NULL;    tempAnalysis_ = NULL;
-  deadMon_ = NULL;   tpMon_ = NULL;
-  ctMon_ = NULL;     beamMon_ = NULL;
-  laserMon_ = NULL;
-  expertMon_ = NULL;
+  digiMon_ = 0;   dfMon_ = 0;
+  diTask_ = 0;
+  rhMon_ = 0;     pedMon_ = 0; 
+  ledMon_ = 0;    mtccMon_ = 0;
+  hotMon_ = 0;    tempAnalysis_ = 0;
+  deadMon_ = 0;   tpMon_ = 0;
+  ctMon_ = 0;     beamMon_ = 0;
+  laserMon_ = 0;
+  expertMon_ = 0;
 
   // initialize hcal quality object
   
@@ -192,35 +192,64 @@ HcalMonitorModule::HcalMonitorModule(const edm::ParameterSet& ps){
 //--------------------------------------------------------
 HcalMonitorModule::~HcalMonitorModule(){
   
-// if (dbe_){    
-//   if(digiMon_!=NULL)   {  digiMon_->clearME();}
-//   if(dfMon_!=NULL)     {  dfMon_->clearME();}
-//   if(diTask_!=NULL)    {  diTask_->clearME();}
-//   if(pedMon_!=NULL)    {  pedMon_->clearME();}
-//   if(ledMon_!=NULL)    {  ledMon_->clearME();}
-//   if(laserMon_!=NULL)  {  laserMon_->clearME();}
-//   if(hotMon_!=NULL)    {  hotMon_->clearME();}
-//   if(deadMon_!=NULL)   {  deadMon_->clearME();}
-//   if(mtccMon_!=NULL)   {  mtccMon_->clearME();}
-//   if(rhMon_!=NULL)     {  rhMon_->clearME();}
-//   
-//   dbe_->setCurrentFolder(rootFolder_);
-//   dbe_->removeContents();
-// }
-//
-//  if(digiMon_!=NULL) { delete digiMon_;  digiMon_=NULL; }
-//  if(dfMon_!=NULL) { delete dfMon_;     dfMon_=NULL; }
-//  if(diTask_!=NULL) { delete diTask_;   diTask_=NULL; }
-//  if(pedMon_!=NULL) { delete pedMon_;   pedMon_=NULL; }
-//  if(ledMon_!=NULL) { delete ledMon_;   ledMon_=NULL; }
-//  if(laserMon_!=NULL) { delete laserMon_;   laserMon_=NULL; }
-//  if(hotMon_!=NULL) { delete hotMon_;   hotMon_=NULL; }
-//  if(deadMon_!=NULL) { delete deadMon_; deadMon_=NULL; }
-//  if(mtccMon_!=NULL) { delete mtccMon_; mtccMon_=NULL; }
-//  if(rhMon_!=NULL) { delete rhMon_;     rhMon_=NULL; }
-//  if(tempAnalysis_!=NULL) { delete tempAnalysis_; tempAnalysis_=NULL; }
-//  delete evtSel_; evtSel_ = NULL;
-//
+ if (dbe_!=0)
+   {    
+     if(digiMon_!=0)   {  digiMon_->clearME();}
+     if(dfMon_!=0)     {  dfMon_->clearME();}
+     if(diTask_!=0)    {  diTask_->clearME();}
+     if(pedMon_!=0)    {  pedMon_->clearME();}
+     if(ledMon_!=0)    {  ledMon_->clearME();}
+     if(laserMon_!=0)  {  laserMon_->clearME();}
+     if(hotMon_!=0)    {  hotMon_->clearME();}
+     if(deadMon_!=0)   {  deadMon_->clearME();}
+     if(mtccMon_!=0)   {  mtccMon_->clearME();}
+     if(rhMon_!=0)     {  rhMon_->clearME();}
+     
+     dbe_->setCurrentFolder(rootFolder_);
+     dbe_->removeContents();
+   }
+
+  if(digiMon_!=0) 
+    { 
+      delete digiMon_;  //digiMon_=0; 
+    }
+  if(dfMon_!=0) 
+    { delete dfMon_;     //dfMon_=0; 
+    }
+  if(diTask_!=0) 
+    { delete diTask_;   //diTask_=0; 
+    }
+  if(pedMon_!=0) 
+    {
+      delete pedMon_;   //pedMon_=0; 
+    }
+  if(ledMon_!=0) 
+    { delete ledMon_;   //ledMon_=0; 
+    }
+  if(laserMon_!=0) 
+    { delete laserMon_;   //laserMon_=0; 
+    }
+  if(hotMon_!=0) 
+    { delete hotMon_;   //hotMon_=0; 
+    }
+  if(deadMon_!=0) 
+    { delete deadMon_; //deadMon_=0; 
+    }
+  if (beamMon_!=0)
+    { delete beamMon_; // beamMon_=0;
+    }
+  if(mtccMon_!=0) 
+    { delete mtccMon_; //mtccMon_=0; 
+    }
+  if(rhMon_!=0) 
+    { delete rhMon_;     //rhMon_=0; 
+    }
+  if(tempAnalysis_!=0) 
+    { delete tempAnalysis_; 
+    //tempAnalysis_=0; 
+    }
+  if (evtSel_!=0) {delete evtSel_; //evtSel_ = 0;
+  }
 } //void HcalMonitorModule::~HcalMonitorModule()
 
 //--------------------------------------------------------
