@@ -180,11 +180,6 @@ class SiPixelInformationExtractor {
            std::vector<std::string> >   meQTestsMap;
 
   
-  TCanvas                              * theCanvas ;
-  TCanvas                              * canvas_ ;
-  TCanvas                              * canvasSlide_ ;
-  TPaveText                            * paveOnCanvas;
-
   bool  readReference_;
   bool  readQTestMap_;
   bool  readMeMap_;

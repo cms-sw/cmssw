@@ -61,20 +61,6 @@ SiPixelEDAClient::SiPixelEDAClient(const edm::ParameterSet& ps) :
   ModuleWeb("SiPixelEDAClient"){
 // cout<<"Entering  SiPixelEDAClient::SiPixelEDAClient: "<<endl;
  
-  string localPath = string("DQM/SiPixelMonitorClient/test/loader.html");
-  ifstream fin(edm::FileInPath(localPath).fullPath().c_str(), ios::in);
-  char buf[BUF_SIZE];
-  
-  if (!fin) {
-    cerr << "Input File: loader.html"<< " could not be opened!" << endl;
-    return;
-  }
-
-  while (fin.getline(buf, BUF_SIZE, '\n')) { // pops off the newline character 
-    html_out_ << buf ;
-  }
-  fin.close();
-
   edm::LogInfo("SiPixelEDAClient") <<  " Creating SiPixelEDAClient " << "\n" ;
   
   bei_ = Service<DQMStore>().operator->();
@@ -91,8 +77,26 @@ SiPixelEDAClient::SiPixelEDAClient(const edm::ParameterSet& ps) :
   noiseRateDenominator_  = ps.getUntrackedParameter<int>("NEventsForNoiseCalculation",100000);
   Tier0Flag_             = ps.getUntrackedParameter<bool>("Tier0Flag",false);
   
+  if(!Tier0Flag_){
+    string localPath = string("DQM/SiPixelMonitorClient/test/loader.html");
+    ifstream fin(edm::FileInPath(localPath).fullPath().c_str(), ios::in);
+    char buf[BUF_SIZE];
+  
+    if (!fin) {
+      cerr << "Input File: loader.html"<< " could not be opened!" << endl;
+      return;
+    }
+
+    while (fin.getline(buf, BUF_SIZE, '\n')) { // pops off the newline character 
+      html_out_ << buf ;
+    }
+    fin.close();
+
+  }
+  
   // instantiate web interface
   sipixelWebInterface_ = new SiPixelWebInterface(bei_,offlineXMLfile_);
+  //instantiate the two work horses of the client:
   sipixelInformationExtractor_ = new SiPixelInformationExtractor(offlineXMLfile_);
   sipixelActionExecutor_ = new SiPixelActionExecutor(offlineXMLfile_);
   

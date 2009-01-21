@@ -72,7 +72,6 @@ SiPixelInformationExtractor::SiPixelInformationExtractor(bool offlineXMLfile) : 
   edm::LogInfo("SiPixelInformationExtractor") << 
     " Creating SiPixelInformationExtractor " << "\n" ;
   
-  canvas_ = new TCanvas("PlotCanvas", "Plot Canvas"); 
   readReference_ = false;
   allMods_=0;
   errorMods_=0;
@@ -89,7 +88,6 @@ SiPixelInformationExtractor::~SiPixelInformationExtractor() {
   edm::LogInfo("SiPixelInformationExtractor") << 
     " Deleting SiPixelInformationExtractor " << "\n" ;
   
-  if (canvas_) delete canvas_;
   if (histoPlotter_) delete histoPlotter_;
 }
 
@@ -1975,14 +1973,10 @@ void SiPixelInformationExtractor::findNoisyPixels(DQMStore * bei, bool init, flo
         loc.dcol = cabling.dcol;
         loc.pxid = cabling.pxid;
 
-	// FIX to adhere to new cabling map. To be replaced with CalibTracker/SiPixelTools detid - > hardware id classes ASAP.
-	//        const sipixelobjects::PixelFEDCabling *theFed= theCablingMap.product()->fed(realfedID);
-	//        const sipixelobjects::PixelFEDLink * link = theFed->link(cabling.link);
-	//        const sipixelobjects::PixelROC *theRoc = link->roc(cabling.roc);
+        const sipixelobjects::PixelFEDCabling *theFed= theCablingMap.product()->fed(realfedID);
+        const sipixelobjects::PixelFEDLink * link = theFed->link(cabling.link);
+        const sipixelobjects::PixelROC *theRoc = link->roc(cabling.roc);
         sipixelobjects::LocalPixel locpixel(loc);
-	sipixelobjects::CablingPathToDetUnit path = {realfedID, cabling.link, cabling.roc};  
-	const sipixelobjects::PixelROC *theRoc = theCablingMap->findItem(path);
-	// END of FIX
 	
         int onlineColumn = locpixel.rocCol();
         int onlineRow= locpixel.rocRow();
