@@ -1,14 +1,14 @@
-#ifndef CondFormats_PEcalGeometry_h
-#define CondFormats_PEcalGeometry_h
+#ifndef CondFormats_PCaloGeometry_h
+#define CondFormats_PCaloGeometry_h
 
 #include <vector>
 
-class PEcalGeometry{
+class PCaloGeometry{
 
  public:
-  PEcalGeometry();
-  PEcalGeometry(std::vector<double>,std::vector<double>,std::vector<uint32_t>);
-  ~PEcalGeometry(){};
+  PCaloGeometry();
+  PCaloGeometry(std::vector<double>,std::vector<double>,std::vector<uint32_t>);
+  ~PCaloGeometry(){};
 
   std::vector<double> getTranslation() const {return m_translation;};
   std::vector<double> getDimension() const {return m_dimension;};
