@@ -252,6 +252,10 @@ std::string getAnyIMG(int runNo,myHist* hist, int size, std::string htmlDir,
 
   // Create canvas for histogram
   TCanvas* can = new TCanvas(dest,dest, xwid, ywid);
+  TAxis* xaxis=0;
+  TAxis* yaxis=0;
+  TLine* vert=0;
+  TLine* horiz=0;
   hist->SetXTitle(xlab);
   hist->SetYTitle(ylab);
   std::string histtype=hist->ClassName();
@@ -276,14 +280,15 @@ std::string getAnyIMG(int runNo,myHist* hist, int size, std::string htmlDir,
       // Draw vertical lines
       //for (int xx=int(UTILS_ETAMIN);xx<=int(UTILS_ETAMAX);++xx)
  
-     if (xaxis->GetXmax()==UTILS_ETAMAX && xaxis->GetXmin()==UTILS_ETAMIN 
+      
+	if (xaxis->GetXmax()==UTILS_ETAMAX && xaxis->GetXmin()==UTILS_ETAMIN 
 	 && yaxis->GetXmax()==UTILS_PHIMAX && yaxis->GetXmin()==UTILS_PHIMIN) // ad hoc method for only drawing grids for eta-phi graphs; need to be more clever later?
 	{
 	  for (int xx=int(xaxis->GetXmin());
 	       xx<=int(xaxis->GetXmax()); ++xx)
 	    {
 	      if (xx<-42 || xx >= 42) continue;
-	      TLine *vert = new TLine(xx+0.5,0.5,xx+0.5,72.5);
+	      vert = new TLine(xx+0.5,0.5,xx+0.5,72.5);
 	      //if (xx%vertlinespace!=0) continue;
 	      //TLine *vert = new TLine(xx,yaxis->GetXmin(),xx,yaxis->GetXmax());
 	      
@@ -293,7 +298,6 @@ std::string getAnyIMG(int runNo,myHist* hist, int size, std::string htmlDir,
 	  // Draw horizontal lines
 	  for (int yy=int(yaxis->GetXmin()); yy<int(yaxis->GetXmax());++yy)
 	    {
-	      TLine *horiz;
 	      if (yy%4==0)
 		horiz = new TLine(-41.5,yy+0.5,41.5,yy+0.5);
 	      else if (yy%2==0)
@@ -322,6 +326,10 @@ std::string getAnyIMG(int runNo,myHist* hist, int size, std::string htmlDir,
     }	
   can->SaveAs(saveName.c_str());  
   delete can;
+  delete vert;
+  delete horiz;
+  delete xaxis;
+  delete yaxis;
 
   return outName;
 } // std::string getAnyIMG(...)
@@ -356,10 +364,10 @@ void htmlAnyHisto(int runNo, myHist *hist,
 	}
 
       // Form full-sized and thumbnail .gifs from histogram
-      std::string imgNameTMB = "";   
-      imgNameTMB = getAnyIMG(runNo,hist,1,htmlDir,xlab,ylab,setLogy, setLogx); 
-      std::string imgName = "";   
-      imgName = getAnyIMG(runNo,hist,2,htmlDir,xlab,ylab, setLogy, setLogx);  
+      //std::string imgNameTMB = "";   
+      std::string imgNameTMB = getAnyIMG(runNo,hist,1,htmlDir,xlab,ylab,setLogy, setLogx); 
+      //std::string imgName = "";   
+      std::string imgName = getAnyIMG(runNo,hist,2,htmlDir,xlab,ylab, setLogy, setLogx);  
       
       // Add thumbnail image to html code, linked to full-sized image
       if (imgName.size() != 0 )
