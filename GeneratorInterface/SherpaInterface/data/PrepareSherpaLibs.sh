@@ -73,13 +73,22 @@ function build_python_cfi_NEW() {
   for file in `ls *.dat`; do
     pstnam=`echo ${file} | cut -f1 -d"."`
   echo "                              "${pstnam}" = cms.vstring(" >> ${shpacfifile}
-
-    sed '/^$/d' < ${file} > ${file}.tmp        # remove empty lines
-    lastline=`tail -n 1 ${file}.tmp` 
-    datacard=`echo ${file}.tmp | sed s/.dat.tmp//`
-    cat  ${file}.tmp | sed s/"'"//g | sed 's/$/XXX/' | sed s/XXX/"\","/ | sed s/^/"\""/ >> ${shpacfifile}
+    cp ${file} ${file}.tmp1
+    sed -e 's/[%\!].*//g' < ${file}.tmp1 > ${file}.tmp2            # remove comment lines (beginning with % or !)
+    mv ${file}.tmp2 ${file}.tmp1
+    sed -e 's/^[ \t]*//;s/[ \t]*$//' < ${file}.tmp1 > ${file}.tmp2 # remove beginnig & trailing whitespaces
+    mv ${file}.tmp2 ${file}.tmp1
+    sed '/^$/d' < ${file}.tmp1 > ${file}.tmp2                      # remove empty lines
+    mv ${file}.tmp2 ${file}.tmp1
+    sed -e 's/^/ /g;s/ (/(/;s/ }/}/' < ${file}.tmp1 > ${file}.tmp2 # add single space in front of parameters
+    mv ${file}.tmp2 ${file}.tmp1
+    sed -e 's/^/\t\t\t\t"/;s/$/\",/' < ${file}.tmp1 > ${file}.tmp2 # add ([]") and ("') around parameters
+    mv ${file}.tmp2 ${file}.tmp1
+    sed -e '$s/\",/\"/' < ${file}.tmp1 > ${file}.tmp2              # fix last line
+    mv ${file}.tmp2 ${file}.tmp1
+    cat  ${file}.tmp1                                         >> ${shpacfifile}
   echo "                                                  )," >> ${shpacfifile}
-    rm ${file}.tmp
+    rm ${file}.tmp*
   done
   echo "                             )"                       >> ${shpacfifile}
   echo ")"                                                    >> ${shpacfifile}
@@ -514,14 +523,17 @@ fi
 
 # generate & compile pyhton script
 if [ "${imode}" = "LOCAL" ] || [ "${imode}" = "CRAB" ]; then
-  cd ${MYCMSSWTEST}
+#  cd ${MYCMSSWTEST}
+  cd ${MYCMSSWSHPA}
   shpacfifile="sherpa_cfi.py"
-  shpacfgfile="sherpa_cfg.py"
-  shpaoutfile="sherpa_out.root"
-  build_python_cfi ${shpacfifile}
-#  build_python_cfi_NEW ${shpacfifile}
+#  build_python_cfi ${shpacfifile}
+  build_python_cfi_NEW ${shpacfifile}
+ rm *.dat
   mv ${shpacfifile}   ${MYCMSSWPYTH}
   mv sherpa_custom.py ${MYCMSSWPYTH}
+  cd ${MYCMSSWTEST}
+  shpacfgfile="sherpa_cfg.py"
+  shpaoutfile="sherpa_out.root"
   build_python_cfg ${shpacfgfile} ${shpaoutfile} ${shpacfifile} ${MYANADIR}
   cd ..
   scramv1 b
@@ -532,9 +544,9 @@ fi
 if [ "${imode}" = "PROD" ]; then
   cd ${MYCMSSWSHPA}
   shpacfffile="sherpa_"${dataset}"_cff.py"
-  build_python_cfi ${shpacfffile}
-#  build_python_cfi_NEW ${shpacfffile}
-#  rm *.dat
+#  build_python_cfi ${shpacfffile}
+  build_python_cfi_NEW ${shpacfffile}
+ rm *.dat
   mv ${shpacfffile}   ${HDIR}
   mv sherpa_custom.py ${HDIR}
   cd ${HDIR}
@@ -546,8 +558,8 @@ fi
 if [ "${imode}" = "VAL" ]; then
   cd ${MYCMSSWSHPA}
   shpacfffile="sherpa_"${dataset}"_cff.py"
-  build_python_cfi ${shpacfffile}
-#  build_python_cfi_NEW ${shpacfffile}
+#  build_python_cfi ${shpacfffile}
+  build_python_cfi_NEW ${shpacfffile}
   mv ${shpacfffile}   ${CMSSWDIR}/src/${MYANADIR2}/python/
   mv sherpa_custom.py ${CMSSWDIR}/src/${MYANADIR2}/python/
   cd ${HDIR}
