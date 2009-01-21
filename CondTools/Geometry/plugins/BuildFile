@@ -15,6 +15,7 @@
 <use name=Geometry/TrackerNumberingBuilder>
 <use name=Geometry/CaloEventSetup>
 <use name=Geometry/CaloGeometry>
+<use name=Geometry/EcalAlgo>
 <use name=Geometry/CSCGeometryBuilder>
 <use name=Geometry/DTGeometry> 
 <use name=Geometry/DTGeometryBuilder>
