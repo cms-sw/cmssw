@@ -168,8 +168,8 @@ namespace edm {
         return ProductID(processIndex+1, productIndex+1);
       }
     }
-    throw edm::Exception(edm::errors::NotFound,"Bad BranchID")
-      << "branchIDToProductID: productID cannot be determined from BranchID\n";
+    // cannot throw, because some products may legitimately not have product ID's (e.g. pile-up).
+    return ProductID();
   }
 
   BasicHandle
