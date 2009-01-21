@@ -4,8 +4,8 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2009/01/21 14:59:09 $
- * $Revision: 1.100 $
+ * $Date: 2009/01/21 17:56:33 $
+ * $Revision: 1.101 $
  * \author W Fisher
  * \author J Temple
  *
@@ -190,11 +190,12 @@ HcalMonitorModule::HcalMonitorModule(const edm::ParameterSet& ps){
 }
 
 //--------------------------------------------------------
-HcalMonitorModule::~HcalMonitorModule(){
+HcalMonitorModule::~HcalMonitorModule()
+{
   
- if (dbe_!=0)
-   {    
-     if(digiMon_!=0)   {  digiMon_->clearME();}
+  if (dbe_!=0)
+    {    
+      if(digiMon_!=0)   {  digiMon_->clearME();}
      if(dfMon_!=0)     {  dfMon_->clearME();}
      if(diTask_!=0)    {  diTask_->clearME();}
      if(pedMon_!=0)    {  pedMon_->clearME();}
@@ -207,48 +208,50 @@ HcalMonitorModule::~HcalMonitorModule(){
      
      dbe_->setCurrentFolder(rootFolder_);
      dbe_->removeContents();
-   }
-
+    }
+  
+  // I think setting pointers to NULL (0) after delete is unnecessary here,
+  // since we're in the destructor (and thus won't be using the pointers again.)
   if(digiMon_!=0) 
     { 
-      delete digiMon_;  //digiMon_=0; 
+      delete digiMon_;  digiMon_=0; 
     }
   if(dfMon_!=0) 
-    { delete dfMon_;     //dfMon_=0; 
+    { delete dfMon_;     dfMon_=0; 
     }
   if(diTask_!=0) 
-    { delete diTask_;   //diTask_=0; 
+    { delete diTask_;   diTask_=0; 
     }
   if(pedMon_!=0) 
     {
-      delete pedMon_;   //pedMon_=0; 
+      delete pedMon_;   pedMon_=0; 
     }
   if(ledMon_!=0) 
-    { delete ledMon_;   //ledMon_=0; 
+    { delete ledMon_;   ledMon_=0; 
     }
   if(laserMon_!=0) 
-    { delete laserMon_;   //laserMon_=0; 
+    { delete laserMon_;   laserMon_=0; 
     }
   if(hotMon_!=0) 
-    { delete hotMon_;   //hotMon_=0; 
+    { delete hotMon_;   hotMon_=0; 
     }
   if(deadMon_!=0) 
-    { delete deadMon_; //deadMon_=0; 
+    { delete deadMon_; deadMon_=0; 
     }
   if (beamMon_!=0)
-    { delete beamMon_; // beamMon_=0;
+    { delete beamMon_;  beamMon_=0;
     }
   if(mtccMon_!=0) 
-    { delete mtccMon_; //mtccMon_=0; 
+    { delete mtccMon_; mtccMon_=0; 
     }
   if(rhMon_!=0) 
-    { delete rhMon_;     //rhMon_=0; 
+    { delete rhMon_;     rhMon_=0; 
     }
   if(tempAnalysis_!=0) 
     { delete tempAnalysis_; 
-    //tempAnalysis_=0; 
+    tempAnalysis_=0; 
     }
-  if (evtSel_!=0) {delete evtSel_; //evtSel_ = 0;
+  if (evtSel_!=0) {delete evtSel_; evtSel_ = 0;
   }
 } //void HcalMonitorModule::~HcalMonitorModule()
 
