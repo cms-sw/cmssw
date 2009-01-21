@@ -51,6 +51,13 @@ class RatioFinder : public StatisticalMethod {
     /// Print relevant information about the object instance
     void print(const char* options="");
 
+    /// Set the number of bins
+    void setNbins(int nbins){m_nbins=nbins;}
+
+    /// Get the number of bins
+    int getNbins(){return m_nbins;}
+
+
   private:
 
     /// Get the Cls value
@@ -88,6 +95,9 @@ class RatioFinder : public StatisticalMethod {
 
     /// The flag to decide if it is a lumi study
     bool m_is_lumi;
+
+    /// The number of bins in the -2lnQ plot
+    int m_nbins;
 
     // For Cint
     ClassDef(RatioFinder,1)

@@ -38,7 +38,8 @@ RatioFinder::RatioFinder(const char* name,
     m_b_model(b_model),
     m_c_array(c_array),
     m_is_lumi(false),
-    m_max_attempts(100){
+    m_max_attempts(100),
+    m_nbins(100){
 
     m_variables.add(variables);
 
@@ -107,7 +108,7 @@ RatioFinderResults* RatioFinder::findRatio(unsigned int n_toys,
 
     if (not m_is_lumi){
 
-        LimitResults* res = m_get_LimitResults(10000);
+        LimitResults* res = m_get_LimitResults(n_toys);
         LimitPlot* p = res->getPlot("temp","temp",100);
         p->draw();
         TH1F* b_histo = p->getBhisto();
@@ -200,7 +201,10 @@ RatioFinderResults* RatioFinder::findRatio(unsigned int n_toys,
                     << "-----------------------------------------------\n\n";
         }
 
+    m_points[upper_ratio]=lower_CL;
+    m_points[lower_ratio]=upper_CL;
 
+    bool do_average=true;
     while (attempts!=0 and 
            (upper_ratio-lower_ratio > delta_ratios_min) and
            fabs(upper_CL-lower_CL) > CL_level/10. ){
@@ -210,11 +214,16 @@ RatioFinderResults* RatioFinder::findRatio(unsigned int n_toys,
         assert(upper_ratio > lower_ratio);
 
         // Increase the size of the interval if it gets too small
-        if (upper_CL < CL_level and lower_CL < CL_level)
-            lower_ratio*=0.8;
-        if (upper_CL > CL_level and lower_CL > CL_level)
-            upper_ratio*=1.4;
-
+        if (upper_CL < CL_level and lower_CL < CL_level){
+            do_average=false;
+            //lower_ratio*=0.8;
+            temp_ratio=lower_ratio*0.8;
+            }
+        if (upper_CL > CL_level and lower_CL > CL_level){
+            do_average=false;
+            //upper_ratio*=1.4;
+            temp_ratio=upper_ratio*1.4;
+            }
         /*
           Elaborate a new point for the scan:
            - "Near" the value of CL make a weighted average
@@ -224,18 +233,20 @@ RatioFinderResults* RatioFinder::findRatio(unsigned int n_toys,
 
         if (fabs(upper_CL-CL_level) < CL_level/5. or
             fabs(lower_CL-CL_level) < CL_level/5.){
-            upper_weight = fabs(CL_level-lower_CL);
-            lower_weight = fabs(CL_level-upper_CL);
+            upper_weight = 1./fabs(CL_level-lower_CL);
+            lower_weight = 1./fabs(CL_level-upper_CL);
 
             }
         else
             upper_weight=lower_weight=1.;
 
-        temp_ratio=m_weighted_average(upper_ratio,
-                                      upper_weight,
-                                      lower_ratio,
-                                      lower_weight);
-
+        if (do_average)
+            temp_ratio=m_weighted_average(upper_ratio,
+                                          upper_weight,
+                                          lower_ratio,
+                                          lower_weight);
+        else
+            std::cout << "Not averaging!\n";
         // Reassign the new value
         temp_CL = m_get_CLs(temp_ratio,n_toys,m2lnQ);
 
@@ -253,6 +264,16 @@ RatioFinderResults* RatioFinder::findRatio(unsigned int n_toys,
 
         m_points[upper_ratio]=lower_CL;
         m_points[lower_ratio]=upper_CL;
+
+        if (is_verbose()){
+            std::cout<<"\n\n\n-----------------------------------------------\n"
+                      << "Scan situation:\n"
+                      << " - Left side (Low Ratio, High CL) = ("
+                      << lower_ratio << "," << upper_CL << ")\n"
+                      << " - Right side (High Ratio, Low CL) = ("
+                      << upper_ratio << "," << lower_CL << ")\n"
+                      << "-----------------------------------------------\n\n";
+            }
 
         attempts-=1;
         }
@@ -332,7 +353,7 @@ double RatioFinder::m_get_CLs(double ratio,
     LimitResults* res = m_get_LimitResults(n_toys);
 
 
-    LimitPlot* p = res->getPlot("temp","temp",100);
+    LimitPlot* p = res->getPlot("temp","temp",m_nbins);
     p->draw();
     TH1F* b_histo = p->getBhisto();
     m2lnQ_on_data = Rsc::getMedian(b_histo);
@@ -357,7 +378,7 @@ double RatioFinder::m_get_CLs(double ratio,
 
     plot_name.ReplaceAll(" ",""); // remove the spaces of the double
 
-    p=res->getPlot(plot_name.Data(),plot_name.Data(),100);
+    p=res->getPlot(plot_name.Data(),plot_name.Data(),m_nbins);
 
     p->draw();
 
@@ -366,6 +387,8 @@ double RatioFinder::m_get_CLs(double ratio,
     // end of the control plots creation
 
     double CLs=res->getCLs();
+
+    std::cout << "For ratio " << ratio << " CLs is " << CLs << std::endl;
 
     delete p;
     delete res;
