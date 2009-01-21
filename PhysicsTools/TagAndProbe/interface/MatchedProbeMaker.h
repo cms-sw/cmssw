@@ -54,7 +54,7 @@ template< typename T >
 MatchedProbeMaker<T>::MatchedProbeMaker(const edm::ParameterSet& iConfig) :
    m_candidateSource(iConfig.getUntrackedParameter<edm::InputTag>("CandidateSource")),
    m_referenceSource(iConfig.getUntrackedParameter<edm::InputTag>("ReferenceSource")),
-   m_resMatchMapSource(iConfig.getUntrackedParameter<edm::InputTag>("ResMatchMapSource")),
+   m_resMatchMapSource(iConfig.getUntrackedParameter<edm::InputTag>("ResMatchMapSource",edm::InputTag("Dummy"))),
    matched_(iConfig.getUntrackedParameter< bool >("Matched",true))
 {
    //register your products
@@ -80,21 +80,21 @@ void MatchedProbeMaker<T>::produce(edm::Event& iEvent, const edm::EventSetup& iS
   // Get the candidates from the event
   edm::Handle< edm::RefVector< collection > > Cands;
   bool bool1 = iEvent.getByLabel(m_candidateSource,Cands);
-  LogTrace("MatchedProbeMaker") << " Cands exist: " << bool1;
-  if(bool1) LogTrace("MatchedProbeMaker") << " with " << Cands->size() << " entries";
+//   std::cout << " Cands exist: " << bool1 << std::endl;
+//   if(bool1) std::cout << " with " << Cands->size() << " entries" << std::endl;
   
   // Get the references from the event (the probes)
   //edm::Handle< edm::RefVector< collection > > Refs;
   edm::Handle< reco::CandidateView > Refs;
   bool bool2 = iEvent.getByLabel(m_referenceSource,Refs);
-  LogTrace("MatchedProbeMaker") << " Refs exist: " << bool2;
-  if(bool2) LogTrace("MatchedProbeMaker") << " with " << Refs->size() << " entries";
+//   std::cout << " Refs exist: " << bool2 << std::endl;
+//   if(bool2) std::cout << " with " << Refs->size() << " entries" << std::endl;
   
   // Get the resolution matching map from the event
   edm::Handle<reco::CandViewMatchMap> ResMatchMap;
   bool bool3 = iEvent.getByLabel(m_resMatchMapSource,ResMatchMap);
-  LogTrace("MatchedProbeMaker") << " Map exist: " << bool3;
-  if(bool3) LogTrace("MatchedProbeMaker") << " with " << ResMatchMap->size() << " entries"; 
+//   std::cout << " Map exist: " << bool3 << std::endl;
+//   if(bool3) std::cout << " with " << ResMatchMap->size() << " entries" << std::endl; 
   
   if(bool3){
     // Loop over the candidates looking for a match
@@ -127,8 +127,8 @@ void MatchedProbeMaker<T>::produce(edm::Event& iEvent, const edm::EventSetup& iS
 	reco::CandidateBaseRef refBaseRef( RefRef );
 	
 	if(overlap(*CandRef,*RefRef)) {
-	  LogTrace("MatchedProbeMaker") << " Candidate OVERLAP! ";
-	  ppass = true; 
+	   //std::cout << " Candidate OVERLAP! " << std::endl;
+	   ppass = true; 
 	}
       }
       
@@ -137,7 +137,7 @@ void MatchedProbeMaker<T>::produce(edm::Event& iEvent, const edm::EventSetup& iS
     }  
   }
   
-  LogTrace("MatchedProbeMaker") << " OverlapCandidates: " << outputCollection_matched->size();
+  //std::cout << " OverlapCandidates: " << outputCollection_matched->size() << std::endl;
   if( matched_ ) iEvent.put( outputCollection_matched );
   else           iEvent.put( outputCollection_unmatched );
   

@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Wed Oct  8 11:08:22 CDT 2008
-// $Id$
+// $Id: TrgMatchedMuonRefProducer.h,v 1.1 2008/10/13 20:45:39 neadam Exp $
 //
 
 // system include files
@@ -51,28 +51,18 @@ class TrgMatchedMuonRefProducer : public edm::EDProducer
       virtual void endJob() ;
       
 
-      bool MatchObjects( const trigger::TriggerObject& hltObj, 
-			 const reco::CandidateBaseRef& tagObj,
-			 bool exact = true );
-      
-      
       // ----------member data ---------------------------
       
       edm::InputTag probeCollection_;
 
       edm::InputTag triggerEventTag_;
-      edm::InputTag hltL1Tag_;
-      edm::InputTag hltTag_;
-
+      std::vector<edm::InputTag> muonFilterTags_;
 
       // Matching parameters
       double delRMatchingCut_;
       double delPtRelMatchingCut_;
 
-
       // Some details about the matching
-      bool simpleMatching_;
-      bool doL1Matching_;
       bool usePtMatching_;
 
       // ----------member data ---------------------------

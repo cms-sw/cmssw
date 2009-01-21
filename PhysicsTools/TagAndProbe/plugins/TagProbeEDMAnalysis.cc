@@ -82,6 +82,8 @@ TagProbeEDMAnalysis::TagProbeEDMAnalysis(const edm::ParameterSet& iConfig)
    massLow_        = iConfig.getUntrackedParameter< double >("MassLow",0.0);
    massHigh_       = iConfig.getUntrackedParameter< double >("MassHigh",100.0);
 
+   inweight_         = iConfig.getUntrackedParameter< double >("Weight",1.0);
+
    // The efficiency binning variables (default pt and eta)
    vector< double > dBins;
    var1Name_       = iConfig.getUntrackedParameter< string >("NameVar1","pt");
@@ -251,8 +253,8 @@ TagProbeEDMAnalysis::TagProbeEDMAnalysis(const edm::ParameterSet& iConfig)
 
    // 1. CMS Background Line Shape
    fitCMSBkgLineShape_ = false;
-   ParameterSet dBkgLineShape;
-   CMSBkgLineShape_ = iConfig.getUntrackedParameter< edm::ParameterSet >("CMSBkgLineShape",dBkgLineShape);
+   ParameterSet dCMSBkgLineShape;
+   CMSBkgLineShape_ = iConfig.getUntrackedParameter< edm::ParameterSet >("CMSBkgLineShape",dCMSBkgLineShape);
 
    vector<double> dBAl;
    dBAl.push_back(63.0);
@@ -268,6 +270,38 @@ TagProbeEDMAnalysis::TagProbeEDMAnalysis(const edm::ParameterSet& iConfig)
    dBGam.push_back(0.0);
    dBGam.push_back(1.0);
    cmsBkgGamma_        = CMSBkgLineShape_.getUntrackedParameter< vector<double> >("CMSBkgGamma",dBGam);
+
+   // 2. Polynomial Background Line Shape
+   fitPolyBkgLineShape_ = false;
+   ParameterSet dPolyBkgLineShape;
+   PolyBkgLineShape_ = iConfig.getUntrackedParameter< edm::ParameterSet >("PolyBkgLineShape",dPolyBkgLineShape);
+
+   vector<double> dC0;
+   dC0.push_back(0);
+   dC0.push_back(0);
+   dC0.push_back(10000);
+   polyBkgC0_        = PolyBkgLineShape_.getUntrackedParameter< vector<double> >("PolyBkgC0",dC0); 
+   vector<double> dC1;
+   dC1.push_back(1.0);
+   dC1.push_back(-1000);
+   dC1.push_back(1000);
+   polyBkgC1_        = PolyBkgLineShape_.getUntrackedParameter< vector<double> >("PolyBkgC1",dC1); 
+   vector<double> dC2;
+   dC2.push_back(0);
+   dC2.push_back(-1000);
+   dC2.push_back(1000);
+   polyBkgC2_        = PolyBkgLineShape_.getUntrackedParameter< vector<double> >("PolyBkgC2",dC2); 
+   vector<double> dC3;
+   dC3.push_back(0);
+   dC3.push_back(-1000);
+   dC3.push_back(1000);
+   polyBkgC3_        = PolyBkgLineShape_.getUntrackedParameter< vector<double> >("PolyBkgC3",dC3); 
+   vector<double> dC4;
+   dC4.push_back(0);
+   dC4.push_back(-1000);
+   dC4.push_back(1000);
+   polyBkgC4_        = PolyBkgLineShape_.getUntrackedParameter< vector<double> >("PolyBkgC4",dC4); 
+
 
    vector<double> dEff;
    dEff.push_back(0.98);
@@ -472,7 +506,7 @@ TagProbeEDMAnalysis::analyze(const edm::Event& iEvent,
 	for( int i=0; i<nrTP; ++i ) {
 	  if( (*tp_type)[i] != tagProbeType_ ) continue;
 	 
-	  Weight_ = 1.0;
+	  Weight_ = inweight_;
 	  ProbePass_ = (*tp_ppass)[i];
 	  Mass_ = (double)(*tp_mass)[i];
 	  Var1_ = (double)(*tp_probe_var1)[i];
@@ -1420,45 +1454,98 @@ void TagProbeEDMAnalysis::makeSignalPdf( )
 // ***** Function to return the background Pdf depending on the users choice of fit func ******* //
 void TagProbeEDMAnalysis::makeBkgPdf( )
 {
-   // So we can clean up ...
-   fitCMSBkgLineShape_ = true;
-
-   // Background PDF variables
-   rooCMSBkgPeak_  = new RooRealVar("cmsBkgPeak","cmsBkgPeak",cmsBkgPeak_[0]);
-   rooCMSBkgBeta_ = new RooRealVar("cmsBkgBeta","cmsBkgBeta",cmsBkgBeta_[0]);
-   rooCMSBkgAlpha_ = new RooRealVar("cmsBkgAlpha","cmsBkgAlpha",cmsBkgAlpha_[0]);
-   rooCMSBkgGamma_     = new RooRealVar("cmsBkgGamma","cmsBkgGamma",cmsBkgGamma_[0]);
-
-   // If the user has specified a range, let the bkg shape 
-   // variables float in the fit
-   if( cmsBkgAlpha_.size() == 3 )
+   if( !PolyBkgLineShape_.empty() )
    {
-      rooCMSBkgAlpha_->setRange(cmsBkgAlpha_[1],cmsBkgAlpha_[2]);
-      rooCMSBkgAlpha_->setConstant(false);
-   }
-   if( cmsBkgBeta_.size() == 3 )
-   {
-      rooCMSBkgBeta_->setRange(cmsBkgBeta_[1],cmsBkgBeta_[2]);
-      rooCMSBkgBeta_->setConstant(false);
-   }
-   if( cmsBkgGamma_.size() == 3 )
-   {
-      rooCMSBkgGamma_->setRange(cmsBkgGamma_[1],cmsBkgGamma_[2]);
-      rooCMSBkgGamma_->setConstant(false);
-   }
-   if( cmsBkgPeak_.size() == 3 )
-   {
-      rooCMSBkgPeak_->setRange(cmsBkgPeak_[1],cmsBkgPeak_[2]);
-      rooCMSBkgPeak_->setConstant(false);
-   }
+      // So we can clean up
+      fitPolyBkgLineShape_ = true;
 
-   rooCMSBkgPdf_ = new RooCMSShapePdf("cmsBkgPdf","cmsBkgPdf",*rooMass_,*rooCMSBkgAlpha_,
-   *rooCMSBkgBeta_,*rooCMSBkgGamma_,*rooCMSBkgPeak_);
+      // Background PDF variables
+      rooPolyBkgC0_ = new RooRealVar("polyBkgC0","polyBkgC0",polyBkgC0_[0]);
+      rooPolyBkgC1_ = new RooRealVar("polyBkgC1","polyBkgC1",polyBkgC1_[0]);
+      rooPolyBkgC2_ = new RooRealVar("polyBkgC2","polyBkgC2",polyBkgC2_[0]);
+      rooPolyBkgC3_ = new RooRealVar("polyBkgC3","polyBkgC3",polyBkgC3_[0]);
+      rooPolyBkgC4_ = new RooRealVar("polyBkgC4","polyBkgC4",polyBkgC4_[0]);
 
-   rooCMSBkgDummyFrac_ = new RooRealVar("dummyFrac","dummyFrac",1.0);
+      // If the user has specified a range, let the bkg shape 
+      // variables float in the fit
+      if( polyBkgC0_.size() == 3 )
+      {
+	 rooPolyBkgC0_->setRange(polyBkgC0_[1],polyBkgC0_[2]);
+	 rooPolyBkgC0_->setConstant(false);
+      }
+      if( polyBkgC1_.size() == 3 )
+      {
+	 rooPolyBkgC1_->setRange(polyBkgC1_[1],polyBkgC1_[2]);
+	 rooPolyBkgC1_->setConstant(false);
+      }
+      if( polyBkgC2_.size() == 3 )
+      {
+	 rooPolyBkgC2_->setRange(polyBkgC2_[1],polyBkgC2_[2]);
+	 rooPolyBkgC2_->setConstant(false);
+      }
+      if( polyBkgC3_.size() == 3 )
+      {
+	 rooPolyBkgC3_->setRange(polyBkgC3_[1],polyBkgC3_[2]);
+	 rooPolyBkgC3_->setConstant(false);
+      }
+      if( polyBkgC4_.size() == 3 )
+      {
+	 rooPolyBkgC4_->setRange(polyBkgC4_[1],polyBkgC4_[2]);
+	 rooPolyBkgC4_->setConstant(false);
+      }
 
-   bkgShapePdf_ = new RooAddPdf("bkgShapePdf", "bkgShapePdf",
-   *rooCMSBkgPdf_,*rooCMSBkgPdf_,*rooCMSBkgDummyFrac_);
+      rooPolyBkgPdf_ = new RooPolynomial("polyBkgPdf","polyBkgPdf",*rooMass_,
+      RooArgList(*rooPolyBkgC0_,*rooPolyBkgC1_,*rooPolyBkgC2_,*rooPolyBkgC3_,*rooPolyBkgC4_),0);
+
+      rooPolyBkgDummyFrac_ = new RooRealVar("dummyFrac","dummyFrac",1.0);
+
+      bkgShapePdf_ = new RooAddPdf("bkgShapePdf", "bkgShapePdf",
+      *rooPolyBkgPdf_,*rooPolyBkgPdf_,*rooPolyBkgDummyFrac_);
+
+   }
+   else
+   {
+  
+      // So we can clean up ...
+      fitCMSBkgLineShape_ = true;
+
+      // Background PDF variables
+      rooCMSBkgPeak_  = new RooRealVar("cmsBkgPeak","cmsBkgPeak",cmsBkgPeak_[0]);
+      rooCMSBkgBeta_ = new RooRealVar("cmsBkgBeta","cmsBkgBeta",cmsBkgBeta_[0]);
+      rooCMSBkgAlpha_ = new RooRealVar("cmsBkgAlpha","cmsBkgAlpha",cmsBkgAlpha_[0]);
+      rooCMSBkgGamma_     = new RooRealVar("cmsBkgGamma","cmsBkgGamma",cmsBkgGamma_[0]);
+
+      // If the user has specified a range, let the bkg shape 
+      // variables float in the fit
+      if( cmsBkgAlpha_.size() == 3 )
+      {
+	 rooCMSBkgAlpha_->setRange(cmsBkgAlpha_[1],cmsBkgAlpha_[2]);
+	 rooCMSBkgAlpha_->setConstant(false);
+      }
+      if( cmsBkgBeta_.size() == 3 )
+      {
+	 rooCMSBkgBeta_->setRange(cmsBkgBeta_[1],cmsBkgBeta_[2]);
+	 rooCMSBkgBeta_->setConstant(false);
+      }
+      if( cmsBkgGamma_.size() == 3 )
+      {
+	 rooCMSBkgGamma_->setRange(cmsBkgGamma_[1],cmsBkgGamma_[2]);
+	 rooCMSBkgGamma_->setConstant(false);
+      }
+      if( cmsBkgPeak_.size() == 3 )
+      {
+	 rooCMSBkgPeak_->setRange(cmsBkgPeak_[1],cmsBkgPeak_[2]);
+	 rooCMSBkgPeak_->setConstant(false);
+      }
+
+      rooCMSBkgPdf_ = new RooCMSShapePdf("cmsBkgPdf","cmsBkgPdf",*rooMass_,*rooCMSBkgAlpha_,
+      *rooCMSBkgBeta_,*rooCMSBkgGamma_,*rooCMSBkgPeak_);
+
+      rooCMSBkgDummyFrac_ = new RooRealVar("dummyFrac","dummyFrac",1.0);
+
+      bkgShapePdf_ = new RooAddPdf("bkgShapePdf", "bkgShapePdf",
+      *rooCMSBkgPdf_,*rooCMSBkgPdf_,*rooCMSBkgDummyFrac_);
+   }
 
    return;
 }
@@ -1509,6 +1596,7 @@ void TagProbeEDMAnalysis::doFit( std::string &bvar1, std::vector< double > bins1
    cout << "Made dataset" << endl;
    RooDataHist *bdata = new RooDataHist("bdata","Binned Data",
    RooArgList(Mass,ProbePass),*data);
+   cout << "Made binned data: Weighted = " << bdata->isWeighted() << endl;
 
    // ********** Construct signal shape PDF ********** //
 
@@ -1571,8 +1659,22 @@ void TagProbeEDMAnalysis::doFit( std::string &bvar1, std::vector< double > bins1
    // Count the number of passing and failing probes in the region
    // making sure we have enough to fit ...
    cout << "About to count the number of events" << endl;
-   int npassR = (int)data->sumEntries("ProbePass==1");
-   int nfailR = (int)data->sumEntries("ProbePass==0");
+   stringstream passCond;
+   passCond.str(std::string());
+   passCond << "ProbePass==1 && Mass<" << massHigh_ << " && Mass>" << massLow_
+	    << " && " << bvar1 << "<" << highEdge1 << " && " << bvar1 << ">"
+	    << lowEdge1 << " && " << bvar2 << "<" << highEdge2 << " && " 
+	    << bvar2 << ">" << lowEdge2;
+   cout << passCond.str() << endl;
+   stringstream failCond;
+   failCond.str(std::string());
+   failCond << "ProbePass==0 && Mass<" << massHigh_ << " && Mass>" << massLow_
+	    << " && " << bvar1 << "<" << highEdge1 << " && " << bvar1 << ">"
+	    << lowEdge1 << " && " << bvar2 << "<" << highEdge2 << " && " 
+	    << bvar2 << ">" << lowEdge2;
+   cout << failCond.str() << endl;
+   int npassR = (int)data->sumEntries(passCond.str().c_str());
+   int nfailR = (int)data->sumEntries(failCond.str().c_str());
    cout << "Num pass " << npassR << endl;
    cout << "Num fail " << nfailR << endl;
 
@@ -1608,10 +1710,27 @@ void TagProbeEDMAnalysis::doFit( std::string &bvar1, std::vector< double > bins1
    // Return if there's nothing to fit
    if( npassR==0 && nfailR==0 ) return;
 
+   if( npassR==0 )
+   {
+      efficiency.setVal(0.0);
+      efficiency.setConstant(true);
+      numBkgPass.setVal(0.0);
+      numBkgPass.setConstant(true);
+   }
+   else if( nfailR==0 )
+   {
+      efficiency.setVal(1.0);
+      efficiency.setConstant(true);
+      numBkgFail.setVal(0.0);
+      numBkgFail.setConstant(true);
+   }
+
    cout << "**** About to start the fitter ****" << endl;
 
    // ********* Do the Actual Fit ********** //  
    RooFitResult *fitResult = 0;
+   RooAbsData::ErrorType fitError = RooAbsData::SumW2;
+   //RooAbsData::ErrorType fitError = RooAbsData::Poisson;
 
    // The user chooses between binnned/unbinned fitting
    if( unbinnedFit_ )
@@ -1630,7 +1749,7 @@ void TagProbeEDMAnalysis::doFit( std::string &bvar1, std::vector< double > bins1
    else
    {
       cout << "Starting binned fit using Chi2." << endl;
-      RooChi2Var chi2("chi2","chi2",totalPdf,*bdata,DataError(RooAbsData::SumW2),Extended(kTRUE));
+      RooChi2Var chi2("chi2","chi2",totalPdf,*bdata,DataError(fitError),Extended(kTRUE));
       RooMinuit m(chi2);
       m.setErrorLevel(0.5); // <<< HERE
       m.setStrategy(2);
@@ -1702,29 +1821,35 @@ void TagProbeEDMAnalysis::doFit( std::string &bvar1, std::vector< double > bins1
    RooPlot* frame1 = Mass.frame();
    frame1->SetTitle("Passing Tag-Probes");
    frame1->SetName("pass");
-   data->plotOn(frame1,Cut("ProbePass==1"));
+   data->plotOn(frame1,Cut("ProbePass==1"),DataError(fitError));
    ProbePass.setLabel("pass");
-   totalPdf.plotOn(frame1,Slice(ProbePass),Components(*bkgShapePdf_),
-   LineColor(kRed),ProjWData(Mass,*data));
-   totalPdf.plotOn(frame1,Slice(ProbePass),ProjWData(Mass,*data),Precision(1e-5));
+   if( npassR > 0 )
+   {
+      totalPdf.plotOn(frame1,Slice(ProbePass),Components(*bkgShapePdf_),
+      LineColor(kRed),ProjWData(Mass,*data));
+      totalPdf.plotOn(frame1,Slice(ProbePass),ProjWData(Mass,*data),Precision(1e-5));
+   }
    frame1->Draw("e0");
 
    lhs->cd(2);
    RooPlot* frame2 = Mass.frame();
    frame2->SetTitle("Failing Tag-Probes");
    frame2->SetName("fail");
-   data->plotOn(frame2,Cut("ProbePass==0"));
+   data->plotOn(frame2,Cut("ProbePass==0"),DataError(fitError));
    ProbePass.setLabel("fail");
-   totalPdf.plotOn(frame2,Slice(ProbePass),Components(*bkgShapePdf_),
-   LineColor(kRed),ProjWData(Mass,*data));
-   totalPdf.plotOn(frame2,Slice(ProbePass),ProjWData(Mass,*data),Precision(1e-5));
+   if( nfailR > 0 )
+   {
+      totalPdf.plotOn(frame2,Slice(ProbePass),Components(*bkgShapePdf_),
+      LineColor(kRed),ProjWData(Mass,*data));
+      totalPdf.plotOn(frame2,Slice(ProbePass),ProjWData(Mass,*data),Precision(1e-5));
+   }
    frame2->Draw("e0");
 
    c->cd(2);
    RooPlot* frame3 = Mass.frame();
    frame3->SetTitle("All Tag-Probes");
    frame3->SetName("total");
-   data->plotOn(frame3);
+   data->plotOn(frame3,DataError(fitError));
    totalPdf.plotOn(frame3,Components(*bkgShapePdf_),
    LineColor(kRed),ProjWData(Mass,*data));
    totalPdf.plotOn(frame3,ProjWData(Mass,*data),Precision(1e-5));

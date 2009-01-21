@@ -4,7 +4,7 @@
 //
 // Original Author: Nadia Adam (Princeton University) 
 //         Created:  Fri May 16 16:48:24 CEST 2008
-// $Id: TagProbeEDMAnalysis.h,v 1.7 2008/10/22 20:45:51 neadam Exp $
+// $Id: TagProbeEDMAnalysis.h,v 1.8 2008/12/10 18:45:36 neadam Exp $
 //
 //
 // Kalanand Mishra: July 1, 2008 
@@ -64,6 +64,7 @@
 #include <RooMinuit.h>
 #include <RooNLLVar.h>
 #include <RooPlot.h>
+#include <RooPolynomial.h>
 #include <RooRealVar.h>
 #include <RooSimultaneous.h>
 #include <RooTreeData.h>
@@ -137,6 +138,8 @@ class TagProbeEDMAnalysis : public edm::EDAnalyzer
       int massNbins_;           // Number of bins in the fit
       double massLow_;          // Lower bound for fit range
       double massHigh_;         // Upper bound for fit range
+
+      double inweight_;
       
       std::string var1Name_;          // Name of variable one (default pt)
       std::string var1NameUp_;        // Name of variable one uppercase (default Pt)
@@ -247,12 +250,31 @@ class TagProbeEDMAnalysis : public edm::EDAnalyzer
 
       RooCMSShapePdf *rooCMSBkgPdf_;
 
+      // 2. Polynomial background shape (up to 4th order)
+      bool fitPolyBkgLineShape_;
+      edm::ParameterSet PolyBkgLineShape_;
+      std::vector<double> polyBkgC0_;
+      std::vector<double> polyBkgC1_;
+      std::vector<double> polyBkgC2_;
+      std::vector<double> polyBkgC3_;
+      std::vector<double> polyBkgC4_;
+
+      RooRealVar *rooPolyBkgC0_;
+      RooRealVar *rooPolyBkgC1_;
+      RooRealVar *rooPolyBkgC2_;
+      RooRealVar *rooPolyBkgC3_;
+      RooRealVar *rooPolyBkgC4_;
+      RooRealVar *rooPolyBkgDummyFrac_;
+
+      RooPolynomial *rooPolyBkgPdf_;
+
       void cleanFitVariables()
       {
 	 if( !calcEffsFitter_ ) return;
 
 	 if( rooMass_ != NULL )               delete rooMass_;
 	 if( signalShapePdf_ != NULL )        delete signalShapePdf_;
+	 if( bkgShapePdf_ != NULL )           delete bkgShapePdf_;
 
 	 // Clean Z line shape
 	 if( fitZLineShape_ )
@@ -301,12 +323,24 @@ class TagProbeEDMAnalysis : public edm::EDAnalyzer
 	 if( fitCMSBkgLineShape_ )
 	 {
 	    // Clean CMS Bkg line shape
-	    if( rooCMSBkgAlpha_ != NULL )          delete rooCMSBkgAlpha_;
-	    if( rooCMSBkgBeta_ != NULL )           delete rooCMSBkgBeta_;
-	    if( rooCMSBkgPeak_ != NULL )           delete rooCMSBkgPeak_;
-	    if( rooCMSBkgGamma_ != NULL )          delete rooCMSBkgGamma_;
-	    if( rooCMSBkgDummyFrac_ != NULL )      delete rooCMSBkgDummyFrac_;
-	    if( rooCMSBkgPdf_ != NULL )            delete rooCMSBkgPdf_;
+	    if( rooCMSBkgAlpha_ != NULL )      delete rooCMSBkgAlpha_;
+	    if( rooCMSBkgBeta_ != NULL )       delete rooCMSBkgBeta_;
+	    if( rooCMSBkgPeak_ != NULL )       delete rooCMSBkgPeak_;
+	    if( rooCMSBkgGamma_ != NULL )      delete rooCMSBkgGamma_;
+	    if( rooCMSBkgDummyFrac_ != NULL )  delete rooCMSBkgDummyFrac_;
+	    if( rooCMSBkgPdf_ != NULL )        delete rooCMSBkgPdf_;
+	 }
+
+	 if( fitPolyBkgLineShape_ )
+	 {
+	    // Clean the polynomial background line shape
+	    if( rooPolyBkgC0_ != NULL )        delete rooPolyBkgC0_;
+	    if( rooPolyBkgC1_ != NULL )        delete rooPolyBkgC1_;
+	    if( rooPolyBkgC2_ != NULL )        delete rooPolyBkgC2_;
+	    if( rooPolyBkgC3_ != NULL )        delete rooPolyBkgC3_;
+	    if( rooPolyBkgC4_ != NULL )        delete rooPolyBkgC4_;
+	    if( rooPolyBkgDummyFrac_ != NULL ) delete rooPolyBkgDummyFrac_;
+	    if( rooPolyBkgPdf_ != NULL )       delete rooPolyBkgPdf_;
 	 }
       }
 
