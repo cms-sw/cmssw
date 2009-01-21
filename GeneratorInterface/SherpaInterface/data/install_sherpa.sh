@@ -191,16 +191,16 @@ if [ "$HEPMC" = "TRUE" ]; then
     echo " -> HepMC2 directory is: "${HEPMC2DIR}
     if [ ! -e ${HEPMC2DIR} ]; then
       echo " -> ... and does not exist: installing HepMC2..."
-      echo " -> ... with options: "${OPTHEPMC}
+      echo " -> ... with command "${MSI}/${shhmifile} ${IFLG} ${FLOC} ${OPTHEPMC}
       ${MSI}/${shhmifile} ${IFLG} ${FLOC} ${OPTHEPMC}
     else
       echo " -> ... and exists: Installation cancelled!"
     fi
   else
-#    export HEPMC2DIR=${IDIR}"/HepMC-"${HVER}
     export HEPMC2IDIR=${IDIR}"/HEPMC_"${HVER}
     echo " -> no HepMC2 directory specified, trying installation"
     echo "     into "${HEPMC2IDIR}
+    echo "     with command "${MSI}/${shhmifile} ${IFLG} ${FLOC} ${OPTHEPMC}
     ${MSI}/${shhmifile} ${IFLG} ${FLOC} ${OPTHEPMC}
     export HEPMC2DIR=${HEPMC2IDIR}
   fi
@@ -225,19 +225,19 @@ if [ "$LHAPDF" = "TRUE" ]; then
     echo " -> LHAPDF directory is: "${LHAPDFDIR}
     if [ ! -e ${LHAPDFDIR} ]; then
       echo " -> ... and does not exist: installing LHAPDF..."
-      echo " -> ... with options: "${OPTLHAPDF}
+      echo " -> ... with command "${MSI}/${shlhifile} ${IFLG} ${FLOC} ${OPTLHAPDF}
       ${MSI}/${shlhifile} ${IFLG} ${FLOC} ${OPTLHAPDF}
     else
       echo " -> ... and exists: Installation cancelled!"
     fi
   else
-#    export LHAPDFDIR=${IDIR}"/lhapdf-"${LVER}
     export LHAPDFIDIR=${IDIR}"/LHAPDF_"${LVER}
     echo " -> no LHAPDF directory specified, trying installation"
     echo "     into "${LHAPDFIDIR}
+    echo "     with command "${MSI}/${shlhifile} ${IFLG} ${FLOC} ${OPTLHAPDF}
     ${MSI}/${shlhifile} ${IFLG} ${FLOC} ${OPTLHAPDF}
     export LHAPDFDIR=${LHAPDFIDIR}
- fi
+  fi
   PATCHLHAPDF=TRUE
   FIXLHAPDF=TRUE
  ###FIXME
@@ -250,8 +250,7 @@ if [ "$LHAPDF" = "TRUE" ]; then
   fi
 ###FIXME
 fi
-#echo "STOP"
-#sleep 1000
+
 
 # download and extract SHERPA
 cd ${IDIR}

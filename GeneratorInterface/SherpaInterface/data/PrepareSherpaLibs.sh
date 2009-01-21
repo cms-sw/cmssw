@@ -519,6 +519,7 @@ if [ "${imode}" = "LOCAL" ] || [ "${imode}" = "CRAB" ]; then
   shpacfgfile="sherpa_cfg.py"
   shpaoutfile="sherpa_out.root"
   build_python_cfi ${shpacfifile}
+#  build_python_cfi_NEW ${shpacfifile}
   mv ${shpacfifile}   ${MYCMSSWPYTH}
   mv sherpa_custom.py ${MYCMSSWPYTH}
   build_python_cfg ${shpacfgfile} ${shpaoutfile} ${shpacfifile} ${MYANADIR}
