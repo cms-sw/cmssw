@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Id: FWCaloTowerRPZProxyBuilder.cc,v 1.1 2009/01/19 17:59:13 amraktad Exp $
+// $Id: FWCaloTowerRPZProxyBuilder.cc,v 1.2 2009/01/19 19:26:00 amraktad Exp $
 //
 
 // system include files
@@ -56,17 +56,16 @@ void FWCaloTowerRPZProxyBuilderBase::build(const FWEventItem* iItem, TEveElement
       m_sliceIndex = m_data->AddHistogram(m_hist);
       m_data->RefSliceInfo(m_sliceIndex).Setup(m_histName, 0., iItem->defaultDisplayProperties().color());
    }
-
    if ( m_calo3d == 0 ) {
-      m_calo3d = new TEveCalo3D(m_data);
+      m_calo3d = new TEveCalo3D(m_data, "RPZCalo3D");
       m_calo3d->SetBarrelRadius(129);
       m_calo3d->SetEndCapPos(310);
-   }
-   if( *product == 0) {
-      *product = new TEveElementList();
-      //Since m_calo3d can be shared by multiple proxy builders we have to
-      // be sure it gets attached to multiple outputs
-      (*product)->AddElement(m_calo3d);
+      if ( *product == 0)
+      {
+         *product = new TEveElementList("RPZCalo3DHolder");
+         (*product)->AddElement(m_calo3d); 
+         gEve->AddElement(*product);
+      }
    }
 }
 
