@@ -18,6 +18,11 @@ RecoMuonAOD = cms.PSet(
     'keep recoMuons_TKMuons_*_*', 
     'keep recoMuons_GLBMuons_*_*', 
 
+    # Splitted tracks
+    'keep recoTracks_globalCosmicSplittedMuons_*_*', 
+    'keep recoTrackExtras_globalCosmicSplittedMuons_*_*', 
+    'keep TrackingRecHitsOwned_globalCosmicSplittedMuons_*_*', 
+    'keep recoMuons_splittedMuons_*_*', 
 
     # cosmic reco without RPC
     'keep recoTracks_cosmicMuonsNoRPC_*_*', 
@@ -94,7 +99,8 @@ RecoMuonAOD = cms.PSet(
 
     # Tracker Collections
     'keep recoTracks_ctfWithMaterialTracksP5_*_*', 
-    'keep recoTracks_ctfWithMaterialTracksBeamHaloMuon_*_*')
+    'keep recoTracks_ctfWithMaterialTracksBeamHaloMuon_*_*',
+    'keep recoTracks_ctfWithMaterialTracksP5LHCNavigation_*_*')
     )
 # RECO content
 RecoMuonRECO = cms.PSet(
