@@ -98,8 +98,11 @@ PFBlockProducer::PFBlockProducer(const edm::ParameterSet& iConfig) {
   string map_HCAL_phi 
     = iConfig.getParameter<string>("pf_resolution_map_HCAL_phi"); 
 	
-  double DPtovPtCut 
-     = iConfig.getParameter<double>("pf_DPtoverPt_Cut");   
+  std::vector<double> DPtovPtCut 
+     = iConfig.getParameter<std::vector<double> >("pf_DPtoverPt_Cut");   
+
+  std::vector<unsigned> NHitCut 
+     = iConfig.getParameter<std::vector<unsigned> >("pf_NHit_Cut");   
 
   double chi2_ECAL_PS 
      = iConfig.getParameter<double>("pf_chi2_ECAL_PS");  
@@ -137,6 +140,7 @@ PFBlockProducer::PFBlockProducer(const edm::ParameterSet& iConfig) {
 			      path_HCAL_eta.fullPath().c_str(),
 			      path_HCAL_phi.fullPath().c_str(),
 			      DPtovPtCut,
+			      NHitCut,
 			      chi2_ECAL_Track,
 			      chi2_ECAL_GSF,
 			      chi2_HCAL_Track,
@@ -276,9 +280,6 @@ void PFBlockProducer::produce(Event& iEvent,
     LogError("PFBlockProducer")<<" cannot get PS clusters: "
 			       <<inputTagPFClustersPS_<<endl;
     
-  
-
-  
   
   pfBlockAlgo_.setInput( recTracks, 
 			 GsfrecTracks,
