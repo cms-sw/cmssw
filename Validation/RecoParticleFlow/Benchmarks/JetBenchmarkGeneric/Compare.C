@@ -17,7 +17,7 @@ void PlotHisto(char* hname, TFile* f1, TFile* f2, unsigned algo1=0, unsigned alg
   h1->SetStats(0);
   h1->SetMinimum(0);
   
-  h1->Scale( h2->GetEntries()/h1->GetEntries() );
+  if ( h1->GetEntries() > 0 && h2->GetEntries() > 0 ) h1->Scale( h2->GetEntries()/h1->GetEntries() );
   
   h1->SetMarkerStyle(22);
   h1->SetMarkerSize(0.6);
@@ -32,6 +32,7 @@ void Compare(unsigned barrel,
 	     const char* fastInput, 
 	     const char* fullInput,
 	     const char* output,
+	     const char* title,
 	     unsigned algo1=0,
 	     unsigned algo2=0)
 {
@@ -85,6 +86,17 @@ void Compare(unsigned barrel,
     PlotHisto( hists[i].c_str(), f1, f2, algo1, algo2 );
   }
   /* */
+
+  c->cd(12);
+  TH1F* dummy = new TH1F();
+  dummy->SetTitle(title);
+  dummy->SetStats(0);
+  dummy->Draw();
+  TLegend *leg=new TLegend(0.1,0.6,0.9,0.9);
+  leg->AddEntry( dummy, title,"lp");
+  leg->SetTextSize(0.1);
+  leg->Draw();
+  
 
   c->SaveAs(output);
 
