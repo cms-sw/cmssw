@@ -9,7 +9,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWEveLegoView.cc,v 1.29 2008/11/18 21:56:16 chrjones Exp $
+// $Id: FWEveLegoView.cc,v 1.30 2008/11/26 02:18:03 chrjones Exp $
 //
 
 // system include files
@@ -46,6 +46,7 @@
 #include "TEveManager.h"
 #include "TEveElement.h"
 #include "TEveCalo.h"
+#include "TEveCaloData.h"
 #include "TEveElement.h"
 #include "TEveRGBAPalette.h"
 #include "TGLPerspectiveCamera.h"

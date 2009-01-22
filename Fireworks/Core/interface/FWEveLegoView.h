@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:37 EST 2008
-// $Id: FWEveLegoView.h,v 1.9 2008/11/06 22:05:22 amraktad Exp $
+// $Id: FWEveLegoView.h,v 1.10 2008/11/14 15:34:08 chrjones Exp $
 //
 
 // system include files
@@ -28,13 +28,9 @@
 #include "Fireworks/Core/interface/FWDoubleParameter.h"
 #include "Fireworks/Core/interface/FWEvePtr.h"
 
-#include "TEveCaloData.h"
-
 // forward declarations
 class TGFrame;
 class TGLEmbeddedViewer;
-class TEveCaloLego;
-class TEveCaloDataHist;
 class TEvePad;
 class TEveViewer;
 class TEveScene;
@@ -60,7 +56,6 @@ class FWEveLegoView : public FWViewBase
 
       // ---------- member functions ---------------------------
       void finishSetup();
-      //void draw(TEveCaloDataHist* data);
       virtual void setFrom(const FWConfiguration&);
       // set energy thresholds from the parameters
       void setMinEnergy();
@@ -86,8 +81,6 @@ class FWEveLegoView : public FWViewBase
       //double m_minEcalEnergyInit;
       //double m_minHcalEnergyInit;
 
-      //TEveCaloData::SliceInfo_t* m_ecalSlice;
-      //TEveCaloData::SliceInfo_t* m_hcalSlice;
 
       TGLMatrix*  m_cameraMatrix;
       TGLMatrix*  m_cameraMatrixBase;

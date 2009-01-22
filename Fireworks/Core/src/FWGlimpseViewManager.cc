@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 22:01:27 EST 2008
-// $Id: FWGlimpseViewManager.cc,v 1.12 2008/11/14 16:36:51 chrjones Exp $
+// $Id: FWGlimpseViewManager.cc,v 1.13 2008/12/02 21:15:47 chrjones Exp $
 //
 
 // system include files
@@ -19,11 +19,6 @@
 #include "TList.h"
 #include "TEveManager.h"
 #include "TClass.h"
-#include "TColor.h"
-#include "TRootEmbeddedCanvas.h"
-#include "TEveCaloData.h"
-#include "TEveElement.h"
-#include "TROOT.h"
 
 // user include files
 #include "Fireworks/Core/interface/FWGlimpseViewManager.h"

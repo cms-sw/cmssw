@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:37 EST 2008
-// $Id: FW3DView.h,v 1.5 2008/12/04 20:06:55 chrjones Exp $
+// $Id: FW3DView.h,v 1.6 2008/12/08 18:43:28 chrjones Exp $
 //
 
 // system include files
@@ -27,7 +27,6 @@
 #include "Fireworks/Core/interface/FWLongParameter.h"
 #include "Fireworks/Core/interface/FWDoubleParameter.h"
 #include "Fireworks/Core/interface/FWBoolParameter.h"
-#include "TEveCaloData.h"
 
 // forward declarations
 class TGFrame;

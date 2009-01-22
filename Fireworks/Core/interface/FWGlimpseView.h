@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:37 EST 2008
-// $Id: FWGlimpseView.h,v 1.7 2008/11/04 11:46:33 amraktad Exp $
+// $Id: FWGlimpseView.h,v 1.8 2008/11/06 22:05:23 amraktad Exp $
 //
 
 // system include files
@@ -27,7 +27,6 @@
 #include "Fireworks/Core/interface/FWLongParameter.h"
 #include "Fireworks/Core/interface/FWDoubleParameter.h"
 #include "Fireworks/Core/interface/FWBoolParameter.h"
-#include "TEveCaloData.h"
 
 // forward declarations
 class TGFrame;
