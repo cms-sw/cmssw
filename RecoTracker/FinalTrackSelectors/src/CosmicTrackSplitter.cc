@@ -117,22 +117,22 @@ namespace reco { namespace modules {
 	
 	CosmicTrackSplitter::CosmicTrackSplitter(const edm::ParameterSet &iConfig) :
     tracks_(iConfig.getParameter<edm::InputTag>("tracks")),
+    tjTag_(iConfig.getParameter<edm::InputTag>("tjTkAssociationMapTag") ),
     minimumHits_(iConfig.getParameter<uint32_t>("minimumHits")),
     replaceWithInactiveHits_(iConfig.getParameter<bool>("replaceWithInactiveHits")),
     stripFrontInvalidHits_(iConfig.getParameter<bool>("stripFrontInvalidHits")),
     stripBackInvalidHits_( iConfig.getParameter<bool>("stripBackInvalidHits") ),
     stripAllInvalidHits_(  iConfig.getParameter<bool>("stripAllInvalidHits")  ),
-    detsToIgnore_( iConfig.getParameter<std::vector<uint32_t> >("detsToIgnore") ),
-	dZcut_(iConfig.getParameter<double>("dzCut") ),
-	dXYcut_(iConfig.getParameter<double>("dxyCut") ),
-	tjTag_(iConfig.getParameter<edm::InputTag>("tjTkAssociationMapTag") )
+    dZcut_(iConfig.getParameter<double>("dzCut") ),
+    dXYcut_(iConfig.getParameter<double>("dxyCut") ),
+    detsToIgnore_( iConfig.getParameter<std::vector<uint32_t> >("detsToIgnore") )
 	{
 		// sanity check 
 		if (stripAllInvalidHits_ && replaceWithInactiveHits_) {
 			throw cms::Exception("Configuration") << "Inconsistent Configuration: you can't set both 'stripAllInvalidHits' and 'replaceWithInactiveHits' to true\n";
 		}
 		
-		std::cout << "sanity check" << std::endl;
+		LogDebug("CosmicTrackSplitter") << "sanity check";
 		
 		// sort detids to ignore
 		std::sort(detsToIgnore_.begin(), detsToIgnore_.end());
@@ -146,7 +146,7 @@ namespace reco { namespace modules {
 	void 
 	CosmicTrackSplitter::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) 
 	{
-		//std::cout << "IN THE SPLITTER!!!!!" << std::endl;	
+		LogDebug("CosmicTrackSplitter") << "IN THE SPLITTER!!!!!";
 		
 		// read with View, so we can read also a TrackRefVector
 		edm::Handle<std::vector<reco::Track> > tracks;
@@ -171,7 +171,7 @@ namespace reco { namespace modules {
 		
 		// Form pairs of trajectories and tracks
 		//ConstTrajTrackPairCollection trajTracks;
-		//std::cout << "size of map: " << m_TrajTracksMap.size() << std::endl;
+		LogDebug("CosmicTrackSplitter") << "size of map: " << m_TrajTracksMap->size();
 		int HITTOSPLITFROM = 0;
 		for ( TrajTrackAssociationCollection::const_iterator iPair = m_TrajTracksMap->begin(); iPair != m_TrajTracksMap->end(); iPair++ ){
 			const Trajectory* trajFromMap = &(*(*iPair).key);
@@ -196,7 +196,7 @@ namespace reco { namespace modules {
 				numberOfHits++;
 
 			}
-			std::cout << "number of rechits: " << numberOfHits << std::endl;
+			LogDebug("CosmicTrackSplitter") << "number of rechits: " << numberOfHits;
 			
 			// check if the trajectories and rechits are in reverse order...
 			trackingRecHit_iterator bIt = trackFromMap->recHitsBegin();
@@ -221,7 +221,7 @@ namespace reco { namespace modules {
 		for (std::vector<reco::Track>::const_iterator itt = tracks->begin(), edt = tracks->end(); itt != edt; ++itt) {
 			hits.clear(); // extra safety
 			
-			std::cout << "ntracks: " << tracks->size() << std::endl;
+			LogDebug("CosmicTrackSplitter") << "ntracks: " << tracks->size();
 			
 			// try to find distance of closest approach
 			math::XYZPoint refPoint = itt->referencePoint();
@@ -236,38 +236,38 @@ namespace reco { namespace modules {
 			// LOOP TWICE, ONCE FOR TOP AND ONCE FOR BOTTOM
 			for (int i = 0; i < 2; ++i){
 				hits.clear(); // extra safety
-				//std::cout << "   loop on hits of track #" << (itt - tracks->begin()) << std::endl;
+				LogDebug("CosmicTrackSplitter") << "   loop on hits of track #" << (itt - tracks->begin());
 				int usedHitCtr = 0;
 				int hitCtr = 0;
 				for (trackingRecHit_iterator ith = itt->recHitsBegin(), edh = itt->recHitsEnd(); ith != edh; ++ith) {
 					//hitCtr++;
 					const TrackingRecHit * hit = ith->get(); // ith is an iterator on edm::Ref to rechit
-					//std::cout << "         hit number " << (ith - itt->recHitsBegin()) << std::endl;
+					LogDebug("CosmicTrackSplitter") << "         hit number " << (ith - itt->recHitsBegin());
 					// let's look at valid hits
 					if (hit->isValid()) { 
-						//std::cout << "            valid, detid = " << hit->geographicalId().rawId() << std::endl;
+						LogDebug("CosmicTrackSplitter") << "            valid, detid = " << hit->geographicalId().rawId();
 						DetId detid = hit->geographicalId();
 						
 						//if ((detid.det() == DetId::Tracker)&&((detid.subdetId() == 3)||(detid.subdetId() == 5))) {  // check for tracker hits
 						if (detid.det() == DetId::Tracker) {  // check for tracker hits
-							//std::cout << "            valid, tracker " << std::endl;
+							LogDebug("CosmicTrackSplitter") << "            valid, tracker ";
 							bool  verdict = false;
 							
 							//trying to get the global position of the hit
 							//const GeomDetUnit* geomDetUnit =  theGeometry->idToDetUnit( detid ).;
 							
 							const GlobalPoint pos =  theGeometry->idToDetUnit( detid )->surface().toGlobal(hit->localPosition());
-							//std::cout << "hit pos: " << pos << ", dca pos: " << v << std::endl;
+							LogDebug("CosmicTrackSplitter") << "hit pos: " << pos << ", dca pos: " << v;
 							
 							// top half
 							if ((i == 0)&&(hitCtr < HITTOSPLITFROM)){
 								verdict = true;
-								//std::cout << "tophalf" << std::endl;
+								LogDebug("CosmicTrackSplitter") << "tophalf";
 							}
 							// bottom half
 							if ((i == 1)&&(hitCtr >= HITTOSPLITFROM)){
 								verdict = true;
-								//std::cout << "bottomhalf" << std::endl;
+								LogDebug("CosmicTrackSplitter") << "bottomhalf";
 							}
 							
 							// if the hit is good, check again at module level
@@ -275,7 +275,7 @@ namespace reco { namespace modules {
 								verdict = false;
 							}
 							
-							//std::cout << "                   verdict after module list: " << (verdict ? "ok" : "no") << std::endl;
+							LogDebug("CosmicTrackSplitter") << "                   verdict after module list: " << (verdict ? "ok" : "no");
 							if (verdict == true) {
 								// just copy the hit
 								hits.push_back(hit->clone());
@@ -297,21 +297,21 @@ namespace reco { namespace modules {
 							hits.push_back(hit->clone());
 						} 
 					} // is valid hit
-					//std::cout << "         end of hit " << (ith - itt->recHitsBegin()) << std::endl;
+					LogDebug("CosmicTrackSplitter") << "         end of hit " << (ith - itt->recHitsBegin());
 					hitCtr++;
 				} // loop on hits
-				//std::cout << "   end of loop on hits of track #" << (itt - tracks->begin()) << std::endl;
+				LogDebug("CosmicTrackSplitter") << "   end of loop on hits of track #" << (itt - tracks->begin());
 				
 				std::vector<TrackingRecHit *>::iterator begin = hits.begin(), end = hits.end();
 				
-				//std::cout << "   selected " << hits.size() << " hits " << std::endl;
+				LogDebug("CosmicTrackSplitter") << "   selected " << hits.size() << " hits ";
 				
 				// strip invalid hits at the beginning
 				if (stripFrontInvalidHits_) {
 					while ( (begin != end) && ( (*begin)->isValid() == false ) ) ++begin;
 				}
 				
-				//std::cout << "   after front stripping we have " << (end - begin) << " hits " << std::endl;
+				LogDebug("CosmicTrackSplitter") << "   after front stripping we have " << (end - begin) << " hits ";
 				
 				// strip invalid hits at the end
 				if (stripBackInvalidHits_ && (begin != end)) {
@@ -320,30 +320,30 @@ namespace reco { namespace modules {
 					++end;
 				}
 				
-				//std::cout << "   after back stripping we have " << (end - begin) << " hits " << std::endl;
+				LogDebug("CosmicTrackSplitter") << "   after back stripping we have " << (end - begin) << " hits ";
 				
 				// if we still have some hits
 				//if ((end - begin) >= int(minimumHits_)) {
 				if ( usedHitCtr >= int(minimumHits_)) {
 					output->push_back( makeCandidate ( *itt, begin, end ) );
-					std::cout << "we made a candidate of " << hits.size() << " hits!" << std::endl;
+					LogDebug("CosmicTrackSplitter") << "we made a candidate of " << hits.size() << " hits!";
 				} 
 				// now delete the hits not used by the candidate
 				for (begin = hits.begin(), end = hits.end(); begin != end; ++begin) {
 					if (*begin) delete *begin;
 				} 
-				std::cout << "loop: " << i << " has " << usedHitCtr << " active hits and " << hits.size() << " total hits..." << std::endl;
+				LogDebug("CosmicTrackSplitter") << "loop: " << i << " has " << usedHitCtr << " active hits and " << hits.size() << " total hits...";
 				hits.clear();
 			} // loop twice for top and bottom
 		} // loop on tracks
-		//std::cout << "totalTracks_ = " << totalTracks_ << std::endl;
+		LogDebug("CosmicTrackSplitter") << "totalTracks_ = " << totalTracks_;
 		iEvent.put(output);
 	}
 	
 	TrackCandidate
 	CosmicTrackSplitter::makeCandidate(const reco::Track &tk, std::vector<TrackingRecHit *>::iterator hitsBegin, std::vector<TrackingRecHit *>::iterator hitsEnd) {
 		
-		//std::cout << "Making a candidate!" << std::endl;
+		LogDebug("CosmicTrackSplitter") << "Making a candidate!";
 		
 		TrajectoryStateTransform transform;
 		PropagationDirection   pdir = tk.seedDirection();
@@ -368,11 +368,11 @@ namespace reco { namespace modules {
 		TrackCandidate cand(ownHits, seed, *state, tk.seedRef());
 		delete state;
 		
-		//std::cout << "   dumping the hits now: " << std::endl;
-		//for (TrackCandidate::range hitR = cand.recHits(); hitR.first != hitR.second; ++hitR.first) {
-		//    std::cout << "     hit detid = " << hitR.first->geographicalId().rawId() <<
-		//        ", type  = " << typeid(*hitR.first).name() << std::endl;
-		//}
+		LogDebug("CosmicTrackSplitter") << "   dumping the hits now: ";
+		for (TrackCandidate::range hitR = cand.recHits(); hitR.first != hitR.second; ++hitR.first) {
+		      LogTrace("CosmicTrackSplitter") << "     hit detid = " << hitR.first->geographicalId().rawId() <<
+			", type  = " << typeid(*hitR.first).name();
+		}
 		
 		return cand;
 	}
