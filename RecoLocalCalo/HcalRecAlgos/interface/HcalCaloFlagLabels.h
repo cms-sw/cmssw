@@ -9,7 +9,8 @@
 // Use the HcalCaloFlagTool (below) for full interpretation
 namespace HcalCaloFlagLabels
 {
-  enum HBHEStatusFlag{HBHEBit=0};
+  enum HBHEStatusFlag{HBHEHpdHitMultiplicity=0,
+                      HBHEPulseShape=1};
   enum HOStatusFlag{HOBit=0};
   enum HFStatusFlag{HFDigiTime=0,
 		    HFLongShort=1};
