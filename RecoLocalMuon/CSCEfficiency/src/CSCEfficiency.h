@@ -174,6 +174,8 @@ public:
   bool magField;
   //---- track direction
   bool alongZ;
+  //---- filter variable
+  bool passTheEvent;
 
   //---- Variables
   //---- LCTs

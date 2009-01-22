@@ -15,7 +15,7 @@ using namespace edm;
 
 //---- The Analysis  (main)
 bool CSCEfficiency::filter(Event & event, const EventSetup& eventSetup){
-  bool passTheEvent = false;
+  passTheEvent = false;
   DataFlow->Fill(0.);  
   MuonPatternRecoDumper debug;
  
@@ -111,12 +111,20 @@ bool CSCEfficiency::filter(Event & event, const EventSetup& eventSetup){
   if (printalot) std::cout<<"Start track loop"<<std::endl;
   for(edm::View<reco::Track>::size_type i=0; i<trackCollection.size(); ++i) {
     DataFlow->Fill(1.);
-    //---- Just one track? (maybe define "clean" track?...)
-    if(1!=trackCollection.size()){
+    //---- Do we need a better "clean track" definition?
+    if(trackCollection.size()>2){
       break;
     }
     DataFlow->Fill(2.);
     edm::RefToBase<reco::Track> track(trackCollectionH, i);
+    if(!i && 2==trackCollection.size()){
+      edm::View<reco::Track>::size_type tType = 1;
+      edm::RefToBase<reco::Track> trackTwo(trackCollectionH, tType);
+      if(track->outerPosition().z()*trackTwo->outerPosition().z()>0){// in one and the same "endcap"
+        break;
+      }
+    }
+    DataFlow->Fill(3.);
     if (printalot){
       std::cout<<"i track = "<<i<<" P = "<<track->p()<<" chi2/ndf = "<<track->normalizedChi2()<<" nSeg = "<<segments->size()<<std::endl;
       std::cout<<"quality undef/loose/tight/high/confirmed/goodIt/size "<<
@@ -139,7 +147,10 @@ bool CSCEfficiency::filter(Event & event, const EventSetup& eventSetup){
     //if(fabs(track->innerPosition().z())< 500. ||fabs(track->outerPosition().z())< 500.){
     //trackerOK = true; 
     //}
-    float dpT_ov_pT =  track->ptError()/ track->pt();
+    float dpT_ov_pT = 0.;
+    if(fabs(track->pt())>0.001){
+      dpT_ov_pT =  track->ptError()/ track->pt();
+    }
     //bool closeToMagnet = (fabs(track->innerPosition().z())< 750. || fabs(track->outerPosition().z())< 750. );
    
     //---- These define a "good" track
@@ -150,19 +161,19 @@ bool CSCEfficiency::filter(Event & event, const EventSetup& eventSetup){
     if(track->found()<minTrackHits){// enough data points
       break;
     }
-    DataFlow->Fill(4.);
+    DataFlow->Fill(5.);
     if(!segments->size()){// better have something in the CSC 
       break;
     }
-    DataFlow->Fill(5.);
+    DataFlow->Fill(6.);
     if(magField && (track->p()<minP || track->p()>maxP)){// proper energy range 
       break;
     }
-    DataFlow->Fill(6.);
-    if(dpT_ov_pT >0.5){// not too crazy uncertainty
+    DataFlow->Fill(7.);
+    if(magField && (dpT_ov_pT >0.5) ){// not too crazy uncertainty
       break;
     }
-    DataFlow->Fill(7.);
+    DataFlow->Fill(8.);
 
     passTheEvent = true; 
     if (printalot) std::cout<<"good Track"<<std::endl;
@@ -1468,7 +1479,7 @@ CSCEfficiency::CSCEfficiency(const ParameterSet& pset){
   //
   sprintf(SpecName,"TriggersFired"); 
   TriggersFired =
-    new TH1F(SpecName,"Triggers fired;trigger number;entries",40,-0.5,39.5);
+    new TH1F(SpecName,"Triggers fired;trigger number;entries",140,-0.5,139.5);
   //
   int Chan = 50;
   float minChan = -0.5;
