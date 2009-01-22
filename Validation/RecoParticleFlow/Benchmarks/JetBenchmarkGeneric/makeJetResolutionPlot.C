@@ -66,7 +66,7 @@ void PlotGraphs( TGraph* gra, TGraph* grb,
 
 }
 
-void Resolution(unsigned barrel, const char* input, const char* output,unsigned algo=0) {
+void Resolution(unsigned barrel, const char* input, const char* output, const char* title="", unsigned algo=0) {
   
   gROOT->Reset();
   TFile *f = new TFile(input);
@@ -166,14 +166,14 @@ void Resolution(unsigned barrel, const char* input, const char* output,unsigned 
   
   c->cd(1);
   PlotGraphs( gr1, gr12, "width",
-	      "", 
+	      title, 
 	      "p_{T} (GeV/c)", 
 	      "Width #Delta p_{T} / p_{T}",
-	      0, 700, 0.04, 0.16);
+	      0, 700, 0.02, 0.16);
 
   c->cd(2);
   PlotGraphs( gr2, gr22, "mean",
-	      "", 
+	      "and response", 
 	      "p_{T} (GeV/c)", 
 	      "Mean #Delta p_{T} / p_{T}",
 	      0, 700, -0.25, 0.01);
