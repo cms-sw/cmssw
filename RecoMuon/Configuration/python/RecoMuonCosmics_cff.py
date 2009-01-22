@@ -318,6 +318,27 @@ muonrecoforcosmicsNoRPC = cms.Sequence(muontrackingforcosmicsNoRPC*allmuonsNoRPC
 
 ##############################################
 
+## Splitted Tracks  ##
+
+# Global muon track producer
+globalCosmicSplittedMuons = globalCosmicMuons.clone()
+globalCosmicSplittedMuons.TrajectoryBuilderParameters.TkTrackCollectionLabel = 'ctfWithMaterialTracksP5LHCNavigation'
+globalCosmicSplittedMuons.MuonCollectionLabel = 'cosmicMuons'
+
+# Muon Id producer
+
+splittedMuons = muons.clone()
+splittedMuons.inputCollectionLabels = ['ctfWithMaterialTracksP5LHCNavigation', 'globalCosmicSplittedMuons', 'cosmicMuons']
+splittedMuons.inputCollectionTypes = ['inner tracks', 'links', 'outer tracks']
+splittedMuons.fillIsolation = False
+
+#Sequences
+
+# Final sequence
+muonrecoforsplittedcosmics = cms.Sequence(globalCosmicSplittedMuons*splittedMuons)
+
+##############################################
+
 ######################## LHC like Reco #############################
 
 # Standard reco
@@ -381,7 +402,7 @@ muonRecoLHC = cms.Sequence(muonrecocosmicLHCBarrelOnly*muonrecocosmicLHCEndCapsO
 
 ########################### SEQUENCE TO BE ADDED in ReconstructionGR_cff ##############################################
 
-muonRecoGR = cms.Sequence(muonRecoAllGR*muonRecoBarrelGR*muonRecoEndCapsGR*muonrecoforcosmicsNoRPC*muonRecoLHC)
+muonRecoGR = cms.Sequence(muonRecoAllGR*muonRecoBarrelGR*muonRecoEndCapsGR*muonrecoforcosmicsNoRPC*muonrecoforsplittedcosmics*muonRecoLHC)
 
 #######################################################################################################################
 
