@@ -239,7 +239,7 @@ def main():
     print "\n Scan report directory..."
     # Retrieve some directories and information about them
     (ExecutionDate,LogFiles,date,cmsScimarkResults,cmsScimarkDir) = scanReportArea(repdir)
-
+    print "cmsScimarkResults are %s"%cmsScimarkResults
     print "\n Copy report files to staging directory..."
     # Copy reports to staging area 
     _copyReportsToStaging(repdir,LogFiles,cmsScimarkDir,stage)
@@ -1589,8 +1589,13 @@ def createWebReports(WebArea,repdir,ExecutionDate,LogFiles,cmsScimarkResults,dat
                 #Add the cmsScimark results here:
                 INDEX.write("Results for cmsScimark2 benchmark (running on the other cores) available at:\n")
                 for cmssci in cmsScimarkResults:
+                    scimarkdirs=cmssci.split("/")
+                    localdir=scimarkdirs[-2]
+                    #print localdir
                     cmssci = os.path.basename(cmssci)
-                    INDEX.write("<a href=\"%s\"> %s </a>" % (cmssci,cmssci))
+                    relativelink=os.path.join(localdir,cmssci)
+                    #print relativelink
+                    INDEX.write("<a href=\"%s\"> %s </a>" % (relativelink,cmssci))
                     INDEX.write("<br />\n")
 
 

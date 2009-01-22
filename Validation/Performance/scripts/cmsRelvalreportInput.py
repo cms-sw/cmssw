@@ -428,14 +428,21 @@ def setInputFile(steps,step,acandle,stepIndex,pileup=False,bypasshlt=False):
 
     return InputFileOption
 
-def writeUnprofiledSteps(simcandles,CustomisePythonFragment,cmsDriverOptions,unprofiledSteps,acandle,NumberOfEvents, stepIndex, bypasshlt):
+def writeUnprofiledSteps(simcandles,CustomisePythonFragment,cmsDriverOptions,unprofiledSteps,previousOutputFile,acandle,NumberOfEvents, stepIndex, pileup,bypasshlt):
     # reduce(lambda x,y : x + "," + "y",unprofiledSteps)
-    stepsStr = ",".join(unprofiledSteps)
+    #stepsStr = ",".join(unprofiledSteps)
 
-    simcandles.write("\n#Run a %s step(s) that has not been selected for profiling but is needed to run the next step to be profiled\n" % (stepsStr))
+    
     #print "unprofiledSteps is %s"%unprofiledSteps
     #print "22acandle is %s"%acandle
-    OutputFile = "%s_%s.root" % ( FileName[acandle],unprofiledSteps[-1])
+    #Kludge in case -b option to skip HLT is used...
+    if bypasshlt and unprofiledSteps[-1]=="HLT":
+        stepsStr = ",".join(unprofiledSteps[:-1])
+        OutputFile = "%s_%s.root" % ( FileName[acandle],unprofiledSteps[-2])
+    else:
+        stepsStr = ",".join(unprofiledSteps)
+        OutputFile = "%s_%s.root" % ( FileName[acandle],unprofiledSteps[-1])
+    simcandles.write("\n#Run a %s step(s) that has not been selected for profiling but is needed to run the next step to be profiled\n" % (stepsStr))
     OutputFileOption = "--fileout=%s" % OutputFile
     #Bug here: should take into account the flag --bypass-hlt instead of assuming hlt should be bypassed
     #This affects the Step1/Step2 running since Step1 will produce an HLT.root file and Step2 should start from there!
@@ -443,10 +450,14 @@ def writeUnprofiledSteps(simcandles,CustomisePythonFragment,cmsDriverOptions,unp
     #PreviousInputFile=AllSteps[AllSteps.index(unprofiledSteps[0])-1]
     #print "StepIndex 1:%s"%stepIndex
     #Correcting a bug: when unprofiled intermediate steps are present it would skip 1 step...
-    stepIndexAdjust=stepIndex - 2
-    if stepIndexAdjust < 0: #To avoid issues with negative indeces
-        stepIndexAdjust=0
-    InputFileOption = setInputFile(AllSteps,unprofiledSteps[0],acandle,stepIndexAdjust,bypasshlt=bypasshlt)
+    #stepIndexAdjust=stepIndex - 2
+    #if stepIndexAdjust < 0: #To avoid issues with negative indeces
+    #    stepIndexAdjust=0
+    #InputFileOption = setInputFile(AllSteps,unprofiledSteps[0],acandle,stepIndexAdjust,bypasshlt=bypasshlt)
+    #Use an argument to make it easier:
+    InputFileOption = "--filein file:" + previousOutputFile
+    if previousOutputFile =="":
+        InputFileOption = setInputFile(AllSteps,unprofiledSteps[0],acandle,stepIndex,pileup=pileup,bypasshlt=bypasshlt)
     #Introduce an over-ride of cmsDriverOptions:
     #For the case of unprofiled steps, always run them with FEVTDEBUGHLT eventcontent
     #At the moment the only use case is when running step2 on its own...
@@ -464,14 +475,15 @@ def writeUnprofiledSteps(simcandles,CustomisePythonFragment,cmsDriverOptions,unp
     simcandles.write( "%s @@@ None @@@ None\n\n" % (Command))
     return OutputFile
 
-def writePrerequisteSteps(simcandles,steps,acandle,NumberOfEvents,cmsDriverOptions,bypasshlt):
+def writePrerequisteSteps(simcandles,steps,acandle,NumberOfEvents,cmsDriverOptions,pileup,bypasshlt):
     fstIdx = -1
     if "-" in steps[0]:
         fstIdx = AllSteps.index(steps[0].split("-")[0])
     else:
         fstIdx = AllSteps.index(steps[0])
     CustomisePythonFragment = pythonFragment("GEN,SIM",cmsDriverOptions)
-    OutputFile = writeUnprofiledSteps(simcandles, CustomisePythonFragment, cmsDriverOptions,AllSteps[0:fstIdx],acandle,NumberOfEvents, 0,bypasshlt) 
+    previousOutputFile=""
+    OutputFile = writeUnprofiledSteps(simcandles, CustomisePythonFragment, cmsDriverOptions,AllSteps[0:fstIdx],previousOutputFile,acandle,NumberOfEvents, 0,pileup,bypasshlt) 
     return (fstIdx, OutputFile)
 
 def setOutputFileOption(acandle,endstep):
@@ -501,7 +513,7 @@ def writeCommands(simcandles,
     print "Steps passed to writeCommands %s",steps
     if not (steps[0] == AllSteps[0]) and (steps[0].split("-")[0] != "GEN,SIM"):
         #Write the necessary line to run without profiling all the steps before the wanted ones in one shot:
-        (stepIndex, rootFileStr) = writePrerequisteSteps(simcandles,steps,acandle,NumberOfEvents,cmsDriverOptions,bypasshlt)
+        (stepIndex, rootFileStr) = writePrerequisteSteps(simcandles,steps,acandle,NumberOfEvents,cmsDriverOptions,pileup,bypasshlt)
         
         #Now take care of setting the indeces and input root file name right for the profiling part...
         if fstROOTfile:
@@ -535,49 +547,63 @@ def writeCommands(simcandles,
     unprofiledSteps = []
     rawreg = re.compile("^RAW2DIGI")
 
-#New design of the loop:
-    #CurrentStepIndex = 0
-    print "UserSteps:"
-    AllStepsIndex=-1
-    #Tests that can be done before looping:
-    if not (userSteps[0] == AllSteps[0]) and (userSteps[0].split("-")[0] != "GEN,SIM"):
-            print "Need some pre-steps before starting with userSteps %s"%userSteps
-            print "Will run steps %s"%AllSteps[0:AllSteps.index(userSteps[0].split("-")[0])]
-    for step in userSteps:
-        print step
-        #Establish the corresponding index in AllSteps:
-        #AllStepsIndex=AllSteps.index(step)
-        #Check the first step to see if there are unprofiled pre-steps needed:
-        #if not (step == AllSteps[0]) and (step.split("-")[0] != "GEN,SIM"):
-        #    print "Need some pre-steps for step %s"%step
-            #implement here the running of unprofiled steps between GEN-SIM and AllSteps.index(steps[0].split("-")[0] -1)
-            #possibly calling a function WriteUnprofiledSteps(unprofiledSteps) that takes care of all (input, output filename) 
-        #Check if there are hypens (they mean we want to run all the steps between the hypens in one shot profiling them)
-        if "-" in step:
-            print "Hyphenated step: %s"%step
-            #implement profiling of steps a la cmsDriver.py, by translating the hypens:
-            #GEN-HLT -> GEN,SIM,DIGI,L1,DIGI2RAW,HLT
-            print "Expanded hyphenated steps: %s"%expandHyphens(step)
-            FirstStep=expandHyphens(step)[0]
-        if AllStepsIndex != -1:
-            try:
-                if AllSteps.index(step) == AllStepsIndex + 1:
-                    print "Consecutive steps to profile"
-                else:
-                    print "Step %s is not the consecutive step of %s, so we will need to run the intermediate ones unprofiled"%(AllSteps.index(step),AllStepsIndex)
-            except:#To catch the case of hyphenated steps
-                if AllSteps.index(expandHyphens(step)[0]) == AllStepsIndex + 1:
-                    print "Consecutive steps to profile"
-                else:
-                    print "Step %s is not the consecutive step of %s, so we will need to run the intermediate ones unprofiled"%(AllSteps.index(expandHyphens(step)[0]),AllStepsIndex)
-        try:
-            AllStepsIndex=AllSteps.index(step)
-        except: #To catch the case of hyphenated steps
-            AllStepsIndex=AllSteps.index(expandHyphens(step)[-1])
-        #if step
+#Beginning of a new design of the loop (abandoned for now for lack of time... simply fixed the issues with unprofiled steps by adding one argument to the writeUnprofiledSteps and fixed a couple of inconsistencies with the -b option:
+##    #CurrentStepIndex = 0
+##    print "UserSteps:"
+##    AllStepsIndex=-1
+##    #Tests that can be done before looping:
+##    #Check the first step to see if there are unprofiled pre-steps needed:
+##   if not (userSteps[0] == AllSteps[0]) and (userSteps[0].split("-")[0] != "GEN,SIM"):
+##           print "Need some pre-steps before starting with userSteps %s"%userSteps
+##           print "Will run steps %s"%AllSteps[0:AllSteps.index(userSteps[0].split("-")[0])]
+##           #implement here the running of unprofiled steps between GEN-SIM and AllSteps.index(steps[0].split("-")[0] -1)
+##           #possibly calling a function WriteUnprofiledSteps(unprofiledSteps) that takes care of all (input, output filename)
+##           
+##   for step in userSteps:
+##       print step
+##       #Before establish the corresponding index in AllSteps:
+##       
+##       #Check if there are hypens (they mean we want to run all the steps between the hypens in one shot profiling them)
+##       if "-" in step:
+##           print "Hyphenated step: %s"%step
+##           #implement profiling of steps a la cmsDriver.py, by translating the hypens:
+##           #GEN-HLT -> GEN,SIM,DIGI,L1,DIGI2RAW,HLT
+##           #Also make sure the output is called like the last step (in this case HLT.root)
+##           print "Expanded hyphenated steps: %s"%expandHyphens(step)
+##           FirstStep=expandHyphens(step)[0]
+##           FirstStepIndex=AllSteps.index(FirstStep)
+##           LastStep=expandHyphens(step)[1]
+##           LastStepIndex=AllSteps.index(LastStep)
+##           print "First step %s and last step %s"%(FirstStep,LastStep)
+##           cmsDriverSteps=",".join(AllSteps[FirstStepIndex:LastStepIndex+1])
+##           print "cmsDriverSteps = %s"%cmsDriverSteps
+##           if '--pileup' in cmsDriverOptions:
+##               outfile = LastStep + "_PILEUP"
+##           else:
+##               outfile = LastStep
+##           OutputFile = setOutputFileOption(acandle,outfile)
+##           print "OutputFile is %s"%OutputFile
+##       if AllStepsIndex != -1:
+##           try:
+##               if AllSteps.index(step) == AllStepsIndex + 1:
+##                   print "Consecutive steps to profile"
+##               else:
+##                   print "Step %s is not the consecutive step of %s, so we will need to run the intermediate ones unprofiled"%(AllSteps.index(step),AllStepsIndex)
+##           except:#To catch the case of hyphenated steps
+##               if AllSteps.index(expandHyphens(step)[0]) == AllStepsIndex + 1:
+##                   print "Consecutive steps to profile"
+##               else:
+##                   print "Step %s is not the consecutive step of %s, so we will need to run the intermediate ones unprofiled"%(AllSteps.index(expandHyphens(step)[0]),AllStepsIndex)
+##       #Finally establish the corresponding index in AllSteps:
+##       try:
+##           AllStepsIndex=AllSteps.index(step)
+##       except: #To catch the case of hyphenated steps
+##           AllStepsIndex=AllSteps.index(expandHyphens(step)[-1])
+##
+##
+##       #CurrentStepIndex = CurrentStepIndex + 1
 
-
-        #CurrentStepIndex = CurrentStepIndex + 1
+#Horrible structure... to be rewritten sooner or later...
     
 #   FOR step in steps
 
@@ -588,6 +614,7 @@ def writeCommands(simcandles,
         if stepIndex >= stopIndex:
             break
         step = steps[stepIndex]
+
         # One shot Profiling variables
         befStep     = step
         aftStep     = step
@@ -607,7 +634,11 @@ def writeCommands(simcandles,
                 hypsteps    = expandHyphens(hypMatch[0])
                 stepToWrite = ",".join(hypsteps)
                 befStep     = hypsteps[0]
-                aftStep     = hypsteps[-1]
+                #Kludge to avoid running HLT in composite steps if the -b option is chosen
+                if bypasshlt and hypsteps[-1]=='HLT':
+                    aftStep     = hypsteps[-2]
+                else:
+                    aftStep     = hypsteps[-1]
                 oneShotProf = True
 
             writeStepHead(simcandles,acandle,stepToWrite)
@@ -639,7 +670,8 @@ def writeCommands(simcandles,
                         # HLT, therefore the only thing left to run to profile EDMSIZE is HLT itself
 
                         InputFileOption = "--filein file:" + previousOutputFile
-                        if rawreg.search(step) and bypasshlt:
+                        #Kludge to bypass HLT output... here's a problem... since the unprofiled steps could contain HLT!
+                        if rawreg.search(step) and bypasshlt and 'DIGI2RAW.root' in prevPrevOutputFile:
                             InputFileOption = "--filein file:" + prevPrevOutputFile
                         if previousOutputFile == "":
                             InputFileOption = setInputFile(steps,stepToWrite,acandle,stepIndex,pileup=pileup,bypasshlt=bypasshlt)
@@ -658,7 +690,7 @@ def writeCommands(simcandles,
                 #all other profiles:
                 else:
                     InputFileOption = "--filein file:" + previousOutputFile
-                    if rawreg.search(step) and bypasshlt:
+                    if rawreg.search(step) and bypasshlt and 'DIGI2RAW.root' in prevPrevOutputFile:
                         InputFileOption = "--filein file:" + prevPrevOutputFile
 
                     if previousOutputFile == "":
@@ -718,9 +750,11 @@ def writeCommands(simcandles,
                 break
 
             if isNextStepForProfile:
-                writeUnprofiledSteps(simcandles,CustomisePythonFragment,cmsDriverOptions,unprofiledSteps,acandle,NumberOfEvents,stepIndex,bypasshlt)
+                #Minimum intervention solution is to fix it here: I think we need to pass the before and after steps...
+                OutputFile=writeUnprofiledSteps(simcandles,CustomisePythonFragment,cmsDriverOptions,unprofiledSteps,previousOutputFile,acandle,NumberOfEvents,stepIndex,pileup,bypasshlt)
                 unprofiledSteps = []
-                
+                prevPrevOutputFile = previousOutputFile          
+                previousOutputFile = OutputFile
         #Dangerous index handling when looping over index x!        
         if oneShotProf:
             stepIndex += len(hypsteps)            
