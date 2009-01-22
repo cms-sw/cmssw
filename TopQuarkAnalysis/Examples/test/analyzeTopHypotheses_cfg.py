@@ -81,13 +81,14 @@ run22XonSummer08AODSIM(process)
 
 #-------------------------------------------------
 # to produce TQAF relevant Layer 2 parts if not
-# already in place uncomment the following lines;
-# set verbosity to 1 to get additional per-event
-# printout from the TtSemiLepEvent
+# already in place uncomment the following lines
 #-------------------------------------------------
 process.load("TopQuarkAnalysis.TopEventProducers.sequences.ttGenEvent_cff")
 process.load("TopQuarkAnalysis.TopEventProducers.sequences.ttSemiLepEvtBuilder_cff")
-process.ttSemiLepEvent.verbosity = cms.int32(0)
+## enable additional per-event printout from the TtSemiLeptonicEvent
+#process.ttSemiLepEvent.verbosity = 1
+## change maximum number of jets taken into account per event (default: 4)
+#process.ttSemiLepEvent.maxNJets = 5
 process.p1 = cms.Path(process.makeGenEvt * process.makeTtSemiLepEvent)
 
 #-------------------------------------------------
