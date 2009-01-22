@@ -418,8 +418,10 @@ void PFRootEventManager::readOptions(const char* file,
   map_HCAL_eta = expand(map_HCAL_eta);
   map_HCAL_phi = expand(map_HCAL_phi);
 
-  double DPtovPtCut = 999.;
+  std::vector<double> DPtovPtCut;
+  std::vector<unsigned> NHitCut;
   options_->GetOpt("particle_flow", "DPtoverPt_Cut", DPtovPtCut);
+  options_->GetOpt("particle_flow", "NHit_Cut", NHitCut);
   double chi2TrackECAL=100;
   options_->GetOpt("particle_flow", "chi2_ECAL_Track", chi2TrackECAL);
   double chi2GSFECAL=900;
@@ -443,6 +445,7 @@ void PFRootEventManager::readOptions(const char* file,
                                 map_HCAL_eta.c_str(),
                                 map_HCAL_phi.c_str(),
                                 DPtovPtCut, 
+				NHitCut,
                                 chi2TrackECAL,
 				chi2GSFECAL,
                                 chi2TrackHCAL,
