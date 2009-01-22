@@ -6,7 +6,12 @@ HcalTrigPrimMonitor::HcalTrigPrimMonitor() {
   occThresh_=0;
 }
 
-HcalTrigPrimMonitor::~HcalTrigPrimMonitor() {
+HcalTrigPrimMonitor::~HcalTrigPrimMonitor() 
+{
+  for (unsigned int i=tpSpectrum_.size()-1;i>=0;--i)
+    delete tpSpectrum_[i];
+  tpSpectrum_.clear();
+ 
 }
 
 void HcalTrigPrimMonitor::reset(){}
