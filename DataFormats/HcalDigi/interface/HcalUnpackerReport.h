@@ -2,13 +2,14 @@
 #define DATAFORMATS_HCALDIGI_HCALUNPACKERREPORT_H 1
 
 #include <vector>
+#include <map>
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/HcalDetId/interface/HcalElectronicsId.h"
 
 /** \class HcalUnpackerReport
   *  
-  * $Date: 2006/10/09 14:43:25 $
-  * $Revision: 1.1 $
+  * $Date: 2008/02/12 19:22:50 $
+  * $Revision: 1.2 $
   * \author J. Mans - Minnesota
   */
 class HcalUnpackerReport {
@@ -25,7 +26,19 @@ public:
   int totalDigis() const { return totalDigis_; }
   int totalTPDigis() const { return totalTPDigis_; }
   int totalHOTPDigis() const { return totalHOTPDigis_; }
+  bool unsuppressedChannels() const { return unsuppressed_; }
 
+  static const uint16_t ct_Null = 0;
+  static const uint16_t ct_Pedestal = 1;
+  static const uint16_t ct_RADDAM = 2;
+  static const uint16_t ct_HBHEHPD = 3;
+  static const uint16_t ct_HOHPD = 4;
+  static const uint16_t ct_HFPMT = 5;
+
+  bool hasFedWithCalib() const { return !fedInfo_.empty(); }
+  uint16_t fedCalibType(uint16_t fed) const;
+
+  void setFedCalibInfo(uint16_t fed, uint16_t ctype);
 
   typedef std::vector<DetId> DetIdVector;
   typedef std::vector<HcalElectronicsId> ElectronicsIdVector;
@@ -34,6 +47,13 @@ public:
   DetIdVector::const_iterator bad_quality_end() const { return badqualityIds_.end(); }
   ElectronicsIdVector::const_iterator unmapped_begin() const { return unmappedIds_.begin(); }
   ElectronicsIdVector::const_iterator unmapped_end() const { return unmappedIds_.end(); }
+
+  bool hasReportInfo(const std::string& name) const;
+  std::string getReportInfo(const std::string& name) const;
+
+  typedef std::map<std::string,std::string> ReportInfoMap;
+  ReportInfoMap::const_iterator report_info_begin() const { return reportInfo_.begin(); }
+  ReportInfoMap::const_iterator report_info_end() const { return reportInfo_.end(); }
 
   // setters
   void addUnpacked(int fed);
@@ -47,6 +67,8 @@ public:
   void countUnmappedDigi(const HcalElectronicsId& eid);
   void countUnmappedTPDigi(const HcalElectronicsId& eid);
   void countBadQualityDigi(const DetId& did);
+  void setUnsuppressed(bool isSup);
+  void setReportInfo(const std::string& name, const std::string& value);
 private:
   std::vector<int> FEDsUnpacked_;
   std::vector<int> FEDsError_;
@@ -55,6 +77,15 @@ private:
   int totalDigis_, totalTPDigis_, totalHOTPDigis_;
   DetIdVector badqualityIds_;
   ElectronicsIdVector unmappedIds_;
+  bool unsuppressed_;
+  std::map<std::string, std::string> reportInfo_;
+
+  struct FedCalibInfo {
+    uint16_t fed_;
+    uint16_t type_;
+  };
+  std::vector<FedCalibInfo> fedInfo_;
+
 };
 
 #endif

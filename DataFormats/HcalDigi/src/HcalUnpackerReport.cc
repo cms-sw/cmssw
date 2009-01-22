@@ -3,7 +3,7 @@
 HcalUnpackerReport::HcalUnpackerReport() :
   unmappedDigis_(0), unmappedTPDigis_(0),
   spigotFormatErrors_(0), badqualityDigis_(0),
-  totalDigis_(0),totalTPDigis_(0),totalHOTPDigis_(0)
+  totalDigis_(0),totalTPDigis_(0),totalHOTPDigis_(0), unsuppressed_(false)
 {
 }
 
@@ -54,4 +54,47 @@ void HcalUnpackerReport::countUnmappedDigi(const HcalElectronicsId& eid) {
 void HcalUnpackerReport::countUnmappedTPDigi(const HcalElectronicsId& eid) {
   unmappedTPDigis_++;
   unmappedIds_.push_back(eid);
+}
+
+uint16_t HcalUnpackerReport::fedCalibType(uint16_t fed) const {
+  std::vector<FedCalibInfo>::const_iterator i;
+  uint16_t retval=ct_Null;
+  for (i=fedInfo_.begin(); i!=fedInfo_.end(); i++)
+    if (i->fed_==fed) {
+      retval=i->type_;
+      break;
+    }
+  return retval;
+}
+
+void HcalUnpackerReport::setFedCalibInfo(uint16_t fed, uint16_t ctype) {
+  std::vector<FedCalibInfo>::iterator i;
+  for (i=fedInfo_.begin(); i!=fedInfo_.end(); i++)
+    if (i->fed_==fed) {
+      i->type_=ctype;
+      break;
+    }
+  if (i==fedInfo_.end()) {
+    fedInfo_.push_back(FedCalibInfo());
+    fedInfo_.back().fed_=fed;
+    fedInfo_.back().type_=ctype;
+  }
+}
+
+void HcalUnpackerReport::setUnsuppressed(bool isSup) {
+  unsuppressed_=isSup;
+}
+void HcalUnpackerReport::setReportInfo(const std::string& name, const std::string& value) {
+  reportInfo_[name]=value;
+}
+
+bool HcalUnpackerReport::hasReportInfo(const std::string& name) const {
+  std::map<std::string,std::string>::const_iterator i=reportInfo_.find(name);
+  return (i!=reportInfo_.end());
+}
+std::string HcalUnpackerReport::getReportInfo(const std::string& name) const {
+  std::string retval;
+  std::map<std::string,std::string>::const_iterator i=reportInfo_.find(name);
+  if (i!=reportInfo_.end()) retval=i->second;
+  return retval;
 }
