@@ -74,6 +74,12 @@ class PFJetBenchmark {
   TH1F *hjetsPt;
   TH1F *hjetsEta;
   TH2F *hRPtvsEta ;
+  TH2F *hRNeutvsEta ;
+  TH2F *hRNEUTvsEta ; 
+  TH2F *hRNONLvsEta ;
+  TH2F *hRHCALvsEta ; 
+  TH2F *hRHONLvsEta ;
+  TH2F *hRCHEvsEta ;
 	
   // delta Pt or E quantities for Barrel
   TH1F *hBRPt;
@@ -88,6 +94,9 @@ class PFJetBenchmark {
   TH1F *hBRPt300_400;
   TH1F *hBRPt400_500;
   TH1F *hBRPt500_750;
+  TH1F *hBRPt750_1250;
+  TH1F *hBRPt1250_2000;
+  TH1F *hBRPt2000_5000;
   TH1F *hBRCHE;
   TH1F *hBRNHE;
   TH1F *hBRNEE;
@@ -97,6 +106,12 @@ class PFJetBenchmark {
   TH2F *hBRNHEvsPt;
   TH2F *hBRNEEvsPt;
   TH2F *hBRneutvsPt;
+  TH2F *hBRNEUTvsP;
+  TH2F *hBRNONLvsP;
+  TH2F *hBRHCALvsP;
+  TH2F *hBRHONLvsP;
+  TH2F *hBDEtavsPt;
+  TH2F *hBDPhivsPt;
 	
   // delta Pt or E quantities for Endcap
   TH1F *hERPt ;
@@ -111,6 +126,9 @@ class PFJetBenchmark {
   TH1F *hERPt300_400;
   TH1F *hERPt400_500;
   TH1F *hERPt500_750;
+  TH1F *hERPt750_1250;
+  TH1F *hERPt1250_2000;
+  TH1F *hERPt2000_5000;
   TH1F *hERCHE;
   TH1F *hERNHE;
   TH1F *hERNEE;
@@ -120,6 +138,12 @@ class PFJetBenchmark {
   TH2F *hERNHEvsPt ;
   TH2F *hERNEEvsPt;
   TH2F *hERneutvsPt;
+  TH2F *hERNEUTvsP;
+  TH2F *hERNONLvsP;
+  TH2F *hERHCALvsP;
+  TH2F *hERHONLvsP;
+  TH2F *hEDEtavsPt;
+  TH2F *hEDPhivsPt;
 	
   // delta Pt or E quantities for Forward
   TH1F *hFRPt ;
@@ -134,6 +158,9 @@ class PFJetBenchmark {
   TH1F *hFRPt300_400;
   TH1F *hFRPt400_500;
   TH1F *hFRPt500_750;
+  TH1F *hFRPt750_1250;
+  TH1F *hFRPt1250_2000;
+  TH1F *hFRPt2000_5000;
   TH1F *hFRCHE;
   TH1F *hFRNHE;
   TH1F *hFRNEE;
@@ -143,6 +170,12 @@ class PFJetBenchmark {
   TH2F *hFRNHEvsPt ;
   TH2F *hFRNEEvsPt;
   TH2F *hFRneutvsPt;
+  TH2F *hFRNEUTvsP;
+  TH2F *hFRNONLvsP;
+  TH2F *hFRHCALvsP;
+  TH2F *hFRHONLvsP;
+  TH2F *hFDEtavsPt;
+  TH2F *hFDPhivsPt;
 	
   std::string outputFile_;	
  protected:
