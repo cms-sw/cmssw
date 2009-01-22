@@ -51,6 +51,7 @@ class bootstrap:
         idx=0
         for l1element in elementstack_l1:
             currentdetector=l1element['name']
+            print currentdetector
             offlineconnect=l1element['offline_connect']
             detectormap={}
             detectormap['mapping']=[]
@@ -166,7 +167,7 @@ class bootstrap:
             createiov=' '.join(['cmscond_schema_iov','--create','-P',self.__authpath,'-c',c])
             for mappingxmlfile in self.__registry[self.__detector][1]['mapping']:
                 dict=self.__registry[self.__detector][1]['library']
-                createpool=' '.join(['pool_build_object_relational_mapping','-c',c,'-f',mappingxmlfile,'-d',dict])
+                createpool=' '.join(['pool_setup_database','-c',c,'-f',mappingxmlfile,'-d',dict])
                 commands.append(createpool)
             if self.__fake is True:
                 print 'Fake run...'
@@ -197,7 +198,7 @@ class bootstrap:
                 createiov=' '.join(['cmscond_schema_iov','--create','-P',self.__authpath,'-c',c])
                 dict=self.__registry[self.__detector][1]['library']
                 for mappingxmlfile in self.__registry[self.__detector][1]['mapping']:
-                    createpool=' '.join(['pool_build_object_relational_mapping','-c',c,'-f',mappingxmlfile,'-d',dict])
+                    createpool=' '.join(['pool_setup_database','-c',c,'-f',mappingxmlfile,'-d',dict])
                     commands.append(createpool)
                 if self.__fake is True:
                     print 'Fake run...'
