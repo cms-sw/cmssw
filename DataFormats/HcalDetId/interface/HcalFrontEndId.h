@@ -6,14 +6,15 @@
 #include <iosfwd>
 
 class HcalFrontEndId {
-  public:
+ public:
   HcalFrontEndId() : hcalFrontEndId_(0) {}
   HcalFrontEndId(uint32_t id) {hcalFrontEndId_=id;};
   HcalFrontEndId(const std::string& rbx,int rm,int pixel,int rmfiber,int fiberchannel,int qiecard,int adc);
   ~HcalFrontEndId();
   uint32_t rawId() const {return hcalFrontEndId_;}
   /// index which uniquely identifies an RM (e.g. HPD) within HCAL
-  uint32_t rmIndex() const { return (hcalFrontEndId_>>15)&0x3FF;}
+  int rmIndex() const { return (hcalFrontEndId_>>15)&0x3FF;}
+  static const int maxRmIndex = 0x3FF;
 
   bool null() const { return hcalFrontEndId_==0; }
 
@@ -25,10 +26,15 @@ class HcalFrontEndId {
   int qieCard() const {return ((hcalFrontEndId_>>3)&0x3)+1;}
   int adc() const {return (hcalFrontEndId_&0x7)-1;}
 
-  private:
+  int operator==(const HcalFrontEndId& id) const { return id.hcalFrontEndId_==hcalFrontEndId_; }
+  int operator!=(const HcalFrontEndId& id) const { return id.hcalFrontEndId_!=hcalFrontEndId_; }
+  int operator<(const HcalFrontEndId& id) const { return hcalFrontEndId_<id.hcalFrontEndId_; }
+
+ private:
   uint32_t hcalFrontEndId_;
 };
 
 std::ostream& operator<<(std::ostream&,const HcalFrontEndId& id);
 
 #endif
+
