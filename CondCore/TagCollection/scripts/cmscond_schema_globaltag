@@ -1,0 +1,89 @@
+#!/usr/bin/env python
+import os
+from optparse import OptionParser, Option, OptionValueError
+from CondCore.TagCollection import tagInventory,TagTree
+    
+class globaltagSchemaCreator:
+    def __init__(self):
+        """
+        Class add entry in the tag inventory
+        usage: %prog [options]
+        -c, --connect=connectstring: connection string to the tag DB. If -c, -f both given -c value will overwrite the connect parameter in the config file. 
+        -u, --user=user: user name
+        -p, --password=password: password
+        -P, --path=path: path to authentication.xml
+        -C, --create=treename: create tables related to tree with given name. If empty, create only the inventory table
+        -D, --drop=treename: drop tables related to tree with given name. If empty, drop all tables
+        -v, --verbose: switch on verbose mode
+        -h, --help: print usage
+        """
+        self.__parser=OptionParser()
+        self.__connectstring=''
+        self.__user=''
+        self.__password=''
+        self.__authpath=''
+        self.__verbose=False
+        self.__mode=0 # 1 is to create; -1 is to drop
+        self.__treename=''
+    def parsecmdln(self):
+        """
+        Parse commandline
+        """
+        usage = "usage: \%prog [options] \n"
+        self.__parser.add_option("-c","--connect",action="store",dest="connectstring",type="string",help="connection string to the tag DB.")
+        self.__parser.add_option("-u","--user",action="store",dest="user",type="string",help="user name")
+        self.__parser.add_option("-p","--password",action="store",dest="password",type="string",help="password")
+        self.__parser.add_option("-P","--path",action="store",dest="authpath",type="string",help="path to authentication.xml")
+        self.__parser.add_option("-C","--create",action="store",dest="createtreename",help="create tables for the given tree. If empty, create only the inventory table. Inventory tables are created automatically if not found.")
+        self.__parser.add_option("-D","--drop",action="store",dest="droptreename",help="drop tables related to tree with given name. If empty, drop all tables.")
+        self.__parser.add_option("-v","--verbose",action="store_true",dest="verbose",help="verbose mode")
+        self.__parser.set_defaults(connectstring='')
+        self.__parser.set_defaults(user='')
+        self.__parser.set_defaults(password='')
+        self.__parser.set_defaults(authpath='.')
+        self.__parser.set_defaults(createtreename='')
+        self.__parser.set_defaults(droptreename='')
+        self.__parser.set_defaults(verbose=False)
+        (options, args) = self.__parser.parse_args()
+        if not options.connectstring:
+            raise OptionValueError("option -%s is required"%('c'))
+        self.__connectstring=self.__parser.values.connectstring
+        
+        if not options.droptreename and not options.createtreename:
+            raise OptionValueError("option -%s or -%s is required"%('C','D'))
+        if options.droptreename and options.createtreename:
+            raise OptionValueError("option -%s and -%s are exclusive"%('C','D'))
+        if options.droptreename:
+            self.__mode=-1
+            self.__treename=self.__parser.values.droptreename
+        if options.createtreename:
+            self.__mode=1
+            self.__treename=self.__parser.values.createtreename
+        
+        if len(self.__parser.values.authpath)!=0:
+            self.__authpath=self.__parser.values.authpath
+        else:
+            self.__user=self.__parser.values.user
+            self.__password=self.__parser.values.password
+        self.__verbose=self.__parser.values.verbose
+        
+        if self.__parser.values.verbose is True:
+            print 'connectstring: ',self.__connectstring
+            print 'user: ',self.__user
+            print 'password: ',self.__password
+            print 'authpath: ',self.__authpath
+            if self.__mode==-1:
+                if len(self.__treename)!=0:
+                    print 'Drop tables related to '+self.__treename
+                else:
+                    print 'Drop all tables'
+            else:
+                if len(self.__treename)!=0:
+                    print 'Create tables related to '+self.__treename
+                else:
+                    print 'Create tag inventory tables'
+
+if __name__ == "__main__":
+    schemamanager=globaltagSchemaCreator() 
+    schemamanager.parsecmdln()
+
