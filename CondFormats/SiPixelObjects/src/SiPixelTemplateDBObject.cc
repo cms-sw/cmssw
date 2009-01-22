@@ -20,12 +20,7 @@ SiPixelTemplateDBObject::fillDB(const vstring& atitles){
 	//  open the template file(s) 
 	for(m=0; m<numOfTempl_; ++m){
 
-		std::ostringstream tout;
-		tout << "RecoLocalTracker/SiPixelRecHits/data/template_summary_zp" 
-				 << std::setw(4) << std::setfill('0') << std::right << atitles[m] << ".out" << std::ends;
-		std::string tempf = tout.str();
-					
-		edm::FileInPath file( tempf.c_str() );
+		edm::FileInPath file( atitles[m].c_str() );
 		tempfile = (file.fullPath()).c_str();
 
 		std::ifstream in_file(tempfile, std::ios::in);
@@ -64,8 +59,6 @@ SiPixelTemplateDBObject::fillDB(const vstring& atitles){
 		}
 		
 		in_file.close();
-		tout.clear();
-		tempf.clear();
 	}
 	else {
 		// If file didn't open, report this

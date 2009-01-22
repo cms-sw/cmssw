@@ -29,8 +29,12 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
                                           )
 
 process.uploader = cms.EDAnalyzer("SiPixelTemplateDBObjectUploader",
-                                fileNums = cms.vstring("0001","0004","0010","0012"),
-                                  Version = cms.double("1.1")
+                                  siPixelTemplateCalibrations = cms.vstring(
+    "RecoLocalTracker/SiPixelRecHits/data/template_summary_zp0001.out",
+    "RecoLocalTracker/SiPixelRecHits/data/template_summary_zp0004.out",
+    "RecoLocalTracker/SiPixelRecHits/data/template_summary_zp0010.out",
+    "RecoLocalTracker/SiPixelRecHits/data/template_summary_zp0012.out"),
+                                  Version = cms.double("1.2")
 )
 
 process.myprint = cms.OutputModule("AsciiOutputModule")
