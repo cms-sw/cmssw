@@ -84,10 +84,15 @@ process.SiPixelCondObjOfflineBuilder = cms.EDFilter("SiPixelCondObjOfflineBuilde
     rmsGain = cms.double(0.0),
     meanGain = cms.double(0.4),
     meanPed = cms.double(50.0),
+    rmsPed = cms.double(0.0), 	 
+# separate input for the FPIX. If not entered the default values are used. 	 
+    rmsGainFPix = cms.untracked.double(0.0), 	 
+    meanGainFPix = cms.untracked.double(0.4), 	 
+    meanPedFPix = cms.untracked.double(50.0),
+    rmsPedFPix = cms.untracked.double(0.0),
     fileName = cms.string('../macros/phCalibrationFit_C0.dat'),
     record = cms.string('SiPixelGainCalibrationOfflineRcd'),
     secondRocRowGainOffset = cms.double(0.0),
-    rmsPed = cms.double(0.0),
     fromFile = cms.bool(False),
     secondRocRowPedOffset = cms.double(0.0)
 )
