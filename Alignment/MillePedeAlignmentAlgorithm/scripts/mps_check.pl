@@ -1,8 +1,8 @@
 #!/usr/bin/env perl
 #     R. Mankel, DESY Hamburg     09-Jul-2007
 #     A. Parenti, DESY Hamburg    24-Apr-2008
-#     $Revision: 1.13 $
-#     $Date: 2008/11/26 17:23:44 $
+#     $Revision: 1.14 $
+#     $Date: 2008/12/08 14:31:23 $
 #
 #  Check output from jobs that have FETCH status
 #  
@@ -111,6 +111,12 @@ for ($i=0; $i<@JOBID; ++$i) {
 	  @array = split(' ',$line);
 	  $nEvent = $array[5];
 	}
+	if ($nEvent==0 && ($line =~ m/TrackRefitter        -i TrackRefitter:Tr/) eq 1) {
+# Read number of events from Track refitter if info above is not available
+	  @array = split(' ',$line);
+	  $nEvent = $array[5];
+        }
+
       }
       close INFILE;
       if ($logZipped eq "true") {
