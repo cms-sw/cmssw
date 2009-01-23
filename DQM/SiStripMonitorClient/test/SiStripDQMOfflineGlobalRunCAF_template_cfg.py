@@ -7,7 +7,8 @@ process.MessageLogger = cms.Service( "MessageLogger",
         'cout'
     ),
     cout = cms.untracked.PSet(
-        threshold = cms.untracked.string( 'ERROR' )
+#         threshold = cms.untracked.string( 'ERROR' )
+        threshold = cms.untracked.string( 'WARNING' )
     )
 )
 process.SimpleMemoryCheck = cms.Service( "SimpleMemoryCheck",
@@ -22,9 +23,12 @@ process.load( "Configuration.StandardSequences.Geometry_cff" )
 
 # Calibration 
 process.load( "Configuration.StandardSequences.FrontierConditions_GlobalTag_cff" )
-process.GlobalTag.connect   = "frontier://PromptProd/CMS_COND_21X_GLOBALTAG"
-process.GlobalTag.globaltag = "xGLOBAL_TAGx"
-process.es_prefer_GlobalTag = cms.ESPrefer('PoolDBESSource','GlobalTag')
+process.GlobalTag.connect   = 'frontier://FrontierProd/CMS_COND_21X_GLOBALTAG'
+process.GlobalTag.globaltag = 'xGLOBAL_TAGx'
+process.es_prefer_GlobalTag = cms.ESPrefer(
+    'PoolDBESSource',
+    'GlobalTag'
+)
 
 # SiStrip DQM
 process.load( "DQM.SiStripMonitorClient.SiStripDQMOfflineGlobalRunCAF_cff" )
@@ -37,32 +41,43 @@ process.maxEvents = cms.untracked.PSet(
 
 # HLT Filter
 process.hltFilter = cms.EDFilter( "HLTHighLevel",
-    HLTPaths          = cms.vstring(
+    HLTPaths           = cms.vstring(
+        'HLT_WhatEverFunnyFilter',
+        'HLT_TrackerCosmics',
         'HLT_TrackerCosmics_CoTF',
-        'HLT_TrackerCosmics_CTF' ,
-        'HLT_TrackerCosmics_RS'
+        'HLT_TrackerCosmics_RS'  ,
+        'HLT_TrackerCosmics_CTF'
     ),
-    andOr             = cms.bool( True ),
-    TriggerResultsTag = cms.InputTag( "TriggerResults", "", "FU" )
+    eventSetupPathsKey = cms.string( '' ),
+    andOr              = cms.bool( True ),
+    throw              = cms.bool( False ),
+    # use this according to https://hypernews.cern.ch/HyperNews/CMS/get/global-runs/537.html
+    # TO BE TEMPLATYFIED!
+    TriggerResultsTag  = cms.InputTag( 'TriggerResults', '', 'HLT' )
+#     TriggerResultsTag  = cms.InputTag( 'TriggerResults', '', 'FU' )    
+)
+
+# Scheduling
+process.p = cms.Path(
+xHLT_FILTERxprocess.hltFilter                            *
+xRECO_FROM_RAWxprocess.SiStripDQMRecoFromRaw                *
+xDQM_FROM_RAWxprocess.SiStripDQMSourceGlobalRunCAF_fromRAW *
+    process.SiStripDQMRecoGlobalRunCAF           *
+#     process.SiStripDQMSourceGlobalRunCAF_reduced *
+    process.SiStripMonitorClusterCAF             *
+    process.MEtoEDMConverter
 )
 
 # Output
 process.out = cms.OutputModule( "PoolOutputModule",
     fileName       = cms.untracked.string( 'xOUTPUT_DIRECTORYx/SiStripDQMOfflineGlobalRunCAF-xRUN_NAMEx.root' ),
+    SelectEvents   = cms.untracked.PSet(
+        SelectEvents = cms.vstring( 'p' )
+    ),
     outputCommands = cms.untracked.vstring(
         'drop *',
         'keep *_MEtoEDMConverter_*_SiStripDQMOfflineGlobalRunCAF'
     )
-)
-
-# Scheduling
-process.p = cms.Path(
-xRECO_FROM_RAWxprocess.SiStripDQMRecoFromRaw                *
-xHLT_FILTERxprocess.hltFilter                            *
-xDQM_FROM_RAWxprocess.SiStripDQMSourceGlobalRunCAF_fromRAW *
-    process.SiStripDQMRecoGlobalRunCAF           *
-    process.SiStripDQMSourceGlobalRunCAF_reduced *
-    process.MEtoEDMConverter
 )
 
 process.outpath = cms.EndPath(

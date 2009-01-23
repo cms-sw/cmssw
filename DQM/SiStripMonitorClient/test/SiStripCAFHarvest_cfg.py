@@ -40,9 +40,12 @@ process.load( "Configuration.StandardSequences.MagneticField_38T_cff" )
 process.load( "Configuration.StandardSequences.Geometry_cff" )
 # Calibration 
 process.load( "Configuration.StandardSequences.FrontierConditions_GlobalTag_cff" )
-process.GlobalTag.connect   = 'frontier://PromptProd/CMS_COND_21X_GLOBALTAG'
-process.GlobalTag.globaltag = 'CRAFT_V4P::All'
-process.es_prefer_GlobalTag = cms.ESPrefer( 'PoolDBESSource', 'GlobalTag' )
+# process.GlobalTag.connect   = 'frontier://FrontierProd/CMS_COND_21X_GLOBALTAG'
+process.GlobalTag.globaltag = 'CRAFT_30X::All'
+process.es_prefer_GlobalTag = cms.ESPrefer(
+    'PoolDBESSource',
+    'GlobalTag'
+)
 
 ### Input ###
 
@@ -68,7 +71,7 @@ process.load( "DQM.SiStripMonitorClient.SiStripDQMOfflineGlobalRunCAF_cff" )
 # DQM store #
 # process.DQMStore.referenceFileName = ''
 # process.DQMStore.collateHistograms = False
-# process.DQMStore.verbose = 1
+# process.DQMStore.verbose           = 1
 
 # EDM2ME #
 # process.EDMtoMEConverter.convertOnEndLumi = False
