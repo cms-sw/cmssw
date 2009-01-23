@@ -27,5 +27,6 @@ return_data = 0
 
 copy_data       = xCOPY_DATAx
 storage_element = srm.cern.ch
+storage_pool    = None
 storage_path    = xSTORAGE_PATHx
-lfn             = xLFNx
+user_remote_dir = xLFNx
