@@ -187,19 +187,20 @@ int HcalGenericDetId::hashedId(bool h2mode_) const {
       ietaAbs = tid.ietaAbs();
       iphi = tid.iphi();
 
-      int HTphi1_18 = 576;
-      if (iphi < 19) index = (iphi-1)*32 + (ietaAbs-1);
-      else index = HTphi1_18 + (iphi-19)*28 + (ietaAbs-1);
+      if ((iphi-1)%4==0) index = (iphi-1)*32 + (ietaAbs-1) - (12*((iphi-1)/4));
+      else               index = (iphi-1)*28 + (ietaAbs-1) + (4*(((iphi-1)/4)+1));
 
       if (zside == -1) index += HThalf;
+      ieta = ietaAbs*zside;      
     }
 
   // ZDC: ZDC_EM: 1 to 5, ZDC_HAD: 1 to 4, ZDC_LUM: 1,2, eta = +1, -1
   if (genericSubdet() == HcalGenericDetId::HcalGenZDC )
     {
       HcalZDCDetId tid(rawId() ); 
-      zside = tid.zside();
+      zside   = tid.zside();
       channel = tid.channel();
+      //depth   = tid.depth();//depth is not unique, channel is
 
       switch (tid.section() ) {
       case HcalZDCDetId::EM:   index = (channel-1); break;
@@ -226,44 +227,62 @@ int HcalGenericDetId::hashedId(bool h2mode_) const {
       iphi = tid.iphi();
       zside = tid.zside();
 
+
       if (tid.calibFlavor()==HcalCalibDetId::CalibrationBox) {
-
-        HcalSubdetector subDet = tid.hcalSubdet();
-
-        if (subDet==HcalBarrel) {
-          index = ((iphi+1)/4-1) + 18*channel + 27*(ieta+1);
-	} else if (subDet==HcalEndcap) {
-	  index = ((iphi+1)/4-1) + 18*channel + 63*(ieta+1) + 108;
-        } else if (subDet==HcalForward) {
-	  if (channel==8) channel = 3;
-	  index = (iphi-1)/18 + 4*channel + 8*(ieta+1) + 360;
-	} else if (subDet==HcalOuter) {
-	  if (channel==7) channel = 2;
-	  index = ((iphi+1)/6-1) + 12*(ieta+2) + 65*channel + 391;
-	} else {
-	  std::cout << "HCAL Det Id not valid!" << std::endl;
-          index = 0;
-        }
-
-     } else if (tid.calibFlavor()==HcalCalibDetId::HOCrosstalk) {
-	if (ieta==11) {
-	   switch(iphi) {
-	   case(16): index = 288+577; // 576 is the index of the last calib channel
-	   case(31): index = 289+577;
-	   case(5): index = 290+577;
-	   case(67): index = 291+577;
-           default: index = 0;
-	   }
-	} else {
-          if (ieta==4) ieta = 0;
-	  if (ieta==15) ieta = 1;
-	  index = (iphi-1) + 72*(ieta) + 72*(zside+1) + 577;
+	
+	HcalSubdetector subDet = tid.hcalSubdet();
+	
+	if (subDet==HcalBarrel) {
+	  //std::cout<<"CALIB_HB:  ";
+	  //dphi = 4 (18 phi values), 3 channel types (0,1,2), eta = -1 or 1
+	  //total of 18*3*2=108 channels
+	  index = ((iphi+1)/4-1) + 18*channel + 27*(ieta+1);
 	}
-     }
-     
-   }
-
-  //std::cout << "eta=" << ietaAbs << " side=" << zside << " phi=" << iphi << " depth=" << depth << " index=" << index << std::endl;
-
+	else if (subDet==HcalEndcap) {
+	  //std::cout<<"CALIB_HE:  ";
+	  //dphi = 4 (18 phi values), 6 channel types (0,1,3,4,5,6), eta = -1 or 1
+	  //total of 18*6*2=216 channels
+	  if (channel>2) channel-=1;
+	  index = ((iphi+1)/4-1) + 18*channel + 54*(ieta+1) + 108;
+	} 
+	else if (subDet==HcalForward) {
+	  //std::cout<<"CALIB_HF:  ";
+	  //dphi = 18 (4 phi values), 3 channel types (0,1,8), eta = -1 or 1
+	  if (channel==8) channel = 2;
+	  //total channels 4*3*2=24
+	  index = (iphi-1)/18 + 4*channel + 6*(ieta+1) + 324;
+	}
+	else if (subDet==HcalOuter) {
+	  //std::cout<<"CALIB_HO:  ";
+	  //there are 5 special calib crosstalk channels, one in each ring
+	  if (channel==7) {
+	    channel = 2;
+	    index = (ieta+2) + 420;
+	  }
+	  //for HOM/HOP dphi = 6 (12 phi values),  2 channel types (0,1), eta = -2,-1 or 1,2
+	  //for HO0/YB0 dphi = 12 (6 phi values),  2 channel types (0,1), eta = 0
+	  else{
+	    if (ieta<0) index      = ((iphi+1)/12-1) + 36*channel + 6*(ieta+2) + 348;
+	    else if (ieta>0) index = ((iphi+1)/12-1) + 36*channel + 6*(ieta+2) + 6 + 348;
+	    else index             = ((iphi+1)/6-1)  + 36*channel + 6*(ieta+2) + 348;
+	  }
+	} 
+	else {
+	  std::cout << "HCAL Det Id not valid!" << std::endl;
+	  index = 0;
+	}
+	
+      }
+      else if (tid.calibFlavor()==HcalCalibDetId::HOCrosstalk) {
+	//std::cout<<"HX:  ";
+	//for YB0/HO0 phi is grouped in 6 groups of 6 with dphi=2 but the transitions are 1 or 3
+	// in such a way that the %36 operation yeilds unique values for every iphi
+	if (abs(ieta)==4)  index = ((iphi-1)%36) + (((zside+1)*36)/2) + 72 + 425;   //ieta = 1 YB0/HO0;
+	else               index = (iphi-1) + (36*(zside+1)*2) + 425;  //ieta = 0 for HO2M/HO1M ieta=2 for HO1P/HO2P;
+      }
+      //std::cout << "  " << ieta << "  " << zside << "  " << iphi << "  " << depth << "  " << index << std::endl;
+    }
+  //std::cout << "eta:  " << ieta << "  side:  " << zside << "  phi:  " << iphi << "  depth:  " << depth << "  index:  " << index << std::endl;
+ 
   return index;
 }
