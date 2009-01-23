@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/11/05 18:19:58 $
- *  $Revision: 1.11 $
+ *  $Date: 2009/01/08 09:57:26 $
+ *  $Revision: 1.1 $
  *  \author Anne-Catherine Le Bihan
  */
 
@@ -203,23 +203,25 @@ void TrackEfficiencyClient::endLuminosityBlock(edm::LuminosityBlock const& lumiS
  histName = "/muonCompatibleLayers_";
  MonitorElement* muonCompatibleLayers  = dqmStore_->get(FolderName_+histName+algoName_);
 
- if (trackEfficiency_)
- { 
-   if (effX  ->getTH1F() && trackX  ->getTH1F() && muonX  ->getTH1F()) { effX	-> getTH1F()->Divide(trackX->getTH1F(),muonX->getTH1F(),1.,1.,"");}
-   if (effY  ->getTH1F() && trackY  ->getTH1F() && muonY  ->getTH1F()) { effY	-> getTH1F()->Divide(trackY->getTH1F(),muonY->getTH1F(),1.,1.,"");}
-   if (effZ  ->getTH1F() && trackZ  ->getTH1F() && muonZ  ->getTH1F()) { effZ	-> getTH1F()->Divide(trackZ->getTH1F(),muonZ->getTH1F(),1.,1.,"");}
-   if (effEta->getTH1F() && trackEta->getTH1F() && muonEta->getTH1F()) { effEta -> getTH1F()->Divide(trackEta->getTH1F(),muonEta->getTH1F(),1.,1.,"");}
-   if (effPhi->getTH1F() && trackPhi->getTH1F() && muonPhi->getTH1F()) { effPhi -> getTH1F()->Divide(trackPhi->getTH1F(),muonPhi->getTH1F(),1.,1.,"");}
-   if (effD0 ->getTH1F() && trackD0 ->getTH1F() && muonD0 ->getTH1F()) { effD0  -> getTH1F()->Divide(trackD0->getTH1F(),muonD0->getTH1F(),1.,1.,"");}
-   if (effCompatibleLayers->getTH1F() && trackCompatibleLayers->getTH1F() && muonCompatibleLayers->getTH1F()) { effCompatibleLayers -> getTH1F()->Divide(trackCompatibleLayers->getTH1F(),muonCompatibleLayers->getTH1F(),1.,1.,"");}
+ if(trackX && muonX && trackY && muonY && trackZ && muonZ && trackEta && muonEta && trackPhi && muonPhi && trackD0 && muonD0 && trackCompatibleLayers && muonCompatibleLayers){
+   if (trackEfficiency_)
+     { 
+       if (effX  ->getTH1F() && trackX  ->getTH1F() && muonX  ->getTH1F()) { effX	-> getTH1F()->Divide(trackX->getTH1F(),muonX->getTH1F(),1.,1.,"");}
+       if (effY  ->getTH1F() && trackY  ->getTH1F() && muonY  ->getTH1F()) { effY	-> getTH1F()->Divide(trackY->getTH1F(),muonY->getTH1F(),1.,1.,"");}
+       if (effZ  ->getTH1F() && trackZ  ->getTH1F() && muonZ  ->getTH1F()) { effZ	-> getTH1F()->Divide(trackZ->getTH1F(),muonZ->getTH1F(),1.,1.,"");}
+       if (effEta->getTH1F() && trackEta->getTH1F() && muonEta->getTH1F()) { effEta -> getTH1F()->Divide(trackEta->getTH1F(),muonEta->getTH1F(),1.,1.,"");}
+       if (effPhi->getTH1F() && trackPhi->getTH1F() && muonPhi->getTH1F()) { effPhi -> getTH1F()->Divide(trackPhi->getTH1F(),muonPhi->getTH1F(),1.,1.,"");}
+       if (effD0 ->getTH1F() && trackD0 ->getTH1F() && muonD0 ->getTH1F()) { effD0  -> getTH1F()->Divide(trackD0->getTH1F(),muonD0->getTH1F(),1.,1.,"");}
+       if (effCompatibleLayers->getTH1F() && trackCompatibleLayers->getTH1F() && muonCompatibleLayers->getTH1F()) { effCompatibleLayers -> getTH1F()->Divide(trackCompatibleLayers->getTH1F(),muonCompatibleLayers->getTH1F(),1.,1.,"");}
  }
- else {
-   if (effX  ->getTH1F() && trackX  ->getTH1F() && muonX  ->getTH1F()) { effX	-> getTH1F()->Divide(muonX->getTH1F(),trackX->getTH1F(),1.,1.,"");}
-   if (effY  ->getTH1F() && trackY  ->getTH1F() && muonY  ->getTH1F()) { effY	-> getTH1F()->Divide(muonY->getTH1F(),trackY->getTH1F(),1.,1.,"");}
-   if (effZ  ->getTH1F() && trackZ  ->getTH1F() && muonZ  ->getTH1F()) { effZ	-> getTH1F()->Divide(muonZ->getTH1F(),trackZ->getTH1F(),1.,1.,"");}
-   if (effEta->getTH1F() && trackEta->getTH1F() && muonEta->getTH1F()) { effEta -> getTH1F()->Divide(muonEta->getTH1F(),trackEta->getTH1F(),1.,1.,"");}
-   if (effPhi->getTH1F() && trackPhi->getTH1F() && muonPhi->getTH1F()) { effPhi -> getTH1F()->Divide(muonPhi->getTH1F(),trackPhi->getTH1F(),1.,1.,"");}
-   if (effD0 ->getTH1F() && trackD0 ->getTH1F() && muonD0 ->getTH1F()) { effD0  -> getTH1F()->Divide(muonD0->getTH1F(),trackD0->getTH1F(),1.,1.,"");}
+   else {
+     if (effX  ->getTH1F() && trackX  ->getTH1F() && muonX  ->getTH1F()) { effX	-> getTH1F()->Divide(muonX->getTH1F(),trackX->getTH1F(),1.,1.,"");}
+     if (effY  ->getTH1F() && trackY  ->getTH1F() && muonY  ->getTH1F()) { effY	-> getTH1F()->Divide(muonY->getTH1F(),trackY->getTH1F(),1.,1.,"");}
+     if (effZ  ->getTH1F() && trackZ  ->getTH1F() && muonZ  ->getTH1F()) { effZ	-> getTH1F()->Divide(muonZ->getTH1F(),trackZ->getTH1F(),1.,1.,"");}
+     if (effEta->getTH1F() && trackEta->getTH1F() && muonEta->getTH1F()) { effEta -> getTH1F()->Divide(muonEta->getTH1F(),trackEta->getTH1F(),1.,1.,"");}
+     if (effPhi->getTH1F() && trackPhi->getTH1F() && muonPhi->getTH1F()) { effPhi -> getTH1F()->Divide(muonPhi->getTH1F(),trackPhi->getTH1F(),1.,1.,"");}
+     if (effD0 ->getTH1F() && trackD0 ->getTH1F() && muonD0 ->getTH1F()) { effD0  -> getTH1F()->Divide(muonD0->getTH1F(),trackD0->getTH1F(),1.,1.,"");}
+   }
  }
  
 }
