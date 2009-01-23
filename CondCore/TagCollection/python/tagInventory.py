@@ -13,6 +13,21 @@ class  tagInventory(object):
         self.__tagInventoryTableNotNullColumns = ['tagname','pfn','recordname','objectname']
         #self.__tagInventoryTableUniqueColumns = ['tagname']
         self.__tagInventoryTablePK = ('tagid')
+    def dropme( self ):
+        """Drop inventory related tables
+        """
+        try:
+            transaction=self.__session.transaction()
+            transaction.start(False)
+            schema = self.__session.nominalSchema()
+            schema.dropIfExistsTable( self.__tagInventoryIDName )
+            schema.dropIfExistsTable( self.__tagInventoryTableName )
+            transaction.commit()
+        except Exception, er:
+            transaction.rollback()
+            raise Exception, str(er)
+        return
+    
     def existInventoryTable( self ):
         """Check if inventory table exists
         """

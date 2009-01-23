@@ -11,6 +11,19 @@ def commentTableName():
 	return 'ENTRYCOMMENT_TABLE'
 
 import coral
+def dropAllTreeTables(dbsession):
+    """drop all tagtree related tables
+    """
+    try:
+        dbsession.transaction().start(False)
+	tablelist = dbsession.nominalSchema().listTables()
+	for tname in tablelist:
+	   if tname.find('TAGTREE_') != -1:
+              dbsession.nominalSchema().dropTable(tname)
+	dbsession.transaction().commit()
+    except Exception, e:
+        raise Exception, str(e)
+	    
 def tagInTrees(dbsession,tagname,pfn=''):
     """returns the tree names which contain the given tag
        select tagid from taginventory_table where tagname=tagname

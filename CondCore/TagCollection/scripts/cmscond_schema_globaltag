@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import os
+import os,coral, CommonUtils
 from optparse import OptionParser, Option, OptionValueError
 from CondCore.TagCollection import tagInventory,TagTree
     
@@ -26,6 +26,7 @@ class globaltagSchemaCreator:
         self.__verbose=False
         self.__mode=0 # 1 is to create; -1 is to drop
         self.__treename=''
+
     def parsecmdln(self):
         """
         Parse commandline
@@ -86,7 +87,33 @@ class globaltagSchemaCreator:
                 else:
                     print 'Create tag inventory tables'
 
+    def act(self):
+        """Do action
+        """
+        if self.__mode==1: #create
+            inv=tagInventory.tagInventory()
+            if inv.existInventoryTable() is False:
+               inv.createInventoryTable()
+            if len(self.__treename)!=0:
+               tt=TagTree.tagTree(self.__treename)
+               if existTagTreeTable() is False:
+                 tt.createTagTreeTable()
+               else:
+                 print 'tree '+treename+' already exists. Do nothing'
+            return
+        if self.__mode==-1: #drop
+            if len(self.__treename) != 0:
+              tt.TagTree.tagTree(self.__treename)
+              tt.deleteSubTree('ROOT')
+            else:
+              #delete inventory and all trees
+              inv=tagInventory.tagInventory()
+              inv.dropme()
+              svc = coral.ConnectionService()
+              session = svc.connect(self.__connectstring,accessMode=coral.access_Update)
+              CommonUtils.dropAllTreeTables((session)
+              del session
 if __name__ == "__main__":
     schemamanager=globaltagSchemaCreator() 
     schemamanager.parsecmdln()
-
+    schemamanager.act()
