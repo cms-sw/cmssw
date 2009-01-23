@@ -68,7 +68,7 @@ class EcalEndcapGeometry : public CaloSubdetectorGeometry
 
       static std::string hitString() { return "EcalHitsEE" ; }
 
-      static std::string producerName() { return "EcalEndcap" ; }
+      static std::string producerTag() { return "EcalEndcap" ; }
 
       static unsigned int numberOfAlignments() { return 4 ; }
 
@@ -84,7 +84,8 @@ class EcalEndcapGeometry : public CaloSubdetectorGeometry
 					const GlobalPoint& f2 ,
 					const GlobalPoint& f3 ,
 					CaloCellGeometry::CornersMgr* mgr,
-					const double*      parm ) ;
+					const double*      parm ,
+					const DetId&       detId   ) ;
 
    private:
 

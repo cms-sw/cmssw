@@ -64,7 +64,7 @@ class EcalPreshowerGeometry : public CaloSubdetectorGeometry
 
       static std::string hitString() { return "EcalHitsES" ; }
 
-      static std::string producerName() { return "EcalPreshower" ; }
+      static std::string producerTag() { return "EcalPreshower" ; }
 
       static unsigned int numberOfAlignments() { return 1 ; }
 
@@ -80,7 +80,8 @@ class EcalPreshowerGeometry : public CaloSubdetectorGeometry
 					const GlobalPoint& f2 ,
 					const GlobalPoint& f3 ,
 					CaloCellGeometry::CornersMgr* mgr,
-					const double*      parm ) ;
+					const double*      parm ,
+					const DetId&       detId   ) ;
 
    private:
 

@@ -195,7 +195,8 @@ EcalPreshowerGeometry::newCell( const GlobalPoint& f1 ,
 				const GlobalPoint& f2 ,
 				const GlobalPoint& f3 ,
 				CaloCellGeometry::CornersMgr* mgr,
-				const double*      parm ) 
+				const double*      parm ,
+				const DetId&       detId    ) 
 {
    return ( new PreshowerStrip( f1, mgr , parm ) ) ;
 }

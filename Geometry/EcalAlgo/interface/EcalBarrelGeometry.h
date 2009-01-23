@@ -71,7 +71,7 @@ class EcalBarrelGeometry : public CaloSubdetectorGeometry
 
       static std::string hitString() { return "EcalHitsEB" ; }
 
-      static std::string producerName() { return "EcalBarrel" ; }
+      static std::string producerTag() { return "EcalBarrel" ; }
 
       static unsigned int numberOfAlignments() { return 36 ; }
 
@@ -87,7 +87,8 @@ class EcalBarrelGeometry : public CaloSubdetectorGeometry
 					const GlobalPoint& f2 ,
 					const GlobalPoint& f3 ,
 					CaloCellGeometry::CornersMgr* mgr,
-					const double*      parm ) ;
+					const double*      parm ,
+					const DetId&       detId ) ;
 					
    private:
       /** number of crystals in eta direction */
