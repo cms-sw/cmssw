@@ -1,0 +1,11 @@
+<?xml version='1.0' encoding="UTF-8"?>
+<!DOCTYPE PoolDatabase SYSTEM "InMemory">
+ <PoolDatabase >
+  <PoolContainer name="PZdcRcd" >
+   <Class table="PZDCGEOMETRY" id_columns="IOV_VALUE_ID" name="PCaloGeometry" mapping_version="PHcal_basic" >
+      <Blob column="TRANSLATION" name="m_translation"/>
+      <Blob column="DIMENSION" name="m_dimension"/>
+      <Blob column="INDEX" name="m_indexes"/>
+   </Class >
+  </PoolContainer >
+ </PoolDatabase >
