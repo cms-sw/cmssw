@@ -14,14 +14,15 @@ particleFlow = cms.EDProducer("PFProducer",
 
     # Use electron identification in PFAlgo
     usePFElectrons = cms.bool(False),
-    pf_electronID_mvaWeightFile = cms.string('RecoParticleFlow/PFProducer/data/MVAnalysis_BDT.weights_finalID_hzz-pions.txt'),
+    pf_electronID_mvaWeightFile = cms.string('RecoParticleFlow/PFProducer/data/MVAnalysis_BDT.weights_PfElectrons23Jan.txt'),
+                              
     final_chi2cut_bremps = cms.double(25.0),
-    final_chi2cut_bremecal = cms.double(25.0),
+    final_chi2cut_bremecal = cms.double(100.0),
     final_chi2cut_bremhcal = cms.double(25.0),
     final_chi2cut_gsfps = cms.double(100.0),
     final_chi2cut_gsfecal = cms.double(900.0),
     final_chi2cut_gsfhcal = cms.double(100.0),
-    pf_electron_mvaCut = cms.double(-0.4),
+    pf_electron_mvaCut = cms.double(-0.1),
 
     # Use photon conversion identification in PFAlgo
     usePFConversions = cms.bool(False),
