@@ -12,8 +12,9 @@ class globaltagSchemaCreator:
         -u, --user=user: user name
         -p, --password=password: password
         -P, --path=path: path to authentication.xml
-        -C, --create=treename: create tables related to tree with given name. If empty, create only the inventory table
-        -D, --drop=treename: drop tables related to tree with given name. If empty, drop all tables
+        -C, --create: create tables. 
+        -D, --drop: drop tables related to tree with given name.
+        -T, --Tree=treename:  
         -v, --verbose: switch on verbose mode
         -h, --help: print usage
         """
@@ -34,32 +35,34 @@ class globaltagSchemaCreator:
         self.__parser.add_option("-u","--user",action="store",dest="user",type="string",help="user name")
         self.__parser.add_option("-p","--password",action="store",dest="password",type="string",help="password")
         self.__parser.add_option("-P","--path",action="store",dest="authpath",type="string",help="path to authentication.xml")
-        self.__parser.add_option("-C","--create",action="store",dest="createtreename",help="create tables for the given tree. If empty, create only the inventory table. Inventory tables are created automatically if not found.")
-        self.__parser.add_option("-D","--drop",action="store",dest="droptreename",help="drop tables related to tree with given name. If empty, drop all tables.")
+        self.__parser.add_option("-C","--create",action="store_true",dest="create",help="create tables. With -T option, it creates tables related to the given tree and inventory tables are created if not existant; with no -T option, only inventory tables are created ")
+        self.__parser.add_option("-D","--drop",action="store_true",dest="drop",help="drop tables. With -T option, tables related to the given tree are droped; with no -T option, all tables are droped.")
+        self.__parser.add_option("-T","--tree",action="store",dest="treename",help="treename")
         self.__parser.add_option("-v","--verbose",action="store_true",dest="verbose",help="verbose mode")
         self.__parser.set_defaults(connectstring='')
         self.__parser.set_defaults(user='')
         self.__parser.set_defaults(password='')
         self.__parser.set_defaults(authpath='.')
-        self.__parser.set_defaults(createtreename='')
-        self.__parser.set_defaults(droptreename='')
+        self.__parser.set_defaults(create=False)
+        self.__parser.set_defaults(drop=False)
+        self.__parser.set_defaults(treename='')
         self.__parser.set_defaults(verbose=False)
         (options, args) = self.__parser.parse_args()
         if not options.connectstring:
             raise OptionValueError("option -%s is required"%('c'))
         self.__connectstring=self.__parser.values.connectstring
         
-        if not options.droptreename and not options.createtreename:
+        if not options.drop and not options.create:
             raise OptionValueError("option -%s or -%s is required"%('C','D'))
-        if options.droptreename and options.createtreename:
+        if options.drop and options.create:
             raise OptionValueError("option -%s and -%s are exclusive"%('C','D'))
-        if options.droptreename:
+        if options.drop:
             self.__mode=-1
-            self.__treename=self.__parser.values.droptreename
-        if options.createtreename:
+        if options.create:
             self.__mode=1
-            self.__treename=self.__parser.values.createtreename
-        
+        if options.treename:
+            self.__treename=self.__parser.values.treename
+                
         if len(self.__parser.values.authpath)!=0:
             self.__authpath=self.__parser.values.authpath
         else:
