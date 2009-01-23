@@ -2,8 +2,9 @@ import FWCore.ParameterSet.Config as cms
 
 import FastSimulation.Tracking.TrajectorySeedProducer_cfi
 iterativeThirdSeeds = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.clone()
-iterativeThirdSeeds.firstHitSubDetectorNumber = [3]
-iterativeThirdSeeds.firstHitSubDetectors = [1, 2, 6]
+iterativeThirdSeeds.firstHitSubDetectorNumber = [2]
+##iterativeThirdSeeds.firstHitSubDetectors = [1, 2, 6]
+iterativeThirdSeeds.firstHitSubDetectors = [1, 2]
 iterativeThirdSeeds.secondHitSubDetectorNumber = [3]
 iterativeThirdSeeds.secondHitSubDetectors = [1, 2, 6]
 iterativeThirdSeeds.thirdHitSubDetectorNumber = [0]
@@ -14,9 +15,9 @@ iterativeThirdSeeds.pTMin = [0.2]
 iterativeThirdSeeds.maxD0 = [1.]
 iterativeThirdSeeds.maxZ0 = [30.]
 iterativeThirdSeeds.numberOfHits = [2]
-iterativeThirdSeeds.originRadius = [0.2]
-iterativeThirdSeeds.originHalfLength = [17.5]
-iterativeThirdSeeds.originpTMin = [0.3]
+iterativeThirdSeeds.originRadius = [0.7]
+iterativeThirdSeeds.originHalfLength = [7.00]
+iterativeThirdSeeds.originpTMin = [0.6]
 iterativeThirdSeeds.zVertexConstraint = [-1.0]
 iterativeThirdSeeds.primaryVertices = ['none']
 

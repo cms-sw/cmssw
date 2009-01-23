@@ -56,6 +56,7 @@ private:
   std::vector<edm::InputTag> firstTracks;
   std::vector<edm::InputTag> secondTracks;
   std::vector<edm::InputTag> thirdTracks;
+  std::vector<edm::InputTag> fourthTracks;
   bool saveNU;
   std::vector<FSimEvent*> mySimEvent;
   std::string simModuleLabel_;
@@ -68,24 +69,38 @@ private:
   std::vector<MonitorElement*> first2TracksvsEtaP;
   std::vector<MonitorElement*> secondTracksvsEtaP;
   std::vector<MonitorElement*> thirdTracksvsEtaP;
+  std::vector<MonitorElement*> fourthTracksvsEtaP;
   std::vector<MonitorElement*> firstHitsvsP;
   std::vector<MonitorElement*> secondHitsvsP;
   std::vector<MonitorElement*> thirdHitsvsP;
+  std::vector<MonitorElement*> fourthHitsvsP;
   std::vector<MonitorElement*> firstHitsvsEta;
   std::vector<MonitorElement*> secondHitsvsEta;
   std::vector<MonitorElement*> thirdHitsvsEta;
+  std::vector<MonitorElement*> fourthHitsvsEta;
   std::vector<MonitorElement*> firstLayersvsP;
   std::vector<MonitorElement*> secondLayersvsP;
   std::vector<MonitorElement*> thirdLayersvsP;
+  std::vector<MonitorElement*> fourthLayersvsP;
   std::vector<MonitorElement*> firstLayersvsEta;
   std::vector<MonitorElement*> secondLayersvsEta;
   std::vector<MonitorElement*> thirdLayersvsEta;
+  std::vector<MonitorElement*> fourthLayersvsEta;
+
+  std::vector<MonitorElement*> firstNumvsEtaP;
+  std::vector<MonitorElement*> secondNumvsEtaP;
+  std::vector<MonitorElement*> thirdNumvsEtaP;
+  std::vector<MonitorElement*> fourthNumvsEtaP;
+
 
   std::string outputFileName;
 
   int totalNEvt;
 
   const TrackerGeometry*  theGeometry;
+
+  int  num1fast, num2fast, num3fast, num4fast;
+  int  num1full, num2full, num3full, num4full;
 
 };
 
@@ -97,18 +112,29 @@ testTrackingIterations::testTrackingIterations(const edm::ParameterSet& p) :
   first2TracksvsEtaP(2,static_cast<MonitorElement*>(0)),
   secondTracksvsEtaP(2,static_cast<MonitorElement*>(0)),
   thirdTracksvsEtaP(2,static_cast<MonitorElement*>(0)),
+  fourthTracksvsEtaP(2,static_cast<MonitorElement*>(0)),
   firstHitsvsP(2,static_cast<MonitorElement*>(0)),
   secondHitsvsP(2,static_cast<MonitorElement*>(0)),
   thirdHitsvsP(2,static_cast<MonitorElement*>(0)),
+  fourthHitsvsP(2,static_cast<MonitorElement*>(0)),
   firstHitsvsEta(2,static_cast<MonitorElement*>(0)),
   secondHitsvsEta(2,static_cast<MonitorElement*>(0)),
   thirdHitsvsEta(2,static_cast<MonitorElement*>(0)),
+  fourthHitsvsEta(2,static_cast<MonitorElement*>(0)),
   firstLayersvsP(2,static_cast<MonitorElement*>(0)),
   secondLayersvsP(2,static_cast<MonitorElement*>(0)),
   thirdLayersvsP(2,static_cast<MonitorElement*>(0)),
+  fourthLayersvsP(2,static_cast<MonitorElement*>(0)),
   firstLayersvsEta(2,static_cast<MonitorElement*>(0)),
   secondLayersvsEta(2,static_cast<MonitorElement*>(0)),
   thirdLayersvsEta(2,static_cast<MonitorElement*>(0)),
+  fourthLayersvsEta(2,static_cast<MonitorElement*>(0)),
+
+  firstNumvsEtaP(2,static_cast<MonitorElement*>(0)),
+  secondNumvsEtaP(2,static_cast<MonitorElement*>(0)),
+  thirdNumvsEtaP(2,static_cast<MonitorElement*>(0)),
+  fourthNumvsEtaP(2,static_cast<MonitorElement*>(0)),
+
   totalNEvt(0)
 {
   
@@ -125,6 +151,8 @@ testTrackingIterations::testTrackingIterations(const edm::ParameterSet& p) :
   secondTracks.push_back(p.getParameter<edm::InputTag>("secondFast"));
   thirdTracks.push_back(p.getParameter<edm::InputTag>("thirdFull"));
   thirdTracks.push_back(p.getParameter<edm::InputTag>("thirdFast"));
+  fourthTracks.push_back(p.getParameter<edm::InputTag>("fourthFull"));
+  fourthTracks.push_back(p.getParameter<edm::InputTag>("fourthFast"));
 
   // For the full sim
   mySimEvent[0] = new FSimEvent(particleFilter_);
@@ -150,35 +178,58 @@ testTrackingIterations::testTrackingIterations(const edm::ParameterSet& p) :
   secondTracksvsEtaP[1] = dbe->book2D("eff2Fast","Efficiency 2nd Fast",28,-2.8,2.8,100,0,10.);
   thirdTracksvsEtaP[0] = dbe->book2D("eff3Full","Efficiency 3rd Full",28,-2.8,2.8,100,0,10.);
   thirdTracksvsEtaP[1] = dbe->book2D("eff3Fast","Efficiency 3rd Fast",28,-2.8,2.8,100,0,10.);
+  fourthTracksvsEtaP[0] = dbe->book2D("eff4Full","Efficiency 4th Full",28,-2.8,2.8,100,0,10.);
+  fourthTracksvsEtaP[1] = dbe->book2D("eff4Fast","Efficiency 4th Fast",28,-2.8,2.8,100,0,10.);
   firstHitsvsP[0] = dbe->book2D("Hits1PFull","Hits vs P 1st Full",100,0.,10.,30,0,30.);
   firstHitsvsP[1] = dbe->book2D("Hits1PFast","Hits vs P 1st Fast",100,0.,10.,30,0,30.);
   secondHitsvsP[0] = dbe->book2D("Hits2PFull","Hits vs P 2nd Full",100,0.,10.,30,0,30.);
   secondHitsvsP[1] = dbe->book2D("Hits2PFast","Hits vs P 2nd Fast",100,0.,10.,30,0,30.);
   thirdHitsvsP[0] = dbe->book2D("Hits3PFull","Hits vs P 3rd Full",100,0.,10.,30,0,30.);
   thirdHitsvsP[1] = dbe->book2D("Hits3PFast","Hits vs P 3rd Fast",100,0.,10.,30,0,30.);
+  fourthHitsvsP[0] = dbe->book2D("Hits4PFull","Hits vs P 4th Full",100,0.,10.,30,0,30.);
+  fourthHitsvsP[1] = dbe->book2D("Hits4PFast","Hits vs P 4th Fast",100,0.,10.,30,0,30.);
   firstHitsvsEta[0] = dbe->book2D("Hits1EtaFull","Hits vs Eta 1st Full",28,-2.8,2.8,30,0,30.);
   firstHitsvsEta[1] = dbe->book2D("Hits1EtaFast","Hits vs Eta 1st Fast",28,-2.8,2.8,30,0,30.);
   secondHitsvsEta[0] = dbe->book2D("Hits2EtaFull","Hits vs Eta 2nd Full",28,-2.8,2.8,30,0,30.);
   secondHitsvsEta[1] = dbe->book2D("Hits2EtaFast","Hits vs Eta 2nd Fast",28,-2.8,2.8,30,0,30.);
   thirdHitsvsEta[0] = dbe->book2D("Hits3EtaFull","Hits vs Eta 3rd Full",28,-2.8,2.8,30,0,30.);
   thirdHitsvsEta[1] = dbe->book2D("Hits3EtaFast","Hits vs Eta 3rd Fast",28,-2.8,2.8,30,0,30.);
+  fourthHitsvsEta[0] = dbe->book2D("Hits4EtaFull","Hits vs Eta 4th Full",28,-2.8,2.8,30,0,30.);
+  fourthHitsvsEta[1] = dbe->book2D("Hits4EtaFast","Hits vs Eta 4th Fast",28,-2.8,2.8,30,0,30.);
   firstLayersvsP[0] = dbe->book2D("Layers1PFull","Layers vs P 1st Full",100,0.,10.,30,0,30.);
   firstLayersvsP[1] = dbe->book2D("Layers1PFast","Layers vs P 1st Fast",100,0.,10.,30,0,30.);
   secondLayersvsP[0] = dbe->book2D("Layers2PFull","Layers vs P 2nd Full",100,0.,10.,30,0,30.);
   secondLayersvsP[1] = dbe->book2D("Layers2PFast","Layers vs P 2nd Fast",100,0.,10.,30,0,30.);
   thirdLayersvsP[0] = dbe->book2D("Layers3PFull","Layers vs P 3rd Full",100,0.,10.,30,0,30.);
   thirdLayersvsP[1] = dbe->book2D("Layers3PFast","Layers vs P 3rd Fast",100,0.,10.,30,0,30.);
+  fourthLayersvsP[0] = dbe->book2D("Layers4PFull","Layers vs P 4th Full",100,0.,10.,30,0,30.);
+  fourthLayersvsP[1] = dbe->book2D("Layers4PFast","Layers vs P 4th Fast",100,0.,10.,30,0,30.);
   firstLayersvsEta[0] = dbe->book2D("Layers1EtaFull","Layers vs Eta 1st Full",28,-2.8,2.8,30,0,30.);
   firstLayersvsEta[1] = dbe->book2D("Layers1EtaFast","Layers vs Eta 1st Fast",28,-2.8,2.8,30,0,30.);
   secondLayersvsEta[0] = dbe->book2D("Layers2EtaFull","Layers vs Eta 2nd Full",28,-2.8,2.8,30,0,30.);
   secondLayersvsEta[1] = dbe->book2D("Layers2EtaFast","Layers vs Eta 2nd Fast",28,-2.8,2.8,30,0,30.);
   thirdLayersvsEta[0] = dbe->book2D("Layers3EtaFull","Layers vs Eta 3rd Full",28,-2.8,2.8,30,0,30.);
   thirdLayersvsEta[1] = dbe->book2D("Layers3EtaFast","Layers vs Eta 3rd Fast",28,-2.8,2.8,30,0,30.);
-								
+  fourthLayersvsEta[0] = dbe->book2D("Layers4EtaFull","Layers vs Eta 4th Full",28,-2.8,2.8,30,0,30.);
+  fourthLayersvsEta[1] = dbe->book2D("Layers4EtaFast","Layers vs Eta 4th Fast",28,-2.8,2.8,30,0,30.);
+
+  firstNumvsEtaP[0] = dbe->book2D("Num1Full","Num Tracks 1st Full",28,-2.8,2.8,100,0,10.);								
+  firstNumvsEtaP[1] = dbe->book2D("Num1Fast","Num Tracks 1st Fast",28,-2.8,2.8,100,0,10.);								
+  secondNumvsEtaP[0] = dbe->book2D("Num2Full","Num Tracks 2nd Full",28,-2.8,2.8,100,0,10.);								
+  secondNumvsEtaP[1] = dbe->book2D("Num2Fast","Num Tracks 12nd Fast",28,-2.8,2.8,100,0,10.);								
+  thirdNumvsEtaP[0] = dbe->book2D("Num3Full","Num Tracks 3rd Full",28,-2.8,2.8,100,0,10.);								
+  thirdNumvsEtaP[1] = dbe->book2D("Num3Fast","Num Tracks 3rd Fast",28,-2.8,2.8,100,0,10.);								
+  fourthNumvsEtaP[0] = dbe->book2D("Num4Full","Num Tracks 4th Full",28,-2.8,2.8,100,0,10.);								
+  fourthNumvsEtaP[1] = dbe->book2D("Num4Fast","Num Tracks 4th Fast",28,-2.8,2.8,100,0,10.);								
+
 }
 
 testTrackingIterations::~testTrackingIterations()
 {
+
+  std::cout << "\tFULL \tFIRST \tSECOND \tTHIRD\t FOURTH " << std::endl;
+  std::cout << "\t\t" <<  num1full << "\t" << num2full <<"\t" << num3full << "\t" << num4full << std::endl;
+  std::cout << "\t\t" <<  num1fast << "\t" << num2fast << "\t" << num3fast << "\t" << num4fast << std::endl;
 
   dbe->save(outputFileName);
 
@@ -196,6 +247,9 @@ void testTrackingIterations::beginJob(const edm::EventSetup & es)
   edm::ESHandle<TrackerGeometry>        geometry;
   es.get<TrackerDigiGeometryRecord>().get(geometry);
   theGeometry = &(*geometry);
+
+  num1fast = num2fast = num3fast = num4fast=0;
+  num1full = num2full = num3full = num4full=0;
 
 }
 
@@ -243,42 +297,89 @@ testTrackingIterations::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
   std::vector<bool> secondSeed(2,static_cast<bool>(false));
   std::vector<TrajectorySeed::range> theRecHitRange(2);
 
+
+  
   for ( unsigned ievt=0; ievt<2; ++ievt ) {
 
     edm::Handle<reco::TrackCollection> tkRef1;
     edm::Handle<reco::TrackCollection> tkRef2;
     edm::Handle<reco::TrackCollection> tkRef3;
+    edm::Handle<reco::TrackCollection> tkRef4;
     iEvent.getByLabel(firstTracks[ievt],tkRef1);    
     iEvent.getByLabel(secondTracks[ievt],tkRef2);    
     iEvent.getByLabel(thirdTracks[ievt],tkRef3);   
+    iEvent.getByLabel(fourthTracks[ievt],tkRef4);   
     std::vector<const reco::TrackCollection*> tkColl;
     tkColl.push_back(tkRef1.product());
     tkColl.push_back(tkRef2.product());
     tkColl.push_back(tkRef3.product());
+    tkColl.push_back(tkRef4.product());
     // if ( tkColl[0]+tkColl[1]+tkColl[2] != 1 ) continue;
-    if ( tkColl[0]->size() == 1 ) { 
-      firstTracksvsEtaP[ievt]->Fill(etaGen,pGen,tkColl[0]->size());
-      reco::TrackCollection::const_iterator itk = tkColl[0]->begin();
-      firstHitsvsEta[ievt]->Fill(etaGen,itk->found(),1.);
-      firstHitsvsP[ievt]->Fill(pGen,itk->found(),1.);
-      firstLayersvsEta[ievt]->Fill(etaGen,itk->hitPattern().trackerLayersWithMeasurement(),1.);
-      firstLayersvsP[ievt]->Fill(pGen,itk->hitPattern().trackerLayersWithMeasurement(),1.);
+
+    if(ievt ==0){
+      num1full +=  tkColl[0]->size();       
+      num2full +=  tkColl[1]->size();
+      num3full +=  tkColl[2]->size();
+      num4full +=  tkColl[3]->size();
+    } else if (ievt ==1){
+      num1fast +=  tkColl[0]->size();
+      num2fast +=  tkColl[1]->size();
+      num3fast +=  tkColl[2]->size();
+      num4fast +=  tkColl[3]->size();
     }
-    if ( tkColl[1]->size() == 1 ) { 
-      secondTracksvsEtaP[ievt]->Fill(etaGen,pGen,tkColl[1]->size());
-      reco::TrackCollection::const_iterator itk = tkColl[1]->begin();
-      secondHitsvsEta[ievt]->Fill(etaGen,itk->found(),1.);    
-      secondHitsvsP[ievt]->Fill(pGen,itk->found(),1.);
-      secondLayersvsEta[ievt]->Fill(etaGen,itk->hitPattern().trackerLayersWithMeasurement(),1.);    
-      secondLayersvsP[ievt]->Fill(pGen,itk->hitPattern().trackerLayersWithMeasurement(),1.);
+     
+    firstNumvsEtaP[ievt]->Fill(etaGen,pGen,tkColl[0]->size());
+    secondNumvsEtaP[ievt]->Fill(etaGen,pGen,tkColl[1]->size());
+    thirdNumvsEtaP[ievt]->Fill(etaGen,pGen,tkColl[2]->size());
+    fourthNumvsEtaP[ievt]->Fill(etaGen,pGen,tkColl[3]->size());
+
+    //    if ( tkColl[0]->size() == 1 ) { 
+    reco::TrackCollection::const_iterator itk1 = tkColl[0]->begin();
+    reco::TrackCollection::const_iterator itk1_e = tkColl[0]->end();
+    for(;itk1!=itk1_e;++itk1){
+      //      firstTracksvsEtaP[ievt]->Fill(etaGen,pGen,tkColl[0]->size());
+      firstTracksvsEtaP[ievt]->Fill(etaGen,pGen,1.);
+      //      reco::TrackCollection::const_iterator itk = tkColl[0]->begin();
+      firstHitsvsEta[ievt]->Fill(etaGen,itk1->found(),1.);
+      firstHitsvsP[ievt]->Fill(pGen,itk1->found(),1.);
+      firstLayersvsEta[ievt]->Fill(etaGen,itk1->hitPattern().trackerLayersWithMeasurement(),1.);
+      firstLayersvsP[ievt]->Fill(pGen,itk1->hitPattern().trackerLayersWithMeasurement(),1.);
     }
-    if ( tkColl[2]->size() == 1 ) { 
-      thirdTracksvsEtaP[ievt]->Fill(etaGen,pGen,tkColl[2]->size());
-      reco::TrackCollection::const_iterator itk = tkColl[2]->begin();
-      thirdHitsvsEta[ievt]->Fill(etaGen,itk->found(),1.);
-      thirdHitsvsP[ievt]->Fill(pGen,itk->found(),1.);
-      thirdLayersvsEta[ievt]->Fill(etaGen,itk->hitPattern().trackerLayersWithMeasurement(),1.);
-      thirdLayersvsP[ievt]->Fill(pGen,itk->hitPattern().trackerLayersWithMeasurement(),1.);
+    //    if ( tkColl[1]->size() == 1 ) { 
+    reco::TrackCollection::const_iterator itk2 = tkColl[1]->begin();
+    reco::TrackCollection::const_iterator itk2_e = tkColl[1]->end();
+    for(;itk2!=itk2_e;++itk2){
+      secondTracksvsEtaP[ievt]->Fill(etaGen,pGen,1.);
+      //      secondTracksvsEtaP[ievt]->Fill(etaGen,pGen,tkColl[1]->size());
+      //      reco::TrackCollection::const_iterator itk = tkColl[1]->begin();
+      secondHitsvsEta[ievt]->Fill(etaGen,itk2->found(),1.);    
+      secondHitsvsP[ievt]->Fill(pGen,itk2->found(),1.);
+      secondLayersvsEta[ievt]->Fill(etaGen,itk2->hitPattern().trackerLayersWithMeasurement(),1.);    
+      secondLayersvsP[ievt]->Fill(pGen,itk2->hitPattern().trackerLayersWithMeasurement(),1.);
+    }
+    //    if ( tkColl[2]->size() == 1 ) { 
+    reco::TrackCollection::const_iterator itk3 = tkColl[2]->begin();
+    reco::TrackCollection::const_iterator itk3_e = tkColl[2]->end();
+    for(;itk3!=itk3_e;++itk3){
+      thirdTracksvsEtaP[ievt]->Fill(etaGen,pGen,1.);
+      //      thirdTracksvsEtaP[ievt]->Fill(etaGen,pGen,tkColl[2]->size());
+      //      reco::TrackCollection::const_iterator itk = tkColl[2]->begin();
+      thirdHitsvsEta[ievt]->Fill(etaGen,itk3->found(),1.);
+      thirdHitsvsP[ievt]->Fill(pGen,itk3->found(),1.);
+      thirdLayersvsEta[ievt]->Fill(etaGen,itk3->hitPattern().trackerLayersWithMeasurement(),1.);
+      thirdLayersvsP[ievt]->Fill(pGen,itk3->hitPattern().trackerLayersWithMeasurement(),1.);
+    }
+    //    if ( tkColl[3]->size() == 1 ) { 
+    reco::TrackCollection::const_iterator itk4 = tkColl[3]->begin();
+    reco::TrackCollection::const_iterator itk4_e = tkColl[3]->end();
+    for(;itk4!=itk4_e;++itk4){
+      fourthTracksvsEtaP[ievt]->Fill(etaGen,pGen,1.);
+      //      fourthTracksvsEtaP[ievt]->Fill(etaGen,pGen,tkColl[3]->size());
+      //      reco::TrackCollection::const_iterator itk = tkColl[3]->begin();
+      fourthHitsvsEta[ievt]->Fill(etaGen,itk4->found(),1.);
+      fourthHitsvsP[ievt]->Fill(pGen,itk4->found(),1.);
+      fourthLayersvsEta[ievt]->Fill(etaGen,itk4->hitPattern().trackerLayersWithMeasurement(),1.);
+      fourthLayersvsP[ievt]->Fill(pGen,itk4->hitPattern().trackerLayersWithMeasurement(),1.);
     }
 
     // Split 1st collection in two (triplets, then pairs)

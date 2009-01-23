@@ -5,8 +5,10 @@ from FastSimulation.Tracking.PixelVerticesProducer_cff import *
 from FastSimulation.Tracking.IterativeFirstTracking_cff import *
 from FastSimulation.Tracking.IterativeSecondTracking_cff import *
 from FastSimulation.Tracking.IterativeThirdTracking_cff import *
+from FastSimulation.Tracking.IterativeFourthTracking_cff import *
 from FastSimulation.Tracking.GeneralTracks_cfi import *
 from TrackingTools.TrackFitters.TrackFitters_cff import *
-iterativeTracking = cms.Sequence(pixelTracking+pixelVertexing+iterativeFirstTracking+iterativeSecondTracking+iterativeThirdTracking+generalTracks)
+iterativeTracking = cms.Sequence(pixelTracking+pixelVertexing+iterativeFirstTracking+iterativeSecondTracking+iterativeThirdTracking+iterativeFourthTracking+
+                                 generalTracks)
 
 

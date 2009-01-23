@@ -1,19 +1,21 @@
+
 #include <vector>
 
-void PlotGraphs( TH1F* fast, TH1F* full) {
+void PlotGraphs( TH1F* full, TH1F* fast) {
 
-  fast->SetMarkerColor(4);						
-  fast->SetLineColor(4);						  
-  fast->SetLineWidth(2);						  
-  fast->SetLineStyle(2);
-  fast->Draw();
-
-
-  full->SetMarkerStyle(25);						
-  full->SetMarkerColor(2);						
-  full->SetLineColor(2);						  
+  full->SetMarkerColor(4);						
+  full->SetLineColor(4);						  
   full->SetLineWidth(2);						  
-  full->Draw("same");
+  full->SetLineStyle(3);
+  //  full->SetMaximum(0.11);
+  full->Draw();
+
+
+  fast->SetMarkerStyle(25);						
+  fast->SetMarkerColor(2);						
+  fast->SetLineColor(2);						  
+  fast->SetLineWidth(2);						  
+  fast->Draw("same");
   
 }
 
@@ -73,6 +75,9 @@ void Efficiency(unsigned int iter) {
   } else if ( iter == 3 ) { 
     effFull = (TH2F*) gDirectory->Get("eff3Full");
     effFast = (TH2F*) gDirectory->Get("eff3Fast");
+  } else if ( iter == 4 ) { 
+    effFull = (TH2F*) gDirectory->Get("eff4Full");
+    effFast = (TH2F*) gDirectory->Get("eff4Fast");
   } else if ( iter == 11 ) { 
     effFull = (TH2F*) gDirectory->Get("eff1Full1");
     effFast = (TH2F*) gDirectory->Get("eff1Fast1");
@@ -120,6 +125,11 @@ void Efficiency(unsigned int iter) {
     full = (TH1F*) gDirectory->Get("eff3Full_px");
     fastp = (TH1F*) gDirectory->Get("eff3Fast_py");
     fullp = (TH1F*) gDirectory->Get("eff3Full_py");
+  } else if ( iter == 4 ) { 
+    fast = (TH1F*) gDirectory->Get("eff4Fast_px");
+    full = (TH1F*) gDirectory->Get("eff4Full_px");
+    fastp = (TH1F*) gDirectory->Get("eff4Fast_py");
+    fullp = (TH1F*) gDirectory->Get("eff4Full_py");
   } else if ( iter == 11 ) { 
     fast = (TH1F*) gDirectory->Get("eff1Fast1_px");
     full = (TH1F*) gDirectory->Get("eff1Full1_px");
@@ -196,6 +206,11 @@ void Hits(unsigned int iter) {
     hitsFastP = (TH2F*) gDirectory->Get("Hits3PFast");
     hitsFullEta = (TH2F*) gDirectory->Get("Hits3EtaFull");
     hitsFastEta = (TH2F*) gDirectory->Get("Hits3EtaFast");
+  } else if ( iter == 4 ) { 
+    hitsFullP = (TH2F*) gDirectory->Get("Hits4PFull");
+    hitsFastP = (TH2F*) gDirectory->Get("Hits4PFast");
+    hitsFullEta = (TH2F*) gDirectory->Get("Hits4EtaFull");
+    hitsFastEta = (TH2F*) gDirectory->Get("Hits4EtaFast");
   }
   for (unsigned imom=1;imom<6;++imom) {  
     hitsFullP->ProjectionY(titleFull[imom-1],20*(imom-1)+1,20*imom+1);
@@ -204,6 +219,7 @@ void Hits(unsigned int iter) {
     hitsFastEta->ProjectionY(titleFast[10-imom],3*(imom-1),max((unsigned int)28,30-3*(imom-1)));
     hitsFullEta->ProjectionY("cacaFull",3*imom,30-3*imom);
     hitsFastEta->ProjectionY("cacaFast",3*imom,30-3*imom);
+
     TH1F* fastP = (TH1F*) gDirectory->Get(titleFast[imom-1]);
     TH1F* fullP = (TH1F*) gDirectory->Get(titleFull[imom-1]);
     TH1F* fastEta = (TH1F*) gDirectory->Get(titleFast[10-imom]);
@@ -323,6 +339,11 @@ void Layers(unsigned int iter) {
     layersFastP = (TH2F*) gDirectory->Get("Layers3PFast");
     layersFullEta = (TH2F*) gDirectory->Get("Layers3EtaFull");
     layersFastEta = (TH2F*) gDirectory->Get("Layers3EtaFast");
+  } else if ( iter == 4 ) { 
+    layersFullP = (TH2F*) gDirectory->Get("Layers4PFull");
+    layersFastP = (TH2F*) gDirectory->Get("Layers4PFast");
+    layersFullEta = (TH2F*) gDirectory->Get("Layers4EtaFull");
+    layersFastEta = (TH2F*) gDirectory->Get("Layers4EtaFast");
   }
   for (unsigned imom=1;imom<6;++imom) {  
     layersFullP->ProjectionY(titleFull[imom-1],20*(imom-1)+1,20*imom+1);
@@ -360,9 +381,11 @@ void totalEfficiency(unsigned int iter) {
   TH2F* iter1Fast;
   TH2F* iter2Fast;
   TH2F* iter3Fast;
+  TH2F* iter4Fast;
   TH2F* iter1Full;
   TH2F* iter2Full;
   TH2F* iter3Full;
+  TH2F* iter4Full;
   TH2F* genPlot;
   genPlot = (TH2F*) gDirectory->Get("genEtaP");
   iter1Full = (TH2F*) gDirectory->Get("eff1Full");
@@ -371,6 +394,8 @@ void totalEfficiency(unsigned int iter) {
   iter2Fast = (TH2F*) gDirectory->Get("eff2Fast");
   iter3Full = (TH2F*) gDirectory->Get("eff3Full");
   iter3Fast = (TH2F*) gDirectory->Get("eff3Fast");
+  iter4Full = (TH2F*) gDirectory->Get("eff4Full");
+  iter4Fast = (TH2F*) gDirectory->Get("eff4Fast");
   
   TH1F* fast1;
   TH1F* full1;
@@ -378,6 +403,8 @@ void totalEfficiency(unsigned int iter) {
   TH1F* full2;
   TH1F* fast3;
   TH1F* full3;
+  TH1F* fast4;
+  TH1F* full4;
   TH1F* gen;
   TH1F* fastp1;
   TH1F* fullp1;
@@ -385,6 +412,8 @@ void totalEfficiency(unsigned int iter) {
   TH1F* fullp2;
   TH1F* fastp3;
   TH1F* fullp3;
+  TH1F* fastp4;
+  TH1F* fullp4;
   TH1F* genp;
   genPlot->ProjectionX();
   iter1Full->ProjectionX("iter1Full_px");
@@ -393,6 +422,8 @@ void totalEfficiency(unsigned int iter) {
   iter2Fast->ProjectionX("iter2Fast_px");
   iter3Full->ProjectionX("iter3Full_px");
   iter3Fast->ProjectionX("iter3Fast_px");
+  iter4Full->ProjectionX("iter4Full_px");
+  iter4Fast->ProjectionX("iter4Fast_px");
   genPlot->ProjectionY();
   iter1Full->ProjectionY("iter1Full_py");
   iter1Fast->ProjectionY("iter1Fast_py");
@@ -400,6 +431,8 @@ void totalEfficiency(unsigned int iter) {
   iter2Fast->ProjectionY("iter2Fast_py");
   iter3Full->ProjectionY("iter3Full_py");
   iter3Fast->ProjectionY("iter3Fast_py");
+  iter4Full->ProjectionY("iter4Full_py");
+  iter4Fast->ProjectionY("iter4Fast_py");
   fast1  = (TH1F*) gDirectory->Get("iter1Fast_px");
   full1  = (TH1F*) gDirectory->Get("iter1Full_px");
   fastp1 = (TH1F*) gDirectory->Get("iter1Fast_py");
@@ -412,16 +445,22 @@ void totalEfficiency(unsigned int iter) {
   full3  = (TH1F*) gDirectory->Get("iter3Full_px");
   fastp3 = (TH1F*) gDirectory->Get("iter3Fast_py");
   fullp3 = (TH1F*) gDirectory->Get("iter3Full_py");
+  fast4  = (TH1F*) gDirectory->Get("iter4Fast_px");
+  full4  = (TH1F*) gDirectory->Get("iter4Full_px");
+  fastp4 = (TH1F*) gDirectory->Get("iter4Fast_py");
+  fullp4 = (TH1F*) gDirectory->Get("iter4Full_py");
   gen = (TH1F*) gDirectory->Get("genEtaP_px");
   genp = (TH1F*) gDirectory->Get("genEtaP_py");
 
   if ( iter == 2 ) fast1 = fast2;
   if ( iter == 3 ) fast1 = fast3;
+  if ( iter == 4 ) fast1 = fast4;
   if ( iter > 11 ) fast1->Add(fast2);
   if ( iter > 12 ) fast1->Add(fast3);
   fast1->Divide(gen);
   if ( iter == 2 ) full1 = full2;
   if ( iter == 3 ) full1 = full3;
+  if ( iter == 4 ) full1 = full4;
   if ( iter > 11 ) full1->Add(full2);
   if ( iter > 12 ) full1->Add(full3);
   full1->Divide(gen);
@@ -430,11 +469,13 @@ void totalEfficiency(unsigned int iter) {
 
   if ( iter == 2 ) fastp1 = fastp2;
   if ( iter == 3 ) fastp1 = fastp3;
+  if ( iter == 4 ) fastp1 = fastp4;
   if ( iter > 11 ) fastp1->Add(fastp2);
   if ( iter > 12 ) fastp1->Add(fastp3);
   fastp1->Divide(genp);
   if ( iter == 2 ) fullp1 = fullp2;
   if ( iter == 3 ) fullp1 = fullp3;
+  if ( iter == 4 ) fullp1 = fullp4;
   if ( iter > 11 ) fullp1->Add(fullp2);
   if ( iter > 12 ) fullp1->Add(fullp3);
   fullp1->Divide(genp);
