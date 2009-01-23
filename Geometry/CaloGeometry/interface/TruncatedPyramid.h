@@ -74,6 +74,9 @@ class TruncatedPyramid : public CaloCellGeometry
 				 const HepTransform3D&       tr ,
 				 CornersVec&                 co   ) ;
 
+      virtual std::vector<HepPoint3D> vocalCorners( const double* pv,
+						    HepPoint3D&   ref ) const
+      { return localCorners( pv, ref ) ; }
 
       static std::vector<HepPoint3D> localCorners( const double* pv,
 						   HepPoint3D&   ref ) ;

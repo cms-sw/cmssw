@@ -24,6 +24,59 @@ namespace calogeom {
 			  z                       ) ;
    }
 
+
+   std::vector<HepPoint3D>
+   IdealObliquePrism::localCorners( const double* pv  ,
+				    HepPoint3D&   ref   )
+   {
+      assert( 0 != pv ) ;
+
+      const double dEta ( pv[0] ) ;
+      const double dPhi ( pv[1] ) ;
+      const double dz   ( pv[2] ) ;
+      const double eta  ( pv[3] ) ;
+      const double z    ( pv[4] ) ;
+
+      std::vector<GlobalPoint> gc ( 8, GlobalPoint(0,0,0) ) ;
+      std::vector<HepPoint3D>  lc ( 8, HepPoint3D( 0,0,0) ) ;
+
+      const GlobalPoint p ( etaPhiZ( eta, 0, z ) ) ;
+
+      if( 0 < dz )
+      {
+	 const float r_near ( p.perp()/cos( dPhi ) ) ;
+	 const float r_far  ( r_near*( ( p.mag() + 2*dz )/p.mag() ) ) ;
+	 gc[ 0 ] = etaPhiPerp( eta + dEta , +dPhi , r_near ) ; // (+,+,near)
+	 gc[ 1 ] = etaPhiPerp( eta + dEta , -dPhi , r_near ) ; // (+,-,near)
+	 gc[ 2 ] = etaPhiPerp( eta - dEta , -dPhi , r_near ) ; // (-,-,near)
+	 gc[ 3 ] = etaPhiPerp( eta - dEta , +dPhi , r_near ) ; // (-,+,far)
+	 gc[ 4 ] = etaPhiPerp( eta + dEta , +dPhi , r_far  ) ; // (+,+,far)
+	 gc[ 5 ] = etaPhiPerp( eta + dEta , -dPhi , r_far  ) ; // (+,-,far)
+	 gc[ 6 ] = etaPhiPerp( eta - dEta , -dPhi , r_far  ) ; // (-,-,far)
+	 gc[ 7 ] = etaPhiPerp( eta - dEta , +dPhi , r_far  ) ; // (-,+,far)
+      }
+      else
+      {
+	 const float z_near ( z ) ;
+	 const float z_far  ( z*( 1 - 2*dz/p.mag() ) ) ;
+	 gc[ 0 ] = etaPhiZ( eta + dEta , +dPhi , z_near ) ; // (+,+,near)
+	 gc[ 1 ] = etaPhiZ( eta + dEta , -dPhi , z_near ) ; // (+,-,near)
+	 gc[ 2 ] = etaPhiZ( eta - dEta , -dPhi , z_near ) ; // (-,-,near)
+	 gc[ 3 ] = etaPhiZ( eta - dEta , +dPhi , z_near ) ; // (-,+,far)
+	 gc[ 4 ] = etaPhiZ( eta + dEta , +dPhi , z_far  ) ; // (+,+,far)
+	 gc[ 5 ] = etaPhiZ( eta + dEta , -dPhi , z_far  ) ; // (+,-,far)
+	 gc[ 6 ] = etaPhiZ( eta - dEta , -dPhi , z_far  ) ; // (-,-,far)
+	 gc[ 7 ] = etaPhiZ( eta - dEta , +dPhi , z_far  ) ; // (-,+,far)
+      }
+      for( unsigned int i ( 0 ) ; i != 8 ; ++i )
+      {
+	 lc[i] = HepPoint3D( gc[i].x(), gc[i].y(), gc[i].z() ) ;
+      }
+
+      ref   = 0.25*( lc[0] + lc[1] + lc[2] + lc[3] ) ;
+      return lc ;
+   }
+
    const CaloCellGeometry::CornersVec& 
    IdealObliquePrism::getCorners() const
    {

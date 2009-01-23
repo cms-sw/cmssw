@@ -13,8 +13,8 @@
 
 Abstract base class for an individual cell's geometry.
     
-$Date: 2008/11/10 15:20:15 $
-$Revision: 1.14 $
+$Date: 2009/01/02 22:28:30 $
+$Revision: 1.15 $
 \author J. Mans, P. Meridiani
 */
 
@@ -61,9 +61,11 @@ class CaloCellGeometry
 
 
 //----------- only needed by specific utility; overloaded when needed ----
-      virtual HepTransform3D getTransform( std::vector<HepPoint3D>* lptr ) const 
-      { return HepTransform3D() ; }
+      virtual HepTransform3D getTransform( std::vector<HepPoint3D>* lptr ) const ;
 //------------------------------------------------------------------------
+
+      virtual std::vector<HepPoint3D> vocalCorners( const double* pv,
+						    HepPoint3D&   ref ) const = 0 ;
 
    protected:
 

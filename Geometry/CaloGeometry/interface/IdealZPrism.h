@@ -22,8 +22,8 @@ namespace calogeom
    front face of the prism.  Therefore, the only internally stored
    parameters are eta and phi HALF-widths and the tower z thickness.
 
-   $Date: 2007/10/21 16:07:34 $
-   $Revision: 1.4 $
+   $Date: 2008/11/10 15:20:15 $
+   $Revision: 1.5 $
    \author J. Mans - Minnesota
    */
    class IdealZPrism : public CaloCellGeometry 
@@ -44,6 +44,15 @@ namespace calogeom
 	 double dEta() const { return param()[0] ; }
 	 double dPhi() const { return param()[1] ; }
 	 double dz()   const { return param()[2] ; }
+	 double eta()  const { return param()[3] ; }
+	 double z()    const { return param()[4] ; }
+
+	 static std::vector<HepPoint3D> localCorners( const double* pv,
+						      HepPoint3D&   ref ) ;
+
+	 virtual std::vector<HepPoint3D> vocalCorners( const double* pv,
+						       HepPoint3D&   ref ) const 
+	 { return localCorners( pv, ref ) ; }
 
       private:
    };

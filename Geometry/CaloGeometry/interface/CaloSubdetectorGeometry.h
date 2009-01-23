@@ -15,8 +15,8 @@ Base class for a geometry container for a specific calorimetry
 subdetector.
 
 
-$Date: 2008/11/10 15:20:15 $
-$Revision: 1.19 $
+$Date: 2008/11/12 19:39:25 $
+$Revision: 1.20 $
 \author J. Mans - Minnesota
 */
 class CaloSubdetectorGeometry {
@@ -81,6 +81,7 @@ class CaloSubdetectorGeometry {
       void allocatePar( ParVec::size_type n, unsigned int m ) ;
 
       ParMgr* parMgr() { return m_parMgr ; }
+      const ParMgr* parMgrConst() const { return m_parMgr ; }
 
       ParVecVec&       parVecVec()       { return m_parVecVec ; }
       const ParVecVec& parVecVec() const { return m_parVecVec ; }

@@ -50,6 +50,8 @@ class EZMgrFL
       size_type subSize() const { return m_subSize ; }
       size_type size() const { return m_vec.size(); }
 
+      size_type vecSize() const { return m_vec.size() ; }
+
    private:
 
       EZMgrFL() ; //stop
