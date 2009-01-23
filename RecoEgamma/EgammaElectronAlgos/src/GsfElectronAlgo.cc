@@ -12,7 +12,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Thu july 6 13:22:06 CEST 2006
-// $Id: GsfElectronAlgo.cc,v 1.37 2008/12/17 00:31:08 charlot Exp $
+// $Id: GsfElectronAlgo.cc,v 1.39 2009/01/12 16:18:30 chamont Exp $
 //
 //
 
@@ -43,16 +43,9 @@
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
-#include "TrackingTools/PatternTools/interface/TransverseImpactPointExtrapolator.h"
-#include "TrackingTools/PatternTools/interface/TSCPBuilderNoMaterial.h"
-#include "TrackingTools/GsfTools/interface/MultiTrajectoryStateTransform.h"
-#include "TrackingTools/GsfTools/interface/GSUtilities.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
-#include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
-#include "TrackingTools/GsfTools/interface/GsfPropagatorAdapter.h"
-#include "TrackingTools/GsfTools/interface/MultiGaussianStateTransform.h"
-#include "TrackingTools/GsfTools/interface/MultiGaussianState1D.h"
-#include "TrackingTools/GsfTools/interface/GaussianSumUtilities1D.h"
+#include "TrackingTools/GsfTools/interface/MultiTrajectoryStateTransform.h"
+#include "TrackingTools/GsfTools/interface/MultiTrajectoryStateMode.h"
 
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
 
@@ -99,9 +92,7 @@ GsfElectronAlgo::GsfElectronAlgo
  {
   // this is the new version allowing to configurate the algo
   // interfaces still need improvement!!
-  mtsTransform_ = new MultiTrajectoryStateTransform ;
-  geomPropBw_ = 0 ;
-  geomPropFw_ = 0 ;
+  mtsTransform_ = 0 ;
 
   // get nested parameter set for the TransientInitialStateEstimator
   ParameterSet tise_params = conf.getParameter<ParameterSet>("TransientInitialStateEstimatorParameters") ;
@@ -115,26 +106,29 @@ GsfElectronAlgo::GsfElectronAlgo
 }
 
 GsfElectronAlgo::~GsfElectronAlgo() {
-  delete geomPropBw_;
-  delete geomPropFw_;
   delete mtsTransform_;
 }
 
 void GsfElectronAlgo::setupES(const edm::EventSetup& es) {
 
   // get EventSetupRecords if needed
+  bool updateField(false);
   if (cacheIDMagField_!=es.get<IdealMagneticFieldRecord>().cacheIdentifier()){
+    updateField = true;
     cacheIDMagField_=es.get<IdealMagneticFieldRecord>().cacheIdentifier();
     es.get<IdealMagneticFieldRecord>().get(theMagField);
-    if (geomPropBw_) delete geomPropBw_;
-    geomPropBw_ = new GsfPropagatorAdapter(AnalyticalPropagator(theMagField.product(), oppositeToMomentum));
-    if (geomPropFw_) delete geomPropFw_;
-    geomPropFw_ = new GsfPropagatorAdapter(AnalyticalPropagator(theMagField.product(), alongMomentum));
   }
 
+  bool updateGeometry(false);
   if (cacheIDTDGeom_!=es.get<TrackerDigiGeometryRecord>().cacheIdentifier()){
+    updateGeometry = true;
     cacheIDTDGeom_=es.get<TrackerDigiGeometryRecord>().cacheIdentifier();
     es.get<TrackerDigiGeometryRecord>().get(trackerHandle_);
+  }
+
+  if ( updateField || updateGeometry ) {
+    delete mtsTransform_;
+    mtsTransform_ = new MultiTrajectoryStateTransform(trackerHandle_.product(),theMagField.product());
   }
 
   if (cacheIDGeom_!=es.get<CaloGeometryRecord>().cacheIdentifier()){
@@ -246,7 +240,7 @@ void GsfElectronAlgo::process(
 
     // calculate Trajectory StatesOnSurface....
     if (!calculateTSOS(t,theClus, bsPosition)) continue;
-    vtxMom_=computeMode(vtxTSOS_);
+    mtsMode_->momentumFromModeCartesian(vtxTSOS_,vtxMom_);
     sclPos_=sclTSOS_.globalPosition();
 
     // hadronic energy
@@ -307,41 +301,6 @@ bool GsfElectronAlgo::preSelection(const SuperCluster& clus, double HoE1, double
 
 }
 
-GlobalVector GsfElectronAlgo::computeMode(const TrajectoryStateOnSurface &tsos) {
-
-  // mode computation for momentum cartesian co-ordinates
-  // change to 5D in local parameters??
-  float mode_Px = 0.;
-  float mode_Py = 0.;
-  float mode_Pz = 0.;
-  if ( tsos.isValid() ){
-    std::vector<TrajectoryStateOnSurface> components(tsos.components());
-    unsigned int numb = components.size();
-    std::vector<SingleGaussianState1D> pxStates; pxStates.reserve(numb);
-    std::vector<SingleGaussianState1D> pyStates; pyStates.reserve(numb);
-    std::vector<SingleGaussianState1D> pzStates; pzStates.reserve(numb);
-    for ( std::vector<TrajectoryStateOnSurface>::const_iterator ic=components.begin();
-	  ic!=components.end(); ++ic ) {
-      GlobalVector momentum(ic->globalMomentum());
-      AlgebraicSymMatrix66 cov(ic->cartesianError().matrix());
-      pxStates.push_back(SingleGaussianState1D(momentum.x(),cov(3,3),ic->weight()));
-      pyStates.push_back(SingleGaussianState1D(momentum.y(),cov(4,4),ic->weight()));
-      pzStates.push_back(SingleGaussianState1D(momentum.z(),cov(5,5),ic->weight()));
-    }
-    MultiGaussianState1D pxState(pxStates);
-    MultiGaussianState1D pyState(pyStates);
-    MultiGaussianState1D pzState(pzStates);
-    GaussianSumUtilities1D pxUtils(pxState);
-    GaussianSumUtilities1D pyUtils(pyState);
-    GaussianSumUtilities1D pzUtils(pzState);
-    mode_Px = pxUtils.mode().mean();
-    mode_Py = pyUtils.mode().mean();
-    mode_Pz = pzUtils.mode().mean();
-  } else edm::LogInfo("") << "tsos not valid!!";
-  return GlobalVector(mode_Px,mode_Py,mode_Pz);
-
-}
-
 // interface to be improved...
 void GsfElectronAlgo::createElectron
  ( const SuperClusterRef & scRef,
@@ -354,16 +313,21 @@ void GsfElectronAlgo::createElectron
    GsfElectronPtrCollection & outEle )
 
  {
-      GlobalVector innMom=computeMode(innTSOS_);
+      GlobalVector innMom;
+      mtsMode_->momentumFromModeCartesian(innTSOS_,innMom);
       GlobalPoint innPos=innTSOS_.globalPosition();
-      GlobalVector seedMom=computeMode(seedTSOS_);
+      GlobalVector seedMom;
+      mtsMode_->momentumFromModeCartesian(seedTSOS_,seedMom);
       GlobalPoint  seedPos=seedTSOS_.globalPosition();
-      GlobalVector eleMom=computeMode(eleTSOS_);
+      GlobalVector eleMom;
+      mtsMode_->momentumFromModeCartesian(eleTSOS_,eleMom);
       GlobalPoint  elePos=eleTSOS_.globalPosition();
-      GlobalVector sclMom=computeMode(sclTSOS_);
+      GlobalVector sclMom;
+      mtsMode_->momentumFromModeCartesian(sclTSOS_,sclMom);
 
       GlobalPoint  vtxPos=vtxTSOS_.globalPosition();
-      GlobalVector outMom=computeMode(outTSOS_);
+      GlobalVector outMom;
+      mtsMode_->momentumFromModeCartesian(outTSOS_,outMom);
       GlobalPoint  outPos=outTSOS_.globalPosition();
 
       // cluster shape
@@ -421,12 +385,11 @@ const BasicClusterRef GsfElectronAlgo::getEleBasicCluster(const GsfTrackRef &t, 
 
     BasicClusterRef eleRef;
     TrajectoryStateOnSurface tempTSOS;
-    TrajectoryStateOnSurface outTSOS
-      = mtsTransform_->outerStateOnSurface(*t, *(trackerHandle_.product()), theMagField.product());
+    TrajectoryStateOnSurface outTSOS = mtsTransform_->outerStateOnSurface(*t);
     float dphimin = 1.e30;
     for (basicCluster_iterator bc=scRef->clustersBegin(); bc!=scRef->clustersEnd(); bc++) {
       GlobalPoint posclu((*bc)->position().x(),(*bc)->position().y(),(*bc)->position().z());
-      tempTSOS = TransverseImpactPointExtrapolator(*geomPropFw_).extrapolate(outTSOS,posclu) ;
+      tempTSOS = mtsTransform_->extrapolatedState(outTSOS,posclu) ;
       if (!tempTSOS.isValid()) tempTSOS=outTSOS;
       GlobalPoint extrap = tempTSOS.globalPosition();
       float dphi = posclu.phi() - extrap.phi();
@@ -445,28 +408,28 @@ bool  GsfElectronAlgo::calculateTSOS(const GsfTrack &t,const SuperCluster & theC
 bsPosition){
 
     //at innermost point
-    innTSOS_ = mtsTransform_->innerStateOnSurface(t, *(trackerHandle_.product()), theMagField.product());
+    innTSOS_ = mtsTransform_->innerStateOnSurface(t);
     if (!innTSOS_.isValid()) return false;
 
     //at vertex
     // innermost state propagation to the beam spot position
-    vtxTSOS_
-      = TransverseImpactPointExtrapolator(*geomPropBw_).extrapolate(innTSOS_,GlobalPoint(bsPosition.x(),bsPosition.y(),bsPosition.z()));
+    vtxTSOS_ = mtsTransform_->extrapolatedState(innTSOS_,
+						GlobalPoint(bsPosition.x(),bsPosition.y(),bsPosition.z()));
     if (!vtxTSOS_.isValid()) vtxTSOS_=innTSOS_;
 
     //at seed
-    outTSOS_
-      = mtsTransform_->outerStateOnSurface(t, *(trackerHandle_.product()), theMagField.product());
+    outTSOS_ = mtsTransform_->outerStateOnSurface(t);
     if (!outTSOS_.isValid()) return false;
 
     //    TrajectoryStateOnSurface seedTSOS
-    seedTSOS_
-     = TransverseImpactPointExtrapolator(*geomPropFw_).extrapolate(outTSOS_,GlobalPoint(theClus.seed()->position().x(),theClus.seed()->position().y(),theClus.seed()->position().z()));
+    seedTSOS_ = mtsTransform_->extrapolatedState(outTSOS_,
+						 GlobalPoint(theClus.seed()->position().x(),
+							     theClus.seed()->position().y(),
+							     theClus.seed()->position().z()));
     if (!seedTSOS_.isValid()) seedTSOS_=outTSOS_;
 
     //at scl
-   sclTSOS_
-    = TransverseImpactPointExtrapolator(*geomPropFw_).extrapolate(innTSOS_,GlobalPoint(theClus.x(),theClus.y(),theClus.z()));
+    sclTSOS_ = mtsTransform_->extrapolatedState(innTSOS_,GlobalPoint(theClus.x(),theClus.y(),theClus.z()));
     if (!sclTSOS_.isValid()) sclTSOS_=outTSOS_;
     return true;
 }

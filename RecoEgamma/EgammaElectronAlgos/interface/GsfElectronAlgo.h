@@ -34,7 +34,7 @@
 #include <list>
 
 class MultiTrajectoryStateTransform;
-class GsfPropagatorAdapter;
+class MultiTrajectoryStateMode;
 
 class GsfElectronAlgo {
 
@@ -145,8 +145,7 @@ class GsfElectronAlgo {
     edm::ESHandle<TrackerGeometry>              trackerHandle_;
 
     const MultiTrajectoryStateTransform *mtsTransform_;
-    const GsfPropagatorAdapter *geomPropBw_;
-    const GsfPropagatorAdapter *geomPropFw_;
+    const MultiTrajectoryStateMode *mtsMode_;
 
     // internal variables
     int subdet_; //subdetector for this cluster
