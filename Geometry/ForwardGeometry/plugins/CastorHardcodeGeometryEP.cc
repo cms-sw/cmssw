@@ -1,3 +1,4 @@
+#include "Geometry/ForwardGeometry/interface/CastorGeometry.h"
 #include "Geometry/ForwardGeometry/plugins/CastorHardcodeGeometryEP.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -6,7 +7,8 @@ CastorHardcodeGeometryEP::CastorHardcodeGeometryEP(const edm::ParameterSet& iCon
 {
    //the following line is needed to tell the framework what
    // data is being produced
-   setWhatProduced(this,"CASTOR");
+   setWhatProduced( this, CastorGeometry::producerTag() );
+
    loader_=0;
 }
 

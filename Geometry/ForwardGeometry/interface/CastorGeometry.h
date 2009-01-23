@@ -1,32 +1,72 @@
 #ifndef Geometry_ForwardGeometry_CastorGeometry_h
 #define Geometry_ForwardGeometry_CastorGeometry_h 1
 
-#include "DataFormats/DetId/interface/DetId.h"
+#include "CondFormats/AlignmentRecord/interface/CastorAlignmentRcd.h"
+#include "DataFormats/HcalDetId/interface/HcalCastorDetId.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/ForwardGeometry/interface/CastorTopology.h"
+#include "Geometry/Records/interface/CastorGeometryRecord.h"
+#include "Geometry/Records/interface/PCastorRcd.h"
 
 #include <vector>
 
-class CastorGeometry : public CaloSubdetectorGeometry {
-public:
+class CastorGeometry : public CaloSubdetectorGeometry 
+{
+   public:
 
-  explicit CastorGeometry(const CastorTopology * topology);
-  virtual ~CastorGeometry();
+      typedef CastorAlignmentRcd   AlignmentRecord ;
+      typedef CastorGeometryRecord AlignedRecord   ;
+      typedef PCastorRcd           PGeometryRecord ;
+      typedef HcalCastorDetId      DetIdType       ;
+
+      enum { k_NumberOfCellsForCorners = HcalCastorDetId::kSizeForDenseIndexing } ;
+
+      enum { k_NumberOfShapes = 126 } ;
+
+      enum { k_NumberOfParametersPerShape = 5 } ;
+
+      static std::string dbString() { return "PCastorRcd" ; }
+
+      virtual unsigned int numberOfShapes() const { return k_NumberOfShapes ; }
+      virtual unsigned int numberOfParametersPerShape() const { return k_NumberOfParametersPerShape ; }
+
+      CastorGeometry() ;
+
+      explicit CastorGeometry(const CastorTopology * topology);
+      virtual ~CastorGeometry();
   
-  virtual const std::vector<DetId>& getValidDetIds( DetId::Detector det    = DetId::Detector ( 0 ) ,
-						    int             subdet = 0 ) const ;
+      virtual const std::vector<DetId>& getValidDetIds(
+	 DetId::Detector det    = DetId::Detector ( 0 ) ,
+	 int             subdet = 0 ) const ;
 
-  virtual DetId getClosestCell(const GlobalPoint& r) const ;
+      virtual DetId getClosestCell(const GlobalPoint& r) const ;
 
-      
-      virtual unsigned int numberOfShapes() const { return 2 ; }
-      virtual unsigned int numberOfParametersPerShape() const { return 3 ; }
+      static std::string producerTag() { return "CASTOR" ; }
+
+      static unsigned int numberOfAlignments() { return 0 ; }
+
+      static unsigned int alignmentTransformIndexLocal( const DetId& id ) ;
+
+      static unsigned int alignmentTransformIndexGlobal( const DetId& id ) ;
+
+      static std::vector<HepPoint3D> localCorners( const double* pv, 
+						   unsigned int  i,
+						   HepPoint3D&   ref ) ;
+
+      static CaloCellGeometry* newCell( const GlobalPoint& f1 ,
+					const GlobalPoint& f2 ,
+					const GlobalPoint& f3 ,
+					CaloCellGeometry::CornersMgr* mgr,
+					const double*      parm,
+					const DetId&       detId     ) ;
 
 private:
-  const CastorTopology * theTopology;
-  mutable DetId::Detector lastReqDet_;
-  mutable int lastReqSubdet_;
-  mutable std::vector<DetId> m_validIds;
+
+      const CastorTopology * theTopology;
+      mutable DetId::Detector lastReqDet_;
+      mutable int lastReqSubdet_;
+      mutable std::vector<DetId> m_validIds;
+      bool m_ownsTopology ;
 };
 
 

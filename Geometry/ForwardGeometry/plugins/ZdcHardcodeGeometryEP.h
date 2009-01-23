@@ -11,7 +11,6 @@
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/Records/interface/ZDCGeometryRecord.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/ForwardGeometry/interface/ZdcHardcodeGeometryLoader.h"
 
@@ -27,10 +26,7 @@ class ZdcHardcodeGeometryEP : public edm::ESProducer
 
       typedef boost::shared_ptr<CaloSubdetectorGeometry> ReturnType;
 
-      ReturnType produceAligned( const ZDCGeometryRecord&   ) ;
-      ReturnType produceIdeal(   const IdealGeometryRecord& ) ;
-
-      void       idealRecordCallBack( const IdealGeometryRecord& );
+      ReturnType produce( const ZDCGeometryRecord&   ) ;
 
    private:
 

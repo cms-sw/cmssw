@@ -9,6 +9,8 @@
 <use name=FWCore/Utilities>
 <use name=FWCore/MessageLogger>
 <use name=FWCore/ParameterSet>
+<use name=CondFormats/Alignment>
+<use name=CondFormats/GeometryObjects>
 <use name=zlib>
 
  <library file="*.cc" name=GeometryForwardGeometryPlugins>

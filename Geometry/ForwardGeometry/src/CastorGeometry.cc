@@ -1,16 +1,29 @@
+#include "Geometry/CaloGeometry/interface/CaloGenericDetId.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/ForwardGeometry/interface/CastorGeometry.h"
+#include "Geometry/ForwardGeometry/interface/IdealCastorTrapezoid.h"
 #include "CastorGeometryData.h"
 
-CastorGeometry::CastorGeometry(const CastorTopology * topology)
-: theTopology(topology), 
-  lastReqDet_(DetId::Detector(0)),
-  lastReqSubdet_(0)
+CastorGeometry::CastorGeometry() :
+   theTopology( new CastorTopology ), 
+   lastReqDet_(DetId::Detector(0)),
+   lastReqSubdet_(0),
+   m_ownsTopology ( true )
+{
+}
+
+CastorGeometry::CastorGeometry( const CastorTopology* topology ) :
+   theTopology(topology), 
+   lastReqDet_(DetId::Detector(0)),
+   lastReqSubdet_(0),
+   m_ownsTopology ( false )
 {
 }
 
 
-CastorGeometry::~CastorGeometry() {
+CastorGeometry::~CastorGeometry() 
+{
+   if( m_ownsTopology ) delete theTopology ;
 }
 
 const std::vector<DetId>& 
@@ -141,3 +154,44 @@ DetId CastorGeometry::getClosestCell(const GlobalPoint& r) const
 }
 
 
+
+unsigned int
+CastorGeometry::alignmentTransformIndexLocal( const DetId& id )
+{
+   const CaloGenericDetId gid ( id ) ;
+
+   assert( gid.isCastor() ) ;
+
+   unsigned int index ( 0 ) ;// to be implemented
+
+   return index ;
+}
+
+unsigned int
+CastorGeometry::alignmentTransformIndexGlobal( const DetId& id )
+{
+   return (unsigned int)DetId::Calo ;
+}
+
+std::vector<HepPoint3D> 
+CastorGeometry::localCorners( const double* pv,
+			      unsigned int  i,
+			      HepPoint3D&   ref )
+{
+   return ( calogeom::IdealCastorTrapezoid::localCorners( pv, ref ) ) ;
+}
+
+CaloCellGeometry* 
+CastorGeometry::newCell( const GlobalPoint& f1 ,
+			 const GlobalPoint& f2 ,
+			 const GlobalPoint& f3 ,
+			 CaloCellGeometry::CornersMgr* mgr,
+			 const double*      parm ,
+			 const DetId&       detId   ) 
+{
+   const CaloGenericDetId cgid ( detId ) ;
+   
+   assert( cgid.isCastor() ) ;
+
+   return ( new calogeom::IdealCastorTrapezoid( f1, mgr, parm ) ) ;
+}
