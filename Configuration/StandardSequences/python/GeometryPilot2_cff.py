@@ -16,10 +16,6 @@ from RecoTracker.GeometryESProducer.TrackerRecoGeometryESProducer_cfi import *
 from Geometry.MuonNumbering.muonNumberingInitialization_cfi import *
 from RecoMuon.DetLayers.muonDetLayerGeometry_cfi import *
 
-#L1
-from L1TriggerConfig.L1GeometryProducers.l1CaloGeometry_cfi import *
-from L1TriggerConfig.L1GeometryProducers.l1CaloGeomRecordSource_cff import *
-
 #  Alignment
 from Geometry.TrackerGeometryBuilder.idealForDigiTrackerGeometry_cff import *
 from Geometry.CSCGeometryBuilder.idealForDigiCscGeometry_cff import *
