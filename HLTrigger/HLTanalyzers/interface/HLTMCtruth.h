@@ -12,6 +12,8 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+#include "SimDataFormats/Track/interface/SimTrack.h"
+#include "SimDataFormats/Vertex/interface/SimVertex.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 
 #include "DataFormats/METReco/interface/CaloMETCollection.h"
@@ -33,6 +35,8 @@ public:
   /** Analyze the Data */
   void analyze(const edm::Handle<CandidateView> & mctruth,
 	       const edm::Handle<double>        & pthat,
+	       const edm::Handle<std::vector<SimTrack> > & simTracks,
+	       const edm::Handle<std::vector<SimVertex> > & simVertices,
 	       TTree* tree);
 
 private:
