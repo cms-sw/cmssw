@@ -157,7 +157,7 @@ bool CSCEfficiency::filter(Event & event, const EventSetup& eventSetup){
     if(track->normalizedChi2()>maxNormChi2){// quality
       break;
     }
-    DataFlow->Fill(3.);
+    DataFlow->Fill(4.);
     if(track->found()<minTrackHits){// enough data points
       break;
     }
@@ -238,19 +238,6 @@ bool CSCEfficiency::filter(Event & event, const EventSetup& eventSetup){
 	std::cout<<" dump base iStation detid  = "<<debug.dumpMuonId(detId)<<std::endl;
 	std::cout<<" dump FTS start  = "<<debug.dumpFTS(ftsStart)<<std::endl;
       }
-      const BoundPlane bp = cscGeom->idToDet(detId)->surface();
-      float zDistInner = track->innerPosition().z() - bp.position().z();
-      float zDistOuter = track->outerPosition().z() - bp.position().z();
-      //---- only detectors between the inner and outer points of the track are considered for non IP-data 
-      if(printalot){
-	std::cout<<" zIn = "<<track->innerPosition().z()<<" zOut = "<<track->outerPosition().z()<<" zSurf = "<<bp.position().z()<<std::endl;
-      }
-      if(!isIPdata && (zDistInner*zDistOuter>0. || fabs(zDistInner)<15. || fabs(zDistOuter)<15.)){ // for non IP-data
-	if(printalot){
-	  std::cout<<" Not an intermediate (as defined) point... Skip."<<std::endl;
-	}
-	continue;
-      }
       //---- propagate to this ME
       //tSOSDest = shPropTr->propagate(ftsStart, cscGeom->idToDet(detId)->surface());
       tSOSDest = propagate(ftsStart, cscGeom->idToDet(detId)->surface(), shProp_along, shProp_opposite, shProp_any);
@@ -286,6 +273,18 @@ bool CSCEfficiency::filter(Event & event, const EventSetup& eventSetup){
 	      const BoundPlane bpCh = cscGeom->idToDet(cscChamber->geographicalId())->surface();
 	      float zFTS = ftsStart.position().z();
 	      float dz = fabs(bpCh.position().z() - zFTS);
+	      float zDistInner = track->innerPosition().z() - bpCh.position().z();
+	      float zDistOuter = track->outerPosition().z() - bpCh.position().z();
+	      //---- only detectors between the inner and outer points of the track are considered for non IP-data
+	      if(printalot){
+		std::cout<<" zIn = "<<track->innerPosition().z()<<" zOut = "<<track->outerPosition().z()<<" zSurf = "<<bpCh.position().z()<<std::endl;
+	      }
+	      if(!isIPdata && (zDistInner*zDistOuter>0. || fabs(zDistInner)<15. || fabs(zDistOuter)<15.)){ // for non IP-data
+		if(printalot){
+		  std::cout<<" Not an intermediate (as defined) point... Skip."<<std::endl;
+		}
+		continue;
+	      }
 	      //---- propagate to the chamber (from this ME) if it is a different surface (odd/even chambers)
 	      if(dz>0.1){// i.e. non-zero (float 0 check is bad) 
 		//if(fabs(zChanmber - zFTS ) > 0.1){
